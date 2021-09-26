@@ -2,88 +2,144 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E365C433EF
-	for <linux-input@archiver.kernel.org>; Sat, 25 Sep 2021 22:29:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D314C433F5
+	for <linux-input@archiver.kernel.org>; Sun, 26 Sep 2021 15:20:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F8CA6108E
-	for <linux-input@archiver.kernel.org>; Sat, 25 Sep 2021 22:29:19 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 45F2760F21
+	for <linux-input@archiver.kernel.org>; Sun, 26 Sep 2021 15:20:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230078AbhIYWaw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 25 Sep 2021 18:30:52 -0400
-Received: from smtp-relay-canonical-1.canonical.com ([185.125.188.121]:36114
-        "EHLO smtp-relay-canonical-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230024AbhIYWaw (ORCPT
+        id S231929AbhIZPWd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Sep 2021 11:22:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60714 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231913AbhIZPWc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 25 Sep 2021 18:30:52 -0400
-Received: from localhost (1.general.cking.uk.vpn [10.172.193.212])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-1.canonical.com (Postfix) with ESMTPSA id 8B6AE41300;
-        Sat, 25 Sep 2021 22:29:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1632608955;
-        bh=FVGeqnEgyMleC6sn0Ws28qWQcVVfK0CJvV5kQ6UxFIo=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type;
-        b=YGD1e5CXoqJ16RoqSvLfkI9bxQrvTs9cbYGrQ/DLgo5+tnGFkBNVPCojma9BX7cE1
-         N8JOyerFdtP0z+TqsxP4dShQGUWmdNCw2rfLulCj4ZgxwjDXI3FHJIrO3Ayq53PVu8
-         rbOr38b54JMfEGVXh4tdmV+HHO3jDUIUiPmlrShADoobdatxszWmh6cjSjhHA6BMjN
-         OoCqgqHLsfaqEChRJi8iz8iEaG1cFPLPfUiQG4mzRIvZ/1ADOPSjOZp4GWRIYRSdjy
-         GkbN9MejD5YRmP17q79tq16D9WrhldiuM0XgiNlloTrjNllmhWtJNeU7h1ougKFlQm
-         z0YXTDYeIPYww==
-From:   Colin King <colin.king@canonical.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH][V2] HID:Thrustmaster: Initialized pointers with NULL rather than 0
-Date:   Sat, 25 Sep 2021 23:29:15 +0100
-Message-Id: <20210925222915.182365-1-colin.king@canonical.com>
+        Sun, 26 Sep 2021 11:22:32 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA43C061570
+        for <linux-input@vger.kernel.org>; Sun, 26 Sep 2021 08:20:55 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id x7so43266306edd.6
+        for <linux-input@vger.kernel.org>; Sun, 26 Sep 2021 08:20:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=timesys-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=SUtl4KaA0gQaAh/0S0kv+mfIE4z7L+9aOLKke40OQe0=;
+        b=Ofl3R0AR4/v4x6pfLqo7J4pQ5OMmohGXFziiEC8q6qh9m09nvpChYQlP1UksmKe9LM
+         tU9cJBebAPBI06L+nxyXU3/drGW5nWX5ZkeB1WhlNiTkFJX9Zc5du/l3EjimZmnw3GtJ
+         Y7CvFGTvlbC7WFVObrhefhqszESzPFRytF7rbmDbQRda+yG726GNPVkZv4qOaAxKxt/3
+         TiSwocrfTQAqhqbN2hggtJ8j6fPnjC3avXDRqCeS7zwvLMrrDOTvvNsPXgwSB9v7Z0oj
+         I0w0s1ZXMen+1vTTB41vk/m3mf+rhadXr0bBtCid25m2GW2YPOCfAlNJox1JrZQBlsNU
+         CH4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=SUtl4KaA0gQaAh/0S0kv+mfIE4z7L+9aOLKke40OQe0=;
+        b=Ui+gc+G3A5QlWXLmPl86tRJYQ/wfQZONPx89+MkC8UmJua8GPdrzkYIklHg/ziZ5yk
+         wXn+7OGoBcdK7ikHhSCMBF44dhIV8zKY0PKU8LKZrJOmXAZrplHTPsq6pTp/rqiHUHkC
+         ZgdXUpKfYVbG9Pi7TBt5eI7UzHCx2/0Zurz2QxemOTSAa6F7qrILpVkJtNuVD+iRr6zb
+         in5+iYLH5uNVRAgOz346hl/HL27zmIOTUdbqsNaEKpoNvVIt02lkQrsN3x9rtEVFBoPX
+         1Ih7TW7GBGsl0HkqMye01v2dV/2WMVNodzBAsGXN6Rjjsvav7ezmWztR7ARw61U2uCZX
+         6f2A==
+X-Gm-Message-State: AOAM531mpVlYOU7PPGo9ztFU2B0euS/e1mRkhLz92qCyLvH7uJzp9L/L
+        DWmhQYPumw3ElrgntvzgftLPBwvXFLpEkw==
+X-Google-Smtp-Source: ABdhPJzImYPkv3SKkI4sNSs46JZ0H1xItvE8hnJcnf+FP7X/rSpnBOOZkBwLwlqqMoyJhCnSz8rBLA==
+X-Received: by 2002:a50:d80e:: with SMTP id o14mr18226203edj.49.1632669653786;
+        Sun, 26 Sep 2021 08:20:53 -0700 (PDT)
+Received: from dfj.1.1.1.1 ([87.13.101.122])
+        by smtp.gmail.com with ESMTPSA id ba29sm9131320edb.5.2021.09.26.08.20.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Sep 2021 08:20:53 -0700 (PDT)
+From:   Angelo Dureghello <angelo.dureghello@timesys.com>
+To:     linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
+Cc:     Angelo Dureghello <angelo.dureghello@timesys.com>
+Subject: [PATCH] input: keyboard-matrix: add a function to reset input states
+Date:   Sun, 26 Sep 2021 17:18:47 +0200
+Message-Id: <20210926151847.337767-1-angelo.dureghello@timesys.com>
 X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+In some cases, at open(), when matrix_keypad_start() schedules
+matrix_keypad_scan(), some events may be fired, but they can't be
+grabbed from the event queue by evtest later on, since this
+condition causes a continuous event triggered.
 
-Pointers twi and tm_wheel should be initialized with NULL rather than 0.
-Fix these.
+Add a function to get (and align) button states at open without
+firing events at open stage.
 
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Angelo Dureghello <angelo.dureghello@timesys.com>
 ---
-V2: Fix tm_wheel too
----
- drivers/hid/hid-thrustmaster.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/keyboard/matrix_keypad.c | 37 ++++++++++++++++----------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
-index d44550aa8805..5bc9b7756183 100644
---- a/drivers/hid/hid-thrustmaster.c
-+++ b/drivers/hid/hid-thrustmaster.c
-@@ -205,7 +205,7 @@ static void thrustmaster_model_handler(struct urb *urb)
- 	struct tm_wheel *tm_wheel = hid_get_drvdata(hdev);
- 	uint16_t model = 0;
- 	int i, ret;
--	const struct tm_wheel_info *twi = 0;
-+	const struct tm_wheel_info *twi = NULL;
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index 30924b57058f..ce8cb09ee333 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -108,6 +108,24 @@ static void disable_row_irqs(struct matrix_keypad *keypad)
+ 	}
+ }
  
- 	if (urb->status) {
- 		hid_err(hdev, "URB to get model id failed with error %d\n", urb->status);
-@@ -272,7 +272,7 @@ static void thrustmaster_remove(struct hid_device *hdev)
- static int thrustmaster_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	int ret = 0;
--	struct tm_wheel *tm_wheel = 0;
-+	struct tm_wheel *tm_wheel = NULL;
++static inline void matrix_get_keys_state(struct matrix_keypad *keypad,
++					 uint32_t *states)
++{
++	int row, col;
++	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
++
++	states = states ?: keypad->last_key_state;
++
++	/* assert each column and read the row status out */
++	for (col = 0; col < pdata->num_col_gpios; col++) {
++		activate_col(pdata, col, true);
++		for (row = 0; row < pdata->num_row_gpios; row++)
++			states[col] |=
++				row_asserted(pdata, row) ? (1 << row) : 0;
++		activate_col(pdata, col, false);
++	}
++}
++
+ /*
+  * This gets the keys from keyboard and reports it to input subsystem
+  */
+@@ -126,17 +144,7 @@ static void matrix_keypad_scan(struct work_struct *work)
  
- 	ret = hid_parse(hdev);
- 	if (ret) {
+ 	memset(new_state, 0, sizeof(new_state));
+ 
+-	/* assert each column and read the row status out */
+-	for (col = 0; col < pdata->num_col_gpios; col++) {
+-
+-		activate_col(pdata, col, true);
+-
+-		for (row = 0; row < pdata->num_row_gpios; row++)
+-			new_state[col] |=
+-				row_asserted(pdata, row) ? (1 << row) : 0;
+-
+-		activate_col(pdata, col, false);
+-	}
++	matrix_get_keys_state(keypad, new_state);
+ 
+ 	for (col = 0; col < pdata->num_col_gpios; col++) {
+ 		uint32_t bits_changed;
+@@ -202,10 +210,11 @@ static int matrix_keypad_start(struct input_dev *dev)
+ 	mb();
+ 
+ 	/*
+-	 * Schedule an immediate key scan to capture current key state;
+-	 * columns will be activated and IRQs be enabled after the scan.
++	 * Reset current key state and activate columns and IRQs.
+ 	 */
+-	schedule_delayed_work(&keypad->work, 0);
++	matrix_get_keys_state(keypad, NULL);
++	activate_all_cols(keypad->pdata, true);
++	enable_row_irqs(keypad);
+ 
+ 	return 0;
+ }
 -- 
 2.32.0
 

@@ -2,41 +2,41 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F168C43217
-	for <linux-input@archiver.kernel.org>; Tue, 28 Sep 2021 05:55:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3129C433F5
+	for <linux-input@archiver.kernel.org>; Tue, 28 Sep 2021 05:57:57 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8980C611EF
-	for <linux-input@archiver.kernel.org>; Tue, 28 Sep 2021 05:55:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8E68E611CA
+	for <linux-input@archiver.kernel.org>; Tue, 28 Sep 2021 05:57:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238914AbhI1F5J (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 28 Sep 2021 01:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47472 "EHLO mail.kernel.org"
+        id S239434AbhI1F7e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 28 Sep 2021 01:59:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238869AbhI1F5G (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Sep 2021 01:57:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDBC1611CE;
-        Tue, 28 Sep 2021 05:55:26 +0000 (UTC)
+        id S239202AbhI1F6l (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 28 Sep 2021 01:58:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58FFE611F0;
+        Tue, 28 Sep 2021 05:56:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1632808526;
-        bh=IGAmy8EHtpG3/cXS3+JNmnGHYOY3G8U95yyMeAbJOmI=;
+        s=k20201202; t=1632808606;
+        bh=1BDI3ZVdJ/s08tnw6uvuhb79UtVnXik7lPZ9T5LzB1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PvAmGva5VfRUhactKAbiJ7jleURwJyzY/22qwaVQvwneoBhdOJzAh1ijYsgf+/vMC
-         oqeM26eMkcNzkexVRzZoG9/lzXr1No88h38nr44j1TMmaSnG+EJMRRmGyncb2+lnQV
-         F4OKYKeOuazgTz3ETH0pJtzJMvz7DgaOQDxYOBmDRqa1YRPP6ISz4NELLU+e06vAPu
-         oq/u2+0elZBZMeaV21+QPDzU+Gs1yspE9E9ukWuoVCtUpstiG7TaDhONwYISaZQP2l
-         Xygp4yHr2hArnQVzzoGy9Z7qvMhRw4msfjVGKxa1HMZOmK658k/5uKztEiMF72mpXO
-         zCc0+N7t2tbew==
+        b=Z0mhbLSnwWfagD7iAOMbwHXpHZWKMHY1YZRh6mqC5VJQWfC2y9yLHh2Ck2kRxpJEQ
+         dAlonYEwzju+qH7Umm3RyHZTlsblvepPsrght5uMuJYBsZSWwUCaCBwUFgQtPg2B4F
+         n+5qCeDqJt2nNhFVQ2Oh1Z8Wz3s30nmX7nwmP6IT9SjeDBubwxNabJoumM+A/gCHkL
+         YbOEkAkZs2pxpFuLrc2GWvAjhJWUr/i6e4YoFJt6L1SqW22mykVTbJ6mllQ2pQeZK2
+         ZaBPPwGMzsDc3i327xMbBsSjkhjsEUudoYSzkBJWrLi6zS42ABUMWvIFEAP8E0D2vk
+         mnPL2/FFX76+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>, mgross@linux.intel.com,
         linux-input@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 04/40] platform/x86: touchscreen_dmi: Update info for the Chuwi Hi10 Plus (CWI527) tablet
-Date:   Tue, 28 Sep 2021 01:54:48 -0400
-Message-Id: <20210928055524.172051-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 03/23] platform/x86: touchscreen_dmi: Update info for the Chuwi Hi10 Plus (CWI527) tablet
+Date:   Tue, 28 Sep 2021 01:56:24 -0400
+Message-Id: <20210928055645.172544-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20210928055524.172051-1-sashal@kernel.org>
-References: <20210928055524.172051-1-sashal@kernel.org>
+In-Reply-To: <20210928055645.172544-1-sashal@kernel.org>
+References: <20210928055645.172544-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -67,7 +67,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 13 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index 1f9cb756b103..033f797861d8 100644
+index 4f5d53b585db..59b7e90cd587 100644
 --- a/drivers/platform/x86/touchscreen_dmi.c
 +++ b/drivers/platform/x86/touchscreen_dmi.c
 @@ -100,10 +100,10 @@ static const struct ts_dmi_data chuwi_hi10_air_data = {

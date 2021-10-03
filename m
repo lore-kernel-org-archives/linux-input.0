@@ -2,114 +2,88 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C22ADC433EF
-	for <linux-input@archiver.kernel.org>; Sun,  3 Oct 2021 00:00:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ABD8C433F5
+	for <linux-input@archiver.kernel.org>; Sun,  3 Oct 2021 21:52:58 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8E2A461A6E
-	for <linux-input@archiver.kernel.org>; Sun,  3 Oct 2021 00:00:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CFE5E6120F
+	for <linux-input@archiver.kernel.org>; Sun,  3 Oct 2021 21:52:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234216AbhJCACL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 2 Oct 2021 20:02:11 -0400
-Received: from mail-io1-f69.google.com ([209.85.166.69]:37562 "EHLO
-        mail-io1-f69.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234115AbhJCACL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 2 Oct 2021 20:02:11 -0400
-Received: by mail-io1-f69.google.com with SMTP id e68-20020a6bb547000000b005d06de54ab7so12497580iof.4
-        for <linux-input@vger.kernel.org>; Sat, 02 Oct 2021 17:00:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
-        bh=sPeIva6CL4KxHHY2Q9g7Nyxavqi4qBd+jB20UI/S2c4=;
-        b=wThp3PJepec3GBLZGJ+0fVsImwwrebi8j5ezBK4c5Iril5gcCt7m9hmcbAoyXUBHcF
-         /yqOfZFo21bIdFVLBLJxv43/JC2/1eMONRJcr3euLSiuXps/KbpRfgCJa2kPN8B0Qeit
-         1nfnGXEd0vSEbZuzJ/Va2NhUPwCVsVxevHpRZbZegWIBtxlsfyNzIU0pqcxnFwBiJ5j8
-         xHbNnicKxZVD+aOABLWlbrKuQ+7YktQAcHtK3ecaZHrU2A3+z7URprdY23QhxU+JyBcd
-         af3wBcpFCvJXHy225MHtsAlDiiqvBNs9q+7XlSYmY8d5DpIZna18qtyl0Ace1kwRuUSd
-         pFqQ==
-X-Gm-Message-State: AOAM5334xOfvm0OrhZvXlGyU+pqFfIE4pcVooC/NKVFAuW6FjxHyh5Yc
-        5yZ5IA3/Pt7f9iwUp020MevzjSquVBgavJjRx7oJjKdBuwv9
-X-Google-Smtp-Source: ABdhPJxvfwCLzVRPax7yt+SgISALSJepNIKSfexzTyocoJXjMAU86DM5w5fjC6wPN2yTzb2uavDKrFJJUKNDsK/0UnWs615TFQQx
+        id S231785AbhJCVyo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 3 Oct 2021 17:54:44 -0400
+Received: from smtpq2.tb.ukmail.iss.as9143.net ([212.54.57.97]:59604 "EHLO
+        smtpq2.tb.ukmail.iss.as9143.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231748AbhJCVyo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 3 Oct 2021 17:54:44 -0400
+Received: from [212.54.57.107] (helo=csmtp3.tb.ukmail.iss.as9143.net)
+        by smtpq2.tb.ukmail.iss.as9143.net with esmtp (Exim 4.86_2)
+        (envelope-from <gareth.randall@virgin.net>)
+        id 1mX9Pj-0001jU-E2
+        for linux-input@vger.kernel.org; Sun, 03 Oct 2021 23:52:55 +0200
+Received: from Gareths-MacBook-Air.local ([94.175.123.86])
+        by cmsmtp with ESMTPA
+        id X9PjmbEmwbkrTX9PjmcZbZ; Sun, 03 Oct 2021 23:52:55 +0200
+X-Originating-IP: [94.175.123.86]
+X-Authenticated-Sender: gareth.randall@virgin.net
+X-Spam: 0
+X-Authority: v=2.4 cv=OYD7sjfY c=1 sm=1 tr=0 ts=615a2637 cx=a_exe
+ a=mwdPpgLduwvwBeoi1XfOCA==:117 a=mwdPpgLduwvwBeoi1XfOCA==:17
+ a=IkcTkHD0fZMA:10 a=8gfv0ekSlNoA:10 a=xh9-zwYpyvl_0m1RXDsA:9 a=QEXdDO2ut3YA:10
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virgin.net;
+        s=meg.feb2017; t=1633297975;
+        bh=4hDU6reULa8zKa4tfF0uJoTTpZ75y1D09A7gn2RU9+Y=;
+        h=From:Subject:To:Date;
+        b=bIy5y56jXHYCUBaa8JUvcRC/xeh4GaoAmhD4hP0GI9fwhUyWyttIstRckavuoCpaU
+         kU0C/pckKwLbi58lXPr77pWLEXwPXT0PNAFOkFqKgJhtVARAFDMluCkJ8iQaT3bOGT
+         h73BKeIe5HRAx56zUe4r8WMWjGRxvYRI9iMjib/PXXowbOIglAdajkmVZ7YXYCs5rv
+         3Rjwqi5SOpHDzbRy6IqwEq0Ys/FxOPw+6l2sVFhhH0Rj6LSfHHTfP1p57D2QqNJHwe
+         fD5t3H/bReeparWBvGeG7gbbXZ2pKHVI04U9XVwNMH5iOCd0/KT28QpUpNwemmZig4
+         8IVPPohufUB+Q==
+From:   Gareth Randall <gareth.randall@virgin.net>
+Subject: [PATCH RESEND 0/1] Add support for touch screens using the General
+ Touch ST6001S controller.
+To:     linux-input@vger.kernel.org
+Message-ID: <ac6ad041-c57f-2850-b244-a332c980f154@virgin.net>
+Date:   Sun, 3 Oct 2021 22:52:55 +0100
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.14.0
 MIME-Version: 1.0
-X-Received: by 2002:a05:6638:1929:: with SMTP id p41mr4644047jal.21.1633219224944;
- Sat, 02 Oct 2021 17:00:24 -0700 (PDT)
-Date:   Sat, 02 Oct 2021 17:00:24 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000be49b905cd677b9a@google.com>
-Subject: [syzbot] WARNING in atp_close (3)
-From:   syzbot <syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com>
-To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-GB
+Content-Transfer-Encoding: 7bit
+X-CMAE-Envelope: MS4xfKE9rWJt/qzkM073SA5yBry6AsaCLOdRA01xVrElt9KHn0fK5fHlVBHD6x3YcDp8dZ7+oXeZs3my0oq4wtDEs7iPKE6ZfRVHCNct9gz52JvGpEzIMoEo
+ djXzcMHVODI187OtOENE6PGAD5YAp6NFP0OmBHKLKA5qcC6+yv9UjnX7D5qSS81BclnCyLVJG28iFuK0teTi/ym1JR8f2w3lMa+fVxr/KCliL3pbYXOrfkAa
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello,
-
-syzbot found the following issue on:
-
-HEAD commit:    bf5b1e621a51 Add linux-next specific files for 20210927
-git tree:       linux-next
-console output: https://syzkaller.appspot.com/x/log.txt?x=11cc5bd3300000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=4b58fe22c337ee4a
-dashboard link: https://syzkaller.appspot.com/bug?extid=b88c5eae27386b252bbd
-compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-
-Unfortunately, I don't have any reproducer for this issue yet.
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+b88c5eae27386b252bbd@syzkaller.appspotmail.com
-
-------------[ cut here ]------------
-WARNING: CPU: 1 PID: 11843 at kernel/workqueue.c:3074 __flush_work+0x928/0xb10 kernel/workqueue.c:3074
-Modules linked in:
-CPU: 1 PID: 11843 Comm: syz-executor.3 Not tainted 5.15.0-rc3-next-20210927-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:__flush_work+0x928/0xb10 kernel/workqueue.c:3074
-Code: ff 41 89 c4 89 8d 88 fe ff ff e8 a3 67 70 00 48 0f ba 2b 03 e9 6a fa ff ff e8 e4 1e 2a 00 0f 0b e9 5a fc ff ff e8 d8 1e 2a 00 <0f> 0b 45 31 f6 e9 4b fc ff ff e8 f9 63 70 00 e9 3a fb ff ff e8 bf
-RSP: 0018:ffffc90005887b38 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: ffff88801a7a9290 RCX: 0000000000000000
-RDX: ffff88801f37d700 RSI: ffffffff814c22c8 RDI: 0000000000000003
-RBP: ffffc90005887cd0 R08: 0000000000000000 R09: 0000000000000001
-R10: ffffffff814c1a45 R11: 0000000000000000 R12: dffffc0000000000
-R13: 1ffff92000b10f9d R14: 0000000000000001 R15: ffff88801a7a92a8
-FS:  0000555555bf1400(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007eff33b21000 CR3: 000000001a6b9000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- __cancel_work_timer+0x3f9/0x570 kernel/workqueue.c:3170
- atp_close+0x5e/0xa0 drivers/input/mouse/appletouch.c:812
- input_close_device+0x156/0x1f0 drivers/input/input.c:687
- evdev_close_device drivers/input/evdev.c:414 [inline]
- evdev_release+0x34c/0x410 drivers/input/evdev.c:456
- __fput+0x288/0x9f0 fs/file_table.c:280
- task_work_run+0xdd/0x1a0 kernel/task_work.c:164
- tracehook_notify_resume include/linux/tracehook.h:189 [inline]
- exit_to_user_mode_loop kernel/entry/common.c:175 [inline]
- exit_to_user_mode_prepare+0x27e/0x290 kernel/entry/common.c:207
- __syscall_exit_to_user_mode_work kernel/entry/common.c:289 [inline]
- syscall_exit_to_user_mode+0x19/0x60 kernel/entry/common.c:300
- do_syscall_64+0x42/0xb0 arch/x86/entry/common.c:86
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7eff339d351b
-Code: 0f 05 48 3d 00 f0 ff ff 77 45 c3 0f 1f 40 00 48 83 ec 18 89 7c 24 0c e8 63 fc ff ff 8b 7c 24 0c 41 89 c0 b8 03 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 35 44 89 c7 89 44 24 0c e8 a1 fc ff ff 8b 44
-RSP: 002b:00007ffc6d17d160 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
-RAX: 0000000000000000 RBX: 0000000000000005 RCX: 00007eff339d351b
-RDX: 00007eff33b291e0 RSI: ffffffff89327541 RDI: 0000000000000004
-RBP: 0000000000000001 R08: 0000000000000000 R09: 0000001b2d422e74
-R10: 0000000000001f81 R11: 0000000000000293 R12: 0000000000043109
-R13: 00000000000003e8 R14: 00007eff33b24f60 R15: 0000000000042b7f
- </TASK>
+Add support for touch screens using the General Touch ST6001S
+controller, as found in the GPEG model AOD22WZ-ST monitor.
+This controller can output the ELO 10-byte protocol,
+but requires different initialisation.
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+However, I would like some advice from the maintainers:
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+Where my patch contains the following lines, I have set them to match a 
+22 inch screen (GPEG model AOD22WZ-ST) that I have been working on, 
+based on me moving my finger and watching the position of the mouse 
+pointer in X-windows. Are the maintainers satisfied with this or should 
+there also be an option to specify them as kernel parameters?
+
++       // Values taken from a GPEG model AOD22WZ-ST monitor
++       input_set_abs_params(dev, ABS_X, 1365, 5828, 0, 0);
++       // max and min inverted because screen axis is inverted
++       input_set_abs_params(dev, ABS_Y, 5013, 2260, 0, 0);
+
+Note also that the /bin/inputattach command must be extended to support 
+using the newly added elo->id value (id=4). I can post my changes to 
+this to assist those reviewing this patch but have not here as I'm 
+trying to stick to the patch email format.
+
+Thank you for your consideration.
+
+
+  drivers/input/touchscreen/elo.c | 58 +++++++++++++++++++++++++++++++++
+  1 file changed, 58 insertions(+)
+

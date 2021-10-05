@@ -2,165 +2,145 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3957C433EF
-	for <linux-input@archiver.kernel.org>; Sun,  3 Oct 2021 21:54:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB3F6C433FE
+	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:50:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C275661354
-	for <linux-input@archiver.kernel.org>; Sun,  3 Oct 2021 21:54:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9ABA161880
+	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:50:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231790AbhJCV4L (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 3 Oct 2021 17:56:11 -0400
-Received: from smtpq1.tb.ukmail.iss.as9143.net ([212.54.57.96]:60844 "EHLO
-        smtpq1.tb.ukmail.iss.as9143.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231583AbhJCV4L (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Sun, 3 Oct 2021 17:56:11 -0400
-Received: from [212.54.57.110] (helo=csmtp6.tb.ukmail.iss.as9143.net)
-        by smtpq1.tb.ukmail.iss.as9143.net with esmtp (Exim 4.86_2)
-        (envelope-from <gareth.randall@virgin.net>)
-        id 1mX9R8-0003R0-8X
-        for linux-input@vger.kernel.org; Sun, 03 Oct 2021 23:54:22 +0200
-Received: from Gareths-MacBook-Air.local ([94.175.123.86])
-        by cmsmtp with ESMTPA
-        id X9R8mAQvgRdC9X9R8moClu; Sun, 03 Oct 2021 23:54:22 +0200
-X-Originating-IP: [94.175.123.86]
-X-Authenticated-Sender: gareth.randall@virgin.net
-X-Spam: 0
-X-Authority: v=2.4 cv=Kp8uZUaN c=1 sm=1 tr=0 ts=615a268e cx=a_exe
- a=mwdPpgLduwvwBeoi1XfOCA==:117 a=mwdPpgLduwvwBeoi1XfOCA==:17
- a=IkcTkHD0fZMA:10 a=8gfv0ekSlNoA:10 a=f6pUZMUfAAAA:8 a=AQyDKTjgcIxoYc0FscwA:9
- a=QEXdDO2ut3YA:10 a=eZImKStj3dtCS-zw9-0K:22
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virgin.net;
-        s=meg.feb2017; t=1633298062;
-        bh=0hXhVKqtDgwXg8tz6rLAba6SdbyuvqmGa6REw481mzA=;
-        h=To:From:Subject:Date;
-        b=kNJ8CtS7MswJLfUSkAoHER2FvB1rl9RaHOun1sx+j0fubfTo8hvUPeJQbCiUBdEK7
-         wP5/Shfj+Fc1RC3Ax6BHtzNKIjwdRIQP1eMLRWLSDQggDGxo/Z7A0BygWM7NBnMtnW
-         8Sks0zHiPcTI2bpK3MguyEuQ86Wt+vRyFcy1WbvxbwVw4BtY4LYoi+Da50W+mkZ4Vq
-         nM8OBJvTWk/C1LWubdNk28HqxdquBvi9K0y66v93iu4TBGXeqECMTQNiA7uuBLh6sD
-         w5qpUy8mad55S4UcDzj5OTwizCpLp54qev9pyeDgsTKTKvMOEUk4FHa3AnijwJdZxE
-         2/g5K/+cboVOw==
-To:     linux-input@vger.kernel.org
-From:   Gareth Randall <gareth.randall@virgin.net>
-Subject: [PATCH RESEND 1/1] Add support for touch screens using the General
- Touch ST6001S controller.
-Message-ID: <b7687459-1665-eb1c-b8ad-2bb37b7136ac@virgin.net>
-Date:   Sun, 3 Oct 2021 22:54:21 +0100
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
+        id S235395AbhJENwl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 5 Oct 2021 09:52:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235401AbhJENwh (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:52:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C662061507;
+        Tue,  5 Oct 2021 13:50:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1633441846;
+        bh=YTbHAH8Ua0A1AFT7YLouuXcef6ol2k5GX5NuXWheHAA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=WEj+hRu7aGcRxzvfMv5J2pNxZEWGwmoUPLJhT28zAbeSMMozx4DGb8qOTpz1OScAy
+         cxpSXTmQss+HgFRNdsWeFnUP0V+PAYYG7EyMMq7ZLm78w+s1n7VN8xncmH437Lx919
+         UZ+OqU/A+O7i7oMYQ2nrrGlzTESNb1lUllKLz9T8tS0Gbl4M4BRF28ZzMSbih02iVo
+         kdo8Ix67/Ygpis5WNvfH0JwISS4IDTjuA60AfjwcGxqCzhbOzKljVVKHmMg4eIEnN3
+         9MEt7oGaDcF95O8XNzkx+N+tGJqXwzA+2eCHcFvXQh5KW3mk/Hm1QJRknCShFynre0
+         zrwpGvOcvXKbA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Mizuho Mori <morimolymoly@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.14 11/40] HID: apple: Fix logical maximum and usage maximum of Magic Keyboard JIS
+Date:   Tue,  5 Oct 2021 09:49:50 -0400
+Message-Id: <20211005135020.214291-11-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
+References: <20211005135020.214291-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 7bit
-X-CMAE-Envelope: MS4xfMW9v47gqOTburMQ+zCocAdArSZkkiI3p0cYrGWuZe/wW+E4xUVdXDvHZcfbUmqgXOYmqbQNaKEtKPbBC7cQo7mgdwI+h7za/UmlN5pHUJ5ubMcUC+0U
- cO/gGbdwi/tO2fbaN01WJh6NH8ySWSosW3/xLnE2ytzVVgMWhuu0y4cNC1vtr9FpTGqzQDJq81BXRUbPOPZ54PPvmgZYPZkrW45IcI/Sn7TgdTN1jRWjIkKA
+Content-Type: text/plain; charset=UTF-8
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support for touch screens using the General Touch ST6001S
-controller, as found in the GPEG model AOD22WZ-ST monitor.
-This controller can output the ELO 10-byte protocol,
-but requires different initialisation.
+From: Mizuho Mori <morimolymoly@gmail.com>
 
-Signed-off-by: Gareth Randall <gareth@garethrandall.com>
+[ Upstream commit 67fd71ba16a37c663d139f5ba5296f344d80d072 ]
+
+Apple Magic Keyboard(JIS)'s Logical Maximum and Usage Maximum are wrong.
+
+Below is a report descriptor.
+
+0x05, 0x01,         /*  Usage Page (Desktop),                           */
+0x09, 0x06,         /*  Usage (Keyboard),                               */
+0xA1, 0x01,         /*  Collection (Application),                       */
+0x85, 0x01,         /*      Report ID (1),                              */
+0x05, 0x07,         /*      Usage Page (Keyboard),                      */
+0x15, 0x00,         /*      Logical Minimum (0),                        */
+0x25, 0x01,         /*      Logical Maximum (1),                        */
+0x19, 0xE0,         /*      Usage Minimum (KB Leftcontrol),             */
+0x29, 0xE7,         /*      Usage Maximum (KB Right GUI),               */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x95, 0x08,         /*      Report Count (8),                           */
+0x81, 0x02,         /*      Input (Variable),                           */
+0x95, 0x05,         /*      Report Count (5),                           */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x05, 0x08,         /*      Usage Page (LED),                           */
+0x19, 0x01,         /*      Usage Minimum (01h),                        */
+0x29, 0x05,         /*      Usage Maximum (05h),                        */
+0x91, 0x02,         /*      Output (Variable),                          */
+0x95, 0x01,         /*      Report Count (1),                           */
+0x75, 0x03,         /*      Report Size (3),                            */
+0x91, 0x03,         /*      Output (Constant, Variable),                */
+0x95, 0x08,         /*      Report Count (8),                           */
+0x75, 0x01,         /*      Report Size (1),                            */
+0x15, 0x00,         /*      Logical Minimum (0),                        */
+0x25, 0x01,         /*      Logical Maximum (1),                        */
+
+here is a report descriptor which is parsed one in kernel.
+see sys/kernel/debug/hid/<dev>/rdesc
+
+05 01 09 06 a1 01 85 01 05 07
+15 00 25 01 19 e0 29 e7 75 01
+95 08 81 02 95 05 75 01 05 08
+19 01 29 05 91 02 95 01 75 03
+91 03 95 08 75 01 15 00 25 01
+06 00 ff 09 03 81 03 95 06 75
+08 15 00 25 [65] 05 07 19 00 29
+[65] 81 00 95 01 75 01 15 00 25
+01 05 0c 09 b8 81 02 95 01 75
+01 06 01 ff 09 03 81 02 95 01
+75 06 81 03 06 02 ff 09 55 85
+55 15 00 26 ff 00 75 08 95 40
+b1 a2 c0 06 00 ff 09 14 a1 01
+85 90 05 84 75 01 95 03 15 00
+25 01 09 61 05 85 09 44 09 46
+81 02 95 05 81 01 75 08 95 01
+15 00 26 ff 00 09 65 81 02 c0
+00
+
+Position 64(Logical Maximum) and 70(Usage Maximum) are 101.
+Both should be 0xE7 to support JIS specific keys(ろ, Eisu, Kana, |) support.
+position 117 is also 101 but not related(it is Usage 65h).
+
+There are no difference of product id between JIS and ANSI.
+They are same 0x0267.
+
+Signed-off-by: Mizuho Mori <morimolymoly@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
-  drivers/input/touchscreen/elo.c | 58 +++++++++++++++++++++++++++++++++
-  1 file changed, 58 insertions(+)
+ drivers/hid/hid-apple.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/input/touchscreen/elo.c 
-b/drivers/input/touchscreen/elo.c
-index 96173232e53f..8c15e0eea6b4 100644
---- a/drivers/input/touchscreen/elo.c
-+++ b/drivers/input/touchscreen/elo.c
-@@ -44,6 +44,8 @@ MODULE_LICENSE("GPL");
-  #define ELO10_ACK_PACKET	'A'
-  #define ELI10_ID_PACKET		'I'
-
-+#define ELO_GT_INIT_PACKET	"\001XfE\r"
-+
-  /*
-   * Per-touchscreen data.
-   */
-@@ -201,6 +203,7 @@ static irqreturn_t elo_interrupt(struct serio *serio,
-
-  	switch (elo->id) {
-  	case 0:
-+	case 4:
-  		elo_process_data_10(elo, data);
-  		break;
-
-@@ -255,6 +258,54 @@ static int elo_command_10(struct elo *elo, unsigned 
-char *packet)
-  	return rc;
-  }
-
-+/*
-+ * Initialise the General Touch ST6001S controller.
-+ */
-+static int elo_command_10_gt(struct elo *elo)
-+{
-+	int rc = -1;
-+	int i;
-+	unsigned char *packet = ELO_GT_INIT_PACKET;
-+
-+	mutex_lock(&elo->cmd_mutex);
-+
-+	serio_pause_rx(elo->serio);
-+	init_completion(&elo->cmd_done);
-+	serio_continue_rx(elo->serio);
-+
-+	for (i = 0; i < (int)strlen(packet); i++) {
-+		if (serio_write(elo->serio, packet[i]))
-+			goto out;
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index dc6bd4299c54..87edcd4ce07c 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -322,12 +322,19 @@ static int apple_event(struct hid_device *hdev, struct hid_field *field,
+ 
+ /*
+  * MacBook JIS keyboard has wrong logical maximum
++ * Magic Keyboard JIS has wrong logical maximum
+  */
+ static __u8 *apple_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		unsigned int *rsize)
+ {
+ 	struct apple_sc *asc = hid_get_drvdata(hdev);
+ 
++	if(*rsize >=71 && rdesc[70] == 0x65 && rdesc[64] == 0x65) {
++		hid_info(hdev,
++			 "fixing up Magic Keyboard JIS report descriptor\n");
++		rdesc[64] = rdesc[70] = 0xe7;
 +	}
 +
-+	wait_for_completion_timeout(&elo->cmd_done, HZ);
-+	rc = 0;
-+
-+ out:
-+	mutex_unlock(&elo->cmd_mutex);
-+	return rc;
-+}
-+
-+static int elo_setup_10_gt(struct elo *elo)
-+{
-+	struct input_dev *dev = elo->dev;
-+
-+	if (elo_command_10_gt(elo))
-+		return -1;
-+
-+	__set_bit(INPUT_PROP_DIRECT, dev->propbit);
-+
-+	// Values taken from a GPEG model AOD22WZ-ST monitor
-+	input_set_abs_params(dev, ABS_X, 1365, 5828, 0, 0);
-+	// max and min inverted because screen axis is inverted
-+	input_set_abs_params(dev, ABS_Y, 5013, 2260, 0, 0);
-+
-+	dev_info(&elo->serio->dev,
-+		 "GeneralTouch ST6001S touchscreen");
-+
-+	return 0;
-+}
-+
-  static int elo_setup_10(struct elo *elo)
-  {
-  	static const char *elo_types[] = { "Accu", "Dura", "Intelli", 
-"Carroll" };
-@@ -361,6 +412,13 @@ static int elo_connect(struct serio *serio, struct 
-serio_driver *drv)
-  		input_set_abs_params(input_dev, ABS_X, 0, 255, 0, 0);
-  		input_set_abs_params(input_dev, ABS_Y, 0, 255, 0, 0);
-  		break;
-+
-+	case 4: /* 10-byte protocol with General Touch initialisation */
-+		if (elo_setup_10_gt(elo)) {
-+			err = -EIO;
-+			goto fail3;
-+		}
-+		break;
-  	}
-
-  	err = input_register_device(elo->dev);
+ 	if ((asc->quirks & APPLE_RDESC_JIS) && *rsize >= 60 &&
+ 			rdesc[53] == 0x65 && rdesc[59] == 0x65) {
+ 		hid_info(hdev,
 -- 
-2.27.0
+2.33.0
+

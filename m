@@ -2,41 +2,41 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 493F9C433FE
-	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:51:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 889CBC433EF
+	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:51:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 377A361A0C
-	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:51:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 74C0D61A0C
+	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:51:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235549AbhJENww (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 5 Oct 2021 09:52:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59316 "EHLO mail.kernel.org"
+        id S235557AbhJENwy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 5 Oct 2021 09:52:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235356AbhJENwf (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 5 Oct 2021 09:52:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 631D6615A4;
-        Tue,  5 Oct 2021 13:50:44 +0000 (UTC)
+        id S235466AbhJENwm (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:52:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F3EC61989;
+        Tue,  5 Oct 2021 13:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633441845;
-        bh=d2xzpI4z3IPcrj7a57Lu5DnTjFHxhXbjEClnR1OjXUg=;
+        s=k20201202; t=1633441851;
+        bh=Supx4RRVHRgenGiH964uPjNYEQ08HNmm2bDw3KofKEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r084GLbw3Ttl/Bc9juyTme5ICBAGLMmPZ6eUvUgna7pNXrS9O1eZMQQcEYuv9M0Wm
-         fdPid7YIkDEqvpH7041QVcjku29d3AxxxSCCmlRC8ucpxq1qrzR68QFTSg57U4wfQC
-         8s57WLf0fHLGS1tsOVsoAvIP0KkW8xB7pXROoabk3k58Rr+gq4CsU80vnMFh4dXPET
-         GHnD5Xrt5r/aMZyMXfJYerkdzjJcgT3IS/zDuA73bn0tWFS+b8KlExk5uglvzem6ql
-         SIz1cC0z4B46px1FrrdrVMbosQNuNaPULv+N5btgQvxkW13Ty6Ls0vhUdcM9Hp+yHR
-         sQqEashYDLBbQ==
+        b=ahKxMSxPTU3C5p7gbxVl55Fgu98rbUWPZLINTzT0f2phbcmcXpgOyyRbNV/yLlN90
+         Xhs+riYHJOAeKNBvnKyAzhajSHkuNoPA2hSErn+/hWE0do2I5QTqmcCKu3O+P9YAPP
+         6lBDm6zDi29iBHO9HC4r4l7o4vmTaikbWLOKL/SGNk6dZgt+TJ02Ifl0NuowcJ28Nl
+         q2Z0QBLjkRjC1wr0G+HLcBpv+YcqoZVtHXqPeVpyeIDWpnO9fjEToi3fhw2zpWAKuF
+         EWXUUf6Zna9xfwc43Ash8RZDZZa0w/6+024nqLLsRKzIa2dd0NZ7zS2VAk1Av3jEyT
+         pWzU+enR7kPug==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "F.A.Sulaiman" <asha.16@itfac.mrt.ac.lk>,
-        syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com,
-        Pavel Skripkin <paskripkin@gmail.com>,
+Cc:     Evgeny Novikov <novikov@ispras.ru>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        nehal-bakulchandra.shah@amd.com, basavaraj.natikar@amd.com,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 10/40] HID: betop: fix slab-out-of-bounds Write in betop_probe
-Date:   Tue,  5 Oct 2021 09:49:49 -0400
-Message-Id: <20211005135020.214291-10-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 14/40] HID: amd_sfh: Fix potential NULL pointer dereference
+Date:   Tue,  5 Oct 2021 09:49:53 -0400
+Message-Id: <20211005135020.214291-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
 References: <20211005135020.214291-1-sashal@kernel.org>
@@ -48,55 +48,50 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: "F.A.Sulaiman" <asha.16@itfac.mrt.ac.lk>
+From: Evgeny Novikov <novikov@ispras.ru>
 
-[ Upstream commit 1e4ce418b1cb1a810256b5fb3fd33d22d1325993 ]
+[ Upstream commit d46ef750ed58cbeeba2d9a55c99231c30a172764 ]
 
-Syzbot reported slab-out-of-bounds Write bug in hid-betopff driver.
-The problem is the driver assumes the device must have an input report but
-some malicious devices violate this assumption.
+devm_add_action_or_reset() can suddenly invoke amd_mp2_pci_remove() at
+registration that will cause NULL pointer dereference since
+corresponding data is not initialized yet. The patch moves
+initialization of data before devm_add_action_or_reset().
 
-So this patch checks hid_device's input is non empty before it's been used.
+Found by Linux Driver Verification project (linuxtesting.org).
 
-Reported-by: syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com
-Signed-off-by: F.A. SULAIMAN <asha.16@itfac.mrt.ac.lk>
-Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
+[jkosina@suse.cz: rebase]
+Signed-off-by: Evgeny Novikov <novikov@ispras.ru>
+Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-betopff.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
-index 0790fbd3fc9a..467d789f9bc2 100644
---- a/drivers/hid/hid-betopff.c
-+++ b/drivers/hid/hid-betopff.c
-@@ -56,15 +56,22 @@ static int betopff_init(struct hid_device *hid)
- {
- 	struct betopff_device *betopff;
- 	struct hid_report *report;
--	struct hid_input *hidinput =
--			list_first_entry(&hid->inputs, struct hid_input, list);
-+	struct hid_input *hidinput;
- 	struct list_head *report_list =
- 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
--	struct input_dev *dev = hidinput->input;
-+	struct input_dev *dev;
- 	int field_count = 0;
- 	int error;
- 	int i, j;
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 8d68796aa905..4069b813c6c3 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -235,6 +235,10 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 		return rc;
+ 	}
  
-+	if (list_empty(&hid->inputs)) {
-+		hid_err(hid, "no inputs found\n");
-+		return -ENODEV;
-+	}
++	rc = amd_sfh_hid_client_init(privdata);
++	if (rc)
++		return rc;
 +
-+	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
-+	dev = hidinput->input;
-+
- 	if (list_empty(report_list)) {
- 		hid_err(hid, "no output reports found\n");
- 		return -ENODEV;
+ 	privdata->cl_data = devm_kzalloc(&pdev->dev, sizeof(struct amdtp_cl_data), GFP_KERNEL);
+ 	if (!privdata->cl_data)
+ 		return -ENOMEM;
+@@ -245,7 +249,7 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ 
+ 	mp2_select_ops(privdata);
+ 
+-	return amd_sfh_hid_client_init(privdata);
++	return 0;
+ }
+ 
+ static const struct pci_device_id amd_mp2_pci_tbl[] = {
 -- 
 2.33.0
 

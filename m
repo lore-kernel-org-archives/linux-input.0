@@ -2,41 +2,41 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDDA0C433EF
-	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:51:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 493F9C433FE
+	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:51:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D81D16152B
-	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:51:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 377A361A0C
+	for <linux-input@archiver.kernel.org>; Tue,  5 Oct 2021 13:51:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235518AbhJENws (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 5 Oct 2021 09:52:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59672 "EHLO mail.kernel.org"
+        id S235549AbhJENww (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 5 Oct 2021 09:52:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235464AbhJENwk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Tue, 5 Oct 2021 09:52:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDAE961B05;
-        Tue,  5 Oct 2021 13:50:48 +0000 (UTC)
+        id S235356AbhJENwf (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 5 Oct 2021 09:52:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 631D6615A4;
+        Tue,  5 Oct 2021 13:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1633441849;
-        bh=5e7Sw77oXbElVdGKegv3F1SKV4xyAxsp0hWW5XW1Jpg=;
+        s=k20201202; t=1633441845;
+        bh=d2xzpI4z3IPcrj7a57Lu5DnTjFHxhXbjEClnR1OjXUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cofGO+3Dk6XcX0smhhyXzlQ+30dAst3xr0UeieCESFky1Ehbfj3nJx72C1aFgcvu0
-         oDisDX6P5fOn2hF+6EJT7zGWD4mqNdDbRtPo877FuIy7KFvqhi8AKNkdqI+NG6fn/f
-         +X7uNgZ+Oe0XbOM/+1WKW16AmluMdqmbUIZrC3FrA2JgBuYIFkf0KoQhMT++21VEuP
-         wHF/LU2UxPbs3cGYtBvYJwDokLZ2AzWhFsIGe5NSpaxGrxx5DhVJo9mP8L8mXpsq7R
-         uKs2oplwjFcKZb5+B1+QIo12CQos8JgCbzqKC0sKlOw4D/m9wGhw0GxIk4W70Sh3k6
-         DXH+gHP+xkBoA==
+        b=r084GLbw3Ttl/Bc9juyTme5ICBAGLMmPZ6eUvUgna7pNXrS9O1eZMQQcEYuv9M0Wm
+         fdPid7YIkDEqvpH7041QVcjku29d3AxxxSCCmlRC8ucpxq1qrzR68QFTSg57U4wfQC
+         8s57WLf0fHLGS1tsOVsoAvIP0KkW8xB7pXROoabk3k58Rr+gq4CsU80vnMFh4dXPET
+         GHnD5Xrt5r/aMZyMXfJYerkdzjJcgT3IS/zDuA73bn0tWFS+b8KlExk5uglvzem6ql
+         SIz1cC0z4B46px1FrrdrVMbosQNuNaPULv+N5btgQvxkW13Ty6Ls0vhUdcM9Hp+yHR
+         sQqEashYDLBbQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joshua-Dickens <Joshua@Joshua-Dickens.com>,
-        Joshua Dickens <joshua.dickens@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>,
+Cc:     "F.A.Sulaiman" <asha.16@itfac.mrt.ac.lk>,
+        syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com,
+        Pavel Skripkin <paskripkin@gmail.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.14 13/40] HID: wacom: Add new Intuos BT (CTL-4100WL/CTL-6100WL) device IDs
-Date:   Tue,  5 Oct 2021 09:49:52 -0400
-Message-Id: <20211005135020.214291-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.14 10/40] HID: betop: fix slab-out-of-bounds Write in betop_probe
+Date:   Tue,  5 Oct 2021 09:49:49 -0400
+Message-Id: <20211005135020.214291-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211005135020.214291-1-sashal@kernel.org>
 References: <20211005135020.214291-1-sashal@kernel.org>
@@ -48,47 +48,55 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Joshua-Dickens <Joshua@Joshua-Dickens.com>
+From: "F.A.Sulaiman" <asha.16@itfac.mrt.ac.lk>
 
-[ Upstream commit 0c8fbaa553077630e8eae45bd9676cfc01836aeb ]
+[ Upstream commit 1e4ce418b1cb1a810256b5fb3fd33d22d1325993 ]
 
-Add the new PIDs to wacom_wac.c to support the new models in the Intuos series.
+Syzbot reported slab-out-of-bounds Write bug in hid-betopff driver.
+The problem is the driver assumes the device must have an input report but
+some malicious devices violate this assumption.
 
-[jkosina@suse.cz: fix changelog]
-Signed-off-by: Joshua Dickens <joshua.dickens@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+So this patch checks hid_device's input is non empty before it's been used.
+
+Reported-by: syzbot+07efed3bc5a1407bd742@syzkaller.appspotmail.com
+Signed-off-by: F.A. SULAIMAN <asha.16@itfac.mrt.ac.lk>
+Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/hid/hid-betopff.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 81ba642adcb7..528d94ccd76f 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -4720,6 +4720,12 @@ static const struct wacom_features wacom_features_0x393 =
- 	{ "Wacom Intuos Pro S", 31920, 19950, 8191, 63,
- 	  INTUOSP2S_BT, WACOM_INTUOS3_RES, WACOM_INTUOS3_RES, 7,
- 	  .touch_max = 10 };
-+static const struct wacom_features wacom_features_0x3c6 =
-+	{ "Wacom Intuos BT S", 15200, 9500, 4095, 63,
-+	  INTUOSHT3_BT, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
-+static const struct wacom_features wacom_features_0x3c8 =
-+	{ "Wacom Intuos BT M", 21600, 13500, 4095, 63,
-+	  INTUOSHT3_BT, WACOM_INTUOS_RES, WACOM_INTUOS_RES, 4 };
+diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
+index 0790fbd3fc9a..467d789f9bc2 100644
+--- a/drivers/hid/hid-betopff.c
++++ b/drivers/hid/hid-betopff.c
+@@ -56,15 +56,22 @@ static int betopff_init(struct hid_device *hid)
+ {
+ 	struct betopff_device *betopff;
+ 	struct hid_report *report;
+-	struct hid_input *hidinput =
+-			list_first_entry(&hid->inputs, struct hid_input, list);
++	struct hid_input *hidinput;
+ 	struct list_head *report_list =
+ 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
+-	struct input_dev *dev = hidinput->input;
++	struct input_dev *dev;
+ 	int field_count = 0;
+ 	int error;
+ 	int i, j;
  
- static const struct wacom_features wacom_features_HID_ANY_ID =
- 	{ "Wacom HID", .type = HID_GENERIC, .oVid = HID_ANY_ID, .oPid = HID_ANY_ID };
-@@ -4893,6 +4899,8 @@ const struct hid_device_id wacom_ids[] = {
- 	{ USB_DEVICE_WACOM(0x37A) },
- 	{ USB_DEVICE_WACOM(0x37B) },
- 	{ BT_DEVICE_WACOM(0x393) },
-+	{ BT_DEVICE_WACOM(0x3c6) },
-+	{ BT_DEVICE_WACOM(0x3c8) },
- 	{ USB_DEVICE_WACOM(0x4001) },
- 	{ USB_DEVICE_WACOM(0x4004) },
- 	{ USB_DEVICE_WACOM(0x5000) },
++	if (list_empty(&hid->inputs)) {
++		hid_err(hid, "no inputs found\n");
++		return -ENODEV;
++	}
++
++	hidinput = list_first_entry(&hid->inputs, struct hid_input, list);
++	dev = hidinput->input;
++
+ 	if (list_empty(report_list)) {
+ 		hid_err(hid, "no output reports found\n");
+ 		return -ENODEV;
 -- 
 2.33.0
 

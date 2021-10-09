@@ -2,42 +2,43 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CD62C433FE
-	for <linux-input@archiver.kernel.org>; Sat,  9 Oct 2021 16:30:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 512F5C433EF
+	for <linux-input@archiver.kernel.org>; Sat,  9 Oct 2021 18:31:50 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 3E33060F8F
-	for <linux-input@archiver.kernel.org>; Sat,  9 Oct 2021 16:30:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2690D610A4
+	for <linux-input@archiver.kernel.org>; Sat,  9 Oct 2021 18:31:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229984AbhJIQcL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 9 Oct 2021 12:32:11 -0400
-Received: from ixit.cz ([94.230.151.217]:42376 "EHLO ixit.cz"
+        id S229645AbhJISdq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 9 Oct 2021 14:33:46 -0400
+Received: from ixit.cz ([94.230.151.217]:45524 "EHLO ixit.cz"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229587AbhJIQcK (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sat, 9 Oct 2021 12:32:10 -0400
+        id S229518AbhJISdp (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 9 Oct 2021 14:33:45 -0400
 Received: from localhost.localdomain (ip-89-176-96-70.net.upcbroadband.cz [89.176.96.70])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by ixit.cz (Postfix) with ESMTPSA id 5A6F320064;
-        Sat,  9 Oct 2021 18:30:11 +0200 (CEST)
+        by ixit.cz (Postfix) with ESMTPSA id ACB0820064;
+        Sat,  9 Oct 2021 20:31:45 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ixit.cz; s=dkim;
-        t=1633797011;
+        t=1633804306;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding;
-        bh=nBWOQv0pTlqmNgfp2b0RbFU2Q1khA5xPlByV7Wpeaf0=;
-        b=caJFTm66qBUsNrdYhlndZ4xsVC5f0C1mMo4ZB+zgjkJEOyrkQd3lt9PZJHrZmBVkJl+ZPQ
-        WR8H/sswop+ykf7siWd7oCYWp5A2ssrlTM3DnNZtqS8NNG/mngNkafcrKjOs413TnJBJY6
-        VyQEaoE/fXBdx3Gba6QSa1vPhMZDPEY=
+        bh=gE/XvvgfIJfjwmY9n++kopxpTM25qCAPObU3XHIfaYk=;
+        b=UkPu6THtcnC/fgLTyhZ/PczgP93J/2Mc91yqFuBKblLyrFdan3+VVqWnQtyJaNpih6m96F
+        GquxcqQda7y0vYnwRi6dq4Fs58+wf3UcgkABfk65Kaer+M8avxuYcGVD9cmLjhNA2oCMDX
+        AkNJwsXAMh6TrJO8fYHf/WqhUXHcXhk=
 From:   David Heidelberg <david@ixit.cz>
-To:     Duson Lin <dusonlin@emc.com.tw>, Rob Herring <robh+dt@kernel.org>,
+To:     Rob Herring <robh+dt@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, ~okias/devicetree@lists.sr.ht,
-        David Heidelberg <david@ixit.cz>
-Subject: [PATCH] dt-bindings: input: elan,ekth3000: Convert txt bindings to yaml
-Date:   Sat,  9 Oct 2021 18:28:45 +0200
-Message-Id: <20211009162845.44378-1-david@ixit.cz>
+        David Heidelberg <david@ixit.cz>,
+        Dmitry Osipenko <digetx@gmail.com>
+Subject: [PATCH v2] dt-bindings: input: elan,ekth3000: Convert txt bindings to yaml
+Date:   Sat,  9 Oct 2021 20:30:16 +0200
+Message-Id: <20211009183016.65218-1-david@ixit.cz>
 X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -48,20 +49,26 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 Convert Elan touchpad documentation to the YAML syntax.
 
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
- .../bindings/input/elan,ekth3000.yaml         | 76 +++++++++++++++++++
- .../devicetree/bindings/input/elan_i2c.txt    | 44 -----------
- 2 files changed, 76 insertions(+), 44 deletions(-)
+v2
+- add additional space
+- correct uint8 -> uint32
+- change maintainer, original maintainer email doesn't exist
+
+ .../bindings/input/elan,ekth3000.yaml         | 81 +++++++++++++++++++
+ .../devicetree/bindings/input/elan_i2c.txt    | 44 ----------
+ 2 files changed, 81 insertions(+), 44 deletions(-)
  create mode 100644 Documentation/devicetree/bindings/input/elan,ekth3000.yaml
  delete mode 100644 Documentation/devicetree/bindings/input/elan_i2c.txt
 
 diff --git a/Documentation/devicetree/bindings/input/elan,ekth3000.yaml b/Documentation/devicetree/bindings/input/elan,ekth3000.yaml
 new file mode 100644
-index 000000000000..2a1961ac15ac
+index 000000000000..2a9bb6ace021
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/input/elan,ekth3000.yaml
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,81 @@
 +# SPDX-License-Identifier: (GPL-2.0-only or BSD-2-Clause)
 +%YAML 1.2
 +---
@@ -71,7 +78,7 @@ index 000000000000..2a1961ac15ac
 +title: Elantech I2C Touchpad
 +
 +maintainers:
-+  - Duson Lin <dusonlin@emc.com.tw>
++  - Dmitry Torokhov <dmitry.torokhov@gmail.com>
 +
 +allOf:
 +  - $ref: touchscreen/touchscreen.yaml#
@@ -100,20 +107,25 @@ index 000000000000..2a1961ac15ac
 +  elan,clickpad:
 +    type: boolean
 +    description: touchpad is a clickpad (the entire surface is a button)
++
 +  elan,middle-button:
 +    type: boolean
 +    description: touchpad has a physical middle button
 +
 +  elan,x_traces:
-+    $ref: /schemas/types.yaml#/definitions/uint8
++    $ref: /schemas/types.yaml#/definitions/uint32
 +    description: number of antennas on the x axis
++
 +  elan,y_traces:
-+    $ref: /schemas/types.yaml#/definitions/uint8
++    $ref: /schemas/types.yaml#/definitions/uint32
 +    description: number of antennas on the y axis
 +
 +  touchscreen-size-x: true
++
 +  touchscreen-size-y: true
++
 +  touchscreen-x-mm: true
++
 +  touchscreen-y-mm: true
 +
 +required:

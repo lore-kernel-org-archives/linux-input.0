@@ -2,133 +2,90 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCBF5C433F5
-	for <linux-input@archiver.kernel.org>; Sun, 10 Oct 2021 22:01:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2458EC4321E
+	for <linux-input@archiver.kernel.org>; Mon, 11 Oct 2021 13:28:13 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B3EAC60EFE
-	for <linux-input@archiver.kernel.org>; Sun, 10 Oct 2021 22:01:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0B8B361076
+	for <linux-input@archiver.kernel.org>; Mon, 11 Oct 2021 13:28:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233030AbhJJWD0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 10 Oct 2021 18:03:26 -0400
-Received: from mail-0201.mail-europe.com ([51.77.79.158]:41615 "EHLO
-        mail-0201.mail-europe.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230364AbhJJWDZ (ORCPT
+        id S236897AbhJKNaM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 11 Oct 2021 09:30:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57898 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236893AbhJKNaL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 10 Oct 2021 18:03:25 -0400
-Date:   Sun, 10 Oct 2021 22:01:18 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail; t=1633903281;
-        bh=wEwgbm8rXORJnJ0BoWhmPgLjewNBjCXlxzRbr/E/+HU=;
-        h=Date:To:From:Cc:Reply-To:Subject:In-Reply-To:References:From;
-        b=IdAyXu+lMCe2uR/qlSxCjY0TIoR2ic31Hs9WITvLR16S+bW6EBNmmBXJrFluA1O8q
-         TW6UZvGr/J1iV8tVyYFepQHrHuOTBi+Ixlra4gTyy8rhTxpn4v0doK7+8XbjXFAEr+
-         i2h6VVl7OPiQn9oVDlLZMDR5n2g05rHYW9NWYyJ4=
-To:     "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>
-From:   Ryan McClue <re.mcclue@protonmail.com>
-Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Reply-To: Ryan McClue <re.mcclue@protonmail.com>
-Subject: Re: PROBLEM: Evdev epoll_wait Lag
-Message-ID: <ZuWyfqLv-q05M024EWTS7EOYJ-tKp-haPZOYrZGsGx32cLEH5h_AZ0T2NDnWYogu2MMfscOa56Bflfe_85DG_0IEP0iPDqFQY52Qsd_7UBc=@protonmail.com>
-In-Reply-To: <KQGwDRe-r2Kg0tjf28_CwayJFLwQYB8PAH7bhNvfG0ngHPyJe2Wu59MZqMiWfLr1B6qrM5LUeR5JmtZrlpiyB6_CLgnRhtK65aZ5Qntw9dQ=@protonmail.com>
-References: <99GfWMtkpJutp6wuEhYJ3aIfNVfE_fr3TVPeQWsr9QSvNMgTk23Aml6WYEucd6D3qkmeIFbunUu6a6g0VNppEKIYrz7w43fzGyl3BUXVkDQ=@protonmail.com> <YWEKLNg3ZzGZLpfn@google.com> <KQGwDRe-r2Kg0tjf28_CwayJFLwQYB8PAH7bhNvfG0ngHPyJe2Wu59MZqMiWfLr1B6qrM5LUeR5JmtZrlpiyB6_CLgnRhtK65aZ5Qntw9dQ=@protonmail.com>
+        Mon, 11 Oct 2021 09:30:11 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CB16C061745
+        for <linux-input@vger.kernel.org>; Mon, 11 Oct 2021 06:28:11 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1mZvLZ-0006fl-Rm; Mon, 11 Oct 2021 15:28:05 +0200
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1mZvLV-0003nm-Pk; Mon, 11 Oct 2021 15:28:01 +0200
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1mZvLV-0000SY-Or; Mon, 11 Oct 2021 15:28:01 +0200
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Michael Hennerich <michael.hennerich@analog.com>
+Cc:     Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org,
+        kernel@pengutronix.de, linux-input@vger.kernel.org
+Subject: [PATCH 03/13] hwmon: max31722: Warn about failure to put device in stand-by in .remove()
+Date:   Mon, 11 Oct 2021 15:27:44 +0200
+Message-Id: <20211011132754.2479853-4-u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20211011132754.2479853-1-u.kleine-koenig@pengutronix.de>
+References: <20211011132754.2479853-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+X-Patch-Hashes: v=1; h=sha256; i=VzmQt12yOkne619FyHfm2Mxhtg4zmARLaeg/MgRfc80=; m=aWXlVn4zGl3/VNxE8xQ1auTXzJiWk3xyQCYCHspYcNI=; p=bBkC2gJ5XT8B1VAvVS6dFZGhwZYy9lCY9z6NFqcALPQ=; g=d02ecae4dfa3faae03d9f4b8b4e5ec93f10e7ffd
+X-Patch-Sig: m=pgp; i=u.kleine-koenig@pengutronix.de; s=0x0D2511F322BFAB1C1580266BE2DCDD9132669BD6; b=iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmFkO2cACgkQwfwUeK3K7AkJkQf/d8U yHMvMyz0ffMQjQqW0ADJLpB09mX0yAHgIaaD4LM5FukQm4eIXs4cEegpUVbDEmv6gkX46ywqsYIyL 7ViGaPQvWOoKtazVkw/TURoUQQtyA5BCMEkbt/EiODDmVjFv2cWZ1cVEJrixcM+HRJKX8ItVBps9N 7DylYuo97rM8xeiO9WKhUNQWgMdhO6HFknydofJzV23cwjwdTbmdRgcsiy+3sNQb7CwN7WfsPKlQM gygO4cB2Snbqpo/rHigiIFO9u2MwgghN/F/IhsonfsaLPNpb3XVet7SuKygejaa0J2nvOHRC0MKD7 wEbm9VTQ9Q3ZmabMsuc4hHyv+VrzIWQ==
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-I think this may be an issue with xorg, as running in a virtual terminal I =
-don't get any stalling.
-What is your environment you tested it on?
+When an spi driver's remove function returns a non-zero error code
+nothing happens apart from emitting a generic error message. Make this
+error message more device specific and return zero instead.
 
---
-Ryan McClue, Sydney
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/hwmon/max31722.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90 Original Me=
-ssage =E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90
+diff --git a/drivers/hwmon/max31722.c b/drivers/hwmon/max31722.c
+index 613338cbcb17..4cf4fe6809a3 100644
+--- a/drivers/hwmon/max31722.c
++++ b/drivers/hwmon/max31722.c
+@@ -103,10 +103,16 @@ static int max31722_probe(struct spi_device *spi)
+ static int max31722_remove(struct spi_device *spi)
+ {
+ 	struct max31722_data *data = spi_get_drvdata(spi);
++	int ret;
+ 
+ 	hwmon_device_unregister(data->hwmon_dev);
+ 
+-	return max31722_set_mode(data, MAX31722_MODE_STANDBY);
++	ret = max31722_set_mode(data, MAX31722_MODE_STANDBY);
++	if (ret)
++		/* There is nothing we can do about this ... */
++		dev_warn(&spi->dev, "Failed to put device in stand-by mode\n");
++
++	return 0;
+ }
+ 
+ static int __maybe_unused max31722_suspend(struct device *dev)
+-- 
+2.30.2
 
-On Saturday, October 9th, 2021 at 3:31 PM, Ryan McClue <re.mcclue@protonmai=
-l.com> wrote:
-
-> I want the epoll_wait to return immediately if no data, so I believe the =
-timeout of 0 is correct.
->
-> I'm using an adapted version of this loop for a hobby program. However, e=
-very time I open it up in a debugger (or just normally) htop shows CPU usag=
-e for the process is ~97% and the CPU fan becomes very loud.
->
-> Like I said, I'm experiencing stalls from a fresh install of Ubuntu in al=
-l native applications like gnome-terminal, firefox, gedit, vi etc.
->
-> I don't understand what is going on or how to go about debugging it.
->
-> -------------------------------------------------------------------------=
----------------------------------------------------------------------------=
----------------------------------------------------------------------------=
----------------------------------------------------------------------------=
----------------------------------------------------------------------------=
----------------------------------------------------------------------------=
------------------------------------------------------------------------
->
-> Ryan McClue, Sydney
->
-> =E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90 Original =
-Message =E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90=E2=80=90
->
-> On Saturday, October 9th, 2021 at 2:19 PM, dmitry.torokhov@gmail.com dmit=
-ry.torokhov@gmail.com wrote:
->
-> > Hi,
-> >
-> > On Fri, Oct 08, 2021 at 11:29:51PM +0000, Ryan McClue wrote:
-> >
-> > > Hi there,
-> > >
-> > > PROBLEM:
-> > >
-> > > I'm on a laptop, with 2 connected keyboards (built-in and USB).
-> > >
-> > > When I hit keys on each keyboard simultaneously in a program like fir=
-efox,
-> > >
-> > > gnome-terminal etc. stalling/lag occurs.
-> > >
-> > > It only happens for keyboards it seems as moving an external mouse an=
-d trackpad
-> > >
-> > > together causes no issues.
-> > >
-> > > TO REPRODUCE:
-> > >
-> > > To investigate the problem I wrote a simple C file
-> > >
-> > > (see attached 'evdev-lag.c', compile with $(gcc evdev-lag.c -o evdev-=
-lag))
-> > >
-> > > The program finds keyboard devices under /dev/input/event and uses ep=
-oll to
-> > >
-> > > poll them for input via the evdev interface.
-> > >
-> > > If I start entering keys on one keyboard and then switch to the other=
-, the
-> > >
-> > > program stalls briefly.
-> > >
-> > > If I simultaneously enter keys on each keyboard the program stalls in=
-definitely
-> > >
-> > > until I stop entering keys.
-> >
-> > I do not observe stalls but did you mean to essentially busy-loop in
-> >
-> > your program? epoll_wait with 0 timeout causes it return immediately,
-> >
-> > you want to use -1 if you want to wait indefinitely or give it a real
-> >
-> > timeout.
-> >
-> > Thanks.
-> >
-> > Dmitry

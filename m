@@ -2,281 +2,86 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32D3FC433EF
-	for <linux-input@archiver.kernel.org>; Thu, 14 Oct 2021 13:21:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8347C433F5
+	for <linux-input@archiver.kernel.org>; Thu, 14 Oct 2021 14:55:34 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 14B32610E7
-	for <linux-input@archiver.kernel.org>; Thu, 14 Oct 2021 13:21:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A13BF61163
+	for <linux-input@archiver.kernel.org>; Thu, 14 Oct 2021 14:55:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230434AbhJNNX6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 Oct 2021 09:23:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59936 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230054AbhJNNX6 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 Oct 2021 09:23:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 498AD60EE5;
-        Thu, 14 Oct 2021 13:21:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1634217713;
-        bh=t3FaZ8xgpf16PMd+JevIiZLcGO4h4XG3aZfR3cIB58g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FcvociMXe0RUCKnL7vxxtTEZIYs+upjQIsAMJd8V2JLLgSGwu6scjcJUj+wWtzKpg
-         MUjjpuopvhsDSZTfWijmTVcTnD0yGgLU6cSqnls1ynBLi6qnMFgBLZM8bah8DB26rS
-         EWKzv2mS+f9PS6wifx5uX19gQ5D6pPlZcnZ27TDU=
-Date:   Thu, 14 Oct 2021 15:21:51 +0200
-From:   gregkh <gregkh@linuxfoundation.org>
-To:     "changlianzhi@uniontech.com" <changlianzhi@uniontech.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        "dmitry.torokhov" <dmitry.torokhov@gmail.com>,
-        jirislaby <jirislaby@kernel.org>,
-        "andriy.shevchenko" <andriy.shevchenko@linux.intel.com>,
-        linux-input <linux-input@vger.kernel.org>,
-        282827961 <282827961@qq.com>
-Subject: Re: [PATCH] input&tty: Fix the keyboard led light display problem
-Message-ID: <YWgu71RP4ERZYjCy@kroah.com>
-References: <20211014085308.9803-1-changlianzhi@uniontech.com>
- <616827d8.1c69fb81.75aa0.eea0SMTPIN_ADDED_BROKEN@mx.google.com>
+        id S232019AbhJNO5i (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 Oct 2021 10:57:38 -0400
+Received: from mail-wr1-f43.google.com ([209.85.221.43]:41778 "EHLO
+        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232079AbhJNO52 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 14 Oct 2021 10:57:28 -0400
+Received: by mail-wr1-f43.google.com with SMTP id t2so20386430wrb.8;
+        Thu, 14 Oct 2021 07:55:22 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=HS23AmkrFlxiHPWR55rkvfjGcqFY+NS9STXeF9NmTXw=;
+        b=YzHaNbOQOpCdQIt+loIbcz/rWpG+2hoEUVZqQOoqlFhg9QQ4iuSdIJUTm03IQRhhRU
+         FMd0fPRvtxhmuYA/Xk3Aq4/690H1VL63S80RVzPveuUfWC31gWjpQqA+AUfeM77QFmbr
+         bGufeQch5vyxpA5m4k/vM4IctqH9NydnXebDSdlRpzqajsHIRxhGzPCPNKRHrEvQ6B+w
+         KkhFgP7uT2OWNRNjZyIDRGxBIfJIhmtgYMg0/AjdiuNRy1wI/kp6APqxLVn8UYfZBU5C
+         F2A88NSe7+r+UcOkcQVt1R8VIUmWwxZPIoq0taI/NAkSIBfxIP1/QzKPOzwbOxtu+c5P
+         3lEA==
+X-Gm-Message-State: AOAM531Sb1swFp1OgezvkbaBHpk2m9wMs4vHIrzj5S7RZC0ooIM98J7V
+        BlB+CVkYPeHctdrfD9TB+wDbscWjtLk=
+X-Google-Smtp-Source: ABdhPJxQnbdyF6TWa2FhdqQFUOfJZm5E5JuoGCCOc2vgEUcyXmzAwLdIuMN1U5PPn0QrZab1KEbUXg==
+X-Received: by 2002:a5d:598a:: with SMTP id n10mr7156093wri.93.1634223322097;
+        Thu, 14 Oct 2021 07:55:22 -0700 (PDT)
+Received: from ?IPV6:2a0b:e7c0:0:107::70f? ([2a0b:e7c0:0:107::70f])
+        by smtp.gmail.com with ESMTPSA id t18sm2664746wrm.81.2021.10.14.07.55.21
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 14 Oct 2021 07:55:21 -0700 (PDT)
+Message-ID: <a2964246-f90f-f205-ce99-707cc1a114cc@kernel.org>
+Date:   Thu, 14 Oct 2021 16:55:20 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <616827d8.1c69fb81.75aa0.eea0SMTPIN_ADDED_BROKEN@mx.google.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.1.2
+Subject: Re: [PATCH] input&tty: Fix the keyboard led light display problem
+Content-Language: en-US
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        lianzhi chang <changlianzhi@uniontech.com>
+Cc:     linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com,
+        gregkh@linuxfoundation.org, linux-input@vger.kernel.org,
+        282827961@qq.com
+References: <20211014071627.23256-1-changlianzhi@uniontech.com>
+ <YWhI/DzNjivU6jQ6@smile.fi.intel.com>
+From:   Jiri Slaby <jirislaby@kernel.org>
+In-Reply-To: <YWhI/DzNjivU6jQ6@smile.fi.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Oct 14, 2021 at 12:50:31PM +0800, changlianzhi@uniontech.com wrote:
-> Subject: [PATCH] input&tty: Fix the keyboard led light display problem
-> 
-> 
-> Switching from the desktop environment to the tty environment,
-> 
-> 
-> 
-> the state of the keyboard led lights and the state of the keyboard
-> 
-> 
-> 
-> lock are inconsistent. This is because the attribute kb->kbdmode
-> 
-> 
-> 
-> of the tty bound in the desktop environment (xorg) is set to
-> 
-> 
-> 
-> VC_OFF, which causes the ledstate and kb->ledflagstate
-> 
-> 
-> 
-> values of the bound tty to always be 0, which causes the switch
-> 
-> 
-> 
-> from the desktop When to the tty environment, the LED light
-> 
-> 
-> 
-> status is inconsistent with the keyboard lock status.
-> 
-> 
-> 
->  
-> 
-> 
-> 
-> Signed-off-by: lianzhi chang <changlianzhi@uniontech.com>
-> 
-> 
-> 
-> ---
-> 
-> 
-> 
-> drivers/input/input.c     |  7 ++++++-
-> 
-> 
-> 
-> drivers/tty/vt/keyboard.c | 30 +++++++++++++++++++++++++++++-
-> 
-> 
-> 
-> include/linux/kbd_kern.h  |  2 ++
-> 
-> 
-> 
-> 3 files changed, 37 insertions(+), 2 deletions(-)
-> 
-> 
-> 
->  
-> 
-> 
-> 
-> diff --git a/drivers/input/input.c b/drivers/input/input.c
-> 
-> 
-> 
-> index ccaeb2426385..43c09700bf68 100644
-> 
-> 
-> 
-> --- a/drivers/input/input.c
-> 
-> 
-> 
-> +++ b/drivers/input/input.c
-> 
-> 
-> 
-> @@ -25,6 +25,7 @@
-> 
-> 
-> 
-> #include <linux/rcupdate.h>
-> 
-> 
-> 
-> #include "input-compat.h"
-> 
-> 
-> 
-> #include "input-poller.h"
-> 
-> 
-> 
-> +#include <linux/kbd_kern.h>
-> 
-> 
-> 
-> MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
-> 
-> 
-> 
-> MODULE_DESCRIPTION("Input core");
-> 
-> 
-> 
-> @@ -472,8 +473,12 @@ void input_inject_event(struct input_handle *handle,
-> 
-> 
-> 
-> rcu_read_lock();
-> 
-> 
-> 
-> grab = rcu_dereference(dev->grab);
-> 
-> 
-> 
-> - if (!grab || grab == handle)
-> 
-> 
-> 
-> + if (!grab || grab == handle) {
-> 
-> 
-> 
-> input_handle_event(dev, type, code, value);
-> 
-> 
-> 
-> +
-> 
-> 
-> 
-> + if (type == EV_LED && code < LED_SCROLLL)
-> 
-> 
-> 
-> + update_value_ledstate(code, value);
-> 
-> 
-> 
-> + }
-> 
-> 
-> 
-> rcu_read_unlock();
-> 
-> 
-> 
-> spin_unlock_irqrestore(&dev->event_lock, flags);
-> 
-> 
-> 
-> diff --git a/drivers/tty/vt/keyboard.c b/drivers/tty/vt/keyboard.c
-> 
-> 
-> 
-> index c7fbbcdcc346..0240915cdfef 100644
-> 
-> 
-> 
-> --- a/drivers/tty/vt/keyboard.c
-> 
-> 
-> 
-> +++ b/drivers/tty/vt/keyboard.c
-> 
-> 
-> 
-> @@ -1140,6 +1140,31 @@ static unsigned char getledstate(void)
-> 
-> 
-> 
-> return ledstate & 0xff;
-> 
-> 
-> 
-> }
-> 
-> 
-> 
-> +void update_value_ledstate(unsigned int flag, unsigned int value)
-> 
-> 
-> 
-> +{
-> 
-> 
-> 
-> + unsigned int bit;
-> 
-> 
-> 
-> +
-> 
-> 
-> 
-> + switch (flag) {
-> 
-> 
-> 
-> + case LED_NUML:
-> 
-> 
-> 
-> + bit = VC_NUMLOCK;
-> 
-> 
-> 
-> + break;
-> 
-> 
-> 
-> + case LED_CAPSL:
-> 
-> 
-> 
+On 14. 10. 21, 17:13, Andy Shevchenko wrote:
+> On Thu, Oct 14, 2021 at 03:16:27PM +0800, lianzhi chang wrote:
+>> Switching from the desktop environment to the tty environment,
+>> the state of the keyboard led lights and the state of the keyboard
+>> lock are inconsistent. This is because the attribute kb->kbdmode
+>> of the tty bound in the desktop environment (xorg) is set to
+>> VC_OFF, which causes the ledstate and kb->ledflagstate
+>> values of the bound tty to always be 0, which causes the switch
+>> from the desktop When to the tty environment, the LED light
+>> status is inconsistent with the keyboard lock status.
+> 
+> ...
+> 
+>> +void update_value_ledstate(unsigned int flag, unsigned int value)
+>> +{
+>> +	unsigned int bit;
+> 
+> unsigned long bit;
+> 
+> (see below why)
 
-<snip>
+You'd need ledstate to be ulong, not bit. Or am I missing something?
 
-Something went very wrong with this patch submission :(
-
-Please fix up your email client and try again, or just use 'git
-send-email' directly, as that should be all that you need here.
-
-thanks,
-
-greg k-h
+-- 
+js

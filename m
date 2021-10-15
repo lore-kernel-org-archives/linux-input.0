@@ -2,90 +2,66 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F148C433F5
-	for <linux-input@archiver.kernel.org>; Fri, 15 Oct 2021 09:04:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23259C433F5
+	for <linux-input@archiver.kernel.org>; Fri, 15 Oct 2021 10:07:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 37DB6610D1
-	for <linux-input@archiver.kernel.org>; Fri, 15 Oct 2021 09:04:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0154B60F44
+	for <linux-input@archiver.kernel.org>; Fri, 15 Oct 2021 10:07:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235730AbhJOJGo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 15 Oct 2021 05:06:44 -0400
-Received: from smtpq2.tb.ukmail.iss.as9143.net ([212.54.57.97]:52932 "EHLO
-        smtpq2.tb.ukmail.iss.as9143.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236176AbhJOJGn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Oct 2021 05:06:43 -0400
-Received: from [212.54.57.105] (helo=csmtp1.tb.ukmail.iss.as9143.net)
-        by smtpq2.tb.ukmail.iss.as9143.net with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.90_1)
-        (envelope-from <gareth.randall@virgin.net>)
-        id 1mbJ8l-0001ol-VY
-        for linux-input@vger.kernel.org; Fri, 15 Oct 2021 11:04:35 +0200
-Received: from Gareths-MacBook-Air.local ([94.175.123.86])
-        by cmsmtp with ESMTPA
-        id bJ8lminNoCNEAbJ8lm8NWt; Fri, 15 Oct 2021 11:04:35 +0200
-X-Originating-IP: [94.175.123.86]
-X-Authenticated-Sender: gareth.randall@virgin.net
-X-Spam: 0
-X-Authority: v=2.4 cv=FJJ4e8ks c=1 sm=1 tr=0 ts=61694423 cx=a_exe
- a=mwdPpgLduwvwBeoi1XfOCA==:117 a=mwdPpgLduwvwBeoi1XfOCA==:17
- a=IkcTkHD0fZMA:10 a=8gfv0ekSlNoA:10 a=f6pUZMUfAAAA:8 a=pxEa-ggxQuoDI8LJs2gA:9
- a=QEXdDO2ut3YA:10 a=eZImKStj3dtCS-zw9-0K:22
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virgin.net;
-        s=meg.feb2017; t=1634288675;
-        bh=Z9EnhiqfIYwYOKEtKwn0TGY7w2/AkExMFyl7fsRLUUI=;
-        h=Subject:From:To:References:Date:In-Reply-To;
-        b=k9qq9bBKozzudsrYXZ6DHx+sfGRpvVLBXPcKKtZ3PH2e+7ep9eHs7jqZ+PfYdQMDO
-         ZzUUbMeMrvXEJei+tJA1Yg7Sp9H4B7PwDfa6psSEOWB+8rUI5yik43cWrFi1X11m0Y
-         OKEwva4Jjl5NXSQWj3uWJFAu2QkzXlkeJqHcI0OAZEMAlIpCtmatLrpgHzhQ2Ed9R8
-         xrUIz62acxuK9EFuXWHEnycnvXWCYhWppDwkQjJHO4f7ICVKduFksIj5DFrV1GkD4D
-         EXB8NiStQlktmDYSLlt2DhV+oP7gu0H6ksoAZAaOZXaRJYTqmcKQdBTFXkLWAdIQnU
-         h5bEwrcuUbgLA==
-Subject: Re: [PATCH RESEND 1/1] Add support for touch screens using the
- General Touch ST6001S controller.
-From:   Gareth Randall <gareth.randall@virgin.net>
-To:     linux-input@vger.kernel.org
-References: <b7687459-1665-eb1c-b8ad-2bb37b7136ac@virgin.net>
-Message-ID: <3083b553-38f1-7061-a8cb-8bbd423913a3@virgin.net>
-Date:   Fri, 15 Oct 2021 10:04:35 +0100
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.14.0
+        id S237818AbhJOKJc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 15 Oct 2021 06:09:32 -0400
+Received: from mga04.intel.com ([192.55.52.120]:29528 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S237638AbhJOKJN (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Fri, 15 Oct 2021 06:09:13 -0400
+X-IronPort-AV: E=McAfee;i="6200,9189,10137"; a="226661320"
+X-IronPort-AV: E=Sophos;i="5.85,375,1624345200"; 
+   d="scan'208";a="226661320"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Oct 2021 03:07:04 -0700
+X-IronPort-AV: E=Sophos;i="5.85,375,1624345200"; 
+   d="scan'208";a="442474635"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.72.159])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Oct 2021 03:07:02 -0700
+Received: from andy by smile with local (Exim 4.95)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1mbMvA-000OuS-Cu;
+        Fri, 15 Oct 2021 16:06:48 +0300
+Date:   Fri, 15 Oct 2021 16:06:48 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     changlianzhi <changlianzhi@uniontech.com>
+Cc:     linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com,
+        gregkh@linuxfoundation.org, jirislaby@kernel.org,
+        linux-input@vger.kernel.org, 282827961@qq.com
+Subject: Re: [PATCH] input&tty: Fix the keyboard led light display problem
+Message-ID: <YWl86Jlv8Qs5PzXW@smile.fi.intel.com>
+References: <35696980-2a55-c5c1-3fa9-eadf251dcdde@uniontech.com>
 MIME-Version: 1.0
-In-Reply-To: <b7687459-1665-eb1c-b8ad-2bb37b7136ac@virgin.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfB+HRc249w01V0b9A4xVNgBSP+FQmyUaVstra8+Kyzs/5U7rWXq7hScqZwxXi8N/SURqe7mw+U09uR7+FLLNdzDCUNg6WNw7WPDY19zGvKjrVl0XYaxX
- 5pYirnayt7lIeFyD8jUkyKWya9SXODk+AZ64B3kDpoXGM8Z217ILXedoCbxvj1JqTTE4PtwlONG5AHm6QODmhzLXKy5uM5zE/hMY5C4r3HS+8bt7dZ5dEukm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <35696980-2a55-c5c1-3fa9-eadf251dcdde@uniontech.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 03/10/2021 22:54, Gareth Randall wrote:
-> Add support for touch screens using the General Touch ST6001S
-> controller, as found in the GPEG model AOD22WZ-ST monitor.
-> This controller can output the ELO 10-byte protocol,
-> but requires different initialisation.
-> 
-> Signed-off-by: Gareth Randall <gareth@garethrandall.com>
-> ---
->   drivers/input/touchscreen/elo.c | 58 +++++++++++++++++++++++++++++++++
->   1 file changed, 58 insertions(+)
+On Fri, Oct 15, 2021 at 04:16:35PM +0800, changlianzhi wrote:
+> Switching from the desktop environment to the tty environment,
+> the state of the keyboard led lights and the state of the keyboard
+> lock are inconsistent. This is because the attribute kb->kbdmode
+> of the tty bound in the desktop environment (xorg) is set to
+> VC_OFF, which causes the ledstate and kb->ledflagstate
+> values of the bound tty to always be 0, which causes the switch
+> from the desktop When to the tty environment, the LED light
+> status is inconsistent with the keyboard lock status.
 
-Hi,
+Have you even read what others tell you?!
 
-I'm seeking feedback on this patch. I just wondered whether I have made 
-any mistakes in the submission, or whether the maintainers are just very 
-busy (most likely explanation!)
+If you continue this way, I think it will be guaranteed that your email
+ends up in a ban list.
 
-I know that this does not appear properly in patchwork even though I 
-have attempted to recreate the exact format of a [PATCH] email, but I 
-don't want to send duplicate attempts. I've checked that there are no 
-wrapped lines in the email message. Is there a test suite that is 
-failing that I'm not aware of, or conventions I'm not following?
+-- 
+With Best Regards,
+Andy Shevchenko
 
-Thanks for any feedback.
 
-Yours,
-
-Gareth

@@ -2,128 +2,86 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C823C433EF
-	for <linux-input@archiver.kernel.org>; Mon, 18 Oct 2021 16:21:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 413F5C4332F
+	for <linux-input@archiver.kernel.org>; Mon, 18 Oct 2021 19:22:11 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 1C6A661074
-	for <linux-input@archiver.kernel.org>; Mon, 18 Oct 2021 16:21:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 2C4AD61350
+	for <linux-input@archiver.kernel.org>; Mon, 18 Oct 2021 19:22:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232608AbhJRQX7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 18 Oct 2021 12:23:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46990 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232034AbhJRQX7 (ORCPT
+        id S231318AbhJRTYU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Oct 2021 15:24:20 -0400
+Received: from mail-oi1-f169.google.com ([209.85.167.169]:45605 "EHLO
+        mail-oi1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229836AbhJRTYR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 18 Oct 2021 12:23:59 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08267C06161C
-        for <linux-input@vger.kernel.org>; Mon, 18 Oct 2021 09:21:48 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id e5-20020a17090a804500b001a116ad95caso364600pjw.2
-        for <linux-input@vger.kernel.org>; Mon, 18 Oct 2021 09:21:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Jy10WD9JmIg2aq/NGW1WjhyntemPtMSnsAGvcUWCTRY=;
-        b=JzkkwzmkhLoZqvpNYONbCRxYsMSMAB7Ocifx8FArOiOvw6U1TIiBvyh7Ij+GsxyZp+
-         gbT3lzv4wYKRLmpd23hasU7kdeNiqC/fbfH5VWofArZC45eSBa0MuTuqb1gkc0jN3xVA
-         ye4pP7CrtG50VgfsniowLnK5xZXrTkdCbSF1uZ8grUUzkJV+77bH0dAAPVvBSUA/xQkj
-         h5LALo3vZEobxJg6+tcGOQgMjXw+HF18nfv/8yi9oBZ4X8PFQnN4vYgP6KTGgg32MM6o
-         WImmwvc9TFTCjpmuL9c1oQxPPcDbR6BtJXJNevomdV3Z2g1YpzrolSi3boyay+4nsCHC
-         /Org==
+        Mon, 18 Oct 2021 15:24:17 -0400
+Received: by mail-oi1-f169.google.com with SMTP id z126so1179516oiz.12;
+        Mon, 18 Oct 2021 12:22:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
          :mime-version:content-disposition:in-reply-to;
-        bh=Jy10WD9JmIg2aq/NGW1WjhyntemPtMSnsAGvcUWCTRY=;
-        b=vw23qK/NoLT/C3TiSYQ4mLhHqEHjUFR1lGx1K68uMEr1k78cZ9F7axxa9nexQBdjtw
-         4G1dDPWsASuzL6axJYK3dLyQNmsus75mjss+GPK3y86DEQEVH0qOHxijsvR8cz8A2QLl
-         XwOR+fpnzPPRXyWEvqEuHANWtKSnLZoGkFfWUyF4neQQRNTKYQDx0B8EuJnhdaVLJUNB
-         pX6qMFyeJQDytwYY00N/ik9q+6OcYqEUcl9MOe20Mq1AsbrNO3Nvsa7Ha0Uh98geddTM
-         SzIPmNkKgj37OYIJQLEEYNDu1irtwjDn2NQtUirP7/3Fdhu3kkv0MududMILEYwF5jfG
-         kdWw==
-X-Gm-Message-State: AOAM530p8UeHk2rcL7qfr1CSoLR3JBGd62i0zTAKF9nII//jyP92d8Td
-        0QuxDySOOrYs7X5Q0PFYRE4=
-X-Google-Smtp-Source: ABdhPJzi2C0t6+lPCKHB0U+YByYHQXEkr2tl5QDc5p1HeASONOcGFSbVAnzR8ggtlFgj0Vtbuf6jIA==
-X-Received: by 2002:a17:90b:694:: with SMTP id m20mr48934200pjz.160.1634574107281;
-        Mon, 18 Oct 2021 09:21:47 -0700 (PDT)
-Received: from google.com ([2620:15c:202:201:54f8:9d9:1fa7:9eae])
-        by smtp.gmail.com with ESMTPSA id c9sm13248568pgq.58.2021.10.18.09.21.45
+        bh=V1VnPfu2AuP5zIjik8TfylZ3NxfW6iX2aHgGQlj0jqg=;
+        b=lJeW3jfCIf9MCViLcFl3pPE7z5aMYY4upFPt0248/IzLavjcWrGfXpBcQBXlGDYCqf
+         20bVC7vqyThRepmVQmWlezjLKPAACcewfEtknAm8ZjdmqR/DBEY+5rKe3mYeX/EjFEWu
+         HdnY4KHm9BmIVFOX2w67eOzUV8Ao4csMaJjddpP2mjBl/DT91+bYH7dxPgAmyX+VK69x
+         muUM2KnoFX7dwoekv9dNYvNZXBaWgiqP7q86d8aPdra/LqNgKjpAiy9Fgx4VP3rmhY46
+         z99D20CyiVKjMTHdKvWy7FLaHnElbj/s7TZmR1ZkZqAlhdCP7ER9n7yahHMwkn6adaZr
+         Zw4A==
+X-Gm-Message-State: AOAM533xkFENYyeT5roRvtVftn8guoYUngtblCHfTXKQZeJosPkrEj73
+        ZGhIoZB4l+RlZbwUESaUxMpYhykGug==
+X-Google-Smtp-Source: ABdhPJxh2LC3W8dQZ8gqVlEq2VAcnrlQgUXPPILPrFtjFirbOy3w662Y8RAwHo0haLYLz14lx34unA==
+X-Received: by 2002:a05:6808:1795:: with SMTP id bg21mr635590oib.150.1634584925790;
+        Mon, 18 Oct 2021 12:22:05 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id az14sm3127906oib.51.2021.10.18.12.22.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Oct 2021 09:21:46 -0700 (PDT)
-Date:   Mon, 18 Oct 2021 09:21:43 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     "Daniel J. Ogorchock" <djogorchock@gmail.com>,
-        linux-input@vger.kernel.org, thunderbird2k@gmail.com,
-        blaws05@gmail.com, benjamin.tissoires@redhat.com,
-        Roderick.Colenbrander@sony.com, svv@google.com, s.jegen@gmail.com,
-        carmueller@gmail.com, pgriffais@valvesoftware.com,
-        hadess@hadess.net, pobrn@protonmail.com, lee.jones@linaro.org
-Subject: Re: [PATCH v16 13/16] HID: nintendo: add IMU support
-Message-ID: <YW2fF815BiZ8AryC@google.com>
-References: <20210911173639.5688-1-djogorchock@gmail.com>
- <20210911173639.5688-14-djogorchock@gmail.com>
- <nycvar.YFH.7.76.2109141525170.15944@cbobk.fhfr.pm>
+        Mon, 18 Oct 2021 12:22:05 -0700 (PDT)
+Received: (nullmailer pid 2793607 invoked by uid 1000);
+        Mon, 18 Oct 2021 19:22:04 -0000
+Date:   Mon, 18 Oct 2021 14:22:04 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Maxime Ripard <maxime@cerno.tech>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH v3] dt-bindings: input: Convert Silead GSL1680 binding to
+ a schema
+Message-ID: <YW3JXGS4toCgDw2c@robh.at.kernel.org>
+References: <20211015073006.8939-1-maxime@cerno.tech>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.2109141525170.15944@cbobk.fhfr.pm>
+In-Reply-To: <20211015073006.8939-1-maxime@cerno.tech>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Sep 14, 2021 at 03:26:23PM +0200, Jiri Kosina wrote:
-> On Sat, 11 Sep 2021, Daniel J. Ogorchock wrote:
+On Fri, 15 Oct 2021 09:30:06 +0200, Maxime Ripard wrote:
+> The Silead GSL1680 Touchscreen Controller is supported by Linux thanks
+> to its device tree binding.
 > 
-> [ CCing Dmitry ]
+> Now that we have the DT validation in place, let's convert the device
+> tree bindings for that driver over to a YAML schema.
 > 
-> > This patch adds support for the controller's IMU. The accelerometer and
-> > gyro data are both provided to userspace using a second input device.
-> > The devices can be associated using their uniq value (set to the
-> > controller's MAC address).
-> > 
-> > A large part of this patch's functionality was provided by Carl Mueller.
-> > 
-> > The IMU device is blacklisted from the joydev input handler.
-> > 
-> > Signed-off-by: Daniel J. Ogorchock <djogorchock@gmail.com>
-> [ ... snip ... ]
-> > diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-> > index 947d440a3be63..b45ddb4570028 100644
-> > --- a/drivers/input/joydev.c
-> > +++ b/drivers/input/joydev.c
-> > @@ -758,6 +758,12 @@ static void joydev_cleanup(struct joydev *joydev)
-> >  #define USB_VENDOR_ID_THQ			0x20d6
-> >  #define USB_DEVICE_ID_THQ_PS3_UDRAW			0xcb17
-> >  
-> > +#define USB_VENDOR_ID_NINTENDO		0x057e
-> > +#define USB_DEVICE_ID_NINTENDO_JOYCONL	0x2006
-> > +#define USB_DEVICE_ID_NINTENDO_JOYCONR	0x2007
-> > +#define USB_DEVICE_ID_NINTENDO_PROCON	0x2009
-> > +#define USB_DEVICE_ID_NINTENDO_CHRGGRIP	0x200E
-> > +
-> >  #define ACCEL_DEV(vnd, prd)						\
-> >  	{								\
-> >  		.flags = INPUT_DEVICE_ID_MATCH_VENDOR |			\
-> > @@ -789,6 +795,10 @@ static const struct input_device_id joydev_blacklist[] = {
-> >  	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
-> >  	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
-> >  	ACCEL_DEV(USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW),
-> > +	ACCEL_DEV(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_PROCON),
-> > +	ACCEL_DEV(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_CHRGGRIP),
-> > +	ACCEL_DEV(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_JOYCONL),
-> > +	ACCEL_DEV(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_JOYCONR),
-> >  	{ /* sentinel */ }
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 > 
-> Dmitry, could you please Ack the joydev.c part so that I could take it 
-> through HID tree with the rest of the patchset?
+> ---
+> 
+> Changes from v2:
+>   - Fixed firmware-name property name
+> 
+> Changes from v1:
+>   - Added maximum to the number of fingers
+> ---
+>  .../input/touchscreen/silead,gsl1680.yaml     | 91 +++++++++++++++++++
+>  .../input/touchscreen/silead_gsl1680.txt      | 44 ---------
+>  2 files changed, 91 insertions(+), 44 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/silead,gsl1680.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/silead_gsl1680.txt
+> 
 
-Sure and sorry for the delay.
-
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-
-Thanks.
-
--- 
-Dmitry
+Applied, thanks!

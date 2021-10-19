@@ -2,120 +2,74 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA81EC433F5
-	for <linux-input@archiver.kernel.org>; Tue, 19 Oct 2021 09:36:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0510C433F5
+	for <linux-input@archiver.kernel.org>; Tue, 19 Oct 2021 09:44:27 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id CFD0A61355
-	for <linux-input@archiver.kernel.org>; Tue, 19 Oct 2021 09:36:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id BF9376112D
+	for <linux-input@archiver.kernel.org>; Tue, 19 Oct 2021 09:44:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235082AbhJSJih (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Oct 2021 05:38:37 -0400
-Received: from 82-65-109-163.subs.proxad.net ([82.65.109.163]:51476 "EHLO
-        luna.linkmauve.fr" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235094AbhJSJig (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Oct 2021 05:38:36 -0400
-Received: by luna.linkmauve.fr (Postfix, from userid 1000)
-        id CD1C2F40C30; Tue, 19 Oct 2021 11:36:20 +0200 (CEST)
-Date:   Tue, 19 Oct 2021 11:36:20 +0200
-From:   Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     Emmanuel Gil Peyrot <linkmauve@linkmauve.fr>,
-        linux-input@vger.kernel.org, Ash Logan <ash@heyquark.com>,
-        Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.ne@posteo.net>,
-        =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-kernel@vger.kernel.org,
-        "Daniel J. Ogorchock" <djogorchock@gmail.com>
-Subject: Re: [PATCH v3 0/4] HID: wiiu-drc: Add a driver for the Wii U gamepad
-Message-ID: <20211019093620.msk3k6cvxe3rtros@luna>
-Jabber-ID: linkmauve@linkmauve.fr
-References: <20210502232836.26134-1-linkmauve@linkmauve.fr>
- <20210519085924.1636-1-linkmauve@linkmauve.fr>
- <20210921150837.ingexwsauvxgluca@luna>
- <nycvar.YFH.7.76.2110191112490.12554@cbobk.fhfr.pm>
- <20211019092737.kudgdeulghx2ig3m@luna>
- <nycvar.YFH.7.76.2110191128540.12554@cbobk.fhfr.pm>
+        id S234914AbhJSJqi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Oct 2021 05:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53666 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234680AbhJSJqe (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Tue, 19 Oct 2021 05:46:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26C0C60C51;
+        Tue, 19 Oct 2021 09:44:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1634636662;
+        bh=eqM62DUEKDXNjKrSmHtqURLPJJI+1JSEB59RabxwrmE=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=Vc51twLIb3g0bRaHLtYNZ1/xdEX46nulKcLzmEJOyvXtgDiM5USI6c3cAe+bwadji
+         bqqikUNNsl/auDaAgdeK4G6MHMb2rD1b0J4IPhLhMuwmn8k6EGojYxyGLjbCwl4ZMz
+         8Oa6LHQT+UGfoUY5/AJ99vvJ5Wd2KRAO2yzqqIBpqddkHD+y58Bk22Yd+Y7ju1R1ZD
+         gOZMr6q7aFTHQ0OAPWAwHaNbqbEYkbN8PqJeh3EveT7ye1BnmYvHFvAv8i/eM3Vtic
+         SFT9gX8PairWzlF/XjcxGoaw/vVgz84n/vVNn7TI+oUP39dS7+NLH6PwBib+yO69pK
+         dJJdLXsbNFAnQ==
+Date:   Tue, 19 Oct 2021 11:44:15 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     "Daniel J. Ogorchock" <djogorchock@gmail.com>
+cc:     linux-input@vger.kernel.org, thunderbird2k@gmail.com,
+        blaws05@gmail.com, benjamin.tissoires@redhat.com,
+        Roderick.Colenbrander@sony.com, svv@google.com, s.jegen@gmail.com,
+        carmueller@gmail.com, pgriffais@valvesoftware.com,
+        hadess@hadess.net, pobrn@protonmail.com, lee.jones@linaro.org,
+        Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH v16 00/16] HID: nintendo
+In-Reply-To: <nycvar.YFH.7.76.2110191054080.12554@cbobk.fhfr.pm>
+Message-ID: <nycvar.YFH.7.76.2110191142160.12554@cbobk.fhfr.pm>
+References: <20210911173639.5688-1-djogorchock@gmail.com> <nycvar.YFH.7.76.2110191054080.12554@cbobk.fhfr.pm>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="bplwbx7pdann6mqt"
-Content-Disposition: inline
-In-Reply-To: <nycvar.YFH.7.76.2110191128540.12554@cbobk.fhfr.pm>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Tue, 19 Oct 2021, Jiri Kosina wrote:
 
---bplwbx7pdann6mqt
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> > Rebased onto Linus' tree (sha 926de8c4326c14fcf35f1de142019043597a4fac)
+> > Depends on Roderick's patch to add the player LED defines:
+> > https://patchwork.kernel.org/project/linux-input/patch/20210908165539.3102929-3-roderick.colenbrander@sony.com/
+> 
+> I just got Ack for the joydev part from Dmitry.
+> 
+> v16 is now queued in hid.git#for-5.16/nintendo
 
-On Tue, Oct 19, 2021 at 11:30:06AM +0200, Jiri Kosina wrote:
-> On Tue, 19 Oct 2021, Emmanuel Gil Peyrot wrote:
->=20
-> > > The code looks good to me, the only question/request I'd have is -- w=
-ould=20
-> > > it be possible to adhere to the driver naming standards, and actually=
-=20
-> > > incorporate the support to existing hid-nintendo driver? Or is there =
-any=20
-> > > substantial reason which I don't see why this wouldn't be a good idea?
-> >=20
-> > I don=E2=80=99t see any existing driver named that way in mainline, wou=
-ld it be
-> > acceptable to simply rename the current patches to hid-nintendo?  What
-> > should be done about the existing hid-wiimote driver then, should it
-> > also be merged alongside?
->=20
-> hid-nintendo has just recently been staged for 5.16 in=20
-> hid.git#for-5.16/nintendo git branch. Could you please check that?
+Benjamin noticed that I pushed wrong version of the branch -- the one that 
+still doesn't contain the LED_FUNCTION_PLAYER[1-5] defines, which I've had 
+staged here locally, waiting for Pavel's Ack (which is taking time, 
+unfortunately).
 
-Got it, thanks!
+So please ignore this branch for now, I'll push v2 once that situation is 
+cleared out.
 
->=20
-> > Another driver I=E2=80=99d like to submit eventually is the GameCube Co=
-ntroller=20
-> > Adapter for Wii U, which does exactly what its name says, but being an=
-=20
-> > external USB adapter it also works on any USB computer; would it make=
-=20
-> > sense to develop it alongside the current driver, just because it is=20
-> > sold by the same company?
->=20
-> We generally group the support for HID devices in drivers based on the=20
-> producing company, with a few exceptions where it doesn't make sense.
+CCing Pavel as well here to make him aware of the issues this is causing 
+all over the place (see .e.g my mail [1] from yesterday).
 
-Would it make sense to decouple this driver from the joycon driver?  To
-have some kind of sub-driver (possibly with Kconfig entries) for joycon,
-wiimote, drc, gc-adapter, maybe more in the future?  I don=E2=80=99t see th=
-e drc
-code go well into that one C file.  I can handle the split of the joycon
-into its own file if that=E2=80=99s a good way forward.
+[1] https://lore.kernel.org/all/nycvar.YFH.7.76.2110181739310.12554@cbobk.fhfr.pm/
 
->=20
-> Thanks,
->=20
-> --=20
-> Jiri Kosina
-> SUSE Labs
+-- 
+Jiri Kosina
+SUSE Labs
 
---=20
-Emmanuel Gil Peyrot
-
---bplwbx7pdann6mqt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEjrVT1SzTln43kCLJOWgfYkb2LpAFAmFukZQACgkQOWgfYkb2
-LpAknwgAq7GjT6h4XAqJNiGgwt/589FvRV9OyZRGhAcZu0/BrEkla1EBy2zuJxBC
-C6otHBjb+iCZ2IolnU104rS32h6PQEPi1oLSWgEXkL/or7rd60DDuVf6ok6VMuz/
-kmQ20z85WWlEF52WXFJd6vOYHskX4NFbV8yI/lxrtpLbkNBnBIVQcHl6JPgAevzP
-vA3jLoMvF4fpt7bH5T6N3Po9zuaZgxpj2dAlV9tDEZ6Evxf+jNnT/VAfo0KDxZVM
-5zf7i0mq7nKxm5pTDAxVDuNd5fa6i/P7KCUo5ZBqqSOx4f+PByJTAV/MIivwNkOB
-mW6GZ29H9fUW7h3RL5X5Tv2cjloHgA==
-=PiJ3
------END PGP SIGNATURE-----
-
---bplwbx7pdann6mqt--

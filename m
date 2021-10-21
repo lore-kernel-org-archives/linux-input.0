@@ -2,132 +2,131 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8842C433EF
-	for <linux-input@archiver.kernel.org>; Thu, 21 Oct 2021 10:05:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0570C433FE
+	for <linux-input@archiver.kernel.org>; Thu, 21 Oct 2021 13:09:19 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id C2A9A600CC
-	for <linux-input@archiver.kernel.org>; Thu, 21 Oct 2021 10:05:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 86C096109F
+	for <linux-input@archiver.kernel.org>; Thu, 21 Oct 2021 13:09:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbhJUKIJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Oct 2021 06:08:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:45171 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231520AbhJUKII (ORCPT
+        id S230379AbhJUNLe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Oct 2021 09:11:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48702 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230463AbhJUNLd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Oct 2021 06:08:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1634810752;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=OGJuGgtDPx6oFIaSi1hNMo6S5k5dak1uMNO1VJPHxFE=;
-        b=JHchKhZUf3UVtELN8yItu2f3oJTYB9kQSCX4QFAGwIhzveptzp2tlSVzoWnCgstKzQ0Jdl
-        yZaEglBtECVIaMrJJhJ2hxqAON9hI9BNllZUhWbAJvwP5xWc+tn6C2lTcmSm7mszPIurDc
-        e9ezRBFl78wyfr1UvbSY8JgKkP+4GMQ=
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
- [209.85.215.198]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-71-PFRKPjHZNuiFU4J_9ClpdA-1; Thu, 21 Oct 2021 06:05:51 -0400
-X-MC-Unique: PFRKPjHZNuiFU4J_9ClpdA-1
-Received: by mail-pg1-f198.google.com with SMTP id z7-20020a63c047000000b0026b13e40309so14824003pgi.19
-        for <linux-input@vger.kernel.org>; Thu, 21 Oct 2021 03:05:51 -0700 (PDT)
+        Thu, 21 Oct 2021 09:11:33 -0400
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88E52C061749;
+        Thu, 21 Oct 2021 06:09:17 -0700 (PDT)
+Received: by mail-ed1-x530.google.com with SMTP id y12so340404eda.4;
+        Thu, 21 Oct 2021 06:09:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=eWhS/VWKVIIu5u4miltvI+qmcq5c4uC9DbdWdhggI74=;
+        b=WoEZhEev9dqTz70m5xKBKNf7wHRR7VifKNE72uszia0hVOhHB9JTG0fnwPnTK4KESM
+         EDS8crGqRr7wLjRBGcxRmlucVhdcC09WrDR1X/05BqBt4j7ijeVDLKtvRewCEBYZTRTD
+         U/6xiRfb49kqLKqmG46TXT+IxAteZuWJMdyx0E/wW6+s0XR/pzhv7mh0fQ/1qlUAw2Ki
+         6Mr4SJ/Kmx8k6C+anoLVvJyhL5MkZehfcFXRIvRrrkv/d7qyhdv9R7/Q3ayVOKTi+Xic
+         WNd5SjJ/DeNmOz40ejoajBPYBcP8CWWu9JS1a0USnUQZ/v4gU9qS80wm8gSTxb128HYG
+         ZWbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=OGJuGgtDPx6oFIaSi1hNMo6S5k5dak1uMNO1VJPHxFE=;
-        b=5GweWZm7QXNfevdjC59RN8rpr9wdTD2pR1g9P1YqZVgrSO35/mOlmk12v4fzyQ9Yux
-         rNC7yK02NeEX90PLKkbKu5IS4O6ngm/cYF5u8nFYwa2Pyg2vW1VoQUFeb54oGlfvzw7p
-         +f36/zmkljEqMkNYy8uCPzCbAFhDwacy7BS4YJCRotQp/1DpHy0nhdxo12ZlnZC8UB+m
-         dPHX/NDnuWJhKZ7Jb4Slb6PUTaDwome0bTyzPeB+iny7u6PTuYl+YI7GR5RWeGk8qeTa
-         ONak4WpkRIKcqf6kW/YFceVsvp0tP36V1BCiKgx/owWLQavhcJYm0u39V0iME9hETnTE
-         PtbA==
-X-Gm-Message-State: AOAM530pzOFEEwdIBB9bcjgKDXrT0e/gonR2lHQdqGPWQAJ6psbCBsuQ
-        4A04GqvS2g5xuYYIyJ8vJSm62/Z4kRz6APwEGL17BGLxmJX3m3hb7P8ZQZWDrzmWrADZMVIIi2Z
-        DcJmCoQ4tOEIpe9YUn7lkWQtDcifm7pWkIMg+zNE=
-X-Received: by 2002:a62:5304:0:b0:44c:719c:a2c with SMTP id h4-20020a625304000000b0044c719c0a2cmr4461590pfb.13.1634810750230;
-        Thu, 21 Oct 2021 03:05:50 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyTESYzdC+s7ND80mBlLJkwm3zpKysVZ2TDB8sOhj9e2qyfKZqcTsjG/GRhajqpBqMfx5LXnPbc9Q1coduy7Pw=
-X-Received: by 2002:a62:5304:0:b0:44c:719c:a2c with SMTP id
- h4-20020a625304000000b0044c719c0a2cmr4461563pfb.13.1634810750002; Thu, 21 Oct
- 2021 03:05:50 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=eWhS/VWKVIIu5u4miltvI+qmcq5c4uC9DbdWdhggI74=;
+        b=y/X01+oXK6OPiSuUUbmpWyetNRrNevWCqqxQgZWAmGoRye1ZyTISS2JhiitfrKW+0e
+         5OQep7bWCyU8NTZFOnKTMsDpYKfh0zyK92cTTnOmJUm+VRhmInMcJu+rDirZqUIjFNMh
+         FwVrQg+OxfFum5oR0hXUeVj4wH4l141kkQ5srsXaH03unYquyaq13gvYGyu53MZSFLz+
+         Di3DVHwJgBK6BluvyXzt7tzGognEQMSj9JDrt+hHN2610oMQ09bI3CmQ4rHWZ1SXeX0u
+         VOj90AV/NGeMZJfzjIA/jnXyAy7pHCxVYsvJ0oWSILp4OSFkPPVgBd/jYpFTenWtRpWu
+         xPZw==
+X-Gm-Message-State: AOAM531r20LAH2NEcNvujdsBtpWJKbGFz6seb8r/qSedsaZSrbvrsaCv
+        iaazBR1uzdsFV2AkA33XlN4=
+X-Google-Smtp-Source: ABdhPJya7JxoJvLdTO8E9eHXLyvVxpJiDn8P8sb9CewYUGQHWqceeK916mRIeer6xLmdg5IroxlHjA==
+X-Received: by 2002:a17:906:58c1:: with SMTP id e1mr7249968ejs.327.1634821756171;
+        Thu, 21 Oct 2021 06:09:16 -0700 (PDT)
+Received: from xws.localdomain ([194.126.177.11])
+        by smtp.gmail.com with ESMTPSA id q6sm126987eds.96.2021.10.21.06.09.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Oct 2021 06:09:15 -0700 (PDT)
+From:   Maximilian Luz <luzmaximilian@gmail.com>
+Cc:     Maximilian Luz <luzmaximilian@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 2/3] HID: surface-hid: Use correct event registry for managing HID events
+Date:   Thu, 21 Oct 2021 15:09:03 +0200
+Message-Id: <20211021130904.862610-3-luzmaximilian@gmail.com>
+X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20211021130904.862610-1-luzmaximilian@gmail.com>
+References: <20211021130904.862610-1-luzmaximilian@gmail.com>
 MIME-Version: 1.0
-References: <20211021095107.116292-1-alistair@alistair23.me> <20211021095107.116292-2-alistair@alistair23.me>
-In-Reply-To: <20211021095107.116292-2-alistair@alistair23.me>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Thu, 21 Oct 2021 12:05:39 +0200
-Message-ID: <CAO-hwJKY7-qyVQmWAe=eejCmtuNEGAA_1f+MgA_uS63Ma7LiiQ@mail.gmail.com>
-Subject: Re: [PATCH v12 2/3] HID: quirks: Invert X/Y values for rM2 Wacom
-To:     Alistair Francis <alistair@alistair23.me>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        dl-linux-imx <linux-imx@nxp.com>, Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        DTML <devicetree@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Alistair Francis <alistair23@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Oct 21, 2021 at 11:51 AM Alistair Francis
-<alistair@alistair23.me> wrote:
->
-> Enable the HID_QUIRK_XY_INVERT quirk for the Wacom digitiser used on the
-> reMarkable 2.
->
-> Signed-off-by: Alistair Francis <alistair@alistair23.me>
-> ---
->  drivers/hid/hid-ids.h    | 2 ++
->  drivers/hid/hid-quirks.c | 1 +
->  2 files changed, 3 insertions(+)
->
-> diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> index 29564b370341..9dc17bf3e550 100644
-> --- a/drivers/hid/hid-ids.h
-> +++ b/drivers/hid/hid-ids.h
-> @@ -1260,8 +1260,10 @@
->  #define USB_DEVICE_ID_VTL_MULTITOUCH_FF3F      0xff3f
->
->  #define USB_VENDOR_ID_WACOM            0x056a
-> +#define USB_VENDOR_ID_WACOM_HID                0x2D1F
->  #define USB_DEVICE_ID_WACOM_GRAPHIRE_BLUETOOTH 0x81
->  #define USB_DEVICE_ID_WACOM_INTUOS4_BLUETOOTH   0x00BD
-> +#define I2C_DEVICE_ID_WACOM_REMARKABLE2                0x0095
->
->  #define USB_VENDOR_ID_WALTOP                           0x172f
->  #define USB_DEVICE_ID_WALTOP_SLIM_TABLET_5_8_INCH      0x0032
-> diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-> index 2e104682c22b..b081af3329a5 100644
-> --- a/drivers/hid/hid-quirks.c
-> +++ b/drivers/hid/hid-quirks.c
-> @@ -186,6 +186,7 @@ static const struct hid_device_id hid_quirks[] = {
->         { HID_USB_DEVICE(USB_VENDOR_ID_TURBOX, USB_DEVICE_ID_TURBOX_KEYBOARD), HID_QUIRK_NOGET },
->         { HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_KNA5), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_UCLOGIC, USB_DEVICE_ID_UCLOGIC_TABLET_TWA60), HID_QUIRK_MULTI_INPUT },
-> +       { HID_I2C_DEVICE(USB_VENDOR_ID_WACOM_HID, I2C_DEVICE_ID_WACOM_REMARKABLE2), HID_QUIRK_XY_INVERT },
+Until now, we have only ever seen the REG-category registry being used
+on devices addressed with target ID 2. In fact, we have only ever seen
+Surface Aggregator Module (SAM) HID devices with target ID 2. For those
+devices, the registry also has to be addressed with target ID 2.
 
-Well, there is no guarantee that this PID will always be installed in
-this particular configuration.
+Some devices, like the new Surface Laptop Studio, however, address their
+HID devices on target ID 1. As a result of this, any target ID 2
+commands time out. This includes event management commands addressed to
+the target ID 2 REG-category registry. For these devices, the registry
+has to be addressed via target ID 1 instead.
 
-Can you instead set the quirk in i2c_hid?:
-- retrieve that information from the DT in
-drivers/hid/i2c-hid/i2c-hid-of.c (with the generic touchscreen OF
-properties)
-- amend the signature of i2c_hid_core_probe() to account for extra quirks
-- after having allocated the device, add the provided quirks
+We therefore assume that the target ID of the registry to be used
+depends on the target ID of the respective device. Implement this
+accordingly.
 
-Then I still need to figure out how we can add tests for the quirk.
+Note that we currently allow the surface HID driver to only load against
+devices with target ID 2, so these timeouts are not happening (yet).
+This is just a preparation step before we allow the driver to load
+against all target IDs.
 
-Cheers,
-Benjamin
+Cc: stable@vger.kernel.org # 5.14+
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+---
+ drivers/hid/surface-hid/surface_hid.c         | 2 +-
+ include/linux/surface_aggregator/controller.h | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
->         { HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_10_6_INCH), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_MEDIA_TABLET_14_1_INCH), HID_QUIRK_MULTI_INPUT },
->         { HID_USB_DEVICE(USB_VENDOR_ID_WALTOP, USB_DEVICE_ID_WALTOP_SIRIUS_BATTERY_FREE_TABLET), HID_QUIRK_MULTI_INPUT },
-> --
-> 2.31.1
->
+diff --git a/drivers/hid/surface-hid/surface_hid.c b/drivers/hid/surface-hid/surface_hid.c
+index a3a70e4f3f6c..daa452367c0b 100644
+--- a/drivers/hid/surface-hid/surface_hid.c
++++ b/drivers/hid/surface-hid/surface_hid.c
+@@ -209,7 +209,7 @@ static int surface_hid_probe(struct ssam_device *sdev)
+ 
+ 	shid->notif.base.priority = 1;
+ 	shid->notif.base.fn = ssam_hid_event_fn;
+-	shid->notif.event.reg = SSAM_EVENT_REGISTRY_REG;
++	shid->notif.event.reg = SSAM_EVENT_REGISTRY_REG(sdev->uid.target);
+ 	shid->notif.event.id.target_category = sdev->uid.category;
+ 	shid->notif.event.id.instance = sdev->uid.instance;
+ 	shid->notif.event.mask = SSAM_EVENT_MASK_STRICT;
+diff --git a/include/linux/surface_aggregator/controller.h b/include/linux/surface_aggregator/controller.h
+index 068e1982ad37..74bfdffaf7b0 100644
+--- a/include/linux/surface_aggregator/controller.h
++++ b/include/linux/surface_aggregator/controller.h
+@@ -792,8 +792,8 @@ enum ssam_event_mask {
+ #define SSAM_EVENT_REGISTRY_KIP	\
+ 	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_KIP, 0x02, 0x27, 0x28)
+ 
+-#define SSAM_EVENT_REGISTRY_REG \
+-	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_REG, 0x02, 0x01, 0x02)
++#define SSAM_EVENT_REGISTRY_REG(tid)\
++	SSAM_EVENT_REGISTRY(SSAM_SSH_TC_REG, tid, 0x01, 0x02)
+ 
+ /**
+  * enum ssam_event_notifier_flags - Flags for event notifiers.
+-- 
+2.33.1
 

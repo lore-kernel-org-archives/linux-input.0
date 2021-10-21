@@ -2,55 +2,55 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B312C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 21 Oct 2021 13:09:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D74E2C433FE
+	for <linux-input@archiver.kernel.org>; Thu, 21 Oct 2021 13:09:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id EFC1961212
-	for <linux-input@archiver.kernel.org>; Thu, 21 Oct 2021 13:09:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id C39D461362
+	for <linux-input@archiver.kernel.org>; Thu, 21 Oct 2021 13:09:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231134AbhJUNLf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Oct 2021 09:11:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48704 "EHLO
+        id S231207AbhJUNLi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Oct 2021 09:11:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230285AbhJUNLe (ORCPT
+        with ESMTP id S230463AbhJUNLg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Oct 2021 09:11:34 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A3EC06161C;
-        Thu, 21 Oct 2021 06:09:18 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id ec8so1080534edb.6;
-        Thu, 21 Oct 2021 06:09:18 -0700 (PDT)
+        Thu, 21 Oct 2021 09:11:36 -0400
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C2C0C06161C;
+        Thu, 21 Oct 2021 06:09:20 -0700 (PDT)
+Received: by mail-ed1-x52c.google.com with SMTP id t16so1005004eds.9;
+        Thu, 21 Oct 2021 06:09:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=zgnChK/V6LgAUB4kw1GaNXmG+i9xjyjTWMC+AtrXfBk=;
-        b=i76CAX6Eqknf3lgK4Eu4h5yWb5kIas+hXeA2aMzGQ3Q5qFZgwrKmvMK6fEv9wb007Z
-         hZQgNV3nJk3gw0/rtEiIIrjVz/Jpf2k8jyYpYKFQhhypNZn5GvaytkBKZkEslO0s0nCc
-         W+9pqHq++tph+22bnJES48513m424/bSSuP+c6s+co66h1EFAV/WNMNw1f1RAz+KbraW
-         fLotLACRzuHWRZUrakt3ClFYEaK+GkcTN3ZHam+QLRpWH8Q3KThWSFSF1aUt2+P8wb1J
-         x83Y1tUpZ0MALjbAk3KDG29Se0IjGTNpMaH7spSfoF2USAxV+l5kjoWQbtPTCgvVTyAA
-         DQ0A==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=LECEOaMB1G/jWwI9IEg6kx6EfVlOlUadsdIvepR6ADo=;
+        b=gnRvGwNwNBSjUKx7RQ9Gpa3xYp8zS8uwlavatUf55lWTcsRDZmJIVsXPbNuYcazH55
+         mQMQsRHHmw//d6RirvsNLL5x1IJMfdEi1/CB6s6fgpZapMkq1/hrQ687R/HvtJBDAJtT
+         6xz01YbG28uFwfo4Ra5YRGgnH1pTrQWlWpYvwHhuO3hyAxc6zgzAjhj/d/7CISdgR+Fv
+         OLQ3h1E2bPxSWPSF5EXr53aDTYMtYcWpT3vuLA03scaY3I6m2cDnMQNTaLOUksy0ZnA/
+         O6eTBO0MweOihpynBq2/+wczCzcJyjqi8Mudp7AULfmWvEMiRdv29sLLNa5TGgeD83md
+         Jr/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=zgnChK/V6LgAUB4kw1GaNXmG+i9xjyjTWMC+AtrXfBk=;
-        b=odEucupqSbqFxB8Hx1L93lDOzrfgz4phwiQydlpLAK3ZxDsZLaynERg7OjieBPwnJp
-         Pkh9gPEZ90FziaMqxQblsFaiw2zlCarXY+ptGC6FKH+uu8xEL0yhYaDyZoqAqotYNTxO
-         Fgah1KiP/op3LNvBnOZHNZLvoECFQ+15c/Nsk82FfQ/is9hR+uLc2V0kyj+2ittvBE0K
-         A1av/BRwPDLxGq8Yt1zmpfYABh/lgd0bApKwT/gWb4Eqfn6rNtPimjrk4S+dmlJUbzIQ
-         JfJ6c6jPmEWcUwUxCXrwbcVJnVW86swLPtsc6B054aXPlGl39DC2oFW4ZIRGsm32ja5P
-         N1KA==
-X-Gm-Message-State: AOAM531d6nDN3AxS6nMj/z7nDLSnZDke3xDIqMTxxv/ZtXwIBHEzviXY
-        WY2Yl4DqbEjgspqs4+CmXkYj+BcPk+E=
-X-Google-Smtp-Source: ABdhPJxhjAHMM+e+1hT/X+RJZAWxodYfHFk22KjnEvcmWIdfJGC6H+hjrJYWjwPIW1qhzNR+Z27JEw==
-X-Received: by 2002:a50:da4e:: with SMTP id a14mr7676967edk.154.1634821754097;
-        Thu, 21 Oct 2021 06:09:14 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=LECEOaMB1G/jWwI9IEg6kx6EfVlOlUadsdIvepR6ADo=;
+        b=T5caiCMZ5eUJYp3rZimW2Hbo/XVn5t2pUrru7X+ZRGJbYL3xPOxM7jZwoBIyEeN7xH
+         3EoJr2bbLZNRLx5lgoZ5GsQwy24lSdjivckdCNO9RtFlOlcEqmveSpnvBlFXau6h7CEp
+         pYUQLw3qtopKe/je8WQ9zxsiIbdQkyIoimThtS0TvuUrd3iJsh5UAomI+dtSDhMQLC3C
+         3W2GMuzAPzmgKcM3lMkdQEdb5fByu8gxJYGxcfyHa3DhDxV93wy7vuLItXqQ5vM2FWyW
+         mbNdC8PUYcyce08ZTB5LFujR22Ovm5IKHBFzijc1q1CKw/fetK9W5/eAqwGZt0+T0YPX
+         fN5A==
+X-Gm-Message-State: AOAM531YAuicormS3pBxQRsl8bhePOum5D4GAKlAuZdK4EOMSz1D9Nwy
+        A5LYtkavbySI8qZgND3H0AO4WOcQhmA=
+X-Google-Smtp-Source: ABdhPJyXxI70UbL9XtJH+weCYz849WYcLNzw99qUd3iov1sm5Qv3s0hS8gyHmQfYn9Qq7jo7DA8/Zg==
+X-Received: by 2002:a05:6402:1e8e:: with SMTP id f14mr7819119edf.27.1634821757166;
+        Thu, 21 Oct 2021 06:09:17 -0700 (PDT)
 Received: from xws.localdomain ([194.126.177.11])
-        by smtp.gmail.com with ESMTPSA id q6sm126987eds.96.2021.10.21.06.09.12
+        by smtp.gmail.com with ESMTPSA id q6sm126987eds.96.2021.10.21.06.09.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Oct 2021 06:09:13 -0700 (PDT)
+        Thu, 21 Oct 2021 06:09:16 -0700 (PDT)
 From:   Maximilian Luz <luzmaximilian@gmail.com>
 Cc:     Maximilian Luz <luzmaximilian@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
@@ -58,11 +58,13 @@ Cc:     Maximilian Luz <luzmaximilian@gmail.com>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 0/3] platform/surface: aggregator: Add support for Surface Laptop Studio
-Date:   Thu, 21 Oct 2021 15:09:01 +0200
-Message-Id: <20211021130904.862610-1-luzmaximilian@gmail.com>
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH 3/3] HID: surface-hid: Allow driver matching for target ID 1 devices
+Date:   Thu, 21 Oct 2021 15:09:04 +0200
+Message-Id: <20211021130904.862610-4-luzmaximilian@gmail.com>
 X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20211021130904.862610-1-luzmaximilian@gmail.com>
+References: <20211021130904.862610-1-luzmaximilian@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 To:     unlisted-recipients:; (no To-header on input)
@@ -70,32 +72,29 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series adds Surface Aggregator Module (SAM) support for the new
-Surface Laptop Studio (SLS).
+Until now we have only ever seen HID devices with target ID 2. The new
+Surface Laptop Studio however uses HID devices with target ID 1. Allow
+matching this driver to those as well.
 
-This is mostly straight-forward addition of devices to the Surface
-Aggregator registry, but the Surface HID driver needs a couple of small
-changes. Specifically, we need to allow it to probe against SAM devices
-with target ID 1 and also need to use the corresponding registry for
-those.
+Cc: stable@vger.kernel.org # 5.14+
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+---
+ drivers/hid/surface-hid/surface_hid.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I hope it's okay that I've CCed stable to get these included in v5.14+
-stable kernels. The changes are fairly small and enable keyboard and
-touchpad on the SLS. Most other things (except touch) should already
-work well on the latest stable kernels, so back-porting this series
-would make the SLS a usable device on those.
-
-Maximilian Luz (3):
-  platform/surface: aggregator_registry: Add support for Surface Laptop
-    Studio
-  HID: surface-hid: Use correct event registry for managing HID events
-  HID: surface-hid: Allow driver matching for target ID 1 devices
-
- drivers/hid/surface-hid/surface_hid.c         |  4 +-
- .../surface/surface_aggregator_registry.c     | 54 +++++++++++++++++++
- include/linux/surface_aggregator/controller.h |  4 +-
- 3 files changed, 58 insertions(+), 4 deletions(-)
-
+diff --git a/drivers/hid/surface-hid/surface_hid.c b/drivers/hid/surface-hid/surface_hid.c
+index daa452367c0b..d4aa8c81903a 100644
+--- a/drivers/hid/surface-hid/surface_hid.c
++++ b/drivers/hid/surface-hid/surface_hid.c
+@@ -230,7 +230,7 @@ static void surface_hid_remove(struct ssam_device *sdev)
+ }
+ 
+ static const struct ssam_device_id surface_hid_match[] = {
+-	{ SSAM_SDEV(HID, 0x02, SSAM_ANY_IID, 0x00) },
++	{ SSAM_SDEV(HID, SSAM_ANY_TID, SSAM_ANY_IID, 0x00) },
+ 	{ },
+ };
+ MODULE_DEVICE_TABLE(ssam, surface_hid_match);
 -- 
 2.33.1
 

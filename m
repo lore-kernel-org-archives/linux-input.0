@@ -2,82 +2,74 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74ECDC433F5
-	for <linux-input@archiver.kernel.org>; Sun, 24 Oct 2021 15:08:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31856C43217
+	for <linux-input@archiver.kernel.org>; Sun, 24 Oct 2021 15:08:16 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 5F61E60C51
-	for <linux-input@archiver.kernel.org>; Sun, 24 Oct 2021 15:08:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 1CB3D60C51
+	for <linux-input@archiver.kernel.org>; Sun, 24 Oct 2021 15:08:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231704AbhJXPKb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 24 Oct 2021 11:10:31 -0400
-Received: from smtp-32-i2.italiaonline.it ([213.209.12.32]:37177 "EHLO
+        id S231720AbhJXPKc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 24 Oct 2021 11:10:32 -0400
+Received: from smtp-32-i2.italiaonline.it ([213.209.12.32]:38588 "EHLO
         libero.it" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230379AbhJXPK3 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 24 Oct 2021 11:10:29 -0400
+        id S231658AbhJXPKa (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sun, 24 Oct 2021 11:10:30 -0400
 Received: from passgat-Modern-14-A10M.homenet.telecomitalia.it
  ([213.45.67.127])
         by smtp-32.iol.local with ESMTPA
-        id eeyWmj6mkdfuoeeybmWXwc; Sun, 24 Oct 2021 16:59:57 +0200
+        id eeyWmj6mkdfuoeeyamWXw6; Sun, 24 Oct 2021 16:59:56 +0200
 x-libjamoibt: 1601
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=libero.it; s=s2021;
-        t=1635087597; bh=/t4afwvWKwIcozWo7+JhPaKv7o+8VqLY8nNdi3B2CXc=;
+        t=1635087597; bh=UHNp/mjrujGjyEugYBqZOEjeBO4p+fK9OLkSqTnBvO0=;
         h=From;
-        b=nvmgNjhHVcMZCjwOMQVgBf/kV5251Kf3tlfspeKBfaCp7vnm2kLnwA16x0WUk45Hh
-         aMVNN76G/QpXKNrbbHxuADZNbp8Ulw6kKQps+RBDxSKGkbeYvUpwduqsJlepQDKhGk
-         xxnZOj50vfpALRXxGmu1XFnU3391JPn1+317wBvwNd7EKpy6pB21TRTYRLIZjTd2T0
-         8/N+zj5xvRyzLfNDZsqXSdaVZjfQUr9Y+I/M9rHSN0wQXICq3cZN2uAm2V3wz3MUKi
-         Xgzp4ZaciUHNlv3ZoxMy0unniCGGbAJ4yzKd7gPd0MgNoa7sWtP5/WYXUBWHQMi7ps
-         VCT7mvDGh/Gmg==
+        b=wzvu1ZHaUk+/eR3exg6g1dJetP9q8up9ZI+OFTQmQGcltCtEn6GR5BL1BqA7AmCeD
+         suhVyvU0mRIA9XZE2CBfEzlLz9ZgUuV0aHEx2vvcv3/vpNFudUkK88UfjLLGQHt5kV
+         3nLieTO44J+tPOEYQTORhoQppOHf8FrzPB1TWvyIwGTRmoDv5OhpfNCa0keOTZfkdF
+         x7bfC2fqepPdC8Zg8sTapwUrg+bd5Y/vIBvojgA1Vs0BdgwcIBlxXRtvCTwdJti3hm
+         YBXnGz/f/20h418MW8XwGcvwRQ0vfFKTklH+CJwsNcA0aXOvMIh/+5Rbt8/kPm0krb
+         79+4i9Mi9c1zQ==
 X-CNFS-Analysis: v=2.4 cv=IrzbzJzg c=1 sm=1 tr=0 ts=617574ed cx=a_exe
  a=Vk63IOK+/LoQucGDvce7tA==:117 a=Vk63IOK+/LoQucGDvce7tA==:17
- a=Us_wMsjpGDddDCpAM8cA:9
+ a=eDEbosCrgEDue1CRdZcA:9
 From:   Dario Binacchi <dariobin@libero.it>
 To:     linux-kernel@vger.kernel.org
 Cc:     Dario Binacchi <dariobin@libero.it>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>, Rachna Patil <rachna@ti.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 2/6] input: ti_am335x_tsc: fix STEPCONFIG setup for Z2
-Date:   Sun, 24 Oct 2021 16:59:26 +0200
-Message-Id: <20211024145931.1916-3-dariobin@libero.it>
+        devicetree@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH 0/6] input: touchscreen: am335x: fix and improvements
+Date:   Sun, 24 Oct 2021 16:59:24 +0200
+Message-Id: <20211024145931.1916-1-dariobin@libero.it>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20211024145931.1916-1-dariobin@libero.it>
-References: <20211024145931.1916-1-dariobin@libero.it>
 X-CMAE-Envelope: MS4xfJVeqVN0AJ9sz/vFjjQaGJ37dfpFQCvJnhuDEu4E4nuGWWR6zPKD47ndH1qfSsrLKgzfV0wY9nDG7jJQuJmyaywDuhc9j+41/KyjXI0rVAYQWCNhrjAK
- rCh+8NWps6g2wM6od2LNZIB0uI0SVXbOlTZbsxshkIWKH7xKX9qA37PInpJhEmVElm5ZontQKPR2eKl1Ayq/uCBtbXhxbxRI49YpXpX2UKuw05ao0GLvj5Dt
- QEfhw28+xj7eM72QR9m67QfbcdeYitSwSc34AAXu9lFILJD62PIxZn/hijdL3NqIC962NuIw2r2rLRp6CtSiswoBSK9QPMJel4YwOIFwg6tr385tOegbytJZ
- j3HBTs70x4z9TsqqJRwy6vS9XSB65A==
+ rCh+8NWps6g2wM6od2LNZIB0uI0SVXbOlTZbsxshkIWKH7xKX9qA37PIes+TMz6FUc1SRkgpFG2zIQ0T9CT73FpEnZ9ycHch+MkAkxKPjYWEGRwgTGBCB+76
+ 3sJ+xzn3G9gHs2FnCVHL4Ju/RR0u+AG5BPSRhAAPTIU12WSL3O/nRZ1FTMTBPwdiqJrTRQaj3xhGkkvjoGMKUho1Nu6CQkBMsjWR8JdhlXsC6mngM553qVVU
+ WGrktaLzR9YLuRexrQ/p67up0nK9XMIre3Rn+YzQ5P3lviobM3MKtBTzTjkEkHnkT9KrqEFQsXi8Gy1M4NKhBz7Ct8fC+kAKiUJyuj+FqR1EN29Z2GjxnQZ1
+ 1KIenmjv1OKqov1XoZX6xmuacGr3JPpfcLoz/A==
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The Z2 step configuration doesn't erase the SEL_INP_SWC_3_0 bit-field
-before setting the ADC channel. This way its value could be corrupted by
-the ADC channel selected for the Z1 coordinate.
+This series grew out of a touchscreen validation activity on a custom
+board. Oscilloscope measurements and driver source analysis led to these
+patches.
 
-Fixes: 8c896308fea ("input: ti_am335x_adc: use only FIFO0 and clean up a little")
-Signed-off-by: Dario Binacchi <dariobin@libero.it>
----
+Dario Binacchi (6):
+  input: ti_am335x_tsc: set ADCREFM for X configuration
+  input: ti_am335x_tsc: fix STEPCONFIG setup for Z2
+  input: ti_am335x_tsc: lower the X and Y sampling time
+  dt-bindings: input: ti-tsc-adc: fix tsc node example
+  mfd: ti_am335x_tscadc: fix reading a tsc property from DT
+  mfd: ti_am335x_tscadc: drop the CNTRLREG_8WIRE macro
 
- drivers/input/touchscreen/ti_am335x_tsc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../bindings/input/touchscreen/ti-tsc-adc.txt  |  2 +-
+ drivers/input/touchscreen/ti_am335x_tsc.c      | 18 +++++++++++++-----
+ drivers/mfd/ti_am335x_tscadc.c                 |  7 ++++++-
+ include/linux/mfd/ti_am335x_tscadc.h           |  1 -
+ 4 files changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index fd3ffdd23470..cfc943423241 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -196,7 +196,10 @@ static void titsc_step_config(struct titsc *ts_dev)
- 			STEPCONFIG_OPENDLY);
- 
- 	end_step++;
--	config |= STEPCONFIG_INP(ts_dev->inp_yn);
-+	config = STEPCONFIG_MODE_HWSYNC |
-+			STEPCONFIG_AVG_16 | ts_dev->bit_yp |
-+			ts_dev->bit_xn | STEPCONFIG_INM_ADCREFM |
-+			STEPCONFIG_INP(ts_dev->inp_yn);
- 	titsc_writel(ts_dev, REG_STEPCONFIG(end_step), config);
- 	titsc_writel(ts_dev, REG_STEPDELAY(end_step),
- 			STEPCONFIG_OPENDLY);
 -- 
 2.17.1
 

@@ -2,94 +2,88 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B8C0C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 28 Oct 2021 09:22:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FF4CC433F5
+	for <linux-input@archiver.kernel.org>; Thu, 28 Oct 2021 16:07:40 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 4C64960F9D
-	for <linux-input@archiver.kernel.org>; Thu, 28 Oct 2021 09:22:16 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 12B26610CB
+	for <linux-input@archiver.kernel.org>; Thu, 28 Oct 2021 16:07:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbhJ1JYm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Oct 2021 05:24:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45328 "EHLO
+        id S229626AbhJ1QKG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Oct 2021 12:10:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229626AbhJ1JYl (ORCPT
+        with ESMTP id S229565AbhJ1QKF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Oct 2021 05:24:41 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A26BC061570
-        for <linux-input@vger.kernel.org>; Thu, 28 Oct 2021 02:22:15 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id u18so8970393wrg.5
-        for <linux-input@vger.kernel.org>; Thu, 28 Oct 2021 02:22:15 -0700 (PDT)
+        Thu, 28 Oct 2021 12:10:05 -0400
+Received: from mail-vk1-xa2d.google.com (mail-vk1-xa2d.google.com [IPv6:2607:f8b0:4864:20::a2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1805C061570;
+        Thu, 28 Oct 2021 09:07:38 -0700 (PDT)
+Received: by mail-vk1-xa2d.google.com with SMTP id d128so2678709vkf.11;
+        Thu, 28 Oct 2021 09:07:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id;
-        bh=hjM2WUF1lzXY8XSn9CQ+qLQ2WnGf0S7Zj6og2AgfuJU=;
-        b=yaFTZ4zR2QmWIVjESn3Y65WO8ch2AOc5eL+KxRsT4jZxAcetkP57727q/8bYQHwXHb
-         7c3Q6nevCFj+6sGfkxk1GuYJw7npoMdcfIIh63dB4xTcwFhfDtXv7sahs45XvGBRpyrG
-         mAHc5MHISu0zGqNlLdCdMGttf+cu8TINSJ6S4j+7rX1bTc0xG/thBkaWGsJPaQpjmxCi
-         Y9jvwuLs7L3VkRq9OLSQeijRCObVyhS0/KWUaVe9oHcPM+CkeIlUIl4Lfh51OupvQOIG
-         CpKEdvSDROUuVH/M3u/inoe5yQx3x4p19XLtFATMF2Uf2Fo2zwWQowFM9tsy2HnX5+P+
-         SmhQ==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=utJYicnclzOTw8CLsFuIC+zUBac+ra5fM6a8h3LYNn4=;
+        b=ZYKWoH7zWlMBPR7k2Q/RYQP1KMqAN/fu/oKb7XVsdtcL1y/2uosuJkkWFRo3e7APls
+         pyRN9OteGfXtvea4D1lNAVOwRH6a8d5zDydKBNIGILWaK1YDwE6LeGaFwtKkdkEinlv2
+         esoFqT/Z1ZI0MEtJO9/pCEiL/+a3YnjvivA+Acnbqa6og4nhi9beM/Y7N6htkqQujDMq
+         A9ajpNLrWTSNiJiTTNkA7RIHF4DYYaWgzvuy8XuomgveK5DZo6lBx0w0psVVhEfd91wd
+         tJRens1s2IHcXzHn9laMPWuAFsakn5A+r4fxmWn7JUnXQ3IKw+r7l8v8/+JV9Govgkj9
+         NAPw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=hjM2WUF1lzXY8XSn9CQ+qLQ2WnGf0S7Zj6og2AgfuJU=;
-        b=klDG88/TpHavGimp++/uo3VMkMgfmSIuQiNOO8lcghBvqerW6JuBHUCykF+s86a3mO
-         G5f+yuzayG3ulIHzMuIoudhmQCmCr6H5gYifEk6AeOXegOpxwfpsGgwUJ5jXmL+VcksN
-         BVW3CkMFHmoj3q1lSVUXj/wTjXa9/aaOgwsiGpSIZ/HGjXbmpS//eNeCQ0In46JI5q/s
-         bFhKzf1YDm19B+x1aplPj05ZJ5Sl+6TszNiNzGMuyWE6TA0W3or0clqi+siyyeF/BUgS
-         oNfR2vJ3r4mHRET1S8N0GnmTxbnuycAIvJdaSp9WgkhP4bITY390Np0KoS9RhTDiTYC2
-         ZeNg==
-X-Gm-Message-State: AOAM533EpofLZijzsmz053Ft0f1dsWc4AbQ7bAtBaGoSuUyqTM2gqr+j
-        ZICyGgP7Q2WdhbwYm/4M8I63Cg==
-X-Google-Smtp-Source: ABdhPJzkET2NSmN7fnLN770Afk92wICEMQOVBpfINnQdf2Gqih5ZSTfMEZyS69olXJKc7QWdi3ck1A==
-X-Received: by 2002:a5d:59a7:: with SMTP id p7mr4137467wrr.141.1635412933579;
-        Thu, 28 Oct 2021 02:22:13 -0700 (PDT)
-Received: from localhost.localdomain ([88.160.176.23])
-        by smtp.gmail.com with ESMTPSA id h22sm2153607wmq.42.2021.10.28.02.22.12
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 28 Oct 2021 02:22:13 -0700 (PDT)
-From:   Loic Poulain <loic.poulain@linaro.org>
-To:     dmitry.torokhov@gmail.com
-Cc:     aduggan@synaptics.com, linux-input@vger.kernel.org,
-        Loic Poulain <loic.poulain@linaro.org>
-Subject: [PATCH] Input: synaptics-rmi4 - Fix doze-holdoff value
-Date:   Thu, 28 Oct 2021 11:33:37 +0200
-Message-Id: <1635413617-2869-1-git-send-email-loic.poulain@linaro.org>
-X-Mailer: git-send-email 2.7.4
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=utJYicnclzOTw8CLsFuIC+zUBac+ra5fM6a8h3LYNn4=;
+        b=sevkmPQSOl6dTC+m9SIxCKtZPMAI7oV6xnkKv0Y7lhFc8IItzE5fepEB8pg/ADGsBn
+         YMjs4F5REic1iKCRWZWpTkJ4vXSNwn7IUoP7eLxR+uZuK5IU+xhqBWE1sLTnNg2C2aGj
+         9u+YiCOFhviEyPVhDbG6425LWetgi1Ypo4HAwx/fmR3vmrCWZ0cXDBB4HF6Q9LRwr9+/
+         75rfvHJ5p8Al2/UCQaOYpuU76x4FO5coj4SXNdZVXJaoxGNiNYlRW0ifQe4T7tf49iWi
+         GxhzHyVkHz2pt/zp7N2XA6ogy0Bny5rpezNxbZAkjuc3uI6xp5hB4vQJg/TNzJPS46Q6
+         msOg==
+X-Gm-Message-State: AOAM530EMzwEKxVoheZfYiQoURC7I+r/11g7rbgsqG/CLbCmgyjONYd1
+        Qj6CxaOLpAgNF+hASMUev6pZLbXb0/0gi9I2Pmk=
+X-Google-Smtp-Source: ABdhPJz54cer+Yx278eLZeBzF09ZWQQMS/3swHVpOgVwyCuGWBrrJJ6tLDd20xV3FAPQeU72dPaUqk7Y5BoChmUWqy4=
+X-Received: by 2002:a05:6122:a03:: with SMTP id 3mr2784135vkn.8.1635437257636;
+ Thu, 28 Oct 2021 09:07:37 -0700 (PDT)
+MIME-Version: 1.0
+References: <20211008222327.9324-1-angiolucci@gmail.com>
+In-Reply-To: <20211008222327.9324-1-angiolucci@gmail.com>
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Date:   Thu, 28 Oct 2021 09:07:25 -0700
+Message-ID: <CAKdAkRTdCSC_6UqWkcT3p697+d0kwEqMSSR=M9vw-NPAjdZ4SQ@mail.gmail.com>
+Subject: Re: [PATCH] HID: hid-asus.c: Maps key 0x35 (display off) to KEY_SCREENLOCK
+To:     =?UTF-8?Q?Vin=C3=ADcius_Angiolucci_Reis?= <itsme.vreis@gmail.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>, angiolucci@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-doze-holdoff is in 100ms unit not 10us.
+Hi Vin=C3=ADcius,
 
-Fixes: d8a8b3edfd92 ("Input: synaptics-rmi4 - add device tree support for RMI4 I2C devices")
-Signed-off-by: Loic Poulain <loic.poulain@linaro.org>
----
- drivers/input/rmi4/rmi_f01.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+On Fri, Oct 8, 2021 at 3:24 PM Vin=C3=ADcius Angiolucci Reis
+<itsme.vreis@gmail.com> wrote:
+>
+> On Windows systems, ASUS laptops uses the "turn display off" key
+> (usually fn+f6) to turn both display and keyboard backlit off. On Linux
+> systems, this key has no effect at all since most desktop enviroments
+> don't deal with KEY_DISPLAY_OFF. By mapping it to KEY_SCREENLOCK
+> instead, would enable desktop environments to handle this key as a
+> screen lock intent from the user, out of the box.
 
-diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
-index d7603c5..e90c618 100644
---- a/drivers/input/rmi4/rmi_f01.c
-+++ b/drivers/input/rmi4/rmi_f01.c
-@@ -362,13 +362,15 @@ static int rmi_f01_of_probe(struct device *dev,
- 	if (retval)
- 		return retval;
- 
--	pdata->power_management.doze_holdoff = val * 100;
-+	/* Doze holdoff is in 100ms unit */
-+	pdata->power_management.doze_holdoff = val / 100;
- 
- 	retval = rmi_of_property_read_u32(dev, &val,
- 			"syna,doze-interval-ms", 1);
- 	if (retval)
- 		return retval;
- 
-+	/* Doze interval is in 10ms unit */
- 	pdata->power_management.doze_interval = val / 10;
- 
- 	return 0;
--- 
-2.7.4
+But is it the intent of the user? The fact that current desktop
+environments do not handle this key is not a reason to change kernel
+behavior.
 
+If screen lock is simply your preference then you can change the
+mapping via udev on your system without the need to patch the kernel.
+
+Thanks.
+
+--
+Dmitry

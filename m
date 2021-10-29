@@ -2,47 +2,43 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6544FC433FE
-	for <linux-input@archiver.kernel.org>; Fri, 29 Oct 2021 15:29:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17124C4332F
+	for <linux-input@archiver.kernel.org>; Fri, 29 Oct 2021 15:29:21 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 488F2611C7
+	by mail.kernel.org (Postfix) with ESMTP id EE685611C7
 	for <linux-input@archiver.kernel.org>; Fri, 29 Oct 2021 15:29:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229999AbhJ2Pbr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 29 Oct 2021 11:31:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59460 "EHLO
+        id S230022AbhJ2Pbs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 29 Oct 2021 11:31:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbhJ2Pbr (ORCPT
+        with ESMTP id S229527AbhJ2Pbr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Fri, 29 Oct 2021 11:31:47 -0400
 Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5E12C061570;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9126C061714;
         Fri, 29 Oct 2021 08:29:18 -0700 (PDT)
 From:   =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
         s=mail; t=1635521356;
-        bh=xpkQwOJ7rx6E7Tl8iUgiaBxrMqco6gv/RoKR4AOF7aA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=apdbY5SvWPXfqQ3QIb2YfkeYUapqFBCQM3itUQq5AD5/K5895K0QHwqDdYETsBCqt
-         hV1EGtz/iOl0mtnhd1MUNQ3zlRTGDBUgNftBBOi/XS+Py0nmD8LdA1MCyvQ0CMz44g
-         UwBlgMqjvULYhrtjmPWawPID6+1eAnmMwj8iFTvE=
+        bh=XxyRlnq+8Zc9pSgLZiODQgMlckpzCuye+ovfYvG2PuA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HkYi4Lv4nTe7azOKDX6LqRgCI6kwsbcdj53Oi32uJql2r9PrVa6MKVHABoD0jsKji
+         JqKG9ycRY388aRsGrCqmdxTlHtbd04lMjrWaCVF9y2gcoIdb//FmZrbcBrn0c6hj46
+         p/V4T+ffUXSKr8VIoM0f3a1PA6lZ26a7/StqDPLs=
 To:     linux-input@vger.kernel.org
 Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
         linux-kernel@vger.kernel.org,
         Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Mark Gross <markgross@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Rushikesh S Kadam <rushikesh.s.kadam@intel.com>,
         Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Benson Leung <bleung@chromium.org>,
-        platform-driver-x86@vger.kernel.org, linux-kbuild@vger.kernel.org
-Subject: [PATCH 0/6] MODULE_DEVICE_TABLE() support for the ISHTP bus
-Date:   Fri, 29 Oct 2021 17:28:55 +0200
-Message-Id: <20211029152901.297939-1-linux@weissschuh.net>
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 2/6] HID: intel-ish-hid: use constants for modaliases
+Date:   Fri, 29 Oct 2021 17:28:57 +0200
+Message-Id: <20211029152901.297939-3-linux@weissschuh.net>
 X-Mailer: git-send-email 2.33.1
+In-Reply-To: <20211029152901.297939-2-linux@weissschuh.net>
+References: <20211029152901.297939-1-linux@weissschuh.net>
+ <20211029152901.297939-2-linux@weissschuh.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,51 +46,40 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Currently as soon as any ISHTP device appears all available ISHTP device
-drivers are loaded automatically.
-This series extends the MODULE_DEVICE_TABLE() functionality to properly handle
-the ishtp bus and switches the drivers over to use it.
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 
-Patch 1 adds the infrastructure to handle ishtp devices via MODULE_DEVICE_TABLE()
-Patch 2 replaces some inlined constants with ones now defined by mod_devicetable.h
-Patches 3-6 migrate all ishtp drivers to MODULE_DEVICE_TABLE()
-
-Note: This patchset is based on the pdx86/for-next tree because that contains
-one of the drivers that is not yet in the other trees.
+---
 
 Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Cc: Mark Gross <markgross@kernel.org>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: Rushikesh S Kadam <rushikesh.s.kadam@intel.com>
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Guenter Roeck <groeck@chromium.org>
-Cc: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Cc: Benson Leung <bleung@chromium.org>
+Cc: linux-input@vger.kernel.org
+---
+ drivers/hid/intel-ish-hid/ishtp/bus.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Cc: platform-driver-x86@vger.kernel.org
-Cc: linux-kbuild@vger.kernel.org
-
-Thomas Weißschuh (6):
-  HID: intel-ish-hid: add support for MODULE_DEVICE_TABLE()
-  HID: intel-ish-hid: use constants for modaliases
-  HID: intel-ish-hid: fw-loader: only load for matching devices
-  HID: intel-ish-hid: hid-client: only load for matching devices
-  platform/chrome: chros_ec_ishtp: only load for matching devices
-  platform/x86: isthp_eclite: only load for matching devices
-
- drivers/hid/intel-ish-hid/ishtp-fw-loader.c  |  7 +++++-
- drivers/hid/intel-ish-hid/ishtp-hid-client.c |  7 +++++-
- drivers/hid/intel-ish-hid/ishtp/bus.c        |  4 ++--
- drivers/platform/chrome/cros_ec_ishtp.c      |  7 +++++-
- drivers/platform/x86/intel/ishtp_eclite.c    |  7 +++++-
- include/linux/mod_devicetable.h              | 13 +++++++++++
- scripts/mod/devicetable-offsets.c            |  3 +++
- scripts/mod/file2alias.c                     | 24 ++++++++++++++++++++
- 8 files changed, 66 insertions(+), 6 deletions(-)
-
-
-base-commit: 85303db36b6e170917a7bc6aae4898c31a5272a0
+diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
+index 334eac611774..e159cd1c5f37 100644
+--- a/drivers/hid/intel-ish-hid/ishtp/bus.c
++++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
+@@ -350,7 +350,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
+ {
+ 	int len;
+ 
+-	len = snprintf(buf, PAGE_SIZE, "ishtp:%s\n", dev_name(dev));
++	len = snprintf(buf, PAGE_SIZE, ISHTP_MODULE_PREFIX "%s\n", dev_name(dev));
+ 	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
+ }
+ static DEVICE_ATTR_RO(modalias);
+@@ -363,7 +363,7 @@ ATTRIBUTE_GROUPS(ishtp_cl_dev);
+ 
+ static int ishtp_cl_uevent(struct device *dev, struct kobj_uevent_env *env)
+ {
+-	if (add_uevent_var(env, "MODALIAS=ishtp:%s", dev_name(dev)))
++	if (add_uevent_var(env, "MODALIAS=" ISHTP_MODULE_PREFIX "%s", dev_name(dev)))
+ 		return -ENOMEM;
+ 	return 0;
+ }
 -- 
 2.33.1
 

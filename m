@@ -2,195 +2,102 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82409C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  3 Nov 2021 17:09:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A24E2C433F5
+	for <linux-input@archiver.kernel.org>; Wed,  3 Nov 2021 23:08:04 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 6173461108
-	for <linux-input@archiver.kernel.org>; Wed,  3 Nov 2021 17:09:33 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 8C247611AE
+	for <linux-input@archiver.kernel.org>; Wed,  3 Nov 2021 23:08:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229946AbhKCRMI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Nov 2021 13:12:08 -0400
-Received: from mga05.intel.com ([192.55.52.43]:32466 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229698AbhKCRMI (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 3 Nov 2021 13:12:08 -0400
-X-IronPort-AV: E=McAfee;i="6200,9189,10157"; a="317755450"
-X-IronPort-AV: E=Sophos;i="5.87,206,1631602800"; 
-   d="scan'208";a="317755450"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Nov 2021 10:09:28 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,206,1631602800"; 
-   d="scan'208";a="489641920"
-Received: from lkp-server02.sh.intel.com (HELO c20d8bc80006) ([10.239.97.151])
-  by orsmga007.jf.intel.com with ESMTP; 03 Nov 2021 10:09:25 -0700
-Received: from kbuild by c20d8bc80006 with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1miJlM-0005j0-U4; Wed, 03 Nov 2021 17:09:24 +0000
-Date:   Thu, 04 Nov 2021 01:08:53 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org
-Subject: [dtor-input:next] BUILD SUCCESS
- 5fe11512cdc24ccc66ac5da3c815ac9e59449abc
-Message-ID: <6182c225.oE7svWTHPbGxYY3/%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+        id S230168AbhKCXKj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Nov 2021 19:10:39 -0400
+Received: from mail-oi1-f171.google.com ([209.85.167.171]:37524 "EHLO
+        mail-oi1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230108AbhKCXKi (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 3 Nov 2021 19:10:38 -0400
+Received: by mail-oi1-f171.google.com with SMTP id o83so6177890oif.4;
+        Wed, 03 Nov 2021 16:08:01 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
+         :message-id;
+        bh=WLuVuAYOP3Qwoy+azSFg/EZlpahDAhqD21l4wQ3l8XI=;
+        b=JOP/UUiCM6ltd4PdXnuPKqh9m3nEuqmfM6zAF1Yd4L7IyoSVRJJ2S/a2AO9MWcyXEk
+         C0jXSaTk8IOwmdA+zhJpLlVp+0zRL31c2y5kY6/CkTfUzlXYgIfNfRAF5SSglgQsLXh/
+         v0Dk90gMB6Gv4qpRdjlJ8xOAnuxdcGLW5bSA6Mp0H3tcA7hgSVbPnGB1dGiZ58qTJ07n
+         LWuyRGs2qOXyC4otBPD7KegIn7Yugd4fZi+AL2k41saoTSRywlhIvOspILuyfILgMLUD
+         IczIoQLfrKxMBWzuTAZTVfG6zHaPj919zqpxVGjK3vcOrOUOvNfnB/5z0EuOEh+NFVyg
+         RuhA==
+X-Gm-Message-State: AOAM532Xq2NUIAm1xsL30rX4J8lza8xeoWNjWfPQkwJO0TmQ39oYF4Gx
+        dX22HgSsQ1Ku8lemdkeBqTVF2nWaOQ==
+X-Google-Smtp-Source: ABdhPJw4sVaiqSveYzsN2BnL3m300eMWJQg6pmuG4SixypC7Kx3qEJ9i6nd6n5e83pvMvIwwnqlULw==
+X-Received: by 2002:a05:6808:23d4:: with SMTP id bq20mr14026296oib.112.1635980880825;
+        Wed, 03 Nov 2021 16:08:00 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id 62sm896752ooa.47.2021.11.03.16.07.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Nov 2021 16:08:00 -0700 (PDT)
+Received: (nullmailer pid 1941684 invoked by uid 1000);
+        Wed, 03 Nov 2021 23:07:59 -0000
+From:   Rob Herring <robh@kernel.org>
+To:     Alistair Francis <alistair@alistair23.me>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linus.walleij@linaro.org, rydberg@bitmath.org,
+        dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+        alistair23@gmail.com, robh+dt@kernel.org,
+        devicetree@vger.kernel.org, mylene.josserand@free-electrons.com,
+        andreas@kemnade.info
+In-Reply-To: <20211103114830.62711-3-alistair@alistair23.me>
+References: <20211103114830.62711-1-alistair@alistair23.me> <20211103114830.62711-3-alistair@alistair23.me>
+Subject: Re: [PATCH v2 2/4] Documentation: DT: bindings: input: Add documentation for cyttsp5
+Date:   Wed, 03 Nov 2021 18:07:59 -0500
+Message-Id: <1635980879.208363.1941683.nullmailer@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-branch HEAD: 5fe11512cdc24ccc66ac5da3c815ac9e59449abc  Input: remove unused header <linux/input/cy8ctmg110_pdata.h>
+On Wed, 03 Nov 2021 21:48:28 +1000, Alistair Francis wrote:
+> From: Mylène Josserand <mylene.josserand@free-electrons.com>
+> 
+> Add the Cypress TrueTouch Generation 5 touchscreen device tree bindings
+> documentation. It can use I2C or SPI bus.
+> This touchscreen can handle some defined zone that are designed and
+> sent as button. To be able to customize the keycode sent, the
+> "linux,code" property in a "button" sub-node can be used.
+> 
+> Signed-off-by: Mylène Josserand <mylene.josserand@free-electrons.com>
+> Message-Id: <20170529144538.29187-3-mylene.josserand@free-electrons.com>
+> Signed-off-by: Alistair Francis <alistair@alistair23.me>
+> ---
+>  .../input/touchscreen/cypress,tt21000.yaml    | 92 +++++++++++++++++++
+>  1 file changed, 92 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
+> 
 
-elapsed time: 925m
+My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+on your patch (DT_CHECKER_FLAGS is new in v5.13):
 
-configs tested: 132
-configs skipped: 5
+yamllint warnings/errors:
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+dtschema/dtc warnings/errors:
+./Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml: $id: relative path/filename doesn't match actual path or filename
+	expected: http://devicetree.org/schemas/input/touchscreen/cypress,tt21000.yaml#
+Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dts:37.26-39.19: Warning (unit_address_vs_reg): /example-0/i2c/touchscreen@24/button@0: node has a unit name, but no reg or ranges property
+Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dts:41.26-43.19: Warning (unit_address_vs_reg): /example-0/i2c/touchscreen@24/button@1: node has a unit name, but no reg or ranges property
+Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dts:45.26-47.19: Warning (unit_address_vs_reg): /example-0/i2c/touchscreen@24/button@2: node has a unit name, but no reg or ranges property
+Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dt.yaml:0:0: /example-0/i2c/touchscreen@24: failed to match any schema with compatible: ['cypress,tt2100']
 
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-i386                 randconfig-c001-20211103
-m68k                        m5307c3_defconfig
-arc                      axs103_smp_defconfig
-arm                        spear6xx_defconfig
-i386                                defconfig
-powerpc                    sam440ep_defconfig
-m68k                          hp300_defconfig
-m68k                            q40_defconfig
-mips                         bigsur_defconfig
-s390                                defconfig
-arm                         lpc18xx_defconfig
-sh                         ecovec24_defconfig
-mips                       lemote2f_defconfig
-sh                          lboxre2_defconfig
-mips                         rt305x_defconfig
-powerpc                     pq2fads_defconfig
-sh                          rsk7264_defconfig
-m68k                       m5249evb_defconfig
-sh                               j2_defconfig
-powerpc                         wii_defconfig
-arm                          badge4_defconfig
-mips                      maltaaprp_defconfig
-mips                         tb0219_defconfig
-h8300                               defconfig
-sh                           se7619_defconfig
-arm                            mps2_defconfig
-sh                          kfr2r09_defconfig
-powerpc                      obs600_defconfig
-mips                     loongson1b_defconfig
-powerpc                  storcenter_defconfig
-arm                     eseries_pxa_defconfig
-arm                       imx_v6_v7_defconfig
-riscv                    nommu_virt_defconfig
-h8300                    h8300h-sim_defconfig
-h8300                     edosk2674_defconfig
-sh                          r7780mp_defconfig
-powerpc                     tqm8548_defconfig
-sh                             shx3_defconfig
-arc                          axs101_defconfig
-mips                      maltasmvp_defconfig
-arc                     haps_hs_smp_defconfig
-arm                         s3c6400_defconfig
-openrisc                 simple_smp_defconfig
-arm                         hackkit_defconfig
-sh                          sdk7780_defconfig
-powerpc                      arches_defconfig
-powerpc                       ppc64_defconfig
-arm                            xcep_defconfig
-x86_64                              defconfig
-m68k                            mac_defconfig
-powerpc                 mpc837x_mds_defconfig
-arm                  randconfig-c002-20211103
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                                defconfig
-m68k                             allmodconfig
-m68k                             allyesconfig
-nios2                               defconfig
-nds32                             allnoconfig
-arc                              allyesconfig
-nds32                               defconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-nios2                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-parisc                              defconfig
-parisc                           allyesconfig
-s390                             allyesconfig
-s390                             allmodconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                              debian-10.3
-i386                             allyesconfig
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                           allnoconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-x86_64               randconfig-a012-20211103
-x86_64               randconfig-a015-20211103
-x86_64               randconfig-a016-20211103
-x86_64               randconfig-a011-20211103
-x86_64               randconfig-a013-20211103
-x86_64               randconfig-a014-20211103
-i386                 randconfig-a014-20211103
-i386                 randconfig-a016-20211103
-i386                 randconfig-a013-20211103
-i386                 randconfig-a015-20211103
-i386                 randconfig-a011-20211103
-i386                 randconfig-a012-20211103
-riscv                    nommu_k210_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                          rv32_defconfig
-riscv                            allyesconfig
-riscv                            allmodconfig
-x86_64                    rhel-8.3-kselftests
-um                           x86_64_defconfig
-um                             i386_defconfig
-x86_64                               rhel-8.3
-x86_64                          rhel-8.3-func
-x86_64                                  kexec
-x86_64                           allyesconfig
+doc reference errors (make refcheckdocs):
 
-clang tested configs:
-mips                 randconfig-c004-20211103
-arm                  randconfig-c002-20211103
-i386                 randconfig-c001-20211103
-s390                 randconfig-c005-20211103
-powerpc              randconfig-c003-20211103
-riscv                randconfig-c006-20211103
-x86_64               randconfig-c007-20211103
-i386                 randconfig-a005-20211103
-i386                 randconfig-a003-20211103
-i386                 randconfig-a001-20211103
-i386                 randconfig-a004-20211103
-i386                 randconfig-a006-20211103
-i386                 randconfig-a002-20211103
-x86_64               randconfig-a006-20211103
-x86_64               randconfig-a004-20211103
-x86_64               randconfig-a001-20211103
-x86_64               randconfig-a002-20211103
-x86_64               randconfig-a005-20211103
-x86_64               randconfig-a003-20211103
-hexagon              randconfig-r041-20211103
-hexagon              randconfig-r045-20211103
+See https://patchwork.ozlabs.org/patch/1550218
 
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+This check can fail if there are any dependencies. The base for a patch
+series is generally the most recent rc1.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit.
+

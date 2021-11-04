@@ -2,75 +2,170 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A2C7C433EF
-	for <linux-input@archiver.kernel.org>; Thu,  4 Nov 2021 08:08:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26725C433EF
+	for <linux-input@archiver.kernel.org>; Thu,  4 Nov 2021 08:44:47 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id E8A6D611C3
-	for <linux-input@archiver.kernel.org>; Thu,  4 Nov 2021 08:08:17 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id F32A861216
+	for <linux-input@archiver.kernel.org>; Thu,  4 Nov 2021 08:44:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230252AbhKDIKw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 4 Nov 2021 04:10:52 -0400
-Received: from smtp25.cstnet.cn ([159.226.251.25]:49640 "EHLO cstnet.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S230229AbhKDIKw (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 4 Nov 2021 04:10:52 -0400
-Received: from localhost.localdomain (unknown [124.16.138.128])
-        by APP-05 (Coremail) with SMTP id zQCowABnSO3WlINh6e1BBg--.52292S2;
-        Thu, 04 Nov 2021 16:07:51 +0800 (CST)
-From:   Jiasheng Jiang <jiasheng@iscas.ac.cn>
-To:     jikos@kernel.org, benjamin.tissoires@redhat.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Subject: [PATCH] HID: ite: Add parse before start
-Date:   Thu,  4 Nov 2021 08:07:49 +0000
-Message-Id: <1636013269-3433050-1-git-send-email-jiasheng@iscas.ac.cn>
-X-Mailer: git-send-email 2.7.4
-X-CM-TRANSID: zQCowABnSO3WlINh6e1BBg--.52292S2
-X-Coremail-Antispam: 1UD129KBjvdXoWrZw1kXw45Ww18JFyUKrWDXFb_yoW3JwcEkw
-        48uwn7Gr98Krs2kF1xAr18Zr9Y9an7ZF1fZ3Wft398Ja47WasrZFZFv3s3G345urW8Z3Wx
-        GrZFvryxAFnI9jkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUbckFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG
-        6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
-        A2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr0_
-        Cr1l84ACjcxK6I8E87Iv67AKxVWxJr0_GcWl84ACjcxK6I8E87Iv6xkF7I0E14v26rxl6s
-        0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xII
-        jxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr
-        1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkIecxEwVAFwVW8ZwCF
-        04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r
-        18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vI
-        r41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr
-        1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF
-        0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JUIzuXUUUUU=
-X-Originating-IP: [124.16.138.128]
-X-CM-SenderInfo: pmld2xxhqjqxpvfd2hldfou0/
+        id S230252AbhKDIrX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 4 Nov 2021 04:47:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49760 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230229AbhKDIrX (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 4 Nov 2021 04:47:23 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8425CC061714;
+        Thu,  4 Nov 2021 01:44:45 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: andrzej.p)
+        with ESMTPSA id D75851F45E3B
+Subject: Re: [RFC] tty/sysrq: Add alternative SysRq key
+To:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Slaby <jirislaby@kernel.org>, kernel@collabora.com
+References: <20211103155438.11167-1-andrzej.p@collabora.com>
+ <b4dfb305-38d9-9a92-df76-90b72b93705a@infradead.org>
+From:   Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Message-ID: <f9b84557-c000-fd0e-bf74-a585c23d22e6@collabora.com>
+Date:   Thu, 4 Nov 2021 09:44:41 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
+MIME-Version: 1.0
+In-Reply-To: <b4dfb305-38d9-9a92-df76-90b72b93705a@infradead.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It might be better to add  hid_parse() before
-wacom_parse_and_register() to ask for the report descriptor.
+Hi Randy,
 
-Fixes: 3c785a0 ("HID: ite: Replace ABS_MISC 120/121 events with touchpad on/off keypresses")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
----
- drivers/hid/hid-ite.c | 4 ++++
- 1 file changed, 4 insertions(+)
+W dniu 03.11.2021 o 17:19, Randy Dunlap pisze:
+> On 11/3/21 8:54 AM, Andrzej Pietrasiewicz wrote:
+>> There exist machines which don't have SysRq key at all, e.g. chromebooks.
+>>
+>> This patch allows configuring an alternative key to act as SysRq. Devices
+>> which declare KEY_SYSRQ in their 'keybit' bitmap continue using KEY_SYSRQ,
+>> but other devices use the alternative SysRq key instead, by default F10.
+>> Which key is actually used can be modified with sysrq's module parameter.
+>>
+>> Signed-off-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+>> ---
+>> I'd like to resurrect an old thread regarding supporting alternative SysRq
+>> key for machines which don't have a physical SysRq key at all.
+>>
+>> The old thread:
+>>
+>> https://www.spinics.net/lists/linux-input/msg67982.html
+>>
+>> I'm resending this patch, rebased onto v5.15.
+>>
+>> Any (new) thoughts about it?
+>>
+> 
+> Hi,
+> Did you test it with this patch?
 
-diff --git a/drivers/hid/hid-ite.c b/drivers/hid/hid-ite.c
-index 14fc068..3c56f75 100644
---- a/drivers/hid/hid-ite.c
-+++ b/drivers/hid/hid-ite.c
-@@ -100,6 +100,10 @@ static int ite_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (ret)
- 		return ret;
- 
-+	ret = hid_parse(hdev);
-+	if (ret)
-+		return ret;
-+
- 	return hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- }
- 
--- 
-2.7.4
+
+Thanks... I must have sent an incorrect version (with incomplete
+conflict resolution).
+
+Andrzej
+
+> 
+> 
+>>
+>>   drivers/tty/sysrq.c | 28 +++++++++++++++++++++++++---
+>>   1 file changed, 25 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/tty/sysrq.c b/drivers/tty/sysrq.c
+>> index c911196ac893..6dd288e53ce9 100644
+>> --- a/drivers/tty/sysrq.c
+>> +++ b/drivers/tty/sysrq.c
+>> @@ -634,6 +634,7 @@ EXPORT_SYMBOL(handle_sysrq);
+>>   #ifdef CONFIG_INPUT
+>>   static int sysrq_reset_downtime_ms;
+>> +static unsigned short alternative_sysrq_key = KEY_F10;
+>>   /* Simple translation table for the SysRq keys */
+>>   static const unsigned char sysrq_xlate[KEY_CNT] =
+>> @@ -653,6 +654,7 @@ struct sysrq_state {
+>>       unsigned int alt_use;
+>>       unsigned int shift;
+>>       unsigned int shift_use;
+>> +    unsigned short sys
+> 
+> That line appears to need an ending ';'.
+> Or maybe that line was truncated since 'sys' isn't used anywhere in this patch.
+> 
+>>       bool active;
+>>       bool need_reinject;
+>>       bool reinjecting;
+>> @@ -802,10 +804,10 @@ static void sysrq_reinject_alt_sysrq(struct work_struct 
+>> *work)
+>>           /* Simulate press and release of Alt + SysRq */
+>>           input_inject_event(handle, EV_KEY, alt_code, 1);
+>> -        input_inject_event(handle, EV_KEY, KEY_SYSRQ, 1);
+>> +        input_inject_event(handle, EV_KEY, sysrq->sysrq_key, 1);
+>>           input_inject_event(handle, EV_SYN, SYN_REPORT, 1);
+>> -        input_inject_event(handle, EV_KEY, KEY_SYSRQ, 0);
+>> +        input_inject_event(handle, EV_KEY, sysrq->sysrq_key, 0);
+>>           input_inject_event(handle, EV_KEY, alt_code, 0);
+>>           input_inject_event(handle, EV_SYN, SYN_REPORT, 1);
+>> @@ -845,6 +847,7 @@ static bool sysrq_handle_keypress(struct sysrq_state *sysrq,
+>>               sysrq->shift = code;
+>>           break;
+>> +key_sysrq:
+>>       case KEY_SYSRQ:
+>>           if (value == 1 && sysrq->alt != KEY_RESERVED) {
+>>               sysrq->active = true;
+>> @@ -867,11 +870,15 @@ static bool sysrq_handle_keypress(struct sysrq_state 
+>> *sysrq,
+>>            * triggering print screen function.
+>>            */
+>>           if (sysrq->active)
+>> -            clear_bit(KEY_SYSRQ, sysrq->handle.dev->key);
+>> +            clear_bit(sysrq->sysrq_key, sysrq->handle.dev->key);
+>>           break;
+>>       default:
+>> +        /* handle non-default sysrq key */
+>> +        if (code == sysrq->sysrq_key)
+>> +            goto key_sysrq;
+>> +
+>>           if (sysrq->active && value && value != 2) {
+>>               unsigned char c = sysrq_xlate[code];
+>> @@ -970,6 +977,14 @@ static int sysrq_connect(struct input_handler *handler,
+>>       sysrq->handle.private = sysrq;
+>>       timer_setup(&sysrq->keyreset_timer, sysrq_do_reset, 0);
+>> +    if (test_bit(KEY_SYSRQ, dev->keybit)) {
+>> +        sysrq->sysrq_key = KEY_SYSRQ;
+>> +        pr_info("%s: using default sysrq key [%x]\n", dev->name, KEY_SYSRQ);
+>> +    } else {
+>> +        sysrq->sysrq_key = alternative_sysrq_key;
+>> +        pr_info("%s: Using alternative sysrq key: [%x]\n", dev->name, 
+>> sysrq->sysrq_key);
+>> +    }
+>> +
+>>       error = input_register_handle(&sysrq->handle);
+>>       if (error) {
+>>           pr_err("Failed to register input sysrq handler, error %d\n",
+>> @@ -1078,6 +1093,13 @@ module_param_array_named(reset_seq, sysrq_reset_seq, 
+>> sysrq_reset_seq,
+>>   module_param_named(sysrq_downtime_ms, sysrq_reset_downtime_ms, int, 0644);
+>> +module_param(alternative_sysrq_key, ushort, 0644);
+>> +MODULE_PARM_DESC(alternative_sysrq_key,
+>> +    "Alternative SysRq key for input devices that don't have SysRq key. F10 
+>> by default.\n"
+>> +    "Example\n"
+>> +    "Using F9 as SysRq:\n"
+>> +    "sysrq.alternative_sysrq_key=0x43\n");
+>> +
+>>   #else
+>>   static inline void sysrq_register_handler(void)
+>>
+> 
+> 
 

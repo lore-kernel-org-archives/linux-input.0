@@ -2,159 +2,152 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C342DC433EF
-	for <linux-input@archiver.kernel.org>; Sat,  6 Nov 2021 10:13:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ED43C433F5
+	for <linux-input@archiver.kernel.org>; Sat,  6 Nov 2021 23:48:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id A2C88611EE
-	for <linux-input@archiver.kernel.org>; Sat,  6 Nov 2021 10:13:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 7191261165
+	for <linux-input@archiver.kernel.org>; Sat,  6 Nov 2021 23:48:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230232AbhKFKQA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 6 Nov 2021 06:16:00 -0400
-Received: from perceval.ideasonboard.com ([213.167.242.64]:43306 "EHLO
-        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229645AbhKFKP7 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2021 06:15:59 -0400
-Received: from pendragon.ideasonboard.com (cpc89244-aztw30-2-0-cust3082.18-1.cable.virginm.net [86.31.172.11])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 7025D18FC;
-        Sat,  6 Nov 2021 11:13:17 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1636193597;
-        bh=pWHsN85WQE04ifv7GnoCEhAUNAYLGxlr6rj0B8T8H+Y=;
-        h=In-Reply-To:References:Subject:From:Cc:To:Date:From;
-        b=aX4+ukReNH2TvvALnKExXBbdCMgB8yR1AJiq7A/sxMEfOveQ2jO8BnW0cjnX1lNA6
-         YM3GRHxa7o19KNhFPjlsOKVD/90R/XIsrLUysuPSdIZatON9TPKvHv8OOkl603p7vT
-         RU+/tqlEUZKA6c8WlQKDkH722qzUabhtNbIjcFQ0=
-Content-Type: text/plain; charset="utf-8"
+        id S229723AbhKFXvX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 6 Nov 2021 19:51:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41364 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229638AbhKFXvW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Nov 2021 19:51:22 -0400
+Received: from mail-vk1-xa2b.google.com (mail-vk1-xa2b.google.com [IPv6:2607:f8b0:4864:20::a2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5C2C061570;
+        Sat,  6 Nov 2021 16:48:40 -0700 (PDT)
+Received: by mail-vk1-xa2b.google.com with SMTP id p22so4682516vke.7;
+        Sat, 06 Nov 2021 16:48:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Tu9T2J9TAcoCDpx4Vd+FJ/FqlL4Rlpy89On20h1Qvh4=;
+        b=qDWZ9tC9zWVNwcgx+rxlqo0t09MAo2a0wunmk+MOO65UfkkManF13w+7484U5zKjyI
+         yHkdYFHIMW5ymUbyg6GToFcV68LdTL3f5hkViAL9N6dgXCHTSmzmT+B+gmf/u2765Jbu
+         A4r1BZgby7JUfDLzO0/Gop6JpcS+JaNK1zcd3eHPGQ3vogrEzx0H6GkQOMo4MMzaBXA6
+         ADnHBHb+V0GP2rwRWI0QgQtfUzpy3LGFPg/4I1ZDxnxMUuA2KXZsyiyWGAUxNl9uVDDo
+         QckKHxhc2LvuLJJbG2ThVF5+fOU1k4s5vL76XBcoUInXk1mLkcuA7BDEeJeODHyPsu9l
+         SVfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Tu9T2J9TAcoCDpx4Vd+FJ/FqlL4Rlpy89On20h1Qvh4=;
+        b=C7tsxlFv4huwKFthSOWx0B7c7IJOftcQrilXfp4r95Yy0QDuXXTDb4RxWcLyMKerSJ
+         X4oGaDqDKvscTwCzIBz3+cANsOgltzSbeM9CCQ5eW3rVp848p1eInbYN/R8JXXwI7hlk
+         9IZZSiclcX3mPDtapR7Eee5lxe+VgFWG3lGD0J7o1PQL4m0/7xV6ScB5rJVwuu9zdeUz
+         tnp53BtQfg1oK+3/cY5+AD1fOdK/whTpDb6g4Sve3M3C/J54FRfZCaLHbnvy8n1p8Yn6
+         JHqnOjqXhS9IOUh4ylKgWjab04UYmpcBLjwWfnwliNjdm8T2Wll9xpr3PWngak+v0n6b
+         Q8vw==
+X-Gm-Message-State: AOAM531Mhg639VK+UAcR+vgMKyoOeI8HSO/wRmpulXK4KN6Opkg58JVf
+        cn1HoDXEEf64iCRhD8zpu5HqbHqJupnsYLD3R86s5d9BfVk=
+X-Google-Smtp-Source: ABdhPJxhgETgFOtWD0ABWXXRK2qi15hKfcB4EWicQZkRdQiTIO2645oT6I+62pCB0IxAp4PdNalbsKwknhiW/6eTTyM=
+X-Received: by 2002:a1f:b697:: with SMTP id g145mr83862543vkf.1.1636242519785;
+ Sat, 06 Nov 2021 16:48:39 -0700 (PDT)
 MIME-Version: 1.0
+References: <20211008222327.9324-1-angiolucci@gmail.com> <CAKdAkRTdCSC_6UqWkcT3p697+d0kwEqMSSR=M9vw-NPAjdZ4SQ@mail.gmail.com>
+ <CALawNGC3HTV86+LAkMNf_nApqnUoAQ7UPEXOj9WXake5DhHkpQ@mail.gmail.com> <YYWoRW9NRC58zQ9w@google.com>
+In-Reply-To: <YYWoRW9NRC58zQ9w@google.com>
+From:   =?UTF-8?Q?Vin=C3=ADcius_Reis?= <itsme.vreis@gmail.com>
+Date:   Sat, 6 Nov 2021 20:48:29 -0300
+Message-ID: <CALawNGBookRkFSGdGJrW1hboJ8kpsPj_rwAkNXQ3mU32oDv-sA@mail.gmail.com>
+Subject: Re: [PATCH] HID: hid-asus.c: Maps key 0x35 (display off) to KEY_SCREENLOCK
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>, angiolucci@gmail.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <YYW4d/YK1MkIfGT/@google.com>
-References: <20211105103508.4153491-1-kieran.bingham+renesas@ideasonboard.com> <20211105170037.GA65511@nixie71> <YYW4d/YK1MkIfGT/@google.com>
-Subject: Re: [PATCH v2] Input: add 'safe' user switch codes
-From:   Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Cc:     linux-input@vger.kernel.org, Geert Uytterhoeven <geert@glider.be>,
-        linux-renesas-soc@vger.kernel.org,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Wu Hao <hao.wu@intel.com>, Bjorn Helgaas <bhelgaas@google.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Dave Ertman <david.m.ertman@intel.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Xu Yilun <yilun.xu@intel.com>,
-        open list <linux-kernel@vger.kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jeff LaBundy <jeff@labundy.com>
-Date:   Sat, 06 Nov 2021 10:13:15 +0000
-Message-ID: <163619359511.3601475.3667763097540792609@Monstersaurus>
-User-Agent: alot/0.9.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Dmitry, Jeff,
-
-Thanks for looking into this,
-
-Quoting Dmitry Torokhov (2021-11-05 23:04:23)
-> Hi Jeff, Kieran,
->=20
-> On Fri, Nov 05, 2021 at 12:00:37PM -0500, Jeff LaBundy wrote:
-> > Hi Kieran,
-> >=20
-> > On Fri, Nov 05, 2021 at 10:35:07AM +0000, Kieran Bingham wrote:
-> > > All existing SW input codes define an action which can be interpreted=
- by
-> > > a user environment to adapt to the condition of the switch.
-> > >=20
-> > > For example, switches to define the audio mute, will prevent audio
-> > > playback, and switches to indicate lid and covers being closed may
-> > > disable displays.
-> > >=20
-> > > Many evaluation platforms provide switches which can be connected to =
-the
-> > > input system but associating these to an action incorrectly could
-> > > provide inconsistent end user experiences due to unmarked switch
-> > > positions.
-> > >=20
-> > > Define two custom user defined switches allowing hardware descriptions
-> > > to be created whereby the position of the switch is not interpreted as
-> > > any standard condition that will affect a user experience.
-> > >=20
-> > > This allows wiring up custom generic switches in a way that will allow
-> > > them to be read and processed, without incurring undesired or otherwi=
+Em sex., 5 de nov. de 2021 =C3=A0s 18:55, Dmitry Torokhov
+<dmitry.torokhov@gmail.com> escreveu:
+>
+> On Fri, Nov 05, 2021 at 12:16:45PM -0300, Vin=C3=ADcius Reis wrote:
+> > Em qui., 28 de out. de 2021 =C3=A0s 13:07, Dmitry Torokhov
+> > <dmitry.torokhov@gmail.com> escreveu:
+> > >
+> > > Hi Vin=C3=ADcius,
+> > >
+> > > On Fri, Oct 8, 2021 at 3:24 PM Vin=C3=ADcius Angiolucci Reis
+> > > <itsme.vreis@gmail.com> wrote:
+> > > >
+> > > > On Windows systems, ASUS laptops uses the "turn display off" key
+> > > > (usually fn+f6) to turn both display and keyboard backlit off. On L=
+inux
+> > > > systems, this key has no effect at all since most desktop enviromen=
+ts
+> > > > don't deal with KEY_DISPLAY_OFF. By mapping it to KEY_SCREENLOCK
+> > > > instead, would enable desktop environments to handle this key as a
+> > > > screen lock intent from the user, out of the box.
+> > >
+> > > But is it the intent of the user? The fact that current desktop
+> > > environments do not handle this key is not a reason to change kernel
+> > > behavior.
+> > >
+> > > If screen lock is simply your preference then you can change the
+> > > mapping via udev on your system without the need to patch the kernel.
+> > >
+> > > Thanks.
+> > >
+> > > --
+> > > Dmitry
+> >
+> > (Sorry, I'm sending this response again because it seems the first
+> > attempt didn't make it to the mailing lists for some reason.)
+> >
+> > Hi Dmitry,
+> >
+> > I've picked up this particular key event because it would trigger a clo=
 se
-> > > undocumented (by the hardware) 'default' behaviours.
-> > >=20
-> > > Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.co=
-m>
-> > > ---
-> > >=20
-> > > Sigh, a compile test might have at least saved the buildbots the trou=
-ble
-> > > of notifying me I also need to update the INPUT_DEVICE_ID_SW_MAX. But
-> > > even so - I'm really looking for a discussion on the best ways to
-> > > describe a non-defined switch in device tree.
-> > >=20
-> > > Here's a compiling v2 ;-) But the real questions are :
-> > >=20
-> > >  - Should an existing feature switch be used for generic switches?
-> > >  - Should we even have a 'user' defined switch?
-> > >  - If we add user switches, how many?
-> > >=20
-> >=20
-> > This is merely my opinion, but if a hardware switch does not have a def=
-ined
-> > purpose, it does not seem necessary to represent it with an input devic=
-e.
->=20
-> Yes, exactly. For input core we are trying to avoid generic events with
-> no defined meaning.
+> > behavior to the one seen on Windows. It is far from being my preference=
+,
+> > which would be an exact mimic of the Windows behavior (and can be
+> > achieved by xset dpms force on/off from user space).
+> >
+> > The idea of this patch is to improve the user experience, by giving tha=
+t key a
+> > behavior as close as possible to what users might experience on Windows=
+.
+> > Because most Linux desktop environments also turn the display off after
+> > locking the screen, this would be a good approximation to what happens =
+on
+> > Windows. I think it is more about giving (consistent) behavior to it
+> > than changing it.
+> >
+> > I agree it is possible to control that via udev or something else. But
+> > most regular
+> > users won't be able to do that, ending up with an unused key, though.
+> > The hardcore user that would prefer a very different key behavior
+> > could keep using
+> > udev to do that.
+> >
+> > So IMHO I think that setting this up on the kernel would be a good
+> > approach in this case.
+>
+> I am sorry, I disagree. I understand that patching the kernel might be
+> easier than implementing new shortcut/behavior in various desktop
+> environments, but that does not make it the right approach.
+>
+> Thanks.
+>
+> --
+> Dmitry
 
-That's understandable, particularly as I could then ponder - how do we
-even define generic switches, and how many ;-) I wanted to discuss it
-because otherwise these switches will be defined in DT as buttons. And
-they are not buttons...
+Hi Dmitry,
 
+Thanks for explaining this a little bit more, I've got the point: The curre=
+nt
+key code triggered by the kernel is correct, the real issue is the lack of
+support for that particular code by current desktop environments.
 
-> What are these switches? GPIOs? Maybe it would be better to use GPIO
-> layer to test the state for them?
+I'm new to contributing to the Linux kernel; the proper way to rollback
+this would be by me just sending a revert patch to the respective
+maintainer?
 
-They are physical slide switches on the board. But they have no defined
-purpose by the hardware designer. The purpose would be defined by the
-end user, as otherwise they are generic test switches.
-
-These have been previously handled as gpio-key buttons, for instance
-key-1 to key-4 at [0] are actually four slides switches.=20
-
-[0] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/comm=
-it/?id=3De3414b8c45afa5cdfb1ffd10f5334da3458c4aa5
-
-What I'm trying to determine/promote is that they are not push buttons,
-and shouldn't be described as such. I have posted [1] to add support for
-these switches, but I am limited to chosing 'functions' which will have
-an impact on the system...
-
-[1] https://lore.kernel.org/all/20211025130457.935122-1-kieran.bingham+rene=
-sas@ideasonboard.com/
-
-Presently in [1] I have chosen SW_LID and SW_DOCK as very arbitrary
-functions for the switches. But my concern is that in doing so, the
-SW_LID position could for instance suggest to a window environment or
-power management system that the lid is closed, and the system should
-be suspended (of course depending upon configurations). That would mean
-that the board would now be potentially always heading into a suspend
-after power up which would not be at all clear from the switch.
-
-I believe a 'switch' is the correct way to define this hardware, so that
-both positions can be determined, and read, and events generated on
-state change - but that there shouldn't be any artificially imposed side
-effects from the description.
-
-If the answer is "no we can't have generic switches" then so be it, but
-it feels wrong to further propogate the definition of these test
-switches as keys.
-
---
-Regards
-
-Kieran
+Thank you,
+Vin=C3=ADcius.

@@ -2,82 +2,105 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5AFBC433F5
-	for <linux-input@archiver.kernel.org>; Sun,  7 Nov 2021 11:24:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7367AC433EF
+	for <linux-input@archiver.kernel.org>; Sun,  7 Nov 2021 13:55:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id D026B60F4B
-	for <linux-input@archiver.kernel.org>; Sun,  7 Nov 2021 11:24:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 40BEF6103A
+	for <linux-input@archiver.kernel.org>; Sun,  7 Nov 2021 13:55:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234640AbhKGL11 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 7 Nov 2021 06:27:27 -0500
-Received: from smtp-32-i2.italiaonline.it ([213.209.12.32]:33734 "EHLO
-        libero.it" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S234639AbhKGL10 (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Sun, 7 Nov 2021 06:27:26 -0500
-Received: from passgat-Modern-14-A10M.homenet.telecomitalia.it
- ([213.45.67.127])
-        by smtp-32.iol.local with ESMTPA
-        id jgG9mbDBMCVSejgGumjsSv; Sun, 07 Nov 2021 12:23:43 +0100
-x-libjamoibt: 1601
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=libero.it; s=s2021;
-        t=1636284223; bh=EEtrSSWFEIEm+hm9c1Utn/zMqEcLWIoArC5KJHteRL4=;
-        h=From;
-        b=r66t5NSVq2vowqyc1m9pZkYXi/Is2VZMWYAgE8fJOeQcN9IQ3ZE0K1q1GfmJLRCqF
-         +IEqPkIH7SqL1hkbJK+othUcleul13hojyIqJnx6NC06zFSEyftJBB4joDB2wSTDa4
-         9i9g5iGEBBSOaEKBzO0uDKXE7P8JGmV2nYR2ytqSm3i2zoIUCTOskw3JtgaXa7QJGp
-         1/FbHRfJULW8CWMK6T7xuLklzT5MDUJ+8UALHqqwE99CAntlhqzyefq8zHAvjgqgT8
-         GsMfCBbNPb2NWP8t7JUR2HjSFawWqCbu1a9E1VA1V+DpLzis1MQyKHROWgTupW+t2T
-         s2ccXJuoN0GDw==
-X-CNFS-Analysis: v=2.4 cv=M/2Ilw8s c=1 sm=1 tr=0 ts=6187b73f cx=a_exe
- a=Vk63IOK+/LoQucGDvce7tA==:117 a=Vk63IOK+/LoQucGDvce7tA==:17 a=VwQbUJbxAAAA:8
- a=WGf4WTbLby2_tS91RlMA:9 a=AjGcO6oz07-iQ99wixmX:22
-From:   Dario Binacchi <dariobin@libero.it>
-To:     linux-kernel@vger.kernel.org
-Cc:     linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        Rachna Patil <rachna@ti.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dario Binacchi <dariobin@libero.it>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org
-Subject: [RESEND PATCH 4/6] dt-bindings: input: ti-tsc-adc: fix tsc node example
-Date:   Sun,  7 Nov 2021 12:22:34 +0100
-Message-Id: <20211107112236.7969-5-dariobin@libero.it>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20211107112236.7969-1-dariobin@libero.it>
-References: <20211107112236.7969-1-dariobin@libero.it>
-X-CMAE-Envelope: MS4xfGJiT1p+RKZwKdMcJkkVOvukmmvGCfoREfMzSsL7AL23Wlv9dD6Ysj1MPiO60BIVswz4NWCZ3/IayEp3nrNMEjkIzRTnTfsX7ioBma+pwc4e6wCGVitC
- 8bARPidV7a16pxWfRStWCMda9wzGW/cUI/IWVjsaunoAv1CyYXN3iduhbOMcbV8dLdQhnkSznPCpKkEhmxD7f5bvfMUUEBDo0p/iBgFKmUWmDVB7jfIpnENo
- DmIgC+pqjarzMwW4zNmGms1JdPLZPwGVsEU385ewB4WracoX9P55E4K1BQGkqpG+YQvSC/xCCGarrmpjCb7pwzL8DER6FHsvkrBSODNGRMrwlo6zXOzDXHgI
- ceCyAjAn5Alm31PeSEg4+RZr8ENlwcIwJT19pCzXQ4oPq74gxZUoQnrvHqQE01Zmp7Kb2k+/ewCx2j2Qpq/tH5LZPUUul1X12kFmcNq4gTqGgzH8+XNfkPWD
- W+EfGrccxOGQscRKK3gNsmRqh1q9VPlxyVULKA==
+        id S235440AbhKGN6O (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 7 Nov 2021 08:58:14 -0500
+Received: from smtpq1.tb.ukmail.iss.as9143.net ([212.54.57.96]:56902 "EHLO
+        smtpq1.tb.ukmail.iss.as9143.net" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229679AbhKGN6K (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sun, 7 Nov 2021 08:58:10 -0500
+Received: from [212.54.57.110] (helo=csmtp6.tb.ukmail.iss.as9143.net)
+        by smtpq1.tb.ukmail.iss.as9143.net with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.90_1)
+        (envelope-from <gareth.randall@virgin.net>)
+        id 1mjidp-0002WK-4y
+        for linux-input@vger.kernel.org; Sun, 07 Nov 2021 14:55:25 +0100
+Received: from [192.168.0.10] ([94.175.123.86])
+        by cmsmtp with ESMTPA
+        id jidomciup24zojidpmuFr5; Sun, 07 Nov 2021 14:55:25 +0100
+X-Originating-IP: [94.175.123.86]
+X-Authenticated-Sender: gareth.randall@virgin.net
+X-Spam: 0
+X-Authority: v=2.4 cv=K8YxogaI c=1 sm=1 tr=0 ts=6187dacd cx=a_exe
+ a=mwdPpgLduwvwBeoi1XfOCA==:117 a=mwdPpgLduwvwBeoi1XfOCA==:17
+ a=IkcTkHD0fZMA:10 a=vIxV3rELxO4A:10 a=f6pUZMUfAAAA:8 a=qsNWos9tGE8nN0yM_qkA:9
+ a=QEXdDO2ut3YA:10 a=eZImKStj3dtCS-zw9-0K:22
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virgin.net;
+        s=meg.feb2017; t=1636293325;
+        bh=At6jo9YpfsdHSsdeZ2+dydcmt8Eyh5MnpCGfulD85qY=;
+        h=Date:From:Subject:To:References:In-Reply-To;
+        b=UD83caO7NpPxhpULwqB+ltqBuIGNHiiOyTTdx09sxVlYMNZfSVRv093hQa4TXFanQ
+         ggUw8pgas4Bf0BKKY8LQwcudeuCTjPCdXCz+dKfJYLxvI9kPrgXw9hc4g2xGkuoG/6
+         ZUwMnpx6o0G+A3cQIF/evA7wDLPxAoMlh0TTVQezBnCrslz922bsKpITKp86eUVqVl
+         GP4BkyfE8eRBg1iLNCoD1cJd93YC/xRGyCw3ZJCegOVp6Q2HiWigIwlBB4AdtqHGzE
+         phiTWPWw+t8YsKD6szv/u1ekrVrBo2pyBopPa3ws8C/PSqLtPVvVYda9oDc1c6DKXr
+         mDTd5Z3rnT/iQ==
+Message-ID: <e57b034a-4057-0781-32af-cc921aaa63f0@virgin.net>
+Date:   Sun, 7 Nov 2021 13:55:24 +0000
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.3.0
+From:   Gareth Randall <gareth.randall@virgin.net>
+Subject: Re: [PATCH RESEND 1/1] Add support for touch screens using the
+ General Touch ST6001S controller.
+To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org
+References: <b7687459-1665-eb1c-b8ad-2bb37b7136ac@virgin.net>
+ <3083b553-38f1-7061-a8cb-8bbd423913a3@virgin.net>
+In-Reply-To: <3083b553-38f1-7061-a8cb-8bbd423913a3@virgin.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4xfHnDXYNXWiZnefs4rluqFPFiWD/14CA30aALXh1jsFGjdAMtsHw5QE2pPFntdJnHIJZjAiDaQTvHnAhvgNCRdbYDwvR970SkHQXavP9LBZ0mAjYRbQls
+ culxmhTPHmrGvGFyMVAEhQsfDLmS+c72C6GE1pu5MKeht8Nob8JpQ+Ih9T2asVJHVB3hJveOdkl5slqdJNbKPIf9Ce5oIPJizx5Z2w7OcxHsQ02A4rq4NKPD
+ ieHuCMPPLucZ2mOkQLFhvg==
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The commit c9aeb249bf72e ("Input: ti_am335x_tsc - fix spelling mistake
-in TSC/ADC DT binding") didn't fix the typo mistake in the tsc node of
-the example.
+Dear Dmitry,
 
-Signed-off-by: Dario Binacchi <dariobin@libero.it>
-Acked-by: Rob Herring <robh@kernel.org>
----
+I wonder if you have had a chance to look at this patch. It was 
+originally sent on 26 Sep 2021, then resent on 3 Oct 2021 to try to make 
+it come out in Patchwork properly. This is my first patch submission so 
+any feedback on both the patch and whether I'm following the process 
+properly would be very useful. Thanks very much.
 
- .../devicetree/bindings/input/touchscreen/ti-tsc-adc.txt        | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Yours,
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-index aad5e34965eb..2013fd7c4a10 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/ti-tsc-adc.txt
-@@ -77,7 +77,7 @@ Example:
- 		tsc {
- 			ti,wires = <4>;
- 			ti,x-plate-resistance = <200>;
--			ti,coordiante-readouts = <5>;
-+			ti,coordinate-readouts = <5>;
- 			ti,wire-config = <0x00 0x11 0x22 0x33>;
- 			ti,charge-delay = <0x400>;
- 		};
--- 
-2.17.1
+Gareth
+
+On 15/10/2021 10:04, Gareth Randall wrote:
+> On 03/10/2021 22:54, Gareth Randall wrote:
+>> Add support for touch screens using the General Touch ST6001S
+>> controller, as found in the GPEG model AOD22WZ-ST monitor.
+>> This controller can output the ELO 10-byte protocol,
+>> but requires different initialisation.
+>>
+>> Signed-off-by: Gareth Randall <gareth@garethrandall.com>
+>> ---
+>>   drivers/input/touchscreen/elo.c | 58 +++++++++++++++++++++++++++++++++
+>>   1 file changed, 58 insertions(+)
+> 
+> Hi,
+> 
+> I'm seeking feedback on this patch. I just wondered whether I have made 
+> any mistakes in the submission, or whether the maintainers are just very 
+> busy (most likely explanation!)
+> 
+> I know that this does not appear properly in patchwork even though I 
+> have attempted to recreate the exact format of a [PATCH] email, but I 
+> don't want to send duplicate attempts. I've checked that there are no 
+> wrapped lines in the email message. Is there a test suite that is 
+> failing that I'm not aware of, or conventions I'm not following?
+> 
+> Thanks for any feedback.
+> 
+> Yours,
+> 
+> Gareth
 

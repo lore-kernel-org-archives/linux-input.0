@@ -2,82 +2,218 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36474C433EF
-	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 06:14:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4C30C433F5
+	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 07:44:23 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 131D460FD8
-	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 06:14:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 9EE7861181
+	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 07:44:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237689AbhKHGRb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 8 Nov 2021 01:17:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41766 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236862AbhKHGRb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 8 Nov 2021 01:17:31 -0500
-Received: from mail-qk1-x72e.google.com (mail-qk1-x72e.google.com [IPv6:2607:f8b0:4864:20::72e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D551C061714
-        for <linux-input@vger.kernel.org>; Sun,  7 Nov 2021 22:14:47 -0800 (PST)
-Received: by mail-qk1-x72e.google.com with SMTP id bl12so14505428qkb.13
-        for <linux-input@vger.kernel.org>; Sun, 07 Nov 2021 22:14:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cs.unc.edu; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=oJCWAjGQk6SNImKaOFEws44W9FYCSU/8xgQ23THUzrw=;
-        b=DeTy+xVhPF2G6QLxLn4UOX5rKG1GcSKRXz/2r9QAe23qELrDUD/9FCWjzBS1MRXbkW
-         fJ1CiDxhv8r3yx8evwu0zcJM9SmDyU/KLJT4mi8OqUxlVbdQ0R9qMln4PteiTTGD+IBe
-         j/CYzzabslQHOHFXDS5sqk03oSVM6okbkMPHY=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=oJCWAjGQk6SNImKaOFEws44W9FYCSU/8xgQ23THUzrw=;
-        b=d5ruYy0jMz3Y2KpXI2Vtde4vQvKaH4H6syWv43Gv9S9REXvzyHFYg9pnx0vF56lhkD
-         drseAP8/WryBV8hQkhOv4Z+pit/DNX5cPrLfpjWQ/8MoOJQqB/8cTh55kvY+TmlImU6K
-         c4Em9spb7IqoiLI2Y4gUYQV+x0n/mmM7F9kWpEv1w/tkUCjiSpWUdHfoeq6pSm6tclLO
-         UPL1kKGZaOWtHC3gd9APdsgYEKYCzpi82vQ0ef+qIVOH5OCnMiE1VUp/H/OVK2QL/xfB
-         o69b6NstezpAsXY0AaErgmk/C741qXg3rTH8fVPXjdKKZrX5Wr8uKKywt6Znnfl5oUoz
-         98QQ==
-X-Gm-Message-State: AOAM5323cvIw6ZZZi9o0eGWzSUgmAjDZx5AfinUIaBICk+2TUEGcdxaX
-        RnA3IkPNPr389Kxk+EEcW5lyYw==
-X-Google-Smtp-Source: ABdhPJzRVLURyiXx05bhF47BecPBvTLB7+daIsFzTd2QtsMn9UhjPRaWMP//W1W5c8LxRc3TQYZOQA==
-X-Received: by 2002:a05:620a:2443:: with SMTP id h3mr40503547qkn.299.1636352086403;
-        Sun, 07 Nov 2021 22:14:46 -0800 (PST)
-Received: from [152.23.88.220] (dhcp-152-23-88-220.wireless-1x.unc.edu. [152.23.88.220])
-        by smtp.gmail.com with ESMTPSA id u11sm9657386qko.119.2021.11.07.22.14.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 07 Nov 2021 22:14:46 -0800 (PST)
-Message-ID: <de131144-b396-1f94-70ab-7d13dcd3a16f@cs.unc.edu>
-Date:   Mon, 8 Nov 2021 01:14:44 -0500
+        id S236405AbhKHHrG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 8 Nov 2021 02:47:06 -0500
+Received: from mga07.intel.com ([134.134.136.100]:15775 "EHLO mga07.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234009AbhKHHrF (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 8 Nov 2021 02:47:05 -0500
+X-IronPort-AV: E=McAfee;i="6200,9189,10161"; a="295621650"
+X-IronPort-AV: E=Sophos;i="5.87,218,1631602800"; 
+   d="scan'208";a="295621650"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2021 23:44:21 -0800
+X-IronPort-AV: E=Sophos;i="5.87,218,1631602800"; 
+   d="scan'208";a="641333695"
+Received: from nlissex-mobl1.amr.corp.intel.com (HELO [10.249.33.10]) ([10.249.33.10])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2021 23:44:18 -0800
+Subject: Re: [RFC 0/8] HID: add support for USI style pens
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>
+References: <20211104133701.1733551-1-tero.kristo@linux.intel.com>
+ <CAO-hwJ+=GL6MrJdh754bUF5_ciJqNvPxcLUstSLD+AfCH2VKdw@mail.gmail.com>
+From:   Tero Kristo <tero.kristo@linux.intel.com>
+Message-ID: <b5ff1493-e4a8-f652-604a-b97a68f35ced@linux.intel.com>
+Date:   Mon, 8 Nov 2021 09:44:15 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.13.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.2.0
-Subject: Re: [PATCH] Input: elantench - Fix the firmware misreport coordinates
- for trackpoint occasionally.
-Content-Language: en-US
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        jingle.wu@emc.com.tw, josh.chen@emc.com.tw, dave.wang@emc.com.tw,
-        phoenix <phoenix@emc.com.tw>
-References: <20210729010940.5752-1-phoenix@emc.com.tw>
- <000001d79d99$53762dd0$fa628970$@emc.com.tw> <YS0+TU21/nok6Ge9@google.com>
- <3a98b10e-6b78-b769-e22d-2496d7bcd69d@cs.unc.edu>
- <YYi+ZoeGtFO+/HYO@google.com>
-From:   Yufei Du <yufeidu@cs.unc.edu>
-In-Reply-To: <YYi+ZoeGtFO+/HYO@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+In-Reply-To: <CAO-hwJ+=GL6MrJdh754bUF5_ciJqNvPxcLUstSLD+AfCH2VKdw@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Dmitry,
+Hi Benjamin,
 
- > Sorry I lost track of this patch. Can I add your Tested-by to it before
- > applying?
+Thanks for your feedback! Couple of quick replies below.
 
-Sure. Thanks!
+On 05/11/2021 20:22, Benjamin Tissoires wrote:
+> Hi Tero,
+>
+> [just a quick note, I am supposed to be on holiday this week]
+>
+> On Thu, Nov 4, 2021 at 2:38 PM Tero Kristo <tero.kristo@linux.intel.com> wrote:
+>> Hi,
+>>
+>> This series is an RFC for USI (Universal Stylus Interface) style pen
+>> support. This is based on documentation from USB org describing the HID
+>> usage tables for digitizers (page 0x0D) and experimentation with actual
+>> USI capable controllers.
+>>
+>> This series introduces the USI support with a new HID driver, which
+>> applies the controller specific quirks. The most problematic part of the
+>> USI support is handling of the pen parameters (color, line width, line
+>> style), which are not immediately available from the controller from pen
+>> down event, but must be cached and queried separately from the controller.
+>> In addition to that, when a get-feature report is sent to the
+>> controller, there is a delay before the proper value is reported out; it
+>> is not part of the feature report coming back immediately.
+>> Most of the code in the driver is to handle this (otherwise we could
+>> just use hid-generic.)
+>>
+>> This also boils down to the reason why this series is an RFC, I would like
+>> to receive some feedback which option to pick for programming of the new
+>> values for the programmable pen parameters; whether to parse the input
+>> events so userspace can directly write the new values to the input event
+>> file handle, or whether to use IOCTL. Patches #7 / #8 are sort of optional
+>> choices towards this, but are there to show that both approaches can be
+>> done. Direct write to evdev causes some confusion on the driver level
+>> though, thus patch #7 is there to avoid some of that introducing new
+>> input events for writing the parameters. IOCTL might be the cleanest
+>> approach and I am slightly leaning towards that myself (see patch #8,
+>> this would need to be squashed and cleaned up a bit though but would
+>> effectively get rid of some code from patch #6 and completely rid patch #7.)
+> This series unfortunately raised quite a few red flags for me, and I
+> am glad this is just an RFC.
+> Let me enumerate them first and discuss a little bit more about those:
+>   1. USI is supposed to be generic, so why is there a new driver for it
+> instead of being handled by hid-input.c?
+>   2. new MSC_EVENTS are created without Dmitry or Peter being CC-ed
+>   3. new ioctls???
+>   4. direct write to evdev to write parameters
+>   5. patch 1/8 doesn't compile without 5/8
+>   6. no tests :)
+>
+> 1. new driver
+> After quickly reading the RFC, I think the main issue there is that we
+> are now having a transducer index which is incompatible with the way
+> input and evedev works nowadays. Yay, we have a new hid-multitouch for
+> pen :(
+>
+> Wacom has been dealing with that situation for years by tweaking the
+> protocol and by just emitting a different serial number (roughly). I
+> think the safest approach would be to keep the existing protocol
+> running so that our user space can handle it properly.
+>
+> I'd need to read the rest of the code more carefully, but if we could
+> have a basic generic handling (without the fancy features like
+> changing the pen style/color) I'd be happier.
 
-Best,
-Yufei
+The USI pen support is partially compatible with existing input 
+framework, e.g. co-ordinates + touch events work out of box with 
+no-modification to the kernel whatsoever, just by using hid-generic 
+driver. What is missing completely is the new features; 
+color/width/style. It would be possible to move all these to the 
+hid-input driver obviously, I don't think there is anything to prevent 
+that. And, I could split up the series so that in the initial patches we 
+would only support reporting current color/width/style parameters, and 
+add the programmability as a subsequent patch if that would be better. 
+It would also be possible to move parts of the code to the input 
+subsystem from HID (some initial patches from our side were done this 
+way, but I don't think this is necessary.)
+
+>
+> 2. MSC_* events
+> there is an issue with those: they are not cached like the ABS_* ones.
+> Meaning that each report will wake up userspace for something which
+> basically doesn't change.
+> I know ABS_* is saturated, but I'd like to have reviews from others on
+> what could be done here instead of just using MSC_* as a new ABS_*
+In my tests, it seems like MSC_* from the USI pens with these patches 
+only get reported to userspace if something changes. Otherwise they do 
+not get through at all. I have a small quirk in the driver to address 
+this for a case where a new userspace handle is opened while pen is 
+already in use; it does not get the params reported at all unless I 
+flush the current entries out (by reporting a bogus value followed 
+immediately by the real value.) Anyways, ABS events would be fine for 
+the parameters also I believe if this is desirable.
+>
+> 3. ioctls
+> this is problematic to me. Any new kernel ABI is problematic to me,
+> and I'd much rather not add any new ones.
+I agree I am torn between the ioctl / direct evdev write. Both have 
+their bad sides to them, thus I provided sort of support for both. :)
+>
+> My new set of mind is because of the recent work I have been
+> conducting regarding eBPF.
+> Basically I managed to have eBPF programs handling the device
+> configuration and event processing in a local branch.
+> I should be able to push a WIP next week, but basically this should
+> allow me to not have to deal with new kernel APIs besides the generic
+> eBPF one.
+> We can imagine a generic hid-input.c processing for those tablets, and
+> have a new userspace component that loads an eBPF program with its own
+> userspace API which is capable of the fancy features.
+>
+> For instance, my current playground is setting the haptic feedback of
+> the Surface Dial depending on the resolution I set on it.
+>
+> Furthermore, ioctls on a new cdev means that the classic userspace
+> libraries will not have access to it without some heavy tuning in the
+> systemd space (libinput only has read/write access to
+> /dev/input/event*).
+
+So, you are saying it would be possible to use this to support the USI 
+pen parameters also somehow? I can take a look at this once available.
+
+>
+> 4. direct write to evdev
+>
+> We enabled that once for LEDs, and it's a pain to maintain. Maybe we
+> can make a use case for it but given that you don't seem very
+> enthusiastic about it too, I wonder if this is not a dead end.
+Well, we need to be able to program the pen parameters somehow from 
+userspace, I am open to any suggestions how this could/should be done.
+>
+> 5. patch ordering doesn't compile
+> I guess this is just a rebase hiccup. Not an issue for an RFC
+Yeah sorry about that. Will fix all those for next rev.
+>
+> 6. tests
+> For these kinds of new classes of devices, I'd like to have tests in
+> the https://gitlab.freedesktop.org/libevdev/hid-tools repository.
+> There is already an initial MR for tablet support (!115 in this
+> project), and we should extend it with more tests.
+Ok I can take a look at these, thanks for the pointer. I am quite new to 
+the input side of things and have been using whatever I have been able 
+to craft myself, or found via googling.
+>
+> I'd happily help with those tests if you could share the report
+> descriptors and some device dumps made with the hid-recorder tool from
+> that repository.
+
+Yeah, I can share these in your preferred format once I figure out the 
+test tools. I have been using some custom tools to parse things myself 
+so far (mostly kernel traces for both HID + I2C subsystem where my USI 
+controller is connected.)
+
+-Tero
+
+>
+>> The driver has been tested with chromebooks that contain either Goodix
+>> or Elan manufactured USI capable touchscreen controllers in them.
+>>
+>> Any feedback appreciated!
+> I'll try to have a deeper look next week (though it seems a few bits
+> stacked up during my week off, sigh).
+>
+> Cheers,
+> Benjamin
+>
+>> -Tero
+>>
+>>

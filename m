@@ -2,115 +2,139 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CE4BC433F5
-	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 00:53:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7FFDC433F5
+	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 03:37:32 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 2E56861354
-	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 00:53:52 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id A1D7B61107
+	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 03:37:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229639AbhKHA4e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 7 Nov 2021 19:56:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56270 "EHLO
+        id S235567AbhKHDkO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 7 Nov 2021 22:40:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237279AbhKHA4X (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2021 19:56:23 -0500
-Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB1C5C061714
-        for <linux-input@vger.kernel.org>; Sun,  7 Nov 2021 16:53:08 -0800 (PST)
-Received: from tr.lan (ip-89-176-112-137.net.upcbroadband.cz [89.176.112.137])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 2444A8379D;
-        Mon,  8 Nov 2021 01:53:04 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1636332784;
-        bh=HvImjaGHo6zymceLROsIW/d86c3SjNa2efh7hXMaBgY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nQbWuhKguHrIkMnFlJHBz7OlKuNmWCJ+vUojJmXI4QlUbRDfIpHSr5XWmwB5llk7E
-         5MH87MyhFdZWG/tnWZmDmBB6gMQF8aipP/lmE1IMPNUSXXGV37mhA2/wGEyaEysqqr
-         F0+js7tDUX8O+eKPLg3Wcj6N2xlYa15lqRXLMxFHMHTHqDv2Wl0z9obbOO5YG1PTWB
-         xOcLJXWCjedkTfq5j2BdWagWiwbGbBv2BA1Uqb7rLVv1/pKqPuzHyGyxSGT6maxHbo
-         5VZzRwwQlKtWkhsg7k1X5Q3RUGxwnH8Js6oYDw58O8u++1t6SFYHmPmowWQCNPBgbX
-         STBxNpKLhDGRA==
-From:   Marek Vasut <marex@denx.de>
-To:     linux-input@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Joe Hung <joe_hung@ilitek.com>, Luca Hsu <luca_hsu@ilitek.com>
-Subject: [PATCH] Input: ili210x - Special case ili251x sample read out
-Date:   Mon,  8 Nov 2021 01:52:59 +0100
-Message-Id: <20211108005259.480545-1-marex@denx.de>
-X-Mailer: git-send-email 2.33.0
+        with ESMTP id S234035AbhKHDkO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 7 Nov 2021 22:40:14 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F329C061570
+        for <linux-input@vger.kernel.org>; Sun,  7 Nov 2021 19:37:30 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id g19so8694192pfb.8
+        for <linux-input@vger.kernel.org>; Sun, 07 Nov 2021 19:37:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Q9kn8WR4b/H+pNK4NbvzSY8Nrpy5L2E/D1Q/kjTAK18=;
+        b=EN8uAQgZfO9ZXbBnqCQJT/kzPti9jhfCFARoP4NQg2qjAf+GEsCKrPNiaoNtuos+vW
+         5+akeuQzgcUmOJF8p9Wi2ARe29GYZpTX9793KmvpzEQtLyt9BEWPyarZINQk4EKtc7Sx
+         IXX2ndI8o8z3Xu2kFGsKquq86B3cBLxI1SF5rHwo+m9G3DeD20TnPj8mql/6LEReI6zc
+         PlGiNurDC0GFYpSEpDTo+hjS3QdpmPkfxQdjULyXXJiMkG6oEboRlT/jBmb1YNMxiEV6
+         EXTNswNuivRvMvLyBHtqP6zw7O8qWZreJnqVzEyNTOh/BEXKOY40VgARchF00yTrNLsw
+         Hvuw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Q9kn8WR4b/H+pNK4NbvzSY8Nrpy5L2E/D1Q/kjTAK18=;
+        b=uPbb+eWaXVfahbCcPwzg/1smP3g0cqNXk0Xa7qMOWwFCP3ClvWkJb/sF3nV/GWPyqq
+         +FJIxdb3JEXe3TblRRnSPCumzy0hmKKrVGgXuLocNroKU5Wls1CJPd7Vb7KUMjoW1fjN
+         u4kHiEeRWWCuK9C4kX9wKMCiDtejHBZFtV9KacZzbYJ8WiO4mX5ZTmpTh2CtNWJZznnM
+         qdZ5HGpHYDXE4Bj9X9Py2GJGsqUJr0MHizydZ+5+L3Gdy+/B+zA5xvrx32U4UB9mkwEG
+         cX6byILAW9jRy4IQp/Pae8e2dDbS/s8B9YHCoc9LhZtWZS3ET4co5BseSK4cNL0ZGXNt
+         tGgA==
+X-Gm-Message-State: AOAM530l9eN5UPzlUwhvAM97/OmRHeHgPk5xeIYEQBobEpptuAmxu42Q
+        yplMmPePz2FCQYZwYryQv+iKDSWDsgY=
+X-Google-Smtp-Source: ABdhPJzGv0oIA/Yzx3cSTu6Dl0V0HuyZofBeG3hPMwys1LKQmcirEpW1uQeNioHRk+nLz9fDFdMJkA==
+X-Received: by 2002:aa7:9d81:0:b0:49f:e072:bfc7 with SMTP id f1-20020aa79d81000000b0049fe072bfc7mr722876pfq.48.1636342649793;
+        Sun, 07 Nov 2021 19:37:29 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:e1e:62c7:99fb:927c])
+        by smtp.gmail.com with ESMTPSA id w1sm9668674pgb.50.2021.11.07.19.37.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Nov 2021 19:37:28 -0800 (PST)
+Date:   Sun, 7 Nov 2021 19:37:26 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Marek Vasut <marex@denx.de>
+Cc:     linux-input@vger.kernel.org, Joe Hung <joe_hung@ilitek.com>,
+        Luca Hsu <luca_hsu@ilitek.com>
+Subject: Re: [PATCH] Input: ili210x - Improve polled sample spacing
+Message-ID: <YYibdjD35P2RklGh@google.com>
+References: <20211108005216.480525-1-marex@denx.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.2 at phobos.denx.de
-X-Virus-Status: Clean
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211108005216.480525-1-marex@denx.de>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The ili251x touch controller needs 5ms delay between sending I2C device
-address and register address, and, writing or reading register data.
+Hi Marek,
 
-According to downstream ili251x example code, this 5ms delay is not
-required when reading touch samples out of the controller. Implement
-such a special case.
+On Mon, Nov 08, 2021 at 01:52:16AM +0100, Marek Vasut wrote:
+> Currently the ili210x driver implements a threaded interrupt handler which
+> starts upon edge on the interrupt line, and then polls the touch controller
+> for samples. Every time a sample is obtained from the controller, the thread
+> function checks whether further polling is required, and if so, waits fixed
+> amount of time before polling for next sample.
+> 
+> The delay between consecutive samples can thus vary greatly, because the
+> I2C transfer required to retrieve the sample from the controller takes
+> different amount of time on different platforms. Furthermore, different
+> models of the touch controllers supported by this driver require different
+> delays during retrieval of samples too.
+> 
+> Instead of waiting fixed amount of time before polling for next sample,
+> determine how much time passed since the beginning of sampling cycle and
+> then wait only the remaining amount of time within the sampling cycle.
+> This makes the driver deliver samples with equal spacing between them.
+> 
+> Signed-off-by: Marek Vasut <marex@denx.de>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Joe Hung <joe_hung@ilitek.com>
+> Cc: Luca Hsu <luca_hsu@ilitek.com>
+> ---
+>  drivers/input/touchscreen/ili210x.c | 10 ++++++++--
+>  1 file changed, 8 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
+> index a3b71a9511eb3..b2d9fe1e1c707 100644
+> --- a/drivers/input/touchscreen/ili210x.c
+> +++ b/drivers/input/touchscreen/ili210x.c
+> @@ -328,10 +328,13 @@ static irqreturn_t ili210x_irq(int irq, void *irq_data)
+>  	const struct ili2xxx_chip *chip = priv->chip;
+>  	u8 touchdata[ILI210X_DATA_SIZE] = { 0 };
+>  	bool keep_polling;
+> +	ktime_t time_next;
+> +	s64 time_delta;
+>  	bool touch;
+>  	int error;
+>  
+>  	do {
+> +		time_next = ktime_add_ms(ktime_get(), ILI2XXX_POLL_PERIOD);
+>  		error = chip->get_touch_data(client, touchdata);
+>  		if (error) {
+>  			dev_err(&client->dev,
+> @@ -341,8 +344,11 @@ static irqreturn_t ili210x_irq(int irq, void *irq_data)
+>  
+>  		touch = ili210x_report_events(priv, touchdata);
+>  		keep_polling = chip->continue_polling(touchdata, touch);
+> -		if (keep_polling)
+> -			msleep(ILI2XXX_POLL_PERIOD);
+> +		if (keep_polling) {
+> +			time_delta = ktime_us_delta(time_next, ktime_get());
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Joe Hung <joe_hung@ilitek.com>
-Cc: Luca Hsu <luca_hsu@ilitek.com>
----
- drivers/input/touchscreen/ili210x.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+Do we really need to use exact time, or ktime_get_coarse() is good
+enough, as it is cheaper?
 
-diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
-index b2d9fe1e1c707..6dd5095be567f 100644
---- a/drivers/input/touchscreen/ili210x.c
-+++ b/drivers/input/touchscreen/ili210x.c
-@@ -225,15 +225,17 @@ static const struct ili2xxx_chip ili212x_chip = {
- 	.has_calibrate_reg	= true,
- };
- 
--static int ili251x_read_reg(struct i2c_client *client,
--			    u8 reg, void *buf, size_t len)
-+static int ili251x_read_reg_common(struct i2c_client *client,
-+				   u8 reg, void *buf, size_t len,
-+				   unsigned int delay)
- {
- 	int error;
- 	int ret;
- 
- 	ret = i2c_master_send(client, &reg, 1);
- 	if (ret == 1) {
--		usleep_range(5000, 5500);
-+		if (delay)
-+			usleep_range(delay, delay + 500);
- 
- 		ret = i2c_master_recv(client, buf, len);
- 		if (ret == len)
-@@ -245,12 +247,18 @@ static int ili251x_read_reg(struct i2c_client *client,
- 	return ret;
- }
- 
-+static int ili251x_read_reg(struct i2c_client *client,
-+			    u8 reg, void *buf, size_t len)
-+{
-+	return ili251x_read_reg_common(client, reg, buf, len, 5000);
-+}
-+
- static int ili251x_read_touch_data(struct i2c_client *client, u8 *data)
- {
- 	int error;
- 
--	error = ili251x_read_reg(client, REG_TOUCHDATA,
--				 data, ILI251X_DATA_SIZE1);
-+	error = ili251x_read_reg_common(client, REG_TOUCHDATA,
-+					data, ILI251X_DATA_SIZE1, 0);
- 	if (!error && data[0] == 2) {
- 		error = i2c_master_recv(client, data + ILI251X_DATA_SIZE1,
- 					ILI251X_DATA_SIZE2);
+> +			if (time_delta > 0)
+> +				usleep_range(time_delta, time_delta + 1000);
+> +		}
+>  	} while (!priv->stop && keep_polling);
+>  
+>  	return IRQ_HANDLED;
+> -- 
+> 2.33.0
+> 
+
+Thanks.
+
 -- 
-2.33.0
-
+Dmitry

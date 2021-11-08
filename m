@@ -2,218 +2,191 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4C30C433F5
-	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 07:44:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C817C433EF
+	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 11:00:37 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 9EE7861181
-	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 07:44:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 292CA61284
+	for <linux-input@archiver.kernel.org>; Mon,  8 Nov 2021 11:00:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236405AbhKHHrG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 8 Nov 2021 02:47:06 -0500
-Received: from mga07.intel.com ([134.134.136.100]:15775 "EHLO mga07.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234009AbhKHHrF (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 8 Nov 2021 02:47:05 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10161"; a="295621650"
-X-IronPort-AV: E=Sophos;i="5.87,218,1631602800"; 
-   d="scan'208";a="295621650"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2021 23:44:21 -0800
-X-IronPort-AV: E=Sophos;i="5.87,218,1631602800"; 
-   d="scan'208";a="641333695"
-Received: from nlissex-mobl1.amr.corp.intel.com (HELO [10.249.33.10]) ([10.249.33.10])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2021 23:44:18 -0800
-Subject: Re: [RFC 0/8] HID: add support for USI style pens
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>
-References: <20211104133701.1733551-1-tero.kristo@linux.intel.com>
- <CAO-hwJ+=GL6MrJdh754bUF5_ciJqNvPxcLUstSLD+AfCH2VKdw@mail.gmail.com>
-From:   Tero Kristo <tero.kristo@linux.intel.com>
-Message-ID: <b5ff1493-e4a8-f652-604a-b97a68f35ced@linux.intel.com>
-Date:   Mon, 8 Nov 2021 09:44:15 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.13.0
+        id S238952AbhKHLDU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 8 Nov 2021 06:03:20 -0500
+Received: from mail-vk1-f177.google.com ([209.85.221.177]:38887 "EHLO
+        mail-vk1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238920AbhKHLDR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 8 Nov 2021 06:03:17 -0500
+Received: by mail-vk1-f177.google.com with SMTP id f78so5857699vka.5;
+        Mon, 08 Nov 2021 03:00:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=9riECQpuYH0dYnA5WhuBe/v6vglRep8H9hHVGEsLQlg=;
+        b=WptO10ZxEVaQLv7YHJYuJ5ZA7kfmfrPENa3F5/xv2P78fs/YkrV5Yexzsyzm7f64tH
+         +PG5DgCGocV7CRAm6BWQ3Lj/hAEof9pm4csg8waqafLFKfKMuoeSh0rQsMOBLj8TjRIX
+         0ppQH1p2xUD2G7Tdg/GJJibgZMYk54WKTr+QxOooOE18oJVRdh+50z+DIoYQPqfxrJCW
+         Eh5dbTtI5/h9cRcJw7vEbmL5JQgDt4IQF77BRevxsBkd3jEuQKBclvrICpq35FWZNFid
+         ZzZkkXIhW9XdEtnDpi3GWupLVrWgcz0xwHSvFe25XE2W2rHqSk9sQqyIwdTO4VcHQDj3
+         3hBg==
+X-Gm-Message-State: AOAM531yOdaWLvNMELaeBt9GZ3X+VTjY2cibFP5Jy+ShlZv9LgT+nyR6
+        Bt+xX/CONXS1Ch34Svxe8nV+RO2zKuJGgnav
+X-Google-Smtp-Source: ABdhPJwJCImFDi140aXlzdRCYdYvU10iLnd+gHaLtbmO+2Ea66AhDFpARuD8ioJMpLIATeH/Z4kc8A==
+X-Received: by 2002:a05:6122:134f:: with SMTP id f15mr676740vkp.14.1636369232116;
+        Mon, 08 Nov 2021 03:00:32 -0800 (PST)
+Received: from mail-vk1-f169.google.com (mail-vk1-f169.google.com. [209.85.221.169])
+        by smtp.gmail.com with ESMTPSA id v13sm3360607vsi.0.2021.11.08.03.00.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 08 Nov 2021 03:00:31 -0800 (PST)
+Received: by mail-vk1-f169.google.com with SMTP id d130so7986636vke.0;
+        Mon, 08 Nov 2021 03:00:31 -0800 (PST)
+X-Received: by 2002:a05:6122:1350:: with SMTP id f16mr19548870vkp.26.1636369231385;
+ Mon, 08 Nov 2021 03:00:31 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <CAO-hwJ+=GL6MrJdh754bUF5_ciJqNvPxcLUstSLD+AfCH2VKdw@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
+References: <20211105103508.4153491-1-kieran.bingham+renesas@ideasonboard.com>
+ <20211105170037.GA65511@nixie71> <YYW4d/YK1MkIfGT/@google.com>
+ <163619359511.3601475.3667763097540792609@Monstersaurus> <20211107061719.GA204396@nixie71>
+In-Reply-To: <20211107061719.GA204396@nixie71>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 8 Nov 2021 12:00:20 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdUUbzTGWSybSpEgaN1oCzV9o+tdKJHEsdVvPD--52RbQg@mail.gmail.com>
+Message-ID: <CAMuHMdUUbzTGWSybSpEgaN1oCzV9o+tdKJHEsdVvPD--52RbQg@mail.gmail.com>
+Subject: Re: [PATCH v2] Input: add 'safe' user switch codes
+To:     Jeff LaBundy <jeff@labundy.com>
+Cc:     Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input <linux-input@vger.kernel.org>,
+        Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Wu Hao <hao.wu@intel.com>, Bjorn Helgaas <bhelgaas@google.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Dave Ertman <david.m.ertman@intel.com>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        Xu Yilun <yilun.xu@intel.com>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Benjamin,
+Hi Jeff,
 
-Thanks for your feedback! Couple of quick replies below.
+On Sun, Nov 7, 2021 at 7:17 AM Jeff LaBundy <jeff@labundy.com> wrote:
+> On Sat, Nov 06, 2021 at 10:13:15AM +0000, Kieran Bingham wrote:
+> > Quoting Dmitry Torokhov (2021-11-05 23:04:23)
+> > > On Fri, Nov 05, 2021 at 12:00:37PM -0500, Jeff LaBundy wrote:
+> > > > On Fri, Nov 05, 2021 at 10:35:07AM +0000, Kieran Bingham wrote:
+> > > > > All existing SW input codes define an action which can be interpreted by
+> > > > > a user environment to adapt to the condition of the switch.
+> > > > >
+> > > > > For example, switches to define the audio mute, will prevent audio
+> > > > > playback, and switches to indicate lid and covers being closed may
+> > > > > disable displays.
+> > > > >
+> > > > > Many evaluation platforms provide switches which can be connected to the
+> > > > > input system but associating these to an action incorrectly could
+> > > > > provide inconsistent end user experiences due to unmarked switch
+> > > > > positions.
+> > > > >
+> > > > > Define two custom user defined switches allowing hardware descriptions
+> > > > > to be created whereby the position of the switch is not interpreted as
+> > > > > any standard condition that will affect a user experience.
+> > > > >
+> > > > > This allows wiring up custom generic switches in a way that will allow
+> > > > > them to be read and processed, without incurring undesired or otherwise
+> > > > > undocumented (by the hardware) 'default' behaviours.
+> > > > >
+> > > > > Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+> > > > > ---
+> > > > >
+> > > > > Sigh, a compile test might have at least saved the buildbots the trouble
+> > > > > of notifying me I also need to update the INPUT_DEVICE_ID_SW_MAX. But
+> > > > > even so - I'm really looking for a discussion on the best ways to
+> > > > > describe a non-defined switch in device tree.
+> > > > >
+> > > > > Here's a compiling v2 ;-) But the real questions are :
+> > > > >
+> > > > >  - Should an existing feature switch be used for generic switches?
+> > > > >  - Should we even have a 'user' defined switch?
+> > > > >  - If we add user switches, how many?
+> > > > >
+> > > >
+> > > > This is merely my opinion, but if a hardware switch does not have a defined
+> > > > purpose, it does not seem necessary to represent it with an input device.
+> > >
+> > > Yes, exactly. For input core we are trying to avoid generic events with
+> > > no defined meaning.
+> >
+> > That's understandable, particularly as I could then ponder - how do we
+> > even define generic switches, and how many ;-) I wanted to discuss it
+> > because otherwise these switches will be defined in DT as buttons. And
+> > they are not buttons...
+> >
+> > > What are these switches? GPIOs? Maybe it would be better to use GPIO
+> > > layer to test the state for them?
+> >
+> > They are physical slide switches on the board. But they have no defined
+> > purpose by the hardware designer. The purpose would be defined by the
+> > end user, as otherwise they are generic test switches.
+> >
+> > These have been previously handled as gpio-key buttons, for instance
+> > key-1 to key-4 at [0] are actually four slides switches.
+> >
+> > [0] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e3414b8c45afa5cdfb1ffd10f5334da3458c4aa5
+> >
+> > What I'm trying to determine/promote is that they are not push buttons,
+> > and shouldn't be described as such. I have posted [1] to add support for
+> > these switches, but I am limited to chosing 'functions' which will have
+> > an impact on the system...
+> >
+> > [1] https://lore.kernel.org/all/20211025130457.935122-1-kieran.bingham+renesas@ideasonboard.com/
+> >
+> > Presently in [1] I have chosen SW_LID and SW_DOCK as very arbitrary
+> > functions for the switches. But my concern is that in doing so, the
+> > SW_LID position could for instance suggest to a window environment or
+> > power management system that the lid is closed, and the system should
+> > be suspended (of course depending upon configurations). That would mean
+> > that the board would now be potentially always heading into a suspend
+> > after power up which would not be at all clear from the switch.
+> >
+> > I believe a 'switch' is the correct way to define this hardware, so that
+> > both positions can be determined, and read, and events generated on
+> > state change - but that there shouldn't be any artificially imposed side
+> > effects from the description.
+> >
+> > If the answer is "no we can't have generic switches" then so be it, but
+> > it feels wrong to further propogate the definition of these test
+> > switches as keys.
+>
+> I agree that a slide switch tied to a GPIO is indeed a switch in terms of
+> input core. Note, however, that definitions from your first example (such
+> as KEY_1) are not any less generic; those have specific meanings too.
 
-On 05/11/2021 20:22, Benjamin Tissoires wrote:
-> Hi Tero,
->
-> [just a quick note, I am supposed to be on holiday this week]
->
-> On Thu, Nov 4, 2021 at 2:38 PM Tero Kristo <tero.kristo@linux.intel.com> wrote:
->> Hi,
->>
->> This series is an RFC for USI (Universal Stylus Interface) style pen
->> support. This is based on documentation from USB org describing the HID
->> usage tables for digitizers (page 0x0D) and experimentation with actual
->> USI capable controllers.
->>
->> This series introduces the USI support with a new HID driver, which
->> applies the controller specific quirks. The most problematic part of the
->> USI support is handling of the pen parameters (color, line width, line
->> style), which are not immediately available from the controller from pen
->> down event, but must be cached and queried separately from the controller.
->> In addition to that, when a get-feature report is sent to the
->> controller, there is a delay before the proper value is reported out; it
->> is not part of the feature report coming back immediately.
->> Most of the code in the driver is to handle this (otherwise we could
->> just use hid-generic.)
->>
->> This also boils down to the reason why this series is an RFC, I would like
->> to receive some feedback which option to pick for programming of the new
->> values for the programmable pen parameters; whether to parse the input
->> events so userspace can directly write the new values to the input event
->> file handle, or whether to use IOCTL. Patches #7 / #8 are sort of optional
->> choices towards this, but are there to show that both approaches can be
->> done. Direct write to evdev causes some confusion on the driver level
->> though, thus patch #7 is there to avoid some of that introducing new
->> input events for writing the parameters. IOCTL might be the cleanest
->> approach and I am slightly leaning towards that myself (see patch #8,
->> this would need to be squashed and cleaned up a bit though but would
->> effectively get rid of some code from patch #6 and completely rid patch #7.)
-> This series unfortunately raised quite a few red flags for me, and I
-> am glad this is just an RFC.
-> Let me enumerate them first and discuss a little bit more about those:
->   1. USI is supposed to be generic, so why is there a new driver for it
-> instead of being handled by hid-input.c?
->   2. new MSC_EVENTS are created without Dmitry or Peter being CC-ed
->   3. new ioctls???
->   4. direct write to evdev to write parameters
->   5. patch 1/8 doesn't compile without 5/8
->   6. no tests :)
->
-> 1. new driver
-> After quickly reading the RFC, I think the main issue there is that we
-> are now having a transducer index which is incompatible with the way
-> input and evedev works nowadays. Yay, we have a new hid-multitouch for
-> pen :(
->
-> Wacom has been dealing with that situation for years by tweaking the
-> protocol and by just emitting a different serial number (roughly). I
-> think the safest approach would be to keep the existing protocol
-> running so that our user space can handle it properly.
->
-> I'd need to read the rest of the code more carefully, but if we could
-> have a basic generic handling (without the fancy features like
-> changing the pen style/color) I'd be happier.
+But at least the KEY_* events are less likely to cause harmful side
+effects than the SW_* events.  I have no idea which daemon in e.g. a
+generic Ubuntu userspace would act on the SW_* events.
 
-The USI pen support is partially compatible with existing input 
-framework, e.g. co-ordinates + touch events work out of box with 
-no-modification to the kernel whatsoever, just by using hid-generic 
-driver. What is missing completely is the new features; 
-color/width/style. It would be possible to move all these to the 
-hid-input driver obviously, I don't think there is anything to prevent 
-that. And, I could split up the series so that in the initial patches we 
-would only support reporting current color/width/style parameters, and 
-add the programmability as a subsequent patch if that would be better. 
-It would also be possible to move parts of the code to the input 
-subsystem from HID (some initial patches from our side were done this 
-way, but I don't think this is necessary.)
+> If the concern is that toggling a switch effects undesired behavior, such
+> as turning a display on or off, then the switch should not be represented
+> with a gpio-keys node in the first place.
+>
+> Stated another way, the fact that the GPIO are connected to something does
+> not necessarily mean they need to be supported. Only once they map to some
+> function should they be defined, in my opinion.
 
->
-> 2. MSC_* events
-> there is an issue with those: they are not cached like the ABS_* ones.
-> Meaning that each report will wake up userspace for something which
-> basically doesn't change.
-> I know ABS_* is saturated, but I'd like to have reviews from others on
-> what could be done here instead of just using MSC_* as a new ABS_*
-In my tests, it seems like MSC_* from the USI pens with these patches 
-only get reported to userspace if something changes. Otherwise they do 
-not get through at all. I have a small quirk in the driver to address 
-this for a case where a new userspace handle is opened while pen is 
-already in use; it does not get the params reported at all unless I 
-flush the current entries out (by reporting a bogus value followed 
-immediately by the real value.) Anyways, ABS events would be fine for 
-the parameters also I believe if this is desirable.
->
-> 3. ioctls
-> this is problematic to me. Any new kernel ABI is problematic to me,
-> and I'd much rather not add any new ones.
-I agree I am torn between the ioctl / direct evdev write. Both have 
-their bad sides to them, thus I provided sort of support for both. :)
->
-> My new set of mind is because of the recent work I have been
-> conducting regarding eBPF.
-> Basically I managed to have eBPF programs handling the device
-> configuration and event processing in a local branch.
-> I should be able to push a WIP next week, but basically this should
-> allow me to not have to deal with new kernel APIs besides the generic
-> eBPF one.
-> We can imagine a generic hid-input.c processing for those tablets, and
-> have a new userspace component that loads an eBPF program with its own
-> userspace API which is capable of the fancy features.
->
-> For instance, my current playground is setting the haptic feedback of
-> the Surface Dial depending on the resolution I set on it.
->
-> Furthermore, ioctls on a new cdev means that the classic userspace
-> libraries will not have access to it without some heavy tuning in the
-> systemd space (libinput only has read/write access to
-> /dev/input/event*).
+Following the mantra "DT describes hardware, not software policy", I
+think we should describe generic switches in DT, and perhaps have a way
+to configure the actual event code from userspace (e.g. using sysfs?).
+Without such configuration, perhaps they could emit a SW_* event with
+the MSB set, so at least their state can be queried using e.g. evtest?
 
-So, you are saying it would be possible to use this to support the USI 
-pen parameters also somehow? I can take a look at this once available.
+Gr{oetje,eeting}s,
 
->
-> 4. direct write to evdev
->
-> We enabled that once for LEDs, and it's a pain to maintain. Maybe we
-> can make a use case for it but given that you don't seem very
-> enthusiastic about it too, I wonder if this is not a dead end.
-Well, we need to be able to program the pen parameters somehow from 
-userspace, I am open to any suggestions how this could/should be done.
->
-> 5. patch ordering doesn't compile
-> I guess this is just a rebase hiccup. Not an issue for an RFC
-Yeah sorry about that. Will fix all those for next rev.
->
-> 6. tests
-> For these kinds of new classes of devices, I'd like to have tests in
-> the https://gitlab.freedesktop.org/libevdev/hid-tools repository.
-> There is already an initial MR for tablet support (!115 in this
-> project), and we should extend it with more tests.
-Ok I can take a look at these, thanks for the pointer. I am quite new to 
-the input side of things and have been using whatever I have been able 
-to craft myself, or found via googling.
->
-> I'd happily help with those tests if you could share the report
-> descriptors and some device dumps made with the hid-recorder tool from
-> that repository.
+                        Geert
 
-Yeah, I can share these in your preferred format once I figure out the 
-test tools. I have been using some custom tools to parse things myself 
-so far (mostly kernel traces for both HID + I2C subsystem where my USI 
-controller is connected.)
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
--Tero
-
->
->> The driver has been tested with chromebooks that contain either Goodix
->> or Elan manufactured USI capable touchscreen controllers in them.
->>
->> Any feedback appreciated!
-> I'll try to have a deeper look next week (though it seems a few bits
-> stacked up during my week off, sigh).
->
-> Cheers,
-> Benjamin
->
->> -Tero
->>
->>
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

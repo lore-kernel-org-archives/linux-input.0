@@ -2,26 +2,26 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 594C6C433FE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C91E8C43219
 	for <linux-input@archiver.kernel.org>; Wed, 10 Nov 2021 23:00:54 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 43ECD61350
+	by mail.kernel.org (Postfix) with ESMTP id B2F3361279
 	for <linux-input@archiver.kernel.org>; Wed, 10 Nov 2021 23:00:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234200AbhKJXDl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S234182AbhKJXDl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 10 Nov 2021 18:03:41 -0500
-Received: from todd.t-8ch.de ([159.69.126.157]:39497 "EHLO todd.t-8ch.de"
+Received: from todd.t-8ch.de ([159.69.126.157]:59497 "EHLO todd.t-8ch.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234180AbhKJXDk (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S234160AbhKJXDk (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Wed, 10 Nov 2021 18:03:40 -0500
 From:   =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
         s=mail; t=1636585249;
-        bh=jgSV9Z9MqHjSxHGGmmXPD4jqhlmIQznQK2wX8feu1ng=;
+        bh=6kSupYZDrrsHghwFMyadPlA4UhiFyStheLD/192wm+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiGqZQ5v1W5buGFpAkz4UgDOJRJ6NtK/pMnlsP/XLKEQjIZh6plDL7oAFRq1UF05m
-         nxIC05QrIK2nYJpNEcpVtAP8mNzBCBDwOZt754TT5Hmw7ec60Wo8Rer8nttEBrSy+T
-         kjbkoi2J88VSnBhFJANyrbGS31+Is03mo4CrX6co=
+        b=o3y0RPznS/RR/KNrbekAGSaScQ/aOyHT6fGqZ1Ul0AwwNAjmOO4if6Lb0uFHA4kbx
+         ZRpKFTBtIRsiiLZ8+C3Z2gWUlAdnbWIO4NY8tbUPi5tnFpkfG+TlVrAttngbM5kUv7
+         HZvn/rVB/hj9dVT7TdIfAIvJ3H98J7bb8ii7P21E=
 To:     Nathan Chancellor <nathan@kernel.org>, linux-input@vger.kernel.org,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -32,9 +32,9 @@ Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
         Benson Leung <bleung@chromium.org>,
         Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Guenter Roeck <groeck@chromium.org>, llvm@lists.linux.dev
-Subject: [PATCH 1/4] HID: intel-ish-hid: fw-loader: constify devicetable initializer
-Date:   Thu, 11 Nov 2021 00:00:40 +0100
-Message-Id: <20211110230043.701167-1-linux@weissschuh.net>
+Subject: [PATCH 4/4] platform/x86: isthp_eclite: constify devicetable initializer
+Date:   Thu, 11 Nov 2021 00:00:43 +0100
+Message-Id: <20211110230043.701167-4-linux@weissschuh.net>
 X-Mailer: git-send-email 2.33.1
 In-Reply-To: <YYv22iWQ7yTfMNC5@archlinux-ax161>
 References: <YYv22iWQ7yTfMNC5@archlinux-ax161>
@@ -48,41 +48,39 @@ X-Mailing-List: linux-input@vger.kernel.org
 Previously the compilation broke on clang and gcc < 8.1.0 with errors like
 "error: initializer element is not constant".
 
-Fixes: 44e2a58cb880 ("HID: intel-ish-hid: fw-loader: only load for matching devices")
+Fixes: f155dfeaa4ee ("platform/x86: isthp_eclite: only load for matching devices")
 Reported-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 8 ++++----
+ drivers/platform/x86/intel/ishtp_eclite.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-index 945a9d0b68cd..26f376faf0e6 100644
---- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-+++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
-@@ -76,9 +76,9 @@ enum ish_loader_commands {
- #define LOADER_XFER_MODE_ISHTP			BIT(1)
- 
- /* ISH Transport Loader client unique GUID */
--static const guid_t loader_ishtp_guid =
--	GUID_INIT(0xc804d06a, 0x55bd, 0x4ea7,
--		  0xad, 0xed, 0x1e, 0x31, 0x22, 0x8c, 0x76, 0xdc);
-+#define ISHTP_GUID GUID_INIT(0xc804d06a, 0x55bd, 0x4ea7, \
-+		  0xad, 0xed, 0x1e, 0x31, 0x22, 0x8c, 0x76, 0xdc)
-+static const guid_t loader_ishtp_guid = ISHTP_GUID;
- 
- #define FILENAME_SIZE				256
- 
-@@ -1064,7 +1064,7 @@ static struct ishtp_cl_driver	loader_ishtp_cl_driver = {
+diff --git a/drivers/platform/x86/intel/ishtp_eclite.c b/drivers/platform/x86/intel/ishtp_eclite.c
+index b9fb8f28fd63..d6709d5c77fd 100644
+--- a/drivers/platform/x86/intel/ishtp_eclite.c
++++ b/drivers/platform/x86/intel/ishtp_eclite.c
+@@ -93,9 +93,9 @@ struct ishtp_opregion_dev {
  };
  
- static const struct ishtp_device_id loader_ishtp_id_table[] = {
--	{ loader_ishtp_guid },
-+	{ ISHTP_GUID },
+ /* eclite ishtp client UUID: 6a19cc4b-d760-4de3-b14d-f25ebd0fbcd9 */
+-static const guid_t ecl_ishtp_guid =
+-	GUID_INIT(0x6a19cc4b, 0xd760, 0x4de3,
+-		  0xb1, 0x4d, 0xf2, 0x5e, 0xbd, 0xf, 0xbc, 0xd9);
++#define ECL_ISHTP_GUID GUID_INIT(0x6a19cc4b, 0xd760, 0x4de3, \
++		  0xb1, 0x4d, 0xf2, 0x5e, 0xbd, 0xf, 0xbc, 0xd9)
++static const guid_t ecl_ishtp_guid = ECL_ISHTP_GUID;
+ 
+ /* ACPI DSM UUID: 91d936a7-1f01-49c6-a6b4-72f00ad8d8a5 */
+ static const guid_t ecl_acpi_guid =
+@@ -682,7 +682,7 @@ static struct ishtp_cl_driver ecl_ishtp_cl_driver = {
+ };
+ 
+ static const struct ishtp_device_id ecl_ishtp_id_table[] = {
+-	{ ecl_ishtp_guid },
++	{ ECL_ISHTP_GUID },
  	{ }
  };
- MODULE_DEVICE_TABLE(ishtp, loader_ishtp_id_table);
-
-base-commit: 64355db3caf6468dc711995239efe0cbcd7d0091
+ MODULE_DEVICE_TABLE(ishtp, ecl_ishtp_id_table);
 -- 
 2.33.1
 

@@ -2,113 +2,85 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C99C3C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 11 Nov 2021 01:45:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23C5BC433FE
+	for <linux-input@archiver.kernel.org>; Thu, 11 Nov 2021 05:20:05 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id ADF126152A
-	for <linux-input@archiver.kernel.org>; Thu, 11 Nov 2021 01:45:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 0A94B611C9
+	for <linux-input@archiver.kernel.org>; Thu, 11 Nov 2021 05:20:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233592AbhKKBs0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 10 Nov 2021 20:48:26 -0500
-Received: from mga03.intel.com ([134.134.136.65]:55675 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232974AbhKKBsO (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 10 Nov 2021 20:48:14 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10164"; a="232771673"
-X-IronPort-AV: E=Sophos;i="5.87,225,1631602800"; 
-   d="scan'208";a="232771673"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2021 17:45:14 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.87,225,1631602800"; 
-   d="scan'208";a="670077166"
-Received: from lkp-server02.sh.intel.com (HELO c20d8bc80006) ([10.239.97.151])
-  by orsmga005.jf.intel.com with ESMTP; 10 Nov 2021 17:45:13 -0800
-Received: from kbuild by c20d8bc80006 with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1mkz9M-000FqL-Ef; Thu, 11 Nov 2021 01:45:12 +0000
-Date:   Thu, 11 Nov 2021 09:44:55 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org
-Subject: [dtor-input:next] BUILD SUCCESS
- 744d0090a5f6dfa4c81b53402ccdf08313100429
-Message-ID: <618c7597.5XIiQEDrrIOVxVoD%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+        id S230009AbhKKFWw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 11 Nov 2021 00:22:52 -0500
+Received: from smtprelay0209.hostedemail.com ([216.40.44.209]:34552 "EHLO
+        smtprelay.hostedemail.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S229814AbhKKFWw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 11 Nov 2021 00:22:52 -0500
+Received: from omf18.hostedemail.com (clb03-v110.bra.tucows.net [216.40.38.60])
+        by smtprelay01.hostedemail.com (Postfix) with ESMTP id 8B8FC101EABB1;
+        Thu, 11 Nov 2021 05:20:00 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf18.hostedemail.com (Postfix) with ESMTPA id 1C9ADC0002F4;
+        Thu, 11 Nov 2021 05:19:53 +0000 (UTC)
+Message-ID: <d7f3fec79287a149d6edc828583a771c84646b42.camel@perches.com>
+Subject: Re: [PATCH v3 3/3] MAINTAINERS: Mark VMware mailing list entries as
+ email aliases
+From:   Joe Perches <joe@perches.com>
+To:     Jakub Kicinski <kuba@kernel.org>,
+        "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Cc:     jgross@suse.com, x86@kernel.org, pv-drivers@vmware.com,
+        Zack Rusin <zackr@vmware.com>, Nadav Amit <namit@vmware.com>,
+        Vivek Thampi <vithampi@vmware.com>,
+        Vishal Bhakta <vbhakta@vmware.com>,
+        Ronak Doshi <doshir@vmware.com>,
+        linux-graphics-maintainer@vmware.com,
+        dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+        linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+        linux-input@vger.kernel.org, amakhalov@vmware.com,
+        sdeep@vmware.com, virtualization@lists.linux-foundation.org,
+        keerthanak@vmware.com, srivatsab@vmware.com, anishs@vmware.com,
+        linux-kernel@vger.kernel.org, rostedt@goodmis.org
+Date:   Wed, 10 Nov 2021 21:19:53 -0800
+In-Reply-To: <20211110173935.45a9f495@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
+         <163657493334.84207.11063282485812745766.stgit@srivatsa-dev>
+         <20211110173935.45a9f495@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+Content-Type: text/plain; charset="ISO-8859-1"
+User-Agent: Evolution 3.40.4-1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Stat-Signature: ztcifz3jtb55m8w5484sjq3xynbqoduh
+X-Rspamd-Server: rspamout03
+X-Rspamd-Queue-Id: 1C9ADC0002F4
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX1+SDIVTNx+3zME4BO7OMP/EAp4Y+zdx/2M=
+X-HE-Tag: 1636607993-497590
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-branch HEAD: 744d0090a5f6dfa4c81b53402ccdf08313100429  Input: iforce - fix control-message timeout
+On Wed, 2021-11-10 at 17:39 -0800, Jakub Kicinski wrote:
+> On Wed, 10 Nov 2021 12:09:06 -0800 Srivatsa S. Bhat wrote:
+> >  DRM DRIVER FOR VMWARE VIRTUAL GPU
+> > -M:	"VMware Graphics" <linux-graphics-maintainer@vmware.com>
+> >  M:	Zack Rusin <zackr@vmware.com>
+> > +R:	VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>
+> >  L:	dri-devel@lists.freedesktop.org
+> >  S:	Supported
+> >  T:	git git://anongit.freedesktop.org/drm/drm-misc
+> 
+> It'd be preferable for these corporate entries to be marked or
+> otherwise distinguishable so that we can ignore them when we try 
+> to purge MAINTAINERS from developers who stopped participating.
+> 
+> These addresses will never show up in a commit tag which is normally
+> sign of inactivity.
 
-elapsed time: 1087m
+Funny.
 
-configs tested: 54
-configs skipped: 2
+The link below is from over 5 years ago.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+https://lore.kernel.org/lkml/1472081625.3746.217.camel@perches.com/
 
-gcc tested configs:
-arm                                 defconfig
-arm64                            allyesconfig
-arm64                               defconfig
-arm                              allyesconfig
-arm                              allmodconfig
-ia64                             allmodconfig
-ia64                                defconfig
-ia64                             allyesconfig
-m68k                             allmodconfig
-m68k                                defconfig
-m68k                             allyesconfig
-nios2                            allyesconfig
-nds32                               defconfig
-csky                                defconfig
-alpha                               defconfig
-alpha                            allyesconfig
-xtensa                           allyesconfig
-h8300                            allyesconfig
-arc                                 defconfig
-sh                               allmodconfig
-nios2                               defconfig
-arc                              allyesconfig
-nds32                             allnoconfig
-parisc                              defconfig
-s390                             allyesconfig
-s390                             allmodconfig
-parisc                           allyesconfig
-s390                                defconfig
-i386                             allyesconfig
-sparc                            allyesconfig
-sparc                               defconfig
-i386                                defconfig
-i386                              debian-10.3
-mips                             allyesconfig
-mips                             allmodconfig
-powerpc                          allyesconfig
-powerpc                          allmodconfig
-powerpc                           allnoconfig
-riscv                    nommu_k210_defconfig
-riscv                            allyesconfig
-riscv                    nommu_virt_defconfig
-riscv                             allnoconfig
-riscv                               defconfig
-riscv                            allmodconfig
-riscv                          rv32_defconfig
-um                            kunit_defconfig
-um                           x86_64_defconfig
-um                             i386_defconfig
-x86_64                           allyesconfig
-x86_64                    rhel-8.3-kselftests
-x86_64                              defconfig
-x86_64                               rhel-8.3
-x86_64                          rhel-8.3-func
-x86_64                                  kexec
+Almost all of those entries are still in MAINTAINERS.
 
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+I think the concept of purging is a non-issue.
+

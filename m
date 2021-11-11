@@ -2,85 +2,70 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C91E8C43219
-	for <linux-input@archiver.kernel.org>; Wed, 10 Nov 2021 23:00:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ED62C433EF
+	for <linux-input@archiver.kernel.org>; Thu, 11 Nov 2021 01:39:39 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id B2F3361279
-	for <linux-input@archiver.kernel.org>; Wed, 10 Nov 2021 23:00:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id 4017B61872
+	for <linux-input@archiver.kernel.org>; Thu, 11 Nov 2021 01:39:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234182AbhKJXDl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 10 Nov 2021 18:03:41 -0500
-Received: from todd.t-8ch.de ([159.69.126.157]:59497 "EHLO todd.t-8ch.de"
+        id S232744AbhKKBm0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 10 Nov 2021 20:42:26 -0500
+Received: from mail.kernel.org ([198.145.29.99]:49158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234160AbhKJXDk (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 10 Nov 2021 18:03:40 -0500
-From:   =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
-        s=mail; t=1636585249;
-        bh=6kSupYZDrrsHghwFMyadPlA4UhiFyStheLD/192wm+o=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o3y0RPznS/RR/KNrbekAGSaScQ/aOyHT6fGqZ1Ul0AwwNAjmOO4if6Lb0uFHA4kbx
-         ZRpKFTBtIRsiiLZ8+C3Z2gWUlAdnbWIO4NY8tbUPi5tnFpkfG+TlVrAttngbM5kUv7
-         HZvn/rVB/hj9dVT7TdIfAIvJ3H98J7bb8ii7P21E=
-To:     Nathan Chancellor <nathan@kernel.org>, linux-input@vger.kernel.org,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        linux-kernel@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Rushikesh S Kadam <rushikesh.s.kadam@intel.com>,
-        Benson Leung <bleung@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Guenter Roeck <groeck@chromium.org>, llvm@lists.linux.dev
-Subject: [PATCH 4/4] platform/x86: isthp_eclite: constify devicetable initializer
-Date:   Thu, 11 Nov 2021 00:00:43 +0100
-Message-Id: <20211110230043.701167-4-linux@weissschuh.net>
-X-Mailer: git-send-email 2.33.1
-In-Reply-To: <YYv22iWQ7yTfMNC5@archlinux-ax161>
-References: <YYv22iWQ7yTfMNC5@archlinux-ax161>
+        id S231312AbhKKBmZ (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 10 Nov 2021 20:42:25 -0500
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50B8460EE4;
+        Thu, 11 Nov 2021 01:39:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1636594777;
+        bh=cf5yOhrezRaS3az4I+5LjwvWmGyLUDhsfildHNI2s2M=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=TERuJy+0mBTSaXjUPuv97W88N9bqw45z6KMJt40R91eXi2cwfbpZ7DLMiCURoVFrO
+         HY9VrAJuvI9zgAUhl5FuPKJD2/ge4X7H873CCkdRjsl02PFlJqerhjL2WDBSYM5kG4
+         cdb1WmUVdcOQ56pMUz1UT8zzIhHEsZGAtdIwx0V7uGt32eZaPpQ+ITPB0AnPbcIgj1
+         oNUyFGVR0OLShASmRN1xqk0EfJ5LzhEgKOIwdUKjsGqQVzRq2pafRu4O9bpjEAO5SU
+         q1PE6zavYqmU8KskvjXGGWbMBRSfoR6gHkykTHNPZwNiOxinnB1ZmXajrtCMf7zUmd
+         uP+X+V8iXixqw==
+Date:   Wed, 10 Nov 2021 17:39:35 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Cc:     jgross@suse.com, x86@kernel.org, pv-drivers@vmware.com,
+        Zack Rusin <zackr@vmware.com>, Nadav Amit <namit@vmware.com>,
+        Vivek Thampi <vithampi@vmware.com>,
+        Vishal Bhakta <vbhakta@vmware.com>,
+        Ronak Doshi <doshir@vmware.com>,
+        linux-graphics-maintainer@vmware.com,
+        dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+        linux-scsi@vger.kernel.org, netdev@vger.kernel.org,
+        linux-input@vger.kernel.org, amakhalov@vmware.com,
+        sdeep@vmware.com, virtualization@lists.linux-foundation.org,
+        keerthanak@vmware.com, srivatsab@vmware.com, anishs@vmware.com,
+        linux-kernel@vger.kernel.org, joe@perches.com, rostedt@goodmis.org
+Subject: Re: [PATCH v3 3/3] MAINTAINERS: Mark VMware mailing list entries as
+ email aliases
+Message-ID: <20211110173935.45a9f495@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+In-Reply-To: <163657493334.84207.11063282485812745766.stgit@srivatsa-dev>
+References: <163657479269.84207.13658789048079672839.stgit@srivatsa-dev>
+        <163657493334.84207.11063282485812745766.stgit@srivatsa-dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Previously the compilation broke on clang and gcc < 8.1.0 with errors like
-"error: initializer element is not constant".
+On Wed, 10 Nov 2021 12:09:06 -0800 Srivatsa S. Bhat wrote:
+>  DRM DRIVER FOR VMWARE VIRTUAL GPU
+> -M:	"VMware Graphics" <linux-graphics-maintainer@vmware.com>
+>  M:	Zack Rusin <zackr@vmware.com>
+> +R:	VMware Graphics Reviewers <linux-graphics-maintainer@vmware.com>
+>  L:	dri-devel@lists.freedesktop.org
+>  S:	Supported
+>  T:	git git://anongit.freedesktop.org/drm/drm-misc
 
-Fixes: f155dfeaa4ee ("platform/x86: isthp_eclite: only load for matching devices")
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
----
- drivers/platform/x86/intel/ishtp_eclite.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+It'd be preferable for these corporate entries to be marked or
+otherwise distinguishable so that we can ignore them when we try 
+to purge MAINTAINERS from developers who stopped participating.
 
-diff --git a/drivers/platform/x86/intel/ishtp_eclite.c b/drivers/platform/x86/intel/ishtp_eclite.c
-index b9fb8f28fd63..d6709d5c77fd 100644
---- a/drivers/platform/x86/intel/ishtp_eclite.c
-+++ b/drivers/platform/x86/intel/ishtp_eclite.c
-@@ -93,9 +93,9 @@ struct ishtp_opregion_dev {
- };
- 
- /* eclite ishtp client UUID: 6a19cc4b-d760-4de3-b14d-f25ebd0fbcd9 */
--static const guid_t ecl_ishtp_guid =
--	GUID_INIT(0x6a19cc4b, 0xd760, 0x4de3,
--		  0xb1, 0x4d, 0xf2, 0x5e, 0xbd, 0xf, 0xbc, 0xd9);
-+#define ECL_ISHTP_GUID GUID_INIT(0x6a19cc4b, 0xd760, 0x4de3, \
-+		  0xb1, 0x4d, 0xf2, 0x5e, 0xbd, 0xf, 0xbc, 0xd9)
-+static const guid_t ecl_ishtp_guid = ECL_ISHTP_GUID;
- 
- /* ACPI DSM UUID: 91d936a7-1f01-49c6-a6b4-72f00ad8d8a5 */
- static const guid_t ecl_acpi_guid =
-@@ -682,7 +682,7 @@ static struct ishtp_cl_driver ecl_ishtp_cl_driver = {
- };
- 
- static const struct ishtp_device_id ecl_ishtp_id_table[] = {
--	{ ecl_ishtp_guid },
-+	{ ECL_ISHTP_GUID },
- 	{ }
- };
- MODULE_DEVICE_TABLE(ishtp, ecl_ishtp_id_table);
--- 
-2.33.1
-
+These addresses will never show up in a commit tag which is normally
+sign of inactivity.

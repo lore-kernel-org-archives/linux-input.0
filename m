@@ -2,67 +2,65 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41E39C433EF
-	for <linux-input@archiver.kernel.org>; Sun, 14 Nov 2021 19:23:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EEE8EC433EF
+	for <linux-input@archiver.kernel.org>; Sun, 14 Nov 2021 19:51:42 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 12FF96112E
-	for <linux-input@archiver.kernel.org>; Sun, 14 Nov 2021 19:23:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id CA9EB60EE2
+	for <linux-input@archiver.kernel.org>; Sun, 14 Nov 2021 19:51:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233136AbhKNT0f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 14 Nov 2021 14:26:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54844 "EHLO
+        id S236257AbhKNTyg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 14 Nov 2021 14:54:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236157AbhKNT0a (ORCPT
+        with ESMTP id S236473AbhKNTyY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 14 Nov 2021 14:26:30 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0F15C061746
-        for <linux-input@vger.kernel.org>; Sun, 14 Nov 2021 11:23:33 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id c8so61617560ede.13
-        for <linux-input@vger.kernel.org>; Sun, 14 Nov 2021 11:23:33 -0800 (PST)
+        Sun, 14 Nov 2021 14:54:24 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB61C061746
+        for <linux-input@vger.kernel.org>; Sun, 14 Nov 2021 11:51:26 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id b15so61902113edd.7
+        for <linux-input@vger.kernel.org>; Sun, 14 Nov 2021 11:51:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=googlemail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=msm4RixDwEFMfe+7jyY/ubZlcJMsRCU7XocB5DrglG4=;
-        b=WGR4HMjvoCm4Krb9bPDEX/EwRdcBGcnBSk3pX0WPbUZvRFLdiXT8JUn65nWp5XMzTl
-         hk4r2zKlvlPBO7csopT4ME2/CHTgeTG7qrc1AKfYpUabe0LeDJ43RTRjp8878SMhOpO0
-         +S1ktknpZ+kXdJtbgHj33CUEgz40reJ7BQzjBIUZutSCABHzxBrgNsGUE2F8S8PPsUM2
-         7L+T8XZxPMP9puPV/4SRSB6b7MGgJCFdc09zmG0Cp7y1x+YgTM+e0mrqMoGgUYOc1yBz
-         0OKavacF2X2Kuj9ni633FaEBpd08gnSwIkSRt3yBhetsx2EtBcQiGS+flFl29QauZ3d/
-         8nHw==
+        bh=I52xYCXQ5bgAIm/MKSl0lPEOsRdPwmhdh9rDl2mM00I=;
+        b=GcHf2sVR3nuExRNU85LRoSx0NGtCfpfTGhcIaSIYqICA9Iuep0M+ZANJ/aa3wNUSeF
+         nNHRPFbhJrJRdV2Fi8sz490I/HPoN4qLHTRLpuov8EndF0gQPg0hsxYQRm0urO/oMz3Z
+         kuAo4DSL3WBQMT2LBJIBi/GOMvbdbIL9CN0d0NrmZi7wZk/TNJrF2MZuFoU3pk95UfuE
+         r2XhUmFpx86rGOCMkfrnDwQIvbY1YAlT1t8dCrXao8rtY7hLxbY+yhjxSy9xViuvir1S
+         FxPNvTkowIbcijZ11aDkCdsdtrLklAWt3Ung96v9tu0PmRLHEsYm1mSevDB4fVwZ23zc
+         vEMw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=msm4RixDwEFMfe+7jyY/ubZlcJMsRCU7XocB5DrglG4=;
-        b=V69xgRDMEiJvBh2nSljaKuzjHQ1AlSXAWtv0Rwevmz7NT1l8mD6vQ5m4ImumEcg8QO
-         od42xp8pQ4QlX1bUitZmzuXJZSm1i0J+Oc6u2glYQdYnnceDA9QQKajAfCkw9/29vAvi
-         ynTXzbfhwBEQ73BXQFv663HDa+rS9K3H5GtjX0M9YlFKLD4TMXGZ43PXJqiunoHWLdT4
-         JRnq04HPJ1NLw8gr6OLGP9STmfAzxva3MPM6HUtnAZ1XICswOFkUThA2t5PGro0TtkBf
-         SIbkmeS6S+hW4kH1I8n3l5Zps2VQoVSx/pdmeePgfAJE+iGE6TIRmHMkWtjwSD79Fbi9
-         0rIQ==
-X-Gm-Message-State: AOAM532f+weoP/rfi/yltZLSWt+BJphBCgClD5BUgJ+YI4FgiCHjgUf5
-        5HDLCWlnJw51lPb/Sn6NmLI=
-X-Google-Smtp-Source: ABdhPJyiASH7reQvNA4EfR2HjVC0nMHrXbojU2mu/nYpTbCs4b3hrASHqrlpWLCdrMzdH7taH4BSOg==
-X-Received: by 2002:a17:907:7d94:: with SMTP id oz20mr43970093ejc.410.1636917812192;
-        Sun, 14 Nov 2021 11:23:32 -0800 (PST)
+        bh=I52xYCXQ5bgAIm/MKSl0lPEOsRdPwmhdh9rDl2mM00I=;
+        b=nin1mQkrvi9FvhonTTF+u3oWokaOwJXkFN1BWFrnyvO3SQ5z6pixSYX89Hf3NFoT+x
+         aQkumeYVrlt8uuFZyxr3G8suV0V3OfEgrTK7UCewzsyS+ID1jLz2Piz/6MLlXgFvHJYw
+         632nPJ+yWHBVNLR1bBvDZrMbrbPLv9I/L0oL8SjfExOSaSjB3z0Y/O+EJNb4NzFrIgDh
+         WKpVkpenOwza8S6xoAh0JIe8pirNn2xk9oZcPs89Pb3qxD0GyQ4mCYMIzY+ALT7DW3pH
+         nMH2IXSHUnt4UeC8+0sdk/JM9KNIQ+5rOO8zoA3cLGRBOypj3EWMrpZsq5V/f6y5iANW
+         mSKA==
+X-Gm-Message-State: AOAM531n8xhqy18KMPNWBYDacXU0bMABhTonJtMk8eF7wXlSr98/pjbB
+        pGwzqTAMr8lu5PqME34eNS4=
+X-Google-Smtp-Source: ABdhPJz/WMA0u15/l0svrL6F0sMlcQA6uDXGso6GISCivsXZR6pv5yyw4i5JRKdAbpiPvCKdA4TT2w==
+X-Received: by 2002:a05:6402:4316:: with SMTP id m22mr48408626edc.349.1636919485269;
+        Sun, 14 Nov 2021 11:51:25 -0800 (PST)
 Received: from rechenknecht2k11 (200116b8456c370014a1cb2603939609.dip.versatel-1u1.de. [2001:16b8:456c:3700:14a1:cb26:393:9609])
-        by smtp.googlemail.com with ESMTPSA id u14sm6180078edj.74.2021.11.14.11.23.31
+        by smtp.googlemail.com with ESMTPSA id k9sm6139608edo.87.2021.11.14.11.51.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 14 Nov 2021 11:23:32 -0800 (PST)
-Date:   Sun, 14 Nov 2021 20:23:29 +0100
+        Sun, 14 Nov 2021 11:51:25 -0800 (PST)
+Date:   Sun, 14 Nov 2021 20:51:22 +0100
 From:   Benjamin Valentin <benpicco@googlemail.com>
 To:     Cameron Gutman <aicommander@gmail.com>
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>,
-        lawl <github@dumbinter.net>
-Subject: [PATCH v2] Input: xpad - Poweroff XBOX360W on mode button long
- press
-Message-ID: <20211114202329.5745bb26@rechenknecht2k11>
-In-Reply-To: <3b25f4b1-3ec0-0878-99bc-0da06ce7c2f2@gmail.com>
-References: <20211113141155.26217b44@rechenknecht2k11>
-        <3b25f4b1-3ec0-0878-99bc-0da06ce7c2f2@gmail.com>
+        linux-input@vger.kernel.org, Lee Jones <lee.jones@linaro.org>
+Subject: Re: Input: xpad - add more Xbox one controller IDs
+Message-ID: <20211114205122.575567c6@rechenknecht2k11>
+In-Reply-To: <dd40fcf9-582f-d5fd-4eec-ef06a8ecdf3b@gmail.com>
+References: <20211113131734.46fbc9bf@rechenknecht2k11>
+        <dd40fcf9-582f-d5fd-4eec-ef06a8ecdf3b@gmail.com>
 X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -71,61 +69,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Newer gamepads turn themselves off when the mode button is held down.
-For XBOX360W gamepads we must do this in the driver.
+On Sat, 13 Nov 2021 19:34:54 -0600
+Cameron Gutman <aicommander@gmail.com> wrote:
 
-Power off the gamepad after 5s of holding down the button.
+> For 1, the way Windows does it is via the Microsoft OS descriptor [0].
+> AFAIK, the specific OS descriptor strings are "XUSB20" for Xbox 360
+> and "XGIP10" for Xbox One.
+> 
+> That functionality is handled by xpad_table[] and the
+> bInterfaceProtocol detection logic in xpad_probe(). The xpad_device[]
+> entry isn't required for detection or functionality of devices,
+> unless those devices need special treatment like
+> MAP_TRIGGERS_TO_BUTTONS or something.
 
-Signed-off-by: lawl <github@dumbinter.net>
-Signed-off-by: Benjamin Valentin <benpicco@googlemail.com>
----
-Changed the timeout back to 5s
+The problem is that the gamepad then gets assigned the type
+XTYPE_UNKNOWN which excludes it from all run-time code path switches.
 
- drivers/input/joystick/xpad.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
+E.g. if I comment out
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 18caaf436ed4..e36c4b0abd4b 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -619,11 +619,13 @@ struct usb_xpad {
- 	int pad_nr;			/* the order x360 pads were attached */
- 	const char *name;		/* name of the device */
- 	struct work_struct work;	/* init/remove device from callback */
-+	time64_t mode_btn_down_ts;	/* timestamp when mode button was pressed */
- };
- 
- static int xpad_init_input(struct usb_xpad *xpad);
- static void xpad_deinit_input(struct usb_xpad *xpad);
- static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
-+static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
- 
- /*
-  *	xpad_process_packet
-@@ -775,6 +777,24 @@ static void xpad360_process_packet(struct usb_xpad *xpad, struct input_dev *dev,
- 	}
- 
- 	input_sync(dev);
-+
-+	/* xbox360w controllers can't be turned off without driver assistance */
-+	if (xpad->xtype == XTYPE_XBOX360W) {
-+		if (xpad->mode_btn_down_ts > 0
-+		    && xpad->pad_present
-+		    /* send power off after 5s of holding the button */
-+		    && (ktime_get_seconds() - xpad->mode_btn_down_ts) >= 5) {
-+			xpad360w_poweroff_controller(xpad);
-+			xpad->mode_btn_down_ts = 0;
-+			return;
-+		}
-+
-+		/* mode button down/up */
-+		if (data[3] & 0x04)
-+			xpad->mode_btn_down_ts = ktime_get_seconds();
-+		else
-+			xpad->mode_btn_down_ts = 0;
-+	}
- }
- 
- static void xpad_presence_work(struct work_struct *work)
--- 
-2.32.0
+//    { 0x045e, 0x028e, "Microsoft X-Box 360 pad", 0, XTYPE_XBOX360 },
+
+my X-Box 360 pad will not only lose any LED or rumble support, it will
+also not report any input events with jstest because
+xpad360_process_packet() is no longer called.
+
+I'll try to check on how to read out the OS descriptor string, maybe
+that allows us to detect the type on init and provide a better default
+experience.
+
+Best,
+Benjamin

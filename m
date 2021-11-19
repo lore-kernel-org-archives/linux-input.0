@@ -2,164 +2,203 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC6F5C433EF
-	for <linux-input@archiver.kernel.org>; Fri, 19 Nov 2021 02:54:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCE92C433F5
+	for <linux-input@archiver.kernel.org>; Fri, 19 Nov 2021 09:54:28 +0000 (UTC)
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.kernel.org (Postfix) with ESMTP id 8BBC561B29
-	for <linux-input@archiver.kernel.org>; Fri, 19 Nov 2021 02:54:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTP id AB7A060273
+	for <linux-input@archiver.kernel.org>; Fri, 19 Nov 2021 09:54:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232081AbhKSC5U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 18 Nov 2021 21:57:20 -0500
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:45889 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229521AbhKSC5T (ORCPT
+        id S229687AbhKSJ53 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 19 Nov 2021 04:57:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53028 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229457AbhKSJ51 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 18 Nov 2021 21:57:19 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 25ECF3201C84;
-        Thu, 18 Nov 2021 21:54:18 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Thu, 18 Nov 2021 21:54:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm1; bh=0q45aXuIDeOq9GYXNRS8Khr2Q4
-        N2QhRZ9vUqoPIDuWA=; b=KEZWG7wyB/TKyVSN7oWsaNCiACYQi2DJSDomG57uwB
-        yuvbW0syqC4jOmnpKYJa5puhJuuaS0FWi7Qm1ag0GH1NcOB3HBog2SIwD0nNbQxD
-        Y+r6K+FPPyy7yDpycho8XuwPVF+oxH9hXeg0Z0RnFUPxQ8yM5nsUNu/8gDhYvhXc
-        6lqLGi0se3KxhYyoqZav1mcMkSoZgp84PPzAokOXn2ZkTMMeQPval+TnM+PtU+GX
-        lBqHLJdWyugz95KIbig93DkjnPYe8z6/4kRB5zDUpLH5Q/+WWecnv97zhhExHZQk
-        IAryKPJc2P/1ThdiKiOB3D+VqW9O9mK7CPvNIaaiNa4A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=0q45aXuIDeOq9GYXN
-        RS8Khr2Q4N2QhRZ9vUqoPIDuWA=; b=QaYyrP1KmXmo8B6yqmj119y6VEQPBhjbZ
-        w+QUXdidzYX1lR3nWBuCtMnTlrAdRCWyVfjJsIdf2q8qgR+CazThbz7KSUkuJekH
-        /qzzDHlheVy3mNspG1aXLonxhqIyf1yPK3OY/k1J/R/Y6NGXb/0GjbwkjsjJi6c5
-        qa3hlmy38sfbVLPO/ftwp4TlhkTaszplPJhrh8ufvWntbCl0tQAxez0BzJnQXa5b
-        uAigjA8kojQjRZ4Bjnlr0sAKZGfIEq0pNTFPYqCzQ0lGFnpIATT/wnnoZtRTLXjH
-        DGhqITT/ZiM2zcOv4SoTVSpMFEcQG3n0Ymt6hKUS/juIsmbTXWNUw==
-X-ME-Sender: <xms:2RGXYa5U2yKukZbcSBXQlt2kG6eiPle144VKCNkvOC0Dg-RKJmeRWg>
-    <xme:2RGXYT5-1SFuiKzKzPO26y6xzLhKpRAFJ0o9-z-C8blgHJdn0s-IG4Dj6g0hEkKxP
-    J__pqGKQm9s-aHBpg>
-X-ME-Received: <xmr:2RGXYZfM2lN7McPUqODD3YCNbwuLJem-pMdDyu45PdEkU0sOoPLAo7KXaOg31_CftFGmae_E0WUwXgRxY_BHsxt15TI8nYREr07a8h7Jcw7wUSo2ijlom7jidJ1FrJuucFJ5-w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddrfeejgdehudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepufgrmhhuvghlucfj
-    ohhllhgrnhguuceoshgrmhhuvghlsehshhholhhlrghnugdrohhrgheqnecuggftrfgrth
-    htvghrnhepieetkefhheduudfgledtudefjeejfeegveehkeeufffhhfejkeehiefftdev
-    tdevnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepsh
-    grmhhuvghlsehshhholhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:2RGXYXIyEBpxq37HoCt7se8c0gUMtgt96zrRfgJ_YXOlp7x1M8uCag>
-    <xmx:2RGXYeKqkz9VvOWImyeHExYOcCmmHMjhM9JUx1LYmmtn53sMBQ7DiQ>
-    <xmx:2RGXYYxqpcL-Jm3lQ4o7XPI-yTUshIszSFJh3WJ9ab5S8E4x0KVhHw>
-    <xmx:2RGXYd8IQowD8kP1x88YHLVGtw9Vapmxj1Nvadbn6STTfCZ23HcxLA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 18 Nov 2021 21:54:16 -0500 (EST)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-sunxi@lists.linux.dev, Ondrej Jirman <megous@megous.com>,
-        Samuel Holland <samuel@sholland.org>
-Subject: [PATCH v4] Input: sun4i-lradc-keys -  Add wakup support
-Date:   Thu, 18 Nov 2021 20:54:15 -0600
-Message-Id: <20211119025415.18642-1-samuel@sholland.org>
-X-Mailer: git-send-email 2.32.0
+        Fri, 19 Nov 2021 04:57:27 -0500
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBCA9C061574;
+        Fri, 19 Nov 2021 01:54:24 -0800 (PST)
+Received: by mail-lf1-x12c.google.com with SMTP id t26so40667040lfk.9;
+        Fri, 19 Nov 2021 01:54:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:in-reply-to:references
+         :mime-version;
+        bh=cCmbb3DeLLP09ki4kuTJnLQtb2WYrPD5nXeA3cU7GHA=;
+        b=CBkTq6ESHlhgDp68NHzmdZpbcEmNLLnQWp1+ZPSbbqH0lNdBvmM9mKgBhKUg2BwNZP
+         lQ8Sle9W/OpUk/RPmfqTfYK0+1s4Ci3uZZvnV4AG7/snRoZS7NZZc/nNkFMXaIoPdP+5
+         29hoODFIbGpE77eRmKctbKZ5WhVgMTMJM9cB+SFEOxSDKqrQG45G1rehYYJNW8TgRRpA
+         MVM3dWAd5/++pqjAs8qdq94k8RojhP2yE/gT4sdlFT67qYlcr8QBXlCEmTjYQE68q0gL
+         AfA7aBmDqMt2/rsY9F2XhUDcmFxczzt1A5Cb8yevWLWXo4nYDsgUs0vXA54KlznNm7WS
+         8utg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
+         :references:mime-version;
+        bh=cCmbb3DeLLP09ki4kuTJnLQtb2WYrPD5nXeA3cU7GHA=;
+        b=KX1LvVeGOD1oAosck+QuIZAhsiZWEpps6RJdMWO155Z2XbSpRXmJ40ebkndUnpC9tP
+         Y9+H5dvsmg+yaknh1SKo8fQhhdan8bACsQ8o8xKWtUYAPJ2chRPiEPRMeyt63zGAGa6W
+         5LzgNa6eRZ0cvfScQNv2IAgoFWZj3N07YHj18AV6RBTNHvI9ScfkKLHq5Kd8ZU2KR2Fu
+         YBOKY49SUCBCi91vb4rclEpgWbyprCQ1IIhhuT/KkyciT+fQYWOhtmjg3BQdjFd5YDsG
+         Pn17J3wpwhe6rxAd82Evvc3i74LttKQErel7m4SlFsw+nrK+nW13x4brvMacNjTQ1zGA
+         NB8A==
+X-Gm-Message-State: AOAM533dSbR0iqKhcmRaIEeFJFsi69bBlOOaE91Ba/GvNoMtlwF+rLvy
+        7mELrBTPmfGY+HLNNCFCiyU=
+X-Google-Smtp-Source: ABdhPJyMAsdZM1wTFviXfnVXe1xpTGDJW5bHj20TI7D62Huwj4l4m4Q0rLsX2tTFp2ikjlKXTD9LCQ==
+X-Received: by 2002:a05:6512:1154:: with SMTP id m20mr30708122lfg.600.1637315663309;
+        Fri, 19 Nov 2021 01:54:23 -0800 (PST)
+Received: from eldfell ([194.136.85.206])
+        by smtp.gmail.com with ESMTPSA id v24sm240363lji.120.2021.11.19.01.54.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 19 Nov 2021 01:54:23 -0800 (PST)
+Date:   Fri, 19 Nov 2021 11:54:19 +0200
+From:   Pekka Paalanen <ppaalanen@gmail.com>
+To:     Rob Clark <robdclark@gmail.com>
+Cc:     Brian Norris <briannorris@chromium.org>,
+        Rob Clark <robdclark@chromium.org>,
+        Andrzej Hajda <andrzej.hajda@intel.com>,
+        David Airlie <airlied@linux.ie>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Doug Anderson <dianders@chromium.org>,
+        "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>,
+        "Kristian H . Kristensen" <hoegsberg@google.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] drm/input_helper: Add new input-handling helper
+Message-ID: <20211119115419.505155b5@eldfell>
+In-Reply-To: <CAF6AEGuc9JbOsC4Lrvoqo8VzMHq+7ru7Y6_UwoZaGV2wHQ6E5g@mail.gmail.com>
+References: <20211117224841.3442482-1-briannorris@chromium.org>
+        <20211117144807.v2.1.I09b516eff75ead160a6582dd557e7e7e900c9e8e@changeid>
+        <20211118123928.545dec8a@eldfell>
+        <CAF6AEGuc9JbOsC4Lrvoqo8VzMHq+7ru7Y6_UwoZaGV2wHQ6E5g@mail.gmail.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; boundary="Sig_/GCMqU3cCDFY4+95vMjiPI4b";
+ protocol="application/pgp-signature"; micalg=pgp-sha256
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Ondrej Jirman <megous@megous.com>
+--Sig_/GCMqU3cCDFY4+95vMjiPI4b
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Allow the driver to wake the system on key press if the "wakeup-source"
-property is provided in the device tree. Using the LRADC as a wakeup
-source requires keeping the AVCC domain active during sleep. Since this
-has a nontrivial impact on power consumption (sometimes doubling it),
-disable the LRADC wakeup source by default.
+On Thu, 18 Nov 2021 15:30:38 -0800
+Rob Clark <robdclark@gmail.com> wrote:
 
-Signed-off-by: Ondrej Jirman <megous@megous.com>
-Signed-off-by: Samuel Holland <samuel@sholland.org>
+> On Thu, Nov 18, 2021 at 2:39 AM Pekka Paalanen <ppaalanen@gmail.com> wrot=
+e:
+> >
+> > On Wed, 17 Nov 2021 14:48:40 -0800
+> > Brian Norris <briannorris@chromium.org> wrote:
+> > =20
+> > > A variety of applications have found it useful to listen to
+> > > user-initiated input events to make decisions within a DRM driver, gi=
+ven
+> > > that input events are often the first sign that we're going to start
+> > > doing latency-sensitive activities:
+> > >
+> > >  * Panel self-refresh: software-directed self-refresh (e.g., with
+> > >    Rockchip eDP) is especially latency sensitive. In some cases, it c=
+an
+> > >    take 10s of milliseconds for a panel to exit self-refresh, which c=
+an
+> > >    be noticeable. Rockchip RK3399 Chrome OS systems have always shipp=
+ed
+> > >    with an input_handler boost, that preemptively exits self-refresh
+> > >    whenever there is input activity.
+> > >
+> > >  * GPU drivers: on GPU-accelerated desktop systems, we may need to
+> > >    render new frames immediately after user activity. Powering up the
+> > >    GPU can take enough time that it is worthwhile to start this proce=
+ss
+> > >    as soon as there is input activity. Many Chrome OS systems also sh=
+ip
+> > >    with an input_handler boost that powers up the GPU.
+> > >
+> > > This patch provides a small helper library that abstracts some of the
+> > > input-subsystem details around picking which devices to listen to, and
+> > > some other boilerplate. This will be used in the next patch to implem=
+ent
+> > > the first bullet: preemptive exit for panel self-refresh.
+> > >
+> > > Bits of this are adapted from code the Android and/or Chrome OS kerne=
+ls
+> > > have been carrying for a while.
+> > >
+> > > Signed-off-by: Brian Norris <briannorris@chromium.org>
+> > > --- =20
+> >
+> > Thanks Simon for the CC.
+> >
+> > Hi Brian,
+> >
+> > while this feature in general makes sense and sounds good, to start
+> > warming up display hardware early when something might start to happen,
+> > this particular proposal has many problems from UAPI perspective (as it
+> > has none). Comments below.
+> >
+> > Btw. if PSR is that slow to wake up from, how much do you actually gain
+> > from this input event watching? I would imagine the improvement to not
+> > be noticeable.
+> >
+> > I think some numbers about how much this feature helps would be really
+> > good, even if they are quite specific use cases. You also need to
+> > identify the userspace components, because I think different display
+> > servers are very different in their reaction speed.
+> >
+> > If KMS gets a pageflip or modeset in no time after an input event, then
+> > what's the gain. OTOH, if the display server is locking on to vblank,
+> > there might be a delay worth avoiding. But then, is it worth
+> > short-circuiting the wake-up in kernel vs. adding a new ioctl that
+> > userspace could hit to start the warming up process? =20
+>=20
+> In my measurements, it takes userspace a frame or two to respond and
+> get to the point of starting to build cmdstream (before eventually
+> doing atomic/pageflip ioctl).. possibly longer if you don't also have
+> a similar boost mechanism to spool up cpufreq
+>=20
+> But the important thing, IMO, is that atomic/pageflip ioctl is the
+> cumulation of a long sequence of events.. input-boost is letting
+> whatever it may be (PSR exit, GPU resume, etc) happen in parallel with
+> that long sequence.
 
----
+Right, exactly. That is why I was musing about a *new* ioctl that
+userspace could hit as soon as any input device fd (or network fd!)
+shows signs of life. Would that be enough, avoiding all the annoying
+questions about which input and DRM devices should participate here
+(and what about non-input devices that still want to trigger the
+warm-up, like network traffic, e.g. remote control?), or does it really
+need to be kernel internal to be fast enough?
 
-Changes since v3:
-  - Only mark device as wakeup capable if setting the wakeirq succeeds
-  - An entirely different, but equivalent, DT binding patch was merged,
-    so there is only one patch left
+As Brian wrote about his quick hack to test that via debugfs, sounds
+like the userspace solution would be totally sufficient.
 
-Changes since v2:
-  - Dropped unnecessary pr_err in platform_get_irq() error path
-  - Dropped patch 3 (DT update) as it was merged
-  - Added Acked-by/Reviewed-by tags
 
-Changes since v1:
-  - Add requisite DT binding change
-  - Only add wakeup capability if "wakeup-source" is present
-  - Warn but do not error out if setting the wake IRQ fails
-  - Add "wakeup-source" property to PinePhone device tree
----
- drivers/input/keyboard/sun4i-lradc-keys.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+Thanks,
+pq
 
-diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c b/drivers/input/keyboard/sun4i-lradc-keys.c
-index 4a796bed48ac..781f9b053115 100644
---- a/drivers/input/keyboard/sun4i-lradc-keys.c
-+++ b/drivers/input/keyboard/sun4i-lradc-keys.c
-@@ -22,6 +22,8 @@
- #include <linux/module.h>
- #include <linux/of_platform.h>
- #include <linux/platform_device.h>
-+#include <linux/pm_wakeirq.h>
-+#include <linux/pm_wakeup.h>
- #include <linux/regulator/consumer.h>
- #include <linux/slab.h>
- 
-@@ -226,8 +228,7 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
- {
- 	struct sun4i_lradc_data *lradc;
- 	struct device *dev = &pdev->dev;
--	int i;
--	int error;
-+	int error, i, irq;
- 
- 	lradc = devm_kzalloc(dev, sizeof(struct sun4i_lradc_data), GFP_KERNEL);
- 	if (!lradc)
-@@ -272,8 +273,11 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
- 	if (IS_ERR(lradc->base))
- 		return PTR_ERR(lradc->base);
- 
--	error = devm_request_irq(dev, platform_get_irq(pdev, 0),
--				 sun4i_lradc_irq, 0,
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	error = devm_request_irq(dev, irq, sun4i_lradc_irq, 0,
- 				 "sun4i-a10-lradc-keys", lradc);
- 	if (error)
- 		return error;
-@@ -282,6 +286,14 @@ static int sun4i_lradc_probe(struct platform_device *pdev)
- 	if (error)
- 		return error;
- 
-+	if (device_property_read_bool(dev, "wakeup-source")) {
-+		error = dev_pm_set_wake_irq(dev, irq);
-+		if (error)
-+			dev_warn(dev, "Failed to set wake IRQ\n");
-+		else
-+			device_set_wakeup_capable(dev, true);
-+	}
-+
- 	return 0;
- }
- 
--- 
-2.32.0
+--Sig_/GCMqU3cCDFY4+95vMjiPI4b
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEJQjwWQChkWOYOIONI1/ltBGqqqcFAmGXdEsACgkQI1/ltBGq
+qqcdOBAAl9X47lu2lO66cWGjSsacbgjGDy+MldM0YFq5JF8ooCZXNGL176wqkChG
+yz9SMJGDApoJ04/NsIE73coxTYU3xKBYTbAeuFxM5IklcXEqKc/4VXDCcim7Lwlg
+VzUxOxb1XfNfZNyn4uMANyGpk0uO4dnIpd5u1uaWXhKajn9RTZKwQ2SBbbEt4Dcl
+hcDBpGXGU9evx5ZBvUHTNUPcfEsAYWyHKMDGhVZwH5YUYAgwG2P5IHFstX5PUori
+O/6SBot5hj7JfCOpV6wZcASeonCeescV2Nq4muPF6yHGI9mbgppaaYi2ezcx6Os+
+udxpoovlLoYU54foZaqjsJvy1nlLZLHi4pPIfHmAn8+hJ2IvU5yQoB+7QZe6FhQN
+tKhkoqUpUYCSUTMy1v/0mJJ0+zBBChNV3Y5uT/Q8c7TJPPORtAMjU8bP0xgL1SpA
+6CB2CPZy+QyCGeQJpR+lAlMGtgZPPzsx9zgS3SM/sItEl+yNDDvkoJMPfYlKjvqH
+ZI9KUtZ1BIfYzeU3F2B5vztJRIpG4sDS4nRa+WXHLTQi0eit4ZFqaRU+5oU1HQP8
+OmOu+bAlP45l8QiunzbwvCFmq/Kq5PY61ly+iN08+26EXLxeCmVLGi3UGkcIMulI
+WeqfT8f3422boYyBp9ftzCnEakQHcU2Sl4gZnXnonw+7SpNNSYY=
+=g0x0
+-----END PGP SIGNATURE-----
+
+--Sig_/GCMqU3cCDFY4+95vMjiPI4b--

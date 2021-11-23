@@ -2,239 +2,102 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5F2EC433FE
-	for <linux-input@archiver.kernel.org>; Mon, 22 Nov 2021 22:06:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 203F5C2BA80
+	for <linux-input@archiver.kernel.org>; Tue, 23 Nov 2021 07:39:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232858AbhKVWJx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 22 Nov 2021 17:09:53 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:47611 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231256AbhKVWJx (ORCPT
+        id S234146AbhKWHmL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 23 Nov 2021 02:42:11 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:39318 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234166AbhKWHmJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Nov 2021 17:09:53 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1637618806;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+        Tue, 23 Nov 2021 02:42:09 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 6E3A121891;
+        Tue, 23 Nov 2021 07:39:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1637653141; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ga3o+8zZ4znx2XyRKyxx+147Mx8l6EBGFpZde95Ko6Q=;
-        b=AcXArD/kPEq8NyWSTjqsoUxhU5xUvoXY/odfKfNfEix/MfezCM9bRaDj7Npa+RFIpTNZyT
-        tLdhuhuxXYQUqUmeh/ie3VqLAWFJpyyCXnCHVGBXSZic9vULcq5bI7PUUiWGQ2dbrA0qcK
-        WMpiBHo87VIAwVhYR81tTkLWtk8sRrc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-262-Zjr_e30FMaS-z_xfisa0OA-1; Mon, 22 Nov 2021 17:06:42 -0500
-X-MC-Unique: Zjr_e30FMaS-z_xfisa0OA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C07BC875047;
-        Mon, 22 Nov 2021 22:06:41 +0000 (UTC)
-Received: from x1.localdomain (unknown [10.39.192.226])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 9B79257CD3;
-        Mon, 22 Nov 2021 22:06:40 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH resend 2/2] Input: silead - Add pen support
-Date:   Mon, 22 Nov 2021 23:06:37 +0100
-Message-Id: <20211122220637.11386-3-hdegoede@redhat.com>
-In-Reply-To: <20211122220637.11386-1-hdegoede@redhat.com>
-References: <20211122220637.11386-1-hdegoede@redhat.com>
-MIME-Version: 1.0
+        bh=ntuc/d1v3aIwzR7MoYZrh+0RhIWLLjMFoPm+UC5pqJk=;
+        b=W/YDsqKWrb/7i4lPJ37Md6TTOkHUkmZ20hPfUIuJbakFYJkArtkKqPhIyegwprUsri+mhS
+        A9axhyU0MNtVs7T8iE4R6ukrb8QN4BgMi+JMvq7EIERJI9GbmUQYyfwx59ijnBpniGOKQQ
+        8HFoVe3mfHKaEzi5MI3tGe4bYQDvW9U=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1637653141;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ntuc/d1v3aIwzR7MoYZrh+0RhIWLLjMFoPm+UC5pqJk=;
+        b=v/LY+j4noGL6KrAPctVHgEn3wSI1AnTTbxktYvN3lMIPA8njE9SJao9ZsA6nV2FDiBQ8Z8
+        9aCrTJTHsjuBoKBQ==
+Received: from alsa1.suse.de (alsa1.suse.de [10.160.4.42])
+        by relay2.suse.de (Postfix) with ESMTP id 674A6A3B84;
+        Tue, 23 Nov 2021 07:39:01 +0000 (UTC)
+Date:   Tue, 23 Nov 2021 08:39:01 +0100
+Message-ID: <s5ho86bb9t6.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Samuel =?UTF-8?B?xIxhdm9q?= <samuel@cavoj.net>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Fabio Estevam <festevam@gmail.com>
+Subject: Re: [PATCH v2] Input: i8042 - Add deferred probe support
+In-Reply-To: <0ffa3c3050c5a27688168702806193f4@cavoj.net>
+References: <20211117063757.11380-1-tiwai@suse.de>
+        <0ffa3c3050c5a27688168702806193f4@cavoj.net>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some Silead touchscreens have support for an active (battery powered)
-pen, add support for this.
+On Mon, 22 Nov 2021 21:56:52 +0100,
+Samuel Čavoj wrote:
+> 
+> Hi Takashi,
+> 
+> On 2021-11-17 07:37, Takashi Iwai wrote:
+> > [...]
+> > The deferred probe mode is enabled either via the new option
+> > i8042.probe_defer or via the quirk table entry.  As of this patch, the
+> > quirk table contains only ASUS ZenBook UX425UA.
+> 
+> I own the ASUS ZenBook UX325UA and it has the exact same problem.
+> Would you add it to the quirk table, or should I just submit another
+> patch based on this one?
 
-So far pen-support has only been seen on X86/ACPI (non devicetree) devs,
-IOW it is not used in actual devicetree files. The devicetree-bindings
-maintainers have requested properties like these to not be added to the
-devicetree-bindings, so the new properties are deliberately not added
-to the existing silead devicetree-bindings documentation.
+If another rewrite is requested, I can add yours in v3 patch.
+Other than that, please submit the additional patch.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/touchscreen/silead.c | 104 +++++++++++++++++++++++++++++
- 1 file changed, 104 insertions(+)
+> The output of `dmidecode` is as follows:
+> 
+>     Handle 0x0001, DMI type 1, 27 bytes
+>     System Information
+>             Manufacturer: ASUSTeK COMPUTER INC.
+>             Product Name: ZenBook UX325UA_UM325UA
+> 
+> Thank you for tracking down this problem.
+> 
+> >
+> > The deferred probe part is based on Fabio's initial work.
+> >
+> > BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1190256
+> > Link: https://lore.kernel.org/r/s5ho890n1rh.wl-tiwai@suse.de
+> > Cc: Fabio Estevam <festevam@gmail.com>
+> > Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> 
+> Tested-by: Samuel Čavoj <samuel@cavoj.net>
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index caa25af53e6e..8b51ce15632e 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -67,6 +67,7 @@ struct silead_ts_data {
- 	struct i2c_client *client;
- 	struct gpio_desc *gpio_power;
- 	struct input_dev *input;
-+	struct input_dev *pen_input;
- 	struct regulator_bulk_data regulators[2];
- 	char fw_name[64];
- 	struct touchscreen_properties prop;
-@@ -77,6 +78,11 @@ struct silead_ts_data {
- 	int id[SILEAD_MAX_FINGERS];
- 	u32 efi_fw_min_max[4];
- 	bool efi_fw_min_max_set;
-+	bool pen_supported;
-+	bool pen_down;
-+	u32 pen_x_res;
-+	u32 pen_y_res;
-+	int pen_up_count;
- };
- 
- struct silead_fw_data {
-@@ -144,6 +150,45 @@ static int silead_ts_request_input_dev(struct silead_ts_data *data)
- 	error = input_register_device(data->input);
- 	if (error) {
- 		dev_err(dev, "Failed to register input device: %d\n", error);
-+			return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static int silead_ts_request_pen_input_dev(struct silead_ts_data *data)
-+{
-+	struct device *dev = &data->client->dev;
-+	int error;
-+
-+	if (!data->pen_supported)
-+		return 0;
-+
-+	data->pen_input = devm_input_allocate_device(dev);
-+	if (!data->pen_input)
-+		return -ENOMEM;
-+
-+	input_set_abs_params(data->pen_input, ABS_X, 0, 4095, 0, 0);
-+	input_set_abs_params(data->pen_input, ABS_Y, 0, 4095, 0, 0);
-+	input_set_capability(data->pen_input, EV_KEY, BTN_TOUCH);
-+	input_set_capability(data->pen_input, EV_KEY, BTN_TOOL_PEN);
-+	/*
-+	 * We never report BTN_STYLUS but userspace want to see this in order
-+	 * for the device to be recognized as a pen / drawing-tablet.
-+	 */
-+	input_set_capability(data->pen_input, EV_KEY, BTN_STYLUS);
-+	set_bit(INPUT_PROP_DIRECT, data->pen_input->propbit);
-+	touchscreen_parse_properties(data->pen_input, false, &data->prop);
-+	input_abs_set_res(data->pen_input, ABS_X, data->pen_x_res);
-+	input_abs_set_res(data->pen_input, ABS_Y, data->pen_y_res);
-+
-+	data->pen_input->name = SILEAD_TS_NAME " pen";
-+	data->pen_input->phys = "input/pen";
-+	data->input->id.bustype = BUS_I2C;
-+
-+	error = input_register_device(data->pen_input);
-+	if (error) {
-+		dev_err(dev, "Failed to register pen input device: %d\n", error);
- 		return error;
- 	}
- 
-@@ -161,6 +206,45 @@ static void silead_ts_set_power(struct i2c_client *client,
- 	}
- }
- 
-+static bool silead_ts_handle_pen_data(struct silead_ts_data *data, u8 *buf)
-+{
-+	u8 *coord = buf + SILEAD_POINT_DATA_LEN;
-+	struct input_mt_pos pos;
-+
-+	if (!data->pen_supported || buf[2] != 0x00 || buf[3] != 0x00)
-+		return false;
-+
-+	if (buf[0] == 0x00 && buf[1] == 0x00 && data->pen_down) {
-+		data->pen_up_count++;
-+		if (data->pen_up_count == 6) {
-+			data->pen_down = false;
-+			goto sync;
-+		}
-+		return true;
-+	}
-+
-+	if (buf[0] == 0x01 && buf[1] == 0x08) {
-+		touchscreen_set_mt_pos(&pos, &data->prop,
-+			get_unaligned_le16(&coord[SILEAD_POINT_X_OFF]) & 0xfff,
-+			get_unaligned_le16(&coord[SILEAD_POINT_Y_OFF]) & 0xfff);
-+
-+		input_report_abs(data->pen_input, ABS_X, pos.x);
-+		input_report_abs(data->pen_input, ABS_Y, pos.y);
-+
-+		data->pen_up_count = 0;
-+		data->pen_down = true;
-+		goto sync;
-+	}
-+
-+	return false;
-+
-+sync:
-+	input_report_key(data->pen_input, BTN_TOOL_PEN, data->pen_down);
-+	input_report_key(data->pen_input, BTN_TOUCH, data->pen_down);
-+	input_sync(data->pen_input);
-+	return true;
-+}
-+
- static void silead_ts_read_data(struct i2c_client *client)
- {
- 	struct silead_ts_data *data = i2c_get_clientdata(client);
-@@ -183,6 +267,9 @@ static void silead_ts_read_data(struct i2c_client *client)
- 		buf[0] = data->max_fingers;
- 	}
- 
-+	if (silead_ts_handle_pen_data(data, buf))
-+		goto sync; /* Pen is down, release all previous touches */
-+
- 	touch_nr = 0;
- 	bufp = buf + SILEAD_POINT_DATA_LEN;
- 	for (i = 0; i < buf[0]; i++, bufp += SILEAD_POINT_DATA_LEN) {
-@@ -225,6 +312,7 @@ static void silead_ts_read_data(struct i2c_client *client)
- 			data->pos[i].y, data->id[i], data->slots[i]);
- 	}
- 
-+sync:
- 	input_mt_sync_frame(input);
- 	input_report_key(input, KEY_LEFTMETA, softbutton_pressed);
- 	input_sync(input);
-@@ -356,6 +444,14 @@ static int silead_ts_load_fw(struct i2c_client *client)
- 						       ARRAY_SIZE(data->efi_fw_min_max));
- 		if (!error)
- 			data->efi_fw_min_max_set = true;
-+
-+		/* The EFI (platform) embedded fw does not have pen support */
-+		if (data->pen_supported) {
-+			dev_warn(dev, "Warning loading '%s' from filesystem failed, using EFI embedded copy.\n",
-+				 data->fw_name);
-+			dev_warn(dev, "Warning pen support is known to be broken in the EFI embedded fw version\n");
-+			data->pen_supported = false;
-+		}
- 	}
- 
- 	fw_size = fw->size / sizeof(*fw_data);
-@@ -513,6 +609,10 @@ static void silead_ts_read_props(struct i2c_client *client)
- 			 "silead/%s", str);
- 	else
- 		dev_dbg(dev, "Firmware file name read error. Using default.");
-+
-+	data->pen_supported = device_property_read_bool(dev, "silead,pen-supported");
-+	device_property_read_u32(dev, "silead,pen-resolution-x", &data->pen_x_res);
-+	device_property_read_u32(dev, "silead,pen-resolution-y", &data->pen_y_res);
- }
- 
- #ifdef CONFIG_ACPI
-@@ -625,6 +725,10 @@ static int silead_ts_probe(struct i2c_client *client,
- 	if (error)
- 		return error;
- 
-+	error = silead_ts_request_pen_input_dev(data);
-+	if (error)
-+		return error;
-+
- 	error = devm_request_threaded_irq(dev, client->irq,
- 					  NULL, silead_ts_threaded_irq_handler,
- 					  IRQF_ONESHOT, client->name, data);
--- 
-2.33.1
+Glad to see that the patch helps.
 
+
+thanks,
+
+Takashi

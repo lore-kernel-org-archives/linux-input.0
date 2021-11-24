@@ -2,196 +2,137 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6708C433FE
-	for <linux-input@archiver.kernel.org>; Tue, 23 Nov 2021 20:41:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4038C433EF
+	for <linux-input@archiver.kernel.org>; Wed, 24 Nov 2021 03:12:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232084AbhKWUoM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 23 Nov 2021 15:44:12 -0500
-Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:25632 "EHLO
-        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233785AbhKWUoK (ORCPT
+        id S235626AbhKXDP5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 23 Nov 2021 22:15:57 -0500
+Received: from smtp161.vfemail.net ([146.59.185.161]:35191 "EHLO
+        smtp161.vfemail.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235128AbhKXDP4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 23 Nov 2021 15:44:10 -0500
-Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1ANJXv93004389;
-        Tue, 23 Nov 2021 20:39:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=corp-2021-07-09;
- bh=wbd07SskJyfq9lGZee2wDVPsRPNPFK9VMcymRcUeS1I=;
- b=K1tlQYrkFD9/betcFf2F7XhCmGfWOhrp+5+IW3RdP+rjMAc0Ri6kwy/WFI5D7QB+9+Wy
- 2/l8QAdbc3qlZ14ZPdTc2XquanS8XJvbyXUUhvVacqpNan23SWU7OtRpV4sBH4NwEfwt
- 62tyPO7RmScTBc5VifE3QKYXVh+sfK4CPDdMz83EWi1q/8IeBoWb47hWqPiIRKLy/JTh
- cJWXK2KAGA/FbUzsYg0f4DS6JXYNvilnRskNN+4if/LgwOnWp4Y5EcCd7tVMopulVlJJ
- dttlugqKMvaFur8cmtuhC0RDuqfsJT2NZgwpAqm7JJ+bf0BcfwzpcaPeFXrCDNCBEU2e 8Q== 
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by mx0b-00069f02.pphosted.com with ESMTP id 3cg305bs3s-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Nov 2021 20:39:50 +0000
-Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
-        by aserp3030.oracle.com (8.16.1.2/8.16.1.2) with SMTP id 1ANKQmJ1148028;
-        Tue, 23 Nov 2021 20:39:48 GMT
-Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2172.outbound.protection.outlook.com [104.47.56.172])
-        by aserp3030.oracle.com with ESMTP id 3ceq2evfq2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 23 Nov 2021 20:39:48 +0000
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dD3ZFd0TBCOWTFh+5hDRtp47hRvAlZXrzOdUp7JFhKBnmBU6qduCI2f0az3LWn7P/TMlKqimXSnlbg55c6ntNp+WIEvNMI/pRaALwxEwpUd8J3WoUlXcw3Z5rXHomFAZ3E5qmXFhCYxJULskKrJxRPkkr9n5Bz3Ma8DIm/1z6hs+V/odVBNJZvXGVg8mZaF2Wd6YLDYddvvGuXyUTON+1XHlNitscjKmaqivMW9infmzS1ioZ2lJMW4o0bN2dRnFG2mUrVDAr0VtXS34tpWD7gvJlgxNRMivv+xWG8I/9DAcdZ9YyWeLs3NMrN9NkZu2pvdHWweYbKVqNgc1AwbLng==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wbd07SskJyfq9lGZee2wDVPsRPNPFK9VMcymRcUeS1I=;
- b=CdO+vuSYsRZh42bNQLBkLdim2O/p07rVuP2VQPimf1ZZ7yxVRMeno1J5gt7LGJpEsDhN3fA3/L42WyxFq/Xh100FYfkB2XrVG3z3DVEy+SjIFtXcO87QzHRHK72IrrtNYgD2VreziJ5To6YXN770SomzQ+CZOlsBK2ef54Qy88aGjaVWWdx84OYdmIDn1uRIRNU6WwHhA0PdcEGcxtKusXz9DgbWH2FjERhRhn1i3yoQDf4jlrDx7d8pJhE4AmCoqkk4WQSH9qExkI7dvUfRO7uRnjBM/lDATnulmUQ8UKt4l2IsBYSZFpuut42VOA7G264ZNSQy82PoSkXOPY9OqQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
- dkim=pass header.d=oracle.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wbd07SskJyfq9lGZee2wDVPsRPNPFK9VMcymRcUeS1I=;
- b=AkbGmKktl4DLOxSvUWl16L0FRGwUfsmQZFtUyyHIpgU7j56zNzWLVfO4wxp0meW+iain0+Dk0DwhJV1wa1VgqWWJbr3yyD5YYA9w3T6X6j2TgEtBEFau5FTC3W14yKLmXHDjjN98R4RVcXAxptmUG0mINTzRg+et75JDnSBFu/g=
-Received: from BN0PR10MB5014.namprd10.prod.outlook.com (2603:10b6:408:115::5)
- by BN0PR10MB5302.namprd10.prod.outlook.com (2603:10b6:408:117::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.22; Tue, 23 Nov
- 2021 20:39:46 +0000
-Received: from BN0PR10MB5014.namprd10.prod.outlook.com
- ([fe80::40b1:8e73:d851:6dc9]) by BN0PR10MB5014.namprd10.prod.outlook.com
- ([fe80::40b1:8e73:d851:6dc9%3]) with mapi id 15.20.4713.025; Tue, 23 Nov 2021
- 20:39:46 +0000
-Message-ID: <07b650a8-7ede-3716-2e35-b0d4f94802cd@oracle.com>
-Date:   Tue, 23 Nov 2021 15:39:39 -0500
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
- Gecko/20100101 Thunderbird/91.3.1
-Subject: Re: [PATCH 0/5] xen: cleanup detection of non-essential pv devices
-Content-Language: en-US
-To:     Juergen Gross <jgross@suse.com>, xen-devel@lists.xenproject.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org
-References: <20211022064800.14978-1-jgross@suse.com>
- <bf5a4749-0216-53db-a022-ef4f84d823c5@suse.com>
-From:   Boris Ostrovsky <boris.ostrovsky@oracle.com>
-In-Reply-To: <bf5a4749-0216-53db-a022-ef4f84d823c5@suse.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SA0PR11CA0037.namprd11.prod.outlook.com
- (2603:10b6:806:d0::12) To BN0PR10MB5014.namprd10.prod.outlook.com
- (2603:10b6:408:115::5)
+        Tue, 23 Nov 2021 22:15:56 -0500
+Received: (qmail 5374 invoked from network); 24 Nov 2021 03:12:46 +0000
+Received: from localhost (HELO nl101-3.vfemail.net) ()
+  by smtpout.vfemail.net with ESMTPS (ECDHE-RSA-AES256-GCM-SHA384 encrypted); 24 Nov 2021 03:12:46 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=simple; d=vfemail.net; h=date:from
+        :to:cc:subject:message-id:in-reply-to:references:mime-version
+        :content-type:content-transfer-encoding; s=2018; bh=IJ3maCvdDBep
+        jC+VBuaf0rHuv1D9SuN0aOu4sfd9Jv4=; b=osAgjpo4m744VjIPhGLKafh+T+Im
+        p4Fh3cZC90BZYEykSyF/eVJIatr+BWkgI3VAFH+XlnFn5lcAZkAIYngMd8fLP+k+
+        zZOOlOQTtkaZKidiV/eA2qGKR3/xXFIoBiM7di0g+MfP9q7UGkEyG4ThAV9C/yTF
+        Mzm8d1gIitOQt/0=
+Received: (qmail 72259 invoked from network); 24 Nov 2021 03:12:16 -0000
+Received: by simscan 1.4.0 ppid: 72241, pid: 72253, t: 0.4285s
+         scanners:none
+Received: from unknown (HELO bmwxMDEudmZlbWFpbC5uZXQ=) (aGdudGt3aXNAdmZlbWFpbC5uZXQ=@MTkyLjE2OC4xLjE5Mg==)
+  by nl101.vfemail.net with ESMTPA; 24 Nov 2021 03:12:15 -0000
+Date:   Tue, 23 Nov 2021 22:12:41 -0500
+From:   David Niklas <Hgntkwis@vfemail.net>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Filipe =?ISO-8859-1?Q?La=EDns?= <lains@archlinux.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jikos@kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Linux USB Mailing List <linux-usb@vger.kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Subject: Re: I need advice with UPS connection. (ping)
+Message-ID: <20211123221241.3cdb4e66@Zen-II-x12.niklas.com>
+In-Reply-To: <CAO-hwJJtQ_1S76HTaHK=oUeP1M24QnC6z1J5CvTuU7m=oZe6zg@mail.gmail.com>
+References: <20201109220000.2ae98fa5@Phenom-II-x6.niklas.com>
+        <20211114144842.72463ccc@Zen-II-x12.niklas.com>
+        <20211114211435.GA87082@rowland.harvard.edu>
+        <20211114220222.31755871@Zen-II-x12.niklas.com>
+        <20211115160918.GB109771@rowland.harvard.edu>
+        <20211117002359.03b36ec6@Zen-II-x12.niklas.com>
+        <20211117170817.GD172151@rowland.harvard.edu>
+        <20211119171915.6a8cac47@Zen-II-x12.niklas.com>
+        <YZm03KTcWOwtMtCN@rowland.harvard.edu>
+        <20211122112526.501c5f66@Zen-II-x12.niklas.com>
+        <YZv55KMsuSYanfYp@rowland.harvard.edu>
+        <667c2c8307e0e738ed54e34f6c83ea1df99c7528.camel@archlinux.org>
+        <CAO-hwJJtQ_1S76HTaHK=oUeP1M24QnC6z1J5CvTuU7m=oZe6zg@mail.gmail.com>
+X-Mailer: Claws Mail 3.17.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Received: from [10.74.107.95] (138.3.200.31) by SA0PR11CA0037.namprd11.prod.outlook.com (2603:10b6:806:d0::12) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4713.24 via Frontend Transport; Tue, 23 Nov 2021 20:39:42 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: c079e34f-f15a-41dc-7975-08d9aec16307
-X-MS-TrafficTypeDiagnostic: BN0PR10MB5302:
-X-Microsoft-Antispam-PRVS: <BN0PR10MB530297E3D1AC49C4C7BAD6E38A609@BN0PR10MB5302.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:4941;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: UtmrreEWfLEixJIs71qdTO9z8BuD+G78109jS2832F+Igll9XQqsssMeM/AJbjeEX/Daxv60kjR219VSuvTJjSFmV6p5pKKE3Kt8bs1FsOX+SVEKJt35mGhIgXV7XHmM3ByST+f3xxJeyTBP6Wwnd3AQcJ9vby1CKP502LkopHtubkSjSO3LaRetTaKYMPxzYlDzgqMQomnIqLh38Yb3zFOD0LfLAYQrmCai3fWXWCWWLUk/eeALl+HArgnFphjW6Eomcj+UKnAiMVo95i84XBobgalkFzc7lWh1MPkpbK1QECbRop8DqiJ3LEE0HB5feg4laPemv8MUU/+LfwYBoNgdpeDIOnT2leakZpiS0rrqKK11DnnMaQEArvc0LQoIxdeX8z4N2xZVwW4YIxv5grTD4Zh4+2uHZxACyKmwRz5/fJVjozbCWEqo7CIWw54TOaIOxD60Sz22FMRPOAh319eYg/lV86mbIVWsWd7kJ48S0K0hNcDb5CU+5Fu4Izyz5QIaNfNSA5gyAmKT+2m5JMr68cLJ0PPxmyX7ggc63TAE2JQ1Q4jNxv97rulEBGeF8a4POAdyQuQS2kFq42AqWoz8ftsgQh4UfSTiRAo4t3MERHPEFubW0rnHYz80WgFZ4WRkGhKZSw2RqR0fFnfQ1a1fx8gi4W2ZEHN+6RgsK87pCawo93FTogQP/fQcbhSFwvWe93RRNiC6XkZbaVJHs2rw0LEqgAtD5zE9xMwM6/E=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN0PR10MB5014.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(186003)(54906003)(16576012)(2906002)(316002)(26005)(38100700002)(7416002)(2616005)(66556008)(83380400001)(66946007)(66476007)(956004)(44832011)(6666004)(8936002)(6486002)(508600001)(4326008)(8676002)(31686004)(53546011)(5660300002)(31696002)(86362001)(36756003)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?WjNHdUVucE95NFVFcFlUYm1wNncwbis4c2hXSngweGF4UlNwd0ZxRzRxaVJ6?=
- =?utf-8?B?MzZlQWxaVU11ZU5wN1JONnVkNnVTYUlQMEUvanhFYVFZNW81Rkd3ZHJxdzdv?=
- =?utf-8?B?d2pHSmZEV2s4aHBxYWkzUFVrQXN0SkcreU9HRmNETTZ6bnpDVlVpNXZ4bHBa?=
- =?utf-8?B?VllsWWZFdk5aTEtyamo1TnNOQk5wZStiTHVSaE1GRElJMWcwT2IyakxzaUtn?=
- =?utf-8?B?OTRNTHJ0RG0zMWh5eWRta2RHSEczbUw2ZThHenZYUTQrZWp6WEVKcEZpV1Zo?=
- =?utf-8?B?eFV6c0pLV211UXBzQUlNSlFaR09JS05aL0Q0ZkFpMmVoQXk5a2NqYVRjNm1s?=
- =?utf-8?B?Yi9HMERpNHorT2REL284b0ZwS0FhQ25maHRtci9UN0NCY0dnSUswem9pNW5T?=
- =?utf-8?B?amVJRlpqYXdNYitTQmNnYlhwZnNTNVgvUHhTcXNTRzRjOTJEdlQ5Rnh6L0F3?=
- =?utf-8?B?SjM3VzlkaGFmTlRHTlVpaThEMUtFVGNkK2NEUEN6RGh3QmhBbzVYY1NabEQ3?=
- =?utf-8?B?eUJFRjAyL0pkMnYzMW9RR0x3SCtIRmpxVVI1MHg2ZDllNW5mTndqMzQrNVgx?=
- =?utf-8?B?bGZmdWhiVFo3dVRKcmtKcmJndlFkWW9aOEhYWEFHYzh5d0hoVFNOUjNhWVNq?=
- =?utf-8?B?b3E1eWc4TElKcFdpbDFDZXppSGM3L29PSy9qa0YwcmEzV2h4RlVmK3ptYk1I?=
- =?utf-8?B?YldsVmlMVTZWZVBvL0RUZHdtMmJYUndQS0tibEpraGR0YVlpYWw2bGloTlNo?=
- =?utf-8?B?WFhRTnVMdlJYNnNlT1dOTDludmp5cDV3RDc1cmo4emF2ZVRISnp5VFp5d1cz?=
- =?utf-8?B?d2hkQzVDVG1PeUN5Q3RtMnJkenVpcEN5RUVlWHZIQ1VoaVAyNTZWeDJyWkEw?=
- =?utf-8?B?Qkg5YkJPL3Y2ODg0YXdLVW1NTFdGZlJkMW16LzhScjZPTjhPbHpQUW50NVE5?=
- =?utf-8?B?aXZiUnpHUktnQWM4YzZOMGZ2cUdpQVhhQ2VoaEoyaExjQkdYRnFnVFp1ZnVG?=
- =?utf-8?B?dkh6S0c1WnpBSCs5MDBlTlZUbjNhRG9paXlFOGF0dWdWcHlZWHpHeEJOVEZF?=
- =?utf-8?B?UGVsTTZjOGptK3MvNSt1WU9pb2MraTQvMnltem54NThFbGlhcWZ2cW9OTTg5?=
- =?utf-8?B?TUtEaTVXUUJHWTBvc0ZEMmZqNUxDSGJuSzVVekVLek9zajMwTnQrYWk4S2ZQ?=
- =?utf-8?B?cjY5YmEwRVlHS3hyQStkd00reEc1WEFMMlFnT0lpRFZGdVVpS2hsMEtRUG5l?=
- =?utf-8?B?RlNuZ05qdE9SUUQ0Yi9hUmdEcTJNNUFKMzRuT05YRDRmM3lqV0pwdVcybnM2?=
- =?utf-8?B?OFRYbEl0Vit3anE5YjV3R3Myb0tNOE9ZM2YwK3FvTS9UWGVtZFRUZmQyb3Fh?=
- =?utf-8?B?MFVnV0RaRHpyb0xCQTBaY1hYeFFQNGpiNGg5dGlneFYzWUsreTk4QjZYRG1k?=
- =?utf-8?B?ZUVIcVFsZFNJN2NzcFBPcGcxUmdLbGNEdDg4eDVMNkU3Q2JiM0dtNkxCbXpS?=
- =?utf-8?B?d2o3ZFRIeDVlZkpHSFpjZEZZSjJJbXFEd1NMdXV1ZTZhNHdlRWEwcFhKMWw4?=
- =?utf-8?B?U04zSDRtQ0pKd2QzbzQzalNiVlFZNVlIRFdkNDd5ZFBzdHN6QmJtR2Y3RHht?=
- =?utf-8?B?UXhpbk02YlFoTFQ5RiszS3dHbEdYQkVCMmc0OUZPMVRJZXV5R3FFVzMzV2pt?=
- =?utf-8?B?bjd6SnR3dWsyOVZYYjcxdjFIZHIyNVV0V2kyL01SblZDeUNZYW1jcit2eng2?=
- =?utf-8?B?SVlnNWx2U1NhUTRmNkxTUmxHOG1BUDdaTG1Tcml5TDBmYy9rcmtMMGE3UnVF?=
- =?utf-8?B?RGsxanM0QWtlejZja0lsMWJFT3YxOU9zQjVtNW1IU2h0S3ZhYmREV2xOd2VQ?=
- =?utf-8?B?ZUFqUERTQkxIV0NmNmpsdEhjTjh2ZGl1V2RJVVBmRkFjS0VweVpNNnhTOW1X?=
- =?utf-8?B?UTBSUXcvOXpoM1I5YzRVV25CRUY5b2I5ZUNaVFppN1ZsMGNJV2Npay9MajVO?=
- =?utf-8?B?SjFZVldjV3dySnRjbmJuVW9wWUxudy9LWHhBNmxmKzIrT0VEMTJuc3EwWmFh?=
- =?utf-8?B?SHM3RlNJcHNVN2x1QlU3OEkzcXdTWkgxWG9GMGNpNjBxaVNFOWtzRFJpdE5r?=
- =?utf-8?B?b0dQSE91UnRuMmlNa1RONmQwRWc4SlcrSG4vVWNURHREWWtxZk9EdTQ1d1ND?=
- =?utf-8?B?NDNFcHE1dmxBOG4zZFFMK2p2S1ZxcjRIb1oyamgvcHF6dEZlVXh6Ry9oWlRz?=
- =?utf-8?Q?nLoQy1p7XsikijXTikqBhZh0ix9pP9keS0lztnCP2k=3D?=
-X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c079e34f-f15a-41dc-7975-08d9aec16307
-X-MS-Exchange-CrossTenant-AuthSource: BN0PR10MB5014.namprd10.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Nov 2021 20:39:46.6037
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: xdBIO6cmWfp7QEOOqKSVjSaq4WkOJ27h7FylC2afgUY6xufGZ3ti3zya2xSQMeXCV5juS43RqHnADupJqUdEZfUTyWsCvggnL52dFzVcfUc=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN0PR10MB5302
-X-Proofpoint-Virus-Version: vendor=nai engine=6300 definitions=10177 signatures=668683
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0 adultscore=0 spamscore=0
- bulkscore=0 suspectscore=0 mlxscore=0 mlxlogscore=999 phishscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2111230100
-X-Proofpoint-GUID: 0KfI6w_OY80QNNxMKpeQKcEIe64cjXie
-X-Proofpoint-ORIG-GUID: 0KfI6w_OY80QNNxMKpeQKcEIe64cjXie
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Tue, 23 Nov 2021 17:33:08 +0100
+Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
 
-On 11/22/21 3:20 AM, Juergen Gross wrote:
-> On 22.10.21 08:47, Juergen Gross wrote:
->> Today the non-essential pv devices are hard coded in the xenbus driver
->> and this list is lacking multiple entries.
->>
->> This series reworks the detection logic of non-essential devices by
->> adding a flag for that purpose to struct xenbus_driver.
->>
->> Juergen Gross (5):
->>    xen: add "not_essential" flag to struct xenbus_driver
->>    xen: flag xen_drm_front to be not essential for system boot
->>    xen: flag hvc_xen to be not essential for system boot
->>    xen: flag pvcalls-front to be not essential for system boot
->>    xen: flag xen_snd_front to be not essential for system boot
->>
->>   drivers/gpu/drm/xen/xen_drm_front.c        |  1 +
->>   drivers/input/misc/xen-kbdfront.c          |  1 +
->>   drivers/tty/hvc/hvc_xen.c                  |  1 +
->>   drivers/video/fbdev/xen-fbfront.c          |  1 +
->>   drivers/xen/pvcalls-front.c                |  1 +
->>   drivers/xen/xenbus/xenbus_probe_frontend.c | 14 +++-----------
->>   include/xen/xenbus.h                       |  1 +
->>   sound/xen/xen_snd_front.c                  |  1 +
->>   8 files changed, 10 insertions(+), 11 deletions(-)
->>
->
-> Any further comments?
->
+> On Mon, Nov 22, 2021 at 10:35 PM Filipe La=C3=ADns <lains@archlinux.org>
+> wrote:
+> >
+> > On Mon, 2021-11-22 at 15:13 -0500, Alan Stern wrote: =20
+> > > On Mon, Nov 22, 2021 at 11:25:26AM -0500, David Niklas wrote: =20
+> > > > Ok, I first edited the kernel to return -ENOMEM like you
+> > > > suggested but the UPS still disconnected. I then edited it again
+> > > > to re-add the 1060 byte request and the UPS still disconnected.
+> > > >
+> > > > I'm attaching the usbmon traces.
+> > > > If you need any additional info I'll do my best to provide it. =20
+> > >
+> > > Holy cow!  I just realized what's going on.  And these little
+> > > changes we've been messing around with have nothing to do with it.
+> > >
+> > > For the first time, I looked at the timestamps in the usbmon
+> > > traces.  It turns out that the disconnects occur several seconds
+> > > after the kernel retrieves the HID report descriptor from the
+> > > device.  Under normal conditions we would expect to see report
+> > > packets coming in from the device, starting just a fraction of a
+> > > second after the descriptor is received.  But that isn't happening
+> > > in the Linux traces, whereas it does happen in the Windows pcap log.
+> > >
+> > > I would guess that the UPS is programmed to disconnect itself
+> > > electronically from the USB bus if it doesn't get any requests for
+> > > reports within a couple of seconds.  That certainly would explain
+> > > what you've been seeing.  I can't imagine why it would be
+> > > programmed to behave this way, but companies have been known to do
+> > > stranger things.
+> > >
+> > > As for why the kernel doesn't try to get the reports...  That's a
+> > > little harder to answer.  Maybe Jiri or Benjamin will know
+> > > something about it. =20
+>=20
+> I am not sure exactly what is going on there.
+> There are a couple of things that come to my mind:
+> - for quite some time now, we don't fetch all reports whenever we
+> connect a new device. This was known to be problematic on some devices
+> (see all the devices with HID_QUIRK_NOGET or
+> HID_QUIRK_NO_INIT_REPORT), and the default to not poll input values on
+> plug for devices is actually safer. If you want to revert, we will
+> have to have a special driver for this one I guess
+> - HID_QUIRK_ALWAYS_POLL *might* be a way to force the device to stay
+> with a USB connection up.
+>=20
+> > >
+> > > The UPS's vendor ID is 0d9f (POWERCOM) and the product ID is 0004.
+> > > Now, the drivers/hid/hid-quirks.c file contains a quirk entry for
+> > > 0d9f:0002 (product POWERCOM_UPS), which is probably an earlier
+> > > model of the same device, or a very similar device.  This quirk
+> > > entry is in the hid_ignore_list; it tells the HID core not to
+> > > handle the device at all.
+> > >
+> > > I don't know why that quirk entry is present, and furthermore, it
+> > > can't directly affect what is happening with your device because
+> > > the product IDs are different.  Still, it is an indication that
+> > > something strange is going on behind the scenes.
+> > >
+> > > Perhaps there is no kernel driver for these UPS devices?  Perhaps
+> > > the intention is that some user program will handle all the
+> > > communication when one of them is detected?  A quick search on
+> > > Google turns up usbhid-ups, part of Network USB Tools (NUT) --
+> > > maybe you need to install that package in order to use the device. =20
+>=20
+> I don't have enough experience with UPS here to be helpful,
+> unfortunately. But What Alan said made a lot of sense. Maybe the NUT
+> people will have a better insight.
+<snip>
 
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+I'll send a message their way.
 
-
-(I'll fix the semicolon typo in the last patch, no need to resend)
-
+Thanks,
+David

@@ -2,224 +2,64 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D711BC433F5
-	for <linux-input@archiver.kernel.org>; Fri, 26 Nov 2021 13:10:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5C6EC433EF
+	for <linux-input@archiver.kernel.org>; Sat, 27 Nov 2021 04:46:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240756AbhKZNNi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 26 Nov 2021 08:13:38 -0500
-Received: from mga18.intel.com ([134.134.136.126]:38673 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240086AbhKZNLb (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Fri, 26 Nov 2021 08:11:31 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10179"; a="222533021"
-X-IronPort-AV: E=Sophos;i="5.87,266,1631602800"; 
-   d="scan'208";a="222533021"
-Received: from orsmga007.jf.intel.com ([10.7.209.58])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2021 05:02:16 -0800
-X-IronPort-AV: E=Sophos;i="5.87,266,1631602800"; 
-   d="scan'208";a="498395714"
-Received: from asaechnx-mobl2.ccr.corp.intel.com (HELO tkristo-desk.intel.com) ([10.249.34.152])
-  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2021 05:02:14 -0800
-From:   Tero Kristo <tero.kristo@linux.intel.com>
-To:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com,
-        jikos@kernel.org, mika.westerberg@linux.intel.com,
-        tero.kristo@linux.intel.com
-Cc:     linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com,
-        peter.hutterer@who-t.net
-Subject: [RFCv2 8/8] samples: hid: convert USI sample to use unix socket for comms
-Date:   Fri, 26 Nov 2021 15:01:41 +0200
-Message-Id: <20211126130141.1811848-9-tero.kristo@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211126130141.1811848-1-tero.kristo@linux.intel.com>
-References: <20211126130141.1811848-1-tero.kristo@linux.intel.com>
+        id S231561AbhK0Et2 convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 26 Nov 2021 23:49:28 -0500
+Received: from os3-362-14218.vs.sakura.ne.jp ([133.167.64.222]:54646 "EHLO
+        mail.j-snap.com" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S236353AbhK0Er1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Fri, 26 Nov 2021 23:47:27 -0500
+X-Greylist: delayed 497 seconds by postgrey-1.27 at vger.kernel.org; Fri, 26 Nov 2021 23:47:27 EST
+Received: from k2forma.com (190-2-131-198.hosted-by-worldstream.net [190.2.131.198])
+        by mail.j-snap.com (Postfix) with ESMTPA id 1B7BC9D6AA
+        for <linux-input@vger.kernel.org>; Sat, 27 Nov 2021 13:35:52 +0900 (JST)
+Reply-To: grzegorzzwalkowiak@gmail.com
+From:   Grzegorz Walkowiak <info@k2forma.com>
+To:     linux-input@vger.kernel.org
+Subject: Just for you
+Date:   26 Nov 2021 20:35:51 -0800
+Message-ID: <20211126165639.D98C9ADEBADC3962@k2forma.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert USI hid sample userspace interface from using unix fifo to unix
-socket. This allows sending results back via the communication channel
-also.
+Hello linux-input,
 
-Signed-off-by: Tero Kristo <tero.kristo@linux.intel.com>
----
- samples/bpf/hid_usi_user.c | 73 ++++++++++++++++++++++++++------------
- 1 file changed, 50 insertions(+), 23 deletions(-)
+It is my pleasure to communicate with you via this platform. Your 
+positive regards towards this very message will be appreciated, 
+please do not regard this email as one of the common unsolicited 
+email or false business invitations in the world today. I am 
+opportune to use this medium to exhibit my legal intentions 
+towards investing in your country of residence. I am fully 
+convinced that you will really be of help as a new friend and 
+business partner. I hope my message to you will be given proper 
+attention despite the fact we have not seen or even met each 
+other before. knowing fully well it takes a minute, an hour or 
+even a day to know somebody and also establish an everlasting 
+relationship with truth and honesty between you and I.
 
-diff --git a/samples/bpf/hid_usi_user.c b/samples/bpf/hid_usi_user.c
-index b05a3f768835..5bf5ebc21a30 100644
---- a/samples/bpf/hid_usi_user.c
-+++ b/samples/bpf/hid_usi_user.c
-@@ -14,6 +14,8 @@
- #include <libgen.h>
- #include <sys/resource.h>
- #include <getopt.h>
-+#include <sys/socket.h>
-+#include <sys/un.h>
+I am planning to go into investment in your country of 
+origin/country of location to assist me establish, conduct and 
+manage the investment project, since I will not be present in 
+day-to-day running of the business, due to my active function 
+here. I will appreciate it if you can converge a good 
+relationship for trust to have an everlasting business 
+relationship without cheating, lying or sabotaging the business 
+project. I assure you the success of the business transaction if 
+you can keep it confidential. Humbly indicate your full name, 
+contact address and contact number while replying to my proposal.
  
- #include "bpf_util.h"
- #include <bpf/bpf.h>
-@@ -24,15 +26,15 @@
- #include "hid_usi.h"
+Your positive response will be highly appreciated.
  
- static char *sysfs_path;
--static char *fifoname = "/tmp/usi";
-+static char *sockname = "/tmp/usi";
- static int sysfs_fd;
--static int fifo_fd;
-+static int sock_fd;
- static int prog_count;
- static int cache, wr_cache;
+Thank you for your understanding.
  
- static const struct option long_options[] = {
- 	{ "help", no_argument, NULL, 'h' },
--	{ "fifo", required_argument, NULL, 'f' },
-+	{ "sock", required_argument, NULL, 's' },
- };
- 
- struct prog {
-@@ -53,15 +55,15 @@ static void int_exit(int sig)
- 	}
- 
- 	close(sysfs_fd);
--	close(fifo_fd);
--	remove(fifoname);
-+	close(sock_fd);
-+	remove(sockname);
- 	exit(0);
- }
- 
- static void usage(const char *prog)
- {
- 	fprintf(stderr,
--		"usage: %s [-f <fifoname>] /dev/HIDRAW\n\n",
-+		"usage: %s [-s <sockname>] /dev/HIDRAW\n\n",
- 		prog);
- }
- 
-@@ -84,15 +86,17 @@ static int write_value(const char *param, int value)
- 
- 	printf("%s: param=%s (%d), value=%d\n", __func__, param, idx, value);
- 	err = bpf_map_update_elem(wr_cache, &idx, &value, BPF_ANY);
--	if (err)
-+	if (err) {
- 		printf("Update failed for %d, err=%d\n", idx, err);
-+		return err;
-+	}
- 
- 	return 0;
- }
- 
- static int read_value(const char *param)
- {
--	int value;
-+	int value = -ENOENT;
- 	int idx = param_to_idx(param);
- 
- 	printf("%s: param=%s (%d)\n", __func__, param, idx);
-@@ -102,7 +106,7 @@ static int read_value(const char *param)
- 	else
- 		printf("Value for %d = %d\n", idx, value);
- 
--	return 0;
-+	return value;
- }
- 
- static int attach_progs(int argc, char **argv)
-@@ -118,6 +122,9 @@ static int attach_progs(int argc, char **argv)
- 	char op[8];
- 	int value;
- 	int m, n;
-+	struct sockaddr_un addr;
-+	struct sockaddr_un from;
-+	socklen_t from_len = sizeof(from);
- 
- 	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
- 	obj = bpf_object__open_file(filename, NULL);
-@@ -177,28 +184,48 @@ static int attach_progs(int argc, char **argv)
- 		goto cleanup;
- 	}
- 
--	mkfifo(fifoname, 0666);
-+	sock_fd = socket(PF_UNIX, SOCK_DGRAM, 0);
-+	if (sock_fd < 0) {
-+		perror("socket open error.\n");
-+		err = sock_fd;
-+		goto cleanup;
-+	}
-+
-+	addr.sun_family = AF_UNIX;
-+	strcpy(addr.sun_path, sockname);
-+	unlink(sockname);
- 
--	fifo_fd = open(fifoname, O_RDWR);
--	if (fifo_fd < 0) {
--		perror("Fifo open error.\n");
--		err = fifo_fd;
-+	if (bind(sock_fd, (struct sockaddr *)&addr, sizeof(addr)) < 0) {
-+		perror("bind");
- 		goto cleanup;
- 	}
- 
- 	while (1) {
--		n = read(fifo_fd, buf, BUFSIZ);
-+		n = recvfrom(sock_fd, buf, BUFSIZ, 0, (struct sockaddr *)&from,
-+			     &from_len);
- 		if (n < 0)
- 			break;
- 		buf[n] = 0;
- 
- 		printf("%s: received '%s'\n", __func__, buf);
- 
-+		printf("%s: from_len=%d, from=%s\n", __func__, from_len,
-+		       from.sun_path);
-+
- 		m = sscanf(buf, "%16s %8s %d", param, op, &value);
--		if (m == 2 && strcmp(op, "get") == 0)
--			read_value(param);
--		else if (m == 3 && strcmp(op, "set") == 0)
--			write_value(param, value);
-+		if (m == 2 && strcmp(op, "get") == 0) {
-+			value = read_value(param);
-+			sprintf(buf, "%s: %d\n", param, value);
-+			printf("%s: sending '%s'\n", __func__, buf);
-+			sendto(sock_fd, buf, strlen(buf) + 1, 0,
-+			       (struct sockaddr *)&from, from_len);
-+		} else if (m == 3 && strcmp(op, "set") == 0) {
-+			err = write_value(param, value);
-+			sprintf(buf, "%s: %d, err=%d\n", param, value, err);
-+			printf("%s: sending '%s'\n", __func__, buf);
-+			sendto(sock_fd, buf, strlen(buf) + 1, 0,
-+			       (struct sockaddr *)&from, from_len);
-+		}
- 	}
- 
- 	return 0;
-@@ -217,11 +244,11 @@ int main(int argc, char **argv)
- {
- 	int opt;
- 
--	while ((opt = getopt_long(argc, argv, "f:", long_options,
-+	while ((opt = getopt_long(argc, argv, "s:", long_options,
- 				  NULL)) != -1) {
- 		switch (opt) {
--		case 'f':
--			fifoname = optarg;
-+		case 's':
-+			sockname = optarg;
- 			break;
- 		default:
- 			usage(basename(argv[0]));
-@@ -240,7 +267,7 @@ int main(int argc, char **argv)
- 		return 1;
- 	}
- 
--	printf("fifoname: %s\n", fifoname);
-+	printf("sockname: %s\n", sockname);
- 	printf("sysfs_path: %s\n", sysfs_path);
- 
- 	return attach_progs(argc, argv);
--- 
-2.25.1
-
+Kind Regards,
+Grzegorz Walkowiak

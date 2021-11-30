@@ -2,139 +2,94 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0C93C433EF
-	for <linux-input@archiver.kernel.org>; Tue, 30 Nov 2021 14:45:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 648DAC4332F
+	for <linux-input@archiver.kernel.org>; Tue, 30 Nov 2021 14:48:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235327AbhK3Osa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 30 Nov 2021 09:48:30 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:39891 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231687AbhK3Os3 (ORCPT
+        id S242546AbhK3OwB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 30 Nov 2021 09:52:01 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:56886 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242545AbhK3Ovl (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Nov 2021 09:48:29 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638283510;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=N/D4Uh2tQePJy9ISUxPytT0nz40Sq7tw+TN3bITgjmE=;
-        b=h6e8U8qxCHlAWPF/sQMeraDbGHb5cdOhXApjC0xIi2GcCaOKN3CPySxxp62BPC87nRXv8Z
-        u8g5TlZr/9sPsCwrE8GBym9JDDuYqQv9atzAE+8nnHne62yFSbbvHDyrXjFFiYGlZRqYFN
-        o6AQcAnIkkI7modHDtSUWTlXQjtXVoY=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-417-E5WLSFGHP_Snv4lrr08pLw-1; Tue, 30 Nov 2021 09:45:08 -0500
-X-MC-Unique: E5WLSFGHP_Snv4lrr08pLw-1
-Received: by mail-pj1-f69.google.com with SMTP id g14-20020a17090a578e00b001a79264411cso6894540pji.3
-        for <linux-input@vger.kernel.org>; Tue, 30 Nov 2021 06:45:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=N/D4Uh2tQePJy9ISUxPytT0nz40Sq7tw+TN3bITgjmE=;
-        b=BmcVWD//6x+5p6ZK8DBKz1gBc0gIP+1sxkl+ZKRMvQSmXdNNLp9CRuxckTlsAT4PgS
-         pFCGsdyW40tsqkqtDWuCyGTRodOCg8dRKfO0JbLoM1cw0uC9iiwHxcAlpjEHsY7z8J6F
-         doGD7q0vyjoEzcYw2Zp30IYoV/j3fPNLOmWFwnEQPlZS7C9QMMg0pAOCvQAJJ+QMQN4b
-         qlm14NSekfkygMK9RLfsstxgVuqKK8CZCdENlm2801jmvMxTX/c2TcfFljlQ7nEaYPac
-         tfDPoOQHrcAusancNjXyGybaAgM9XTIp8nNCrnbDDwAbqaMsFJRBbwHOqXvXnnEZOeXZ
-         /8pQ==
-X-Gm-Message-State: AOAM532kRVkLBQ6kiCIwD5hWxx0ljhTcv9V/SiH8Ar78zAzQ/Rmdv3l4
-        pjqge6qk7qogCrsi56/uNB0Uf5x/qdcGIsg/TBOjIiPumvQglqRAMAFnERQqLLcFaGxwL91t9tv
-        +/dUTZyy39278SaVw+Bpz2O+WI9YfIendAbiy+p8=
-X-Received: by 2002:a17:90b:1185:: with SMTP id gk5mr6565505pjb.113.1638283507707;
-        Tue, 30 Nov 2021 06:45:07 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJx/GbMjaHEEpyrXrYvb0pycmTGPDKLSCBDVw5H6za5zXROyd/rafwD0byS0pSYtAcTrnS01FdaeQMM0I0ClGUc=
-X-Received: by 2002:a17:90b:1185:: with SMTP id gk5mr6565466pjb.113.1638283507426;
- Tue, 30 Nov 2021 06:45:07 -0800 (PST)
+        Tue, 30 Nov 2021 09:51:41 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F0AD9CE1A4C;
+        Tue, 30 Nov 2021 14:48:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39ACC53FD1;
+        Tue, 30 Nov 2021 14:48:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1638283698;
+        bh=TVJWxzNijEhbJED7/Sdij2uqBXatVDjJBZILNO0AOAE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=dQ8JxrKZk0O7aVRuVNPa1bs9WSpHyfsM8VqB6oirJjG9Spo8rWkmqpGS4W30AELlj
+         B9w0a+LftPUQUR7Zkgt6BDE/i4CX2t2dNtZE3gOvgzHbsu6U99D97PRnGP6TJHH4ku
+         OlqUiT9iJGDyW8i0GM0K41vrTLP1/Q/znJ8bPaYvMpE6leJGALzIk+SIztCFw01f2v
+         Yw11veLgVKGuVVJ6LG6Etb6pH0wH3WWB0uAxFEQ1j/FcZeqAzKV59UbpV7HY8lp64e
+         Vaw9IQ7KjKp8GjT3l1dYUB2lwSI6gFn7ZltxS+1spq8EFSrz8XkVVkSxWxRWHco0L1
+         svlx5PB/7Vw2A==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Trevor Davenport <trevor.davenport@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 24/68] HID: Ignore battery for Elan touchscreen on HP Envy X360 15-eu0xxx
+Date:   Tue, 30 Nov 2021 09:46:20 -0500
+Message-Id: <20211130144707.944580-24-sashal@kernel.org>
+X-Mailer: git-send-email 2.33.0
+In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
+References: <20211130144707.944580-1-sashal@kernel.org>
 MIME-Version: 1.0
-References: <20211126130141.1811848-1-tero.kristo@linux.intel.com>
-In-Reply-To: <20211126130141.1811848-1-tero.kristo@linux.intel.com>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Tue, 30 Nov 2021 15:44:56 +0100
-Message-ID: <CAO-hwJLq6Jnvos=CR_-D6FD-7W56q2eYRVyRMbmE5NFaXLHrng@mail.gmail.com>
-Subject: Re: [RFCv2 0/8] USI stylus support series
-To:     Tero Kristo <tero.kristo@linux.intel.com>
-Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>
-Content-Type: text/plain; charset="UTF-8"
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Tero,
+From: Trevor Davenport <trevor.davenport@gmail.com>
 
-On Fri, Nov 26, 2021 at 2:02 PM Tero Kristo <tero.kristo@linux.intel.com> wrote:
->
-> Hi,
->
-> This series is an update based on comments from Benjamin. What is done
-> is this series is to ditch the separate hid-driver for USI, and add the
-> generic support to core layers. This part basically brings the support
-> for providing USI events, without programmability (patches 1-6).
+[ Upstream commit b74edf9bfbc11a7d0d0d756f06b17beb213ad5ca ]
 
-That part seems to be almost good for now. I have a few things to check:
-- patch2: "HID: hid-input: Add suffix also for HID_DG_PEN" I need to
-ensure there are no touchscreens affected by this (there used to be a
-mess with some vendors where they would not declare things properly)
-- patch5: "HID: core: map USI pen style reports directly" this one
-feels plain wrong. I would need to have a look at the report
-descriptor but this is too specific in a very generic code
+Battery status is reported for the HP Envy X360 Convertible 15-eu0xxx
+even if it does not have a battery. Prevent it from always reporting the
+battery as low.
 
->
-> Additionally, a HID-BPF based sample is provided which can be used to
-> program / query pen parameters in comparison to the old driver level
-> implementation (patches 7-8, patch #8 is an incremental change on top of
-> patch #7 which just converts the fifo to socket so that the client can
-> also get results back from the server.)
+Signed-off-by: Trevor Davenport <trevor.davenport@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-After a few more thoughts, I wondered what your input is on this. We
-should be able to do the very same with plain hidraw... However, you
-added a `hid/raw_event` processing that will still be kept in the
-kernel, so maybe bpf would be useful for that at least.
-
->
-> The whole series is based on top of Benjamin's hid-bpf support work, and
-> I've pushed a branch at [1] with a series that works and brings in
-> the dependency. There are also a few separate patches in this series to
-> fix the problems I found from Benjamin's initial work for hid-bpf; I
-> wasn't able to get things working without those. The branch is also
-> based on top of 5.16-rc2 which required some extra changes to the
-> patches from Benjamin.
-
-Yeah, I also rebased on top of 5.16 shortly after sharing that branch
-and got roughly the same last fix (HID: bpf: compile fix for
-bpf_hid_foreach_rdesc_item). I am *very* interested in your "HID: bpf:
-execute BPF programs in proper context" because that is something that
-was bothering me a lot :)
-
-"HID: bpf: add expected_attach_type to bpf prog during detach" is
-something I'll need to bring in too
-
-but "HID: bpf: fix file mapping" is actually wrong. I initially wanted
-to attach BPF programs to hidraw, but shortly realized that this is
-not working because the `hid/rdesc_fixup` kills the hidraw node and so
-releases the BPF programs. The way I am now attaching it is to use the
-fd associated with the modalias in the sysfs file (for instance: `sudo
-./hid_surface_dial /sys/bus/hid/devices/0005:045E:091B.*/modalias`).
-This way, the reference to the struct hid_device is kept even if we
-disconnect the device and reprobe it.
-
-Thanks again for your work, and I'd be curious to have your thoughts
-on hid-bpf and if you think it is better than hidraw/evdev write/new
-ioctls for your use case.
-
-Cheers,
-Benjamin
-
->
-> -Tero
->
-> [1] https://github.com/t-kristo/linux/tree/usi-5.16-rfc-v2-bpf
->
->
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 3706c635b12ee..3c5564038c969 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -393,6 +393,7 @@
+ #define USB_DEVICE_ID_TOSHIBA_CLICK_L9W	0x0401
+ #define USB_DEVICE_ID_HP_X2		0x074d
+ #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
++#define I2C_DEVICE_ID_HP_ENVY_X360_15	0x2d05
+ #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
+ #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+ #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 4b5ebeacd2836..e31041ae3e435 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -324,6 +324,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
+-- 
+2.33.0
 

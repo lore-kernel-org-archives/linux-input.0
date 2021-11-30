@@ -2,36 +2,33 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C851C433F5
-	for <linux-input@archiver.kernel.org>; Tue, 30 Nov 2021 14:52:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9011C433FE
+	for <linux-input@archiver.kernel.org>; Tue, 30 Nov 2021 14:53:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237696AbhK3Ozm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 30 Nov 2021 09:55:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60018 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243108AbhK3OyN (ORCPT
+        id S233613AbhK3O5D (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 30 Nov 2021 09:57:03 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47362 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243350AbhK3OzC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Nov 2021 09:54:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3980CC061372;
-        Tue, 30 Nov 2021 06:49:14 -0800 (PST)
+        Tue, 30 Nov 2021 09:55:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8517ECE1A58;
-        Tue, 30 Nov 2021 14:49:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE41BC53FD1;
-        Tue, 30 Nov 2021 14:49:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8ED6B81A4A;
+        Tue, 30 Nov 2021 14:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E356C53FC1;
+        Tue, 30 Nov 2021 14:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283750;
-        bh=Gw5VQ3RYUXRNsUiATi1GYRmPBWdQxHeYZIBJlwYHLnY=;
+        s=k20201202; t=1638283900;
+        bh=PfM6ae6GNFZCEw4a4VjeDB12qCeaG+vd7Sf6HSh7xCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbHT917w5sbc5FLhlCDUTHfQoevGT+ykC1Xo+FPPzepoU+mXmuKdP/4ZdrvLklWnN
-         Fpno/yBqaHqFKOzWTShzFU+yLtMEJ/j+6AlzyqBH+rnKltgIH+qFy3GXr6BmJ/TPwJ
-         26lDtMEu+fwn/KMzlzL+NDjRx8m03eT4AixbUZwAkbFjn6tdfHNBlYOANWpnMShDrQ
-         IUHvS74R0QDKEpCNlvylxSPXhxUvIAz8mjbz9rerpkCycITu4q+2MS/Gd46l4Aomcb
-         HsUO5JLlRuvqCLf05d1kkFIoLaLU4X59vRhcitSyIltcxxoEv7a/9QAW8M3iVZetRT
-         eHP6SUg86swfw==
+        b=M/XZ9QWX3+5gNGC7IsMT4I+34yJzwGQQEjwZt3AjKosHkaiS5c6LY4gEpx+ivvYj7
+         ySpQbrdVfc0cIHsOmIKAtJrVsv92do1onq9YXAz2ONLmrJcPzt7Wakla9FjrO4IuZ6
+         hzxT/ScncraPhpiOvJ6jQdTQpK0jr29RDydVRUQ738Qt1bogN0hXqNoxWQwZXujfPr
+         cZ7RxSdGtTK2vUgY/9HO78AQ/lSPMwpu0jgpv+D6b5RssSKPbsSe20iVY7aLyJM3K7
+         zXBsFgvEb0ISIr9UfRzozPl5+1HIEBpdA7sxWulHSjwHqcwcufh9a14T1CrBffEA/v
+         gteKp2H2/J9nw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Juergen Gross <jgross@suse.com>,
@@ -39,12 +36,12 @@ Cc:     Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>, dmitry.torokhov@gmail.com,
         linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org,
         linux-fbdev@vger.kernel.org, xen-devel@lists.xenproject.org
-Subject: [PATCH AUTOSEL 5.15 48/68] xen: add "not_essential" flag to struct xenbus_driver
-Date:   Tue, 30 Nov 2021 09:46:44 -0500
-Message-Id: <20211130144707.944580-48-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 34/43] xen: add "not_essential" flag to struct xenbus_driver
+Date:   Tue, 30 Nov 2021 09:50:11 -0500
+Message-Id: <20211130145022.945517-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
-References: <20211130144707.944580-1-sashal@kernel.org>
+In-Reply-To: <20211130145022.945517-1-sashal@kernel.org>
+References: <20211130145022.945517-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -136,10 +133,10 @@ index 480944606a3c9..07b010a68fcf9 100644
  		(xendev->state == XenbusStateConnected &&
  		 xendrv->is_ready && !xendrv->is_ready(xendev)));
 diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
-index b94074c827721..b13eb86395e05 100644
+index bf3cfc7c35d0b..b5626edda6f5b 100644
 --- a/include/xen/xenbus.h
 +++ b/include/xen/xenbus.h
-@@ -112,6 +112,7 @@ struct xenbus_driver {
+@@ -106,6 +106,7 @@ struct xenbus_driver {
  	const char *name;       /* defaults to ids[0].devicetype */
  	const struct xenbus_device_id *ids;
  	bool allow_rebind; /* avoid setting xenstore closed during remove */

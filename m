@@ -2,46 +2,46 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DFA1C43219
-	for <linux-input@archiver.kernel.org>; Tue, 30 Nov 2021 14:50:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C851C433F5
+	for <linux-input@archiver.kernel.org>; Tue, 30 Nov 2021 14:52:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242730AbhK3Ox1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 30 Nov 2021 09:53:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60212 "EHLO
+        id S237696AbhK3Ozm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 30 Nov 2021 09:55:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242727AbhK3Owf (ORCPT
+        with ESMTP id S243108AbhK3OyN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Nov 2021 09:52:35 -0500
+        Tue, 30 Nov 2021 09:54:13 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845DCC0613E0;
-        Tue, 30 Nov 2021 06:48:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3980CC061372;
+        Tue, 30 Nov 2021 06:49:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 13814CE1A4D;
-        Tue, 30 Nov 2021 14:48:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D9E0C53FCF;
-        Tue, 30 Nov 2021 14:48:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8517ECE1A58;
+        Tue, 30 Nov 2021 14:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE41BC53FD1;
+        Tue, 30 Nov 2021 14:49:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283697;
-        bh=BhIew2AD86pu1If7zFqfREteOWJx4UUFBUVRbRKMWlc=;
+        s=k20201202; t=1638283750;
+        bh=Gw5VQ3RYUXRNsUiATi1GYRmPBWdQxHeYZIBJlwYHLnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vg8CMKryZUFqwW9l5BY93MM4JG+I34CgMbkJKyXJ8ru8MTLNMyOBv5kcKhJ5TisXg
-         lH89wqCdB0y5gF9Qv9Z8FhsmqVw6gjP237wqQNkeNUSRSse7sCYaDNSvXg3MIiDyBd
-         eY2GOYnl6eS8NHsknvWdOOY6hY2URSGtGDGE2Jej3P7lIwwuKee6LwiuuLSN03qyLj
-         b5963fI6YtTQshs2XCC+N3OZE1ummSxcl0b0pfJqGvZEdWZB8dLW5vuHQEYHxGA4nn
-         s+9Kxf6tob6kyRQILB5QfYFkDdkUm9pB1wT+Z0aB2OOmo5ZneTRYhCfb5/9RLKA/gR
-         vFOCYtMWE4oCw==
+        b=UbHT917w5sbc5FLhlCDUTHfQoevGT+ykC1Xo+FPPzepoU+mXmuKdP/4ZdrvLklWnN
+         Fpno/yBqaHqFKOzWTShzFU+yLtMEJ/j+6AlzyqBH+rnKltgIH+qFy3GXr6BmJ/TPwJ
+         26lDtMEu+fwn/KMzlzL+NDjRx8m03eT4AixbUZwAkbFjn6tdfHNBlYOANWpnMShDrQ
+         IUHvS74R0QDKEpCNlvylxSPXhxUvIAz8mjbz9rerpkCycITu4q+2MS/Gd46l4Aomcb
+         HsUO5JLlRuvqCLf05d1kkFIoLaLU4X59vRhcitSyIltcxxoEv7a/9QAW8M3iVZetRT
+         eHP6SUg86swfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Zaidman <michael.zaidman@gmail.com>,
-        Germain Hebert <germain.hebert@ca.abb.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 23/68] HID: ft260: fix i2c probing for hwmon devices
-Date:   Tue, 30 Nov 2021 09:46:19 -0500
-Message-Id: <20211130144707.944580-23-sashal@kernel.org>
+Cc:     Juergen Gross <jgross@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, dmitry.torokhov@gmail.com,
+        linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, xen-devel@lists.xenproject.org
+Subject: [PATCH AUTOSEL 5.15 48/68] xen: add "not_essential" flag to struct xenbus_driver
+Date:   Tue, 30 Nov 2021 09:46:44 -0500
+Message-Id: <20211130144707.944580-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -53,91 +53,100 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Michael Zaidman <michael.zaidman@gmail.com>
+From: Juergen Gross <jgross@suse.com>
 
-[ Upstream commit a94f61e63f337d95001e1a976ab701100fa1d666 ]
+[ Upstream commit 37a72b08a3e1eb28053214dd8211eb09c2fd3187 ]
 
-The below scenario causes the kernel NULL pointer dereference failure:
-1. sudo insmod hid-ft260.ko
-2. sudo modprobe lm75
-3. unplug USB hid-ft260
-4. plug USB hid-ft260
+When booting the xenbus driver will wait for PV devices to have
+connected to their backends before continuing. The timeout is different
+between essential and non-essential devices.
 
-[  +0.000006] Call Trace:
-[  +0.000004]  __i2c_smbus_xfer.part.0+0xd1/0x310
-[  +0.000007]  ? ft260_smbus_write+0x140/0x140 [hid_ft260]
-[  +0.000005]  __i2c_smbus_xfer+0x2b/0x80
-[  +0.000004]  i2c_smbus_xfer+0x61/0xf0
-[  +0.000005]  i2c_default_probe+0xf9/0x130
-[  +0.000004]  i2c_detect_address+0x84/0x160
-[  +0.000004]  ? kmem_cache_alloc_trace+0xf6/0x200
-[  +0.000009]  ? i2c_detect.isra.0+0x69/0x130
-[  +0.000005]  i2c_detect.isra.0+0xbf/0x130
-[  +0.000004]  ? __process_new_driver+0x30/0x30
-[  +0.000004]  __process_new_adapter+0x18/0x20
-[  +0.000004]  bus_for_each_drv+0x84/0xd0
-[  +0.000003]  i2c_register_adapter+0x1e4/0x400
-[  +0.000005]  i2c_add_adapter+0x5c/0x80
-[  +0.000004]  ft260_probe.cold+0x222/0x2e2 [hid_ft260]
-[  +0.000006]  hid_device_probe+0x10e/0x170 [hid]
-[  +0.000009]  really_probe+0xff/0x460
-[  +0.000004]  driver_probe_device+0xe9/0x160
-[  +0.000003]  __device_attach_driver+0x71/0xd0
-[  +0.000004]  ? driver_allows_async_probing+0x50/0x50
-[  +0.000004]  bus_for_each_drv+0x84/0xd0
-[  +0.000002]  __device_attach+0xde/0x1e0
-[  +0.000004]  device_initial_probe+0x13/0x20
-[  +0.000004]  bus_probe_device+0x8f/0xa0
-[  +0.000003]  device_add+0x333/0x5f0
+Non-essential devices are identified by their nodenames directly in the
+xenbus driver, which requires to update this list in case a new device
+type being non-essential is added (this was missed for several types
+in the past).
 
-It happened when i2c core probed for the devices associated with the lm75
-driver by invoking 2c_detect()-->..-->ft260_smbus_write() from within the
-ft260_probe before setting the adapter data with i2c_set_adapdata().
+In order to avoid this problem, add a "not_essential" flag to struct
+xenbus_driver which can be set to "true" by the respective frontend.
 
-Moving the i2c_set_adapdata() before i2c_add_adapter() fixed the failure.
+Set this flag for the frontends currently regarded to be not essential
+(vkbs and vfb) and use it for testing in the xenbus driver.
 
-Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
-Signed-off-by: Germain Hebert <germain.hebert@ca.abb.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20211022064800.14978-2-jgross@suse.com
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ft260.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/input/misc/xen-kbdfront.c          |  1 +
+ drivers/video/fbdev/xen-fbfront.c          |  1 +
+ drivers/xen/xenbus/xenbus_probe_frontend.c | 14 +++-----------
+ include/xen/xenbus.h                       |  1 +
+ 4 files changed, 6 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 4ef1c3b8094ea..8ee77f4afe9ff 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -966,24 +966,23 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	mutex_init(&dev->lock);
- 	init_completion(&dev->wait);
+diff --git a/drivers/input/misc/xen-kbdfront.c b/drivers/input/misc/xen-kbdfront.c
+index 4ff5cd2a6d8de..3d17a0b3fe511 100644
+--- a/drivers/input/misc/xen-kbdfront.c
++++ b/drivers/input/misc/xen-kbdfront.c
+@@ -542,6 +542,7 @@ static struct xenbus_driver xenkbd_driver = {
+ 	.remove = xenkbd_remove,
+ 	.resume = xenkbd_resume,
+ 	.otherend_changed = xenkbd_backend_changed,
++	.not_essential = true,
+ };
  
-+	ret = ft260_xfer_status(dev);
-+	if (ret)
-+		ft260_i2c_reset(hdev);
-+
-+	i2c_set_adapdata(&dev->adap, dev);
- 	ret = i2c_add_adapter(&dev->adap);
- 	if (ret) {
- 		hid_err(hdev, "failed to add i2c adapter\n");
- 		goto err_hid_close;
- 	}
+ static int __init xenkbd_init(void)
+diff --git a/drivers/video/fbdev/xen-fbfront.c b/drivers/video/fbdev/xen-fbfront.c
+index 5ec51445bee88..6826f986da436 100644
+--- a/drivers/video/fbdev/xen-fbfront.c
++++ b/drivers/video/fbdev/xen-fbfront.c
+@@ -695,6 +695,7 @@ static struct xenbus_driver xenfb_driver = {
+ 	.remove = xenfb_remove,
+ 	.resume = xenfb_resume,
+ 	.otherend_changed = xenfb_backend_changed,
++	.not_essential = true,
+ };
  
--	i2c_set_adapdata(&dev->adap, dev);
--
- 	ret = sysfs_create_group(&hdev->dev.kobj, &ft260_attr_group);
- 	if (ret < 0) {
- 		hid_err(hdev, "failed to create sysfs attrs\n");
- 		goto err_i2c_free;
- 	}
+ static int __init xenfb_init(void)
+diff --git a/drivers/xen/xenbus/xenbus_probe_frontend.c b/drivers/xen/xenbus/xenbus_probe_frontend.c
+index 480944606a3c9..07b010a68fcf9 100644
+--- a/drivers/xen/xenbus/xenbus_probe_frontend.c
++++ b/drivers/xen/xenbus/xenbus_probe_frontend.c
+@@ -211,19 +211,11 @@ static int is_device_connecting(struct device *dev, void *data, bool ignore_none
+ 	if (drv && (dev->driver != drv))
+ 		return 0;
  
--	ret = ft260_xfer_status(dev);
--	if (ret)
--		ft260_i2c_reset(hdev);
--
- 	return 0;
+-	if (ignore_nonessential) {
+-		/* With older QEMU, for PVonHVM guests the guest config files
+-		 * could contain: vfb = [ 'vnc=1, vnclisten=0.0.0.0']
+-		 * which is nonsensical as there is no PV FB (there can be
+-		 * a PVKB) running as HVM guest. */
++	xendrv = to_xenbus_driver(dev->driver);
  
- err_i2c_free:
+-		if ((strncmp(xendev->nodename, "device/vkbd", 11) == 0))
+-			return 0;
++	if (ignore_nonessential && xendrv->not_essential)
++		return 0;
+ 
+-		if ((strncmp(xendev->nodename, "device/vfb", 10) == 0))
+-			return 0;
+-	}
+-	xendrv = to_xenbus_driver(dev->driver);
+ 	return (xendev->state < XenbusStateConnected ||
+ 		(xendev->state == XenbusStateConnected &&
+ 		 xendrv->is_ready && !xendrv->is_ready(xendev)));
+diff --git a/include/xen/xenbus.h b/include/xen/xenbus.h
+index b94074c827721..b13eb86395e05 100644
+--- a/include/xen/xenbus.h
++++ b/include/xen/xenbus.h
+@@ -112,6 +112,7 @@ struct xenbus_driver {
+ 	const char *name;       /* defaults to ids[0].devicetype */
+ 	const struct xenbus_device_id *ids;
+ 	bool allow_rebind; /* avoid setting xenstore closed during remove */
++	bool not_essential;     /* is not mandatory for boot progress */
+ 	int (*probe)(struct xenbus_device *dev,
+ 		     const struct xenbus_device_id *id);
+ 	void (*otherend_changed)(struct xenbus_device *dev,
 -- 
 2.33.0
 

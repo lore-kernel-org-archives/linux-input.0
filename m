@@ -2,45 +2,46 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82193C43217
-	for <linux-input@archiver.kernel.org>; Tue, 30 Nov 2021 14:50:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DFA1C43219
+	for <linux-input@archiver.kernel.org>; Tue, 30 Nov 2021 14:50:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232628AbhK3Ox1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S242730AbhK3Ox1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 30 Nov 2021 09:53:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60052 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242736AbhK3Owg (ORCPT
+        with ESMTP id S242727AbhK3Owf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Nov 2021 09:52:36 -0500
+        Tue, 30 Nov 2021 09:52:35 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7202C0613ED;
-        Tue, 30 Nov 2021 06:48:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 845DCC0613E0;
+        Tue, 30 Nov 2021 06:48:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 91C8CCE1A3E;
-        Tue, 30 Nov 2021 14:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09E87C53FD3;
-        Tue, 30 Nov 2021 14:48:18 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 13814CE1A4D;
+        Tue, 30 Nov 2021 14:48:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D9E0C53FCF;
+        Tue, 30 Nov 2021 14:48:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1638283699;
-        bh=odx8qL1TMIvvlfh1vMm6j9AVYLh6gBs/yL2ViP2g4R4=;
+        s=k20201202; t=1638283697;
+        bh=BhIew2AD86pu1If7zFqfREteOWJx4UUFBUVRbRKMWlc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mjEsoyOVljNAkeMN+ZxTl7+0MfYDr1u0d1zR9EBnvhjHxYgwgNbbvAZ9BQRW4E56q
-         cdWINq0JlvyKNlU2SG4Y3GUoqe00kEG+P6hmkBC/8CAwTzFkqf7y5jNmRYQYMKAECr
-         m2CXvE05JSYdoNBSMIS0S93Baob3sEMZRT/52l1p0YOS+2Q6hiZkykuyaVPv286X+Q
-         RALyn1hUg3uz6nBveiEzt7rWVHZKZ41Dlied+jXxgCToJ7z6tKRWTrsDTBuSOXLx1c
-         4o47hl/0hfmZRuVhCjZsH0WjBEtyK3HPqMY8qojZrjJWFB00S9RNWXI2KiPW9OqgZC
-         kBTGMVWk3oZ5Q==
+        b=Vg8CMKryZUFqwW9l5BY93MM4JG+I34CgMbkJKyXJ8ru8MTLNMyOBv5kcKhJ5TisXg
+         lH89wqCdB0y5gF9Qv9Z8FhsmqVw6gjP237wqQNkeNUSRSse7sCYaDNSvXg3MIiDyBd
+         eY2GOYnl6eS8NHsknvWdOOY6hY2URSGtGDGE2Jej3P7lIwwuKee6LwiuuLSN03qyLj
+         b5963fI6YtTQshs2XCC+N3OZE1ummSxcl0b0pfJqGvZEdWZB8dLW5vuHQEYHxGA4nn
+         s+9Kxf6tob6kyRQILB5QfYFkDdkUm9pB1wT+Z0aB2OOmo5ZneTRYhCfb5/9RLKA/gR
+         vFOCYtMWE4oCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ondrej Zary <linux@zary.sk>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+Cc:     Michael Zaidman <michael.zaidman@gmail.com>,
+        Germain Hebert <germain.hebert@ca.abb.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 25/68] HID: multitouch: Fix Iiyama ProLite T1931SAW (0eef:0001 again!)
-Date:   Tue, 30 Nov 2021 09:46:21 -0500
-Message-Id: <20211130144707.944580-25-sashal@kernel.org>
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 23/68] HID: ft260: fix i2c probing for hwmon devices
+Date:   Tue, 30 Nov 2021 09:46:19 -0500
+Message-Id: <20211130144707.944580-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.33.0
 In-Reply-To: <20211130144707.944580-1-sashal@kernel.org>
 References: <20211130144707.944580-1-sashal@kernel.org>
@@ -52,45 +53,91 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Ondrej Zary <linux@zary.sk>
+From: Michael Zaidman <michael.zaidman@gmail.com>
 
-[ Upstream commit 32bea35746097985c48cec836d5f557a3b66b60a ]
+[ Upstream commit a94f61e63f337d95001e1a976ab701100fa1d666 ]
 
-Iiyama ProLite T1931SAW does not work with Linux - input devices are
-created but cursor does not move.
+The below scenario causes the kernel NULL pointer dereference failure:
+1. sudo insmod hid-ft260.ko
+2. sudo modprobe lm75
+3. unplug USB hid-ft260
+4. plug USB hid-ft260
 
-It has the infamous 0eef:0001 ID which has been reused for various
-devices before.
+[  +0.000006] Call Trace:
+[  +0.000004]  __i2c_smbus_xfer.part.0+0xd1/0x310
+[  +0.000007]  ? ft260_smbus_write+0x140/0x140 [hid_ft260]
+[  +0.000005]  __i2c_smbus_xfer+0x2b/0x80
+[  +0.000004]  i2c_smbus_xfer+0x61/0xf0
+[  +0.000005]  i2c_default_probe+0xf9/0x130
+[  +0.000004]  i2c_detect_address+0x84/0x160
+[  +0.000004]  ? kmem_cache_alloc_trace+0xf6/0x200
+[  +0.000009]  ? i2c_detect.isra.0+0x69/0x130
+[  +0.000005]  i2c_detect.isra.0+0xbf/0x130
+[  +0.000004]  ? __process_new_driver+0x30/0x30
+[  +0.000004]  __process_new_adapter+0x18/0x20
+[  +0.000004]  bus_for_each_drv+0x84/0xd0
+[  +0.000003]  i2c_register_adapter+0x1e4/0x400
+[  +0.000005]  i2c_add_adapter+0x5c/0x80
+[  +0.000004]  ft260_probe.cold+0x222/0x2e2 [hid_ft260]
+[  +0.000006]  hid_device_probe+0x10e/0x170 [hid]
+[  +0.000009]  really_probe+0xff/0x460
+[  +0.000004]  driver_probe_device+0xe9/0x160
+[  +0.000003]  __device_attach_driver+0x71/0xd0
+[  +0.000004]  ? driver_allows_async_probing+0x50/0x50
+[  +0.000004]  bus_for_each_drv+0x84/0xd0
+[  +0.000002]  __device_attach+0xde/0x1e0
+[  +0.000004]  device_initial_probe+0x13/0x20
+[  +0.000004]  bus_probe_device+0x8f/0xa0
+[  +0.000003]  device_add+0x333/0x5f0
 
-It seems to require export_all_inputs = true.
+It happened when i2c core probed for the devices associated with the lm75
+driver by invoking 2c_detect()-->..-->ft260_smbus_write() from within the
+ft260_probe before setting the adapter data with i2c_set_adapdata().
 
-Hopefully there are no HID devices using this ID that will break.
-It should not break non-HID devices (handled by usbtouchscreen).
+Moving the i2c_set_adapdata() before i2c_add_adapter() fixed the failure.
 
-Signed-off-by: Ondrej Zary <linux@zary.sk>
-Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+Signed-off-by: Germain Hebert <germain.hebert@ca.abb.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-multitouch.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/hid-ft260.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index e1afddb7b33d8..082376a6cb3d7 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -1888,6 +1888,11 @@ static const struct hid_device_id mt_devices[] = {
- 		MT_USB_DEVICE(USB_VENDOR_ID_CVTOUCH,
- 			USB_DEVICE_ID_CVTOUCH_SCREEN) },
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+index 4ef1c3b8094ea..8ee77f4afe9ff 100644
+--- a/drivers/hid/hid-ft260.c
++++ b/drivers/hid/hid-ft260.c
+@@ -966,24 +966,23 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	mutex_init(&dev->lock);
+ 	init_completion(&dev->wait);
  
-+	/* eGalax devices (SAW) */
-+	{ .driver_data = MT_CLS_EXPORT_ALL_INPUTS,
-+		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
-+			USB_DEVICE_ID_EGALAX_TOUCHCONTROLLER) },
++	ret = ft260_xfer_status(dev);
++	if (ret)
++		ft260_i2c_reset(hdev);
 +
- 	/* eGalax devices (resistive) */
- 	{ .driver_data = MT_CLS_EGALAX,
- 		MT_USB_DEVICE(USB_VENDOR_ID_DWAV,
++	i2c_set_adapdata(&dev->adap, dev);
+ 	ret = i2c_add_adapter(&dev->adap);
+ 	if (ret) {
+ 		hid_err(hdev, "failed to add i2c adapter\n");
+ 		goto err_hid_close;
+ 	}
+ 
+-	i2c_set_adapdata(&dev->adap, dev);
+-
+ 	ret = sysfs_create_group(&hdev->dev.kobj, &ft260_attr_group);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "failed to create sysfs attrs\n");
+ 		goto err_i2c_free;
+ 	}
+ 
+-	ret = ft260_xfer_status(dev);
+-	if (ret)
+-		ft260_i2c_reset(hdev);
+-
+ 	return 0;
+ 
+ err_i2c_free:
 -- 
 2.33.0
 

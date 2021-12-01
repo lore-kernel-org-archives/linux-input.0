@@ -2,124 +2,176 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33294C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  1 Dec 2021 05:56:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1613DC433F5
+	for <linux-input@archiver.kernel.org>; Wed,  1 Dec 2021 11:55:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231482AbhLAGAJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Dec 2021 01:00:09 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:54967 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229561AbhLAGAJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Dec 2021 01:00:09 -0500
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id 866915C0094;
-        Wed,  1 Dec 2021 00:56:48 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Wed, 01 Dec 2021 00:56:48 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=who-t.net; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=l
-        o8mU9kXYXfa+p+Bapf1IJs4wvyj8j/AWtM7bGAUlM0=; b=mxz2PFtqDSGJs3Hdp
-        vaueAgj4AXLg9pSSTnWorJK8yJj8KWyXwiftzzJCaJfM6jPKM6uNDlZzeHks805c
-        yQS+ZCRWdIMaVQ7sdfRDoHr681tn/9bOc/h1D2w23NwaTM0H3HS3UwEMWlin6lRG
-        eUfy2ZYYnctUsDzmjfmPIDnTkVr7gseBDQcgiQbXjVGXg5XszwU9JZZrxTb/kviC
-        L1eEI6tJQ6tLOUhT/dkFPg5XpGVjFM8z77HJ6d+mH7+ViIpw1aVsjq/xRtTQv+xC
-        tlvNMnnKBZgzp5xOW9qgRHKIagj73REJM0mmmi+CAmFoatv/5NeyH3eT+BWd4DfQ
-        5y3AQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm1; bh=lo8mU9kXYXfa+p+Bapf1IJs4wvyj8j/AWtM7bGAUl
-        M0=; b=DupXmSP6uHUHqxjCFlQPKyHt7amIUO0UtFekjdMMiYxdgx8zg1E6ybWYl
-        TLvhArXR3n7p5TCXY9ise61lmYH88iWUBPODc99cAfzctUwxJbn1EocY/NP5Q1bG
-        wOPunrswhXw+ml0puMnOQyQJtUprhqFCTBHG9mKsr2MC78pZ4kfGJJh4a1+C3Mal
-        ONtRBA/J0Xtmy3hYLCxuhsdHWtqwdzTVpkWmKwH9oU9VgYniFbp49IP7EHp7IknX
-        yqN/E3E3OzcSnJxtBGJ/1HiNW0NyWGzeMn1coq/xFfMvn36CnqrpvLA+Y3VO4vUI
-        RlsksLqjNd8GUn+8QOnzODxETzGJw==
-X-ME-Sender: <xms:oA6nYa_qvVLP8lPH6nH6oCXBS8142xddBao_zeGGyg_k0CWvfmcKng>
-    <xme:oA6nYatCAD9OnolQo8zs7VN6IJa59bEdLMXKGSUHaRRUybKUzavz4FTTC6BwEVWnN
-    W0Teq3jlPzNJnBjVCE>
-X-ME-Received: <xmr:oA6nYQBdBsY8_cz3sQC6GmeS3VhlvuI4MqyoF1JCrOrd7yBVJxiur1qvO421NXSAZc0LCu-KTa7AKqRjnw7X1qPBzixaGzxpnTwN>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvuddriedvgdeltdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggugfgjsehtkeertddttddunecuhfhrohhmpefrvghtvghr
-    ucfjuhhtthgvrhgvrhcuoehpvghtvghrrdhhuhhtthgvrhgvrhesfihhohdqthdrnhgvth
-    eqnecuggftrfgrthhtvghrnhepffefffekvdekleehledtffeihffhiefhleehtddtueeg
-    jeefhfetledvgeevteelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpd
-    hmihgtrhhoshhofhhtrdgtohhmnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghm
-    pehmrghilhhfrhhomhepphgvthgvrhdrhhhuthhtvghrvghrseifhhhoqdhtrdhnvght
-X-ME-Proxy: <xmx:oA6nYScFJwmhUASXPurD94zkUY6FSX_laxTg59sCeYmrFIO0cOZcrw>
-    <xmx:oA6nYfP_dcKfIL5aaxeJLb6yUKk_ZIHBy5BIP6ehZMTTLiGoXwXnIA>
-    <xmx:oA6nYcnoHP88rlEYmLKkPrAH48y4dLxAWcn7UgzCiI1hvOL57aSiQw>
-    <xmx:oA6nYYo-BDmNQPl2WmtWaQ8Z4gDC-z0ygQ8VbIYADV8gFBfqDmI0Qg>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 1 Dec 2021 00:56:46 -0500 (EST)
-Date:   Wed, 1 Dec 2021 15:56:41 +1000
-From:   Peter Hutterer <peter.hutterer@who-t.net>
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 0/1] Do not map BTN_RIGHT/MIDDLE on buttonpads
-Message-ID: <YacOmYorwAIB4Q3c@quokka>
-References: <20211123191238.12472-1-jose.exposito89@gmail.com>
- <CAO-hwJLB8h6fQRF8UjN3rER_6xS2Shi3ffEr92PhkVCijtYRpQ@mail.gmail.com>
+        id S1349091AbhLAL7D (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Dec 2021 06:59:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38532 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243082AbhLAL7D (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Dec 2021 06:59:03 -0500
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 826C8C061574;
+        Wed,  1 Dec 2021 03:55:42 -0800 (PST)
+Received: by mail-pg1-x52f.google.com with SMTP id s37so13656784pga.9;
+        Wed, 01 Dec 2021 03:55:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nAxdzonf+786j6Tm6BUZ1QfXIqaLTEogVLBffouzA18=;
+        b=BKsNRqf4PouAuuBbNTdr3C/1usdTCgD92/NGKlhe6J/+a0SRyMlFDKCokXLThs7JFf
+         xC0zzqye23vcQB8gR2LXtDjAAudYq/Z2TcrE2sGlFSsj9Spg7bxrMCzmwds/Hhcl1bo4
+         9q2g5TA7yz03R/tJiKFNqVpMCV0iv6ivSmEcIc85hjOpUVjDoQj/3MWknXiomxPRpBjB
+         iniaLGcqZGHC0VBMNmqYINz4cp2/NXKqZdaNGOYNVWdPYWLPE81tyNTTO02fXcWUK6i9
+         nvtPwUwSqx5+m+wFh1pgmFQlkkUpgGuZoCjd6/H6zC9OoSPv7GPS1F4uxfgoh72AF0y1
+         S+PQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=nAxdzonf+786j6Tm6BUZ1QfXIqaLTEogVLBffouzA18=;
+        b=uUkP7wJ3H4SzQj2oSRClaGG8qxydB8t04RkQDu0m1asle9PmytwPQuDp6tfaW9dXif
+         mtL9zsjICbxlb1UOwZvbO4jKcFGctZrf2lTYtl+mWnzGB+Eax26VFllARucREjgZAu8g
+         qqjlTDEQ7jwTVGVqzwR6N+tVu1Rq20MTRzvBLoQmRD6Kowk4gOe3A+dODIIm+nXpJr5v
+         W1AWOlW/yxRiZ6+fZKk55aVmvLXb1AcyTmDW4roMS8P7QbK3+w5DD87O2pOvVYrdpVwl
+         RsG7+h6ZqSu0aNEOGE/SadaqPPx31ZY1uzwZtvFG8WnMikoGCCsZ9cOpkPQ1t3WDB7mI
+         Uv0g==
+X-Gm-Message-State: AOAM531gqZQ4iDsB23eQRnlariNwNr4ZzeiJax56BdE9t4rcnVWxEmjT
+        C/UbA1bHw1soix1I77wNILo=
+X-Google-Smtp-Source: ABdhPJzQTg2s7Eey0l8i7taTv00NMdQFxltJ7EuGTrJV1INYJHetXkXdH97E/6HqtOA2V//dNm6nsQ==
+X-Received: by 2002:a63:8448:: with SMTP id k69mr4311455pgd.509.1638359742027;
+        Wed, 01 Dec 2021 03:55:42 -0800 (PST)
+Received: from keqing-virtualbox.mshome.net ([92.119.178.3])
+        by smtp.gmail.com with ESMTPSA id w20sm27657906pfu.146.2021.12.01.03.55.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Dec 2021 03:55:41 -0800 (PST)
+From:   Desmond Lim <peckishrine@gmail.com>
+To:     jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        peckishrine@gmail.com, kinglongmee@gmail.com
+Subject: [PATCH] HID: sigmamicro: Fix modifier keys for SiGma Micro based keyboards
+Date:   Wed,  1 Dec 2021 19:51:17 +0800
+Message-Id: <20211201115117.3002-1-peckishrine@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAO-hwJLB8h6fQRF8UjN3rER_6xS2Shi3ffEr92PhkVCijtYRpQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Nov 24, 2021 at 10:39:02AM +0100, Benjamin Tissoires wrote:
-> Hi José,
-> 
-> On Tue, Nov 23, 2021 at 8:12 PM José Expósito <jose.exposito89@gmail.com> wrote:
-> >
-> > Hi all,
-> >
-> > Historically, libinput has relayed on the INPUT_PROP_BUTTONPAD property
-> > to detect buttonpads.
-> >
-> > Since buttonpads are expected to have only one button (BTN_LEFT),
-> > recently we added a new rule to detect buttonpads: Where a touchpad
-> > maps the BTN_RIGHT bit, libinput assumes it is NOT a buttonpad.
-> >
-> > However, this change leaded to several false possitives, so we ended up
-> > reverting it. For more context:
-> > https://gitlab.freedesktop.org/libinput/libinput/-/issues/704
-> >
-> > And for a full list of affected hardware, HID reports and bug reports
-> > please see:
-> > https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/726
-> >
-> > My understanding is that buttonpads should not map BTN_RIGHT and/or
-> > BTN_MIDDLE and to avoid it I would like to fix the required drivers.
-> 
-> As long as udev intrinsic is happy with it (and it correctly tags the
-> touchpad as ID_INPUT_something), I'm fine with it.
+Fix the report descriptor from SIGMACHIP USB Keyboard (1c4f:0059)
+to make modifier keys work.
 
-fwiw, udev's builtin input-id touchpad check is
-  ABS_X && ABS_Y && BTN_TOOL_FINGER && !BTN_TOOL_PEN && !INPUT_PROP_DIRECT
-it doesn't care about the actual buttons so this patch wouldn't affect it.
+Signed-off-by: Desmond Lim <peckishrine@gmail.com>
+Signed-off-by: Kinglong Mee <kinglongmee@gmail.com>
+---
+ drivers/hid/Kconfig          | 10 ++++++++
+ drivers/hid/Makefile         |  1 +
+ drivers/hid/hid-ids.h        |  1 +
+ drivers/hid/hid-sigmamicro.c | 45 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 57 insertions(+)
+ create mode 100644 drivers/hid/hid-sigmamicro.c
 
-> Also, you might want to point at the specification regarding button
-> pads: https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection#device-capabilities-feature-report
-> 
-> The way I read it: if the device exports the Button type value
-> feature, and it is 0 or 1 (click-pad or pressure-pad), there should
-> not be discrete buttons.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 9f5435b55949..724dd0f35d3c 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -970,6 +970,16 @@ config HID_SEMITEK
+ 	- Woo-dy
+ 	- X-Bows Nature/Knight
+ 
++config HID_SIGMAMICRO
++	tristate "SiGma Micro based keyboards"
++	depends on HID
++	help
++	  Support for keyboards that use the SiGma Micro (a.k.a SigmaChip) IC.
++
++	  Supported devices:
++	  - Landslides KR-700
++	  - Rapoo V500
++
+ config HID_SONY
+ 	tristate "Sony PS2/3/4 accessories"
+ 	depends on USB_HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 55a6fa3eca5a..89ea7fafb66b 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -108,6 +108,7 @@ obj-$(CONFIG_HID_RMI)		+= hid-rmi.o
+ obj-$(CONFIG_HID_SAITEK)	+= hid-saitek.o
+ obj-$(CONFIG_HID_SAMSUNG)	+= hid-samsung.o
+ obj-$(CONFIG_HID_SEMITEK)	+= hid-semitek.o
++obj-$(CONFIG_HID_SIGMAMICRO)	+= hid-sigmamicro.o
+ obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
+ obj-$(CONFIG_HID_SONY)		+= hid-sony.o
+ obj-$(CONFIG_HID_SPEEDLINK)	+= hid-speedlink.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 96a455921c67..279410bc8fce 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1083,6 +1083,7 @@
+ 
+ #define USB_VENDOR_ID_SIGMA_MICRO	0x1c4f
+ #define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD	0x0002
++#define USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD2	0x0059
+ 
+ #define USB_VENDOR_ID_SIGMATEL		0x066F
+ #define USB_DEVICE_ID_SIGMATEL_STMP3780	0x3780
+diff --git a/drivers/hid/hid-sigmamicro.c b/drivers/hid/hid-sigmamicro.c
+new file mode 100644
+index 000000000000..eb34d6198083
+--- /dev/null
++++ b/drivers/hid/hid-sigmamicro.c
+@@ -0,0 +1,45 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * HID driver for SiGma Micro based keyboards
++ *
++ * Copyright (c) 2016 Kinglong Mee
++ * Copyright (c) 2021 Desmond Lim
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++static __u8 *sm_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++			     unsigned int *rsize)
++{
++	switch (hdev->product) {
++	case USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD2:
++		if (*rsize == 167 && rdesc[98] == 0x81 && rdesc[99] == 0x00) {
++			hid_info(hdev, "Fixing up SiGma Micro report descriptor\n");
++			rdesc[99] = 0x02;
++		}
++		break;
++	}
++	return rdesc;
++}
++
++static const struct hid_device_id sm_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SIGMA_MICRO, USB_DEVICE_ID_SIGMA_MICRO_KEYBOARD2) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, sm_devices);
++
++static struct hid_driver sm_driver = {
++	.name = "sigmamicro",
++	.id_table = sm_devices,
++	.report_fixup = sm_report_fixup,
++};
++module_hid_driver(sm_driver);
++
++MODULE_AUTHOR("Kinglong Mee <kinglongmee@gmail.com>");
++MODULE_AUTHOR("Desmond Lim <peckishrine@gmail.com>");
++MODULE_DESCRIPTION("SiGma Micro HID driver");
++MODULE_LICENSE("GPL");
 
-Yeah, it sounds like there *should* not be any buttons but 
-There is nothing to explicitly forbid extra buttons for click/pressurepads
-which is probably how those devices get past the windows driver
-implementation.
+base-commit: 740bebf42104d2f082514b1545a14056f3b1b56c
+-- 
+2.30.2
 
-Cheers,
-   Peter

@@ -2,92 +2,98 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9272AC433F5
-	for <linux-input@archiver.kernel.org>; Wed,  1 Dec 2021 16:45:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AF71C433F5
+	for <linux-input@archiver.kernel.org>; Wed,  1 Dec 2021 16:47:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351580AbhLAQsY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Dec 2021 11:48:24 -0500
-Received: from mga18.intel.com ([134.134.136.126]:55616 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1351562AbhLAQqy (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 1 Dec 2021 11:46:54 -0500
-X-IronPort-AV: E=McAfee;i="6200,9189,10185"; a="223373092"
-X-IronPort-AV: E=Sophos;i="5.87,279,1631602800"; 
-   d="scan'208";a="223373092"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 08:43:14 -0800
-X-IronPort-AV: E=Sophos;i="5.87,279,1631602800"; 
-   d="scan'208";a="512783938"
-Received: from razaahme-mobl.ger.corp.intel.com (HELO tkristo-desk.intel.com) ([10.252.36.3])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Dec 2021 08:43:11 -0800
-From:   Tero Kristo <tero.kristo@linux.intel.com>
-To:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com,
-        jikos@kernel.org, mika.westerberg@linux.intel.com,
-        tero.kristo@linux.intel.com
-Cc:     linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com,
-        peter.hutterer@who-t.net
-Subject: [RFCv3 1/7] HID: Add map_msc() to avoid boilerplate code
-Date:   Wed,  1 Dec 2021 18:42:55 +0200
-Message-Id: <20211201164301.44653-2-tero.kristo@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20211201164301.44653-1-tero.kristo@linux.intel.com>
-References: <20211201164301.44653-1-tero.kristo@linux.intel.com>
+        id S238499AbhLAQut (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Dec 2021 11:50:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49810 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231604AbhLAQur (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Dec 2021 11:50:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37E44C061574
+        for <linux-input@vger.kernel.org>; Wed,  1 Dec 2021 08:47:26 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8CA2DCE1D80
+        for <linux-input@vger.kernel.org>; Wed,  1 Dec 2021 16:47:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 381B6C53FAD;
+        Wed,  1 Dec 2021 16:47:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1638377242;
+        bh=ZyrJ00LaWUO5YZDaqneRniX0vmINqs9SYoITySPY5OY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ut7PUGUHZXa44MkBuaeg6X2vxKvm43LpHxjQ4xh30NZ3FNCwx/mMVzNIvgMCiUqRh
+         F7eCAcOBTkLFNYMopbSrRTvy21L9iWPZdLZRQV8zJQiAbArDPdisng8eHEkeA8kJVd
+         X5ViGCvLpD4Ftqchsppj/ZTjEUjx9tcuSJZxPH9M=
+Date:   Wed, 1 Dec 2021 17:47:20 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Michael Zaidman <michael.zaidman@gmail.com>,
+        Stefan Achatz <erazor_de@users.sourceforge.net>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+Subject: Re: [PATCH 2/2] HID: check for valid USB device for many HID drivers
+Message-ID: <YaenGMpE8Atsfiyc@kroah.com>
+References: <20211201141513.2107815-1-gregkh@linuxfoundation.org>
+ <20211201141513.2107815-2-gregkh@linuxfoundation.org>
+ <CAO-hwJJHrpUkbqCr2psqF62v0rR6E6zSUryee=S6SSwGfHCNhQ@mail.gmail.com>
+ <YaeKH4E/cPfDkerc@kroah.com>
+ <CAO-hwJ+HQxdVWA_Q3O+i7-Ur3RfeZ6VDZPJepb2Bx87Yhj1Ymw@mail.gmail.com>
+ <4c57c020-a708-aa61-8d68-23f691dffa4c@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4c57c020-a708-aa61-8d68-23f691dffa4c@redhat.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+On Wed, Dec 01, 2021 at 05:38:49PM +0100, Benjamin Tissoires wrote:
+> 
+> 
+> On Wed, Dec 1, 2021 at 4:05 PM Benjamin Tissoires <benjamin.tissoires@redhat.com> wrote:
+> > > > FWIW, I am also working on a test that generates all registered USB
+> > > > vid/pids from the currently running kernel and will try to inject them
+> > > > in the testsuite. This should validate this patch and prevent future
+> > > > mishaps.
+> > >
+> > > That would be great to see.  Let me know if you want these broken up
+> > > smaller, and I will go fix the above issues.
+> > 
+> > https://gitlab.freedesktop.org/bentiss/hid-tools/-/commit/2b04c6cf46c7405c8a916f324988660cb54dadea
+> > 
+> > This seems sufficient to make an unpatched kernel scream :)
+> 
+> I have now opened https://gitlab.freedesktop.org/libevdev/hid-tools/-/merge_requests/122
+> with a quicker solution.
+> 
+> This leads apparently to 2 extra crashes:
+> - one in hid-holtek-kbd -> hid_is_usb() is called *after* hid_parse(), so
+>   report_fixup is actually called for uhid devices.
 
-Since we are going to have more MSC events too, add map_msc() that can
-be used to fill in necessary fields and avoid boilerplate code.
+Fixed that one in my v2 patch submission.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
----
- drivers/hid/hid-input.c | 6 ++----
- include/linux/hid.h     | 4 ++++
- 2 files changed, 6 insertions(+), 4 deletions(-)
+> - another in bigbenff which is fixed by the following patch:
+> 
+> ---
+> diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
+> index db6da21ade06..74ad8bf98bfd 100644
+> --- a/drivers/hid/hid-bigbenff.c
+> +++ b/drivers/hid/hid-bigbenff.c
+> @@ -191,7 +191,7 @@ static void bigben_worker(struct work_struct *work)
+>  		struct bigben_device, worker);
+>  	struct hid_field *report_field = bigben->report->field[0];
+> -	if (bigben->removed)
+> +	if (bigben->removed || !report_field)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 2c72ce4147b1..39ebedb2323b 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -52,6 +52,7 @@ static const struct {
- #define map_rel(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_REL, (c))
- #define map_key(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_KEY, (c))
- #define map_led(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_LED, (c))
-+#define map_msc(c)	hid_map_usage(hidinput, usage, &bit, &max, EV_MSC, (c))
- 
- #define map_abs_clear(c)	hid_map_usage_clear(hidinput, usage, &bit, \
- 		&max, EV_ABS, (c))
-@@ -872,10 +873,7 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 
- 		case 0x5b: /* TransducerSerialNumber */
- 		case 0x6e: /* TransducerSerialNumber2 */
--			usage->type = EV_MSC;
--			usage->code = MSC_SERIAL;
--			bit = input->mscbit;
--			max = MSC_MAX;
-+			map_msc(MSC_SERIAL);
- 			break;
- 
- 		default:  goto unknown;
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index e95800bab56a..96eaca0d5322 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -766,6 +766,10 @@ static inline void hid_map_usage(struct hid_input *hidinput,
- 		bmap = input->ledbit;
- 		limit = LED_MAX;
- 		break;
-+	case EV_MSC:
-+		bmap = input->mscbit;
-+		limit = MSC_MAX;
-+		break;
- 	}
- 
- 	if (unlikely(c > limit || !bmap)) {
--- 
-2.25.1
+I don't see how this is a "USB device" issue.  It's a good "fuzz the
+driver with invalid data" fix though :)
 
+thanks,
+
+greg k-h

@@ -2,133 +2,116 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 20A45C433F5
-	for <linux-input@archiver.kernel.org>; Wed,  1 Dec 2021 18:34:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD6A6C433EF
+	for <linux-input@archiver.kernel.org>; Wed,  1 Dec 2021 18:35:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352612AbhLAShW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Dec 2021 13:37:22 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:57774 "EHLO
+        id S1352549AbhLASjI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Dec 2021 13:39:08 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:58608 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352502AbhLASgC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Dec 2021 13:36:02 -0500
+        with ESMTP id S1352574AbhLASic (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Dec 2021 13:38:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 10DACCE1DED
-        for <linux-input@vger.kernel.org>; Wed,  1 Dec 2021 18:32:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B349CC53FAD;
-        Wed,  1 Dec 2021 18:32:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DCFA7CE1DE5
+        for <linux-input@vger.kernel.org>; Wed,  1 Dec 2021 18:35:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 890A2C53FCC;
+        Wed,  1 Dec 2021 18:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1638383558;
-        bh=POZgiU4R5pb1QNI9NqYcvaQbu7IkZKK/5BaanrrqX74=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=V2KQM+qgpoK/MRvLMphKzMnRyknQwVpnlmbAOLEOXK4J93YCtL/EGV67BMnlQQceH
-         vbXzXax0/3yKTq2u60crZkLb3GrqxL3BHH8ptpJ6GH6K0FDEAil3VvPABwtgh+ZTl+
-         mStc3L2EFiLwBOedx6M/LNYlqmgnOQ3jJTcsFMN4=
-Date:   Wed, 1 Dec 2021 19:32:35 +0100
+        s=korg; t=1638383708;
+        bh=VvNurtBX6tnvAy207bWP8T0o4LMMQrPCiWV1vFaIdXE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=xOTR5DL83SlIPRkMJPDzGtHSAJosrx2oSISH5ACDxNdGZWHE/mHUNoyK7Mah+TX3s
+         0WO/QoxAm8MJLupyxKPb22wBHJ7p6GRHV4H438kUso3eHn46k43RVXTALrBJw0PTF5
+         hm8hoJJuIdm/BUj8pGGTy4/4ac8Z7aOERAFCSVJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
-        Michael Zaidman <michael.zaidman@gmail.com>,
-        Stefan Achatz <erazor_de@users.sourceforge.net>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>
-Subject: Re: [PATCH v2 3/3] HID: check for valid USB device for many HID
- drivers
-Message-ID: <Yae/w510/NudPTfZ@kroah.com>
-References: <20211201163816.2219291-1-gregkh@linuxfoundation.org>
- <20211201163816.2219291-3-gregkh@linuxfoundation.org>
- <575b12be-fec6-522f-0bc9-f62077d57a81@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH v3 2/3] HID: wacom: fix problems when device is not a valid USB device
+Date:   Wed,  1 Dec 2021 19:35:02 +0100
+Message-Id: <20211201183503.2373082-2-gregkh@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20211201183503.2373082-1-gregkh@linuxfoundation.org>
+References: <20211201183503.2373082-1-gregkh@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <575b12be-fec6-522f-0bc9-f62077d57a81@redhat.com>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2580; h=from:subject; bh=VvNurtBX6tnvAy207bWP8T0o4LMMQrPCiWV1vFaIdXE=; b=owGbwMvMwCRo6H6F97bub03G02pJDInLD4RV9McGvQ8qDf6vs0DSolrNNFLq4VQTvswpe931RQoz bdU6YlkYBJkYZMUUWb5s4zm6v+KQopeh7WmYOaxMIEMYuDgFYCKnDBkWzNzDscdUiEu2Nm9n0dag+y 5GGzO9GObH3zlYHHD5lpBEstzOzLDt4laBpxkA
+X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Dec 01, 2021 at 06:40:08PM +0100, Benjamin Tissoires wrote:
-> On 12/1/21 17:38, Greg Kroah-Hartman wrote:
-> > Many HID drivers assume that the HID device assigned to them is a USB
-> > device as that was the only way HID devices used to be able to be
-> > created in Linux.  However, with the additional ways that HID devices
-> > can be created for many different bus types, that is no longer true, so
-> > properly check that we have a USB device associated with the HID device
-> > before allowing a driver that makes this assumption to claim it.
-> > 
-> > Cc: Jiri Kosina <jikos@kernel.org>
-> > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > Cc: Michael Zaidman <michael.zaidman@gmail.com>
-> > Cc: Stefan Achatz <erazor_de@users.sourceforge.net>
-> > Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-> > Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-> > Cc: linux-input@vger.kernel.org
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> > v2: holtek_kbd_probe() changes to test for USB device before calling
-> >      hid_probe() and dereferenced the usb interface pointer based on
-> >      Benjamin's review.
-> > 
-> >   drivers/hid/hid-chicony.c         |  3 +++
-> >   drivers/hid/hid-corsair.c         |  7 ++++++-
-> >   drivers/hid/hid-elan.c            |  2 +-
-> >   drivers/hid/hid-elo.c             |  3 +++
-> >   drivers/hid/hid-ft260.c           |  3 +++
-> >   drivers/hid/hid-holtek-kbd.c      |  9 +++++++--
-> >   drivers/hid/hid-holtek-mouse.c    |  9 +++++++++
-> >   drivers/hid/hid-lg.c              | 10 ++++++++--
-> >   drivers/hid/hid-prodikeys.c       | 10 ++++++++--
-> >   drivers/hid/hid-roccat-arvo.c     |  3 +++
-> >   drivers/hid/hid-roccat-isku.c     |  3 +++
-> >   drivers/hid/hid-roccat-kone.c     |  3 +++
-> >   drivers/hid/hid-roccat-koneplus.c |  3 +++
-> >   drivers/hid/hid-roccat-konepure.c |  3 +++
-> >   drivers/hid/hid-roccat-kovaplus.c |  3 +++
-> >   drivers/hid/hid-roccat-lua.c      |  3 +++
-> >   drivers/hid/hid-roccat-pyra.c     |  3 +++
-> >   drivers/hid/hid-roccat-ryos.c     |  3 +++
-> >   drivers/hid/hid-roccat-savu.c     |  3 +++
-> >   drivers/hid/hid-samsung.c         |  3 +++
-> >   drivers/hid/hid-thrustmaster.c    |  3 +++
-> >   drivers/hid/hid-uclogic-core.c    |  3 +++
-> >   22 files changed, 87 insertions(+), 8 deletions(-)
-> 
-> Sorry I haven't spotted this in the earlier versions: hid-sony also
-> needs a fix:
-> 
-> ---
-> diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> index d1b107d547f5..c186af552129 100644
-> --- a/drivers/hid/hid-sony.c
-> +++ b/drivers/hid/hid-sony.c
-> @@ -3000,7 +3000,6 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	sc->quirks = quirks;
->  	hid_set_drvdata(hdev, sc);
->  	sc->hdev = hdev;
-> -	usbdev = to_usb_device(sc->hdev->dev.parent->parent);
->  	ret = hid_parse(hdev);
->  	if (ret) {
-> @@ -3043,6 +3042,11 @@ static int sony_probe(struct hid_device *hdev, const struct hid_device_id *id)
->  	}
->  	if (sc->quirks & (GHL_GUITAR_PS3WIIU | GHL_GUITAR_PS4)) {
-> +		if (!hid_is_usb(hdev))
-> +			return -EINVAL;
-> +
-> +		usbdev = to_usb_device(sc->hdev->dev.parent->parent);
-> +
->  		sc->ghl_urb = usb_alloc_urb(0, GFP_ATOMIC);
->  		if (!sc->ghl_urb)
->  			return -ENOMEM;
+The wacom driver accepts devices of more than just USB types, but some
+code paths can cause problems if the device being controlled is not a
+USB device due to a lack of checking.  Add the needed checks to ensure
+that the USB device accesses are only happening on a "real" USB device,
+and not one on some other bus.
 
-Ah, good catch, will go roll that into the next version.
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: linux-input@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+v3: no change
+v2: split into separate patch
+    refined test to not abort probe for any non-USB device as the driver
+    works for many other types based on Benjamin's review
 
-> With that patch and the bigbenff which is not USB related, the hid-tools
-> test suite manages to inject all the declared USB devices.
+ drivers/hid/wacom_sys.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-Very nice!
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 22d73772fbc5..066c567dbaa2 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -726,7 +726,7 @@ static void wacom_retrieve_hid_descriptor(struct hid_device *hdev,
+ 	 * Skip the query for this type and modify defaults based on
+ 	 * interface number.
+ 	 */
+-	if (features->type == WIRELESS) {
++	if (features->type == WIRELESS && intf) {
+ 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0)
+ 			features->device_type = WACOM_DEVICETYPE_WL_MONITOR;
+ 		else
+@@ -2451,6 +2451,9 @@ static void wacom_wireless_work(struct work_struct *work)
+ 
+ 	wacom_destroy_battery(wacom);
+ 
++	if (!usbdev)
++		return;
++
+ 	/* Stylus interface */
+ 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
+ 	wacom1 = hid_get_drvdata(hdev1);
+@@ -2730,8 +2733,6 @@ static void wacom_mode_change_work(struct work_struct *work)
+ static int wacom_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+-	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+-	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct wacom *wacom;
+ 	struct wacom_wac *wacom_wac;
+ 	struct wacom_features *features;
+@@ -2766,8 +2767,14 @@ static int wacom_probe(struct hid_device *hdev,
+ 	wacom_wac->hid_data.inputmode = -1;
+ 	wacom_wac->mode_report = -1;
+ 
+-	wacom->usbdev = dev;
+-	wacom->intf = intf;
++	if (hid_is_usb(hdev)) {
++		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++		struct usb_device *dev = interface_to_usbdev(intf);
++
++		wacom->usbdev = dev;
++		wacom->intf = intf;
++	}
++
+ 	mutex_init(&wacom->lock);
+ 	INIT_DELAYED_WORK(&wacom->init_work, wacom_init_work);
+ 	INIT_WORK(&wacom->wireless_work, wacom_wireless_work);
+-- 
+2.34.1
 
-I'll submit v3 now.
-
-thanks for the quick review and test,
-
-greg k-h

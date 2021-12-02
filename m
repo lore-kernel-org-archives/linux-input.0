@@ -2,149 +2,90 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFFAAC433F5
-	for <linux-input@archiver.kernel.org>; Thu,  2 Dec 2021 16:48:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 796EEC433F5
+	for <linux-input@archiver.kernel.org>; Thu,  2 Dec 2021 16:48:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359457AbhLBQwI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 2 Dec 2021 11:52:08 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31156 "EHLO
+        id S1359694AbhLBQwO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 2 Dec 2021 11:52:14 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:33170 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1359444AbhLBQwF (ORCPT
+        by vger.kernel.org with ESMTP id S1359444AbhLBQwO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 2 Dec 2021 11:52:05 -0500
+        Thu, 2 Dec 2021 11:52:14 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638463723;
+        s=mimecast20190719; t=1638463730;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=nWYMvmHi1IetsBgWf1lP6BikYoWmyQ1Zpnr1brTeF0E=;
-        b=fe573YQ+EDGHjzyeF07TkZxqN8JdLrXROmDK8vDYUC1YZXmUB9DPH0rbFRDp6faRQ7/2XG
-        QMCVYKN0kx2ww29ZMeq8eJoOGgUsMqJoCj2oA73FIY5wLQuMShP0ftwR5xsr05hpARGccK
-        2h7pgjuRpmeKjcsoiyC0n8ZNMIvv+hM=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=1q1RzJ+2t0CHGLzbZhstdiq3rb2yHdihH6eKJNd/eIc=;
+        b=guRuN1Yz2VMshMWvHTCpFhjMgGmq0d7/aQckN2GBKjqHUtwOY+138Y2rYd5UvuVotNPRz9
+        18G7YsB1OvsdMmgdoPnH2LN5YykUo8nVpdYQ4jPVgbWimkKgOPngZCnVveBy5DKGMEfKwW
+        GjC0AK4HI7hDoEJVIcObD/yu8+ha3Fw=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-2-Fd93KZ78M4yU_tSZtm0jaQ-1; Thu, 02 Dec 2021 11:47:38 -0500
-X-MC-Unique: Fd93KZ78M4yU_tSZtm0jaQ-1
-Received: by mail-pj1-f72.google.com with SMTP id bf17-20020a17090b0b1100b001a634dbd737so2315657pjb.9
-        for <linux-input@vger.kernel.org>; Thu, 02 Dec 2021 08:47:37 -0800 (PST)
+ us-mta-91-Q5C2ScI6PY6Zt5L1x7DoOQ-1; Thu, 02 Dec 2021 11:48:47 -0500
+X-MC-Unique: Q5C2ScI6PY6Zt5L1x7DoOQ-1
+Received: by mail-pl1-f199.google.com with SMTP id i3-20020a170902c94300b0014287dc7dcbso71244pla.16
+        for <linux-input@vger.kernel.org>; Thu, 02 Dec 2021 08:48:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=nWYMvmHi1IetsBgWf1lP6BikYoWmyQ1Zpnr1brTeF0E=;
-        b=32RCsjrfAmGBa23ZtxnwS9mSMs9PJ9G1wpECXnpLhp1WthKjHKMIOcYX4hwh2+C5IJ
-         SDyYE6yAR/G9Tds3di5l/F45D+jhznoptbbrTOJUNkvOsyeRRKU/nn8tctnT2nxQEZtt
-         ZZ9b8QVVHP1DFrdGCceYg1tmmrONjdE77JAdhOmvjjUu4aSUHATUhZZ5oiXKSb6bRoW+
-         VPeiXo3LfuPrtjMaR67VcAfDbS/DQKlSTC3RIuir8exPzGZebAQmFhsf8FjT+HqIngTs
-         1ZT/MT6mtjLplJeY1sYWjk8aI+INLthrDCJuK46yuDuUMdh2qvajrnhBYa0nAi1RBRDR
-         CnOA==
-X-Gm-Message-State: AOAM531zdjWHFm9II3Y+u77iS9lGBmnhnyytv+BtiVfG6qSGM6J86+If
-        S/SmtikQnHqiYQ+WAIgQihhNMGEvKMvY5q6xI2lolZLE38q3cosiE9KlNYwAWp7VnA2d4WBJ/yB
-        UbYj7y/MNOtzseZS1tWUw1KrEMVtk7qLrfsHN/Io=
-X-Received: by 2002:a17:903:1c7:b0:141:e630:130c with SMTP id e7-20020a17090301c700b00141e630130cmr16423270plh.80.1638463656607;
-        Thu, 02 Dec 2021 08:47:36 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJylj6I1e0tyNlmszcQF1L+TKeQBO8xXs2S2Wpark0m/HZ2aVsgJOLfHiesuoEowFq6o+VRA9QagBX+klTU19lY=
-X-Received: by 2002:a17:903:1c7:b0:141:e630:130c with SMTP id
- e7-20020a17090301c700b00141e630130cmr16423240plh.80.1638463656360; Thu, 02
- Dec 2021 08:47:36 -0800 (PST)
+        bh=1q1RzJ+2t0CHGLzbZhstdiq3rb2yHdihH6eKJNd/eIc=;
+        b=UEBmDU9IaG3/qYl7z7KcGmvfvol1VGCbOy1DSNNRRmm9mATEv/ojeMeugPp6vCBH84
+         NpRmmQ3GpmjpbYNI3G1oEVRa4fCZf7CnZRJmBHAB9qGg2UeYOgS/0nyB9oLX0i3srJS/
+         XxcqbG3w3Wb3Va5zrYmpe4jgiOkSzaY6RccZk/4Jl4ROZ4pjW6nNSiG2sb+JU+1fhqgI
+         mWuncKbNWGaZ7ANlhp3aEqzqqMXsgbyuY3gfFux207mRxszyJW6IpvTNgDFWvJWx0c01
+         MroUwDb0Q1lgsXAlKfFlSWB/K3uHr/8K/kxRugzHEVgL6O8J8FLPRvEvjOl4qjb4XXrh
+         ofUw==
+X-Gm-Message-State: AOAM532lfviOqgftgNgful3R1buTpJkwWyWED5G6GyNRwAKrgKLE+QG8
+        HAF9jZ0X+VRV/Gdd+MUAehVqZyjEvB+3cknOjptEsGsLgFA5jPHsQHXhOsgHbjtBeaUuxiwc+X6
+        Vmo4QUl5L1GALfsNLSYG2JiGuvTUhLKep080icyY=
+X-Received: by 2002:a17:90b:224f:: with SMTP id hk15mr7254308pjb.173.1638463726620;
+        Thu, 02 Dec 2021 08:48:46 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxihkDeddhgXH3xtiHhnyw1kUwlg/OjbbEA+77GtMBGAFVas/jDWzBFYJsI719V12l/7vWviDpGdt1TXgQoSsk=
+X-Received: by 2002:a17:90b:224f:: with SMTP id hk15mr7254279pjb.173.1638463726357;
+ Thu, 02 Dec 2021 08:48:46 -0800 (PST)
 MIME-Version: 1.0
-References: <20211201183503.2373082-1-gregkh@linuxfoundation.org>
- <20211201183503.2373082-3-gregkh@linuxfoundation.org> <CAO-hwJJ5=SCNypQJP2V3DdjwLoo23DuMuZ8w_fejp17cytznQw@mail.gmail.com>
- <YaiRGg+gmJgcT8uA@kroah.com> <Yaiz/U9POyHfCs1M@kroah.com> <CAO-hwJJC1JLVYNVTXS72Z+_FduG2=zqKJjry1kcGRTFgi9AANg@mail.gmail.com>
-In-Reply-To: <CAO-hwJJC1JLVYNVTXS72Z+_FduG2=zqKJjry1kcGRTFgi9AANg@mail.gmail.com>
+References: <20211202095334.14399-1-benjamin.tissoires@redhat.com> <YaiypPqBRtHDjmMs@kroah.com>
+In-Reply-To: <YaiypPqBRtHDjmMs@kroah.com>
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Thu, 2 Dec 2021 17:47:25 +0100
-Message-ID: <CAO-hwJ+bpm5c3LKDWFPndiccap3R_59sPa7wg2xmVkTJdNsfpQ@mail.gmail.com>
-Subject: Re: [PATCH v3 3/3] HID: check for valid USB device for many HID drivers
+Date:   Thu, 2 Dec 2021 17:48:35 +0100
+Message-ID: <CAO-hwJKOnC3EXQAH8w5gcmQijFs-=TXac2-ZgTx6zMBbrt=X4A@mail.gmail.com>
+Subject: Re: [PATCH 0/4] HID: followup of uhid crashes, and couple of core
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Jiri Kosina <jikos@kernel.org>,
         "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Michael Zaidman <michael.zaidman@gmail.com>,
-        Stefan Achatz <erazor_de@users.sourceforge.net>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>
+        lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Dec 2, 2021 at 4:21 PM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
+On Thu, Dec 2, 2021 at 12:49 PM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On Thu, Dec 2, 2021 at 12:54 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
+> On Thu, Dec 02, 2021 at 10:53:30AM +0100, Benjamin Tissoires wrote:
+> > Hi,
 > >
-> > On Thu, Dec 02, 2021 at 10:25:46AM +0100, Greg Kroah-Hartman wrote:
-> > > On Thu, Dec 02, 2021 at 10:08:07AM +0100, Benjamin Tissoires wrote:
-> > > > On Wed, Dec 1, 2021 at 7:35 PM Greg Kroah-Hartman
-> > > > <gregkh@linuxfoundation.org> wrote:
-> > > > >
-> > > > > Many HID drivers assume that the HID device assigned to them is a USB
-> > > > > device as that was the only way HID devices used to be able to be
-> > > > > created in Linux.  However, with the additional ways that HID devices
-> > > > > can be created for many different bus types, that is no longer true, so
-> > > > > properly check that we have a USB device associated with the HID device
-> > > > > before allowing a driver that makes this assumption to claim it.
-> > > > >
-> > > > > Cc: Jiri Kosina <jikos@kernel.org>
-> > > > > Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > > > > Cc: Michael Zaidman <michael.zaidman@gmail.com>
-> > > > > Cc: Stefan Achatz <erazor_de@users.sourceforge.net>
-> > > > > Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-> > > > > Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-> > > > > Cc: linux-input@vger.kernel.org
-> > > > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > > > ---
-> > > > > v3: add check in hid-sony based on fix from Benjamin.
-> > > >
-> > > > Sigh. This morning I realized my fix was incomplete as the error path
-> > > > of the GHL devices handling is not releasing the hidraw node.
-> > > > I have a followup patch ready that I am about to send as soon as I get
-> > > > the full tests run.
-> > > >
-> > > > Also, I guess we want this series to land in 5.16-rc4 or rc5 and mark
-> > > > it as stable, no?
-> > > > If so, I'll add the cc stable@vger.kernel.org marks so you don't need
-> > > > to keep tabs on it.
-> > >
-> > > That would be great, thanks!
-> > >
-> > > > Besides that, I tested the wacom change on an I2C screen, and it is
-> > > > still working as expected, so I think the wacom changes are safe.
-> > > > The full series is
-> > > > Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > >
-> > > Wonderful.
-> > >
-> > > Note, I did just get some really odd 0-day error messages from this
-> > > patch series:
-> > >       https://lore.kernel.org/r/202112021000.3GKuE8mS-lkp@intel.com
-> > >       https://lore.kernel.org/r/202112020808.AZ5usuXj-lkp@intel.com
-> > >
-> > > Which looks like a dependancy issue that might have always been there.
-> > > I'll work on resolving that after lunch...
+> > this is a followup of Greg's series[0].
+> > hid-sony is having a wrong error path leading to unreleased
+> > hidraw nodes, and bigbenff is having a crash when used with
+> > a wrong report descriptor in uhid.
 > >
-> > Now sent:
-> >         https://lore.kernel.org/r/20211202114819.2511954-1-gregkh@linuxfoundation.org
->
-> \o/
->
+> > Those 2 first patches should IMO go into 5.16.
 > >
-> > I can resend it as a v4 series that adds this to the end of the series
-> > if you want me to.
+> > The 2 others are some core changes I had locally stacked and
+> > which should be ready to go now. They can be scheduled for 5.16
+> > or 5.17, there is no rush for them.
+> >
 >
-> That's fine. I already locally scheduled the v3, this other series
-> above and my 2 first patches from my series that you reviewed today.
-> I also added the cc: stable markers (though I haven't checked exactly
-> which versions it applies to).
->
-> Once my automated suite is happy I'll push them to hid.git.
->
-> Thanks for your time Greg!
+> Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 >
 
-Series is applied to hid.git branch for-5.16/upstream-fixes
+Patches 1 and 2 are applied to hid.git branch for-5.16/upstream-fixes
+Patches 3 and 4 are applied to hid.git branch for-5.17/core
 
 Cheers,
 Benjamin

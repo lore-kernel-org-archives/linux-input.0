@@ -2,113 +2,87 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5164CC433EF
-	for <linux-input@archiver.kernel.org>; Sat,  4 Dec 2021 06:49:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C780C433EF
+	for <linux-input@archiver.kernel.org>; Sat,  4 Dec 2021 19:46:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242089AbhLDGxW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 4 Dec 2021 01:53:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46340 "EHLO
+        id S1349478AbhLDTte (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 4 Dec 2021 14:49:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242069AbhLDGxW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Dec 2021 01:53:22 -0500
-Received: from mail-ua1-x932.google.com (mail-ua1-x932.google.com [IPv6:2607:f8b0:4864:20::932])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638B3C061751
-        for <linux-input@vger.kernel.org>; Fri,  3 Dec 2021 22:49:57 -0800 (PST)
-Received: by mail-ua1-x932.google.com with SMTP id i6so9627173uae.6
-        for <linux-input@vger.kernel.org>; Fri, 03 Dec 2021 22:49:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=59yrejv6eddkkhWWLSsxx/S1xc2UH4xc6tjlZY8gaIg=;
-        b=Yb1y5ErF/QpXnDnzbKOM7NNlEzO8rzRY1UA+ieu16UKpUH7WnM2F6sP6EWM0Svs8UM
-         ihxwgDm4ykNgVNRndW6Ov73FQWfT4ZbljxoXgjSTeTt3USQVw27B20egDoMmnMgjzOFI
-         5wVyuUWpngtvI39HDvVUTCl3H/Q5azt9i/FcuycS8kkywxiE7jjRkino5U/WsRPn6JAL
-         JEj5fX8/Crc5SH+yjPp+X1nB/sFlYw8I34c9Vdh9mAfI/h1/a0xUiGRqqMhEMcIJXrEV
-         oKVbug0HgfVP7LAzxT60SdpdyT61vFgy7/oahE0xgM8klJRP9lxudBCWj1GIvJlr3vzC
-         GaOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=59yrejv6eddkkhWWLSsxx/S1xc2UH4xc6tjlZY8gaIg=;
-        b=m8a5jDo2Rhi3lwUPVQJ6rkkJWXhSe/8lezR4y/a9Yb3MzdPzOs7PcyvAGHDg67bvT7
-         ThNOg0uzQriUOroEmE+xH6YqWHcMe1H60sBWMkmQRyWVkPDkP7WRIFkpAdE1qvCf+cq8
-         sY0othylMlkizMgasqjCDKk8ZkpxmUW96+8bWi8wzdekm4yveTt2xxxaygAvy8894zn+
-         0t0pbRZIUxV2lm9T6xZOTnBSwQfzC4+GcFC7yugxwFcLX6riP1wmA0sBU+uzfnM+SMqq
-         65vEJsYArkQBAsxg/Y0gUFNLRBLxdV2euVOwKMTxfcFXyZ5TNwYvs6IFw+oaEH/gx5y5
-         Vfdw==
-X-Gm-Message-State: AOAM5315BP9/maeFfBEINDlTPhm9n4UbnXCkI1vGFJCBVwdlFY5Ka8pp
-        vynlk2GmYlJ/0As5PXm+/Izq9ZDV4MwmzyF0unHPrv8uDOc=
-X-Google-Smtp-Source: ABdhPJwE8jxub/Rid1mKY7k8u9JKdQSEDsHxoa1Pvj2JCVUDVPOM2nLwTlO1RQ3z367qTfeT4ycAYfFe0tAX9gtd3ys=
-X-Received: by 2002:a9f:3e01:: with SMTP id o1mr26800743uai.89.1638600596452;
- Fri, 03 Dec 2021 22:49:56 -0800 (PST)
+        with ESMTP id S1349441AbhLDTte (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Dec 2021 14:49:34 -0500
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [IPv6:2a01:238:4321:8900:456f:ecd6:43e:202c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0365CC061751;
+        Sat,  4 Dec 2021 11:46:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=kemnade.info; s=20180802; h=Content-Transfer-Encoding:Content-Type:
+        MIME-Version:References:In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender
+        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=1Wx0sNFc4nRwhtP15w8D3y+GxIPogNNpQRDFakzYmm0=; b=hFNtobnXBDHvelC3AlP2yV1DEC
+        8lNkI+0+AhlngJ9q0LW3UGxj2Yns4Q6tC6ljiHqprE6kbnHOuIKoSsCFk2Q2qGM4fAmny9t8oHDo1
+        LAm4HAiOANCU1pjkYnpKZLz4jDNj8M6v6RGM2Y6UNLv2cCd4Cb+QKLCGNq8g3U8pOLpo=;
+Received: from p200300ccff382c001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:cc:ff38:2c00:1a3d:a2ff:febf:d33a] helo=aktux)
+        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <andreas@kemnade.info>)
+        id 1mtayx-0006rL-SI; Sat, 04 Dec 2021 20:46:04 +0100
+Date:   Sat, 4 Dec 2021 20:46:02 +0100
+From:   Andreas Kemnade <andreas@kemnade.info>
+To:     Alistair Francis <alistair@alistair23.me>
+Cc:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        robh+dt@kernel.org, alistair23@gmail.com,
+        dmitry.torokhov@gmail.com, linus.walleij@linaro.org,
+        rydberg@bitmath.org,
+        =?UTF-8?B?TXlsw6huZQ==?= Josserand <mylene.josserand@bootlin.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>
+Subject: Re: [PATCH v3 1/4] Input: Add driver for Cypress Generation 5
+ touchscreen
+Message-ID: <20211204204602.58b6cc12@aktux>
+In-Reply-To: <20211202122021.43124-2-alistair@alistair23.me>
+References: <20211202122021.43124-1-alistair@alistair23.me>
+        <20211202122021.43124-2-alistair@alistair23.me>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-References: <CAM1wO0=2zM=WNmGyDJETLa4wsECE_Nxvq-gAa6_Wb_cMH43K9w@mail.gmail.com>
- <4ed664ce163ec2248244d0fbb15f2b81c3098225.camel@archlinux.org>
-In-Reply-To: <4ed664ce163ec2248244d0fbb15f2b81c3098225.camel@archlinux.org>
-From:   Koopa Koopa <codingkoopa@gmail.com>
-Date:   Sat, 4 Dec 2021 01:49:45 -0500
-Message-ID: <CAM1wO0mOcwNoCWzTxQ-VyZkYm5+7X3w=G7CtDscP8g0b18SQKw@mail.gmail.com>
-Subject: Re: PROBLEM: Error logged when pressing mouse button
-To:     =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@archlinux.org>
-Cc:     linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi all, I hope this finds you well. I can report that this issue still
-occurs on kernel version 5.15.6-arch2-1. I apologize for not having
-come back to this sooner!
+Hi,
 
-Much thanks,
-Koopa
+On Thu,  2 Dec 2021 22:20:18 +1000
+Alistair Francis <alistair@alistair23.me> wrote:
 
-On Wed, Feb 17, 2021 at 11:42 AM Filipe La=C3=ADns <lains@archlinux.org> wr=
-ote:
->
-> On Tue, 2021-02-16 at 21:51 -0500, Koopa Koopa wrote:
-> > Every time I press a button on my mouse, an error is logged in my
-> > system journal.
-> >
-> > Starting recently, every time I press any button on my Logitech G602
-> > mouse, the following is logged to my journal:
-> >
-> >     kernel: logitech-djreceiver 0003:046D:C537.0005: Unexpected input
-> > report number 128
-> >
-> > This includes both primary mouse buttons, the middle mouse buttons,
-> > the buttons on the side, and the buttons on the top controlling the
-> > DPI. It seems that, with commit
-> > e400071a805d6229223a98899e9da8c6233704a1
-> > (https://github.com/torvalds/linux/commit/e400071a805d6229223a98899e9da=
-8c6233704a1
-> > ),
-> > this driver was enabled for my mouse.
-> >
-> > My /proc/version:
-> >
-> >     Linux version 5.10.16-arch1-1 (linux@archlinux) (gcc (GCC) 10.2.0,
-> > GNU ld (GNU Binutils) 2.36) #1 SMP PREEMPT Sat, 13 Feb 2021 20:50:18
-> > +0000
-> >
-> > My kernel .config file: See here
-> > (https://github.com/archlinux/svntogit-packages/blob/packages/linux/tru=
-nk/config
-> > ).
-> >
-> > Thanks!
->
-> Hi Koopa,
->
-> This was fixed in [1], which is in the for-5.11/upstream-fixes branch, so=
- this
-> should be released soon-ish, I think.
->
-> [1] https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git/commit/?h=
-=3Dfor-5.11/upstream-fixes&id=3Def07c116d98772952807492bd32a61f5af172a94
->
-> Cheers,
-> Filipe La=C3=ADns
+> +static int cyttsp5_setup_input_device(struct device *dev)
+> +{
+> +	struct cyttsp5 *ts = dev_get_drvdata(dev);
+> +	struct cyttsp5_sysinfo *si = &ts->sysinfo;
+> +	int max_x, max_y, max_p;
+> +	int max_x_tmp, max_y_tmp;
+> +	int error;
+> +
+> +	__set_bit(EV_REL, ts->input->evbit);
+> +
+> +	max_x_tmp = si->sensing_conf_data.res_x;
+> +	max_y_tmp = si->sensing_conf_data.res_y;
+> +	max_x = max_x_tmp - 1;
+> +	max_y = max_y_tmp - 1;
+> +	max_p = si->sensing_conf_data.max_z;
+> +
+> +	error = input_mt_init_slots(ts->input, si->tch_abs[CY_TCH_T].max,
+> +		INPUT_MT_DROP_UNUSED | INPUT_MT_POINTER);
+> +	if (error < 0)
+> +		return error;
+still some issues with X, sometimes it is even a mouse, depending on
+config.
+hmm, why is it INPUT_MT_POINTER and not INPUT_MT_DIRECT?
+
+#define INPUT_MT_POINTER        0x0001  /* pointer device, e.g. trackpad */
+#define INPUT_MT_DIRECT         0x0002  /* direct device, e.g. touchscreen */
+
+Regards,
+Andreas

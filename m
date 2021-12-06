@@ -2,75 +2,153 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F36C9C433EF
-	for <linux-input@archiver.kernel.org>; Mon,  6 Dec 2021 09:11:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79CD8C433FE
+	for <linux-input@archiver.kernel.org>; Mon,  6 Dec 2021 10:47:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240113AbhLFJO5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Dec 2021 04:14:57 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31126 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240118AbhLFJOy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Dec 2021 04:14:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638781886;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=mTQFH7H4cyk6KIDbOtrDDsIorqdVaRVzItBQ4Ghuphc=;
-        b=MYHKkc9aHALLNJj+LOqkqVA2VO0mtQ6vWDCRhFx8iroSzLJI7K4OSDMPyMlQQVx892fTQB
-        7ip9svt2QbAk4LaVOY6cBL8mDgyXcI2S9myADZjxRqOhjAYEttcMS23Vhk+NV0S3VZ63Q3
-        IDtHvSUTgn82Y0yXac3XyagU8kVbN5g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-200-mbS1YMkiP-q03yp9F0mtVg-1; Mon, 06 Dec 2021 04:11:23 -0500
-X-MC-Unique: mbS1YMkiP-q03yp9F0mtVg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 77B6964092;
-        Mon,  6 Dec 2021 09:11:18 +0000 (UTC)
-Received: from x1.localdomain.com (unknown [10.39.194.76])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 76ACD10023AA;
-        Mon,  6 Dec 2021 09:11:17 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
-Subject: [PATCH regression fix 0/1] Input: goodix - Try not to touch the reset-pin on x86/ACPI devices
-Date:   Mon,  6 Dec 2021 10:11:15 +0100
-Message-Id: <20211206091116.44466-1-hdegoede@redhat.com>
+        id S239676AbhLFKuq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Dec 2021 05:50:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49598 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239526AbhLFKuq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Dec 2021 05:50:46 -0500
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8D6C061746;
+        Mon,  6 Dec 2021 02:47:17 -0800 (PST)
+Received: by mail-il1-x135.google.com with SMTP id a11so9721810ilj.6;
+        Mon, 06 Dec 2021 02:47:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=Um61Hr3jidIBFZSxFnTK93vDCH499LbCZV9DwbMfXng=;
+        b=WLJgtSv+9cZ4KsNSDg/qz7ADMMWthNnKPcJTlClkuzTW8W51Z00OEGzB/VTimXR8Wn
+         aFXa045HUfYtWdeJ9JHw2mMKbEXWKe+O8jszXQ4cEu9tssgOeR3SwrWVLmtrhdUDIYnS
+         Z9DIbsGqAn2SZbvkgXgps20UDdMkzR0H7GQjAFfgJIEs7kYNEvBCVmyB7l6TA43VUU8p
+         lkjKw2jRg9P1IPBQeGY4USGVg4cTCTW0GDoQ4t/WBIlj2KvRrGV384/ZlT6j6x+0n67D
+         oam5ncSKZJxc7L3Se+tIu/YnwhGh1tAsE7pAvHqz5vXqHwrztaApWD4Il51+Wh/qaApb
+         rluA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=Um61Hr3jidIBFZSxFnTK93vDCH499LbCZV9DwbMfXng=;
+        b=JaPj+bsFMpT6qSsrrslscx9PqTB+ROISXyb19bmXpIPvnb5UNkivWgOPQWrHO1b8wi
+         JcqKyqaGRL7wbHLtPOie/AidnVSB+IC0vUv11HXRnJv+BjR1Bw6tLCb3l284+pM3Tlos
+         F79U3qtAsng3fYgZHbf+63aVhzh395cUaQhdGSzFb2bJmnGN3xnD+evf21cZCQRQQ5jO
+         Iw12zrcit+xpjbowOapImQA3SdnofSWbc14md/c5yVYCShWrBjsdgF0jW/8eIBQYMYFJ
+         koyhqOKXP3sQrrgBn0WF7yDlMYF+XnDyQvUbS5WPE/jW06+FzvjSb8bedNDIbKF9BLz/
+         TPWQ==
+X-Gm-Message-State: AOAM5339d5sYm1EZpLpWYWILIdaZjGXicQZREIK9RNQJU2jQ6dZk4jlZ
+        xySf2Zgq1YWncqSG//ucO8qcRx6+VQs/xy2NJB8=
+X-Google-Smtp-Source: ABdhPJzS8MaGOfxEKT8Wz+Oz+dyTmUiCjIopWOmUAkZATpwgn3INJ5OZmxv0t1dTyYDZUh0IeE2t6BgKq8PHHIao9c4=
+X-Received: by 2002:a05:6e02:1b08:: with SMTP id i8mr26502232ilv.74.1638787637173;
+ Mon, 06 Dec 2021 02:47:17 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+References: <20211202122021.43124-1-alistair@alistair23.me>
+ <20211202122021.43124-2-alistair@alistair23.me> <20211204233233.6c55875c@aktux>
+In-Reply-To: <20211204233233.6c55875c@aktux>
+From:   Alistair Francis <alistair23@gmail.com>
+Date:   Mon, 6 Dec 2021 20:46:50 +1000
+Message-ID: <CAKmqyKPDROFkAFgSjSDeTfhtZsArn4BbON9tyb1qTb_QcV5=xg@mail.gmail.com>
+Subject: Re: [PATCH v3 1/4] Input: Add driver for Cypress Generation 5 touchscreen
+To:     Andreas Kemnade <andreas@kemnade.info>
+Cc:     Alistair Francis <alistair@alistair23.me>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        devicetree <devicetree@vger.kernel.org>,
+        linux-input <linux-input@vger.kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        =?UTF-8?Q?Myl=C3=A8ne_Josserand?= <mylene.josserand@bootlin.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Sun, Dec 5, 2021 at 8:32 AM Andreas Kemnade <andreas@kemnade.info> wrote=
+:
+>
+> Hi,
+>
+>
+> On Thu,  2 Dec 2021 22:20:18 +1000
+> Alistair Francis <alistair@alistair23.me> wrote:
+>
+> > From: Myl=C3=A8ne Josserand <mylene.josserand@bootlin.com>
+> >
+> > This is the basic driver for the Cypress TrueTouch Gen5 touchscreen
+> > controllers. This driver supports only the I2C bus but it uses regmap
+> > so SPI support could be added later.
+> > The touchscreen can retrieve some defined zone that are handled as
+> > buttons (according to the hardware). That is why it handles
+> > button and multitouch events.
+> >
+> > Reviewed-by: Maxime Ripard <maxime.ripard@bootlin.com>
+> > Signed-off-by: Myl=C3=A8ne Josserand <mylene.josserand@bootlin.com>
+> > Message-Id: <20180703094309.18514-2-mylene.josserand@bootlin.com>
+> > Signed-off-by: Alistair Francis <alistair@alistair23.me>
+>
+> I finally got it working. The order of initialisation is important.
+> Params are copied on input_mt_init_slots() from ABS_MT* to ABS_*, so you
+> have to set params first.
+>
+> Here is the patch i need on top of this one to make it actually work
+> with X (evdev and libinput is tested):
+>
+> diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscr=
+een/cyttsp5.c
+> index b5d96eb71e46..3894ec85a732 100644
+> --- a/drivers/input/touchscreen/cyttsp5.c
+> +++ b/drivers/input/touchscreen/cyttsp5.c
+> @@ -415,19 +415,12 @@ static int cyttsp5_setup_input_device(struct device=
+ *dev)
+>         int max_x_tmp, max_y_tmp;
+>         int error;
+>
+> -       __set_bit(EV_REL, ts->input->evbit);
 
-This patch fixes a regression in the goodix driver on some boards,
-which was introduced in 5.7 (yes 5.7) unfortunately this did not
-come to my attention until now, see:
-https://bugzilla.kernel.org/show_bug.cgi?id=209061
+Does it work with this still included? I need this for my userspace program=
+.
 
-If you can get this on its way to Linus for 5.16 that would be
-great. Alternatively if you don't have time to prep a fixes pull-req
-for this let me know and I can add it to my next pdx86 fixes pull-req.
+Alistair
 
-Regards,
-
-Hans
-
-
-Hans de Goede (1):
-  Input: goodix - Try not to touch the reset-pin on x86/ACPI devices
-
- drivers/input/touchscreen/goodix.c | 30 +++++++++++++++++++++++++-----
- drivers/input/touchscreen/goodix.h |  1 +
- 2 files changed, 26 insertions(+), 5 deletions(-)
-
--- 
-2.33.1
-
+> -
+>         max_x_tmp =3D si->sensing_conf_data.res_x;
+>         max_y_tmp =3D si->sensing_conf_data.res_y;
+>         max_x =3D max_x_tmp - 1;
+>         max_y =3D max_y_tmp - 1;
+>         max_p =3D si->sensing_conf_data.max_z;
+>
+> -       error =3D input_mt_init_slots(ts->input, si->tch_abs[CY_TCH_T].ma=
+x,
+> -               INPUT_MT_DROP_UNUSED | INPUT_MT_POINTER);
+> -       if (error < 0)
+> -               return error;
+> -
+>         input_set_abs_params(ts->input, ABS_MT_POSITION_X, 0, max_x, 0, 0=
+);
+>         input_set_abs_params(ts->input, ABS_MT_POSITION_Y, 0, max_y, 0, 0=
+);
+>         input_set_abs_params(ts->input, ABS_MT_PRESSURE, 0, max_p, 0, 0);
+> @@ -435,6 +428,11 @@ static int cyttsp5_setup_input_device(struct device =
+*dev)
+>         input_set_abs_params(ts->input, ABS_MT_TOUCH_MAJOR, 0, MAX_AREA, =
+0, 0);
+>         input_set_abs_params(ts->input, ABS_MT_TOUCH_MINOR, 0, MAX_AREA, =
+0, 0);
+>
+> +       error =3D input_mt_init_slots(ts->input, si->tch_abs[CY_TCH_T].ma=
+x,
+> +               INPUT_MT_DROP_UNUSED | INPUT_MT_DIRECT);
+> +       if (error < 0)
+> +               return error;
+> +
+>         error =3D input_register_device(ts->input);
+>         if (error < 0)
+>                 dev_err(dev, "Error, failed register input device r=3D%d\=
+n", error);
+>

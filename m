@@ -2,46 +2,46 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F49AC433F5
-	for <linux-input@archiver.kernel.org>; Mon,  6 Dec 2021 16:48:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97BB0C433EF
+	for <linux-input@archiver.kernel.org>; Mon,  6 Dec 2021 16:48:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238868AbhLFQv3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Dec 2021 11:51:29 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:36228 "EHLO
+        id S238986AbhLFQvb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Dec 2021 11:51:31 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:35447 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238986AbhLFQv2 (ORCPT
+        by vger.kernel.org with ESMTP id S238455AbhLFQvb (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Dec 2021 11:51:28 -0500
+        Mon, 6 Dec 2021 11:51:31 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638809279;
+        s=mimecast20190719; t=1638809282;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=ZT7cZmuF2G6RML8z+OBYQyibNxUrjwOMpQ3/bz090wk=;
-        b=fPJgUe4fPFu/e3PPSvJmc4zQgiokCvP6aNmVCFH/kF8bAXJG/wWh/qKZpwdNfKm2Z7b7Bd
-        dsnEyzcJKXIPfntUuMwhUmcn6JizTx3JvPff1r1kf/gTW9BhPHiU6vpf50E18OF75B7j5J
-        O9OmwZSB/cuW6l3JhwqJrsI+b0ClyB0=
+        bh=JNrybFogw3U5ywlOZ64zTWuuO+9Skiyn6R2f5vO2vT4=;
+        b=ByAzmk/1/mzS9yz/T14oEaTDDvXeTxqrqci90ao6kGVD7ceORAjMNfb8vf1gCZCWXlnl/s
+        AndSDZ8+113CMYlviLqt+K01N4M1epDa5MJbhJjLuXA8ObutX4/KqSNNqD6N7aOBQEYrn1
+        48QXkmtpnGdvSJ6Xs9W/xjjmmXLXJ1g=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-438-2KL7adOqMiCdCyeWU_raSQ-1; Mon, 06 Dec 2021 11:47:55 -0500
-X-MC-Unique: 2KL7adOqMiCdCyeWU_raSQ-1
+ us-mta-16-3ot0JR_LOc6JV9xBA-et4A-1; Mon, 06 Dec 2021 11:47:52 -0500
+X-MC-Unique: 3ot0JR_LOc6JV9xBA-et4A-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CE462801B04;
-        Mon,  6 Dec 2021 16:47:54 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0572381EE69;
+        Mon,  6 Dec 2021 16:47:51 +0000 (UTC)
 Received: from x1.localdomain (unknown [10.39.192.105])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D1559794A3;
-        Mon,  6 Dec 2021 16:47:53 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id DF09C1E6;
+        Mon,  6 Dec 2021 16:47:49 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
-Subject: [PATCH 4/4] Input: goodix - Add pen support
-Date:   Mon,  6 Dec 2021 17:47:47 +0100
-Message-Id: <20211206164747.197309-5-hdegoede@redhat.com>
+Subject: [PATCH 1/4] Input: goodix - Add id->model mapping for the "9111" model
+Date:   Mon,  6 Dec 2021 17:47:44 +0100
+Message-Id: <20211206164747.197309-2-hdegoede@redhat.com>
 In-Reply-To: <20211206164747.197309-1-hdegoede@redhat.com>
 References: <20211206164747.197309-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -51,200 +51,27 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some Goodix touchscreens have support for a (Goodix) active pen, add
-support for this. The info on how to detect when a pen is down and to
-detect when the stylus buttons are pressed was lifted from the out
-of tree Goodix driver with pen support written by Adya:
-https://gitlab.com/AdyaAdya/goodix-touchscreen-linux-driver/
+Add d->model mapping for the "9111" model, this fixes uses using
+a wrong config_len of 240 bytes while the "9111" model uses
+only 186 bytes of config.
 
-Since there is no way to tell if pen support is present, the registering
-of the pen input_dev is delayed till the first pen event is detected.
-
-This has been tested on a Trekstor Surftab duo W1, a Chuwi Hi13 and
-a Cyberbook T116 tablet.
-
-Link: https://gitlab.com/AdyaAdya/goodix-touchscreen-linux-driver/
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=202161
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204513
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/goodix.c | 122 ++++++++++++++++++++++++++++-
- drivers/input/touchscreen/goodix.h |   1 +
- 2 files changed, 121 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/goodix.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 2d38a941e7e4..691e4505cf4a 100644
+index eaa659969097..aaa3c455e01e 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -298,6 +298,107 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
- 	return -ENOMSG;
- }
+@@ -102,6 +102,7 @@ static const struct goodix_chip_id goodix_chip_ids[] = {
+ 	{ .id = "911", .data = &gt911_chip_data },
+ 	{ .id = "9271", .data = &gt911_chip_data },
+ 	{ .id = "9110", .data = &gt911_chip_data },
++	{ .id = "9111", .data = &gt911_chip_data },
+ 	{ .id = "927", .data = &gt911_chip_data },
+ 	{ .id = "928", .data = &gt911_chip_data },
  
-+static struct input_dev *goodix_create_pen_input(struct goodix_ts_data *ts)
-+{
-+	struct device *dev = &ts->client->dev;
-+	struct input_dev *input;
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
-+		return NULL;
-+
-+	input_alloc_absinfo(input);
-+	if (!input->absinfo) {
-+		input_free_device(input);
-+		return NULL;
-+	}
-+
-+	input->absinfo[ABS_X] = ts->input_dev->absinfo[ABS_MT_POSITION_X];
-+	input->absinfo[ABS_Y] = ts->input_dev->absinfo[ABS_MT_POSITION_Y];
-+	__set_bit(ABS_X, input->absbit);
-+	__set_bit(ABS_Y, input->absbit);
-+	input_set_abs_params(input, ABS_PRESSURE, 0, 255, 0, 0);
-+
-+	input_set_capability(input, EV_KEY, BTN_TOUCH);
-+	input_set_capability(input, EV_KEY, BTN_TOOL_PEN);
-+	input_set_capability(input, EV_KEY, BTN_STYLUS);
-+	input_set_capability(input, EV_KEY, BTN_STYLUS2);
-+	__set_bit(INPUT_PROP_DIRECT, input->propbit);
-+	/*
-+	 * The resolution of these touchscreens is about 10 units/mm, the actual
-+	 * resolution does not matter much since we set INPUT_PROP_DIRECT.
-+	 * Userspace wants something here though, so just set it to 10 units/mm.
-+	 */
-+	input_abs_set_res(input, ABS_X, 10);
-+	input_abs_set_res(input, ABS_Y, 10);
-+
-+	input->name = "Goodix Active Pen";
-+	input->phys = "input/pen";
-+	input->id.bustype = BUS_I2C;
-+	if (kstrtou16(ts->id, 10, &input->id.product))
-+		input->id.product = 0x1001;
-+	input->id.version = ts->version;
-+
-+	if (input_register_device(input) != 0) {
-+		input_free_device(input);
-+		return NULL;
-+	}
-+
-+	return input;
-+}
-+
-+static void goodix_ts_report_pen_down(struct goodix_ts_data *ts, u8 *data)
-+{
-+	int input_x, input_y, input_w;
-+	u8 key_value;
-+
-+	if (!ts->input_pen) {
-+		ts->input_pen = goodix_create_pen_input(ts);
-+		if (!ts->input_pen)
-+			return;
-+	}
-+
-+	if (ts->contact_size == 9) {
-+		input_x = get_unaligned_le16(&data[4]);
-+		input_y = get_unaligned_le16(&data[6]);
-+		input_w = get_unaligned_le16(&data[8]);
-+	} else {
-+		input_x = get_unaligned_le16(&data[2]);
-+		input_y = get_unaligned_le16(&data[4]);
-+		input_w = get_unaligned_le16(&data[6]);
-+	}
-+
-+	touchscreen_report_pos(ts->input_pen, &ts->prop, input_x, input_y, false);
-+	input_report_abs(ts->input_pen, ABS_PRESSURE, input_w);
-+
-+	input_report_key(ts->input_pen, BTN_TOUCH, 1);
-+	input_report_key(ts->input_pen, BTN_TOOL_PEN, 1);
-+
-+	if (data[0] & GOODIX_HAVE_KEY) {
-+		key_value = data[1 + ts->contact_size];
-+		input_report_key(ts->input_pen, BTN_STYLUS, key_value & 0x10);
-+		input_report_key(ts->input_pen, BTN_STYLUS2, key_value & 0x20);
-+	} else {
-+		input_report_key(ts->input_pen, BTN_STYLUS, 0);
-+		input_report_key(ts->input_pen, BTN_STYLUS2, 0);
-+	}
-+
-+	input_sync(ts->input_pen);
-+}
-+
-+static void goodix_ts_report_pen_up(struct goodix_ts_data *ts)
-+{
-+	if (!ts->input_pen)
-+		return;
-+
-+	input_report_key(ts->input_pen, BTN_TOUCH, 0);
-+	input_report_key(ts->input_pen, BTN_TOOL_PEN, 0);
-+	input_report_key(ts->input_pen, BTN_STYLUS, 0);
-+	input_report_key(ts->input_pen, BTN_STYLUS2, 0);
-+
-+	input_sync(ts->input_pen);
-+}
-+
- static void goodix_ts_report_touch_8b(struct goodix_ts_data *ts, u8 *coor_data)
- {
- 	int id = coor_data[0] & 0x0F;
-@@ -328,6 +429,14 @@ static void goodix_ts_report_touch_9b(struct goodix_ts_data *ts, u8 *coor_data)
- 	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, input_w);
- }
- 
-+static void goodix_ts_release_keys(struct goodix_ts_data *ts)
-+{
-+	int i;
-+
-+	for (i = 0; i < GOODIX_MAX_KEYS; i++)
-+		input_report_key(ts->input_dev, ts->keymap[i], 0);
-+}
-+
- static void goodix_ts_report_key(struct goodix_ts_data *ts, u8 *data)
- {
- 	int touch_num;
-@@ -342,8 +451,7 @@ static void goodix_ts_report_key(struct goodix_ts_data *ts, u8 *data)
- 				input_report_key(ts->input_dev,
- 						 ts->keymap[i], 1);
- 	} else {
--		for (i = 0; i < GOODIX_MAX_KEYS; i++)
--			input_report_key(ts->input_dev, ts->keymap[i], 0);
-+		goodix_ts_release_keys(ts);
- 	}
- }
- 
-@@ -365,6 +473,15 @@ static void goodix_process_events(struct goodix_ts_data *ts)
- 	if (touch_num < 0)
- 		return;
- 
-+	/* The pen being down is always reported as a single touch */
-+	if (touch_num == 1 && (point_data[1] & 0x80)) {
-+		goodix_ts_report_pen_down(ts, point_data);
-+		goodix_ts_release_keys(ts);
-+		goto sync; /* Release any previousle registered touches */
-+	} else {
-+		goodix_ts_report_pen_up(ts);
-+	}
-+
- 	goodix_ts_report_key(ts, point_data);
- 
- 	for (i = 0; i < touch_num; i++)
-@@ -375,6 +492,7 @@ static void goodix_process_events(struct goodix_ts_data *ts)
- 			goodix_ts_report_touch_8b(ts,
- 				&point_data[1 + ts->contact_size * i]);
- 
-+sync:
- 	input_mt_sync_frame(ts->input_dev);
- 	input_sync(ts->input_dev);
- }
-diff --git a/drivers/input/touchscreen/goodix.h b/drivers/input/touchscreen/goodix.h
-index 02065d1c3263..fa8602e78a64 100644
---- a/drivers/input/touchscreen/goodix.h
-+++ b/drivers/input/touchscreen/goodix.h
-@@ -76,6 +76,7 @@ struct goodix_chip_data {
- struct goodix_ts_data {
- 	struct i2c_client *client;
- 	struct input_dev *input_dev;
-+	struct input_dev *input_pen;
- 	const struct goodix_chip_data *chip;
- 	const char *firmware_name;
- 	struct touchscreen_properties prop;
 -- 
 2.33.1
 

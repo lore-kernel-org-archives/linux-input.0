@@ -2,76 +2,73 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 97BB0C433EF
-	for <linux-input@archiver.kernel.org>; Mon,  6 Dec 2021 16:48:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A133C433EF
+	for <linux-input@archiver.kernel.org>; Mon,  6 Dec 2021 20:17:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238986AbhLFQvb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Dec 2021 11:51:31 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:35447 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S238455AbhLFQvb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 6 Dec 2021 11:51:31 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638809282;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=JNrybFogw3U5ywlOZ64zTWuuO+9Skiyn6R2f5vO2vT4=;
-        b=ByAzmk/1/mzS9yz/T14oEaTDDvXeTxqrqci90ao6kGVD7ceORAjMNfb8vf1gCZCWXlnl/s
-        AndSDZ8+113CMYlviLqt+K01N4M1epDa5MJbhJjLuXA8ObutX4/KqSNNqD6N7aOBQEYrn1
-        48QXkmtpnGdvSJ6Xs9W/xjjmmXLXJ1g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-16-3ot0JR_LOc6JV9xBA-et4A-1; Mon, 06 Dec 2021 11:47:52 -0500
-X-MC-Unique: 3ot0JR_LOc6JV9xBA-et4A-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0572381EE69;
-        Mon,  6 Dec 2021 16:47:51 +0000 (UTC)
-Received: from x1.localdomain (unknown [10.39.192.105])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DF09C1E6;
-        Mon,  6 Dec 2021 16:47:49 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
-Subject: [PATCH 1/4] Input: goodix - Add id->model mapping for the "9111" model
-Date:   Mon,  6 Dec 2021 17:47:44 +0100
-Message-Id: <20211206164747.197309-2-hdegoede@redhat.com>
-In-Reply-To: <20211206164747.197309-1-hdegoede@redhat.com>
-References: <20211206164747.197309-1-hdegoede@redhat.com>
+        id S1349594AbhLFUUc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Dec 2021 15:20:32 -0500
+Received: from mail-oi1-f181.google.com ([209.85.167.181]:36682 "EHLO
+        mail-oi1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349544AbhLFUUb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Dec 2021 15:20:31 -0500
+Received: by mail-oi1-f181.google.com with SMTP id t23so23630057oiw.3;
+        Mon, 06 Dec 2021 12:17:02 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=3X/LugIcWCRknrOirt8f6uvFdTZbieXOBqDYLzyWp2s=;
+        b=516OrC7SS9OAQfLWW5bUeaLY4zYq+7Y3pYBI2bN66BAvUJWYXQRedvJ0Diy50brwFq
+         Js4digkB8wnIgj+A72WbcL1hGFf0INjYDJBEiwpS+hqV/fmcqAwOcC4VhVQdst5yCg23
+         969YuxYCFCZ7uvmjOONBdG1dHguGgXUxd2DBdgDsIjq6j69Kj1snSLuvS9pwSsGdYhYx
+         f6nHkCSqKZmrXjtYlHVmJtASYj15ZcX+IOpk49c6VpsS7XKBZ+HIj0hkdW987KZcW2bU
+         miGWj4XbfmBAoqwu9DcvW/i8XDHlY3c6Vf4l3u77XMOSyMRxptv3ySOh//38rSUwNzds
+         grbg==
+X-Gm-Message-State: AOAM530mNpAk92Y2oGe1UCvbR3UPOx9I/7xfR6c+d6zCLLVSZTiRWTTH
+        ykZkse9ojp6O6D9A+kCG2A==
+X-Google-Smtp-Source: ABdhPJw9/zkKLK37BKk+7ac2n41iY16XzcSVeXkQJ34BJbzihtRflW3mClcGd893Dvwo8lJ5mQYrEg==
+X-Received: by 2002:a54:4819:: with SMTP id j25mr877141oij.66.1638821821971;
+        Mon, 06 Dec 2021 12:17:01 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id j20sm2874870oig.52.2021.12.06.12.17.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Dec 2021 12:17:01 -0800 (PST)
+Received: (nullmailer pid 2513545 invoked by uid 1000);
+        Mon, 06 Dec 2021 20:17:00 -0000
+Date:   Mon, 6 Dec 2021 14:17:00 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Geert Uytterhoeven <geert+renesas@glider.be>
+Cc:     linux-renesas-soc@vger.kernel.org, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Marc Zyngier <maz@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: [PATCH 1/3] dt-bindings: input: gpio-keys: Fix interrupts in
+ example
+Message-ID: <Ya5vvOtq2kgf9hkT@robh.at.kernel.org>
+References: <cover.1638538079.git.geert+renesas@glider.be>
+ <47ecd2d8efcf09f8ab47de87a7bcfafc82208776.1638538079.git.geert+renesas@glider.be>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <47ecd2d8efcf09f8ab47de87a7bcfafc82208776.1638538079.git.geert+renesas@glider.be>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add d->model mapping for the "9111" model, this fixes uses using
-a wrong config_len of 240 bytes while the "9111" model uses
-only 186 bytes of config.
+On Fri, 03 Dec 2021 14:35:06 +0100, Geert Uytterhoeven wrote:
+> The "interrupts" property in the example looks weird:
+>   - The type is not in the last cell,
+>   - Level interrupts don't work well with gpio-keys, as they keep the
+>     interrupt asserted as long as the key is pressed, causing an
+>     interrupt storm.
+> 
+> Use a more realistic falling-edge interrupt instead.
+> 
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> ---
+>  Documentation/devicetree/bindings/input/gpio-keys.yaml | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/input/touchscreen/goodix.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index eaa659969097..aaa3c455e01e 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -102,6 +102,7 @@ static const struct goodix_chip_id goodix_chip_ids[] = {
- 	{ .id = "911", .data = &gt911_chip_data },
- 	{ .id = "9271", .data = &gt911_chip_data },
- 	{ .id = "9110", .data = &gt911_chip_data },
-+	{ .id = "9111", .data = &gt911_chip_data },
- 	{ .id = "927", .data = &gt911_chip_data },
- 	{ .id = "928", .data = &gt911_chip_data },
- 
--- 
-2.33.1
-
+Applied, thanks!

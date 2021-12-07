@@ -2,106 +2,88 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2FF1C4332F
-	for <linux-input@archiver.kernel.org>; Tue,  7 Dec 2021 10:08:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 599F9C433F5
+	for <linux-input@archiver.kernel.org>; Tue,  7 Dec 2021 12:10:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234765AbhLGKLe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Dec 2021 05:11:34 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:28323 "EHLO
+        id S231712AbhLGMO2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Dec 2021 07:14:28 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:51088 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234745AbhLGKLd (ORCPT
+        by vger.kernel.org with ESMTP id S231564AbhLGMO2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 7 Dec 2021 05:11:33 -0500
+        Tue, 7 Dec 2021 07:14:28 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1638871683;
+        s=mimecast20190719; t=1638879057;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=3m4PDWdwFHQxyCks/gXajGoCd7HxtTRqEkO510hKgjo=;
-        b=PT/soYkOGwvC04M2E08Q6huBj3dlZGF97xwppQOZOz3RFDZuyvH78EMANejHkafjvXsZOs
-        Rz0wEyFi6UKYJY65Oph4gAOkHwXtupg/k3P6Ygxwx3QsHaZQQlYTMaihjqs75V0FzTHW7U
-        PPfaHoUHrIk2de7Iux6spZgeYqUqXtk=
+         content-transfer-encoding:content-transfer-encoding;
+        bh=3y3lsKqJemOobGZzaMNADWy8VaBlOgIA/+pS5K7kvmw=;
+        b=R2qLLaVh/ohWJbZV8hjjxI3ub2pCGRVxwXTApXAE0FChyfhn/lSJ+qGVazs7e2m8zcDoZy
+        Zz94w1YfiRVwPn7/fIyD+REyLDcWYXrc4iPxJMtFNukYxc25k5JkizsY38Cf5z0/dVanbf
+        dsdBCs8MmgVwS+xN9xYnU6ovNw8ehqU=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-502-Z16c6Cb9NMOVs1ennUoXzg-1; Tue, 07 Dec 2021 05:08:00 -0500
-X-MC-Unique: Z16c6Cb9NMOVs1ennUoXzg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+ us-mta-174-WP4aF6NiOvqwG2jgjrxg_Q-1; Tue, 07 Dec 2021 07:10:56 -0500
+X-MC-Unique: WP4aF6NiOvqwG2jgjrxg_Q-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 738CE1006AA3;
-        Tue,  7 Dec 2021 10:07:59 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 74CBC1B2C985;
+        Tue,  7 Dec 2021 12:10:55 +0000 (UTC)
 Received: from x1.localdomain.com (unknown [10.39.194.249])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5E1FA10023AA;
-        Tue,  7 Dec 2021 10:07:58 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7A765694BF;
+        Tue,  7 Dec 2021 12:10:54 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
-Subject: [PATCH v2 2/3] Input: goodix - Use the new soc_intel_is_byt() helper
-Date:   Tue,  7 Dec 2021 11:07:53 +0100
-Message-Id: <20211207100754.31155-2-hdegoede@redhat.com>
-In-Reply-To: <20211207100754.31155-1-hdegoede@redhat.com>
-References: <20211207100754.31155-1-hdegoede@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Subject: [PATCH] HID: Ignore battery for Elan touchscreen on Asus UX550VE
+Date:   Tue,  7 Dec 2021 13:10:53 +0100
+Message-Id: <20211207121053.136906-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Use the new soc_intel_is_byt() helper from
-linux/platform_data/x86/soc.h.
+Battery status is reported for the Asus UX550VE touchscreen even though
+it does not have a battery. Prevent it from always reporting the
+battery as low.
 
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1897823
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/goodix.c | 18 ++----------------
- 1 file changed, 2 insertions(+), 16 deletions(-)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 828487d9ded5..6e71d5c732af 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -18,6 +18,7 @@
- #include <linux/delay.h>
- #include <linux/irq.h>
- #include <linux/interrupt.h>
-+#include <linux/platform_data/x86/soc.h>
- #include <linux/slab.h>
- #include <linux/acpi.h>
- #include <linux/of.h>
-@@ -686,21 +687,6 @@ static int goodix_reset(struct goodix_ts_data *ts)
- }
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 07045184d36e..c773408038e7 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -399,6 +399,7 @@
+ #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
+ #define I2C_DEVICE_ID_HP_ENVY_X360_15	0x2d05
+ #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
++#define USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN	0x2544
+ #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+ #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
  
- #ifdef ACPI_GPIO_SUPPORT
--#include <asm/cpu_device_id.h>
--#include <asm/intel-family.h>
--
--static const struct x86_cpu_id baytrail_cpu_ids[] = {
--	{ X86_VENDOR_INTEL, 6, INTEL_FAM6_ATOM_SILVERMONT, X86_FEATURE_ANY, },
--	{}
--};
--
--static inline bool is_byt(void)
--{
--	const struct x86_cpu_id *id = x86_match_cpu(baytrail_cpu_ids);
--
--	return !!id;
--}
--
- static const struct acpi_gpio_params first_gpio = { 0, 0, false };
- static const struct acpi_gpio_params second_gpio = { 1, 0, false };
- 
-@@ -784,7 +770,7 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
- 		dev_info(dev, "Using ACPI INTI and INTO methods for IRQ pin access\n");
- 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_METHOD;
- 		gpio_mapping = acpi_goodix_reset_only_gpios;
--	} else if (is_byt() && ts->gpio_count == 2 && ts->gpio_int_idx == -1) {
-+	} else if (soc_intel_is_byt() && ts->gpio_count == 2 && ts->gpio_int_idx == -1) {
- 		dev_info(dev, "No ACPI GpioInt resource, assuming that the GPIO order is reset, int\n");
- 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
- 		gpio_mapping = acpi_goodix_int_last_gpios;
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 217f2d1b91c5..03f994541981 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -325,6 +325,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
 -- 
 2.33.1
 

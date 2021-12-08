@@ -2,152 +2,156 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F1CFC433F5
-	for <linux-input@archiver.kernel.org>; Wed,  8 Dec 2021 08:51:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3916CC433F5
+	for <linux-input@archiver.kernel.org>; Wed,  8 Dec 2021 09:40:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229625AbhLHIzJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Dec 2021 03:55:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47208 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbhLHIzI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Dec 2021 03:55:08 -0500
-Received: from mail-ua1-x92f.google.com (mail-ua1-x92f.google.com [IPv6:2607:f8b0:4864:20::92f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1733FC061746
-        for <linux-input@vger.kernel.org>; Wed,  8 Dec 2021 00:51:37 -0800 (PST)
-Received: by mail-ua1-x92f.google.com with SMTP id a14so3535063uak.0
-        for <linux-input@vger.kernel.org>; Wed, 08 Dec 2021 00:51:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RKyC01fM7WfM6ekDa1qG3Vt/PYTrXwZGIOdPQqP7n2o=;
-        b=RxIJ2Een0TIDhcAcy882hQP1EE8HkhpUu+mwYlddmv/Yr6AFVkc8OAHojmYKk9f9Op
-         LqJenRNHYedmxJqiGLrjq/TeL2i+erlj68luJiAZG7J5i+AoL9iwzvlSm+ctqIDD1T18
-         tmWl0MqEEAJ47kOnF48hW17+9TVI+/q98IPI9ciwqtU2L9bA+8r4JC4sB9krdE/IzXYj
-         77Uwr2p9Ps4nvYK6tb31E04NEfRIxGP7cpxWVlM1R/PTxA2B4IsZ6ZWupp+GLePSQjNz
-         B3ewsdiwgAXDbt3D3WcGSf4Isa5370tH7DDAZ0ajgAn0rRwXYQptKNaKV5O4wO7MQgKo
-         1QnA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RKyC01fM7WfM6ekDa1qG3Vt/PYTrXwZGIOdPQqP7n2o=;
-        b=GkkrIn23c7EmNPmehFke5NVBkwQ8vQYQatMMW++5eNOYSAgJVysKZ1kPUr7kmd1+Yr
-         K+3jyf5Rbye+l7TYNlUlj8O0rlag7+byIFCrIArBjPw+z6dlI3n4uANRInNmFh6g7MmC
-         jfsUkhlK0/R1wBCEnDsopMIFIEqWJwxXejjUcfhInAHtPL1SOJMC90UTUK1q1x7giAP5
-         wM9Fk5mANtxfMLOqqUYQQNj1frmTxMJm73q2dCEFbAzGMcP2VU1oRLMgk2s6wTrMiq3q
-         QOiqQQ6hqTybNsFhIr8sX8yicljXtUDUuxBs0d3/1NUvq/rJ7egV744ElP4rdHOtav6B
-         Wtdw==
-X-Gm-Message-State: AOAM531gl/+MJBkkLkuPPUH3j5pk6TTqutRt0upL5Vt13Iy1P9aq3457
-        vTJm/m0pPa18LHZcAPliJBrJ5A2cHH7y1gFDPbdz0XQc
-X-Google-Smtp-Source: ABdhPJzw38/yZfq+L6wMKiNDgPuNRzPtRIGaujyoegQDL1M8yLMtJK6djRu97fvww8u3WCLTPnCNDBE2ZIBeIjQMb6U=
-X-Received: by 2002:a05:6130:3a6:: with SMTP id az38mr6757949uab.126.1638953496005;
- Wed, 08 Dec 2021 00:51:36 -0800 (PST)
-MIME-Version: 1.0
-References: <20211206164747.197309-1-hdegoede@redhat.com> <20211206164747.197309-5-hdegoede@redhat.com>
- <Ya+e5+TLgyLeTnhp@google.com> <aa558a20-37d0-dbf0-740f-2813609fe3b5@redhat.com>
-In-Reply-To: <aa558a20-37d0-dbf0-740f-2813609fe3b5@redhat.com>
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Wed, 8 Dec 2021 00:51:24 -0800
-Message-ID: <CAKdAkRTHa1oRJ1VpoFxfsKjUW7KStCXkYZ2AdB1jVCHa=pjZAA@mail.gmail.com>
-Subject: Re: [PATCH 4/4] Input: goodix - Add pen support
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     Bastien Nocera <hadess@hadess.net>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S229507AbhLHJnx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Dec 2021 04:43:53 -0500
+Received: from mail.loongson.cn ([114.242.206.163]:47184 "EHLO loongson.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229446AbhLHJnx (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 8 Dec 2021 04:43:53 -0500
+Received: from localhost.localdomain.localdomain (unknown [10.2.5.46])
+        by mail.loongson.cn (Coremail) with SMTP id AQAAf9DxX8tqfbBh+68EAA--.10672S3;
+        Wed, 08 Dec 2021 17:40:00 +0800 (CST)
+From:   Yinbo Zhu <zhuyinbo@loongson.cn>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Thinh Nguyen <Thinh.Nguyen@synopsys.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Rajat Jain <rajatja@google.com>,
+        Chris Chiu <chris.chiu@canonical.com>,
+        linux-usb@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Yinbo Zhu <zhuyinbo@loongson.cn>
+Subject: [PATCH v1 2/2] usb: core: enable remote wakeup function for usb controller
+Date:   Wed,  8 Dec 2021 17:39:51 +0800
+Message-Id: <1638956391-20149-2-git-send-email-zhuyinbo@loongson.cn>
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1638956391-20149-1-git-send-email-zhuyinbo@loongson.cn>
+References: <1638956391-20149-1-git-send-email-zhuyinbo@loongson.cn>
+X-CM-TRANSID: AQAAf9DxX8tqfbBh+68EAA--.10672S3
+X-Coremail-Antispam: 1UD129KBjvJXoWxJFyrZryrXr1xuFW7GrW3Wrg_yoWrGr45pw
+        48CayrKrWUJry8WanFyrWDAw13Jw4Iya4fCas7u3yDW3s7A34kJF9Yyr95taykJrZ5AF43
+        J3WfKay5W3WUCFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUPv14x267AKxVW5JVWrJwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+        rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2048vs2IY020E87I2jVAFwI0_Jr4l82xGYIkIc2
+        x26xkF7I0E14v26r4j6ryUM28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8wA2z4x0
+        Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j6F4UJw
+        A2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oVCq3wAS
+        0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
+        IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
+        Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02628vn2kIc2
+        xKxwCY02Avz4vE-syl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2Iq
+        xVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r
+        1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY
+        6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67
+        AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuY
+        vjfU86wZUUUUU
+X-CM-SenderInfo: 52kx5xhqerqz5rrqw2lrqou0/
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Dec 8, 2021 at 12:37 AM Hans de Goede <hdegoede@redhat.com> wrote:
->
-> Hi Dmitry,
->
-> Thank you for the review.
->
-> On 12/7/21 18:50, Dmitry Torokhov wrote:
-> > On Mon, Dec 06, 2021 at 05:47:47PM +0100, Hans de Goede wrote:
-> >> Some Goodix touchscreens have support for a (Goodix) active pen, add
-> >> support for this. The info on how to detect when a pen is down and to
-> >> detect when the stylus buttons are pressed was lifted from the out
-> >> of tree Goodix driver with pen support written by Adya:
-> >> https://gitlab.com/AdyaAdya/goodix-touchscreen-linux-driver/
-> >>
-> >> Since there is no way to tell if pen support is present, the registering
-> >> of the pen input_dev is delayed till the first pen event is detected.
-> >>
-> >> This has been tested on a Trekstor Surftab duo W1, a Chuwi Hi13 and
-> >> a Cyberbook T116 tablet.
-> >>
-> >> Link: https://gitlab.com/AdyaAdya/goodix-touchscreen-linux-driver/
-> >> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=202161
-> >> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=204513
-> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> >> ---
-> >>  drivers/input/touchscreen/goodix.c | 122 ++++++++++++++++++++++++++++-
-> >>  drivers/input/touchscreen/goodix.h |   1 +
-> >>  2 files changed, 121 insertions(+), 2 deletions(-)
-> >>
-> >> diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-> >> index 2d38a941e7e4..691e4505cf4a 100644
-> >> --- a/drivers/input/touchscreen/goodix.c
-> >> +++ b/drivers/input/touchscreen/goodix.c
-> >> @@ -298,6 +298,107 @@ static int goodix_ts_read_input_report(struct goodix_ts_data *ts, u8 *data)
-> >>      return -ENOMSG;
-> >>  }
-> >>
-> >> +static struct input_dev *goodix_create_pen_input(struct goodix_ts_data *ts)
-> >> +{
-> >> +    struct device *dev = &ts->client->dev;
-> >> +    struct input_dev *input;
-> >> +
-> >> +    input = devm_input_allocate_device(dev);
-> >> +    if (!input)
-> >> +            return NULL;
-> >> +
-> >> +    input_alloc_absinfo(input);
-> >> +    if (!input->absinfo) {
-> >> +            input_free_device(input);
-> >> +            return NULL;
-> >> +    }
-> >
-> > Please drop this as input_abs_set_max() will do allocation and
-> > input_register_device() will reject device with ABS_* events without
-> > absinfo allocated.
-> >
-> >> +
-> >> +    input->absinfo[ABS_X] = ts->input_dev->absinfo[ABS_MT_POSITION_X];
-> >
-> >       input_abs_set_max(input, ABS_X,
-> >               input_abs_get_max(input, ABS_MT_POSITION_X);
-> >
-> > or even maybe
-> >
-> >       input_set_abs_params(input, ABS_X,
-> >               0, input_abs_get_max(input, ABS_MT_POSITION_X), 0, 0);
->
-> The reason why I'm just copying the entire absinfo struct
-> (and thus need the NULL check above) is because this driver uses
-> touchscreen_parse_properties(), so the min and fuzz values
-> might (theoretically) also be set through device-properties and
-> I wanted to cover that.
->
-> Since you don't like the above approach, I will go with the following
-> for the next version:
->
->         input_set_abs_params(input, ABS_X,
->                              input_abs_get_min(ts->input_dev, ABS_MT_POSITION_X),
->                              input_abs_get_max(ts->input_dev, ABS_MT_POSITION_X),
->                              input_abs_get_fuzz(ts->input_dev, ABS_MT_POSITION_X),
->                              input_abs_get_flat(ts->input_dev, ABS_MT_POSITION_X));
->
-> (and the same for the Y axis).
+The remote wake up function is a regular function on usb device and
+I think keeping it enabled by default will make the usb application
+more convenient and usb device remote wake up function keep enabled
+that ask usb controller remote wake up was enabled at first.
 
-Ah, sorry, I misread the code. It is fine as is then, or we could even
-consider adding input_copy_abs(input, axis, src) that would allocate
-absinfo if needed, set capability, and do the copy.
+This patch only enable wake up on usb root hub device, among which,
+usb3.0 root hub doesn't be set wakeup node property but use command
+USB_INTRF_FUNC_SUSPEND to enable remote wake up function.
 
-Thanks.
+Signed-off-by: Yinbo Zhu <zhuyinbo@loongson.cn>
+---
+ drivers/usb/core/hub.c | 20 ++++++++++++++++++--
+ include/linux/usb.h    |  4 +++-
+ 2 files changed, 21 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 86658a8..cb4b956 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -2509,6 +2509,8 @@ static void set_usb_port_removable(struct usb_device *udev)
+  */
+ int usb_new_device(struct usb_device *udev)
+ {
++	struct usb_host_config *config;
++	int ncfg;
+ 	int err;
+ 
+ 	if (udev->parent) {
+@@ -2540,6 +2542,18 @@ int usb_new_device(struct usb_device *udev)
+ 	udev->dev.devt = MKDEV(USB_DEVICE_MAJOR,
+ 			(((udev->bus->busnum-1) * 128) + (udev->devnum-1)));
+ 
++	for (ncfg = 0; ncfg < udev->descriptor.bNumConfigurations; ncfg++) {
++		config = &udev->config[ncfg];
++		if ((config->desc.bmAttributes & (1 << 5)) == 0)
++			break;
++		if (ncfg + 1 == udev->descriptor.bNumConfigurations) {
++			err = usb_enable_remote_wakeup(udev);
++			if (err)
++				dev_dbg(&udev->dev,
++				      "won't remote wakeup, err %d\n", err);
++		}
++	}
++
+ 	/* Tell the world! */
+ 	announce_device(udev);
+ 
+@@ -3234,7 +3248,7 @@ void usb_enable_ltm(struct usb_device *udev)
+  * enable remote wake for the first interface.  FIXME if the interface
+  * association descriptor shows there's more than one function.
+  */
+-static int usb_enable_remote_wakeup(struct usb_device *udev)
++int usb_enable_remote_wakeup(struct usb_device *udev)
+ {
+ 	if (udev->speed < USB_SPEED_SUPER)
+ 		return usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+@@ -3249,6 +3263,7 @@ static int usb_enable_remote_wakeup(struct usb_device *udev)
+ 					USB_INTRF_FUNC_SUSPEND_LP,
+ 				NULL, 0, USB_CTRL_SET_TIMEOUT);
+ }
++EXPORT_SYMBOL_GPL(usb_enable_remote_wakeup);
+ 
+ /*
+  * usb_disable_remote_wakeup - disable remote wakeup for a device
+@@ -3260,7 +3275,7 @@ static int usb_enable_remote_wakeup(struct usb_device *udev)
+  * disable remote wake for the first interface.  FIXME if the interface
+  * association descriptor shows there's more than one function.
+  */
+-static int usb_disable_remote_wakeup(struct usb_device *udev)
++int usb_disable_remote_wakeup(struct usb_device *udev)
+ {
+ 	if (udev->speed < USB_SPEED_SUPER)
+ 		return usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+@@ -3273,6 +3288,7 @@ static int usb_disable_remote_wakeup(struct usb_device *udev)
+ 				USB_INTRF_FUNC_SUSPEND,	0, NULL, 0,
+ 				USB_CTRL_SET_TIMEOUT);
+ }
++EXPORT_SYMBOL_GPL(usb_disable_remote_wakeup);
+ 
+ /* Count of wakeup-enabled devices at or below udev */
+ unsigned usb_wakeup_enabled_descendants(struct usb_device *udev)
+diff --git a/include/linux/usb.h b/include/linux/usb.h
+index 7ccaa76..8097eee 100644
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -754,8 +754,10 @@ static inline bool usb_acpi_power_manageable(struct usb_device *hdev, int index)
+ 	{ return true; }
+ #endif
+ 
+-/* USB autosuspend and autoresume */
+ #ifdef CONFIG_PM
++extern int usb_enable_remote_wakeup(struct usb_device *udev);
++extern int usb_disable_remote_wakeup(struct usb_device *udev);
++
+ extern void usb_enable_autosuspend(struct usb_device *udev);
+ extern void usb_disable_autosuspend(struct usb_device *udev);
+ 
 -- 
-Dmitry
+1.8.3.1
+

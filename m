@@ -2,32 +2,32 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FAB0C433F5
-	for <linux-input@archiver.kernel.org>; Sun, 12 Dec 2021 12:54:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3270EC433FE
+	for <linux-input@archiver.kernel.org>; Sun, 12 Dec 2021 12:54:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230010AbhLLMyE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 12 Dec 2021 07:54:04 -0500
-Received: from smtp-34-i2.italiaonline.it ([213.209.12.34]:42941 "EHLO
+        id S230029AbhLLMyF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 12 Dec 2021 07:54:05 -0500
+Received: from smtp-34-i2.italiaonline.it ([213.209.12.34]:44148 "EHLO
         libero.it" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229988AbhLLMyE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        id S229990AbhLLMyE (ORCPT <rfc822;linux-input@vger.kernel.org>);
         Sun, 12 Dec 2021 07:54:04 -0500
 Received: from passgat-Modern-14-A10M.homenet.telecomitalia.it
  ([82.50.51.121])
         by smtp-34.iol.local with ESMTPA
-        id wOMammqwPUpmcwOMbmGyJH; Sun, 12 Dec 2021 13:54:01 +0100
+        id wOMammqwPUpmcwOMamGyIl; Sun, 12 Dec 2021 13:54:01 +0100
 x-libjamoibt: 1601
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=libero.it; s=s2021;
-        t=1639313641; bh=5cQItZFlPLSWjbLUBhR1OrUoG0HfywhVMmQfcpeIMjE=;
+        t=1639313641; bh=Mu6DObjl4NjaDHGHcI+cH71n6ivJ3cELCJZmt93mjOo=;
         h=From;
-        b=N+HYvyoFl59BN+J3iuKgwpvzvXAp5iQ/GJWbfpFLMjGQNj3aufglWm6B0Z10Zfsgm
-         /4PMDXo6TfCTohG8bWE89xnO2P/m0R3mrtfv7k3pkEvxIzEgAgNKALQVdF81p6bWoP
-         aHvpJdgNJq4WX+ejpS6MGbDCMyXZKU6SzAIxfBwMdjfYJZlCM66BVpO/yul0KSLDuY
-         TwpS3iD6JcOKRvnjkSALbHgANoxARaq9zQWpIhThYeO7XH0tbaWJjT+WtOIQMoLkMN
-         dnzG8TmwW7rUWKYZqhOQ5B014CtdzV5fZKR30wOQfriEJvgqC+MP9eL+wwoisDIMbS
-         R5M0kJ/7mxK9Q==
+        b=tK78/E7yg2F0gOx+rU96RGNTqXLK+SBRlZnvX+tsvzU2zt0o+Jy+SdEWL0FO4oTov
+         C7gblnAXZTe5IYRI27qI1ZnrzmmldSRVnHomxLOBRfOYWyCJctGuKm5CJkU1R7hsfz
+         uo6mapLVuoWf9RO6hRh8s5yIZ12LStYmPCy3L8T4bKuiH9qJNcFH43LitM47QiVC7B
+         LapMpxpLSjSNjtwpTlUSda1yxPlnGVBDSg9GO24EBNat6JJdPM4h87joxRjnEzL5lt
+         KFKZ6WGdGQz9Ms8rofB3S5j1ID/yiEHDdGh0PYPdixDwhwtIa4G0OSiCACIbc/tUG9
+         4cT7Fyl/7jbZQ==
 X-CNFS-Analysis: v=2.4 cv=VsDmv86n c=1 sm=1 tr=0 ts=61b5f0e9 cx=a_exe
  a=xtCFBUu/Ze6RtP+zVSd77w==:117 a=xtCFBUu/Ze6RtP+zVSd77w==:17
- a=Lf7JvCFZlXs7EqoJDM0A:9
+ a=8I0KCcMPWWhMFVcpAy8A:9
 From:   Dario Binacchi <dariobin@libero.it>
 To:     linux-kernel@vger.kernel.org
 Cc:     "Andrew F . Davis" <afd@ti.com>, Felipe Balbi <balbi@ti.com>,
@@ -40,12 +40,10 @@ Cc:     "Andrew F . Davis" <afd@ti.com>, Felipe Balbi <balbi@ti.com>,
         Grygorii Strashko <grygorii.strashko@ti.com>,
         Brad Griffis <bgriffis@ti.com>,
         Dario Binacchi <dariobin@libero.it>
-Subject: [RESEND PATCH 1/3] input: ti_am335x_tsc: set ADCREFM for X configuration
-Date:   Sun, 12 Dec 2021 13:53:56 +0100
-Message-Id: <20211212125358.14416-2-dariobin@libero.it>
+Subject: [RESEND PATCH 0/3] input: touchscreen: am335x: fix and improvements
+Date:   Sun, 12 Dec 2021 13:53:55 +0100
+Message-Id: <20211212125358.14416-1-dariobin@libero.it>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20211212125358.14416-1-dariobin@libero.it>
-References: <20211212125358.14416-1-dariobin@libero.it>
 X-CMAE-Envelope: MS4xfF4DdcLXCoY0YJggC1A/zGE1daSGJ1y0kOs+yr+ynnqmiltxHTucCBzBzUM3j8rSF+afXC7fFIrMEb7VZPf14ll2rYq/oIjzYe01ENK2Cunk9N9K40a8
  0vGNZsDTAWemdfQrxurvg7mXqRwX65N6KSXJ1vkOQxSwXBSIeM3XK3H3CVVBA02rha5mhY/waY9oxkH+otEiiz8dP86rcJYzt5M+eAj9UWhDzsAjcY1Mpl3L
  fHgLpYsVE/DGVSaYmeTTU/l8aEMcVvpwnEDQwfghExludvLd/ixCiQ6EAQe7ppcbDJ/YfDO/JlTKKJ/0LRompFwtVhzJ6HkzBQtwKDS4DLUrP2IkB/15MRxg
@@ -56,34 +54,20 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-As reported by the STEPCONFIG[1-16] registered field descriptions of the
-TI reference manual, for the ADC "in single ended, SEL_INM_SWC_3_0 must
-be 1xxx".
 
-Unlike the Y and Z coordinates, this bit has not been set for the step
-configuration registers used to sample the X coordinate.
+This series grew out of a touchscreen validation activity on a custom
+board. Oscilloscope measurements and driver source analysis led to these
+patches.
 
-Fixes: 1b8be32e691 ("Input: add support for TI Touchscreen controller")
-Signed-off-by: Dario Binacchi <dariobin@libero.it>
----
 
- drivers/input/touchscreen/ti_am335x_tsc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Dario Binacchi (3):
+  input: ti_am335x_tsc: set ADCREFM for X configuration
+  input: ti_am335x_tsc: fix STEPCONFIG setup for Z2
+  input: ti_am335x_tsc: lower the X and Y sampling time
 
-diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
-index 83e685557a19..fd3ffdd23470 100644
---- a/drivers/input/touchscreen/ti_am335x_tsc.c
-+++ b/drivers/input/touchscreen/ti_am335x_tsc.c
-@@ -131,7 +131,8 @@ static void titsc_step_config(struct titsc *ts_dev)
- 	u32 stepenable;
- 
- 	config = STEPCONFIG_MODE_HWSYNC |
--			STEPCONFIG_AVG_16 | ts_dev->bit_xp;
-+			STEPCONFIG_AVG_16 | ts_dev->bit_xp |
-+			STEPCONFIG_INM_ADCREFM;
- 	switch (ts_dev->wires) {
- 	case 4:
- 		config |= STEPCONFIG_INP(ts_dev->inp_yp) | ts_dev->bit_xn;
+ drivers/input/touchscreen/ti_am335x_tsc.c | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
 -- 
 2.17.1
 

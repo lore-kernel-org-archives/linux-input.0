@@ -2,39 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFEF0C433FE
-	for <linux-input@archiver.kernel.org>; Mon, 13 Dec 2021 09:41:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 939F7C433EF
+	for <linux-input@archiver.kernel.org>; Mon, 13 Dec 2021 09:43:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232760AbhLMJlW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Dec 2021 04:41:22 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:33454 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233055AbhLMJjf (ORCPT
+        id S235263AbhLMJnI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Dec 2021 04:43:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56178 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234357AbhLMJl2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Dec 2021 04:39:35 -0500
+        Mon, 13 Dec 2021 04:41:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E65EC08E9B0;
+        Mon, 13 Dec 2021 01:39:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BAF72CE0E83;
-        Mon, 13 Dec 2021 09:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65299C00446;
-        Mon, 13 Dec 2021 09:39:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C5FEB80E19;
+        Mon, 13 Dec 2021 09:39:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E42C00446;
+        Mon, 13 Dec 2021 09:39:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388372;
-        bh=S/hygQGUET9MIZyjYTY0CDNN5sHGYddTMZYOqSss/Fs=;
+        s=korg; t=1639388352;
+        bh=7fw6eIAjoNXTmK0veCULfcLKFK5LMm4xKFHFJ14zlTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hoOjTaoXTcS3/+4lHcEg6IZcwB4ovajMNNdqIvAPDg4lbIg/xmQzGfppYjgNoLVEe
-         K4no6Zk1/aHLALPYlKU/M9zh60dMlgHwZwOwyacOAFS4ZSwxmXKXt1QGaXmF4cD87l
-         5kfijAEHt+TeYt/gYKhECLcvgrt8rpm99AWEXWMw=
+        b=TwXCOg+lReaZbhJVDQVgv5G88vamqEZtW+5Ezvwp3AZSX3PO81nXJKonMs5qSqXD0
+         Mpi1w4TrFV+HEkuDvBgAi5Zz10yhiK6twMxsLqV5vMMvvogYavyslxgTOSL7iPcv6A
+         EAlO54OveuRGQTosWDOe7Il6S0gRPgp/aLRv7p3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 4.19 06/74] HID: wacom: fix problems when device is not a valid USB device
-Date:   Mon, 13 Dec 2021 10:29:37 +0100
-Message-Id: <20211213092930.981333974@linuxfoundation.org>
+Subject: [PATCH 4.19 02/74] HID: add hid_is_usb() function to make it simpler for USB detection
+Date:   Mon, 13 Dec 2021 10:29:33 +0100
+Message-Id: <20211213092930.855330955@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
 References: <20211213092930.763200615@linuxfoundation.org>
@@ -48,13 +51,14 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 720ac467204a70308bd687927ed475afb904e11b upstream.
+commit f83baa0cb6cfc92ebaf7f9d3a99d7e34f2e77a8a upstream.
 
-The wacom driver accepts devices of more than just USB types, but some
-code paths can cause problems if the device being controlled is not a
-USB device due to a lack of checking.  Add the needed checks to ensure
-that the USB device accesses are only happening on a "real" USB device,
-and not one on some other bus.
+A number of HID drivers already call hid_is_using_ll_driver() but only
+for the detection of if this is a USB device or not.  Make this more
+obvious by creating hid_is_usb() and calling the function that way.
+
+Also converts the existing hid_is_using_ll_driver() functions to use the
+new call.
 
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -63,58 +67,49 @@ Cc: stable@vger.kernel.org
 Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211201183503.2373082-2-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20211201183503.2373082-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/wacom_sys.c |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/hid/hid-asus.c  |    2 +-
+ drivers/hid/wacom_sys.c |    2 +-
+ include/linux/hid.h     |    5 +++++
+ 3 files changed, 7 insertions(+), 2 deletions(-)
 
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -622,7 +622,7 @@ static int asus_probe(struct hid_device
+ 	if (drvdata->quirks & QUIRK_IS_MULTITOUCH)
+ 		drvdata->tp = &asus_i2c_tp;
+ 
+-	if (drvdata->quirks & QUIRK_T100_KEYBOARD) {
++	if ((drvdata->quirks & QUIRK_T100_KEYBOARD) && hid_is_usb(hdev)) {
+ 		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+ 
+ 		if (intf->altsetting->desc.bInterfaceNumber == T100_TPAD_INTF) {
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -697,7 +697,7 @@ static void wacom_retrieve_hid_descripto
- 	 * Skip the query for this type and modify defaults based on
- 	 * interface number.
- 	 */
--	if (features->type == WIRELESS) {
-+	if (features->type == WIRELESS && intf) {
- 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0)
- 			features->device_type = WACOM_DEVICETYPE_WL_MONITOR;
- 		else
-@@ -2419,6 +2419,9 @@ static void wacom_wireless_work(struct w
+@@ -2188,7 +2188,7 @@ static void wacom_update_name(struct wac
+ 	if ((features->type == HID_GENERIC) && !strcmp("Wacom HID", features->name)) {
+ 		char *product_name = wacom->hdev->name;
  
- 	wacom_destroy_battery(wacom);
+-		if (hid_is_using_ll_driver(wacom->hdev, &usb_hid_driver)) {
++		if (hid_is_usb(wacom->hdev)) {
+ 			struct usb_interface *intf = to_usb_interface(wacom->hdev->dev.parent);
+ 			struct usb_device *dev = interface_to_usbdev(intf);
+ 			product_name = dev->product;
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -834,6 +834,11 @@ static inline bool hid_is_using_ll_drive
+ 	return hdev->ll_driver == driver;
+ }
  
-+	if (!usbdev)
-+		return;
++static inline bool hid_is_usb(struct hid_device *hdev)
++{
++	return hid_is_using_ll_driver(hdev, &usb_hid_driver);
++}
 +
- 	/* Stylus interface */
- 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
- 	wacom1 = hid_get_drvdata(hdev1);
-@@ -2698,8 +2701,6 @@ static void wacom_mode_change_work(struc
- static int wacom_probe(struct hid_device *hdev,
- 		const struct hid_device_id *id)
- {
--	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
--	struct usb_device *dev = interface_to_usbdev(intf);
- 	struct wacom *wacom;
- 	struct wacom_wac *wacom_wac;
- 	struct wacom_features *features;
-@@ -2736,8 +2737,14 @@ static int wacom_probe(struct hid_device
- 	wacom_wac->hid_data.inputmode = -1;
- 	wacom_wac->mode_report = -1;
+ #define	PM_HINT_FULLON	1<<5
+ #define PM_HINT_NORMAL	1<<1
  
--	wacom->usbdev = dev;
--	wacom->intf = intf;
-+	if (hid_is_usb(hdev)) {
-+		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
-+		struct usb_device *dev = interface_to_usbdev(intf);
-+
-+		wacom->usbdev = dev;
-+		wacom->intf = intf;
-+	}
-+
- 	mutex_init(&wacom->lock);
- 	INIT_DELAYED_WORK(&wacom->init_work, wacom_init_work);
- 	INIT_WORK(&wacom->wireless_work, wacom_wireless_work);
 
 

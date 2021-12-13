@@ -2,45 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C46DDC433F5
-	for <linux-input@archiver.kernel.org>; Mon, 13 Dec 2021 09:40:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFEF0C433FE
+	for <linux-input@archiver.kernel.org>; Mon, 13 Dec 2021 09:41:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235195AbhLMJka (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Dec 2021 04:40:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54694 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234065AbhLMJi5 (ORCPT
+        id S232760AbhLMJlW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Dec 2021 04:41:22 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:33454 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233055AbhLMJjf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Dec 2021 04:38:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75516C08E89B;
-        Mon, 13 Dec 2021 01:37:19 -0800 (PST)
+        Mon, 13 Dec 2021 04:39:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41D78B80E25;
-        Mon, 13 Dec 2021 09:37:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F89C00446;
-        Mon, 13 Dec 2021 09:37:16 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BAF72CE0E83;
+        Mon, 13 Dec 2021 09:39:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65299C00446;
+        Mon, 13 Dec 2021 09:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388237;
-        bh=kVnBx3KDquuRJKSfVJ/VNrJl0GEmX+U2VoJwTEOmqWo=;
+        s=korg; t=1639388372;
+        bh=S/hygQGUET9MIZyjYTY0CDNN5sHGYddTMZYOqSss/Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gT6kUPJl/iGk3GJ1wadxLgj6ZvLK55s7yDjkCKxFdcgNqm54xh3aNyBRGydHPSo7X
-         E4MMnY6gLeUSGX2WCZXm6Yxuw8RVKHuUL/25XRT/5oM+lg0rMn6lJBrq1o8AczAg1u
-         Dd1vxd3BsXtM7djcLwM+qvhF4g2rNZ7ZRESon62E=
+        b=hoOjTaoXTcS3/+4lHcEg6IZcwB4ovajMNNdqIvAPDg4lbIg/xmQzGfppYjgNoLVEe
+         K4no6Zk1/aHLALPYlKU/M9zh60dMlgHwZwOwyacOAFS4ZSwxmXKXt1QGaXmF4cD87l
+         5kfijAEHt+TeYt/gYKhECLcvgrt8rpm99AWEXWMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 4.14 05/53] HID: wacom: fix problems when device is not a valid USB device
-Date:   Mon, 13 Dec 2021 10:29:44 +0100
-Message-Id: <20211213092928.532415360@linuxfoundation.org>
+Subject: [PATCH 4.19 06/74] HID: wacom: fix problems when device is not a valid USB device
+Date:   Mon, 13 Dec 2021 10:29:37 +0100
+Message-Id: <20211213092930.981333974@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092928.349556070@linuxfoundation.org>
-References: <20211213092928.349556070@linuxfoundation.org>
+In-Reply-To: <20211213092930.763200615@linuxfoundation.org>
+References: <20211213092930.763200615@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,7 +71,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/hid/wacom_sys.c
 +++ b/drivers/hid/wacom_sys.c
-@@ -578,7 +578,7 @@ static void wacom_retrieve_hid_descripto
+@@ -697,7 +697,7 @@ static void wacom_retrieve_hid_descripto
  	 * Skip the query for this type and modify defaults based on
  	 * interface number.
  	 */
@@ -83,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		if (intf->cur_altsetting->desc.bInterfaceNumber == 0)
  			features->device_type = WACOM_DEVICETYPE_WL_MONITOR;
  		else
-@@ -2280,6 +2280,9 @@ static void wacom_wireless_work(struct w
+@@ -2419,6 +2419,9 @@ static void wacom_wireless_work(struct w
  
  	wacom_destroy_battery(wacom);
  
@@ -93,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	/* Stylus interface */
  	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
  	wacom1 = hid_get_drvdata(hdev1);
-@@ -2559,8 +2562,6 @@ static void wacom_mode_change_work(struc
+@@ -2698,8 +2701,6 @@ static void wacom_mode_change_work(struc
  static int wacom_probe(struct hid_device *hdev,
  		const struct hid_device_id *id)
  {
@@ -102,7 +99,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	struct wacom *wacom;
  	struct wacom_wac *wacom_wac;
  	struct wacom_features *features;
-@@ -2593,8 +2594,14 @@ static int wacom_probe(struct hid_device
+@@ -2736,8 +2737,14 @@ static int wacom_probe(struct hid_device
  	wacom_wac->hid_data.inputmode = -1;
  	wacom_wac->mode_report = -1;
  

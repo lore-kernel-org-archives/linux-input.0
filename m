@@ -2,39 +2,39 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDA95C4332F
-	for <linux-input@archiver.kernel.org>; Mon, 13 Dec 2021 09:34:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D874C433FE
+	for <linux-input@archiver.kernel.org>; Mon, 13 Dec 2021 09:35:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234292AbhLMJez (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Dec 2021 04:34:55 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:58434 "EHLO
+        id S232556AbhLMJfK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Dec 2021 04:35:10 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:58892 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233971AbhLMJeK (ORCPT
+        with ESMTP id S234058AbhLMJeV (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Dec 2021 04:34:10 -0500
+        Mon, 13 Dec 2021 04:34:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DBAE9CE0E77;
-        Mon, 13 Dec 2021 09:34:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87253C00446;
-        Mon, 13 Dec 2021 09:34:06 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 192F6CE0E8B;
+        Mon, 13 Dec 2021 09:34:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B965CC341C8;
+        Mon, 13 Dec 2021 09:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388047;
-        bh=vJQ6ymBTQJdFTgo0RwDmqrh+qj8MQP8lRhHa+QDcWeo=;
+        s=korg; t=1639388058;
+        bh=2h2SHIPC2S9rx7FduwV2BKAFGGp9otTwfecsbTSF6iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y6V5wTT/6dQ3NsY3HwzEu70/fSoj00REBsSsUEcw6L4+agwmYMOi18oZFrZC8OxkC
-         unHETcXF5ba5eh9Xn3OoPD2BtRRazfQ4ioe/OKn+Olb97dkYA53z+1CDkBrj8OqFk1
-         Fc+AjhrAS9w6VW+4GodjPna/EQ0s+eh6Or9y+778=
+        b=XIdDILMc5FO7oum8uzRALnfHDV5FBm0Bww5DukGTkBeWaeWkR+d0LrpYa6xeh2szH
+         Ypp+C0KhjBs7G4B7MNnYOb0WleCelBxff7nCS7KeWZW59j9AojHZUnamtlgALZwmKy
+         AUamNdWvx8jRHx/WzTy9oERmEdBREjeduSOTaV9I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 4.9 02/42] HID: add hid_is_usb() function to make it simpler for USB detection
-Date:   Mon, 13 Dec 2021 10:29:44 +0100
-Message-Id: <20211213092926.660321136@linuxfoundation.org>
+Subject: [PATCH 4.9 06/42] HID: wacom: fix problems when device is not a valid USB device
+Date:   Mon, 13 Dec 2021 10:29:48 +0100
+Message-Id: <20211213092926.780562238@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211213092926.578829548@linuxfoundation.org>
 References: <20211213092926.578829548@linuxfoundation.org>
@@ -48,14 +48,13 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit f83baa0cb6cfc92ebaf7f9d3a99d7e34f2e77a8a upstream.
+commit 720ac467204a70308bd687927ed475afb904e11b upstream.
 
-A number of HID drivers already call hid_is_using_ll_driver() but only
-for the detection of if this is a USB device or not.  Make this more
-obvious by creating hid_is_usb() and calling the function that way.
-
-Also converts the existing hid_is_using_ll_driver() functions to use the
-new call.
+The wacom driver accepts devices of more than just USB types, but some
+code paths can cause problems if the device being controlled is not a
+USB device due to a lack of checking.  Add the needed checks to ensure
+that the USB device accesses are only happening on a "real" USB device,
+and not one on some other bus.
 
 Cc: Jiri Kosina <jikos@kernel.org>
 Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
@@ -64,25 +63,58 @@ Cc: stable@vger.kernel.org
 Tested-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211201183503.2373082-1-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20211201183503.2373082-2-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/hid.h |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/hid/wacom_sys.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -773,6 +773,11 @@ static inline bool hid_is_using_ll_drive
- 	return hdev->ll_driver == driver;
- }
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -506,7 +506,7 @@ static void wacom_retrieve_hid_descripto
+ 	 * Skip the query for this type and modify defaults based on
+ 	 * interface number.
+ 	 */
+-	if (features->type == WIRELESS) {
++	if (features->type == WIRELESS && intf) {
+ 		if (intf->cur_altsetting->desc.bInterfaceNumber == 0)
+ 			features->device_type = WACOM_DEVICETYPE_WL_MONITOR;
+ 		else
+@@ -2115,6 +2115,9 @@ static void wacom_wireless_work(struct w
  
-+static inline bool hid_is_usb(struct hid_device *hdev)
-+{
-+	return hid_is_using_ll_driver(hdev, &usb_hid_driver);
-+}
+ 	wacom_destroy_battery(wacom);
+ 
++	if (!usbdev)
++		return;
 +
- #define	PM_HINT_FULLON	1<<5
- #define PM_HINT_NORMAL	1<<1
+ 	/* Stylus interface */
+ 	hdev1 = usb_get_intfdata(usbdev->config->interface[1]);
+ 	wacom1 = hid_get_drvdata(hdev1);
+@@ -2354,8 +2357,6 @@ static void wacom_remote_work(struct wor
+ static int wacom_probe(struct hid_device *hdev,
+ 		const struct hid_device_id *id)
+ {
+-	struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
+-	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct wacom *wacom;
+ 	struct wacom_wac *wacom_wac;
+ 	struct wacom_features *features;
+@@ -2388,8 +2389,14 @@ static int wacom_probe(struct hid_device
+ 	wacom_wac->hid_data.inputmode = -1;
+ 	wacom_wac->mode_report = -1;
  
+-	wacom->usbdev = dev;
+-	wacom->intf = intf;
++	if (hid_is_usb(hdev)) {
++		struct usb_interface *intf = to_usb_interface(hdev->dev.parent);
++		struct usb_device *dev = interface_to_usbdev(intf);
++
++		wacom->usbdev = dev;
++		wacom->intf = intf;
++	}
++
+ 	mutex_init(&wacom->lock);
+ 	INIT_WORK(&wacom->wireless_work, wacom_wireless_work);
+ 	INIT_WORK(&wacom->battery_work, wacom_battery_work);
 
 

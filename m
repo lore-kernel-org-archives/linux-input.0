@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8D58C433EF
-	for <linux-input@archiver.kernel.org>; Mon, 13 Dec 2021 09:44:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34A41C43219
+	for <linux-input@archiver.kernel.org>; Mon, 13 Dec 2021 09:49:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235168AbhLMJoY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Dec 2021 04:44:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56236 "EHLO
+        id S235295AbhLMJtZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Dec 2021 04:49:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33134 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235771AbhLMJmT (ORCPT
+        with ESMTP id S236341AbhLMJrA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 13 Dec 2021 04:42:19 -0500
+        Mon, 13 Dec 2021 04:47:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37527B80E15;
-        Mon, 13 Dec 2021 09:42:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 848E1C00446;
-        Mon, 13 Dec 2021 09:42:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 066C8B80E2C;
+        Mon, 13 Dec 2021 09:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A47EC341C5;
+        Mon, 13 Dec 2021 09:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1639388537;
+        s=korg; t=1639388815;
         bh=WzI8d3jgoWNvbGn9QBVOeez0UL9AobdND61llHL5yUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbRku/aFMR/ceSPrRpsqWjj6L41RsPy1qDJOzEn0JtD9NOQIwAWp7KeXUgtE2ZUMw
-         KXp5pBvrJ0YRzQ/dxYeFKEbgyiBHvAFQBUfgFUWONDghPE3BU1BHnD0ZMIzlgIoYvh
-         AatE0IYsFSXg7sIwwMFQmP2MNjJBXrjd3ySwKBbs=
+        b=lNNCzgIWx62PXmedi2ihCHL3emaQpt9wji/t9t0eBIzYdUoTI1gBzKdGLRR7U/IMj
+         K50SFGI++cfmVrqnGEWOzZlaal+uysT6GHdPdeaQsjCw9aW12Ts8KizKqXmudHnayx
+         j0+Z76G/mXLt1VoFV+ColYVgxqTGV2TfvB7g8hPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH 5.4 10/88] HID: wacom: fix problems when device is not a valid USB device
-Date:   Mon, 13 Dec 2021 10:29:40 +0100
-Message-Id: <20211213092933.583260855@linuxfoundation.org>
+Subject: [PATCH 5.10 011/132] HID: wacom: fix problems when device is not a valid USB device
+Date:   Mon, 13 Dec 2021 10:29:12 +0100
+Message-Id: <20211213092939.469470318@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20211213092933.250314515@linuxfoundation.org>
-References: <20211213092933.250314515@linuxfoundation.org>
+In-Reply-To: <20211213092939.074326017@linuxfoundation.org>
+References: <20211213092939.074326017@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8

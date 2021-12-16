@@ -2,175 +2,281 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2AA04C433FE
-	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 12:42:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 14F6FC433F5
+	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 15:52:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236863AbhLPMmO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Dec 2021 07:42:14 -0500
-Received: from de-smtp-delivery-102.mimecast.com ([194.104.109.102]:35348 "EHLO
-        de-smtp-delivery-102.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236858AbhLPMmO (ORCPT
+        id S232798AbhLPPwe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Dec 2021 10:52:34 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:54080 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232619AbhLPPwd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Dec 2021 07:42:14 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=mimecast20200619;
-        t=1639658532;
+        Thu, 16 Dec 2021 10:52:33 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639669953;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=PpfVRe1UT2wGalaL9iuGTivHiNg90mOv+8A8BigJ4S8=;
-        b=R56jaULon8afsl8VXyBVuzVS1xmXynNIsqJDC6jatR/5XX0sDYxYBcPJh0NRIJ/KRqfWsr
-        77OSmz3bitdlaumDcAu0kAxxo9ehTKd99cPxplnsemvzSnOUUYeA/fGf2DK15OH8O7voWa
-        bjWTYl4ZRUAPtPbwtQW6W422mhmpwH8=
-Received: from EUR04-VI1-obe.outbound.protection.outlook.com
- (mail-vi1eur04lp2051.outbound.protection.outlook.com [104.47.14.51]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- de-mta-23-4P4RhgkBMGiL1bZfzao3Yg-1; Thu, 16 Dec 2021 13:42:11 +0100
-X-MC-Unique: 4P4RhgkBMGiL1bZfzao3Yg-1
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Zyz7gUPTAqwSrCQ4s2Jqep1HO3bxQp7tGoYQQCKz6XTlL5JcpxcRNnnCG7hMwfvkby5flgmRVBfEgI6yjxCGGLOxL/sh8ICAVfsARfrEMLGOu9VoPtep0rXqz4a7LSLyWg8UyZn3vNFmRySYg8jOAyCKV3XDnIXtCA2NEPV/Jtht6DpyN0hSLW/X7X67rj6uPnAgwM1LV9STzBU2xyhiqhFG9cyHDbezN7eMM1kJC5Oil9BXT8kArX0pYYBqtg336ET4RL7EJWo9Ia7vRvsvurEEGFTA6drEYtXUzAzlydRlv7U55jQ/fe6qUJGvLEy8YbsBvH1Z9PO/ZObwY/8qgw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=J9skAueN302NJtXOkTr9zOg/hETyUKm0ms0SI5cyVK0=;
- b=ZflMtpdo162E5oUPhB7+Cl7dVzzdpju75uwq3+FzB91QUiyIJO+a3T2E3Fo5AIP3zU4C1Ibphifs+buZwL3CywkFX9OXeGiepp6aSQoD13jir6A4zxw+eTrCPrpJJYMDBPuq6MruxvWDLy16oOBrhfjlbe7VH0z0ogHe2U27WQNmZPF0NEYKhft0nkeMLdf6PunrbgS94ompfXYGgJOsyrDBs9Aww0YtcLbXFXDhmYP014kpYWJkO2URqzeT1p3ge2zcnlQN5meOBCvldn7Ddh8jLtmnvjKxru2sFs8V1BSqJ8vG0RTJ99bfK37YojAvt3TkYqwnZmpZts+pouNGHw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=suse.com; dmarc=pass action=none header.from=suse.com;
- dkim=pass header.d=suse.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=suse.com;
-Received: from DB7PR04MB5050.eurprd04.prod.outlook.com (2603:10a6:10:22::23)
- by DB8PR04MB5609.eurprd04.prod.outlook.com (2603:10a6:10:b1::29) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4778.17; Thu, 16 Dec
- 2021 12:42:09 +0000
-Received: from DB7PR04MB5050.eurprd04.prod.outlook.com
- ([fe80::e9d6:1be9:d046:af1]) by DB7PR04MB5050.eurprd04.prod.outlook.com
- ([fe80::e9d6:1be9:d046:af1%7]) with mapi id 15.20.4778.018; Thu, 16 Dec 2021
- 12:42:09 +0000
-Subject: Re: [PATCH v1 1/2] HID: usbhid: enable remote wakeup function for
- usbhid device
-To:     zhuyinbo <zhuyinbo@loongson.cn>, Oliver Neukum <oneukum@suse.com>,
-        gregkh@linuxfoundation.org, Jiri Kosina <jikos@kernel.org>,
-        benjamin.tissoires@redhat.com, Thinh.Nguyen@synopsys.com,
-        mathias.nyman@linux.intel.com, stern@rowland.harvard.edu,
-        rajatja@google.com, chris.chiu@canonical.com,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1638956391-20149-1-git-send-email-zhuyinbo@loongson.cn>
- <caf93951-4c63-d0f1-e3f4-d0d49dec6a47@suse.com>
- <d2e4a97a-b89b-eaf4-5aaf-89af22227746@loongson.cn>
- <654e90fb-2f04-1f87-f56c-792757e140a0@suse.com>
- <8ed3dbee-c51c-db54-37b7-182d5a75fff8@loongson.cn>
-From:   Oliver Neukum <oneukum@suse.com>
-Message-ID: <78229065-61e6-3d61-8cf3-3c24c0f96ae2@suse.com>
-Date:   Thu, 16 Dec 2021 13:42:07 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.12.0
-In-Reply-To: <8ed3dbee-c51c-db54-37b7-182d5a75fff8@loongson.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Content-Language: en-US
-X-ClientProxiedBy: AM6P193CA0077.EURP193.PROD.OUTLOOK.COM
- (2603:10a6:209:88::18) To DB7PR04MB5050.eurprd04.prod.outlook.com
- (2603:10a6:10:22::23)
+        bh=zu3j2FVXDiktdfEB46lEm/u6oaFAHWC3ABCIi1VCxYs=;
+        b=S4U0DPcM2p7H68yKKpGid2JKt5WLAhecEi1A6RJSePCOG2Nf70ORLyzIzDSxsf5PEDvD8S
+        hpp5szd+K/zqDYVh7JOWbwRSVLpVeVSy8QyH0SOWLSIjCAfoiRscQnJiA1uUCotX2jTbC5
+        nbLbmWJIbPv071GgkQ0M120cS6b5Ioc=
+Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
+ [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-669-_WAsVhEbPRKl1f6S_eyaUA-1; Thu, 16 Dec 2021 10:52:32 -0500
+X-MC-Unique: _WAsVhEbPRKl1f6S_eyaUA-1
+Received: by mail-pj1-f71.google.com with SMTP id t22-20020a17090a0d1600b001b0e394b0b6so4714306pja.0
+        for <linux-input@vger.kernel.org>; Thu, 16 Dec 2021 07:52:31 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zu3j2FVXDiktdfEB46lEm/u6oaFAHWC3ABCIi1VCxYs=;
+        b=ICXOG57kg+qsQ195vNwGK9ojinvDfym1ciIPVY1L1tIT8lBkflVyWcOY1a1oWY+lJT
+         IFiDBFlye8wEeAeg2Urhcqxrv6tAEZleezs9lUz6qVKmgOHsSdDLN623mWOhK3AglciV
+         HOAMxO1RexZ/QTWMZropl/GC8XktyCmh766EPfZZkCyvOQDQNIUBPn2SxnFbThhTEluE
+         RF0h32rcugfC9nxwmdGD5+OTMyYT06QeO4eJJw2UlY1s88y5GchuhiRf7O3Ul0KTBfJN
+         j5/abdoWJyOocJlwd974wSDxNMgKjPk01EgFMV2wwk4AMDlR+DhB/kSnrHA5K4GUHHcF
+         9tIw==
+X-Gm-Message-State: AOAM531DMWAxY5OBKAt+KQft73sULjwFkWjFkDo0g5CHZu8Dm331Mt1K
+        zb7noyI4/Uv2P6zf5wLApejKUMuLPWavBOL7BoXqrYLiw2rMBKzzFRutUc3Q6b4XFKIRaxmFK5m
+        dWhI+KAQ/rlDf4Earul1aw6ZHMGzwlEPOWpHiu3w=
+X-Received: by 2002:a17:902:ecc9:b0:142:f90:f4a1 with SMTP id a9-20020a170902ecc900b001420f90f4a1mr17076498plh.73.1639669950588;
+        Thu, 16 Dec 2021 07:52:30 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyV4j9seQoEP2BunFy8c3hyFc0uA2irhDI3LAlmuY/AbAVtQ+EtNarfvZJIsK2kOFnt7tmirk0WgRvZF1ofTCY=
+X-Received: by 2002:a17:902:ecc9:b0:142:f90:f4a1 with SMTP id
+ a9-20020a170902ecc900b001420f90f4a1mr17076462plh.73.1639669950196; Thu, 16
+ Dec 2021 07:52:30 -0800 (PST)
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 49770cf1-27e1-47c9-da74-08d9c09179d2
-X-MS-TrafficTypeDiagnostic: DB8PR04MB5609:EE_
-X-LD-Processed: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba,ExtFwd
-X-Microsoft-Antispam-PRVS: <DB8PR04MB56090A7047F7DB8FA916EDF3C7779@DB8PR04MB5609.eurprd04.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: iDgOSvOET/dvuvAgPOEfGVMAJ/3nbVl2lYOD/Ewcmt/YFXbGwfjaOOJvfUKwIESoWWKKPzM/S4LudVYsVUt1uDEa9scUkIzdVnxPn+ZIFAie+ujH1hNHY7HO0uEU/fR+WCqE391UlgTbO0Kz2POXhElKRxanX7XW/8pLQJQYubR9KQVs/qBb2Lxfyu4SLfofUX/q/DTF7u1qpdFx8glVpAnh5SgM4sPlVAjbuCi6fOScNTEQpkecykCcPG9AC8iVZrqqYlll2WXlXy2phPqFMGLiP8D8OA3uvxFmtSjkb9nhX42vulBG5SdQgUmSdLIP/Oy69stXw6Q/mY6n5UOCJ73ATd32YOwKd8JOTwUb0vOXh3W4rnpo8rZkNabXxV6+HXYZDwMhwf9qhAVe8a5qgBvd/QBh/UVKXboQaxMAuFgPu+zcQEESFHaZJ/kob5fchxlB16znuBFpL2qNi6njmabCCvl9xDaFUACAan2MHDBFK48eCxIRz+0dk6b06rHBZmSyc3lFgnnEK+f/AMEvTOifyHoBe38r43lCqE5oHjQeFGkVnyDFDrnh/02P+LppQYzoJFhZxlpyV0VEyQflwQuZJqDu5RtNa+d54jr9gkg1TyIhqDLEIKgj42wvdcGoPamtbhJrgype3MsXHyMAJHL+yzyiCDssGuFi4t5tAOzvqUiyF/pCKt8AQI9gHvq53GUVbaKQLAG54Q5wd44kTlBKUh7BNQv6mugRAyAhqWRc9Jfdg4kQBEIONTLPQJhX
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB7PR04MB5050.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(186003)(2616005)(5660300002)(31686004)(921005)(6486002)(2906002)(31696002)(8676002)(36756003)(316002)(508600001)(53546011)(6506007)(8936002)(66946007)(110136005)(6512007)(7416002)(66476007)(66556008)(38100700002)(86362001)(83380400001)(45980500001)(43740500002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?7sKYyTcqX6mnTzCMHBqXFZluNRmy9qz0dJ6+j7YwnjMDMMlBs8NfYzxqyC4u?=
- =?us-ascii?Q?hTAVE69DH9aWw/bfyxJQSnQBCFN+/ZL6BGzcddQ4mWhwDGNOEaod+Ir46ZiQ?=
- =?us-ascii?Q?endZ6x4NiBFOK5bwBhSP7CCTVzm5Wt7B//mcDhsq8kEdLABoMutadKB2ghKP?=
- =?us-ascii?Q?iqqY3Q8uUUoUSjkpbjNH7YxlvHVGq/XAg5XzHyiiT7h87kjnNtM6JHDLRZaw?=
- =?us-ascii?Q?5Uxor2Y28C/ndTwFA7QndPmRN334Xmxg82ZUzRmVatEvN8qr3HdpW/S4GaGN?=
- =?us-ascii?Q?mGzfEBAMxpT7MuZTnTJn2PgJbAVw7UGJtx8HS0DfEQmoCRTVEHBRv63KVHR5?=
- =?us-ascii?Q?6c/8yxcIZn1LZxLZnHs96vKTKc2ieQQHsy0LGGzwb7cWDPQI1Sf2VFRn5X3a?=
- =?us-ascii?Q?4Dax0VbTEcZxIvCvjyY/jHVkiQePpUZJZjVzPB0R85n5X4UbCwlIkwoBAijT?=
- =?us-ascii?Q?yfBqlFgNSbpa8qJrmi1sIKiWipUI+gaQ09Sh8NCgg9Rq43ZWAJA+YX476o6n?=
- =?us-ascii?Q?qqrHMNVY511R3jStQVowx2ZXkMXocBoeZ/6KDdhgbtszttLf/VnCm9viGhRY?=
- =?us-ascii?Q?Td0y9u7GsWD6Rj3xI9NiZ59zzdLFxwZzYMqpec1PHgu9fGPGFG7QEWjNS9pY?=
- =?us-ascii?Q?d004d+xOha4OyZzpQp6nb5KQmQ8+HXy16nNpqSaS6Kqow4xVwMUvSu5XPUlP?=
- =?us-ascii?Q?56xJO9Ue1UJCEYQMn4m4uZOO5IIcyGugFoeXovQ7BbD4DBlMuyLkkdXa2ifN?=
- =?us-ascii?Q?c795gFuHd+ompUALF70iSt+JG0cMZYvaND9Ljsk4oVcOtmsAhB4n5+d+01ou?=
- =?us-ascii?Q?APvtJOb95Vc8SbRhoD37bGlG/8ah7VOThncSB+NkzrjIItWdJdFWkw1WBcNw?=
- =?us-ascii?Q?J2zJUKAWmp9zwx93ylbRSxbcE3kQaH49Wr//rVbAqPyObiZmybKF8WBEAXQa?=
- =?us-ascii?Q?aWAPQotDwBTTooCu5HQrWDoF5WlKDXVZzZoDML9TP9zq09fQ27JWNGiKxSE6?=
- =?us-ascii?Q?jmgZeMWNaYjhyQEApOVKTBTV+je74OluJwx47tjAhPcbEUzTeSvDaror8Kme?=
- =?us-ascii?Q?Uo0++VSzJzHxZnIB2/UNbfjXlfvZaO3xZXvxX/OU4XVr4wmArbjHrAVfrM35?=
- =?us-ascii?Q?4qa6tFDbvMo/2DLcfkCNs5ZSRlheBQ9uB0ONLo2DWwCArWS76Ecku6CfB3jF?=
- =?us-ascii?Q?tqI3LQ2H+bo2E3JNrZqLPUtIOWs0yNYcEC64c3jOM24iLFTxUrOIgLwSkEjf?=
- =?us-ascii?Q?pjE6dHkCa5YFOgS/8tYRD6BjsbArhlXsrCZa1vUpAN2/XWbPcwk7vBxTQbR0?=
- =?us-ascii?Q?YpFYj2VjYZLMR7kLOGxtr/0UApjxXJ7ZkmHniXCbFsMqovamiddAgdxssPAX?=
- =?us-ascii?Q?Klpd8z5i0gsaCTJFKiM8EcfbDHYm7Tx4Jo9DxFD4y4oga+do9Fpv1cZEj7V+?=
- =?us-ascii?Q?983csNfwXJ55sO4e+pnNI6JET8GNH7rg7nhaGXlozQLsY702+Yb2fLJrfbe5?=
- =?us-ascii?Q?M2wDFvFHvi1UanzUZzJ/FcU0LGakIOS9td4AWR2+YYO+Q5AJAJcNNaCqHuUj?=
- =?us-ascii?Q?WeDv+DNX7kTlwGKIO0MFueaT6L0Hq6F1wGEYchMEtD1JSg6jcb65Gokm57cd?=
- =?us-ascii?Q?EZFmYi9ij4vGeOJ2dXPVUOOp5+PsYx1CEnguUkyWOjaMQAkc/18vnvfqWMdp?=
- =?us-ascii?Q?QL60rxvA7BdflSqzOTYWmiTW8/Y=3D?=
-X-OriginatorOrg: suse.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 49770cf1-27e1-47c9-da74-08d9c09179d2
-X-MS-Exchange-CrossTenant-AuthSource: DB7PR04MB5050.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Dec 2021 12:42:09.7397
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: f7a17af6-1c5c-4a36-aa8b-f5be247aa4ba
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: HrIITNo0jWHlh6Y8szOmUXU44y3kMhD97CwfvkdZhSUrX4xftbj9cyAYXca0wEDtUi8lIKcf22rDboxsoHcexw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR04MB5609
+References: <20211215134220.1735144-1-tero.kristo@linux.intel.com>
+ <CAO-hwJ+nm3jUo9znsROjc0=e_3aGOq-L43OVvUHwBewtwODJfA@mail.gmail.com> <813c7709-e8f8-85ce-9868-3e850f65d651@linux.intel.com>
+In-Reply-To: <813c7709-e8f8-85ce-9868-3e850f65d651@linux.intel.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Thu, 16 Dec 2021 16:52:18 +0100
+Message-ID: <CAO-hwJL6gj++gTz+pFyfxbRTB9ncVsBAyAcwyPrvC+=VYgj8BQ@mail.gmail.com>
+Subject: Re: [RFCv5 0/2] HID: Add USI support
+To:     Tero Kristo <tero.kristo@linux.intel.com>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Thu, Dec 16, 2021 at 1:28 PM Tero Kristo <tero.kristo@linux.intel.com> wrote:
+>
+> Hi Benjamin,
+>
+> On 16/12/2021 12:36, Benjamin Tissoires wrote:
+> > Hi Tero,
+> >
+> > On Wed, Dec 15, 2021 at 2:42 PM Tero Kristo <tero.kristo@linux.intel.com> wrote:
+> >> Hi,
+> >>
+> >> These two patches add the missing pieces for HID USI support. First one
+> >> adds the HID core changes to support the new Misc events for pen ID,
+> >> line color and line style. The second patch adds a BPF program on top of
+> >> the HID-BPF driver which adds support for writing the Pen parameters
+> >> from userspace, and to add filtering of HID low level events for ELAN
+> >> USI controller. The BPF programs are not built by the kernel as of now
+> >> (there are no Makefile changes), as there is a plan to most likely
+> >> integrate these to a kernel external repository. I have tested these in
+> >> my own external build setup though, and I can provide the makefile for
+> >> that if needed. Also a sample client program is provided for
+> >> communicating with the D-BUS server.
+> > I had a deeper look at the recordings, and I am very worried in what I
+> > am seeing:
+> > - the USI parameters seems to be transmitted only after the touch
+> Yes, they don't get updated before the pen touches the screen.
 
-On 16.12.21 11:59, zhuyinbo wrote:
+Looking at the logs you provided, and when you switch pens, it seems
+the serial number in the Elan case is updated while hovering (but it
+takes 3 seconds to get to that point).
+Also, the first time you hovered the pen, the inrange slot was not
+long enough to be 3 seconds, so maybe that's the time the controller
+needs to manually update the information.
+
+OTOH, on the Goodix one, if you initiated the GET_REPORT after the
+first touch, the information came in a few ms.
+
+So I wonder, what if you take the BPF program from the goodix and
+start querying the information as soon as the pen is hovering in the
+Elan case. Would that accelerate the time it fetches them?
+
+> > - the USI parameters takes *a lot* of time to be transmitted (2 bytes
+> > every 2 reports)
+> Yes, there appears to be a very large latency when they are transmitted
+> from the pen to controller. Apparently the controller queries each
+> parameter from the pen individually and caches the received values
+> internally, and then passes these out via input reports.
+
+And of course, Goodix doesn't even bother with the serial number.
+
+> > - the recording of the goodix one starts with a stylus touch without hovering
+> This is a glitch I think, I'll capture a new log.
+> > - the only "reliable" information we get when hovering seems to be the
+> > transducer index
+>
+> Yes, however even this one is a static constant of "1" for the current
+> controllers.
+
+Ouch. Well, that also means that this is used as an index and if the
+controller were to support more than a pen, the index would be 2 for
+the second pen when the first is touching...
+So this is not reliable for now, but is consistent with a multi-pen scenario.
+
 >
 >
-Hi,
+> >
+> > So I am wondering a few things:
+> > - what happens when you switch between pens?
+> >    * Do we immediately get a different transducer index?
+> No, the transducer index gets re-allocated, effectively the first pen is
+> going to use transducer index 1, and the second pen is going to re-use
+> that and still report it as 1. This is a highly annoying feature.
+
+Well, that also means that we can ignore this field until we see
+controllers capable of handling more than one pen.
+
+> >    * Are the values right there or do they also take time to be updated?
+> They take time to update. If you are using the same pen, the values are
+> retained in the cache and report correct values immediately, but if you
+> switch pens, they start updating with the same latency as initial pen touch.
+
+That is worrying. The serial number is also cached and we don't know
+if we are using the same pen or not way too long after the pen touched
+the surface.
 
 
-> if you only talk about wakeup source you can think that usb-wakeup
-> source and acpi-lid wakeup source was different things. but if you
-> talk about laptop and distinguish lid and other event and you shoud
-> know the cannotation why system still continue sleep when lid closed
-> then system by other event wakeup. if you need test usb-wakeup for
-> laptop and that lid shouldn't be closed.
-I am sorry, I am not sure what you wish to say here. Could you rephrase it?
->> from the default.
->>
->> In general any HID device must have wakeup capability to be usable for
->> selective suspend. You cannot draw conclusions from that.
-> you still can has wakeup capability, but it should be keep enabled by
-> default. because the hid device should be convenient for human,
+> > - on the goodix one, do you still need to issue a get_report on the
+> > feature to get the USI parameters, even when you change the pen?
+>
+> Yes, goodix reports 0xff,0xff,0x77 for the parameters until a GET_REPORT
+> is issued, after which it notices the parameter that was queried has
+> changed and updates its cached value. Also, see how it reports 0x77,
+> instead of an index to the usages array.
 
-Well, no. We are talking about a kernel default. That needs to be so that i=
-t
-always works on all systems. Convinience is secondary.
+The 0x77 doesn't bother me too much. This should not trigger an input
+event because we are out of the usage range.
 
-
-> if you don't think so and I think HID definition is ridiculous.
-It does have its weaknesses, in particular with respect to differentiating
-between events for wakeups. But we cannot change it.
 >
 >
-> In addition, I had said that laptop usb wakeup was disabled in system
-> bios by default and if user want enable usb wakeup that was only by
-> configure bios and doesn't need enable wakeup node if my patch was
-> applied
-If you deviate from the default, you deviate. That is reducing the number o=
-f
-changes is worth little. The default must be above everything else safe.
+> >
+> > Could you give me the following recording (with an updated hid-tools
+> > master branch):
+> > - on the Elan:
+> >    * start the recording from a fresh boot (no BPF loaded)
+> >    * hover for a few secs the first USI pen you have
+> >    * touch it for a few secs
+> >    * release, then out of proximity
+> >    * approach the other pen
+> >    * touch
+> >    * release, out of prox
+> >    * then once again with the first pen
+> >    * then once again with the second pen
+> >
+> > - on the goodix: same thing
+> >
+> > - on the goodix: same thing but with a BPF program to trigger the
+> > GET_REPORT if you can cook one quickly (not a big issue if you can
+> > not).
+> >
+> > The reason I am asking about those recordings is because with the 2
+> > logs you kindly provided, there is no way we can forward the raw
+> > information to userspace. So I am slightly tempted to only rely on a
+> > USI manager, in the form of the BPF program in 2/2 to transmit that
+> > information to userspace.
+> >
+> > If this is bulky just for the first event, then the input events might
+> > be OK, we can assume when the application needs those events they will
+> > be there.
+>
+> See attached tarball. All three logs are in it, I crafted a BPF program
+> for Goodix controller also. Wasn't that bad actually, a few line change
+> so it might be possible to use the same program at least for these two
+> controllers.
 
-=C2=A0=C2=A0=C2=A0 Regards
-=C2=A0=C2=A0=C2=A0 =C2=A0=C2=A0=C2=A0 Oliver
+\o/
+
+>
+>
+> >
+> >> I have also a kernel testing branch available at [1], which contains a
+> >> few fix patches on top of Benjamin's HID-BPF driver work, and is rebased
+> >> on top of latest hid/for-next. The HID-BPF fixes have been cleaned up a
+> >> bit compared to previous setup. There are also a couple of new patches
+> >> for adding support for a delayed_work BPF program on top of the
+> >> hid-bpf driver; this is used to execute the raw_requests in non-irq
+> >> context.
+> > Thanks for that. I had a very quick look. I thought we could directly
+> > use the bpf_timer_* functions instead of having to cook another API.
+> > I'll play around with this, but thanks for pushing forward :)
+>
+> Yeah, I am kicked by someone on this so want to proceed. ;)
+>
+> According to documentation, bpf_timer callbacks are executed in soft-irq
+> context, so we can't use it at least for sending the raw_requests which
+> is needed for USI.
+
+I might be wrong, but I am not sure if soft IRQs are incompatible with
+hid_hw_raw_request.
+Anyway, I gave it a shot today and I am hitting the fact that we lose
+the BPF context in the timer callback. So we might actually need a new
+API :/
+
+>
+> >
+> > IIRC you asked me when I was counting on submitting the HID BPF work.
+> >
+> > So my answer is that I wanted to submit it by the end of 2021, but it
+> > looks like I have only one week to finalize this :/
+> Ok, sounds like you want to submit it probably early next year then. I
+> just wanted to have some sort of ballpark estimate, and this is good
+> enough for me, thanks.
+
+Yeah, sorry for the delay.
+
+> >
+> > The current missing points are:
+> > - add selftests for all the new API introduced
+> > - review the entire API to not have to deal with a mistake forever
+> > - rebase against bpf-next
+> If you need my help on any of these items, let me know.
+> >
+> > One part of the API I am wondering is whether it is good or not to
+> > have bpf_hid_foreach_rdesc_item(). This function is complex and we
+> > could in theory parse the report descriptor in userspace, even before
+> > we load the program. So all the parameters you need in the various
+> > raw_event functions could be computed in user space, leading to a much
+> > smaller API. The other benefit would be that the API would only deal
+> > with arrays of bytes, which is a small enough and versatile enough API
+> > :)
+>
+> This might be a good idea. Assuming the BPF programs end up in the
+> hid-tools repo, there could be a generic library for parsing the rdescs
+> also which the userspace programs could use.
+
+Oh. Glad to see that this is something you find interesting. Peter
+Hutterer mentioned that idea and I am still not 100% sure about it,
+but if you also think it'll make things easier, then why not :)
+
+Cheers,
+Benjamin
+
+>
+> -Tero
+>
+> >
+> > Cheers,
+> > Benjamin
+> >
+> >> -Tero
+> >>
+> >> [1] https://github.com/t-kristo/linux/tree/usi-5.16-v5-bpf
+> >>
+> >>
 

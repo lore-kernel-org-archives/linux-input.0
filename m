@@ -2,74 +2,151 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71BE4C433F5
-	for <linux-input@archiver.kernel.org>; Wed, 15 Dec 2021 16:45:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A57FC433F5
+	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 01:47:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244963AbhLOQpk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 15 Dec 2021 11:45:40 -0500
-Received: from mail-oi1-f182.google.com ([209.85.167.182]:41543 "EHLO
-        mail-oi1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231883AbhLOQpk (ORCPT
+        id S232629AbhLPBry (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 15 Dec 2021 20:47:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38494 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229555AbhLPBry (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Dec 2021 11:45:40 -0500
-Received: by mail-oi1-f182.google.com with SMTP id u74so32428037oie.8;
-        Wed, 15 Dec 2021 08:45:39 -0800 (PST)
+        Wed, 15 Dec 2021 20:47:54 -0500
+Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 063BEC061574;
+        Wed, 15 Dec 2021 17:47:54 -0800 (PST)
+Received: by mail-pg1-x530.google.com with SMTP id k4so21618940pgb.8;
+        Wed, 15 Dec 2021 17:47:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=I+AOmwm2BG541EsRFlS96j4s+ZQa+V+JtdC+54LpZE0=;
+        b=MkZM9t8FM37d+qg+Qp6jvP/F7EjoAXrYnR5fGp3I5M1uO82mxywxp6pg0rlAsCAIYS
+         M6qrOxuFC54DFAg2wdsgtSC2BjFXtHtgJDaU3KoxkO4dVyDrCG6F8fssms7UaTY0hbfz
+         c1I2HiGlVAiR38w3zMcjAw8CNaKMPx03SiV6gQZzAWzCohl03pi7ArVQ7OyTZtHn7UOw
+         m9vbTxhT/aCJMneQLM40Vpw6V4FmR2lG9e1YQZWam5K0mTWdgB9lcmmZriihbRN1Egeq
+         mMaGxklrkgFNkp4aZBZ2Gta3xHDMwsl3hffTPltwkqbmLyfoIsgW5qyQltUiPR+zOm7o
+         8h1g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=pgBtQMB9xPX/3DFkmhXnuRYiO6OuFLrYCya8nP4iGPc=;
-        b=E9SUrLhPVtwsAkzHkFV/5uMDJzeuZsl3SZCvf8GCjtnp/tO6o/aZs5Bm5TxbQcWRLn
-         flM+PiAB5S+Kk8OU14Fay07vEOLOHimZd1OJNiiyft9CW1NlSk/9BuH5BGAXa9V3pVQD
-         3UA7d0ii1F85dLyeTn5Mlm0BMBJpXGYxNa98UCUlg2him7Fx/sNTKbpR0cAIHwunmiyw
-         7S5q0rzROMQ1DOBui+Gp4qa3ZEpkN9Owm8DE80gaTw32Tapdx3YZ5Qb61n5A8bpSWYCM
-         8Uuzu3mL2DUAajWrKbntffEiVzmLqWw4hOsWaqA/FVYerWIwUBHC+CUNEqzUxut17cAS
-         OZYA==
-X-Gm-Message-State: AOAM5318bMUj6Ygz4YUF0n8Novltn5qpmc7UmokzozXw170V1Sjjsdog
-        HL/trc7NtOLU6jISPvDbciP7sISU/Q==
-X-Google-Smtp-Source: ABdhPJwDrT0+iGuFb+5zdEsjfFg7LoUukjUZcv1xZfloqcMr3qst5Uut9MTWqyYdbkQKs79CVYb3fA==
-X-Received: by 2002:a05:6808:3012:: with SMTP id ay18mr618774oib.88.1639586739505;
-        Wed, 15 Dec 2021 08:45:39 -0800 (PST)
-Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
-        by smtp.gmail.com with ESMTPSA id q22sm523415ots.62.2021.12.15.08.45.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Dec 2021 08:45:38 -0800 (PST)
-Received: (nullmailer pid 1451270 invoked by uid 1000);
-        Wed, 15 Dec 2021 16:45:38 -0000
-Date:   Wed, 15 Dec 2021 10:45:38 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     David Heidelberg <david@ixit.cz>
-Cc:     linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-        ~okias/devicetree@lists.sr.ht, Sebastian Reichel <sre@kernel.org>
-Subject: Re: [PATCH v2] dt-bindings: input: pwm-vibrator: Convert txt
- bindings to yaml
-Message-ID: <YbobsmrryqmsRvyB@robh.at.kernel.org>
-References: <20211208183434.98087-1-david@ixit.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211208183434.98087-1-david@ixit.cz>
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=I+AOmwm2BG541EsRFlS96j4s+ZQa+V+JtdC+54LpZE0=;
+        b=D+7sJwPQpNAbTuzHb3rBy/I5j+4Zi8zSmfQcfpXg4iqSckNgLNcp3RplWZgewPXpTA
+         prV2mmADCqlg4xKnT0ow31tGAdL+J5k5u0GdEPzjnuio2wPnD7yeSXQ87rLEToUxqnv1
+         9esEi4XgXx2hWeKm7F6/GzGgsTc9ro37le1PbbDkwbc33NxeV3mNzmEo2f0mr1E+SVwn
+         my0+/YWIV/5W1snScpIny0YCmFP8KGMo3ACkFl1p2u2PJaKOiDxOcynGIcW4Xr8v9Jem
+         vqBAj4haR03RDx9TxM5eFJG/GSs/mQb+6AYrL7pDyv9mAMKAiSfweXWbONcGQBtk5iAE
+         eSpA==
+X-Gm-Message-State: AOAM533z/cL2xO1krblcYEBQn89zXSLh79Fb7kSMqQRqDawzJdJcPoHA
+        /YPMcT+OntxK6ZduEGlVy8w=
+X-Google-Smtp-Source: ABdhPJxWPJyMEb1mIndwQ5pxfrUxe8JmopVqieVpWYe/VMB+iRM4KKtGpSFCGwft5lSxa7KGavzmhw==
+X-Received: by 2002:a63:6ac2:: with SMTP id f185mr10194403pgc.198.1639619273526;
+        Wed, 15 Dec 2021 17:47:53 -0800 (PST)
+Received: from localhost.localdomain ([2402:7500:468:5e1b:4e:ef0f:3395:e69f])
+        by smtp.gmail.com with ESMTPSA id qe12sm6384691pjb.29.2021.12.15.17.47.50
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 15 Dec 2021 17:47:53 -0800 (PST)
+From:   Johnny Chuang <johnny.chuang.emc@gmail.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Harry Cutts <hcutts@chromium.org>,
+        Johnny Chuang <johnny.chuang@emc.com.tw>
+Cc:     James Chen <james.chen@emc.com.tw>,
+        Jennifer Tsai <jennifer.tsai@emc.com.tw>,
+        Paul Liang <paul.liang@emc.com.tw>,
+        Jeff Chuang <jeff.chuang@emc.com.tw>
+Subject: [PATCH] Input: elants_i2c - fix to check the Remark ID of the updated firmware
+Date:   Thu, 16 Dec 2021 09:53:23 +0800
+Message-Id: <1639619603-20616-1-git-send-email-johnny.chuang.emc@gmail.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 08 Dec 2021 19:34:34 +0100, David Heidelberg wrote:
-> Converts txt binding to new YAML format and simplify example.
-> 
-> Reviewed-by: Sebastian Reichel <sre@kernel.org>
-> Signed-off-by: David Heidelberg <david@ixit.cz>
-> ---
-> v2:
->  - added Sebastian review
->  - replace anyOf with minItems
-> 
->  .../bindings/input/pwm-vibrator.txt           | 66 -------------------
->  .../bindings/input/pwm-vibrator.yaml          | 57 ++++++++++++++++
->  2 files changed, 57 insertions(+), 66 deletions(-)
->  delete mode 100644 Documentation/devicetree/bindings/input/pwm-vibrator.txt
->  create mode 100644 Documentation/devicetree/bindings/input/pwm-vibrator.yaml
-> 
+The eKTH3900/eKTH5312 series do not support
+the firmware update rules of Remark ID.
+Exclude two series and keep the original rules to check the Remark ID.
 
-Applied, thanks!
+Signed-off-by: Johnny Chuang <johnny.chuang.emc@gmail.com>
+---
+ drivers/input/touchscreen/elants_i2c.c | 48 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 47 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 7e13a66..99151a1 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -117,6 +117,19 @@
+ #define ELAN_POWERON_DELAY_USEC	500
+ #define ELAN_RESET_DELAY_MSEC	20
+ 
++/* FW boot code version */
++#define BC_VER_H_BYTE_FOR_EKTH3900x1_I2C        0x72
++#define BC_VER_H_BYTE_FOR_EKTH3900x2_I2C        0x82
++#define BC_VER_H_BYTE_FOR_EKTH3900x3_I2C        0x92
++#define BC_VER_H_BYTE_FOR_EKTH5312x1_I2C        0x6D
++#define BC_VER_H_BYTE_FOR_EKTH5312x2_I2C        0x6E
++#define BC_VER_H_BYTE_FOR_EKTH5312cx1_I2C       0x77
++#define BC_VER_H_BYTE_FOR_EKTH5312cx2_I2C       0x78
++#define BC_VER_H_BYTE_FOR_EKTH5312x1_I2C_USB    0x67
++#define BC_VER_H_BYTE_FOR_EKTH5312x2_I2C_USB    0x68
++#define BC_VER_H_BYTE_FOR_EKTH5312cx1_I2C_USB   0x74
++#define BC_VER_H_BYTE_FOR_EKTH5312cx2_I2C_USB   0x75
++
+ enum elants_chip_id {
+ 	EKTH3500,
+ 	EKTF3624,
+@@ -736,6 +749,37 @@ static int elants_i2c_validate_remark_id(struct elants_data *ts,
+ 	return 0;
+ }
+ 
++static bool elants_i2c_check_remark_id(struct elants_data *ts)
++{
++	struct i2c_client *client = ts->client;
++	bool check;
++	const u8 bootcode_version = ts->iap_version;
++
++	/* I2C eKTH3900 and eKTH5312 are NOT support Remark ID */
++	if ((bootcode_version == BC_VER_H_BYTE_FOR_EKTH3900x1_I2C) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH3900x2_I2C) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH3900x3_I2C) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312x1_I2C) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312x2_I2C) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312cx1_I2C) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312cx2_I2C) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312x1_I2C_USB) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312x2_I2C_USB) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312cx1_I2C_USB) ||
++	    (bootcode_version == BC_VER_H_BYTE_FOR_EKTH5312cx2_I2C_USB)) {
++		dev_dbg(&client->dev,
++			"eKTH3900/eKTH5312(0x%02x) are not support remark id\n",
++			bootcode_version);
++		check = false;
++	} else if (bootcode_version >= 0x60) {
++		check = true;
++	} else {
++		check = false;
++	}
++
++	return check;
++}
++
+ static int elants_i2c_do_update_firmware(struct i2c_client *client,
+ 					 const struct firmware *fw,
+ 					 bool force)
+@@ -749,7 +793,9 @@ static int elants_i2c_do_update_firmware(struct i2c_client *client,
+ 	u16 send_id;
+ 	int page, n_fw_pages;
+ 	int error;
+-	bool check_remark_id = ts->iap_version >= 0x60;
++	bool check_remark_id;
++
++	check_remark_id = elants_i2c_check_remark_id(ts);
+ 
+ 	/* Recovery mode detection! */
+ 	if (force) {
+-- 
+2.7.4
+

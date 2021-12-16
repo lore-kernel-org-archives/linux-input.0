@@ -2,62 +2,70 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 703B5C433FE
-	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 22:46:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA238C433F5
+	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 23:36:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236356AbhLPWqo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Dec 2021 17:46:44 -0500
-Received: from mail.valdk.tel ([185.177.150.13]:41632 "EHLO mail.valdk.tel"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235418AbhLPWqn (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Dec 2021 17:46:43 -0500
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A47A42C17D7;
-        Fri, 17 Dec 2021 01:46:39 +0300 (MSK)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=valdikss.org.ru;
-        s=msrv; t=1639694801; h=from:subject:date:message-id:to:cc:mime-version:
-         content-transfer-encoding:in-reply-to:references;
-        bh=ipQkZN4ySIT3yahMuQv8hAhmzd2PPtC/l6V2uZF70LQ=;
-        b=oAXAsoApl6XbGWGCgcu5C+YwD+XYfnO7MkxQsbE9LMAqqhNPLvB7McGQtgs8rAVlrC5S6t
-        qmGxmUkgCNshAiNwCbK36+D6z3E+HRTvSF0/XuOQAEdo/Y0MyG/AMbqR5pwdC1rvQCvg5f
-        Lpu2Id7dvs9Nc7VsMfdpTuJ18lHaupwhHayLtvIPn92Tvh+onkicz/zJWS2Ss6adaX8YOv
-        Cp4Zx96ExDsvgNRRK3bBf6BGrmGL3eaUdRajAdYg566qifvmjxIk1Nntnw2Yt8Q+v+IEyX
-        44YJ10J6OJmfMd0B0c0g75Qd0gHrvI8SkgaigGXhKeXqDcDag/BmX7PWlklcPQ==
-From:   ValdikSS <iam@valdikss.org.ru>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org
-Subject: [PATCH v2 3/3] HID: lenovo: Add note about different report numbers
-Date:   Fri, 17 Dec 2021 01:46:11 +0300
-Message-Id: <20211216224611.440397-4-iam@valdikss.org.ru>
-In-Reply-To: <20211216224611.440397-1-iam@valdikss.org.ru>
-References: <20211216224611.440397-1-iam@valdikss.org.ru>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+        id S229643AbhLPXgA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Dec 2021 18:36:00 -0500
+Received: from finn.gateworks.com ([108.161.129.64]:36176 "EHLO
+        finn.localdomain" rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org
+        with ESMTP id S229575AbhLPXgA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Dec 2021 18:36:00 -0500
+X-Greylist: delayed 315 seconds by postgrey-1.27 at vger.kernel.org; Thu, 16 Dec 2021 18:36:00 EST
+Received: from 068-189-091-139.biz.spectrum.com ([68.189.91.139] helo=tharvey.pdc.gateworks.com)
+        by finn.localdomain with esmtp (Exim 4.93)
+        (envelope-from <tharvey@gateworks.com>)
+        id 1my0I3-0093bq-8d; Thu, 16 Dec 2021 23:35:59 +0000
+From:   Tim Harvey <tharvey@gateworks.com>
+To:     linux-input@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Tim Harvey <tharvey@gateworks.com>
+Subject: [RFC PATCH 0/3] input: add DFROBOT touchscreen controller
+Date:   Thu, 16 Dec 2021 15:35:54 -0800
+Message-Id: <20211216233557.9393-1-tharvey@gateworks.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
----
- drivers/hid/hid-lenovo.c | 5 +++++
- 1 file changed, 5 insertions(+)
+The DFROBOT DFR0678 [1] and DFR0550 [2] touchscreen displays are meant
+to be compatible with the official RaspberryPi 7in display. However
+instead of directly conntecting the FT5x06 touch controller to the I2C
+bus going to the host processor they route it through an MCU and emulate
+a virtual FT5x06 controller but don't do a very good job at it. The
+method the RaspberryPi firmware used to read the touch data is supported
+(which consists of reading R2 to get the number of touch points, then
+reading 4 bytes of data for each point in discrete I2C transactions. If
+you try to use the FT5x06 driver which reads all registers starting at
+R0 at once you will get invalid point data.
 
-diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index e9466ae8a..7076407a6 100644
---- a/drivers/hid/hid-lenovo.c
-+++ b/drivers/hid/hid-lenovo.c
-@@ -487,6 +487,11 @@ static int lenovo_send_cmd_cptkbd(struct hid_device *hdev,
- 	if (!buf)
- 		return -ENOMEM;
- 
-+	/*
-+	* Feature report 0x13 is used for USB,
-+	* output report 0x18 is used for Bluetooth.
-+	* buf[0] is ignored by hid_hw_raw_request.
-+	*/
- 	buf[0] = 0x18;
- 	buf[1] = byte2;
- 	buf[2] = byte3;
+This controller lacks an interrupt and does not send UP events so
+polling mode is used and event ID tracking is used to emulate UP events.
+
+This series adds dt bindings and a standalone driver for this touch
+controller as opposed to an RFC series I sent out that attempts to add
+support to the existing edt-ft5x06 driver.
+
+Tim
+[1] - https://www.dfrobot.com/product-2193.html
+[2] - https://www.dfrobot.com/product-1784.html
+
+Tim Harvey (3):
+  dt-bindings: Add vendor prefix for DFRobot
+  dt-bindings: touchscreen: Add dfr0550 bindings
+  input: touchscreen: add dfr0550 support
+
+ .../bindings/input/touchscreen/dfr0550.yaml   |  53 +++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
+ MAINTAINERS                                   |   5 +
+ drivers/input/touchscreen/Kconfig             |  12 +
+ drivers/input/touchscreen/Makefile            |   1 +
+ drivers/input/touchscreen/dfr0550.c           | 208 ++++++++++++++++++
+ 6 files changed, 281 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/dfr0550.yaml
+ create mode 100644 drivers/input/touchscreen/dfr0550.c
+
 -- 
-2.31.1
+2.17.1
 

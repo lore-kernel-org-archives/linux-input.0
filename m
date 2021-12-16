@@ -2,63 +2,98 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10B83C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 08:28:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C936BC433FE
+	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 09:22:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232270AbhLPI2F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Dec 2021 03:28:05 -0500
-Received: from smtpbg127.qq.com ([109.244.180.96]:30253 "EHLO smtpbg.qq.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231771AbhLPI2F (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Dec 2021 03:28:05 -0500
-X-QQ-mid: bizesmtp49t1639643265txy3paag
-Received: from wangx.lan (unknown [218.88.124.63])
-        by esmtp6.qq.com (ESMTP) with 
-        id ; Thu, 16 Dec 2021 16:27:36 +0800 (CST)
-X-QQ-SSF: 0100000000200090C000B00A0000000
-X-QQ-FEAT: ALI+OuUAduxoHWx0Y3MhqQgu4GNgLtEIvAMXOXTQB1paT/WHHMt1wDgu6Syo7
-        JNhKv0uGLVeIZp03yGkV1COUzNzDdXLGCV3Z1WwuZodbuZdtV0XNxNyuKyg1yF3eC55g8A6
-        tVys9QxwOJmst8Ys72ouXUtS/WFaAqXcjWrxUfBQib0disY7Xzso8oIJ1a2iXFP4Aiu36xE
-        Iyjr4Ex/t2TqmGQZ+8D9t1ZI32vTT96JyTPeWygMT4+uROJqYRxHwW3lktqqdSYOLRGJckV
-        UtbRrrGf0CLslptX+NIPWCmCV+iqqXm6db7jCnTpzhlnGxf5C3isiJ9T48GbeZFcdT+gtaG
-        4T9/zu6dSauz4h4PVb2xdwhKd0saA==
-X-QQ-GoodBg: 0
-From:   Xiang wangx <wangxiang@cdjrlc.com>
-To:     dmitry.torokhov@gmail.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Xiang wangx <wangxiang@cdjrlc.com>
-Subject: [PATCH] Input: byd - fix typo in a comment
-Date:   Thu, 16 Dec 2021 16:27:35 +0800
-Message-Id: <20211216082735.11948-1-wangxiang@cdjrlc.com>
-X-Mailer: git-send-email 2.20.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:cdjrlc.com:qybgspam:qybgspam1
+        id S235217AbhLPJWN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Dec 2021 04:22:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235158AbhLPJWM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 16 Dec 2021 04:22:12 -0500
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69BE3C061574;
+        Thu, 16 Dec 2021 01:22:12 -0800 (PST)
+Received: by mail-wr1-x435.google.com with SMTP id t18so42884225wrg.11;
+        Thu, 16 Dec 2021 01:22:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=JzmZnw9w12jnhEnVgbRw3kRkLf6hu57Yrckak9H1oPM=;
+        b=ZRmx1zNAZjDwnqSeqDGTIEnhGfUEdpS/Mo5/SNagjhmXA1BlXThj/bRtYhhiDfBX6L
+         j4PpRuMGFir9Ue7Eump3JFHS3picyQv0Ua3br4dK4+NFyQ8avTtDErGqxrhAFo9vhh0l
+         yyp/pvjn8i6lYUf3CkUfs9Q+BMvf5JI5aTe7O7qHC6UztVQYi8y1MagKSrK2ziBmqC1y
+         VD+Ro47/0mbSfH7qeg9hIFmN3Bc8P+3OEoN5tfnqFFTxHBnpY4rq+4CUQW5RbeOVsnRQ
+         MldK/E0gpV/bU97CWFlHYn2+nKrCUdIRISuClKaTDh2MqCHSXkWslYuAeGClEmJXQnn7
+         7FKw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=JzmZnw9w12jnhEnVgbRw3kRkLf6hu57Yrckak9H1oPM=;
+        b=DnF4EJV1OS+f9k5eiXf6jNLLg4Vc779uKigaT7Y+5EkIS6MlPvsOUeMDrdXqn5Be0a
+         6154MxwTR6zc0hDRInzdGAVtXT5XQLLNeKqJuCYWgZSd6oxMbziqSkSR8XMZmtNNecgI
+         ru6aXFbSE1JnHRukgHplE0t0L93+5lWlCD860l3VL+W0vkTwX07Bx3ZsO0k3Zz4jPLGh
+         05yUk25ffBalcHAp830MJRgNsfWlsRuWRLrg/Eq5YnPEvLVbnGgyx60znW8mn5ka96QU
+         de+fFl9dxBQJpyrUm4s5wFKyQsSvqnEz0c5ckWRr0YzHyicAdZtWL5dRJoO3H+Zh75We
+         iAiQ==
+X-Gm-Message-State: AOAM532MZaGcmwVtxdJapNu0Ned/IgkcdrXy7uMHgA0q7fUYB6nubFea
+        0Q5mpix5JLpWO9vdm0ECL1Yoj5W0yK0=
+X-Google-Smtp-Source: ABdhPJwKtUkCsXljUJ9vO22KqT5+192jrHDhWPt397Y0gwY9TFqGZtsUJ61lgKspMWFMCtGOCFyDRQ==
+X-Received: by 2002:a5d:6da1:: with SMTP id u1mr7504507wrs.535.1639646530903;
+        Thu, 16 Dec 2021 01:22:10 -0800 (PST)
+Received: from felia.fritz.box ([2001:16b8:267b:1200:18af:bb55:aabf:94a8])
+        by smtp.gmail.com with ESMTPSA id y3sm2068981wrq.12.2021.12.16.01.22.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Dec 2021 01:22:10 -0800 (PST)
+From:   Lukas Bulwahn <lukas.bulwahn@gmail.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org
+Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Subject: [PATCH] HID: address kernel-doc warnings
+Date:   Thu, 16 Dec 2021 10:21:57 +0100
+Message-Id: <20211216092157.26912-1-lukas.bulwahn@gmail.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The double `the' in a comment is repeated, thus it should be removed.
+The command ./scripts/kernel-doc -none include/linux/hid.h reports:
 
-Signed-off-by: Xiang wangx <wangxiang@cdjrlc.com>
+  include/linux/hid.h:818: warning: cannot understand function prototype: 'struct hid_ll_driver '
+  include/linux/hid.h:1135: warning: expecting prototype for hid_may_wakeup(). Prototype was for hid_hw_may_wakeup() instead
+
+Address those kernel-doc warnings.
+
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 ---
- drivers/input/mouse/byd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/hid.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/byd.c b/drivers/input/mouse/byd.c
-index 6e0c5f5a2713..221a553f45cd 100644
---- a/drivers/input/mouse/byd.c
-+++ b/drivers/input/mouse/byd.c
-@@ -191,7 +191,7 @@
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3d83e7022f6c..7487b0586fe6 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -800,7 +800,7 @@ struct hid_driver {
+ 	container_of(pdrv, struct hid_driver, driver)
  
- /*
-  * The touchpad generates a mixture of absolute and relative packets, indicated
-- * by the the last byte of each packet being set to one of the following:
-+ * by the last byte of each packet being set to one of the following:
+ /**
+- * hid_ll_driver - low level driver callbacks
++ * struct hid_ll_driver - low level driver callbacks
+  * @start: called on probe to start the device
+  * @stop: called on remove
+  * @open: called by input layer on open
+@@ -1127,7 +1127,7 @@ static inline int hid_hw_idle(struct hid_device *hdev, int report, int idle,
+ }
+ 
+ /**
+- * hid_may_wakeup - return if the hid device may act as a wakeup source during system-suspend
++ * hid_hw_may_wakeup - return if the hid device may act as a wakeup source during system-suspend
+  *
+  * @hdev: hid device
   */
- #define BYD_PACKET_ABSOLUTE			0xf8
- #define BYD_PACKET_RELATIVE			0x00
 -- 
-2.20.1
+2.17.1
 

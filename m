@@ -2,76 +2,171 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7F3B3C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 09:29:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DEC8C433F5
+	for <linux-input@archiver.kernel.org>; Thu, 16 Dec 2021 10:36:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235419AbhLPJ3R (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 16 Dec 2021 04:29:17 -0500
-Received: from bosmailout07.eigbox.net ([66.96.185.7]:40863 "EHLO
-        bosmailout07.eigbox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235412AbhLPJ3R (ORCPT
+        id S231292AbhLPKgx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Dec 2021 05:36:53 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:31644 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236125AbhLPKgw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 16 Dec 2021 04:29:17 -0500
-X-Greylist: delayed 1835 seconds by postgrey-1.27 at vger.kernel.org; Thu, 16 Dec 2021 04:29:16 EST
-Received: from bosmailscan01.eigbox.net ([10.20.15.1])
-        by bosmailout07.eigbox.net with esmtp (Exim)
-        id 1mxmb1-0002Bn-Bd; Thu, 16 Dec 2021 03:58:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=ewhac.org;
-         s=dkim; h=Sender:In-Reply-To:Content-Type:MIME-Version:References:Message-ID
-        :Subject:Cc:To:From:Date:Reply-To:Content-Transfer-Encoding:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=bHYYfQ4Cj+cqneseigspjoQQhJPicbxi/z8SoMuQsiE=; b=xPlYxW7uM7xjoJlpWF94xb/El/
-        8YwQg1jrjp8FrFecBKoVGho7F+vE/3HbWDlD+eSuwZz8/RZWwAe0YMmxW6a1QVt2m4BgwO0ZpAs9c
-        6flnC6PVc07gmelquGjpoa6uWBniE/BdEokbz2rs1mg2Gx06zlMSStQlAtsPiEAg4ZrA4+8ndrolQ
-        YPEbY+zI+TQgaPfWj2kRmwOJYv4ffUFcl2Xnwz0Xacj1+C+eBjBDiWubey1Jzc1NmzW7K6uXAfvpV
-        +iIY9s7czIMwpUNDo0DgjRo8n9h2HZPZpNgplv7u7w2dBEuROKrmRthlkeaOV+m7g2BvgiTcE7zaY
-        SEqYSaIA==;
-Received: from [10.115.3.33] (helo=bosimpout13)
-        by bosmailscan01.eigbox.net with esmtp (Exim)
-        id 1mxmb0-00053n-W8; Thu, 16 Dec 2021 03:58:39 -0500
-Received: from bosauthsmtp19.yourhostingaccount.com ([10.20.18.19])
-        by bosimpout13 with 
-        id Wwyb260090QhFXN01wyeyX; Thu, 16 Dec 2021 03:58:38 -0500
-X-Authority-Analysis: v=2.3 cv=RNUo47q+ c=1 sm=1 tr=0
- a=9UqFsMnAB6EOkiq4MrOclQ==:117 a=lOZ7gjDonWBvovu+dU3iMA==:17
- a=kj9zAlcOel0A:10 a=IOMw9HtfNCkA:10 a=ltsmEuTAGloA:10 a=fmD_JHji_u0A:10
- a=fYNHH8dQZQOtrz4ChQEA:9 a=CjuIK1q_8ugA:10 a=Ixuhb_GfD2BeaOSowo0a:22
- a=HH7FIXwXL_sUf1zzYxQd:22
-Received: from [135.180.175.56] (port=34520 helo=walkies.ewhac.org)
-        by bosauthsmtp19.eigbox.net with esmtpa (Exim)
-        id 1mxmax-0008Ou-Oa; Thu, 16 Dec 2021 03:58:35 -0500
-Received: from ewhac by walkies.ewhac.org with local (Exim 4.95)
-        (envelope-from <ewhac@ewhac.org>)
-        id 1mxmaw-001eaX-I0;
-        Thu, 16 Dec 2021 00:58:34 -0800
-Date:   Thu, 16 Dec 2021 00:58:34 -0800
-From:   "Leo L. Schwab" <ewhac@ewhac.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: spaceball - fix parsing of movement data packets
-Message-ID: <Ybr/uvSVd/TSwuNM@ewhac.org>
-References: <20210727040625.2159196-1-ewhac@ewhac.org>
+        Thu, 16 Dec 2021 05:36:52 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1639651011;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ZNKVWqh9lxh9Grr+ulLOOV8QYTTYcK7iY8OykZzbHhQ=;
+        b=Hsxq2EN2kWMul+VyKzWLmy9C2QFM32dgDmVP2TnaS26c4LQ5r0Geam0q7QP8F7Lt10LPtG
+        mz2bQbxqKShYeVGEx7UpA69H7yrZuyQJ+SNPDoG8/fq5KCnbg9PfRnXxMsXs+fBqVsUF2X
+        aThgigeSGw3XHKeXSsSU0imR27P9NmM=
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
+ [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-616-iRydSHPFN9OUWqSUQeLWXA-1; Thu, 16 Dec 2021 05:36:50 -0500
+X-MC-Unique: iRydSHPFN9OUWqSUQeLWXA-1
+Received: by mail-pf1-f197.google.com with SMTP id c6-20020aa781c6000000b004a4fcdf1d6dso15164267pfn.4
+        for <linux-input@vger.kernel.org>; Thu, 16 Dec 2021 02:36:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ZNKVWqh9lxh9Grr+ulLOOV8QYTTYcK7iY8OykZzbHhQ=;
+        b=WcWgUqiDyfby7NQyY3vn0C0sdPH9XH6Te4D6M5QMo4P1/Gs84yLuXhn2vnRdzkfIyE
+         Ult4nWu3iZs9dbV8TM0c7rzZoUd6suKgM5je3bgn/OPb9jjgJTxazyPuK8+Sk/yxv8rL
+         pdgc0VAjKhFYH6rmsuFDHS8l4EpcFaeEwRrugSh+RkhXd8ZRjz6xlq091mw/+tSLE21D
+         86PimRDJbA8voYKndX3N+VXquWup2CcmhCUqiQn2upHu48re54T2aYm88ZRF9sWvqxAJ
+         fc2IdDmvTk2sNGZ4TNNV8N8EuzUTVN3ZLk1H11lGPWioN+pnP3XCkQYB7EsvK1yYUuOw
+         16Cw==
+X-Gm-Message-State: AOAM530AbW+l2n5p36Pvg28/B4e9mFHYchp4F6peVespbZLQ2FSMbEv1
+        TO4FK/lh62UsPfoSc7iwhtqbYIMkRIQ0BwGn9hqrfucTXivZsLYklXkXAjfp4IOvBxWw3yySlYa
+        X2o65Bn9wtq3fKXW38fPNbfXkVomM+1q/B6Yqatc=
+X-Received: by 2002:a63:ea51:: with SMTP id l17mr11594798pgk.363.1639651009530;
+        Thu, 16 Dec 2021 02:36:49 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJx8BgAyAP7ogoS70w55qoy/NR8MoIchYzF9iRxpRTE6C/dcU+rowv7TA61xTF+tB2Mqi/JKOnRQHRwo8GDEOv8=
+X-Received: by 2002:a63:ea51:: with SMTP id l17mr11594781pgk.363.1639651009203;
+ Thu, 16 Dec 2021 02:36:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210727040625.2159196-1-ewhac@ewhac.org>
-X-EN-UserInfo: a76222b247b80e113a63936ffdc903eb:931c98230c6409dcc37fa7e93b490c27
-X-EN-AuthUser: ewhac@ewhac.org
-Sender:  "Leo L. Schwab" <ewhac@ewhac.org>
-X-EN-OrigIP: 135.180.175.56
-X-EN-OrigHost: unknown
+References: <20211215134220.1735144-1-tero.kristo@linux.intel.com>
+In-Reply-To: <20211215134220.1735144-1-tero.kristo@linux.intel.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Thu, 16 Dec 2021 11:36:37 +0100
+Message-ID: <CAO-hwJ+nm3jUo9znsROjc0=e_3aGOq-L43OVvUHwBewtwODJfA@mail.gmail.com>
+Subject: Re: [RFCv5 0/2] HID: Add USI support
+To:     Tero Kristo <tero.kristo@linux.intel.com>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Jul 26, 2021 at 09:06:24PM -0700, Leo L. Schwab wrote:
-> The spaceball.c module was not properly parsing the movement reports
-> coming from the device.  [ ... ]
+Hi Tero,
 
-	Um...  Ping?  This issue still exists, and it's been around a really
-long time.  I've been using this patch to successfully fly around QuakeWorld
-for several months now.
+On Wed, Dec 15, 2021 at 2:42 PM Tero Kristo <tero.kristo@linux.intel.com> wrote:
+>
+> Hi,
+>
+> These two patches add the missing pieces for HID USI support. First one
+> adds the HID core changes to support the new Misc events for pen ID,
+> line color and line style. The second patch adds a BPF program on top of
+> the HID-BPF driver which adds support for writing the Pen parameters
+> from userspace, and to add filtering of HID low level events for ELAN
+> USI controller. The BPF programs are not built by the kernel as of now
+> (there are no Makefile changes), as there is a plan to most likely
+> integrate these to a kernel external repository. I have tested these in
+> my own external build setup though, and I can provide the makefile for
+> that if needed. Also a sample client program is provided for
+> communicating with the D-BUS server.
 
-					Schwab
+I had a deeper look at the recordings, and I am very worried in what I
+am seeing:
+- the USI parameters seems to be transmitted only after the touch
+- the USI parameters takes *a lot* of time to be transmitted (2 bytes
+every 2 reports)
+- the recording of the goodix one starts with a stylus touch without hovering
+- the only "reliable" information we get when hovering seems to be the
+transducer index
+
+So I am wondering a few things:
+- what happens when you switch between pens?
+  * Do we immediately get a different transducer index?
+  * Are the values right there or do they also take time to be updated?
+- on the goodix one, do you still need to issue a get_report on the
+feature to get the USI parameters, even when you change the pen?
+
+Could you give me the following recording (with an updated hid-tools
+master branch):
+- on the Elan:
+  * start the recording from a fresh boot (no BPF loaded)
+  * hover for a few secs the first USI pen you have
+  * touch it for a few secs
+  * release, then out of proximity
+  * approach the other pen
+  * touch
+  * release, out of prox
+  * then once again with the first pen
+  * then once again with the second pen
+
+- on the goodix: same thing
+
+- on the goodix: same thing but with a BPF program to trigger the
+GET_REPORT if you can cook one quickly (not a big issue if you can
+not).
+
+The reason I am asking about those recordings is because with the 2
+logs you kindly provided, there is no way we can forward the raw
+information to userspace. So I am slightly tempted to only rely on a
+USI manager, in the form of the BPF program in 2/2 to transmit that
+information to userspace.
+
+If this is bulky just for the first event, then the input events might
+be OK, we can assume when the application needs those events they will
+be there.
+
+>
+> I have also a kernel testing branch available at [1], which contains a
+> few fix patches on top of Benjamin's HID-BPF driver work, and is rebased
+> on top of latest hid/for-next. The HID-BPF fixes have been cleaned up a
+> bit compared to previous setup. There are also a couple of new patches
+> for adding support for a delayed_work BPF program on top of the
+> hid-bpf driver; this is used to execute the raw_requests in non-irq
+> context.
+
+Thanks for that. I had a very quick look. I thought we could directly
+use the bpf_timer_* functions instead of having to cook another API.
+I'll play around with this, but thanks for pushing forward :)
+
+IIRC you asked me when I was counting on submitting the HID BPF work.
+
+So my answer is that I wanted to submit it by the end of 2021, but it
+looks like I have only one week to finalize this :/
+
+The current missing points are:
+- add selftests for all the new API introduced
+- review the entire API to not have to deal with a mistake forever
+- rebase against bpf-next
+
+One part of the API I am wondering is whether it is good or not to
+have bpf_hid_foreach_rdesc_item(). This function is complex and we
+could in theory parse the report descriptor in userspace, even before
+we load the program. So all the parameters you need in the various
+raw_event functions could be computed in user space, leading to a much
+smaller API. The other benefit would be that the API would only deal
+with arrays of bytes, which is a small enough and versatile enough API
+:)
+
+Cheers,
+Benjamin
+
+>
+> -Tero
+>
+> [1] https://github.com/t-kristo/linux/tree/usi-5.16-v5-bpf
+>
+>
+

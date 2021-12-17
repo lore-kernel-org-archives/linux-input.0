@@ -2,52 +2,52 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B465C433F5
-	for <linux-input@archiver.kernel.org>; Fri, 17 Dec 2021 14:41:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED8FBC433EF
+	for <linux-input@archiver.kernel.org>; Fri, 17 Dec 2021 14:41:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237523AbhLQOln (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 17 Dec 2021 09:41:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45366 "EHLO
+        id S237442AbhLQOl4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 17 Dec 2021 09:41:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237450AbhLQOlf (ORCPT
+        with ESMTP id S237489AbhLQOli (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Dec 2021 09:41:35 -0500
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F3F5C061748
-        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2021 06:41:34 -0800 (PST)
-Received: by mail-ed1-x529.google.com with SMTP id j21so4239313edt.9
-        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2021 06:41:34 -0800 (PST)
+        Fri, 17 Dec 2021 09:41:38 -0500
+Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BEEBC06173E
+        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2021 06:41:37 -0800 (PST)
+Received: by mail-ed1-x531.google.com with SMTP id z29so8606407edl.7
+        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2021 06:41:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=YtXzvh0C6WiWca/wi/qfYHW/5QpcMjxHI9YNhLAWuJ0=;
-        b=Z5ZRrmxwSJv9i19fPSkPWScIrN4tJBVTD5Er/ou2k9ZfJbuqbPWdF0gB+PYhYh83cs
-         5TCqk+2oZdFe+S3/0evA0R3hOmhwoDopVdaZBhTEMTAJpL2jXWW3IMZPZAxxTFY6S7u/
-         cPMwtote0l2lYQVFo5IRKzVDdo08mtzkYJdkQEIO+kF9froty6srsvbSDovwuGCC4ibm
-         iiF6JInTkfPm4f3XwtZ205yhv9/doP5v3OFIwEnmsWZiu8uEWM0HrUJ2/RjcHJ9FG5XH
-         btGf5ySG+s1sdl43Ooa2e2jLF7wFgnCJJTWuJHIJjNUz/lJYsfCtCovNBNwb4NXPdys+
-         NSWg==
+        bh=WJLLtim2zy2Cp+CHKaq9b1jzJ0TEP3xfBC/wmHNF3bg=;
+        b=RXAJP/Ljc7BKS562r7tAOgwR5c/8YjoX5CroBrwznu3Ai/i3VwkcpNTdjojdsGasoe
+         VWh1V7Mq9pBHdXIhwdz9NcWmSu3VVwlRXX2/jZx8nbvQZnZW/FZesH0iqN0JJjVZaLOG
+         YgkYab9zCaCpyjeTj/K5U3p5uuFSoPvWqtHV6/8QiUukzgtwLuio52DorRl3yodBU1gn
+         fHqVdmNb0VTTn16Lw/97jCIsXFgzfNSsSutHFt0wvP0tFnTaPIdQ2VgyXdhKjzSPXeKS
+         t0hBeV6VBZpzvwyywLsXXu5djw9f0VnvvxXYbmE6UlJeWApTc2mqc1syyEA0s6mTZZq3
+         R2xA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=YtXzvh0C6WiWca/wi/qfYHW/5QpcMjxHI9YNhLAWuJ0=;
-        b=UGQexTVr3AiViyke1n6KzD367Vdw69Mq7vdpqMlrKH8kwPtSnBCaxJUKVmdzGCTfbc
-         DBfwC8vEZQ0/aO1+Awgg7Ch/6HSJu8+4dPTbVoJ7EyvkZJNlqhhVxGGlI0EEJzqF4cJa
-         rPa0nJRfxE/FqPYGGBTnEPPjEQD6Vl0NhaqqqdM4oHCwAdERKRP5n0Mw+e2OZk/d3aH3
-         QyGHdUJWdMav+Jb3xge+QKbpcOW1k+M9HqFZQG8SOO91+1HDFDXZi9LAuW0xEZoP+NSt
-         Mp6pld4C3dg0wcfpPrvh2rZRsRhecq/y82kBRLCihT56F4yW9SWSBDSXJFSJDN5S9+vq
-         c7Gw==
-X-Gm-Message-State: AOAM5331XUOH5tf/rlGAajoN/bTBkoRHq1vJDQh/pTW8JfcnZfFeA4K6
-        UypLfqn5VrG9RYgvKlmv8OFshg==
-X-Google-Smtp-Source: ABdhPJwE5DG1GPBbARyfTn2B2dT+ezPQUD+vIyLEwqxURyDd3r3xXCtCoRncy6rsxZvxSAb+TFQ4oA==
-X-Received: by 2002:a05:6402:c8:: with SMTP id i8mr3113551edu.183.1639752093143;
-        Fri, 17 Dec 2021 06:41:33 -0800 (PST)
+        bh=WJLLtim2zy2Cp+CHKaq9b1jzJ0TEP3xfBC/wmHNF3bg=;
+        b=UY5elIc+xCGx0/qvdALvW5lOOjm1gH6pojlk9De2NLc9jwf9XqQ/0196nO1IxUC7qb
+         adr/Js2m5fXRaKLlQ/ENEYMMyvC0JRO+XrDAasTo/HSSjubrQpE1wTxqjU8e46uVnQpA
+         sELDyR1XYmJhNm8ZLVTKHAHXBIg3StyYu4wcZL7qt/TU9yGkVIKkeiODHu3tm/mXklAP
+         YUXWm3arVO/ft9DWbUBq+zTFdoxEr5ldNNsfLUJGmZBtnGtM5WupY6ioVuScXHDx6k+j
+         G2ft1SloK92R+q2lavEhWQj9Jl4o5Ee69haB8XpfrRT+kWhY3PkhYz+qXjpdIjqLY1Ca
+         8vnw==
+X-Gm-Message-State: AOAM530I7u0MEl6gZi3e7rIfjjVvuCjUzogH1C3NhTuoEoElyvBm/Kc3
+        zjmsjM/YSh3f3inxt3DIslXsbQ==
+X-Google-Smtp-Source: ABdhPJyfryGUY2pGisS+WhHVurJ4oep8frNBDovNq/9Nj8nBpt/Y3r/uar2rNGTrerkS4bcf9jZyCw==
+X-Received: by 2002:aa7:dad0:: with SMTP id x16mr3251578eds.404.1639752096108;
+        Fri, 17 Dec 2021 06:41:36 -0800 (PST)
 Received: from localhost (c-9b28e555.07-21-73746f28.bbcust.telenor.se. [85.229.40.155])
-        by smtp.gmail.com with ESMTPSA id gn26sm2942234ejc.14.2021.12.17.06.41.32
+        by smtp.gmail.com with ESMTPSA id cs12sm2967751ejc.15.2021.12.17.06.41.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Dec 2021 06:41:32 -0800 (PST)
+        Fri, 17 Dec 2021 06:41:35 -0800 (PST)
 From:   Anders Roxell <anders.roxell@linaro.org>
 To:     stable@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, woojung.huh@microchip.com,
@@ -60,13 +60,11 @@ Cc:     linux-kernel@vger.kernel.org, woojung.huh@microchip.com,
         linux-wireless@vger.kernel.org, rostedt@goodmis.org,
         mingo@redhat.com, dmitry.torokhov@gmail.com,
         ndesaulniers@google.com, nathan@kernel.org,
-        linux-input@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        linux-input@vger.kernel.org,
         Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 4.19 4/6] ARM: 8800/1: use choice for kernel unwinders
-Date:   Fri, 17 Dec 2021 15:41:17 +0100
-Message-Id: <20211217144119.2538175-5-anders.roxell@linaro.org>
+Subject: [PATCH 4.19 6/6] Input: touchscreen - avoid bitwise vs logical OR warning
+Date:   Fri, 17 Dec 2021 15:41:19 +0100
+Message-Id: <20211217144119.2538175-7-anders.roxell@linaro.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20211217144119.2538175-1-anders.roxell@linaro.org>
 References: <20211217144119.2538175-1-anders.roxell@linaro.org>
@@ -76,132 +74,80 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Stefan Agner <stefan@agner.ch>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit f9b58e8c7d031b0daa5c9a9ee27f5a4028ba53ac upstream.
+commit a02dcde595f7cbd240ccd64de96034ad91cffc40 upstream.
 
-While in theory multiple unwinders could be compiled in, it does
-not make sense in practise. Use a choice to make the unwinder
-selection mutually exclusive and mandatory.
+A new warning in clang points out a few places in this driver where a
+bitwise OR is being used with boolean types:
 
-Already before this commit it has not been possible to deselect
-FRAME_POINTER. Remove the obsolete comment.
+drivers/input/touchscreen.c:81:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Furthermore, to produce a meaningful backtrace with FRAME_POINTER
-enabled the kernel needs a specific function prologue:
-    mov    ip, sp
-    stmfd    sp!, {fp, ip, lr, pc}
-    sub    fp, ip, #4
+This use of a bitwise OR is intentional, as bitwise operations do not
+short circuit, which allows all the calls to touchscreen_get_prop_u32()
+to happen so that the last parameter is initialized while coalescing the
+results of the calls to make a decision after they are all evaluated.
 
-To get to the required prologue gcc uses apcs and no-sched-prolog.
-This compiler options are not available on clang, and clang is not
-able to generate the required prologue. Make the FRAME_POINTER
-config symbol depending on !clang.
+To make this clearer to the compiler, use the '|=' operator to assign
+the result of each touchscreen_get_prop_u32() call to data_present,
+which keeps the meaning of the code the same but makes it obvious that
+every one of these calls is expected to happen.
 
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Stefan Agner <stefan@agner.ch>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211014205757.3474635-1-nathan@kernel.org
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
 ---
- arch/arm/Kconfig.debug | 44 +++++++++++++++++++++++++++---------------
- lib/Kconfig.debug      |  6 +++---
- 2 files changed, 31 insertions(+), 19 deletions(-)
+ drivers/input/touchscreen/of_touchscreen.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
-index bee0ba1d1cfb..01c760929c9e 100644
---- a/arch/arm/Kconfig.debug
-+++ b/arch/arm/Kconfig.debug
-@@ -45,30 +45,42 @@ config DEBUG_WX
+diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+index 9642f103b726..b9baad7d34a7 100644
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -80,8 +80,8 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-size-x",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-x",
+ 						input_abs_get_fuzz(input, axis),
+ 						&fuzz);
+ 	if (data_present)
+@@ -91,8 +91,8 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-size-y",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-fuzz-y",
+ 						input_abs_get_fuzz(input, axis),
+ 						&fuzz);
+ 	if (data_present)
+@@ -102,11 +102,11 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 	data_present = touchscreen_get_prop_u32(dev,
+ 						"touchscreen-max-pressure",
+ 						input_abs_get_max(input, axis),
+-						&maximum) |
+-		       touchscreen_get_prop_u32(dev,
+-						"touchscreen-fuzz-pressure",
+-						input_abs_get_fuzz(input, axis),
+-						&fuzz);
++						&maximum);
++	data_present |= touchscreen_get_prop_u32(dev,
++						 "touchscreen-fuzz-pressure",
++						 input_abs_get_fuzz(input, axis),
++						 &fuzz);
+ 	if (data_present)
+ 		touchscreen_set_params(input, axis, maximum, fuzz);
  
- 		If in doubt, say "Y".
- 
--# RMK wants arm kernels compiled with frame pointers or stack unwinding.
--# If you know what you are doing and are willing to live without stack
--# traces, you can get a slightly smaller kernel by setting this option to
--# n, but then RMK will have to kill you ;).
--config FRAME_POINTER
--	bool
--	depends on !THUMB2_KERNEL
--	default y if !ARM_UNWIND || FUNCTION_GRAPH_TRACER
-+choice
-+	prompt "Choose kernel unwinder"
-+	default UNWINDER_ARM if AEABI && !FUNCTION_GRAPH_TRACER
-+	default UNWINDER_FRAME_POINTER if !AEABI || FUNCTION_GRAPH_TRACER
-+	help
-+	  This determines which method will be used for unwinding kernel stack
-+	  traces for panics, oopses, bugs, warnings, perf, /proc/<pid>/stack,
-+	  livepatch, lockdep, and more.
-+
-+config UNWINDER_FRAME_POINTER
-+	bool "Frame pointer unwinder"
-+	depends on !THUMB2_KERNEL && !CC_IS_CLANG
-+	select ARCH_WANT_FRAME_POINTERS
-+	select FRAME_POINTER
- 	help
--	  If you say N here, the resulting kernel will be slightly smaller and
--	  faster. However, if neither FRAME_POINTER nor ARM_UNWIND are enabled,
--	  when a problem occurs with the kernel, the information that is
--	  reported is severely limited.
-+	  This option enables the frame pointer unwinder for unwinding
-+	  kernel stack traces.
- 
--config ARM_UNWIND
--	bool "Enable stack unwinding support (EXPERIMENTAL)"
-+config UNWINDER_ARM
-+	bool "ARM EABI stack unwinder"
- 	depends on AEABI
--	default y
-+	select ARM_UNWIND
- 	help
- 	  This option enables stack unwinding support in the kernel
- 	  using the information automatically generated by the
- 	  compiler. The resulting kernel image is slightly bigger but
- 	  the performance is not affected. Currently, this feature
--	  only works with EABI compilers. If unsure say Y.
-+	  only works with EABI compilers.
-+
-+endchoice
-+
-+config ARM_UNWIND
-+	bool
-+
-+config FRAME_POINTER
-+	bool
- 
- config OLD_MCOUNT
- 	bool
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 6970759f296c..621859a453f8 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -1178,7 +1178,7 @@ config LOCKDEP
- 	bool
- 	depends on DEBUG_KERNEL && LOCK_DEBUGGING_SUPPORT
- 	select STACKTRACE
--	select FRAME_POINTER if !MIPS && !PPC && !ARM_UNWIND && !S390 && !MICROBLAZE && !ARC && !X86
-+	select FRAME_POINTER if !MIPS && !PPC && !ARM && !S390 && !MICROBLAZE && !ARC && !X86
- 	select KALLSYMS
- 	select KALLSYMS_ALL
- 
-@@ -1589,7 +1589,7 @@ config FAULT_INJECTION_STACKTRACE_FILTER
- 	depends on FAULT_INJECTION_DEBUG_FS && STACKTRACE_SUPPORT
- 	depends on !X86_64
- 	select STACKTRACE
--	select FRAME_POINTER if !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM_UNWIND && !ARC && !X86
-+	select FRAME_POINTER if !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM && !ARC && !X86
- 	help
- 	  Provide stacktrace filter for fault-injection capabilities
- 
-@@ -1598,7 +1598,7 @@ config LATENCYTOP
- 	depends on DEBUG_KERNEL
- 	depends on STACKTRACE_SUPPORT
- 	depends on PROC_FS
--	select FRAME_POINTER if !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM_UNWIND && !ARC && !X86
-+	select FRAME_POINTER if !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM && !ARC && !X86
- 	select KALLSYMS
- 	select KALLSYMS_ALL
- 	select STACKTRACE
 -- 
 2.34.1
 

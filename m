@@ -2,98 +2,65 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75780C433F5
-	for <linux-input@archiver.kernel.org>; Fri, 17 Dec 2021 14:53:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE75AC433EF
+	for <linux-input@archiver.kernel.org>; Sat, 18 Dec 2021 20:45:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237614AbhLQOx5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 17 Dec 2021 09:53:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42566 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237613AbhLQOx5 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 17 Dec 2021 09:53:57 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        id S234150AbhLRUpE convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 18 Dec 2021 15:45:04 -0500
+Received: from u12.atthost.pl ([185.255.40.32]:33176 "EHLO u12.atthost.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232208AbhLRUpE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Sat, 18 Dec 2021 15:45:04 -0500
+X-Greylist: delayed 323 seconds by postgrey-1.27 at vger.kernel.org; Sat, 18 Dec 2021 15:45:03 EST
+Received: from localhost (unknown [127.0.0.1])
+        by u12.atthost.pl (Postfix) with ESMTP id 8A59D634AC;
+        Sat, 18 Dec 2021 20:39:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at atthost.pl
+Received: from u12.atthost.pl ([185.255.40.32])
+        by localhost (atthost.pl [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id ANJuBeLBD5iv; Sat, 18 Dec 2021 21:39:27 +0100 (CET)
+Received: from dell.localnet (staticline-195-234-21-179.toya.net.pl [195.234.21.179])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8960CB828A1
-        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2021 14:53:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C6B0C36AEA
-        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2021 14:53:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1639752835;
-        bh=WX/w0GI+tdcOl+rwdlQQFE74jZDb6imi/Sa9xysvhSo=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=C5Ko/6WP1fgrfXUPJawX+ZGyD0Q+Zjgoqb3romp4/D3cNVnp7aGRh7e/Ie/Ik9crA
-         h0ubkcwlG4XLfshaO4Kp2+XuCkxlOry9Bzq3VszSYDF4LDwTo788dENba8jVewFV69
-         qmVecCE2/SrEspdqsVkLK3Zk3cxUQJsBkyaoVQ3IGqMAs2UhyA9VdYMN30US9ELzJ+
-         msc/o1neUT9O5YZObvSqxpIrQbd5ArW1tEmUsGIdpDaG70C05S3owTq/WSDWHRE0eM
-         sGcTyn1x0a9HfyBP2PfqJZ2SBXMMtPUByFH+AlUemhtTSHBMF5A3eDFo6EbFn6x3SV
-         BuEPPmrdCu/hw==
-Received: by mail-ed1-f52.google.com with SMTP id y22so8862489edq.2
-        for <linux-input@vger.kernel.org>; Fri, 17 Dec 2021 06:53:55 -0800 (PST)
-X-Gm-Message-State: AOAM533kRyDEko38ECAElA+pNhYXaJBmK5ESJiIVV4MzkohupBccEnDC
-        gzsRiIfGXML5uEksaScnaLWxvphgWoR0sdEyWA==
-X-Google-Smtp-Source: ABdhPJx4Sw1UBpaP+7VleoOo6T9BBScAxd6GshHmWebG24z0KGCgNEDH7mgmjKpIkt+ZhSzJq8cKfNGyC7hMkhYv114=
-X-Received: by 2002:aa7:cc82:: with SMTP id p2mr3149955edt.201.1639752833704;
- Fri, 17 Dec 2021 06:53:53 -0800 (PST)
+        (Authenticated sender: tomasz@cebula.eu.org)
+        by u12.atthost.pl (Postfix) with ESMTPSA id E19AE63809;
+        Sat, 18 Dec 2021 21:39:26 +0100 (CET)
+DKIM-Filter: OpenDKIM Filter v2.11.0 u12.atthost.pl E19AE63809
+From:   "Tomasz C." <tlinux@cebula.eu.org>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Thorsten Leemhuis <regressions@leemhuis.info>
+Cc:     tlinux@cebula.eu.org, linux-input@vger.kernel.org,
+        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>
+Subject: Re: FWD: Holtek mouse stopped working after kernel upgrade from 5.15.7 to 5.15.8
+Date:   Sat, 18 Dec 2021 21:39:25 +0100
+Message-ID: <4366861.LvFx2qVVIh@dell>
+In-Reply-To: <fc7e6040-b760-02f1-57ef-71aa4b88aea6@leemhuis.info>
+References: <e4efbf13-bd8d-0370-629b-6c80c0044b15@leemhuis.info> <42903605-7e8b-4e84-fcd6-1b23169b8639@redhat.com> <fc7e6040-b760-02f1-57ef-71aa4b88aea6@leemhuis.info>
 MIME-Version: 1.0
-References: <20211216233041.1220-1-tharvey@gateworks.com> <20211216233041.1220-2-tharvey@gateworks.com>
-In-Reply-To: <20211216233041.1220-2-tharvey@gateworks.com>
-From:   Rob Herring <robh+dt@kernel.org>
-Date:   Fri, 17 Dec 2021 08:53:42 -0600
-X-Gmail-Original-Message-ID: <CAL_JsqJTWK=MdswGDUv3OBvCm+O5pwFHM+2MP=pjfbMYG4QVdg@mail.gmail.com>
-Message-ID: <CAL_JsqJTWK=MdswGDUv3OBvCm+O5pwFHM+2MP=pjfbMYG4QVdg@mail.gmail.com>
-Subject: Re: [RFC PATCH 1/4] dt-bindings: input: touchscreen: edt-ft5x06: add poll-interval
-To:     Tim Harvey <tharvey@gateworks.com>
-Cc:     Linux Input <linux-input@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Content-Transfer-Encoding: 8BIT
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Dec 16, 2021 at 5:30 PM Tim Harvey <tharvey@gateworks.com> wrote:
->
+Hello,
 
-Please CC the DT list.
+I haven't had time to test it yet. But I see that another ArchLinux user has 
+compiled kernel 5.15.10 with this patch and confirms that the mouse works.
+Details on:
+https://bugs.archlinux.org/task/73048#comment204441
 
-> Some devices might not provide an interrupt line for the touchscreen.
-> In that case the driver defaults to using a polled interface.
->
-> Cc: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-> Signed-off-by: Tim Harvey <tharvey@gateworks.com>
-> ---
->  .../devicetree/bindings/input/touchscreen/edt-ft5x06.yaml   | 6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-> index 2e8da7470513..a0d4dabf03b8 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-> @@ -47,6 +47,11 @@ properties:
->    interrupts:
->      maxItems: 1
->
-> +  poll-interval:
-> +    description: Poll interval time in milliseconds, only relevant if no
-> +                 interrupt was provided.
-> +    $ref: /schemas/types.yaml#/definitions/uint32
+Is this enough for you as a test?
 
-Reference input.yaml so we aren't redefining this property.
+-- 
+Tomasz Cebula
+Dnia piątek, 17 grudnia 2021 09:37:11 CET Thorsten Leemhuis pisze:
 
-> +
->    reset-gpios:
->      maxItems: 1
->
-> @@ -99,7 +104,6 @@ additionalProperties: false
->  required:
->    - compatible
->    - reg
-> -  - interrupts
->
->  examples:
->    - |
-> --
-> 2.17.1
->
+> Tomasz, could you give it a try please?
+
+
+

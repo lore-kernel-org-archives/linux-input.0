@@ -2,112 +2,74 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25043C433EF
-	for <linux-input@archiver.kernel.org>; Tue, 21 Dec 2021 12:24:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8D2DC4332F
+	for <linux-input@archiver.kernel.org>; Tue, 21 Dec 2021 17:00:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237569AbhLUMYv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 21 Dec 2021 07:24:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44968 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237553AbhLUMYu (ORCPT
+        id S239538AbhLURAh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 21 Dec 2021 12:00:37 -0500
+Received: from mail-qk1-f169.google.com ([209.85.222.169]:37513 "EHLO
+        mail-qk1-f169.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232563AbhLURAg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Dec 2021 07:24:50 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 524E6C061746
-        for <linux-input@vger.kernel.org>; Tue, 21 Dec 2021 04:24:50 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id z29so51195197edl.7
-        for <linux-input@vger.kernel.org>; Tue, 21 Dec 2021 04:24:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MoTPJgJK0kZOerSu3Jp9Zb+6CJ0WBkqc48qX6OzMzxM=;
-        b=AcXpAvYJL3+SogW72d+2cvTlPfSSLhUoTiSJYa5yyLkarMdsABl5w9RwhqH0iPoECC
-         4p4Q/mmwahrfYNtqZ12rTk4/hzDdYnB55guBF4Q44fZDtSe82RNItbEG9yOy+0b3Ot7G
-         qEJ2+P1ufHfLZti3MBwimSl/Xv7XCf8L4E1vk/mSyf5G5pW3ZNVxeQe6GCdBwFAv8cXO
-         Ha/XIeQUkHoCvCpoAFWSKHdRfSekatwAOQaOyBqL2oo32p4dX7sWGj5vkdnQrFCcxWHV
-         mRx7IzyAqKAOkfXnI9i/Gh5F0ZjhRjTSPnNljSTs/5BwuhtBlFmckI+QXGH5ohKnmIDo
-         b9/w==
+        Tue, 21 Dec 2021 12:00:36 -0500
+Received: by mail-qk1-f169.google.com with SMTP id m186so13173261qkb.4;
+        Tue, 21 Dec 2021 09:00:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MoTPJgJK0kZOerSu3Jp9Zb+6CJ0WBkqc48qX6OzMzxM=;
-        b=bjaofSPgat4doSiYkMk138b3NgYHZwbvXcGhTh/pnptMTwF3afGjjRXNX/kFJmMTT1
-         4+y/46r3pGTrENZ4XQwz0016ZF545H0HTje7QHXGxcDet90fidycOfkJCjeZmQzVjb/R
-         OC7xzJRC18ff4l0YZso9JM9PjmdU2PHAyxhYX4eQPly8ojJpJb3by1mbu+NjB4nV+LNr
-         IQg7/8ZhxQ4demXjzCS2uXOmY80UXmszGdxnzPYNOENauUnprhZZ7Z7q2NPsD0SxWRlY
-         A6Ud+roWyIVP05CRfT96TfUbI/904YTGgV85eNjoWCdFp7PqwsQPcmxsa7fD94rls6Zn
-         9zng==
-X-Gm-Message-State: AOAM532y5Eukj0k8ObwogjOsbjXZvVxPRH30AskW0RA0xQ8kYMLjxmYG
-        YoHn5fJnjLieJIsFcJxUcOzUsMfTRwzaMmm9ryW9jA==
-X-Google-Smtp-Source: ABdhPJyj+NVUeXk90XBlkTzieM83fRys2s8IsWREHaLZ7Vl5Sxqah7M8SCVRkQ/IZz/fkjggv7qm9GS6vSi+KHPu/y8=
-X-Received: by 2002:a17:906:4904:: with SMTP id b4mr2606178ejq.174.1640089488801;
- Tue, 21 Dec 2021 04:24:48 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=hppWg+GP3gWKz2SnHpLcfxKFRiULg/7tXUCt9Pb6Dtw=;
+        b=YhNfGJqvR7HmU+SZuRaiqqA3BwOqnDcRKhfrqyVwCsSZ7po+iuOYSKq9NfBx+MlX9w
+         9JntaGYgW0gxakjb17ST6xGalt+yNpffwEqgketLSleSijNp4Cql1kgZhWjvmRybcmmi
+         8zN7SddQjneAh1LzxucLtNDX9wSZB+JVvHWKsdf9O8BQJ6wvP1i3olFfpAZIsd9kpQxN
+         YRB6Cssb5NByluYNoGcH/PXOfyJ0CjfHid8GxsA4ixXRjAYNT0HPx0mKYefFlG99pGse
+         k1ADOCANqlXMKM2xxxwhwrb/RD6VArm3OnFVtU7IfPszwyZQMvI4AFBMOBkzfT56/LN7
+         OGdA==
+X-Gm-Message-State: AOAM531AgzmauqSMsiy7IRt+aEyL7IVsagcotLK9sKW0gkGX2NcAduue
+        S5kG1CDK4UWG0pgTywNOog==
+X-Google-Smtp-Source: ABdhPJy9Ijw3JTHq6M8l2dQq/+DijjJRegt9T5f4n4IacLZGw6vjlaabB9NNgyBoqSHkr1oDMj4OHw==
+X-Received: by 2002:a05:620a:301:: with SMTP id s1mr2645982qkm.771.1640106035583;
+        Tue, 21 Dec 2021 09:00:35 -0800 (PST)
+Received: from robh.at.kernel.org ([24.55.105.145])
+        by smtp.gmail.com with ESMTPSA id h9sm14412295qkp.106.2021.12.21.09.00.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Dec 2021 09:00:35 -0800 (PST)
+Received: (nullmailer pid 1450837 invoked by uid 1000);
+        Tue, 21 Dec 2021 17:00:32 -0000
+Date:   Tue, 21 Dec 2021 13:00:32 -0400
+From:   Rob Herring <robh@kernel.org>
+To:     Alexandre Ghiti <alexandre.ghiti@canonical.com>
+Cc:     Liam Girdwood <lgirdwood@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        devicetree@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        Guenter Roeck <linux@roeck-us.net>, linux-rtc@vger.kernel.org,
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH v2 1/2] dt-bindings: mfd: Fix typo "DA9093" -> "DA9063"
+Message-ID: <YcIIMGHA5E2FS2M5@robh.at.kernel.org>
+References: <20211216164037.2888316-1-alexandre.ghiti@canonical.com>
 MIME-Version: 1.0
-References: <20211217144119.2538175-1-anders.roxell@linaro.org>
- <20211217144119.2538175-7-anders.roxell@linaro.org> <YcBiFomrxSw1eEUB@kroah.com>
-In-Reply-To: <YcBiFomrxSw1eEUB@kroah.com>
-From:   Anders Roxell <anders.roxell@linaro.org>
-Date:   Tue, 21 Dec 2021 13:24:38 +0100
-Message-ID: <CADYN=9K8fD7sSdTy+mCY6dvjutabLnibs3BoAmv1W4sKcPLpXw@mail.gmail.com>
-Subject: Re: [PATCH 4.19 6/6] Input: touchscreen - avoid bitwise vs logical OR warning
-To:     Greg KH <greg@kroah.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        woojung.huh@microchip.com, UNGLinuxDriver@microchip.com,
-        davem@davemloft.net, netdev@vger.kernel.org,
-        linux-usb@vger.kernel.org, clang-built-linux@googlegroups.com,
-        ulli.kroll@googlemail.com, linux@armlinux.org.uk,
-        linux-arm-kernel@lists.infradead.org, amitkarwar@gmail.com,
-        nishants@marvell.com, gbhat@marvell.com, huxinming820@gmail.com,
-        kvalo@codeaurora.org, linux-wireless@vger.kernel.org,
-        rostedt@goodmis.org, mingo@redhat.com, dmitry.torokhov@gmail.com,
-        ndesaulniers@google.com, nathan@kernel.org,
-        linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20211216164037.2888316-1-alexandre.ghiti@canonical.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 20 Dec 2021 at 11:59, Greg KH <greg@kroah.com> wrote:
->
-> On Fri, Dec 17, 2021 at 03:41:19PM +0100, Anders Roxell wrote:
-> > From: Nathan Chancellor <nathan@kernel.org>
-> >
-> > commit a02dcde595f7cbd240ccd64de96034ad91cffc40 upstream.
-> >
-> > A new warning in clang points out a few places in this driver where a
-> > bitwise OR is being used with boolean types:
-> >
-> > drivers/input/touchscreen.c:81:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-> >         data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
-> >                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >
-> > This use of a bitwise OR is intentional, as bitwise operations do not
-> > short circuit, which allows all the calls to touchscreen_get_prop_u32()
-> > to happen so that the last parameter is initialized while coalescing the
-> > results of the calls to make a decision after they are all evaluated.
-> >
-> > To make this clearer to the compiler, use the '|=' operator to assign
-> > the result of each touchscreen_get_prop_u32() call to data_present,
-> > which keeps the meaning of the code the same but makes it obvious that
-> > every one of these calls is expected to happen.
-> >
-> > Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> > Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-> > Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-> > Link: https://lore.kernel.org/r/20211014205757.3474635-1-nathan@kernel.org
-> > Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> > Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-> > ---
-> >  drivers/input/touchscreen/of_touchscreen.c | 18 +++++++++---------
-> >  1 file changed, 9 insertions(+), 9 deletions(-)
->
-> Also needed in 5.10.y and 5.4.y.
->
-> Please be more careful next time.
+On Thu, 16 Dec 2021 17:40:36 +0100, Alexandre Ghiti wrote:
+> The device described is the "DA9063", not "DA9093", so fix this typo.
+> 
+> Signed-off-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+> ---
+>  Documentation/devicetree/bindings/mfd/da9063.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
 
-Yes I will, I'm sorry.
-
-Cheers,
-Anders
+Acked-by: Rob Herring <robh@kernel.org>

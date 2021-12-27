@@ -2,95 +2,157 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D3419C433EF
-	for <linux-input@archiver.kernel.org>; Mon, 27 Dec 2021 16:18:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86391C43217
+	for <linux-input@archiver.kernel.org>; Mon, 27 Dec 2021 16:44:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233973AbhL0QSq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 27 Dec 2021 11:18:46 -0500
-Received: from mx3.molgen.mpg.de ([141.14.17.11]:37655 "EHLO mx1.molgen.mpg.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231254AbhL0QSq (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Dec 2021 11:18:46 -0500
-Received: from [192.168.0.2] (ip5f5aea86.dynamic.kabel-deutschland.de [95.90.234.134])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: pmenzel)
-        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 3A10361EA1922;
-        Mon, 27 Dec 2021 17:18:45 +0100 (CET)
-Message-ID: <41f9d4f9-eb3a-7a5d-3d69-5361dd9124fc@molgen.mpg.de>
-Date:   Mon, 27 Dec 2021 17:18:44 +0100
+        id S230313AbhL0QoR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Dec 2021 11:44:17 -0500
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:41762 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229967AbhL0QoE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Mon, 27 Dec 2021 11:44:04 -0500
+Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 1BRFfQA8021756;
+        Mon, 27 Dec 2021 16:43:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=l8mKszTsk7HmD0sKamZFoRlnXMuFzugZKY8/iUH88Q8=;
+ b=cMrrlmKjkofsNLg5ogvKqdodQoezDsEgwBHZlTs46nZWR9oWzFnN0OaANtQ7eq/bC5oi
+ ZstOzgzXoz7Hf9u6/tL5ivIKMm3mef4vwT1Ynx7eH1fNJUlrJifpTzXPkmVsWrNdgQA/
+ g7Px1Ybf5hun66i6ho764LI1ahIsGJlr2CY3xLawfu5irk54CRiCM23+oXDpqyXVoYbM
+ q99CShu67pJT+usAfZ83r3iUfERyjufJBAoY89HntSmQ9UIS5s1XJdkmWKZS8eqxAUJd
+ MLtGh6UeLjORJACAuzJ1GFbf3+uZuOiNwcte0XamuPfhfzFL7lEQU+fK0JuDgmFYJmT8 Hg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3d7gbns176-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Dec 2021 16:43:38 +0000
+Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 1BRGeYf1006547;
+        Mon, 27 Dec 2021 16:43:37 GMT
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3d7gbns16k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Dec 2021 16:43:37 +0000
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 1BRGc4m8005226;
+        Mon, 27 Dec 2021 16:43:35 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma06ams.nl.ibm.com with ESMTP id 3d5tjjbhjw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 27 Dec 2021 16:43:34 +0000
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (b06wcsmtp001.portsmouth.uk.ibm.com [9.149.105.160])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 1BRGhW3P44761354
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 27 Dec 2021 16:43:32 GMT
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7F36CA4060;
+        Mon, 27 Dec 2021 16:43:32 +0000 (GMT)
+Received: from b06wcsmtp001.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 0607FA405F;
+        Mon, 27 Dec 2021 16:43:32 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by b06wcsmtp001.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Mon, 27 Dec 2021 16:43:31 +0000 (GMT)
+From:   Niklas Schnelle <schnelle@linux.ibm.com>
+To:     Arnd Bergmann <arnd@kernel.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        John Garry <john.garry@huawei.com>,
+        Nick Hu <nickhu@andestech.com>,
+        Greentime Hu <green.hu@gmail.com>,
+        Vincent Chen <deanbo422@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>, Guo Ren <guoren@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+        linux-pci@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-csky@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [RFC 07/32] Input: gameport: add ISA and HAS_IOPORT dependencies
+Date:   Mon, 27 Dec 2021 17:42:52 +0100
+Message-Id: <20211227164317.4146918-8-schnelle@linux.ibm.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20211227164317.4146918-1-schnelle@linux.ibm.com>
+References: <20211227164317.4146918-1-schnelle@linux.ibm.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.1
-Content-Language: en-US
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-        Felix Singer <felixsinger@posteo.net>,
-        Matt DeVillier <matt.devillier@gmail.com>
-From:   Paul Menzel <pmenzel@molgen.mpg.de>
-Subject: Upstream support of Google Chromebook keyboards (udev,
- xkeyboard-config)?
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 0NBAEMHOy9sP5vWXiDigEQRn9FkWRPjz
+X-Proofpoint-GUID: mvw6Psa3Rs08dzdnOjxq9_dFXgALA-8Y
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2021-12-27_08,2021-12-24_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 spamscore=0
+ malwarescore=0 suspectscore=0 clxscore=1015 bulkscore=0 impostorscore=0
+ phishscore=0 mlxlogscore=999 priorityscore=1501 adultscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2112270080
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dear Linux folks,
+In a future patch HAS_IOPORT=n will result in inb()/outb() and friends
+not being declared. As ISA already implies HAS_IOPORT we can simply add
+this dependency and guard sections of code using inb()/outb() as
+alternative access methods.
 
+Co-developed-by: Arnd Bergmann <arnd@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@kernel.org>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+---
+ drivers/input/gameport/Kconfig | 2 ++
+ include/linux/gameport.h       | 9 +++++++--
+ 2 files changed, 9 insertions(+), 2 deletions(-)
 
-Installing a non-Chromium OS distribution like Debian on a Google 
-Chromebook, in this case a Dell Latitude 5400 Chrome (google/sarien), 
-not all keys work as expected.
+diff --git a/drivers/input/gameport/Kconfig b/drivers/input/gameport/Kconfig
+index 082280f95333..366a2723e9a0 100644
+--- a/drivers/input/gameport/Kconfig
++++ b/drivers/input/gameport/Kconfig
+@@ -25,6 +25,7 @@ if GAMEPORT
+ 
+ config GAMEPORT_NS558
+ 	tristate "Classic ISA and PnP gameport support"
++	depends on ISA
+ 	help
+ 	  Say Y here if you have an ISA or PnP gameport.
+ 
+@@ -35,6 +36,7 @@ config GAMEPORT_NS558
+ 
+ config GAMEPORT_L4
+ 	tristate "PDPI Lightning 4 gamecard support"
++	depends on ISA
+ 	help
+ 	  Say Y here if you have a PDPI Lightning 4 gamecard.
+ 
+diff --git a/include/linux/gameport.h b/include/linux/gameport.h
+index 69081d899492..9e55ac748a86 100644
+--- a/include/linux/gameport.h
++++ b/include/linux/gameport.h
+@@ -167,16 +167,21 @@ static inline void gameport_trigger(struct gameport *gameport)
+ {
+ 	if (gameport->trigger)
+ 		gameport->trigger(gameport);
++#ifdef CONFIG_HAS_IOPORT
+ 	else
+ 		outb(0xff, gameport->io);
++#endif
+ }
+ 
+ static inline unsigned char gameport_read(struct gameport *gameport)
+ {
+ 	if (gameport->read)
+ 		return gameport->read(gameport);
+-	else
+-		return inb(gameport->io);
++#ifdef CONFIG_HAS_IOPORT
++	return inb(gameport->io);
++#else
++	return 0xff;
++#endif
+ }
+ 
+ static inline int gameport_cooked_read(struct gameport *gameport, int *axes, int *buttons)
+-- 
+2.32.0
 
-1.  Non-working super key and two function keys on Google Chromebook 
-Dell Latitute 5400 Chrome (google/sarien) [1]
-2.  Wrong caps lock key and function key mappings on Google Chromebook 
-Dell Latitute 5400 Chrome (google/sarien) [2]
-
-Peter replied, this should be fixed in udev, so it’s not directly 
-related to the Linux kernel, as the Linux kernel exposes the 
-scancodes(?) just fine. But what is the upstream process for this in 
-general? Chromium OS carries `91-chromeos-keyboard.rules` for example.
-
-systemd/udev currently has an entry for two Google Chromebook models in 
-`hwdb.d/60-keyboard.hwdb` [4]:
-
-     ######################### FIXED MODEL DEVICES 
-#############################
-     # This section lists devices which require special handling in 
-their key
-     # code to keysym mapping by setting the xkb model.
-     # The model must be an xkb compatible model (defined with 
-XKB_FIXED_MODEL).
-
-     # Chromebooks
-     evdev:atkbd:dmi:bvn*:bvr*:bd*:svnHewlett-Packard*:pnFalco:pvr*
-     evdev:atkbd:dmi:bvn*:bvr*:bd*:svnAcer*:pnPeppy:pvr*
-      XKB_FIXED_MODEL="chromebook"
-
-The Dell Chromebooks, unfortunately, also use the embedded controller 
-with Dell’s proprietary firmware (Wilco(?)), and not Chrome EC making 
-special handling necessary. `91-chromeos-keyboard.rules` has
-
-     # Wilco keyboard (5220W-C) for Chrome OS
-     SUBSYSTEM=="input", \
-       ATTRS{idVendor}=="413c", ATTRS{idProduct}=="2510", \
-       ENV{CROS_KEYBOARD_TOP_ROW_LAYOUT}="3", \
-       ENV{ID_INPUT_KEYBOARD}="1"
-
-
-Kind regards,
-
-Paul
-
-
-[1]: 
-https://gitlab.freedesktop.org/xkeyboard-config/xkeyboard-config/-/issues/298
-[2]: 
-https://gitlab.freedesktop.org/xkeyboard-config/xkeyboard-config/-/issues/299
-[3]: 
-https://chromium.googlesource.com/chromiumos/overlays/chromiumos-overlay/+/783bd8563450d9e9e575323a83321fdc67e334bf/sys-fs/udev/files/91-chromeos-keyboard.rules
-[4]: 
-https://github.com/systemd/systemd/commit/d7d31692bf7cde5dce7f4ed3cae429a5b302a9f0?branch=d7d31692bf7cde5dce7f4ed3cae429a5b302a9f0

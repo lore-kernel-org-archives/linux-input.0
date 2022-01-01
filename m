@@ -2,93 +2,64 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44D62C433EF
-	for <linux-input@archiver.kernel.org>; Sat,  1 Jan 2022 04:36:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C78E0C433F5
+	for <linux-input@archiver.kernel.org>; Sat,  1 Jan 2022 18:41:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232056AbiAAEgz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 31 Dec 2021 23:36:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54618 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232051AbiAAEgz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Fri, 31 Dec 2021 23:36:55 -0500
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73ADBC061574;
-        Fri, 31 Dec 2021 20:36:54 -0800 (PST)
-Received: by mail-pg1-x52a.google.com with SMTP id r5so25317729pgi.6;
-        Fri, 31 Dec 2021 20:36:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
-        bh=gpKMMQn6Jo2a1SXx5hA6obprwYv9X7YlYc0fVgeLv08=;
-        b=BHTMfXiVeeVzAzP5SnJ6Gf8hxQBk4ilUtVTmh5thQ8cV645ec6hgMkKC5mlJWVeRXe
-         4B+xsRRBGAf6UhO1uGmpP8aM87+OWCNBXk6zjLz3AClg/Y6bT0aIJjpYV7jCti0DxORE
-         agPU8CqCat5E0N/Dm5ys0VjSQQi1Kv2eRfdAR0zzFc1G53otbZkSpKULomBheDY2LS+D
-         XPoDDchKHOw8XASGBvMO1UacXwm5XalrABjhEh77YCSl6qHeK+Kn2YsuW04OBMQanRz+
-         iIKgZg0//fhezgaQ5Ui0sPkzDGRgLcoUkEG6uFDxZLpAFqkFUdmTRTN6LwbVTXO4xNEx
-         cU1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=gpKMMQn6Jo2a1SXx5hA6obprwYv9X7YlYc0fVgeLv08=;
-        b=PPo1botyjbJU2d99VOarS7g+k/e5OLbzhkhAN7I6yinAm+gAS7TXhw79Lpvf2yR587
-         EjNplr4JW+Gvlk8GhG1FkBZcoKHdYOJ4TBw1SIWggkoJrIG8jlbjvSSwAQsDBKnRrPdz
-         itdEIC5MBj5eGw37uvlFBJPzwBg0CbSSmHMNN4DbM/HgdpDrGgqQ32J+LYuiP6y9/nVs
-         m5b2lWRbUpE92Xosq7Me5owSKHK8dtne6JhfpMJ+h1Iie2+QsNf4chXSPYXs0AGA4lK2
-         Aec0Pm2RkMt3IcbBILDwkSnEbQuSCwvgA+xgt1RcxWtjkxruncvhneVQHa0q1FQJD3RC
-         rkOw==
-X-Gm-Message-State: AOAM530pn5X0M55O2x87XsG865CAqmLFiwMwt13krFyHzQ0iga34y8jQ
-        QYvzQ/oBtgdI7TOwKFtoQKQ=
-X-Google-Smtp-Source: ABdhPJzOtwbgzwkB32sW/Np8tW7hzswI7YRbizP8ASITiU+nY+6MURnTiWA+g2uVeJs2Abgs7zBGXA==
-X-Received: by 2002:aa7:91c2:0:b0:4bc:6c97:401 with SMTP id z2-20020aa791c2000000b004bc6c970401mr6988081pfa.17.1641011813728;
-        Fri, 31 Dec 2021 20:36:53 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:d687:7e27:2823:d142])
-        by smtp.gmail.com with ESMTPSA id k18sm34184538pfc.155.2021.12.31.20.36.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Dec 2021 20:36:53 -0800 (PST)
-Date:   Fri, 31 Dec 2021 20:36:50 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [git pull] Input updates for v5.16-rc7
-Message-ID: <Yc/aYq9oWoj3byBe@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+        id S231484AbiAASlV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 1 Jan 2022 13:41:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:52376 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231447AbiAASlU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Jan 2022 13:41:20 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54CE060B6F;
+        Sat,  1 Jan 2022 18:41:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B6458C36AEC;
+        Sat,  1 Jan 2022 18:41:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1641062479;
+        bh=7a7oAGXWOWMWI6Gns9V7h0YPUM+AboUDHuLqBQp1L64=;
+        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+        b=ufQYKEcXEvz23PEajeVCGcT/eqqZdIAWx+fMIjnGUkdtS7c9GoQspTd/jXkYAShRz
+         2guWUsM3HwMbVuti/PWDRmDicW40qWwlc4hcOhvujfIac0sjTMvFM1YxEFpAP9EyCZ
+         OeoeXXsias2vX4jzg+eQrLAJghigKR2gWA6wlnb2C6EMEetbqezCmNvmX97Z1MDPSG
+         bpVRCblkyULDGgBHXgnigPuwf43t2teGq+CbSwUAT0YLzveQcVbLKHajTAbe72kdvb
+         ZSILGafM7xnRnzAeut0RJCKegr4ZSJDuKlDba29lrTglnBSCqGRxxl7twyA/SlBqnK
+         n5EH+Ox8IIT6A==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id A29DEC395E3;
+        Sat,  1 Jan 2022 18:41:19 +0000 (UTC)
+Subject: Re: [git pull] Input updates for v5.16-rc7
+From:   pr-tracker-bot@kernel.org
+In-Reply-To: <Yc/aYq9oWoj3byBe@google.com>
+References: <Yc/aYq9oWoj3byBe@google.com>
+X-PR-Tracked-List-Id: <linux-input.vger.kernel.org>
+X-PR-Tracked-Message-Id: <Yc/aYq9oWoj3byBe@google.com>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+X-PR-Tracked-Commit-Id: bc7ec91718c49d938849697cfad98fcd9877cc26
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 278218f6778bc7d6f8b67199446c56cec7ebb841
+Message-Id: <164106247965.24142.5313419530910729338.pr-tracker-bot@kernel.org>
+Date:   Sat, 01 Jan 2022 18:41:19 +0000
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Linus,
+The pull request you sent on Fri, 31 Dec 2021 20:36:50 -0800:
 
-Please pull from:
+> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
 
-	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/278218f6778bc7d6f8b67199446c56cec7ebb841
 
-to receive updates for the input subsystem. You will get 2 small fixups
-for spaceball joystick driver and appletouch touchpad driver.
-
-Happy New Year!
-
-Changelog:
----------
-
-Leo L. Schwab (1):
-      Input: spaceball - fix parsing of movement data packets
-
-Pavel Skripkin (1):
-      Input: appletouch - initialize work before device registration
-
-Diffstat:
---------
-
- drivers/input/joystick/spaceball.c | 11 +++++++++--
- drivers/input/mouse/appletouch.c   |  4 ++--
- 2 files changed, 11 insertions(+), 4 deletions(-)
-
-Thanks.
-
+Thank you!
 
 -- 
-Dmitry
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html

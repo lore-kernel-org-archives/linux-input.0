@@ -2,165 +2,289 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C6078C433F5
-	for <linux-input@archiver.kernel.org>; Sat,  8 Jan 2022 06:46:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA6E8C433F5
+	for <linux-input@archiver.kernel.org>; Sat,  8 Jan 2022 18:42:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229913AbiAHGqK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 8 Jan 2022 01:46:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36110 "EHLO
+        id S232180AbiAHSmd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 8 Jan 2022 13:42:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231821AbiAHGqJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 8 Jan 2022 01:46:09 -0500
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9E04C06173E
-        for <linux-input@vger.kernel.org>; Fri,  7 Jan 2022 22:46:09 -0800 (PST)
-Received: by mail-pl1-x634.google.com with SMTP id h1so6698119pls.11
-        for <linux-input@vger.kernel.org>; Fri, 07 Jan 2022 22:46:09 -0800 (PST)
+        with ESMTP id S229805AbiAHSmc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 8 Jan 2022 13:42:32 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D95C06173F;
+        Sat,  8 Jan 2022 10:42:32 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id b13so35722090edd.8;
+        Sat, 08 Jan 2022 10:42:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=tDvuS8BnGebyVFOAY/uhAVOmPK399miSdD1tYKxRZBE=;
-        b=Or0cRMerLIUL6X5SYsle5y0mUIa4mtcLjfzJXVKuWOPrpQJPA56fcqenPMOD74Y89E
-         w3mZXJwJFLqAO5Djxi/v+x8iP6OXSBJHqG0FRNdEfTBBTXwtqIvw0pImfIQO8c5fvkkK
-         oEdeE+mbs2AqO3rflxd8G0BSpsTKQUl6lo8beQAG6MS27CvcFfJ1xtosV5y8CTmFfBcy
-         5uslf3ng83haA3GX7lezEEKG2VHmmafMdfliU0mVLvhdKodmLki9WEt4+7yz0dC5H8aB
-         Q9/2qlaYV5tM3xzPyQIZ4L4e6emzwhkMVOhsdBN9868dv0GKYQlwi54utWxJVegJpoZK
-         q5nA==
+        h=message-id:date:mime-version:user-agent:subject:content-language
+         :from:to:references:in-reply-to:content-transfer-encoding;
+        bh=GucwCLqUZ5vDkmSoTx5MhL7d97pjcPtPrGWziRoB/AE=;
+        b=JnJEr7Tw61tc1GV4ra+hecW8qVl1PM0xe5UwwHk2efHXVHhDtctKJrLlpf8+FoK91i
+         e429x29t2gme7nMiXKjJRXjYCMDwqPWI1cxSME7sKjI+Vhaswz/LsBLfq8oZwJvJJG+X
+         d3DsZfzQm/+e7xdbUuNewrRvXk4W9EiWxLyNeOPXXEmweOLbJ8G7Emj7J4cDUFMKmk+2
+         0IAKFhtZ7bzHRWAWbuzzaZIttgOjvI9QNtOrm2exIdeu5/2iIY0acQ7i+nCC6G9ECPe9
+         SosFVqIOo2B/XPLk+6LPbCrShme17h6SV+TUrZLKq59qbm3wKEOqb4gQSOtjMsuhuhrQ
+         VxaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=tDvuS8BnGebyVFOAY/uhAVOmPK399miSdD1tYKxRZBE=;
-        b=LNtCFtRdt4tmNCb+BMGqnTnK6OLiVQoukDLiflNHJqBdVmNrliPCBpMsEHE9qM/wp6
-         0VD0Vopq2tx/Of7SzHYnh1xQ4dMoNCYhCHwK1JdvKVWuXT1MqJUeccj8pGGGr7P7aFjT
-         gVduGYTTeZsPpCPKZTH9NBh4h9ZQLTDm07gwwxQ+/M00lgpMXfZr4rNGHHmV9ToKM42K
-         joO2bpbuu5qp/QM2rB8BH311LACo7o/pMRXViJI4l/m6/nB44/bWYvjL/KOfMZ3CwcDS
-         KJZtHajVa5jlhWyEGinWH6WWgJ19mJlNPrHlo21slFtHGL5WNCych5406bhcDx7sz2tP
-         2tpA==
-X-Gm-Message-State: AOAM532tWp0Dgx3cX0dzvkPI8ttxamp5FoNeB6NBuaAsOEZU9VlYmOst
-        zT7WMQcH85vfNTJrdeOk0RM=
-X-Google-Smtp-Source: ABdhPJyvFj5QQ18oP0bNG9ZYLmenspw0xWxVJtOd5d/OyET/2XvdLZpLW6Rvr+IxfTCkM1Tc5s/TMg==
-X-Received: by 2002:a17:90b:4b0e:: with SMTP id lx14mr19617193pjb.66.1641624369081;
-        Fri, 07 Jan 2022 22:46:09 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:4a85:a3d:72a9:2009])
-        by smtp.gmail.com with ESMTPSA id w6sm725913pga.25.2022.01.07.22.46.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Jan 2022 22:46:07 -0800 (PST)
-Date:   Fri, 7 Jan 2022 22:46:05 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Angela Czubak <acz@semihalf.com>
-Cc:     linux-input@vger.kernel.org, upstream@semihalf.com,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>
-Subject: Re: [PATCH 18/18] HID: i2c-hid: fix i2c_hid_set_or_send_report
-Message-ID: <YdkzLZzDIgWrel0O@google.com>
-References: <20211221191743.1893185-1-acz@semihalf.com>
- <20211221191743.1893185-19-acz@semihalf.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:from:to:references:in-reply-to
+         :content-transfer-encoding;
+        bh=GucwCLqUZ5vDkmSoTx5MhL7d97pjcPtPrGWziRoB/AE=;
+        b=B8eawezxn1NzTXDb3j8zJNZ4xeIRwuxMrw9rA3TuTgItdth/0oQUK3hpoZEXqhucpv
+         EcXaAtPqPyn4C+h00TA8OQT2QR4BZAAfGNWUocGEEUH+yW6vcGck2jhjQ2gsZLOGkqLQ
+         T/JgZpmCjyhirSGxPOGZ7JL48jsLVSp+g8uTmrr3iNbpr+9w9C2QgRuOvxpKk6F67Izf
+         kbva9t+UF8pG4koP3oETOQbfT7LC6cO6c49XVUNfS6qsYDttpoXLOfayflTxOND0Qs4N
+         fFBnCeUZJbwlSN+h4k+BFGsIf6kW5VRgXzxScrDwREYsB9Yj9CdE9cVqHrWqe2IPJPAm
+         QJYg==
+X-Gm-Message-State: AOAM530Zyt6uRao++AQ74oR2EIw99pNa2GLXKOr2IklKs1CxbiHTK7vj
+        3sOs1orJrFleQRbFoDsQ2+2uPJlHXtWc7A==
+X-Google-Smtp-Source: ABdhPJxZxVy2l08LZOWveIAAgmYBrT+gHa/nszWfFPzJCSb6aOiS8qFm+gFA8gheBILmQamZsGKWIA==
+X-Received: by 2002:a17:907:3d94:: with SMTP id he20mr51991249ejc.14.1641667350516;
+        Sat, 08 Jan 2022 10:42:30 -0800 (PST)
+Received: from [192.168.1.103] (ip-46.34.226.0.o2inet.sk. [46.34.226.0])
+        by smtp.gmail.com with ESMTPSA id lv23sm710315ejb.125.2022.01.08.10.42.29
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 08 Jan 2022 10:42:30 -0800 (PST)
+Message-ID: <5fc2c68d-a9df-402a-58b5-fdd531f86b55@gmail.com>
+Date:   Sat, 8 Jan 2022 19:42:27 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20211221191743.1893185-19-acz@semihalf.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: Wrong piix4_smbus address / slow trackpoint on Thinkpad P14s gen
+ 2 (AMD)
+Content-Language: en-US
+From:   =?UTF-8?Q?Miroslav_Bend=c3=adk?= <miroslav.bendik@gmail.com>
+To:     linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
+        Mario Limonciello <superm1@gmail.com>,
+        Andrew Duggan <aduggan@synaptics.com>
+References: <CAPoEpV0ZSidL6aMXvB6LN1uS-3CUHS4ggT8RwFgmkzzCiYJ-XQ@mail.gmail.com>
+In-Reply-To: <CAPoEpV0ZSidL6aMXvB6LN1uS-3CUHS4ggT8RwFgmkzzCiYJ-XQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Angela,
+Summary of synaptics_intertouch problem on Thinkpad with Ryzen 5850U:
 
-On Tue, Dec 21, 2021 at 07:17:43PM +0000, Angela Czubak wrote:
-> If command & data registers are to be used and report ID >= 0xF
-> use the sentinel value for report ID in the command.
-> Do not alter the report ID itself as it needs to be inserted into the args
-> buffer. If output register is to be used there is no need to insert
-> report IDs >= 0xF.
+Problem with wrong base address is fixed using this patch:
+https://lore.kernel.org/all/20210715221828.244536-1-Terry.Bowman@amd.com/
 
-OK, I see what you mean, but I believe that i2c_hid_set_or_send_report()
-is the wrong place to implement this handling to begin with. How about a
-modified version of your patch that I am pasting below (not tested)?
+Second problem is, that RMI4 driver don't work with i2c-piix4, because 
+it needs
+I2C_FUNC_SMBUS_HOST_NOTIFY. I have added I2C_FUNC_SMBUS_HOST_NOTIFY to
+piix4_func and psmouse can be loaded with synaptics_intertouch=1 
+parameter. Here
+is output with rmi_core debug_flags=0xfffd - https://pastebin.com/xGRHyyXV
 
-Thanks,
-Dmitry
+Synaptics is on address 0x2c (value 0x58/0x59 in SMBus register, bit 1 
+is r/w).
+Command i2cdetect -l can see i2c busses:
 
--- >8 -- >8 --
+i2cdetect -l
+i2c-3   i2c             AMDGPU DM i2c hw bus 1                  I2C adapter
+i2c-10  smbus           SMBus PIIX4 adapter port 2 at 0b00 SMBus adapter
+i2c-1   i2c             Synopsys DesignWare I2C adapter         I2C adapter
+i2c-8   i2c             AMDGPU DM aux hw bus 3                  I2C adapter
+i2c-6   i2c             AMDGPU DM aux hw bus 0                  I2C adapter
+i2c-4   i2c             AMDGPU DM i2c hw bus 2                  I2C adapter
+i2c-11  smbus           SMBus PIIX4 adapter port 1 at 0b20 SMBus adapter
+i2c-2   i2c             AMDGPU DM i2c hw bus 0                  I2C adapter
+i2c-0   i2c             Synopsys DesignWare I2C adapter         I2C adapter
+i2c-9   smbus           SMBus PIIX4 adapter port 0 at 0b00 SMBus adapter
+i2c-7   i2c             AMDGPU DM aux hw bus 2                  I2C adapter
+i2c-5   i2c             AMDGPU DM i2c hw bus 3                  I2C adapter
 
+Device is visible on address 0x2c (output when psmouse is loaded with
+smbus_intertouch):
 
-HID: i2c-hid: fix handling numbered reports with IDs of 15 and above
+i2cdetect -q -y 11
+      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
+00:                         -- -- -- -- -- -- -- --
+10: -- -- -- -- -- -- -- -- -- -- -- -- 1c -- -- --
+20: -- -- -- -- -- -- -- -- -- -- -- -- UU -- -- --
+30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
+70: -- -- -- -- -- -- -- --
 
-From: Angela Czubak <acz@semihalf.com>
+I can add this call
 
-Special handling of numbered reports with IDs of 15 and above is only
-needed when executing what HID-I2C spec is calling "Class Specific
-Requests", and not when simply sending output reports.
+i2c_handle_smbus_host_notify(piix4_aux_adapter, 0x2c);
 
-Additionally, our mangling of report ID in i2c_hid_set_or_send_report()
-resulted in incorrect report ID being written into SET_REPORT command
-payload.
+to end of piix4_transaction and i have working touchpad / trackpoint. I can
+move, i can click and evhz reports rate 100Hz, which is much better than 
+39 with
+PS/2 protocol. I know, this is endless loop, which generates on my 
+machine 2000
+interrupts/s and it can break some features like sleep.
 
-To solve it let's move all the report ID manipulation into
-__i2c_hid_command() where we form the command data structure.
+Current state is, that everything works with one exception - cursor moved
+/ click interrupt. I don't know which interrupt / pin generates this event.
 
-Signed-off-by: Angela Czubak <acz@semihalf.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
----
- drivers/hid/i2c-hid/i2c-hid-core.c |   22 +++++++++-------------
- 1 file changed, 9 insertions(+), 13 deletions(-)
+Now what i have tried:
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 517141138b00..9381a70b2948 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -97,6 +97,7 @@ union command {
- 		__le16 reg;
- 		__u8 reportTypeID;
- 		__u8 opcode;
-+		__u8 reportID;
- 	} __packed c;
- };
- 
-@@ -232,7 +233,13 @@ static int __i2c_hid_command(struct i2c_client *client,
- 
- 	if (length > 2) {
- 		cmd->c.opcode = command->opcode;
--		cmd->c.reportTypeID = reportID | reportType << 4;
-+		if (reportID < 0x0F) {
-+			cmd->c.reportTypeID = reportType << 4 | reportID;
-+		} else {
-+			cmd->c.reportTypeID = reportType << 4 | 0x0F;
-+			cmd->c.reportID = reportID;
-+			length++;
-+		}
- 	}
- 
- 	memcpy(cmd->data + length, args, args_len);
-@@ -300,11 +307,6 @@ static int i2c_hid_get_report(struct i2c_client *client, u8 reportType,
- 
- 	i2c_hid_dbg(ihid, "%s\n", __func__);
- 
--	if (reportID >= 0x0F) {
--		args[args_len++] = reportID;
--		reportID = 0x0F;
--	}
--
- 	args[args_len++] = readRegister & 0xFF;
- 	args[args_len++] = readRegister >> 8;
- 
-@@ -350,18 +352,12 @@ static int i2c_hid_set_or_send_report(struct i2c_client *client, u8 reportType,
- 	size =		2			/* size */ +
- 			(reportID ? 1 : 0)	/* reportID */ +
- 			data_len		/* buf */;
--	args_len =	(reportID >= 0x0F ? 1 : 0) /* optional third byte */ +
--			2			/* dataRegister */ +
-+	args_len =	2			/* dataRegister */ +
- 			size			/* args */;
- 
- 	if (!use_data && maxOutputLength == 0)
- 		return -ENOSYS;
- 
--	if (reportID >= 0x0F) {
--		args[index++] = reportID;
--		reportID = 0x0F;
--	}
--
- 	/*
- 	 * use the data register for feature reports or if the device does not
- 	 * support the output register
+Interrupt line can be retrieved using ACPI. More informations and links 
+to full
+ACPI tables are here:
+https://lore.kernel.org/all/CAPoEpV0ZSidL6aMXvB6LN1uS-3CUHS4ggT8RwFgmkzzCiYJ-XQ@mail.gmail.com/
+
+I have added this code to end of piix_probe:
+
+retval = devm_request_irq(&dev->dev, dev->irq, piix4_isr, IRQF_SHARED, 
+"piix4_smbus", piix4_aux_adapter);
+if (!retval) {
+     printk(KERN_INFO "smbus Using irq %d\n", dev->irq);
+}
+else {
+     printk(KERN_INFO "smbus No irq %d\n", dev->irq);
+}
+
+PCI IRQ is set, because i have added it to PCI quirks (temporary hack).
+Synaptics is connected to aux adaptor, i am registering irq wit aux adapter.
+I have added InterruptEnable call (bit 0) in SMBUSx02 SMBusControl register
+(register numbers are from AMD BKDG
+- https://www.amd.com/en/support/tech-docs?keyword=bkdg):
+
+unsigned short piix4_smba = 0xb20;
+outb_p(0x01, (0x02 + piix4_smba));
+
+Now i have tried to check SMBusStatus and SMBusSlaveStatus in interrupt 
+handler,
+but they are not usable. First register is cleared directly in transfer
+function, which is called before interrupt handler and second is always 
+zero. It
+looks, that interrupt is triggered only after data transfer, but not for 
+host
+notification event from slave.
+
+I have added some print statements, to see, what happended. This code 
+dumps registers:
+
+static void piix4_dump_registers(struct i2c_adapter *piix4_adapter, char 
+*label)
+{
+     struct i2c_piix4_adapdata *adapdata = i2c_get_adapdata(piix4_adapter);
+     unsigned short piix4_smba = adapdata->smba;
+     int i;
+     u8 d[16];
+
+     for (i = 0; i < 16; ++i) {
+         if (i == 2 || i == 7)
+             d[i] = 0;
+         else
+             d[i] = inb_p(i + piix4_smba);
+     }
+
+     printk(KERN_INFO "smb registers: %s    %02x%02x ...);
+}
+
+There are problems with reading form registers 2 and 7. It breaks 
+communication,
+i don't know why.
+
+Now this is interrupt handler:
+
+static irqreturn_t piix4_isr(int irq, void *dev_id)
+{
+     struct i2c_adapter *piix4_adapter = (struct i2c_adapter *)dev_id;
+     piix4_dump_registers(piix4_adapter, "isr              ");
+
+     return IRQ_HANDLED;
+}
+
+I have added piix4_dump_register after transaction, but before clearing 
+status.
+Output is on this link: https://pastebin.com/4mLBk0U7
+
+After last line there is no output from RMI4/SMBus. Only this line has 
+set 0x0a
+register (SMBusSlaveEvent) which looks like event from slave. This line is
+generated after transaction, but not from interrupt handler. Interrupt 
+is not
+called for slave events.
+
+Now i have tried to enable interrupts from slave events. I have added 
+this code
+to probe function (again, numeric addresses, but i can find numbers 
+faster in
+reference documentation):
+
+outb_p(0x80, (0x02 + piix4_smba)); // Reset to  SMBusControl
+outb_p(0x01, (0x02 + piix4_smba)); // InterruptEnable to SMBusControl
+outb_p(inb_p(0x01 + piix4_smba) | 0x02, (0x01 + piix4_smba)); // 
+SlaveInit to  SMBusSlaveStatus
+
+outb_p(0x2c << 1, (0x04 + piix4_smba)); // write 0x2c address ?
+outb_p(0xff, (0x0a + piix4_smba)); // enable all slave events 
+onSMBusSlaveEvent
+outb_p(0xff, (0x0b + piix4_smba)); // enable all slave events
+outb_p(inb_p(0x08 + piix4_smba) | 0x01, (0x08 + piix4_smba)); // SlaveEnable
+outb_p(inb_p(0x08 + piix4_smba) | 0x08, (0x08 + piix4_smba)); // 
+SMBusAlertEnable
+outb_p(inb_p(0x08 + piix4_smba) | 0x02, (0x08 + piix4_smba)); // 
+SMBusShadow1EN
+outb_p(inb_p(0x08 + piix4_smba) | 0x04, (0x08 + piix4_smba)); // 
+SMBusShadow2EN
+
+I have tried other combinations, but without success. This part of 
+documentation
+looks like description of SMBus host notify:
+
+SMBusShadow1En. Read-write. Reset: 0. Enable the generation of an 
+interrupt or
+resume event upon an external SMBus master generating a transaction with an
+address that matches the SMBus Shadow 1 register.
+SlaveEnable. Read-write. Reset: 0. Enable the generation of an interrupt or
+resume event upon an external SMBus master generating a transaction with an
+address that matches the host controller slave port of 10h, a command 
+field that
+matches the SMBus slave control register, and a match of corresponding 
+enabled
+events.
+
+I don't know how should i exactly interpret this part. I don't know what is
+SMBus slave control register. It looks like this part is copied from PIIX4
+documentation from intel
+(https://www.intel.com/Assets/PDF/datasheet/290562.pdf), but without exact
+description how matching works.
+
+I have looked at other options how to retrieve interrupt, for example 
+amd_pinctl
+GPIO. This looked promising:
+
+cat /sys/kernel/debug/pinctrl/AMDI0030\:00/pingroups
+registered pin groups:
+group: i2c0
+pin 145 (GPIO_145)
+pin 146 (GPIO_146)
+
+group: i2c1
+pin 147 (GPIO_147)
+pin 148 (GPIO_148)
+
+group: i2c2
+pin 113 (GPIO_113)
+pin 114 (GPIO_114)
+
+group: i2c3
+pin 19 (GPIO_19)
+pin 20 (GPIO_20)
+
+Pins 19/20 are normally idle, but after loading psmouse with intertouch, 
+then
+there is constant activity (i can capture cca 2000 evnets/s using gpiomon,
+frequency is probably much higher). I don't know if this is usable, but 
+looks,
+that this is i2c line from synaptics. I have not found interrupt pin.
+
+On this link is output of gpiomon --num-events=5000  gpiochip0 19 20:
+https://pastebin.com/B9XamDZA
+
+This is everything, that i know. It thin, that i have forgotten some trivial
+call, to unmask interrupt, but really, i don't know what. With working
+interrupt, enabling RMI4 over piix4-smbus should be trivial.

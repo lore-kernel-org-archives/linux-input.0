@@ -2,122 +2,93 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F09E9C4332F
-	for <linux-input@archiver.kernel.org>; Fri, 21 Jan 2022 14:04:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22622C433EF
+	for <linux-input@archiver.kernel.org>; Fri, 21 Jan 2022 14:11:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380960AbiAUOEW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 21 Jan 2022 09:04:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38306 "EHLO
+        id S1349885AbiAUOLt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 21 Jan 2022 09:11:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380939AbiAUODa (ORCPT
+        with ESMTP id S1344906AbiAUOLs (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Jan 2022 09:03:30 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2993C061759
-        for <linux-input@vger.kernel.org>; Fri, 21 Jan 2022 06:03:29 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id h188so220157wmh.0
-        for <linux-input@vger.kernel.org>; Fri, 21 Jan 2022 06:03:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ubz92V3MNOcnXuX2tQRXSV5KJOVjCllK6LUruWkrRxU=;
-        b=kHpYdrnVSjlgT6Y7rsIIE25S3iFVvp2QHcJfQ0aPOci6HIAGnbZ1yuN19J+BcTT0Bw
-         YtGdz1Xb7wbSVWlfVFcs13ntB8C/N38MquVtWtAmKuOowMBdEZ2w5JtWg2Ctb4eiowtE
-         Dqq6WTpe9lbyxxKoF23+0JVx+JGH2W4L3FpuBEs6zI0qjTDwlkOhqQ0AA/SZL3Iirrgr
-         ewlGeeTaxzI3UKDAG5NBpv/Oyh01b9s+LDK6vMJfOqpsxKFFREbM/vsI5lgywsksGlST
-         UBsRRY+4pBkKgCVN/4WeqltsOoZGvS3uFtzc8qLvpo7jbhOnJWCZnSGzFACJ4I5Bubai
-         gpDQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ubz92V3MNOcnXuX2tQRXSV5KJOVjCllK6LUruWkrRxU=;
-        b=TNfmnmrvIFXKXxbVDfj1eMlz7BmcA5PGMbCHM+qTzfSrhtNIE7kgqiTDxpEzhXn/GU
-         Xbc//VUUDITRdXlZ2xDjRRv7XBa5IFd41065bigj0a0ksn5jAU+21uChBNNMuBfGwT3p
-         PdrMxljEqNUNEnAvAA9ns1LV3exLYFCiCO8iYIjq62aJba5PBr5J+GxNx4G2UUuLKNy2
-         7R7zX9JYoeQepAnn+umnmZFVkZVENQKq2Ywf3y5+k27ypqO29bP/Jw/Isf3vGXXeuvLR
-         a2ERFBAfIseruUf4L3ZqUtkDuOEXdjhmjYLORSPjRdEN9h3hqJcgNukgrRmrzsbSA5rj
-         5zZw==
-X-Gm-Message-State: AOAM533oU4xoAXTDAXuc6T79NDx1gHZH7zc5xb1RjVDM6ETOfW9f5ghI
-        VMRS1yLfRpj90Ncs87dK2+F09Q==
-X-Google-Smtp-Source: ABdhPJyT2dSh0BWpE3RsPLYyk9pNAlhiRIXgl2BBXrgRPQOeTr7YVMe4x28OyBuQ/pfFpeQImqsXhw==
-X-Received: by 2002:adf:fe86:: with SMTP id l6mr3927973wrr.403.1642773808449;
-        Fri, 21 Jan 2022 06:03:28 -0800 (PST)
-Received: from groot.home (lfbn-tou-1-205-205.w86-201.abo.wanadoo.fr. [86.201.52.205])
-        by smtp.gmail.com with ESMTPSA id p29sm9225129wms.5.2022.01.21.06.03.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Jan 2022 06:03:28 -0800 (PST)
-From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>
-Cc:     Fabien Parent <fparent@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Subject: [PATCH v4 1/4] Input: mtk-pmic-keys - use get_irq_byname() instead of index
-Date:   Fri, 21 Jan 2022 15:03:20 +0100
-Message-Id: <20220121140323.4080640-2-mkorpershoek@baylibre.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220121140323.4080640-1-mkorpershoek@baylibre.com>
-References: <20220121140323.4080640-1-mkorpershoek@baylibre.com>
+        Fri, 21 Jan 2022 09:11:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E772C061574;
+        Fri, 21 Jan 2022 06:11:48 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A4036175E;
+        Fri, 21 Jan 2022 14:11:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAB94C340E1;
+        Fri, 21 Jan 2022 14:11:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642774307;
+        bh=aU/a/VZKaBk3Zf+73rhngb0wPbazkC1pZlQcUuQUeoc=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=Yf3jweMEulrli5G6DUs3aDkFmS5QrvfDpOSW1U97G7HhJV+uu69c24T/rkVd79r3h
+         hmXeTVFZPw4D0bq1KwzVjIUk5PQZHSQII1LUHH2rweTS9hGRSQFBsUgHziF+6nfZpD
+         YU6/iJbnrFDaTqK7CnsYp7hBgfYt+cbcvJQi80IVvfW6YYgDoCAiNqbpmLvIC7bp0S
+         z3aN8+SsN3IUk65MJ2tXOuosbUIvx6F3MB2/oeZ0zmeCXAoW8nGJ57sTd/PSgY5LgH
+         HkltPx4JSDenLYArtOCGklK/LmKS6qdHTlG1MKvQTI8lURvZNxCjo8KBP+/Ipx8X60
+         S5lFO/1ToXuUQ==
+Date:   Fri, 21 Jan 2022 15:11:43 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Jason Gerecke <killertofu@gmail.com>
+cc:     linux-input@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Joshua Dickens <Joshua@Joshua-Dickens.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
+Subject: Re: [PATCH 1/2] HID: wacom: Reset expected and received contact
+ counts at the same time
+In-Reply-To: <20220118223756.45624-1-jason.gerecke@wacom.com>
+Message-ID: <nycvar.YFH.7.76.2201211511330.28059@cbobk.fhfr.pm>
+References: <20220118223756.45624-1-jason.gerecke@wacom.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some pmics of the mt6397 family (such as MT6358), have two IRQs per
-physical key: one for press event, another for release event.
+On Tue, 18 Jan 2022, Jason Gerecke wrote:
 
-The mtk-pmic-keys driver assumes that each key only has one
-IRQ. The key index and the RES_IRQ resource index have a 1/1 mapping.
+> These two values go hand-in-hand and must be valid for the driver to
+> behave correctly. We are currently lazy about updating the values and
+> rely on the "expected" code flow to take care of making sure they're
+> valid at the point they're needed. The "expected" flow changed somewhat
+> with commit f8b6a74719b5 ("HID: wacom: generic: Support multiple tools
+> per report"), however. This led to problems with the DTH-2452 due (in
+> part) to *all* contacts being fully processed -- even those past the
+> expected contact count. Specifically, the received count gets reset to
+> 0 once all expected fingers are processed, but not the expected count.
+> The rest of the contacts in the report are then *also* processed since
+> now the driver thinks we've only processed 0 of N expected contacts.
+> 
+> Later commits such as 7fb0413baa7f (HID: wacom: Use "Confidence" flag to
+> prevent reporting invalid contacts) worked around the DTH-2452 issue by
+> skipping the invalid contacts at the end of the report, but this is not
+> a complete fix. The confidence flag cannot be relied on when a contact
+> is removed (see the following patch), and dealing with that condition
+> re-introduces the DTH-2452 issue unless we also address this contact
+> count laziness. By resetting expected and received counts at the same
+> time we ensure the driver understands that there are 0 more contacts
+> expected in the report. Similarly, we also make sure to reset the
+> received count if for some reason we're out of sync in the pre-report
+> phase.
+> 
+> Link: https://github.com/linuxwacom/input-wacom/issues/288
+> Fixes: f8b6a74719b5 ("HID: wacom: generic: Support multiple tools per report")
+> CC: stable@vger.kernel.org
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
 
-This won't work for MT6358, as we have multiple resources (2) for one key.
+Both patches applied, thanks.
 
-To prepare mtk-pmic-keys to support MT6358, retrieve IRQs by name
-instead of by index.
-
-Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
----
- drivers/input/keyboard/mtk-pmic-keys.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index 62391d6c7da6..d1abf95d5701 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -241,6 +241,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 	unsigned int keycount;
- 	struct mt6397_chip *pmic_chip = dev_get_drvdata(pdev->dev.parent);
- 	struct device_node *node = pdev->dev.of_node, *child;
-+	static const char *const irqnames[] = { "powerkey", "homekey" };
- 	struct mtk_pmic_keys *keys;
- 	const struct mtk_pmic_regs *mtk_pmic_regs;
- 	struct input_dev *input_dev;
-@@ -268,7 +269,8 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 	input_dev->id.version = 0x0001;
- 
- 	keycount = of_get_available_child_count(node);
--	if (keycount > MTK_PMIC_MAX_KEY_COUNT) {
-+	if (keycount > MTK_PMIC_MAX_KEY_COUNT ||
-+	    keycount > ARRAY_SIZE(irqnames)) {
- 		dev_err(keys->dev, "too many keys defined (%d)\n", keycount);
- 		return -EINVAL;
- 	}
-@@ -276,7 +278,8 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 	for_each_child_of_node(node, child) {
- 		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
- 
--		keys->keys[index].irq = platform_get_irq(pdev, index);
-+		keys->keys[index].irq =
-+			platform_get_irq_byname(pdev, irqnames[index]);
- 		if (keys->keys[index].irq < 0) {
- 			of_node_put(child);
- 			return keys->keys[index].irq;
 -- 
-2.32.0
+Jiri Kosina
+SUSE Labs
 

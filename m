@@ -2,26 +2,26 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 769B3C433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A50A0C4332F
 	for <linux-input@archiver.kernel.org>; Tue, 25 Jan 2022 02:20:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S3419648AbiAYCT6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Jan 2022 21:19:58 -0500
-Received: from msg-1.mailo.com ([213.182.54.11]:38862 "EHLO msg-1.mailo.com"
+        id S2368645AbiAYCTy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Jan 2022 21:19:54 -0500
+Received: from msg-1.mailo.com ([213.182.54.11]:38860 "EHLO msg-1.mailo.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S3415615AbiAYBtG (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Jan 2022 20:49:06 -0500
+        id S3415614AbiAYBtE (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Jan 2022 20:49:04 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailoo.org; s=mailo;
-        t=1643059591; bh=z2N8AFm6BKjIW6yLTb4o2Nvq1Bhr1Z1MkQ0IL+yIuDw=;
+        t=1643059590; bh=B0piSC9qtUYLnw/vHlf3uG2RVSjyvLZbXc9kETb2dps=;
         h=X-EA-Auth:From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:
          References:MIME-Version:Content-Transfer-Encoding;
-        b=A58/lCoBYsCKzvo2qIUZFX5RSk8D6qhkHqqzPjBdVRTvZBeFIUpO0XMCwr8KTriCg
-         zxJtdR1GK/+sh1rYi8FVr55BQ2fflKTJKesK3/g0DvdaNq4+OAkL2nfkUKPTtMKm70
-         vtsmcQ6zj6Yj/PqYBklLY2alKbYClXa05XRfsuQk=
+        b=gfe7PiSufHSaBsOk+YCqIwSZvSARFCUvijL64FrI9oGwOKaUH4EiXZq9TPatU8kKq
+         ablfX+nM1oa+XZNE2E4SaRCPuA6FCnHvZCMOq9Yur1MKrHzTD6veYO+rcmlUzYeGmE
+         x3SkY0cMPh102JxL5CZ2zH3bzZvV6kav1VKvSkX8=
 Received: by b-5.in.mailobj.net [192.168.90.15] with ESMTP
         via proxy.mailoo.org [213.182.55.207]
-        Mon, 24 Jan 2022 22:26:31 +0100 (CET)
-X-EA-Auth: xN/soZ7g5/FwWb7FyMsA8grkgZp7zMu0jHmpPenAVYqC9/vvQcjEQNdQbQUVICgJMytb0GNfJ5JW0blANF72ExR5NwoqP3SlWQSmW7LtIvA=
+        Mon, 24 Jan 2022 22:26:30 +0100 (CET)
+X-EA-Auth: XxMD6+jMWUuyMYNiDJ1/Eaj50WF3RUbsR9ZoRQaZanMZFItAGQf1ZXqB4kpfpysTNLhgScStCAMkwqBzQTJc2DOHWCTytv9uVrm0o4434rk=
 From:   Vincent Knecht <vincent.knecht@mailoo.org>
 To:     dmitry.torokhov@gmail.com, stephan@gerhold.net
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
@@ -29,9 +29,9 @@ Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         ~postmarketos/upstreaming@lists.sr.ht,
         Vincent Knecht <vincent.knecht@mailoo.org>,
         Rob Herring <robh@kernel.org>
-Subject: [PATCH v2 4/5] dt-bindings: input: touchscreen: msg2638: Document keys support
-Date:   Mon, 24 Jan 2022 22:26:10 +0100
-Message-Id: <20220124212611.752603-5-vincent.knecht@mailoo.org>
+Subject: [PATCH v2 2/5] dt-bindings: input: touchscreen: msg2638: Document msg2138 support
+Date:   Mon, 24 Jan 2022 22:26:08 +0100
+Message-Id: <20220124212611.752603-3-vincent.knecht@mailoo.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124212611.752603-1-vincent.knecht@mailoo.org>
 References: <20220124212611.752603-1-vincent.knecht@mailoo.org>
@@ -41,7 +41,7 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Document optional linux,keycodes support.
+Document msg2138 support by adding mstar,msg2138 compatible.
 
 Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
@@ -49,24 +49,24 @@ Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
 v2:
 - picked up Rob's Ack
 ---
- .../devicetree/bindings/input/touchscreen/mstar,msg2638.yaml  | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../devicetree/bindings/input/touchscreen/mstar,msg2638.yaml  | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/Documentation/devicetree/bindings/input/touchscreen/mstar,msg2638.yaml b/Documentation/devicetree/bindings/input/touchscreen/mstar,msg2638.yaml
-index 2fb7e01bb65a..af4f954de958 100644
+index 3a42c23faf6f..2fb7e01bb65a 100644
 --- a/Documentation/devicetree/bindings/input/touchscreen/mstar,msg2638.yaml
 +++ b/Documentation/devicetree/bindings/input/touchscreen/mstar,msg2638.yaml
-@@ -36,6 +36,10 @@ properties:
-   touchscreen-size-x: true
-   touchscreen-size-y: true
+@@ -14,7 +14,9 @@ allOf:
  
-+  linux,keycodes:
-+    minItems: 1
-+    maxItems: 4
-+
- additionalProperties: false
+ properties:
+   compatible:
+-    const: mstar,msg2638
++    enum:
++      - mstar,msg2138
++      - mstar,msg2638
  
- required:
+   reg:
+     const: 0x26
 -- 
 2.34.1
 

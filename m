@@ -2,148 +2,68 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE764C433FE
-	for <linux-input@archiver.kernel.org>; Tue, 25 Jan 2022 02:19:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9E6EC433EF
+	for <linux-input@archiver.kernel.org>; Tue, 25 Jan 2022 02:19:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S3419547AbiAYCTQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Jan 2022 21:19:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41658 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S3413949AbiAYAl3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Jan 2022 19:41:29 -0500
-Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0FAAC05430A
-        for <linux-input@vger.kernel.org>; Mon, 24 Jan 2022 14:26:06 -0800 (PST)
-Received: by mail-oi1-x233.google.com with SMTP id p203so11491913oih.10
-        for <linux-input@vger.kernel.org>; Mon, 24 Jan 2022 14:26:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=0f9IE0661xn75d7FB58FYRPdONZNDHV3u2RCDMrfPKY=;
-        b=EWlkmAb7Ul4Ffei88oljh0OwBQEwXbmzrxbR/cnGeD2jWgIqm1x1KwqYS68Rgb1UpZ
-         8zCdBgfypwTTgPupSEvLCx3qBU/5wIdCu8uixoRm8q2AEZmXjd3B7gB9VuwFN8RHdlsr
-         +JESdkZq/QKiaKYrgnN9u/fAlBCXT6PgYz1QcN/9md4yVQkf2His7KOOIeVIHpIbFvRD
-         nQ9kDegKOZznR6QXRAT4Xir/RNdEaQ1sDDIHclh15BDAs8QtnqLk5V7CohXfp235MqQZ
-         rDbU9ZZomLnuc9j+1cWayOUsbH0JqZtSXGiOFBVxNfEDodifeOk/127iUu8AvkpbVWA2
-         cXvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=0f9IE0661xn75d7FB58FYRPdONZNDHV3u2RCDMrfPKY=;
-        b=GFrEXQtWOro+6PyQ6XAUxZAbbgDHuYzgKjXFwP6/KNY2x1hpUAOcU6mCfeJecau5od
-         ZEd09jx9D4iXMyKZrnVl4733vtRdPwTdXxxDlKF9AsbwYSU9UlvXS7Z2ZXVfbTOMSHwa
-         LLQsiPL3su36mr2o23LoaQknKzeFqLXE8RfS3Eg+zlU+cwe9D0sxgQXcwRhhQlvCHWDr
-         Un8Ug7LGENEOXW+bO3HjOpbwv61Yg+kYsOFTcVScLZVe5lqHi/x8YnLuCqUrMkPI0YOs
-         wZ3Si1H5hu/SGevzB01pGaZQW1Tpizrx1EpxJnGDuEagbUvPbJ52hIjAfULi/Ic+9QSJ
-         Y6Rw==
-X-Gm-Message-State: AOAM532niqL7lF8sWMUT5XYlMQ+1Npa9agBRnb/Tzpf4QbvPwMQZO1My
-        jgrkw/q1CSV0Gu0J7iyd6fgwbw==
-X-Google-Smtp-Source: ABdhPJxXbqFIHTkb9LGW/rQzTM3c48C2VAmE9h9yQupw4WHAdviB6jCOJ4HVxKbwi1TqoSS6qMzF4w==
-X-Received: by 2002:a54:460a:: with SMTP id p10mr3214270oip.163.1643063166131;
-        Mon, 24 Jan 2022 14:26:06 -0800 (PST)
-Received: from ripper ([2600:1700:a0:3dc8:205:1bff:fec0:b9b3])
-        by smtp.gmail.com with ESMTPSA id w191sm3496715oiw.42.2022.01.24.14.26.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jan 2022 14:26:05 -0800 (PST)
-Date:   Mon, 24 Jan 2022 14:26:34 -0800
-From:   Bjorn Andersson <bjorn.andersson@linaro.org>
-To:     Stephen Boyd <swboyd@chromium.org>
-Cc:     Anjelique Melendez <quic_amelende@quicinc.com>,
-        dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        collinsd@codeaurora.org, skakit@codeaurora.org
-Subject: Re: [PATCH 3/3] input: misc: pm8941-pwrkey: avoid potential null
- pointer dereference
-Message-ID: <Ye8nmnQ3F4QcTIJs@ripper>
-References: <20220120204132.17875-1-quic_amelende@quicinc.com>
- <20220120204132.17875-4-quic_amelende@quicinc.com>
- <YenpwnE3WrIEAOlm@ripper>
- <e2015c19-b73b-39a7-ba73-708b2c4552c7@quicinc.com>
- <CAE-0n50+1OU2yt2gihHHCEn-cE-CZuqa_U9W=xWCuYeCQdzExw@mail.gmail.com>
+        id S3419584AbiAYCTf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Jan 2022 21:19:35 -0500
+Received: from msg-1.mailo.com ([213.182.54.11]:38850 "EHLO msg-1.mailo.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S3415611AbiAYBtA (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Mon, 24 Jan 2022 20:49:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailoo.org; s=mailo;
+        t=1643059589; bh=d7f3LN69ZP8nzrQz/4DmTzxS4PPZq0d31Z5vWwXgLos=;
+        h=X-EA-Auth:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
+         MIME-Version:Content-Transfer-Encoding;
+        b=VwD2erY/IRv3bekeDaNnP5nBFrD1O6g9WQT/x44Twy3JBSkjyv+Vq95QNGMnQKiuF
+         09U/EIzY3UvLMfuBTWrmLpPiztLLj0JOpfBfeE66mUmpdDVS5hN1ZV0Ma5d6v73cpJ
+         6tLFmA4+mgb/Jk7x7bndG/v5Ou17vD/NVN4aVeS8=
+Received: by b-5.in.mailobj.net [192.168.90.15] with ESMTP
+        via proxy.mailoo.org [213.182.55.207]
+        Mon, 24 Jan 2022 22:26:28 +0100 (CET)
+X-EA-Auth: MVlQI9Oc+2TxvC9wELiJ5b1jxxVN/vmW/43V61HWqihpp5JcFb/IZjGPiFPLu5wqkrDo0ASfvYpjAAxK6Nu9GBZ3FQCWFcYi6nmsbxXUdV4=
+From:   Vincent Knecht <vincent.knecht@mailoo.org>
+To:     dmitry.torokhov@gmail.com, stephan@gerhold.net
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, phone-devel@vger.kernel.org,
+        ~postmarketos/upstreaming@lists.sr.ht,
+        Vincent Knecht <vincent.knecht@mailoo.org>
+Subject: [PATCH v2 0/5] msg2638: Add support for msg2138 and key events
+Date:   Mon, 24 Jan 2022 22:26:06 +0100
+Message-Id: <20220124212611.752603-1-vincent.knecht@mailoo.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAE-0n50+1OU2yt2gihHHCEn-cE-CZuqa_U9W=xWCuYeCQdzExw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu 20 Jan 20:18 PST 2022, Stephen Boyd wrote:
+This is mostly a resend of the series sent last november which got no
+answer, but with Rob's Acks picked up.
 
-> Quoting Anjelique Melendez (2022-01-20 16:25:26)
-> >
-> > On 1/20/2022 3:01 PM, Bjorn Andersson wrote:
-> > > On Thu 20 Jan 12:41 PST 2022, Anjelique Melendez wrote:
-> > >
-> > >> From: David Collins <collinsd@codeaurora.org>
-> > >>
-> > >> Add a null check for the pwrkey->data pointer after it is assigned
-> > >> in pm8941_pwrkey_probe().  This avoids a potential null pointer
-> > >> dereference when pwrkey->data->has_pon_pbs is accessed later in
-> > >> the probe function.
-> > >>
-> > >> Change-Id: I589c4851e544d79a1863fd110b32a0b45ac03caf
-> > >> Signed-off-by: David Collins <collinsd@codeaurora.org>
-> > >> Signed-off-by: Anjelique Melendez <quic_amelende@quicinc.com>
-> > >> ---
-> > >>  drivers/input/misc/pm8941-pwrkey.c | 4 ++++
-> > >>  1 file changed, 4 insertions(+)
-> > >>
-> > >> diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-> > >> index 0ce00736e695..ac08ed025802 100644
-> > >> --- a/drivers/input/misc/pm8941-pwrkey.c
-> > >> +++ b/drivers/input/misc/pm8941-pwrkey.c
-> > >> @@ -263,6 +263,10 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
-> > >>
-> > >>      pwrkey->dev = &pdev->dev;
-> > >>      pwrkey->data = of_device_get_match_data(&pdev->dev);
-> > >> +    if (!pwrkey->data) {
-> > > The only way this can happen is if you add a new compatible and forget
-> > > to specify data and when that happens you will get a print in the log
-> > > somewhere, which once you realize that you don't have your pwrkey you
-> > > might be able to find among all the other prints.
-> > >
-> > > If you instead don't NULL check this pointer you will get a large splat
-> > > in the log, with callstack and all, immediately hinting you that
-> > > pwrkey->data is NULL.
-> > >
-> > >
-> > > In other words, there's already a print, a much larger print and I don't
-> > > think there's value in handling this mistake gracefully.
-> > >
-> > > Regards,
-> > > Bjorn
-> >
-> >
-> > We would like to the null pointer check in place to avoid static analysis
-> >
-> > warnings that can be easily fixed.
-> >
-> 
-> Many drivers check that their device_get_match_data() returns a valid
-> pointer. I'd like to see that API used in addition to checking the
-> return value for NULL so that we can keep the static analysis tools
-> happy. Yes it's an impossible case assuming the driver writer didn't
-> mess up but it shuts SA up and we don't really have a better solution
-> to tell tools that device_get_match_data() can't return NULL.
+This series:
+- moves max fingers number and irqhandler settings in a struct
+- adds support for msg2138 touchscreen
+- adds support for buttons, which were only seen with msg2138 as of yet
 
-I'm not saying that device_get_match_data() can't return NULL, I'm
-saying that in the very specific cases that it would return NULL it's
-useful to have a kernel panic - as that's a much faster way to figure
-out that something is wrong.
+Big thanks to Stephan Gerhold <stephan@gerhold.net> for the help with
+deciphering the downstream driver [1] and writing clean and working code.
 
-And as a timely coincidence I tried to introduce such a check last week,
-for a case where the cause of the dereference issue definitely wasn't
-obvious to me and Greg among others told me that it's wrong:
+[1] https://github.com/LineageOS/android_kernel_huawei_msm8916/blob/2f24fa58086a969687434b40f237cb589a1f324f/drivers/input/touchscreen/mstar/msg2138_qc.c
 
-https://lore.kernel.org/linux-arm-msm/20220118185612.2067031-2-bjorn.andersson@linaro.org/
+Vincent Knecht (5):
+  Input: msg2638 - Set max finger number and irqhandler from driver data
+  dt-bindings: input: touchscreen: msg2638: Document msg2138 support
+  Input: msg2638 - Add support for msg2138
+  dt-bindings: input: touchscreen: msg2638: Document keys support
+  Input: msg2638 - Add support for msg2138 key events
+
+ .../input/touchscreen/mstar,msg2638.yaml      |   8 +-
+ drivers/input/touchscreen/msg2638.c           | 182 ++++++++++++++++--
+ 2 files changed, 175 insertions(+), 15 deletions(-)
+
+-- 
+2.34.1
 
 
-And just to be clear, I don't care about this case in particular, but I
-fear that we have a lot of SA warnings to shut up throughout the kernel.
 
-Regards,
-Bjorn

@@ -2,114 +2,176 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BDD87C28CF5
-	for <linux-input@archiver.kernel.org>; Wed, 26 Jan 2022 14:55:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B33C6C28CF5
+	for <linux-input@archiver.kernel.org>; Wed, 26 Jan 2022 15:35:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242359AbiAZOzX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 26 Jan 2022 09:55:23 -0500
-Received: from mx1.riseup.net ([198.252.153.129]:47108 "EHLO mx1.riseup.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242415AbiAZOzT (ORCPT <rfc822;linux-input@vger.kernel.org>);
-        Wed, 26 Jan 2022 09:55:19 -0500
-Received: from fews1.riseup.net (fews1-pn.riseup.net [10.0.1.83])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256
-         client-signature RSA-PSS (2048 bits) client-digest SHA256)
-        (Client CN "mail.riseup.net", Issuer "R3" (not verified))
-        by mx1.riseup.net (Postfix) with ESMTPS id 4JkRbW3PjkzF4TX;
-        Wed, 26 Jan 2022 06:55:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=riseup.net; s=squak;
-        t=1643208919; bh=FF68SLiqc8b5fH7Zc/D77KvbJQeyA0oyuLSsKGxo1l0=;
-        h=Subject:From:To:Cc:In-Reply-To:References:Date:From;
-        b=ORnQiz/JkGZs0/0i3ikX/PDVzc/cmiPjbDpMdAAhhIbSaIhUX8QUqab2T1A1uNvl8
-         XFiclKMiCDX2HMBVKswwlTkPsMCZze3NKzuiTHed8J8zZJgwTJbYlwT3VoWHytNVIy
-         6b8kALNXvO10Q/un+PaAK8E0592XfcAdtBQxjbrk=
-X-Riseup-User-ID: 4C4FACAA98837759C447321967370CADB64E81B0CFA66B90AE86480C2FF5498C
-Received: from [127.0.0.1] (localhost [127.0.0.1])
-         by fews1.riseup.net (Postfix) with ESMTPSA id 4JkRbT5vxqz5vkm;
-        Wed, 26 Jan 2022 06:55:17 -0800 (PST)
-Message-ID: <15ef80cc2ecdcc993043aa0c1d5ea88f41f9b67b.camel@riseup.net>
-Subject: Re: [PATCH] HID: logitech-dj: add new lightspeed receiver id
-From:   Filipe =?ISO-8859-1?Q?La=EDns?= <lains@riseup.net>
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Lucas Zampieri <lzampier@redhat.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Nestor Lopez Casado <nlopezcasad@logitech.com>
-In-Reply-To: <CAO-hwJ+KyV+Ks38DDF8EuT9kEc9jd9SvNn=nGyTwjkD3GOQ+RA@mail.gmail.com>
-References: <20220126144400.130797-1-lzampier@redhat.com>
-         <CAO-hwJ+KyV+Ks38DDF8EuT9kEc9jd9SvNn=nGyTwjkD3GOQ+RA@mail.gmail.com>
-Content-Type: multipart/signed; micalg="pgp-sha256";
-        protocol="application/pgp-signature"; boundary="=-ZtH0jJT5Y0ZBG7kBkzTc"
-Date:   Wed, 26 Jan 2022 14:54:33 +0000
+        id S242914AbiAZPf1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 26 Jan 2022 10:35:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46432 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242905AbiAZPf0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Wed, 26 Jan 2022 10:35:26 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BC48C061748
+        for <linux-input@vger.kernel.org>; Wed, 26 Jan 2022 07:35:26 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id r25so9758667wrc.12
+        for <linux-input@vger.kernel.org>; Wed, 26 Jan 2022 07:35:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=tj0guoNH4q4novDmtBoOtGAutOOdll1d2XmoKB6eeJQ=;
+        b=KLDGbuNMN9AsrespV+rifmAQkBzvZnJJSTQRykm8Ve53hmVPqybnoLNAuP5qZ0+pMi
+         l8TgXuBqYOTW+Kcn8Ug6O/JBDHeiOmZ1STSMk8uLpWNMP/IEoea9IpUlj41BhVOKB2ap
+         tDsUpRwhvERDpDD6Oj+8MJtSG6+0Pxzs1xKqQdg0KcDxfSh4yeasNF7mEVrb5KSKs+jW
+         Ag1eYx6in8ux1Frg6+JlhYd3ZP707cWCoc1eUi7mUIAGWdZMK04VE6v+SLyrrh3mv5hd
+         kzRqv5YwA9VyrH43ttV+O6+k4gsr058EB92IpujSfJeS3oWZmPbjYwHVF7AKUsr5rnhP
+         Cz7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tj0guoNH4q4novDmtBoOtGAutOOdll1d2XmoKB6eeJQ=;
+        b=TAjaBtLW1ujcot8HaIVRl8aXWkWu9lWnVJ4eIUaRFsvhTpAmB/kaRpFhP/KUeN6Zb4
+         7fLM1XD8voOCv5iKNwHeS50YLW+/5pIq7DaShFRLDlIPrG7ebDnVRH3PTirdbz9KPxAH
+         3UFYKSF04z3jszg0gCrL69QclMrsBgrdDXduoa2SruQNbklKSiDG0ShSgjEkc+0tweG1
+         ae6u/oiBwlVtPR4OZ8geTadAahgp9YRPYBnq41u2XdWm9cG5iZyX3IBvgORd9vUwYFnr
+         h5D7uZpiKoO7zV66UO+Vzb+QFyEVpgE+k07Ehb4yRruFGLKVRr6rBhFRasxMASvYDqrn
+         yjnQ==
+X-Gm-Message-State: AOAM531Ev6T6iguUlsYR4CkFw7uF2flrsotVDtI3mw5+YAaaHCmHzew/
+        GrvMPwQ8oK8Qu0HtZYiWrOJptA==
+X-Google-Smtp-Source: ABdhPJxDVe28gY+kPTckZyTnR7HQC2FGkOhdqzuq6gh4Nnq6nenw4euktvSatUsoFs70CM1rv2AJTA==
+X-Received: by 2002:a05:6000:18a2:: with SMTP id b2mr14030363wri.282.1643211324822;
+        Wed, 26 Jan 2022 07:35:24 -0800 (PST)
+Received: from mkorpershoek-XPS-13-9370.. (laubervilliers-656-1-151-143.w92-154.abo.wanadoo.fr. [92.154.18.143])
+        by smtp.gmail.com with ESMTPSA id n10sm3360958wmr.25.2022.01.26.07.35.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 07:35:24 -0800 (PST)
+From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Marco Felsch <m.felsch@pengutronix.de>,
+        Rob Herring <robh+dt@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Fengping Yu <fengping.yu@mediatek.com>,
+        Yingjoe Chen <yingjoe.chen@mediatek.com>
+Cc:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        Fabien Parent <fparent@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v19 1/3] dt-bindings: input: Add bindings for Mediatek matrix keypad
+Date:   Wed, 26 Jan 2022 16:35:17 +0100
+Message-Id: <20220126153519.3637496-2-mkorpershoek@baylibre.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220126153519.3637496-1-mkorpershoek@baylibre.com>
+References: <20220126153519.3637496-1-mkorpershoek@baylibre.com>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+From: "fengping.yu" <fengping.yu@mediatek.com>
 
---=-ZtH0jJT5Y0ZBG7kBkzTc
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+This patch add devicetree bindings for Mediatek matrix keypad driver.
 
-On Wed, 2022-01-26 at 15:47 +0100, Benjamin Tissoires wrote:
-> On Wed, Jan 26, 2022 at 3:44 PM Lucas Zampieri <lzampier@redhat.com> wrot=
-e:
-> >=20
-> > As of logitech lightspeed receiver fw version 04.02.B0009,
-> > HIDPP_PARAM_DEVICE_INFO is being reported as 0x11.
-> >=20
-> > With patch "HID: logitech-dj: add support for the new lightspeed receiv=
-er
-> > iteration", the mouse starts to error out with:
-> > =C2=A0 logitech-djreceiver: unusable device of type UNKNOWN (0x011) con=
-nected on
-> > =C2=A0 slot 1
-> > and becomes unusable.
-> >=20
-> > This has been noticed on a Logitech G Pro X Superlight fw MPM 25.01.B00=
-18.
->=20
-> The patch looks good to me.
->=20
-> Reviewed-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
->=20
-> Ideally, Nestor, can you confirm this is expected and that we won't
-> have any bad surprises there?
->=20
-> I think we probably want this to be Cc-ed to stable once it gets
-> merged (we can add the tag as we merge it).
->=20
-> Cheers,
-> Benjamin
+Signed-off-by: fengping.yu <fengping.yu@mediatek.com>
+Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
+Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+---
+ .../input/mediatek,mt6779-keypad.yaml         | 80 +++++++++++++++++++
+ 1 file changed, 80 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
 
-This is likely a different connection type, so it should probably get its o=
-wn
-case statement, but let's let Nestor confirm :)
+diff --git a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+new file mode 100644
+index 000000000000..2c76029224a0
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+@@ -0,0 +1,80 @@
++# SPDX-License-Identifier: GPL-2.0
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/mediatek,mt6779-keypad.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Mediatek's Keypad Controller device tree bindings
++
++maintainers:
++  - Fengping Yu <fengping.yu@mediatek.com>
++
++allOf:
++  - $ref: "/schemas/input/matrix-keymap.yaml#"
++
++description: |
++  Mediatek's Keypad controller is used to interface a SoC with a matrix-type
++  keypad device. The keypad controller supports multiple row and column lines.
++  A key can be placed at each intersection of a unique row and a unique column.
++  The keypad controller can sense a key-press and key-release and report the
++  event using a interrupt to the cpu.
++
++properties:
++  compatible:
++    oneOf:
++      - const: mediatek,mt6779-keypad
++      - items:
++          - enum:
++            - mediatek,mt6873-keypad
++          - const: mediatek,mt6779-keypad
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    description: Names of the clocks listed in clocks property in the same order
++    items:
++       - const: kpd
++
++  wakeup-source:
++    description: use any event on keypad as wakeup event
++    type: boolean
++
++  mediatek,debounce-us:
++    description: |
++      Debounce interval in microseconds, if not specified, the default
++      value is 16000
++    maximum: 256000
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++  - clock-names
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/input/input.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++
++    soc {
++        #address-cells = <2>;
++        #size-cells = <2>;
++
++        kp@10010000 {
++          compatible = "mediatek,mt6779-keypad";
++          reg = <0 0x10010000 0 0x1000>;
++          interrupts = <GIC_SPI 75 IRQ_TYPE_EDGE_FALLING>;
++          clocks = <&clk26m>;
++          clock-names = "kpd";
++        };
++    };
+-- 
+2.32.0
 
-Cheers,
-Filipe La=C3=ADns
-
---=-ZtH0jJT5Y0ZBG7kBkzTc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCAAdFiEE0jW0leqs33gyftiw+JPGdIFqqV0FAmHxYKkACgkQ+JPGdIFq
-qV38xhAAnjELLgF7c3FigXFEzvruKFTxNgNyxMnmFmuAp0baGSbK6BaPn0b6U00x
-0crpSY9q1/uxoIludufS5D1+f6r8GZnYwgghA72Y80HFOFIA1YqoZCmpKpPXMK0n
-YUu8HU+yqq1NGfSITFSR5rYq3lwnR2sVU6t5e0LYhW4q96sUrBP1udoE0BoEOxWv
-I6APDgGdvfy9BuC0+eJ+xUfDILc0wUuUgtYexUraKpIMxRldylYiwb9VQgTrshvU
-kwVfvv2+HOY4HBlIab0K9/aYIGkJUFQPlKnnxgUpE25nE9NKnrgI+ECDupzpAYRC
-87kf2JdrpqfVpXarHzSCGciQ861hSg7eQe+oDf9qwygTJu66UDqDAEE65DrA71g1
-3u9PBZtowsWwr6AJgt0MmEi3doBfqcdn8qZHGliRDLiWCUszw19h9x1835FRbXsJ
-iijr11o7BCs6dttmb3d2YkKIJZ1E/2p9V+WWmDBV+2OOOFMZ8S90GQXUgZAzaP0P
-87qzXgBkXoy855DSxOsAaeDcp4Q9riAeFcXs75fiJzkXpq/q+XVYxechOZ9mUM2M
-cHv+XmuTaSiPhZCt49RfIeFHOELnj1EOAS8TZavudoubo/HkgY9tRXvLBXNXhVFL
-u2tN19cNDtJpy866157RH5Sx0tD1MhA/1NxJQYUcwgBQxt4xYI8=
-=XWgf
------END PGP SIGNATURE-----
-
---=-ZtH0jJT5Y0ZBG7kBkzTc--

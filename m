@@ -2,71 +2,58 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05D23C433F5
-	for <linux-input@archiver.kernel.org>; Wed,  2 Feb 2022 10:17:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C652C433FE
+	for <linux-input@archiver.kernel.org>; Wed,  2 Feb 2022 11:02:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243342AbiBBKRJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 2 Feb 2022 05:17:09 -0500
-Received: from mail-io1-f71.google.com ([209.85.166.71]:34539 "EHLO
-        mail-io1-f71.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235275AbiBBKRI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2022 05:17:08 -0500
-Received: by mail-io1-f71.google.com with SMTP id b4-20020a05660214c400b00632eb8bff25so9297987iow.1
-        for <linux-input@vger.kernel.org>; Wed, 02 Feb 2022 02:17:08 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:date:in-reply-to:message-id:subject
-         :from:to;
-        bh=T4JU1DoNJxSChrqfuHiopIuSM4M9SJ+2CDXtqoAN2Pk=;
-        b=tIvh1GivmXBgL+lw0AQjGuzNgTzXxzhNYM9ITJtqloiundfr9HVJBx9pG9clFpTMrz
-         kiNI2//tgkXl2XI8Q3+B0JoUE2zoBpX/xJwVQVParNjY9NYWN0tUXc7WGAKpTzD7b7sf
-         o4/Rb1+IGzPJzlyLSmOUzmsdRfXFtLzeOE6DaXhWIgo0HC6fvQqtDPU2SHTUzqJFrnPS
-         0uoW0ONqMJo06rGKU18VUw3bCkEiPB9exADsSAWHa64OudOXJ9Pcn9jvA8xdgfWYMVuN
-         H0LPvXzgnbVZ8j3wx02fjYfZmLeihdxwF3wW1jtUeq9q/SS8KLKh/PtGhS9J0NBNRZan
-         EHPA==
-X-Gm-Message-State: AOAM532orIIbUg2PpUBhVcjnGyP/7pkdtncaGMzjS3XiePm/Q0NkJaBd
-        0rbHuIfJXbJ6pW1aYu0twq3eiTACbqEQ8VUg8ArWxsiO036A
-X-Google-Smtp-Source: ABdhPJw4KeUmCBVwdZfxRK0hXg1ocwqu6RnrmCRYKKNjNwZR7QIHqD5U3iE9JlZq3uGjGDOB4y0gjrFGMpmgO6wluB+daBCTCT/6
+        id S1343635AbiBBLCK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 2 Feb 2022 06:02:10 -0500
+Received: from mail.profitfirm24.com.pl ([212.237.10.110]:58638 "EHLO
+        mail.profitfirm24.com.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343617AbiBBLCJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2022 06:02:09 -0500
+Received: by mail.profitfirm24.com.pl (Postfix, from userid 1001)
+        id 8877FAA64F; Tue,  1 Feb 2022 09:17:38 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=profitfirm24.com.pl;
+        s=mail; t=1643707572;
+        bh=M1ZVeu3q6Upppe+FUx/3rgI7MKJXh389NZDbgCK1SX4=;
+        h=Date:From:To:Subject:From;
+        b=I7a3kg7oXrGCo2JbHIwWQQec3+bdRj21nYyb8kWkNgZG2j8sM3w3UhBxSCCjoABWO
+         E4R8BfDyDDh4gQxdf3WwIL8Wr45afis7MqUxhNDogyNbecJKgbbgItp6U0HTk0f5Wk
+         ADgm0P7F7Tq/hmX2sY79kfFr11uA5qwrZ1mxONqzsFQoce40KGLQLSoTaWzR0P2S95
+         W/iwir6qkRIr5gT7DsIiMUeYsCpU9Ing2S5qwPd6aMFgWLUipT4RgSeX4tVbfZLHaI
+         tTlI/QgTYfL/NMBTIzA3DR/GYYSpSPU4S/1w82wiMW7Dg4ioIyvezBJv7XmO8BGtiT
+         OW8YjrKke/bJA==
+Received: by profitfirm24.com.pl for <linux-input@vger.kernel.org>; Tue,  1 Feb 2022 09:17:20 GMT
+Message-ID: <20220201074652-0.1.b.2z3n.0.252qqfjmo8@profitfirm24.com.pl>
+Date:   Tue,  1 Feb 2022 09:17:20 GMT
+From:   =?UTF-8?Q? "Arkadiusz_Soko=C5=82owski" ?= 
+        <arkadiusz.sokolowski@profitfirm24.com.pl>
+To:     <linux-input@vger.kernel.org>
+Subject: Koszty instalacji fotowoltaicznej
+X-Mailer: mail.profitfirm24.com.pl
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:1561:: with SMTP id k1mr18620390ilu.146.1643797028546;
- Wed, 02 Feb 2022 02:17:08 -0800 (PST)
-Date:   Wed, 02 Feb 2022 02:17:08 -0800
-In-Reply-To: <0000000000000560cc05d4bce058@google.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000f82ecc05d706513d@google.com>
-Subject: Re: [syzbot] general protection fault in hidraw_release
-From:   syzbot <syzbot+953a33deaf38c66a915e@syzkaller.appspotmail.com>
-To:     benjamin.tissoires@redhat.com, changbin.du@intel.com,
-        christian.brauner@ubuntu.com, daniel@iogearbox.net,
-        davem@davemloft.net, edumazet@google.com, hkallweit1@gmail.com,
-        jikos@kernel.org, kuba@kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        syzkaller-bugs@googlegroups.com, yajun.deng@linux.dev
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-syzbot has bisected this issue to:
+Dzie=C5=84 dobry,
 
-commit e4b8954074f6d0db01c8c97d338a67f9389c042f
-Author: Eric Dumazet <edumazet@google.com>
-Date:   Tue Dec 7 01:30:37 2021 +0000
+stworzyli=C5=9Bmy specjaln=C4=85 ofert=C4=99 dla firm, na kompleksow=C4=85=
+ obs=C5=82ug=C4=99 inwestycji w fotowoltaik=C4=99. =20
 
-    netlink: add net device refcount tracker to struct ethnl_req_info
+Specjalizujemy si=C4=99 w zakresie doboru, monta=C5=BCu i serwisie instal=
+acji fotowoltaicznych, dysponujemy najnowocze=C5=9Bniejszymi rozwi=C4=85z=
+ania, kt=C3=B3re zapewni=C4=85 Pa=C5=84stwu oczekiwane rezultaty.
 
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=15179fa8700000
-start commit:   9f7fb8de5d9b Merge tag 'spi-fix-v5.17-rc2' of git://git.ke..
-git tree:       upstream
-final oops:     https://syzkaller.appspot.com/x/report.txt?x=17179fa8700000
-console output: https://syzkaller.appspot.com/x/log.txt?x=13179fa8700000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=3e56c9b92aaaee24
-dashboard link: https://syzkaller.appspot.com/bug?extid=953a33deaf38c66a915e
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15fff530700000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=106469f0700000
+Mo=C5=BCemy przygotowa=C4=87 dla Pa=C5=84stwa wst=C4=99pn=C4=85 kalkulacj=
+=C4=99 i przeanalizowa=C4=87 efekty mo=C5=BCliwe do osi=C4=85gni=C4=99cia=
+=2E
 
-Reported-by: syzbot+953a33deaf38c66a915e@syzkaller.appspotmail.com
-Fixes: e4b8954074f6 ("netlink: add net device refcount tracker to struct ethnl_req_info")
+Czy s=C4=85 Pa=C5=84stwo otwarci na wst=C4=99pn=C4=85 rozmow=C4=99 w tym =
+temacie?
 
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+
+Pozdrawiam
+Arkadiusz Soko=C5=82owski

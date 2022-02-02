@@ -2,58 +2,71 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C652C433FE
-	for <linux-input@archiver.kernel.org>; Wed,  2 Feb 2022 11:02:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76660C433F5
+	for <linux-input@archiver.kernel.org>; Wed,  2 Feb 2022 11:48:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343635AbiBBLCK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 2 Feb 2022 06:02:10 -0500
-Received: from mail.profitfirm24.com.pl ([212.237.10.110]:58638 "EHLO
-        mail.profitfirm24.com.pl" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343617AbiBBLCJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 2 Feb 2022 06:02:09 -0500
-Received: by mail.profitfirm24.com.pl (Postfix, from userid 1001)
-        id 8877FAA64F; Tue,  1 Feb 2022 09:17:38 +0000 (GMT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=profitfirm24.com.pl;
-        s=mail; t=1643707572;
-        bh=M1ZVeu3q6Upppe+FUx/3rgI7MKJXh389NZDbgCK1SX4=;
-        h=Date:From:To:Subject:From;
-        b=I7a3kg7oXrGCo2JbHIwWQQec3+bdRj21nYyb8kWkNgZG2j8sM3w3UhBxSCCjoABWO
-         E4R8BfDyDDh4gQxdf3WwIL8Wr45afis7MqUxhNDogyNbecJKgbbgItp6U0HTk0f5Wk
-         ADgm0P7F7Tq/hmX2sY79kfFr11uA5qwrZ1mxONqzsFQoce40KGLQLSoTaWzR0P2S95
-         W/iwir6qkRIr5gT7DsIiMUeYsCpU9Ing2S5qwPd6aMFgWLUipT4RgSeX4tVbfZLHaI
-         tTlI/QgTYfL/NMBTIzA3DR/GYYSpSPU4S/1w82wiMW7Dg4ioIyvezBJv7XmO8BGtiT
-         OW8YjrKke/bJA==
-Received: by profitfirm24.com.pl for <linux-input@vger.kernel.org>; Tue,  1 Feb 2022 09:17:20 GMT
-Message-ID: <20220201074652-0.1.b.2z3n.0.252qqfjmo8@profitfirm24.com.pl>
-Date:   Tue,  1 Feb 2022 09:17:20 GMT
-From:   =?UTF-8?Q? "Arkadiusz_Soko=C5=82owski" ?= 
-        <arkadiusz.sokolowski@profitfirm24.com.pl>
-To:     <linux-input@vger.kernel.org>
-Subject: Koszty instalacji fotowoltaicznej
-X-Mailer: mail.profitfirm24.com.pl
+        id S1344004AbiBBLs5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 2 Feb 2022 06:48:57 -0500
+Received: from vps.xff.cz ([195.181.215.36]:38674 "EHLO vps.xff.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230257AbiBBLs5 (ORCPT <rfc822;linux-input@vger.kernel.org>);
+        Wed, 2 Feb 2022 06:48:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=xff.cz; s=mail;
+        t=1643802535; bh=/hgS+imZp3qk+AdUYYHI9PR8cjgjAJL5NVJsn6Y/Qfo=;
+        h=Date:From:To:Cc:Subject:X-My-GPG-KeyId:References:From;
+        b=OUAQ0Y9X5VJIeaAlKm6JLf233KpCdiNhEK913DmP088solZNxLLJ1cHObgtdaByCt
+         RVo9X+LxOKl0cfpryd8OLNqFVhw6SWitYp0Ectv/sZTaOY48gAqckVW7XaiX53OhX5
+         Uq/PX26yq/eCN+3os6vwMC7TqB4zNAb0edMfuDAM=
+Date:   Wed, 2 Feb 2022 12:48:55 +0100
+From:   =?utf-8?Q?Ond=C5=99ej?= Jirman <x@xff.cz>
+To:     Samuel Holland <samuel@sholland.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
+Subject: Re: [PATCH 2/5] Input: pinephone-keyboard - Add PinePhone keyboard
+ driver
+Message-ID: <20220202114855.p36wlh4s3plpdyft@core.my.home>
+Mail-Followup-To: =?utf-8?Q?Ond=C5=99ej?= Jirman <x@xff.cz>,
+        Samuel Holland <samuel@sholland.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        linux-i2c@vger.kernel.org, Wolfram Sang <wsa@kernel.org>
+X-My-GPG-KeyId: EBFBDDE11FB918D44D1F56C1F9F0A873BE9777ED
+ <https://xff.cz/key.txt>
+References: <20220129230043.12422-1-samuel@sholland.org>
+ <20220129230043.12422-3-samuel@sholland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220129230043.12422-3-samuel@sholland.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dzie=C5=84 dobry,
+Hello again Samuel,
 
-stworzyli=C5=9Bmy specjaln=C4=85 ofert=C4=99 dla firm, na kompleksow=C4=85=
- obs=C5=82ug=C4=99 inwestycji w fotowoltaik=C4=99. =20
+On Sat, Jan 29, 2022 at 05:00:39PM -0600, Samuel Holland wrote:
+> The official Pine64 PinePhone keyboard case contains a matrix keypad and
+> a MCU which runs a libre firmware. Add support for its I2C interface.
 
-Specjalizujemy si=C4=99 w zakresie doboru, monta=C5=BCu i serwisie instal=
-acji fotowoltaicznych, dysponujemy najnowocze=C5=9Bniejszymi rozwi=C4=85z=
-ania, kt=C3=B3re zapewni=C4=85 Pa=C5=84stwu oczekiwane rezultaty.
+I had one bug report from a user that reminded me of something that's
+missing in the driver.
 
-Mo=C5=BCemy przygotowa=C4=87 dla Pa=C5=84stwa wst=C4=99pn=C4=85 kalkulacj=
-=C4=99 i przeanalizowa=C4=87 efekty mo=C5=BCliwe do osi=C4=85gni=C4=99cia=
-=2E
+Please add a regulator support for power supply for the keyboard. On Pinephone
+the keyboard needs USB-5V regulator to be enabled, because final version of the
+keyboard is supplied from the VBAT POGO pin and not internally from kb battery,
+as on the prototypes.
 
-Czy s=C4=85 Pa=C5=84stwo otwarci na wst=C4=99pn=C4=85 rozmow=C4=99 w tym =
-temacie?
+If this regulator is not enabled the keyboard will be supplied from battery
+- voltage drop on a boost regulator diode, which causes very frequent brownouts
+of the keyboard MCU.
 
+Users don't notice, becuse MCU recovers quickly and only a key or two is missed
+every once in a while, but it should be fixed. And this problem probably only
+shows up when the phone battery is either quite discharged, or random load
+spikes push its voltage bellow what's necessary for the MCU to run, temporarily.
 
-Pozdrawiam
-Arkadiusz Soko=C5=82owski
+kind regards,
+	o.

@@ -2,268 +2,193 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BD5FC4332F
-	for <linux-input@archiver.kernel.org>; Fri,  4 Feb 2022 20:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C1D9C433F5
+	for <linux-input@archiver.kernel.org>; Fri,  4 Feb 2022 21:02:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237539AbiBDUUf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 4 Feb 2022 15:20:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45612 "EHLO
+        id S239728AbiBDVCi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 4 Feb 2022 16:02:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237542AbiBDUUd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Feb 2022 15:20:33 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13452C061714
-        for <linux-input@vger.kernel.org>; Fri,  4 Feb 2022 12:20:28 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id v15-20020a17090a4ecf00b001b82db48754so7135860pjl.2
-        for <linux-input@vger.kernel.org>; Fri, 04 Feb 2022 12:20:28 -0800 (PST)
+        with ESMTP id S239876AbiBDVCh (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Feb 2022 16:02:37 -0500
+Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8F57C061714;
+        Fri,  4 Feb 2022 13:02:36 -0800 (PST)
+Received: by mail-pf1-x42d.google.com with SMTP id v74so6122077pfc.1;
+        Fri, 04 Feb 2022 13:02:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=j6C39UFn+jrEqEIOvITw0T2gh1RnTm0sOBo49+WVuDA=;
-        b=jGvPAGwayYyRxJU/DyY/MMJwXAGIuoD2BSFjJHICXNMolE12b7ijp2RV+FCiUd7G0X
-         orlr6ZpVrI2eM7+TuN9DaaSbqfcqk+X9nqSp87sAZUeZpXmLVJPxeuV1LqEqNAt4nx5e
-         bs8HiyKzLPBgTC0QjvKrXdIKgKCSCjVKQvm4g=
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=dkQHeMhrccAmwfWNY5MWOMZzEpP2OXc/XHH4flu61oM=;
+        b=dq4SE1XEa8u21mjcr6eMEytMhYg0aQalnIbqS7HXMgJCjhQ87uYH+YL8p1TQVPUusO
+         AveLxZtspWrrzjLIA1Xg9XQZ51nY1zG9yj7VgGoG3X8pFfsGSen3P31bPLWisaYla58Y
+         ACmasENnmcJe12R5DD/EZXYaPr/rtMttEemz6Yg2ENO4sy3gtcBH9l0R02jJvJVgfDqk
+         qiK6CC+j7gSIm2g2XSbX4snj2nGn3oGT311CggSv3J+m5ABkRykesdVlDX+gVRYAQG2l
+         Zw9opDHElZIvNG6qNnJCv2EKb+UYJsvQojzkxOJs8gtyLolD56Wx+A0xcLHmZfqQOeU3
+         V4Mg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=j6C39UFn+jrEqEIOvITw0T2gh1RnTm0sOBo49+WVuDA=;
-        b=XoZK2MDfnz5jfWn9kWg2LAWeGLzosaFmodU7xgnJNDN68Zavl4wLdsEglDr3DT9Fja
-         KyUQkqboYmp1+Zn6bbqn/tMFuCbGTR2mfmRbOleQahuwr2q2VxM+vt+jENfzRM/TuVO1
-         wtMsUROWKIEZlxyYisIhoBSLUpqh/+U2p7kr2TZO5ZlBLlRcfpqAzJaUt4CLsWjwcswd
-         wPb3eh3cn+MBtxBQ6emeeX96n4YsLrKtIdGkPElaWAlzWrn2yjGIcrwAIZ9s8jg3zHDw
-         pb9zwfBX97dNnlSigup6Olrh1DiZpaH0d88vRp0aywtNPKz4zMZJNFjJf5IOXDJK7Brw
-         /4tw==
-X-Gm-Message-State: AOAM5317yY8bxea9XZFcnO2KK8jAWN377eqJ3ZiIcm2uv7aeXvm2jTjQ
-        aBqc5jpXMpkfox2Jq4mtlwzvoQ==
-X-Google-Smtp-Source: ABdhPJy4fIjcXd5iKfn71Ecib6moONOKAzLwXXPrXvh0pjqlt8nRvQHCfG2u/CfjfwBY300zubxQ1Q==
-X-Received: by 2002:a17:902:d48a:: with SMTP id c10mr4746224plg.139.1644006027577;
-        Fri, 04 Feb 2022 12:20:27 -0800 (PST)
-Received: from smtp.gmail.com ([2620:15c:202:201:1ba2:dd59:3b59:18bc])
-        by smtp.gmail.com with ESMTPSA id q17sm3385561pfk.108.2022.02.04.12.20.26
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=dkQHeMhrccAmwfWNY5MWOMZzEpP2OXc/XHH4flu61oM=;
+        b=MnloRjZHBuLRXvaze6tpoGIZvkfK//6bcpHMBr5SXwg/ns2OZaO3ZPphxwQkGyXchj
+         E4n1ZHhu+Vgic/usbc23FZQRHXF8xsHOaGm33dNVcYiKDcErDXtjXAtkKc+pgNe/z5ZX
+         iNEv9jshFSHDPG5UkHIxataxkbypi2nujEhs7+HahdOfSissoxe2kb8W7RiQA93SJpzb
+         NxvVd3ORkIKbQYQ7R1O+F3Fp7vleXG/5/DOZLvq71WpONqjzSBeaQh0wrndldtSTFKmo
+         ggj943dVQMLr+0p4PEiIy+HMiUO/8f1qToiLWedSr8TEyMFr9A13AwG1QFKpufZM/PgZ
+         8m0g==
+X-Gm-Message-State: AOAM531QS375dmSpJZ2Um892fDzWadMucvdRnyB5cUnLtbAP6OSlYckg
+        za0hiJk4UWwG2cTtzTiEm3M=
+X-Google-Smtp-Source: ABdhPJzAKRivnZMC5UiCVKzWreftQArfG/EpExywTGoMa2OGFzXCWFvltJWv1DAD/qTxXPnUbbNylQ==
+X-Received: by 2002:a63:b141:: with SMTP id g1mr673240pgp.269.1644008555875;
+        Fri, 04 Feb 2022 13:02:35 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:4c5b:5873:55d5:5b84])
+        by smtp.gmail.com with ESMTPSA id o9sm3142837pfw.86.2022.02.04.13.02.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 04 Feb 2022 12:20:27 -0800 (PST)
-From:   Stephen Boyd <swboyd@chromium.org>
-To:     benjamin.tissoires@redhat.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        "Sean O'Brien" <seobrien@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Zhengqiao Xia <xiazhengqiao@huaqin.corp-partner.google.com>
-Subject: [PATCH 4/5] HID: google: Add support for vivaldi to hid-hammer
-Date:   Fri,  4 Feb 2022 12:20:20 -0800
-Message-Id: <20220204202021.895426-5-swboyd@chromium.org>
-X-Mailer: git-send-email 2.35.0.263.gb82422642f-goog
-In-Reply-To: <20220204202021.895426-1-swboyd@chromium.org>
-References: <20220204202021.895426-1-swboyd@chromium.org>
+        Fri, 04 Feb 2022 13:02:34 -0800 (PST)
+Date:   Fri, 4 Feb 2022 13:02:32 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Takashi Iwai <tiwai@suse.de>, Hans De Goede <hdegoede@redhat.com>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Wrongly bound Elantech touchpad on Lenovo Yoga Slim 7
+Message-ID: <Yf2UaMp8ttjrBjU0@google.com>
+References: <s5hleyqwowl.wl-tiwai@suse.de>
+ <CAO-hwJK-7migm7VWkwvTPHwxgTZEbNX0XYpk0A1pr6N2jkYrxw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJK-7migm7VWkwvTPHwxgTZEbNX0XYpk0A1pr6N2jkYrxw@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support to the hammer driver to parse vivaldi keyboard layouts and
-expose them to userspace. This allows hammer devices to use vivaldi
-function row keys while also supporting the other features this driver
-supports, like the CBAS (chrome base attached switch) and a keyboard
-backlight.
+Hi Benjamin,
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Sean O'Brien" <seobrien@chromium.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Zhengqiao Xia <xiazhengqiao@huaqin.corp-partner.google.com>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
----
- drivers/hid/Kconfig             |  1 +
- drivers/hid/hid-google-hammer.c | 95 +++++++++++++++++++++++++--------
- 2 files changed, 75 insertions(+), 21 deletions(-)
+On Fri, Feb 04, 2022 at 06:39:40PM +0100, Benjamin Tissoires wrote:
+> Hi,
+> 
+> [adding Dmitry, the maintainer of the input tree and Hans, a colleague of mine]
+> 
+> On Fri, Feb 4, 2022 at 5:57 PM Takashi Iwai <tiwai@suse.de> wrote:
+> >
+> > Hi,
+> >
+> > we've got a bug report on openSUSE Bugzilla about the broken touchpad
+> > on Lenovo Yoga Slim 7:
+> >   https://bugzilla.opensuse.org/show_bug.cgi?id=1193064
+> >
+> > The touchpad is an Elantech one, connected over i2c, and there are two
+> > drivers supporting it.  Unfortunately, the default one the system
+> > binds, elan-i2c input driver, doesn't seem working properly, while
+> > i2c-hid driver works.
+> 
+> Hans, we do have a similar bug on RHEL at
+> https://bugzilla.redhat.com/show_bug.cgi?id=2029078 (sorry, private
+> bug).
+> 
+> IIRC you worked on the discrimination between i2c-hid and elan_i2c (I
+> might be completely wrong though).
+> Would this patch be OK with you?
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 5569a2029dab..070c4c8128e8 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -405,6 +405,7 @@ config HOLTEK_FF
- 
- config HID_GOOGLE_HAMMER
- 	tristate "Google Hammer Keyboard"
-+	select INPUT_VIVALDIFMAP
- 	depends on USB_HID && LEDS_CLASS && CROS_EC
- 	help
- 	Say Y here if you have a Google Hammer device.
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-index 0403beb3104b..e3dd26ddbd43 100644
---- a/drivers/hid/hid-google-hammer.c
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -15,6 +15,7 @@
- 
- #include <linux/acpi.h>
- #include <linux/hid.h>
-+#include <linux/input/vivaldi-keymap.h>
- #include <linux/leds.h>
- #include <linux/module.h>
- #include <linux/of.h>
-@@ -22,6 +23,7 @@
- #include <linux/platform_data/cros_ec_proto.h>
- #include <linux/platform_device.h>
- #include <linux/pm_wakeup.h>
-+#include <linux/sysfs.h>
- #include <asm/unaligned.h>
- 
- #include "hid-ids.h"
-@@ -300,6 +302,11 @@ struct hammer_kbd_leds {
- 	u8 buf[2] ____cacheline_aligned;
- };
- 
-+struct hammer_drvdata {
-+	struct vivaldi_data vdata;
-+	struct hammer_kbd_leds leds;
-+};
-+
- static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
- 		enum led_brightness br)
- {
-@@ -337,15 +344,11 @@ static int hammer_kbd_brightness_set_blocking(struct led_classdev *cdev,
- 	return ret;
- }
- 
--static int hammer_register_leds(struct hid_device *hdev)
-+static int hammer_register_leds(struct hammer_drvdata *hdata, struct hid_device *hdev)
- {
- 	struct hammer_kbd_leds *kbd_backlight;
--	int error;
--
--	kbd_backlight = kzalloc(sizeof(*kbd_backlight), GFP_KERNEL);
--	if (!kbd_backlight)
--		return -ENOMEM;
- 
-+	kbd_backlight = &hdata->leds;
- 	kbd_backlight->hdev = hdev;
- 	kbd_backlight->cdev.name = "hammer::kbd_backlight";
- 	kbd_backlight->cdev.max_brightness = MAX_BRIGHTNESS;
-@@ -356,26 +359,16 @@ static int hammer_register_leds(struct hid_device *hdev)
- 	/* Set backlight to 0% initially. */
- 	hammer_kbd_brightness_set_blocking(&kbd_backlight->cdev, 0);
- 
--	error = led_classdev_register(&hdev->dev, &kbd_backlight->cdev);
--	if (error)
--		goto err_free_mem;
--
--	hid_set_drvdata(hdev, kbd_backlight);
--	return 0;
--
--err_free_mem:
--	kfree(kbd_backlight);
--	return error;
-+	return led_classdev_register(&hdev->dev, &kbd_backlight->cdev);
- }
- 
- static void hammer_unregister_leds(struct hid_device *hdev)
- {
--	struct hammer_kbd_leds *kbd_backlight = hid_get_drvdata(hdev);
-+	struct hammer_drvdata *hdata = hid_get_drvdata(hdev);
-+	struct hammer_kbd_leds *kbd_backlight = &hdata->leds;
- 
--	if (kbd_backlight) {
-+	if (kbd_backlight)
- 		led_classdev_unregister(&kbd_backlight->cdev);
--		kfree(kbd_backlight);
--	}
- }
- 
- #define HID_UP_GOOGLEVENDOR	0xffd10000
-@@ -385,6 +378,58 @@ static void hammer_unregister_leds(struct hid_device *hdev)
- /* HID usage for keyboard backlight (Alphanumeric display brightness) */
- #define HID_AD_BRIGHTNESS	0x00140046
- 
-+static void hammer_feature_mapping(struct hid_device *hdev,
-+				   struct hid_field *field,
-+				   struct hid_usage *usage)
-+{
-+	struct hammer_drvdata *hdata = hid_get_drvdata(hdev);
-+
-+	vivaldi_hid_feature_mapping(&hdata->vdata, hdev, field, usage);
-+}
-+
-+static ssize_t function_row_physmap_show(struct device *dev,
-+					 struct device_attribute *attr,
-+					 char *buf)
-+{
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct hammer_drvdata *hdata = hid_get_drvdata(hdev);
-+	struct vivaldi_data *vdata = &hdata->vdata;
-+
-+	return vivaldi_function_row_physmap_show(vdata, buf);
-+}
-+
-+static DEVICE_ATTR_RO(function_row_physmap);
-+static struct attribute *hammer_sysfs_attrs[] = {
-+	&dev_attr_function_row_physmap.attr,
-+	NULL
-+};
-+
-+static umode_t hammer_attr_is_visible(struct kobject *kobj,
-+				      struct attribute *attr, int n)
-+{
-+	struct device *dev = kobj_to_dev(kobj);
-+	struct hid_device *hdev = to_hid_device(dev);
-+	struct hammer_drvdata *hdata = hid_get_drvdata(hdev);
-+	struct vivaldi_data *vdata = &hdata->vdata;
-+
-+	if (attr == &dev_attr_function_row_physmap.attr &&
-+	    !vdata->num_function_row_keys)
-+		return 0;
-+
-+	return attr->mode;
-+}
-+
-+static const struct attribute_group input_attribute_group = {
-+	.is_visible = hammer_attr_is_visible,
-+	.attrs = hammer_sysfs_attrs,
-+};
-+
-+static int hammer_input_configured(struct hid_device *hdev,
-+				   struct hid_input *hidinput)
-+{
-+	return sysfs_create_group(&hdev->dev.kobj, &input_attribute_group);
-+}
-+
- static int hammer_input_mapping(struct hid_device *hdev, struct hid_input *hi,
- 				struct hid_field *field,
- 				struct hid_usage *usage,
-@@ -516,6 +561,12 @@ static int hammer_probe(struct hid_device *hdev,
- 			const struct hid_device_id *id)
- {
- 	int error;
-+	struct hammer_drvdata *hdata;
-+
-+	hdata = devm_kzalloc(&hdev->dev, sizeof(*hdata), GFP_KERNEL);
-+	if (!hdata)
-+		return -ENOMEM;
-+	hid_set_drvdata(hdev, hdata);
- 
- 	error = hid_parse(hdev);
- 	if (error)
-@@ -541,7 +592,7 @@ static int hammer_probe(struct hid_device *hdev,
- 	}
- 
- 	if (hammer_has_backlight_control(hdev)) {
--		error = hammer_register_leds(hdev);
-+		error = hammer_register_leds(hdata, hdev);
- 		if (error)
- 			hid_warn(hdev,
- 				"Failed to register keyboard backlight: %d\n",
-@@ -610,6 +661,8 @@ static struct hid_driver hammer_driver = {
- 	.id_table = hammer_devices,
- 	.probe = hammer_probe,
- 	.remove = hammer_remove,
-+	.feature_mapping = hammer_feature_mapping,
-+	.input_configured = hammer_input_configured,
- 	.input_mapping = hammer_input_mapping,
- 	.event = hammer_event,
- };
+I would prefer avoid DMI if possible.
+
+I believe we need to do what Hans did for Elan Touch*screen* driver and
+avoid binding to the device if it has i2c-hid-specific _DMS in ACPI.
+I.e. we need to replicate elants_acpi_is_hid_device().
+
+Even better would be to factor it out, maybe not into a shared module
+but simply shared header with static inline function that we could share
+between elan drivers and maybe others as well.
+
+Thanks.
+
+> 
+> Cheers,
+> Benjamin
+> 
+> >
+> > I'm not sure what's the best fix for this, but below a quick
+> > workaround using a deny list with DMI matching.
+> > If this is OK, I can resubmit the patch for merging.
+> >
+> > Any comments appreciated.
+> >
+> >
+> > thanks,
+> >
+> > Takashi
+> >
+> > -- 8< --
+> > From: Takashi Iwai <tiwai@suse.de>
+> > Subject: [PATCH] Input: elan_i2c: Add deny list for Lenovo Yoga Slim 7
+> >
+> > The touchpad on Lenovo Yoga Slim 7 doesn't work well with elan-i2c but
+> > rather better with i2c-hid.  Add a deny list for avoiding to bind with
+> > elan-i2c.
+> >
+> > BugLink: https://bugzilla.opensuse.org/show_bug.cgi?id=1193064
+> > Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> > ---
+> >  drivers/input/mouse/elan_i2c_core.c | 19 +++++++++++++++++++
+> >  1 file changed, 19 insertions(+)
+> >
+> > diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+> > index 47af62c12267..fd08481f7aea 100644
+> > --- a/drivers/input/mouse/elan_i2c_core.c
+> > +++ b/drivers/input/mouse/elan_i2c_core.c
+> > @@ -18,6 +18,7 @@
+> >  #include <linux/acpi.h>
+> >  #include <linux/delay.h>
+> >  #include <linux/device.h>
+> > +#include <linux/dmi.h>
+> >  #include <linux/firmware.h>
+> >  #include <linux/i2c.h>
+> >  #include <linux/init.h>
+> > @@ -1222,6 +1223,20 @@ static void elan_disable_regulator(void *_data)
+> >         regulator_disable(data->vcc);
+> >  }
+> >
+> > +static const struct dmi_system_id elan_i2c_denylist[] __initconst = {
+> > +#if IS_ENABLED(CONFIG_I2C_HID_ACPI)
+> > +       {
+> > +               /* Lenovo Yoga Slim 7 is better supported by i2c-hid */
+> > +               .matches = {
+> > +                       DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> > +                       DMI_MATCH(DMI_PRODUCT_NAME, "82A3"),
+> > +                       DMI_MATCH(DMI_PRODUCT_VERSION, "Yoga Slim 7 14ITL05"),
+> > +               },
+> > +       },
+> > +#endif
+> > +       { }
+> > +};
+> > +
+> >  static int elan_probe(struct i2c_client *client,
+> >                       const struct i2c_device_id *dev_id)
+> >  {
+> > @@ -1233,6 +1248,10 @@ static int elan_probe(struct i2c_client *client,
+> >
+> >         if (IS_ENABLED(CONFIG_MOUSE_ELAN_I2C_I2C) &&
+> >             i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+> > +               if (dmi_check_system(elan_i2c_denylist)) {
+> > +                       dev_info(dev, "Hits deny list, skipping\n");
+> > +                       return -ENODEV;
+> > +               }
+> >                 transport_ops = &elan_i2c_ops;
+> >         } else if (IS_ENABLED(CONFIG_MOUSE_ELAN_I2C_SMBUS) &&
+> >                    i2c_check_functionality(client->adapter,
+> > --
+> > 2.31.1
+> >
+> >
+> >
+> >
+> >
+> >
+> >
+> 
+
 -- 
-https://chromeos.dev
-
+Dmitry

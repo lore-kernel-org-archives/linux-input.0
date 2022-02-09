@@ -2,139 +2,79 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18CE9C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  9 Feb 2022 02:39:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 44816C4167D
+	for <linux-input@archiver.kernel.org>; Wed,  9 Feb 2022 03:09:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234509AbiBICjJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 8 Feb 2022 21:39:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44590 "EHLO
+        id S243083AbiBIDIf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 8 Feb 2022 22:08:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240910AbiBIAqR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Feb 2022 19:46:17 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E600DC061576;
-        Tue,  8 Feb 2022 16:46:16 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id a11-20020a17090a740b00b001b8b506c42fso3639131pjg.0;
-        Tue, 08 Feb 2022 16:46:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=s4mwh3fmLLPxnZWV6Va7gZyohTfajy6eCYjc+ulM7/Q=;
-        b=AAfGd3/lZ9HMxC6YhGy8ZGhOKbAyfRBzUF++fnqACslLwSt5+jewWwfk884I+SMd41
-         2wpzme4z9l2t3Ox8tb4Emkjd8upKs/5jY0InHKGj+lNNmLb8Rnk4YXLPnHy63066T35J
-         6WEhIHBtImmSXWDTeeHGqull+FNrVtjKt17xbWhX0eWs4/+DaK6nV7TMrivFTUUh6E22
-         X4rnrajk86ti/0gnP++8rphBHNOiFntlFCPPpeDo4reAr7fAVxdxS6X0ntglU5IUwOuP
-         a3f63M/kr1Z1PJaaLKGDowEQN6g6z+u1WVlKLyeimjcEQaOh1t8l6kz0lu6GABnjfvd9
-         76Mg==
+        with ESMTP id S1350597AbiBIDGu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Feb 2022 22:06:50 -0500
+Received: from mail-oi1-f182.google.com (mail-oi1-f182.google.com [209.85.167.182])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFC12C061355;
+        Tue,  8 Feb 2022 19:06:49 -0800 (PST)
+Received: by mail-oi1-f182.google.com with SMTP id u3so1134057oiv.12;
+        Tue, 08 Feb 2022 19:06:49 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=s4mwh3fmLLPxnZWV6Va7gZyohTfajy6eCYjc+ulM7/Q=;
-        b=MCP62/yPb0FWEGOmHNT3m8KzGdEP1rWtRop9mekkSLG86N1laFieUzU9jhWy+USbzw
-         6REDDDSMHEzew2PkECN+CDVs81vDSOMfqxC7FH4IPDTNVEW9JMDxL9WewjKse78R6ZbW
-         lw4F6+rmV8Tg0mVze/wIewqexbENP5qn4Szn7xr1j9NxA6dYyBBdsdAVTgkG+8OjDGhL
-         3qJS9ixnQJEYI5byBR/7m7N6lecN4tjz4KUYPc57WXJ45dytJYMsuBVNh2SnOzJHAWrf
-         WhLnG7Qv+w1vKclwrGmkqRB8+Uav14RSsgUankjA3MDwMPf6EX+QknWYdF5jxKyNDCzv
-         mamg==
-X-Gm-Message-State: AOAM533L+7qFwU2vCKUWV4Ynvct9iz3MTPhbJcNMS1h4O54VqJ39TN5o
-        Ha+6OHSeCwIviSOXdSc3aD8=
-X-Google-Smtp-Source: ABdhPJwKIjAkrU43Ez89nlaZfp0v1g46r3efeDx5mHvXpWBFskggvtrQfQaafKzY0dA4rH0IF1u6lw==
-X-Received: by 2002:a17:90b:507:: with SMTP id r7mr659415pjz.78.1644367576455;
-        Tue, 08 Feb 2022 16:46:16 -0800 (PST)
-Received: from localhost.localdomain (192.243.120.166.16clouds.com. [192.243.120.166])
-        by smtp.gmail.com with ESMTPSA id q1sm3781099pjd.48.2022.02.08.16.46.13
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=LVeDVNu/BCICylDILAovuwAjxje6g+Ysjhgt1fngzyo=;
+        b=s4KY/WE7aA8yQjdAmtSpuWj3H04Zf0yzuyjnK24hWRtBiq6ayYhHwGQamZNHMeJKAW
+         BLRMDrpGFLWY/0PWT+k+FwFppZmrDcH5ocynxswTRLW6XWluGJ4KxmNl3IVoyydXRSo3
+         b7kmr/liRAFgU38UCi+E34SgMnPsb4lQ5KatvSHTMC+CLA9B0zTlkdCMht2xhyePklen
+         vg7BUjzX5o91RoyV1oyw1yq7cM7O2AkkR+IjlKp5hV4qqzMltq5ERD1iuDCBbYiCdbTE
+         IaP+FDS9Gk4hE3rqthJLLyGR5YwWBa8HLsHdUqCbj/q55pmNUZrD1+u+GPX6r4h8Pu4P
+         naSQ==
+X-Gm-Message-State: AOAM532ExdH1GlsA0g8YLe4Z9GheJ3wHENvuFdRfdYoZptlqrRaqpYof
+        ETkJNE2iT4sT0/muLf0kuA==
+X-Google-Smtp-Source: ABdhPJx7cq9TDX0KZTFuW81BDWG1EoY4kxSCvCuwLrOluU5T0RnjLOr+uJoVJdCOGfn8uJmNHIWu7Q==
+X-Received: by 2002:a05:6808:1702:: with SMTP id bc2mr484788oib.214.1644376009186;
+        Tue, 08 Feb 2022 19:06:49 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id j19sm6006307ots.21.2022.02.08.19.06.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Feb 2022 16:46:16 -0800 (PST)
-From:   davidcomponentone@gmail.com
-To:     erazor_de@users.sourceforge.net
-Cc:     davidcomponentone@gmail.com, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Yang Guang <yang.guang5@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>
-Subject: [PATCH] HID: roccat: replace snprintf with sysfs_emit
-Date:   Wed,  9 Feb 2022 08:45:59 +0800
-Message-Id: <eb90e8fcdc793419550e42fda772ef2a5cb6751c.1644284775.git.yang.guang5@zte.com.cn>
-X-Mailer: git-send-email 2.30.2
+        Tue, 08 Feb 2022 19:06:47 -0800 (PST)
+Received: (nullmailer pid 3546662 invoked by uid 1000);
+        Wed, 09 Feb 2022 03:06:46 -0000
+Date:   Tue, 8 Feb 2022 21:06:46 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Caleb Connolly <caleb@connolly.tech>
+Cc:     Colin Cross <ccross@android.com>, Daniel Vetter <daniel@ffwll.ch>,
+        Anton Vorontsov <anton@enomsg.org>,
+        Harigovindan P <harigovi@codeaurora.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        devicetree@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, Tony Luck <tony.luck@intel.com>,
+        Kees Cook <keescook@chromium.org>, linux-input@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Alexander Martinz <amartinz@shiftphones.com>,
+        Sam Ravnborg <sam@ravnborg.org>, linux-arm-msm@vger.kernel.org,
+        Andy Gross <agross@kernel.org>
+Subject: Re: [PATCH 3/6] dt-bindings: display: visionox-rm69299: document new
+ compatible string
+Message-ID: <YgMvxpbUpgw3XdxS@robh.at.kernel.org>
+References: <20220123173650.290349-4-caleb@connolly.tech>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220123173650.290349-4-caleb@connolly.tech>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Yang Guang <yang.guang5@zte.com.cn>
+On Sun, 23 Jan 2022 17:37:41 +0000, Caleb Connolly wrote:
+> Document a new compatible string for the second panel variant.
+> 
+> Signed-off-by: Caleb Connolly <caleb@connolly.tech>
+> ---
+>  .../devicetree/bindings/display/panel/visionox,rm69299.yaml   | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
 
-coccinelle report:
-./drivers/hid/hid-roccat-kovaplus.c:330:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/hid/hid-roccat-kovaplus.c:277:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/hid/hid-roccat-kovaplus.c:339:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/hid/hid-roccat-kovaplus.c:349:8-16:
-WARNING: use scnprintf or sprintf
-./drivers/hid/hid-roccat-kovaplus.c:370:8-16:
-WARNING: use scnprintf or sprintf
-
-Use sysfs_emit instead of scnprintf or sprintf makes more sense.
-
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Yang Guang <yang.guang5@zte.com.cn>
-Signed-off-by: David Yang <davidcomponentone@gmail.com>
----
- drivers/hid/hid-roccat-kovaplus.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
-index 6fb9b9563769..7f6238a19739 100644
---- a/drivers/hid/hid-roccat-kovaplus.c
-+++ b/drivers/hid/hid-roccat-kovaplus.c
-@@ -274,7 +274,7 @@ static ssize_t kovaplus_sysfs_show_actual_profile(struct device *dev,
- {
- 	struct kovaplus_device *kovaplus =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_profile);
-+	return sysfs_emit(buf, "%d\n", kovaplus->actual_profile);
- }
- 
- static ssize_t kovaplus_sysfs_set_actual_profile(struct device *dev,
-@@ -327,7 +327,7 @@ static ssize_t kovaplus_sysfs_show_actual_cpi(struct device *dev,
- {
- 	struct kovaplus_device *kovaplus =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_cpi);
-+	return sysfs_emit(buf, "%d\n", kovaplus->actual_cpi);
- }
- static DEVICE_ATTR(actual_cpi, 0440, kovaplus_sysfs_show_actual_cpi, NULL);
- 
-@@ -336,7 +336,7 @@ static ssize_t kovaplus_sysfs_show_actual_sensitivity_x(struct device *dev,
- {
- 	struct kovaplus_device *kovaplus =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_x_sensitivity);
-+	return sysfs_emit(buf, "%d\n", kovaplus->actual_x_sensitivity);
- }
- static DEVICE_ATTR(actual_sensitivity_x, 0440,
- 		   kovaplus_sysfs_show_actual_sensitivity_x, NULL);
-@@ -346,7 +346,7 @@ static ssize_t kovaplus_sysfs_show_actual_sensitivity_y(struct device *dev,
- {
- 	struct kovaplus_device *kovaplus =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_y_sensitivity);
-+	return sysfs_emit(buf, "%d\n", kovaplus->actual_y_sensitivity);
- }
- static DEVICE_ATTR(actual_sensitivity_y, 0440,
- 		   kovaplus_sysfs_show_actual_sensitivity_y, NULL);
-@@ -367,7 +367,7 @@ static ssize_t kovaplus_sysfs_show_firmware_version(struct device *dev,
- 			&info, KOVAPLUS_SIZE_INFO);
- 	mutex_unlock(&kovaplus->kovaplus_lock);
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
-+	return sysfs_emit(buf, "%d\n", info.firmware_version);
- }
- static DEVICE_ATTR(firmware_version, 0440,
- 		   kovaplus_sysfs_show_firmware_version, NULL);
--- 
-2.30.2
-
+Acked-by: Rob Herring <robh@kernel.org>

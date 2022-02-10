@@ -2,100 +2,222 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C879C433FE
-	for <linux-input@archiver.kernel.org>; Wed,  9 Feb 2022 22:56:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0FD9FC433F5
+	for <linux-input@archiver.kernel.org>; Thu, 10 Feb 2022 01:21:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236601AbiBIW4M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 9 Feb 2022 17:56:12 -0500
-Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:34808 "EHLO
+        id S231441AbiBJBVX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 9 Feb 2022 20:21:23 -0500
+Received: from gmail-smtp-in.l.google.com ([23.128.96.19]:38552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236641AbiBIW4B (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Feb 2022 17:56:01 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D685E04BEAF
-        for <linux-input@vger.kernel.org>; Wed,  9 Feb 2022 14:56:04 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id t4-20020a17090a510400b001b8c4a6cd5dso3751005pjh.5
-        for <linux-input@vger.kernel.org>; Wed, 09 Feb 2022 14:56:04 -0800 (PST)
+        with ESMTP id S231307AbiBJBVF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Feb 2022 20:21:05 -0500
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1E777651
+        for <linux-input@vger.kernel.org>; Wed,  9 Feb 2022 17:21:06 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id y8so4732230pfa.11
+        for <linux-input@vger.kernel.org>; Wed, 09 Feb 2022 17:21:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=HZuOJxErdx75B/XhX4U4+Jmre2nmp1Aql4lPGNRbh74=;
-        b=BZCYaLZJ72Lr18F9LbSoJpXl8uFXbNwwSa++F3WdUBrC4dx6FmGhX503X68xqi/L8L
-         Iih/akndZicOcnZ5Hn2RpZxC9jEHc5snh7MUeHtg4CRTfsHADPjaF0Lo5N8klocTz5Wo
-         FP90MYvC89pOuv3vNHGs+tV2Cj0gu8vnxN4Ns=
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Qz7vyOHI+/9/hEuXbA2H+eEF9viVltP3WNqYokBZz8U=;
+        b=e7rr9E4bXY+9zNosU07Yjxva9Oj/XB9dzqOkd+Qh0f8GJpHkBALzmQ95c0InXjwwNw
+         XBu/N4xCoWaxq9WwENOIuqqpnwbMF1cHZXivvhRMlVSNqL0cLYKvx9t+R0ZSvX3+JMUx
+         vBOr733pGcgdNnd6IODFU+LN0j7T1SCAyEWcM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=HZuOJxErdx75B/XhX4U4+Jmre2nmp1Aql4lPGNRbh74=;
-        b=kDhqnxjRd/pC0tqYwO/o+FCn8PUQUczmQu5INCF3hz9iXQPDab4URj/S4XCxKuW4Tz
-         vUIrbu1vwsxCu89zh4rCmbvBDmtgl9ELOOam81Q7CyCMYO5w5i1J+AGezvcS35oVTSFg
-         6mGDM491DjqxXmwiR8lw8/1H0jyrtuetgwiyE7dlPkS+ZRBdKfscbhu2ws3Nwz6iK4yq
-         zMQwUFXQlI6dSRIfGC20n2lH5DzMlYtarY29mi4ddlwevpQawPcSsX815Z3kI8I0iK7h
-         /XrVaJE616/AmVYMMNDc91/2SPRJX9/3wEjjU/PlJaPsJ64w4ZGMzyxtzZkRGgmeHM0j
-         PDpw==
-X-Gm-Message-State: AOAM532WttJ4Pn8fAVFEyb+UvVHEnufEFYhQG9KUp7lh9WkPzMFlvlMt
-        j6JQUjdB8TXdcslK7YK1RYH64g==
-X-Google-Smtp-Source: ABdhPJzft2yBweLZEkRQW0naWztlGqli0RbJWdb6uQMBO2ybSilpILtlONJZp8fjSTCMMa3zkYrsCA==
-X-Received: by 2002:a17:90b:188a:: with SMTP id mn10mr5884867pjb.186.1644447363867;
-        Wed, 09 Feb 2022 14:56:03 -0800 (PST)
-Received: from smtp.gmail.com ([2620:15c:202:201:5193:6865:e38e:3a5b])
-        by smtp.gmail.com with ESMTPSA id b1sm5982015pgb.66.2022.02.09.14.56.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Feb 2022 14:56:03 -0800 (PST)
-From:   Stephen Boyd <swboyd@chromium.org>
-To:     benjamin.tissoires@redhat.com,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>
-Cc:     Zhengqiao Xia <xiazhengqiao@huaqin.corp-partner.google.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        "Sean O'Brien" <seobrien@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH v2 5/5] HID: google: modify HID device groups of eel
-Date:   Wed,  9 Feb 2022 14:55:56 -0800
-Message-Id: <20220209225556.3992827-6-swboyd@chromium.org>
-X-Mailer: git-send-email 2.35.1.265.g69c8d7142f-goog
-In-Reply-To: <20220209225556.3992827-1-swboyd@chromium.org>
-References: <20220209225556.3992827-1-swboyd@chromium.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Qz7vyOHI+/9/hEuXbA2H+eEF9viVltP3WNqYokBZz8U=;
+        b=r34A+aG0fc8o0EwDRWkcPeI3qAdRiZbpJbaayvAR8HTCeCbyCbjTmtGWxhwMF0CA5u
+         IBjVMVWdTaocoHWRTnj73JEUHQG+rTRg5XGf7miHmm3fMdGbgHPyaqwjMciBt0RtJB4T
+         aLeiS9AGYgwysiAwAbOXnUi69134UZtxQhqDbQfCmNH2+QC6Ugkaz+519HFwRa4otgfj
+         CTs0Q0IZH73f6HLHo0eHMcD6w5ABE2fwqKfGcsXIK1rQKlnGPTKP5iQLCiLMZU7ayNb0
+         v7JelnF+w4l+uMs8vaKmKOVwVJy76BlteiPWXewsbMcxFiAsFlT3JRenS2gI2G21zj0t
+         BGBg==
+X-Gm-Message-State: AOAM530F/b1xir969WOOiVWc5IZ9ZNcf1xT8cZegi1cJojk2C9P0zXUX
+        J7U90ooNZ+LA6n1/rinyhAnYs8YSS+qufJZwmiCVkuo8Uw+yag==
+X-Google-Smtp-Source: ABdhPJyR72shmE/ISTzNkwbuYPS+jEFh0zKYXXjL72fNSzjjleAtmI5SrS8dsY3qE7ItF7z8k2w07dJ1DlDrChGQwAk=
+X-Received: by 2002:a05:6e02:1449:: with SMTP id p9mr2575103ilo.289.1644454795832;
+ Wed, 09 Feb 2022 16:59:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220209050947.2119465-1-gwendal@chromium.org> <9ba46bf0894bdee52bc3ebca4527d115ebf067a6.camel@linux.intel.com>
+In-Reply-To: <9ba46bf0894bdee52bc3ebca4527d115ebf067a6.camel@linux.intel.com>
+From:   Gwendal Grignou <gwendal@chromium.org>
+Date:   Wed, 9 Feb 2022 16:59:42 -0800
+Message-ID: <CAPUE2utMOYJobCEj3ZzPfdovRJVXVhNJg3CFHCNt0Jq=w68ovA@mail.gmail.com>
+Subject: Re: [PATCH] HID: intel-ish-hid: Use dma_alloc_coherent for firmware update
+To:     srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc:     jikos@kernel.org, linux-input@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Zhengqiao Xia <xiazhengqiao@huaqin.corp-partner.google.com>
+On Wed, Feb 9, 2022 at 10:52 AM srinivas pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+>
+> On Tue, 2022-02-08 at 21:09 -0800, Gwendal Grignou wrote:
+> > Allocating memory with kmalloc and GPF_DMA32 is not allowed, the
+> > allocator will ignore the attribute.
+> >
+> Looks like there is new error flow added here for this flag.
+> Is this just removing GFP_DMA32 not enough?
+It was already ignored. It is not enough and I don't know why since
+the virtual and physical addresses are in the same range:
 
-If HID_GROUP of eel is set to HID_GROUP_GENERIC, Whiskers Tablet Mode
-Switch of eel hammer will not be detected by system because the
-hid-vivaldi driver probes the device. When it is set to
-HID_GROUP_VIVALDI, system will detect Whiskers Tablet Mode Switch
-successfully and also support the vivaldi keyboard layout.
+With using kmalloc/dma_single_sync:
+5.10 (firmware not loading)
+[    3.837996] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
+kmalloc/dma_map_single: v:0xffff91531ae88000, phy:0x0000000085afe000
+[    3.838003] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
+xfer_mode=dma offset=0x00000000 size=0x4000 is_last=0
+ddr_phys_addr=0x0000000085afe000
+...
 
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: "Sean O'Brien" <seobrien@chromium.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Zhengqiao Xia <xiazhengqiao@huaqin.corp-partner.google.com>
-[swboyd@chromium.org: Expand on commit text]
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
----
- drivers/hid/hid-google-hammer.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+4.19 (firmware loading)
+[    3.878300] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
+kmalloc/dma_map_single: v:0xffff88c145480000, phy:0x0000000085480000
+[    3.878322] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
+xfer_mode=dma offset=0x00000000 size=0x4000 is_last=0
+ddr_phys_addr=0x0000000085480000
+...
 
-diff --git a/drivers/hid/hid-google-hammer.c b/drivers/hid/hid-google-hammer.c
-index e3dd26ddbd43..8ed75bb0878f 100644
---- a/drivers/hid/hid-google-hammer.c
-+++ b/drivers/hid/hid-google-hammer.c
-@@ -636,7 +636,7 @@ static void hammer_remove(struct hid_device *hdev)
- static const struct hid_device_id hammer_devices[] = {
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_DON) },
--	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_VIVALDI,
- 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_EEL) },
- 	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
- 		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_HAMMER) },
--- 
-https://chromeos.dev
+I also considered flushing the CPU cache before the
+dma_sync_single_for_device call, and calling dma_sync_single_for_cpu()
+after loader_cl_send() to be allowed to write into the buffer again.
+But these did not help either.
 
+But using dma_alloc_coherent() clearly works and its simpler API makes
+it more appropriate for the task at hand.
+
+For reference, the same log when using dma_alloc_coherent().
+[    3.779723] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
+dma_alloc_coherent: v:0xffff9beb81048000, phy:0x0000000001048000
+[    3.779731] ish-loader {C804D06A-55BD-4EA7-ADED-1E31228C76DC}:
+xfer_mode=dma offset=0x00000000 size=0x4000 is_last=0
+ddr_phys_addr=0x0000000001048000
+...
+
+>
+> > Instead, use dma_alloc_coherent() API as we allocate a small amount
+> > of
+> > memory to transfer firmware fragment to the ISH.
+> >
+> > On Arcada chromebook, after the patch the warning:
+> > "Unexpected gfp: 0x4 (GFP_DMA32). Fixing up to gfp: 0xcc0
+> > (GFP_KERNEL).  Fix your code!"
+> > is gone. The ISH firmware is loaded properly and we can interact with
+> > the ISH:
+> > > ectool  --name cros_ish version
+> > ...
+> > Build info:    arcada_ish_v2.0.3661+3c1a1c1ae0 2022-02-08 05:37:47
+> > @localhost
+> > Tool version:  v2.0.12300-900b03ec7f 2022-02-08 10:01:48 @localhost
+> >
+> > Fixes: commit 91b228107da3 ("HID: intel-ish-hid: ISH firmware loader
+> > client driver")
+> > Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  drivers/hid/intel-ish-hid/ishtp-fw-loader.c | 29 +++----------------
+> > --
+> >  1 file changed, 3 insertions(+), 26 deletions(-)
+> >
+> > diff --git a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+> > b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+> > index e24988586710..16aa030af845 100644
+> > --- a/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+> > +++ b/drivers/hid/intel-ish-hid/ishtp-fw-loader.c
+> > @@ -661,21 +661,12 @@ static int ish_fw_xfer_direct_dma(struct
+> > ishtp_cl_data *client_data,
+> >          */
+> >         payload_max_size &= ~(L1_CACHE_BYTES - 1);
+> >
+> > -       dma_buf = kmalloc(payload_max_size, GFP_KERNEL | GFP_DMA32);
+> > +       dma_buf = dma_alloc_coherent(devc, payload_max_size,
+> > &dma_buf_phy, GFP_KERNEL);
+> >         if (!dma_buf) {
+> >                 client_data->flag_retry = true;
+> >                 return -ENOMEM;
+> >         }
+> >
+> > -       dma_buf_phy = dma_map_single(devc, dma_buf, payload_max_size,
+> > -                                    DMA_TO_DEVICE);
+> > -       if (dma_mapping_error(devc, dma_buf_phy)) {
+> > -               dev_err(cl_data_to_dev(client_data), "DMA map
+> > failed\n");
+> > -               client_data->flag_retry = true;
+> > -               rv = -ENOMEM;
+> > -               goto end_err_dma_buf_release;
+> > -       }
+> > -
+> >         ldr_xfer_dma_frag.fragment.hdr.command =
+> > LOADER_CMD_XFER_FRAGMENT;
+> >         ldr_xfer_dma_frag.fragment.xfer_mode =
+> > LOADER_XFER_MODE_DIRECT_DMA;
+> >         ldr_xfer_dma_frag.ddr_phys_addr = (u64)dma_buf_phy;
+> > @@ -695,14 +686,7 @@ static int ish_fw_xfer_direct_dma(struct
+> > ishtp_cl_data *client_data,
+> >                 ldr_xfer_dma_frag.fragment.size = fragment_size;
+> >                 memcpy(dma_buf, &fw->data[fragment_offset],
+> > fragment_size);
+> >
+> > -               dma_sync_single_for_device(devc, dma_buf_phy,
+> > -                                          payload_max_size,
+> > -                                          DMA_TO_DEVICE);
+> > -
+> Any reason for removal of sync?
+It is not needed since we are using dma_alloc_coherent(). From [1]:
+"""
+void *
+dma_alloc_coherent(struct device *dev, size_t size,
+   dma_addr_t *dma_handle, gfp_t flag)
+
+Consistent memory is memory for which a write by either the device or
+the processor can immediately be read by the processor or device
+without having to worry about caching effects.  (You may however need
+to make sure to flush the processor's write buffers before telling
+devices to read that memory.)
+
+This routine allocates a region of <size> bytes of consistent memory.
+"""'
+>
+> Thanks,
+> Srinivas
+>
+> > -               /*
+> > -                * Flush cache here because the
+> > dma_sync_single_for_device()
+> > -                * does not do for x86.
+> > -                */
+> > +               /* Flush cache to be sure the data is in main memory.
+> > */
+> >                 clflush_cache_range(dma_buf, payload_max_size);
+> >
+> >                 dev_dbg(cl_data_to_dev(client_data),
+> > @@ -725,15 +709,8 @@ static int ish_fw_xfer_direct_dma(struct
+> > ishtp_cl_data *client_data,
+> >                 fragment_offset += fragment_size;
+> >         }
+> >
+> > -       dma_unmap_single(devc, dma_buf_phy, payload_max_size,
+> > DMA_TO_DEVICE);
+> > -       kfree(dma_buf);
+> > -       return 0;
+> > -
+> >  end_err_resp_buf_release:
+> > -       /* Free ISH buffer if not done already, in error case */
+> > -       dma_unmap_single(devc, dma_buf_phy, payload_max_size,
+> > DMA_TO_DEVICE);
+> > -end_err_dma_buf_release:
+> > -       kfree(dma_buf);
+> > +       dma_free_coherent(devc, payload_max_size, dma_buf,
+> > dma_buf_phy);
+> >         return rv;
+> >  }
+> >
+>
+
+[1]https://www.kernel.org/doc/Documentation/DMA-API.txt

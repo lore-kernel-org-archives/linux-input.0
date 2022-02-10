@@ -2,60 +2,60 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C303C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 10 Feb 2022 19:04:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4496BC4332F
+	for <linux-input@archiver.kernel.org>; Thu, 10 Feb 2022 19:04:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343637AbiBJTEx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 10 Feb 2022 14:04:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44532 "EHLO
+        id S1343646AbiBJTEy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 10 Feb 2022 14:04:54 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:44568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343633AbiBJTEw (ORCPT
+        with ESMTP id S1343632AbiBJTEx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Feb 2022 14:04:52 -0500
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B665B2188;
-        Thu, 10 Feb 2022 11:04:52 -0800 (PST)
-Received: by mail-wr1-x433.google.com with SMTP id v12so11342856wrv.2;
-        Thu, 10 Feb 2022 11:04:52 -0800 (PST)
+        Thu, 10 Feb 2022 14:04:53 -0500
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E64C100C;
+        Thu, 10 Feb 2022 11:04:54 -0800 (PST)
+Received: by mail-wm1-x32b.google.com with SMTP id n8so4036947wmk.3;
+        Thu, 10 Feb 2022 11:04:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=FpmRjI0D+EUjYe3MeaVVjfaIantYzT3rLaYTj18YtDY=;
-        b=KK8VxxYFNzGY9uQk3j+LgYTG0MruHQh7kSQKDUrSXVX5ahF1ACDOjDpuGj2e6fWuCf
-         Ayl4KYwww5Jhex1PeSTHDpx5yP7yZ4MgFCTsCln0mov0JAsTxMmopyma6UF81/j3SLzX
-         ACnYdFH41nCKYvdZBHVUymd5z7ZQavR+ZrBGW0SyRytPJV+PpBMdY+uw56TBUQpLBYLY
-         e5zVROEzuAtNxaujQPeBf8JCROsVLymQz8c3L8OnLMFI6XIrAQ7vj7QnJuwG5mpUdvqr
-         n9TncL/uQnQIVgRxnysSEnQxHjxuiPYMjijNy+TnRjDCsG2yLuU9dZXNYggkIwbS0Cwf
-         EoaA==
+        bh=ZXd3/jskGjTWmhBRtSHB5dWP3UeubOqYdsG1HEGhcGc=;
+        b=cfYxogM1ADU/8WqEwxEoGdZv2gw+K4ObDr4bcWIUG4nvDWNsN9+KkS0/zqA3xl9VX5
+         KVI5DRyEAsJ4NdT3joax/BEjoQxgM4IPnToqRwUPwekQ9sZsZmNelks0Q2BhRiV5Jnvj
+         9hDWObpS+ZR7xYwvjK1JS67WFbN5sgjysoeamTzVLXUKzqR8wez2hM8l7GBxoPH16NNy
+         K+syjQgsSr+pcHeW0a/NYZlxWXfAMRe+KC1nLIPTgRmmqg5+1HkZUsyYIusWJBKqg6Lh
+         dh8ZeLupqu+e6+OVKeFiMqnAhHos9kmNtHrN+9CC+BDyIDRdOndBvCkARqWrGj+tJ5DV
+         TYuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=FpmRjI0D+EUjYe3MeaVVjfaIantYzT3rLaYTj18YtDY=;
-        b=7wWyOMMdKLeDR9lO1XBHwpst/QClieQe4Vqf48nvLE/uhC0bMOs+COfBPfQjxY7Ha8
-         GSjnDnOcwie5r+MAowZ3eZytmRqRzCo4U2RsTVePpmansSRth40zlZLpBlsiNU0rEhDb
-         ipS+hiRoBOv37qjeVrEIQ0TP0wGyF1cMKNOa7f2XNVBzBh+3YwnP1XwLwitz8YXCm5J5
-         zJ8IzTb2Owb6KbAqaQ+oVtFU/8tiLeDC1fX3gT+/PmRRU7LMqy7zMjsxEb9gDGTAC5aK
-         Bsvwl4IcOWOj1rjY0uDrZdTGJPDIVujB39Ef84i27TcfOgeo7+gTqYs7kf2hwoHNeNbk
-         RPkw==
-X-Gm-Message-State: AOAM532RTK4JuJSoD+dBQ8vvEUaHU30R0lDFNh/1VjABU/sj+F20coYd
-        O1DuZF0scm2PPFx5XVfAcD+oElROx/THCw==
-X-Google-Smtp-Source: ABdhPJx4yTAHUWHtzEXcqnx00gEFZFjP7TG1bALA0XmwAKM9UVXczPvofWdN38j83/8PdoxCGhuDGg==
-X-Received: by 2002:a05:6000:188:: with SMTP id p8mr7296289wrx.84.1644519891164;
-        Thu, 10 Feb 2022 11:04:51 -0800 (PST)
+        bh=ZXd3/jskGjTWmhBRtSHB5dWP3UeubOqYdsG1HEGhcGc=;
+        b=YhHQKgYe7Ki+iRY1kG3IEF4J6pBbKgisxq92VYOAUGKRtFoxlO5PoZHmlY7UjwDiFg
+         yvRvvK1tVHk14BGaiB628oM7ZqqVEzCz7wrutwZrPR32nV+DmeeOlpVTyfdQ5TMjyzd9
+         tLVLDKMnKhmGDWZ65fpfwmUtyJ7/gc9zTtuEzSTieC0m7+uf+5YP8qn+0oRNqDiAT1tI
+         iBb1WidB5gGFYnJHJ+pl4EAKlCiAcBPq3hvO3Mf2cZ4+964TjUPgmRIuFsisn+8cB0X9
+         jJ9RkFJorhbL5Um0eJRTKwO2Xxi5ZG0pGZhw4AVjhtHCjYq+i1cW7kSOt/sUOZ/nQEL6
+         fsgA==
+X-Gm-Message-State: AOAM532T63eT/dqBVySO7TNVBIVds5jAQdmv0VA1f1vZFnK5CcjU3Iga
+        fvCN4tBuHqepbsNHTrsrwsA=
+X-Google-Smtp-Source: ABdhPJwUqnA/XWrFtrJomP5/5yYmCObWzQszd8Tx6uhGEvVICKqtOvigtMqUfxuzXM9g95L9/quYPg==
+X-Received: by 2002:a7b:c350:: with SMTP id l16mr3244793wmj.146.1644519892785;
+        Thu, 10 Feb 2022 11:04:52 -0800 (PST)
 Received: from localhost.localdomain ([94.73.33.246])
-        by smtp.gmail.com with ESMTPSA id o10sm21794816wri.19.2022.02.10.11.04.50
+        by smtp.gmail.com with ESMTPSA id o10sm21794816wri.19.2022.02.10.11.04.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 10 Feb 2022 11:04:50 -0800 (PST)
+        Thu, 10 Feb 2022 11:04:52 -0800 (PST)
 From:   =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
 To:     jikos@kernel.org
 Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH 1/7] HID: uclogic: Support Huion tilt reporting
-Date:   Thu, 10 Feb 2022 20:04:31 +0100
-Message-Id: <20220210190437.50152-2-jose.exposito89@gmail.com>
+Subject: [PATCH 3/7] HID: uclogic: Support Huion 13th frame button
+Date:   Thu, 10 Feb 2022 20:04:33 +0100
+Message-Id: <20220210190437.50152-4-jose.exposito89@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220210190437.50152-1-jose.exposito89@gmail.com>
 References: <20220210190437.50152-1-jose.exposito89@gmail.com>
@@ -68,102 +68,47 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nikolai Kondrashov <spbnick@gmail.com>
 
-Add support for Huion v2 protocol tilt reporting. Describe reports as
-angles in degrees, which is not exactly true, but there doesn't seem to
-be a straightforward, consistent conversion possible, and what's
-reported would have to be enough.
+Support reporting 13th frame button for Huion tablets. This supports
+reporting the button in the center of the dial for Huion HS610.
 
 Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 Signed-off-by: José Expósito <jose.exposito89@gmail.com>
 ---
- drivers/hid/hid-uclogic-core.c   |  3 +++
- drivers/hid/hid-uclogic-params.c |  1 +
- drivers/hid/hid-uclogic-params.h |  8 ++++++++
- drivers/hid/hid-uclogic-rdesc.c  | 12 +++++++++++-
- 4 files changed, 23 insertions(+), 1 deletion(-)
+ drivers/hid/hid-uclogic-rdesc.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index d8ab0139e5cd..823704bc02ef 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -304,6 +304,9 @@ static int uclogic_raw_event(struct hid_device *hdev,
- 			mod_timer(&drvdata->inrange_timer,
- 					jiffies + msecs_to_jiffies(100));
- 		}
-+		/* If we report tilt and Y direction is flipped */
-+		if (size >= 12 && params->pen.tilt_y_flipped)
-+			data[11] = -data[11];
- 	}
- 
- 	/* Tweak frame control reports, if necessary */
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 3e70f969fb84..30e0f69ed5af 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -369,6 +369,7 @@ static int uclogic_params_pen_init_v2(struct uclogic_params_pen *pen,
- 	pen->id = UCLOGIC_RDESC_PEN_V2_ID;
- 	pen->inrange = UCLOGIC_PARAMS_PEN_INRANGE_NONE;
- 	pen->fragmented_hires = true;
-+	pen->tilt_y_flipped = true;
- 	found = true;
- finish:
- 	*pfound = found;
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index ba48b1c7a0e5..e8381bb77bd0 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -62,6 +62,12 @@ struct uclogic_params_pen {
- 	 * Only valid if "id" is not zero.
- 	 */
- 	bool fragmented_hires;
-+	/*
-+	 * True if the pen reports tilt in bytes at offset 10 (X) and 11 (Y),
-+	 * and the Y tilt direction is flipped.
-+	 * Only valid if "id" is not zero.
-+	 */
-+	bool tilt_y_flipped;
- };
- 
- /*
-@@ -171,6 +177,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 		".pen.id = %u\n"                    \
- 		".pen.inrange = %s\n"               \
- 		".pen.fragmented_hires = %s\n"      \
-+		".pen.tilt_y_flipped = %s\n"        \
- 		".frame.desc_ptr = %p\n"            \
- 		".frame.desc_size = %u\n"           \
- 		".frame.id = %u\n"                  \
-@@ -189,6 +196,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 		(_params)->pen.id,                                          \
- 		uclogic_params_pen_inrange_to_str((_params)->pen.inrange),  \
- 		((_params)->pen.fragmented_hires ? "true" : "false"),       \
-+		((_params)->pen.tilt_y_flipped ? "true" : "false"),         \
- 		(_params)->frame.desc_ptr,                                  \
- 		(_params)->frame.desc_size,                                 \
- 		(_params)->frame.id,                                        \
 diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
-index 6dd6dcd09c8b..2607cbdf8ff2 100644
+index 2607cbdf8ff2..ec16355d200b 100644
 --- a/drivers/hid/hid-uclogic-rdesc.c
 +++ b/drivers/hid/hid-uclogic-rdesc.c
-@@ -633,7 +633,17 @@ const __u8 uclogic_rdesc_pen_v2_template_arr[] = {
- 	0x27, UCLOGIC_RDESC_PEN_PH(PRESSURE_LM),
- 				/*          Logical Maximum (PLACEHOLDER),  */
- 	0x81, 0x02,             /*          Input (Variable),               */
--	0x81, 0x03,             /*          Input (Constant, Variable),     */
-+	0x54,                   /*          Unit Exponent (0),              */
-+	0x65, 0x14,             /*          Unit (Degrees),                 */
-+	0x35, 0xC4,             /*          Physical Minimum (-60),         */
-+	0x45, 0x3C,             /*          Physical Maximum (60),          */
-+	0x15, 0xC4,             /*          Logical Minimum (-60),          */
-+	0x25, 0x3C,             /*          Logical Maximum (60),           */
-+	0x75, 0x08,             /*          Report Size (8),                */
-+	0x95, 0x02,             /*          Report Count (2),               */
-+	0x09, 0x3D,             /*          Usage (X Tilt),                 */
-+	0x09, 0x3E,             /*          Usage (Y Tilt),                 */
-+	0x81, 0x02,             /*          Input (Variable),               */
- 	0xC0,                   /*      End Collection,                     */
- 	0xC0                    /*  End Collection                          */
+@@ -689,8 +689,8 @@ const size_t uclogic_rdesc_pen_v2_template_size =
+ 	0xA0,           /*      Collection (Physical),          */ \
+ 	0x05, 0x09,     /*          Usage Page (Button),        */ \
+ 	0x19, 0x01,     /*          Usage Minimum (01h),        */ \
+-	0x29, 0x02,     /*          Usage Maximum (02h),        */ \
+-	0x95, 0x02,     /*          Report Count (2),           */ \
++	0x29, 0x03,     /*          Usage Maximum (03h),        */ \
++	0x95, 0x03,     /*          Report Count (3),           */ \
+ 	0x81, 0x02,     /*          Input (Variable),           */ \
+ 	0x95, _padding, /*          Report Count (_padding),    */ \
+ 	0x81, 0x01,     /*          Input (Constant),           */ \
+@@ -699,14 +699,14 @@ const size_t uclogic_rdesc_pen_v2_template_size =
+ 
+ /* Fixed report descriptor for (tweaked) v1 buttonpad reports */
+ const __u8 uclogic_rdesc_buttonpad_v1_arr[] = {
+-	UCLOGIC_RDESC_BUTTONPAD_BYTES(20)
++	UCLOGIC_RDESC_BUTTONPAD_BYTES(19)
  };
+ const size_t uclogic_rdesc_buttonpad_v1_size =
+ 			sizeof(uclogic_rdesc_buttonpad_v1_arr);
+ 
+ /* Fixed report descriptor for (tweaked) v2 buttonpad reports */
+ const __u8 uclogic_rdesc_buttonpad_v2_arr[] = {
+-	UCLOGIC_RDESC_BUTTONPAD_BYTES(52)
++	UCLOGIC_RDESC_BUTTONPAD_BYTES(51)
+ };
+ const size_t uclogic_rdesc_buttonpad_v2_size =
+ 			sizeof(uclogic_rdesc_buttonpad_v2_arr);
 -- 
 2.25.1
 

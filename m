@@ -2,108 +2,41 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5560FC433EF
-	for <linux-input@archiver.kernel.org>; Fri, 11 Feb 2022 21:30:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0742DC433EF
+	for <linux-input@archiver.kernel.org>; Fri, 11 Feb 2022 21:31:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353655AbiBKVab (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Feb 2022 16:30:31 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49106 "EHLO
+        id S1353680AbiBKVbn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Feb 2022 16:31:43 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353650AbiBKVa3 (ORCPT
+        with ESMTP id S241594AbiBKVbn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Feb 2022 16:30:29 -0500
-X-Greylist: delayed 400 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 11 Feb 2022 13:30:27 PST
-Received: from netrider.rowland.org (netrider.rowland.org [192.131.102.5])
-        by lindbergh.monkeyblade.net (Postfix) with SMTP id ACB02C57
-        for <linux-input@vger.kernel.org>; Fri, 11 Feb 2022 13:30:27 -0800 (PST)
-Received: (qmail 646920 invoked by uid 1000); 11 Feb 2022 16:23:46 -0500
-Date:   Fri, 11 Feb 2022 16:23:46 -0500
-From:   Alan Stern <stern@rowland.harvard.edu>
-To:     syzbot <syzbot+8caaaec4e7a55d75e243@syzkaller.appspotmail.com>
-Cc:     gregkh@linuxfoundation.org, heikki.krogerus@linux.intel.com,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-input@vger.kernel.org, noralf@tronnes.org,
-        syzkaller-bugs@googlegroups.com, tzimmermann@suse.de
-Subject: Re: [syzbot] memory leak in hub_event (3)
-Message-ID: <YgbT4uqSIVY9ku10@rowland.harvard.edu>
-References: <0000000000005cacef05d7c3c10d@google.com>
+        Fri, 11 Feb 2022 16:31:43 -0500
+X-Greylist: delayed 514 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 11 Feb 2022 13:31:41 PST
+Received: from hs01.dk-develop.de (hs01.dk-develop.de [IPv6:2a02:c207:3002:6234::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7A1C57
+        for <linux-input@vger.kernel.org>; Fri, 11 Feb 2022 13:31:41 -0800 (PST)
+From:   Danilo Krummrich <danilokrummrich@dk-develop.de>
+To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     linus.walleij@linaro.org
+Subject: input: ps2-gpio: use ktime for IRQ timekeeping
+Date:   Fri, 11 Feb 2022 22:22:55 +0100
+Message-Id: <20220211212258.80345-1-danilokrummrich@dk-develop.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0000000000005cacef05d7c3c10d@google.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Feb 11, 2022 at 12:17:26PM -0800, syzbot wrote:
-> Hello,
-> 
-> syzbot found the following issue on:
-> 
-> HEAD commit:    dfd42facf1e4 Linux 5.17-rc3
-> git tree:       upstream
-> console output: https://syzkaller.appspot.com/x/log.txt?x=14b4ef7c700000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=48b71604a367da6e
-> dashboard link: https://syzkaller.appspot.com/bug?extid=8caaaec4e7a55d75e243
-> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1396902c700000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1466e662700000
-> 
-> IMPORTANT: if you fix the issue, please add the following tag to the commit:
-> Reported-by: syzbot+8caaaec4e7a55d75e243@syzkaller.appspotmail.com
-> 
-> BUG: memory leak
-> unreferenced object 0xffff88810d49e800 (size 2048):
->   comm "kworker/1:1", pid 25, jiffies 4294954629 (age 16.460s)
->   hex dump (first 32 bytes):
->     ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
->     00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
->   backtrace:
->     [<ffffffff82c87a62>] kmalloc include/linux/slab.h:581 [inline]
->     [<ffffffff82c87a62>] kzalloc include/linux/slab.h:715 [inline]
->     [<ffffffff82c87a62>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
->     [<ffffffff82c91a47>] hub_port_connect drivers/usb/core/hub.c:5260 [inline]
->     [<ffffffff82c91a47>] hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
->     [<ffffffff82c91a47>] port_event drivers/usb/core/hub.c:5660 [inline]
->     [<ffffffff82c91a47>] hub_event+0x1097/0x21a0 drivers/usb/core/hub.c:5742
->     [<ffffffff8126c3ef>] process_one_work+0x2bf/0x600 kernel/workqueue.c:2307
->     [<ffffffff8126ccd9>] worker_thread+0x59/0x5b0 kernel/workqueue.c:2454
->     [<ffffffff81276765>] kthread+0x125/0x160 kernel/kthread.c:377
->     [<ffffffff810022ff>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
+This patch series implements the usage of ktime for IRQ timekeeping to
+overcome:
 
-There's a refcount leak in the probe-failure path of the hid-elo driver.  
-(You can see that this is the relevant driver in the console output.)  
-It doesn't need the refcount anyway, because the elo_priv structure is 
-always deallocated synchronously before the elo_remove routine returns.
+(1) The resolution limitations of jiffies.
+(2) Potential spurious IRQs generated by gpio controllers.
 
-(Syzbot isn't always all that great at deducing where the real problem 
-lies when something goes wrong.)
+Besides that, based on the newly implemented timekeeping, it fixes a wrongly
+suspected extra clock cycle for TX transfers and a race condition when
+starting an immediate TX transfer based on data received from an RX transfer.
 
-Alan Stern
 
-#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/ v5.17-rc3
-
-Index: usb-devel/drivers/hid/hid-elo.c
-===================================================================
---- usb-devel.orig/drivers/hid/hid-elo.c
-+++ usb-devel/drivers/hid/hid-elo.c
-@@ -239,7 +239,7 @@ static int elo_probe(struct hid_device *
- 
- 	INIT_DELAYED_WORK(&priv->work, elo_work);
- 	udev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
--	priv->usbdev = usb_get_dev(udev);
-+	priv->usbdev = udev;
- 
- 	hid_set_drvdata(hdev, priv);
- 
-@@ -270,8 +270,6 @@ static void elo_remove(struct hid_device
- {
- 	struct elo_priv *priv = hid_get_drvdata(hdev);
- 
--	usb_put_dev(priv->usbdev);
--
- 	hid_hw_stop(hdev);
- 	cancel_delayed_work_sync(&priv->work);
- 	kfree(priv);

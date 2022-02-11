@@ -2,86 +2,108 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA60EC433F5
-	for <linux-input@archiver.kernel.org>; Fri, 11 Feb 2022 17:32:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5560FC433EF
+	for <linux-input@archiver.kernel.org>; Fri, 11 Feb 2022 21:30:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347067AbiBKRcx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Feb 2022 12:32:53 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:50346 "EHLO
+        id S1353655AbiBKVab (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 11 Feb 2022 16:30:31 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:49106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239369AbiBKRcx (ORCPT
+        with ESMTP id S1353650AbiBKVa3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Feb 2022 12:32:53 -0500
-Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB7DF313;
-        Fri, 11 Feb 2022 09:32:51 -0800 (PST)
-Received: by mail-oi1-x236.google.com with SMTP id r27so10318437oiw.4;
-        Fri, 11 Feb 2022 09:32:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=w+wyT1oWuhI65Zad/t8RG6/bImnXZf7s8T2d26vS6GI=;
-        b=g6zuw8ukKlTvcbYbOJvN9UU28reWfcDSOsjeaLsnbT/SnnHrf9sL491GAH86Rmz5aX
-         n+rADKqnIEGOCBSVaXpCO4f5iKuF9YcFx6Yc4A2VACltceaomiDFBfe1FBwhJAjLp6v+
-         BQlZPq5hSLwCMnSIiHmkA1nJEkwCXhvYckeE8AQkM5zA/BvrP8CZrY02XTrhCTv0jvMI
-         mmM+A4P+viR4mMOt2da/Z42tjR/STcyyAV3u7PQjGxMHU6YW/cC0l8PHSz1SW7O6CbFU
-         3gNupCiFfKejGEgDpvl5p6y5/sjA+fuSworBYuCN1tNMwVChvsvQgpJZgNQMhLpXNAVk
-         vWcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=w+wyT1oWuhI65Zad/t8RG6/bImnXZf7s8T2d26vS6GI=;
-        b=5fkuhR1C8YLbQsOaJC9tP/CkwUFXXjv0dgFb+0gHsSlEvWulMbYXq9DO+XI6wLLB03
-         Z6fxGFMcyiSc67RbjCRB/sWzGB7u+4kS/h72ns23ssrDblGYH/j52BbwisYokhTArnLa
-         v8JicpzFGwcsg/22E3b4aVYTqEQix1AUtnx1HPaCTHzGRMhFnI46CEJFdMreCH4cUpy9
-         LuvajG4PfiGz0K9W9GaVR3kIQwnYvYDH6FXM+PuMiddVaGmEpVUbWggHdqyTyQmiMenv
-         CtMjTvOL5O+Q81iguKvBwLiPwa/2JKoGg7oYjmci2jJP+eLGUcmV9/H/Hfrt3x6A+y2Z
-         u6YQ==
-X-Gm-Message-State: AOAM532jN858P/MZjjsGkcAARlU1G+Ohs8pMFlg/Ou/19kqYVdYKhyAN
-        i4ja2dIeUY7IGocN/0fPscwEZZX8eDZagQ==
-X-Google-Smtp-Source: ABdhPJwspX4Nthj3g0bIF9RBbZ3fm+EfCLVhWUmmCDg7htTjbBt+00Al3v+DTJrDe/DRxQaL3Hqe9g==
-X-Received: by 2002:a05:6808:2204:: with SMTP id bd4mr656487oib.329.1644600770985;
-        Fri, 11 Feb 2022 09:32:50 -0800 (PST)
-Received: from localhost.localdomain ([2804:d51:4934:ba00:77f0:a455:37a3:1b62])
-        by smtp.gmail.com with ESMTPSA id f21sm9314373otq.4.2022.02.11.09.32.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Feb 2022 09:32:50 -0800 (PST)
-From:   Marcos Alano <marcoshalano@gmail.com>
-To:     dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org
-Cc:     Marcos Alano <marcoshalano@gmail.com>
-Subject: [PATCH] Correct the name for Xbox Series S|X controller
-Date:   Fri, 11 Feb 2022 14:32:25 -0300
-Message-Id: <20220211173225.1165722-1-marcoshalano@gmail.com>
-X-Mailer: git-send-email 2.35.1
+        Fri, 11 Feb 2022 16:30:29 -0500
+X-Greylist: delayed 400 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 11 Feb 2022 13:30:27 PST
+Received: from netrider.rowland.org (netrider.rowland.org [192.131.102.5])
+        by lindbergh.monkeyblade.net (Postfix) with SMTP id ACB02C57
+        for <linux-input@vger.kernel.org>; Fri, 11 Feb 2022 13:30:27 -0800 (PST)
+Received: (qmail 646920 invoked by uid 1000); 11 Feb 2022 16:23:46 -0500
+Date:   Fri, 11 Feb 2022 16:23:46 -0500
+From:   Alan Stern <stern@rowland.harvard.edu>
+To:     syzbot <syzbot+8caaaec4e7a55d75e243@syzkaller.appspotmail.com>
+Cc:     gregkh@linuxfoundation.org, heikki.krogerus@linux.intel.com,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-input@vger.kernel.org, noralf@tronnes.org,
+        syzkaller-bugs@googlegroups.com, tzimmermann@suse.de
+Subject: Re: [syzbot] memory leak in hub_event (3)
+Message-ID: <YgbT4uqSIVY9ku10@rowland.harvard.edu>
+References: <0000000000005cacef05d7c3c10d@google.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0000000000005cacef05d7c3c10d@google.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Change the name of controller to a more meaningful one.
+On Fri, Feb 11, 2022 at 12:17:26PM -0800, syzbot wrote:
+> Hello,
+> 
+> syzbot found the following issue on:
+> 
+> HEAD commit:    dfd42facf1e4 Linux 5.17-rc3
+> git tree:       upstream
+> console output: https://syzkaller.appspot.com/x/log.txt?x=14b4ef7c700000
+> kernel config:  https://syzkaller.appspot.com/x/.config?x=48b71604a367da6e
+> dashboard link: https://syzkaller.appspot.com/bug?extid=8caaaec4e7a55d75e243
+> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=1396902c700000
+> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1466e662700000
+> 
+> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+> Reported-by: syzbot+8caaaec4e7a55d75e243@syzkaller.appspotmail.com
+> 
+> BUG: memory leak
+> unreferenced object 0xffff88810d49e800 (size 2048):
+>   comm "kworker/1:1", pid 25, jiffies 4294954629 (age 16.460s)
+>   hex dump (first 32 bytes):
+>     ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
+>     00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
+>   backtrace:
+>     [<ffffffff82c87a62>] kmalloc include/linux/slab.h:581 [inline]
+>     [<ffffffff82c87a62>] kzalloc include/linux/slab.h:715 [inline]
+>     [<ffffffff82c87a62>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
+>     [<ffffffff82c91a47>] hub_port_connect drivers/usb/core/hub.c:5260 [inline]
+>     [<ffffffff82c91a47>] hub_port_connect_change drivers/usb/core/hub.c:5502 [inline]
+>     [<ffffffff82c91a47>] port_event drivers/usb/core/hub.c:5660 [inline]
+>     [<ffffffff82c91a47>] hub_event+0x1097/0x21a0 drivers/usb/core/hub.c:5742
+>     [<ffffffff8126c3ef>] process_one_work+0x2bf/0x600 kernel/workqueue.c:2307
+>     [<ffffffff8126ccd9>] worker_thread+0x59/0x5b0 kernel/workqueue.c:2454
+>     [<ffffffff81276765>] kthread+0x125/0x160 kernel/kthread.c:377
+>     [<ffffffff810022ff>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:295
 
-Signed-off-by: Marcos Alano <marcoshalano@gmail.com>
----
- drivers/input/joystick/xpad.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+There's a refcount leak in the probe-failure path of the hid-elo driver.  
+(You can see that this is the relevant driver in the console output.)  
+It doesn't need the refcount anyway, because the elo_priv structure is 
+always deallocated synchronously before the elo_remove routine returns.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 4c914f75a902..18190b529bca 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -131,7 +131,7 @@ static const struct xpad_device {
- 	{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0, XTYPE_XBOXONE },
- 	{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE },
- 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
--	{ 0x045e, 0x0b12, "Microsoft Xbox One X pad", MAP_SELECT_BUTTON, XTYPE_XBOXONE },
-+	{ 0x045e, 0x0b12, "Microsoft Xbox Series S|X Controller", MAP_SELECT_BUTTON, XTYPE_XBOXONE },
- 	{ 0x046d, 0xc21d, "Logitech Gamepad F310", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xc21e, "Logitech Gamepad F510", 0, XTYPE_XBOX360 },
- 	{ 0x046d, 0xc21f, "Logitech Gamepad F710", 0, XTYPE_XBOX360 },
--- 
-2.35.1
+(Syzbot isn't always all that great at deducing where the real problem 
+lies when something goes wrong.)
 
+Alan Stern
+
+#syz test: https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/ v5.17-rc3
+
+Index: usb-devel/drivers/hid/hid-elo.c
+===================================================================
+--- usb-devel.orig/drivers/hid/hid-elo.c
++++ usb-devel/drivers/hid/hid-elo.c
+@@ -239,7 +239,7 @@ static int elo_probe(struct hid_device *
+ 
+ 	INIT_DELAYED_WORK(&priv->work, elo_work);
+ 	udev = interface_to_usbdev(to_usb_interface(hdev->dev.parent));
+-	priv->usbdev = usb_get_dev(udev);
++	priv->usbdev = udev;
+ 
+ 	hid_set_drvdata(hdev, priv);
+ 
+@@ -270,8 +270,6 @@ static void elo_remove(struct hid_device
+ {
+ 	struct elo_priv *priv = hid_get_drvdata(hdev);
+ 
+-	usb_put_dev(priv->usbdev);
+-
+ 	hid_hw_stop(hdev);
+ 	cancel_delayed_work_sync(&priv->work);
+ 	kfree(priv);

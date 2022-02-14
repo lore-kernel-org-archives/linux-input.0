@@ -2,56 +2,62 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EA20C433EF
-	for <linux-input@archiver.kernel.org>; Mon, 14 Feb 2022 11:18:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B85DC433EF
+	for <linux-input@archiver.kernel.org>; Mon, 14 Feb 2022 11:19:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350754AbiBNLSY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 14 Feb 2022 06:18:24 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48080 "EHLO
+        id S1350268AbiBNLUC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 14 Feb 2022 06:20:02 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350683AbiBNLST (ORCPT
+        with ESMTP id S1350782AbiBNLTn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Feb 2022 06:18:19 -0500
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 949E76621C
-        for <linux-input@vger.kernel.org>; Mon, 14 Feb 2022 02:51:32 -0800 (PST)
-Received: by mail-yb1-xb33.google.com with SMTP id v186so44859116ybg.1
-        for <linux-input@vger.kernel.org>; Mon, 14 Feb 2022 02:51:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=vyeYByMRpVU/XRGOFtq8XMKN4CgDOHBVWw4xOUTOtzw=;
-        b=8UaODhyxSrEv0hI7aoNkKuLOFigm9SR/NHNewWl+cjryzHcWmWMehf4Qrh9CH5lznZ
-         HUKnJPhouleF1tjvupHN1WSBF+T0PSIIHkuBuuiW2Q0l6oM2UOOLserLQKAlQEUME2tP
-         XWVDgSbCakEWKnen+WAVpekWEVhgtCCiE08ctzgne790OPPAqu1nyLoPhUISG0dBeXu/
-         buh4JiVrykpaF5sqCfeL8mrTlXUISVRHggCuwkkGgDNuTS6YCZjKo+YANb3Jjw4R9tGT
-         VjqXAUk4djPGqWu9P8ibwn0HO/YamDPsrH6ww2AUvN8CaD/gLVF2dN2rH+dc0Rj0AVk6
-         QYSg==
+        Mon, 14 Feb 2022 06:19:43 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3EFB575E48
+        for <linux-input@vger.kernel.org>; Mon, 14 Feb 2022 02:54:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1644836045;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=KyJ6SogPF87irN4VD630By2JCZI7Ntev91wcNjIl8tE=;
+        b=XxYlQ4COBM/9YhYBw83qSWP+7thqADM4xlw7RacK9ccJnqjGz1p97rOtdj6hlcsksRWF6j
+        BXheSnh8qRnS9043dwqEyiJfMdmgJ23WrcRvxU9HebEFu7UetSAae0seR1gPcfFP0pTiaq
+        qYE6IHwbsVlzUV2gg86H2ddGNuAvgyo=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-418-5qCXXBn1P7CZk9NRdhtuLA-1; Mon, 14 Feb 2022 05:54:04 -0500
+X-MC-Unique: 5qCXXBn1P7CZk9NRdhtuLA-1
+Received: by mail-pj1-f72.google.com with SMTP id b9-20020a17090aa58900b001b8b14b4aabso11955502pjq.9
+        for <linux-input@vger.kernel.org>; Mon, 14 Feb 2022 02:54:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=vyeYByMRpVU/XRGOFtq8XMKN4CgDOHBVWw4xOUTOtzw=;
-        b=fOt7ZjqLF+6nmVbUl42ZJI+zhiB25yVeey1y+GWFcMa9RGcHWmDPhhkAhQ9YSFpa+1
-         urZoLtXwmqrp/GRjzXQJoDXh/XRHzR/mBHmAEGgfo9SF3dEb1cUeXFIJWVrpvZh2Nfnk
-         +nMuRfnp16AV1TeERLsVhJO145R3OHQUG/gaV2uvqzVO/6CBpj9M6xpQ7DUK8mRb+fGt
-         SlCCW5/jT1H5yFV/Qq/lWSAQ5AaiVxZCsOZoJ8c+BwM/mhFTVN0VRVYDI4jI5Z/xA9lV
-         8ayc7GkXPWSi1ezyc3h7uZhu8uxUgWeBy4prKkBP5CnRyZfCIcJC13dHenK7DW9cb2nB
-         7pDg==
-X-Gm-Message-State: AOAM532u4dDurIjr+e9qQrG7Poxz5RzteJjsA2v5bDh7PtE+IFGu69v0
-        vYsnx0U0+WK6aHDrvVTxvgEAAg0SLAlClz0ex3XvDQ==
-X-Google-Smtp-Source: ABdhPJz65wAWgmDcevvXbiyb9n9bHBEXwvoWzyP7xR+KSbVzdziTFrmNqtkK9thjMo1YAbxr3tcYGPUwwu234V3+pZo=
-X-Received: by 2002:a81:a411:: with SMTP id b17mr13281647ywh.236.1644835891763;
- Mon, 14 Feb 2022 02:51:31 -0800 (PST)
+        bh=KyJ6SogPF87irN4VD630By2JCZI7Ntev91wcNjIl8tE=;
+        b=SRUvgKWYc+OVRMzK6vsNcI1sIoc3csPjMuyBUB3SMgWbWJCh3ZQJ3ACeCapMXPObEU
+         xEew0LRt9PPvG1CWUKAibfahgTOoXB4tthvw/XYgS8KvWZqr0bd20xINzNiyw8QWqByn
+         QXCrZeFOhDXXJEjvdIZJ+ZPWpHSxULAC01x6kHiYQJwPc772XGKu68XpyZw/9SWruZXw
+         Lfs3rGvJr4LxENGdJj/37OCQ973uDbhZHLHZGZYb1gvZFwFG5unIEehcpestvLUbxh94
+         pC3L6LIbJte4ekjRmZjqEJANCAik5NCxfFo+LIzHifKpHnbusJm2lm/3wd1mmzZ2IQlI
+         v1nA==
+X-Gm-Message-State: AOAM531xA29wcanAYyW6dL/zlXu6yAXBlQ+ZNxv0HNGykKoD5o5/1NX3
+        RlWM0EJ0lhmWGhGdwjqDjSq7eCyO8au/lo0uBkSjvQCQEiZil1PIEpBJLhLOhOtJ3nB87C9+yGI
+        z/FxCu/+GDyK2Sjdnd69PEDT4fkGSNSgfC2zau4M=
+X-Received: by 2002:a17:903:2410:: with SMTP id e16mr13313989plo.67.1644836042856;
+        Mon, 14 Feb 2022 02:54:02 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzOWDe+jUVcN3DfU15/34UlcTis+SsEQrBK6s9+ZeNeQy4y0em6tIrn7gIPhQO+zHxPXJ2vQeXVQjPQgNemSTU=
+X-Received: by 2002:a17:903:2410:: with SMTP id e16mr13313964plo.67.1644836042554;
+ Mon, 14 Feb 2022 02:54:02 -0800 (PST)
 MIME-Version: 1.0
 References: <20220126161832.3193805-1-benjamin.tissoires@redhat.com> <CAB4aORW_b+6=a-fXCL-MJoM9uNvjeYL01W85Rb=6rMP-Nm11QQ@mail.gmail.com>
 In-Reply-To: <CAB4aORW_b+6=a-fXCL-MJoM9uNvjeYL01W85Rb=6rMP-Nm11QQ@mail.gmail.com>
-From:   Angela Czubak <acz@semihalf.com>
-Date:   Mon, 14 Feb 2022 11:51:19 +0100
-Message-ID: <CAB4aORU51aZc7BHdTfrXanYVvFG4wxQRqfsrs6mdttYCB+LY8A@mail.gmail.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Mon, 14 Feb 2022 11:53:51 +0100
+Message-ID: <CAO-hwJKL-pLfASSs4YfEvG8eeOsCaeepCTfwzxn0sMh2NCu+7Q@mail.gmail.com>
 Subject: Re: [PATCH 00/12] HID: fix for generic input processing
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To:     Angela Czubak <acz@semihalf.com>
 Cc:     Jiri Kosina <jikos@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Jonathan Corbet <corbet@lwn.net>,
@@ -62,13 +68,14 @@ Cc:     Jiri Kosina <jikos@kernel.org>,
         Jason Gerecke <killertofu@gmail.com>,
         Peter Hutterer <peter.hutterer@who-t.net>,
         "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Feb 8, 2022 at 8:19 PM Angela Czubak <acz@semihalf.com> wrote:
+On Tue, Feb 8, 2022 at 8:20 PM Angela Czubak <acz@semihalf.com> wrote:
 >
 > Hi Benjamin,
 >
@@ -143,15 +150,9 @@ On Tue, Feb 8, 2022 at 8:19 PM Angela Czubak <acz@semihalf.com> wrote:
 > Is there any timeline for the followup series? I am wondering how that
 > would affect haptic support implementation.
 
-Hi Benjamin,
-
-just pinging in hope of receiving some answer :)
-I am thinking of preparing another version of haptic support patches
-(https://lore.kernel.org/all/20220114183152.1691659-1-acz@semihalf.com/T/)
-and if I could already start remodelling them based on your changes so that
-it is actually a haptic hid driver and not and API that would be great :)
-I am simply wondering when multitouch driver is going to be expressed simply
-by your changes.
+Sorry, no timeline on when we will be able to merge this. I was
+enjoying some time off last week, but now I need to check whether the
+comments I received need a v3 or not.
 
 >
 > > Cheers,
@@ -186,3 +187,13 @@ by your changes.
 >
 > Does this patch series introduce the leaf driver support you mentioned
 > in the haptic review?
+>
+
+As mentioned above, no, this patch series does not have the multitouch
+support in it.
+
+Let me answer your other email you sent while I am typing this one :)
+
+Cheers,
+Benjamin
+

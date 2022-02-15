@@ -2,44 +2,44 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EA6F7C433FE
-	for <linux-input@archiver.kernel.org>; Tue, 15 Feb 2022 02:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DF5DC433F5
+	for <linux-input@archiver.kernel.org>; Tue, 15 Feb 2022 02:00:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232825AbiBOCAV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 14 Feb 2022 21:00:21 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:43530 "EHLO
+        id S233493AbiBOCAg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 14 Feb 2022 21:00:36 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:42686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233367AbiBOB6T (ORCPT
+        with ESMTP id S233418AbiBOB6i (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 14 Feb 2022 20:58:19 -0500
+        Mon, 14 Feb 2022 20:58:38 -0500
 Received: from APC01-HK2-obe.outbound.protection.outlook.com (mail-eopbgr1300094.outbound.protection.outlook.com [40.107.130.94])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D06B1451DF;
-        Mon, 14 Feb 2022 17:57:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7DF9145601;
+        Mon, 14 Feb 2022 17:57:30 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RqMzXTCvREqgvmRJE8BFHSMTClFr/mMKiTA396izTqlCirA3knCZgR0LSvqz4ncx5esm0uyXM9goC0lDhU3QNWhxAFFnFoAcEP/W97rOwMVrF8tINIqu9VMi4g4/laPYb2UQWSktkH89VA4IyTP2iHaafyKUWnG7kiqUL46A/XRnJurfd0YLDuE3XPksDFbOzdaoi18ip5tKIrTKWM8bZ7X9tXaatKWOQbbDRMO5nhkodi+9lk4NAr5UvXDtFqFxC0eiABDkcGSDiNS5bpM9letHPZ3ML9hr5Nmal3s8KWrlF5izgztSZaPcSKAUsje5tYooXuwD531itaHqjABoSA==
+ b=e/BPnwY+ZdxxyPyIPnN7em1ZZrfniVeiNlO7hnPdm1ldxYX1feoUux15m3UKOTr0sXh9NoaKecRINMiKYJ+CrwIWTsPX+vCqdyNSC4rjhx5kZAriEeuhJkIQOALiGvJQGEj4agH2lQCgjcia9UoegqBrJpRRnpe38I9Hj5DwICjK+67vdGrwMfG8Gh7dap/bdMb69s+gO2uQVNZU89FCJVB3qikv9wMPhuZLWY+LjpmKm/z3uNKWaobExfakXLE0Z8ohacKWg6gUKBm4pwe9jdTKJg31jsnuy/ZIjbaSZ4T/jgHX0UPboPkoXzsezF2AqzpIVIt6jvXptYpNvsbXYA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cC6buop/OtXmLD1AULbZQIagQssITz/oNl9j3S0vE4I=;
- b=gWkBJc+pPWhDXM2BOpIMcljgkFKg6NqhNx2IT35NIHdKKqdYinssJ5UsQRMgLBNDuZgiuhUS0COceGSABKHH+njvy1tbnUtoxb95zqQC5tcVJ3otZ30cm+9OZmpCwWXbBCDfGMM3tW3cypjWGErBYwgUgVs+iN2JPtrQcFPcXDPULgfEYnAuVZBPOcQ6GT+2N94m9CntYE4C0UKJWYX4xi/bB5im+auD2iLvusqYK/iEcNBsI6ZFZfvoj7VtfU/YmUxkmxRoy7A1t+GF7oG0Cs7FocM7Lx6Sr3QtGkl//PjBbDrZDCPX6cl1U5idlTqX+fFpnKx4A9qy/mqxTRvw2g==
+ bh=/5nzH//PBKk0+joZfpDWq2saS2oSjNrVp/U+ZGSXe3c=;
+ b=oPrRBxdhTtRkJW3Gij8/hsBhbcnno+UatYccov9bO0iJnBp7xk1hN3Rxbaefp+QQQ0forR0V6nvwQEVDV05dQm5aYJWIx8FhMOKu3fawTdPrV9JfaHdNifd9hNa/zYUfGkSSQBhQlKMHZOeJrZP7hDwxtsTyFzei8uoqWJun2JV95EfsyyMLoBCnL97AISNjvXOp3ONesp7Ocv28ZTpg4jyDNvjM/IKcS0mkOqcMX6/T/gdG3QrmyHnW3Qt1GAX8IuSPemuVBLuFOUH+/XSBUCgtlNeWs9noSRHR1ZxjMb51SlpR2506PyMcbezEXIKB0r/Ew5osN1vK8jw95TsUVg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo0.onmicrosoft.com;
  s=selector2-vivo0-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cC6buop/OtXmLD1AULbZQIagQssITz/oNl9j3S0vE4I=;
- b=CBZ9XKmimrLI5a5Bm4sVwboiickFbQ8A3dOB0fQPU3JPtPOG/Cm7ArTeJb7uJwf1Tsc/2rfkJ2IdIiCN8bwtuptnEogLe+9bzPoJ8IX2G/UnHhH2zZRGvGUA1VoO5C7wEAuFi65clE7+pDTOBPZVxq4ZDe05Ag2Ib3DHtVZ0hc4=
+ bh=/5nzH//PBKk0+joZfpDWq2saS2oSjNrVp/U+ZGSXe3c=;
+ b=Xb5egVe6Qv70vT8lhPbHIt9VrBVhH3BwkIDYAkPe5y6nrBXwLUZbG4tjOZAb2wnlzdW7lb2rpuhIGCwDGOLgBmp8Nz1t6MJUvD37UDDpbrTSZdrsBRhZ6iI9VET1/K2gRnpxpKm013fB7pOy33QQ5FYddoDzz6st8RB63X+Mmok=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=vivo.com;
 Received: from SL2PR06MB3082.apcprd06.prod.outlook.com (2603:1096:100:37::17)
  by HK0PR06MB2771.apcprd06.prod.outlook.com (2603:1096:203:58::9) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4975.11; Tue, 15 Feb
- 2022 01:57:03 +0000
+ 2022 01:57:14 +0000
 Received: from SL2PR06MB3082.apcprd06.prod.outlook.com
  ([fe80::80b4:e787:47a9:41bb]) by SL2PR06MB3082.apcprd06.prod.outlook.com
  ([fe80::80b4:e787:47a9:41bb%4]) with mapi id 15.20.4975.019; Tue, 15 Feb 2022
- 01:57:03 +0000
+ 01:57:13 +0000
 From:   Qing Wang <wangqing@vivo.com>
 To:     Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
         =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
@@ -68,9 +68,9 @@ To:     Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
         amd-gfx@lists.freedesktop.org, linux-input@vger.kernel.org,
         linux-media@vger.kernel.org
 Cc:     Wang Qing <wangqing@vivo.com>
-Subject: [PATCH V3 11/13] media: tda8083: use time_is_after_jiffies() instead of open coding it
-Date:   Mon, 14 Feb 2022 17:55:48 -0800
-Message-Id: <1644890154-64915-12-git-send-email-wangqing@vivo.com>
+Subject: [PATCH V3 13/13] media: vivid: use time_is_after_jiffies() instead of open coding it
+Date:   Mon, 14 Feb 2022 17:55:50 -0800
+Message-Id: <1644890154-64915-14-git-send-email-wangqing@vivo.com>
 X-Mailer: git-send-email 2.7.4
 In-Reply-To: <1644890154-64915-1-git-send-email-wangqing@vivo.com>
 References: <1644890154-64915-1-git-send-email-wangqing@vivo.com>
@@ -80,54 +80,54 @@ X-ClientProxiedBy: HK2PR06CA0012.apcprd06.prod.outlook.com
  (2603:1096:100:37::17)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 94ca7f55-53b8-4f22-77cf-08d9f0267652
+X-MS-Office365-Filtering-Correlation-Id: 7b832f5a-dcb1-4e65-5aaa-08d9f0267bfe
 X-MS-TrafficTypeDiagnostic: HK0PR06MB2771:EE_
-X-Microsoft-Antispam-PRVS: <HK0PR06MB27712D4B9B1228657612CF57BD349@HK0PR06MB2771.apcprd06.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:849;
+X-Microsoft-Antispam-PRVS: <HK0PR06MB2771D9FC8FCE2704409599B8BD349@HK0PR06MB2771.apcprd06.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:590;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: gV2oF/OyYcAeAm3Z/ywQFp3c16XzzbH9iWeVLunxe43SBoP/9cDeHIVvXGFrbl5hyT9qw6wb9GTJ6p5LeyeWYmqPnQ+zLWuflUnNBv/4424U5jg8T2xxqcp3mrhNcxfd5rSpzqaY5Rwscvfb7eRHwch0DpK4wozaZKYqm1tfbD1/cTBHKDs8NZc/gzC7jnJi5YZxQm7mKEt5RAJ2M10E3RvuIyL6lSM3Bwi63xsUUDEngg/cGCX1112Lwk7k5Vk+2lKkOvaciLuNfaJ57e7k+cODf4I5nNvNxiTmdkYhJdLAysmjrFWn4x+O8FBAROaqqp8fqBUejYXCCBnptKwCGAcZR388X3FAsnFHHe/cw2KEIpXslrwP8qh8CuZpTLHgUlciy34lsTQi2m0TnDsMk0jK2KIJBnQg3kDfSxCREokOLWlxOdIXiVAvutyCDogNTbIwdGt446x1kbCGnTcrogKXrfQViqpN5Ief7SdhqhqZBdhfbYbBYYSnTwxkxtJjclRfbzitHpDb0C2X0LDRAdj3A4txuQsihLT+6GNsoGo7MRWPYWL2HjeaBlvNZyEJZTs2hLtAk/eidy5JhCNzkY6bRXc9mncdXZvsEHGDveox7yFQsA6kYpufdfd+XjY4h1P4lnFV5NMwyheCnCR7MU0SpXaXedHQ/3mOCz1lAPLxWCJe3eemodj6x2LfWgBVE83pigXnP9rl7jw4RDj09gdbIliXFMdn78bn4cSQGQI=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SL2PR06MB3082.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6666004)(8936002)(83380400001)(26005)(186003)(6486002)(508600001)(107886003)(5660300002)(4744005)(2906002)(7416002)(7406005)(921005)(110136005)(316002)(66476007)(8676002)(36756003)(66946007)(4326008)(66556008)(6506007)(6512007)(52116002)(86362001)(2616005)(38100700002)(38350700002);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: H/4bqIzmoJrpbSPGOKQFg3STl7pNYuYY7HyAxnoNBYmHT+1a0htC4+KZF4nwpycZ1/W4Ctxzyx/PTvG3N36pMzTrkwSMNUzF0eUxAwl/1rlecctY7zsoP2L9SvhyRdcRzpjhlch2M5M7XpQvoZMKh3HDdA2KuLfI2jIInkjIyZpJvcAv8EwliaBDXBzCoOTQcOsr+HBcV27t+G/srcgQdCQEO5z32g6Mb8n+3eBGcZXac/IEc1tk+5fX6hHvOILfg26RgtWlnK84Uae7R4C7zu50/JvXvt6dDOeuKSsyKuTnrdXUeNToguNafjyllSS1g21/q7jTp1j3dxuvHafZTl3z/6qUQJ69+xXsYaAC2JHjtZvQ25BVpldPtExoa4xHj+jLPRg/7qLfrffdM0zMxI3lFePj20ysi1vRUAQkRIGpchPE7xvv1LD9F09v0tfSMppv98XwLX7xDgXiaI0CRk6ciSNtosf/CfVu2y2Awx53M2z5rmBP3GbGRyO72dVVzSpJxNzgnmqG1fn0DJtYOJSuWiQizCnY26Js+nXAWNIJ06euzmYCW/ncuyuQjZjaha9PlxiMUg5Bh1v7N8bQ+GmH3xQRqDnVBMKYpEzlaCJIrqM0Pp2Ze9cY7qgurZBMVHLi7cz8NNRhhXhg39xgy/3fmUR1GgJImDyuMo0WJz8Kpy+aTQNRzKhxeupYM5otuAJslYIxdxixFCxsrIz/AA==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SL2PR06MB3082.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(6666004)(8936002)(83380400001)(26005)(186003)(6486002)(508600001)(107886003)(5660300002)(2906002)(7416002)(7406005)(921005)(110136005)(316002)(66476007)(8676002)(36756003)(66946007)(4326008)(66556008)(6506007)(6512007)(52116002)(86362001)(2616005)(38100700002)(38350700002);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?5MercmGQ9TFzLOeFladCcko3hYvfU5SNs9NOw2+9D7L7k6I0GqVFlOmmJrgq?=
- =?us-ascii?Q?OeLdEejvjAOM9iQNatT/3Ul4EuLFDAPSGEGNRCMPPrbEl4ZtSEEoHvJbGX5d?=
- =?us-ascii?Q?4dTVyLK8fWRpfESUPAtM58keC90j3x+tJ2ovvZIiKR5QcrYiY29J7XsB5V8E?=
- =?us-ascii?Q?ZYyWDoR6BSamZKMmp74V6WqjUm89eqmJN/MT8fqzl0VEay4ItxpbpKUYVgbB?=
- =?us-ascii?Q?2VaNG71bB7BXNzAYY0BhbOCLRcveSC/amCp6DN1Gbs+UQMFhkIpAXWMlLbgP?=
- =?us-ascii?Q?Nk9tgcELRWyuDHqkgy9+H87IqJEHslRUN2X+ykP5NCXvdiicVpNc0g1WzKr1?=
- =?us-ascii?Q?wb7aQa0wTxlgA7XXtLnUzXC/cvi5QObIx2NN81Lh4076pRBm27AQ36bCVJiV?=
- =?us-ascii?Q?EibGe3I+zx6XShezN9vLMRRmOo2XkI3MyNNEFaCQXsKI52aMDLDrttscU3W5?=
- =?us-ascii?Q?p3pquY0GGWfsV06wkhjI9vDvg/nvoQrwoOzmO5XwcUTdsYt/3E20HX58CZzz?=
- =?us-ascii?Q?rWuwk1uEEr5CXT9S5ZM/O8C8N5EQaHYbZM1IXB86S/bBsDYYXNZr0oiUrZAQ?=
- =?us-ascii?Q?5bebvLKa9VJZf1N4UwRQxuJjq5MPuFrmTrzLNEtJ8COwCAzQ93RearXg9xIg?=
- =?us-ascii?Q?j+Ksnmj3xxmMUHmyHg61nmPV7gKHTV+nHhDL+3Ge+BHgJZMUg8FURTmo6npM?=
- =?us-ascii?Q?6VOHlgLBAF2XX1bWMzYV4XUsPjduRipv2yauRp8ApM/4M17R4/YWTQCbs533?=
- =?us-ascii?Q?6caxhl3xrflEJOa1dDdmMIPjvbOuDSrG2DT5rHM9NoTFwsHOJKa4TQVTFtpj?=
- =?us-ascii?Q?nwqNZR3GomhjHPAMmZpj1gGjPUBwCTpuxnd8oeCQt+mhv3FEhsNQWfIPN8IU?=
- =?us-ascii?Q?FWYFIrMyd9FhJJ+c52wEBfgsoOT/HQH9txgCtUP/T4baq2+70aKIsGDyq2+9?=
- =?us-ascii?Q?TfjP/8yrkQAEVeBRoKBHJPIAxDlpeC/B6x6v1g0AMqqZrnxFDPGMNkHYhwMc?=
- =?us-ascii?Q?XeNCxwg4xaC0p3D5nwY8NxydR4y6kXO0EagMa8nVy4q2GYx+R/GzaKPmjaA7?=
- =?us-ascii?Q?xd7I1lSBfjWrizETDcezgnUZT55SgJ+ZSmBtmU50cjPtGaaDmZCfSpj9GFmW?=
- =?us-ascii?Q?ypBWARMZI2UK5YsR7rB6TA72Pu0ubN1pllG1W6A0dGIdCowHCfGiEDvTda2I?=
- =?us-ascii?Q?1WFBQ2eSLYPAvYIuQfV2cnb4ku6eSk2aKAOoXkfHjr88hr7V6Tvuzla1adIv?=
- =?us-ascii?Q?J46sXCKnmkHbKiRx4x14JcR/684RrDlQwWJeq1M9H6hBEOnKVyaFWmV/51fX?=
- =?us-ascii?Q?OZYD4yognVtd+e4sqC2zDpeEioWawPl2tmkIL5uWsTBovrH7tcKzBks8R48M?=
- =?us-ascii?Q?DLgqOBJcZyHCUEI+1LWR7tIOeI5OmmZBTJwVxZqeSZAB+tYnoE43YwlcTLiM?=
- =?us-ascii?Q?R7TDbKvO7nZGR/aj5Ejyx/8DwDADM26HxVjaFK9Wgfq426C9nVyLStuq5H4c?=
- =?us-ascii?Q?+fKQf0vzM9+tFxvxV+f4e7CDzWq5E/7qBCFRAZ7M2UPOC1BMH8mZ4s0rHAzw?=
- =?us-ascii?Q?gWw4undedslAcO+oTr172k07AGApDuAhaJO03dt4Ha8Je/C8zSuCZFWJvLw6?=
- =?us-ascii?Q?R1okkSX3eJUUoB7jqtLR7B4=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?bK0nz8C1sAOMe2uEktKzSvPsIyfDKfV9FcSqR+eBqcWsshGvBa4WTZxU9KiE?=
+ =?us-ascii?Q?3Vav+GqZW7U69B2v4SW8UW71GSYl2UGRPwB+hEPoa2P2v1HPRTk6E+yeY03a?=
+ =?us-ascii?Q?Zoe51jzCRekRNgd0Zfa8LyGJpeKJ4J2ZGHEYxlUKVyHUICMKKOxn3LAcS54i?=
+ =?us-ascii?Q?3JWXhM5Ir/j1SPSAB2BtSxLERl6DJc2MkRkLRNieotOIfArJ8Dg/wOBaK48R?=
+ =?us-ascii?Q?acOhO5vW1kEdBIcih9bnKLFZDSo5wJmnd5lkB0ifef38Kot8n6fXzT4Ewij/?=
+ =?us-ascii?Q?JQGE8ompPz3xAZBs1vqFipu7WwWzHS5n6pvKprgGGYJKuXToTGtkEt1Te7Hc?=
+ =?us-ascii?Q?ihh4zgPRlEB3B1cr9nh4AHp4ZmkWsdEvMIdgyoR5JW4eEsXsUnq4GtPjRk5F?=
+ =?us-ascii?Q?PPJsjU3jNOUVWrO7ZBiiY4yOoppLLknRub8sfYbIebgTdg6BgwGcfS8g13vw?=
+ =?us-ascii?Q?CO2+jBzLb9uIGEU33ENOq6QjZdKzUElFbkPw6Jbk4MbPmDtn1yqVtVxQ125l?=
+ =?us-ascii?Q?Yw9SdR743VUpRRldl/IRLoKC0E5j5bXfzANnIypQGtL5w7J3WvaRe8oMQ5m5?=
+ =?us-ascii?Q?y13uChO8xNvh975DtaOg4HrLP5fh1jbkYVllm4TauZ0y0GnTbCOLU4J7WXTV?=
+ =?us-ascii?Q?IDTyuyJW6Wg3VMD3j1XxNPFzK/3gYbttE/35o2wL+JYP3R7SPYHa+OLoX5nG?=
+ =?us-ascii?Q?IZgz6347m+JC/13n7BgJ+/TfttoWX9IdRx2GAQg60lEJaTEtoXeeANjD0vip?=
+ =?us-ascii?Q?ZNmtR81KhQ3WzvrJ0tyBEdTE9iqt58cX/sv/g+juJ72n8gnDYN66DdpWjI1w?=
+ =?us-ascii?Q?h241ziU2Edw4OqKVceCI6yBL+p+GB8gFLCXdqya1ULuLjOsHPFA8UYofJANG?=
+ =?us-ascii?Q?Kk3/NyVWwJ5nnnQQWnNxoDsTnIwX1gs8GEf/arv+/g8LqEzOjVj9m4axF1PB?=
+ =?us-ascii?Q?dR0Jwr2eQkB2fT6v9YeC1G6zh6Efj50kJyhItTSTlX+ZYDjw/LIWK81p1D/Y?=
+ =?us-ascii?Q?UZCRzvN30HUG6BCTdpEJjElEphkrzSIASJM0AVgMV65nnibnCJnr/d5qvNbd?=
+ =?us-ascii?Q?9HiIspZG586oGk+B8kHhl0lXnB4682W3u+806BQog5YIwFTjeo6A9vExY3l2?=
+ =?us-ascii?Q?+Y22bHHUZ29d1oLocAYelNLv2MGfYnYEhU55KvO3zG/tqMSwBOlTbKCLJQ5v?=
+ =?us-ascii?Q?/PyrIviFHhht/Xwfy/FXURBEzA40RzTK2yMDZVZTBeLcTXeNqu6WPuUg0ZMp?=
+ =?us-ascii?Q?TlrVTzO3GwXhSpDqBqfqCNxL4OWWGcVQf1sdoDTdt3bCKoH6c3Jdf3sGbDDX?=
+ =?us-ascii?Q?Lwv1ovGhvyWvJa+FkrnrGMNJOGJBEywV5XyU5XmEfqyvoZRgTQeSqifwD6ik?=
+ =?us-ascii?Q?hfJaCXJas1GH5OcoaI2G1QoxCcqScLz4dceDs705ftneXbQ9Zx5HgB0urOgi?=
+ =?us-ascii?Q?145/5Jaf9b51bo95nqOZglW8AxsfiTJcsur99k7xj2FVC38wF4II1TAlbbiA?=
+ =?us-ascii?Q?QvF1XxxLoBN5AkOGhBI9Fq21+tmTXulegOcY5MySIWm3MJ4EUGX+Rxr1vr7r?=
+ =?us-ascii?Q?1wKNCzV5xjDjpzYNYlJSI3EgvGYl9cx/48GLboYyfKvjmCpzN8r0fbMuIfxg?=
+ =?us-ascii?Q?JRkfz4pmTNqX4/+9vBRbhOI=3D?=
 X-OriginatorOrg: vivo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 94ca7f55-53b8-4f22-77cf-08d9f0267652
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7b832f5a-dcb1-4e65-5aaa-08d9f0267bfe
 X-MS-Exchange-CrossTenant-AuthSource: SL2PR06MB3082.apcprd06.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Feb 2022 01:57:03.6675
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Feb 2022 01:57:13.0888
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: mFEuzil0urqptxkdME+hbidqRFKNvjpaAGKOrzHhgbeiM5Ro7os/lGC86t2nJ/h1Bal4xr+JCTkBo3sNx60XYg==
+X-MS-Exchange-CrossTenant-UserPrincipalName: uyZdUVP+2fWY+yORosp2bLfqv4Z5+NzGfn3oDk/tXxeEcEmDE7T6Y895G6GWUbvVkpnX9VDalim26j+6jFRLMA==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: HK0PR06MB2771
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -140,22 +140,96 @@ code readability.
 
 Signed-off-by: Wang Qing <wangqing@vivo.com>
 ---
- drivers/media/dvb-frontends/tda8083.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/test-drivers/vivid/vivid-kthread-cap.c   | 3 ++-
+ drivers/media/test-drivers/vivid/vivid-kthread-out.c   | 3 ++-
+ drivers/media/test-drivers/vivid/vivid-kthread-touch.c | 3 ++-
+ drivers/media/test-drivers/vivid/vivid-sdr-cap.c       | 3 ++-
+ 4 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/tda8083.c b/drivers/media/dvb-frontends/tda8083.c
-index 5be11fd..49c4fe1
---- a/drivers/media/dvb-frontends/tda8083.c
-+++ b/drivers/media/dvb-frontends/tda8083.c
-@@ -162,7 +162,7 @@ static void tda8083_wait_diseqc_fifo (struct tda8083_state* state, int timeout)
- {
- 	unsigned long start = jiffies;
+diff --git a/drivers/media/test-drivers/vivid/vivid-kthread-cap.c b/drivers/media/test-drivers/vivid/vivid-kthread-cap.c
+index 6baa046..295f4a3
+--- a/drivers/media/test-drivers/vivid/vivid-kthread-cap.c
++++ b/drivers/media/test-drivers/vivid/vivid-kthread-cap.c
+@@ -18,6 +18,7 @@
+ #include <linux/freezer.h>
+ #include <linux/random.h>
+ #include <linux/v4l2-dv-timings.h>
++#include <linux/jiffies.h>
+ #include <asm/div64.h>
+ #include <media/videobuf2-vmalloc.h>
+ #include <media/v4l2-dv-timings.h>
+@@ -893,7 +894,7 @@ static int vivid_thread_vid_cap(void *data)
+ 			next_jiffies_since_start = jiffies_since_start;
  
--	while (jiffies - start < timeout &&
-+	while (time_is_after_jiffies(start + timeout) &&
- 	       !(tda8083_readreg(state, 0x02) & 0x80))
- 	{
- 		msleep(50);
+ 		wait_jiffies = next_jiffies_since_start - jiffies_since_start;
+-		while (jiffies - cur_jiffies < wait_jiffies &&
++		while (time_is_after_jiffies(cur_jiffies + wait_jiffies) &&
+ 		       !kthread_should_stop())
+ 			schedule();
+ 	}
+diff --git a/drivers/media/test-drivers/vivid/vivid-kthread-out.c b/drivers/media/test-drivers/vivid/vivid-kthread-out.c
+index b6d4316..13f737e
+--- a/drivers/media/test-drivers/vivid/vivid-kthread-out.c
++++ b/drivers/media/test-drivers/vivid/vivid-kthread-out.c
+@@ -18,6 +18,7 @@
+ #include <linux/freezer.h>
+ #include <linux/random.h>
+ #include <linux/v4l2-dv-timings.h>
++#include <linux/jiffies.h>
+ #include <asm/div64.h>
+ #include <media/videobuf2-vmalloc.h>
+ #include <media/v4l2-dv-timings.h>
+@@ -234,7 +235,7 @@ static int vivid_thread_vid_out(void *data)
+ 			next_jiffies_since_start = jiffies_since_start;
+ 
+ 		wait_jiffies = next_jiffies_since_start - jiffies_since_start;
+-		while (jiffies - cur_jiffies < wait_jiffies &&
++		while (time_is_after_jiffies(cur_jiffies + wait_jiffies) &&
+ 		       !kthread_should_stop())
+ 			schedule();
+ 	}
+diff --git a/drivers/media/test-drivers/vivid/vivid-kthread-touch.c b/drivers/media/test-drivers/vivid/vivid-kthread-touch.c
+index f065faae..8828243
+--- a/drivers/media/test-drivers/vivid/vivid-kthread-touch.c
++++ b/drivers/media/test-drivers/vivid/vivid-kthread-touch.c
+@@ -5,6 +5,7 @@
+  */
+ 
+ #include <linux/freezer.h>
++#include <linux/jiffies.h>
+ #include "vivid-core.h"
+ #include "vivid-kthread-touch.h"
+ #include "vivid-touch-cap.h"
+@@ -134,7 +135,7 @@ static int vivid_thread_touch_cap(void *data)
+ 			next_jiffies_since_start = jiffies_since_start;
+ 
+ 		wait_jiffies = next_jiffies_since_start - jiffies_since_start;
+-		while (jiffies - cur_jiffies < wait_jiffies &&
++		while (time_is_after_jiffies(cur_jiffies + wait_jiffies) &&
+ 		       !kthread_should_stop())
+ 			schedule();
+ 	}
+diff --git a/drivers/media/test-drivers/vivid/vivid-sdr-cap.c b/drivers/media/test-drivers/vivid/vivid-sdr-cap.c
+index 59fd508..f82856b
+--- a/drivers/media/test-drivers/vivid/vivid-sdr-cap.c
++++ b/drivers/media/test-drivers/vivid/vivid-sdr-cap.c
+@@ -17,6 +17,7 @@
+ #include <media/v4l2-event.h>
+ #include <media/v4l2-dv-timings.h>
+ #include <linux/fixp-arith.h>
++#include <linux/jiffies.h>
+ 
+ #include "vivid-core.h"
+ #include "vivid-ctrls.h"
+@@ -205,7 +206,7 @@ static int vivid_thread_sdr_cap(void *data)
+ 			next_jiffies_since_start = jiffies_since_start;
+ 
+ 		wait_jiffies = next_jiffies_since_start - jiffies_since_start;
+-		while (jiffies - cur_jiffies < wait_jiffies &&
++		while (time_is_after_jiffies(cur_jiffies + wait_jiffies) &&
+ 		       !kthread_should_stop())
+ 			schedule();
+ 	}
 -- 
 2.7.4
 

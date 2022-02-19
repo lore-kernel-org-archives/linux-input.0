@@ -2,60 +2,60 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C1A7C433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D72F5C4321E
 	for <linux-input@archiver.kernel.org>; Sat, 19 Feb 2022 10:02:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241910AbiBSKCc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 19 Feb 2022 05:02:32 -0500
-Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48346 "EHLO
+        id S241918AbiBSKCd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 19 Feb 2022 05:02:33 -0500
+Received: from mxb-00190b01.gslb.pphosted.com ([23.128.96.19]:48510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231863AbiBSKCb (ORCPT
+        with ESMTP id S241911AbiBSKCc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 19 Feb 2022 05:02:31 -0500
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF3DAE7B;
-        Sat, 19 Feb 2022 02:02:12 -0800 (PST)
-Received: by mail-wr1-x433.google.com with SMTP id i14so18441455wrc.10;
-        Sat, 19 Feb 2022 02:02:12 -0800 (PST)
+        Sat, 19 Feb 2022 05:02:32 -0500
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3500FA195;
+        Sat, 19 Feb 2022 02:02:14 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id k1so18480375wrd.8;
+        Sat, 19 Feb 2022 02:02:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=eZnDakesUb8DL99t2x67PNyfBeVgWB/usemeFj0ye8k=;
-        b=O6ilGTc+ZVUwhMubYEC3t4Mlcvr71BhR3Pfngdst2gchWRaWxZF8w5WebfjqzNeSqX
-         rI/G/XiocXFzhnLeXM2XiBrteFyrzXj6N3ZJedvkvegLYmyGc+oXmlAO9NTipe+Tspbt
-         zZWy1I1lM7MOBvyrgkRBTS6G2oc2V/Y2vN9E9y02qg8GDolqob92dMHLGN8srRg+LQV/
-         o/UOC+nJ4xld89XCnT6YV60tgbh6RjaqhsnSYFM4XzZOVm3PH6etnyld5KKwriDJcXew
-         97gHtDHRG10zuqHwikkvOlpEqPVLUTjB3DFJQOJEzqPQ4g+7Z77NXcFW5LJt4krJ2J7I
-         u+zw==
+        bh=G+knIrKk+Y9Xw92x9dcrEHWonrnULiyFs1HfK/Dzs88=;
+        b=AU838J+kCinEFPJ7ney/lcajB7RH4SV0dxXKP2Qz9LmikLXP32/PUIAHGpnQZHYNNR
+         CaATYRM3a7C3IETf4uOdVRLPX5Yb/22uY/udhINlofTJOuB5P+c4Q3NIak8lcXacYlfK
+         nMgbFxro997ev63iliuM6qnMN8ls/KQfioddvYsnQWQ1TwINfBW8nFz/JFhmyqjqmywa
+         BAkmWzYv3gvLWNa5+/oQgZY0ySfGM2DaLk8JT4uMb2kRJ2kqbpY8S0qy9B8k26u7dT38
+         4vrs6SbkDlcT3eHcZu38I+yo7a3vh6P2njQQBpmnuXuzgjxYYR9LuN/w2Zr3E/qf65FC
+         4tRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=eZnDakesUb8DL99t2x67PNyfBeVgWB/usemeFj0ye8k=;
-        b=wo9hn/bIJFFZycP/P90jfhLGXXwBYLNxIgpCb5APaZPUoHT5oFmACv7b5Xd5j2RQVz
-         drOCGdSLieZc7A6OmaNfCokYRbzdzqjZijMWjnD9gHR3Pl6NE6fKo3Py9ChxKZt2IKmI
-         8Q8y132pUHrFtBW+/BiHaDIvNMtzskONTGYv1JcZ8A1MywF/yyULMlONOwLR6h+syDhm
-         tyeIJcfuoTDW4zU2f4QAqR5D/2o2yg0/WlpwIbVNv94rvdlpjlfryPiy+BcBOQzYiEgD
-         MAkHJhPv4ZCfpjWjQfisQvrziT03mW4koyoQaYkZyATai2pGCxZHGABom94DQ5XZtc6F
-         clHQ==
-X-Gm-Message-State: AOAM531SPN9r+Xa8hx1SCVwF591BT3AZupvuxZHop4DDaB6IvQ19h4jw
-        fegJK1e17vG67teJ61zBLsUkFhWhjR4=
-X-Google-Smtp-Source: ABdhPJzY0Vs/TI+8/NF5WjoQbajJJzXLpm9rXVSRzWKPjS3shj8dN+//RwbWz/ypuLvz5IP9UzIFsQ==
-X-Received: by 2002:a5d:522a:0:b0:1e3:36c0:6e76 with SMTP id i10-20020a5d522a000000b001e336c06e76mr9188987wra.11.1645264931090;
-        Sat, 19 Feb 2022 02:02:11 -0800 (PST)
+        bh=G+knIrKk+Y9Xw92x9dcrEHWonrnULiyFs1HfK/Dzs88=;
+        b=R7FOcGswBKPwLMYfIbNsDuWb8Fw/tb6k/vur71SmfGUXylAiY5E0pLlSx4nJKyh0js
+         BOjgrN+HHeY5ULsFyh3qV574vPFhZee0frAgyoNIwqVZTxYMiOTdkglDPYQ7vxNQNRK5
+         Ijoyy64Kn51MPEiB+yNFXbcaG6TCCeEGEpJr6+QLmki2TiNjsZm/GWeHUhYpg4lQl2JZ
+         gbIoxd3u2TbmsJ3+BsvM3cDD+GGKV0kqsl/lgCP6jYYRvzpFz4oTWfMwsaHwrNXWCzuZ
+         ehyutPidDETvc8yU2NygcTB7QZdk4/0OKZp+cT+i7ESMnPgLRFw8F3ulUTQdIZ07aRw3
+         e8Jw==
+X-Gm-Message-State: AOAM531ufKxq1grL0yf7bh56okPxWaTnFxxvaxMucNNc8WeePVAv8heO
+        ErZhJ4nHcq2YhoROGYzaEFA=
+X-Google-Smtp-Source: ABdhPJxvt6J8MSJnPVy1GVDVmkTeuhBjHqjobveFWXVh/X0ZsAq8TvBd2+tPgUyr3b7uUXPJG7Jz+A==
+X-Received: by 2002:adf:f1d2:0:b0:1e4:aef2:76a8 with SMTP id z18-20020adff1d2000000b001e4aef276a8mr8647909wro.445.1645264932745;
+        Sat, 19 Feb 2022 02:02:12 -0800 (PST)
 Received: from localhost.localdomain ([94.73.33.246])
-        by smtp.gmail.com with ESMTPSA id az13sm24417244wrb.39.2022.02.19.02.02.10
+        by smtp.gmail.com with ESMTPSA id az13sm24417244wrb.39.2022.02.19.02.02.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 19 Feb 2022 02:02:10 -0800 (PST)
+        Sat, 19 Feb 2022 02:02:12 -0800 (PST)
 From:   =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
 To:     jikos@kernel.org
 Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH for-5.18/uclogic 2/9] HID: uclogic: Replace pen_frame_flag with subreport_list
-Date:   Sat, 19 Feb 2022 11:01:50 +0100
-Message-Id: <20220219100157.41920-3-jose.exposito89@gmail.com>
+Subject: [PATCH for-5.18/uclogic 4/9] HID: uclogic: Specify total report size to buttonpad macro
+Date:   Sat, 19 Feb 2022 11:01:52 +0100
+Message-Id: <20220219100157.41920-5-jose.exposito89@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220219100157.41920-1-jose.exposito89@gmail.com>
 References: <20220219100157.41920-1-jose.exposito89@gmail.com>
@@ -68,214 +68,58 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nikolai Kondrashov <spbnick@gmail.com>
 
-Replace a single pen_frame_flag in struct uclogic_params with
-subreport_list in struct uclogic_params_pen to prepare for handling more
-subreports in Huion HS610.
+Simplify the UCLOGIC_RDESC_BUTTONPAD_BYTES macro by passing as param
+the size of the report to pad to in bytes.
 
 Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 Signed-off-by: José Expósito <jose.exposito89@gmail.com>
 ---
- drivers/hid/hid-uclogic-core.c   | 40 ++++++++++++++-------
- drivers/hid/hid-uclogic-params.c | 12 ++++---
- drivers/hid/hid-uclogic-params.h | 62 +++++++++++++++++++-------------
- 3 files changed, 73 insertions(+), 41 deletions(-)
+ drivers/hid/hid-uclogic-rdesc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index 26849f1f5459..7092f86517a5 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -350,26 +350,40 @@ static int uclogic_raw_event(struct hid_device *hdev,
- 	unsigned int report_id = report->id;
- 	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
- 	struct uclogic_params *params = &drvdata->params;
-+	struct uclogic_params_pen_subreport *subreport;
-+	struct uclogic_params_pen_subreport *subreport_list_end;
- 
- 	/* Do not handle anything but input reports */
- 	if (report->type != HID_INPUT_REPORT)
- 		return 0;
- 
--	/* Tweak pen reports, if necessary */
--	if ((report_id == params->pen.id) && (size >= 2)) {
--		/* If it's the "virtual" frame controls report */
--		if (params->frame.id != 0 &&
--		    data[1] & params->pen_frame_flag) {
--			/* Change to virtual frame controls report ID */
--			report_id = data[0] = params->frame.id;
--		} else {
--			return uclogic_raw_event_pen(drvdata, data, size);
-+	while (true) {
-+		/* Tweak pen reports, if necessary */
-+		if ((report_id == params->pen.id) && (size >= 2)) {
-+			subreport_list_end =
-+				params->pen.subreport_list +
-+				ARRAY_SIZE(params->pen.subreport_list);
-+			/* Try to match a subreport */
-+			for (subreport = params->pen.subreport_list;
-+			     subreport < subreport_list_end &&
-+				(data[1] & subreport->mask) != subreport->mask;
-+			     subreport++);
-+			/* If a subreport matched */
-+			if (subreport < subreport_list_end) {
-+				/* Change to subreport ID, and restart */
-+				report_id = data[0] = subreport->id;
-+				continue;
-+			} else {
-+				return uclogic_raw_event_pen(drvdata, data, size);
-+			}
- 		}
--	}
- 
--	/* Tweak frame control reports, if necessary */
--	if (report_id == params->frame.id)
--		return uclogic_raw_event_frame(drvdata, data, size);
-+		/* Tweak frame control reports, if necessary */
-+		if (report_id == params->frame.id)
-+			return uclogic_raw_event_frame(drvdata, data, size);
-+
-+		break;
-+	}
- 
- 	return 0;
- }
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 71496735cbf0..138dd8b0a360 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -762,8 +762,10 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
- 					rc);
- 				goto cleanup;
- 			}
--			/* Set bitmask marking frame reports in pen reports */
--			p.pen_frame_flag = 0x20;
-+			/* Link frame button subreports from pen reports */
-+			p.pen.subreport_list[0].mask = 0x20;
-+			p.pen.subreport_list[0].id =
-+				UCLOGIC_RDESC_BUTTONPAD_V2_ID;
- 			goto output;
- 		}
- 		hid_dbg(hdev, "pen v2 parameters not found\n");
-@@ -788,8 +790,10 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
- 		hid_dbg(hdev, "buttonpad v1 parameters%s found\n",
- 			(found ? "" : " not"));
- 		if (found) {
--			/* Set bitmask marking frame reports */
--			p.pen_frame_flag = 0x20;
-+			/* Link frame button subreports from pen reports */
-+			p.pen.subreport_list[0].mask = 0x20;
-+			p.pen.subreport_list[0].id =
-+				UCLOGIC_RDESC_BUTTONPAD_V1_ID;
- 		}
- 		goto output;
- 	}
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index 48b974943bb9..82db8ab36fec 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -33,6 +33,24 @@ enum uclogic_params_pen_inrange {
- extern const char *uclogic_params_pen_inrange_to_str(
- 			enum uclogic_params_pen_inrange inrange);
- 
-+
-+/*
-+ * Pen report's subreport data.
-+ */
-+struct uclogic_params_pen_subreport {
-+	/*
-+	 * The subreport's bitmask matching the second byte of the pen report.
-+	 * If zero, the subreport is considered invalid, and won't match.
-+	 */
-+	__u8 mask;
-+
-+	/*
-+	 * The ID to be assigned to the report, if the "mask" matches.
-+	 * Only valid if "mask" is not zero.
-+	 */
-+	__u8 id;
-+};
-+
+diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
+index ec16355d200b..6e5bef39417e 100644
+--- a/drivers/hid/hid-uclogic-rdesc.c
++++ b/drivers/hid/hid-uclogic-rdesc.c
+@@ -654,10 +654,9 @@ const size_t uclogic_rdesc_pen_v2_template_size =
  /*
-  * Tablet interface's pen input parameters.
+  * Expand to the contents of a generic buttonpad report descriptor.
   *
-@@ -54,6 +72,8 @@ struct uclogic_params_pen {
- 	unsigned int desc_size;
- 	/* Report ID, if reports should be tweaked, zero if not */
- 	unsigned int id;
-+	/* The list of subreports */
-+	struct uclogic_params_pen_subreport subreport_list[1];
- 	/* Type of in-range reporting, only valid if "id" is not zero */
- 	enum uclogic_params_pen_inrange inrange;
- 	/*
-@@ -148,13 +168,6 @@ struct uclogic_params {
- 	 * Only valid, if "invalid" is false.
- 	 */
- 	struct uclogic_params_frame frame;
--	/*
--	 * Bitmask matching frame controls "sub-report" flag in the second
--	 * byte of the pen report, or zero if it's not expected.
--	 * Only valid if both "pen" and "frame" are valid, and "frame.id" is
--	 * not zero.
--	 */
--	__u8 pen_frame_flag;
+- * @_padding:	Padding from the end of button bits at bit 44, until
+- *		the end of the report, in bits.
++ * @_size:	Size of the report to pad to, including report ID, bytes.
+  */
+-#define UCLOGIC_RDESC_BUTTONPAD_BYTES(_padding) \
++#define UCLOGIC_RDESC_BUTTONPAD_BYTES(_size) \
+ 	0x05, 0x01,     /*  Usage Page (Desktop),               */ \
+ 	0x09, 0x07,     /*  Usage (Keypad),                     */ \
+ 	0xA1, 0x01,     /*  Collection (Application),           */ \
+@@ -692,21 +691,22 @@ const size_t uclogic_rdesc_pen_v2_template_size =
+ 	0x29, 0x03,     /*          Usage Maximum (03h),        */ \
+ 	0x95, 0x03,     /*          Report Count (3),           */ \
+ 	0x81, 0x02,     /*          Input (Variable),           */ \
+-	0x95, _padding, /*          Report Count (_padding),    */ \
++	0x95, ((_size) * 8 - 45),                                  \
++			/*          Report Count (padding),     */ \
+ 	0x81, 0x01,     /*          Input (Constant),           */ \
+ 	0xC0,           /*      End Collection,                 */ \
+ 	0xC0            /*  End Collection                      */
+ 
+ /* Fixed report descriptor for (tweaked) v1 buttonpad reports */
+ const __u8 uclogic_rdesc_buttonpad_v1_arr[] = {
+-	UCLOGIC_RDESC_BUTTONPAD_BYTES(19)
++	UCLOGIC_RDESC_BUTTONPAD_BYTES(8)
  };
+ const size_t uclogic_rdesc_buttonpad_v1_size =
+ 			sizeof(uclogic_rdesc_buttonpad_v1_arr);
  
- /* Initialize a tablet interface and discover its parameters */
-@@ -163,21 +176,21 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 
- /* Tablet interface parameters *printf format string */
- #define UCLOGIC_PARAMS_FMT_STR \
--		".invalid = %s\n"                   \
--		".desc_ptr = %p\n"                  \
--		".desc_size = %u\n"                 \
--		".pen.desc_ptr = %p\n"              \
--		".pen.desc_size = %u\n"             \
--		".pen.id = %u\n"                    \
--		".pen.inrange = %s\n"               \
--		".pen.fragmented_hires = %s\n"      \
--		".pen.tilt_y_flipped = %s\n"        \
--		".frame.desc_ptr = %p\n"            \
--		".frame.desc_size = %u\n"           \
--		".frame.id = %u\n"                  \
--		".frame.re_lsb = %u\n"              \
--		".frame.dev_id_byte = %u\n"         \
--		".pen_frame_flag = 0x%02x\n"
-+		".invalid = %s\n"                               \
-+		".desc_ptr = %p\n"                              \
-+		".desc_size = %u\n"                             \
-+		".pen.desc_ptr = %p\n"                          \
-+		".pen.desc_size = %u\n"                         \
-+		".pen.id = %u\n"                                \
-+		".pen.subreport_list[0] = {0x%02hhx, %hhu}\n"   \
-+		".pen.inrange = %s\n"                           \
-+		".pen.fragmented_hires = %s\n"                  \
-+		".pen.tilt_y_flipped = %s\n"                    \
-+		".frame.desc_ptr = %p\n"                        \
-+		".frame.desc_size = %u\n"                       \
-+		".frame.id = %u\n"                              \
-+		".frame.re_lsb = %u\n"                          \
-+		".frame.dev_id_byte = %u\n"
- 
- /* Tablet interface parameters *printf format arguments */
- #define UCLOGIC_PARAMS_FMT_ARGS(_params) \
-@@ -187,6 +200,8 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 		(_params)->pen.desc_ptr,                                    \
- 		(_params)->pen.desc_size,                                   \
- 		(_params)->pen.id,                                          \
-+		(_params)->pen.subreport_list[0].mask,                      \
-+		(_params)->pen.subreport_list[0].id,                        \
- 		uclogic_params_pen_inrange_to_str((_params)->pen.inrange),  \
- 		((_params)->pen.fragmented_hires ? "true" : "false"),       \
- 		((_params)->pen.tilt_y_flipped ? "true" : "false"),         \
-@@ -194,8 +209,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 		(_params)->frame.desc_size,                                 \
- 		(_params)->frame.id,                                        \
- 		(_params)->frame.re_lsb,                                    \
--		(_params)->frame.dev_id_byte,                               \
--		(_params)->pen_frame_flag
-+		(_params)->frame.dev_id_byte
- 
- /* Get a replacement report descriptor for a tablet's interface. */
- extern int uclogic_params_get_desc(const struct uclogic_params *params,
+ /* Fixed report descriptor for (tweaked) v2 buttonpad reports */
+ const __u8 uclogic_rdesc_buttonpad_v2_arr[] = {
+-	UCLOGIC_RDESC_BUTTONPAD_BYTES(51)
++	UCLOGIC_RDESC_BUTTONPAD_BYTES(12)
+ };
+ const size_t uclogic_rdesc_buttonpad_v2_size =
+ 			sizeof(uclogic_rdesc_buttonpad_v2_arr);
 -- 
 2.25.1
 

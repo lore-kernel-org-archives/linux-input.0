@@ -2,50 +2,52 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEE2FC4332F
-	for <linux-input@archiver.kernel.org>; Wed, 23 Feb 2022 02:31:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEB1DC433EF
+	for <linux-input@archiver.kernel.org>; Wed, 23 Feb 2022 02:33:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237028AbiBWCcV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 22 Feb 2022 21:32:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42370 "EHLO
+        id S237201AbiBWCeR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 22 Feb 2022 21:34:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237139AbiBWCbd (ORCPT
+        with ESMTP id S237350AbiBWCc6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Feb 2022 21:31:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82FAA55BEF;
-        Tue, 22 Feb 2022 18:30:10 -0800 (PST)
+        Tue, 22 Feb 2022 21:32:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72C8F583BB;
+        Tue, 22 Feb 2022 18:30:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A798B81E0D;
-        Wed, 23 Feb 2022 02:30:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B14AEC340EB;
-        Wed, 23 Feb 2022 02:29:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10771B81E14;
+        Wed, 23 Feb 2022 02:30:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC281C340E8;
+        Wed, 23 Feb 2022 02:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583400;
-        bh=uWshYowdQuMDGggcLTotQLyl76P+YVFcWT/lqXFhhSI=;
+        s=k20201202; t=1645583449;
+        bh=Fd8k9zjN9MKZhmz8EI1W6exj0crf5+KIJ0aYg4ut/bo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=poSxM3eXMrYxHrWvy/kJRElh8keS3p/ojD6wgeDOaWnrqSixvy74iFMn8YM43qAm2
-         XoWRptD+fIHe8mbwkV/jefItKE8QnYqQNhP+GnDPoHYhs0lWX9K0JVVaDCOZuid8YA
-         jOE24Ei08XoR2HLwGFacZsi1juOHR/BNhqUlIBxT2SuMywN2DFXHXa0cSZggiIi3ZT
-         xU+fOZPRi8q8u/MhRVbKQF4Otu+orBoU/5erRoTdjmc+794k4sF5Y+5MHWXFYzt0r1
-         B/8bnU6+XIPxts6iAk8thOLogdBIzHHM3m7DJgCUCasm8VKSNsFKAdCINAhZOXPKZb
-         1Z4z8iAplYEVA==
+        b=ipWVRQNVPJWcnjT+FwpRkavQU7B5ZOI4H9DwCPnP/O2v/EvlYVawOb1G0ABBiOvs3
+         eutK6hYqLloQkBX2o1EjOfAUnlkAkpJFjfOMcum+OqQ8ggqx0/bur70oIrrHBIfdwW
+         aCsOBJ6HUK7pWq3TfhzUcwZAHF1WDOXF9Bfn5EAH8unipg4bnAs/3qLmg0zC6wXc6+
+         1+z+r0ehmXO305+dCT2XdhPyABbTdKRWtNq3T8TJeD3u9XUU4hIQmDS0QFDLI8SThB
+         6aK4keUFEOVPRg94ZG429wPNRKrI1ZH+0CKYZWkxkwA5d7pfTysj4szgWJy6075piu
+         2p0bIP5s1s9Yg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        nehal-bakulchandra.shah@amd.com, basavaraj.natikar@amd.com,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 16/28] HID: amd_sfh: Add functionality to clear interrupts
-Date:   Tue, 22 Feb 2022 21:29:17 -0500
-Message-Id: <20220223022929.241127-16-sashal@kernel.org>
+Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 07/18] Input: clear BTN_RIGHT/MIDDLE on buttonpads
+Date:   Tue, 22 Feb 2022 21:30:24 -0500
+Message-Id: <20220223023035.241551-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220223022929.241127-1-sashal@kernel.org>
-References: <20220223022929.241127-1-sashal@kernel.org>
+In-Reply-To: <20220223023035.241551-1-sashal@kernel.org>
+References: <20220223023035.241551-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,108 +55,80 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit fb75a3791a8032848c987db29b622878d8fe2b1c ]
+[ Upstream commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40 ]
 
-Newer AMD platforms with SFH may generate interrupts on some events
-which are unwarranted. Until this is cleared the actual MP2 data
-processing maybe stalled in some cases.
+Buttonpads are expected to map the INPUT_PROP_BUTTONPAD property bit
+and the BTN_LEFT key bit.
 
-Add a mechanism to clear the pending interrupts (if any) during the
-driver initialization and sensor command operations.
+As explained in the specification, where a device has a button type
+value of 0 (click-pad) or 1 (pressure-pad) there should not be
+discrete buttons:
+https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection#device-capabilities-feature-report
 
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+However, some drivers map the BTN_RIGHT and/or BTN_MIDDLE key bits even
+though the device is a buttonpad and therefore does not have those
+buttons.
+
+This behavior has forced userspace applications like libinput to
+implement different workarounds and quirks to detect buttonpads and
+offer to the user the right set of features and configuration options.
+For more information:
+https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/726
+
+In order to avoid this issue clear the BTN_RIGHT and BTN_MIDDLE key
+bits when the input device is register if the INPUT_PROP_BUTTONPAD
+property bit is set.
+
+Notice that this change will not affect udev because it does not check
+for buttons. See systemd/src/udev/udev-builtin-input_id.c.
+
+List of known affected hardware:
+
+ - Chuwi AeroBook Plus
+ - Chuwi Gemibook
+ - Framework Laptop
+ - GPD Win Max
+ - Huawei MateBook 2020
+ - Prestigio Smartbook 141 C2
+ - Purism Librem 14v1
+ - StarLite Mk II   - AMI firmware
+ - StarLite Mk II   - Coreboot firmware
+ - StarLite Mk III  - AMI firmware
+ - StarLite Mk III  - Coreboot firmware
+ - StarLabTop Mk IV - AMI firmware
+ - StarLabTop Mk IV - Coreboot firmware
+ - StarBook Mk V
+
+Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Acked-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Link: https://lore.kernel.org/r/20220208174806.17183-1-jose.exposito89@gmail.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 25 ++++++++++++++++++++++++-
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.h |  1 +
- 2 files changed, 25 insertions(+), 1 deletion(-)
+ drivers/input/input.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index 6eda5006fb116..205827ecf4b8f 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -88,6 +88,20 @@ static void amd_stop_all_sensor_v2(struct amd_mp2_dev *privdata)
- 	writel(cmd_base.ul, privdata->mmio + AMD_C2P_MSG0);
- }
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index 3cfd2c18eebd9..ff9dc37eff345 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2179,6 +2179,12 @@ int input_register_device(struct input_dev *dev)
+ 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
+ 	__clear_bit(KEY_RESERVED, dev->keybit);
  
-+static void amd_sfh_clear_intr_v2(struct amd_mp2_dev *privdata)
-+{
-+	if (readl(privdata->mmio + AMD_P2C_MSG(4))) {
-+		writel(0, privdata->mmio + AMD_P2C_MSG(4));
-+		writel(0xf, privdata->mmio + AMD_P2C_MSG(5));
-+	}
-+}
-+
-+static void amd_sfh_clear_intr(struct amd_mp2_dev *privdata)
-+{
-+	if (privdata->mp2_ops->clear_intr)
-+		privdata->mp2_ops->clear_intr(privdata);
-+}
-+
- void amd_start_sensor(struct amd_mp2_dev *privdata, struct amd_mp2_sensor_info info)
- {
- 	union sfh_cmd_param cmd_param;
-@@ -192,6 +206,7 @@ static void amd_mp2_pci_remove(void *privdata)
- 	struct amd_mp2_dev *mp2 = privdata;
- 	amd_sfh_hid_client_deinit(privdata);
- 	mp2->mp2_ops->stop_all(mp2);
-+	amd_sfh_clear_intr(mp2);
- }
- 
- static const struct amd_mp2_ops amd_sfh_ops_v2 = {
-@@ -199,6 +214,7 @@ static const struct amd_mp2_ops amd_sfh_ops_v2 = {
- 	.stop = amd_stop_sensor_v2,
- 	.stop_all = amd_stop_all_sensor_v2,
- 	.response = amd_sfh_wait_response_v2,
-+	.clear_intr = amd_sfh_clear_intr_v2,
- };
- 
- static const struct amd_mp2_ops amd_sfh_ops = {
-@@ -258,8 +274,13 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
- 	mp2_select_ops(privdata);
- 
- 	rc = amd_sfh_hid_client_init(privdata);
--	if (rc)
-+	if (rc) {
-+		amd_sfh_clear_intr(privdata);
-+		dev_err(&pdev->dev, "amd_sfh_hid_client_init failed\n");
- 		return rc;
++	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
++	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
++		__clear_bit(BTN_RIGHT, dev->keybit);
++		__clear_bit(BTN_MIDDLE, dev->keybit);
 +	}
 +
-+	amd_sfh_clear_intr(privdata);
+ 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
+ 	input_cleanse_bitmasks(dev);
  
- 	return devm_add_action_or_reset(&pdev->dev, amd_mp2_pci_remove, privdata);
- }
-@@ -288,6 +309,7 @@ static int __maybe_unused amd_mp2_pci_resume(struct device *dev)
- 	}
- 
- 	schedule_delayed_work(&cl_data->work_buffer, msecs_to_jiffies(AMD_SFH_IDLE_LOOP));
-+	amd_sfh_clear_intr(mp2);
- 
- 	return 0;
- }
-@@ -313,6 +335,7 @@ static int __maybe_unused amd_mp2_pci_suspend(struct device *dev)
- 	}
- 
- 	cancel_delayed_work_sync(&cl_data->work_buffer);
-+	amd_sfh_clear_intr(mp2);
- 
- 	return 0;
- }
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-index 1ff6f83cb6fd1..0e7a2f22e1426 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-@@ -140,5 +140,6 @@ struct amd_mp2_ops {
- 	 void (*stop)(struct amd_mp2_dev *privdata, u16 sensor_idx);
- 	 void (*stop_all)(struct amd_mp2_dev *privdata);
- 	 int (*response)(struct amd_mp2_dev *mp2, u8 sid, u32 sensor_sts);
-+	 void (*clear_intr)(struct amd_mp2_dev *privdata);
- };
- #endif
 -- 
 2.34.1
 

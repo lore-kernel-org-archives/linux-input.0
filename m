@@ -2,133 +2,148 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00055C433FE
-	for <linux-input@archiver.kernel.org>; Wed, 23 Feb 2022 02:38:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3EC3BC433EF
+	for <linux-input@archiver.kernel.org>; Wed, 23 Feb 2022 05:00:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237636AbiBWCjM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 22 Feb 2022 21:39:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51572 "EHLO
+        id S231128AbiBWFA5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 23 Feb 2022 00:00:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237610AbiBWCh0 (ORCPT
+        with ESMTP id S232067AbiBWFAz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Feb 2022 21:37:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35FEF53B53;
-        Tue, 22 Feb 2022 18:32:42 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD45761581;
-        Wed, 23 Feb 2022 02:32:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56396C340EB;
-        Wed, 23 Feb 2022 02:32:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583527;
-        bh=TXqZ+EChSCl0LpdGhIFv0gP/aMj5q1dIexiP5V1RYC0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u5mT5TZ6fJg5uDz/6hTY0rHBnq7SSwYtq/IBdweuBvpBagynAHkKQ4Fjo6QWbaL40
-         ZBfj1cbCM6Y6IGI4MFxMeCQn1nz8mYz7xi/2eHiN/fDvc2masP5ydW79GorddnxwMn
-         AlYlJSELBVYPVBym881eBhXZY7K0CzXVncisnY8kTcKa0Q0KaI/PjicftferKGC9vG
-         0OCGFnPO5XvAs8RINFHN2R/9uTdHUA7GR/PWYFJA6+6uOOmQj7TzZumoi2LsIy2iqs
-         eoJ8sQxiaq45UomfcbzoyidJBpJtm6LBq5KMihW0GtY6W+rUNS8gy5QWcYb4lXETNf
-         IpcnpbRL8REGw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>,
+        Wed, 23 Feb 2022 00:00:55 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC7C060CCD;
+        Tue, 22 Feb 2022 21:00:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1645592428; x=1677128428;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=6FLKm6fp0tyd6+4vW4Mst9f8YW1kXerksPWJZQnchhs=;
+  b=mkTRIgGfVowajtjZcwokhZm+kAsW6+MX/JpI+IPNvyifD3UxqLqLipgZ
+   79wlQ55GRGMnPdC7/eTEz3QOPTqrkSU70iwOhnLRshpNPnGoC9by/1l+a
+   8k5ChUQz7myoLs0rNZQb4wszb25j4NdMQeGJrroK+MeFGg/xg2mHjtsKd
+   9DyYPe4rM5eNheFBitL/YgkVeC86ySHgzhQk1NTbRA/LhwczW56KDfsnz
+   6utJDtw7dFOoz0txYWNobIgkvEmw861Pc2Ysu4h+dF+VpVMvzULF8FV3Z
+   pvHVbn2eD2hrdcE8gHMWDClEgXwebdRqmKVAgqCvCUdZzNaKKGqMW2aEz
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10266"; a="338320951"
+X-IronPort-AV: E=Sophos;i="5.88,390,1635231600"; 
+   d="scan'208";a="338320951"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2022 21:00:19 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,390,1635231600"; 
+   d="scan'208";a="639175040"
+Received: from lkp-server01.sh.intel.com (HELO 788b1cd46f0d) ([10.239.97.150])
+  by orsmga004.jf.intel.com with ESMTP; 22 Feb 2022 21:00:16 -0800
+Received: from kbuild by 788b1cd46f0d with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1nMjl9-0000zj-DA; Wed, 23 Feb 2022 05:00:15 +0000
+Date:   Wed, 23 Feb 2022 12:59:48 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Markuss Broks <markuss.broks@gmail.com>,
+        linux-kernel@vger.kernel.org
+Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
+        phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
+        Markuss Broks <markuss.broks@gmail.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 06/13] Input: clear BTN_RIGHT/MIDDLE on buttonpads
-Date:   Tue, 22 Feb 2022 21:31:45 -0500
-Message-Id: <20220223023152.242065-6-sashal@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220223023152.242065-1-sashal@kernel.org>
-References: <20220223023152.242065-1-sashal@kernel.org>
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH v6 2/2] Input: add Imagis touchscreen driver
+Message-ID: <202202231213.Vj9yo4tW-lkp@intel.com>
+References: <20220222203414.8656-3-markuss.broks@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220222203414.8656-3-markuss.broks@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+Hi Markuss,
 
-[ Upstream commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40 ]
+I love your patch! Perhaps something to improve:
 
-Buttonpads are expected to map the INPUT_PROP_BUTTONPAD property bit
-and the BTN_LEFT key bit.
+[auto build test WARNING on dtor-input/next]
+[also build test WARNING on linux/master robh/for-next linus/master v5.17-rc5 next-20220222]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-As explained in the specification, where a device has a button type
-value of 0 (click-pad) or 1 (pressure-pad) there should not be
-discrete buttons:
-https://docs.microsoft.com/en-us/windows-hardware/design/component-guidelines/touchpad-windows-precision-touchpad-collection#device-capabilities-feature-report
+url:    https://github.com/0day-ci/linux/commits/Markuss-Broks/Add-support-for-Imagis-touchscreens/20220223-043645
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+config: hexagon-allyesconfig (https://download.01.org/0day-ci/archive/20220223/202202231213.Vj9yo4tW-lkp@intel.com/config)
+compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project d271fc04d5b97b12e6b797c6067d3c96a8d7470e)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/0day-ci/linux/commit/bc77ee5e0d7309edca7d65925c6afa05334b0b01
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Markuss-Broks/Add-support-for-Imagis-touchscreens/20220223-043645
+        git checkout bc77ee5e0d7309edca7d65925c6afa05334b0b01
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=hexagon SHELL=/bin/bash drivers/input/touchscreen/
 
-However, some drivers map the BTN_RIGHT and/or BTN_MIDDLE key bits even
-though the device is a buttonpad and therefore does not have those
-buttons.
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
 
-This behavior has forced userspace applications like libinput to
-implement different workarounds and quirks to detect buttonpads and
-offer to the user the right set of features and configuration options.
-For more information:
-https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/726
+All warnings (new ones prefixed by >>):
 
-In order to avoid this issue clear the BTN_RIGHT and BTN_MIDDLE key
-bits when the input device is register if the INPUT_PROP_BUTTONPAD
-property bit is set.
+>> drivers/input/touchscreen/imagis.c:300:6: warning: variable 'ret' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+           if (input_device_enabled(ts->input_dev))
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/input/touchscreen/imagis.c:305:9: note: uninitialized use occurs here
+           return ret;
+                  ^~~
+   drivers/input/touchscreen/imagis.c:300:2: note: remove the 'if' if its condition is always true
+           if (input_device_enabled(ts->input_dev))
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/input/touchscreen/imagis.c:296:9: note: initialize the variable 'ret' to silence this warning
+           int ret;
+                  ^
+                   = 0
+   drivers/input/touchscreen/imagis.c:316:6: warning: variable 'ret' is used uninitialized whenever 'if' condition is false [-Wsometimes-uninitialized]
+           if (input_device_enabled(ts->input_dev))
+               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/input/touchscreen/imagis.c:321:9: note: uninitialized use occurs here
+           return ret;
+                  ^~~
+   drivers/input/touchscreen/imagis.c:316:2: note: remove the 'if' if its condition is always true
+           if (input_device_enabled(ts->input_dev))
+           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   drivers/input/touchscreen/imagis.c:312:9: note: initialize the variable 'ret' to silence this warning
+           int ret;
+                  ^
+                   = 0
+   2 warnings generated.
 
-Notice that this change will not affect udev because it does not check
-for buttons. See systemd/src/udev/udev-builtin-input_id.c.
 
-List of known affected hardware:
+vim +300 drivers/input/touchscreen/imagis.c
 
- - Chuwi AeroBook Plus
- - Chuwi Gemibook
- - Framework Laptop
- - GPD Win Max
- - Huawei MateBook 2020
- - Prestigio Smartbook 141 C2
- - Purism Librem 14v1
- - StarLite Mk II   - AMI firmware
- - StarLite Mk II   - Coreboot firmware
- - StarLite Mk III  - AMI firmware
- - StarLite Mk III  - Coreboot firmware
- - StarLabTop Mk IV - AMI firmware
- - StarLabTop Mk IV - Coreboot firmware
- - StarBook Mk V
+   291	
+   292	static int __maybe_unused imagis_suspend(struct device *dev)
+   293	{
+   294		struct i2c_client *client = to_i2c_client(dev);
+   295		struct imagis_ts *ts = i2c_get_clientdata(client);
+   296		int ret;
+   297	
+   298		mutex_lock(&ts->input_dev->mutex);
+   299	
+ > 300		if (input_device_enabled(ts->input_dev))
+   301			ret = imagis_stop(ts);
+   302	
+   303		mutex_unlock(&ts->input_dev->mutex);
+   304	
+   305		return ret;
+   306	}
+   307	
 
-Acked-by: Peter Hutterer <peter.hutterer@who-t.net>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Acked-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Link: https://lore.kernel.org/r/20220208174806.17183-1-jose.exposito89@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/input.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/input/input.c b/drivers/input/input.c
-index a0d90022fcf73..b031174c8d7f7 100644
---- a/drivers/input/input.c
-+++ b/drivers/input/input.c
-@@ -2118,6 +2118,12 @@ int input_register_device(struct input_dev *dev)
- 	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
- 	__clear_bit(KEY_RESERVED, dev->keybit);
- 
-+	/* Buttonpads should not map BTN_RIGHT and/or BTN_MIDDLE. */
-+	if (test_bit(INPUT_PROP_BUTTONPAD, dev->propbit)) {
-+		__clear_bit(BTN_RIGHT, dev->keybit);
-+		__clear_bit(BTN_MIDDLE, dev->keybit);
-+	}
-+
- 	/* Make sure that bitmasks not mentioned in dev->evbit are clean. */
- 	input_cleanse_bitmasks(dev);
- 
--- 
-2.34.1
-
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org

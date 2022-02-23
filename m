@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92B9AC43217
-	for <linux-input@archiver.kernel.org>; Wed, 23 Feb 2022 02:38:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00055C433FE
+	for <linux-input@archiver.kernel.org>; Wed, 23 Feb 2022 02:38:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237633AbiBWCjL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 22 Feb 2022 21:39:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35662 "EHLO
+        id S237636AbiBWCjM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 22 Feb 2022 21:39:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237876AbiBWCic (ORCPT
+        with ESMTP id S237610AbiBWCh0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Feb 2022 21:38:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B275F4D1;
-        Tue, 22 Feb 2022 18:33:11 -0800 (PST)
+        Tue, 22 Feb 2022 21:37:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35FEF53B53;
+        Tue, 22 Feb 2022 18:32:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D000B81E1D;
-        Wed, 23 Feb 2022 02:33:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35228C340EB;
-        Wed, 23 Feb 2022 02:33:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD45761581;
+        Wed, 23 Feb 2022 02:32:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56396C340EB;
+        Wed, 23 Feb 2022 02:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1645583590;
-        bh=+6XjYk4EJwm/J+lyiGtf8jIrpFJkTC+MKtWsP5gwjrc=;
+        s=k20201202; t=1645583527;
+        bh=TXqZ+EChSCl0LpdGhIFv0gP/aMj5q1dIexiP5V1RYC0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bY7uF0MZ3YPsw8A7sPlRzddGTu01FaRYcidmQ3qIMIW7MtEQ8xl2DGkm/qN5Kc83R
-         FxwgXF51XOc0cNhc/bcReNj8qyIuOYHWUPtLMTH/++nGiaEJIBMt5rlz+0G1x+Z/ab
-         YGI4RmvZ1+gXQ7ja2COc6b/00SAwEBGFJ3qoPXSRXycNou06oeuoamtIJlSIaLMcru
-         pcmdaVhmgcfCjwMz11t3hJ16kb7LsU3d/ttg/Lrn3R6IYDgwlyhbop1DhW8uztIzhg
-         aqHhxBnhOT9IANZl4OojCHiVosRMJcE4v1PYjP0o0zy1DDXyhOPBRIwkivGFRfRcPe
-         XwnshCLAZa+9w==
+        b=u5mT5TZ6fJg5uDz/6hTY0rHBnq7SSwYtq/IBdweuBvpBagynAHkKQ4Fjo6QWbaL40
+         ZBfj1cbCM6Y6IGI4MFxMeCQn1nz8mYz7xi/2eHiN/fDvc2masP5ydW79GorddnxwMn
+         AlYlJSELBVYPVBym881eBhXZY7K0CzXVncisnY8kTcKa0Q0KaI/PjicftferKGC9vG
+         0OCGFnPO5XvAs8RINFHN2R/9uTdHUA7GR/PWYFJA6+6uOOmQj7TzZumoi2LsIy2iqs
+         eoJ8sQxiaq45UomfcbzoyidJBpJtm6LBq5KMihW0GtY6W+rUNS8gy5QWcYb4lXETNf
+         IpcnpbRL8REGw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
@@ -40,12 +40,12 @@ Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
         Jiri Kosina <jkosina@suse.cz>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 4/9] Input: clear BTN_RIGHT/MIDDLE on buttonpads
-Date:   Tue, 22 Feb 2022 21:32:55 -0500
-Message-Id: <20220223023300.242616-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 06/13] Input: clear BTN_RIGHT/MIDDLE on buttonpads
+Date:   Tue, 22 Feb 2022 21:31:45 -0500
+Message-Id: <20220223023152.242065-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220223023300.242616-1-sashal@kernel.org>
-References: <20220223023300.242616-1-sashal@kernel.org>
+In-Reply-To: <20220223023152.242065-1-sashal@kernel.org>
+References: <20220223023152.242065-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -113,10 +113,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 6 insertions(+)
 
 diff --git a/drivers/input/input.c b/drivers/input/input.c
-index 5d94fc3fce0bb..cb31236425a11 100644
+index a0d90022fcf73..b031174c8d7f7 100644
 --- a/drivers/input/input.c
 +++ b/drivers/input/input.c
-@@ -2112,6 +2112,12 @@ int input_register_device(struct input_dev *dev)
+@@ -2118,6 +2118,12 @@ int input_register_device(struct input_dev *dev)
  	/* KEY_RESERVED is not supposed to be transmitted to userspace. */
  	__clear_bit(KEY_RESERVED, dev->keybit);
  

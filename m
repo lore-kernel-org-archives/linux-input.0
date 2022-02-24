@@ -2,119 +2,109 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AB81C43217
-	for <linux-input@archiver.kernel.org>; Thu, 24 Feb 2022 18:20:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8EEF1C433FE
+	for <linux-input@archiver.kernel.org>; Thu, 24 Feb 2022 22:27:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232685AbiBXSVF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 24 Feb 2022 13:21:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
+        id S235474AbiBXW2Z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 24 Feb 2022 17:28:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232672AbiBXSVE (ORCPT
+        with ESMTP id S235479AbiBXW2Y (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Feb 2022 13:21:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ECC52556E4;
-        Thu, 24 Feb 2022 10:20:34 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A56D60B0E;
-        Thu, 24 Feb 2022 18:20:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78637C340E9;
-        Thu, 24 Feb 2022 18:20:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1645726833;
-        bh=cLEjIETcg/OJ3fT0H+e8jwtt0eqs6MXPvVtlC2jV8PQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=nyqKUgzRU2t7o/ub+aIX9fXlhdK+rfzjWeg6vo2QTWXXEN1cewKOjPJRnXe/Nx2Ou
-         loZukuiIEs4ALvJflu8IX4X2HXaPHATG5b/MavRxbxOwMZJ3wpgQEbE6nNuafSBC7u
-         t9TOIji+xztIIxeN2btLZqJmJZ6ub920T/uymotM=
-Date:   Thu, 24 Feb 2022 19:20:25 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Bastien Nocera <hadess@hadess.net>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Shuah Khan <shuah@kernel.org>,
-        Dave Marchevsky <davemarchevsky@fb.com>,
-        Joe Stringer <joe@cilium.io>,
-        Tero Kristo <tero.kristo@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH bpf-next v1 0/6] Introduce eBPF support for HID devices
-Message-ID: <YhfMaYsS3YI9T2nT@kroah.com>
-References: <20220224110828.2168231-1-benjamin.tissoires@redhat.com>
- <YhdsgokMMSEQ0Yc8@kroah.com>
- <f965c04f34aabe93fe8ef91bb4d1ce4d24159173.camel@hadess.net>
+        Thu, 24 Feb 2022 17:28:24 -0500
+Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E968F18647B;
+        Thu, 24 Feb 2022 14:27:53 -0800 (PST)
+Received: by mail-oi1-f171.google.com with SMTP id 12so5378068oix.12;
+        Thu, 24 Feb 2022 14:27:53 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=/Q++PXwW9clpi7EmUird58cb/RjCfYTbDPWAmQD/krg=;
+        b=NSo23BsF2GcfnuiMY8/Bu9zL5r13ggcTQnCjF85JGFDk1UWLEgPIy68ELSPyxXSOuH
+         eCpbzINZ1A26MdgQX7svi0YMHWVsqSHgMtLwAxzyd8OYTg/vZo3p2P1EgTlwVu4ToueA
+         y4HxyIHJnQJSzDtb5YBNF0y+hLBPMUpqUmHGu9mV6l4x5hh5LyRVa+pAjYw4Y/yWUtpA
+         0mZqT9P+snQuzeakOI8k7LCmGBS1HMhULNM17/OTjD/+Hj0rsVELfxNXK9d4ioCXd0iv
+         Xc1j5WlTbMo8mLWjYXe/aSsKzqzIzxCx1U98jrtj1vJ4/qC5KJOZ/lhp6LPzSWHA9AYS
+         0BVQ==
+X-Gm-Message-State: AOAM5332E/hOu70RSLpCBcoSUYkNAanZLnT7ZgXaO9Zyw18+ycPe6e/B
+        NEhhnSTGSQdDdndZbpmY2Q==
+X-Google-Smtp-Source: ABdhPJwx1FD+9eKPTOob58IWuDiHkaicOqaAuTjSLNRT4GyVqROrjSgeyKYq9MX8Tmms8n9PZP6B/A==
+X-Received: by 2002:a05:6870:3121:b0:d2:8163:fd04 with SMTP id v33-20020a056870312100b000d28163fd04mr128825oaa.182.1645741673280;
+        Thu, 24 Feb 2022 14:27:53 -0800 (PST)
+Received: from robh.at.kernel.org (66-90-148-213.dyn.grandenetworks.net. [66.90.148.213])
+        by smtp.gmail.com with ESMTPSA id l34-20020a9d1ca2000000b005acea92e8absm290399ota.42.2022.02.24.14.27.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 24 Feb 2022 14:27:52 -0800 (PST)
+Received: (nullmailer pid 3704065 invoked by uid 1000);
+        Thu, 24 Feb 2022 22:27:51 -0000
+Date:   Thu, 24 Feb 2022 16:27:51 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        devicetree@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v2 1/6] dt-bindings: input: touchscreen: edt-ft5x06: add
+ report-rate
+Message-ID: <YhgGZylBoxlou9ka@robh.at.kernel.org>
+References: <20220217165559.313366-1-dario.binacchi@amarulasolutions.com>
+ <20220217165559.313366-2-dario.binacchi@amarulasolutions.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <f965c04f34aabe93fe8ef91bb4d1ce4d24159173.camel@hadess.net>
+In-Reply-To: <20220217165559.313366-2-dario.binacchi@amarulasolutions.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Feb 24, 2022 at 06:41:18PM +0100, Bastien Nocera wrote:
-> On Thu, 2022-02-24 at 12:31 +0100, Greg KH wrote:
-> > On Thu, Feb 24, 2022 at 12:08:22PM +0100, Benjamin Tissoires wrote:
-> > > Hi there,
-> > > 
-> > > This series introduces support of eBPF for HID devices.
-> > > 
-> > > I have several use cases where eBPF could be interesting for those
-> > > input devices:
-> > > 
-> > > - simple fixup of report descriptor:
-> > > 
-> > > In the HID tree, we have half of the drivers that are "simple" and
-> > > that just fix one key or one byte in the report descriptor.
-> > > Currently, for users of such devices, the process of fixing them
-> > > is long and painful.
-> > > With eBPF, we could externalize those fixups in one external repo,
-> > > ship various CoRe bpf programs and have those programs loaded at
-> > > boot
-> > > time without having to install a new kernel (and wait 6 months for
-> > > the
-> > > fix to land in the distro kernel)
-> > 
-> > Why would a distro update such an external repo faster than they
-> > update
-> > the kernel?  Many sane distros update their kernel faster than other
-> > packages already, how about fixing your distro?  :)
-> > 
-> > I'm all for the idea of using ebpf for HID devices, but now we have
-> > to
-> > keep track of multiple packages to be in sync here.  Is this making
-> > things harder overall?
+On Thu, Feb 17, 2022 at 05:55:53PM +0100, Dario Binacchi wrote:
+> It allows to change the M06/M12 default scan rate.
 > 
-> I don't quite understand how taking eBPF quirks for HID devices out of
-> the kernel tree is different from taking suspend quirks out of the
-> kernel tree:
-> https://www.spinics.net/lists/linux-usb/msg204506.html
+> Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+> Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+> Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+> ---
+> 
+> (no changes since v1)
+> 
+>  .../devicetree/bindings/input/touchscreen/edt-ft5x06.yaml | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> index 2e8da7470513..aa8517c6f65b 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+> @@ -85,6 +85,14 @@ properties:
+>      minimum: 0
+>      maximum: 80
+>  
+> +  report-rate:
 
-A list of all devices possible, and the policy decisions to make on
-those devices, belongs in userspace, not in the kernel.  That's what the
-hwdb contains.
+Use property unit suffix: report-rate-hz
 
-Quirks in order to get the device to work properly is not a policy
-decision, they are needed to get the device to work.  If you wish to
-suspend it or not based on the vendor/product id, in order to possibly
-save some more battery life on some types of systems, is something that
-belongs in userspace.
+This should probably be moved to touchscreen.yaml as it seems common.
 
-If you want to replace the existing HID quirk tables with an ebpf
-program that ships with the kernel, wonderful, I have no objection to
-that.  If a user is required to download the external quirk table just
-to get their device to work with the kernel, that's probably something
-you don't want to do.
+> +    description: Allows setting the scan rate.
+> +                 M06 supports range from 3 (30 Hz) to 14 (140 Hz).
 
-thanks,
+You're using 3 or 30 in this case? Should be 30, but it's not clear. I'd 
+just list the range in Hz and leave the conversion detail to the driver.
 
-greg k-h
+> +                 M12 supports range from 1 (1 Hz) to 255 (255 Hz).
+
+Use '|' if formatting (newline) is significant.
+
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    minimum: 1
+> +    maximum: 255
+> +
+>    touchscreen-size-x: true
+>    touchscreen-size-y: true
+>    touchscreen-fuzz-x: true
+> -- 
+> 2.32.0
+> 
+> 

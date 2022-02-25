@@ -2,52 +2,52 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A91ABC433FE
-	for <linux-input@archiver.kernel.org>; Fri, 25 Feb 2022 00:59:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA3F6C433FE
+	for <linux-input@archiver.kernel.org>; Fri, 25 Feb 2022 00:59:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236244AbiBYBAY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 24 Feb 2022 20:00:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36668 "EHLO
+        id S236250AbiBYBA2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 24 Feb 2022 20:00:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235011AbiBYBAX (ORCPT
+        with ESMTP id S235011AbiBYBA2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Feb 2022 20:00:23 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46ACB2819A5;
-        Thu, 24 Feb 2022 16:59:53 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id ev16-20020a17090aead000b001bc3835fea8so3487781pjb.0;
-        Thu, 24 Feb 2022 16:59:53 -0800 (PST)
+        Thu, 24 Feb 2022 20:00:28 -0500
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F6A2819A5;
+        Thu, 24 Feb 2022 16:59:57 -0800 (PST)
+Received: by mail-pj1-x102c.google.com with SMTP id g7-20020a17090a708700b001bb78857ccdso7134568pjk.1;
+        Thu, 24 Feb 2022 16:59:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=1LYyiuzySTYab5AWLbomJLC5ogjyw6DZmtGr16Spi3E=;
-        b=kA4ahrerTGSfUevzXA6H2Nksdb2K+8y4H8Xe552TZ11Kq+zljpuVJewrtwLwelw66j
-         BXGMOhMfp5uOO5mEGvNLvdMsaLS+nh8E0XYtecGZpVI5LkBA/zZscDlq6vqFtSAdHOMX
-         esiiflHUCm1zm6gxSQuKW/xl37CpWl2iQGsQQ0pQPkwKT9ENJC/L+vSy5bmgk8CY/v11
-         WGSPEczMSLgoY5FmnaKEti1Myhkhqy1eWvUlgxLPcWwCLTL9R6Cm0Ska8TGJyWtLyQvQ
-         JMzb7HlAjTP/kYhj58GGd1QfXokG+cK3tNI+RIhfuhmEQ+/7wKvaLvMTh0GjNXofDqd6
-         xwkA==
+        bh=6EWyaMMYxkR6QrMTTPuTdCMdFqQCShfK75s5KB/a8bE=;
+        b=iYYYyzct1rtnaZpyXdDkdwkSaiIq3evKHmOH/5cvawQxAR7NXtzbuE+79MrNsEorq6
+         kxbt1/Gcba227rimkySrhpSRiGNBNNnsHzh6IIReC9X87nYWye5oBVxQMd4RlVszQmgf
+         xxqhyOh2yIqz6yYsEHTQSmADgaVZyvu+78ebE2UpnaAr0u60Wn6YD3y9F6dPThNeXbiT
+         yXmCM/7gM0LhSnpgg9HT9Z/gLypO/yNOPBk/h2IS3Om+SCXEDtAFoLhg3eoubR9NR1lv
+         hmpTiGnuRydO9IQ57gZkTZPqDPb9XbnXUWqmnZgSNyF1okA5GRnRH4ctWoqqIGxazzkQ
+         B6Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=1LYyiuzySTYab5AWLbomJLC5ogjyw6DZmtGr16Spi3E=;
-        b=7lKwvc+uy3qjjvQQEim7UJ2bSt7njp3NJ00sQUwesjvIt/nG9yjfqfAgef9dO8bc5a
-         xVhzF19TfzoBBTtZp3suRi9i43gGjwR5eIGlW2vgPXzfsurKoRHcPp2Mt7UycKsn4oDU
-         2F9fcd4ebXe1cWCGzbyZ/TKS8vPEXyWcsG50L9wOvThJsybE+WaTJU4A0A2D6h1pvkQD
-         M4upeHiJ3g7Rh+2zJaozbRAIt5RtymjTJCQZRUINapyYK1TtaDDFUM0lNx4+3gIIm6lA
-         c1VU8yUWTOVLwZno6IiBb6T+b7caSw2mG9ifj27k/YyGwEIpx5xwSjhEozMHMaY9BGqY
-         eGpA==
-X-Gm-Message-State: AOAM532Na8EQDd0FlupxqQW/G5KNHxNQI7/jTNOhWOagMblL0O5QUsMO
-        sxwXlFYEQnr5QSr9+24hrymmGDwGnp4=
-X-Google-Smtp-Source: ABdhPJyHupZy2cugbsFgHGZ8p4gJ5YOcfPBkYXZtYFXlhIZnrIVfdN/VaqdAmLOmeEh0xvbMpk/3JQ==
-X-Received: by 2002:a17:90a:2849:b0:1bc:50a8:6970 with SMTP id p9-20020a17090a284900b001bc50a86970mr702116pjf.193.1645750792788;
-        Thu, 24 Feb 2022 16:59:52 -0800 (PST)
+        bh=6EWyaMMYxkR6QrMTTPuTdCMdFqQCShfK75s5KB/a8bE=;
+        b=0zXj1tS+TNZYRejowC//buQFTz1GuFV2aBdHy5h21mEaas2vzION1f5epPfG540T6N
+         Si8jQ1GIL2pfc7vUmKVc/6u65fp/UbY0KvCX3BYrh318ttYS/MzkhqNm6zRTyWX6LCXo
+         j2XYGwjvPfNwLMBIS2/tVZ6Lmy4HgAZt7nfPnuHHquYuaDDXkIXjwgisN1mtUt6rS3Lr
+         RaAYOGOAamEqeU8MHQlHq0li612F6icbqP8om+jIp9OGYvLjpr4zGwsqGLUojnF05E9I
+         Fqp+3B5267TwoTRp58LX/bOcVmUe5jbu1+9mzut+jkLTg3+QabDLrU85j2BRjVa7yHGS
+         C2jA==
+X-Gm-Message-State: AOAM530gmgmZgkhaagRVTy04YmF0wLqaqaqYwu2YPoS95LXibUIz+diq
+        YCH7FfWYi5cFejLgZSqUfQo=
+X-Google-Smtp-Source: ABdhPJzFh/y51RKbBE4tS0+AHOx5+Wqi0e85dya5bsiwNEplJof1+O5GnWW4yryTtinnJG3oiciE1A==
+X-Received: by 2002:a17:902:b692:b0:14c:935b:2b03 with SMTP id c18-20020a170902b69200b0014c935b2b03mr5291975pls.81.1645750797131;
+        Thu, 24 Feb 2022 16:59:57 -0800 (PST)
 Received: from thelio.corp.microsoft.com ([2001:4898:80e8:36:37cd:6bd:2964:3d5e])
-        by smtp.gmail.com with ESMTPSA id w5-20020a056a0014c500b004f3a5535431sm742070pfu.4.2022.02.24.16.59.52
+        by smtp.gmail.com with ESMTPSA id w5-20020a056a0014c500b004f3a5535431sm742070pfu.4.2022.02.24.16.59.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Feb 2022 16:59:52 -0800 (PST)
+        Thu, 24 Feb 2022 16:59:56 -0800 (PST)
 From:   Dmitry Antipov <daantipov@gmail.com>
 X-Google-Original-From: Dmitry Antipov <dmanti@microsoft.com>
 To:     Jiri Kosina <jikos@kernel.org>,
@@ -58,9 +58,9 @@ To:     Jiri Kosina <jikos@kernel.org>,
         Felipe Balbi <balbi@kernel.org>
 Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-spi@vger.kernel.org, Dmitry Antipov <dmanti@microsoft.com>
-Subject: [PATCH v4 4/6] Documentation: Correction in HID output_report callback description.
-Date:   Thu, 24 Feb 2022 16:59:34 -0800
-Message-Id: <20220225005936.3485405-5-dmanti@microsoft.com>
+Subject: [PATCH v4 6/6] Defconfig: add CONFIG_SPI_HID=m
+Date:   Thu, 24 Feb 2022 16:59:36 -0800
+Message-Id: <20220225005936.3485405-7-dmanti@microsoft.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220225005936.3485405-1-dmanti@microsoft.com>
 References: <20220225005936.3485405-1-dmanti@microsoft.com>
@@ -72,30 +72,25 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Dmitry Antipov <dmanti@microsoft.com>
 
-Originally output_report callback was described as must-be asynchronous,
-but that is not the case in some implementations, namely i2c-hid.
-Correct the documentation to say that it may be asynchronous.
+This enables building drivers/hid/spi-hid as module.
 
 Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
 ---
- Documentation/hid/hid-transport.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/configs/defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/hid/hid-transport.rst b/Documentation/hid/hid-transport.rst
-index 6f1692da296c..2008cf432af1 100644
---- a/Documentation/hid/hid-transport.rst
-+++ b/Documentation/hid/hid-transport.rst
-@@ -327,8 +327,8 @@ The available HID callbacks are:
- 
-    Send raw output report via intr channel. Used by some HID device drivers
-    which require high throughput for outgoing requests on the intr channel. This
--   must not cause SET_REPORT calls! This must be implemented as asynchronous
--   output report on the intr channel!
-+   must not cause SET_REPORT calls! This call might be asynchronous, so the
-+   caller should not expect an immediate response!
- 
-    ::
- 
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index f2e2b9bdd702..25249a4b0c8a 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -805,6 +805,7 @@ CONFIG_SND_AUDIO_GRAPH_CARD=m
+ CONFIG_HID_MULTITOUCH=m
+ CONFIG_I2C_HID_ACPI=m
+ CONFIG_I2C_HID_OF=m
++CONFIG_SPI_HID=m
+ CONFIG_USB_CONN_GPIO=m
+ CONFIG_USB=y
+ CONFIG_USB_OTG=y
 -- 
 2.25.1
 

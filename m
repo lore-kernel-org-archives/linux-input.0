@@ -2,113 +2,128 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C40BC433EF
-	for <linux-input@archiver.kernel.org>; Tue,  1 Mar 2022 07:28:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C8E1C433FE
+	for <linux-input@archiver.kernel.org>; Tue,  1 Mar 2022 07:44:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229476AbiCAH3g (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 1 Mar 2022 02:29:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36946 "EHLO
+        id S233088AbiCAHp1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 1 Mar 2022 02:45:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232413AbiCAH3f (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Mar 2022 02:29:35 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49EA944740;
-        Mon, 28 Feb 2022 23:28:55 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id ev16-20020a17090aead000b001bc3835fea8so1485879pjb.0;
-        Mon, 28 Feb 2022 23:28:55 -0800 (PST)
+        with ESMTP id S233072AbiCAHpW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Mar 2022 02:45:22 -0500
+Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BF0C56760;
+        Mon, 28 Feb 2022 23:44:41 -0800 (PST)
+Received: by mail-wr1-x434.google.com with SMTP id v21so18993932wrv.5;
+        Mon, 28 Feb 2022 23:44:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=Ux6f0w+/rugl91b1fITi77MXLqhRABNU0vOsRDVUGr8=;
-        b=YTabYLTKvQUeycuTSVEF/GiCuWpt3dgzOnXmHVGIW5yXqUpnGHRl3YRcr38JpbcBBW
-         Dm772Fy0OzObt5rK9mLNV/0VXmDdFEYx+mI41ROMORsvCAd9He+WqFpMQr1bYIavmPLw
-         MsiK3pf7qxNeYndwU8tfJFmIoagPMRRwyMoshRqDaKmolGlQzEuZmumkFKJ7ibMY2Bny
-         IualYTy+dBZltLnDYQuMSVA5Mh2jeC+pIz5I9HFRprbwHNScxq5H7NQ/17cwatg/WdG5
-         UTlzxG8bk0JAp800rnrOmHSkmoTAZHmXw1NALtBdORhqF6bU/ldszfPZ7nLinp9vLLPH
-         bwgQ==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=9N9OiuGebRhfkNZJOLbrZK8yGd1uJ/RwgoMHb8+66t8=;
+        b=Bd+fGZjkwpi83khB3kaCW3TE7uA/n0ymRuN9QLFQQG4LrHj5rvdwgc1wEwX1Xxn6sq
+         DksXh6oU6CV9jSuMHBZvENgFiZud2pXFODfMSYUY6B24NNYWtSbHdkbY1C1b2koSfK8N
+         cWfgc47rnHia0nC6rcp7kmcPM2WaJBcMweTZJ73ldxsU5WkDvzbrwXdejlkplE1RXDrb
+         Ko3Ss7B4j3V6l0gIMXvvjcLhgknSGYPU0QV5Rry0O2dIp09EgT16VTg1/HM404dVNBJH
+         UGYDpiS8V3stQQI9uPZeejn4KCymYULGHOZDo4EB+H/EsNQxSDITLDXHNHEgD4ct5EnX
+         SkFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=Ux6f0w+/rugl91b1fITi77MXLqhRABNU0vOsRDVUGr8=;
-        b=f5xcHe7zCxCMCpuXuT3PWLuFayFczaVgAuNsZZbNJCIA4EGqCa8s1TfD9CHIo3IEHE
-         upwBrfvb5unNwklALK3aHB4QN/zpDacRnof7mUbSihqy5Ikl6vcasFe+RrKX0kTzKw5q
-         vOM63mZtDpwd/vHnN7V9GaPcRgaVHr+LR62UGcUo1aSd1ynH56DLay0v1FYvY6FBM/1U
-         BLBUiR2I900kFgP126LJ75pHsrgX0IGpJUZPzHrA2KoxUHOsUg6tKk3lnhwl/PgNNE8D
-         4xuXrgYThbvGLcg/NsnYws448xjd3JtFFW5vTqDLAM4bhOoolXy1vo/My4oo9+7xEXC9
-         2Ppw==
-X-Gm-Message-State: AOAM5322Fd0SD2m9L3884mPKFj3qqxAkeGqFnwA0uQDReS8Uni2kddPL
-        +j+txx98akkJQ2iB4vbDkKQ=
-X-Google-Smtp-Source: ABdhPJyCTEG7fLlL28LAVzdKcGkZaYShISnGyiIPsrN+MzQul1f6SxT7Vb0F786PVAqpULT+rWwcRQ==
-X-Received: by 2002:a17:903:1206:b0:151:7d67:2924 with SMTP id l6-20020a170903120600b001517d672924mr2920678plh.45.1646119734656;
-        Mon, 28 Feb 2022 23:28:54 -0800 (PST)
-Received: from google.com ([2620:15c:202:201:c174:264:5e49:f2cb])
-        by smtp.gmail.com with ESMTPSA id w17-20020a056a0014d100b004f1063290basm15953880pfu.15.2022.02.28.23.28.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 28 Feb 2022 23:28:53 -0800 (PST)
-Date:   Mon, 28 Feb 2022 23:28:51 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     William Mahon <wmahon@chromium.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        William Mahon <wmahon@google.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org
-Subject: Re: [PATCH v2] HID: Add mapping for KEY_ALL_APPLICATIONS
-Message-ID: <Yh3LMzmru8cngoGT@google.com>
-References: <20220218233350.1.I3a7746ad05d270161a18334ae06e3b6db1a1d339@changeid>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=9N9OiuGebRhfkNZJOLbrZK8yGd1uJ/RwgoMHb8+66t8=;
+        b=JIxfXZCA52AIZ6+hRPo/40ZO8Gy3VFXOGaEi/Vz02wi4IiaQ6yUUnTGWl/z8tk+K5x
+         /a2cQ08EWbJ9lTundmx2oFVScjl9vmk4WWycfTPBsMML2FCEooAZqciQj4V8IId34dtK
+         Ds6gAc6Vl14bblBinblxYilUOVgNOIyn5C8I6ELovC2OXMr+Ok0U/3HhKn2rLBP+Ut+J
+         lyd+XOi3YbieheVgZnKza2RJ7AS/2/YWKZAnvTIhdfjZ2q5ZIIeGlcyxgSeOhKP9Zj69
+         YYNRLVW1zAjWcG1Z6Cf14LcH7lx9uWGQdJcrPX38YY5tvpftkSa85K3eaLU2sZSvu4Zf
+         3+yA==
+X-Gm-Message-State: AOAM532cc/v1ncTtATk9hCcHPLDs34Lk8WOEWxtq408ACTmt1lkKS/Zv
+        0tBfwlrhEj2tDYebamYtRDU=
+X-Google-Smtp-Source: ABdhPJxBUb5/MBYpZP4ycan/j5lwLp+Y/Q02GVioXh44+q0ranawE0HXM7MhI3mcgC5A8bu7SuyoOw==
+X-Received: by 2002:a5d:62c9:0:b0:1ea:940f:d929 with SMTP id o9-20020a5d62c9000000b001ea940fd929mr18519621wrv.164.1646120680070;
+        Mon, 28 Feb 2022 23:44:40 -0800 (PST)
+Received: from [192.168.2.177] ([207.188.167.132])
+        by smtp.gmail.com with ESMTPSA id m34-20020a05600c3b2200b00380e3225af9sm1717859wms.0.2022.02.28.23.44.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 28 Feb 2022 23:44:39 -0800 (PST)
+Message-ID: <ecb43ffc-48ff-97ab-c411-0597f356dd1a@gmail.com>
+Date:   Tue, 1 Mar 2022 08:44:38 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220218233350.1.I3a7746ad05d270161a18334ae06e3b6db1a1d339@changeid>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v4 4/4] arm64: dts: mt6358: add mt6358-keys node
+Content-Language: en-US
+To:     Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Cc:     Fabien Parent <fparent@baylibre.com>,
+        Kevin Hilman <khilman@baylibre.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
+References: <20220121140323.4080640-1-mkorpershoek@baylibre.com>
+ <20220121140323.4080640-5-mkorpershoek@baylibre.com>
+ <87v8xps705.fsf@baylibre.com>
+From:   Matthias Brugger <matthias.bgg@gmail.com>
+In-Reply-To: <87v8xps705.fsf@baylibre.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Feb 18, 2022 at 11:35:49PM +0000, William Mahon wrote:
-> This patch adds a new key definition for KEY_ALL_APPLICATIONS
-> which is an alias of KEY_DASHBOARD.
-> 
-> It also maps the 0x0c/0x2a2 usage code to KEY_ALL_APPLICATIONS.
 
-Jiri, Benjamin, OK for me to pick it up?
+
+On 08/02/2022 16:38, Mattijs Korpershoek wrote:
+> Hi Matthias,
+> 
+> On ven., janv. 21, 2022 at 15:03, Mattijs Korpershoek <mkorpershoek@baylibre.com> wrote:
+> 
+>> This enables the power,home keys on MediaTek boards with a mt6358 pmic.
+>>
+>> Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+> Since the driver change has been merged [1], can we queue up the DT change?
+> Or should I resubmit this separately?
+> 
+> Thanks
+
+Applied, thanks!
 
 > 
-> Signed-off-by: William Mahon <wmahon@google.com>
-> ---
-> 
->  drivers/hid/hid-input.c                | 2 ++
->  include/uapi/linux/input-event-codes.h | 1 +
->  2 files changed, 3 insertions(+)
-> 
-> diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-> index eccd89b5ea9f..c3e303c1d8d1 100644
-> --- a/drivers/hid/hid-input.c
-> +++ b/drivers/hid/hid-input.c
-> @@ -1162,6 +1162,8 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
->  
->  		case 0x29d: map_key_clear(KEY_KBD_LAYOUT_NEXT);	break;
->  
-> +		case 0x2a2: map_key_clear(KEY_ALL_APPLICATIONS);	break;
-> +
->  		case 0x2c7: map_key_clear(KEY_KBDINPUTASSIST_PREV);		break;
->  		case 0x2c8: map_key_clear(KEY_KBDINPUTASSIST_NEXT);		break;
->  		case 0x2c9: map_key_clear(KEY_KBDINPUTASSIST_PREVGROUP);		break;
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 311a57f3e01a..e520f22c1b8d 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -279,6 +279,7 @@
->  #define KEY_PROG3		202
->  #define KEY_PROG4		203
->  #define KEY_DASHBOARD		204	/* AL Dashboard */
-> +#define KEY_ALL_APPLICATIONS KEY_DASHBOARD
->  #define KEY_SUSPEND		205
->  #define KEY_CLOSE		206	/* AC Close */
->  #define KEY_PLAY		207
-> -- 
-> 2.35.1.473.g83b2b277ed-goog
-> 
-
--- 
-Dmitry
+> [1] https://lore.kernel.org/all/YgIE%2F806gDmRJYCn@google.com/
+>> ---
+>>   arch/arm64/boot/dts/mediatek/mt6358.dtsi | 12 ++++++++++++
+>>   1 file changed, 12 insertions(+)
+>>
+>> diff --git a/arch/arm64/boot/dts/mediatek/mt6358.dtsi b/arch/arm64/boot/dts/mediatek/mt6358.dtsi
+>> index 95145076b7e6..98f3b0e0c9f6 100644
+>> --- a/arch/arm64/boot/dts/mediatek/mt6358.dtsi
+>> +++ b/arch/arm64/boot/dts/mediatek/mt6358.dtsi
+>> @@ -2,6 +2,7 @@
+>>   /*
+>>    * Copyright (c) 2020 MediaTek Inc.
+>>    */
+>> +#include <dt-bindings/input/input.h>
+>>   
+>>   &pwrap {
+>>   	pmic: mt6358 {
+>> @@ -357,5 +358,16 @@ mt6358_vsim2_reg: ldo_vsim2 {
+>>   		mt6358rtc: mt6358rtc {
+>>   			compatible = "mediatek,mt6358-rtc";
+>>   		};
+>> +
+>> +		mt6358keys: mt6358keys {
+>> +			compatible = "mediatek,mt6358-keys";
+>> +			power {
+>> +				linux,keycodes = <KEY_POWER>;
+>> +				wakeup-source;
+>> +			};
+>> +			home {
+>> +				linux,keycodes = <KEY_HOME>;
+>> +			};
+>> +		};
+>>   	};
+>>   };
+>> -- 
+>> 2.32.0

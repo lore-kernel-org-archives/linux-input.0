@@ -2,141 +2,196 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F696C433FE
-	for <linux-input@archiver.kernel.org>; Tue,  1 Mar 2022 07:51:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 74E48C433EF
+	for <linux-input@archiver.kernel.org>; Tue,  1 Mar 2022 07:54:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233105AbiCAHvz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 1 Mar 2022 02:51:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55684 "EHLO
+        id S232926AbiCAHza (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 1 Mar 2022 02:55:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232923AbiCAHvy (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Mar 2022 02:51:54 -0500
-Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABF7970F71;
-        Mon, 28 Feb 2022 23:51:11 -0800 (PST)
-Received: from relay11.mail.gandi.net (unknown [217.70.178.231])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id C52A4C3D50;
-        Tue,  1 Mar 2022 07:40:13 +0000 (UTC)
-Received: (Authenticated sender: miquel.raynal@bootlin.com)
-        by mail.gandi.net (Postfix) with ESMTPSA id 2B2C310000D;
-        Tue,  1 Mar 2022 07:40:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-        t=1646120409;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=1EOlbUxAApC61mQjvw+lG70+JM2jHWLUjBcqvnLcepA=;
-        b=EWUY1TKvGS6Yg129zF29NgHJHMwcv48rJCLCe7SF45JHcNNriVOQo+vcGiYixEAaHnyulB
-        nJQBl068EP/pSVzbkdxbgXCJZTn/Woy6xox0qwrhuWnLDJmO7Aw8fafuMklMsuzENOIIXz
-        c+TC7F7dcVRu1QNFnUnAFY2l+9/i9oBUcQ4iFhctYdJL7TClStx6/rANhA1Sbvyn0M96zz
-        DN43uNBfzPSoxhjSP8ns2qwAGgi1xkMICNqykUP4WLVTs0I1l9IOPWWY8T3PooNnoadHUN
-        InLV/E29BXUcvgd0jZP/wxq0rm/fa2yidd9Or23IERKtnX+02I184mza7r59qQ==
-Date:   Tue, 1 Mar 2022 08:40:01 +0100
-From:   Miquel Raynal <miquel.raynal@bootlin.com>
-To:     Rob Herring <robh@kernel.org>
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Lee Jones <lee.jones@linaro.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Richard Weinberger <richard@nod.at>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        dri-devel@lists.freedesktop.org,
-        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-mtd@lists.infradead.org,
-        netdev@vger.kernel.org, linux-phy@lists.infradead.org,
-        linux-pm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        linux-usb@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: Another pass removing cases of 'allOf'
- containing a '$ref'
-Message-ID: <20220301084001.3771855e@xps13>
-In-Reply-To: <20220228213802.1639658-1-robh@kernel.org>
-References: <20220228213802.1639658-1-robh@kernel.org>
-Organization: Bootlin
-X-Mailer: Claws Mail 3.17.7 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+        with ESMTP id S232870AbiCAHz3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Mar 2022 02:55:29 -0500
+Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 190E77084D;
+        Mon, 28 Feb 2022 23:54:49 -0800 (PST)
+Received: by mail-pg1-x534.google.com with SMTP id z4so13743469pgh.12;
+        Mon, 28 Feb 2022 23:54:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=KEx2JGViLwcI+BrMNbHeZh7nenUs9gi67goKdHZSYc8=;
+        b=e8KXOBibxwQZRKcDEUvVd6vFCs4MQClZJig4pCXA4K2kpzJEYl1sH4KUmVuSSBN6wV
+         9WtpNc0rKThPBANdm0DjKOumpIWZJYeSjJVgnu+BQWIFk5gmZdONb2dAJnM7XEgJWSP3
+         X35+XXx5un117T53vhWVhSovk4iwnDb0n2b0snYOS95F1sK9d7hsVR6Ii0EOqGI/mh4f
+         xhcp1Aa0Y+wOIruy64n84WJCmmUqjp/rPOqxFyw3z/rpADerWC7hKZcDCUwKSfAxVkzJ
+         DGV+UrxwqFv8a/rWbFobivtd5994p0KnXCLC/WFeJZgSLZ89uGE0woefHnR+jkHNwGK4
+         QcnQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=KEx2JGViLwcI+BrMNbHeZh7nenUs9gi67goKdHZSYc8=;
+        b=O8eUdArIR47e68Z5V4wgWgNNoExkqpW4o4EGAO0XrGhIztOAUVkymdR9olk05yo0rg
+         wi5ptC7bb53FaVMDUdq04H9K2VnFFfwfxQjQ4GXf0rnnSkbpEg71kltG/vHz51Uwshf/
+         w9b2qFWvXuVUie5QI9kDr4x8NBOgjeY6ErBOQRmpDR1QyJeEz+9DyMC8u+ukr780lDxu
+         jiLaORBruC6lyW/iJDDR2y+aXS5abZMWVITLzbyXHwYoQtyxfUExbjmEiyDAVjU/HOXO
+         cYyR5qSBUNAmdnM83vlW8ptVRMlyGwHcBgnCr/C9AMO/zH6FB5TBFH9vYgNGnwjzYm0s
+         HUiw==
+X-Gm-Message-State: AOAM530NWbxp482kjZzQCwHpwmqqYR2SoO8TVOnbypfnL5oyRUjzBj6f
+        KJK1K0Udov1quG33NvcscLc=
+X-Google-Smtp-Source: ABdhPJwmYurVDHM3TNl9YIqF98zayucUEXhgtjAyOLqNoZBvPBYsp8eKH0LTsQjPORvpTe/p+ex04Q==
+X-Received: by 2002:a63:3587:0:b0:374:a41b:6d78 with SMTP id c129-20020a633587000000b00374a41b6d78mr20430679pga.138.1646121288423;
+        Mon, 28 Feb 2022 23:54:48 -0800 (PST)
+Received: from google.com ([2620:15c:202:201:c174:264:5e49:f2cb])
+        by smtp.gmail.com with ESMTPSA id lp4-20020a17090b4a8400b001bedba2df04sm1066669pjb.30.2022.02.28.23.54.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 28 Feb 2022 23:54:47 -0800 (PST)
+Date:   Mon, 28 Feb 2022 23:54:45 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Werner Sembach <wse@tuxedocomputers.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, tiwai@suse.de,
+        mpdesouza@suse.com, arnd@arndb.de, samuel@cavoj.net,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] input/i8042: Add TUXEDO/Clevo devices to i8042 quirk
+ tables
+Message-ID: <Yh3RRT7xgY+PJfrQ@google.com>
+References: <20220228114819.32949-1-wse@tuxedocomputers.com>
+ <af476269-0722-218d-0fe6-404a9bab736f@redhat.com>
+ <a6bfc728-dd47-84fa-1587-3af3049cb0c9@tuxedocomputers.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a6bfc728-dd47-84fa-1587-3af3049cb0c9@tuxedocomputers.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Rob,
+Hi,
 
-robh@kernel.org wrote on Mon, 28 Feb 2022 15:38:02 -0600:
+On Mon, Feb 28, 2022 at 07:50:55PM +0100, Werner Sembach wrote:
+> Am 28.02.22 um 14:00 schrieb Hans de Goede:
+> > Hi all,
+> >
+> > On 2/28/22 12:48, Werner Sembach wrote:
+> >> A lot of modern Clevo barebones have touchpad and/or keyboard issues after
+> >> suspend, fixable with reset + nomux + nopnp + noloop. Luckily, none of them
+> >> have an external PS/2 port so this can safely be set for all of them.
+> >>
+> >> I'm not entirely sure if every device listed really needs all four quirks,
+> >> but after testing and production use. No negative effects could be
+> >> observed when setting all four.
+> >>
+> >> The list is quite massive as neither the TUXEDO nor the Clevo dmi strings
+> >> have been very consistent historically. I tried to keep the list as short
+> >> as possible without risking on missing an affected device.
+> >>
+> >> This is revision 2 where the Clevo N150CU barebone is removed again, as it
+> >> might have problems with the fix and needs further investigations. Also
+> >> the SchenkerTechnologiesGmbH System-/Board-Vendor string variations are
+> >> added.
+> >>
+> >> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+> >> Cc: stable@vger.kernel.org
+> > Looking at the patch I think it would be better to split this into
+> > 2 patches":
+> >
+> > 1. Merge all the existing separate tables into 1 table and use the dmi_system_id.driver_data
+> > field to store which combination of the 4 quirks apply to which models.
+> >
+> > This will already help reducing the tables since some of the models are
+> > already listed in 2 or more tables. So you would get something like this:
+> >
+> > #define SERIO_QUIRK_RESET		BIT(0)
+> > #define SERIO_QUIRK_NOMUX		BIT(1)
+> > #define SERIO_QUIRK_NOPNP		BIT(2)
+> > #define SERIO_QUIRK_NOLOOP		BIT(3)
+> > #define SERIO_QUIRK_NOSELFTEST		BIT(4)
+> > // etc.
+> >
+> > static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+> >         {
+> >                 /* Entroware Proteus */
+> >                 .matches = {
+> >                         DMI_MATCH(DMI_SYS_VENDOR, "Entroware"),
+> >                         DMI_MATCH(DMI_PRODUCT_NAME, "Proteus"),
+> >                         DMI_MATCH(DMI_PRODUCT_VERSION, "EL07R4"),
+> >                 },
+> > 		.driver_data = (void *)(SERIO_QUIRK_RESET | SERIO_QUIRK_NOMUX)
+> >         },
+> > 	{}
+> > };
+> >
+> > I picked the Entroware EL07R4 as example here because it needs both the reset and nomux quirks.
+> >
+> > And then when checking the quirks do:
+> >
+> > #ifdef CONFIG_X86
+> > 	const struct dmi_system_id *dmi_id;
+> > 	long quirks = 0;
+> >
+> > 	dmi_id = dmi_first_match(i8042_dmi_quirk_table);
+> > 	if (dmi_id)
+> > 		quirks = (long)dmi_id->driver_data;
+> >
+> > 	if (i8042_reset == I8042_RESET_DEFAULT) {
+> > 		if (quirks & SERIO_QUIRK_RESET)
+> > 			i8042_reset = I8042_RESET_ALWAYS;
+> > 		if (quirks & SERIO_QUIRK_NOSELFTEST)
+> > 			i8042_reset = I8042_RESET_NEVER;
+> > 	}
+> >
+> > 	//etc.
+> >
+> >
+> > This way you can reduce all the tables to just 1 table. Please
+> > also sort the table alphabetically, first by vendor, then sub-sort
+> > by model. This way you can find more entries to merge and it
+> > is a good idea to have big tables like this sorted in some way
+> > regardless.
+> >
+> >
+> > And then once this big refactoring patch is done (sorry), you
+> > can add a second patch on top:
+> >
+> > 2. Add the models you want to quirk to the new merged tabled
+> > and now you only need to add 1 table entry per model, rather
+> > then 4, making the patch much smaller.
+> >
+> >
+> > This is a refactoring which IMHO we should likely already
+> > have done a while ago, but now with your patch it really is
+> > time we do this.
+> >
+> > I hope the above makes sense, if not don't hesitate to ask
+> > questions. Also note this is how *I* would do this, but
+> > I'm not the input subsys-maintainer, ultimately this is
+> > Dmitry's call and he may actually dislike with I'm proposing!
+> Yes, it does make sense. I could follow you and I too think it's a good idea. I will hopefully find time to work on this
+> refactoring in the next days.
 
-> Another pass at removing unnecessary use of 'allOf' with a '$ref'.
->=20
-> json-schema versions draft7 and earlier have a weird behavior in that
-> any keywords combined with a '$ref' are ignored (silently). The correct
-> form was to put a '$ref' under an 'allOf'. This behavior is now changed
-> in the 2019-09 json-schema spec and '$ref' can be mixed with other
-> keywords.
->=20
-> Cc: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-> Cc: Thierry Reding <thierry.reding@gmail.com>
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: Pavel Machek <pavel@ucw.cz>
-> Cc: Lee Jones <lee.jones@linaro.org>
-> Cc: Guenter Roeck <groeck@chromium.org>
-> Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-> Cc: Richard Weinberger <richard@nod.at>
-> Cc: Vignesh Raghavendra <vigneshr@ti.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Kishon Vijay Abraham I <kishon@ti.com>
-> Cc: Vinod Koul <vkoul@kernel.org>
-> Cc: Sebastian Reichel <sre@kernel.org>
-> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-> Cc: Mark Brown <broonie@kernel.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: linux-arm-kernel@lists.infradead.org
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-leds@vger.kernel.org
-> Cc: linux-mtd@lists.infradead.org
-> Cc: netdev@vger.kernel.org
-> Cc: linux-phy@lists.infradead.org
-> Cc: linux-pm@vger.kernel.org
-> Cc: linux-remoteproc@vger.kernel.org
-> Cc: alsa-devel@alsa-project.org
-> Cc: linux-spi@vger.kernel.org
-> Cc: linux-usb@vger.kernel.org
-> Signed-off-by: Rob Herring <robh@kernel.org>
-> ---
->  .../bindings/connector/usb-connector.yaml         |  3 +--
->  .../bindings/display/brcm,bcm2711-hdmi.yaml       |  3 +--
->  .../bindings/display/bridge/adi,adv7511.yaml      |  5 ++---
->  .../bindings/display/bridge/synopsys,dw-hdmi.yaml |  5 ++---
->  .../bindings/display/panel/display-timings.yaml   |  3 +--
->  .../devicetree/bindings/display/ste,mcde.yaml     |  4 ++--
->  .../devicetree/bindings/input/adc-joystick.yaml   |  9 ++++-----
->  .../bindings/leds/cznic,turris-omnia-leds.yaml    |  3 +--
->  .../devicetree/bindings/leds/leds-lp50xx.yaml     |  3 +--
->  .../devicetree/bindings/mfd/google,cros-ec.yaml   | 12 ++++--------
->  .../devicetree/bindings/mtd/nand-controller.yaml  |  8 +++-----
->  .../bindings/mtd/rockchip,nand-controller.yaml    |  3 +--
+Yes, I think this is a great idea as we have many instances where
+the same entries are present in several tables.
 
-For MTD bindings:
+> >
+> > I don't expect that Dmitry will dislike this, but you never know.
+> >
+> > Also unfortunately Dmitry lately has only a limited amount of
+> > time to spend on input subsys maintenance so in my experience
+> > it may be a while before you get a reply from Dmitry.
+> 
+> Ok, thanks for the info. As I wrote in the other mail, I was worried (or paranoid xD) that I got flagged as spam or
+> something.
 
-Acked-by: Miquel Raynal <miquel.raynal@bootlin.com>
+It did indeed, I am not sure why. This does not invalidate what Hans
+said - lately I was not able to spend as much time on input as I wanted.
 
-Thanks,
-Miqu=C3=A8l
+Regarding this patch - it looks like board names are pretty unique in
+many cases, so I wonder if we could not save some memory by omitting the
+vendor info (especially because some, like "Notebook", are very generic
+anyways) and go simply by the board.
+
+Thanks.
+
+-- 
+Dmitry

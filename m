@@ -2,349 +2,149 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 73ECBC433EF
-	for <linux-input@archiver.kernel.org>; Thu,  3 Mar 2022 15:43:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB83AC4332F
+	for <linux-input@archiver.kernel.org>; Thu,  3 Mar 2022 16:31:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234676AbiCCPoH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 3 Mar 2022 10:44:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39094 "EHLO
+        id S234231AbiCCQc1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 3 Mar 2022 11:32:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234686AbiCCPoC (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Mar 2022 10:44:02 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93AFA156781
-        for <linux-input@vger.kernel.org>; Thu,  3 Mar 2022 07:43:11 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id p9so8442250wra.12
-        for <linux-input@vger.kernel.org>; Thu, 03 Mar 2022 07:43:11 -0800 (PST)
+        with ESMTP id S232003AbiCCQc1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Mar 2022 11:32:27 -0500
+Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E882D19D610;
+        Thu,  3 Mar 2022 08:31:40 -0800 (PST)
+Received: by mail-lj1-x236.google.com with SMTP id bn33so7498928ljb.6;
+        Thu, 03 Mar 2022 08:31:40 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ynBA5JusP+HWw0SkfuMm+jB0bBtySaXrkPMgqc+u0pk=;
-        b=nCvMdfTqmjQjVbYBG7xngfG+rtZeLlLkAduFI5k5zIsopuq2s0s7sWpsj3guMfLuur
-         IksKTTja9XKKbe0d5eYvHinAGnOFpYDoFgDCSXyMJv53kzPJGgzJM37PDFPTW0lQkGrp
-         4jv55kgciwNcr5QR7dK4Q3ct78nFHEIY2H2ckA6a1UerMh/K4A1+N5cZL5GmlfniqusQ
-         Wesd4uUTfwWelqhMPbITplBzcrWXlStB3RlBlFEJLUMhWjyyZhhU4seoV++npA/hZYOS
-         blhzphdWlh/Th1jI+3Vk83IQkInxCPbMLrOtBmEtuNBRaTlrK12C3BPrCCvXAALWJ2IA
-         Km+w==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=drrXuCjL2z4FDL87HsReVqcV2r7Uflss6SxoU1I1HFg=;
+        b=adRuWBXwSA0Ep4zpLmSZGOt+vaw8z/ElkSlCIQvWEH5OLSJXPIoSbKDFmsDOtDdneP
+         8Q4CaabPcYTKZm1PY4ApUeIksE9gabXmzFObT/TBwNH/yYip4Kg7oSUA0Q1mxdwCR8YL
+         3xHUnPZQHmCNCUh1YzoEDMBvayhZ9up7tkat0+q0heVlx9TIF+DT5vzgqTsl1d84QBp0
+         HTsSaMDaSJzUU6+j+WYAN/jotvb+a9TUbXlLXmuqIxlzEtVlceUqUfs8h/hbyHDFRaVV
+         VEydHvG77ZOixCoRLNd4CQr4kXcgf3xhYIlKKp+0T7H7RnrbHVtEROi34euxCQxl6utV
+         J0VA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ynBA5JusP+HWw0SkfuMm+jB0bBtySaXrkPMgqc+u0pk=;
-        b=ieOBvLSjGqvwTTsyTB+DMSKm/XLGtKagAm7PHDW8CcmTMdh9dk3FETB1appRkUp2ib
-         I53x8MjUHrPMJaQJy7+UdzX0sCtSFZBkAWPLuybJdIDF4xSGLQXv4UJ4l5QB0LoxrB9v
-         W7Xi9H6b3yNXt3uR4xJUqhirtOYzSACViOVXeV4o0LvQBdLNQpPa5ExqfH3s+XD0izrb
-         O9BZDRF7m1on9mZKq4VYsD1jICePemIoNTKZ+t3NXCeAS6EbEF7oEbcx5B5i1uGUeJdU
-         bhnWOAy3/BZm3nb7SYAx7WaTMi14APw2VxXRvJnpx5WkY1QgyeMBOJW/L8+a901iddfq
-         tMRA==
-X-Gm-Message-State: AOAM532bx361djFtMHDdzOjPzMOlAf3zngWcFBGCuzOg5d+sGjznXKAh
-        vfIyH0Wl8gY0s8D9vQ0t1zN9kg==
-X-Google-Smtp-Source: ABdhPJwYaHlg9OYN7AkLfYnEE/wDw6qi6wjxfZx16/4sIz4fZn+SPtVr6x63TAQ5RxdaAvDuY40IOA==
-X-Received: by 2002:adf:fb47:0:b0:1ed:9f2c:492e with SMTP id c7-20020adffb47000000b001ed9f2c492emr26983562wrs.196.1646322190051;
-        Thu, 03 Mar 2022 07:43:10 -0800 (PST)
-Received: from localhost.localdomain ([2a01:cb19:8b2c:5e00:e059:ffd7:be1c:ef2c])
-        by smtp.gmail.com with ESMTPSA id d8-20020a056000114800b001f045f3435asm3272452wrx.108.2022.03.03.07.43.08
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=drrXuCjL2z4FDL87HsReVqcV2r7Uflss6SxoU1I1HFg=;
+        b=Y53Sj5e82iCz5eZaW6BUzVjDHFOW/hFDT8HAtpTbk7GgLgsZLLSoqHwUVcYCKyfL+q
+         hgmmjzYNHUsiNuIbs8YOWN78vZMpKqzHc0+APfTCjfMWkW9ntXb7qVH0ggTUycb7asMf
+         of2fK+AvbuyP8Aw7e+bqoqYuafiH+v40WNx48i++sKJte8Em+bocqScAZe7awkLP8ecu
+         2t2b7jGeDgIERVsp4c/AyOcRUrG5j767Yb7I3ulFxu9yMdax6pnckqqKLrj8oKwlGBcO
+         +ULCKnsxZ2d0vpk+YjWcJcxBho7/cABXslweITwgnYU86tahAVy1j7bchea9r6brcOek
+         hLzw==
+X-Gm-Message-State: AOAM533VOvALFn2+uJ9CccO6/HoVv4EdbZv2BD0Ki1l52MlDC8hMb8EX
+        nUJJJsjaNp0OQyleBDH2v/HA7VRAYY4hMmxT
+X-Google-Smtp-Source: ABdhPJyFX6dhosG2Z6F8VUxYz9Osho3hkDOYsaQx2f8oEZvSi98s6f0tMpyhyZr8dgQvQRF+c2zObQ==
+X-Received: by 2002:a2e:7007:0:b0:246:4382:c5e5 with SMTP id l7-20020a2e7007000000b002464382c5e5mr23386957ljc.377.1646325096745;
+        Thu, 03 Mar 2022 08:31:36 -0800 (PST)
+Received: from localhost.localdomain ([194.39.226.133])
+        by smtp.gmail.com with ESMTPSA id g18-20020a19ee12000000b00443af3721f2sm510678lfb.237.2022.03.03.08.31.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Mar 2022 07:43:09 -0800 (PST)
-From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Rob Herring <robh+dt@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Fengping Yu <fengping.yu@mediatek.com>,
-        Yingjoe Chen <yingjoe.chen@mediatek.com>
-Cc:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Fabien Parent <fparent@baylibre.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v21 2/3] Input: mt6779-keypad - Add MediaTek keypad driver
-Date:   Thu,  3 Mar 2022 16:43:01 +0100
-Message-Id: <20220303154302.252041-3-mkorpershoek@baylibre.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220303154302.252041-1-mkorpershoek@baylibre.com>
-References: <20220303154302.252041-1-mkorpershoek@baylibre.com>
+        Thu, 03 Mar 2022 08:31:36 -0800 (PST)
+From:   Markuss Broks <markuss.broks@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
+        jeff@labundy.com, markuss.broks@gmail.com,
+        dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+        krzysztof.kozlowski@canonical.com, rydberg@bitmath.com,
+        sfr@canb.auug.org.au, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH v9 0/2] Add support for Imagis touchscreens
+Date:   Thu,  3 Mar 2022 18:31:31 +0200
+Message-Id: <20220303163133.1418-1-markuss.broks@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: "fengping.yu" <fengping.yu@mediatek.com>
+Add support for Imagis touchscreens, used on various mobile
+devices such as Samsung Galaxy J5 (2015), J3 (2015), J5 (2016).
 
-This patch adds matrix keypad support for Mediatek SoCs.
+v2: rebase on top of the correct tree
+v3:
+- prefix all defines as IST3038C
+- use two tabs for all defines
+- add missing <linux/regulator/consumer.h> header
+- drop ADDR_LEN and DATA_LEN defines; use sizeof(reg_be) instead
+- use __be32 type for reg_be
+- add a comment about i2c read not being successful on first try
+- use "ret" instead of "res" in read_reg function
+- don't use the internal __cpu_to_be32 function, use cpu_to_be32 instead
+- use "error" instead of "ret" in interrupt handler
+- pass the slot state directly, without ternary operator
+- drop the dev_err in init_input_dev function
+- reorder the functions in _probe so that the chipid command is read as fast 
+as possible
+- don't use imagis_start in probe
+- initialize the irq after the chip is powered
+- save the return value in imagis_resume
+- drop WIDTH_MAJOR since only TOUCH_MAJOR is reported
+- the "chip detected" message is now dev_dbg
+- reorder headers so they are in alphabetic order
+- use GENMASK to generate masks for getting the X and Y coordinates and touch area
+- drop *_pressure from device tree bindings since the driver doesn't
+support reporting pressure
+- fix the typo with i2c address in device treee bindings (48 instead of 50)
+- add IRQF_NO_AUTOEN flag to avoid unbalanced irq enable
+v4:
+- alphabetically order MAINTAINERS entry
+- alphabetically order Kconfig and Makefile
+- drop the error message in init_regulators
+- disable regulators on probe error
+- drop IRQF_TRIGGER_FALLING
+- @ is not optional (device tree bindings)
+- don't use items for compatible
+- add maxItems property to reg, drop the comment
+v5:
+- compatible enum is not an item of the list, drop "-"
+v6:
+- add _MS suffix to the delay define, drop the comment
+- change the reason for retry comment
+- add imagis_power_off and imagis_power_on functions to turn regulators
+on and off
+- use imagis_power_on/off in imagis_start and imagis_stop as well as in probe function
+- use error instead of ret in calls to functions which only return 0 or -errno
+- include linux/bits.h
+- proper indentation in Kconfig
+- drop the dev_dbg chip id message
+- MODULE_DEVICE_TABLE(of, ...);
+- no extra tabs in i2c_driver struct
+- save the return value in imagis_suspend
+v7:
+- initialize ret with 0 in _suspend and _resume (kernel test robot)
+- use a separate ret_be variable to avoid casting to __be32 (kernel test robot)
+v8:
+- use poweroff action
+- power_off returns void
+- ret -> error
+- combine dev declaration and assignment
+- use same style for error everywhere
+- return devm_regulator_bulk_get() directly
+v9:
+- don't return in power_off (forgot to commit)
 
-Signed-off-by: fengping.yu <fengping.yu@mediatek.com>
-Reviewed-by: Marco Felsch <m.felsch@pengutronix.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
----
- drivers/input/keyboard/Kconfig         |  12 ++
- drivers/input/keyboard/Makefile        |   1 +
- drivers/input/keyboard/mt6779-keypad.c | 215 +++++++++++++++++++++++++
- 3 files changed, 228 insertions(+)
- create mode 100644 drivers/input/keyboard/mt6779-keypad.c
+Markuss Broks (2):
+  dt-bindings: input/touchscreen: bindings for Imagis
+  Input: add Imagis touchscreen driver
 
-diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 0c607da9ee10..03a9530f620e 100644
---- a/drivers/input/keyboard/Kconfig
-+++ b/drivers/input/keyboard/Kconfig
-@@ -779,6 +779,18 @@ config KEYBOARD_BCM
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called bcm-keypad.
- 
-+config KEYBOARD_MT6779
-+	tristate "MediaTek Keypad Support"
-+	depends on ARCH_MEDIATEK || COMPILE_TEST
-+	select REGMAP_MMIO
-+	select INPUT_MATRIXKMAP
-+	help
-+	  Say Y here if you want to use the keypad on MediaTek SoCs.
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called mt6779-keypad.
-+
- config KEYBOARD_MTK_PMIC
- 	tristate "MediaTek PMIC keys support"
- 	depends on MFD_MT6397
-diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
-index e3c8648f834e..721936e90290 100644
---- a/drivers/input/keyboard/Makefile
-+++ b/drivers/input/keyboard/Makefile
-@@ -44,6 +44,7 @@ obj-$(CONFIG_KEYBOARD_MATRIX)		+= matrix_keypad.o
- obj-$(CONFIG_KEYBOARD_MAX7359)		+= max7359_keypad.o
- obj-$(CONFIG_KEYBOARD_MCS)		+= mcs_touchkey.o
- obj-$(CONFIG_KEYBOARD_MPR121)		+= mpr121_touchkey.o
-+obj-$(CONFIG_KEYBOARD_MT6779)		+= mt6779-keypad.o
- obj-$(CONFIG_KEYBOARD_MTK_PMIC) 	+= mtk-pmic-keys.o
- obj-$(CONFIG_KEYBOARD_NEWTON)		+= newtonkbd.o
- obj-$(CONFIG_KEYBOARD_NOMADIK)		+= nomadik-ske-keypad.o
-diff --git a/drivers/input/keyboard/mt6779-keypad.c b/drivers/input/keyboard/mt6779-keypad.c
-new file mode 100644
-index 000000000000..b207acdd1e2a
---- /dev/null
-+++ b/drivers/input/keyboard/mt6779-keypad.c
-@@ -0,0 +1,215 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (C) 2022 MediaTek Inc.
-+ * Author Fengping Yu <fengping.yu@mediatek.com>
-+ */
-+#include <linux/bitops.h>
-+#include <linux/clk.h>
-+#include <linux/input/matrix_keypad.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/property.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+
-+#define MTK_KPD_NAME		"mt6779-keypad"
-+#define MTK_KPD_MEM		0x0004
-+#define MTK_KPD_DEBOUNCE	0x0018
-+#define MTK_KPD_DEBOUNCE_MASK	GENMASK(13, 0)
-+#define MTK_KPD_DEBOUNCE_MAX_MS	256
-+#define MTK_KPD_NUM_MEMS	5
-+#define MTK_KPD_NUM_BITS	136	/* 4*32+8 MEM5 only use 8 BITS */
-+
-+struct mt6779_keypad {
-+	struct regmap *regmap;
-+	struct input_dev *input_dev;
-+	struct clk *clk;
-+	void __iomem *base;
-+	u32 n_rows;
-+	u32 n_cols;
-+	DECLARE_BITMAP(keymap_state, MTK_KPD_NUM_BITS);
-+};
-+
-+static const struct regmap_config mt6779_keypad_regmap_cfg = {
-+	.reg_bits = 32,
-+	.val_bits = 32,
-+	.reg_stride = sizeof(u32),
-+	.max_register = 36,
-+};
-+
-+static irqreturn_t mt6779_keypad_irq_handler(int irq, void *dev_id)
-+{
-+	struct mt6779_keypad *keypad = dev_id;
-+	unsigned short *keycode = keypad->input_dev->keycode;
-+	DECLARE_BITMAP(new_state, MTK_KPD_NUM_BITS);
-+	DECLARE_BITMAP(change, MTK_KPD_NUM_BITS);
-+	int bit_nr;
-+	int pressed;
-+	unsigned short code;
-+	int row, col;
-+	int row_shift = get_count_order(keypad->n_cols);
-+
-+	regmap_bulk_read(keypad->regmap, MTK_KPD_MEM,
-+			 new_state, MTK_KPD_NUM_MEMS);
-+
-+	bitmap_xor(change, new_state, keypad->keymap_state, MTK_KPD_NUM_BITS);
-+
-+	for_each_set_bit(bit_nr, change, MTK_KPD_NUM_BITS) {
-+	/* For 32bits register, only bits [15:0] use to indicate key status */
-+		if (bit_nr % 32 >= 16)
-+			continue;
-+
-+		/* 1: not pressed, 0: pressed */
-+		pressed = !test_bit(bit_nr, new_state);
-+		dev_dbg(&keypad->input_dev->dev, "%s",
-+			pressed ? "pressed" : "released");
-+
-+		row = bit_nr / 32;
-+		col = bit_nr % 32;
-+
-+		code = keycode[MATRIX_SCAN_CODE(row, col, row_shift)];
-+
-+		input_report_key(keypad->input_dev, code, pressed);
-+		input_sync(keypad->input_dev);
-+
-+		dev_dbg(&keypad->input_dev->dev,
-+			"report Linux keycode = %d\n", code);
-+	}
-+
-+	bitmap_copy(keypad->keymap_state, new_state, MTK_KPD_NUM_BITS);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void mt6779_keypad_clk_disable(void *data)
-+{
-+	clk_disable_unprepare(data);
-+}
-+
-+static int mt6779_keypad_pdrv_probe(struct platform_device *pdev)
-+{
-+	struct mt6779_keypad *keypad;
-+	unsigned int irq;
-+	u32 debounce;
-+	bool wakeup;
-+	int error;
-+
-+	keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
-+	if (!keypad)
-+		return -ENOMEM;
-+
-+	keypad->base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(keypad->base))
-+		return PTR_ERR(keypad->base);
-+
-+	keypad->regmap = devm_regmap_init_mmio(&pdev->dev,
-+					       keypad->base,
-+					       &mt6779_keypad_regmap_cfg);
-+	if (IS_ERR(keypad->regmap)) {
-+		dev_err(&pdev->dev,
-+			"regmap init failed:%pe\n", keypad->regmap);
-+		return PTR_ERR(keypad->regmap);
-+	}
-+
-+	bitmap_fill(keypad->keymap_state, MTK_KPD_NUM_BITS);
-+
-+	keypad->input_dev = devm_input_allocate_device(&pdev->dev);
-+	if (!keypad->input_dev) {
-+		dev_err(&pdev->dev, "Failed to allocate input dev\n");
-+		return -ENOMEM;
-+	}
-+
-+	keypad->input_dev->name = MTK_KPD_NAME;
-+	keypad->input_dev->id.bustype = BUS_HOST;
-+
-+	error = matrix_keypad_parse_properties(&pdev->dev, &keypad->n_rows,
-+					       &keypad->n_cols);
-+	if (error) {
-+		dev_err(&pdev->dev, "Failed to parse keypad params\n");
-+		return error;
-+	}
-+
-+	if (device_property_read_u32(&pdev->dev, "debounce-delay-ms",
-+				     &debounce))
-+		debounce = 16;
-+
-+	if (debounce > MTK_KPD_DEBOUNCE_MAX_MS) {
-+		dev_err(&pdev->dev, "Debounce time exceeds the maximum allowed time %dms\n",
-+			MTK_KPD_DEBOUNCE_MAX_MS);
-+		return -EINVAL;
-+	}
-+
-+	wakeup = device_property_read_bool(&pdev->dev, "wakeup-source");
-+
-+	dev_dbg(&pdev->dev, "n_row=%d n_col=%d debounce=%d\n",
-+		keypad->n_rows, keypad->n_cols, debounce);
-+
-+	error = matrix_keypad_build_keymap(NULL, NULL,
-+					   keypad->n_rows,
-+					   keypad->n_cols,
-+					   NULL,
-+					   keypad->input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev, "Failed to build keymap\n");
-+		return error;
-+	}
-+
-+	regmap_write(keypad->regmap, MTK_KPD_DEBOUNCE,
-+		     (debounce * (1 << 5)) & MTK_KPD_DEBOUNCE_MASK);
-+
-+	keypad->clk = devm_clk_get(&pdev->dev, "kpd");
-+	if (IS_ERR(keypad->clk))
-+		return PTR_ERR(keypad->clk);
-+
-+	error = clk_prepare_enable(keypad->clk);
-+	if (error) {
-+		dev_err(&pdev->dev, "cannot prepare/enable keypad clock\n");
-+		return error;
-+	}
-+
-+	error = devm_add_action_or_reset(&pdev->dev, mt6779_keypad_clk_disable, keypad->clk);
-+	if (error)
-+		return error;
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
-+
-+	error = devm_request_threaded_irq(&pdev->dev, irq, NULL, mt6779_keypad_irq_handler,
-+					  IRQF_ONESHOT, MTK_KPD_NAME, keypad);
-+	if (error) {
-+		dev_err(&pdev->dev, "Failed to request IRQ#%d:%d\n", irq, error);
-+		return error;
-+	}
-+
-+	error = input_register_device(keypad->input_dev);
-+	if (error) {
-+		dev_err(&pdev->dev, "Failed to register device\n");
-+		return error;
-+	}
-+
-+	error =  device_init_wakeup(&pdev->dev, wakeup);
-+	if (error)
-+		dev_warn(&pdev->dev, "device_init_wakeup fail\n");
-+
-+	return 0;
-+}
-+
-+static const struct of_device_id mt6779_keypad_of_match[] = {
-+	{ .compatible = "mediatek,mt6779-keypad" },
-+	{ .compatible = "mediatek,mt6873-keypad" },
-+	{ /* sentinel */ }
-+};
-+
-+static struct platform_driver mt6779_keypad_pdrv = {
-+	.probe = mt6779_keypad_pdrv_probe,
-+	.driver = {
-+		   .name = MTK_KPD_NAME,
-+		   .of_match_table = mt6779_keypad_of_match,
-+	},
-+};
-+module_platform_driver(mt6779_keypad_pdrv);
-+
-+MODULE_AUTHOR("Mediatek Corporation");
-+MODULE_DESCRIPTION("MTK Keypad (KPD) Driver");
-+MODULE_LICENSE("GPL");
+ .../input/touchscreen/imagis,ist3038c.yaml    |  74 ++++
+ .../devicetree/bindings/vendor-prefixes.yaml  |   2 +
+ MAINTAINERS                                   |   6 +
+ drivers/input/touchscreen/Kconfig             |  10 +
+ drivers/input/touchscreen/Makefile            |   1 +
+ drivers/input/touchscreen/imagis.c            | 348 ++++++++++++++++++
+ 6 files changed, 441 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml
+ create mode 100644 drivers/input/touchscreen/imagis.c
+
 -- 
-2.32.0
+2.20.1
 

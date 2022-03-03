@@ -2,179 +2,94 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FE3DC433FE
-	for <linux-input@archiver.kernel.org>; Thu,  3 Mar 2022 07:47:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97D5CC433EF
+	for <linux-input@archiver.kernel.org>; Thu,  3 Mar 2022 13:57:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230362AbiCCHsd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 3 Mar 2022 02:48:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40110 "EHLO
+        id S233112AbiCCN6j convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 3 Mar 2022 08:58:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230353AbiCCHs3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Mar 2022 02:48:29 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50EB635242;
-        Wed,  2 Mar 2022 23:47:43 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id y5so2627952wmi.0;
-        Wed, 02 Mar 2022 23:47:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=DLwnShhOGzDJRPDrMuARp5HnoES190FJM3KiBVtCeYQ=;
-        b=T57L1WWKK6HHcKrxCPQ4A8dcb7lCYMWZpDF3b6MnTpgrmh0kjsUX7gzAf8305XPtxh
-         Us1D88TL1n5kg3vpMvIaPLXMN54Wcr7CPlDeDGe5azqIWH92KgvA3LPqjc4utwiKkk4Y
-         AYLXkPlX5CXMv9RVehK+W2yBBMJmwKTG1ZXtXL/Q0QjkAv5iWaa2US07B1s0W99JMnhN
-         WSnpWw+TgFMjialPcshbIHo5hcsga8qHaRoE+eWqxEaCrzeBYs2Kr7ef2H21AZ1XfgUy
-         5ieGxSuKt+K4NLTubPMPADiSaqb0E1PjwL9UN+cOJQvilmxHR310kN9GvHGIOBvsVHZ9
-         nnQQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=DLwnShhOGzDJRPDrMuARp5HnoES190FJM3KiBVtCeYQ=;
-        b=aDGAowGyQ1a6NOwrmeZR8iZoYJ1wu2Ie7qZv6DIzzrdkLPePs+qUGKHQECYoC5D8ON
-         I2vvBnOcMUaehVtbIt/mKtykE2v6GxuPcA41UW5iMaesTj1DKQNiNv2AK0fFONwqJXer
-         hYyFU4+QU3X/Q7zil+YIi2SFMhyXR6YWtFTpNgQCg/Iqh+pi71pTedtPAMjJhz88StKl
-         BVKzTzMQMsqimHI54zo2ukAGwi4wk4NLle0+GxTUBrfB8J47MZkSuoj2JcVuuwBNkEBw
-         wfXFGOf3ehhOA2vAt7+IVfcJG9fmUKs+YwRASD6R8FoMmyJlVwszg93og/gmUvOqleeC
-         BEcw==
-X-Gm-Message-State: AOAM533A2xVoC+ViDDB4yiG63vY/z19wdUNKijchBfF4U33rp2r9z8qL
-        f5JwLttidqDh9qckCpjwxXs=
-X-Google-Smtp-Source: ABdhPJwobsLcgHBkl7FS/U3xZDGFU2ScOH6+8J9oX0ut67KX7hy9C/groYAsqnbga+Vr9jZxn3+EJg==
-X-Received: by 2002:a05:600c:4f83:b0:37c:d057:3efe with SMTP id n3-20020a05600c4f8300b0037cd0573efemr2685205wmq.143.1646293661633;
-        Wed, 02 Mar 2022 23:47:41 -0800 (PST)
-Received: from localhost.localdomain ([94.73.33.246])
-        by smtp.gmail.com with ESMTPSA id d3-20020a05600c34c300b003884e826642sm841169wmq.12.2022.03.02.23.47.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Mar 2022 23:47:41 -0800 (PST)
-From:   =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-To:     jikos@kernel.org
-Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH for-5.18/uclogic 3/4] HID: uclogic: Allow three frame parameter sets
-Date:   Thu,  3 Mar 2022 08:47:33 +0100
-Message-Id: <20220303074734.7235-4-jose.exposito89@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220303074734.7235-1-jose.exposito89@gmail.com>
-References: <20220303074734.7235-1-jose.exposito89@gmail.com>
+        with ESMTP id S231611AbiCCN6h (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 3 Mar 2022 08:58:37 -0500
+Received: from omta013.useast.a.cloudfilter.net (omta013.useast.a.cloudfilter.net [34.195.253.204])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA5B1262D
+        for <linux-input@vger.kernel.org>; Thu,  3 Mar 2022 05:57:46 -0800 (PST)
+Received: from cxr.smtp.a.cloudfilter.net ([10.0.17.148])
+        by cmsmtp with ESMTP
+        id Pl0KnXkllpH1APlxhneO5G; Thu, 03 Mar 2022 13:57:45 +0000
+Received: from cameron-pc ([68.0.59.20])
+        by cmsmtp with ESMTPA
+        id PlxdnYBHeCmoTPlxhnKTpk; Thu, 03 Mar 2022 13:57:45 +0000
+Authentication-Results: cox.net; auth=pass (LOGIN)
+ smtp.auth=cameronghall@cox.net
+X-Authority-Analysis: v=2.4 cv=BbbLb5h2 c=1 sm=1 tr=0 ts=6220c959
+ a=YRu6w0iJ0PLxWKpWPKeGRw==:117 a=YRu6w0iJ0PLxWKpWPKeGRw==:17
+ a=IkcTkHD0fZMA:10 a=kviXuzpPAAAA:8 a=VwQbUJbxAAAA:8 a=NEAV23lmAAAA:8
+ a=7yEQ1vLx07_7ltKuTs0A:9 a=QEXdDO2ut3YA:10 a=fZcHpAbaKMsA:10
+ a=uyq5RothENsA:10 a=qrIFiuKZe2vaD64auk6j:22 a=AjGcO6oz07-iQ99wixmX:22
+Date:   Thu, 3 Mar 2022 07:57:36 -0600
+From:   Cameron <cameronghall@cox.net>
+To:     linux-input@vger.kernel.org
+Subject: Update: Wrong button mappings reported by evdev with PowerA
+ Nintendo Switch gamepad
+Message-ID: <20220303075736.5ea97dde@cameron-pc>
+In-Reply-To: <51E98AD1-6622-4ED2-8C08-18F1AADC3838@cox.net>
+References: <51E98AD1-6622-4ED2-8C08-18F1AADC3838@cox.net>
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.33; x86_64-unknown-linux-gnu)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 8BIT
+X-CMAE-Envelope: MS4xfM9o+36ei/xM//d7Tbgr59+O3oYsjIju87MZG1YY4Yi2UMG+XoH+SitRFQb64AER5IoryP7AJmNDXeHL7+a3cauc6N0SQJGgDFNBAFYQJqPTSN+0lDoO
+ aww3BAIpOx6Jvq/3vpSfsje5Mc+r/I9qXrUMD+yal5cENo2jf8RsFFl+Akc020MmLqqb8DoponvQiA==
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nikolai Kondrashov <spbnick@gmail.com>
+On Wed, 02 Mar 2022 12:45:17 -0600
+Cameron <cameronghall@cox.net> wrote:
 
-Allow three frame parameter sets per each UC-Logic tablet interface.
-Bump the number of supported subreports to three as well to accommodate
-ID routing. This allows supporting the dial on Huion Q620M.
+> Hello all,
+> 
+> This is my first time reporting a kernel issue, so please let me know
+> if this is not the right place to report it. I am using a third party
+> PowerA USB wired Switch controller on Void Linux. Games and
+> applications are able to successfully detect and use the controller,
+> however the button mapping is very wrong in every program I have
+> tested. I tested this with evtest-qt to see what button values evdev
+> is reporting. Since there appears to be no way to remap these from
+> userspace, I suspect the problem lies in the kernel driver.
+> 
+> Pressing the two analog sticks (which should be BTN_THUMBL and
+> BTN_THUMBR) incorrectly generate events for BTN_SELECT and BTN_START,
+> and pressing the + and - buttons (which should be mapped to BTN_START
+> and BTN_SELECT) instead result in BTN_TL2 and BTN_TR2 events.
+> 
+> The device in question (as reported by lsusb) is:
+> Bus 001 Device 003: ID 20d6:a711 Core (Plus) Wired Controller
+> and I am using kernel version 5.15.26_1 on Void Linux.
+> 
+> I understand that this gamepad is intended to be used with the
+> Nintendo Switch console, so it may not be as HID compliant as, say, a
+> Logitech. However the kernel has a standard for how these buttons are
+> to be mapped, which the driver used for this gamepad appears to
+> violate. https://www.kernel.org/doc/html/v4.13/input/gamepad.html
+> Section 4.3 states: "All new gamepads are supposed to comply with
+> this mapping. Please report any bugs, if they don’t."
+> 
+> I can provide more info if needed.
+> 
+> Thanks,
+> Cameron
 
-Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
----
- drivers/hid/hid-uclogic-params.h | 52 +++++++++++++++++++++++++++++---
- 1 file changed, 47 insertions(+), 5 deletions(-)
+So, here's an update on this situation. I managed to hack around
+this situation by writing a simple kernel module to override the button
+mapping for this device. The code for the module can be found on my
+GitHub here:
+https://gist.github.com/camthesaxman/af7099505103a555518741b4083eaea8
+I have almost zero experience with kernel development, so I don't know
+how this kind of thing would be properly fixed in-tree (perhaps
+something with hid-quirks.c?) and make a proper patch for the kernel.
 
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index 8042820e78b1..f2649e8f959d 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -73,8 +73,8 @@ struct uclogic_params_pen {
- 	unsigned int desc_size;
- 	/* Report ID, if reports should be tweaked, zero if not */
- 	unsigned int id;
--	/* The list of subreports */
--	struct uclogic_params_pen_subreport subreport_list[1];
-+	/* The list of subreports, only valid if "id" is not zero */
-+	struct uclogic_params_pen_subreport subreport_list[3];
- 	/* Type of in-range reporting, only valid if "id" is not zero */
- 	enum uclogic_params_pen_inrange inrange;
- 	/*
-@@ -194,7 +194,7 @@ struct uclogic_params {
- 	 * The list of frame control parameters and optional report descriptor
- 	 * parts. Only valid, if "invalid" is false.
- 	 */
--	struct uclogic_params_frame frame_list[1];
-+	struct uclogic_params_frame frame_list[3];
- };
- 
- /* Initialize a tablet interface and discover its parameters */
-@@ -210,6 +210,8 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 		".pen.desc_size = %u\n"                         \
- 		".pen.id = %u\n"                                \
- 		".pen.subreport_list[0] = {0x%02hhx, %hhu}\n"   \
-+		".pen.subreport_list[1] = {0x%02hhx, %hhu}\n"   \
-+		".pen.subreport_list[2] = {0x%02hhx, %hhu}\n"   \
- 		".pen.inrange = %s\n"                           \
- 		".pen.fragmented_hires = %s\n"                  \
- 		".pen.tilt_y_flipped = %s\n"                    \
-@@ -221,7 +223,25 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 		".frame_list[0].dev_id_byte = %u\n"             \
- 		".frame_list[0].touch_ring_byte = %u\n"         \
- 		".frame_list[0].touch_ring_max = %hhd\n"        \
--		".frame_list[0].touch_ring_flip_at = %hhd\n"
-+		".frame_list[0].touch_ring_flip_at = %hhd\n"    \
-+		".frame_list[1].desc_ptr = %p\n"                \
-+		".frame_list[1].desc_size = %u\n"               \
-+		".frame_list[1].id = %u\n"                      \
-+		".frame_list[1].suffix = %s\n"                  \
-+		".frame_list[1].re_lsb = %u\n"                  \
-+		".frame_list[1].dev_id_byte = %u\n"             \
-+		".frame_list[1].touch_ring_byte = %u\n"         \
-+		".frame_list[1].touch_ring_max = %hhd\n"        \
-+		".frame_list[1].touch_ring_flip_at = %hhd\n"    \
-+		".frame_list[2].desc_ptr = %p\n"                \
-+		".frame_list[2].desc_size = %u\n"               \
-+		".frame_list[2].id = %u\n"                      \
-+		".frame_list[2].suffix = %s\n"                  \
-+		".frame_list[2].re_lsb = %u\n"                  \
-+		".frame_list[2].dev_id_byte = %u\n"             \
-+		".frame_list[2].touch_ring_byte = %u\n"         \
-+		".frame_list[2].touch_ring_max = %hhd\n"        \
-+		".frame_list[2].touch_ring_flip_at = %hhd\n"
- 
- /* Tablet interface parameters *printf format arguments */
- #define UCLOGIC_PARAMS_FMT_ARGS(_params) \
-@@ -233,6 +253,10 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 		(_params)->pen.id,                                          \
- 		(_params)->pen.subreport_list[0].value,                     \
- 		(_params)->pen.subreport_list[0].id,                        \
-+		(_params)->pen.subreport_list[1].value,                     \
-+		(_params)->pen.subreport_list[1].id,                        \
-+		(_params)->pen.subreport_list[2].value,                     \
-+		(_params)->pen.subreport_list[2].id,                        \
- 		uclogic_params_pen_inrange_to_str((_params)->pen.inrange),  \
- 		((_params)->pen.fragmented_hires ? "true" : "false"),       \
- 		((_params)->pen.tilt_y_flipped ? "true" : "false"),         \
-@@ -244,7 +268,25 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 		(_params)->frame_list[0].dev_id_byte,                       \
- 		(_params)->frame_list[0].touch_ring_byte,                   \
- 		(_params)->frame_list[0].touch_ring_max,                    \
--		(_params)->frame_list[0].touch_ring_flip_at
-+		(_params)->frame_list[0].touch_ring_flip_at,                \
-+		(_params)->frame_list[1].desc_ptr,                          \
-+		(_params)->frame_list[1].desc_size,                         \
-+		(_params)->frame_list[1].id,                                \
-+		(_params)->frame_list[1].suffix,                            \
-+		(_params)->frame_list[1].re_lsb,                            \
-+		(_params)->frame_list[1].dev_id_byte,                       \
-+		(_params)->frame_list[1].touch_ring_byte,                   \
-+		(_params)->frame_list[1].touch_ring_max,                    \
-+		(_params)->frame_list[1].touch_ring_flip_at,                \
-+		(_params)->frame_list[2].desc_ptr,                          \
-+		(_params)->frame_list[2].desc_size,                         \
-+		(_params)->frame_list[2].id,                                \
-+		(_params)->frame_list[2].suffix,                            \
-+		(_params)->frame_list[2].re_lsb,                            \
-+		(_params)->frame_list[2].dev_id_byte,                       \
-+		(_params)->frame_list[2].touch_ring_byte,                   \
-+		(_params)->frame_list[2].touch_ring_max,                    \
-+		(_params)->frame_list[2].touch_ring_flip_at
- 
- /* Get a replacement report descriptor for a tablet's interface. */
- extern int uclogic_params_get_desc(const struct uclogic_params *params,
--- 
-2.25.1
-
+Thanks,
+Cameron

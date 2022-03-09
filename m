@@ -2,61 +2,111 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39DA7C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  9 Mar 2022 14:53:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F395C433F5
+	for <linux-input@archiver.kernel.org>; Wed,  9 Mar 2022 16:25:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230457AbiCIOy0 convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 9 Mar 2022 09:54:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37792 "EHLO
+        id S235788AbiCIQ0E (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 9 Mar 2022 11:26:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230197AbiCIOyZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2022 09:54:25 -0500
-Received: from omta013.useast.a.cloudfilter.net (omta013.useast.a.cloudfilter.net [34.195.253.204])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210EA33EA7
-        for <linux-input@vger.kernel.org>; Wed,  9 Mar 2022 06:53:25 -0800 (PST)
-Received: from cxr.smtp.a.cloudfilter.net ([10.0.17.147])
-        by cmsmtp with ESMTP
-        id RtsUnfr06pH1ARxgqnyQHa; Wed, 09 Mar 2022 14:53:24 +0000
-Received: from [192.168.1.121] ([68.0.59.20])
-        by cmsmtp with ESMTPSA
-        id RxgpnUPygfyzPRxgpnC5cg; Wed, 09 Mar 2022 14:53:24 +0000
-Authentication-Results: cox.net; auth=pass (PLAIN)
- smtp.auth=cameronghall@cox.net
-X-Authority-Analysis: v=2.4 cv=QPV7+yHL c=1 sm=1 tr=0 ts=6228bf64
- a=YRu6w0iJ0PLxWKpWPKeGRw==:117 a=YRu6w0iJ0PLxWKpWPKeGRw==:17
- a=IkcTkHD0fZMA:10 a=NEAV23lmAAAA:8 a=WrZyhvej8QGNWhJhATAA:9 a=QEXdDO2ut3YA:10
-Date:   Wed, 09 Mar 2022 08:53:21 -0600
-User-Agent: K-9 Mail for Android
+        with ESMTP id S238131AbiCIQVX (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2022 11:21:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 386681520EF;
+        Wed,  9 Mar 2022 08:19:04 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C857A6194C;
+        Wed,  9 Mar 2022 16:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 507BBC340E8;
+        Wed,  9 Mar 2022 16:19:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1646842743;
+        bh=o0lMoPtysunsKgbgzC3/md5VDCnp60LnkLkLaYxOo7Q=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=LqY5eBpyTvQqJ1hEFURU1omp4VGiTnhny/wtSA/PD0v74+j+VMsZD3wmE5RJvsmNH
+         H1AcNitD5u2ufwHCsDtUpqADgTVyyJNm4fYOfn8KgovrnUi1BNhTyMeGdNZ1dZv/6m
+         /JR1LXtIEdsGKtmbVL3H1QPmczWeHXQQNQC1RE6Ez8HW7jTax88YBJDdyqxItDHsZY
+         7B1VAt2dky5FIlcPYI6vAx1yP76RgATv55pwNaqUnhwpzlIvlqT22ELqrXH8UI7v1T
+         z+SJ3BEhhjnpjo4v9fIkWEdthJwWyI6PNt0h1LvGdVCuKgf6MAtiRTtspQHPfdbF1s
+         5JIn7OTPySkeg==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, hadess@hadess.net,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 20/27] Input: goodix - workaround Cherry Trail devices with a bogus ACPI Interrupt() resource
+Date:   Wed,  9 Mar 2022 11:16:57 -0500
+Message-Id: <20220309161711.135679-20-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220309161711.135679-1-sashal@kernel.org>
+References: <20220309161711.135679-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Subject: [Input] Wrong button mappings on PowerA USB gamepad
-To:     linux-kernel@vger.kernel.org
-CC:     linux-input@vger.kernel.org
-From:   Cameron <cameronghall@cox.net>
-Message-ID: <2329F4E9-1A1B-4D8A-B853-F93A62FFC654@cox.net>
-X-CMAE-Envelope: MS4xfO70W8CknrGTnBX98YGYLqVtGOZ7C10yqZr/BFnDr0NymeG7LGtEYeYqs0C/REuECSVrznvFjAhYe/BRFzRh4gp4ClGbuLyHN6wfL3xqm9KGq4kWviBk
- kifoOa9qc8WoRZ+9HP6FQPwm847ewidiyRCIteRXl8Clq2xkdRKcncT6eVBYpjOtx/9vVTUSr+BwtmDtvwKG8USQmDKgMuyf/fvyKNwvx99gc8wZwl6E50+N
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello all,
+From: Hans de Goede <hdegoede@redhat.com>
 
-I sent an email about this issue to the linux-input mailing list a week ago, but still haven't heard back, so I am sending it to the generic kernel mailing list.
+[ Upstream commit d982992669733dd75520000c6057d8ee0725a363 ]
 
-I am using a PowerA USB wired Nintendo Switch controller on Void Linux. Games and applications are able to successfully detect and use the controller, however the button mapping is very wrong in every program I have tested. I tested this with evtest-qt to see what button values evdev is reporting. Since there appears to be no way to remap these from userspace, I suspect the problem lies in the kernel driver.
+ACPI/x86 devices with a Cherry Trail SoC should have a GpioInt + a regular
+GPIO ACPI resource in their ACPI tables.
 
-Pressing the two analog sticks (which should be BTN_THUMBL and BTN_THUMBR) incorrectly generate events for BTN_SELECT and BTN_START, and pressing the + and - buttons (which should be mapped to BTN_START and BTN_SELECT) instead result in BTN_TL2 and BTN_TR2 events.
+Some CHT devices have a bug, where the also is bogus interrupt resource
+(likely copied from a previous Bay Trail based generation of the device).
 
-The device in question (as reported by lsusb) is:
-Bus 001 Device 003: ID 20d6:a711 Core (Plus) Wired Controller
+The i2c-core-acpi code will assign the bogus, non-working, interrupt
+resource to client->irq. Add a workaround to fix this up.
 
-and I am using kernel version 5.15.26_1 on Void Linux.
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=2043960
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220228111613.363336-1-hdegoede@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/input/touchscreen/goodix.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-I wrote a small kernel module to correctly remap the buttons (code is here https://gist.github.com/camthesaxman/af7099505103a555518741b4083eaea8), but I would like to know more about how this kind of situation is handled in the input subsystem in order to create a proper patch.
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index e053aadea3c9..d3136842b717 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -745,7 +745,7 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
+ 	const struct acpi_gpio_mapping *gpio_mapping = NULL;
+ 	struct device *dev = &ts->client->dev;
+ 	LIST_HEAD(resources);
+-	int ret;
++	int irq, ret;
+ 
+ 	ts->gpio_count = 0;
+ 	ts->gpio_int_idx = -1;
+@@ -758,6 +758,20 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
+ 
+ 	acpi_dev_free_resource_list(&resources);
+ 
++	/*
++	 * CHT devices should have a GpioInt + a regular GPIO ACPI resource.
++	 * Some CHT devices have a bug (where the also is bogus Interrupt
++	 * resource copied from a previous BYT based generation). i2c-core-acpi
++	 * will use the non-working Interrupt resource, fix this up.
++	 */
++	if (soc_intel_is_cht() && ts->gpio_count == 2 && ts->gpio_int_idx != -1) {
++		irq = acpi_dev_gpio_irq_get(ACPI_COMPANION(dev), 0);
++		if (irq > 0 && irq != ts->client->irq) {
++			dev_warn(dev, "Overriding IRQ %d -> %d\n", ts->client->irq, irq);
++			ts->client->irq = irq;
++		}
++	}
++
+ 	if (ts->gpio_count == 2 && ts->gpio_int_idx == 0) {
+ 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
+ 		gpio_mapping = acpi_goodix_int_first_gpios;
+-- 
+2.34.1
 
-Thanks,
-Cameron

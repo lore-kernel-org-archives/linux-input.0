@@ -2,296 +2,166 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DEA4BC433F5
-	for <linux-input@archiver.kernel.org>; Wed,  9 Mar 2022 17:17:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 27689C433EF
+	for <linux-input@archiver.kernel.org>; Thu, 10 Mar 2022 06:59:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237043AbiCIRSy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 9 Mar 2022 12:18:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53300 "EHLO
+        id S239947AbiCJHAI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 10 Mar 2022 02:00:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237092AbiCIRSp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Mar 2022 12:18:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id D7C4875C15
-        for <linux-input@vger.kernel.org>; Wed,  9 Mar 2022 09:16:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1646846208;
+        with ESMTP id S233872AbiCJHAH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Thu, 10 Mar 2022 02:00:07 -0500
+X-Greylist: delayed 64 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 09 Mar 2022 22:59:05 PST
+Received: from eu-smtp-delivery-197.mimecast.com (eu-smtp-delivery-197.mimecast.com [185.58.85.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8F3DF12F409
+        for <linux-input@vger.kernel.org>; Wed,  9 Mar 2022 22:59:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=camlingroup.com;
+        s=mimecast20210310; t=1646895543;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=hYsp5CTOqE7MYUtz4GC4+jPlQ+BmzzCld+8j376Yzmw=;
-        b=df6PLDCnWPtMff7XC8Q6p8x12edJTPC2iyugFdcsPyQoaVL9iFoFUdfEAqKwDYrWcaspyN
-        An1TfpAMB/7fVsWjkS2WaruUyOyjGxMl+8HCZ3OxZgsV/Ej0eC9pVBkABBG9i+UlQIFvbv
-        ErpfZNLcRtyRN1h09d95OpkiG9YDo9w=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-271-BKS-bSRJNTSX5A0mKqmrKA-1; Wed, 09 Mar 2022 12:16:47 -0500
-X-MC-Unique: BKS-bSRJNTSX5A0mKqmrKA-1
-Received: by mail-ej1-f72.google.com with SMTP id h22-20020a1709060f5600b006b11a2d3dcfso1661768ejj.4
-        for <linux-input@vger.kernel.org>; Wed, 09 Mar 2022 09:16:47 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=hYsp5CTOqE7MYUtz4GC4+jPlQ+BmzzCld+8j376Yzmw=;
-        b=m8GjPTk/DgTRYxPgzliRniP+OygmwbQLnCeqlJTnvaZtkauL8Cm9eUB4lPPN6+5O4g
-         oAVuxsaRaJEtbAuqVfFwxGYashJcmZnk0qUd78SphXjrWyE3SdBeXx/ziq+pvHMuMrXu
-         HUkCGjcxWYdUnmEMOERo5pOr2dfvnPVnnBqu/4A26elfASTb2LLXdj3CfLHkWeuoYnxD
-         cD6FWxi+QyhtI0EdC9yl5xUgTxJmCE5H30hj2X9aU5C/P21Suh0IjlykHqKgXRFoJFEM
-         FfEeh3xPJ6j0WX4jI7j2Sf/Ry6l1r6OnPg/bQ1Dp3KWDpjjJkoSAbun9R4vEYGb+E4Tz
-         vvTw==
-X-Gm-Message-State: AOAM530fcJXSLkfiaxoULUx3On1u3b+Xy/A8XSkzbYIKAabMxD2fCSzr
-        PvyVlHNg1D/3CT4f4pznJRMUU68LVU17rvjzXnmcEhJDVMk30Fq9m+1W3WSayosKFs6XezAAu34
-        RLtAUH09/OJQzhOWy8EfgoGU=
-X-Received: by 2002:a17:907:6e90:b0:6da:886b:ab with SMTP id sh16-20020a1709076e9000b006da886b00abmr709110ejc.285.1646846206029;
-        Wed, 09 Mar 2022 09:16:46 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyjwRtWcwSQ0oQ0ms1LQAAjsV+XW7qqavYnuPjL0jFbbzvuSNOraDbdtQElQdAdyv8yf/6VNw==
-X-Received: by 2002:a17:907:6e90:b0:6da:886b:ab with SMTP id sh16-20020a1709076e9000b006da886b00abmr709096ejc.285.1646846205737;
-        Wed, 09 Mar 2022 09:16:45 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c1e:bf00:cdb2:2781:c55:5db0? (2001-1c00-0c1e-bf00-cdb2-2781-0c55-5db0.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:cdb2:2781:c55:5db0])
-        by smtp.gmail.com with ESMTPSA id w15-20020a1709062f8f00b006cd545d4af6sm972978eji.45.2022.03.09.09.16.45
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 09 Mar 2022 09:16:45 -0800 (PST)
-Message-ID: <e84d98e6-541d-8cc7-626e-f92d76230528@redhat.com>
-Date:   Wed, 9 Mar 2022 18:16:44 +0100
-MIME-Version: 1.0
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=31Yb/q49RoXfCeMj0XVQIlpQ3f2CH/ohtpF5v2+etvk=;
+        b=iq69iMzk3yknwrEywhXCVQOU8KhCuUFIoiqv8mOwJKjq7ziinDEfST2SUxA1bicqzhnEEF
+        Lq3h8gaxs3xJFwtO7gyirmimTBnqkfQ3n9Gf9Lh4j2lihS+PSp3Tqin+X5tfyVihS0EGmN
+        d4ETSZ5ojQ49/GLcG4o/klPSOB6chOE=
+Received: from GBR01-CWL-obe.outbound.protection.outlook.com
+ (mail-cwlgbr01lp2051.outbound.protection.outlook.com [104.47.20.51]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ uk-mta-36-HTUsmH-vOF-NxuCAfmP04w-1; Thu, 10 Mar 2022 06:57:57 +0000
+X-MC-Unique: HTUsmH-vOF-NxuCAfmP04w-1
+Received: from LO0P123MB5583.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:213::11)
+ by CWLP123MB3266.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:4a::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5061.21; Thu, 10 Mar
+ 2022 06:57:56 +0000
+Received: from LO0P123MB5583.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::7441:6280:dede:964f]) by LO0P123MB5583.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::7441:6280:dede:964f%5]) with mapi id 15.20.5038.027; Thu, 10 Mar 2022
+ 06:57:55 +0000
+Message-ID: <5a233ff1-cde4-b432-a170-86379bec972c@camlingroup.com>
+Date:   Thu, 10 Mar 2022 07:57:53 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH v3 1/3] Input/i8042: Merge quirk tables
+ Thunderbird/91.5.0
+X-Mozilla-News-Host: news://nntp.lore.kernel.org:119
+From:   =?UTF-8?Q?Tomasz_Mo=c5=84?= <tomasz.mon@camlingroup.com>
+Subject: Detecting invalid gpio keys configuration
+To:     linux-input@vger.kernel.org, devicetree@vger.kernel.org
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        =?UTF-8?Q?Krzysztof_Drobi=c5=84ski?= 
+        <k.drobinski@camlintechnologies.com>,
+        Lech Perczak <l.perczak@camlintechnologies.com>,
+        =?UTF-8?Q?Tomasz_Mo=c5=84?= <tomasz.mon@camlingroup.com>
+X-ClientProxiedBy: LO2P265CA0325.GBRP265.PROD.OUTLOOK.COM
+ (2603:10a6:600:a4::25) To LO0P123MB5583.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:600:213::11)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 8d0e004a-6d7c-41b4-b460-08da02634d72
+X-MS-TrafficTypeDiagnostic: CWLP123MB3266:EE_
+X-Microsoft-Antispam-PRVS: <CWLP123MB32669167605FFAD31B380780920B9@CWLP123MB3266.GBRP123.PROD.OUTLOOK.COM>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0
+X-Microsoft-Antispam-Message-Info: tOyY/4/t2EoBrPF1GwY0OKszCYjU2MNhEx6TWY6/wSBm8M4+GPG74if1UefRv3Up3E20L+2cQ4maAjehu1NtRcnBdFon8/yKNgNKQxB9+FtG6b/iIpVxI6cJYFEFUmlsA4nknxYa/lG6yi/tVINlA7uDe5yaXZSSADNyOzvPxWmrlN+RXwdpYHhHtbjc1tbA4t3sfGDbhRjcw2HP+XUOBszhM//O2C7BirDDlBdmkjF1bjsLQlmu41YLEn0iPaEetElEZ/WNXPLW5AF4o8JaImItsNkHlJ0As6DN/lLHrWH6g1IklP806zAv8syckEDcglcHA+1w001gMaF9Cb5rqhA54zrLd61N0LG8RpdOs/a2DjPPPBZX9lWBjUSYb9c705VfQHFlKwERyVSqfBtC9ss93nEiUCrJSWyQmlxyXJGTsdL+bXXnlxNEiWc8mFbtzYHdp4xe/ARtFNZmVLtUPNiMX5BNX6m1nLDHFoZiB9MadxKhYzvItcni9fHMwQhxDySRCEirepE9sdztdiK7fPCAk+ZBatbLhsmtpoQwFU7+MeJ7TbEcCWS2h0a8wcWNWeLxaQMEfxgcX/atFHxwubbHAJF5IY0f+t3tFoNK4CkvMYpnElRg/D2KmKKe+cPgztHqzWBpgjD3HZ92uCO0EkVONrqEFeSOlNyNJR1ajUs6AZED2kdY+e9rMj/PkY4eoSfCi1gbVpy2GKrtfPeb+CKTUibkLCh9GGbtkIrVrAPso3In2o/1T/zTqwxQb7cp
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LO0P123MB5583.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230001)(366004)(5660300002)(86362001)(107886003)(508600001)(6512007)(31696002)(4326008)(8676002)(38100700002)(6486002)(2616005)(66946007)(66556008)(66476007)(31686004)(316002)(36756003)(26005)(54906003)(186003)(6506007)(83380400001)(2906002)(8936002)(45980500001)(43740500002);DIR:OUT;SFP:1101
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?U3EzRU1Ob3B4TitpSys5emRITk9MYXJaZHVuZXZpaWJsaG9Ja0VmdkdIeXZB?=
+ =?utf-8?B?VG9UaTkvdGNuODNZWWxad1FPNVBHWmRWN04weTV5dnAzZjRlOTdjcWh4WFVV?=
+ =?utf-8?B?R3RpZkZHRHU4QkVDWUJKcENra2lBTzlWeXhaSXBIN2RCclE3SS8wZXZsVkt4?=
+ =?utf-8?B?TEhvalEyWGYvRWVQWUJhaE5SOWQyNCtXd2ZmL1B0TitTcENwOHRXdU03bUNa?=
+ =?utf-8?B?RFRmZmtMVXFTdERLUElwSVRiSW5KQkxSajhpUkZpWjhWRHBQenA1OStGRVFt?=
+ =?utf-8?B?NXo2UHJqc3dVMGIrbEtvSklOa0dHYkg5Sm5lT0I4R2xvNHNxN0RLdmJ3Ylhv?=
+ =?utf-8?B?eDB2UTVnUDVDclVxd0JxYmdQc0ErYk9ueG1icTVxRVFpdFRzRks1R2Y1TWUw?=
+ =?utf-8?B?YXllZ2F0Q2FXajRidHA5ckwwNkRQL3V0WEpLb2FVbjdDVHNFdTMrRnVOWXBW?=
+ =?utf-8?B?L1BGY3lsejhjOENUTDYrRUVZTytIM2JSNiszOU84aHpBbTR6VTJIVnhDMXBV?=
+ =?utf-8?B?eWZVSHpRalJMQjJXUXpCNldDWmpaSkUzZjJBaWtrV1FhSGtmcnNURkJZWFNl?=
+ =?utf-8?B?b1dMd0hmdFRYWkpmNWkycFJQOU5IRVBZLzBUU2tBSlk5TUFqVlhxMThOcVBj?=
+ =?utf-8?B?N1h3NitqemZ2U3JEOFBqZlUzMUJHT3JjSFZtSzBiZ1ZmUjZiVys4OWg4MW0x?=
+ =?utf-8?B?VStKY0o3YTJVN0N1cHRtbmo3cWxqQlRCTzVZOFhSQWp3K3E5eVVvOXpscjM5?=
+ =?utf-8?B?cEdkeTMrRlJYVXRIaWIvTkRiL2I1b1Z0V05FM3V3VDZnTFlyYWZmTDQ1RTZ5?=
+ =?utf-8?B?UjlmLzE1YUlYR0VvNnNiN1Q2VEdIemdLQ2hqTXNwcFFlTEk3ZE1NOGhxbHdS?=
+ =?utf-8?B?Z3p1NGp6bTNLWUJlZ2RDejVCZStJckJ1cTdHaDlyVHFJdlRvN05rVHRNNkFQ?=
+ =?utf-8?B?ZFFMZGduTDRmbVkxa0o1VTVlVEVyTTB2S2NMWWJIOGhhcDdVL3A3akZJeFBZ?=
+ =?utf-8?B?YlhBdEVLYU9KN3cvcHczNzJPTCtaRzVRSmZjTE03cmorMWhnSURJeHhaU1hO?=
+ =?utf-8?B?bXJzaEVxbjIwVytUVU1kODBsZmNEd1NmMFFEeHF3Q2VtOUdWTmI5dWJudWZw?=
+ =?utf-8?B?UGowUFNaaFZnamZXNXQ0ZVErZ0xQZ0dGU2ZNRk9LNk02WmZVOXF3TzNGaWJQ?=
+ =?utf-8?B?TnNocUhzOUE0QmEvL2IwWDNnbjNWTWVLRHFlUnZlU3VKVStrbGtYRkI3eTBP?=
+ =?utf-8?B?ZEJZMnR3M09sRmxlMy9GeFpXQlhHMmx1WDNxT2M2ZFVqUjg2RG1kQ3B4b2Zp?=
+ =?utf-8?B?T2kzMGhxTzlWRW1zQUFrdWZ3dlN1THFkZTUzTGFTMHp6SHA3WVN4TVpsQ2l5?=
+ =?utf-8?B?WEV3RWt0SjhiODE4Q2liVVk0YVFMWmJkb0RNMHA5SGo4TGg5NXBmNjZtUWtt?=
+ =?utf-8?B?Y0xkZ01WMnZGZmtmQXRQQ2tDMi9CVGZwZUtLeFphTVR5MTFTNmVRMDBUM0Q5?=
+ =?utf-8?B?YXJMZnpJL3BuWWlNaWpsRWJjRDhURVFneEdIZVRVN0JxZzEyY2g5QkZwS1E5?=
+ =?utf-8?B?SitjNmtSMS91NzVKeExHZnc4ZkRiY2NFK1RXd3Q5ZTJhUDdlY3JJZ3BsOGpV?=
+ =?utf-8?B?aUpMSnlNVGxoZ3Z1eHo0VWk3RUlPSHJnNlZtV1A2dUIrSmZNaWx5SFU4NW5D?=
+ =?utf-8?B?VWEzbko4TkpFOERZUTNmeXBwR2NrMCs3QWtyTXh1NmJaS3Z6aHRTSkRZaFR5?=
+ =?utf-8?B?RG9jQnkxTGpUT1N0QXpIUmlyWS9OMUVNbXpvSnNaQ3BKUzFaOVVwdFl3VHlG?=
+ =?utf-8?B?VmptRVZXSkhlTi94RkhoRW5qcCtQZ2dwMGNRUjVVQTVaRjcyR2NhS0ZGTmZU?=
+ =?utf-8?B?MjloK2FsOHcyREgyaVJpUzU1T3h3VDlSejFEWlFKekZ4WXJ1bjlhODhYOE1v?=
+ =?utf-8?B?a2xKWWpncW5NdVFuRFliRmI5VlhuNFFTbktCR3ErRDAxTEgyRENZYUxWZ1VR?=
+ =?utf-8?B?Yzlzd1BidDFBPT0=?=
+X-OriginatorOrg: camlingroup.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8d0e004a-6d7c-41b4-b460-08da02634d72
+X-MS-Exchange-CrossTenant-AuthSource: LO0P123MB5583.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Mar 2022 06:57:55.2289
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: fd4b1729-b18d-46d2-9ba0-2717b852b252
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: wElgDjGU8zF6p0NcMo9sSG14l6OtLcf5vlufM8QYVeZo/VFrS7nsUxQ2VqA3lj5AbECwzx4LAIzomVMUE6cvnZ9Z69sgwRNOBWI8MaHknMw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CWLP123MB3266
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=CUK97A341 smtp.mailfrom=tomasz.mon@camlingroup.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: camlingroup.com
 Content-Language: en-US
-To:     Werner Sembach <wse@tuxedocomputers.com>,
-        dmitry.torokhov@gmail.com, tiwai@suse.de, mpdesouza@suse.com,
-        arnd@arndb.de, samuel@cavoj.net, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220308170523.783284-1-wse@tuxedocomputers.com>
- <20220308170523.783284-2-wse@tuxedocomputers.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20220308170523.783284-2-wse@tuxedocomputers.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+Hello,
 
-On 3/8/22 18:05, Werner Sembach wrote:
-> Merge i8042 quirk tables to reduce code duplication for devices that need
-> more than one quirk.
-> 
-> Also align quirkable options with command line parameters and make vendor
-> wide quirks per device overwriteable on a per device basis.
-> 
-> Some duplication on the ASUS devices is required to mirror the exact
-> behaviour of the previous code.
+I have recently come across following invalid entry:
+=09gpio-keys {
+=09=09compatible =3D "gpio-keys";
+=09=09servicing-sw {
+=09=09=09label =3D "servicing-sw";
+=09=09=09gpios =3D <&gpio3 1 GPIO_ACTIVE_LOW>;
+=09=09=09linux,code =3D <BTN_0>;
+=09=09=09linux,input-type =3D <EV_SW>;
+=09=09=09debounce-interval =3D <50>;
+=09=09};
+=09};
 
-Can you explain this a bit more ?
+While the entry is clearly invalid, no tools currently detect it.
+Documentation/devicetree/bindings/input/gpio-keys.yaml allows any uint32
+as linux,code. The actual allowed values do depend on linux,input-type.
+Should the gpio-keys.yaml be updated to actually restrict the range
+based on linux,input-type?
 
+If the yaml should validate range, it would have to be updated each time
+new input event code is added. Is it acceptable? Or is there some way to
+use the definitions from include/uapi/linux/input-event-codes.h in yaml?
 
+The code does not sanitize the linux,code values. On 32-bit arm system,
+the above example causes kernel panic due to memory corruption:
+  * gpio_keys_setup_key() in drivers/input/keyboard/gpio_keys.c calls
+    input_set_capability(input, EV_SW, BTN_0)
+  * input_set_capability() in drivers/input/input.c calls
+    __set_bit(BTN_0, dev->swbit)
+  * The setbit changes poller pointer least significant bit
+  * input_register_device() calls input_dev_poller_finalize(dev->poller)
+  * input_dev_poller_finalize() accesses memory at address 0x00000005
 
-> 
-> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-> Cc: stable@vger.kernel.org
-> ---
->  drivers/input/serio/i8042-x86ia64io.h | 1125 ++++++++++++++-----------
->  1 file changed, 640 insertions(+), 485 deletions(-)
-> 
-> diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-> index 148a7c5fd0e2..689b9ee3e742 100644
-> --- a/drivers/input/serio/i8042-x86ia64io.h
-> +++ b/drivers/input/serio/i8042-x86ia64io.h
-> @@ -67,675 +67,821 @@ static inline void i8042_write_command(int val)
->  
->  #include <linux/dmi.h>
->  
-> -static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
-> +#define SERIO_QUIRK_NOKBD		BIT(0)
-> +#define SERIO_QUIRK_NOAUX		BIT(1)
-> +#define SERIO_QUIRK_NOMUX		BIT(2)
-> +#define SERIO_QUIRK_FORCEMUX		BIT(3)
-> +#define SERIO_QUIRK_UNLOCK		BIT(4)
-> +#define SERIO_QUIRK_PROBE_DEFER		BIT(5)
-> +#define SERIO_QUIRK_RESET_ALWAYS	BIT(6)
-> +#define SERIO_QUIRK_RESET_NEVER		BIT(7)
-> +#define SERIO_QUIRK_DIECT		BIT(8)
-> +#define SERIO_QUIRK_DUMBKBD		BIT(9)
-> +#define SERIO_QUIRK_NOLOOP		BIT(10)
-> +#define SERIO_QUIRK_NOTIMEOUT		BIT(11)
-> +#define SERIO_QUIRK_KBDRESET		BIT(12)
-> +#define SERIO_QUIRK_DRITEK		BIT(13)
-> +#define SERIO_QUIRK_NOPNP		BIT(14)
-> +
-> +/* Quirk table for different mainboards. Options similar or identical to i8042
-> + * module parameters.
-> + * ORDERING IS IMPORTANT! The first match will be apllied and the rest ignored.
-> + * This allows entries to overwrite vendor wide quirks on a per device basis.
-> + * Where this is irrelevant, entries are sorted case sensitive by DMI_SYS_VENDOR
-> + * and/or DMI_BOARD_VENDOR to make it easier to avoid dublicate entries.
-> + */
-> +static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+While provided example hopefully crashes every time making the issue
+obvious, other code values can cause much more subtle issues.
+Should the input_set_capability() warn if code is outside bitmap range?
 
-<snip>
-
-> @@ -1167,11 +1307,6 @@ static int __init i8042_pnp_init(void)
->  	bool pnp_data_busted = false;
->  	int err;
->  
-> -#ifdef CONFIG_X86
-> -	if (dmi_check_system(i8042_dmi_nopnp_table))
-> -		i8042_nopnp = true;
-> -#endif
-> -
->  	if (i8042_nopnp) {
->  		pr_info("PNP detection disabled\n");
->  		return 0;
-
-have you checked that i8042_platform_init() *always*
-gets called before i8042_pnp_init()?
-
-Maybe just add something like this:
-
-#ifdef CONFIG_X86
-static void __init i8042_check_quirks(void)
-{
-	const struct dmi_system_id *device_quirk_info;
-	uintptr_t quirks;
-
-	device_quirk_info = dmi_first_match(i8042_dmi_quirk_table);
-	if (!device_quirk_info)
-		return;
-
-	quirks = (uintptr_t)device_quirk_info->driver_data;
-
-	if (i8042_reset == I8042_RESET_DEFAULT) {
-		if (quirks & SERIO_QUIRK_RESET)
-			i8042_reset = I8042_RESET_ALWAYS;
-		if (quirks & SERIO_QUIRK_NOSELFTEST)
-			i8042_reset = I8042_RESET_NEVER;
-	}
-
-	/* Do more quirk checks */
-}
-#else
-static inline void i8042_check_quirks(void) {}
-#endif
-
-(above the declaration of i8042_pnp_init())
-
-And call i8042_check_quirks() in both
-i8042_platform_init() and i8042_platform_init() ?
-
-This also abstracts some of the CONFIG_X86
-ifdef-ery out of the other functions.
-
-
-> @@ -1277,6 +1412,9 @@ static inline void i8042_pnp_exit(void) { }
->  
->  static int __init i8042_platform_init(void)
->  {
-> +	bool i8042_reset_always_quirk = false;
-> +	bool i8042_reset_never_quirk = false;
-
-I'm not a fan of these 2 helper variables, you can do this directly,
-see above.
-
-> +	const struct dmi_system_id *device_quirk_info;
-
-All 3 these variables will trigger unused variable
-settings when compiling without CONFIG_X86 set. Note
-introducing the i8042_check_quirks() helper as I suggest
-above avoids this without needing more #ifdef-ery.
-
->  	int retval;
->  
->  #ifdef CONFIG_X86
-> @@ -1297,6 +1435,44 @@ static int __init i8042_platform_init(void)
->  	i8042_kbd_irq = I8042_MAP_IRQ(1);
->  	i8042_aux_irq = I8042_MAP_IRQ(12);
->  
-> +#ifdef CONFIG_X86
-> +	device_quirk_info = dmi_first_match(i8042_dmi_quirk_table);
-> +	if (device_quirk_info) {
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_NOKBD)
-> +			i8042_nokbd = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_NOAUX)
-> +			i8042_noaux = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_NOMUX)
-> +			i8042_nomux = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_FORCEMUX)
-> +			i8042_nomux = false;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_UNLOCK)
-> +			i8042_unlock = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_PROBE_DEFER)
-> +			i8042_probe_defer = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_RESET_ALWAYS)
-> +			i8042_reset_always_quirk = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_RESET_NEVER)
-> +			i8042_reset_never_quirk = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_DIECT)
-> +			i8042_direct = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_DUMBKBD)
-> +			i8042_dumbkbd = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_NOLOOP)
-> +			i8042_noloop = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_NOTIMEOUT)
-> +			i8042_notimeout = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_KBDRESET)
-> +			i8042_kbdreset = true;
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_DRITEK)
-> +			i8042_dritek = true;
-> +#ifdef CONFIG_PNP
-> +		if ((uintptr_t)device_quirk_info->driver_data & SERIO_QUIRK_NOPNP)
-> +			i8042_nopnp = true;
-> +#endif
-> +	}
-> +#endif
-> +
->  	retval = i8042_pnp_init();
->  	if (retval)
->  		return retval;
-> @@ -1308,34 +1484,13 @@ static int __init i8042_platform_init(void)
->  #ifdef CONFIG_X86
->  	/* Honor module parameter when value is not default */
->  	if (i8042_reset == I8042_RESET_DEFAULT) {
-> -		if (dmi_check_system(i8042_dmi_reset_table))
-> +		if (i8042_reset_always_quirk)
->  			i8042_reset = I8042_RESET_ALWAYS;
->  
-> -		if (dmi_check_system(i8042_dmi_noselftest_table))
-> +		if (i8042_reset_never_quirk)
->  			i8042_reset = I8042_RESET_NEVER;
->  	}
->  
-> -	if (dmi_check_system(i8042_dmi_noloop_table))
-> -		i8042_noloop = true;
-> -
-> -	if (dmi_check_system(i8042_dmi_nomux_table))
-> -		i8042_nomux = true;
-> -
-> -	if (dmi_check_system(i8042_dmi_forcemux_table))
-> -		i8042_nomux = false;
-> -
-> -	if (dmi_check_system(i8042_dmi_notimeout_table))
-> -		i8042_notimeout = true;
-> -
-> -	if (dmi_check_system(i8042_dmi_dritek_table))
-> -		i8042_dritek = true;
-> -
-> -	if (dmi_check_system(i8042_dmi_kbdreset_table))
-> -		i8042_kbdreset = true;
-> -
-> -	if (dmi_check_system(i8042_dmi_probe_defer_table))
-> -		i8042_probe_defer = true;
-> -
->  	/*
->  	 * A20 was already enabled during early kernel init. But some buggy
->  	 * BIOSes (in MSI Laptops) require A20 to be enabled using 8042 to
-
-Regards,
-
-Hans
-
+Best Regards,
+Tomasz Mon
 

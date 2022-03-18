@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A965C4332F
-	for <linux-input@archiver.kernel.org>; Fri, 18 Mar 2022 16:16:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB699C433FE
+	for <linux-input@archiver.kernel.org>; Fri, 18 Mar 2022 16:16:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238761AbiCRQRf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Mar 2022 12:17:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53700 "EHLO
+        id S238740AbiCRQRr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Mar 2022 12:17:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238720AbiCRQR3 (ORCPT
+        with ESMTP id S238717AbiCRQRr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Mar 2022 12:17:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 1E0F31D7891
-        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2022 09:16:10 -0700 (PDT)
+        Fri, 18 Mar 2022 12:17:47 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8B3961D7891
+        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2022 09:16:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647620169;
+        s=mimecast20190719; t=1647620186;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=xDf7SF2Fra40bZaEdvr7u9jw/RZ02CEurbENm/arAE4=;
-        b=Wj9lANzsQ2JqgXHqH/pg7PFN/6laJ4tcDcfcoDWuGdWI68131VjHJ2RIPsWkn13WNEX2NC
-        29XZmU02wwQMrFsx0ppYPGUC/8WO+u7OzHaLH4M0PJe9UqjQ9Uuu9Hk/ZzxbhiJm0tzohG
-        RVrCAHqkEbmhWPo/n6ny3B3pci2rHSs=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=OQUDhoqS/TjN6VMPOB7LXHwoVdY1tkFbLh8p1nVVoZ4=;
+        b=MUTGL2kHI18uRwnMZw6w8uXofzGa3PA6e6D0qgyJT0cr/O2d0Me/G934zVfZI9wS+lFZHO
+        kCx1pejN65Tgs9xKNOgLVuxnJoQHdpVSd8/MbMbcUveIwaGNYt/z96Ncvmz3r2zoPyvmpX
+        TU49Aqj4sZg3e8KH2djs3/clIn61q9E=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-609-uvKNlS3pNXaCQvW5KvtJmw-1; Fri, 18 Mar 2022 12:16:03 -0400
-X-MC-Unique: uvKNlS3pNXaCQvW5KvtJmw-1
+ us-mta-668-MtPvz53eNkyP14MEJMP5fg-1; Fri, 18 Mar 2022 12:16:23 -0400
+X-MC-Unique: MtPvz53eNkyP14MEJMP5fg-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E2D1F803524;
-        Fri, 18 Mar 2022 16:16:01 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 58852296A624;
+        Fri, 18 Mar 2022 16:16:22 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.192.159])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0B90A33250;
-        Fri, 18 Mar 2022 16:15:44 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 39658421C3;
+        Fri, 18 Mar 2022 16:16:19 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -54,11 +54,10 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sean Young <sean@mess.org>
-Subject: [PATCH bpf-next v3 01/17] bpf: add new is_sys_admin_prog_type() helper
-Date:   Fri, 18 Mar 2022 17:15:12 +0100
-Message-Id: <20220318161528.1531164-2-benjamin.tissoires@redhat.com>
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v3 03/17] bpf/verifier: prevent non GPL programs to be loaded against HID
+Date:   Fri, 18 Mar 2022 17:15:14 +0100
+Message-Id: <20220318161528.1531164-4-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
 References: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -68,63 +67,111 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-LIRC_MODE2 does not really need net_admin capability, but only sys_admin.
+This is just to hammer the obvious because I suspect you can not already
+load a bpf HID program which is not GPL because all of the useful
+functions are GPL only.
 
-Extract a new helper for it, it will be also used for the HID bpf
-implementation.
+Anyway, this ensures that users are not tempted to bypass this requirement
+and will allow us to ship tested BPF programs in the kernel without having
+to aorry about the license.
 
-Cc: Sean Young <sean@mess.org>
-Acked-by: Sean Young <sean@mess.org>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-changes in v3:
-- dropped BPF_PROG_TYPE_EXT from the new helper
+no changes in v3
 
-new in v2
+new in v2:
+ - Note: I placed this statement in check_attach_btf_id() to be local to
+   other similar checks (regarding LSM), however, I have no idea if this
+   is the correct place. Please shout at me if it isn't.
 ---
- kernel/bpf/syscall.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ include/linux/bpf-hid.h |  8 ++++++++
+ kernel/bpf/hid.c        | 12 ++++++++++++
+ kernel/bpf/verifier.c   |  7 +++++++
+ 3 files changed, 27 insertions(+)
 
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 9beb585be5a6..b88688264ad0 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -2165,7 +2165,6 @@ static bool is_net_admin_prog_type(enum bpf_prog_type prog_type)
- 	case BPF_PROG_TYPE_LWT_SEG6LOCAL:
- 	case BPF_PROG_TYPE_SK_SKB:
- 	case BPF_PROG_TYPE_SK_MSG:
--	case BPF_PROG_TYPE_LIRC_MODE2:
- 	case BPF_PROG_TYPE_FLOW_DISSECTOR:
- 	case BPF_PROG_TYPE_CGROUP_DEVICE:
- 	case BPF_PROG_TYPE_CGROUP_SOCK:
-@@ -2202,6 +2201,16 @@ static bool is_perfmon_prog_type(enum bpf_prog_type prog_type)
- 	}
- }
+diff --git a/include/linux/bpf-hid.h b/include/linux/bpf-hid.h
+index 9c8dbd389995..7f596554fe8c 100644
+--- a/include/linux/bpf-hid.h
++++ b/include/linux/bpf-hid.h
+@@ -2,6 +2,7 @@
+ #ifndef _BPF_HID_H
+ #define _BPF_HID_H
  
-+static bool is_sys_admin_prog_type(enum bpf_prog_type prog_type)
++#include <linux/bpf_verifier.h>
+ #include <linux/mutex.h>
+ #include <uapi/linux/bpf.h>
+ #include <uapi/linux/bpf_hid.h>
+@@ -69,6 +70,8 @@ int bpf_hid_prog_query(const union bpf_attr *attr,
+ 		       union bpf_attr __user *uattr);
+ int bpf_hid_link_create(const union bpf_attr *attr,
+ 			struct bpf_prog *prog);
++int bpf_hid_verify_prog(struct bpf_verifier_log *vlog,
++			const struct bpf_prog *prog);
+ #else
+ static inline int bpf_hid_prog_query(const union bpf_attr *attr,
+ 				     union bpf_attr __user *uattr)
+@@ -81,6 +84,11 @@ static inline int bpf_hid_link_create(const union bpf_attr *attr,
+ {
+ 	return -EOPNOTSUPP;
+ }
++static inline int bpf_hid_verify_prog(struct bpf_verifier_log *vlog,
++				      const struct bpf_prog *prog)
 +{
-+	switch (prog_type) {
-+	case BPF_PROG_TYPE_LIRC_MODE2:
-+		return true;
-+	default:
-+		return false;
++	return -EOPNOTSUPP;
++}
+ #endif
+ 
+ static inline bool bpf_hid_link_empty(struct bpf_hid *bpf,
+diff --git a/kernel/bpf/hid.c b/kernel/bpf/hid.c
+index c21dc05f6207..2dfeaaa8a83f 100644
+--- a/kernel/bpf/hid.c
++++ b/kernel/bpf/hid.c
+@@ -34,6 +34,18 @@ void bpf_hid_set_hooks(struct bpf_hid_hooks *hooks)
+ }
+ EXPORT_SYMBOL_GPL(bpf_hid_set_hooks);
+ 
++int bpf_hid_verify_prog(struct bpf_verifier_log *vlog,
++			const struct bpf_prog *prog)
++{
++	if (!prog->gpl_compatible) {
++		bpf_log(vlog,
++			"HID programs must have a GPL compatible license\n");
++		return -EINVAL;
 +	}
++
++	return 0;
 +}
 +
- /* last field in 'union bpf_attr' used by this command */
- #define	BPF_PROG_LOAD_LAST_FIELD core_relo_rec_size
+ BPF_CALL_3(bpf_hid_get_data, struct hid_bpf_ctx_kern*, ctx, u64, offset, u64, size)
+ {
+ 	if (!size)
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index cf92f9c01556..da06d633fb8d 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -21,6 +21,7 @@
+ #include <linux/perf_event.h>
+ #include <linux/ctype.h>
+ #include <linux/error-injection.h>
++#include <linux/bpf-hid.h>
+ #include <linux/bpf_lsm.h>
+ #include <linux/btf_ids.h>
  
-@@ -2252,6 +2261,8 @@ static int bpf_prog_load(union bpf_attr *attr, bpfptr_t uattr)
- 		return -EPERM;
- 	if (is_perfmon_prog_type(type) && !perfmon_capable())
- 		return -EPERM;
-+	if (is_sys_admin_prog_type(type) && !capable(CAP_SYS_ADMIN))
-+		return -EPERM;
+@@ -14272,6 +14273,12 @@ static int check_attach_btf_id(struct bpf_verifier_env *env)
+ 	if (prog->type == BPF_PROG_TYPE_STRUCT_OPS)
+ 		return check_struct_ops_btf_id(env);
  
- 	/* attach_prog_fd/attach_btf_obj_fd can specify fd of either bpf_prog
- 	 * or btf, we need to check which one it is
++	if (prog->type == BPF_PROG_TYPE_HID) {
++		ret = bpf_hid_verify_prog(&env->log, prog);
++		if (ret < 0)
++			return ret;
++	}
++
+ 	if (prog->type != BPF_PROG_TYPE_TRACING &&
+ 	    prog->type != BPF_PROG_TYPE_LSM &&
+ 	    prog->type != BPF_PROG_TYPE_EXT)
 -- 
 2.35.1
 

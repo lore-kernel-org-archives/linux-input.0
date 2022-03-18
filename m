@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB699C433FE
-	for <linux-input@archiver.kernel.org>; Fri, 18 Mar 2022 16:16:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84B7BC4707A
+	for <linux-input@archiver.kernel.org>; Fri, 18 Mar 2022 16:17:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238740AbiCRQRr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Mar 2022 12:17:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55280 "EHLO
+        id S238834AbiCRQTN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Mar 2022 12:19:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238717AbiCRQRr (ORCPT
+        with ESMTP id S239045AbiCRQSu (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Mar 2022 12:17:47 -0400
+        Fri, 18 Mar 2022 12:18:50 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8B3961D7891
-        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2022 09:16:27 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id EC5AD103D88
+        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2022 09:17:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647620186;
+        s=mimecast20190719; t=1647620251;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=OQUDhoqS/TjN6VMPOB7LXHwoVdY1tkFbLh8p1nVVoZ4=;
-        b=MUTGL2kHI18uRwnMZw6w8uXofzGa3PA6e6D0qgyJT0cr/O2d0Me/G934zVfZI9wS+lFZHO
-        kCx1pejN65Tgs9xKNOgLVuxnJoQHdpVSd8/MbMbcUveIwaGNYt/z96Ncvmz3r2zoPyvmpX
-        TU49Aqj4sZg3e8KH2djs3/clIn61q9E=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=/OVyC0zaH1G/so0ZWrJlP+iwVNUqwQaVb/Gii8MLOPM=;
+        b=TQvnDPY43a8b5idmlsHU9ZiVUQyRcqDIc8kGTlMzwyJ6nUbU3+O1+pd3iWlt9G4f4YDaT3
+        sPJsbqP2DYxGWHdtAObEjn84S6+TrC/qqsNsoUglAEbaTAgoxRJKWak4jxWErJ/BAwUVhu
+        lo9rwPjUYFGrx13oY+Fv7SHet6dkw3g=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-668-MtPvz53eNkyP14MEJMP5fg-1; Fri, 18 Mar 2022 12:16:23 -0400
-X-MC-Unique: MtPvz53eNkyP14MEJMP5fg-1
+ us-mta-528-GokVlFHFMx6rNO_pb1c6EA-1; Fri, 18 Mar 2022 12:17:27 -0400
+X-MC-Unique: GokVlFHFMx6rNO_pb1c6EA-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 58852296A624;
-        Fri, 18 Mar 2022 16:16:22 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AF68B83396E;
+        Fri, 18 Mar 2022 16:17:26 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.192.159])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 39658421C3;
-        Fri, 18 Mar 2022 16:16:19 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 30DF433250;
+        Fri, 18 Mar 2022 16:17:10 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -55,9 +55,9 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v3 03/17] bpf/verifier: prevent non GPL programs to be loaded against HID
-Date:   Fri, 18 Mar 2022 17:15:14 +0100
-Message-Id: <20220318161528.1531164-4-benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v3 10/17] selftests/bpf: add test for user call of HID bpf programs
+Date:   Fri, 18 Mar 2022 17:15:21 +0100
+Message-Id: <20220318161528.1531164-11-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
 References: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -67,111 +67,120 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is just to hammer the obvious because I suspect you can not already
-load a bpf HID program which is not GPL because all of the useful
-functions are GPL only.
-
-Anyway, this ensures that users are not tempted to bypass this requirement
-and will allow us to ship tested BPF programs in the kernel without having
-to aorry about the license.
+Add a simple test to see if we can trigger a bpf program of type
+"hid/user_event".
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v3
+changes in v3:
+- use the new hid_get_data API
 
-new in v2:
- - Note: I placed this statement in check_attach_btf_id() to be local to
-   other similar checks (regarding LSM), however, I have no idea if this
-   is the correct place. Please shout at me if it isn't.
+changes in v2:
+- split the series by bpf/libbpf/hid/selftests and samples
 ---
- include/linux/bpf-hid.h |  8 ++++++++
- kernel/bpf/hid.c        | 12 ++++++++++++
- kernel/bpf/verifier.c   |  7 +++++++
- 3 files changed, 27 insertions(+)
+ tools/testing/selftests/bpf/prog_tests/hid.c | 56 ++++++++++++++++++++
+ tools/testing/selftests/bpf/progs/hid.c      | 15 ++++++
+ 2 files changed, 71 insertions(+)
 
-diff --git a/include/linux/bpf-hid.h b/include/linux/bpf-hid.h
-index 9c8dbd389995..7f596554fe8c 100644
---- a/include/linux/bpf-hid.h
-+++ b/include/linux/bpf-hid.h
-@@ -2,6 +2,7 @@
- #ifndef _BPF_HID_H
- #define _BPF_HID_H
- 
-+#include <linux/bpf_verifier.h>
- #include <linux/mutex.h>
- #include <uapi/linux/bpf.h>
- #include <uapi/linux/bpf_hid.h>
-@@ -69,6 +70,8 @@ int bpf_hid_prog_query(const union bpf_attr *attr,
- 		       union bpf_attr __user *uattr);
- int bpf_hid_link_create(const union bpf_attr *attr,
- 			struct bpf_prog *prog);
-+int bpf_hid_verify_prog(struct bpf_verifier_log *vlog,
-+			const struct bpf_prog *prog);
- #else
- static inline int bpf_hid_prog_query(const union bpf_attr *attr,
- 				     union bpf_attr __user *uattr)
-@@ -81,6 +84,11 @@ static inline int bpf_hid_link_create(const union bpf_attr *attr,
- {
- 	return -EOPNOTSUPP;
+diff --git a/tools/testing/selftests/bpf/prog_tests/hid.c b/tools/testing/selftests/bpf/prog_tests/hid.c
+index b8d4dcf20b05..edc3af71e9ed 100644
+--- a/tools/testing/selftests/bpf/prog_tests/hid.c
++++ b/tools/testing/selftests/bpf/prog_tests/hid.c
+@@ -478,6 +478,59 @@ static int test_hid_attach_flags(struct hid *hid_skel, int uhid_fd, int sysfs_fd
+ 	return ret;
  }
-+static inline int bpf_hid_verify_prog(struct bpf_verifier_log *vlog,
-+				      const struct bpf_prog *prog)
+ 
++/*
++ * Attach hid_user to the given uhid device,
++ * call the bpf program from userspace
++ * check that the program is called and does the expected.
++ */
++static int test_hid_user_call(struct hid *hid_skel, int uhid_fd, int sysfs_fd)
 +{
-+	return -EOPNOTSUPP;
++	int err, prog_fd;
++	u8 buf[10] = {0};
++	int ret = -1;
++
++	LIBBPF_OPTS(bpf_test_run_opts, run_attrs,
++		    .repeat = 1,
++		    .ctx_in = &sysfs_fd,
++		    .ctx_size_in = sizeof(sysfs_fd),
++		    .data_in = buf,
++		    .data_size_in = sizeof(buf),
++		    .data_out = buf,
++		    .data_size_out = sizeof(buf),
++	);
++
++	/* attach hid_user program */
++	hid_skel->links.hid_user = bpf_program__attach_hid(hid_skel->progs.hid_user, sysfs_fd, 0);
++	if (!ASSERT_OK_PTR(hid_skel->links.hid_user,
++			   "attach_hid(hid_user)"))
++		return PTR_ERR(hid_skel->links.hid_user);
++
++	buf[0] = 39;
++
++	prog_fd = bpf_program__fd(hid_skel->progs.hid_user);
++
++	err = bpf_prog_test_run_opts(prog_fd, &run_attrs);
++	if (!ASSERT_EQ(err, 0, "bpf_prog_test_run_xattr"))
++		goto cleanup;
++
++	if (!ASSERT_EQ(run_attrs.retval, 72, "bpf_prog_test_run_opts"))
++		goto cleanup;
++
++	if (!ASSERT_EQ(buf[1], 42, "hid_user_check_in"))
++		goto cleanup;
++
++	if (!ASSERT_EQ(buf[2], 4, "hid_user_check_static_out"))
++		goto cleanup;
++
++	ret = 0;
++
++cleanup:
++
++	hid__detach(hid_skel);
++
++	return ret;
 +}
- #endif
++
+ /*
+  * Attach hid_rdesc_fixup to the given uhid device,
+  * retrieve and open the matching hidraw node,
+@@ -585,6 +638,9 @@ void serial_test_hid_bpf(void)
+ 	err = test_hid_attach_flags(hid_skel, uhid_fd, sysfs_fd);
+ 	ASSERT_OK(err, "hid_user_raw_request");
  
- static inline bool bpf_hid_link_empty(struct bpf_hid *bpf,
-diff --git a/kernel/bpf/hid.c b/kernel/bpf/hid.c
-index c21dc05f6207..2dfeaaa8a83f 100644
---- a/kernel/bpf/hid.c
-+++ b/kernel/bpf/hid.c
-@@ -34,6 +34,18 @@ void bpf_hid_set_hooks(struct bpf_hid_hooks *hooks)
++	err = test_hid_user_call(hid_skel, uhid_fd, sysfs_fd);
++	ASSERT_OK(err, "hid_user");
++
+ 	/*
+ 	 * this test should be run last because we disconnect/reconnect
+ 	 * the device, meaning that it changes the overall uhid device
+diff --git a/tools/testing/selftests/bpf/progs/hid.c b/tools/testing/selftests/bpf/progs/hid.c
+index 390c1bb8d850..fbdbe9d1b605 100644
+--- a/tools/testing/selftests/bpf/progs/hid.c
++++ b/tools/testing/selftests/bpf/progs/hid.c
+@@ -128,3 +128,18 @@ int hid_test_insert3(struct hid_bpf_ctx *ctx)
+ 
+ 	return 0;
  }
- EXPORT_SYMBOL_GPL(bpf_hid_set_hooks);
- 
-+int bpf_hid_verify_prog(struct bpf_verifier_log *vlog,
-+			const struct bpf_prog *prog)
++
++SEC("hid/user_event")
++int hid_user(struct hid_bpf_ctx *ctx)
 +{
-+	if (!prog->gpl_compatible) {
-+		bpf_log(vlog,
-+			"HID programs must have a GPL compatible license\n");
-+		return -EINVAL;
-+	}
++	__u8 *data = bpf_hid_get_data(ctx, 0 /* offset */, 3 /* size */);
++
++	if (!data)
++		return 0; /* EPERM check */
++
++	data[1] = data[0] + 3;
++	data[2] = 4;
++	ctx->retval = 72;
 +
 +	return 0;
 +}
-+
- BPF_CALL_3(bpf_hid_get_data, struct hid_bpf_ctx_kern*, ctx, u64, offset, u64, size)
- {
- 	if (!size)
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index cf92f9c01556..da06d633fb8d 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -21,6 +21,7 @@
- #include <linux/perf_event.h>
- #include <linux/ctype.h>
- #include <linux/error-injection.h>
-+#include <linux/bpf-hid.h>
- #include <linux/bpf_lsm.h>
- #include <linux/btf_ids.h>
- 
-@@ -14272,6 +14273,12 @@ static int check_attach_btf_id(struct bpf_verifier_env *env)
- 	if (prog->type == BPF_PROG_TYPE_STRUCT_OPS)
- 		return check_struct_ops_btf_id(env);
- 
-+	if (prog->type == BPF_PROG_TYPE_HID) {
-+		ret = bpf_hid_verify_prog(&env->log, prog);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
- 	if (prog->type != BPF_PROG_TYPE_TRACING &&
- 	    prog->type != BPF_PROG_TYPE_LSM &&
- 	    prog->type != BPF_PROG_TYPE_EXT)
 -- 
 2.35.1
 

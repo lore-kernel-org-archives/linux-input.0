@@ -2,44 +2,54 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05183C433F5
-	for <linux-input@archiver.kernel.org>; Fri, 18 Mar 2022 16:21:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6FF2C433FE
+	for <linux-input@archiver.kernel.org>; Fri, 18 Mar 2022 18:05:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238110AbiCRQWe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Mar 2022 12:22:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33874 "EHLO
+        id S239993AbiCRSHM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Mar 2022 14:07:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236129AbiCRQWJ (ORCPT
+        with ESMTP id S239969AbiCRSHL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Mar 2022 12:22:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 8F2472F09ED
-        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2022 09:18:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647620300;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iDasbQdKPIktrclpqHMmE3acJqdiFWhVrVqJ26AsKBw=;
-        b=aChWACSla+1uwWtGZOWJ2eYuyE/pVcA/Co7y3ZEll0r0LofqbX0MtgvohSqYbiriUZzv/c
-        KW3LqNRWK/zyCw1BDkR5GNcdlfpVeyTRJ+CS1VrCf3QNMLCGi/S9XRSsIBDTOT/43R2NtF
-        sF3WJ75Oa63As6+ZWnFDvr59pNi3XYo=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-407-_EBLqudMNQKjWXIXAtoJpg-1; Fri, 18 Mar 2022 12:18:16 -0400
-X-MC-Unique: _EBLqudMNQKjWXIXAtoJpg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        Fri, 18 Mar 2022 14:07:11 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C56E2BD23E;
+        Fri, 18 Mar 2022 11:05:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 416FB38035BF;
-        Fri, 18 Mar 2022 16:18:15 +0000 (UTC)
-Received: from plouf.redhat.com (unknown [10.39.192.159])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 328A533250;
-        Fri, 18 Mar 2022 16:18:06 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D609B82519;
+        Fri, 18 Mar 2022 18:05:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEA95C340F5;
+        Fri, 18 Mar 2022 18:05:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1647626750;
+        bh=zIkEvsZc/kt2D5So3dCzeb7vp7iTdkL0bnV/3Yh8e6o=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=bHrLverKp3mcWzc1G29Sb/a1reCKciGcsMTF1EDF2zrLXmvg6DkYO+pfabwrx7aIM
+         XNcbRfZ7mfkQf1NfRH3CxdG9oIhkPkUluzdp1I8DlBEkX0HZuMopArqj9d0c/v4VKY
+         uS0Ve7y5J2MNgd297ck+IGgl70X/MkJjVhGrz1+uLUi2uXf88Av0PCTUU0RqB3Ivwb
+         oyaXLOPDjQSfkB84vopOizd4hjySbGbzI13W/0/6jtu3RJIl5cGRYo7liaUC9qWFsy
+         f042OPdcM8WSEKU2F2OR7OTdSdDG9hKVfxBf6KNxxo4Q0Vj3ukRU90WaUuyiqZ7JTX
+         kGqWp/Nm4jyDw==
+Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-2dbd97f9bfcso99068487b3.9;
+        Fri, 18 Mar 2022 11:05:49 -0700 (PDT)
+X-Gm-Message-State: AOAM533j/W5XU6R0myNtfS4lqq4QNu5SKxrnoZvz0sDbM0TIO4iJ6D5o
+        TsD0VkngYZLR01IGdna9vkXR42G3gZ/93KFMzuw=
+X-Google-Smtp-Source: ABdhPJxU3eil1V5K5GaKG42/whotQoFT+jQjFfgiF8ydKM3XEv8FLTKY6+WlHvQaK+D7ZByxlpUwobzVGsn3qOHQ9co=
+X-Received: by 2002:a81:951:0:b0:2e5:9e38:147c with SMTP id
+ 78-20020a810951000000b002e59e38147cmr12482496ywj.211.1647626748837; Fri, 18
+ Mar 2022 11:05:48 -0700 (PDT)
+MIME-Version: 1.0
+References: <20220318161528.1531164-1-benjamin.tissoires@redhat.com> <20220318161528.1531164-18-benjamin.tissoires@redhat.com>
+In-Reply-To: <20220318161528.1531164-18-benjamin.tissoires@redhat.com>
+From:   Song Liu <song@kernel.org>
+Date:   Fri, 18 Mar 2022 11:05:37 -0700
+X-Gmail-Original-Message-ID: <CAPhsuW77u64mxxLxp3B99cvu8NbqgNv1oW5Ffv0yn-k=YBw6GQ@mail.gmail.com>
+Message-ID: <CAPhsuW77u64mxxLxp3B99cvu8NbqgNv1oW5Ffv0yn-k=YBw6GQ@mail.gmail.com>
+Subject: Re: [PATCH bpf-next v3 17/17] Documentation: add HID-BPF docs
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
         Alexei Starovoitov <ast@kernel.org>,
         Daniel Borkmann <daniel@iogearbox.net>,
@@ -49,217 +59,127 @@ To:     Greg KH <gregkh@linuxfoundation.org>,
         John Fastabend <john.fastabend@gmail.com>,
         KP Singh <kpsingh@kernel.org>, Shuah Khan <shuah@kernel.org>,
         Dave Marchevsky <davemarchevsky@fb.com>,
-        Joe Stringer <joe@cilium.io>, Jonathan Corbet <corbet@lwn.net>
-Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v3 16/17] selftests/bpf: add tests for bpf_hid_hw_request
-Date:   Fri, 18 Mar 2022 17:15:27 +0100
-Message-Id: <20220318161528.1531164-17-benjamin.tissoires@redhat.com>
-In-Reply-To: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
-References: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.11.54.5
+        Joe Stringer <joe@cilium.io>, Jonathan Corbet <corbet@lwn.net>,
+        Tero Kristo <tero.kristo@linux.intel.com>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Networking <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
+        linux-kselftest@vger.kernel.org,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add tests for the newly implemented function.
-We test here only the GET_REPORT part because the other calls are pure
-HID protocol and won't infer the result of the test of the bpf hook.
+On Fri, Mar 18, 2022 at 9:22 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> Gives a primer on HID-BPF.
+>
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+>
+> ---
+>
+> new in v3
+> ---
+>  Documentation/hid/hid-bpf.rst | 444 ++++++++++++++++++++++++++++++++++
+>  Documentation/hid/index.rst   |   1 +
+>  include/uapi/linux/bpf_hid.h  |  54 ++++-
+>  3 files changed, 492 insertions(+), 7 deletions(-)
+>  create mode 100644 Documentation/hid/hid-bpf.rst
+>
+> diff --git a/Documentation/hid/hid-bpf.rst b/Documentation/hid/hid-bpf.rst
+> new file mode 100644
+> index 000000000000..0bf0d937b0e1
+> --- /dev/null
+> +++ b/Documentation/hid/hid-bpf.rst
+> @@ -0,0 +1,444 @@
+> +.. SPDX-License-Identifier: GPL-2.0
+> +
+> +=======
+> +HID-BPF
+> +=======
+> +
+> +HID is a standard protocol for input devices and it can greatly make use
+> +of the eBPF capabilities to speed up development and add new capabilities
+> +to the existing HID interfaces.
+> +
+> +.. contents::
+> +    :local:
+> +    :depth: 2
+> +
+> +
+> +When (and why) using HID-BPF
+> +============================
+> +
+> +We can enumerate several use cases for when using HID-BPF is better than
+> +using a standard kernel driver fix.
+> +
+> +dead zone of a joystick
+> +-----------------------
+> +
+> +Assuming you have a joystick that is getting older, it is common to see it
+> +wobbling around its neutral point. This is usually filtered at the application
+> +level by adding a *dead zone* for this specific axis.
+> +
+> +With HID-BPF, we can put the filtering of this dead zone in the kernel directly
+> +so we don't wake up userspace when nothing else is happening on the input
+> +controller.
+> +
+> +Of course, given that this dead zone is device specific, we can not create a
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+nit: s/can not/cannot
 
----
+There are a few more "can not" below.
 
-changes in v3:
-- use the new hid_get_data API
-- directly use HID_FEATURE_REPORT and HID_REQ_GET_REPORT from uapi
+[...]
 
-changes in v2:
-- split the series by bpf/libbpf/hid/selftests and samples
----
- tools/testing/selftests/bpf/prog_tests/hid.c | 72 +++++++++++++++++++-
- tools/testing/selftests/bpf/progs/hid.c      | 41 +++++++++++
- 2 files changed, 112 insertions(+), 1 deletion(-)
+> +firewall
+> +--------
+> +
+> +What if we want to prevent other users to access a specific feature of a
+> +device? (think a possibly bonker firmware update entry popint)
+nit: point
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/hid.c b/tools/testing/selftests/bpf/prog_tests/hid.c
-index e8aa1c6357e8..27b6ea7da599 100644
---- a/tools/testing/selftests/bpf/prog_tests/hid.c
-+++ b/tools/testing/selftests/bpf/prog_tests/hid.c
-@@ -11,6 +11,7 @@
- #include <stdbool.h>
- #include <linux/hidraw.h>
- #include <linux/uhid.h>
-+#include <linux/hid.h>
- 
- static unsigned char rdesc[] = {
- 	0x06, 0x00, 0xff,	/* Usage Page (Vendor Defined Page 1) */
-@@ -67,6 +68,8 @@ static unsigned char rdesc[] = {
- 	0xc0,			/* END_COLLECTION */
- };
- 
-+static u8 feature_data[] = { 1, 2 };
-+
- static pthread_mutex_t uhid_started_mtx = PTHREAD_MUTEX_INITIALIZER;
- static pthread_cond_t uhid_started = PTHREAD_COND_INITIALIZER;
- 
-@@ -126,7 +129,7 @@ static void destroy(int fd)
- 
- static int event(int fd)
- {
--	struct uhid_event ev;
-+	struct uhid_event ev, answer;
- 	ssize_t ret;
- 
- 	memset(&ev, 0, sizeof(ev));
-@@ -143,6 +146,8 @@ static int event(int fd)
- 		return -EFAULT;
- 	}
- 
-+	memset(&answer, 0, sizeof(answer));
-+
- 	switch (ev.type) {
- 	case UHID_START:
- 		pthread_mutex_lock(&uhid_started_mtx);
-@@ -167,6 +172,15 @@ static int event(int fd)
- 		break;
- 	case UHID_GET_REPORT:
- 		fprintf(stderr, "UHID_GET_REPORT from uhid-dev\n");
-+
-+		answer.type = UHID_GET_REPORT_REPLY;
-+		answer.u.get_report_reply.id = ev.u.get_report.id;
-+		answer.u.get_report_reply.err = ev.u.get_report.rnum == 1 ? 0 : -EIO;
-+		answer.u.get_report_reply.size = sizeof(feature_data);
-+		memcpy(answer.u.get_report_reply.data, feature_data, sizeof(feature_data));
-+
-+		uhid_write(fd, &answer);
-+
- 		break;
- 	case UHID_SET_REPORT:
- 		fprintf(stderr, "UHID_SET_REPORT from uhid-dev\n");
-@@ -587,6 +601,59 @@ static int test_hid_set_get_bits(struct hid *hid_skel, int uhid_fd, int sysfs_fd
- 	return ret;
- }
- 
-+/*
-+ * Attach hid_user_raw_request to the given uhid device,
-+ * call the bpf program from userspace
-+ * check that the program is called and does the expected.
-+ */
-+static int test_hid_user_raw_request_call(struct hid *hid_skel, int uhid_fd, int sysfs_fd)
-+{
-+	int err, prog_fd;
-+	u8 buf[10] = {0};
-+	int ret = -1;
-+
-+	LIBBPF_OPTS(bpf_test_run_opts, run_attrs,
-+		    .repeat = 1,
-+		    .ctx_in = &sysfs_fd,
-+		    .ctx_size_in = sizeof(sysfs_fd),
-+		    .data_in = buf,
-+		    .data_size_in = sizeof(buf),
-+		    .data_out = buf,
-+		    .data_size_out = sizeof(buf),
-+	);
-+
-+	/* attach hid_user_raw_request program */
-+	hid_skel->links.hid_user_raw_request =
-+		bpf_program__attach_hid(hid_skel->progs.hid_user_raw_request, sysfs_fd, 0);
-+	if (!ASSERT_OK_PTR(hid_skel->links.hid_user_raw_request,
-+			   "attach_hid(hid_user_raw_request)"))
-+		return PTR_ERR(hid_skel->links.hid_user_raw_request);
-+
-+	buf[0] = HID_FEATURE_REPORT;
-+	buf[1] = HID_REQ_GET_REPORT;
-+	buf[2] = 1; /* report ID */
-+
-+	prog_fd = bpf_program__fd(hid_skel->progs.hid_user_raw_request);
-+
-+	err = bpf_prog_test_run_opts(prog_fd, &run_attrs);
-+	if (!ASSERT_EQ(err, 0, "bpf_prog_test_run_xattr"))
-+		goto cleanup;
-+
-+	if (!ASSERT_EQ(run_attrs.retval, 2, "bpf_prog_test_run_xattr_retval"))
-+		goto cleanup;
-+
-+	if (!ASSERT_EQ(buf[3], 2, "hid_user_raw_request_check_in"))
-+		goto cleanup;
-+
-+	ret = 0;
-+
-+cleanup:
-+
-+	hid__detach(hid_skel);
-+
-+	return ret;
-+}
-+
- /*
-  * Attach hid_rdesc_fixup to the given uhid device,
-  * retrieve and open the matching hidraw node,
-@@ -700,6 +767,9 @@ void serial_test_hid_bpf(void)
- 	err = test_hid_set_get_bits(hid_skel, uhid_fd, sysfs_fd);
- 	ASSERT_OK(err, "hid_set_get_data");
- 
-+	err = test_hid_user_raw_request_call(hid_skel, uhid_fd, sysfs_fd);
-+	ASSERT_OK(err, "hid_user_raw_request");
-+
- 	/*
- 	 * this test should be run last because we disconnect/reconnect
- 	 * the device, meaning that it changes the overall uhid device
-diff --git a/tools/testing/selftests/bpf/progs/hid.c b/tools/testing/selftests/bpf/progs/hid.c
-index d57571b9af9a..d7b75c0cba4b 100644
---- a/tools/testing/selftests/bpf/progs/hid.c
-+++ b/tools/testing/selftests/bpf/progs/hid.c
-@@ -162,3 +162,44 @@ int hid_set_get_bits(struct hid_bpf_ctx *ctx)
- 
- 	return 0;
- }
-+
-+SEC("hid/user_event")
-+int hid_user_raw_request(struct hid_bpf_ctx *ctx)
-+{
-+	int ret;
-+	__u32 size;
-+	__u8 rtype, reqtype;
-+	__u8 *data = bpf_hid_get_data(ctx, 0 /* offset */, 10 /* size */);
-+
-+	if (!data)
-+		return 0; /* EPERM check */
-+
-+	/*
-+	 * build up a custom API for our needs:
-+	 * offset 0, size 1: report type
-+	 * offset 1, size 1: request type
-+	 * offset 2+: data
-+	 */
-+	rtype = data[0];
-+	reqtype = data[1];
-+	size = ctx->size - 2;
-+
-+	if (size <= 8) {  /* 8 = len(data) - 2 */
-+		ret = bpf_hid_raw_request(ctx,
-+					  &data[2],
-+					  size,
-+					  rtype,
-+					  reqtype);
-+		if (ret < 0)
-+			return ret;
-+	} else {
-+		return -7; /* -E2BIG */
-+	}
-+
-+	ctx->size = ret + 2;
-+	ctx->retval = ret;
-+
-+	ret = 0;
-+
-+	return ret;
-+}
--- 
-2.35.1
+> +
+> +With eBPF, we can intercept any HID command emitted to the device and
+> +validate it or not.
+> +
+> +This also allows to sync the state between the userspace and the
+> +kernel/bpf program because we can intercept any incoming command.
+> +
+[...]
 
+> +
+> +The main idea behind HID-BPF is that it works at an array of bytes level.
+> +Thus, all of the parsing of the HID report and the HID report descriptor
+> +must be implemented in the userspace component that loads the eBPF
+> +program.
+> +
+> +For example, in the dead zone joystick from above, knowing which fields
+> +in the data stream needs to be set to ``0`` needs to be computed by userspace.
+> +
+> +A corrolar of this is that HID-BPF doesn't know about the other subsystems
+
+nit: corollary?
+
+> +available in the kernel. *You can not directly emit input event through the
+> +input API from eBPF*.
+> +
+> +When a BPF program need to emit input events, it needs to talk HID, and rely
+> +on the HID kernel processing to translate the HID data into input events.
+> +
+> +Available types of programs
+> +===========================
+[...]
+> +
+> +``BPF_HID_RDESC_FIXUP``
+> +~~~~~~~~~~~~~~~~~~~~~~~
+> +
+> +Last, the ``BPF_HID_RDESC_FIXUP`` program works in the similar maneer than
+nit: manner.
+
+> +``.report_fixup`` of ``struct hid_driver``.
+> +
+
+[...]

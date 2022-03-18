@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E078C35295
-	for <linux-input@archiver.kernel.org>; Fri, 18 Mar 2022 16:18:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 227D5C4167D
+	for <linux-input@archiver.kernel.org>; Fri, 18 Mar 2022 16:17:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238995AbiCRQTQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Mar 2022 12:19:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58634 "EHLO
+        id S238971AbiCRQTP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Mar 2022 12:19:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238973AbiCRQSa (ORCPT
+        with ESMTP id S239077AbiCRQSy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Mar 2022 12:18:30 -0400
+        Fri, 18 Mar 2022 12:18:54 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id F059E1D7891
-        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2022 09:17:10 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 4998F139AF4
+        for <linux-input@vger.kernel.org>; Fri, 18 Mar 2022 09:17:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1647620230;
+        s=mimecast20190719; t=1647620254;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=c5khqAiSgzw+4rl9hIjGUC41pcK4+9Fs4UfJK9bCWNY=;
-        b=ML4uE3j23POpMD23I+lPmJIXhvKFSFMFGXBSwxjzO14lP+7gEjTrgo3LydruFB2oH+KX7i
-        2lU6MVX9WLDNHWGEx2o82ElHMpLfrvBmCFf2z3mM6t8Pjdyjv0sRFLOPC7zIwkwIYblORN
-        926iF5NN4O659LRt9MWzfjj50xodNx0=
+        bh=QH08yjZ3KjSzH4uLolphibGhSrMWYB+98W2rwbxZTxY=;
+        b=GLYznLHHS0XLSHeCTNLHHTsEzk9dveDQPaZLBY8gRZtM9OvWr9qCSPuWxDeVLeAtBQ5iRj
+        Ml4UyGCoM/NyS5yZIsAtgtCpU/NnLja0eBtKnN0/wE2jjfGG38cWO0zWAoEgfLgH3ec15b
+        CEVvf3jPsFXqjQBJiXzr9hMs+x4ScQI=
 Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
  [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-470-QqnS6V7TPu662kedwZOGAw-1; Fri, 18 Mar 2022 12:17:06 -0400
-X-MC-Unique: QqnS6V7TPu662kedwZOGAw-1
+ us-mta-634-o5uZ8XKIOyGXIBy9Leg4Ow-1; Fri, 18 Mar 2022 12:17:31 -0400
+X-MC-Unique: o5uZ8XKIOyGXIBy9Leg4Ow-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 70B29296A621;
-        Fri, 18 Mar 2022 16:17:05 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1AA613C01B94;
+        Fri, 18 Mar 2022 16:17:30 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.192.159])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6A74C7AD1;
-        Fri, 18 Mar 2022 16:16:43 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id ED84A7AD1;
+        Fri, 18 Mar 2022 16:17:26 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -55,9 +55,9 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v3 08/17] selftests/bpf: add report descriptor fixup tests
-Date:   Fri, 18 Mar 2022 17:15:19 +0100
-Message-Id: <20220318161528.1531164-9-benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v3 11/17] samples/bpf: add new hid_mouse example
+Date:   Fri, 18 Mar 2022 17:15:22 +0100
+Message-Id: <20220318161528.1531164-12-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
 References: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -67,172 +67,147 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Simple report descriptor override in HID: replace part of the report
-descriptor from a static definition in the bpf kernel program.
-
-Note that this test should be run last because we disconnect/reconnect
-the device, meaning that it changes the overall uhid device.
+Everything should be available in the selftest part of the tree, but
+providing an example without uhid and hidraw will be more easy to
+follow for users.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
 changes in v3:
-- added a comment to mention that this test needs to be run last
+- use the new hid_get_data API
+- add a comment for the report descriptor fixup to explain what is done
 
 changes in v2:
 - split the series by bpf/libbpf/hid/selftests and samples
 ---
- tools/testing/selftests/bpf/prog_tests/hid.c | 79 ++++++++++++++++++++
- tools/testing/selftests/bpf/progs/hid.c      | 54 +++++++++++++
- 2 files changed, 133 insertions(+)
+ samples/bpf/.gitignore       |   1 +
+ samples/bpf/Makefile         |   4 ++
+ samples/bpf/hid_mouse_kern.c | 117 +++++++++++++++++++++++++++++++
+ samples/bpf/hid_mouse_user.c | 129 +++++++++++++++++++++++++++++++++++
+ 4 files changed, 251 insertions(+)
+ create mode 100644 samples/bpf/hid_mouse_kern.c
+ create mode 100644 samples/bpf/hid_mouse_user.c
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/hid.c b/tools/testing/selftests/bpf/prog_tests/hid.c
-index 9f9dd08d3232..8c8e17e7385f 100644
---- a/tools/testing/selftests/bpf/prog_tests/hid.c
-+++ b/tools/testing/selftests/bpf/prog_tests/hid.c
-@@ -9,6 +9,7 @@
- #include <dirent.h>
- #include <poll.h>
- #include <stdbool.h>
-+#include <linux/hidraw.h>
- #include <linux/uhid.h>
+diff --git a/samples/bpf/.gitignore b/samples/bpf/.gitignore
+index 0e7bfdbff80a..65440bd618b2 100644
+--- a/samples/bpf/.gitignore
++++ b/samples/bpf/.gitignore
+@@ -2,6 +2,7 @@
+ cpustat
+ fds_example
+ hbm
++hid_mouse
+ ibumad
+ lathist
+ lwt_len_hist
+diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
+index 38638845db9d..84ef458487df 100644
+--- a/samples/bpf/Makefile
++++ b/samples/bpf/Makefile
+@@ -60,6 +60,8 @@ tprogs-y += xdp_redirect_map
+ tprogs-y += xdp_redirect
+ tprogs-y += xdp_monitor
  
- static unsigned char rdesc[] = {
-@@ -400,6 +401,76 @@ static int test_hid_raw_event(struct hid *hid_skel, int uhid_fd, int sysfs_fd)
- 	return ret;
- }
++tprogs-y += hid_mouse
++
+ # Libbpf dependencies
+ LIBBPF_SRC = $(TOOLS_PATH)/lib/bpf
+ LIBBPF_OUTPUT = $(abspath $(BPF_SAMPLES_PATH))/libbpf
+@@ -124,6 +126,7 @@ xdp_redirect_cpu-objs := xdp_redirect_cpu_user.o $(XDP_SAMPLE)
+ xdp_redirect_map-objs := xdp_redirect_map_user.o $(XDP_SAMPLE)
+ xdp_redirect-objs := xdp_redirect_user.o $(XDP_SAMPLE)
+ xdp_monitor-objs := xdp_monitor_user.o $(XDP_SAMPLE)
++hid_mouse-objs := hid_mouse_user.o
  
-+/*
-+ * Attach hid_rdesc_fixup to the given uhid device,
-+ * retrieve and open the matching hidraw node,
-+ * check that the hidraw report descriptor has been updated.
+ # Tell kbuild to always build the programs
+ always-y := $(tprogs-y)
+@@ -181,6 +184,7 @@ always-y += ibumad_kern.o
+ always-y += hbm_out_kern.o
+ always-y += hbm_edt_kern.o
+ always-y += xdpsock_kern.o
++always-y += hid_mouse_kern.o
+ 
+ ifeq ($(ARCH), arm)
+ # Strip all except -D__LINUX_ARM_ARCH__ option needed to handle linux
+diff --git a/samples/bpf/hid_mouse_kern.c b/samples/bpf/hid_mouse_kern.c
+new file mode 100644
+index 000000000000..32285b1920c0
+--- /dev/null
++++ b/samples/bpf/hid_mouse_kern.c
+@@ -0,0 +1,117 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Copyright (c) 2022 Benjamin Tissoires
 + */
-+static int test_rdesc_fixup(struct hid *hid_skel, int uhid_fd, int sysfs_fd)
++#include <linux/version.h>
++#include <uapi/linux/bpf.h>
++#include <uapi/linux/bpf_hid.h>
++#include <bpf/bpf_helpers.h>
++
++SEC("hid/device_event")
++int hid_y_event(struct hid_bpf_ctx *ctx)
 +{
-+	struct hidraw_report_descriptor rpt_desc = {0};
-+	int err, desc_size, hidraw_ino, hidraw_fd = -1;
-+	char hidraw_path[64] = {0};
-+	void *uhid_err;
-+	int ret = -1;
-+	pthread_t tid;
++	s16 y;
++	__u8 *data = bpf_hid_get_data(ctx, 0 /* offset */, 9 /* size */);
 +
-+	/* attach the program */
-+	hid_skel->links.hid_rdesc_fixup =
-+		bpf_program__attach_hid(hid_skel->progs.hid_rdesc_fixup, sysfs_fd, 0);
-+	if (!ASSERT_OK_PTR(hid_skel->links.hid_rdesc_fixup,
-+			   "attach_hid(hid_rdesc_fixup)"))
-+		return PTR_ERR(hid_skel->links.hid_rdesc_fixup);
++	if (!data)
++		return 0; /* EPERM check */
 +
-+	err = uhid_start_listener(&tid, uhid_fd);
-+	ASSERT_OK(err, "uhid_start_listener");
++	bpf_printk("event: %02x size: %d", ctx->type, ctx->size);
++	bpf_printk("incoming event: %02x %02x %02x",
++		   data[0],
++		   data[1],
++		   data[2]);
++	bpf_printk("                %02x %02x %02x",
++		   data[3],
++		   data[4],
++		   data[5]);
++	bpf_printk("                %02x %02x %02x",
++		   data[6],
++		   data[7],
++		   data[8]);
 +
-+	hidraw_ino = get_hidraw(hid_skel->links.hid_rdesc_fixup);
-+	if (!ASSERT_GE(hidraw_ino, 0, "get_hidraw"))
-+		goto cleanup;
++	y = data[3] | (data[4] << 8);
 +
-+	/* open hidraw node to check the other side of the pipe */
-+	sprintf(hidraw_path, "/dev/hidraw%d", hidraw_ino);
-+	hidraw_fd = open(hidraw_path, O_RDWR | O_NONBLOCK);
++	y = -y;
 +
-+	if (!ASSERT_GE(hidraw_fd, 0, "open_hidraw"))
-+		goto cleanup;
++	data[3] = y & 0xFF;
++	data[4] = (y >> 8) & 0xFF;
 +
-+	/* check that hid_rdesc_fixup() was executed */
-+	ASSERT_EQ(hid_skel->data->callback2_check, 0x21, "callback_check2");
++	bpf_printk("modified event: %02x %02x %02x",
++		   data[0],
++		   data[1],
++		   data[2]);
++	bpf_printk("                %02x %02x %02x",
++		   data[3],
++		   data[4],
++		   data[5]);
++	bpf_printk("                %02x %02x %02x",
++		   data[6],
++		   data[7],
++		   data[8]);
 +
-+	/* read the exposed report descriptor from hidraw */
-+	err = ioctl(hidraw_fd, HIDIOCGRDESCSIZE, &desc_size);
-+	if (!ASSERT_GE(err, 0, "HIDIOCGRDESCSIZE"))
-+		goto cleanup;
-+
-+	/* ensure the new size of the rdesc is bigger than the old one */
-+	if (!ASSERT_GT(desc_size, sizeof(rdesc), "new_rdesc_size"))
-+		goto cleanup;
-+
-+	rpt_desc.size = desc_size;
-+	err = ioctl(hidraw_fd, HIDIOCGRDESC, &rpt_desc);
-+	if (!ASSERT_GE(err, 0, "HIDIOCGRDESC"))
-+		goto cleanup;
-+
-+	if (!ASSERT_EQ(rpt_desc.value[4], 0x42, "hid_rdesc_fixup"))
-+		goto cleanup;
-+
-+	ret = 0;
-+
-+cleanup:
-+	if (hidraw_fd >= 0)
-+		close(hidraw_fd);
-+
-+	hid__detach(hid_skel);
-+
-+	pthread_join(tid, &uhid_err);
-+	err = (int)(long)uhid_err;
-+	CHECK_FAIL(err);
-+
-+	return ret;
++	return 0;
 +}
 +
- void serial_test_hid_bpf(void)
- {
- 	struct hid *hid_skel = NULL;
-@@ -434,6 +505,14 @@ void serial_test_hid_bpf(void)
- 	err = test_hid_raw_event(hid_skel, uhid_fd, sysfs_fd);
- 	ASSERT_OK(err, "hid");
- 
-+	/*
-+	 * this test should be run last because we disconnect/reconnect
-+	 * the device, meaning that it changes the overall uhid device
-+	 * and messes up with the thread that reads uhid events.
-+	 */
-+	err = test_rdesc_fixup(hid_skel, uhid_fd, sysfs_fd);
-+	ASSERT_OK(err, "hid_rdesc_fixup");
++SEC("hid/device_event")
++int hid_x_event(struct hid_bpf_ctx *ctx)
++{
++	s16 x;
++	__u8 *data = bpf_hid_get_data(ctx, 0 /* offset */, 9 /* size */);
 +
- cleanup:
- 	hid__destroy(hid_skel);
- 	destroy(uhid_fd);
-diff --git a/tools/testing/selftests/bpf/progs/hid.c b/tools/testing/selftests/bpf/progs/hid.c
-index a28ba19ed933..c9ce0e36e7b9 100644
---- a/tools/testing/selftests/bpf/progs/hid.c
-+++ b/tools/testing/selftests/bpf/progs/hid.c
-@@ -23,3 +23,57 @@ int hid_first_event(struct hid_bpf_ctx *ctx)
- 
- 	return 0;
- }
++	if (!data)
++		return 0; /* EPERM check */
 +
-+static __u8 rdesc[] = {
-+	0x05, 0x01,				/* USAGE_PAGE (Generic Desktop) */
-+	0x09, 0x32,				/* USAGE (Z) */
-+	0x95, 0x01,				/* REPORT_COUNT (1) */
-+	0x81, 0x06,				/* INPUT (Data,Var,Rel) */
++	x = data[1] | (data[2] << 8);
 +
-+	0x06, 0x00, 0xff,			/* Usage Page (Vendor Defined Page 1) */
-+	0x19, 0x01,				/* USAGE_MINIMUM (1) */
-+	0x29, 0x03,				/* USAGE_MAXIMUM (3) */
-+	0x15, 0x00,				/* LOGICAL_MINIMUM (0) */
-+	0x25, 0x01,				/* LOGICAL_MAXIMUM (1) */
-+	0x95, 0x03,				/* REPORT_COUNT (3) */
-+	0x75, 0x01,				/* REPORT_SIZE (1) */
-+	0x91, 0x02,				/* Output (Data,Var,Abs) */
-+	0x95, 0x01,				/* REPORT_COUNT (1) */
-+	0x75, 0x05,				/* REPORT_SIZE (5) */
-+	0x91, 0x01,				/* Output (Cnst,Var,Abs) */
++	x = -x;
 +
-+	0x06, 0x00, 0xff,			/* Usage Page (Vendor Defined Page 1) */
-+	0x19, 0x06,				/* USAGE_MINIMUM (6) */
-+	0x29, 0x08,				/* USAGE_MAXIMUM (8) */
-+	0x15, 0x00,				/* LOGICAL_MINIMUM (0) */
-+	0x25, 0x01,				/* LOGICAL_MAXIMUM (1) */
-+	0x95, 0x03,				/* REPORT_COUNT (3) */
-+	0x75, 0x01,				/* REPORT_SIZE (1) */
-+	0xb1, 0x02,				/* Feature (Data,Var,Abs) */
-+	0x95, 0x01,				/* REPORT_COUNT (1) */
-+	0x75, 0x05,				/* REPORT_SIZE (5) */
-+	0x91, 0x01,				/* Output (Cnst,Var,Abs) */
-+
-+	0xc0,				/* END_COLLECTION */
-+	0xc0,			/* END_COLLECTION */
-+};
++	data[1] = x & 0xFF;
++	data[2] = (x >> 8) & 0xFF;
++	return 0;
++}
 +
 +SEC("hid/rdesc_fixup")
 +int hid_rdesc_fixup(struct hid_bpf_ctx *ctx)
@@ -242,16 +217,177 @@ index a28ba19ed933..c9ce0e36e7b9 100644
 +	if (!data)
 +		return 0; /* EPERM check */
 +
-+	callback2_check = data[4];
++	if (ctx->type != HID_BPF_RDESC_FIXUP)
++		return 0;
 +
-+	/* insert rdesc at offset 52 */
-+	__builtin_memcpy(&data[52], rdesc, sizeof(rdesc));
-+	ctx->size = sizeof(rdesc) + 52;
++	bpf_printk("rdesc: %02x %02x %02x",
++		   data[0],
++		   data[1],
++		   data[2]);
++	bpf_printk("       %02x %02x %02x",
++		   data[3],
++		   data[4],
++		   data[5]);
++	bpf_printk("       %02x %02x %02x ...",
++		   data[6],
++		   data[7],
++		   data[8]);
 +
-+	/* Change Usage Vendor globally */
-+	data[4] = 0x42;
++	/*
++	 * The original report descriptor contains:
++	 *
++	 * 0x05, 0x01,                    //   Usage Page (Generic Desktop)      30
++	 * 0x16, 0x01, 0x80,              //   Logical Minimum (-32767)          32
++	 * 0x26, 0xff, 0x7f,              //   Logical Maximum (32767)           35
++	 * 0x09, 0x30,                    //   Usage (X)                         38
++	 * 0x09, 0x31,                    //   Usage (Y)                         40
++	 *
++	 * So byte 39 contains Usage X and byte 41 Usage Y.
++	 *
++	 * We simply swap the axes here.
++	 */
++	data[39] = 0x31;
++	data[41] = 0x30;
 +
 +	return 0;
++}
++
++char _license[] SEC("license") = "GPL";
++u32 _version SEC("version") = LINUX_VERSION_CODE;
+diff --git a/samples/bpf/hid_mouse_user.c b/samples/bpf/hid_mouse_user.c
+new file mode 100644
+index 000000000000..a8a9e7a99b14
+--- /dev/null
++++ b/samples/bpf/hid_mouse_user.c
+@@ -0,0 +1,129 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Copyright (c) 2022 Benjamin Tissoires
++ */
++#include <linux/bpf.h>
++#include <linux/if_link.h>
++#include <assert.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <signal.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <unistd.h>
++#include <libgen.h>
++#include <sys/resource.h>
++
++#include "bpf_util.h"
++#include <bpf/bpf.h>
++#include <bpf/libbpf.h>
++
++static char *sysfs_path;
++static int sysfs_fd;
++static int prog_count;
++
++struct prog {
++	int fd;
++	struct bpf_link *link;
++	enum bpf_attach_type type;
++};
++
++static struct prog progs[10];
++
++static void int_exit(int sig)
++{
++	for (prog_count--; prog_count >= 0; prog_count--)
++		bpf_link__destroy(progs[prog_count].link);
++
++	close(sysfs_fd);
++	exit(0);
++}
++
++static void usage(const char *prog)
++{
++	fprintf(stderr,
++		"%s: %s /sys/bus/hid/devices/0BUS:0VID:0PID:00ID/uevent\n\n",
++		__func__, prog);
++}
++
++int main(int argc, char **argv)
++{
++	struct bpf_prog_info info = {};
++	__u32 info_len = sizeof(info);
++	const char *optstr = "";
++	struct bpf_object *obj;
++	struct bpf_program *prog;
++	int opt;
++	char filename[256];
++	int err;
++
++	while ((opt = getopt(argc, argv, optstr)) != -1) {
++		switch (opt) {
++		default:
++			usage(basename(argv[0]));
++			return 1;
++		}
++	}
++
++	if (optind == argc) {
++		usage(basename(argv[0]));
++		return 1;
++	}
++
++	sysfs_path = argv[optind];
++	if (!sysfs_path) {
++		perror("sysfs");
++		return 1;
++	}
++
++	snprintf(filename, sizeof(filename), "%s_kern.o", argv[0]);
++	obj = bpf_object__open_file(filename, NULL);
++	err = libbpf_get_error(obj);
++	if (err) {
++		fprintf(stderr, "ERROR: opening BPF object file failed\n");
++		obj = NULL;
++		err = 1;
++		goto cleanup;
++	}
++
++	/* load BPF program */
++	err = bpf_object__load(obj);
++	if (err) {
++		fprintf(stderr, "ERROR: loading BPF object file failed\n");
++		goto cleanup;
++	}
++
++	sysfs_fd = open(sysfs_path, O_RDONLY);
++
++	bpf_object__for_each_program(prog, obj) {
++		progs[prog_count].fd = bpf_program__fd(prog);
++		progs[prog_count].type = bpf_program__get_expected_attach_type(prog);
++		progs[prog_count].link = bpf_program__attach_hid(prog, sysfs_fd, 0);
++		if (libbpf_get_error(progs[prog_count].link)) {
++			fprintf(stderr, "bpf_prog_attach: err=%m\n");
++			progs[prog_count].fd = 0;
++			progs[prog_count].link = NULL;
++			goto cleanup;
++		}
++		prog_count++;
++	}
++
++	signal(SIGINT, int_exit);
++	signal(SIGTERM, int_exit);
++
++	err = bpf_obj_get_info_by_fd(progs[0].fd, &info, &info_len);
++	if (err) {
++		printf("can't get prog info - %s\n", strerror(errno));
++		goto cleanup;
++	}
++
++	while (1)
++		;
++
++ cleanup:
++	for (prog_count--; prog_count >= 0; prog_count--)
++		bpf_link__destroy(progs[prog_count].link);
++
++	bpf_object__close(obj);
++	return err;
 +}
 -- 
 2.35.1

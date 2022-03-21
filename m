@@ -2,119 +2,111 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24DF2C433F5
-	for <linux-input@archiver.kernel.org>; Sun, 20 Mar 2022 19:58:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8765C433F5
+	for <linux-input@archiver.kernel.org>; Mon, 21 Mar 2022 04:40:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343612AbiCTT74 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 20 Mar 2022 15:59:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34054 "EHLO
+        id S243235AbiCUEmP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Mar 2022 00:42:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343619AbiCTT7x (ORCPT
+        with ESMTP id S233041AbiCUEmO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 20 Mar 2022 15:59:53 -0400
-Received: from desiato.infradead.org (desiato.infradead.org [IPv6:2001:8b0:10b:1:d65d:64ff:fe57:4e05])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBBEA3632A;
-        Sun, 20 Mar 2022 12:58:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=desiato.20200630; h=Content-Transfer-Encoding:Content-Type
-        :In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:
-        Sender:Reply-To:Content-ID:Content-Description;
-        bh=vROVO+ZWBaANfJn15veOaP16wW9kTkJdzaKa8pMEZLM=; b=AL5Gue4RQqpA1TTLEP0wQktSLa
-        MNJgDt/pUYyDrT2atIh+6pn3HXbDFy0UPJS7TGiDQDcHZ/Q3VKnf9dwmXjifk13BkmlvCIwATyoZM
-        TE3GoxUcRtsnByrShKooFEd6PtvCDk5IpZcTxEdinar66xpJnHxcoYuuwZCM8eCl+BYUDx+/NP3SF
-        nDVhXnY0wLRMqqHLRWTNcPpr0M+ZfDizt3eOqCREO1nlNNEcfBNaK+DzhodX4qPdrtOoYlNWkWFch
-        +KAuIRFXFhfG1ye5QL4WNrjbMGvQN7HdS0kTUL89uaJisW5uC58O6FSrrRIyqc6mGiivCISoAi9sL
-        egcSGAtg==;
-Received: from [2601:1c0:6280:3f0::6c43]
-        by desiato.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1nW1gy-002tpt-ES; Sun, 20 Mar 2022 19:58:20 +0000
-Message-ID: <f9058afc-cbf0-8bea-1191-ed7cc285eaa9@infradead.org>
-Date:   Sun, 20 Mar 2022 12:57:46 -0700
+        Mon, 21 Mar 2022 00:42:14 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A49047AD9;
+        Sun, 20 Mar 2022 21:40:48 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id 6so9487780pgg.0;
+        Sun, 20 Mar 2022 21:40:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=mWy+Nn/dpF8v1E/uejsR9Vh11q+4/9Uqdl66Nz5vyjM=;
+        b=T6QmrrzUypB3nXB94VGx+6PFzeBtPJi9+Q6KjR8JWcs8hjNtBDlpZbqvP63Oewepgl
+         a9BzoWwrliGpjm8La0JmiC7xFXCq4TnUzMG0svQR2h69pZKtjGUrUCq5s4y+qR5u1vuZ
+         iFu/QNJxGoqS5tZgoIk8RKg7KO0ggzvYL460wdssIEAlCXRyEKEIt8dvqbn12CW64Gkx
+         lj22h9pCnc7LjZT+Naq8V+x9kvWd5I9Iw44rDRiqCAxul98iAwCWged2UwuwuPZio1Qb
+         2IHN/03G8CKcl/5gLEm7I6Q/l97+Dd2sGTd33njFZSA5tZCYdm3GxB4aPhVPfs40+Zst
+         Oe5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=mWy+Nn/dpF8v1E/uejsR9Vh11q+4/9Uqdl66Nz5vyjM=;
+        b=x+XS4jlJvwlSwHkXWuNkiu6FgokEa+D3orOS5HE/IIzYVtp0mXf8J61ff8oUmdOclb
+         x6D4XkJJsuVoUGBK01I/FmJ3p/CrKAtb27zj8R+SB2KdVVeQ0135pPQZ2tWD8f5Xjscq
+         uOykwqx1uEBvaYSL5Re8BxdXiB+J2quAXressu8xcGII8vLabLnN9xwxGuqBCwI+dtHi
+         h60vvsDsF4KknCJ6Yx11oie/Zi1LXEcBxt85Mx2kWEfa7tmSNTLKeNL6X6jMoO5Hf1To
+         353r5Q56XM1gTHvUaUnrwW4wUojiWd9HZiHi8agbt8dl2L1eGoYDwFr/M8iIc7FgSKXn
+         0Mqw==
+X-Gm-Message-State: AOAM533x790NfJ7KI4UQAeLZUdumLmEGJdEmV9TjQXFbYWl6sLvmEmAZ
+        hlPiZONHsBCrY4pmg5/vbDCMWmFnvPk=
+X-Google-Smtp-Source: ABdhPJwi4DFefw3qAwd2mQw/fFT7L6PGR5jCrgPeG1K0RvLr8xTACPpIYhFnxP0vdDPBYsp3uXv2Ew==
+X-Received: by 2002:a63:2d07:0:b0:381:e49:ae0c with SMTP id t7-20020a632d07000000b003810e49ae0cmr16531805pgt.261.1647837647338;
+        Sun, 20 Mar 2022 21:40:47 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:31f6:c8f1:6f10:b2ec])
+        by smtp.gmail.com with ESMTPSA id y3-20020a056a00190300b004fa2411bb92sm17663825pfi.93.2022.03.20.21.40.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 20 Mar 2022 21:40:46 -0700 (PDT)
+Date:   Sun, 20 Mar 2022 21:40:44 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc:     Oleksij Rempel <o.rempel@pengutronix.de>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [BISECTED] input: ads7846: touchscreen broken on Nokia 770
+Message-ID: <YjgBzDzHuZMlI05j@google.com>
+References: <20220227185038.GA3016@darkstar.musicnaut.iki.fi>
+ <20220319151346.GE1986@darkstar.musicnaut.iki.fi>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: Dell laptop touchpad disabling?
-Content-Language: en-US
-To:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org,
-        platform-driver-x86@vger.kernel.org, Dell.Client.Kernel@dell.com
-Cc:     =?UTF-8?Q?Pali_Roh=c3=a1r?= <pali@kernel.org>,
-        Stuart Hayes <stuart.w.hayes@gmail.com>,
-        Divya Bharathi <divya.bharathi@dell.com>,
-        Prasanth Ksr <prasanth.ksr@dell.com>,
-        Perry Yuan <Perry.Yuan@dell.com>
-References: <b9d9171d-1287-e5aa-46d2-2475817074ba@infradead.org>
- <d1192588-8993-5052-6018-7a2f8393cff9@redhat.com>
-From:   Randy Dunlap <rdunlap@infradead.org>
-In-Reply-To: <d1192588-8993-5052-6018-7a2f8393cff9@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220319151346.GE1986@darkstar.musicnaut.iki.fi>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Hans,
+Hi Aaro,
 
-On 3/18/22 01:54, Hans de Goede wrote:
-> <attempt 2, fat-fingered send>
+On Sat, Mar 19, 2022 at 05:13:46PM +0200, Aaro Koskinen wrote:
+> Hi,
 > 
-> Hi Randy,
+> On Sun, Feb 27, 2022 at 08:50:39PM +0200, Aaro Koskinen wrote:
+> > I noticed touchscreen does not work anymore on Nokia 770:
+> > 
+> > [    2.131011] ads7846 spi2.0: touchscreen, irq 175
+> > [    2.200622] input: ADS7846 Touchscreen as /devices/platform/omap_uwire/spi_master/spi2/spi2.0/input/input0
+> > 
+> > (then touching the screen:)
+> > 
+> > [   52.316894] ads7846 spi2.0: spi_sync --> -22
+> > [   52.336944] ads7846 spi2.0: spi_sync --> -22
+> > 
+> > bisected this to:
+> > 
+> > commit 9c9509717b53e701469493a8d87ed42c7d782502
+> > Author: Oleksij Rempel <o.rempel@pengutronix.de>
+> > Date:   Wed Nov 11 16:39:05 2020 -0800
+> > 
+> >     Input: ads7846 - convert to full duplex
+> > 
+> > It seems it's failing on SPI_CONTROLLER_HALF_DUPLEX check in
+> > __spi_validate(). The controller used on this board (spi-omap-uwire)
+> > sets that flag. How ads7846 is now supposed to work in that case after
+> > this conversion?
 > 
-> On 3/18/22 01:32, Randy Dunlap wrote:
->> Hi all,
->>
->> I have a Dell Inspiron 15 5510 laptop. Of course, it has a touchpad
->> (which I think of as a nuisance pad).
->> I would like to be able to disable the touchpad easily.
->>
->> Are there any best practices or suggestions for how to do this?
->> (I am using xfce4 as the desktop environment if that matters.)
->>
->>
->> Sometimes the touchpad is discovered as a PS/2 Generic Mouse on
->> the i8042 AUX port, and sometimes it is discovered as this
->> touchpad: "DELL0B24:00 04F3:3147 Touchpad" on some I2C device:
->> "i2c-DELL0B24:00". (The different discoveries might have something
->> to do with my kernel configuration/builds, but I don't know that
->> for sure.)
->>
->> I have some very hackish scripts that I can run to toggle the
->> 'inhibited' flag in sysfs (/sys/class/input/ for the I2C device or
->> or /sys/devices/platform/i8042/ for the i8042 AUX port device),
->> but that requires root (sudo), so that does not qualify as "easily"
->> IMO.
->>
->> E.g.,
->> $ sudo toggle-aux-mouse
->> or
->> $ sudo toggle-i2c-touchpad
->>
->> depending on which configuration the device is in.
+> Any comments?
 > 
-> The touchpad is supposed to be always recognized as, well a touchpad,
-> so you want it to show up as "DELL0B24:00 04F3:3147 Touchpad", as
-> you said this likely depends on your kernel config.
+> The touchscreen works after reverting the following patches:
 > 
-> And then usually the desktop environment will give you an option
-> to disable it. At least GNOME offers a clear on/off toggle see e.g. :
-> 
-> https://blog.separateconcerns.com/img/gnome-touchpad-settings.jpg
+> 6965eece2a89 ("Input: ads7846 - convert to one message")
+> 9c9509717b53 ("Input: ads7846 - convert to full duplex")
 
-OK, I finally found that. and it works.
+I do not believe we should simply revert the patches as that would
+penalize systems with nicer hardware, so my preference would be to see
+if we could support half duplex controllers within the new driver
+structure.
 
-> Or you could use xinput properties to set the matching xinput
-> device, to disabled which you can do by device-name:
-> 
-> https://linuxhint.com/change_mouse_touchpad_settings_xinput_linux/
-> 
-> And then change the "Device Enabled" property.
+Thanks.
 
-and that also works.
-
-> Regardless of the method, the kernel's responsibility here is
-> to make sure the touchpad gets seen as a touchpad and after that
-> "disabling" it is a userspace problem.
-
-Sure, I get it.
-
-Thanks for your help.
-
+-- 
+Dmitry

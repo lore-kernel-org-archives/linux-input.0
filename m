@@ -2,107 +2,209 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7474C433EF
-	for <linux-input@archiver.kernel.org>; Thu, 24 Mar 2022 14:53:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8341CC433EF
+	for <linux-input@archiver.kernel.org>; Thu, 24 Mar 2022 16:10:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243341AbiCXOzD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 24 Mar 2022 10:55:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37358 "EHLO
+        id S243581AbiCXQLj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 24 Mar 2022 12:11:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242281AbiCXOzD (ORCPT
+        with ESMTP id S234603AbiCXQLi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Mar 2022 10:55:03 -0400
-Received: from mail-qt1-x836.google.com (mail-qt1-x836.google.com [IPv6:2607:f8b0:4864:20::836])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BE172E1F;
-        Thu, 24 Mar 2022 07:53:31 -0700 (PDT)
-Received: by mail-qt1-x836.google.com with SMTP id t2so4000560qtw.9;
-        Thu, 24 Mar 2022 07:53:30 -0700 (PDT)
+        Thu, 24 Mar 2022 12:11:38 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A48237CA;
+        Thu, 24 Mar 2022 09:10:05 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id n7-20020a17090aab8700b001c6aa871860so5575161pjq.2;
+        Thu, 24 Mar 2022 09:10:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Uca/bYsYM+8uc58DJlLIYUvlXu7JrHCcisWQnLTb2FE=;
-        b=VEvphlhMQxh4J8iQGTlWM9takLna6FJ4uFbbHs6d4e1n1R5O7WSyX63G2zRze0CQaZ
-         VxOU6mXzC+48RwzBAXqjHTNNcrIi+OEx4uxGqjgBrKLRzAEfec9+6s2i+JBy+haPkUiL
-         zDE7D7NlIXvUgYv6vGRdv0ztaLQDR2Hr2WpuUYVMP+BKAMj5bzsN2eD673a+BxWVoIed
-         PSkx2DknZZgJYRazRM/ZfF4hYwb6TQCMkGwbyihvko9mczVbnY6ESk4HB11VWbE3Bvw4
-         2hn1wLEyFMKsT8AfbGWf3QMnRDKkcenN4toANi3nmICeXGuIjBEjdjuEIKhgXQZSXm0y
-         aOOg==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=Yx6e+knQ1Y5zWPXeZZfvunt9KLxx+WpHSkr7jzMyxmk=;
+        b=e0huBxOHjyFWHBLV/81d4h8G1rlge1GoRCD52VLoS7ADL7ziKcqe9DkCyks60ZbtwQ
+         a6x19bBIec5YgTcseduI+/w8dPEMoBDcGtlo1JPAf54QU9kZmG4VCNGbrtDqQuDG61qI
+         rTWfbXyxKdMNTixyNPn+sXEscb+wCiJgHDYw4ZtiBQXb38srgFbBzBmvSaMTwgvaloap
+         BAz5mMayeKLTqjS7ZNg0hc92pF38sYYXKyLy/UmZZ/BNJdAmSU/rnyOUdeN7V7SnJBlu
+         sv6t0g9+TL5pWCl2Vw8nWVKEEpBEgHyaxwGZDNCe0cMpAvnj9LvxA7uq0U6vIi90faUz
+         s5XQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=Uca/bYsYM+8uc58DJlLIYUvlXu7JrHCcisWQnLTb2FE=;
-        b=Cp+EDaPH4lX5Nrgb3SfNBXI2KquH5UOq0EjV4iuFHm9e5aeDhuvRKeOszRW1Rqvro9
-         4jp2nrx5b1vGuhIQEyw/VjwVlwhYA+3wNwVkfjXQUE8pOpeCYyC4h3GlRH3ydgBgyKUF
-         BcQY5Rq4kLdgbkrQoVEJ59VsRvunEPM6Qdj0xG0AAzRLBANN/QfvWD9AYUJqc7epfPZW
-         0nkaFgcQbKxYvl5eRC1bMK2fMn92mxIS+k+S65NCog3WPr96A5B57hbT+PEm62ovyp0G
-         myBZ0KLV6iAAvrHC8YcOvvd2sZtpyXpdi656gOIo1IF3l7vEY8AKF1eIKYwaxu1c8Vg/
-         VhCQ==
-X-Gm-Message-State: AOAM5338FukS5w0tQSdR2UKJ19wLKiDh8srRCrjess4aSbc9MqjNKmra
-        MBRxVyvI8dhq9k6dYxOQ15TSpTcpT/8=
-X-Google-Smtp-Source: ABdhPJyAXke0R7Bv6Cv1B1ohnhR4dyg3t05kVCQnfuzxCgW0K1z02SNo08lSIGYnWl3EEGD/Fn5iwA==
-X-Received: by 2002:a05:622a:1899:b0:2e1:b3d2:138d with SMTP id v25-20020a05622a189900b002e1b3d2138dmr4799373qtc.331.1648133610109;
-        Thu, 24 Mar 2022 07:53:30 -0700 (PDT)
-Received: from localhost.localdomain (c-73-171-102-37.hsd1.va.comcast.net. [73.171.102.37])
-        by smtp.gmail.com with ESMTPSA id x5-20020ae9e645000000b0067b122fae88sm1637926qkl.2.2022.03.24.07.53.29
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=Yx6e+knQ1Y5zWPXeZZfvunt9KLxx+WpHSkr7jzMyxmk=;
+        b=YkkEf4stODsIclrDsOYckwtFaoj6a3OUS4yCt6HOnA5N5K9Ck9UE6r3KWEQR67cEF+
+         OqI45I0T3XD4kE/a4jmhFT8xyoHKdMn79JAPp9b1pldwSGXJiOZoDsX1q+6BmvkjP4oE
+         5ri8pBD/lIVY0j78jcLKnZz08r7k93i5lsiYPn9s94RaR7IC7MwVVqKC13EQKLz4pf/s
+         5np4s3EYpOArxvzckQTitp4Usj/+ZEwzg8M6rQADmSdDXWil1cC/YnPu6YtmWq7eDL97
+         c2xV9Zjb78+q111uXYASJYiVrOQOBVtNrW0sNAYrvA91GLOdUP1Z2rr5cfgRvDzgPb9A
+         xLUA==
+X-Gm-Message-State: AOAM532XnsI8hvqOMVbK6obwKShzHp+bdbUWMbjddQdE8OIUmUcoQYfn
+        TMTO1W1uGgQEWxPGfbnCBYY=
+X-Google-Smtp-Source: ABdhPJyswsjNuZjYCxTL6CXqhhWR95S8YEPrwguEFilcVxOiIybab4tZdkTJP6sHnE67nKoGpHov3Q==
+X-Received: by 2002:a17:90a:fcc:b0:1c6:62b5:45c0 with SMTP id 70-20020a17090a0fcc00b001c662b545c0mr7024135pjz.133.1648138204889;
+        Thu, 24 Mar 2022 09:10:04 -0700 (PDT)
+Received: from hermes ([2604:3d09:e80:800::72d9])
+        by smtp.gmail.com with ESMTPSA id ev16-20020a17090aead000b001c7c2919453sm2408992pjb.33.2022.03.24.09.10.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 24 Mar 2022 07:53:29 -0700 (PDT)
-From:   Stephen Douthit <stephen.douthit@gmail.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Stephen Douthit <stephen.douthit@gmail.com>,
+        Thu, 24 Mar 2022 09:10:04 -0700 (PDT)
+Date:   Thu, 24 Mar 2022 10:10:02 -0600
+From:   Manuel =?iso-8859-1?Q?Sch=F6nlaub?= <manuel.schoenlaub@gmail.com>
+To:     Bastien Nocera <hadess@hadess.net>
+Cc:     Filipe =?iso-8859-1?Q?La=EDns?= <lains@riseup.net>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: xpad - Turn off wireless controllers on shutdown
-Date:   Thu, 24 Mar 2022 10:53:08 -0400
-Message-Id: <20220324145308.2372-1-stephen.douthit@gmail.com>
-X-Mailer: git-send-email 2.35.1
+Subject: Re: [PATCH] HID: logitech-hidpp: support Color LED feature (8071).
+Message-ID: <YjyX2q1IXeJQ2LGG@hermes>
+References: <Yifr4etBFPu1a2Ct@hermes>
+ <275245e8048fa124055d9ff3d10ce6562294483a.camel@riseup.net>
+ <ce3adf7013ba01aad54fb65bf9c657dd9d0b7d23.camel@hadess.net>
+ <YjvlQrvRS+ZKNbZ5@hermes>
+ <5b842bd4f8d17e5ecb8e7972637dbe7ad50060ac.camel@hadess.net>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <5b842bd4f8d17e5ecb8e7972637dbe7ad50060ac.camel@hadess.net>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We already do this on suspend, makes sense for shutdown as well
+On Thu, Mar 24, 2022 at 10:32:21AM +0100, Bastien Nocera wrote:
+> On Wed, 2022-03-23 at 21:28 -0600, Manuel Schönlaub wrote:
+> > On Wed, Mar 23, 2022 at 11:24:18PM +0100, Bastien Nocera wrote:
+> > > On Wed, 2022-03-23 at 21:22 +0000, Filipe Laíns wrote:
+> > > > On Tue, 2022-03-08 at 16:50 -0700, Manuel Schönlaub wrote:
+> > > > > The HID++ protocol allows to set multicolor (RGB) to a static
+> > > > > color.
+> > > > > Multiple of such LED zones per device are supported.
+> > > > > This patch exports said LEDs so that they can be set from
+> > > > > userspace.
+> > > > > 
+> > > > > Signed-off-by: Manuel Schönlaub <manuel.schoenlaub@gmail.com>
+> > > > > ---
+> > > > >  drivers/hid/hid-logitech-hidpp.c | 188
+> > > > > +++++++++++++++++++++++++++++++
+> > > > >  1 file changed, 188 insertions(+)
+> > > > 
+> > > > *snip*
+> > > > 
+> > > > Hi Manuel,
+> > > > 
+> > > > Thanks for putting this forward, although I am not sure if this
+> > > > is
+> > > > the best way
+> > > > to handle this.
+> > > > 
+> > > > Before anything, could you elaborate a bit on what lead to you
+> > > > wanting this?
+> > > > 
+> > > > There are a couple of reasons why merging this in the kernel
+> > > > might be
+> > > > problematic.
+> > > > 
+> > > > 1) I don't think we will ever support the full capabilities of
+> > > > the
+> > > > devices, so
+> > > > configuration via userspace apps will always be required, and
+> > > > here we
+> > > > are
+> > > > introducing a weird line between the two.
+> > > > 
+> > > > 2) There is already an ecosystem of userspace configuration apps,
+> > > > with which
+> > > > this would conflict. They might not be in the best maintenance
+> > > > state
+> > > > due to lack
+> > > > of time from the maintainers, but moving this functionality to
+> > > > the
+> > > > kernel, which
+> > > > is harder change, and harder to ship to users, will only make
+> > > > that
+> > > > worse.
+> > > 
+> > > There's already an API for LEDs in the kernel, why shouldn't it be
+> > > used
+> > > to avoid user-space needing to know how to configure Logitech, and
+> > > every other brand of keyboards?
+> > > 
+> > > systemd has code to save and restore LED status, as well as code to
+> > > change the level of backlight. I can imagine that it wouldn't take
+> > > much
+> > > to make it aware of RGB LEDs so it handles them properly, whether
+> > > it's
+> > > for Logitech, or another brand of keyboards, or laptops.
+> > 
+> > Teaching systemd-backlight about mulicolor backlights might be a nice
+> > project
+> > too. But their use case seems to be more about screen backlights as
+> > it seems.
+> > Did I overlook something here?
+> 
+> From rules.d/99-systemd.rules.in:
+> # Pull in backlight save/restore for all backlight devices and
+> # keyboard backlights
+> SUBSYSTEM=="backlight", TAG+="systemd", IMPORT{builtin}="path_id", ENV{SYSTEMD_WANTS}+="systemd-backlight@backlight:$name.service"
+> SUBSYSTEM=="leds", KERNEL=="*kbd_backlight", TAG+="systemd", IMPORT{builtin}="path_id", ENV{SYSTEMD_WANTS}+="systemd-backlight@leds:$name.service"
+> 
+> And from the NEWS file for systemd 243:
+>         * systemd-logind now exposes a per-session SetBrightness() bus call, 
+>           which may be used to securely change the brightness of a kernel
+>           brightness device, if it belongs to the session's seat. By using this
+>           call unprivileged clients can make changes to "backlight" and "leds"
+>           devices securely with strict requirements on session membership.
+>           Desktop environments may use this to generically make brightness
+>           changes to such devices without shipping private SUID binaries or
+>           udev rules for that purpose.
+> 
+> It's clear that it's not just displays.
+> 
+> > 
+> > Oh and yeah, IMHO another argument could be that obviously at some
+> > point
+> > the LED management could be removed from those user space tools, as
+> > the
+> > kernel would already know about them.
+> > 
+> > After all the LED class devices should be there for a reason ;-)
+> > 
+> > Cheers,
+> > 
+> > Manuel
+> > 
+>
 
-Signed-off-by: Stephen Douthit <stephen.douthit@gmail.com>
----
- drivers/input/joystick/xpad.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+Yeah the SetBrightness in systemd / logind should work out of box.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 18190b529bca..8be79f91ba56 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1738,6 +1738,16 @@ static int xpad_init_input(struct usb_xpad *xpad)
- 	return error;
- }
- 
-+static void xpad360w_shutdown(struct device *dev)
-+{
-+	struct usb_interface *intf = to_usb_interface(dev);
-+	struct usb_xpad *xpad = usb_get_intfdata(intf);
-+
-+	xpad360w_stop_input(xpad);
-+	if (xpad->pad_present)
-+		xpad360w_poweroff_controller(xpad);
-+}
-+
- static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id)
- {
- 	struct usb_device *udev = interface_to_usbdev(intf);
-@@ -1863,6 +1873,12 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 		 * here in this driver and in usb core.
- 		 */
- 		udev->quirks |= USB_QUIRK_RESET_RESUME;
-+
-+		/*
-+		 * Populate shutdown callback so wireless controllers turn off
-+		 * when the machine turns off
-+		 */
-+		intf->dev.driver->shutdown = xpad360w_shutdown;
- 	} else {
- 		error = xpad_init_input(xpad);
- 		if (error)
--- 
-2.35.1
+Though I just noticed something: For this to be useful, the default
+multi_intensity for each component of the multicolor LED in the kernel should be set to
+max_brightness, effectively producing white (on RGB LEDs at least).
+If it is zero, like now, SetBrightness would IMHO not actually switch
+the LED on because of how the calculation of color components works. 
+That way systemd wouldn't need to care about whether the LED is
+multicolor or not.
 
+The save/restore stuff IMHO works only for backlights and kbd_backlight LEDs,
+as seen from the udev rules. At least out of the box. It even seems to stop
+working once you would have two kbd_backlights for the same device
+(as the name would be kbd_backlight-1, kbd_backlight-2, ... as per the
+documentation on LED classdevs.)
+
+Now there are three solutions:
+
+1) Naming the Logitech LEDs <device>:rgb:kbd_backlight-N even on mice
+and at some point send a patch to systemd adapting the udev rules to
+care for devices with nuemrical suffixes.
+
+2) Naming the LEDs <device>:rgb:backlight-N and send a patch to systemd
+adding a new udev rule to cater for backlight LEDs in general.
+
+3) Like 2 but expect users to write their own udev rules if they want
+save/restore for Logitech devices.
+
+What's your opinion on the naming? IMHO mice are not exactly keyboards,
+so it probably should be a "general" backlight.
+(Instead of "indicator", as in version 1 of the patch)
+
+Cheers

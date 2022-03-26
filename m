@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A6D8C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39D9BC43219
 	for <linux-input@archiver.kernel.org>; Sat, 26 Mar 2022 17:09:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234174AbiCZRLJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 26 Mar 2022 13:11:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50222 "EHLO
+        id S234557AbiCZRLI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 26 Mar 2022 13:11:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234044AbiCZRKj (ORCPT
+        with ESMTP id S234049AbiCZRKj (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Sat, 26 Mar 2022 13:10:39 -0400
-Received: from stuerz.xyz (stuerz.xyz [IPv6:2001:19f0:5:15da:5400:3ff:fecc:7379])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D3CA3585D;
+Received: from stuerz.xyz (unknown [45.77.206.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D42D35864;
         Sat, 26 Mar 2022 10:08:58 -0700 (PDT)
 Received: by stuerz.xyz (Postfix, from userid 114)
-        id 35150FB7F8; Sat, 26 Mar 2022 16:59:36 +0000 (UTC)
+        id 13C5EFB7F7; Sat, 26 Mar 2022 16:59:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=stuerz.xyz; s=mail;
-        t=1648313978; bh=2uH++cpt44frpysxfSOHHq51GioRGW69bGRAGT0KbXI=;
+        t=1648313997; bh=ORSaJ6zLK3T5QJ6ekZf62I3PpS/KQZ/OU2UVDjr9uRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cq12VylqVwxsnb1TJGM2fG+9lFESXLHbo2EtQ5V3o28QF6KUTpn12/8Vbq1GoSCXw
-         HKjZapXjR3b3kUplntdqD20iB0tXU8uGDrLJAZAAE4Y9OR6AN7aedZRRJaks1j2Ptn
-         K3x6Zsnv8A7ti0JTYFnerN8JoPx08cRyV00MSeYaxJCJow8JFfWgclRgPZPvDBNUnA
-         kfSY2z6a1hbsKhCy+0g0P5u8PAAaEtqVtP84WvIBhcuQ+cvuiXIYBfPB0lUzHuHt1H
-         Hh7VoglqtyAu+NBeXIzS+w9LZDDe59/asw1r/M0dulCEUjGOiqvw7dd2SUt41Q+EFP
-         6vB0DH1LXS2Tg==
+        b=AMXOPB+IPlepS4sIrI8Po1BHRQdegUsgoGM6VYJuSgrZ0P/EUXInfdO79xyiuFmka
+         qpcacAlDe+T79tUd2kTzfx6MSShZcWzMY4hW+ebrJxX6dwD/n5xIYAZaNqciP1Smsm
+         kkEzlCIiHQuZFGK50AzFarp40Fda/RsvFX1FRDJQy5vTyzQxFZIVp/7XC8kCB+ybfo
+         Rg7PM5XMo7J/5+M78HnT+TaHsDF3l09f1EChq4wH/dCYBFtZMsrft3U0J2Wm8MJA1h
+         zHwLU6V3+Z2AKs9Tfy1s5k4ai7yC9mNT1lhEbNCFXgg9Tv8YuL/UHklzzncXYhOgeC
+         Jnb3wNMN6Xo/w==
 Received: from benni-fedora.. (unknown [IPv6:2a02:8109:a100:1a48:ff0:ef2f:d4da:17d8])
-        by stuerz.xyz (Postfix) with ESMTPSA id 98AE0FB7D0;
-        Sat, 26 Mar 2022 16:59:27 +0000 (UTC)
+        by stuerz.xyz (Postfix) with ESMTPSA id 41A1DFB7DE;
+        Sat, 26 Mar 2022 16:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=stuerz.xyz; s=mail;
-        t=1648313973; bh=2uH++cpt44frpysxfSOHHq51GioRGW69bGRAGT0KbXI=;
+        t=1648313993; bh=ORSaJ6zLK3T5QJ6ekZf62I3PpS/KQZ/OU2UVDjr9uRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cKhwvy4qhsPuBxAq0Y52RSBW8Kxkl55mtNsTt7h2uutsE3Y6bGf2uI+3fV4gjubw8
-         GpKwU9W3Gsv+wbbqaJHSG5dn04mPUxOLS6vQZPWYgqSkhFdKYlwRBwMnnmBwqY8C2y
-         6crdwbggZyh88T++mcaMq+N7QcoI6KJC9AH/jpS8zlcXylv3kJnUsJ9M6wHwPU2lhK
-         5Jy5mDsKEM89BIiyKY4oOsX95B3qpGLhw7sJvKQKpaYWFVH1Z5mqAILb9LQIa5uOep
-         +T7X2leuj8NeWwv8be761msNoWYvaNI/CeR3TDGXvIT6mSEVcBf6YLCLmfISYd0yHC
-         URoafektSpMIg==
+        b=wq21HltneWdL6v4ZLSJXC/plweTDbrb3ui94N5yiQei93RLb63mS41Cg7dVqI4fte
+         9BqCFfq9VrIThMsyqq0VB1mZUqCXu0nH3/0YtYuj3fDiM2ZTv6HqDxtkQWuuGPZGDl
+         N87b29RPMjyQMTbtoN714T9xt2bJioTmNWsoDEcxyjF6T5Adg+8hZX7ykzJJVzq4mv
+         QyjX/stjxxs0Aq6YgOFQRPY3aB5QHr8caGS+ENicUHCHYZDLLKeArivV7C+1sgEsA6
+         0Tgoe831JrmoLDcuBMxeugIow66ZHsyeskR0RGhE8X3sTVac/00kVNKHIBShyMJiDp
+         xaU9YW7xKRuYA==
 From:   =?UTF-8?q?Benjamin=20St=C3=BCrz?= <benni@stuerz.xyz>
 To:     andrew@lunn.ch
 Cc:     sebastian.hesselbarth@gmail.com, gregory.clement@bootlin.com,
@@ -66,9 +66,9 @@ Cc:     sebastian.hesselbarth@gmail.com, gregory.clement@bootlin.com,
         wcn36xx@lists.infradead.org, linux-wireless@vger.kernel.org,
         linux-pci@vger.kernel.org,
         =?UTF-8?q?Benjamin=20St=C3=BCrz?= <benni@stuerz.xyz>
-Subject: [PATCH 02/22] s3c: Replace comments with C99 initializers
-Date:   Sat, 26 Mar 2022 17:58:49 +0100
-Message-Id: <20220326165909.506926-2-benni@stuerz.xyz>
+Subject: [PATCH 05/22] acpica: Replace comments with C99 initializers
+Date:   Sat, 26 Mar 2022 17:58:52 +0100
+Message-Id: <20220326165909.506926-5-benni@stuerz.xyz>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220326165909.506926-1-benni@stuerz.xyz>
 References: <20220326165909.506926-1-benni@stuerz.xyz>
@@ -84,52 +84,231 @@ initializers because the kernel supports them now.
 
 Signed-off-by: Benjamin Stürz <benni@stuerz.xyz>
 ---
- arch/arm/mach-s3c/bast-irq.c | 32 ++++++++++++++++----------------
- 1 file changed, 16 insertions(+), 16 deletions(-)
+ drivers/acpi/acpica/utdecode.c | 183 ++++++++++++++++-----------------
+ 1 file changed, 90 insertions(+), 93 deletions(-)
 
-diff --git a/arch/arm/mach-s3c/bast-irq.c b/arch/arm/mach-s3c/bast-irq.c
-index d299f124e6dc..bd5471f9973b 100644
---- a/arch/arm/mach-s3c/bast-irq.c
-+++ b/arch/arm/mach-s3c/bast-irq.c
-@@ -29,22 +29,22 @@
-  * the irq is not implemented
- */
- static const unsigned char bast_pc104_irqmasks[] = {
--	0,   /* 0 */
--	0,   /* 1 */
--	0,   /* 2 */
--	1,   /* 3 */
--	0,   /* 4 */
--	2,   /* 5 */
--	0,   /* 6 */
--	4,   /* 7 */
--	0,   /* 8 */
--	0,   /* 9 */
--	8,   /* 10 */
--	0,   /* 11 */
--	0,   /* 12 */
--	0,   /* 13 */
--	0,   /* 14 */
--	0,   /* 15 */
-+	[0]  = 0,
-+	[1]  = 0,
-+	[2]  = 0,
-+	[3]  = 1,
-+	[4]  = 0,
-+	[5]  = 2,
-+	[6]  = 0,
-+	[7]  = 4,
-+	[8]  = 0,
-+	[9]  = 0,
-+	[10] = 8,
-+	[11] = 0,
-+	[12] = 0,
-+	[13] = 0,
-+	[14] = 0,
-+	[15] = 0,
+diff --git a/drivers/acpi/acpica/utdecode.c b/drivers/acpi/acpica/utdecode.c
+index bcd3871079d7..d19868d2ea46 100644
+--- a/drivers/acpi/acpica/utdecode.c
++++ b/drivers/acpi/acpica/utdecode.c
+@@ -156,37 +156,37 @@ static const char acpi_gbl_bad_type[] = "UNDEFINED";
+ /* Printable names of the ACPI object types */
+ 
+ static const char *acpi_gbl_ns_type_names[] = {
+-	/* 00 */ "Untyped",
+-	/* 01 */ "Integer",
+-	/* 02 */ "String",
+-	/* 03 */ "Buffer",
+-	/* 04 */ "Package",
+-	/* 05 */ "FieldUnit",
+-	/* 06 */ "Device",
+-	/* 07 */ "Event",
+-	/* 08 */ "Method",
+-	/* 09 */ "Mutex",
+-	/* 10 */ "Region",
+-	/* 11 */ "Power",
+-	/* 12 */ "Processor",
+-	/* 13 */ "Thermal",
+-	/* 14 */ "BufferField",
+-	/* 15 */ "DdbHandle",
+-	/* 16 */ "DebugObject",
+-	/* 17 */ "RegionField",
+-	/* 18 */ "BankField",
+-	/* 19 */ "IndexField",
+-	/* 20 */ "Reference",
+-	/* 21 */ "Alias",
+-	/* 22 */ "MethodAlias",
+-	/* 23 */ "Notify",
+-	/* 24 */ "AddrHandler",
+-	/* 25 */ "ResourceDesc",
+-	/* 26 */ "ResourceFld",
+-	/* 27 */ "Scope",
+-	/* 28 */ "Extra",
+-	/* 29 */ "Data",
+-	/* 30 */ "Invalid"
++	[0]  = "Untyped",
++	[1]  = "Integer",
++	[2]  = "String",
++	[3]  = "Buffer",
++	[4]  = "Package",
++	[5]  = "FieldUnit",
++	[6]  = "Device",
++	[7]  = "Event",
++	[8]  = "Method",
++	[9]  = "Mutex",
++	[10] = "Region",
++	[11] = "Power",
++	[12] = "Processor",
++	[13] = "Thermal",
++	[14] = "BufferField",
++	[15] = "DdbHandle",
++	[16] = "DebugObject",
++	[17] = "RegionField",
++	[18] = "BankField",
++	[19] = "IndexField",
++	[20] = "Reference",
++	[21] = "Alias",
++	[22] = "MethodAlias",
++	[23] = "Notify",
++	[24] = "AddrHandler",
++	[25] = "ResourceDesc",
++	[26] = "ResourceFld",
++	[27] = "Scope",
++	[28] = "Extra",
++	[29] = "Data",
++	[30] = "Invalid"
  };
  
- static const unsigned char bast_pc104_irqs[] = { 3, 5, 7, 10 };
+ const char *acpi_ut_get_type_name(acpi_object_type type)
+@@ -284,22 +284,22 @@ const char *acpi_ut_get_node_name(void *object)
+ /* Printable names of object descriptor types */
+ 
+ static const char *acpi_gbl_desc_type_names[] = {
+-	/* 00 */ "Not a Descriptor",
+-	/* 01 */ "Cached Object",
+-	/* 02 */ "State-Generic",
+-	/* 03 */ "State-Update",
+-	/* 04 */ "State-Package",
+-	/* 05 */ "State-Control",
+-	/* 06 */ "State-RootParseScope",
+-	/* 07 */ "State-ParseScope",
+-	/* 08 */ "State-WalkScope",
+-	/* 09 */ "State-Result",
+-	/* 10 */ "State-Notify",
+-	/* 11 */ "State-Thread",
+-	/* 12 */ "Tree Walk State",
+-	/* 13 */ "Parse Tree Op",
+-	/* 14 */ "Operand Object",
+-	/* 15 */ "Namespace Node"
++	[0]  = "Not a Descriptor",
++	[1]  = "Cached Object",
++	[2]  = "State-Generic",
++	[3]  = "State-Update",
++	[4]  = "State-Package",
++	[5]  = "State-Control",
++	[6]  = "State-RootParseScope",
++	[7]  = "State-ParseScope",
++	[8]  = "State-WalkScope",
++	[9]  = "State-Result",
++	[10] = "State-Notify",
++	[11] = "State-Thread",
++	[12] = "Tree Walk State",
++	[13] = "Parse Tree Op",
++	[14] = "Operand Object",
++	[15] = "Namespace Node"
+ };
+ 
+ const char *acpi_ut_get_descriptor_name(void *object)
+@@ -331,13 +331,13 @@ const char *acpi_ut_get_descriptor_name(void *object)
+ /* Printable names of reference object sub-types */
+ 
+ static const char *acpi_gbl_ref_class_names[] = {
+-	/* 00 */ "Local",
+-	/* 01 */ "Argument",
+-	/* 02 */ "RefOf",
+-	/* 03 */ "Index",
+-	/* 04 */ "DdbHandle",
+-	/* 05 */ "Named Object",
+-	/* 06 */ "Debug"
++	[0] = "Local",
++	[1] = "Argument",
++	[2] = "RefOf",
++	[3] = "Index",
++	[4] = "DdbHandle",
++	[5] = "Named Object",
++	[6] = "Debug"
+ };
+ 
+ const char *acpi_ut_get_reference_name(union acpi_operand_object *object)
+@@ -416,25 +416,22 @@ const char *acpi_ut_get_mutex_name(u32 mutex_id)
+ /* Names for Notify() values, used for debug output */
+ 
+ static const char *acpi_gbl_generic_notify[ACPI_GENERIC_NOTIFY_MAX + 1] = {
+-	/* 00 */ "Bus Check",
+-	/* 01 */ "Device Check",
+-	/* 02 */ "Device Wake",
+-	/* 03 */ "Eject Request",
+-	/* 04 */ "Device Check Light",
+-	/* 05 */ "Frequency Mismatch",
+-	/* 06 */ "Bus Mode Mismatch",
+-	/* 07 */ "Power Fault",
+-	/* 08 */ "Capabilities Check",
+-	/* 09 */ "Device PLD Check",
+-	/* 0A */ "Reserved",
+-	/* 0B */ "System Locality Update",
+-								/* 0C */ "Reserved (was previously Shutdown Request)",
+-								/* Reserved in ACPI 6.0 */
+-	/* 0D */ "System Resource Affinity Update",
+-								/* 0E */ "Heterogeneous Memory Attributes Update",
+-								/* ACPI 6.2 */
+-						/* 0F */ "Error Disconnect Recover"
+-						/* ACPI 6.3 */
++	[0]  = "Bus Check",
++	[1]  = "Device Check",
++	[2]  = "Device Wake",
++	[3]  = "Eject Request",
++	[4]  = "Device Check Light",
++	[5]  = "Frequency Mismatch",
++	[6]  = "Bus Mode Mismatch",
++	[7]  = "Power Fault",
++	[8]  = "Capabilities Check",
++	[9]  = "Device PLD Check",
++	[10] = "Reserved",
++	[11] = "System Locality Update",
++	[12] = "Reserved (was previously Shutdown Request)",  /* Reserved in ACPI 6.0 */
++	[13] = "System Resource Affinity Update",
++	[14] = "Heterogeneous Memory Attributes Update",      /* ACPI 6.2 */
++	[15] = "Error Disconnect Recover"                     /* ACPI 6.3 */
+ };
+ 
+ static const char *acpi_gbl_device_notify[5] = {
+@@ -521,26 +518,26 @@ const char *acpi_ut_get_notify_name(u32 notify_value, acpi_object_type type)
+  ******************************************************************************/
+ 
+ static const char *acpi_gbl_argument_type[20] = {
+-	/* 00 */ "Unknown ARGP",
+-	/* 01 */ "ByteData",
+-	/* 02 */ "ByteList",
+-	/* 03 */ "CharList",
+-	/* 04 */ "DataObject",
+-	/* 05 */ "DataObjectList",
+-	/* 06 */ "DWordData",
+-	/* 07 */ "FieldList",
+-	/* 08 */ "Name",
+-	/* 09 */ "NameString",
+-	/* 0A */ "ObjectList",
+-	/* 0B */ "PackageLength",
+-	/* 0C */ "SuperName",
+-	/* 0D */ "Target",
+-	/* 0E */ "TermArg",
+-	/* 0F */ "TermList",
+-	/* 10 */ "WordData",
+-	/* 11 */ "QWordData",
+-	/* 12 */ "SimpleName",
+-	/* 13 */ "NameOrRef"
++	[0x00] = "Unknown ARGP",
++	[0x01] = "ByteData",
++	[0x02] = "ByteList",
++	[0x03] = "CharList",
++	[0x04] = "DataObject",
++	[0x05] = "DataObjectList",
++	[0x06] = "DWordData",
++	[0x07] = "FieldList",
++	[0x08] = "Name",
++	[0x09] = "NameString",
++	[0x0A] = "ObjectList",
++	[0x0B] = "PackageLength",
++	[0x0C] = "SuperName",
++	[0x0D] = "Target",
++	[0x0E] = "TermArg",
++	[0x0F] = "TermList",
++	[0x10] = "WordData",
++	[0x11] = "QWordData",
++	[0x12] = "SimpleName",
++	[0x13] = "NameOrRef"
+ };
+ 
+ const char *acpi_ut_get_argument_type_name(u32 arg_type)
 -- 
 2.35.1
 

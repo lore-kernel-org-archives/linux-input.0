@@ -2,210 +2,185 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74859C433EF
-	for <linux-input@archiver.kernel.org>; Mon, 28 Mar 2022 22:11:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1EBCC433F5
+	for <linux-input@archiver.kernel.org>; Mon, 28 Mar 2022 23:03:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbiC1WN0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 28 Mar 2022 18:13:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37678 "EHLO
+        id S230236AbiC1XFg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 28 Mar 2022 19:05:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbiC1WNZ (ORCPT
+        with ESMTP id S230204AbiC1XFg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 28 Mar 2022 18:13:25 -0400
-Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3332B35843;
-        Mon, 28 Mar 2022 15:02:01 -0700 (PDT)
-Received: by mail-io1-xd2b.google.com with SMTP id z7so18864960iom.1;
-        Mon, 28 Mar 2022 15:02:01 -0700 (PDT)
+        Mon, 28 Mar 2022 19:05:36 -0400
+Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CC191C918
+        for <linux-input@vger.kernel.org>; Mon, 28 Mar 2022 16:03:54 -0700 (PDT)
+Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-2e68c93bb30so130516607b3.18
+        for <linux-input@vger.kernel.org>; Mon, 28 Mar 2022 16:03:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Zku73QpalQjK7mBNfRnqmkOyZliZDHv6CNwYX93bSZc=;
-        b=W+nx2Rs6t4ExOmIqnQeOQD4iJiAsZfVSjiPnDOEoC/PKN0duaeeK+1RfeOBQOF0bYR
-         zIVxDalhLdptimGuGHIEcTFR8MpB8preZuosCSp+LNTX5eHhwGbdhODb9JTnZcLPuT1I
-         QLOMdrrNMAqatCzNY/tm4cqE5mqSjVp0Q/Tu8PY7CF8uCnSmvjGF1mYwh7HEitLEIxWD
-         sI6mZA/N2BW2IsplbUB42Bz0gdBt4R2fZZP1qMmENIuO5OiIC+b0U4MAt6670q1CDugT
-         6PPJTaNT+2GePra2dTPgvFff94DWcxW3cdhHlYkEX8UXDhvu6QOPGNs/qFv8HpxukLcj
-         /I4g==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=/earJ4sVck+JVD0RmuQXUvZhSB6QjqhmiJ8MWnO1LKI=;
+        b=IrQiLG0hxRXg32iOno2nUn/o2FgJuQrQ26s+9yJ0K6hg3SKY9v+eWzTgWWieBi817o
+         rh07NJ1BwQoOMW0XNqOICC5xRNxA/dezaHXddv4aAQU7St/PBcxzJqypHs1yGGZ7C5ah
+         LtCWlaOAFcwNoLOaQgKZ0zRnHxosa2YBvL/r/gVuGgs6ungEezlIu88mSwBB66cU0DOR
+         sjG+7cIvwAZd2MGkuIcpcoJbeinxd1JD3rODf+rrjgJbX2W/DkFHG1cGdwXtfAUvh5HS
+         bKL3cxSXgc2y6KgF0oAunBi0+hgT3Qokd3JpjjVBanEzXjKp0QH0e6yh0y+L4ZE09hUc
+         2nbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Zku73QpalQjK7mBNfRnqmkOyZliZDHv6CNwYX93bSZc=;
-        b=pdqIzV06jo8SuEFXfdXAT24GbBjOdrLTiH9csBtepeqvT1dJFRX/20EhU+1IKOX8AI
-         w3Y1RbVevhUugNZnjbiytYwsbXj31mGKAVIE8EHewFtuAE7xoBFBl2lnmRX3sswsjbM0
-         5FNRlQgQdA/IA3Iu0jkTYwRatCbdVvrPakVJBW9yIk428y6K7VIGckMKxH1Be2bPECyN
-         /F3ZPg1NhW3bqa0Q0SJ+3ct6VRMkBXKdKgaDJiwKisJdm+dsEmD9LWD4xx35y9AZ+uJp
-         HDArddwVU7y8aZ3ymkYnYATSE2DHdpcFQq9kcmp46EngiMjefqTXQWm9/KOsdWKqwYxJ
-         R7ZQ==
-X-Gm-Message-State: AOAM531DMSrArzbqz4JDBhWCNJIm30453f2DY9Tsq73GWJtIpRx/hhxY
-        x61zTWerfb738B/jmIKuDYZNP5iQ6akyk5SH3KXWiT2m
-X-Google-Smtp-Source: ABdhPJyta6fjjW/oHgljQRh12/jOLrq4xulwQgvJrCe6paXK4K0lFuDYs3HHKwvHP2IIgblrMB9kJD1xtRWcuN06kfM=
-X-Received: by 2002:a05:6e02:1562:b0:2c9:cb97:9a4 with SMTP id
- k2-20020a056e02156200b002c9cb9709a4mr1324007ilu.71.1648503345774; Mon, 28 Mar
- 2022 14:35:45 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
- <20220318161528.1531164-7-benjamin.tissoires@redhat.com> <CAADnVQLvhWxEtHETg0tasJ7Fp5JHNRYWdjhnxi1y1gBpXS=bvQ@mail.gmail.com>
- <CAO-hwJJXR3jtAvLF1phUa5pKZzVkDxAAHO5+7R50hL-fVhDYyA@mail.gmail.com>
- <CAEf4BzYVu9JVJvKZK3S9HGwpyPiWrwKPGsTz3wXC_+vmRYGdNw@mail.gmail.com> <CAO-hwJKPxKCzxCKGpH85j5VG3bQk+7axDYpxYoy-12yL7AQj2w@mail.gmail.com>
-In-Reply-To: <CAO-hwJKPxKCzxCKGpH85j5VG3bQk+7axDYpxYoy-12yL7AQj2w@mail.gmail.com>
-From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date:   Mon, 28 Mar 2022 14:35:34 -0700
-Message-ID: <CAEf4BzZA7Wmg=N42ib_r9Jm8THXuGGR3CPgTqMyw9n2=gd_+Kg@mail.gmail.com>
-Subject: Re: [PATCH bpf-next v3 06/17] HID: allow to change the report
- descriptor from an eBPF program
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Shuah Khan <shuah@kernel.org>,
-        Dave Marchevsky <davemarchevsky@fb.com>,
-        Joe Stringer <joe@cilium.io>, Jonathan Corbet <corbet@lwn.net>,
-        Tero Kristo <tero.kristo@linux.intel.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        bpf <bpf@vger.kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=/earJ4sVck+JVD0RmuQXUvZhSB6QjqhmiJ8MWnO1LKI=;
+        b=7QE1RFZ0fh4giSXY/LvHd0Lm2T9Byn1CrNjnBBEkd/e46qg1KQg7l8s8KqM3IqXFH0
+         IL1oSr98OBGci88DZqUvTiOJSKHLXBVJqrZCQR17QUv7xefrJjcOkeEp+VPB26eFH5B8
+         Qo8EIC6k5wCl40Q8vrlx8sm1Z6NsaxW0z4K2RQYM96RlPC8wintVe1eBJP7uPuBJMScr
+         QHdp+j/zXEj/Y2St0UbMnD+zJstvsFnL2pNaiUnO6x+U1WfMWrv1zXbHGZHbPOqMNZwH
+         gSyUZKUe04DUIBp9aZwtpNrTB6IWsSH6dRU008mxPCBDvD1cq9Duq1m0zcY/U2HaLRtV
+         S6ug==
+X-Gm-Message-State: AOAM532Zc2UvSRCGcPFug8FWfci95sX/b221nt3A636F5ite48DYpeNA
+        rD+O9a8dehbnuvIvOkOJAr4KfEq9AQOnCck=
+X-Google-Smtp-Source: ABdhPJz9kvuezk0rt56VKV0O2Pjvi8NOVadDXMqpdChGREa/T3/Qrbx4+KDzWi06IHkqCc2yN1SP4FzXrlIro2M=
+X-Received: from pceballos.nyc.corp.google.com ([2620:0:1003:510:a131:a916:1e0a:ee6a])
+ (user=pceballos job=sendgmr) by 2002:a05:6902:102f:b0:638:f9fd:1742 with SMTP
+ id x15-20020a056902102f00b00638f9fd1742mr22207235ybt.401.1648508633838; Mon,
+ 28 Mar 2022 16:03:53 -0700 (PDT)
+Date:   Mon, 28 Mar 2022 19:03:51 -0400
+Message-Id: <20220328185704.1.I7a855580ce9f43fc2f598bdccf088c978d4af822@changeid>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.1.1021.g381101b075-goog
+Subject: [PATCH] HID: Add driver for Google Hangouts Meet Speakermic
+From:   Pablo Ceballos <pceballos@google.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Pablo Ceballos <pceballos@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Mar 27, 2022 at 11:57 PM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> On Fri, Mar 25, 2022 at 6:00 PM Andrii Nakryiko
-> <andrii.nakryiko@gmail.com> wrote:
-> >
-> > On Wed, Mar 23, 2022 at 9:08 AM Benjamin Tissoires
-> > <benjamin.tissoires@redhat.com> wrote:
-> > >
-> > > Hi Alexei,
-> > >
-> > > On Tue, Mar 22, 2022 at 11:51 PM Alexei Starovoitov
-> > > <alexei.starovoitov@gmail.com> wrote:
-> > > >
-> > > > On Fri, Mar 18, 2022 at 9:16 AM Benjamin Tissoires
-> > > > <benjamin.tissoires@redhat.com> wrote:
-> > > > >
-> > > > > +u8 *hid_bpf_report_fixup(struct hid_device *hdev, u8 *rdesc, unsigned int *size)
-> > > > > +{
-> > > > > +       int ret;
-> > > > > +       struct hid_bpf_ctx_kern ctx = {
-> > > > > +               .type = HID_BPF_RDESC_FIXUP,
-> > > > > +               .hdev = hdev,
-> > > > > +               .size = *size,
-> > > > > +       };
-> > > > > +
-> > > > > +       if (bpf_hid_link_empty(&hdev->bpf, BPF_HID_ATTACH_RDESC_FIXUP))
-> > > > > +               goto ignore_bpf;
-> > > > > +
-> > > > > +       ctx.data = kmemdup(rdesc, HID_MAX_DESCRIPTOR_SIZE, GFP_KERNEL);
-> > > > > +       if (!ctx.data)
-> > > > > +               goto ignore_bpf;
-> > > > > +
-> > > > > +       ctx.allocated_size = HID_MAX_DESCRIPTOR_SIZE;
-> > > > > +
-> > > > > +       ret = hid_bpf_run_progs(hdev, &ctx);
-> > > > > +       if (ret)
-> > > > > +               goto ignore_bpf;
-> > > > > +
-> > > > > +       if (ctx.size > ctx.allocated_size)
-> > > > > +               goto ignore_bpf;
-> > > > > +
-> > > > > +       *size = ctx.size;
-> > > > > +
-> > > > > +       if (*size) {
-> > > > > +               rdesc = krealloc(ctx.data, *size, GFP_KERNEL);
-> > > > > +       } else {
-> > > > > +               rdesc = NULL;
-> > > > > +               kfree(ctx.data);
-> > > > > +       }
-> > > > > +
-> > > > > +       return rdesc;
-> > > > > +
-> > > > > + ignore_bpf:
-> > > > > +       kfree(ctx.data);
-> > > > > +       return kmemdup(rdesc, *size, GFP_KERNEL);
-> > > > > +}
-> > > > > +
-> > > > >  int __init hid_bpf_module_init(void)
-> > > > >  {
-> > > > >         struct bpf_hid_hooks hooks = {
-> > > > >                 .hdev_from_fd = hid_bpf_fd_to_hdev,
-> > > > >                 .pre_link_attach = hid_bpf_pre_link_attach,
-> > > > > +               .post_link_attach = hid_bpf_post_link_attach,
-> > > > >                 .array_detach = hid_bpf_array_detach,
-> > > > >         };
-> > > > >
-> > > > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > > > > index 937fab7eb9c6..3182c39db006 100644
-> > > > > --- a/drivers/hid/hid-core.c
-> > > > > +++ b/drivers/hid/hid-core.c
-> > > > > @@ -1213,7 +1213,8 @@ int hid_open_report(struct hid_device *device)
-> > > > >                 return -ENODEV;
-> > > > >         size = device->dev_rsize;
-> > > > >
-> > > > > -       buf = kmemdup(start, size, GFP_KERNEL);
-> > > > > +       /* hid_bpf_report_fixup() ensures we work on a copy of rdesc */
-> > > > > +       buf = hid_bpf_report_fixup(device, start, &size);
-> > > >
-> > > > Looking at this patch and the majority of other patches...
-> > > > the code is doing a lot of work to connect HID side with bpf.
-> > > > At the same time the evolution of the patch series suggests
-> > > > that these hook points are not quite stable. More hooks and
-> > > > helpers are being added.
-> > > > It tells us that it's way too early to introduce a stable
-> > > > interface between HID and bpf.
-> > >
-> > > I understand that you might be under the impression that the interface
-> > > is changing a lot, but this is mostly due to my poor knowledge of all
-> > > the arcanes of eBPF.
-> > > The overall way HID-BPF works is to work on a single array, and we
-> > > should pretty much be sorted out. There are a couple of helpers to be
-> > > able to communicate with the device, but the API has been stable in
-> > > the kernel for those for quite some time now.
-> > >
-> > > The variations in the hooks is mostly because I don't know what is the
-> > > best representation we can use in eBPF for those, and the review
-> > > process is changing that.
-> >
-> > I think such a big feature as this one, especially that most BPF folks
-> > are (probably) not familiar with the HID subsystem in the kernel,
-> > would benefit from a bit of live discussion during BPF office hours.
-> > Do you think you can give a short overview of what you are trying to
-> > achieve with some background context on HID specifics at one of the
-> > next BPF office hours? We have a meeting scheduled every week on
-> > Thursday, 9am Pacific time. But people need to put their topic onto
-> > the agenda, otherwise the meeting is cancelled. See [0] for
-> > spreadsheet and links to Zoom meeting, agenda, etc.
->
-> This sounds like a good idea. I just added my topic on the agenda and
-> will prepare some slides.
->
+This driver works around a problem with the HID usage sent by this
+device for the mute button. It prevents key events from being generated
+for that HID usage since they would be incorrect.
 
-Great! Unfortunately I personally have a conflict this week and won't
-be able to attend, so I'll have to catch up somehow through word of
-mouth :( Next week's BPF office hours would be best, but I don't want
-to delay discussions just because of me.
+Signed-off-by: Pablo Ceballos <pceballos@google.com>
+---
 
-> Cheers,
-> Benjamin
->
-> >
-> >   [0] https://docs.google.com/spreadsheets/d/1LfrDXZ9-fdhvPEp_LHkxAMYyxxpwBXjywWa0AejEveU
-> >
-> > [...]
-> >
->
+ drivers/hid/Kconfig            | 12 ++++++++
+ drivers/hid/Makefile           |  1 +
+ drivers/hid/hid-google-atrus.c | 55 ++++++++++++++++++++++++++++++++++
+ drivers/hid/hid-ids.h          |  1 +
+ 4 files changed, 69 insertions(+)
+ create mode 100644 drivers/hid/hid-google-atrus.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index f5544157576c..dc6ae9970054 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -403,6 +403,18 @@ config HOLTEK_FF
+ 	  Say Y here if you have a Holtek On Line Grip based game controller
+ 	  and want to have force feedback support for it.
+ 
++config HID_GOOGLE_ATRUS
++	tristate "Google Hangouts Meet Speakermic"
++	depends on USB_HID
++	---help---
++	This selects a driver for the Google Hangouts Meet Speakermic.
++
++	This driver works around a problem with the HID usage sent by this
++	device for the mute button. It prevents key events from being generated
++	for that HID usage since they would be incorrect.
++
++	Say Y here if you have a Google Hangouts Meet Speakermic.
++
+ config HID_GOOGLE_HAMMER
+ 	tristate "Google Hammer Keyboard"
+ 	depends on USB_HID && LEDS_CLASS && CROS_EC
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 6d3e630e81af..2ee446b5b953 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -50,6 +50,7 @@ obj-$(CONFIG_HID_FT260)		+= hid-ft260.o
+ obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
+ obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
+ obj-$(CONFIG_HID_GLORIOUS)  += hid-glorious.o
++obj-$(CONFIG_HID_GOOGLE_ATRUS)  += hid-google-atrus.o
+ obj-$(CONFIG_HID_GOOGLE_HAMMER)	+= hid-google-hammer.o
+ obj-$(CONFIG_HID_VIVALDI)	+= hid-vivaldi.o
+ obj-$(CONFIG_HID_GT683R)	+= hid-gt683r.o
+diff --git a/drivers/hid/hid-google-atrus.c b/drivers/hid/hid-google-atrus.c
+new file mode 100644
+index 000000000000..e136c70e9425
+--- /dev/null
++++ b/drivers/hid/hid-google-atrus.c
+@@ -0,0 +1,55 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ *  HID driver for Google Hangouts Meet Speakermic
++ *
++ *  Copyright 2022 Google LLC.
++ */
++
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++/*
++ * This driver handles the telephony phone mute HID usage by ignoring it. This
++ * avoids the default handling by the hid-input driver which is to map this to
++ * a KEY_MICMUTE event. The issue is that this device implements the phone mute
++ * HID usage as a toggle switch, where 1 indicates muted, and 0 indicates
++ * unmuted. However, for an EV_KEY event 1 indicates the key has been pressed
++ * and 0 indicates it has been released.
++ */
++
++static int atrus_event(struct hid_device *hid, struct hid_field *field,
++		       struct hid_usage *usage, __s32 value)
++{
++	/*
++	 * Return 1 to indicate no further processing should be done for this
++	 * usage.
++	 */
++	return 1;
++}
++
++static const struct hid_device_id atrus_devices[] = {
++	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
++		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_ATRUS) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, atrus_devices);
++
++static const struct hid_usage_id atrus_usages[] = {
++	/* Handle only the Telephony Phone Mute usage. */
++	{ HID_UP_TELEPHONY | 0x2f, EV_KEY, HID_ANY_ID },
++	{ HID_TERMINATOR, HID_TERMINATOR, HID_TERMINATOR }
++};
++
++static struct hid_driver atrus_driver = {
++	.name = "atrus",
++	.id_table = atrus_devices,
++	.usage_table = atrus_usages,
++	.event = atrus_event,
++};
++module_hid_driver(atrus_driver);
++
++MODULE_AUTHOR("Pablo Ceballos <pcebalos@google.com>");
++MODULE_DESCRIPTION("Google Hangouts Meet Speakermic USB HID Driver");
++MODULE_LICENSE("GPL");
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 85975031389b..9f6fc5cfbeb9 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -506,6 +506,7 @@
+ #define USB_DEVICE_ID_GOOGLE_MOONBALL	0x5044
+ #define USB_DEVICE_ID_GOOGLE_DON	0x5050
+ #define USB_DEVICE_ID_GOOGLE_EEL	0x5057
++#define USB_DEVICE_ID_GOOGLE_ATRUS	0x8001
+ 
+ #define USB_VENDOR_ID_GOTOP		0x08f2
+ #define USB_DEVICE_ID_SUPER_Q2		0x007f
+-- 
+2.35.1.1021.g381101b075-goog
+

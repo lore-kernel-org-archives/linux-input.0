@@ -2,229 +2,224 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A04FC433F5
-	for <linux-input@archiver.kernel.org>; Tue, 29 Mar 2022 13:54:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D3D4C433F5
+	for <linux-input@archiver.kernel.org>; Tue, 29 Mar 2022 14:27:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237570AbiC2Nzn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Mar 2022 09:55:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60402 "EHLO
+        id S234768AbiC2O3L (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Mar 2022 10:29:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236973AbiC2Nzm (ORCPT
+        with ESMTP id S229822AbiC2O3L (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Mar 2022 09:55:42 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 986061C390C
-        for <linux-input@vger.kernel.org>; Tue, 29 Mar 2022 06:53:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1648562037;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=un9l7/a+uEq1XogerESBiAijCYeuvtYw94AitMUuZ+M=;
-        b=NcomTsu2UUxjJJPx3FxVc3Uy1LJqUZsaZ34W/bs0wRSqRZsOHIX5MlisYqtZivIbrbiaJJ
-        RO/mNid7bfUoDGvI9LNFaH9vPHghd4eFGeAXkIyfNVj284+w2LCMTgcMHT8ebUJIL8f28l
-        FLiITDhQVCHw2r9dqKz1cWDbbdDhw/U=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-375-1MbosF4aNImrnVz5hP76FA-1; Tue, 29 Mar 2022 09:53:56 -0400
-X-MC-Unique: 1MbosF4aNImrnVz5hP76FA-1
-Received: by mail-pf1-f199.google.com with SMTP id y26-20020aa793da000000b004fb7c6f5d10so1868609pff.1
-        for <linux-input@vger.kernel.org>; Tue, 29 Mar 2022 06:53:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=un9l7/a+uEq1XogerESBiAijCYeuvtYw94AitMUuZ+M=;
-        b=NFUyBypH3jC3rXcCx50oPcsvDCo3Cd4Q3H/ONzxpVbJPKHaq8On/YiTk3F6QL3AZUw
-         sGExHDxVUDEoxt3PBR7u1lExF2nrUrgHXJG+QPPy5/2KwcvKpjBhniuu3lf+wXYZ8JUn
-         CEZPn5XMDxvoUDqX3JfKoGrFeOdc6P/3U5hZq4ADFbgCuvCP4olsSXgLI7z7LaEM8MFD
-         Hc5q/CfHuUKY17vDJDPv4crke2TeUYwy66tXHNEQXI2Jo188QhS7FagCwI0r8l2HOAan
-         J5abrrwESz/vW/ZhGkwTrYJIoKZwYUsZjRDykZBGcAelulRL2HOwEnu3n1ATlblFcFzU
-         +v9g==
-X-Gm-Message-State: AOAM531jB1mxHdbuVTTvN4cGXADu9kqyvFwk+Q960uv5u9OirYWN2ocw
-        lL9bUcwqHjb7nFEmHAPvGI0eb7dOxUB/njaXrnGnajTmjTkcO6PQmQzR63wNQP2YSGDn/8/KRgo
-        09Tc2YCjr6S7xwGAOmpyuPbH+NIxLzLHDscI8cxY=
-X-Received: by 2002:a63:6c0a:0:b0:398:6bd2:a16a with SMTP id h10-20020a636c0a000000b003986bd2a16amr2123304pgc.191.1648562033314;
-        Tue, 29 Mar 2022 06:53:53 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyGa8CCAa74guVnbIRav3BJCOquPXCu+LU4JQHK3SKWdmRtYE+byETFimsO7Lw1QDDW65u4gI5INxlQXDHGp68=
-X-Received: by 2002:a63:6c0a:0:b0:398:6bd2:a16a with SMTP id
- h10-20020a636c0a000000b003986bd2a16amr2123264pgc.191.1648562032802; Tue, 29
- Mar 2022 06:53:52 -0700 (PDT)
+        Tue, 29 Mar 2022 10:29:11 -0400
+Received: from srv6.fidu.org (srv6.fidu.org [159.69.62.71])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A44B88232D;
+        Tue, 29 Mar 2022 07:27:25 -0700 (PDT)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by srv6.fidu.org (Postfix) with ESMTP id CD746C800A2;
+        Tue, 29 Mar 2022 16:27:23 +0200 (CEST)
+Authentication-Results: srv6.fidu.org (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)"
+        header.d=tuxedocomputers.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        tuxedocomputers.com; h=content-transfer-encoding:mime-version
+        :references:in-reply-to:x-mailer:message-id:date:date:subject
+        :subject:from:from; s=default; t=1648564043; x=1650378444; bh=3A
+        f2xG27nzKLV2wNsx35wRH/91FzNSwLdg18/CNRmLY=; b=dgLPnlPm8ml0k/1uqv
+        cnuCjBxmVoii4WNpgfYASb2qbwfk3Io8DBFD2HCb6iRdf29RLVX7A9ySBy85wGnv
+        e2t3RwX05EGBLA92MMIEfjeGcqZEtPAM93LTKIDZohhK6pcoFPqwU8NNuG+5aeiL
+        N5Efhcl0V549ii9ssHncAsZ9k=
+X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
+Received: from srv6.fidu.org ([127.0.0.1])
+        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
+        with LMTP id tHPO-RDNpPZO; Tue, 29 Mar 2022 16:27:23 +0200 (CEST)
+Received: from wsembach-tuxedo.fritz.box (host-212-18-30-247.customer.m-online.net [212.18.30.247])
+        (Authenticated sender: wse@tuxedocomputers.com)
+        by srv6.fidu.org (Postfix) with ESMTPA id 245C0C800A5;
+        Tue, 29 Mar 2022 16:27:23 +0200 (CEST)
+From:   Werner Sembach <wse@tuxedocomputers.com>
+To:     dmitry.torokhov@gmail.com, tiwai@suse.de, mpdesouza@suse.com,
+        arnd@arndb.de, hdegoede@redhat.com, samuel@cavoj.net,
+        wse@tuxedocomputers.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v4 4/4] input/i8042: Add TUXEDO devices to i8042 quirk tables
+Date:   Tue, 29 Mar 2022 16:27:18 +0200
+Message-Id: <20220329142718.30921-4-wse@tuxedocomputers.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220329142718.30921-2-wse@tuxedocomputers.com>
+References: <20220329142718.30921-2-wse@tuxedocomputers.com>
 MIME-Version: 1.0
-References: <20220318161528.1531164-1-benjamin.tissoires@redhat.com>
- <20220318161528.1531164-7-benjamin.tissoires@redhat.com> <CAADnVQLvhWxEtHETg0tasJ7Fp5JHNRYWdjhnxi1y1gBpXS=bvQ@mail.gmail.com>
- <CAO-hwJJXR3jtAvLF1phUa5pKZzVkDxAAHO5+7R50hL-fVhDYyA@mail.gmail.com>
- <CAEf4BzYVu9JVJvKZK3S9HGwpyPiWrwKPGsTz3wXC_+vmRYGdNw@mail.gmail.com>
- <CAO-hwJKPxKCzxCKGpH85j5VG3bQk+7axDYpxYoy-12yL7AQj2w@mail.gmail.com> <CAEf4BzZA7Wmg=N42ib_r9Jm8THXuGGR3CPgTqMyw9n2=gd_+Kg@mail.gmail.com>
-In-Reply-To: <CAEf4BzZA7Wmg=N42ib_r9Jm8THXuGGR3CPgTqMyw9n2=gd_+Kg@mail.gmail.com>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Tue, 29 Mar 2022 15:53:41 +0200
-Message-ID: <CAO-hwJKnnVkJPG6wtLJ6t7ojv5=vS0NGt14un6+nRmxzj+xifw@mail.gmail.com>
-Subject: Re: [PATCH bpf-next v3 06/17] HID: allow to change the report
- descriptor from an eBPF program
-To:     Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc:     Alexei Starovoitov <alexei.starovoitov@gmail.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Shuah Khan <shuah@kernel.org>,
-        Dave Marchevsky <davemarchevsky@fb.com>,
-        Joe Stringer <joe@cilium.io>, Jonathan Corbet <corbet@lwn.net>,
-        Tero Kristo <tero.kristo@linux.intel.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Network Development <netdev@vger.kernel.org>,
-        bpf <bpf@vger.kernel.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Mar 28, 2022 at 11:35 PM Andrii Nakryiko
-<andrii.nakryiko@gmail.com> wrote:
->
-> On Sun, Mar 27, 2022 at 11:57 PM Benjamin Tissoires
-> <benjamin.tissoires@redhat.com> wrote:
-> >
-> > On Fri, Mar 25, 2022 at 6:00 PM Andrii Nakryiko
-> > <andrii.nakryiko@gmail.com> wrote:
-> > >
-> > > On Wed, Mar 23, 2022 at 9:08 AM Benjamin Tissoires
-> > > <benjamin.tissoires@redhat.com> wrote:
-> > > >
-> > > > Hi Alexei,
-> > > >
-> > > > On Tue, Mar 22, 2022 at 11:51 PM Alexei Starovoitov
-> > > > <alexei.starovoitov@gmail.com> wrote:
-> > > > >
-> > > > > On Fri, Mar 18, 2022 at 9:16 AM Benjamin Tissoires
-> > > > > <benjamin.tissoires@redhat.com> wrote:
-> > > > > >
-> > > > > > +u8 *hid_bpf_report_fixup(struct hid_device *hdev, u8 *rdesc, unsigned int *size)
-> > > > > > +{
-> > > > > > +       int ret;
-> > > > > > +       struct hid_bpf_ctx_kern ctx = {
-> > > > > > +               .type = HID_BPF_RDESC_FIXUP,
-> > > > > > +               .hdev = hdev,
-> > > > > > +               .size = *size,
-> > > > > > +       };
-> > > > > > +
-> > > > > > +       if (bpf_hid_link_empty(&hdev->bpf, BPF_HID_ATTACH_RDESC_FIXUP))
-> > > > > > +               goto ignore_bpf;
-> > > > > > +
-> > > > > > +       ctx.data = kmemdup(rdesc, HID_MAX_DESCRIPTOR_SIZE, GFP_KERNEL);
-> > > > > > +       if (!ctx.data)
-> > > > > > +               goto ignore_bpf;
-> > > > > > +
-> > > > > > +       ctx.allocated_size = HID_MAX_DESCRIPTOR_SIZE;
-> > > > > > +
-> > > > > > +       ret = hid_bpf_run_progs(hdev, &ctx);
-> > > > > > +       if (ret)
-> > > > > > +               goto ignore_bpf;
-> > > > > > +
-> > > > > > +       if (ctx.size > ctx.allocated_size)
-> > > > > > +               goto ignore_bpf;
-> > > > > > +
-> > > > > > +       *size = ctx.size;
-> > > > > > +
-> > > > > > +       if (*size) {
-> > > > > > +               rdesc = krealloc(ctx.data, *size, GFP_KERNEL);
-> > > > > > +       } else {
-> > > > > > +               rdesc = NULL;
-> > > > > > +               kfree(ctx.data);
-> > > > > > +       }
-> > > > > > +
-> > > > > > +       return rdesc;
-> > > > > > +
-> > > > > > + ignore_bpf:
-> > > > > > +       kfree(ctx.data);
-> > > > > > +       return kmemdup(rdesc, *size, GFP_KERNEL);
-> > > > > > +}
-> > > > > > +
-> > > > > >  int __init hid_bpf_module_init(void)
-> > > > > >  {
-> > > > > >         struct bpf_hid_hooks hooks = {
-> > > > > >                 .hdev_from_fd = hid_bpf_fd_to_hdev,
-> > > > > >                 .pre_link_attach = hid_bpf_pre_link_attach,
-> > > > > > +               .post_link_attach = hid_bpf_post_link_attach,
-> > > > > >                 .array_detach = hid_bpf_array_detach,
-> > > > > >         };
-> > > > > >
-> > > > > > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > > > > > index 937fab7eb9c6..3182c39db006 100644
-> > > > > > --- a/drivers/hid/hid-core.c
-> > > > > > +++ b/drivers/hid/hid-core.c
-> > > > > > @@ -1213,7 +1213,8 @@ int hid_open_report(struct hid_device *device)
-> > > > > >                 return -ENODEV;
-> > > > > >         size = device->dev_rsize;
-> > > > > >
-> > > > > > -       buf = kmemdup(start, size, GFP_KERNEL);
-> > > > > > +       /* hid_bpf_report_fixup() ensures we work on a copy of rdesc */
-> > > > > > +       buf = hid_bpf_report_fixup(device, start, &size);
-> > > > >
-> > > > > Looking at this patch and the majority of other patches...
-> > > > > the code is doing a lot of work to connect HID side with bpf.
-> > > > > At the same time the evolution of the patch series suggests
-> > > > > that these hook points are not quite stable. More hooks and
-> > > > > helpers are being added.
-> > > > > It tells us that it's way too early to introduce a stable
-> > > > > interface between HID and bpf.
-> > > >
-> > > > I understand that you might be under the impression that the interface
-> > > > is changing a lot, but this is mostly due to my poor knowledge of all
-> > > > the arcanes of eBPF.
-> > > > The overall way HID-BPF works is to work on a single array, and we
-> > > > should pretty much be sorted out. There are a couple of helpers to be
-> > > > able to communicate with the device, but the API has been stable in
-> > > > the kernel for those for quite some time now.
-> > > >
-> > > > The variations in the hooks is mostly because I don't know what is the
-> > > > best representation we can use in eBPF for those, and the review
-> > > > process is changing that.
-> > >
-> > > I think such a big feature as this one, especially that most BPF folks
-> > > are (probably) not familiar with the HID subsystem in the kernel,
-> > > would benefit from a bit of live discussion during BPF office hours.
-> > > Do you think you can give a short overview of what you are trying to
-> > > achieve with some background context on HID specifics at one of the
-> > > next BPF office hours? We have a meeting scheduled every week on
-> > > Thursday, 9am Pacific time. But people need to put their topic onto
-> > > the agenda, otherwise the meeting is cancelled. See [0] for
-> > > spreadsheet and links to Zoom meeting, agenda, etc.
-> >
-> > This sounds like a good idea. I just added my topic on the agenda and
-> > will prepare some slides.
-> >
->
-> Great! Unfortunately I personally have a conflict this week and won't
-> be able to attend, so I'll have to catch up somehow through word of
-> mouth :( Next week's BPF office hours would be best, but I don't want
-> to delay discussions just because of me.
+A lot of modern Clevo barebones have touchpad and/or keyboard issues after
+suspend fixable with nomux + reset + noloop + nopnp. Luckily, none of them
+have an external PS/2 port so this can safely be set for all of them.
 
-OK. FWIW, I'll have slides publicly available once I'll do a final
-roundup on them. Hopefully that will give you enough context on HID to
-understand the problem.
-If there are too many conflicts we can surely delay by a week, but I
-would rather have the discussion happening sooner :/
+I'm not entirely sure if every device listed really needs all four quirks,
+but after testing and production use. No negative effects could be
+observed when setting all four.
 
-Cheers,
-Benjamin
+The list is quite massive as neither the TUXEDO nor the Clevo dmi strings
+have been very consistent historically. I tried to keep the list as short
+as possible without risking on missing an affected device.
 
-> >
-> > >
-> > >   [0] https://docs.google.com/spreadsheets/d/1LfrDXZ9-fdhvPEp_LHkxAMYyxxpwBXjywWa0AejEveU
-> > >
-> > > [...]
-> > >
-> >
->
+This is revision 3. The Clevo N150CU barebone is still removed as it might
+have problems with the fix and needs further investigations. The
+SchenkerTechnologiesGmbH System-/Board-Vendor string variations are
+added. This is now based in the quirk table refactor. This now also
+includes the additional noaux flag for the NS7xMU.
+
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+---
+ drivers/input/serio/i8042-x86ia64io.h | 125 ++++++++++++++++++++++++++
+ 1 file changed, 125 insertions(+)
+
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 5c0eb5594fb1..a59c6aba7c75 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -1025,6 +1025,25 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
+ 	},
++	/*
++	 * A lot of modern Clevo barebones have touchpad and/or keyboard issues
++	 * after suspend fixable with nomux + reset + noloop + nopnp. Luckily,
++	 * none of them have an external PS/2 port so this can savely be set for
++	 * all of them. These two are based on a Clevo design, but have the
++	 * board_name changed.
++	 */
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "TUXEDO"),
++			DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
++		},
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "TUXEDO"),
++			DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
++		},
++	},
+ 	{
+ 		/* Mivvy M310 */
+ 		.matches = {
+@@ -1054,6 +1073,112 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_NOLOOP)
+ 	},
++	/*
++	 * A lot of modern Clevo barebones have touchpad and/or keyboard issues
++	 * after suspend fixable with nomux + reset + noloop + nopnp. Luckily,
++	 * none of them have an external PS/2 port so this can savely be set for
++	 * all of them.
++	 * Clevo barebones come with board_vendor and/or system_vendor set to
++	 * either the very generic string "Notebook" and/or a different value
++	 * for each individual reseller. The only somewhat universal way to
++	 * identify them is by board_name.
++	 */
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "LAPQC71A"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "LAPQC71B"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "N140CU"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "N141CU"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "NH5xAx"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	/*
++	 * At least one modern Clevo barebone has the touchpad connected both
++	 * via PS/2 and i2c interface. This causes a race condition between the
++	 * psmouse and i2c-hid driver. Since the full capability of the touchpad
++	 * is available via the i2c interface and the device has no external
++	 * PS/2 port, it is save to just ignore all ps2 mouses here to avoid
++	 * this issue. The know affected device is the
++	 * TUXEDO InfinityBook S17 Gen6 / Clevo NS70MU which comes with one of
++	 * the two different dmi strings below. NS50MU is not a typo!
++	 */
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "NS50MU"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOAUX | SERIO_QUIRK_NOMUX |
++					SERIO_QUIRK_RESET_ALWAYS | SERIO_QUIRK_NOLOOP |
++					SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "NS50_70MU"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOAUX | SERIO_QUIRK_NOMUX |
++					SERIO_QUIRK_RESET_ALWAYS | SERIO_QUIRK_NOLOOP |
++					SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "NJ50_70CU"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "PB50_70DFx,DDx"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "X170SM"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "X170KM-G"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
+ 	{ }
+ };
+ 
+-- 
+2.25.1
 

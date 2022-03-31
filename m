@@ -2,159 +2,364 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E3332C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 31 Mar 2022 04:38:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B64FC433F5
+	for <linux-input@archiver.kernel.org>; Thu, 31 Mar 2022 14:45:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229479AbiCaEk2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 31 Mar 2022 00:40:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51066 "EHLO
+        id S237767AbiCaOrP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 31 Mar 2022 10:47:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbiCaEk1 (ORCPT
+        with ESMTP id S232975AbiCaOrO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 31 Mar 2022 00:40:27 -0400
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1AC05370F;
-        Wed, 30 Mar 2022 21:38:40 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 4ACA83201F94;
-        Thu, 31 Mar 2022 00:38:37 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Thu, 31 Mar 2022 00:38:38 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=who-t.net; h=cc
-        :cc:content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm3; bh=220FvBfvs98k1i
-        EJqsZ+bl0CZjmlZ3jc/CXvJx3fxGs=; b=RLMQq0lrMr2v0PWc4EJtO7H7pUDfT7
-        ZQ0a9TP8mentwV2H54yDA8k0sp/kUiNNZ92krGTF9ZXYE/r++Vf5sHXYxa/BtHiD
-        b3Kxp1cykXI/FXIJhkBcpIpkNpHYhM1HTD2bRBgJx6+CPSn3tiupa5iMOP6RvBoV
-        9/Iflj0E3pirSCqWLxAkqEEdacIYOPIsqA3Q8USU3eduMeC/IL3J0+ec4Rw89Ve8
-        ln55npPmY2teiTKh7xVx9M6V1AIt+8Vcm9ALl9cr4AlsmLNq9/UJqOpO7atd1RFX
-        bMjvsBKm+poxrS3VOc5wlBDBgkHMQfQA+aHdFCD4OpGJHrvNj4LTG0kA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; bh=220FvBfvs98k1iEJqsZ+bl0CZjmlZ3jc/CXvJx3fx
-        Gs=; b=oluUQ17m7MAC9vzPWeqgJ6avk9ohDHnMVbQD+I12ByS95TD8cUXcXl6p4
-        JlRBWqn0g8LbVwptRKoOWM/kyveSovgI6pVS1Lh2TTleOMbc/sM5cVi4+VYaHOZp
-        ZOUObEuFywn6p/dXHNBhFLwpL16fuiYvo5PVdnu/DZnA824igC+k1wiHoAkshReX
-        L0YMggj3GLdJGAZdS9e0C+EehFlewx7NVQFP66+wJE9sVWa/+2kbAVXU2+qzo0pf
-        RqCmcI7NIfwEZnWAtVFRHbsRiCHbpZAjmB+6d/6FrDP96AIskfm0IBsvadGG1s/M
-        oZXTBG6uPdHLMYAymzfRBAUNiNsTQ==
-X-ME-Sender: <xms:TDBFYgj_xKbPdmeiLPniqBYx4PLXFU1N5CCZIIFZfMSiLYUi7SuFaw>
-    <xme:TDBFYpDiV1KwBSR-xRy_gQla5HMzPVvgmtoJzlyKsZY4AN769dR-eda2dx8bmyZLB
-    mw3gvfbiDFiFoG3szY>
-X-ME-Received: <xmr:TDBFYoEvGbnJCAANaZdTYlXQKrMJl5NPOA2CYgvG2UlBb_zqg_IBOyIK499PDjjfYhaoG91sJAghCpXscLPdhYEFzaCZg5L47g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudeifedgkedtucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtudenucfhrhhomheprfgvthgv
-    rhcujfhuthhtvghrvghruceophgvthgvrhdrhhhuthhtvghrvghrseifhhhoqdhtrdhnvg
-    htqeenucggtffrrghtthgvrhhnpeevfeejhedvffeuhfelfefghfdtvddvfffhleejffeu
-    gfekvdefhfeffffgueefleenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrgh
-    dprhgvughhrghtrdgtohhmnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehm
-    rghilhhfrhhomhepphgvthgvrhdrhhhuthhtvghrvghrseifhhhoqdhtrdhnvght
-X-ME-Proxy: <xmx:TDBFYhSMNl4Bu6DHMPfcV_YzkyIbHs7mi5RQiaXJJsszDqO5sYztqA>
-    <xmx:TDBFYtxgx9WrY6NT_KgbH49cOdjw3gnd943x5AKGzC8wYHJEc1-wwA>
-    <xmx:TDBFYv6BoLo7iKO5yRYE-iC1eR2C7RH3_gZQM5hHXsRTEdC_CnHplA>
-    <xmx:TDBFYkn65k_eP794kQX1E9SzRUOU_lvmY-rnvUh3SIbPkrNz-5St5g>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 31 Mar 2022 00:38:33 -0400 (EDT)
-Date:   Thu, 31 Mar 2022 14:38:28 +1000
-From:   Peter Hutterer <peter.hutterer@who-t.net>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Thorsten Leemhuis <regressions@leemhuis.info>,
-        =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        "3.8+" <stable@vger.kernel.org>, regressions@lists.linux.dev,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
-Message-ID: <YkUwRIa4ZI3TLAs0@quokka>
-References: <20220321184404.20025-1-jose.exposito89@gmail.com>
- <44abc738-1532-63fa-9cd1-2b3870a963bc@leemhuis.info>
- <CAO-hwJJweSuSBE_18ZbvqS12eX9GcS+aJoe7SRFJdASOrN3bqw@mail.gmail.com>
- <YkUqajiNZmi+lAPC@google.com>
+        Thu, 31 Mar 2022 10:47:14 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D44B1FAA35
+        for <linux-input@vger.kernel.org>; Thu, 31 Mar 2022 07:45:26 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id r7so14424500wmq.2
+        for <linux-input@vger.kernel.org>; Thu, 31 Mar 2022 07:45:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=semihalf-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5jnLxoygrGsfTORE8yE0Gn1zucUCs3m98K4GG33cQK0=;
+        b=xW8rppeROzjH7IJFzh0M9+NHS9V2YT/qol5kMTmgaFWkHiVgN3S/V90EgKIZU5Fd4S
+         8x2F632MTar/tmxlNRxZ3pDM8KxEN2CBDHJ5f53GxkD8yIJZoAHN67IOg82awSOjRxxs
+         5sVBQ9pMqszAJYbkD6JPWgPPpObGO3/8Fzicz/fu10rWF9BtynYLPReWUENdcL/e5D8V
+         p3M/EB9kMDOgXJo2njIiJIMu3uLG1DjekGUfuaFvAoaWtn6H5XHPOJex+x/lvvxnvqOd
+         b9mtV6ZFU0eRtoovMqfjaw5OuCuiMqDXFSsybWRYKLh4+USUSUjUeQcdcwdzvepDpBpb
+         nNAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=5jnLxoygrGsfTORE8yE0Gn1zucUCs3m98K4GG33cQK0=;
+        b=g6l/qLTLYEM6pFS1g9B17MST229cbJ46Hxsf2lA21o0UjFeEHFrfo/GnrWZStWMa5U
+         8v87KvWYLloKYECmj9QRhRcvMjtrBPDoYjUltbL26HFUtPdJWAhJdwujt2ySOrNP9TyM
+         +TVAbcaOrRpkc9wFXZJPBZPruY3JenupcHCKLoOdCisagK2KiRXXuXFDtrB4+RJeTxnw
+         Heeo8S17sg2tOyRpWnnzbnJ/tX33SWOBop8GS7Oh9WYwT2PqEuerfeuKkzV51W6oe6a3
+         XE0g5C0XZD6mrNACPHikQe2luzk1i32PDGzsztmKV/qOveUH8S6Hwp4SjauOf4ffK2gl
+         oWmw==
+X-Gm-Message-State: AOAM531lTc1O5JpoJMZoP8ECsd4ht5wPBjixCBRby0Wl1Dac0BIx5Eeh
+        wKtgcgdjGVHXaOtMlq+jVEr/V7cBsSYz65+KO14=
+X-Google-Smtp-Source: ABdhPJx1iLYxu4+NZQMjcBNade4iK4Ac6n+phBmCey4HaygwE3qLi8ealyFrL9nEjBsPfJYL59IPnQ==
+X-Received: by 2002:a05:600c:2905:b0:381:67e2:3992 with SMTP id i5-20020a05600c290500b0038167e23992mr5072281wmd.182.1648737925125;
+        Thu, 31 Mar 2022 07:45:25 -0700 (PDT)
+Received: from aczubak.c.googlers.com.com (88.140.78.34.bc.googleusercontent.com. [34.78.140.88])
+        by smtp.gmail.com with ESMTPSA id p16-20020a5d6390000000b00203ffebddf3sm26976485wru.99.2022.03.31.07.45.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 31 Mar 2022 07:45:24 -0700 (PDT)
+From:   Angela Czubak <acz@semihalf.com>
+To:     linux-input@vger.kernel.org
+Cc:     upstream@semihalf.com, benjamin.tissoires@redhat.com,
+        jikos@kernel.org, Angela Czubak <acz@semihalf.com>
+Subject: [PATCH] HID: multitouch: Implement MT_QUIRK_DROP_REPEATED_SLOT
+Date:   Thu, 31 Mar 2022 14:45:00 +0000
+Message-Id: <20220331144500.2340714-1-acz@semihalf.com>
+X-Mailer: git-send-email 2.35.1.1021.g381101b075-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <YkUqajiNZmi+lAPC@google.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Mar 30, 2022 at 09:13:30PM -0700, Dmitry Torokhov wrote:
-> On Wed, Mar 30, 2022 at 02:30:37PM +0200, Benjamin Tissoires wrote:
-> > On Wed, Mar 30, 2022 at 2:27 PM Thorsten Leemhuis
-> > <regressions@leemhuis.info> wrote:
-> > >
-> > > Hi, this is your Linux kernel regression tracker.
-> > >
-> > > On 21.03.22 19:44, José Expósito wrote:
-> > > > This reverts commit 37ef4c19b4c659926ce65a7ac709ceaefb211c40.
-> > > >
-> > > > The touchpad present in the Dell Precision 7550 and 7750 laptops
-> > > > reports a HID_DG_BUTTONTYPE of type MT_BUTTONTYPE_CLICKPAD. However,
-> > > > the device is not a clickpad, it is a touchpad with physical buttons.
-> > > >
-> > > > In order to fix this issue, a quirk for the device was introduced in
-> > > > libinput [1] [2] to disable the INPUT_PROP_BUTTONPAD property:
-> > > >
-> > > >       [Precision 7x50 Touchpad]
-> > > >       MatchBus=i2c
-> > > >       MatchUdevType=touchpad
-> > > >       MatchDMIModalias=dmi:*svnDellInc.:pnPrecision7?50*
-> > > >       AttrInputPropDisable=INPUT_PROP_BUTTONPAD
-> > > >
-> > > > However, because of the change introduced in 37ef4c19b4 ("Input: clear
-> > > > BTN_RIGHT/MIDDLE on buttonpads") the BTN_RIGHT key bit is not mapped
-> > > > anymore breaking the device right click button and making impossible to
-> > > > workaround it in user space.
-> > > >
-> > > > In order to avoid breakage on other present or future devices, revert
-> > > > the patch causing the issue.
-> > > >
-> > > > Cc: stable@vger.kernel.org
-> > > > Link: https://gitlab.freedesktop.org/libinput/libinput/-/merge_requests/481 [1]
-> > > > Link: https://bugzilla.redhat.com/show_bug.cgi?id=1868789  [2]
-> > > > Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-> > > > [...]
-> > >
-> > > Jiri, Benjamin, what the status here? Sure, this is not a crucial
-> > > regression and we are in the middle of the merge window, but it looks
-> > > like nothing has happened for a week now. Or was progress made somewhere
-> > > and I just missed it?
-> > 
-> > No, I think it just wasn't picked up by the input maintainer yet
-> > (Dmitry, now in CC).
-> > 
-> > FWIW:
-> > Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> > 
-> > José, please do not forget to add the input maintainer when you target
-> > the input tree, not the HID one :)
-> 
-> I see that there were several ACKs, but how many devices misuse the
-> HID_DG_BUTTONTYPE? Would it be better to quirk against either affected
-> Dell models, or particular touchpads (by HID IDs) instead of reverting
-> wholesale?
+Ilitek touchscreens 016E and 016F repeat last finger position after it has
+left the surface of the device.
+We send BTN_TOUCH=0 and ABS_MT_TRACKING_ID=-1 with the first repeated
+slot as this may mean that the finger has been lifted.
+The touchscreen is not actually too sensitive and this would
+modify the behaviour of the on-screen keyboard, for instance holding the
+backspace key might be sometimes interpreted as removing a single character
+only. Add counter of repeated frames and if it is significantly big then
+assume the finger actually remains stationary.
 
-fwiw, a quick git grep in libinput shows 12 entries for disabling BTN_RIGHT
-and 9 entries for enabling/disabling INPUT_PROP_BUTTONPAD. That's not the
-number of devices affected by this bug, merely devices we know advertise the
-wrong combination.
+Signed-off-by: Angela Czubak <acz@semihalf.com>
+---
 
-Note that the cause for the revert is loss of functionality. Previously, a
-device was just advertising buttons incorrectly but still worked fine. This
-was mostly a cosmetic issue (and could be worked around in userspace). With
-the patch in place some devices right button no longer works because it's
-filtered by the kernel. That's why the revert is needed.
+Hi guys,
 
-The device could/should still be quirked to drop INPUT_PROP_BUTTONPAD but that
-is only required to work around the cosmetic issues then.
+Please let me know if you think there is some better solution.
+It felt to me that it would be more correct to solve it on kernel
+driver level since this issue is device specific, but perhaps
+there are some userspace input stacks that figured this problem out.
+With Chromium OS Input Stack the final BTN_TOUCH=0 event comes
+significantly late which causes hiccups or simply a scrolling fling
+not to happen, since the input stack thinks the finger is still
+in the same position and on the screen.
 
-Cheers,
-  Peter
+ drivers/hid/hid-ids.h        |   2 +
+ drivers/hid/hid-multitouch.c | 150 ++++++++++++++++++++++++++++++++++-
+ 2 files changed, 149 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 053853a891c5..cc85f547603c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -630,6 +630,8 @@
+ 
+ #define USB_VENDOR_ID_ILITEK		0x222a
+ #define USB_DEVICE_ID_ILITEK_MULTITOUCH	0x0001
++#define USB_DEVICE_ID_ILITEK_016E	0x016e
++#define USB_DEVICE_ID_ILITEK_016F	0x016f
+ 
+ #define USB_VENDOR_ID_INTEL_0		0x8086
+ #define USB_VENDOR_ID_INTEL_1		0x8087
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 99eabfb4145b..33cb5e5179c2 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -71,6 +71,7 @@ MODULE_LICENSE("GPL");
+ #define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
+ #define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
+ #define MT_QUIRK_DISABLE_WAKEUP		BIT(21)
++#define MT_QUIRK_DROP_REPEATED_SLOT	BIT(22)
+ 
+ #define MT_INPUTMODE_TOUCHSCREEN	0x02
+ #define MT_INPUTMODE_TOUCHPAD		0x03
+@@ -103,12 +104,22 @@ struct mt_usages {
+ 	bool *confidence_state;	/* is the touch made by a finger? */
+ };
+ 
++struct mt_slot_state {
++	__s32 x, y, cx, cy, p, w, h, a;
++	__s32 contactid;	/* the device ContactID assigned to this slot */
++	bool tip_state;	/* is the touch valid? */
++	bool inrange_state;	/* is the finger in proximity of the sensor? */
++	bool confidence_state;	/* is the touch made by a finger? */
++};
++
+ struct mt_application {
+ 	struct list_head list;
+ 	unsigned int application;
+ 	unsigned int report_id;
+ 	struct list_head mt_usages;	/* mt usages list */
+ 
++	struct mt_slot_state *mt_slot_state;
++
+ 	__s32 quirks;
+ 
+ 	__s32 *scantime;		/* scantime reported */
+@@ -116,6 +127,11 @@ struct mt_application {
+ 
+ 	__s32 *raw_cc;			/* contact count in the report */
+ 	int left_button_state;		/* left button state */
++	bool touch_change;		/* if touch change detected */
++	bool touched;			/* if touch was present in the last
++					 * message
++					 */
++	int repeated_counter;		/* how many times last frame repeated */
+ 	unsigned int mt_flags;		/* flags to pass to input-mt */
+ 
+ 	unsigned long *pending_palm_slots;	/* slots where we reported palm
+@@ -211,6 +227,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
+ #define MT_CLS_GOOGLE				0x0111
+ #define MT_CLS_RAZER_BLADE_STEALTH		0x0112
+ #define MT_CLS_SMART_TECH			0x0113
++#define MT_CLS_ILITEK_016x			0x0114
+ 
+ #define MT_DEFAULT_MAXCONTACT	10
+ #define MT_MAX_MAXCONTACT	250
+@@ -386,6 +403,15 @@ static const struct mt_class mt_classes[] = {
+ 			MT_QUIRK_CONTACT_CNT_ACCURATE |
+ 			MT_QUIRK_SEPARATE_APP_REPORT,
+ 	},
++	{ .name = MT_CLS_ILITEK_016x,
++		.quirks = MT_QUIRK_ALWAYS_VALID |
++			MT_QUIRK_IGNORE_DUPLICATES |
++			MT_QUIRK_HOVERING |
++			MT_QUIRK_CONTACT_CNT_ACCURATE |
++			MT_QUIRK_STICKY_FINGERS |
++			MT_QUIRK_WIN8_PTP_BUTTONS |
++			MT_QUIRK_DROP_REPEATED_SLOT,
++		.export_all_inputs = true },
+ 	{ }
+ };
+ 
+@@ -783,7 +809,8 @@ static int mt_touch_input_mapping(struct hid_device *hdev, struct hid_input *hi,
+ 		case HID_DG_CONFIDENCE:
+ 			if ((cls->name == MT_CLS_WIN_8 ||
+ 			     cls->name == MT_CLS_WIN_8_FORCE_MULTI_INPUT ||
+-			     cls->name == MT_CLS_WIN_8_DISABLE_WAKEUP) &&
++			     cls->name == MT_CLS_WIN_8_DISABLE_WAKEUP ||
++			     cls->name == MT_CLS_ILITEK_016x) &&
+ 				(field->application == HID_DG_TOUCHPAD ||
+ 				 field->application == HID_DG_TOUCHSCREEN))
+ 				app->quirks |= MT_QUIRK_CONFIDENCE;
+@@ -948,7 +975,13 @@ static void mt_sync_frame(struct mt_device *td, struct mt_application *app,
+ 		input_event(input, EV_KEY, BTN_LEFT, app->left_button_state);
+ 
+ 	input_mt_sync_frame(input);
+-	input_event(input, EV_MSC, MSC_TIMESTAMP, app->timestamp);
++	if (app->quirks & MT_QUIRK_DROP_REPEATED_SLOT) {
++		if (app->touch_change)
++			input_event(input, EV_MSC, MSC_TIMESTAMP, app->timestamp);
++		app->touch_change = false;
++	} else {
++		input_event(input, EV_MSC, MSC_TIMESTAMP, app->timestamp);
++	}
+ 	input_sync(input);
+ 
+ 	mt_release_pending_palms(td, app, input);
+@@ -993,6 +1026,60 @@ static int mt_touch_event(struct hid_device *hid, struct hid_field *field,
+ 	return 1;
+ }
+ 
++static void mt_clear_slot_states(struct mt_slot_state *mt_slot_state,
++				 int size)
++{
++	int i;
++
++	for (i = 0; i < size; i++)
++		mt_slot_state[i].tip_state = 0;
++}
++
++static void mt_fill_slot_state(struct mt_slot_state *mt_slot_state,
++		struct mt_usages *slot)
++{
++	mt_slot_state->x = *slot->x;
++	mt_slot_state->y = *slot->y;
++	mt_slot_state->cx = *slot->cx;
++	mt_slot_state->cy = *slot->cy;
++	mt_slot_state->p = *slot->p;
++	mt_slot_state->w = *slot->w;
++	mt_slot_state->h = *slot->h;
++	mt_slot_state->a = *slot->a;
++	mt_slot_state->contactid = *slot->contactid;
++	mt_slot_state->tip_state = *slot->tip_state;
++	mt_slot_state->inrange_state = *slot->inrange_state;
++	mt_slot_state->confidence_state = *slot->confidence_state;
++}
++
++static bool mt_is_slot_state_equal(struct mt_slot_state *state1,
++		struct mt_slot_state *state2)
++{
++	if (state1->x != state2->x)
++		return false;
++	if (state1->y != state2->y)
++		return false;
++	if (state1->cx != state2->cx)
++		return false;
++	if (state1->cy != state2->cy)
++		return false;
++	if (state1->p != state2->p)
++		return false;
++	if (state1->w != state2->w)
++		return false;
++	if (state1->a != state2->a)
++		return false;
++	if (state1->contactid != state2->contactid)
++		return false;
++	if (state1->tip_state != state2->tip_state)
++		return false;
++	if (state1->inrange_state != state2->inrange_state)
++		return false;
++	if (state1->confidence_state != state2->confidence_state)
++		return false;
++	return true;
++}
++
+ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
+ 			    struct mt_application *app,
+ 			    struct mt_usages *slot)
+@@ -1005,6 +1092,7 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
+ 	int active;
+ 	int slotnum;
+ 	int tool = MT_TOOL_FINGER;
++	struct mt_slot_state state = {0};
+ 
+ 	if (!slot)
+ 		return -EINVAL;
+@@ -1058,13 +1146,42 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
+ 			 * lift-off as userspace will not be aware
+ 			 * of non-confidence, so we need to split
+ 			 * it into 2 events: active MT_TOOL_PALM
+-			 * and a separate liftoff.
++			 * and a separate lift off.
+ 			 */
+ 			active = true;
+ 			set_bit(slotnum, app->pending_palm_slots);
+ 		}
+ 	}
+ 
++	if (app->quirks & MT_QUIRK_DROP_REPEATED_SLOT) {
++		mt_fill_slot_state(&state, slot);
++		/* Check if every field in the slot is the same as before.
++		 * Some touchscreens report the same position for several
++		 * frames even though the finger is no longer on the surface.
++		 * This is actually being recognised as the finger remaining in
++		 * one position, which causes scrolling to be stopped.
++		 * Ignore such packets so that the scrolling continues
++		 * and the touchscreen reports the finger liftoff.
++		 */
++		if (!mt_is_slot_state_equal(&state,
++					    &app->mt_slot_state[slotnum])) {
++			app->touch_change |= (active ||
++					      app->mt_slot_state[slotnum].tip_state);
++			app->repeated_counter = 0;
++		} else {
++#define MT_MAX_REPEATED_DROPPED 5
++			if (app->repeated_counter < MT_MAX_REPEATED_DROPPED) {
++				active = false;
++				if (app->touched)
++					app->touch_change = true;
++			} else {
++				app->touch_change = true;
++			}
++			app->repeated_counter++;
++		}
++		app->touched = active;
++		app->mt_slot_state[slotnum] = state;
++	}
+ 	input_mt_slot(input, slotnum);
+ 	input_mt_report_slot_state(input, tool, active);
+ 	if (active) {
+@@ -1296,6 +1413,18 @@ static int mt_touch_input_configured(struct hid_device *hdev,
+ 	if (!app->pending_palm_slots)
+ 		return -ENOMEM;
+ 
++	if (app->quirks & MT_QUIRK_DROP_REPEATED_SLOT) {
++		app->mt_slot_state = devm_kcalloc(&hi->input->dev,
++						  td->maxcontacts,
++						  sizeof(*app->mt_slot_state),
++						  GFP_KERNEL);
++		if (!app->mt_slot_state)
++			return -ENOMEM;
++		mt_clear_slot_states(app->mt_slot_state, td->maxcontacts);
++		app->repeated_counter = 0;
++	}
++
++
+ 	ret = input_mt_init_slots(input, td->maxcontacts, app->mt_flags);
+ 	if (ret)
+ 		return ret;
+@@ -1676,6 +1805,12 @@ static void mt_release_contacts(struct hid_device *hid)
+ 
+ 	list_for_each_entry(application, &td->applications, list) {
+ 		application->num_received = 0;
++		if (application->quirks & MT_QUIRK_DROP_REPEATED_SLOT) {
++			application->touch_change = false;
++			mt_clear_slot_states(application->mt_slot_state,
++					     td->maxcontacts);
++			application->repeated_counter = 0;
++		}
+ 	}
+ }
+ 
+@@ -2014,6 +2149,15 @@ static const struct hid_device_id mt_devices[] = {
+ 		MT_USB_DEVICE(USB_VENDOR_ID_ILITEK,
+ 			USB_DEVICE_ID_ILITEK_MULTITOUCH) },
+ 
++	/* Ilitek 106E/F touchscreen */
++	{  .driver_data = MT_CLS_ILITEK_016x,
++		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_ILITEK_016E) },
++
++	{  .driver_data = MT_CLS_ILITEK_016x,
++		HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH_WIN_8,
++			USB_VENDOR_ID_ILITEK, USB_DEVICE_ID_ILITEK_016F) },
++
+ 	/* LG Melfas panel */
+ 	{ .driver_data = MT_CLS_LG,
+ 		HID_USB_DEVICE(USB_VENDOR_ID_LG,
+-- 
+2.35.1.1021.g381101b075-goog
+

@@ -2,103 +2,187 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F832C433F5
-	for <linux-input@archiver.kernel.org>; Fri,  1 Apr 2022 22:05:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A90AC433F5
+	for <linux-input@archiver.kernel.org>; Fri,  1 Apr 2022 22:06:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236790AbiDAWH3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 1 Apr 2022 18:07:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42028 "EHLO
+        id S236823AbiDAWIo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 1 Apr 2022 18:08:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235963AbiDAWH2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 1 Apr 2022 18:07:28 -0400
-X-Greylist: delayed 398 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 01 Apr 2022 15:05:37 PDT
-Received: from mail.thepaulodoom.com (www.thepaulodoom.com [45.77.108.202])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 67BD01B8FDC
-        for <linux-input@vger.kernel.org>; Fri,  1 Apr 2022 15:05:37 -0700 (PDT)
-Received: from localhost (c-98-240-189-147.hsd1.mn.comcast.net [98.240.189.147])
-        by vultr.guest (OpenSMTPD) with ESMTPSA id ff8c64a7 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Fri, 1 Apr 2022 21:58:56 +0000 (UTC)
-From:   Paul Lemmermann <thepaulodoom@thepaulodoom.com>
-To:     dmitry.torokhov@gmail.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Paul Lemmermann <thepaulodoom@thepaulodoom.com>
-Subject: [PATCH] input: evdev: fixed case statements
-Date:   Fri,  1 Apr 2022 16:58:42 -0500
-Message-Id: <20220401215842.58135-1-thepaulodoom@thepaulodoom.com>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S235963AbiDAWIo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 1 Apr 2022 18:08:44 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F04701B8FDC
+        for <linux-input@vger.kernel.org>; Fri,  1 Apr 2022 15:06:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1648850813; x=1680386813;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   content-transfer-encoding;
+  bh=MFpcRCHbvp0wZQnO08aR9Q/VHcBGCE27dwmm1G6a0Mo=;
+  b=YaPuF0qvuXBvMAxv2/VVw7ayYPLOtpahkF8Mw2hyy6MNGZBKfmaoLq9D
+   YLj5Wxi/1NdDaUVCA554vn9dhC8YmkXJK3x4JrbpC2FJ4+lrpqVDza2dF
+   AMcOZb4tVrGDbQT5nd8cIcMPqbdIBtQCmPNkImZESkcm61PPbwLD5YBOu
+   sQLaXWj9btDbBmrVttqRBgf4gR+ChfwlhOKZ4hez13MaVRaJKwLhMXU/a
+   kk+QgrvM0KltIeerR2u0txJA3FZPhPHK9gmlOhMBPRF8+ni2h3OfFwYkH
+   yGsXNyARnrjcprvVJtQ0/1XnZvnmQFRVnY+cCo34eiqkOW9VVOtADX4+R
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10304"; a="260226084"
+X-IronPort-AV: E=Sophos;i="5.90,228,1643702400"; 
+   d="scan'208";a="260226084"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Apr 2022 15:06:53 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.90,228,1643702400"; 
+   d="scan'208";a="522933696"
+Received: from lkp-server02.sh.intel.com (HELO 3231c491b0e2) ([10.239.97.151])
+  by orsmga006.jf.intel.com with ESMTP; 01 Apr 2022 15:06:52 -0700
+Received: from kbuild by 3231c491b0e2 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1naPPv-0001YO-Gc;
+        Fri, 01 Apr 2022 22:06:51 +0000
+Date:   Sat, 02 Apr 2022 06:06:26 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: [dtor-input:for-linus] BUILD SUCCESS
+ 8b188fba75195745026e11d408e4a7e94e01d701
+Message-ID: <62477762.50QxWW8vBKXFPxmE%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fixed case statements which have more than one operation on a single
-line. Found using checkpatch.pl.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+branch HEAD: 8b188fba75195745026e11d408e4a7e94e01d701  Revert "Input: clear BTN_RIGHT/MIDDLE on buttonpads"
 
-Signed-off-by: Paul Lemmermann <thepaulodoom@thepaulodoom.com>
----
- drivers/input/evdev.c | 48 ++++++++++++++++++++++++++++++++++---------
- 1 file changed, 38 insertions(+), 10 deletions(-)
+elapsed time: 968m
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 95f90699d..85c92b30d 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -784,16 +784,44 @@ static int handle_eviocgbit(struct input_dev *dev,
- 
- 	switch (type) {
- 
--	case      0: bits = dev->evbit;  len = EV_MAX;  break;
--	case EV_KEY: bits = dev->keybit; len = KEY_MAX; break;
--	case EV_REL: bits = dev->relbit; len = REL_MAX; break;
--	case EV_ABS: bits = dev->absbit; len = ABS_MAX; break;
--	case EV_MSC: bits = dev->mscbit; len = MSC_MAX; break;
--	case EV_LED: bits = dev->ledbit; len = LED_MAX; break;
--	case EV_SND: bits = dev->sndbit; len = SND_MAX; break;
--	case EV_FF:  bits = dev->ffbit;  len = FF_MAX;  break;
--	case EV_SW:  bits = dev->swbit;  len = SW_MAX;  break;
--	default: return -EINVAL;
-+	case      0: 
-+		bits = dev->evbit;  
-+		len = EV_MAX;  
-+		break;
-+	case EV_KEY: 
-+		bits = dev->keybit; 
-+		len = KEY_MAX; 
-+		break;
-+	case EV_REL: 
-+		bits = dev->relbit; 
-+		len = REL_MAX; 
-+		break;
-+	case EV_ABS: 
-+		bits = dev->absbit; 
-+		len = ABS_MAX; 
-+		break;
-+	case EV_MSC: 
-+		bits = dev->mscbit; 
-+		len = MSC_MAX; 
-+		break;
-+	case EV_LED: 
-+		bits = dev->ledbit; 
-+		len = LED_MAX; 
-+		break;
-+	case EV_SND: 
-+		bits = dev->sndbit; 
-+		len = SND_MAX; 
-+		break;
-+	case EV_FF:  
-+		bits = dev->ffbit; 
-+		len = FF_MAX; 
-+		break;
-+	case EV_SW:  
-+		bits = dev->swbit; 
-+		len = SW_MAX; 
-+		break;
-+	default: 
-+		return -EINVAL;
- 	}
- 
- 	return bits_to_user(bits, len, size, p, compat_mode);
+configs tested: 110
+configs skipped: 3
+
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+gcc tested configs:
+arm                              allyesconfig
+arm                                 defconfig
+arm64                            allyesconfig
+arm                              allmodconfig
+arm64                               defconfig
+i386                          randconfig-c001
+mips                           xway_defconfig
+sh                          lboxre2_defconfig
+arm                           h5000_defconfig
+powerpc                       holly_defconfig
+sh                   rts7751r2dplus_defconfig
+sh                           se7619_defconfig
+xtensa                  audio_kc705_defconfig
+arm                        clps711x_defconfig
+arm                            zeus_defconfig
+sh                          r7780mp_defconfig
+sh                           se7705_defconfig
+sh                          polaris_defconfig
+m68k                         apollo_defconfig
+sh                          rsk7269_defconfig
+arm                        keystone_defconfig
+x86_64                        randconfig-c001
+arm                  randconfig-c002-20220331
+ia64                             allmodconfig
+ia64                                defconfig
+ia64                             allyesconfig
+m68k                                defconfig
+m68k                             allyesconfig
+m68k                             allmodconfig
+nios2                               defconfig
+arc                              allyesconfig
+alpha                               defconfig
+csky                                defconfig
+nios2                            allyesconfig
+alpha                            allyesconfig
+arc                                 defconfig
+sh                               allmodconfig
+h8300                            allyesconfig
+xtensa                           allyesconfig
+parisc                              defconfig
+parisc64                            defconfig
+s390                             allmodconfig
+parisc                           allyesconfig
+s390                                defconfig
+s390                             allyesconfig
+i386                   debian-10.3-kselftests
+i386                              debian-10.3
+i386                                defconfig
+i386                             allyesconfig
+sparc                               defconfig
+sparc                            allyesconfig
+mips                             allyesconfig
+mips                             allmodconfig
+powerpc                           allnoconfig
+powerpc                          allmodconfig
+powerpc                          allyesconfig
+i386                          randconfig-a001
+i386                          randconfig-a003
+i386                          randconfig-a005
+x86_64                        randconfig-a013
+x86_64                        randconfig-a011
+x86_64                        randconfig-a015
+i386                          randconfig-a014
+i386                          randconfig-a012
+i386                          randconfig-a016
+arc                  randconfig-r043-20220331
+x86_64                        randconfig-a002
+x86_64                        randconfig-a004
+x86_64                        randconfig-a006
+riscv                            allmodconfig
+riscv                    nommu_k210_defconfig
+riscv                    nommu_virt_defconfig
+riscv                             allnoconfig
+riscv                          rv32_defconfig
+riscv                            allyesconfig
+riscv                               defconfig
+um                             i386_defconfig
+um                           x86_64_defconfig
+x86_64                              defconfig
+x86_64                           allyesconfig
+x86_64                                  kexec
+x86_64                          rhel-8.3-func
+x86_64                               rhel-8.3
+x86_64                         rhel-8.3-kunit
+x86_64                    rhel-8.3-kselftests
+
+clang tested configs:
+powerpc              randconfig-c003-20220331
+x86_64                        randconfig-c007
+s390                 randconfig-c005-20220331
+arm                  randconfig-c002-20220331
+riscv                randconfig-c006-20220331
+mips                 randconfig-c004-20220331
+i386                          randconfig-c001
+mips                        bcm63xx_defconfig
+arm                         shannon_defconfig
+arm                       imx_v4_v5_defconfig
+arm                        vexpress_defconfig
+i386                          randconfig-a002
+i386                          randconfig-a006
+i386                          randconfig-a004
+x86_64                        randconfig-a016
+x86_64                        randconfig-a012
+x86_64                        randconfig-a014
+i386                          randconfig-a013
+i386                          randconfig-a011
+i386                          randconfig-a015
+hexagon              randconfig-r045-20220331
+hexagon              randconfig-r041-20220331
+riscv                randconfig-r042-20220331
+s390                 randconfig-r044-20220331
+x86_64                        randconfig-a001
+x86_64                        randconfig-a003
+x86_64                        randconfig-a005
+
 -- 
-2.35.1
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp

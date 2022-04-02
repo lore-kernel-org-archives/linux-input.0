@@ -2,54 +2,120 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0CBCC433EF
-	for <linux-input@archiver.kernel.org>; Fri,  1 Apr 2022 22:12:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF160C433EF
+	for <linux-input@archiver.kernel.org>; Sat,  2 Apr 2022 10:47:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241291AbiDAWOC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 1 Apr 2022 18:14:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60718 "EHLO
+        id S1354471AbiDBKtl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 2 Apr 2022 06:49:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235945AbiDAWOB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 1 Apr 2022 18:14:01 -0400
-X-Greylist: delayed 447 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 01 Apr 2022 15:12:10 PDT
-Received: from endrift.com (endrift.com [173.255.198.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49EAC1E31A0
-        for <linux-input@vger.kernel.org>; Fri,  1 Apr 2022 15:12:10 -0700 (PDT)
-Received: from [192.168.0.23] (unknown [50.106.20.54])
-        by endrift.com (Postfix) with ESMTPSA id 3960BA26C
-        for <linux-input@vger.kernel.org>; Fri,  1 Apr 2022 15:04:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=endrift.com; s=2020;
-        t=1648850682; bh=FTHDq+DfBHWFl+EtBDFvzsL7zy8T3fQNbQLgqb603Mg=;
-        h=Date:To:From:Subject:From;
-        b=bSJQ64SC0k/qXsDFpoczN60NUe11vLW4xHfYL4VO7SG2VYuupuWLy8t/fjJ2Yb9JQ
-         zLjrMYXaCWz7ASmG2rFyODDxhk/ZtZR2hcnC5kMbI32bBttOsGVVjTLWp67dg0baeM
-         nI7nmjZDfIkYxK4/KgyBxoDajJlx3IGHqSLn12eznp3IeQArEtj1DuhSSJUnLXbrqM
-         Fd0D+qR3aWFsF3dbZVuz5kPIL+dfMW6hStMcAWFVUdKhjPDSBSHdbl2zkbGPaEdXtF
-         0+Tvndyl3rZNSiJJSQVTyyvchlsKql/82lL8p2+n8f8pDChiJw9GZgr3Zmq1BFAONX
-         vEIFRr4m+BZoA==
-Message-ID: <b5f229c3-26e5-4fe1-aecb-504aa3c38bee@endrift.com>
-Date:   Fri, 1 Apr 2022 15:04:41 -0700
+        with ESMTP id S1349166AbiDBKtj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 2 Apr 2022 06:49:39 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 43DD3123BFA
+        for <linux-input@vger.kernel.org>; Sat,  2 Apr 2022 03:47:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1648896467;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=G63buSfDCPc5qndai6dQxFulpyAndQa2gEdrpbrlGnA=;
+        b=Davj8w5YhH8A6T6WE0pCFo4HdOS8C7u1YwTBtynZBj8tQAugCIg8BzQF4fxUHCn9wnbVCi
+        GtHcQghjPxe3yyjEv5RyNYwtDcZ56psOd4Tuz44ORWhCdvjwftpmq8uB7NkhcednbeHbnZ
+        v16o8ecPnMcKmXpjggfxWMxQ/conb3w=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-621-2hD9y263NzGJRXaf4wWklA-1; Sat, 02 Apr 2022 06:47:46 -0400
+X-MC-Unique: 2hD9y263NzGJRXaf4wWklA-1
+Received: by mail-ej1-f69.google.com with SMTP id ml20-20020a170906cc1400b006df8c9357efso2673024ejb.21
+        for <linux-input@vger.kernel.org>; Sat, 02 Apr 2022 03:47:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=G63buSfDCPc5qndai6dQxFulpyAndQa2gEdrpbrlGnA=;
+        b=6x2uRuoViUfjugDFbLHuQFu2m6uWcfhvsRwVIBty98mk0U7YEnI26gCfmGzPAtRxym
+         KcVUTELkz5+HZZqTMa6l9ftVwYtj4wsnQ6SEo5/OZ27z/E6/Ln2rJmfs07UN7L1nHrxH
+         eGXTkbs3lEUECcNoMUqLZ7AasUoxgjKamu3osqB50MEKrIX1W9JSOi+3wQTO/hamOadk
+         s32wBq+qssBoHkrgy5cG7GGdH9mcpeojcj0LfSgcqxpF3op7EauqzxOaXlksF0b2WJ8D
+         gvgnmJJczAStrqhPlX9rRRGZqWGkd1UUsJlXRNFAh9CGvKF0AI2UFEK53s1ZxsIg9fBN
+         +4rw==
+X-Gm-Message-State: AOAM530k3/0ktczvauuvFy2HJhmxuJdmTiHogPCp+M2ObKEkGy5Z0T8f
+        Tsa64KSLG5iOjzP7rGPKiTy00sy0gWvCqoHKduXR9DIK0naHrrfMILhmIy55pBYM6ew3SGtCGQ6
+        bVotadXycbLAsFS+SkEbG4Ec=
+X-Received: by 2002:a17:907:971c:b0:6e0:d0ef:393e with SMTP id jg28-20020a170907971c00b006e0d0ef393emr3349745ejc.562.1648896465102;
+        Sat, 02 Apr 2022 03:47:45 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzrP2K/IEgYHF4LgPlaIoXpl60puqxMAxjpSVRK7WgDbLyj1jOc6xFdNlRwY96jfmdVm1C3IQ==
+X-Received: by 2002:a17:907:971c:b0:6e0:d0ef:393e with SMTP id jg28-20020a170907971c00b006e0d0ef393emr3349734ejc.562.1648896464862;
+        Sat, 02 Apr 2022 03:47:44 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1? (2001-1c00-0c1e-bf00-1db8-22d3-1bc9-8ca1.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1])
+        by smtp.gmail.com with ESMTPSA id qk32-20020a1709077fa000b006df6bb30b28sm1966976ejc.171.2022.04.02.03.47.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 02 Apr 2022 03:47:44 -0700 (PDT)
+Message-ID: <8a430ab7-024f-51a9-d785-07e03f163261@redhat.com>
+Date:   Sat, 2 Apr 2022 12:47:43 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.7.0
+Subject: Re: [PATCH v5] input/i8042: Rework quirk tables
 Content-Language: en-US
-To:     linux-input@vger.kernel.org
-From:   Vicki Pfau <vi@endrift.com>
-Subject: Disabling HID reports while hidraw node is open
+To:     Werner Sembach <wse@tuxedocomputers.com>,
+        dmitry.torokhov@gmail.com, tiwai@suse.de, mpdesouza@suse.com,
+        arnd@arndb.de, samuel@cavoj.net, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20220329143622.31394-1-wse@tuxedocomputers.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <20220329143622.31394-1-wse@tuxedocomputers.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello,
+Hi,
 
-I have been working on a project that does its own report processing on various game controllers by opening the hidraw node; however, at the same time, the drivers keep generating reports on the regular hid nodes in /dev/input. In general, this is not a problem, but some controllers, like the DualShock 4, present a mouse and/or keyboard input. In games, that mouse input can cause problems if the game expects the touchpad to be purely available as raw input and not also a discrete cursor that it doesn't even know is from the same source.
+On 3/29/22 16:36, Werner Sembach wrote:
+> Revision 5 with some fixes based on feedback by Hans de Goede.
+> 
+> The 1st patch is minor housekeeping.
+> 
+> The 2nd patch merges the tables together. Minor fixes in 5th revision and
+> no more duplication of ASUS devices
+> 
+> The 3rd patch add optional debug output to see which quirks get applied. In
+> 5th revision this no longer breaks compilation on non x86 platforms.
+> 
+> The 4th patch adds a list of Clevo devices that need multiple quirks.
+> With the reworked table they don't need to be inserted multiple times now,
+> which was required in v1 and v2 of this patch.
+> 
+> I also included the extra quirk for the Clevo NS7xMU, which was a separate
+> patch before.
+> 
+> The added Clevo devices are now only identified by their board name as this
+> is the only somewhat reliable string that might not be changed by resellers.
 
-I've seen that the hid-steam driver has a check for if the hidraw is opened and unregisters the other hid nodes if that happens, but the more I look into implementing that approach in the hid-sony driver, the more it becomes clear that this goes against the grain of how hid drivers are expected to work: that driver creates a second, "fake" hid device that it then exposes only as a hidraw, prevents the real device from appearing as a hidraw, and uses an ll driver to tell when it's been opened.
+Thanks, the entire series looks good to me:
 
-This seems like a heavy-handed kludge at best, as it goes pretty far out of the way of what these APIs are intended for, and I was wondering if there's a better approach, or if a better approach should be implemented. While I know that X.org and/or Wayland can probably be manually told to stop paying attention to these hid devices, it seems like some sort of ioctl to the hidraw may be preferable in this case, though no such ioctl exists at the moment. Possibly another approach would be to be able to tell when a hidraw is opened without a massive workaround so the driver can decide what to do.
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-Either way, porting that kludge to another driver seems like perpetuating an anti-pattern, and I'm not really fond of that idea.
+for the series.
 
-Vicki
+Regards,
+
+Hans
+
+
+
+p.s.
+
+In the future if you get a Reviewed-by to a previous version of a patch
+and the patch does not change (or does not change much, e.g. only
+small code-style / comment typo tweaks) you can keep that Reviewed-by
+for next versions of the patch, just copy it over to your commit
+msg and put it directly above your own S-o-b line.
+
+

@@ -2,120 +2,108 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF160C433EF
-	for <linux-input@archiver.kernel.org>; Sat,  2 Apr 2022 10:47:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C22C433FE
+	for <linux-input@archiver.kernel.org>; Sun,  3 Apr 2022 16:10:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354471AbiDBKtl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 2 Apr 2022 06:49:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53764 "EHLO
+        id S239124AbiDCQMG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 3 Apr 2022 12:12:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46772 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349166AbiDBKtj (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 2 Apr 2022 06:49:39 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 43DD3123BFA
-        for <linux-input@vger.kernel.org>; Sat,  2 Apr 2022 03:47:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1648896467;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=G63buSfDCPc5qndai6dQxFulpyAndQa2gEdrpbrlGnA=;
-        b=Davj8w5YhH8A6T6WE0pCFo4HdOS8C7u1YwTBtynZBj8tQAugCIg8BzQF4fxUHCn9wnbVCi
-        GtHcQghjPxe3yyjEv5RyNYwtDcZ56psOd4Tuz44ORWhCdvjwftpmq8uB7NkhcednbeHbnZ
-        v16o8ecPnMcKmXpjggfxWMxQ/conb3w=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-621-2hD9y263NzGJRXaf4wWklA-1; Sat, 02 Apr 2022 06:47:46 -0400
-X-MC-Unique: 2hD9y263NzGJRXaf4wWklA-1
-Received: by mail-ej1-f69.google.com with SMTP id ml20-20020a170906cc1400b006df8c9357efso2673024ejb.21
-        for <linux-input@vger.kernel.org>; Sat, 02 Apr 2022 03:47:46 -0700 (PDT)
+        with ESMTP id S243162AbiDCQMF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 3 Apr 2022 12:12:05 -0400
+Received: from mail-ej1-x62f.google.com (mail-ej1-x62f.google.com [IPv6:2a00:1450:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EC492655E
+        for <linux-input@vger.kernel.org>; Sun,  3 Apr 2022 09:10:11 -0700 (PDT)
+Received: by mail-ej1-x62f.google.com with SMTP id p15so15284565ejc.7
+        for <linux-input@vger.kernel.org>; Sun, 03 Apr 2022 09:10:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amarulasolutions.com; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=TyZtZSd5cTSSlPOn3/pu61X0lFqS8ubq/VPK6S5b8ro=;
+        b=Et0x6Y7F1iuWFq4t2YgWOaDRcl9a4JJq2zpna5IXkXVoauGMD9BJDAwx7udZHy3jTk
+         nKToBLqvvTYc3moR/2eKmTGR4nOC+7hwO9l2KArDMRsxbCrElTxr2Jx86nJlPAJDphf7
+         41v41IyW9CujMfn5RvHp+YkOV6NlGN1RDupU4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=G63buSfDCPc5qndai6dQxFulpyAndQa2gEdrpbrlGnA=;
-        b=6x2uRuoViUfjugDFbLHuQFu2m6uWcfhvsRwVIBty98mk0U7YEnI26gCfmGzPAtRxym
-         KcVUTELkz5+HZZqTMa6l9ftVwYtj4wsnQ6SEo5/OZ27z/E6/Ln2rJmfs07UN7L1nHrxH
-         eGXTkbs3lEUECcNoMUqLZ7AasUoxgjKamu3osqB50MEKrIX1W9JSOi+3wQTO/hamOadk
-         s32wBq+qssBoHkrgy5cG7GGdH9mcpeojcj0LfSgcqxpF3op7EauqzxOaXlksF0b2WJ8D
-         gvgnmJJczAStrqhPlX9rRRGZqWGkd1UUsJlXRNFAh9CGvKF0AI2UFEK53s1ZxsIg9fBN
-         +4rw==
-X-Gm-Message-State: AOAM530k3/0ktczvauuvFy2HJhmxuJdmTiHogPCp+M2ObKEkGy5Z0T8f
-        Tsa64KSLG5iOjzP7rGPKiTy00sy0gWvCqoHKduXR9DIK0naHrrfMILhmIy55pBYM6ew3SGtCGQ6
-        bVotadXycbLAsFS+SkEbG4Ec=
-X-Received: by 2002:a17:907:971c:b0:6e0:d0ef:393e with SMTP id jg28-20020a170907971c00b006e0d0ef393emr3349745ejc.562.1648896465102;
-        Sat, 02 Apr 2022 03:47:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzrP2K/IEgYHF4LgPlaIoXpl60puqxMAxjpSVRK7WgDbLyj1jOc6xFdNlRwY96jfmdVm1C3IQ==
-X-Received: by 2002:a17:907:971c:b0:6e0:d0ef:393e with SMTP id jg28-20020a170907971c00b006e0d0ef393emr3349734ejc.562.1648896464862;
-        Sat, 02 Apr 2022 03:47:44 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1? (2001-1c00-0c1e-bf00-1db8-22d3-1bc9-8ca1.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1])
-        by smtp.gmail.com with ESMTPSA id qk32-20020a1709077fa000b006df6bb30b28sm1966976ejc.171.2022.04.02.03.47.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 02 Apr 2022 03:47:44 -0700 (PDT)
-Message-ID: <8a430ab7-024f-51a9-d785-07e03f163261@redhat.com>
-Date:   Sat, 2 Apr 2022 12:47:43 +0200
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=TyZtZSd5cTSSlPOn3/pu61X0lFqS8ubq/VPK6S5b8ro=;
+        b=Jsehe/SfayTwNnAW343lll3bgtRXxxhTH/r+B7ixkJcqhr6eAceEXszBIMNhkSUpeM
+         mAg2/23rB7VOBdZVrfiSr3geJwII9DXwInwDLv7Q4qP9QGqa3738w3c3mTaMY00eGlR5
+         FqYXDSQCWTK6nD8xHNvKsEIphuG8FJoFCyX/3XM693KUKU8K2m0MAQTQrSWu/DACRPUp
+         hbnFpTc0ok+u2UWdsC899nMucxXmJAawJ/qF4dnSxn0to2xv1aktluMPftJC/tGszqB5
+         TzMTEBhNxW+oT4y9VzvGEB+zzZyrpnEW/nSX/lvtfw+GbRq5D8crTpOrdpOAi7Lnqvez
+         BYLg==
+X-Gm-Message-State: AOAM531C22DiVYtKwQl6m1r3T43DIe4OcwSdwjRiXw8lAHj7q75/8zlA
+        leuuLIhWliCz1vERXlRhyAOs4g==
+X-Google-Smtp-Source: ABdhPJyboxIs/IjHPPN58voFRnczkg4LSb1oi1jBLbpUgVQlwQVc8XlauFHnkc65mMm4VVsMWKvW9w==
+X-Received: by 2002:a17:907:86a3:b0:6da:870c:af44 with SMTP id qa35-20020a17090786a300b006da870caf44mr7318818ejc.445.1649002210058;
+        Sun, 03 Apr 2022 09:10:10 -0700 (PDT)
+Received: from dario-ThinkPad-T14s-Gen-2i.homenet.telecomitalia.it (host-87-0-15-73.retail.telecomitalia.it. [87.0.15.73])
+        by smtp.gmail.com with ESMTPSA id do8-20020a170906c10800b006dfe2af50d8sm3350119ejc.121.2022.04.03.09.10.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 Apr 2022 09:10:09 -0700 (PDT)
+From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Rob Herring <robh@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Stephan Gerhold <stephan@gerhold.net>,
+        devicetree@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH v4 1/6] dt-bindings: input: touchscreen: edt-ft5x06: add report-rate-hz
+Date:   Sun,  3 Apr 2022 18:09:34 +0200
+Message-Id: <20220403160939.541621-2-dario.binacchi@amarulasolutions.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220403160939.541621-1-dario.binacchi@amarulasolutions.com>
+References: <20220403160939.541621-1-dario.binacchi@amarulasolutions.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.7.0
-Subject: Re: [PATCH v5] input/i8042: Rework quirk tables
-Content-Language: en-US
-To:     Werner Sembach <wse@tuxedocomputers.com>,
-        dmitry.torokhov@gmail.com, tiwai@suse.de, mpdesouza@suse.com,
-        arnd@arndb.de, samuel@cavoj.net, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20220329143622.31394-1-wse@tuxedocomputers.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20220329143622.31394-1-wse@tuxedocomputers.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+It allows to change the M06/M12 default scan rate.
 
-On 3/29/22 16:36, Werner Sembach wrote:
-> Revision 5 with some fixes based on feedback by Hans de Goede.
-> 
-> The 1st patch is minor housekeeping.
-> 
-> The 2nd patch merges the tables together. Minor fixes in 5th revision and
-> no more duplication of ASUS devices
-> 
-> The 3rd patch add optional debug output to see which quirks get applied. In
-> 5th revision this no longer breaks compilation on non x86 platforms.
-> 
-> The 4th patch adds a list of Clevo devices that need multiple quirks.
-> With the reworked table they don't need to be inserted multiple times now,
-> which was required in v1 and v2 of this patch.
-> 
-> I also included the extra quirk for the Clevo NS7xMU, which was a separate
-> patch before.
-> 
-> The added Clevo devices are now only identified by their board name as this
-> is the only somewhat reliable string that might not be changed by resellers.
+Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
+Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Acked-by: Rob Herring <robh@kernel.org>
 
-Thanks, the entire series looks good to me:
+---
 
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Changes in v4:
+- Add Rob Herring 'Acked-by' tag.
 
-for the series.
+Changes in v3:
+- Add hz unit suffix.
+- Add '|' to description.
 
-Regards,
+ .../devicetree/bindings/input/touchscreen/edt-ft5x06.yaml | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-Hans
-
-
-
-p.s.
-
-In the future if you get a Reviewed-by to a previous version of a patch
-and the patch does not change (or does not change much, e.g. only
-small code-style / comment typo tweaks) you can keep that Reviewed-by
-for next versions of the patch, just copy it over to your commit
-msg and put it directly above your own S-o-b line.
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+index 2e8da7470513..46bc8c028fe6 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+@@ -85,6 +85,14 @@ properties:
+     minimum: 0
+     maximum: 80
+ 
++  report-rate-hz:
++    description: |
++                 Allows setting the scan rate in Hertz.
++                  M06 supports range from 30 to 140 Hz.
++                  M12 supports range from 1 to 255 Hz.
++    minimum: 1
++    maximum: 255
++
+   touchscreen-size-x: true
+   touchscreen-size-y: true
+   touchscreen-fuzz-x: true
+-- 
+2.32.0
 

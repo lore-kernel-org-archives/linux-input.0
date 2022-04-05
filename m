@@ -2,182 +2,141 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66049C433EF
-	for <linux-input@archiver.kernel.org>; Tue,  5 Apr 2022 21:31:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 957F3C433EF
+	for <linux-input@archiver.kernel.org>; Tue,  5 Apr 2022 21:32:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229753AbiDEV3m (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 5 Apr 2022 17:29:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33122 "EHLO
+        id S233748AbiDEV3t (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 5 Apr 2022 17:29:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573274AbiDESlz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2022 14:41:55 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C90620BE2
-        for <linux-input@vger.kernel.org>; Tue,  5 Apr 2022 11:39:57 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-2eadd524e72so1182877b3.6
-        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2022 11:39:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=kpZJZ6BC0teJcS/Va/HLoxzrjVYiRhmbSvuUm1Ha8sQ=;
-        b=ZdvRyRnPU8Kh82lplK03SdRZOePvmaw21DelWV1zTSqS/wjCkoUIYoY61x69HDa0BB
-         BkENG+5p3VPqwecV9yEgRiRisNcnE3VeVVW7AOScnZd4XupmdoHFS5S2gKJLzE7GHY6A
-         zGXVjMCER8dEsCVSRHsmmtEvVKuVyK3GMttUBmYSjf/DRoGPcWgyJ5rDCC+Ru+9zo5Sw
-         1rj0cV0XTVzlX93A55tOHgnaoeRzXzMAf01FQGmrjBjD9UtlB3cKC05sNClQc/ugUTWR
-         4mJGO2ekgPApmCPfGhow69H81wYKXuudrt6rJEg4wFn2YrxJLtcu2iCzeQjtlpzeUEdN
-         /yNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=kpZJZ6BC0teJcS/Va/HLoxzrjVYiRhmbSvuUm1Ha8sQ=;
-        b=KNY9Sk49V11N593lYra37CO/lVOrWo7hiUZi1BcLmhwn5dGTp7VnCQd9j+nLrsRAvc
-         U1Yor6p28hNZk3kGVkqJFBaIRP6u+IeGGdSX5hHxgt936IuwWM5IMmUGeAj6hnmaVWpL
-         ZdNUCTDKTBwqYhfZR6c3jW0pjQiz+W3uqxOvOJJZ+vJN0ZByBA0YmB3C4nneQ4MoyCb3
-         dQlhmM2yJtrAztiQBL+3sx2BQC8AIafbjWGr0XJeoxLHwhf3mezTu/sGrjfldyxHhdUH
-         ld4sApZ8Pjsi5HmyQ1ZvhGhz7Osu8WYDBJ1Yqeqh0kzX8g0C46PickmBZP0Fd9PH62jr
-         NuNw==
-X-Gm-Message-State: AOAM5322FRvPH4bJMHWjPlNz7WDUMlhZc6lqXzZ7F+TohYQrVJu+7nsw
-        HDaWGPMmoWltlwyue2qB+7OWT5jbxXAcdI8=
-X-Google-Smtp-Source: ABdhPJzp+IkXPL1X2MLlP92SbOMwqwQY57HoLXPf85DlePcIcZmNDwM+GbgvJ2bvPWH0yqVKexXNR2xK3S7Rwsc=
-X-Received: from pceballos.nyc.corp.google.com ([2620:0:1003:510:9936:68aa:f9b7:b13b])
- (user=pceballos job=sendgmr) by 2002:a05:690c:821:b0:2eb:5d96:2709 with SMTP
- id by1-20020a05690c082100b002eb5d962709mr3929236ywb.147.1649183996466; Tue,
- 05 Apr 2022 11:39:56 -0700 (PDT)
-Date:   Tue,  5 Apr 2022 14:39:53 -0400
-Message-Id: <20220405183953.2094007-1-pceballos@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.35.1.1094.g7c7d902a7c-goog
-Subject: [PATCH] HID: Driver for Google Hangouts Meet Speakermic
-From:   Pablo Ceballos <pceballos@google.com>
-To:     jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Cc:     Pablo Ceballos <pceballos@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        with ESMTP id S1384584AbiDEPO6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 5 Apr 2022 11:14:58 -0400
+Received: from mx0b-000eb902.pphosted.com (mx0b-000eb902.pphosted.com [205.220.177.212])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F1773E5E9;
+        Tue,  5 Apr 2022 06:29:57 -0700 (PDT)
+Received: from pps.filterd (m0220297.ppops.net [127.0.0.1])
+        by mx0a-000eb902.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 2355FnqV025225;
+        Tue, 5 Apr 2022 08:29:57 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garmin.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=pps1;
+ bh=zkCrIOak8zDCz2p2CL07p7jkf0bjcqO+SO7njU8RzKE=;
+ b=e2+gIrchZIkL01G4+a5Cpl68JxDQyI1kI0HNd+dqY1D7FTDvSSxwpAhwYcMigTQPNvbb
+ Zq0uFNn42yXGwN4tYmKACHKkxbGl4nOzwV8nj14e58WTv7ZW4IknWBwmjYNyeLQjwawk
+ 01JzEfvWIL1dB9bVLxiDeZF5pRDhG6Kig/l1vq3kNjk5RAe1RTvRGoek/HJ+yoL57MTe
+ DDCWr0aKkMA8SL+ZSU28YHyLr5XPO0u7PoPOubC2Hd2TnXL2hYgEe+hkqXPmw3BKv4vM
+ 5wUWzbG9XUFFqOZ0cv0CVdPyjp1CaQyGSKD4xNxNO38MydhGwCM3fhua0hIRwNmtsTm9 QQ== 
+Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2176.outbound.protection.outlook.com [104.47.55.176])
+        by mx0a-000eb902.pphosted.com (PPS) with ESMTPS id 3f6gpdcwx2-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 05 Apr 2022 08:29:56 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=KQOscHaBuORvpT1aiSFH/d4mc7bZuxceyeP2lx3/x7lYNT4mR7gsljTG1UFz/V3FwAzCZX16XhfuhfA230DemCnbqFbPxKEEH1wbP5LEAz2ClPUPwliyupWCKjwcY+G9zlwBHT5hCcwoK18sLeZY2pZ5kX4kgwEMd9KNjCFfYqy4OuHMCrKfwsB2EqVzwnlHXgGSttOEF5gKBhfxFWZiMDLwexrQVejkVaMGexJSHYhRgP66Epf8xNkTCJCNrzyCqlSNaGAEPrEgQo4UvXH3yw3YvwyFR2ytOu3GfDRGWzIbBXY6zrFi664bEPhj9qfMVp5Qg7ozXFP+Ik18+QCq3g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=zkCrIOak8zDCz2p2CL07p7jkf0bjcqO+SO7njU8RzKE=;
+ b=TefCs2BThuLn2xMpBQswCJtzTsXUKnBTy42VrFXsxQIwR1PvbE38BBA910bxitFc4BME+4V1lx6OZT4KbmuD3iMcE8uchC2DEapwQS+QVM7lC4w7GnrcrT9EDD80hvsGbmWQ9o2QQOcBVPB5ZP422wHo4EE6lGligpzRteFa4bSQxvFX7c5NQGXjStSPAe0Ct/IwEbUgE15KEBaTx0kVoRJ3jhFd9b+b7Iw4+CeLknkgWL0I0YCEwhqV8uRUyOTAlLdr5OC6F9BnVI93z4FETHuZ1TPqL13yySD+I+aN3NPs1+B6Pr7Mn89wAWD/Y90h4v9atsLi8NrF7//n49Lbqw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 204.77.163.244) smtp.rcpttodomain=gmail.com smtp.mailfrom=garmin.com;
+ dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
+ header.from=garmin.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=garmin.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zkCrIOak8zDCz2p2CL07p7jkf0bjcqO+SO7njU8RzKE=;
+ b=Eglnpj/alBzQETyuYlnSrcm3WkiCsINnMkuTcUJ9ZsS6rnGPYU638BKmQ/2pIZQwqw3bmI+JFdtOOrZ84Uw89qxIzZhojuyvmM+oAUj57cjMmrSDbANBCGctCFlmyInf9+ZjxlVOYSsrgyCNvmGvY+KCxvG/TfE98aKJ/Qb3lcSawnppoYC673nE+yoi9UbkUJMIHBq/luTJE9Tga7Oy+byFFwS/3DCacAHtjbZ9pf21KpOzkG53sJbqxe/kZ6zUQ2WkZxfQsYCZdtpL4XQtkT8UqTE+YInWOD19FHPGxORNz6cGabn6oppwUs4dN1HYrLnBd7DfIzYE9GCVwpXYgw==
+Received: from DS7PR07CA0002.namprd07.prod.outlook.com (2603:10b6:5:3af::8) by
+ CO6PR04MB7492.namprd04.prod.outlook.com (2603:10b6:303:a3::11) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5123.31; Tue, 5 Apr 2022 13:29:55 +0000
+Received: from DM6NAM10FT008.eop-nam10.prod.protection.outlook.com
+ (2603:10b6:5:3af:cafe::ce) by DS7PR07CA0002.outlook.office365.com
+ (2603:10b6:5:3af::8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5123.31 via Frontend
+ Transport; Tue, 5 Apr 2022 13:29:54 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 204.77.163.244)
+ smtp.mailfrom=garmin.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=garmin.com;
+Received-SPF: Pass (protection.outlook.com: domain of garmin.com designates
+ 204.77.163.244 as permitted sender) receiver=protection.outlook.com;
+ client-ip=204.77.163.244; helo=edgetransport.garmin.com;
+Received: from edgetransport.garmin.com (204.77.163.244) by
+ DM6NAM10FT008.mail.protection.outlook.com (10.13.153.34) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5123.19 via Frontend Transport; Tue, 5 Apr 2022 13:29:54 +0000
+Received: from OLAWPA-EXMB12.ad.garmin.com (10.5.144.16) by
+ olawpa-edge3.garmin.com (10.60.4.226) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2106.2; Tue, 5 Apr 2022 08:29:52 -0500
+Received: from [10.30.196.25] (10.5.209.17) by OLAWPA-EXMB12.ad.garmin.com
+ (10.5.144.16) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.24; Tue, 5 Apr
+ 2022 08:29:53 -0500
+Message-ID: <8b3ee5be-ca55-bbfe-cf15-64d68be87d72@garmin.com>
+Date:   Tue, 5 Apr 2022 08:29:47 -0500
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.7.0
+Subject: Re: [PATCH v2] input: Add Marine Navigation Keycodes
+Content-Language: en-US
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+References: <20210622235708.8828-1-matthew.stephenson2@garmin.com>
+ <20220126211224.28590-1-Shelby.Heffron@garmin.com>
+ <Yg9EmVAHpEpmnLok@google.com>
+From:   Shelby Heffron <Shelby.Heffron@garmin.com>
+In-Reply-To: <Yg9EmVAHpEpmnLok@google.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: quoted-printable
+X-ClientProxiedBy: OLAWPA-EXMB1.ad.garmin.com (10.5.144.23) To
+ OLAWPA-EXMB12.ad.garmin.com (10.5.144.16)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 326d039a-5673-47e5-cf20-08da17085ef1
+X-MS-TrafficTypeDiagnostic: CO6PR04MB7492:EE_
+X-Microsoft-Antispam-PRVS: <CO6PR04MB7492D552EBF51A7D2E35C99BF2E49@CO6PR04MB7492.namprd04.prod.outlook.com>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: pVYYhwbBuknZtcWnLgWeYrEW83I+xlbhei95m/WBLJ2djOvNZelYvLNda2dnC4N7y5J1ocNrVr6gNrlkM3RGGLeCbYxfJhbqyjeXXEfehavYDlwD25GVjBP0QZotC+euZcHINKVBI75BLiZGZbFgeX3dTEk1crfaLFStOzrbnIKcPJPp9DjH4GgWWEyqmf9hPPX7Xbe6zrkaT4rfbY7dpNKJpmktEqd5LDSZnqvuT4biJlRMw4mlL9xl1MbxvYzSfgQ06j06aP7q2VGateAf+jKD5TdLjij779sSNrAehX7ruLaO6vEXYrcfeifyzd2VFmqZxgk8AqasJ6nV2xDZ7Im3M2TTQy19CEfsDpYg+JalvPi2i42ioC0IJ1VSZTtAWnowAeD6lyjZ7JYohR0AfnWb/CfuyBmom+RsTQCo77Iu264lVX/OXs6PNwrzjMkRqSsflNFOBPPEtCNPe1Lz+iBrUL9YVOUSYCe5A4RComB5Nd575g0I8gWmRr5VJuxVSvcKT2zej6jYLyUjBfwduxSIollidmFJsg5jyeqwCTsfLI9MS7Bo17Qds/R7QSOqLSx5iQO08YJ4tqQqz/fldqUGjmmZdqlE7Y1bVDr1YxF/Fk53q205AeEDwqv0MjsYcWqnJEZfcGR9ER/oomXhGBOOO/J0eyx6VhDpyLNxlyVlNpNmRdmxQWbEqR85TkHy2Gv1sNpJHDcUuJO+QER6wSjF9dHuCrxs+cmW2UCfGalF4H998T8xf7HFnr3CcjnTWi0GerAdZXZNp8Jc60pqUQ==
+X-Forefront-Antispam-Report: CIP:204.77.163.244;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:edgetransport.garmin.com;PTR:extedge.garmin.com;CAT:NONE;SFS:(13230001)(40470700004)(36840700001)(46966006)(31686004)(186003)(426003)(5660300002)(336012)(47076005)(356005)(4744005)(4326008)(2906002)(26005)(2616005)(8936002)(8676002)(7636003)(36756003)(31696002)(83380400001)(82310400005)(6666004)(36860700001)(508600001)(86362001)(34020700004)(70586007)(34070700002)(70206006)(40460700003)(316002)(54906003)(6916009)(16576012)(43740500002);DIR:OUT;SFP:1102;
+X-OriginatorOrg: garmin.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Apr 2022 13:29:54.5491
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 326d039a-5673-47e5-cf20-08da17085ef1
+X-MS-Exchange-CrossTenant-Id: 38d0d425-ba52-4c0a-a03e-2a65c8e82e2d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=38d0d425-ba52-4c0a-a03e-2a65c8e82e2d;Ip=[204.77.163.244];Helo=[edgetransport.garmin.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM10FT008.eop-nam10.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR04MB7492
+X-Proofpoint-ORIG-GUID: RF_CWcX_XZrzaQaT8WJdUW7E0i0s67Tc
+X-Proofpoint-GUID: RF_CWcX_XZrzaQaT8WJdUW7E0i0s67Tc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.850,Hydra:6.0.425,FMLib:17.11.64.514
+ definitions=2022-04-05_02,2022-04-05_01,2022-02-23_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ bulkscore=0 adultscore=0 spamscore=0 mlxlogscore=780 suspectscore=0
+ lowpriorityscore=0 clxscore=1015 phishscore=0 priorityscore=1501
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2202240000 definitions=main-2204050079
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This driver works around a problem with the HID usage sent by this
-device for the mute button. It prevents key events from being generated
-for that HID usage since they would be incorrect.
+Hi Dmitry,
 
-Signed-off-by: Pablo Ceballos <pceballos@google.com>
----
- drivers/hid/Kconfig            | 12 ++++++++
- drivers/hid/Makefile           |  1 +
- drivers/hid/hid-google-atrus.c | 55 ++++++++++++++++++++++++++++++++++
- drivers/hid/hid-ids.h          |  1 +
- 4 files changed, 69 insertions(+)
- create mode 100644 drivers/hid/hid-google-atrus.c
+Please let me know if you have any further suggestions on this patch.
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index f5544157576c..d4b6be827d15 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -403,6 +403,18 @@ config HOLTEK_FF
- 	  Say Y here if you have a Holtek On Line Grip based game controller
- 	  and want to have force feedback support for it.
- 
-+config HID_GOOGLE_ATRUS
-+	tristate "Google Hangouts Meet Speakermic"
-+	depends on USB_HID
-+	help
-+	This selects a driver for the Google Hangouts Meet Speakermic.
-+
-+	This driver works around a problem with the HID usage sent by this
-+	device for the mute button. It prevents key events from being generated
-+	for that HID usage since they would be incorrect.
-+
-+	Say Y here if you have a Google Hangouts Meet Speakermic.
-+
- config HID_GOOGLE_HAMMER
- 	tristate "Google Hammer Keyboard"
- 	depends on USB_HID && LEDS_CLASS && CROS_EC
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 6d3e630e81af..2ee446b5b953 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -50,6 +50,7 @@ obj-$(CONFIG_HID_FT260)		+= hid-ft260.o
- obj-$(CONFIG_HID_GEMBIRD)	+= hid-gembird.o
- obj-$(CONFIG_HID_GFRM)		+= hid-gfrm.o
- obj-$(CONFIG_HID_GLORIOUS)  += hid-glorious.o
-+obj-$(CONFIG_HID_GOOGLE_ATRUS)  += hid-google-atrus.o
- obj-$(CONFIG_HID_GOOGLE_HAMMER)	+= hid-google-hammer.o
- obj-$(CONFIG_HID_VIVALDI)	+= hid-vivaldi.o
- obj-$(CONFIG_HID_GT683R)	+= hid-gt683r.o
-diff --git a/drivers/hid/hid-google-atrus.c b/drivers/hid/hid-google-atrus.c
-new file mode 100644
-index 000000000000..e136c70e9425
---- /dev/null
-+++ b/drivers/hid/hid-google-atrus.c
-@@ -0,0 +1,55 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ *  HID driver for Google Hangouts Meet Speakermic
-+ *
-+ *  Copyright 2022 Google LLC.
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+/*
-+ * This driver handles the telephony phone mute HID usage by ignoring it. This
-+ * avoids the default handling by the hid-input driver which is to map this to
-+ * a KEY_MICMUTE event. The issue is that this device implements the phone mute
-+ * HID usage as a toggle switch, where 1 indicates muted, and 0 indicates
-+ * unmuted. However, for an EV_KEY event 1 indicates the key has been pressed
-+ * and 0 indicates it has been released.
-+ */
-+
-+static int atrus_event(struct hid_device *hid, struct hid_field *field,
-+		       struct hid_usage *usage, __s32 value)
-+{
-+	/*
-+	 * Return 1 to indicate no further processing should be done for this
-+	 * usage.
-+	 */
-+	return 1;
-+}
-+
-+static const struct hid_device_id atrus_devices[] = {
-+	{ HID_DEVICE(BUS_USB, HID_GROUP_GENERIC,
-+		     USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_ATRUS) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, atrus_devices);
-+
-+static const struct hid_usage_id atrus_usages[] = {
-+	/* Handle only the Telephony Phone Mute usage. */
-+	{ HID_UP_TELEPHONY | 0x2f, EV_KEY, HID_ANY_ID },
-+	{ HID_TERMINATOR, HID_TERMINATOR, HID_TERMINATOR }
-+};
-+
-+static struct hid_driver atrus_driver = {
-+	.name = "atrus",
-+	.id_table = atrus_devices,
-+	.usage_table = atrus_usages,
-+	.event = atrus_event,
-+};
-+module_hid_driver(atrus_driver);
-+
-+MODULE_AUTHOR("Pablo Ceballos <pcebalos@google.com>");
-+MODULE_DESCRIPTION("Google Hangouts Meet Speakermic USB HID Driver");
-+MODULE_LICENSE("GPL");
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 85975031389b..9f6fc5cfbeb9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -506,6 +506,7 @@
- #define USB_DEVICE_ID_GOOGLE_MOONBALL	0x5044
- #define USB_DEVICE_ID_GOOGLE_DON	0x5050
- #define USB_DEVICE_ID_GOOGLE_EEL	0x5057
-+#define USB_DEVICE_ID_GOOGLE_ATRUS	0x8001
- 
- #define USB_VENDOR_ID_GOTOP		0x08f2
- #define USB_DEVICE_ID_SUPER_Q2		0x007f
--- 
-2.35.1.1094.g7c7d902a7c-goog
+Thank you.
 
+________________________________
+
+CONFIDENTIALITY NOTICE: This email and any attachments are for the sole use=
+ of the intended recipient(s) and contain information that may be Garmin co=
+nfidential and/or Garmin legally privileged. If you have received this emai=
+l in error, please notify the sender by reply email and delete the message.=
+ Any disclosure, copying, distribution or use of this communication (includ=
+ing attachments) by someone other than the intended recipient is prohibited=
+. Thank you.

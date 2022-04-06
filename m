@@ -2,105 +2,111 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30C3BC433F5
-	for <linux-input@archiver.kernel.org>; Wed,  6 Apr 2022 16:12:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA3A1C433EF
+	for <linux-input@archiver.kernel.org>; Wed,  6 Apr 2022 17:37:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237284AbiDFQO1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Apr 2022 12:14:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47040 "EHLO
+        id S239052AbiDFRjm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Apr 2022 13:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237907AbiDFQMo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2022 12:12:44 -0400
-Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 155FD10DA71
-        for <linux-input@vger.kernel.org>; Tue,  5 Apr 2022 20:23:11 -0700 (PDT)
-Received: by mail-pj1-x102c.google.com with SMTP id nt14-20020a17090b248e00b001ca601046a4so4614310pjb.0
-        for <linux-input@vger.kernel.org>; Tue, 05 Apr 2022 20:23:11 -0700 (PDT)
+        with ESMTP id S239370AbiDFRj2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2022 13:39:28 -0400
+Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74689101C9
+        for <linux-input@vger.kernel.org>; Wed,  6 Apr 2022 08:48:22 -0700 (PDT)
+Received: by mail-qv1-xf36.google.com with SMTP id kd21so2531156qvb.6
+        for <linux-input@vger.kernel.org>; Wed, 06 Apr 2022 08:48:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=matician-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nl7SX+b5OGaSDzvlaBhcoDYJhu7qvmloOq719EKVN4w=;
-        b=D0wLjV2hKK8FhkyDepiJad1TNZ7sISTXvrWpTNkxvS5eOnAZZtLOtmlCA98mC1Fj2V
-         AMKj9ttDNkzQqKWmulPBZksk/OpBF+mhDohEMZhe3FqBP6tmTzVCNmyzmUtX2ugiuHtV
-         KnR0muml6VPYoAG+6yskjbXagoSuGG6ScvZ/9DCZPmVWPRVRcsSZMyqbJTqwro6podjY
-         Ft2f6WP3rYAxTMnaapOTK4B90It21X8I00OD52uXusmIuNE+/4LharriC2+5lBiXdJmj
-         YQlMBp7dGc7JNF5c+sU6deJl1BQTZ7YtVScxQZgib070UY9mlJ9zDg11ap7OxpfhSFmz
-         Tz5A==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=zGdgUK4jNHwqfdRCFRkwVREFJalXJYUylajhPK5QZ6w=;
+        b=E/kYbe9uEI4bxo8Z1C07w6IovZN3EzABGF7iGKsC2dSZwCjjWLDcaijASGjQo8BqkP
+         v0gDuVjSdL2BZX8kRWlOzr8T4vxI+hTNhts2OuQjg8iXddqxdNljw0ph2r6KgDlE3tro
+         96fXQaEeNh3KKKC8zrDa776oplF14tUnfoqTdnH4EW5GfZIqfYURzDFcP8Or4NntoC9Y
+         E/ICQOkH/DzNP6mNdf9vcnvONtclAaGsau75zqZFZb8TMfZA2hEY6i1+MDogjs60GUQB
+         5zFrWGnvco4UcDjGCHZwFmc3S91118Dp3UGQNFZgUdnAJgFCJ4O/sWeD/GamzXVsgsUS
+         6l0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=nl7SX+b5OGaSDzvlaBhcoDYJhu7qvmloOq719EKVN4w=;
-        b=K7/Oia39LtC1sSDcozoTfqLW3jtzn7V2x6IRVxWvXwIIF3zkNa70xjmk5U/nx5jrZj
-         5CF1x+uMq8p6kHLlPrgJGjv/Y0ka9D9oaSCMXVNg0EcHAh7fqd4XFwJlmmTuVEJZ8GUu
-         f6eosiYUHsF4BOxS0uEP+4ogTNwrPbcnJVbevw9nDQQum6L3AvA0MdgVgJw5qMnKLlws
-         3+b1ybbrvwJ2m53qwH60CGQXRnc2TGAEwLZbb/a+Dbso6w9xtWHGgNqyrg8JP9tFWg2S
-         wPLkuq/f/Jh/if7HAhH447A8+2U06W92r449PDhY0EtTisFGmTMQ4IxAK0nFhvmPucSi
-         zapw==
-X-Gm-Message-State: AOAM5339PnvDZ9mo1koCqSWv/aOd++9qdZ49N+KCT1fskhz58w41n4Io
-        w6BYmqwDdMdzS3dmO1h2zCKSCA==
-X-Google-Smtp-Source: ABdhPJz7dqGTm0vgSVyF1U6dobg0vqBl1Pe6bW1rGXJzjrXAwC2GElpy5iI+dXkjITJfkLjEnPX+cw==
-X-Received: by 2002:a17:902:e746:b0:156:9eed:d2d6 with SMTP id p6-20020a170902e74600b001569eedd2d6mr6522503plf.144.1649215390419;
-        Tue, 05 Apr 2022 20:23:10 -0700 (PDT)
-Received: from mtgav.corp.matician.com ([38.88.246.146])
-        by smtp.gmail.com with ESMTPSA id b16-20020a056a000cd000b004fadb6f0290sm17973786pfv.11.2022.04.05.20.23.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Apr 2022 20:23:09 -0700 (PDT)
-From:   gavin@matician.com
-To:     Rishi Gupta <gupt21@gmail.com>
-Cc:     linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        Gavin Li <gavin@matician.com>
-Subject: [PATCH] HID: mcp2221: fix hang on probe while setting up gpiochip
-Date:   Tue,  5 Apr 2022 20:23:07 -0700
-Message-Id: <20220406032307.4001281-1-gavin@matician.com>
-X-Mailer: git-send-email 2.34.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=zGdgUK4jNHwqfdRCFRkwVREFJalXJYUylajhPK5QZ6w=;
+        b=L7x50d9shOTwAlwK+r3pn2y1jFh2r0mlg9TkeTq+PLfIRB8nEZishYkZyVXrzxrAWi
+         UUFBxd3sap7dl96Nbc/tDQUFQeVwSJpZB1fHart7wV1WRX414uNrvih5elEQ9LDNKH11
+         buKE1KbRWlEaMYBcEhkunrgNNA4DHRZ4LTvU4YdO12xG5yVKRR//hATuFuSh5rQ0c+YO
+         V3Ig21QXodwIdjWbj3Xd+5fWILy2HmJpGzzHWcfwoGMxa9yNLQruWEGwklXSbz7+kbmm
+         aPwqD1ZQpNM91joLCKU7BLK2c8Lc6zlI52NmiHk1fvXNHX09KOtf7oJLLM/9scEy19Uh
+         ln9A==
+X-Gm-Message-State: AOAM530uRW1KlY99AK9/iipF3Ru+x1HMxiMnw5cMIOydqQuk2vloHh/E
+        t2CM6W2J3OUjou3Vm2HPirVeBBEdIfCUZnHhUtU=
+X-Google-Smtp-Source: ABdhPJwYFIqXtDtO2dGHagjU8ckePixUX2zvhu0aUeXtrLTqLH4Pes5wOmC/6xsDi2pDV5ijqXwGqM9QObKd0pJFg10=
+X-Received: by 2002:a05:6214:921:b0:443:ce3d:577b with SMTP id
+ dk1-20020a056214092100b00443ce3d577bmr7927675qvb.122.1649260101467; Wed, 06
+ Apr 2022 08:48:21 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210818092503.16653-1-tobias.junghans@inhub.de>
+In-Reply-To: <20210818092503.16653-1-tobias.junghans@inhub.de>
+From:   rishi gupta <gupt21@gmail.com>
+Date:   Wed, 6 Apr 2022 08:48:10 -0700
+Message-ID: <CALUj-gve2uN=c_daDM8bJ4gZqxQ_jV4BMyuzk3gywbYqjLsVkA@mail.gmail.com>
+Subject: Re: [PATCH] HID: add missing dependencies on HIDRAW
+To:     Tobias Junghans <tobias.junghans@inhub.de>
+Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        trivial@kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Gavin Li <gavin@matician.com>
+Thanks Tobias!
 
-The driver expects HID events to be delivered to it during probe()
-because the devm_gpiochip_add_data() call indirectly calls
-get_direction(), which fires an HID command that expects an HID
-response. Without this patch, the get_direction() would timeout (of 4
-seconds) once per pin, leading to a 16 second delay before the device is
-usable.
+Reviewed-by: Rishi Gupta <gupt21@gmail.com>
 
-This patch adds calls to hid_device_io_start() and hid_device_io_stop()
-to notify the HID subsystem that the driver is ready to receive events
-before the probe() finishes.
 
-Signed-off-by: Gavin Li <gavin@matician.com>
----
- drivers/hid/hid-mcp2221.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 4211b9839209b..567ef8b93376d 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -877,6 +877,9 @@ static int mcp2221_probe(struct hid_device *hdev,
- 	}
- 	i2c_set_adapdata(&mcp->adapter, mcp);
- 
-+	/* gpiolib calls get_direction(), so become ready to process events */
-+	hid_device_io_start(hdev);
-+
- 	/* Setup GPIO chip */
- 	mcp->gc = devm_kzalloc(&hdev->dev, sizeof(*mcp->gc), GFP_KERNEL);
- 	if (!mcp->gc) {
-@@ -902,6 +905,7 @@ static int mcp2221_probe(struct hid_device *hdev,
- 	return 0;
- 
- err_gc:
-+	hid_device_io_stop(hdev);
- 	i2c_del_adapter(&mcp->adapter);
- err_i2c:
- 	hid_hw_close(mcp->hdev);
--- 
-2.34.1
-
+On Wed, Aug 18, 2021 at 2:26 AM Tobias Junghans
+<tobias.junghans@inhub.de> wrote:
+>
+> hid-led, hid-u2fzero and hid-mcp2221 unconditionally access the hidraw
+> member of the hid_device structure to obtain the hidraw minor number.
+> Building without HIDRAW causes a NULL pointer dereference in the
+> corresponding probe handlers.
+>
+> Signed-off-by: Tobias Junghans <tobias.junghans@inhub.de>
+> ---
+>  drivers/hid/Kconfig | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index 160554903ef9..00416b3091e7 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -522,6 +522,7 @@ config HID_LCPOWER
+>  config HID_LED
+>         tristate "Simple RGB LED support"
+>         depends on HID
+> +       depends on HIDRAW
+>         depends on LEDS_CLASS
+>         help
+>         Support for simple RGB LED devices. Currently supported are:
+> @@ -1093,6 +1094,7 @@ config HID_UDRAW_PS3
+>  config HID_U2FZERO
+>         tristate "U2F Zero LED and RNG support"
+>         depends on USB_HID
+> +       depends on HIDRAW
+>         depends on LEDS_CLASS
+>         depends on HW_RANDOM
+>         help
+> @@ -1213,6 +1215,7 @@ config HID_ALPS
+>  config HID_MCP2221
+>         tristate "Microchip MCP2221 HID USB-to-I2C/SMbus host support"
+>         depends on USB_HID && I2C
+> +       depends on HIDRAW
+>         depends on GPIOLIB
+>         help
+>         Provides I2C and SMBUS host adapter functionality over USB-HID
+> --
+> 2.25.1
+>

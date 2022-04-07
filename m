@@ -2,102 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 367B8C4167B
-	for <linux-input@archiver.kernel.org>; Thu,  7 Apr 2022 01:21:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BB15C433EF
+	for <linux-input@archiver.kernel.org>; Thu,  7 Apr 2022 11:54:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239026AbiDGBWZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Apr 2022 21:22:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60698 "EHLO
+        id S233244AbiDGL4M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 Apr 2022 07:56:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238618AbiDGBSZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2022 21:18:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFEFA189A23;
-        Wed,  6 Apr 2022 18:13:17 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D1B161DB0;
-        Thu,  7 Apr 2022 01:13:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4B09C385A1;
-        Thu,  7 Apr 2022 01:13:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649293996;
-        bh=AbRLW6KpKD4tIN4tfMldWC0Y7qjHWvaSMDBU+t7g3Ps=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=roDc04GAOQ3FbQ7LJPcFKJo3ZoMVo59GQT/aLz0qzLSA7SrREASDpw1mTGPMF7DDr
-         EikW8QWHAgTPcH/nfFHbDXhX2zJS3NzQLsrY/gCxr9wu/IjqSkfdork75+SoRBg0mF
-         UJa+Cwogn8W+Qs0mssqEfaUyNEtnTnRPTvMTcFizXslvIsnnpdg4KmZnh2MJbgTwEL
-         M71OjGCcRv+JFqPZuhwqMLWgDruqSNvpxVFFyExoJvHAOejlILgBjbLB87RIGcVMMc
-         FuJXzyCNHPq7gLwQ0E4Nn5jGZP3sOBHFkVsRevueH2WhAr4oKPcrEunq93myW9XnI7
-         8jKNw3ZLPL36A==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheng Yongjun <zhengyongjun3@huawei.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, mcoquelin.stm32@gmail.com,
-        alexandre.torgue@foss.st.com, linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 07/27] Input: stmfts - fix reference leak in stmfts_input_open
-Date:   Wed,  6 Apr 2022 21:12:37 -0400
-Message-Id: <20220407011257.114287-7-sashal@kernel.org>
+        with ESMTP id S233421AbiDGL4L (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Apr 2022 07:56:11 -0400
+Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DBF6D0AAC;
+        Thu,  7 Apr 2022 04:54:11 -0700 (PDT)
+Received: (Authenticated sender: hadess@hadess.net)
+        by mail.gandi.net (Postfix) with ESMTPSA id 8D2F9C0008;
+        Thu,  7 Apr 2022 11:54:07 +0000 (UTC)
+From:   Bastien Nocera <hadess@hadess.net>
+To:     linux-input@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH] HID: wacom: Correct power_supply type
+Date:   Thu,  7 Apr 2022 13:54:06 +0200
+Message-Id: <20220407115406.115112-1-hadess@hadess.net>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011257.114287-1-sashal@kernel.org>
-References: <20220407011257.114287-1-sashal@kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+POWER_SUPPLY_TYPE_USB seems to only ever be used by USB ports that are
+used to charge the machine itself (so a "system" scope), like the
+single USB port on a phone, rather than devices.
 
-[ Upstream commit 26623eea0da3476446909af96c980768df07bbd9 ]
+The wacom_sys driver is the only driver that sets its device battery as
+being a USB type, which doesn't seem correct based on its usage, so
+switch it to be a battery type like all the other USB-connected devices.
 
-pm_runtime_get_sync() will increment pm usage counter even it
-failed. Forgetting to call pm_runtime_put_noidle will result
-in reference leak in stmfts_input_open, so we should fix it.
-
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Link: https://lore.kernel.org/r/20220317131604.53538-1-zhengyongjun3@huawei.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/input/touchscreen/stmfts.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/hid/wacom_sys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
-index bc11203c9cf7..72e0b767e1ba 100644
---- a/drivers/input/touchscreen/stmfts.c
-+++ b/drivers/input/touchscreen/stmfts.c
-@@ -339,11 +339,11 @@ static int stmfts_input_open(struct input_dev *dev)
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index 066c567dbaa2..620fe74f5676 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -1777,7 +1777,7 @@ static int __wacom_initialize_battery(struct wacom *wacom,
+ 	bat_desc->get_property = wacom_battery_get_property;
+ 	sprintf(battery->bat_name, "wacom_battery_%ld", n);
+ 	bat_desc->name = battery->bat_name;
+-	bat_desc->type = POWER_SUPPLY_TYPE_USB;
++	bat_desc->type = POWER_SUPPLY_TYPE_BATTERY;
+ 	bat_desc->use_for_apm = 0;
  
- 	err = pm_runtime_get_sync(&sdata->client->dev);
- 	if (err < 0)
--		return err;
-+		goto out;
- 
- 	err = i2c_smbus_write_byte(sdata->client, STMFTS_MS_MT_SENSE_ON);
- 	if (err)
--		return err;
-+		goto out;
- 
- 	mutex_lock(&sdata->mutex);
- 	sdata->running = true;
-@@ -366,7 +366,9 @@ static int stmfts_input_open(struct input_dev *dev)
- 				 "failed to enable touchkey\n");
- 	}
- 
--	return 0;
-+out:
-+	pm_runtime_put_noidle(&sdata->client->dev);
-+	return err;
- }
- 
- static void stmfts_input_close(struct input_dev *dev)
+ 	ps_bat = devm_power_supply_register(dev, bat_desc, &psy_cfg);
 -- 
 2.35.1
 

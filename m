@@ -2,47 +2,47 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFC35C4332F
-	for <linux-input@archiver.kernel.org>; Thu,  7 Apr 2022 01:20:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83B5FC4332F
+	for <linux-input@archiver.kernel.org>; Thu,  7 Apr 2022 01:20:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238612AbiDGBV4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 6 Apr 2022 21:21:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33036 "EHLO
+        id S238605AbiDGBV5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 6 Apr 2022 21:21:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240439AbiDGBUA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2022 21:20:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAC7D186F87;
-        Wed,  6 Apr 2022 18:16:22 -0700 (PDT)
+        with ESMTP id S240243AbiDGBTw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 6 Apr 2022 21:19:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18C221B7558;
+        Wed,  6 Apr 2022 18:15:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 928A4B81E7F;
-        Thu,  7 Apr 2022 01:16:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61AB0C385AB;
-        Thu,  7 Apr 2022 01:16:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3566761DA8;
+        Thu,  7 Apr 2022 01:15:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1879C385A7;
+        Thu,  7 Apr 2022 01:15:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1649294180;
-        bh=DNdUdEZ41e3KmRFo4s/263ILPUE83rwX37K8m1Xcyok=;
+        s=k20201202; t=1649294133;
+        bh=oFWK77TFIfOUUQE8Z7z3Ndo6+9XkdRFZNj44FOc0Un0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tHyArIcP2mjObeuKfDIzRyWU4oKKL/1s8uzE9oMkEawQP+F7W69kF3XaCN4pvfabu
-         vEYLJuWUglw0JXRa/Sqr6n0Gqi2u+FMlsQVk5Tmur5DbfGM3soF2dBoaYXBvFbicQ/
-         DrPfzrkyws9Sywq8kE2XXj6KLCP8drFd4Wrob8TQEPIDL0QroSciBlO7aaE4qURPhL
-         m8IPD+stQp9PkU3j1z61snHkuJ11NCcjTeWaHv3bZ+Ay129vYq2a+LncklLLoh7Mza
-         MxQCWhn+QBOs2MPWLVNYLueZjD9Mg7kBMX2Pn92u3o8R/ZAM/PFmxTCtJsQf3Co+5n
-         OAuByX956Nc9A==
+        b=ogy2fAvUXS3vVw7TqP4LFLvxaJv3TRl5A/v7MrHPyLqOahyoXW8NZCklM5wkbRwZj
+         vKP2P9MuYp608aKKGJWbw+nSfQsdQNLYlE9KVuRLhg/+SijEk2koUog5JGI59zvC2m
+         2JiyHDgjNBGqtviKhGC/STelrh5D9VDkHopgZeDRaf9msMwB92iRt/jBBMAza4UjJq
+         n45N5s+xoY6AzlAVQqSK+uuXFj+T38qbU6fckooglsfteigo57FcLOrXsYhjaxYFtx
+         8/m5g2s5WArlJYMyaUwLMjaFAv8zQBct1h0htD2muBHkG7dYiXsph4V8OaxACWYiqz
+         YLt73u0v2BA7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jeff LaBundy <jeff@labundy.com>,
         =?UTF-8?q?Tomasz=20Mo=C5=84?= <tomasz.mon@camlingroup.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/11] Input: add bounds checking to input_set_capability()
-Date:   Wed,  6 Apr 2022 21:16:01 -0400
-Message-Id: <20220407011609.115258-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 05/17] Input: add bounds checking to input_set_capability()
+Date:   Wed,  6 Apr 2022 21:15:09 -0400
+Message-Id: <20220407011521.115014-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220407011609.115258-1-sashal@kernel.org>
-References: <20220407011609.115258-1-sashal@kernel.org>
+In-Reply-To: <20220407011521.115014-1-sashal@kernel.org>
+References: <20220407011521.115014-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -70,10 +70,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 19 insertions(+)
 
 diff --git a/drivers/input/input.c b/drivers/input/input.c
-index b031174c8d7f..c803d000d320 100644
+index f7398b996bac..5304262dbfa5 100644
 --- a/drivers/input/input.c
 +++ b/drivers/input/input.c
-@@ -50,6 +50,17 @@ static DEFINE_MUTEX(input_mutex);
+@@ -47,6 +47,17 @@ static DEFINE_MUTEX(input_mutex);
  
  static const struct input_value input_value_sync = { EV_SYN, SYN_REPORT, 1 };
  
@@ -91,7 +91,7 @@ index b031174c8d7f..c803d000d320 100644
  static inline int is_event_supported(unsigned int code,
  				     unsigned long *bm, unsigned int max)
  {
-@@ -1915,6 +1926,14 @@ EXPORT_SYMBOL(input_free_device);
+@@ -1978,6 +1989,14 @@ EXPORT_SYMBOL(input_get_timestamp);
   */
  void input_set_capability(struct input_dev *dev, unsigned int type, unsigned int code)
  {

@@ -2,234 +2,71 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 84F5CC433F5
-	for <linux-input@archiver.kernel.org>; Tue, 12 Apr 2022 20:38:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0007FC433EF
+	for <linux-input@archiver.kernel.org>; Tue, 12 Apr 2022 23:29:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229464AbiDLUkB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Apr 2022 16:40:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41026 "EHLO
+        id S230164AbiDLXcA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 Apr 2022 19:32:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229454AbiDLUj3 (ORCPT
+        with ESMTP id S230308AbiDLXbx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Apr 2022 16:39:29 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E2D7AF9561
-        for <linux-input@vger.kernel.org>; Tue, 12 Apr 2022 13:35:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1649795109;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Z+ent/yy95aJOm6DnI9kx/1sJTBsC05TLsSw4BZBHzs=;
-        b=TX0jWIpJ33M7GP09HZ/eorgsQNSZM70LtKkA8tWHrjOG/XZ1MURMcMFYuFktkdzfwRhikj
-        W1OkKURRaKROX9wrtOVh7cavEW1uumMfUtK44kqgPOMZeKEGqm8tdFIC8G37fKRqmpH5qg
-        r6JZuPH/QMGlOlILrgIX4YnnxUuQ6UI=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-413-jV2QJMBaNQm-JZsySZMRTA-1; Tue, 12 Apr 2022 16:14:14 -0400
-X-MC-Unique: jV2QJMBaNQm-JZsySZMRTA-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 6C51D85A5BE;
-        Tue, 12 Apr 2022 20:14:13 +0000 (UTC)
-Received: from cmirabil.remote.csb (unknown [10.22.32.76])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BA279416363;
-        Tue, 12 Apr 2022 20:14:12 +0000 (UTC)
-From:   Charles Mirabile <cmirabil@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Charles Mirabile <cmirabil@redhat.com>,
-        Serge Schneider <serge@raspberrypi.org>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Nicolas Saenz Julienne <nsaenzju@redhat.com>,
-        Mattias Brugger <mbrugger@suse.com>,
-        linux-rpi-kernel@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, fedora-rpi@googlegroups.com,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>, devicetree@vger.kernel.org,
-        linux-input@vger.kernel.org, Mwesigwa Guma <mguma@redhat.com>,
-        Joel Savitz <jsavitz@redhat.com>
-Subject: [PATCH v8 4/6] dt-bindings: mfd: sensehat: Add Raspberry Pi Sense HAT schema
-Date:   Tue, 12 Apr 2022 16:13:41 -0400
-Message-Id: <20220412201343.8074-5-cmirabil@redhat.com>
-In-Reply-To: <20220412201343.8074-1-cmirabil@redhat.com>
-References: <20220412201343.8074-1-cmirabil@redhat.com>
+        Tue, 12 Apr 2022 19:31:53 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BBC68F98D
+        for <linux-input@vger.kernel.org>; Tue, 12 Apr 2022 15:17:32 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id r18so123799ljp.0
+        for <linux-input@vger.kernel.org>; Tue, 12 Apr 2022 15:17:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=VzNdvRGHjidqUIGT+6pApgU/UMu5jL+wQHuqdUJTCUA=;
+        b=FjIpfnrmTRiD/FjNzB/5Es4yzS5rfn0G5gj5ngEwSqtMPGzX6I6W3Xqy0buqf/C3Vo
+         2k21PtgYGPADTrvf25iMyOfibS04+I8Laa70J4WVXixJlMa7dI7X0e1dHCmQAYSg8Hch
+         Pt97SK1amgcWzIqJBm5rlCwGqGFzj3DbEDpgN1jCpqT4305+mrLTxJrHYADpCz+w4kAo
+         aGHeW8HUEjwa1ZPwMgkEZebC7KlxxetgGNH8DB4zPbvQbAUFfthvI35RhcGXDPOgT7ZY
+         5FHmuA6rmNEduGlG4Rql8OwcbrYSdBWHzowXt9YeR53DHI5Ca8EySvhFZ4hb9yXwtsZ/
+         5K3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=VzNdvRGHjidqUIGT+6pApgU/UMu5jL+wQHuqdUJTCUA=;
+        b=tCvd3DQMzDOZyBTW1RbRrQUN7uajTkjo7RxGpI/01fwLKpKWuCngqW7WuA7unugvyv
+         YYP/oLfLuQVjgfeVdjH3QHq59ndtRpRtwQ++hKx+XOK3R8PJ09uIHApiYW1NfnblvUWx
+         sPNLyCpNOii4r/OP37sfBkdQdNFx3Hw5dct36Asw9lIlH4CSNWMEpev5SD1yAmRL0hnf
+         LxVkqR/1nSc+WV9eJ8IqFFeruMolWYEeBxz0pEazhSARYvCPsSNVv/fB5bHKVprG9Gh0
+         ugQjaS21ZeJ+uIl/PLAWlwvxeZmNK0cj+iYUmpzZChvGy8+T0qfCBih18ToBmkSlAlAe
+         N8Fw==
+X-Gm-Message-State: AOAM5337WB4hISiMCQqSgOX65NEqmG9forYj6ZTAHSXhS4kMt+4NQnXZ
+        r6zvKRKYD2M02f6SOvqL4FPU+5Rp9ld06Y62hVn072Iqnuc=
+X-Google-Smtp-Source: ABdhPJybthh01YTuyPLy/O9U29EyGTQUxQMK7LLJyFKtEKfZSOtdkS3yKC4J3cEpyMrEczuGr3A7ZgehkcioZBxkDEk=
+X-Received: by 2002:a05:651c:157:b0:24b:6c33:daea with SMTP id
+ c23-20020a05651c015700b0024b6c33daeamr4574584ljd.264.1649801850142; Tue, 12
+ Apr 2022 15:17:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.10
+From:   Marcos Alano <marcoshalano@gmail.com>
+Date:   Tue, 12 Apr 2022 19:17:19 -0300
+Message-ID: <CAO3Us=m-Tj2yrt4=1nnr=CgUA2LR29W5DbPAP4T8xwt2VS=FnA@mail.gmail.com>
+Subject: Getting the raw keycode to implement a new key in Linux
+To:     HID CORE LAYER <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch adds the device tree bindings for the Sense HAT
-and each of its children devices in yaml form.
+Hi!
+I have a Dell G15 5511 laptop and this machine has a very particular
+feature: a key called "G- key" (accessed pressing Fn+F7) which is used
+(on Windows at least) to do a boost in the machine. The details about
+how this boost works is not the question here. The question is: How
+can I find, in the kernel level, what code is emitted? I want to know
+that, so I can start hacking around and come up with a patch, so the
+key can be recognized by the OS, so a user space daemon can be
+triggered to do the boost part (or any other action).
 
-Co-developed-by: Mwesigwa Guma <mguma@redhat.com>
-Signed-off-by: Mwesigwa Guma <mguma@redhat.com>
-Co-developed-by: Joel Savitz <jsavitz@redhat.com>
-Signed-off-by: Joel Savitz <jsavitz@redhat.com>
-Signed-off-by: Charles Mirabile <cmirabil@redhat.com>
----
- .../raspberrypi,sensehat-display.yaml         | 27 ++++++++
- .../input/raspberrypi,sensehat-joystick.yaml  | 33 +++++++++
- .../bindings/mfd/raspberrypi,sensehat.yaml    | 69 +++++++++++++++++++
- 3 files changed, 129 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/auxdisplay/raspberrypi,sensehat-display.yaml
- create mode 100644 Documentation/devicetree/bindings/input/raspberrypi,sensehat-joystick.yaml
- create mode 100644 Documentation/devicetree/bindings/mfd/raspberrypi,sensehat.yaml
+Any thoughts?
 
-diff --git a/Documentation/devicetree/bindings/auxdisplay/raspberrypi,sensehat-display.yaml b/Documentation/devicetree/bindings/auxdisplay/raspberrypi,sensehat-display.yaml
-new file mode 100644
-index 000000000000..5e41d6b7817d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/auxdisplay/raspberrypi,sensehat-display.yaml
-@@ -0,0 +1,27 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/auxdisplay/raspberrypi,sensehat-display.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Raspberry Pi Sensehat Display
-+
-+maintainers:
-+  - Charles Mirabile <cmirabil@redhat.com>
-+  - Mwesigwa Guma <mguma@redhat.com>
-+  - Joel Savitz <jsavitz@redhat.com>
-+
-+description:
-+  This device is part of the sensehat multi function device.
-+  For more information see ../mfd/raspberrypi,sensehat.yaml.
-+
-+  This device features a programmable 8x8 RGB LED matrix.
-+
-+properties:
-+  compatible:
-+    const: raspberrypi,sensehat-display
-+
-+required:
-+  - compatible
-+
-+additionalProperties: false
-diff --git a/Documentation/devicetree/bindings/input/raspberrypi,sensehat-joystick.yaml b/Documentation/devicetree/bindings/input/raspberrypi,sensehat-joystick.yaml
-new file mode 100644
-index 000000000000..c97cd1d8eac6
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/raspberrypi,sensehat-joystick.yaml
-@@ -0,0 +1,33 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/raspberrypi,sensehat-joystick.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Raspberry Pi Sensehat Joystick
-+
-+maintainers:
-+  - Charles Mirabile <cmirabil@redhat.com>
-+  - Mwesigwa Guma <mguma@redhat.com>
-+  - Joel Savitz <jsavitz@redhat.com>
-+
-+description:
-+  This device is part of the sensehat multi function device.
-+  For more information see ../mfd/raspberrypi,sensehat.yaml.
-+
-+  This device features a five button joystick (up, down,left,
-+  right, click)
-+
-+properties:
-+  compatible:
-+    const: raspberrypi,sensehat-joystick
-+
-+  interrupts:
-+    items:
-+      - description: pin number for joystick interrupt
-+
-+required:
-+  - compatible
-+  - interrupts
-+
-+additionalProperties: false
-diff --git a/Documentation/devicetree/bindings/mfd/raspberrypi,sensehat.yaml b/Documentation/devicetree/bindings/mfd/raspberrypi,sensehat.yaml
-new file mode 100644
-index 000000000000..2484ec91b430
---- /dev/null
-+++ b/Documentation/devicetree/bindings/mfd/raspberrypi,sensehat.yaml
-@@ -0,0 +1,69 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/mfd/raspberrypi,sensehat.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Raspberry Pi Sensehat
-+
-+maintainers:
-+  - Charles Mirabile <cmirabil@redhat.com>
-+  - Mwesigwa Guma <mguma@redhat.com>
-+  - Joel Savitz <jsavitz@redhat.com>
-+
-+description:
-+  The Raspberry Pi Sensehat is an addon board originally developed
-+  for the Raspberry Pi that has a joystick and an 8x8 RGB LED display
-+  as well as several environmental sensors. It connects via i2c and
-+  a gpio for irq.
-+
-+properties:
-+  compatible:
-+    const: raspberrypi,sensehat
-+
-+  reg:
-+    items:
-+      - description: i2c device address
-+
-+  "#address-cells":
-+    const: 1
-+
-+  "#size-cells":
-+    const: 0
-+
-+  "joystick":
-+    $ref: ../input/raspberrypi,sensehat-joystick.yaml
-+
-+  "display":
-+    $ref: ../auxdisplay/raspberrypi,sensehat-display.yaml
-+
-+required:
-+  - compatible
-+  - reg
-+  - "#address-cells"
-+  - "#size-cells"
-+  - joystick
-+  - display
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+      sensehat@46 {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+        compatible = "raspberrypi,sensehat";
-+        reg = <0x46>;
-+        display {
-+          compatible = "raspberrypi,sensehat-display";
-+        };
-+        joystick {
-+          compatible = "raspberrypi,sensehat-joystick";
-+          interrupts = <23 GPIO_ACTIVE_HIGH>;
-+        };
-+      };
-+    };
 -- 
-2.31.1
-
+Marcos H. Alano
+Linux System Administrator
+marcoshalano@gmail.com

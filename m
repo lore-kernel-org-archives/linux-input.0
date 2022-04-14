@@ -2,168 +2,95 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DDE0C433EF
-	for <linux-input@archiver.kernel.org>; Thu, 14 Apr 2022 11:10:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBF82C433EF
+	for <linux-input@archiver.kernel.org>; Thu, 14 Apr 2022 14:44:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242563AbiDNLM1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 Apr 2022 07:12:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41784 "EHLO
+        id S240651AbiDNOrF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 Apr 2022 10:47:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242553AbiDNLMZ (ORCPT
+        with ESMTP id S1343917AbiDNOJd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 Apr 2022 07:12:25 -0400
-Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 380507EA37;
-        Thu, 14 Apr 2022 04:09:56 -0700 (PDT)
-Received: by mail-wm1-x331.google.com with SMTP id p189so2844388wmp.3;
-        Thu, 14 Apr 2022 04:09:56 -0700 (PDT)
+        Thu, 14 Apr 2022 10:09:33 -0400
+Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247C6B0D02
+        for <linux-input@vger.kernel.org>; Thu, 14 Apr 2022 07:01:43 -0700 (PDT)
+Received: by mail-lf1-x135.google.com with SMTP id u19so9271907lff.4
+        for <linux-input@vger.kernel.org>; Thu, 14 Apr 2022 07:01:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=wCCZ1FY3Lpmshe9dS61q5VGkiGnsl0sutuD0GJvrltw=;
-        b=b2dzbqWrC3V7gFDtlATpXR3PG9E39X4yfbHAhAxj+34FIomoflNtxXwAWDCbTr5gf7
-         VoAMHXzONNQYmUa+5A78q0ZxzWn7Wp06r7ctdTEGZ1hnAlXQi0FlYmvLbVdKM9ShtnnQ
-         xxuqnQN35jUW2gvAUgNnNTwecYMfJfw0wNJcsH8MNfcN568rYGy6Wq/XZCXvreFWDZM1
-         2Nb8+gPGKFOajLcCGH2J4KTZCjR1d/JK+F2ErJrqHvz/60sy3gD9lg+gg3nDvnN2WLVR
-         tftdq03luZAoW+NQFDEJ5wihoWidSEQuUJjeqMc+OhQUp2gBzW/CYKXaU+6YSwP9rVxO
-         p2Lg==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=iSm/4CMJrzAb5nZSUwEnEIJgkv5AdD6FqaBeZPlRMBE=;
+        b=IyKHDZpEHYEL+kEydgx22b9VJbJwbTouMDG0wRA9RzcxX+2eDs1zvwqVRdB7vJ7jQk
+         +7juW7PjXMP3K/OzPAvqjExOOLayN4DxRBzWBUGe9pw1I7m8IccK9gSb9AAfXRX84dIy
+         tesZhP/rqoVQBiPveCjB7zvot8vC51JNPD3t8pdYSu1TV83izxK6LpuwazMyziCpWJUF
+         s76bRmrRh32IrQH5Z6BXrOgtwKVH8nWc+QUf71iPdylc2RRa/hLDnLI8Ryg1+PSaNaWI
+         FvyQ1is9+U6UETl1QqnjW5czCkPJjX0jF8mCWH8c7oxS4IQXCl7gQ8qp4D0RLA9giul/
+         RNHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=wCCZ1FY3Lpmshe9dS61q5VGkiGnsl0sutuD0GJvrltw=;
-        b=S/zdwJBUOFa7i9Eg5nIfvBbolmYNY2G10BcWvzJ7FukBcPJZHT+hLZKDWTqn5kHnL7
-         h1oL8RBRsRpFSNKQtwr0MVJoXvRjG+auPqpx32/QW2FfTV7XAHVlVYvoFk2jdbgfNbd4
-         SrATH5k2fhMyfpGBdKvnV2xsDG8BM3s9gUUFYM0JoLeU7osYsgAmycZhAb9We4GtYPar
-         EqXKGkin/GCgGvKoPAcsfjxeZAcSIB1fCYo5j9gf4erw9yO7FvF47Rm0bZbZQC5Ntrkm
-         HamFsiz/sTl59reaMUfWFxDpMBgntc0zSohCn6SVQLWPOmSnYjtGW2Dn5RTfDeCXeblG
-         m82A==
-X-Gm-Message-State: AOAM530hn/+aFjnSfycCup1fuwUUTJSO7zfqIEfHJgftHFy1EjlywNus
-        n5EpDbRYA33tUan/Wos/PhA=
-X-Google-Smtp-Source: ABdhPJyPkXSWfn7dSmsQvRoMvYDuL9tPA1m5972MkMxkTuigrw2WPECmylLsB+jTLbG/1tKuFfuEcg==
-X-Received: by 2002:a05:600c:4f0c:b0:38c:bdf5:2232 with SMTP id l12-20020a05600c4f0c00b0038cbdf52232mr3186323wmq.90.1649934594713;
-        Thu, 14 Apr 2022 04:09:54 -0700 (PDT)
-Received: from localhost.localdomain ([94.73.37.128])
-        by smtp.gmail.com with ESMTPSA id f13-20020a5d64cd000000b0020787751295sm1694504wri.35.2022.04.14.04.09.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Apr 2022 04:09:54 -0700 (PDT)
-From:   =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-To:     jikos@kernel.org
-Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH for-5.19/uclogic 3/4] HID: uclogic: Add support for bitmap dials
-Date:   Thu, 14 Apr 2022 13:09:35 +0200
-Message-Id: <20220414110936.146378-4-jose.exposito89@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220414110936.146378-1-jose.exposito89@gmail.com>
-References: <20220414110936.146378-1-jose.exposito89@gmail.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=iSm/4CMJrzAb5nZSUwEnEIJgkv5AdD6FqaBeZPlRMBE=;
+        b=Q6UJCEy9ijdNCK/JkK8pOi/R6/9vNs4Wl4b8hlkkW4FDdtf6ZBVN6djJmkHheCEf15
+         3qKBci3EFtZCGLYmqsQfGTIIBFnn1j/pJhJyOYv4aHWkOnoxOCdj21O6pd1VRA+B1DOG
+         wNZfMm7Z14BclWs/OwhqGF4FYAi06SKbwKu25cCOHE6BgkdxfyDphY9QQui7vBtl4nFy
+         LRMvIeSWbsRh0N0H3Y3S4W74R4W2WpgoluSrnxqUpCgR3mfECJcvs7+O2URVT5RanQ/p
+         kepdGF5CY7guG92t/n0BnC9pB+O0p2zP+f2aA3Td+JU0L/o3bVRiCG0y7vXI3CuzI2XU
+         YMSg==
+X-Gm-Message-State: AOAM530ekkpP4J6IzHGiOj7N37J8JPj9qF4F5IPCYOPeGdiOzpuASK9Q
+        MNlWP8Rbs2PyzNOrOYrRGr72LqauT8iA5dsFn+0djlkbDBg=
+X-Google-Smtp-Source: ABdhPJwye+Z6I2u0K6i5obVzAjlyLDdko7qv9DJa6JqeqruIL4ivSGxqGFJ4h8p3bht5A9VjzKaJFKZAtWKwBDsS/HY=
+X-Received: by 2002:a05:6512:2102:b0:46b:b6f2:83ab with SMTP id
+ q2-20020a056512210200b0046bb6f283abmr1989460lfr.202.1649944901883; Thu, 14
+ Apr 2022 07:01:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <CAO3Us=m-Tj2yrt4=1nnr=CgUA2LR29W5DbPAP4T8xwt2VS=FnA@mail.gmail.com>
+ <CA+jURctcSHLb3-7VYpUUP9_RF_71xgWnM-v8UwcynRZkdHYDkg@mail.gmail.com>
+In-Reply-To: <CA+jURctcSHLb3-7VYpUUP9_RF_71xgWnM-v8UwcynRZkdHYDkg@mail.gmail.com>
+From:   Marcos Alano <marcoshalano@gmail.com>
+Date:   Thu, 14 Apr 2022 11:01:30 -0300
+Message-ID: <CAO3Us=mnboZut6AJnqbT6Okc+ABmSUGzESeQHe-pwXCmSq04Og@mail.gmail.com>
+Subject: Re: Getting the raw keycode to implement a new key in Linux
+To:     Harry Cutts <hcutts@chromium.org>
+Cc:     HID CORE LAYER <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Nikolai Kondrashov <spbnick@gmail.com>
+Thanks for the tip!
 
-A bitmap dial sends reports with a dedicated bit per direction: 1 means
-clockwise rotation, 2 means counterclockwise, as opposed to the normal
-1 and -1 values.
+I found the scancode in dmesg log. After that, I used udev to
+implement a rule to mute the microphone. Now I need to develop or use
+an existent daemon to control the boost mode. I think it won't need
+any incursion in kernel code. :)
 
-Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
----
- drivers/hid/hid-uclogic-core.c   |  6 ++++++
- drivers/hid/hid-uclogic-params.h | 15 ++++++++++++++-
- 2 files changed, 20 insertions(+), 1 deletion(-)
+On Tue, Apr 12, 2022 at 10:20 PM Harry Cutts <hcutts@chromium.org> wrote:
+>
+> On Tue, 12 Apr 2022 at 16:29, Marcos Alano <marcoshalano@gmail.com> wrote:
+> > I have a Dell G15 5511 laptop and this machine has a very particular
+> > feature: a key called "G- key" (accessed pressing Fn+F7) which is used
+> > (on Windows at least) to do a boost in the machine. The details about
+> > how this boost works is not the question here. The question is: How
+> > can I find, in the kernel level, what code is emitted? I want to know
+> > that, so I can start hacking around and come up with a patch, so the
+> > key can be recognized by the OS, so a user space daemon can be
+> > triggered to do the boost part (or any other action).
+>
+> Probably the best starting place is to run the evtest command, choose
+> your keyboard, and press the key. That should at least give you an
+> MSC_SCAN line giving you the scan code, unless Dell have done
+> something in their keyboard controller to treat Fn+F7 as something
+> other than a normal keypress.
+>
+> Harry Cutts
+> Chrome OS Touch/Input team
 
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index 96f3fb8c492c..627f1d0c52f2 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -382,6 +382,12 @@ static int uclogic_raw_event_frame(
- 		}
- 	}
- 
-+	/* If need to, and can, transform the bitmap dial reports */
-+	if (frame->bitmap_dial_byte > 0 && frame->bitmap_dial_byte < size) {
-+		if (data[frame->bitmap_dial_byte] == 2)
-+			data[frame->bitmap_dial_byte] = -1;
-+	}
-+
- 	return 0;
- }
- 
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index 78965e683d20..e5ccc558abc3 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -153,6 +153,13 @@ struct uclogic_params_frame {
- 	 * Zero if no reversal should be done.
- 	 */
- 	__s8 touch_ring_flip_at;
-+	/*
-+	 * Offset of the bitmap dial byte, in the report. Zero if not present.
-+	 * Only valid if "id" is not zero. A bitmap dial sends reports with a
-+	 * dedicated bit per direction: 1 means clockwise rotation, 2 means
-+	 * counterclockwise, as opposed to the normal 1 and -1.
-+	 */
-+	unsigned int bitmap_dial_byte;
- };
- 
- /*
-@@ -230,6 +237,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 	"\t\t.touch_ring_byte = %u\n"       \
- 	"\t\t.touch_ring_max = %hhd\n"      \
- 	"\t\t.touch_ring_flip_at = %hhd\n"  \
-+	"\t\t.bitmap_dial_byte = %u\n"      \
- 	"\t},\n"                            \
- 	"\t{\n"                             \
- 	"\t\t.desc_ptr = %p\n"              \
-@@ -241,6 +249,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 	"\t\t.touch_ring_byte = %u\n"       \
- 	"\t\t.touch_ring_max = %hhd\n"      \
- 	"\t\t.touch_ring_flip_at = %hhd\n"  \
-+	"\t\t.bitmap_dial_byte = %u\n"      \
- 	"\t},\n"                            \
- 	"\t{\n"                             \
- 	"\t\t.desc_ptr = %p\n"              \
-@@ -252,6 +261,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 	"\t\t.touch_ring_byte = %u\n"       \
- 	"\t\t.touch_ring_max = %hhd\n"      \
- 	"\t\t.touch_ring_flip_at = %hhd\n"  \
-+	"\t\t.bitmap_dial_byte = %u\n"      \
- 	"\t},\n"                            \
- 	"}\n"
- 
-@@ -281,6 +291,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 	(_params)->frame_list[0].touch_ring_byte,                   \
- 	(_params)->frame_list[0].touch_ring_max,                    \
- 	(_params)->frame_list[0].touch_ring_flip_at,                \
-+	(_params)->frame_list[0].bitmap_dial_byte,                  \
- 	(_params)->frame_list[1].desc_ptr,                          \
- 	(_params)->frame_list[1].desc_size,                         \
- 	(_params)->frame_list[1].id,                                \
-@@ -290,6 +301,7 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 	(_params)->frame_list[1].touch_ring_byte,                   \
- 	(_params)->frame_list[1].touch_ring_max,                    \
- 	(_params)->frame_list[1].touch_ring_flip_at,                \
-+	(_params)->frame_list[1].bitmap_dial_byte,                  \
- 	(_params)->frame_list[2].desc_ptr,                          \
- 	(_params)->frame_list[2].desc_size,                         \
- 	(_params)->frame_list[2].id,                                \
-@@ -298,7 +310,8 @@ extern int uclogic_params_init(struct uclogic_params *params,
- 	(_params)->frame_list[2].dev_id_byte,                       \
- 	(_params)->frame_list[2].touch_ring_byte,                   \
- 	(_params)->frame_list[2].touch_ring_max,                    \
--	(_params)->frame_list[2].touch_ring_flip_at
-+	(_params)->frame_list[2].touch_ring_flip_at,                \
-+	(_params)->frame_list[2].bitmap_dial_byte
- 
- /* Get a replacement report descriptor for a tablet's interface. */
- extern int uclogic_params_get_desc(const struct uclogic_params *params,
+
+
 -- 
-2.25.1
-
+Marcos H. Alano
+Linux System Administrator
+marcoshalano@gmail.com

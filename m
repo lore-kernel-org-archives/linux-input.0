@@ -2,60 +2,60 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECFE2C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 14 Apr 2022 11:10:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 92ABDC433EF
+	for <linux-input@archiver.kernel.org>; Thu, 14 Apr 2022 11:10:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242583AbiDNLM1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 Apr 2022 07:12:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41630 "EHLO
+        id S242562AbiDNLM3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 Apr 2022 07:12:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242561AbiDNLMU (ORCPT
+        with ESMTP id S242572AbiDNLM0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 Apr 2022 07:12:20 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11D5627FD9;
-        Thu, 14 Apr 2022 04:09:54 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id k22so6425497wrd.2;
-        Thu, 14 Apr 2022 04:09:53 -0700 (PDT)
+        Thu, 14 Apr 2022 07:12:26 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2B078118A;
+        Thu, 14 Apr 2022 04:09:57 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id u17-20020a05600c211100b0038eaf4cdaaeso5746941wml.1;
+        Thu, 14 Apr 2022 04:09:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=L2Vs4ciu46ou2hNULWCHI54Lmxg3kp1yv38/f1qW9TE=;
-        b=oRbld8DbCKjE48EmaQZDoxwbiXFMx3PCduuGm9hCXb1jL1ysEV7Uvyzqc6E8boU+kK
-         0whFkb+WeBhwT2dhYVRLcLtJlNP3GHbTncmtn/lpZZe5fd8dgwEtjY0V7rAcx8x4wUkr
-         WNQO6zXHaypzGmequZfSw+BSO2FhdK1Ta2AeNYx2AmrDmO32LqMTLT3cN5l9FRj7qDYL
-         bhN6btUlPxiX/H0/wrR/lTLgl7tAg7P7g2zi5r6P2BLkwxvVyuV1XHOw3Et33nv3sAWq
-         B+ufnLesAp8p4rkcaJjmJRtoT1ptnWAGl0p/trEWugqfEtCfKSGZ+s9UXQmr9mzxrRHp
-         s6eg==
+        bh=8VPdWlC5lQxtIDojBOmXDijOL+J6H2I/qPY01pdxxCU=;
+        b=B9EZNEvWfnSgYiKm2pYkH+B0GkyXDmOadMYvoufkbt/WGAPIM0IgQkzD7xgL7m9qQ1
+         OboLsB0Q/xkqEh+11ca+T98KRJlxkj5WJgQIUUhm56t2M1uGhBFpI7/te4KAHJrUplSg
+         MO09jx8wm3AsysS5qtxa3wV84JcD+rsGe8/Zs86FwAnPjNukXjRiSwnv6SnU4uzoaChK
+         3l+d1kl0+JS4zH7LwhKGTiGtdmiAWfiM4ObLo5U5nOF2YTWl0LaC6obooPc41ErFJNZt
+         C8lReJa86lcBRZo/J6O6IwXUwuwVHjrxFK+bU2vNTaROPBRjdq2lFhxDBkwOGJ6/NAVS
+         pg/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=L2Vs4ciu46ou2hNULWCHI54Lmxg3kp1yv38/f1qW9TE=;
-        b=cPKDLlfP0YsGtoq5JUVY/KGXjGq2p7djvWJbriTZ71QrL3RwYHniqKaqa7hqtVbpwQ
-         P76vyQ/dZeQNWqP+86IFYNHfsXEmV92uq+p68vQ3UY3wXgTSpDd5B8VVSMy/xd2e6XH9
-         iWPYAeN3IeoYvTQe1nBJhEZXD9JWlwKeb8JDyn/qb8eED4vKmiGQ0K3JqRnUkBJ/v8eL
-         iNf0gYr78h8Pr9nWxEsuFdKjZFAouzZFnBFnmjQ1NvTsZuSr5w6/0vd9d2h8g1aLImPV
-         MFpTqab6UkHtSTfY7HUUecavbW5JeN4+o9uAaJXOjZujVZOtslWp6NO7XGU/wls1QAvv
-         lo1Q==
-X-Gm-Message-State: AOAM533H0TCoKPQrOEJxh9DFhazEaGfacZDG7RZH9U5jl+TNVuY1GX/n
-        5rshhiV4VOsxgpvmMvfYrxk=
-X-Google-Smtp-Source: ABdhPJxPL0P4OOOsTGIIoNLZH8gYlpV+8nQ6jU3JSG7Pcv77RmrE9z3xY598Yly8sTnnxm4yQvmGyA==
-X-Received: by 2002:adf:d1e5:0:b0:205:85f5:656c with SMTP id g5-20020adfd1e5000000b0020585f5656cmr1684250wrd.65.1649934592493;
-        Thu, 14 Apr 2022 04:09:52 -0700 (PDT)
+        bh=8VPdWlC5lQxtIDojBOmXDijOL+J6H2I/qPY01pdxxCU=;
+        b=ZlBUyDhJ5+eJEYnficI9nZ7/S77vbtyLsRDPnU76JFDq4AC2YKonL671SI71S96FFP
+         quKSVZQ3f+Yf3rvNjpoQ/ThKw9DrTQbtat0x8kSjbPwIos03ArlDFnIoo3AiOnqLVx0K
+         y8a5aP7RHufPuxmVVlrXQb6Y4XOEpCDP1i7G0rLicSNuVbUPSGzGvpX3ed0YY/MWVauM
+         Gk1qEMFEDTlaqVPWfdH/cgI6URRdzIm3mbtz6R4aTtlzSfc/B45QfSm/l2SOa7MkO19x
+         rfvj3hsv+8eMbTHlmu7DfsnFyeJWmZiYy9TIBzkyhQoocN24845rE0RjL/7u4LPAwBB1
+         LJvA==
+X-Gm-Message-State: AOAM5333woa4cHuOlJM88yw/cl1iqD1q6A5GTLOyrIIAxevVpbkXR0DY
+        T1oS1O24SJIH6QAH+a7oLbE=
+X-Google-Smtp-Source: ABdhPJz9OECA6Jnk5BjeyoGYro/YlaFuri49rE99Elu+5ph4M5m0IuO81LKNi5YctfA3hn3zGZAlOg==
+X-Received: by 2002:a05:600c:4ecb:b0:38e:d223:b0b4 with SMTP id g11-20020a05600c4ecb00b0038ed223b0b4mr2623518wmq.92.1649934596513;
+        Thu, 14 Apr 2022 04:09:56 -0700 (PDT)
 Received: from localhost.localdomain ([94.73.37.128])
-        by smtp.gmail.com with ESMTPSA id f13-20020a5d64cd000000b0020787751295sm1694504wri.35.2022.04.14.04.09.47
+        by smtp.gmail.com with ESMTPSA id f13-20020a5d64cd000000b0020787751295sm1694504wri.35.2022.04.14.04.09.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Apr 2022 04:09:52 -0700 (PDT)
+        Thu, 14 Apr 2022 04:09:56 -0700 (PDT)
 From:   =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
 To:     jikos@kernel.org
 Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH for-5.19/uclogic 2/4] HID: uclogic: Reduce indent for params format str/args
-Date:   Thu, 14 Apr 2022 13:09:34 +0200
-Message-Id: <20220414110936.146378-3-jose.exposito89@gmail.com>
+Subject: [PATCH for-5.19/uclogic 4/4] HID: uclogic: Add support for Huion Q620M
+Date:   Thu, 14 Apr 2022 13:09:36 +0200
+Message-Id: <20220414110936.146378-5-jose.exposito89@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220414110936.146378-1-jose.exposito89@gmail.com>
 References: <20220414110936.146378-1-jose.exposito89@gmail.com>
@@ -68,214 +68,136 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Nikolai Kondrashov <spbnick@gmail.com>
 
-Improve legibility of UCLOGIC_PARAMS_FMT_STR/ARGS.
+The Huion Q620M tablet needs a v2 frame dial.
 
 Signed-off-by: Nikolai Kondrashov <spbnick@gmail.com>
 Signed-off-by: José Expósito <jose.exposito89@gmail.com>
 ---
- drivers/hid/hid-uclogic-params.h | 186 +++++++++++++++----------------
- 1 file changed, 93 insertions(+), 93 deletions(-)
+ drivers/hid/hid-uclogic-params.c | 20 +++++++++++++
+ drivers/hid/hid-uclogic-rdesc.c  | 50 ++++++++++++++++++++++++++++++++
+ drivers/hid/hid-uclogic-rdesc.h  | 10 +++++++
+ 3 files changed, 80 insertions(+)
 
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index ebf84b56746b..78965e683d20 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -203,102 +203,102 @@ extern int uclogic_params_init(struct uclogic_params *params,
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 3ac45e7572a0..09c332c6a412 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -777,6 +777,23 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
+ 			p.frame_list[1].touch_ring_max = 12;
+ 			p.frame_list[1].touch_ring_flip_at = 6;
  
- /* Tablet interface parameters *printf format string */
- #define UCLOGIC_PARAMS_FMT_STR \
--		".invalid = %s\n"                   \
--		".desc_ptr = %p\n"                  \
--		".desc_size = %u\n"                 \
--		".pen = {\n"                        \
--		"\t.desc_ptr = %p\n"                \
--		"\t.desc_size = %u\n"               \
--		"\t.id = %u\n"                      \
--		"\t.subreport_list = {\n"           \
--		"\t\t{0x%02hhx, %hhu},\n"           \
--		"\t\t{0x%02hhx, %hhu},\n"           \
--		"\t\t{0x%02hhx, %hhu},\n"           \
--		"\t}\n"                             \
--		"\t.inrange = %s\n"                 \
--		"\t.fragmented_hires = %s\n"        \
--		"\t.tilt_y_flipped = %s\n"          \
--		"}\n"                               \
--		".frame_list = {\n"                 \
--		"\t{\n"                             \
--		"\t\t.desc_ptr = %p\n"              \
--		"\t\t.desc_size = %u\n"             \
--		"\t\t.id = %u\n"                    \
--		"\t\t.suffix = %s\n"                \
--		"\t\t.re_lsb = %u\n"                \
--		"\t\t.dev_id_byte = %u\n"           \
--		"\t\t.touch_ring_byte = %u\n"       \
--		"\t\t.touch_ring_max = %hhd\n"      \
--		"\t\t.touch_ring_flip_at = %hhd\n"  \
--		"\t},\n"                            \
--		"\t{\n"                             \
--		"\t\t.desc_ptr = %p\n"              \
--		"\t\t.desc_size = %u\n"             \
--		"\t\t.id = %u\n"                    \
--		"\t\t.suffix = %s\n"                \
--		"\t\t.re_lsb = %u\n"                \
--		"\t\t.dev_id_byte = %u\n"           \
--		"\t\t.touch_ring_byte = %u\n"       \
--		"\t\t.touch_ring_max = %hhd\n"      \
--		"\t\t.touch_ring_flip_at = %hhd\n"  \
--		"\t},\n"                            \
--		"\t{\n"                             \
--		"\t\t.desc_ptr = %p\n"              \
--		"\t\t.desc_size = %u\n"             \
--		"\t\t.id = %u\n"                    \
--		"\t\t.suffix = %s\n"                \
--		"\t\t.re_lsb = %u\n"                \
--		"\t\t.dev_id_byte = %u\n"           \
--		"\t\t.touch_ring_byte = %u\n"       \
--		"\t\t.touch_ring_max = %hhd\n"      \
--		"\t\t.touch_ring_flip_at = %hhd\n"  \
--		"\t},\n"                            \
--		"}\n"
-+	".invalid = %s\n"                   \
-+	".desc_ptr = %p\n"                  \
-+	".desc_size = %u\n"                 \
-+	".pen = {\n"                        \
-+	"\t.desc_ptr = %p\n"                \
-+	"\t.desc_size = %u\n"               \
-+	"\t.id = %u\n"                      \
-+	"\t.subreport_list = {\n"           \
-+	"\t\t{0x%02hhx, %hhu},\n"           \
-+	"\t\t{0x%02hhx, %hhu},\n"           \
-+	"\t\t{0x%02hhx, %hhu},\n"           \
-+	"\t}\n"                             \
-+	"\t.inrange = %s\n"                 \
-+	"\t.fragmented_hires = %s\n"        \
-+	"\t.tilt_y_flipped = %s\n"          \
-+	"}\n"                               \
-+	".frame_list = {\n"                 \
-+	"\t{\n"                             \
-+	"\t\t.desc_ptr = %p\n"              \
-+	"\t\t.desc_size = %u\n"             \
-+	"\t\t.id = %u\n"                    \
-+	"\t\t.suffix = %s\n"                \
-+	"\t\t.re_lsb = %u\n"                \
-+	"\t\t.dev_id_byte = %u\n"           \
-+	"\t\t.touch_ring_byte = %u\n"       \
-+	"\t\t.touch_ring_max = %hhd\n"      \
-+	"\t\t.touch_ring_flip_at = %hhd\n"  \
-+	"\t},\n"                            \
-+	"\t{\n"                             \
-+	"\t\t.desc_ptr = %p\n"              \
-+	"\t\t.desc_size = %u\n"             \
-+	"\t\t.id = %u\n"                    \
-+	"\t\t.suffix = %s\n"                \
-+	"\t\t.re_lsb = %u\n"                \
-+	"\t\t.dev_id_byte = %u\n"           \
-+	"\t\t.touch_ring_byte = %u\n"       \
-+	"\t\t.touch_ring_max = %hhd\n"      \
-+	"\t\t.touch_ring_flip_at = %hhd\n"  \
-+	"\t},\n"                            \
-+	"\t{\n"                             \
-+	"\t\t.desc_ptr = %p\n"              \
-+	"\t\t.desc_size = %u\n"             \
-+	"\t\t.id = %u\n"                    \
-+	"\t\t.suffix = %s\n"                \
-+	"\t\t.re_lsb = %u\n"                \
-+	"\t\t.dev_id_byte = %u\n"           \
-+	"\t\t.touch_ring_byte = %u\n"       \
-+	"\t\t.touch_ring_max = %hhd\n"      \
-+	"\t\t.touch_ring_flip_at = %hhd\n"  \
-+	"\t},\n"                            \
-+	"}\n"
++			/* Create v2 frame dial parameters */
++			rc = uclogic_params_frame_init_with_desc(
++					&p.frame_list[2],
++					uclogic_rdesc_v2_frame_dial_arr,
++					uclogic_rdesc_v2_frame_dial_size,
++					UCLOGIC_RDESC_V2_FRAME_DIAL_ID);
++			if (rc != 0) {
++				hid_err(hdev,
++					"failed creating v2 frame dial parameters: %d\n",
++					rc);
++				goto cleanup;
++			}
++			p.frame_list[2].suffix = "Dial";
++			p.frame_list[2].dev_id_byte =
++				UCLOGIC_RDESC_V2_FRAME_DIAL_DEV_ID_BYTE;
++			p.frame_list[2].bitmap_dial_byte = 5;
++
+ 			/*
+ 			 * Link button and touch ring subreports from pen
+ 			 * reports
+@@ -787,6 +804,9 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
+ 			p.pen.subreport_list[1].value = 0xf0;
+ 			p.pen.subreport_list[1].id =
+ 				UCLOGIC_RDESC_V2_FRAME_TOUCH_RING_ID;
++			p.pen.subreport_list[2].value = 0xf1;
++			p.pen.subreport_list[2].id =
++				UCLOGIC_RDESC_V2_FRAME_DIAL_ID;
+ 			goto output;
+ 		}
+ 		hid_dbg(hdev, "pen v2 parameters not found\n");
+diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
+index d64b607dce5d..dd792160fe7e 100644
+--- a/drivers/hid/hid-uclogic-rdesc.c
++++ b/drivers/hid/hid-uclogic-rdesc.c
+@@ -761,6 +761,56 @@ const __u8 uclogic_rdesc_v2_frame_touch_ring_arr[] = {
+ const size_t uclogic_rdesc_v2_frame_touch_ring_size =
+ 			sizeof(uclogic_rdesc_v2_frame_touch_ring_arr);
  
- /* Tablet interface parameters *printf format arguments */
- #define UCLOGIC_PARAMS_FMT_ARGS(_params) \
--		((_params)->invalid ? "true" : "false"),                    \
--		(_params)->desc_ptr,                                        \
--		(_params)->desc_size,                                       \
--		(_params)->pen.desc_ptr,                                    \
--		(_params)->pen.desc_size,                                   \
--		(_params)->pen.id,                                          \
--		(_params)->pen.subreport_list[0].value,                     \
--		(_params)->pen.subreport_list[0].id,                        \
--		(_params)->pen.subreport_list[1].value,                     \
--		(_params)->pen.subreport_list[1].id,                        \
--		(_params)->pen.subreport_list[2].value,                     \
--		(_params)->pen.subreport_list[2].id,                        \
--		uclogic_params_pen_inrange_to_str((_params)->pen.inrange),  \
--		((_params)->pen.fragmented_hires ? "true" : "false"),       \
--		((_params)->pen.tilt_y_flipped ? "true" : "false"),         \
--		(_params)->frame_list[0].desc_ptr,                          \
--		(_params)->frame_list[0].desc_size,                         \
--		(_params)->frame_list[0].id,                                \
--		(_params)->frame_list[0].suffix,                            \
--		(_params)->frame_list[0].re_lsb,                            \
--		(_params)->frame_list[0].dev_id_byte,                       \
--		(_params)->frame_list[0].touch_ring_byte,                   \
--		(_params)->frame_list[0].touch_ring_max,                    \
--		(_params)->frame_list[0].touch_ring_flip_at,                \
--		(_params)->frame_list[1].desc_ptr,                          \
--		(_params)->frame_list[1].desc_size,                         \
--		(_params)->frame_list[1].id,                                \
--		(_params)->frame_list[1].suffix,                            \
--		(_params)->frame_list[1].re_lsb,                            \
--		(_params)->frame_list[1].dev_id_byte,                       \
--		(_params)->frame_list[1].touch_ring_byte,                   \
--		(_params)->frame_list[1].touch_ring_max,                    \
--		(_params)->frame_list[1].touch_ring_flip_at,                \
--		(_params)->frame_list[2].desc_ptr,                          \
--		(_params)->frame_list[2].desc_size,                         \
--		(_params)->frame_list[2].id,                                \
--		(_params)->frame_list[2].suffix,                            \
--		(_params)->frame_list[2].re_lsb,                            \
--		(_params)->frame_list[2].dev_id_byte,                       \
--		(_params)->frame_list[2].touch_ring_byte,                   \
--		(_params)->frame_list[2].touch_ring_max,                    \
--		(_params)->frame_list[2].touch_ring_flip_at
-+	((_params)->invalid ? "true" : "false"),                    \
-+	(_params)->desc_ptr,                                        \
-+	(_params)->desc_size,                                       \
-+	(_params)->pen.desc_ptr,                                    \
-+	(_params)->pen.desc_size,                                   \
-+	(_params)->pen.id,                                          \
-+	(_params)->pen.subreport_list[0].value,                     \
-+	(_params)->pen.subreport_list[0].id,                        \
-+	(_params)->pen.subreport_list[1].value,                     \
-+	(_params)->pen.subreport_list[1].id,                        \
-+	(_params)->pen.subreport_list[2].value,                     \
-+	(_params)->pen.subreport_list[2].id,                        \
-+	uclogic_params_pen_inrange_to_str((_params)->pen.inrange),  \
-+	((_params)->pen.fragmented_hires ? "true" : "false"),       \
-+	((_params)->pen.tilt_y_flipped ? "true" : "false"),         \
-+	(_params)->frame_list[0].desc_ptr,                          \
-+	(_params)->frame_list[0].desc_size,                         \
-+	(_params)->frame_list[0].id,                                \
-+	(_params)->frame_list[0].suffix,                            \
-+	(_params)->frame_list[0].re_lsb,                            \
-+	(_params)->frame_list[0].dev_id_byte,                       \
-+	(_params)->frame_list[0].touch_ring_byte,                   \
-+	(_params)->frame_list[0].touch_ring_max,                    \
-+	(_params)->frame_list[0].touch_ring_flip_at,                \
-+	(_params)->frame_list[1].desc_ptr,                          \
-+	(_params)->frame_list[1].desc_size,                         \
-+	(_params)->frame_list[1].id,                                \
-+	(_params)->frame_list[1].suffix,                            \
-+	(_params)->frame_list[1].re_lsb,                            \
-+	(_params)->frame_list[1].dev_id_byte,                       \
-+	(_params)->frame_list[1].touch_ring_byte,                   \
-+	(_params)->frame_list[1].touch_ring_max,                    \
-+	(_params)->frame_list[1].touch_ring_flip_at,                \
-+	(_params)->frame_list[2].desc_ptr,                          \
-+	(_params)->frame_list[2].desc_size,                         \
-+	(_params)->frame_list[2].id,                                \
-+	(_params)->frame_list[2].suffix,                            \
-+	(_params)->frame_list[2].re_lsb,                            \
-+	(_params)->frame_list[2].dev_id_byte,                       \
-+	(_params)->frame_list[2].touch_ring_byte,                   \
-+	(_params)->frame_list[2].touch_ring_max,                    \
-+	(_params)->frame_list[2].touch_ring_flip_at
++/* Fixed report descriptor for (tweaked) v2 frame dial reports */
++const __u8 uclogic_rdesc_v2_frame_dial_arr[] = {
++	0x05, 0x01,         /*  Usage Page (Desktop),               */
++	0x09, 0x07,         /*  Usage (Keypad),                     */
++	0xA1, 0x01,         /*  Collection (Application),           */
++	0x85, UCLOGIC_RDESC_V2_FRAME_DIAL_ID,
++			    /*      Report ID (DIAL_ID),            */
++	0x14,               /*      Logical Minimum (0),            */
++	0x05, 0x0D,         /*      Usage Page (Digitizer),         */
++	0x09, 0x39,         /*      Usage (Tablet Function Keys),   */
++	0xA0,               /*      Collection (Physical),          */
++	0x25, 0x01,         /*          Logical Maximum (1),        */
++	0x75, 0x01,         /*          Report Size (1),            */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x81, 0x01,         /*          Input (Constant),           */
++	0x05, 0x09,         /*          Usage Page (Button),        */
++	0x09, 0x01,         /*          Usage (01h),                */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x95, 0x06,         /*          Report Count (6),           */
++	0x81, 0x01,         /*          Input (Constant),           */
++	0x75, 0x08,         /*          Report Size (8),            */
++	0x95, 0x02,         /*          Report Count (2),           */
++	0x81, 0x01,         /*          Input (Constant),           */
++	0x05, 0x0D,         /*          Usage Page (Digitizer),     */
++	0x0A, 0xFF, 0xFF,   /*          Usage (FFFFh),              */
++	0x26, 0xFF, 0x00,   /*          Logical Maximum (255),      */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x05, 0x01,         /*          Usage Page (Desktop),       */
++	0x09, 0x38,         /*          Usage (Wheel),              */
++	0x95, 0x01,         /*          Report Count (1),           */
++	0x15, 0xFF,         /*          Logical Minimum (-1),       */
++	0x25, 0x01,         /*          Logical Maximum (1),        */
++	0x81, 0x06,         /*          Input (Variable, Relative), */
++	0x09, 0x30,         /*          Usage (X),                  */
++	0x09, 0x31,         /*          Usage (Y),                  */
++	0x14,               /*          Logical Minimum (0),        */
++	0x25, 0x01,         /*          Logical Maximum (1),        */
++	0x75, 0x01,         /*          Report Size (1),            */
++	0x95, 0x02,         /*          Report Count (2),           */
++	0x81, 0x02,         /*          Input (Variable),           */
++	0x95, 0x2E,         /*          Report Count (46),          */
++	0x81, 0x01,         /*          Input (Constant),           */
++	0xC0,               /*      End Collection,                 */
++	0xC0                /*  End Collection                      */
++};
++const size_t uclogic_rdesc_v2_frame_dial_size =
++			sizeof(uclogic_rdesc_v2_frame_dial_arr);
++
+ /* Fixed report descriptor for Ugee EX07 frame */
+ const __u8 uclogic_rdesc_ugee_ex07_frame_arr[] = {
+ 	0x05, 0x01,             /*  Usage Page (Desktop),                   */
+diff --git a/drivers/hid/hid-uclogic-rdesc.h b/drivers/hid/hid-uclogic-rdesc.h
+index f15a9d8a946b..2ab6b7d5f5af 100644
+--- a/drivers/hid/hid-uclogic-rdesc.h
++++ b/drivers/hid/hid-uclogic-rdesc.h
+@@ -141,6 +141,16 @@ extern const size_t uclogic_rdesc_v2_frame_touch_ring_size;
+ /* Device ID byte offset in v2 frame touch ring reports */
+ #define UCLOGIC_RDESC_V2_FRAME_TOUCH_RING_DEV_ID_BYTE	0x4
  
- /* Get a replacement report descriptor for a tablet's interface. */
- extern int uclogic_params_get_desc(const struct uclogic_params *params,
++/* Report ID for tweaked v2 frame dial reports */
++#define UCLOGIC_RDESC_V2_FRAME_DIAL_ID 0xf9
++
++/* Fixed report descriptor for (tweaked) v2 frame dial reports */
++extern const __u8 uclogic_rdesc_v2_frame_dial_arr[];
++extern const size_t uclogic_rdesc_v2_frame_dial_size;
++
++/* Device ID byte offset in v2 frame dial reports */
++#define UCLOGIC_RDESC_V2_FRAME_DIAL_DEV_ID_BYTE	0x4
++
+ /* Fixed report descriptor for Ugee EX07 frame */
+ extern const __u8 uclogic_rdesc_ugee_ex07_frame_arr[];
+ extern const size_t uclogic_rdesc_ugee_ex07_frame_size;
 -- 
 2.25.1
 

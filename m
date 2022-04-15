@@ -2,109 +2,127 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E195C433F5
-	for <linux-input@archiver.kernel.org>; Fri, 15 Apr 2022 15:37:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 069E5C433FE
+	for <linux-input@archiver.kernel.org>; Fri, 15 Apr 2022 18:21:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355301AbiDOPjr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 15 Apr 2022 11:39:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37304 "EHLO
+        id S1345812AbiDOSYH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 15 Apr 2022 14:24:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356316AbiDOPjd (ORCPT
+        with ESMTP id S230166AbiDOSYG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Apr 2022 11:39:33 -0400
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 089F83CFC5
-        for <linux-input@vger.kernel.org>; Fri, 15 Apr 2022 08:37:04 -0700 (PDT)
-Received: by mail-wm1-x330.google.com with SMTP id l62-20020a1c2541000000b0038e4570af2fso5220973wml.5
-        for <linux-input@vger.kernel.org>; Fri, 15 Apr 2022 08:37:03 -0700 (PDT)
+        Fri, 15 Apr 2022 14:24:06 -0400
+Received: from mail-ej1-x633.google.com (mail-ej1-x633.google.com [IPv6:2a00:1450:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E198E183;
+        Fri, 15 Apr 2022 11:21:37 -0700 (PDT)
+Received: by mail-ej1-x633.google.com with SMTP id bv19so16590795ejb.6;
+        Fri, 15 Apr 2022 11:21:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
+        d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=9jbG8zhZKbTiE7ZNDTYGG07uuZNvNsy0rqtU9fqaUgM=;
-        b=r2+ahgDRgkvtXt6wiCkeTrKl7ytYvippEBpvGHj4DgfAHDnQMrEame754zG4uQVNsE
-         rfI2ZE9y8R67O6QaTY0uE58yVfMG/3dl83oT5Q/98Q42/Seugf2HPqrvSDIeqnJXhRmR
-         JekwubM7J5hX4B2qYKeVeSGEwlzYf58zMQtn9nBEDe1rdXtIQKQiX9qdA3zxGff3a6jg
-         naVi5VnD0LlyhURGOhSfS0fXxKQ1hU5VerYHSSzSWNpDLOXAmt4HR7y2t4FiXZQQUzU+
-         vNQPi6f4IFu0vX4u290SrXld80lfMhq/aJwIIZoaDIRg7W2gxjzk2zceNBtvKHx42W3M
-         +eTw==
+        bh=aY2i70GcxPM0t2j3zWxTuNc97f9BOBUas6jIJc8m0/0=;
+        b=e2/JQZr5KfImS1MZLgF8x0G8Ugy+IalHb4/nfvLGJljKEkBueU3lYaCB6l++dVJ2T2
+         ct7bfOhn4kEOMv+637QbdyhS9JUFuWIoT9foyYKwaGCbT9bFqZUYsTnaiKTD9uskqf1j
+         Ek9/HZErQ7IiXqI6RvMJuUn9R8IxNG2NlBjMcwnlzzK17Ov3AF0ti/AzlowENM8JsNq4
+         pXnobt4hQF+ymQv/PVIbX3kgj1HEiuqYxgu1jMqbL7gO0MGI0zbaxM2B3Q4eqEy79MlW
+         VNgXQHbrgoHdPuzekv1iCnAbGCs3o6x/0wFq/NQm/cRzvlIeNqPwCPoNz/bAoJG8VhuK
+         EsLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=9jbG8zhZKbTiE7ZNDTYGG07uuZNvNsy0rqtU9fqaUgM=;
-        b=TwIPQmsu188v4p1KuD+IeFlKV1WelLJfLCdikBmjJRc4cjTZ6hIv3znBv4pE4fZiMt
-         uYayA+wsqsTMhq9Jtalzhbth84EhNIotvATyjloiyzi/H7QGyskTsmLurKgTMZwLcYPd
-         myrklS6e5e8eG6Bj+rf4YAZTUXWZy5S2rGlfnodnDIPIBWj0BngK5quNF7kfZdt5IYpx
-         wCTnvSCDRATkKHmJwBPnrvDhAGyYD3vwSl90MMS+anzv7T1wCzuwatxKA+ttUptny5mc
-         xwiJ6z4Knr6AouVCnObGvapmrprE1fqZR6y5WrGDkkFvB+9kZhYQSYZ5Sh17gkulWU73
-         D5CQ==
-X-Gm-Message-State: AOAM531e7GmWgufh+ifInJip2fn/yiMNfL0LzXDpBriO/0zWE00Z00wx
-        LzdCDYXi/0F7x8X1+B4/FEIBmw==
-X-Google-Smtp-Source: ABdhPJyZ8vjESL1eqz3zOr0c6KrLsevpBtztK3bxcy3XYw0G+YAKg44wfGRodkrXogvKzjUSa6pUBQ==
-X-Received: by 2002:a7b:c057:0:b0:37b:ebad:c9c8 with SMTP id u23-20020a7bc057000000b0037bebadc9c8mr3745781wmc.61.1650037022651;
-        Fri, 15 Apr 2022 08:37:02 -0700 (PDT)
-Received: from localhost.localdomain ([88.160.162.107])
-        by smtp.gmail.com with ESMTPSA id c24-20020a7bc018000000b0038a18068cf5sm8459292wmb.15.2022.04.15.08.37.01
+        bh=aY2i70GcxPM0t2j3zWxTuNc97f9BOBUas6jIJc8m0/0=;
+        b=G6lleSX1SgwLSr2wA3k8Jg6VXp6v/i3CywHieje0/OshcBjlqBRwwuYee5vbH68Y4i
+         fBV6Rbr2y0ToZKPpDcK+bu/MK9UwEBkVYMjf5N/UM+7v/IJcIUQRE5rovIPirwNdePsx
+         ScQMlhTdxlUI4nWTrlY9COQQOEgciZ9qXB4WKpmMhBN27QF+CE9eM14oh5/rdUtxj4ZS
+         9A1VNngYoMgJ+WyoPdr6W0C++LiMZwTUa0Z0/VwWKIDT8/5ymL8d5vorBrPJL7CO9f5s
+         0T9eKJkW+FCLyh9vgN0U46w3SKBJSEwJLcTz6pC2BWN6nlBaKjm1Tl41zBXaaL611F6k
+         mdxQ==
+X-Gm-Message-State: AOAM532em0Nmsa4iSZ0HuTAvHpKnXLWqihgeuW1y8f/75Je6l2XkIQY7
+        9r3OtUT+QjcK4YVSk6D/E4M=
+X-Google-Smtp-Source: ABdhPJzCq6JERosCiAk6D1rln8EykVMZGfAoAS2LM2VBpWXvpllvzlCPidoEpqmP3Q4iCLXYpm4R5w==
+X-Received: by 2002:a17:907:168a:b0:6e8:d125:1d24 with SMTP id hc10-20020a170907168a00b006e8d1251d24mr273806ejc.508.1650046896395;
+        Fri, 15 Apr 2022 11:21:36 -0700 (PDT)
+Received: from jernej-laptop.localnet (89-212-118-115.static.t-2.net. [89.212.118.115])
+        by smtp.gmail.com with ESMTPSA id lb4-20020a170907784400b006e0d13f65e5sm1910608ejc.167.2022.04.15.11.21.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Apr 2022 08:37:02 -0700 (PDT)
-From:   Fabien Parent <fparent@baylibre.com>
+        Fri, 15 Apr 2022 11:21:36 -0700 (PDT)
+From:   Jernej =?utf-8?B?xaBrcmFiZWM=?= <jernej.skrabec@gmail.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Cc:     Fabien Parent <fparent@baylibre.com>, linux-input@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 5/7] Input: mtk-pmic-keys: add field to store if PMIC has key release IRQs
-Date:   Fri, 15 Apr 2022 17:36:27 +0200
-Message-Id: <20220415153629.1817202-6-fparent@baylibre.com>
-X-Mailer: git-send-email 2.35.2
-In-Reply-To: <20220415153629.1817202-1-fparent@baylibre.com>
-References: <20220415153629.1817202-1-fparent@baylibre.com>
+        Hans de Goede <hdegoede@redhat.com>,
+        Samuel Holland <samuel@sholland.org>
+Cc:     Samuel Holland <samuel@sholland.org>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Rob Herring <robh@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Maxime Ripard <mripard@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-sunxi@lists.linux.dev
+Subject: Re: [PATCH v2 3/3] Input: sun4i-lradc-keys: Add support for R329 and D1
+Date:   Fri, 15 Apr 2022 20:21:34 +0200
+Message-ID: <2097461.irdbgypaU6@jernej-laptop>
+In-Reply-To: <20220414002349.24332-3-samuel@sholland.org>
+References: <20220414002349.24332-1-samuel@sholland.org> <20220414002349.24332-3-samuel@sholland.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The MT6358 PMIC is not the only PMIC to have release IRQs. In order to
-support more PMIC that supports release IRQs, such as MT6357, MT6359,
-and possibly others, let's add some field in the platform data to
-indicate whether a PMIC support release keys.
+Dne =C4=8Detrtek, 14. april 2022 ob 02:23:48 CEST je Samuel Holland napisal=
+(a):
+> This LRADC variant uses the same 3/4*AVCC reference voltage as the A83T
+> variant. The R329 and D1 LRADCs appear to be identical, so D1 support is
+> accomplished through having the R329 LRADC as a fallback compatible.
+>=20
+> Signed-off-by: Samuel Holland <samuel@sholland.org>
 
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
----
- drivers/input/keyboard/mtk-pmic-keys.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 
-diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index a0da644fe93d..609b87afd020 100644
---- a/drivers/input/keyboard/mtk-pmic-keys.c
-+++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -53,6 +53,7 @@ struct mtk_pmic_keys_regs {
- struct mtk_pmic_keys_pdata {
- 	const struct mtk_pmic_keys_regs keys_regs[MTK_PMIC_MAX_KEY_COUNT];
- 	u32 pmic_rst_reg;
-+	bool has_key_release_irqs;
- };
- 
- static const struct mtk_pmic_keys_pdata mt6397_pdata = {
-@@ -83,6 +84,7 @@ static const struct mtk_pmic_keys_pdata mt6358_pdata = {
- 		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
- 				   0x8, MT6358_PSC_TOP_INT_CON0, 0xa),
- 	.pmic_rst_reg = MT6358_TOP_RST_MISC,
-+	.has_key_release_irqs = true,
- };
- 
- struct mtk_pmic_keys_info {
-@@ -319,7 +321,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 			return keys->keys[index].irq;
- 		}
- 
--		if (of_device_is_compatible(node, "mediatek,mt6358-keys")) {
-+		if (mtk_pmic_keys_pdata->has_key_release_irqs) {
- 			keys->keys[index].irq_r = platform_get_irq_byname(pdev,
- 									  irqnames_r[index]);
- 
--- 
-2.35.2
+Best regards,
+Jernej
+
+> ---
+>=20
+> Changes in v2:
+>  - Set the new flag for the R329 variant.
+>=20
+>  drivers/input/keyboard/sun4i-lradc-keys.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+>=20
+> diff --git a/drivers/input/keyboard/sun4i-lradc-keys.c
+> b/drivers/input/keyboard/sun4i-lradc-keys.c index
+> 5630334a6c09..8f9bfb05244d 100644
+> --- a/drivers/input/keyboard/sun4i-lradc-keys.c
+> +++ b/drivers/input/keyboard/sun4i-lradc-keys.c
+> @@ -78,6 +78,12 @@ static const struct lradc_variant r_lradc_variant_a83t=
+ =3D
+> { .divisor_denominator =3D 4
+>  };
+>=20
+> +static const struct lradc_variant lradc_variant_r329 =3D {
+> +	.divisor_numerator =3D 3,
+> +	.divisor_denominator =3D 4,
+> +	.has_clock_reset =3D true,
+> +};
+> +
+>  struct sun4i_lradc_keymap {
+>  	u32 voltage;
+>  	u32 keycode;
+> @@ -323,6 +329,8 @@ static const struct of_device_id sun4i_lradc_of_match=
+[]
+> =3D { .data =3D &lradc_variant_a10 },
+>  	{ .compatible =3D "allwinner,sun8i-a83t-r-lradc",
+>  		.data =3D &r_lradc_variant_a83t },
+> +	{ .compatible =3D "allwinner,sun50i-r329-lradc",
+> +		.data =3D &lradc_variant_r329 },
+>  	{ /* sentinel */ }
+>  };
+>  MODULE_DEVICE_TABLE(of, sun4i_lradc_of_match);
+
+
+
 

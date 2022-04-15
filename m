@@ -2,61 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 145B5C433F5
-	for <linux-input@archiver.kernel.org>; Fri, 15 Apr 2022 15:37:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5057AC433FE
+	for <linux-input@archiver.kernel.org>; Fri, 15 Apr 2022 15:37:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355337AbiDOPjo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 15 Apr 2022 11:39:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37198 "EHLO
+        id S1348229AbiDOPjq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 15 Apr 2022 11:39:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356310AbiDOPjb (ORCPT
+        with ESMTP id S1356324AbiDOPje (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Apr 2022 11:39:31 -0400
+        Fri, 15 Apr 2022 11:39:34 -0400
 Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E01263C72F
-        for <linux-input@vger.kernel.org>; Fri, 15 Apr 2022 08:37:02 -0700 (PDT)
-Received: by mail-wm1-x32f.google.com with SMTP id n126-20020a1c2784000000b0038e8af3e788so5237637wmn.1
-        for <linux-input@vger.kernel.org>; Fri, 15 Apr 2022 08:37:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79AFC3C712
+        for <linux-input@vger.kernel.org>; Fri, 15 Apr 2022 08:37:05 -0700 (PDT)
+Received: by mail-wm1-x32f.google.com with SMTP id x3so5114572wmj.5
+        for <linux-input@vger.kernel.org>; Fri, 15 Apr 2022 08:37:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=WDWruGhytuHi8Hvh9Dd5EXmCI8L1q6rKOX9fLidj6Ec=;
-        b=7PMInzua21fpHF4kYL57dFlermowOW/PqKGwQW3jR3av/kD270Yz7hbxnumJtgBQZe
-         qTv0oUPTjvZJ/BIK4h9Rfj2/YizFRGCoEJTPeJV7gLczJ9GUhdouEgHr4dTvJcvc7DWA
-         ie3j/T1pAG0eWAf8WjtV3bekFzyv+C2k78Igwue3O8AULtfm08Hb0K5xw19m0BWHGPUL
-         /0YZN1+SUuUsmv8pGx7v5SS6Mdpln+x0dEEX9NoSK5i5fdB+ZqNwDcGkZuPaB3q9g9HQ
-         am556YuRXY6z19YPvt+WqjCMBWDsjvB5lX8ib7SaCcTkaBKkrVxYzfJdHgMY0U79NvcT
-         veIg==
+        bh=aOuA22Fnc3OP61xN2U3nVIxEXPTaTGZoGkevrFGNYyg=;
+        b=DyqkpaQ0iLmMxTSpSfK+MHcWI4dG85kzMTTwtuWYeCRYtIbx5bXRyT07WmWzHsFmI+
+         LI7CkRLc+ATmkIkjkRB9h7V4Mh98t7/3VuRbUF0WCDbS6f2SXmzSakByyD0Riyyh+BHk
+         z5lhZdYKONmGFs7ue+eR/heV4ycjYDy1Q7Tc41VQvf4+ih15zXlglAOI8WCf6WOV2LnS
+         6JnC6vlrDmKK02wcArS0L3jp8LUEjEwldHeD6qMv0Af21Wnar178mT4n7B4ByVi4nMAb
+         UccU/HRTf1L9z8lDcTAvb9l2ETglTQ1praXDN3tBtyA2Dp/Hudnldqd4NOKzHhFW7Xqf
+         Ql/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=WDWruGhytuHi8Hvh9Dd5EXmCI8L1q6rKOX9fLidj6Ec=;
-        b=ho5I4Hq+J0HQTxh5eAXQd+rw5kwwpoi7k+GJzOlHQ7uYAKCHKjU74WkfxYr7BiIbC7
-         7R5SkCHdQy3rFRv9NWZOWj0ac3y2YvdMy8EvoyCJcJByKYxZvwl1MAq8rBX1fEHqQeK4
-         YXzAClr6FQPSs4Toi7P9R0McH+Xx9D1T+JFBZmR3CXGzq9xuF+1MG+/d+xiR7gYvO6SF
-         vk2dZYZ1v4hj4aTK1LEbcNUwtlaDiNE8COvZX+TUFEhseYHmVNbvXQyPX0a8GT4lJVEa
-         w/yBKvMlP82Ej7B4jRHcyVy91yLwXy7rjfFUBnhCh+PlJEQFuYgsUAoZMEw2CGrF8mWf
-         gMkA==
-X-Gm-Message-State: AOAM533HLK5XJqrll06F//xayUgVpPVfU7pwBXGgBz3MiUST+kWpYMrY
-        5K0kq72T+EqJbsnCwwH21n9ySA==
-X-Google-Smtp-Source: ABdhPJw+A/iRYwe+lAeKns1b6yTF/VsCPkstrY3ipuTjcg6HrcxfTo54JB/+0tA8BqHvGSAeVJOP9Q==
-X-Received: by 2002:a1c:2b05:0:b0:392:5bfb:a0e2 with SMTP id r5-20020a1c2b05000000b003925bfba0e2mr521128wmr.165.1650037021444;
-        Fri, 15 Apr 2022 08:37:01 -0700 (PDT)
+        bh=aOuA22Fnc3OP61xN2U3nVIxEXPTaTGZoGkevrFGNYyg=;
+        b=FpEE0bhtPUBeq6dpCBX0t5Io8fv9vQGP7Yu0Tmt0dh6dCOEHyLFqyX4EuxTrCvIkmN
+         KW50NENKSF9MWq/QCLcOhHQLbtoI0d21sIbEvPELUjmUDMIprqHm2Ek6FNYsTDhAgfS1
+         KklAudSH23WDjGx5N3KDozrjH4G1F3LODdCK0wwL0v+yOKFEDYZt485fJF8DlRYt4Ulu
+         55XS6vp7WJAFFEBxRKloEvpHcChErTSX3yYINWNZqeAN9y1HY5rNnm0ohk9wFMUcLB78
+         51tV2JnilRKlevMAW267GCeE+kX6L+SgyaTkb/y/wXvfh7KCBi2cQ133j5Q06kuP5/xi
+         pwqg==
+X-Gm-Message-State: AOAM531vbQuxbDJSh3gl8fRNmLcdLep+f6830aBC3bRL1hQ7vV8yYRed
+        8H6zaPj0lZomJYbT+uhAGfd/FA==
+X-Google-Smtp-Source: ABdhPJx03NY3RAywsaD42S7tmhUjufCPfkN1P5jZuGzXIexElqoiAjwpZmPJGrrZ71UlLBgVNggQLw==
+X-Received: by 2002:a7b:c384:0:b0:38e:6b47:58c4 with SMTP id s4-20020a7bc384000000b0038e6b4758c4mr3783287wmj.134.1650037024073;
+        Fri, 15 Apr 2022 08:37:04 -0700 (PDT)
 Received: from localhost.localdomain ([88.160.162.107])
-        by smtp.gmail.com with ESMTPSA id c24-20020a7bc018000000b0038a18068cf5sm8459292wmb.15.2022.04.15.08.37.00
+        by smtp.gmail.com with ESMTPSA id c24-20020a7bc018000000b0038a18068cf5sm8459292wmb.15.2022.04.15.08.37.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 Apr 2022 08:37:01 -0700 (PDT)
+        Fri, 15 Apr 2022 08:37:03 -0700 (PDT)
 From:   Fabien Parent <fparent@baylibre.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Matthias Brugger <matthias.bgg@gmail.com>
 Cc:     Fabien Parent <fparent@baylibre.com>, linux-input@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/7] Input: mtk-pmic-keys: rename platform data struct
-Date:   Fri, 15 Apr 2022 17:36:26 +0200
-Message-Id: <20220415153629.1817202-5-fparent@baylibre.com>
+Subject: [PATCH 6/7] Input: keyboard: mtk-pmic-keys: add support for MT6359
+Date:   Fri, 15 Apr 2022 17:36:28 +0200
+Message-Id: <20220415153629.1817202-7-fparent@baylibre.com>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220415153629.1817202-1-fparent@baylibre.com>
 References: <20220415153629.1817202-1-fparent@baylibre.com>
@@ -66,105 +66,53 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Rename the struct that is given to the .data field of the of_device_id
-entries to reflect that this structure will not only contain register
-definitions but also other platform data.
+Add support for the MT6359 PMIC.
 
 Signed-off-by: Fabien Parent <fparent@baylibre.com>
 ---
- drivers/input/keyboard/mtk-pmic-keys.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/input/keyboard/mtk-pmic-keys.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index c31ab4368388..a0da644fe93d 100644
+index 609b87afd020..115ed4aaae81 100644
 --- a/drivers/input/keyboard/mtk-pmic-keys.c
 +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -50,12 +50,12 @@ struct mtk_pmic_keys_regs {
- 	.intsel_mask		= _intsel_mask,		\
- }
- 
--struct mtk_pmic_regs {
-+struct mtk_pmic_keys_pdata {
- 	const struct mtk_pmic_keys_regs keys_regs[MTK_PMIC_MAX_KEY_COUNT];
- 	u32 pmic_rst_reg;
+@@ -10,6 +10,7 @@
+ #include <linux/kernel.h>
+ #include <linux/mfd/mt6323/registers.h>
+ #include <linux/mfd/mt6358/registers.h>
++#include <linux/mfd/mt6359/registers.h>
+ #include <linux/mfd/mt6397/core.h>
+ #include <linux/mfd/mt6397/registers.h>
+ #include <linux/module.h>
+@@ -87,6 +88,17 @@ static const struct mtk_pmic_keys_pdata mt6358_pdata = {
+ 	.has_key_release_irqs = true,
  };
  
--static const struct mtk_pmic_regs mt6397_regs = {
-+static const struct mtk_pmic_keys_pdata mt6397_pdata = {
- 	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6397_CHRSTATUS,
- 		0x8, MT6397_INT_RSV, 0x10),
-@@ -65,7 +65,7 @@ static const struct mtk_pmic_regs mt6397_regs = {
- 	.pmic_rst_reg = MT6397_TOP_RST_MISC,
- };
- 
--static const struct mtk_pmic_regs mt6323_regs = {
-+static const struct mtk_pmic_keys_pdata mt6323_pdata = {
- 	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
- 		0x2, MT6323_INT_MISC_CON, 0x10),
-@@ -75,7 +75,7 @@ static const struct mtk_pmic_regs mt6323_regs = {
- 	.pmic_rst_reg = MT6323_TOP_RST_MISC,
- };
- 
--static const struct mtk_pmic_regs mt6358_regs = {
-+static const struct mtk_pmic_keys_pdata mt6358_pdata = {
- 	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
- 				   0x2, MT6358_PSC_TOP_INT_CON0, 0x5),
-@@ -255,13 +255,13 @@ static SIMPLE_DEV_PM_OPS(mtk_pmic_keys_pm_ops, mtk_pmic_keys_suspend,
- static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
- 	{
- 		.compatible = "mediatek,mt6397-keys",
--		.data = &mt6397_regs,
-+		.data = &mt6397_pdata,
- 	}, {
- 		.compatible = "mediatek,mt6323-keys",
--		.data = &mt6323_regs,
-+		.data = &mt6323_pdata,
++static const struct mtk_pmic_keys_pdata mt6359_pdata = {
++	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
++		MTK_PMIC_KEYS_REGS(MT6359_TOPSTATUS,
++		0x2, MT6359_PSC_TOP_INT_CON0, 0x5),
++	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
++		MTK_PMIC_KEYS_REGS(MT6359_TOPSTATUS,
++		0x8, MT6359_PSC_TOP_INT_CON0, 0xa),
++	.pmic_rst_reg = MT6359_TOP_RST_MISC,
++	.has_key_release_irqs = true,
++};
++
+ struct mtk_pmic_keys_info {
+ 	struct mtk_pmic_keys *keys;
+ 	const struct mtk_pmic_keys_regs *regs;
+@@ -264,6 +276,9 @@ static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
  	}, {
  		.compatible = "mediatek,mt6358-keys",
--		.data = &mt6358_regs,
-+		.data = &mt6358_pdata,
+ 		.data = &mt6358_pdata,
++	}, {
++		.compatible = "mediatek,mt6359-keys",
++		.data = &mt6359_pdata,
  	}, {
  		/* sentinel */
  	}
-@@ -277,7 +277,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 	static const char *const irqnames[] = { "powerkey", "homekey" };
- 	static const char *const irqnames_r[] = { "powerkey_r", "homekey_r" };
- 	struct mtk_pmic_keys *keys;
--	const struct mtk_pmic_regs *mtk_pmic_regs;
-+	const struct mtk_pmic_keys_pdata *mtk_pmic_keys_pdata;
- 	struct input_dev *input_dev;
- 	const struct of_device_id *of_id =
- 		of_match_device(of_mtk_pmic_keys_match_tbl, &pdev->dev);
-@@ -288,7 +288,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 
- 	keys->dev = &pdev->dev;
- 	keys->regmap = pmic_chip->regmap;
--	mtk_pmic_regs = of_id->data;
-+	mtk_pmic_keys_pdata = of_id->data;
- 
- 	keys->input_dev = input_dev = devm_input_allocate_device(keys->dev);
- 	if (!input_dev) {
-@@ -310,7 +310,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 	}
- 
- 	for_each_child_of_node(node, child) {
--		keys->keys[index].regs = &mtk_pmic_regs->keys_regs[index];
-+		keys->keys[index].regs = &mtk_pmic_keys_pdata->keys_regs[index];
- 
- 		keys->keys[index].irq =
- 			platform_get_irq_byname(pdev, irqnames[index]);
-@@ -358,7 +358,7 @@ static int mtk_pmic_keys_probe(struct platform_device *pdev)
- 		return error;
- 	}
- 
--	mtk_pmic_keys_lp_reset_setup(keys, mtk_pmic_regs->pmic_rst_reg);
-+	mtk_pmic_keys_lp_reset_setup(keys, mtk_pmic_keys_pdata->pmic_rst_reg);
- 
- 	platform_set_drvdata(pdev, keys);
- 
 -- 
 2.35.2
 

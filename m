@@ -2,101 +2,171 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3533C433F5
-	for <linux-input@archiver.kernel.org>; Sat, 16 Apr 2022 07:37:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D956C433FE
+	for <linux-input@archiver.kernel.org>; Sun, 17 Apr 2022 02:16:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229970AbiDPHj6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 16 Apr 2022 03:39:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39794 "EHLO
+        id S233293AbiDQCTN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 16 Apr 2022 22:19:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiDPHj6 (ORCPT
+        with ESMTP id S233287AbiDQCTM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 16 Apr 2022 03:39:58 -0400
-Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63F5BE2F5C;
-        Sat, 16 Apr 2022 00:37:27 -0700 (PDT)
-Received: by mail-pg1-x52d.google.com with SMTP id q19so10062298pgm.6;
-        Sat, 16 Apr 2022 00:37:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id;
-        bh=nKscqrpjgkCr4xCyAbvUJu6oMzQ5EF2mv6v04Gczg20=;
-        b=cCyIYCok9lQbFm/qUBuf5Yjq9KylFP41lC10thE6pw6c4zX7wdN4nyuF2LBW0mR4HN
-         BGMmcGcm31xxsmArq1OIUUV870KG+TKWHEJYe2KYiNjhBSpVNnJgu5Eg2jzE7BrKF2hj
-         Quv+4ulEuKxzo4yaocYk3VmNPItJeofWVCkWscs5eNAlD0FIfIkIaBCWO5shK3AfVNpC
-         FoqGQ2SPLHFH0R7fLtXMOsSR5GHzcEb8OCKPq266n9QDmLG6HPFa8/Si7AVr5BAU0cgu
-         RWv/nqG6gr7mDWYdrDYBODWUUFTxvQHNtWnVhvZA4rip372IkrdM2x23Gta3RioxIHT1
-         0AVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id;
-        bh=nKscqrpjgkCr4xCyAbvUJu6oMzQ5EF2mv6v04Gczg20=;
-        b=G5v0ASxU15TQSal7uTePzEeduki9D6iRJJUNakCv3NExs/J5wmMNfOoOUsCMrpe440
-         meL7R9HTt80mU4uor3i5jvHNvpWirrjIVtL8ZXBYu9cU46T61gbqNMJiXtFrpMm0IT4m
-         gqyTVXR7zRsU+NhWczdK8/ldL5OOC82h4oqfKb8AK1LkmssfgvUEDUpvNixbGH2EY89W
-         mvIGF+5zF0Dz+qpwvMIPE5g+yoUbChjzldzHlIwt1a6KBDysk2PsKZs7Dgwo0htofEzr
-         /O+8c41RZoyy/ljGnbFMyGNbN2zkk6wPYeyVGjjaXXYLqKC8XCYTUb+r3Mtt/MJO6SU0
-         7d+w==
-X-Gm-Message-State: AOAM532CZbGDxC6uNgEKWVe55M8oFpvEpnH6lpVsa2uzr89/+uYZH+UJ
-        zuXxZkYZpdESd/VXgq//DNs=
-X-Google-Smtp-Source: ABdhPJyb8sbsDC1xiGFNJs/3179OQJAvbFi4c69b/yY+yxKqIynE+XfkTYpuZyK3kGj5G9DqKOKs4Q==
-X-Received: by 2002:a05:6a00:1254:b0:50a:55c5:5ff7 with SMTP id u20-20020a056a00125400b0050a55c55ff7mr525399pfi.85.1650094646975;
-        Sat, 16 Apr 2022 00:37:26 -0700 (PDT)
-Received: from localhost.localdomain ([159.226.95.43])
-        by smtp.googlemail.com with ESMTPSA id i13-20020a17090a2acd00b001cd498dc153sm7749917pjg.3.2022.04.16.00.37.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 16 Apr 2022 00:37:26 -0700 (PDT)
-From:   Miaoqian Lin <linmq006@gmail.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Alexandrov Stansilav <neko@nya.ai>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     linmq006@gmail.com
-Subject: [PATCH] HID: elan: Fix potential double free in elan_input_configured
-Date:   Sat, 16 Apr 2022 07:37:21 +0000
-Message-Id: <20220416073721.3954-1-linmq006@gmail.com>
-X-Mailer: git-send-email 2.17.1
+        Sat, 16 Apr 2022 22:19:12 -0400
+Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13008366A3;
+        Sat, 16 Apr 2022 19:16:37 -0700 (PDT)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 8B0715C015A;
+        Sat, 16 Apr 2022 22:16:36 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Sat, 16 Apr 2022 22:16:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
+        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm2; t=1650161796; x=1650248196; bh=Hy
+        b4BOTswigS93bRPQsHh0BqrAvE3cAo4PvHZ+aba4o=; b=JhFeC6hwLM8d3CGMib
+        XJX4BI+o440efF/kZgkiNzoav2Hu6JqP0O8BKvE8NvnCoFDCfx8EY5Q48Ha+qXMN
+        crABKbkw8wTat7AEwsmpixeH99L4qC7tKa1jBSPf4ZjDaU1PV0XU78oQnGnfktvP
+        qtY7wFxeyte4x93CWBVGFipQumVU0zGKNmvyRiNAPoP0STGLSntCgi+G2G2Gj8uP
+        l1HSSUi+CzKO5VC/0r9Uxn75C/joXejOyQvvBwq/o+STMMAHxL2hJu0D4ZPB6l6A
+        pZYb9O+qdpwj+M8x/JOpBRDSZDNR70NC94L0JRJ7uU6Nd3crsmZ/8HZremmfdA9C
+        P2ow==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :from:from:in-reply-to:in-reply-to:message-id:mime-version
+        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
+        1650161796; x=1650248196; bh=Hyb4BOTswigS93bRPQsHh0BqrAvE3cAo4Pv
+        HZ+aba4o=; b=jlRKm7qdE2JqKshYBn+9uFavzuEzB/GLlupJ98OULNCLUN1ARux
+        q/rQaDVYLRN5me8anbE5oPVaQ0P4Gi+zk8/iRPHCtajvBBsvb4tCD33+OJQthnUl
+        XMPZkIshujD4tiFGb3NFUrBNJoW070kx/FetSYtwfRH8cGbQBfjQTc8SoPrWhOxY
+        JPFZgFkw5Nxv43qnpVq87NMgHaXbygeppuQwNpD6UzLo22GOZtQF1O/2p8kHIFOG
+        0edBQkgXT2tPTH1MbhAZnNW7Yv00NlDfZK7AJEnAP1bHC7ik0s9G4qVg0Jd8yt78
+        nLAjQruk3ix5ZhZcoQWgb7vO9PAKU/juVxw==
+X-ME-Sender: <xms:hHhbYj1b3p1Ikv8XgfBS7mvXiyGAxwia02yMLEb_iSGW-EFrtgZxFA>
+    <xme:hHhbYiHD10f88LjcvBhENyCcVb7yPru0XJOqD4tJABAFj1Yj2qszH8RTmE88YObG3
+    dPDhuP2hw1WKcL5_w>
+X-ME-Received: <xmr:hHhbYj4T-ueQQDVpN2Lnxp9Yzkyt0xHkbCI3XJBIOHONzK7KV4Pz8H2vYU6Mxr3rGrpZQCek7GTVsnQ-_P3NWs4Yy53dGbLjFwzQmoztRKNuBMPnuvnqN1d9VVNHn546ys9oTg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudelkedgheelucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhephffvufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
+    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtf
+    frrghtthgvrhhnpeelueelgeettdfggfeuffevkefhuddtteeigfevhfdtffdtjefgteeg
+    leeggedvudenucffohhmrghinhepuggvvhhitggvthhrvggvrdhorhhgnecuvehluhhsth
+    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhho
+    lhhlrghnugdrohhrgh
+X-ME-Proxy: <xmx:hHhbYo1Rzzg0vssJPIWvgELSAsLKC6ll-2v38IjlC9RANRn3IMLFrg>
+    <xmx:hHhbYmEryiMwv0Ch8ugvm5UYTuyZ5nNienhZ2TFJBV6xRNGnVixhWw>
+    <xmx:hHhbYp86YHxc27OpAkJw8o46C9DIc0wPrBJ3f0RGYqOI2-YDwTfWqw>
+    <xmx:hHhbYr4JPbX52-VbTroIzh894BbvcFcLre0sPggZxYfHNERkNwegSw>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 16 Apr 2022 22:16:35 -0400 (EDT)
+From:   Samuel Holland <samuel@sholland.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org
+Cc:     devicetree@vger.kernel.org,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>, Ondrej Jirman <x@xff.cz>,
+        linux-kernel@vger.kernel.org, Samuel Holland <samuel@sholland.org>
+Subject: [PATCH v2 1/4] dt-bindings: input: Add the PinePhone keyboard binding
+Date:   Sat, 16 Apr 2022 21:16:29 -0500
+Message-Id: <20220417021633.56127-2-samuel@sholland.org>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220417021633.56127-1-samuel@sholland.org>
+References: <20220417021633.56127-1-samuel@sholland.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-'input' is a managed resource allocated with devm_input_allocate_device(),
-so there is no need to call input_free_device() explicitly or
-there will be a double free.
+Add devicetree support for the PinePhone keyboard case, which provides a
+matrix keyboard interface and a proxied I2C bus.
 
-According to the doc of devm_input_allocate_device():
- * Managed input devices do not need to be explicitly unregistered or
- * freed as it will be done automatically when owner device unbinds from
- * its driver (or binding fails).
-
-Fixes: b7429ea53d6c ("HID: elan: Fix memleak in elan_input_configured")
-Fixes: 9a6a4193d65b ("HID: Add driver for USB ELAN Touchpad")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
- drivers/hid/hid-elan.c | 2 --
- 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/hid/hid-elan.c b/drivers/hid/hid-elan.c
-index 3091355d48df..8e4a5528e25d 100644
---- a/drivers/hid/hid-elan.c
-+++ b/drivers/hid/hid-elan.c
-@@ -188,7 +188,6 @@ static int elan_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 	ret = input_mt_init_slots(input, ELAN_MAX_FINGERS, INPUT_MT_POINTER);
- 	if (ret) {
- 		hid_err(hdev, "Failed to init elan MT slots: %d\n", ret);
--		input_free_device(input);
- 		return ret;
- 	}
- 
-@@ -200,7 +199,6 @@ static int elan_input_configured(struct hid_device *hdev, struct hid_input *hi)
- 		hid_err(hdev, "Failed to register elan input device: %d\n",
- 			ret);
- 		input_mt_destroy_slots(input);
--		input_free_device(input);
- 		return ret;
- 	}
- 
+Changes in v2:
+ - Drop keymap DT properties
+ - Add vbat-supply property
+
+ .../input/pine64,pinephone-keyboard.yaml      | 66 +++++++++++++++++++
+ 1 file changed, 66 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
+
+diff --git a/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml b/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
+new file mode 100644
+index 000000000000..0732bd2dab9c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
+@@ -0,0 +1,66 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/pine64,pinephone-keyboard.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Pine64 PinePhone keyboard device tree bindings
++
++maintainers:
++  - Samuel Holland <samuel@sholland.org>
++
++description:
++  A keyboard accessory is available for the Pine64 PinePhone and PinePhone Pro.
++  It connects via I2C, providing a raw scan matrix, a flashing interface, and a
++  subordinate I2C bus for communication with a battery charger IC.
++
++properties:
++  compatible:
++    const: pine64,pinephone-keyboard
++
++  reg:
++    const: 0x15
++
++  interrupts:
++    maxItems: 1
++
++  vbat-supply:
++    description: Supply for the keyboard MCU
++
++  wakeup-source: true
++
++  i2c-bus:
++    $ref: /schemas/i2c/i2c-controller.yaml#
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/input/input.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      keyboard@15 {
++        compatible = "pine64,pinephone-keyboard";
++        reg = <0x15>;
++        interrupt-parent = <&r_pio>;
++        interrupts = <0 12 IRQ_TYPE_EDGE_FALLING>; /* PL12 */
++
++        i2c-bus {
++          #address-cells = <1>;
++          #size-cells = <0>;
++
++          charger@75 {
++            reg = <0x75>;
++          };
++        };
++      };
++    };
 -- 
-2.17.1
+2.35.1
 

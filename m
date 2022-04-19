@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 06E0EC4167B
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:39:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C23BC4332F
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:40:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352493AbiDSNmI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 09:42:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36950 "EHLO
+        id S233019AbiDSNnS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 09:43:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352456AbiDSNlq (ORCPT
+        with ESMTP id S1352514AbiDSNmE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 09:41:46 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FBBB3818A;
-        Tue, 19 Apr 2022 06:38:47 -0700 (PDT)
+        Tue, 19 Apr 2022 09:42:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F0DE37BF2;
+        Tue, 19 Apr 2022 06:39:17 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39F0D6169B;
-        Tue, 19 Apr 2022 13:38:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFE78C385A5;
-        Tue, 19 Apr 2022 13:38:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7101616A8;
+        Tue, 19 Apr 2022 13:39:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A81EFC385AC;
+        Tue, 19 Apr 2022 13:39:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650375526;
-        bh=RR8FHUt8/oVOHCndemgdv0yQ+gJWVi08oSUPSCA8r+A=;
+        s=k20201202; t=1650375556;
+        bh=f9Y/96hrDNAN/+YDT6y/IETuuHURcMDkd3mR04iG5MY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FjyAQX1V1Mtq5rmgyreMTZhE3/aJBxgkMqWfV0riRO23vuyzYq/zn4LgLEsRpPY/l
-         DQmmsn9xT0+qY3/PXuyKKsFDGMgZhu8Ddawg3jVOO+PbTKZTwvJLooQWJOrl+HaB/O
-         AN85kED9oV3T2m4YPSPzkaicNd85/MKhtRTpzOZrR1O1IwS5AGlDoe22qvgRvyYVmp
-         0q0Z8oey3GPFsFg0mzWOUndrW5ruI9D+QP02L6mUJV+H5efX4UhX5GpUaq3ZRQjLzt
-         xg9dQpFAlmTyoWXkYs+Cvc8YFJt1I6n7of27SYxlG1Q2NZgRo7lBZYbAsDvPq2cz0n
-         ZD+j1qthwTwyg==
+        b=ebr5utca6XgjB3tSpUqlgAxa1J/VO+5Up3W225Ck2Y1KV0kHl25WxqiLaxQnTrrDP
+         o4ZMRT5uiqJlbasFReJEEjIucMAj0DIkjrh7yNwei7KTqUAxhrCrbIU9vS1MWfztjT
+         pnZZDXwYX8Bp58oIwWuMxVkm3t1lAwr40PquGM25WMYWoQU4zuhNhfylYnCyYIm7KS
+         AxbhGnhgw8s8/7Sp0BNcsDkI0IMc9J8IbULGpS4rd/U42TIh6dRRUrDsawrsOWc7ZZ
+         Lnc4CsAY2Xr00xDadJHWFy5+sqJIjPU+QvQwa5Q0tAKRS7Lo54LfD5qNiWFtBeJuUY
+         ATdlp/KQHWVdA==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     linux-omap@vger.kernel.org, tony@atomide.com, aaro.koskinen@iki.fi,
         jmkrzyszt@gmail.com
@@ -57,10 +57,11 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         linux-usb@vger.kernel.org, dmaengine@vger.kernel.org,
         linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
         linux-serial@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH 09/41] ARM: omap1: move perseus spi pinconf to board file
-Date:   Tue, 19 Apr 2022 15:36:51 +0200
-Message-Id: <20220419133723.1394715-10-arnd@kernel.org>
+        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 13/41] clocksource: ti-dmtimer: avoid using mach/hardware.h
+Date:   Tue, 19 Apr 2022 15:36:55 +0200
+Message-Id: <20220419133723.1394715-14-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419133723.1394715-1-arnd@kernel.org>
 References: <20220419133723.1394715-1-arnd@kernel.org>
@@ -72,86 +73,29 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The driver has always had a FIXME about this, and it seems
-like this trivial code move avoids a mach header inclusion,
-so just do it.
+As a preparation for future omap1 multiplatform support, stop
+using mach/hardware.h and instead include the omap1-io.h
+for low-level register access to MOD_CONF_CTRL_1.
 
-With that out of the way, and the header file inclusions
-changed to global files, the driver can also be compile-tested
-on other platforms.
-
-Acked-by: Mark Brown <broonie@kernel.org>
+Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mach-omap1/board-perseus2.c |  6 ++++++
- drivers/spi/Kconfig                  |  2 +-
- drivers/spi/spi-omap-uwire.c         | 15 +++------------
- 3 files changed, 10 insertions(+), 13 deletions(-)
+ drivers/clocksource/timer-ti-dm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/mach-omap1/board-perseus2.c b/arch/arm/mach-omap1/board-perseus2.c
-index 1aeeb7337d29..da0155107d85 100644
---- a/arch/arm/mach-omap1/board-perseus2.c
-+++ b/arch/arm/mach-omap1/board-perseus2.c
-@@ -289,6 +289,12 @@ static void __init omap_perseus2_init(void)
- 	omap_cfg_reg(F4_7XX_KBC3);
- 	omap_cfg_reg(E3_7XX_KBC4);
- 
-+	if (IS_ENABLED(CONFIG_SPI_OMAP_UWIRE)) {
-+		/* configure pins: MPU_UW_nSCS1, MPU_UW_SDO, MPU_UW_SCLK */
-+		int val = omap_readl(OMAP7XX_IO_CONF_9) & ~0x00EEE000;
-+		omap_writel(val | 0x00AAA000, OMAP7XX_IO_CONF_9);
-+	}
-+
- 	platform_add_devices(devices, ARRAY_SIZE(devices));
- 
- 	omap_serial_init();
-diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
-index d2815eb361c0..6c28ca232444 100644
---- a/drivers/spi/Kconfig
-+++ b/drivers/spi/Kconfig
-@@ -631,7 +631,7 @@ config SPI_OCTEON
- 
- config SPI_OMAP_UWIRE
- 	tristate "OMAP1 MicroWire"
--	depends on ARCH_OMAP1
-+	depends on ARCH_OMAP1 || (ARM && COMPILE_TEST)
- 	select SPI_BITBANG
- 	help
- 	  This hooks up to the MicroWire controller on OMAP1 chips.
-diff --git a/drivers/spi/spi-omap-uwire.c b/drivers/spi/spi-omap-uwire.c
-index 087172a193fa..29198e6815b2 100644
---- a/drivers/spi/spi-omap-uwire.c
-+++ b/drivers/spi/spi-omap-uwire.c
-@@ -44,13 +44,10 @@
- #include <linux/module.h>
- #include <linux/io.h>
- 
--#include <mach/hardware.h>
- #include <asm/mach-types.h>
--
--#include <mach/mux.h>
--
--#include <mach/omap7xx.h>	/* OMAP7XX_IO_CONF registers */
--
-+#include <linux/soc/ti/omap1-io.h>
-+#include <linux/soc/ti/omap1-soc.h>
-+#include <linux/soc/ti/omap1-mux.h>
- 
- /* FIXME address is now a platform device resource,
-  * and irqs should show there too...
-@@ -548,12 +545,6 @@ static int __init omap_uwire_init(void)
- 		omap_cfg_reg(N14_1610_UWIRE_CS0);
- 		omap_cfg_reg(N15_1610_UWIRE_CS1);
- 	}
--	if (machine_is_omap_perseus2()) {
--		/* configure pins: MPU_UW_nSCS1, MPU_UW_SDO, MPU_UW_SCLK */
--		int val = omap_readl(OMAP7XX_IO_CONF_9) & ~0x00EEE000;
--		omap_writel(val | 0x00AAA000, OMAP7XX_IO_CONF_9);
--	}
--
- 	return platform_driver_register(&uwire_driver);
+diff --git a/drivers/clocksource/timer-ti-dm.c b/drivers/clocksource/timer-ti-dm.c
+index 3e52c5226c4d..df4a73ea6651 100644
+--- a/drivers/clocksource/timer-ti-dm.c
++++ b/drivers/clocksource/timer-ti-dm.c
+@@ -433,7 +433,7 @@ int omap_dm_timer_get_irq(struct omap_dm_timer *timer)
  }
  
+ #if defined(CONFIG_ARCH_OMAP1)
+-#include <mach/hardware.h>
++#include <linux/soc/ti/omap1-io.h>
+ 
+ static struct clk *omap_dm_timer_get_fclk(struct omap_dm_timer *timer)
+ {
 -- 
 2.29.2
 

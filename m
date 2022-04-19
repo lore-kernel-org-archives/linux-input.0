@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C301C352A8
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D4664C3527B
 	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:41:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351346AbiDSNoi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 09:44:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
+        id S244905AbiDSNoj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 09:44:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352613AbiDSNl4 (ORCPT
+        with ESMTP id S244173AbiDSNnQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 09:41:56 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C45BD37BF3;
-        Tue, 19 Apr 2022 06:39:11 -0700 (PDT)
+        Tue, 19 Apr 2022 09:43:16 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A4DD182;
+        Tue, 19 Apr 2022 06:40:33 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8176FB81982;
-        Tue, 19 Apr 2022 13:39:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2380AC385A8;
-        Tue, 19 Apr 2022 13:39:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91168B81981;
+        Tue, 19 Apr 2022 13:40:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BA25C385AF;
+        Tue, 19 Apr 2022 13:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650375549;
-        bh=vO/bPd1PQ9hX0L2CV68DjG3d21RjoFDCbeNW9JFFn4s=;
+        s=k20201202; t=1650375630;
+        bh=Y28p7Ny9YomGZamqZAIMduIfzMd9ilwbgGj96GOTejs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/7k/0F4r+E1Ur3z329l1Cj5g6ftB8oHQwHSKR1c5qv5Sg7DTH6Yfai9kN/3xqIG2
-         6IN+CC95Vy2J9Ecwiqu9jWLiRWHVIRsEYbraSEFksjcs4ejGoj4CLQt1bPvfSrevg1
-         Yq0O4PA1y1h2ip/jGL8GEaPuT5rLYGT2eKrRRFBMDLn3T+XmQZzgJHZaYZjmp5Ifqh
-         zPEF1FobgULdceNOjlrrAVUkcHB8AklSGR/iVkkqLtnOeADz098ACszzEAEOTLv0jD
-         wNQhDFHsfHDookQXljdeMUAjhviMzHxOZBk30q/fEeERal0vp7CC5caie0j1VqHLTj
-         MLWQvzBYRx05A==
+        b=eUHAFjoiHuXtqZ4ZQCCCjrNWBObk3OpvdAoRndhAbYTT/dWpoD2ncZTLJ89QVYpaG
+         E3ATSEWOwtxhMgdoVM3aoUvIYenIeLY8VecZ74Q1zfAO0JlMqhoBixhEDM2LhMCyTM
+         Bg8EvhbdgtMjbcznvJxbbq6hNISkYGTTR4Tv2UoKdlOSU7hMkR/ruvdJ/iC72Zem7f
+         i9ZFFfE2l05LHOqtf8V/dIsD5stadiF0iLdtFAAfv026f+K1DHAgxo/HxMLDoMG0LJ
+         KlL7TLBkRPDFumi0yT4sk8TbBxJfJ8Zsfkwpvwn7UIjjyX9tWqdiDl36pA3xGyphWy
+         6yb1hp9ibLpEg==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     linux-omap@vger.kernel.org, tony@atomide.com, aaro.koskinen@iki.fi,
         jmkrzyszt@gmail.com
@@ -57,12 +57,10 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         linux-usb@vger.kernel.org, dmaengine@vger.kernel.org,
         linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
         linux-serial@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 12/41] usb: omap: avoid mach/*.h headers
-Date:   Tue, 19 Apr 2022 15:36:54 +0200
-Message-Id: <20220419133723.1394715-13-arnd@kernel.org>
+        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [PATCH 23/41] ARM: omap: split up arch/arm/plat-omap/Kconfig
+Date:   Tue, 19 Apr 2022 15:37:05 +0200
+Message-Id: <20220419133723.1394715-24-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419133723.1394715-1-arnd@kernel.org>
 References: <20220419133723.1394715-1-arnd@kernel.org>
@@ -74,117 +72,252 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The omap usb drivers still rely on mach/*.h headers that
-are explicitly or implicitly included, but all the required
-definitions are now in include/linux/soc/ti/, so use those
-instead and allow compile-testing on other architectures.
+All the remaining features in here are either omap1
+or omap2plus specific, so move them into the respective
+Kconfig files.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/usb/gadget/udc/Kconfig     | 2 +-
- drivers/usb/gadget/udc/omap_udc.c  | 2 ++
- drivers/usb/host/Kconfig           | 2 +-
- drivers/usb/host/ohci-omap.c       | 7 +++----
- drivers/usb/phy/Kconfig            | 3 ++-
- drivers/usb/phy/phy-isp1301-omap.c | 4 ++--
- 6 files changed, 11 insertions(+), 9 deletions(-)
+ arch/arm/Kconfig            |  2 -
+ arch/arm/mach-omap1/Kconfig | 37 +++++++++++++++
+ arch/arm/mach-omap2/Kconfig | 49 ++++++++++++++++++++
+ arch/arm/plat-omap/Kconfig  | 92 -------------------------------------
+ 4 files changed, 86 insertions(+), 94 deletions(-)
+ delete mode 100644 arch/arm/plat-omap/Kconfig
 
-diff --git a/drivers/usb/gadget/udc/Kconfig b/drivers/usb/gadget/udc/Kconfig
-index 69394dc1cdfb..cee934dce4f0 100644
---- a/drivers/usb/gadget/udc/Kconfig
-+++ b/drivers/usb/gadget/udc/Kconfig
-@@ -128,7 +128,7 @@ config USB_GR_UDC
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index 2e8091e2d8a8..700655e31b04 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -656,8 +656,6 @@ source "arch/arm/mach-npcm/Kconfig"
  
- config USB_OMAP
- 	tristate "OMAP USB Device Controller"
--	depends on ARCH_OMAP1
-+	depends on ARCH_OMAP1 || (ARCH_OMAP && COMPILE_TEST)
- 	depends on ISP1301_OMAP || !(MACH_OMAP_H2 || MACH_OMAP_H3)
- 	help
- 	   Many Texas Instruments OMAP processors have flexible full
-diff --git a/drivers/usb/gadget/udc/omap_udc.c b/drivers/usb/gadget/udc/omap_udc.c
-index b1da584585cf..5096d24915ce 100644
---- a/drivers/usb/gadget/udc/omap_udc.c
-+++ b/drivers/usb/gadget/udc/omap_udc.c
-@@ -43,6 +43,8 @@
- #include <linux/platform_data/usb-omap1.h>
+ source "arch/arm/mach-nspire/Kconfig"
  
- #include <linux/soc/ti/omap1-usb.h>
-+#include <linux/soc/ti/omap1-soc.h>
-+#include <linux/soc/ti/omap1-io.h>
+-source "arch/arm/plat-omap/Kconfig"
+-
+ source "arch/arm/mach-omap1/Kconfig"
  
- #include "omap_udc.h"
+ source "arch/arm/mach-omap2/Kconfig"
+diff --git a/arch/arm/mach-omap1/Kconfig b/arch/arm/mach-omap1/Kconfig
+index 04155b5ce978..93ea86954a84 100644
+--- a/arch/arm/mach-omap1/Kconfig
++++ b/arch/arm/mach-omap1/Kconfig
+@@ -28,6 +28,11 @@ config ARCH_OMAP16XX
+ 	select CPU_ARM926T
+ 	select OMAP_DM_TIMER
  
-diff --git a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
-index 57ca5f97a3dc..682b3d2da623 100644
---- a/drivers/usb/host/Kconfig
-+++ b/drivers/usb/host/Kconfig
-@@ -214,7 +214,7 @@ config USB_EHCI_HCD_NPCM7XX
- 
- config USB_EHCI_HCD_OMAP
- 	tristate "EHCI support for OMAP3 and later chips"
--	depends on ARCH_OMAP
-+	depends on ARCH_OMAP || COMPILE_TEST
- 	depends on NOP_USB_XCEIV
++config ARCH_OMAP
++	bool
++
++comment "OMAP Feature Selections"
++
+ config OMAP_MUX
+ 	bool "OMAP multiplexing support"
  	default y
- 	help
-diff --git a/drivers/usb/host/ohci-omap.c b/drivers/usb/host/ohci-omap.c
-index 7be1ffefc40e..750a90c41a0a 100644
---- a/drivers/usb/host/ohci-omap.c
-+++ b/drivers/usb/host/ohci-omap.c
-@@ -27,6 +27,9 @@
- #include <linux/platform_device.h>
- #include <linux/platform_data/usb-omap1.h>
- #include <linux/soc/ti/omap1-usb.h>
-+#include <linux/soc/ti/omap1-mux.h>
-+#include <linux/soc/ti/omap1-soc.h>
-+#include <linux/soc/ti/omap1-io.h>
- #include <linux/signal.h>
- #include <linux/usb.h>
- #include <linux/usb/hcd.h>
-@@ -36,10 +39,6 @@
- #include <asm/io.h>
- #include <asm/mach-types.h>
+@@ -69,6 +74,38 @@ config OMAP_32K_TIMER
+ 	  The actual timer selection is done in the board file
+ 	  through the (DT_)MACHINE_START structure.
  
--#include <mach/mux.h>
++config OMAP_MPU_TIMER
++	bool "Use mpu timer"
++	depends on ARCH_OMAP1
++	help
++	  Select this option if you want to use the OMAP mpu timer. This
++	  timer provides more intra-tick resolution than the 32KHz timer,
++	  but consumes more power.
++
++config OMAP_SERIAL_WAKE
++	bool "Enable wake-up events for serial ports"
++	depends on ARCH_OMAP1 && OMAP_MUX
++	default y
++	help
++	  Select this option if you want to have your system wake up
++	  to data on the serial RX line. This allows you to wake the
++	  system from serial console.
++
++config OMAP_RESET_CLOCKS
++	bool "Reset unused clocks during boot"
++	depends on ARCH_OMAP
++	help
++	  Say Y if you want to reset unused clocks during boot.
++	  This option saves power, but assumes all drivers are
++	  using the clock framework. Broken drivers that do not
++	  yet use clock framework may not work with this option.
++	  If you are booting from another operating system, you
++	  probably do not want this option enabled until your
++	  device drivers work properly.
++
++config ARCH_OMAP_OTG
++	bool
++
+ comment "OMAP Board Type"
+ 
+ config MACH_OMAP_INNOVATOR
+diff --git a/arch/arm/mach-omap2/Kconfig b/arch/arm/mach-omap2/Kconfig
+index 02c253de9b6e..a8adbb4d478a 100644
+--- a/arch/arm/mach-omap2/Kconfig
++++ b/arch/arm/mach-omap2/Kconfig
+@@ -123,6 +123,8 @@ config OMAP_INTERCONNECT_BARRIER
+ 	bool
+ 	select ARM_HEAVY_MB
+ 	
++config ARCH_OMAP
++	bool
+ 
+ if ARCH_OMAP2PLUS
+ 
+@@ -153,6 +155,53 @@ config SOC_HAS_REALTIME_COUNTER
+ 	depends on SOC_OMAP5 || SOC_DRA7XX
+ 	default y
+ 
++config POWER_AVS_OMAP
++	bool "AVS(Adaptive Voltage Scaling) support for OMAP IP versions 1&2"
++	depends on (ARCH_OMAP3 || ARCH_OMAP4) && PM
++	select POWER_SUPPLY
++	help
++	  Say Y to enable AVS(Adaptive Voltage Scaling)
++	  support on OMAP containing the version 1 or
++	  version 2 of the SmartReflex IP.
++	  V1 is the 65nm version used in OMAP3430.
++	  V2 is the update for the 45nm version of the IP used in OMAP3630
++	  and OMAP4430
++
++	  Please note, that by default SmartReflex is only
++	  initialized and not enabled. To enable the automatic voltage
++	  compensation for vdd mpu and vdd core from user space,
++	  user must write 1 to
++		/debug/smartreflex/sr_<X>/autocomp,
++	  where X is mpu_iva or core for OMAP3.
++	  Optionally autocompensation can be enabled in the kernel
++	  by default during system init via the enable_on_init flag
++	  which an be passed as platform data to the smartreflex driver.
++
++config POWER_AVS_OMAP_CLASS3
++	bool "Class 3 mode of Smartreflex Implementation"
++	depends on POWER_AVS_OMAP && TWL4030_CORE
++	help
++	  Say Y to enable Class 3 implementation of Smartreflex
++
++	  Class 3 implementation of Smartreflex employs continuous hardware
++	  voltage calibration.
++
++config OMAP3_L2_AUX_SECURE_SAVE_RESTORE
++	bool "OMAP3 HS/EMU save and restore for L2 AUX control register"
++	depends on ARCH_OMAP3 && PM
++	help
++	  Without this option, L2 Auxiliary control register contents are
++	  lost during off-mode entry on HS/EMU devices. This feature
++	  requires support from PPA / boot-loader in HS/EMU devices, which
++	  currently does not exist by default.
++
++config OMAP3_L2_AUX_SECURE_SERVICE_SET_ID
++	int "Service ID for the support routine to set L2 AUX control"
++	depends on OMAP3_L2_AUX_SECURE_SAVE_RESTORE
++	default 43
++	help
++	  PPA routine service ID for setting L2 auxiliary control register.
++
+ comment "OMAP Core Type"
+ 	depends on ARCH_OMAP2
+ 
+diff --git a/arch/arm/plat-omap/Kconfig b/arch/arm/plat-omap/Kconfig
+deleted file mode 100644
+index dc53ea8e5bbb..000000000000
+--- a/arch/arm/plat-omap/Kconfig
++++ /dev/null
+@@ -1,92 +0,0 @@
+-# SPDX-License-Identifier: GPL-2.0
+-config ARCH_OMAP
+-	bool
 -
--#include <mach/hardware.h>
+-if ARCH_OMAP
 -
- #define DRIVER_DESC "OHCI OMAP driver"
- 
- struct ohci_omap_priv {
-diff --git a/drivers/usb/phy/Kconfig b/drivers/usb/phy/Kconfig
-index 52eebcb88c1f..2acbe41fbf7e 100644
---- a/drivers/usb/phy/Kconfig
-+++ b/drivers/usb/phy/Kconfig
-@@ -30,7 +30,8 @@ config FSL_USB2_OTG
- 
- config ISP1301_OMAP
- 	tristate "Philips ISP1301 with OMAP OTG"
--	depends on I2C && ARCH_OMAP_OTG
-+	depends on I2C
-+	depends on ARCH_OMAP_OTG || (ARM && COMPILE_TEST)
- 	depends on USB
- 	depends on USB_GADGET || !USB_GADGET # if USB_GADGET=m, this can't be 'y'
- 	select USB_PHY
-diff --git a/drivers/usb/phy/phy-isp1301-omap.c b/drivers/usb/phy/phy-isp1301-omap.c
-index 88aade82b82b..f8bd93fe69cd 100644
---- a/drivers/usb/phy/phy-isp1301-omap.c
-+++ b/drivers/usb/phy/phy-isp1301-omap.c
-@@ -23,9 +23,9 @@
- #include <asm/irq.h>
- #include <asm/mach-types.h>
- 
--#include <mach/mux.h>
+-menu "TI OMAP Common Features"
 -
-+#include <linux/soc/ti/omap1-mux.h>
- #include <linux/soc/ti/omap1-usb.h>
-+#include <linux/soc/ti/omap1-io.h>
- 
- #undef VERBOSE
- 
+-config ARCH_OMAP_OTG
+-	bool
+-
+-comment "OMAP Feature Selections"
+-
+-config POWER_AVS_OMAP
+-	bool "AVS(Adaptive Voltage Scaling) support for OMAP IP versions 1&2"
+-	depends on (ARCH_OMAP3 || ARCH_OMAP4) && PM
+-	select POWER_SUPPLY
+-	help
+-	  Say Y to enable AVS(Adaptive Voltage Scaling)
+-	  support on OMAP containing the version 1 or
+-	  version 2 of the SmartReflex IP.
+-	  V1 is the 65nm version used in OMAP3430.
+-	  V2 is the update for the 45nm version of the IP used in OMAP3630
+-	  and OMAP4430
+-
+-	  Please note, that by default SmartReflex is only
+-	  initialized and not enabled. To enable the automatic voltage
+-	  compensation for vdd mpu and vdd core from user space,
+-	  user must write 1 to
+-		/debug/smartreflex/sr_<X>/autocomp,
+-	  where X is mpu_iva or core for OMAP3.
+-	  Optionally autocompensation can be enabled in the kernel
+-	  by default during system init via the enable_on_init flag
+-	  which an be passed as platform data to the smartreflex driver.
+-
+-config POWER_AVS_OMAP_CLASS3
+-	bool "Class 3 mode of Smartreflex Implementation"
+-	depends on POWER_AVS_OMAP && TWL4030_CORE
+-	help
+-	  Say Y to enable Class 3 implementation of Smartreflex
+-
+-	  Class 3 implementation of Smartreflex employs continuous hardware
+-	  voltage calibration.
+-
+-config OMAP_RESET_CLOCKS
+-	bool "Reset unused clocks during boot"
+-	depends on ARCH_OMAP
+-	help
+-	  Say Y if you want to reset unused clocks during boot.
+-	  This option saves power, but assumes all drivers are
+-	  using the clock framework. Broken drivers that do not
+-	  yet use clock framework may not work with this option.
+-	  If you are booting from another operating system, you
+-	  probably do not want this option enabled until your
+-	  device drivers work properly.
+-
+-config OMAP_MPU_TIMER
+-	bool "Use mpu timer"
+-	depends on ARCH_OMAP1
+-	help
+-	  Select this option if you want to use the OMAP mpu timer. This
+-	  timer provides more intra-tick resolution than the 32KHz timer,
+-	  but consumes more power.
+-
+-config OMAP3_L2_AUX_SECURE_SAVE_RESTORE
+-	bool "OMAP3 HS/EMU save and restore for L2 AUX control register"
+-	depends on ARCH_OMAP3 && PM
+-	help
+-	  Without this option, L2 Auxiliary control register contents are
+-	  lost during off-mode entry on HS/EMU devices. This feature
+-	  requires support from PPA / boot-loader in HS/EMU devices, which
+-	  currently does not exist by default.
+-
+-config OMAP3_L2_AUX_SECURE_SERVICE_SET_ID
+-	int "Service ID for the support routine to set L2 AUX control"
+-	depends on OMAP3_L2_AUX_SECURE_SAVE_RESTORE
+-	default 43
+-	help
+-	  PPA routine service ID for setting L2 auxiliary control register.
+-
+-config OMAP_SERIAL_WAKE
+-	bool "Enable wake-up events for serial ports"
+-	depends on ARCH_OMAP1 && OMAP_MUX
+-	default y
+-	help
+-	  Select this option if you want to have your system wake up
+-	  to data on the serial RX line. This allows you to wake the
+-	  system from serial console.
+-
+-endmenu
+-
+-endif
 -- 
 2.29.2
 

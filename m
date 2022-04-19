@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F5CBC38A05
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89BC3C38A04
 	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:47:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355091AbiDSQtn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:49:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55606 "EHLO
+        id S1355418AbiDSQtp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:49:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355163AbiDSQqw (ORCPT
+        with ESMTP id S1354892AbiDSQpy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 12:46:52 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A0E39692;
-        Tue, 19 Apr 2022 09:44:07 -0700 (PDT)
+        Tue, 19 Apr 2022 12:45:54 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FDB23A5D6;
+        Tue, 19 Apr 2022 09:43:11 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 483B2B81BF9;
-        Tue, 19 Apr 2022 16:44:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73DF2C385AB;
-        Tue, 19 Apr 2022 16:43:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E04826187A;
+        Tue, 19 Apr 2022 16:43:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03625C385A7;
+        Tue, 19 Apr 2022 16:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386644;
-        bh=dqIJ/cXf0VPjwidEepmxEeZMiI7iN357W1VgCgckmDE=;
+        s=k20201202; t=1650386590;
+        bh=WEWND/5nN7JVYVsbs3tEqP+TiJtxEvfNmON5NFDr+Wk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SgAVx6hkZdaHv3CD8CN9Q7eFkd1WUAxX4YYUeFf05mJNMCnPu3lsKbjbIJb+nrCSH
-         MbRo2uS1vlrWa6T8ShtJWreZbTLJrb3dXDPHBc25PMNa0XNB4hScmCRsBeQkEkqSCv
-         +D1EK+XAc5braLuQb46aOEU3+7YIhdjNAW0N5PZNZrplKGnsuxTJ6x799OQOgfgMbW
-         sbEfJMfJtKirlg5dW3FA+g0LbZALwv1CD2pNQ8XdFMVqsxpox+u5NY6tYIKKBroYh4
-         rdb9urn3q2CZRyIE88jk1iLQ4cIwwCb8rIZ4FbWkBX8VTcNRrzaU+7vSzuv+G4IMMQ
-         4B9UEXBmi+xuw==
+        b=uHGRodE/EXFdM5gCt1FI3C9AngGezCvw/LOdpW6FmOvThrp8Nzbk1OoCIgyZAnm4P
+         DV5ooWF+W6FHjQGEJZ8S2bpy0eBIWTMD7QY0jkXk8TtWxIv5xS+tI4gG/Z7OiSqgQb
+         75ZH7V/j5MWfmRA58vS4sk78r9kN9Y3wE+gjDnMBUfklqn2gJiyhmALPPpUESHnDZa
+         kDcxpEil9qeMCFqZJP3I8lSJYj+AxO3e0UYrmycY42VGAI9lAHBkYeFjrFE3ryVbLi
+         Q56ChwU9KjlooXzQ3qp7gKQ6ovYlXwYOxpFEz4bGRzaq1mEizTbhBsg2hJRhmro6Sq
+         bbav6vLtqM/Bg==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -59,10 +59,10 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        alsa-devel@alsa-project.org, Sebastian Reichel <sre@kernel.org>
-Subject: [PATCH 40/48] ARM: pxa: tosa: use gpio lookup for battery
-Date:   Tue, 19 Apr 2022 18:38:02 +0200
-Message-Id: <20220419163810.2118169-41-arnd@kernel.org>
+        alsa-devel@alsa-project.org
+Subject: [PATCH 33/48] ASoC: pxa: i2s: use normal MMIO accessors
+Date:   Tue, 19 Apr 2022 18:37:55 +0200
+Message-Id: <20220419163810.2118169-34-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -74,423 +74,257 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The battery driver uses a lot of GPIO lines, hardcoded from a
-machine header file.
+To avoid dereferencing hardwired constant pointers from a global header
+file, change the driver to use devm_platform_ioremap_resource for getting
+an __iomem pointer, and then using readl/writel on that.
 
-Change it to use a gpiod lookup table instead.
+Each pointer dereference gets changed by a search&replace, which leads
+to a few overlong lines, but seems less risky than trying to clean up
+the code at the same time.
 
-Reviewed-by: Sebastian Reichel <sre@kernel.org>
-Acked-by: Sebastian Reichel <sre@kernel.org>
-Cc: linux-pm@vger.kernel.org
+Acked-by: Mark Brown <broonie@kernel.org>
+Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
+Cc: alsa-devel@alsa-project.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mach-pxa/tosa.c            |  23 +++++
- drivers/power/supply/tosa_battery.c | 147 ++++++++++++++++------------
- 2 files changed, 109 insertions(+), 61 deletions(-)
+ sound/soc/pxa/pxa2xx-i2s.c | 110 +++++++++++++++++++++----------------
+ 1 file changed, 62 insertions(+), 48 deletions(-)
 
-diff --git a/arch/arm/mach-pxa/tosa.c b/arch/arm/mach-pxa/tosa.c
-index 5a16a025192c..19fe79518aaf 100644
---- a/arch/arm/mach-pxa/tosa.c
-+++ b/arch/arm/mach-pxa/tosa.c
-@@ -366,6 +366,28 @@ static struct pxaficp_platform_data tosa_ficp_platform_data = {
- 	.shutdown		= tosa_irda_shutdown,
- };
+diff --git a/sound/soc/pxa/pxa2xx-i2s.c b/sound/soc/pxa/pxa2xx-i2s.c
+index 5164c60ba89f..746e6ec9198b 100644
+--- a/sound/soc/pxa/pxa2xx-i2s.c
++++ b/sound/soc/pxa/pxa2xx-i2s.c
+@@ -21,7 +21,6 @@
+ #include <sound/pxa2xx-lib.h>
+ #include <sound/dmaengine_pcm.h>
  
-+static struct gpiod_lookup_table tosa_battery_gpio_table = {
-+	.dev_id = "wm97xx-battery",
-+	.table = {
-+		GPIO_LOOKUP("tc6393xb", TOSA_GPIO_CHARGE_OFF - TOSA_TC6393XB_GPIO_BASE,    "main charge off", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("tc6393xb", TOSA_GPIO_CHARGE_OFF_JC - TOSA_TC6393XB_GPIO_BASE, "jacket charge off", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("tc6393xb", TOSA_GPIO_BAT_SW_ON - TOSA_TC6393XB_GPIO_BASE,     "battery switch", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("tc6393xb", TOSA_GPIO_BAT0_V_ON - TOSA_TC6393XB_GPIO_BASE,     "main battery", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("tc6393xb", TOSA_GPIO_BAT1_V_ON - TOSA_TC6393XB_GPIO_BASE,     "jacket battery", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("tc6393xb", TOSA_GPIO_BAT1_TH_ON - TOSA_TC6393XB_GPIO_BASE,    "main battery temp", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("tc6393xb", TOSA_GPIO_BAT0_TH_ON - TOSA_TC6393XB_GPIO_BASE,    "jacket battery temp", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("tc6393xb", TOSA_GPIO_BU_CHRG_ON - TOSA_TC6393XB_GPIO_BASE,    "backup battery", GPIO_ACTIVE_HIGH ),
-+
-+		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_BAT0_CRG,      "main battery full", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_BAT1_CRG,      "jacket battery full", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_BAT0_LOW,      "main battery low", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_BAT1_LOW,      "jacket battery low", GPIO_ACTIVE_HIGH ),
-+		GPIO_LOOKUP("gpio-pxa", TOSA_GPIO_JACKET_DETECT, "jacket detect", GPIO_ACTIVE_HIGH ),
-+		{ },
-+	},
-+};
-+
-+
+-#include <mach/pxa-regs.h>
+ #include <linux/platform_data/asoc-pxa.h>
+ 
+ #include "pxa2xx-i2s.h"
+@@ -29,13 +28,13 @@
  /*
-  * Tosa AC IN
+  * I2S Controller Register and Bit Definitions
   */
-@@ -954,6 +976,7 @@ static void __init tosa_init(void)
- 	/* enable batt_fault */
- 	PMCR = 0x01;
+-#define SACR0		__REG(0x40400000)  /* Global Control Register */
+-#define SACR1		__REG(0x40400004)  /* Serial Audio I 2 S/MSB-Justified Control Register */
+-#define SASR0		__REG(0x4040000C)  /* Serial Audio I 2 S/MSB-Justified Interface and FIFO Status Register */
+-#define SAIMR		__REG(0x40400014)  /* Serial Audio Interrupt Mask Register */
+-#define SAICR		__REG(0x40400018)  /* Serial Audio Interrupt Clear Register */
+-#define SADIV		__REG(0x40400060)  /* Audio Clock Divider Register. */
+-#define SADR		__REG(0x40400080)  /* Serial Audio Data Register (TX and RX FIFO access Register). */
++#define SACR0		(0x0000)	/* Global Control Register */
++#define SACR1		(0x0004)	/* Serial Audio I 2 S/MSB-Justified Control Register */
++#define SASR0		(0x000C)	/* Serial Audio I 2 S/MSB-Justified Interface and FIFO Status Register */
++#define SAIMR		(0x0014)	/* Serial Audio Interrupt Mask Register */
++#define SAICR		(0x0018)	/* Serial Audio Interrupt Clear Register */
++#define SADIV		(0x0060)	/* Audio Clock Divider Register. */
++#define SADR		(0x0080)	/* Serial Audio Data Register (TX and RX FIFO access Register). */
  
-+	gpiod_add_lookup_table(&tosa_battery_gpio_table);
- 	gpiod_add_lookup_table(&tosa_mci_gpio_table);
- 	gpiod_add_lookup_table(&tosa_audio_gpio_table);
- 	pxa_set_mci_info(&tosa_mci_platform_data);
-diff --git a/drivers/power/supply/tosa_battery.c b/drivers/power/supply/tosa_battery.c
-index b26b0eca33e1..d10320f348d0 100644
---- a/drivers/power/supply/tosa_battery.c
-+++ b/drivers/power/supply/tosa_battery.c
-@@ -15,11 +15,16 @@
- #include <linux/gpio.h>
+ #define SACR0_RFTH(x)	((x) << 12)	/* Rx FIFO Interrupt or DMA Trigger Threshold */
+ #define SACR0_TFTH(x)	((x) << 8)	/* Tx FIFO Interrupt or DMA Trigger Threshold */
+@@ -77,16 +76,15 @@ struct pxa_i2s_port {
+ static struct pxa_i2s_port pxa_i2s;
+ static struct clk *clk_i2s;
+ static int clk_ena = 0;
++static void __iomem *i2s_reg_base;
  
- #include <asm/mach-types.h>
--#include <mach/tosa.h>
- 
- static DEFINE_MUTEX(bat_lock); /* protects gpio pins */
- static struct work_struct bat_work;
- 
-+struct tosa_gpio {
-+	const char *con;
-+	enum gpiod_flags flags;
-+	struct gpio_desc *desc;
-+};
-+
- struct tosa_bat {
- 	int status;
- 	struct power_supply *psy;
-@@ -28,38 +33,42 @@ struct tosa_bat {
- 	struct mutex work_lock; /* protects data */
- 
- 	bool (*is_present)(struct tosa_bat *bat);
--	int gpio_full;
--	int gpio_charge_off;
-+	struct tosa_gpio gpio_full;
-+	struct tosa_gpio gpio_charge_off;
- 
- 	int technology;
- 
--	int gpio_bat;
-+	struct tosa_gpio gpio_bat;
- 	int adc_bat;
- 	int adc_bat_divider;
- 	int bat_max;
- 	int bat_min;
- 
--	int gpio_temp;
-+	struct tosa_gpio gpio_temp;
- 	int adc_temp;
- 	int adc_temp_divider;
+ static struct snd_dmaengine_dai_dma_data pxa2xx_i2s_pcm_stereo_out = {
+-	.addr		= __PREG(SADR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_4_BYTES,
+ 	.chan_name	= "tx",
+ 	.maxburst	= 32,
  };
  
- static struct tosa_bat tosa_bat_main;
- static struct tosa_bat tosa_bat_jacket;
-+static struct tosa_gpio gpiod_jacket_det = { "jacket detect", GPIOD_IN };
-+static struct tosa_gpio gpiod_battery_switch = { "battery switch", GPIOD_OUT_LOW };
-+static struct tosa_gpio gpiod_main_battery_low = { "main battery low", GPIOD_IN };
-+static struct tosa_gpio gpiod_jacket_battery_low = { "jacket battery low", GPIOD_IN };
+ static struct snd_dmaengine_dai_dma_data pxa2xx_i2s_pcm_stereo_in = {
+-	.addr		= __PREG(SADR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_4_BYTES,
+ 	.chan_name	= "rx",
+ 	.maxburst	= 32,
+@@ -102,7 +100,7 @@ static int pxa2xx_i2s_startup(struct snd_pcm_substream *substream,
+ 		return PTR_ERR(clk_i2s);
  
- static unsigned long tosa_read_bat(struct tosa_bat *bat)
- {
- 	unsigned long value = 0;
+ 	if (!snd_soc_dai_active(cpu_dai))
+-		SACR0 = 0;
++		writel(0, i2s_reg_base + SACR0);
  
--	if (bat->gpio_bat < 0 || bat->adc_bat < 0)
-+	if (!bat->gpio_bat.desc || bat->adc_bat < 0)
- 		return 0;
- 
- 	mutex_lock(&bat_lock);
--	gpio_set_value(bat->gpio_bat, 1);
-+	gpiod_set_value(bat->gpio_bat.desc, 1);
- 	msleep(5);
- 	value = wm97xx_read_aux_adc(dev_get_drvdata(bat->psy->dev.parent),
- 			bat->adc_bat);
--	gpio_set_value(bat->gpio_bat, 0);
-+	gpiod_set_value(bat->gpio_bat.desc, 0);
- 	mutex_unlock(&bat_lock);
- 
- 	value = value * 1000000 / bat->adc_bat_divider;
-@@ -71,15 +80,15 @@ static unsigned long tosa_read_temp(struct tosa_bat *bat)
- {
- 	unsigned long value = 0;
- 
--	if (bat->gpio_temp < 0 || bat->adc_temp < 0)
-+	if (!bat->gpio_temp.desc || bat->adc_temp < 0)
- 		return 0;
- 
- 	mutex_lock(&bat_lock);
--	gpio_set_value(bat->gpio_temp, 1);
-+	gpiod_set_value(bat->gpio_temp.desc, 1);
- 	msleep(5);
- 	value = wm97xx_read_aux_adc(dev_get_drvdata(bat->psy->dev.parent),
- 			bat->adc_temp);
--	gpio_set_value(bat->gpio_temp, 0);
-+	gpiod_set_value(bat->gpio_temp.desc, 0);
- 	mutex_unlock(&bat_lock);
- 
- 	value = value * 10000 / bat->adc_temp_divider;
-@@ -136,7 +145,7 @@ static int tosa_bat_get_property(struct power_supply *psy,
- 
- static bool tosa_jacket_bat_is_present(struct tosa_bat *bat)
- {
--	return gpio_get_value(TOSA_GPIO_JACKET_DETECT) == 0;
-+	return gpiod_get_value(gpiod_jacket_det.desc) == 0;
+ 	return 0;
  }
+@@ -114,7 +112,7 @@ static int pxa_i2s_wait(void)
  
- static void tosa_bat_external_power_changed(struct power_supply *psy)
-@@ -166,23 +175,23 @@ static void tosa_bat_update(struct tosa_bat *bat)
- 		bat->full_chrg = -1;
- 	} else if (power_supply_am_i_supplied(psy)) {
- 		if (bat->status == POWER_SUPPLY_STATUS_DISCHARGING) {
--			gpio_set_value(bat->gpio_charge_off, 0);
-+			gpiod_set_value(bat->gpio_charge_off.desc, 0);
- 			mdelay(15);
- 		}
- 
--		if (gpio_get_value(bat->gpio_full)) {
-+		if (gpiod_get_value(bat->gpio_full.desc)) {
- 			if (old == POWER_SUPPLY_STATUS_CHARGING ||
- 					bat->full_chrg == -1)
- 				bat->full_chrg = tosa_read_bat(bat);
- 
--			gpio_set_value(bat->gpio_charge_off, 1);
-+			gpiod_set_value(bat->gpio_charge_off.desc, 1);
- 			bat->status = POWER_SUPPLY_STATUS_FULL;
- 		} else {
--			gpio_set_value(bat->gpio_charge_off, 0);
-+			gpiod_set_value(bat->gpio_charge_off.desc, 0);
- 			bat->status = POWER_SUPPLY_STATUS_CHARGING;
- 		}
- 	} else {
--		gpio_set_value(bat->gpio_charge_off, 1);
-+		gpiod_set_value(bat->gpio_charge_off.desc, 1);
- 		bat->status = POWER_SUPPLY_STATUS_DISCHARGING;
- 	}
- 
-@@ -251,18 +260,18 @@ static struct tosa_bat tosa_bat_main = {
- 	.full_chrg = -1,
- 	.psy = NULL,
- 
--	.gpio_full = TOSA_GPIO_BAT0_CRG,
--	.gpio_charge_off = TOSA_GPIO_CHARGE_OFF,
-+	.gpio_full = { "main battery full", GPIOD_IN },
-+	.gpio_charge_off = { "main charge off" , GPIOD_OUT_HIGH },
- 
- 	.technology = POWER_SUPPLY_TECHNOLOGY_LIPO,
- 
--	.gpio_bat = TOSA_GPIO_BAT0_V_ON,
-+	.gpio_bat = { "main battery", GPIOD_OUT_LOW },
- 	.adc_bat = WM97XX_AUX_ID3,
- 	.adc_bat_divider = 414,
- 	.bat_max = 4310000,
- 	.bat_min = 1551 * 1000000 / 414,
- 
--	.gpio_temp = TOSA_GPIO_BAT1_TH_ON,
-+	.gpio_temp = { "main battery temp", GPIOD_OUT_LOW },
- 	.adc_temp = WM97XX_AUX_ID2,
- 	.adc_temp_divider = 10000,
- };
-@@ -273,18 +282,18 @@ static struct tosa_bat tosa_bat_jacket = {
- 	.psy = NULL,
- 
- 	.is_present = tosa_jacket_bat_is_present,
--	.gpio_full = TOSA_GPIO_BAT1_CRG,
--	.gpio_charge_off = TOSA_GPIO_CHARGE_OFF_JC,
-+	.gpio_full = { "jacket battery full", GPIOD_IN },
-+	.gpio_charge_off = { "jacket charge off", GPIOD_OUT_HIGH },
- 
- 	.technology = POWER_SUPPLY_TECHNOLOGY_LIPO,
- 
--	.gpio_bat = TOSA_GPIO_BAT1_V_ON,
-+	.gpio_bat = { "jacket battery", GPIOD_OUT_LOW },
- 	.adc_bat = WM97XX_AUX_ID3,
- 	.adc_bat_divider = 414,
- 	.bat_max = 4310000,
- 	.bat_min = 1551 * 1000000 / 414,
- 
--	.gpio_temp = TOSA_GPIO_BAT0_TH_ON,
-+	.gpio_temp = { "jacket battery temp", GPIOD_OUT_LOW },
- 	.adc_temp = WM97XX_AUX_ID2,
- 	.adc_temp_divider = 10000,
- };
-@@ -294,36 +303,16 @@ static struct tosa_bat tosa_bat_bu = {
- 	.full_chrg = -1,
- 	.psy = NULL,
- 
--	.gpio_full = -1,
--	.gpio_charge_off = -1,
--
- 	.technology = POWER_SUPPLY_TECHNOLOGY_LiMn,
- 
--	.gpio_bat = TOSA_GPIO_BU_CHRG_ON,
-+	.gpio_bat = { "backup battery", GPIOD_OUT_LOW },
- 	.adc_bat = WM97XX_AUX_ID4,
- 	.adc_bat_divider = 1266,
- 
--	.gpio_temp = -1,
- 	.adc_temp = -1,
- 	.adc_temp_divider = -1,
- };
- 
--static struct gpio tosa_bat_gpios[] = {
--	{ TOSA_GPIO_CHARGE_OFF,	   GPIOF_OUT_INIT_HIGH, "main charge off" },
--	{ TOSA_GPIO_CHARGE_OFF_JC, GPIOF_OUT_INIT_HIGH, "jacket charge off" },
--	{ TOSA_GPIO_BAT_SW_ON,	   GPIOF_OUT_INIT_LOW,	"battery switch" },
--	{ TOSA_GPIO_BAT0_V_ON,	   GPIOF_OUT_INIT_LOW,	"main battery" },
--	{ TOSA_GPIO_BAT1_V_ON,	   GPIOF_OUT_INIT_LOW,	"jacket battery" },
--	{ TOSA_GPIO_BAT1_TH_ON,	   GPIOF_OUT_INIT_LOW,	"main battery temp" },
--	{ TOSA_GPIO_BAT0_TH_ON,	   GPIOF_OUT_INIT_LOW,	"jacket battery temp" },
--	{ TOSA_GPIO_BU_CHRG_ON,	   GPIOF_OUT_INIT_LOW,	"backup battery" },
--	{ TOSA_GPIO_BAT0_CRG,	   GPIOF_IN,		"main battery full" },
--	{ TOSA_GPIO_BAT1_CRG,	   GPIOF_IN,		"jacket battery full" },
--	{ TOSA_GPIO_BAT0_LOW,	   GPIOF_IN,		"main battery low" },
--	{ TOSA_GPIO_BAT1_LOW,	   GPIOF_IN,		"jacket battery low" },
--	{ TOSA_GPIO_JACKET_DETECT, GPIOF_IN,		"jacket detect" },
--};
--
- #ifdef CONFIG_PM
- static int tosa_bat_suspend(struct platform_device *dev, pm_message_t state)
- {
-@@ -343,6 +332,21 @@ static int tosa_bat_resume(struct platform_device *dev)
- #define tosa_bat_resume NULL
- #endif
- 
-+static int tosa_bat_gpio_get(struct device *dev, struct tosa_gpio *gpio)
-+{
-+	int ret;
-+
-+	if (!gpio->con)
-+		return 0;
-+
-+	gpio->desc = devm_gpiod_get(dev, gpio->con, gpio->flags);
-+	ret = PTR_ERR_OR_ZERO(gpio->desc);
-+	if (ret)
-+		dev_warn(dev, "failed to get gpio \"%s\"\n", gpio->con);
-+
-+	return ret;
-+}
-+
- static int tosa_power_supply_register(struct device *dev,
- 			struct tosa_bat *bat,
- 			const struct power_supply_desc *desc)
-@@ -350,6 +354,23 @@ static int tosa_power_supply_register(struct device *dev,
- 	struct power_supply_config cfg = {
- 		.drv_data = bat,
- 	};
-+	int ret;
-+
-+	ret = tosa_bat_gpio_get(dev, &bat->gpio_full);
-+	if (ret)
-+		return ret;
-+
-+	ret = tosa_bat_gpio_get(dev, &bat->gpio_charge_off);
-+	if (ret)
-+		return ret;
-+
-+	ret = tosa_bat_gpio_get(dev, &bat->gpio_bat);
-+	if (ret)
-+		return ret;
-+
-+	ret = tosa_bat_gpio_get(dev, &bat->gpio_temp);
-+	if (ret)
-+		return ret;
- 
- 	mutex_init(&bat->work_lock);
- 	bat->psy = power_supply_register(dev, desc, &cfg);
-@@ -358,49 +379,55 @@ static int tosa_power_supply_register(struct device *dev,
- }
- 
- 
--static int tosa_bat_probe(struct platform_device *dev)
-+static int tosa_bat_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	int ret;
- 
- 	if (!machine_is_tosa())
- 		return -ENODEV;
- 
--	ret = gpio_request_array(tosa_bat_gpios, ARRAY_SIZE(tosa_bat_gpios));
-+	ret = tosa_bat_gpio_get(dev, &gpiod_jacket_det);
- 	if (ret)
- 		return ret;
- 
-+	/* these are not used anywhere, continue on failure */
-+	tosa_bat_gpio_get(dev, &gpiod_battery_switch);
-+	tosa_bat_gpio_get(dev, &gpiod_main_battery_low);
-+	tosa_bat_gpio_get(dev, &gpiod_jacket_battery_low);
-+
- 	INIT_WORK(&bat_work, tosa_bat_work);
- 
--	ret = tosa_power_supply_register(&dev->dev, &tosa_bat_main,
-+	ret = tosa_power_supply_register(dev, &tosa_bat_main,
- 					 &tosa_bat_main_desc);
- 	if (ret)
- 		goto err_psy_reg_main;
- 
--	ret = tosa_power_supply_register(&dev->dev, &tosa_bat_jacket,
-+	ret = tosa_power_supply_register(dev, &tosa_bat_jacket,
- 					 &tosa_bat_jacket_desc);
- 	if (ret)
- 		goto err_psy_reg_jacket;
- 
--	ret = tosa_power_supply_register(&dev->dev, &tosa_bat_bu,
-+	ret = tosa_power_supply_register(dev, &tosa_bat_bu,
- 					 &tosa_bat_bu_desc);
- 	if (ret)
- 		goto err_psy_reg_bu;
- 
--	ret = request_irq(gpio_to_irq(TOSA_GPIO_BAT0_CRG),
-+	ret = request_irq(gpiod_to_irq(tosa_bat_main.gpio_full.desc),
- 				tosa_bat_gpio_isr,
- 				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
- 				"main full", &tosa_bat_main);
- 	if (ret)
- 		goto err_req_main;
- 
--	ret = request_irq(gpio_to_irq(TOSA_GPIO_BAT1_CRG),
-+	ret = request_irq(gpiod_to_irq(tosa_bat_jacket.gpio_full.desc),
- 				tosa_bat_gpio_isr,
- 				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
- 				"jacket full", &tosa_bat_jacket);
- 	if (ret)
- 		goto err_req_jacket;
- 
--	ret = request_irq(gpio_to_irq(TOSA_GPIO_JACKET_DETECT),
-+	ret = request_irq(gpiod_to_irq(gpiod_jacket_det.desc),
- 				tosa_bat_gpio_isr,
- 				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
- 				"jacket detect", &tosa_bat_jacket);
-@@ -409,9 +436,9 @@ static int tosa_bat_probe(struct platform_device *dev)
- 		return 0;
- 	}
- 
--	free_irq(gpio_to_irq(TOSA_GPIO_BAT1_CRG), &tosa_bat_jacket);
-+	free_irq(gpiod_to_irq(tosa_bat_jacket.gpio_full.desc), &tosa_bat_jacket);
- err_req_jacket:
--	free_irq(gpio_to_irq(TOSA_GPIO_BAT0_CRG), &tosa_bat_main);
-+	free_irq(gpiod_to_irq(tosa_bat_main.gpio_full.desc), &tosa_bat_main);
- err_req_main:
- 	power_supply_unregister(tosa_bat_bu.psy);
- err_psy_reg_bu:
-@@ -423,15 +450,14 @@ static int tosa_bat_probe(struct platform_device *dev)
- 	/* see comment in tosa_bat_remove */
- 	cancel_work_sync(&bat_work);
- 
--	gpio_free_array(tosa_bat_gpios, ARRAY_SIZE(tosa_bat_gpios));
- 	return ret;
- }
- 
- static int tosa_bat_remove(struct platform_device *dev)
- {
--	free_irq(gpio_to_irq(TOSA_GPIO_JACKET_DETECT), &tosa_bat_jacket);
--	free_irq(gpio_to_irq(TOSA_GPIO_BAT1_CRG), &tosa_bat_jacket);
--	free_irq(gpio_to_irq(TOSA_GPIO_BAT0_CRG), &tosa_bat_main);
-+	free_irq(gpiod_to_irq(gpiod_jacket_det.desc), &tosa_bat_jacket);
-+	free_irq(gpiod_to_irq(tosa_bat_jacket.gpio_full.desc), &tosa_bat_jacket);
-+	free_irq(gpiod_to_irq(tosa_bat_main.gpio_full.desc), &tosa_bat_main);
- 
- 	power_supply_unregister(tosa_bat_bu.psy);
- 	power_supply_unregister(tosa_bat_jacket.psy);
-@@ -443,7 +469,6 @@ static int tosa_bat_remove(struct platform_device *dev)
- 	 * unregistered now.
- 	 */
- 	cancel_work_sync(&bat_work);
--	gpio_free_array(tosa_bat_gpios, ARRAY_SIZE(tosa_bat_gpios));
+ 	/* flush the Rx FIFO */
+ 	for (i = 0; i < 16; i++)
+-		SADR;
++		readl(i2s_reg_base + SADR);
  	return 0;
  }
  
+@@ -174,39 +172,39 @@ static int pxa2xx_i2s_hw_params(struct snd_pcm_substream *substream,
+ 
+ 	/* is port used by another stream */
+ 	if (!(SACR0 & SACR0_ENB)) {
+-		SACR0 = 0;
++		writel(0, i2s_reg_base + SACR0);
+ 		if (pxa_i2s.master)
+-			SACR0 |= SACR0_BCKD;
++			writel(readl(i2s_reg_base + SACR0) | (SACR0_BCKD), i2s_reg_base + SACR0);
+ 
+-		SACR0 |= SACR0_RFTH(14) | SACR0_TFTH(1);
+-		SACR1 |= pxa_i2s.fmt;
++		writel(readl(i2s_reg_base + SACR0) | (SACR0_RFTH(14) | SACR0_TFTH(1)), i2s_reg_base + SACR0);
++		writel(readl(i2s_reg_base + SACR1) | (pxa_i2s.fmt), i2s_reg_base + SACR1);
+ 	}
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-		SAIMR |= SAIMR_TFS;
++		writel(readl(i2s_reg_base + SAIMR) | (SAIMR_TFS), i2s_reg_base + SAIMR);
+ 	else
+-		SAIMR |= SAIMR_RFS;
++		writel(readl(i2s_reg_base + SAIMR) | (SAIMR_RFS), i2s_reg_base + SAIMR);
+ 
+ 	switch (params_rate(params)) {
+ 	case 8000:
+-		SADIV = 0x48;
++		writel(0x48, i2s_reg_base + SADIV);
+ 		break;
+ 	case 11025:
+-		SADIV = 0x34;
++		writel(0x34, i2s_reg_base + SADIV);
+ 		break;
+ 	case 16000:
+-		SADIV = 0x24;
++		writel(0x24, i2s_reg_base + SADIV);
+ 		break;
+ 	case 22050:
+-		SADIV = 0x1a;
++		writel(0x1a, i2s_reg_base + SADIV);
+ 		break;
+ 	case 44100:
+-		SADIV = 0xd;
++		writel(0xd, i2s_reg_base + SADIV);
+ 		break;
+ 	case 48000:
+-		SADIV = 0xc;
++		writel(0xc, i2s_reg_base + SADIV);
+ 		break;
+ 	case 96000: /* not in manual and possibly slightly inaccurate */
+-		SADIV = 0x6;
++		writel(0x6, i2s_reg_base + SADIV);
+ 		break;
+ 	}
+ 
+@@ -221,10 +219,10 @@ static int pxa2xx_i2s_trigger(struct snd_pcm_substream *substream, int cmd,
+ 	switch (cmd) {
+ 	case SNDRV_PCM_TRIGGER_START:
+ 		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
+-			SACR1 &= ~SACR1_DRPL;
++			writel(readl(i2s_reg_base + SACR1) & (~SACR1_DRPL), i2s_reg_base + SACR1);
+ 		else
+-			SACR1 &= ~SACR1_DREC;
+-		SACR0 |= SACR0_ENB;
++			writel(readl(i2s_reg_base + SACR1) & (~SACR1_DREC), i2s_reg_base + SACR1);
++		writel(readl(i2s_reg_base + SACR0) | (SACR0_ENB), i2s_reg_base + SACR0);
+ 		break;
+ 	case SNDRV_PCM_TRIGGER_RESUME:
+ 	case SNDRV_PCM_TRIGGER_PAUSE_RELEASE:
+@@ -243,15 +241,15 @@ static void pxa2xx_i2s_shutdown(struct snd_pcm_substream *substream,
+ 				struct snd_soc_dai *dai)
+ {
+ 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
+-		SACR1 |= SACR1_DRPL;
+-		SAIMR &= ~SAIMR_TFS;
++		writel(readl(i2s_reg_base + SACR1) | (SACR1_DRPL), i2s_reg_base + SACR1);
++		writel(readl(i2s_reg_base + SAIMR) & (~SAIMR_TFS), i2s_reg_base + SAIMR);
+ 	} else {
+-		SACR1 |= SACR1_DREC;
+-		SAIMR &= ~SAIMR_RFS;
++		writel(readl(i2s_reg_base + SACR1) | (SACR1_DREC), i2s_reg_base + SACR1);
++		writel(readl(i2s_reg_base + SAIMR) & (~SAIMR_RFS), i2s_reg_base + SAIMR);
+ 	}
+ 
+-	if ((SACR1 & (SACR1_DREC | SACR1_DRPL)) == (SACR1_DREC | SACR1_DRPL)) {
+-		SACR0 &= ~SACR0_ENB;
++	if ((readl(i2s_reg_base + SACR1) & (SACR1_DREC | SACR1_DRPL)) == (SACR1_DREC | SACR1_DRPL)) {
++		writel(readl(i2s_reg_base + SACR0) & (~SACR0_ENB), i2s_reg_base + SACR0);
+ 		pxa_i2s_wait();
+ 		if (clk_ena) {
+ 			clk_disable_unprepare(clk_i2s);
+@@ -264,13 +262,13 @@ static void pxa2xx_i2s_shutdown(struct snd_pcm_substream *substream,
+ static int pxa2xx_soc_pcm_suspend(struct snd_soc_component *component)
+ {
+ 	/* store registers */
+-	pxa_i2s.sacr0 = SACR0;
+-	pxa_i2s.sacr1 = SACR1;
+-	pxa_i2s.saimr = SAIMR;
+-	pxa_i2s.sadiv = SADIV;
++	pxa_i2s.sacr0 = readl(i2s_reg_base + SACR0);
++	pxa_i2s.sacr1 = readl(i2s_reg_base + SACR1);
++	pxa_i2s.saimr = readl(i2s_reg_base + SAIMR);
++	pxa_i2s.sadiv = readl(i2s_reg_base + SADIV);
+ 
+ 	/* deactivate link */
+-	SACR0 &= ~SACR0_ENB;
++	writel(readl(i2s_reg_base + SACR0) & (~SACR0_ENB), i2s_reg_base + SACR0);
+ 	pxa_i2s_wait();
+ 	return 0;
+ }
+@@ -279,12 +277,12 @@ static int pxa2xx_soc_pcm_resume(struct snd_soc_component *component)
+ {
+ 	pxa_i2s_wait();
+ 
+-	SACR0 = pxa_i2s.sacr0 & ~SACR0_ENB;
+-	SACR1 = pxa_i2s.sacr1;
+-	SAIMR = pxa_i2s.saimr;
+-	SADIV = pxa_i2s.sadiv;
++	writel(pxa_i2s.sacr0 & ~SACR0_ENB, i2s_reg_base + SACR0);
++	writel(pxa_i2s.sacr1, i2s_reg_base + SACR1);
++	writel(pxa_i2s.saimr, i2s_reg_base + SAIMR);
++	writel(pxa_i2s.sadiv, i2s_reg_base + SADIV);
+ 
+-	SACR0 = pxa_i2s.sacr0;
++	writel(pxa_i2s.sacr0, i2s_reg_base + SACR0);
+ 
+ 	return 0;
+ }
+@@ -306,12 +304,12 @@ static int pxa2xx_i2s_probe(struct snd_soc_dai *dai)
+ 	 * the SACR0[RST] bit must also be set and cleared to reset all
+ 	 * I2S controller registers.
+ 	 */
+-	SACR0 = SACR0_RST;
+-	SACR0 = 0;
++	writel(SACR0_RST, i2s_reg_base + SACR0);
++	writel(0, i2s_reg_base + SACR0);
+ 	/* Make sure RPL and REC are disabled */
+-	SACR1 = SACR1_DRPL | SACR1_DREC;
++	writel(SACR1_DRPL | SACR1_DREC, i2s_reg_base + SACR1);
+ 	/* Along with FIFO servicing */
+-	SAIMR &= ~(SAIMR_RFS | SAIMR_TFS);
++	writel(readl(i2s_reg_base + SAIMR) & (~(SAIMR_RFS | SAIMR_TFS)), i2s_reg_base + SAIMR);
+ 
+ 	snd_soc_dai_init_dma_data(dai, &pxa2xx_i2s_pcm_stereo_out,
+ 		&pxa2xx_i2s_pcm_stereo_in);
+@@ -371,6 +369,22 @@ static const struct snd_soc_component_driver pxa_i2s_component = {
+ 
+ static int pxa2xx_i2s_drv_probe(struct platform_device *pdev)
+ {
++	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++
++	if (!res) {
++		dev_err(&pdev->dev, "missing MMIO resource\n");
++		return -ENXIO;
++	}
++
++	i2s_reg_base = devm_ioremap_resource(&pdev->dev, res);
++	if (IS_ERR(i2s_reg_base)) {
++		dev_err(&pdev->dev, "ioremap failed\n");
++		return PTR_ERR(i2s_reg_base);
++	}
++
++	pxa2xx_i2s_pcm_stereo_out.addr = res->start + SADR;
++	pxa2xx_i2s_pcm_stereo_in.addr = res->start + SADR;
++
+ 	return devm_snd_soc_register_component(&pdev->dev, &pxa_i2s_component,
+ 					       &pxa_i2s_dai, 1);
+ }
 -- 
 2.29.2
 

@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8ABCC35296
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 674B7C433F5
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:47:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245188AbiDSQti (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:49:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55678 "EHLO
+        id S1355399AbiDSQtk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:49:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231271AbiDSQrG (ORCPT
+        with ESMTP id S1355187AbiDSQrn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 12:47:06 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC6C339692;
-        Tue, 19 Apr 2022 09:44:22 -0700 (PDT)
+        Tue, 19 Apr 2022 12:47:43 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2614B2617;
+        Tue, 19 Apr 2022 09:45:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 98D31B81BB6;
-        Tue, 19 Apr 2022 16:44:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D49C385B6;
-        Tue, 19 Apr 2022 16:44:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B729F6187A;
+        Tue, 19 Apr 2022 16:44:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE24C385A5;
+        Tue, 19 Apr 2022 16:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386660;
-        bh=/6iIOutIe2dthl0F9tUwRrWmTz1Y+vHGyZSNFuNK4W0=;
+        s=k20201202; t=1650386699;
+        bh=TQPO8Eb4DXbuBVjH4snBze/CPXLx8hYfj8F7j3GxU9A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r9TzRbN2wJ9anV7WP0E3rP1S1Cki++xSivN4dBdyNHhyWwMh/MI+BtyAeqgYlBYXV
-         ItPRfCU6w7MqI+MFhEsR5oorVEigDVDTfLVzE3yCgnLfKVyWW3gfUdTAbpfQ+0xMlv
-         4h+YVQk5XgEEoQXPsOwj0Fou41j1UM7Ct/jvU8LRL/8ndMFQ+B79JydmegZ2DAQ0SW
-         JwbK17hawoV1JcDkXQOweIbtoMS6G5Dy/AtPICtIdIqThqKAcNwIk2Z+V0Gk8YY1UC
-         qolXwRGVZyysQKzmwpm1PVfh5Wsw43vmB7v0Jz+vdy/0bIr6cZp8M8u+LOSFSklyM5
-         I5AkVeQlQC3Hw==
+        b=PkE+S9qLLt/uVvjmX7SVYzOD8H0A2jnCwpUediQL9CiEFuo2XQ7+fzVe5orFR/j+B
+         1Kn0644vK/CRT07rVNiayly/tbCE5RPqmVa3sV7YLFN50VR4KOu5kwLyvCKy7UdWrd
+         PpC3+mfHHUpdHO2H25Am/SucJvYtHlNwTKkTuKmcMj5yZ3LlaeFsGLmcsHCxsrNU/J
+         cXPXnNTaI9aPH1OycStlSzavEF+2HEuf5KBubApJxMqmt5vWDdLpCukXObZY00wvyD
+         QUu8InZhgmCtgAChwTU5DZn/0HRUIttBKkcHuZWOka//Ki7ysvaMnLhCuX+trrjXmv
+         KfputJ5rHCapw==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -60,9 +60,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 42/48] ARM: mmp: remove tavorevb board support
-Date:   Tue, 19 Apr 2022 18:38:04 +0200
-Message-Id: <20220419163810.2118169-43-arnd@kernel.org>
+Subject: [PATCH 47/48] ARM: pxa: remove support for MTD_XIP
+Date:   Tue, 19 Apr 2022 18:38:09 +0200
+Message-Id: <20220419163810.2118169-48-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -74,192 +74,76 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-There are two tavorevb boards in the kernel, one using a PXA930 chip in
-mach-pxa, and one using the later PXA910 chip in mach-mmp.  They use the
-same board number, which is generally a bad idea, and in a multiplatform
-kernel, we can end up with funny link errors like this one resulting
-from two boards gettting controlled by the same Kconfig symbol:
+Using MTD-XIP does not work on multiplatform kernels because
+it requires SoC specific register accesses to be done from
+low-level flash handling functions in RAM while the rest of the
+kernel sits in flash.
 
-arch/arm/mach-mmp/tavorevb.o: In function `tavorevb_init':
-tavorevb.c:(.init.text+0x4c): undefined reference to `pxa910_device_uart1'
-tavorevb.c:(.init.text+0x50): undefined reference to `pxa910_device_gpio'
-tavorevb.o:(.arch.info.init+0x54): undefined reference to `pxa910_init_irq'
-tavorevb.o:(.arch.info.init+0x58): undefined reference to `pxa910_timer_init'
+I found no evidence of anyone still actually using this feature,
+so remove it from PXA to avoid spending a lot of time on
+actually making it work.
 
-The mach-pxa TavorEVB seems much more complete than the mach-mmp one
-that supports only uart, gpio and ethernet. Further, I could find no
-information about the board on the internet aside from references to
-the Linux kernel, so I assume this was never available outside of Marvell
-and can be removed entirely.
-
-There is a third board named TavorEVB in the Kconfig description,
-but this refers to the "TTC_DKB" machine. The two are clearly
-related, so I change the Kconfig description to just list both
-names.
-
-Cc: Lubomir Rintel <lkundrak@v3.sk>
-Reviewed-by: Lubomir Rintel <lkundrak@v3.sk>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mach-mmp/Kconfig    |  10 +---
- arch/arm/mach-mmp/Makefile   |   1 -
- arch/arm/mach-mmp/tavorevb.c | 113 -----------------------------------
- 3 files changed, 1 insertion(+), 123 deletions(-)
- delete mode 100644 arch/arm/mach-mmp/tavorevb.c
+ arch/arm/Kconfig                         |  1 -
+ arch/arm/mach-pxa/include/mach/mtd-xip.h | 36 ------------------------
+ 2 files changed, 37 deletions(-)
+ delete mode 100644 arch/arm/mach-pxa/include/mach/mtd-xip.h
 
-diff --git a/arch/arm/mach-mmp/Kconfig b/arch/arm/mach-mmp/Kconfig
-index 0dd999212944..92a730a573b9 100644
---- a/arch/arm/mach-mmp/Kconfig
-+++ b/arch/arm/mach-mmp/Kconfig
-@@ -39,16 +39,8 @@ config MACH_AVENGERS_LITE
- 	  Say 'Y' here if you want to support the Marvell PXA168-based
- 	  Avengers Lite Development Board.
+diff --git a/arch/arm/Kconfig b/arch/arm/Kconfig
+index eef8cbf20045..ace6c08c8ae2 100644
+--- a/arch/arm/Kconfig
++++ b/arch/arm/Kconfig
+@@ -413,7 +413,6 @@ config ARCH_DOVE
  
--config MACH_TAVOREVB
--	bool "Marvell's PXA910 TavorEVB Development Board"
--	depends on ARCH_MULTI_V5
--	select CPU_PXA910
--	help
--	  Say 'Y' here if you want to support the Marvell PXA910-based
--	  TavorEVB Development Board.
--
- config MACH_TTC_DKB
--	bool "Marvell's PXA910 TavorEVB Development Board"
-+	bool "Marvell's PXA910 TavorEVB/TTC_DKB Development Board"
- 	depends on ARCH_MULTI_V5
- 	select CPU_PXA910
- 	help
-diff --git a/arch/arm/mach-mmp/Makefile b/arch/arm/mach-mmp/Makefile
-index e3758f7e1fe7..81338db77ec7 100644
---- a/arch/arm/mach-mmp/Makefile
-+++ b/arch/arm/mach-mmp/Makefile
-@@ -24,7 +24,6 @@ endif
- obj-$(CONFIG_MACH_ASPENITE)	+= aspenite.o
- obj-$(CONFIG_MACH_ZYLONITE2)	+= aspenite.o
- obj-$(CONFIG_MACH_AVENGERS_LITE)+= avengers_lite.o
--obj-$(CONFIG_MACH_TAVOREVB)	+= tavorevb.o
- obj-$(CONFIG_MACH_TTC_DKB)	+= ttc_dkb.o
- obj-$(CONFIG_MACH_BROWNSTONE)	+= brownstone.o
- obj-$(CONFIG_MACH_FLINT)	+= flint.o
-diff --git a/arch/arm/mach-mmp/tavorevb.c b/arch/arm/mach-mmp/tavorevb.c
+ config ARCH_PXA
+ 	bool "PXA2xx/PXA3xx-based"
+-	select ARCH_MTD_XIP
+ 	select ARM_CPU_SUSPEND if PM
+ 	select AUTO_ZRELADDR
+ 	select COMMON_CLK
+diff --git a/arch/arm/mach-pxa/include/mach/mtd-xip.h b/arch/arm/mach-pxa/include/mach/mtd-xip.h
 deleted file mode 100644
-index 3261d2322198..000000000000
---- a/arch/arm/mach-mmp/tavorevb.c
+index 4b31bef9e50a..000000000000
+--- a/arch/arm/mach-pxa/include/mach/mtd-xip.h
 +++ /dev/null
-@@ -1,113 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-only
+@@ -1,36 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
 -/*
-- *  linux/arch/arm/mach-mmp/tavorevb.c
+- * MTD primitives for XIP support. Architecture specific functions
 - *
-- *  Support for the Marvell PXA910-based TavorEVB Development Platform.
+- * Do not include this file directly. It's included from linux/mtd/xip.h
+- * 
+- * Author:	Nicolas Pitre
+- * Created:	Nov 2, 2004
+- * Copyright:	(C) 2004 MontaVista Software, Inc.
 - */
--#include <linux/gpio.h>
--#include <linux/gpio-pxa.h>
--#include <linux/init.h>
--#include <linux/kernel.h>
--#include <linux/platform_device.h>
--#include <linux/smc91x.h>
 -
--#include <asm/mach-types.h>
--#include <asm/mach/arch.h>
--#include "addr-map.h"
--#include "mfp-pxa910.h"
--#include "pxa910.h"
--#include "irqs.h"
+-#ifndef __ARCH_PXA_MTD_XIP_H__
+-#define __ARCH_PXA_MTD_XIP_H__
 -
--#include "common.h"
+-#include <mach/regs-ost.h>
 -
--static unsigned long tavorevb_pin_config[] __initdata = {
--	/* UART2 */
--	GPIO47_UART2_RXD,
--	GPIO48_UART2_TXD,
+-/* restored July 2017, this did not build since 2011! */
 -
--	/* SMC */
--	SM_nCS0_nCS0,
--	SM_ADV_SM_ADV,
--	SM_SCLK_SM_SCLK,
--	SM_SCLK_SM_SCLK,
--	SM_BE0_SM_BE0,
--	SM_BE1_SM_BE1,
+-#define ICIP			io_p2v(0x40d00000)
+-#define ICMR			io_p2v(0x40d00004)
+-#define xip_irqpending()	(readl(ICIP) & readl(ICMR))
 -
--	/* DFI */
--	DF_IO0_ND_IO0,
--	DF_IO1_ND_IO1,
--	DF_IO2_ND_IO2,
--	DF_IO3_ND_IO3,
--	DF_IO4_ND_IO4,
--	DF_IO5_ND_IO5,
--	DF_IO6_ND_IO6,
--	DF_IO7_ND_IO7,
--	DF_IO8_ND_IO8,
--	DF_IO9_ND_IO9,
--	DF_IO10_ND_IO10,
--	DF_IO11_ND_IO11,
--	DF_IO12_ND_IO12,
--	DF_IO13_ND_IO13,
--	DF_IO14_ND_IO14,
--	DF_IO15_ND_IO15,
--	DF_nCS0_SM_nCS2_nCS0,
--	DF_ALE_SM_WEn_ND_ALE,
--	DF_CLE_SM_OEn_ND_CLE,
--	DF_WEn_DF_WEn,
--	DF_REn_DF_REn,
--	DF_RDY0_DF_RDY0,
--};
+-/* we sample OSCR and convert desired delta to usec (1/4 ~= 1000000/3686400) */
+-#define xip_currtime()		readl(OSCR)
+-#define xip_elapsed_since(x)	(signed)((readl(OSCR) - (x)) / 4)
 -
--static struct pxa_gpio_platform_data pxa910_gpio_pdata = {
--	.irq_base	= MMP_GPIO_TO_IRQ(0),
--};
+-/*
+- * xip_cpu_idle() is used when waiting for a delay equal or larger than
+- * the system timer tick period.  This should put the CPU into idle mode
+- * to save power and to be woken up only when some interrupts are pending.
+- * As above, this should not rely upon standard kernel code.
+- */
 -
--static struct smc91x_platdata tavorevb_smc91x_info = {
--	.flags	= SMC91X_USE_16BIT | SMC91X_NOWAIT,
--};
+-#define xip_cpu_idle()  asm volatile ("mcr p14, 0, %0, c7, c0, 0" :: "r" (1))
 -
--static struct resource smc91x_resources[] = {
--	[0] = {
--		.start	= SMC_CS1_PHYS_BASE + 0x300,
--		.end	= SMC_CS1_PHYS_BASE + 0xfffff,
--		.flags	= IORESOURCE_MEM,
--	},
--	[1] = {
--		.start	= MMP_GPIO_TO_IRQ(80),
--		.end	= MMP_GPIO_TO_IRQ(80),
--		.flags	= IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHEDGE,
--	}
--};
--
--static struct platform_device smc91x_device = {
--	.name		= "smc91x",
--	.id		= 0,
--	.dev		= {
--		.platform_data = &tavorevb_smc91x_info,
--	},
--	.num_resources	= ARRAY_SIZE(smc91x_resources),
--	.resource	= smc91x_resources,
--};
--
--static void __init tavorevb_init(void)
--{
--	mfp_config(ARRAY_AND_SIZE(tavorevb_pin_config));
--
--	/* on-chip devices */
--	pxa910_add_uart(1);
--	platform_device_add_data(&pxa910_device_gpio, &pxa910_gpio_pdata,
--				 sizeof(struct pxa_gpio_platform_data));
--	platform_device_register(&pxa910_device_gpio);
--
--	/* off-chip devices */
--	platform_device_register(&smc91x_device);
--}
--
--MACHINE_START(TAVOREVB, "PXA910 Evaluation Board (aka TavorEVB)")
--	.map_io		= mmp_map_io,
--	.nr_irqs	= MMP_NR_IRQS,
--	.init_irq       = pxa910_init_irq,
--	.init_time	= pxa910_timer_init,
--	.init_machine   = tavorevb_init,
--	.restart	= mmp_restart,
--MACHINE_END
+-#endif /* __ARCH_PXA_MTD_XIP_H__ */
 -- 
 2.29.2
 

@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17C84C433EF
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:41:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC9CDC433F5
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:40:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244482AbiDSNn3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 09:43:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36912 "EHLO
+        id S245002AbiDSNna (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 09:43:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352696AbiDSNmi (ORCPT
+        with ESMTP id S1352553AbiDSNls (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 09:42:38 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D53038DA8;
-        Tue, 19 Apr 2022 06:39:40 -0700 (PDT)
+        Tue, 19 Apr 2022 09:41:48 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C26D381AA;
+        Tue, 19 Apr 2022 06:38:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDCF6B8197F;
-        Tue, 19 Apr 2022 13:39:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E95D2C385B7;
-        Tue, 19 Apr 2022 13:39:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE5CF616A7;
+        Tue, 19 Apr 2022 13:38:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F1F3C385B0;
+        Tue, 19 Apr 2022 13:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650375577;
-        bh=/1rRcvDuoUNuJnmYPxOkUtRPrNjTWfgWCQQLuGK0bF0=;
+        s=k20201202; t=1650375534;
+        bh=4iDu1ZR93Hpdk0ePDMtItzf+hxINHA/lI2UqgUNvzAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HzTn7rZS28K28plwPgCJQ1ghRASliQgI+2FNpVIvzNFzUi1UMK5PsDjZfQF3E1zqt
-         mnS9gOUBto2VoRVRCx4Yuj8lbyW2OmCu+xl6Yg/lQSI7z3yCggGhd8SZLzhUTKkV0G
-         4ogMF4OyTC9vLOk3qkrtZxw01Hx1kngOU7CkWOkrZ7irrMS32QrmiusUzBa73hEit/
-         zPGdRbq5Q5uW64+CqYtjA3PCCVDipYSV0x3AONDo7ffgU5sraeCgGnABr+zWsns3bI
-         fd00kWQV003loXXb9YePqTFuhXdVkfreFhqu2YPTGCtBIjFiNHdyrGAFpEfaT8V4vz
-         PhMvBlCy/tvnA==
+        b=iYu4XDHn5LNc7q3bp0MnU+38E/Ct276pZyBclM70B5U7U15YheXM7tnLSDrpUiUFQ
+         LOdrjAjpzyttsvLOqFC2b7tDcSoaZFMybnxyY5aUJrfJtURup3vbi2iY75ltYnDLuS
+         R0BLoJT+6r95ZIXxT2lNCWCFV7jGVZ7Sde1XjlYMf9LdvnqvV4unQN9PnYwj+Xjx8X
+         7eBiNtO4k2iiNvODCKeMIIYXlu+l9Iz92DSuTWievPEejspI9ZHnElvJr2WOS2dbqw
+         lFRLt6aXKxLOfia2VmyXNyqNDgSTrk89Sgbp424LQiBRKM9tKYyKriV+ZzqFh6k3u5
+         x1pStxY//K6Sg==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     linux-omap@vger.kernel.org, tony@atomide.com, aaro.koskinen@iki.fi,
         jmkrzyszt@gmail.com
@@ -57,11 +57,10 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         linux-usb@vger.kernel.org, dmaengine@vger.kernel.org,
         linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
         linux-serial@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
-        Felipe Balbi <felipe.balbi@linux.intel.com>
-Subject: [PATCH 16/41] ARM: omap1: innovator: move ohci phy power handling to board file
-Date:   Tue, 19 Apr 2022 15:36:58 +0200
-Message-Id: <20220419133723.1394715-17-arnd@kernel.org>
+        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [PATCH 10/41] ARM: omap1: move CF chipselect setup to board file
+Date:   Tue, 19 Apr 2022 15:36:52 +0200
+Message-Id: <20220419133723.1394715-11-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419133723.1394715-1-arnd@kernel.org>
 References: <20220419133723.1394715-1-arnd@kernel.org>
@@ -73,118 +72,186 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The innovator board needs a special case for its phy control.
+There is only one board that uses the omap_cf driver, so
+moving the chipselect configuration there does not lead
+to code duplication but avoids the use of mach/tc.h
+in drivers.
 
-Move the corresponding code into the board file and out of the
-common code by adding another callback.
-
-Acked-by: Felipe Balbi <felipe.balbi@linux.intel.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mach-omap1/board-innovator.c   | 19 +++++++++++++++
- drivers/usb/host/ohci-omap.c            | 31 ++++---------------------
- include/linux/platform_data/usb-omap1.h |  2 ++
- 3 files changed, 26 insertions(+), 26 deletions(-)
+ arch/arm/mach-omap1/board-osk.c | 38 ++++++++++++++++++++++++++++-----
+ drivers/pcmcia/Kconfig          |  3 ++-
+ drivers/pcmcia/omap_cf.c        | 38 ++++++---------------------------
+ 3 files changed, 42 insertions(+), 37 deletions(-)
 
-diff --git a/arch/arm/mach-omap1/board-innovator.c b/arch/arm/mach-omap1/board-innovator.c
-index e7d6735d4701..f169e172421d 100644
---- a/arch/arm/mach-omap1/board-innovator.c
-+++ b/arch/arm/mach-omap1/board-innovator.c
-@@ -290,6 +290,23 @@ static void __init innovator_init_smc91x(void)
- }
- 
- #ifdef CONFIG_ARCH_OMAP15XX
-+/*
-+ * Board specific gang-switched transceiver power on/off.
-+ */
-+static int innovator_omap_ohci_transceiver_power(int on)
-+{
-+	if (on)
-+		__raw_writeb(__raw_readb(INNOVATOR_FPGA_CAM_USB_CONTROL)
-+				| ((1 << 5/*usb1*/) | (1 << 3/*usb2*/)),
-+			       INNOVATOR_FPGA_CAM_USB_CONTROL);
-+	else
-+		__raw_writeb(__raw_readb(INNOVATOR_FPGA_CAM_USB_CONTROL)
-+				& ~((1 << 5/*usb1*/) | (1 << 3/*usb2*/)),
-+			       INNOVATOR_FPGA_CAM_USB_CONTROL);
-+
-+	return 0;
-+}
-+
- static struct omap_usb_config innovator1510_usb_config __initdata = {
- 	/* for bundled non-standard host and peripheral cables */
- 	.hmc_mode	= 4,
-@@ -300,6 +317,8 @@ static struct omap_usb_config innovator1510_usb_config __initdata = {
- 
- 	.register_dev	= 1,
- 	.pins[0]	= 2,
-+
-+	.transceiver_power = innovator_omap_ohci_transceiver_power,
+diff --git a/arch/arm/mach-omap1/board-osk.c b/arch/arm/mach-omap1/board-osk.c
+index b627a4351cf0..5dbc8f109aa7 100644
+--- a/arch/arm/mach-omap1/board-osk.c
++++ b/arch/arm/mach-omap1/board-osk.c
+@@ -153,14 +153,14 @@ static struct resource osk5912_cf_resources[] = {
+ 	[0] = {
+ 		.flags	= IORESOURCE_IRQ,
+ 	},
++	[1] = {
++		.flags = IORESOURCE_MEM,
++	},
  };
  
- static const struct omap_lcd_config innovator1510_lcd_config __initconst = {
-diff --git a/drivers/usb/host/ohci-omap.c b/drivers/usb/host/ohci-omap.c
-index 750a90c41a0a..069791d25abb 100644
---- a/drivers/usb/host/ohci-omap.c
-+++ b/drivers/usb/host/ohci-omap.c
-@@ -67,31 +67,6 @@ static void omap_ohci_clock_power(struct ohci_omap_priv *priv, int on)
- 	}
+ static struct platform_device osk5912_cf_device = {
+ 	.name		= "omap_cf",
+ 	.id		= -1,
+-	.dev = {
+-		.platform_data	= (void *) 2 /* CS2 */,
+-	},
+ 	.num_resources	= ARRAY_SIZE(osk5912_cf_resources),
+ 	.resource	= osk5912_cf_resources,
+ };
+@@ -275,13 +275,41 @@ static void __init osk_init_smc91x(void)
+ 	omap_writel(l, EMIFS_CCS(1));
  }
  
--/*
-- * Board specific gang-switched transceiver power on/off.
-- * NOTE:  OSK supplies power from DC, not battery.
-- */
--static int omap_ohci_transceiver_power(struct ohci_omap_priv *priv, int on)
--{
--	if (on) {
--		if (machine_is_omap_innovator() && cpu_is_omap1510())
--			__raw_writeb(__raw_readb(INNOVATOR_FPGA_CAM_USB_CONTROL)
--				| ((1 << 5/*usb1*/) | (1 << 3/*usb2*/)),
--			       INNOVATOR_FPGA_CAM_USB_CONTROL);
--		else if (priv->power)
--			gpiod_set_value_cansleep(priv->power, 0);
--	} else {
--		if (machine_is_omap_innovator() && cpu_is_omap1510())
--			__raw_writeb(__raw_readb(INNOVATOR_FPGA_CAM_USB_CONTROL)
--				& ~((1 << 5/*usb1*/) | (1 << 3/*usb2*/)),
--			       INNOVATOR_FPGA_CAM_USB_CONTROL);
--		else if (priv->power)
--			gpiod_set_value_cansleep(priv->power, 1);
+-static void __init osk_init_cf(void)
++static void __init osk_init_cf(int seg)
+ {
++	struct resource *res = &osk5912_cf_resources[1];
++
+ 	omap_cfg_reg(M7_1610_GPIO62);
+ 	if ((gpio_request(62, "cf_irq")) < 0) {
+ 		printk("Error requesting gpio 62 for CF irq\n");
+ 		return;
+ 	}
++
++	switch (seg) {
++	/* NOTE: CS0 could be configured too ... */
++	case 1:
++		res->start = OMAP_CS1_PHYS;
++		break;
++	case 2:
++		res->start = OMAP_CS2_PHYS;
++		break;
++	case 3:
++		res->start = omap_cs3_phys();
++		break;
++	}
++
++	res->end = res->start + SZ_8K - 1;
++	osk5912_cf_device.dev.platform_data = (void *)(uintptr_t)seg;
++
++	/* NOTE:  better EMIFS setup might support more cards; but the
++	 * TRM only shows how to affect regular flash signals, not their
++	 * CF/PCMCIA variants...
++	 */
++	pr_debug("%s: cs%d, previous ccs %08x acs %08x\n", __func__,
++		seg, omap_readl(EMIFS_CCS(seg)), omap_readl(EMIFS_ACS(seg)));
++	omap_writel(0x0004a1b3, EMIFS_CCS(seg));	/* synch mode 4 etc */
++	omap_writel(0x00000000, EMIFS_ACS(seg));	/* OE hold/setup */
++
+ 	/* the CF I/O IRQ is really active-low */
+ 	irq_set_irq_type(gpio_to_irq(62), IRQ_TYPE_EDGE_FALLING);
+ }
+@@ -580,7 +608,7 @@ static void __init osk_init(void)
+ 	u32 l;
+ 
+ 	osk_init_smc91x();
+-	osk_init_cf();
++	osk_init_cf(2); /* CS2 */
+ 
+ 	/* Workaround for wrong CS3 (NOR flash) timing
+ 	 * There are some U-Boot versions out there which configure
+diff --git a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
+index 2ce261cfff8e..ec977f031bc2 100644
+--- a/drivers/pcmcia/Kconfig
++++ b/drivers/pcmcia/Kconfig
+@@ -246,7 +246,8 @@ config PCMCIA_VRC4171
+ 
+ config OMAP_CF
+ 	tristate "OMAP CompactFlash Controller"
+-	depends on PCMCIA && ARCH_OMAP16XX
++	depends on PCMCIA
++	depends on ARCH_OMAP16XX || (ARM && COMPILE_TEST)
+ 	help
+ 	  Say Y here to support the CompactFlash controller on OMAP.
+ 	  Note that this doesn't support "True IDE" mode.
+diff --git a/drivers/pcmcia/omap_cf.c b/drivers/pcmcia/omap_cf.c
+index f0b2c2d03469..093022ce7d91 100644
+--- a/drivers/pcmcia/omap_cf.c
++++ b/drivers/pcmcia/omap_cf.c
+@@ -16,13 +16,12 @@
+ 
+ #include <pcmcia/ss.h>
+ 
+-#include <mach/hardware.h>
+ #include <asm/io.h>
+ #include <linux/sizes.h>
+ 
+-#include <mach/mux.h>
+-#include <mach/tc.h>
+-
++#include <linux/soc/ti/omap1-io.h>
++#include <linux/soc/ti/omap1-soc.h>
++#include <linux/soc/ti/omap1-mux.h>
+ 
+ /* NOTE:  don't expect this to support many I/O cards.  The 16xx chips have
+  * hard-wired timings to support Compact Flash memory cards; they won't work
+@@ -205,6 +204,7 @@ static int __init omap_cf_probe(struct platform_device *pdev)
+ 	struct omap_cf_socket	*cf;
+ 	int			irq;
+ 	int			status;
++	struct resource		*res;
+ 
+ 	seg = (int) pdev->dev.platform_data;
+ 	if (seg == 0 || seg > 3)
+@@ -215,6 +215,8 @@ static int __init omap_cf_probe(struct platform_device *pdev)
+ 	if (irq < 0)
+ 		return -EINVAL;
+ 
++	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++
+ 	cf = kzalloc(sizeof *cf, GFP_KERNEL);
+ 	if (!cf)
+ 		return -ENOMEM;
+@@ -230,24 +232,7 @@ static int __init omap_cf_probe(struct platform_device *pdev)
+ 		goto fail0;
+ 	cf->irq = irq;
+ 	cf->socket.pci_irq = irq;
+-
+-	switch (seg) {
+-	/* NOTE: CS0 could be configured too ... */
+-	case 1:
+-		cf->phys_cf = OMAP_CS1_PHYS;
+-		break;
+-	case 2:
+-		cf->phys_cf = OMAP_CS2_PHYS;
+-		break;
+-	case 3:
+-		cf->phys_cf = omap_cs3_phys();
+-		break;
+-	default:
+-		goto  fail1;
 -	}
+-	cf->iomem.start = cf->phys_cf;
+-	cf->iomem.end = cf->iomem.end + SZ_8K - 1;
+-	cf->iomem.flags = IORESOURCE_MEM;
++	cf->phys_cf = res->start;
+ 
+ 	/* pcmcia layer only remaps "real" memory */
+ 	cf->socket.io_offset = (unsigned long)
+@@ -273,15 +258,6 @@ static int __init omap_cf_probe(struct platform_device *pdev)
+ 
+ 	pr_info("%s: cs%d on irq %d\n", driver_name, seg, irq);
+ 
+-	/* NOTE:  better EMIFS setup might support more cards; but the
+-	 * TRM only shows how to affect regular flash signals, not their
+-	 * CF/PCMCIA variants...
+-	 */
+-	pr_debug("%s: cs%d, previous ccs %08x acs %08x\n", driver_name,
+-		seg, omap_readl(EMIFS_CCS(seg)), omap_readl(EMIFS_ACS(seg)));
+-	omap_writel(0x0004a1b3, EMIFS_CCS(seg));	/* synch mode 4 etc */
+-	omap_writel(0x00000000, EMIFS_ACS(seg));	/* OE hold/setup */
 -
--	return 0;
--}
--
- #ifdef	CONFIG_USB_OTG
+ 	/* CF uses armxor_ck, which is "always" available */
  
- static void start_hnp(struct ohci_hcd *ohci)
-@@ -202,7 +177,11 @@ static int ohci_omap_reset(struct usb_hcd *hcd)
- 	}
- 
- 	/* FIXME hub_wq hub requests should manage power switching */
--	omap_ohci_transceiver_power(priv, 1);
-+	if (config->transceiver_power)
-+		return config->transceiver_power(1);
-+
-+	if (priv->power)
-+		gpiod_set_value_cansleep(priv->power, 0);
- 
- 	/* board init will have already handled HMC and mux setup.
- 	 * any external transceiver should already be initialized
-diff --git a/include/linux/platform_data/usb-omap1.h b/include/linux/platform_data/usb-omap1.h
-index 878e572a78bf..e7b8dc92a269 100644
---- a/include/linux/platform_data/usb-omap1.h
-+++ b/include/linux/platform_data/usb-omap1.h
-@@ -50,6 +50,8 @@ struct omap_usb_config {
- 	int (*ocpi_enable)(void);
- 
- 	void (*lb_reset)(void);
-+
-+	int (*transceiver_power)(int on);
- };
- 
- #endif /* __LINUX_USB_OMAP1_H */
+ 	pr_debug("%s: sts %04x cfg %04x control %04x %s\n", driver_name,
 -- 
 2.29.2
 

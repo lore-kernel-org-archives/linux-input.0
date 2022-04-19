@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AD9DC4707A
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:47:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD8B3C3527E
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:47:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349513AbiDSQts (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:49:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56062 "EHLO
+        id S1355432AbiDSQtu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:49:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354759AbiDSQra (ORCPT
+        with ESMTP id S1354693AbiDSQpd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 12:47:30 -0400
+        Tue, 19 Apr 2022 12:45:33 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A8C69D;
-        Tue, 19 Apr 2022 09:44:46 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0C0F36152;
+        Tue, 19 Apr 2022 09:42:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02B1BB81BB6;
-        Tue, 19 Apr 2022 16:44:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6062FC385A5;
-        Tue, 19 Apr 2022 16:44:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59CF9B81BBC;
+        Tue, 19 Apr 2022 16:42:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EB59C385AE;
+        Tue, 19 Apr 2022 16:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386683;
-        bh=XdueS6o3x8Genbrjo7SphR5bJ8o+YLBkmS/22/Y/tzI=;
+        s=k20201202; t=1650386567;
+        bh=XRVRts6/PmPxgnBeeTopOk8hsXuEnYK24eY44iFBTjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YXQtUJB7B4bM52daStJxTBrA8/zErvRHpHn2okco8xXiPRjGGTcMxZ34F9ihe2zZF
-         1BoMvocNKdvX/A7Mn4lmcao9QbvEfofhr0515a2QLJ4e/1ti5g/eDZCmDNi5sdZR/I
-         9XNG+Otrayi6yRijGpRrnLzixoTgFiEZlFFL/2ise5K7ONOzh9kv641LscK+chNQJ7
-         Q9EFuzcxnFtDUtDisGrueMKhbPDgR4AstoPr4QwJ7WiTnp9E3XeIFc84uL5FnW7uoT
-         5DjaGzrz2kHiXzQHJSz/k+R25fFOoMSH+WeElYMHF7zCHXx8w3wvu8Yx03jMnZvboF
-         gxYGbk6+OLuAg==
+        b=SrYcNU0XHeFfz9FFmwRnhtwk5VI3KPUyVVYDZ1vZsf/9ibd4zLruL0iYjAxUyiwgp
+         zmOuXhLr4WTdOB1309oLHotg6wtk/R/duI+zVweeCWm3uDXswBZIZxB7bVKunqu/CC
+         EdMhLyLGmp315u6yW24LoEVof2mtuD5mi09URRw/1IqaKVlqShBeopuwMcloOvibS8
+         PU5fwThkpiXRfLrjJtNm+iH3D7eSCFQGuRvIg5P1RDAEYLIRMmxDeXbThxhNRZi323
+         coE08BVk9QZsh8XR9qGt6reyxhJbZKJAWfaiL1ui30TgqLeVpFNIO7Y6/vA2Fm0la6
+         XCHr2bVGVwWJA==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -59,10 +59,10 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        alsa-devel@alsa-project.org
-Subject: [PATCH 45/48] ARM: PXA: fix multi-cpu build of xsc3
-Date:   Tue, 19 Apr 2022 18:38:07 +0200
-Message-Id: <20220419163810.2118169-46-arnd@kernel.org>
+        alsa-devel@alsa-project.org, Manuel Lauss <manuel.lauss@gmail.com>
+Subject: [PATCH 30/48] Input: wm97xx - get rid of irq_enable method in wm97xx_mach_ops
+Date:   Tue, 19 Apr 2022 18:37:52 +0200
+Message-Id: <20220419163810.2118169-31-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -72,40 +72,107 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-On a kernel that includes both ARMv4 and XScale support,
-the copypage function fails to build with invalid
-instructions.
+Now that we are using oneshot threaded IRQ this method is not used anymore.
 
-Since these are only called on an actual XScale processor,
-annotate the assembly with the correct .arch directive.
-
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+[arnd: add the db1300 change as well]
+Cc: Manuel Lauss <manuel.lauss@gmail.com>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mm/copypage-xsc3.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/alchemy/devboards/db1300.c         | 9 ---------
+ drivers/input/touchscreen/mainstone-wm97xx.c | 9 ---------
+ drivers/input/touchscreen/zylonite-wm97xx.c  | 9 ---------
+ include/linux/wm97xx.h                       | 3 ---
+ 4 files changed, 30 deletions(-)
 
-diff --git a/arch/arm/mm/copypage-xsc3.c b/arch/arm/mm/copypage-xsc3.c
-index 6f0909dda2f9..c86e79677ff9 100644
---- a/arch/arm/mm/copypage-xsc3.c
-+++ b/arch/arm/mm/copypage-xsc3.c
-@@ -29,6 +29,7 @@ static void xsc3_mc_copy_user_page(void *kto, const void *kfrom)
- 	int tmp;
+diff --git a/arch/mips/alchemy/devboards/db1300.c b/arch/mips/alchemy/devboards/db1300.c
+index cd72eaa1168f..e70e529ddd91 100644
+--- a/arch/mips/alchemy/devboards/db1300.c
++++ b/arch/mips/alchemy/devboards/db1300.c
+@@ -732,16 +732,7 @@ static struct platform_device db1300_lcd_dev = {
+ /**********************************************************************/
  
- 	asm volatile ("\
-+.arch xscale					\n\
- 	pld	[%1, #0]			\n\
- 	pld	[%1, #32]			\n\
- 1:	pld	[%1, #64]			\n\
-@@ -80,6 +81,7 @@ void xsc3_mc_clear_user_highpage(struct page *page, unsigned long vaddr)
- {
- 	void *ptr, *kaddr = kmap_atomic(page);
- 	asm volatile ("\
-+.arch xscale					\n\
- 	mov	r1, %2				\n\
- 	mov	r2, #0				\n\
- 	mov	r3, #0				\n\
+ #if IS_ENABLED(CONFIG_TOUCHSCREEN_WM97XX)
+-static void db1300_wm97xx_irqen(struct wm97xx *wm, int enable)
+-{
+-	if (enable)
+-		enable_irq(DB1300_AC97_PEN_INT);
+-	else
+-		disable_irq_nosync(DB1300_AC97_PEN_INT);
+-}
+-
+ static struct wm97xx_mach_ops db1300_wm97xx_ops = {
+-	.irq_enable	= db1300_wm97xx_irqen,
+ 	.irq_gpio	= WM97XX_GPIO_3,
+ };
+ 
+diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
+index 8f6fe68f1f99..c39f49720fe4 100644
+--- a/drivers/input/touchscreen/mainstone-wm97xx.c
++++ b/drivers/input/touchscreen/mainstone-wm97xx.c
+@@ -246,21 +246,12 @@ static void wm97xx_acc_shutdown(struct wm97xx *wm)
+ 	}
+ }
+ 
+-static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
+-{
+-	if (enable)
+-		enable_irq(wm->pen_irq);
+-	else
+-		disable_irq_nosync(wm->pen_irq);
+-}
+-
+ static struct wm97xx_mach_ops mainstone_mach_ops = {
+ 	.acc_enabled	= 1,
+ 	.acc_pen_up	= wm97xx_acc_pen_up,
+ 	.acc_pen_down	= wm97xx_acc_pen_down,
+ 	.acc_startup	= wm97xx_acc_startup,
+ 	.acc_shutdown	= wm97xx_acc_shutdown,
+-	.irq_enable	= wm97xx_irq_enable,
+ 	.irq_gpio	= WM97XX_GPIO_2,
+ };
+ 
+diff --git a/drivers/input/touchscreen/zylonite-wm97xx.c b/drivers/input/touchscreen/zylonite-wm97xx.c
+index ed7eae638713..a70fe4abe520 100644
+--- a/drivers/input/touchscreen/zylonite-wm97xx.c
++++ b/drivers/input/touchscreen/zylonite-wm97xx.c
+@@ -160,20 +160,11 @@ static int wm97xx_acc_startup(struct wm97xx *wm)
+ 	return 0;
+ }
+ 
+-static void wm97xx_irq_enable(struct wm97xx *wm, int enable)
+-{
+-	if (enable)
+-		enable_irq(wm->pen_irq);
+-	else
+-		disable_irq_nosync(wm->pen_irq);
+-}
+-
+ static struct wm97xx_mach_ops zylonite_mach_ops = {
+ 	.acc_enabled	= 1,
+ 	.acc_pen_up	= wm97xx_acc_pen_up,
+ 	.acc_pen_down	= wm97xx_acc_pen_down,
+ 	.acc_startup	= wm97xx_acc_startup,
+-	.irq_enable	= wm97xx_irq_enable,
+ 	.irq_gpio	= WM97XX_GPIO_2,
+ };
+ 
+diff --git a/include/linux/wm97xx.h b/include/linux/wm97xx.h
+index 85bd8dd3caea..332d2b0f29b9 100644
+--- a/include/linux/wm97xx.h
++++ b/include/linux/wm97xx.h
+@@ -254,9 +254,6 @@ struct wm97xx_mach_ops {
+ 	int (*acc_startup) (struct wm97xx *);
+ 	void (*acc_shutdown) (struct wm97xx *);
+ 
+-	/* interrupt mask control - required for accelerated operation */
+-	void (*irq_enable) (struct wm97xx *, int enable);
+-
+ 	/* GPIO pin used for accelerated operation */
+ 	int irq_gpio;
+ 
 -- 
 2.29.2
 

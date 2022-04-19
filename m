@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EBDBC41535
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:42:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DCB4C433F5
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:42:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351986AbiDSNol (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1352512AbiDSNol (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 19 Apr 2022 09:44:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36836 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352590AbiDSNlu (ORCPT
+        with ESMTP id S1352699AbiDSNnh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 09:41:50 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DB18381B4;
-        Tue, 19 Apr 2022 06:39:04 -0700 (PDT)
+        Tue, 19 Apr 2022 09:43:37 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 102ED24F;
+        Tue, 19 Apr 2022 06:40:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DECEFB81984;
-        Tue, 19 Apr 2022 13:39:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3AC2C385AE;
-        Tue, 19 Apr 2022 13:38:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C68D6B8197F;
+        Tue, 19 Apr 2022 13:40:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD49CC385AA;
+        Tue, 19 Apr 2022 13:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650375541;
-        bh=Tabda3W6PeTGMPAu0M9QQqvhYHycL4TemoWy40qzXKo=;
+        s=k20201202; t=1650375652;
+        bh=++wgzzP18IgZjv9gq3IHjeFk3mw3AxMESGKM1bss8GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LW0UoBnX9Hzd86LCuPcO6M26sjgPOlXq6jYIKYaqHJXq5bcL1DEHz6T4LiTtbxQ5V
-         rNq+KpgWJcQ+v3qqv0Osu2Bn1grzaUydyONyZK25cqWeeQyp6iiruSwB9jDhNJQi1H
-         rgGCt2NBVy+QTsRCYLzUIrmIhsPCty3jBIuS1+h2vprkrocgwhSJnxqWFEGI1m9XWb
-         Ra28W18ndsOK4QP3CQrCAQqyI2jbSWeW0BeZ7olszsizmclogqzyomgTeXxeiBgofD
-         EAYelDZWulsqVtmdDnpD9qbRdAr1E4/1sb4ACF1iwKSPghV+dWtF/UoVae683yoGUy
-         p4lP1qqtWoMfA==
+        b=t77plAsS6dzi52zALntxTrIsGvlZ7TVWnBbbBL6BHh9HDB22Vsg+GSU1TUGr/L7yo
+         4VED/jnUp/m/iprQbhEzkF/oCLBhn5mjye8/COB4ccOhKBk+sJixyUn/j4z5hhYvAS
+         fOMPXYC1p6lswgiO83CT8qRkpbcih1isQSb5qwxzvrTQT+MaBaR+iH3FJlzRpZeFL+
+         xLv4MH8XhKivg2WwM9SJ6+BOtF2fIbLSMuGDS0PC2ZNc4r0d6HSPSj40prxX3RgJXN
+         wDqi6ESmFTYAF/uvoZWrHFUtV7uChc7cszyCFCMHFQ8dub8SswJUKqRzrKaa1+D2F9
+         cs9GhVWEGvR5A==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     linux-omap@vger.kernel.org, tony@atomide.com, aaro.koskinen@iki.fi,
         jmkrzyszt@gmail.com
@@ -57,11 +57,10 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         linux-usb@vger.kernel.org, dmaengine@vger.kernel.org,
         linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
         linux-serial@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 11/41] fbdev: omap: avoid using mach/*.h files
-Date:   Tue, 19 Apr 2022 15:36:53 +0200
-Message-Id: <20220419133723.1394715-12-arnd@kernel.org>
+        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [PATCH 26/41] ARM: omap1: relocate static I/O mapping
+Date:   Tue, 19 Apr 2022 15:37:08 +0200
+Message-Id: <20220419133723.1394715-27-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419133723.1394715-1-arnd@kernel.org>
 References: <20220419133723.1394715-1-arnd@kernel.org>
@@ -73,171 +72,49 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-All the headers we actually need are now in include/linux/soc,
-so use those versions instead and allow compile-testing on
-other architectures.
+The address range 0xfee00000-0xfeffffff is used for PCI and
+PCMCIA I/O port mappings, but OMAP1 has its static mappings
+there as well.
 
-Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Move the OMAP1 addresses a little higher to avoid crashing
+at boot.
+
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/video/backlight/Kconfig          | 4 ++--
- drivers/video/backlight/omap1_bl.c       | 4 ++--
- drivers/video/fbdev/omap/Kconfig         | 4 ++--
- drivers/video/fbdev/omap/lcd_ams_delta.c | 2 +-
- drivers/video/fbdev/omap/lcd_dma.c       | 3 ++-
- drivers/video/fbdev/omap/lcd_inn1510.c   | 2 +-
- drivers/video/fbdev/omap/lcd_osk.c       | 4 ++--
- drivers/video/fbdev/omap/lcdc.c          | 2 ++
- drivers/video/fbdev/omap/omapfb_main.c   | 3 +--
- drivers/video/fbdev/omap/sossi.c         | 1 +
- 10 files changed, 16 insertions(+), 13 deletions(-)
+ arch/arm/Kconfig.debug                      | 6 +++---
+ arch/arm/mach-omap1/include/mach/hardware.h | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/video/backlight/Kconfig b/drivers/video/backlight/Kconfig
-index e32694c13da5..a003e02e13ce 100644
---- a/drivers/video/backlight/Kconfig
-+++ b/drivers/video/backlight/Kconfig
-@@ -211,8 +211,8 @@ config BACKLIGHT_LOCOMO
+diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
+index 0c9497d549e3..f57b449000f7 100644
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -1837,9 +1837,9 @@ config DEBUG_UART_VIRT
+ 	default 0xfec00000 if ARCH_IXP4XX && !CPU_BIG_ENDIAN
+ 	default 0xfec00003 if ARCH_IXP4XX && CPU_BIG_ENDIAN
+ 	default 0xfef36000 if DEBUG_HIGHBANK_UART
+-	default 0xfefb0000 if DEBUG_OMAP1UART1 || DEBUG_OMAP7XXUART1
+-	default 0xfefb0800 if DEBUG_OMAP1UART2 || DEBUG_OMAP7XXUART2
+-	default 0xfefb9800 if DEBUG_OMAP1UART3 || DEBUG_OMAP7XXUART3
++	default 0xff000000 if DEBUG_OMAP1UART1 || DEBUG_OMAP7XXUART1
++	default 0xff000800 if DEBUG_OMAP1UART2 || DEBUG_OMAP7XXUART2
++	default 0xff009800 if DEBUG_OMAP1UART3 || DEBUG_OMAP7XXUART3
+ 	default 0xffd01000 if DEBUG_HIP01_UART
+ 	default DEBUG_UART_PHYS if !MMU
+ 	depends on DEBUG_LL_UART_8250 || DEBUG_LL_UART_PL01X || \
+diff --git a/arch/arm/mach-omap1/include/mach/hardware.h b/arch/arm/mach-omap1/include/mach/hardware.h
+index 05c5cd3e95f4..e3522e601ccd 100644
+--- a/arch/arm/mach-omap1/include/mach/hardware.h
++++ b/arch/arm/mach-omap1/include/mach/hardware.h
+@@ -63,7 +63,7 @@ static inline u32 omap_cs3_phys(void)
  
- config BACKLIGHT_OMAP1
- 	tristate "OMAP1 PWL-based LCD Backlight"
--	depends on ARCH_OMAP1
--	default y
-+	depends on ARCH_OMAP1 || COMPILE_TEST
-+	default ARCH_OMAP1
- 	help
- 	  This driver controls the LCD backlight level and power for
- 	  the PWL module of OMAP1 processors.  Say Y if your board
-diff --git a/drivers/video/backlight/omap1_bl.c b/drivers/video/backlight/omap1_bl.c
-index 74263021b1b3..69a49384b3de 100644
---- a/drivers/video/backlight/omap1_bl.c
-+++ b/drivers/video/backlight/omap1_bl.c
-@@ -14,8 +14,8 @@
- #include <linux/slab.h>
- #include <linux/platform_data/omap1_bl.h>
+ #endif	/* ifndef __ASSEMBLER__ */
  
--#include <mach/hardware.h>
--#include <mach/mux.h>
-+#include <linux/soc/ti/omap1-io.h>
-+#include <linux/soc/ti/omap1-mux.h>
+-#define OMAP1_IO_OFFSET		0x01000000	/* Virtual IO = 0xfefb0000 */
++#define OMAP1_IO_OFFSET		0x00fb0000	/* Virtual IO = 0xff000000 */
+ #define OMAP1_IO_ADDRESS(pa)	IOMEM((pa) - OMAP1_IO_OFFSET)
  
- #define OMAPBL_MAX_INTENSITY		0xff
- 
-diff --git a/drivers/video/fbdev/omap/Kconfig b/drivers/video/fbdev/omap/Kconfig
-index df2a5d0d4aa2..b1786cf1b486 100644
---- a/drivers/video/fbdev/omap/Kconfig
-+++ b/drivers/video/fbdev/omap/Kconfig
-@@ -2,7 +2,7 @@
- config FB_OMAP
- 	tristate "OMAP frame buffer support"
- 	depends on FB
--	depends on ARCH_OMAP1
-+	depends on ARCH_OMAP1 || (ARM && COMPILE_TEST)
- 	select FB_CFB_FILLRECT
- 	select FB_CFB_COPYAREA
- 	select FB_CFB_IMAGEBLIT
-@@ -42,7 +42,7 @@ config FB_OMAP_LCD_MIPID
- 
- config FB_OMAP_LCD_H3
- 	bool "TPS65010 LCD controller on OMAP-H3"
--	depends on MACH_OMAP_H3
-+	depends on MACH_OMAP_H3 || COMPILE_TEST
- 	depends on TPS65010=y
- 	default y
- 	help
-diff --git a/drivers/video/fbdev/omap/lcd_ams_delta.c b/drivers/video/fbdev/omap/lcd_ams_delta.c
-index 01944ce46aa1..414d0f074306 100644
---- a/drivers/video/fbdev/omap/lcd_ams_delta.c
-+++ b/drivers/video/fbdev/omap/lcd_ams_delta.c
-@@ -14,7 +14,7 @@
- #include <linux/gpio/consumer.h>
- #include <linux/lcd.h>
- 
--#include <mach/hardware.h>
-+#include <linux/soc/ti/omap1-io.h>
- 
- #include "omapfb.h"
- 
-diff --git a/drivers/video/fbdev/omap/lcd_dma.c b/drivers/video/fbdev/omap/lcd_dma.c
-index 867a63c06f42..f85817635a8c 100644
---- a/drivers/video/fbdev/omap/lcd_dma.c
-+++ b/drivers/video/fbdev/omap/lcd_dma.c
-@@ -25,7 +25,8 @@
- 
- #include <linux/omap-dma.h>
- 
--#include <mach/hardware.h>
-+#include <linux/soc/ti/omap1-soc.h>
-+#include <linux/soc/ti/omap1-io.h>
- 
- #include "lcdc.h"
- #include "lcd_dma.h"
-diff --git a/drivers/video/fbdev/omap/lcd_inn1510.c b/drivers/video/fbdev/omap/lcd_inn1510.c
-index 37ed0c14aa5a..bb915637e9b6 100644
---- a/drivers/video/fbdev/omap/lcd_inn1510.c
-+++ b/drivers/video/fbdev/omap/lcd_inn1510.c
-@@ -10,7 +10,7 @@
- #include <linux/platform_device.h>
- #include <linux/io.h>
- 
--#include <mach/hardware.h>
-+#include <linux/soc/ti/omap1-soc.h>
- 
- #include "omapfb.h"
- 
-diff --git a/drivers/video/fbdev/omap/lcd_osk.c b/drivers/video/fbdev/omap/lcd_osk.c
-index 5d5762128c8d..8168ba0d47fd 100644
---- a/drivers/video/fbdev/omap/lcd_osk.c
-+++ b/drivers/video/fbdev/omap/lcd_osk.c
-@@ -11,8 +11,8 @@
- #include <linux/platform_device.h>
- #include <linux/gpio.h>
- 
--#include <mach/hardware.h>
--#include <mach/mux.h>
-+#include <linux/soc/ti/omap1-io.h>
-+#include <linux/soc/ti/omap1-mux.h>
- 
- #include "omapfb.h"
- 
-diff --git a/drivers/video/fbdev/omap/lcdc.c b/drivers/video/fbdev/omap/lcdc.c
-index d9731d12bd72..4c9091bd936d 100644
---- a/drivers/video/fbdev/omap/lcdc.c
-+++ b/drivers/video/fbdev/omap/lcdc.c
-@@ -17,6 +17,8 @@
- #include <linux/clk.h>
- #include <linux/gfp.h>
- 
-+#include <linux/soc/ti/omap1-io.h>
-+#include <linux/soc/ti/omap1-soc.h>
- #include <linux/omap-dma.h>
- 
- #include <asm/mach-types.h>
-diff --git a/drivers/video/fbdev/omap/omapfb_main.c b/drivers/video/fbdev/omap/omapfb_main.c
-index b8fd509f11e4..292fcb0a24fc 100644
---- a/drivers/video/fbdev/omap/omapfb_main.c
-+++ b/drivers/video/fbdev/omap/omapfb_main.c
-@@ -20,8 +20,7 @@
- 
- #include <linux/omap-dma.h>
- 
--#include <mach/hardware.h>
--
-+#include <linux/soc/ti/omap1-soc.h>
- #include "omapfb.h"
- #include "lcdc.h"
- 
-diff --git a/drivers/video/fbdev/omap/sossi.c b/drivers/video/fbdev/omap/sossi.c
-index ade9d452254c..6b99d89fbe6e 100644
---- a/drivers/video/fbdev/omap/sossi.c
-+++ b/drivers/video/fbdev/omap/sossi.c
-@@ -13,6 +13,7 @@
- #include <linux/interrupt.h>
- 
- #include <linux/omap-dma.h>
-+#include <linux/soc/ti/omap1-io.h>
- 
- #include "omapfb.h"
- #include "lcd_dma.h"
+ #include <mach/serial.h>
 -- 
 2.29.2
 

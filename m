@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 473CFC433EF
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:42:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 403A1C4332F
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:42:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243999AbiDSQoe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:44:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52278 "EHLO
+        id S1354882AbiDSQor (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:44:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354943AbiDSQmm (ORCPT
+        with ESMTP id S1354886AbiDSQmY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 12:42:42 -0400
+        Tue, 19 Apr 2022 12:42:24 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012846326;
-        Tue, 19 Apr 2022 09:39:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B8D415FDD;
+        Tue, 19 Apr 2022 09:39:41 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B02D0B81BE9;
-        Tue, 19 Apr 2022 16:39:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00B3DC385A5;
-        Tue, 19 Apr 2022 16:39:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D7A3B81BEB;
+        Tue, 19 Apr 2022 16:39:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50CD1C385AF;
+        Tue, 19 Apr 2022 16:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386394;
-        bh=hFjukvDjrGmDvm4krCMb+MU1l1A2h39IWiElATYXAZM=;
+        s=k20201202; t=1650386378;
+        bh=7xEnZ0JSPWZhTH940v/NcGNAbOyRIyfBWQe+0s0khHM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lw6cz36jNJbw7uXSplFymJG+YYC214yKxF6jaNLG32GXhdt0Xp1Iv9XNJKThc4ame
-         9m5IbTOvGXgyUoBaYsmhIbsImLWjW8Zzoudc5fIeQKQm6o9EWWfrIWNDmvly1Me3nA
-         hkxpQEAZRwl97Jk566xVc0It5Jnx+8gBPuAV+8W6cFsvApSsFk3hpsqb3HYANtM4gn
-         4o2gbRGCwzgZfCiW/d+Yo6XPlZ75THdr882ZNtbbK/pSv62iFmjbTZ/WWiVqJPdvQT
-         o6RWdFWodHhhvVLXb64hmn3Q8X1pTVVTcGZrGVZBBNv7XV2AmUCzRAmRyDP6gZplnF
-         X0wvsWgyj2gZQ==
+        b=U2+iU6c8bjeJ3b4/hWR8738LXyw2qX/PeoFQkQee06q/vC7ddu3A5paCnfw9cViZ0
+         1fBHsL7duftcUL7G4nuM2IRlQk2KY6lsgVtQuDj/pHPyjLxqHD/8dTXiqD3xm3lzOw
+         3zqMMyS3sa9kuU55H0WPkrepH99Qln75vsXp46325cju4AxH9JOASF64ejSwaYDiQW
+         XK4cjQPK/vvSqzAbE/RPMy1oHrXG/vxp89TInVKBQwrtCc6W5mnrs/h8bNfSFxEhEX
+         cWCDK6zl1DWuudpeHuSJIn2jTIsuGmr5kz5m3ceIgi2uQGIuHn5uclCDYzNllRUsoG
+         VX9+70vTRthWw==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -61,9 +61,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 08/48] ARM: pxa: move regs-lcd.h into driver
-Date:   Tue, 19 Apr 2022 18:37:30 +0200
-Message-Id: <20220419163810.2118169-9-arnd@kernel.org>
+Subject: [PATCH 06/48] ARM: pxa: stop using mach/bitfield.h
+Date:   Tue, 19 Apr 2022 18:37:28 +0200
+Message-Id: <20220419163810.2118169-7-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -75,106 +75,82 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-Only the pxafb driver uses this header, so move it into the
-same directory. The SMART_* macros are required by some
-platform data definitions and can go into the
-linux/platform_data/video-pxafb.h header.
+There are two identical copies of mach/bitfield.h, one for
+mach-sa1100 and one for mach-pxa. The pxafb driver only
+makes use of two macros, which can be trivially open-coded
+in the header.
 
+Cc: dri-devel@lists.freedesktop.org
 Acked-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: dri-devel@lists.freedesktop.org
-Cc: linux-fbdev@vger.kernel.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- .../video/fbdev/pxa3xx-regs.h                 | 19 ----------------
- drivers/video/fbdev/pxafb.c                   |  1 +
- include/linux/platform_data/video-pxafb.h     | 22 ++++++++++++++++++-
- 3 files changed, 22 insertions(+), 20 deletions(-)
- rename arch/arm/mach-pxa/include/mach/regs-lcd.h => drivers/video/fbdev/pxa3xx-regs.h (90%)
+ arch/arm/mach-pxa/idp.c                   | 1 -
+ arch/arm/mach-pxa/include/mach/regs-lcd.h | 5 +++--
+ arch/arm/mach-pxa/regs-u2d.h              | 2 --
+ drivers/video/fbdev/pxafb.c               | 1 -
+ 4 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/mach-pxa/include/mach/regs-lcd.h b/drivers/video/fbdev/pxa3xx-regs.h
-similarity index 90%
-rename from arch/arm/mach-pxa/include/mach/regs-lcd.h
-rename to drivers/video/fbdev/pxa3xx-regs.h
-index 6a434675f84a..6a96610ef9b5 100644
---- a/arch/arm/mach-pxa/include/mach/regs-lcd.h
-+++ b/drivers/video/fbdev/pxa3xx-regs.h
-@@ -177,23 +177,4 @@
- #define PRSR_ST_OK	(1 << 9)	/* Status OK */
- #define PRSR_CON_NT	(1 << 10)	/* Continue to Next Command */
+diff --git a/arch/arm/mach-pxa/idp.c b/arch/arm/mach-pxa/idp.c
+index 57c0511472bc..525d01ddfbbb 100644
+--- a/arch/arm/mach-pxa/idp.c
++++ b/arch/arm/mach-pxa/idp.c
+@@ -30,7 +30,6 @@
+ #include "pxa25x.h"
+ #include "idp.h"
+ #include <linux/platform_data/video-pxafb.h>
+-#include <mach/bitfield.h>
+ #include <linux/platform_data/mmc-pxamci.h>
+ #include <linux/smc91x.h>
  
--#define SMART_CMD_A0			 (0x1 << 8)
--#define SMART_CMD_READ_STATUS_REG	 (0x0 << 9)
--#define SMART_CMD_READ_FRAME_BUFFER	((0x0 << 9) | SMART_CMD_A0)
--#define SMART_CMD_WRITE_COMMAND		 (0x1 << 9)
--#define SMART_CMD_WRITE_DATA		((0x1 << 9) | SMART_CMD_A0)
--#define SMART_CMD_WRITE_FRAME		((0x2 << 9) | SMART_CMD_A0)
--#define SMART_CMD_WAIT_FOR_VSYNC	 (0x3 << 9)
--#define SMART_CMD_NOOP			 (0x4 << 9)
--#define SMART_CMD_INTERRUPT		 (0x5 << 9)
+diff --git a/arch/arm/mach-pxa/include/mach/regs-lcd.h b/arch/arm/mach-pxa/include/mach/regs-lcd.h
+index e2b6e3d1f625..6a434675f84a 100644
+--- a/arch/arm/mach-pxa/include/mach/regs-lcd.h
++++ b/arch/arm/mach-pxa/include/mach/regs-lcd.h
+@@ -2,8 +2,6 @@
+ #ifndef __ASM_ARCH_REGS_LCD_H
+ #define __ASM_ARCH_REGS_LCD_H
+ 
+-#include <mach/bitfield.h>
 -
--#define SMART_CMD(x)	(SMART_CMD_WRITE_COMMAND | ((x) & 0xff))
--#define SMART_DAT(x)	(SMART_CMD_WRITE_DATA | ((x) & 0xff))
+ /*
+  * LCD Controller Registers and Bits Definitions
+  */
+@@ -86,6 +84,9 @@
+ #define LCCR0_OUC	(1 << 25)	/* Overlay Underlay control bit */
+ #define LCCR0_LDDALT	(1 << 26)	/* LDD alternate mapping control */
+ 
++#define Fld(Size, Shft)	(((Size) << 16) + (Shft))
++#define FShft(Field)	((Field) & 0x0000FFFF)
++
+ #define LCCR1_PPL	Fld (10, 0)	/* Pixels Per Line - 1 */
+ #define LCCR1_DisWdth(Pixel)	(((Pixel) - 1) << FShft (LCCR1_PPL))
+ 
+diff --git a/arch/arm/mach-pxa/regs-u2d.h b/arch/arm/mach-pxa/regs-u2d.h
+index fe4c80ad87ec..ab517ba62c9a 100644
+--- a/arch/arm/mach-pxa/regs-u2d.h
++++ b/arch/arm/mach-pxa/regs-u2d.h
+@@ -2,8 +2,6 @@
+ #ifndef __ASM_ARCH_PXA3xx_U2D_H
+ #define __ASM_ARCH_PXA3xx_U2D_H
+ 
+-#include <mach/bitfield.h>
 -
--/* SMART_DELAY() is introduced for software controlled delay primitive which
-- * can be inserted between command sequences, unused command 0x6 is used here
-- * and delay ranges from 0ms ~ 255ms
-- */
--#define SMART_CMD_DELAY		(0x6 << 9)
--#define SMART_DELAY(ms)		(SMART_CMD_DELAY | ((ms) & 0xff))
- #endif /* __ASM_ARCH_REGS_LCD_H */
+ /*
+  * USB2 device controller registers and bits definitions
+  */
 diff --git a/drivers/video/fbdev/pxafb.c b/drivers/video/fbdev/pxafb.c
-index edf080f64a8c..ab5bc8272d8e 100644
+index e3d1a184d2be..edf080f64a8c 100644
 --- a/drivers/video/fbdev/pxafb.c
 +++ b/drivers/video/fbdev/pxafb.c
-@@ -72,6 +72,7 @@
- #define DEBUG_VAR 1
- 
- #include "pxafb.h"
-+#include "pxa3xx-regs.h"
- 
- /* Bits which should not be set in machine configuration structures */
- #define LCCR0_INVALID_CONFIG_MASK	(LCCR0_OUM | LCCR0_BM | LCCR0_QDM |\
-diff --git a/include/linux/platform_data/video-pxafb.h b/include/linux/platform_data/video-pxafb.h
-index b3d574778326..6333bac166a5 100644
---- a/include/linux/platform_data/video-pxafb.h
-+++ b/include/linux/platform_data/video-pxafb.h
-@@ -8,7 +8,6 @@
-  */
- 
- #include <linux/fb.h>
--#include <mach/regs-lcd.h>
+@@ -64,7 +64,6 @@
+ #include <asm/io.h>
+ #include <asm/irq.h>
+ #include <asm/div64.h>
+-#include <mach/bitfield.h>
+ #include <linux/platform_data/video-pxafb.h>
  
  /*
-  * Supported LCD connections
-@@ -153,6 +152,27 @@ struct pxafb_mach_info {
- void pxa_set_fb_info(struct device *, struct pxafb_mach_info *);
- unsigned long pxafb_get_hsync_time(struct device *dev);
- 
-+/* smartpanel related */
-+#define SMART_CMD_A0			 (0x1 << 8)
-+#define SMART_CMD_READ_STATUS_REG	 (0x0 << 9)
-+#define SMART_CMD_READ_FRAME_BUFFER	((0x0 << 9) | SMART_CMD_A0)
-+#define SMART_CMD_WRITE_COMMAND		 (0x1 << 9)
-+#define SMART_CMD_WRITE_DATA		((0x1 << 9) | SMART_CMD_A0)
-+#define SMART_CMD_WRITE_FRAME		((0x2 << 9) | SMART_CMD_A0)
-+#define SMART_CMD_WAIT_FOR_VSYNC	 (0x3 << 9)
-+#define SMART_CMD_NOOP			 (0x4 << 9)
-+#define SMART_CMD_INTERRUPT		 (0x5 << 9)
-+
-+#define SMART_CMD(x)	(SMART_CMD_WRITE_COMMAND | ((x) & 0xff))
-+#define SMART_DAT(x)	(SMART_CMD_WRITE_DATA | ((x) & 0xff))
-+
-+/* SMART_DELAY() is introduced for software controlled delay primitive which
-+ * can be inserted between command sequences, unused command 0x6 is used here
-+ * and delay ranges from 0ms ~ 255ms
-+ */
-+#define SMART_CMD_DELAY		(0x6 << 9)
-+#define SMART_DELAY(ms)		(SMART_CMD_DELAY | ((ms) & 0xff))
-+
- #ifdef CONFIG_FB_PXA_SMARTPANEL
- extern int pxafb_smart_queue(struct fb_info *info, uint16_t *cmds, int);
- extern int pxafb_smart_flush(struct fb_info *info);
 -- 
 2.29.2
 

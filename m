@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 923D1C47081
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11B69C43219
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355366AbiDSQtc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:49:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55338 "EHLO
+        id S1355380AbiDSQtg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:49:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244970AbiDSQqK (ORCPT
+        with ESMTP id S1350141AbiDSQpj (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 12:46:10 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB69239692;
-        Tue, 19 Apr 2022 09:43:26 -0700 (PDT)
+        Tue, 19 Apr 2022 12:45:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C924F36E26;
+        Tue, 19 Apr 2022 09:42:55 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AB4D61877;
-        Tue, 19 Apr 2022 16:43:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83A3AC385AE;
-        Tue, 19 Apr 2022 16:43:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63FC761874;
+        Tue, 19 Apr 2022 16:42:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80884C385AC;
+        Tue, 19 Apr 2022 16:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386605;
-        bh=jVLr/dnEKwuj3c1vrZ91YoCk9HDGqp70ixnIySjnCzk=;
+        s=k20201202; t=1650386574;
+        bh=RVE6EmI/XNsvZr+sz6SY+1PqohGEsq3I0n4zlwh58+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWT14rZK6S8SuCBdSeUZzPrc9E19Tfk5z+4e9Xxz5EV84KlZjRCrsV4OOzxS7dHS6
-         4iexBwIyE7R2Bpu6+i2RCf1afkBlvNseI9hOFpc1KtSAzBYh231hgSqMVDhA681sMd
-         tSc90K1WjgKGfBNbN2rCf9UAT41xofayQcYjRr5RlfcxKZzE9DwCXzhkkSatqU7rJA
-         Txl8iVGB3rULKEKOFMBXqDJviTOWOEw+/wfcvwIbK1jtrAzCoSC461ZPz5HedxyzbB
-         zEfwanqzKNV6A15RBOC7RVLcka+KDcF2taZlmtRD7tt/hSaNrcpYJnLCOHouG9UN5P
-         xWRdDk2j4rGQQ==
+        b=dHkbZ59jO4tpFys0DP7olW8IY7ZH5CGyEM3n2P2fl7D3JvK9hQ7BKYiNMCkVX0QMO
+         DzwIJv2XuHva+L/KHbieQhFRPKov89shvDnwcRIqSGqfBDAYykBmRV+5xMRQwCndOp
+         sHEX5civiLh3GC6mOa9LkgRIlBFjYRIyGRh7lIfTZoJ/GNwulWi9NOLR6NJJ2N2jTC
+         fWVoQDYVTClTgFIbtWF4Aw1YdDz3Dn9HqY5Kktz5XtwGO57L+cplp1HmwGjhzgiXge
+         HL9aNnhck3V9UwzUA23nrnbbVePDqvxauzNlGoRmQeEK/cTZnnxkove2t2MWjx50A7
+         aeTu+UERvoByg==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -60,9 +60,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 35/48] ARM: pxa: remove get_clk_frequency_khz()
-Date:   Tue, 19 Apr 2022 18:37:57 +0200
-Message-Id: <20220419163810.2118169-36-arnd@kernel.org>
+Subject: [PATCH 31/48] ASoC: pxa: use pdev resource for FIFO regs
+Date:   Tue, 19 Apr 2022 18:37:53 +0200
+Message-Id: <20220419163810.2118169-32-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -74,87 +74,98 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-get_clk_frequency_khz() is not a proper name for a global function,
-and there is only one caller.
+The driver currently takes the hardwired FIFO address from
+a header file that we want to eliminate. Change it to use
+the mmio resource instead and stop including the here.
 
-Convert viper to use the properly namespaced
-pxa25x_get_clk_frequency_khz() and remove the other references.
-
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Acked-by: Mark Brown <broonie@kernel.org>
+Cc: alsa-devel@alsa-project.org
 Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: linux-pm@vger.kernel.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mach-pxa/generic.c      | 15 ---------------
- arch/arm/mach-pxa/generic.h      |  1 -
- arch/arm/mach-pxa/viper.c        |  2 +-
- drivers/cpufreq/pxa2xx-cpufreq.c |  2 --
- 4 files changed, 1 insertion(+), 19 deletions(-)
+ sound/soc/pxa/pxa2xx-ac97.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/mach-pxa/generic.c b/arch/arm/mach-pxa/generic.c
-index fe1d55d328e5..2c2c82fcf9cb 100644
---- a/arch/arm/mach-pxa/generic.c
-+++ b/arch/arm/mach-pxa/generic.c
-@@ -55,21 +55,6 @@ void __init pxa_timer_init(void)
- 	pxa_timer_nodt_init(IRQ_OST0, io_p2v(0x40a00000));
- }
+diff --git a/sound/soc/pxa/pxa2xx-ac97.c b/sound/soc/pxa/pxa2xx-ac97.c
+index 9443c1390d2f..809ea34736ed 100644
+--- a/sound/soc/pxa/pxa2xx-ac97.c
++++ b/sound/soc/pxa/pxa2xx-ac97.c
+@@ -21,10 +21,12 @@
+ #include <sound/pxa2xx-lib.h>
+ #include <sound/dmaengine_pcm.h>
  
--/*
-- * Get the clock frequency as reflected by CCCR and the turbo flag.
-- * We assume these values have been applied via a fcs.
-- * If info is not 0 we also display the current settings.
-- */
--unsigned int get_clk_frequency_khz(int info)
--{
--	if (cpu_is_pxa25x())
--		return pxa25x_get_clk_frequency_khz(info);
--	else if (cpu_is_pxa27x())
--		return pxa27x_get_clk_frequency_khz(info);
--	return 0;
--}
--EXPORT_SYMBOL(get_clk_frequency_khz);
--
- void pxa_smemc_set_pcmcia_timing(int sock, u32 mcmem, u32 mcatt, u32 mcio)
+-#include <mach/pxa-regs.h>
+-#include <mach/regs-ac97.h>
+ #include <linux/platform_data/asoc-pxa.h>
+ 
++#define PCDR	0x0040  /* PCM FIFO Data Register */
++#define MODR	0x0140  /* Modem FIFO Data Register */
++#define MCDR	0x0060  /* Mic-in FIFO Data Register */
++
+ static void pxa2xx_ac97_warm_reset(struct ac97_controller *adrv)
  {
- 	__raw_writel(mcmem, MCMEM(sock));
-diff --git a/arch/arm/mach-pxa/generic.h b/arch/arm/mach-pxa/generic.h
-index 67925d3ea026..2f706ef97357 100644
---- a/arch/arm/mach-pxa/generic.h
-+++ b/arch/arm/mach-pxa/generic.h
-@@ -11,7 +11,6 @@
+ 	pxa2xx_ac97_try_warm_reset();
+@@ -59,35 +61,30 @@ static struct ac97_controller_ops pxa2xx_ac97_ops = {
+ };
  
- struct irq_data;
+ static struct snd_dmaengine_dai_dma_data pxa2xx_ac97_pcm_stereo_in = {
+-	.addr		= __PREG(PCDR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_4_BYTES,
+ 	.chan_name	= "pcm_pcm_stereo_in",
+ 	.maxburst	= 32,
+ };
  
--extern unsigned int get_clk_frequency_khz(int info);
- extern void __init pxa_dt_irq_init(int (*fn)(struct irq_data *,
- 					     unsigned int));
- extern void __init pxa_map_io(void);
-diff --git a/arch/arm/mach-pxa/viper.c b/arch/arm/mach-pxa/viper.c
-index 600d9e80b00c..0782f0ed5a6e 100644
---- a/arch/arm/mach-pxa/viper.c
-+++ b/arch/arm/mach-pxa/viper.c
-@@ -851,7 +851,7 @@ static void __init viper_init_vcore_gpios(void)
- 		goto err_dir;
+ static struct snd_dmaengine_dai_dma_data pxa2xx_ac97_pcm_stereo_out = {
+-	.addr		= __PREG(PCDR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_4_BYTES,
+ 	.chan_name	= "pcm_pcm_stereo_out",
+ 	.maxburst	= 32,
+ };
  
- 	/* c/should assume redboot set the correct level ??? */
--	viper_set_core_cpu_voltage(get_clk_frequency_khz(0), 1);
-+	viper_set_core_cpu_voltage(pxa25x_get_clk_frequency_khz(0), 1);
+ static struct snd_dmaengine_dai_dma_data pxa2xx_ac97_pcm_aux_mono_out = {
+-	.addr		= __PREG(MODR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_2_BYTES,
+ 	.chan_name	= "pcm_aux_mono_out",
+ 	.maxburst	= 16,
+ };
  
- 	return;
+ static struct snd_dmaengine_dai_dma_data pxa2xx_ac97_pcm_aux_mono_in = {
+-	.addr		= __PREG(MODR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_2_BYTES,
+ 	.chan_name	= "pcm_aux_mono_in",
+ 	.maxburst	= 16,
+ };
  
-diff --git a/drivers/cpufreq/pxa2xx-cpufreq.c b/drivers/cpufreq/pxa2xx-cpufreq.c
-index 0f0e676ff781..e74d36d6f78d 100644
---- a/drivers/cpufreq/pxa2xx-cpufreq.c
-+++ b/drivers/cpufreq/pxa2xx-cpufreq.c
-@@ -107,8 +107,6 @@ static struct pxa_freqs pxa27x_freqs[] = {
- static struct cpufreq_frequency_table
- 	pxa27x_freq_table[NUM_PXA27x_FREQS+1];
+ static struct snd_dmaengine_dai_dma_data pxa2xx_ac97_pcm_mic_mono_in = {
+-	.addr		= __PREG(MCDR),
+ 	.addr_width	= DMA_SLAVE_BUSWIDTH_2_BYTES,
+ 	.chan_name	= "pcm_aux_mic_mono",
+ 	.maxburst	= 16,
+@@ -226,6 +223,7 @@ static int pxa2xx_ac97_dev_probe(struct platform_device *pdev)
+ 	int ret;
+ 	struct ac97_controller *ctrl;
+ 	pxa2xx_audio_ops_t *pdata = pdev->dev.platform_data;
++	struct resource *regs;
+ 	void **codecs_pdata;
  
--extern unsigned get_clk_frequency_khz(int info);
--
- #ifdef CONFIG_REGULATOR
+ 	if (pdev->id != -1) {
+@@ -233,6 +231,16 @@ static int pxa2xx_ac97_dev_probe(struct platform_device *pdev)
+ 		return -ENXIO;
+ 	}
  
- static int pxa_cpufreq_change_voltage(const struct pxa_freqs *pxa_freq)
++	regs = platform_get_resource(pdev, IORESOURCE_MEM, 0);
++	if (!regs)
++		return -ENXIO;
++
++	pxa2xx_ac97_pcm_stereo_in.addr = regs->start + PCDR;
++	pxa2xx_ac97_pcm_stereo_out.addr = regs->start + PCDR;
++	pxa2xx_ac97_pcm_aux_mono_out.addr = regs->start + MODR;
++	pxa2xx_ac97_pcm_aux_mono_in.addr = regs->start + MODR;
++	pxa2xx_ac97_pcm_mic_mono_in.addr = regs->start + MCDR;
++
+ 	ret = pxa2xx_ac97_hw_probe(pdev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "PXA2xx AC97 hw probe error (%d)\n", ret);
 -- 
 2.29.2
 

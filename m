@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A6F6C433EF
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:44:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A76CC4707E
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:44:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355109AbiDSQow (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:44:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53774 "EHLO
+        id S1355028AbiDSQot (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:44:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348446AbiDSQnn (ORCPT
+        with ESMTP id S242507AbiDSQnM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 12:43:43 -0400
+        Tue, 19 Apr 2022 12:43:12 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3FF4167CF;
-        Tue, 19 Apr 2022 09:41:00 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10BD617E23;
+        Tue, 19 Apr 2022 09:40:29 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FA08B81BB5;
-        Tue, 19 Apr 2022 16:40:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79E8DC385A5;
-        Tue, 19 Apr 2022 16:40:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B4FDB819DE;
+        Tue, 19 Apr 2022 16:40:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDD0FC385A5;
+        Tue, 19 Apr 2022 16:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386457;
-        bh=C2cC3nszzSR7Yg7EQ5FMtO6Bllai+VKT38Jvit2uDc8=;
+        s=k20201202; t=1650386426;
+        bh=ptMtOudbQ5loXUIBoTxa9Js2NvWZa4r2mq6O40yUHH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJfs7uv7LS4DROe0ZEqAXf1BemzCSiR1n9q5pTBcQG14Rdk/Bok1Paom6lb0vD0cm
-         ije+/8ArHxRKJaRYvlbGz9m+iaPOzZmd1uwU5s0IOYZTrkkemNzH/kJBRzyHiOZkrG
-         KiVRrX/jL+JFZ87Q7XxHzop2CKv3G0/eQc4YVrjQsAOZ+/qLo79zDbsc5oxBF2efza
-         CDyrl5WnAOPpLGjznX6xQc+QWZhDWWihqtFWdy5w+aKST9Ab0KZIJBuMOTuHrbmZlA
-         1xPy7xRAfOi3AMuZzwWBxP7QLOwG5d+HiSgT8IPJ4ta7k1PytjOW3TnkjqmjRoC/fm
-         4YELVox8EX7Qw==
+        b=sn7fnX8rRkBuqtQMfRkdqeTmIHa3aEVyEQqy3ea6Rcph7o5+q2+oJQtgfayzkGgGD
+         pBrobPc0a288Jt5l21HSNaRfaU6aAdkHaECQNojqoW85epuPmw1VvMwvkSO6N07k/3
+         115Wizs7BJeOANhRCBPtn5ETmJ1DN/7eD9VqdGz01zYvnNHqGUiTr7Xr5IQ32fnJKz
+         73a5FySo1/OXZDPRM/Hg6r35U+vs89tmssHNWG7O1Y8buOzXQepqwD84VLvP022GvN
+         c6H9ZVfE372WNIs8vRZiLFyLD+Hr6zPSL7rCagmKzA+O8wvtPs7NCaSk+bRoY9berF
+         uj9Ak7o458yOA==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -60,9 +60,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 16/48] ARM: pxa: poodle: use platform data for poodle asoc driver
-Date:   Tue, 19 Apr 2022 18:37:38 +0200
-Message-Id: <20220419163810.2118169-17-arnd@kernel.org>
+Subject: [PATCH 12/48] ARM: pxa: make addr-map.h header local
+Date:   Tue, 19 Apr 2022 18:37:34 +0200
+Message-Id: <20220419163810.2118169-13-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -74,237 +74,205 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The poodle audio driver shows its age by using a custom
-gpio api for the "locomo" support chip.
+Drivers should not rely on the contents of this file, so
+move it into the platform directory directly.
 
-In a perfect world, this would get converted to use gpiolib
-and a gpio lookup table.
+Cc: Philipp Zabel <philipp.zabel@gmail.com>
+Cc: Paul Parsons <lost.distance@yahoo.com>
 
-As the world is not perfect, just pass all the required data
-in a custom platform_data structure. to avoid the globally
-visible mach/poodle.h header.
-
-Acked-by: Mark Brown <broonie@kernel.org>
-Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: alsa-devel@alsa-project.org
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/lkml/87mudkmx8g.fsf@belgarion.home/
 ---
- arch/arm/mach-pxa/poodle.c                    | 30 ++++++++----
- arch/arm/mach-pxa/{include/mach => }/poodle.h |  4 +-
- include/linux/platform_data/asoc-poodle.h     | 16 ++++++
- sound/soc/pxa/poodle.c                        | 49 ++++++++++---------
- 4 files changed, 63 insertions(+), 36 deletions(-)
- rename arch/arm/mach-pxa/{include/mach => }/poodle.h (97%)
- create mode 100644 include/linux/platform_data/asoc-poodle.h
+ arch/arm/mach-pxa/{include/mach => }/addr-map.h | 0
+ arch/arm/mach-pxa/generic.c                     | 2 +-
+ arch/arm/mach-pxa/hx4700.c                      | 2 +-
+ arch/arm/mach-pxa/lpd270.c                      | 2 +-
+ arch/arm/mach-pxa/magician.c                    | 2 +-
+ arch/arm/mach-pxa/mainstone.c                   | 2 +-
+ arch/arm/mach-pxa/pxa25x.c                      | 2 +-
+ arch/arm/mach-pxa/pxa25x.h                      | 2 +-
+ arch/arm/mach-pxa/pxa27x.c                      | 2 +-
+ arch/arm/mach-pxa/pxa27x.h                      | 2 +-
+ arch/arm/mach-pxa/pxa3xx.c                      | 2 +-
+ arch/arm/mach-pxa/pxa3xx.h                      | 2 +-
+ arch/arm/mach-pxa/trizeps4.h                    | 2 +-
+ arch/arm/mach-pxa/xcep.c                        | 2 +-
+ 14 files changed, 13 insertions(+), 13 deletions(-)
+ rename arch/arm/mach-pxa/{include/mach => }/addr-map.h (100%)
 
-diff --git a/arch/arm/mach-pxa/poodle.c b/arch/arm/mach-pxa/poodle.c
-index ca52882433d4..7772a39430ed 100644
---- a/arch/arm/mach-pxa/poodle.c
-+++ b/arch/arm/mach-pxa/poodle.c
-@@ -39,11 +39,13 @@
- #include <asm/mach/irq.h>
+diff --git a/arch/arm/mach-pxa/include/mach/addr-map.h b/arch/arm/mach-pxa/addr-map.h
+similarity index 100%
+rename from arch/arm/mach-pxa/include/mach/addr-map.h
+rename to arch/arm/mach-pxa/addr-map.h
+diff --git a/arch/arm/mach-pxa/generic.c b/arch/arm/mach-pxa/generic.c
+index 3c3cd90bb9b4..f9083c4f0aea 100644
+--- a/arch/arm/mach-pxa/generic.c
++++ b/arch/arm/mach-pxa/generic.c
+@@ -22,7 +22,7 @@
+ #include <asm/mach/map.h>
+ #include <asm/mach-types.h>
+ 
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/irqs.h>
+ #include <mach/reset.h>
+ #include <mach/smemc.h>
+diff --git a/arch/arm/mach-pxa/hx4700.c b/arch/arm/mach-pxa/hx4700.c
+index 191a6c24fe19..140a44cb2989 100644
+--- a/arch/arm/mach-pxa/hx4700.c
++++ b/arch/arm/mach-pxa/hx4700.c
+@@ -40,7 +40,7 @@
+ #include <asm/mach/arch.h>
+ 
+ #include "pxa27x.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/hx4700.h>
+ #include <linux/platform_data/irda-pxaficp.h>
+ 
+diff --git a/arch/arm/mach-pxa/lpd270.c b/arch/arm/mach-pxa/lpd270.c
+index 7f10b86f85fd..e03436710752 100644
+--- a/arch/arm/mach-pxa/lpd270.c
++++ b/arch/arm/mach-pxa/lpd270.c
+@@ -38,7 +38,7 @@
+ 
+ #include "pxa27x.h"
+ #include "lpd270.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <linux/platform_data/asoc-pxa.h>
+ #include <linux/platform_data/video-pxafb.h>
+ #include <linux/platform_data/mmc-pxamci.h>
+diff --git a/arch/arm/mach-pxa/magician.c b/arch/arm/mach-pxa/magician.c
+index 345a44d15a2c..20ca3e28c7fb 100644
+--- a/arch/arm/mach-pxa/magician.c
++++ b/arch/arm/mach-pxa/magician.c
+@@ -34,7 +34,7 @@
+ #include <asm/system_info.h>
+ 
+ #include "pxa27x.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/magician.h>
+ #include <linux/platform_data/video-pxafb.h>
+ #include <linux/platform_data/mmc-pxamci.h>
+diff --git a/arch/arm/mach-pxa/mainstone.c b/arch/arm/mach-pxa/mainstone.c
+index c8200fc2159d..f0072e63b456 100644
+--- a/arch/arm/mach-pxa/mainstone.c
++++ b/arch/arm/mach-pxa/mainstone.c
+@@ -51,7 +51,7 @@
+ #include <linux/platform_data/irda-pxaficp.h>
+ #include <linux/platform_data/usb-ohci-pxa27x.h>
+ #include <linux/platform_data/keypad-pxa27x.h>
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ 
+ #include "generic.h"
+diff --git a/arch/arm/mach-pxa/pxa25x.c b/arch/arm/mach-pxa/pxa25x.c
+index dfc90b41fba3..8d21c7eef1d2 100644
+--- a/arch/arm/mach-pxa/pxa25x.c
++++ b/arch/arm/mach-pxa/pxa25x.c
+@@ -34,7 +34,7 @@
+ #include "pxa25x.h"
+ #include <mach/reset.h>
+ #include "pm.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ 
+ #include "generic.h"
+diff --git a/arch/arm/mach-pxa/pxa25x.h b/arch/arm/mach-pxa/pxa25x.h
+index 403bc16c2ed2..4699ebf7b486 100644
+--- a/arch/arm/mach-pxa/pxa25x.h
++++ b/arch/arm/mach-pxa/pxa25x.h
+@@ -2,7 +2,7 @@
+ #ifndef __MACH_PXA25x_H
+ #define __MACH_PXA25x_H
+ 
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/pxa2xx-regs.h>
+ #include "mfp-pxa25x.h"
+ #include <mach/irqs.h>
+diff --git a/arch/arm/mach-pxa/pxa27x.c b/arch/arm/mach-pxa/pxa27x.c
+index 38fdd22c4dc5..c36a9784fab8 100644
+--- a/arch/arm/mach-pxa/pxa27x.c
++++ b/arch/arm/mach-pxa/pxa27x.c
+@@ -33,7 +33,7 @@
+ #include <mach/reset.h>
+ #include <linux/platform_data/usb-ohci-pxa27x.h>
+ #include "pm.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ 
+ #include "generic.h"
+diff --git a/arch/arm/mach-pxa/pxa27x.h b/arch/arm/mach-pxa/pxa27x.h
+index 6c99090647d2..bf2755561fe5 100644
+--- a/arch/arm/mach-pxa/pxa27x.h
++++ b/arch/arm/mach-pxa/pxa27x.h
+@@ -3,7 +3,7 @@
+ #define __MACH_PXA27x_H
+ 
+ #include <linux/suspend.h>
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/pxa2xx-regs.h>
+ #include "mfp-pxa27x.h"
+ #include <mach/irqs.h>
+diff --git a/arch/arm/mach-pxa/pxa3xx.c b/arch/arm/mach-pxa/pxa3xx.c
+index 7c569fa2a6da..7881888107c7 100644
+--- a/arch/arm/mach-pxa/pxa3xx.c
++++ b/arch/arm/mach-pxa/pxa3xx.c
+@@ -32,7 +32,7 @@
+ #include <mach/reset.h>
+ #include <linux/platform_data/usb-ohci-pxa27x.h>
+ #include "pm.h"
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
+ #include <mach/irqs.h>
+ 
+diff --git a/arch/arm/mach-pxa/pxa3xx.h b/arch/arm/mach-pxa/pxa3xx.h
+index 22ace053ea25..6b424d328680 100644
+--- a/arch/arm/mach-pxa/pxa3xx.h
++++ b/arch/arm/mach-pxa/pxa3xx.h
+@@ -2,7 +2,7 @@
+ #ifndef __MACH_PXA3XX_H	
+ #define __MACH_PXA3XX_H
+ 
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/pxa3xx-regs.h>
+ #include <mach/irqs.h>
+ 
+diff --git a/arch/arm/mach-pxa/trizeps4.h b/arch/arm/mach-pxa/trizeps4.h
+index 7597b9de11e2..e0f37c0ff06f 100644
+--- a/arch/arm/mach-pxa/trizeps4.h
++++ b/arch/arm/mach-pxa/trizeps4.h
+@@ -11,7 +11,7 @@
+ #ifndef _TRIPEPS4_H_
+ #define _TRIPEPS4_H_
+ 
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/irqs.h> /* PXA_GPIO_TO_IRQ */
+ 
+ /* physical memory regions */
+diff --git a/arch/arm/mach-pxa/xcep.c b/arch/arm/mach-pxa/xcep.c
+index e6ab428287ae..7389e0199144 100644
+--- a/arch/arm/mach-pxa/xcep.c
++++ b/arch/arm/mach-pxa/xcep.c
+@@ -25,7 +25,7 @@
+ #include <asm/mach/map.h>
  
  #include "pxa25x.h"
--#include <linux/platform_data/mmc-pxamci.h>
- #include "udc.h"
-+#include "poodle.h"
-+
-+#include <linux/platform_data/mmc-pxamci.h>
- #include <linux/platform_data/irda-pxaficp.h>
--#include <mach/poodle.h>
- #include <linux/platform_data/video-pxafb.h>
-+#include <linux/platform_data/asoc-poodle.h>
+-#include <mach/addr-map.h>
++#include "addr-map.h"
+ #include <mach/smemc.h>
  
- #include <asm/hardware/scoop.h>
- #include <asm/hardware/locomo.h>
-@@ -155,12 +157,6 @@ static struct scoop_pcmcia_config poodle_pcmcia_config = {
- 
- EXPORT_SYMBOL(poodle_scoop_device);
- 
--
--static struct platform_device poodle_audio_device = {
--	.name	= "poodle-audio",
--	.id	= -1,
--};
--
- /* LoCoMo device */
- static struct resource locomo_resources[] = {
- 	[0] = {
-@@ -179,7 +175,7 @@ static struct locomo_platform_data locomo_info = {
- 	.irq_base	= IRQ_BOARD_START,
- };
- 
--struct platform_device poodle_locomo_device = {
-+static struct platform_device poodle_locomo_device = {
- 	.name		= "locomo",
- 	.id		= 0,
- 	.num_resources	= ARRAY_SIZE(locomo_resources),
-@@ -189,7 +185,21 @@ struct platform_device poodle_locomo_device = {
- 	},
- };
- 
--EXPORT_SYMBOL(poodle_locomo_device);
-+static struct poodle_audio_platform_data poodle_audio_pdata = {
-+	.locomo_dev	= &poodle_locomo_device.dev,
-+
-+	.gpio_amp_on   	= POODLE_LOCOMO_GPIO_AMP_ON,
-+	.gpio_mute_l   	= POODLE_LOCOMO_GPIO_MUTE_L,
-+	.gpio_mute_r   	= POODLE_LOCOMO_GPIO_MUTE_R,
-+	.gpio_232vcc_on	= POODLE_LOCOMO_GPIO_232VCC_ON,
-+	.gpio_jk_b     	= POODLE_LOCOMO_GPIO_JK_B,
-+};
-+
-+static struct platform_device poodle_audio_device = {
-+	.name	= "poodle-audio",
-+	.id	= -1,
-+	.dev.platform_data = &poodle_audio_pdata,
-+};
- 
- #if defined(CONFIG_SPI_PXA2XX) || defined(CONFIG_SPI_PXA2XX_MODULE)
- static struct pxa2xx_spi_controller poodle_spi_info = {
-diff --git a/arch/arm/mach-pxa/include/mach/poodle.h b/arch/arm/mach-pxa/poodle.h
-similarity index 97%
-rename from arch/arm/mach-pxa/include/mach/poodle.h
-rename to arch/arm/mach-pxa/poodle.h
-index b56b19351a03..e675a3d1aa18 100644
---- a/arch/arm/mach-pxa/include/mach/poodle.h
-+++ b/arch/arm/mach-pxa/poodle.h
-@@ -15,7 +15,7 @@
- #ifndef __ASM_ARCH_POODLE_H
- #define __ASM_ARCH_POODLE_H  1
- 
--#include "irqs.h" /* PXA_GPIO_TO_IRQ */
-+#include <mach/irqs.h> /* PXA_GPIO_TO_IRQ */
- 
- /*
-  * GPIOs
-@@ -89,6 +89,4 @@
- 
- #define POODLE_NR_IRQS		(IRQ_BOARD_START + 4)	/* 4 for LoCoMo */
- 
--extern struct platform_device poodle_locomo_device;
--
- #endif /* __ASM_ARCH_POODLE_H  */
-diff --git a/include/linux/platform_data/asoc-poodle.h b/include/linux/platform_data/asoc-poodle.h
-new file mode 100644
-index 000000000000..2052fad55c5c
---- /dev/null
-+++ b/include/linux/platform_data/asoc-poodle.h
-@@ -0,0 +1,16 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __LINUX_PLATFORM_DATA_POODLE_AUDIO
-+#define __LINUX_PLATFORM_DATA_POODLE_AUDIO
-+
-+/* locomo is not a proper gpio driver, and uses its own api */
-+struct poodle_audio_platform_data {
-+	struct device	*locomo_dev;
-+
-+	int		gpio_amp_on;
-+	int		gpio_mute_l;
-+	int		gpio_mute_r;
-+	int		gpio_232vcc_on;
-+	int		gpio_jk_b;
-+};
-+
-+#endif
-diff --git a/sound/soc/pxa/poodle.c b/sound/soc/pxa/poodle.c
-index 176a0441235a..5fdaa477e85d 100644
---- a/sound/soc/pxa/poodle.c
-+++ b/sound/soc/pxa/poodle.c
-@@ -21,8 +21,8 @@
- 
- #include <asm/mach-types.h>
- #include <asm/hardware/locomo.h>
--#include <mach/poodle.h>
- #include <linux/platform_data/asoc-pxa.h>
-+#include <linux/platform_data/asoc-poodle.h>
- 
- #include "../codecs/wm8731.h"
- #include "pxa2xx-i2s.h"
-@@ -38,21 +38,23 @@
- static int poodle_jack_func;
- static int poodle_spk_func;
- 
-+static struct poodle_audio_platform_data *poodle_pdata;
-+
- static void poodle_ext_control(struct snd_soc_dapm_context *dapm)
- {
- 	/* set up jack connection */
- 	if (poodle_jack_func == POODLE_HP) {
- 		/* set = unmute headphone */
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_MUTE_L, 1);
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_MUTE_R, 1);
-+		locomo_gpio_write(poodle_pdata->locomo_dev,
-+			poodle_pdata->gpio_mute_l, 1);
-+		locomo_gpio_write(poodle_pdata->locomo_dev,
-+			poodle_pdata->gpio_mute_r, 1);
- 		snd_soc_dapm_enable_pin(dapm, "Headphone Jack");
- 	} else {
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_MUTE_L, 0);
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_MUTE_R, 0);
-+		locomo_gpio_write(poodle_pdata->locomo_dev,
-+			poodle_pdata->gpio_mute_l, 0);
-+		locomo_gpio_write(poodle_pdata->locomo_dev,
-+			poodle_pdata->gpio_mute_r, 0);
- 		snd_soc_dapm_disable_pin(dapm, "Headphone Jack");
- 	}
- 
-@@ -80,10 +82,10 @@ static int poodle_startup(struct snd_pcm_substream *substream)
- static void poodle_shutdown(struct snd_pcm_substream *substream)
- {
- 	/* set = unmute headphone */
--	locomo_gpio_write(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_MUTE_L, 1);
--	locomo_gpio_write(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_MUTE_R, 1);
-+	locomo_gpio_write(poodle_pdata->locomo_dev,
-+		poodle_pdata->gpio_mute_l, 1);
-+	locomo_gpio_write(poodle_pdata->locomo_dev,
-+		poodle_pdata->gpio_mute_r, 1);
- }
- 
- static int poodle_hw_params(struct snd_pcm_substream *substream,
-@@ -174,11 +176,11 @@ static int poodle_amp_event(struct snd_soc_dapm_widget *w,
- 	struct snd_kcontrol *k, int event)
- {
- 	if (SND_SOC_DAPM_EVENT_ON(event))
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_AMP_ON, 0);
-+		locomo_gpio_write(poodle_pdata->locomo_dev,
-+			poodle_pdata->gpio_amp_on, 0);
- 	else
--		locomo_gpio_write(&poodle_locomo_device.dev,
--			POODLE_LOCOMO_GPIO_AMP_ON, 1);
-+		locomo_gpio_write(poodle_pdata->locomo_dev,
-+			poodle_pdata->gpio_amp_on, 1);
- 
- 	return 0;
- }
-@@ -254,13 +256,14 @@ static int poodle_probe(struct platform_device *pdev)
- 	struct snd_soc_card *card = &poodle;
- 	int ret;
- 
--	locomo_gpio_set_dir(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_AMP_ON, 0);
-+	poodle_pdata = pdev->dev.platform_data;
-+	locomo_gpio_set_dir(poodle_pdata->locomo_dev,
-+		poodle_pdata->gpio_amp_on, 0);
- 	/* should we mute HP at startup - burning power ?*/
--	locomo_gpio_set_dir(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_MUTE_L, 0);
--	locomo_gpio_set_dir(&poodle_locomo_device.dev,
--		POODLE_LOCOMO_GPIO_MUTE_R, 0);
-+	locomo_gpio_set_dir(poodle_pdata->locomo_dev,
-+		poodle_pdata->gpio_mute_l, 0);
-+	locomo_gpio_set_dir(poodle_pdata->locomo_dev,
-+		poodle_pdata->gpio_mute_r, 0);
- 
- 	card->dev = &pdev->dev;
- 
+ #include "generic.h"
 -- 
 2.29.2
 

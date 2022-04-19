@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09BEFC352A7
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 95FD5C352B6
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348189AbiDSQtY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:49:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55402 "EHLO
+        id S1355345AbiDSQtZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:49:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354977AbiDSQqR (ORCPT
+        with ESMTP id S234455AbiDSQq6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 12:46:17 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9682039692;
-        Tue, 19 Apr 2022 09:43:34 -0700 (PDT)
+        Tue, 19 Apr 2022 12:46:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 270DC39692;
+        Tue, 19 Apr 2022 09:44:15 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 277516145C;
-        Tue, 19 Apr 2022 16:43:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C435C385A5;
-        Tue, 19 Apr 2022 16:43:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDBCBB81BFD;
+        Tue, 19 Apr 2022 16:44:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61AA5C385AD;
+        Tue, 19 Apr 2022 16:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386613;
-        bh=1CznP/IcfkJndLnXKlEqV7YtwAE/0IZ23NVP7Os5Lbk=;
+        s=k20201202; t=1650386652;
+        bh=xU/U9xkTvFUXFL8Wopr4rZHXHyzXgLRf0YqQRK4Kvss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gkyeNvpegI/KQIRWnjwkEYCied4Du61ntShcs66DzkQFnJHkJWp70dBzOiTP/ZG6j
-         n96w9hkpW3grm9KvPbPA2R8JMHGs0B28jY9iQ2TtUgdW5V+XoN0ZLiqkWwVdMXxfJ1
-         g4lG/kC3swRcBOnkw50SSbGy5I/KjmkMOKQ/SlEhuKtrq2jtmRtW2c5FwToKh8BGwy
-         tQTv4ia+QOAVOVszdbwIbLvRCF+TpW81A0z+kf9LYr2Zgm++jGTXkxtLEd4wDmJIYw
-         XmyDe5w2feEiHmwvkFrvwJr16KElh9yxIpw5HNExil/VCLxaA6PWzlCybRgA8G+uZe
-         V5QDp19UieVxQ==
+        b=OM0GwvoFjDTXu7F7DMTK9IAJLrdekpoJNNdqgKZOqnT0MxcJctOA38FNelxFTEIEi
+         rfOkyib+5L0BuGs5gSth50JnQfK4wt3P5XbEMzwjlxtkKR2D5Fp6NSpVpT6JKLzOYa
+         sUcSPu9YpMeAuC5R0d9Ntrrwz+yhMHEr/UloCY/EYZJ1RL8i+BYnDoiDTB5kDUDvsN
+         cfM9amClMURurngFRlcw5eiNrdaaZ0Wt5Rgqq1W263FPZpQFgkIEKzYtsp52+Hu//Z
+         ZDG5KKaetJsY/MAdjSi0qUGYxcFLyaW3uLnIWcs9gXXeXABgeTGYRt2fpOditJ3OfS
+         VNvsgnrEcsb+w==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -60,9 +60,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 36/48] cpufreq: pxa3: move clk register access to clk driver
-Date:   Tue, 19 Apr 2022 18:37:58 +0200
-Message-Id: <20220419163810.2118169-37-arnd@kernel.org>
+Subject: [PATCH 41/48] ARM: pxa: remove unused mach/bitfield.h
+Date:   Tue, 19 Apr 2022 18:38:03 +0200
+Message-Id: <20220419163810.2118169-42-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -74,230 +74,151 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The driver needs some low-level register access for setting
-the core and bus frequencies. These registers are owned
-by the clk driver, so move the low-level access into that
-driver with a slightly higher-level interface and avoid
-any machine header file dependencies.
+The sa1111.h header defines some constants using the bitfield
+macros, but those are only used on sa1100, not on pxa, and the
+users include the bitfield header through mach/hardware.h.
 
-Cc: Michael Turquette <mturquette@baylibre.com>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-clk@vger.kernel.org
-Cc: linux-pm@vger.kernel.org
+Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- arch/arm/mach-pxa/generic.h              |  1 -
- arch/arm/mach-pxa/include/mach/generic.h |  5 --
- arch/arm/mach-pxa/pxa3xx.c               |  1 +
- drivers/clk/pxa/clk-pxa3xx.c             | 16 ++++++
- drivers/cpufreq/pxa2xx-cpufreq.c         |  3 --
- drivers/cpufreq/pxa3xx-cpufreq.c         | 64 +++++++++++++-----------
- include/linux/clk/pxa.h                  |  9 ++++
- 7 files changed, 62 insertions(+), 37 deletions(-)
- delete mode 100644 arch/arm/mach-pxa/include/mach/generic.h
- create mode 100644 include/linux/clk/pxa.h
+ arch/arm/include/asm/hardware/sa1111.h    |   2 -
+ arch/arm/mach-pxa/include/mach/bitfield.h | 114 ----------------------
+ 2 files changed, 116 deletions(-)
+ delete mode 100644 arch/arm/mach-pxa/include/mach/bitfield.h
 
-diff --git a/arch/arm/mach-pxa/generic.h b/arch/arm/mach-pxa/generic.h
-index 2f706ef97357..487eadb0fc2a 100644
---- a/arch/arm/mach-pxa/generic.h
-+++ b/arch/arm/mach-pxa/generic.h
-@@ -7,7 +7,6 @@
+diff --git a/arch/arm/include/asm/hardware/sa1111.h b/arch/arm/include/asm/hardware/sa1111.h
+index 2e70db6f22ea..d8c6f8a99dfa 100644
+--- a/arch/arm/include/asm/hardware/sa1111.h
++++ b/arch/arm/include/asm/hardware/sa1111.h
+@@ -13,8 +13,6 @@
+ #ifndef _ASM_ARCH_SA1111
+ #define _ASM_ARCH_SA1111
+ 
+-#include <mach/bitfield.h>
+-
+ /*
+  * Don't ask the (SAC) DMA engines to move less than this amount.
   */
- 
- #include <linux/reboot.h>
--#include <mach/generic.h>
- 
- struct irq_data;
- 
-diff --git a/arch/arm/mach-pxa/include/mach/generic.h b/arch/arm/mach-pxa/include/mach/generic.h
+diff --git a/arch/arm/mach-pxa/include/mach/bitfield.h b/arch/arm/mach-pxa/include/mach/bitfield.h
 deleted file mode 100644
-index 613f6a299d0d..000000000000
---- a/arch/arm/mach-pxa/include/mach/generic.h
+index fe2ca441bc0a..000000000000
+--- a/arch/arm/mach-pxa/include/mach/bitfield.h
 +++ /dev/null
-@@ -1,5 +0,0 @@
--#ifdef CONFIG_PXA3xx
--extern unsigned	pxa3xx_get_clk_frequency_khz(int);
+@@ -1,114 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0 */
+-/*
+- *	FILE    	bitfield.h
+- *
+- *	Version 	1.1
+- *	Author  	Copyright (c) Marc A. Viredaz, 1998
+- *	        	DEC Western Research Laboratory, Palo Alto, CA
+- *	Date    	April 1998 (April 1997)
+- *	System  	Advanced RISC Machine (ARM)
+- *	Language	C or ARM Assembly
+- *	Purpose 	Definition of macros to operate on bit fields.
+- */
+-
+-
+-
+-#ifndef __BITFIELD_H
+-#define __BITFIELD_H
+-
+-#ifndef __ASSEMBLY__
+-#define UData(Data)	((unsigned long) (Data))
 -#else
--#define pxa3xx_get_clk_frequency_khz(x)		(0)
+-#define UData(Data)	(Data)
 -#endif
-diff --git a/arch/arm/mach-pxa/pxa3xx.c b/arch/arm/mach-pxa/pxa3xx.c
-index 7881888107c7..f4657f4edb3b 100644
---- a/arch/arm/mach-pxa/pxa3xx.c
-+++ b/arch/arm/mach-pxa/pxa3xx.c
-@@ -25,6 +25,7 @@
- #include <linux/platform_data/i2c-pxa.h>
- #include <linux/platform_data/mmp_dma.h>
- #include <linux/soc/pxa/cpu.h>
-+#include <linux/clk/pxa.h>
- 
- #include <asm/mach/map.h>
- #include <asm/suspend.h>
-diff --git a/drivers/clk/pxa/clk-pxa3xx.c b/drivers/clk/pxa/clk-pxa3xx.c
-index 027b78183565..60a0db4f3790 100644
---- a/drivers/clk/pxa/clk-pxa3xx.c
-+++ b/drivers/clk/pxa/clk-pxa3xx.c
-@@ -16,6 +16,7 @@
- #include <linux/of.h>
- #include <linux/soc/pxa/cpu.h>
- #include <mach/smemc.h>
-+#include <linux/clk/pxa.h>
- #include <mach/pxa3xx-regs.h>
- 
- #include <dt-bindings/clock/pxa-clock.h>
-@@ -79,6 +80,21 @@ unsigned int pxa3xx_get_clk_frequency_khz(int info)
- 	return (unsigned int)clks[0] / KHz;
- }
- 
-+void pxa3xx_clk_update_accr(u32 disable, u32 enable, u32 xclkcfg, u32 mask)
-+{
-+	u32 accr = ACCR;
-+
-+	accr &= ~disable;
-+	accr |= enable;
-+
-+	ACCR = accr;
-+	if (xclkcfg)
-+		__asm__("mcr p14, 0, %0, c6, c0, 0\n" : : "r"(xclkcfg));
-+
-+	while ((ACSR & mask) != (accr & mask))
-+		cpu_relax();
-+}
-+
- static unsigned long clk_pxa3xx_ac97_get_rate(struct clk_hw *hw,
- 					     unsigned long parent_rate)
- {
-diff --git a/drivers/cpufreq/pxa2xx-cpufreq.c b/drivers/cpufreq/pxa2xx-cpufreq.c
-index e74d36d6f78d..ed1ae061a687 100644
---- a/drivers/cpufreq/pxa2xx-cpufreq.c
-+++ b/drivers/cpufreq/pxa2xx-cpufreq.c
-@@ -27,9 +27,6 @@
- #include <linux/soc/pxa/cpu.h>
- #include <linux/io.h>
- 
--#include <mach/pxa2xx-regs.h>
--#include <mach/smemc.h>
 -
- #ifdef DEBUG
- static unsigned int freq_debug;
- module_param(freq_debug, uint, 0);
-diff --git a/drivers/cpufreq/pxa3xx-cpufreq.c b/drivers/cpufreq/pxa3xx-cpufreq.c
-index d3b398b4aa6a..4afa48d172db 100644
---- a/drivers/cpufreq/pxa3xx-cpufreq.c
-+++ b/drivers/cpufreq/pxa3xx-cpufreq.c
-@@ -9,12 +9,10 @@
- #include <linux/init.h>
- #include <linux/cpufreq.h>
- #include <linux/soc/pxa/cpu.h>
-+#include <linux/clk/pxa.h>
- #include <linux/slab.h>
- #include <linux/io.h>
- 
--#include <mach/generic.h>
--#include <mach/pxa3xx-regs.h>
 -
- #define HSS_104M	(0)
- #define HSS_156M	(1)
- #define HSS_208M	(2)
-@@ -35,6 +33,28 @@
- #define DMCFS_26M	(0)
- #define DMCFS_260M	(3)
- 
-+#define ACCR_XPDIS		(1 << 31)	/* Core PLL Output Disable */
-+#define ACCR_SPDIS		(1 << 30)	/* System PLL Output Disable */
-+#define ACCR_D0CS		(1 << 26)	/* D0 Mode Clock Select */
-+#define ACCR_PCCE		(1 << 11)	/* Power Mode Change Clock Enable */
-+#define ACCR_DDR_D0CS		(1 << 7)	/* DDR SDRAM clock frequency in D0CS (PXA31x only) */
-+
-+#define ACCR_SMCFS_MASK		(0x7 << 23)	/* Static Memory Controller Frequency Select */
-+#define ACCR_SFLFS_MASK		(0x3 << 18)	/* Frequency Select for Internal Memory Controller */
-+#define ACCR_XSPCLK_MASK	(0x3 << 16)	/* Core Frequency during Frequency Change */
-+#define ACCR_HSS_MASK		(0x3 << 14)	/* System Bus-Clock Frequency Select */
-+#define ACCR_DMCFS_MASK		(0x3 << 12)	/* Dynamic Memory Controller Clock Frequency Select */
-+#define ACCR_XN_MASK		(0x7 << 8)	/* Core PLL Turbo-Mode-to-Run-Mode Ratio */
-+#define ACCR_XL_MASK		(0x1f)		/* Core PLL Run-Mode-to-Oscillator Ratio */
-+
-+#define ACCR_SMCFS(x)		(((x) & 0x7) << 23)
-+#define ACCR_SFLFS(x)		(((x) & 0x3) << 18)
-+#define ACCR_XSPCLK(x)		(((x) & 0x3) << 16)
-+#define ACCR_HSS(x)		(((x) & 0x3) << 14)
-+#define ACCR_DMCFS(x)		(((x) & 0x3) << 12)
-+#define ACCR_XN(x)		(((x) & 0x7) << 8)
-+#define ACCR_XL(x)		((x) & 0x1f)
-+
- struct pxa3xx_freq_info {
- 	unsigned int cpufreq_mhz;
- 	unsigned int core_xl : 5;
-@@ -112,41 +132,29 @@ static int setup_freqs_table(struct cpufreq_policy *policy,
- 
- static void __update_core_freq(struct pxa3xx_freq_info *info)
- {
--	uint32_t mask = ACCR_XN_MASK | ACCR_XL_MASK;
--	uint32_t accr = ACCR;
--	uint32_t xclkcfg;
+-/*
+- * MACRO: Fld
+- *
+- * Purpose
+- *    The macro "Fld" encodes a bit field, given its size and its shift value
+- *    with respect to bit 0.
+- *
+- * Note
+- *    A more intuitive way to encode bit fields would have been to use their
+- *    mask. However, extracting size and shift value information from a bit
+- *    field's mask is cumbersome and might break the assembler (255-character
+- *    line-size limit).
+- *
+- * Input
+- *    Size      	Size of the bit field, in number of bits.
+- *    Shft      	Shift value of the bit field with respect to bit 0.
+- *
+- * Output
+- *    Fld       	Encoded bit field.
+- */
 -
--	accr &= ~(ACCR_XN_MASK | ACCR_XL_MASK | ACCR_XSPCLK_MASK);
--	accr |= ACCR_XN(info->core_xn) | ACCR_XL(info->core_xl);
-+	u32 mask, disable, enable, xclkcfg;
- 
-+	mask	= ACCR_XN_MASK | ACCR_XL_MASK;
-+	disable = mask | ACCR_XSPCLK_MASK;
-+	enable  = ACCR_XN(info->core_xn) | ACCR_XL(info->core_xl);
- 	/* No clock until core PLL is re-locked */
--	accr |= ACCR_XSPCLK(XSPCLK_NONE);
+-#define Fld(Size, Shft)	(((Size) << 16) + (Shft))
 -
-+	enable |= ACCR_XSPCLK(XSPCLK_NONE);
- 	xclkcfg = (info->core_xn == 2) ? 0x3 : 0x2;	/* turbo bit */
- 
--	ACCR = accr;
--	__asm__("mcr p14, 0, %0, c6, c0, 0\n" : : "r"(xclkcfg));
 -
--	while ((ACSR & mask) != (accr & mask))
--		cpu_relax();
-+	pxa3xx_clk_update_accr(disable, enable, xclkcfg, mask);
- }
- 
- static void __update_bus_freq(struct pxa3xx_freq_info *info)
- {
--	uint32_t mask;
--	uint32_t accr = ACCR;
+-/*
+- * MACROS: FSize, FShft, FMsk, FAlnMsk, F1stBit
+- *
+- * Purpose
+- *    The macros "FSize", "FShft", "FMsk", "FAlnMsk", and "F1stBit" return
+- *    the size, shift value, mask, aligned mask, and first bit of a
+- *    bit field.
+- *
+- * Input
+- *    Field     	Encoded bit field (using the macro "Fld").
+- *
+- * Output
+- *    FSize     	Size of the bit field, in number of bits.
+- *    FShft     	Shift value of the bit field with respect to bit 0.
+- *    FMsk      	Mask for the bit field.
+- *    FAlnMsk   	Mask for the bit field, aligned on bit 0.
+- *    F1stBit   	First bit of the bit field.
+- */
 -
--	mask = ACCR_SMCFS_MASK | ACCR_SFLFS_MASK | ACCR_HSS_MASK |
--		ACCR_DMCFS_MASK;
+-#define FSize(Field)	((Field) >> 16)
+-#define FShft(Field)	((Field) & 0x0000FFFF)
+-#define FMsk(Field)	(((UData (1) << FSize (Field)) - 1) << FShft (Field))
+-#define FAlnMsk(Field)	((UData (1) << FSize (Field)) - 1)
+-#define F1stBit(Field)	(UData (1) << FShft (Field))
 -
--	accr &= ~mask;
--	accr |= ACCR_SMCFS(info->smcfs) | ACCR_SFLFS(info->sflfs) |
--		ACCR_HSS(info->hss) | ACCR_DMCFS(info->dmcfs);
-+	u32 mask, disable, enable;
- 
--	ACCR = accr;
-+	mask	= ACCR_SMCFS_MASK | ACCR_SFLFS_MASK | ACCR_HSS_MASK |
-+		  ACCR_DMCFS_MASK;
-+	disable = mask;
-+	enable	= ACCR_SMCFS(info->smcfs) | ACCR_SFLFS(info->sflfs) |
-+		  ACCR_HSS(info->hss) | ACCR_DMCFS(info->dmcfs);
- 
--	while ((ACSR & mask) != (accr & mask))
--		cpu_relax();
-+	pxa3xx_clk_update_accr(disable, enable, 0, mask);
- }
- 
- static unsigned int pxa3xx_cpufreq_get(unsigned int cpu)
-diff --git a/include/linux/clk/pxa.h b/include/linux/clk/pxa.h
-new file mode 100644
-index 000000000000..e5516c608c99
---- /dev/null
-+++ b/include/linux/clk/pxa.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+
-+#ifdef CONFIG_PXA3xx
-+extern unsigned	pxa3xx_get_clk_frequency_khz(int);
-+extern void pxa3xx_clk_update_accr(u32 disable, u32 enable, u32 xclkcfg, u32 mask);
-+#else
-+#define pxa3xx_get_clk_frequency_khz(x)		(0)
-+#define pxa3xx_clk_update_accr(disable, enable, xclkcfg, mask) do { } while (0)
-+#endif
+-
+-/*
+- * MACRO: FInsrt
+- *
+- * Purpose
+- *    The macro "FInsrt" inserts a value into a bit field by shifting the
+- *    former appropriately.
+- *
+- * Input
+- *    Value     	Bit-field value.
+- *    Field     	Encoded bit field (using the macro "Fld").
+- *
+- * Output
+- *    FInsrt    	Bit-field value positioned appropriately.
+- */
+-
+-#define FInsrt(Value, Field) \
+-                	(UData (Value) << FShft (Field))
+-
+-
+-/*
+- * MACRO: FExtr
+- *
+- * Purpose
+- *    The macro "FExtr" extracts the value of a bit field by masking and
+- *    shifting it appropriately.
+- *
+- * Input
+- *    Data      	Data containing the bit-field to be extracted.
+- *    Field     	Encoded bit field (using the macro "Fld").
+- *
+- * Output
+- *    FExtr     	Bit-field value.
+- */
+-
+-#define FExtr(Data, Field) \
+-                	((UData (Data) >> FShft (Field)) & FAlnMsk (Field))
+-
+-
+-#endif /* __BITFIELD_H */
 -- 
 2.29.2
 

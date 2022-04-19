@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D19FBC3527D
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:41:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 031E2C3527B
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 13:41:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352672AbiDSNnb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 09:43:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36878 "EHLO
+        id S1352692AbiDSNne (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 09:43:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352670AbiDSNmh (ORCPT
+        with ESMTP id S234762AbiDSNnI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 09:42:37 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBAF038BDA;
-        Tue, 19 Apr 2022 06:39:32 -0700 (PDT)
+        Tue, 19 Apr 2022 09:43:08 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C35AE182;
+        Tue, 19 Apr 2022 06:40:25 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6A30B81980;
-        Tue, 19 Apr 2022 13:39:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6057C385A7;
-        Tue, 19 Apr 2022 13:39:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7A754B81983;
+        Tue, 19 Apr 2022 13:40:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B32FFC385A5;
+        Tue, 19 Apr 2022 13:40:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650375570;
-        bh=B7GGzQK0KIjiwCxoEg1dXjX6/oLgtetrXN0VV1GNBGs=;
+        s=k20201202; t=1650375623;
+        bh=R5zRvKa0SoyT3N6cs+9ATf3vspiQLolbMLlEiLA/7fA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TOpp36+rC0pDLis7adjFpLtRxKwHifzqT8ATqBoHM3otXvUperBtVcs1FifHc5yyB
-         rqLPC7rYbjq0Cf9Ys1ZbJ2P/GGpYZjaZv29gcfAMIMSQP3xSrwfLAML/qNNhmU/GVd
-         gH/ywtlMj8E5lIgxWXQ0d1WKgZnNBdasQLQRmukrsvNWTS1WfVWbNuYArE2MVzLjOQ
-         7HngWtMC/2cYvIPEoUHdURPi61wEmycHnijfRFxP36EiMPOyusZ0YufgRWJ+JHp9ci
-         tnu1W78uOh80vxB8EvHIbeFZxxM2wIE9VFANNL583gMp6zk/BtWTAHQhAPI0pKoXd2
-         RNXWpAmIMsrlg==
+        b=h4qvsRlCqc1+D/Un3T++kg9XOlylFj9tu57mNt8nm00hUNQ6OKBJwfaNIy8CUc5b/
+         qlJ5Qll9E9CFFYZxtIhDJzmK+qDlqq4+ArAd2BBXudLqHYrCpKgbUoCnwsfLaR2pgk
+         Q7EkW4bPFi3bk0l1eRnod+7F8TcxdVYbp1x3X1kd6GHmuGnsuLz3ITS24UVsnNzXdg
+         x/K6BdB+SIi+C9NttQpeR53oMsrljIEQWrLP8CdiwfvAVwJt/CIv2ZT1IB0hwp9ZMU
+         YhjJTR86Ah4hamcr5wDfPSVrUyclrlzsHDyDQ4lgL5SrWli+rzKao8UrzltowcxyNH
+         vWiGzLOvfg/Eg==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     linux-omap@vger.kernel.org, tony@atomide.com, aaro.koskinen@iki.fi,
         jmkrzyszt@gmail.com
@@ -58,9 +58,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>,
         linux-input@vger.kernel.org, linux-mmc@vger.kernel.org,
         linux-serial@vger.kernel.org, dri-devel@lists.freedesktop.org,
         linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
-Subject: [PATCH 15/41] input: omap: void using mach/*.h headers
-Date:   Tue, 19 Apr 2022 15:36:57 +0200
-Message-Id: <20220419133723.1394715-16-arnd@kernel.org>
+Subject: [PATCH 22/41] ARM: omap1: move plat/dma.c to mach/omap-dma.c
+Date:   Tue, 19 Apr 2022 15:37:04 +0200
+Message-Id: <20220419133723.1394715-23-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419133723.1394715-1-arnd@kernel.org>
 References: <20220419133723.1394715-1-arnd@kernel.org>
@@ -72,28 +72,48 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-The omap-keypad driver currently relies on including mach/memory.h
-implicitly, but that won't happen once omap1 is converted to
-CONFIG_ARCH_MULTIPLATFORM. Include the required header
-explicitly.
+Most of the interface functions in plat/dma.c are only used from the
+USB driver, which is practically OMAP1 specific, except for compile
+testing.
+
+The omap_get_plat_info(), omap_request_dma() and omap_free_dma()
+functions are never called on omap2 because of runtime checks.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/keyboard/omap-keypad.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/mach-omap1/Makefile                        | 2 +-
+ arch/arm/{plat-omap/dma.c => mach-omap1/omap-dma.c} | 0
+ arch/arm/plat-omap/Makefile                         | 2 +-
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+ rename arch/arm/{plat-omap/dma.c => mach-omap1/omap-dma.c} (100%)
 
-diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
-index eb3a687796e7..57447d6c9007 100644
---- a/drivers/input/keyboard/omap-keypad.c
-+++ b/drivers/input/keyboard/omap-keypad.c
-@@ -24,6 +24,7 @@
- #include <linux/gpio.h>
- #include <linux/platform_data/gpio-omap.h>
- #include <linux/platform_data/keypad-omap.h>
-+#include <linux/soc/ti/omap1-io.h>
+diff --git a/arch/arm/mach-omap1/Makefile b/arch/arm/mach-omap1/Makefile
+index 450bbf552b57..0615cb0ba580 100644
+--- a/arch/arm/mach-omap1/Makefile
++++ b/arch/arm/mach-omap1/Makefile
+@@ -5,7 +5,7 @@
  
- #undef NEW_BOARD_LEARNING_MODE
+ # Common support
+ obj-y := io.o id.o sram-init.o sram.o time.o irq.o mux.o flash.o \
+-	 serial.o devices.o dma.o fb.o
++	 serial.o devices.o dma.o omap-dma.o fb.o
+ obj-y += clock.o clock_data.o opp_data.o reset.o pm_bus.o timer.o
  
+ ifneq ($(CONFIG_SND_SOC_OMAP_MCBSP),)
+diff --git a/arch/arm/plat-omap/dma.c b/arch/arm/mach-omap1/omap-dma.c
+similarity index 100%
+rename from arch/arm/plat-omap/dma.c
+rename to arch/arm/mach-omap1/omap-dma.c
+diff --git a/arch/arm/plat-omap/Makefile b/arch/arm/plat-omap/Makefile
+index 68ccec9de106..5d55295a14ee 100644
+--- a/arch/arm/plat-omap/Makefile
++++ b/arch/arm/plat-omap/Makefile
+@@ -6,4 +6,4 @@
+ ccflags-$(CONFIG_ARCH_MULTIPLATFORM) := -I$(srctree)/arch/arm/plat-omap/include
+ 
+ # Common support
+-obj-y := sram.o dma.o
++obj-y := sram.o
 -- 
 2.29.2
 

@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 250CEC4167B
-	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8ABCC35296
+	for <linux-input@archiver.kernel.org>; Tue, 19 Apr 2022 16:46:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355387AbiDSQth (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Apr 2022 12:49:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
+        id S245188AbiDSQti (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Apr 2022 12:49:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344193AbiDSQpP (ORCPT
+        with ESMTP id S231271AbiDSQrG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Apr 2022 12:45:15 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 834293467B;
-        Tue, 19 Apr 2022 09:42:32 -0700 (PDT)
+        Tue, 19 Apr 2022 12:47:06 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC6C339692;
+        Tue, 19 Apr 2022 09:44:22 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EDD8E61874;
-        Tue, 19 Apr 2022 16:42:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A777C385AC;
-        Tue, 19 Apr 2022 16:42:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98D31B81BB6;
+        Tue, 19 Apr 2022 16:44:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D49C385B6;
+        Tue, 19 Apr 2022 16:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650386551;
-        bh=ZitIFNWOGNclnWEkC5k5wKgP8LZADBB8lqdOWZNB8wQ=;
+        s=k20201202; t=1650386660;
+        bh=/6iIOutIe2dthl0F9tUwRrWmTz1Y+vHGyZSNFuNK4W0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M+b/M4GGqpVoZ/vtuDGOrUAXIOp7QmnE+sliunl9FKuasZGbZF8J7WC0f5+dwHIfV
-         QC+dZIBkk7Hf4pg+kZCT8EC/A41AqH2ENGG3vZIkxJLPpRBM+Aex4V3HjClb5ZY2s8
-         QXyUz7wFF1e86cNx2J/LH32cIfYAT9jRVz/3EZvQYWNJDZXGGvuD5wmAvR7FCCQYz2
-         NZPv5X3QIar8bWv9pUOFMdDuQHRolS5csdfPn4P7i2wmWxafJsowCMdw66MeqUo3e4
-         4cfMCEif39tK7z2xRA3fIStlRIiOkBAdJrgnC88utYEWooh/HHVaMdBdkWFUYWuz/m
-         6oQTHQqp34oXw==
+        b=r9TzRbN2wJ9anV7WP0E3rP1S1Cki++xSivN4dBdyNHhyWwMh/MI+BtyAeqgYlBYXV
+         ItPRfCU6w7MqI+MFhEsR5oorVEigDVDTfLVzE3yCgnLfKVyWW3gfUdTAbpfQ+0xMlv
+         4h+YVQk5XgEEoQXPsOwj0Fou41j1UM7Ct/jvU8LRL/8ndMFQ+B79JydmegZ2DAQ0SW
+         JwbK17hawoV1JcDkXQOweIbtoMS6G5Dy/AtPICtIdIqThqKAcNwIk2Z+V0Gk8YY1UC
+         qolXwRGVZyysQKzmwpm1PVfh5Wsw43vmB7v0Jz+vdy/0bIr6cZp8M8u+LOSFSklyM5
+         I5AkVeQlQC3Hw==
 From:   Arnd Bergmann <arnd@kernel.org>
 To:     robert.jarzmik@free.fr, linux-arm-kernel@lists.infradead.org
 Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
@@ -60,9 +60,9 @@ Cc:     Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
         linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org,
         linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
         alsa-devel@alsa-project.org
-Subject: [PATCH 28/48] Input: touchscreen: use wrapper for pxa2xx ac97 registers
-Date:   Tue, 19 Apr 2022 18:37:50 +0200
-Message-Id: <20220419163810.2118169-29-arnd@kernel.org>
+Subject: [PATCH 42/48] ARM: mmp: remove tavorevb board support
+Date:   Tue, 19 Apr 2022 18:38:04 +0200
+Message-Id: <20220419163810.2118169-43-arnd@kernel.org>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20220419163810.2118169-1-arnd@kernel.org>
 References: <20220419163810.2118169-1-arnd@kernel.org>
@@ -74,176 +74,192 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-To avoid a dependency on the pxa platform header files with
-hardcoded registers, change the driver to call a wrapper
-in the pxa2xx-ac97-lib that encapsulates all the other
-ac97 stuff.
+There are two tavorevb boards in the kernel, one using a PXA930 chip in
+mach-pxa, and one using the later PXA910 chip in mach-mmp.  They use the
+same board number, which is generally a bad idea, and in a multiplatform
+kernel, we can end up with funny link errors like this one resulting
+from two boards gettting controlled by the same Kconfig symbol:
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Acked-by: Robert Jarzmik <robert.jarzmik@free.fr>
-Cc: linux-input@vger.kernel.org
-Cc: alsa-devel@alsa-project.org
+arch/arm/mach-mmp/tavorevb.o: In function `tavorevb_init':
+tavorevb.c:(.init.text+0x4c): undefined reference to `pxa910_device_uart1'
+tavorevb.c:(.init.text+0x50): undefined reference to `pxa910_device_gpio'
+tavorevb.o:(.arch.info.init+0x54): undefined reference to `pxa910_init_irq'
+tavorevb.o:(.arch.info.init+0x58): undefined reference to `pxa910_timer_init'
+
+The mach-pxa TavorEVB seems much more complete than the mach-mmp one
+that supports only uart, gpio and ethernet. Further, I could find no
+information about the board on the internet aside from references to
+the Linux kernel, so I assume this was never available outside of Marvell
+and can be removed entirely.
+
+There is a third board named TavorEVB in the Kconfig description,
+but this refers to the "TTC_DKB" machine. The two are clearly
+related, so I change the Kconfig description to just list both
+names.
+
+Cc: Lubomir Rintel <lkundrak@v3.sk>
+Reviewed-by: Lubomir Rintel <lkundrak@v3.sk>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 ---
- drivers/input/touchscreen/Kconfig            |  2 ++
- drivers/input/touchscreen/mainstone-wm97xx.c | 16 ++++++++--------
- drivers/input/touchscreen/zylonite-wm97xx.c  | 12 ++++++------
- include/sound/pxa2xx-lib.h                   |  4 ++++
- sound/arm/pxa2xx-ac97-lib.c                  | 12 ++++++++++++
- 5 files changed, 32 insertions(+), 14 deletions(-)
+ arch/arm/mach-mmp/Kconfig    |  10 +---
+ arch/arm/mach-mmp/Makefile   |   1 -
+ arch/arm/mach-mmp/tavorevb.c | 113 -----------------------------------
+ 3 files changed, 1 insertion(+), 123 deletions(-)
+ delete mode 100644 arch/arm/mach-mmp/tavorevb.c
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 43c7d6e5bdc0..2d70c945b20a 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -902,6 +902,7 @@ config TOUCHSCREEN_WM9713
- config TOUCHSCREEN_WM97XX_MAINSTONE
- 	tristate "WM97xx Mainstone/Palm accelerated touch"
- 	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
-+	depends on SND_PXA2XX_LIB_AC97
+diff --git a/arch/arm/mach-mmp/Kconfig b/arch/arm/mach-mmp/Kconfig
+index 0dd999212944..92a730a573b9 100644
+--- a/arch/arm/mach-mmp/Kconfig
++++ b/arch/arm/mach-mmp/Kconfig
+@@ -39,16 +39,8 @@ config MACH_AVENGERS_LITE
+ 	  Say 'Y' here if you want to support the Marvell PXA168-based
+ 	  Avengers Lite Development Board.
+ 
+-config MACH_TAVOREVB
+-	bool "Marvell's PXA910 TavorEVB Development Board"
+-	depends on ARCH_MULTI_V5
+-	select CPU_PXA910
+-	help
+-	  Say 'Y' here if you want to support the Marvell PXA910-based
+-	  TavorEVB Development Board.
+-
+ config MACH_TTC_DKB
+-	bool "Marvell's PXA910 TavorEVB Development Board"
++	bool "Marvell's PXA910 TavorEVB/TTC_DKB Development Board"
+ 	depends on ARCH_MULTI_V5
+ 	select CPU_PXA910
  	help
- 	  Say Y here for support for streaming mode with WM97xx touchscreens
- 	  on Mainstone, Palm Tungsten T5, TX and LifeDrive systems.
-@@ -914,6 +915,7 @@ config TOUCHSCREEN_WM97XX_MAINSTONE
- config TOUCHSCREEN_WM97XX_ZYLONITE
- 	tristate "Zylonite accelerated touch"
- 	depends on TOUCHSCREEN_WM97XX && MACH_ZYLONITE
-+	depends on SND_PXA2XX_LIB_AC97
- 	select TOUCHSCREEN_WM9713
- 	help
- 	  Say Y here for support for streaming mode with the touchscreen
-diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
-index 940d3c92b1f8..8f6fe68f1f99 100644
---- a/drivers/input/touchscreen/mainstone-wm97xx.c
-+++ b/drivers/input/touchscreen/mainstone-wm97xx.c
-@@ -28,7 +28,7 @@
- #include <linux/soc/pxa/cpu.h>
- #include <linux/wm97xx.h>
- 
--#include <mach/regs-ac97.h>
-+#include <sound/pxa2xx-lib.h>
- 
- #include <asm/mach-types.h>
- 
-@@ -104,11 +104,11 @@ static void wm97xx_acc_pen_up(struct wm97xx *wm)
- 	msleep(1);
- 
- 	if (cpu_is_pxa27x()) {
--		while (MISR & (1 << 2))
--			MODR;
-+		while (pxa2xx_ac97_read_misr() & (1 << 2))
-+			pxa2xx_ac97_read_modr();
- 	} else if (cpu_is_pxa3xx()) {
- 		for (count = 0; count < 16; count++)
--			MODR;
-+			pxa2xx_ac97_read_modr();
- 	}
- }
- 
-@@ -130,7 +130,7 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
- 		return RC_PENUP;
- 	}
- 
--	x = MODR;
-+	x = pxa2xx_ac97_read_modr();
- 	if (x == last) {
- 		tries++;
- 		return RC_AGAIN;
-@@ -138,10 +138,10 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
- 	last = x;
- 	do {
- 		if (reads)
--			x = MODR;
--		y = MODR;
-+			x = pxa2xx_ac97_read_modr();
-+		y = pxa2xx_ac97_read_modr();
- 		if (pressure)
--			p = MODR;
-+			p = pxa2xx_ac97_read_modr();
- 
- 		dev_dbg(wm->dev, "Raw coordinates: x=%x, y=%x, p=%x\n",
- 			x, y, p);
-diff --git a/drivers/input/touchscreen/zylonite-wm97xx.c b/drivers/input/touchscreen/zylonite-wm97xx.c
-index cabdd6e3c6f8..ed7eae638713 100644
---- a/drivers/input/touchscreen/zylonite-wm97xx.c
-+++ b/drivers/input/touchscreen/zylonite-wm97xx.c
-@@ -24,7 +24,7 @@
- #include <linux/soc/pxa/cpu.h>
- #include <linux/wm97xx.h>
- 
--#include <mach/regs-ac97.h>
-+#include <sound/pxa2xx-lib.h>
- 
- struct continuous {
- 	u16 id;    /* codec id */
-@@ -79,7 +79,7 @@ static void wm97xx_acc_pen_up(struct wm97xx *wm)
- 	msleep(1);
- 
- 	for (i = 0; i < 16; i++)
--		MODR;
-+		pxa2xx_ac97_read_modr();
- }
- 
- static int wm97xx_acc_pen_down(struct wm97xx *wm)
-@@ -100,7 +100,7 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
- 		return RC_PENUP;
- 	}
- 
--	x = MODR;
-+	x = pxa2xx_ac97_read_modr();
- 	if (x == last) {
- 		tries++;
- 		return RC_AGAIN;
-@@ -108,10 +108,10 @@ static int wm97xx_acc_pen_down(struct wm97xx *wm)
- 	last = x;
- 	do {
- 		if (reads)
--			x = MODR;
--		y = MODR;
-+			x = pxa2xx_ac97_read_modr();
-+		y = pxa2xx_ac97_read_modr();
- 		if (pressure)
--			p = MODR;
-+			p = pxa2xx_ac97_read_modr();
- 
- 		dev_dbg(wm->dev, "Raw coordinates: x=%x, y=%x, p=%x\n",
- 			x, y, p);
-diff --git a/include/sound/pxa2xx-lib.h b/include/sound/pxa2xx-lib.h
-index 95100cff25d1..0a6f8dabf8c4 100644
---- a/include/sound/pxa2xx-lib.h
-+++ b/include/sound/pxa2xx-lib.h
-@@ -52,4 +52,8 @@ extern int pxa2xx_ac97_hw_resume(void);
- extern int pxa2xx_ac97_hw_probe(struct platform_device *dev);
- extern void pxa2xx_ac97_hw_remove(struct platform_device *dev);
- 
-+/* modem registers, used by touchscreen driver */
-+u32 pxa2xx_ac97_read_modr(void);
-+u32 pxa2xx_ac97_read_misr(void);
-+
- #endif
-diff --git a/sound/arm/pxa2xx-ac97-lib.c b/sound/arm/pxa2xx-ac97-lib.c
-index 8c79d224f03b..572b73d73762 100644
---- a/sound/arm/pxa2xx-ac97-lib.c
-+++ b/sound/arm/pxa2xx-ac97-lib.c
-@@ -428,6 +428,18 @@ void pxa2xx_ac97_hw_remove(struct platform_device *dev)
- }
- EXPORT_SYMBOL_GPL(pxa2xx_ac97_hw_remove);
- 
-+u32 pxa2xx_ac97_read_modr(void)
-+{
-+	return MODR;
-+}
-+EXPORT_SYMBOL_GPL(pxa2xx_ac97_read_modr);
-+
-+u32 pxa2xx_ac97_read_misr(void)
-+{
-+	return MISR;
-+}
-+EXPORT_SYMBOL_GPL(pxa2xx_ac97_read_misr);
-+
- MODULE_AUTHOR("Nicolas Pitre");
- MODULE_DESCRIPTION("Intel/Marvell PXA sound library");
- MODULE_LICENSE("GPL");
+diff --git a/arch/arm/mach-mmp/Makefile b/arch/arm/mach-mmp/Makefile
+index e3758f7e1fe7..81338db77ec7 100644
+--- a/arch/arm/mach-mmp/Makefile
++++ b/arch/arm/mach-mmp/Makefile
+@@ -24,7 +24,6 @@ endif
+ obj-$(CONFIG_MACH_ASPENITE)	+= aspenite.o
+ obj-$(CONFIG_MACH_ZYLONITE2)	+= aspenite.o
+ obj-$(CONFIG_MACH_AVENGERS_LITE)+= avengers_lite.o
+-obj-$(CONFIG_MACH_TAVOREVB)	+= tavorevb.o
+ obj-$(CONFIG_MACH_TTC_DKB)	+= ttc_dkb.o
+ obj-$(CONFIG_MACH_BROWNSTONE)	+= brownstone.o
+ obj-$(CONFIG_MACH_FLINT)	+= flint.o
+diff --git a/arch/arm/mach-mmp/tavorevb.c b/arch/arm/mach-mmp/tavorevb.c
+deleted file mode 100644
+index 3261d2322198..000000000000
+--- a/arch/arm/mach-mmp/tavorevb.c
++++ /dev/null
+@@ -1,113 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-only
+-/*
+- *  linux/arch/arm/mach-mmp/tavorevb.c
+- *
+- *  Support for the Marvell PXA910-based TavorEVB Development Platform.
+- */
+-#include <linux/gpio.h>
+-#include <linux/gpio-pxa.h>
+-#include <linux/init.h>
+-#include <linux/kernel.h>
+-#include <linux/platform_device.h>
+-#include <linux/smc91x.h>
+-
+-#include <asm/mach-types.h>
+-#include <asm/mach/arch.h>
+-#include "addr-map.h"
+-#include "mfp-pxa910.h"
+-#include "pxa910.h"
+-#include "irqs.h"
+-
+-#include "common.h"
+-
+-static unsigned long tavorevb_pin_config[] __initdata = {
+-	/* UART2 */
+-	GPIO47_UART2_RXD,
+-	GPIO48_UART2_TXD,
+-
+-	/* SMC */
+-	SM_nCS0_nCS0,
+-	SM_ADV_SM_ADV,
+-	SM_SCLK_SM_SCLK,
+-	SM_SCLK_SM_SCLK,
+-	SM_BE0_SM_BE0,
+-	SM_BE1_SM_BE1,
+-
+-	/* DFI */
+-	DF_IO0_ND_IO0,
+-	DF_IO1_ND_IO1,
+-	DF_IO2_ND_IO2,
+-	DF_IO3_ND_IO3,
+-	DF_IO4_ND_IO4,
+-	DF_IO5_ND_IO5,
+-	DF_IO6_ND_IO6,
+-	DF_IO7_ND_IO7,
+-	DF_IO8_ND_IO8,
+-	DF_IO9_ND_IO9,
+-	DF_IO10_ND_IO10,
+-	DF_IO11_ND_IO11,
+-	DF_IO12_ND_IO12,
+-	DF_IO13_ND_IO13,
+-	DF_IO14_ND_IO14,
+-	DF_IO15_ND_IO15,
+-	DF_nCS0_SM_nCS2_nCS0,
+-	DF_ALE_SM_WEn_ND_ALE,
+-	DF_CLE_SM_OEn_ND_CLE,
+-	DF_WEn_DF_WEn,
+-	DF_REn_DF_REn,
+-	DF_RDY0_DF_RDY0,
+-};
+-
+-static struct pxa_gpio_platform_data pxa910_gpio_pdata = {
+-	.irq_base	= MMP_GPIO_TO_IRQ(0),
+-};
+-
+-static struct smc91x_platdata tavorevb_smc91x_info = {
+-	.flags	= SMC91X_USE_16BIT | SMC91X_NOWAIT,
+-};
+-
+-static struct resource smc91x_resources[] = {
+-	[0] = {
+-		.start	= SMC_CS1_PHYS_BASE + 0x300,
+-		.end	= SMC_CS1_PHYS_BASE + 0xfffff,
+-		.flags	= IORESOURCE_MEM,
+-	},
+-	[1] = {
+-		.start	= MMP_GPIO_TO_IRQ(80),
+-		.end	= MMP_GPIO_TO_IRQ(80),
+-		.flags	= IORESOURCE_IRQ | IORESOURCE_IRQ_HIGHEDGE,
+-	}
+-};
+-
+-static struct platform_device smc91x_device = {
+-	.name		= "smc91x",
+-	.id		= 0,
+-	.dev		= {
+-		.platform_data = &tavorevb_smc91x_info,
+-	},
+-	.num_resources	= ARRAY_SIZE(smc91x_resources),
+-	.resource	= smc91x_resources,
+-};
+-
+-static void __init tavorevb_init(void)
+-{
+-	mfp_config(ARRAY_AND_SIZE(tavorevb_pin_config));
+-
+-	/* on-chip devices */
+-	pxa910_add_uart(1);
+-	platform_device_add_data(&pxa910_device_gpio, &pxa910_gpio_pdata,
+-				 sizeof(struct pxa_gpio_platform_data));
+-	platform_device_register(&pxa910_device_gpio);
+-
+-	/* off-chip devices */
+-	platform_device_register(&smc91x_device);
+-}
+-
+-MACHINE_START(TAVOREVB, "PXA910 Evaluation Board (aka TavorEVB)")
+-	.map_io		= mmp_map_io,
+-	.nr_irqs	= MMP_NR_IRQS,
+-	.init_irq       = pxa910_init_irq,
+-	.init_time	= pxa910_timer_init,
+-	.init_machine   = tavorevb_init,
+-	.restart	= mmp_restart,
+-MACHINE_END
 -- 
 2.29.2
 

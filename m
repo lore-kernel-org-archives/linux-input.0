@@ -2,81 +2,233 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C84FC433EF
-	for <linux-input@archiver.kernel.org>; Wed, 20 Apr 2022 21:48:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB6EFC433F5
+	for <linux-input@archiver.kernel.org>; Thu, 21 Apr 2022 02:43:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1382664AbiDTVvX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Apr 2022 17:51:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35948 "EHLO
+        id S1383796AbiDUCqo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Apr 2022 22:46:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234964AbiDTVvW (ORCPT
+        with ESMTP id S229462AbiDUCqn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Apr 2022 17:51:22 -0400
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850BA4349A;
-        Wed, 20 Apr 2022 14:48:35 -0700 (PDT)
-Received: by mail-pj1-x102d.google.com with SMTP id j8-20020a17090a060800b001cd4fb60dccso3325732pjj.2;
-        Wed, 20 Apr 2022 14:48:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=y6aVLPsG4Asmj//M6g1qncMDEenM4pAY90v3oWnc06A=;
-        b=eGKMdGifvA9FjgM/7vPgq9R7Z69W/p+BqnSkagQDeCR5l4BX4ltpyf93FzyyDijiGG
-         Ebsz0r+LRRkftflxmyR3GOkL1vkyZd2gidvmkSZEKnSbiKpraxW7Y6D1Ygrkk+4fRmA+
-         aFUO+IN/LcwKKw/hey8R5JA9RLINn/z/4uN2bwslKCXiv0+M1/zrg9xKh0fCv9jNRUxT
-         dyv9BPph+ffbUP0BSzBJciqGubH42oWVK7WbeiorJJnkK46HzteKnTSLATsBcC/a59FQ
-         erjR/eQAIoYWvxtP2qLbQr6HqhZlTHRKDTKLd3iLC3r6E90MijFyf503ttBp4l6ICpoQ
-         1QcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=y6aVLPsG4Asmj//M6g1qncMDEenM4pAY90v3oWnc06A=;
-        b=oqhS34C+QVs3fQgYP2EihlSI648J8QlZSRaMcbXVuEINnOscRe51qyQyS6AipHWGoC
-         PJbA0Ie8Jr20yKz3IpvG8ucjFdau5D+Iaaj3V8wMQ5JyzZDOQtiip+AyrsyNO6XD/WJX
-         sw5eqbAby8ZJjchp5M2U4f4OGrqo+sIBDcc20S2QvyNsRRMFaKDfhVKiKr6cO70V3QM1
-         LdcdiyvQspzf/GFfFvnY/sGwC2jEWUeJ8cDqpTgqwb+FX5ODeFHanfRO8fsXKpYpLYpI
-         AldNy3144P8XAdOogZU5VmqcAC2+CBQBnVxIpg2Nd2SMI1CrXnnXnX4Zc9htYXgXUMkK
-         8OLQ==
-X-Gm-Message-State: AOAM5301uq0tspKrb9E6UmRZzBp0zHRPXv8YYMKPYO9SnoxbmhNfL9bs
-        ANQTqBAdsysUzB403xwLdY4=
-X-Google-Smtp-Source: ABdhPJwbUP/0QN9Rmq6LTSn1m0b8+LQQqoPXPFnWoUEGWRc8+TVeiPe6fmh5z3G63yZ8p/diRpT/Lg==
-X-Received: by 2002:a17:903:248:b0:155:e660:b774 with SMTP id j8-20020a170903024800b00155e660b774mr22814285plh.174.1650491314960;
-        Wed, 20 Apr 2022 14:48:34 -0700 (PDT)
-Received: from google.com ([2620:15c:202:201:fe4b:9301:599b:d734])
-        by smtp.gmail.com with ESMTPSA id u9-20020a17090a4bc900b001d26f134e43sm154376pjl.51.2022.04.20.14.48.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Apr 2022 14:48:33 -0700 (PDT)
-Date:   Wed, 20 Apr 2022 14:48:31 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     cgel.zte@gmail.com
-Cc:     alexander.sverdlin@gmail.com, lv.ruyi@zte.com.cn,
+        Wed, 20 Apr 2022 22:46:43 -0400
+Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39AD31009;
+        Wed, 20 Apr 2022 19:43:53 -0700 (PDT)
+Received: from relay4-d.mail.gandi.net (unknown [217.70.183.196])
+        by mslow1.mail.gandi.net (Postfix) with ESMTP id 1922DC5711;
+        Thu, 21 Apr 2022 02:40:53 +0000 (UTC)
+Received: (Authenticated sender: frank@zago.net)
+        by mail.gandi.net (Postfix) with ESMTPSA id 7279FE0006;
+        Thu, 21 Apr 2022 02:40:47 +0000 (UTC)
+From:   frank zago <frank@zago.net>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Zeal Robot <zealci@zte.com.cn>
-Subject: Re: [PATCH] input: Make use of the helper function
- devm_platform_ioremap_resource()
-Message-ID: <YmB/ryd7TvBEd1yO@google.com>
-References: <20220418015036.2556731-1-lv.ruyi@zte.com.cn>
+        frank zago <frank@zago.net>
+Subject: [PATCH v2] HID: Add support for Mega World controller force feedback
+Date:   Wed, 20 Apr 2022 21:40:41 -0500
+Message-Id: <20220421024041.98786-1-frank@zago.net>
+X-Mailer: git-send-email 2.32.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220418015036.2556731-1-lv.ruyi@zte.com.cn>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Apr 18, 2022 at 01:50:36AM +0000, cgel.zte@gmail.com wrote:
-> From: Lv Ruyi <lv.ruyi@zte.com.cn>
-> 
-> Use the devm_platform_ioremap_resource() helper instead of calling
-> platform_get_resource() and devm_ioremap_resource() separately.Make the
-> code simpler without functional changes.
-> 
-> Reported-by: Zeal Robot <zealci@zte.com.cn>
-> Signed-off-by: Lv Ruyi <lv.ruyi@zte.com.cn>
+This patch adds support for one of the several Mega World USB game
+controller with integrated force feedback. It is a HID based
+memory-less game controller, with a weak motor on the left, and a
+strong one on the right.
 
-Applied, thank you.
+Signed-off-by: frank zago <frank@zago.net>
+---
 
--- 
-Dmitry
+Changes from v1:
+  - Removed one superfluous config option which reduced the code size a little
+
+ drivers/hid/Kconfig         |   8 +++
+ drivers/hid/Makefile        |   1 +
+ drivers/hid/hid-ids.h       |   3 +
+ drivers/hid/hid-megaworld.c | 125 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 137 insertions(+)
+ create mode 100644 drivers/hid/hid-megaworld.c
+
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index a95a7cbc4a59..70da5931082f 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -697,6 +697,14 @@ config HID_MAYFLASH
+ 	Say Y here if you have HJZ Mayflash PS3 game controller adapters
+ 	and want to enable force feedback support.
+
++config HID_MEGAWORLD_FF
++	tristate "Mega World based game controller force feedback support"
++	depends on USB_HID
++	select INPUT_FF_MEMLESS
++	help
++	Say Y here if you have a Mega World based game controller and want
++	to have force feedback support for it.
++
+ config HID_REDRAGON
+ 	tristate "Redragon keyboards"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 345ac5581bd8..cac2cbe26d11 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -77,6 +77,7 @@ obj-$(CONFIG_HID_MAGICMOUSE)	+= hid-magicmouse.o
+ obj-$(CONFIG_HID_MALTRON)	+= hid-maltron.o
+ obj-$(CONFIG_HID_MCP2221)	+= hid-mcp2221.o
+ obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
++obj-$(CONFIG_HID_MEGAWORLD_FF)	+= hid-megaworld.o
+ obj-$(CONFIG_HID_MICROSOFT)	+= hid-microsoft.o
+ obj-$(CONFIG_HID_MONTEREY)	+= hid-monterey.o
+ obj-$(CONFIG_HID_MULTITOUCH)	+= hid-multitouch.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 053853a891c5..b9e0f3deb080 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -868,6 +868,9 @@
+ #define USB_VENDOR_ID_MCS		0x16d0
+ #define USB_DEVICE_ID_MCS_GAMEPADBLOCK	0x0bcc
+
++#define USB_VENDOR_MEGAWORLD		0x07b5
++#define USB_DEVICE_ID_MEGAWORLD_GAMEPAD	0x0312
++
+ #define USB_VENDOR_ID_MGE		0x0463
+ #define USB_DEVICE_ID_MGE_UPS		0xffff
+ #define USB_DEVICE_ID_MGE_UPS1		0x0001
+diff --git a/drivers/hid/hid-megaworld.c b/drivers/hid/hid-megaworld.c
+new file mode 100644
+index 000000000000..599657863cb9
+--- /dev/null
++++ b/drivers/hid/hid-megaworld.c
+@@ -0,0 +1,125 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * Vibration support for Mega World controllers
++ *
++ * Copyright 2022 Frank Zago
++ *
++ * Derived from hid-zpff.c:
++ *   Copyright (c) 2005, 2006 Anssi Hannula <anssi.hannula@gmail.com>
++ */
++
++#include <linux/hid.h>
++#include <linux/input.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++
++#include "hid-ids.h"
++
++struct mwctrl_device {
++	struct hid_report *report;
++	s32 *weak;
++	s32 *strong;
++};
++
++static int mwctrl_play(struct input_dev *dev, void *data,
++		       struct ff_effect *effect)
++{
++	struct hid_device *hid = input_get_drvdata(dev);
++	struct mwctrl_device *mwctrl = data;
++
++	*mwctrl->strong = effect->u.rumble.strong_magnitude >> 8;
++	*mwctrl->weak = effect->u.rumble.weak_magnitude >> 8;
++
++	hid_hw_request(hid, mwctrl->report, HID_REQ_SET_REPORT);
++
++	return 0;
++}
++
++static int mwctrl_init(struct hid_device *hid)
++{
++	struct mwctrl_device *mwctrl;
++	struct hid_report *report;
++	struct hid_input *hidinput;
++	struct input_dev *dev;
++	int error;
++	int i;
++
++	if (list_empty(&hid->inputs)) {
++		hid_err(hid, "no inputs found\n");
++		return -ENODEV;
++	}
++	hidinput = list_entry(hid->inputs.next, struct hid_input, list);
++	dev = hidinput->input;
++
++	for (i = 0; i < 4; i++) {
++		report = hid_validate_values(hid, HID_OUTPUT_REPORT, 0, i, 1);
++		if (!report)
++			return -ENODEV;
++	}
++
++	mwctrl = kzalloc(sizeof(struct mwctrl_device), GFP_KERNEL);
++	if (!mwctrl)
++		return -ENOMEM;
++
++	set_bit(FF_RUMBLE, dev->ffbit);
++
++	error = input_ff_create_memless(dev, mwctrl, mwctrl_play);
++	if (error) {
++		kfree(mwctrl);
++		return error;
++	}
++
++	mwctrl->report = report;
++
++	/* Field 0 is always 2, and field 1 is always 0. The original
++	 * windows driver has a 5 bytes command, where the 5th byte is
++	 * a repeat of the 3rd byte, however the device has only 4
++	 * fields. It could be a bug in the driver, or there is a
++	 * different device that needs it.
++	 */
++	report->field[0]->value[0] = 0x02;
++
++	mwctrl->strong = &report->field[2]->value[0];
++	mwctrl->weak = &report->field[3]->value[0];
++
++	return 0;
++}
++
++static int mwctrl_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		return ret;
++	}
++
++	ret = mwctrl_init(hdev);
++	if (ret)
++		hid_hw_stop(hdev);
++
++	return ret;
++}
++
++static const struct hid_device_id mwctrl_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_MEGAWORLD,
++			 USB_DEVICE_ID_MEGAWORLD_GAMEPAD) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, mwctrl_devices);
++
++static struct hid_driver mwctrl_driver = {
++	.name = "megaworld",
++	.id_table = mwctrl_devices,
++	.probe = mwctrl_probe,
++};
++module_hid_driver(mwctrl_driver);
++
++MODULE_LICENSE("GPL");
+--
+2.32.0

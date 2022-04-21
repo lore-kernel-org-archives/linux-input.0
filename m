@@ -2,52 +2,52 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 735F1C43219
-	for <linux-input@archiver.kernel.org>; Thu, 21 Apr 2022 23:49:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 982E5C433FE
+	for <linux-input@archiver.kernel.org>; Thu, 21 Apr 2022 23:49:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442790AbiDUXvq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Apr 2022 19:51:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49374 "EHLO
+        id S1442841AbiDUXwO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Apr 2022 19:52:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442780AbiDUXvq (ORCPT
+        with ESMTP id S1442779AbiDUXvs (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Apr 2022 19:51:46 -0400
-Received: from mail-qk1-x734.google.com (mail-qk1-x734.google.com [IPv6:2607:f8b0:4864:20::734])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF6F7434B5;
-        Thu, 21 Apr 2022 16:48:52 -0700 (PDT)
-Received: by mail-qk1-x734.google.com with SMTP id b68so4762558qkc.4;
-        Thu, 21 Apr 2022 16:48:52 -0700 (PDT)
+        Thu, 21 Apr 2022 19:51:48 -0400
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7565C42A1E;
+        Thu, 21 Apr 2022 16:48:57 -0700 (PDT)
+Received: by mail-qk1-x72b.google.com with SMTP id j6so4753186qkp.9;
+        Thu, 21 Apr 2022 16:48:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=oNDSaAZDG6c0X/AAevWMv+Hj9gwc9S8Gx1Ep4WfFpAo=;
-        b=VMU6PqlaX0QEhB+kkqlvjU1fkuHokcH7krOoWy5GOTHB8xoeliEuXGVXpsNB0Dz+Xd
-         BbBATqDrqEH9zXyhcIYU8xg7bZ1JhBV8iGp3kkSWUqKMomusN/sgcMfT+gW3paOL0z3D
-         xu+vNW1zW7yY6vvYvHo0CFYHAFF9dyoP3mhjAP98M6NsbPyd+evObJBdpFzWsd4+lEZR
-         OH5d2DANgk2raeqFASbkpduWa1goBPgzND0tgfUA3jO11r4ld93k7+lDwMyGGi1W1Fuk
-         Cs/ulF5PpUoDQGVoea0bxdhTSej86O9eKfFC9FOSsryEROrxk/2xDFa7k9hHEFctVbCg
-         an4w==
+        bh=e+6QqEX2/fgk530CjQfyw22ixS6gH/22/NxatjEsE7U=;
+        b=Piq4cGEnKIYkeK5yEy1v2UexgRA+klnfryaBWZhkBupuYhBIN2XFcsCr/AaH52FE8d
+         0JEeXqf4Zq7HsG13fmFy4/2mFPqqz7rKZatDWMCYVdnRBHgG6rgfOgrOQHT/GVvIvdUf
+         wsU28fJ4WSETTWK8Qg0O8saCEIIie3SaDaIHYbYAvz6DgcuMPQ3p71RE6tc8leNehciN
+         mRO85fjyes4oVWSJFVlSIAnLK9flxPklVtPhoULVPgaguai70ROKTnCM/ymp+zIfWIfT
+         Sc7Bv4DgOO1Af7Llus43kg4AUlS9Uw0odTji6nK7vtAut6O7Z76r0LJ651UVN/paMo0b
+         1RhQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=oNDSaAZDG6c0X/AAevWMv+Hj9gwc9S8Gx1Ep4WfFpAo=;
-        b=zvZD2+KXFR7ErAUA09ghtb6T9XLMquCpY3Enj6uqWALyWyno5sOfmAFJRsSqX9X2Fv
-         H/XsbxX1F8sdEfuv1Q2vV3+wHkfhPrZgFJA6Cgwe8swqBqU2SekhG7cYNiVF8TQxfE19
-         ME/B3d0PVtdKecBWc4mLfh1k+ufCSZNsjKvgVRzOzl0MLXJe69Tpep81E97YoF8Xn5Ss
-         x1fF3JusvyJsM2c9sx8G1jisT2j9q+eSueYGkW4nDX8ay6E/XHmRZZT1D1GAP7pdYYmM
-         O9FNNr5hlm5o7Pa6LSZ3bpbNQOCzFl+yDV3/K5IWvvol57PicBC0Ur5dGSYQg40M3B9r
-         jGRw==
-X-Gm-Message-State: AOAM530+UxCYO45spay9BArpG2kleWCnssSXlX7fSEBW0qf8Rcirbcco
-        WNTnNS7CvXpE1SuNsg9i6gsdpOQfVESu
-X-Google-Smtp-Source: ABdhPJzQcjTL3dqTlGkITB2iTWhj3H7yjo6OI6wlcQC1KEOsTaT9FApw/Jt+AfmjLr6ymBNQvEZ7iQ==
-X-Received: by 2002:a05:620a:24c6:b0:69e:9d81:1e15 with SMTP id m6-20020a05620a24c600b0069e9d811e15mr1188307qkn.270.1650584931201;
-        Thu, 21 Apr 2022 16:48:51 -0700 (PDT)
+        bh=e+6QqEX2/fgk530CjQfyw22ixS6gH/22/NxatjEsE7U=;
+        b=XvSzxHpmnPiz/Izt/odwH9KfS3YkciS4zNMkBwnZbuDiIRnAR1PYNW6Mf5fc4ugGhF
+         JoXZnH4hepo+QMH9ff3wGfAjXiqT/738VEv/tU7NZsKUD+lMdBASReMwzGkpm+0tRToB
+         EPQo1cTU3HWkYh/mYY9ladEjC154WMe/DkZJ99QrANLWHlpuGJVp1MCSE+usjnhyAVs6
+         hLwXmU+wJhXkJin1Tk3GGyZtaWywKr3PYuKhEHkY62ohc8eq1wxBqucMO4YREPUz9tX+
+         GgT4HDLUkokx9bWkop1lAoKiy+c9N8S32qn6z6GSqOHOKCOPTGLEQGVyWKUbji+oWjfq
+         wDfw==
+X-Gm-Message-State: AOAM530JBgetKWHO3h31512mhXQNTZ+Xos53qDE13svUtiLis5oGQT7Y
+        /R+TJKBxhLvSFgn4g0OcY98gZiMDkaqk
+X-Google-Smtp-Source: ABdhPJxpYT8g1HdDWANIVxroce92VLtnIjLTEtakAXl78RZEeLWPyMTLx9X4IHkCH/A+O9FtQPwCpQ==
+X-Received: by 2002:a05:620a:17a0:b0:69e:e769:48fd with SMTP id ay32-20020a05620a17a000b0069ee76948fdmr1213264qkb.382.1650584936061;
+        Thu, 21 Apr 2022 16:48:56 -0700 (PDT)
 Received: from moria.home.lan (c-73-219-103-14.hsd1.vt.comcast.net. [73.219.103.14])
-        by smtp.gmail.com with ESMTPSA id a1-20020a05622a02c100b002f342ccc1c5sm287372qtx.72.2022.04.21.16.48.49
+        by smtp.gmail.com with ESMTPSA id a1-20020a05622a02c100b002f342ccc1c5sm287372qtx.72.2022.04.21.16.48.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Apr 2022 16:48:50 -0700 (PDT)
+        Thu, 21 Apr 2022 16:48:55 -0700 (PDT)
 From:   Kent Overstreet <kent.overstreet@gmail.com>
 To:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
         linux-fsdevel@vger.kernel.org
@@ -55,9 +55,9 @@ Cc:     Kent Overstreet <kent.overstreet@gmail.com>, hch@lst.de,
         hannes@cmpxchg.org, akpm@linux-foundation.org,
         linux-clk@vger.kernel.org, linux-tegra@vger.kernel.org,
         linux-input@vger.kernel.org, roman.gushchin@linux.dev
-Subject: [PATCH v2 0/8] Printbufs & improved shrinker debugging
-Date:   Thu, 21 Apr 2022 19:48:29 -0400
-Message-Id: <20220421234837.3629927-6-kent.overstreet@gmail.com>
+Subject: [PATCH v2 3/8] mm/memcontrol.c: Convert to printbuf
+Date:   Thu, 21 Apr 2022 19:48:32 -0400
+Message-Id: <20220421234837.3629927-9-kent.overstreet@gmail.com>
 X-Mailer: git-send-email 2.35.2
 In-Reply-To: <20220421234837.3629927-1-kent.overstreet@gmail.com>
 References: <20220421234837.3629927-1-kent.overstreet@gmail.com>
@@ -67,66 +67,125 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-v1 of this patch series here:
-https://lore.kernel.org/linux-mm/20220419203202.2670193-1-kent.overstreet@gmail.com/T/
+This converts memory_stat_format() from seq_buf to printbuf. Printbuf is
+simalar to seq_buf except that it heap allocates the string buffer:
+here, we were already heap allocating the buffer with kmalloc() so the
+conversion is trivial.
 
-Changes since v1:
+Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
+---
+ mm/memcontrol.c | 68 ++++++++++++++++++++++++-------------------------
+ 1 file changed, 33 insertions(+), 35 deletions(-)
 
- - Converted some, not all, seq_buf code to printbufs (thanks Christoph for
-   pointing out seq_buf).
-
-   The seq_buf code I didn't convert is arch specific code where the memory
-   allocation context is unclear, and they're using seq_buf to do everything on
-   the stack. I'm considering adding a mode to printbufs where we point it at an
-   external buffer instead - it wouldn't be much code, but OTOH seq_buf isn't
-   much code either and it seems to be somewhat tied to tracing infrastructure.
-   Deferring a decision on what to do for now.
-
- - pr_human_readable_u64() now uses string_get_size() (thanks Matthew for
-   pointing this one out)
-
- - added new helpers printbuf_str() for getting a guaranteed-null-terminated
-   string, and printbuf_atomic_inc() and printbuf_atomic_dec() for marking
-   sections where allocations must be GFP_ATOMIC.
-
- - Broke out shrinker_to_text(): this new helper could be used by new sysfs or
-   debugfs code, for displaying information about a single shrinker (as Roman is
-   working on)
-
- - Added new tracking, per shrinker, for # of objects requested to be freed and
-   # actually freed. Shrinkers won't necessarily free all objects requested for
-   perfectly legitimate reasons, but if the two numbers are wildly off then
-   that's going to lead to memory reclaim issues - these are both also included
-   in shrinker_to_text().
-
-Kent Overstreet (8):
-  lib/printbuf: New data structure for heap-allocated strings
-  Input/joystick/analog: Convert from seq_buf -> printbuf
-  mm/memcontrol.c: Convert to printbuf
-  clk: tegra: bpmp: Convert to printbuf
-  mm: Add a .to_text() method for shrinkers
-  mm: Count requests to free & nr freed per shrinker
-  mm: Move lib/show_mem.c to mm/
-  mm: Centralize & improve oom reporting in show_mem.c
-
- drivers/clk/tegra/clk-bpmp.c    |  21 ++-
- drivers/input/joystick/analog.c |  37 +++--
- include/linux/printbuf.h        | 164 +++++++++++++++++++
- include/linux/shrinker.h        |   8 +
- lib/Makefile                    |   4 +-
- lib/printbuf.c                  | 274 ++++++++++++++++++++++++++++++++
- mm/Makefile                     |   2 +-
- mm/memcontrol.c                 |  68 ++++----
- mm/oom_kill.c                   |  23 ---
- {lib => mm}/show_mem.c          |  14 ++
- mm/slab.h                       |   6 +-
- mm/slab_common.c                |  53 +++++-
- mm/vmscan.c                     |  88 ++++++++++
- 13 files changed, 666 insertions(+), 96 deletions(-)
- create mode 100644 include/linux/printbuf.h
- create mode 100644 lib/printbuf.c
- rename {lib => mm}/show_mem.c (77%)
-
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 36e9f38c91..4cb0b7bc1c 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -61,7 +61,7 @@
+ #include <linux/file.h>
+ #include <linux/tracehook.h>
+ #include <linux/psi.h>
+-#include <linux/seq_buf.h>
++#include <linux/printbuf.h>
+ #include "internal.h"
+ #include <net/sock.h>
+ #include <net/ip.h>
+@@ -1436,13 +1436,9 @@ static inline unsigned long memcg_page_state_output(struct mem_cgroup *memcg,
+ 
+ static char *memory_stat_format(struct mem_cgroup *memcg)
+ {
+-	struct seq_buf s;
++	struct printbuf buf = PRINTBUF;
+ 	int i;
+ 
+-	seq_buf_init(&s, kmalloc(PAGE_SIZE, GFP_KERNEL), PAGE_SIZE);
+-	if (!s.buffer)
+-		return NULL;
+-
+ 	/*
+ 	 * Provide statistics on the state of the memory subsystem as
+ 	 * well as cumulative event counters that show past behavior.
+@@ -1459,49 +1455,51 @@ static char *memory_stat_format(struct mem_cgroup *memcg)
+ 		u64 size;
+ 
+ 		size = memcg_page_state_output(memcg, memory_stats[i].idx);
+-		seq_buf_printf(&s, "%s %llu\n", memory_stats[i].name, size);
++		pr_buf(&buf, "%s %llu\n", memory_stats[i].name, size);
+ 
+ 		if (unlikely(memory_stats[i].idx == NR_SLAB_UNRECLAIMABLE_B)) {
+ 			size += memcg_page_state_output(memcg,
+ 							NR_SLAB_RECLAIMABLE_B);
+-			seq_buf_printf(&s, "slab %llu\n", size);
++			pr_buf(&buf, "slab %llu\n", size);
+ 		}
+ 	}
+ 
+ 	/* Accumulated memory events */
+ 
+-	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGFAULT),
+-		       memcg_events(memcg, PGFAULT));
+-	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGMAJFAULT),
+-		       memcg_events(memcg, PGMAJFAULT));
+-	seq_buf_printf(&s, "%s %lu\n",  vm_event_name(PGREFILL),
+-		       memcg_events(memcg, PGREFILL));
+-	seq_buf_printf(&s, "pgscan %lu\n",
+-		       memcg_events(memcg, PGSCAN_KSWAPD) +
+-		       memcg_events(memcg, PGSCAN_DIRECT));
+-	seq_buf_printf(&s, "pgsteal %lu\n",
+-		       memcg_events(memcg, PGSTEAL_KSWAPD) +
+-		       memcg_events(memcg, PGSTEAL_DIRECT));
+-	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGACTIVATE),
+-		       memcg_events(memcg, PGACTIVATE));
+-	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGDEACTIVATE),
+-		       memcg_events(memcg, PGDEACTIVATE));
+-	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGLAZYFREE),
+-		       memcg_events(memcg, PGLAZYFREE));
+-	seq_buf_printf(&s, "%s %lu\n", vm_event_name(PGLAZYFREED),
+-		       memcg_events(memcg, PGLAZYFREED));
++	pr_buf(&buf, "%s %lu\n", vm_event_name(PGFAULT),
++	       memcg_events(memcg, PGFAULT));
++	pr_buf(&buf, "%s %lu\n", vm_event_name(PGMAJFAULT),
++	       memcg_events(memcg, PGMAJFAULT));
++	pr_buf(&buf, "%s %lu\n",  vm_event_name(PGREFILL),
++	       memcg_events(memcg, PGREFILL));
++	pr_buf(&buf, "pgscan %lu\n",
++	       memcg_events(memcg, PGSCAN_KSWAPD) +
++	       memcg_events(memcg, PGSCAN_DIRECT));
++	pr_buf(&buf, "pgsteal %lu\n",
++	       memcg_events(memcg, PGSTEAL_KSWAPD) +
++	       memcg_events(memcg, PGSTEAL_DIRECT));
++	pr_buf(&buf, "%s %lu\n", vm_event_name(PGACTIVATE),
++	       memcg_events(memcg, PGACTIVATE));
++	pr_buf(&buf, "%s %lu\n", vm_event_name(PGDEACTIVATE),
++	       memcg_events(memcg, PGDEACTIVATE));
++	pr_buf(&buf, "%s %lu\n", vm_event_name(PGLAZYFREE),
++	       memcg_events(memcg, PGLAZYFREE));
++	pr_buf(&buf, "%s %lu\n", vm_event_name(PGLAZYFREED),
++	       memcg_events(memcg, PGLAZYFREED));
+ 
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+-	seq_buf_printf(&s, "%s %lu\n", vm_event_name(THP_FAULT_ALLOC),
+-		       memcg_events(memcg, THP_FAULT_ALLOC));
+-	seq_buf_printf(&s, "%s %lu\n", vm_event_name(THP_COLLAPSE_ALLOC),
+-		       memcg_events(memcg, THP_COLLAPSE_ALLOC));
++	pr_buf(&buf, "%s %lu\n", vm_event_name(THP_FAULT_ALLOC),
++	       memcg_events(memcg, THP_FAULT_ALLOC));
++	pr_buf(&buf, "%s %lu\n", vm_event_name(THP_COLLAPSE_ALLOC),
++	       memcg_events(memcg, THP_COLLAPSE_ALLOC));
+ #endif /* CONFIG_TRANSPARENT_HUGEPAGE */
+ 
+-	/* The above should easily fit into one page */
+-	WARN_ON_ONCE(seq_buf_has_overflowed(&s));
++	if (buf.allocation_failure) {
++		printbuf_exit(&buf);
++		return NULL;
++	}
+ 
+-	return s.buffer;
++	return buf.buf;
+ }
+ 
+ #define K(x) ((x) << (PAGE_SHIFT-10))
 -- 
 2.35.2
 

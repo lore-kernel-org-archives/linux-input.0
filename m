@@ -2,158 +2,153 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CBC4C433F5
-	for <linux-input@archiver.kernel.org>; Thu, 21 Apr 2022 19:02:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 638FFC46467
+	for <linux-input@archiver.kernel.org>; Thu, 21 Apr 2022 23:48:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391724AbiDUTFP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Apr 2022 15:05:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48122 "EHLO
+        id S1442802AbiDUXvs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Apr 2022 19:51:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1391716AbiDUTFN (ORCPT
+        with ESMTP id S1442787AbiDUXvq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Apr 2022 15:05:13 -0400
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3775E49902
-        for <linux-input@vger.kernel.org>; Thu, 21 Apr 2022 12:02:23 -0700 (PDT)
-Received: by mail-ed1-x530.google.com with SMTP id d6so2611080ede.8
-        for <linux-input@vger.kernel.org>; Thu, 21 Apr 2022 12:02:23 -0700 (PDT)
+        Thu, 21 Apr 2022 19:51:46 -0400
+Received: from mail-qv1-xf2d.google.com (mail-qv1-xf2d.google.com [IPv6:2607:f8b0:4864:20::f2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA98042EF1;
+        Thu, 21 Apr 2022 16:48:55 -0700 (PDT)
+Received: by mail-qv1-xf2d.google.com with SMTP id c1so4878901qvl.3;
+        Thu, 21 Apr 2022 16:48:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google;
+        d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=V78a4T+XxMalGYKe1sIzEqFdtRWisjMfkHNLxFh+Xuk=;
-        b=HHkEqxTxydBkOPTAWKKQG/XvT+4YPu7xQsaD3xEJkvmj/jeK3VMbwKQ98Hbg4RrxiH
-         YELlCFmGs11cjfEKrDmGA95J5WqdeDTp8cqZivOwf0LvaC+Bw6LnM9/isAzazgkYZZhW
-         GHhXNNhnP63fA/YlhvZ9WEMMZ1Lf61iZnKvKM=
+        bh=SE94/Kbz0iYkWqSiwiZXgkxJUhacoUay8DsU/fM4rGc=;
+        b=O+Cm9zSSCAsfuY1cv1uyHWIfLd6AHQdXHkxkvQ1owHl1q4ed7gdNQPhDpX5U39ujmv
+         yxHn/O7exq1vCm2R4Di+f5GdGcazARxVpYR+LbOz/om50ZJUiuhNwSe/W6O8i7ARpSGQ
+         sY60BVfp3B8pLDaUfDS918qDgPQvki6XTXv1SXJUne0mHecVCvAkhP5SeB7Jl11anPcV
+         tOw2oSITm50Hq0EvbwOmG5qp2GC/7aihcvhgAY7xt6OtbutHsyMm6T/DKNO72WWyzLXb
+         2+dFGD2ybpnAYizCWKXrnWd+g1rkN8/gCfZSr+xRjYSlsTPkWNm/Ms8qB1RnC85iuZTd
+         JJzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=V78a4T+XxMalGYKe1sIzEqFdtRWisjMfkHNLxFh+Xuk=;
-        b=ipnxDsvjbFLK/mb0ib+gVOXJhJUatMrR4hvOe2dWKpFtWihpnDZ+wkWCItryk01QM9
-         bM74/d7KG0rbDg29a2rgbp1mCXuh2DUlYYY9+KcgGn1NXztbeZmkBtoBHd2HJ9kjnd/c
-         bSaiDYeseV9zntoMLm0PAvzzgrSC53H1tM3msX+/ILcwLn1Qk0DBWTS5Jynv1O8AOrX4
-         ULoFDUvXpCKOXogaTGblUdt0PedlxoG5YnHz1/ws1lNVWNzn3qOeCKJUmepsf/z0uo+s
-         aVtl3Ik/9sY9xfW1DBH5x3PdqiuyB5ddh9axISEEHBt47S3wwLRL6u9+gPyXblxr5Nrv
-         vT0g==
-X-Gm-Message-State: AOAM532NWIJqaSwMfER3cgW1CLhDZ8fHNi7G2PYY+k3dSTFBGwPON5YA
-        f7VtRfY0J9al78RgVLR6+M6lCg==
-X-Google-Smtp-Source: ABdhPJz0KGL6rSjm6EhATFv3ykGqeGZcALLvHUMKiYbjmdhG/nGMAxcs10My5jkMKrm9TOdaIQh09w==
-X-Received: by 2002:a05:6402:1a44:b0:41d:8969:e4c9 with SMTP id bf4-20020a0564021a4400b0041d8969e4c9mr997941edb.299.1650567741656;
-        Thu, 21 Apr 2022 12:02:21 -0700 (PDT)
-Received: from dario-ThinkPad-T14s-Gen-2i.amarulasolutions.com (host-87-0-15-73.retail.telecomitalia.it. [87.0.15.73])
-        by smtp.gmail.com with ESMTPSA id s11-20020a170906284b00b006e108693850sm7975142ejc.28.2022.04.21.12.02.12
+        bh=SE94/Kbz0iYkWqSiwiZXgkxJUhacoUay8DsU/fM4rGc=;
+        b=kI9ve79GTJP9TH4fUIhtIe5rbWwpMg09m529I99NoFP92ggHBzvgDOFdVLW//LyuSI
+         QQv/t3PTRFkcr2a0HrW+0ff+qZW8srkY6nuZ5PLLCEGSUgTQDBZM/OKrAHQ1ofdWaI6r
+         wcFXc3c7PZ48sI+5BMBe9n///RV1ohx0dcB5h843+WoRG9Zz93zGTlRf3kkqislbh3d2
+         zZJ0w82kE+jRoeJtoMgmaSnIk64vU7RrdTEhzPDqNdoNKkJepVrpK7liw8R+Z2N4SKQA
+         U6th1P+TpRPJfkHwutHbSGJHlhSpvHu6PkLrxzx9KGreOpxF6nKQT6ibVYxAXOfig0FU
+         Wnsw==
+X-Gm-Message-State: AOAM530O4wDXdsjvYsqWJBZr4jAsjkAj9W0VTNP7flGuK6RKE8FdE/pJ
+        6z2PM2nMyyhnOLHBIBHC5wMkcVnVpzjD
+X-Google-Smtp-Source: ABdhPJy1Vx4dCLoAejscY+AlE0uvjsIV8mL4rJ+39tNdmbaMB3K37JbaK9DmVM8bGfz4EduxkZW3sw==
+X-Received: by 2002:a05:6214:c85:b0:441:2b1c:dd46 with SMTP id r5-20020a0562140c8500b004412b1cdd46mr1437161qvr.41.1650584934575;
+        Thu, 21 Apr 2022 16:48:54 -0700 (PDT)
+Received: from moria.home.lan (c-73-219-103-14.hsd1.vt.comcast.net. [73.219.103.14])
+        by smtp.gmail.com with ESMTPSA id a1-20020a05622a02c100b002f342ccc1c5sm287372qtx.72.2022.04.21.16.48.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 Apr 2022 12:02:13 -0700 (PDT)
-From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Oliver Graute <oliver.graute@kococonnector.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        linux-input@vger.kernel.org
-Subject: [RESEND PATCH v4 6/6] Input: edt-ft5x06 - show crc and header errors by sysfs
-Date:   Thu, 21 Apr 2022 21:00:03 +0200
-Message-Id: <20220421190003.3228699-7-dario.binacchi@amarulasolutions.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220421190003.3228699-1-dario.binacchi@amarulasolutions.com>
-References: <20220421190003.3228699-1-dario.binacchi@amarulasolutions.com>
+        Thu, 21 Apr 2022 16:48:53 -0700 (PDT)
+From:   Kent Overstreet <kent.overstreet@gmail.com>
+To:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org
+Cc:     Kent Overstreet <kent.overstreet@gmail.com>, hch@lst.de,
+        hannes@cmpxchg.org, akpm@linux-foundation.org,
+        linux-clk@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-input@vger.kernel.org, roman.gushchin@linux.dev
+Subject: [PATCH v2 2/8] Input/joystick/analog: Convert from seq_buf -> printbuf
+Date:   Thu, 21 Apr 2022 19:48:31 -0400
+Message-Id: <20220421234837.3629927-8-kent.overstreet@gmail.com>
+X-Mailer: git-send-email 2.35.2
+In-Reply-To: <20220421234837.3629927-1-kent.overstreet@gmail.com>
+References: <20220421234837.3629927-1-kent.overstreet@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-M06 sends packets with header and crc for data verification. Now you can
-check at runtime how many packets have been dropped.
+seq_buf is being deprecated, this converts to printbuf which is similar
+but heap allocates the string buffer.
 
-Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+This means we have to consider memory allocation context & failure: Here
+we're in device initialization so GFP_KERNEL should be fine, and also as
+we're in device initialization returning -ENOMEM is fine.
 
+Signed-off-by: Kent Overstreet <kent.overstreet@gmail.com>
 ---
+ drivers/input/joystick/analog.c | 37 ++++++++++++++++++++-------------
+ 1 file changed, 23 insertions(+), 14 deletions(-)
 
-(no changes since v2)
-
-Changes in v2:
-- Add Oliver Graute's 'Acked-by' tag to:
-  * Input: edt-ft5x06 - show model name by sysfs
-  * Input: edt-ft5x06 - show firmware version by sysfs
-- Fix yaml file. Tested with `make DT_CHECKER_FLAGS=-m dt_binding_check'.
-
- drivers/input/touchscreen/edt-ft5x06.c | 30 ++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
-
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index bab92344b2ea..3deb66d67469 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -133,6 +133,8 @@ struct edt_ft5x06_ts_data {
+diff --git a/drivers/input/joystick/analog.c b/drivers/input/joystick/analog.c
+index 3088c5b829..72e1e30d19 100644
+--- a/drivers/input/joystick/analog.c
++++ b/drivers/input/joystick/analog.c
+@@ -19,7 +19,7 @@
+ #include <linux/input.h>
+ #include <linux/gameport.h>
+ #include <linux/jiffies.h>
+-#include <linux/seq_buf.h>
++#include <linux/printbuf.h>
+ #include <linux/timex.h>
+ #include <linux/timekeeping.h>
  
- 	struct edt_reg_addr reg_addr;
- 	enum edt_ver version;
-+	unsigned int crc_errors;
-+	unsigned int header_errors;
- };
+@@ -337,26 +337,32 @@ static void analog_calibrate_timer(struct analog_port *port)
+  * analog_name() constructs a name for an analog joystick.
+  */
  
- struct edt_i2c_chip_data {
-@@ -181,6 +183,7 @@ static bool edt_ft5x06_ts_check_crc(struct edt_ft5x06_ts_data *tsdata,
- 		crc ^= buf[i];
+-static void analog_name(struct analog *analog)
++static int analog_name(struct analog *analog)
+ {
+-	struct seq_buf s;
++	struct printbuf buf = PRINTBUF;
++	int ret = 0;
  
- 	if (crc != buf[buflen-1]) {
-+		tsdata->crc_errors++;
- 		dev_err_ratelimited(&tsdata->client->dev,
- 				    "crc error: 0x%02x expected, got 0x%02x\n",
- 				    crc, buf[buflen-1]);
-@@ -238,6 +241,7 @@ static irqreturn_t edt_ft5x06_ts_isr(int irq, void *dev_id)
- 	if (tsdata->version == EDT_M06) {
- 		if (rdbuf[0] != 0xaa || rdbuf[1] != 0xaa ||
- 			rdbuf[2] != datalen) {
-+			tsdata->header_errors++;
- 			dev_err_ratelimited(dev,
- 					"Unexpected header: %02x%02x%02x!\n",
- 					rdbuf[0], rdbuf[1], rdbuf[2]);
-@@ -552,6 +556,30 @@ static ssize_t fw_version_show(struct device *dev,
+-	seq_buf_init(&s, analog->name, sizeof(analog->name));
+-	seq_buf_printf(&s, "Analog %d-axis %d-button",
+-		 hweight8(analog->mask & ANALOG_AXES_STD),
+-		 hweight8(analog->mask & ANALOG_BTNS_STD) + !!(analog->mask & ANALOG_BTNS_CHF) * 2 +
+-		 hweight16(analog->mask & ANALOG_BTNS_GAMEPAD) + !!(analog->mask & ANALOG_HBTN_CHF) * 4);
++	pr_buf(&buf, "Analog %d-axis %d-button",
++	       hweight8(analog->mask & ANALOG_AXES_STD),
++	       hweight8(analog->mask & ANALOG_BTNS_STD) + !!(analog->mask & ANALOG_BTNS_CHF) * 2 +
++	       hweight16(analog->mask & ANALOG_BTNS_GAMEPAD) + !!(analog->mask & ANALOG_HBTN_CHF) * 4);
  
- static DEVICE_ATTR_RO(fw_version);
+ 	if (analog->mask & ANALOG_HATS_ALL)
+-		seq_buf_printf(&s, " %d-hat",
+-			       hweight16(analog->mask & ANALOG_HATS_ALL));
++		pr_buf(&buf, " %d-hat",
++		       hweight16(analog->mask & ANALOG_HATS_ALL));
  
-+/* m06 only */
-+static ssize_t header_errors_show(struct device *dev,
-+				  struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", tsdata->header_errors);
-+}
-+
-+static DEVICE_ATTR_RO(header_errors);
-+
-+/* m06 only */
-+static ssize_t crc_errors_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%d\n", tsdata->crc_errors);
-+}
-+
-+static DEVICE_ATTR_RO(crc_errors);
-+
- static struct attribute *edt_ft5x06_attrs[] = {
- 	&edt_ft5x06_attr_gain.dattr.attr,
- 	&edt_ft5x06_attr_offset.dattr.attr,
-@@ -561,6 +589,8 @@ static struct attribute *edt_ft5x06_attrs[] = {
- 	&edt_ft5x06_attr_report_rate.dattr.attr,
- 	&dev_attr_model.attr,
- 	&dev_attr_fw_version.attr,
-+	&dev_attr_header_errors.attr,
-+	&dev_attr_crc_errors.attr,
- 	NULL
- };
+ 	if (analog->mask & ANALOG_HAT_FCS)
+-		seq_buf_printf(&s, " FCS");
++		pr_buf(&buf, " FCS");
+ 	if (analog->mask & ANALOG_ANY_CHF)
+-		seq_buf_printf(&s, (analog->mask & ANALOG_SAITEK) ? " Saitek" : " CHF");
++		pr_buf(&buf, (analog->mask & ANALOG_SAITEK) ? " Saitek" : " CHF");
  
+-	seq_buf_printf(&s, (analog->mask & ANALOG_GAMEPAD) ? " gamepad" : " joystick");
++	pr_buf(&buf, (analog->mask & ANALOG_GAMEPAD) ? " gamepad" : " joystick");
++
++	ret = buf.allocation_failure ? -ENOMEM : 0;
++	if (!ret)
++		strlcpy(analog->name, buf.buf, sizeof(analog->name));
++	printbuf_exit(&buf);
++	return ret;
+ }
+ 
+ /*
+@@ -369,7 +375,10 @@ static int analog_init_device(struct analog_port *port, struct analog *analog, i
+ 	int i, j, t, v, w, x, y, z;
+ 	int error;
+ 
+-	analog_name(analog);
++	error = analog_name(analog);
++	if (error)
++		return error;
++
+ 	snprintf(analog->phys, sizeof(analog->phys),
+ 		 "%s/input%d", port->gameport->phys, index);
+ 	analog->buttons = (analog->mask & ANALOG_GAMEPAD) ? analog_pad_btn : analog_joy_btn;
 -- 
-2.32.0
+2.35.2
 

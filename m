@@ -2,88 +2,101 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E312C43219
-	for <linux-input@archiver.kernel.org>; Fri, 22 Apr 2022 22:06:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EE9EC4707A
+	for <linux-input@archiver.kernel.org>; Fri, 22 Apr 2022 22:17:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231891AbiDVWJR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Apr 2022 18:09:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36160 "EHLO
+        id S232672AbiDVWTz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Apr 2022 18:19:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232377AbiDVWIO (ORCPT
+        with ESMTP id S233939AbiDVWTA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Apr 2022 18:08:14 -0400
-Received: from alexa-out-sd-01.qualcomm.com (alexa-out-sd-01.qualcomm.com [199.106.114.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFFC12B6F4F;
-        Fri, 22 Apr 2022 13:54:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1650660877; x=1682196877;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=I/JXsmwPlD7G5/ND98QTGoMXeo30Vou9f3qY42g4u0E=;
-  b=vZhK68eYGZ399Sy41OdvmDannfq4luzYVSjC7Ynk36JwLWXiAVif7SC7
-   TbwG4+rYY561S/BCNbvLQ5BCvFOlFs1QvEhWRkFUOKXdYXsaBW5vCdftF
-   wlWov9svN02Gv/qpFeN1mNmIM/s9hSWvYynUasYZr23kZQiHSQyb4wzn7
-   M=;
-Received: from unknown (HELO ironmsg-SD-alpha.qualcomm.com) ([10.53.140.30])
-  by alexa-out-sd-01.qualcomm.com with ESMTP; 22 Apr 2022 12:14:33 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg-SD-alpha.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Apr 2022 12:14:33 -0700
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 22 Apr 2022 12:14:32 -0700
-Received: from hu-amelende-lv.qualcomm.com (10.49.16.6) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 22 Apr 2022 12:14:32 -0700
-From:   Anjelique Melendez <quic_amelende@quicinc.com>
-To:     <dmitry.torokhov@gmail.com>, <corbet@lwn.net>, <sre@kernel.org>,
-        <robh+dt@kernel.org>
-CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-msm@vger.kernel.org>, <bjorn.andersson@linaro.org>,
-        <swboyd@chromium.org>, <linux-doc@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        Anjelique Melendez <quic_amelende@quicinc.com>
-Subject: [PATCH v6 2/5] input: misc: pm8941-pwrkey: fix error message
-Date:   Fri, 22 Apr 2022 12:12:40 -0700
-Message-ID: <20220422191239.6271-3-quic_amelende@quicinc.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220422191239.6271-1-quic_amelende@quicinc.com>
-References: <20220422191239.6271-1-quic_amelende@quicinc.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.49.16.6]
-X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
+        Fri, 22 Apr 2022 18:19:00 -0400
+Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC8F319F40A;
+        Fri, 22 Apr 2022 14:10:55 -0700 (PDT)
+Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-e2afb80550so9927047fac.1;
+        Fri, 22 Apr 2022 14:10:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
+         :message-id;
+        bh=TRqLMDnSfOMMJvwbNg5ERReNlJdUDaY3MArVueheMwI=;
+        b=GhYHRpqBvKKO9sr47sI+pTi77FehE9JxaYfyE+nY+wkkIBiiaGJYndwZn6XVLPyIGx
+         3RM8ASxcoZk6LGSw6OOI9z6pFToV9OJ+IOA+TAVMyJ6DO2DpCexJxCXtetgHGjgG/P/P
+         ZPw/a59OIdcf9K6BDyamVGSImjbzk3CZrBNFXx9pkamXFwEKAFNBIf40x8Va/34gOlzw
+         VrBCvQ0G4+V+VZJYCHaezLR09DCHmHNBhdI6NO+Bbu5mXqVK6DxfHblbPDIzw5hckn9P
+         dFlzguZErABcuryRHr5ws7cYDNv0uWpwzhHKW0NP2kcb0o881Xttz9YjjgreVm4TtKQH
+         HgUw==
+X-Gm-Message-State: AOAM530HqPZqGxoAUpuVc7SY9HBPFaxvLs/EeUULLB5KOTT+3Rqd3oJb
+        GVbdO6DsobKLBAoLUWj+gg==
+X-Google-Smtp-Source: ABdhPJwCauAsquMdMwIxtueLYrwWVUnabgWI6OXGiVbx2Y27f+yF57TQi+4z5TpOQRa/HCe7vuQsXw==
+X-Received: by 2002:a05:6870:79a:b0:e9:109a:1391 with SMTP id en26-20020a056870079a00b000e9109a1391mr800216oab.105.1650661855024;
+        Fri, 22 Apr 2022 14:10:55 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
+        by smtp.gmail.com with ESMTPSA id bf26-20020a056808191a00b00324f4d15aa1sm667603oib.12.2022.04.22.14.10.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Apr 2022 14:10:54 -0700 (PDT)
+Received: (nullmailer pid 2784286 invoked by uid 1000);
+        Fri, 22 Apr 2022 21:10:47 -0000
+From:   Rob Herring <robh@kernel.org>
+To:     icenowy@outlook.com
+Cc:     Maxime Ripard <mripard@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+        linux-input@vger.kernel.org, Icenowy Zheng <icenowy@sipeed.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Samuel Holland <samuel@sholland.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To:  <BYAPR20MB2472D625C876D97E95CB6078BCF79@BYAPR20MB2472.namprd20.prod.outlook.com>
+References:  <BYAPR20MB2472D625C876D97E95CB6078BCF79@BYAPR20MB2472.namprd20.prod.outlook.com>
+Subject: Re: [PATCH 1/2] dt-bindings: input: sun4i-lradc-keys: add R329 LRADC binding
+Date:   Fri, 22 Apr 2022 16:10:47 -0500
+Message-Id: <1650661847.262817.2784285.nullmailer@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Currently, error message reads "failed to set debounce". However,
-code is attempting to read revision not set debounce. Fix this.
+On Sat, 23 Apr 2022 00:07:43 +0800, icenowy@outlook.com wrote:
+> From: Icenowy Zheng <icenowy@sipeed.com>
+> 
+> R329 has similar LRADC with previous Allwinner SoCs, but with bus clock
+> and reset.
+> 
+> Add binding for it.
+> 
+> Signed-off-by: Icenowy Zheng <icenowy@sipeed.com>
+> ---
+>  .../input/allwinner,sun4i-a10-lradc-keys.yaml | 21 +++++++++++++++++++
+>  1 file changed, 21 insertions(+)
+> 
 
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Anjelique Melendez <quic_amelende@quicinc.com>
----
- drivers/input/misc/pm8941-pwrkey.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+on your patch (DT_CHECKER_FLAGS is new in v5.13):
 
-diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-index 33609603245d..e0240db12d4f 100644
---- a/drivers/input/misc/pm8941-pwrkey.c
-+++ b/drivers/input/misc/pm8941-pwrkey.c
-@@ -217,7 +217,7 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
- 	error = regmap_read(pwrkey->regmap, pwrkey->baseaddr + PON_REV2,
- 			    &pwrkey->revision);
- 	if (error) {
--		dev_err(&pdev->dev, "failed to set debounce: %d\n", error);
-+		dev_err(&pdev->dev, "failed to read revision: %d\n", error);
- 		return error;
- 	}
- 
--- 
-2.35.1
+yamllint warnings/errors:
+
+dtschema/dtc warnings/errors:
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml: then:properties:required: ['clocks', 'resets'] is not of type 'object', 'boolean'
+	from schema $id: http://json-schema.org/draft-07/schema#
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml: ignoring, error in schema: then: properties: required
+Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.example.dtb:0:0: /example-0/lradc@1c22800: failed to match any schema with compatible: ['allwinner,sun4i-a10-lradc-keys']
+
+doc reference errors (make refcheckdocs):
+
+See https://patchwork.ozlabs.org/patch/
+
+This check can fail if there are any dependencies. The base for a patch
+series is generally the most recent rc1.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit.
 

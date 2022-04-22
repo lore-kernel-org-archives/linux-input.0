@@ -2,121 +2,222 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7633C4321E
-	for <linux-input@archiver.kernel.org>; Fri, 22 Apr 2022 22:17:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 121FEC43217
+	for <linux-input@archiver.kernel.org>; Fri, 22 Apr 2022 22:21:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232709AbiDVWT4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Apr 2022 18:19:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57040 "EHLO
+        id S232282AbiDVWYD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Apr 2022 18:24:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233728AbiDVWSo (ORCPT
+        with ESMTP id S234151AbiDVWXp (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Apr 2022 18:18:44 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16A044705E;
-        Fri, 22 Apr 2022 15:04:51 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9EC42B83272;
-        Fri, 22 Apr 2022 22:04:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 502FFC385AB;
-        Fri, 22 Apr 2022 22:04:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1650665089;
-        bh=zuNw6j1TShfoNbLYYIZxrZxreBGq9IdbmgqrCDzwCoE=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=GJHnYGm7kS7OYKfkAu61QcQIzQsPpKgiX8ZwFOEZB2cc8bdXfKuICeePb/LdLDWns
-         VNg0u6qUYqau/LeOFrayBulaQJxkihHPe/A2FqLymKPNdePaoUDSIGdGevpo7L/zJM
-         aFPhStRd09KzzfNR1joe6PwVDpjMzpbeziX7fgPmvokEvCi/0oFrjnwBTaaGfP/BOU
-         IUNNTQDtVNPw7mpJSpA99kiRdBDjanYdKye5l82yB0eqq3zLotqrujW7fvCIf2Ejkd
-         dAqJEF/tV2gwSfcpwtPVTrB+Lh9rnVah9UvWO9BhrH9MflpU1vh20qiOa/U8KRRaYH
-         giaZNTf1zCHIw==
-Received: by mail-wm1-f47.google.com with SMTP id q20so5841606wmq.1;
-        Fri, 22 Apr 2022 15:04:49 -0700 (PDT)
-X-Gm-Message-State: AOAM5316G1Qpk56Wu+UcOt6hj2nx1VfttOXlwvZpmLGd7jHRHONmsW3f
-        STOnEHKSTHIV4MExAz+NGq4VoEiQvcmEOpiQ/uQ=
-X-Google-Smtp-Source: ABdhPJxxyzPCyBaxXq4e/OKv6ds/3UgnpcR0jFo6uX7QoEAMCxGf0GP6zkRcnylbgWRsSBmj2Bdv9puvN/pDeVMDIcQ=
-X-Received: by 2002:a05:600c:4ed4:b0:392:90a5:b7e6 with SMTP id
- g20-20020a05600c4ed400b0039290a5b7e6mr15508304wmq.33.1650665087477; Fri, 22
- Apr 2022 15:04:47 -0700 (PDT)
+        Fri, 22 Apr 2022 18:23:45 -0400
+Received: from alexa-out.qualcomm.com (alexa-out.qualcomm.com [129.46.98.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFB1F340AE0;
+        Fri, 22 Apr 2022 14:15:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
+  t=1650662150; x=1682198150;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=SIh1YjWWILEjXTV7gBY+jEesPO7/uUQ+/LkPoLmCPNo=;
+  b=x0dpTlGvhqMiLpba6wmVjqf+t+fsWu25yDSnRtRq9nw/csvKB6czUive
+   u4ZstFgXYTku9qbB60hcx3BUaZfQY+T70VFO0Y7Ob69/ul3NdsTMC+r+s
+   ORR/4fnnvD1PPexGJ4Ykss3ifn4LKEtHwXAO+a13jyeZ8iP2DP204PMQm
+   k=;
+Received: from ironmsg09-lv.qualcomm.com ([10.47.202.153])
+  by alexa-out.qualcomm.com with ESMTP; 22 Apr 2022 12:14:36 -0700
+X-QCInternal: smtphost
+Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
+  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Apr 2022 12:14:36 -0700
+Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
+ nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Fri, 22 Apr 2022 12:14:35 -0700
+Received: from hu-amelende-lv.qualcomm.com (10.49.16.6) by
+ nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.986.22; Fri, 22 Apr 2022 12:14:34 -0700
+From:   Anjelique Melendez <quic_amelende@quicinc.com>
+To:     <dmitry.torokhov@gmail.com>, <corbet@lwn.net>, <sre@kernel.org>,
+        <robh+dt@kernel.org>
+CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-arm-msm@vger.kernel.org>, <bjorn.andersson@linaro.org>,
+        <swboyd@chromium.org>, <linux-doc@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        David Collins <collinsd@codeaurora.org>,
+        Anjelique Melendez <quic_amelende@quicinc.com>
+Subject: [PATCH v6 4/5] input: misc: pm8941-pwrkey: add software key press debouncing support
+Date:   Fri, 22 Apr 2022 12:12:42 -0700
+Message-ID: <20220422191239.6271-5-quic_amelende@quicinc.com>
+X-Mailer: git-send-email 2.35.1
+In-Reply-To: <20220422191239.6271-1-quic_amelende@quicinc.com>
+References: <20220422191239.6271-1-quic_amelende@quicinc.com>
 MIME-Version: 1.0
-References: <20220419163810.2118169-1-arnd@kernel.org> <20220422170530.GA2338209@roeck-us.net>
- <CAK8P3a3V=qxUqYT3Yt=dpXVv58-Y+HVi952wO6D4LPN5NNphGA@mail.gmail.com> <8b36d3a4-ec85-2f9f-e4b7-734d8ddd3d8f@roeck-us.net>
-In-Reply-To: <8b36d3a4-ec85-2f9f-e4b7-734d8ddd3d8f@roeck-us.net>
-From:   Arnd Bergmann <arnd@kernel.org>
-Date:   Sat, 23 Apr 2022 00:04:31 +0200
-X-Gmail-Original-Message-ID: <CAK8P3a0R9cpEb1d2=e9KnGSbi_uRv48RWfCu_J4DDak_cGZSuw@mail.gmail.com>
-Message-ID: <CAK8P3a0R9cpEb1d2=e9KnGSbi_uRv48RWfCu_J4DDak_cGZSuw@mail.gmail.com>
-Subject: Re: [PATCH v2 00/48] ARM: PXA multiplatform support
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Robert Jarzmik <robert.jarzmik@free.fr>,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Arnd Bergmann <arnd@arndb.de>, Daniel Mack <daniel@zonque.org>,
-        Haojian Zhuang <haojian.zhuang@gmail.com>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Philipp Zabel <philipp.zabel@gmail.com>,
-        Lubomir Rintel <lkundrak@v3.sk>,
-        Paul Parsons <lost.distance@yahoo.com>,
-        Tomas Cech <sleep_walker@suse.com>,
-        Sergey Lapin <slapin@ossfans.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Helge Deller <deller@gmx.de>, Mark Brown <broonie@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "open list:BROADCOM NVRAM DRIVER" <linux-mips@vger.kernel.org>,
-        IDE-ML <linux-ide@vger.kernel.org>,
-        linux-clk <linux-clk@vger.kernel.org>,
-        Linux PM list <linux-pm@vger.kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        patches@opensource.cirrus.com, linux-leds@vger.kernel.org,
-        linux-mmc <linux-mmc@vger.kernel.org>,
-        linux-mtd <linux-mtd@lists.infradead.org>,
-        linux-rtc@vger.kernel.org, USB list <linux-usb@vger.kernel.org>,
-        Linux Fbdev development list <linux-fbdev@vger.kernel.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        ALSA Development Mailing List <alsa-devel@alsa-project.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.49.16.6]
+X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Apr 22, 2022 at 10:55 PM Guenter Roeck <linux@roeck-us.net> wrote:
-> On 4/22/22 12:16, Arnd Bergmann wrote:
-> > On Fri, Apr 22, 2022 at 7:05 PM Guenter Roeck <linux@roeck-us.net> wrote:
-> >
-> > Which machine did you hit this on? Is this on hardware or in qemu?
-> >
-> qemu, as always. borzoi, spitz, terrier, tosa, z2, and sx1 fail.
-> Also, I just noticed that the failure is not always the same.
-> z2 fails to boot from initrd, and sx1 fails to boot completely.
+From: David Collins <collinsd@codeaurora.org>
 
-That's a lot of machines failing, I hope at least we got the same bugs more
-than once here.
+On certain PMICs, an unexpected assertion of KPDPWR_DEB (the
+positive logic hardware debounced power key signal) may be seen
+during the falling edge of KPDPWR_N (i.e. a power key press) when
+it occurs close to the rising edge of SLEEP_CLK.  This then
+triggers a spurious KPDPWR interrupt.
 
-For the I/O space, I found now that PXA was not using the standard
-virtual I/O address yet, but instead used a NULL-based offset.
+Handle this issue by adding software debouncing support to ignore
+key events that occur within the hardware debounce delay after the
+most recent key release event.
 
-I'm not entirely happy with this patch, but this is an outline of what
-I think we need to fix that: https://pastebin.com/3nVgQsEw
-This one is probably incomplete, at least it breaks sa1100 for now,
-and it adds a bogus CONFIG_PCI dependency. I'm also not sure
-in what way the last patch in the series triggers it, rather than the
-one that removed mach/io.h.
+Signed-off-by: David Collins <collinsd@codeaurora.org>
+Signed-off-by: Anjelique Melendez <quic_amelende@quicinc.com>
+---
+ drivers/input/misc/pm8941-pwrkey.c | 80 +++++++++++++++++++++++++++---
+ 1 file changed, 74 insertions(+), 6 deletions(-)
 
-I had sx1 booting in qemu at least, with the omap1 multiplatform series only.
-If you have a custom config for this one, make sure you get the right
-DEBUG_LL address.
+diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
+index 43106e4cfd23..881943ab4d55 100644
+--- a/drivers/input/misc/pm8941-pwrkey.c
++++ b/drivers/input/misc/pm8941-pwrkey.c
+@@ -9,6 +9,7 @@
+ #include <linux/input.h>
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
++#include <linux/ktime.h>
+ #include <linux/log2.h>
+ #include <linux/module.h>
+ #include <linux/of.h>
+@@ -20,6 +21,16 @@
+ 
+ #define PON_REV2			0x01
+ 
++#define PON_SUBTYPE			0x05
++
++#define PON_SUBTYPE_PRIMARY		0x01
++#define PON_SUBTYPE_SECONDARY		0x02
++#define PON_SUBTYPE_1REG		0x03
++#define PON_SUBTYPE_GEN2_PRIMARY	0x04
++#define PON_SUBTYPE_GEN2_SECONDARY	0x05
++#define PON_SUBTYPE_GEN3_PBS		0x08
++#define PON_SUBTYPE_GEN3_HLOS		0x09
++
+ #define PON_RT_STS			0x10
+ #define  PON_KPDPWR_N_SET		BIT(0)
+ #define  PON_RESIN_N_SET		BIT(1)
+@@ -59,9 +70,12 @@ struct pm8941_pwrkey {
+ 	struct input_dev *input;
+ 
+ 	unsigned int revision;
++	unsigned int subtype;
+ 	struct notifier_block reboot_notifier;
+ 
+ 	u32 code;
++	u32 sw_debounce_time_us;
++	ktime_t sw_debounce_end_time;
+ 	const struct pm8941_data *data;
+ };
+ 
+@@ -128,20 +142,63 @@ static irqreturn_t pm8941_pwrkey_irq(int irq, void *_data)
+ {
+ 	struct pm8941_pwrkey *pwrkey = _data;
+ 	unsigned int sts;
+-	int error;
++	int err;
+ 
+-	error = regmap_read(pwrkey->regmap,
+-			    pwrkey->baseaddr + PON_RT_STS, &sts);
+-	if (error)
++	if (pwrkey->sw_debounce_time_us) {
++		if (ktime_before(ktime_get(), pwrkey->sw_debounce_end_time)) {
++			dev_dbg(pwrkey->dev, "ignoring key event received before debounce end %llu us\n",
++				pwrkey->sw_debounce_end_time);
++			return IRQ_HANDLED;
++		}
++	}
++
++	err = regmap_read(pwrkey->regmap, pwrkey->baseaddr + PON_RT_STS, &sts);
++	if (err)
+ 		return IRQ_HANDLED;
+ 
+-	input_report_key(pwrkey->input, pwrkey->code,
+-			 sts & pwrkey->data->status_bit);
++	sts &= pwrkey->data->status_bit;
++
++	if (pwrkey->sw_debounce_time_us && !sts)
++		pwrkey->sw_debounce_end_time = ktime_add_us(ktime_get(),
++						pwrkey->sw_debounce_time_us);
++
++	input_report_key(pwrkey->input, pwrkey->code, sts);
+ 	input_sync(pwrkey->input);
+ 
+ 	return IRQ_HANDLED;
+ }
+ 
++static int pm8941_pwrkey_sw_debounce_init(struct pm8941_pwrkey *pwrkey)
++{
++	unsigned int val, addr, mask;
++	int error;
++
++	if (pwrkey->data->has_pon_pbs && !pwrkey->pon_pbs_baseaddr) {
++		dev_err(pwrkey->dev, "PON_PBS address missing, can't read HW debounce time\n");
++		return 0;
++	}
++
++	if (pwrkey->pon_pbs_baseaddr)
++		addr = pwrkey->pon_pbs_baseaddr + PON_DBC_CTL;
++	else
++		addr = pwrkey->baseaddr + PON_DBC_CTL;
++	error = regmap_read(pwrkey->regmap, addr, &val);
++	if (error)
++		return error;
++
++	if (pwrkey->subtype >= PON_SUBTYPE_GEN2_PRIMARY)
++		mask = 0xf;
++	else
++		mask = 0x7;
++
++	pwrkey->sw_debounce_time_us = 2 * USEC_PER_SEC / (1 << (mask - (val & mask)));
++
++	dev_dbg(pwrkey->dev, "SW debounce time = %u us\n",
++		pwrkey->sw_debounce_time_us);
++
++	return 0;
++}
++
+ static int __maybe_unused pm8941_pwrkey_suspend(struct device *dev)
+ {
+ 	struct pm8941_pwrkey *pwrkey = dev_get_drvdata(dev);
+@@ -234,6 +291,13 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
+ 
++	error = regmap_read(pwrkey->regmap, pwrkey->baseaddr + PON_SUBTYPE,
++			    &pwrkey->subtype);
++	if (error) {
++		dev_err(&pdev->dev, "failed to read subtype: %d\n", error);
++		return error;
++	}
++
+ 	error = of_property_read_u32(pdev->dev.of_node, "linux,code",
+ 				     &pwrkey->code);
+ 	if (error) {
+@@ -268,6 +332,10 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
+ 		}
+ 	}
+ 
++	error = pm8941_pwrkey_sw_debounce_init(pwrkey);
++	if (error)
++		return error;
++
+ 	if (pwrkey->data->pull_up_bit) {
+ 		error = regmap_update_bits(pwrkey->regmap,
+ 					   pwrkey->baseaddr + PON_PULL_CTL,
+-- 
+2.35.1
 
-> I'll do another round of bisects.
-
-Thanks!
-
-       Arnd

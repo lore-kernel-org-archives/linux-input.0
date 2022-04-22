@@ -2,110 +2,120 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 62EF4C4332F
-	for <linux-input@archiver.kernel.org>; Fri, 22 Apr 2022 22:30:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A58FC433F5
+	for <linux-input@archiver.kernel.org>; Fri, 22 Apr 2022 22:33:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232978AbiDVWdW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Apr 2022 18:33:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57116 "EHLO
+        id S233330AbiDVWgV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Apr 2022 18:36:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233555AbiDVWcp (ORCPT
+        with ESMTP id S233258AbiDVWgJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Apr 2022 18:32:45 -0400
-Received: from alexa-out-sd-02.qualcomm.com (alexa-out-sd-02.qualcomm.com [199.106.114.39])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 293752512F0;
-        Fri, 22 Apr 2022 14:26:01 -0700 (PDT)
+        Fri, 22 Apr 2022 18:36:09 -0400
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80F3022C3C5;
+        Fri, 22 Apr 2022 14:51:49 -0700 (PDT)
+Received: by mail-qt1-x835.google.com with SMTP id fu34so6463120qtb.8;
+        Fri, 22 Apr 2022 14:51:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1650662761; x=1682198761;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Bz2rLXg33ZlwCJFTP5vcqCWU/OHhXNlZLcLHoGg/qx4=;
-  b=eAxS+LQI0o6/mcUs8oWPfe8NFAPVeyzv3TCr5EkAiWtgpwZe/ur00433
-   1wLeHu6iGKvWO6sed4cDg/VDqhRDEPvejZ3Sdjugq4f6knljS7m1VT3QO
-   fToulQMqqaaP7rTnoJGuS2gJFU397N3+ZJbD7iKEKkBP18rrhDOZm7h30
-   k=;
-Received: from unknown (HELO ironmsg03-sd.qualcomm.com) ([10.53.140.143])
-  by alexa-out-sd-02.qualcomm.com with ESMTP; 22 Apr 2022 12:14:25 -0700
-X-QCInternal: smtphost
-Received: from nasanex01c.na.qualcomm.com ([10.47.97.222])
-  by ironmsg03-sd.qualcomm.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Apr 2022 12:14:25 -0700
-Received: from nalasex01a.na.qualcomm.com (10.47.209.196) by
- nasanex01c.na.qualcomm.com (10.47.97.222) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 22 Apr 2022 12:14:24 -0700
-Received: from hu-amelende-lv.qualcomm.com (10.49.16.6) by
- nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.22; Fri, 22 Apr 2022 12:14:24 -0700
-From:   Anjelique Melendez <quic_amelende@quicinc.com>
-To:     <dmitry.torokhov@gmail.com>, <corbet@lwn.net>, <sre@kernel.org>,
-        <robh+dt@kernel.org>
-CC:     <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <linux-arm-msm@vger.kernel.org>, <bjorn.andersson@linaro.org>,
-        <swboyd@chromium.org>, <linux-doc@vger.kernel.org>,
-        <linux-pm@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        David Collins <collinsd@quicinc.com>,
-        David Collins <quic_collinsd@quicinc.com>,
-        "Anjelique Melendez" <quic_amelende@quicinc.com>
-Subject: [PATCH v6] dt-bindings: power: reset: qcom-pon: update "reg" property details
-Date:   Fri, 22 Apr 2022 12:12:38 -0700
-Message-ID: <20220422191239.6271-2-quic_amelende@quicinc.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220422191239.6271-1-quic_amelende@quicinc.com>
-References: <20220422191239.6271-1-quic_amelende@quicinc.com>
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=RZMfk42e8wN88X1x4Oc4ckY2xJ8vXIPWfHgWdfKTn9M=;
+        b=OSzfMYbMeDyu2ee3SkdVdwdxHDs6Jzcx2Ft5LhsurqKR50qJ8HRKBjD3f87T0XNmxR
+         qPnidw8ZJGlkLY4hMiMsUUqST228rD37ocmfljP7rOdrbzZs3xADUHms29i9T65N5q9E
+         clMgoBeG13AcWf9ZZfieqatqAf8Yj3w3rxiAT2PbzEXyVNfRiReGT+XgQbJekBqIWe5q
+         P/XFEhR+21IEscdN+hf34slbakBnAe7UATNkKqG4TVmxXH+UjyXh7SddnQ7HDYvfH9Nt
+         OEqb8324QrpnTlQriByF9ZcZf/Go3TvUITwT8PsNgo2rtCmUHHWiuk1BEArJwiB3TjTB
+         bExQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=RZMfk42e8wN88X1x4Oc4ckY2xJ8vXIPWfHgWdfKTn9M=;
+        b=5Qycu7xY6XTw1/MlnTnSvQQ+h8U81dPsVKgvdUmzkEHLOZx6HFCQMB3oEh7upWR+tU
+         SHIijXfzsIG1JMXPj+TKUCodQbAwb13uNkKJqueK5ZjXizHvZPobsLhARckIXmE9pSzZ
+         B1p8CV8D5XJ1nfQHb3nYGhw93qqdmcJmTEqnh5mk+zlb/l/iYwNGuZdWKKCcfYdaBgE0
+         utxGDwOo9nY0F7nZ8odrhE++tKuCXatN/cc7A8QLhcy/ME2hq5Uiwm5caDhCkrfEvlSg
+         G7JX19otKVyoDed7mvpa/YvBXnupS78fMvH3HOw/bEABgxFXpdgUcEqZG4p8XU2FBhLX
+         wJZA==
+X-Gm-Message-State: AOAM530d/h1v3j9q0NZdJah39aNaQ/q9DL9NPoF8JA0YHhEMr7p1/Sll
+        meTv1Rb43x6c8qReQaLxOw==
+X-Google-Smtp-Source: ABdhPJxyyCkFj9u8Z2ocvKIb99chaQNgfvpROYCjFGnjIdmRADHMMNVhTGFRGUajfZ+aBtu4TsJEvA==
+X-Received: by 2002:a05:622a:1a86:b0:2f3:4be4:42dd with SMTP id s6-20020a05622a1a8600b002f34be442ddmr4854803qtc.55.1650664308682;
+        Fri, 22 Apr 2022 14:51:48 -0700 (PDT)
+Received: from moria.home.lan (c-73-219-103-14.hsd1.vt.comcast.net. [73.219.103.14])
+        by smtp.gmail.com with ESMTPSA id y20-20020a05622a121400b002eefd7bf5basm2080434qtx.63.2022.04.22.14.51.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Apr 2022 14:51:48 -0700 (PDT)
+Date:   Fri, 22 Apr 2022 17:51:46 -0400
+From:   Kent Overstreet <kent.overstreet@gmail.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org,
+        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org,
+        hannes@cmpxchg.org, akpm@linux-foundation.org,
+        linux-clk@vger.kernel.org, linux-tegra@vger.kernel.org,
+        linux-input@vger.kernel.org, roman.gushchin@linux.dev
+Subject: Re: [PATCH v2 1/8] lib/printbuf: New data structure for
+ heap-allocated strings
+Message-ID: <20220422215146.i663tn6zzn6blzo3@moria.home.lan>
+References: <20220421234837.3629927-7-kent.overstreet@gmail.com>
+ <20220422042017.GA9946@lst.de>
+ <YmI5yA1LrYrTg8pB@moria.home.lan>
+ <20220422052208.GA10745@lst.de>
+ <YmI/v35IvxhOZpXJ@moria.home.lan>
+ <20220422113736.460058cc@gandalf.local.home>
+ <20220422193015.2rs2wvqwdlczreh3@moria.home.lan>
+ <20220422153916.7ebf20c3@gandalf.local.home>
+ <20220422203057.iscsmurtrmwkpwnq@moria.home.lan>
+ <20220422164744.6500ca06@gandalf.local.home>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.49.16.6]
-X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220422164744.6500ca06@gandalf.local.home>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: David Collins <collinsd@quicinc.com>
+On Fri, Apr 22, 2022 at 04:47:44PM -0400, Steven Rostedt wrote:
+> Which is something you could do on top of seq_buf. Point being, you do not
+> need to re-implement printbuf, and I have not looked at the code, but
+> instead, implement printbuf on top of seq_buf, and extend seq_buf where
+> needed. Like trace_seq does, and the patches I have for seq_file would do.
+> It would leave the string processing and buffer space management to
+> seq_buf, as there's ways to see "oh, we need more space, let's allocate
+> more" and then increase the heap.
 
-Update the description of "reg" property to add the PON_PBS base
-address along with PON_HLOS base address.  Also add "reg-names"
-property description.
+That sounds like it could work. 
 
-Signed-off-by: David Collins <quic_collinsd@quicinc.com>
-Signed-off-by: Anjelique Melendez <quic_amelende@quicinc.com>
----
- .../bindings/power/reset/qcom,pon.yaml | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+> I would be more willing to accept a printbuf, if it was built on top of
+> seq_buf. That is, you don't need to change all your user cases, you just
+> need to make printbuf an extension of seq_buf by using it underneath, like
+> trace_seq does. Then it would not be re-inventing the wheel, but just
+> building on top of it.
 
-diff --git a/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml b/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
-index 353f155d..65ec8197 100644
---- a/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
-+++ b/Documentation/devicetree/bindings/power/reset/qcom,pon.yaml
-@@ -26,7 +26,24 @@ properties:
-       - qcom,pm8998-pon
- 
-   reg:
--    maxItems: 1
-+    description: |
-+      Specifies the SPMI base address for the PON (power-on) peripheral.  For
-+      PMICs that have the PON peripheral (GEN3) split into PON_HLOS and PON_PBS
-+      (e.g. PMK8350), this can hold addresses of both PON_HLOS and PON_PBS
-+      peripherals.  In that case, the PON_PBS address needs to be specified to
-+      facilitate software debouncing on some PMICs.
-+    minItems: 1
-+    maxItems: 2
-+
-+  reg-names:
-+    description: |
-+      For PON GEN1 and GEN2, it should be "pon".  For PON GEN3 it should include
-+      "pon_hlos" and optionally "pon_pbs".
-+    minItems: 1
-+    items:
-+      - const: pon_hlos
-+      - const: pon_pbs
-+      - const: pon
- 
-   pwrkey:
-     type: object
--- 
-2.35.1
+Hmm... At first glance, redoing printbuf on top of seq_buf looks like it would
+save a pretty trivial amount of code - and my engineering taste these days leans
+more toward less layering if it's only slightly more code; I think I might like
+printbuf and seq_buf to stay separate things (and both of them are pretty
+small).
 
+But it's definitely not an unreasonable idea - I can try it out and see how it
+turns out. Would you have any objections to making some changes to seq_buf?
+
+ - You've got size and len as size_t, I've got them as unsigned. Given that we
+   need to be checking for overflow anyways for correctens, I like having them
+   as u32s.
+ - seq_buf->readpos - it looks like this is only used by seq_buf_to_user(), does
+   it need to be in seq_buf?
+ - in printbufs, I make sure the buffer is always nul-terminated - seems
+   simplest, given that we need to make sure there's always room for the
+   terminating nul anyways.
+
+A downside of having printbuf on top of seq_buf is that now we've got two apis
+that functions can output to - vs. if we modified printbuf by adding a flag for
+"this is an external buffer, don't reallocate it". That approach would be less
+code overall, for sure.
+
+Could I get you to look over printbuf and share your thoughts on the different
+approaches?

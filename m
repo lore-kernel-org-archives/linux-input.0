@@ -2,66 +2,65 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63202C433EF
-	for <linux-input@archiver.kernel.org>; Sun, 24 Apr 2022 16:05:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 788CCC433FE
+	for <linux-input@archiver.kernel.org>; Sun, 24 Apr 2022 16:05:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233640AbiDXQIJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 24 Apr 2022 12:08:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59484 "EHLO
+        id S233630AbiDXQIL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 24 Apr 2022 12:08:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233452AbiDXQIG (ORCPT
+        with ESMTP id S233600AbiDXQIJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 24 Apr 2022 12:08:06 -0400
+        Sun, 24 Apr 2022 12:08:09 -0400
 Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22BB4112;
-        Sun, 24 Apr 2022 09:05:03 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 41BA95C018D;
-        Sun, 24 Apr 2022 12:05:03 -0400 (EDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C4792A6;
+        Sun, 24 Apr 2022 09:05:07 -0700 (PDT)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 073565C018B;
+        Sun, 24 Apr 2022 12:05:07 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Sun, 24 Apr 2022 12:05:03 -0400
+  by compute5.internal (MEProxy); Sun, 24 Apr 2022 12:05:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
         cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
         :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm2; t=1650816303; x=1650902703; bh=ma
-        QbKuXc1jreez0GCBOLzIJ/NLqx6OH4BtXyW7KPHOQ=; b=YnjQk3QQ9bzbk6cY8p
-        5o3vov2urmVEyXrmJzWYthm3zdHlpRRYge8vXivoLshzNFpzuQDdgV0vkta4fbQu
-        f3Yk0cKXs8Sp3HYjLovxJ7Xp1YyweU4BMv6MJg2/Wdqu6s17ul8Xtkyt663xlYQv
-        CRy8ItbAnsxjIqYlT1gPCZJLGPh4CKVa95N94RxOt1cAFcnIeyOyXf3cpdEg6oyz
-        fqTPVvOq+qHvqxj58ReqksCAHbiV2jBQhxxxazZpwxtp6DU8iB1WmDFkz98ZPx5D
-        96iArAZ6O+nRdbbrKgUodsou5r0pMu8l7gIhTzGl62nB/m/BoAgL/URXmjdtMIhq
-        blMw==
+        :subject:subject:to:to; s=fm2; t=1650816307; x=1650902707; bh=CH
+        D60LWMnUy3K/GAGBKkSJRQzFg1faw0PDFU+ZrmbKU=; b=BxnQcljzj94w+iDDgB
+        TJnC9l5sh+3HxJBpeV6Rvi6MTPY4NKmZvakGBXxikTFfTyWAm6fW+4gxt231FRY/
+        RbJf8sU3VVwXYiIzTTPmX3LVbJ6KKodAD+3pVxGcqcMz7eydGmT43xgBnf55ZlGC
+        S+K8Jm+AqzjBw6sRGApxDbGwp4b9hldtpVm7mbMCg2XvKZmhXXKBcs3QtvMmLR7t
+        hNdA8kDNv1W5ovKttRT4dhNb8826yiHAIWPTmw5oBXu5TqY/16oGps/Hr3yEVzbz
+        LFdAW5xyHka+TnEDnFaKTPLJcN+5NCg41WPkNNdZOtqpHOCL+nD3esH9GRUIB8rJ
+        F+Ng==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
         :from:from:in-reply-to:in-reply-to:message-id:mime-version
         :references:reply-to:sender:subject:subject:to:to:x-me-proxy
         :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-        1650816303; x=1650902703; bh=maQbKuXc1jreez0GCBOLzIJ/NLqx6OH4BtX
-        yW7KPHOQ=; b=TyThZjxJprKep1puD5y+yDx8sx5s8uMHNMX3d3onjGOzARn/nar
-        hoxR9mJ1F6PXMOMWd16Ax0K+oe2f2khuMIs5fbCg4Q18L3GoNGgd63qLHMEL3URS
-        d7j615zSBcR/3uHIf2/p7ObQksQVqIOxv7XKeBCgpPSTwmFYuLAk0wTwCxssU2LP
-        K2948num3Q1pY9Or/zQwzLKEj5cQ25i2qqoYng1hQl6GiO13c6NXjXAhlmCelpA/
-        yufb2edHJNI5ofciGkxhdbumMk5HBSDbBNJWfFenhGpx0CUUUxLNtUOAnBChd2+3
-        NX5P2o2sEUHyVr6dyrkZopH0Skul9Zgv9mg==
-X-ME-Sender: <xms:LnVlYgkjRQX25WNoUJyilf_vBqkFP3dF-imya0YaxDcywi-Btxr-9Q>
-    <xme:LnVlYv0cLL63XnC2EdqjSeDXPdGAcEQsiuYm-IU2ZGe5Ctq7MVEU_9Cs8jpifIxJy
-    fEZ_cGuh_aOFffVIA>
-X-ME-Received: <xmr:LnVlYur9b7HgGknhV3vpQFXL7fhnlpTqm-RAsD01x2bJISpuFOLoX15fQJ_eZM0W5HVZUlgD2sFuL50hygfaoEyXcGEgx5dbKsZbwbOC-wG097xSYQ0nQN0YeByJ5ywgAoLD5g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrtdelgdellecutefuodetggdotefrodftvf
+        1650816307; x=1650902707; bh=CHD60LWMnUy3K/GAGBKkSJRQzFg1faw0PDF
+        U+ZrmbKU=; b=og0z1bUYgaBeOjTLtuU616uJy6YUMNMpVGrCsgt7VdOXaYu0Gfw
+        1Kv8OL8Vm6T4p05ZsYRgKmJDAo5zmw5ZswTqIDuXbMnqv8FWTe4kKYFm9oYJLSfW
+        5VTVbi6fRgaFHX9d7AvuECuHR/JDH3QKNZlV5xqelZbZXvoxOeYFW5mtvy2Id/5A
+        CIpzP4SOvX0aV50lgjHAc8pcGTWH/QN/uW6spQe6sECx0fgRMDu7KOqcgND1Lplk
+        Uoqovl95T1ya8MN3bDzXPywinrZzF1VouNSKu9403/cfqj9BG1+TzK3SlGzai580
+        DYX+cxrnhNJJq01wmvkIzHTw8uBEW0gu3PQ==
+X-ME-Sender: <xms:MnVlYg2Vaxn149HKK-f9uSMNNcoDM6O-cekNBswvedqLXrNP5QGxkw>
+    <xme:MnVlYrFAqnAXvPrakcOg8R2eQOcWI4bE4rvx5SDXUci3zCOZsRt1e0o_Gxe9pSpAQ
+    2oC_0iesuQhIuvsIA>
+X-ME-Received: <xmr:MnVlYo7pKAcN4GHskjLlfcYvskm494jUJTxO3oejb2Y3OsRBy8AFHYtIM3b7tKQ7FOaL_lCrrKRxmTJU1q_I1JKQo8dNixkeuhpaWRi9xs0WKScYxH0et0rc5lpeauRz9CFzww>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrtdelgdelkecutefuodetggdotefrodftvf
     curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
     uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
     fjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
     lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtf
-    frrghtthgvrhhnpefghfevhffgheejhefgkeehueffgeehffejgeehueduueeffffhhfeu
-    iefhueffhfenucffohhmrghinhepuggvvhhitggvthhrvggvrdhorhhgnecuvehluhhsth
-    gvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhho
-    lhhlrghnugdrohhrgh
-X-ME-Proxy: <xmx:LnVlYsnEam8PWYs7o2UYdIEYfyVXE1yBfZfXoIJMcaOF2OvevtwTHw>
-    <xmx:LnVlYu0j0lDoytBHict2z-jALP9neeAvMJX4FDod7DP0aQaMuueWDg>
-    <xmx:LnVlYjvWIltSHLGgnZITzLIgkfuO4GTfnkcgLQr-AK3IypI8RwFT6w>
-    <xmx:L3VlYopcVcwTx3KOgyHvIi4daDnxd623iE7hf8naLixJznLdlUMh9g>
+    frrghtthgvrhhnpedukeetueduhedtleetvefguddvvdejhfefudelgfduveeggeehgfdu
+    feeitdevteenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhg
+X-ME-Proxy: <xmx:MnVlYp1xDIYT27fmi8FqhIET69UWS5BSH4jwHI9C9RDYBKOdOxeTLg>
+    <xmx:MnVlYjEyX2AX3yjDwAiCdnejhvWI5Z33ZQtII0WCc1nY8Bvq4sjbOg>
+    <xmx:MnVlYi8Bs9OXa3krKrAoau6KA4ixnaUK44OL-UsEuSBtW9pj-V0G2w>
+    <xmx:M3VlYo5XzGBN9KKDRJOEuDrOcXJTCH9VZv5fw9JORU1bp8JRCQKilw>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 24 Apr 2022 12:05:01 -0400 (EDT)
+ 24 Apr 2022 12:05:06 -0400 (EDT)
 From:   Samuel Holland <samuel@sholland.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org
@@ -69,9 +68,9 @@ Cc:     Rob Herring <robh+dt@kernel.org>, Ondrej Jirman <x@xff.cz>,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
         Samuel Holland <samuel@sholland.org>
-Subject: [PATCH v3 1/4] dt-bindings: input: Add the PinePhone keyboard binding
-Date:   Sun, 24 Apr 2022 11:04:54 -0500
-Message-Id: <20220424160458.60370-2-samuel@sholland.org>
+Subject: [PATCH v3 3/4] Input: pinephone-keyboard - Support the proxied I2C bus
+Date:   Sun, 24 Apr 2022 11:04:56 -0500
+Message-Id: <20220424160458.60370-4-samuel@sholland.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220424160458.60370-1-samuel@sholland.org>
 References: <20220424160458.60370-1-samuel@sholland.org>
@@ -81,96 +80,140 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add devicetree support for the PinePhone keyboard case, which provides a
-matrix keyboard interface and a proxied I2C bus.
+The PinePhone keyboard case contains a battery managed by an integrated
+power bank IC. The power bank IC communicates over I2C, and the keyboard
+MCU firmware provides an interface to read and write its registers.
+Let's use this interface to implement a SMBus adapter, so we can reuse
+the driver for the power bank IC.
 
 Signed-off-by: Samuel Holland <samuel@sholland.org>
 ---
 
 Changes in v3:
- - Replace unevaluatedProperties with additionalProperties
  - Rename i2c-bus to i2c
 
-Changes in v2:
- - Drop keymap DT properties
- - Add vbat-supply property
+ drivers/input/keyboard/pinephone-keyboard.c | 73 +++++++++++++++++++++
+ 1 file changed, 73 insertions(+)
 
- .../input/pine64,pinephone-keyboard.yaml      | 66 +++++++++++++++++++
- 1 file changed, 66 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
-
-diff --git a/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml b/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
-new file mode 100644
-index 000000000000..e4a0ac0fff9a
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
-@@ -0,0 +1,66 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/pine64,pinephone-keyboard.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/input/keyboard/pinephone-keyboard.c b/drivers/input/keyboard/pinephone-keyboard.c
+index 2ee74cbe68dd..008e1322bd2d 100644
+--- a/drivers/input/keyboard/pinephone-keyboard.c
++++ b/drivers/input/keyboard/pinephone-keyboard.c
+@@ -3,6 +3,7 @@
+ // Copyright (C) 2021-2022 Samuel Holland <samuel@sholland.org>
+ 
+ #include <linux/crc8.h>
++#include <linux/delay.h>
+ #include <linux/i2c.h>
+ #include <linux/input/matrix_keypad.h>
+ #include <linux/interrupt.h>
+@@ -24,6 +25,11 @@
+ #define PPKB_SCAN_DATA			0x08
+ #define PPKB_SYS_CONFIG			0x20
+ #define PPKB_SYS_CONFIG_DISABLE_SCAN		BIT(0)
++#define PPKB_SYS_SMBUS_COMMAND		0x21
++#define PPKB_SYS_SMBUS_DATA		0x22
++#define PPKB_SYS_COMMAND		0x23
++#define PPKB_SYS_COMMAND_SMBUS_READ		0x91
++#define PPKB_SYS_COMMAND_SMBUS_WRITE		0xa1
+ 
+ #define PPKB_ROWS			6
+ #define PPKB_COLS			12
+@@ -132,6 +138,7 @@ static const struct matrix_keymap_data ppkb_keymap_data = {
+ };
+ 
+ struct pinephone_keyboard {
++	struct i2c_adapter adapter;
+ 	struct input_dev *input;
+ 	u8 buf[2][PPKB_BUF_LEN];
+ 	u8 crc_table[CRC8_TABLE_SIZE];
+@@ -140,6 +147,57 @@ struct pinephone_keyboard {
+ 	bool fn_pressed;
+ };
+ 
++static int ppkb_adap_smbus_xfer(struct i2c_adapter *adap, u16 addr,
++				unsigned short flags, char read_write,
++				u8 command, int size,
++				union i2c_smbus_data *data)
++{
++	struct i2c_client *client = adap->algo_data;
++	u8 buf[3];
++	int ret;
 +
-+title: Pine64 PinePhone keyboard device tree bindings
++	buf[0] = command;
++	buf[1] = data->byte;
++	buf[2] = read_write == I2C_SMBUS_READ ? PPKB_SYS_COMMAND_SMBUS_READ
++					      : PPKB_SYS_COMMAND_SMBUS_WRITE;
 +
-+maintainers:
-+  - Samuel Holland <samuel@sholland.org>
++	ret = i2c_smbus_write_i2c_block_data(client, PPKB_SYS_SMBUS_COMMAND,
++					     sizeof(buf), buf);
++	if (ret)
++		return ret;
 +
-+description:
-+  A keyboard accessory is available for the Pine64 PinePhone and PinePhone Pro.
-+  It connects via I2C, providing a raw scan matrix, a flashing interface, and a
-+  subordinate I2C bus for communication with a battery charger IC.
++	/* Read back the command status until it passes or fails. */
++	do {
++		usleep_range(300, 500);
++		ret = i2c_smbus_read_byte_data(client, PPKB_SYS_COMMAND);
++	} while (ret == buf[2]);
++	if (ret < 0)
++		return ret;
++	/* Commands return 0x00 on success and 0xff on failure. */
++	if (ret)
++		return -EIO;
 +
-+properties:
-+  compatible:
-+    const: pine64,pinephone-keyboard
++	if (read_write == I2C_SMBUS_READ) {
++		ret = i2c_smbus_read_byte_data(client, PPKB_SYS_SMBUS_DATA);
++		if (ret < 0)
++			return ret;
 +
-+  reg:
-+    const: 0x15
++		data->byte = ret;
++	}
 +
-+  interrupts:
-+    maxItems: 1
++	return 0;
++}
 +
-+  vbat-supply:
-+    description: Supply for the keyboard MCU
++static u32 ppkg_adap_functionality(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_SMBUS_BYTE_DATA;
++}
 +
-+  wakeup-source: true
++static const struct i2c_algorithm ppkb_adap_algo = {
++	.smbus_xfer		= ppkb_adap_smbus_xfer,
++	.functionality		= ppkg_adap_functionality,
++};
 +
-+  i2c:
-+    $ref: /schemas/i2c/i2c-controller.yaml#
+ static void ppkb_update(struct i2c_client *client)
+ {
+ 	struct pinephone_keyboard *ppkb = i2c_get_clientdata(client);
+@@ -266,6 +324,7 @@ static int ppkb_probe(struct i2c_client *client)
+ 	struct pinephone_keyboard *ppkb;
+ 	struct regulator *vbat_supply;
+ 	u8 info[PPKB_MATRIX_SIZE + 1];
++	struct device_node *i2c_bus;
+ 	int ret;
+ 
+ 	vbat_supply = devm_regulator_get(dev, "vbat");
+@@ -311,6 +370,20 @@ static int ppkb_probe(struct i2c_client *client)
+ 
+ 	i2c_set_clientdata(client, ppkb);
+ 
++	i2c_bus = of_get_child_by_name(dev->of_node, "i2c");
++	if (i2c_bus) {
++		ppkb->adapter.owner = THIS_MODULE;
++		ppkb->adapter.algo = &ppkb_adap_algo;
++		ppkb->adapter.algo_data = client;
++		ppkb->adapter.dev.parent = dev;
++		ppkb->adapter.dev.of_node = i2c_bus;
++		strscpy(ppkb->adapter.name, DRV_NAME, sizeof(ppkb->adapter.name));
 +
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
++		ret = devm_i2c_add_adapter(dev, &ppkb->adapter);
++		if (ret)
++			return dev_err_probe(dev, ret, "Failed to add I2C adapter\n");
++	}
 +
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      keyboard@15 {
-+        compatible = "pine64,pinephone-keyboard";
-+        reg = <0x15>;
-+        interrupt-parent = <&r_pio>;
-+        interrupts = <0 12 IRQ_TYPE_EDGE_FALLING>; /* PL12 */
-+
-+        i2c {
-+          #address-cells = <1>;
-+          #size-cells = <0>;
-+
-+          charger@75 {
-+            reg = <0x75>;
-+          };
-+        };
-+      };
-+    };
+ 	crc8_populate_msb(ppkb->crc_table, PPKB_CRC8_POLYNOMIAL);
+ 
+ 	ppkb->input = devm_input_allocate_device(dev);
 -- 
 2.35.1
 

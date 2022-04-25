@@ -2,104 +2,87 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A92F1C433FE
-	for <linux-input@archiver.kernel.org>; Mon, 25 Apr 2022 05:56:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52AE8C433FE
+	for <linux-input@archiver.kernel.org>; Mon, 25 Apr 2022 09:29:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229770AbiDYF72 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 25 Apr 2022 01:59:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38968 "EHLO
+        id S238078AbiDYJcB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 25 Apr 2022 05:32:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbiDYF71 (ORCPT
+        with ESMTP id S238436AbiDYJbc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 25 Apr 2022 01:59:27 -0400
-Received: from mail-qv1-xf34.google.com (mail-qv1-xf34.google.com [IPv6:2607:f8b0:4864:20::f34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1381B38D91;
-        Sun, 24 Apr 2022 22:56:25 -0700 (PDT)
-Received: by mail-qv1-xf34.google.com with SMTP id kk26so3101827qvb.6;
-        Sun, 24 Apr 2022 22:56:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=yEtpP0V8bXsR3hzvKMHsezmMX2/PHsvriv0+UQGZXkA=;
-        b=qn2xWHxfsL/YflUV6AWs2jqwGqY0JddqzwNB+5uzZOzncVjZYAcn5WvcPXUp1tf1x5
-         JLRfjecTfxjeocC3JVUK/btbt/zYSx96hXaF6yZFILa/RgKhbdzXPLV+wvFkt3yhVOi9
-         WyjRVBmRcn6CaS8PxDTgMcwPiHqZVOjqX5eGw5FbkssBdKNGhV7G7DFTyzwXBUiy4Lrq
-         PpuIIvAsGPaakypH45Jo62fUl/bSWck+Lbh4P94WC6kd/dAg96vRnaofuMpx4lxL5o7l
-         VHKlraViEOzc6qtAjbz/iySaIaPnkyLg6cYcIJILYoGabdeDqBvN0dIS+40Nd62zk6w9
-         +e0g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=yEtpP0V8bXsR3hzvKMHsezmMX2/PHsvriv0+UQGZXkA=;
-        b=u1mVzv3sFw6xKdL1kYKNIvjr6Wv/MAaoE7NFiH1OpZ6av4eNq7zEA8lKIcvdMgGUV4
-         BSSlKCXIuDWtiDpfEoaR/C4y0pvA5irwYgCYGyUly9iNqzawD35n6xncO/2m8HCU3jlI
-         972iGviaoDlfwDAv3TQ7ByjlgrOmrhF3Wvg8rZ5N+J/hdgpCeYL8ck3rLkoO0WW6W6wZ
-         qccMSIrKa6l3d1+GYdDH47N+cKgwP3ijL1k44j/w2T4UXclcEL2o8ozEeHkGQ7cEU+EG
-         Thunkohwdh/BlTZRKgpfQ1G1SE0Ebu4Iu1T8sHJPE5u9oquC8yAUSSsoQG9mZHqWbPs2
-         looQ==
-X-Gm-Message-State: AOAM531KxeZfo3wnxKQooBTkK0ykeBuPQdt6WLoPMQnVmhOhrP0QH7QO
-        9UId2PMHWVApHt3JlXsJXw==
-X-Google-Smtp-Source: ABdhPJzAxFXsVJ0WWB+a/uW3ENjomgA1MnU7dbP9wMly0PKxY+hDawYHFLH4F7OZHRJDaudnhEK29A==
-X-Received: by 2002:ad4:5d68:0:b0:446:64dc:79db with SMTP id fn8-20020ad45d68000000b0044664dc79dbmr11197375qvb.111.1650866184049;
-        Sun, 24 Apr 2022 22:56:24 -0700 (PDT)
-Received: from moria.home.lan (c-73-219-103-14.hsd1.vt.comcast.net. [73.219.103.14])
-        by smtp.gmail.com with ESMTPSA id a28-20020a05620a02fc00b0069e8e766a0csm4610371qko.94.2022.04.24.22.56.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 24 Apr 2022 22:56:23 -0700 (PDT)
-Date:   Mon, 25 Apr 2022 01:56:21 -0400
-From:   Kent Overstreet <kent.overstreet@gmail.com>
-To:     Joe Perches <joe@perches.com>
-Cc:     Matthew Wilcox <willy@infradead.org>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, hch@lst.de,
-        hannes@cmpxchg.org, akpm@linux-foundation.org,
-        linux-clk@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-input@vger.kernel.org, roman.gushchin@linux.dev
-Subject: Re: [PATCH v2 1/8] lib/printbuf: New data structure for
- heap-allocated strings
-Message-ID: <20220425055621.ffzp4lokgtsi72z2@moria.home.lan>
+        Mon, 25 Apr 2022 05:31:32 -0400
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF88224BDC;
+        Mon, 25 Apr 2022 02:28:28 -0700 (PDT)
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out2.suse.de (Postfix) with ESMTP id 7D8111F383;
+        Mon, 25 Apr 2022 09:28:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1650878907; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=XJL7zOUPuNZbvSE5//FwsrKzEzvOELetv4Ge89BtuA0=;
+        b=VG4XYrO3nQfUEqfTNJeoropkEgsIJ4SE83/etN9dphG2T+NFvfF/WhEGJkcg1PdHefBV1B
+        lcBTrQWDcl54rpTEXSoTGOR6UTwTygtZiyVdkWEApTAxe74pOwdn1nW1AiJH00L9v7WMG0
+        7ybbHu/wZj5vkTLsj9XjBNAOL5SXTWs=
+Received: from suse.cz (unknown [10.100.201.86])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id E6FC12C141;
+        Mon, 25 Apr 2022 09:28:26 +0000 (UTC)
+Date:   Mon, 25 Apr 2022 11:28:26 +0200
+From:   Michal Hocko <mhocko@suse.com>
+To:     Kent Overstreet <kent.overstreet@gmail.com>
+Cc:     Roman Gushchin <roman.gushchin@linux.dev>,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org, hch@lst.de, hannes@cmpxchg.org,
+        akpm@linux-foundation.org, linux-clk@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-input@vger.kernel.org,
+        rostedt@goodmis.org
+Subject: Re: [PATCH v2 8/8] mm: Centralize & improve oom reporting in
+ show_mem.c
+Message-ID: <YmZpuikkgWeF2RPt@dhcp22.suse.cz>
 References: <20220421234837.3629927-1-kent.overstreet@gmail.com>
- <20220421234837.3629927-7-kent.overstreet@gmail.com>
- <fcaf18ed6efaafa6ca7df79712d9d317645215f8.camel@perches.com>
- <YmYLEovwj9BqeZQA@casper.infradead.org>
- <20220425041909.hcyirjphrkhxz6hx@moria.home.lan>
- <9ab6601364a16c782ca36ab22a2c67face0785a7.camel@perches.com>
- <20220425045909.rhot6b4xrd4tv6h6@moria.home.lan>
- <2df59c0f4763b81741b12894434ceeaee35c85a2.camel@perches.com>
+ <20220421234837.3629927-14-kent.overstreet@gmail.com>
+ <YmKma/1WUvjjbcO4@dhcp22.suse.cz>
+ <YmLFPJTyoE4GYWp4@carbon>
+ <20220422234820.plusgyixgybebfmi@moria.home.lan>
+ <YmNH/fh8OwTJ6ASC@carbon>
+ <20220423004607.q4lbz2mplkhlbyhm@moria.home.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <2df59c0f4763b81741b12894434ceeaee35c85a2.camel@perches.com>
+In-Reply-To: <20220423004607.q4lbz2mplkhlbyhm@moria.home.lan>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Apr 24, 2022 at 10:00:32PM -0700, Joe Perches wrote:
-> On Mon, 2022-04-25 at 00:59 -0400, Kent Overstreet wrote:
-> > On Sun, Apr 24, 2022 at 09:48:58PM -0700, Joe Perches wrote:
-> > > On Mon, 2022-04-25 at 00:19 -0400, Kent Overstreet wrote:
-> > > > On Mon, Apr 25, 2022 at 03:44:34AM +0100, Matthew Wilcox wrote:
-> > > > > On Sun, Apr 24, 2022 at 04:46:03PM -0700, Joe Perches wrote:
-> > > > > > > + * pr_human_readable_u64, pr_human_readable_s64: Print an integer with human
-> > > > > > > + * readable units.
-> > > > > > 
-> > > > > > Why not extend vsprintf for this using something like %pH[8|16|32|64] 
-> > > > > > or %pH[c|s|l|ll|uc|us|ul|ull] ?
-> > > > > 
-> > > > > The %pX extension we have is _cute_, but ultimately a bad idea.  It
-> > > > > centralises all kinds of unrelated things in vsprintf.c, eg bdev_name()
-> > > > > and clock() and ip_addr_string().
-> > > > 
-> > > > And it's not remotely discoverable. I didn't realize we had bdev_name()
-> > > > available as a format string until just now or I would've been using it!
-> > > 
-> > > Documentation/core-api/printk-formats.rst
+On Fri 22-04-22 20:46:07, Kent Overstreet wrote:
+> On Fri, Apr 22, 2022 at 05:27:41PM -0700, Roman Gushchin wrote:
+[...]
+> > > In my experience, it's rare to be _so_ out of memory that small kmalloc
+> > > allocations are failing - we'll be triggering the show_mem() report before that
+> > > happens.
 > > 
-> > Who has time for docs?
-> 
-> The same people that have time to reimplement the already implemented?
+> > I agree. However the OOM killer _has_ to make the progress even in such rare
+> > circumstances.
 
-Touché :)
+Absolutely agreed!
+
+> Oh, and the concern is allocator recursion? Yeah, that's a good point.
+
+No, not really. The oom killer is running with PF_MEMALLOC context so no
+reclaim recursion is allowed. As I've already pointed out in other
+reply the context will have access to memory reserves without any
+constrains so it could deplete them completely resulting in other issues
+during the recovery.
+
+> Do you know if using memalloc_noreclaim_(save|restore) is sufficient for that,
+> or do we want GFP_ATOMIC? I'm already using GFP_ATOMIC for allocations when we
+> generate the report on slabs, since we're taking the slab mutex there.
+
+No it's not. You simply _cannot_ allocate from the oom context.
+-- 
+Michal Hocko
+SUSE Labs

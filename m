@@ -2,163 +2,93 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E726EC433EF
-	for <linux-input@archiver.kernel.org>; Thu,  5 May 2022 15:56:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 122B3C433F5
+	for <linux-input@archiver.kernel.org>; Thu,  5 May 2022 16:55:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381495AbiEEQAe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 May 2022 12:00:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48338 "EHLO
+        id S233268AbiEEQ7a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 May 2022 12:59:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233708AbiEEQAa (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 May 2022 12:00:30 -0400
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4622A59333
-        for <linux-input@vger.kernel.org>; Thu,  5 May 2022 08:56:47 -0700 (PDT)
-Received: by mail-ej1-x634.google.com with SMTP id j6so9535940ejc.13
-        for <linux-input@vger.kernel.org>; Thu, 05 May 2022 08:56:47 -0700 (PDT)
+        with ESMTP id S229750AbiEEQ72 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 May 2022 12:59:28 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 123C136334
+        for <linux-input@vger.kernel.org>; Thu,  5 May 2022 09:55:49 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id n18so4953359plg.5
+        for <linux-input@vger.kernel.org>; Thu, 05 May 2022 09:55:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=YV+qTrBSZlEdVwvYGQdRpxUtm5BLonFPqiCggidUwTw=;
-        b=GGOnWmM+dib97LLhpKHFjBcXVhNv1/UEEN1uoYHq/GvckRFSW3S8fQ2sph+fQs2vfT
-         czDyYd5J85wk6QFJUkGtfKAFPEQaUhJstFWjMED9ytYezlk9Cg5VHjdD1cdL5i68xlBn
-         +tgAldMJ8tKuTWK261uHa1OTcHJWslHOn503U=
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=rzFbIKFzb/rej6PRMv6lqFtJ/tzi7o3TWdLLpKqkQAk=;
+        b=L4C1xKDxGckCZtTNOZKMeOqhzVcfjMcFke0n/ft5qUa4O9kiq/SjEKcjM4lGc7ALSp
+         L9zezUwQnMaxEq5YGfPnNU1MttN8zsGcfG95JzNmSTYnS9m35yHcM3q4CGKTCXFkUxir
+         97/xqoYhhZ8kBX70dXJfJji1yhcGzppCFHmnSOGzuf4OX/eiTH9Uqb0k/Ifdm9DBfZmc
+         9wnq/k5QltpuaA+v4HR5kgUHbxccaPX4AQ4YYQSlDMhGgi8zWSwbp/7faLXTFUNM9rke
+         aFHdenI/lYmGRsoEKn71TorE6xCBfqJEMfllz7yVubJvEIIpcEPysNwfbAXxRFjEkUBh
+         b9iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=YV+qTrBSZlEdVwvYGQdRpxUtm5BLonFPqiCggidUwTw=;
-        b=HNWxOkY3/q8LY5e7hepYlS3nnvZmKhOvNZzlMy9z4bxegF/d2HFH+kIkqc7Db8uNkC
-         cNYsjfzkj0HP7O1rYE2j+YVvm1XTEHvcB8ze3QT8+NPTy2KCBacMtwiVHF3qN+7Dfm2u
-         ONPgr/2nPmXRTGsLU6ny9VIpMTZ0dj7519k+RapqA2qn99hEQ+VzRvuqeTISEn+Mu04N
-         W3eE62kHwOLbGi4Ytvr0PmK8VUlzS/cVlguJSIqGjAm1JmvPGcT5BEZitOVDQQtYOJpY
-         ei2fM6SEaPurOLuQITK4jAEcyhZzqWao7tb2x8WnBaYu3UWlz5Uz4VFT6bqJ5t6AxZ+/
-         wJ1A==
-X-Gm-Message-State: AOAM531Zlkdxxw2VgUXmjOchd93Ogu0Vz1ahJhLYXmyyyu4lKxqCgH7D
-        35vzoIjN0+VNXRzwb3veVN0QKw==
-X-Google-Smtp-Source: ABdhPJwMyoTzc/nq6O2tfeWokNKPST4pIXCEVQB7syXeiQf8s5hEItGNUzvQs8TKQ1pL2oR3hVPmsQ==
-X-Received: by 2002:a17:906:80d4:b0:6f3:bead:750c with SMTP id a20-20020a17090680d400b006f3bead750cmr27155533ejx.129.1651766206844;
-        Thu, 05 May 2022 08:56:46 -0700 (PDT)
-Received: from dario-ThinkPad-T14s-Gen-2i.pdxnet.pdxeng.ch (host-87-0-15-73.retail.telecomitalia.it. [87.0.15.73])
-        by smtp.gmail.com with ESMTPSA id a4-20020aa7d904000000b0042617ba6385sm1009328edr.15.2022.05.05.08.56.45
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=rzFbIKFzb/rej6PRMv6lqFtJ/tzi7o3TWdLLpKqkQAk=;
+        b=At34yo9tVj7HKr1n0kX2U5gte1Y9EAM5NudlkrP9v5/SPTgKiCuPrZ6hkv6d20sB8w
+         hokeb6iZgIAur3Rfl/+5GUhJp29PD46/XENYsxv0iGeDB4R7th3GI9DAHy4wYJU5EKhb
+         3e09qeG+30Bkong2y3823P1PAxaI+wLS3wYw6dbYlmf60oBfaVmw+e2so3SgWdg70eR3
+         WSOTdWNeT+Eol9iRWpCCf9mmmH8JXddXERAH6ZSYDQjauDqhBfoQqt3tOPxixClLX3rB
+         LeHFbS7xk2KJxb5TPmtPBXfNO/WyKkGlEZ/B8YsAGYGinrkhqUCpO2GJPnkkk9WlfSw7
+         GMAw==
+X-Gm-Message-State: AOAM533zuHBQqs5fcg8VL7ONl3YG5fj3+u5bg8Ip01CM0XFEUpMllAa9
+        nx2Sd/fP54jlDIFzOAzemghqaHL1gt8=
+X-Google-Smtp-Source: ABdhPJz3BpAqG86d+bFWIsIag7Hh74caqu82NncvDP2c0y/MbOi12PN4nXraJHcHTcEF1EA9JbAMwQ==
+X-Received: by 2002:a17:90a:2e0d:b0:1c9:b839:af02 with SMTP id q13-20020a17090a2e0d00b001c9b839af02mr7122456pjd.122.1651769748305;
+        Thu, 05 May 2022 09:55:48 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:925d:ea91:88dd:e04b])
+        by smtp.gmail.com with ESMTPSA id br11-20020a056a00440b00b0050dc7628151sm1592123pfb.43.2022.05.05.09.55.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 May 2022 08:56:46 -0700 (PDT)
-From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Oliver Graute <oliver.graute@kococonnector.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        linux-input@vger.kernel.org
-Subject: [RESEND PATCH v4 5/6] Input: edt-ft5x06 - show firmware version by sysfs
-Date:   Thu,  5 May 2022 17:56:34 +0200
-Message-Id: <20220505155635.419653-6-dario.binacchi@amarulasolutions.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220505155635.419653-1-dario.binacchi@amarulasolutions.com>
-References: <20220505155635.419653-1-dario.binacchi@amarulasolutions.com>
+        Thu, 05 May 2022 09:55:47 -0700 (PDT)
+Date:   Thu, 5 May 2022 09:55:45 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Vicki Pfau <vi@endrift.com>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH 1/6] HID: hid-playstation: Allow removal of touchpad
+Message-ID: <YnQBkd5V3lmC9cGr@google.com>
+References: <20220427224526.35657-1-vi@endrift.com>
+ <CAO-hwJKLr0z98bpt7QnvVWp2QzqDq6jCW+Lj0CgWW0vhYZuNLg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAO-hwJKLr0z98bpt7QnvVWp2QzqDq6jCW+Lj0CgWW0vhYZuNLg@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The firmware version was printed only if debug mode was enabled. Now you
-can always get it from sysfs.
+On Thu, May 05, 2022 at 10:50:24AM +0200, Benjamin Tissoires wrote:
+> Hi Vicki,
+> 
+> On Thu, Apr 28, 2022 at 12:52 AM Vicki Pfau <vi@endrift.com> wrote:
+> >
+> > This allows the touchpad input_dev to be removed and have the driver remain
+> > functional without its presence. This will be used to allow the touchpad to
+> > be disabled, e.g. by a module parameter.
+> 
+> Thanks for the contribution.
+> I'd like to hear from Roderick, but I have a general comment here:
+> We had Wii and Steam controllers following this logic. Now we are
+> adding Sony PS ones... That seems like a lot of duplication, and I
+> wonder if we should not have something more generic.
 
-Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
-Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Oliver Graute <oliver.graute@kococonnector.com>
----
+Hmm, if userspace is not interested in data from an input device (and it
+does not want to simply not open it), it can use inhibit/uninhibit sysfs
+attributes to silence it.
 
-(no changes since v1)
+I am not sure we need to build support for destroying input device or
+introducing module parameters, etc.
 
- drivers/input/touchscreen/edt-ft5x06.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+Thanks.
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 89157deebfcb..bab92344b2ea 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -129,6 +129,7 @@ struct edt_ft5x06_ts_data {
- 	int max_support_points;
- 
- 	char name[EDT_NAME_LEN];
-+	char fw_version[EDT_NAME_LEN];
- 
- 	struct edt_reg_addr reg_addr;
- 	enum edt_ver version;
-@@ -540,6 +541,17 @@ static ssize_t model_show(struct device *dev, struct device_attribute *attr,
- 
- static DEVICE_ATTR_RO(model);
- 
-+static ssize_t fw_version_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", tsdata->fw_version);
-+}
-+
-+static DEVICE_ATTR_RO(fw_version);
-+
- static struct attribute *edt_ft5x06_attrs[] = {
- 	&edt_ft5x06_attr_gain.dattr.attr,
- 	&edt_ft5x06_attr_offset.dattr.attr,
-@@ -548,6 +560,7 @@ static struct attribute *edt_ft5x06_attrs[] = {
- 	&edt_ft5x06_attr_threshold.dattr.attr,
- 	&edt_ft5x06_attr_report_rate.dattr.attr,
- 	&dev_attr_model.attr,
-+	&dev_attr_fw_version.attr,
- 	NULL
- };
- 
-@@ -834,13 +847,13 @@ static void edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
- #endif /* CONFIG_DEBUGFS */
- 
- static int edt_ft5x06_ts_identify(struct i2c_client *client,
--					struct edt_ft5x06_ts_data *tsdata,
--					char *fw_version)
-+				  struct edt_ft5x06_ts_data *tsdata)
- {
- 	u8 rdbuf[EDT_NAME_LEN];
- 	char *p;
- 	int error;
- 	char *model_name = tsdata->name;
-+	char *fw_version = tsdata->fw_version;
- 
- 	/* see what we find if we assume it is a M06 *
- 	 * if we get less than EDT_NAME_LEN, we don't want
-@@ -1097,7 +1110,6 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 	unsigned long irq_flags;
- 	int error;
- 	u32 report_rate;
--	char fw_version[EDT_NAME_LEN];
- 
- 	dev_dbg(&client->dev, "probing for EDT FT5x06 I2C\n");
- 
-@@ -1210,7 +1222,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 	tsdata->input = input;
- 	tsdata->factory_mode = false;
- 
--	error = edt_ft5x06_ts_identify(client, tsdata, fw_version);
-+	error = edt_ft5x06_ts_identify(client, tsdata);
- 	if (error) {
- 		dev_err(&client->dev, "touchscreen probe failed\n");
- 		return error;
-@@ -1257,7 +1269,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 
- 	dev_dbg(&client->dev,
- 		"Model \"%s\", Rev. \"%s\", %dx%d sensors\n",
--		tsdata->name, fw_version, tsdata->num_x, tsdata->num_y);
-+		tsdata->name, tsdata->fw_version, tsdata->num_x, tsdata->num_y);
- 
- 	input->name = tsdata->name;
- 	input->id.bustype = BUS_I2C;
 -- 
-2.32.0
-
+Dmitry

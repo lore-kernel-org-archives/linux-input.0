@@ -2,119 +2,92 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D01D2C433EF
-	for <linux-input@archiver.kernel.org>; Fri,  6 May 2022 06:46:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A68A3C433EF
+	for <linux-input@archiver.kernel.org>; Fri,  6 May 2022 06:54:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345279AbiEFGuZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 6 May 2022 02:50:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42796 "EHLO
+        id S1386611AbiEFG6C (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 6 May 2022 02:58:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242966AbiEFGuZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 6 May 2022 02:50:25 -0400
-Received: from endrift.com (endrift.com [173.255.198.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F9A6543F
-        for <linux-input@vger.kernel.org>; Thu,  5 May 2022 23:46:43 -0700 (PDT)
-Received: from [192.168.0.22] (unknown [50.106.20.54])
-        by endrift.com (Postfix) with ESMTPSA id 1D294A1E6;
-        Thu,  5 May 2022 23:46:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=endrift.com; s=2020;
-        t=1651819602; bh=GZHKWIiCkQx6faH/KLTx2296M58TbBjk0KmjMQI/+6I=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=nHPSFYizxXbRtKLzkotH2/vDYNs7d8fxk6DOj0B6K5puhylKzopX+bxK2c9zHVsgo
-         BCUAmlZVFYGMChRU5p/UHxdHTePoaREfE81kCG5pHz2w/7ePW+jTtmgbny56j88Emp
-         jwxRmXg2pMOLQjHdZN04+BCshcSvCWn+nHMHPCmKzcxZQ/wxah5WDDUCacuHGXP4/d
-         WfaMQ3qH5mVelSN7Bs3fR/q5LM8gjZKuP0byMSXjljL1GTHg3ySriHV0Yf2mEVe9Bn
-         nhEunmCZp8eNYahc1xbFGup8nRRoj1KxMjOow4/qXWCG/NevcepZ1iMS1pQwcUy1S8
-         Hb4q6W4g+ouog==
-Message-ID: <b94a747c-8974-b574-e751-6a6b2e01a29c@endrift.com>
-Date:   Thu, 5 May 2022 23:46:40 -0700
+        with ESMTP id S242356AbiEFG6B (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 May 2022 02:58:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A6CA66C97;
+        Thu,  5 May 2022 23:54:19 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1D8BB833ED;
+        Fri,  6 May 2022 06:53:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBEE4C385AA;
+        Fri,  6 May 2022 06:53:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1651820026;
+        bh=RDAFgC/kLKVa48KVPSFQKH5qA2Q3DdLdg22SA13WBkU=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=AOXgbloBscUEk/HUdnXLTZ2ScyHSV5kypj6P/Q+LUZNVp6vhyzo3N5ypy4uemW5Xv
+         wD2lot3lvtVrVJfEeigqyoc26bX2wpI6g9LxC6dutn0u027EsdYmxzvAQQYN6nWmwX
+         SeTwZuLUAuPEQquDlp8vao16Kjy4eAisupQEoxYcnEo0z8MvrLviYBNj/4+vHA3XuZ
+         bSC4ipaKB30BX/ogWs5rMYOQa0TnT6hP27NznZAqEEY1DaywRqBv8gMEsDHck4tWOI
+         m3WN6NcvYObhNYU/dsx2uinvcrqxVDhBRYTGVmFqbtXF1QlVSBJoPH5BxHB4lZDoAy
+         NU9KqwOhbuGVA==
+Date:   Fri, 6 May 2022 08:53:42 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Dongliang Mu <dzm91@hust.edu.cn>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzkaller <syzkaller@googlegroups.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: bigben: fix slab-out-of-bounds Write in
+ bigben_probe
+In-Reply-To: <20220506053740.1113415-1-dzm91@hust.edu.cn>
+Message-ID: <nycvar.YFH.7.76.2205060852300.28985@cbobk.fhfr.pm>
+References: <20220506053740.1113415-1-dzm91@hust.edu.cn>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.1
-Subject: Re: [PATCH 1/6] HID: hid-playstation: Allow removal of touchpad
-Content-Language: en-US
-To:     Roderick Colenbrander <thunderbird2k@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Roderick Colenbrander <roderick.colenbrander@sony.com>,
-        Jiri Kosina <jikos@kernel.org>
-References: <20220427224526.35657-1-vi@endrift.com>
- <CAO-hwJKLr0z98bpt7QnvVWp2QzqDq6jCW+Lj0CgWW0vhYZuNLg@mail.gmail.com>
- <YnQBkd5V3lmC9cGr@google.com>
- <CAEc3jaB5aRtuWBV8wuqFy+Tic360LLbV6M09KY+aeWR7XLjZxw@mail.gmail.com>
-From:   Vicki Pfau <vi@endrift.com>
-In-Reply-To: <CAEc3jaB5aRtuWBV8wuqFy+Tic360LLbV6M09KY+aeWR7XLjZxw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello,
+On Fri, 6 May 2022, Dongliang Mu wrote:
 
-On 5/5/22 22:21, Roderick Colenbrander wrote:
-> Hi Vicki,
+> From: Dongliang Mu <mudongliangabcd@gmail.com>
 > 
-> Joining the conversation late as I on a long vacation.
+> There is a slab-out-of-bounds Write bug in hid-bigbenff driver.
+> The problem is the driver assumes the device must have an input but
+> some malicious devices violate this assumption.
 > 
-> On Thu, May 5, 2022 at 12:47 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->>
->> On Thu, May 05, 2022 at 10:50:24AM +0200, Benjamin Tissoires wrote:
->>> Hi Vicki,
->>>
->>> On Thu, Apr 28, 2022 at 12:52 AM Vicki Pfau <vi@endrift.com> wrote:
->>>>
->>>> This allows the touchpad input_dev to be removed and have the driver remain
->>>> functional without its presence. This will be used to allow the touchpad to
->>>> be disabled, e.g. by a module parameter.
->>>
->>> Thanks for the contribution.
->>> I'd like to hear from Roderick, but I have a general comment here:
->>> We had Wii and Steam controllers following this logic. Now we are
->>> adding Sony PS ones... That seems like a lot of duplication, and I
->>> wonder if we should not have something more generic.
->>
+> Fix this by checking hid_device's input is non-empty before its usage.
 > 
-> I understand the use case of rejecting input. I wasn't that fond of
-> handling it kernel side also because it would complicate the code a
-> lot more (and some would perhaps want to do the same for accelerometer
-> device). Below Dmitry gives a nice idea about inhibition.
+> Reported-by: syzkaller <syzkaller@googlegroups.com>
+> Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+> ---
+>  drivers/hid/hid-bigbenff.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
-> Methods I would considered perhaps would have been a custom udev role
-> (it sounds like you have control of the platform). Or another method
-> is using EVIOCGRAB to get exclusive access to an input device to block
-> others from using it again depends on your specific use case. When
-> this topic came up some years ago with Valve it was one of the methods
-> considered there if I recall.
-> 
->> Hmm, if userspace is not interested in data from an input device (and it
->> does not want to simply not open it), it can use inhibit/uninhibit sysfs
->> attributes to silence it.
->>
->> I am not sure we need to build support for destroying input device or
->> introducing module parameters, etc.
->>
-> 
-> Inhibition is interesting and could work. I wasn't aware of this
-> feature and we may actually use it for hid-playstation to save some
-> power as there are various HID commands for power saving when the
-> device isn't open. If we were to add that, some care would need to be
-> taken with HIDRAW, which the driver is often unaware of. I guess the
-> end responsibility for making sure the device would work would be with
-> the hidraw user (unless there will be some interop APIs).
-> 
-I would like to know more about these sysfs controls. I wasn't aware of any way to do this from userspace, and paired with udev rules that allow access to these controls (can udev modify sysfs permissions?) to the right users/groups, this might be a viable way to manage this. My sponsor is Valve, so that might be why this is somewhat familiar. They want to be able to have the Steam input daemon disable various reporting from the controllers without requiring root or getting too deep into the system, but I think udev rules that allow Steam itself access to the sysfs inhibition controls may be a good approach if there's a way to do that, especially already in the kernel. I know the kernel they're shipping right now is a few versions old.
+> diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
+> index 74ad8bf98bfd..c14d1774101d 100644
+> --- a/drivers/hid/hid-bigbenff.c
+> +++ b/drivers/hid/hid-bigbenff.c
+> @@ -347,6 +347,11 @@ static int bigben_probe(struct hid_device *hid,
+>  	bigben->report = list_entry(report_list->next,
+>  		struct hid_report, list);
+>  
+> +	if (list_empty(&hid->inputs)) {
+> +		hid_err(hid, "no inputs found\n");
+> +		return -ENODEV;
+> +	}
+> +
 
-Thanks,
-Vicki
+Thanks for the fix. It doesn't seemt o be fully correct though -- as you'd 
+be returning -ENODEV here in the situation when hid_hw_start() has already 
+happened. So I believe better thing to do here is to do error = -ENODEV; 
+goto error_hw_stop;
 
->> Thanks.
->>
->> --
->> Dmitry
-> 
-> 
-> Thanks,
-> Roderick
+Could you please fix that up and resend? Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
+

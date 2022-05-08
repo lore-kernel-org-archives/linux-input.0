@@ -2,202 +2,141 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB697C433FE
-	for <linux-input@archiver.kernel.org>; Sun,  8 May 2022 18:22:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86F86C433FE
+	for <linux-input@archiver.kernel.org>; Sun,  8 May 2022 19:17:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349217AbiEHSTb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 8 May 2022 14:19:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52378 "EHLO
+        id S231342AbiEHTV0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 8 May 2022 15:21:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236043AbiEHQ62 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 8 May 2022 12:58:28 -0400
-X-Greylist: delayed 410 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 08 May 2022 09:54:37 PDT
-Received: from relay.hostedemail.com (smtprelay0011.hostedemail.com [216.40.44.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A101E016
-        for <linux-input@vger.kernel.org>; Sun,  8 May 2022 09:54:37 -0700 (PDT)
-Received: from omf08.hostedemail.com (a10.router.float.18 [10.200.18.1])
-        by unirelay10.hostedemail.com (Postfix) with ESMTP id D35DDCA0;
-        Sun,  8 May 2022 16:47:46 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf08.hostedemail.com (Postfix) with ESMTPA id B2D1920028;
-        Sun,  8 May 2022 16:47:45 +0000 (UTC)
-Message-ID: <eeb32669c6641bc609d5b4460262b25e4b3d3f00.camel@perches.com>
-Subject: Re: [PATCH] staging: drivers: hid: hid-asus.c: Fixed
- brace/formatting issues.
-From:   Joe Perches <joe@perches.com>
-To:     Johan Boger <jb@ip.fi>, jikos@kernel.org
-Cc:     benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Date:   Sun, 08 May 2022 09:47:44 -0700
-In-Reply-To: <20220508125056.354001-1-jb@ip.fi>
-References: <20220508125056.354001-1-jb@ip.fi>
-Content-Type: text/plain; charset="ISO-8859-1"
-User-Agent: Evolution 3.40.4-1ubuntu2 
+        with ESMTP id S1379311AbiEHSnn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 8 May 2022 14:43:43 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A217DF40;
+        Sun,  8 May 2022 11:39:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1652035192; x=1683571192;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=ku5z9ZOYUJh+GqggbRmp5uymILKAy+CEwjEQNBeO+Ps=;
+  b=HgUZGve7GtbEh9ovsuv8D2FBpnYI0KWYJS+eft1rgTZv65YAkJ5Jk2HM
+   ULit1MrKc6ulQWJ/YBciOH9JyiAtZ3neeAov0OCTbFG5k+huZ6wAr1Xl9
+   wHOxjkFqlGXigUVfD/an52cJQUoOnSrHn9XuVRcBBpEwZQwW5YZHmb7aW
+   gq2WebXyZhzAqm3htHQDeGhpAROAzURznFMwcUFvVUA0TFkFY4KxIS+TS
+   hK6LiMFHYAGPTe5jDHN4OndL758217XcZ7uBfgUL/RkPPs5bUVQPmfRM1
+   4rFEyDbll6+k6Wjr9yCFMN8nbXxwvm3tH14NJm3SgddXiMLsseydnz8We
+   g==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10341"; a="329450432"
+X-IronPort-AV: E=Sophos;i="5.91,208,1647327600"; 
+   d="scan'208";a="329450432"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 May 2022 11:39:51 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,208,1647327600"; 
+   d="scan'208";a="601650575"
+Received: from lkp-server01.sh.intel.com (HELO 5056e131ad90) ([10.239.97.150])
+  by orsmga001.jf.intel.com with ESMTP; 08 May 2022 11:39:48 -0700
+Received: from kbuild by 5056e131ad90 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1nnloq-000Fic-7M;
+        Sun, 08 May 2022 18:39:48 +0000
+Date:   Mon, 9 May 2022 02:39:20 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>,
+        jikos@kernel.org
+Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
+        benjamin.tissoires@redhat.com, spbnick@gmail.com,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stefanberzl@gmail.com, albertofanjul@gmail.com,
+        =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
+Subject: Re: [PATCH for-5.19/uclogic 1/7] HID: uclogic: Move param printing
+ to a function
+Message-ID: <202205090241.d7Xmt8GT-lkp@intel.com>
+References: <20220508160146.13004-2-jose.exposito89@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Stat-Signature: m99qzcz5otr7jw1j8jq9665qcr9cnope
-X-Rspamd-Server: rspamout04
-X-Rspamd-Queue-Id: B2D1920028
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-Session-ID: U2FsdGVkX1/+VzXIsHSXapGIOrF0fKhPIPVnNpOpIKU=
-X-HE-Tag: 1652028465-192970
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20220508160146.13004-2-jose.exposito89@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 2022-05-08 at 14:50 +0200, Johan Boger wrote:
-> Fixed formatting issues based on recommendations from 
-> scripts/checkpatch.pl, in accordance with coding style.
-[]
-> diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-[]
-> @@ -852,47 +850,86 @@ static int asus_input_mapping(struct hid_device *hdev,
->  	/* ASUS-specific keyboard hotkeys and led backlight */
->  	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR) {
->  		switch (usage->hid & HID_USAGE) {
-> -		case 0x10: asus_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
-[...]
+Hi "José,
 
-I think the break on the same line isn't that difficult a style.
+Thank you for the patch! Perhaps something to improve:
 
-All of these changes would be better with different code setting
-a temporary then a single call to asus_map_key_clear(temp);
+[auto build test WARNING on hid/for-next]
+[cannot apply to v5.18-rc5 next-20220506]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
 
-It'd also make the object code rather smaller.
+url:    https://github.com/intel-lab-lkp/linux/commits/Jos-Exp-sito/DIGImend-patches-part-VI/20220509-000510
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+config: x86_64-randconfig-a003-20220509 (https://download.01.org/0day-ci/archive/20220509/202205090241.d7Xmt8GT-lkp@intel.com/config)
+compiler: clang version 15.0.0 (https://github.com/llvm/llvm-project a385645b470e2d3a1534aae618ea56b31177639f)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/4c0671e4ce0687136ff71aa65539cd3a2798d99d
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Jos-Exp-sito/DIGImend-patches-part-VI/20220509-000510
+        git checkout 4c0671e4ce0687136ff71aa65539cd3a2798d99d
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=x86_64 SHELL=/bin/bash drivers/hid/
 
-$ size drivers/hid/hid-asus.o* (x86-64 defconfig with hid-asus)
-   text	   data	    bss	    dec	    hex	filename
-  10695	    420	      0	  11115	   2b6b	drivers/hid/hid-asus.o.new
-  14108	    420	      0	  14528	   38c0	drivers/hid/hid-asus.o.old
----
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 08c9a9a60ae47..4702902ee4dad 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -827,6 +827,7 @@ static int asus_input_mapping(struct hid_device *hdev,
- 		struct hid_usage *usage, unsigned long **bit,
- 		int *max)
- {
-+	int clear_key;
- 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
- 
- 	if (drvdata->quirks & QUIRK_SKIP_INPUT_MAPPING) {
-@@ -852,43 +853,43 @@ static int asus_input_mapping(struct hid_device *hdev,
- 	/* ASUS-specific keyboard hotkeys and led backlight */
- 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_ASUSVENDOR) {
- 		switch (usage->hid & HID_USAGE) {
--		case 0x10: asus_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
--		case 0x20: asus_map_key_clear(KEY_BRIGHTNESSUP);		break;
--		case 0x35: asus_map_key_clear(KEY_DISPLAY_OFF);		break;
--		case 0x6c: asus_map_key_clear(KEY_SLEEP);		break;
--		case 0x7c: asus_map_key_clear(KEY_MICMUTE);		break;
--		case 0x82: asus_map_key_clear(KEY_CAMERA);		break;
--		case 0x88: asus_map_key_clear(KEY_RFKILL);			break;
--		case 0xb5: asus_map_key_clear(KEY_CALC);			break;
--		case 0xc4: asus_map_key_clear(KEY_KBDILLUMUP);		break;
--		case 0xc5: asus_map_key_clear(KEY_KBDILLUMDOWN);		break;
-+		case 0x10: clear_key = KEY_BRIGHTNESSDOWN;	break;
-+		case 0x20: clear_key = KEY_BRIGHTNESSUP;	break;
-+		case 0x35: clear_key = KEY_DISPLAY_OFF;		break;
-+		case 0x6c: clear_key = KEY_SLEEP;		break;
-+		case 0x7c: clear_key = KEY_MICMUTE;		break;
-+		case 0x82: clear_key = KEY_CAMERA;		break;
-+		case 0x88: clear_key = KEY_RFKILL;		break;
-+		case 0xb5: clear_key = KEY_CALC;		break;
-+		case 0xc4: clear_key = KEY_KBDILLUMUP;		break;
-+		case 0xc5: clear_key = KEY_KBDILLUMDOWN;	break;
- 
- 		/* ASUS touchpad toggle */
--		case 0x6b: asus_map_key_clear(KEY_F21);			break;
-+		case 0x6b: clear_key = KEY_F21;			break;
- 
- 		/* ROG key */
--		case 0x38: asus_map_key_clear(KEY_PROG1);		break;
-+		case 0x38: clear_key = KEY_PROG1;		break;
- 
- 		/* Fn+C ASUS Splendid */
--		case 0xba: asus_map_key_clear(KEY_PROG2);		break;
-+		case 0xba: clear_key = KEY_PROG2;		break;
- 
- 		/* Fn+Space Power4Gear Hybrid */
--		case 0x5c: asus_map_key_clear(KEY_PROG3);		break;
-+		case 0x5c: clear_key = KEY_PROG3;		break;
- 
- 		/* Fn+F5 "fan" symbol on FX503VD */
--		case 0x99: asus_map_key_clear(KEY_PROG4);		break;
-+		case 0x99: clear_key = KEY_PROG4;		break;
- 
- 		/* Fn+F5 "fan" symbol on N-Key keyboard */
--		case 0xae: asus_map_key_clear(KEY_PROG4);		break;
-+		case 0xae: clear_key = KEY_PROG4;		break;
- 
- 		/* Fn+Ret "Calc" symbol on N-Key keyboard */
--		case 0x92: asus_map_key_clear(KEY_CALC);		break;
-+		case 0x92: clear_key = KEY_CALC;		break;
- 
- 		/* Fn+Left Aura mode previous on N-Key keyboard */
--		case 0xb2: asus_map_key_clear(KEY_PROG2);		break;
-+		case 0xb2: clear_key = KEY_PROG2;		break;
- 
- 		/* Fn+Right Aura mode next on N-Key keyboard */
--		case 0xb3: asus_map_key_clear(KEY_PROG3);		break;
-+		case 0xb3: clear_key = KEY_PROG3;		break;
- 
- 		default:
- 			/* ASUS lazily declares 256 usages, ignore the rest,
-@@ -896,6 +897,8 @@ static int asus_input_mapping(struct hid_device *hdev,
- 			return -1;
- 		}
- 
-+		asus_map_key_clear(clear_key);
-+
- 		/*
- 		 * Check and enable backlight only on devices with UsagePage ==
- 		 * 0xff31 to avoid initializing the keyboard firmware multiple
-@@ -911,27 +914,29 @@ static int asus_input_mapping(struct hid_device *hdev,
- 
- 	if ((usage->hid & HID_USAGE_PAGE) == HID_UP_MSVENDOR) {
- 		switch (usage->hid & HID_USAGE) {
--		case 0xff01: asus_map_key_clear(BTN_1);	break;
--		case 0xff02: asus_map_key_clear(BTN_2);	break;
--		case 0xff03: asus_map_key_clear(BTN_3);	break;
--		case 0xff04: asus_map_key_clear(BTN_4);	break;
--		case 0xff05: asus_map_key_clear(BTN_5);	break;
--		case 0xff06: asus_map_key_clear(BTN_6);	break;
--		case 0xff07: asus_map_key_clear(BTN_7);	break;
--		case 0xff08: asus_map_key_clear(BTN_8);	break;
--		case 0xff09: asus_map_key_clear(BTN_9);	break;
--		case 0xff0a: asus_map_key_clear(BTN_A);	break;
--		case 0xff0b: asus_map_key_clear(BTN_B);	break;
--		case 0x00f1: asus_map_key_clear(KEY_WLAN);	break;
--		case 0x00f2: asus_map_key_clear(KEY_BRIGHTNESSDOWN);	break;
--		case 0x00f3: asus_map_key_clear(KEY_BRIGHTNESSUP);	break;
--		case 0x00f4: asus_map_key_clear(KEY_DISPLAY_OFF);	break;
--		case 0x00f7: asus_map_key_clear(KEY_CAMERA);	break;
--		case 0x00f8: asus_map_key_clear(KEY_PROG1);	break;
-+		case 0xff01: clear_key = BTN_1;			break;
-+		case 0xff02: clear_key = BTN_2;			break;
-+		case 0xff03: clear_key = BTN_3;			break;
-+		case 0xff04: clear_key = BTN_4;			break;
-+		case 0xff05: clear_key = BTN_5;			break;
-+		case 0xff06: clear_key = BTN_6;			break;
-+		case 0xff07: clear_key = BTN_7;			break;
-+		case 0xff08: clear_key = BTN_8;			break;
-+		case 0xff09: clear_key = BTN_9;			break;
-+		case 0xff0a: clear_key = BTN_A;			break;
-+		case 0xff0b: clear_key = BTN_B;			break;
-+		case 0x00f1: clear_key = KEY_WLAN;		break;
-+		case 0x00f2: clear_key = KEY_BRIGHTNESSDOWN;	break;
-+		case 0x00f3: clear_key = KEY_BRIGHTNESSUP;	break;
-+		case 0x00f4: clear_key = KEY_DISPLAY_OFF;	break;
-+		case 0x00f7: clear_key = KEY_CAMERA;		break;
-+		case 0x00f8: clear_key = KEY_PROG1;		break;
- 		default:
- 			return 0;
- 		}
- 
-+		asus_map_key_clear(clear_key);
-+
- 		set_bit(EV_REP, hi->input->evbit);
- 		return 1;
- 	}
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
 
+All warnings (new ones prefixed by >>):
+
+>> drivers/hid/hid-uclogic-params.c:48: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+    * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
+   drivers/hid/hid-uclogic-params.c:80: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+    * Dump tablet interface frame parameters with hid_dbg(), indented with two
+   drivers/hid/hid-uclogic-params.c:105: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+    * Dump tablet interface parameters with hid_dbg().
+
+
+vim +48 drivers/hid/hid-uclogic-params.c
+
+    46	
+    47	/**
+  > 48	 * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
+    49	 *
+    50	 * @hdev:	The HID device the pen parameters describe.
+    51	 * @pen:	The pen parameters to dump.
+    52	 */
+    53	static void uclogic_params_pen_hid_dbg(const struct hid_device *hdev,
+    54						const struct uclogic_params_pen *pen)
+    55	{
+    56		size_t i;
+    57	
+    58		hid_dbg(hdev, "\t.usage_invalid = %s\n",
+    59			(pen->usage_invalid ? "true" : "false"));
+    60		hid_dbg(hdev, "\t.desc_ptr = %p\n", pen->desc_ptr);
+    61		hid_dbg(hdev, "\t.desc_size = %u\n", pen->desc_size);
+    62		hid_dbg(hdev, "\t.id = %u\n", pen->id);
+    63		hid_dbg(hdev, "\t.subreport_list = {\n");
+    64		for (i = 0; i < ARRAY_SIZE(pen->subreport_list); i++) {
+    65			hid_dbg(hdev, "\t\t{0x%02hhx, %hhu}%s\n",
+    66				pen->subreport_list[i].value,
+    67				pen->subreport_list[i].id,
+    68				i < (ARRAY_SIZE(pen->subreport_list) - 1) ? "," : "");
+    69		}
+    70		hid_dbg(hdev, "\t}\n");
+    71		hid_dbg(hdev, "\t.inrange = %s\n",
+    72			uclogic_params_pen_inrange_to_str(pen->inrange));
+    73		hid_dbg(hdev, "\t.fragmented_hires = %s\n",
+    74			(pen->fragmented_hires ? "true" : "false"));
+    75		hid_dbg(hdev, "\t.tilt_y_flipped = %s\n",
+    76			(pen->tilt_y_flipped ? "true" : "false"));
+    77	}
+    78	
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp

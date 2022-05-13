@@ -2,60 +2,60 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1481DC433F5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 775DDC433FE
 	for <linux-input@archiver.kernel.org>; Fri, 13 May 2022 09:39:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379121AbiEMJjy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 13 May 2022 05:39:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51784 "EHLO
+        id S1379069AbiEMJj4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 13 May 2022 05:39:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379069AbiEMJjs (ORCPT
+        with ESMTP id S1379096AbiEMJjt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 13 May 2022 05:39:48 -0400
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B3F291CF2
-        for <linux-input@vger.kernel.org>; Fri, 13 May 2022 02:39:47 -0700 (PDT)
-Received: by mail-wr1-x429.google.com with SMTP id j25so9637267wrc.9
-        for <linux-input@vger.kernel.org>; Fri, 13 May 2022 02:39:47 -0700 (PDT)
+        Fri, 13 May 2022 05:39:49 -0400
+Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68AF0291CDE
+        for <linux-input@vger.kernel.org>; Fri, 13 May 2022 02:39:48 -0700 (PDT)
+Received: by mail-wr1-x431.google.com with SMTP id e29so1015748wrc.11
+        for <linux-input@vger.kernel.org>; Fri, 13 May 2022 02:39:48 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=semihalf-com.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=QukRnRADZ2W2DS8/08MZQ2pgAnb2HoWz6ujhm4UEe6Y=;
-        b=p7C+6AaxZIeKWHY4ODqC1K1iJga/xJSEr6qjTvWk9tiASXJ0uViCUXSOmj9lCbfa6U
-         C6jlMn9W0IMmueeSAwDKrTv6DV7YgWiXaTC7Z1oEaEfWloFyQCvmSVmaPwEJhuh5s0Wm
-         jNlItCAMFsDAKCnFsKaV86D8QUccAKQcfh28qN1psWPp5+UhELX4xcY5dfrUV3hKa4lQ
-         7tHYOcajaKy0P5F8q8cyFymaZPsJvOCYtJOVKQ2UXr7TXSpHTyzzUZazshVdRy6gywZv
-         1JncAeRc2+5wRVrHwi6w//PMexatze8tN8cKgLmgyH7lPZUuvN1E1Csu8l0ZpfhMzbeN
-         QohA==
+        bh=O9z/PqC89pqgqEOOhqgahLZjJuV2bITnseB+HB7kVRI=;
+        b=sPP2EEFfPQVwNd5Bz8A34V6S2F1cUmjnVdrr3ms/ynkfYRWWdcK+2zsvfPpFZda6LX
+         Ys/A4T9v+n/MeWpDtkt4ngiyHXWwt/qlSjAhvG7MR1LWzg9pOL8Z8sfqW2LvSUws1zTX
+         J8+6pez8CTlmQBhXOQn6Plz2eG3Hs4UxH3RxGvS6XGrEM2oergHuTmy5+j3qao7A7a7E
+         Lz891sdScFjtfKFQbm+QkCZw3bggkj8B6/67/VSlTEmgBu1F4c9rAo84s9hyybl3YjoU
+         yWIvfC73tu2rzehwLy9LJ6DAjjcql3o2Aib9WFB9sin6MB3C76Io2XAQJtb3i48zJmYu
+         2hpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=QukRnRADZ2W2DS8/08MZQ2pgAnb2HoWz6ujhm4UEe6Y=;
-        b=iPoAyJjNv72tpbKmPv025+pffRsh9Lh8CHZBG/H8HwrAwMgBJI4A5HDlpsACod7qEL
-         iKdcM1/g3ItlfNo8vPQWBJkMtnf6YpIi/W9yGEStMBBQIu9Gr4DyS63KHvL6RHqMWt8a
-         an2oyrUg8Iq/HbN7KNmHjh/jOB8RV3bnjjl7Ywy6vONgUMDAdFjlAUZYBLB0wk4x8jiH
-         C2giawE2iODWwzSl9hHOjwboSH5iPZU/R9WVFICyPEPVsdwhh6HI6Rs3IarCvF1KgJQs
-         gJEU7GcQ9LG817pr4Q87rjNu25BaAaLJlOQP8Xu2miU2oSVuZ6KP6u0viMBj/l0rNnKz
-         9JJw==
-X-Gm-Message-State: AOAM531AOHMvDR3NQGrfyvbv8g4VU0dwr9BvuGgpHFH6hZtchCjyt96f
-        ITgiIWzu3odtl/L9jtMvCPQUgy8TwIsyGDT2/WE=
-X-Google-Smtp-Source: ABdhPJz6LhRZnfA+rfbN45Xc9amhu84y8YvzqsHUb/AOPKUu9JvtOFd1aXRIHYbkcKw8ApDcXC2I6g==
-X-Received: by 2002:a5d:5228:0:b0:20a:d7e9:7ed8 with SMTP id i8-20020a5d5228000000b0020ad7e97ed8mr3000474wra.687.1652434785699;
-        Fri, 13 May 2022 02:39:45 -0700 (PDT)
+        bh=O9z/PqC89pqgqEOOhqgahLZjJuV2bITnseB+HB7kVRI=;
+        b=JI0gfiAiUXsLvoHK/S/r7wEofhOOsJOjJCRfHghVCDH6d3z+yT50RIlMANKykipEYN
+         6oR+OfMegYCKqN4CvbW7HsJVTUPeQZGUbNX3kbbKeeiEEmVGRrGhuWZD48V0cmZm8rGP
+         jMcK7jNZ2HXl/sbzbQRkUCkD6KIzVXLQB5+tbXFvZfDIdqHyNFiLePVuWTL8VFR6zVW5
+         do85UuGdhKqU2Jxshy3NbOcYO08qeYLCh9r22q9WKDXhHfiSCUC2oYASwT82RHQqblz+
+         L1pfxDBHqdD1sUcAQd30q8M1vKvb7NkeZx+rGHzZLEg25WfKMzYjNCFy++EobjEi+Q7L
+         Gc4Q==
+X-Gm-Message-State: AOAM530jH4ie1eQnA4H6Ehh1qCHJ1zqeFIofxvdjec3rWazQS4Bc9rfB
+        0emoXdyufcgGXjDsqaamlAUtd0W/tK14McUBego=
+X-Google-Smtp-Source: ABdhPJyH2z6wSh62B31TWZ6OvH2dGuYUOroqh/7QLIQ3OVfvhfVdaj0J2pDdy4M9jkTfmkeiaCKnCg==
+X-Received: by 2002:a5d:524f:0:b0:20a:cff1:1cef with SMTP id k15-20020a5d524f000000b0020acff11cefmr3145351wrc.157.1652434787033;
+        Fri, 13 May 2022 02:39:47 -0700 (PDT)
 Received: from aczubak.c.googlers.com.com (88.140.78.34.bc.googleusercontent.com. [34.78.140.88])
-        by smtp.gmail.com with ESMTPSA id l5-20020adfa385000000b0020ce015ed48sm1631404wrb.103.2022.05.13.02.39.45
+        by smtp.gmail.com with ESMTPSA id l5-20020adfa385000000b0020ce015ed48sm1631404wrb.103.2022.05.13.02.39.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 May 2022 02:39:45 -0700 (PDT)
+        Fri, 13 May 2022 02:39:46 -0700 (PDT)
 From:   Angela Czubak <acz@semihalf.com>
 To:     linux-input@vger.kernel.org
 Cc:     upstream@semihalf.com, benjamin.tissoires@redhat.com,
         jikos@kernel.org, dmitry.torokhov@gmail.com,
         Angela Czubak <acz@semihalf.com>
-Subject: [PATCH v3 02/17] Input: add FF_HID effect type
-Date:   Fri, 13 May 2022 09:39:12 +0000
-Message-Id: <20220513093927.1632262-3-acz@semihalf.com>
+Subject: [PATCH v3 04/17] HID: input: allow mapping of haptic output
+Date:   Fri, 13 May 2022 09:39:14 +0000
+Message-Id: <20220513093927.1632262-5-acz@semihalf.com>
 X-Mailer: git-send-email 2.36.0.550.gb090851708-goog
 In-Reply-To: <20220513093927.1632262-1-acz@semihalf.com>
 References: <20220513093927.1632262-1-acz@semihalf.com>
@@ -65,68 +65,31 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-FF_HID effect type can be used to trigger haptic feedback with HID simple
-haptic usages.
+This change makes it possible to parse output reports by input mapping
+functions by HID drivers.
 
 Signed-off-by: Angela Czubak <acz@semihalf.com>
 ---
- include/uapi/linux/input.h | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+ drivers/hid/hid-input.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index ee3127461ee0..ccf43a21d43d 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -424,6 +424,24 @@ struct ff_rumble_effect {
- 	__u16 weak_magnitude;
- };
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index c6b27aab9041..77f2930f78f5 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -649,9 +649,10 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 	if (field->report_count < 1)
+ 		goto ignore;
  
-+/**
-+ * struct ff_hid_effect
-+ * @hid_usage: hid_usage according to Haptics page (WAVEFORM_CLICK, etc.)
-+ * @vendor_id: the waveform vendor ID if hid_usage is in the vendor-defined range
-+ * @vendor_waveform_page: the vendor waveform page if hid_usage is in the vendor-defined range
-+ * @intensity: strength of the effect as percentage
-+ * @repeat_count: number of times to retrigger effect
-+ * @retrigger_period: time before effect is retriggered (in ms)
-+ */
-+struct ff_hid_effect {
-+	__u16 hid_usage;
-+	__u16 vendor_id;
-+	__u8  vendor_waveform_page;
-+	__u16 intensity;
-+	__u16 repeat_count;
-+	__u16 retrigger_period;
-+};
-+
- /**
-  * struct ff_effect - defines force feedback effect
-  * @type: type of the effect (FF_CONSTANT, FF_PERIODIC, FF_RAMP, FF_SPRING,
-@@ -460,6 +478,7 @@ struct ff_effect {
- 		struct ff_periodic_effect periodic;
- 		struct ff_condition_effect condition[2]; /* One for each axis */
- 		struct ff_rumble_effect rumble;
-+		struct ff_hid_effect hid;
- 	} u;
- };
+-	/* only LED usages are supported in output fields */
++	/* only LED and HAPTIC usages are supported in output fields */
+ 	if (field->report_type == HID_OUTPUT_REPORT &&
+-			(usage->hid & HID_USAGE_PAGE) != HID_UP_LED) {
++	    (usage->hid & HID_USAGE_PAGE) != HID_UP_LED &&
++	    (usage->hid & HID_USAGE_PAGE) != HID_UP_HAPTIC) {
+ 		goto ignore;
+ 	}
  
-@@ -467,6 +486,7 @@ struct ff_effect {
-  * Force feedback effect types
-  */
- 
-+#define FF_HID		0x4f
- #define FF_RUMBLE	0x50
- #define FF_PERIODIC	0x51
- #define FF_CONSTANT	0x52
-@@ -476,7 +496,7 @@ struct ff_effect {
- #define FF_INERTIA	0x56
- #define FF_RAMP		0x57
- 
--#define FF_EFFECT_MIN	FF_RUMBLE
-+#define FF_EFFECT_MIN	FF_HID
- #define FF_EFFECT_MAX	FF_RAMP
- 
- /*
 -- 
 2.36.0.550.gb090851708-goog
 

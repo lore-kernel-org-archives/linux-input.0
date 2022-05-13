@@ -2,60 +2,60 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5118BC4332F
-	for <linux-input@archiver.kernel.org>; Fri, 13 May 2022 09:40:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 752E5C43217
+	for <linux-input@archiver.kernel.org>; Fri, 13 May 2022 09:40:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379111AbiEMJkC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 13 May 2022 05:40:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51794 "EHLO
+        id S1379108AbiEMJkD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 13 May 2022 05:40:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379114AbiEMJjx (ORCPT
+        with ESMTP id S1379119AbiEMJjy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 13 May 2022 05:39:53 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41A0B2A76A3
+        Fri, 13 May 2022 05:39:54 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47FEC2A76AC
         for <linux-input@vger.kernel.org>; Fri, 13 May 2022 02:39:52 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id h16so9962019wrb.2
+Received: by mail-wr1-x42c.google.com with SMTP id q23so10666863wra.1
         for <linux-input@vger.kernel.org>; Fri, 13 May 2022 02:39:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=semihalf-com.20210112.gappssmtp.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=0o8FpS3T+wY71hcSpCIcEDwQdqsdO67K+SEUgTCk0dA=;
-        b=J/hnV2NN/n8X+SPLKFYwrE/NnO1akb5SU2m9feZ4Ii49/2XORIYEZAtSszndEkwvel
-         S7xEhfbkKlZYcp5+UTTvBlo5d8ZT373IMftv9vm0VA0wUoFVeEguCp0+WFv0tU5cJek2
-         g3XJMlwokdHFOQFP5WsrOXVb6+PnjQq6lSGLaDA240r+75wuniS19uq+B3qRQTlaxt6W
-         fpDdaFoI+cfSmp8aPmUCPCUxnnEqw0cL55k79SrGdUBAR9BwHPdl1gT9L++5hLSIIpOo
-         +ESflKc3ZEtCm+cvNMHhYL5mkRJ+2/c8FHpIEbPc+22nuefdqcghopLRgq/jXARaF3e1
-         PEdA==
+        bh=UF0MhXoHWhEuPSuC1UnVX2vTar7MPY0wNts0gUteJyw=;
+        b=jcx6vxrqcutHlNhopZSyo6s7t36h8717vALJXtQKB9YqjGK72rqQSTNw5ozQg+8Src
+         9BOV9T1rnFU6qLm1364p0E2DDknBpbNjKs6UZSdDS5iQwf3kuEhNlDCpbSqmIHzx21CX
+         oXiHOZZL0ud8r3aEBx+RGWIkrsXjbACcf4YW9yk5VGMQGNHBTQg9Kv0zFqt0w8+s55Sh
+         zIK1NCyqcO6tgUWPGAePE3E2ua4XLDXm8jRVINxmedBfFVbodyq3hVSD2xdnbO+i3P44
+         SvX0E1u72o7ASBDtYyLM8ulhh/hFdcn86UBBGLT1EcGASc02sjozqKdCWQMxHAIW+irJ
+         R4Fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=0o8FpS3T+wY71hcSpCIcEDwQdqsdO67K+SEUgTCk0dA=;
-        b=RmabbzlJ5tCMuw5gmPvDJ9ANU6QrCzjywN29Q/Z3El3pwCY+3tPmCio5Cyw9bOaBG6
-         R3tITrUiu3DMOg4nNh1shcEdn0dv0gGiEhbb27m5BAA+903Y8gvmYj/y3Ubie4TOEtyy
-         9LnNbopUIvqhzU1xdWIZgsEL4gtm79BmNgyy7UOWEZdvEzPjvlWt98QEgbXLYn1OugAS
-         S+zwlXA13SWQBuABDBo91ffC2oCTKDwr/o86HrjU1Kkb69Smk2/VPQo4CG74Kj06OMNj
-         k+JVx3HrrFMm5Bne/FcEbwRpsG7tmoqqVfSnEysfUjwboH4U54ImHNu2+anf66TXlFMY
-         Dnjw==
-X-Gm-Message-State: AOAM5324OLV5b29UiGkpa405zCb4WqCLFrBwRVEMXH6WvOirByFvcc5q
-        DD/3YfLMzMobrj77Vkvn0CDgCbO7qwKEVm5wT8w=
-X-Google-Smtp-Source: ABdhPJzEFq/ztb+R9kp7HpduT1ULzN0dnmju++bz5ou7P6A6t3w8+yIpmnVh4ENqBwvoB86ZkquPmw==
-X-Received: by 2002:a05:6000:1f0f:b0:20c:87b6:df9d with SMTP id bv15-20020a0560001f0f00b0020c87b6df9dmr3345916wrb.115.1652434790847;
-        Fri, 13 May 2022 02:39:50 -0700 (PDT)
+        bh=UF0MhXoHWhEuPSuC1UnVX2vTar7MPY0wNts0gUteJyw=;
+        b=nxibnuYngQuaOcdScb/afBPy3a2e/LrapdInsjSVJs5ZRSDXN2nRPXEjFx8OFgJb1w
+         Bq0Z6axdV01LAUb1+cFjzyST+scshkkFXxv37lRvknjGjc2h9Ah1zRM3gmjVeqSA5AwF
+         wPOmikPxDHrNNh8/NteKQDKl+nVOu5Xd8Ybol52II1ae61JpXw2wJXqLYOs4b2DFWp2y
+         jXxD/CvfsxSAFDEou++OW7QOgPi39Yijb55TzBZIUZLaYcRhNFHbiBncjvnfAKoHHAca
+         J81invHXi/gU1TtDZsCgHI7r5o1bn3wjKO1uBG+oQ+kC8vBhWMpTtb9/b5wnDXT5hcTP
+         TDsw==
+X-Gm-Message-State: AOAM531WsUaLEDiy/Y/h/+KHlw95HcxS6/GfedN75zH0qSJJc19hdtJr
+        X2ehWrWtfFb7yBdICLAqIjHHqo5k9m0haT2gVhc=
+X-Google-Smtp-Source: ABdhPJzsD6qJsXi0BBA2n7uGdOH9sMwvXYOUfHOneMr2nAUiZBK30/YcgL0AJtlgZ88eEqyz8XEPrw==
+X-Received: by 2002:a5d:6d0b:0:b0:20c:4ecb:1113 with SMTP id e11-20020a5d6d0b000000b0020c4ecb1113mr3075828wrq.203.1652434791850;
+        Fri, 13 May 2022 02:39:51 -0700 (PDT)
 Received: from aczubak.c.googlers.com.com (88.140.78.34.bc.googleusercontent.com. [34.78.140.88])
-        by smtp.gmail.com with ESMTPSA id l5-20020adfa385000000b0020ce015ed48sm1631404wrb.103.2022.05.13.02.39.50
+        by smtp.gmail.com with ESMTPSA id l5-20020adfa385000000b0020ce015ed48sm1631404wrb.103.2022.05.13.02.39.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 May 2022 02:39:50 -0700 (PDT)
+        Fri, 13 May 2022 02:39:51 -0700 (PDT)
 From:   Angela Czubak <acz@semihalf.com>
 To:     linux-input@vger.kernel.org
 Cc:     upstream@semihalf.com, benjamin.tissoires@redhat.com,
         jikos@kernel.org, dmitry.torokhov@gmail.com,
         Angela Czubak <acz@semihalf.com>
-Subject: [PATCH v3 11/17] HID: haptic: add hid_haptic_switch_mode
-Date:   Fri, 13 May 2022 09:39:21 +0000
-Message-Id: <20220513093927.1632262-12-acz@semihalf.com>
+Subject: [PATCH v3 13/17] Input: introduce EVIOCFF(TAKE|RELEASE)CONTROL
+Date:   Fri, 13 May 2022 09:39:23 +0000
+Message-Id: <20220513093927.1632262-14-acz@semihalf.com>
 X-Mailer: git-send-email 2.36.0.550.gb090851708-goog
 In-Reply-To: <20220513093927.1632262-1-acz@semihalf.com>
 References: <20220513093927.1632262-1-acz@semihalf.com>
@@ -65,211 +65,189 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Function hid_haptic_switch_mode() can be used to turn off and on the
-autonomoums mode for the device. If the device is a forcepad andsupports
-press and release waveforms, let the kernel handle generation of haptic
-feedback instead of the device itself.
-Implement hid_haptic_resume() and hid_haptic_suspend() so that the
-autonomous mode gets switched off at resume and switched on at suspend.
+Add new ioctls which can be used for simple haptic force feedback effects.
+Once the control is taken over the effect the kernel does not generate it
+on its own (EVIOCFFTAKECONTROL).
+To revert this action use EVIOCFFRELEASECONTROL.
 
 Signed-off-by: Angela Czubak <acz@semihalf.com>
 ---
- drivers/hid/hid-haptic.c | 92 +++++++++++++++++++++++++++++++++++++---
- drivers/hid/hid-haptic.h | 10 +++++
- 2 files changed, 96 insertions(+), 6 deletions(-)
+ drivers/input/evdev.c      |  6 +++
+ drivers/input/ff-core.c    | 89 +++++++++++++++++++++++++++++++++++++-
+ include/linux/input.h      |  5 +++
+ include/uapi/linux/input.h |  4 ++
+ 4 files changed, 103 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
-index 9b89a1f8a631..3d26bd5d15a4 100644
---- a/drivers/hid/hid-haptic.c
-+++ b/drivers/hid/hid-haptic.c
-@@ -5,6 +5,7 @@
-  *  Copyright (c) 2021 Angela Czubak <acz@semihalf.com>
-  */
+diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
+index 95f90699d2b1..6d25eb19e28e 100644
+--- a/drivers/input/evdev.c
++++ b/drivers/input/evdev.c
+@@ -1076,6 +1076,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
+ 	case EVIOCRMFF:
+ 		return input_ff_erase(dev, (int)(unsigned long) p, file);
  
-+#include <linux/input/mt.h>
- #include <linux/module.h>
- 
- #include "hid-haptic.h"
-@@ -192,9 +193,60 @@ static void fill_effect_buf(struct hid_haptic_device *haptic,
- 	mutex_unlock(&haptic->manual_trigger_mutex);
++	case EVIOCFFTAKECONTROL:
++		return input_ff_take_control(dev, (int)(unsigned long) p, file);
++
++	case EVIOCFFRELEASECONTROL:
++		return input_ff_release_control(dev, (int)(unsigned long) p, file);
++
+ 	case EVIOCGEFFECTS:
+ 		i = test_bit(EV_FF, dev->evbit) ?
+ 				dev->ff->max_effects : 0;
+diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
+index 1a9a5401acb5..d6b76a479fc2 100644
+--- a/drivers/input/ff-core.c
++++ b/drivers/input/ff-core.c
+@@ -252,6 +252,91 @@ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file)
  }
+ EXPORT_SYMBOL_GPL(input_ff_erase);
  
-+static void switch_mode(struct hid_device *hdev, struct hid_haptic_device *haptic,
-+			int mode)
++/*
++ * Take control over the effect if the requester is also the effect owner.
++ * The mutex should already be locked before calling this function.
++ */
++static int control_effect(struct input_dev *dev, int effect_id,
++			  struct file *file, int take)
 +{
-+	struct hid_report *rep = haptic->auto_trigger_report;
-+	struct hid_field *field;
-+	s32 value;
-+	int i, j;
++	struct ff_device *ff = dev->ff;
++	int error;
 +
-+	if (mode == HID_HAPTIC_MODE_KERNEL)
-+		value = HID_HAPTIC_ORDINAL_WAVEFORMSTOP;
-+	else
-+		value = haptic->default_auto_trigger;
-+
-+	mutex_lock(&haptic->auto_trigger_mutex);
-+	for (i = 0; i < rep->maxfield; i++) {
-+		field = rep->field[i];
-+		/* Ignore if report count is out of bounds. */
-+		if (field->report_count < 1)
-+			continue;
-+
-+		for (j = 0; j < field->maxusage; j++) {
-+			if (field->usage[j].hid == HID_HP_AUTOTRIGGER)
-+				field->value[j] = value;
-+		}
++	error = check_effect_access(ff, effect_id, file);
++	if (error) {
++		error = check_effect_shared(ff, effect_id);
++		if (error)
++			return error;
 +	}
 +
-+	/* send the report */
-+	hid_hw_request(hdev, rep, HID_REQ_SET_REPORT);
-+	mutex_unlock(&haptic->auto_trigger_mutex);
-+	haptic->mode = mode;
-+}
-+
-+#ifdef CONFIG_PM
-+void hid_haptic_resume(struct hid_device *hdev, struct hid_haptic_device *haptic)
-+{
-+	if (haptic->is_forcepad && haptic->press_ordinal_cur &&
-+	    haptic->release_ordinal_cur)
-+		switch_mode(hdev, haptic, HID_HAPTIC_MODE_KERNEL);
-+}
-+EXPORT_SYMBOL_GPL(hid_haptic_resume);
-+
-+void hid_haptic_suspend(struct hid_device *hdev, struct hid_haptic_device *haptic)
-+{
-+	if (haptic->is_forcepad && haptic->press_ordinal_cur &&
-+	    haptic->release_ordinal_cur)
-+		switch_mode(hdev, haptic, HID_HAPTIC_MODE_DEVICE);
-+}
-+EXPORT_SYMBOL_GPL(hid_haptic_suspend);
-+#endif
-+
- static int hid_haptic_upload_effect(struct input_dev *dev, struct ff_effect *effect,
- 				    struct ff_effect *old)
- {
-+	struct hid_device *hdev = input_get_drvdata(dev);
- 	struct ff_device *ff = dev->ff;
- 	struct hid_haptic_device *haptic = ff->private;
- 	int i, ordinal = 0;
-@@ -220,6 +272,24 @@ static int hid_haptic_upload_effect(struct input_dev *dev, struct ff_effect *eff
- 	fill_effect_buf(haptic, &effect->u.hid, &haptic->effect[effect->id],
- 			ordinal);
- 
-+	/* Mode switching needed only for forcepads. */
-+	if (!haptic->is_forcepad)
-+		return 0;
-+
-+	if (effect->id == HID_HAPTIC_RELEASE_EFFECT_ID) {
-+		if (haptic->press_ordinal_cur &&
-+		    haptic->mode == HID_HAPTIC_MODE_DEVICE) {
-+			switch_mode(hdev, haptic, HID_HAPTIC_MODE_KERNEL);
-+		}
-+		haptic->release_ordinal_cur = ordinal;
-+	} else if (effect->id == HID_HAPTIC_PRESS_EFFECT_ID) {
-+		if (haptic->release_ordinal_cur &&
-+		    haptic->mode == HID_HAPTIC_MODE_DEVICE) {
-+			switch_mode(hdev, haptic, HID_HAPTIC_MODE_KERNEL);
-+		}
-+		haptic->press_ordinal_cur = ordinal;
++	if (ff->change_control) {
++		error = ff->change_control(dev, effect_id, file, take);
++		if (error)
++			return error;
 +	}
 +
- 	return 0;
- }
++	return 0;
++}
++/**
++ * input_ff_take_control - take control over a force-feedback effect from kernel
++ * @dev: input device to take control over effect from
++ * @effect_id: id of the effect to take control over
++ * @file: purported owner of the request
++ *
++ * This function switches user-controlled mode on for the given force-feedback
++ * effect. The user-mode will persist unitl the last caller releases control.
++ * The effect will only be taken control of if it was uploaded through the same
++ * file handle that is requesting taking control or for simple haptic effects
++ * 0 and 1.
++ * Valid only for simple haptic effects (ff_hid_effect).
++ */
++int input_ff_take_control(struct input_dev *dev, int effect_id,
++			  struct file *file)
++{
++	struct ff_device *ff = dev->ff;
++	int ret;
++
++	if (!test_bit(EV_FF, dev->evbit))
++		return -EINVAL;
++
++	mutex_lock(&ff->mutex);
++	ret = control_effect(dev, effect_id, file, 1);
++	mutex_unlock(&ff->mutex);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(input_ff_take_control);
++
++/**
++ * input_ff_release_control - release control over a force-feedback effect
++ * @dev: input device to release control over effect to
++ * @effect_id: id of the effect to release control
++ * @file: purported owner of the request
++ *
++ * This function switches user-controlled mode off for the given force-feedback
++ * effect. The user-mode will persist unitl the last caller releases control.
++ * The control will be released of if it was uploaded through the same
++ * file handle that is requesting taking control or for simple haptic effects
++ * 0 and 1.
++ * Valid only for simple haptic effects (ff_hid_effect).
++ */
++int input_ff_release_control(struct input_dev *dev, int effect_id,
++			     struct file *file)
++{
++	struct ff_device *ff = dev->ff;
++	int ret;
++
++	if (!test_bit(EV_FF, dev->evbit))
++		return -EINVAL;
++
++	mutex_lock(&ff->mutex);
++	ret = control_effect(dev, effect_id, file, 0);
++	mutex_unlock(&ff->mutex);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(input_ff_release_control);
++
+ /*
+  * input_ff_flush - erase all effects owned by a file handle
+  * @dev: input device to erase effect from
+@@ -270,8 +355,10 @@ int input_ff_flush(struct input_dev *dev, struct file *file)
  
-@@ -285,6 +355,7 @@ static void effect_set_default(struct ff_effect *effect)
- static int hid_haptic_erase(struct input_dev *dev, int effect_id)
- {
- 	struct hid_haptic_device *haptic = dev->ff->private;
-+	struct hid_device *hdev = input_get_drvdata(dev);
- 	struct ff_effect effect;
- 	int ordinal;
+ 	mutex_lock(&ff->mutex);
  
-@@ -295,21 +366,29 @@ static int hid_haptic_erase(struct input_dev *dev, int effect_id)
- 	switch (effect_id) {
- 	case HID_HAPTIC_RELEASE_EFFECT_ID:
- 		ordinal = haptic->release_ordinal_orig;
--		if (!ordinal)
-+		haptic->release_ordinal_cur = ordinal;
-+		if (!ordinal) {
- 			ordinal = HID_HAPTIC_ORDINAL_WAVEFORMNONE;
--		else
-+			if (haptic->mode == HID_HAPTIC_MODE_KERNEL)
-+				switch_mode(hdev, haptic, HID_HAPTIC_MODE_DEVICE);
-+		} else {
- 			effect.u.hid.hid_usage = HID_HP_WAVEFORMRELEASE &
- 				HID_USAGE;
-+		}
- 		fill_effect_buf(haptic, &effect.u.hid, &haptic->effect[effect_id],
- 				ordinal);
- 		break;
- 	case HID_HAPTIC_PRESS_EFFECT_ID:
- 		ordinal = haptic->press_ordinal_orig;
--		if (!ordinal)
-+		haptic->press_ordinal_cur = ordinal;
-+		if (!ordinal) {
- 			ordinal = HID_HAPTIC_ORDINAL_WAVEFORMNONE;
--		else
-+			if (haptic->mode == HID_HAPTIC_MODE_KERNEL)
-+				switch_mode(hdev, haptic, HID_HAPTIC_MODE_DEVICE);
-+		} else {
- 			effect.u.hid.hid_usage = HID_HP_WAVEFORMPRESS &
- 				HID_USAGE;
-+		}
- 		fill_effect_buf(haptic, &effect.u.hid, &haptic->effect[effect_id],
- 				ordinal);
- 		break;
-@@ -401,6 +480,7 @@ int hid_haptic_init(struct hid_device *hdev,
- 	haptic->hid_usage_map[HID_HAPTIC_ORDINAL_WAVEFORMSTOP] =
- 		HID_HP_WAVEFORMSTOP & HID_USAGE;
+-	for (i = 0; i < ff->max_effects; i++)
++	for (i = 0; i < ff->max_effects; i++) {
++		control_effect(dev, i, file, 0);
+ 		erase_effect(dev, i, file);
++	}
  
-+	mutex_init(&haptic->auto_trigger_mutex);
- 	for (r = 0; r < haptic->auto_trigger_report->maxfield; r++)
- 		parse_auto_trigger_field(haptic, haptic->auto_trigger_report->field[r]);
+ 	mutex_unlock(&ff->mutex);
  
-@@ -582,13 +662,13 @@ void hid_haptic_handle_press_release(struct hid_haptic_device *haptic)
- 	if (!prev_pressed_state && haptic->pressed_state &&
- 	    haptic->mode == HID_HAPTIC_MODE_KERNEL) {
- 		spin_lock_irqsave(&input->event_lock, flags);
--		input->ff->playback(input, PRESS_HID_EFFECT_ID, 1);
-+		input->ff->playback(input, HID_HAPTIC_PRESS_EFFECT_ID, 1);
- 		spin_unlock_irqrestore(&input->event_lock, flags);
- 	}
- 	if (prev_pressed_state && !haptic->pressed_state &&
- 	    haptic->mode == HID_HAPTIC_MODE_KERNEL) {
- 		spin_lock_irqsave(&input->event_lock, flags);
--		input->ff->playback(input, RELEASE_HID_EFFECT_ID, 1);
-+		input->ff->playback(input, HID_HAPTIC_RELEASE_EFFECT_ID, 1);
- 		spin_unlock_irqrestore(&input->event_lock, flags);
- 	}
- }
-diff --git a/drivers/hid/hid-haptic.h b/drivers/hid/hid-haptic.h
-index c26093e3773d..96757a4655ec 100644
---- a/drivers/hid/hid-haptic.h
-+++ b/drivers/hid/hid-haptic.h
-@@ -82,6 +82,10 @@ int hid_haptic_input_mapping(struct hid_device *hdev,
- 			     unsigned long **bit, int *max);
- bool hid_haptic_input_configured(struct hid_device *hdev,
- 				 struct hid_haptic_device *haptic);
-+#ifdef CONFIG_PM
-+void hid_haptic_resume(struct hid_device *hdev, struct hid_haptic_device *haptic);
-+void hid_haptic_suspend(struct hid_device *hdev, struct hid_haptic_device *haptic);
-+#endif
- int hid_haptic_init(struct hid_device *hdev, struct hid_haptic_device **haptic_ptr);
- void hid_haptic_handle_press_release(struct hid_haptic_device *haptic);
- bool hid_haptic_handle_input(struct hid_haptic_device *haptic);
-@@ -116,6 +120,12 @@ bool hid_haptic_input_configured(struct hid_device *hdev,
- {
- 	return 0;
- }
-+#ifdef CONFIG_PM
-+static inline
-+void hid_haptic_resume(struct hid_device *hdev, struct hid_haptic_device *haptic) {}
-+static inline
-+void hid_haptic_suspend(struct hid_device *hdev, struct hid_haptic_device *haptic) {}
-+#endif
- static inline
- int hid_haptic_init(struct hid_device *hdev, struct hid_haptic_device **haptic_ptr)
- {
+diff --git a/include/linux/input.h b/include/linux/input.h
+index 49790c1bd2c4..39091730c2fc 100644
+--- a/include/linux/input.h
++++ b/include/linux/input.h
+@@ -521,6 +521,7 @@ extern struct class input_class;
+  * @upload: Called to upload an new effect into device
+  * @erase: Called to erase an effect from device
+  * @playback: Called to request device to start playing specified effect
++ * @change_control: Called to change control over specified effect
+  * @set_gain: Called to set specified gain
+  * @set_autocenter: Called to auto-center device
+  * @destroy: called by input core when parent input device is being
+@@ -549,6 +550,8 @@ struct ff_device {
+ 	int (*erase)(struct input_dev *dev, int effect_id);
+ 
+ 	int (*playback)(struct input_dev *dev, int effect_id, int value);
++	int (*change_control)(struct input_dev *dev, int effect_id,
++			      struct file *file, int take);
+ 	void (*set_gain)(struct input_dev *dev, u16 gain);
+ 	void (*set_autocenter)(struct input_dev *dev, u16 magnitude);
+ 
+@@ -572,6 +575,8 @@ int input_ff_event(struct input_dev *dev, unsigned int type, unsigned int code,
+ 
+ int input_ff_upload(struct input_dev *dev, struct ff_effect *effect, struct file *file);
+ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file);
++int input_ff_take_control(struct input_dev *dev, int effect_id, struct file *file);
++int input_ff_release_control(struct input_dev *dev, int effect_id, struct file *file);
+ int input_ff_flush(struct input_dev *dev, struct file *file);
+ 
+ int input_ff_create_memless(struct input_dev *dev, void *data,
+diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
+index ccf43a21d43d..cce37336ab38 100644
+--- a/include/uapi/linux/input.h
++++ b/include/uapi/linux/input.h
+@@ -178,6 +178,10 @@ struct input_mask {
+ 
+ #define EVIOCSFF		_IOW('E', 0x80, struct ff_effect)	/* send a force effect to a force feedback device */
+ #define EVIOCRMFF		_IOW('E', 0x81, int)			/* Erase a force effect */
++/* Take control over a force effect */
++#define EVIOCFFTAKECONTROL	_IOW('E', 0x82, int)
++/* Release control over a force effect */
++#define EVIOCFFRELEASECONTROL	_IOW('E', 0x83, int)
+ #define EVIOCGEFFECTS		_IOR('E', 0x84, int)			/* Report number of effects playable at the same time */
+ 
+ #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
 -- 
 2.36.0.550.gb090851708-goog
 

@@ -2,143 +2,157 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6486DC433FE
-	for <linux-input@archiver.kernel.org>; Wed, 18 May 2022 07:59:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8621FC433F5
+	for <linux-input@archiver.kernel.org>; Wed, 18 May 2022 15:39:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232905AbiERH7V (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 May 2022 03:59:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54554 "EHLO
+        id S239339AbiERPja (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 May 2022 11:39:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232894AbiERH7R (ORCPT
+        with ESMTP id S239341AbiERPjY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 May 2022 03:59:17 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682341207F9
-        for <linux-input@vger.kernel.org>; Wed, 18 May 2022 00:59:15 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id r23so1480401wrr.2
-        for <linux-input@vger.kernel.org>; Wed, 18 May 2022 00:59:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=dds68n4eVAqNb9Nh1GkmgUmrWiZNicCAFfz37bcPi/E=;
-        b=q0S94H1GhZQls0QplGXXaQ20xyUhPJfSw9jx5Z1yMH4JNQDn2qssApG6YIhSC1Ahcl
-         H//p6eK6yYHKF1mQCiWr5xMditxAExDaHTPHhjYdKpAP6mj+fBp5/4sczfa2Cw9/A5Se
-         O3z+eoS/q5Y1ymj92c+ivFjdF4mUYtghiB3iVIGWIAV/Mlw7DCc6JVlJek/HwFN+fvMk
-         8owS92GwrYaNr+e/mJFp+fywqy2sZDTd6P66ONYa5JRYMkgRk0shA6mWCBnD+//UnpIx
-         P5I2FZkLKWZdCnkzEedKx1IqaiO9os3cDWOE1+7Hxq0n/LFz4ogFuZNx5v0Oj4UJVD0J
-         1LWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=dds68n4eVAqNb9Nh1GkmgUmrWiZNicCAFfz37bcPi/E=;
-        b=FZXrP9qNY7bXAa5iOjIRXYGtvN5IIcyDGS8/SxETJBqOQYZRgYHyNZRei3MyjW9EvV
-         Kam9b08BGtJ4OLUoJ9T2xK6Vv/qdxJSIQ5kgVPuT0iVgYyot72/cbooCuPmkw+9+qg8q
-         CwhhRWoEVTeLxj+0Mqz6iHmQ5Ea84n67IKtvNlwNAY6q1llj9+JPi6qOOf8tFt8a2E7R
-         zO0Mr7Bsz6YbY94U0aASDyKW4ftTTfaGT2oKbn9fG8Z4PkykgEFyri2roPsiQezk1Uyl
-         mwWGmeWdRyhpkqTnHP6zLROjo4IJoHKWVCub/sONSpBKBtRLsWcQpe4O/6PgNsNqqcC4
-         ZXyQ==
-X-Gm-Message-State: AOAM530sVJNhDfyThKowEPhbA0HTsPGBUifDJt5R2sYHJyNf9oYq7Eep
-        DHgbafE9fbybwwv0MNcsHKjpDg==
-X-Google-Smtp-Source: ABdhPJwXGZwgKt2xBN/YHUpTFYOWitejVIgIv8v5y8RaS6IUg2o89e7OYU3thoshzpsYoCAbw7r/OQ==
-X-Received: by 2002:a05:6000:15c1:b0:20c:5825:f043 with SMTP id y1-20020a05600015c100b0020c5825f043mr21710401wry.261.1652860753963;
-        Wed, 18 May 2022 00:59:13 -0700 (PDT)
-Received: from groot.home ([2a01:cb19:85e6:1900:bda6:8356:4db1:4539])
-        by smtp.gmail.com with ESMTPSA id ay1-20020a05600c1e0100b0039706782e06sm1041300wmb.33.2022.05.18.00.59.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 May 2022 00:59:13 -0700 (PDT)
-From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Matthias Brugger <matthias.bgg@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Kevin Hilman <khilman@baylibre.com>,
-        Fabien Parent <fparent@baylibre.com>,
-        linux-input@vger.kernel.org, linux-mediatek@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Subject: [PATCH v2 1/2] Input: mt6779-keypad - fix hardware code mapping
-Date:   Wed, 18 May 2022 09:59:08 +0200
-Message-Id: <20220518075909.180629-2-mkorpershoek@baylibre.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220518075909.180629-1-mkorpershoek@baylibre.com>
-References: <20220518075909.180629-1-mkorpershoek@baylibre.com>
+        Wed, 18 May 2022 11:39:24 -0400
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EC83A5A81;
+        Wed, 18 May 2022 08:39:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1652888363; x=1684424363;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:mime-version;
+  bh=8WND9E2GnGDv0ic+SbtV8f4+YwokzKLYteBSsNrOeuI=;
+  b=GAaBJx643bMeEt1h9obiks2aBOONhQ848W47IpiJdBB0s5JtSlquxi0X
+   huZnWthChw67hde9NRHbw60ayCM0OQCHowgJVoF1MZ4c5amDRxxFipcUq
+   GiYxyZC41ahLxhuji/lDGX9zQNi/xld2U3rjFWwg2ICE8DdAv8/mFoWgN
+   Zc4jTPSskuGEpi2XYH4XG8FO8ijP7nMmKQaTvQUvYY6SaBkkh2Z3qvL9U
+   iviqr/2vclL44WbBW9PC4hRPHhEyPNQA1tzFQxyjFfmOuSi8Yq3vdPIWU
+   fTtCXD70UuI+qaw603Cr+6l42y+W4S4i/5CIpZVZbiRYldSTXnQxOHpoT
+   A==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10351"; a="253779492"
+X-IronPort-AV: E=Sophos;i="5.91,235,1647327600"; 
+   d="diff'?scan'208";a="253779492"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2022 08:39:22 -0700
+X-IronPort-AV: E=Sophos;i="5.91,235,1647327600"; 
+   d="diff'?scan'208";a="673494949"
+Received: from spandruv-desk.jf.intel.com ([10.54.75.8])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2022 08:39:22 -0700
+Message-ID: <8fc40ebb2fbcecb1ab2f5ea156bf9ec10aff06bf.camel@linux.intel.com>
+Subject: Re: hid-sensor-hub 001F:8087:0AC2.0002: timeout waiting for
+ response from ISHTP device
+From:   srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To:     Paul Menzel <pmenzel@molgen.mpg.de>
+Cc:     Jiri Kosina <jikos@kernel.org>, Even Xu <even.xu@intel.com>,
+        Zhang Lixu <lixu.zhang@intel.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        Dell.Client.Kernel@dell.com
+Date:   Wed, 18 May 2022 08:39:21 -0700
+In-Reply-To: <dff3d94c-93be-2b31-35c6-35a7886f3680@molgen.mpg.de>
+References: <289be79b-8fbb-d171-a1e5-5d8218dff39d@molgen.mpg.de>
+         <8833ba2600208a05940943636a3bd8b6af6a9fe4.camel@linux.intel.com>
+         <dff3d94c-93be-2b31-35c6-35a7886f3680@molgen.mpg.de>
+Content-Type: multipart/mixed; boundary="=-fSLorNTvZrztzG+RVRp9"
+User-Agent: Evolution 3.38.4 (3.38.4-1.fc33) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-In mt6779_keypad_irq_handler(), we
-1. Read a hardware code from KPD_MEM1 -> KPD_MEM5
-2. Use that hardware code to compute columns/rows for the standard
-   keyboard matrix.
 
-According to the (non-public) datasheet, the
-map between the hardware code and the cols/rows is:
+--=-fSLorNTvZrztzG+RVRp9
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-        |(0)  |(1)  |(2)
-    ----*-----*-----*-----
-        |     |     |
-        |(9)  |(10) |(11)
-    ----*-----*-----*-----
-        |     |     |
-        |(18) |(19) |(20)
-    ----*-----*-----*-----
-        |     |     |
+Hi Paul,
 
-This brings us to another formula:
--> row = code / 9;
--> col = code % 3;
+Attached a diff. Please use git apply and build kernel. And attach
+dmesg. I want to see where did it fail.
 
-Implement this mapping in bitnr_to_col_row() to fetch the
-correct input event from keypad->input_dev->keycode and report that
-back to userspace.
+Thanks,
+Srinivas
 
-Fixes: f28af984e771 ("Input: mt6779-keypad - add MediaTek keypad driver")
-Co-developed-by: Fabien Parent <fparent@baylibre.com>
-Signed-off-by: Fabien Parent <fparent@baylibre.com>
-Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
----
- drivers/input/keyboard/mt6779-keypad.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+On Wed, 2022-05-18 at 06:07 +0200, Paul Menzel wrote:
+> Dear Srinivas,
+> 
+> 
+> Thank you for your reply.
+> 
+> Am 13.05.22 um 01:07 schrieb srinivas pandruvada:
+> 
+> > On Thu, 2022-05-12 at 17:01 +0200, Paul Menzel wrote:
+> 
+> > > On the Dell XPS 13 9310, firmware 2.2.0 04/06/2021, with Debian
+> > > sid/unstable, Linux 5.17.3 logs a lot of the messages below:
+> > > 
+> > >       timeout waiting for response from ISHTP device
+> > > 
+> > > Please find the output of `dmesg` attached.
+> > > 
+> > It seems that sensor FW is not responding after resume.
+> > 
+> > What is
+> > # cat /sys/power/mem_sleep
+> 
+>      $ cat /sys/power/mem_sleep
+>      [s2idle]
+> 
+> 
+> Kind regards,
+> 
+> Paul
+> 
+> 
+> PS: I think, Intel should have a Dell XPS 13 9310 available in some
+> test 
+> labs. If not, Dell (Cc) should be able to provide access to one.
 
-diff --git a/drivers/input/keyboard/mt6779-keypad.c b/drivers/input/keyboard/mt6779-keypad.c
-index 2e7c9187c10f..23360de20da5 100644
---- a/drivers/input/keyboard/mt6779-keypad.c
-+++ b/drivers/input/keyboard/mt6779-keypad.c
-@@ -36,6 +36,19 @@ static const struct regmap_config mt6779_keypad_regmap_cfg = {
- 	.max_register = 36,
- };
- 
-+/*
-+ * | hardware key code | col0 | col1 | col2|
-+ * | ----------------- | -----| ---- | --- |
-+ * | row0              | 0    | 1    | 2   |
-+ * | row1              | 9    | 10   | 11  |
-+ * | row2              | 18   | 19   | 20  |
-+ */
-+static void bitnr_to_col_row(int bit_nr, int *col, int *row)
-+{
-+	*row = bit_nr / 9;
-+	*col = bit_nr % 3;
-+}
-+
- static irqreturn_t mt6779_keypad_irq_handler(int irq, void *dev_id)
- {
- 	struct mt6779_keypad *keypad = dev_id;
-@@ -61,8 +74,7 @@ static irqreturn_t mt6779_keypad_irq_handler(int irq, void *dev_id)
- 		if (bit_nr % 32 >= 16)
- 			continue;
- 
--		row = bit_nr / 32;
--		col = bit_nr % 32;
-+		bitnr_to_col_row(bit_nr, &col, &row);
- 		scancode = MATRIX_SCAN_CODE(row, col, row_shift);
- 		/* 1: not pressed, 0: pressed */
- 		pressed = !test_bit(bit_nr, new_state);
--- 
-2.34.1
+
+--=-fSLorNTvZrztzG+RVRp9
+Content-Disposition: attachment; filename="ish_debug_1.diff"
+Content-Type: text/x-patch; name="ish_debug_1.diff"; charset="UTF-8"
+Content-Transfer-Encoding: base64
+
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXBjL3BjaS1pc2guYyBiL2Ry
+aXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXBjL3BjaS1pc2guYwppbmRleCA4ZTlkOTQ1MGNiODMu
+LjViODExZmE4ZjE1YiAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvaW50ZWwtaXNoLWhpZC9pcGMv
+cGNpLWlzaC5jCisrKyBiL2RyaXZlcnMvaGlkL2ludGVsLWlzaC1oaWQvaXBjL3BjaS1pc2guYwpA
+QCAtMjYzLDYgKzI2Myw5IEBAIHN0YXRpYyB2b2lkIF9fbWF5YmVfdW51c2VkIGlzaF9yZXN1bWVf
+aGFuZGxlcihzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspCiAJc3RydWN0IHBjaV9kZXYgKnBkZXYg
+PSB0b19wY2lfZGV2KGlzaF9yZXN1bWVfZGV2aWNlKTsKIAlzdHJ1Y3QgaXNodHBfZGV2aWNlICpk
+ZXYgPSBwY2lfZ2V0X2RydmRhdGEocGRldik7CiAJdWludDMyX3QgZndzdHMgPSBkZXYtPm9wcy0+
+Z2V0X2Z3X3N0YXR1cyhkZXYpOworCXN0cnVjdCBkZXZpY2UgKmRldmljZSA9ICZwZGV2LT5kZXY7
+CisKKwlkZXZfaW5mbyhkZXZpY2UsICIlcyBzdXNwZW5kX2ZsYWc6JWQgZndfc3RhdHVzOiV4XG4i
+LCBfX2Z1bmNfXywgZGV2LT5zdXNwZW5kX2ZsYWcsIElQQ19JU19JU0hfSUxVUChmd3N0cykpOwog
+CiAJaWYgKGlzaF9zaG91bGRfbGVhdmVfZDBpMyhwZGV2KSAmJiAhZGV2LT5zdXNwZW5kX2ZsYWcK
+IAkJCSYmIElQQ19JU19JU0hfSUxVUChmd3N0cykpIHsKQEAgLTI4Myw4ICsyODYsMTAgQEAgc3Rh
+dGljIHZvaWQgX19tYXliZV91bnVzZWQgaXNoX3Jlc3VtZV9oYW5kbGVyKHN0cnVjdCB3b3JrX3N0
+cnVjdCAqd29yaykKIAkJICogSWYgdGhlIGZsYWcgaXMgbm90IGNsZWFyZWQsIHNvbWV0aGluZyBp
+cyB3cm9uZyB3aXRoIElTSCBGVy4KIAkJICogU28gb24gcmVzdW1lLCBuZWVkIHRvIGdvIHRocm91
+Z2ggaW5pdCBzZXF1ZW5jZSBhZ2Fpbi4KIAkJICovCi0JCWlmIChkZXYtPnJlc3VtZV9mbGFnKQor
+CQlpZiAoZGV2LT5yZXN1bWVfZmxhZykgeworCQkJZGV2X2luZm8oZGV2aWNlLCAiJXMgcmVzdW1l
+X2ZsYWc6JWQgd2lsbCBjYWxsIGlzaF9pbml0XG4iLCBfX2Z1bmNfXywgZGV2LT5yZXN1bWVfZmxh
+Zyk7CiAJCQlpc2hfaW5pdChkZXYpOworCQl9CiAJfSBlbHNlIHsKIAkJLyoKIAkJICogUmVzdW1l
+IGZyb20gdGhlIEQzLCBmdWxsIHJlYm9vdCBvZiBJU0ggcHJvY2Vzc29yIHdpbGwgaGFwcGVuLApA
+QCAtMzA3LDcgKzMxMiw5IEBAIHN0YXRpYyBpbnQgX19tYXliZV91bnVzZWQgaXNoX3N1c3BlbmQo
+c3RydWN0IGRldmljZSAqZGV2aWNlKQogCXN0cnVjdCBwY2lfZGV2ICpwZGV2ID0gdG9fcGNpX2Rl
+dihkZXZpY2UpOwogCXN0cnVjdCBpc2h0cF9kZXZpY2UgKmRldiA9IHBjaV9nZXRfZHJ2ZGF0YShw
+ZGV2KTsKIAorCWRldl9pbmZvKGRldmljZSwgIiVzXG4iLCBfX2Z1bmNfXyk7CiAJaWYgKGlzaF9z
+aG91bGRfZW50ZXJfZDBpMyhwZGV2KSkgeworCQlkZXZfaW5mbyhkZXZpY2UsICIlcyBzdXNwZW5k
+X2ZsYWc6JWRcbiIsIF9fZnVuY19fLCBkZXYtPnN1c3BlbmRfZmxhZyk7CiAJCS8qCiAJCSAqIElm
+IHByZXZpb3VzIHN1c3BlbmQgaGFzbid0IGJlZW4gYXNud2VyZWQgdGhlbiBJU0ggaXMgbGlrZWx5
+CiAJCSAqIGRlYWQsIGRvbid0IGF0dGVtcHQgbmVzdGVkIG5vdGlmaWNhdGlvbgpAQCAtMzI2LDEy
+ICszMzMsMTQgQEAgc3RhdGljIGludCBfX21heWJlX3VudXNlZCBpc2hfc3VzcGVuZChzdHJ1Y3Qg
+ZGV2aWNlICpkZXZpY2UpCiAJCQkJCW1zZWNzX3RvX2ppZmZpZXMoMjUpKTsKIAogCQlpZiAoZGV2
+LT5zdXNwZW5kX2ZsYWcpIHsKKwkJCWRldl9pbmZvKGRldmljZSwgIiVzIHN1c3BlbmRfZmxhZzol
+ZCBGVyBoYWx0ZWRcbiIsIF9fZnVuY19fLCBkZXYtPnN1c3BlbmRfZmxhZyk7CiAJCQkvKgogCQkJ
+ICogSXQgbG9va3MgbGlrZSBGVyBoYWx0LCBjbGVhciB0aGUgRE1BIGJpdCwgYW5kIHB1dAogCQkJ
+ICogSVNIIGludG8gRDMsIGFuZCBGVyB3b3VsZCByZXNldCBvbiByZXN1bWUuCiAJCQkgKi8KIAkJ
+CWlzaF9kaXNhYmxlX2RtYShkZXYpOwogCQl9IGVsc2UgeworCQkJZGV2X2luZm8oZGV2aWNlLCAi
+JXMgc3VzcGVuZF9mbGFnOiVkIFMwaXggc3VzcGVuZGVkXG4iLCBfX2Z1bmNfXywgZGV2LT5zdXNw
+ZW5kX2ZsYWcpOwogCQkJLyoKIAkJCSAqIFNhdmUgc3RhdGUgc28gUENJIGNvcmUgd2lsbCBrZWVw
+IHRoZSBkZXZpY2UgYXQgRDAsCiAJCQkgKiB0aGUgSVNIIHdvdWxkIGVudGVyIEQwaTMK
+
+
+--=-fSLorNTvZrztzG+RVRp9--
 

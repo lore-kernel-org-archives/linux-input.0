@@ -2,32 +2,32 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 985ACC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B2DE2C433FE
 	for <linux-input@archiver.kernel.org>; Fri, 20 May 2022 12:51:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349126AbiETMvy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 20 May 2022 08:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
+        id S1349598AbiETMvw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 20 May 2022 08:51:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349583AbiETMvq (ORCPT
+        with ESMTP id S1349566AbiETMvr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 20 May 2022 08:51:46 -0400
+        Fri, 20 May 2022 08:51:47 -0400
 Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [46.235.227.227])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C54F233EB7;
-        Fri, 20 May 2022 05:51:44 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61F37527DC;
+        Fri, 20 May 2022 05:51:46 -0700 (PDT)
 Received: from [127.0.0.1] (localhost [127.0.0.1])
         (Authenticated sender: kholk11)
-        with ESMTPSA id 2FCEC1F462BB
+        with ESMTPSA id 5A8E61F462C1
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1653051103;
-        bh=+QRSBoHse5q7vPQRO55UEJJKcrFXryf2svvX8jsupyQ=;
+        s=mail; t=1653051104;
+        bh=Fo+/ZjhNQoJvd6sqh6rdL7fraQLbd7Rg63FwzQi2DIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jyuFBTkF79eteyDMwSvah/A/pUA/vOcE7Odgz8r6BhXRK6hrW4k+16RLhosbjd9iw
-         sYXMKW2rJ06URdIX95Ij2XiLt46P0mgFIGFcv8nCW/DtOD/8SJZ8kPDJUlZyIozsGn
-         q9ELUgVAztunisXSOuwaAh3XMxPP6qBAXLDAxhfVtI8z5YOUqAj0s5vRcqYbr/X32k
-         VKsS4ZKjzi7KhNdb3+Ox0J5Uk8PqdDbzjCpc9srFjG6coI9jArqLKqWcTgSYkPbc5a
-         he2RXHy0IsF8j2c0M62lBmRfyDxbvXJMtMUHVR1WrXjEenJvrYwFPeTX7SQqFbBQ5Y
-         i3o6DFns8xLTA==
+        b=YB7ITXrEVoRW5GVcgydo4v1h+1GmiSWeKWfP1BVqjc5eIGbWZodCSo2wIOHHIPyWc
+         lv4enyKopzi41y3XDRKn9hqUB31qEGNyYXWaVq0CEfx36dtUhTyJPUJJ/hULINQNJP
+         H3xx2lePFETeyOXjFEkCp1YjTuB6ySC3CSzBds7SQLufnzAh2biDibBI3ohn1u+2m+
+         Nyb2xFdin1VUV+bkiFZJ53MLKSJnet2aVrsfrikEhxLxrxaJh3Wjn9yD3cMt31tAZD
+         RRrsv1SeUP5PuNpnDh5kMu6IE+F0bbhKUaYCWa3+P369ZlyR6/kjW+1bA450O0e/OC
+         pkLXGJaeluFrQ==
 From:   AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>
 To:     dmitry.torokhov@gmail.com
@@ -35,9 +35,9 @@ Cc:     matthias.bgg@gmail.com, angelogioacchino.delregno@collabora.com,
         mkorpershoek@baylibre.com, linux-input@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org,
         linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5] Input: mtk-pmic-keys - Transfer per-key bit in mtk_pmic_keys_regs
-Date:   Fri, 20 May 2022 14:51:30 +0200
-Message-Id: <20220520125132.229191-4-angelogioacchino.delregno@collabora.com>
+Subject: [PATCH 5/5] Input: mtk-pmic-keys - Add support for MT6331 PMIC keys
+Date:   Fri, 20 May 2022 14:51:32 +0200
+Message-Id: <20220520125132.229191-6-angelogioacchino.delregno@collabora.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220520125132.229191-1-angelogioacchino.delregno@collabora.com>
 References: <20220520125132.229191-1-angelogioacchino.delregno@collabora.com>
@@ -47,146 +47,66 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Place the key bit in struct mtk_pmic_keys_regs to enhance this
-driver's flexibility, in preparation for adding support for more
-PMICs.
-
-While at it, also remove the *_MASK and *_SHIFT definitions, as
-these can be simply expressed as BIT(x), and "slightly rename"
-the MTK_PMIC_{HOME,PWR}KEY_RST macro to better reflect the real
-name for these bits.
-
-This commit brings no functional changes.
+Add support for PMIC Keys of the MT6331 PMIC.
 
 Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 ---
- drivers/input/keyboard/mtk-pmic-keys.c | 46 ++++++++++++++------------
- 1 file changed, 25 insertions(+), 21 deletions(-)
+ drivers/input/keyboard/mtk-pmic-keys.c | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
 
 diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
-index 83d0b90cc8cb..d8285612265f 100644
+index acd5aefac5f9..4a03fdfe8282 100644
 --- a/drivers/input/keyboard/mtk-pmic-keys.c
 +++ b/drivers/input/keyboard/mtk-pmic-keys.c
-@@ -18,17 +18,11 @@
- #include <linux/platform_device.h>
- #include <linux/regmap.h>
+@@ -9,6 +9,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/mfd/mt6323/registers.h>
++#include <linux/mfd/mt6331/registers.h>
+ #include <linux/mfd/mt6358/registers.h>
+ #include <linux/mfd/mt6397/core.h>
+ #include <linux/mfd/mt6397/registers.h>
+@@ -22,6 +23,10 @@
+ #define MTK_PMIC_MT6397_PWRKEY_RST_EN	BIT(6)
+ #define MTK_PMIC_MT6397_RST_DU_MASK	GENMASK(9, 8)
  
--#define MTK_PMIC_PWRKEY_RST_EN_MASK	0x1
--#define MTK_PMIC_PWRKEY_RST_EN_SHIFT	6
--#define MTK_PMIC_HOMEKEY_RST_EN_MASK	0x1
--#define MTK_PMIC_HOMEKEY_RST_EN_SHIFT	5
- #define MTK_PMIC_RST_DU_MASK		0x3
- #define MTK_PMIC_RST_DU_SHIFT		8
- 
--#define MTK_PMIC_PWRKEY_RST		\
--	(MTK_PMIC_PWRKEY_RST_EN_MASK << MTK_PMIC_PWRKEY_RST_EN_SHIFT)
--#define MTK_PMIC_HOMEKEY_RST		\
--	(MTK_PMIC_HOMEKEY_RST_EN_MASK << MTK_PMIC_HOMEKEY_RST_EN_SHIFT)
-+#define MTK_PMIC_MT6397_HOMEKEY_RST_EN	BIT(5)
-+#define MTK_PMIC_MT6397_PWRKEY_RST_EN	BIT(6)
- 
++#define MTK_PMIC_MT6331_HOMEKEY_RST_EN	BIT(8)
++#define MTK_PMIC_MT6331_PWRKEY_RST_EN	BIT(9)
++#define MTK_PMIC_MT6331_RST_DU_MASK	GENMASK(13, 12)
++
  #define MTK_PMIC_PWRKEY_INDEX	0
  #define MTK_PMIC_HOMEKEY_INDEX	1
-@@ -40,21 +34,24 @@
-  * @deb_mask:            Bitmask of this key in status register
-  * @intsel_reg:          Interrupt selector register
-  * @intsel_mask:         Bitmask of this key in interrupt selector
-+ * @rst_en_mask:         Bitmask of this key in PMIC keys reset register
-  */
- struct mtk_pmic_keys_regs {
- 	u32 deb_reg;
- 	u32 deb_mask;
- 	u32 intsel_reg;
- 	u32 intsel_mask;
-+	u32 rst_en_mask;
+ #define MTK_PMIC_MAX_KEY_COUNT	2
+@@ -86,6 +91,19 @@ static const struct mtk_pmic_regs mt6323_regs = {
+ 	.rst_lprst_mask = MTK_PMIC_MT6397_RST_DU_MASK,
  };
  
- #define MTK_PMIC_KEYS_REGS(_deb_reg, _deb_mask,		\
--	_intsel_reg, _intsel_mask)			\
-+	_intsel_reg, _intsel_mask, _rst_mask)		\
- {							\
- 	.deb_reg		= _deb_reg,		\
- 	.deb_mask		= _deb_mask,		\
- 	.intsel_reg		= _intsel_reg,		\
- 	.intsel_mask		= _intsel_mask,		\
-+	.rst_en_mask		= _rst_mask,		\
- }
- 
- /**
-@@ -70,30 +67,32 @@ struct mtk_pmic_regs {
- static const struct mtk_pmic_regs mt6397_regs = {
- 	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6397_CHRSTATUS,
--		0x8, MT6397_INT_RSV, 0x10),
-+		0x8, MT6397_INT_RSV, 0x10, MTK_PMIC_MT6397_PWRKEY_RST_EN),
- 	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6397_OCSTATUS2,
--		0x10, MT6397_INT_RSV, 0x8),
-+		0x10, MT6397_INT_RSV, 0x8, MTK_PMIC_MT6397_HOMEKEY_RST_EN),
- 	.pmic_rst_reg = MT6397_TOP_RST_MISC,
- };
- 
- static const struct mtk_pmic_regs mt6323_regs = {
- 	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
--		0x2, MT6323_INT_MISC_CON, 0x10),
-+		0x2, MT6323_INT_MISC_CON, 0x10, MTK_PMIC_MT6397_PWRKEY_RST_EN),
- 	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6323_CHRSTATUS,
--		0x4, MT6323_INT_MISC_CON, 0x8),
-+		0x4, MT6323_INT_MISC_CON, 0x8, MTK_PMIC_MT6397_HOMEKEY_RST_EN),
- 	.pmic_rst_reg = MT6323_TOP_RST_MISC,
- };
- 
++static const struct mtk_pmic_regs mt6331_regs = {
++	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
++		MTK_PMIC_KEYS_REGS(MT6331_TOPSTATUS, 0x2,
++				   MT6331_INT_MISC_CON, 0x4,
++				   MTK_PMIC_MT6331_PWRKEY_RST_EN),
++	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
++		MTK_PMIC_KEYS_REGS(MT6331_TOPSTATUS, 0x4,
++				   MT6331_INT_MISC_CON, 0x2,
++				   MTK_PMIC_MT6331_HOMEKEY_RST_EN),
++	.pmic_rst_reg = MT6331_TOP_RST_MISC,
++	.rst_lprst_mask = MTK_PMIC_MT6331_RST_DU_MASK,
++};
++
  static const struct mtk_pmic_regs mt6358_regs = {
  	.keys_regs[MTK_PMIC_PWRKEY_INDEX] =
  		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
--				   0x2, MT6358_PSC_TOP_INT_CON0, 0x5),
-+				   0x2, MT6358_PSC_TOP_INT_CON0, 0x5,
-+				   MTK_PMIC_MT6397_PWRKEY_RST_EN),
- 	.keys_regs[MTK_PMIC_HOMEKEY_INDEX] =
- 		MTK_PMIC_KEYS_REGS(MT6358_TOPSTATUS,
--				   0x8, MT6358_PSC_TOP_INT_CON0, 0xa),
-+				   0x8, MT6358_PSC_TOP_INT_CON0, 0xa,
-+				   MTK_PMIC_MT6397_HOMEKEY_RST_EN),
- 	.pmic_rst_reg = MT6358_TOP_RST_MISC,
- };
- 
-@@ -140,6 +139,11 @@ static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
- {
- 	int ret;
- 	u32 long_press_mode, long_press_debounce;
-+	const struct mtk_pmic_keys_regs *kregs_pwr;
-+	const struct mtk_pmic_keys_regs *kregs_home;
-+
-+	kregs_pwr = keys->keys[MTK_PMIC_PWRKEY_INDEX].regs;
-+	kregs_home = keys->keys[MTK_PMIC_HOMEKEY_INDEX].regs;
- 
- 	ret = of_property_read_u32(keys->dev->of_node,
- 		"power-off-time-sec", &long_press_debounce);
-@@ -157,16 +161,16 @@ static void mtk_pmic_keys_lp_reset_setup(struct mtk_pmic_keys *keys,
- 
- 	switch (long_press_mode) {
- 	case LP_ONEKEY:
--		regmap_set_bits(keys->regmap, pmic_rst_reg, MTK_PMIC_PWRKEY_RST);
--		regmap_clear_bits(keys->regmap, pmic_rst_reg, MTK_PMIC_HOMEKEY_RST);
-+		regmap_set_bits(keys->regmap, pmic_rst_reg, kregs_pwr->rst_en_mask);
-+		regmap_clear_bits(keys->regmap, pmic_rst_reg, kregs_home->rst_en_mask);
- 		break;
- 	case LP_TWOKEY:
--		regmap_set_bits(keys->regmap, pmic_rst_reg, MTK_PMIC_PWRKEY_RST);
--		regmap_set_bits(keys->regmap, pmic_rst_reg, MTK_PMIC_HOMEKEY_RST);
-+		regmap_set_bits(keys->regmap, pmic_rst_reg, kregs_pwr->rst_en_mask);
-+		regmap_set_bits(keys->regmap, pmic_rst_reg, kregs_home->rst_en_mask);
- 		break;
- 	case LP_DISABLE:
--		regmap_clear_bits(keys->regmap, pmic_rst_reg, MTK_PMIC_PWRKEY_RST);
--		regmap_clear_bits(keys->regmap, pmic_rst_reg, MTK_PMIC_HOMEKEY_RST);
-+		regmap_clear_bits(keys->regmap, pmic_rst_reg, kregs_pwr->rst_en_mask);
-+		regmap_clear_bits(keys->regmap, pmic_rst_reg, kregs_home->rst_en_mask);
- 		break;
- 	default:
- 		break;
+@@ -284,6 +302,9 @@ static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
+ 	}, {
+ 		.compatible = "mediatek,mt6323-keys",
+ 		.data = &mt6323_regs,
++	}, {
++		.compatible = "mediatek,mt6331-keys",
++		.data = &mt6331_regs,
+ 	}, {
+ 		.compatible = "mediatek,mt6358-keys",
+ 		.data = &mt6358_regs,
 -- 
 2.35.1
 

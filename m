@@ -2,70 +2,79 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92CE1C433EF
-	for <linux-input@archiver.kernel.org>; Mon, 23 May 2022 19:19:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB663C4332F
+	for <linux-input@archiver.kernel.org>; Mon, 23 May 2022 19:45:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229919AbiEWTTC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 23 May 2022 15:19:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37090 "EHLO
+        id S230248AbiEWTpX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 23 May 2022 15:45:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229495AbiEWTSj (ORCPT
+        with ESMTP id S231933AbiEWTpL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 23 May 2022 15:18:39 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24CC4102754;
-        Mon, 23 May 2022 11:53:41 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id rs12so18994402ejb.13;
-        Mon, 23 May 2022 11:53:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=2ZCytUAOk/pwtZMG0E9kDBiBIfg7JhM/yV+MzcZ70mQ=;
-        b=NI/JfXS1L2wh4cJIiAKkRxgD/lBjQdoqhzs3WtDHs/U+plYwHdMvx8dm0DmByDGMsr
-         Z1igtZ1XLfQmGMybQ2Uwt8l/g2Ecla/nFnTX+/xteStQUt6OMiL/1Al5f4rbUp/uFwcJ
-         enh8IGEpRTv3I30wUz8u8KKpBEmQDV8+6TXZyQB5S2uY/W5UF1zj91F/gRR+wWX/352R
-         bEiXKIc9h8xs90J02meMvClExc+hzEEVvl7m3PDN7eRLa5/ufB3hWmj/HZyYHcq4jyYg
-         Hn2QKlWWP96bFrOFwPKGNJWbfdKRr+/OJSVH0HLU2o2FiEWP/xIt+MGef4X7QpUF5wc/
-         y/jw==
+        Mon, 23 May 2022 15:45:11 -0400
+Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E82B39B;
+        Mon, 23 May 2022 12:45:05 -0700 (PDT)
+Received: by mail-oi1-f171.google.com with SMTP id e189so19040109oia.8;
+        Mon, 23 May 2022 12:45:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=2ZCytUAOk/pwtZMG0E9kDBiBIfg7JhM/yV+MzcZ70mQ=;
-        b=InaMt/XTK4ybS2InPxVfwQRHbOY35dYeQWobbeMmSIw9YmiXRJjtJo4RsHz/XRzbIE
-         C3kpOMCAYjVTQcu28NEAXlkPskK3M3Dv0CPbz1VTYsIKtACbObYnPvwk7dN+7FCcF57b
-         EzL9nW54XjNnP+9+954QLm/L5AACLCi2LDw2Ij9FnkhuEo5sHI5vEy1AHM/MyccPLTHp
-         A6yeZkemPUS+Afsec2lD4l49mlpd5BSog0sayaF1nmsPtmukfwi2dIXFLKVfTs1LZlDX
-         HK+VrfqCPuglgK7zhZH1eQMl4t6ykQ1Si+DKO5pBO8v6Eq7H9+FKKfOpzv7S4RoLQ0Ki
-         2yqA==
-X-Gm-Message-State: AOAM532JL9u5DkY0yoG9vIFKOPr/Iu7a4K9/XsmJLEzIvef7bmiv/t6q
-        y7QIJFRSit5RxLEIOn50c75hzbnNE3ly50xteR0=
-X-Google-Smtp-Source: ABdhPJzq7ECdMNaNpe0qi+bNZ0NjNDyJx6bQY7R/ckcsux4ZSYoEZPUXFsn9urmaxAiTzHYAGf18eDVcOWspllDpHhg=
-X-Received: by 2002:a17:907:3ea5:b0:6fe:ce25:7a69 with SMTP id
- hs37-20020a1709073ea500b006fece257a69mr7803508ejc.626.1653332019476; Mon, 23
- May 2022 11:53:39 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=8QuWz2Mjtt5rst0g3ggmFv6IrEyFmgOByNDWupAMrDs=;
+        b=YTKSVU2Qk6kN4s+lmvIyQQ9d8uRnspySJIqjxneilS1lBUrGS1DGuu37sVHOptLIsU
+         7qOQZ7liQL5jjoaNfX8iyz+sEhUKPIxfxPDDC4gSPXOUs+WvjBS103SZpHVs7d7PjjB/
+         Zw03Lp480pZTiEOHUjEvhi1MKa9eM2/CxUftxgNSCJJBTUZHBaHuCs7Cs9juTtN5xvn4
+         Iv4GSucbUu0KVJ2VR1CURNh9Q4MWRk3RJhmBmgLmhd02nfWu/77VX1w4DrfECEWpcVhW
+         SFuSI60S3SdBn1JRfhJQi+e3/GDdxf+UvhUFfSmfLGBu9i0WUSW392ysZxUEC+MXvoF4
+         K+pg==
+X-Gm-Message-State: AOAM530vIqYhIeucwdwEYOyvTybyMP/vQWBe2y6qrrKfWfEZYDNrLzDv
+        zRJFBDZ94tGRreHd3JC4d+pto9BcUA==
+X-Google-Smtp-Source: ABdhPJx+ccOOhlILod3IObwcYhri/hjaVhQcrfGm7LvMK/NjAdC10/SDIKP+s7ceFHKroQ6OlbjEgg==
+X-Received: by 2002:a05:6808:1981:b0:32b:9fc:6f9e with SMTP id bj1-20020a056808198100b0032b09fc6f9emr375889oib.111.1653335104820;
+        Mon, 23 May 2022 12:45:04 -0700 (PDT)
+Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
+        by smtp.gmail.com with ESMTPSA id m12-20020a4a390c000000b0035eb4e5a6cbsm4564240ooa.33.2022.05.23.12.45.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 May 2022 12:45:04 -0700 (PDT)
+Received: (nullmailer pid 2023787 invoked by uid 1000);
+        Mon, 23 May 2022 19:45:03 -0000
+Date:   Mon, 23 May 2022 14:45:03 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Robin van der Gracht <robin@protonic.nl>,
+        Miguel Ojeda <ojeda@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Olof Johansson <olof@lixom.net>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: input: matrix-keymap: Add common
+ 'linux,no-autorepeat' property
+Message-ID: <20220523194503.GA2004570-robh@kernel.org>
+References: <20220523170449.1763039-1-robh@kernel.org>
+ <YovWpSvabyhcYnzL@google.com>
 MIME-Version: 1.0
-From:   Fabio Estevam <festevam@gmail.com>
-Date:   Mon, 23 May 2022 15:53:30 -0300
-Message-ID: <CAOMZO5CsGxwos0_SwSEACZxSUVwPeT7GiwzT8W+sV=o=b=i-Mw@mail.gmail.com>
-Subject: goodix: Commit for 5.4 stable inclusion
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     dmastykin@astralinux.ru,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        stable <stable@vger.kernel.org>, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YovWpSvabyhcYnzL@google.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+On Mon, May 23, 2022 at 11:47:01AM -0700, Dmitry Torokhov wrote:
+> On Mon, May 23, 2022 at 12:04:49PM -0500, Rob Herring wrote:
+> > 'linux,no-autorepeat' is a common property used in multiple bindings,
+> > but doesn't have a common type definition nor description. Add a common
+> > definition and drop the now redundant description from
+> > holtek,ht16k33.yaml.
+> 
+> We have "autorepeat" in the common input binding description, should we
+> not promote it over "no-autorepeat"?
 
-I would like to kindly request the inclusion of commit 24ef83f6e31d
-("Input: goodix - fix spurious key release events") to the 5.4 stable
-tree.
+We're kind of stuck with it I think. We can't just deprecate one and 
+switch existing users as what would neither property present mean?
 
-It fixes the spurious touches reported on an imx6dl board with Goodix
-GT911 running kernel 5.4.
+Hopefully, documented in input.yaml vs. matrix-keypad.yaml is enough to 
+say which one is preferred for new users. 
 
-Thanks,
+Rob
 
-Fabio Estevam

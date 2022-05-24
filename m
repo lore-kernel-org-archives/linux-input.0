@@ -2,188 +2,169 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 447A4C433F5
-	for <linux-input@archiver.kernel.org>; Tue, 24 May 2022 08:14:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04B2FC433EF
+	for <linux-input@archiver.kernel.org>; Tue, 24 May 2022 09:31:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231759AbiEXIOO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 24 May 2022 04:14:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47830 "EHLO
+        id S235640AbiEXJbr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 24 May 2022 05:31:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231840AbiEXIOL (ORCPT
+        with ESMTP id S235610AbiEXJbr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 24 May 2022 04:14:11 -0400
-X-Greylist: delayed 102 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 24 May 2022 01:14:08 PDT
-Received: from atl4mhfb02.myregisteredsite.com (atl4mhfb02.myregisteredsite.com [209.17.115.118])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AE7777F05
-        for <linux-input@vger.kernel.org>; Tue, 24 May 2022 01:14:06 -0700 (PDT)
-Received: from jax4mhob02.registeredsite.com (jax4mhob02.myregisteredsite.com [64.69.218.82])
-        by atl4mhfb02.myregisteredsite.com (8.14.4/8.14.4) with ESMTP id 24O8CNDS030168
-        for <linux-input@vger.kernel.org>; Tue, 24 May 2022 04:12:23 -0400
-Received: from mailpod.hostingplatform.com ([10.30.71.203])
-        by jax4mhob02.registeredsite.com (8.14.4/8.14.4) with ESMTP id 24O8CJgX032612
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL)
-        for <linux-input@vger.kernel.org>; Tue, 24 May 2022 04:12:20 -0400
-Received: (qmail 5159 invoked by uid 0); 24 May 2022 08:12:18 -0000
-X-TCPREMOTEIP: 204.168.181.193
-X-Authenticated-UID: mike@milosoftware.com
-Received: from unknown (HELO phenom.domain?not?set.invalid) (mike@milosoftware.com@204.168.181.193)
-  by 0 with ESMTPA; 24 May 2022 08:12:18 -0000
-From:   Mike Looijmans <mike.looijmans@topic.nl>
-To:     linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, dmitry.torokhov@gmail.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        martink@posteo.de, geert+renesas@glider.be, john@metanate.com,
-        hechtb@gmail.com, Mike Looijmans <mike.looijmans@topic.nl>
-Subject: [PATCH] Input: st1232 - Support power supply regulators
-Date:   Tue, 24 May 2022 10:12:16 +0200
-Message-Id: <20220524081216.8550-1-mike.looijmans@topic.nl>
-X-Mailer: git-send-email 2.17.1
+        Tue, 24 May 2022 05:31:47 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 060C04EA00
+        for <linux-input@vger.kernel.org>; Tue, 24 May 2022 02:31:45 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id p4so28419718lfg.4
+        for <linux-input@vger.kernel.org>; Tue, 24 May 2022 02:31:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9nrI7YiSyYQ7Y/X0QFQ+SqgqG6o8iofh9fkLStbCKSA=;
+        b=AdCDXmVIvkLD95zyxngXCxPArySis6nnzTDFoOS/AHX6lNFbSnK2tArP/ANsSMcfwB
+         r+SWu81KcvPVKroFGu8s2JJVBTg1j6/cDvGIJCI+s5q1Kd0tO2CcC2e5m0x6517E35pV
+         F6pXBV09ZEiLjGe0suJcvtEW3NPXLlT1EJ5BrRbeGQyGq6eA0RHkFLcm2zICD/Sjih4P
+         IMfzWJ+8iBAFcIpEpIJUDaGnQboFnHFeLFsApdprNTXgeRgepGXkcj2crgSQKcmOr1ll
+         OmSOhYMOGqgyg0qfk9yI3L9S6Vf2sPdSjE/TacO3oouOmTh0fnp1ZNQihKjIe0CYTIxq
+         r6KA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=9nrI7YiSyYQ7Y/X0QFQ+SqgqG6o8iofh9fkLStbCKSA=;
+        b=z4+rfR10blKNiWi0hhcMVQQZ0r1qz87DKXcjZxUyoTS02YNn60vSSKqxGn1eqIIq1q
+         eXl4pPRPr3+8Mwq/UA6JF6YJxbF38z/itAopNjUW762NhmfY4QXjR2kX462Vd1WSP7c7
+         OajjOgrTJmOFYf9c1DcI0e5mT1yMSgS9iZ07me5weGYK/DzpnXyENBos63Dp88jwCjKF
+         vr+pKbs74YgOkZAj3Qu2Hs3UpJTRFgBqhbg54uP/TxDFhM818PGCay0zNruoN0+bq98p
+         xsJCLx5R5R+5KpnONlv/tYFp3BneGOdDPDB64f38crYFSV5V8go/evJ+0nL5WPiH1BCX
+         S17g==
+X-Gm-Message-State: AOAM530cwKXmEIavX0aFytSXZP43RB8oNo4773dYmVcrwK831LPTDbrm
+        uPN9RgW0tdvOZhLAVSEhbMBayA==
+X-Google-Smtp-Source: ABdhPJwFxrAvDTuvMQYljVIrHPBvZF52hEqcTEDK4dnVxRLtDEczUbqMN3la4jkBhGwCJ+/VU8CNpw==
+X-Received: by 2002:a05:6512:3d8c:b0:478:7996:935d with SMTP id k12-20020a0565123d8c00b004787996935dmr5158485lfv.542.1653384703330;
+        Tue, 24 May 2022 02:31:43 -0700 (PDT)
+Received: from krzk-bin.. ([91.221.145.6])
+        by smtp.gmail.com with ESMTPSA id q30-20020ac2515e000000b0047255d2112asm2443218lfd.89.2022.05.24.02.31.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 May 2022 02:31:42 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Jeff LaBundy <jeff@labundy.com>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Andreas Kemnade <andreas@kemnade.info>
+Subject: [PATCH] dt-bindings: input: use generic node names
+Date:   Tue, 24 May 2022 11:31:36 +0200
+Message-Id: <20220524093136.7980-1-krzysztof.kozlowski@linaro.org>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support for the VDD and IOVDD power supply inputs. This allows the
-chip to share its supplies with other components (e.g. panel) and manage
-them.
+Devicetree specification expects nodes to have generic names, if
+possible, so replace custom ones with something generic.  For gpio-keys,
+the more popular format is "key-xxx" instead of "xxx-key", so choose the
+first one.
 
-Signed-off-by: Mike Looijmans <mike.looijmans@topic.nl>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+
 ---
- .../input/touchscreen/sitronix,st1232.yaml    |  6 +++
- drivers/input/touchscreen/st1232.c            | 54 ++++++++++++++++---
- 2 files changed, 52 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-index 1d8ca19fd37a..240be8d49232 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-@@ -28,6 +28,12 @@ properties:
-     description: A phandle to the reset GPIO
-     maxItems: 1
+Cc: Andreas Kemnade <andreas@kemnade.info>
+---
+ .../devicetree/bindings/input/fsl,mpr121-touchkey.yaml        | 4 ++--
+ Documentation/devicetree/bindings/input/gpio-keys.yaml        | 4 ++--
+ Documentation/devicetree/bindings/input/iqs269a.yaml          | 2 +-
+ Documentation/devicetree/bindings/input/iqs626a.yaml          | 2 +-
+ .../devicetree/bindings/input/microchip,cap11xx.yaml          | 2 +-
+ 5 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml b/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
+index 878464f128dc..5139af287d3e 100644
+--- a/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
++++ b/Documentation/devicetree/bindings/input/fsl,mpr121-touchkey.yaml
+@@ -57,7 +57,7 @@ examples:
+         #address-cells = <1>;
+         #size-cells = <0>;
  
-+  vdd-supply:
-+    description: Power supply regulator for the chip
-+
-+  vddio-supply:
-+    description: Power supply regulator for the I2C bus
-+
- required:
-   - compatible
-   - reg
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index e38ba3e4f183..d9c9f6f1f11a 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -44,6 +44,11 @@
- #define REG_XY_COORDINATES	0x12
- #define ST_TS_MAX_FINGERS	10
+-        mpr121@5a {
++        touchkey@5a {
+             compatible = "fsl,mpr121-touchkey";
+             reg = <0x5a>;
+             interrupt-parent = <&gpio1>;
+@@ -77,7 +77,7 @@ examples:
+         #address-cells = <1>;
+         #size-cells = <0>;
  
-+enum st1232_regulators {
-+	ST1232_REGULATOR_VDD,
-+	ST1232_REGULATOR_IOVDD,
-+};
-+
- struct st_chip_info {
- 	bool	have_z;
- 	u16	max_area;
-@@ -56,6 +61,7 @@ struct st1232_ts_data {
- 	struct touchscreen_properties prop;
- 	struct dev_pm_qos_request low_latency_req;
- 	struct gpio_desc *reset_gpio;
-+	struct regulator_bulk_data regulators[2];
- 	const struct st_chip_info *chip_info;
- 	int read_buf_len;
- 	u8 *read_buf;
-@@ -197,17 +203,36 @@ static irqreturn_t st1232_ts_irq_handler(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
+-        mpr121@5a {
++        touchkey@5a {
+             compatible = "fsl,mpr121-touchkey";
+             reg = <0x5a>;
+             poll-interval = <20>;
+diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+index 7fe1966ea28a..93f601c58984 100644
+--- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
++++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+@@ -127,13 +127,13 @@ examples:
+         compatible = "gpio-keys";
+         autorepeat;
  
--static void st1232_ts_power(struct st1232_ts_data *ts, bool poweron)
-+static int st1232_ts_power_on(struct st1232_ts_data *ts)
-+{
-+	int err;
-+
-+	err = regulator_bulk_enable(ARRAY_SIZE(ts->regulators), ts->regulators);
-+	if (err)
-+		return err;
-+
-+	usleep_range(5000, 6000);
-+
-+	if (ts->reset_gpio)
-+		gpiod_set_value_cansleep(ts->reset_gpio, 0);
-+
-+	return 0;
-+}
-+
-+static void st1232_ts_power_off(struct st1232_ts_data *ts)
- {
- 	if (ts->reset_gpio)
--		gpiod_set_value_cansleep(ts->reset_gpio, !poweron);
-+		gpiod_set_value_cansleep(ts->reset_gpio, 1);
-+	usleep_range(100, 150);
-+	regulator_bulk_disable(ARRAY_SIZE(ts->regulators), ts->regulators);
- }
+-        up {
++        key-up {
+             label = "GPIO Key UP";
+             linux,code = <103>;
+             gpios = <&gpio1 0 1>;
+         };
  
--static void st1232_ts_power_off(void *data)
-+static void st1232_ts_power_off_action(void *data)
- {
--	st1232_ts_power(data, false);
-+	st1232_ts_power_off(data);
- }
+-        down {
++        key-down {
+             label = "GPIO Key DOWN";
+             linux,code = <108>;
+             interrupts = <1 IRQ_TYPE_EDGE_FALLING>;
+diff --git a/Documentation/devicetree/bindings/input/iqs269a.yaml b/Documentation/devicetree/bindings/input/iqs269a.yaml
+index 9c154e5e1a91..d84d69f5455d 100644
+--- a/Documentation/devicetree/bindings/input/iqs269a.yaml
++++ b/Documentation/devicetree/bindings/input/iqs269a.yaml
+@@ -475,7 +475,7 @@ examples:
+             #address-cells = <1>;
+             #size-cells = <0>;
  
-+
- static const struct st_chip_info st1232_chip_info = {
- 	.have_z		= true,
- 	.max_area	= 0xff,
-@@ -266,6 +291,14 @@ static int st1232_ts_probe(struct i2c_client *client,
- 	ts->client = client;
- 	ts->input_dev = input_dev;
+-            iqs269a@44 {
++            touch@44 {
+                     #address-cells = <1>;
+                     #size-cells = <0>;
  
-+	ts->regulators[ST1232_REGULATOR_VDD].supply = "vdd";
-+	ts->regulators[ST1232_REGULATOR_IOVDD].supply = "iovdd";
-+	error = devm_regulator_bulk_get(&client->dev,
-+					ARRAY_SIZE(ts->regulators),
-+					ts->regulators);
-+	if (error)
-+		return error;
-+
- 	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, NULL,
- 						 GPIOD_OUT_HIGH);
- 	if (IS_ERR(ts->reset_gpio)) {
-@@ -275,9 +308,14 @@ static int st1232_ts_probe(struct i2c_client *client,
- 		return error;
- 	}
+diff --git a/Documentation/devicetree/bindings/input/iqs626a.yaml b/Documentation/devicetree/bindings/input/iqs626a.yaml
+index 0cb736c541c9..dd727befe564 100644
+--- a/Documentation/devicetree/bindings/input/iqs626a.yaml
++++ b/Documentation/devicetree/bindings/input/iqs626a.yaml
+@@ -751,7 +751,7 @@ examples:
+             #address-cells = <1>;
+             #size-cells = <0>;
  
--	st1232_ts_power(ts, true);
-+	error = st1232_ts_power_on(ts);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to power on: %d\n", error);
-+		return error;
-+	}
+-            iqs626a@44 {
++            touch@44 {
+                     #address-cells = <1>;
+                     #size-cells = <0>;
  
--	error = devm_add_action_or_reset(&client->dev, st1232_ts_power_off, ts);
-+	error = devm_add_action_or_reset(&client->dev,
-+					 st1232_ts_power_off_action, ts);
- 	if (error) {
- 		dev_err(&client->dev,
- 			"Failed to install power off action: %d\n", error);
-@@ -348,7 +386,7 @@ static int __maybe_unused st1232_ts_suspend(struct device *dev)
- 	disable_irq(client->irq);
+diff --git a/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+index d5d6bced3148..96358b12f9b2 100644
+--- a/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
++++ b/Documentation/devicetree/bindings/input/microchip,cap11xx.yaml
+@@ -112,7 +112,7 @@ examples:
+       #address-cells = <1>;
+       #size-cells = <0>;
  
- 	if (!device_may_wakeup(&client->dev))
--		st1232_ts_power(ts, false);
-+		st1232_ts_power_off(ts);
- 
- 	return 0;
- }
-@@ -359,7 +397,7 @@ static int __maybe_unused st1232_ts_resume(struct device *dev)
- 	struct st1232_ts_data *ts = i2c_get_clientdata(client);
- 
- 	if (!device_may_wakeup(&client->dev))
--		st1232_ts_power(ts, true);
-+		st1232_ts_power_on(ts);
- 
- 	enable_irq(client->irq);
- 
+-      cap1188@28 {
++      touch@28 {
+         compatible = "microchip,cap1188";
+         interrupt-parent = <&gpio1>;
+         interrupts = <0 0>;
 -- 
-2.17.1
+2.34.1
 

@@ -2,192 +2,108 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6389DC433EF
-	for <linux-input@archiver.kernel.org>; Wed, 25 May 2022 20:33:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB65CC433F5
+	for <linux-input@archiver.kernel.org>; Wed, 25 May 2022 23:08:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240736AbiEYUdX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 May 2022 16:33:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36644 "EHLO
+        id S1344802AbiEYXIv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 May 2022 19:08:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231211AbiEYUdW (ORCPT
+        with ESMTP id S230474AbiEYXIv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 May 2022 16:33:22 -0400
-Received: from mail-yw1-x112f.google.com (mail-yw1-x112f.google.com [IPv6:2607:f8b0:4864:20::112f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7242C38D90;
-        Wed, 25 May 2022 13:33:21 -0700 (PDT)
-Received: by mail-yw1-x112f.google.com with SMTP id 00721157ae682-2ff155c239bso227366037b3.2;
-        Wed, 25 May 2022 13:33:21 -0700 (PDT)
+        Wed, 25 May 2022 19:08:51 -0400
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DD7066ADA;
+        Wed, 25 May 2022 16:08:50 -0700 (PDT)
+Received: by mail-wr1-x42e.google.com with SMTP id s28so46064wrb.7;
+        Wed, 25 May 2022 16:08:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=3T4DsH4UCoUl5R2RgjZ0yHyhWI60p4wfKuM4SeQhx6U=;
-        b=dv+OwxdrL+sTwl6GkMW0xyou2Th5dhgob+dZcJHyS8VFrz38UPPQm1cJMpqRohU5dM
-         xVKct417ND39qmmbTR+c7JGQ6oMq1QK9cniugpXz4Pcz/vHg4eFwHOuPTdCu6Lu/AlfF
-         yd5IJKNdSZhHO+/ZhtdgBDcqcQgo2o/0PyJ1q6RX3GG/TsBIH/i9CuQK5urHzZBK0W5B
-         UsrfQ/oZFOGSmYXQHS6MOSKcA6yeClY73k2g1AOYVanujLpnrxbRVbC1Gjg6Z/TyOn0F
-         56d7AM88fzWCpcYg2N6Ymyu5SphtaOjSbvf+MLuUw8zsacUSgsKe1693C9IHnh729sn3
-         0atw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=w+b9gdnTinL6wrIHBf3f+AZedWLGvYQrCm3phP+L7gc=;
+        b=SbRB6SK8sQPWbrRGSU761H8nBWHJsfx8Bg9QcJ51xiDXODS7GffWQW83pCHPUbK4cd
+         JW7zAE5piQLv+h+UYcyqjP3uVLqTsdAG/Y69LhJjZqC7Hr0QD8vbC5jHkbWUKH8NnjKv
+         /kYrponui1LJNLNKmTzdqpMCf+y/BTlvfHUo/ZCNCYo8m5BKHYEM3fWlL4AzyR4h2+CG
+         T/GrXrvy6kDgv5sUmM0q1QfPo3Ig4ukwfwpNDTGzfPllUTSIHuD0RNsqyFe96rwccxdB
+         3LMU5/1t+94vFUJ8CnEnkqjMDkcLq3nyWrGqDm99zf6HLQdxDrmKAsyHOQXZf1dFR3KV
+         J4tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=3T4DsH4UCoUl5R2RgjZ0yHyhWI60p4wfKuM4SeQhx6U=;
-        b=ob3GxNoc3b+erIyuEhx7qUj4vsBZa6QD8QcvhKCVwJE7H4QeuoDAMkmulU982nokPS
-         uXBhTCofc/6ZwrgduvubVDR4Pd80C07RKZt/tVlX4B/CRoAgv5Nnp8HwZjb5mtW2RB0J
-         DTYFcytrcyHYyCXFR0s73ZVPmuRQp/fBbPXeGxsaFplP2galqG7UhgPzTVJ3lnHtnTz2
-         eT18GKAVf5ZZTuVyTcHaq9rx20W/ynFGRtspu/5PlvM0ZRdM7ot42npvHHycpcsfnk5s
-         pds4nfnhkPjEa2iBRvEya5Y6OkXgKbIekmwyQX0FTXwNzjfB1DqrZe7LyNNeVwaMsjtn
-         jiGQ==
-X-Gm-Message-State: AOAM533gj9ykjzwGIK4vX4iLbKAvZFNGw7gvhj/QN1A3B1Duey0Qxg/a
-        o9rhv2SuwjSp1aeHtttGotnwZqeJmffG/zW0E3Y=
-X-Google-Smtp-Source: ABdhPJyTYx51ktptJDJOGC/Q7m0DwpTiRnsv3pKLVHymqaP7oCcgTlkoZFHS5omkRIwD539RV9Ftn7Q7lgHzHuB6UBI=
-X-Received: by 2002:a0d:df4a:0:b0:2ff:29c7:124e with SMTP id
- i71-20020a0ddf4a000000b002ff29c7124emr35843404ywe.346.1653510800738; Wed, 25
- May 2022 13:33:20 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=w+b9gdnTinL6wrIHBf3f+AZedWLGvYQrCm3phP+L7gc=;
+        b=QagwPMhI8dsf9PKRjp5MURSLucsNx9WIHZKykP0j1fRXWwQeHy0bZ63YBsOpXb5M60
+         2AlIL64ukIODKW4bKVLs/dDtk3aa/1vjz+dDT4k6LTkR7ARdyfzWbl8Pw7iO/0ZQo05g
+         KfI6pHC77muZeJEUB1OspsJRoVKjsVJa+caLceM7RZ98HcU4xFrCFioJpXwW0BNHVtaS
+         HnMrPKLpcpe26+16ewxKCZZvWuy5/LI7/3V8Rp/fnNvW0Qc9gimDULyiwkMEB3I3apho
+         aBpNmNqOknZ1NxvVPp1UzGOWCtJgsEFvPpsdsDJmvBqiurXXpNKFygxMFI8Vo0smkX9j
+         fOHw==
+X-Gm-Message-State: AOAM530/aLjU1auEALEBiYnXa33E/TpeSNf9ODGR0F1QQAYLfN3jdGem
+        qGD6NA1PjuMraaGKQOOxyZ8=
+X-Google-Smtp-Source: ABdhPJwfE6vKfOV8ZO5UcmyYQlQzCwmf+EHSy8a8/Hu3S3epV571AJEfewLyUGlpgX20HaW8HMTgLw==
+X-Received: by 2002:a5d:47ce:0:b0:20f:d6b5:4648 with SMTP id o14-20020a5d47ce000000b0020fd6b54648mr16009719wrc.73.1653520127956;
+        Wed, 25 May 2022 16:08:47 -0700 (PDT)
+Received: from xws.localdomain (pd9e5a94a.dip0.t-ipconnect.de. [217.229.169.74])
+        by smtp.gmail.com with ESMTPSA id i7-20020adff307000000b0020fe280aa96sm112627wro.107.2022.05.25.16.08.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 May 2022 16:08:47 -0700 (PDT)
+From:   Maximilian Luz <luzmaximilian@gmail.com>
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     Maximilian Luz <luzmaximilian@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] HID: hid-input: add Surface Go battery quirk
+Date:   Thu, 26 May 2022 01:08:27 +0200
+Message-Id: <20220525230827.1019662-1-luzmaximilian@gmail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-References: <20220525074757.7519-1-michael.zaidman@gmail.com>
- <20220525074757.7519-4-michael.zaidman@gmail.com> <CAHSN6OfdHfiZRXjnqvnpcbwS0nt0vBuLiwMHcbpsd_AWiJ3i1g@mail.gmail.com>
- <20220525194242.GA13454@michael-VirtualBox>
-In-Reply-To: <20220525194242.GA13454@michael-VirtualBox>
-From:   Guillaume Champagne <champagne.guillaume.c@gmail.com>
-Date:   Wed, 25 May 2022 16:33:09 -0400
-Message-ID: <CAHSN6Ocr538DZCkP9-RL7V7ALc6G_e4rWQz56qRg4o-GVd7=hg@mail.gmail.com>
-Subject: Re: [PATCH v1 3/5] HID: ft260: support i2c writes larger than HID
- report size
-To:     Michael Zaidman <michael.zaidman@gmail.com>
-Cc:     jikos@kernel.org, benjamin.tissoires@redhat.com, wsa@kernel.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-i2c@vger.kernel.org,
-        Mathieu Gallichand <mathieu.gallichand@sonatest.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Le mer. 25 mai 2022 =C3=A0 15:42, Michael Zaidman
-<michael.zaidman@gmail.com> a =C3=A9crit :
->
-> On Wed, May 25, 2022 at 11:44:09AM -0400, Guillaume Champagne wrote:
-> > Le mer. 25 mai 2022 =C3=A0 03:48, Michael Zaidman
-> > <michael.zaidman@gmail.com> a =C3=A9crit :
-> > >
-> > > To support longer than one HID report size write, the driver splits a=
- single
-> > > i2c message data payload into multiple i2c messages of HID report siz=
-e.
-> > > However, it does not replicate the offset bytes within the EEPROM chi=
-p in
-> > > every consequent HID report because it is not and should not be aware=
- of
-> > > the EEPROM type. It breaks the i2c write message integrity and causes=
- the
-> > > EEPROM device not to acknowledge the second HID report keeping the i2=
-c bus
-> > > busy until the ft260 controller reports failure.
-> > >
-> >
-> > I tested this whole patchset and it resolves the issue I raised
-> > https://patchwork.kernel.org/project/linux-input/patch/20220524192422.1=
-3967-1-champagne.guillaume.c@gmail.com/,
-> > thanks.
->
-> Much appreciated!
-> I will add your tested-by in the second version of the patchset.
->
-> >
-> > > This patch preserves the i2c write message integrity by manipulating =
-the
-> > > i2c flag bits across multiple HID reports to be seen by the EEPROM de=
-vice
-> > > as a single i2c write transfer.
-> > >
-> > > Before:
-> > >
-> > > $ sudo ./i2cperf -f 2 -o 2 -s 64 -r 0-0xff 13 0x51 -S
-> > > Error: Sending messages failed: Input/output error
-> > >
-> > > [  +3.667741] ft260_i2c_write: rep 0xde addr 0x51 off 0 len 60 d[0] 0=
-x0
-> > > [  +0.007330] ft260_hid_output_report_check_status: wait 6400 usec, l=
-en 64
-> > > [  +0.000203] ft260_xfer_status: bus_status 0x40, clock 100
-> > > [  +0.000001] ft260_i2c_write: rep 0xd1 addr 0x51 off 60 len 6 d[0] 0=
-x0
-> > > [  +0.002337] ft260_hid_output_report_check_status: wait 1000 usec, l=
-en 10
-> > > [  +0.000157] ft260_xfer_status: bus_status 0x2e, clock 100
-> > > [  +0.000241] ft260_i2c_reset: done
-> > > [  +0.000003] ft260 0003:0403:6030.000E: ft260_i2c_write: failed to s=
-tart transfer, ret -5
-> > >
-> > > After:
-> > >
-> > > $ sudo ./i2cperf -f 2 -o 2 -s 128 -r 0-0xff 13 0x51 -S
-> > >
-> > >   Fill block with increment via i2ctransfer by chunks
-> > >   -------------------------------------------------------------------
-> > >   data rate(bps)  efficiency(%)  data size(B)  total IOs   IO size(B)
-> > >   -------------------------------------------------------------------
-> > >   58986           86             256           2           128
-> > >
-> > > Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
-> > > ---
-> > >  drivers/hid/hid-ft260.c | 45 ++++++++++++++++++++++++---------------=
---
-> > >  1 file changed, 27 insertions(+), 18 deletions(-)
-> > >
-> > > diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-> > > index 44106cadd746..bfda5b191a3a 100644
-> > > --- a/drivers/hid/hid-ft260.c
-> > > +++ b/drivers/hid/hid-ft260.c
-> > > @@ -378,41 +378,50 @@ static int ft260_hid_output_report_check_status=
-(struct ft260_device *dev,
-> > >  }
-> > >
-> > >  static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *da=
-ta,
-> > > -                          int data_len, u8 flag)
-> > > +                          int len, u8 flag)
-> > >  {
-> > > -       int len, ret, idx =3D 0;
-> > > +       int ret, wr_len, idx =3D 0;
-> > > +       bool first =3D true;
-> > >         struct hid_device *hdev =3D dev->hdev;
-> > >         struct ft260_i2c_write_request_report *rep =3D
-> > >                 (struct ft260_i2c_write_request_report *)dev->write_b=
-uf;
-> > >
-> > >         do {
-> > > -               if (data_len <=3D FT260_WR_DATA_MAX)
-> > > -                       len =3D data_len;
-> > > -               else
-> > > -                       len =3D FT260_WR_DATA_MAX;
-> > > +               rep->flag =3D 0;
-> > > +               if (first) {
-> > > +                       rep->flag =3D FT260_FLAG_START;
-> >
-> > I feel like multi packet transactions must still honor flag sent to
-> > ft20_i2c_write. This adds a START even if ft260_i2c_write is called
-> > with FT260_FLAG_START_REPEATED or FT260_FLAG_NONE.
->
-> We use the FT260_FLAG_START_REPEATED to precede the Read message followin=
-g
-> the Write message in the i2c combined transaction. Am I missing any i2c
-> protocol case using the Repeated Start in the Write path?
->
+Similar to the Surface Go (1), the (Elantech) touchscreen/digitizer in
+the Surface Go 2 mistakenly reports the battery of the stylus. Instead
+of over the touchscreen device, battery information is provided via
+bluetooth and the touchscreen device reports an empty battery.
 
-None that I know of. My point was that software wise it may be less
-surprising to the programmer if "flag" is replicated as is when
-calling ft260_i2c_write. For example, calling it with FT260_FLAG_STOP
-only sends a START, no STOP. I agree that it isn't currently called
-that way and that it may never be.
+Apply the HID_BATTERY_QUIRK_IGNORE quirk to ignore this battery and
+prevent the erroneous low battery warnings.
 
-> The FT260_FLAG_NONE should not be passed into the ft20_i2c_write as well.
->
-> So, we can keep it simple.
+Cc: stable@vger.kernel.org
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+---
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-Agreed.
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index d9eb676abe96..9c4e92a9c646 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -413,6 +413,7 @@
+ #define USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN	0x2544
+ #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+ #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
++#define I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN	0x2A1C
+ 
+ #define USB_VENDOR_ID_ELECOM		0x056e
+ #define USB_DEVICE_ID_ELECOM_BM084	0x0061
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index c6b27aab9041..48c1c02c69f4 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -381,6 +381,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{}
+ };
+ 
+-- 
+2.36.1
 
->

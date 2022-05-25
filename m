@@ -2,62 +2,172 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C54A1C433EF
-	for <linux-input@archiver.kernel.org>; Wed, 25 May 2022 13:08:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A7B86C433EF
+	for <linux-input@archiver.kernel.org>; Wed, 25 May 2022 14:33:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243728AbiEYNIT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 May 2022 09:08:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45614 "EHLO
+        id S229482AbiEYOdY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 May 2022 10:33:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232027AbiEYNIS (ORCPT
+        with ESMTP id S244831AbiEYOdW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 May 2022 09:08:18 -0400
-X-Greylist: delayed 98868 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 25 May 2022 06:08:17 PDT
-Received: from box.indicandustries.com (hwsrv-970840.hostwindsdns.com [104.168.149.109])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E8D34BB97
-        for <linux-input@vger.kernel.org>; Wed, 25 May 2022 06:08:17 -0700 (PDT)
-Received: from authenticated-user (box.indicandustries.com [104.168.149.109])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by box.indicandustries.com (Postfix) with ESMTPSA id 69B821084C2
-        for <linux-input@vger.kernel.org>; Tue, 24 May 2022 03:25:04 -0600 (MDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-        d=box.indicandustries.com; s=mail; t=1653384304;
-        bh=V6VCn7WEbqHjVVQ20/+SYu6rwS1WmTHcxX88g+j430s=;
-        h=Reply-To:From:To:Subject:Date:From;
-        b=lF8fttDtTlgEZB8qQgS89gGl+CngFswOmhE8xt3t5ubITeMzOWplXcm9lZt1M1TTa
-         +09UUAs2W9hZKwPCGg2p/LwJEqsYaGRZxc2iJ5IfvL6fyh6kItvP3w30aPNPe2Lh2z
-         4fvmxrww6Uxu/Fw2My3ZCtlLxIYxye+DID/qRISZgvlaGCcGtnCx2kY60zIoL36crJ
-         PoGb3qdZZrF+axJRfAL17bHJa0vpgd3r3/rPxx/5rLZBQCHG6cuHO5qIdS37W95Vxv
-         aafUvbNUM5rgKbEsDvrzJ2fo8gJ7hV7eNDU3sBA4RHefxBTIDSDLCkqYAcgstwPmVj
-         AUy7gXWd63Ssw==
-Reply-To: amjalia90@gmail.com
-From:   amjad.ali@box.indicandustries.com
-To:     linux-input@vger.kernel.org
-Subject: Hello Sir, I seek your urgent consideration.
-Date:   24 May 2022 11:25:04 +0200
-Message-ID: <20220524112503.CEE87A81C4FEAFB9@box.indicandustries.com>
+        Wed, 25 May 2022 10:33:22 -0400
+Received: from mail-io1-f72.google.com (mail-io1-f72.google.com [209.85.166.72])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E63C3AE260
+        for <linux-input@vger.kernel.org>; Wed, 25 May 2022 07:33:19 -0700 (PDT)
+Received: by mail-io1-f72.google.com with SMTP id l67-20020a6b3e46000000b00660b8c61a31so8253010ioa.0
+        for <linux-input@vger.kernel.org>; Wed, 25 May 2022 07:33:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:date:message-id:subject:from:to;
+        bh=lfuRuCSbDbWw/LnmiLDn4PqMyIUMss4hmHEyVpcB5Bk=;
+        b=GdHf72IRxC2Mm6+pWSwhXOP161m/ne0yJuCoeybVqPb2Tb3Dl3oXElBk8LANz5o4SS
+         lH8EMVXQ5c03qr3MM2xSRRzJAEW9o17kmtatfMjXEnA8Q/4ZcUXtfJkcmpJl4jVVSef8
+         K3RKGmsK3XZ8zh5wsibuDQ7p3zx8/6MPKx2q5jERNzha0hWMp+QCWryFm9rM7v2NLrhA
+         bfSO9VRzlZrE1g/lF4Z2eAuOE1AsNNqCTCVqKn5VReXsNFwgRxJ1l1vXlroRRJRqmLEP
+         vAw2vyio4Gph0G+jNgaw80oMghBN/Gqpd+uvMGKVvEWtKcn/cLl3ZK82RJnXhktm/kx6
+         a6mg==
+X-Gm-Message-State: AOAM5310bOY2n96/0T6MlO6Ajgq0V5rDBhnFHrY50NfyaprKkTw28eTB
+        cPHyJ7aatdFxNt/1DQMh9c2y5kobM56BGr0sXUTihuIQbWC+
+X-Google-Smtp-Source: ABdhPJzTwtWHWhxEhDsaVWEr2S8+/3aht9UKWNH55PIwPGUjiB6Db+Hkc6N+N5+hfzxiE3l699mTHOiwxjVZ0ks5kOqz2DReax4x
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+X-Received: by 2002:a92:6811:0:b0:2cd:994d:7406 with SMTP id
+ d17-20020a926811000000b002cd994d7406mr15883176ilc.245.1653489199318; Wed, 25
+ May 2022 07:33:19 -0700 (PDT)
+Date:   Wed, 25 May 2022 07:33:19 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000005d8c8805dfd6f470@google.com>
+Subject: [syzbot] memory leak in hidraw_report_event
+From:   syzbot <syzbot+f59100a0428e6ded9443@syzkaller.appspotmail.com>
+To:     benjamin.tissoires@redhat.com, jikos@kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 Hello,
 
-Greetings? I am Amjad. I work with a leading Bio Firm.  Due to=20
-the setbacks of the pandemic, my company has opened a bid in=20
-search of new suppliers for basic raw materials needed in=20
-production.
+syzbot found the following issue on:
 
-I am seeking a representative=C2=A0as I am a staff, I can not be=20
-involved directly. It may not be your area of work but the=20
-profits are great and I will guide you through. I have already=20
-sourced a local supplier for this. I only need a reliable=20
-representative.
+HEAD commit:    aa051d36ce4a Merge tag 'for-linus-2022052401' of git://git..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=13cd063df00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=fb563a60820e68b9
+dashboard link: https://syzkaller.appspot.com/bug?extid=f59100a0428e6ded9443
+compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14d91de5f00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10522639f00000
 
-Please get back to me so I can explain this in full.
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+f59100a0428e6ded9443@syzkaller.appspotmail.com
 
-Amjad
+BUG: memory leak
+unreferenced object 0xffff88810e72f180 (size 32):
+  comm "softirq", pid 0, jiffies 4294945143 (age 16.080s)
+  hex dump (first 32 bytes):
+    64 f3 c6 6a d1 88 07 04 00 00 00 00 00 00 00 00  d..j............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff814ac6c3>] kmemdup+0x23/0x50 mm/util.c:128
+    [<ffffffff8357c1d2>] kmemdup include/linux/fortify-string.h:440 [inline]
+    [<ffffffff8357c1d2>] hidraw_report_event+0xa2/0x150 drivers/hid/hidraw.c:521
+    [<ffffffff8356ddad>] hid_report_raw_event+0x27d/0x740 drivers/hid/hid-core.c:1992
+    [<ffffffff8356e41e>] hid_input_report+0x1ae/0x270 drivers/hid/hid-core.c:2065
+    [<ffffffff835f0d3f>] hid_irq_in+0x1ff/0x250 drivers/hid/usbhid/hid-core.c:284
+    [<ffffffff82d3c7f9>] __usb_hcd_giveback_urb+0xf9/0x230 drivers/usb/core/hcd.c:1670
+    [<ffffffff82d3cc26>] usb_hcd_giveback_urb+0x1b6/0x1d0 drivers/usb/core/hcd.c:1747
+    [<ffffffff82ef1e14>] dummy_timer+0x8e4/0x14c0 drivers/usb/gadget/udc/dummy_hcd.c:1988
+    [<ffffffff812f50a8>] call_timer_fn+0x38/0x200 kernel/time/timer.c:1474
+    [<ffffffff812f5586>] expire_timers kernel/time/timer.c:1519 [inline]
+    [<ffffffff812f5586>] __run_timers.part.0+0x316/0x430 kernel/time/timer.c:1790
+    [<ffffffff812f56e4>] __run_timers kernel/time/timer.c:1768 [inline]
+    [<ffffffff812f56e4>] run_timer_softirq+0x44/0x90 kernel/time/timer.c:1803
+    [<ffffffff848000e6>] __do_softirq+0xe6/0x2ea kernel/softirq.c:571
+    [<ffffffff81246db0>] invoke_softirq kernel/softirq.c:445 [inline]
+    [<ffffffff81246db0>] __irq_exit_rcu kernel/softirq.c:650 [inline]
+    [<ffffffff81246db0>] irq_exit_rcu+0xc0/0x110 kernel/softirq.c:662
+    [<ffffffff84574f02>] sysvec_apic_timer_interrupt+0xa2/0xd0 arch/x86/kernel/apic/apic.c:1106
+    [<ffffffff84600c8b>] asm_sysvec_apic_timer_interrupt+0x1b/0x20 arch/x86/include/asm/idtentry.h:649
+    [<ffffffff8458a070>] native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
+    [<ffffffff8458a070>] arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
+    [<ffffffff8458a070>] acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
+    [<ffffffff8458a070>] acpi_idle_do_entry+0xc0/0xd0 drivers/acpi/processor_idle.c:554
+
+BUG: memory leak
+unreferenced object 0xffff88810e72f160 (size 32):
+  comm "softirq", pid 0, jiffies 4294945145 (age 16.060s)
+  hex dump (first 32 bytes):
+    27 1a e8 41 4f c2 fd 8c 00 00 00 00 00 00 00 00  '..AO...........
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff814ac6c3>] kmemdup+0x23/0x50 mm/util.c:128
+    [<ffffffff8357c1d2>] kmemdup include/linux/fortify-string.h:440 [inline]
+    [<ffffffff8357c1d2>] hidraw_report_event+0xa2/0x150 drivers/hid/hidraw.c:521
+    [<ffffffff8356ddad>] hid_report_raw_event+0x27d/0x740 drivers/hid/hid-core.c:1992
+    [<ffffffff8356e41e>] hid_input_report+0x1ae/0x270 drivers/hid/hid-core.c:2065
+    [<ffffffff835f0d3f>] hid_irq_in+0x1ff/0x250 drivers/hid/usbhid/hid-core.c:284
+    [<ffffffff82d3c7f9>] __usb_hcd_giveback_urb+0xf9/0x230 drivers/usb/core/hcd.c:1670
+    [<ffffffff82d3cc26>] usb_hcd_giveback_urb+0x1b6/0x1d0 drivers/usb/core/hcd.c:1747
+    [<ffffffff82ef1e14>] dummy_timer+0x8e4/0x14c0 drivers/usb/gadget/udc/dummy_hcd.c:1988
+    [<ffffffff812f50a8>] call_timer_fn+0x38/0x200 kernel/time/timer.c:1474
+    [<ffffffff812f5586>] expire_timers kernel/time/timer.c:1519 [inline]
+    [<ffffffff812f5586>] __run_timers.part.0+0x316/0x430 kernel/time/timer.c:1790
+    [<ffffffff812f56e4>] __run_timers kernel/time/timer.c:1768 [inline]
+    [<ffffffff812f56e4>] run_timer_softirq+0x44/0x90 kernel/time/timer.c:1803
+    [<ffffffff848000e6>] __do_softirq+0xe6/0x2ea kernel/softirq.c:571
+    [<ffffffff81246db0>] invoke_softirq kernel/softirq.c:445 [inline]
+    [<ffffffff81246db0>] __irq_exit_rcu kernel/softirq.c:650 [inline]
+    [<ffffffff81246db0>] irq_exit_rcu+0xc0/0x110 kernel/softirq.c:662
+    [<ffffffff84574f02>] sysvec_apic_timer_interrupt+0xa2/0xd0 arch/x86/kernel/apic/apic.c:1106
+    [<ffffffff84600c8b>] asm_sysvec_apic_timer_interrupt+0x1b/0x20 arch/x86/include/asm/idtentry.h:649
+    [<ffffffff8458a070>] native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
+    [<ffffffff8458a070>] arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
+    [<ffffffff8458a070>] acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
+    [<ffffffff8458a070>] acpi_idle_do_entry+0xc0/0xd0 drivers/acpi/processor_idle.c:554
+
+BUG: memory leak
+unreferenced object 0xffff88810e72f140 (size 32):
+  comm "softirq", pid 0, jiffies 4294945147 (age 16.040s)
+  hex dump (first 32 bytes):
+    5e 2d ce 49 18 07 8e f1 00 00 00 00 00 00 00 00  ^-.I............
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff814ac6c3>] kmemdup+0x23/0x50 mm/util.c:128
+    [<ffffffff8357c1d2>] kmemdup include/linux/fortify-string.h:440 [inline]
+    [<ffffffff8357c1d2>] hidraw_report_event+0xa2/0x150 drivers/hid/hidraw.c:521
+    [<ffffffff8356ddad>] hid_report_raw_event+0x27d/0x740 drivers/hid/hid-core.c:1992
+    [<ffffffff8356e41e>] hid_input_report+0x1ae/0x270 drivers/hid/hid-core.c:2065
+    [<ffffffff835f0d3f>] hid_irq_in+0x1ff/0x250 drivers/hid/usbhid/hid-core.c:284
+    [<ffffffff82d3c7f9>] __usb_hcd_giveback_urb+0xf9/0x230 drivers/usb/core/hcd.c:1670
+    [<ffffffff82d3cc26>] usb_hcd_giveback_urb+0x1b6/0x1d0 drivers/usb/core/hcd.c:1747
+    [<ffffffff82ef1e14>] dummy_timer+0x8e4/0x14c0 drivers/usb/gadget/udc/dummy_hcd.c:1988
+    [<ffffffff812f50a8>] call_timer_fn+0x38/0x200 kernel/time/timer.c:1474
+    [<ffffffff812f5586>] expire_timers kernel/time/timer.c:1519 [inline]
+    [<ffffffff812f5586>] __run_timers.part.0+0x316/0x430 kernel/time/timer.c:1790
+    [<ffffffff812f56e4>] __run_timers kernel/time/timer.c:1768 [inline]
+    [<ffffffff812f56e4>] run_timer_softirq+0x44/0x90 kernel/time/timer.c:1803
+    [<ffffffff848000e6>] __do_softirq+0xe6/0x2ea kernel/softirq.c:571
+    [<ffffffff81246db0>] invoke_softirq kernel/softirq.c:445 [inline]
+    [<ffffffff81246db0>] __irq_exit_rcu kernel/softirq.c:650 [inline]
+    [<ffffffff81246db0>] irq_exit_rcu+0xc0/0x110 kernel/softirq.c:662
+    [<ffffffff84574f02>] sysvec_apic_timer_interrupt+0xa2/0xd0 arch/x86/kernel/apic/apic.c:1106
+    [<ffffffff84600c8b>] asm_sysvec_apic_timer_interrupt+0x1b/0x20 arch/x86/include/asm/idtentry.h:649
+    [<ffffffff8458a070>] native_safe_halt arch/x86/include/asm/irqflags.h:51 [inline]
+    [<ffffffff8458a070>] arch_safe_halt arch/x86/include/asm/irqflags.h:89 [inline]
+    [<ffffffff8458a070>] acpi_safe_halt drivers/acpi/processor_idle.c:111 [inline]
+    [<ffffffff8458a070>] acpi_idle_do_entry+0xc0/0xd0 drivers/acpi/processor_idle.c:554
+
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+syzbot can test patches for this issue, for details see:
+https://goo.gl/tpsmEJ#testing-patches

@@ -2,106 +2,220 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F9CCC433EF
-	for <linux-input@archiver.kernel.org>; Sat, 28 May 2022 09:14:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 565CEC433F5
+	for <linux-input@archiver.kernel.org>; Sat, 28 May 2022 11:42:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232349AbiE1JOo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 28 May 2022 05:14:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57014 "EHLO
+        id S234741AbiE1Lmj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 28 May 2022 07:42:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232350AbiE1JOn (ORCPT
+        with ESMTP id S1352664AbiE1Lmi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 28 May 2022 05:14:43 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 084365FB0;
-        Sat, 28 May 2022 02:14:41 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id y1so6306188pfr.6;
-        Sat, 28 May 2022 02:14:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=2cmreXVkKeTuS3iLda3uDJCEUdvooYyM7QNARThfArQ=;
-        b=VTRt1uLhMTgIvoICyNK1K4DvISkrJto6QUdz42wHaQhFckzhegvbpDenZo1DkDOsuP
-         lECoEOynKmg/Ze93ddslExgRDFXN9ZEbbT1sN8I3ZE3dxVWd4hlEJojzEDtVC5S2ybDx
-         O3M+kDI7BSFLOBRuRtDow343Wthn0enWane8a0D/6JK/s/DByaq1I/aGT/qZjQ7apeCh
-         Ha8lnoT/XUfmfTN1KsCGh6lhI7O9pEP+07R/QL6uVc0mJWjbA7+kJsDHxnynuIKyVGN2
-         THFWA0HQz1gfwdpeePJEmsooJz2NNv2A39aBeDwiGXjIAuwoq8++Fuw5S7FjQsgxaBM2
-         fLCA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=2cmreXVkKeTuS3iLda3uDJCEUdvooYyM7QNARThfArQ=;
-        b=I3zhliva6ngHBRPLd07FeJIx0YSD5BNEHZYkg16Y0IVNthuQlXrckA40YGWDy21CtI
-         tGJ0UCAXkvsj1r1BHsMSEn54QPjdarr7makFXtI6Z5ZbokxIOWSIAYVxmT/0Ss2vX10X
-         gzLo6l60K7YDramKWhGu9wQOCZyKjzCwRu9XGKiodYfmO2YpKqY0AMFy7w+5NH832gjH
-         PxNxWGuW9oXFZSQ7taKN/JlGG1I/hKiPevA2LEkyC/LoWoGBCJgppYiTIYd6ipxe8AkC
-         oR0JhxwWcI3ILk34XAVbN/q+WPFxQfd5Ux0fTXCOvOsUcCvy9US7vzMNsefHKJoOEbM5
-         bdZg==
-X-Gm-Message-State: AOAM533F6jXlcsiJZjCRJ8x5XB0nI9TyxkfC1xwQqIgltKwM2m3aDz8X
-        UY9L3QHegzQYMvGNNeVUTtykz0iu+OzkSjbh
-X-Google-Smtp-Source: ABdhPJxTZ3//L0+n/S1b5h79f4IEubXD+U1hWPngiQJyYJKXN7Cu3aGrFpYqFoZGccOa0dTRsa6SPA==
-X-Received: by 2002:a05:6a00:15c5:b0:518:9848:4915 with SMTP id o5-20020a056a0015c500b0051898484915mr30768636pfu.62.1653729280076;
-        Sat, 28 May 2022 02:14:40 -0700 (PDT)
-Received: from debian.me (subs02-180-214-232-83.three.co.id. [180.214.232.83])
-        by smtp.gmail.com with ESMTPSA id l12-20020a170902f68c00b0016198062800sm5320179plg.161.2022.05.28.02.14.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 May 2022 02:14:39 -0700 (PDT)
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     linux-doc@vger.kernel.org
-Cc:     Bagas Sanjaya <bagasdotme@gmail.com>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        llvm@lists.linux.dev, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] HID: uclogic: add missing function name in uclogic_params_hid_dbg() kernel-doc comment
-Date:   Sat, 28 May 2022 16:14:03 +0700
-Message-Id: <20220528091403.160169-3-bagasdotme@gmail.com>
-X-Mailer: git-send-email 2.36.0
-In-Reply-To: <20220528091403.160169-1-bagasdotme@gmail.com>
-References: <20220528091403.160169-1-bagasdotme@gmail.com>
+        Sat, 28 May 2022 07:42:38 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124F6BE1A
+        for <linux-input@vger.kernel.org>; Sat, 28 May 2022 04:42:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1653738158; x=1685274158;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   content-transfer-encoding;
+  bh=pOaQK/D4CD191tobltdwXaZVxcmhhuBwnvv3BHZt54E=;
+  b=Z4P6NDUhofZIeUbTjBVnJrgiPiEAwNBTKyT4+jhUfLW9+IOpEccoM5+g
+   5YCh/BUAzFKs59hQWl8sbFizTaxM5u7yAFK4j99UNGpEETSd3G4eslN2/
+   S9mggmRm5x1qTYw2bfiTwJsuZ2lqXD8e5WnIarQ64nSsvlLgBfAYDfQlG
+   k6GNYPfu8zpRLGXo0QXWVlAFPHoDRloC0uUFCQ1Oxqh2YYlrNc3oamj+t
+   44D1MazXeP70FXIz24H+xItqQORuFv0Ntcyr9S0fDDCUpRJ6ZrebXl6Ww
+   vOHvCY7Pv/iP8XH14nD8ZLQRU+KwDQbeIc3LxfPZ9PBSfA3NsJKYp1xZj
+   Q==;
+X-IronPort-AV: E=McAfee;i="6400,9594,10360"; a="274390022"
+X-IronPort-AV: E=Sophos;i="5.91,258,1647327600"; 
+   d="scan'208";a="274390022"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2022 04:42:37 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.91,258,1647327600"; 
+   d="scan'208";a="747502619"
+Received: from lkp-server01.sh.intel.com (HELO 60dabacc1df6) ([10.239.97.150])
+  by orsmga005.jf.intel.com with ESMTP; 28 May 2022 04:42:36 -0700
+Received: from kbuild by 60dabacc1df6 with local (Exim 4.95)
+        (envelope-from <lkp@intel.com>)
+        id 1nuuq3-0000BQ-Rf;
+        Sat, 28 May 2022 11:42:35 +0000
+Date:   Sat, 28 May 2022 19:42:08 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: [dtor-input:for-linus] BUILD SUCCESS
+ 1e90e2628cec11c080db3260833f515cc32fc27c
+Message-ID: <62920a90.cBfw1aduGdz0giQr%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-uclogic_params_hid_dbg() is public void function. The comment for
-kernel-doc, however, lack its function name on short description, thus
-triggers "missing initial short description" warning.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git for-linus
+branch HEAD: 1e90e2628cec11c080db3260833f515cc32fc27c  Merge branch 'next' into for-linus
 
-Add the function name to fix the warning.
+elapsed time: 725m
 
-Fixes: a228809fa6f39c ("HID: uclogic: Move param printing to a function")
-Cc: Nikolai Kondrashov <spbnick@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>
-Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: "José Expósito" <jose.exposito89@gmail.com>
-Cc: llvm@lists.linux.dev
-Cc: linux-input@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
----
- drivers/hid/hid-uclogic-params.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+configs tested: 142
+configs skipped: 3
 
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 71501453de12e4..0319e3f1527f1d 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -102,7 +102,7 @@ static void uclogic_params_frame_hid_dbg(
- }
- 
- /**
-- * Dump tablet interface parameters with hid_dbg().
-+ * uclogic_params_hid_dbg - Dump tablet interface parameters with hid_dbg().
-  *
-  * @hdev:	The HID device the parameters describe.
-  * @params:	The parameters to dump.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+gcc tested configs:
+arm64                               defconfig
+arm64                            allyesconfig
+arm                              allmodconfig
+arm                                 defconfig
+arm                              allyesconfig
+i386                          randconfig-c001
+mips                             allyesconfig
+um                           x86_64_defconfig
+riscv                            allmodconfig
+um                             i386_defconfig
+mips                             allmodconfig
+riscv                            allyesconfig
+powerpc                          allmodconfig
+m68k                             allyesconfig
+s390                             allmodconfig
+m68k                             allmodconfig
+powerpc                          allyesconfig
+s390                             allyesconfig
+arc                              allyesconfig
+alpha                            allyesconfig
+nios2                            allyesconfig
+m68k                          sun3x_defconfig
+powerpc                      ppc6xx_defconfig
+arm                       multi_v4t_defconfig
+parisc64                            defconfig
+sh                             sh03_defconfig
+xtensa                           alldefconfig
+arc                     haps_hs_smp_defconfig
+powerpc                 mpc8540_ads_defconfig
+sh                            hp6xx_defconfig
+mips                 decstation_r4k_defconfig
+h8300                            alldefconfig
+arm                         lpc18xx_defconfig
+arc                                 defconfig
+powerpc                       maple_defconfig
+arm                            mps2_defconfig
+arm                        trizeps4_defconfig
+arm                            xcep_defconfig
+nios2                         3c120_defconfig
+sh                         microdev_defconfig
+sh                            shmin_defconfig
+arm                           u8500_defconfig
+sh                           se7712_defconfig
+alpha                               defconfig
+powerpc                     ep8248e_defconfig
+sh                          sdk7786_defconfig
+xtensa                  cadence_csp_defconfig
+sh                          kfr2r09_defconfig
+ia64                                defconfig
+powerpc                    adder875_defconfig
+sh                          r7780mp_defconfig
+m68k                          atari_defconfig
+powerpc                      pcm030_defconfig
+microblaze                          defconfig
+m68k                          multi_defconfig
+arm                          pxa910_defconfig
+arc                      axs103_smp_defconfig
+powerpc64                           defconfig
+arm                        shmobile_defconfig
+nios2                         10m50_defconfig
+powerpc                   currituck_defconfig
+arm                          lpd270_defconfig
+arm                  randconfig-c002-20220524
+x86_64                        randconfig-c001
+ia64                             allmodconfig
+ia64                             allyesconfig
+riscv                             allnoconfig
+m68k                                defconfig
+nios2                               defconfig
+csky                                defconfig
+h8300                            allyesconfig
+xtensa                           allyesconfig
+sh                               allmodconfig
+parisc                              defconfig
+parisc                           allyesconfig
+s390                                defconfig
+i386                   debian-10.3-kselftests
+i386                              debian-10.3
+i386                                defconfig
+i386                             allyesconfig
+sparc                            allyesconfig
+sparc                               defconfig
+powerpc                           allnoconfig
+i386                          randconfig-a001
+i386                          randconfig-a003
+i386                          randconfig-a005
+x86_64                        randconfig-a011
+x86_64                        randconfig-a013
+x86_64                        randconfig-a015
+x86_64                        randconfig-a006
+x86_64                        randconfig-a004
+x86_64                        randconfig-a002
+i386                          randconfig-a012
+i386                          randconfig-a014
+i386                          randconfig-a016
+arc                  randconfig-r043-20220527
+arc                  randconfig-r043-20220526
+arc                  randconfig-r043-20220524
+s390                 randconfig-r044-20220526
+s390                 randconfig-r044-20220524
+riscv                randconfig-r042-20220526
+riscv                randconfig-r042-20220524
+riscv                               defconfig
+riscv                    nommu_virt_defconfig
+riscv                          rv32_defconfig
+riscv                    nommu_k210_defconfig
+x86_64                    rhel-8.3-kselftests
+x86_64                                  kexec
+x86_64                              defconfig
+x86_64                           allyesconfig
+x86_64                               rhel-8.3
+x86_64                          rhel-8.3-func
+x86_64                         rhel-8.3-kunit
+x86_64                           rhel-8.3-syz
+
+clang tested configs:
+arm                  randconfig-c002-20220524
+x86_64                        randconfig-c007
+i386                          randconfig-c001
+powerpc              randconfig-c003-20220524
+riscv                randconfig-c006-20220524
+mips                 randconfig-c004-20220524
+mips                     loongson2k_defconfig
+mips                          malta_defconfig
+mips                     loongson1c_defconfig
+arm                          moxart_defconfig
+mips                  cavium_octeon_defconfig
+mips                           ip22_defconfig
+powerpc               mpc834x_itxgp_defconfig
+arm                      pxa255-idp_defconfig
+arm                       aspeed_g4_defconfig
+mips                     cu1830-neo_defconfig
+x86_64                        randconfig-a005
+x86_64                        randconfig-a003
+x86_64                        randconfig-a001
+i386                          randconfig-a002
+i386                          randconfig-a006
+i386                          randconfig-a004
+x86_64                        randconfig-a014
+x86_64                        randconfig-a016
+x86_64                        randconfig-a012
+i386                          randconfig-a013
+i386                          randconfig-a011
+i386                          randconfig-a015
+hexagon              randconfig-r045-20220524
+hexagon              randconfig-r041-20220524
+
 -- 
-An old man doll... just what I always wanted! - Clara
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp

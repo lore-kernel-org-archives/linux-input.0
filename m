@@ -2,140 +2,108 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24C99C433F5
-	for <linux-input@archiver.kernel.org>; Sun, 29 May 2022 13:33:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CCF4C433F5
+	for <linux-input@archiver.kernel.org>; Sun, 29 May 2022 14:21:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230249AbiE2NdV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 29 May 2022 09:33:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42890 "EHLO
+        id S230380AbiE2OVS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 29 May 2022 10:21:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230090AbiE2NdU (ORCPT
+        with ESMTP id S229987AbiE2OVR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 29 May 2022 09:33:20 -0400
-X-Greylist: delayed 386 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 29 May 2022 06:33:18 PDT
-Received: from hs01.dk-develop.de (hs01.dk-develop.de [173.249.23.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6608A46B0C;
-        Sun, 29 May 2022 06:33:18 -0700 (PDT)
-From:   Danilo Krummrich <danilokrummrich@dk-develop.de>
-To:     krzysztof.kozlowski@canonical.com, robh+dt@kernel.org,
-        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     linus.walleij@linaro.org,
-        Danilo Krummrich <danilokrummrich@dk-develop.de>
-Subject: [RESEND PATCH v3 1/2] dt-bindings: ps2-gpio: convert binding to json-schema
-Date:   Sun, 29 May 2022 15:26:37 +0200
-Message-Id: <20220529132638.13420-1-danilokrummrich@dk-develop.de>
+        Sun, 29 May 2022 10:21:17 -0400
+Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF8C842497
+        for <linux-input@vger.kernel.org>; Sun, 29 May 2022 07:21:15 -0700 (PDT)
+Received: by mail-ej1-x630.google.com with SMTP id jx22so16443085ejb.12
+        for <linux-input@vger.kernel.org>; Sun, 29 May 2022 07:21:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=mjEHI99lRLZjmbE7yN5Vc3uafp8LIX67QIeSikjP+0k=;
+        b=OCeCSM0Ry0XbkH3vo8R5rjfeiu9FUSChFE03CHQn6qKTZRM0/iYC9P4vI0nQ5r0n0i
+         ia5LdpuIlrZvVawm2FoS1oKwbi9nDkIS3wHe/lPYRjQuAwZw4e5nJsaA6wDg8rr3e5Vg
+         gTYlwBLCUGZPOhHtZmEgyNxJC9tlOy4WUsH8TJhAExS42VnHEr3ehbo5kc0zP2Bb/mj1
+         VxFBtjt3C+Pvtv7MilgHgY99AQI7wXUJye84573LdQTx3fHFgBo7HTxie1Zbl7Fk7D7z
+         7mY9RMhNa036KyHlDKF3XBzp5v0/A9v3ifgnYCltJyRKQ1w2/R5L8AZGJSUV842i+XA8
+         PZTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=mjEHI99lRLZjmbE7yN5Vc3uafp8LIX67QIeSikjP+0k=;
+        b=kKEQRFAI3Lc4neWMx1iJ8BcqGBV2YpBLcepmYeZUf9/oo04HcXbJhv6XFzNPENgZKy
+         d5v2jCUljrw3f34CnC7/6xB1LUIZeSU6CzGNJMewMcVzXYlE+UUHtT3ApPU4lQ33l4Yk
+         baTreXFe/4QbhcFKVxxLeTP4iSe3mwMBQHReFHrh4TZdL/dQMBOV/ZEMie0IFxVKv7QY
+         zuT7Tidm3Flzj8DhLLeRfioV6zmFitkZBe7cgJLeK6OFeOMKBOYZ9SAKjnb3ZAM7f34A
+         HGCgbuO4Ei4vgsDdqiUiEMndhT1OB8SFf44o1OS+5ZnXz/+4Csi7LZCJKUtVWSztoRjB
+         eoFA==
+X-Gm-Message-State: AOAM531kW2vyAZ6/6KrP4jF4MJm2kp96UpfLrOobCiqkqccFBUaSJzQX
+        alqIQSBZ9Q+Ttpitr9gFoBi+0PwTEbIyrncw
+X-Google-Smtp-Source: ABdhPJzaG3/GPj6E2gGmWOpmT5Z1QKhy7X39c3X4fuDnHgON7JWi/LN3waHAzmpyV3pW+sNopILVoQ==
+X-Received: by 2002:a17:906:44b:b0:6f8:d325:bb84 with SMTP id e11-20020a170906044b00b006f8d325bb84mr45532026eja.174.1653834074197;
+        Sun, 29 May 2022 07:21:14 -0700 (PDT)
+Received: from [192.168.0.177] (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
+        by smtp.gmail.com with ESMTPSA id x25-20020a50f199000000b0042dd109b212sm356606edl.3.2022.05.29.07.21.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 29 May 2022 07:21:13 -0700 (PDT)
+Message-ID: <c4c17cde-686b-4f4e-65dc-9b8c41894bf2@linaro.org>
+Date:   Sun, 29 May 2022 16:21:12 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.9.1
+Subject: Re: [PATCH] dt-bindings: input: use generic node names
+Content-Language: en-US
+To:     Jeff LaBundy <jeff@labundy.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Andreas Kemnade <andreas@kemnade.info>
+References: <20220524093136.7980-1-krzysztof.kozlowski@linaro.org>
+ <20220527224401.GA395557@nixie71>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20220527224401.GA395557@nixie71>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert the ps2-gpio dt-binding documentation to DT schema format using
-the json-schema.
+On 28/05/2022 00:44, Jeff LaBundy wrote:
+> Hi Krzysztof,
+> 
+> On Tue, May 24, 2022 at 11:31:36AM +0200, Krzysztof Kozlowski wrote:
+>> Devicetree specification expects nodes to have generic names, if
+>> possible, so replace custom ones with something generic.  For gpio-keys,
+>> the more popular format is "key-xxx" instead of "xxx-key", so choose the
+>> first one.
+>>
+>> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+>>
+>> ---
+>>
+>> Cc: Andreas Kemnade <andreas@kemnade.info>
+>> ---
+>>  .../devicetree/bindings/input/fsl,mpr121-touchkey.yaml        | 4 ++--
+>>  Documentation/devicetree/bindings/input/gpio-keys.yaml        | 4 ++--
+>>  Documentation/devicetree/bindings/input/iqs269a.yaml          | 2 +-
+>>  Documentation/devicetree/bindings/input/iqs626a.yaml          | 2 +-
+> 
+> For iqs*a.yaml:
+> 
+> Acked-by: Jeff LaBundy <jeff@labundy.com>
+> 
+> Does there happen to be a list of preferred names based on device
+> function, or is it simply a matter of what seems to be most common?
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Danilo Krummrich <danilokrummrich@dk-develop.de>
----
- .../devicetree/bindings/serio/ps2-gpio.txt    | 23 --------
- .../devicetree/bindings/serio/ps2-gpio.yaml   | 58 +++++++++++++++++++
- 2 files changed, 58 insertions(+), 23 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.txt
- create mode 100644 Documentation/devicetree/bindings/serio/ps2-gpio.yaml
+Devicetree spec has examples of names, but of course it does not cover
+many of cases. Here I chosen mixture of device function and most common
+(e.g. touch for touch controller).
 
-diff --git a/Documentation/devicetree/bindings/serio/ps2-gpio.txt b/Documentation/devicetree/bindings/serio/ps2-gpio.txt
-deleted file mode 100644
-index 7b7bc9cdf986..000000000000
---- a/Documentation/devicetree/bindings/serio/ps2-gpio.txt
-+++ /dev/null
-@@ -1,23 +0,0 @@
--Device-Tree binding for ps/2 gpio device
--
--Required properties:
--	- compatible = "ps2-gpio"
--	- data-gpios: the data pin
--	- clk-gpios: the clock pin
--	- interrupts: Should trigger on the falling edge of the clock line.
--
--Optional properties:
--	- write-enable: Indicates whether write function is provided
--	to serio device. Possibly providing the write fn will not work, because
--	of the tough timing requirements.
--
--Example nodes:
--
--ps2@0 {
--	compatible = "ps2-gpio";
--	interrupt-parent = <&gpio>;
--	interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
--	data-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
--	clk-gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
--	write-enable;
--};
-diff --git a/Documentation/devicetree/bindings/serio/ps2-gpio.yaml b/Documentation/devicetree/bindings/serio/ps2-gpio.yaml
-new file mode 100644
-index 000000000000..304132fd30c5
---- /dev/null
-+++ b/Documentation/devicetree/bindings/serio/ps2-gpio.yaml
-@@ -0,0 +1,58 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/serio/ps2-gpio.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Bindings for GPIO based PS/2
-+
-+maintainers:
-+  - Danilo Krummrich <danilokrummrich@dk-develop.de>
-+
-+properties:
-+  compatible:
-+    const: ps2-gpio
-+
-+  data-gpios:
-+    description:
-+      the gpio used for the data signal
-+    maxItems: 1
-+
-+  clk-gpios:
-+    description:
-+      the gpio used for the clock signal
-+    maxItems: 1
-+
-+  interrupts:
-+    description:
-+      The given interrupt should trigger on the falling edge of the clock line.
-+    maxItems: 1
-+
-+  write-enable:
-+    type: boolean
-+    description:
-+      Indicates whether write function is provided to serio device. Possibly
-+      providing the write function will not work, because of the tough timing
-+      requirements.
-+
-+required:
-+  - compatible
-+  - data-gpios
-+  - clk-gpios
-+  - interrupts
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    ps2 {
-+        compatible = "ps2-gpio";
-+        interrupt-parent = <&gpio>;
-+        interrupts = <23 IRQ_TYPE_EDGE_FALLING>;
-+        data-gpios = <&gpio 24 GPIO_ACTIVE_HIGH>;
-+        clk-gpios = <&gpio 23 GPIO_ACTIVE_HIGH>;
-+        write-enable;
-+    };
--- 
-2.36.1
 
+Best regards,
+Krzysztof

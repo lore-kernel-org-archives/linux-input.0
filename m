@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 40BC3C38A2D
-	for <linux-input@archiver.kernel.org>; Mon, 30 May 2022 14:12:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51B4DC433F5
+	for <linux-input@archiver.kernel.org>; Mon, 30 May 2022 14:23:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234230AbiE3OMj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 30 May 2022 10:12:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55458 "EHLO
+        id S241334AbiE3OWb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 30 May 2022 10:22:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239779AbiE3OGV (ORCPT
+        with ESMTP id S242126AbiE3OSY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 May 2022 10:06:21 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC2227FEF;
-        Mon, 30 May 2022 06:41:41 -0700 (PDT)
+        Mon, 30 May 2022 10:18:24 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80339A339C;
+        Mon, 30 May 2022 06:49:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C46360FAF;
-        Mon, 30 May 2022 13:41:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0444C36AE9;
-        Mon, 30 May 2022 13:41:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D93C36102F;
+        Mon, 30 May 2022 13:48:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A8AC3411A;
+        Mon, 30 May 2022 13:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1653918100;
+        s=k20201202; t=1653918506;
         bh=7jqS2tTlnNZbrQ98eK9OJ7pRMtBHKuwDuhlgk5Xc4Sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3qHegE7IBysWQyMezM7MqdTglKIJ/VlylYn8NRDOPGMgNb9RELhLqYAJ1v2abH08
-         ZbExjlEP3KZtjZ5tqjdmctCVbDtGZm40ALli9Uv3mniIRxY5JOgcKShj1v+j8mrzGz
-         /IUdMshOEDvV9rF5wDe3o8X5p3a46mgtxP7hNl/HeSwVqFU4ecZHqZE2/sHdoUv1+B
-         dykav/J3bxiv0G6XczefiD92RvKXGDz2FgJnJNH2eT1JHfN1g8Vq36OGRqq1yc6ijc
-         S7tsptjaSSCFCTn7SOq6bBYUg1fxSxWpZIhKhpS+QvOcPTvzYKIUacOkYK0XdQ4ejS
-         OUkhS8vHrLYsQ==
+        b=aFNNv2em0PARWRnwA7FUzBG2ekc4MGVAp4Hb4ciBpZfodSY0Q5w5jonZTlXXaMy/6
+         oMQkNxxcxKet1LaYBhDSrobgspdyWB6mOVBVHX5L1TVj5DqOcWzNofQwFu7JvAvoX3
+         cUpEAto+SWA9kaKtwHYQzE+bwrDGnoo8gKaOL78NuZI3cOf5LxNSpJgP5auiR0PR4w
+         uct8PIiIUl88hQv7zg4Goq5NBdmqOdgDq7wCOCsDsN0luUKXtrM/isMQpPQR0UmSH1
+         Xun6292YOKVKxF11Hl9oDV014vw/1n8vaht2oX5Gd15GzITp5afYekDvm7DTh8lCPc
+         iqPcaZbAD0Gow==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
@@ -39,12 +39,12 @@ Cc:     Dongliang Mu <mudongliangabcd@gmail.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 060/109] HID: bigben: fix slab-out-of-bounds Write in bigben_probe
-Date:   Mon, 30 May 2022 09:37:36 -0400
-Message-Id: <20220530133825.1933431-60-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 32/55] HID: bigben: fix slab-out-of-bounds Write in bigben_probe
+Date:   Mon, 30 May 2022 09:46:38 -0400
+Message-Id: <20220530134701.1935933-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220530133825.1933431-1-sashal@kernel.org>
-References: <20220530133825.1933431-1-sashal@kernel.org>
+In-Reply-To: <20220530134701.1935933-1-sashal@kernel.org>
+References: <20220530134701.1935933-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore

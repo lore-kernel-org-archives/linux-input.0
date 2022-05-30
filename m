@@ -2,134 +2,167 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4131C433F5
-	for <linux-input@archiver.kernel.org>; Mon, 30 May 2022 06:18:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B7E0C433FE
+	for <linux-input@archiver.kernel.org>; Mon, 30 May 2022 06:55:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231189AbiE3GSX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 30 May 2022 02:18:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52208 "EHLO
+        id S233022AbiE3GzA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 30 May 2022 02:55:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229999AbiE3GSW (ORCPT
+        with ESMTP id S233092AbiE3GzA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 May 2022 02:18:22 -0400
-Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 386A53DA6A;
-        Sun, 29 May 2022 23:18:21 -0700 (PDT)
-Received: by mail-wm1-x32b.google.com with SMTP id r9-20020a1c4409000000b00397345f2c6fso2189635wma.4;
-        Sun, 29 May 2022 23:18:21 -0700 (PDT)
+        Mon, 30 May 2022 02:55:00 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FBD96F49E;
+        Sun, 29 May 2022 23:54:59 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id q21so2073368wra.2;
+        Sun, 29 May 2022 23:54:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=wCa0ONUW/7eLmIEW6Vz4vrdmuGmLGHrFxs6lE7bBuXU=;
-        b=WQNxH5GXICW2z2T718ddf8FqcP/+YTOH9cw6SHXfZkb2DxzfqOf+NCiGqm+R3jDhVB
-         v8lifuDLDw4rGxnA/jqbe4KEDbwn++GLYJMsvguZBDOphAxkdcsHYpTfO4PAJrwvG1uP
-         Wr+Ar4sy9PRgpaik9/PoGnDla9wxGSbZFuVtFpAak9FUSJdk0cBIrLPSa9PKHyU0eMDU
-         qnhS4XD9YCpKoo4sEpvkAHct+v2TZDBiyx26W7rR6xKcx6EXpPnH5BSW8kR0T+2vULY1
-         8QylNTU3DmFo6D8HN0O4GogC/CoBc0BGAfWAU0Dg54WcyqwWq8TRzjYXc4Qe3Itr5p+A
-         lAEg==
+         :content-disposition:in-reply-to;
+        bh=q7syxmBySjwfnHsIvdxxYLTq0FodLAYaXUi0vCyeTbo=;
+        b=ZVeQQHIRZEVyIZ2oDkMq7XjD88sBia2B4KKm0khujXyy1SJbYkLjolBCYHMfdpS/yF
+         Cz2oBl6Ktz+Iw910Y42S5exUzCwJ9dHsLE1foeiLIsFTMIhsJOtvsmXLsyTiZVaZPKcM
+         Rvfi+uSLzmuLD7W8m6+vR86ez233fAQW1LQSgF24FCjIi247//6mMXdt2Inj915N7vT1
+         AoFmN1nVOSB3Lo0YkVKVqRS+gz5FO8zAk6dKvQcXzamdRHfaJHcGXWV60244gWTjL2ME
+         ZsrPBDo6pfCR5GV5vELfdYgePC39rzjk+SsiFUZgLL9rpn5CX1OKfPagR0BClUvPl+Er
+         xOAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=wCa0ONUW/7eLmIEW6Vz4vrdmuGmLGHrFxs6lE7bBuXU=;
-        b=rvuNj+8Ca0c79wiH20XBAVl0cDLjs6gSbW4QwJRl0xXDPyrv2lg2uByQbLYzuYdtOd
-         0m55D5YZV1D7SRAPqF5pOzbWO1Hq9LGm0AUcZesQg/JzflbH5SSZIuSq8WLStr7IyUx1
-         T3y5RoFYNqEJSSUoETFjkymlZMccoUUMdIUh07jUdP4xiqrGI+uX7RvD/w8FQGqjsCGG
-         yJRPA3ROjvNDbxJ601YcGfkUMbBdhDoKruj3Gm1MGN3F8xVkNwyEIfwQ+G7059WwDRb/
-         XlmwhAI1KXlS9HVFnfUtNxA9JzCkxElckkROLHVxX6ARTAhyymdQKHV4ee/AIuSvfFI/
-         0S5w==
-X-Gm-Message-State: AOAM533MGIk6bax+9V4YGBqWHCyq4rXn4m8zwfZL8yJGNvVYsPkIk2B+
-        Zw3M4GgQ+cFNhLhfRacUrp8=
-X-Google-Smtp-Source: ABdhPJwZxR8QK122CwRNpoQJgvt+f45BUE1wlGtlEHnyElslssmbLiRRUEXk0uDUWlJl6mjiVUYizA==
-X-Received: by 2002:a05:600c:3583:b0:397:3d93:75b8 with SMTP id p3-20020a05600c358300b003973d9375b8mr16994338wmq.76.1653891499648;
-        Sun, 29 May 2022 23:18:19 -0700 (PDT)
+         :mime-version:content-disposition:in-reply-to;
+        bh=q7syxmBySjwfnHsIvdxxYLTq0FodLAYaXUi0vCyeTbo=;
+        b=NiI3eBWx0FFtm3ikfalvm3+lgx7A9B43jdzcEpd1S2PkDodOoPhpuHUVp5004Auvo9
+         5P3M86LDqJaRgtvAGxbXSBeauA3WzHWGD4mfYzgwZN4v3dUeMzRTJIVPtwKcJrhEsUux
+         jTxhs+vLz0Gtw9BfokSk8SBVCQRiSJQkew9RTl44eENAI45zbLCmdkNbj7qHZHOBpqvo
+         LMuGmEyMaBT89UM6GtodtjjxqP2oatoHgmOpGilL62xIWLvbA784i8ocvVWkHqEsE+wY
+         ZXhjhFe8w07y1jm8KFxFa91PQ1DmdM788rQzZkg3bzTYnNRddUjKIi9/V95uS2mXyJFU
+         bxpA==
+X-Gm-Message-State: AOAM5330NmB3m1p8+xPiMpkjp2zIKcLWAJV9k/fcSpK/CMaUAtEVD2tz
+        E3iMyAiqnmuTPToMW5vWSLFO3kAym7M=
+X-Google-Smtp-Source: ABdhPJyBegUWfRpIAV1MtGnjhf15IxbEt8TghdtXx85rZhob+LmL0OtrFj8DwZ8fSxzHIG8gFm1Xcg==
+X-Received: by 2002:a5d:4886:0:b0:20d:527:f98b with SMTP id g6-20020a5d4886000000b0020d0527f98bmr45849795wrq.70.1653893697657;
+        Sun, 29 May 2022 23:54:57 -0700 (PDT)
 Received: from elementary ([94.73.36.128])
-        by smtp.gmail.com with ESMTPSA id j13-20020a05600c1c0d00b00397243d3dbcsm9899256wms.31.2022.05.29.23.18.16
+        by smtp.gmail.com with ESMTPSA id bg11-20020a05600c3c8b00b0039c151298b7sm499327wmb.10.2022.05.29.23.54.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 29 May 2022 23:18:19 -0700 (PDT)
-Date:   Mon, 30 May 2022 08:18:12 +0200
+        Sun, 29 May 2022 23:54:57 -0700 (PDT)
+Date:   Mon, 30 May 2022 08:54:52 +0200
 From:   =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
-To:     Hilton Chain <hako@ultrarare.space>
-Cc:     bryancain3@gmail.com, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH] HID: apple: Reset quirks when Fn key is not found
-Message-ID: <20220530061812.GA10391@elementary>
-References: <20220529180230.17e9a0f9@ultrarare.space>
- <20220529182036.10226-1-jose.exposito89@gmail.com>
- <20220530083752.1973a905@ultrarare.space>
+To:     Stefan Berzl <stefanberzl@gmail.com>
+Cc:     jikos@kernel.org, benjamin.tissoires@redhat.com, spbnick@gmail.com,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH for-5.19/uclogic] HID: uclogic: Remove useless loop
+Message-ID: <20220530065452.GA39613@elementary>
+References: <20220518224702.1409327-1-jose.exposito89@gmail.com>
+ <20220518224702.1409327-4-jose.exposito89@gmail.com>
+ <17153eb3-0eb9-cc05-4b65-9c0f4e8d3c90@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220530083752.1973a905@ultrarare.space>
+In-Reply-To: <17153eb3-0eb9-cc05-4b65-9c0f4e8d3c90@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, May 30, 2022 at 08:42:32AM +0800, Hilton Chain wrote:
-> > My understanding of Bryan's patch (in cc) was that the new config option
-> > worked out of the box for Keychron and Apple keyboards and allowed for
-> > manual configuration where required.
-> >
-> > Could you explain a bit which bug is fixed by reverting these 2
-> > commits, please? I don't own a Keychron keyboard for testing, so it is
-> > not obvious to me why this change is required.
-> 
-> I own a GANSS keyboard which encounters this issue as well, related device
-> information given by `lsusb -v` below:
-> 
->     idVendor           0x05ac Apple, Inc.
->     idProduct          0x024f Aluminium Keyboard (ANSI)
->     iManufacturer           1 SONiX
->     iProduct                2 USB DEVICE
-> 
-> As I searching through, I found similar reports regarding another GANSS
-> model[1], and other brands like Varmilo[2] (a lot!) and Keychron. As a
-> common pattern, they mostly use 05ac:024f.
-> 
-> Currently I have two idea:
-> 
-> 1. Modify Bryan's patch, so that fnmode default to 2 if device name not
-> starting with "Apple" (But I can't validate my assumption since I don't
-> own any Apple keyboards), I'll attach this patch in the next email.
+Hi Stefan,
 
-That could be problematic because Apple keyboards can be renamed after
-connecting them to a Mac.
+Thanks for the patch. You can send it as an standalone patch rather
+than as a response to my patches, I don't know if it could be missed by
+maintaners this way.
 
-For example, the name of my keyboard is: "José Expósito’s Keyboard".
- 
-> 2. Find out which quirk pattern solves this issue brute-forcely, I may
-> attach this patch later when I finally find a solution.
+On Sun, May 29, 2022 at 11:49:46PM +0200, Stefan Berzl wrote:
+> The while in question does nothing except provide the possibility
+> to have an infinite loop in case the subreport id is actually the same
+> as the pen id.
 > 
-> What's your opinion?
-> 
-> Stay boiled,
-> Hilton Chain
+> Signed-off-by: Stefan Berzl <stefanberzl@gmail.com>
 > 
 > ---
-> [1]: https://www.amazon.com/gp/customer-reviews/R1EV0B1FG21GGD
-> [2]: https://unix.stackexchange.com/questions/604791/keyboard-function-keys-always-trigger-media-shortcuts-regardless-of-whether-fn
+>  drivers/hid/hid-uclogic-core.c | 55 ++++++++++++++++------------------
+>  1 file changed, 25 insertions(+), 30 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+> index c0fe66e50c58..1a6b941f3964 100644
+> --- a/drivers/hid/hid-uclogic-core.c
+> +++ b/drivers/hid/hid-uclogic-core.c
+> @@ -423,40 +423,35 @@ static int uclogic_raw_event(struct hid_device *hdev,
+>  	if (report->type != HID_INPUT_REPORT)
+>  		return 0;
+>  
+> -	while (true) {
+> -		/* Tweak pen reports, if necessary */
+> -		if ((report_id == params->pen.id) && (size >= 2)) {
+> -			subreport_list_end =
+> -				params->pen.subreport_list +
+> -				ARRAY_SIZE(params->pen.subreport_list);
+> -			/* Try to match a subreport */
+> -			for (subreport = params->pen.subreport_list;
+> -			     subreport < subreport_list_end; subreport++) {
+> -				if (subreport->value != 0 &&
+> -				    subreport->value == data[1]) {
+> -					break;
+> -				}
+> -			}
+> -			/* If a subreport matched */
+> -			if (subreport < subreport_list_end) {
+> -				/* Change to subreport ID, and restart */
+> -				report_id = data[0] = subreport->id;
+> -				continue;
 
-I think it'd be safer to assume that the device is an Apple keyboard
-and create exceptions for know non-Apple keyboards  because the
-majority of the devices handled by this driver are Apple keyboards and
-because there is already a config option available (real_fnmode) to fix
-the problematic devices in the meanwhile.
+Here, in the previous code, the "report_id" is set to the subreport ID
+and the while loop is executed again with the new ID. The loop acts as
+a recursive function.
 
-In my opinion, creating a function like "apple_is_non_apple_keyboard"
-(or similar) containing all the rules to identify devices from
-Keychron, GANSS, etc could do the trick. Something similar to:
+Isn't this behaviour removed by your patch?
 
-  if (apple_is_non_apple_keyboard(hdev)) {
-          hid_info(hdev, "Non-apple keyboard detected; function keys will default to fnmode=2 behavior\n");
-          asc->quirks |= APPLE_IS_NON_APPLE;
-  }
-
-Unfortunately, I can't think of a generic way to detect those devices
-as they have the same vendor and product as the Apple ones :S
-
-Best wishes,
 Jose
+
+> -			} else {
+> -				return uclogic_raw_event_pen(drvdata, data, size);
+> +	/* Tweak pen reports, if necessary */
+> +	if ((report_id == params->pen.id) && (size >= 2)) {
+> +		subreport_list_end =
+> +			params->pen.subreport_list +
+> +			ARRAY_SIZE(params->pen.subreport_list);
+> +		/* Try to match a subreport */
+> +		for (subreport = params->pen.subreport_list;
+> +		     subreport < subreport_list_end; subreport++) {
+> +			if (subreport->value != 0 &&
+> +			    subreport->value == data[1]) {
+> +				break;
+>  			}
+>  		}
+> -
+> -		/* Tweak frame control reports, if necessary */
+> -		for (i = 0; i < ARRAY_SIZE(params->frame_list); i++) {
+> -			if (report_id == params->frame_list[i].id) {
+> -				return uclogic_raw_event_frame(
+> -					drvdata, &params->frame_list[i],
+> -					data, size);
+> -			}
+> +		/* If a subreport matched */
+> +		if (subreport < subreport_list_end) {
+> +			/* Change to subreport ID, and restart */
+> +			report_id = data[0] = subreport->id;
+> +		} else {
+> +			return uclogic_raw_event_pen(drvdata, data, size);
+>  		}
+> +	}
+>  
+> -		break;
+> +	/* Tweak frame control reports, if necessary */
+> +	for (i = 0; i < ARRAY_SIZE(params->frame_list); i++) {
+> +		if (report_id == params->frame_list[i].id) {
+> +			return uclogic_raw_event_frame(
+> +				drvdata, &params->frame_list[i],
+> +				data, size);
+> +		}
+>  	}
+>  
+>  	return 0;
+> -- 
+> 2.36.1
+> 
+> 

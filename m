@@ -2,86 +2,177 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00626CCA473
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jun 2022 18:00:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D257EC433EF
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jun 2022 19:30:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354394AbiFASAo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Jun 2022 14:00:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54454 "EHLO
+        id S229587AbiFATal (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Jun 2022 15:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240470AbiFASAo (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2022 14:00:44 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CCBD9CCBC;
-        Wed,  1 Jun 2022 11:00:42 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id e2so3424529wrc.1;
-        Wed, 01 Jun 2022 11:00:42 -0700 (PDT)
+        with ESMTP id S229463AbiFATae (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2022 15:30:34 -0400
+Received: from mail-oa1-f54.google.com (mail-oa1-f54.google.com [209.85.160.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7BEC17D3A8;
+        Wed,  1 Jun 2022 12:28:36 -0700 (PDT)
+Received: by mail-oa1-f54.google.com with SMTP id 586e51a60fabf-f2a4c51c45so4010233fac.9;
+        Wed, 01 Jun 2022 12:28:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to;
-        bh=CoU8GVZ5QzWnprLeTKVABcCEkI0ltZArlMqYKwDo3Jk=;
-        b=eiGrPPMO/FkatlkjR2iOWoIe0VCkBmffsNhWiePJUaROY4DpBokMA1QM8e3CbKZDOI
-         p98M92aROj5kXxOugBb/2hyur2hIhpter+GHtvfFSdYwwOenmpLDsznSzfQhBsblstii
-         UYUTjWU2a1K7MlqtaZUvn9sdMECwHXrmXR3E6WyLLKNDvmseRSW5y+3cFdYgLrUOjQrC
-         GevQ3WXd6YbGgmB/fYpquaIpn/hhf7BQ4+UWXLgn0AdmMxcWSBNv8/A3mBdbI3TeFWVD
-         T6CSZjEtqcq+sc+3G491IASex6sLNTcofM0m2MQiA3rkK7KDr7Ayi/TT/jZvmTVmakvM
-         t4Mw==
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=XZHYlXGE/Gj6HgAtGn+s07Im2MDC4D0sr/Mr2hsyhJc=;
+        b=FGGQMA136L0V8cOVVqL1HHuZRyAPa6flPt/N0VztaBi2WqmtubZhbRg5uDUnDTE8GF
+         ym0LfjI/MBIHxhwLqvyUBwMRJb6Bdus3ICSlgriMdGcFb6pXvMgdlEapr9TTUVflk9Dj
+         4eu2EpazUuU5fNldQLVMLybM9MLAkRtnW6Wuz8uGS739h41Y2xYAyoEPEZhkfnMvxpUI
+         sOInSICftmyxm/FgF95q9f8qb0AKBYMq6waXnWyQ0YKT3oehxm0V0T3KtynZIiCygNcY
+         CadVeJgwpnUAoe8GEIP6b3tRFPII5SmEofOaQTfuanvSaDv01iwfE3meG7ZcbSGjDQhB
+         27Fw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=CoU8GVZ5QzWnprLeTKVABcCEkI0ltZArlMqYKwDo3Jk=;
-        b=xvwbh1xPenQrWxxu4V/9I5ToYKJfHjemznVMtITQcN24caEvVP2u4A2X3Vw0iLtohh
-         UsC/XVOqIApw4rCASdHxVnQEZye0y2itzQo6dPOzGt9Vi8b8ZE6gSa7F1Gx509xom9Lv
-         5U5/Wjj/eRWZiA/Cw3rn4FeYegD+6aUoETMEmCshj2yWe8cA16lrJ/qWXySbWRT746/M
-         MhIwbuCh8ISRIJAFZ2y1/xLh9RtCiU5cRoxHvQ6BhRvIwXDKeVRdpL4C2yqrVyoHIrIi
-         lws7Qsteq8ZB/ycDRL1yj2RSqAuPu5f5IifMIyVl2pp4cu7QtOB+LTte4P5eLJkagFBk
-         jpzA==
-X-Gm-Message-State: AOAM533hN5p2YbYeh/wGitap1waUl7uGJZGt3KBDL9RbpeJ4DlWQr6rC
-        4/AqBT1klsbOxBBrDUuWKL4=
-X-Google-Smtp-Source: ABdhPJzBsvEb5f2h37s48HV3fj6wUsJ0ac7NlXfHiaHg103/YAhIvUdHAYW2wVLlFLLz/9dmYaUl0Q==
-X-Received: by 2002:a5d:5181:0:b0:20f:fc49:6b88 with SMTP id k1-20020a5d5181000000b0020ffc496b88mr512525wrv.596.1654106441043;
-        Wed, 01 Jun 2022 11:00:41 -0700 (PDT)
-Received: from elementary ([94.73.36.128])
-        by smtp.gmail.com with ESMTPSA id t17-20020adfeb91000000b0021031c894d3sm2480739wrn.94.2022.06.01.11.00.39
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=XZHYlXGE/Gj6HgAtGn+s07Im2MDC4D0sr/Mr2hsyhJc=;
+        b=RrD9BZDkYzYYHGiTVPKABeUNFOXXB29ZpYUUH+UJ+nSjAFU2arFkdZaQWcZ9GAnC29
+         tHrKhmCe6YlOlw7zi/AbOl/07ML5VC9rd7emEv4CltlNgtIdkYbV9dqqbSlv8YjJoB/9
+         nZW/jsf5JKoa6Y9nNhMDBpLWfZSXp4u2hnGb+SrENRP2Z2TdWun17SbAkRucMWtJijNK
+         ga2T7LHBa/NwfHoeZ0gXmU5zpvy3JYiu8d7eag4RSb4Pcft99fdrZ826bKD3T9LefuvZ
+         1twzIRHbTTuQItcoEJxUU5JfRUspuwM9WG4Op6cgSJ8yLlurKQCcMV6V7Az+ubx5bscT
+         kbTg==
+X-Gm-Message-State: AOAM533ZplxVPjiGD7+T8BrO1fosRw6xaT9/YVaws7aNR9xPoGuqehcs
+        9+LpfDvg3etKbCvez0UHQXBoSi3NGMWOXA==
+X-Google-Smtp-Source: ABdhPJyLUivhx8v1SCAZrXKdj3/PkUpEYPIpZh8oD+1ERe7p+2gmN9TTFdzMCy/WyhmHx8KgNo/MHw==
+X-Received: by 2002:a05:6870:3293:b0:f2:dbc9:596f with SMTP id q19-20020a056870329300b000f2dbc9596fmr17556684oac.112.1654111064154;
+        Wed, 01 Jun 2022 12:17:44 -0700 (PDT)
+Received: from wintermute.localdomain (cpe-76-183-134-35.tx.res.rr.com. [76.183.134.35])
+        by smtp.gmail.com with ESMTPSA id w41-20020a056830412900b005b22a0d826csm1194512ott.1.2022.06.01.12.17.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jun 2022 11:00:40 -0700 (PDT)
-Date:   Wed, 1 Jun 2022 20:00:37 +0200
-From:   =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
-To:     Randy Dunlap <rdunlap@infradead.org>
-Cc:     Bagas Sanjaya <bagasdotme@gmail.com>, linux-doc@vger.kernel.org,
-        kernel test robot <lkp@intel.com>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        llvm@lists.linux.dev, stable@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] HID: uclogic: properly format kernel-doc comment for
- hid_dbg() wrappers
-Message-ID: <20220601180037.GA26165@elementary>
-References: <20220531092817.13894-1-bagasdotme@gmail.com>
- <3995c3d8-395a-bd39-eebc-370bd1fca09c@infradead.org>
- <YpcU7qeOtShFx8xR@debian.me>
- <053f756b-fafa-e07a-4308-0a5de8dda595@infradead.org>
+        Wed, 01 Jun 2022 12:17:43 -0700 (PDT)
+From:   Chris Morgan <macroalpha82@gmail.com>
+To:     linux-input@vger.kernel.org
+Cc:     devicetree@vger.kernel.org, contact@artur-rojek.eu,
+        heiko@sntech.de, krzysztof.kozlowski+dt@linaro.org,
+        robh+dt@kernel.org, dmitry.torokhov@gmail.com,
+        maccraft123mc@gmail.com, Chris Morgan <macromorgan@hotmail.com>
+Subject: [PATCH 2/3] Input: adc-joystick - Add polled input device support
+Date:   Wed,  1 Jun 2022 14:17:29 -0500
+Message-Id: <20220601191730.29721-3-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220601191730.29721-1-macroalpha82@gmail.com>
+References: <20220601191730.29721-1-macroalpha82@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <053f756b-fafa-e07a-4308-0a5de8dda595@infradead.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-> On 6/1/22 00:27, Bagas Sanjaya wrote:
-> Running kernel-doc script on drivers/hid/hid-uclogic-params.c, it found
-> 6 warnings for hid_dbg() wrapper functions below:
-> [...]
+From: Chris Morgan <macromorgan@hotmail.com>
 
-Hi Bagas,
+Add polled input device support to the adc-joystick driver. This is
+useful for devices which do not have hardware capable triggers on
+their SARADC. Code modified from adc-joystick.c changes made by Maya
+Matuszczyk.
 
-Thanks a lot for fixing these warnings. I compiled it and I can
-confirm that the sparse warning is also fixed.
+Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ drivers/input/joystick/adc-joystick.c | 53 +++++++++++++++++++++------
+ 1 file changed, 42 insertions(+), 11 deletions(-)
 
-Tested-by: José Expósito <jose.exposito89@gmail.com>
+diff --git a/drivers/input/joystick/adc-joystick.c b/drivers/input/joystick/adc-joystick.c
+index 78ebca7d400a..83a5a420141e 100644
+--- a/drivers/input/joystick/adc-joystick.c
++++ b/drivers/input/joystick/adc-joystick.c
+@@ -13,6 +13,10 @@
+ 
+ #include <asm/unaligned.h>
+ 
++#define ADC_JSK_POLL_INTERVAL	16
++#define ADC_JSK_POLL_MIN	8
++#define ADC_JSK_POLL_MAX	32
++
+ struct adc_joystick_axis {
+ 	u32 code;
+ 	s32 range[2];
+@@ -26,8 +30,21 @@ struct adc_joystick {
+ 	struct adc_joystick_axis *axes;
+ 	struct iio_channel *chans;
+ 	int num_chans;
++	bool polled;
+ };
+ 
++static void adc_joystick_poll(struct input_dev *input)
++{
++	struct adc_joystick *joy = input_get_drvdata(input);
++	int i, val;
++
++	for (i = 0; i < joy->num_chans; i++) {
++		iio_read_channel_raw(&joy->chans[i], &val);
++		input_report_abs(input, joy->axes[i].code, val);
++	}
++	input_sync(input);
++}
++
+ static int adc_joystick_handle(const void *data, void *private)
+ {
+ 	struct adc_joystick *joy = private;
+@@ -215,8 +232,19 @@ static int adc_joystick_probe(struct platform_device *pdev)
+ 	joy->input = input;
+ 	input->name = pdev->name;
+ 	input->id.bustype = BUS_HOST;
+-	input->open = adc_joystick_open;
+-	input->close = adc_joystick_close;
++
++	if (of_device_is_compatible(dev->of_node, "adc-joystick-polled"))
++		joy->polled = 1;
++
++	if (joy->polled == 1) {
++		input_setup_polling(input, adc_joystick_poll);
++		input_set_poll_interval(input, ADC_JSK_POLL_INTERVAL);
++		input_set_min_poll_interval(input, ADC_JSK_POLL_MIN);
++		input_set_max_poll_interval(input, ADC_JSK_POLL_MAX);
++	} else {
++		input->open = adc_joystick_open;
++		input->close = adc_joystick_close;
++	}
+ 
+ 	error = adc_joystick_set_axes(dev, joy);
+ 	if (error)
+@@ -229,16 +257,18 @@ static int adc_joystick_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
+ 
+-	joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
+-	if (IS_ERR(joy->buffer)) {
+-		dev_err(dev, "Unable to allocate callback buffer\n");
+-		return PTR_ERR(joy->buffer);
+-	}
++	if (joy->polled == 0) {
++		joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
++		if (IS_ERR(joy->buffer)) {
++			dev_err(dev, "Unable to allocate callback buffer\n");
++			return PTR_ERR(joy->buffer);
++		}
+ 
+-	error = devm_add_action_or_reset(dev, adc_joystick_cleanup, joy->buffer);
+-	if (error)  {
+-		dev_err(dev, "Unable to add action\n");
+-		return error;
++		error = devm_add_action_or_reset(dev, adc_joystick_cleanup, joy->buffer);
++		if (error)  {
++			dev_err(dev, "Unable to add action\n");
++			return error;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -246,6 +276,7 @@ static int adc_joystick_probe(struct platform_device *pdev)
+ 
+ static const struct of_device_id adc_joystick_of_match[] = {
+ 	{ .compatible = "adc-joystick", },
++	{ .compatible = "adc-joystick-polled", },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, adc_joystick_of_match);
+-- 
+2.25.1
+

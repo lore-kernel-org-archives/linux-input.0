@@ -2,88 +2,84 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C361ACCA473
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jun 2022 20:55:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EB47C433EF
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jun 2022 20:56:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230124AbiFAUzx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Jun 2022 16:55:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38492 "EHLO
+        id S230324AbiFAU4n (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Jun 2022 16:56:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231441AbiFAUzg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2022 16:55:36 -0400
-Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 052131F576D;
-        Wed,  1 Jun 2022 13:55:23 -0700 (PDT)
-Received: from relay3-d.mail.gandi.net (unknown [217.70.183.195])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id 228F4D0BB8;
-        Wed,  1 Jun 2022 19:45:25 +0000 (UTC)
-Received: (Authenticated sender: contact@artur-rojek.eu)
-        by mail.gandi.net (Postfix) with ESMTPA id 4394B60006;
-        Wed,  1 Jun 2022 19:44:43 +0000 (UTC)
-MIME-Version: 1.0
-Date:   Wed, 01 Jun 2022 21:44:43 +0200
-From:   Artur Rojek <contact@artur-rojek.eu>
-To:     Chris Morgan <macroalpha82@gmail.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        with ESMTP id S230368AbiFAU4m (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2022 16:56:42 -0400
+Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A808F14CA18;
+        Wed,  1 Jun 2022 13:56:31 -0700 (PDT)
+Received: by mail-oo1-xc33.google.com with SMTP id a16-20020a4ad1d0000000b0040edb942aa2so572604oos.2;
+        Wed, 01 Jun 2022 13:56:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=y64Dk9Gp0PAgxJ7sfKpj7Q8xmRgj1XPdr4vbaQ2Vvvc=;
+        b=a52e8DSxqVCHI8H9henNoSP2Ec4gmTq+uhhvBGCDZBmDIq2CBQVZFvBwCQcwegkrxI
+         Kw3xK93M9EdqduU35jvm1La4p/epHzBgLz+hs6Y//WvKAVVqDRfOkS5iq6GDui9SyNU1
+         /bkxQWKvztWHVWMODB5HobspcPWWz9hMxz8EHJ2w9KUieB6QU8CT9sl+0FEZsskB+YdX
+         AaDbqTMmNCvEgeW/aZf71cJVoKQHkeWYGmn5maagLyjfL/jyompdreRy0QgXegV/hJ70
+         fil29Mm0bRNhGXNB8iq6oFKgz1wmlyiIUhP5CL/WuGGVh/CAkc8005yj2OW+ntRkFVpV
+         gpcw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=y64Dk9Gp0PAgxJ7sfKpj7Q8xmRgj1XPdr4vbaQ2Vvvc=;
+        b=uQN41XAVbrzl4cPNPLgSJBEyu+M63mA2ue7b0MaYT1QPfPuzh6P4dq9yx5ooLQt0Qu
+         uhyffPHdhw10RNhzN/1nYkxoXSwiGPDjtWMWGIEQGT6IRKQVFYItIGOUZ/P+QhyQSmRw
+         culUetOke3aTgpfKB3CjqB2GsvMA8rpbMd88+8gEUI3EHpMzTtfAv2Zb9JPAPuncOdhK
+         lk3XuSwjzbBvwdZB3zRqsxeDjuBbLnIfuz0c68nl/t19mcg+ARtgOrTIeW92K5ijDu3i
+         wqNbr4JJ0zTMK4FZiyGYoZUE/5SimafUlD/f0CohPzxnXoIAWTsgvdYonhOKvQRn8Na3
+         7LzQ==
+X-Gm-Message-State: AOAM530mwj/YDzJgqvC/VXElDOuEGOvxOJ14xy6E8oD4CU93xaGDpPfP
+        p3rq27LRn7Wx3oDkJT+dgTK2llanC0UnrQ==
+X-Google-Smtp-Source: ABdhPJwqoAjusbqeYCLV1NnBXEjnEuJFKUcT8EA0CgpDhwTdzs5bH5/jhoUEUS8V6ntG8fwfJwN2dw==
+X-Received: by 2002:a05:6830:2b09:b0:606:8f8:f16e with SMTP id l9-20020a0568302b0900b0060608f8f16emr595118otv.91.1654111062043;
+        Wed, 01 Jun 2022 12:17:42 -0700 (PDT)
+Received: from wintermute.localdomain (cpe-76-183-134-35.tx.res.rr.com. [76.183.134.35])
+        by smtp.gmail.com with ESMTPSA id w41-20020a056830412900b005b22a0d826csm1194512ott.1.2022.06.01.12.17.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jun 2022 12:17:41 -0700 (PDT)
+From:   Chris Morgan <macroalpha82@gmail.com>
+To:     linux-input@vger.kernel.org
+Cc:     devicetree@vger.kernel.org, contact@artur-rojek.eu,
         heiko@sntech.de, krzysztof.kozlowski+dt@linaro.org,
         robh+dt@kernel.org, dmitry.torokhov@gmail.com,
         maccraft123mc@gmail.com, Chris Morgan <macromorgan@hotmail.com>
-Subject: Re: [PATCH 1/3] dt-bindings: adc-joystick: bindings for
- adc-joystick-polled
-In-Reply-To: <20220601191730.29721-2-macroalpha82@gmail.com>
-References: <20220601191730.29721-1-macroalpha82@gmail.com>
- <20220601191730.29721-2-macroalpha82@gmail.com>
-Message-ID: <db2795c639cc092e54980de6f3af3b01@artur-rojek.eu>
-X-Sender: contact@artur-rojek.eu
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: [PATCH 0/3] adc-joystick: Add polled support
+Date:   Wed,  1 Jun 2022 14:17:27 -0500
+Message-Id: <20220601191730.29721-1-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 2022-06-01 21:17, Chris Morgan wrote:
-> From: Chris Morgan <macromorgan@hotmail.com>
+From: Chris Morgan <macromorgan@hotmail.com>
 
-Hi Chris,
+Add support to the existing adc-joystick driver to support polling
+rather than relying on triggered buffers. This is useful for devices
+that do not offer triggered buffers in hardware. Code adapted from
+changes made by Maya Matuszczyk <maccraft123mc@gmail.com>.
 
-> 
-> Add devicetree bindings for adc-joystick-polled.
-> 
-> Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
-> Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
-> ---
->  Documentation/devicetree/bindings/input/adc-joystick.yaml | 8 ++++++--
->  1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml
-> b/Documentation/devicetree/bindings/input/adc-joystick.yaml
-> index 2ee04e03bc22..a9d2ac157322 100644
-> --- a/Documentation/devicetree/bindings/input/adc-joystick.yaml
-> +++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
-> @@ -12,11 +12,15 @@ maintainers:
-> 
->  description: >
->    Bindings for joystick devices connected to ADC controllers 
-> supporting
-> -  the Industrial I/O subsystem.
-> +  the Industrial I/O subsystem. Supports both polled devices where no
-> +  iio trigger is available and non-polled devices which are triggered
-> +  by iio.
-> 
->  properties:
->    compatible:
-> -    const: adc-joystick
-> +    enum:
-> +      - adc-joystick
-> +      - adc-joystick-polled
+Chris Morgan (3):
+  dt-bindings: adc-joystick: bindings for adc-joystick-polled
+  Input: adc-joystick - Add polled input device support
+  arm64: dts: rockchip: Update joystick to polled for Odroid-Go2
 
-There is no need to create a new compatible for your functionality. 
-Instead, just add a new (optional) property.
+ .../bindings/input/adc-joystick.yaml          |  8 ++-
+ .../boot/dts/rockchip/rk3326-odroid-go2.dts   |  2 +-
+ drivers/input/joystick/adc-joystick.c         | 53 +++++++++++++++----
+ 3 files changed, 49 insertions(+), 14 deletions(-)
 
-cheers,
-Artur
+-- 
+2.25.1
 
-> 
->    io-channels:
->      minItems: 1

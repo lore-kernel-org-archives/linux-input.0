@@ -2,84 +2,179 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EB47C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  1 Jun 2022 20:56:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63506CCA479
+	for <linux-input@archiver.kernel.org>; Wed,  1 Jun 2022 22:00:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230324AbiFAU4n (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 1 Jun 2022 16:56:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43200 "EHLO
+        id S232274AbiFAWA2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 1 Jun 2022 18:00:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230368AbiFAU4m (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2022 16:56:42 -0400
-Received: from mail-oo1-xc33.google.com (mail-oo1-xc33.google.com [IPv6:2607:f8b0:4864:20::c33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A808F14CA18;
-        Wed,  1 Jun 2022 13:56:31 -0700 (PDT)
-Received: by mail-oo1-xc33.google.com with SMTP id a16-20020a4ad1d0000000b0040edb942aa2so572604oos.2;
-        Wed, 01 Jun 2022 13:56:30 -0700 (PDT)
+        with ESMTP id S232273AbiFAWAX (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 1 Jun 2022 18:00:23 -0400
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8DE7B1DD;
+        Wed,  1 Jun 2022 15:00:22 -0700 (PDT)
+Received: by mail-pf1-x431.google.com with SMTP id z17so3125996pff.7;
+        Wed, 01 Jun 2022 15:00:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=y64Dk9Gp0PAgxJ7sfKpj7Q8xmRgj1XPdr4vbaQ2Vvvc=;
-        b=a52e8DSxqVCHI8H9henNoSP2Ec4gmTq+uhhvBGCDZBmDIq2CBQVZFvBwCQcwegkrxI
-         Kw3xK93M9EdqduU35jvm1La4p/epHzBgLz+hs6Y//WvKAVVqDRfOkS5iq6GDui9SyNU1
-         /bkxQWKvztWHVWMODB5HobspcPWWz9hMxz8EHJ2w9KUieB6QU8CT9sl+0FEZsskB+YdX
-         AaDbqTMmNCvEgeW/aZf71cJVoKQHkeWYGmn5maagLyjfL/jyompdreRy0QgXegV/hJ70
-         fil29Mm0bRNhGXNB8iq6oFKgz1wmlyiIUhP5CL/WuGGVh/CAkc8005yj2OW+ntRkFVpV
-         gpcw==
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=WGOCUect1YABbyO7EXQHmxr++jFWXyECExYgfm6V1no=;
+        b=RUT2Bpti7ySB+0fWfvmo0VBu5t7Xn8Nao1NVv6h6h0a3dHo4ItQyuyv3GR/4wdJt8D
+         OnN0tMfV90N98UgKmi+cToqQsNgU0DXWoKndHMgbCiuzYjm5cRMjYgPLrM1oFlQGA8hS
+         DsRtVKz0grFojtpUFDbGfFJ4JUp13PACDav5Jmrjvdy7+KV/i1B44/95aZjNVEnBdUM5
+         bttndvR8OgFnnfhjUpjQekcRLZi2NH3jxuyzS6gSc/h3GZojRl99klQIk1PwC+T28oiy
+         mQg2pkfCbdRkM3jwOPX8E7/S0Y0CT0sL8l7IYb03Qw50GPj/rN1pjIh71sJjoWJa28l1
+         yugQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=y64Dk9Gp0PAgxJ7sfKpj7Q8xmRgj1XPdr4vbaQ2Vvvc=;
-        b=uQN41XAVbrzl4cPNPLgSJBEyu+M63mA2ue7b0MaYT1QPfPuzh6P4dq9yx5ooLQt0Qu
-         uhyffPHdhw10RNhzN/1nYkxoXSwiGPDjtWMWGIEQGT6IRKQVFYItIGOUZ/P+QhyQSmRw
-         culUetOke3aTgpfKB3CjqB2GsvMA8rpbMd88+8gEUI3EHpMzTtfAv2Zb9JPAPuncOdhK
-         lk3XuSwjzbBvwdZB3zRqsxeDjuBbLnIfuz0c68nl/t19mcg+ARtgOrTIeW92K5ijDu3i
-         wqNbr4JJ0zTMK4FZiyGYoZUE/5SimafUlD/f0CohPzxnXoIAWTsgvdYonhOKvQRn8Na3
-         7LzQ==
-X-Gm-Message-State: AOAM530mwj/YDzJgqvC/VXElDOuEGOvxOJ14xy6E8oD4CU93xaGDpPfP
-        p3rq27LRn7Wx3oDkJT+dgTK2llanC0UnrQ==
-X-Google-Smtp-Source: ABdhPJwqoAjusbqeYCLV1NnBXEjnEuJFKUcT8EA0CgpDhwTdzs5bH5/jhoUEUS8V6ntG8fwfJwN2dw==
-X-Received: by 2002:a05:6830:2b09:b0:606:8f8:f16e with SMTP id l9-20020a0568302b0900b0060608f8f16emr595118otv.91.1654111062043;
-        Wed, 01 Jun 2022 12:17:42 -0700 (PDT)
-Received: from wintermute.localdomain (cpe-76-183-134-35.tx.res.rr.com. [76.183.134.35])
-        by smtp.gmail.com with ESMTPSA id w41-20020a056830412900b005b22a0d826csm1194512ott.1.2022.06.01.12.17.40
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=WGOCUect1YABbyO7EXQHmxr++jFWXyECExYgfm6V1no=;
+        b=3f7SaUjCzjK/vmn9VUN/+0KyDfapFn2XcmUdrfDbm0/KwOd7K0kp19dByYBCyK900C
+         UaDzz/6QGlmy9FN0RvOTCu3fHYiq/M7Bx8B2QuYEjCjmlHBSpNSv3UeQb73x41kB3qu1
+         dFmaXtbxxX+fy/stCOYnMvK6lLaeg/qp6pjXL+P+TXmlAdDlpT7//49hoWdbOtaQ0tfI
+         8L1o1+XrhwQKsVDeaInpUfuTbpdIsrwzKXUZQQuUXa7Nco0G3uRXeCznCcjfXjZA2bjh
+         FUyjJ7hHqxE5hb+5goaVsVxDPcLAZjgQ/p1AJE9LNd60PxcIfRXk57sGJP3Sl4rNfSqK
+         GotQ==
+X-Gm-Message-State: AOAM53032YXbmDaHDz64kmlZVGpzG1l61lMq6XCCw1fGdYViM+eAzD+u
+        ItOp9/PPIiUvP798KhIg9xn/q8uXFVw=
+X-Google-Smtp-Source: ABdhPJzp09lAefDHE9hFeAGp9EIINet1pZTp60loy6FQeX0QtivwNPNuPjmteG0LrGvzAFsahYulxA==
+X-Received: by 2002:a63:ff5a:0:b0:3fc:c8d7:f3e0 with SMTP id s26-20020a63ff5a000000b003fcc8d7f3e0mr1273770pgk.77.1654120822167;
+        Wed, 01 Jun 2022 15:00:22 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:7a22:99c9:242d:6235])
+        by smtp.gmail.com with ESMTPSA id p10-20020a170902780a00b001640aad2f71sm2064379pll.180.2022.06.01.15.00.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jun 2022 12:17:41 -0700 (PDT)
-From:   Chris Morgan <macroalpha82@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     devicetree@vger.kernel.org, contact@artur-rojek.eu,
-        heiko@sntech.de, krzysztof.kozlowski+dt@linaro.org,
-        robh+dt@kernel.org, dmitry.torokhov@gmail.com,
-        maccraft123mc@gmail.com, Chris Morgan <macromorgan@hotmail.com>
-Subject: [PATCH 0/3] adc-joystick: Add polled support
-Date:   Wed,  1 Jun 2022 14:17:27 -0500
-Message-Id: <20220601191730.29721-1-macroalpha82@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        Wed, 01 Jun 2022 15:00:21 -0700 (PDT)
+Date:   Wed, 1 Jun 2022 15:00:18 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Chris Morgan <macroalpha82@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        heiko@sntech.de, maccraft123mc@gmail.com, contact@artur-rojek.eu,
+        Chris Morgan <macromorgan@hotmail.com>
+Subject: Re: [PATCH v2 2/3] Input: adc-joystick - Add polled input device
+ support
+Message-ID: <YpfhcgikvPrds63+@google.com>
+References: <20220601204927.10256-1-macroalpha82@gmail.com>
+ <20220601204927.10256-3-macroalpha82@gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220601204927.10256-3-macroalpha82@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Chris Morgan <macromorgan@hotmail.com>
+On Wed, Jun 01, 2022 at 03:49:26PM -0500, Chris Morgan wrote:
+> From: Chris Morgan <macromorgan@hotmail.com>
+> 
+> Add polled input device support to the adc-joystick driver. This is
+> useful for devices which do not have hardware capable triggers on
+> their SARADC. Code modified from adc-joystick.c changes made by Maya
+> Matuszczyk.
 
-Add support to the existing adc-joystick driver to support polling
-rather than relying on triggered buffers. This is useful for devices
-that do not offer triggered buffers in hardware. Code adapted from
-changes made by Maya Matuszczyk <maccraft123mc@gmail.com>.
+I'd like to hear Jonathan's take on this...
 
-Chris Morgan (3):
-  dt-bindings: adc-joystick: bindings for adc-joystick-polled
-  Input: adc-joystick - Add polled input device support
-  arm64: dts: rockchip: Update joystick to polled for Odroid-Go2
-
- .../bindings/input/adc-joystick.yaml          |  8 ++-
- .../boot/dts/rockchip/rk3326-odroid-go2.dts   |  2 +-
- drivers/input/joystick/adc-joystick.c         | 53 +++++++++++++++----
- 3 files changed, 49 insertions(+), 14 deletions(-)
+> 
+> Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+> Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+> ---
+>  drivers/input/joystick/adc-joystick.c | 52 +++++++++++++++++++++------
+>  1 file changed, 41 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/input/joystick/adc-joystick.c b/drivers/input/joystick/adc-joystick.c
+> index 78ebca7d400a..5a28fe7b8ebc 100644
+> --- a/drivers/input/joystick/adc-joystick.c
+> +++ b/drivers/input/joystick/adc-joystick.c
+> @@ -13,6 +13,10 @@
+>  
+>  #include <asm/unaligned.h>
+>  
+> +#define ADC_JSK_POLL_INTERVAL	16
+> +#define ADC_JSK_POLL_MIN	8
+> +#define ADC_JSK_POLL_MAX	32
+> +
+>  struct adc_joystick_axis {
+>  	u32 code;
+>  	s32 range[2];
+> @@ -26,8 +30,21 @@ struct adc_joystick {
+>  	struct adc_joystick_axis *axes;
+>  	struct iio_channel *chans;
+>  	int num_chans;
+> +	bool polled;
+>  };
+>  
+> +static void adc_joystick_poll(struct input_dev *input)
+> +{
+> +	struct adc_joystick *joy = input_get_drvdata(input);
+> +	int i, val;
+> +
+> +	for (i = 0; i < joy->num_chans; i++) {
+> +		iio_read_channel_raw(&joy->chans[i], &val);
+> +		input_report_abs(input, joy->axes[i].code, val);
+> +	}
+> +	input_sync(input);
+> +}
+> +
+>  static int adc_joystick_handle(const void *data, void *private)
+>  {
+>  	struct adc_joystick *joy = private;
+> @@ -215,8 +232,19 @@ static int adc_joystick_probe(struct platform_device *pdev)
+>  	joy->input = input;
+>  	input->name = pdev->name;
+>  	input->id.bustype = BUS_HOST;
+> -	input->open = adc_joystick_open;
+> -	input->close = adc_joystick_close;
+> +
+> +	if (device_property_read_bool(dev, "adc-joystick,polled"))
+> +		joy->polled = 1;
+> +
+> +	if (joy->polled) {
+> +		input_setup_polling(input, adc_joystick_poll);
+> +		input_set_poll_interval(input, ADC_JSK_POLL_INTERVAL);
+> +		input_set_min_poll_interval(input, ADC_JSK_POLL_MIN);
+> +		input_set_max_poll_interval(input, ADC_JSK_POLL_MAX);
+> +	} else {
+> +		input->open = adc_joystick_open;
+> +		input->close = adc_joystick_close;
+> +	}
+>  
+>  	error = adc_joystick_set_axes(dev, joy);
+>  	if (error)
+> @@ -229,16 +257,18 @@ static int adc_joystick_probe(struct platform_device *pdev)
+>  		return error;
+>  	}
+>  
+> -	joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
+> -	if (IS_ERR(joy->buffer)) {
+> -		dev_err(dev, "Unable to allocate callback buffer\n");
+> -		return PTR_ERR(joy->buffer);
+> -	}
+> +	if (!joy->polled) {
+> +		joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
+> +		if (IS_ERR(joy->buffer)) {
+> +			dev_err(dev, "Unable to allocate callback buffer\n");
+> +			return PTR_ERR(joy->buffer);
+> +		}
+>  
+> -	error = devm_add_action_or_reset(dev, adc_joystick_cleanup, joy->buffer);
+> -	if (error)  {
+> -		dev_err(dev, "Unable to add action\n");
+> -		return error;
+> +		error = devm_add_action_or_reset(dev, adc_joystick_cleanup, joy->buffer);
+> +		if (error)  {
+> +			dev_err(dev, "Unable to add action\n");
+> +			return error;
+> +		}
+>  	}
+>  
+>  	return 0;
+> -- 
+> 2.25.1
+> 
 
 -- 
-2.25.1
-
+Dmitry

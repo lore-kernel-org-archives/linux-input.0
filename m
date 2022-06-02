@@ -2,82 +2,178 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CE66CCA479
-	for <linux-input@archiver.kernel.org>; Thu,  2 Jun 2022 08:29:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 210BCC43334
+	for <linux-input@archiver.kernel.org>; Thu,  2 Jun 2022 09:22:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231573AbiFBI3s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 2 Jun 2022 04:29:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33152 "EHLO
+        id S232941AbiFBJW2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 2 Jun 2022 05:22:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231469AbiFBI3r (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Jun 2022 04:29:47 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1AC1BD1;
-        Thu,  2 Jun 2022 01:29:45 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A853B81EE7;
-        Thu,  2 Jun 2022 08:29:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89790C385A5;
-        Thu,  2 Jun 2022 08:29:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1654158583;
-        bh=BN4ioYNda/zi1dUexn63v19SN0dic1eefabXoCOtF/0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uDxZymjw2BgFZlHAEzqWseLq8V13tknkA7ow/IGnxZS780a8ozkQILk85azdoYV37
-         Ba28hnTd+6sz8ee0vUxEoJGgTBlQve768PCxL4rl6irsntMm0MOSasfy9aRYUzskjT
-         Ft0tquR1j5LEAwXWyOQPj4M3R2IV2Ab9AdGaECPM=
-Date:   Thu, 2 Jun 2022 10:29:40 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Bagas Sanjaya <bagasdotme@gmail.com>
-Cc:     linux-doc@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        =?iso-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        llvm@lists.linux.dev, stable@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3] HID: uclogic: properly format kernel-doc comment for
- hid_dbg() wrappers
-Message-ID: <Yph09N8w4g7+d9ER@kroah.com>
-References: <20220602082321.313143-1-bagasdotme@gmail.com>
+        with ESMTP id S232901AbiFBJW1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Jun 2022 05:22:27 -0400
+Received: from aposti.net (aposti.net [89.234.176.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31418C43;
+        Thu,  2 Jun 2022 02:22:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1654161741; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bdFdEInj0nV0Q6jdOHpTmlRNrwcWRkoYe3jBS5EW5VU=;
+        b=Yeg8VI4kw+QOdag7dk9i9fFU/KFOqx4N7r33VJDxXek4OT4hh7rVZiaV+EEmD/cc2oWou6
+        sHQkvCRvUQ+ejor8SkcvdtBA/oUCmWPs0a8qHwzCo2dGIEpsZq/Az2Hun5etIrk0/C9a5L
+        1lekTokJY3w4jBVH7eOxF0cs75e0jcg=
+Date:   Thu, 02 Jun 2022 10:22:11 +0100
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH v2 2/3] Input: adc-joystick - Add polled input device
+ support
+To:     Chris Morgan <macroalpha82@gmail.com>,
+        Jonathan Cameron <jic23@kernel.org>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, heiko@sntech.de,
+        maccraft123mc@gmail.com, contact@artur-rojek.eu,
+        Chris Morgan <macromorgan@hotmail.com>
+Message-Id: <ZCFUCR.XGIL3R7SFVS32@crapouillou.net>
+In-Reply-To: <20220601204927.10256-3-macroalpha82@gmail.com>
+References: <20220601204927.10256-1-macroalpha82@gmail.com>
+        <20220601204927.10256-3-macroalpha82@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220602082321.313143-1-bagasdotme@gmail.com>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Jun 02, 2022 at 03:23:21PM +0700, Bagas Sanjaya wrote:
-> Running kernel-doc script on drivers/hid/hid-uclogic-params.c, it found
-> 6 warnings for hid_dbg() wrapper functions below:
-> 
-> drivers/hid/hid-uclogic-params.c:48: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
-> drivers/hid/hid-uclogic-params.c:48: warning: missing initial short description on line:
->  * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
-> drivers/hid/hid-uclogic-params.c:48: info: Scanning doc for function Dump
-> drivers/hid/hid-uclogic-params.c:80: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface frame parameters with hid_dbg(), indented with two
-> drivers/hid/hid-uclogic-params.c:80: warning: missing initial short description on line:
->  * Dump tablet interface frame parameters with hid_dbg(), indented with two
-> drivers/hid/hid-uclogic-params.c:80: info: Scanning doc for function Dump
-> drivers/hid/hid-uclogic-params.c:105: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface parameters with hid_dbg().
-> drivers/hid/hid-uclogic-params.c:105: warning: missing initial short description on line:
->  * Dump tablet interface parameters with hid_dbg().
-> 
-> One of them is reported by kernel test robot.
-> 
-> Fix these warnings by properly format kernel-doc comment for these
-> functions.
+Hi Chris,
 
-None of this is needed for stable kernels releases as no code is being
-modified.
+Le mer., juin 1 2022 at 15:49:26 -0500, Chris Morgan=20
+<macroalpha82@gmail.com> a =E9crit :
+> From: Chris Morgan <macromorgan@hotmail.com>
+>=20
+> Add polled input device support to the adc-joystick driver. This is
+> useful for devices which do not have hardware capable triggers on
+> their SARADC. Code modified from adc-joystick.c changes made by Maya
+> Matuszczyk.
 
-thanks,
+I understand what you're trying to do, but maybe there's a better way.
 
-greg k-h
+It would be better if pollable IIO devices would also be able to be=20
+used with a buffer, with the client driver manually triggering the IIO=20
+device through a function call.
+
+Jonathan (Cc'd) might have his reasons why this isn't done this way,=20
+and in this case your patch makes sense, but I'd like to hear=20
+Jonathan's thoughts first.
+
+As for "adc-joystick,polled"... it doesn't describe the hardware but=20
+rather a specific configuration, so it shouldn't appear in the device=20
+tree.
+
+Cheers,
+-Paul
+
+>=20
+> Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+> Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+> ---
+>  drivers/input/joystick/adc-joystick.c | 52=20
+> +++++++++++++++++++++------
+>  1 file changed, 41 insertions(+), 11 deletions(-)
+>=20
+> diff --git a/drivers/input/joystick/adc-joystick.c=20
+> b/drivers/input/joystick/adc-joystick.c
+> index 78ebca7d400a..5a28fe7b8ebc 100644
+> --- a/drivers/input/joystick/adc-joystick.c
+> +++ b/drivers/input/joystick/adc-joystick.c
+> @@ -13,6 +13,10 @@
+>=20
+>  #include <asm/unaligned.h>
+>=20
+> +#define ADC_JSK_POLL_INTERVAL	16
+> +#define ADC_JSK_POLL_MIN	8
+> +#define ADC_JSK_POLL_MAX	32
+> +
+>  struct adc_joystick_axis {
+>  	u32 code;
+>  	s32 range[2];
+> @@ -26,8 +30,21 @@ struct adc_joystick {
+>  	struct adc_joystick_axis *axes;
+>  	struct iio_channel *chans;
+>  	int num_chans;
+> +	bool polled;
+>  };
+>=20
+> +static void adc_joystick_poll(struct input_dev *input)
+> +{
+> +	struct adc_joystick *joy =3D input_get_drvdata(input);
+> +	int i, val;
+> +
+> +	for (i =3D 0; i < joy->num_chans; i++) {
+> +		iio_read_channel_raw(&joy->chans[i], &val);
+> +		input_report_abs(input, joy->axes[i].code, val);
+> +	}
+> +	input_sync(input);
+> +}
+> +
+>  static int adc_joystick_handle(const void *data, void *private)
+>  {
+>  	struct adc_joystick *joy =3D private;
+> @@ -215,8 +232,19 @@ static int adc_joystick_probe(struct=20
+> platform_device *pdev)
+>  	joy->input =3D input;
+>  	input->name =3D pdev->name;
+>  	input->id.bustype =3D BUS_HOST;
+> -	input->open =3D adc_joystick_open;
+> -	input->close =3D adc_joystick_close;
+> +
+> +	if (device_property_read_bool(dev, "adc-joystick,polled"))
+> +		joy->polled =3D 1;
+> +
+> +	if (joy->polled) {
+> +		input_setup_polling(input, adc_joystick_poll);
+> +		input_set_poll_interval(input, ADC_JSK_POLL_INTERVAL);
+> +		input_set_min_poll_interval(input, ADC_JSK_POLL_MIN);
+> +		input_set_max_poll_interval(input, ADC_JSK_POLL_MAX);
+> +	} else {
+> +		input->open =3D adc_joystick_open;
+> +		input->close =3D adc_joystick_close;
+> +	}
+>=20
+>  	error =3D adc_joystick_set_axes(dev, joy);
+>  	if (error)
+> @@ -229,16 +257,18 @@ static int adc_joystick_probe(struct=20
+> platform_device *pdev)
+>  		return error;
+>  	}
+>=20
+> -	joy->buffer =3D iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
+> -	if (IS_ERR(joy->buffer)) {
+> -		dev_err(dev, "Unable to allocate callback buffer\n");
+> -		return PTR_ERR(joy->buffer);
+> -	}
+> +	if (!joy->polled) {
+> +		joy->buffer =3D iio_channel_get_all_cb(dev, adc_joystick_handle,=20
+> joy);
+> +		if (IS_ERR(joy->buffer)) {
+> +			dev_err(dev, "Unable to allocate callback buffer\n");
+> +			return PTR_ERR(joy->buffer);
+> +		}
+>=20
+> -	error =3D devm_add_action_or_reset(dev, adc_joystick_cleanup,=20
+> joy->buffer);
+> -	if (error)  {
+> -		dev_err(dev, "Unable to add action\n");
+> -		return error;
+> +		error =3D devm_add_action_or_reset(dev, adc_joystick_cleanup,=20
+> joy->buffer);
+> +		if (error)  {
+> +			dev_err(dev, "Unable to add action\n");
+> +			return error;
+> +		}
+>  	}
+>=20
+>  	return 0;
+
+

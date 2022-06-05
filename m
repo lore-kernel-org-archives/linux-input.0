@@ -2,138 +2,67 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BF85C43334
-	for <linux-input@archiver.kernel.org>; Sat,  4 Jun 2022 14:01:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 84E58C43334
+	for <linux-input@archiver.kernel.org>; Sun,  5 Jun 2022 08:45:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235644AbiFDOBy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 4 Jun 2022 10:01:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
+        id S244886AbiFEIpQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 5 Jun 2022 04:45:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234772AbiFDOBx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Jun 2022 10:01:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B9BA93617C
-        for <linux-input@vger.kernel.org>; Sat,  4 Jun 2022 07:01:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1654351308;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=OfcPj+cwztaLSei0IVYo5rrELt9/llylwn3d2kpTpuU=;
-        b=btNou6lVTgWQ2lLFx9ySjW0ndwNAKKIqvUoLPOpRDUStuRgmzc3yKx3gUq4ywiZAjk0IO4
-        +RM9NaN/CI2rz/wx59ebkVOjkATMRT8iFM3EDBYKYrxP2vQfBzaZK1FeFMctYs+XhIlkKM
-        cAWxgM6M9fvMrG7nGOZXtIxcSjV70XA=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-54-KW_zVfIiPI6vnFOstZgY0w-1; Sat, 04 Jun 2022 10:01:47 -0400
-X-MC-Unique: KW_zVfIiPI6vnFOstZgY0w-1
-Received: by mail-lf1-f72.google.com with SMTP id a29-20020a194f5d000000b004790a4ba4bdso4462221lfk.11
-        for <linux-input@vger.kernel.org>; Sat, 04 Jun 2022 07:01:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=OfcPj+cwztaLSei0IVYo5rrELt9/llylwn3d2kpTpuU=;
-        b=zU5HnbqqGJ8o5vWSWwVr3aNWHypLCAoPD11lI0yxnK/fvI2m9zjT9T+RLb9gPjowTX
-         pHB6byTCI1eMoT7tMPs3zYgQ2cCBg0YiwdXVbWgru0ynOGTt5SUxCcA6dGWet1vP+Nj3
-         vCnyOPo1UotXAyRxotw1Zvcu+zpZrDaXU3N0mKNvlBtTmsQXMggBiIcjNSR4AzFNikPz
-         7YFqRrU885Bqr8GuUiKRUhtIcGVdQx7g/TNxFYtyToxZrENYLh4tcPapQuf76eHXpUm0
-         Hs213wp4MaVQdo0HAXv38QwSZ4vSCDqKz/o3iWuyhesrRPLOiP5rQ/iOSqCc+ddvfuDz
-         ffTQ==
-X-Gm-Message-State: AOAM531Ju0xwhvU3D/P2MMQpmpnuK0ltNAjOh/HSPQl7FoPogR74QIKP
-        QBGuruKly7QIKiZCZfMjBmvMXDUDqqKBvfTGNF1SfqeT7yZOXr8z04QuTL5pMAj6pCojiev5bY0
-        xqS5waFEDsEOJ7UMSLp/V3Ys=
-X-Received: by 2002:a05:6512:1092:b0:478:689e:a8dc with SMTP id j18-20020a056512109200b00478689ea8dcmr10185932lfg.33.1654351305869;
-        Sat, 04 Jun 2022 07:01:45 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxT3qpmanR4n7brU/292+Dw3t7QHTij6GV5mvwsw5m9yfdSwNADAz3WPl+vnnFOK77YoYVY3g==
-X-Received: by 2002:a05:6512:1092:b0:478:689e:a8dc with SMTP id j18-20020a056512109200b00478689ea8dcmr10185915lfg.33.1654351305600;
-        Sat, 04 Jun 2022 07:01:45 -0700 (PDT)
-Received: from [10.101.1.23] (ip-185-104-137-32.ptr.icomera.net. [185.104.137.32])
-        by smtp.gmail.com with ESMTPSA id u26-20020ac248ba000000b00478fa47592asm2102110lfg.141.2022.06.04.07.01.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 04 Jun 2022 07:01:44 -0700 (PDT)
-Message-ID: <d01f87e0-66fa-e727-f08d-347e0f0853de@redhat.com>
-Date:   Sat, 4 Jun 2022 16:01:41 +0200
+        with ESMTP id S231216AbiFEIpQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Jun 2022 04:45:16 -0400
+Received: from smtpbg.qq.com (smtpbg123.qq.com [175.27.65.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1D952188;
+        Sun,  5 Jun 2022 01:45:11 -0700 (PDT)
+X-QQ-mid: bizesmtp74t1654418637tb7nap4v
+Received: from localhost.localdomain ( [111.9.5.115])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Sun, 05 Jun 2022 16:43:43 +0800 (CST)
+X-QQ-SSF: 01000000002000C0G000B00A0000000
+X-QQ-FEAT: 3uawQE1sH+3FUqPkLPowtOQBuTZOvH5lvJD0mEeglnetACa1xLaHyTppTRY5+
+        7YyGFrySZNzQuDxCb1jwDaHHkNUT4cQY/mgTiKXMGrJxeCAOLSghvEbAu0j+kH1SDnjUytv
+        x/16oLI+0WISLmgZLybfrTo5rBK3PXKG9UMA5QKfhv/mo7gnsS2p897lDmLwF3qsRljEhOO
+        /7vTSXHbKn8JFo5QATHH2rQ1W/agpeUZAATu4UIpcKR1OwMmaNy0xKmsBBMidbxWA+2Y7Ht
+        PZ7zay6RK9OIjjh1uXBw0BaOp/W4hoMDHpb6NNqJtt2bq71u/PekI1CoXaAxBTOONw91+7r
+        92ReYfRI7LpCaZBQsQ=
+X-QQ-GoodBg: 0
+From:   Xiang wangx <wangxiang@cdjrlc.com>
+To:     jikos@kernel.org
+Cc:     benjamin.tissoires@redhat.com, lains@riseup.net,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Xiang wangx <wangxiang@cdjrlc.com>
+Subject: [PATCH] HID: logitech-hidpp: Fix syntax errors in comments
+Date:   Sun,  5 Jun 2022 16:43:43 +0800
+Message-Id: <20220605084343.10514-1-wangxiang@cdjrlc.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.8.0
-Subject: Re: [PATCH] Input: soc_button_array - also add Lenovo Yoga Tablet2
- 1051F to dmi_use_low_level_irq
-Content-Language: en-US
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Marius Hoch <mail@mariushoch.de>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20220603120246.3065-1-mail@mariushoch.de>
- <YpqMMmIH6Rr0RbeP@google.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <YpqMMmIH6Rr0RbeP@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:cdjrlc.com:qybgspam:qybgspam8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+Delete the redundant word 'in'.
 
-On 6/4/22 00:33, Dmitry Torokhov wrote:
-> On Fri, Jun 03, 2022 at 02:02:46PM +0200, Marius Hoch wrote:
->> Commit 223f61b8c5ad ("Input: soc_button_array - add Lenovo Yoga Tablet2
->> 1051L to the dmi_use_low_level_irq list") added the 1051L to this list
->> already, but the same problem applies to the 1051F. As there are no
->> further 1051 variants (just the F/L), we can just DMI match 1051.
->>
->> Tested on a Lenovo Yoga Tablet2 1051F: Without this patch the
->> home-button stops working after a wakeup from suspend.
->>
->> Signed-off-by: Marius Hoch <mail@mariushoch.de>
-> 
-> Adding Hans for his input...
+Signed-off-by: Xiang wangx <wangxiang@cdjrlc.com>
+---
+ drivers/hid/hid-logitech-hidpp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This patch is obviously correct the F/L postfix just differs between
-wiFi vs LTE, not sure if I already knew this when I wrote this patch
-(and did not think things through) or if it is knowledge which I
-gathered later, anyway:
-
-Thanks, patch looks good to me:
-
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-
-Regards,
-
-Hans
-
-
-
-> 
->> ---
->>  drivers/input/misc/soc_button_array.c | 4 ++--
->>  1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
->> index cbb1599a520e..480476121c01 100644
->> --- a/drivers/input/misc/soc_button_array.c
->> +++ b/drivers/input/misc/soc_button_array.c
->> @@ -85,13 +85,13 @@ static const struct dmi_system_id dmi_use_low_level_irq[] = {
->>  	},
->>  	{
->>  		/*
->> -		 * Lenovo Yoga Tab2 1051L, something messes with the home-button
->> +		 * Lenovo Yoga Tab2 1051F/1051L, something messes with the home-button
->>  		 * IRQ settings, leading to a non working home-button.
->>  		 */
->>  		.matches = {
->>  			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
->>  			DMI_MATCH(DMI_PRODUCT_NAME, "60073"),
->> -			DMI_MATCH(DMI_PRODUCT_VERSION, "1051L"),
->> +			DMI_MATCH(DMI_PRODUCT_VERSION, "1051"),
->>  		},
->>  	},
->>  	{} /* Terminating entry */
->> -- 
->> 2.36.1
->>
-> 
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 81de88ab2ecc..68f9e9d207f4 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -1694,7 +1694,7 @@ static int hidpp_battery_get_property(struct power_supply *psy,
+ 			val->strval = hidpp->hid_dev->uniq;
+ 			break;
+ 		case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+-			/* hardware reports voltage in in mV. sysfs expects uV */
++			/* hardware reports voltage in mV. sysfs expects uV */
+ 			val->intval = hidpp->battery.voltage * 1000;
+ 			break;
+ 		case POWER_SUPPLY_PROP_CHARGE_TYPE:
+-- 
+2.36.1
 

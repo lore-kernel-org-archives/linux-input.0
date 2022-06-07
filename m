@@ -2,60 +2,59 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BAFAC43334
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jun 2022 09:56:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CCD9CCA47C
+	for <linux-input@archiver.kernel.org>; Tue,  7 Jun 2022 09:56:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240251AbiFGJ4M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Jun 2022 05:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39884 "EHLO
+        id S240347AbiFGJ4R (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Jun 2022 05:56:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240229AbiFGJ4K (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2022 05:56:10 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F55E8B88
-        for <linux-input@vger.kernel.org>; Tue,  7 Jun 2022 02:56:07 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id m26so11949806wrb.4
-        for <linux-input@vger.kernel.org>; Tue, 07 Jun 2022 02:56:07 -0700 (PDT)
+        with ESMTP id S240275AbiFGJ4P (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2022 05:56:15 -0400
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 255A4E7329
+        for <linux-input@vger.kernel.org>; Tue,  7 Jun 2022 02:56:13 -0700 (PDT)
+Received: by mail-wr1-x432.google.com with SMTP id u3so23392817wrg.3
+        for <linux-input@vger.kernel.org>; Tue, 07 Jun 2022 02:56:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=amarulasolutions.com; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=TyZtZSd5cTSSlPOn3/pu61X0lFqS8ubq/VPK6S5b8ro=;
-        b=JQ6j73pVrChcMUfBmFTaW+tQL8dGlAue9g7Vy1Gh1LGNIv9slhQXKZt6bqLGiXUoO+
-         tAqrctpEgedxjUbGVCe+6ypZTVpS5H6OohVCSyDiW+FGKNrcE5W8kR/Ks9HH+hAAMuHQ
-         pAt9hK30UNk4kLLKiU+I+LoEJeKW2Byd9zb7E=
+        bh=b85JvDSGn8w4tr7JpVbjtxkbsu1O4D+F+hX3OsbfqCs=;
+        b=kIbaL3300jIhHXnjE4TUkzvN0aDpxTdjXOfBc8eQ9P8NML1oCAcaCraQFv2cmkhCwe
+         xolxDgKM2SYwGu//bLBxIQEY+R1qd+cBPF+xdHHhdXwgS8MgCtadhKJHMFVbErA3ntqo
+         DxwLOuLslmfoQo4HsR6k2fHnh0AvXDDy59Ua0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=TyZtZSd5cTSSlPOn3/pu61X0lFqS8ubq/VPK6S5b8ro=;
-        b=bxLNxmHsXXLmh1NoYkSjH47zQsKwMiJcVx4KlmHTYtHyJ87um8IBZUYcCWUumQB5+w
-         yqCX11AY7gq8ew00cvPECJDSr7gm/V9/cNk06ns20XGdtBTqxfUgnr0O5uHBIR2oNdgF
-         46lBDYPXxMQa3Q8aLH4b6u02kbDnk0v5FMvT1XpGOwHsY/h7hoCelOKW3Qw5B/MshK4f
-         TuAQvMi8lcIn5Hza3h79zzMvD3GZz08ggRZ2Pr2xaCQbP9ax5Q3B4Nkmy/e5o+d0/oru
-         dRyMJyQVDr4f16lsqvR6F2FH52MSqA45IVSUxqL3Icivs2x6Ab/GfS/f5RZr6/GzkK+l
-         Y3tw==
-X-Gm-Message-State: AOAM530L8zzctuXoxrDx85FWHF/bdmIkRaDt0dvY+oTEKig4v/b/1hPC
-        GZQiMZj1Z/VDPctaMeR0u8fX9g==
-X-Google-Smtp-Source: ABdhPJwTO1eSqVr5nYBS189a8PJucH9UV7iuGDV14lq8IyEv6Zcrj6lX7LEEtA/G9JPuvGNhSxHXjQ==
-X-Received: by 2002:a5d:4849:0:b0:218:3f35:5336 with SMTP id n9-20020a5d4849000000b002183f355336mr9201071wrs.26.1654595765655;
-        Tue, 07 Jun 2022 02:56:05 -0700 (PDT)
+        bh=b85JvDSGn8w4tr7JpVbjtxkbsu1O4D+F+hX3OsbfqCs=;
+        b=7PLjSt2A2zOnETPzuSdvlTeEh9Eg6ytnr9zBHV2/+9/sp+Jh6y9JBN/MWi92qfkXyN
+         Z+Mr6OezdHx2Z1mCvIVaPOsgge+tHBTnYt+EdAtGAg8VDlex7ntPZq5wG8LJQA5W/yCE
+         0BYkj6T2IvZYuEEBQNGygbG3+nhtUYcaMV9w2HmCw7ttoTCFLcBtrHRVXi507J2T9Ahi
+         dB6S8ewAKDNC0/Azvla3wghkX+0o887eoXqvkcvKu/yLmslEO3k+lg6BPTFXkGFT8SBp
+         AcjkasOLyTeUya3lvU0vACqfjvltXK/oYF2b2iRNHc3xS9JrGB98uXq3+XuqReVdkgci
+         k/GA==
+X-Gm-Message-State: AOAM532eNP8L/vf0ylibhuRyqaRjBCH/U3pDlBGDU6tFY6sRYYtBTOCv
+        ajYXpui8XeGSqtnItwoS2Mcq3w==
+X-Google-Smtp-Source: ABdhPJyr5/9ERYDgZbl0CtGb5qkjZthxagPrxoE8uMCuUwGOLm+tgE6eIpJABbxb1PEHO2Nw9BCvFg==
+X-Received: by 2002:a5d:6c61:0:b0:210:7277:774c with SMTP id r1-20020a5d6c61000000b002107277774cmr26694747wrz.212.1654595771585;
+        Tue, 07 Jun 2022 02:56:11 -0700 (PDT)
 Received: from dario-ThinkPad-T14s-Gen-2i.pdxnet.pdxeng.ch (mob-5-90-137-51.net.vodafone.it. [5.90.137.51])
-        by smtp.gmail.com with ESMTPSA id b12-20020a5d4b8c000000b0020feb9c44c2sm17693546wrt.20.2022.06.07.02.56.04
+        by smtp.gmail.com with ESMTPSA id b12-20020a5d4b8c000000b0020feb9c44c2sm17693546wrt.20.2022.06.07.02.56.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 02:56:05 -0700 (PDT)
+        Tue, 07 Jun 2022 02:56:11 -0700 (PDT)
 From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
         Michael Trimarchi <michael@amarulasolutions.com>,
-        Rob Herring <robh@kernel.org>,
+        Oliver Graute <oliver.graute@kococonnector.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        Marco Felsch <m.felsch@pengutronix.de>,
         linux-input@vger.kernel.org
-Subject: [RESEND PATCH v4 1/6] dt-bindings: input: touchscreen: edt-ft5x06: add report-rate-hz
-Date:   Tue,  7 Jun 2022 11:55:51 +0200
-Message-Id: <20220607095556.1034338-2-dario.binacchi@amarulasolutions.com>
+Subject: [RESEND PATCH v4 4/6] Input: edt-ft5x06 - show model name by sysfs
+Date:   Tue,  7 Jun 2022 11:55:54 +0200
+Message-Id: <20220607095556.1034338-5-dario.binacchi@amarulasolutions.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220607095556.1034338-1-dario.binacchi@amarulasolutions.com>
 References: <20220607095556.1034338-1-dario.binacchi@amarulasolutions.com>
@@ -65,44 +64,50 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It allows to change the M06/M12 default scan rate.
+The model name was printed only if debug mode was enabled. Now you can
+always get it from sysfs.
 
 Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
 Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
 Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Rob Herring <robh@kernel.org>
-
+Acked-by: Oliver Graute <oliver.graute@kococonnector.com>
 ---
 
-Changes in v4:
-- Add Rob Herring 'Acked-by' tag.
+(no changes since v1)
 
-Changes in v3:
-- Add hz unit suffix.
-- Add '|' to description.
+ drivers/input/touchscreen/edt-ft5x06.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
- .../devicetree/bindings/input/touchscreen/edt-ft5x06.yaml | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-index 2e8da7470513..46bc8c028fe6 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
-@@ -85,6 +85,14 @@ properties:
-     minimum: 0
-     maximum: 80
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 843e8b0522f7..89157deebfcb 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -529,6 +529,17 @@ static EDT_ATTR(threshold, S_IWUSR | S_IRUGO, WORK_REGISTER_THRESHOLD,
+ static EDT_ATTR(report_rate, S_IWUSR | S_IRUGO, WORK_REGISTER_REPORT_RATE,
+ 		M12_REGISTER_REPORT_RATE, NO_REGISTER, 0, 255);
  
-+  report-rate-hz:
-+    description: |
-+                 Allows setting the scan rate in Hertz.
-+                  M06 supports range from 30 to 140 Hz.
-+                  M12 supports range from 1 to 255 Hz.
-+    minimum: 1
-+    maximum: 255
++static ssize_t model_show(struct device *dev, struct device_attribute *attr,
++			  char *buf)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
 +
-   touchscreen-size-x: true
-   touchscreen-size-y: true
-   touchscreen-fuzz-x: true
++	return scnprintf(buf, PAGE_SIZE, "%s\n", tsdata->name);
++}
++
++static DEVICE_ATTR_RO(model);
++
+ static struct attribute *edt_ft5x06_attrs[] = {
+ 	&edt_ft5x06_attr_gain.dattr.attr,
+ 	&edt_ft5x06_attr_offset.dattr.attr,
+@@ -536,6 +547,7 @@ static struct attribute *edt_ft5x06_attrs[] = {
+ 	&edt_ft5x06_attr_offset_y.dattr.attr,
+ 	&edt_ft5x06_attr_threshold.dattr.attr,
+ 	&edt_ft5x06_attr_report_rate.dattr.attr,
++	&dev_attr_model.attr,
+ 	NULL
+ };
+ 
 -- 
 2.32.0
 

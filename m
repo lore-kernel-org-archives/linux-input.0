@@ -2,59 +2,59 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 520FFC433EF
-	for <linux-input@archiver.kernel.org>; Tue,  7 Jun 2022 09:56:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E5DACCA47C
+	for <linux-input@archiver.kernel.org>; Tue,  7 Jun 2022 09:56:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230349AbiFGJ4U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Jun 2022 05:56:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40074 "EHLO
+        id S234308AbiFGJ4V (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Jun 2022 05:56:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240270AbiFGJ4P (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2022 05:56:15 -0400
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A717E77DF
-        for <linux-input@vger.kernel.org>; Tue,  7 Jun 2022 02:56:13 -0700 (PDT)
-Received: by mail-wr1-x42e.google.com with SMTP id u8so19038474wrm.13
-        for <linux-input@vger.kernel.org>; Tue, 07 Jun 2022 02:56:13 -0700 (PDT)
+        with ESMTP id S240204AbiFGJ4L (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Jun 2022 05:56:11 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D8D0E7329
+        for <linux-input@vger.kernel.org>; Tue,  7 Jun 2022 02:56:10 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id 67-20020a1c1946000000b00397382b44f4so9249916wmz.2
+        for <linux-input@vger.kernel.org>; Tue, 07 Jun 2022 02:56:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=amarulasolutions.com; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=YV+qTrBSZlEdVwvYGQdRpxUtm5BLonFPqiCggidUwTw=;
-        b=LWvpO2114CcFhnPuXDbMOKOgTCqpLbgJvTRo0iopS0xVNOimOsa1zLOE4ftWcofEjy
-         9Sosbg4OgmX5Km/kkHUmp8dXWbMa7PoFQoy40vfOA1RTVlcSePQMwovbKkknFLegnTqr
-         Di/IfQNi3nzBsZANZ1qTUWLVRbWzATWNTEuXk=
+        bh=NIUuHRgvgWCmYJCricL+FHDsiVQYgUJ0FjEwcnUqvHA=;
+        b=lqankbjzk7zyz3fq31CNd3emxOgHOHizyNhVpWvT/O+ZrG4X8FFMI4Z5aUc8is0a4p
+         sFZyXeB3v3JctD4HIADw1dwo4d1WSP1pmKwEl1agf3hxtBEOT1Gdt/EFJ9NmMLHIVk7h
+         XbFcrY4Alfae04IaJFzXBB3rJ0exSZDje7f9A=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=YV+qTrBSZlEdVwvYGQdRpxUtm5BLonFPqiCggidUwTw=;
-        b=vkdbc4NesbiZk+utmIMgtEmFiMVw3FEEJlABd+Y8ROpo89YagmOeezYGQd1aVXlkZp
-         evd9WouPdMAkXXJrgxaCy+yBHg+NjxO5ymlZaZapV4x10xlOrJ2MjLM1mYQb6hz8Syo2
-         xoa6VDkDDSCG9MYCBTjnEpLJKOEzObJmmeoZBMy0HzvGXR9a+Q62ROMFvfZMaZqOX9U4
-         1w0D3MUtA+rDNvwA6Cig0EC45vD/H1XAoAYQFfTuRf/GrFgvdi8vNDiH1PVMXuDxKcQN
-         xP+juR7koTYE4T7RHLIBXWiMpo7TZyh+MARvBEMXoMvyF9uPHgDStlLsihxLsFsTch+7
-         yPBg==
-X-Gm-Message-State: AOAM531BgLRR2EZpD0d1V6KfU4z1wIVUeVk4gEVRbnJ6yyqzkPvGcgny
-        hIjRHjNX0sJV42KEUS+NDD3MSJcaPdXtug==
-X-Google-Smtp-Source: ABdhPJyw/YjHB/lNeb08n7/peDbxuKJVop7VA/uFy3eGzu3ht07ych+AyU6n6v4D+PnmXF2g03OOZw==
-X-Received: by 2002:a5d:6b07:0:b0:20d:97f:ca6b with SMTP id v7-20020a5d6b07000000b0020d097fca6bmr26089070wrw.390.1654595773110;
-        Tue, 07 Jun 2022 02:56:13 -0700 (PDT)
+        bh=NIUuHRgvgWCmYJCricL+FHDsiVQYgUJ0FjEwcnUqvHA=;
+        b=MLQ2/O9LI57/ZT1+3PMhcOeL6kMdc+sNiuGQWxr/v+A4LSDazflgJQ8DFeADFZ89Hh
+         y3izRBS///NtoEUhLGVnRsaxNQ9/4URvCx5jRV4AvDlLrPlWXisufoqIo1/fj5iLzsG6
+         N+QwLspljDrcsSXm0HnhPH7v9POvWyv2xDdjcdlNizpYGeIMvUqvEjneOT824W/bkU73
+         15Mfx8FT7Lgk4JjtxDbN0EPDu3rfFn5wbIWyI/eRVlSyAtlw4agkaRUViTRtBC+2pSP/
+         VPz88Y6pYtcEb+5S7h1mdIbA6NV+wmTr6hM/mxcJBvCgCWWiMk4e5HrGTA9mioIN7/XZ
+         e6fA==
+X-Gm-Message-State: AOAM532lVJXq34fh5y1w3PmDOhawNiVqzvB7RldIQ05qqlOTRvaEKhO8
+        KXiNbg9JUMLiLwgUHPxxC0NsnQ==
+X-Google-Smtp-Source: ABdhPJwBuwV7hZZJt5RwOlnSrWckNcnBdorj8IMurpTSX+qv+PppaIJmG15NA+NKR/1QgjdBgZNRQA==
+X-Received: by 2002:a05:600c:19cb:b0:397:51db:446f with SMTP id u11-20020a05600c19cb00b0039751db446fmr57290813wmq.182.1654595769975;
+        Tue, 07 Jun 2022 02:56:09 -0700 (PDT)
 Received: from dario-ThinkPad-T14s-Gen-2i.pdxnet.pdxeng.ch (mob-5-90-137-51.net.vodafone.it. [5.90.137.51])
-        by smtp.gmail.com with ESMTPSA id b12-20020a5d4b8c000000b0020feb9c44c2sm17693546wrt.20.2022.06.07.02.56.11
+        by smtp.gmail.com with ESMTPSA id b12-20020a5d4b8c000000b0020feb9c44c2sm17693546wrt.20.2022.06.07.02.56.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jun 2022 02:56:12 -0700 (PDT)
+        Tue, 07 Jun 2022 02:56:09 -0700 (PDT)
 From:   Dario Binacchi <dario.binacchi@amarulasolutions.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     Dario Binacchi <dario.binacchi@amarulasolutions.com>,
         Michael Trimarchi <michael@amarulasolutions.com>,
-        Oliver Graute <oliver.graute@kococonnector.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Marco Felsch <m.felsch@pengutronix.de>,
+        Oliver Graute <oliver.graute@kococonnector.com>,
         linux-input@vger.kernel.org
-Subject: [RESEND PATCH v4 5/6] Input: edt-ft5x06 - show firmware version by sysfs
-Date:   Tue,  7 Jun 2022 11:55:55 +0200
-Message-Id: <20220607095556.1034338-6-dario.binacchi@amarulasolutions.com>
+Subject: [RESEND PATCH v4 3/6] Input: edt-ft5x06 - set report rate by dts property
+Date:   Tue,  7 Jun 2022 11:55:53 +0200
+Message-Id: <20220607095556.1034338-4-dario.binacchi@amarulasolutions.com>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20220607095556.1034338-1-dario.binacchi@amarulasolutions.com>
 References: <20220607095556.1034338-1-dario.binacchi@amarulasolutions.com>
@@ -64,100 +64,71 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The firmware version was printed only if debug mode was enabled. Now you
-can always get it from sysfs.
+It allows to change the M06/M12 default scan rate on driver probing.
 
 Co-developed-by: Michael Trimarchi <michael@amarulasolutions.com>
 Signed-off-by: Michael Trimarchi <michael@amarulasolutions.com>
 Signed-off-by: Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Acked-by: Oliver Graute <oliver.graute@kococonnector.com>
+
 ---
 
-(no changes since v1)
+(no changes since v3)
 
- drivers/input/touchscreen/edt-ft5x06.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+Changes in v3:
+- Check the lower and upper limits of the report-rate-hz value
+- Convert the M06 report-rate-hz value
+
+ drivers/input/touchscreen/edt-ft5x06.c | 30 ++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
 diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 89157deebfcb..bab92344b2ea 100644
+index 77f061af5c61..843e8b0522f7 100644
 --- a/drivers/input/touchscreen/edt-ft5x06.c
 +++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -129,6 +129,7 @@ struct edt_ft5x06_ts_data {
- 	int max_support_points;
- 
- 	char name[EDT_NAME_LEN];
-+	char fw_version[EDT_NAME_LEN];
- 
- 	struct edt_reg_addr reg_addr;
- 	enum edt_ver version;
-@@ -540,6 +541,17 @@ static ssize_t model_show(struct device *dev, struct device_attribute *attr,
- 
- static DEVICE_ATTR_RO(model);
- 
-+static ssize_t fw_version_show(struct device *dev,
-+			       struct device_attribute *attr, char *buf)
-+{
-+	struct i2c_client *client = to_i2c_client(dev);
-+	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-+
-+	return scnprintf(buf, PAGE_SIZE, "%s\n", tsdata->fw_version);
-+}
-+
-+static DEVICE_ATTR_RO(fw_version);
-+
- static struct attribute *edt_ft5x06_attrs[] = {
- 	&edt_ft5x06_attr_gain.dattr.attr,
- 	&edt_ft5x06_attr_offset.dattr.attr,
-@@ -548,6 +560,7 @@ static struct attribute *edt_ft5x06_attrs[] = {
- 	&edt_ft5x06_attr_threshold.dattr.attr,
- 	&edt_ft5x06_attr_report_rate.dattr.attr,
- 	&dev_attr_model.attr,
-+	&dev_attr_fw_version.attr,
- 	NULL
- };
- 
-@@ -834,13 +847,13 @@ static void edt_ft5x06_ts_teardown_debugfs(struct edt_ft5x06_ts_data *tsdata)
- #endif /* CONFIG_DEBUGFS */
- 
- static int edt_ft5x06_ts_identify(struct i2c_client *client,
--					struct edt_ft5x06_ts_data *tsdata,
--					char *fw_version)
-+				  struct edt_ft5x06_ts_data *tsdata)
- {
- 	u8 rdbuf[EDT_NAME_LEN];
- 	char *p;
- 	int error;
- 	char *model_name = tsdata->name;
-+	char *fw_version = tsdata->fw_version;
- 
- 	/* see what we find if we assume it is a M06 *
- 	 * if we get less than EDT_NAME_LEN, we don't want
-@@ -1097,7 +1110,6 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+@@ -1084,6 +1084,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	struct input_dev *input;
  	unsigned long irq_flags;
  	int error;
- 	u32 report_rate;
--	char fw_version[EDT_NAME_LEN];
++	u32 report_rate;
+ 	char fw_version[EDT_NAME_LEN];
  
  	dev_dbg(&client->dev, "probing for EDT FT5x06 I2C\n");
+@@ -1213,6 +1214,35 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
+ 	edt_ft5x06_ts_get_defaults(&client->dev, tsdata);
+ 	edt_ft5x06_ts_get_parameters(tsdata);
  
-@@ -1210,7 +1222,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 	tsdata->input = input;
- 	tsdata->factory_mode = false;
- 
--	error = edt_ft5x06_ts_identify(client, tsdata, fw_version);
-+	error = edt_ft5x06_ts_identify(client, tsdata);
- 	if (error) {
- 		dev_err(&client->dev, "touchscreen probe failed\n");
- 		return error;
-@@ -1257,7 +1269,7 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client,
- 
++	if (tsdata->reg_addr.reg_report_rate != NO_REGISTER &&
++	    !of_property_read_u32(client->dev.of_node, "report-rate-hz",
++				  &report_rate)) {
++		tsdata->report_rate = report_rate;
++		if (tsdata->version == EDT_M06) {
++			if (report_rate < 30)
++				report_rate = 30;
++			else if (report_rate > 140)
++				report_rate = 140;
++		} else if (report_rate < 1) {
++			report_rate = 1;
++		} else if (report_rate > 255)
++			report_rate = 255;
++
++		if (report_rate != tsdata->report_rate)
++			dev_warn(&client->dev,
++				 "report-rate %dHz is unsupported, use %dHz\n",
++				 tsdata->report_rate, report_rate);
++
++		if (tsdata->version == EDT_M06)
++			report_rate /= 10;
++
++		tsdata->report_rate = report_rate;
++
++		edt_ft5x06_register_write(tsdata,
++					  tsdata->reg_addr.reg_report_rate,
++					  tsdata->report_rate);
++	}
++
  	dev_dbg(&client->dev,
  		"Model \"%s\", Rev. \"%s\", %dx%d sensors\n",
--		tsdata->name, fw_version, tsdata->num_x, tsdata->num_y);
-+		tsdata->name, tsdata->fw_version, tsdata->num_x, tsdata->num_y);
- 
- 	input->name = tsdata->name;
- 	input->id.bustype = BUS_I2C;
+ 		tsdata->name, fw_version, tsdata->num_x, tsdata->num_y);
 -- 
 2.32.0
 

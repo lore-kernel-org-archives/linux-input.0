@@ -2,49 +2,44 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41407C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 10:09:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8342DCCA47E
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 10:14:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236149AbiFHKJt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Jun 2022 06:09:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36806 "EHLO
+        id S236003AbiFHKOu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Jun 2022 06:14:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237034AbiFHKJc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 06:09:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D3BED3F8;
-        Wed,  8 Jun 2022 02:54:31 -0700 (PDT)
+        with ESMTP id S235971AbiFHKNJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 06:13:09 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F287D20C27E;
+        Wed,  8 Jun 2022 02:59:02 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA77E61A3F;
-        Wed,  8 Jun 2022 09:54:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCF08C34116;
-        Wed,  8 Jun 2022 09:54:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AAB41B823D3;
+        Wed,  8 Jun 2022 09:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9C1C34116;
+        Wed,  8 Jun 2022 09:58:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654682070;
-        bh=AzEVbvMp6p8V46Xl/eSBFT/ox0PW2CfgYNjNb28qaPs=;
+        s=k20201202; t=1654682340;
+        bh=phOVFKShi91IWVGNGLl2V7tOh4WFzXPuXh5r4jKAH90=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=fJfBz3cPlvZEPBAKmG9AvgHA1Nc+8TVn/ng9xVDjDNImDUlfFYP8mCKt9+gXDYbOl
-         DsRdb22dFmP70IyYp0s/A40vwkSpxcxqeWArE2PWTenCOYQoDXBT7U3mCYg/Bo2HqA
-         YZorATyovxsX3TqTsdrOPLuC9zOicfs2GCi54SOG3x1gKt9ptUW2wSVfMyy6Oe3j9J
-         5uTSz0Q+qUfxbpSsFCKISKoFRymbtsMNMsUmfQU4Ev9Su4EBDE592AvsyWlrWp2Iwu
-         k0riOLEhrcX4tCOaYsSm917oXxyk+KE9NIHmQeA2RN7GyhKObRHNUN4LACu+GKtfVh
-         zPBM282Dosq7Q==
-Date:   Wed, 8 Jun 2022 11:54:26 +0200 (CEST)
+        b=gCDc5dTYNLVW3yPPhSW0RiV5xwGIImPnI8w9Sb1qsiUepNsz/w118aREfqxT4wdB3
+         Q2bPKM0kJUX4nSv+5fh5lzS1qtpE6G2OS9qlvXdkLjNmp/3a160pMFaBdluCunRB2x
+         fiML8uvW23Mw4Szx3vte3YrFKY4eovlDZvs2+XQ1fTIO/MrPpJzaAFh7HmD7X0IcdU
+         fwxJg0cjE6DRBQS3ssncyhw2vlhGTg3TlmY7ur3bqX3vPXn5Px5flCf+Z/3mJEvwog
+         FkBAakR2QEX0ohYvzN1OOuZ+pe+lIfsWpWuNJ5QhVmcYdUHP13DwN/6Cl5zJdwuFve
+         zHo3fCO1b9uEg==
+Date:   Wed, 8 Jun 2022 11:58:56 +0200 (CEST)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Hilton Chain <hako@ultrarare.space>
-cc:     =?ISO-8859-15?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        Bryan Cain <bryancain3@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v5] HID: apple: Properly handle function keys on non-Apple
-  keyboard
-In-Reply-To: <20220602161219.152be32d@ultrarare.space>
-Message-ID: <nycvar.YFH.7.76.2206081154160.10851@cbobk.fhfr.pm>
-References: <20220529182036.10226-1-jose.exposito89@gmail.com> <20220530083752.1973a905@ultrarare.space> <20220530061812.GA10391@elementary> <20220531221102.7bd7da7d@ultrarare.space> <20220531223330.3d63e2fe@ultrarare.space> <20220531172053.GA10651@elementary>
- <CAPnXWxG8gbe1arQK9kBtwM1Xcta+wreTN742kgtBBr1v0ewKug@mail.gmail.com> <7f67ac07b8bd37d5817cd151674cc6b0@ultrarare.space> <20220601072651.242ce08a@ultrarare.space> <20220601121737.1226ffea@ultrarare.space> <20220601174956.GA10418@elementary>
- <20220602161219.152be32d@ultrarare.space>
+To:     Xiang wangx <wangxiang@cdjrlc.com>
+cc:     benjamin.tissoires@redhat.com, lains@riseup.net,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: logitech-hidpp: Fix syntax errors in comments
+In-Reply-To: <20220605084343.10514-1-wangxiang@cdjrlc.com>
+Message-ID: <nycvar.YFH.7.76.2206081158510.10851@cbobk.fhfr.pm>
+References: <20220605084343.10514-1-wangxiang@cdjrlc.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -52,20 +47,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 2 Jun 2022, Hilton Chain wrote:
+On Sun, 5 Jun 2022, Xiang wangx wrote:
 
-> This commit extends fa33382c7f74 ("HID: apple: Properly handle function
-> keys on Keychron keyboards") by adding an array of known non-Apple
-> keyboards' device names, and the function apple_is_non_apple_keyboard()
-> to identify and create exception for them.
+> Delete the redundant word 'in'.
 > 
-> Signed-off-by: Hilton Chain <hako@ultrarare.space>
+> Signed-off-by: Xiang wangx <wangxiang@cdjrlc.com>
 > ---
+>  drivers/hid/hid-logitech-hidpp.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> V4 -> V5: Add Varmilo keyboards' name "AONE" to the exception list
-> V3 -> V4: Remove unnecessary strlen()
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 81de88ab2ecc..68f9e9d207f4 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -1694,7 +1694,7 @@ static int hidpp_battery_get_property(struct power_supply *psy,
+>  			val->strval = hidpp->hid_dev->uniq;
+>  			break;
+>  		case POWER_SUPPLY_PROP_VOLTAGE_NOW:
+> -			/* hardware reports voltage in in mV. sysfs expects uV */
+> +			/* hardware reports voltage in mV. sysfs expects uV */
+>  			val->intval = hidpp->battery.voltage * 1000;
+>  			break;
+>  		case POWER_SUPPLY_PROP_CHARGE_TYPE:
 
-Applied to hid.git, thank you.
+Applied, thanks.
 
 -- 
 Jiri Kosina

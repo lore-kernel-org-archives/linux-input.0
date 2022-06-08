@@ -2,101 +2,147 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 66A20CCA47B
-	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 10:14:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D54DCCA48E
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 10:24:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236222AbiFHKOv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Jun 2022 06:14:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37656 "EHLO
+        id S237321AbiFHKYR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Jun 2022 06:24:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236492AbiFHKMs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 06:12:48 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C3D5F68;
-        Wed,  8 Jun 2022 02:58:17 -0700 (PDT)
+        with ESMTP id S236540AbiFHKXB (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 06:23:01 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711A91F5E1A;
+        Wed,  8 Jun 2022 03:12:13 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6700CCE2748;
-        Wed,  8 Jun 2022 09:58:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 730E6C3411C;
-        Wed,  8 Jun 2022 09:58:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D971B826AA;
+        Wed,  8 Jun 2022 10:12:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 146DBC34116;
+        Wed,  8 Jun 2022 10:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1654682293;
-        bh=FcJ8Di2tEi7J9mL1kUYDLPSlQ/etsnhAYzuqiYLHspg=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=oLv93pnlM5mEtu4/ho0CsYmNpR45IoFG+CHaYiZnEe9m4CBxPEmqOFnVYN1wqBDEx
-         jjCb2oe0VCEO752zZTkl7gSY5ImbSbk14KoQ4YQVkyw8oCLL6is66rwycRV6bjLPFQ
-         eHnMG6+t0yArDfiWTGi1kHqGw/XmcOVdGzsiO0TPb+b+/ncL54MqF7htThYUFpl/SC
-         JHhrx3l/erbi+nRH6BrmX7nXhhuUju2zCRvgYYtCQy6mLjO+vmNw8eqah70qhheZ8K
-         O4LMY6injcdWA15JGvYU5bVxzl7K9M/xU6t2sXg7tueNhL0kgU0KlX7Vr516jzBK7u
-         uBKYI0WHx/eIw==
-Date:   Wed, 8 Jun 2022 11:58:09 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Bagas Sanjaya <bagasdotme@gmail.com>
-cc:     linux-doc@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
-        kernel test robot <lkp@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        =?ISO-8859-15?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        llvm@lists.linux.dev, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4] HID: uclogic: properly format kernel-doc comment for
- hid_dbg() wrappers
-In-Reply-To: <20220604020711.252312-1-bagasdotme@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2206081157590.10851@cbobk.fhfr.pm>
-References: <20220604020711.252312-1-bagasdotme@gmail.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        s=k20201202; t=1654683130;
+        bh=NgdrgTl3dZ/SGMPXdfbwfHxcsCdqkPUGxnyJC5YWywo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OWAr6TkECveSD1zPWhbbzl84/dt6uZH8CWvazsACrsq8kUr/kbc8yCivJqucAVb/j
+         jhr+F0WKWU22kbqwesiNuAuDbmXtf2DsLI6tQgMqL3vXgzlG4WaS+1LJDZbLGGY8tk
+         QUTJ+oDUGYeC/mwq7Uouwt8LgRf6beP+bNOsyPfGUT9SvJd7QdsdsnSWmq11Wopn4X
+         Hav0FK8qsSIVnLRdRS7FxcYGCV7rEKsqBUFnfyb2rUaUUFtSw8sEUwfeP/Z5s9x81+
+         i1KPx+x5C/2W/oDJErI9bUf7OG8NFrN+mP5J81R42OvY9r/EeRocM/5LfplYqbWBeI
+         GWXSOVDSLZVaw==
+Date:   Wed, 8 Jun 2022 11:12:04 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     ChiYuan Huang <u0084500@gmail.com>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>, dmitry.torokhov@gmail.com,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        cy_huang <cy_huang@richtek.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH 3/4] regulator: rt5120: Add PMIC regulator support
+Message-ID: <YqB19O/HYvEAxdiM@sirena.org.uk>
+References: <1654581161-12349-1-git-send-email-u0084500@gmail.com>
+ <1654581161-12349-4-git-send-email-u0084500@gmail.com>
+ <Yp+gS6r5Kpi33Ags@sirena.org.uk>
+ <CADiBU38+0vp3Dv6i7uYzCwR431PKBr-HNQnY0Qe7fvvRYGEJmw@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="MaGFacYl3eetw6pk"
+Content-Disposition: inline
+In-Reply-To: <CADiBU38+0vp3Dv6i7uYzCwR431PKBr-HNQnY0Qe7fvvRYGEJmw@mail.gmail.com>
+X-Cookie: My NOSE is NUMB!
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, 4 Jun 2022, Bagas Sanjaya wrote:
 
-> Running kernel-doc script on drivers/hid/hid-uclogic-params.c, it found
-> 6 warnings for hid_dbg() wrapper functions below:
-> 
-> drivers/hid/hid-uclogic-params.c:48: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
-> drivers/hid/hid-uclogic-params.c:48: warning: missing initial short description on line:
->  * Dump tablet interface pen parameters with hid_dbg(), indented with one tab.
-> drivers/hid/hid-uclogic-params.c:48: info: Scanning doc for function Dump
-> drivers/hid/hid-uclogic-params.c:80: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface frame parameters with hid_dbg(), indented with two
-> drivers/hid/hid-uclogic-params.c:80: warning: missing initial short description on line:
->  * Dump tablet interface frame parameters with hid_dbg(), indented with two
-> drivers/hid/hid-uclogic-params.c:80: info: Scanning doc for function Dump
-> drivers/hid/hid-uclogic-params.c:105: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
->  * Dump tablet interface parameters with hid_dbg().
-> drivers/hid/hid-uclogic-params.c:105: warning: missing initial short description on line:
->  * Dump tablet interface parameters with hid_dbg().
-> 
-> One of them is reported by kernel test robot.
-> 
-> Fix these warnings by properly format kernel-doc comment for these
-> functions.
-> 
-> Link: https://lore.kernel.org/linux-doc/202205272033.XFYlYj8k-lkp@intel.com/
-> Fixes: a228809fa6f39c ("HID: uclogic: Move param printing to a function")
-> Reported-by: kernel test robot <lkp@intel.com>
-> Tested-by: Randy Dunlap <rdunlap@infradead.org>
-> Tested-by: José Expósito <jose.exposito89@gmail.com>
-> Acked-by: Randy Dunlap <rdunlap@infradead.org>
-> Cc: Nikolai Kondrashov <spbnick@gmail.com>
-> Cc: Jiri Kosina <jikos@kernel.org>
-> Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> Cc: llvm@lists.linux.dev
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> Signed-off-by: Bagas Sanjaya <bagasdotme@gmail.com>
+--MaGFacYl3eetw6pk
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Applied, thanks.
+On Wed, Jun 08, 2022 at 11:15:56AM +0800, ChiYuan Huang wrote:
+> Mark Brown <broonie@kernel.org> =E6=96=BC 2022=E5=B9=B46=E6=9C=888=E6=97=
+=A5 =E9=80=B1=E4=B8=89 =E4=B8=8A=E5=8D=883:00=E5=AF=AB=E9=81=93=EF=BC=9A
+> > On Tue, Jun 07, 2022 at 01:52:40PM +0800, cy_huang wrote:
 
--- 
-Jiri Kosina
-SUSE Labs
+> > > +     static const char * const name[] =3D { "buck1", "buck2", "buck3=
+", "buck4",
+> > > +                                          "ldo", "exten" };
+> > > +     static const char * const sname[] =3D { "vin1", "vin2", "vin3",=
+ "vin4",
+> > > +                                           "vinldo", NULL };
 
+> > It would be easier and clearer to just make this a static table like
+> > other drivers do, there's no need to generate anything dynamically as
+> > far as I can see.
+
+> My excuse. let me explain it.
+> buck1 voltage range from 600mV to 1393.75mV.
+> buck2~4/ldo/exten is the fixed regulator.
+> buck3 and buck4 is fixed by the IC efuse default.
+> buck2 and ldo is fixed by the external resistor chosen.
+> exten is designed to connected to the external power.
+
+> That's why I cannot directly declared it as the static regulator_desc.
+
+So buck 2-4 need some dynamic handling then but the rest can be static -
+that would be a lot clearer.  You could also have a template for the
+ones with some dynamic values and just override the few fields that need
+it.
+
+> > > +     if (init_data->constraints.min_uV !=3D init_data->constraints.m=
+ax_uV) {
+> > > +             dev_err(priv->dev, "Variable voltage for fixed regulato=
+r\n");
+> > > +             return -EINVAL;
+> > > +     }
+> > > +
+> > > +     desc->fixed_uV =3D init_data->constraints.min_uV;
+> > > +     init_data->constraints.apply_uV =3D 0;
+
+> > Drivers should never override constraints passed in by machine drivers,
+> > if there's validation needed let the core do it.  The same probably
+> > applies to providing a voltage range for a fixed regulator though that's
+> > not modifying everything so not such a problem.
+
+> Please check the above explanation about each power rails.
+
+I'm not sure what you're referencing here?
+
+> > > +     for (i =3D 0; i < RT5120_MAX_REGULATOR; i++) {
+> > > +             ret =3D rt5120_of_parse_cb(priv, i, rt5120_regu_match +=
+ i);
+> > > +             if (ret) {
+> > > +                     dev_err(priv->dev, "Failed in [%d] of_passe_cb\=
+n", i);
+> > > +                     return ret;
+> > > +             }
+> > > +     }
+> >
+> > This is all open coding stuff that's in the core - just provde an
+> > of_parse_cb() operation and let the core take care of calling it.
+
+> Ditto
+
+Or here.
+
+--MaGFacYl3eetw6pk
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmKgdfMACgkQJNaLcl1U
+h9C6iwf6AvA+ZFlpGr0gQNW0555AlhBtLyRqR9rwNGL5qQZFAWbQJcvsXnBbtxdV
+4G3r/BHQdWP0tkW7FjNrOisB20DqNNw8NE+5RoHZxBLUlFyEmT7eV/JywbDiMmfu
+veYdLX0vCPOl53cjAx7oAWSWP/eD6C8A8AiQ/a0MTW08vIjsQhcDNWAfCOKK9deV
+RgGqaMpCGe5+UnTbn+Wn9c20K8/lKn5+uD+nn2OOS75d/oj42VzrvAWg90E4ao+x
+VZD2EcFV41CW1g/2GDs1zQigwB5+zDhgArNvPPaLnXwY/Pl+U/oHuk2/F0PMFziN
+z1rTwX9w3MVaH8DxTIca7wwj6k38PQ==
+=Ie6i
+-----END PGP SIGNATURE-----
+
+--MaGFacYl3eetw6pk--

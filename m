@@ -2,33 +2,33 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 96DB3CCA47E
-	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 12:49:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71F30CCA47F
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 12:49:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239627AbiFHMto (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Jun 2022 08:49:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39052 "EHLO
+        id S239650AbiFHMtq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Jun 2022 08:49:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239617AbiFHMtn (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 08:49:43 -0400
+        with ESMTP id S239635AbiFHMto (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 08:49:44 -0400
 Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F25B1ABA47;
-        Wed,  8 Jun 2022 05:49:40 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3FBF19EC18;
+        Wed,  8 Jun 2022 05:49:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
-  t=1654692580; x=1686228580;
+  t=1654692582; x=1686228582;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=jLyjVkpDRkNVymK/Liuwued2h9G1245EKg9LgrWfsBg=;
-  b=o/KUEgV7Ky/1AOeNf/SOoDSG+Z20XA9VjFuKV9qrskXV+Yso2oJ+rIUy
-   2jM5zD1Qk35ssWFjmDcndi91fm+Sxa96meT3CEsc0iuz7JpolqDcpnsBL
-   2jufFLZDML2BYuAEZpZoKNsXrb+ViGVleJTB7/3JrIA63XYnU34lpGROR
-   WDDmtjxfXcTr3dDfLFD45DXxxZd1xVSs2xA/3GLNIfN4tqT2qpkEY07yW
-   fdFW074F23BaGtgQyFR1GiqKNe5ivyxX4fWerSSip4lbLVeG//5FElYP+
-   eMPgU47WvEq3b7gClFyhqxC3cucbwnA06AGtFfPexseppiqdP2ff5WkoG
-   Q==;
+  bh=F3P0Nl1bHEgV6/EZwkcRfSNUKbVAu4VqbkAsh35Twng=;
+  b=DLDoNZsj8nAVod7xTNeqWXDvX8UuY3wjalHq2MAeteXDoELlDWRA5xNB
+   aTaLsvj0V4CcJzHUCtOVUcAc8aMtAruugGvFvwmzEzYATZBffvb8fe7MG
+   mmUqdzIwMn3vcd+LkgSAOh6g9fjb3PSaK5Wqz6/8fQ6CJCAYi+kwv7Okz
+   klPu1QdCj5iZW7/2nKKht6QgDvBN7T9j6TrOnVwGkJoTusFshrNFStBaq
+   cM0qASUh5RYXu+1lWVs5JU3LkRbYUJwM6WrlzJO35sDkIjcqPgZy+4OYX
+   C+5FzbqH9B51vsnnAhN7eCnvhEq3QH5w8AuRk5YJR/1mamFZtMRtp3UlB
+   A==;
 X-IronPort-AV: E=Sophos;i="5.91,286,1647298800"; 
-   d="scan'208";a="24330538"
+   d="scan'208";a="24330542"
 Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
   by mx1-pgp.tq-group.com with ESMTP; 08 Jun 2022 14:49:31 +0200
 Received: from mx1.tq-group.com ([192.168.6.7])
@@ -41,30 +41,30 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   t=1654692571; x=1686228571;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=jLyjVkpDRkNVymK/Liuwued2h9G1245EKg9LgrWfsBg=;
-  b=Jexq7rxFMowENfJmMae2KO+3IUzGaf2b+5DXOV6u4rKB5wI/fxlijT/O
-   pfJZdEvDamJ0ZC0Y3L+E/t9LOf7kbqHjSpRsG/9w4pjPw1nXGCXN+a74I
-   CYvjXMuPlXmn/FMDKLmHPGu4mYP8wtgWbGKgVp9V/avDR/oMCmZq/7Erf
-   FplARYPAzhRSnKSZslg7HPj4mflPh3383epf0TNxBczhObGIRmW/DTnjt
-   aFSuSsdr7eHjM9HHzzc4U8b97IzU9rbGtn/AUttjP583B7XIBGfEpO0Pd
-   Lrs2E3skxxss6uVyrnuWP6PB6Q8V+m2PW3OWXMPyWar749XAJqjGu/qCZ
-   g==;
+  bh=F3P0Nl1bHEgV6/EZwkcRfSNUKbVAu4VqbkAsh35Twng=;
+  b=LKvo7NqnggFQaZW07XxZCYNFQPhDtPhZMDjpmHx7GBwjlI22rHaRr+Vb
+   xb/mKznLPOmpQWWXJ2zAPfXxL1CqhYfJDAczInyNf5oDeujDGWa4bWSIi
+   AYPweOXDcyAhNNuze3+9F9gS6BgTqTAOZnAKlggC7aJZk0AollSw27A8p
+   wGTbuaUpyBhPkZRL1Bg/Rdr78LX5OIPI+tRx6B+38RYy9ZOqAuZBMbn6X
+   k6vk3k3EdFtjJaoRwmbC7oBfqyWX00+vKu+BXMIeF+NVqY2dWMxZPDAbs
+   EXK5qMQeT+8LLzt7qunFWXpEYsXROCiTVi8jZLwty4AD6XOWIifgmkBs1
+   w==;
 X-IronPort-AV: E=Sophos;i="5.91,286,1647298800"; 
-   d="scan'208";a="24330537"
+   d="scan'208";a="24330541"
 Received: from vtuxmail01.tq-net.de ([10.115.0.20])
   by mx1.tq-group.com with ESMTP; 08 Jun 2022 14:49:31 +0200
 Received: from localhost.localdomain (SCHIFFERM-M2.tq-net.de [10.121.49.136])
-        by vtuxmail01.tq-net.de (Postfix) with ESMTPA id A556D280073;
-        Wed,  8 Jun 2022 14:49:30 +0200 (CEST)
+        by vtuxmail01.tq-net.de (Postfix) with ESMTPA id 40370280072;
+        Wed,  8 Jun 2022 14:49:31 +0200 (CEST)
 From:   Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Lyude Paul <lyude@redhat.com>,
         "Jason A. Donenfeld" <Jason@zx2c4.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Subject: [PATCH 2/9] Input: synaptics-rmi4 - introduce rmi_f34v7_check_command_status() helper
-Date:   Wed,  8 Jun 2022 14:48:01 +0200
-Message-Id: <20220608124808.51402-3-matthias.schiffer@ew.tq-group.com>
+Subject: [PATCH 4/9] Input: synaptics-rmi4 - rewrite partition table unconditionally
+Date:   Wed,  8 Jun 2022 14:48:03 +0200
+Message-Id: <20220608124808.51402-5-matthias.schiffer@ew.tq-group.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220608124808.51402-1-matthias.schiffer@ew.tq-group.com>
 References: <20220608124808.51402-1-matthias.schiffer@ew.tq-group.com>
@@ -74,120 +74,255 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add a function that waits for the last command to complete and checks
-the status, and use it where appropriate. This prepares for the subsequent
-fix of the completion condition in rmi_f34_attention(), which would
-previously lead to a timeout instead of a more detailed error message
-whenever a command was unsuccessful with v7/v8 bootloaders.
+Preparation for use of the "erase application" command, which is required
+to recover from a bad partition table error condition. Rather than adding
+complex fallback error paths for such errors, it seems more robust to do
+the full erase unconditionally.
 
 Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 ---
- drivers/input/rmi4/rmi_f34v7.c | 36 +++++++++++++++++++++++++++-------
- 1 file changed, 29 insertions(+), 7 deletions(-)
+ drivers/input/rmi4/rmi_f34.h   |   2 -
+ drivers/input/rmi4/rmi_f34v7.c | 153 +++------------------------------
+ 2 files changed, 13 insertions(+), 142 deletions(-)
 
+diff --git a/drivers/input/rmi4/rmi_f34.h b/drivers/input/rmi4/rmi_f34.h
+index 99faa8c2269d..9495c8542824 100644
+--- a/drivers/input/rmi4/rmi_f34.h
++++ b/drivers/input/rmi4/rmi_f34.h
+@@ -262,7 +262,6 @@ struct f34v5_data {
+ struct f34v7_data {
+ 	bool has_display_cfg;
+ 	bool has_guest_code;
+-	bool force_update;
+ 	bool in_bl_mode;
+ 	u8 *read_config_buf;
+ 	size_t read_config_buf_size;
+@@ -276,7 +275,6 @@ struct f34v7_data {
+ 	u16 payload_length;
+ 	u8 partitions;
+ 	u16 partition_table_bytes;
+-	bool new_partition_table;
+ 
+ 	struct register_offset off;
+ 	struct block_count blkcount;
 diff --git a/drivers/input/rmi4/rmi_f34v7.c b/drivers/input/rmi4/rmi_f34v7.c
-index 8d7ec9d89b18..9049acb3a994 100644
+index 9049acb3a994..19b94b1c1a33 100644
 --- a/drivers/input/rmi4/rmi_f34v7.c
 +++ b/drivers/input/rmi4/rmi_f34v7.c
-@@ -72,6 +72,24 @@ static int rmi_f34v7_wait_for_idle(struct f34_data *f34, int timeout_ms)
+@@ -593,68 +593,6 @@ static int rmi_f34v7_read_queries(struct f34_data *f34)
  	return 0;
  }
  
-+static int rmi_f34v7_check_command_status(struct f34_data *f34, int timeout_ms)
-+{
-+	int ret;
-+
-+	ret = rmi_f34v7_wait_for_idle(f34, timeout_ms);
-+	if (ret < 0)
-+		return ret;
-+
-+	ret = rmi_f34v7_read_flash_status(f34);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (f34->v7.flash_status != 0x00)
-+		return -EIO;
-+
-+	return 0;
-+}
-+
- static int rmi_f34v7_write_command_single_transaction(struct f34_data *f34,
- 						      u8 cmd)
+-static int rmi_f34v7_check_ui_firmware_size(struct f34_data *f34)
+-{
+-	u16 block_count;
+-
+-	block_count = f34->v7.img.ui_firmware.size / f34->v7.block_size;
+-	f34->update_size += block_count;
+-
+-	if (block_count != f34->v7.blkcount.ui_firmware) {
+-		dev_err(&f34->fn->dev,
+-			"UI firmware size mismatch: %d != %d\n",
+-			block_count, f34->v7.blkcount.ui_firmware);
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+-static int rmi_f34v7_check_ui_config_size(struct f34_data *f34)
+-{
+-	u16 block_count;
+-
+-	block_count = f34->v7.img.ui_config.size / f34->v7.block_size;
+-	f34->update_size += block_count;
+-
+-	if (block_count != f34->v7.blkcount.ui_config) {
+-		dev_err(&f34->fn->dev, "UI config size mismatch\n");
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+-static int rmi_f34v7_check_dp_config_size(struct f34_data *f34)
+-{
+-	u16 block_count;
+-
+-	block_count = f34->v7.img.dp_config.size / f34->v7.block_size;
+-	f34->update_size += block_count;
+-
+-	if (block_count != f34->v7.blkcount.dp_config) {
+-		dev_err(&f34->fn->dev, "Display config size mismatch\n");
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+-static int rmi_f34v7_check_guest_code_size(struct f34_data *f34)
+-{
+-	u16 block_count;
+-
+-	block_count = f34->v7.img.guest_code.size / f34->v7.block_size;
+-	f34->update_size += block_count;
+-
+-	if (block_count != f34->v7.blkcount.guest_code) {
+-		dev_err(&f34->fn->dev, "Guest code size mismatch\n");
+-		return -EINVAL;
+-	}
+-
+-	return 0;
+-}
+-
+ static int rmi_f34v7_check_bl_config_size(struct f34_data *f34)
  {
-@@ -318,6 +336,10 @@ static int rmi_f34v7_read_partition_table(struct f34_data *f34)
- 		return ret;
+ 	u16 block_count;
+@@ -750,7 +688,7 @@ static int rmi_f34v7_erase_all(struct f34_data *f34)
+ 			return ret;
  	}
  
-+	/*
-+	 * rmi_f34v7_check_command_status() can't be used here, as this
-+	 * function is called before IRQs are available
-+	 */
- 	timeout = msecs_to_jiffies(F34_WRITE_WAIT_MS);
- 	while (time_before(jiffies, timeout)) {
- 		usleep_range(5000, 6000);
-@@ -674,7 +696,7 @@ static int rmi_f34v7_erase_config(struct f34_data *f34)
- 		break;
+-	if (f34->v7.new_partition_table && f34->v7.has_guest_code) {
++	if (f34->v7.has_guest_code) {
+ 		ret = rmi_f34v7_erase_guest_code(f34);
+ 		if (ret < 0)
+ 			return ret;
+@@ -1029,33 +967,6 @@ static int rmi_f34v7_write_firmware(struct f34_data *f34)
+ 					    blk_count, v7_CMD_WRITE_FW);
+ }
+ 
+-static void rmi_f34v7_compare_partition_tables(struct f34_data *f34)
+-{
+-	if (f34->v7.phyaddr.ui_firmware != f34->v7.img.phyaddr.ui_firmware) {
+-		f34->v7.new_partition_table = true;
+-		return;
+-	}
+-
+-	if (f34->v7.phyaddr.ui_config != f34->v7.img.phyaddr.ui_config) {
+-		f34->v7.new_partition_table = true;
+-		return;
+-	}
+-
+-	if (f34->v7.has_display_cfg &&
+-	    f34->v7.phyaddr.dp_config != f34->v7.img.phyaddr.dp_config) {
+-		f34->v7.new_partition_table = true;
+-		return;
+-	}
+-
+-	if (f34->v7.has_guest_code &&
+-	    f34->v7.phyaddr.guest_code != f34->v7.img.phyaddr.guest_code) {
+-		f34->v7.new_partition_table = true;
+-		return;
+-	}
+-
+-	f34->v7.new_partition_table = false;
+-}
+-
+ static void rmi_f34v7_parse_img_header_10_bl_container(struct f34_data *f34,
+ 						       const void *image)
+ {
+@@ -1202,8 +1113,6 @@ static int rmi_f34v7_parse_image_info(struct f34_data *f34)
+ 	rmi_f34v7_parse_partition_table(f34, f34->v7.img.fl_config.data,
+ 			&f34->v7.img.blkcount, &f34->v7.img.phyaddr);
+ 
+-	rmi_f34v7_compare_partition_tables(f34);
+-
+ 	return 0;
+ }
+ 
+@@ -1224,44 +1133,18 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
+ 	if (ret < 0)
+ 		goto fail;
+ 
+-	if (!f34->v7.new_partition_table) {
+-		ret = rmi_f34v7_check_ui_firmware_size(f34);
+-		if (ret < 0)
+-			goto fail;
+-
+-		ret = rmi_f34v7_check_ui_config_size(f34);
+-		if (ret < 0)
+-			goto fail;
+-
+-		if (f34->v7.has_display_cfg &&
+-		    f34->v7.img.contains_display_cfg) {
+-			ret = rmi_f34v7_check_dp_config_size(f34);
+-			if (ret < 0)
+-				goto fail;
+-		}
+-
+-		if (f34->v7.has_guest_code && f34->v7.img.contains_guest_code) {
+-			ret = rmi_f34v7_check_guest_code_size(f34);
+-			if (ret < 0)
+-				goto fail;
+-		}
+-	} else {
+-		ret = rmi_f34v7_check_bl_config_size(f34);
+-		if (ret < 0)
+-			goto fail;
+-	}
++	ret = rmi_f34v7_check_bl_config_size(f34);
++	if (ret < 0)
++		goto fail;
+ 
+ 	ret = rmi_f34v7_erase_all(f34);
+ 	if (ret < 0)
+ 		goto fail;
+ 
+-	if (f34->v7.new_partition_table) {
+-		ret = rmi_f34v7_write_partition_table(f34);
+-		if (ret < 0)
+-			goto fail;
+-		dev_info(&f34->fn->dev, "%s: Partition table programmed\n",
+-			 __func__);
+-	}
++	ret = rmi_f34v7_write_partition_table(f34);
++	if (ret < 0)
++		goto fail;
++	dev_info(&f34->fn->dev, "%s: Partition table programmed\n", __func__);
+ 
+ 	dev_info(&f34->fn->dev, "Writing firmware (%d bytes)...\n",
+ 		 f34->v7.img.ui_firmware.size);
+@@ -1286,14 +1169,12 @@ int rmi_f34v7_do_reflash(struct f34_data *f34, const struct firmware *fw)
+ 			goto fail;
  	}
  
--	ret = rmi_f34v7_wait_for_idle(f34, F34_ERASE_WAIT_MS);
-+	ret = rmi_f34v7_check_command_status(f34, F34_ERASE_WAIT_MS);
+-	if (f34->v7.new_partition_table) {
+-		if (f34->v7.has_guest_code && f34->v7.img.contains_guest_code) {
+-			dev_info(&f34->fn->dev, "Writing guest code...\n");
++	if (f34->v7.has_guest_code && f34->v7.img.contains_guest_code) {
++		dev_info(&f34->fn->dev, "Writing guest code...\n");
+ 
+-			ret = rmi_f34v7_write_guest_code(f34);
+-			if (ret < 0)
+-				goto fail;
+-		}
++		ret = rmi_f34v7_write_guest_code(f34);
++		if (ret < 0)
++			goto fail;
+ 	}
+ 
+ fail:
+@@ -1339,13 +1220,6 @@ int rmi_f34v7_start_reflash(struct f34_data *f34, const struct firmware *fw)
+ 	if (ret < 0)
+ 		goto exit;
+ 
+-	if (!f34->v7.force_update && f34->v7.new_partition_table) {
+-		dev_err(&f34->fn->dev, "%s: Partition table mismatch\n",
+-				__func__);
+-		ret = -EINVAL;
+-		goto exit;
+-	}
+-
+ 	dev_info(&f34->fn->dev, "Firmware image OK\n");
+ 
+ 	ret = rmi_f34v7_read_flash_status(f34);
+@@ -1406,6 +1280,5 @@ int rmi_f34v7_probe(struct f34_data *f34)
  	if (ret < 0)
  		return ret;
  
-@@ -693,7 +715,7 @@ static int rmi_f34v7_erase_guest_code(struct f34_data *f34)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = rmi_f34v7_wait_for_idle(f34, F34_ERASE_WAIT_MS);
-+	ret = rmi_f34v7_check_command_status(f34, F34_ERASE_WAIT_MS);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -712,7 +734,7 @@ static int rmi_f34v7_erase_all(struct f34_data *f34)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = rmi_f34v7_wait_for_idle(f34, F34_ERASE_WAIT_MS);
-+	ret = rmi_f34v7_check_command_status(f34, F34_ERASE_WAIT_MS);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -787,7 +809,7 @@ static int rmi_f34v7_read_blocks(struct f34_data *f34,
- 		if (ret < 0)
- 			return ret;
- 
--		ret = rmi_f34v7_wait_for_idle(f34, F34_ENABLE_WAIT_MS);
-+		ret = rmi_f34v7_check_command_status(f34, F34_ENABLE_WAIT_MS);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -871,7 +893,7 @@ static int rmi_f34v7_write_f34v7_blocks(struct f34_data *f34,
- 			return ret;
- 		}
- 
--		ret = rmi_f34v7_wait_for_idle(f34, F34_ENABLE_WAIT_MS);
-+		ret = rmi_f34v7_check_command_status(f34, F34_ENABLE_WAIT_MS);
- 		if (ret < 0)
- 			return ret;
- 
-@@ -944,7 +966,7 @@ static int rmi_f34v7_write_flash_config(struct f34_data *f34)
- 	rmi_dbg(RMI_DEBUG_FN, &f34->fn->dev,
- 		"%s: Erase flash config command written\n", __func__);
- 
--	ret = rmi_f34v7_wait_for_idle(f34, F34_WRITE_WAIT_MS);
-+	ret = rmi_f34v7_check_command_status(f34, F34_WRITE_WAIT_MS);
- 	if (ret < 0)
- 		return ret;
- 
-@@ -1297,7 +1319,7 @@ static int rmi_f34v7_enter_flash_prog(struct f34_data *f34)
- 	if (ret < 0)
- 		return ret;
- 
--	ret = rmi_f34v7_wait_for_idle(f34, F34_ENABLE_WAIT_MS);
-+	ret = rmi_f34v7_check_command_status(f34, F34_ENABLE_WAIT_MS);
- 	if (ret < 0)
- 		return ret;
- 
+-	f34->v7.force_update = true;
+ 	return 0;
+ }
 -- 
 2.25.1
 

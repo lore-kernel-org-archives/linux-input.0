@@ -2,149 +2,198 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DC54C433EF
-	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 06:56:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BF58C43334
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 07:46:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232126AbiFHGz5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Jun 2022 02:55:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49846 "EHLO
+        id S232776AbiFHHqC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Jun 2022 03:46:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60266 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243050AbiFHFyL (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 01:54:11 -0400
-Received: from na01-obe.outbound.protection.outlook.com (mail-bgr052101064021.outbound.protection.outlook.com [52.101.64.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE3DB392A1F;
-        Tue,  7 Jun 2022 20:50:24 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Dzv/EZhxviljfn/wqhoi8O/JeduCKe2Mr4lF7ZqcyFTrWzSNwwZ0TRGhEkk3looOvJFkAkMvbvcmp+IZlAIvZkVhNwd70iufyF5CDkOINckYo8yyhlxvGYL2hl4FuBTl9WFgnxmRvNJ2lfliMkMY5Zf0DTHMW7XqV+wRUXmx9b7HPdB7k8y8kLk9BRtIgZXV80OqSi7c3mkOk1JPREMFpX+StbVbZRpi0KYt2RYxXb9KgrnCT8l1+bsqA9ALDad27Qavv3U4M1eAnhHyLjEf2Fqi+3K/8pUdohtDomr+iQqG81ZbHn09gpt9SqKKsg/eE11JFOU3FabNLVYH4kNcWQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UQCEWsBoEhimCAQcWrgDX92W8vb2QCc3ZdPSMPj2VnI=;
- b=KLa3Q0Qxci73I25KT/6+wEQhAsSQbZf9p2eOsIBmTezGYMbA+IFCG4kLV86UgNsYPZktiUCU8IoDr9gLD3wQJtRP1rbGEOFtopIgEgwFClxqja1TO2wvLZ+q0RrqaqfKyvuIPZQFrQfnPb7c2wnATcLrn4BQ3DKQX53qUTB8k/e1EI9v3NKFFg9CCoqbspXgqSvc+yZIAR2tKzh/S8KtVZhQxQvb4utXarq1LK39dDSulyaJ5YsTEDCIHgVeAarnR5NuSgwwV1OFHQjn4gTCDuq9tFHjDF60KcW2CaEqjUej49N7bONCx1kvKsYR/XC1oEwmpGJIfGgSXBirabHpxA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UQCEWsBoEhimCAQcWrgDX92W8vb2QCc3ZdPSMPj2VnI=;
- b=gamrpBT2vvP10dhWoutOJJQrHMFbyY3cilfEnlRb4trT3c/DjsB0QQyrE4Ua8ulQrxeT7VgpUN9pc0rWd3jgSXLk+HrDzjMF3/zfXLPSdHX0R3B/qpKyZnbHJNURwhSjqC+lVEtJwFdjZFG+RtRSweAnqpCCcax0rrEDNBSLhAk=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-Received: from DM6PR21MB1370.namprd21.prod.outlook.com (2603:10b6:5:16b::28)
- by CO1PR21MB1299.namprd21.prod.outlook.com (2603:10b6:303:162::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5353.4; Wed, 8 Jun
- 2022 03:50:21 +0000
-Received: from DM6PR21MB1370.namprd21.prod.outlook.com
- ([fe80::810e:942d:9455:26f8]) by DM6PR21MB1370.namprd21.prod.outlook.com
- ([fe80::810e:942d:9455:26f8%8]) with mapi id 15.20.5353.001; Wed, 8 Jun 2022
- 03:50:21 +0000
-From:   Michael Kelley <mikelley@microsoft.com>
-To:     sthemmin@microsoft.com, kys@microsoft.com, wei.liu@kernel.org,
-        decui@microsoft.com, haiyangz@microsoft.com, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org
-Cc:     mikelley@microsoft.com
-Subject: [PATCH 1/1] HID: hyperv: Correctly access fields declared as __le16
-Date:   Tue,  7 Jun 2022 20:49:37 -0700
-Message-Id: <1654660177-115463-1-git-send-email-mikelley@microsoft.com>
-X-Mailer: git-send-email 1.8.3.1
-Content-Type: text/plain
-X-ClientProxiedBy: MW4PR04CA0281.namprd04.prod.outlook.com
- (2603:10b6:303:89::16) To DM6PR21MB1370.namprd21.prod.outlook.com
- (2603:10b6:5:16b::28)
+        with ESMTP id S234337AbiFHHi5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 03:38:57 -0400
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EC16F824F
+        for <linux-input@vger.kernel.org>; Wed,  8 Jun 2022 00:05:53 -0700 (PDT)
+Received: by mail-ed1-x529.google.com with SMTP id c2so25775607edf.5
+        for <linux-input@vger.kernel.org>; Wed, 08 Jun 2022 00:05:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language
+         :from:to:cc:references:in-reply-to:content-transfer-encoding;
+        bh=vDAg7S7CLadJKFThkv78KBFq9JEWVoDrYZeGQAzsD5c=;
+        b=iEmsI3iUtwrJDESbXNbCVS2pUxkNtUVmUfQTeKINMxqEx9+dO8MgfeNX6LY1kUam7f
+         cntuD8lEmom+Vxn+cF5KKvTT6GbcuWzgvy82rpWRg59hsYzICrjsjLJlo/3y2ORtNMhU
+         aSQp3ENcnczs4XzL9kjgd30EVe+X35NjJjQP5Nvqxrnx1+ulByongC9Muxr1VIbBBsnb
+         93b+Jpgul3GeXutgiAtwGxgH+Fl7o4EAaf/pa2lYkJdTrukWDRXpkAmMsF533e+BkZ2b
+         3bpCiEeowpBBiwJzWvEZg/RD4K05wKa4jWY7xyfG2NRAmnr7wG+trJi4jJeJgYfYBxHx
+         NLbw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:from:to:cc:references:in-reply-to
+         :content-transfer-encoding;
+        bh=vDAg7S7CLadJKFThkv78KBFq9JEWVoDrYZeGQAzsD5c=;
+        b=Q7jiSYAIJ4aYVtPYQIyQlZmPRHE7tlEAmdIwt+WMHoEDNxLxK+dClMvOV0By2lTXW5
+         YTU2E3VRJdoDAHij/xxYR5a7d5+88FoVy5f1p5VYVYO/4A5SgGe9hjbyA1G3uDcAHWfu
+         ZmYIE9yoYMMRjgtSL4o9Ec/Ts9nGAMG5DyHXLDIJ0mrqXY4iS9vK6M0uCCH3cSBHyFiR
+         /1fYjvSIlmO0UZhs6Y1NSyaQQFbsS4EYivIF5y7KaRhLwO8ITxq5d3WQu7HrqzmFGQF0
+         +W5qWc2wYMhwLjiNgEW9PADEKOM01yRzo1EAQWE4uHFxnbiBs00pitEuCi0nbfCgKFXN
+         /p2w==
+X-Gm-Message-State: AOAM532f77nntwFlOfv9Ub/k5YDiGslDm162dkK1J1t2NyWU0cB88eRc
+        OPHy5fUXqaquT/jTcyOCWR/WJw==
+X-Google-Smtp-Source: ABdhPJwl/bFoFqYf0T0M49mkcsr9UXbwPzcWabsJFz0mVIhs2N73IbjO2w/q2c+39Uzq77VaTd4e9w==
+X-Received: by 2002:a05:6402:35d0:b0:42e:1a76:67ae with SMTP id z16-20020a05640235d000b0042e1a7667aemr34054145edc.311.1654671918491;
+        Wed, 08 Jun 2022 00:05:18 -0700 (PDT)
+Received: from [192.168.0.188] (xdsl-188-155-176-92.adslplus.ch. [188.155.176.92])
+        by smtp.gmail.com with ESMTPSA id l4-20020a170906644400b006feb047502bsm8710249ejn.151.2022.06.08.00.05.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 08 Jun 2022 00:05:17 -0700 (PDT)
+Message-ID: <912e86a9-63cf-9d22-2259-193e7212ad7b@linaro.org>
+Date:   Wed, 8 Jun 2022 09:05:16 +0200
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: d86e8abd-1c82-4ff0-d19d-08da490202db
-X-MS-TrafficTypeDiagnostic: CO1PR21MB1299:EE_
-X-Microsoft-Antispam-PRVS: <CO1PR21MB12990DBD28AC61E4F2B59EC0D7A49@CO1PR21MB1299.namprd21.prod.outlook.com>
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: VR2DYxxdQYv5QnNGyd/ZNxNyNq5PCOH3PBulOfuwNPNnYuYI22xmJrLretmFSG0hb7Y3kKRp/xT7dPSjuZ0Ht9siUl3nq0GtUlMrnCN7zjeYKGEYz14p3GVrkk118c31du2+gmAOpu5LG0Ndi+8SlkI2733umt4EIhQJfWC9lilqAaFMyaKoNjXv/E0Q4m50wPixIDWhkFcXZD1EXNu7HQn/pxCu7Z9tTkPbqWbyOtENX3cmgW9eDwhukeKArqu9Idngza6OYGAKYBk/0Ic1Qr++S8vz+jF+y1Qaj6VWbkKbjqVUxEAKubT6JIv7qdRx0kxGzfUaAQM1HotVGSjWDwngimKuae8VZ6HilJB+SrR/eIat4UUKaFP+YKEsFG7K1G24uO2fRT/frFlSyDw8bsvffy195+7eSCvAo+ANvixiMIMQQWYMilKl54u3s5uytwYDznoX8CDZKqHAJqP1W7NSi4YCDkzTc9UogjXDWjGUoM3lgmEUIqADd6Hg9zE7qudwJz+sNlXgrXfosklX5fe12N7uAimAl5QOFLI9ECOrEof0/so+UzCrk1+S2IgRkRDYKgSqMHqsoZPYbKc6VkciT30yGXccQo3TR/9iMT9yk4ObcEFQ4LbEwj4c9codRgi1koSutiEKchHmwxJbBJxKrZgYYGbHoI9NGSbYvpmt1ZQLT+rZaGzm+sl6asb1t9VSAG63osWaVgCBWAl/hGVh99Tpu9JPSgGGjNm4lXrrmXxv8spYd7LDMDJJfjkrgD0ruEN0LVd+bzmfbE7XWA==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR21MB1370.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230001)(4636009)(366004)(451199009)(508600001)(5660300002)(6486002)(86362001)(8936002)(186003)(6512007)(26005)(6506007)(2616005)(107886003)(2906002)(52116002)(6666004)(4326008)(8676002)(66946007)(66556008)(82960400001)(316002)(38100700002)(66476007)(38350700002)(921005)(10290500003)(36756003)(82950400001)(83380400001);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?5o9rNyKZOrV809lvsjEdrp9DWp2ybjy8d1sqftCML/Fi9dXgrorwVO5ITP/U?=
- =?us-ascii?Q?Rmm4+erk7XNXzqlwqBszELtKdBU10TWrPkEgFmwsFnQ+mBgeLYjeNrfHZ6y4?=
- =?us-ascii?Q?xa+HOo5yYSmoaG8WrBJa8MGMYAncQ27CpRjDnUa2LTd1LZtpjzMk4qAhDhkf?=
- =?us-ascii?Q?n0HfkgJN8JwoGzMnhVw/GqSLSCbJoPUCgDiLpm7waH0CxtLVg2ZWtUZaH9tR?=
- =?us-ascii?Q?3QKGW7kDG60dHcqgICmM0FlBcAzB4BzR4grlkX3acVIpYH1bZLpTP1CZ8H66?=
- =?us-ascii?Q?bvwfTp63HK247EdOgWD6NPCW9lrGfp8KcdJctZLJEQEEA7tWf6bSH/6JumuE?=
- =?us-ascii?Q?pfr/8PWh1wwyzID9caFq5v7PmppAKIM9fBvWQYmgJXdF8kV72DRBGilBdK1Y?=
- =?us-ascii?Q?57WJC2S+TrfTplaTMFuGZQ3tXXh+PEnzoVPs8S++Jz68GD5BbGIRaEqEoVjp?=
- =?us-ascii?Q?pPwDp8fE9S3WLpeHC0As3x4lSEjvl/nMsKnJI7GT7WYb0lA3O633ToUx5jP0?=
- =?us-ascii?Q?TfZEQtVuenzTSg11HAGEKsO+mJi1i3EnVc2aZp/sOmEWf0k1VfexXrAFLquI?=
- =?us-ascii?Q?EJjZCiK+KrZ9Zd+PtiYYfobp06UU9BDhW4lpHsdGDeeuj6rT16VvFmEjMtI3?=
- =?us-ascii?Q?dNPpvSSx0OtvHqKFYD98u+32XKoC8ibynT8CMh/DpUZ/u6I1N4fv1u38J0h8?=
- =?us-ascii?Q?4eH+cq0uPmE/ojFGhTskMSgcszt4VXfqVWtKxPF8l5nA9ZmhnH88kgbga+pA?=
- =?us-ascii?Q?FKlkDuRm+Q0kgzTQeyRXtnDxM+SK1zhv+yVrHDqIBVPEZB7sp78Arfbu4Xw0?=
- =?us-ascii?Q?plX5T5eHFXbnKFnYTUehof3VwUBh2JqNsEm683ZJ/r6svUmDPc818RdpmpR4?=
- =?us-ascii?Q?6OeCtJR6Wu4DlZ+P5Q1PQGi/Oij5wfc9Phbfo5xULXALmWaDrTH/JXonTOQk?=
- =?us-ascii?Q?bDCj3/17MS81mmALGWe/TIXj+uuoHz7dIMQMB1oCx5Q7LxH4p6xizxi0Yv4X?=
- =?us-ascii?Q?UBHMR8HoPS0xdcJeEybi0aFD7CVY5F6P4Qe2ph4cC6ncqNjzZW60KYWE0Fz+?=
- =?us-ascii?Q?U4ZF/avxIB5y4qjrLisdLnMF8RNeJfJKoaWQFyKgXbzMOvFYUN1dfzhXQvs+?=
- =?us-ascii?Q?rK7S8sLv2Saw0Fub/ny7bmHgBROEdTrl+Yj2Jyt0xgFT5Qw3WeqPM9CjRL+y?=
- =?us-ascii?Q?yBKF0Z8rP+YOnHVai36NxQphJwABH7N+QydfYfItUTqVTAqMPUq4BOJvXEQN?=
- =?us-ascii?Q?vVSM6NasLNrNxydTUitluskV9PlctBkMGOPoTNEdUySjBjh3ReFJCcWZ2Oqr?=
- =?us-ascii?Q?pdmy5YpCvq32+k/eJk4Ez979D8eT3Utr3UhcnL1qBI3i90pXBxrRsBT9XzfR?=
- =?us-ascii?Q?kSvdCOWkverw40KteUqek1kjG0G298LALU5I9LLlGJdXPbKFMvrT4IAW5I1/?=
- =?us-ascii?Q?R3yFITP0I+OqvC129r+RyuP2cNdUejj/kugk90vEPKxY2qMwha+8al5DFQfk?=
- =?us-ascii?Q?mfKB237UKrP61kEa2/2kLbonjbo/dt8x+IZu7a6aNLcBeoI1wXjXMYG+MEJS?=
- =?us-ascii?Q?NmU/SuCQtOSrDmiBqt6IitNi8dOCOUa2JZIFSd4qjINFmToUj6K/dBG2wPDH?=
- =?us-ascii?Q?GAl3k5HBbZv4CFnj+4bcDVLTa74Qv2mGZ/3dccydXsyXMtDE8hyWWgkyirO0?=
- =?us-ascii?Q?DZ9oMBW35YZV+bjzX0huIsNeWLvG4s5oe2TBDzmEor9Dlqkau/y3Ah9C3X/0?=
- =?us-ascii?Q?TnPguWC3amS6b64mT03Se+T2qOX79kw=3D?=
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d86e8abd-1c82-4ff0-d19d-08da490202db
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR21MB1370.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2022 03:50:21.4631
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ZtiOkZbACHz1pTtx9iZPSTJktIY9sQbEk+Xus0siniG7D5vDttJ8Aw4qoRXYO4a/hfSRrOT4expfO2A8/gVBIA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1PR21MB1299
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH 4/4] input: misc: rt5120: Add power key support
+Content-Language: en-US
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To:     cy_huang <u0084500@gmail.com>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, lee.jones@linaro.org,
+        broonie@kernel.org, dmitry.torokhov@gmail.com
+Cc:     lgirdwood@gmail.com, cy_huang@richtek.com,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org
+References: <1654581161-12349-1-git-send-email-u0084500@gmail.com>
+ <1654581161-12349-5-git-send-email-u0084500@gmail.com>
+ <b37a1a32-056e-cb25-f53a-3028a4d90ece@linaro.org>
+In-Reply-To: <b37a1a32-056e-cb25-f53a-3028a4d90ece@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add the use of le16_to_cpu() for fields declared as __le16. Because
-Hyper-V only runs in Little Endian mode, there's no actual bug.
-The change is made in the interest of general correctness in
-addition to making sparse happy. No functional change.
+On 08/06/2022 09:03, Krzysztof Kozlowski wrote:
+> On 07/06/2022 07:52, cy_huang wrote:
+>> From: ChiYuan Huang <cy_huang@richtek.com>
+>>
+>> Add RT5120 PMIC power key support.
+>>
+>> Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+>> ---
+>>  drivers/input/misc/Kconfig         |   9 +++
+>>  drivers/input/misc/Makefile        |   1 +
+>>  drivers/input/misc/rt5120-pwrkey.c | 115 +++++++++++++++++++++++++++++++++++++
+>>  3 files changed, 125 insertions(+)
+>>  create mode 100644 drivers/input/misc/rt5120-pwrkey.c
+>>
+>> diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+>> index dd5227c..9c0d814 100644
+>> --- a/drivers/input/misc/Kconfig
+>> +++ b/drivers/input/misc/Kconfig
+>> @@ -881,6 +881,15 @@ config INPUT_SC27XX_VIBRA
+>>  	  To compile this driver as a module, choose M here. The module will
+>>  	  be called sc27xx_vibra.
+>>  
+>> +config INPUT_RT5120_PWRKEY
+>> +	tristate "RT5120 PMIC power key support"
+>> +	depends on MFD_RT5120
+>> +	help
+>> +	  This enables support for RT5120 PMIC power key driver.
+>> +
+>> +	  To compile this driver as a module, choose M here. the module will
+>> +	  be called rt5120-pwerkey.
+>> +
+>>  config INPUT_STPMIC1_ONKEY
+>>  	tristate "STPMIC1 PMIC Onkey support"
+>>  	depends on MFD_STPMIC1
+>> diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+>> index b92c53a..164ea20 100644
+>> --- a/drivers/input/misc/Makefile
+>> +++ b/drivers/input/misc/Makefile
+>> @@ -68,6 +68,7 @@ obj-$(CONFIG_INPUT_RAVE_SP_PWRBUTTON)	+= rave-sp-pwrbutton.o
+>>  obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
+>>  obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
+>>  obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
+>> +obj-$(CONFIG_INPUT_RT5120_PWRKEY)	+= rt5120-pwrkey.o
+>>  obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
+>>  obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
+>>  obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
+>> diff --git a/drivers/input/misc/rt5120-pwrkey.c b/drivers/input/misc/rt5120-pwrkey.c
+>> new file mode 100644
+>> index 00000000..42bd2f3
+>> --- /dev/null
+>> +++ b/drivers/input/misc/rt5120-pwrkey.c
+>> @@ -0,0 +1,115 @@
+>> +// SPDX-License-Identifier: GPL-2.0+
+>> +
+>> +#include <linux/bits.h>
+>> +#include <linux/input.h>
+>> +#include <linux/interrupt.h>
+>> +#include <linux/kernel.h>
+>> +#include <linux/module.h>
+>> +#include <linux/mod_devicetable.h>
+>> +#include <linux/platform_device.h>
+>> +#include <linux/regmap.h>
+>> +
+>> +#define RT5120_REG_INTSTAT	0x1E
+>> +#define RT5120_PWRKEYSTAT_MASK	BIT(7)
+>> +
+>> +struct rt5120_priv {
+>> +	struct regmap *regmap;
+>> +	struct input_dev *input;
+>> +	int press_irq;
+>> +	int release_irq;
+>> +};
+>> +
+>> +static irqreturn_t rt5120_pwrkey_handler(int irq, void *devid)
+>> +{
+>> +	struct rt5120_priv *priv = devid;
+>> +	unsigned int stat;
+>> +	bool is_pressed;
+>> +	int ret;
+>> +
+>> +	ret = regmap_read(priv->regmap, RT5120_REG_INTSTAT, &stat);
+>> +	if (ret)
+>> +		return IRQ_NONE;
+>> +
+>> +	is_pressed = !(stat & RT5120_PWRKEYSTAT_MASK);
+>> +
+>> +	if ((is_pressed && irq == priv->press_irq) ||
+>> +	    (!is_pressed  && irq == priv->release_irq)) {
+>> +		input_report_key(priv->input, KEY_POWER, is_pressed);
+>> +		input_sync(priv->input);
+>> +	}
+>> +
+>> +	return IRQ_HANDLED;
+>> +}
+>> +
+>> +static int rt5120_pwrkey_probe(struct platform_device *pdev)
+>> +{
+>> +	struct rt5120_priv *priv;
+>> +	int ret;
+>> +
+>> +	priv = devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
+>> +	if (!priv)
+>> +		return -ENOMEM;
+>> +
+>> +	priv->regmap = dev_get_regmap(pdev->dev.parent, NULL);
+>> +	if (!priv->regmap) {
+>> +		dev_err(&pdev->dev, "Failed to init regmap\n");
+>> +		return -ENODEV;
+>> +	}
+>> +
+>> +	priv->press_irq = platform_get_irq_byname(pdev, "pwrkey-press");
+>> +	if (priv->press_irq < 0)
+>> +		return priv->press_irq;
+>> +
+>> +	priv->release_irq = platform_get_irq_byname(pdev, "pwrkey-release");
+>> +	if (priv->release_irq < 0)
+>> +		return priv->release_irq;
+> 
+> Not described in the bindings. All properties need to be documented.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Michael Kelley <mikelley@microsoft.com>
----
- drivers/hid/hid-hyperv.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+Hm, it seems it is coming from the parent device, dynamically, so looks ok.
 
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index 978ee2a..e0bc731 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -199,7 +199,8 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
- 	if (!input_device->hid_desc)
- 		goto cleanup;
- 
--	input_device->report_desc_size = desc->desc[0].wDescriptorLength;
-+	input_device->report_desc_size = le16_to_cpu(
-+					desc->desc[0].wDescriptorLength);
- 	if (input_device->report_desc_size == 0) {
- 		input_device->dev_info_status = -EINVAL;
- 		goto cleanup;
-@@ -217,7 +218,7 @@ static void mousevsc_on_receive_device_info(struct mousevsc_dev *input_device,
- 
- 	memcpy(input_device->report_desc,
- 	       ((unsigned char *)desc) + desc->bLength,
--	       desc->desc[0].wDescriptorLength);
-+	       le16_to_cpu(desc->desc[0].wDescriptorLength));
- 
- 	/* Send the ack */
- 	memset(&ack, 0, sizeof(struct mousevsc_prt_msg));
--- 
-1.8.3.1
 
+Best regards,
+Krzysztof

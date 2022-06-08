@@ -2,66 +2,119 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 092AFC43334
-	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 12:28:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C80D7C43334
+	for <linux-input@archiver.kernel.org>; Wed,  8 Jun 2022 12:49:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238764AbiFHM2j (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Jun 2022 08:28:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52464 "EHLO
+        id S239588AbiFHMtm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Jun 2022 08:49:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239380AbiFHM2i (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 08:28:38 -0400
-Received: from mail-wr1-f46.google.com (mail-wr1-f46.google.com [209.85.221.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA1F1AD583;
-        Wed,  8 Jun 2022 05:28:35 -0700 (PDT)
-Received: by mail-wr1-f46.google.com with SMTP id d14so19164037wra.10;
-        Wed, 08 Jun 2022 05:28:35 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=xAmnRJ7onCqz/NfiJfHXfehZg2FcRlICmca8tphz6PQ=;
-        b=yZNCxutMOqQFCtoKM53fKAeSfgx1b+icr3CoMeMemtwdDCz8EEKkzu7rEwNQNJC4DN
-         pFDObeNBKTqU70i+vzylgchxMIYTaeMco2tGkcQzYJhYOeBzLlJLOOeNHrzXvPfBEYPg
-         fvpR1/yo6cW7FGd5GuXI4Ar4hlRo+JvQPZK7wYxnH1jy8gDnWsabLifkoIb7NtphCKIU
-         Gjltrf+9gAPSj5JkbnxbUyyLXpY4dvmlhcwL2JDDCpuzGvv2fP6HiDv7QDAzyiIh1jcN
-         9zH2zF75GVPPgLHRaPodnBrTuDuGxudcgAhQkT2m1CDhm12nkThhgIwKPbuET28MI/OV
-         R6+Q==
-X-Gm-Message-State: AOAM533D6RIRgvPGzQfAFsjRErh0T6s70LalpW+Emwmnzx/PNdrTkCA5
-        LNZKGpWi94w5mzBFWh8sT5w=
-X-Google-Smtp-Source: ABdhPJyMftNVj/iSs0VPlx3V+0ZBhYtGWQKT8DoiKJZ7jHclv6c2zS3zElFGfxtKHsK0fLA1VUdDNA==
-X-Received: by 2002:a5d:58ed:0:b0:217:dd5:7508 with SMTP id f13-20020a5d58ed000000b002170dd57508mr20119509wrd.606.1654691314007;
-        Wed, 08 Jun 2022 05:28:34 -0700 (PDT)
-Received: from liuwe-devbox-debian-v2 ([51.145.34.42])
-        by smtp.gmail.com with ESMTPSA id o12-20020a5d58cc000000b0020c6b78eb5asm21447656wrf.68.2022.06.08.05.28.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jun 2022 05:28:33 -0700 (PDT)
-Date:   Wed, 8 Jun 2022 12:28:31 +0000
-From:   Wei Liu <wei.liu@kernel.org>
-To:     Michael Kelley <mikelley@microsoft.com>
-Cc:     sthemmin@microsoft.com, kys@microsoft.com, wei.liu@kernel.org,
-        decui@microsoft.com, haiyangz@microsoft.com, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH 1/1] HID: hyperv: Correctly access fields declared as
- __le16
-Message-ID: <20220608122831.e3yxjl2qlyumnm2j@liuwe-devbox-debian-v2>
-References: <1654660177-115463-1-git-send-email-mikelley@microsoft.com>
+        with ESMTP id S239571AbiFHMtl (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Jun 2022 08:49:41 -0400
+Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 095731A0AD9;
+        Wed,  8 Jun 2022 05:49:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1654692577; x=1686228577;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=CK2xFYVvQjcLpB9Lr8I4dKwUzAtt+7lcp3WZ02i3lng=;
+  b=ADksulP92s4yt1x2Se9rGtDl7bJxH096A8QMXeLzdl25hpIL+QRS5BEG
+   NHO+igr2FqteuLI0x3X2HwdGs4uaDlD56Oq1gdlmFaX+0/okQNVdA/wC8
+   gPkBcNTzVXxB/sye5s4c/BXtg9wY3aJ6e6UW8C1aSWNKMFOFVRfsQOEMz
+   k+/EzcG6zwSSYGnO+bD+m0DIIyEYA9op9B83HS3T5qLHQxQD8JFDA0o97
+   LKDwlnFlwbTgjYlxelXRKU1H89jx12AW8aYubPWnwgM9xMxWtc2ZJssup
+   tDKBloZyyaKXtrdfmEdR738/EfgtUIe7VbY1zX/NWsyZuIBFk7O7P80xC
+   w==;
+X-IronPort-AV: E=Sophos;i="5.91,286,1647298800"; 
+   d="scan'208";a="24330536"
+Received: from unknown (HELO tq-pgp-pr1.tq-net.de) ([192.168.6.15])
+  by mx1-pgp.tq-group.com with ESMTP; 08 Jun 2022 14:49:30 +0200
+Received: from mx1.tq-group.com ([192.168.6.7])
+  by tq-pgp-pr1.tq-net.de (PGP Universal service);
+  Wed, 08 Jun 2022 14:49:30 +0200
+X-PGP-Universal: processed;
+        by tq-pgp-pr1.tq-net.de on Wed, 08 Jun 2022 14:49:30 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1654692570; x=1686228570;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=CK2xFYVvQjcLpB9Lr8I4dKwUzAtt+7lcp3WZ02i3lng=;
+  b=ACWIa9EN+8hvjZmDLHj5vazy8J5nrR7/NS3qUxQRt0e1CXpXMudcAFKn
+   5ZmCH1pggGapdVGq8Ufebh3V01Wq9Jb/oHKPyFwIt1U7z762OS4Eg0R1T
+   4XtzQI0ycpS9I+JCC9AoKx4NwsDZqS4V1RPQVoTms3fCGV8tgsybk3/ed
+   3PW6snT+Yf/MEpAHscclBt6vT2fKPAKHtjiujJt0U+STBLiI3jPewFNb+
+   pTDJb1plS5EYhebgxNBb2n3toxZS81YmP43XuLpTtn5iZvuLxUQrAvMIW
+   tJJSa+jZgmpB87IeR538P0Y16c/HXvoe+NenV3vYCE8bw3XkqYSRJZTsF
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.91,286,1647298800"; 
+   d="scan'208";a="24330535"
+Received: from vtuxmail01.tq-net.de ([10.115.0.20])
+  by mx1.tq-group.com with ESMTP; 08 Jun 2022 14:49:30 +0200
+Received: from localhost.localdomain (SCHIFFERM-M2.tq-net.de [10.121.49.136])
+        by vtuxmail01.tq-net.de (Postfix) with ESMTPA id 84634280072;
+        Wed,  8 Jun 2022 14:49:30 +0200 (CEST)
+From:   Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Lyude Paul <lyude@redhat.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Subject: [PATCH 1/9] Input: synaptics-rmi4 - fix firmware update operations with bootloader v8
+Date:   Wed,  8 Jun 2022 14:48:00 +0200
+Message-Id: <20220608124808.51402-2-matthias.schiffer@ew.tq-group.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220608124808.51402-1-matthias.schiffer@ew.tq-group.com>
+References: <20220608124808.51402-1-matthias.schiffer@ew.tq-group.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1654660177-115463-1-git-send-email-mikelley@microsoft.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Jun 07, 2022 at 08:49:37PM -0700, Michael Kelley wrote:
-> Add the use of le16_to_cpu() for fields declared as __le16. Because
-> Hyper-V only runs in Little Endian mode, there's no actual bug.
-> The change is made in the interest of general correctness in
-> addition to making sparse happy. No functional change.
-> 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Michael Kelley <mikelley@microsoft.com>
+Commit a6977d758fed ("Input: synaptics-rmi4 - support bootloader v8 in
+f34v7") allowed the F34v7 driver to probe with bootloader v8, but it did
+not update various other bootloader version checks in the F34 code.
 
-Applied to hyperv-fixes. Thanks.
+Fixes: a6977d758fed ("Input: synaptics-rmi4 - support bootloader v8 in f34v7")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+---
+ drivers/input/rmi4/rmi_f34.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/rmi4/rmi_f34.c b/drivers/input/rmi4/rmi_f34.c
+index e5dca9868f87..3afc94f679ed 100644
+--- a/drivers/input/rmi4/rmi_f34.c
++++ b/drivers/input/rmi4/rmi_f34.c
+@@ -370,7 +370,7 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 
+ 	f34 = dev_get_drvdata(&data->f34_container->dev);
+ 
+-	if (f34->bl_version == 7) {
++	if (f34->bl_version >= 7) {
+ 		if (data->pdt_props & HAS_BSR) {
+ 			dev_err(dev, "%s: LTS not supported\n", __func__);
+ 			return -ENODEV;
+@@ -382,7 +382,7 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 	}
+ 
+ 	/* Enter flash mode */
+-	if (f34->bl_version == 7)
++	if (f34->bl_version >= 7)
+ 		ret = rmi_f34v7_start_reflash(f34, fw);
+ 	else
+ 		ret = rmi_f34_enable_flash(f34);
+@@ -413,7 +413,7 @@ static int rmi_firmware_update(struct rmi_driver_data *data,
+ 	f34 = dev_get_drvdata(&data->f34_container->dev);
+ 
+ 	/* Perform firmware update */
+-	if (f34->bl_version == 7)
++	if (f34->bl_version >= 7)
+ 		ret = rmi_f34v7_do_reflash(f34, fw);
+ 	else
+ 		ret = rmi_f34_update_firmware(f34, fw);
+-- 
+2.25.1
+

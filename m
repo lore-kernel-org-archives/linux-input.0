@@ -2,466 +2,329 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2470C43334
-	for <linux-input@archiver.kernel.org>; Sat, 11 Jun 2022 11:39:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B03EFC433EF
+	for <linux-input@archiver.kernel.org>; Sun, 12 Jun 2022 16:17:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233248AbiFKLjk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 11 Jun 2022 07:39:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40790 "EHLO
+        id S229930AbiFLQRb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 12 Jun 2022 12:17:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233108AbiFKLjb (ORCPT
+        with ESMTP id S229554AbiFLQRY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Jun 2022 07:39:31 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48DA331917;
-        Sat, 11 Jun 2022 04:39:30 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id a15so1622196wrh.2;
-        Sat, 11 Jun 2022 04:39:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=E6LUcOWx1z2poXLh/BFADj8qF2w3QGSPYJH8IboePfI=;
-        b=bZ7u0cc3U6L/BONVClV8csKlcT8JX0Z+B6XuWLlENVKVv7ckr53eYpR2H8GQwDxjWn
-         4KpKjr5WCdSHkHKC1TjVDeUS6zFF7gJ0DlkD2l6Yefa211poMU7EDvFHX00iVbbv6hL2
-         LlegBDdFtIXu0Sr/bM51w8tsn8Mf3lKHINuMOnyMFqoQFBrGCGkFYFJnTQzfUn1a17q0
-         YZJEbWl9WgTc9iWml60gea9rI6z6Jx13OqeB8i2u0i6ckCIXs4vuHCaU1Tj1PkVCgF+6
-         myNfBMrDHXQ2vAJ/wIIj6dglwQA0uaWrluGVfNjqdattLTOrqWTPZzFhpT5rBXvML9pY
-         ED/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=E6LUcOWx1z2poXLh/BFADj8qF2w3QGSPYJH8IboePfI=;
-        b=Y7qG6dBPqOoNIw4WMZWN+GbC4dQmLpGaHdXItC2pjyt3aHHhH5gARbwKtzKLK5/paR
-         4nA3KoZAPjyFP1CDdT/byUMTh411BCXNzwXo/Asm8OkCL5d1NlOixd4lJ+jHf60NO9sO
-         +j6akk3BlBOpKf46D4ig2NGPBaoigH6wOXnVhut/MNQlTt92lhVb8hllW5ddaDGvyODY
-         7vEXKdiqbcMkNcDtrf4An1Y1bkJwzgLbJ2mRbNdxVh0NO3PVM991vzzPpW0RE66O7laP
-         0wS61ICB00RyF2TQxVxK1lTGI9A2B4us7+MlbVXeC29TNTkY+RxkYkQNyCLEQnTctSBt
-         2cFg==
-X-Gm-Message-State: AOAM5304e1wVliWB6brRORbW6AKwrdW4MGppCSeU+xlD73gRTb4D2ecR
-        40omoIEf11FYNnU5iqYZDz0=
-X-Google-Smtp-Source: ABdhPJy4tkT8OmzrHbi4TtndOVJI8UKfigZjThP1+tpdBOqxJ1KLc43vo9dZ27GgyZ2Cc8zdFhzv5Q==
-X-Received: by 2002:adf:f00c:0:b0:210:3430:5fdd with SMTP id j12-20020adff00c000000b0021034305fddmr48045739wro.448.1654947568727;
-        Sat, 11 Jun 2022 04:39:28 -0700 (PDT)
-Received: from localhost.localdomain ([94.73.36.128])
-        by smtp.gmail.com with ESMTPSA id g15-20020a05600c4ecf00b0039c4945c753sm6574198wmq.39.2022.06.11.04.39.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Jun 2022 04:39:28 -0700 (PDT)
-From:   =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-To:     jikos@kernel.org
-Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stefanberzl@gmail.com, dlatypov@google.com,
-        kunit-dev@googlegroups.com,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH v4 4/4] HID: uclogic: Add support for XP-PEN Deco L
-Date:   Sat, 11 Jun 2022 13:39:14 +0200
-Message-Id: <20220611113914.355577-5-jose.exposito89@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220611113914.355577-1-jose.exposito89@gmail.com>
-References: <20220611113914.355577-1-jose.exposito89@gmail.com>
+        Sun, 12 Jun 2022 12:17:24 -0400
+Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::227])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84F4D5F6D;
+        Sun, 12 Jun 2022 09:17:20 -0700 (PDT)
+Received: (Authenticated sender: contact@artur-rojek.eu)
+        by mail.gandi.net (Postfix) with ESMTPA id A4B9B20008;
+        Sun, 12 Jun 2022 16:17:15 +0000 (UTC)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Date:   Sun, 12 Jun 2022 18:17:15 +0200
+From:   Artur Rojek <contact@artur-rojek.eu>
+To:     Rob Herring <robh@kernel.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Maxime Ripard <mripard@kernel.org>,
+        Jeff LaBundy <jeff@labundy.com>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 2/5] dt-bindings: input: Centralize 'linux,code'
+ definition
+In-Reply-To: <20220608211207.2058487-3-robh@kernel.org>
+References: <20220608211207.2058487-1-robh@kernel.org>
+ <20220608211207.2058487-3-robh@kernel.org>
+Message-ID: <10fb98f1a1e15339402060d9a932a039@artur-rojek.eu>
+X-Sender: contact@artur-rojek.eu
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The XP-PEN Deco L (UGEE) needs to be initialized by sending a buffer of
-magic data, discovered by sniffing the Windows driver traffic.
+On 2022-06-08 23:12, Rob Herring wrote:
+> Multiple bindings use 'linux,code', but there is not a central
+> definition and type. Add 'linux,code' to input.yaml and update all the
+> users to use it.
+> 
+> Signed-off-by: Rob Herring <robh@kernel.org>
+For adc-joystick.yaml:
 
-In order to differentiate UGEE tablets that need this kind of
-initialization from the previous ones, name them v2 internally and
-create an entry point for them.
+Acked-by: Artur Rojek <contact@artur-rojek.eu>
 
-After initialization, the template report descriptors can be discovered
-by parsing a string descriptor, similar to the one exposed by HUION v1
-devices.
-
-Add all the required elements to support the device.
-
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
----
- drivers/hid/hid-ids.h            |   1 +
- drivers/hid/hid-uclogic-core.c   |   2 +
- drivers/hid/hid-uclogic-params.c | 197 +++++++++++++++++++++++++++++++
- drivers/hid/hid-uclogic-rdesc.c  | 102 ++++++++++++++++
- drivers/hid/hid-uclogic-rdesc.h  |   8 ++
- 5 files changed, 310 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index d9eb676abe96..139910034c17 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -1278,6 +1278,7 @@
- #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_G540	0x0075
- #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_G640	0x0094
- #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01	0x0042
-+#define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L	0x0935
- #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06	0x0078
- #define USB_DEVICE_ID_UGEE_TABLET_G5		0x0074
- #define USB_DEVICE_ID_UGEE_TABLET_EX07S		0x0071
-diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index c0fe66e50c58..47a17375c7fc 100644
---- a/drivers/hid/hid-uclogic-core.c
-+++ b/drivers/hid/hid-uclogic-core.c
-@@ -521,6 +521,8 @@ static const struct hid_device_id uclogic_devices[] = {
- 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_G640) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
- 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
-+				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
- 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06) },
- 	{ }
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index b43142f98a8b..f24a4aca7920 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -1002,6 +1002,197 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
- 	return rc;
- }
- 
-+/**
-+ * uclogic_probe_interface() - some tablets, like the Parblo A610 PLUS V2 or
-+ * the XP-PEN Deco Mini 7, need to be initialized by sending them magic data.
-+ *
-+ * @hdev:	The HID device of the tablet interface to initialize and get
-+ *		parameters from. Cannot be NULL.
-+ * @magic_arr:	The magic data that should be sent to probe the interface.
-+ *		Cannot be NULL.
-+ * @magic_size:	Size of the magic data.
-+ * @endpoint:	Endpoint where the magic data should be sent.
-+ *
-+ * Returns:
-+ *	Zero, if successful. A negative errno code on error.
-+ */
-+static int uclogic_probe_interface(struct hid_device *hdev, u8 *magic_arr,
-+				   int magic_size, int endpoint)
-+{
-+	struct usb_device *udev;
-+	unsigned int pipe = 0;
-+	int sent;
-+	u8 *buf = NULL;
-+	int rc = 0;
-+
-+	if (!hdev || !magic_arr) {
-+		rc = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+	buf = kmemdup(magic_arr, magic_size, GFP_KERNEL);
-+	if (!buf) {
-+		rc = -ENOMEM;
-+		goto cleanup;
-+	}
-+
-+	udev = hid_to_usb_dev(hdev);
-+	pipe = usb_sndintpipe(udev, endpoint);
-+
-+	rc = usb_interrupt_msg(udev, pipe, buf, magic_size, &sent, 1000);
-+	if (rc || sent != magic_size) {
-+		hid_err(hdev, "Interface probing failed: %d\n", rc);
-+		rc = -1;
-+		goto cleanup;
-+	}
-+
-+	rc = 0;
-+cleanup:
-+	kfree(buf);
-+	return rc;
-+}
-+
-+/**
-+ * uclogic_params_ugee_v2_init() - initialize a UGEE graphics tablets by
-+ * discovering their parameters.
-+ *
-+ * These tables, internally designed as v2 to differentiate them from older
-+ * models, expect a payload of magic data in orther to be switched to the fully
-+ * functional mode and expose their parameters in a similar way to the
-+ * information present in uclogic_params_pen_init_v1() but with some
-+ * differences.
-+ *
-+ * @params:	Parameters to fill in (to be cleaned with
-+ *		uclogic_params_cleanup()). Not modified in case of error.
-+ *		Cannot be NULL.
-+ * @hdev:	The HID device of the tablet interface to initialize and get
-+ *		parameters from. Cannot be NULL.
-+ *
-+ * Returns:
-+ *	Zero, if successful. A negative errno code on error.
-+ */
-+static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
-+				       struct hid_device *hdev)
-+{
-+	int rc = 0;
-+	struct usb_interface *iface;
-+	__u8 bInterfaceNumber;
-+	const int str_desc_len = 12;
-+	__u8 *str_desc = NULL;
-+	__u8 *rdesc_pen = NULL;
-+	__u8 *rdesc_frame = NULL;
-+	s32 desc_params[UCLOGIC_RDESC_PH_ID_NUM];
-+	s32 resolution;
-+	__u8 magic_arr[] = {
-+		0x02, 0xb0, 0x04, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
-+	};
-+	/* The resulting parameters (noop) */
-+	struct uclogic_params p = {0, };
-+
-+	if (!params || !hdev) {
-+		rc = -EINVAL;
-+		goto cleanup;
-+	}
-+
-+	iface = to_usb_interface(hdev->dev.parent);
-+	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
-+	if (bInterfaceNumber != 2) {
-+		uclogic_params_init_invalid(&p);
-+		goto output;
-+	}
-+
-+	/*
-+	 * Initialize the interface by sending magic data.
-+	 * The specific data was discovered by sniffing the Windows driver
-+	 * traffic.
-+	 */
-+	rc = uclogic_probe_interface(hdev, magic_arr, sizeof(magic_arr), 0x03);
-+	if (rc) {
-+		uclogic_params_init_invalid(&p);
-+		goto output;
-+	}
-+
-+	/*
-+	 * Read the string descriptor containing pen and frame parameters.
-+	 * The specific string descriptor and data were discovered by sniffing
-+	 * the Windows driver traffic.
-+	 */
-+	rc = uclogic_params_get_str_desc(&str_desc, hdev, 100, str_desc_len);
-+	if (rc != str_desc_len) {
-+		hid_err(hdev, "failed retrieving pen and frame parameters: %d\n", rc);
-+		uclogic_params_init_invalid(&p);
-+		goto output;
-+	}
-+
-+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] =
-+		get_unaligned_le16(str_desc + 2);
-+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] =
-+		get_unaligned_le16(str_desc + 4);
-+	desc_params[UCLOGIC_RDESC_FRAME_PH_ID_UM] = str_desc[6];
-+	desc_params[UCLOGIC_RDESC_PEN_PH_ID_PRESSURE_LM] =
-+		get_unaligned_le16(str_desc + 8);
-+	resolution = get_unaligned_le16(str_desc + 10);
-+	if (resolution == 0) {
-+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] = 0;
-+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] = 0;
-+	} else {
-+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_PM] =
-+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_X_LM] * 1000 /
-+			resolution;
-+		desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_PM] =
-+			desc_params[UCLOGIC_RDESC_PEN_PH_ID_Y_LM] * 1000 /
-+			resolution;
-+	}
-+	kfree(str_desc);
-+	str_desc = NULL;
-+
-+	/* Initialize the pen interface */
-+	rdesc_pen = uclogic_rdesc_template_apply(
-+				uclogic_rdesc_ugee_v2_pen_template_arr,
-+				uclogic_rdesc_ugee_v2_pen_template_size,
-+				desc_params, ARRAY_SIZE(desc_params));
-+	if (!rdesc_pen) {
-+		rc = -ENOMEM;
-+		goto cleanup;
-+	}
-+
-+	p.pen.desc_ptr = rdesc_pen;
-+	p.pen.desc_size = uclogic_rdesc_ugee_v2_pen_template_size;
-+	p.pen.id = 0x02;
-+	p.pen.subreport_list[0].value = 0xf0;
-+	p.pen.subreport_list[0].id = UCLOGIC_RDESC_V1_FRAME_ID;
-+
-+	/* Initialize the frame interface */
-+	rdesc_frame = uclogic_rdesc_template_apply(
-+				uclogic_rdesc_ugee_v2_frame_btn_template_arr,
-+				uclogic_rdesc_ugee_v2_frame_btn_template_size,
-+				desc_params, ARRAY_SIZE(desc_params));
-+	if (!rdesc_frame) {
-+		rc = -ENOMEM;
-+		goto cleanup;
-+	}
-+
-+	rc = uclogic_params_frame_init_with_desc(&p.frame_list[0],
-+						 rdesc_frame,
-+						 uclogic_rdesc_ugee_v2_frame_btn_template_size,
-+						 UCLOGIC_RDESC_V1_FRAME_ID);
-+	kfree(rdesc_frame);
-+	if (rc) {
-+		uclogic_params_init_invalid(&p);
-+		goto output;
-+	}
-+
-+output:
-+	/* Output parameters */
-+	memcpy(params, &p, sizeof(*params));
-+	memset(&p, 0, sizeof(p));
-+	rc = 0;
-+cleanup:
-+	kfree(str_desc);
-+	uclogic_params_cleanup(&p);
-+	return rc;
-+}
-+
- /**
-  * uclogic_params_init() - initialize a tablet interface and discover its
-  * parameters.
-@@ -1237,6 +1428,12 @@ int uclogic_params_init(struct uclogic_params *params,
- 			uclogic_params_init_invalid(&p);
- 		}
- 		break;
-+	case VID_PID(USB_VENDOR_ID_UGEE,
-+		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L):
-+		rc = uclogic_params_ugee_v2_init(&p, hdev);
-+		if (rc != 0)
-+			goto cleanup;
-+		break;
- 	case VID_PID(USB_VENDOR_ID_TRUST,
- 		     USB_DEVICE_ID_TRUST_PANORA_TABLET):
- 	case VID_PID(USB_VENDOR_ID_UGEE,
-diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
-index 3fb84ac492b4..3d68e8b0784d 100644
---- a/drivers/hid/hid-uclogic-rdesc.c
-+++ b/drivers/hid/hid-uclogic-rdesc.c
-@@ -859,6 +859,108 @@ const __u8 uclogic_rdesc_v2_frame_dial_arr[] = {
- const size_t uclogic_rdesc_v2_frame_dial_size =
- 			sizeof(uclogic_rdesc_v2_frame_dial_arr);
- 
-+/* Fixed report descriptor template for UGEE v2 pen reports */
-+const __u8 uclogic_rdesc_ugee_v2_pen_template_arr[] = {
-+	0x05, 0x0d,         /*  Usage Page (Digitizers),                */
-+	0x09, 0x01,         /*  Usage (Digitizer),                      */
-+	0xa1, 0x01,         /*  Collection (Application),               */
-+	0x85, 0x02,         /*      Report ID (2),                      */
-+	0x09, 0x20,         /*      Usage (Stylus),                     */
-+	0xa1, 0x00,         /*      Collection (Physical),              */
-+	0x09, 0x42,         /*          Usage (Tip Switch),             */
-+	0x09, 0x44,         /*          Usage (Barrel Switch),          */
-+	0x09, 0x46,         /*          Usage (Tablet Pick),            */
-+	0x75, 0x01,         /*          Report Size (1),                */
-+	0x95, 0x03,         /*          Report Count (3),               */
-+	0x14,               /*          Logical Minimum (0),            */
-+	0x25, 0x01,         /*          Logical Maximum (1),            */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0x95, 0x02,         /*          Report Count (2),               */
-+	0x81, 0x03,         /*          Input (Constant, Variable),     */
-+	0x09, 0x32,         /*          Usage (In Range),               */
-+	0x95, 0x01,         /*          Report Count (1),               */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0x95, 0x02,         /*          Report Count (2),               */
-+	0x81, 0x03,         /*          Input (Constant, Variable),     */
-+	0x75, 0x10,         /*          Report Size (16),               */
-+	0x95, 0x01,         /*          Report Count (1),               */
-+	0x35, 0x00,         /*          Physical Minimum (0),           */
-+	0xa4,               /*          Push,                           */
-+	0x05, 0x01,         /*          Usage Page (Desktop),           */
-+	0x09, 0x30,         /*          Usage (X),                      */
-+	0x65, 0x13,         /*          Unit (Inch),                    */
-+	0x55, 0x0d,         /*          Unit Exponent (-3),             */
-+	0x27, UCLOGIC_RDESC_PEN_PH(X_LM),
-+			    /*          Logical Maximum (PLACEHOLDER),  */
-+	0x47, UCLOGIC_RDESC_PEN_PH(X_PM),
-+			    /*          Physical Maximum (PLACEHOLDER), */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0x09, 0x31,         /*          Usage (Y),                      */
-+	0x27, UCLOGIC_RDESC_PEN_PH(Y_LM),
-+			    /*          Logical Maximum (PLACEHOLDER),  */
-+	0x47, UCLOGIC_RDESC_PEN_PH(Y_PM),
-+			    /*          Physical Maximum (PLACEHOLDER), */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0xb4,               /*          Pop,                            */
-+	0x09, 0x30,         /*          Usage (Tip Pressure),           */
-+	0x45, 0x00,         /*          Physical Maximum (0),           */
-+	0x27, UCLOGIC_RDESC_PEN_PH(PRESSURE_LM),
-+			    /*          Logical Maximum (PLACEHOLDER),  */
-+	0x75, 0x0D,         /*          Report Size (13),               */
-+	0x95, 0x01,         /*          Report Count (1),               */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0x75, 0x01,         /*          Report Size (1),                */
-+	0x95, 0x03,         /*          Report Count (3),               */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0x09, 0x3d,         /*          Usage (X Tilt),                 */
-+	0x35, 0xC3,         /*          Physical Minimum (-61),         */
-+	0x45, 0x3C,         /*          Physical Maximum (60),          */
-+	0x15, 0xC3,         /*          Logical Minimum (-61),          */
-+	0x25, 0x3C,         /*          Logical Maximum (60),           */
-+	0x75, 0x08,         /*          Report Size (8),                */
-+	0x95, 0x01,         /*          Report Count (1),               */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0x09, 0x3e,         /*          Usage (Y Tilt),                 */
-+	0x35, 0xC3,         /*          Physical Minimum (-61),         */
-+	0x45, 0x3C,         /*          Physical Maximum (60),          */
-+	0x15, 0xC3,         /*          Logical Minimum (-61),          */
-+	0x25, 0x3C,         /*          Logical Maximum (60),           */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0xc0,               /*      End Collection,                     */
-+	0xc0,               /*  End Collection                          */
-+};
-+const size_t uclogic_rdesc_ugee_v2_pen_template_size =
-+			sizeof(uclogic_rdesc_ugee_v2_pen_template_arr);
-+
-+/* Fixed report descriptor template for UGEE v2 frame reports (buttons only) */
-+const __u8 uclogic_rdesc_ugee_v2_frame_btn_template_arr[] = {
-+	0x05, 0x01,         /*  Usage Page (Desktop),                   */
-+	0x09, 0x07,         /*  Usage (Keypad),                         */
-+	0xA1, 0x01,         /*  Collection (Application),               */
-+	0x85, UCLOGIC_RDESC_V1_FRAME_ID,
-+			    /*      Report ID,                          */
-+	0x05, 0x0D,         /*      Usage Page (Digitizer),             */
-+	0x09, 0x39,         /*      Usage (Tablet Function Keys),       */
-+	0xA0,               /*      Collection (Physical),              */
-+	0x75, 0x01,         /*          Report Size (1),                */
-+	0x95, 0x08,         /*          Report Count (8),               */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0x05, 0x09,         /*          Usage Page (Button),            */
-+	0x19, 0x01,         /*          Usage Minimum (01h),            */
-+	UCLOGIC_RDESC_FRAME_PH_BTN,
-+			    /*          Usage Maximum (PLACEHOLDER),    */
-+	0x95, 0x0A,         /*          Report Count (10),              */
-+	0x14,               /*          Logical Minimum (0),            */
-+	0x25, 0x01,         /*          Logical Maximum (1),            */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0x95, 0x46,         /*          Report Count (70),              */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0xC0,               /*      End Collection,                     */
-+	0xC0                /*  End Collection                          */
-+};
-+const size_t uclogic_rdesc_ugee_v2_frame_btn_template_size =
-+			sizeof(uclogic_rdesc_ugee_v2_frame_btn_template_arr);
-+
- /* Fixed report descriptor for Ugee EX07 frame */
- const __u8 uclogic_rdesc_ugee_ex07_frame_arr[] = {
- 	0x05, 0x01,             /*  Usage Page (Desktop),                   */
-diff --git a/drivers/hid/hid-uclogic-rdesc.h b/drivers/hid/hid-uclogic-rdesc.h
-index 3d78299f082d..86e64a9ee6bd 100644
---- a/drivers/hid/hid-uclogic-rdesc.h
-+++ b/drivers/hid/hid-uclogic-rdesc.h
-@@ -161,6 +161,14 @@ extern const size_t uclogic_rdesc_v2_frame_dial_size;
- /* Device ID byte offset in v2 frame dial reports */
- #define UCLOGIC_RDESC_V2_FRAME_DIAL_DEV_ID_BYTE	0x4
- 
-+/* Fixed report descriptor template for UGEE v2 pen reports */
-+extern const __u8 uclogic_rdesc_ugee_v2_pen_template_arr[];
-+extern const size_t uclogic_rdesc_ugee_v2_pen_template_size;
-+
-+/* Fixed report descriptor template for UGEE v2 frame reports (buttons only) */
-+extern const __u8 uclogic_rdesc_ugee_v2_frame_btn_template_arr[];
-+extern const size_t uclogic_rdesc_ugee_v2_frame_btn_template_size;
-+
- /* Fixed report descriptor for Ugee EX07 frame */
- extern const __u8 uclogic_rdesc_ugee_ex07_frame_arr[];
- extern const size_t uclogic_rdesc_ugee_ex07_frame_size;
--- 
-2.25.1
-
+> ---
+>  .../devicetree/bindings/input/adc-joystick.yaml   |  2 +-
+>  .../input/allwinner,sun4i-a10-lradc-keys.yaml     |  5 ++---
+>  .../devicetree/bindings/input/azoteq,iqs7222.yaml |  7 ++-----
+>  .../devicetree/bindings/input/gpio-keys.yaml      |  1 -
+>  .../devicetree/bindings/input/input.yaml          |  8 ++++++++
+>  .../devicetree/bindings/input/iqs269a.yaml        | 15 ++++++---------
+>  .../devicetree/bindings/input/iqs626a.yaml        |  5 ++---
+>  .../devicetree/bindings/input/iqs62x-keys.yaml    |  5 ++---
+>  .../devicetree/bindings/input/max77650-onkey.yaml |  8 ++++----
+>  9 files changed, 27 insertions(+), 29 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml
+> b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+> index 2ee04e03bc22..64d961458ac7 100644
+> --- a/Documentation/devicetree/bindings/input/adc-joystick.yaml
+> +++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+> @@ -45,6 +45,7 @@ additionalProperties: false
+>  patternProperties:
+>    "^axis@[0-9a-f]+$":
+>      type: object
+> +    $ref: input.yaml#
+>      description: >
+>        Represents a joystick axis bound to the given ADC channel.
+>        For each entry in the io-channels list, one axis subnode with a 
+> matching
+> @@ -57,7 +58,6 @@ patternProperties:
+>          description: Index of an io-channels list entry bound to this 
+> axis.
+> 
+>        linux,code:
+> -        $ref: /schemas/types.yaml#/definitions/uint32
+>          description: EV_ABS specific event code generated by the axis.
+> 
+>        abs-range:
+> diff --git
+> a/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
+> b/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
+> index 3399fc288afb..9700dc468b25 100644
+> ---
+> a/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
+> +++
+> b/Documentation/devicetree/bindings/input/allwinner,sun4i-a10-lradc-keys.yaml
+> @@ -44,14 +44,13 @@ properties:
+>  patternProperties:
+>    "^button-[0-9]+$":
+>      type: object
+> +    $ref: input.yaml#
+>      properties:
+>        label:
+>          $ref: /schemas/types.yaml#/definitions/string
+>          description: Descriptive name of the key
+> 
+> -      linux,code:
+> -        $ref: /schemas/types.yaml#/definitions/uint32
+> -        description: Keycode to emit
+> +      linux,code: true
+> 
+>        channel:
+>          $ref: /schemas/types.yaml#/definitions/uint32
+> diff --git
+> a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+> b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+> index a3a1e5a65306..5ea10fe7ffe9 100644
+> --- a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+> +++ b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
+> @@ -421,6 +421,7 @@ patternProperties:
+>      patternProperties:
+>        "^event-(prox|touch)$":
+>          type: object
+> +        $ref: input.yaml#
+>          description:
+>            Represents a proximity or touch event reported by the 
+> channel.
+> 
+> @@ -467,11 +468,7 @@ patternProperties:
+>                The IQS7222B does not feature channel-specific
+> timeouts; the time-
+>                out specified for any one channel applies to all 
+> channels.
+> 
+> -          linux,code:
+> -            $ref: /schemas/types.yaml#/definitions/uint32
+> -            description:
+> -              Numeric key or switch code associated with the event. 
+> Specify
+> -              KEY_RESERVED (0) to opt out of event reporting.
+> +          linux,code: true
+> 
+>            linux,input-type:
+>              $ref: /schemas/types.yaml#/definitions/uint32
+> diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml
+> b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+> index 7fe1966ea28a..cd07107fd5ed 100644
+> --- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
+> +++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
+> @@ -34,7 +34,6 @@ patternProperties:
+> 
+>          linux,code:
+>            description: Key / Axis code to emit.
+> -          $ref: /schemas/types.yaml#/definitions/uint32
+> 
+>          linux,input-type:
+>            description:
+> diff --git a/Documentation/devicetree/bindings/input/input.yaml
+> b/Documentation/devicetree/bindings/input/input.yaml
+> index 43d2f299c332..e3701a0bc500 100644
+> --- a/Documentation/devicetree/bindings/input/input.yaml
+> +++ b/Documentation/devicetree/bindings/input/input.yaml
+> @@ -23,6 +23,14 @@ properties:
+>        minimum: 0
+>        maximum: 0x2ff
+> 
+> +  linux,code:
+> +    description:
+> +      Specifies a single numeric keycode value to be used for 
+> reporting
+> +      button/switch events. Specify KEY_RESERVED (0) to opt out of 
+> event
+> +      reporting.
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    maximum: 0x2ff
+> +
+>    poll-interval:
+>      description: Poll interval time in milliseconds.
+>      $ref: /schemas/types.yaml#/definitions/uint32
+> diff --git a/Documentation/devicetree/bindings/input/iqs269a.yaml
+> b/Documentation/devicetree/bindings/input/iqs269a.yaml
+> index 9c154e5e1a91..c22f8f27913a 100644
+> --- a/Documentation/devicetree/bindings/input/iqs269a.yaml
+> +++ b/Documentation/devicetree/bindings/input/iqs269a.yaml
+> @@ -370,6 +370,7 @@ patternProperties:
+>      patternProperties:
+>        "^event-prox(-alt)?$":
+>          type: object
+> +        $ref: input.yaml#
+>          description:
+>            Represents a proximity event reported by the channel in 
+> response to
+>            a decrease in counts. Node names suffixed with '-alt' 
+> instead corre-
+> @@ -396,14 +397,13 @@ patternProperties:
+>              default: 10
+>              description: Specifies the threshold for the event.
+> 
+> -          linux,code:
+> -            $ref: /schemas/types.yaml#/definitions/uint32
+> -            description: Numeric key or switch code associated with 
+> the event.
+> +          linux,code: true
+> 
+>          additionalProperties: false
+> 
+>        "^event-touch(-alt)?$":
+>          type: object
+> +        $ref: input.yaml#
+>          description: Represents a touch event reported by the channel.
+> 
+>          properties:
+> @@ -421,14 +421,13 @@ patternProperties:
+>              default: 4
+>              description: Specifies the hysteresis for the event.
+> 
+> -          linux,code:
+> -            $ref: /schemas/types.yaml#/definitions/uint32
+> -            description: Numeric key or switch code associated with 
+> the event.
+> +          linux,code: true
+> 
+>          additionalProperties: false
+> 
+>        "^event-deep(-alt)?$":
+>          type: object
+> +        $ref: input.yaml#
+>          description: Represents a deep-touch event reported by the 
+> channel.
+> 
+>          properties:
+> @@ -446,9 +445,7 @@ patternProperties:
+>              default: 0
+>              description: Specifies the hysteresis for the event.
+> 
+> -          linux,code:
+> -            $ref: /schemas/types.yaml#/definitions/uint32
+> -            description: Numeric key or switch code associated with 
+> the event.
+> +          linux,code: true
+> 
+>          additionalProperties: false
+> 
+> diff --git a/Documentation/devicetree/bindings/input/iqs626a.yaml
+> b/Documentation/devicetree/bindings/input/iqs626a.yaml
+> index 0cb736c541c9..e645521da8ba 100644
+> --- a/Documentation/devicetree/bindings/input/iqs626a.yaml
+> +++ b/Documentation/devicetree/bindings/input/iqs626a.yaml
+> @@ -449,6 +449,7 @@ patternProperties:
+>      patternProperties:
+>        "^event-(prox|touch|deep)(-alt)?$":
+>          type: object
+> +        $ref: input.yaml#
+>          description:
+>            Represents a proximity, touch or deep-touch event reported 
+> by the
+>            channel in response to a decrease in counts. Node names 
+> suffixed with
+> @@ -487,9 +488,7 @@ patternProperties:
+>                Specifies the hysteresis for the event (touch and 
+> deep-touch
+>                events only).
+> 
+> -          linux,code:
+> -            $ref: /schemas/types.yaml#/definitions/uint32
+> -            description: Numeric key or switch code associated with 
+> the event.
+> +          linux,code: true
+> 
+>            linux,input-type:
+>              $ref: /schemas/types.yaml#/definitions/uint32
+> diff --git a/Documentation/devicetree/bindings/input/iqs62x-keys.yaml
+> b/Documentation/devicetree/bindings/input/iqs62x-keys.yaml
+> index 77fe3b545b35..e677e31fe8fe 100644
+> --- a/Documentation/devicetree/bindings/input/iqs62x-keys.yaml
+> +++ b/Documentation/devicetree/bindings/input/iqs62x-keys.yaml
+> @@ -89,15 +89,14 @@ properties:
+>  patternProperties:
+>    "^hall-switch-(north|south)$":
+>      type: object
+> +    $ref: input.yaml#
+>      description:
+>        Represents north/south-field Hall-effect sensor touch or 
+> proximity
+>        events. Note that north/south-field orientation is reversed on 
+> the
+>        IQS620AXzCSR device due to its flip-chip package.
+> 
+>      properties:
+> -      linux,code:
+> -        $ref: /schemas/types.yaml#/definitions/uint32
+> -        description: Numeric switch code associated with the event.
+> +      linux,code: true
+> 
+>        azoteq,use-prox:
+>          $ref: /schemas/types.yaml#/definitions/flag
+> diff --git
+> a/Documentation/devicetree/bindings/input/max77650-onkey.yaml
+> b/Documentation/devicetree/bindings/input/max77650-onkey.yaml
+> index 3a2ad6ec64db..48edc0c8c1dd 100644
+> --- a/Documentation/devicetree/bindings/input/max77650-onkey.yaml
+> +++ b/Documentation/devicetree/bindings/input/max77650-onkey.yaml
+> @@ -16,15 +16,15 @@ description: |
+>    The onkey controller is represented as a sub-node of the PMIC node 
+> on
+>    the device tree.
+> 
+> +allOf:
+> +  - $ref: input.yaml#
+> +
+>  properties:
+>    compatible:
+>      const: maxim,max77650-onkey
+> 
+>    linux,code:
+> -    $ref: /schemas/types.yaml#/definitions/uint32
+> -    description:
+> -      The key-code to be reported when the key is pressed. Defaults
+> -      to KEY_POWER.
+> +    default: 116  # KEY_POWER
+> 
+>    maxim,onkey-slide:
+>      $ref: /schemas/types.yaml#/definitions/flag

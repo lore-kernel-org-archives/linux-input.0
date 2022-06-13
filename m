@@ -2,159 +2,154 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6EE4C43334
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jun 2022 01:49:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90CF6CCA47B
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jun 2022 08:07:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229909AbiFMBtz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 12 Jun 2022 21:49:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44500 "EHLO
+        id S239302AbiFMIHP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Jun 2022 04:07:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236423AbiFMBtv (ORCPT
+        with ESMTP id S239506AbiFMIHF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 12 Jun 2022 21:49:51 -0400
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7B234706E;
-        Sun, 12 Jun 2022 18:49:44 -0700 (PDT)
-Received: by mail-lj1-x230.google.com with SMTP id d18so4690641ljc.4;
-        Sun, 12 Jun 2022 18:49:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=/PYSWXKibe5x9jtHsZxLHvWagS6xrlBtfVUeqbgDuWE=;
-        b=GDhjNW6CbulMug7jA0ipc7EGhoWRP/DNYVh/vaAjlMnbVMC5qhObLJInM+Gjla34Ok
-         sQwTcFqxg4LtzW+FVN4tIem2cAEpknLLnqJIzLOsjOvKa8ClFTTSvXf1ARCw4IwbouNh
-         QBpx2UA8ZDR8cdDQC82U2r9nRU5vHXy0xxXM8gkT6MyqPPMA/Y9AM1ky0HegAe1RZHcz
-         MI6hWLOKY96FrsRXRFq7oWFyfZoEHLkXjjM4sSEheGsM5DIW9TLB9QjOLnhSdSiTtFAg
-         BQ8H0SVNegD4Wg8WBJIhbtH9AaJC0j7pYlQ7LbpWcryR+8zbWGpNyAEW1SvEGdAVoS0m
-         fXUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=/PYSWXKibe5x9jtHsZxLHvWagS6xrlBtfVUeqbgDuWE=;
-        b=f+4uypnPAC+bDLzc163LsjAdBhvyt+3K2BljLBk63QhHHUKCSA1oUvkltrzK5GI2zd
-         W+Zw4GVOreTEbEuXPIWq5RBsGPNful9Hxnbv9fkTVraV0ArdSUD6sqoB67QAmjwFWvDE
-         wisNufbcYXAGpUudhULgsQwrMfLb5eBUDvC1ouMQiZXbWAboO++z/d9ChEvrosXlxtUZ
-         jFTGm+jIaM5fH7HN5emFYeiNo0hRYOjpYmSj496Kz7z1uy+amo59oAvPfsKoq4RfFwZm
-         rdYVTchNmbgdrAWwvzBSHh/qEopxQnILMTIxNPBGcHIYYTIEQ38tW9FqG1DaPAzGa8Kf
-         dSTQ==
-X-Gm-Message-State: AOAM530n3zkzGX8eeG+Rei1Ym59KfX/cJ7qJLbBztTJaE725ZmvPg0Jo
-        EZ+Ysd5f3s/0w3/YkI/QvbuzoVj7Bun6P2SwQDo=
-X-Google-Smtp-Source: ABdhPJzzln+Z7qw1U2oLvG0AVilcaZA03DyMpD6mMn9tsOSoyikE6TzEbC0tINtnJfIMOKBK/Ej4ijYmw6xWD9tsoO8=
-X-Received: by 2002:a2e:8404:0:b0:250:cde7:e9e3 with SMTP id
- z4-20020a2e8404000000b00250cde7e9e3mr68692306ljg.289.1655084982967; Sun, 12
- Jun 2022 18:49:42 -0700 (PDT)
+        Mon, 13 Jun 2022 04:07:05 -0400
+Received: from EUR01-VE1-obe.outbound.protection.outlook.com (mail-eopbgr140042.outbound.protection.outlook.com [40.107.14.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA443193D5;
+        Mon, 13 Jun 2022 01:07:03 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kfCCHeYJ8zrTKa83M09fIor8UPAY/a6Mp6uAu4/DJOuIg/5x+RfYGlckwfvCpglAXEHTRHLIxLeh+AjQRDBl91q3mnenaRJpQFgi4ytVklE21WT8/WRWZUxwdNJLDasQnyL0GI/LFp3PlvtP+rqpNAlgi1TTW1jnbQqB58aHKWLyPqc0xfGlor0BnYz5HPQd/2fzZaMwfKxftYwLf1f23dDRyQ1dA+vKH3jEuGUF+0lViClRbn4RQGjpSiwdvi/oqi/YoirvBnaKQf5N9dxGzxL63Eq8qmzgZLh/4P4B04QAHdteoNMIo7k9WSejBNHiOMIEVw2jXCzusMK0B7/zog==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=+z8i+TTJOQm4Q0Gx2DPrirk9BczMLmUDhv/Pbe8A1gg=;
+ b=GkSPV+AmrlnVpLG4YpUFV6ISNLHKx/jCe/KtTgwOGgwcD+GAC9cPuLNmpnIOpxZbhICdoed6D8fzgYY/K+Ijjn+IRqtHZrmqiWmQxzxXEDQkXZdaOGwHHuq1ZaU+/sT6PJ+TAqvcDMEhiWe97ipILvLax9Q+A/MB1Nb33jc57y80LFfIUy1QABaZk/h7bndv8yGSX0tRzPrG4bWtDsw2eQ5WQcn2Alx/NQbPnFyjRCxBoADqZtIzFniJjrCSxBcpho0OLzbjygJm5k470h7AY4NjYdvJFxj7pCwbQfBmZ3bw3qaSted+v5DPWt4jZ5pmUtlSdN3D8E10gwhchFOdUA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 139.15.153.200) smtp.rcpttodomain=linaro.org smtp.mailfrom=in.bosch.com;
+ dmarc=pass (p=reject sp=none pct=100) action=none header.from=in.bosch.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=in.bosch.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+z8i+TTJOQm4Q0Gx2DPrirk9BczMLmUDhv/Pbe8A1gg=;
+ b=LPgvKyZVjmlTcK7aekiaARnJ3tREkGb90ycDZmbpYFWbZ9pc+6pXCSXl72BK7TnJBrQWf3oJK0ZrXkOeZQDTXkOjfJbKmo5mzKALezF1JSQnyeMzQxgPBtMvINETRub1bF2l8kg1QHwFXrvfcBDZh9jHjwNAsmLx08g3T2sFyFc=
+Received: from AS8PR04CA0148.eurprd04.prod.outlook.com (2603:10a6:20b:127::33)
+ by AM0PR10MB3140.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:208:189::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.11; Mon, 13 Jun
+ 2022 08:07:01 +0000
+Received: from AM5EUR03FT006.eop-EUR03.prod.protection.outlook.com
+ (2603:10a6:20b:127:cafe::54) by AS8PR04CA0148.outlook.office365.com
+ (2603:10a6:20b:127::33) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5332.20 via Frontend
+ Transport; Mon, 13 Jun 2022 08:07:01 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 139.15.153.200)
+ smtp.mailfrom=in.bosch.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=in.bosch.com;
+Received-SPF: Pass (protection.outlook.com: domain of in.bosch.com designates
+ 139.15.153.200 as permitted sender) receiver=protection.outlook.com;
+ client-ip=139.15.153.200; helo=eop.bosch-org.com; pr=C
+Received: from eop.bosch-org.com (139.15.153.200) by
+ AM5EUR03FT006.mail.protection.outlook.com (10.152.16.122) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5332.12 via Frontend Transport; Mon, 13 Jun 2022 08:07:01 +0000
+Received: from SI-EXCAS2001.de.bosch.com (10.139.217.202) by eop.bosch-org.com
+ (139.15.153.200) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.1.2375.28; Mon, 13 Jun
+ 2022 10:06:58 +0200
+Received: from SI-HUB2000.de.bosch.com (10.4.103.108) by
+ SI-EXCAS2001.de.bosch.com (10.139.217.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2375.28; Mon, 13 Jun 2022 10:06:57 +0200
+Received: from localhost.localdomain (10.167.1.123) by SI-HUB2000.de.bosch.com
+ (10.4.103.108) with Microsoft SMTP Server id 15.1.2375.28; Mon, 13 Jun 2022
+ 10:06:53 +0200
+From:   <Gireesh.Hiremath@in.bosch.com>
+To:     <krzysztof.kozlowski+dt@linaro.org>
+CC:     <m.felsch@pengutronix.de>, <linux-omap@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-input@vger.kernel.org>, <bcousson@baylibre.com>,
+        <tony@atomide.com>, <robh+dt@kernel.org>,
+        <dmitry.torokhov@gmail.com>, <mkorpershoek@baylibre.com>,
+        <davidgow@google.com>, <swboyd@chromium.org>,
+        <fengping.yu@mediatek.com>, <y.oudjana@protonmail.com>,
+        <rdunlap@infradead.org>, <colin.king@intel.com>,
+        <Gireesh.Hiremath@in.bosch.com>, <sjoerd.simons@collabora.co.uk>,
+        <VinayKumar.Shettar@in.bosch.com>,
+        <Govindaraji.Sivanantham@in.bosch.com>,
+        <anaclaudia.dias@de.bosch.com>
+Subject: Re: [v2,2/4] Input: mt-matrix-keypad: Add Bosch mt matrix keypad driver
+Date:   Mon, 13 Jun 2022 08:06:38 +0000
+Message-ID: <20220613080638.1339-1-Gireesh.Hiremath@in.bosch.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20220506072737.1590-2-Gireesh.Hiremath@in.bosch.com>
+References: <20220506072737.1590-2-Gireesh.Hiremath@in.bosch.com>
 MIME-Version: 1.0
-References: <1654581161-12349-1-git-send-email-u0084500@gmail.com>
- <1654581161-12349-4-git-send-email-u0084500@gmail.com> <Yp+gS6r5Kpi33Ags@sirena.org.uk>
- <CADiBU38+0vp3Dv6i7uYzCwR431PKBr-HNQnY0Qe7fvvRYGEJmw@mail.gmail.com>
- <YqB19O/HYvEAxdiM@sirena.org.uk> <CADiBU390XRXZ2yx5CT2NxhN3aROHXcxs7w2d-xhB6+EYn+uTfA@mail.gmail.com>
- <YqMlDVMlukNAns5S@sirena.org.uk>
-In-Reply-To: <YqMlDVMlukNAns5S@sirena.org.uk>
-From:   ChiYuan Huang <u0084500@gmail.com>
-Date:   Mon, 13 Jun 2022 09:49:31 +0800
-Message-ID: <CADiBU383BxOttuoLdF2GjXHasoPMc634wsMr3zLC=v74OBGUmw@mail.gmail.com>
-Subject: Re: [PATCH 3/4] regulator: rt5120: Add PMIC regulator support
-To:     Mark Brown <broonie@kernel.org>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Lee Jones <lee.jones@linaro.org>, dmitry.torokhov@gmail.com,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        cy_huang <cy_huang@richtek.com>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
-        linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.167.1.123]
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 6b7252c0-d18d-4721-08c7-08da4d13b20b
+X-MS-TrafficTypeDiagnostic: AM0PR10MB3140:EE_
+X-Microsoft-Antispam-PRVS: <AM0PR10MB3140D2DED762A544CDCBEF10A6AB9@AM0PR10MB3140.EURPRD10.PROD.OUTLOOK.COM>
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: PvEhW+eSx26Jc36Fcw0miJoOvRNwF+3RSwwZoYdQYonhC8x7bnNH2firGKQNYicskAJowa1epjool3U8e6OVMj1Jtrz7ZgcDaJOJ3D5Z9TWEaYdoxKeoqWR+IoZkiX4U/uTNkMagR3inTmqwnmsQH+Yfv5ICBZe+FoBs+AH853BsUauhJXZ6h99K4aYCEiiHBMdSTw3rqov8maED5Oxl68I2IgdBZLWa8/2BF0uBWoK2T6Y0BJZhaOfnbywrYt9KD8C2VwR9novMEMjrupe86jsNJS5tAV49zHUGvHdlgjx/mkX2PIt50+D/jLoskqIxn1aYolmtpXHgYVG/1Zs9hwnXfjRPk3DSb5wixF4yh7WzhQ7vUwzRznRX1hvCuCJijEvlof9WISs3axIfu4YEoQYLcQLyMd5cjMCC/IAxQKHuNP/TS6CxaEcSqbCpRzrktCx+jh1qmlb1o/yfsu1GeKKTn7vipMIHvXbypNsjWTYCU84olWY+hcWBQBeoRNdmndmxENbnr/ja9gE6OqHs2TrPx/PqMvFyV1ilISi4vgbMB5fZcpTe4YD/q/wrbpBZmQ7+3a0tnN3wRE3hpDbAr9RX2NRmwJW39rjUdqtub+VWaSScrgamsdxoqPqifVRZgsq6iCTTkFIOFU6I4S7wSfebhb/muS5Brm5MBvB17aj5341bEHMsHyfxdR1XIx/o+D/z8FhKyCte5foNzWcfyw==
+X-Forefront-Antispam-Report: CIP:139.15.153.200;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:eop.bosch-org.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230016)(4636009)(46966006)(40470700004)(36840700001)(4326008)(316002)(1076003)(6666004)(2906002)(186003)(16526019)(47076005)(70586007)(336012)(81166007)(2876002)(36860700001)(70206006)(82960400001)(356005)(54906003)(82310400005)(8676002)(5660300002)(83380400001)(7416002)(8936002)(508600001)(40460700003)(86362001)(107886003)(26005)(2616005)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: in.bosch.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Jun 2022 08:07:01.2350
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6b7252c0-d18d-4721-08c7-08da4d13b20b
+X-MS-Exchange-CrossTenant-Id: 0ae51e19-07c8-4e4b-bb6d-648ee58410f4
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=0ae51e19-07c8-4e4b-bb6d-648ee58410f4;Ip=[139.15.153.200];Helo=[eop.bosch-org.com]
+X-MS-Exchange-CrossTenant-AuthSource: AM5EUR03FT006.eop-EUR03.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR10MB3140
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Mark Brown <broonie@kernel.org> =E6=96=BC 2022=E5=B9=B46=E6=9C=8810=E6=97=
-=A5 =E9=80=B1=E4=BA=94 =E4=B8=8B=E5=8D=887:03=E5=AF=AB=E9=81=93=EF=BC=9A
->
-> On Thu, Jun 09, 2022 at 02:35:07PM +0800, ChiYuan Huang wrote:
-> > Mark Brown <broonie@kernel.org> =E6=96=BC 2022=E5=B9=B46=E6=9C=888=E6=
-=97=A5 =E9=80=B1=E4=B8=89 =E4=B8=8B=E5=8D=886:12=E5=AF=AB=E9=81=93=EF=BC=9A
-> > > On Wed, Jun 08, 2022 at 11:15:56AM +0800, ChiYuan Huang wrote:
->
-> > > > My excuse. let me explain it.
-> > > > buck1 voltage range from 600mV to 1393.75mV.
-> > > > buck2~4/ldo/exten is the fixed regulator.
-> > > > buck3 and buck4 is fixed by the IC efuse default.
-> > > > buck2 and ldo is fixed by the external resistor chosen.
-> > > > exten is designed to connected to the external power.
->
-> > > > That's why I cannot directly declared it as the static regulator_de=
-sc.
->
-> > > So buck 2-4 need some dynamic handling then but the rest can be stati=
-c -
-> > > that would be a lot clearer.  You could also have a template for the
-> > > ones with some dynamic values and just override the few fields that n=
-eed
-> > > it.
->
-> > Not just buck2/3, buck2/3/4/ldo/exten all need the dynamic handling.
->
-> Why do the others need it?
->
-Sometimes, for this kind of general purpose PMIC, it need to provide
-the flexibility.
-Cause buck2 and ldo can already be fixed by the external resistor,
-buck3 and buck4 seems to be fixed by IC default.
-So there may be the same part number and use the postfix to be
-different like as 5120'A'/5120'B', etc...
-And use it to define the voltage for the different IC default for
-buck3 and buck4, and exten behavior.
-That's due to the different application use the different power on
-sequence and default voltages.l
+From: Gireesh Hiremath <Gireesh.Hiremath@in.bosch.com>
 
-> > > > > Drivers should never override constraints passed in by machine dr=
-ivers,
-> > > > > if there's validation needed let the core do it.  The same probab=
-ly
-> > > > > applies to providing a voltage range for a fixed regulator though=
- that's
-> > > > > not modifying everything so not such a problem.
+Hi Krzysztof,
+
+>You wrote pretty long message explaining how the device works, but I
+>still do not see the answer to questions - why it cannot be part of
+>matrix keypad?
+
+Following are the difference between matrix keypad and Bosch keypad
+make us to add another keypad driver.
+
+matrix keypad:
+	- By hardware schematic, a column GPIO line will intersect only
+	  with row GPIO lines, not with the other column GPIO lines
+	- so, row and column GPIO property are fixed, because of this
+	- key scanning work based on interrupt mode
+	- and key press is determined based on setting column as output,
+	  row GPIO as input and set interrupt to monitor the changes in state,
+	  serve the key pressed in ISR
+
+Bosch keypad:
+    - By hardware schematic column GPIO line can intersect with row GPIO line
+	  as well as other column GPIO lines
+	- so, all GPIO act as row as well as column, because of this
+	- key scanning based on polling mode
+	- a key pressed is determined by setting one of GPIO line as output and
+	  other as input and poll for change in the state of input GPIO lines.
+	  Setting one of a GPIO line as output and remaining GPIO lines as input is on
+	  round robin bases.
 >
-> > > > Please check the above explanation about each power rails.
+>"It looks like this driver has smaller number of features than
+>matrix-keypad, so it should be integrated into the matrix-keypad.
+>matrix-keypad features are superset to this one."
 >
-> > > I'm not sure what you're referencing here?
->
-> > Sorry. Let me explain it.
->
-> > You mean 'of_parse_cb' must not override constraint.
-> > But if the regulator is fixed and dynamic, after
-> > 'of_get_regulation_constraint', apply_uV will be true.
-> > The is referring to 'fixed.c'
->
-> fixed.c is a special case due to legacy issues and being generic, for
-> normal fixed voltage regulators in a device where we know what they're
-> fixed to they can just have their voltage hard coded in the driver.  If
-> there's issues with the machine providing invalid or nonsensical
-> constraints the driver should just let the core deal with them.
->
-> > > > > This is all open coding stuff that's in the core - just provde an
-> > > > > of_parse_cb() operation and let the core take care of calling it.
->
-> > > > Ditto
->
-> > > Or here.
->
-> > If I put 'of_parce_cb' to make core handling it, the input parameter
-> > 'init_data' is declared as const.
-> > I cannot override the 'apply_uV'.
-> > Right?
->
-> Yes, that's by design.
-I have traced the code for 'of_get_regulator_init_data' and
-'set_machine_constraints' in regulator register.
-If I cannot overwrite apply_uV variable, it will cause the
-regulator_register return -EINVAL.
-Is the below flow that you suggested?
-1. of_parse_cb to check min_uV and max_uV, and fill in the fixed_uV in
-regulator_desc
-2. provide the duummy set/get voltage  to make set_machine_constraints
-not return '-EINVAL'.
+>"But anyway this should be just merged into matrix-keypad. It's a
+>simpler set of that binding."
+
+This keypad driver specific to Bosch measuring tool or similar devices.
+Please let me know to send latest patch which resolves build warning
+and gpiod API support.
+
+Best regards,
+Gireesh Hiremath

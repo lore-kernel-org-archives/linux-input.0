@@ -2,61 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 709C9C43334
-	for <linux-input@archiver.kernel.org>; Mon, 13 Jun 2022 20:35:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B7E5C433EF
+	for <linux-input@archiver.kernel.org>; Mon, 13 Jun 2022 20:35:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235573AbiFMUfE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 13 Jun 2022 16:35:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34782 "EHLO
+        id S232026AbiFMUfH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 13 Jun 2022 16:35:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235751AbiFMUdd (ORCPT
+        with ESMTP id S235793AbiFMUdd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Mon, 13 Jun 2022 16:33:33 -0400
-Received: from mail-oo1-xc29.google.com (mail-oo1-xc29.google.com [IPv6:2607:f8b0:4864:20::c29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2923E3A8;
-        Mon, 13 Jun 2022 12:24:06 -0700 (PDT)
-Received: by mail-oo1-xc29.google.com with SMTP id o13-20020a4a84cd000000b0041161ec8419so1362110oog.6;
-        Mon, 13 Jun 2022 12:24:06 -0700 (PDT)
+Received: from mail-oa1-x33.google.com (mail-oa1-x33.google.com [IPv6:2001:4860:4864:20::33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B74D309;
+        Mon, 13 Jun 2022 12:24:04 -0700 (PDT)
+Received: by mail-oa1-x33.google.com with SMTP id 586e51a60fabf-10113b4c2b5so8031212fac.6;
+        Mon, 13 Jun 2022 12:24:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Wex1nAbWY/1XXCUDhOVW0d/2E/zHgf+Jqfen3iAGXg4=;
-        b=cmcrkC5rQavzi5riDXVZ1cRgi8Kxu0OZk5UnZiCB5fLeqdkPSsfuPl7595nn/HGqlz
-         6ophFUucb7XnDmFuXUwQ+hyN7GroGw5lwdcB/RMFzvHRJUDlvy4mIj8QvyT2tKdZxTfV
-         3cKoufZ5AQA+04H4dr4UTdL+4v5f6WyW3bcl9GUb1XTaTCXON1TjELzSul1PEM7kdQcy
-         bREQAi+eIRBydHuAEO4j3nBH1g7yU4dDJqo9Z+nbVQs8rcivz6ph+Dbj45jHg2sw1tC3
-         CZ+X/R+GV6kuBmU/TMyMKrhcqnpzXHMAGitvuzieQi70W7/MtL6VX3yxW38F9fn5Dt7Y
-         +emw==
+        bh=iQEw6C6W4ynHjM4NmULFrolW4tl3sFX7qhxY2QtQmIU=;
+        b=Su12xoM+wu1upN9O8S+DxcF3rtZ7zlz6Q/Mrswdt+6FljEOzozF+3rMC1FFtY1Pzkh
+         TCAsz/l+2LgeUnqUAbC35CczyNiF9HhFvV0n+8UoPBNelB26Kix5knJlf9YlxsmprV61
+         3Y2bKUl3xhTwNKZlgZ474+qQDOZDkLD5x/YXAqBc1wDrE3eF63jRay/59sSWdbSoHl5K
+         6KxXDkbHBF/QPN8aEgC3xY5FMgENjMy8FjDJgD3XdWGfZtZV1B9/W9XPdbAaKyIgoWI8
+         KvsG7hbtdoPLiHFe0s1yi8LwFqrPeS4wU2vCU9SMps+bUF9tMrLke3u03gfcNGF9dy/I
+         ZB5Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Wex1nAbWY/1XXCUDhOVW0d/2E/zHgf+Jqfen3iAGXg4=;
-        b=6lsrsB3MdSlY2embN2lLd4TaPl9K5cGeOcT7RH7iMPyw8/NMfPyktQWzMTeEgUIyow
-         KzJkC90UuBPd23y9jccu90kuHIB0dOj+UZ8qzSBrW1T5h9USqdRFmXiLcQnl+hxAWpp3
-         FdmQZclDpf+TLeAidsAYSDCV7LnvcAk4fbH59JrleJ4W1r2qtgnY4/vZjJWFZtUaes2R
-         LBKqpsIc/9B9E+k0CJEABhJT0tZaiuyqJPVkaLAs/XmyqKLUMu+Gc1B5A6tQmp9BpipT
-         YdTYwylMaJd/4t0T0rQtJWyplPF7O2hqEf8BftHHGzxbE27qpzljdQ5qxd1p7+TL7snf
-         CmfQ==
-X-Gm-Message-State: AOAM530n5rowlfJfpMgfYb/CZ+nDR+yPYtPNjRRxIbRT0YVpzQ6X2i0H
-        3QPAUk7MsLfuGihzToMZJsnlWidY3P8=
-X-Google-Smtp-Source: ABdhPJwwHiJ+f+Yr73lbmOWjm+E07LLIvlLVjGzmQ1GRb72rS/Y6Ri6pbHshx0p+GJu6WuM7cpfOyA==
-X-Received: by 2002:a4a:bc8f:0:b0:41b:a240:6fa5 with SMTP id m15-20020a4abc8f000000b0041ba2406fa5mr525153oop.81.1655148245136;
-        Mon, 13 Jun 2022 12:24:05 -0700 (PDT)
+        bh=iQEw6C6W4ynHjM4NmULFrolW4tl3sFX7qhxY2QtQmIU=;
+        b=2eUdpBcwXg+Ec0e4d5kLPDKdaY3e7kn92/dIqTWe+hWBjQ12ojyKVtoVpMg9lCeUsp
+         O8Xn6Z9DA2WHk9aN+61hfFOdxB0By8xQjAKumS5lDYaBUAWFh+oLny2lu2IpmO+/U05l
+         qn3zvr+B1WI3sflBrkTQtbu/MEtv4w6s17/Rar51zzdL+AfKlbchECwlNf8SREgTS4Xy
+         K79tb6gskDRDgZiSGAOFPaeaQKTM8JasJjpgaZv9zukWFeqFoWj3mWcfYlbYQ0vq3zvg
+         rKDgDo6ss40rVt38+hryQErCMYtJ8iiXBUGeBZAQJZ8vKkILewHVgpqc8MJMoDR3MuGP
+         zJjg==
+X-Gm-Message-State: AJIora/R3TH7z2dU/1AVtGAn+FZbyUymkUvZTOP3V6gaLZUHcQ8+efY6
+        ckc+r3g8jxQlVaCtuypZcU/AQFRmj50=
+X-Google-Smtp-Source: AGRyM1tUx+Czf2n4Jhb7UJJPz8dpBDTrx0d35jMNqUnQUXMiZWv/yw1JFl/7k0qG7jEHWAXyPQ3iSA==
+X-Received: by 2002:a05:6870:589a:b0:f2:fafb:3268 with SMTP id be26-20020a056870589a00b000f2fafb3268mr203143oab.68.1655148243257;
+        Mon, 13 Jun 2022 12:24:03 -0700 (PDT)
 Received: from wintermute.localdomain (cpe-76-183-134-35.tx.res.rr.com. [76.183.134.35])
-        by smtp.gmail.com with ESMTPSA id bf34-20020a056808192200b0032ba1b363d2sm3637274oib.55.2022.06.13.12.24.04
+        by smtp.gmail.com with ESMTPSA id bf34-20020a056808192200b0032ba1b363d2sm3637274oib.55.2022.06.13.12.24.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jun 2022 12:24:04 -0700 (PDT)
+        Mon, 13 Jun 2022 12:24:02 -0700 (PDT)
 From:   Chris Morgan <macroalpha82@gmail.com>
 To:     linux-input@vger.kernel.org
 Cc:     devicetree@vger.kernel.org, contact@artur-rojek.eu,
         maccraft123mc@gmail.com, heiko@sntech.de,
         krzysztof.kozlowski+dt@linaro.org, robh+dt@kernel.org,
         dmitry.torokhov@gmail.com, Chris Morgan <macromorgan@hotmail.com>
-Subject: [PATCH v3 3/3] arm64: dts: rockchip: Update joystick to polled for Odroid-Go2
-Date:   Mon, 13 Jun 2022 14:23:53 -0500
-Message-Id: <20220613192353.696-4-macroalpha82@gmail.com>
+Subject: [PATCH v3 1/3] dt-bindings: adc-joystick: add adc-joystick,no-hardware-trigger
+Date:   Mon, 13 Jun 2022 14:23:51 -0500
+Message-Id: <20220613192353.696-2-macroalpha82@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220613192353.696-1-macroalpha82@gmail.com>
 References: <20220613192353.696-1-macroalpha82@gmail.com>
@@ -68,27 +68,44 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Chris Morgan <macromorgan@hotmail.com>
 
-Update the Odroid Go Advance to use "adc-joystick,no-hardware-trigger"
-from the adc-joystick driver.
+Add documentation for adc-joystick,no-hardware-trigger. New device-tree
+properties have been added.
 
-Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+- adc-joystick,no-hardware-trigger: A boolean value noting the joystick
+				    device should be polled rather than
+				    use a triggered buffer.
+
 Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
 ---
- arch/arm64/boot/dts/rockchip/rk3326-odroid-go2.dts | 1 +
- 1 file changed, 1 insertion(+)
+ .../devicetree/bindings/input/adc-joystick.yaml          | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3326-odroid-go2.dts b/arch/arm64/boot/dts/rockchip/rk3326-odroid-go2.dts
-index ea0695b51ecd..ffa49b8dee15 100644
---- a/arch/arm64/boot/dts/rockchip/rk3326-odroid-go2.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3326-odroid-go2.dts
-@@ -24,6 +24,7 @@ chosen {
+diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+index 2ee04e03bc22..627cc6c40191 100644
+--- a/Documentation/devicetree/bindings/input/adc-joystick.yaml
++++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+@@ -12,12 +12,19 @@ maintainers:
  
- 	adc-joystick {
- 		compatible = "adc-joystick";
-+		adc-joystick,no-hardware-trigger;
- 		io-channels = <&saradc 1>,
- 			      <&saradc 2>;
- 		#address-cells = <1>;
+ description: >
+   Bindings for joystick devices connected to ADC controllers supporting
+-  the Industrial I/O subsystem.
++  the Industrial I/O subsystem. Supports both polled devices where no
++  iio trigger is available and non-polled devices which are triggered
++  by iio.
+ 
+ properties:
+   compatible:
+     const: adc-joystick
+ 
++  adc-joystick,no-hardware-trigger:
++    type: boolean
++    description:
++      If the device does not support triggered buffers and needs to be polled.
++
+   io-channels:
+     minItems: 1
+     maxItems: 1024
 -- 
 2.25.1
 

@@ -2,100 +2,121 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E716C433EF
-	for <linux-input@archiver.kernel.org>; Thu, 16 Jun 2022 00:53:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 321D9C43334
+	for <linux-input@archiver.kernel.org>; Thu, 16 Jun 2022 15:26:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348889AbiFPAxx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 15 Jun 2022 20:53:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54920 "EHLO
+        id S1377686AbiFPP0C (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 16 Jun 2022 11:26:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348770AbiFPAxw (ORCPT
+        with ESMTP id S1377466AbiFPP0B (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Jun 2022 20:53:52 -0400
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABFB4FC4D
-        for <linux-input@vger.kernel.org>; Wed, 15 Jun 2022 17:53:51 -0700 (PDT)
-Received: by mail-pf1-x42d.google.com with SMTP id z17so103584pff.7
-        for <linux-input@vger.kernel.org>; Wed, 15 Jun 2022 17:53:51 -0700 (PDT)
+        Thu, 16 Jun 2022 11:26:01 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06752E09A;
+        Thu, 16 Jun 2022 08:25:59 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id 20so2735020lfz.8;
+        Thu, 16 Jun 2022 08:25:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=9qwwQJJVg91/nnmcAMwyXvHYok0DyJzSkywxG0QwUEU=;
-        b=xaURczxPMBttLVmTmtGaORZcEYgKETRyblkz+ZCrDhSyDx2Tunc/S2v8DC6VVYxdqK
-         sRYGcjKJkLZD2qlzFfenHjs4qBn6hPw5b4IK7kPrM9ujAYOCNJATsV5dBU/o215GwiWs
-         Y4mVuoaR/mKo2TTBKc4n+bFkeF3Z+V77bUy6so1KRprO3lBj5ovtvXtmyk1rWLtmw0Tw
-         uVcOPE0LvTostMvW0hrjQfH7aRN1s9fJ/m8qN8u3k1UgWCk53kA03nG4zENG4/WdKUU0
-         v8/TRoGNfK638qSEbnBztIgwoL343SvYPGytjPwWSOlFI/Bnx+hHLBRQQJjMcekGRxNC
-         bYAw==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8ZuOwtq+9/VZTy3ADMx01Z5TJDecADF7IqscILS0mik=;
+        b=UpuPv1+qHiaeoBAs0xq2geW/piGdYhV79fhXrIXnZK6hzwORi8+yDhUNvIFCZbBAY7
+         W/d4GwXJAHWEdjxkQN8M6vw+9OGo1XHxXNP952NiyVyAFfAm/3pHSrpwxGBUuJupyEQy
+         U1ViGSyDAW56Au/YCMrcwo5cC8HGN+yKj49jC5wrBTOTX3iujMBifuFUI30tmH7AkGXb
+         tHIHW/+wUTbldWGvSZpO+iK0+JaIa0VsZleIGia4qruIM02pjSJGJo/oXbk0X6HYQWVV
+         r+umFUHOujGvtKTtDKuqiy2J6KeoYFIGRQK5dV5gfhmEPCY/2lcg9CZcoXzuR79KZ0hx
+         Mvug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=9qwwQJJVg91/nnmcAMwyXvHYok0DyJzSkywxG0QwUEU=;
-        b=WvUvLoJ4KFMom8ybs2AAgp1LJfm61NvFENYCV9JNm+hNVvkXbier8jIHiZOA8tsP4S
-         zUlee3/yfZorxuaxqczOzsz/r7NOuVCv8kWqn3UuWFVuoeR3QEExXm28Qkp2QRNfMWMo
-         9YzKTF0ZmhNtL0oxFZT4VO1aQOcPKpjCezVYfAMtU08k0PCMNHWyH7RPeH7CSzohm5uh
-         qYwC+UFk0A0Mj2mWMSEW+gkvpufGYR1kDUFh57TT924T9LEbaxV8tXnQXl+n7D/eOGdc
-         ysuVdLbDHGX72DqBQ/aodMJstDQGPLIsb1JyUfi2xZoRt2tK29RbPN8ZLS79sMEqqlej
-         0U3w==
-X-Gm-Message-State: AJIora8PLyrtUAZKVQSkulyOrauaNZr5pBsRdX4oxQtJOvwy1l3NikI4
-        xLS62eudDUedeXZDH/IDchmKFg==
-X-Google-Smtp-Source: AGRyM1tlL6hO/EWZAR4S1GVC5e2TtQKXy+/+OmKG6Mf2UDs62lOXQ/aqvgoOhUOd/krZOVlMkKPPHQ==
-X-Received: by 2002:a63:4e62:0:b0:398:cb40:19b0 with SMTP id o34-20020a634e62000000b00398cb4019b0mr2136424pgl.445.1655340831593;
-        Wed, 15 Jun 2022 17:53:51 -0700 (PDT)
-Received: from krzk-bin.. ([192.77.111.2])
-        by smtp.gmail.com with ESMTPSA id p4-20020a170902780400b0016760c06b76sm233660pll.194.2022.06.15.17.53.50
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8ZuOwtq+9/VZTy3ADMx01Z5TJDecADF7IqscILS0mik=;
+        b=Dawb9dBILlXFn8ghAm2OzSh27b9FbKKw+0/z530DigtkCfceLPg/ZKbNlTvQLFOXgj
+         WBfl6F/29jfF+cToNm/VUCyTMzRVlbINKfO0qkjX/3+IVgZxQCbWnGJFj9nddVqzQ9f5
+         LbianYlnmiuK/Sf9moHyXs+aE8EE9UR8mAuT0/YpUvgEkBMMAPrQuETXFAV4xy91WorT
+         kqty4TEnKBCqwO9WG8qL+1qGdY/2SsUZcrR9PdLeU5w9m9sHXR7BRbluYstULyYkMpPy
+         2jTbi5Nc20HS4wzOI91EDxOQIqYHc0J7VHpoL9BeHobSsHebqfo4jdsHRm1/ePer1n8b
+         xwUA==
+X-Gm-Message-State: AJIora9rglcQHcO5VRjpB3yNSJ/5YXK8/EQEM9nAipGECnniqgs4di2L
+        /BVlmKiqjS9GmmcOKfwCi9w=
+X-Google-Smtp-Source: AGRyM1swYi8yLV5/KLt9zHbj7cSXbJfccEEblBu6x3wtEFG6lr+CfAaV+P0StJVkAcVnu2+Qtluupw==
+X-Received: by 2002:a05:6512:1050:b0:47d:c714:10ba with SMTP id c16-20020a056512105000b0047dc71410bamr2962362lfb.165.1655393158203;
+        Thu, 16 Jun 2022 08:25:58 -0700 (PDT)
+Received: from localhost.localdomain (91-159-150-230.elisa-laajakaista.fi. [91.159.150.230])
+        by smtp.gmail.com with ESMTPSA id a10-20020a19660a000000b0047e789b9700sm272794lfc.118.2022.06.16.08.25.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jun 2022 17:53:51 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     arm@kernel.org, soc@kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Olof Johansson <olof@lixom.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v3 03/40] dt-bindings: input: gpio-keys: accept also interrupt-extended
-Date:   Wed, 15 Jun 2022 17:52:56 -0700
-Message-Id: <20220616005333.18491-3-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220616005224.18391-1-krzysztof.kozlowski@linaro.org>
-References: <20220616005224.18391-1-krzysztof.kozlowski@linaro.org>
+        Thu, 16 Jun 2022 08:25:57 -0700 (PDT)
+From:   Peter Ujfalusi <peter.ujfalusi@gmail.com>
+To:     dmitry.torokhov@gmail.com
+Cc:     tony@atomide.com, linux-omap@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH] Input: twl4030-vibra - Drop legacy, non DT boot support
+Date:   Thu, 16 Jun 2022 18:33:23 +0300
+Message-Id: <20220616153323.29464-1-peter.ujfalusi@gmail.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Each key device node might have interrupts-extended instead of
-interrupts property:
+Legacy or non DT boot is no longer possible on systems where the
+tw4030/5030 is used.
 
-  fsl-ls1028a-kontron-sl28-var1.dtb: buttons0: power-button: 'anyOf' conditional failed, one must be fixed:
-    'interrupts' is a required property
-    'gpios' is a required property
+Drop the support for handling legacy pdata.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
 ---
- Documentation/devicetree/bindings/input/gpio-keys.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/misc/twl4030-vibra.c | 13 ++++---------
+ 1 file changed, 4 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
-index e722e681d237..17ac9dff7972 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
-+++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
-@@ -92,6 +92,8 @@ patternProperties:
-     anyOf:
-       - required:
-           - interrupts
-+      - required:
-+          - interrupts-extended
-       - required:
-           - gpios
+diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
+index e0ff616fb857..5619996da86f 100644
+--- a/drivers/input/misc/twl4030-vibra.c
++++ b/drivers/input/misc/twl4030-vibra.c
+@@ -163,14 +163,10 @@ static int __maybe_unused twl4030_vibra_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
+ 			 twl4030_vibra_suspend, twl4030_vibra_resume);
  
+-static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+-			      struct device_node *parent)
++static bool twl4030_vibra_check_coexist(struct device_node *parent)
+ {
+ 	struct device_node *node;
+ 
+-	if (pdata && pdata->coexist)
+-		return true;
+-
+ 	node = of_get_child_by_name(parent, "codec");
+ 	if (node) {
+ 		of_node_put(node);
+@@ -182,13 +178,12 @@ static bool twl4030_vibra_check_coexist(struct twl4030_vibra_data *pdata,
+ 
+ static int twl4030_vibra_probe(struct platform_device *pdev)
+ {
+-	struct twl4030_vibra_data *pdata = dev_get_platdata(&pdev->dev);
+ 	struct device_node *twl4030_core_node = pdev->dev.parent->of_node;
+ 	struct vibra_info *info;
+ 	int ret;
+ 
+-	if (!pdata && !twl4030_core_node) {
+-		dev_dbg(&pdev->dev, "platform_data not available\n");
++	if (!twl4030_core_node) {
++		dev_dbg(&pdev->dev, "twl4030 OF node is missing\n");
+ 		return -EINVAL;
+ 	}
+ 
+@@ -197,7 +192,7 @@ static int twl4030_vibra_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	info->dev = &pdev->dev;
+-	info->coexist = twl4030_vibra_check_coexist(pdata, twl4030_core_node);
++	info->coexist = twl4030_vibra_check_coexist(twl4030_core_node);
+ 	INIT_WORK(&info->play_work, vibra_play_work);
+ 
+ 	info->input_dev = devm_input_allocate_device(&pdev->dev);
 -- 
-2.34.1
+2.36.1
 

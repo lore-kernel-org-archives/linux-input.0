@@ -2,137 +2,116 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D849FCCA483
-	for <linux-input@archiver.kernel.org>; Sat, 18 Jun 2022 17:06:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8141BC43334
+	for <linux-input@archiver.kernel.org>; Sat, 18 Jun 2022 21:02:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237091AbiFRRF4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 18 Jun 2022 13:05:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34526 "EHLO
+        id S231944AbiFRVCm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 18 Jun 2022 17:02:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236755AbiFRRFw (ORCPT
+        with ESMTP id S230395AbiFRVCl (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 18 Jun 2022 13:05:52 -0400
-X-Greylist: delayed 475 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 18 Jun 2022 10:05:50 PDT
-Received: from wnew2-smtp.messagingengine.com (wnew2-smtp.messagingengine.com [64.147.123.27])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 698C912D3E;
-        Sat, 18 Jun 2022 10:05:50 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailnew.west.internal (Postfix) with ESMTP id 5635A2B04FD2;
-        Sat, 18 Jun 2022 12:57:51 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Sat, 18 Jun 2022 12:57:53 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sholland.org; h=
-        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
-         s=fm3; t=1655571470; x=1655578670; bh=cvEieaf7Gq9QmyebRGX2GIRjl
-        EvOg4D81jsok9/7HPE=; b=Mh1l4/NK7BX5XIAKTgqdJVANXXHR6SyC6ZlP/UhDz
-        aFr3md6b37WNKAFDLKCnmlikLkqfmTVueEJocB5LqsYLX++fX/NHs+EULJ3CRUm0
-        xp904h5nSJqXtcn0a73KGcIAlmNgYH1o+VoeuxRTmB8oxjnC19/XmTDpnUV0gDpf
-        XQYoWssyqpVRPKq7vLKrzmFT53iVYzQjo3Re/3y0FfMDOqn9QkOApvj2MfJ4dVb4
-        90KyjbNAFQCr3VxnjROMnQEUevcujNCTulCCDd+GDkrq5nJ8vNeKub3GWNHdAybx
-        rraGrO8dCqQz2/sM5OLLcqBrYQrpX9KVRDRir5a99UnTg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-        1655571470; x=1655578670; bh=cvEieaf7Gq9QmyebRGX2GIRjlEvOg4D81js
-        ok9/7HPE=; b=Py1g5YtIkfjwlDhcmmh1Sm5HXgtZ79vRaL1DXa4yVfht0v/+q0o
-        jY/C5TxyQy3czRQghGcsiKOJksyPLxtp5RJ69OntqUarlQ4kZF0P0teLicFCpS3j
-        /sCCkZufUIZLZF1APP2hWeNgsJuQZhKFwCSvxRFYGmeugAvH6DiVbWF9J7LCnTC4
-        f9hw/QptH40f2cg1tyW7Wt71ZeqA9UQYPtfcOZ7gKdeO/gef0wBOKH63kD4PD7R0
-        offRmO6PIkKiqGqpL96TMBna1mPeuy2vZkCojvrwTiSR7T23soC6z9TbCyPm1Zzy
-        bN6pdzyuk+Pe2V2onMa8ZymB9q1qE5F9/rg==
-X-ME-Sender: <xms:DQSuYr0wjc9Ay-LFfRLI5gpuX_IcjNyJep9l4waXbuJyU2Psrs6A0Q>
-    <xme:DQSuYqGqGVUrGOfQ_rIWWtKt_Z8pBJB0awaaMSUboXpKK01FuBRZW-cq5efFRl4UE
-    7JpQwzWVTflRGMwcQ>
-X-ME-Received: <xmr:DQSuYr6kBi2wrLpTA4RJeIcL0Nu_xJRPqPQviHkMyZhSA_AWWBFPd62c0SLvjy3J0-iE05vzJUhYbiWxniPWghDTz5eKOds2KJnfdCx-T_9YUpAA4Xlk9zyAc16LHmtjUtPxVQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedruddvjedguddutdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpefurghmuhgv
-    lhcujfholhhlrghnugcuoehsrghmuhgvlhesshhhohhllhgrnhgurdhorhhgqeenucggtf
-    frrghtthgvrhhnpeevudeigeekledvgfevlefgueelkeduieelveejfffhjefggeelfefh
-    teejgfegvdenucffohhmrghinhepmhgvghhouhhsrdgtohhmnecuvehluhhsthgvrhfuih
-    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepshgrmhhuvghlsehshhholhhlrghn
-    ugdrohhrgh
-X-ME-Proxy: <xmx:DQSuYg1F4gvWB7rYdPVEAnw9Ph8oxtlkcIRl2xR-S-5R-TAHGJsseQ>
-    <xmx:DQSuYuHYoIPpmLlS0kulI8jWxC3uMmz4JtDKIVPDAorIQ6CU3yEoSA>
-    <xmx:DQSuYh8aqRwPULljo9XUul_eQ25NEpGwqpLnd94eNeRIAtjLWZpUvg>
-    <xmx:DgSuYuLYiNlYu-Yby_2fOLqZeYeAgHthOGPCdjhu-rwfyr-uows0myvPDl4>
-Feedback-ID: i0ad843c9:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 18 Jun 2022 12:57:48 -0400 (EDT)
-From:   Samuel Holland <samuel@sholland.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Ondrej Jirman <x@xff.cz>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        devicetree@vger.kernel.org, Samuel Holland <samuel@sholland.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Colin Ian King <colin.king@intel.com>,
-        David Gow <davidgow@google.com>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Marco Felsch <m.felsch@pengutronix.de>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Yassine Oudjana <y.oudjana@protonmail.com>,
-        "fengping.yu" <fengping.yu@mediatek.com>,
-        linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev
-Subject: [PATCH v4 0/4] Pine64 PinePhone keyboard support
-Date:   Sat, 18 Jun 2022 11:57:43 -0500
-Message-Id: <20220618165747.55709-1-samuel@sholland.org>
-X-Mailer: git-send-email 2.35.1
+        Sat, 18 Jun 2022 17:02:41 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 05B55316
+        for <linux-input@vger.kernel.org>; Sat, 18 Jun 2022 14:02:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1655586158;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=EM9ns7WXlx/hpsbDurcNj5cHvvzI0wCTk93mA6+8cXs=;
+        b=eJp7NRa7YIYTs+TTFZ128FMNVXxXTzoFQCVihBFD3GNeGkbC1MpFmOSOWPUvXGJxDXClhN
+        iOrW7oyldBdIgu5nLssxUaQzaBAx3dmpByMGROZ7YPpQqw5wlI9w4OD0RS4P89ttsjyAU8
+        s18ezK/B1txZ035TjoBG+Oxg8rFBxv4=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-232-wofMOYk5MtO_X48BWTnmKg-1; Sat, 18 Jun 2022 17:02:35 -0400
+X-MC-Unique: wofMOYk5MtO_X48BWTnmKg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0A79585A581;
+        Sat, 18 Jun 2022 21:02:35 +0000 (UTC)
+Received: from shalem.redhat.com (unknown [10.39.192.20])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 3364F2026987;
+        Sat, 18 Jun 2022 21:02:34 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        linux-input@vger.kernel.org,
+        Maya Matuszczyk <maccraft123mc@gmail.com>
+Subject: [PATCH] Input: goodix - call acpi_device_fix_up_power() in some cases
+Date:   Sat, 18 Jun 2022 23:02:33 +0200
+Message-Id: <20220618210233.208027-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.78 on 10.11.54.4
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series adds support for the official keyboard case for the Pine64
-PinePhone and PinePhone Pro. This accessory contains a keyboard MCU and
-an IP5209 power bank IC. The keyboard MCU firmware[0] is free software.
-It exposes the keyboard scan matrix over I2C, and also provides commands
-for SMBus access to the IP5209. In order to keep the IP5209 driver
-(CONFIG_IP5XXX_POWER) generic, this is modeled as a child I2C bus.
+On ACPI boards, when we cannot get the GPIOs to do a reset ourselves
+if necessary, call acpi_device_fix_up_power() to force the ACPI _PS0
+method to run.
 
-[0]: https://megous.com/git/pinephone-keyboard/about/
+On some devices without proper GPIO descriptions this will reset
+the touchscreen for us and this may be necessary for us to be able
+to communicate to the touchscreen at all.
 
-Changes in v4:
- - Rebase to resolve MAINTAINERS merge conflict
- - Add missing newlines in error messages
+Specifically on an Aya Neo Next this change will cause the _PS0()
+ACPI function to call INIT() which does:
 
-Changes in v3:
- - Replace unevaluatedProperties with additionalProperties
- - Rename i2c-bus to i2c
- - Rename i2c-bus to i2c
+            Method (INIT, 0, Serialized)
+            {
+                TP_I = 0x00A50000
+                TP_R = 0x00A50000
+                Sleep (0x0A)
+                TP_I = 0x00E50000
+                Sleep (One)
+                TP_R = 0x00E50000
+                Sleep (0x06)
+                TP_I = 0x00A50000
+                Sleep (0x3C)
+                TP_I = 0x00041800
+            }
 
-Changes in v2:
- - Drop keymap DT properties
- - Add vbat-supply property
- - Fix missing key release events when FN state changes
- - Add VBAT consumer to ensure enough power is available for the MCU
- - Use a single fixed-size, fixed-contents keymap for both layers
+On older kernels the ACPI core assumed a power-on was necessary by itself
+and would run _PS0 before our probe function runs, which can be seen from
+the GPIO pin ctrl registers in /sys/kernel/debug/gpio which match
+the above hex values with older kernels.
 
-Samuel Holland (4):
-  dt-bindings: input: Add the PinePhone keyboard binding
-  Input: pinephone-keyboard - Add PinePhone keyboard driver
-  Input: pinephone-keyboard - Support the proxied I2C bus
-  [DO NOT MERGE] arm64: dts: allwinner: pinephone: Add keyboard
+With newer kernels before this change the GPIO pin ctrl registers do not
+match, indicating INIT() has not run and probing the touchscreen fails.
 
- .../input/pine64,pinephone-keyboard.yaml      |  66 +++
- MAINTAINERS                                   |   6 +
- .../dts/allwinner/sun50i-a64-pinephone.dtsi   |  18 +
- drivers/input/keyboard/Kconfig                |  10 +
- drivers/input/keyboard/Makefile               |   1 +
- drivers/input/keyboard/pinephone-keyboard.c   | 438 ++++++++++++++++++
- 6 files changed, 539 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/pine64,pinephone-keyboard.yaml
- create mode 100644 drivers/input/keyboard/pinephone-keyboard.c
+This change makes Linux run _PS0() again fixing the touchscreen not working
+on the Aya Neo Next.
 
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=209061
+Reported-and-tested-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+---
+ drivers/input/touchscreen/goodix.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index af2ddee76f58..293bb064e8aa 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -904,6 +904,11 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
+ 	} else {
+ 		dev_warn(dev, "Unexpected ACPI resources: gpio_count %d, gpio_int_idx %d\n",
+ 			 ts->gpio_count, ts->gpio_int_idx);
++		/*
++		 * On some devices _PS0 does a reset for us and
++		 * sometimes this is necessary for things to work.
++		 */
++		acpi_device_fix_up_power(ACPI_COMPANION(dev));
+ 		return -EINVAL;
+ 	}
+ 
 -- 
-2.35.1
+2.36.0
 

@@ -2,91 +2,90 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10712CCA47E
-	for <linux-input@archiver.kernel.org>; Mon, 20 Jun 2022 08:51:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F08A6C433EF
+	for <linux-input@archiver.kernel.org>; Mon, 20 Jun 2022 09:00:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240108AbiFTIv5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 20 Jun 2022 04:51:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34736 "EHLO
+        id S240225AbiFTJA4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 20 Jun 2022 05:00:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240094AbiFTIvq (ORCPT
+        with ESMTP id S240148AbiFTJAw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 20 Jun 2022 04:51:46 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A788612D1F;
-        Mon, 20 Jun 2022 01:51:45 -0700 (PDT)
+        Mon, 20 Jun 2022 05:00:52 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E6EFF5AF;
+        Mon, 20 Jun 2022 02:00:51 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5E6A4B80EFB;
-        Mon, 20 Jun 2022 08:51:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23ACDC341C6;
-        Mon, 20 Jun 2022 08:51:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A7F76112E;
+        Mon, 20 Jun 2022 09:00:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE70C3411B;
+        Mon, 20 Jun 2022 09:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655715103;
-        bh=R7BbkoAkXH1dj6TeELpY6vsOEzi80ZOjGxIPiK4mS90=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DirDM6NNuTFmWgGKnGApS71tlQDKtkZj/PQcG3AFxWvIYhRyf1x8vedhiEkJ8G0nW
-         hWW2V/mL7dnG2vB1wFyL+rxLI+Rk53EFf6/8Ai3wWfO0suo5fe3U9sSGGvJ9kUJ9MT
-         K/epnA4TTYuaEphwZkEDxp9MvqdC7GWI+DcRnhMxcPkv7zk2xw9VC4V9klAO/AgyNk
-         PpNFdhrT7Jl2QZ6zFxqQAhN/Jo6KtNi6EN848ZaK5Fe0k/LIqscJ9kkFG8wkGku5IP
-         z+4BF/s2DKRFp8i87lwmCiYSZPYCTY+p+0vLW27TaS5MFFutQzMX8j1jBqM9KJcJgZ
-         SaJrLbBgn/DCg==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1o3D8F-0005To-LQ; Mon, 20 Jun 2022 10:51:39 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 1/2] Input: usbtouchscreen - suppress empty array warnings
-Date:   Mon, 20 Jun 2022 10:46:27 +0200
-Message-Id: <20220620084628.20894-2-johan@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220620084628.20894-1-johan@kernel.org>
-References: <20220620084628.20894-1-johan@kernel.org>
+        s=k20201202; t=1655715650;
+        bh=yzwb89a50kjFZmjIaMeAKFjLE58t4BBZb0rlVAPAnss=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=PR3GANp6Ak21sG/UAxVizxxDj2i2izpRr7KA6sR0960EgFKkvixokHjg5g3fytWUO
+         euXbDcHnhIJFj8EszeyH1UN5QwFc8voqbPPBdTGXurkeQbxMlVpVfWgpIJGuQRtGRJ
+         zPpnlkFWHP2dDCSHxN5OmqwpKelbfwDZKfkQU7JhtaRdvOGBEfAkQgXUjPNzJcHWm8
+         2VFGth6KLO/eZvUIafg4IDoPRV3dBC6yonXsEKWjWjPeYGZrNSei/JW1QHAlQRBKTZ
+         bWG9eCpK2x8/jlTDsHH4BaBZaFlZz80Yrhn1pG+vU42qRtAXweOHEY0Gh/7s9V40M3
+         z1AIB5PZOCitQ==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     linux-efi@vger.kernel.org, keescook@chromium.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Arend van Spriel <aspriel@gmail.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Gregory Greenman <gregory.greenman@intel.com>,
+        linux-input@vger.kernel.org, linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com
+Subject: Re: [PATCH 0/4] efivar: remove inappropriate uses of the efivar API
+References: <20220617174851.1286026-1-ardb@kernel.org>
+Date:   Mon, 20 Jun 2022 12:00:45 +0300
+In-Reply-To: <20220617174851.1286026-1-ardb@kernel.org> (Ard Biesheuvel's
+        message of "Fri, 17 Jun 2022 19:48:47 +0200")
+Message-ID: <87bkunpv42.fsf@kernel.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-When compile-testing the USB touchscreen driver without enabling any of
-the device type options the usbtouch_dev_info array ends up being empty,
-something which triggers compiler warning with -Warray-bounds
-(gcc-11.3.0).
+Ard Biesheuvel <ardb@kernel.org> writes:
 
-drivers/input/touchscreen/usbtouchscreen.c: In function 'usbtouch_probe':
-drivers/input/touchscreen/usbtouchscreen.c:1668:16:warning: array subscript <unknown> is outside array bounds of 'struct usbtouch_device_info[0]' [-Warray-bounds]
- 1668 |         type = &usbtouch_dev_info[id->driver_info];
+> The efivar layer is a caching non-volatile variable store abstraction
+> that is normally backed by EFI, but in some cases, might be backed by
+> Google SMI firmware interfaces instead.
+>
+> It is mainly used by efivarfs and EFI pstore, both of which actually
+> need the caching and abstraction properties. However, there are a few
+> other occurrences where efivar is not necessary, or used in an invalid
+> way. So let's fix this up, and remove some impediments to refactoring
+> and cleaning up the efivars layer in the future.
+>
+> Assuming there are no objections to these changes, I intend to queue
+> them up in the EFI tree fairly soon, so that ongoing work depending on
+> these changes can continue as well.
+>
 
-Suppress the warnings by making sure that the array is always non-empty.
+[...]
 
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/input/touchscreen/usbtouchscreen.c | 2 ++
- 1 file changed, 2 insertions(+)
+>  drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c |  25 ++---
+>  drivers/net/wireless/intel/iwlwifi/fw/uefi.c                |  96 ++++++------------
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 43c521f50c85..6683554f0e92 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -128,6 +128,7 @@ enum {
- 	DEVTYPE_NEXIO,
- 	DEVTYPE_ELO,
- 	DEVTYPE_ETOUCH,
-+	DEVTYPE_COUNT
- };
- 
- #define USB_DEVICE_HID_CLASS(vend, prod) \
-@@ -1379,6 +1380,7 @@ static struct usbtouch_device_info usbtouch_dev_info[] = {
- 		.read_data	= etouch_read_data,
- 	},
- #endif
-+	[DEVTYPE_COUNT] = { }	/* Make sure array is non-empty */
- };
- 
- 
+Feel free to take the wireless patches via your tree:
+
+Acked-by: Kalle Valo <kvalo@kernel.org>
+
 -- 
-2.35.1
+https://patchwork.kernel.org/project/linux-wireless/list/
 
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches

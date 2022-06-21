@@ -2,65 +2,72 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8780C43334
-	for <linux-input@archiver.kernel.org>; Tue, 21 Jun 2022 07:01:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B35ECCA473
+	for <linux-input@archiver.kernel.org>; Tue, 21 Jun 2022 12:29:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346472AbiFUHBz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 21 Jun 2022 03:01:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38580 "EHLO
+        id S230309AbiFUM3S (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 21 Jun 2022 08:29:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346388AbiFUHBz (ORCPT
+        with ESMTP id S1350436AbiFUM2Y (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 21 Jun 2022 03:01:55 -0400
-Received: from smtpbg.qq.com (smtpbg139.qq.com [175.27.65.136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC311EAD8;
-        Tue, 21 Jun 2022 00:01:50 -0700 (PDT)
-X-QQ-mid: bizesmtp67t1655794842tb8g352o
+        Tue, 21 Jun 2022 08:28:24 -0400
+Received: from smtpbg.qq.com (smtpbg123.qq.com [175.27.65.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF99110FD;
+        Tue, 21 Jun 2022 05:28:16 -0700 (PDT)
+X-QQ-mid: bizesmtp65t1655814483teg44yp4
 Received: from ubuntu.localdomain ( [106.117.99.68])
         by bizesmtp.qq.com (ESMTP) with 
-        id ; Tue, 21 Jun 2022 15:00:34 +0800 (CST)
-X-QQ-SSF: 01000000007000109000B00A0000000
-X-QQ-FEAT: hR9GyqeohShu5QCuxfz/nAdLMul1wuwlaGMI42ANkYK1+WZjRITiEeI6UBiAT
-        my+KrgxsuojZIWPi8hR+CG5a9r/I665n+y6wnOBrkAS7DYteilWGHDGHj3ZO2Z47vGn0brt
-        2AIwBn4Y+iY7SKtyc3U6okU9q7wJXT9TlX4Fnoerp0lKzJLqSMW4SJctHeT/JKFjXCSupmY
-        Un8m+c2RY50IM/mS6OyC1RXFnQIHd6tosXF0mExZO4gk3C+yAv4ANkwL0mGv5JKSlEbw+PC
-        Hs3SRlwh4RJTyryJY5yaXFU5sEKhz/1xOB9StStUowOs3c9k5AiZsT+wpYjT599y3V9oYfg
-        N41NGH2MIi3GDEO4dw=
+        id ; Tue, 21 Jun 2022 20:27:53 +0800 (CST)
+X-QQ-SSF: 0100000000700050B000B00A0000000
+X-QQ-FEAT: BLQ9xozS6nKO2fJc7K3FCQ6uMHAMk0W73wUJqm1jNxRuIPK4ZaVVKNf8uS3H2
+        0+UQVlDxgBY3c4vZLXLLL0BsEQsJJaIYO1i+8iUjzXXQC19z7G57m7cf3FaB+k3Nt9MJmzd
+        cZnzGpaXXWFwoabE1BHGENw49r56uFWvuKi0WCnJ2v98RW8kDIGDllL7+iye2MoETYJ5szc
+        Oz0i4NmE15RIV79QnSiSUl9eO0ImpE0YRkZCwCs+2tZANEX24DlSmOM4I+av8X2pNGcur1u
+        T7SFH8dSVijiUPTg87tKl9u6PFRkCKUJLmd/OLcCS9b9JI1t9wkSNCfksn2aF39T9E2noY3
+        uETm/6e1vhHKozE6eo=
 X-QQ-GoodBg: 0
 From:   Jiang Jian <jiangjian@cdjrlc.com>
-To:     dmitry.torokhov@gmail.com
-Cc:     jiangjian@cdjrlc.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: cyapa_gen6 - aligned "*" each line
-Date:   Tue, 21 Jun 2022 15:00:32 +0800
-Message-Id: <20220621070032.30072-1-jiangjian@cdjrlc.com>
+To:     srinivas.pandruvada@linux.intel.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiang Jian <jiangjian@cdjrlc.com>
+Subject: [PATCH] ID: intel-ish-hid: hid-client: drop unexpected word "the" in the comments
+Date:   Tue, 21 Jun 2022 20:27:51 +0800
+Message-Id: <20220621122751.117143-1-jiangjian@cdjrlc.com>
 X-Mailer: git-send-email 2.17.1
 X-QQ-SENDSIZE: 520
-Feedback-ID: bizesmtp:cdjrlc.com:qybgspam:qybgspam6
+Feedback-ID: bizesmtp:cdjrlc.com:qybgspam:qybgspam8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Consider * alignment in comments
+there is an unexpected word "the" in the comments that need to be dropped
+
+file: drivers/hid/intel-ish-hid/ishtp-hid-client.c
+line: 331
+ * @device: Pointer to the the ishtp client device for which this message
+changed to
+ * @device: Pointer to the ishtp client device for which this message
 
 Signed-off-by: Jiang Jian <jiangjian@cdjrlc.com>
 ---
- drivers/input/mouse/cyapa_gen6.c | 2 +-
+ drivers/hid/intel-ish-hid/ishtp-hid-client.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/mouse/cyapa_gen6.c b/drivers/input/mouse/cyapa_gen6.c
-index 812edfced86e..0caaf3e64215 100644
---- a/drivers/input/mouse/cyapa_gen6.c
-+++ b/drivers/input/mouse/cyapa_gen6.c
-@@ -57,7 +57,7 @@ struct pip_app_resp_head {
- 	 * The value of data_status can be the first byte of data or
- 	 * the command status or the unsupported command code depending on the
- 	 * requested command code.
--	*/
-+	 */
- 	u8 data_status;
- } __packed;
+diff --git a/drivers/hid/intel-ish-hid/ishtp-hid-client.c b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+index 4338c9b68a43..e3d70c5460e9 100644
+--- a/drivers/hid/intel-ish-hid/ishtp-hid-client.c
++++ b/drivers/hid/intel-ish-hid/ishtp-hid-client.c
+@@ -328,7 +328,7 @@ static void process_recv(struct ishtp_cl *hid_ishtp_cl, void *recv_buf,
  
+ /**
+  * ish_cl_event_cb() - bus driver callback for incoming message/packet
+- * @device:	Pointer to the the ishtp client device for which this message
++ * @device:	Pointer to the ishtp client device for which this message
+  *		is targeted
+  *
+  * Remove the packet from the list and process the message by calling
 -- 
 2.17.1
 

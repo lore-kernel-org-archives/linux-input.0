@@ -2,93 +2,95 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EDC9C433EF
-	for <linux-input@archiver.kernel.org>; Thu, 23 Jun 2022 06:25:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6357FC43334
+	for <linux-input@archiver.kernel.org>; Thu, 23 Jun 2022 13:23:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbiFWGZw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Jun 2022 02:25:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56928 "EHLO
+        id S231822AbiFWNXz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Jun 2022 09:23:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35994 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229525AbiFWGZv (ORCPT
+        with ESMTP id S230522AbiFWNXy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Jun 2022 02:25:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC61D1F2F3;
-        Wed, 22 Jun 2022 23:25:50 -0700 (PDT)
+        Thu, 23 Jun 2022 09:23:54 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7338249C93;
+        Thu, 23 Jun 2022 06:23:53 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69A7B6137D;
-        Thu, 23 Jun 2022 06:25:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEA3DC341C6;
-        Thu, 23 Jun 2022 06:25:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D3E8CCE23C6;
+        Thu, 23 Jun 2022 13:23:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB1F5C3411B;
+        Thu, 23 Jun 2022 13:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1655965549;
-        bh=Uc1u4nvGBp0zbRmsVE5uw1rwOxo9HfInjkxM0gU+KSU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HlsV8pVnzF8bDywr+Kjmm1sNyFonVnWkMVscv0XVgivo3Tu0lqiHY0IFGWn6frByi
-         qj980znLoTU69zwAhHRDrRCPJOnQSbUpsDAR/+z3G89a73xDGiuXRcimHE7LaYOj8j
-         anzbmr5efAbH+UOg0SMP5aLvGbTG5JF8G2xnHWqmKhVO/d931WcfJmusOD3C5gp0TT
-         8VIz59j4z3GfydyPC6Y2E2EAopVNZk7CIJZ8L1dwYgAvyHz7g1Ck5BIlxOZJyWOOyH
-         58D8d6+Jwyr+5K8QvgmkcZOskKPR0nPoMhjf+5nJzE0oFi3gK9zLmAM1aeY6aanc80
-         DfRqVsFN7KmUQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1o4GHh-0004Pi-Nh; Thu, 23 Jun 2022 08:25:46 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH v2] Input: usbtouchscreen - add driver_info sanity check
-Date:   Thu, 23 Jun 2022 08:24:46 +0200
-Message-Id: <20220623062446.16944-1-johan@kernel.org>
-X-Mailer: git-send-email 2.35.1
+        s=k20201202; t=1655990630;
+        bh=Hdb4Ruy1col6i9EYYDDaRP5Zk72c/01tRo+65IYems4=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=jrTWCw7TKeXofqUESXw7sNIhCov56pgJVsL1OSbpW353CQ18Fd/YcT+3qjPzsm/QY
+         1Mp5NEp+cN2qeZNGa4tA/tmlzobo86TuJmQ22zEdnlK/WWSdaOPyhU27SueusKUBPu
+         DxU3HkKfClY4a5ZUqPiMz+KqQo/qtMAUcSK+5pPPUt9cKFWhTEYye7NDuAOQHwvwPO
+         eYwWp04JAg1Rj3T10JXtI2Aq96rGyj2fP8K5haSKraT50hDnNmnovM98frLJIVzSF+
+         jJGkL4ro5z64UKCq1VbavPanMDyiAGCFgeIJ3pqREGBgxF0678xLFsg4rogHB8vXmq
+         LbOMr8k5OFfCQ==
+From:   Mark Brown <broonie@kernel.org>
+To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        dmitry.torokhov@gmail.com, u0084500@gmail.com, lee.jones@linaro.org
+Cc:     linux-input@vger.kernel.org, cy_huang@richtek.com,
+        linux-kernel@vger.kernel.org, lgirdwood@gmail.com,
+        devicetree@vger.kernel.org
+In-Reply-To: <1655892104-10874-1-git-send-email-u0084500@gmail.com>
+References: <1655892104-10874-1-git-send-email-u0084500@gmail.com>
+Subject: Re: (subset) [PATCH v2 0/4] Add Richtek RT5120 PMIC support
+Message-Id: <165599062767.127406.12571486984170083213.b4-ty@kernel.org>
+Date:   Thu, 23 Jun 2022 14:23:47 +0100
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add a sanity check on the device id-table driver_info field to make sure
-we never access a type structure (and function pointers) outside of the
-device info array (e.g. if someone fails to ifdef a device-id entry).
+On Wed, 22 Jun 2022 18:01:40 +0800, cy_huang wrote:
+> From: ChiYuan Huang <cy_huang@richtek.com>
+> 
+> This patch series is to add Richtek RT5120 PMIC support.
+> In RT5120, it integrates four channels of buck converter, one channel of LDO,
+> and one external enable channel to control the external power source.
+> 
+> Since v2:
+> - Add 'unevaluatedProperties: false' for regulator buck1~4/ldo/exten.
+> - Fix indention and remove status for powerkey.
+> - Refine powerkey description for more HW details.
+> - For the regulator property parsing, use of_property_read_u32 instead.
+> - Not to overwrite regulator constraint.
+> - Refine regulator desc coding.
+> 
+> [...]
 
-Note that this also suppresses a compiler warning with -Warray-bounds
-(gcc-11.3.0) when compile-testing the driver without enabling any of
-the device type Kconfig options:
+Applied to
 
-    drivers/input/touchscreen/usbtouchscreen.c: In function 'usbtouch_probe':
-    drivers/input/touchscreen/usbtouchscreen.c:1668:16:warning: array subscript <unknown> is outside array bounds of 'struct usbtouch_device_info[0]' [-Warray-bounds]
-     1668 |         type = &usbtouch_dev_info[id->driver_info];
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-next
 
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
+Thanks!
 
-Changes in v2
- - use ARRAY_SIZE() for the sanity check (Dmitry)
- - drop the dummy entry and combine the two patches as the sanity check
-   itself is enough to suppress the compiler warning (Dmitry)
- - use -ENODEV instead of -EINVAL even if this means no error will be
-   logged in the unlikely event of a future driver bug
+[3/4] regulator: rt5120: Add PMIC regulator support
+      commit: c0216c0e68f736d20ac02bbaaaf4a216c10e53af
 
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
 
- drivers/input/touchscreen/usbtouchscreen.c | 3 +++
- 1 file changed, 3 insertions(+)
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index 43c521f50c85..b01d026588c8 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -1654,6 +1654,9 @@ static int usbtouch_probe(struct usb_interface *intf,
- 	if (id->driver_info == DEVTYPE_IGNORE)
- 		return -ENODEV;
- 
-+	if (id->driver_info >= ARRAY_SIZE(usbtouch_dev_info))
-+                return -ENODEV;
-+
- 	endpoint = usbtouch_get_input_endpoint(intf->cur_altsetting);
- 	if (!endpoint)
- 		return -ENXIO;
--- 
-2.35.1
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark

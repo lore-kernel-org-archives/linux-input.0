@@ -2,144 +2,208 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC4E8CCA482
-	for <linux-input@archiver.kernel.org>; Sun, 26 Jun 2022 09:11:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DEBFC43334
+	for <linux-input@archiver.kernel.org>; Sun, 26 Jun 2022 10:07:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234203AbiFZJLZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Jun 2022 05:11:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46246 "EHLO
+        id S234244AbiFZKHt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Jun 2022 06:07:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234076AbiFZJLO (ORCPT
+        with ESMTP id S234241AbiFZKHs (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Jun 2022 05:11:14 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180DA12AA3;
-        Sun, 26 Jun 2022 02:11:13 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        Sun, 26 Jun 2022 06:07:48 -0400
+X-Greylist: delayed 447 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 26 Jun 2022 03:07:44 PDT
+Received: from mailgw.flatbooster.com (mailgw.flatbooster.com [62.216.176.166])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE95F1182B;
+        Sun, 26 Jun 2022 03:07:44 -0700 (PDT)
+Received: from mailgw.flatbooster.com (localhost.localdomain [127.0.0.1])
+        by mailgw.flatbooster.com (Proxmox) with ESMTP id A0982C24CD;
+        Sun, 26 Jun 2022 12:00:15 +0200 (CEST)
+Received: from rex11.flatbooster.com (rex11.flatbooster.com [10.200.0.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2461B6118A;
-        Sun, 26 Jun 2022 09:11:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65F3C341D0;
-        Sun, 26 Jun 2022 09:11:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1656234671;
-        bh=PhI7xlCBz8s4EqXsemcBzFaZLbSNGrNWFqcVvz20FLU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=HhAf8IklB9OEeSwUHmvWxlXncEZMnsUL3ruxIFgodyPNv9p+IrCpMlJ2Ee1QRPg4Y
-         hcLQjIGJsa57ccuYyM9Yyy/ROtPClfozh4WxentR1FyhgZLpBjfJOGg0x+KF4uJ/xK
-         kJvya0UqPXI61UML+5xdxeC865OaTGDrndLJQhHMXq2RYO88lEbM26jWxoanedVi+e
-         mtQoMumgkipZ4Bxf/XC3su3ouzdbhmQdJsOcFrbZpKeXoPTd+pXhJvNl4aEKmUZnEX
-         5AkPirLrYw/XgJk3fQoIdoqyPnzuUz7+aN/pwnstjak/isdyfdJp2rwGOaiGtxsqlk
-         h/pj4xfQ6G59g==
-Received: from mchehab by mail.kernel.org with local (Exim 4.95)
-        (envelope-from <mchehab@kernel.org>)
-        id 1o5OIN-001coA-Qi;
-        Sun, 26 Jun 2022 10:11:07 +0100
-From:   Mauro Carvalho Chehab <mchehab@kernel.org>
-To:     Linux Doc Mailing List <linux-doc@vger.kernel.org>
-Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        linux-kernel@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        "H. Peter Anvin" <hpa@zytor.com>, Alex Shi <alexs@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dipen Patel <dipenp@nvidia.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Federico Vaga <federico.vaga@vaga.pv.it>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Yanteng Si <siyanteng@loongson.cn>, devicetree@vger.kernel.org,
-        keyrings@vger.kernel.org, kvm@vger.kernel.org,
-        linux-cachefs@redhat.com, linux-input@vger.kernel.org,
-        linux-m68k@lists.linux-m68k.org, linux-riscv@lists.infradead.org,
-        linux-tegra@vger.kernel.org, rust-for-linux@vger.kernel.org,
-        x86@kernel.org
-Subject: [PATCH v2 00/20] Update Documentation/ cross-references
-Date:   Sun, 26 Jun 2022 10:10:46 +0100
-Message-Id: <cover.1656234456.git.mchehab@kernel.org>
-X-Mailer: git-send-email 2.36.1
+        by mailgw.flatbooster.com (Proxmox) with ESMTPS id 57DEBC254E;
+        Sun, 26 Jun 2022 12:00:13 +0200 (CEST)
+Received: from [192.168.0.2] (ip-149-172-048-147.um42.pools.vodafone-ip.de [149.172.48.147])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: web110614p1)
+        by rex11.flatbooster.com (Postfix) with ESMTPSA id 44B68C0078;
+        Sun, 26 Jun 2022 12:00:13 +0200 (CEST)
+Content-Type: multipart/mixed; boundary="------------Vn91C2W0gJTI1CRsfRIpcv1v"
+Message-ID: <72cdd611-a403-bbd9-9018-36a426ea49f0@bernd-steinhauser.de>
+Date:   Sun, 26 Jun 2022 11:59:51 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: Force Feedback support not recognized on Granite Devices Simucube
+Content-Language: en-US
+From:   Bernd Steinhauser <linux-ml@bernd-steinhauser.de>
+To:     linux-input@vger.kernel.org
+Cc:     linux-usb@vger.kernel.org
+Reply-To: linux-ml@bernd-steinhauser.de
+References: <b4e9f460-ee34-fe8b-4502-e14701f9f03b@bernd-steinhauser.de>
+ <0b23bdba-9c00-2a1e-309d-af01fcb60da4@bernd-steinhauser.de>
+In-Reply-To: <0b23bdba-9c00-2a1e-309d-af01fcb60da4@bernd-steinhauser.de>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fix most broken documentation file cross references on next-20220624.
+This is a multi-part message in MIME format.
+--------------Vn91C2W0gJTI1CRsfRIpcv1v
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-After this series, only 3 references will be broken:
+On 2/5/20 19:54, Bernd Steinhauser wrote:
+> On 17/06/2019 13:46, Bernd Steinhauser wrote:
+>> Resending this message to linux input as suggested.
+>>
+>> Hi,
+>>
+>> I own a Granite Devices Simucube force feedback wheel which I'd like to get 
+>> working under Linux.
+>> The current status is that if I use a tool to check/test the FFB, it tells me 
+>> that the device does not support FFB.
+>> I'm also using the device under Windows 7 and there it works without any 
+>> special driver, so it should work with USB HID FFB.
+>> In principle, it supports the following effects (see link below):
+>> - constant force
+>> - friction
+>> - damping
+>> - spring
+>> - sine wave
+>> - square wave
+>> - sawtooth
+>> - triangle
+>>
+>> The device advertises as MCS, Granite Devices SimuCUBE with id 16d0:0d5a, 
+>> I'll attach lsusb output.
+>> Upon connection, the device is recognized and the output is:
+>>
+>> [ 3271.812807] usb 1-2.4.2: new full-speed USB device number 10 using xhci_hcd
+>> [ 3271.921182] usb 1-2.4.2: New USB device found, idVendor=16d0, 
+>> idProduct=0d5a, bcdDevice= 2.00
+>> [ 3271.921184] usb 1-2.4.2: New USB device strings: Mfr=1, Product=2, 
+>> SerialNumber=3
+>> [ 3271.921185] usb 1-2.4.2: Product: SimuCUBE
+>> [ 3271.921186] usb 1-2.4.2: Manufacturer: Granite Devices
+>> [ 3271.921187] usb 1-2.4.2: SerialNumber: 0123456789
+>> [ 3281.943990] input: Granite Devices SimuCUBE as 
+>> /devices/pci0000:00/0000:00:09.0/0000:04:00.0/usb1/1-2/1-2.4/1-2.4.2/1-2.4.2:1.0/0003:16D0:0D5A.0016/input/input48
+>> [ 3281.944223] hid-generic 0003:16D0:0D5A.0016: unknown set_effect report layout
+>> [ 3281.944228] hid-generic 0003:16D0:0D5A.0016: input,hiddev2,hidraw15: USB 
+>> HID v1.11 Joystick [Granite Devices SimuCUBE] on usb-0000:04:00.0-2.4.2/input0
+>>
+>> I spent some time looking at the code and also other ffb code in usbhid, but 
+>> since I'm not really familiar with C I have a hard time figuring out why it 
+>> doesn't work out of the box and how to fix this, but I'd be happy to help 
+>> implementing/debugging it.
+>> For a start, it would be really nice to find out what is reported, what the 
+>> report should look like and why it doesn't match.
+>>
+>> Kind Regards,
+>> Bernd
+>>
+>> Links that might or might not be useful for general information:
+>> https://granitedevices.com/wiki/SimuCUBE_technical_specifications
+>> https://granitedevices.com/wiki/SimuCUBE_Firmware_User_Guide#DirectInput_Effect_Settings_and_Descriptions 
+>>
+> Hi,
+>
+> I would to catch up on this, as I found time to investigate this a bit more.
+> I also had a chat with one of the devs at GD and he told me that apparently 
+> the PID field A7h (Start Delay) is the problematic thing here.
+> The hid-pidff.c driver requests this field:
+> #define PID_EFFECT_BLOCK_INDEX»·0
+>
+> #define PID_DURATION»···»···1
+> #define PID_GAIN»···»···2
+> #define PID_TRIGGER_BUTTON»·3
+> #define PID_TRIGGER_REPEAT_INT»·4
+> #define PID_DIRECTION_ENABLE»···5
+> #define PID_START_DELAY»»···6
+> static const u8 pidff_set_effect[] = {
+> »···0x22, 0x50, 0x52, 0x53, 0x54, 0x56, 0xa7
+> };
+>
+> but the device does not send it (I attached the descriptor from the device), 
+> hence the driver complains about the unknown set_effect layout.
+> Now the thing is they tried adding the field, but in that case the Windows HID 
+> driver will not recognize the device properly anymore as for some reason it 
+> expects that field not to be set.
+>
+> With that knowledge I tried again with the field 0xa7 removed (and some other 
+> references to start delay) and in that case the device was recognized properly 
+> and I could run some FFB tests successfully.
+> There was a warning about an unknown condition effect layout (as there are 2 
+> missing fields in that one as well), but that should be a minor thing for the 
+> moment.
+>
+> I suspect that just removing the 0xa7 field (as I did) is not a proper 
+> solution here, but is there an easy way to get this working with a bit of 
+> special handling?
+>
+> Best Regards,
+> Bernd
 
-Warning: Documentation/dev-tools/kunit/run_wrapper.rst references a file that doesn't exist: Documentation/dev-tools/kunit/non_uml.rst
-Warning: Documentation/devicetree/bindings/regulator/siliconmitus,sm5703-regulator.yaml references a file that doesn't exist: Documentation/devicetree/bindings/mfd/siliconmitus,sm5703.yaml
-Warning: drivers/acpi/device_pm.c references a file that doesn't exist: Documentation/firmware-guide/acpi/low-power-probe.rst
+Hi,
 
-All of them seem to be due to the lack of a patch actually adding the
-documentation. Maybe the document file is still under review?
+I would catch up on this. Removing the field 0xA7 as well as some references 
+fixes the issue. I wrote a patch to test that (see attachment) and with that 
+applied the FFB works fine on the device.
+Now I guess just shipping this patch with the default Linux kernel isn't the way 
+to go, but due to my limited knowledge of writing C code, I don't think I can 
+write a special driver myself.
+Any suggestions on how to properly handle such a case?
 
-Regards,
-Mauro
+GD could in principle provide me with a firmware for the device that adds the 
+field 0xA7 and therefore would work with the default pidff driver code, but then 
+it would not work on Windows anymore with the default HID driver on Windows. 
+(They tried that.)
+However, switching firmwares to be able to use it on different operating systems 
+shouldn't be necessary, right?
 
-Mauro Carvalho Chehab (20):
-  docs: netdev: update maintainer-netdev.rst reference
-  docs: filesystems: update netfs-api.rst reference
-  docs: zh_CN: page_frags.rst: fix a broken reference
-  docs: zh_CN/riscv/pmu.rst: remove old docuementation
-  docs: zh_CN/devicetree: fix typos
-  docs: zh_CN: fix a broken reference
-  docs: zh_CN/vm: fix a typo for page reporting ReST file
-  docs: zh_CN/vm/zsmalloc.rst: fix a typo
-  docs: zh_CN/vm/index.rst: fix a broken reference
-  Documentation: update watch_queue.rst references
-  Documentation: KVM: update s390-pv.rst reference
-  Documentation: KVM: update amd-memory-encryption.rst references
-  Documentation: KVM: update msr.rst reference
-  Documentation: KVM: update s390-diag.rst reference
-  objtool: update objtool.txt references
-  arch: m68k: q40: README: drop references to IDE driver
-  tegra194-hte.rst: fix reference to its binding
-  dt-bindings: mfd: update dlg,da9063.yaml reference
-  MAINTAINERS: update nvidia,tegra20-host1x.yaml reference
-  MAINTAINERS: fix cross references to mfd/dlg,da9063.yaml
+Kind Regards,
+Bernd
 
- .../admin-guide/kernel-parameters.txt         |   2 +-
- .../bindings/input/da9062-onkey.txt           |   2 +-
- Documentation/driver-api/hte/tegra194-hte.rst |   2 +-
- Documentation/security/keys/core.rst          |   2 +-
- Documentation/security/secrets/coco.rst       |   2 +-
- .../it_IT/networking/netdev-FAQ.rst           |   2 +-
- .../translations/zh_CN/devicetree/index.rst   |   2 +-
- .../zh_CN/devicetree/of_unittest.rst          |   2 +-
- .../zh_CN/devicetree/usage-model.rst          |   2 +-
- .../zh_CN/doc-guide/kernel-doc.rst            |   2 +-
- .../translations/zh_CN/riscv/index.rst        |   1 -
- .../translations/zh_CN/riscv/pmu.rst          | 235 ------------------
- .../zh_CN/vm/free_page_reporting.rst          |   2 +-
- .../translations/zh_CN/vm/frontswap.rst       |   2 +-
- Documentation/translations/zh_CN/vm/index.rst |   2 +-
- .../translations/zh_CN/vm/page_frags.rst      |   2 +-
- .../translations/zh_CN/vm/zsmalloc.rst        |   2 +-
- Documentation/virt/kvm/api.rst                |   4 +-
- Documentation/virt/kvm/s390/s390-pv-boot.rst  |   2 +-
- Documentation/virt/kvm/x86/hypercalls.rst     |   2 +-
- Documentation/x86/orc-unwinder.rst            |   2 +-
- MAINTAINERS                                   |   6 +-
- arch/m68k/q40/README                          |   5 +-
- include/linux/fscache.h                       |   2 +-
- include/linux/objtool.h                       |   2 +-
- include/linux/watch_queue.h                   |   2 +-
- init/Kconfig                                  |   2 +-
- kernel/watch_queue.c                          |   2 +-
- lib/Kconfig.debug                             |   2 +-
- tools/include/linux/objtool.h                 |   2 +-
- tools/objtool/check.c                         |   2 +-
- 31 files changed, 33 insertions(+), 270 deletions(-)
- delete mode 100644 Documentation/translations/zh_CN/riscv/pmu.rst
 
--- 
-2.36.1
+--------------Vn91C2W0gJTI1CRsfRIpcv1v
+Content-Type: text/x-patch; charset=UTF-8; name="sc1-ffb.diff"
+Content-Disposition: attachment; filename="sc1-ffb.diff"
+Content-Transfer-Encoding: base64
 
+ZGlmZiAtLWdpdCBhL2RyaXZlcnMvaGlkL3VzYmhpZC9oaWQtcGlkZmYuYyBiL2RyaXZlcnMv
+aGlkL3VzYmhpZC9oaWQtcGlkZmYuYwppbmRleCBmZGRhYzdjNzJmNjQuLjg2ODQ4MDhjNTk2
+NyAxMDA2NDQKLS0tIGEvZHJpdmVycy9oaWQvdXNiaGlkL2hpZC1waWRmZi5jCisrKyBiL2Ry
+aXZlcnMvaGlkL3VzYmhpZC9oaWQtcGlkZmYuYwpAQCAtNTcsOSArNTcsOCBAQCB0aGUgb25s
+eSBmaWVsZCBpbiB0aGF0IHJlcG9ydCAqLwogI2RlZmluZSBQSURfVFJJR0dFUl9CVVRUT04J
+MwogI2RlZmluZSBQSURfVFJJR0dFUl9SRVBFQVRfSU5UCTQKICNkZWZpbmUgUElEX0RJUkVD
+VElPTl9FTkFCTEUJNQotI2RlZmluZSBQSURfU1RBUlRfREVMQVkJCTYKIHN0YXRpYyBjb25z
+dCB1OCBwaWRmZl9zZXRfZWZmZWN0W10gPSB7Ci0JMHgyMiwgMHg1MCwgMHg1MiwgMHg1Mywg
+MHg1NCwgMHg1NiwgMHhhNworCTB4MjIsIDB4NTAsIDB4NTIsIDB4NTMsIDB4NTQsIDB4NTYK
+IH07CiAKICNkZWZpbmUgUElEX0FUVEFDS19MRVZFTAkxCkBAIC0zMTEsNyArMzEwLDYgQEAg
+c3RhdGljIHZvaWQgcGlkZmZfc2V0X2VmZmVjdF9yZXBvcnQoc3RydWN0IHBpZGZmX2Rldmlj
+ZSAqcGlkZmYsCiAJcGlkZmYtPmVmZmVjdF9kaXJlY3Rpb24tPnZhbHVlWzBdID0KIAkJcGlk
+ZmZfcmVzY2FsZShlZmZlY3QtPmRpcmVjdGlvbiwgMHhmZmZmLAogCQkJCXBpZGZmLT5lZmZl
+Y3RfZGlyZWN0aW9uKTsKLQlwaWRmZi0+c2V0X2VmZmVjdFtQSURfU1RBUlRfREVMQVldLnZh
+bHVlWzBdID0gZWZmZWN0LT5yZXBsYXkuZGVsYXk7CiAKIAloaWRfaHdfcmVxdWVzdChwaWRm
+Zi0+aGlkLCBwaWRmZi0+cmVwb3J0c1tQSURfU0VUX0VGRkVDVF0sCiAJCQlISURfUkVRX1NF
+VF9SRVBPUlQpOwpAQCAtMzI2LDggKzMyNCw3IEBAIHN0YXRpYyBpbnQgcGlkZmZfbmVlZHNf
+c2V0X2VmZmVjdChzdHJ1Y3QgZmZfZWZmZWN0ICplZmZlY3QsCiAJcmV0dXJuIGVmZmVjdC0+
+cmVwbGF5Lmxlbmd0aCAhPSBvbGQtPnJlcGxheS5sZW5ndGggfHwKIAkgICAgICAgZWZmZWN0
+LT50cmlnZ2VyLmludGVydmFsICE9IG9sZC0+dHJpZ2dlci5pbnRlcnZhbCB8fAogCSAgICAg
+ICBlZmZlY3QtPnRyaWdnZXIuYnV0dG9uICE9IG9sZC0+dHJpZ2dlci5idXR0b24gfHwKLQkg
+ICAgICAgZWZmZWN0LT5kaXJlY3Rpb24gIT0gb2xkLT5kaXJlY3Rpb24gfHwKLQkgICAgICAg
+ZWZmZWN0LT5yZXBsYXkuZGVsYXkgIT0gb2xkLT5yZXBsYXkuZGVsYXk7CisJICAgICAgIGVm
+ZmVjdC0+ZGlyZWN0aW9uICE9IG9sZC0+ZGlyZWN0aW9uOwogfQogCiAvKgpAQCAtNzM2LDcg
+KzczMyw2IEBAIHN0YXRpYyB2b2lkIHBpZGZmX2F1dG9jZW50ZXIoc3RydWN0IHBpZGZmX2Rl
+dmljZSAqcGlkZmYsIHUxNiBtYWduaXR1ZGUpCiAJcGlkZmYtPnNldF9lZmZlY3RbUElEX1RS
+SUdHRVJfUkVQRUFUX0lOVF0udmFsdWVbMF0gPSAwOwogCXBpZGZmX3NldCgmcGlkZmYtPnNl
+dF9lZmZlY3RbUElEX0dBSU5dLCBtYWduaXR1ZGUpOwogCXBpZGZmLT5zZXRfZWZmZWN0W1BJ
+RF9ESVJFQ1RJT05fRU5BQkxFXS52YWx1ZVswXSA9IDE7Ci0JcGlkZmYtPnNldF9lZmZlY3Rb
+UElEX1NUQVJUX0RFTEFZXS52YWx1ZVswXSA9IDA7CiAKIAloaWRfaHdfcmVxdWVzdChwaWRm
+Zi0+aGlkLCBwaWRmZi0+cmVwb3J0c1tQSURfU0VUX0VGRkVDVF0sCiAJCQlISURfUkVRX1NF
+VF9SRVBPUlQpOwo=
+
+--------------Vn91C2W0gJTI1CRsfRIpcv1v--
 

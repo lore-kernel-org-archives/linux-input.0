@@ -2,109 +2,94 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85EFEC43334
-	for <linux-input@archiver.kernel.org>; Sun, 26 Jun 2022 08:13:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ACCACCA47E
+	for <linux-input@archiver.kernel.org>; Sun, 26 Jun 2022 09:11:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234068AbiFZINy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Jun 2022 04:13:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50510 "EHLO
+        id S234170AbiFZJLR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Jun 2022 05:11:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234037AbiFZINx (ORCPT
+        with ESMTP id S234155AbiFZJLQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Jun 2022 04:13:53 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C0E311C0C;
-        Sun, 26 Jun 2022 01:13:53 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id c4so5638034plc.8;
-        Sun, 26 Jun 2022 01:13:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=D3IVi1gGed/R88Z/LVYp9rC+q2YufqkGtl4pm7/wvUk=;
-        b=DGDJZaNMh7J8bD7fSo10nVpE7S2Ee0QaVYiBYuaSBfMGIfuuzdH8p8NDGE2WVFbsAx
-         nbu84rRuuwhWa5DBI5kC6QMWADyqqvbWXCiVYrHdex9n/J2pxztbsSKmi3eL1XpQnDr1
-         xOTVPD1jDJ2zRH6iffw0yBRvIoIQG/tX1XKvcOwckHROioWrwNGNf3gP6VReXg5Pr9Tr
-         m3x9ulk3XJDtMaqanWqS7veuDtiAZ+YWxIbGH69ymk7DSgGA6NLxkolC777l/BdAgXuA
-         6g1vZ0ALADVbJIXX8RF8Uf/QRpw3Tuh77ed+WmIjQyo+slDese3HZz44nD/sLUQNhsaP
-         lJGQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=D3IVi1gGed/R88Z/LVYp9rC+q2YufqkGtl4pm7/wvUk=;
-        b=U9SF3/dIk3ap45PO0KNfkZndY/xnzFBN1XjrLBWmPECrGkDg6Bwd7E2LJ16Zb57gYE
-         H8ve217S6ovzJD7kvoebaCzvkF21LBJCXJ5cfN/UGuNSjKBJPecnIHZyMUX3bM6m43SB
-         CdjRYfAslNDUyD9R16SA07sbZ+TWFPHqHUCrkpVFBb+1Gv+iWpaWNYXj+DuAUWbxAzW+
-         Vu/+ogG4gunZelgjj0PcJkTiQlQPN46JATR3wEJcNgbY1+iEoCZm5727wwZ9ztwAMmWe
-         E8a55STqPYuTwnH5t3WyTlzr5yMpQv0EpckvCOebn1EwvfBuGCsxiNOWENEii6FM8NZm
-         Ldiw==
-X-Gm-Message-State: AJIora+Xjief3cUPHKnUEBuy4wjnD+PLI+dgIRT+rsHl/ORrXcwCvIXp
-        w6GtdOoqioAFkovgtBWZpPY=
-X-Google-Smtp-Source: AGRyM1uLk5j36B5dFxYDuSCPU0II8Bq6Pvw/RV7rl0qOg+3jbLWNr98NzCWz2H14ojTgRuvGCc+9Ng==
-X-Received: by 2002:a17:90b:3842:b0:1ed:16aa:def6 with SMTP id nl2-20020a17090b384200b001ed16aadef6mr14295820pjb.130.1656231232697;
-        Sun, 26 Jun 2022 01:13:52 -0700 (PDT)
-Received: from fedora.flets-east.jp ([2400:4050:c360:8200:8ae8:3c4:c0da:7419])
-        by smtp.gmail.com with ESMTPSA id q26-20020aa7983a000000b0051b95c76752sm4768433pfl.153.2022.06.26.01.13.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Jun 2022 01:13:52 -0700 (PDT)
-From:   Akihiko Odaki <akihiko.odaki@gmail.com>
-Cc:     Basavaraj Natikar <basavaraj.natikar@amd.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Akihiko Odaki <akihiko.odaki@gmail.com>
-Subject: [PATCH] HID: amd_sfh: Ignore uninitialized device
-Date:   Sun, 26 Jun 2022 17:13:39 +0900
-Message-Id: <20220626081339.7243-1-akihiko.odaki@gmail.com>
+        Sun, 26 Jun 2022 05:11:16 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 471FD12A93;
+        Sun, 26 Jun 2022 02:11:15 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6540BCE0F90;
+        Sun, 26 Jun 2022 09:11:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0BB0C341D2;
+        Sun, 26 Jun 2022 09:11:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1656234671;
+        bh=NCpiqd/D1JiRGRI6GFPpPviNDEw1WQaXUZZDjx551mU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=fHa/6D2/6MlyBB7kFaoPvwT7M37Z6+np2e4+K3s/u9VjR/vdduDG6/7u14eWpSQGh
+         SYC6yxhxTc7fYwdUuNyYBSQMAYb+v+DkqP6qO3LwozKn3ALp8kEJP+XPCZMDrp8fPo
+         50Q+XK5ZxnyjIwBpf/klBX8zsatXyUuy3R9Fn3qGZrpReBrOFhfMdI/SMCJ8Iahelj
+         jNu3X+CIjQ5NznInR4r2eaCJ9oYAwuBdhXhKqB1URmLXYIu3Hb/NRQGgic0Z7bSEXb
+         VAe8+TY2XgZ5MvNFm98kg79L3NmUuNIYPqJ+jE7vDYEm1USumqH1LxlUIXrqxvbPd3
+         quB1Tf3lBhb/Q==
+Received: from mchehab by mail.kernel.org with local (Exim 4.95)
+        (envelope-from <mchehab@kernel.org>)
+        id 1o5OIO-001cpF-6v;
+        Sun, 26 Jun 2022 10:11:08 +0100
+From:   Mauro Carvalho Chehab <mchehab@kernel.org>
+To:     Linux Doc Mailing List <linux-doc@vger.kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        "Jonathan Corbet" <corbet@lwn.net>,
+        "Mauro Carvalho Chehab" <mchehab+huawei@kernel.org>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Support Opensource <support.opensource@diasemi.com>,
+        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 18/20] dt-bindings: mfd: update dlg,da9063.yaml reference
+Date:   Sun, 26 Jun 2022 10:11:04 +0100
+Message-Id: <da459164d166d994b06f9ce8bf3a2108ccd0abd5.1656234456.git.mchehab@kernel.org>
 X-Mailer: git-send-email 2.36.1
+In-Reply-To: <cover.1656234456.git.mchehab@kernel.org>
+References: <cover.1656234456.git.mchehab@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Lenovo ThinkPad C13 Yoga has AMD Sensor Fusion Hub, but it is not used
-because Chrome OS EC Sensor Hub is used instead. The system therefore
-never loads the firmware for MP2 and MP2 does not work. It results in
-AMD_P2C_MSG3 register to have -1 as its value.
+Changeset 441613662db7 ("dt-bindings: mfd: Convert da9063 to yaml")
+renamed: Documentation/devicetree/bindings/mfd/da9063.txt
+to: Documentation/devicetree/bindings/mfd/dlg,da9063.yaml.
 
-Without this change, the driver interprets the value as it supports all
-sensor types and exposes them, which confuses a userspace program,
-iio-sensor-proxy, and makes it to use the non-functioning sensors
-instead of functioning sensors exposed via Chrome OS EC Sensor Hub.
+Update its cross-reference accordingly.
 
-Check the version bits included in AMD_P2C_MSG3 register and ignore the
-device if all of the bits are set.
-
-Signed-off-by: Akihiko Odaki <akihiko.odaki@gmail.com>
+Fixes: 441613662db7 ("dt-bindings: mfd: Convert da9063 to yaml")
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 4 ++++
- 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index dadc491bbf6b..4137e5da77ad 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -271,6 +271,8 @@ static void mp2_select_ops(struct amd_mp2_dev *privdata)
- 	case V2_STATUS:
- 		privdata->mp2_ops = &amd_sfh_ops_v2;
- 		break;
-+	case 15:
-+		break;
- 	default:
- 		privdata->mp2_ops = &amd_sfh_ops;
- 		break;
-@@ -317,6 +319,8 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
- 		return -ENOMEM;
+To avoid mailbombing on a large number of people, only mailing lists were C/C on the cover.
+See [PATCH v2 00/20] at: https://lore.kernel.org/all/cover.1656234456.git.mchehab@kernel.org/
+
+ Documentation/devicetree/bindings/input/da9062-onkey.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Documentation/devicetree/bindings/input/da9062-onkey.txt b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+index 5f9fbc68e58a..e5eef59a93dc 100644
+--- a/Documentation/devicetree/bindings/input/da9062-onkey.txt
++++ b/Documentation/devicetree/bindings/input/da9062-onkey.txt
+@@ -2,7 +2,7 @@
  
- 	mp2_select_ops(privdata);
-+	if (!privdata->mp2_ops)
-+		return -ENODEV;
+ This module is part of the DA9061/DA9062/DA9063. For more details about entire
+ DA9062 and DA9061 chips see Documentation/devicetree/bindings/mfd/da9062.txt
+-For DA9063 see Documentation/devicetree/bindings/mfd/da9063.txt
++For DA9063 see Documentation/devicetree/bindings/mfd/dlg,da9063.yaml
  
- 	rc = amd_sfh_irq_init(privdata);
- 	if (rc) {
+ This module provides the KEY_POWER event.
+ 
 -- 
 2.36.1
 

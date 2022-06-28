@@ -2,92 +2,104 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A29AC43334
-	for <linux-input@archiver.kernel.org>; Tue, 28 Jun 2022 17:53:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C83A2CCA479
+	for <linux-input@archiver.kernel.org>; Tue, 28 Jun 2022 19:15:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbiF1RxE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 28 Jun 2022 13:53:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36490 "EHLO
+        id S235116AbiF1TP2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 28 Jun 2022 15:15:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233807AbiF1Rwp (ORCPT
+        with ESMTP id S238225AbiF1TPG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Jun 2022 13:52:45 -0400
-Received: from mail-il1-f171.google.com (mail-il1-f171.google.com [209.85.166.171])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09B592C134;
-        Tue, 28 Jun 2022 10:51:40 -0700 (PDT)
-Received: by mail-il1-f171.google.com with SMTP id p9so8378622ilj.7;
-        Tue, 28 Jun 2022 10:51:40 -0700 (PDT)
+        Tue, 28 Jun 2022 15:15:06 -0400
+Received: from mail-il1-x12a.google.com (mail-il1-x12a.google.com [IPv6:2607:f8b0:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E993FB5B;
+        Tue, 28 Jun 2022 12:15:05 -0700 (PDT)
+Received: by mail-il1-x12a.google.com with SMTP id a7so3727518ilj.2;
+        Tue, 28 Jun 2022 12:15:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=/n4ZGb/068nKpvUj2aEVlkDxH0ZLUUwUoAPZOtzHeaw=;
+        b=FreFHvJED6l8YeDZnVOHuHLKagfq/efvYJ1oMCwGE+Z5d5eIv7A6xSeRuEstULrwbr
+         L+ViFaEi2OPPO7EXllvmzn2X2btIjj6YXbxksYmpq1MyvNk4JGvtM9UjdnzhQ8TYd0x2
+         SXGZROUDIH36+o47065wJrb6qZGn4Q+x4cRCI3p3WEaDs9nRyAlEC5vERW2FLKsfDyIA
+         ake1Jo/bc6iifmrUblRLJirP2CjjN6u7yvRi407Wlv5VKihURklf1HpkgnVJO+37Iggw
+         8hVP2Yqa+feaDtHkopbRBC7O5jTM+pW37140Pvhwjve00QrzqrHj7SG46+26PHP4+eBk
+         0ZgA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=ukrpBoDPJ0oBIr06UEzmL8XIg3gYmULI7qvWNNzOPnk=;
-        b=EKDpxpgMHWch7FgLhFkWQP2iUmSmBFhDBPZAYoPii4dsmkxu2IMutwE+aKG3gpqguM
-         U8rsJ3PfkHTpBwpheKRGtd4wg4oAmI3rkQ5kBd4nvuvJ5VdqcV1xWR20r32/vgQhIOUt
-         yX2IHF431Elal7083OvS0bWZlal6gNesGSNM/Rblh6fRgn6CaR9fwkqGeENisODcX3Aq
-         2LmNK5+pm+XOM8dEMKb97hwiKbSPSY66GG2JQlEt6Tc5bs+uw5u+Zt+O778nNjzgbuFe
-         BLheTC8H3QSvMTJ5yguScz/3Jme+wo5YJJ+zJHV6WUcMdxOyWNk5ra1OxtEgDDs9xnpk
-         ygnA==
-X-Gm-Message-State: AJIora8nwrzzxyEz1g+JcbBHaQzof9lCLgDZvpEFxGBIeusqNIs2HB+H
-        l7EM4wCgDFCrSgxXjIZyRA==
-X-Google-Smtp-Source: AGRyM1tZyPkRlhyS8RYwY4Xr/Wna4dV3W/rM1yEkibM9hWTSlUAKQxF5YD4hAYuStPD6le5KFrwRdA==
-X-Received: by 2002:a05:6e02:1b86:b0:2da:bf51:1d47 with SMTP id h6-20020a056e021b8600b002dabf511d47mr161243ili.218.1656438699121;
-        Tue, 28 Jun 2022 10:51:39 -0700 (PDT)
-Received: from robh.at.kernel.org ([64.188.179.253])
-        by smtp.gmail.com with ESMTPSA id h76-20020a6bb74f000000b00665754e45c2sm6919005iof.24.2022.06.28.10.51.37
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=/n4ZGb/068nKpvUj2aEVlkDxH0ZLUUwUoAPZOtzHeaw=;
+        b=NalsJ8l68/wzIDnAnWb7uhi+4u94wwlPe701kN8Dffl/WjQLzB53EYwkNnjQ9/kgb0
+         CP9+0MrpuQERoY998y+seFm4iCWkUIUe7N0s1wJocu2gvUKPtAVW4D99tEaZS/vL/Atq
+         i/q7h3IMr8JAeKx3mkxaQqk95h/6RHt8/UQtGN1zgF4IqDjY2YwXKrvtWXwAg9JlVL/r
+         UOdTXpM34ECfa2phXwu1nWyjv5GeTNdW1izXKSTZ5+G0n05RFRbZghyQh58uHuZa/ddf
+         fYHY9SS1EZWmHNv9jz8ttnwUux49FK00Da/MQJ3IoKM0WJ3ZppwaODp+9xVl9rluR61K
+         svVw==
+X-Gm-Message-State: AJIora+jHE1Gi9btDJ1hnmc0x/GMVHzdq3HPb0QXxLWHO2EveMhkgPZi
+        3iVA8bu2c8NYaBo4vms8cmptJFpzPGI=
+X-Google-Smtp-Source: AGRyM1txgww6e5MmaT16qH4j1VatQDpetfmdZN/OVKb1BVkQJvXq01cSMk5Wi6nRTCX2f/cWgiLb5w==
+X-Received: by 2002:a92:b00e:0:b0:2d6:538b:b866 with SMTP id x14-20020a92b00e000000b002d6538bb866mr11059856ilh.199.1656443705116;
+        Tue, 28 Jun 2022 12:15:05 -0700 (PDT)
+Received: from Dixie.. ([2604:2d80:a188:fd00:5448:c223:9fa4:5f87])
+        by smtp.gmail.com with ESMTPSA id c97-20020a02966a000000b0032b74686763sm6396009jai.76.2022.06.28.12.15.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 10:51:38 -0700 (PDT)
-Received: (nullmailer pid 695599 invoked by uid 1000);
-        Tue, 28 Jun 2022 17:51:37 -0000
-Date:   Tue, 28 Jun 2022 11:51:37 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc:     Heinrich Schuchardt <xypron.glpk@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Artur Rojek <contact@artur-rojek.eu>,
-        Maxime Ripard <mripard@kernel.org>,
-        Jeff LaBundy <jeff@labundy.com>, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/5] dt-bindings: input: Common property clean-ups and
- adc-keys conversion
-Message-ID: <20220628175137.GA694214-robh@kernel.org>
-References: <20220608211207.2058487-1-robh@kernel.org>
+        Tue, 28 Jun 2022 12:15:04 -0700 (PDT)
+From:   Chris Morgan <macroalpha82@gmail.com>
+To:     linux-input@vger.kernel.org
+Cc:     devicetree@vger.kernel.org, contact@artur-rojek.eu,
+        maccraft123mc@gmail.com, heiko@sntech.de,
+        krzysztof.kozlowski+dt@linaro.org, robh+dt@kernel.org,
+        dmitry.torokhov@gmail.com, paul@crapouillou.net, jic23@kernel.org,
+        linux-iio@vger.kernel.org, Chris Morgan <macroalpha82@gmail.com>,
+        Chris Morgan <macromorgan@hotmail.com>
+Subject: [PATCH v5 1/3] dt-bindings: adc-joystick: add poll-interval-ms
+Date:   Tue, 28 Jun 2022 14:14:58 -0500
+Message-Id: <20220628191500.69831-2-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220628191500.69831-1-macroalpha82@gmail.com>
+References: <20220628191500.69831-1-macroalpha82@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220608211207.2058487-1-robh@kernel.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Jun 08, 2022 at 03:12:02PM -0600, Rob Herring wrote:
-> This series refactors the common 'linux,code', 'linux,keycodes', and
-> 'linux,input-type' properties defined in various binding schemas. As the
-> properties are common, they should only have a single common schema type
-> definition. Note that 'linux,input-value' was not included here as it is
-> only used in 1 binding (gpio-keys).
-> 
-> The clean-ups are are result of the discussion on v1 of the adc-keys
-> binding conversion[1].
-> 
-> Rob
-> 
-> [1] https://lore.kernel.org/all/20220606184243.1057145-1-robh@kernel.org/
-> 
-> 
-> Rob Herring (5):
->   dt-bindings: input: Increase maximum keycode value to 0x2ff
->   dt-bindings: input: Centralize 'linux,code' definition
->   dt-bindings: input: Use common 'linux,keycodes' definition
->   dt-bindings: input: Centralize 'linux,input-type' definition
->   dt-bindings: input: Convert adc-keys to DT schema
+New devicetree attribute of "poll-interval-ms".
 
-Dmitry, Any comments on this?
+Add poll-interval support for the adc-joystick documentation. This is
+an optional value and if not provided the adc-joystick works as it
+does today (with triggered buffers). If this value is provided, the
+adc-joystick driver is polled at the specified interval. A new
+attribute was added instead of using the existing attribute of
+"poll-interval" to comply with rules detailed in property-units.yaml.
 
-Rob
+Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+---
+ Documentation/devicetree/bindings/input/adc-joystick.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+index 2ee04e03bc22..cfd8d1af5d2c 100644
+--- a/Documentation/devicetree/bindings/input/adc-joystick.yaml
++++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+@@ -18,6 +18,12 @@ properties:
+   compatible:
+     const: adc-joystick
+ 
++  poll-interval-ms:
++    description:
++      Poll interval time in milliseconds. If not specified, device will use
++      iio buffer.
++    $ref: /schemas/types.yaml#/definitions/uint32
++
+   io-channels:
+     minItems: 1
+     maxItems: 1024
+-- 
+2.34.1
+

@@ -2,169 +2,107 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2CFBCCA486
-	for <linux-input@archiver.kernel.org>; Tue, 28 Jun 2022 19:15:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60954C433EF
+	for <linux-input@archiver.kernel.org>; Wed, 29 Jun 2022 02:10:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235313AbiF1TPc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 28 Jun 2022 15:15:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46498 "EHLO
+        id S231364AbiF2CKV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 28 Jun 2022 22:10:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238237AbiF1TPI (ORCPT
+        with ESMTP id S231165AbiF2CKI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 28 Jun 2022 15:15:08 -0400
-Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DC55B6E;
-        Tue, 28 Jun 2022 12:15:07 -0700 (PDT)
-Received: by mail-io1-xd34.google.com with SMTP id i194so13804445ioa.12;
-        Tue, 28 Jun 2022 12:15:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=EVo7+DXyQxi73eOfnv2V979PsitDnvN1mrlQN40qb5E=;
-        b=X39lEbxy8L1hbkkrIqrd19do6eZEZZKlQL34ZYzhRo3tQDsf7hjHlYIKpGbhIWA4Ru
-         VWYv5AzSs5wikIOHeQpO7NzJp3NCnKzhRffiqWRPsO5Q1oxY4pDfi5JzmQBK79bRjBJm
-         w7ckdNDd43kIQXxxmpO7bidGGjfd6N3tCnkP5AwDjbxAcZriMRhTXrPmeVODySFeSZqA
-         wwbYc7/5S3SkaxECEQ7UeyvaogCTiAlKqKNXb/iaWcXTva8p51c7NKm7P5Km4zggEgex
-         BeEQvGq6KnuPI6M6rN1Dbg8xcnmMHsYTZFDWCO6BFpLXbURqGFogzsNiwqyJa2la0aZI
-         HGXw==
+        Tue, 28 Jun 2022 22:10:08 -0400
+Received: from mail-io1-f46.google.com (mail-io1-f46.google.com [209.85.166.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A3EF326C5;
+        Tue, 28 Jun 2022 19:10:03 -0700 (PDT)
+Received: by mail-io1-f46.google.com with SMTP id h85so14683077iof.4;
+        Tue, 28 Jun 2022 19:10:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=EVo7+DXyQxi73eOfnv2V979PsitDnvN1mrlQN40qb5E=;
-        b=wSFoGFymGaUmsIPsjK9U90EGnOBEQ35xqZE1k8BkESMro+WrACprPEZsHBYAbMW4Vo
-         tSMk4oekl/Vdsa6C0vESvYimvM+jGmpiqszFSoUDTuYN+7s9ZcDah92W7OVC1WB/39q/
-         EDhMnWwk7/fjlNYCw8Q/GVWH1o1s6y7wBpJN8bYfn5dnPdZMM8FGSZooYoel+0ZOv1TS
-         El/iy36NYiv2+jLqT3KhtRsRCEpRhhYoaHFW5jJfiOXRvFUpJ8EugSwCVmurBzRZ7dBm
-         BLeOEmsO6U6gttzPxOwSw/i3GeHszXRKoMyHf6qCHa4CvickQK9Gcuj2VxSKDu4QJHTB
-         Wy6w==
-X-Gm-Message-State: AJIora/9Hu6hGA7bkwGdL6mKqmRBidSPX6QkYwfdi3Z7rbNNk0AfqhHC
-        i7/kpAIAJBc9tLmrWopYAEJTZMZhgW4=
-X-Google-Smtp-Source: AGRyM1sgL09VDiqSgeEEm5ubd1+MoFbIm5CeK2alfflHKWbL/MFgKbSUjo/L/6EeNSYwfPrSSJMGoA==
-X-Received: by 2002:a05:6602:2e8e:b0:669:d5b1:3fc9 with SMTP id m14-20020a0566022e8e00b00669d5b13fc9mr10316935iow.210.1656443706557;
-        Tue, 28 Jun 2022 12:15:06 -0700 (PDT)
-Received: from Dixie.. ([2604:2d80:a188:fd00:5448:c223:9fa4:5f87])
-        by smtp.gmail.com with ESMTPSA id c97-20020a02966a000000b0032b74686763sm6396009jai.76.2022.06.28.12.15.05
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
+         :message-id;
+        bh=LN+78puhwYgKBtGz2TuDo+Xg7t/Ipevze3ieJ206j4Y=;
+        b=cQka8Kajrz27cvfwVqVCDOpDQ9f8zqznaxA+QKh0SxSrSkmE+cC4kMUTAtE02Cjawx
+         RmsAP5ZVOD2f9UtcwIBImaAL31DnadXG5/lZ9R+jtBgSkrKcohIF5laKd4vYzTb19kGx
+         4ZYjhQXbwxpJoVPIcaDbKkNJSpSTcDSBI7sZclWidqvmDLZCXbsdrXVKNXTc351cHyJL
+         hSw6h2UGsZVneAu95/9O2V3Bbb1uvZL8QP2Z70D4+XJT1YcJrPWTcxxyqfNwY+AjoOvq
+         /qtb/vJ/T7SKlxpQ43U/a1B86UiNukg+24YF7pUXFKZsYy7/vmx249A/d/Qsshc/Q2lj
+         M5DQ==
+X-Gm-Message-State: AJIora+tams5HpGwq4k7O1VCYmvCLpwalL0ueNR5Exx3SmJEcofi9QjJ
+        TgjBxWpn+TbnSK2evTqn5Q==
+X-Google-Smtp-Source: AGRyM1tYMYPFp2t74pAadIvPmONlKDfgpVJ9eVS2orkI/qmxrWCHXrzijGo4rGJR+DGI/H8yB6clFw==
+X-Received: by 2002:a05:6638:191b:b0:33c:8b14:e7e4 with SMTP id p27-20020a056638191b00b0033c8b14e7e4mr621920jal.212.1656468603517;
+        Tue, 28 Jun 2022 19:10:03 -0700 (PDT)
+Received: from robh.at.kernel.org ([64.188.179.253])
+        by smtp.gmail.com with ESMTPSA id s10-20020a5ec64a000000b0067520155dedsm5407453ioo.15.2022.06.28.19.10.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Jun 2022 12:15:06 -0700 (PDT)
-From:   Chris Morgan <macroalpha82@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     devicetree@vger.kernel.org, contact@artur-rojek.eu,
-        maccraft123mc@gmail.com, heiko@sntech.de,
-        krzysztof.kozlowski+dt@linaro.org, robh+dt@kernel.org,
-        dmitry.torokhov@gmail.com, paul@crapouillou.net, jic23@kernel.org,
-        linux-iio@vger.kernel.org, Chris Morgan <macroalpha82@gmail.com>,
-        Chris Morgan <macromorgan@hotmail.com>
-Subject: [PATCH v5 2/3] Input: adc-joystick - Add polled input device support
-Date:   Tue, 28 Jun 2022 14:14:59 -0500
-Message-Id: <20220628191500.69831-3-macroalpha82@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220628191500.69831-1-macroalpha82@gmail.com>
-References: <20220628191500.69831-1-macroalpha82@gmail.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Tue, 28 Jun 2022 19:10:03 -0700 (PDT)
+Received: (nullmailer pid 1403680 invoked by uid 1000);
+        Wed, 29 Jun 2022 02:09:39 -0000
+From:   Rob Herring <robh@kernel.org>
+To:     Chris Morgan <macroalpha82@gmail.com>
+Cc:     heiko@sntech.de, contact@artur-rojek.eu,
+        krzysztof.kozlowski+dt@linaro.org, linux-iio@vger.kernel.org,
+        jic23@kernel.org, robh+dt@kernel.org,
+        Chris Morgan <macromorgan@hotmail.com>,
+        linux-input@vger.kernel.org, paul@crapouillou.net,
+        maccraft123mc@gmail.com, dmitry.torokhov@gmail.com,
+        devicetree@vger.kernel.org
+In-Reply-To: <20220628191500.69831-2-macroalpha82@gmail.com>
+References: <20220628191500.69831-1-macroalpha82@gmail.com> <20220628191500.69831-2-macroalpha82@gmail.com>
+Subject: Re: [PATCH v5 1/3] dt-bindings: adc-joystick: add poll-interval-ms
+Date:   Tue, 28 Jun 2022 20:09:39 -0600
+Message-Id: <1656468579.916584.1403679.nullmailer@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add polled input device support to the adc-joystick driver. This is
-useful for devices which do not have hardware capable triggers on
-their SARADC. Code modified from adc-joystick.c changes made by Maya
-Matuszczyk.
+On Tue, 28 Jun 2022 14:14:58 -0500, Chris Morgan wrote:
+> New devicetree attribute of "poll-interval-ms".
+> 
+> Add poll-interval support for the adc-joystick documentation. This is
+> an optional value and if not provided the adc-joystick works as it
+> does today (with triggered buffers). If this value is provided, the
+> adc-joystick driver is polled at the specified interval. A new
+> attribute was added instead of using the existing attribute of
+> "poll-interval" to comply with rules detailed in property-units.yaml.
+> 
+> Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+> Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+> ---
+>  Documentation/devicetree/bindings/input/adc-joystick.yaml | 6 ++++++
+>  1 file changed, 6 insertions(+)
+> 
 
-Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
-Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
----
- drivers/input/joystick/adc-joystick.c | 51 +++++++++++++++++++++------
- 1 file changed, 40 insertions(+), 11 deletions(-)
+My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+on your patch (DT_CHECKER_FLAGS is new in v5.13):
 
-diff --git a/drivers/input/joystick/adc-joystick.c b/drivers/input/joystick/adc-joystick.c
-index 78ebca7d400a..e52f8b2b5563 100644
---- a/drivers/input/joystick/adc-joystick.c
-+++ b/drivers/input/joystick/adc-joystick.c
-@@ -26,8 +26,23 @@ struct adc_joystick {
- 	struct adc_joystick_axis *axes;
- 	struct iio_channel *chans;
- 	int num_chans;
-+	bool polled;
- };
- 
-+static void adc_joystick_poll(struct input_dev *input)
-+{
-+	struct adc_joystick *joy = input_get_drvdata(input);
-+	int i, val, ret;
-+
-+	for (i = 0; i < joy->num_chans; i++) {
-+		ret = iio_read_channel_raw(&joy->chans[i], &val);
-+		if (ret < 0)
-+			return;
-+		input_report_abs(input, joy->axes[i].code, val);
-+	}
-+	input_sync(input);
-+}
-+
- static int adc_joystick_handle(const void *data, void *private)
- {
- 	struct adc_joystick *joy = private;
-@@ -179,6 +194,7 @@ static int adc_joystick_probe(struct platform_device *pdev)
- 	int error;
- 	int bits;
- 	int i;
-+	unsigned int poll_interval;
- 
- 	joy = devm_kzalloc(dev, sizeof(*joy), GFP_KERNEL);
- 	if (!joy)
-@@ -215,8 +231,17 @@ static int adc_joystick_probe(struct platform_device *pdev)
- 	joy->input = input;
- 	input->name = pdev->name;
- 	input->id.bustype = BUS_HOST;
--	input->open = adc_joystick_open;
--	input->close = adc_joystick_close;
-+
-+	joy->polled = !device_property_read_u32(dev, "poll-interval-ms",
-+						&poll_interval);
-+
-+	if (joy->polled) {
-+		input_setup_polling(input, adc_joystick_poll);
-+		input_set_poll_interval(input, poll_interval);
-+	} else {
-+		input->open = adc_joystick_open;
-+		input->close = adc_joystick_close;
-+	}
- 
- 	error = adc_joystick_set_axes(dev, joy);
- 	if (error)
-@@ -229,16 +254,20 @@ static int adc_joystick_probe(struct platform_device *pdev)
- 		return error;
- 	}
- 
--	joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
--	if (IS_ERR(joy->buffer)) {
--		dev_err(dev, "Unable to allocate callback buffer\n");
--		return PTR_ERR(joy->buffer);
--	}
-+	if (!joy->polled) {
-+		joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle,
-+						     joy);
-+		if (IS_ERR(joy->buffer)) {
-+			dev_err(dev, "Unable to allocate callback buffer\n");
-+			return PTR_ERR(joy->buffer);
-+		}
- 
--	error = devm_add_action_or_reset(dev, adc_joystick_cleanup, joy->buffer);
--	if (error)  {
--		dev_err(dev, "Unable to add action\n");
--		return error;
-+		error = devm_add_action_or_reset(dev, adc_joystick_cleanup,
-+						 joy->buffer);
-+		if (error)  {
-+			dev_err(dev, "Unable to add action\n");
-+			return error;
-+		}
- 	}
- 
- 	return 0;
--- 
-2.34.1
+yamllint warnings/errors:
+
+dtschema/dtc warnings/errors:
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/input/adc-joystick.yaml: properties:poll-interval-ms: '$ref' should not be valid under {'const': '$ref'}
+	hint: Standard unit suffix properties don't need a type $ref
+	from schema $id: http://devicetree.org/meta-schemas/core.yaml#
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/iio/temperature/adi,ltc2983.yaml: patternProperties:^thermistor@:properties:adi,excitation-current-nanoamp: '$ref' should not be valid under {'const': '$ref'}
+	hint: Standard unit suffix properties don't need a type $ref
+	from schema $id: http://devicetree.org/meta-schemas/core.yaml#
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/input/adc-joystick.yaml: ignoring, error in schema: properties: poll-interval-ms
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/iio/temperature/adi,ltc2983.yaml: ignoring, error in schema: patternProperties: ^thermistor@: properties: adi,excitation-current-nanoamp
+Documentation/devicetree/bindings/input/adc-joystick.example.dtb:0:0: /example-0/adc-joystick: failed to match any schema with compatible: ['adc-joystick']
+Documentation/devicetree/bindings/iio/temperature/adi,ltc2983.example.dtb:0:0: /example-0/spi/ltc2983@0: failed to match any schema with compatible: ['adi,ltc2983']
+
+doc reference errors (make refcheckdocs):
+
+See https://patchwork.ozlabs.org/patch/
+
+This check can fail if there are any dependencies. The base for a patch
+series is generally the most recent rc1.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit.
 

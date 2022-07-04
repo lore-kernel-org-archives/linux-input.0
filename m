@@ -2,358 +2,209 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D01DCCA487
-	for <linux-input@archiver.kernel.org>; Wed, 29 Jun 2022 07:41:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDBD5C433EF
+	for <linux-input@archiver.kernel.org>; Mon,  4 Jul 2022 16:16:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232233AbiF2Hlx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 29 Jun 2022 03:41:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56294 "EHLO
+        id S234648AbiGDQQ0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 4 Jul 2022 12:16:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229820AbiF2Hlv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>);
-        Wed, 29 Jun 2022 03:41:51 -0400
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31F1236B42;
-        Wed, 29 Jun 2022 00:41:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1656488510; x=1688024510;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=hRLWAheTUgpMqJ+CTyhb8q72eqCf5jXCD+qdlPmQdX8=;
-  b=V7EsYYr9EIij1ip70+OQMY/gzrh5wyGiKcYp8AWCHb25bOJrQa8ldVVA
-   WjfiGM9RSi7+O2v6aTzjnGFtciC06e+wwz660J8d1fRqDhDUuFa+GCisT
-   rKUaoFvcqeLu972MEnNCCaodyFq5KFw65hrEObpxXK1USTMOqGTNjghk1
-   M6eAb7r6RhwTd49jKSf+itMDaZ5Gu/jHoVMqNBN++BYhLvCzxTurIoN9M
-   /3H0k+pz3CbrRrMwvdgEhSQ7BUW5H6fpDqV6CtG6BHjQGM7QYyLOK833q
-   sD1PkwJUKQH1n3D/+a5t4ubmQSAULxHZs8gKZv4cjGcBr80q05Z6ghIMA
-   Q==;
-X-IronPort-AV: E=McAfee;i="6400,9594,10392"; a="307444900"
-X-IronPort-AV: E=Sophos;i="5.92,230,1650956400"; 
-   d="scan'208";a="307444900"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jun 2022 00:41:33 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.92,230,1650956400"; 
-   d="scan'208";a="733074160"
-Received: from kuha.fi.intel.com ([10.237.72.185])
-  by fmsmga001.fm.intel.com with SMTP; 29 Jun 2022 00:40:24 -0700
-Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Wed, 29 Jun 2022 10:40:23 +0300
-Date:   Wed, 29 Jun 2022 10:40:23 +0300
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-Cc:     Wolfram Sang <wsa@kernel.org>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <uwe@kleine-koenig.org>,
-        Sekhar Nori <nsekhar@ti.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Russell King <linux@armlinux.org.uk>,
-        Scott Wood <oss@buserror.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Robin van der Gracht <robin@protonic.nl>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Corey Minyard <minyard@acm.org>,
-        Peter Huewe <peterhuewe@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
-        Jason Gunthorpe <jgg@ziepe.ca>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
+        with ESMTP id S234521AbiGDQQZ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Jul 2022 12:16:25 -0400
+Received: from EUR04-DB3-obe.outbound.protection.outlook.com (mail-eopbgr60077.outbound.protection.outlook.com [40.107.6.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4603610C2;
+        Mon,  4 Jul 2022 09:16:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Y7MgjZZD77Me/bP1tUhkd9pFpaq8r/sS1h8gaghTNv5RE9QeAsGHyUc94XwuTdX/t7QazKu3ik0y4vIrXv8zRZKJoAJeWjZJcaq+VOsbeK0CrzrJlZwy+xdTsj4ko9T7g+hOgdSqznMu+2IKBdGJlXvl8EE2OMUpAQNNqvhXefTV3XA7RtnaoUlgxiyL8ulqa5qF3Ox9zTO3ZwtpnFfhezy8gVhCtMwAg19BPTE+u9l5qCdO1zCscEt4N2nPe5UP6IglcM53RqFfCVNPzUObWXbWHYNo4Y8pvkE5htSmARYFw67WOMLYxf+jCVzzp5O3ROog84wKHjP/KQIOiCL9BQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=OGgj83yGzD6M1rPElUntrc2VoIA6exgXaV1BpStiUxA=;
+ b=fF8ffyXK6C75PoGrSMD0IouwUH1YLoMTpBmkqargzysuOSih/sIvmSUfchNqxbwKwPCwlULJMZZMasTfnO+1kHt/e26SEM5/l0sC+lL6TyXvpRFjekeD+g8gNeiGDH/eAlsd7JCvesT1FCPFHsI8idKmrDmWNmQfUIsVd/5W/xtZ9G3w3BN1w2F2c4MZVUO0GcOckx7gA+QUx8hv18hn+O30pqCtK1UWpsr145/g48tQJVSzoPwRPoXOX+E8A6rRXBu+tSThWIwG2kTfXTgvLH4kxNZje+B4lTm/dAwJ7hUbEq67xcBoy77ZTJOYUwd8+sSP4/r4wHUCTe5LllIQDg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector2-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=OGgj83yGzD6M1rPElUntrc2VoIA6exgXaV1BpStiUxA=;
+ b=mscgz5J1LXe9iWVttNAito1AFtFSAdIh0F8EBlcHdoua0dUiPChb/6mUNT5tgs/W9DOfXx0hlnFeRltJjJ5/KdrpC2yTSfEkN8ZM13ioNWDzm6Pyt0jvvBkceh/GuL9OnBM4SU+geF1PLRL87aZkThtIpNaYQLM+aVOLD2yZwbc=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from VI1PR04MB5005.eurprd04.prod.outlook.com (2603:10a6:803:57::30)
+ by AS8PR04MB8213.eurprd04.prod.outlook.com (2603:10a6:20b:3f3::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5395.20; Mon, 4 Jul
+ 2022 16:16:20 +0000
+Received: from VI1PR04MB5005.eurprd04.prod.outlook.com
+ ([fe80::6546:3ee1:5e6c:278f]) by VI1PR04MB5005.eurprd04.prod.outlook.com
+ ([fe80::6546:3ee1:5e6c:278f%5]) with mapi id 15.20.5395.020; Mon, 4 Jul 2022
+ 16:16:19 +0000
+From:   "Viorel Suman (OSS)" <viorel.suman@oss.nxp.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Michael Turquette <mturquette@baylibre.com>,
         Stephen Boyd <sboyd@kernel.org>,
-        Luca Ceresoli <luca@lucaceresoli.net>,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Michael Hennerich <michael.hennerich@analog.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Dong Aisheng <aisheng.dong@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Stefan Agner <stefan@agner.ch>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
         Linus Walleij <linus.walleij@linaro.org>,
-        Andrzej Hajda <andrzej.hajda@intel.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Robert Foss <robert.foss@linaro.org>,
-        Laurent Pinchart <Laurent.pinchart@ideasonboard.com>,
-        Jonas Karlman <jonas@kwiboo.se>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Benson Leung <bleung@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Phong LE <ple@baylibre.com>,
-        Adrien Grassein <adrien.grassein@gmail.com>,
-        Peter Senna Tschudin <peter.senna@gmail.com>,
-        Martin Donnelly <martin.donnelly@ge.com>,
-        Martyn Welch <martyn.welch@collabora.co.uk>,
-        Douglas Anderson <dianders@chromium.org>,
-        Stefan Mavrodiev <stefan@olimex.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, Broad@vger.kernel.org
-Subject: Re: [PATCH 6/6] i2c: Make remove callback return void
-Message-ID: <YrwB5xPKZmHlXzrC@kuha.fi.intel.com>
-References: <20220628140313.74984-1-u.kleine-koenig@pengutronix.de>
- <20220628140313.74984-7-u.kleine-koenig@pengutronix.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Amit Kucheria <amitk@kernel.org>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Abel Vesa <abelvesa@kernel.org>,
+        Viorel Suman <viorel.suman@nxp.com>,
+        Peng Fan <peng.fan@nxp.com>,
+        Mirela Rabulea <mirela.rabulea@nxp.com>,
+        Liu Ying <victor.liu@nxp.com>,
+        Oliver Graute <oliver.graute@kococonnector.com>,
+        Ming Qian <ming.qian@nxp.com>, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-pm@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Viorel Suman <viorel.suman@oss.nxp.com>
+Subject: [PATCH v7 00/15] dt-bindings: arm: freescale: Switch fsl,scu from txt to yaml
+Date:   Mon,  4 Jul 2022 19:15:26 +0300
+Message-Id: <20220704161541.943696-1-viorel.suman@oss.nxp.com>
+X-Mailer: git-send-email 2.25.1
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20220628140313.74984-7-u.kleine-koenig@pengutronix.de>
+X-ClientProxiedBy: AM0PR07CA0008.eurprd07.prod.outlook.com
+ (2603:10a6:208:ac::21) To VI1PR04MB5005.eurprd04.prod.outlook.com
+ (2603:10a6:803:57::30)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: b14d0db1-9d1a-44d1-b8bb-08da5dd8873f
+X-MS-TrafficTypeDiagnostic: AS8PR04MB8213:EE_
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-LD-Processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: QbsX3ZuMjPc1KIF7EaG9hTfKYNyJCZKAL6UgzOfdjmgNqzKBmhW26TL2DG2N6PAiBsG4NCUOmQxTSthQ0Cb/88h4FQPdEOfyWzBUDqytxql+6mTDWSpsBV7NX0/MFtXjtEv5dNmem12/OK4jtzFYFqnK+0D4XicUrxmRNrNd74QuIDMM8fEKjhQmMT9jJbC70VjWGqztrNJUN5HyRhKHDJ9BvOnmu+krsHQNsHzHRqxUge8lpGxJg4LCnD+JWPjZaSf0eaGSb/Qj4kQ8VxOnbHSXiymLGmHO7yDdGdZR2TF5TM7g08b8su8BhzaHDTe0cwbJZ8yom/29UW7BLU4jFUrbaPjuhE7xzUY959lVOwnDmc7Vwm4aS3obijUN4+rDXf2izgYy5RJ6blN65d+oRPi8Rl4pCdUaEvzOZ7W0ZcPMEzJ3f3JCze8MIbyM+Wfwfka93fdfXr9r94hV1QCcenCFg0rF6vARwgVCu60vqh+rEEbUCboqmlSRVjkKJAloUCaWNBCYEKZO/8e5ZO6ooY8TL56RgbVJ+ca2TMfdpsaTvGZOxRfp/+pc8CbMft6qNZ1fVIeVszNzpi1rloyRvXjmS8Y010uLlHgguUilEY9784VaQtzoYeSGU55teYYEdJ479RoEepZ3CQEwHCMhH8ydw+53O9kwU94IK08TH8BQNkjAY99SAMoEl4yzy+8OwVie8Uf5TQmPKcIX0ubDEChro337VwV3U8gUujP/CGMipBY7XgK32DEEA9D0kTwRiOW6SiNOEqwr5/SCrds9FCMOI5WRZFwBXYeFeqoK+l/48O08IJimwv6cBdM2+g2GHquhMP6wRc309c3NXaMiuZComAz+OThbloCvD8cGRuJpQosjlBx1STFdo5sRkLLRIUeHSAyvWI70q3oXdt/Gbw==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5005.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(4636009)(396003)(366004)(136003)(39860400002)(346002)(376002)(186003)(26005)(52116002)(2906002)(6506007)(6666004)(6512007)(1076003)(2616005)(41300700001)(86362001)(38350700002)(83380400001)(38100700002)(921005)(5660300002)(4326008)(316002)(8676002)(110136005)(66556008)(7416002)(7406005)(66946007)(8936002)(66476007)(6486002)(478600001)(966005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?iso-8859-1?Q?TOFE5Ke2wvx5m+CtcX1cubHvOdaGc0y0CxnNdfmCaXfAgfuNuVftSyy5VK?=
+ =?iso-8859-1?Q?sIzLDJIsBM7yHtbLT0WK0miDwYsI7jak6uNONm7LNAO+0gQrE8J6brZbZ4?=
+ =?iso-8859-1?Q?ULOAY91WhC1rbP2cJ2NaVJJF9eFlyw2XjO8U6d9dNmVU1tCh6Ss3R1SoTu?=
+ =?iso-8859-1?Q?9S0EDDelREvM6IWncAV5omGM9nil6B0PZwjN2fz9CgytaiW9XVNxaD2axG?=
+ =?iso-8859-1?Q?kKlgg3l0FgUrlSlnP8Wo7Y6twYjIqWbbCyYOmgOptMpebxJrXnPRnEr8+y?=
+ =?iso-8859-1?Q?+Tr8o+uSM2HC0OBArvKcUihs7RLNNSfWw29N8dtnKrEIY7f8AIqXuai/Ai?=
+ =?iso-8859-1?Q?CyPblYGCKdCnyh6FBaurgcMxwTg3h/kJUmF+NrgxsUEd1eyn4MussDLtqP?=
+ =?iso-8859-1?Q?VONNIeynww85BGZqH7fMNiERxQ/vMqcqzjQ0XY/VZdzajA15SqqZrIODVJ?=
+ =?iso-8859-1?Q?ptI0NTe8TUx/Ybz/cfrq2/oa60Z8MDotvCi2h9rtqQBnZ9YU6d7UT2TeUL?=
+ =?iso-8859-1?Q?XX9UnhpOWX+furSXO4mJFXCrCln4lTChtEDwQMWInkfaKH6apcnr/8RSbx?=
+ =?iso-8859-1?Q?x+mzh7qaN7GfPW0PDxxsYcGRKPdOtQJ5dG+bDp6b7pojnbgQoqbdXRIYMu?=
+ =?iso-8859-1?Q?To5LZsChg4d4JTEIfxnzJXm6kNMolvsnf5Jq5P1qS+jWgHWZQQtoynd1cL?=
+ =?iso-8859-1?Q?bXp0Htdg1dVhuIqrYNO1AAl1Z+Jobg2M7B051SVnsAbKjHkl7FoDdmfP7H?=
+ =?iso-8859-1?Q?5/Lg62M9r4phWgECcn+Ro42kKrNMENrxHHegkAQilFptNWl2Cech1Ia/jx?=
+ =?iso-8859-1?Q?JBah65MroV5f92zI7WhefnHANPBQhzHCU0PGXy0HoC6NAZ6XDf04l+RRPQ?=
+ =?iso-8859-1?Q?Qsr02v0doLiJ4M1PPeuL96ng7jMRIR/758llGJ2y0LFVB59+n71yUV4K/F?=
+ =?iso-8859-1?Q?wsWBpPStT07Msm+RgJTUE/zfez2zjUgB+W8EpuTdQBpugE2pnrCyaJblIq?=
+ =?iso-8859-1?Q?AQokhjAIA/q16xxzsDAiehizKjHYFcAbKL/EbXnlQD5uhhlHZJjsQOi1ex?=
+ =?iso-8859-1?Q?S8reXoanFIdD42ZpcC4qV2iI2TMMr7VEqJqplYohNGsRpnbTPEfm0i0Z2j?=
+ =?iso-8859-1?Q?fiBS9JSOw3Xlikf9Pon7xsD1rgQPCQW3lexp1WZpjQN2DHTId2LuMyd5j7?=
+ =?iso-8859-1?Q?Y52/XU67rOGkfEJO6fj53umuY5abxM8byjjbH7mJWk3yHwK/FoYvUfFSCD?=
+ =?iso-8859-1?Q?1BMtglweD8nlwmek1qR/WbxAPfi6/R/IgqJssoIcxwcZ4y2ERNhaOAkJKi?=
+ =?iso-8859-1?Q?msQtdbKMnhvclMFPkwJY6ac7GTQIjUmcutsZD6WbvXgwmM2tNHyogn6PVW?=
+ =?iso-8859-1?Q?RzIa0LqfcTCAvcOfLhHYrwgj8kynOg7Imarmf4elEaSwda2VH0ktpmHBfl?=
+ =?iso-8859-1?Q?ITcJrs0bfCX8D9GHwGFEYV920INeBERmWCKSLM+LvDjqv8rcVDdN+Y/gBt?=
+ =?iso-8859-1?Q?5mGlsNCnQNBGU2+1yV49s07Kn2Z5vQCVkKkRskccxCZephELRZNBitNodd?=
+ =?iso-8859-1?Q?uN6LBngRPS7HKnosHbk9y//UQ7ZzUb2RAVFYs02mkCB1OP2psZNak7xQh6?=
+ =?iso-8859-1?Q?nkQKg72EGhhdMjyuXme9oiO0ZnKtRwtyve?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b14d0db1-9d1a-44d1-b8bb-08da5dd8873f
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5005.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Jul 2022 16:16:19.3828
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: O/i/Vp97mAqXjZkkmIfCQJLw4YtwYUwTdGguAxzWauFghp8lEkwaMNDUmBOJZlFwF8SAK4GWK8DR3hn3bg6dmA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR04MB8213
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Jun 28, 2022 at 04:03:12PM +0200, Uwe Kleine-König wrote:
-> diff --git a/drivers/usb/typec/hd3ss3220.c b/drivers/usb/typec/hd3ss3220.c
-> index cd47c3597e19..2a58185fb14c 100644
-> --- a/drivers/usb/typec/hd3ss3220.c
-> +++ b/drivers/usb/typec/hd3ss3220.c
-> @@ -245,14 +245,12 @@ static int hd3ss3220_probe(struct i2c_client *client,
->  	return ret;
->  }
->  
-> -static int hd3ss3220_remove(struct i2c_client *client)
-> +static void hd3ss3220_remove(struct i2c_client *client)
->  {
->  	struct hd3ss3220 *hd3ss3220 = i2c_get_clientdata(client);
->  
->  	typec_unregister_port(hd3ss3220->port);
->  	usb_role_switch_put(hd3ss3220->role_sw);
-> -
-> -	return 0;
->  }
->  
->  static const struct of_device_id dev_ids[] = {
-> diff --git a/drivers/usb/typec/mux/fsa4480.c b/drivers/usb/typec/mux/fsa4480.c
-> index 6184f5367190..d6495e533e58 100644
-> --- a/drivers/usb/typec/mux/fsa4480.c
-> +++ b/drivers/usb/typec/mux/fsa4480.c
-> @@ -181,14 +181,12 @@ static int fsa4480_probe(struct i2c_client *client)
->  	return 0;
->  }
->  
-> -static int fsa4480_remove(struct i2c_client *client)
-> +static void fsa4480_remove(struct i2c_client *client)
->  {
->  	struct fsa4480 *fsa = i2c_get_clientdata(client);
->  
->  	typec_mux_unregister(fsa->mux);
->  	typec_switch_unregister(fsa->sw);
-> -
-> -	return 0;
->  }
->  
->  static const struct i2c_device_id fsa4480_table[] = {
-> diff --git a/drivers/usb/typec/mux/pi3usb30532.c b/drivers/usb/typec/mux/pi3usb30532.c
-> index 6ce9f282594e..1cd388b55c30 100644
-> --- a/drivers/usb/typec/mux/pi3usb30532.c
-> +++ b/drivers/usb/typec/mux/pi3usb30532.c
-> @@ -160,13 +160,12 @@ static int pi3usb30532_probe(struct i2c_client *client)
->  	return 0;
->  }
->  
-> -static int pi3usb30532_remove(struct i2c_client *client)
-> +static void pi3usb30532_remove(struct i2c_client *client)
->  {
->  	struct pi3usb30532 *pi = i2c_get_clientdata(client);
->  
->  	typec_mux_unregister(pi->mux);
->  	typec_switch_unregister(pi->sw);
-> -	return 0;
->  }
->  
->  static const struct i2c_device_id pi3usb30532_table[] = {
-> diff --git a/drivers/usb/typec/rt1719.c b/drivers/usb/typec/rt1719.c
-> index f1b698edd7eb..ea8b700b0ceb 100644
-> --- a/drivers/usb/typec/rt1719.c
-> +++ b/drivers/usb/typec/rt1719.c
-> @@ -930,14 +930,12 @@ static int rt1719_probe(struct i2c_client *i2c)
->  	return ret;
->  }
->  
-> -static int rt1719_remove(struct i2c_client *i2c)
-> +static void rt1719_remove(struct i2c_client *i2c)
->  {
->  	struct rt1719_data *data = i2c_get_clientdata(i2c);
->  
->  	typec_unregister_port(data->port);
->  	usb_role_switch_put(data->role_sw);
-> -
-> -	return 0;
->  }
->  
->  static const struct of_device_id __maybe_unused rt1719_device_table[] = {
-> diff --git a/drivers/usb/typec/stusb160x.c b/drivers/usb/typec/stusb160x.c
-> index e7745d1c2a5c..8638f1d39896 100644
-> --- a/drivers/usb/typec/stusb160x.c
-> +++ b/drivers/usb/typec/stusb160x.c
-> @@ -801,7 +801,7 @@ static int stusb160x_probe(struct i2c_client *client)
->  	return ret;
->  }
->  
-> -static int stusb160x_remove(struct i2c_client *client)
-> +static void stusb160x_remove(struct i2c_client *client)
->  {
->  	struct stusb160x *chip = i2c_get_clientdata(client);
->  
-> @@ -823,8 +823,6 @@ static int stusb160x_remove(struct i2c_client *client)
->  
->  	if (chip->main_supply)
->  		regulator_disable(chip->main_supply);
-> -
-> -	return 0;
->  }
->  
->  static int __maybe_unused stusb160x_suspend(struct device *dev)
-> diff --git a/drivers/usb/typec/tcpm/fusb302.c b/drivers/usb/typec/tcpm/fusb302.c
-> index 96c55eaf3f80..5e9348f28d50 100644
-> --- a/drivers/usb/typec/tcpm/fusb302.c
-> +++ b/drivers/usb/typec/tcpm/fusb302.c
-> @@ -1771,7 +1771,7 @@ static int fusb302_probe(struct i2c_client *client,
->  	return ret;
->  }
->  
-> -static int fusb302_remove(struct i2c_client *client)
-> +static void fusb302_remove(struct i2c_client *client)
->  {
->  	struct fusb302_chip *chip = i2c_get_clientdata(client);
->  
-> @@ -1783,8 +1783,6 @@ static int fusb302_remove(struct i2c_client *client)
->  	fwnode_handle_put(chip->tcpc_dev.fwnode);
->  	destroy_workqueue(chip->wq);
->  	fusb302_debugfs_exit(chip);
-> -
-> -	return 0;
->  }
->  
->  static int fusb302_pm_suspend(struct device *dev)
-> diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
-> index f33e08eb7670..c48fca60bb06 100644
-> --- a/drivers/usb/typec/tcpm/tcpci.c
-> +++ b/drivers/usb/typec/tcpm/tcpci.c
-> @@ -869,7 +869,7 @@ static int tcpci_probe(struct i2c_client *client,
->  	return 0;
->  }
->  
-> -static int tcpci_remove(struct i2c_client *client)
-> +static void tcpci_remove(struct i2c_client *client)
->  {
->  	struct tcpci_chip *chip = i2c_get_clientdata(client);
->  	int err;
-> @@ -880,8 +880,6 @@ static int tcpci_remove(struct i2c_client *client)
->  		dev_warn(&client->dev, "Failed to disable irqs (%pe)\n", ERR_PTR(err));
->  
->  	tcpci_unregister_port(chip->tcpci);
-> -
-> -	return 0;
->  }
->  
->  static const struct i2c_device_id tcpci_id[] = {
-> diff --git a/drivers/usb/typec/tcpm/tcpci_maxim.c b/drivers/usb/typec/tcpm/tcpci_maxim.c
-> index df2505570f07..a11be5754128 100644
-> --- a/drivers/usb/typec/tcpm/tcpci_maxim.c
-> +++ b/drivers/usb/typec/tcpm/tcpci_maxim.c
-> @@ -493,14 +493,12 @@ static int max_tcpci_probe(struct i2c_client *client, const struct i2c_device_id
->  	return ret;
->  }
->  
-> -static int max_tcpci_remove(struct i2c_client *client)
-> +static void max_tcpci_remove(struct i2c_client *client)
->  {
->  	struct max_tcpci_chip *chip = i2c_get_clientdata(client);
->  
->  	if (!IS_ERR_OR_NULL(chip->tcpci))
->  		tcpci_unregister_port(chip->tcpci);
-> -
-> -	return 0;
->  }
->  
->  static const struct i2c_device_id max_tcpci_id[] = {
-> diff --git a/drivers/usb/typec/tcpm/tcpci_rt1711h.c b/drivers/usb/typec/tcpm/tcpci_rt1711h.c
-> index b56a0880a044..9ad4924b4ba7 100644
-> --- a/drivers/usb/typec/tcpm/tcpci_rt1711h.c
-> +++ b/drivers/usb/typec/tcpm/tcpci_rt1711h.c
-> @@ -263,12 +263,11 @@ static int rt1711h_probe(struct i2c_client *client,
->  	return 0;
->  }
->  
-> -static int rt1711h_remove(struct i2c_client *client)
-> +static void rt1711h_remove(struct i2c_client *client)
->  {
->  	struct rt1711h_chip *chip = i2c_get_clientdata(client);
->  
->  	tcpci_unregister_port(chip->tcpci);
-> -	return 0;
->  }
->  
->  static const struct i2c_device_id rt1711h_id[] = {
-> diff --git a/drivers/usb/typec/tipd/core.c b/drivers/usb/typec/tipd/core.c
-> index dfbba5ae9487..b637e8b378b3 100644
-> --- a/drivers/usb/typec/tipd/core.c
-> +++ b/drivers/usb/typec/tipd/core.c
-> @@ -857,15 +857,13 @@ static int tps6598x_probe(struct i2c_client *client)
->  	return ret;
->  }
->  
-> -static int tps6598x_remove(struct i2c_client *client)
-> +static void tps6598x_remove(struct i2c_client *client)
->  {
->  	struct tps6598x *tps = i2c_get_clientdata(client);
->  
->  	tps6598x_disconnect(tps, 0);
->  	typec_unregister_port(tps->port);
->  	usb_role_switch_put(tps->role_sw);
-> -
-> -	return 0;
->  }
->  
->  static const struct of_device_id tps6598x_of_match[] = {
-> diff --git a/drivers/usb/typec/ucsi/ucsi_ccg.c b/drivers/usb/typec/ucsi/ucsi_ccg.c
-> index 6db7c8ddd51c..920b7e743f56 100644
-> --- a/drivers/usb/typec/ucsi/ucsi_ccg.c
-> +++ b/drivers/usb/typec/ucsi/ucsi_ccg.c
-> @@ -1398,7 +1398,7 @@ static int ucsi_ccg_probe(struct i2c_client *client,
->  	return status;
->  }
->  
-> -static int ucsi_ccg_remove(struct i2c_client *client)
-> +static void ucsi_ccg_remove(struct i2c_client *client)
->  {
->  	struct ucsi_ccg *uc = i2c_get_clientdata(client);
->  
-> @@ -1408,8 +1408,6 @@ static int ucsi_ccg_remove(struct i2c_client *client)
->  	ucsi_unregister(uc->ucsi);
->  	ucsi_destroy(uc->ucsi);
->  	free_irq(uc->irq, uc);
-> -
-> -	return 0;
->  }
->  
->  static const struct i2c_device_id ucsi_ccg_device_id[] = {
-> diff --git a/drivers/usb/typec/wusb3801.c b/drivers/usb/typec/wusb3801.c
-> index e63509f8b01e..3cc7a15ecbd3 100644
-> --- a/drivers/usb/typec/wusb3801.c
-> +++ b/drivers/usb/typec/wusb3801.c
-> @@ -399,7 +399,7 @@ static int wusb3801_probe(struct i2c_client *client)
->  	return ret;
->  }
->  
-> -static int wusb3801_remove(struct i2c_client *client)
-> +static void wusb3801_remove(struct i2c_client *client)
->  {
->  	struct wusb3801 *wusb3801 = i2c_get_clientdata(client);
->  
-> @@ -411,8 +411,6 @@ static int wusb3801_remove(struct i2c_client *client)
->  
->  	if (wusb3801->vbus_on)
->  		regulator_disable(wusb3801->vbus_supply);
-> -
-> -	return 0;
->  }
+From: Viorel Suman <viorel.suman@nxp.com>
 
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Changes since v6: https://lore.kernel.org/lkml/20220629164414.301813-1-viorel.suman@oss.nxp.com/
+  * The series updated so that each patch making the conversion removes
+    the piece being converted, then finally the patch adding fsl,scu.yaml
+    removes the last pieces, as suggested by Krzysztof Kozlowski.
+  * Updated ocotp and system-controller node names in the existing DTS
+    files
+
+Changes since v5: https://lore.kernel.org/lkml/20220616164303.790379-1-viorel.suman@nxp.com/
+  * Updated according to Krzysztof Kozlowski comments
+
+Changes since v4: https://lore.kernel.org/lkml/20220615105834.743045-1-viorel.suman@nxp.com/
+  * Missing SoB added
+
+Changes since v3: https://lore.kernel.org/lkml/20220609143423.2839186-1-abel.vesa@nxp.com/
+  * Examples included
+  * Included Abel's patches fixing thermal zone, keys and power controller names.
+
+Abel Vesa (12):
+  dt-bindings: clk: imx: Add fsl,scu-clk yaml file
+  dt-bindings: pinctrl: imx: Add fsl,scu-iomux yaml file
+  dt-bindings: input: Add fsl,scu-key yaml file
+  dt-bindings: nvmem: Add fsl,scu-ocotp yaml file
+  dt-bindings: power: Add fsl,scu-pd yaml file
+  dt-bindings: rtc: Add fsl,scu-rtc yaml file
+  dt-bindings: thermal: Add fsl,scu-thermal yaml file
+  dt-bindings: watchdog: Add fsl,scu-wdt yaml file
+  dt-bindings: firmware: Add fsl,scu yaml file
+  arm64: dts: freescale: imx8: Fix power controller name
+  arm64: dts: freescale: imx8qxp: Add fallback compatible for clock
+    controller
+  arm64: dts: freescale: imx8qxp: Fix the keys node name
+
+Viorel Suman (3):
+  arm64: dts: freescale: imx8qxp: Remove unnecessary clock related
+    entries
+  arm64: dts: freescale: imx8qxp: Fix the ocotp node name
+  arm64: dts: freescale: imx8: Fix the system-controller node name
+
+ .../bindings/arm/freescale/fsl,scu.txt        | 271 ------------------
+ .../bindings/clock/fsl,scu-clk.yaml           |  43 +++
+ .../devicetree/bindings/firmware/fsl,scu.yaml | 160 +++++++++++
+ .../bindings/input/fsl,scu-key.yaml           |  40 +++
+ .../bindings/nvmem/fsl,scu-ocotp.yaml         |  56 ++++
+ .../bindings/pinctrl/fsl,scu-pinctrl.yaml     |  74 +++++
+ .../devicetree/bindings/power/fsl,scu-pd.yaml |  41 +++
+ .../devicetree/bindings/rtc/fsl,scu-rtc.yaml  |  31 ++
+ .../bindings/thermal/fsl,scu-thermal.yaml     |  38 +++
+ .../bindings/watchdog/fsl,scu-wdt.yaml        |  34 +++
+ arch/arm64/boot/dts/freescale/imx8qm.dtsi     |   4 +-
+ arch/arm64/boot/dts/freescale/imx8qxp.dtsi    |  12 +-
+ 12 files changed, 524 insertions(+), 280 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/arm/freescale/fsl,scu.txt
+ create mode 100644 Documentation/devicetree/bindings/clock/fsl,scu-clk.yaml
+ create mode 100644 Documentation/devicetree/bindings/firmware/fsl,scu.yaml
+ create mode 100644 Documentation/devicetree/bindings/input/fsl,scu-key.yaml
+ create mode 100644 Documentation/devicetree/bindings/nvmem/fsl,scu-ocotp.yaml
+ create mode 100644 Documentation/devicetree/bindings/pinctrl/fsl,scu-pinctrl.yaml
+ create mode 100644 Documentation/devicetree/bindings/power/fsl,scu-pd.yaml
+ create mode 100644 Documentation/devicetree/bindings/rtc/fsl,scu-rtc.yaml
+ create mode 100644 Documentation/devicetree/bindings/thermal/fsl,scu-thermal.yaml
+ create mode 100644 Documentation/devicetree/bindings/watchdog/fsl,scu-wdt.yaml
 
 -- 
-heikki
+2.25.1
+

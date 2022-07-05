@@ -2,95 +2,90 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9E8E2C43334
-	for <linux-input@archiver.kernel.org>; Tue,  5 Jul 2022 12:05:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DBCFC43334
+	for <linux-input@archiver.kernel.org>; Tue,  5 Jul 2022 17:25:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233985AbiGEMFi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 5 Jul 2022 08:05:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46704 "EHLO
+        id S230385AbiGERZf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 5 Jul 2022 13:25:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233572AbiGEME2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2022 08:04:28 -0400
-Received: from mail-lj1-x22e.google.com (mail-lj1-x22e.google.com [IPv6:2a00:1450:4864:20::22e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68B6118391
-        for <linux-input@vger.kernel.org>; Tue,  5 Jul 2022 05:04:07 -0700 (PDT)
-Received: by mail-lj1-x22e.google.com with SMTP id bx13so14239415ljb.1
-        for <linux-input@vger.kernel.org>; Tue, 05 Jul 2022 05:04:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=n04xRHDLPG5HTJiUoTVbiyOiGV01+5rVdjSb2OnFTXM=;
-        b=BCDuSqECc+nJ4QixySuzLrzpTldvI4Om7Dhhe79zvfcZpzEzGecmAsDtbOf3XLzQC7
-         w1uhu4rB9AKVhxlEOmTXJsDmqBX/3XMZXi9nrbmqxCnspovd7Q8yAdlrQQX0aZYeV6Fl
-         c8WcJWt8Si79EF8UcAIz71wn15IahJMZQdjSgHyrHfHv/2MYqOUJadjBcEzDAjbrBDzj
-         rRImKl3ArYsXlhHZx7+a/pZCSpAYvIjJP14wEi6xVHIkMAoeQyfbYASKFAWMrBNse3wm
-         KDbQ04/bH6MFUz+3trU9Jg7lhMH741aCEqeBNZBq8fgVsCxnHx9VVKxFpE/9R8U5Fvkr
-         YDOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=n04xRHDLPG5HTJiUoTVbiyOiGV01+5rVdjSb2OnFTXM=;
-        b=KtrK4jVaTZQmRvbU18UoeCezQiX/idUG2slL4jlKMQCqUT+fJCcv7grG03jebgqxnI
-         JsE0yB+gIFSHgpimiUCdMIeDbL1BzCR3iNyegDTXau9uYieh9Drb1hwjb3o3GjAHQK8Q
-         oRkHNayk5Kv8/1wxnQAxOq1xvVuey0qd1wPg4ezF/oKXkF4v9w3xbBaxhFHyGnCeo1Ur
-         f6u7zdgUCLEcTI3WyQ2ObbF2ht83sZm8mYUleFhd7mzuF1wpDa0yg8ODfKIKt45RHTZy
-         odPYY0da1x77cNoeWCJvqrgMMDbQBc6/q3yLaFPKh4cG5Y2mV5IqbkHaGXbWIqtp6R6x
-         Ufyw==
-X-Gm-Message-State: AJIora+wcVEjFpsy1Kw/fVSsWnCASVn4etFifanffuKsKz8EUmPmmfD0
-        bFMrez59jVJzfjVWauZOIrsHhg==
-X-Google-Smtp-Source: AGRyM1sl7oYOktjybXQ7DcS9EisH+raxTv/CIYoUdIA4mqFgH0EaCpesDAtzqgGs0ayhR8cQfoLLyg==
-X-Received: by 2002:a05:651c:1699:b0:25b:c598:3803 with SMTP id bd25-20020a05651c169900b0025bc5983803mr20101511ljb.0.1657022646876;
-        Tue, 05 Jul 2022 05:04:06 -0700 (PDT)
-Received: from krzk-bin.home ([84.20.121.239])
-        by smtp.gmail.com with ESMTPSA id n13-20020a2e82cd000000b0025a885a135csm5547082ljh.119.2022.07.05.05.04.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 Jul 2022 05:04:05 -0700 (PDT)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [RESEND PATCH v3 3/3] dt-bindings: input: gpio-keys: accept also interrupt-extended
-Date:   Tue,  5 Jul 2022 14:03:56 +0200
-Message-Id: <20220705120356.94876-4-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220705120356.94876-1-krzysztof.kozlowski@linaro.org>
-References: <20220705120356.94876-1-krzysztof.kozlowski@linaro.org>
+        with ESMTP id S229730AbiGERZe (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 5 Jul 2022 13:25:34 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BD561C925;
+        Tue,  5 Jul 2022 10:25:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1657041925;
+        bh=VGuEIUsr6EgBwogMJDOlNkr+9uptYB5Wf1LvyW7VLPs=;
+        h=X-UI-Sender-Class:Subject:From:To:Cc:Date:In-Reply-To:References;
+        b=BR4Ka9eBTIpMKugZr0E/hxB5KRHf+PGynZ8p8YeN3txlsQYJjeEynmJqhY1ofHVlp
+         8tk0LpZ3zR1G9O7AZtFlKbMwEDZERSKvVpIQcocsGh49ypzVDpAS9y42+7Qhhj24Xo
+         OohDN5QpJ1VJrRWWZaMXxT0QyiOnjvSqk4mb+aiE=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [10.101.2.50] ([185.104.136.29]) by mail.gmx.net (mrgmx104
+ [212.227.17.174]) with ESMTPSA (Nemesis) id 1Mv2xU-1nI3Dp21S4-00qzDQ; Tue, 05
+ Jul 2022 19:25:25 +0200
+Message-ID: <3fedf676645bfa638c9a6c656121083abc2c98ea.camel@gmx.co.uk>
+Subject: Re: input/i8042: Malfunctioning brightness keys on HP Elite
+ Dragonfly G2
+From:   Alex Dewar <alex.dewar@gmx.co.uk>
+To:     dmitry.torokhov@gmail.com, tiwai@suse.de, hdegoede@redhat.com,
+        markgross@kernel.org
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Date:   Tue, 05 Jul 2022 18:25:03 +0100
+In-Reply-To: <20220629094314.b7xmfb3xccj7vs6v@ic-alex-elitebook>
+References: <20220629094314.b7xmfb3xccj7vs6v@ic-alex-elitebook>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.3 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:M2iBMc0im9Qs1j7rs3F8242Bvqu1RzrWcKErf4FO8nCAIlTPabO
+ XezvY1x04Hf/yKXPDunlpPrs+U8YtiPqVlkk80SVgOZMLtwpuhDSfyxPf0KEG2wzuZ9VHs8
+ B+CK1nVJeoVtCnEQZXLDGhvWv+u7SwPQoqT4HjsyvPvCzBL5OdGqAw7RwzbLih2mXaC6gpx
+ iJLywH42L9aNDa7fXvb7w==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:V9OcqCDmAAs=:Y+kXprhGKORiHtVYvahpT8
+ xda3TBWhB3eAzXje6wJh5hneRkkuLIQps2P4iqbu3bDMFJ38daXrMiROCsfKKkTmAckjwoL3e
+ 50v+J+tsHf65cXvhChkKgC6Mu6s8bNwxovgA8ntAak1vQtGOnD+m0T9zulJkwQuZmFOtV09tl
+ /Ez1S72NhMNlXggpGGpYVOWQqUjiiKShrT36MmT2wAQvHqCqHzDfB9MGuaSdj28Bie6ApB8Uc
+ 6VwHptdhCC8tCPGm1clO/p6f1sxqH6ZtR0FTtlQut4mWKl5xulwRJLCTNB9tVmbqL/+MzSiKZ
+ sO7o+4C/gFJ31rgMgQanVWgDHtZpEkKSUe+u2yFlTXdP1B0jgfioZdOPcoaQWaNmxX0qrQbNX
+ W8y2ZoX5crwdVcGqHI/m/b8yQWM9A6JAy2Scn4IfPXH9Yq+G7pBeDqyfo5449BJfk5/nOzqP0
+ VJtgPsncKUm/uROiwxdLeMqbExJyfvNwqmVhwY0LagTjTRBFe3a4clyxxek+ehib5mDTERMMI
+ Cm7FWDQx1Li29LwlV/HBueHFP6SdZWHhht9tlcQdqlYn4HplXbAqFU4lcit58SOsahWQIAKqO
+ 7zxGsQBdaNe9y/nvIBfZ4zX3C4IpdtqlXocpjj1lqstPJQ3t982S8qR1PRSQUPxjypS8d3df3
+ 6TqyKT8QjDiHaooRUW59nsFEK9sX/NgcA6OeTPbjZLEUvY6+yNB+3wOGLEmhHu/qv/0RNer5a
+ mJlpLmjMMOHG+wo77hFZQ7/aDlZ9btXOMj5vcL1SQa4W9agSUhZLDsPWXiVfqd7iy+S1rnG6q
+ lSnt0XLGJ/LyqD+8iaYvS9kjXgyiJi9CFgSbu/Wl6c5CmWx0LqW0nfiBnznCDr7kvzt7jUuG0
+ FwLxZ6vwkH5m2qN0d5QMe16/y96SVJWFgPxddVwe6Jpl1lpECQA6r6aTMgybpM/3a8lYSWMml
+ dzLyg7U5R47KPG54shf+aIIlIUiK9k5+w21z8NY/RYv6S196m/uniX+ZKzirOW6pq9WV/vqO0
+ OGlD2j60VcMef02e5SynaJ4F+V8C4UkqFmRD2yklTaG6i1xgLct36MCJz2xDDBag6BnDazKbu
+ 095OlxYyvURiaPfy7/RF8U34bGKjXFEg8X1XhXpZ7LHarQYt0P2ypTCIg==
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Each key device node might have interrupts-extended instead of
-interrupts property:
+Friendly ping? =F0=9F=99=82
 
-  fsl-ls1028a-kontron-sl28-var1.dtb: buttons0: power-button: 'anyOf' conditional failed, one must be fixed:
-    'interrupts' is a required property
-    'gpios' is a required property
+I'm also CC'ing the x86 platform people into this, as I'm not sure
+whether this problem is something more within their remit.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- Documentation/devicetree/bindings/input/gpio-keys.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+Best,
+Alex
 
-diff --git a/Documentation/devicetree/bindings/input/gpio-keys.yaml b/Documentation/devicetree/bindings/input/gpio-keys.yaml
-index e722e681d237..17ac9dff7972 100644
---- a/Documentation/devicetree/bindings/input/gpio-keys.yaml
-+++ b/Documentation/devicetree/bindings/input/gpio-keys.yaml
-@@ -92,6 +92,8 @@ patternProperties:
-     anyOf:
-       - required:
-           - interrupts
-+      - required:
-+          - interrupts-extended
-       - required:
-           - gpios
- 
--- 
-2.34.1
+On Wed, 2022-06-29 at 10:43 +0100, Alex Dewar wrote:
+> Hi,
+>=20
+> I'm running Linux 5.18.7 on an HP Elite Dragonfly G2 laptop, which
+> seems
+> to use the i8042 driver. Mostly things seem to work (including
+> hotkeys)
+> except that the increase/decrease brightness keys instead send the
+> "mic
+> mute" keycode. (The *actual* mic mute key works fine.)
+>=20
+> Any ideas? Do we need to add a quirk?
+>=20
+> Best,
+> Alex
 

@@ -2,51 +2,51 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51114C43334
-	for <linux-input@archiver.kernel.org>; Thu,  7 Jul 2022 16:59:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1546DC433EF
+	for <linux-input@archiver.kernel.org>; Thu,  7 Jul 2022 16:59:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236304AbiGGQ71 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 7 Jul 2022 12:59:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37732 "EHLO
+        id S236384AbiGGQ7e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 7 Jul 2022 12:59:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235736AbiGGQ70 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2022 12:59:26 -0400
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58318B86B;
-        Thu,  7 Jul 2022 09:59:25 -0700 (PDT)
-Received: by mail-pf1-x429.google.com with SMTP id b9so4566456pfp.10;
-        Thu, 07 Jul 2022 09:59:25 -0700 (PDT)
+        with ESMTP id S236330AbiGGQ72 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2022 12:59:28 -0400
+Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C7F11F629;
+        Thu,  7 Jul 2022 09:59:27 -0700 (PDT)
+Received: by mail-pg1-x533.google.com with SMTP id 23so19582156pgc.8;
+        Thu, 07 Jul 2022 09:59:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=XTGQ5LbEyZu2f55IFJvbgPNJTNxn86SqhC5DP56QZFg=;
-        b=loY1OkrabwiXHrmpFWtRljLitiSUlun3zzEHHFMoKSYeiV4DkbeIuZbsKgXBp8uOMb
-         fLqlpccwENup4eoO48pUhXY4vqf0taD4aySRXaoG8zLA5QPKhdoUO3aS/xRre2vr9ZTz
-         hTdgbxd5xtZBcheLQBFKIMFKxkTLkUnxxw7/k5fBimjxj4r6eGuUUj/y8bQQEn655G71
-         7M96moy5N9VmW5BlkZPaWE7COXX85yYHgAEpmy2sO9BGvBbORmTRz5ijhZCzrT5vlNrt
-         2Ffx6sj629KxgdoEyuremMld1xTjRwqM1kehUI2HxDvIRTNUYqVF6/It6iv/mlbkmp/X
-         EZag==
+        bh=mouOf2yAGvzJretTdCLBZi7N9va1QAabtNdEx7dOaxA=;
+        b=Iy06ZYNTT2bDPb3p26fQ1eLYPMR1Pfuej5t6SevUQcccl5Lf2yH7jGv/eRdB0SrGoZ
+         n3HgRlZd4H8DvQKLEmTIR9zQQoL7zeUbHkifv0bN/i3f3n413ely87lB3uImJ6M5Y/9V
+         3zVoc8ssOi7Pp8RDPDCBNHngpchR+S7+RXsm9k0LDq2q5IxZPKh99yWve6IJyQIOwwIt
+         bTh2urfAxauiKwEN7SfwNumJgEPIJd43h40ptT+Zay81OCik+yZBubzm7HixxJWX8pyN
+         S3nSEhHkhI/BQbqfbW/xItKbsOVj5//o4/KNV9ySCNnxnvz8CKcuMWMqtCaaxfFNx/cg
+         Uymg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=XTGQ5LbEyZu2f55IFJvbgPNJTNxn86SqhC5DP56QZFg=;
-        b=0FKerzxIJlar/tPQmaTUPKbC/enn75EfXzO0XUyRVTfhX6fo3BjeoI5mQvJECTU911
-         BmkgsZo+lK/PuI6N2vhSJskTOXZD9W8XiO86W7SEySbEvX8rfvJ1SxosO0Kf7f0a1sE8
-         55Sno+wBTrmHtJF76uXrERh7luLP6NTHvV6raZgvxwj4zjtureBGc+7+n5Qne93TnlCI
-         uzZ8+G3LMoSsRnkYyqzZfKo4Z0QzJMfvV1v/4WAyEYgVXZ7fVwv/Eyq60dWB55ER7H3Z
-         PsfghRc3sKqpbbBzhY+jUUInVD9KZ9gAf/qcLJCioyfaR+jQHYA+Ca8kpteQexX+JSsW
-         0g0A==
-X-Gm-Message-State: AJIora8oC0BQB10oWTDoA0ci9z4CBfev+lVDFDciwTqJo6A64sEckZuH
-        9iSh3k6oprVxFU35nDxPqqA=
-X-Google-Smtp-Source: AGRyM1utogy8hlSzhnn4pDGsFmihEZc+ODN2o0jVhfJdc4COi7HXij1z8PItPcadIg/+DAAjv64EdQ==
-X-Received: by 2002:aa7:8703:0:b0:528:c4c7:35b1 with SMTP id b3-20020aa78703000000b00528c4c735b1mr6366829pfo.38.1657213164933;
-        Thu, 07 Jul 2022 09:59:24 -0700 (PDT)
+        bh=mouOf2yAGvzJretTdCLBZi7N9va1QAabtNdEx7dOaxA=;
+        b=WyIzBdE9otzFDeJ8ELZxs9BQd31P2B8XFKDrC+vgJ/yTKp9WmxdU3YbV9OnjvrcRrj
+         +AyHGFTxB9Cx1cBJVGXqLzZ6FnyeyNOr8PGGyRv4jJYRUijQSYHYZSMsyHSu1KN/lEsw
+         uk/nCM/nz4wqRWFnRPsxbeW8jPk+LhVLScNvE+s5RGGXNjiHR4604draA1oT7vOsv06O
+         0vKy8z8Edxl91dyhnFJEzWMjCEUl1HHoelciZ0J0At1BH7FoJjHi4bXOsAQJ6CfrXpK4
+         gPVSTwRR5nsCeClU7+siF8zrDAgeAgETfu/B+ujmhPIyVTiSqi9QcVimZtu+hL8KQXJp
+         GPzA==
+X-Gm-Message-State: AJIora/qo0l0Jc89Ej/lioXSekbOD/Gd9EJ/XAiEXAh1zPirY+0FJRON
+        pG4HGB9L5H9Q58TuSzRZ690=
+X-Google-Smtp-Source: AGRyM1sqcCTln+QfjvynadCg0/JVQxDlFzJBICdvbGJkQLTJgO7dthIug1H0T4b1oVJhKKoKKDJXsg==
+X-Received: by 2002:a17:90a:bd92:b0:1ef:82d8:f2b9 with SMTP id z18-20020a17090abd9200b001ef82d8f2b9mr6051221pjr.83.1657213167120;
+        Thu, 07 Jul 2022 09:59:27 -0700 (PDT)
 Received: from jaschultz-Thelio-Major.corp.microsoft.com ([2001:4898:80e8:37:6a04:c27c:dcee:eb11])
-        by smtp.gmail.com with ESMTPSA id v14-20020aa7808e000000b00518e1251197sm28184185pff.148.2022.07.07.09.59.23
+        by smtp.gmail.com with ESMTPSA id v14-20020aa7808e000000b00518e1251197sm28184185pff.148.2022.07.07.09.59.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Jul 2022 09:59:24 -0700 (PDT)
+        Thu, 07 Jul 2022 09:59:26 -0700 (PDT)
 From:   Jarrett Schultz <jaschultzms@gmail.com>
 X-Google-Original-From: Jarrett Schultz <jaschultzMS@gmail.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -67,9 +67,9 @@ Cc:     Dmitry Antipov <dmanti@microsoft.com>, linux-input@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         Jarrett Schultz <jaschultz@microsoft.com>
-Subject: [PATCH v5 2/6] HID: define HID_SPI_DEVICE macro in hid.h
-Date:   Thu,  7 Jul 2022 09:58:58 -0700
-Message-Id: <20220707165902.3184-3-jaschultzMS@gmail.com>
+Subject: [PATCH v5 4/6] Documentation: Correction in HID output_report callback description.
+Date:   Thu,  7 Jul 2022 09:59:00 -0700
+Message-Id: <20220707165902.3184-5-jaschultzMS@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220707165902.3184-1-jaschultzMS@gmail.com>
 References: <20220707165902.3184-1-jaschultzMS@gmail.com>
@@ -81,27 +81,30 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Jarrett Schultz <jaschultz@microsoft.com>
 
-Macro sets the bus field to BUS_SPI and uses arguments to set vendor
-product fields.
+Originally output_report callback was described as must-be asynchronous,
+but that is not the case in some implementations, namely i2c-hid.
+Correct the documentation to say that it may be asynchronous.
 
 Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
 ---
- include/linux/hid.h | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/hid/hid-transport.rst | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 4363a63b9775..7923fe1b51bb 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -715,6 +715,8 @@ struct hid_descriptor {
- 	.bus = BUS_BLUETOOTH, .vendor = (ven), .product = (prod)
- #define HID_I2C_DEVICE(ven, prod)				\
- 	.bus = BUS_I2C, .vendor = (ven), .product = (prod)
-+#define HID_SPI_DEVICE(ven, prod)				\
-+	.bus = BUS_SPI, .vendor = (ven), .product = (prod)
+diff --git a/Documentation/hid/hid-transport.rst b/Documentation/hid/hid-transport.rst
+index 6f1692da296c..2008cf432af1 100644
+--- a/Documentation/hid/hid-transport.rst
++++ b/Documentation/hid/hid-transport.rst
+@@ -327,8 +327,8 @@ The available HID callbacks are:
  
- #define HID_REPORT_ID(rep) \
- 	.report_type = (rep)
+    Send raw output report via intr channel. Used by some HID device drivers
+    which require high throughput for outgoing requests on the intr channel. This
+-   must not cause SET_REPORT calls! This must be implemented as asynchronous
+-   output report on the intr channel!
++   must not cause SET_REPORT calls! This call might be asynchronous, so the
++   caller should not expect an immediate response!
+ 
+    ::
+ 
 -- 
 2.25.1
 

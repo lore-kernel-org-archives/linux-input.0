@@ -2,51 +2,51 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1546DC433EF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5334CCA47F
 	for <linux-input@archiver.kernel.org>; Thu,  7 Jul 2022 16:59:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236384AbiGGQ7e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S236394AbiGGQ7e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 7 Jul 2022 12:59:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37762 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236330AbiGGQ72 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2022 12:59:28 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C7F11F629;
-        Thu,  7 Jul 2022 09:59:27 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id 23so19582156pgc.8;
-        Thu, 07 Jul 2022 09:59:27 -0700 (PDT)
+        with ESMTP id S236360AbiGGQ7a (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 7 Jul 2022 12:59:30 -0400
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B19A223BD3;
+        Thu,  7 Jul 2022 09:59:29 -0700 (PDT)
+Received: by mail-pg1-x529.google.com with SMTP id bf13so6542063pgb.11;
+        Thu, 07 Jul 2022 09:59:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=mouOf2yAGvzJretTdCLBZi7N9va1QAabtNdEx7dOaxA=;
-        b=Iy06ZYNTT2bDPb3p26fQ1eLYPMR1Pfuej5t6SevUQcccl5Lf2yH7jGv/eRdB0SrGoZ
-         n3HgRlZd4H8DvQKLEmTIR9zQQoL7zeUbHkifv0bN/i3f3n413ely87lB3uImJ6M5Y/9V
-         3zVoc8ssOi7Pp8RDPDCBNHngpchR+S7+RXsm9k0LDq2q5IxZPKh99yWve6IJyQIOwwIt
-         bTh2urfAxauiKwEN7SfwNumJgEPIJd43h40ptT+Zay81OCik+yZBubzm7HixxJWX8pyN
-         S3nSEhHkhI/BQbqfbW/xItKbsOVj5//o4/KNV9ySCNnxnvz8CKcuMWMqtCaaxfFNx/cg
-         Uymg==
+        bh=aCuy9HCuGOb/4o/JB1pE/O8o1Pj0qs6rlMMSXSwX4gQ=;
+        b=oeWLvkGc74pEhVPGeRO4qxrGcwiWQtMrCyKy3h/uVtGGaP6vElja2Vr6sT+lqYUsbY
+         SUH91UjIgU5ryiVWbKb7/RxdiQ1YqHf0ePPPvQ/auhjzA7Ec6YizG00e5KE1iDHro2VF
+         yQuHUtPvcdXHlI/0yly1ZnSpyASWFPD5WgQyGXCB6fOYhUONQoPbJL0l4wJXeslK8Okn
+         uTW4rcaFLIAZ9j8qHbiozGjtK/rfOiw/1VVzaeF9xHCZZ2wdZd78Z3vo+Rem4kc4wqUY
+         oJRJ/OviUEf0fUevLlqCQmW0QDlSDaKyQlk4TUya+vv/EU6wI5JAk/K4bIanxSwCOmsn
+         RwzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=mouOf2yAGvzJretTdCLBZi7N9va1QAabtNdEx7dOaxA=;
-        b=WyIzBdE9otzFDeJ8ELZxs9BQd31P2B8XFKDrC+vgJ/yTKp9WmxdU3YbV9OnjvrcRrj
-         +AyHGFTxB9Cx1cBJVGXqLzZ6FnyeyNOr8PGGyRv4jJYRUijQSYHYZSMsyHSu1KN/lEsw
-         uk/nCM/nz4wqRWFnRPsxbeW8jPk+LhVLScNvE+s5RGGXNjiHR4604draA1oT7vOsv06O
-         0vKy8z8Edxl91dyhnFJEzWMjCEUl1HHoelciZ0J0At1BH7FoJjHi4bXOsAQJ6CfrXpK4
-         gPVSTwRR5nsCeClU7+siF8zrDAgeAgETfu/B+ujmhPIyVTiSqi9QcVimZtu+hL8KQXJp
-         GPzA==
-X-Gm-Message-State: AJIora/qo0l0Jc89Ej/lioXSekbOD/Gd9EJ/XAiEXAh1zPirY+0FJRON
-        pG4HGB9L5H9Q58TuSzRZ690=
-X-Google-Smtp-Source: AGRyM1sqcCTln+QfjvynadCg0/JVQxDlFzJBICdvbGJkQLTJgO7dthIug1H0T4b1oVJhKKoKKDJXsg==
-X-Received: by 2002:a17:90a:bd92:b0:1ef:82d8:f2b9 with SMTP id z18-20020a17090abd9200b001ef82d8f2b9mr6051221pjr.83.1657213167120;
-        Thu, 07 Jul 2022 09:59:27 -0700 (PDT)
+        bh=aCuy9HCuGOb/4o/JB1pE/O8o1Pj0qs6rlMMSXSwX4gQ=;
+        b=fFdBnT4k/PdlGzUcYMI14Y4BmpgwWNb5ZwtdVqnJIgENShZQfTIjd9v+ysNCeth/R6
+         wxMmBUX5EPDX2zAVCh9tBLUjeJpWTOVEOPpUBZdyj1psNv0daDIa95e3dNhULYFNKRCz
+         NB8In03yDOtgLZnVxKECMXwkhZnvzidGc+uYK7nqrSTysODs7SEUF8AWJ36hEmSQ79zS
+         LZmPrArRknLKwnikxbsdTG0pg+mEr16gZeKGrWCf4hy7BjSZvmidlxjUyfsM+qLKsEOJ
+         as8LSFzifeXsQrnwuguuBAMfmZR4fkesz1qY1Ca5t8TWAfeJcux5ZRkj/WzV2iw9Lokw
+         nt8A==
+X-Gm-Message-State: AJIora/t2VZFFDWjLkh62sFaO3uDWkixDPooformNJFE2JXcMUAV4ptb
+        WdafpHNyTw97rcvV60RuBq8=
+X-Google-Smtp-Source: AGRyM1tqHHvSjFqOODZz+u4tzjFjlRbky2Awv11XBgWQmDqOEr7/h909XjWVppBPflLvsJREx2bY5g==
+X-Received: by 2002:a65:6e96:0:b0:415:5973:b4f4 with SMTP id bm22-20020a656e96000000b004155973b4f4mr1109950pgb.568.1657213169193;
+        Thu, 07 Jul 2022 09:59:29 -0700 (PDT)
 Received: from jaschultz-Thelio-Major.corp.microsoft.com ([2001:4898:80e8:37:6a04:c27c:dcee:eb11])
-        by smtp.gmail.com with ESMTPSA id v14-20020aa7808e000000b00518e1251197sm28184185pff.148.2022.07.07.09.59.26
+        by smtp.gmail.com with ESMTPSA id v14-20020aa7808e000000b00518e1251197sm28184185pff.148.2022.07.07.09.59.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 Jul 2022 09:59:26 -0700 (PDT)
+        Thu, 07 Jul 2022 09:59:28 -0700 (PDT)
 From:   Jarrett Schultz <jaschultzms@gmail.com>
 X-Google-Original-From: Jarrett Schultz <jaschultzMS@gmail.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -67,9 +67,9 @@ Cc:     Dmitry Antipov <dmanti@microsoft.com>, linux-input@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         Jarrett Schultz <jaschultz@microsoft.com>
-Subject: [PATCH v5 4/6] Documentation: Correction in HID output_report callback description.
-Date:   Thu,  7 Jul 2022 09:59:00 -0700
-Message-Id: <20220707165902.3184-5-jaschultzMS@gmail.com>
+Subject: [PATCH v5 6/6] Enable building drivers/hid/spi-hid as a module
+Date:   Thu,  7 Jul 2022 09:59:02 -0700
+Message-Id: <20220707165902.3184-7-jaschultzMS@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220707165902.3184-1-jaschultzMS@gmail.com>
 References: <20220707165902.3184-1-jaschultzMS@gmail.com>
@@ -81,30 +81,23 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Jarrett Schultz <jaschultz@microsoft.com>
 
-Originally output_report callback was described as must-be asynchronous,
-but that is not the case in some implementations, namely i2c-hid.
-Correct the documentation to say that it may be asynchronous.
-
-Signed-off-by: Dmitry Antipov <dmanti@microsoft.com>
+Signed-off-by: Jarrett Schultz <jaschultz@microsoft.com>
 ---
- Documentation/hid/hid-transport.rst | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/configs/defconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/hid/hid-transport.rst b/Documentation/hid/hid-transport.rst
-index 6f1692da296c..2008cf432af1 100644
---- a/Documentation/hid/hid-transport.rst
-+++ b/Documentation/hid/hid-transport.rst
-@@ -327,8 +327,8 @@ The available HID callbacks are:
- 
-    Send raw output report via intr channel. Used by some HID device drivers
-    which require high throughput for outgoing requests on the intr channel. This
--   must not cause SET_REPORT calls! This must be implemented as asynchronous
--   output report on the intr channel!
-+   must not cause SET_REPORT calls! This call might be asynchronous, so the
-+   caller should not expect an immediate response!
- 
-    ::
- 
+diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+index 7d1105343bc2..731fc6e67f31 100644
+--- a/arch/arm64/configs/defconfig
++++ b/arch/arm64/configs/defconfig
+@@ -848,6 +848,7 @@ CONFIG_SND_AUDIO_GRAPH_CARD2=m
+ CONFIG_HID_MULTITOUCH=m
+ CONFIG_I2C_HID_ACPI=m
+ CONFIG_I2C_HID_OF=m
++CONFIG_SPI_HID=m
+ CONFIG_USB=y
+ CONFIG_USB_OTG=y
+ CONFIG_USB_XHCI_HCD=y
 -- 
 2.25.1
 

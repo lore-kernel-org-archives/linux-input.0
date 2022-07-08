@@ -2,40 +2,39 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25E10C433EF
-	for <linux-input@archiver.kernel.org>; Fri,  8 Jul 2022 09:34:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 52CAAC43334
+	for <linux-input@archiver.kernel.org>; Fri,  8 Jul 2022 09:34:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237302AbiGHJeL convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 Jul 2022 05:34:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54276 "EHLO
+        id S237293AbiGHJeN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 Jul 2022 05:34:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234525AbiGHJeK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2022 05:34:10 -0400
+        with ESMTP id S234525AbiGHJeM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2022 05:34:12 -0400
 Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF2B72A96A;
-        Fri,  8 Jul 2022 02:34:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F562A96A;
+        Fri,  8 Jul 2022 02:34:12 -0700 (PDT)
 Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
-        by mx0a-00128a01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 2686QhUn003478;
-        Fri, 8 Jul 2022 05:33:59 -0400
-Received: from nwd2mta4.analog.com ([137.71.173.58])
-        by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3h5tu88xsn-1
+        by mx0a-00128a01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26872ieS003232;
+        Fri, 8 Jul 2022 05:34:08 -0400
+Received: from nwd2mta3.analog.com ([137.71.173.56])
+        by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3h5tu88xu8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 08 Jul 2022 05:33:59 -0400
-Received: from ASHBMBX8.ad.analog.com (ASHBMBX8.ad.analog.com [10.64.17.5])
-        by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 2689Xw8Z061339
+        Fri, 08 Jul 2022 05:34:08 -0400
+Received: from ASHBMBX9.ad.analog.com (ASHBMBX9.ad.analog.com [10.64.17.10])
+        by nwd2mta3.analog.com (8.14.7/8.14.7) with ESMTP id 2689Y6XU019084
         (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 8 Jul 2022 05:33:58 -0400
-Received: from ASHBMBX9.ad.analog.com (10.64.17.10) by ASHBMBX8.ad.analog.com
- (10.64.17.5) with Microsoft SMTP Server (version=TLS1_2,
+        Fri, 8 Jul 2022 05:34:06 -0400
+Received: from ASHBMBX9.ad.analog.com (10.64.17.10) by ASHBMBX9.ad.analog.com
+ (10.64.17.10) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Fri, 8 Jul 2022
- 05:33:57 -0400
+ 05:34:05 -0400
 Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx9.ad.analog.com
  (10.64.17.10) with Microsoft SMTP Server id 15.2.986.14 via Frontend
- Transport; Fri, 8 Jul 2022 05:33:57 -0400
+ Transport; Fri, 8 Jul 2022 05:34:05 -0400
 Received: from nsa.ad.analog.com ([10.44.3.51])
-        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 2689Xi8d017826;
-        Fri, 8 Jul 2022 05:33:47 -0400
+        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 2689Xi8j017826;
+        Fri, 8 Jul 2022 05:33:59 -0400
 From:   =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
 To:     <devicetree@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
         <linux-input@vger.kernel.org>
@@ -45,21 +44,23 @@ CC:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 00/10] adp5588-keys refactor and fw properties support
-Date:   Fri, 8 Jul 2022 11:34:38 +0200
-Message-ID: <20220708093448.42617-1-nuno.sa@analog.com>
+Subject: [PATCH 06/10] input: keyboard: adp5588-keys: do not check for irq presence
+Date:   Fri, 8 Jul 2022 11:34:44 +0200
+Message-ID: <20220708093448.42617-7-nuno.sa@analog.com>
 X-Mailer: git-send-email 2.37.0
+In-Reply-To: <20220708093448.42617-1-nuno.sa@analog.com>
+References: <20220708093448.42617-1-nuno.sa@analog.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-ADIRuleOP-NewSCL: Rule Triggered
-X-Proofpoint-GUID: LyW_7SY7N4xW607BIaZoRKNnL3pR3nme
-X-Proofpoint-ORIG-GUID: LyW_7SY7N4xW607BIaZoRKNnL3pR3nme
+X-Proofpoint-GUID: dmngMMThwbJcuhuhC1ucpqpsBwejbFOp
+X-Proofpoint-ORIG-GUID: dmngMMThwbJcuhuhC1ucpqpsBwejbFOp
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-08_08,2022-06-28_01,2022-06-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 adultscore=0
- suspectscore=0 mlxlogscore=981 clxscore=1011 phishscore=0 malwarescore=0
+ suspectscore=0 mlxlogscore=834 clxscore=1015 phishscore=0 malwarescore=0
  spamscore=0 mlxscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
  definitions=main-2207080035
@@ -67,55 +68,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The main goal of this patchset is to remove platform data and replace it by
-firmware properties. Original discussion in [1].
+There's no need for an extra check for 'client-irq'. Just let it fail when
+calling 'request_irq()'.
 
-While in here, some refactor was done to the driver. The most noticeable one
-is to replace the GPIs events handling by irqchip support so that this gpi
-keys can be "consumed" by the gpio-keys driver (also as suggested in [1]).
-With this, the gpio-adp5588 can be removed. This change comes first so that
-we can already remove some platform data variables making it easier to
-completly replace it by firmware properties further down in the series.
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+---
+ drivers/input/keyboard/adp5588-keys.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-As there's no users of the platform data, I just replace it in a single
-patch as there's no point in having support for both (even though it might
-be harder to review the patch as-is).
-
-Special note to the gpio-adp5588 driver removal. I'm aware of some changes
-to the driver in [2]. These changes are in the gpio tree and this patchset
-is naturally based on the input tree which means that patch 2 will
-not apply. So, I'm not really sure how to handle this. I guess in this
-case the conflict is easy to handle :) but just let me know on how to
-proceed in here if there's anything for me to do.
-
-[1]: https://lore.kernel.org/linux-input/20220504084617.36844-1-u.kleine-koenig@pengutronix.de/
-[2]: https://lore.kernel.org/linux-gpio/20220628193906.36350-3-andriy.shevchenko@linux.intel.com/
-
-Nuno Sá (10):
-  input: keyboard: adp5588-keys: support gpi key events as 'gpio keys'
-  gpio: gpio-adp5588: drop the driver
-  input: keyboard: adp5588-keys: bail out on returned error
-  input: keyboard: adp5588-keys: add support for fw properties
-  dt-bindings: input: adp5588-keys: add bindings
-  input: keyboard: adp5588-keys: do not check for irq presence
-  input: keyboard: adp5588-keys: fix coding style warnings
-  input: keyboard: adp5588-keys: add optional reset gpio
-  input: keyboard: adp5588-keys: add regulator support
-  input: keyboard: adp5588-keys: Use new PM macros
-
- .../bindings/input/adi,adp5588-keys.yaml      | 110 +++
- MAINTAINERS                                   |   2 +-
- drivers/gpio/Kconfig                          |  14 -
- drivers/gpio/Makefile                         |   1 -
- drivers/gpio/gpio-adp5588.c                   | 471 ------------
- drivers/input/keyboard/Kconfig                |   3 +
- drivers/input/keyboard/adp5588-keys.c         | 710 ++++++++++++------
- include/linux/platform_data/adp5588.h         | 171 -----
- 8 files changed, 580 insertions(+), 902 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/adi,adp5588-keys.yaml
- delete mode 100644 drivers/gpio/gpio-adp5588.c
- delete mode 100644 include/linux/platform_data/adp5588.h
-
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index e831b6f66b55..1395d2449ec0 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -715,11 +715,6 @@ static int adp5588_probe(struct i2c_client *client,
+ 		return -EIO;
+ 	}
+ 
+-	if (!client->irq) {
+-		dev_err(&client->dev, "no IRQ?\n");
+-		return -EINVAL;
+-	}
+-
+ 	kpad = devm_kzalloc(&client->dev, sizeof(*kpad), GFP_KERNEL);
+ 	if (!kpad)
+ 		return -ENOMEM;
 -- 
 2.37.0
 

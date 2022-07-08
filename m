@@ -2,161 +2,65 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1BD4C433EF
-	for <linux-input@archiver.kernel.org>; Fri,  8 Jul 2022 16:10:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A6E4C43334
+	for <linux-input@archiver.kernel.org>; Fri,  8 Jul 2022 16:10:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238156AbiGHQKS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S238189AbiGHQKS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Fri, 8 Jul 2022 12:10:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53290 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238026AbiGHQKR (ORCPT
+        with ESMTP id S230335AbiGHQKR (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Fri, 8 Jul 2022 12:10:17 -0400
-Received: from srv6.fidu.org (srv6.fidu.org [159.69.62.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9204574368;
+Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F5BD74341;
         Fri,  8 Jul 2022 09:10:15 -0700 (PDT)
 Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id AADA8C800AF;
+        by srv6.fidu.org (Postfix) with ESMTP id 5F261C800AE;
         Fri,  8 Jul 2022 18:10:13 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
         tuxedocomputers.com; h=content-transfer-encoding:mime-version
-        :references:in-reply-to:x-mailer:message-id:date:date:subject
-        :subject:from:from; s=default; t=1657296613; x=1659111014; bh=nv
-        1yeQkccAF+ZdQu96d/KEVsM4YZKFWBOeyC2mkggzE=; b=VTE7fGn4HgNFcE8vW1
-        H6ht6z0tK2ZIhRaVvy5H+twPziq8YRCS+oqCKG8G9juSuDql6NeVQAD1145GYThV
-        DIqLAGpe54dSVCPjMdd+wIoEHXTvQBxE5x2eWzSs+vhCeK55JtkG58PcstNplzo3
-        BrCCmYZcqzxFDTWM/f9Dxk4DM=
+        :x-mailer:message-id:date:date:subject:subject:from:from; s=
+        default; t=1657296613; x=1659111014; bh=NCl2xelgn7owsayVRjkRxfgS
+        kn+ONd5kNWvw27P20jk=; b=mYSqc2XKdxBP1Wl6YvOCCH8TCtwpCbf6JaiQJ1vc
+        gsypwkLVc12u6C81spMUf0LekbtI9B1I59eKS9jf+gKqatV7d0TnU/AHyX+G3q0I
+        O73VH/9A5tZfHOPjrmYdC/9cMGmwtQydUuWFt4AvSBeUWbiyASzPLlLsII4BWVOp
+        kyw=
 X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
 Received: from srv6.fidu.org ([127.0.0.1])
         by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
-        with LMTP id jMK6RkaHBlY0; Fri,  8 Jul 2022 18:10:13 +0200 (CEST)
+        with LMTP id SsILlMc90GFv; Fri,  8 Jul 2022 18:10:13 +0200 (CEST)
 Received: from wsembach-tuxedo.fritz.box (host-212-18-30-247.customer.m-online.net [212.18.30.247])
         (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPA id 3231AC800AD;
-        Fri,  8 Jul 2022 18:10:13 +0200 (CEST)
+        by srv6.fidu.org (Postfix) with ESMTPA id A081CC800AC;
+        Fri,  8 Jul 2022 18:10:12 +0200 (CEST)
 From:   Werner Sembach <wse@tuxedocomputers.com>
 To:     dmitry.torokhov@gmail.com, hdegoede@redhat.com, tiwai@suse.de,
         samuel@cavoj.net, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] Input: i8042 - add additional TUXEDO devices to i8042 quirk tables
-Date:   Fri,  8 Jul 2022 18:10:04 +0200
-Message-Id: <20220708161005.1251929-2-wse@tuxedocomputers.com>
+Subject: [PATCH 0/2] Input: i8042 - add additional TUXEDO devices to i8042 quirk tables
+Date:   Fri,  8 Jul 2022 18:10:03 +0200
+Message-Id: <20220708161005.1251929-1-wse@tuxedocomputers.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220708161005.1251929-1-wse@tuxedocomputers.com>
-References: <20220708161005.1251929-1-wse@tuxedocomputers.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-A lot of modern Clevo barebones have touchpad and/or keyboard issues after
-suspend fixable with nomux + reset + noloop + nopnp. Luckily, none of them
-have an external PS/2 port so this can safely be set for all of them.
+Some additional devices needing i8042 quirks for the keyboard to reliably
+work after boot and suspend. The first patch are some older devices I found
+needing the quirks in our install routine.
 
-I'm not entirely sure if every device listed really needs all four quirks,
-but after testing and production use. No negative effects could be
-observed when setting all four.
+The second patch are two devices that I purposly seperated in an own patch,
+because it is not clear cut if these should be applied or not:
+They need the quirks for the keyboard to not be completly dead by chance
+after suspend. However setting the quirk causes the keyboard to lag for the
+first few seconds after every boot and sometimes also a little bit after
+resume, giving double inputs or missing keystrokes. However this very
+quickly goes away again.
+Imho the lag issue is less severe then an occasionally completly dead
+keyboard. However I'm interested in other opinions. A counter argument is
+that the quirks can always be set via boot parameter, but not unset when
+they are part of the quirk list.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: stable@vger.kernel.org
----
- drivers/input/serio/i8042-x86ia64io.h | 76 ++++++++++++++++++++++++---
- 1 file changed, 68 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 50b090e77fca..5204a7dd61d4 100644
---- a/drivers/input/serio/i8042-x86ia64io.h
-+++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -900,14 +900,6 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
- 	},
--	{
--		/* Clevo P650RS, 650RP6, Sager NP8152-S, and others */
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Notebook"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
--		},
--		.driver_data = (void *)(SERIO_QUIRK_RESET_ALWAYS)
--	},
- 	{
- 		/* OQO Model 01 */
- 		.matches = {
-@@ -1162,6 +1154,74 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
- 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
- 	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65xH"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/* Clevo P650RS, 650RP6, Sager NP8152-S, and others */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65_P67H"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65_67RP"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P65_67RS"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		/*
-+		 * This is only a partial board_name and might be followed by
-+		 * another letter or number. DMI_MATCH however does do partial
-+		 * matching.
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_PRODUCT_NAME, "P67xRP"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "PB50_70DFx,DDx"),
--- 
-2.34.1
 

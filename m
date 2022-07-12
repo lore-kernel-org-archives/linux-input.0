@@ -2,44 +2,43 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E27A2CCA483
-	for <linux-input@archiver.kernel.org>; Tue, 12 Jul 2022 18:19:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54C12C43334
+	for <linux-input@archiver.kernel.org>; Tue, 12 Jul 2022 18:19:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233220AbiGLSTW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Jul 2022 14:19:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44476 "EHLO
+        id S233392AbiGLST0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 Jul 2022 14:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229652AbiGLSTV (ORCPT
+        with ESMTP id S229564AbiGLSTZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Jul 2022 14:19:21 -0400
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2063.outbound.protection.outlook.com [40.107.244.63])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F4DDA2E79
-        for <linux-input@vger.kernel.org>; Tue, 12 Jul 2022 11:19:20 -0700 (PDT)
+        Tue, 12 Jul 2022 14:19:25 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2041.outbound.protection.outlook.com [40.107.236.41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1166EBDB89
+        for <linux-input@vger.kernel.org>; Tue, 12 Jul 2022 11:19:24 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DDPt3VW1USXjwlO+A0RrMhW5/VjhXvCRKZdpuJcOmV9t08kZbMoYV57079qPEThOei9em/AaIWIzBusXKDV5ty2uC9exNqY3rC7TTkc5JQz8zdyK2dVQu5dQamdhvUhL6o+gDCPLXBCyGKiDy9XYaIhhT3zXbpbfysn3cJiYCkBNg0jpSKeGqK6Tg3DqXht5fEm82NGCNMum/hVmRrgCKcsgWRRMmZ+ZTJgdOWIZD9DU0ob5z8vLzQzXaeg7zgYZJSVpn8OOMq1G8phkN2NLIUrl5QZSCs09d9ahu/8/WNYE5FwC04Ajz0XpvebqUSyY41+jiXk1kL+2O+TM/nrNuA==
+ b=BwqppxllO3UtE3ukMLcqoFVxQcHv4IsqZ+bj+F3n/vlVU1NsdCznNbdooGen61ZNl6YJBZoGjydF5HCMYo8NjWEx8cvc88kf1OfHQNkqkuGOP0B5jz8k+ddTlAf4DAfUJbVeXvviFHlrxMOBNl8JT/RveHeQa84nmdQhmOg248NyrBK+Lx7PNZ7vZCSsje7EL1mjbwNSDoxgU6LoICK8NfruqCDiB29Iacf6UG5eIzz4BIxsqJ4dQAl+vgQa/NQEPiI68Vp+zEkqwotM87Eq437onRZgDejFU/ETJy/0NSkXMbBaWKt1kTh7QzPbPNX3Q/MGvdT9fT/opCbS0pOqSA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=l4GFrud1kQtralifIha/Qxe0E5KaSBi1R0h9zKu5Jmg=;
- b=U0CIeIV7Lmqd0Zx5nkh61DPc8ZucxxFoH6B/OVrYIHA5IAZjpStV+uYjQnmD5jBJeGpOvjFA/psN841p0T9f97UtKyp/Vks/F2PKhXUdj+oY8wR6Vrdn/GTf3GluRkDJ8G0KrWk/P1SMYoFfgLcPAIWLoyNSgVjYd0GRgdOwB9xr2T+255IPpUbn7IexbP9Y7x8OhrbosEfDNw3Zjs08MWYgkE6+q3HrvUzw7OJSCbu+j/w7EGMhy/Gxwh0FTPCpgOgnTghRUUar+6eqGOCJ8q+C21NUVqJSMpdcFCiOmChn1BB0vFdQLhaA8F5r+RwCSmEbiO61rcP6VGqdZi38AA==
+ bh=F0F8LXmleuf44u0t1eaIzBurBy/MO4WhpRP6d7s4cyo=;
+ b=AukT8EtH85SyeuBZ2i0lUw/Z51Cs+QdzQWrHgCMJXxyM52rILc1h0rcvkwaukL2mRs06tOjpNt9NtXne1TMW9ZfIfb5Hyl502mQ8aiOgA8kMZdOkpniRwl+yG5ccGEHqtTdmmoDg/KVQk4o99d9OqiYDOKT81P3t1ozNo8HOI+moH4JiO+qKe+yWpDBsGybzEaBP3Ltiylj0jSKtyvSvlGyo85C9S+7gXGh7/F/8r5S53xpOGPFpgYMJG7uVAe1aySfOinbXff/n1RliGtnQkHRcGSsYfL1flfPHp2NvuzQ2ea5m0WqMgYig6nA/z4LbHQNq+TSxDqyaGN7Aje+lRQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=l4GFrud1kQtralifIha/Qxe0E5KaSBi1R0h9zKu5Jmg=;
- b=te14XCYGpoV9so0+ziblKqAU2nl7bHfuVmlULfTn4no6kNDdT484dN4WkxSlQXeko3jL+n0X+4Z0mIKA58y76AAKf9NfM9jO24Z3q2FHQqXJXoTxbrGui5ykobR4hSc9sljmRTnkX33LYt+PAHoYcO0vFHWZwGjJq0qgb5I34Rw=
-Received: from DM5PR08CA0028.namprd08.prod.outlook.com (2603:10b6:4:60::17) by
- MN2PR12MB3869.namprd12.prod.outlook.com (2603:10b6:208:16f::21) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.25; Tue, 12 Jul
- 2022 18:19:18 +0000
+ bh=F0F8LXmleuf44u0t1eaIzBurBy/MO4WhpRP6d7s4cyo=;
+ b=YF+9+QjC1ozCtgdR8SGvKq8mKiSpnYsGgslMT54G6TFML9biR7cx7x5pNCywHX33jwTQZqLfXwrNIHEQ2pgAtIfRbGp8eb21EFoyOCeHZC7K/6VMgFErFkusJX5tjUl6icsMizt7Bk7WCjur3lIoHtzI5tgVrx8KCFvm0EEpRBE=
+Received: from DM5PR08CA0054.namprd08.prod.outlook.com (2603:10b6:4:60::43) by
+ CH2PR12MB4890.namprd12.prod.outlook.com (2603:10b6:610:63::20) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.5417.20; Tue, 12 Jul 2022 18:19:22 +0000
 Received: from DM6NAM11FT021.eop-nam11.prod.protection.outlook.com
- (2603:10b6:4:60:cafe::b) by DM5PR08CA0028.outlook.office365.com
- (2603:10b6:4:60::17) with Microsoft SMTP Server (version=TLS1_2,
+ (2603:10b6:4:60:cafe::b4) by DM5PR08CA0054.outlook.office365.com
+ (2603:10b6:4:60::43) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5417.16 via Frontend
- Transport; Tue, 12 Jul 2022 18:19:18 +0000
+ Transport; Tue, 12 Jul 2022 18:19:21 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -49,18 +48,18 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
  DM6NAM11FT021.mail.protection.outlook.com (10.13.173.76) with Microsoft SMTP
  Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.5417.15 via Frontend Transport; Tue, 12 Jul 2022 18:19:17 +0000
+ 15.20.5417.15 via Frontend Transport; Tue, 12 Jul 2022 18:19:21 +0000
 Received: from jatayu.amd.com (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.28; Tue, 12 Jul
- 2022 13:19:15 -0500
+ 2022 13:19:19 -0500
 From:   Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
         <linux-input@vger.kernel.org>
 CC:     Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Subject: [PATCH 04/11] HID: amd_sfh: Move request_list variable to client data
-Date:   Tue, 12 Jul 2022 23:48:29 +0530
-Message-ID: <20220712181836.3488343-5-Basavaraj.Natikar@amd.com>
+Subject: [PATCH 06/11] HID: amd_sfh: Add PM operations in amd_mp2_ops
+Date:   Tue, 12 Jul 2022 23:48:31 +0530
+Message-ID: <20220712181836.3488343-7-Basavaraj.Natikar@amd.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220712181836.3488343-1-Basavaraj.Natikar@amd.com>
 References: <20220712181836.3488343-1-Basavaraj.Natikar@amd.com>
@@ -72,117 +71,183 @@ X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 2bbee227-7cab-4c78-acb0-08da643308c7
-X-MS-TrafficTypeDiagnostic: MN2PR12MB3869:EE_
+X-MS-Office365-Filtering-Correlation-Id: ef00869f-b802-4727-7283-08da64330b20
+X-MS-TrafficTypeDiagnostic: CH2PR12MB4890:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: kN24pBrnZkAeydq1Ma7kZDYfZ0+st+hMdaTyPe59pkNQtPhkJaDef3x21AqHulBnCPdTWvcta4CQwjRsz7D7IN18NGRfX8XDsO+D+1pFOlJ+wToTA1KXE51TzF0p6vuR4Bc7kKePRE2ybSg7znJfVNAXimje6VtMhxXAjcazbbN8zFOwjyW3lDJCW947Ai42iEFYDMT+mrZw4zA5/6nZ1rfh91mLJCzk5CD9uyisvQ5mNllce755YD6u3wt5LjH/CWk2MBnhLUIlonkwrbUMmUesMOaDpZeC4Ps2RAjcq2CiILiUhd+KLM95/gQZQ6fOffJl70u9aEcViHvWowsddzLWYCOwGXo93n8OGWHSYaXa9cZXztyYttKpispKUttgYotKlXJZlErarTdW4rxPFR0C6cmtdb0yNZKWwDuCIDYw9u1E4LL9R1YhaDzQ87DHGpql7JxjHAh09YMoXJfhfxUU8fQOOlMzhqi2E1GR/E4hh//klPSZS6MBDX8EdV/0La0MRVx9oola/zizMfgaW9H11gJEpymOAzl8FRg7yCMZphfJvPZ7jDpbN/BXLdc3Z0b13tGCiu8DRFouI1pF4l34gjTGAeJsp6pSCD3FepevCz0merIUNhhg/tlpvQfjVFWKC40vfYcmWEUZ7yrlqK5AsGUrlHxMTbFWgmXLm38VUl9Jd4JyyBUJQEnJkPbV6HTc6sMsZ9kZyVX8tCKNRYRieeuJsqsKWv1/3f93AJpJrTvnEqXk33inHjrJU4fqrnAxrtaNxvZZHNuQfotxHGtPEmEQwk+VR3iMaVPkqf8J0A2SVyhma/lKjhrE0wTqplgQcWD2OtTzuWrZ/XTp3qa+aaEntKo1rBJwU7Nz9CM=
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230016)(4636009)(39860400002)(136003)(376002)(396003)(346002)(46966006)(36840700001)(40470700004)(426003)(81166007)(41300700001)(82740400003)(47076005)(6666004)(2906002)(336012)(356005)(4326008)(16526019)(7696005)(2616005)(82310400005)(26005)(186003)(1076003)(70586007)(86362001)(70206006)(40460700003)(36860700001)(8676002)(8936002)(316002)(83380400001)(40480700001)(5660300002)(36756003)(478600001)(110136005)(36900700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: h3BJJAAVMeeY7kUuH3Nsvue1oGS6NQ0688Q2++77rcN2mV+QcetN9WB3MSXXfFjnXYiO0ASM7d9bhOPEvDiVWwHXS4UsrTcRKRzJKYEVNruDsqqbOptCafzEZOz18nKcT27z9sHPzuf59pJ9gB3MdDDLSK+9KMBzWUSuqxQZ+btvEtLVF8UdgeCY5zxfQAhAibiDoelSwCZM+S0Js2eFIvRImU7HY8Synzp6i7/X4AA4HIvpWAtqylpdyVEWsMSSSac4iiNfNNM1VmZ5kVHIU6sD//1I8gjECrOMH7Xx2ACkKzZGry1OwjfutHnD4MKm1X3SmVPLj9KZjcR0Pik0A3nbmRzArRm/tidxz9M7QAmeikkHjp6/1qs0xaU2BSSI455/8VO2RQ6ImfNFxzFYM13gmx4PCeZvaM+/bCXUBENzqgKY8LA+OTx7BMi9YHHRW4V0sAiH+sZwJHhwBdg6ZBMxNiPhVQS36vj0zXPCn77nMQOgMAmT8sssOo4FDRlyva7Y+7AbG0VTbb+NPQkMKPruOS7htC0TCAajMrB09UISUcFbXcnYTrOeTkM8PHMRV4mrZsN4xVkeJT/KjTivjOzuTef2r9hSVygR6MidDDKz2x6bPDetNvrP/hJhPJw+Nv+LE35XwHNEI7ttwI5Wft6d/NDD5+cXBuNqn07c7LQrD+lxxpjQpfWr7CE2dOFlzlRHapjx4w1l2+IvaZiEYQDRrCxlndnZajxN+YJdIRl8KgTRCvhSGVaN0Gf75c3Ec9cON3mFbCIaUq0sSGKVB2EJ0aTn2E4Eg7FXmPfBLgkWXZyymPX72Fq+dzFTiy1F/aosaRMzzJNFHSj3mwTKmLtub4/1fEBqBL7SGMPyvNs=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230016)(4636009)(376002)(39860400002)(346002)(396003)(136003)(40470700004)(46966006)(36840700001)(36756003)(40460700003)(1076003)(82740400003)(478600001)(2906002)(8936002)(6666004)(426003)(356005)(36860700001)(40480700001)(4326008)(70206006)(41300700001)(8676002)(26005)(47076005)(70586007)(316002)(83380400001)(81166007)(7696005)(110136005)(86362001)(2616005)(186003)(16526019)(5660300002)(336012)(82310400005)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2022 18:19:17.8666
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2022 18:19:21.8038
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2bbee227-7cab-4c78-acb0-08da643308c7
+X-MS-Exchange-CrossTenant-Network-Message-Id: ef00869f-b802-4727-7283-08da64330b20
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT021.eop-nam11.prod.protection.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3869
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4890
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-request_list variable can be used in multiple files to support all
-AMD SOCs. Hence move request_list variable to client data.
+Add PM operations as part of amd_mp2_ops structure to support all
+AMD SOCs and use wherever applicable.
 
 Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_client.c | 12 +++++++-----
- drivers/hid/amd-sfh-hid/amd_sfh_hid.h    |  1 +
- 2 files changed, 8 insertions(+), 5 deletions(-)
+ drivers/hid/amd-sfh-hid/amd_sfh_client.c | 54 ++++++++++++++++++++++++
+ drivers/hid/amd-sfh-hid/amd_sfh_common.h |  2 +
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c   | 41 +-----------------
+ 3 files changed, 58 insertions(+), 39 deletions(-)
 
 diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-index fac9e8a66120..e3b3db514c91 100644
+index e9ccdad66d12..b198b564db7d 100644
 --- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
 +++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-@@ -18,8 +18,6 @@
- #include "amd_sfh_pcie.h"
- #include "amd_sfh_hid.h"
- 
--static struct request_list req_list;
--
- void amd_sfh_set_report(struct hid_device *hid, int report_id,
- 			int report_type)
- {
-@@ -40,6 +38,7 @@ int amd_sfh_get_report(struct hid_device *hid, int report_id, int report_type)
- {
- 	struct amdtp_hid_data *hid_data = hid->driver_data;
- 	struct amdtp_cl_data *cli_data = hid_data->cli_data;
-+	struct request_list *req_list = &cli_data->req_list;
- 	int i;
- 
- 	for (i = 0; i < cli_data->num_hid_devices; i++) {
-@@ -56,7 +55,7 @@ int amd_sfh_get_report(struct hid_device *hid, int report_id, int report_type)
- 			new->report_id = report_id;
- 			cli_data->report_id[i] = report_id;
- 			cli_data->request_done[i] = false;
--			list_add(&new->list, &req_list.list);
-+			list_add(&new->list, &req_list->list);
- 			break;
- 		}
+@@ -155,6 +155,57 @@ const char *get_sensor_name(int idx)
  	}
-@@ -67,13 +66,14 @@ int amd_sfh_get_report(struct hid_device *hid, int report_id, int report_type)
- static void amd_sfh_work(struct work_struct *work)
+ }
+ 
++static void amd_sfh_resume(struct amd_mp2_dev *mp2)
++{
++	struct amdtp_cl_data *cl_data = mp2->cl_data;
++	struct amd_mp2_sensor_info info;
++	int i, status;
++
++	for (i = 0; i < cl_data->num_hid_devices; i++) {
++		if (cl_data->sensor_sts[i] == SENSOR_DISABLED) {
++			info.period = AMD_SFH_IDLE_LOOP;
++			info.sensor_idx = cl_data->sensor_idx[i];
++			info.dma_address = cl_data->sensor_dma_addr[i];
++			mp2->mp2_ops->start(mp2, info);
++			status = amd_sfh_wait_for_response
++					(mp2, cl_data->sensor_idx[i], SENSOR_ENABLED);
++			if (status == SENSOR_ENABLED)
++				cl_data->sensor_sts[i] = SENSOR_ENABLED;
++			dev_dbg(&mp2->pdev->dev, "resume sid 0x%x (%s) status 0x%x\n",
++				cl_data->sensor_idx[i], get_sensor_name(cl_data->sensor_idx[i]),
++				cl_data->sensor_sts[i]);
++		}
++	}
++
++	schedule_delayed_work(&cl_data->work_buffer, msecs_to_jiffies(AMD_SFH_IDLE_LOOP));
++	if (mp2->mp2_ops->clear_intr)
++		mp2->mp2_ops->clear_intr(mp2);
++}
++
++static void amd_sfh_suspend(struct amd_mp2_dev *mp2)
++{
++	struct amdtp_cl_data *cl_data = mp2->cl_data;
++	int i, status;
++
++	for (i = 0; i < cl_data->num_hid_devices; i++) {
++		if (cl_data->sensor_idx[i] != HPD_IDX &&
++		    cl_data->sensor_sts[i] == SENSOR_ENABLED) {
++			mp2->mp2_ops->stop(mp2, cl_data->sensor_idx[i]);
++			status = amd_sfh_wait_for_response
++					(mp2, cl_data->sensor_idx[i], SENSOR_DISABLED);
++			if (status != SENSOR_ENABLED)
++				cl_data->sensor_sts[i] = SENSOR_DISABLED;
++			dev_dbg(&mp2->pdev->dev, "suspend sid 0x%x (%s) status 0x%x\n",
++				cl_data->sensor_idx[i], get_sensor_name(cl_data->sensor_idx[i]),
++				cl_data->sensor_sts[i]);
++		}
++	}
++
++	cancel_delayed_work_sync(&cl_data->work_buffer);
++	if (mp2->mp2_ops->clear_intr)
++		mp2->mp2_ops->clear_intr(mp2);
++}
++
+ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
  {
- 	struct amdtp_cl_data *cli_data = container_of(work, struct amdtp_cl_data, work.work);
-+	struct request_list *req_list = &cli_data->req_list;
- 	struct amd_input_data *in_data = cli_data->in_data;
- 	struct request_list *req_node;
- 	u8 current_index, sensor_index;
- 	u8 report_id, node_type;
- 	u8 report_size = 0;
- 
--	req_node = list_last_entry(&req_list.list, struct request_list, list);
-+	req_node = list_last_entry(&req_list->list, struct request_list, list);
- 	list_del(&req_node->list);
- 	current_index = req_node->current_index;
- 	sensor_index = req_node->sensor_idx;
-@@ -154,19 +154,21 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
  	struct amd_input_data *in_data = &privdata->in_data;
- 	struct amdtp_cl_data *cl_data = privdata->cl_data;
- 	struct amd_mp2_sensor_info info;
-+	struct request_list *req_list;
- 	struct device *dev;
- 	u32 feature_report_size;
- 	u32 input_report_size;
- 	int rc, i, status;
- 	u8 cl_idx;
- 
-+	req_list = &cl_data->req_list;
+@@ -172,6 +223,9 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
  	dev = &privdata->pdev->dev;
+ 	amd_sfh_set_desc_ops(mp2_ops);
  
++	mp2_ops->suspend = amd_sfh_suspend;
++	mp2_ops->resume = amd_sfh_resume;
++
  	cl_data->num_hid_devices = amd_mp2_get_sensor_num(privdata, &cl_data->sensor_idx[0]);
  
  	INIT_DELAYED_WORK(&cl_data->work, amd_sfh_work);
- 	INIT_DELAYED_WORK(&cl_data->work_buffer, amd_sfh_work_buffer);
--	INIT_LIST_HEAD(&req_list.list);
-+	INIT_LIST_HEAD(&req_list->list);
- 	cl_data->in_data = in_data;
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_common.h b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+index d2a72ab64ebf..2b45d507ead7 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_common.h
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
+@@ -54,6 +54,8 @@ struct amd_mp2_ops {
+ 	void (*clear_intr)(struct amd_mp2_dev *privdata);
+ 	int (*init_intr)(struct amd_mp2_dev *privdata);
+ 	int (*discovery_status)(struct amd_mp2_dev *privdata);
++	void (*suspend)(struct amd_mp2_dev *mp2);
++	void (*resume)(struct amd_mp2_dev *mp2);
+ 	int (*get_rep_desc)(int sensor_idx, u8 rep_desc[]);
+ 	u32 (*get_desc_sz)(int sensor_idx, int descriptor_name);
+ 	u8 (*get_feat_rep)(int sensor_idx, int report_id, u8 *feature_report);
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index f169b4413abb..be9ac3778f37 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -339,28 +339,8 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
+ static int __maybe_unused amd_mp2_pci_resume(struct device *dev)
+ {
+ 	struct amd_mp2_dev *mp2 = dev_get_drvdata(dev);
+-	struct amdtp_cl_data *cl_data = mp2->cl_data;
+-	struct amd_mp2_sensor_info info;
+-	int i, status;
+-
+-	for (i = 0; i < cl_data->num_hid_devices; i++) {
+-		if (cl_data->sensor_sts[i] == SENSOR_DISABLED) {
+-			info.period = AMD_SFH_IDLE_LOOP;
+-			info.sensor_idx = cl_data->sensor_idx[i];
+-			info.dma_address = cl_data->sensor_dma_addr[i];
+-			mp2->mp2_ops->start(mp2, info);
+-			status = amd_sfh_wait_for_response
+-					(mp2, cl_data->sensor_idx[i], SENSOR_ENABLED);
+-			if (status == SENSOR_ENABLED)
+-				cl_data->sensor_sts[i] = SENSOR_ENABLED;
+-			dev_dbg(dev, "suspend sid 0x%x (%s) status 0x%x\n",
+-				cl_data->sensor_idx[i], get_sensor_name(cl_data->sensor_idx[i]),
+-				cl_data->sensor_sts[i]);
+-		}
+-	}
  
- 	for (i = 0; i < cl_data->num_hid_devices; i++) {
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
-index e2e4cc5fc946..ecdd2f48cfb8 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
-@@ -52,6 +52,7 @@ struct amdtp_cl_data {
- 	struct amd_input_data *in_data;
- 	struct delayed_work work;
- 	struct delayed_work work_buffer;
-+	struct request_list req_list;
- };
+-	schedule_delayed_work(&cl_data->work_buffer, msecs_to_jiffies(AMD_SFH_IDLE_LOOP));
+-	amd_sfh_clear_intr(mp2);
++	mp2->mp2_ops->resume(mp2);
  
- /**
+ 	return 0;
+ }
+@@ -368,25 +348,8 @@ static int __maybe_unused amd_mp2_pci_resume(struct device *dev)
+ static int __maybe_unused amd_mp2_pci_suspend(struct device *dev)
+ {
+ 	struct amd_mp2_dev *mp2 = dev_get_drvdata(dev);
+-	struct amdtp_cl_data *cl_data = mp2->cl_data;
+-	int i, status;
+-
+-	for (i = 0; i < cl_data->num_hid_devices; i++) {
+-		if (cl_data->sensor_idx[i] != HPD_IDX &&
+-		    cl_data->sensor_sts[i] == SENSOR_ENABLED) {
+-			mp2->mp2_ops->stop(mp2, cl_data->sensor_idx[i]);
+-			status = amd_sfh_wait_for_response
+-					(mp2, cl_data->sensor_idx[i], SENSOR_DISABLED);
+-			if (status != SENSOR_ENABLED)
+-				cl_data->sensor_sts[i] = SENSOR_DISABLED;
+-			dev_dbg(dev, "suspend sid 0x%x (%s) status 0x%x\n",
+-				cl_data->sensor_idx[i], get_sensor_name(cl_data->sensor_idx[i]),
+-				cl_data->sensor_sts[i]);
+-		}
+-	}
+ 
+-	cancel_delayed_work_sync(&cl_data->work_buffer);
+-	amd_sfh_clear_intr(mp2);
++	mp2->mp2_ops->suspend(mp2);
+ 
+ 	return 0;
+ }
 -- 
 2.25.1
 

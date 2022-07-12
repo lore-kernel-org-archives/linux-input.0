@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0185EC43334
-	for <linux-input@archiver.kernel.org>; Tue, 12 Jul 2022 15:00:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E1759C43334
+	for <linux-input@archiver.kernel.org>; Tue, 12 Jul 2022 15:00:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233326AbiGLPAi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Jul 2022 11:00:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53388 "EHLO
+        id S233410AbiGLPAn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 Jul 2022 11:00:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53272 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230397AbiGLO7V (ORCPT
+        with ESMTP id S233589AbiGLO7u (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Jul 2022 10:59:21 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3E2C057248
-        for <linux-input@vger.kernel.org>; Tue, 12 Jul 2022 07:59:19 -0700 (PDT)
+        Tue, 12 Jul 2022 10:59:50 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 46A92B0FA2
+        for <linux-input@vger.kernel.org>; Tue, 12 Jul 2022 07:59:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1657637959;
+        s=mimecast20190719; t=1657637962;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=QgfSb7dECbTAHcInZBU6YqysYjB2PYG5wvQRH565Jew=;
-        b=TJLL7qP0Ay2SZNHyqSkGpR/ZWL/RkG4QqhpaoSnEy8Zgr1qyCzxVr0Yfa+/egY3Y1kFVth
-        GtVj+Jvrq1YD+T4suCa26iWM1P5DhXb5ZwhK9+6ph8lb+QNWHLwL6NYlYfx27gLAcs5E9H
-        q0AhLUi2taH/OMqYeKHLsegDsGB2lGM=
+        bh=BQHpBnyEukIpB0e9o8whGYc//sSWJw8fHXPkrhbv0nA=;
+        b=DugRngQ6/N02pfOYoKJvBcyklnzLZ/UVAKwbjAHUbixP3/pbJfc1Xn1HPIflkmhNkAgfme
+        KcHBMvKgc/owGivGsBzFCLdtRVdUcM2NIGOnp9csjJSvZPOgvqcRV8jVUa595bShw1mHbg
+        jLB5NZjegVFB0dYlfAimrQFvXZVLQZI=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-478-b6OaMCBnMBSFmByfnYzLkQ-1; Tue, 12 Jul 2022 10:59:09 -0400
-X-MC-Unique: b6OaMCBnMBSFmByfnYzLkQ-1
+ us-mta-493-qXnoLm6oNjOhbELEcD1Kyw-1; Tue, 12 Jul 2022 10:59:18 -0400
+X-MC-Unique: qXnoLm6oNjOhbELEcD1Kyw-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0FD831032964;
-        Tue, 12 Jul 2022 14:59:08 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 702B1811E75;
+        Tue, 12 Jul 2022 14:59:17 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.195.8])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A423E2166B26;
-        Tue, 12 Jul 2022 14:59:04 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1CF092166B26;
+        Tue, 12 Jul 2022 14:59:12 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -55,9 +55,9 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v6 02/23] bpf/verifier: allow kfunc to read user provided context
-Date:   Tue, 12 Jul 2022 16:58:29 +0200
-Message-Id: <20220712145850.599666-3-benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v6 04/23] selftests/bpf: add test for accessing ctx from syscall program type
+Date:   Tue, 12 Jul 2022 16:58:31 +0200
+Message-Id: <20220712145850.599666-5-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220712145850.599666-1-benjamin.tissoires@redhat.com>
 References: <20220712145850.599666-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -67,12 +67,12 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-When a kfunc was trying to access data from context in a syscall eBPF
-program, the verifier was rejecting the call.
-This is because the syscall context is not known at compile time, and
-so we need to check this when actually accessing it.
+We need to also export the kfunc set to the syscall program type,
+and then add a couple of eBPF programs that are testing those calls.
 
-Check for the valid memory access and allow such situation to happen.
+The first one checks for valid access, and the second one is OK
+from a static analysis point of view but fails at run time because
+we are trying to access outside of the allocated memory.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
@@ -80,57 +80,101 @@ Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 new in v6
 ---
- kernel/bpf/verifier.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ net/bpf/test_run.c                            |  1 +
+ .../selftests/bpf/prog_tests/kfunc_call.c     | 20 ++++++++++++++
+ .../selftests/bpf/progs/kfunc_call_test.c     | 27 +++++++++++++++++++
+ 3 files changed, 48 insertions(+)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 328cfab3af60..f6af57a84247 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -248,6 +248,7 @@ struct bpf_call_arg_meta {
- 	struct bpf_map *map_ptr;
- 	bool raw_mode;
- 	bool pkt_access;
-+	bool is_kfunc;
- 	u8 release_regno;
- 	int regno;
- 	int access_size;
-@@ -5170,6 +5171,7 @@ static int check_helper_mem_access(struct bpf_verifier_env *env, int regno,
- 				   struct bpf_call_arg_meta *meta)
+diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+index 2ca96acbc50a..9da2a42811e8 100644
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -1646,6 +1646,7 @@ static int __init bpf_prog_test_run_init(void)
+ 	int ret;
+ 
+ 	ret = register_btf_kfunc_id_set(BPF_PROG_TYPE_SCHED_CLS, &bpf_prog_test_kfunc_set);
++	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_SYSCALL, &bpf_prog_test_kfunc_set);
+ 	return ret ?: register_btf_id_dtor_kfuncs(bpf_prog_test_dtor_kfunc,
+ 						  ARRAY_SIZE(bpf_prog_test_dtor_kfunc),
+ 						  THIS_MODULE);
+diff --git a/tools/testing/selftests/bpf/prog_tests/kfunc_call.c b/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
+index c00eb974eb85..22547aafdd60 100644
+--- a/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
++++ b/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
+@@ -6,10 +6,22 @@
+ #include "kfunc_call_test_subprog.skel.h"
+ #include "kfunc_call_test_subprog.lskel.h"
+ 
++struct syscall_test_args {
++	__u8 data[16];
++	size_t size;
++};
++
+ static void test_main(void)
  {
- 	struct bpf_reg_state *regs = cur_regs(env), *reg = &regs[regno];
-+	enum bpf_prog_type prog_type = resolve_prog_type(env->prog);
- 	u32 *max_access;
+ 	struct kfunc_call_test_lskel *skel;
+ 	int prog_fd, err;
++	struct syscall_test_args args = {
++		.size = 10,
++	};
++	DECLARE_LIBBPF_OPTS(bpf_test_run_opts, syscall_topts,
++		.ctx_in = &args,
++		.ctx_size_in = sizeof(args),
++	);
+ 	LIBBPF_OPTS(bpf_test_run_opts, topts,
+ 		.data_in = &pkt_v4,
+ 		.data_size_in = sizeof(pkt_v4),
+@@ -35,6 +47,14 @@ static void test_main(void)
+ 	ASSERT_OK(err, "bpf_prog_test_run(test_ref_btf_id)");
+ 	ASSERT_EQ(topts.retval, 0, "test_ref_btf_id-retval");
  
- 	switch (base_type(reg->type)) {
-@@ -5223,6 +5225,19 @@ static int check_helper_mem_access(struct bpf_verifier_env *env, int regno,
- 				env,
- 				regno, reg->off, access_size,
- 				zero_size_allowed, ACCESS_HELPER, meta);
-+	case PTR_TO_CTX:
-+		/* in case of a kfunc called in a program of type SYSCALL, the context is
-+		 * user supplied, so not computed statically.
-+		 * Dynamically check it now
-+		 */
-+		if (prog_type == BPF_PROG_TYPE_SYSCALL && meta && meta->is_kfunc) {
-+			enum bpf_access_type access_t = meta->raw_mode ? BPF_WRITE : BPF_READ;
++	prog_fd = skel->progs.kfunc_syscall_test.prog_fd;
++	err = bpf_prog_test_run_opts(prog_fd, &syscall_topts);
++	ASSERT_OK(err, "bpf_prog_test_run(syscall_test)");
 +
-+			return check_mem_access(env, env->insn_idx, regno, access_size, BPF_B,
-+						access_t, -1, false);
-+		}
++	prog_fd = skel->progs.kfunc_syscall_test_fail.prog_fd;
++	err = bpf_prog_test_run_opts(prog_fd, &syscall_topts);
++	ASSERT_ERR(err, "bpf_prog_test_run(syscall_test_fail)");
 +
-+		fallthrough;
- 	default: /* scalar_value or invalid ptr */
- 		/* Allow zero-byte read from NULL, regardless of pointer type */
- 		if (zero_size_allowed && access_size == 0 &&
-@@ -5335,6 +5350,7 @@ int check_kfunc_mem_size_reg(struct bpf_verifier_env *env, struct bpf_reg_state
- 	WARN_ON_ONCE(regno < BPF_REG_2 || regno > BPF_REG_5);
+ 	kfunc_call_test_lskel__destroy(skel);
+ }
  
- 	memset(&meta, 0, sizeof(meta));
-+	meta.is_kfunc = true;
+diff --git a/tools/testing/selftests/bpf/progs/kfunc_call_test.c b/tools/testing/selftests/bpf/progs/kfunc_call_test.c
+index 5aecbb9fdc68..0978834e22ad 100644
+--- a/tools/testing/selftests/bpf/progs/kfunc_call_test.c
++++ b/tools/testing/selftests/bpf/progs/kfunc_call_test.c
+@@ -92,4 +92,31 @@ int kfunc_call_test_pass(struct __sk_buff *skb)
+ 	return 0;
+ }
  
- 	if (may_be_null) {
- 		saved_reg = *mem_reg;
++struct syscall_test_args {
++	__u8 data[16];
++	size_t size;
++};
++
++SEC("syscall")
++int kfunc_syscall_test(struct syscall_test_args *args)
++{
++	const int size = args->size;
++
++	if (size > sizeof(args->data))
++		return -7; /* -E2BIG */
++
++	bpf_kfunc_call_test_mem_len_pass1(&args->data, sizeof(args->data));
++	bpf_kfunc_call_test_mem_len_pass1(&args->data, size);
++
++	return 0;
++}
++
++SEC("syscall")
++int kfunc_syscall_test_fail(struct syscall_test_args *args)
++{
++	bpf_kfunc_call_test_mem_len_pass1(&args->data, sizeof(*args) + 1);
++
++	return 0;
++}
++
+ char _license[] SEC("license") = "GPL";
 -- 
 2.36.1
 

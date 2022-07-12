@@ -2,26 +2,26 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57F04CCA480
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2B31CCA47C
 	for <linux-input@archiver.kernel.org>; Tue, 12 Jul 2022 10:16:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232396AbiGLKQe convert rfc822-to-8bit (ORCPT
+        id S232860AbiGLKQh convert rfc822-to-8bit (ORCPT
         <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Jul 2022 06:16:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39338 "EHLO
+        Tue, 12 Jul 2022 06:16:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232776AbiGLKQb (ORCPT
+        with ESMTP id S232824AbiGLKQc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Jul 2022 06:16:31 -0400
+        Tue, 12 Jul 2022 06:16:32 -0400
 Received: from de-smtp-delivery-113.mimecast.com (de-smtp-delivery-113.mimecast.com [194.104.109.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 50E2BAC064
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 9B110AC041
         for <linux-input@vger.kernel.org>; Tue, 12 Jul 2022 03:16:30 -0700 (PDT)
 Received: from CHE01-GV0-obe.outbound.protection.outlook.com
  (mail-gv0che01lp2046.outbound.protection.outlook.com [104.47.22.46]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- de-mta-25-j_2QKmRrNkyIPOalFMeRSQ-2; Tue, 12 Jul 2022 12:16:25 +0200
-X-MC-Unique: j_2QKmRrNkyIPOalFMeRSQ-2
+ de-mta-25-EQpRHVZBN42z8RkcWOP7Dg-3; Tue, 12 Jul 2022 12:16:26 +0200
+X-MC-Unique: EQpRHVZBN42z8RkcWOP7Dg-3
 Received: from ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:2e::8) by
  GVAP278MB0165.CHEP278.PROD.OUTLOOK.COM (2603:10a6:710:3c::5) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
@@ -34,67 +34,64 @@ From:   Francesco Dolcini <francesco.dolcini@toradex.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-CC:     Max Krummenacher <max.krummenacher@toradex.com>,
+CC:     Francesco Dolcini <francesco.dolcini@toradex.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>
-Subject: [PATCH v1 2/2] dt-bindings: input: colibri-vf50-ts: Improve documentation
-Date:   Tue, 12 Jul 2022 12:16:19 +0200
-Message-ID: <20220712101619.326120-3-francesco.dolcini@toradex.com>
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v1 0/2] Input: touchscreen: Minor colibri-vf50-ts cleanups
+Date:   Tue, 12 Jul 2022 12:16:17 +0200
+Message-ID: <20220712101619.326120-1-francesco.dolcini@toradex.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220712101619.326120-1-francesco.dolcini@toradex.com>
-References: <20220712101619.326120-1-francesco.dolcini@toradex.com>
-X-ClientProxiedBy: MRXP264CA0043.FRAP264.PROD.OUTLOOK.COM
- (2603:10a6:500:14::31) To ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
+X-ClientProxiedBy: MR1P264CA0170.FRAP264.PROD.OUTLOOK.COM
+ (2603:10a6:501:55::18) To ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
  (2603:10a6:910:2e::8)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 96aee72f-03f8-4bdb-01ba-08da63ef92e7
+X-MS-Office365-Filtering-Correlation-Id: c1a2e06b-746e-40ed-876d-08da63ef9365
 X-MS-TrafficTypeDiagnostic: GVAP278MB0165:EE_
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0
-X-Microsoft-Antispam-Message-Info: M0hd6B2y46reddcadtJNv7LDQ3i4jl/sORKx14NXwtllEQLHeUgvXlBI+mSg7XxjcWTgBZ4PglfOZBcowtlDtAboF7ujN4wwi8WDcexfJTZfAZrtHGlunlQP6rrWoEwpUtHNDLkvrCQgz2O2qbGyPTCTAh5vUL2yJyMJNnRfJIOq9bEygCwQbLcRUFlbZMavd/DGphYSVnD3lbgT65QiEAZBOsz77mf76b7UFXL9lI5StnmA7nCdcGZFGImMPUyKMG2w6sE0rIm2bMxFSOc+5GUN5V8XPQfbOHmKE6zCU0j+N0OVWAM2IOB817WPCo1XLDh5iLWTiY3PrD3IML0KjgpDWmJEuMiYf7hmjRzFO8xVTi0Tl1vXSx2B/jjZLQU2ShJflwrCTm2qKzTa1ItiGF//8nWEJJ7WQ9nrTZlM7vjrsrIuF3gwHcJcxoOJm7+BrOqRiynaHmSHRAaZutWYDmcGv5q5cFGTGQFUlPae2CnIT8Mn5UaxLoPZFKH3tODjHNXif+MS2+NuT9mE6knLupS74DF/03+xBr7W/UrQQ2R1K59OtDfklTRt/+KPo5csqn6+zlpe/fdROPsbnUZ6PYp9Ke99CPMVleudFkfHpVjSo13qA5rMuVrmQwvVzL7CeMn1eL1bons78Ig4iThq1qhl0f7N+UKWjmDr0eZ2/CsMEBDNmy3QzP0acLlmtyUpSieAY8Yl3nnwJv1DmsMH/7bocmGgA0soRbcEEBfWMdvrH5yRj5mCtk1WwBux00Qp+iDrNbS6Tee/9MqvfCTPnvn7MKndEAc591nGKABUMO/HO+Lnkhr2PHflNjTLW4Pz
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(346002)(396003)(366004)(39850400004)(136003)(5660300002)(8936002)(86362001)(26005)(6506007)(6666004)(6512007)(2906002)(478600001)(52116002)(6486002)(41300700001)(44832011)(38350700002)(38100700002)(1076003)(2616005)(107886003)(186003)(36756003)(4326008)(316002)(8676002)(66946007)(66556008)(66476007)(54906003)(83380400001)(110136005);DIR:OUT;SFP:1102
+X-Microsoft-Antispam-Message-Info: c9+iiZ3wXs5CIbU8dZhJlDkmUpvM2wuOkiDcgmJzYtaiCz6bsNHXQeh2fJbV/7Ahko28q+P+cMyTQsAAYJ97nul+IWrY3ggKRyhsusEtXM3wbUgdIpB+4V+/12sivvVIT5lS10sEMpu1mCjpk7wvQr6GUSGDDbVQSRnakGI++DaMU1t/5m1JtUV1sXCB/M4sA2ThNizNEF1ecTB9nbxUbReG0JcxtCndgOALWIF1LmNLvGRnPUTTjYxLQoerWRVR5Q/dfGSxHUOBxDjym5VjPeWUk5GUOjr6f89yLzrRShSzwTRG3+BUTqeQEguWPIdh32VwuiyUhX7z3oJZ/C0RQjt216NCtcZTh4QtSF3O9EEvzcgQU+wM1rHZ3dBEtd8+YFhUstZl+qghEpy30e7GiLYwbaj4MFDSGIWOluGF4CcQ5RAQph+yjYwzW03NE2O0erOUvFaDUp9OhsAn99PcRHAXgLSkcZaPRpu2WWUQBo3yFDr7AeMOzNyysrl11+J1Cru29VYBlsenFK9plb88g2CUkVsuMsKYknh+tVOghj32pPRWmuYvCLUMMpNo/pJI4NoynioFFPxYYr2l3nj5AK6pmksl2gDvHF0ep0/D3Bed9/RF8KgPQdaW6EiR82lwb0SwWgoNXylOwJTSFBKXxlVDZiwbHuSeAA0ZIIVv+X9On/CgcXXuxm33I8EC72zchh49cWMzBOFPGWZeHizJXqgqSDQUbTMpZAKf4SyLZhycBW4cWqHKcfxXcadtkt4y4TLl6zdQ5EjMx79igxB4Xff2pQYllgh917l990xVVZk6t0h2mQG5DPZM85Vk54J7
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(346002)(396003)(366004)(39850400004)(136003)(5660300002)(4744005)(8936002)(86362001)(26005)(6506007)(6666004)(6512007)(2906002)(478600001)(52116002)(6486002)(41300700001)(44832011)(38350700002)(38100700002)(1076003)(2616005)(186003)(36756003)(4326008)(316002)(8676002)(66946007)(66556008)(66476007)(83380400001)(110136005);DIR:OUT;SFP:1102
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?DtDo2shKwCQGVq2p3jk31FlLoWIdXrJdSLVP6chDFCheOBjqX+vOtZJqyWLw?=
- =?us-ascii?Q?JwXCwkqjZLUU8m+VMkakgOkNURLPFTcSBx46e0Nv54WMP+6Y4YG+rDZ6zBzT?=
- =?us-ascii?Q?f47uKiTXXqP3FejL4H9gJnEnzfHlFodBufIk6Fq2BnS2u+bzeSVvPcIxrX8n?=
- =?us-ascii?Q?lldEOaZFyCyt3pGC6LT3D1eOpGWGeTcoZLpsZF7cV2fqqZWDV4uHu4jInP/L?=
- =?us-ascii?Q?o3Qc7Pz6vj51ygPlrizT19olDeZwvxwTRbDd4B9M7UzWr5rm/jMrcqSHmp21?=
- =?us-ascii?Q?RfxVraeTbYe68OTx6JfwoLCeC/kWB72MH8zp/k/5YDEs6oTGViHCUQQjZaGT?=
- =?us-ascii?Q?ICYNUBhn0vLdBsC8we9PyK6lQqqSq/0PsUQB2X8qAWHwZUbC4btM5iFWLy20?=
- =?us-ascii?Q?ARY7oggcw2L3j1he9oqFEg2PpF0OgY3Icnz4kQhnXNtxT3pcMKhsx/6Z5dAq?=
- =?us-ascii?Q?8Q/xZHmEup0OueHvbnycKaaZfgW1rEzF+WqDL4rQBTmh131bcbLFTO4XjlCq?=
- =?us-ascii?Q?3yCSY3roAyzFGA3zSVRDekx2TYUnjJXl5xzWRVW+x2a/QVcC5yRj6e2FTzSs?=
- =?us-ascii?Q?RtwB7eV7r8+H2N5u29prZRhCkJ6Em5QrMxnU8UsWfp+AJLQnCH0tcclXP1gM?=
- =?us-ascii?Q?e0LC3Qb6mPzDOFp6wfs07SyRxB6QUIkU4QBSEjUzFXLbBdD3lQd42EpX04J8?=
- =?us-ascii?Q?oWspAz1XjkX0a80wTHt64u//o90Y334h49qgJmwI0I9f6Vd6E/z8z/Yl4nk/?=
- =?us-ascii?Q?c8hvFbYv8OdzNozFPZs+DttdqcASScz2rB+Q2KL3ynNRf8Sr4gHIjQTo+XFN?=
- =?us-ascii?Q?pmb0Z965BLT6L8q0olE0dfT5bQke/sYsNWI8rF0zuvytql6Br+3q6Mf8M6hz?=
- =?us-ascii?Q?r6LO8OTSoN8vaZ890z+H86j1PHeVrDK7kskPCaq4ZJwbeQSQj692EXrjlb1j?=
- =?us-ascii?Q?iXY6AK8wwMIiOlP/mG+KWvhraEiLpBl3RJpEp48Pbd+0wZKqo1Jl0NYLVu5G?=
- =?us-ascii?Q?1P8n9SxvsPzMXln0LtlBfEoGMutwCD7ZlIMIuYag02afXPh6ZnfbV0lTq/1M?=
- =?us-ascii?Q?FEytRhrXv8B9BI2tYvn9SSc8J5cbaSPIY7dTftrcrzINHzHCAKcbrku7XTR0?=
- =?us-ascii?Q?KnOtAZ//JoddzwdMxtis4JCgQZJFtppmsVZSE/G/fm3lGxJdb+2jW0un4nXA?=
- =?us-ascii?Q?NIIaj4z73o8nC08O/c+SVblg+y5WqxGOLQR8fzAFMtmCmG13cz6DTJ+0qTK7?=
- =?us-ascii?Q?ioBS72FcIY9Tmkpb0sXCFWCiddVeJL8blK8rCuNXvfBv0cYNFYUtn2ShfnIn?=
- =?us-ascii?Q?4P1L2TNscVUbOftzPVvo3RfxegJgwgDUzNCUIA3RVmiCmhgD9V9cZU15HMz7?=
- =?us-ascii?Q?gcBxs/9pLIyMjGewoKo80y2mO1n6vgCUTdcQn9XGJZ5NWpQ9wxebTG6YBXug?=
- =?us-ascii?Q?T+VxgCj6R/BmEaQlybvfMRejDwvEwum2dXI5oD1zNcYMDPBfvEIeJZ2RFy1X?=
- =?us-ascii?Q?nS3OBdkXhOtxfoynhAIJmRSpvJ53Fxnc5h1JMAYD8reWrqBpB/1EB+3mvJWG?=
- =?us-ascii?Q?765Wltb6NHZidnwVb7LouyZf586W5+fZ0NYcZqK1PHdBOqxFsQWj2z4eHjqO?=
- =?us-ascii?Q?9g=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?gtzv/B6CnXAwhEplu6ylbMm+ri2/m/3AiZQut/d1rtNhS8PAyuqrr9IG6+GP?=
+ =?us-ascii?Q?BVIz7q3fTbEvx7ArT0GkWky2kCibAisV/dHOjd1d6i54b/O1ymn1OQ3VG7ZW?=
+ =?us-ascii?Q?7itgsM6sAilE8hob/KrTI1RUlivWN5stS9mDlole6BidtVp2pwwqkwg1u5Sw?=
+ =?us-ascii?Q?mtj817Wvfk4V+g8DVUWrYXrDj3CcsJfvLu1rIrCT5jTz5CjGeU9F3XpW/Zol?=
+ =?us-ascii?Q?kZHVwOcBU2ZOSehv0jh8or7rYldIJKw2i1uV41jtFCuz7jRIwmneeltwoSn3?=
+ =?us-ascii?Q?R5N8mxDktZRf3iFHLtfMJVHJwipzd805oqQZtWq3ABewv+R94jpoLURcL6eU?=
+ =?us-ascii?Q?IjSIZUdrl1Ep43gulstv2CsBqztICQVnjBQmTq48mxoUO44tpjLRZbFxw9i8?=
+ =?us-ascii?Q?dtJUhL1M4mQuSwJWkYdG8jhURbSpgQyqgj51lm2AzNayQVREqGfDzE9oSPJM?=
+ =?us-ascii?Q?kUCzTPVrc9NEDDPzc4+qKAWwrGUFBl6cTG6bHgUpC3ZbzD6Ur5tD+P3FA6FM?=
+ =?us-ascii?Q?PQltKkSMeAozDVyR0LpUvjyICI1Pysy3Oi+h94kO0O+bztwiWlusu/PxIMKP?=
+ =?us-ascii?Q?9HENJYrGRoy1xRKHuiDzdZXBKETQ8AB6Ux06Lx7MChjvW/uQNYIHxVQ6q9fW?=
+ =?us-ascii?Q?4sIxjj+u0VC3Ev6FdtaxSDF9iPqQ2Q63n2kufPo57wRllnSyFhjFh9g+kmJ5?=
+ =?us-ascii?Q?ZOXtFZrEYXmCUP9gQUuRQQQEI6tSm/gnIEA2bIQ03ZKR6kGG5mPss7dDmv8B?=
+ =?us-ascii?Q?0WwHy+2dvt/2dCIlKJ5EMAlFcq+kUi9rNmSy5g4KjWQDMn5ofmZLo4+6d7N0?=
+ =?us-ascii?Q?u7kKD4Dz9Urv10JOp+bpYOVfQtfhoRdNlJclFrkHN2XLB76Tpr64+T6hSPFi?=
+ =?us-ascii?Q?YBV3apJjZmsT10ADJ8emiAMTN6UIeMeMaOncbp948gDP3YckTF1cY88djWby?=
+ =?us-ascii?Q?ge3dGJh0Dat8ke17SwJVp+wwiUDKch1E2WtZhdYIudoUabh0AO9LFQ7EQP3b?=
+ =?us-ascii?Q?y+/wN7FuISi3YL2ke5T7qdTlF1zSRosjthn0QTXsm9Rwqar6iP0QiZx/ZGeR?=
+ =?us-ascii?Q?07N+mue9tM9xfeJTiaVEBatmkBh9cJte1tCvK9Q+dP5Ytfqopuuj+abwN9ZS?=
+ =?us-ascii?Q?/v3YaKPt9+tjYFpG0Af50siiiDElaz6KI0OZos3WyBaKMMBngXWUG5Y5BeU/?=
+ =?us-ascii?Q?KAaVOdWHh0HJuKrtgkLw2WAU6yAqVykRd7alRvy95pGnuvL7aRKaHJmIbJr+?=
+ =?us-ascii?Q?Qp8DS3+KTpx/3oj6LHE4YMXI2knc9eVh6VgJqt4Fzo1BrQSFWBMzLx3qf6sv?=
+ =?us-ascii?Q?q8FndZbjtnamyoTyCznr0yVPhqFFzkBufCigiq6mOftZtBK6C7fBxpx/IFr5?=
+ =?us-ascii?Q?jemn+ilze0/DYMIfaBIx3sMBd+Yu4RFSYvhCnRd2KaEUQXbx3STASXSRWoJt?=
+ =?us-ascii?Q?G+atdob0QNAcXv6KuxnICHaXoY+S8Vz+Gf4DN7bGC7GR1ToNXv1/LlNKW/56?=
+ =?us-ascii?Q?eoKVINRx7eCXGDIUxVAcnxdVED7HSuFPRmkAYM7tZIJdl3vfcXZPVc66vmWE?=
+ =?us-ascii?Q?5Jdno/z61J833GDaowIs0DejZtcaU11+fy08/hzBnVi72yVGkemkQnKeOnjb?=
+ =?us-ascii?Q?MQ=3D=3D?=
 X-OriginatorOrg: toradex.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 96aee72f-03f8-4bdb-01ba-08da63ef92e7
+X-MS-Exchange-CrossTenant-Network-Message-Id: c1a2e06b-746e-40ed-876d-08da63ef9365
 X-MS-Exchange-CrossTenant-AuthSource: ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2022 10:16:24.0073
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2022 10:16:24.8209
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: d9995866-0d9b-4251-8315-093f062abab4
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +kyKydSbmY530u4a08PWptI295F4phB9E9m5RorYtVyzdACcL9Unx0i16LT6lw42qJWT+QybzxQWuoEWyecAAgi2/+ZQnnUgIWhbcwedN8s=
+X-MS-Exchange-CrossTenant-UserPrincipalName: 30JoF7TlfCRj7RyLd+pXXqxhPTgY6PDYVGkn04MyIcgm5+cO5jTyBznwQ5JAP+Mi6ia9+jK/FEqLX7yEvW4lxF0L6QtgidLEjtLw+cHiJco=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVAP278MB0165
 Authentication-Results: relay.mimecast.com;
         auth=pass smtp.auth=CDE13A77 smtp.mailfrom=francesco.dolcini@toradex.com
@@ -106,54 +103,21 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Max Krummenacher <max.krummenacher@toradex.com>
+Hi all,
+This series introduce some minor cleanups on colibri-vf50-ts, allow using it
+with any IIO ADC input and fix a couple of mistakes in the dt-bindings
+documentation.
 
-Clarify properties definition, drop unused pinctrl-2 state 'gpio'.
+Francesco
 
-Signed-off-by: Max Krummenacher <max.krummenacher@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
----
+Max Krummenacher (2):
+  Input: touchscreen: colibri-vf50-ts: don't depend on VF610_ADC
+  dt-bindings: input: colibri-vf50-ts: Improve documentation
+
  .../input/touchscreen/colibri-vf50-ts.txt        | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/input/touchscreen/Kconfig                |  2 +-
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
-index 2e1490a8fe74..ca304357c374 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/colibri-vf50-ts.txt
-@@ -3,15 +3,16 @@
- Required Properties:
- - compatible must be toradex,vf50-touchscreen
- - io-channels: adc channels being used by the Colibri VF50 module
-+    IIO ADC for Y-, X-, Y+, X+ connections
- - xp-gpios: FET gate driver for input of X+
- - xm-gpios: FET gate driver for input of X-
- - yp-gpios: FET gate driver for input of Y+
- - ym-gpios: FET gate driver for input of Y-
--- interrupts: pen irq interrupt for touch detection
--- pinctrl-names: "idle", "default", "gpios"
--- pinctrl-0: pinctrl node for pen/touch detection state pinmux
-+- interrupts: pen irq interrupt for touch detection, signal from X plate
-+- pinctrl-names: "idle", "default"
-+- pinctrl-0: pinctrl node for pen/touch detection, pinctrl must provide
-+    pull-up resistor on X+, X-.
- - pinctrl-1: pinctrl node for X/Y and pressure measurement (ADC) state pinmux
--- pinctrl-2: pinctrl node for gpios functioning as FET gate drivers
- - vf50-ts-min-pressure: pressure level at which to stop measuring X/Y values
- 
- Example:
-@@ -26,9 +27,8 @@ Example:
- 		ym-gpios = <&gpio0 4 GPIO_ACTIVE_HIGH>;
- 		interrupt-parent = <&gpio0>;
- 		interrupts = <8 IRQ_TYPE_LEVEL_LOW>;
--		pinctrl-names = "idle","default","gpios";
--		pinctrl-0 = <&pinctrl_touchctrl_idle>;
--		pinctrl-1 = <&pinctrl_touchctrl_default>;
--		pinctrl-2 = <&pinctrl_touchctrl_gpios>;
-+		pinctrl-names = "idle","default";
-+		pinctrl-0 = <&pinctrl_touchctrl_idle>, <&pinctrl_touchctrl_gpios>;
-+		pinctrl-1 = <&pinctrl_touchctrl_default>, <&pinctrl_touchctrl_gpios>;
- 		vf50-ts-min-pressure = <200>;
- 	};
 -- 
 2.25.1
 

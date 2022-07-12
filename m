@@ -2,138 +2,123 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0A45C43334
-	for <linux-input@archiver.kernel.org>; Tue, 12 Jul 2022 11:04:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA7A4C433EF
+	for <linux-input@archiver.kernel.org>; Tue, 12 Jul 2022 14:30:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232757AbiGLLEF convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 12 Jul 2022 07:04:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50638 "EHLO
+        id S229701AbiGLOa7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 12 Jul 2022 10:30:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232048AbiGLLED (ORCPT
+        with ESMTP id S229924AbiGLOax (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 12 Jul 2022 07:04:03 -0400
-X-Greylist: delayed 80 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 12 Jul 2022 04:04:02 PDT
-Received: from de-smtp-delivery-113.mimecast.com (de-smtp-delivery-113.mimecast.com [194.104.111.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3E06724BE9
-        for <linux-input@vger.kernel.org>; Tue, 12 Jul 2022 04:04:01 -0700 (PDT)
-Received: from CHE01-GV0-obe.outbound.protection.outlook.com
- (mail-gv0che01lp2047.outbound.protection.outlook.com [104.47.22.47]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- de-mta-12-Soh08dhJNdmOHhAbPQBGFQ-2; Tue, 12 Jul 2022 13:02:38 +0200
-X-MC-Unique: Soh08dhJNdmOHhAbPQBGFQ-2
-Received: from ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:2e::8) by
- ZRAP278MB0317.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:28::8) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5417.16; Tue, 12 Jul 2022 11:02:35 +0000
-Received: from ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
- ([fe80::3d:ca30:8c24:1a95]) by ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
- ([fe80::3d:ca30:8c24:1a95%7]) with mapi id 15.20.5417.026; Tue, 12 Jul 2022
- 11:02:35 +0000
-From:   Francesco Dolcini <francesco.dolcini@toradex.com>
-To:     Lee Jones <lee.jones@linaro.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Tue, 12 Jul 2022 10:30:53 -0400
+Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7D3523BE3;
+        Tue, 12 Jul 2022 07:30:52 -0700 (PDT)
+Received: by mail-wm1-x32d.google.com with SMTP id v10-20020a05600c15ca00b003a2db8aa2c4so4919237wmf.2;
+        Tue, 12 Jul 2022 07:30:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:subject:from:to:cc:date:in-reply-to:references
+         :content-transfer-encoding:user-agent:mime-version;
+        bh=bzwxy70TNOzVzbC2SQ6pvxX4LI9i4auhhVyInyenLbg=;
+        b=iiLNdHTC8ESUCoAHkM/+WlHCV0Sw8CzK1CV5E4nKh5s0HWbiBPfsQXDmKQCIQMvsO5
+         EBw+FZRQr/NfAxusxfMt9/y9ycRcOcthOKHMKJdpjTU4v+soZknV+8Vc+uDD9pAZ7xLR
+         2iHXxvLSi2yCxTeDI3P/2EURCcQuYlv4Fli9+fUqvpASymmcmC1+mdHrSMMUb1LS9Oxo
+         ZEBr888IZ2Mitnnnh6AUYHDXNT+P4sS6B/7tcvUmIqc/q9hEjs1rLKrlCMX6+CY9ifIo
+         MZ88IZHbppWvq7YbXZpanMSwMRZrM0zaKkWbTQfAL6aAhF/WHboXOLrNuT+exLr8xI4i
+         LB3Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:content-transfer-encoding:user-agent:mime-version;
+        bh=bzwxy70TNOzVzbC2SQ6pvxX4LI9i4auhhVyInyenLbg=;
+        b=73cHvYrhANK6Xs2yXj1J2N7uzQApTrffd27JNScQWpGAEbzhS0/rvWCDdIe5b+kDuU
+         219zHQzP2/En4g4RSxFhpJwbKqymfmxFJuvZNciV6Sg9rTcAiJHr5UtErqfiEp6oRlg4
+         4wjuub3iwyt6u94vXGjA2ihK0Ydie85b5kSyuJRaVCOGoxCpsJ7LBGNaTjjrqk/jcEhC
+         goFhJR4t5B9ePe/hjKE2aaAJHkW5fxBRexofp6+1xdxj0HM7KPwJPj/hNAuhhPTR/Lhr
+         9KOnWE9KTS1Fu8YpWovrQ0jzORw0tMI7uuPShvVLj7TnbevcPXWX3zd/ml/7i/Px9bp8
+         Mjsg==
+X-Gm-Message-State: AJIora/Xn8rYGTGGAQGAq3+bFDBCd89mvSJROJ0qIePPR7EDu2vDkG6a
+        qgQPWgqsrYQ+m6ByjyHLx/c=
+X-Google-Smtp-Source: AGRyM1tG2wW154+SibgSBju+PDxt2tIJ0H01DgYNd4GXlcgDCdTYxqt2DoAhWPKhuoYxERcQ7TwiHw==
+X-Received: by 2002:a05:600c:1f08:b0:3a2:e82f:7b49 with SMTP id bd8-20020a05600c1f0800b003a2e82f7b49mr4172537wmb.11.1657636250998;
+        Tue, 12 Jul 2022 07:30:50 -0700 (PDT)
+Received: from p200300f6ef036f005de6a4d0d791ed01.dip0.t-ipconnect.de (p200300f6ef036f005de6a4d0d791ed01.dip0.t-ipconnect.de. [2003:f6:ef03:6f00:5de6:a4d0:d791:ed01])
+        by smtp.gmail.com with ESMTPSA id bd10-20020a05600c1f0a00b003a18de85a64sm1915169wmb.24.2022.07.12.07.30.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 Jul 2022 07:30:50 -0700 (PDT)
+Message-ID: <cf0a46c499de1f97987b231a0b162d09f961b702.camel@gmail.com>
+Subject: Re: [PATCH 04/10] input: keyboard: adp5588-keys: add support for fw
+ properties
+From:   Nuno =?ISO-8859-1?Q?S=E1?= <noname.nuno@gmail.com>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>,
+        "Sa, Nuno" <Nuno.Sa@analog.com>
+Cc:     devicetree <devicetree@vger.kernel.org>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        linux-input <linux-input@vger.kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Bartosz Golaszewski <brgl@bgdev.pl>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        "Hennerich, Michael" <Michael.Hennerich@analog.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-CC:     Francesco Dolcini <francesco.dolcini@toradex.com>,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH v1 2/4] dt-bindings: gpio: stmpe: Remove node name requirement
-Date:   Tue, 12 Jul 2022 13:02:30 +0200
-Message-ID: <20220712110232.329164-3-francesco.dolcini@toradex.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220712110232.329164-1-francesco.dolcini@toradex.com>
-References: <20220712110232.329164-1-francesco.dolcini@toradex.com>
-X-ClientProxiedBy: MR2P264CA0155.FRAP264.PROD.OUTLOOK.COM
- (2603:10a6:501:1::18) To ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:2e::8)
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 12 Jul 2022 16:31:53 +0200
+In-Reply-To: <CAHp75VfqT7L7EkSt=6DTwYeK-Nz6pX9edhrfoAR9AUTz40pcMA@mail.gmail.com>
+References: <20220708093448.42617-1-nuno.sa@analog.com>
+         <20220708093448.42617-5-nuno.sa@analog.com>
+         <CAHp75Vcv8i-XXarjA=sE_gkG57ngADLrsG2=xA71zOfxtfEUCg@mail.gmail.com>
+         <PH0PR03MB67864AAC5B51C36E6FB202BF99829@PH0PR03MB6786.namprd03.prod.outlook.com>
+         <CAHp75VfqT7L7EkSt=6DTwYeK-Nz6pX9edhrfoAR9AUTz40pcMA@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.3 
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 7f158add-527d-4a5e-dba7-08da63f60654
-X-MS-TrafficTypeDiagnostic: ZRAP278MB0317:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0
-X-Microsoft-Antispam-Message-Info: uMkbu09aaOxSQZXyTalk0zwNCwMCHY+RS4Hoc5AIc94aT/tzpynO+orykNJP8t2JTviqNbWeU2aFkggIplhLcUnVUBM9Df36nAVLC5mCxVLyw3jII/KlFIBFqvfYlooK3qbOjXBGJq4YRGltcwIFluK4iQVUVD704ESlSaL28CWN+5aTt3g0R9I3AQXpEByaPdE36zrkm+PRL5aVuG7S3tHt14Vw6wcp1SqHhrz22YDpyiD3xdqpi1qlcayfMOBXnxvQJ/REy99jY+jlCozKxPX0IqNQLXg4vHszaU9N52ql2119wggkh1JdkyuLPhRum+AS2hrS9dsJGyk90GZW1LLUbollSOdwV7q7YHdnYc8330LwTr/yEl6k/WE0bk0F3dnxO7P96DQq8vZoYExcgs1sm8vuOY/brArG6L+wDe3KxRi0ELYMqDocss5FxZ9NJA29BpGQE0SHaFs3HKoYGzjQ+MGynixeDJ0TeRxYqYBlRezMWgp+CiclSYOttx8KCqJQkTyYiLqR0dqNTKjP0zJBnCMxwtpnNPrnU0eCpmAG/2MYSizzOdJcIxYG1Nj8V5oGT+W04aBvc/9vGlvR8NFkSwBNytSIIjVQ9VhU5abpyEBop6uERPqZMzhznIu8J+TBOOBews4d/jykzZW4ERP1LxbeXfQzpzcWxz5Yrpf6xj8AG2tzt9doklF++KBYopg3x3KcaKaRIZpuKFfctlkjEC6sYhNMpxjYvdz8/h4Xs0J9pNUjosL53AeMFNWIfFoUxfs0Y8L4qfaAM1wFyn+iWrAPwasg70JPmc53erbCbkyZlZFe49DEAiqBQO+d
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230016)(4636009)(346002)(366004)(376002)(39850400004)(396003)(136003)(66476007)(38350700002)(1076003)(52116002)(41300700001)(4744005)(38100700002)(2906002)(186003)(6506007)(6666004)(44832011)(36756003)(7416002)(66946007)(316002)(110136005)(8936002)(478600001)(5660300002)(26005)(86362001)(83380400001)(66556008)(8676002)(2616005)(6486002)(6512007)(4326008);DIR:OUT;SFP:1102
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?f10A0wUk11um4FCE20imVuAJGKLLyqJqUi57TUsLPQky10pHv7/xORcJftUI?=
- =?us-ascii?Q?cNJsnJKWMMm2r1T0DnkxLrYgkRTK7T3hrL7tk8TaOaW9OuND/gs7+EPhrCn2?=
- =?us-ascii?Q?sFvXojvTF5A9oWIrSsClADN76eCxSzquFf+nyzhmQfc/t72qpIPk4rjEPtRZ?=
- =?us-ascii?Q?ipUbDpzp9oust3wF1sPs2/UpO/46Q421aoaCu9QcwklubLFmfBAz/r0YSTMt?=
- =?us-ascii?Q?rwaGp/5mhrlO855NrY9FbtFW8vwogGdkZ/mb0mHS+iFcx8TMTLEwRMCA2Fo8?=
- =?us-ascii?Q?Yt0uxm89Ourn+Bmuwi9XzKFXCmqzuzdv9NV6kULTKlplD6dsM4AJWIG2xpoV?=
- =?us-ascii?Q?uXHud3Ea9QrL8rRPsM7/wdQLUED1JJA6fSGboN1SUITHA4dO295S4ampbDNd?=
- =?us-ascii?Q?13N3M+nduS7YhjDfgBRfGKuF+zKRGDz9q4dP8Wsqycpe5stmnDYM7bjtWu//?=
- =?us-ascii?Q?l+7kWquIUcoDbjVZzEsSLZvTxFwTrN/vxOvuacDZnJnvACDxBNfSKiHt6r/N?=
- =?us-ascii?Q?3ViYkHvfjyENg8BvJDu/piUkcWgAW8++VSqipvGU3dWFZ6yCIxS6g2oFwUAt?=
- =?us-ascii?Q?hhTEWEEu8veOmvpMO2SN9OJIrwIm6ZJB1Z7ylw0RDVR5+avMxDJgWfE9ZmZ1?=
- =?us-ascii?Q?ND0Ao1catLw49aNUfrSBtqjtxNAB5fzTTmaPF/LUziuUfQVIid901oQQNmRM?=
- =?us-ascii?Q?PmZEUTo2SErivg32nwUN5ZfGxW3NlGPvOcfhH6GWEhoPs2jWm8nMMFm/IxuI?=
- =?us-ascii?Q?H7VHxZnx/RTutQPwQL96n9NZyBarCHSYNIFkTXpIjDiJxNYSUgOJa/YJObtp?=
- =?us-ascii?Q?guWrCMZRozpKQUxnRx2r92L6jnmwcgL13LifQZtwCxsZwqU/vD8U/aSbr0hB?=
- =?us-ascii?Q?kN+2GTwCzzIFoUnIV5A8BIpG0jgJrz5fXqxL+uDGy7QXNVgcb54m7qQgH9j4?=
- =?us-ascii?Q?ciyUTf5I0bOpFfc/Lv4oQK+yT2wngsUrT8/ug26YMo2j0c6oovM8jOUx/TSu?=
- =?us-ascii?Q?ioORuSXwtD/eieQnM/AZhcps0u5WwF26EkiR5nY4kcSchUb0t7T6Luf/E3Qi?=
- =?us-ascii?Q?BxLjIHQDCelTG5SyAns2tRTfL/hPU3q37tJlhsMv7YGzC8gd4sLtIgRC6hqg?=
- =?us-ascii?Q?e84xJdYiDBcyIF8i+fCshdyivNvkQ2o5f1XDsMHS1vTQw9pWZchKQG4IvTBG?=
- =?us-ascii?Q?6v06kuLYodBC1F6lTqOD31gUDsaDRb9OyMYRqJuln5a0aBbJBjTYqOrE4Ib2?=
- =?us-ascii?Q?vFDIu2FjADN1lhjsYk/tQMwZdEHts5JwK2leW06bj9LJQUMmIAGQTGW5x/Y5?=
- =?us-ascii?Q?nn4XsWNKKhjd3Uz/3DIEUWmiDflLre5VFwyu/1oH1C9a/IKR1s4mOiLCLw3K?=
- =?us-ascii?Q?vfqfzzLbFy2Y9XbrsDgl0jyLqttt8nuw3y46woXMvPNzxC6HgbRzvx2YKrcB?=
- =?us-ascii?Q?zgA0K5ixRuBegKI9A1mHEtcUy7IK1pKd8Aq4aZhb2it5Cz1rUlgJNhJDCDkm?=
- =?us-ascii?Q?AhZrk6miwuV8OJMTzB88mLpp1YQQN1VrJAsKlgWQZvDFHKZhr6bUIFQYJopO?=
- =?us-ascii?Q?hAUF0FVcD4UpRe2PhSsbbPvpZTtrALLUfcQw368vhfgqHFtmpw2IQhmNZa0R?=
- =?us-ascii?Q?yw=3D=3D?=
-X-OriginatorOrg: toradex.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7f158add-527d-4a5e-dba7-08da63f60654
-X-MS-Exchange-CrossTenant-AuthSource: ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jul 2022 11:02:34.6456
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: d9995866-0d9b-4251-8315-093f062abab4
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jR8ROypVvsKtSoe3wCCbEMSxGQ2MuC64Kyl8UqpuEDFgNLsmVLu2HfBcleU0p8cF9F6hAU/UKwni679gj4eRGH5/yOC03bQlDuuTSnHtyrs=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: ZRAP278MB0317
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CDE13A77 smtp.mailfrom=francesco.dolcini@toradex.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: toradex.com
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=WINDOWS-1252
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-STMPE driver does not require a specific node name anymore, only the
-compatible is checked, update binding according to this.
+On Fri, 2022-07-08 at 17:07 +0200, Andy Shevchenko wrote:
+> On Fri, Jul 8, 2022 at 5:04 PM Sa, Nuno <Nuno.Sa@analog.com> wrote:
+> > > From: Andy Shevchenko <andy.shevchenko@gmail.com>
+> > > Sent: Friday, July 8, 2022 4:56 PM
+> > > On Fri, Jul 8, 2022 at 11:37 AM Nuno S=C3=A1 <nuno.sa@analog.com>
+> > > wrote:
+>=20
+> ...
+>=20
+> > > Okay, you add something in the wrong form and then fix it in the
+> > > other
+> > > patch in the very same series? Please no ping-pong type of
+> > > changes.
+> > > Squash / rebase your series accordingly.
+> >=20
+> > Well, I thought to just copy it as it was on the platform file and
+> > then just fix
+> > it with the rest of the coding styles changes. But I'm fine in
+> > fixing it already
+> > in this patch. In fact, there's a lot of defines that are not used
+> > (it's just
+> > defining the complete register map) so I can as well get rid of all
+> > the stuff
+> > that is not used anywhere in the driver.
+>=20
+> This needs to be split to:
+>=20
+> 1) fix existing
+> 2) move data
+> 3) use that data
+>=20
+> Or
+>=20
+> 1) move data (no other changes, if possible)
+> 2) fix data
+> 3) use it
+>=20
+> ...
 
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
----
- Documentation/devicetree/bindings/gpio/gpio-stmpe.txt | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Well, I think in the current form is already your option 2... And fix
+is a strong word in here, these are coding style changes :)
 
-diff --git a/Documentation/devicetree/bindings/gpio/gpio-stmpe.txt b/Documentation/devicetree/bindings/gpio/gpio-stmpe.txt
-index a0e4cf885213..b33f8f02c0d7 100644
---- a/Documentation/devicetree/bindings/gpio/gpio-stmpe.txt
-+++ b/Documentation/devicetree/bindings/gpio/gpio-stmpe.txt
-@@ -8,8 +8,7 @@ Optional properties:
-  - st,norequest-mask: bitmask specifying which GPIOs should _not_ be requestable
-    due to different usage (e.g. touch, keypad)
- 
--Node name must be stmpe_gpio and should be child node of stmpe node to which it
--belongs.
-+Node should be child node of stmpe node to which it belongs.
- 
- Example:
- 	stmpe_gpio {
--- 
-2.25.1
+- Nuno S=C3=A1
 

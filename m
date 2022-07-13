@@ -2,106 +2,176 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 975E3CCA479
-	for <linux-input@archiver.kernel.org>; Wed, 13 Jul 2022 08:21:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54DD5C433EF
+	for <linux-input@archiver.kernel.org>; Wed, 13 Jul 2022 08:43:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235509AbiGMIVR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 13 Jul 2022 04:21:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52856 "EHLO
+        id S235254AbiGMInX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 13 Jul 2022 04:43:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235500AbiGMIUx (ORCPT
+        with ESMTP id S235181AbiGMInR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 13 Jul 2022 04:20:53 -0400
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 671CA5465B;
-        Wed, 13 Jul 2022 01:17:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1657700210;
-        bh=GAwk9qd7tZg332v44jQUo75pcb1GR4m0F9yZEgaKLCg=;
-        h=X-UI-Sender-Class:Subject:From:To:Cc:Date:In-Reply-To:References;
-        b=YB09cARecWsHfg3dfcMHTmn2GMVhXwbjs5ThuUDo57Z4HSCZBs32RFnGCm4VbkvUS
-         B0M3WR4VfvAicN8dV/F8+1J/cJeE56DihKzCWyK7q1ESMcfVA0pdQHV/uiFoPFa8lB
-         70E4DVBXohPiVVUftwOws7EJzPDWSo70X4Vl5nzs=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from ic-alex-elitebook.lan ([80.189.168.50]) by mail.gmx.net
- (mrgmx004 [212.227.17.184]) with ESMTPSA (Nemesis) id
- 1MV63g-1o0ysG0iZy-00S7ih; Wed, 13 Jul 2022 10:16:50 +0200
-Message-ID: <afeb858778de9b25d0de655ffccb64b85511c428.camel@gmx.co.uk>
-Subject: Re: input/i8042: Malfunctioning brightness keys on HP Elite
- Dragonfly G2
-From:   Alex Dewar <alex.dewar@gmx.co.uk>
-To:     "Lopez, Jorge A (Security)" <jorge.lopez2@hp.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "tiwai@suse.de" <tiwai@suse.de>,
-        "markgross@kernel.org" <markgross@kernel.org>
-Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "platform-driver-x86@vger.kernel.org" 
-        <platform-driver-x86@vger.kernel.org>
-Date:   Wed, 13 Jul 2022 09:16:49 +0100
-In-Reply-To: <PH0PR84MB195301AA9C44F2F4ECE4A848A8879@PH0PR84MB1953.NAMPRD84.PROD.OUTLOOK.COM>
-References: <20220629094314.b7xmfb3xccj7vs6v@ic-alex-elitebook>
-         <3fedf676645bfa638c9a6c656121083abc2c98ea.camel@gmx.co.uk>
-         <8b893c42-e514-bcef-0513-070b3723cdcc@redhat.com>
-         <df7313597d2ac3212f10c05aa3d369728f030c86.camel@gmx.co.uk>
-         <c89d39eb-17b9-8800-c8ff-8d236b80de2f@redhat.com>
-         <PH0PR84MB195309F5BA5B96858024E61FA8879@PH0PR84MB1953.NAMPRD84.PROD.OUTLOOK.COM>
-         <PH0PR84MB19536D04A5625D4DC8B76AF1A8879@PH0PR84MB1953.NAMPRD84.PROD.OUTLOOK.COM>
-         <0e8611ad73017bc204372f491ae5666dd60885a9.camel@gmx.co.uk>
-         <PH0PR84MB195301AA9C44F2F4ECE4A848A8879@PH0PR84MB1953.NAMPRD84.PROD.OUTLOOK.COM>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.44.3 
+        Wed, 13 Jul 2022 04:43:17 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 541B9EA149;
+        Wed, 13 Jul 2022 01:43:10 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id z23so2057463eju.8;
+        Wed, 13 Jul 2022 01:43:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uWtRAmBLtsazF/pLmP45VTNHSNoFHCEzm5WXW96RpTE=;
+        b=HEMisfIyFpFrNW0h2/pTPWb3kvILB6Bc3/thWhhd0azh2fSvcAOKTDokiOQqFN/Etf
+         ch4Y811oJQAe+nMGWba6pnaxIRhG3K3as2beeHmc2T+tfa9HfKL3+kDjbggmEL/s+4Kg
+         R6HlWRDt+QHAaJX8TNCM5noXtMUa2tFPuddLnSYseMp7YFNECWFIFot+Q15rPawZYPbI
+         6lE6b+wHo9l+2QgibuFF/vCouYELhgTRXof41l4qLp/KYlAJt3x5BwNhCyE06dbh1QiS
+         e0cDvOFko0te1Avdoy0YeqlB6Tz0FV0mCLVOorF4pLltu4Z37ObiIuv2FTqKebLqorad
+         KQZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uWtRAmBLtsazF/pLmP45VTNHSNoFHCEzm5WXW96RpTE=;
+        b=iBeMLnSTll4WWe/WdMOQYpyhpg0e/FluMXKmqHGAnkI+FtyBOEY7T2GmFEBliPOAXx
+         zMaOZnApIMtehvVrIWcV4tOT53uSTQY1WdhTK5Y+ou6J1y2AFp7Rb4n4fwizPEMJwUH4
+         8I+js096+amxrnF43NuaAtq3FkVbhcM1HkUnEd2I9cB5AnwBSyIrLLarrW/C5T8qYEI4
+         ibR8UF6llaT8RE1As2H9SvtsHNNyhg8czY/ezxZsPINkSABzw9ogX7ZNeJf7VPypUGWw
+         AoLSPc8c9lFrzyeFpYQAY1Ptn80m85jPSZ/G70Q4SbrmKD9oqqXZFGO/2wk96VrknI+k
+         pPWQ==
+X-Gm-Message-State: AJIora8ftT9JvYaA+f2Q7sTxDH8RuH1K1da0drR90nV8fky5eYMJg13F
+        S1lVw8vOvCywf/vdStlhcDCm5kbpuVnfCATO
+X-Google-Smtp-Source: AGRyM1sp584MxHxw3c4ex/TlTzPwXtlgRFXh7RcT9gyKFbMJJoU7iLWVxz5I3RveFKfRzZOL+RMwSw==
+X-Received: by 2002:a17:907:3da0:b0:72b:47df:c1d7 with SMTP id he32-20020a1709073da000b0072b47dfc1d7mr2260949ejc.214.1657701788866;
+        Wed, 13 Jul 2022 01:43:08 -0700 (PDT)
+Received: from PCBABN.skidata.net ([2001:67c:2330:2014:7a45:c4ff:fe0f:c570])
+        by smtp.gmail.com with ESMTPSA id pv5-20020a170907208500b0072af4af2f46sm4690173ejb.74.2022.07.13.01.43.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 Jul 2022 01:43:08 -0700 (PDT)
+From:   Benjamin Bara <bbara93@gmail.com>
+To:     dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Benjamin Bara <benjamin.bara@skidata.com>,
+        Richard Leitner <richard.leitner@skidata.com>
+Subject: [PATCH] Input: tsc2007 - enable GPIO chips that can sleep
+Date:   Wed, 13 Jul 2022 10:42:47 +0200
+Message-Id: <20220713084247.3090353-1-bbara93@gmail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-X-Provags-ID: V03:K1:y/Uolrn3aw6TxRubXzhmxIGTrkjAJiZG08BQOmcALvroOcOkGKd
- sawVpq3jiUu5ds2qwp2Km70ZFnoCofpI9K5Roq1bN+/Oq/5vXpZ3UvbrtMNwlM03Aqp8X2l
- tvZkaPM7Pudq6U6dtN7Wl+auGzEEi81/THYAxAYNACcgvPloI9M4fWY097xp12JuBBtetNU
- UGtRl4SE5VL+23ccer8Qw==
-X-UI-Out-Filterresults: notjunk:1;V03:K0:pODMSipcA2g=:+vRyedoC465yQYymodw2xJ
- vXrbyRyVeZloHxAjUM6KxbdTPvz3ezWjCKDKBT3eJjzwD/xs7WiaGQSQ9ciKbiVDHuJYz4HBZ
- uySTm+I6W3VvJk5EmRdupoKkldvIIr9ahTuFVUvEAs5+nkGVHHrJ7Qya7cDFEhsl37HxPgMkU
- xB1herAAyQIJDxKMEhwmHNkaPbc25XrCo4xoZ+oFe/Rnr77Ohr7Ck0OZSBandWPZLF3cCVH0p
- hCxrkpnTymrxl/IaIbg4TLChNQEn2eSqtbxwEQMPJdHgnumWUerOYv4Fr62h7UwtImc5vaQAm
- qdyOp6DbQ5su0exihOoCO5IxNxslSf72ak+H2GPe25bbLtRTXfMmfPmZFIGTW5FgYeON7UgAY
- J6uoNLQOgWTFoy+qr98dAan8wweUtEuCg4w+HQ0x74OEJv86hcjAdI+3v3VsDxsXopKFK80it
- iWpIAKvSUHVBOR6UyQJv8IY96pE1Sgm9JQBFh3Y5bCELUgPbsOGQfN3x7sexuNNCeQmtRmtN8
- OW3tjGfO0130LrEWHqSpr4L4FEVi3CkIR3AAk6KObzvC0QL8Fi2UWsahGKbjjo4POU1gS91Si
- n5m1bh63DFX/vLIIa737fc5n8069V1wnMGrSqDHC8M2kYppcvuPctLVGZsw0kbJTeGeJSCvAx
- R3tpsIC92KT+LOMBTImkIeYz/8ajaTLXygl/t5S/VCDPJEWevK6HyLFK4lfl1MHeLDtzMcMzd
- mUSy9vnVHmxryBJhc4ax5jllIQEd6LgdUcaNPuGJX7L8lqawl9xmnxSMkUKkFOWNJEzcBEbXE
- i1p8Vx0p2f34May/1n6As8frzRKckvqthnu0WWivCZIKKi7zPyo25d8w4sJY3mr4cj+HvL+1/
- sthYrTDacj2gcrqhmxgcN994lP5/a3K9JK84prdTYSVTRwsjzVEkxblrmT1dwhN0DBH9hfrUB
- L79J8+UQn2vlnM6a5SX+6mO4UNRlUfmTC3uVoaAeiHUWsaiTSCr2MuFKTxVMNeCfr0jQWm0Ay
- G7EWC4PcKqq3yJTmbmTDe1S6pmcFhK4YcgBpQ22zs1nVFmDqvWO6hrKku5SLNlMoK0f0NShFz
- RrCUwCPuGpZZr9a1koSBD1lIMSg69LfTPcHTYpz8NKnCujFVcLbO2Pw1Q==
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 2022-07-11 at 14:59 +0000, Lopez, Jorge A (Security) wrote:
-> Hi Alex,
->=20
-> Thank you for the BIOS information.=C2=A0=C2=A0 The problem you are
-> experiencing was fixed in BIOS version 01.07.02 Rev.A
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0- Fixes an issue where Fn=
-+F3/F4 do not change the brightness
-> of the display panel when the Privacy Panel is enabled in the F10
-> settings.
->=20
-> The latest BIOS version is 01.09.01 Rev.A so the problem will be
-> resolved after BIOS upgrade.=C2=A0=C2=A0=C2=A0 BIOS is not available via =
-LVFS, you
-> will need to install it via Windows executable.
-> https://support.hp.com/us-en/drivers/laptops
->=20
-> Let me know if the problem is resolved.
+From: Benjamin Bara <benjamin.bara@skidata.com>
 
-That worked a treat. Thanks!
+This enables the usage of "can_sleep" GPIO chips as "pin up" GPIO.
+This might be the case if the GPIO chip is an expander behind i2c.
 
-And if you have an internal ticked called "Support Elitebooks on LVFS"
-or similar, feel free to add my +1 to it =F0=9F=98=89
+Signed-off-by: Benjamin Bara <benjamin.bara@skidata.com>
+Signed-off-by: Richard Leitner <richard.leitner@skidata.com>
+---
+ drivers/input/touchscreen/tsc2007.h      |  1 +
+ drivers/input/touchscreen/tsc2007_core.c | 38 ++++++++++++++++++++----
+ 2 files changed, 34 insertions(+), 5 deletions(-)
 
-Best,
-Alex
+diff --git a/drivers/input/touchscreen/tsc2007.h b/drivers/input/touchscreen/tsc2007.h
+index 69b08dd6c8df..29bd1ff22c72 100644
+--- a/drivers/input/touchscreen/tsc2007.h
++++ b/drivers/input/touchscreen/tsc2007.h
+@@ -78,6 +78,7 @@ struct tsc2007 {
+ 	bool			stopped;
+ 
+ 	int			(*get_pendown_state)(struct device *);
++	int			(*get_pendown_state_cansleep)(struct device *);
+ 	void			(*clear_penirq)(void);
+ 
+ 	struct mutex		mlock;
+diff --git a/drivers/input/touchscreen/tsc2007_core.c b/drivers/input/touchscreen/tsc2007_core.c
+index 3e871d182c40..0ad4c3c41297 100644
+--- a/drivers/input/touchscreen/tsc2007_core.c
++++ b/drivers/input/touchscreen/tsc2007_core.c
+@@ -20,6 +20,7 @@
+ #include <linux/module.h>
+ #include <linux/slab.h>
+ #include <linux/gpio/consumer.h>
++#include <linux/gpio/driver.h>
+ #include <linux/input.h>
+ #include <linux/interrupt.h>
+ #include <linux/i2c.h>
+@@ -108,6 +109,14 @@ bool tsc2007_is_pen_down(struct tsc2007 *ts)
+ 	return ts->get_pendown_state(&ts->client->dev);
+ }
+ 
++bool tsc2007_is_pen_down_cansleep(struct tsc2007 *ts)
++{
++	if (!ts->get_pendown_state_cansleep)
++		return true;
++
++	return ts->get_pendown_state_cansleep(&ts->client->dev);
++}
++
+ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+ {
+ 	struct tsc2007 *ts = handle;
+@@ -115,7 +124,7 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+ 	struct ts_event tc;
+ 	u32 rt;
+ 
+-	while (!ts->stopped && tsc2007_is_pen_down(ts)) {
++	while (!ts->stopped && tsc2007_is_pen_down_cansleep(ts)) {
+ 
+ 		/* pen is down, continue with the measurement */
+ 
+@@ -125,7 +134,7 @@ static irqreturn_t tsc2007_soft_irq(int irq, void *handle)
+ 
+ 		rt = tsc2007_calculate_resistance(ts, &tc);
+ 
+-		if (!rt && !ts->get_pendown_state) {
++		if (!rt && !ts->get_pendown_state_cansleep) {
+ 			/*
+ 			 * If pressure reported is 0 and we don't have
+ 			 * callback to check pendown state, we have to
+@@ -229,6 +238,14 @@ static int tsc2007_get_pendown_state_gpio(struct device *dev)
+ 	return gpiod_get_value(ts->gpiod);
+ }
+ 
++static int tsc2007_get_pendown_state_gpio_cansleep(struct device *dev)
++{
++	struct i2c_client *client = to_i2c_client(dev);
++	struct tsc2007 *ts = i2c_get_clientdata(client);
++
++	return gpiod_get_value_cansleep(ts->gpiod);
++}
++
+ static int tsc2007_probe_properties(struct device *dev, struct tsc2007 *ts)
+ {
+ 	u32 val32;
+@@ -264,10 +281,21 @@ static int tsc2007_probe_properties(struct device *dev, struct tsc2007 *ts)
+ 	if (IS_ERR(ts->gpiod))
+ 		return PTR_ERR(ts->gpiod);
+ 
+-	if (ts->gpiod)
+-		ts->get_pendown_state = tsc2007_get_pendown_state_gpio;
+-	else
++	if (ts->gpiod) {
++		/* to support detection during the hard IRQ, the GPIO chip is required to not sleep.
++		 * this might be the case if the GPIO is e.g. behind an i2c-based GPIO expander.
++		 * it is fine to sleep later in the soft IRQ, as it is threaded.
++		 */
++		ts->get_pendown_state_cansleep = tsc2007_get_pendown_state_gpio_cansleep;
++		if (gpiod_to_chip(ts->gpiod) && !gpiod_to_chip(ts->gpiod)->can_sleep) {
++			ts->get_pendown_state = tsc2007_get_pendown_state_gpio;
++		} else {
++			dev_dbg(dev, "Pen down GPIO chip can sleep\n");
++		}
++
++	} else {
+ 		dev_warn(dev, "Pen down GPIO is not specified in properties\n");
++	}
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+

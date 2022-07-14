@@ -2,229 +2,66 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0BA4CCA481
-	for <linux-input@archiver.kernel.org>; Thu, 14 Jul 2022 06:42:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C297BC43334
+	for <linux-input@archiver.kernel.org>; Thu, 14 Jul 2022 08:44:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235331AbiGNGmv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 14 Jul 2022 02:42:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56724 "EHLO
+        id S235469AbiGNIov (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 14 Jul 2022 04:44:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41140 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235152AbiGNGmu (ORCPT
+        with ESMTP id S229931AbiGNIou (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 14 Jul 2022 02:42:50 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C8D220192;
-        Wed, 13 Jul 2022 23:42:49 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id g16-20020a17090a7d1000b001ea9f820449so7461746pjl.5;
-        Wed, 13 Jul 2022 23:42:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=CQqVk/li2uOK4C//a5rwR6TqVXPgBjhZsLgz0JKgFDU=;
-        b=AXZ9xZdpXEUtWip0sPDD/VsyxbdfHpX6risn1bku8ubHaF7a3IBDNkvE0JFKbGoqOR
-         1SBDm4GZPlAP7j3cn/YRtdXSqOZ0RVPCz4yqo2o1UAcrZj37H546OO7ie47QFIyxGRKu
-         pm0pzT2eZZoxuxa/kkHhLV4apxZfPuxj2uC8lFSqSOlTzNoOMqd42VbcVPQJqmw7LOnt
-         R2Gq5qHDbkuQP8p4aeyo/bcjLf8zMPrdiu6G4VHN8C+3DOJWZufGakNB7aWT3vWXsKkz
-         aFNp026wkYXOfa2cSw6BbvsDZYMoNpEfp/AMZglg817X4FQQBgdtPRyngTtnaAgLlUeU
-         nEeQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references;
-        bh=CQqVk/li2uOK4C//a5rwR6TqVXPgBjhZsLgz0JKgFDU=;
-        b=72Zi2Ngo+wcj5HVswAlYyXwy6XQH8StfGjWRecd+lA3jDpjc+bolBXnhbSCsaWsoR1
-         eYd6AxGXKLRfcl6llj40U8+z23/Ip0CxksuZ01Ev9P707eHmHZG4272K+xhzaLw1RM35
-         nFibhzwm2AtuCh7E1t+hOIdemaPDiLR2gJBnQoD2I6s9R1hgw6RuUyeY8DuW+0meboZK
-         9ubyXWCPK7GY6TeVWKLge3DvlLoMggXtG24ddvAa2e3I3W4IXcINtEtjvI9JyuSy5/4p
-         FFZjenGzRyxoKDvsVdpXvEXTdW74afHYToxfZ8PU90NFxaeIgw5KCD8m77iU/Ae5/RAp
-         oSkw==
-X-Gm-Message-State: AJIora+hO4DnkKBjoP+zeBoHo3xfLtfuRSVe4LSdf55euB74clFl9piL
-        AQ8dhz41PwdREuRzPIcF0kZTN2oFjjY=
-X-Google-Smtp-Source: AGRyM1veZOyPzmOG8yG9Gv2+kYzBULMW5FwgCKBa5rIdnvPodMikl82BxoTfi6MEfBtDo8ueuAIACg==
-X-Received: by 2002:a17:902:c944:b0:16c:5897:7ea0 with SMTP id i4-20020a170902c94400b0016c58977ea0mr7057264pla.127.1657780968618;
-        Wed, 13 Jul 2022 23:42:48 -0700 (PDT)
-Received: from localhost.localdomain ([2402:7500:486:199:217d:a3c8:f1ea:4115])
-        by smtp.gmail.com with ESMTPSA id nt14-20020a17090b248e00b001ef82e5f5aesm616291pjb.47.2022.07.13.23.42.45
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 13 Jul 2022 23:42:48 -0700 (PDT)
-From:   cy_huang <u0084500@gmail.com>
-To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        lee.jones@linaro.org, broonie@kernel.org, dmitry.torokhov@gmail.com
-Cc:     lgirdwood@gmail.com, cy_huang@richtek.com,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH v3 3/3] input: misc: rt5120: Add power key support
-Date:   Thu, 14 Jul 2022 14:42:17 +0800
-Message-Id: <1657780937-20891-4-git-send-email-u0084500@gmail.com>
-X-Mailer: git-send-email 2.7.4
-In-Reply-To: <1657780937-20891-1-git-send-email-u0084500@gmail.com>
-References: <1657780937-20891-1-git-send-email-u0084500@gmail.com>
+        Thu, 14 Jul 2022 04:44:50 -0400
+X-Greylist: delayed 61 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 14 Jul 2022 01:44:46 PDT
+Received: from smtpdh19-2.aruba.it (smtpdh19-2.aruba.it [62.149.155.149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AE15415836
+        for <linux-input@vger.kernel.org>; Thu, 14 Jul 2022 01:44:46 -0700 (PDT)
+Received: from asem-TANK-H61.asem.intra ([151.1.184.193])
+        by Aruba Outgoing Smtp  with ESMTPSA
+        id BuRhoA7r5bvrcBuRhoFpeR; Thu, 14 Jul 2022 10:43:43 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
+        t=1657788223; bh=un5pkqfd2ZfN3kAgLbVdkbNuttBIuRIZqLiIVNxtmm0=;
+        h=From:To:Subject:Date:MIME-Version;
+        b=VcKVUrh9ALrfwKAd1fyn+xZ86elbjwsChsz6IA1WNykRl8ShfTJyq3J6Hr0AQP+Uw
+         PZqSL4uMz1YUy2RPEhsYPLcCrnxHciTazcVbmZclEkQc3oyjvxKqDrDK6XlOLOkwEW
+         oAANdsVYeSfLTWPNAVgh8gy7ZVt53xOnKNcqmYEbcD+VbZdd9/Jkw3l/bufTpSqMmy
+         l0UQK4o7dJtCOXbnX66HvxuPRW6953oThMVgqI5cdoZXh5KS9pfiXm5YljL+OpNlB+
+         f8lt/CgEP5Jra9WfHYGH1r42UAAzTuyavRCYNZPANVg4pHOt6yYaSwL8729WUGcSiD
+         dAr/v/XPS0lGw==
+From:   Luca Ellero <luca.ellero@brickedbrain.com>
+To:     dmitry.torokhov@gmail.com, daniel@zonque.org,
+        m.felsch@pengutronix.de, andriy.shevchenko@linux.intel.com,
+        u.kleine-koenig@pengutronix.de, mkl@pengutronix.de,
+        miquel.raynal@bootlin.com, imre.deak@nokia.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Luca Ellero <luca.ellero@brickedbrain.com>
+Subject: [PATCH 0/3] ads7846: fix support for ADS7845
+Date:   Thu, 14 Jul 2022 10:43:16 +0200
+Message-Id: <20220714084319.107334-1-luca.ellero@brickedbrain.com>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4xfJnqr8V9hEAPp0TQjknV0VYIUN0jcm5nlRIOl5/wxcXF4/OLMi5z9dAF1ZXNIlF2XJmasse8Z9TFU47LOS9Fayaq4aOUj66YbXyrCFAc3xNWNbnsX/6Q
+ Baw2qTeAQ82KlwlNTok36NShF7GQkOcYFGgq74p9KXCl+s/yf/97D7KmNBJaFBFiQyrpmh6+nyuaoHuuIRW9P/Kcq/6um2HAaFTrE7IgrapKSThbgFZz6/Of
+ ROT7kSwzfpNDEHAIr2yEygSOFn27d9hGJThkKcQm4/uc8LvuJnVnlPh9suS2WCLm/ttBtU9yzZxoaSD3B7JhXwEWKnMvVSMbSkaXCidiRVOF3vm+g3t/mwRO
+ 935XtkrAfdqV6TCTdmKsNFJoPspw+kAQCWi6s2oE5UgJK3Ww25NxPUbkoJMlhDnRaJISlRDe9JHEsc9NzGpLCx8PTDXSaS9APBAIRX1aWcBMMwG3IOl5koVg
+ ornOlIEvSsuDzeExTlUfCBds4q9v293b7K/U3i5uNZuKdujtlt/IOyJi7V3oRuYuhqDZaZ62LelGKvJrmSrto6LqEIqk1/qWjeXk7+A9fobp0zDMVPKb/TA5
+ OkH4AZ81FaNyWU6cL6Gi5oeW
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: ChiYuan Huang <cy_huang@richtek.com>
+ADS7845 support is buggy in this driver.
+These patches fix various issues to get it work properly.
 
-Add RT5120 PMIC power key support.
+Luca Ellero (3):
+  ads7846: don't report pressure for ads7845
+  ads7846: always set last command to PWRDOWN
+  ads7846: don't check penirq immediately for 7845
 
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
----
-Since v3:
-- Simplify the power key irq handler key report
-- Since press and release irq not needed to keep in private data, change 'press',
-  'release' irq as local variable only.
-- Fix Kconfig typo for pwrkey.
+ drivers/input/touchscreen/ads7846.c | 23 +++++++++++++----------
+ 1 file changed, 13 insertions(+), 10 deletions(-)
 
----
- drivers/input/misc/Kconfig         |   9 ++++
- drivers/input/misc/Makefile        |   1 +
- drivers/input/misc/rt5120-pwrkey.c | 105 +++++++++++++++++++++++++++++++++++++
- 3 files changed, 115 insertions(+)
- create mode 100644 drivers/input/misc/rt5120-pwrkey.c
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index a18ab73..92daa4d 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -891,6 +891,15 @@ config INPUT_SC27XX_VIBRA
- 	  To compile this driver as a module, choose M here. The module will
- 	  be called sc27xx_vibra.
- 
-+config INPUT_RT5120_PWRKEY
-+	tristate "RT5120 PMIC power key support"
-+	depends on MFD_RT5120
-+	help
-+	  This enables support for RT5120 PMIC power key driver.
-+
-+	  To compile this driver as a module, choose M here. the module will
-+	  be called rt5120-pwrkey.
-+
- config INPUT_STPMIC1_ONKEY
- 	tristate "STPMIC1 PMIC Onkey support"
- 	depends on MFD_STPMIC1
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 28dfc44..d1fb00e 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -69,6 +69,7 @@ obj-$(CONFIG_INPUT_RAVE_SP_PWRBUTTON)	+= rave-sp-pwrbutton.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
- obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
- obj-$(CONFIG_INPUT_RETU_PWRBUTTON)	+= retu-pwrbutton.o
-+obj-$(CONFIG_INPUT_RT5120_PWRKEY)	+= rt5120-pwrkey.o
- obj-$(CONFIG_INPUT_AXP20X_PEK)		+= axp20x-pek.o
- obj-$(CONFIG_INPUT_GPIO_ROTARY_ENCODER)	+= rotary_encoder.o
- obj-$(CONFIG_INPUT_RK805_PWRKEY)	+= rk805-pwrkey.o
-diff --git a/drivers/input/misc/rt5120-pwrkey.c b/drivers/input/misc/rt5120-pwrkey.c
-new file mode 100644
-index 00000000..b6a5ac4
---- /dev/null
-+++ b/drivers/input/misc/rt5120-pwrkey.c
-@@ -0,0 +1,105 @@
-+// SPDX-License-Identifier: GPL-2.0+
-+
-+#include <linux/bits.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/mod_devicetable.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+
-+#define RT5120_REG_INTSTAT	0x1E
-+#define RT5120_PWRKEYSTAT_MASK	BIT(7)
-+
-+struct rt5120_priv {
-+	struct regmap *regmap;
-+	struct input_dev *input;
-+};
-+
-+static irqreturn_t rt5120_pwrkey_handler(int irq, void *devid)
-+{
-+	struct rt5120_priv *priv = devid;
-+	unsigned int stat;
-+	int ret;
-+
-+	ret = regmap_read(priv->regmap, RT5120_REG_INTSTAT, &stat);
-+	if (ret)
-+		return IRQ_NONE;
-+
-+	input_report_key(priv->input, KEY_POWER,
-+			 !(stat & RT5120_PWRKEYSTAT_MASK));
-+	input_sync(priv->input);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int rt5120_pwrkey_probe(struct platform_device *pdev)
-+{
-+	struct rt5120_priv *priv;
-+	struct device *dev = &pdev->dev;
-+	int press_irq, release_irq;
-+	int ret;
-+
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	priv->regmap = dev_get_regmap(dev->parent, NULL);
-+	if (!priv->regmap)
-+		return dev_err_probe(dev, -ENODEV, "Failed to init regmap\n");
-+
-+	press_irq = platform_get_irq_byname(pdev, "pwrkey-press");
-+	if (press_irq < 0)
-+		return press_irq;
-+
-+	release_irq = platform_get_irq_byname(pdev, "pwrkey-release");
-+	if (release_irq < 0)
-+		return release_irq;
-+
-+	/* Make input device be device resource managed */
-+	priv->input = devm_input_allocate_device(dev);
-+	if (!priv->input)
-+		return dev_err_probe(dev, -ENOMEM,
-+				     "Failed to allocate input device\n");
-+
-+	priv->input->name = "rt5120_pwrkey";
-+	priv->input->phys = "rt5120_pwrkey/input0";
-+	priv->input->id.bustype = BUS_I2C;
-+	input_set_capability(priv->input, EV_KEY, KEY_POWER);
-+
-+	ret = input_register_device(priv->input);
-+	if (ret)
-+		return dev_err_probe(dev, ret,
-+				     "Failed to register input device\n");
-+
-+	ret = devm_request_threaded_irq(dev, press_irq, NULL,
-+					rt5120_pwrkey_handler, 0,
-+					"pwrkey-press", priv);
-+	if (ret)
-+		return dev_err_probe(dev, ret,
-+				     "Failed to register pwrkey press irq\n");
-+
-+	return devm_request_threaded_irq(dev, release_irq, NULL,
-+					 rt5120_pwrkey_handler, 0,
-+					 "pwrkey-release", priv);
-+}
-+
-+static const struct of_device_id r5120_pwrkey_match_table[] = {
-+	{ .compatible = "richtek,rt5120-pwrkey" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, r5120_pwrkey_match_table);
-+
-+static struct platform_driver rt5120_pwrkey_driver = {
-+	.driver = {
-+		.name = "rt5120-pwrkey",
-+		.of_match_table = r5120_pwrkey_match_table,
-+	},
-+	.probe = rt5120_pwrkey_probe,
-+};
-+module_platform_driver(rt5120_pwrkey_driver);
-+
-+MODULE_AUTHOR("ChiYuan Huang <cy_huang@richtek.com>");
-+MODULE_DESCRIPTION("Richtek RT5120 power key driver");
-+MODULE_LICENSE("GPL v2");
 -- 
-2.7.4
+2.25.1
 

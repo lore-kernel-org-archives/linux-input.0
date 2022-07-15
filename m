@@ -2,307 +2,301 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B4673CCA48D
-	for <linux-input@archiver.kernel.org>; Fri, 15 Jul 2022 12:51:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BFFCACCA47C
+	for <linux-input@archiver.kernel.org>; Fri, 15 Jul 2022 13:15:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232710AbiGOMvG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 15 Jul 2022 08:51:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34368 "EHLO
+        id S229704AbiGONPB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 15 Jul 2022 09:15:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229913AbiGOMvF (ORCPT
+        with ESMTP id S229475AbiGONPA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Jul 2022 08:51:05 -0400
-Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 522963F33E;
-        Fri, 15 Jul 2022 05:51:04 -0700 (PDT)
-Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
-        by mx0a-00128a01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26FCiX5e011946;
-        Fri, 15 Jul 2022 08:50:59 -0400
-Received: from nwd2mta4.analog.com ([137.71.173.58])
-        by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3h73h7ca5h-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 15 Jul 2022 08:50:59 -0400
-Received: from ASHBMBX8.ad.analog.com (ASHBMBX8.ad.analog.com [10.64.17.5])
-        by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 26FCowei062755
-        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Fri, 15 Jul 2022 08:50:58 -0400
-Received: from ASHBMBX8.ad.analog.com (10.64.17.5) by ASHBMBX8.ad.analog.com
- (10.64.17.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Fri, 15 Jul
- 2022 08:50:57 -0400
-Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx8.ad.analog.com
- (10.64.17.5) with Microsoft SMTP Server id 15.2.986.14 via Frontend
- Transport; Fri, 15 Jul 2022 08:50:57 -0400
-Received: from nsa.ad.analog.com ([10.44.3.55])
-        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 26FCoXmO002053;
-        Fri, 15 Jul 2022 08:50:51 -0400
-From:   =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
-To:     <linux-gpio@vger.kernel.org>, <linux-input@vger.kernel.org>,
-        <devicetree@vger.kernel.org>
-CC:     Linus Walleij <linus.walleij@linaro.org>,
+        Fri, 15 Jul 2022 09:15:00 -0400
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 836A3DED3;
+        Fri, 15 Jul 2022 06:14:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1657890882;
+        bh=mlnJkuI/pqDn8MWVINAL1lqJsNsNqD9rO+qAKNY1pnE=;
+        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
+        b=jFoH6gzMNI/7QiQKV4Pv+9VdbQR9MdIx/AAkYmcIqd8U3p3xdmIgbUsf/jJzE4UrD
+         hRV6FX9Fj+U6vpnt3vivD3dvniqmk1q3kgNhAYd1PX/M2vjNpMC+kDVH8vTGHBJCnw
+         5JusVg8nMyzuicjasrOMLiAesf/BglLjYxq6/GTk=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from max-esprimop556.user.selfnet.de ([141.72.241.228]) by
+ mail.gmx.net (mrgmx104 [212.227.17.168]) with ESMTPSA (Nemesis) id
+ 1MvsJ5-1nMzkj2vrT-00svcz; Fri, 15 Jul 2022 15:14:42 +0200
+From:   Max Buchholz <max.buchholz@gmx.de>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Subject: [PATCH v2 07/10] input: keyboard: adp5588-keys: fix coding style warnings
-Date:   Fri, 15 Jul 2022 14:51:35 +0200
-Message-ID: <20220715125138.378632-8-nuno.sa@analog.com>
-X-Mailer: git-send-email 2.37.1
-In-Reply-To: <20220715125138.378632-1-nuno.sa@analog.com>
-References: <20220715125138.378632-1-nuno.sa@analog.com>
+        Thierry Reding <thierry.reding@gmail.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Sameer Pujar <spujar@nvidia.com>
+Cc:     Max Buchholz <Max.Buchholz@gmx.de>,
+        David Heidelberg <david@ixit.cz>,
+        Max Buchholz <max.buchholz@gmx.de>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v3] dt-bindings: nvidia,tegra20-kbc: Convert to json-schema
+Date:   Fri, 15 Jul 2022 15:14:21 +0200
+Message-Id: <20220715131422.51143-1-max.buchholz@gmx.de>
+X-Mailer: git-send-email 2.37.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ADIRuleOP-NewSCL: Rule Triggered
-X-Proofpoint-GUID: L-Kpha9ZZZ-BqTj0EDvsumusjbbBAVI0
-X-Proofpoint-ORIG-GUID: L-Kpha9ZZZ-BqTj0EDvsumusjbbBAVI0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-07-15_05,2022-07-15_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 bulkscore=0
- mlxlogscore=999 lowpriorityscore=0 phishscore=0 mlxscore=0 suspectscore=0
- impostorscore=0 adultscore=0 priorityscore=1501 clxscore=1015 spamscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2206140000
- definitions=main-2207150056
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:n3x4oCCTVO0hBabGdWVWg7Q+DE4k2LshQjvvt4qtCppu6cTFdFT
+ 9GxzUFxoebxeIodlh4tHl4n2LzQcUNxhNkH0xu79whlaN5ERMwW/I8ITmmGQ+6Ee3Zi582K
+ OOkKXIhrxKQNIaQEc9DE42Mq3LCXjJ17IqXQdNdvJFb4OLlG93TfjAtwXIdKSgKpXqcxzMg
+ jkBl2Q6OIwkqvLzBUs/EA==
+X-UI-Out-Filterresults: notjunk:1;V03:K0:rlxgDLbS+Co=:/l/hp/b+WKG/S4WyoXLXkx
+ f/Try0qCHWBIJCdHtskZQTGknPZq4VDIxv4E3suGSjWaUoY/chyfrpZ9nTudR+P7v6C4f303d
+ D0tMQyD6/d0h7KY4CxZTLYyd61W0D4aI1WxcWGMMiedsmnAPFBvEGZQJP2uJkuS4FABQMeiY3
+ HrWG3qsGG056t0TZJeYfQFr73Oh0m/8ERCGqw8hS7g3G0TfTC/CWhLFTHdwF36eFDYz/R8TP+
+ jjOf2wSjkLvq/oIWwPkvD3jU+TCac8FwjUVRVLGIEsKJX/xL+0hWLC1mHG05hw5F8q+X2Gmbn
+ 189Vk3e+N2KYxWK2WmfwFQEA2/aEzdXhunQoviuLIADJxqExY+kARzQrbvSJvzsdElSuYIRCw
+ t8AvZDRk3dJthE1e1n700afCzdmaRrQ9uF2B74nDxFIGdF3FImioLJBfSr3REZyoVNOWHllN5
+ GiQwDDN/VGSgt3OVmUm5H45gR2SkHPHlOw1l3mrHoGuEunbizMMxP6TA8drrjR8/v/3X0b57L
+ r6thvOe5afTG6Gbw7vMELfT6L4dgSCU+uQm0S/q0u91IKsVsVNHv8hSfAfyuEYkTVAbFr9yM+
+ YtaRa4evg+l33j+bzWTyc5JnvzIN6CdQ82dNH63Vaep0ZF24DWt6Fh7ty+8AmAlQpMuBVBabV
+ G6RQqsTwlkKvdPIiK7PPqroSyVRRblVdRAONrSPaM08T1Uw2Ldo65WeSqCjw9XAvcc53e6JlV
+ Nu8CFXKSlScldv+0GPirflc/YJtb+aNx6q1b7uphHgmhwYUF5Qo/k135UPpMCH9yKuxwwQYl7
+ JPEftugEBS4wfTRcGG1Kr1+2Q1kZx41+cxSVMNqWpv9pfseNeDBI4Xqoj8blDPTOX+dsKC/sU
+ C42Xm/0m5t7HkXJvwhmHKLDZCCf2X39BKivuyuj8tjaQiqVSXsQ6+i5E5aZf36FAW2S8SPAFg
+ k+XF0WnOEhz0m3K1Kj+cSd0orVZDFYPCcTAbFSl2rewEq8JouAukwremAM6aZbUSMumdjwLm8
+ quQq+J1XaBAcouhHojgb9hDWGCcQ1NpwSbDG9PRvr2tMJwVjCGpXe9J/XpX2fL6JXSVYeR3DH
+ pE/feBgJvRzBu2A6XA7yjlqrk1g/aP1SzpTGJwrr+E+GzvFImT6h5jrEA==
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Just some code cleanup regarding coding style. With the introduction of
-the bits.h macros changes in the code are indeed introduced.
+From: Max Buchholz <Max.Buchholz@gmx.de>
 
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
----
- drivers/input/keyboard/adp5588-keys.c | 98 +++++++++++++--------------
- 1 file changed, 48 insertions(+), 50 deletions(-)
+This converts the Nvidia Tegra keyboard controller bindings to YAML
+and fix them up a bit.
 
-diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-index 2e0816c42b58..6a0b9f394960 100644
---- a/drivers/input/keyboard/adp5588-keys.c
-+++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -8,6 +8,7 @@
-  * Copyright (C) 2008-2010 Analog Devices Inc.
-  */
- 
-+#include <linux/bits.h>
- #include <linux/delay.h>
- #include <linux/errno.h>
- #include <linux/gpio/driver.h>
-@@ -29,16 +30,16 @@
- #define CFG 0x01		/* Configuration Register1 */
- #define INT_STAT 0x02		/* Interrupt Status Register */
- #define KEY_LCK_EC_STAT 0x03	/* Key Lock and Event Counter Register */
--#define Key_EVENTA 0x04		/* Key Event Register A */
--#define Key_EVENTB 0x05		/* Key Event Register B */
--#define Key_EVENTC 0x06		/* Key Event Register C */
--#define Key_EVENTD 0x07		/* Key Event Register D */
--#define Key_EVENTE 0x08		/* Key Event Register E */
--#define Key_EVENTF 0x09		/* Key Event Register F */
--#define Key_EVENTG 0x0A		/* Key Event Register G */
--#define Key_EVENTH 0x0B		/* Key Event Register H */
--#define Key_EVENTI 0x0C		/* Key Event Register I */
--#define Key_EVENTJ 0x0D		/* Key Event Register J */
-+#define KEY_EVENTA 0x04		/* Key Event Register A */
-+#define KEY_EVENTB 0x05		/* Key Event Register B */
-+#define KEY_EVENTC 0x06		/* Key Event Register C */
-+#define KEY_EVENTD 0x07		/* Key Event Register D */
-+#define KEY_EVENTE 0x08		/* Key Event Register E */
-+#define KEY_EVENTF 0x09		/* Key Event Register F */
-+#define KEY_EVENTG 0x0A		/* Key Event Register G */
-+#define KEY_EVENTH 0x0B		/* Key Event Register H */
-+#define KEY_EVENTI 0x0C		/* Key Event Register I */
-+#define KEY_EVENTJ 0x0D		/* Key Event Register J */
- #define KP_LCK_TMR 0x0E		/* Keypad Lock1 to Lock2 Timer */
- #define UNLOCK1 0x0F		/* Unlock Key1 */
- #define UNLOCK2 0x10		/* Unlock Key2 */
-@@ -66,9 +67,9 @@
- #define GPIO_INT_LVL1 0x26	/* GPIO Edge/Level Detect */
- #define GPIO_INT_LVL2 0x27	/* GPIO Edge/Level Detect */
- #define GPIO_INT_LVL3 0x28	/* GPIO Edge/Level Detect */
--#define Debounce_DIS1 0x29	/* Debounce Disable */
--#define Debounce_DIS2 0x2A	/* Debounce Disable */
--#define Debounce_DIS3 0x2B	/* Debounce Disable */
-+#define DEBOUNCE_DIS1 0x29	/* Debounce Disable */
-+#define DEBOUNCE_DIS2 0x2A	/* Debounce Disable */
-+#define DEBOUNCE_DIS3 0x2B	/* Debounce Disable */
- #define GPIO_PULL1 0x2C		/* GPIO Pull Disable */
- #define GPIO_PULL2 0x2D		/* GPIO Pull Disable */
- #define GPIO_PULL3 0x2E		/* GPIO Pull Disable */
-@@ -91,27 +92,27 @@
- #define ADP5588_DEVICE_ID_MASK	0xF
- 
-  /* Configuration Register1 */
--#define ADP5588_AUTO_INC	(1 << 7)
--#define ADP5588_GPIEM_CFG	(1 << 6)
--#define ADP5588_OVR_FLOW_M	(1 << 5)
--#define ADP5588_INT_CFG		(1 << 4)
--#define ADP5588_OVR_FLOW_IEN	(1 << 3)
--#define ADP5588_K_LCK_IM	(1 << 2)
--#define ADP5588_GPI_IEN		(1 << 1)
--#define ADP5588_KE_IEN		(1 << 0)
-+#define ADP5588_AUTO_INC	BIT(7)
-+#define ADP5588_GPIEM_CFG	BIT(6)
-+#define ADP5588_OVR_FLOW_M	BIT(5)
-+#define ADP5588_INT_CFG		BIT(4)
-+#define ADP5588_OVR_FLOW_IEN	BIT(3)
-+#define ADP5588_K_LCK_IM	BIT(2)
-+#define ADP5588_GPI_IEN		BIT(1)
-+#define ADP5588_KE_IEN		BIT(0)
- 
- /* Interrupt Status Register */
--#define ADP5588_CMP2_INT	(1 << 5)
--#define ADP5588_CMP1_INT	(1 << 4)
--#define ADP5588_OVR_FLOW_INT	(1 << 3)
--#define ADP5588_K_LCK_INT	(1 << 2)
--#define ADP5588_GPI_INT		(1 << 1)
--#define ADP5588_KE_INT		(1 << 0)
-+#define ADP5588_CMP2_INT	BIT(5)
-+#define ADP5588_CMP1_INT	BIT(4)
-+#define ADP5588_OVR_FLOW_INT	BIT(3)
-+#define ADP5588_K_LCK_INT	BIT(2)
-+#define ADP5588_GPI_INT		BIT(1)
-+#define ADP5588_KE_INT		BIT(0)
- 
- /* Key Lock and Event Counter Register */
--#define ADP5588_K_LCK_EN	(1 << 6)
-+#define ADP5588_K_LCK_EN	BIT(6)
- #define ADP5588_LCK21		0x30
--#define ADP5588_KEC		0xF
-+#define ADP5588_KEC		GENMASK(3, 0)
- 
- #define ADP5588_MAXGPIO		18
- #define ADP5588_BANK(offs)	((offs) >> 3)
-@@ -158,10 +159,10 @@
- #define ADP5588_GPIMAPSIZE_MAX (GPI_PIN_END - GPI_PIN_BASE + 1)
- 
- /* Key Event Register xy */
--#define KEY_EV_PRESSED		(1 << 7)
--#define KEY_EV_MASK		(0x7F)
-+#define KEY_EV_PRESSED		BIT(7)
-+#define KEY_EV_MASK		GENMASK(6, 0)
- 
--#define KP_SEL(x)		(0xFFFF >> (16 - x))	/* 2^x-1 */
-+#define KP_SEL(x)		(BIT(x) - 1)	/* 2^x-1 */
- 
- #define KEYP_MAX_EVENT		10
- 
-@@ -209,7 +210,7 @@ static int adp5588_write(struct i2c_client *client, u8 reg, u8 val)
- 	return i2c_smbus_write_byte_data(client, reg, val);
- }
- 
--static int adp5588_gpio_get_value(struct gpio_chip *chip, unsigned off)
-+static int adp5588_gpio_get_value(struct gpio_chip *chip, unsigned int off)
- {
- 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
- 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
-@@ -229,7 +230,7 @@ static int adp5588_gpio_get_value(struct gpio_chip *chip, unsigned off)
- }
- 
- static void adp5588_gpio_set_value(struct gpio_chip *chip,
--				   unsigned off, int val)
-+				   unsigned int off, int val)
- {
- 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
- 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
-@@ -242,8 +243,7 @@ static void adp5588_gpio_set_value(struct gpio_chip *chip,
- 	else
- 		kpad->dat_out[bank] &= ~bit;
- 
--	adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank,
--			   kpad->dat_out[bank]);
-+	adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank, kpad->dat_out[bank]);
- 
- 	mutex_unlock(&kpad->gpio_lock);
- }
-@@ -282,7 +282,7 @@ static int adp5588_gpio_set_config(struct gpio_chip *chip,  unsigned int off,
- 	return ret;
- }
- 
--static int adp5588_gpio_direction_input(struct gpio_chip *chip, unsigned off)
-+static int adp5588_gpio_direction_input(struct gpio_chip *chip, unsigned int off)
- {
- 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
- 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
-@@ -300,7 +300,7 @@ static int adp5588_gpio_direction_input(struct gpio_chip *chip, unsigned off)
- }
- 
- static int adp5588_gpio_direction_output(struct gpio_chip *chip,
--					 unsigned off, int val)
-+					 unsigned int off, int val)
- {
- 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
- 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
-@@ -317,12 +317,11 @@ static int adp5588_gpio_direction_output(struct gpio_chip *chip,
- 		kpad->dat_out[bank] &= ~bit;
- 
- 	ret = adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank,
--				 kpad->dat_out[bank]);
-+			    kpad->dat_out[bank]);
- 	if (ret)
- 		goto out_unlock;
- 
--	ret = adp5588_write(kpad->client, GPIO_DIR1 + bank,
--				 kpad->dir[bank]);
-+	ret = adp5588_write(kpad->client, GPIO_DIR1 + bank, kpad->dir[bank]);
- 
- out_unlock:
- 	mutex_unlock(&kpad->gpio_lock);
-@@ -519,7 +518,7 @@ static void adp5588_report_events(struct adp5588_kpad *kpad, int ev_cnt)
- 	int i;
- 
- 	for (i = 0; i < ev_cnt; i++) {
--		int key = adp5588_read(kpad->client, Key_EVENTA + i);
-+		int key = adp5588_read(kpad->client, KEY_EVENTA + i);
- 		int key_val = key & KEY_EV_MASK;
- 		int key_press = key & KEY_EV_PRESSED;
- 
-@@ -619,21 +618,20 @@ static int adp5588_setup(struct adp5588_kpad *kpad)
- 	}
- 
- 	for (i = 0; i < KEYP_MAX_EVENT; i++) {
--		ret = adp5588_read(client, Key_EVENTA);
-+		ret = adp5588_read(client, KEY_EVENTA);
- 		if (ret)
- 			return ret;
- 	}
- 
- 	ret = adp5588_write(client, INT_STAT,
--				ADP5588_CMP2_INT | ADP5588_CMP1_INT |
--				ADP5588_OVR_FLOW_INT | ADP5588_K_LCK_INT |
--				ADP5588_GPI_INT | ADP5588_KE_INT); /* Status is W1C */
-+			    ADP5588_CMP2_INT | ADP5588_CMP1_INT |
-+			    ADP5588_OVR_FLOW_INT | ADP5588_K_LCK_INT |
-+			    ADP5588_GPI_INT | ADP5588_KE_INT); /* Status is W1C */
- 	if (ret)
- 		return ret;
- 
- 	return adp5588_write(client, CFG, ADP5588_INT_CFG |
--					  ADP5588_OVR_FLOW_IEN |
--					  ADP5588_KE_IEN);
-+			     ADP5588_OVR_FLOW_IEN | ADP5588_KE_IEN);
- }
- 
- static int adp5588_fw_parse(struct adp5588_kpad *kpad)
-@@ -717,7 +715,7 @@ static int adp5588_probe(struct i2c_client *client,
- 	int error;
- 
- 	if (!i2c_check_functionality(client->adapter,
--					I2C_FUNC_SMBUS_BYTE_DATA)) {
-+				     I2C_FUNC_SMBUS_BYTE_DATA)) {
- 		dev_err(&client->dev, "SMBUS Byte Data not Supported\n");
- 		return -EIO;
- 	}
-@@ -741,7 +739,7 @@ static int adp5588_probe(struct i2c_client *client,
- 	if (ret < 0)
- 		return ret;
- 
--	revid = (u8) ret & ADP5588_DEVICE_ID_MASK;
-+	revid = ret & ADP5588_DEVICE_ID_MASK;
- 	if (WA_DELAYED_READOUT_REVID(revid))
- 		kpad->delay = msecs_to_jiffies(WA_DELAYED_READOUT_TIME);
- 
--- 
-2.37.1
+Reviewed-by: David Heidelberg <david@ixit.cz>
+Signed-off-by: Max Buchholz <max.buchholz@gmx.de>
+=2D--
+v3:
+ - fixed maxItems for array properties
+v2:
+ - rework the file according to the feedback
+
+ .../bindings/input/nvidia,tegra20-kbc.txt     |  55 ---------
+ .../bindings/input/nvidia,tegra20-kbc.yaml    | 111 ++++++++++++++++++
+ .../bindings/power/wakeup-source.txt          |   2 +-
+ 3 files changed, 112 insertions(+), 56 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/input/nvidia,tegra20=
+-kbc.txt
+ create mode 100644 Documentation/devicetree/bindings/input/nvidia,tegra20=
+-kbc.yaml
+
+diff --git a/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.tx=
+t b/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
+deleted file mode 100644
+index 1faa7292e21f..000000000000
+=2D-- a/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.txt
++++ /dev/null
+@@ -1,55 +0,0 @@
+-* Tegra keyboard controller
+-The key controller has maximum 24 pins to make matrix keypad. Any pin
+-can be configured as row or column. The maximum column pin can be 8
+-and maximum row pins can be 16 for Tegra20/Tegra30.
+-
+-Required properties:
+=2D- compatible: "nvidia,tegra20-kbc"
+=2D- reg: Register base address of KBC.
+=2D- interrupts: Interrupt number for the KBC.
+=2D- nvidia,kbc-row-pins: The KBC pins which are configured as row. This i=
+s an
+-  array of pin numbers which is used as rows.
+=2D- nvidia,kbc-col-pins: The KBC pins which are configured as column. Thi=
+s is an
+-  array of pin numbers which is used as column.
+=2D- linux,keymap: The keymap for keys as described in the binding documen=
+t
+-  devicetree/bindings/input/matrix-keymap.txt.
+=2D- clocks: Must contain one entry, for the module clock.
+-  See ../clocks/clock-bindings.txt for details.
+=2D- resets: Must contain an entry for each entry in reset-names.
+-  See ../reset/reset.txt for details.
+=2D- reset-names: Must include the following entries:
+-  - kbc
+-
+-Optional properties, in addition to those specified by the shared
+-matrix-keyboard bindings:
+-
+=2D- linux,fn-keymap: a second keymap, same specification as the
+-  matrix-keyboard-controller spec but to be used when the KEY_FN modifier
+-  key is pressed.
+=2D- nvidia,debounce-delay-ms: delay in milliseconds per row scan for debo=
+uncing
+=2D- nvidia,repeat-delay-ms: delay in milliseconds before repeat starts
+=2D- nvidia,ghost-filter: enable ghost filtering for this device
+=2D- wakeup-source: configure keyboard as a wakeup source for suspend/resu=
+me
+-		 (Legacy property supported: "nvidia,wakeup-source")
+-
+-Example:
+-
+-keyboard: keyboard {
+-	compatible =3D "nvidia,tegra20-kbc";
+-	reg =3D <0x7000e200 0x100>;
+-	interrupts =3D <0 85 0x04>;
+-	clocks =3D <&tegra_car 36>;
+-	resets =3D <&tegra_car 36>;
+-	reset-names =3D "kbc";
+-	nvidia,ghost-filter;
+-	nvidia,debounce-delay-ms =3D <640>;
+-	nvidia,kbc-row-pins =3D <0 1 2>;    /* pin 0, 1, 2 as rows */
+-	nvidia,kbc-col-pins =3D <11 12 13>; /* pin 11, 12, 13 as columns */
+-	linux,keymap =3D <0x00000074
+-			0x00010067
+-			0x00020066
+-			0x01010068
+-			0x02000069
+-			0x02010070
+-			0x02020071>;
+-};
+diff --git a/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.ya=
+ml b/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.yaml
+new file mode 100644
+index 000000000000..8e1eaad2fdc1
+=2D-- /dev/null
++++ b/Documentation/devicetree/bindings/input/nvidia,tegra20-kbc.yaml
+@@ -0,0 +1,111 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/input/nvidia,tegra20-kbc.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
++
++title: Nvidia Tegra keyboard controller
++
++maintainers:
++  - Jon Hunter <jonathanh@nvidia.com>
++  - Sameer Pujar <spujar@nvidia.com>
++
++description: The key controller has maximum 24 pins to make matrix keypad=
+. Any pin
++  can be configured as row or column.
++
++allOf:
++  - $ref: "/schemas/input/matrix-keymap.yaml#"
++
++properties:
++  compatible:
++    oneOf:
++      - items:
++          - const: nvidia,tegra30-kbc
++          - const: nvidia,tegra20-kbc
++      - items:
++          - const: nvidia,tegra20-kbc
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  nvidia,kbc-row-pins:
++    minItems: 1
++    maxItems: 16
++    description: KBC pins which are configured as row
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++
++  nvidia,kbc-col-pins:
++    minItems: 1
++    maxItems: 8
++    description: KBC pins which are configured as column
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++
++  clocks:
++    maxItems: 1
++
++  resets:
++    maxItems: 1
++
++  reset-names:
++    const: kbc
++
++  linux,fn-keymap:
++    description: a secondary keymap to be used when the KEY_FN modifier k=
+ey is pressed
++
++  nvidia,debounce-delay-ms:
++    description: delay in milliseconds per row scan for debouncing
++
++  nvidia,repeat-delay-ms:
++    description: delay in milliseconds before repeat starts
++
++  nvidia,ghost-filter:
++    description: enable ghost filtering for this device
++    type: boolean
++
++  wakeup-source:
++    description: configure keyboard as a wakeup source for suspend/resume
++
++  nvidia,wakeup-source:
++    description: configure keyboard as a wakeup source for suspend/resume
++    deprecated: true
++    type: boolean
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - nvidia,kbc-row-pins
++  - nvidia,kbc-col-pins
++  - linux,keymap
++  - clocks
++  - resets
++  - reset-names
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++
++    kbc@7000e200 {
++        compatible =3D "nvidia,tegra20-kbc";
++        reg =3D <0x7000e200 0x100>;
++        interrupts =3D <GIC_SPI 85 IRQ_TYPE_LEVEL_HIGH>;
++        clocks =3D <&tegra_car 36>;
++        resets =3D <&tegra_car 36>;
++        reset-names =3D "kbc";
++        nvidia,ghost-filter;
++        nvidia,debounce-delay-ms =3D <640>;
++        nvidia,kbc-row-pins =3D <0 1 2>;    /* pin 0, 1, 2 as rows */
++        nvidia,kbc-col-pins =3D <11 12 13>; /* pin 11, 12, 13 as columns =
+*/
++        linux,keymap =3D <0x00000074
++                        0x00010067
++                        0x00020066
++                        0x01010068
++                        0x02000069
++                        0x02010070
++                        0x02020071>;
++    };
+diff --git a/Documentation/devicetree/bindings/power/wakeup-source.txt b/D=
+ocumentation/devicetree/bindings/power/wakeup-source.txt
+index cfd74659fbed..728f88de371d 100644
+=2D-- a/Documentation/devicetree/bindings/power/wakeup-source.txt
++++ b/Documentation/devicetree/bindings/power/wakeup-source.txt
+@@ -25,7 +25,7 @@ List of legacy properties and respective binding documen=
+t
+ 				Documentation/devicetree/bindings/input/touchscreen/ads7846.txt
+ 5. "linux,keypad-wakeup"	Documentation/devicetree/bindings/input/qcom,pm8=
+xxx-keypad.txt
+ 6. "linux,input-wakeup"		Documentation/devicetree/bindings/input/samsung-=
+keypad.txt
+-7. "nvidia,wakeup-source"	Documentation/devicetree/bindings/input/nvidia,=
+tegra20-kbc.txt
++7. "nvidia,wakeup-source"	Documentation/devicetree/bindings/input/nvidia,=
+tegra20-kbc.yaml
+
+ Examples
+ --------
+=2D-
+2.37.0
 

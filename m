@@ -2,34 +2,34 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF5ECCCA480
-	for <linux-input@archiver.kernel.org>; Fri, 15 Jul 2022 05:00:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73382CCA482
+	for <linux-input@archiver.kernel.org>; Fri, 15 Jul 2022 05:01:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229777AbiGOFAn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 15 Jul 2022 01:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41040 "EHLO
+        id S229950AbiGOFBP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 15 Jul 2022 01:01:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229706AbiGOFAn (ORCPT
+        with ESMTP id S230055AbiGOFA5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 15 Jul 2022 01:00:43 -0400
+        Fri, 15 Jul 2022 01:00:57 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E192378581;
-        Thu, 14 Jul 2022 22:00:41 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE67B7858F;
+        Thu, 14 Jul 2022 22:00:56 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77AF462246;
-        Fri, 15 Jul 2022 05:00:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C0E5C3411E;
-        Fri, 15 Jul 2022 05:00:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 86FF162223;
+        Fri, 15 Jul 2022 05:00:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5797BC34115;
+        Fri, 15 Jul 2022 05:00:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1657861240;
-        bh=Hek494Yetd3XN90he4BxOJbpQ2dkKLCIYiZNf3+pfA0=;
+        s=korg; t=1657861255;
+        bh=UiKByJ1/WXzevn9TLAXJgaH0VDyTla3TnZLR9v/ODvo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Kxxg6dz9/3aBwvkXZ/oAaWLb6NKzJXAis2DXFBUvPhL2zy1R85keS7nHBElPKZbtM
-         O65XQ6pyPng/miykZf3kmYGUkxWYT8HnUnS0tJoIRm/iNm3C7rsel2zNh+gt5VLHIc
-         gDGof+fdyvGyLtLP/cD6fWSDs0clD/lSbI+7NUIg=
-Date:   Fri, 15 Jul 2022 07:00:38 +0200
+        b=kXDa0ZaDK0iSZEmiJiWoC0HBsgipwvNJ6IO+vXex2ZcLUtLqbX2OLmzA4zhIzYEwM
+         6f6oTjAnoIhp/yEPpXF85wNhNAjHqvZrcHIVHdi6KbcRNBYH+fBHqqDq3XtMH86yFN
+         r0uNL9/N/ZqoXOIRft/x7MGLbFRYKQNYKSSRVhs0=
+Date:   Fri, 15 Jul 2022 07:00:53 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Jiri Kosina <jikos@kernel.org>,
@@ -46,29 +46,30 @@ Cc:     Jiri Kosina <jikos@kernel.org>,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: Re: [PATCH bpf-next v6 09/23] HID: core: store the unique system
- identifier in hid_device
-Message-ID: <YtD0dt3MxjSozgXg@kroah.com>
+Subject: Re: [PATCH bpf-next v6 10/23] HID: export hid_report_type to uapi
+Message-ID: <YtD0hUvLnj48M5yy@kroah.com>
 References: <20220712145850.599666-1-benjamin.tissoires@redhat.com>
- <20220712145850.599666-10-benjamin.tissoires@redhat.com>
+ <20220712145850.599666-11-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220712145850.599666-10-benjamin.tissoires@redhat.com>
+In-Reply-To: <20220712145850.599666-11-benjamin.tissoires@redhat.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Jul 12, 2022 at 04:58:36PM +0200, Benjamin Tissoires wrote:
-> This unique identifier is currently used only for ensuring uniqueness in
-> sysfs. However, this could be handful for userspace to refer to a specific
-> hid_device by this id.
+On Tue, Jul 12, 2022 at 04:58:37PM +0200, Benjamin Tissoires wrote:
+> When we are dealing with eBPF, we need to have access to the report type.
+> Currently our implementation differs from the USB standard, making it
+> impossible for users to know the exact value besides hardcoding it
+> themselves.
 > 
-> 2 use cases are in my mind: LEDs (and their naming convention), and
-> HID-BPF.
+> And instead of a blank define, convert it as an enum.
+> 
+> Note that we need to also do change in the ll_driver API, but given
+> that this will have a wider impact outside of this tree, we leave this
+> as a TODO for the future.
 > 
 > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> 
-
 
 Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>

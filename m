@@ -2,64 +2,62 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E835DC43334
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jul 2022 14:48:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9DA42CCA487
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jul 2022 14:48:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235316AbiGTOsn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Jul 2022 10:48:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53464 "EHLO
+        id S235140AbiGTOsp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Jul 2022 10:48:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235022AbiGTOsm (ORCPT
+        with ESMTP id S235267AbiGTOsn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Jul 2022 10:48:42 -0400
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4C195288E
-        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2022 07:48:40 -0700 (PDT)
-Received: by mail-wm1-x334.google.com with SMTP id h14-20020a1ccc0e000000b0039eff745c53so1420174wmb.5
-        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2022 07:48:40 -0700 (PDT)
+        Wed, 20 Jul 2022 10:48:43 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DA695004D
+        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2022 07:48:42 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id e15so21219308wro.5
+        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2022 07:48:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=subject:mime-version:content-transfer-encoding:from:date:message-id
-         :to:cc;
-        bh=y0nOdBdH/FiY2jfQvMH95VKpuAO3BFQhEGGb8OIH85M=;
-        b=yI2UwrXOi3+iAjbP6Ub6fisppNUVUrxVmdsq3fNJv+N1wsO60lcIG0WM+ItxOyv4Rp
-         J0pUF3pyFpUzkdwL8Q0jOkNMphJOCg4N/hrIQy5AjQ37nU3pVu6iemD41WcW+fRHW+/s
-         jaPCYzpz13OTcIxMzKeVd/YZ5rDKvd7lmW3y8O1oZP/SPBqo8z51egLC6Dnr0TQSsGGe
-         liZNw/xHmAIH6C2eGologqz4OCE5zYmpsvArnvvfcrI1OuHxNqPkSPrL5KPsWRaGMvnk
-         PQ6MCEAP3UGVGSIDP+NM9cKT1dXQPid6xBLrqZPa2VtgMYUXDNdLTEkvRiwZXpRNI66V
-         uUyg==
+        h=from:date:subject:mime-version:content-transfer-encoding:message-id
+         :references:in-reply-to:to:cc;
+        bh=CQqnkWpbbaS2vb+KWbLHEgGJa35COvg0f6M4mKs8LZA=;
+        b=gM4/9BiXFiOOF1pc8rgeisC4TUSBONj/s9Sy2t01T6VAZqA0lBUcN3sRDHFYbZtOI6
+         fPmNsPEJ99S3Xd0i+4MxIwLP5upJaJfO9xo8gZuMcpnlDLuIz1SraiwzqYZDA8OcCPB0
+         7ZrIqTKhUJwbVIgRP+eHTW+mKi90Rke39pJ+cvi96yAS1ymoDAexRKFyNVLl2qSyWXpg
+         hXdJtfEzbiPVk3uYcg+8IGhNTtPgNFv6wotdrb/3sYMTJ3tjSrWC5Ej/UN0o16ah9Pto
+         M0IDd6ZuZmpMsLe/MKChPecYegGtL3KV4ugh9UxiL0g3mH1AJ1Gv17vZzYAkKPQ5+obJ
+         tNig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:mime-version:content-transfer-encoding
-         :from:date:message-id:to:cc;
-        bh=y0nOdBdH/FiY2jfQvMH95VKpuAO3BFQhEGGb8OIH85M=;
-        b=7sNLZtK8pZwoIb4c+S0yAb3z7tbKNmjAe1WhBdlcF8wsb4L2YkblLnRGdLBsXr2ehY
-         TMAgS5PuuTed7lwWzgglX3NCx4URyWTJFBRBao4rnRr/UA4ZmSrSmIY2CjuGnT1WuCfz
-         42Jzv1RUWcd+OmVfIxPo6+VsLK6Hkc/ywe+P4OU0iV9PEq3Q/TiDIaQKNNLor1xhtI1r
-         EguFunjkS7LlaJVf4kVhlaRofULkJyMv8U1v/a3qQOjLwHNYNZ9D+GkHTuZR8j1HWtiQ
-         cLfYLnSm3pw8ZCZPzZ3GXFW1pBNipcmIV/TZ5z6OmFviYri3y9aIN6mIZUWrNhJIhVVo
-         dNjg==
-X-Gm-Message-State: AJIora/gDYVKUE+iz/liMO6kdaK2MLUMnLvh6evQnWN4K3oUhIuq6mCS
-        Rq9MW5iZXUEmJJxcnosBdhxKRw==
-X-Google-Smtp-Source: AGRyM1ublPYAEei2qfPJouysredFf/CYLPH5v96mYBkQf2Q+0TkflmcBuDnsIT97NTApdhrn+fK1vw==
-X-Received: by 2002:a05:600c:34d0:b0:3a1:a05c:b523 with SMTP id d16-20020a05600c34d000b003a1a05cb523mr4189886wmq.94.1658328518916;
-        Wed, 20 Jul 2022 07:48:38 -0700 (PDT)
+        h=x-gm-message-state:from:date:subject:mime-version
+         :content-transfer-encoding:message-id:references:in-reply-to:to:cc;
+        bh=CQqnkWpbbaS2vb+KWbLHEgGJa35COvg0f6M4mKs8LZA=;
+        b=0pmZNgJPhOyNjpDVP6LPVv3cJUXXaLajihAeqhQtyogaRysk9JOWp3FV8d6ces97Hw
+         1oKztO4xiW06DQIQU8+mOS+Bvh1nof87Mhd3BOrRjRo5dBLR9yBC3jpMRU8rhr5J/Iwz
+         bGy9h4Pf8CyxyevXNEoE+3i8fCeekgvY1tX1o6ESBJGgAFKAWonpmzJpFJt0sGA3lN7V
+         x7FdIuh5+bfbMmqkMhP6t3umUx1YhNQjNe8eLYpiTNclLPoFwrN+Xhq5GD/LEkAleEBL
+         tqS6yH1elnnn61QHocQhh3HliacBMPE2NgllAlck1tF42mid/1LTFCmwzStHnS1xyxAi
+         O6gQ==
+X-Gm-Message-State: AJIora/TQYnIIHtI2nU+1SpQbg0XTzjfOCSI0s/uKyE/Ro6rOdk9GN/8
+        Tcfx2metin3vRd0YE/F9l6mNMQ==
+X-Google-Smtp-Source: AGRyM1vSS3WWayKFuKSqLFjnoDRL0BND5b5er92x5l1u2SV4uA4ZpHgfX/joTCI73kGMN0viOyARJQ==
+X-Received: by 2002:adf:e911:0:b0:21e:3a7b:495c with SMTP id f17-20020adfe911000000b0021e3a7b495cmr6677995wrm.388.1658328520469;
+        Wed, 20 Jul 2022 07:48:40 -0700 (PDT)
 Received: from [127.0.1.1] ([2a01:cb19:85e6:1900:c639:22f8:bed9:44dd])
-        by smtp.gmail.com with ESMTPSA id f8-20020a05600c4e8800b003a31673515bsm3321121wmq.7.2022.07.20.07.48.38
+        by smtp.gmail.com with ESMTPSA id f8-20020a05600c4e8800b003a31673515bsm3321121wmq.7.2022.07.20.07.48.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Jul 2022 07:48:38 -0700 (PDT)
-Subject: [PATCH v1 0/6] Input: mt6779-keypad - double keys support
-X-b4-tracking: eyJzZXJpZXMiOiB7InJldmlzaW9uIjogMSwgImNoYW5nZS1pZCI6ICIyMDIyMDcyMC1tdDgxODMta2
- V5cGFkLTIwYWE3NzEwNmZmMCIsICJoaXN0b3J5IjogeyJ2MSI6IFsiMjAyMjA3MjAtbXQ4MTgzLWtl
- eXBhZC12MS0wLTY4YzE5N2MxOWYyY0BiYXlsaWJyZS5jb20iLCAiMjAyMjA3MjAtbXQ4MTgzLWtleX
- BhZC12MS0wLWUyYmI0MjcwMTI3MUBiYXlsaWJyZS5jb20iLCAiMjAyMjA3MjAtbXQ4MTgzLWtleXBh
- ZC12MS0wLTc2OTM5ZmM0MTRhZkBiYXlsaWJyZS5jb20iXX19fQ==
+        Wed, 20 Jul 2022 07:48:40 -0700 (PDT)
+From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Date:   Wed, 20 Jul 2022 16:48:38 +0200
+Subject: [PATCH v1 2/6] dt-bindings: mediatek,mt6779-keypad: use
+ unevaluatedProperties
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Date:   Wed, 20 Jul 2022 16:48:36 +0200
-Message-Id: <20220720-mt8183-keypad-v1-0-ef9fc29dbff4@baylibre.com>
+Message-Id: <20220720-mt8183-keypad-v1-2-ef9fc29dbff4@baylibre.com>
+References: <20220720-mt8183-keypad-v1-0-ef9fc29dbff4@baylibre.com>
+In-Reply-To: <20220720-mt8183-keypad-v1-0-ef9fc29dbff4@baylibre.com>
 To:     Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Mattijs Korpershoek <mkorpershoek@baylibre.com>,
@@ -75,41 +73,29 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The MediaTek keypad controller has multiple operating modes:
-* single key detection (currently implemented)
-* double key detection
+writing-bindings.rst states:
+> - If schema includes other schema (e.g. /schemas/i2c/i2c-controller.yaml) use
+>   "unevaluatedProperties:false". In other cases, usually use
+>   "additionalProperties:false".
 
-With double key detection, each (row,column) is a group that can detect
-two keys in the key matrix.
-This minimizes the overall pin counts for cost reduction.
-However, pressing multiple keys in the same group will not be
-detected properly.
-
-On some boards, like mt8183-pumpkin, double key detection is used.
+mt6779-keypad includes matrix-keymap.yaml so replace additionalProperties:false
+by unevaluatedProperties:false.
 
 Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
 
----
-Fabien Parent (2):
-      arm64: dts: mediatek: mt8183: add keyboard node
-      arm64: dts: mediatek: mt8183-pumpkin: add keypad support
+diff --git a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+index 03ebd2665d07..ca8ae40a73f7 100644
+--- a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
++++ b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
+@@ -56,7 +56,7 @@ required:
+   - clocks
+   - clock-names
+ 
+-additionalProperties: false
++unevaluatedProperties: false
+ 
+ examples:
+   - |
 
-Mattijs Korpershoek (4):
-      MAINTAINERS: input: add mattijs for mt6779-keypad
-      dt-bindings: mediatek,mt6779-keypad: use unevaluatedProperties
-      dt-bindings: mediatek,mt6779-keypad: add mediatek,double-keys
-      Input: mt6779-keypad - support double keys matrix
-
- .../bindings/input/mediatek,mt6779-keypad.yaml      |  8 +++++++-
- MAINTAINERS                                         |  6 ++++++
- arch/arm64/boot/dts/mediatek/mt8183-pumpkin.dts     | 21 +++++++++++++++++++++
- arch/arm64/boot/dts/mediatek/mt8183.dtsi            |  9 +++++++++
- drivers/input/keyboard/mt6779-keypad.c              | 17 +++++++++++++++--
- 5 files changed, 58 insertions(+), 3 deletions(-)
----
-base-commit: 3b87ed7ea4d598c81a03317a92dfbd59102224fd
-change-id: 20220720-mt8183-keypad-20aa77106ff0
-
-Best regards,
 -- 
-Mattijs Korpershoek <mkorpershoek@baylibre.com>
+b4 0.10.0-dev-54fef

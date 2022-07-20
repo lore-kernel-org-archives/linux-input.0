@@ -2,59 +2,59 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41C01C43334
-	for <linux-input@archiver.kernel.org>; Wed, 20 Jul 2022 14:48:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ACCEC43334
+	for <linux-input@archiver.kernel.org>; Wed, 20 Jul 2022 14:48:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235089AbiGTOsq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Jul 2022 10:48:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53510 "EHLO
+        id S237229AbiGTOsu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Jul 2022 10:48:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235373AbiGTOsn (ORCPT
+        with ESMTP id S236076AbiGTOsr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Jul 2022 10:48:43 -0400
-Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7C0751A26
-        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2022 07:48:42 -0700 (PDT)
-Received: by mail-wr1-x42c.google.com with SMTP id bk26so26455300wrb.11
-        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2022 07:48:42 -0700 (PDT)
+        Wed, 20 Jul 2022 10:48:47 -0400
+Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D97152883
+        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2022 07:48:43 -0700 (PDT)
+Received: by mail-wr1-x433.google.com with SMTP id u5so3417919wrm.4
+        for <linux-input@vger.kernel.org>; Wed, 20 Jul 2022 07:48:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
         h=from:date:subject:mime-version:content-transfer-encoding:message-id
          :references:in-reply-to:to:cc;
-        bh=EOTw2SZsHwugM+Ez0nEALoToqSbMZWPKVYP438H1mxU=;
-        b=oMm7LoJwBASOpcAnoe5ZW0VcoBtpNp4qdQXkxDMqfsYACtq2XOkYP+zDZPKLL4wMBw
-         YgIqj4c9bDXecsVxFerVyCof9sXAssTSpDgeyJzMUqvcp5rJryAbqDSHlATe3jt96iHG
-         WDtXCJY7Y6NcZXZsGo3/Pww8583CYWbnViwflztE1ocPMbOBgWan5EX/aj1cCeoZuy9i
-         9faahOs5YUZNPf85kg/MwQEMmex/wyjlyUCRmxo4MPNf1qV7Ep+U/pgIAQiOYRiTGjQC
-         ZBxpaNtME1cHVV7UMwlhbx1u60srMx9Fp1zRqRjrcLpKx1kk1sNzoYkkn7iaHCbpVNRl
-         3ihA==
+        bh=VGUb9DmOvoGv8nh5rqV1xHbR9kL6IKYbqd/qwv1q+CA=;
+        b=jRL5JcT9oKaeo7HwZrYobK/YmXLf7T2OTvQbB+5Tt4Ej73xiicgN2WuAV9zlw2rEKj
+         gBD1wR+vAFAyQ36BarOC42aGFh0Z+CUVKmoz8jocS+Sr1oFSoZdpIpLnfx+p6ZO2A1ou
+         AAcutHoNxH3HiLedSavddURbO+/DeoJdbuK1UKbsYvq/AEfupOK/Luj7ZiWHbwkOSZy2
+         aHRgAVTfYYziWX4EbaYfxDteMDi0fDZibAkzqfnGLqb6TtdUDY9XJZimypikQHHkA/RS
+         HwXgTHe4cGSkZD6UzZkh/rw9pNfYj2qyAa5Grv7CnZLvskr1FGDTqRsjvNQ4XaQ9hQ0Y
+         SVRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:date:subject:mime-version
          :content-transfer-encoding:message-id:references:in-reply-to:to:cc;
-        bh=EOTw2SZsHwugM+Ez0nEALoToqSbMZWPKVYP438H1mxU=;
-        b=e2dWsoatdQnsXhkHqs/sUppolgkB79eG52n0STVXnLjP8RKw3LPhskiWNTXdiAhDMD
-         UgYMENgrsmb6niVMBGISKvBMMFuCyJ4/+yqjWMdzcb5Ma+jOgA7Xov8cWGIiUZeE43b6
-         HWvWOPtFOD+Twd09ZxQw87dD0KW0u8Aa5XYY83H7SgPGctD2zI2fyNeaenNDmEiLoRyF
-         rd9pdcxivjuDR51VV6mche93L8P8kvqPjcHsjjsanvwXAuHBI6bMe3xk45gHIi+0Mh6x
-         MldY2tn97ccCFlYWXDb88Mk2EpublCo89bxc37SGL5/Ty0nZTZrPjzka3wqdlB+rL0ga
-         w6TQ==
-X-Gm-Message-State: AJIora84PuTkNwpU7mK1n9wkdewgP2SEiDE+TASA93TQxuCMYSWwTUPa
-        nLNGPIJzLvWYjXSi98shTrXpIg==
-X-Google-Smtp-Source: AGRyM1vk48vhBISpLi0CcOr9kKDWKs0EqlrNQDdVJdrT6hsTP+HmSTbFh6RCGQZsl1ZBg+vkqVqr/A==
-X-Received: by 2002:a05:6000:1789:b0:21d:7279:f455 with SMTP id e9-20020a056000178900b0021d7279f455mr30432550wrg.542.1658328521299;
-        Wed, 20 Jul 2022 07:48:41 -0700 (PDT)
+        bh=VGUb9DmOvoGv8nh5rqV1xHbR9kL6IKYbqd/qwv1q+CA=;
+        b=16R22Bc9EoTib3usRGnSfLVYudoPeF0xkr8K2ccm856dXGlQ0tl9hACM+XmVL+l4aZ
+         znhJ2r+4gGfy8AwP6pwKoqHMM6T6r8SbDj+YqUvH0DuyIX5o2g9tQ29kZLCH8mG1UuBX
+         poSv6K6ul4+Ym9ZjgwEoe49JdoOFvjzLqqpPT5VejLUH45umEHMA0gUuBGV+7v0WqcjH
+         NQDDCW5S7tXNsR2ZQc0HFXx7Jdn1/EP7Vq9F52VqPdsfHoe5PfDVbFtKIDUpFr3Gv2MI
+         Tdp5njmGQCSpTCxvfK0byeQZlMVDAOOIk4orTtEgWRjE2KEwtG5ZLRYnDHboGJNxUj7B
+         /G2Q==
+X-Gm-Message-State: AJIora+jjRhDukkQt8Hnag7r+EJLMjdOqdQAYqorfxxeD1nVcbCCvd4j
+        TeGJbPGF764sofGiHS4FzNRP9g==
+X-Google-Smtp-Source: AGRyM1vTy640y2iV3Q5noFGBYMKVc349uYWye3eyUbUhWj27qZA/i9aPmd4vKm57vaVf4wNmnxmupw==
+X-Received: by 2002:a5d:648a:0:b0:21d:b684:9c76 with SMTP id o10-20020a5d648a000000b0021db6849c76mr30956265wri.463.1658328522794;
+        Wed, 20 Jul 2022 07:48:42 -0700 (PDT)
 Received: from [127.0.1.1] ([2a01:cb19:85e6:1900:c639:22f8:bed9:44dd])
-        by smtp.gmail.com with ESMTPSA id f8-20020a05600c4e8800b003a31673515bsm3321121wmq.7.2022.07.20.07.48.40
+        by smtp.gmail.com with ESMTPSA id f8-20020a05600c4e8800b003a31673515bsm3321121wmq.7.2022.07.20.07.48.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 Jul 2022 07:48:41 -0700 (PDT)
+        Wed, 20 Jul 2022 07:48:42 -0700 (PDT)
 From:   Mattijs Korpershoek <mkorpershoek@baylibre.com>
-Date:   Wed, 20 Jul 2022 16:48:39 +0200
-Subject: [PATCH v1 3/6] dt-bindings: mediatek,mt6779-keypad: add mediatek,double-keys
+Date:   Wed, 20 Jul 2022 16:48:41 +0200
+Subject: [PATCH v1 5/6] arm64: dts: mediatek: mt8183: add keyboard node
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20220720-mt8183-keypad-v1-3-ef9fc29dbff4@baylibre.com>
+Message-Id: <20220720-mt8183-keypad-v1-5-ef9fc29dbff4@baylibre.com>
 References: <20220720-mt8183-keypad-v1-0-ef9fc29dbff4@baylibre.com>
 In-Reply-To: <20220720-mt8183-keypad-v1-0-ef9fc29dbff4@baylibre.com>
 To:     Rob Herring <robh+dt@kernel.org>,
@@ -72,36 +72,36 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-MediaTek keypad has 2 modes of detecting key events:
-- single key: each (row, column) can detect one key
-- double key: each (row, column) is a group of 2 keys
+From: Fabien Parent <fparent@baylibre.com>
 
-Currently, only single key detection is supported (by default)
-Add an optional property, mediatek,double-keys to support double
-key detection.
+MT8183 has an on-SoC keyboard controller commonly used for volume
+up/down buttons.
 
-Double key support exists to minimize cost, since it reduces the number
-of pins required for physical keys.
+List it in the SoC dts so that boards can enable/use it.
 
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
 Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
 
-diff --git a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
-index ca8ae40a73f7..03c9555849e5 100644
---- a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
-+++ b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
-@@ -49,6 +49,12 @@ properties:
-     maximum: 256
-     default: 16
+diff --git a/arch/arm64/boot/dts/mediatek/mt8183.dtsi b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+index 9d32871973a2..9d8fdebaabe3 100644
+--- a/arch/arm64/boot/dts/mediatek/mt8183.dtsi
++++ b/arch/arm64/boot/dts/mediatek/mt8183.dtsi
+@@ -943,6 +943,15 @@ pwrap: pwrap@1000d000 {
+ 			clock-names = "spi", "wrap";
+ 		};
  
-+  mediatek,double-keys:
-+    description: |
-+      use double key matrix instead of single key
-+      when set, each (row,column) is a group that can detect 2 keys
-+    type: boolean
++		keyboard: keyboard@10010000 {
++			compatible = "mediatek,mt6779-keypad";
++			reg = <0 0x10010000 0 0x1000>;
++			interrupts = <GIC_SPI 186 IRQ_TYPE_EDGE_FALLING>;
++			clocks = <&clk26m>;
++			clock-names = "kpd";
++			status = "disabled";
++		};
 +
- required:
-   - compatible
-   - reg
+ 		scp: scp@10500000 {
+ 			compatible = "mediatek,mt8183-scp";
+ 			reg = <0 0x10500000 0 0x80000>,
 
 -- 
 b4 0.10.0-dev-54fef

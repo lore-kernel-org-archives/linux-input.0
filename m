@@ -2,18 +2,18 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF082C43334
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 15:41:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D7E4CCA491
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 15:41:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233330AbiGUPlC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jul 2022 11:41:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53186 "EHLO
+        id S231939AbiGUPlD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jul 2022 11:41:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231939AbiGUPjg (ORCPT
+        with ESMTP id S233454AbiGUPjf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Jul 2022 11:39:36 -0400
+        Thu, 21 Jul 2022 11:39:35 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 48701101F
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 488B288746
         for <linux-input@vger.kernel.org>; Thu, 21 Jul 2022 08:37:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1658417873;
@@ -21,23 +21,23 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=RULpXUJ8Zx8QRkKKAV2mxSAiCU6Ew8Wtd4pYF5mx4zQ=;
-        b=dWMKUjg2Sf6s7IkR8QlAOXPcDGV0/JKgg1U1YChXoNdkmUGQ7eiUIK/6AdLPzq5DXqQIe2
-        SIpzdLO1PyS9zBCurRxjMlhqv+X3mDHkIG6n8Hx0kWrRj6NRtqkGjA9S+qe3mLGUexwyME
-        5JxIUDa8pUCjszAKvfPM0xUwBA3Cn+g=
+        bh=Ui0oCa8rSWABOrCA1rqoyYCTJoAbx7JSAVtkpx4YixY=;
+        b=WyyeNcxrB+DFh8Lwzw+ws5o23YZgUqr5edVBzehMZ0SDC8nSvB8+sTdftq/CBsOWyY4NAd
+        BqkBv8p6IyV6+7kdifPuu3wyJ4TGtUnQUiUnvOkadfFuh3l46JUPRbVoET361+a+MXP0Dk
+        5oLghbKCUR9uvEfS8XBjjF+ijFQ0Tlk=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-220-WCPrfrSDMI20G97XnyVLQA-1; Thu, 21 Jul 2022 11:37:31 -0400
-X-MC-Unique: WCPrfrSDMI20G97XnyVLQA-1
+ us-mta-38-NW6sYuCfM-6QT009gu70TQ-1; Thu, 21 Jul 2022 11:37:48 -0400
+X-MC-Unique: NW6sYuCfM-6QT009gu70TQ-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 1EBD618A6524;
-        Thu, 21 Jul 2022 15:37:30 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 267B780A0BC;
+        Thu, 21 Jul 2022 15:37:47 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.194.200])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0B0F72166B29;
-        Thu, 21 Jul 2022 15:37:26 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id E702A2166B26;
+        Thu, 21 Jul 2022 15:37:43 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -56,9 +56,9 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v7 17/24] HID: bpf: introduce hid_hw_request()
-Date:   Thu, 21 Jul 2022 17:36:18 +0200
-Message-Id: <20220721153625.1282007-18-benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v7 22/24] samples/bpf: add new hid_mouse example
+Date:   Thu, 21 Jul 2022 17:36:23 +0200
+Message-Id: <20220721153625.1282007-23-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220721153625.1282007-1-benjamin.tissoires@redhat.com>
 References: <20220721153625.1282007-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -68,247 +68,404 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This function can not be called under IRQ, thus it is only available
-while in SEC("syscall").
-For consistency, this function requires a HID-BPF context to work with,
-and so we also provide a helper to create one based on the HID unique
-ID.
+Everything should be available in the selftest part of the tree, but
+providing an example without uhid and hidraw will be more easy to
+follow for users.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
---
+---
 
 changes in v7:
-- hid_bpf_allocate_context: remove unused variable
-- ensures buf is not NULL
+- remove unnecessary __must_check definition
 
 changes in v6:
-- rename parameter size into buf__sz to teach the verifier about
-  the actual buffer size used by the call
-- remove the allocated data in the user created context, it's not used
+- clean up code by removing old comments
 
-new-ish in v5
+changes in v5:
+- bring back same features than v3, with the new API
+
+changes in v4:
+- dropped the not-yet-implemented rdesc_fixup
+- use the new API
+
+changes in v3:
+- use the new hid_get_data API
+- add a comment for the report descriptor fixup to explain what is done
+
+changes in v2:
+- split the series by bpf/libbpf/hid/selftests and samples
+
+fix hid_mouse
 ---
- drivers/hid/bpf/hid_bpf_dispatch.c | 147 +++++++++++++++++++++++++++++
- drivers/hid/hid-core.c             |   2 +
- include/linux/hid_bpf.h            |  13 ++-
- 3 files changed, 161 insertions(+), 1 deletion(-)
+ samples/bpf/.gitignore      |   1 +
+ samples/bpf/Makefile        |  23 ++++++
+ samples/bpf/hid_mouse.bpf.c | 134 ++++++++++++++++++++++++++++++++
+ samples/bpf/hid_mouse.c     | 147 ++++++++++++++++++++++++++++++++++++
+ 4 files changed, 305 insertions(+)
+ create mode 100644 samples/bpf/hid_mouse.bpf.c
+ create mode 100644 samples/bpf/hid_mouse.c
 
-diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
-index 5224af4a1c2a..cc5b29eb27f1 100644
---- a/drivers/hid/bpf/hid_bpf_dispatch.c
-+++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-@@ -232,14 +232,161 @@ hid_bpf_attach_prog(unsigned int hid_id, int prog_fd, __u32 flags)
- 	return __hid_bpf_attach_prog(hdev, prog_type, prog_fd, flags);
- }
+diff --git a/samples/bpf/.gitignore b/samples/bpf/.gitignore
+index 0e7bfdbff80a..65440bd618b2 100644
+--- a/samples/bpf/.gitignore
++++ b/samples/bpf/.gitignore
+@@ -2,6 +2,7 @@
+ cpustat
+ fds_example
+ hbm
++hid_mouse
+ ibumad
+ lathist
+ lwt_len_hist
+diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
+index 727da3c5879b..a965bbfaca47 100644
+--- a/samples/bpf/Makefile
++++ b/samples/bpf/Makefile
+@@ -57,6 +57,8 @@ tprogs-y += xdp_redirect_map
+ tprogs-y += xdp_redirect
+ tprogs-y += xdp_monitor
  
-+/**
-+ * hid_bpf_allocate_context - Allocate a context to the given HID device
-+ *
-+ * @hid_id: the system unique identifier of the HID device
-+ *
-+ * @returns A pointer to &struct hid_bpf_ctx on success, %NULL on error.
-+ */
-+noinline struct hid_bpf_ctx *
-+hid_bpf_allocate_context(unsigned int hid_id)
++tprogs-y += hid_mouse
++
+ # Libbpf dependencies
+ LIBBPF_SRC = $(TOOLS_PATH)/lib/bpf
+ LIBBPF_OUTPUT = $(abspath $(BPF_SAMPLES_PATH))/libbpf
+@@ -119,6 +121,8 @@ xdp_redirect-objs := xdp_redirect_user.o $(XDP_SAMPLE)
+ xdp_monitor-objs := xdp_monitor_user.o $(XDP_SAMPLE)
+ xdp_router_ipv4-objs := xdp_router_ipv4_user.o $(XDP_SAMPLE)
+ 
++hid_mouse-objs := hid_mouse.o
++
+ # Tell kbuild to always build the programs
+ always-y := $(tprogs-y)
+ always-y += sockex1_kern.o
+@@ -338,6 +342,8 @@ $(obj)/hbm_out_kern.o: $(src)/hbm.h $(src)/hbm_kern.h
+ $(obj)/hbm.o: $(src)/hbm.h
+ $(obj)/hbm_edt_kern.o: $(src)/hbm.h $(src)/hbm_kern.h
+ 
++$(obj)/hid_mouse.o: $(obj)/hid_mouse.skel.h
++
+ # Override includes for xdp_sample_user.o because $(srctree)/usr/include in
+ # TPROGS_CFLAGS causes conflicts
+ XDP_SAMPLE_CFLAGS += -Wall -O2 \
+@@ -422,6 +428,23 @@ $(BPF_SKELS_LINKED): $(BPF_OBJS_LINKED) $(BPFTOOL)
+ 	@echo "  BPF GEN-SKEL" $(@:.skel.h=)
+ 	$(Q)$(BPFTOOL) gen skeleton $(@:.skel.h=.lbpf.o) name $(notdir $(@:.skel.h=)) > $@
+ 
++# Generate BPF skeletons for non XDP progs
++OTHER_BPF_SKELS := hid_mouse.skel.h
++
++hid_mouse.skel.h-deps := hid_mouse.bpf.o
++
++OTHER_BPF_SRCS_LINKED := $(patsubst %.skel.h,%.bpf.c, $(OTHER_BPF_SKELS))
++OTHER_BPF_OBJS_LINKED := $(patsubst %.bpf.c,$(obj)/%.bpf.o, $(OTHER_BPF_SRCS_LINKED))
++OTHER_BPF_SKELS_LINKED := $(addprefix $(obj)/,$(OTHER_BPF_SKELS))
++
++$(OTHER_BPF_SKELS_LINKED): $(OTHER_BPF_OBJS_LINKED) $(BPFTOOL)
++	@echo "  BPF GEN-OBJ " $(@:.skel.h=)
++	$(Q)$(BPFTOOL) gen object $(@:.skel.h=.lbpf.o) $(addprefix $(obj)/,$($(@F)-deps))
++	@echo "  BPF GEN-SKEL" $(@:.skel.h=)
++	$(Q)$(BPFTOOL) gen skeleton $(@:.skel.h=.lbpf.o) name $(notdir $(@:.skel.h=_lskel)) > $@
++#	$(call msg,GEN-SKEL,$@)
++#	$(Q)$(BPFTOOL) gen skeleton $< > $@
++
+ # asm/sysreg.h - inline assembly used by it is incompatible with llvm.
+ # But, there is no easy way to fix it, so just exclude it since it is
+ # useless for BPF samples.
+diff --git a/samples/bpf/hid_mouse.bpf.c b/samples/bpf/hid_mouse.bpf.c
+new file mode 100644
+index 000000000000..0113e603f7a7
+--- /dev/null
++++ b/samples/bpf/hid_mouse.bpf.c
+@@ -0,0 +1,134 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include "vmlinux.h"
++#include <bpf/bpf_helpers.h>
++#include <bpf/bpf_tracing.h>
++
++/* following are kfuncs exported by HID for HID-BPF */
++extern int hid_bpf_attach_prog(unsigned int hid_id, int prog_fd, u32 flags) __ksym;
++extern __u8 *hid_bpf_get_data(struct hid_bpf_ctx *ctx,
++			      unsigned int offset,
++			      const size_t __sz) __ksym;
++extern void hid_bpf_data_release(__u8 *data) __ksym;
++extern int hid_bpf_hw_request(struct hid_bpf_ctx *ctx) __ksym;
++
++struct attach_prog_args {
++	int prog_fd;
++	unsigned int hid;
++	int retval;
++};
++
++SEC("syscall")
++int attach_prog(struct attach_prog_args *ctx)
 +{
-+	struct hid_device *hdev;
-+	struct hid_bpf_ctx_kern *ctx_kern = NULL;
-+	struct device *dev;
-+
-+	if (!hid_bpf_ops)
-+		return NULL;
-+
-+	dev = bus_find_device(hid_bpf_ops->bus_type, NULL, &hid_id, device_match_id);
-+	if (!dev)
-+		return NULL;
-+
-+	hdev = to_hid_device(dev);
-+
-+	ctx_kern = kzalloc(sizeof(*ctx_kern), GFP_KERNEL);
-+	if (!ctx_kern)
-+		return NULL;
-+
-+	ctx_kern->ctx.hid = hdev;
-+
-+	return &ctx_kern->ctx;
++	ctx->retval = hid_bpf_attach_prog(ctx->hid,
++					  ctx->prog_fd,
++					  0);
++	return 0;
 +}
 +
-+/**
-+ * hid_bpf_release_context - Release the previously allocated context @ctx
-+ *
-+ * @ctx: the HID-BPF context to release
-+ *
-+ */
-+noinline void
-+hid_bpf_release_context(struct hid_bpf_ctx *ctx)
++SEC("fmod_ret/hid_bpf_device_event")
++int BPF_PROG(hid_y_event, struct hid_bpf_ctx *hctx)
 +{
-+	struct hid_bpf_ctx_kern *ctx_kern;
++	s16 y;
++	__u8 *data = hid_bpf_get_data(hctx, 0 /* offset */, 9 /* size */);
 +
-+	if (!ctx)
-+		return;
++	if (!data)
++		return 0; /* EPERM check */
 +
-+	ctx_kern = container_of(ctx, struct hid_bpf_ctx_kern, ctx);
++	bpf_printk("event: size: %d", hctx->size);
++	bpf_printk("incoming event: %02x %02x %02x",
++		   data[0],
++		   data[1],
++		   data[2]);
++	bpf_printk("                %02x %02x %02x",
++		   data[3],
++		   data[4],
++		   data[5]);
++	bpf_printk("                %02x %02x %02x",
++		   data[6],
++		   data[7],
++		   data[8]);
 +
-+	kfree(ctx_kern);
++	y = data[3] | (data[4] << 8);
++
++	y = -y;
++
++	data[3] = y & 0xFF;
++	data[4] = (y >> 8) & 0xFF;
++
++	bpf_printk("modified event: %02x %02x %02x",
++		   data[0],
++		   data[1],
++		   data[2]);
++	bpf_printk("                %02x %02x %02x",
++		   data[3],
++		   data[4],
++		   data[5]);
++	bpf_printk("                %02x %02x %02x",
++		   data[6],
++		   data[7],
++		   data[8]);
++
++	return 0;
 +}
 +
-+/**
-+ * hid_bpf_hw_request - Communicate with a HID device
-+ *
-+ * @ctx: the HID-BPF context previously allocated in hid_bpf_allocate_context()
-+ * @buf: a %PTR_TO_MEM buffer
-+ * @buf__sz: the size of the data to transfer
-+ * @rtype: the type of the report (%HID_INPUT_REPORT, %HID_FEATURE_REPORT, %HID_OUTPUT_REPORT)
-+ * @reqtype: the type of the request (%HID_REQ_GET_REPORT, %HID_REQ_SET_REPORT, ...)
-+ *
-+ * @returns %0 on success, a negative error code otherwise.
-+ */
-+noinline int
-+hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
-+		   enum hid_report_type rtype, enum hid_class_request reqtype)
++SEC("fmod_ret/hid_bpf_device_event")
++int BPF_PROG(hid_x_event, struct hid_bpf_ctx *hctx)
 +{
-+	struct hid_device *hdev = (struct hid_device *)ctx->hid; /* discard const */
-+	struct hid_report *report;
-+	struct hid_report_enum *report_enum;
-+	u8 *dma_data;
-+	u32 report_len;
-+	int ret;
++	s16 x;
++	__u8 *data = hid_bpf_get_data(hctx, 0 /* offset */, 9 /* size */);
 +
-+	/* check arguments */
-+	if (!ctx || !hid_bpf_ops || !buf)
-+		return -EINVAL;
++	if (!data)
++		return 0; /* EPERM check */
 +
-+	switch (rtype) {
-+	case HID_INPUT_REPORT:
-+	case HID_OUTPUT_REPORT:
-+	case HID_FEATURE_REPORT:
-+		break;
-+	default:
-+		return -EINVAL;
++	x = data[1] | (data[2] << 8);
++
++	x = -x;
++
++	data[1] = x & 0xFF;
++	data[2] = (x >> 8) & 0xFF;
++	return 0;
++}
++
++SEC("fmod_ret/hid_bpf_rdesc_fixup")
++int BPF_PROG(hid_rdesc_fixup, struct hid_bpf_ctx *hctx)
++{
++	__u8 *data = hid_bpf_get_data(hctx, 0 /* offset */, 4096 /* size */);
++
++	if (!data)
++		return 0; /* EPERM check */
++
++	bpf_printk("rdesc: %02x %02x %02x",
++		   data[0],
++		   data[1],
++		   data[2]);
++	bpf_printk("       %02x %02x %02x",
++		   data[3],
++		   data[4],
++		   data[5]);
++	bpf_printk("       %02x %02x %02x ...",
++		   data[6],
++		   data[7],
++		   data[8]);
++
++	/*
++	 * The original report descriptor contains:
++	 *
++	 * 0x05, 0x01,                    //   Usage Page (Generic Desktop)      30
++	 * 0x16, 0x01, 0x80,              //   Logical Minimum (-32767)          32
++	 * 0x26, 0xff, 0x7f,              //   Logical Maximum (32767)           35
++	 * 0x09, 0x30,                    //   Usage (X)                         38
++	 * 0x09, 0x31,                    //   Usage (Y)                         40
++	 *
++	 * So byte 39 contains Usage X and byte 41 Usage Y.
++	 *
++	 * We simply swap the axes here.
++	 */
++	data[39] = 0x31;
++	data[41] = 0x30;
++
++	return 0;
++}
++
++char _license[] SEC("license") = "GPL";
+diff --git a/samples/bpf/hid_mouse.c b/samples/bpf/hid_mouse.c
+new file mode 100644
+index 000000000000..8073739cca28
+--- /dev/null
++++ b/samples/bpf/hid_mouse.c
+@@ -0,0 +1,147 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Copyright (c) 2022 Benjamin Tissoires
++ */
++
++#include <assert.h>
++#include <errno.h>
++#include <fcntl.h>
++#include <libgen.h>
++#include <signal.h>
++#include <stdbool.h>
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <sys/resource.h>
++#include <unistd.h>
++
++#include <linux/bpf.h>
++#include <linux/errno.h>
++
++#include "bpf_util.h"
++#include <bpf/bpf.h>
++#include <bpf/libbpf.h>
++
++#include "hid_mouse.skel.h"
++
++static bool running = true;
++
++struct attach_prog_args {
++	int prog_fd;
++	unsigned int hid;
++	int retval;
++};
++
++static void int_exit(int sig)
++{
++	running = false;
++	exit(0);
++}
++
++static void usage(const char *prog)
++{
++	fprintf(stderr,
++		"%s: %s /sys/bus/hid/devices/0BUS:0VID:0PID:00ID\n\n",
++		__func__, prog);
++}
++
++static int get_hid_id(const char *path)
++{
++	const char *str_id, *dir;
++	char uevent[1024];
++	int fd;
++
++	memset(uevent, 0, sizeof(uevent));
++	snprintf(uevent, sizeof(uevent) - 1, "%s/uevent", path);
++
++	fd = open(uevent, O_RDONLY | O_NONBLOCK);
++	if (fd < 0)
++		return -ENOENT;
++
++	close(fd);
++
++	dir = basename((char *)path);
++
++	str_id = dir + sizeof("0003:0001:0A37.");
++	return (int)strtol(str_id, NULL, 16);
++}
++
++int main(int argc, char **argv)
++{
++	struct hid_mouse_lskel *skel;
++	struct bpf_program *prog;
++	int err;
++	const char *optstr = "";
++	const char *sysfs_path;
++	int opt, hid_id, attach_fd;
++	struct attach_prog_args args = {
++		.retval = -1,
++	};
++	DECLARE_LIBBPF_OPTS(bpf_test_run_opts, tattr,
++			    .ctx_in = &args,
++			    .ctx_size_in = sizeof(args),
++	);
++
++	while ((opt = getopt(argc, argv, optstr)) != -1) {
++		switch (opt) {
++		default:
++			usage(basename(argv[0]));
++			return 1;
++		}
 +	}
 +
-+	switch (reqtype) {
-+	case HID_REQ_GET_REPORT:
-+	case HID_REQ_GET_IDLE:
-+	case HID_REQ_GET_PROTOCOL:
-+	case HID_REQ_SET_REPORT:
-+	case HID_REQ_SET_IDLE:
-+	case HID_REQ_SET_PROTOCOL:
-+		break;
-+	default:
-+		return -EINVAL;
++	if (optind == argc) {
++		usage(basename(argv[0]));
++		return 1;
 +	}
 +
-+	if (buf__sz < 1)
-+		return -EINVAL;
++	sysfs_path = argv[optind];
++	if (!sysfs_path) {
++		perror("sysfs");
++		return 1;
++	}
 +
-+	report_enum = hdev->report_enum + rtype;
-+	report = hid_bpf_ops->hid_get_report(report_enum, buf);
-+	if (!report)
-+		return -EINVAL;
++	skel = hid_mouse_lskel__open_and_load();
++	if (!skel) {
++		fprintf(stderr, "%s  %s:%d", __func__, __FILE__, __LINE__);
++		return -1;
++	}
 +
-+	report_len = hid_report_len(report);
++	hid_id = get_hid_id(sysfs_path);
 +
-+	if (buf__sz > report_len)
-+		buf__sz = report_len;
++	if (hid_id < 0) {
++		fprintf(stderr, "can not open HID device: %m\n");
++		return 1;
++	}
++	args.hid = hid_id;
 +
-+	dma_data = kmemdup(buf, buf__sz, GFP_KERNEL);
-+	if (!dma_data)
-+		return -ENOMEM;
++	attach_fd = bpf_program__fd(skel->progs.attach_prog);
++	if (attach_fd < 0) {
++		fprintf(stderr, "can't locate attach prog: %m\n");
++		return 1;
++	}
 +
-+	ret = hid_bpf_ops->hid_hw_raw_request(hdev,
-+					      dma_data[0],
-+					      dma_data,
-+					      buf__sz,
-+					      rtype,
-+					      reqtype);
++	bpf_object__for_each_program(prog, *skel->skeleton->obj) {
++		/* ignore syscalls */
++		if (bpf_program__get_type(prog) != BPF_PROG_TYPE_TRACING)
++			continue;
 +
-+	if (ret > 0)
-+		memcpy(buf, dma_data, ret);
++		args.retval = -1;
++		args.prog_fd = bpf_program__fd(prog);
++		err = bpf_prog_test_run_opts(attach_fd, &tattr);
++		if (err) {
++			fprintf(stderr, "can't attach prog to hid device %d: %m (err: %d)\n",
++				hid_id, err);
++			return 1;
++		}
++	}
 +
-+	kfree(dma_data);
-+	return ret;
++	signal(SIGINT, int_exit);
++	signal(SIGTERM, int_exit);
++
++	while (running)
++		;
++
++	hid_mouse_lskel__destroy(skel);
++
++	return 0;
 +}
-+
- /* for syscall HID-BPF */
- BTF_SET_START(hid_bpf_syscall_kfunc_ids)
- BTF_ID(func, hid_bpf_attach_prog)
-+BTF_ID(func, hid_bpf_allocate_context)
-+BTF_ID(func, hid_bpf_release_context)
-+BTF_ID(func, hid_bpf_hw_request)
- BTF_SET_END(hid_bpf_syscall_kfunc_ids)
- 
-+BTF_SET_START(hid_bpf_syscall_kfunc_ret_null_ids)
-+BTF_ID(func, hid_bpf_allocate_context)
-+BTF_SET_END(hid_bpf_syscall_kfunc_ret_null_ids)
-+
-+BTF_SET_START(hid_bpf_syscall_kfunc_alloc_ids)
-+BTF_ID(func, hid_bpf_allocate_context)
-+BTF_SET_END(hid_bpf_syscall_kfunc_alloc_ids)
-+
-+BTF_SET_START(hid_bpf_syscall_kfunc_release_ids)
-+BTF_ID(func, hid_bpf_release_context)
-+BTF_SET_END(hid_bpf_syscall_kfunc_release_ids)
-+
- static const struct btf_kfunc_id_set hid_bpf_syscall_kfunc_set = {
- 	.owner         = THIS_MODULE,
- 	.check_set     = &hid_bpf_syscall_kfunc_ids,
-+	.ret_null_set  = &hid_bpf_syscall_kfunc_ret_null_ids,
-+	.acquire_set   = &hid_bpf_syscall_kfunc_alloc_ids,
-+	.release_set   = &hid_bpf_syscall_kfunc_release_ids,
- };
- 
- int hid_bpf_connect_device(struct hid_device *hdev)
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index c2589106ea4b..356d3822f17d 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2917,6 +2917,8 @@ int hid_check_keys_pressed(struct hid_device *hid)
- EXPORT_SYMBOL_GPL(hid_check_keys_pressed);
- 
- static struct hid_bpf_ops hid_ops = {
-+	.hid_get_report = hid_get_report,
-+	.hid_hw_raw_request = hid_hw_raw_request,
- 	.owner = THIS_MODULE,
- 	.bus_type = &hid_bus_type,
- };
-diff --git a/include/linux/hid_bpf.h b/include/linux/hid_bpf.h
-index 86af0a79e6be..9d1cc1ceb942 100644
---- a/include/linux/hid_bpf.h
-+++ b/include/linux/hid_bpf.h
-@@ -61,11 +61,15 @@ struct hid_bpf_ctx {
- int hid_bpf_device_event(struct hid_bpf_ctx *ctx);
- 
- /* Following functions are kfunc that we export to BPF programs */
--/* only available in tracing */
-+/* available everywhere in HID-BPF */
- __u8 *hid_bpf_get_data(struct hid_bpf_ctx *ctx, unsigned int offset, const size_t __sz);
- 
- /* only available in syscall */
- int hid_bpf_attach_prog(unsigned int hid_id, int prog_fd, __u32 flags);
-+int hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
-+		       enum hid_report_type rtype, enum hid_class_request reqtype);
-+struct hid_bpf_ctx *hid_bpf_allocate_context(unsigned int hid_id);
-+void hid_bpf_release_context(struct hid_bpf_ctx *ctx);
- 
- /*
-  * Below is HID internal
-@@ -84,7 +88,14 @@ enum hid_bpf_prog_type {
- 	HID_BPF_PROG_TYPE_MAX,
- };
- 
-+struct hid_report_enum;
-+
- struct hid_bpf_ops {
-+	struct hid_report *(*hid_get_report)(struct hid_report_enum *report_enum, const u8 *data);
-+	int (*hid_hw_raw_request)(struct hid_device *hdev,
-+				  unsigned char reportnum, __u8 *buf,
-+				  size_t len, enum hid_report_type rtype,
-+				  enum hid_class_request reqtype);
- 	struct module *owner;
- 	struct bus_type *bus_type;
- };
 -- 
 2.36.1
 

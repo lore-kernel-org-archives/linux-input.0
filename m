@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 282ACC433EF
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 15:38:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2351ECCA487
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 15:39:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232900AbiGUPio (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jul 2022 11:38:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53176 "EHLO
+        id S233077AbiGUPi7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jul 2022 11:38:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232763AbiGUPiN (ORCPT
+        with ESMTP id S232917AbiGUPiV (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Jul 2022 11:38:13 -0400
+        Thu, 21 Jul 2022 11:38:21 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id B7C7D1AF20
-        for <linux-input@vger.kernel.org>; Thu, 21 Jul 2022 08:37:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7870A1EAC2
+        for <linux-input@vger.kernel.org>; Thu, 21 Jul 2022 08:37:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658417834;
+        s=mimecast20190719; t=1658417837;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=q1ugzeeQImQSGGFdeXfOpKhPDeYLIbJhcbUeYAyYDFI=;
-        b=AWxXbQ4B9AStCqXh1dSvL38Amy1vlE6xKEaJ5UU9yGJL1dNLfuAZjaMEkJe3PTCdfreyPR
-        moNVKLswW0KLcWc+QRiIa2dc6L2ohVYgeok3DbfWOCO8wbKYlBvxB+X6cpAfix/yp8PmJw
-        SssEeOb4gmvKPnFWZ2QsHxk+/SGSevE=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=CTXOqz6zICJFSaFGA/ApHo6EX3Vnr2pJ/lheNomvy8g=;
+        b=TC70DRg7gw+zU3RS69Hfe5z0ujSVOU20E77qrigHytrzVN7CI1FwIb4EUFAbZjPJcAkmbY
+        RqDk7scW2num/XYag1qJyqJtxZN0hndYL0RZAQqjsspUY4D6ixAoPlxQkXswU1FAnx/lTf
+        Ir/fhlIEr68gtuyQPmHplHIZGOcpk1s=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-627-sr70ccOfNYSgI9Vj21KGzg-1; Thu, 21 Jul 2022 11:36:57 -0400
-X-MC-Unique: sr70ccOfNYSgI9Vj21KGzg-1
+ us-mta-563-URK2OKCFPnehalNzP4nMjw-1; Thu, 21 Jul 2022 11:37:14 -0400
+X-MC-Unique: URK2OKCFPnehalNzP4nMjw-1
 Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id ACFC02804067;
-        Thu, 21 Jul 2022 15:36:55 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D910585A584;
+        Thu, 21 Jul 2022 15:37:12 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.194.200])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5DDA32166B26;
-        Thu, 21 Jul 2022 15:36:52 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BA7912166B26;
+        Thu, 21 Jul 2022 15:37:09 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -56,9 +56,9 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v7 07/24] bpf: prepare for more bpf syscall to be used from kernel and user space.
-Date:   Thu, 21 Jul 2022 17:36:08 +0200
-Message-Id: <20220721153625.1282007-8-benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v7 12/24] HID: Kconfig: split HID support and hid-core compilation
+Date:   Thu, 21 Jul 2022 17:36:13 +0200
+Message-Id: <20220721153625.1282007-13-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220721153625.1282007-1-benjamin.tissoires@redhat.com>
 References: <20220721153625.1282007-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -68,71 +68,93 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add BPF_MAP_GET_FD_BY_ID and BPF_MAP_DELETE_PROG.
+Currently, we step into drivers/hid/ based on the value of
+CONFIG_HID.
 
-Only BPF_MAP_GET_FD_BY_ID needs to be amended to be able
-to access the bpf pointer either from the userspace or the kernel.
+However, that value is a tristate, meaning that it can be a module.
 
-Acked-by: Yonghong Song <yhs@fb.com>
+As per the documentation, if we jump into the subdirectory by
+following an obj-m, we can not compile anything inside that
+subdirectory in vmlinux. It is considered as a bug.
+
+To make things more friendly to HID-BPF, split HID (the HID core
+parameter) from HID_SUPPORT (do we want any kind of HID support in the
+system?), and make this new config a boolean.
+
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-no changes in v7
-
-changes in v6:
-- commit description change
-
-new in v5
+new in v7
 ---
- kernel/bpf/syscall.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/Makefile    |  2 +-
+ drivers/hid/Kconfig | 20 +++++++++++---------
+ 2 files changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/kernel/bpf/syscall.c b/kernel/bpf/syscall.c
-index 83c7136c5788..776c7a37c433 100644
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -1437,9 +1437,9 @@ static int map_update_elem(union bpf_attr *attr, bpfptr_t uattr)
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 9a30842b22c5..7832431aa173 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -137,7 +137,7 @@ obj-$(CONFIG_CRYPTO)		+= crypto/
+ obj-$(CONFIG_SUPERH)		+= sh/
+ obj-y				+= clocksource/
+ obj-$(CONFIG_DCA)		+= dca/
+-obj-$(CONFIG_HID)		+= hid/
++obj-$(CONFIG_HID_SUPPORT)	+= hid/
+ obj-$(CONFIG_PPC_PS3)		+= ps3/
+ obj-$(CONFIG_OF)		+= of/
+ obj-$(CONFIG_SSB)		+= ssb/
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 70da5931082f..9fa21583c709 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -2,12 +2,18 @@
+ #
+ # HID driver configuration
+ #
+-menu "HID support"
+-     depends on INPUT
++menuconfig HID_SUPPORT
++	bool "HID bus support"
++	default y
++	depends on INPUT
++	help
++	  This option adds core support for human interface device (HID).
++	  You will also need drivers from the following menu to make use of it.
++
++if HID_SUPPORT
  
- #define BPF_MAP_DELETE_ELEM_LAST_FIELD key
+ config HID
+-	tristate "HID bus support"
+-	depends on INPUT
++	tristate "HID bus core support"
+ 	default y
+ 	help
+ 	  A human interface device (HID) is a type of computer device that
+@@ -24,8 +30,6 @@ config HID
  
--static int map_delete_elem(union bpf_attr *attr)
-+static int map_delete_elem(union bpf_attr *attr, bpfptr_t uattr)
- {
--	void __user *ukey = u64_to_user_ptr(attr->key);
-+	bpfptr_t ukey = make_bpfptr(attr->key, uattr.is_kernel);
- 	int ufd = attr->map_fd;
- 	struct bpf_map *map;
- 	struct fd f;
-@@ -1459,7 +1459,7 @@ static int map_delete_elem(union bpf_attr *attr)
- 		goto err_put;
- 	}
+ 	  If unsure, say Y.
  
--	key = __bpf_copy_key(ukey, map->key_size);
-+	key = ___bpf_copy_key(ukey, map->key_size);
- 	if (IS_ERR(key)) {
- 		err = PTR_ERR(key);
- 		goto err_put;
-@@ -4942,7 +4942,7 @@ static int __sys_bpf(int cmd, bpfptr_t uattr, unsigned int size)
- 		err = map_update_elem(&attr, uattr);
- 		break;
- 	case BPF_MAP_DELETE_ELEM:
--		err = map_delete_elem(&attr);
-+		err = map_delete_elem(&attr, uattr);
- 		break;
- 	case BPF_MAP_GET_NEXT_KEY:
- 		err = map_get_next_key(&attr);
-@@ -5077,8 +5077,10 @@ BPF_CALL_3(bpf_sys_bpf, int, cmd, union bpf_attr *, attr, u32, attr_size)
+-if HID
+-
+ config HID_BATTERY_STRENGTH
+ 	bool "Battery level reporting for HID devices"
+ 	depends on HID
+@@ -1308,8 +1312,6 @@ config HID_MCP2221
  
- 	switch (cmd) {
- 	case BPF_MAP_CREATE:
-+	case BPF_MAP_DELETE_ELEM:
- 	case BPF_MAP_UPDATE_ELEM:
- 	case BPF_MAP_FREEZE:
-+	case BPF_MAP_GET_FD_BY_ID:
- 	case BPF_PROG_LOAD:
- 	case BPF_BTF_LOAD:
- 	case BPF_LINK_CREATE:
+ endmenu
+ 
+-endif # HID
+-
+ source "drivers/hid/usbhid/Kconfig"
+ 
+ source "drivers/hid/i2c-hid/Kconfig"
+@@ -1320,4 +1322,4 @@ source "drivers/hid/amd-sfh-hid/Kconfig"
+ 
+ source "drivers/hid/surface-hid/Kconfig"
+ 
+-endmenu
++endif # HID_SUPPORT
 -- 
 2.36.1
 

@@ -2,102 +2,110 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 961B4C433EF
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 13:51:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C306C433EF
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 14:39:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231197AbiGUNvo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jul 2022 09:51:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60734 "EHLO
+        id S229757AbiGUOjM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jul 2022 10:39:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231254AbiGUNvY (ORCPT
+        with ESMTP id S229437AbiGUOjL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Jul 2022 09:51:24 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D8AAD30F70
-        for <linux-input@vger.kernel.org>; Thu, 21 Jul 2022 06:51:13 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id u13so2901092lfn.5
-        for <linux-input@vger.kernel.org>; Thu, 21 Jul 2022 06:51:13 -0700 (PDT)
+        Thu, 21 Jul 2022 10:39:11 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC9486881
+        for <linux-input@vger.kernel.org>; Thu, 21 Jul 2022 07:39:10 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id z22so2426607edd.6
+        for <linux-input@vger.kernel.org>; Thu, 21 Jul 2022 07:39:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20210112;
         h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=kecr5i+5DLqDAmpCrXdI3okGZBctpe1q4C972GZbARg=;
-        b=t+T9FmxDSET1eznoCZFy5FwJ1ygGlaE91MHfg567RS5eq0HIIhoshGcZqgbcPUTPs0
-         DML/HMp9i7WzlYCUCDXr/j8xjWMaPLeurgwe0nr3WvKcjnX6/D3dqvvNQ530f0OMBeKD
-         Ql4RQyM4kGU+93SJTClpPoh0X3m7iukKfp3+3Fv5gZdgA+XwE5bZsJujIfQ3Z4hRXFX3
-         FRsPzQZsR9BDjhLvA2c0rI1gMapeAJgxaVhFRh1OlyTS2mnwbQO/NbyuNfYm13Y1c+PQ
-         RFfFE+z5+1QfwTc9GMQq4q/jCF5DHw8DGJKfssxwJiWHg+vVpfY9HsFL22Mp0enGyREU
-         Yfkg==
+         :references:from:in-reply-to:content-transfer-encoding;
+        bh=jGqXwa0JyzvazHvnY2MF3ub6yN3Yt1xO+w/+Pd3Ke2Y=;
+        b=jIx6WEqjZKGRup7L23HQAZvTnZ1O2m4tW6y0CfCrq7oWNkufIjuCe7HTdSR2VuH65t
+         A+7mKmX/ZoasXN0DNZEkZG7wftpPw8LjcJf/xf/QpEUTYeseCS6cMT4xl8FND3GwrNoI
+         3RkUVqgsj7mnUxUqzReS7LfFTjmJ1aon40BVpqW745LlQkyzv0sOZWo7EjnRbqWnVbFL
+         33ukqzEwEeALT1abG6NUfueaXQzzfSVE4J4823KEuKbsgBcnBjYTIltHIgesF6wtw+jF
+         Zu8J42aIFS48w50Ih5r0ofbX/umbBXvwU6/azcQlra9XiSABl0Bs9CUg5EgtMRqO7oRR
+         FbzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
+         :content-language:to:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=kecr5i+5DLqDAmpCrXdI3okGZBctpe1q4C972GZbARg=;
-        b=M2XVkx9O2TQ61A9qgVRY04VeoTF+yVhcI6Paa1KHFH4O1c7yUbHQ7Os7IorS5kXvZI
-         TgNisOpROA1+nT/FvfzlINHTfPgYeZuqz453ScmS1oel+53+uySraXxtWoBw9+m3Yr4T
-         xLbxKcC7c4LjZabuxmwzbkbSYxkwK8KsUie3sRa7QCM+rbfObDpkohMxiOtL/00UZgfh
-         9sa2HupOou7wkp5l7QDOkpxHoPDJxLrn40RbDlJXOgHbblRyHD4+nwmHSOKMN+Vt6c08
-         MrHr38nNP0jo8gWT9m7jinwSyEfxbAzDlk1c8H0DfsA5PgoY/UThuQo6IsJkXITo1QDL
-         HOrA==
-X-Gm-Message-State: AJIora9J5VWU4kXJm+occleytzOZtjHlQEd8eYFxPnthbb7jiz9kB9Nz
-        KzL308YgXQe6d5+L8Ddfvhh2rA==
-X-Google-Smtp-Source: AGRyM1skXS9BzdqmFA82kATV7e6ORmNPtgRU6LtaPvd+9FfzbJu0HXQ5nPVqtz0xd98CkqRG+GjCRw==
-X-Received: by 2002:ac2:4bc1:0:b0:48a:ad3:f1af with SMTP id o1-20020ac24bc1000000b0048a0ad3f1afmr21039314lfq.240.1658411472064;
-        Thu, 21 Jul 2022 06:51:12 -0700 (PDT)
-Received: from [192.168.115.193] (89-162-31-138.fiber.signal.no. [89.162.31.138])
-        by smtp.gmail.com with ESMTPSA id s4-20020a056512314400b00488333b6515sm448587lfi.305.2022.07.21.06.51.10
+        bh=jGqXwa0JyzvazHvnY2MF3ub6yN3Yt1xO+w/+Pd3Ke2Y=;
+        b=lurf9yTg7A6zeOI+l3WgjbYwUszJ7lix2hM2BrdIPZofs/Fd4WOz83ZdWRHuPt9/qD
+         /gsEIYWt/agyQdpNoRG/detoat5jNMwR1xwIYnfE3yCHfapank6Z/uJMjC4+7H7VAdeG
+         8p5/NM3nkupf3KGEbsliUiIJu8UMQnCV9Msiq+RJJ19a7QB7UhbVd/Xt5dloDVOSsAj+
+         wyG12Qb6fEnL+m8kjZW2xNfdXrfTBKR0QNvvItPJSXpY9ZDjN0RxStpMPugOicN0RkER
+         f+faTR8sgBBvoAX2gTexxuk9MDV7tiLAhiUEGnuqQJCT6EPJIxA+PPfxYkI52JVZcMgH
+         wz/w==
+X-Gm-Message-State: AJIora8+OLqwkpKtN4eckq6FWlIaL8KxpG3ynIuajAC+7mqb9r2rzcJ+
+        ghch4yDByotlDRb+QPOPC1S9tD3mAEY=
+X-Google-Smtp-Source: AGRyM1u8HB5mGRrJnwjt2SzjvHPpMY1dBreOf6+ZlwZzzYEKl6jN3wd0liS8uVTMbPF+8FsnM1Ij6g==
+X-Received: by 2002:a05:6402:280b:b0:43b:5d75:fcfa with SMTP id h11-20020a056402280b00b0043b5d75fcfamr30049340ede.114.1658414348364;
+        Thu, 21 Jul 2022 07:39:08 -0700 (PDT)
+Received: from ?IPV6:2a02:908:e944:95e0:6c56:74ab:9b8a:c988? ([2a02:908:e944:95e0:6c56:74ab:9b8a:c988])
+        by smtp.gmail.com with ESMTPSA id c1-20020a17090618a100b0072321c99b78sm919931ejf.57.2022.07.21.07.39.07
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 21 Jul 2022 06:51:11 -0700 (PDT)
-Message-ID: <4084d7e6-e722-a4a7-1a34-c50983f7d93a@linaro.org>
-Date:   Thu, 21 Jul 2022 15:51:09 +0200
+        Thu, 21 Jul 2022 07:39:07 -0700 (PDT)
+Message-ID: <9ba2643b-5fd5-d49d-74fd-fc682b7836f6@gmail.com>
+Date:   Thu, 21 Jul 2022 16:39:06 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.11.0
-Subject: Re: [PATCH v1 3/6] dt-bindings: mediatek,mt6779-keypad: add
- mediatek,double-keys
-Content-Language: en-US
-To:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        Fabien Parent <parent.f@gmail.com>, devicetree@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Fabien Parent <fparent@baylibre.com>,
-        linux-arm-kernel@lists.infradead.org
-References: <20220720-mt8183-keypad-v1-0-ef9fc29dbff4@baylibre.com>
- <20220720-mt8183-keypad-v1-3-ef9fc29dbff4@baylibre.com>
- <98ec7967-d007-46d7-ef54-aa41426b5f9f@linaro.org>
- <87r12eh9qe.fsf@baylibre.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <87r12eh9qe.fsf@baylibre.com>
-Content-Type: text/plain; charset=UTF-8
+Subject: Re: Stylus battery reported as having 1% charge even though fully
+ charged
+Content-Language: de-DE
+To:     Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
+References: <5d775fec-1c42-927b-affd-c9f7d3c602a8@gmail.com>
+ <28d18d2f39fef4da00021d21cf2ccd7eb4a29ac9.camel@hadess.net>
+From:   Sebastian Arnhold <sebastian.arnhold387@gmail.com>
+In-Reply-To: <28d18d2f39fef4da00021d21cf2ccd7eb4a29ac9.camel@hadess.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 21/07/2022 15:32, Mattijs Korpershoek wrote:
->>> diff --git a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
->>> index ca8ae40a73f7..03c9555849e5 100644
->>> --- a/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
->>> +++ b/Documentation/devicetree/bindings/input/mediatek,mt6779-keypad.yaml
->>> @@ -49,6 +49,12 @@ properties:
->>>      maximum: 256
->>>      default: 16
->>>  
->>> +  mediatek,double-keys:
+Sadly, I'm not a programmer. Anyways, I wanted to report it - and would 
+be very thankful if this bug could be fixed in one of the next kernel 
+releases. :) Thanks in advance, Sebastian
+
+Am 21.07.22 um 10:53 schrieb Bastien Nocera:
+> On Tue, 2022-07-19 at 11:38 +0200, Sebastian Arnhold wrote:
+>> Dear developers,
 >>
->> Do you think there could be another MT keypad version with triple-keys?
-> 
-> Of all the SoC's i've worked on (MT8167, MT8183, MT8365, MT8195) I've
-> never seen a "triple-keys" keypad.
-
-OK, but the binding you create now would be poor if MT comes with such
-tripe-key feature later...
-
-
-Best regards,
-Krzysztof
+>> when using GNOME 42.3 on Wayland on my ASUS ExpertBook B5 Flip, it
+>> reports my stylus battery to be stuck at 1% all the time, independent
+>> of
+>> its actual charging status. This is also independent from the stylus
+>> I
+>> use, as I've tried with two different ones.
+>>
+>> The battery device registers as ELAN9008:00 04F3:2E12 in GNOME energy
+>> settings.
+>>
+>> The GNOME developers helped me track the bug down to upower, as
+>> upower
+>> itself shows the charging status to be stuck at 1%. The upower
+>> developers then sent me here.
+>>
+>> My kernel version is 5.18 on an x86_64 architecture on Fedora 36. My
+>> upower version is 0.99.19.
+>>
+>> Observed behaviour: Kernel reports 1% after pen is switched on and
+>> touches the touchscreen for the first time. upower reports this to
+>> GNOME
+>> which then throws a "Battery low"-warning message.
+>> Expected behaviour: Kernel reporting the correct charging percentage
+>> from the pen to upower, or 0% if charging status cannot be
+>> determined.
+>> The latter would be a workaround since 0% seems to be ignored by
+>> GNOME.
+>>
+>> Can you help me to resolve this bug?
+> You'll probably want to implement a patch similar to this one:
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f3193ea1b6779023334faa72b214ece457e02656
+>
+> Cheers

@@ -2,44 +2,40 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E40BDC43334
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 08:03:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3477BCCA48B
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 08:03:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231358AbiGUIDt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jul 2022 04:03:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38160 "EHLO
+        id S231696AbiGUIDw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jul 2022 04:03:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229731AbiGUIDs (ORCPT
+        with ESMTP id S231228AbiGUIDs (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Thu, 21 Jul 2022 04:03:48 -0400
 Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C9D84AD6F;
-        Thu, 21 Jul 2022 01:03:46 -0700 (PDT)
-Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
-        by mx0a-00128a01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26L6DCdt008132;
-        Thu, 21 Jul 2022 04:03:41 -0400
-Received: from nwd2mta4.analog.com ([137.71.173.58])
-        by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3hbq679e5c-1
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41C0A419B9;
+        Thu, 21 Jul 2022 01:03:47 -0700 (PDT)
+Received: from pps.filterd (m0167089.ppops.net [127.0.0.1])
+        by mx0a-00128a01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 26L6xpBh024860;
+        Thu, 21 Jul 2022 04:03:35 -0400
+Received: from nwd2mta3.analog.com ([137.71.173.56])
+        by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3hbt860w4e-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 21 Jul 2022 04:03:41 -0400
-Received: from ASHBMBX9.ad.analog.com (ASHBMBX9.ad.analog.com [10.64.17.10])
-        by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 26L83eDU026247
+        Thu, 21 Jul 2022 04:03:35 -0400
+Received: from ASHBMBX8.ad.analog.com (ASHBMBX8.ad.analog.com [10.64.17.5])
+        by nwd2mta3.analog.com (8.14.7/8.14.7) with ESMTP id 26L83XHM039486
         (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 21 Jul 2022 04:03:40 -0400
-Received: from ASHBCASHYB4.ad.analog.com (10.64.17.132) by
- ASHBMBX9.ad.analog.com (10.64.17.10) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.14; Thu, 21 Jul 2022 04:03:39 -0400
-Received: from ASHBMBX9.ad.analog.com (10.64.17.10) by
- ASHBCASHYB4.ad.analog.com (10.64.17.132) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.986.14; Thu, 21 Jul 2022 04:03:39 -0400
-Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx9.ad.analog.com
- (10.64.17.10) with Microsoft SMTP Server id 15.2.986.14 via Frontend
- Transport; Thu, 21 Jul 2022 04:03:39 -0400
-Received: from nsa.ad.analog.com ([10.44.3.68])
-        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 26L83GIo028313;
         Thu, 21 Jul 2022 04:03:33 -0400
+Received: from ASHBMBX8.ad.analog.com (10.64.17.5) by ASHBMBX8.ad.analog.com
+ (10.64.17.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Thu, 21 Jul
+ 2022 04:03:32 -0400
+Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx8.ad.analog.com
+ (10.64.17.5) with Microsoft SMTP Server id 15.2.986.14 via Frontend
+ Transport; Thu, 21 Jul 2022 04:03:32 -0400
+Received: from nsa.ad.analog.com ([10.44.3.68])
+        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 26L83GIi028313;
+        Thu, 21 Jul 2022 04:03:24 -0400
 From:   =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
 To:     <linux-input@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
         <devicetree@vger.kernel.org>
@@ -47,12 +43,12 @@ CC:     Linus Walleij <linus.walleij@linaro.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Michael Hennerich <michael.hennerich@analog.com>,
         Bartosz Golaszewski <brgl@bgdev.pl>,
-        "Andy Shevchenko" <andy.shevchenko@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH v3 07/10] input: keyboard: adp5588-keys: fix coding style warnings
-Date:   Thu, 21 Jul 2022 10:04:20 +0200
-Message-ID: <20220721080423.156151-8-nuno.sa@analog.com>
+Subject: [PATCH v3 01/10] input: keyboard: adp5588-keys: support gpi key events as 'gpio keys'
+Date:   Thu, 21 Jul 2022 10:04:14 +0200
+Message-ID: <20220721080423.156151-2-nuno.sa@analog.com>
 X-Mailer: git-send-email 2.37.1
 In-Reply-To: <20220721080423.156151-1-nuno.sa@analog.com>
 References: <20220721080423.156151-1-nuno.sa@analog.com>
@@ -60,253 +56,472 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 X-ADIRuleOP-NewSCL: Rule Triggered
-X-Proofpoint-GUID: pwomJSn7xbHqBnpxUIc19QLv5ZeuEc2c
-X-Proofpoint-ORIG-GUID: pwomJSn7xbHqBnpxUIc19QLv5ZeuEc2c
+X-Proofpoint-ORIG-GUID: LB9slKKrhvbfymEnAvyMqO_I_wqmcFSL
+X-Proofpoint-GUID: LB9slKKrhvbfymEnAvyMqO_I_wqmcFSL
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
  definitions=2022-07-20_12,2022-07-20_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- clxscore=1015 mlxscore=0 mlxlogscore=999 phishscore=0 priorityscore=1501
- bulkscore=0 lowpriorityscore=0 suspectscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ adultscore=0 priorityscore=1501 bulkscore=0 suspectscore=0 phishscore=0
+ spamscore=0 mlxlogscore=999 impostorscore=0 clxscore=1015
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2206140000 definitions=main-2207210031
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Just some code cleanup regarding coding style. With the introduction of
-the bits.h macros changes in the code are indeed introduced.
+This change replaces the support for GPIs as key event generators.
+Instead of reporting the events directly, we add a gpio based irqchip
+so that these events can be consumed by keys defined in the gpio-keys
+driver (as it's goal is indeed for keys on GPIOs capable of generating
+interrupts). With this, the gpio-adp5588 driver can also be dropped.
+
+The basic idea is that all the pins that are not being used as part of
+the keymap matrix can be possibly requested as GPIOs by gpio-keys
+(it's also fine to use these pins as plain interrupts though that's not
+really the point).
+
+Since the gpiochip now also has irqchip capabilities, we should only
+remove it after we free the device interrupt (otherwise we could, in
+theory, be handling GPIs interrupts while the gpiochip is concurrently
+removed). Thus the call 'adp5588_gpio_add()' is moved and since the
+setup phase also needs to come before making the gpios visible, we also
+need to move 'adp5588_setup()'.
+
+While at it, always select GPIOLIB so that we don't need to use #ifdef
+guards.
 
 Signed-off-by: Nuno Sá <nuno.sa@analog.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/input/keyboard/adp5588-keys.c | 98 +++++++++++++--------------
- 1 file changed, 48 insertions(+), 50 deletions(-)
+ drivers/input/keyboard/Kconfig        |   2 +
+ drivers/input/keyboard/adp5588-keys.c | 269 +++++++++++++-------------
+ include/linux/platform_data/adp5588.h |   2 -
+ 3 files changed, 139 insertions(+), 134 deletions(-)
 
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index a20ee693b22b..ca5cd5e520a7 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -40,6 +40,8 @@ config KEYBOARD_ADP5520
+ config KEYBOARD_ADP5588
+ 	tristate "ADP5588/87 I2C QWERTY Keypad and IO Expander"
+ 	depends on I2C
++	select GPIOLIB
++	select GPIOLIB_IRQCHIP
+ 	help
+ 	  Say Y here if you want to use a ADP5588/87 attached to your
+ 	  system I2C bus.
 diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-index 6499b4a94c73..1c4b1ea724b0 100644
+index 1a1a05d7cd42..c63f95f86ba2 100644
 --- a/drivers/input/keyboard/adp5588-keys.c
 +++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -8,6 +8,7 @@
-  * Copyright (C) 2008-2010 Analog Devices Inc.
-  */
+@@ -46,15 +46,13 @@ struct adp5588_kpad {
+ 	ktime_t irq_time;
+ 	unsigned long delay;
+ 	unsigned short keycode[ADP5588_KEYMAPSIZE];
+-	const struct adp5588_gpi_map *gpimap;
+-	unsigned short gpimapsize;
+-#ifdef CONFIG_GPIOLIB
+ 	unsigned char gpiomap[ADP5588_MAXGPIO];
+ 	struct gpio_chip gc;
+ 	struct mutex gpio_lock;	/* Protect cached dir, dat_out */
+ 	u8 dat_out[3];
+ 	u8 dir[3];
+-#endif
++	u8 int_en[3];
++	u8 irq_mask[3];
+ };
  
-+#include <linux/bits.h>
- #include <linux/delay.h>
- #include <linux/errno.h>
- #include <linux/gpio/driver.h>
-@@ -29,16 +30,16 @@
- #define CFG 0x01		/* Configuration Register1 */
- #define INT_STAT 0x02		/* Interrupt Status Register */
- #define KEY_LCK_EC_STAT 0x03	/* Key Lock and Event Counter Register */
--#define Key_EVENTA 0x04		/* Key Event Register A */
--#define Key_EVENTB 0x05		/* Key Event Register B */
--#define Key_EVENTC 0x06		/* Key Event Register C */
--#define Key_EVENTD 0x07		/* Key Event Register D */
--#define Key_EVENTE 0x08		/* Key Event Register E */
--#define Key_EVENTF 0x09		/* Key Event Register F */
--#define Key_EVENTG 0x0A		/* Key Event Register G */
--#define Key_EVENTH 0x0B		/* Key Event Register H */
--#define Key_EVENTI 0x0C		/* Key Event Register I */
--#define Key_EVENTJ 0x0D		/* Key Event Register J */
-+#define KEY_EVENTA 0x04		/* Key Event Register A */
-+#define KEY_EVENTB 0x05		/* Key Event Register B */
-+#define KEY_EVENTC 0x06		/* Key Event Register C */
-+#define KEY_EVENTD 0x07		/* Key Event Register D */
-+#define KEY_EVENTE 0x08		/* Key Event Register E */
-+#define KEY_EVENTF 0x09		/* Key Event Register F */
-+#define KEY_EVENTG 0x0A		/* Key Event Register G */
-+#define KEY_EVENTH 0x0B		/* Key Event Register H */
-+#define KEY_EVENTI 0x0C		/* Key Event Register I */
-+#define KEY_EVENTJ 0x0D		/* Key Event Register J */
- #define KP_LCK_TMR 0x0E		/* Keypad Lock1 to Lock2 Timer */
- #define UNLOCK1 0x0F		/* Unlock Key1 */
- #define UNLOCK2 0x10		/* Unlock Key2 */
-@@ -66,9 +67,9 @@
- #define GPIO_INT_LVL1 0x26	/* GPIO Edge/Level Detect */
- #define GPIO_INT_LVL2 0x27	/* GPIO Edge/Level Detect */
- #define GPIO_INT_LVL3 0x28	/* GPIO Edge/Level Detect */
--#define Debounce_DIS1 0x29	/* Debounce Disable */
--#define Debounce_DIS2 0x2A	/* Debounce Disable */
--#define Debounce_DIS3 0x2B	/* Debounce Disable */
-+#define DEBOUNCE_DIS1 0x29	/* Debounce Disable */
-+#define DEBOUNCE_DIS2 0x2A	/* Debounce Disable */
-+#define DEBOUNCE_DIS3 0x2B	/* Debounce Disable */
- #define GPIO_PULL1 0x2C		/* GPIO Pull Disable */
- #define GPIO_PULL2 0x2D		/* GPIO Pull Disable */
- #define GPIO_PULL3 0x2E		/* GPIO Pull Disable */
-@@ -91,27 +92,27 @@
- #define ADP5588_DEVICE_ID_MASK	0xF
- 
-  /* Configuration Register1 */
--#define ADP5588_AUTO_INC	(1 << 7)
--#define ADP5588_GPIEM_CFG	(1 << 6)
--#define ADP5588_OVR_FLOW_M	(1 << 5)
--#define ADP5588_INT_CFG		(1 << 4)
--#define ADP5588_OVR_FLOW_IEN	(1 << 3)
--#define ADP5588_K_LCK_IM	(1 << 2)
--#define ADP5588_GPI_IEN		(1 << 1)
--#define ADP5588_KE_IEN		(1 << 0)
-+#define ADP5588_AUTO_INC	BIT(7)
-+#define ADP5588_GPIEM_CFG	BIT(6)
-+#define ADP5588_OVR_FLOW_M	BIT(5)
-+#define ADP5588_INT_CFG		BIT(4)
-+#define ADP5588_OVR_FLOW_IEN	BIT(3)
-+#define ADP5588_K_LCK_IM	BIT(2)
-+#define ADP5588_GPI_IEN		BIT(1)
-+#define ADP5588_KE_IEN		BIT(0)
- 
- /* Interrupt Status Register */
--#define ADP5588_CMP2_INT	(1 << 5)
--#define ADP5588_CMP1_INT	(1 << 4)
--#define ADP5588_OVR_FLOW_INT	(1 << 3)
--#define ADP5588_K_LCK_INT	(1 << 2)
--#define ADP5588_GPI_INT		(1 << 1)
--#define ADP5588_KE_INT		(1 << 0)
-+#define ADP5588_CMP2_INT	BIT(5)
-+#define ADP5588_CMP1_INT	BIT(4)
-+#define ADP5588_OVR_FLOW_INT	BIT(3)
-+#define ADP5588_K_LCK_INT	BIT(2)
-+#define ADP5588_GPI_INT		BIT(1)
-+#define ADP5588_KE_INT		BIT(0)
- 
- /* Key Lock and Event Counter Register */
--#define ADP5588_K_LCK_EN	(1 << 6)
-+#define ADP5588_K_LCK_EN	BIT(6)
- #define ADP5588_LCK21		0x30
--#define ADP5588_KEC		0xF
-+#define ADP5588_KEC		GENMASK(3, 0)
- 
- #define ADP5588_MAXGPIO		18
- #define ADP5588_BANK(offs)	((offs) >> 3)
-@@ -158,10 +159,10 @@
- #define ADP5588_GPIMAPSIZE_MAX (GPI_PIN_END - GPI_PIN_BASE + 1)
- 
- /* Key Event Register xy */
--#define KEY_EV_PRESSED		(1 << 7)
--#define KEY_EV_MASK		(0x7F)
-+#define KEY_EV_PRESSED		BIT(7)
-+#define KEY_EV_MASK		GENMASK(6, 0)
- 
--#define KP_SEL(x)		(0xFFFF >> (16 - x))	/* 2^x-1 */
-+#define KP_SEL(x)		(BIT(x) - 1)	/* 2^x-1 */
- 
- #define KEYP_MAX_EVENT		10
- 
-@@ -209,7 +210,7 @@ static int adp5588_write(struct i2c_client *client, u8 reg, u8 val)
+ static int adp5588_read(struct i2c_client *client, u8 reg)
+@@ -72,7 +70,6 @@ static int adp5588_write(struct i2c_client *client, u8 reg, u8 val)
  	return i2c_smbus_write_byte_data(client, reg, val);
  }
  
--static int adp5588_gpio_get_value(struct gpio_chip *chip, unsigned off)
-+static int adp5588_gpio_get_value(struct gpio_chip *chip, unsigned int off)
+-#ifdef CONFIG_GPIOLIB
+ static int adp5588_gpio_get_value(struct gpio_chip *chip, unsigned off)
  {
  	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
- 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
-@@ -229,7 +230,7 @@ static int adp5588_gpio_get_value(struct gpio_chip *chip, unsigned off)
+@@ -171,9 +168,6 @@ static int adp5588_build_gpiomap(struct adp5588_kpad *kpad,
+ 	for (i = 0; i < pdata->cols; i++)
+ 		pin_used[i + GPI_PIN_COL_BASE - GPI_PIN_BASE] = true;
+ 
+-	for (i = 0; i < kpad->gpimapsize; i++)
+-		pin_used[kpad->gpimap[i].pin - GPI_PIN_BASE] = true;
+-
+ 	for (i = 0; i < ADP5588_MAXGPIO; i++)
+ 		if (!pin_used[i])
+ 			kpad->gpiomap[n_unused++] = i;
+@@ -196,11 +190,77 @@ static void adp5588_gpio_do_teardown(void *_kpad)
+ 		dev_warn(&kpad->client->dev, "teardown failed %d\n", error);
  }
  
- static void adp5588_gpio_set_value(struct gpio_chip *chip,
--				   unsigned off, int val)
-+				   unsigned int off, int val)
++static void adp5588_irq_bus_lock(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct adp5588_kpad *kpad = gpiochip_get_data(gc);
++
++	mutex_lock(&kpad->gpio_lock);
++}
++
++static void adp5588_irq_bus_sync_unlock(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct adp5588_kpad *kpad = gpiochip_get_data(gc);
++	int i;
++
++	for (i = 0; i <= ADP5588_BANK(ADP5588_MAXGPIO); i++) {
++		if (kpad->int_en[i] ^ kpad->irq_mask[i]) {
++			kpad->int_en[i] = kpad->irq_mask[i];
++			adp5588_write(kpad->client, GPI_EM1 + i, kpad->int_en[i]);
++		}
++	}
++
++	mutex_unlock(&kpad->gpio_lock);
++}
++
++static void adp5588_irq_mask(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct adp5588_kpad *kpad = gpiochip_get_data(gc);
++	unsigned long real_irq = kpad->gpiomap[irqd_to_hwirq(d)];
++
++	kpad->irq_mask[ADP5588_BANK(real_irq)] &= ~ADP5588_BIT(real_irq);
++	gpiochip_disable_irq(gc, irqd_to_hwirq(d));
++}
++
++static void adp5588_irq_unmask(struct irq_data *d)
++{
++	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
++	struct adp5588_kpad *kpad = gpiochip_get_data(gc);
++	unsigned long real_irq = kpad->gpiomap[irqd_to_hwirq(d)];
++
++	gpiochip_enable_irq(gc, irqd_to_hwirq(d));
++	kpad->irq_mask[ADP5588_BANK(real_irq)] |= ADP5588_BIT(real_irq);
++}
++
++static int adp5588_irq_set_type(struct irq_data *d, unsigned int type)
++{
++	if (!(type & IRQ_TYPE_EDGE_BOTH))
++		return -EINVAL;
++
++	irq_set_handler_locked(d, handle_edge_irq);
++
++	return 0;
++}
++
++static const struct irq_chip adp5588_irq_chip = {
++	.name = "adp5588",
++	.irq_mask = adp5588_irq_mask,
++	.irq_unmask = adp5588_irq_unmask,
++	.irq_bus_lock = adp5588_irq_bus_lock,
++	.irq_bus_sync_unlock = adp5588_irq_bus_sync_unlock,
++	.irq_set_type = adp5588_irq_set_type,
++	.flags = IRQCHIP_SKIP_SET_WAKE | IRQCHIP_IMMUTABLE,
++	GPIOCHIP_IRQ_RESOURCE_HELPERS,
++};
++
+ static int adp5588_gpio_add(struct adp5588_kpad *kpad)
  {
- 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
- 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
-@@ -242,8 +243,7 @@ static void adp5588_gpio_set_value(struct gpio_chip *chip,
- 	else
- 		kpad->dat_out[bank] &= ~bit;
+ 	struct device *dev = &kpad->client->dev;
+ 	const struct adp5588_kpad_platform_data *pdata = dev_get_platdata(dev);
+ 	const struct adp5588_gpio_platform_data *gpio_data = pdata->gpio_data;
++	struct gpio_irq_chip *girq;
+ 	int i, error;
  
--	adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank,
--			   kpad->dat_out[bank]);
-+	adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank, kpad->dat_out[bank]);
+ 	if (!gpio_data)
+@@ -212,6 +272,7 @@ static int adp5588_gpio_add(struct adp5588_kpad *kpad)
+ 		return 0;
+ 	}
  
- 	mutex_unlock(&kpad->gpio_lock);
++	kpad->gc.parent = &kpad->client->dev;
+ 	kpad->gc.direction_input = adp5588_gpio_direction_input;
+ 	kpad->gc.direction_output = adp5588_gpio_direction_output;
+ 	kpad->gc.get = adp5588_gpio_get_value;
+@@ -223,6 +284,11 @@ static int adp5588_gpio_add(struct adp5588_kpad *kpad)
+ 	kpad->gc.owner = THIS_MODULE;
+ 	kpad->gc.names = gpio_data->names;
+ 
++	girq = &kpad->gc.irq;
++	gpio_irq_chip_set_chip(girq, &adp5588_irq_chip);
++	girq->handler = handle_bad_irq;
++	girq->threaded = true;
++
+ 	mutex_init(&kpad->gpio_lock);
+ 
+ 	error = devm_gpiochip_add_data(dev, &kpad->gc, kpad);
+@@ -255,35 +321,72 @@ static int adp5588_gpio_add(struct adp5588_kpad *kpad)
+ 	return 0;
  }
-@@ -282,7 +282,7 @@ static int adp5588_gpio_set_config(struct gpio_chip *chip,  unsigned int off,
- 	return ret;
- }
  
--static int adp5588_gpio_direction_input(struct gpio_chip *chip, unsigned off)
-+static int adp5588_gpio_direction_input(struct gpio_chip *chip, unsigned int off)
+-#else
+-static inline int adp5588_gpio_add(struct adp5588_kpad *kpad)
++static int adp5588_gpiomap_get_hwirq(struct device *dev, const u8 *map,
++				     unsigned int gpio, unsigned int ngpios)
  {
- 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
- 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
-@@ -300,7 +300,7 @@ static int adp5588_gpio_direction_input(struct gpio_chip *chip, unsigned off)
+-	return 0;
++	unsigned int hwirq;
++
++	for (hwirq = 0; hwirq < ngpios; hwirq++)
++		if (map[hwirq] == gpio)
++			return hwirq;
++
++	/* should never happen */
++	dev_warn_ratelimited(dev, "could not find the hwirq for gpio(%u)\n", gpio);
++
++	return INVALID_HWIRQ;
++}
++
++static void adp5588_gpio_irq_handle(struct adp5588_kpad *kpad, int key_val,
++				    int key_press)
++{
++	unsigned int irq, gpio = key_val - GPI_PIN_BASE, irq_type;
++	struct i2c_client *client = kpad->client;
++	struct irq_data *irqd;
++	int hwirq;
++
++	hwirq = adp5588_gpiomap_get_hwirq(&client->dev, kpad->gpiomap,
++					  gpio, kpad->gc.ngpio);
++	if (hwirq == INVALID_HWIRQ) {
++		dev_err(&client->dev, "Could not get hwirq for key(%u)\n", key_val);
++		return;
++	}
++
++	irq = irq_find_mapping(kpad->gc.irq.domain, hwirq);
++	if (!irq)
++		return;
++
++	irqd = irq_get_irq_data(irq);
++	if (!irqd) {
++		dev_err(&client->dev, "Could not get irq(%u) data\n", irq);
++		return;
++	}
++
++	irq_type = irqd_get_trigger_type(irqd);
++
++	/*
++	 * Default is active low which means key_press is asserted on
++	 * the falling edge.
++	 */
++	if ((irq_type & IRQ_TYPE_EDGE_RISING && !key_press) ||
++	    (irq_type & IRQ_TYPE_EDGE_FALLING && key_press))
++		handle_nested_irq(irq);
  }
+-#endif
  
- static int adp5588_gpio_direction_output(struct gpio_chip *chip,
--					 unsigned off, int val)
-+					 unsigned int off, int val)
+ static void adp5588_report_events(struct adp5588_kpad *kpad, int ev_cnt)
  {
- 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
- 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
-@@ -317,12 +317,11 @@ static int adp5588_gpio_direction_output(struct gpio_chip *chip,
- 		kpad->dat_out[bank] &= ~bit;
- 
- 	ret = adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank,
--				 kpad->dat_out[bank]);
-+			    kpad->dat_out[bank]);
- 	if (ret)
- 		goto out_unlock;
- 
--	ret = adp5588_write(kpad->client, GPIO_DIR1 + bank,
--				 kpad->dir[bank]);
-+	ret = adp5588_write(kpad->client, GPIO_DIR1 + bank, kpad->dir[bank]);
- 
- out_unlock:
- 	mutex_unlock(&kpad->gpio_lock);
-@@ -519,7 +518,7 @@ static void adp5588_report_events(struct adp5588_kpad *kpad, int ev_cnt)
- 	int i;
+-	int i, j;
++	int i;
  
  	for (i = 0; i < ev_cnt; i++) {
--		int key = adp5588_read(kpad->client, Key_EVENTA + i);
-+		int key = adp5588_read(kpad->client, KEY_EVENTA + i);
+ 		int key = adp5588_read(kpad->client, Key_EVENTA + i);
  		int key_val = key & KEY_EV_MASK;
- 		int key_press = key & KEY_EV_PRESSED;
++		int key_press = key & KEY_EV_PRESSED;
  
-@@ -619,21 +618,20 @@ static int adp5588_setup(struct adp5588_kpad *kpad)
+-		if (key_val >= GPI_PIN_BASE && key_val <= GPI_PIN_END) {
+-			for (j = 0; j < kpad->gpimapsize; j++) {
+-				if (key_val == kpad->gpimap[j].pin) {
+-					input_report_switch(kpad->input,
+-							kpad->gpimap[j].sw_evt,
+-							key & KEY_EV_PRESSED);
+-					break;
+-				}
+-			}
+-		} else {
++		if (key_val >= GPI_PIN_BASE && key_val <= GPI_PIN_END)
++			/* gpio line used as IRQ source */
++			adp5588_gpio_irq_handle(kpad, key_val, key_press);
++		else
+ 			input_report_key(kpad->input,
+-					 kpad->keycode[key_val - 1],
+-					 key & KEY_EV_PRESSED);
+-		}
++					 kpad->keycode[key_val - 1], key_press);
  	}
- 
- 	for (i = 0; i < KEYP_MAX_EVENT; i++) {
--		ret = adp5588_read(client, Key_EVENTA);
-+		ret = adp5588_read(client, KEY_EVENTA);
- 		if (ret)
- 			return ret;
- 	}
- 
- 	ret = adp5588_write(client, INT_STAT,
--				ADP5588_CMP2_INT | ADP5588_CMP1_INT |
--				ADP5588_OVR_FLOW_INT | ADP5588_K_LCK_INT |
--				ADP5588_GPI_INT | ADP5588_KE_INT); /* Status is W1C */
-+			    ADP5588_CMP2_INT | ADP5588_CMP1_INT |
-+			    ADP5588_OVR_FLOW_INT | ADP5588_K_LCK_INT |
-+			    ADP5588_GPI_INT | ADP5588_KE_INT); /* Status is W1C */
- 	if (ret)
- 		return ret;
- 
- 	return adp5588_write(client, CFG, ADP5588_INT_CFG |
--					  ADP5588_OVR_FLOW_IEN |
--					  ADP5588_KE_IEN);
-+			     ADP5588_OVR_FLOW_IEN | ADP5588_KE_IEN);
  }
  
- static int adp5588_fw_parse(struct adp5588_kpad *kpad)
-@@ -717,7 +715,7 @@ static int adp5588_probe(struct i2c_client *client,
- 	int error;
+@@ -341,7 +444,6 @@ static int adp5588_setup(struct i2c_client *client)
+ 			dev_get_platdata(&client->dev);
+ 	const struct adp5588_gpio_platform_data *gpio_data = pdata->gpio_data;
+ 	int i, ret;
+-	unsigned char evt_mode1 = 0, evt_mode2 = 0, evt_mode3 = 0;
  
- 	if (!i2c_check_functionality(client->adapter,
--					I2C_FUNC_SMBUS_BYTE_DATA)) {
-+				     I2C_FUNC_SMBUS_BYTE_DATA)) {
- 		dev_err(&client->dev, "SMBUS Byte Data not Supported\n");
- 		return -EIO;
+ 	ret = adp5588_write(client, KP_GPIO1, KP_SEL(pdata->rows));
+ 	ret |= adp5588_write(client, KP_GPIO2, KP_SEL(pdata->cols) & 0xFF);
+@@ -356,23 +458,6 @@ static int adp5588_setup(struct i2c_client *client)
+ 	for (i = 0; i < KEYP_MAX_EVENT; i++)
+ 		ret |= adp5588_read(client, Key_EVENTA);
+ 
+-	for (i = 0; i < pdata->gpimapsize; i++) {
+-		unsigned short pin = pdata->gpimap[i].pin;
+-
+-		if (pin <= GPI_PIN_ROW_END) {
+-			evt_mode1 |= (1 << (pin - GPI_PIN_ROW_BASE));
+-		} else {
+-			evt_mode2 |= ((1 << (pin - GPI_PIN_COL_BASE)) & 0xFF);
+-			evt_mode3 |= ((1 << (pin - GPI_PIN_COL_BASE)) >> 8);
+-		}
+-	}
+-
+-	if (pdata->gpimapsize) {
+-		ret |= adp5588_write(client, GPI_EM1, evt_mode1);
+-		ret |= adp5588_write(client, GPI_EM2, evt_mode2);
+-		ret |= adp5588_write(client, GPI_EM3, evt_mode3);
+-	}
+-
+ 	if (gpio_data) {
+ 		for (i = 0; i <= ADP5588_BANK(ADP5588_MAXGPIO); i++) {
+ 			int pull_mask = gpio_data->pullup_dis_mask;
+@@ -399,44 +484,6 @@ static int adp5588_setup(struct i2c_client *client)
+ 	return 0;
+ }
+ 
+-static void adp5588_report_switch_state(struct adp5588_kpad *kpad)
+-{
+-	int gpi_stat1 = adp5588_read(kpad->client, GPIO_DAT_STAT1);
+-	int gpi_stat2 = adp5588_read(kpad->client, GPIO_DAT_STAT2);
+-	int gpi_stat3 = adp5588_read(kpad->client, GPIO_DAT_STAT3);
+-	int gpi_stat_tmp, pin_loc;
+-	int i;
+-
+-	for (i = 0; i < kpad->gpimapsize; i++) {
+-		unsigned short pin = kpad->gpimap[i].pin;
+-
+-		if (pin <= GPI_PIN_ROW_END) {
+-			gpi_stat_tmp = gpi_stat1;
+-			pin_loc = pin - GPI_PIN_ROW_BASE;
+-		} else if ((pin - GPI_PIN_COL_BASE) < 8) {
+-			gpi_stat_tmp = gpi_stat2;
+-			pin_loc = pin - GPI_PIN_COL_BASE;
+-		} else {
+-			gpi_stat_tmp = gpi_stat3;
+-			pin_loc = pin - GPI_PIN_COL_BASE - 8;
+-		}
+-
+-		if (gpi_stat_tmp < 0) {
+-			dev_err(&kpad->client->dev,
+-				"Can't read GPIO_DAT_STAT switch %d default to OFF\n",
+-				pin);
+-			gpi_stat_tmp = 0;
+-		}
+-
+-		input_report_switch(kpad->input,
+-				    kpad->gpimap[i].sw_evt,
+-				    !(gpi_stat_tmp & (1 << pin_loc)));
+-	}
+-
+-	input_sync(kpad->input);
+-}
+-
+-
+ static int adp5588_probe(struct i2c_client *client,
+ 			 const struct i2c_device_id *id)
+ {
+@@ -469,37 +516,6 @@ static int adp5588_probe(struct i2c_client *client,
+ 		return -EINVAL;
  	}
-@@ -741,7 +739,7 @@ static int adp5588_probe(struct i2c_client *client,
- 	if (ret < 0)
- 		return ret;
  
--	revid = (u8) ret & ADP5588_DEVICE_ID_MASK;
-+	revid = ret & ADP5588_DEVICE_ID_MASK;
- 	if (WA_DELAYED_READOUT_REVID(revid))
- 		kpad->delay = msecs_to_jiffies(WA_DELAYED_READOUT_TIME);
+-	if (!pdata->gpimap && pdata->gpimapsize) {
+-		dev_err(&client->dev, "invalid gpimap from pdata\n");
+-		return -EINVAL;
+-	}
+-
+-	if (pdata->gpimapsize > ADP5588_GPIMAPSIZE_MAX) {
+-		dev_err(&client->dev, "invalid gpimapsize\n");
+-		return -EINVAL;
+-	}
+-
+-	for (i = 0; i < pdata->gpimapsize; i++) {
+-		unsigned short pin = pdata->gpimap[i].pin;
+-
+-		if (pin < GPI_PIN_BASE || pin > GPI_PIN_END) {
+-			dev_err(&client->dev, "invalid gpi pin data\n");
+-			return -EINVAL;
+-		}
+-
+-		if (pin <= GPI_PIN_ROW_END) {
+-			if (pin - GPI_PIN_ROW_BASE + 1 <= pdata->rows) {
+-				dev_err(&client->dev, "invalid gpi row data\n");
+-				return -EINVAL;
+-			}
+-		} else {
+-			if (pin - GPI_PIN_COL_BASE + 1 <= pdata->cols) {
+-				dev_err(&client->dev, "invalid gpi col data\n");
+-				return -EINVAL;
+-			}
+-		}
+-	}
+-
+ 	if (!client->irq) {
+ 		dev_err(&client->dev, "no IRQ?\n");
+ 		return -EINVAL;
+@@ -541,9 +557,6 @@ static int adp5588_probe(struct i2c_client *client,
+ 	memcpy(kpad->keycode, pdata->keymap,
+ 		pdata->keymapsize * input->keycodesize);
+ 
+-	kpad->gpimap = pdata->gpimap;
+-	kpad->gpimapsize = pdata->gpimapsize;
+-
+ 	/* setup input device */
+ 	__set_bit(EV_KEY, input->evbit);
+ 
+@@ -555,11 +568,6 @@ static int adp5588_probe(struct i2c_client *client,
+ 			__set_bit(kpad->keycode[i], input->keybit);
+ 	__clear_bit(KEY_RESERVED, input->keybit);
+ 
+-	if (kpad->gpimapsize)
+-		__set_bit(EV_SW, input->evbit);
+-	for (i = 0; i < kpad->gpimapsize; i++)
+-		__set_bit(kpad->gpimap[i].sw_evt, input->swbit);
+-
+ 	error = input_register_device(input);
+ 	if (error) {
+ 		dev_err(&client->dev, "unable to register input device: %d\n",
+@@ -567,6 +575,14 @@ static int adp5588_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
++	error = adp5588_setup(client);
++	if (error)
++		return error;
++
++	error = adp5588_gpio_add(kpad);
++	if (error)
++		return error;
++
+ 	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  adp5588_hard_irq, adp5588_thread_irq,
+ 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+@@ -577,17 +593,6 @@ static int adp5588_probe(struct i2c_client *client,
+ 		return error;
+ 	}
+ 
+-	error = adp5588_setup(client);
+-	if (error)
+-		return error;
+-
+-	if (kpad->gpimapsize)
+-		adp5588_report_switch_state(kpad);
+-
+-	error = adp5588_gpio_add(kpad);
+-	if (error)
+-		return error;
+-
+ 	dev_info(&client->dev, "Rev.%d keypad, irq %d\n", revid, client->irq);
+ 	return 0;
+ }
+diff --git a/include/linux/platform_data/adp5588.h b/include/linux/platform_data/adp5588.h
+index 6d3f7d911a92..82170ec8c266 100644
+--- a/include/linux/platform_data/adp5588.h
++++ b/include/linux/platform_data/adp5588.h
+@@ -147,8 +147,6 @@ struct adp5588_kpad_platform_data {
+ 	unsigned en_keylock:1;		/* Enable Key Lock feature */
+ 	unsigned short unlock_key1;	/* Unlock Key 1 */
+ 	unsigned short unlock_key2;	/* Unlock Key 2 */
+-	const struct adp5588_gpi_map *gpimap;
+-	unsigned short gpimapsize;
+ 	const struct adp5588_gpio_platform_data *gpio_data;
+ };
  
 -- 
 2.37.1

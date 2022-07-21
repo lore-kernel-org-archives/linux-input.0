@@ -2,185 +2,71 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 347C1CCA489
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 14:55:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85AA8C43334
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 14:56:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232336AbiGUOzR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jul 2022 10:55:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41704 "EHLO
+        id S232213AbiGUO4k (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jul 2022 10:56:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232334AbiGUOzP (ORCPT
+        with ESMTP id S230248AbiGUO4k (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Jul 2022 10:55:15 -0400
-Received: from madras.collabora.co.uk (madras.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e5ab])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F5E05F5E;
-        Thu, 21 Jul 2022 07:55:10 -0700 (PDT)
-Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits))
-        (No client certificate requested)
-        (Authenticated sender: kholk11)
-        by madras.collabora.co.uk (Postfix) with ESMTPSA id C86916601AAA;
-        Thu, 21 Jul 2022 15:55:08 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-        s=mail; t=1658415309;
-        bh=EyTW2qzfSr+AZwVRWnf0cfBClBBVk9mIXqcmwKrTY2s=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=aSEK3wBJW5ZfYWmPNlbU0sePZNNXqwE5AWAY0mJjsvUxtxBli+P/UKHnuJANoPXq7
-         i6YchppxsUCeAkZabMD3HcUnpaKhjWb8sHCBVZys24FUwLxG+uctouTt7zv/etPMVS
-         nolBLYYTQL+7sIBdXza+ndbUjXIo3MfypvJenbXhmDIFaxKNIH+DUA/zTkJ0sU2q+E
-         gG6FhfvlzqcTG3tjE9UfPG4RjFNhti5Z9yx/7arp0+aq0e2WejNFtNxiMZHhMF6i31
-         l11Wi9NEOqihzUURMuI23vmri2Ffz90BVG7OgT75M5Hf/vi33Nr+hpCpwVi1lFUhCy
-         AyJ2RTNWhDHFg==
-Message-ID: <1eed6877-8868-6b29-b7c9-90986d230f36@collabora.com>
-Date:   Thu, 21 Jul 2022 16:55:06 +0200
+        Thu, 21 Jul 2022 10:56:40 -0400
+X-Greylist: delayed 254 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 21 Jul 2022 07:56:38 PDT
+Received: from mail.boiledscript.com (mail.boiledscript.com [144.168.59.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0C38D49;
+        Thu, 21 Jul 2022 07:56:38 -0700 (PDT)
+Message-ID: <y761queplmt.wl-hako@ultrarare.space>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ultrarare.space;
+        s=dkim; t=1658414932;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=WTkPvBNLDrnyNYrtfpFg5lgdjoVZlrQg0/eORua9JR8=;
+        b=xe23SRSbcTvq/CT0Q13ph/5wjy7GZxDRFRJQlS8k2kOzHn08N3gcCAI1Eq41MoSD4oral7
+        aG7lIHRSEciqS6iOrHpxiSQO3zvgfSBtpLT2bnGgL7/J8EoMT+dqVbR0lM1376E8moVKir
+        aFvmmGlOo4CC1aJpl8tm9LHXmulpXF3wBNQIbgnGxcidPaDGDU8yXtPOq8J16MNwd9/hs+
+        P+djwN5HlTy38Ok5p9/dkTGCGcHsC2H6lhRmAPTUhy8P5oOBn/pLKfF7nrT4J/vuq176Jb
+        A+Bum4G71veYBa6mzvvUeszmJTv37AqbSoCERPbYmS5ETWP8F9cuc0QkdYM5Ig==
+From:   Hilton Chain <hako@ultrarare.space>
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        =?ISO-8859-1?Q?Jos?= =?ISO-8859-1?Q?=E9_Exp=F3sito?= 
+        <jose.exposito89@gmail.com>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: apple: Add "GANSS" to the non-Apple list
+Date:   Thu, 21 Jul 2022 22:34:23 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.11.0
-Subject: Re: [PATCH v1 4/6] Input: mt6779-keypad - support double keys matrix
-Content-Language: en-US
-To:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        Fabien Parent <parent.f@gmail.com>, devicetree@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
-        Fabien Parent <fparent@baylibre.com>,
-        linux-arm-kernel@lists.infradead.org
-References: <20220720-mt8183-keypad-v1-0-ef9fc29dbff4@baylibre.com>
- <20220720-mt8183-keypad-v1-4-ef9fc29dbff4@baylibre.com>
- <b2676b5c-14b3-2058-9fb8-d6d78cc5d29c@collabora.com>
- <87ilnqh632.fsf@baylibre.com>
-From:   AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>
-In-Reply-To: <87ilnqh632.fsf@baylibre.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+X-Spamd-Bar: ++
+Authentication-Results: mail.boiledscript.com;
+        auth=pass smtp.mailfrom=hako@ultrarare.space
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Il 21/07/22 16:51, Mattijs Korpershoek ha scritto:
-> On Thu, Jul 21, 2022 at 10:34, AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com> wrote:
-> 
->> Il 20/07/22 16:48, Mattijs Korpershoek ha scritto:
->>> MediaTek keypad has 2 modes of detecting key events:
->>> - single key: each (row, column) can detect one key
->>> - double key: each (row, column) is a group of 2 keys
->>>
->>> Double key support exists to minimize cost, since it reduces the number
->>> of pins required for physical keys.
->>>
->>> Double key is configured by setting BIT(0) of the KP_SEL register.
->>>
->>> Enable double key matrix support based on the mediatek,double-keys
->>> device tree property.
->>>
->>> Signed-off-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
->>> Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
->>>
->>> diff --git a/drivers/input/keyboard/mt6779-keypad.c b/drivers/input/keyboard/mt6779-keypad.c
->>> index bf447bf598fb..9a5dbd415dac 100644
->>> --- a/drivers/input/keyboard/mt6779-keypad.c
->>> +++ b/drivers/input/keyboard/mt6779-keypad.c
->>> @@ -18,6 +18,7 @@
->>>    #define MTK_KPD_DEBOUNCE_MASK	GENMASK(13, 0)
->>>    #define MTK_KPD_DEBOUNCE_MAX_MS	256
->>>    #define MTK_KPD_SEL		0x0020
->>> +#define MTK_KPD_SEL_DOUBLE_KP_MODE	BIT(0)
->>>    #define MTK_KPD_SEL_COL	GENMASK(15, 10)
->>>    #define MTK_KPD_SEL_ROW	GENMASK(9, 4)
->>>    #define MTK_KPD_SEL_COLMASK(c)	GENMASK((c) + 9, 10)
->>> @@ -31,6 +32,7 @@ struct mt6779_keypad {
->>>    	struct clk *clk;
->>>    	u32 n_rows;
->>>    	u32 n_cols;
->>> +	bool double_keys;
->>>    	DECLARE_BITMAP(keymap_state, MTK_KPD_NUM_BITS);
->>>    };
->>>    
->>> @@ -67,8 +69,13 @@ static irqreturn_t mt6779_keypad_irq_handler(int irq, void *dev_id)
->>>    			continue;
->>>    
->>>    		key = bit_nr / 32 * 16 + bit_nr % 32;
->>> -		row = key / 9;
->>> -		col = key % 9;
->>> +		if (keypad->double_keys) {
->>> +			row = key / 13;
->>> +			col = (key % 13) / 2;
->>> +		} else {
->>> +			row = key / 9;
->>> +			col = key % 9;
->>> +		}
->>
->> I don't fully like this if branch permanently evaluating true or false, as no
->> runtime can actually change this result...
->>
->> In practice, it's fine, but I was wondering if anyone would disagree with the
->> following proposal...
->>
->> struct mt6779_keypad {
->> 	.......
->> 	void (*calc_row_col)(unsigned int *row, unsigned int *col);
->> };
->>
->> In mt6779_keypad_irq_handler:
->>
->> 	key = bit_nr / 32 * 16 + bit_nr % 32;
->> 	keypad->calc_row_col(&row, &col);
->>
->> and below...
->>
->>>    
->>>    		scancode = MATRIX_SCAN_CODE(row, col, row_shift);
->>>    		/* 1: not pressed, 0: pressed */
->>> @@ -150,6 +157,8 @@ static int mt6779_keypad_pdrv_probe(struct platform_device *pdev)
->>>    
->>>    	wakeup = device_property_read_bool(&pdev->dev, "wakeup-source");
->>>    
->>> +	keypad->double_keys = device_property_read_bool(&pdev->dev, "mediatek,double-keys");
->>> +
->>>    	dev_dbg(&pdev->dev, "n_row=%d n_col=%d debounce=%d\n",
->>>    		keypad->n_rows, keypad->n_cols, debounce);
->>>    
->>> @@ -166,6 +175,10 @@ static int mt6779_keypad_pdrv_probe(struct platform_device *pdev)
->>>    	regmap_write(keypad->regmap, MTK_KPD_DEBOUNCE,
->>>    		     (debounce * (1 << 5)) & MTK_KPD_DEBOUNCE_MASK);
->>>    
->>> +	if (keypad->double_keys)
->>
->> 		keypad->calc_row_col = mt6779_keypad_calc_row_col_double_kp;
->>
->>> +		regmap_update_bits(keypad->regmap, MTK_KPD_SEL,
->>> +				   MTK_KPD_SEL_DOUBLE_KP_MODE, MTK_KPD_SEL_DOUBLE_KP_MODE);
->>> +
->>
->> 	} else {
->> 		keypad->calc_row_col = mt6779_keypad_calc_row_col_single_kp;
->> 	}
->>
->>>    	regmap_update_bits(keypad->regmap, MTK_KPD_SEL, MTK_KPD_SEL_ROW,
->>>    			   MTK_KPD_SEL_ROWMASK(keypad->n_rows));
->>>    	regmap_update_bits(keypad->regmap, MTK_KPD_SEL, MTK_KPD_SEL_COL,
->>
->> what do you think?
-> 
-> Hi Angelo,
-> 
-> Thank you for your detailed suggestion. I like it and since I have to
-> resend a v2 anyways, I will consider implementing it.
-> On the other hand, I'm a little reluctant because it means that I'll
-> have to remove Matthias's reviewed-by :(
-> 
+While using the name "SONiX USB DEVICE" for wired mode, my GANSS keyboard
+uses "GANSS" for bluetooth mode as well, so adding this to the list.
 
-Yes, you will have to. In that case:
+Signed-off-by: Hilton Chain <hako@ultrarare.space>
+---
+ drivers/hid/hid-apple.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Matthias, any considerations about this idea? :)))
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index 7fbde58e1219..6970797cdc56 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -320,7 +320,8 @@ static const struct apple_key_translation swapped_fn_leftctrl_keys[] = {
+ static const struct apple_non_apple_keyboard non_apple_keyboards[] = {
+ 	{ "SONiX USB DEVICE" },
+ 	{ "Keychron" },
+-	{ "AONE" }
++	{ "AONE" },
++	{ "GANSS" }
+ };
+ 
+ static bool apple_is_non_apple_keyboard(struct hid_device *hdev)
 
->>
->> Cheers,
->> Angelo
-
-
+base-commit: a0a05054583fed17f522172e101594f1ff265463
+-- 
+2.37.1

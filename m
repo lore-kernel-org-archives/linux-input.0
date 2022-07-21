@@ -2,403 +2,129 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FC18C433EF
-	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 15:43:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69579C43334
+	for <linux-input@archiver.kernel.org>; Thu, 21 Jul 2022 16:46:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233391AbiGUPnF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Jul 2022 11:43:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35932 "EHLO
+        id S231146AbiGUQqP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Jul 2022 12:46:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51200 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232939AbiGUPmu (ORCPT
+        with ESMTP id S229616AbiGUQqM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Jul 2022 11:42:50 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7010C8AEC2
-        for <linux-input@vger.kernel.org>; Thu, 21 Jul 2022 08:38:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1658417921;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=5uLFJKvCAwMcRyJLEMeXT27yTzQIQVCPf4An483OOII=;
-        b=ZP6wgqLht8mFED5Jxav2MtX1T3xVPIUucntzdwJ5eY885l8qU0Rk1iRcZClQ/Sl9YxlJ6S
-        FDy6XLPaIxVWtJhK+XWDJYV2YVq64pfIcdCQgO0P594qXPStYj/3Eyx502A+UjWPj8uCm2
-        Wl3DzX0BdXNQqK80OTWvv+uVZr7BDmA=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-619-0Mu-pWrUOIOqP3e-u8mjQw-1; Thu, 21 Jul 2022 11:37:22 -0400
-X-MC-Unique: 0Mu-pWrUOIOqP3e-u8mjQw-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9815B1C1F1E3;
-        Thu, 21 Jul 2022 15:36:48 +0000 (UTC)
-Received: from plouf.redhat.com (unknown [10.39.194.200])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5E20B2166B26;
-        Thu, 21 Jul 2022 15:36:45 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Shuah Khan <shuah@kernel.org>,
-        Dave Marchevsky <davemarchevsky@fb.com>,
-        Joe Stringer <joe@cilium.io>, Jonathan Corbet <corbet@lwn.net>
-Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v7 05/24] bpf/verifier: allow kfunc to return an allocated mem
-Date:   Thu, 21 Jul 2022 17:36:06 +0200
-Message-Id: <20220721153625.1282007-6-benjamin.tissoires@redhat.com>
-In-Reply-To: <20220721153625.1282007-1-benjamin.tissoires@redhat.com>
-References: <20220721153625.1282007-1-benjamin.tissoires@redhat.com>
+        Thu, 21 Jul 2022 12:46:12 -0400
+Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E519387C00;
+        Thu, 21 Jul 2022 09:46:10 -0700 (PDT)
+Received: by mail-oi1-x236.google.com with SMTP id s188so2718731oie.0;
+        Thu, 21 Jul 2022 09:46:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=LF+4BEXgeX20FEYKll0oCoEu58JRyVpVfKo7D5sSEx8=;
+        b=QaJVkk9hcWFTkEtwG/+eBy62Q04xBPngYZTh76RhgRj65YcIAaKuMwc8vKuAefHP/a
+         Em67U2P6yMh7KLoVWlTC4JLy1YwJahm6I8SwmkgR29DBG/V5nA+tQgS2n9hK2OJWXZFY
+         3IU+XgpUxX+MmdqE4c9ONFuqU17McZ3i6FQciajwuc+LhztcbGGmpBHfmoiswW2kiMe9
+         lyvbBgsH0PENFzy1q3KsSWlbJlTO2mQUqbZF80c0v2oIvvxBgqMu/NcsGETM7st4ri8n
+         +6vop45LBFeT+BzF5L6cXAeW80mXY46EPBQZF1K2ONtANhHzS4P5qR5LSZ4C75q9D7D1
+         7mdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=LF+4BEXgeX20FEYKll0oCoEu58JRyVpVfKo7D5sSEx8=;
+        b=z/ZRUC/zhCGWH4r0LPmwj53Wd8JcM/GMbxQUiqbp54NlfWqA840EQGchAFA5zFXssR
+         eGGaKKOH/uK3LVeQEo57VZ+rOfIhvs30nbNJWvq6Q7wpXqTdXZmM76zrt7VeCUvmNvCG
+         bJkWTqZXlwR2neSDXzMMAIE4IdGC05fuVc2RkI0O17kZ/2K9Jh+WhsI82ShsSMHLAwtr
+         acD+fNrpXaqlTJu6hjv51L+q5sbEXYoe7MlSoAvThTidZH1vJu/VWMyFhqzaw8If1s94
+         VsI0rnIzOu2Y97emZqX7/jWvnqN6u+ZgsHfVcrf3ecOIVmhIaMTOpSuJRaG/qMX2opvo
+         j+gQ==
+X-Gm-Message-State: AJIora8ODlbJClVaVWnXCoV1WHImf6vyET0TbUsPWaaelIVuO1f+6T+N
+        w1Xzw5gPsAMx7ubH9sUFHTQnttBsRdU=
+X-Google-Smtp-Source: AGRyM1sMhCFTUel0nZbimwZ5NIBDdcSf55m/zvlssEXpf9MpUwKfPSxogCGIG/aiw/gR31eCq+auUQ==
+X-Received: by 2002:a05:6808:1585:b0:33a:653b:8812 with SMTP id t5-20020a056808158500b0033a653b8812mr4843650oiw.69.1658421969927;
+        Thu, 21 Jul 2022 09:46:09 -0700 (PDT)
+Received: from wintermute.localdomain (cpe-76-183-134-35.tx.res.rr.com. [76.183.134.35])
+        by smtp.gmail.com with ESMTPSA id f189-20020aca38c6000000b0033a45705cb2sm831512oia.8.2022.07.21.09.46.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 Jul 2022 09:46:09 -0700 (PDT)
+From:   Chris Morgan <macroalpha82@gmail.com>
+To:     linux-input@vger.kernel.org
+Cc:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, heiko@sntech.de,
+        contact@artur-rojek.eu, jic23@kernel.org, paul@crapouillou.net,
+        linux-iio@vger.kernel.org, Chris Morgan <macromorgan@hotmail.com>
+Subject: [PATCH v8 0/3] dt-bindings: adc-joystick: add poll-interval
+Date:   Thu, 21 Jul 2022 11:46:00 -0500
+Message-Id: <20220721164603.13534-1-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.78 on 10.11.54.6
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-For drivers (outside of network), the incoming data is not statically
-defined in a struct. Most of the time the data buffer is kzalloc-ed
-and thus we can not rely on eBPF and BTF to explore the data.
+From: Chris Morgan <macromorgan@hotmail.com>
 
-This commit allows to return an arbitrary memory, previously allocated by
-the driver.
-An interesting extra point is that the kfunc can mark the exported
-memory region as read only or read/write.
+Add support to the existing adc-joystick driver to support polling
+rather than relying on triggered buffers. This is useful for devices
+that do not offer triggered buffers in hardware. Code adapted from
+changes made by Maya Matuszczyk <maccraft123mc@gmail.com>.
 
-So, when a kfunc is not returning a pointer to a struct but to a plain
-type, we can consider it is a valid allocated memory assuming that:
-- one of the arguments is either called rdonly_buf_size or
-  rdwr_buf_size
-- and this argument is a const from the caller point of view
+Changes from V7:
+ - Dropped acks from adc-joystick.c changes, as it has been altered
+   somewhat since v7.
+ - Improved checking value of poll-interval to ensure explicit error
+   handling in the event of malformed values.
+ - Adjusted logic to not check for storagebits if polling is in use,
+   which allows adc-joystick to work in polling mode for devices that
+   utilize a mux (such as the Odroid Go Super and the Anbernic RG353).
+ - Changed error message and channel size comparison logic slightly to
+   ensure code can fit within 80 character column width.
 
-We can then use this parameter as the size of the allocated memory.
+Changes from V6:
+ - Reverted back to "poll-interval" after mailing list discussion.
+ - Referenced input.yaml for definition of poll-interval in adc-joystick
+   documentation.
 
-The memory is either read-only or read-write based on the name
-of the size parameter.
+Changes from V5:
+ - Corrected an error found by yamllint in the documentation.
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Changes from V4:
+ - Added unit property to devicetree attribute making it now
+   "poll-interval-ms".
+ - Simplified logic for setting polled value and made variable names
+   more clear.
 
----
+Changes from V3:
+ - After lengthy discussion decided to support with existing attribute
+   of "poll-interval". If present, the driver will use polling and if
+   not present, it will use triggered buffers (as the driver does
+   today).
+ - Corrected some lines to honor the 80 character line-limit.
+ - Check return value from polling method and return early if there
+   is an error reading the data.
 
-changes in v7:
-- ensures btf_type_is_struct_ptr() checks for a ptr first
-  (squashed from next commit)
-- remove multiple_ref_obj_id need
-- use btf_type_skip_modifiers instead of manually doing it in
-  btf_type_is_struct_ptr()
-- s/strncmp/strcmp/ in btf_is_kfunc_arg_mem_size()
-- check for tnum_is_const when retrieving the size value
-- have only one check for "Ensure only one argument is referenced
-  PTR_TO_BTF_ID"
-- add some more context to the commit message
+Changes from V2:
+ - Changed parameter from "adc-joystick,polled" to
+   "adc-joystick,no-hardware-trigger" as it is more representative of
+   what the driver and hardware are doing.
 
-changes in v6:
-- code review from Kartikeya:
-  - remove comment change that had no reasons to be
-  - remove handling of PTR_TO_MEM with kfunc releases
-  - introduce struct bpf_kfunc_arg_meta
-  - do rdonly/rdwr_buf_size check in btf_check_kfunc_arg_match
-  - reverted most of the changes in verifier.c
-  - make sure kfunc acquire is using a struct pointer, not just a plain
-    pointer
-  - also forward ref_obj_id to PTR_TO_MEM in kfunc to not use after free
-    the allocated memory
+Changes from V1:
+ - Removed driver compatible string of "adc-joystick-polled".
+ - Added new optional boolean value of "adc-joystick,polled".
+ - Cleaned up if statements regarding polling behavior.
 
-changes in v5:
-- updated PTR_TO_MEM comment in btf.c to match upstream
-- make it read-only or read-write based on the name of size
+Chris Morgan (3):
+  dt-bindings: adc-joystick: add poll-interval
+  Input: adc-joystick - Add polled input device support
+  arm64: dts: rockchip: Update joystick to polled for OG2
 
-new in v4
+ .../bindings/input/adc-joystick.yaml          |  5 ++
+ .../boot/dts/rockchip/rk3326-odroid-go2.dts   |  1 +
+ drivers/input/joystick/adc-joystick.c         | 82 ++++++++++++++-----
+ 3 files changed, 68 insertions(+), 20 deletions(-)
 
-change btf.h
-
-fix allow kfunc to return an allocated mem
----
- include/linux/bpf.h   |  9 ++++-
- include/linux/btf.h   | 10 +++++
- kernel/bpf/btf.c      | 91 ++++++++++++++++++++++++++++++++++++-------
- kernel/bpf/verifier.c | 42 ++++++++++++++------
- 4 files changed, 125 insertions(+), 27 deletions(-)
-
-diff --git a/include/linux/bpf.h b/include/linux/bpf.h
-index 11950029284f..6af8ef505315 100644
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -1919,12 +1919,19 @@ int btf_distill_func_proto(struct bpf_verifier_log *log,
- 			   const char *func_name,
- 			   struct btf_func_model *m);
- 
-+struct bpf_kfunc_arg_meta {
-+	u64 r0_size;
-+	bool r0_rdonly;
-+	int ref_obj_id;
-+};
-+
- struct bpf_reg_state;
- int btf_check_subprog_arg_match(struct bpf_verifier_env *env, int subprog,
- 				struct bpf_reg_state *regs);
- int btf_check_kfunc_arg_match(struct bpf_verifier_env *env,
- 			      const struct btf *btf, u32 func_id,
--			      struct bpf_reg_state *regs);
-+			      struct bpf_reg_state *regs,
-+			      struct bpf_kfunc_arg_meta *meta);
- int btf_prepare_func_args(struct bpf_verifier_env *env, int subprog,
- 			  struct bpf_reg_state *reg);
- int btf_check_type_match(struct bpf_verifier_log *log, const struct bpf_prog *prog,
-diff --git a/include/linux/btf.h b/include/linux/btf.h
-index 1bfed7fa0428..f6f06d699422 100644
---- a/include/linux/btf.h
-+++ b/include/linux/btf.h
-@@ -420,4 +420,14 @@ static inline int register_btf_id_dtor_kfuncs(const struct btf_id_dtor_kfunc *dt
- }
- #endif
- 
-+static inline bool btf_type_is_struct_ptr(struct btf *btf, const struct btf_type *t)
-+{
-+	if (!btf_type_is_ptr(t))
-+		return false;
-+
-+	t = btf_type_skip_modifiers(btf, t->type, NULL);
-+
-+	return btf_type_is_struct(t);
-+}
-+
- #endif
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 5869f03bcb6e..ea1c4b0e3e88 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -6169,10 +6169,36 @@ static bool is_kfunc_arg_mem_size(const struct btf *btf,
- 	return true;
- }
- 
-+static bool btf_is_kfunc_arg_mem_size(const struct btf *btf,
-+				      const struct btf_param *arg,
-+				      const struct bpf_reg_state *reg,
-+				      const char *name)
-+{
-+	int len, target_len = strlen(name);
-+	const struct btf_type *t;
-+	const char *param_name;
-+
-+	t = btf_type_skip_modifiers(btf, arg->type, NULL);
-+	if (!btf_type_is_scalar(t) || reg->type != SCALAR_VALUE)
-+		return false;
-+
-+	param_name = btf_name_by_offset(btf, arg->name_off);
-+	if (str_is_empty(param_name))
-+		return false;
-+	len = strlen(param_name);
-+	if (len != target_len)
-+		return false;
-+	if (strcmp(param_name, name))
-+		return false;
-+
-+	return true;
-+}
-+
- static int btf_check_func_arg_match(struct bpf_verifier_env *env,
- 				    const struct btf *btf, u32 func_id,
- 				    struct bpf_reg_state *regs,
--				    bool ptr_to_mem_ok)
-+				    bool ptr_to_mem_ok,
-+				    struct bpf_kfunc_arg_meta *kfunc_meta)
- {
- 	enum bpf_prog_type prog_type = resolve_prog_type(env->prog);
- 	struct bpf_verifier_log *log = &env->log;
-@@ -6226,6 +6252,35 @@ static int btf_check_func_arg_match(struct bpf_verifier_env *env,
- 
- 		t = btf_type_skip_modifiers(btf, args[i].type, NULL);
- 		if (btf_type_is_scalar(t)) {
-+			if (is_kfunc && kfunc_meta) {
-+				bool is_buf_size = false;
-+
-+				/* check for any const scalar parameter of name "rdonly_buf_size"
-+				 * or "rdwr_buf_size"
-+				 */
-+				if (btf_is_kfunc_arg_mem_size(btf, &args[i], reg,
-+							      "rdonly_buf_size")) {
-+					kfunc_meta->r0_rdonly = true;
-+					is_buf_size = true;
-+				} else if (btf_is_kfunc_arg_mem_size(btf, &args[i], reg,
-+								     "rdwr_buf_size"))
-+					is_buf_size = true;
-+
-+				if (is_buf_size) {
-+					if (kfunc_meta->r0_size) {
-+						bpf_log(log, "2 or more rdonly/rdwr_buf_size parameters for kfunc");
-+						return -EINVAL;
-+					}
-+
-+					if (!tnum_is_const(reg->var_off)) {
-+						bpf_log(log, "R%d is not a const\n", regno);
-+						return -EINVAL;
-+					}
-+
-+					kfunc_meta->r0_size = reg->var_off.value;
-+				}
-+			}
-+
- 			if (reg->type == SCALAR_VALUE)
- 				continue;
- 			bpf_log(log, "R%d is not a scalar\n", regno);
-@@ -6247,6 +6302,19 @@ static int btf_check_func_arg_match(struct bpf_verifier_env *env,
- 		if (ret < 0)
- 			return ret;
- 
-+		if (is_kfunc && reg->type == PTR_TO_BTF_ID) {
-+			/* Ensure only one argument is referenced PTR_TO_BTF_ID */
-+			if (reg->ref_obj_id) {
-+				if (ref_obj_id) {
-+					bpf_log(log, "verifier internal error: more than one arg with ref_obj_id R%d %u %u\n",
-+						regno, reg->ref_obj_id, ref_obj_id);
-+					return -EFAULT;
-+				}
-+				ref_regno = regno;
-+				ref_obj_id = reg->ref_obj_id;
-+			}
-+		}
-+
- 		/* kptr_get is only true for kfunc */
- 		if (i == 0 && kptr_get) {
- 			struct bpf_map_value_off_desc *off_desc;
-@@ -6319,16 +6387,6 @@ static int btf_check_func_arg_match(struct bpf_verifier_env *env,
- 			if (reg->type == PTR_TO_BTF_ID) {
- 				reg_btf = reg->btf;
- 				reg_ref_id = reg->btf_id;
--				/* Ensure only one argument is referenced PTR_TO_BTF_ID */
--				if (reg->ref_obj_id) {
--					if (ref_obj_id) {
--						bpf_log(log, "verifier internal error: more than one arg with ref_obj_id R%d %u %u\n",
--							regno, reg->ref_obj_id, ref_obj_id);
--						return -EFAULT;
--					}
--					ref_regno = regno;
--					ref_obj_id = reg->ref_obj_id;
--				}
- 			} else {
- 				reg_btf = btf_vmlinux;
- 				reg_ref_id = *reg2btf_ids[base_type(reg->type)];
-@@ -6411,6 +6469,10 @@ static int btf_check_func_arg_match(struct bpf_verifier_env *env,
- 			func_name);
- 		return -EINVAL;
- 	}
-+
-+	if (kfunc_meta && ref_obj_id)
-+		kfunc_meta->ref_obj_id = ref_obj_id;
-+
- 	/* returns argument register number > 0 in case of reference release kfunc */
- 	return rel ? ref_regno : 0;
- }
-@@ -6442,7 +6504,7 @@ int btf_check_subprog_arg_match(struct bpf_verifier_env *env, int subprog,
- 		return -EINVAL;
- 
- 	is_global = prog->aux->func_info_aux[subprog].linkage == BTF_FUNC_GLOBAL;
--	err = btf_check_func_arg_match(env, btf, btf_id, regs, is_global);
-+	err = btf_check_func_arg_match(env, btf, btf_id, regs, is_global, NULL);
- 
- 	/* Compiler optimizations can remove arguments from static functions
- 	 * or mismatched type can be passed into a global function.
-@@ -6455,9 +6517,10 @@ int btf_check_subprog_arg_match(struct bpf_verifier_env *env, int subprog,
- 
- int btf_check_kfunc_arg_match(struct bpf_verifier_env *env,
- 			      const struct btf *btf, u32 func_id,
--			      struct bpf_reg_state *regs)
-+			      struct bpf_reg_state *regs,
-+			      struct bpf_kfunc_arg_meta *meta)
- {
--	return btf_check_func_arg_match(env, btf, func_id, regs, true);
-+	return btf_check_func_arg_match(env, btf, func_id, regs, true, meta);
- }
- 
- /* Convert BTF of a function into bpf_reg_state if possible
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 92714299831c..8e760cccab0a 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -7578,6 +7578,7 @@ static int check_kfunc_call(struct bpf_verifier_env *env, struct bpf_insn *insn,
- {
- 	const struct btf_type *t, *func, *func_proto, *ptr_type;
- 	struct bpf_reg_state *regs = cur_regs(env);
-+	struct bpf_kfunc_arg_meta meta = { 0 };
- 	const char *func_name, *ptr_type_name;
- 	u32 i, nargs, func_id, ptr_type_id;
- 	int err, insn_idx = *insn_idx_p;
-@@ -7609,7 +7610,7 @@ static int check_kfunc_call(struct bpf_verifier_env *env, struct bpf_insn *insn,
- 					BTF_KFUNC_TYPE_ACQUIRE, func_id);
- 
- 	/* Check the arguments */
--	err = btf_check_kfunc_arg_match(env, desc_btf, func_id, regs);
-+	err = btf_check_kfunc_arg_match(env, desc_btf, func_id, regs, &meta);
- 	if (err < 0)
- 		return err;
- 	/* In case of release function, we get register number of refcounted
-@@ -7630,7 +7631,7 @@ static int check_kfunc_call(struct bpf_verifier_env *env, struct bpf_insn *insn,
- 	/* Check return type */
- 	t = btf_type_skip_modifiers(desc_btf, func_proto->type, NULL);
- 
--	if (acq && !btf_type_is_ptr(t)) {
-+	if (acq && !btf_type_is_struct_ptr(desc_btf, t)) {
- 		verbose(env, "acquire kernel function does not return PTR_TO_BTF_ID\n");
- 		return -EINVAL;
- 	}
-@@ -7642,17 +7643,34 @@ static int check_kfunc_call(struct bpf_verifier_env *env, struct bpf_insn *insn,
- 		ptr_type = btf_type_skip_modifiers(desc_btf, t->type,
- 						   &ptr_type_id);
- 		if (!btf_type_is_struct(ptr_type)) {
--			ptr_type_name = btf_name_by_offset(desc_btf,
--							   ptr_type->name_off);
--			verbose(env, "kernel function %s returns pointer type %s %s is not supported\n",
--				func_name, btf_type_str(ptr_type),
--				ptr_type_name);
--			return -EINVAL;
-+			if (!meta.r0_size) {
-+				ptr_type_name = btf_name_by_offset(desc_btf,
-+								   ptr_type->name_off);
-+				verbose(env,
-+					"kernel function %s returns pointer type %s %s is not supported\n",
-+					func_name,
-+					btf_type_str(ptr_type),
-+					ptr_type_name);
-+				return -EINVAL;
-+			}
-+
-+			mark_reg_known_zero(env, regs, BPF_REG_0);
-+			regs[BPF_REG_0].type = PTR_TO_MEM;
-+			regs[BPF_REG_0].mem_size = meta.r0_size;
-+
-+			if (meta.r0_rdonly)
-+				regs[BPF_REG_0].type |= MEM_RDONLY;
-+
-+			/* Ensures we don't access the memory after a release_reference() */
-+			if (meta.ref_obj_id)
-+				regs[BPF_REG_0].ref_obj_id = meta.ref_obj_id;
-+		} else {
-+			mark_reg_known_zero(env, regs, BPF_REG_0);
-+			regs[BPF_REG_0].btf = desc_btf;
-+			regs[BPF_REG_0].type = PTR_TO_BTF_ID;
-+			regs[BPF_REG_0].btf_id = ptr_type_id;
- 		}
--		mark_reg_known_zero(env, regs, BPF_REG_0);
--		regs[BPF_REG_0].btf = desc_btf;
--		regs[BPF_REG_0].type = PTR_TO_BTF_ID;
--		regs[BPF_REG_0].btf_id = ptr_type_id;
-+
- 		if (btf_kfunc_id_set_contains(desc_btf, resolve_prog_type(env->prog),
- 					      BTF_KFUNC_TYPE_RET_NULL, func_id)) {
- 			regs[BPF_REG_0].type |= PTR_MAYBE_NULL;
 -- 
-2.36.1
+2.25.1
 

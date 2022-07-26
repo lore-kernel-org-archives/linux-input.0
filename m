@@ -2,52 +2,52 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57017C00140
-	for <linux-input@archiver.kernel.org>; Tue, 26 Jul 2022 16:39:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22583C04A68
+	for <linux-input@archiver.kernel.org>; Tue, 26 Jul 2022 16:39:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239512AbiGZQjl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 26 Jul 2022 12:39:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48618 "EHLO
+        id S239523AbiGZQjm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 26 Jul 2022 12:39:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239505AbiGZQjh (ORCPT
+        with ESMTP id S239513AbiGZQji (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Jul 2022 12:39:37 -0400
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9A3C1E3F2;
-        Tue, 26 Jul 2022 09:39:36 -0700 (PDT)
-Received: by mail-wr1-x42a.google.com with SMTP id m17so20652723wrw.7;
-        Tue, 26 Jul 2022 09:39:36 -0700 (PDT)
+        Tue, 26 Jul 2022 12:39:38 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85BF21E3FB;
+        Tue, 26 Jul 2022 09:39:37 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id g2so12883295wru.3;
+        Tue, 26 Jul 2022 09:39:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=OMwhz1M1zPryVflcNS8Rn/GSnUJtV+dvUFo/LQneMlo=;
-        b=IlZNAjhtAalJciM2XrKCWaeHGfYKDtIK42bbfzZ1VtDHwGzovPpd89vwoVudP9DlXI
-         l0sClWS/H34bwlHxp71l7Nb37gtrhE2iOfvtWKFTodkEsP/0zMDxzrzCfcqgSgjqv1DC
-         7omEF8HEeu1MnsOa4L6Z234/T2eE//mmSD0QQlYN7XB+XG+LGlc5347MDloQhrOFN3jt
-         j1mZohU/YLmeyYiTfKnmTdJ1uqLDEDNWgCHSPRZ97gAVQ+IiDrKzFewdIt8afbJm0aZk
-         Sv6yec8uo64GLAoacrLjO+WTvbkmexceTDCU7SNc7jrSXbgt1Vd7uVzsYvIoqro6xdbG
-         2I0w==
+        bh=NqtpgNQcwaCsv1mwTgrIhbhApopwMTvPV7ss+M+u/o8=;
+        b=gqfCzSRumTU5hd/8wloopALuGRlO+ohrPc5LK7Mlw34AOq0OV14XK4LpyN4rdMTsNd
+         F8/9dm4rPUEQMweKUOZpoD2hdSgn+vHFlyYoJMzNyz9iedi+ltCeD742W0v2zvkOXExo
+         okNB/A2NdWlUp2jmdRi0gR0zGAgzxUR7WwYZmG+WzxV1aPQrVYmttf/QXaU3H65fDoEW
+         BaLe7UYGIA2rK8oIxR5v92/xYSO0cEPAlZgnk6n52eK/dtaC+FvXnfDJpRW0vYTIvDx+
+         zrPR3n3w/zS/bZaTFb7VXZgbeiNQT/WpWY8y63Xr3TgVZiv97IWmP1bB5+fvEHoG/rZo
+         BlUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=OMwhz1M1zPryVflcNS8Rn/GSnUJtV+dvUFo/LQneMlo=;
-        b=Ys71qMHizP6+QdbfwK04vcyf6BtP6alFf8uuTRUCrtztvOBWtgojBaAJxWpfhCZ/cd
-         sBA2m3M/LIBWN58A0Ue5OeqJ4SJQElQptv2KhBY2Rifadbgjc0trITOorqsES6GHXoSW
-         M5JeMlG7yy5J/WufvHe5PxXZbfxsgFRGvzBt4qvw38rlEngU8eNz3FJWrCB0pduZTqEb
-         0tB+nCRpwXDYKSkH+XgJc3QsUWPUJH5gGtKBcsZIXooiUft2+OP/JBAeiOc6nKmJggy3
-         6svQJDcLBHuOjkVxS6RPINAkDYiad+70yLq3Pnv8YPS8kKNjeiar7lFgMU1u2V48NtFB
-         OoVg==
-X-Gm-Message-State: AJIora/IjeqxAIlAFnUGgEhl1RIrgeshKeFnN5Hd73tkYWb3WM5NpH4C
-        3LgrBDco3YQyJEnhyzJGgUA=
-X-Google-Smtp-Source: AGRyM1u0Y4JfBEZw2lFxMxsRghHXIUlHNxWzBwWF0C1DKTShElaYeWP0Jc0UNeDSO5Ny8/qkycfTkw==
-X-Received: by 2002:adf:ded0:0:b0:21e:5555:6f16 with SMTP id i16-20020adfded0000000b0021e55556f16mr12364430wrn.30.1658853575174;
-        Tue, 26 Jul 2022 09:39:35 -0700 (PDT)
+        bh=NqtpgNQcwaCsv1mwTgrIhbhApopwMTvPV7ss+M+u/o8=;
+        b=EgcmSzbUffLXGxcq7KpTNPiKcRRK9UUUrQAw6W/zbALPzZv6yHqk0tlTek84sw/Z4n
+         C9EpiDkmv+FnJUN7Y7UcjZSpjVM1jvMmAQnN6JdQqGjZLhxeBoSTs0So/BL8xt9QZxuX
+         eQgBYQxeyuJuBDZMph7frX+moio8tXfTFq3KtIGJ/fzHF8lfwyCK99ZALlfPapBIm4ke
+         gsj4eheVCzPFwt9KvgNVPCUfRzaLzPCrRunzXPvNN9keFGzFUsr6lvtTSZbr08puBSwf
+         Wpc9jlUJZoIj168EQ2xjupVsFu41qBN1J9+cYA86bHJXcT694ks2cgqWsMBITY8Yenej
+         ZQRg==
+X-Gm-Message-State: AJIora+D83K1LvXmjLVmPjkxbF2F51MP+dilqcFGHK7rPJlcz/1UUYL+
+        xOM7UkWERHyk6oQYuVKv+dw=
+X-Google-Smtp-Source: AGRyM1v0Q8klGCqgyFszBS1ethiWTBLZjMoRkrRSHbnBYEYbOkKJF+HJfgWU3/kZr5XYBzdDn6hIUw==
+X-Received: by 2002:adf:ec11:0:b0:21e:5ec4:6ce0 with SMTP id x17-20020adfec11000000b0021e5ec46ce0mr11727432wrn.113.1658853577078;
+        Tue, 26 Jul 2022 09:39:37 -0700 (PDT)
 Received: from localhost.localdomain ([94.73.33.57])
-        by smtp.gmail.com with ESMTPSA id o9-20020a05600c058900b0039c54bb28f2sm19514710wmd.36.2022.07.26.09.39.34
+        by smtp.gmail.com with ESMTPSA id o9-20020a05600c058900b0039c54bb28f2sm19514710wmd.36.2022.07.26.09.39.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jul 2022 09:39:34 -0700 (PDT)
+        Tue, 26 Jul 2022 09:39:36 -0700 (PDT)
 From:   =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
 To:     jikos@kernel.org
 Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
@@ -55,9 +55,9 @@ Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         kunit-dev@googlegroups.com,
         =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH v3 5/7] HID: uclogic: Add support for UGEE v2 dial frames
-Date:   Tue, 26 Jul 2022 18:39:24 +0200
-Message-Id: <20220726163926.10549-6-jose.exposito89@gmail.com>
+Subject: [PATCH v3 7/7] HID: uclogic: Add support for XP-PEN Deco Pro S
+Date:   Tue, 26 Jul 2022 18:39:26 +0200
+Message-Id: <20220726163926.10549-8-jose.exposito89@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220726163926.10549-1-jose.exposito89@gmail.com>
 References: <20220726163926.10549-1-jose.exposito89@gmail.com>
@@ -68,145 +68,63 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add the required HID descriptors and the initialization function for
-UGEE v2 frames with a bitmap dial.
+The XP-PEN Deco Pro S is a UGEE v2 device with a frame with 8 buttons,
+a bitmap dial and a mouse. Its pen has 2 buttons, supports tilt and
+pressure.
 
+All the pieces to support it are already in place. Add its ID in order
+to support the device.
+
+The required Wireshark traces were captured by Jouke Witteveen.
+For more information check [1].
+
+Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/738  [1]
 Tested-by: Jouke Witteveen <j.witteveen@gmail.com>
 Signed-off-by: José Expósito <jose.exposito89@gmail.com>
 ---
- drivers/hid/hid-uclogic-params.c | 44 ++++++++++++++++++++++++++++++++
- drivers/hid/hid-uclogic-rdesc.c  | 40 +++++++++++++++++++++++++++++
- drivers/hid/hid-uclogic-rdesc.h  |  4 +++
- 3 files changed, 88 insertions(+)
+ drivers/hid/hid-ids.h            | 1 +
+ drivers/hid/hid-uclogic-core.c   | 2 ++
+ drivers/hid/hid-uclogic-params.c | 2 ++
+ 3 files changed, 5 insertions(+)
 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 139910034c17..ee6d27a5dd1c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1279,6 +1279,7 @@
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_G640	0x0094
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01	0x0042
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L	0x0935
++#define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S	0x0909
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06	0x0078
+ #define USB_DEVICE_ID_UGEE_TABLET_G5		0x0074
+ #define USB_DEVICE_ID_UGEE_TABLET_EX07S		0x0071
+diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+index 47a17375c7fc..6fcdb141acec 100644
+--- a/drivers/hid/hid-uclogic-core.c
++++ b/drivers/hid/hid-uclogic-core.c
+@@ -523,6 +523,8 @@ static const struct hid_device_id uclogic_devices[] = {
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
++				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06) },
+ 	{ }
 diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index b232125f6972..8ac7caeda535 100644
+index 797eeb443c18..dd4b1ed6fd1e 100644
 --- a/drivers/hid/hid-uclogic-params.c
 +++ b/drivers/hid/hid-uclogic-params.c
-@@ -1149,6 +1149,45 @@ static int uclogic_params_ugee_v2_init_frame_buttons(struct uclogic_params *p,
- 	return 0;
- }
- 
-+/**
-+ * uclogic_params_ugee_v2_init_frame_dial() - initialize a UGEE v2 frame with a
-+ * bitmap dial.
-+ * @p:			Parameters to fill in, cannot be NULL.
-+ * @desc_params:	Device description params list.
-+ * @desc_params_size:	Size of the description params list.
-+ *
-+ * Returns:
-+ *	Zero, if successful. A negative errno code on error.
-+ */
-+static int uclogic_params_ugee_v2_init_frame_dial(struct uclogic_params *p,
-+						  const s32 *desc_params,
-+						  size_t desc_params_size)
-+{
-+	__u8 *rdesc_frame = NULL;
-+	int rc = 0;
-+
-+	if (!p || desc_params_size != UCLOGIC_RDESC_PH_ID_NUM)
-+		return -EINVAL;
-+
-+	rdesc_frame = uclogic_rdesc_template_apply(
-+				uclogic_rdesc_ugee_v2_frame_dial_template_arr,
-+				uclogic_rdesc_ugee_v2_frame_dial_template_size,
-+				desc_params, UCLOGIC_RDESC_PH_ID_NUM);
-+	if (!rdesc_frame)
-+		return -ENOMEM;
-+
-+	rc = uclogic_params_frame_init_with_desc(&p->frame_list[0],
-+						 rdesc_frame,
-+						 uclogic_rdesc_ugee_v2_frame_dial_template_size,
-+						 UCLOGIC_RDESC_V1_FRAME_ID);
-+	kfree(rdesc_frame);
-+	if (rc)
-+		return rc;
-+
-+	p->frame_list[0].bitmap_dial_byte = 7;
-+	return 0;
-+}
-+
- /**
-  * uclogic_params_ugee_v2_init() - initialize a UGEE graphics tablets by
-  * discovering their parameters.
-@@ -1248,6 +1287,11 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
- 
- 	/* Initialize the frame interface */
- 	switch (frame_type) {
-+	case UCLOGIC_PARAMS_FRAME_DIAL:
-+	case UCLOGIC_PARAMS_FRAME_MOUSE:
-+		rc = uclogic_params_ugee_v2_init_frame_dial(&p, desc_params,
-+							    ARRAY_SIZE(desc_params));
-+		break;
- 	case UCLOGIC_PARAMS_FRAME_BUTTONS:
- 	default:
- 		rc = uclogic_params_ugee_v2_init_frame_buttons(&p, desc_params,
-diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
-index 3d68e8b0784d..22429df693fc 100644
---- a/drivers/hid/hid-uclogic-rdesc.c
-+++ b/drivers/hid/hid-uclogic-rdesc.c
-@@ -961,6 +961,46 @@ const __u8 uclogic_rdesc_ugee_v2_frame_btn_template_arr[] = {
- const size_t uclogic_rdesc_ugee_v2_frame_btn_template_size =
- 			sizeof(uclogic_rdesc_ugee_v2_frame_btn_template_arr);
- 
-+/* Fixed report descriptor template for UGEE v2 frame reports (dial) */
-+const __u8 uclogic_rdesc_ugee_v2_frame_dial_template_arr[] = {
-+	0x05, 0x01,         /*  Usage Page (Desktop),                   */
-+	0x09, 0x07,         /*  Usage (Keypad),                         */
-+	0xA1, 0x01,         /*  Collection (Application),               */
-+	0x85, UCLOGIC_RDESC_V1_FRAME_ID,
-+			    /*      Report ID,                          */
-+	0x05, 0x0D,         /*      Usage Page (Digitizer),             */
-+	0x09, 0x39,         /*      Usage (Tablet Function Keys),       */
-+	0xA0,               /*      Collection (Physical),              */
-+	0x75, 0x01,         /*          Report Size (1),                */
-+	0x95, 0x08,         /*          Report Count (8),               */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0x05, 0x09,         /*          Usage Page (Button),            */
-+	0x19, 0x01,         /*          Usage Minimum (01h),            */
-+	UCLOGIC_RDESC_FRAME_PH_BTN,
-+			    /*          Usage Maximum (PLACEHOLDER),    */
-+	0x95, 0x0A,         /*          Report Count (10),              */
-+	0x14,               /*          Logical Minimum (0),            */
-+	0x25, 0x01,         /*          Logical Maximum (1),            */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0x95, 0x06,         /*          Report Count (6),               */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0x75, 0x08,         /*          Report Size (8),                */
-+	0x95, 0x03,         /*          Report Count (3),               */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0x05, 0x01,         /*          Usage Page (Desktop),           */
-+	0x09, 0x38,         /*          Usage (Wheel),                  */
-+	0x95, 0x01,         /*          Report Count (1),               */
-+	0x15, 0xFF,         /*          Logical Minimum (-1),           */
-+	0x25, 0x01,         /*          Logical Maximum (1),            */
-+	0x81, 0x06,         /*          Input (Variable, Relative),     */
-+	0x95, 0x02,         /*          Report Count (2),               */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0xC0,               /*      End Collection,                     */
-+	0xC0                /*  End Collection                          */
-+};
-+const size_t uclogic_rdesc_ugee_v2_frame_dial_template_size =
-+			sizeof(uclogic_rdesc_ugee_v2_frame_dial_template_arr);
-+
- /* Fixed report descriptor for Ugee EX07 frame */
- const __u8 uclogic_rdesc_ugee_ex07_frame_arr[] = {
- 	0x05, 0x01,             /*  Usage Page (Desktop),                   */
-diff --git a/drivers/hid/hid-uclogic-rdesc.h b/drivers/hid/hid-uclogic-rdesc.h
-index 86e64a9ee6bd..1a2d658bad3a 100644
---- a/drivers/hid/hid-uclogic-rdesc.h
-+++ b/drivers/hid/hid-uclogic-rdesc.h
-@@ -169,6 +169,10 @@ extern const size_t uclogic_rdesc_ugee_v2_pen_template_size;
- extern const __u8 uclogic_rdesc_ugee_v2_frame_btn_template_arr[];
- extern const size_t uclogic_rdesc_ugee_v2_frame_btn_template_size;
- 
-+/* Fixed report descriptor template for UGEE v2 frame reports (dial) */
-+extern const __u8 uclogic_rdesc_ugee_v2_frame_dial_template_arr[];
-+extern const size_t uclogic_rdesc_ugee_v2_frame_dial_template_size;
-+
- /* Fixed report descriptor for Ugee EX07 frame */
- extern const __u8 uclogic_rdesc_ugee_ex07_frame_arr[];
- extern const size_t uclogic_rdesc_ugee_ex07_frame_size;
+@@ -1583,6 +1583,8 @@ int uclogic_params_init(struct uclogic_params *params,
+ 		break;
+ 	case VID_PID(USB_VENDOR_ID_UGEE,
+ 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L):
++	case VID_PID(USB_VENDOR_ID_UGEE,
++		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S):
+ 		rc = uclogic_params_ugee_v2_init(&p, hdev);
+ 		if (rc != 0)
+ 			goto cleanup;
 -- 
 2.25.1
 

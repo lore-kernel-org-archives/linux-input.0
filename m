@@ -2,192 +2,193 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44720C3F6B0
-	for <linux-input@archiver.kernel.org>; Tue, 26 Jul 2022 16:39:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA36DC00140
+	for <linux-input@archiver.kernel.org>; Tue, 26 Jul 2022 17:58:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239527AbiGZQjn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 26 Jul 2022 12:39:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48668 "EHLO
+        id S239636AbiGZR6b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 26 Jul 2022 13:58:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239515AbiGZQjk (ORCPT
+        with ESMTP id S234575AbiGZR6a (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Jul 2022 12:39:40 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFEF81F2C7;
-        Tue, 26 Jul 2022 09:39:37 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id v17so2001817wrr.10;
-        Tue, 26 Jul 2022 09:39:37 -0700 (PDT)
+        Tue, 26 Jul 2022 13:58:30 -0400
+Received: from mail-qt1-x829.google.com (mail-qt1-x829.google.com [IPv6:2607:f8b0:4864:20::829])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3AA6DF2;
+        Tue, 26 Jul 2022 10:58:27 -0700 (PDT)
+Received: by mail-qt1-x829.google.com with SMTP id a9so10984761qtw.10;
+        Tue, 26 Jul 2022 10:58:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=m+BAN7M1HC05Z4HkOihV5c+UgskV/YNKoHpBc21cwSo=;
-        b=gPuOT/SzaUk0EKVh7BlZmkPF6TxVkLlsIbsaQSMGgwnCDyq7iE9fJUrLAww7yy2nRc
-         x8236RjJe0Wyb302KldwAtOMKa7PiN3S0aNbzSob/q/YmltCFElFC/FjaeZxg95trSMQ
-         xE9n2lDS3eBCqp5adiv1h+RRwT0Ju7PqjuKmQHi+8LpeiV3F42eUvvoE1eX9CWlJ+mgQ
-         H7fTxNHzWZTQLsQ2nApZ55pdE1moVHjrIzzlQmFz6K/y+uNu3H5NXXzkCmaZloCTzOU3
-         3mhUHhacp9E9RrnRnWJxY9zSj85YpLEsNrb24n4hoOa1crAPHLVKOoAAZhqsgLNjMPmH
-         9LqQ==
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=GsDluhTDUq9T1XAH8j35rEpoLb7XXYwX8pV0xfq3Nes=;
+        b=Ox0GzJGRbtbBrx0o7hvGb+9xTqQZyeeUMXTmgftFg5CENo0MuXfu4so3AYdXJGIdsX
+         w2YLD7UmbkN1XaukovVDDXcegca0Zvqoiji+NhcEtZl/SqEFtd5QNitvGBlcScg5tFIM
+         oQ0i2MFGbipz5RPZxjdNE9TutMEIhofRe7QQ6WIyVskUQlQ21Oc5pqPp2zQ4YFdqe7c+
+         VrDONVnLdcX/q1aZVhnCSqYlwKa3iXeQXcuEEVA/FlUW2fU6KPEZCMkuFIG+KPpUwgA4
+         5Y4x1j+Pi4j28PDShSiAcWYndoPtJur4cRPRyDNmLvt29SeAR0cP/31vusBmPR1sbQA4
+         j8sQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=m+BAN7M1HC05Z4HkOihV5c+UgskV/YNKoHpBc21cwSo=;
-        b=EWtPLrXgU4gnMELtL0/lY5T53on5g/n3ySecdiFpNUpLilEGBup0KVch8af3QGhms7
-         BY35eojFwpp9vcd9wQ5bbJuTJszH7nqGE3Wr9apU+043tVw4zsSDtKTsUDEr1y4yU8VO
-         NC+XCRJ+g1ZMw+55NxUAOWU7QmzmRNAGRxPkWhvPvIYETWuKijWJhU03qSoUi5T/qDT3
-         2+grIGBn7CyL9usqtGj2rq/IUFJO2xZV0O5heNPWfRCBuRQEv27iC1D6Ibv9axXm/eDf
-         CFK1wEo03Exy3X4c43P2BsH3OFE9uH+oYdGBfviq8X3X7ea74Z6KwZGf10kgtBCgmfmy
-         NQuA==
-X-Gm-Message-State: AJIora+CEmjXY1Hmw9+F4W7Tzzy+RZZM16xeN97ahQ+QpNBxWZwWxFZy
-        VsMKl5jq77OzlFAm3mO3Gow=
-X-Google-Smtp-Source: AGRyM1uX6ITgGv1yB6gLFynv8AQvQULewq5y5lJdJ0ME5zEUZ8v4rIYh5AxLeCJyXpl6DOhCbhMWHQ==
-X-Received: by 2002:adf:ec0a:0:b0:21e:8882:6a2d with SMTP id x10-20020adfec0a000000b0021e88826a2dmr7472405wrn.355.1658853576188;
-        Tue, 26 Jul 2022 09:39:36 -0700 (PDT)
-Received: from localhost.localdomain ([94.73.33.57])
-        by smtp.gmail.com with ESMTPSA id o9-20020a05600c058900b0039c54bb28f2sm19514710wmd.36.2022.07.26.09.39.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 Jul 2022 09:39:35 -0700 (PDT)
-From:   =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-To:     jikos@kernel.org
-Cc:     benjamin.tissoires@redhat.com, spbnick@gmail.com,
-        j.witteveen@gmail.com, stefanberzl@gmail.com, nathan@kernel.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kunit-dev@googlegroups.com,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH v3 6/7] HID: uclogic: Add support for UGEE v2 mouse frames
-Date:   Tue, 26 Jul 2022 18:39:25 +0200
-Message-Id: <20220726163926.10549-7-jose.exposito89@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220726163926.10549-1-jose.exposito89@gmail.com>
-References: <20220726163926.10549-1-jose.exposito89@gmail.com>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=GsDluhTDUq9T1XAH8j35rEpoLb7XXYwX8pV0xfq3Nes=;
+        b=T6dUPxDfu01iSZ36xiy9nGXlTiT0rn28RkpFZRKrEygLRUctBIsgOU/tS0TCj/MfzK
+         nBSmsGBv7NrPchbyVkmAsp3iX/31J/D3cD7ItKgDodr6wxovwKjBDJTNNvpmnJerfnZK
+         qHXnQDmpnJPoD43OKb+SBUg84u9Gvc9PdPzoOCodLUiRXRbBqecDf3G2SIuj6tF26y7o
+         AlwGzfkTZX4xxoc0+2pM3bjTuQk6Lx5CMKCRYxvygv38I8E5/joh5+pGNvbgkcv7QwEx
+         hiIQQW0XcrSTLK0MLC7Yw+ZRpR1pzgDBRZmxA9diBp9CfEnJnCsM1dVJ6+Gs+2z9UFO8
+         uECw==
+X-Gm-Message-State: AJIora9vze5fgDew3NeBNetNHmiAtRzPuxAhWI4DzQgx+sB9QvY+uIu/
+        QX+/lqCfktGG3f33lc+gPzc=
+X-Google-Smtp-Source: AGRyM1uETOdIGqbEw3eF1isP3IPEsUjjxu+2K/0X5Vjskgr3nbCWi4yVFpeRbE+lT7/SWtk1565Esw==
+X-Received: by 2002:ac8:59d3:0:b0:31e:ff86:f344 with SMTP id f19-20020ac859d3000000b0031eff86f344mr15326720qtf.199.1658858306955;
+        Tue, 26 Jul 2022 10:58:26 -0700 (PDT)
+Received: from [192.168.0.9] ([198.179.6.194])
+        by smtp.gmail.com with ESMTPSA id g11-20020a05620a40cb00b006af08c26774sm12372867qko.47.2022.07.26.10.58.25
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 26 Jul 2022 10:58:26 -0700 (PDT)
+Message-ID: <3f2e0a49-38a8-417e-1bb0-9a9f28371240@gmail.com>
+Date:   Tue, 26 Jul 2022 13:58:24 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.11.0
+Subject: Re: PROBLEM: Regression likely in hid_uclogic driver breaks Huion
+ Inspiroy H640 drawing tablet
+Content-Language: en-US
+To:     =?UTF-8?B?Sm9zw6kgRXhww7NzaXRv?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <9e16d503-2203-57ed-d6af-61fea0c3e10b@gmail.com>
+ <nycvar.YFH.7.76.2207231339500.19850@cbobk.fhfr.pm>
+ <20220724114849.GA32182@elementary> <20220725224841.GA75640@elementary>
+From:   Stefan Hansson <newbie13xd@gmail.com>
+In-Reply-To: <20220725224841.GA75640@elementary>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add the required HID descriptors and the initialization function for
-UGEE v2 frames with a mouse in the frame.
+Hi again!
 
-Tested-by: Jouke Witteveen <j.witteveen@gmail.com>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
----
- drivers/hid/hid-uclogic-params.c | 31 +++++++++++++++++++++++++++++
- drivers/hid/hid-uclogic-rdesc.c  | 34 ++++++++++++++++++++++++++++++++
- drivers/hid/hid-uclogic-rdesc.h  |  4 ++++
- 3 files changed, 69 insertions(+)
+On 2022-07-25 18:48, José Expósito wrote:
+> Hi everyone,
+> 
+> On Sun, Jul 24, 2022 at 01:48:49PM +0200, José Expósito wrote:
+>> On Fri, 22 Jul 2022, Stefan Hansson wrote:
+>>> Hi!
+>>>
+>>> Somewhere between Linux 5.17.6 and 5.18.11 the Huion tablet I have stopped
+>>> working properly. In GNOME Control Center it is identified as Huion New 1060
+>>> Plus, however that's a different tablet than the one I have. Mine is a Huion
+>>> Inspiroy H640, and it uses the hid_uclogic driver.
+>>>
+>>> With Linux 5.17.6, the tablet works as expected with all the buttons being
+>>> detected and the stylus being usable. With 5.18.11, the buttons work fine but
+>>> the stylus does not work correctly. The first time I approach the tablet with
+>>> the stylus it works properly, i.e., the cursor on my screen moves around and
+>>> follows the stylus around the tablet as expected. It continues working like
+>>> this until I remove the stylus from the tablet. After I remove it from the
+>>> tablet, the cursor never gets controlled by the stylus again. I can see that
+>>> the tablet detects the stylus (it has a small indicator light), but the cursor
+>>> doesn't move when I approach the tablet again. To clarify, with Linux 5.17.6,
+>>> the cursor moves around just fine when I remove and then put it back to the
+>>> tablet, just as you would expected.
+>>>
+>>> It may also be worth noting that it worked fine when I previously used it
+>>> around six months ago, although I'm not sure what version of Linux I was using
+>>> at that time (whatever Fedora shipped back then). I also tried reproducing it
+>>> with yesterday's linux-next and Linux 5.19.0-RC7, and the behaviour was the
+>>> same as 5.18.11. I am currently trying to bisect this, but it's not going very
+>>> fast as I currently only have access to a dual core laptop from 2014, so
+>>> building Linux takes a good while.
+>>
+>> Thanks a lot for reporting the issue.
+>>
+>> HUION and other non-Wacom tablets are handled by the UCLogic driver.
+>> This driver is present in the kernel but its changes were deployed
+>> and tested first in the DIGImend driver:
+>> https://github.com/DIGImend/digimend-kernel-drivers
+>>
+>> A while ago, I started including in the kernel the code present in
+>> DIGImend. At this moment, 5.19.0-RC7 and DIGImend have the same code
+>> (well, 5.19 has more features, but they don't affect your tablet).
+>>
+>> I'm telling you this because it might be easier for you to bisect the
+>> changes in the DIGImend driver as it builds way faster than the kernel.
+>> Let me know if you need help bisecting it and I'll do my best to help
+>> you.
+>>
+>> Is this your device?
+>> https://www.huion.com/pen_tablet/Inspiroy/H640P.html
 
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 8ac7caeda535..797eeb443c18 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -1188,6 +1188,31 @@ static int uclogic_params_ugee_v2_init_frame_dial(struct uclogic_params *p,
- 	return 0;
- }
- 
-+/**
-+ * uclogic_params_ugee_v2_init_frame_mouse() - initialize a UGEE v2 frame with a
-+ * mouse.
-+ * @p:			Parameters to fill in, cannot be NULL.
-+ *
-+ * Returns:
-+ *	Zero, if successful. A negative errno code on error.
-+ */
-+static int uclogic_params_ugee_v2_init_frame_mouse(struct uclogic_params *p)
-+{
-+	int rc = 0;
-+
-+	if (!p)
-+		return -EINVAL;
-+
-+	rc = uclogic_params_frame_init_with_desc(&p->frame_list[1],
-+						 uclogic_rdesc_ugee_v2_frame_mouse_template_arr,
-+						 uclogic_rdesc_ugee_v2_frame_mouse_template_size,
-+						 UCLOGIC_RDESC_V1_FRAME_ID);
-+	if (rc)
-+		return rc;
-+
-+	return 0;
-+}
-+
- /**
-  * uclogic_params_ugee_v2_init() - initialize a UGEE graphics tablets by
-  * discovering their parameters.
-@@ -1231,6 +1256,12 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
- 
- 	iface = to_usb_interface(hdev->dev.parent);
- 	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
-+
-+	if (bInterfaceNumber == 0) {
-+		uclogic_params_ugee_v2_init_frame_mouse(&p);
-+		goto output;
-+	}
-+
- 	if (bInterfaceNumber != 2) {
- 		uclogic_params_init_invalid(&p);
- 		goto output;
-diff --git a/drivers/hid/hid-uclogic-rdesc.c b/drivers/hid/hid-uclogic-rdesc.c
-index 22429df693fc..fb9ca69f72c2 100644
---- a/drivers/hid/hid-uclogic-rdesc.c
-+++ b/drivers/hid/hid-uclogic-rdesc.c
-@@ -1001,6 +1001,40 @@ const __u8 uclogic_rdesc_ugee_v2_frame_dial_template_arr[] = {
- const size_t uclogic_rdesc_ugee_v2_frame_dial_template_size =
- 			sizeof(uclogic_rdesc_ugee_v2_frame_dial_template_arr);
- 
-+/* Fixed report descriptor template for UGEE v2 frame reports (mouse) */
-+const __u8 uclogic_rdesc_ugee_v2_frame_mouse_template_arr[] = {
-+	0x05, 0x01,         /*  Usage Page (Desktop),                   */
-+	0x09, 0x02,         /*  Usage (Mouse),                          */
-+	0xA1, 0x01,         /*  Collection (Application),               */
-+	0x85, 0x01,         /*      Report ID (1),                      */
-+	0x05, 0x01,         /*      Usage Page (Pointer),               */
-+	0xA0,               /*      Collection (Physical),              */
-+	0x75, 0x01,         /*          Report Size (1),                */
-+	0x95, 0x02,         /*          Report Count (2),               */
-+	0x05, 0x09,         /*          Usage Page (Button),            */
-+	0x19, 0x01,         /*          Usage Minimum (01h),            */
-+	0x29, 0x02,         /*          Usage Maximum (02h),            */
-+	0x14,               /*          Logical Minimum (0),            */
-+	0x25, 0x01,         /*          Logical Maximum (1),            */
-+	0x81, 0x02,         /*          Input (Variable),               */
-+	0x95, 0x06,         /*          Report Count (6),               */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0x05, 0x01,         /*          Usage Page (Generic Desktop),   */
-+	0x09, 0x30,         /*          Usage (X),                      */
-+	0x09, 0x31,         /*          Usage (Y),                      */
-+	0x75, 0x10,         /*          Report Size (16),               */
-+	0x95, 0x02,         /*          Report Count (2),               */
-+	0x16, 0x00, 0x80,   /*          Logical Minimum (-32768),       */
-+	0x26, 0xFF, 0x7F,   /*          Logical Maximum (32767),        */
-+	0x81, 0x06,         /*          Input (Variable, Relative),     */
-+	0x95, 0x01,         /*          Report Count (1),               */
-+	0x81, 0x01,         /*          Input (Constant),               */
-+	0xC0,               /*      End Collection,                     */
-+	0xC0                /*  End Collection                          */
-+};
-+const size_t uclogic_rdesc_ugee_v2_frame_mouse_template_size =
-+			sizeof(uclogic_rdesc_ugee_v2_frame_mouse_template_arr);
-+
- /* Fixed report descriptor for Ugee EX07 frame */
- const __u8 uclogic_rdesc_ugee_ex07_frame_arr[] = {
- 	0x05, 0x01,             /*  Usage Page (Desktop),                   */
-diff --git a/drivers/hid/hid-uclogic-rdesc.h b/drivers/hid/hid-uclogic-rdesc.h
-index 1a2d658bad3a..0502a0656496 100644
---- a/drivers/hid/hid-uclogic-rdesc.h
-+++ b/drivers/hid/hid-uclogic-rdesc.h
-@@ -173,6 +173,10 @@ extern const size_t uclogic_rdesc_ugee_v2_frame_btn_template_size;
- extern const __u8 uclogic_rdesc_ugee_v2_frame_dial_template_arr[];
- extern const size_t uclogic_rdesc_ugee_v2_frame_dial_template_size;
- 
-+/* Fixed report descriptor template for UGEE v2 frame reports (mouse) */
-+extern const __u8 uclogic_rdesc_ugee_v2_frame_mouse_template_arr[];
-+extern const size_t uclogic_rdesc_ugee_v2_frame_mouse_template_size;
-+
- /* Fixed report descriptor for Ugee EX07 frame */
- extern const __u8 uclogic_rdesc_ugee_ex07_frame_arr[];
- extern const size_t uclogic_rdesc_ugee_ex07_frame_size;
--- 
-2.25.1
+Yes :)
 
+>> It is affordable, so I ordered it. I don't have any HUION devices to
+>> debug and this is a good excuse to buy one ;)
+>> I'll let you know how it goes once I receive it.
+> 
+> The tablet arrived today and it is a bank holiday in Spain, so I had
+> some time to bisect the bug.
+> 
+> The first bad commit is 87562fcd1342 ("HID: input: remove the need for
+> HID_QUIRK_INVERT"):
+> https://lore.kernel.org/all/20220203143226.4023622-11-benjamin.tissoires@redhat.com/
+> (CCing the folks whose email is in the patch tags)
+> 
+> I reverted the patch on hid/for-next and, after fixing a tiny conflict,
+> I can confirm that the tablet works again as expected.
+
+Thanks for looking into this! Bisecting has been slow on my end 
+unfortunately. I built today's linux-next (20220726) with your proposed 
+patch below and my drawing tablet curiously still does not work as 
+expected. The stylus works a couple of times, but eventually stops 
+working (unlike prior where it always seemed to only work once). Do I 
+need both your revert and this diff for it to work properly?
+
+Also, do you know whether the revert be backported to stable 5.18?
+
+> I'd need to investigate a bit more over the weekend, but I think that
+> all HUION tablets with the latest firmware (internally, v2) are
+> affected.
+> 
+> Those tablets do not set the inrange bit (UCLOGIC_PARAMS_PEN_INRANGE_NONE).
+> The driver sets it and uses a timer to remove it.
+> See drivers/hid/hid-uclogic-core.c, function uclogic_raw_event_pen().
+> 
+> However, at least the Huion Inspiroy H640, sends a 0x00 byte when the
+> tool is removed, making it possible to fix it in the driver [1].
+> 
+> Unfortunately, the affected code path is used by many tablets and I
+> can not test them, so I'd prefer to hear Benjamin's opinion and see if
+> this should be fixed in hid-input rather than in the driver before
+> sending a fix.
+> 
+> Best wishes,
+> José Expósito
+> 
+> [1] Diff of a possible fix:
+> 
+> diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
+> index 47a17375c7fc..bdcbbd57d0fc 100644
+> --- a/drivers/hid/hid-uclogic-core.c
+> +++ b/drivers/hid/hid-uclogic-core.c
+> @@ -316,8 +316,11 @@ static int uclogic_raw_event_pen(struct uclogic_drvdata *drvdata,
+>          }
+>          /* If we need to emulate in-range detection */
+>          if (pen->inrange == UCLOGIC_PARAMS_PEN_INRANGE_NONE) {
+>                  /* Set in-range bit */
+> -               data[1] |= 0x40;
+> +               if (data[1])
+> +                       data[1] |= 0x40;
+> +
+>                  /* (Re-)start in-range timeout */
+>                  mod_timer(&drvdata->inrange_timer,
+>                                  jiffies + msecs_to_jiffies(100));
+Regards,
+Stefan Hansson

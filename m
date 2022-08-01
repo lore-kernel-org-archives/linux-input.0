@@ -2,226 +2,222 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E5989C00144
-	for <linux-input@archiver.kernel.org>; Mon,  1 Aug 2022 04:20:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A342AC00144
+	for <linux-input@archiver.kernel.org>; Mon,  1 Aug 2022 06:48:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239148AbiHAET7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 1 Aug 2022 00:19:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50104 "EHLO
+        id S231866AbiHAGr7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 1 Aug 2022 02:47:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239136AbiHAET6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 1 Aug 2022 00:19:58 -0400
-Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E315F13DD8
-        for <linux-input@vger.kernel.org>; Sun, 31 Jul 2022 21:19:49 -0700 (PDT)
-Received: by mail-io1-xd2c.google.com with SMTP id x64so7609732iof.1
-        for <linux-input@vger.kernel.org>; Sun, 31 Jul 2022 21:19:49 -0700 (PDT)
+        with ESMTP id S234464AbiHAGrn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 1 Aug 2022 02:47:43 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DCD63F5
+        for <linux-input@vger.kernel.org>; Sun, 31 Jul 2022 23:47:17 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id i71so3357149pge.9
+        for <linux-input@vger.kernel.org>; Sun, 31 Jul 2022 23:47:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc;
-        bh=7y69nF8yylApvNF8tnbnFLvYv1tkhmPPUVUPa2891qc=;
-        b=DdXTOmV+TuIZy/mE4W6jNZd6uiwDY7MDmCSWRkBNW3cgfAqAI38xyqbn6VVnzEEAhb
-         8G4MUMe9Hy5VxVs9CTBDnrEEMkIReFp4kcAdZ6D9CR9PFIdm+C6XGZE1hd1vdvN00oOL
-         2RcgT4WsE2Y7qBZ8/6ootJRrgq5EGDvO0G2QI=
+        d=synaptics-corp-partner-google-com.20210112.gappssmtp.com; s=20210112;
+        h=from:to:cc:subject:date:message-id;
+        bh=UockhMzW1MKAwp8ZPFnrYbu87PaXsC6GeLfvEKDP3s8=;
+        b=vbHnDb2Py1FWhiTAR+HmRBbaKgVwqP5YPOTlVGXOOAgRryXqb4GZKOtg/pKParMpRe
+         LPHUioLQCkXsss0eTx8kvuOIbYNKbZxY244k/0Q+eQTnDP39nhF8QaV+2rhYTVOH6tqL
+         oGL69kNa7/OwFlJLBP3ZFqFFRGXtvSLHEsPVr+nig71mCcaYe7s+69R0JJjVrMEV4PRu
+         mNI2LrnJLaRGHXY0e32WU0GIVOzEKwAQBG596hUCTBPwz9oizuxjv6MAvdAVtP/UVJVU
+         V0qqYcNDzE6Z1anegdrQbSTKGp4JJ+CgaJAw3qp8FuMc8go4EG/s+h+zKTdb+f+Yn2kt
+         J45w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc;
-        bh=7y69nF8yylApvNF8tnbnFLvYv1tkhmPPUVUPa2891qc=;
-        b=ACbCfdPWr7YQGs/xzQsZ8Kp9zhniGslZYaD5P6UQu5z1ks+7bOC/aOvnpbZ3gbAmF9
-         XfaAX8rYvCZUuDExEG7Ibw2RTE5H3r0mvL+lErbiks8PAbsRPWzlImn15LHWyS/Dw7dS
-         4NKf/MYVAjUdQon1j7dBm+UrpRpFq89f46c06Zc6i+CdJjxHAs8XXPrJJHXT1mUu5RFg
-         FBIfO8w0KlIRTNIlcoVAqHHiV5tSOHR14yLSYUOoPy/eltknPFu4Jzq/hoyMvCOfW2pP
-         lnlg0R24HQRPcsZNweGUtpzvLTGZSs0W2fyGYJ2pDMoO2aLUFSq+JOKTyP8NqzVDEaHN
-         ya4Q==
-X-Gm-Message-State: AJIora8TIFRPZbOG6KcqKNtpPM34gH/96JwH7Xy0HEZi73SoHZvAZkBn
-        Ged6zNNb8c4OIqHkiqRk1l/U9xFBJA58cu9boADIRg==
-X-Google-Smtp-Source: AGRyM1tBcfkws8S5Mv3ZWo4TZS8WuMZ7q8sUQvrr9rAzPOy8paIkj6HqvTFTxnv3QpKTmLVLyVlVJB1j6A/PSngNKz0=
-X-Received: by 2002:a05:6638:dd1:b0:341:55c2:38b6 with SMTP id
- m17-20020a0566380dd100b0034155c238b6mr5539717jaj.245.1659327589288; Sun, 31
- Jul 2022 21:19:49 -0700 (PDT)
-MIME-Version: 1.0
-References: <20220729154723.99947-1-matt.ranostay@konsulko.com> <CAHp75VcOAbrZ2yciwH6teYs5L0vYnE4z==SQ6ejye63+_v9v+g@mail.gmail.com>
-In-Reply-To: <CAHp75VcOAbrZ2yciwH6teYs5L0vYnE4z==SQ6ejye63+_v9v+g@mail.gmail.com>
-From:   Matt Ranostay <matt.ranostay@konsulko.com>
-Date:   Mon, 1 Aug 2022 12:19:37 +0800
-Message-ID: <CAJCx=gnxV7-oQCNE1LvpcFGhPCQ86rRbn_2NMh4MWpvmQ9WAYw@mail.gmail.com>
-Subject: Re: [PATCH] HID: mcp2221: add ADC/DAC support via iio subsystem
-To:     Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc:     linux-input <linux-input@vger.kernel.org>,
-        linux-iio <linux-iio@vger.kernel.org>,
-        Rishi Gupta <gupt21@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id;
+        bh=UockhMzW1MKAwp8ZPFnrYbu87PaXsC6GeLfvEKDP3s8=;
+        b=N0iHyPvUmnoTsmDxbfSSOZZpyJVDzjtw5sad1tEzmxo+fpt2Q4fsJO+9x1v+MBmxeG
+         CfV50L0DoO73E/aHzThpRT3wuXntuuazMtYMPZbvUmEicJ9nqR52ou3lfpYmDmWrBsg9
+         EDUUQASkFf+KbuGyU8csKlK5Vwqn4wIxq/gOdehDfA54A3xwrkG6Nh26PK8SLcWU+XtI
+         SIBeJbvZeqotP1Vc9LBm1G+iAK5IkYsYcgp53Yztq70ypKnkWYy26Kc11B7fIswRv/fW
+         C3yxFY5MUBiwgNyvaT7sMcJCpuTlj1pURx69GEbvLez+TaMHxO/OFQJgm5U242ZmDIO/
+         OTEA==
+X-Gm-Message-State: ACgBeo1UJkqHjtPYtqT96kfIM3D9FpdCbpHtmF01Ct+c9sV/7tQChGIk
+        KyO1o3OYwNtYc0bpRY2YMTUgVA==
+X-Google-Smtp-Source: AGRyM1teMxs7nXdi0Y0OlAxCIQ0k2o6fXAR9xhbrozkRGKrFRQXyYDvsnIByKbmXFxDFxwBALpRmxw==
+X-Received: by 2002:a62:3346:0:b0:52a:c0cb:ae8 with SMTP id z67-20020a623346000000b0052ac0cb0ae8mr14830623pfz.37.1659336436976;
+        Sun, 31 Jul 2022 23:47:16 -0700 (PDT)
+Received: from localhost.localdomain ([63.222.17.38])
+        by smtp.gmail.com with ESMTPSA id h6-20020a17090a130600b001f4d711e165sm4249841pja.11.2022.07.31.23.47.14
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sun, 31 Jul 2022 23:47:16 -0700 (PDT)
+From:   margeyang <marge.yang@synaptics.corp-partner.google.com>
+To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     marge.yang@tw.synaptics.com, derek.chegn@tw.synaptcs.com,
+        vincent.huang@tw.synaptics.com,
+        Marge Yang <marge.yang@synaptics.corp-partner.google.com>
+Subject: [PATCH] Input: synaptics-rmi4 - add support for F03
+Date:   Mon,  1 Aug 2022 14:47:05 +0800
+Message-Id: <1659336425-2614-1-git-send-email-marge.yang@synaptics.corp-partner.google.com>
+X-Mailer: git-send-email 2.7.4
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Aug 1, 2022 at 3:11 AM Andy Shevchenko
-<andy.shevchenko@gmail.com> wrote:
->
-> On Fri, Jul 29, 2022 at 5:49 PM Matt Ranostay
-> <matt.ranostay@konsulko.com> wrote:
-> >
-> > Add support for 3x 10-bit ADC and 1x DAC channels registered via
-> > the iio subsystem.
-> >
-> > To prevent breakage and unexpected dependencies this support only is
-> > only built if CONFIG_IIO is enabled, and is only weakly referenced by
-> > 'imply IIO' within the respective Kconfig.
-> >
-> > Additionally the iio device only gets registered if at least one channel
-> > is enabled in the power-on configuration read from SRAM.
->
-> I tried to leave the comments not clashed with Jonathan's ones below.
->
-> ...
->
-> > Cc: Rishi Gupta <gupt21@gmail.com>
-> > Cc: Jonathan Cameron <Jonathan.Cameron@huawei.com>
->
-> Use --cc in the parameters to `git format-patch` or move them after
-> the cutter '---' line below, so they won't pollute the Git commit
-> message.
+From: Marge Yang <marge.yang@synaptics.corp-partner.google.com>
 
-Noted for the future.
->
-> ...
->
-> > -       depends on GPIOLIB
-> > +       select GPIOLIB
->
-> I'm not sure why.
+RMI4 F03 supports the Stick function,
+it's designed to support relative packet.
+This patch adds to support complete relative packet.
+When timeout error or parity error happens,
+sends 0xFE command to ask Re-send stick packet again.
+Supports some conditions to filter wrong relative packet.
 
-Changed to select from 'depends on' to avoid this circular dependency
+Signed-off-by: Marge Yang<marge.yang@synaptics.corp-partner.google.com>
+---
+ drivers/input/rmi4/rmi_f03.c | 82 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 78 insertions(+), 4 deletions(-)
 
-  SYNC    include/config/auto.conf.cmd
-drivers/gpio/Kconfig:14:error: recursive dependency detected!
-drivers/gpio/Kconfig:14:        symbol GPIOLIB is selected by I2C_MUX_LTC4306
-drivers/i2c/muxes/Kconfig:47:   symbol I2C_MUX_LTC4306 depends on I2C_MUX
-drivers/i2c/Kconfig:62: symbol I2C_MUX is selected by MPU3050_I2C
-drivers/iio/gyro/Kconfig:127:   symbol MPU3050_I2C depends on IIO
-drivers/iio/Kconfig:6:  symbol IIO is implied by HID_MCP2221
-drivers/hid/Kconfig:1298:       symbol HID_MCP2221 depends on GPIOLIB
-For a resolution refer to Documentation/kbuild/kconfig-language.rst
+diff --git a/drivers/input/rmi4/rmi_f03.c b/drivers/input/rmi4/rmi_f03.c
+index c194b1664b10..57f03dfcb4ff 100644
+--- a/drivers/input/rmi4/rmi_f03.c
++++ b/drivers/input/rmi4/rmi_f03.c
+@@ -23,8 +23,12 @@
+ #define RMI_F03_BYTES_PER_DEVICE_SHIFT	4
+ #define RMI_F03_QUEUE_LENGTH		0x0F
+ 
++#define RMI_F03_RESET_STYK 0xFE
++
+ #define PSMOUSE_OOB_EXTRA_BTNS		0x01
+ 
++#define RELATIVE_PACKET_SIZE		0x03
++
+ struct f03_data {
+ 	struct rmi_function *fn;
+ 
+@@ -36,7 +40,8 @@ struct f03_data {
+ 	u8 device_count;
+ 	u8 rx_queue_length;
+ };
+-
++int iwritecommandcounter;
++unsigned int ipacketindex;
+ int rmi_f03_overwrite_button(struct rmi_function *fn, unsigned int button,
+ 			     int value)
+ {
+@@ -87,7 +92,7 @@ static int rmi_f03_pt_write(struct serio *id, unsigned char val)
+ 			__func__, error);
+ 		return error;
+ 	}
+-
++	iwritecommandcounter++;
+ 	return 0;
+ }
+ 
+@@ -197,10 +202,12 @@ static int rmi_f03_register_pt(struct f03_data *f03)
+ 
+ static int rmi_f03_probe(struct rmi_function *fn)
+ {
++
+ 	struct device *dev = &fn->dev;
+ 	struct f03_data *f03;
+ 	int error;
+-
++	iwritecommandcounter = 0;
++	ipacketindex = 0;
+ 	f03 = devm_kzalloc(dev, sizeof(struct f03_data), GFP_KERNEL);
+ 	if (!f03)
+ 		return -ENOMEM;
+@@ -251,9 +258,12 @@ static irqreturn_t rmi_f03_attention(int irq, void *ctx)
+ 	const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
+ 	u8 obs[RMI_F03_QUEUE_LENGTH * RMI_F03_OB_SIZE];
+ 	u8 ob_status;
++	static u8 ob_dataArry[RELATIVE_PACKET_SIZE];
+ 	u8 ob_data;
+ 	unsigned int serio_flags;
++	static unsigned int serio_flagsArry[RELATIVE_PACKET_SIZE];
+ 	int i;
++
+ 	int error;
+ 
+ 	if (drvdata->attn_data.data) {
+@@ -284,6 +294,22 @@ static irqreturn_t rmi_f03_attention(int irq, void *ctx)
+ 		ob_data = obs[i + RMI_F03_OB_DATA_OFFSET];
+ 		serio_flags = 0;
+ 
++		if (ob_status & (RMI_F03_OB_FLAG_TIMEOUT | RMI_F03_OB_FLAG_PARITY)) {
++			//  Send resend command to stick when timeout or parity error.
++			//  Driver can receive the last stick packet.
++
++			error = rmi_write(f03->fn->rmi_dev, f03->fn->fd.data_base_addr,
++			 RMI_F03_RESET_STYK);
++			if (error) {
++				dev_err(&f03->fn->dev,
++					"%s: Failed to rmi_write to F03 TX register (%d).\n",
++					__func__, error);
++				return error;
++			}
++			ipacketindex = 0;
++			break;
++		}
++
+ 		if (!(ob_status & RMI_F03_RX_DATA_OFB))
+ 			continue;
+ 
+@@ -298,9 +324,57 @@ static irqreturn_t rmi_f03_attention(int irq, void *ctx)
+ 			serio_flags & SERIO_TIMEOUT ?  'Y' : 'N',
+ 			serio_flags & SERIO_PARITY ? 'Y' : 'N');
+ 
+-		serio_interrupt(f03->serio, ob_data, serio_flags);
++		if (iwritecommandcounter > 0) {
++			// Read Acknowledge Byte after writing the PS2 command.
++			// It is not trackpoint data.
++			serio_interrupt(f03->serio, ob_data, serio_flags);
++
++		} else {
++			//   The relative-mode PS/2 packet format is as follows:
++			//
++			//              bit position            position (as array of bytes)
++			//     7   6   5   4   3   2   1   0
++			//   =================================+
++			//    Yov Xov DY8 DX8  1   M   R   L  | DATA[0]
++			//                DX[7:0]             | DATA[1]
++			//                DY[7:0]             | DATA[2]
++			//   =================================+
++			//		Yov: Y overflow
++			//    Xov: X overflow
++			if ((ipacketindex == 0) && (ob_data & ((BIT(7)|BIT(6))))) {
++				dev_err(&f03->fn->dev,
++				"%s: X or Y is overflow. (%x)\n",
++				__func__, ob_data);
++				break;
++			} else if ((ipacketindex == 0) && !(ob_data & BIT(3))) {
++				dev_err(&f03->fn->dev,
++				"%s: New BIT 3 is not 1 for the first byte\n",
++				__func__);
++			} else {
++				if (ipacketindex >= RELATIVE_PACKET_SIZE) {
++					ipacketindex = 0;
++				} else {
++					ob_dataArry[ipacketindex] = ob_data;
++					serio_flagsArry[ipacketindex] = serio_flags;
++					ipacketindex++;
++				}
++				if (ipacketindex == RELATIVE_PACKET_SIZE)	{
++					serio_interrupt(f03->serio, ob_dataArry[0],
++					 serio_flagsArry[0]);
++					serio_interrupt(f03->serio, ob_dataArry[1],
++					 serio_flagsArry[1]);
++					serio_interrupt(f03->serio, ob_dataArry[2],
++					 serio_flagsArry[2]);
++					ipacketindex = 0;
++				}
++			}
++		}
+ 	}
+ 
++	if (iwritecommandcounter > 0) {
++		ipacketindex = 0;
++		iwritecommandcounter = iwritecommandcounter - 1;
++	}
+ 	return IRQ_HANDLED;
+ }
+ 
+-- 
+2.22.0.windows.1
 
->
-> ...
->
-> >  #include <linux/hidraw.h>
-> >  #include <linux/i2c.h>
-> >  #include <linux/gpio/driver.h>
->
-> + blank line.
->
-> > +#include <linux/iio/iio.h>
-> > +#include <linux/iio/sysfs.h>
->
-> + blank line.
->
-> >  #include "hid-ids.h"
->
-> > +#if IS_REACHABLE(CONFIG_IIO)
-> > +       struct iio_chan_spec iio_channels[3];
-> > +       struct iio_dev *indio_dev;
-> > +       u16 adc_values[3];
-> > +       u8 dac_value;
-> > +#endif
-> > +};
->
-> ...
->
-> > +#if IS_REACHABLE(CONFIG_IIO)
-> > +                       if (mcp->indio_dev)
-> > +                               memcpy(&mcp->adc_values, &data[50], 6);
->
-> sizeof()
-
-sizeof(mcp->adc_values) would work here if needed.
-
->
-> > +#endif
->
-> ...
->
-> > +               // Confirm value is within 10-bit range
-> > +               if (*val > GENMASK(9, 0))
->
->   if (*val >= BIT(10))
->
->  will make comment useless
->
-> > +                       return -EINVAL;
-> > +       }
->
-> ...
->
-> > +       if (val < 0 || val > GENMASK(4, 0))
->
-> In a similar way, val >= BIT(5).
->
-> > +               return -EINVAL;
->
-> ...
->
-> > +       memset(mcp->txbuf, 0, 12);
->
-> sizeof() ?
-
-txbuf isn't 12 bytes long but 64 since that is the full max size a HID
-transaction could
-have. So sizeof() won't work in these cases..
-
->
-> ...
->
-> > +       ret = mcp_send_data_req_status(mcp, mcp->txbuf, 12);
->
-> Ditto,
-
-See above.
-
->
-> > +       hid_hw_power(mcp->hdev, PM_HINT_NORMAL);
->
-> Even in an error case?
-
-hid_hw_power was set to PM_HINT_FULLON before the check, and in error case it
-should reset back to normal hint.
-
->
-> > +       if (ret) {
-> > +               mutex_unlock(&mcp->lock);
-> > +               return -EINVAL;
-> > +       }
->
-> ...
->
-> > +#if IS_REACHABLE(CONFIG_IIO)
-> > +       if (mcp->indio_dev)
->
-> Do you need this check?
-
-Yes basically if no ADC or DAC channel is enabled then no iio_device
-get allocated or registered.
-
->
-> > +               iio_device_unregister(mcp->indio_dev);
-> > +#endif
->
-> ...
->
-> Overall what I really do not like is that ugly ifdeffery. Can we avoid
-> adding it?
-
-Could make CONFIG_IIO required for building but not sure we really
-want to add as an additional dependency.
-Which is way the imply is set for CONFIG_IIO
-
-- Matt
-
->
-> --
-> With Best Regards,
-> Andy Shevchenko

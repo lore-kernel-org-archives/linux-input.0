@@ -2,203 +2,112 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAD2EC19F2C
-	for <linux-input@archiver.kernel.org>; Wed,  3 Aug 2022 17:30:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A356DC19F28
+	for <linux-input@archiver.kernel.org>; Wed,  3 Aug 2022 17:45:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238151AbiHCRa0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 3 Aug 2022 13:30:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
+        id S238326AbiHCRpS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 3 Aug 2022 13:45:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238136AbiHCRaZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2022 13:30:25 -0400
-Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B41C565C0;
-        Wed,  3 Aug 2022 10:30:21 -0700 (PDT)
-Received: (Authenticated sender: contact@artur-rojek.eu)
-        by mail.gandi.net (Postfix) with ESMTPA id DB08DE0007;
-        Wed,  3 Aug 2022 17:30:17 +0000 (UTC)
-MIME-Version: 1.0
-Date:   Wed, 03 Aug 2022 19:30:17 +0200
-From:   Artur Rojek <contact@artur-rojek.eu>
-To:     Chris Morgan <macroalpha82@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+        with ESMTP id S235820AbiHCRpS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 3 Aug 2022 13:45:18 -0400
+Received: from mail-ot1-x32e.google.com (mail-ot1-x32e.google.com [IPv6:2607:f8b0:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D3082DF0;
+        Wed,  3 Aug 2022 10:45:17 -0700 (PDT)
+Received: by mail-ot1-x32e.google.com with SMTP id k25-20020a056830169900b0061c6f68f451so12648979otr.9;
+        Wed, 03 Aug 2022 10:45:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc;
+        bh=FmXpKV8L1ROy4Dh0Qt2TT7rzbx5rKU4HTkrXEsPEgGo=;
+        b=SCtGjXpQVoKIpxtAyZk++KjKMr9rCo21niMsPRrUvenRuBlxTbSseU28pFkuHqh8FX
+         Xykwfzh4Sml8eslvIY9bmg25WlopXFA2UureEZHzYiAx3CHe/nq3nmw56XmCv2FYBy0t
+         hAMhUPqAVtLa41OyZbUEp69LDm5sOkd7VcSVreYxDqsGXu8q1uP1l6T4XuLLxvZdbVSZ
+         YP1zagr+RoGupJ5gk4zHhLm50BUuHeSFWzDVIpus2Ga7JmyI+K0CLWwjLI0ucF3jBQSH
+         m9p14GGB2b2Mbye44d1fl4sfXcHjMOQ7y4hH8tcNYy3HTrfi5tqI6LhesMkkT0UE9GUK
+         NqOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
+        bh=FmXpKV8L1ROy4Dh0Qt2TT7rzbx5rKU4HTkrXEsPEgGo=;
+        b=i4l+tpEnphpLr7xGoYhNCS0FOA4ttfLhSq7luaisPkWQ1ieNBtGgHcNkCo92kTslPU
+         01dhQaHqSpqqn4vEgrGTzvPsrUmWze/Cq1art9bRkOR3lpjUjV1rv7h7vRZGPOXP8fwJ
+         h/hOu/mwAnMHL48hT5tB/ApNx9Md6BORShIAVZb28M1linH8xqZW59LNfjcGtpHofO0P
+         TdrC6aOayszYX2PfgkKF71W7G+r44NLNfu5WpwgTzZB5PfG3sAS7Mh5EfFBQKrDW6+yF
+         ppt/Nq3RTfNeWcxhEOIRCY/XmRFedhLlPICRfItAvle7XO/SqaynBKinCxILP+eCZOha
+         +EoQ==
+X-Gm-Message-State: ACgBeo3zrB/uQZ587QpK0xxh2pESrFPKt84Hk7yMOmQGy5m9MCRc8mE5
+        F+jIGPf5ak2Am6j63R2M+wJtCkFeFcU=
+X-Google-Smtp-Source: AA6agR6jI3Xbzz+VFMZY+Y5gnDosB44jxMB1eE17H8nXvRUzy6UDOYkbcwJA8mu+Ep9HwrwT0qlC9A==
+X-Received: by 2002:a05:6830:18f0:b0:628:b0f5:a003 with SMTP id d16-20020a05683018f000b00628b0f5a003mr6101530otf.107.1659548716528;
+        Wed, 03 Aug 2022 10:45:16 -0700 (PDT)
+Received: from wintermute.localdomain (cpe-76-183-134-35.tx.res.rr.com. [76.183.134.35])
+        by smtp.gmail.com with ESMTPSA id bx6-20020a0568081b0600b0033a6bfdc5adsm3551893oib.36.2022.08.03.10.45.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Aug 2022 10:45:15 -0700 (PDT)
+From:   Chris Morgan <macroalpha82@gmail.com>
+To:     linux-input@vger.kernel.org
+Cc:     linux-iio@vger.kernel.org, dmitry.torokhov@gmail.com,
+        contact@artur-rojek.eu, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, heiko@sntech.de,
         jic23@kernel.org, paul@crapouillou.net,
         Chris Morgan <macromorgan@hotmail.com>,
-        Maya Matuszczyk <maccraft123mc@gmail.com>
-Subject: Re: [PATCH v9 2/3] Input: adc-joystick - Add polled input device
- support
-In-Reply-To: <20220803170145.16186-3-macroalpha82@gmail.com>
-References: <20220803170145.16186-1-macroalpha82@gmail.com>
- <20220803170145.16186-3-macroalpha82@gmail.com>
-Message-ID: <9d134b5013963a39274b71d419a53fa9@artur-rojek.eu>
-X-Sender: contact@artur-rojek.eu
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
+        Maya Matuszczyk <maccraft123mc@gmail.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH v10 1/3] dt-bindings: adc-joystick: add poll-interval
+Date:   Wed,  3 Aug 2022 12:45:03 -0500
+Message-Id: <20220803174505.21420-2-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220803174505.21420-1-macroalpha82@gmail.com>
+References: <20220803174505.21420-1-macroalpha82@gmail.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 2022-08-03 19:01, Chris Morgan wrote:
-> From: Chris Morgan <macromorgan@hotmail.com>
-> 
-> Add polled input device support to the adc-joystick driver. This is
-> useful for devices which do not have hardware capable triggers on
-> their SARADC. Code modified from adc-joystick.c changes made by Maya
-> Matuszczyk.
-> 
-> Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
-> Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
-> ---
-Hey Chris,
+From: Chris Morgan <macromorgan@hotmail.com>
 
-comments inline.
+Add poll-interval support for the adc-joystick documentation. This is
+an optional value and if not provided the adc-joystick works as it
+does today (with buffers). If this value is provided, the adc-joystick
+driver is polled at the specified interval. The existing attribute of
+"poll-interval" was used instead of complying with property-units.yaml
+after discussion of the issue on the mailing list.
 
-Cheers,
-Artur
->  drivers/input/joystick/adc-joystick.c | 69 +++++++++++++++++++++------
->  1 file changed, 54 insertions(+), 15 deletions(-)
-> 
-> diff --git a/drivers/input/joystick/adc-joystick.c
-> b/drivers/input/joystick/adc-joystick.c
-> index 78ebca7d400a..0a2c0fb73618 100644
-> --- a/drivers/input/joystick/adc-joystick.c
-> +++ b/drivers/input/joystick/adc-joystick.c
-> @@ -26,8 +26,23 @@ struct adc_joystick {
->  	struct adc_joystick_axis *axes;
->  	struct iio_channel *chans;
->  	int num_chans;
-> +	bool polled;
->  };
-> 
-> +static void adc_joystick_poll(struct input_dev *input)
-> +{
-> +	struct adc_joystick *joy = input_get_drvdata(input);
-> +	int i, val, ret;
-> +
-> +	for (i = 0; i < joy->num_chans; i++) {
-> +		ret = iio_read_channel_raw(&joy->chans[i], &val);
-> +		if (ret < 0)
-> +			return;
-> +		input_report_abs(input, joy->axes[i].code, val);
-> +	}
-> +	input_sync(input);
-> +}
-> +
->  static int adc_joystick_handle(const void *data, void *private)
->  {
->  	struct adc_joystick *joy = private;
-> @@ -179,6 +194,7 @@ static int adc_joystick_probe(struct 
-> platform_device *pdev)
->  	int error;
->  	int bits;
->  	int i;
-> +	unsigned int poll_interval;
-> 
->  	joy = devm_kzalloc(dev, sizeof(*joy), GFP_KERNEL);
->  	if (!joy)
-> @@ -192,14 +208,27 @@ static int adc_joystick_probe(struct
-> platform_device *pdev)
->  		return error;
->  	}
-> 
-> -	/* Count how many channels we got. NULL terminated. */
-> +	if (device_property_present(dev, "poll-interval")) {
-> +		error = device_property_read_u32(dev, "poll-interval",
-> +						 &poll_interval);
-> +		if (error)
-> +			return error;
-> +		joy->polled = true;
-> +	}
-> +
-> +	/*
-> +	 * Count how many channels we got. NULL terminated.
-> +	 * Do not check the storage size if using polling.
-> +	 */
->  	for (i = 0; joy->chans[i].indio_dev; i++) {
->  		bits = joy->chans[i].channel->scan_type.storagebits;
-> -		if (!bits || bits > 16) {
-> -			dev_err(dev, "Unsupported channel storage size\n");
-> +		if (!joy->polled && (!bits || bits > 16)) {
-Ah, you still need to run the loop to count the channels.
-In that case, just do:
-```
-   	for (i = 0; joy->chans[i].indio_dev; i++) {
-		if (joy->polled)
-			continue;
+Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Acked-by: Artur Rojek <contact@artur-rojek.eu>
+---
+ Documentation/devicetree/bindings/input/adc-joystick.yaml | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-   		bits = joy->chans[i].channel->scan_type.storagebits;
-		...
-	}
-```
-> +			dev_err(dev,
-> +				"Unsupported channel storage size\n");
->  			return -EINVAL;
->  		}
-> -		if (bits != joy->chans[0].channel->scan_type.storagebits) {
-> +		if (!joy->polled &&
-> +			bits != joy->chans[0].channel->scan_type.storagebits) {
->  			dev_err(dev, "Channels must have equal storage size\n");
->  			return -EINVAL;
->  		}
-> @@ -215,8 +244,14 @@ static int adc_joystick_probe(struct 
-> platform_device *pdev)
->  	joy->input = input;
->  	input->name = pdev->name;
->  	input->id.bustype = BUS_HOST;
-> -	input->open = adc_joystick_open;
-> -	input->close = adc_joystick_close;
-> +
-> +	if (joy->polled) {
-> +		input_setup_polling(input, adc_joystick_poll);
-> +		input_set_poll_interval(input, poll_interval);
-> +	} else {
-> +		input->open = adc_joystick_open;
-> +		input->close = adc_joystick_close;
-> +	}
-> 
->  	error = adc_joystick_set_axes(dev, joy);
->  	if (error)
-> @@ -229,16 +264,20 @@ static int adc_joystick_probe(struct
-> platform_device *pdev)
->  		return error;
->  	}
-> 
-> -	joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
-> -	if (IS_ERR(joy->buffer)) {
-> -		dev_err(dev, "Unable to allocate callback buffer\n");
-> -		return PTR_ERR(joy->buffer);
-> -	}
-> +	if (!joy->polled) {
-Since this is the last piece of logic we do in this function, we can as
-well inverse the condition:
-```
-	if (joy->polled)
-		return 0;
-```
-Then we don't need to indent the remaining lines and the patch impact
-is smaller ;)
+diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+index 2ee04e03bc22..ab5caad055ea 100644
+--- a/Documentation/devicetree/bindings/input/adc-joystick.yaml
++++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
+@@ -14,6 +14,9 @@ description: >
+   Bindings for joystick devices connected to ADC controllers supporting
+   the Industrial I/O subsystem.
+ 
++allOf:
++  - $ref: input.yaml#
++
+ properties:
+   compatible:
+     const: adc-joystick
+@@ -28,6 +31,8 @@ properties:
+       https://github.com/devicetree-org/dt-schema/blob/master/schemas/iio/iio-consumer.yaml
+       for details.
+ 
++  poll-interval: true
++
+   '#address-cells':
+     const: 1
+ 
+-- 
+2.25.1
 
-> +		joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle,
-> +						     joy);
-> +		if (IS_ERR(joy->buffer)) {
-> +			dev_err(dev, "Unable to allocate callback buffer\n");
-> +			return PTR_ERR(joy->buffer);
-> +		}
-> 
-> -	error = devm_add_action_or_reset(dev, adc_joystick_cleanup, 
-> joy->buffer);
-> -	if (error)  {
-> -		dev_err(dev, "Unable to add action\n");
-> -		return error;
-> +		error = devm_add_action_or_reset(dev, adc_joystick_cleanup,
-> +						 joy->buffer);
-> +		if (error)  {
-> +			dev_err(dev, "Unable to add action\n");
-> +			return error;
-> +		}
->  	}
-> 
->  	return 0;

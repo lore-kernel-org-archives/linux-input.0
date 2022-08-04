@@ -2,112 +2,185 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56AA3C25B0C
-	for <linux-input@archiver.kernel.org>; Thu,  4 Aug 2022 18:47:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7553AC25B06
+	for <linux-input@archiver.kernel.org>; Thu,  4 Aug 2022 18:52:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234380AbiHDSrA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 4 Aug 2022 14:47:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41676 "EHLO
+        id S234593AbiHDSwO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 4 Aug 2022 14:52:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237266AbiHDSq4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2022 14:46:56 -0400
-Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F2746D55F;
-        Thu,  4 Aug 2022 11:46:53 -0700 (PDT)
-Received: by mail-oi1-x22d.google.com with SMTP id s204so375377oif.5;
-        Thu, 04 Aug 2022 11:46:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=FmXpKV8L1ROy4Dh0Qt2TT7rzbx5rKU4HTkrXEsPEgGo=;
-        b=gu0lwnTLaZR0SB/xx8VrbkOfRzdVruFSaSEgi9k6XPiTtEfHlhV9rpMR3WLGlEq1pt
-         I0eMeP0keV+n0OJ71fg7C4j9bYzywWTpH9pyRJTxHYxGIvTVGIXj4T80XE/aegW1b8c9
-         Xpd8uS4qRMHwP0KCxjxqbLb+QVGn/P0GN0MAHsb/7KjQuCRm1Qy3vRegsmGMPd8jQqHT
-         /s2Tno6iZ/c0d9Eulk5dcF/EW3g2lszOaFAmtSOiG1MP9SKNhdpg70dl7zaGJzNdKuOM
-         nNg/H2lu5fYxx6uJPzuobk6HvQUBD5dRSHVz1sTBjkUUTFMgC9Ef61IbuCp9BMS3Mcxc
-         jfow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=FmXpKV8L1ROy4Dh0Qt2TT7rzbx5rKU4HTkrXEsPEgGo=;
-        b=L5qHBQfYG7TPoUCKA/rxzjVVVXtCpoTrAjR7+aM0ZZfdawHFJZNFDZ4uEYexc4SdVB
-         1vKyg3BWvsu7oZ4Nr9ygyJYKTUD4VI7kCpu1H//wRC6yg1HbSaiMJSQwNqRhfQrHrBWB
-         VZPDKvnNHOzVONWNfd49f+ksEBJhTH6qdzTjljz0lf7LsGCE2WJH/EiocqGvO0PkYN1z
-         KPudpgXyfgakz87+LzuekTk76b11S0IWtmCDLXuKaxQ7lGBQzG0Ro7fi5iUrchrZdaco
-         E6CCE1+rURRikYwjITFfAkgwHNXTxAtFZOnBFAYj6BVudC2R7ku6qlXOi0a9D+f8tMGU
-         DGcQ==
-X-Gm-Message-State: ACgBeo3QpI7d6FQl91Sy28v0IZbTIFu01zXU9dY88m9ceJbs9BnydOQu
-        G3NHc6xpCEfjQyHO40e3JoTNCL6Grv4=
-X-Google-Smtp-Source: AA6agR4omTSKKaM3a/8G45yQ2MgleXqYT+VPZwIyu5qymdesExa2dXUnAkRJRa9FY8b791mIDJaYEg==
-X-Received: by 2002:a05:6808:21a3:b0:33e:b0ea:7ce3 with SMTP id be35-20020a05680821a300b0033eb0ea7ce3mr4782116oib.46.1659638812428;
-        Thu, 04 Aug 2022 11:46:52 -0700 (PDT)
-Received: from wintermute.localdomain (cpe-76-183-134-35.tx.res.rr.com. [76.183.134.35])
-        by smtp.gmail.com with ESMTPSA id p17-20020a9d76d1000000b00636a8dafdc9sm87945otl.2.2022.08.04.11.46.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Aug 2022 11:46:52 -0700 (PDT)
-From:   Chris Morgan <macroalpha82@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     linux-iio@vger.kernel.org, dmitry.torokhov@gmail.com,
-        contact@artur-rojek.eu, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, heiko@sntech.de,
-        jic23@kernel.org, paul@crapouillou.net,
-        Chris Morgan <macromorgan@hotmail.com>,
-        Maya Matuszczyk <maccraft123mc@gmail.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v11 1/3] dt-bindings: adc-joystick: add poll-interval
-Date:   Thu,  4 Aug 2022 13:46:42 -0500
-Message-Id: <20220804184644.20710-2-macroalpha82@gmail.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220804184644.20710-1-macroalpha82@gmail.com>
-References: <20220804184644.20710-1-macroalpha82@gmail.com>
+        with ESMTP id S232643AbiHDSwN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 4 Aug 2022 14:52:13 -0400
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA4717A9C;
+        Thu,  4 Aug 2022 11:52:10 -0700 (PDT)
+Received: (Authenticated sender: contact@artur-rojek.eu)
+        by mail.gandi.net (Postfix) with ESMTPA id BEBA6FF802;
+        Thu,  4 Aug 2022 18:52:03 +0000 (UTC)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date:   Thu, 04 Aug 2022 20:52:03 +0200
+From:   Artur Rojek <contact@artur-rojek.eu>
+To:     Chris Morgan <macromorgan@hotmail.com>
+Cc:     Chris Morgan <macroalpha82@gmail.com>, linux-input@vger.kernel.org,
+        linux-iio@vger.kernel.org, dmitry.torokhov@gmail.com,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        heiko@sntech.de, jic23@kernel.org, paul@crapouillou.net,
+        Maya Matuszczyk <maccraft123mc@gmail.com>
+Subject: Re: [PATCH v10 2/3] Input: adc-joystick - Add polled input device
+ support
+In-Reply-To: <SN6PR06MB5342A254630D12D3F06BF52AA59F9@SN6PR06MB5342.namprd06.prod.outlook.com>
+References: <20220803174505.21420-1-macroalpha82@gmail.com>
+ <20220803174505.21420-3-macroalpha82@gmail.com>
+ <5feecb7813f9718c3d980fe548997bff@artur-rojek.eu>
+ <SN6PR06MB5342A254630D12D3F06BF52AA59F9@SN6PR06MB5342.namprd06.prod.outlook.com>
+Message-ID: <ef8e0d24f9607b1957f0eaa6b6510ff3@artur-rojek.eu>
+X-Sender: contact@artur-rojek.eu
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Chris Morgan <macromorgan@hotmail.com>
+On 2022-08-04 20:40, Chris Morgan wrote:
+> On Wed, Aug 03, 2022 at 08:03:17PM +0200, Artur Rojek wrote:
+>> On 2022-08-03 19:45, Chris Morgan wrote:
+>> > From: Chris Morgan <macromorgan@hotmail.com>
+>> >
+>> > Add polled input device support to the adc-joystick driver. This is
+>> > useful for devices which do not have hardware capable triggers on
+>> > their SARADC. Code modified from adc-joystick.c changes made by Maya
+>> > Matuszczyk.
+>> >
+>> > Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
+>> > Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
+>> > ---
+>> Chris,
+>> some minor details inline.
+>> >  drivers/input/joystick/adc-joystick.c | 53 ++++++++++++++++++++++++---
+>> >  1 file changed, 47 insertions(+), 6 deletions(-)
+>> >
+>> > diff --git a/drivers/input/joystick/adc-joystick.c
+>> > b/drivers/input/joystick/adc-joystick.c
+>> > index 78ebca7d400a..a288ebfe254e 100644
+>> > --- a/drivers/input/joystick/adc-joystick.c
+>> > +++ b/drivers/input/joystick/adc-joystick.c
+>> > @@ -26,8 +26,23 @@ struct adc_joystick {
+>> >  	struct adc_joystick_axis *axes;
+>> >  	struct iio_channel *chans;
+>> >  	int num_chans;
+>> > +	bool polled;
+>> >  };
+>> >
+>> > +static void adc_joystick_poll(struct input_dev *input)
+>> > +{
+>> > +	struct adc_joystick *joy = input_get_drvdata(input);
+>> > +	int i, val, ret;
+>> > +
+>> > +	for (i = 0; i < joy->num_chans; i++) {
+>> > +		ret = iio_read_channel_raw(&joy->chans[i], &val);
+>> > +		if (ret < 0)
+>> > +			return;
+>> > +		input_report_abs(input, joy->axes[i].code, val);
+>> > +	}
+>> > +	input_sync(input);
+>> > +}
+>> > +
+>> >  static int adc_joystick_handle(const void *data, void *private)
+>> >  {
+>> >  	struct adc_joystick *joy = private;
+>> > @@ -179,6 +194,7 @@ static int adc_joystick_probe(struct platform_device
+>> > *pdev)
+>> >  	int error;
+>> >  	int bits;
+>> >  	int i;
+>> > +	unsigned int poll_interval;
+>> >
+>> >  	joy = devm_kzalloc(dev, sizeof(*joy), GFP_KERNEL);
+>> >  	if (!joy)
+>> > @@ -192,11 +208,25 @@ static int adc_joystick_probe(struct
+>> > platform_device *pdev)
+>> >  		return error;
+>> >  	}
+>> >
+>> > -	/* Count how many channels we got. NULL terminated. */
+>> > +	if (device_property_present(dev, "poll-interval")) {
+>> > +		error = device_property_read_u32(dev, "poll-interval",
+>> > +						 &poll_interval);
+>> > +		if (error)
+>> > +			return error;
+>> > +		joy->polled = true;
+>> > +	}
+>> > +
+>> > +	/*
+>> > +	 * Count how many channels we got. NULL terminated.
+>> > +	 * Do not check the storage size if using polling.
+>> > +	 */
+>> >  	for (i = 0; joy->chans[i].indio_dev; i++) {
+>> > +		if (joy->polled)
+>> > +			continue;
+>> >  		bits = joy->chans[i].channel->scan_type.storagebits;
+>> >  		if (!bits || bits > 16) {
+>> > -			dev_err(dev, "Unsupported channel storage size\n");
+>> > +			dev_err(dev,
+>> > +				"Unsupported channel storage size\n");
+>> This change is now unnecessary, as the line can fit in 80 chars again.
+>> >  			return -EINVAL;
+>> >  		}
+>> >  		if (bits != joy->chans[0].channel->scan_type.storagebits) {
+>> > @@ -215,8 +245,14 @@ static int adc_joystick_probe(struct
+>> > platform_device *pdev)
+>> >  	joy->input = input;
+>> >  	input->name = pdev->name;
+>> >  	input->id.bustype = BUS_HOST;
+>> > -	input->open = adc_joystick_open;
+>> > -	input->close = adc_joystick_close;
+>> > +
+>> > +	if (joy->polled) {
+>> > +		input_setup_polling(input, adc_joystick_poll);
+>> > +		input_set_poll_interval(input, poll_interval);
+>> > +	} else {
+>> > +		input->open = adc_joystick_open;
+>> > +		input->close = adc_joystick_close;
+>> > +	}
+>> >
+>> >  	error = adc_joystick_set_axes(dev, joy);
+>> >  	if (error)
+>> > @@ -229,13 +265,18 @@ static int adc_joystick_probe(struct
+>> > platform_device *pdev)
+>> >  		return error;
+>> >  	}
+>> >
+>> > -	joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
+>> > +	if (joy->polled)
+>> > +		return 0;
+>> > +
+>> > +	joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle,
+>> > +					     joy);
+>> Same here.
+>> >  	if (IS_ERR(joy->buffer)) {
+>> >  		dev_err(dev, "Unable to allocate callback buffer\n");
+>> >  		return PTR_ERR(joy->buffer);
+>> >  	}
+>> >
+>> > -	error = devm_add_action_or_reset(dev, adc_joystick_cleanup,
+>> > joy->buffer);
+>> > +	error = devm_add_action_or_reset(dev, adc_joystick_cleanup,
+>> > +					 joy->buffer);
+>> And here.
+> 
+> This one comes in at 82 when I make it a one-liner. I'll update the 
+> others but
+> leave this one here alone.
+It doesn't relate to the polled input functionality anymore, so please
+remove it. I'll correct such minor mistakes with a larger cleanup patch
+eventually.
 
-Add poll-interval support for the adc-joystick documentation. This is
-an optional value and if not provided the adc-joystick works as it
-does today (with buffers). If this value is provided, the adc-joystick
-driver is polled at the specified interval. The existing attribute of
-"poll-interval" was used instead of complying with property-units.yaml
-after discussion of the issue on the mailing list.
-
-Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
-Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Artur Rojek <contact@artur-rojek.eu>
----
- Documentation/devicetree/bindings/input/adc-joystick.yaml | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml b/Documentation/devicetree/bindings/input/adc-joystick.yaml
-index 2ee04e03bc22..ab5caad055ea 100644
---- a/Documentation/devicetree/bindings/input/adc-joystick.yaml
-+++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
-@@ -14,6 +14,9 @@ description: >
-   Bindings for joystick devices connected to ADC controllers supporting
-   the Industrial I/O subsystem.
- 
-+allOf:
-+  - $ref: input.yaml#
-+
- properties:
-   compatible:
-     const: adc-joystick
-@@ -28,6 +31,8 @@ properties:
-       https://github.com/devicetree-org/dt-schema/blob/master/schemas/iio/iio-consumer.yaml
-       for details.
- 
-+  poll-interval: true
-+
-   '#address-cells':
-     const: 1
- 
--- 
-2.25.1
-
+Cheers,
+Artur
+> 
+> Thank you.
+> 
+>> >  	if (error)  {
+>> >  		dev_err(dev, "Unable to add action\n");
+>> >  		return error;

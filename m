@@ -2,65 +2,112 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EFC67C25B0C
-	for <linux-input@archiver.kernel.org>; Sat,  6 Aug 2022 16:20:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 808BAC19F2D
+	for <linux-input@archiver.kernel.org>; Sat,  6 Aug 2022 21:49:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231726AbiHFQUg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 6 Aug 2022 12:20:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45310 "EHLO
+        id S233763AbiHFVt1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 6 Aug 2022 17:49:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230128AbiHFQUf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2022 12:20:35 -0400
-Received: from smtp.smtpout.orange.fr (smtp-23.smtpout.orange.fr [80.12.242.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC5B86272
-        for <linux-input@vger.kernel.org>; Sat,  6 Aug 2022 09:20:34 -0700 (PDT)
-Received: from pop-os.home ([90.11.190.129])
-        by smtp.orange.fr with ESMTPA
-        id KMXQotp2J09yuKMXRo5kMg; Sat, 06 Aug 2022 18:20:33 +0200
-X-ME-Helo: pop-os.home
-X-ME-Auth: YWZlNiIxYWMyZDliZWIzOTcwYTEyYzlhMmU3ZiQ1M2U2MzfzZDfyZTMxZTBkMTYyNDBjNDJlZmQ3ZQ==
-X-ME-Date: Sat, 06 Aug 2022 18:20:33 +0200
-X-ME-IP: 90.11.190.129
-From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-To:     dmitry.torokhov@gmail.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel-janitors@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH] Input: bma150 - Fix a typo in some comments
-Date:   Sat,  6 Aug 2022 18:20:32 +0200
-Message-Id: <a331a6244a1dfbf34dc85f1be6995fa91500c801.1659802757.git.christophe.jaillet@wanadoo.fr>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S229740AbiHFVt0 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2022 17:49:26 -0400
+Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A69EBF4B;
+        Sat,  6 Aug 2022 14:49:25 -0700 (PDT)
+Received: by mail-qt1-x82a.google.com with SMTP id e23so4298047qts.1;
+        Sat, 06 Aug 2022 14:49:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=TkLGeri0ieIB81mb5Sc2qpMW0NKUVK6/24BuiQ47HQk=;
+        b=fid4xgPfRWxBELPa06Kw5m1dknzjDOd2w0mqZfLBK3fhtkyIhKOYLE/EV04mUjmMEt
+         Fxwg2OLH7rGhE06dZeqU09/LY3kUA5+oGtclweIyrQTbcpJqjU7d3eBiW5vidF/v+GhX
+         KBhl2yaXG7CGUxNQ5NelBVRQBg/CkyBxIlp/LKuwMkLCYrxgf+iNoY0+iptAVMeFIcH8
+         F2g+/AaWtn+wGAMEJML4wH+q9DTHCIGRujdmang+eIianl7RAp+TMU8ouU2lPZr7iKz6
+         8TIcBdKM+c55cZet4OIBdEUGGkKC76pNEQfkiIPFyU1P/GCjV8RPoDgA8eu6P97/WaQg
+         AjKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=TkLGeri0ieIB81mb5Sc2qpMW0NKUVK6/24BuiQ47HQk=;
+        b=Yl8eTptPItlCMF4Hm32LHZeQdErf3AsQHQySgLHdbZs/+yKVE8P0a/oJagyUdwCdom
+         Fx0MR3heN9beR5iM6BkgRsXeqVBmSeeSpE5AzYpqBAt9Euj2DZPwE9RAVLpVtdpqCFKy
+         TZjk2lA9WuF99UMSLnx5UjlkhryegaO+p0+tvH+WBxtPJZbW9oiwA2keeSwjZwGnNGgP
+         9rMUYcaHlkfE02sGpLRCWi7OXxKO4uG8/kZ5OizYvtvTR4F6Im8fSvGVDr36UMm0IdoL
+         fgL8YX7Yd6i9lIsyLUpn2cp2HDx/Zo3Uqwj+afJmL+2+BqzciQTbJ+QD+u7ma6xgDEH/
+         Ru5w==
+X-Gm-Message-State: ACgBeo2njGrdHkB/fmPYPtV1UKXL3d4JG+hp/c2xwZaTOwo1LuurYmMc
+        A7OoY6aoUQQOqdXJB6KXd0D9gHabYNgswc5Q6/7aofL/4Kk=
+X-Google-Smtp-Source: AA6agR7gJvZyYhNgYU9h5hi3Vq7jB5EvadUY1y5zCO7XDsqnbG7WKdlYbOH7fX5UbduXq2MOwqcn5O14FJNQkWB56+o=
+X-Received: by 2002:ac8:5784:0:b0:31f:24e:93f5 with SMTP id
+ v4-20020ac85784000000b0031f024e93f5mr10990232qta.429.1659822564527; Sat, 06
+ Aug 2022 14:49:24 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220729154723.99947-1-matt.ranostay@konsulko.com>
+ <CAHp75VcOAbrZ2yciwH6teYs5L0vYnE4z==SQ6ejye63+_v9v+g@mail.gmail.com>
+ <CAJCx=gnxV7-oQCNE1LvpcFGhPCQ86rRbn_2NMh4MWpvmQ9WAYw@mail.gmail.com>
+ <CAHp75VfmdZQF7Kyu5ZsNpVfOoD3Dd2ShWOuuoauyJnV4t0w=XQ@mail.gmail.com> <20220806172905.3755bdc0@jic23-huawei>
+In-Reply-To: <20220806172905.3755bdc0@jic23-huawei>
+From:   Andy Shevchenko <andy.shevchenko@gmail.com>
+Date:   Sat, 6 Aug 2022 23:48:47 +0200
+Message-ID: <CAHp75VdgHAjDSnx+nHG6uJMz76wx0Vzu+fQPiauG0YoqCvLimQ@mail.gmail.com>
+Subject: Re: [PATCH] HID: mcp2221: add ADC/DAC support via iio subsystem
+To:     Jonathan Cameron <jic23@kernel.org>
+Cc:     Matt Ranostay <matt.ranostay@konsulko.com>,
+        linux-input <linux-input@vger.kernel.org>,
+        linux-iio <linux-iio@vger.kernel.org>,
+        Rishi Gupta <gupt21@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Remove some extra '0'
+On Sat, Aug 6, 2022 at 6:18 PM Jonathan Cameron <jic23@kernel.org> wrote:
+> On Mon, 1 Aug 2022 11:08:39 +0200
+> Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
+> > On Mon, Aug 1, 2022 at 6:19 AM Matt Ranostay <matt.ranostay@konsulko.com> wrote:
+> > > On Mon, Aug 1, 2022 at 3:11 AM Andy Shevchenko
+> > > <andy.shevchenko@gmail.com> wrote:
+> > > > On Fri, Jul 29, 2022 at 5:49 PM Matt Ranostay
+> > > > <matt.ranostay@konsulko.com> wrote:
 
-s/BMA0150_RANGE_xxx/BMA150_RANGE_xxx/
-s/BMA0150_BW_xxx/BMA150_BW_xxx
+...
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
----
- include/linux/bma150.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+> > > > > +       if (mcp->indio_dev)
+> > > >
+> > > > Do you need this check?
+> > >
+> > > Yes basically if no ADC or DAC channel is enabled then no iio_device
+> > > get allocated or registered.
+> >
+> > > > > +               iio_device_unregister(mcp->indio_dev);
+> >
+> > So, we have an inconvenience in the iio_device_unregister(), i.e. it
+> > doesn't perform the NULL-check by itself. I recommend fixing it there
+> > and dropping this check in the caller. This is standard practice in
+> > the Linux kernel for resource deallocator APIs.
+>
+> ah. Now the other patch makes more sense.   Make sure to pull this
+> driver an that one together in a series if we are taking that forwards.
+>
+> I agree for allocator APIs but not so much for registration APIs.
+> I checked a few similar ones.
+>
+> input_unregister_device() doesn't
+> hwmon_device_unregister() doesn't.
+>
+> Got bored at that point :)
 
-diff --git a/include/linux/bma150.h b/include/linux/bma150.h
-index 31c9e323a391..4d4a62d49341 100644
---- a/include/linux/bma150.h
-+++ b/include/linux/bma150.h
-@@ -33,8 +33,8 @@ struct bma150_cfg {
- 	unsigned char lg_hyst;		/* Low-G hysterisis */
- 	unsigned char lg_dur;		/* Low-G duration */
- 	unsigned char lg_thres;		/* Low-G threshold */
--	unsigned char range;		/* one of BMA0150_RANGE_xxx */
--	unsigned char bandwidth;	/* one of BMA0150_BW_xxx */
-+	unsigned char range;		/* one of BMA150_RANGE_xxx */
-+	unsigned char bandwidth;	/* one of BMA150_BW_xxx */
- };
- 
- struct bma150_platform_data {
+Good point. I think that check is simply not needed then. We should
+never come to _unregister() with a NULL pointer, right?
+
+> Would be relatively easy to take this driver fully devm_ I think
+> then you can just use devm_iio_device_register() if you have a device
+> to register.
+
 -- 
-2.34.1
-
+With Best Regards,
+Andy Shevchenko

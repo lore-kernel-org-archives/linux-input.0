@@ -2,170 +2,257 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B8A89C3F6B0
-	for <linux-input@archiver.kernel.org>; Sat,  6 Aug 2022 14:19:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56245C19F2D
+	for <linux-input@archiver.kernel.org>; Sat,  6 Aug 2022 15:57:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230133AbiHFOT1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 6 Aug 2022 10:19:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41174 "EHLO
+        id S230422AbiHFP5R (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 6 Aug 2022 11:57:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231473AbiHFOT0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2022 10:19:26 -0400
-Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [217.70.178.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC77E12602;
-        Sat,  6 Aug 2022 07:19:24 -0700 (PDT)
-Received: (Authenticated sender: contact@artur-rojek.eu)
-        by mail.gandi.net (Postfix) with ESMTPA id 13909200002;
-        Sat,  6 Aug 2022 14:19:21 +0000 (UTC)
+        with ESMTP id S230128AbiHFP5Q (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2022 11:57:16 -0400
+X-Greylist: delayed 515 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 06 Aug 2022 08:57:15 PDT
+Received: from freundtech.com (freundtech.com [IPv6:2a01:4f8:c17:2d66::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3896FE0F5;
+        Sat,  6 Aug 2022 08:57:15 -0700 (PDT)
+Received: from [192.168.178.22] (dslb-002-206-038-062.002.206.pools.vodafone-ip.de [2.206.38.62])
+        by freundtech.com (Postfix) with ESMTPSA id 4644D1EABB4;
+        Sat,  6 Aug 2022 17:48:38 +0200 (CEST)
+Message-ID: <96a8bb05-d2b0-8a98-bdec-426fd5879390@freund.io>
+Date:   Sat, 6 Aug 2022 17:48:37 +0200
 MIME-Version: 1.0
-Date:   Sat, 06 Aug 2022 16:19:21 +0200
-From:   Artur Rojek <contact@artur-rojek.eu>
-To:     Jonathan Cameron <jic23@kernel.org>,
-        Chris Morgan <macroalpha82@gmail.com>
-Cc:     Chris Morgan <macroalpha82@gmail.com>, linux-input@vger.kernel.org,
-        linux-iio@vger.kernel.org, dmitry.torokhov@gmail.com,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        heiko@sntech.de, paul@crapouillou.net,
-        Chris Morgan <macromorgan@hotmail.com>,
-        Maya Matuszczyk <maccraft123mc@gmail.com>
-Subject: Re: [PATCH v12 2/3] Input: adc-joystick - Add polled input device
- support
-In-Reply-To: <20220806152042.39bc5351@jic23-huawei>
-References: <20220805171016.21217-1-macroalpha82@gmail.com>
- <20220805171016.21217-3-macroalpha82@gmail.com>
- <20220806152042.39bc5351@jic23-huawei>
-Message-ID: <9399f54366be973dba36a70cb3dcbfd9@artur-rojek.eu>
-X-Sender: contact@artur-rojek.eu
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.10.0
+Subject: Re: [PATCH 1/1] HID: amd_sfh: Add keyguard for ASUS ROG X13 tablet
+Content-Language: en-US
+To:     "Luke D. Jones" <luke@ljones.dev>, linux-kernel@vger.kernel.org
+Cc:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com,
+        jikos@kernel.org, basavaraj.natikar@amd.com,
+        nehal-bakulchandra.shah@amd.com
+References: <20220803064109.766342-1-luke@ljones.dev>
+From:   Adrian Freund <adrian@freund.io>
+In-Reply-To: <20220803064109.766342-1-luke@ljones.dev>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 2022-08-06 16:20, Jonathan Cameron wrote:
-> On Fri,  5 Aug 2022 12:10:15 -0500
-> Chris Morgan <macroalpha82@gmail.com> wrote:
-> 
->> From: Chris Morgan <macromorgan@hotmail.com>
->> 
->> Add polled input device support to the adc-joystick driver. This is
->> useful for devices which do not have hardware capable triggers on
->> their SARADC. Code modified from adc-joystick.c changes made by Maya
->> Matuszczyk.
->> 
->> Signed-off-by: Maya Matuszczyk <maccraft123mc@gmail.com>
->> Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
-> Hi Chris,
-> 
-> Trying to avoid too much indentation has lead to an odd code structure.
-> Still minor thing, so either way this looks fine to me.
-> 
-> Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> 
->> ---
->>  drivers/input/joystick/adc-joystick.c | 44 
->> +++++++++++++++++++++++++--
->>  1 file changed, 41 insertions(+), 3 deletions(-)
->> 
->> diff --git a/drivers/input/joystick/adc-joystick.c 
->> b/drivers/input/joystick/adc-joystick.c
->> index 78ebca7d400a..77dfb7dd96eb 100644
->> --- a/drivers/input/joystick/adc-joystick.c
->> +++ b/drivers/input/joystick/adc-joystick.c
->> @@ -26,8 +26,23 @@ struct adc_joystick {
->>  	struct adc_joystick_axis *axes;
->>  	struct iio_channel *chans;
->>  	int num_chans;
->> +	bool polled;
->>  };
->> 
->> +static void adc_joystick_poll(struct input_dev *input)
->> +{
->> +	struct adc_joystick *joy = input_get_drvdata(input);
->> +	int i, val, ret;
->> +
->> +	for (i = 0; i < joy->num_chans; i++) {
->> +		ret = iio_read_channel_raw(&joy->chans[i], &val);
->> +		if (ret < 0)
->> +			return;
->> +		input_report_abs(input, joy->axes[i].code, val);
->> +	}
->> +	input_sync(input);
->> +}
->> +
->>  static int adc_joystick_handle(const void *data, void *private)
->>  {
->>  	struct adc_joystick *joy = private;
->> @@ -179,6 +194,7 @@ static int adc_joystick_probe(struct 
->> platform_device *pdev)
->>  	int error;
->>  	int bits;
->>  	int i;
->> +	unsigned int poll_interval;
->> 
->>  	joy = devm_kzalloc(dev, sizeof(*joy), GFP_KERNEL);
->>  	if (!joy)
->> @@ -192,8 +208,21 @@ static int adc_joystick_probe(struct 
->> platform_device *pdev)
->>  		return error;
->>  	}
->> 
->> -	/* Count how many channels we got. NULL terminated. */
->> +	if (device_property_present(dev, "poll-interval")) {
->> +		error = device_property_read_u32(dev, "poll-interval",
->> +						 &poll_interval);
->> +		if (error)
->> +			return error;
->> +		joy->polled = true;
->> +	}
->> +
->> +	/*
->> +	 * Count how many channels we got. NULL terminated.
->> +	 * Do not check the storage size if using polling.
->> +	 */
->>  	for (i = 0; joy->chans[i].indio_dev; i++) {
->> +		if (joy->polled)
->> +			continue;
-> 
-> Whilst I can see why did this, it is a rather 'unusual' code structure
-> and that makes me a tiny bit uncomfortable. However if everyone else
-> is happy with this then fair enough (I see it was Artur's suggestion to
-> handle it like this).
-Yep, I'm fine with the way it is right now :)
+Hi Luke,
 
-Acked-by: Artur Rojek <contact@artur-rojek.eu>
+I stumbled on this patch while trying to get the tablet mode switch 
+working on a Lenovo ThinkPad L13 Yoga Gen2 (AMD), which also uses an 
+amd_sfh based switch.
 
-> 
->>  		bits = joy->chans[i].channel->scan_type.storagebits;
->>  		if (!bits || bits > 16) {
->>  			dev_err(dev, "Unsupported channel storage size\n");
->> @@ -215,8 +244,14 @@ static int adc_joystick_probe(struct 
->> platform_device *pdev)
->>  	joy->input = input;
->>  	input->name = pdev->name;
->>  	input->id.bustype = BUS_HOST;
->> -	input->open = adc_joystick_open;
->> -	input->close = adc_joystick_close;
->> +
->> +	if (joy->polled) {
->> +		input_setup_polling(input, adc_joystick_poll);
->> +		input_set_poll_interval(input, poll_interval);
->> +	} else {
->> +		input->open = adc_joystick_open;
->> +		input->close = adc_joystick_close;
->> +	}
->> 
->>  	error = adc_joystick_set_axes(dev, joy);
->>  	if (error)
->> @@ -229,6 +264,9 @@ static int adc_joystick_probe(struct 
->> platform_device *pdev)
->>  		return error;
->>  	}
->> 
->> +	if (joy->polled)
->> +		return 0;
->> +
->>  	joy->buffer = iio_channel_get_all_cb(dev, adc_joystick_handle, joy);
->>  	if (IS_ERR(joy->buffer)) {
->>  		dev_err(dev, "Unable to allocate callback buffer\n");
+This patch also gets it to work on that device, but there are some problems.
+
+Here's my review:
+
+1. In drivers/hid/amd_sfh_hid/amd_sfh_hid.h you need to increase 
+MAX_HID_DEVICES from 5 to 6 or you will run into memory corruption in 
+case a device with all types of sensors exists.
+
+2. in drivers/hid/amd_sfh_hid/amd_sfh_client.c you should add 
+KBGUARD_IDX to the get_sensor_name() function. I think that's only used 
+for debug messages, but it should still be complete.
+
+3. & 4. See in-patch annotations
+
+On 8/3/22 08:41, Luke D. Jones wrote:
+> Add support for ROG X13 Flow 2-in-1 to disable the keyboard when
+> the lid is flipped.
+>
+> Signed-off-by: Luke D. Jones <luke@ljones.dev>
+> ---
+>   drivers/hid/amd-sfh-hid/amd_sfh_pcie.c        |  7 ++++-
+>   drivers/hid/amd-sfh-hid/amd_sfh_pcie.h        |  1 +
+>   .../hid_descriptor/amd_sfh_hid_desc.c         | 27 +++++++++++++++++++
+>   .../hid_descriptor/amd_sfh_hid_desc.h         |  9 +++++++
+>   .../hid_descriptor/amd_sfh_hid_report_desc.h  | 19 +++++++++++++
+>   5 files changed, 62 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+> index dadc491bbf6b..243541d426d8 100644
+> --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+> @@ -26,6 +26,7 @@
+>   #define ACEL_EN		BIT(0)
+>   #define GYRO_EN		BIT(1)
+>   #define MAGNO_EN	BIT(2)
+> +#define KBGUARD_EN	BIT(15)
+>   #define HPD_EN		BIT(16)
+>   #define ALS_EN		BIT(19)
+>   
+> @@ -232,6 +233,9 @@ int amd_mp2_get_sensor_num(struct amd_mp2_dev *privdata, u8 *sensor_id)
+>   	if (HPD_EN & activestatus)
+>   		sensor_id[num_of_sensors++] = HPD_IDX;
+>   
+> +	if (KBGUARD_EN & activestatus)
+> +		sensor_id[num_of_sensors++] = KBGUARD_IDX;
+> +
+>   	return num_of_sensors;
+>   }
+>   
+> @@ -373,7 +377,8 @@ static int __maybe_unused amd_mp2_pci_suspend(struct device *dev)
+>   
+>   	for (i = 0; i < cl_data->num_hid_devices; i++) {
+>   		if (cl_data->sensor_idx[i] != HPD_IDX &&
+> -		    cl_data->sensor_sts[i] == SENSOR_ENABLED) {
+> +			cl_data->sensor_idx[i] != KBGUARD_IDX &&
+> +			cl_data->sensor_sts[i] == SENSOR_ENABLED) {
+Is there a reason you don't stop the kbguard sensor on suspend? This 
+breaks on my device. When not stopping the kbguard sensor my accelerator 
+and kbguard sensor are both broken after resume (I don't know about the 
+other sensor types, as my device doesn't have them), until reboot. When 
+stopping the kbguard sensor on suspend everything still works after resume.
+Also the condition continuation lines are indented too much.
+>   			mp2->mp2_ops->stop(mp2, cl_data->sensor_idx[i]);
+>   			status = amd_sfh_wait_for_response
+>   					(mp2, cl_data->sensor_idx[i], SENSOR_DISABLED);
+> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
+> index 8c760526132a..4a86bc6038a2 100644
+> --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
+> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
+> @@ -36,6 +36,7 @@
+>   #define SENSOR_DISABLED    5
+>   
+>   #define HPD_IDX		16
+> +#define KBGUARD_IDX	15
+>   
+>   #define AMD_SFH_IDLE_LOOP	200
+>   
+> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
+> index 76095bd53c65..f41d28ea7b93 100644
+> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
+> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
+> @@ -57,6 +57,11 @@ int get_report_descriptor(int sensor_idx, u8 *rep_desc)
+>   		memcpy(rep_desc, hpd_report_descriptor,
+>   		       sizeof(hpd_report_descriptor));
+>   		break;
+> +	case KBGUARD_IDX: /* kbguard ? */
+> +		memset(rep_desc, 0, sizeof(kbguard_report_descriptor));
+> +		memcpy(rep_desc, kbguard_report_descriptor,
+> +		       sizeof(kbguard_report_descriptor));
+> +		break;
+>   	default:
+>   		break;
+>   	}
+> @@ -116,6 +121,16 @@ u32 get_descr_sz(int sensor_idx, int descriptor_name)
+>   			return sizeof(struct hpd_feature_report);
+>   		}
+>   		break;
+> +	case KBGUARD_IDX:
+> +		switch (descriptor_name) {
+> +		case descr_size:
+> +			return sizeof(kbguard_report_descriptor);
+> +		case input_size:
+> +			return sizeof(struct kbguard_input_report);
+> +		case feature_size:
+> +			return sizeof(struct kbguard_feature_report);
+> +		}
+> +		break;
+>   
+>   	default:
+>   		break;
+> @@ -139,6 +154,7 @@ u8 get_feature_report(int sensor_idx, int report_id, u8 *feature_report)
+>   	struct gyro_feature_report gyro_feature;
+>   	struct magno_feature_report magno_feature;
+>   	struct hpd_feature_report hpd_feature;
+> +	struct kbguard_feature_report kbguard_feature;
+>   	struct als_feature_report als_feature;
+>   	u8 report_size = 0;
+>   
+> @@ -186,6 +202,11 @@ u8 get_feature_report(int sensor_idx, int report_id, u8 *feature_report)
+>   		memcpy(feature_report, &hpd_feature, sizeof(hpd_feature));
+>   		report_size = sizeof(hpd_feature);
+>   		break;
+> +	case KBGUARD_IDX:  /* auto disable keyboard when flip out */
+> +		get_common_features(&kbguard_feature.common_property, report_id);
+> +		memcpy(feature_report, &kbguard_feature, sizeof(kbguard_feature));
+> +		report_size = sizeof(kbguard_feature);
+> +		break;
+>   
+>   	default:
+>   		break;
+> @@ -210,6 +231,7 @@ u8 get_input_report(u8 current_index, int sensor_idx, int report_id, struct amd_
+>   	struct accel3_input_report acc_input;
+>   	struct gyro_input_report gyro_input;
+>   	struct hpd_input_report hpd_input;
+> +	struct kbguard_input_report kbguard_input;
+>   	struct als_input_report als_input;
+>   	struct hpd_status hpdstatus;
+>   	u8 report_size = 0;
+> @@ -262,6 +284,11 @@ u8 get_input_report(u8 current_index, int sensor_idx, int report_id, struct amd_
+>   		report_size = sizeof(hpd_input);
+>   		memcpy(input_report, &hpd_input, sizeof(hpd_input));
+>   		break;
+> +	case KBGUARD_IDX: /* kb guard */
+> +		get_common_inputs(&kbguard_input.common_property, report_id);
+> +		report_size = sizeof(kbguard_input);
+> +		memcpy(input_report, &kbguard_input, sizeof(kbguard_input));
+> +break;
+Missing indentation
+>   	default:
+>   		break;
+>   	}
+> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+> index 70b1b7abe2c6..98571a8597b3 100644
+> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+> @@ -105,12 +105,21 @@ struct hpd_feature_report {
+>   	struct common_feature_property common_property;
+>   } __packed;
+>   
+> +struct kbguard_feature_report {
+> +	struct common_feature_property common_property;
+> +} __packed;
+> +
+>   struct hpd_input_report {
+>   	struct common_input_property common_property;
+>   	 /* values specific to human presence sensor */
+>   	u8 human_presence;
+>   } __packed;
+>   
+> +struct kbguard_input_report {
+> +	struct common_input_property common_property;
+> +} __packed;
+> +
+> +
+>   int get_report_descriptor(int sensor_idx, u8 rep_desc[]);
+>   u32 get_descr_sz(int sensor_idx, int descriptor_name);
+>   u8 get_feature_report(int sensor_idx, int report_id, u8 *feature_report);
+> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+> index 697f2791ea9c..7a62fcec2c73 100644
+> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+> @@ -644,6 +644,25 @@ static const u8 als_report_descriptor[] = {
+>   0xC0			/* HID end collection */
+>   };
+>   
+> +
+> +static const u8 kbguard_report_descriptor[] = {
+> +0x06, 0x43, 0xFF,  // Usage Page (Vendor Defined 0xFF43)
+> +0x0A, 0x02, 0x02,  // Usage (0x0202)
+> +0xA1, 0x01, // Collection (Application)
+> +0x85, 0x11, //   Report ID (17)
+> +0x15, 0x00, //   Logical Minimum (0)
+> +0x25, 0x01, //   Logical Maximum (1)
+> +0x35, 0x00, //   Physical Minimum (0)
+> +0x45, 0x01, //   Physical Maximum (1)
+> +0x65, 0x00, //   Unit (None)
+> +0x55, 0x00, //   Unit Exponent (0)
+> +0x75, 0x01, //   Report Size (1)
+> +0x95, 0x98, //   Report Count (-104)
+> +0x81, 0x03, //   Input (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
+> +0x91, 0x03, //   Output (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
+> +0xC1, 0x00, // End Collection
+> +};
+> +
+>   /* BIOMETRIC PRESENCE*/
+>   static const u8 hpd_report_descriptor[] = {
+>   0x05, 0x20,          /* Usage page */
+
+
+Best Regards
+Adrian
+

@@ -2,257 +2,179 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56245C19F2D
-	for <linux-input@archiver.kernel.org>; Sat,  6 Aug 2022 15:57:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FE6FC25B0C
+	for <linux-input@archiver.kernel.org>; Sat,  6 Aug 2022 16:18:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230422AbiHFP5R (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 6 Aug 2022 11:57:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34084 "EHLO
+        id S230281AbiHFQSs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 6 Aug 2022 12:18:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230128AbiHFP5Q (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2022 11:57:16 -0400
-X-Greylist: delayed 515 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 06 Aug 2022 08:57:15 PDT
-Received: from freundtech.com (freundtech.com [IPv6:2a01:4f8:c17:2d66::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3896FE0F5;
-        Sat,  6 Aug 2022 08:57:15 -0700 (PDT)
-Received: from [192.168.178.22] (dslb-002-206-038-062.002.206.pools.vodafone-ip.de [2.206.38.62])
-        by freundtech.com (Postfix) with ESMTPSA id 4644D1EABB4;
-        Sat,  6 Aug 2022 17:48:38 +0200 (CEST)
-Message-ID: <96a8bb05-d2b0-8a98-bdec-426fd5879390@freund.io>
-Date:   Sat, 6 Aug 2022 17:48:37 +0200
+        with ESMTP id S230128AbiHFQSr (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 Aug 2022 12:18:47 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BECB659C;
+        Sat,  6 Aug 2022 09:18:46 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB94260E04;
+        Sat,  6 Aug 2022 16:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83AFEC433D7;
+        Sat,  6 Aug 2022 16:18:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1659802725;
+        bh=GqybX519p1IsieOaAtqe8J7TdeClhx1gw0hFu/BXJ8E=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=DZ6P/+DOGMuth/bQCjdVqp3kzAy1ejRgTndNJU7jdzNLJS/c8BN1kmMAOfHvZnhwL
+         tCf6cXa3KuIRg6rJb8NHbw/CErP5M1yCNXoX/cuuezVCUTEV1bJ/G0bG2RdLXp+4z+
+         4std5m0OGFACaRw5BVRxuzSblpb5iilYUPrLKJtRG+V1wO6gMg4gEzmkxu07J/kpHk
+         TAcF7fF1Ud84kJv5hVc6iUUNZL6YO4SmFVE65AIYLf2tflcRBsC5/83LqeFCcXuuPB
+         4F2WHCcanBo+ET1v1NWCvWBlq56D7qJ+rhdZYJzhj/hlOiFaSlRbrtN8iLlNH1aG9A
+         PTgZrlxntw1zQ==
+Date:   Sat, 6 Aug 2022 17:29:05 +0100
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc:     Matt Ranostay <matt.ranostay@konsulko.com>,
+        linux-input <linux-input@vger.kernel.org>,
+        linux-iio <linux-iio@vger.kernel.org>,
+        Rishi Gupta <gupt21@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: Re: [PATCH] HID: mcp2221: add ADC/DAC support via iio subsystem
+Message-ID: <20220806172905.3755bdc0@jic23-huawei>
+In-Reply-To: <CAHp75VfmdZQF7Kyu5ZsNpVfOoD3Dd2ShWOuuoauyJnV4t0w=XQ@mail.gmail.com>
+References: <20220729154723.99947-1-matt.ranostay@konsulko.com>
+        <CAHp75VcOAbrZ2yciwH6teYs5L0vYnE4z==SQ6ejye63+_v9v+g@mail.gmail.com>
+        <CAJCx=gnxV7-oQCNE1LvpcFGhPCQ86rRbn_2NMh4MWpvmQ9WAYw@mail.gmail.com>
+        <CAHp75VfmdZQF7Kyu5ZsNpVfOoD3Dd2ShWOuuoauyJnV4t0w=XQ@mail.gmail.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.10.0
-Subject: Re: [PATCH 1/1] HID: amd_sfh: Add keyguard for ASUS ROG X13 tablet
-Content-Language: en-US
-To:     "Luke D. Jones" <luke@ljones.dev>, linux-kernel@vger.kernel.org
-Cc:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com,
-        jikos@kernel.org, basavaraj.natikar@amd.com,
-        nehal-bakulchandra.shah@amd.com
-References: <20220803064109.766342-1-luke@ljones.dev>
-From:   Adrian Freund <adrian@freund.io>
-In-Reply-To: <20220803064109.766342-1-luke@ljones.dev>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Luke,
+On Mon, 1 Aug 2022 11:08:39 +0200
+Andy Shevchenko <andy.shevchenko@gmail.com> wrote:
 
-I stumbled on this patch while trying to get the tablet mode switch 
-working on a Lenovo ThinkPad L13 Yoga Gen2 (AMD), which also uses an 
-amd_sfh based switch.
+> On Mon, Aug 1, 2022 at 6:19 AM Matt Ranostay <matt.ranostay@konsulko.com> wrote:
+> > On Mon, Aug 1, 2022 at 3:11 AM Andy Shevchenko
+> > <andy.shevchenko@gmail.com> wrote:  
+> > > On Fri, Jul 29, 2022 at 5:49 PM Matt Ranostay
+> > > <matt.ranostay@konsulko.com> wrote:  
+> 
+> First of all, please, remove unneeded context when replying!
+> (And I believe that non-commented stuff will be addressed as suggested)
+> 
+> ...
+> 
+> > > > -       depends on GPIOLIB
+> > > > +       select GPIOLIB  
+> > >
+> > > I'm not sure why.  
+> >
+> > Changed to select from 'depends on' to avoid this circular dependency  
+> 
+> Was it before your patch? If so, it should be addressed separately as a fix.
+> 
+> >   SYNC    include/config/auto.conf.cmd
+> > drivers/gpio/Kconfig:14:error: recursive dependency detected!  
+> 
+> > drivers/gpio/Kconfig:14:        symbol GPIOLIB is selected by I2C_MUX_LTC4306  
+> 
+> Isn't it the real problem here?
+> 
+> > drivers/i2c/muxes/Kconfig:47:   symbol I2C_MUX_LTC4306 depends on I2C_MUX
+> > drivers/i2c/Kconfig:62: symbol I2C_MUX is selected by MPU3050_I2C
+> > drivers/iio/gyro/Kconfig:127:   symbol MPU3050_I2C depends on IIO
+> > drivers/iio/Kconfig:6:  symbol IIO is implied by HID_MCP2221
+> > drivers/hid/Kconfig:1298:       symbol HID_MCP2221 depends on GPIOLIB  
+> 
+> ...
+> 
+> > > > +                       if (mcp->indio_dev)
+> > > > +                               memcpy(&mcp->adc_values, &data[50], 6);  
+> > >
+> > > sizeof()  
+> >
+> > sizeof(mcp->adc_values) would work here if needed.  
+> 
+> You need to write code to be more robust, using hardcoded magics when
+> it's easy to derive is not good practice.
+> 
+> ...
+> 
+> > > > +       memset(mcp->txbuf, 0, 12);  
+> > >
+> > > sizeof() ?  
+> >
+> > txbuf isn't 12 bytes long but 64 since that is the full max size a HID
+> > transaction could
+> > have. So sizeof() won't work in these cases..  
+> 
+> I see, what about a specific definition with a self-explanatory name?
+> 
+> ...
+> 
+> > > > +       ret = mcp_send_data_req_status(mcp, mcp->txbuf, 12);  
+> > >
+> > > Ditto,  
+> >
+> > See above.  
+> 
+> See above.
+> 
+> ...
+> 
+> > > > +       if (mcp->indio_dev)  
+> > >
+> > > Do you need this check?  
+> >
+> > Yes basically if no ADC or DAC channel is enabled then no iio_device
+> > get allocated or registered.  
+> 
+> > > > +               iio_device_unregister(mcp->indio_dev);  
+> 
+> So, we have an inconvenience in the iio_device_unregister(), i.e. it
+> doesn't perform the NULL-check by itself. I recommend fixing it there
+> and dropping this check in the caller. This is standard practice in
+> the Linux kernel for resource deallocator APIs.
 
-This patch also gets it to work on that device, but there are some problems.
+ah. Now the other patch makes more sense.   Make sure to pull this
+driver an that one together in a series if we are taking that forwards.
 
-Here's my review:
+I agree for allocator APIs but not so much for registration APIs.
+I checked a few similar ones.
 
-1. In drivers/hid/amd_sfh_hid/amd_sfh_hid.h you need to increase 
-MAX_HID_DEVICES from 5 to 6 or you will run into memory corruption in 
-case a device with all types of sensors exists.
+input_unregister_device() doesn't
+hwmon_device_unregister() doesn't.
 
-2. in drivers/hid/amd_sfh_hid/amd_sfh_client.c you should add 
-KBGUARD_IDX to the get_sensor_name() function. I think that's only used 
-for debug messages, but it should still be complete.
+Got bored at that point :)
 
-3. & 4. See in-patch annotations
-
-On 8/3/22 08:41, Luke D. Jones wrote:
-> Add support for ROG X13 Flow 2-in-1 to disable the keyboard when
-> the lid is flipped.
->
-> Signed-off-by: Luke D. Jones <luke@ljones.dev>
-> ---
->   drivers/hid/amd-sfh-hid/amd_sfh_pcie.c        |  7 ++++-
->   drivers/hid/amd-sfh-hid/amd_sfh_pcie.h        |  1 +
->   .../hid_descriptor/amd_sfh_hid_desc.c         | 27 +++++++++++++++++++
->   .../hid_descriptor/amd_sfh_hid_desc.h         |  9 +++++++
->   .../hid_descriptor/amd_sfh_hid_report_desc.h  | 19 +++++++++++++
->   5 files changed, 62 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-> index dadc491bbf6b..243541d426d8 100644
-> --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-> @@ -26,6 +26,7 @@
->   #define ACEL_EN		BIT(0)
->   #define GYRO_EN		BIT(1)
->   #define MAGNO_EN	BIT(2)
-> +#define KBGUARD_EN	BIT(15)
->   #define HPD_EN		BIT(16)
->   #define ALS_EN		BIT(19)
->   
-> @@ -232,6 +233,9 @@ int amd_mp2_get_sensor_num(struct amd_mp2_dev *privdata, u8 *sensor_id)
->   	if (HPD_EN & activestatus)
->   		sensor_id[num_of_sensors++] = HPD_IDX;
->   
-> +	if (KBGUARD_EN & activestatus)
-> +		sensor_id[num_of_sensors++] = KBGUARD_IDX;
-> +
->   	return num_of_sensors;
->   }
->   
-> @@ -373,7 +377,8 @@ static int __maybe_unused amd_mp2_pci_suspend(struct device *dev)
->   
->   	for (i = 0; i < cl_data->num_hid_devices; i++) {
->   		if (cl_data->sensor_idx[i] != HPD_IDX &&
-> -		    cl_data->sensor_sts[i] == SENSOR_ENABLED) {
-> +			cl_data->sensor_idx[i] != KBGUARD_IDX &&
-> +			cl_data->sensor_sts[i] == SENSOR_ENABLED) {
-Is there a reason you don't stop the kbguard sensor on suspend? This 
-breaks on my device. When not stopping the kbguard sensor my accelerator 
-and kbguard sensor are both broken after resume (I don't know about the 
-other sensor types, as my device doesn't have them), until reboot. When 
-stopping the kbguard sensor on suspend everything still works after resume.
-Also the condition continuation lines are indented too much.
->   			mp2->mp2_ops->stop(mp2, cl_data->sensor_idx[i]);
->   			status = amd_sfh_wait_for_response
->   					(mp2, cl_data->sensor_idx[i], SENSOR_DISABLED);
-> diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-> index 8c760526132a..4a86bc6038a2 100644
-> --- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-> +++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
-> @@ -36,6 +36,7 @@
->   #define SENSOR_DISABLED    5
->   
->   #define HPD_IDX		16
-> +#define KBGUARD_IDX	15
->   
->   #define AMD_SFH_IDLE_LOOP	200
->   
-> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
-> index 76095bd53c65..f41d28ea7b93 100644
-> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
-> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
-> @@ -57,6 +57,11 @@ int get_report_descriptor(int sensor_idx, u8 *rep_desc)
->   		memcpy(rep_desc, hpd_report_descriptor,
->   		       sizeof(hpd_report_descriptor));
->   		break;
-> +	case KBGUARD_IDX: /* kbguard ? */
-> +		memset(rep_desc, 0, sizeof(kbguard_report_descriptor));
-> +		memcpy(rep_desc, kbguard_report_descriptor,
-> +		       sizeof(kbguard_report_descriptor));
-> +		break;
->   	default:
->   		break;
->   	}
-> @@ -116,6 +121,16 @@ u32 get_descr_sz(int sensor_idx, int descriptor_name)
->   			return sizeof(struct hpd_feature_report);
->   		}
->   		break;
-> +	case KBGUARD_IDX:
-> +		switch (descriptor_name) {
-> +		case descr_size:
-> +			return sizeof(kbguard_report_descriptor);
-> +		case input_size:
-> +			return sizeof(struct kbguard_input_report);
-> +		case feature_size:
-> +			return sizeof(struct kbguard_feature_report);
-> +		}
-> +		break;
->   
->   	default:
->   		break;
-> @@ -139,6 +154,7 @@ u8 get_feature_report(int sensor_idx, int report_id, u8 *feature_report)
->   	struct gyro_feature_report gyro_feature;
->   	struct magno_feature_report magno_feature;
->   	struct hpd_feature_report hpd_feature;
-> +	struct kbguard_feature_report kbguard_feature;
->   	struct als_feature_report als_feature;
->   	u8 report_size = 0;
->   
-> @@ -186,6 +202,11 @@ u8 get_feature_report(int sensor_idx, int report_id, u8 *feature_report)
->   		memcpy(feature_report, &hpd_feature, sizeof(hpd_feature));
->   		report_size = sizeof(hpd_feature);
->   		break;
-> +	case KBGUARD_IDX:  /* auto disable keyboard when flip out */
-> +		get_common_features(&kbguard_feature.common_property, report_id);
-> +		memcpy(feature_report, &kbguard_feature, sizeof(kbguard_feature));
-> +		report_size = sizeof(kbguard_feature);
-> +		break;
->   
->   	default:
->   		break;
-> @@ -210,6 +231,7 @@ u8 get_input_report(u8 current_index, int sensor_idx, int report_id, struct amd_
->   	struct accel3_input_report acc_input;
->   	struct gyro_input_report gyro_input;
->   	struct hpd_input_report hpd_input;
-> +	struct kbguard_input_report kbguard_input;
->   	struct als_input_report als_input;
->   	struct hpd_status hpdstatus;
->   	u8 report_size = 0;
-> @@ -262,6 +284,11 @@ u8 get_input_report(u8 current_index, int sensor_idx, int report_id, struct amd_
->   		report_size = sizeof(hpd_input);
->   		memcpy(input_report, &hpd_input, sizeof(hpd_input));
->   		break;
-> +	case KBGUARD_IDX: /* kb guard */
-> +		get_common_inputs(&kbguard_input.common_property, report_id);
-> +		report_size = sizeof(kbguard_input);
-> +		memcpy(input_report, &kbguard_input, sizeof(kbguard_input));
-> +break;
-Missing indentation
->   	default:
->   		break;
->   	}
-> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
-> index 70b1b7abe2c6..98571a8597b3 100644
-> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
-> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
-> @@ -105,12 +105,21 @@ struct hpd_feature_report {
->   	struct common_feature_property common_property;
->   } __packed;
->   
-> +struct kbguard_feature_report {
-> +	struct common_feature_property common_property;
-> +} __packed;
-> +
->   struct hpd_input_report {
->   	struct common_input_property common_property;
->   	 /* values specific to human presence sensor */
->   	u8 human_presence;
->   } __packed;
->   
-> +struct kbguard_input_report {
-> +	struct common_input_property common_property;
-> +} __packed;
-> +
-> +
->   int get_report_descriptor(int sensor_idx, u8 rep_desc[]);
->   u32 get_descr_sz(int sensor_idx, int descriptor_name);
->   u8 get_feature_report(int sensor_idx, int report_id, u8 *feature_report);
-> diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-> index 697f2791ea9c..7a62fcec2c73 100644
-> --- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-> +++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
-> @@ -644,6 +644,25 @@ static const u8 als_report_descriptor[] = {
->   0xC0			/* HID end collection */
->   };
->   
-> +
-> +static const u8 kbguard_report_descriptor[] = {
-> +0x06, 0x43, 0xFF,  // Usage Page (Vendor Defined 0xFF43)
-> +0x0A, 0x02, 0x02,  // Usage (0x0202)
-> +0xA1, 0x01, // Collection (Application)
-> +0x85, 0x11, //   Report ID (17)
-> +0x15, 0x00, //   Logical Minimum (0)
-> +0x25, 0x01, //   Logical Maximum (1)
-> +0x35, 0x00, //   Physical Minimum (0)
-> +0x45, 0x01, //   Physical Maximum (1)
-> +0x65, 0x00, //   Unit (None)
-> +0x55, 0x00, //   Unit Exponent (0)
-> +0x75, 0x01, //   Report Size (1)
-> +0x95, 0x98, //   Report Count (-104)
-> +0x81, 0x03, //   Input (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
-> +0x91, 0x03, //   Output (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
-> +0xC1, 0x00, // End Collection
-> +};
-> +
->   /* BIOMETRIC PRESENCE*/
->   static const u8 hpd_report_descriptor[] = {
->   0x05, 0x20,          /* Usage page */
+Would be relatively easy to take this driver fully devm_ I think
+then you can just use devm_iio_device_register() if you have a device
+to register.
 
 
-Best Regards
-Adrian
+> 
+> ...
+> 
+> > > Overall what I really do not like is that ugly ifdeffery. Can we avoid
+> > > adding it?  
+> >
+> > Could make CONFIG_IIO required for building but not sure we really
+> > want to add as an additional dependency.
+> > Which is way the imply is set for CONFIG_IIO  
+> 
+> The code looks ugly with this kind of ifdeffery. But okay, I leave it
+> up to maintainers, just my 2cents.
+> 
+Agreed.  HID maintainer call to make I think. 
+
+One alternative is the standard approach of spin another file with wrappers around
+the IIO registration calls, then stub that out in the header if CONFIG_IIO
+not built appropriately.
+
+Jonathan
+
 

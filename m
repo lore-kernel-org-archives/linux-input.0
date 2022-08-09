@@ -2,107 +2,90 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6116AC25B07
-	for <linux-input@archiver.kernel.org>; Tue,  9 Aug 2022 10:18:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A01EC3F6B0
+	for <linux-input@archiver.kernel.org>; Tue,  9 Aug 2022 13:38:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242213AbiHIKSl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 9 Aug 2022 06:18:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36184 "EHLO
+        id S243729AbiHINiQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 9 Aug 2022 09:38:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242226AbiHIKSi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2022 06:18:38 -0400
-Received: from wout1-smtp.messagingengine.com (wout1-smtp.messagingengine.com [64.147.123.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AEC71F2ED;
-        Tue,  9 Aug 2022 03:18:37 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8A776320005D;
-        Tue,  9 Aug 2022 06:18:33 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Tue, 09 Aug 2022 06:18:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=undef.tools; h=
-        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
-         s=fm1; t=1660040313; x=1660126713; bh=cSaKIuo8NVh4MYoCKJvrALvtp
-        B3Wd3w5fB6WP0MFulE=; b=bjVSMc97VVSRBzi5hSU1RTjrxz9pp8XG3pM/3+8db
-        UCHHxeiLfl7/OEH4X5H4Mz0ZzXyCUJSoETDrZLnr+nq7RMZpkqqnP2GNnNP2ouoJ
-        rCT38ATQbwe10pjOIjLoeNKCm7MRoTd/825AFIW3mOy3sOJSZC91bwWQBLdHJnwe
-        AO5DNvhpFQK8W9oHqNK4iVOozwf1Y+TacDH8QE8LjNS/dHhPdiCGwir9OoVywqUk
-        yB8A6jC6o3HOL5ON/iK8oPdsW77R7ehvBQJW4R74q80/lzJ0KSXfY37WM7BP8wq2
-        8nBoKF5hdnSEjr6o0jTWh6kd45DbgEp8UMjy2B2XvifFA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-        1660040313; x=1660126713; bh=cSaKIuo8NVh4MYoCKJvrALvtpB3Wd3w5fB6
-        WP0MFulE=; b=cDXDx/ySgJ5LBTUjuN2h6DHGhxSvhlz6dKm55pjpdBn/NUiQihN
-        RpmUXBZjKcxhFoyolL9wytXPmxSG61mg2PIDaNZozYqTHaDWM5GWeS0mbiujafQf
-        n14t4cfGgp3jQ+OF8xVuly/XbEaXEBp1W1HhlOA7dCOnDFb39XJ7BGYTztM6rpw1
-        SDKCoGTetFbh8TTtiwOUcnLSBKph720RB0s8EOp1nIF+2z2P55FuZBRW5y+3gtS0
-        GdPjK/VOszUz9VTZ7bH8xt9fPHjNyo0xShC5CdhUqcZexW3qtCjcq88MYXG8QSAg
-        FXTP5ByyRKaBE+Eba2QL0YfTDHTiSPsuwhw==
-X-ME-Sender: <xms:eDTyYlymtfXLxhjbJTUyDEvHHpm2NLrWCrf5m6oRUpOnvjq1BGI-xA>
-    <xme:eDTyYlSZlD4m9gm7QEu3sjLeQtqK5UvaYJ-_Hdsslnnl0uqEQt_ut4FyYvgFzydon
-    IHe9pAqql_Lc9CDucw>
-X-ME-Received: <xmr:eDTyYvUY1093cc0QUPnT8Tz85G0MNbcHGuxFb_OcE6QY6lmB9Amzjild0HIodWHzdMJFRUCeL7vg0WDnZ1oKB-DkPeBEqRJHUnajcaeZkwmBU5C6zQAAIHS3vA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvdegtddgvdeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvfevufffkffoggfgsedtkeertd
-    ertddtnecuhfhrohhmpehkvghrnhgvlhesuhhnuggvfhdrthhoohhlshenucggtffrrght
-    thgvrhhnpeduleegkeevheeifefhheeluedvjeevvdeuheeuheeuvdduveduhfegffegtd
-    dutdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhsthgvrhfuihiivgep
-    tdenucfrrghrrghmpehmrghilhhfrhhomhepkhgvrhhnvghlsehunhguvghfrdhtohholh
-    hs
-X-ME-Proxy: <xmx:eDTyYngqwfuzaVh9wK_O7YbzJrQyW1d1YJJxRyYHQiMIlP1RKCvZpw>
-    <xmx:eDTyYnCpSjDezdHwfdF70_WiHy4ctl6Fn3PBqLMjc33HltHOsXekcQ>
-    <xmx:eDTyYgJhK3j_9K466iiWlK2q2D7_ehGmd_EAwtcYy1H8dWmMBKHhGA>
-    <xmx:eTTyYp1aiVvbH92ciOKSKIjNWNGjujJUdoVvCKfIFnMvbLYcB4FblQ>
-Feedback-ID: id76147eb:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 9 Aug 2022 06:18:30 -0400 (EDT)
-From:   kernel@undef.tools
-To:     hadess@hadess.net, hdegoede@redhat.com, dmitry.torokhov@gmail.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     phone-devel@vger.kernel.org, megi@xff.cz,
-        Jarrah Gosbell <kernel@undef.tools>
-Subject: [PATCH] dt-bindings: input: touchscreen: add compatible string for Goodix GT1158
-Date:   Tue,  9 Aug 2022 10:16:34 +0000
-Message-Id: <20220809101633.352315-1-kernel@undef.tools>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S232389AbiHINiN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2022 09:38:13 -0400
+Received: from mail-wm1-x32f.google.com (mail-wm1-x32f.google.com [IPv6:2a00:1450:4864:20::32f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4621A805
+        for <linux-input@vger.kernel.org>; Tue,  9 Aug 2022 06:38:10 -0700 (PDT)
+Received: by mail-wm1-x32f.google.com with SMTP id a11so6336060wmq.3
+        for <linux-input@vger.kernel.org>; Tue, 09 Aug 2022 06:38:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc;
+        bh=L8Y3Dk8A4ulKp+C4a9lBQ4PHW99/sTyB9TwnfhAHaTM=;
+        b=LPo+XsmRVponWkUQ76JJ03/11N7kIq/yNVGRl+NdtbQz4gzIMzcnhA2v4U7r+vkZ/B
+         mdcLP5/g614GV5r2ypxnKRhbhBrg6zdzCFrwxAy0erSRszVQy5og/8i6NOlm2HxCLSTj
+         UpkRKWUxBuNOGZeSFASVwy8MnMwKNJBastcZCsAePegT9IlrHWM3dIQr9X1t+aa/zTMx
+         t4q9ChDfiuSsp2D9qvW35cuKX0JcHyazqIt6RdTSMilLT/Dgzq6fGi1kSjLa7KidxiO+
+         XOPVoVS8/WxXnRdjaildKnZ+4HvW5eoFOmQYceOZhmCNYuFdCDXo7vT7w109tkF7dcJo
+         Dizw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
+        bh=L8Y3Dk8A4ulKp+C4a9lBQ4PHW99/sTyB9TwnfhAHaTM=;
+        b=LxRQCQtdjQTeHYkozxij4jV3GqqoXfVyfTxCMY1+EA9u5H4einCDOjgJ/GE/pwcyp8
+         MI5FAhbRuI3thld0cf9KLOSk7I7/XJRqig4ziqG165q7xvWd7cNtIuUao25aM7VLSLQt
+         H/kYUuXfvq2JvKV5ze1sT0mRTxuBLAFtKAPH7yok1bMvXo4VK+ecVy7aIHLfG1bJ4txy
+         gi0YPekHICCzoa16rEY9D1bslduvBz/Qi30bqxnCPAAjB3sbxbwqdCO7Rhn3/5pfQrUm
+         EUVol9BaLCBeEdTeBKtXmGSkG4nqk52OisXg1yS2gHypt6r/DsyNES0N9PvXgIKO/QGH
+         5TWw==
+X-Gm-Message-State: ACgBeo0U01nEjktDU8JlWW3Xs1iUJwGvtwCFSlpXdB3bWCUXMkc9kyDa
+        UiQhRqCcA6pROuCf4iss9o91PQ==
+X-Google-Smtp-Source: AA6agR6P4URfdHdOkFHOO1v+6iVuvXKNBQHssvN6cH1CcKM+ytjDVky+5szgPvRvUOeXW/a0y8PW4A==
+X-Received: by 2002:a1c:29c1:0:b0:3a3:79b0:1ced with SMTP id p184-20020a1c29c1000000b003a379b01cedmr15872870wmp.73.1660052289001;
+        Tue, 09 Aug 2022 06:38:09 -0700 (PDT)
+Received: from google.com (cpc155339-bagu17-2-0-cust87.1-3.cable.virginm.net. [86.27.177.88])
+        by smtp.gmail.com with ESMTPSA id j13-20020adfe50d000000b00222d512d96asm3994817wrm.75.2022.08.09.06.38.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Aug 2022 06:38:08 -0700 (PDT)
+Date:   Tue, 9 Aug 2022 14:38:06 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Francesco Dolcini <francesco.dolcini@toradex.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Lars-Peter Clausen <lars@metafoo.de>,
+        linux-input@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-iio@vger.kernel.org, Lee Jones <lee@kernel.org>
+Subject: Re: [PATCH v2 0/5] mfd: stmpe: Probe sub-function by compatible
+Message-ID: <YvJjPmAQwh+UxiSz@google.com>
+References: <20220712163345.445811-1-francesco.dolcini@toradex.com>
+ <20220809075416.GA7736@francesco-nb.int.toradex.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220809075416.GA7736@francesco-nb.int.toradex.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Jarrah Gosbell <kernel@undef.tools>
+On Tue, 09 Aug 2022, Francesco Dolcini wrote:
 
-Goodix GT1158 is a touchscreen chip from Goodix used in the PinePhone
-and PinePhone Pro. Patches to correct these devices dts files will be
-sent in a later patch series.
+> Hello Lee,
+> thanks for picking up patches 1 and 2. What about the others, should you
+> pick also those? 3 and 4 do have all the required acks, I'm not sure
+> about 5 however that has the ack only from Krzysztof.
 
-This driver was modified to support the GT1158 in the patch linked
-below. Add its compatible string to the device tree binding.
+They need to go in via their own subsystems.
 
-Suggested-by: Ondrej Jirman <megi@xff.cz>
-Signed-off-by: Jarrah Gosbell <kernel@undef.tools>
-Link: https://lore.kernel.org/phone-devel/20220809091200.290492-1-kernel@undef.tools/
----
- Documentation/devicetree/bindings/input/touchscreen/goodix.yaml | 1 +
- 1 file changed, 1 insertion(+)
+We only filter in patches from other areas if there are build deps.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-index 93f2ce3130ae..19ac9da421df 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-@@ -16,6 +16,7 @@ properties:
-   compatible:
-     enum:
-       - goodix,gt1151
-+      - goodix,gt1158
-       - goodix,gt5663
-       - goodix,gt5688
-       - goodix,gt911
 -- 
-2.35.1
-
+DEPRECATED: Please use lee@kernel.org

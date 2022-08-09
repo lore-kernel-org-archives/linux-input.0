@@ -2,101 +2,46 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ADD26C25B07
-	for <linux-input@archiver.kernel.org>; Tue,  9 Aug 2022 09:12:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AEACEC19F2D
+	for <linux-input@archiver.kernel.org>; Tue,  9 Aug 2022 09:29:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbiHIJMs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 9 Aug 2022 05:12:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
+        id S241674AbiHIJ3a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 9 Aug 2022 05:29:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230089AbiHIJMr (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2022 05:12:47 -0400
-Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149DE21824;
-        Tue,  9 Aug 2022 02:12:47 -0700 (PDT)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 0389A32000D9;
-        Tue,  9 Aug 2022 05:12:44 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Tue, 09 Aug 2022 05:12:45 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=undef.tools; h=
-        cc:cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :message-id:mime-version:reply-to:sender:subject:subject:to:to;
-         s=fm1; t=1660036364; x=1660122764; bh=rB0hDcQzcfmipxIVzOCx2wq2L
-        3CxDGgdvFX9zfr40wo=; b=j3f3h8I8z89+u/np0MjbsUbJ/qyMFawKi0ER0Qhe5
-        nStveoZA6Mk8qnPfq4wYAvohEof6OKeAVV3vgRYpSvP6LqufNIKIWP1zq6Eq7Mhb
-        rOY5sQKbHKUpIgVS+krJ/u1GOwjGMo0Ob13jEjFdhpvmUWFr4GHhFw34qz27VNxr
-        Ubg2ypPuEpBeU1fmPXh59dMhGdFOvU6S1hdIxXw+byK0r1rlWxEbEZuD8+Py0edJ
-        26puMERe0G49+rR7wFAT6Vs5xJR42UDxhCGDAyYbWnNxOPGzboa6OV5cTn7nUlJl
-        bzCRl/glO44uVYGMgL9+tyuaIDk5g0DBl2phfWYiyXwXw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:message-id
-        :mime-version:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=
-        1660036364; x=1660122764; bh=rB0hDcQzcfmipxIVzOCx2wq2L3CxDGgdvFX
-        9zfr40wo=; b=oJFJUkDBEUD9Bn1BU4LOzSXhwRg9esjaztYvqevUB6PkioNO421
-        U+F0fLrD00b6Nj3kDtH5CVamHVeSky3IzG/0hZoJBrkGKuZibPatC/yxiZ8nowpq
-        tDzRctcbUsPOqxMlvO4U6AXVmfCsIVNJXViZ+j75Z+B6hYZbiYjnxvsxoRg1e6mH
-        HXdJNilBbtQQCigjTEriFUGwcGJ3uSunpNTTf+fyt2tiu3yoZEv9s7Mwz3S5rF8e
-        OI0r9yWrHw3YL6Dhau09FryoRi6rvd/1K+9VQ7Z3/d0lffZ0zvCZTIKyVs2LQgIK
-        K2jiuF8azRDHOSRnczxLt6QhFrFh1Zxeuhw==
-X-ME-Sender: <xms:CyXyYlpb4QPU4ZSvqSSQpwKUi_CeRk73FOdG1HZ0YYxdDGDxLnVTFA>
-    <xme:CyXyYnrd9KnS7b0pYF-0wVLaUHoiHWhIcuplR0hR6gyGO6y_l_jF16YTJlyM8O1Yv
-    uTuYAFx1omfUuQqxgg>
-X-ME-Received: <xmr:CyXyYiNBFkyRLIBo0U20yf0eZZnzLunPrKQK3CEwPGHPrU5lQRFp_HdnyUS9AO61OUsYz5BqF7ijVQdex7Iawpml3-fdbe0_zz4Ul803n-73ZJG9FVtaKzsM_Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrvdegtddgudefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvfevufffkffoggfgsedtkeertd
-    ertddtnecuhfhrohhmpehkvghrnhgvlhesuhhnuggvfhdrthhoohhlshenucggtffrrght
-    thgvrhhnpedttdeiheeggfevgeekgfehkeegleekjeelleekjeeujeektdekteefgffhke
-    dtueenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehk
-    vghrnhgvlhesuhhnuggvfhdrthhoohhlsh
-X-ME-Proxy: <xmx:CyXyYg6aJg_kffOVzVibNpTdQgV8NrwggMn8IMDaj3HumbPBsxX_iQ>
-    <xmx:CyXyYk7wA4c9HPqB5l6IgdYud8Ooz0Tb5WnrKp976LZVBN5gfr0a7g>
-    <xmx:CyXyYogBYrOAANNbBx7EzUWplZjTUMxz8KaKbGf9LG51c80BV8-Jrg>
-    <xmx:DCXyYhtLJI97jbtCNPFhwJsyXGOyZfaMT4syjRBYnOuNI80Qg9SFvA>
-Feedback-ID: id76147eb:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 9 Aug 2022 05:12:41 -0400 (EDT)
-From:   kernel@undef.tools
-To:     hadess@hadess.net, hdegoede@redhat.com, dmitry.torokhov@gmail.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     phone-devel@vger.kernel.org, megi@xff.cz,
-        Jarrah Gosbell <kernel@undef.tools>
-Subject: [PATCH] Input: goodix: Add support for GT1158
-Date:   Tue,  9 Aug 2022 09:12:01 +0000
-Message-Id: <20220809091200.290492-1-kernel@undef.tools>
-X-Mailer: git-send-email 2.35.1
+        with ESMTP id S231442AbiHIJ33 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2022 05:29:29 -0400
+X-Greylist: delayed 15322 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 09 Aug 2022 02:29:27 PDT
+Received: from vps669692.ovh.net (63.ip-51-75-18.eu [51.75.18.63])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8E7E22B17
+        for <linux-input@vger.kernel.org>; Tue,  9 Aug 2022 02:29:27 -0700 (PDT)
+Received: from www-data by vps669692.ovh.net with local (Exim 4.89)
+        (envelope-from <www-data@serval.fr>)
+        id 1oLHZ5-0008Gc-7b
+        for linux-input@vger.kernel.org; Tue, 09 Aug 2022 07:14:03 +0200
+To:     linux-input@vger.kernel.org
+Subject: Votre demande : Der Ruckgang der Kryptowahrung macht Sie zum Millionar
+X-PHP-Originating-Script: 1001:class-phpmailer.php
+Date:   Tue, 9 Aug 2022 05:14:03 +0000
+From:   Serval <no-reply@serval.fr>
+Message-ID: <d091ad9db823f91bdca2589b6ad25b9d@www.serval.fr>
+X-Priority: 3
+X-Mailer: PHPMailer 5.2.10 (https://github.com/PHPMailer/PHPMailer/)
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Ondrej Jirman <megi@xff.cz>
+Votre demande a bien été transmise. Nous vous recontacterons dans les plus brefs délais.
 
-This controller is used by PinePhone and PinePhone Pro. Support for
-the PinePhone Pro will be added in a later patch set.
+Sujet : Der Ruckgang der Kryptowahrung macht Sie zum Millionar
+Corps du message :
+Bitcoin wird Sie zum Milliardar machen https://telegra.ph/Deutschland-hat-eine-neue-Einnahmequelle-von-559344-Euro-pro-Woche-08-07
 
-Signed-off-by: Ondrej Jirman <megi@xff.cz>
-Signed-off-by: Jarrah Gosbell <kernel@undef.tools>
----
- drivers/input/touchscreen/goodix.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index aa45a9fee6a0..06d4fcafb766 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -95,6 +95,7 @@ static const struct goodix_chip_data gt9x_chip_data = {
- 
- static const struct goodix_chip_id goodix_chip_ids[] = {
- 	{ .id = "1151", .data = &gt1x_chip_data },
-+	{ .id = "1158", .data = &gt1x_chip_data },
- 	{ .id = "5663", .data = &gt1x_chip_data },
- 	{ .id = "5688", .data = &gt1x_chip_data },
- 	{ .id = "917S", .data = &gt1x_chip_data },
--- 
-2.35.1
+SERVAL
+--
+Cet email a été généré automatiquement, merci de ne pas y répondre
 

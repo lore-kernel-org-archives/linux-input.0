@@ -2,129 +2,148 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6581C19F2D
-	for <linux-input@archiver.kernel.org>; Tue,  9 Aug 2022 20:42:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B3FDC19F2D
+	for <linux-input@archiver.kernel.org>; Wed, 10 Aug 2022 00:20:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243517AbiHIUmF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 9 Aug 2022 16:42:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60254 "EHLO
+        id S229671AbiHJAUc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 9 Aug 2022 20:20:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242373AbiHIUmD (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2022 16:42:03 -0400
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1AFB71EEE9;
-        Tue,  9 Aug 2022 13:42:01 -0700 (PDT)
-Received: from pps.filterd (m0187473.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 279JWNlh003455;
-        Tue, 9 Aug 2022 20:41:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=B6mRnnWo1suxCrUqt9vYJL76ZNWbx4MAKXH9o83uMH4=;
- b=Zb6FDQguQWg7SEqnZIH1DE08XintRdYM9K5zm2wuGDCfFPvLKxS/MomlIAAYLGStQh+0
- 6Zt5tbo5n2JP10q/gfFZw61rGXR2PkTjoLAhYeffMhaSluSepwNXideiuxuDQUW4oRzf
- wv46HeYGVgidDfvIdmyGD2IwA4KMgDrp5rGsagL/J1JMJQ7O0YNIT3o/5S6QBAevYLI0
- mfi9K2RwNlgdeBYkDYGse8cFoP435SwGLaDcyUwNoz6MdsK9RliylKt5WG+rCDNq/vsj
- CE1SIcXPmXEi/29WDgmGTObM8jqUEx/sNToGCQSPKNMsEgB8rgRrsw7s07hjUF/a/7Ny Vg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3huwu11vmc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Aug 2022 20:41:50 +0000
-Received: from m0187473.ppops.net (m0187473.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 279KG6kn034724;
-        Tue, 9 Aug 2022 20:41:50 GMT
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3huwu11vkv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Aug 2022 20:41:50 +0000
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 279KLHWw031604;
-        Tue, 9 Aug 2022 20:41:49 GMT
-Received: from b01cxnp23032.gho.pok.ibm.com (b01cxnp23032.gho.pok.ibm.com [9.57.198.27])
-        by ppma03dal.us.ibm.com with ESMTP id 3huwvk8e1y-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 09 Aug 2022 20:41:49 +0000
-Received: from b01ledav001.gho.pok.ibm.com (b01ledav001.gho.pok.ibm.com [9.57.199.106])
-        by b01cxnp23032.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 279KfmGl3211808
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 9 Aug 2022 20:41:48 GMT
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 3D60128060;
-        Tue,  9 Aug 2022 20:41:48 +0000 (GMT)
-Received: from b01ledav001.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 8704A2805A;
-        Tue,  9 Aug 2022 20:41:47 +0000 (GMT)
-Received: from slate16.aus.stglabs.ibm.com (unknown [9.160.17.179])
-        by b01ledav001.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue,  9 Aug 2022 20:41:47 +0000 (GMT)
-From:   Eddie James <eajames@linux.ibm.com>
-To:     linux-input@vger.kernel.org
-Cc:     devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dmitry.torokhov@gmail.com, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, joel@jms.id.au,
-        wsa+renesas@sang-engineering.com, eajames@linux.ibm.com
-Subject: [PATCH v5 0/2] input: misc: Add IBM Operation Panel driver
-Date:   Tue,  9 Aug 2022 15:41:45 -0500
-Message-Id: <20220809204147.238132-1-eajames@linux.ibm.com>
-X-Mailer: git-send-email 2.31.1
+        with ESMTP id S229636AbiHJAUb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 Aug 2022 20:20:31 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6691FB01
+        for <linux-input@vger.kernel.org>; Tue,  9 Aug 2022 17:20:28 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id pm17so13216341pjb.3
+        for <linux-input@vger.kernel.org>; Tue, 09 Aug 2022 17:20:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=yocom-org.20210112.gappssmtp.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=1x7SOVtOei70cdAgsBLTaDzhKWbFRtoFMWwMze/rFM8=;
+        b=RFUpjh/DphoZwLHaoft5BHiz2a9zHUo26WJH+Wv8XymWhJs5KZJNzguPNytnzagpC8
+         obsMdqT2SP28aUZohDbG7TY6HXkXk+VakdhhiPwJMPaGuQHGRK9imgrpR1JHujJ4/mjR
+         Ws02oUgfMZFBsOl+SYDkW5T2DThfQ6zR/hQvGEjrDhuoyGaGNRAYbteN+s2RTn3R6Hz8
+         qg8ofbAUlNAdnsMO4GyRRwr1cojH/77dbIq0kLBXC4EKM/sAIPRAoJR7JqYl09i9z7JV
+         hjZrpiyDVliI0Jg6dcLrT/QA5+E3hotNVmd/NZfYVXKh4cl8DC2Wwy1kfA8k5k+IYvlH
+         Vppg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=1x7SOVtOei70cdAgsBLTaDzhKWbFRtoFMWwMze/rFM8=;
+        b=L5PDprpGTJLjvK9CX8mxNfG+UBw8KRFO5dcI0EaeYU1MOfnzulR2ypo1Fs4luAK1aw
+         CutK5BkcGmHXYum62+fwqJ9oOWQAwOVZ7Nt7LfD39vcSGGJiPsD+cLeyPR1wryRPxOsY
+         fNFaTN0HenFxIjkLLoGN6JpMvAe5rw80XAIJCshXr6TP8zVwtXBcu1bt4yCbriSj0Afv
+         ovCQcFiXpWnr4lr6cXsvD304kP5Xsszg3MCrGhnQ7Q+wlhVrY1FzONmhLKr0gTKjykaR
+         SFiVNqpVB3a0oAorZqLYLQODCY1WCmYvC57GJmZ47yedaXv16EEkcaZUoQc8BHvJPOxd
+         uR6A==
+X-Gm-Message-State: ACgBeo2R4lLuK8z89dCUZ2n4BrYfe9BCd7d9u6OOKVwSe2sutlKXqPIy
+        UUHaWfUAAX/sJN2m9nwV2+VfrA==
+X-Google-Smtp-Source: AA6agR4x3Y5olBaNr/fKSPGTFcGSwGvHlG3yZELirqR8W/0dyJiu5xlfDN5BpskP8ZYzQF7YwuayIg==
+X-Received: by 2002:a17:902:8486:b0:16d:d4b1:ceb6 with SMTP id c6-20020a170902848600b0016dd4b1ceb6mr25708252plo.33.1660090827919;
+        Tue, 09 Aug 2022 17:20:27 -0700 (PDT)
+Received: from localhost.localdomain ([2601:600:a07f:e6ac::1c])
+        by smtp.gmail.com with ESMTPSA id i22-20020aa796f6000000b0050dc7628183sm495325pfq.93.2022.08.09.17.20.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Aug 2022 17:20:27 -0700 (PDT)
+From:   Nate Yocom <nate@yocom.org>
+To:     dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        nate@yocom.org
+Subject: [PATCH] Input: joystick: xpad: Add X-Box Adaptive Controller support
+Date:   Tue,  9 Aug 2022 17:20:24 -0700
+Message-Id: <20220810002024.13686-1-nate@yocom.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: runN4XRMR4H1nubwfbxbn8vqXbPlzAgJ
-X-Proofpoint-ORIG-GUID: R9ZzoPkD5prD5ZK_Yfz3HPqwssB-zDQu
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.883,Hydra:6.0.517,FMLib:17.11.122.1
- definitions=2022-08-09_05,2022-08-09_02,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
- impostorscore=0 mlxscore=0 adultscore=0 clxscore=1011 phishscore=0
- priorityscore=1501 mlxlogscore=999 bulkscore=0 malwarescore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2207270000 definitions=main-2208090076
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series adds support for input from the IBM Operation Panel, which is
-a simple controller with three buttons and an LCD display meant for
-interacting with a server. It's connected over I2C, typically to a service
-processor. This series only supports the input from the panel, in which the
-panel masters the I2C bus and sends data to the host system when someone
-presses a button on the controller.
+Adds support for the X-Box Adaptive Controller, which is protocol
+compatible with the XTYPE_XBOXONE support in the driver with two deltas:
 
-Changes since v4:
- - Fix missing input include in dt binding resulting in make check failure
+ - The X-Box button sets 0x02 as its activation ID, where others set
+   0x01
+ - The controller has an additional "Layer" button with 4 active states,
+   which this change maps to an Axis control with 4 possible values
 
-Changes since v3:
- - Document linux,keycodes property
- - Use linux,keycodes property to map the buttons
- - Put the checksumming in a seperate function
- - Don't do unneccessary input_unregister calls
- - Minor cleanup and add debug data to dev_dbg calls
+Signed-off-by: Nate Yocom <nate@yocom.org>
+---
+ drivers/input/joystick/xpad.c | 24 +++++++++++++++++++++++-
+ 1 file changed, 23 insertions(+), 1 deletion(-)
 
-Changes since v2:
- - Add "additionalProperties: false" to dts doc
- - Refactor switch statement in the input driver; check command size and call
-   the processing function within the STOP case
- - Use a different definition name for Aspeed interrupt status mask
-
-Changes since v1:
- - Redo DTS documentation example to use I2C_OWN_SLAVE_ADDRESS
- - Reject commands received in the input driver that are too long
- - Add a definition for the interrupt status mask in the Aspeed I2C driver
- - Use I2C_OWN_SLAVE_ADDRESS for both dts additions
-
-Eddie James (2):
-  dt-bindings: input: Add documentation for IBM Operation Panel
-  input: misc: Add IBM Operation Panel driver
-
- .../bindings/input/ibm,op-panel.yaml          |  50 +++++
- MAINTAINERS                                   |   7 +
- drivers/input/misc/Kconfig                    |  18 ++
- drivers/input/misc/Makefile                   |   1 +
- drivers/input/misc/ibm-panel.c                | 198 ++++++++++++++++++
- 5 files changed, 274 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/ibm,op-panel.yaml
- create mode 100644 drivers/input/misc/ibm-panel.c
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 18190b529bca..0d02d88790b6 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -80,6 +80,7 @@
+ #define MAP_TRIGGERS_TO_BUTTONS		(1 << 1)
+ #define MAP_STICKS_TO_NULL		(1 << 2)
+ #define MAP_SELECT_BUTTON		(1 << 3)
++#define MAP_LAYER_BUTTON		(1 << 4)
+ #define DANCEPAD_MAP_CONFIG	(MAP_DPAD_TO_BUTTONS |			\
+ 				MAP_TRIGGERS_TO_BUTTONS | MAP_STICKS_TO_NULL)
+ 
+@@ -131,6 +132,7 @@ static const struct xpad_device {
+ 	{ 0x045e, 0x02e3, "Microsoft X-Box One Elite pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x02ea, "Microsoft X-Box One S pad", 0, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x0719, "Xbox 360 Wireless Receiver", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360W },
++	{ 0x045e, 0x0b0a, "Microsoft X-Box Adaptive Controller", MAP_LAYER_BUTTON, XTYPE_XBOXONE },
+ 	{ 0x045e, 0x0b12, "Microsoft Xbox Series S|X Controller", MAP_SELECT_BUTTON, XTYPE_XBOXONE },
+ 	{ 0x046d, 0xc21d, "Logitech Gamepad F310", 0, XTYPE_XBOX360 },
+ 	{ 0x046d, 0xc21e, "Logitech Gamepad F510", 0, XTYPE_XBOX360 },
+@@ -857,7 +859,17 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 		if (data[1] == 0x30)
+ 			xpadone_ack_mode_report(xpad, data[2]);
+ 
+-		input_report_key(dev, BTN_MODE, data[4] & 0x01);
++		/*
++		 * X-Box Adaptive controller sets 0x02 when x-box button is pressed,
++		 * we could probably condense into just data[4] != 0, but explicitly
++		 * checking here ensures no regression if other devices set other bits.
++		 */
++		if (le16_to_cpu(xpad->dev->id.vendor) == 0x045e &&
++			le16_to_cpu(xpad->dev->id.product) == 0x0b0a)
++			input_report_key(dev, BTN_MODE, data[4] & 0x02);
++		else
++			input_report_key(dev, BTN_MODE, data[4] & 0x01);
++
+ 		input_sync(dev);
+ 		return;
+ 	}
+@@ -926,6 +938,10 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
+ 				 (__u16) le16_to_cpup((__le16 *)(data + 8)));
+ 	}
+ 
++	/* Layer button has a value of 0-4, so its reported as an axis */
++	if (xpad->mapping & MAP_LAYER_BUTTON)
++		input_report_abs(dev, ABS_MISC, data[34]);
++
+ 	input_sync(dev);
+ }
+ 
+@@ -1622,6 +1638,8 @@ static void xpad_set_up_abs(struct input_dev *input_dev, signed short abs)
+ 	case ABS_HAT0Y:	/* the d-pad (only if dpad is mapped to axes */
+ 		input_set_abs_params(input_dev, abs, -1, 1, 0, 0);
+ 		break;
++	case ABS_MISC: /* 4 value layer button (such as on the XAC) */
++		input_set_abs_params(input_dev, abs, 0, 4, 0, 0);
+ 	default:
+ 		input_set_abs_params(input_dev, abs, 0, 0, 0, 0);
+ 		break;
+@@ -1714,6 +1732,10 @@ static int xpad_init_input(struct usb_xpad *xpad)
+ 			xpad_set_up_abs(input_dev, xpad_abs_triggers[i]);
+ 	}
+ 
++	/* setup layer buton as an axis with 4 possible values */
++	if (xpad->mapping & MAP_LAYER_BUTTON)
++		xpad_set_up_abs(input_dev, ABS_MISC);
++
+ 	error = xpad_init_ff(xpad);
+ 	if (error)
+ 		goto err_free_input;
 -- 
-2.31.1
+2.30.2
 

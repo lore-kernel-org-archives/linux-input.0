@@ -2,86 +2,373 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDC5BC00140
-	for <linux-input@archiver.kernel.org>; Fri, 12 Aug 2022 08:44:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97F25C00140
+	for <linux-input@archiver.kernel.org>; Fri, 12 Aug 2022 08:54:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237537AbiHLIoq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 12 Aug 2022 04:44:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56482 "EHLO
+        id S238014AbiHLIyR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 12 Aug 2022 04:54:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237517AbiHLIoj (ORCPT
+        with ESMTP id S237882AbiHLIx6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 12 Aug 2022 04:44:39 -0400
-Received: from smtpcmd01-sp1.aruba.it (smtpcmd01-sp1.aruba.it [62.149.158.218])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 55E1AA8CE0
-        for <linux-input@vger.kernel.org>; Fri, 12 Aug 2022 01:44:37 -0700 (PDT)
-Received: from asem-TANK-H61.asem.intra ([151.1.184.193])
-        by Aruba Outgoing Smtp  with ESMTPSA
-        id MQG1oHcRkr8wyMQGWoLazj; Fri, 12 Aug 2022 10:43:37 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-        t=1660293817; bh=loRkK3v18v6DijDl9IFXyx+yOfz6h4JPvTbCHffpCLU=;
-        h=From:To:Subject:Date:MIME-Version;
-        b=WobmAw1fnOg+SbDE2bUSQsNKxPNI0zaosINEtS+grYIYQ+KllVsaLLEgImngMMoQB
-         xv9uytHWq9C4ZYoiJ77tcs63++sFODYhPDeuo4BCIMUEfDvk6krPhxxLnuH40PYjh0
-         JcHdEQyVfHHxqvJgQlnnKQot7nruzQ0bYd4K+0K1UO/wN3qlQMBX1Bqwg3C6qe1xjL
-         yTJY3034HU2Fd5yC1HPul9UBfaaK/TZqgIFSEcDBrCJauamSBNluFakZ5ixTme6eXw
-         hZ9UN7ZKQ16cu1FYmHkjpFqPqEfgrNSJW03WFbgg+A33OEIo5X5y7W/Y2siJcnpBWm
-         Bq9Tt1xeb0JiQ==
-From:   Luca Ellero <l.ellero@asem.it>
-To:     dmitry.torokhov@gmail.com, daniel@zonque.org,
-        m.felsch@pengutronix.de, andriy.shevchenko@linux.intel.com,
-        u.kleine-koenig@pengutronix.de, mkl@pengutronix.de,
-        miquel.raynal@bootlin.com, imre.deak@nokia.com,
-        luca.ellero@brickedbrain.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Luca Ellero <l.ellero@asem.it>
-Subject: [PATCH v3 3/3] ads7846: don't check penirq immediately for 7845
-Date:   Fri, 12 Aug 2022 10:42:48 +0200
-Message-Id: <20220812084248.9270-4-l.ellero@asem.it>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20220812084248.9270-1-l.ellero@asem.it>
-References: <20220812084248.9270-1-l.ellero@asem.it>
+        Fri, 12 Aug 2022 04:53:58 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 2491AA98F5
+        for <linux-input@vger.kernel.org>; Fri, 12 Aug 2022 01:53:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1660294424;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=LVBJ07hgCcMJvtQxqB1fn4K3n5iAnchLaBytWfkxYb4=;
+        b=PTJeacbFn9yYKDc2GLx3ZLVJWHfjMu6Ttncf0awOiVzWGNk9VlTCK+63tHy3yGdxhn9wyk
+        3DyAX94z4aGDiY9pjzrA3IAdGonJ8YwpHE95R0M4rwvFMBEtGx+fINynK/uRZAAUnHEOGg
+        +EcAnXC4G5cxMj+8emuEbrQ9QzCsf0M=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-556-Ssp05xyyP_O02sdYiY8VHw-1; Fri, 12 Aug 2022 04:53:42 -0400
+X-MC-Unique: Ssp05xyyP_O02sdYiY8VHw-1
+Received: by mail-ej1-f71.google.com with SMTP id s4-20020a170906500400b006feaccb3a0eso198775ejj.11
+        for <linux-input@vger.kernel.org>; Fri, 12 Aug 2022 01:53:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc;
+        bh=LVBJ07hgCcMJvtQxqB1fn4K3n5iAnchLaBytWfkxYb4=;
+        b=t0i9g/C3W6AkUEln96G3VT/Aq/8Abh8SppzS+dXBfKrkXv8rW2B72ZD8+v4YtO+8iQ
+         L1uB4BLyXXucPxlQQ9L+plxRxJnFeodvV8cNZ+xBV8Ij77XZzVsw/JekoSHxNBMKJbkV
+         gno/IoR60x7oOtUOLG1jL62OftEyvM91SgL63CswAPmgN7O+4e6QjEKnS3QskaN1keOk
+         0OUtKkYejbXr+xflQoZNbvE0LZlngBwwdpYFebBnczv7dd8FHZHvqtjLuWB9oiAWdjFZ
+         jG0ZxYY3E7ckeSv0YdyZ8FW5KKmZEopt3iArMBt4A2fJORLinWePuNsCMZ5eCNO699jM
+         WVtw==
+X-Gm-Message-State: ACgBeo3pI05DC7VF2SV+1R2lM/WKG+3JYCJmrN6WZfygB5qPh/3cDsY1
+        Cr9Zg8TRp6ZPSvcpaQWpKTdP2XQtq1VM41TOaAXdeC1neXIzR8ibxVLJ/jn9Eie7/qg98SnLbpl
+        vvIFlSC0zXW3tB9t1AnteOCA=
+X-Received: by 2002:a50:fb10:0:b0:43d:561a:c990 with SMTP id d16-20020a50fb10000000b0043d561ac990mr2668133edq.115.1660294421453;
+        Fri, 12 Aug 2022 01:53:41 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR7TEPABAEpkXidXc3AXAFU6PBoWB/RxZAWk0lIWN7zUmGK3rFQKNWfqLYaXVshcyRfAk5PMeQ==
+X-Received: by 2002:a50:fb10:0:b0:43d:561a:c990 with SMTP id d16-20020a50fb10000000b0043d561ac990mr2668126edq.115.1660294421286;
+        Fri, 12 Aug 2022 01:53:41 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c1e:bf00:d69d:5353:dba5:ee81? (2001-1c00-0c1e-bf00-d69d-5353-dba5-ee81.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:d69d:5353:dba5:ee81])
+        by smtp.gmail.com with ESMTPSA id n9-20020a05640206c900b0043cc7a3ff7fsm1008538edy.33.2022.08.12.01.53.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 12 Aug 2022 01:53:40 -0700 (PDT)
+Message-ID: <075cd337-7dbf-2de2-fb28-9217091f9480@redhat.com>
+Date:   Fri, 12 Aug 2022 10:53:39 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfC7WR5gbThm59nUe8T/2yuvMo1KDOesTazhyZc+l4NYiOYv4WvQMXO2I05kZkcmK4PxZ0DErVpqXlaTvPfz4koRr4GLpFNsWLfCarFv1W/06+4axpHn+
- q690VV1ZacV1nITpZMtm8R+0AMA67/F7JChWrdEJx5BSThcDzMDqSGVMefJamy3tn8D85eryqgOBf6GEsRu+HDl2y2qcVNti8fuzVR1opJijTE2mesaNgmAP
- TU74i69wYe0TtFn7zrV4SLTRJi2SWhiXuU7dfL4/UTEbI4dcBpKB3X/8Nst+6jCM03d9axP9g1elObodC3TF10mT4P+GOR/Fmcik8tbNHg/hoIRNohBQ6Oen
- +4mUb7sjBGtLxXOiHj1UNN+ndNjNt/rjG3+FNCJWsL5rVObNjxpc7cJTt6fAHUjpshxVxSvIlJMJ2OdBSXzW5RhepewVoWb6ND4YDKEUwqpjUoWuTsEk4qeG
- yKznpqgkhBCpW7Nlzb2G1CsuNJ1C6P07jFpgtHwxrCXQu9RCErl5GY8WIGn7CX67gdpv9u6wFtjBqZsYV0+b/nbXVWa0aoMDCvEpo8r2pI/DwrlM5+0owZ+J
- FJjQFbB0zso1SwCjkuOXgrtg
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: FW: [PATCH] Input: synaptics-rmi4 - filter incomplete relative
+ packet.
+Content-Language: en-US
+To:     Marge Yang <Marge.Yang@tw.synaptics.com>,
+        margeyang <marge.yang@synaptics.corp-partner.google.com>,
+        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>
+Cc:     Derek Cheng <derek.cheng@tw.synaptics.com>,
+        Vincent Huang <Vincent.huang@tw.synaptics.com>
+References: <1659944641-2625-1-git-send-email-marge.yang@synaptics.corp-partner.google.com>
+ <41ca4d6b-e19c-c039-ed57-716106135e06@redhat.com>
+ <PH0PR03MB584819DB46B04A4AB481C0F1A3679@PH0PR03MB5848.namprd03.prod.outlook.com>
+ <PH0PR03MB584812B0831CBEFA0468D32FA3679@PH0PR03MB5848.namprd03.prod.outlook.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <PH0PR03MB584812B0831CBEFA0468D32FA3679@PH0PR03MB5848.namprd03.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-To discard false readings, one should use "ti,penirq-recheck-delay-usecs".
-Checking get_pendown_state() at the beginning, most of the time fails
-causing malfunctioning.
+Hi,
 
-Signed-off-by: Luca Ellero <l.ellero@asem.it>
----
- drivers/input/touchscreen/ads7846.c | 8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+On 8/12/22 10:43, Marge Yang wrote:
+> Hi Hans,
+> 	Thanks for your suggestion.
+> I have replied the following questions.
+> Some questions will be fixed on V2 patch.
+> 
+> Thanks
+> Marge Yang
+> 
+> -----Original Message-----
+> From: Hans de Goede <hdegoede@redhat.com>
+> Sent: Thursday, August 11, 2022 10:23 PM
+> To: margeyang <marge.yang@synaptics.corp-partner.google.com>; dmitry.torokhov@gmail.com; linux-input@vger.kernel.org; linux-kernel@vger.kernel.org; benjamin.tissoires@redhat.com
+> Cc: Marge Yang <Marge.Yang@tw.synaptics.com>; derek.cheng@tw.synaptcs.com; Vincent Huang <Vincent.huang@tw.synaptics.com>
+> Subject: Re: [PATCH] Input: synaptics-rmi4 - filter incomplete relative packet.
+> 
+> CAUTION: Email originated externally, do not click links or open attachments unless you recognize the sender and know the content is safe.
+> 
+> 
+> Hi,
+> 
+> On 8/8/22 09:44, margeyang wrote:
+>> From: Marge Yang <marge.yang@synaptics.corp-partner.google.com>
+>>
+>> RMI4 F03 supports the Stick function,
+>> it's designed to support relative packet.
+>> This patch supports the following case.
+>> When relative packet can't be reported completely, it may miss one 
+>> byte or two byte.
+>> New Synaptics firmware will report PARITY error.
+>> When timeout error or parity error happens,
+>> RMI4 driver will sends 0xFE command and ask FW to Re-send stick packet 
+>> again.
+>>
+>> Signed-off-by: Marge
+>> Yang<marge.yang@synaptics.corp-partner.google.com>
+>> ---
+>>  drivers/input/rmi4/rmi_f03.c | 82
+>> ++++++++++++++++++++++++++++++++++--
+>>  1 file changed, 78 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/input/rmi4/rmi_f03.c 
+>> b/drivers/input/rmi4/rmi_f03.c index c194b1664b10..57f03dfcb4ff 100644
+>> --- a/drivers/input/rmi4/rmi_f03.c
+>> +++ b/drivers/input/rmi4/rmi_f03.c
+>> @@ -23,8 +23,12 @@
+>>  #define RMI_F03_BYTES_PER_DEVICE_SHIFT       4
+>>  #define RMI_F03_QUEUE_LENGTH         0x0F
+>>
+>> +#define RMI_F03_RESET_STYK 0xFE
+> 
+> Please use tabs in front of the 0xFE to align it with the other values.
+> 
+> [Marge 08/12] Correct it on V2 patch.
+> 
+>> +
+>>  #define PSMOUSE_OOB_EXTRA_BTNS               0x01
+>>
+>> +#define RELATIVE_PACKET_SIZE         0x03
+> 
+> Just "3" please since this is a size (not a register value).
+> 
+> 
+> [Marge 08/12] Correct it on V2 patch.
+> 
+>> +
+>>  struct f03_data {
+>>       struct rmi_function *fn;
+>>
+>> @@ -36,7 +40,8 @@ struct f03_data {
+>>       u8 device_count;
+>>       u8 rx_queue_length;
+>>  };
+>> -
+>> +int iwritecommandcounter;
+>> +unsigned int ipacketindex;
+> 
+> Please do not use global variables like this, instead store these e.g. inside struct f03_data.
+> 
+> [Marge 08/12] Correct it on V2 patch.
+> 
+>>  int rmi_f03_overwrite_button(struct rmi_function *fn, unsigned int button,
+>>                            int value)
+>>  {
+>> @@ -87,7 +92,7 @@ static int rmi_f03_pt_write(struct serio *id, unsigned char val)
+>>                       __func__, error);
+>>               return error;
+>>       }
+>> -
+>> +     iwritecommandcounter++;
+>>       return 0;
+>>  }
+>>
+>> @@ -197,10 +202,12 @@ static int rmi_f03_register_pt(struct f03_data
+>> *f03)
+>>
+>>  static int rmi_f03_probe(struct rmi_function *fn)  {
+>> +
+>>       struct device *dev = &fn->dev;
+>>       struct f03_data *f03;
+>>       int error;
+>> -
+>> +     iwritecommandcounter = 0;
+>> +     ipacketindex = 0;
+>>       f03 = devm_kzalloc(dev, sizeof(struct f03_data), GFP_KERNEL);
+>>       if (!f03)
+>>               return -ENOMEM;
+> 
+> If you put the 2 variables into the f03_data then there will be no need to zero them.
+> 
+> [Marge 08/12] It is initialized. I will move them to rmi_f03_initialize function.
+> 
+>> @@ -251,9 +258,12 @@ static irqreturn_t rmi_f03_attention(int irq, void *ctx)
+>>       const u8 ob_len = f03->rx_queue_length * RMI_F03_OB_SIZE;
+>>       u8 obs[RMI_F03_QUEUE_LENGTH * RMI_F03_OB_SIZE];
+>>       u8 ob_status;
+>> +     static u8 ob_dataArry[RELATIVE_PACKET_SIZE];
+>>       u8 ob_data;
+>>       unsigned int serio_flags;
+>> +     static unsigned int serio_flagsArry[RELATIVE_PACKET_SIZE];
+> 
+> Please drop these 2 static arrays here and instead store the info in the f03_data struct.
+> [Marge 08/12] Correct it on V2 patch.
+> 
+>>       int i;
+>> +
+> 
+> Unrelated whitespace change, please drop.
+> [Marge 08/12] Correct it on V2 patch.
+> 
+>>       int error;
+>>
+>>       if (drvdata->attn_data.data) {
+>> @@ -284,6 +294,22 @@ static irqreturn_t rmi_f03_attention(int irq, void *ctx)
+>>               ob_data = obs[i + RMI_F03_OB_DATA_OFFSET];
+>>               serio_flags = 0;
+>>
+>> +             if (ob_status & (RMI_F03_OB_FLAG_TIMEOUT | RMI_F03_OB_FLAG_PARITY)) {
+>> +                     //  Send resend command to stick when timeout or parity error.
+>> +                     //  Driver can receive the last stick packet.
+>> +
+>> +                     error = rmi_write(f03->fn->rmi_dev, f03->fn->fd.data_base_addr,
+>> +                      RMI_F03_RESET_STYK);
+>> +                     if (error) {
+>> +                             dev_err(&f03->fn->dev,
+>> +                                     "%s: Failed to rmi_write to F03 TX register (%d).\n",
+>> +                                     __func__, error);
+>> +                             return error;
+>> +                     }
+>> +                     ipacketindex = 0;
+>> +                     break;
+>> +             }
+>> +
+>>               if (!(ob_status & RMI_F03_RX_DATA_OFB))
+>>                       continue;
+>>
+>> @@ -298,9 +324,57 @@ static irqreturn_t rmi_f03_attention(int irq, void *ctx)
+>>                       serio_flags & SERIO_TIMEOUT ?  'Y' : 'N',
+>>                       serio_flags & SERIO_PARITY ? 'Y' : 'N');
+>>
+>> -             serio_interrupt(f03->serio, ob_data, serio_flags);
+>> +             if (iwritecommandcounter > 0) {
+>> +                     // Read Acknowledge Byte after writing the PS2 command.
+>> +                     // It is not trackpoint data.
+>> +                     serio_interrupt(f03->serio, ob_data, 
+>> + serio_flags);
+>> +
+>> +             } else {
+>> +                     //   The relative-mode PS/2 packet format is as follows:
+>> +                     //
+>> +                     //              bit position            position (as array of bytes)
+>> +                     //     7   6   5   4   3   2   1   0
+>> +                     //   =================================+
+>> +                     //    Yov Xov DY8 DX8  1   M   R   L  | DATA[0]
+>> +                     //                DX[7:0]             | DATA[1]
+>> +                     //                DY[7:0]             | DATA[2]
+>> +                     //   =================================+
+>> +                     //              Yov: Y overflow
+>> +                     //    Xov: X overflow
+>> +                     if ((ipacketindex == 0) && (ob_data & ((BIT(7)|BIT(6))))) {
+>> +                             dev_err(&f03->fn->dev,
+>> +                             "%s: X or Y is overflow. (%x)\n",
+>> +                             __func__, ob_data);
+>> +                             break;
+>> +                     } else if ((ipacketindex == 0) && !(ob_data & BIT(3))) {
+>> +                             dev_err(&f03->fn->dev,
+>> +                             "%s: New BIT 3 is not 1 for the first byte\n",
+>> +                             __func__);
+> 
+> Why no break; here like above ?
+> 
+> [Marge 08/12] Correct it on V2 patch.
+> 
+>> +                     } else {
+>> +                             if (ipacketindex >= RELATIVE_PACKET_SIZE) {
+>> +                                     ipacketindex = 0;
+> 
+> This means that you are skipping every 4th byte, since you only store the ob_data + serio_flags the next cycle through the loop!
+> 
+> [Marge 08/12] Correct it on V2 patch.
+> 
+>> +                             } else {
+>> +                                     ob_dataArry[ipacketindex] = ob_data;
+>> +                                     serio_flagsArry[ipacketindex] = serio_flags;
+>> +                                     ipacketindex++;
+>> +                             }
+>> +                             if (ipacketindex == RELATIVE_PACKET_SIZE)       {
+>> +                                     serio_interrupt(f03->serio, ob_dataArry[0],
+>> +                                      serio_flagsArry[0]);
+>> +                                     serio_interrupt(f03->serio, ob_dataArry[1],
+>> +                                      serio_flagsArry[1]);
+>> +                                     serio_interrupt(f03->serio, ob_dataArry[2],
+>> +                                      serio_flagsArry[2]);
+>> +                                     ipacketindex = 0;
+>> +                             }
+>> +                     }
+>> +             }
+>>       }
+>>
+>> +     if (iwritecommandcounter > 0) {
+>> +             ipacketindex = 0;
+>> +             iwritecommandcounter = iwritecommandcounter - 1;
+>> +     }
+> 
+> You check iwritecommandcounter inside the:
+> 
+>         for (i = 0; i < ob_len; i += RMI_F03_OB_SIZE) {
+> 
+> loop, I understand that you want to forward the entire PS/2 response data and only decrement iwritecommandcounter once, but what if the rmi_f03_attention() did not contain any OOB data at all ?
+> 
+> I believe that in that case iwritecommandcounter should not be decremented ?
+> 
+> [Marge 08/12] For Synaptics FW design, FW must have responses after TP driver writes to F03 TX register.
+> When Touchpad FW gets this information, Touchpad FW needs to sync it with stick device( or TrackPoint device).
+> After Stick device(or TrackPoint device) gets this information, it will report 0xFA data (Ack) or other information to Touchpad device.
+> We can get FW's response from F03 RX register(in rmi_f03_attention).
+> If Synaptics FW has no response, it may be a Synaptics firmware issue.
+> For RMI_F03_RESET_STYK command, it is a special command.
+> After TP driver writes RMI_F03_RESET_STYK to F03 TX register, FW will clear fun03 buffer and re-send relative packet again.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 9e15cdf6faa0..122d3a13b7c5 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -843,14 +843,8 @@ static void ads7846_report_state(struct ads7846 *ts)
- 	if (x == MAX_12BIT)
- 		x = 0;
- 
--	if (ts->model == 7843) {
-+	if (ts->model == 7843 || ts->model == 7845) {
- 		Rt = ts->pressure_max / 2;
--	} else if (ts->model == 7845) {
--		if (get_pendown_state(ts))
--			Rt = ts->pressure_max / 2;
--		else
--			Rt = 0;
--		dev_vdbg(&ts->spi->dev, "x/y: %d/%d, PD %d\n", x, y, Rt);
- 	} else if (likely(x && z1)) {
- 		/* compute touch pressure resistance using equation #2 */
- 		Rt = z2;
--- 
-2.25.1
+Right but what if the following happens:
+
+1. PS/2 command is forward to stick through RMI
+2. Regular RMI touchpad data is received, no PS/2 response yet, so no
+   OOB data
+3. Despite here not being OOB data rmi_f03_attention() still decrements
+   iwritecommandcounter
+4. PS/2 command reply comes in, but iwritecommandcounter is 0 now
+   because of 3, so the code will hit the else part of:
+
++             if (iwritecommandcounter > 0) {
++                     // Read Acknowledge Byte after writing the PS2 command.
++                     // It is not trackpoint data.
++                     serio_interrupt(f03->serio, ob_data, 
++ serio_flags);
++
++             } else {
++                     //   The relative-mode PS/2 packet format is as follows:
++                     //
++                     //              bit position            position (as array of bytes)
++                     //     7   6   5   4   3   2   1   0
++                     //   =================================+
++                     //    Yov Xov DY8 DX8  1   M   R   L  | DATA[0]
++                     //                DX[7:0]             | DATA[1]
++                     //                DY[7:0]             | DATA[2]
++                     //   =================================+
++                     //              Yov: Y overflow
++                     //    Xov: X overflow
+                      ...
+
+Treating the command reply as a relative mode PS/2 packet, instead
+of just forwarding it to the PS/2 layer.
+
+I believe that to fix this possible race you *must* only decrement
+iwritecommandcounter() at the end of rmi_f03_attention() if
+the read data actually contains OOB data.
+
+But thinking about this more, I guess this can never happen
+because each function has its own attention handler and if
+there is only touchpad data then the attention handler for
+the f03 function will never run ?
+
+Regards,
+
+Hans
 

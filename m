@@ -2,77 +2,150 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79457C25B0E
-	for <linux-input@archiver.kernel.org>; Tue, 16 Aug 2022 11:19:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 90B46C25B0E
+	for <linux-input@archiver.kernel.org>; Tue, 16 Aug 2022 21:04:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233698AbiHPLT4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 16 Aug 2022 07:19:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47870 "EHLO
+        id S237399AbiHPVEu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 16 Aug 2022 17:04:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbiHPLTi (ORCPT
+        with ESMTP id S233785AbiHPVEt (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 16 Aug 2022 07:19:38 -0400
-Received: from www262.sakura.ne.jp (www262.sakura.ne.jp [202.181.97.72])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B9F72620
-        for <linux-input@vger.kernel.org>; Tue, 16 Aug 2022 02:50:35 -0700 (PDT)
-Received: from fsav414.sakura.ne.jp (fsav414.sakura.ne.jp [133.242.250.113])
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTP id 27G9o4kc039290;
-        Tue, 16 Aug 2022 18:50:04 +0900 (JST)
-        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Received: from www262.sakura.ne.jp (202.181.97.72)
- by fsav414.sakura.ne.jp (F-Secure/fsigk_smtp/550/fsav414.sakura.ne.jp);
- Tue, 16 Aug 2022 18:50:04 +0900 (JST)
-X-Virus-Status: clean(F-Secure/fsigk_smtp/550/fsav414.sakura.ne.jp)
-Received: from [192.168.1.9] (M106072142033.v4.enabler.ne.jp [106.72.142.33])
-        (authenticated bits=0)
-        by www262.sakura.ne.jp (8.15.2/8.15.2) with ESMTPSA id 27G9o4vt039287
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NO);
-        Tue, 16 Aug 2022 18:50:04 +0900 (JST)
-        (envelope-from penguin-kernel@I-love.SAKURA.ne.jp)
-Message-ID: <2b11d0b2-0a2e-257d-34f8-37e3f69a58c5@I-love.SAKURA.ne.jp>
-Date:   Tue, 16 Aug 2022 18:50:00 +0900
+        Tue, 16 Aug 2022 17:04:49 -0400
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93CD878BD6;
+        Tue, 16 Aug 2022 14:04:48 -0700 (PDT)
+Received: by mail-ot1-x335.google.com with SMTP id h20-20020a056830165400b00638ac7ddba5so4479756otr.4;
+        Tue, 16 Aug 2022 14:04:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=hd8yc6iAzkICvQl/Lh1+nmP9sXsafYAx6xZmZA3Al+Q=;
+        b=FDPA6gXF6v5o/ZYL1dk7r4KJIGhnXB1vexECJHynpfEUBlykflrpRSJYt99G6EMAfs
+         NAdi4hNDEomPjVQ/oH3PhWqdlpZjVhslyTBTsI9okLajG/RSZLhrBCrsO0blkuxR5qa3
+         V0UojOKdCgYcEi0DUeMvOnDO9ftQk2l3RXPARqhZBYVcSMgBLgK8LCwQvTm8wNVSXvqu
+         s8fNl9zT0zWws9054r05SePehn/hxoC/zH8SOYyRWg63h2w2PAZiBKKX0ndSLtGwzrFX
+         uN5U7V72Bfb8s4xAwT9azJtmeaM0XLQ22QPKSsu8ilkqqIiCYK5Dd/mkarY8I5auH1Zg
+         ywKA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=hd8yc6iAzkICvQl/Lh1+nmP9sXsafYAx6xZmZA3Al+Q=;
+        b=0ZsgGwdFDEMiUWK48ZHuxs677daVdSMvg0lrrvmzoPdQZNCp0A8q95gup4b+ONxxUK
+         qvz1e7hMnrOmo8HX4LK/R1TwpCHoxQQB52ZwWd3cj6sijXdsKnYfC6d2plYewGTVo3tG
+         TPnotuWntPIXYHHdFS4vZjjcCNs4L9kejY4RRPuq+iN71QatEBeZJIDlJjnjPlQE7GJ9
+         CH7wIl8B2sU6IIb8y5E9IgcdNmZi3m2oaapdu9lnfKcYpcCLFNMKl7riqY7SpwdclW7B
+         dvX5QwQHL7zfSYgFdDDfweWqNJReJ4Z6UosPO/KWBLoxSksF3SGeiVXIggXJCeLqj8Hm
+         EapQ==
+X-Gm-Message-State: ACgBeo2v4XixIwHi/gDDT4ZI4tKVk78Ggilry+Chv8WJXKGlAMsSoYYx
+        mHAL/3hZJGAuviam/m21J1ngMCmPjKg=
+X-Google-Smtp-Source: AA6agR6RdxrpkBItcav4v63NNIfn3SkQKsyzu5OnlV4DLwLjllSFZY/7Wq5HJUbKSKe4/n96PPFBrA==
+X-Received: by 2002:a05:6830:910:b0:637:18dd:7743 with SMTP id v16-20020a056830091000b0063718dd7743mr8252968ott.226.1660683887590;
+        Tue, 16 Aug 2022 14:04:47 -0700 (PDT)
+Received: from wintermute.localdomain (cpe-76-183-134-35.tx.res.rr.com. [76.183.134.35])
+        by smtp.gmail.com with ESMTPSA id m24-20020a4ae3d8000000b00425678b9c4bsm2599653oov.0.2022.08.16.14.04.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Aug 2022 14:04:46 -0700 (PDT)
+From:   Chris Morgan <macroalpha82@gmail.com>
+To:     linux-input@vger.kernel.org
+Cc:     linux-iio@vger.kernel.org, dmitry.torokhov@gmail.com,
+        contact@artur-rojek.eu, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, heiko@sntech.de,
+        jic23@kernel.org, paul@crapouillou.net,
+        Chris Morgan <macromorgan@hotmail.com>
+Subject: [PATCH v13 0/3] adc-joystick: add poll-interval
+Date:   Tue, 16 Aug 2022 16:04:37 -0500
+Message-Id: <20220816210440.14260-1-macroalpha82@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.1.2
-Subject: Re: [PATCH v2] Input: iforce - wake up after clearing
- IFORCE_XMIT_RUNNING flag
-Content-Language: en-US
-From:   Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-To:     "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>, ira.weiny@intel.com,
-        Hillf Danton <hdanton@sina.com>
-Cc:     "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
-References: <c10494c0-5da5-716d-3e62-abca5b65dd88@I-love.SAKURA.ne.jp>
- <887021c3-4f13-40ce-c8b9-aa6e09faa3a7@I-love.SAKURA.ne.jp>
-In-Reply-To: <887021c3-4f13-40ce-c8b9-aa6e09faa3a7@I-love.SAKURA.ne.jp>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Any questions?
+From: Chris Morgan <macromorgan@hotmail.com>
 
-On 2022/07/27 7:00, Tetsuo Handa wrote:
-> syzbot is reporting hung task at __input_unregister_device() [1], for
-> iforce_close() waiting at wait_event_interruptible() with dev->mutex held
-> is blocking input_disconnect_device() from __input_unregister_device().
-> 
-> It seems that the cause is simply that commit c2b27ef672992a20 ("Input:
-> iforce - wait for command completion when closing the device") forgot to
-> call wake_up() after clear_bit().
-> 
-> Fix this problem by introducing a helper that calls clear_bit() followed
-> by wake_up_all().
-> 
-> Link: https://syzkaller.appspot.com/bug?extid=deb6abc36aad4008f407 [1]
-> Reported-by: syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>
-> Fixes: c2b27ef672992a20 ("Input: iforce - wait for command completion when closing the device")
-> Tested-by: syzbot <syzbot+deb6abc36aad4008f407@syzkaller.appspotmail.com>
-> Suggested-by: Fabio M. De Francesco <fmdefrancesco@gmail.com>
-> Co-developed-by: Hillf Danton <hdanton@sina.com>
-> Signed-off-by: Hillf Danton <hdanton@sina.com>
-> Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Add support to the existing adc-joystick driver to support polling
+rather than relying on triggered buffers. This is useful for devices
+that do not offer triggered buffers in hardware. Code adapted from
+changes made by Maya Matuszczyk <maccraft123mc@gmail.com>.
+
+Changes from V12:
+ - Refactor for 6.0 kernel. This required changing the return routine
+   slightly for the probe function as the input device registration
+   has moved.
+ - Modified error handling for checking the "poll-interval" property.
+
+Changes from V11:
+ - Remove additional unnecessary line breaks.
+
+Changes from V10:
+ - Removed two unnecessary line breaks.
+
+Changes from V9:
+ - Simplified skipping of channel checking logic.
+ - Simplified return logic for driver probe.
+
+Changes from V8:
+ - Changed logic for checking channels to skip checking of storagebits.
+ - Changed comment format to comply with Linux style rules.
+
+Changes from V7:
+ - Dropped acks from adc-joystick.c changes, as it has been altered
+   somewhat since v7.
+ - Improved checking value of poll-interval to ensure explicit error
+   handling in the event of malformed values.
+ - Adjusted logic to not check for storagebits if polling is in use,
+   which allows adc-joystick to work in polling mode for devices that
+   utilize a mux (such as the Odroid Go Super and the Anbernic RG353).
+ - Changed error message and channel size comparison logic slightly to
+   ensure code can fit within 80 character column width.
+
+Changes from V6:
+ - Reverted back to "poll-interval" after mailing list discussion.
+ - Referenced input.yaml for definition of poll-interval in adc-joystick
+   documentation.
+
+Changes from V5:
+ - Corrected an error found by yamllint in the documentation.
+
+Changes from V4:
+ - Added unit property to devicetree attribute making it now
+   "poll-interval-ms".
+ - Simplified logic for setting polled value and made variable names
+   more clear.
+
+Changes from V3:
+ - After lengthy discussion decided to support with existing attribute
+   of "poll-interval". If present, the driver will use polling and if
+   not present, it will use triggered buffers (as the driver does
+   today).
+ - Corrected some lines to honor the 80 character line-limit.
+ - Check return value from polling method and return early if there
+   is an error reading the data.
+
+Changes from V2:
+ - Changed parameter from "adc-joystick,polled" to
+   "adc-joystick,no-hardware-trigger" as it is more representative of
+   what the driver and hardware are doing.
+
+Changes from V1:
+ - Removed driver compatible string of "adc-joystick-polled".
+ - Added new optional boolean value of "adc-joystick,polled".
+ - Cleaned up if statements regarding polling behavior.
+
+Chris Morgan (3):
+  dt-bindings: adc-joystick: add poll-interval
+  input: adc-joystick - Add polled input device support
+  arm64: dts: rockchip: Update joystick to polled for OG2
+
+ .../bindings/input/adc-joystick.yaml          |  5 ++
+ .../boot/dts/rockchip/rk3326-odroid-go2.dts   |  1 +
+ drivers/input/joystick/adc-joystick.c         | 48 +++++++++++++++++--
+ 3 files changed, 51 insertions(+), 3 deletions(-)
+
+-- 
+2.25.1
 

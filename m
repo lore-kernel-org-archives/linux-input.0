@@ -2,22 +2,22 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90DB0C25B08
-	for <linux-input@archiver.kernel.org>; Wed, 17 Aug 2022 10:57:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ECBAC2BB41
+	for <linux-input@archiver.kernel.org>; Wed, 17 Aug 2022 10:57:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239053AbiHQK5W (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 17 Aug 2022 06:57:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52876 "EHLO
+        id S239089AbiHQK51 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 17 Aug 2022 06:57:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239060AbiHQK5V (ORCPT
+        with ESMTP id S239077AbiHQK5Y (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 17 Aug 2022 06:57:21 -0400
-Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [IPv6:2001:4b98:dc4:8::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A657786E7;
-        Wed, 17 Aug 2022 03:57:19 -0700 (PDT)
+        Wed, 17 Aug 2022 06:57:24 -0400
+Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [217.70.178.232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90E1773908;
+        Wed, 17 Aug 2022 03:57:23 -0700 (PDT)
 Received: (Authenticated sender: contact@artur-rojek.eu)
-        by mail.gandi.net (Postfix) with ESMTPSA id 35646200004;
-        Wed, 17 Aug 2022 10:57:17 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id AC28820000E;
+        Wed, 17 Aug 2022 10:57:20 +0000 (UTC)
 From:   Artur Rojek <contact@artur-rojek.eu>
 To:     Paul Cercueil <paul@crapouillou.net>,
         Jonathan Cameron <jic23@kernel.org>,
@@ -26,9 +26,9 @@ To:     Paul Cercueil <paul@crapouillou.net>,
 Cc:     linux-mips@vger.kernel.org, linux-iio@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         Artur Rojek <contact@artur-rojek.eu>
-Subject: [PATCH 1/4] iio/adc: ingenic: fix channel offsets in buffer
-Date:   Wed, 17 Aug 2022 12:56:40 +0200
-Message-Id: <20220817105643.95710-2-contact@artur-rojek.eu>
+Subject: [PATCH 3/4] iio: add helper function for reading channel offset in buffer
+Date:   Wed, 17 Aug 2022 12:56:42 +0200
+Message-Id: <20220817105643.95710-4-contact@artur-rojek.eu>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220817105643.95710-1-contact@artur-rojek.eu>
 References: <20220817105643.95710-1-contact@artur-rojek.eu>
@@ -38,37 +38,69 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Consumers expect the buffer to only contain enabled channels. While
-preparing the buffer, the driver also (incorrectly) inserts empty data
-for disabled channels, causing the enabled channels to appear at wrong
-offsets. Fix that.
+This is useful for consumers that wish to parse raw buffer data.
 
-Fixes: b96952f498db ("IIO: Ingenic JZ47xx: Add touchscreen mode.")
 Tested-by: Paul Cercueil <paul@crapouillou.net>
 Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
 ---
- drivers/iio/adc/ingenic-adc.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/iio/industrialio-buffer.c | 28 ++++++++++++++++++++++++++++
+ include/linux/iio/buffer.h        |  4 ++++
+ 2 files changed, 32 insertions(+)
 
-diff --git a/drivers/iio/adc/ingenic-adc.c b/drivers/iio/adc/ingenic-adc.c
-index a7325dbbb99a..5a932c375a89 100644
---- a/drivers/iio/adc/ingenic-adc.c
-+++ b/drivers/iio/adc/ingenic-adc.c
-@@ -804,11 +804,10 @@ static irqreturn_t ingenic_adc_irq(int irq, void *data)
- 	unsigned int i;
- 	u32 tdat[3];
+diff --git a/drivers/iio/industrialio-buffer.c b/drivers/iio/industrialio-buffer.c
+index 228598b82a2f..cf23736610d9 100644
+--- a/drivers/iio/industrialio-buffer.c
++++ b/drivers/iio/industrialio-buffer.c
+@@ -691,6 +691,34 @@ static unsigned int iio_storage_bytes_for_si(struct iio_dev *indio_dev,
+ 	return bytes;
+ }
  
--	for (i = 0; i < ARRAY_SIZE(tdat); mask >>= 2, i++) {
-+	memset(tdat, 0, ARRAY_SIZE(tdat));
-+	for (i = 0; mask && i < ARRAY_SIZE(tdat); mask >>= 2) {
- 		if (mask & 0x3)
--			tdat[i] = readl(adc->base + JZ_ADC_REG_ADTCH);
--		else
--			tdat[i] = 0;
-+			tdat[i++] = readl(adc->base + JZ_ADC_REG_ADTCH);
- 	}
++int iio_find_channel_offset_in_buffer(struct iio_dev *indio_dev,
++				      const struct iio_chan_spec *chan,
++				      struct iio_buffer *buffer)
++{
++	int length, offset = 0;
++	unsigned int si;
++
++	if (chan->scan_index < 0 ||
++	    !test_bit(chan->scan_index, buffer->scan_mask)) {
++		return -EINVAL;
++	}
++
++	for (si = 0; si < chan->scan_index; ++si) {
++		if (!test_bit(si, buffer->scan_mask))
++			continue;
++
++		length = iio_storage_bytes_for_si(indio_dev, si);
++
++		/* Account for channel alignment. */
++		if (offset % length)
++			offset += length - (offset % length);
++		offset += length;
++	}
++
++	return offset;
++}
++EXPORT_SYMBOL_GPL(iio_find_channel_offset_in_buffer);
++
+ static unsigned int iio_storage_bytes_for_timestamp(struct iio_dev *indio_dev)
+ {
+ 	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
+diff --git a/include/linux/iio/buffer.h b/include/linux/iio/buffer.h
+index 418b1307d3f2..b1db74772e77 100644
+--- a/include/linux/iio/buffer.h
++++ b/include/linux/iio/buffer.h
+@@ -16,6 +16,10 @@ enum iio_buffer_direction {
+ 	IIO_BUFFER_DIRECTION_OUT,
+ };
  
- 	iio_push_to_buffers(iio_dev, tdat);
++int iio_find_channel_offset_in_buffer(struct iio_dev *indio_dev,
++				      const struct iio_chan_spec *chan,
++				      struct iio_buffer *buffer);
++
+ int iio_push_to_buffers(struct iio_dev *indio_dev, const void *data);
+ 
+ int iio_pop_from_buffer(struct iio_buffer *buffer, void *data);
 -- 
 2.37.2
 

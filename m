@@ -2,74 +2,78 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC560C38145
-	for <linux-input@archiver.kernel.org>; Mon, 22 Aug 2022 19:32:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B16CCC32796
+	for <linux-input@archiver.kernel.org>; Mon, 22 Aug 2022 19:36:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236240AbiHVTb7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 22 Aug 2022 15:31:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38940 "EHLO
+        id S238850AbiHVTgC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 22 Aug 2022 15:36:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238936AbiHVTal (ORCPT
+        with ESMTP id S238768AbiHVTgA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Aug 2022 15:30:41 -0400
-Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AE0F58DEA;
-        Mon, 22 Aug 2022 12:25:14 -0700 (PDT)
-Received: by mail-oi1-f175.google.com with SMTP id j5so13391442oih.6;
-        Mon, 22 Aug 2022 12:25:14 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=YBa4Wpb/1K3mz75p1OPVR3AVlx1stGTKnEAnSXaWGEc=;
-        b=oh3Gr+wltQLYWZ2DTpp6Pw/80Kl/hy0zj3+tZmEkfdNV3Y8TJH4L6J5gydzZXiWKGv
-         Dzj3ARzn9X2h+VTF7YHD8IjjLs6fjKSjNuoXhuEeVSF1/yu1g/hFKM4uDXd4jlG3aNL1
-         U1turCNCoF9re9KKYw59a2AM3xlm7hiOdxogcO1S6Pxg61+Cp6PNJir58nc99DG3YCAM
-         vb7dVoXLxTz6PRSZWEdZIe++S71CVMJDMa2vRSsTcHesz04rrYnXAdWxnGvaa3uWfpFF
-         VOCxBvI2nDKivsbI2myEl9Yibf/u6eMkdjOlEdX7xu5j0Pb8CyISmTs8FOZSmTCaQIve
-         7FZQ==
-X-Gm-Message-State: ACgBeo20fcZKJa1BJt0fmM+hhWC403rh2Nd9pJ8WJLfCpRQz99610DSA
-        Y6+6gKoFGkdLjZAGvZHimg==
-X-Google-Smtp-Source: AA6agR4yidOvnPilwMylDNgezwAjLFjDT0pd8MDJ4gX+NgTAQQYnJjX9woySWud8W/j1lDm5RISF1A==
-X-Received: by 2002:a05:6808:1b0c:b0:345:2df:b297 with SMTP id bx12-20020a0568081b0c00b0034502dfb297mr12004875oib.236.1661196313793;
-        Mon, 22 Aug 2022 12:25:13 -0700 (PDT)
-Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id y12-20020a544d8c000000b00342d207e68bsm2691610oix.37.2022.08.22.12.25.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Aug 2022 12:25:12 -0700 (PDT)
-Received: (nullmailer pid 308105 invoked by uid 1000);
-        Mon, 22 Aug 2022 19:25:11 -0000
-Date:   Mon, 22 Aug 2022 14:25:11 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Mithil Bavishi <bavishimithil@gmail.com>
-Cc:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-        linux-pm@vger.kernel.org, contact@paulk.fr, sre@kernel.org,
-        lee@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        linux-omap@vger.kernel.org, linux-kernel@vger.kernel.org,
-        robh+dt@kernel.org, tony@atomide.com, linux@armlinux.org.uk,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 04/10] dt-bindings: input: twl-pwrbutton: Add support for
- twl6030-pwrbutton
-Message-ID: <20220822192511.GA308017-robh@kernel.org>
-References: <20220820071659.1215-1-bavishimithil@gmail.com>
- <20220820071659.1215-5-bavishimithil@gmail.com>
+        Mon, 22 Aug 2022 15:36:00 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9CE1275E;
+        Mon, 22 Aug 2022 12:35:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 868AF6122F;
+        Mon, 22 Aug 2022 19:35:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E425AC43141;
+        Mon, 22 Aug 2022 19:35:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1661196948;
+        bh=59bb0jYFlSosGYQkwjxBpEccBGa05dy9L2UhBEaYG+I=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=e4u1X1JWq8Fq35+G7oCT0frCJtoXcIPfYBzz2ocV72fIPDu635p+trs2/NJX51Bw+
+         dgo+DWNHq1pD50EiRAdBEzkcKK3vT+9Aacb/Ii2b7sNZQh2VEXp1Stfw/xPvBSP7TE
+         yEUSUZpbiCwhm85IZbW8DzLkomsacdzLFaXZh2aCVKqStx6LceK2JZBqZEkdt09Oru
+         Jn59ZTfbqB/+T6ZGRuwTfYcwfJcS6gnjL37YLHkn3qHx4o6q7ptzcqvSp2vy9foITX
+         lmbGxorMtEcb0WFe+XxpFFX+6N9/xgRjbImvwZc5tNJQVc9dwnZy0o667r1FWMrLcm
+         IoN/gGcnWyy6Q==
+Date:   Mon, 22 Aug 2022 20:01:20 +0100
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Paul Cercueil <paul@crapouillou.net>
+Cc:     Artur Rojek <contact@artur-rojek.eu>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Chris Morgan <macromorgan@hotmail.com>,
+        linux-mips@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH 4/4] input: joystick: Fix buffer data parsing
+Message-ID: <20220822200120.543ff801@jic23-huawei>
+In-Reply-To: <3HE0HR.IPKJTTCKEJUA1@crapouillou.net>
+References: <20220817105643.95710-1-contact@artur-rojek.eu>
+        <20220817105643.95710-5-contact@artur-rojek.eu>
+        <20220819185339.7f488ad8@jic23-huawei>
+        <3HE0HR.IPKJTTCKEJUA1@crapouillou.net>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220820071659.1215-5-bavishimithil@gmail.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, 20 Aug 2022 12:46:54 +0530, Mithil Bavishi wrote:
-> Adds documentation for the compatible string for twl6030 powerbutton
-> support.
+> >>   		case 2:
+> >>  -			data_u16 = (const u16 *)data + idx;
+> >>  -
+> >>   			/*
+> >>   			 * Data is aligned to the sample size by IIO core.
+> >>   			 * Call `get_unaligned_xe16` to hide type casting.
+> >>   			 */
+> >>   			if (endianness == IIO_BE)
+> >>  -				val = get_unaligned_be16(data_u16);
+> >>  +				val = get_unaligned_be16(chan_data);  
+> > 
+> > I obviously missed this previously but these are aligned so we don't 
+> > need the
+> > unaligned form.  
 > 
-> Signed-off-by: Paul Kocialkowski <contact@paulk.fr>
-> Signed-off-by: Mithil Bavishi <bavishimithil@gmail.com>
-> ---
->  Documentation/devicetree/bindings/input/twl4030-pwrbutton.txt | 1 +
->  1 file changed, 1 insertion(+)
-> 
+> Yes, the comment above says that it's used to hide type casting.
+oops :)
 
-Acked-by: Rob Herring <robh@kernel.org>
+Thanks for pointing out my lack of observation!
+
+Jonathan
+

@@ -2,80 +2,74 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CB6CC3F6B0
-	for <linux-input@archiver.kernel.org>; Mon, 22 Aug 2022 18:23:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3378C28D13
+	for <linux-input@archiver.kernel.org>; Mon, 22 Aug 2022 19:29:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235151AbiHVSW7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 22 Aug 2022 14:22:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45548 "EHLO
+        id S238719AbiHVT34 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 22 Aug 2022 15:29:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232132AbiHVSW6 (ORCPT
+        with ESMTP id S238761AbiHVT3k (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Aug 2022 14:22:58 -0400
-Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D178047B97;
-        Mon, 22 Aug 2022 11:22:57 -0700 (PDT)
-Received: by mail-oi1-f181.google.com with SMTP id v125so13234528oie.0;
-        Mon, 22 Aug 2022 11:22:57 -0700 (PDT)
+        Mon, 22 Aug 2022 15:29:40 -0400
+Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 312604F65F;
+        Mon, 22 Aug 2022 12:24:09 -0700 (PDT)
+Received: by mail-ot1-x329.google.com with SMTP id o15-20020a9d718f000000b00638c1348012so8381090otj.2;
+        Mon, 22 Aug 2022 12:24:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc;
-        bh=0Qoldrnk1OOisFOprUKbgJfO+ztr4gzIbivup1sV7ig=;
-        b=t+2EpcIV1uUS4QVlzbL43gyDj7JlL26Sotyp1vNgtp0uNb8JfGrvoUhOYsbzGP7yOe
-         AWcyaof0/LMcz7KOE49uFyVxylKdqYzwVscoq5riPLvO7UzXRfGzcvmDQfaueljTt4X9
-         uI6MDNyyq5T+0m7vEhoWOb55XJx0Zw8DuUhH8NSeu/8NGxcOZhxbCrtx3L0QzA/1hUv4
-         +IdFGbk7xGXYOjx9TAHDHJ8C6ae54ezzaYY127yfuIHgcfzzMQXZJZ+83taHBsIR3vdQ
-         o/px8BDoqpm18EusmS7uZsItX8xv8rQ3Bf5FngV720+/pnRtTM3pAZMuyJP3yypRfG7f
-         QWtw==
-X-Gm-Message-State: ACgBeo2yHWi09A5eAQZty0vuiOS/DykxAdqVoqO7FpZDn78fBloi5C6J
-        62fAjPuSkKO+m5+WhIQlmQ==
-X-Google-Smtp-Source: AA6agR6W2WOiZtmbA+066xdS7uLzllg7qZidjvvWBjMfuzyQ2cDQHRcW3NbhntdvtXkdXa+pc7crqQ==
-X-Received: by 2002:aca:2110:0:b0:343:26cf:c6cf with SMTP id 16-20020aca2110000000b0034326cfc6cfmr12281154oiz.276.1661192576902;
-        Mon, 22 Aug 2022 11:22:56 -0700 (PDT)
+        bh=8zy7YCWL5YZTEH0yzkezpqZ96keenfHSDIKWTIiVfgw=;
+        b=ADXtPQ0Zl0lz8VdHyI2ow6pdVOSGSxaLMhEEKIUHXfX/uqASKhc9MY9DnCeM2tKFhY
+         Rr6iIJoNMuYM6R9yfC6LiZZ6iC02g2IffcsHEVfdvgwPoXCt1ZOUAbAPS5tOtUZvn+Gw
+         MlMTq4rxS65TbwVhnQ0s6GfRVipID4s0R+xiWM3R2a5ndnSv1WGttVETSDfG0JoiBvz0
+         QOqk1i/QmGokI2MC/x+lBcy0jFjBHe7LVX2UxtgvRJ8Xk/Stj3rTNYfuGvLB7mET2/9U
+         insjQFJuuY4KLWoARUAxayNKclTz6EO2pfJOo1Pp+L7CSXIr2q1LjCZI46XN6GOO+vFa
+         dwZQ==
+X-Gm-Message-State: ACgBeo1CtAkDzrshnQhYQvkVdtmUvCTWFt4eXCU28y1goQ7JVRan8tkz
+        uJnoUaycwIjFc7I4zx76AQ==
+X-Google-Smtp-Source: AA6agR4Yhy+q1icNwprzoYLj6JYDzQtQ1J/JCtznjaPHD+6F092GBaDf5PsttXwKM4eRbJgkp/cPdg==
+X-Received: by 2002:a05:6830:90c:b0:637:18c0:b750 with SMTP id v12-20020a056830090c00b0063718c0b750mr7936744ott.385.1661196188346;
+        Mon, 22 Aug 2022 12:23:08 -0700 (PDT)
 Received: from robh.at.kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id g22-20020a056830161600b0063715f7eef8sm3025060otr.38.2022.08.22.11.22.55
+        by smtp.gmail.com with ESMTPSA id m3-20020a0568301e6300b00636d6571ff7sm3059517otr.70.2022.08.22.12.23.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Aug 2022 11:22:56 -0700 (PDT)
-Received: (nullmailer pid 107284 invoked by uid 1000);
-        Mon, 22 Aug 2022 18:22:55 -0000
-Date:   Mon, 22 Aug 2022 13:22:55 -0500
+        Mon, 22 Aug 2022 12:23:07 -0700 (PDT)
+Received: (nullmailer pid 296993 invoked by uid 1000);
+        Mon, 22 Aug 2022 19:23:06 -0000
+Date:   Mon, 22 Aug 2022 14:23:06 -0500
 From:   Rob Herring <robh@kernel.org>
-To:     Gireesh.Hiremath@in.bosch.com
-Cc:     linux-omap@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        bcousson@baylibre.com, tony@atomide.com,
-        krzysztof.kozlowski+dt@linaro.org, dmitry.torokhov@gmail.com,
-        mkorpershoek@baylibre.com, davidgow@google.com,
-        m.felsch@pengutronix.de, swboyd@chromium.org,
-        fengping.yu@mediatek.com, y.oudjana@protonmail.com,
-        rdunlap@infradead.org, colin.king@intel.com,
-        sjoerd.simons@collabora.co.uk, VinayKumar.Shettar@in.bosch.com,
-        Govindaraji.Sivanantham@in.bosch.com, anaclaudia.dias@de.bosch.com
-Subject: Re: [PATCH v3 3/3] dt-bindings: input: gpio-matrix-keypad: add
- reduced matrix keypad bindings definition
-Message-ID: <20220822182255.GA97986-robh@kernel.org>
-References: <20220819065946.9572-1-Gireesh.Hiremath@in.bosch.com>
- <20220819065946.9572-3-Gireesh.Hiremath@in.bosch.com>
+To:     Mithil Bavishi <bavishimithil@gmail.com>
+Cc:     tony@atomide.com, dmitry.torokhov@gmail.com,
+        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-omap@vger.kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        lee@kernel.org, linux-input@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, robh+dt@kernel.org,
+        sre@kernel.org, linux-pm@vger.kernel.org, contact@paulk.fr,
+        linux@armlinux.org.uk
+Subject: Re: [PATCH 02/10] dt-bindings: power: reset: Move twl4030-power from
+ mfd to power/reset
+Message-ID: <20220822192306.GA296915-robh@kernel.org>
+References: <20220820071659.1215-1-bavishimithil@gmail.com>
+ <20220820071659.1215-3-bavishimithil@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220819065946.9572-3-Gireesh.Hiremath@in.bosch.com>
+In-Reply-To: <20220820071659.1215-3-bavishimithil@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Aug 19, 2022 at 06:59:46AM +0000, Gireesh.Hiremath@in.bosch.com wrote:
-> From: Gireesh Hiremath <Gireesh.Hiremath@in.bosch.com>
+On Sat, 20 Aug 2022 12:46:52 +0530, Mithil Bavishi wrote:
+> Move the documentation for twl4030-power from mfd to power/reset
 > 
-> Add binding definition for the support of the reduced matrix
-> keypad driver.
-> 
-> Signed-off-by: Gireesh Hiremath <Gireesh.Hiremath@in.bosch.com>
+> Signed-off-by: Mithil Bavishi <bavishimithil@gmail.com>
 > ---
->  .../bindings/input/gpio-matrix-keypad.txt     | 96 +++++++++++++++++++
->  1 file changed, 96 insertions(+)
+>  .../devicetree/bindings/{mfd => power/reset}/twl4030-power.txt    | 0
+>  1 file changed, 0 insertions(+), 0 deletions(-)
+>  rename Documentation/devicetree/bindings/{mfd => power/reset}/twl4030-power.txt (100%)
+> 
 
-This needs to be converted to DT schema first for this level of change.
-
-Rob
+Acked-by: Rob Herring <robh@kernel.org>

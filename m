@@ -2,78 +2,119 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B16CCC32796
-	for <linux-input@archiver.kernel.org>; Mon, 22 Aug 2022 19:36:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C479EC32792
+	for <linux-input@archiver.kernel.org>; Tue, 23 Aug 2022 00:16:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238850AbiHVTgC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 22 Aug 2022 15:36:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50308 "EHLO
+        id S238448AbiHWAQn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 22 Aug 2022 20:16:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238768AbiHVTgA (ORCPT
+        with ESMTP id S232371AbiHWAQk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 22 Aug 2022 15:36:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C9CE1275E;
-        Mon, 22 Aug 2022 12:35:50 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 868AF6122F;
-        Mon, 22 Aug 2022 19:35:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E425AC43141;
-        Mon, 22 Aug 2022 19:35:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1661196948;
-        bh=59bb0jYFlSosGYQkwjxBpEccBGa05dy9L2UhBEaYG+I=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=e4u1X1JWq8Fq35+G7oCT0frCJtoXcIPfYBzz2ocV72fIPDu635p+trs2/NJX51Bw+
-         dgo+DWNHq1pD50EiRAdBEzkcKK3vT+9Aacb/Ii2b7sNZQh2VEXp1Stfw/xPvBSP7TE
-         yEUSUZpbiCwhm85IZbW8DzLkomsacdzLFaXZh2aCVKqStx6LceK2JZBqZEkdt09Oru
-         Jn59ZTfbqB/+T6ZGRuwTfYcwfJcS6gnjL37YLHkn3qHx4o6q7ptzcqvSp2vy9foITX
-         lmbGxorMtEcb0WFe+XxpFFX+6N9/xgRjbImvwZc5tNJQVc9dwnZy0o667r1FWMrLcm
-         IoN/gGcnWyy6Q==
-Date:   Mon, 22 Aug 2022 20:01:20 +0100
-From:   Jonathan Cameron <jic23@kernel.org>
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Artur Rojek <contact@artur-rojek.eu>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Chris Morgan <macromorgan@hotmail.com>,
-        linux-mips@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: Re: [PATCH 4/4] input: joystick: Fix buffer data parsing
-Message-ID: <20220822200120.543ff801@jic23-huawei>
-In-Reply-To: <3HE0HR.IPKJTTCKEJUA1@crapouillou.net>
-References: <20220817105643.95710-1-contact@artur-rojek.eu>
-        <20220817105643.95710-5-contact@artur-rojek.eu>
-        <20220819185339.7f488ad8@jic23-huawei>
-        <3HE0HR.IPKJTTCKEJUA1@crapouillou.net>
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.34; x86_64-pc-linux-gnu)
+        Mon, 22 Aug 2022 20:16:40 -0400
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8DEA1AE;
+        Mon, 22 Aug 2022 17:16:38 -0700 (PDT)
+Received: by mail-pl1-x62a.google.com with SMTP id p13so3431pld.6;
+        Mon, 22 Aug 2022 17:16:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=p1/Bx0oP8nfnziMM2cHICkhjDAldqcEDoIF6YYzpP1o=;
+        b=NJsqi8t9JuDzgLorWS8OUEYtWroALCU5iEBR/k94kjGD/goNE/LwojsVJXeyEu2k6w
+         PfQ5F3B/jdDVhkO62gzKB4qaEX8PfmYue/W654KE2Ieb+snr5nNYQxozb5O2zmdkVt0G
+         v4GvAUq5PIux/9e5b3fTHx5qH0gtF/OnAWANFsQMgiCKrgMGIUh42lXkTayvYDunBi6E
+         YtrRRCT8Ac/ur+g1mInow7eAPzKIEgfsokJ+BCtLE0lBM4+BqbUzYn0wvQlJMPEbaWf/
+         Y04M2Wa1bl0sSQU0EB+SjGmJrlZMyIDmiTLNjLhx6gNz/ygCoYCOvhqF4i5kMkyqjKWS
+         D8lg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=p1/Bx0oP8nfnziMM2cHICkhjDAldqcEDoIF6YYzpP1o=;
+        b=GEMFnvhBtisG5U5JHjM6ai0+JaoEKfVAv5wCEW1zqkl8qTqatDi2OQtYGcCQI5v11V
+         N44e7u7bp6UvJ/c466UW6HaC/H70ck/GSq3PwlUQOhkAbCMchW7reXVJD9tXExNQpUAc
+         optpQwRXyiprRwItKQvo6a8EKckf2qcsi6RCNsowFDFPTMiGs8btd6GfQi3STkNsMql5
+         0CJu59iNk3QmmLekEQuPDyftJ9amAtDzgTAhUvcI/+CMPhcvvT105kw2JCuQ0rL9QkqE
+         MfdwudMOqAqWq+s9vZSw5aSjEy/5q27es3lZ5ag6yIFYOwtrPDuBaz7WCx/J00yVfv/2
+         /vGQ==
+X-Gm-Message-State: ACgBeo0FmbKFoylLhgi5hvlWGX/PM2ghJHTnP0HCC1LfDGg99qlSy35J
+        tSfVTEoFRheHmICtFVP8Fc8=
+X-Google-Smtp-Source: AA6agR7i1SuMRSIVdkZ0AMbM7HprFkT8aUzTOpkc/abCrzIOvPUZZuH+UuGXP1VVtsO7BAGimBjGCg==
+X-Received: by 2002:a17:903:228a:b0:172:ea8f:f2fd with SMTP id b10-20020a170903228a00b00172ea8ff2fdmr7101197plh.33.1661213798265;
+        Mon, 22 Aug 2022 17:16:38 -0700 (PDT)
+Received: from fedora.flets-east.jp ([2400:4050:c360:8200:8ae8:3c4:c0da:7419])
+        by smtp.gmail.com with ESMTPSA id jj9-20020a170903048900b0016d785ef6d2sm8903695plb.223.2022.08.22.17.16.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Aug 2022 17:16:37 -0700 (PDT)
+From:   Akihiko Odaki <akihiko.odaki@gmail.com>
+Cc:     Basavaraj Natikar <basavaraj.natikar@amd.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Akihiko Odaki <akihiko.odaki@gmail.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+Subject: [PATCH v4] HID: amd_sfh: Add a DMI quirk entry for Chromebooks
+Date:   Tue, 23 Aug 2022 09:16:30 +0900
+Message-Id: <20220823001630.3973-1-akihiko.odaki@gmail.com>
+X-Mailer: git-send-email 2.37.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-> >>   		case 2:
-> >>  -			data_u16 = (const u16 *)data + idx;
-> >>  -
-> >>   			/*
-> >>   			 * Data is aligned to the sample size by IIO core.
-> >>   			 * Call `get_unaligned_xe16` to hide type casting.
-> >>   			 */
-> >>   			if (endianness == IIO_BE)
-> >>  -				val = get_unaligned_be16(data_u16);
-> >>  +				val = get_unaligned_be16(chan_data);  
-> > 
-> > I obviously missed this previously but these are aligned so we don't 
-> > need the
-> > unaligned form.  
-> 
-> Yes, the comment above says that it's used to hide type casting.
-oops :)
+Google Chromebooks use Chrome OS Embedded Controller Sensor Hub instead
+of Sensor Hub Fusion and leaves MP2 uninitialized, which disables all
+functionalities, even including the registers necessary for feature
+detections.
 
-Thanks for pointing out my lack of observation!
+The behavior was observed with Lenovo ThinkPad C13 Yoga.
 
-Jonathan
+Signed-off-by: Akihiko Odaki <akihiko.odaki@gmail.com>
+Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+---
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 4b90c86ee5f8..47774b9ab3de 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -288,11 +288,29 @@ int amd_sfh_irq_init(struct amd_mp2_dev *privdata)
+ 	return 0;
+ }
+ 
++static const struct dmi_system_id dmi_nodevs[] = {
++	{
++		/*
++		 * Google Chromebooks use Chrome OS Embedded Controller Sensor
++		 * Hub instead of Sensor Hub Fusion and leaves MP2
++		 * uninitialized, which disables all functionalities, even
++		 * including the registers necessary for feature detections.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Google"),
++		},
++	},
++	{ }
++};
++
+ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ {
+ 	struct amd_mp2_dev *privdata;
+ 	int rc;
+ 
++	if (dmi_first_match(dmi_nodevs))
++		return -ENODEV;
++
+ 	privdata = devm_kzalloc(&pdev->dev, sizeof(*privdata), GFP_KERNEL);
+ 	if (!privdata)
+ 		return -ENOMEM;
+-- 
+2.37.2
 

@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6858EC32796
-	for <linux-input@archiver.kernel.org>; Wed, 24 Aug 2022 13:42:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C022C00140
+	for <linux-input@archiver.kernel.org>; Wed, 24 Aug 2022 13:43:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238681AbiHXNms (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 24 Aug 2022 09:42:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59546 "EHLO
+        id S238590AbiHXNmp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 24 Aug 2022 09:42:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238492AbiHXNmJ (ORCPT
+        with ESMTP id S234115AbiHXNmJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 24 Aug 2022 09:42:09 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93FE584EDC
-        for <linux-input@vger.kernel.org>; Wed, 24 Aug 2022 06:41:43 -0700 (PDT)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4687A81B1E
+        for <linux-input@vger.kernel.org>; Wed, 24 Aug 2022 06:41:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1661348502;
+        s=mimecast20190719; t=1661348500;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=QVggoH2D1Sfqhp8qcNq7f5fPlJEm/+MJfsGjwf+NXxw=;
-        b=I1BCxnWnCwfH3PDsDgbMDtdSD1g8Ic8Dpdeis5Y2MHrsIT2giTx0kEZgp4d5U7aaQKl2sI
-        sBYMVCw+76OQhogUxp7MBVhXyHnBudSK3B+ojItZWhSr4Lgw4CjJ0M6HZahHftPwNwQEKO
-        lTWQdSb2Q+VJBZBoAlPNSvyScQ0c+CI=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=e3Bkq3aN6amBKLseh0Hxl3UHFIQU9oqlW2ZtdQVSRn4=;
+        b=S80dJfnGOBJgBItQiJBeR7FOoUhKd+Q+KVWHsNI0CuF7+u7kFpoubItBgyXMuFSN7J4Q/h
+        eIzuSFTqR5lJMkyJh9iax04w7OFnXEBjYF0i0qeNdU11k2GPHIIYNN5o3Nq6vw5VyVNmd7
+        OZvGRWyeqjouXKy3bIagnUhWP6KpdeQ=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-255-uZlRuoa5OpOUurDF89YuDw-1; Wed, 24 Aug 2022 09:41:35 -0400
-X-MC-Unique: uZlRuoa5OpOUurDF89YuDw-1
+ us-mta-292-iJNxJag9PUen6a-RsQKLOQ-1; Wed, 24 Aug 2022 09:41:37 -0400
+X-MC-Unique: iJNxJag9PUen6a-RsQKLOQ-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 9774B811E90;
-        Wed, 24 Aug 2022 13:41:19 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D1FD03801164;
+        Wed, 24 Aug 2022 13:41:36 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.192.211])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 6B6DC945D7;
-        Wed, 24 Aug 2022 13:41:16 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A5A999459C;
+        Wed, 24 Aug 2022 13:41:33 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -56,9 +56,9 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v9 05/23] selftests/bpf: Add tests for kfunc returning a memory pointer
-Date:   Wed, 24 Aug 2022 15:40:35 +0200
-Message-Id: <20220824134055.1328882-6-benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v9 10/23] HID: convert defines of HID class requests into a proper enum
+Date:   Wed, 24 Aug 2022 15:40:40 +0200
+Message-Id: <20220824134055.1328882-11-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220824134055.1328882-1-benjamin.tissoires@redhat.com>
 References: <20220824134055.1328882-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -68,286 +68,124 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We add 2 new kfuncs that are following the RET_PTR_TO_MEM
-capability from the previous commit.
-Then we test them in selftests:
-the first tests are testing valid case, and are not failing,
-and the later ones are actually preventing the program to be loaded
-because they are wrong.
+This allows to export the type in BTF and so in the automatically
+generated vmlinux.h. It will also add some static checks on the users
+when we change the ll driver API (see not below).
 
-To work around that, we mark the failing ones as not autoloaded
-(with SEC("?tc")), and we manually enable them one by one, ensuring
-the verifier rejects them.
+Note that we need to also do change in the ll_driver API, but given
+that this will have a wider impact outside of this tree, we leave this
+as a TODO for the future.
 
-To be able to use bpf_program__set_autoload() from libbpf, we need
-to use a plain skeleton, not a light-skeleton, and this is why we
-also change the Makefile to generate both for kfunc_call_test.c
-
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-changes in v9:
-- updated to match upstream (net/bpf/test_run.c id sets is now using
-  flags)
+no changes in v9
 
 no changes in v8
 
-changes in v7:
-- removed stray include/linux/btf.h change
+no changes in v7
 
 new in v6
 ---
- net/bpf/test_run.c                            | 20 +++++
- tools/testing/selftests/bpf/Makefile          |  5 +-
- .../selftests/bpf/prog_tests/kfunc_call.c     | 48 ++++++++++
- .../selftests/bpf/progs/kfunc_call_test.c     | 89 +++++++++++++++++++
- 4 files changed, 160 insertions(+), 2 deletions(-)
+ drivers/hid/hid-core.c   |  6 +++---
+ include/linux/hid.h      |  9 +++++----
+ include/uapi/linux/hid.h | 14 ++++++++------
+ 3 files changed, 16 insertions(+), 13 deletions(-)
 
-diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
-index f16baf977a21..6accd57d4ded 100644
---- a/net/bpf/test_run.c
-+++ b/net/bpf/test_run.c
-@@ -606,6 +606,24 @@ noinline void bpf_kfunc_call_memb1_release(struct prog_test_member1 *p)
- 	WARN_ON_ONCE(1);
- }
- 
-+static int *__bpf_kfunc_call_test_get_mem(struct prog_test_ref_kfunc *p, const int size)
-+{
-+	if (size > 2 * sizeof(int))
-+		return NULL;
-+
-+	return (int *)p;
-+}
-+
-+noinline int *bpf_kfunc_call_test_get_rdwr_mem(struct prog_test_ref_kfunc *p, const int rdwr_buf_size)
-+{
-+	return __bpf_kfunc_call_test_get_mem(p, rdwr_buf_size);
-+}
-+
-+noinline int *bpf_kfunc_call_test_get_rdonly_mem(struct prog_test_ref_kfunc *p, const int rdonly_buf_size)
-+{
-+	return __bpf_kfunc_call_test_get_mem(p, rdonly_buf_size);
-+}
-+
- noinline struct prog_test_ref_kfunc *
- bpf_kfunc_call_test_kptr_get(struct prog_test_ref_kfunc **pp, int a, int b)
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index ab98754522d9..aff37d6f587c 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1921,7 +1921,7 @@ static struct hid_report *hid_get_report(struct hid_report_enum *report_enum,
+  * DO NOT USE in hid drivers directly, but through hid_hw_request instead.
+  */
+ int __hid_request(struct hid_device *hid, struct hid_report *report,
+-		int reqtype)
++		enum hid_class_request reqtype)
  {
-@@ -712,6 +730,8 @@ BTF_ID_FLAGS(func, bpf_kfunc_call_memb_acquire, KF_ACQUIRE | KF_RET_NULL)
- BTF_ID_FLAGS(func, bpf_kfunc_call_test_release, KF_RELEASE)
- BTF_ID_FLAGS(func, bpf_kfunc_call_memb_release, KF_RELEASE)
- BTF_ID_FLAGS(func, bpf_kfunc_call_memb1_release, KF_RELEASE)
-+BTF_ID_FLAGS(func, bpf_kfunc_call_test_get_rdwr_mem, KF_RET_NULL)
-+BTF_ID_FLAGS(func, bpf_kfunc_call_test_get_rdonly_mem, KF_RET_NULL)
- BTF_ID_FLAGS(func, bpf_kfunc_call_test_kptr_get, KF_ACQUIRE | KF_RET_NULL | KF_KPTR_GET)
- BTF_ID_FLAGS(func, bpf_kfunc_call_test_pass_ctx)
- BTF_ID_FLAGS(func, bpf_kfunc_call_test_pass1)
-diff --git a/tools/testing/selftests/bpf/Makefile b/tools/testing/selftests/bpf/Makefile
-index 8d59ec7f4c2d..0905315ff86d 100644
---- a/tools/testing/selftests/bpf/Makefile
-+++ b/tools/testing/selftests/bpf/Makefile
-@@ -350,11 +350,12 @@ LINKED_SKELS := test_static_linked.skel.h linked_funcs.skel.h		\
- 		test_subskeleton.skel.h test_subskeleton_lib.skel.h	\
- 		test_usdt.skel.h
- 
--LSKELS := kfunc_call_test.c fentry_test.c fexit_test.c fexit_sleep.c \
-+LSKELS := fentry_test.c fexit_test.c fexit_sleep.c \
- 	test_ringbuf.c atomics.c trace_printk.c trace_vprintk.c \
- 	map_ptr_kern.c core_kern.c core_kern_overflow.c
- # Generate both light skeleton and libbpf skeleton for these
--LSKELS_EXTRA := test_ksyms_module.c test_ksyms_weak.c kfunc_call_test_subprog.c
-+LSKELS_EXTRA := test_ksyms_module.c test_ksyms_weak.c kfunc_call_test.c	\
-+		kfunc_call_test_subprog.c
- SKEL_BLACKLIST += $$(LSKELS)
- 
- test_static_linked.skel.h-deps := test_static_linked1.o test_static_linked2.o
-diff --git a/tools/testing/selftests/bpf/prog_tests/kfunc_call.c b/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
-index 1edad012fe01..590417d48962 100644
---- a/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
-+++ b/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
-@@ -2,6 +2,7 @@
- /* Copyright (c) 2021 Facebook */
- #include <test_progs.h>
- #include <network_helpers.h>
-+#include "kfunc_call_test.skel.h"
- #include "kfunc_call_test.lskel.h"
- #include "kfunc_call_test_subprog.skel.h"
- #include "kfunc_call_test_subprog.lskel.h"
-@@ -53,10 +54,12 @@ static void test_main(void)
- 	prog_fd = skel->progs.kfunc_syscall_test.prog_fd;
- 	err = bpf_prog_test_run_opts(prog_fd, &syscall_topts);
- 	ASSERT_OK(err, "bpf_prog_test_run(syscall_test)");
-+	ASSERT_EQ(syscall_topts.retval, 0, "syscall_test-retval");
- 
- 	prog_fd = skel->progs.kfunc_syscall_test_fail.prog_fd;
- 	err = bpf_prog_test_run_opts(prog_fd, &syscall_topts);
- 	ASSERT_ERR(err, "bpf_prog_test_run(syscall_test_fail)");
-+	ASSERT_EQ(syscall_topts.retval, 0, "syscall_test_fail-retval");
- 
- 	syscall_topts.ctx_in = NULL;
- 	syscall_topts.ctx_size_in = 0;
-@@ -147,6 +150,48 @@ static void test_destructive(void)
- 	cap_enable_effective(save_caps, NULL);
- }
- 
-+static void test_get_mem(void)
-+{
-+	struct kfunc_call_test *skel;
-+	int prog_fd, err;
-+	LIBBPF_OPTS(bpf_test_run_opts, topts,
-+		.data_in = &pkt_v4,
-+		.data_size_in = sizeof(pkt_v4),
-+		.repeat = 1,
-+	);
-+
-+	skel = kfunc_call_test__open_and_load();
-+	if (!ASSERT_OK_PTR(skel, "skel"))
-+		return;
-+
-+	prog_fd = bpf_program__fd(skel->progs.kfunc_call_test_get_mem);
-+	err = bpf_prog_test_run_opts(prog_fd, &topts);
-+	ASSERT_OK(err, "bpf_prog_test_run(test_get_mem)");
-+	ASSERT_EQ(topts.retval, 42, "test_get_mem-retval");
-+
-+	kfunc_call_test__destroy(skel);
-+
-+	/* start the various failing tests */
-+	skel = kfunc_call_test__open();
-+	if (!ASSERT_OK_PTR(skel, "skel"))
-+		return;
-+
-+	bpf_program__set_autoload(skel->progs.kfunc_call_test_get_mem_fail1, true);
-+	err = kfunc_call_test__load(skel);
-+	ASSERT_ERR(err, "load(kfunc_call_test_get_mem_fail1)");
-+	kfunc_call_test__destroy(skel);
-+
-+	skel = kfunc_call_test__open();
-+	if (!ASSERT_OK_PTR(skel, "skel"))
-+		return;
-+
-+	bpf_program__set_autoload(skel->progs.kfunc_call_test_get_mem_fail2, true);
-+	err = kfunc_call_test__load(skel);
-+	ASSERT_ERR(err, "load(kfunc_call_test_get_mem_fail2)");
-+
-+	kfunc_call_test__destroy(skel);
-+}
-+
- void test_kfunc_call(void)
+ 	char *buf;
+ 	int ret;
+@@ -2353,7 +2353,7 @@ EXPORT_SYMBOL_GPL(hid_hw_close);
+  * @reqtype: hid request type
+  */
+ void hid_hw_request(struct hid_device *hdev,
+-		    struct hid_report *report, int reqtype)
++		    struct hid_report *report, enum hid_class_request reqtype)
  {
- 	if (test__start_subtest("main"))
-@@ -160,4 +205,7 @@ void test_kfunc_call(void)
+ 	if (hdev->ll_driver->request)
+ 		return hdev->ll_driver->request(hdev, report, reqtype);
+@@ -2378,7 +2378,7 @@ EXPORT_SYMBOL_GPL(hid_hw_request);
+  */
+ int hid_hw_raw_request(struct hid_device *hdev,
+ 		       unsigned char reportnum, __u8 *buf,
+-		       size_t len, enum hid_report_type rtype, int reqtype)
++		       size_t len, enum hid_report_type rtype, enum hid_class_request reqtype)
+ {
+ 	if (len < 1 || len > HID_MAX_BUFFER_SIZE || !buf)
+ 		return -EINVAL;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index b1a33dbbc78e..8677ae38599e 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -923,7 +923,7 @@ struct hid_field *hidinput_get_led_field(struct hid_device *hid);
+ unsigned int hidinput_count_leds(struct hid_device *hid);
+ __s32 hidinput_calc_abs_res(const struct hid_field *field, __u16 code);
+ void hid_output_report(struct hid_report *report, __u8 *data);
+-int __hid_request(struct hid_device *hid, struct hid_report *rep, int reqtype);
++int __hid_request(struct hid_device *hid, struct hid_report *rep, enum hid_class_request reqtype);
+ u8 *hid_alloc_report_buf(struct hid_report *report, gfp_t flags);
+ struct hid_device *hid_allocate_device(void);
+ struct hid_report *hid_register_report(struct hid_device *device,
+@@ -1100,10 +1100,11 @@ void hid_hw_stop(struct hid_device *hdev);
+ int __must_check hid_hw_open(struct hid_device *hdev);
+ void hid_hw_close(struct hid_device *hdev);
+ void hid_hw_request(struct hid_device *hdev,
+-		    struct hid_report *report, int reqtype);
++		    struct hid_report *report, enum hid_class_request reqtype);
+ int hid_hw_raw_request(struct hid_device *hdev,
+ 		       unsigned char reportnum, __u8 *buf,
+-		       size_t len, enum hid_report_type rtype, int reqtype);
++		       size_t len, enum hid_report_type rtype,
++		       enum hid_class_request reqtype);
+ int hid_hw_output_report(struct hid_device *hdev, __u8 *buf, size_t len);
  
- 	if (test__start_subtest("destructive"))
- 		test_destructive();
-+
-+	if (test__start_subtest("get_mem"))
-+		test_get_mem();
- }
-diff --git a/tools/testing/selftests/bpf/progs/kfunc_call_test.c b/tools/testing/selftests/bpf/progs/kfunc_call_test.c
-index da7ae0ef9100..b4a98d17c2b6 100644
---- a/tools/testing/selftests/bpf/progs/kfunc_call_test.c
-+++ b/tools/testing/selftests/bpf/progs/kfunc_call_test.c
-@@ -14,6 +14,8 @@ extern void bpf_kfunc_call_test_pass1(struct prog_test_pass1 *p) __ksym;
- extern void bpf_kfunc_call_test_pass2(struct prog_test_pass2 *p) __ksym;
- extern void bpf_kfunc_call_test_mem_len_pass1(void *mem, int len) __ksym;
- extern void bpf_kfunc_call_test_mem_len_fail2(__u64 *mem, int len) __ksym;
-+extern int *bpf_kfunc_call_test_get_rdwr_mem(struct prog_test_ref_kfunc *p, const int rdwr_buf_size) __ksym;
-+extern int *bpf_kfunc_call_test_get_rdonly_mem(struct prog_test_ref_kfunc *p, const int rdonly_buf_size) __ksym;
+ /**
+@@ -1131,7 +1132,7 @@ static inline int hid_hw_power(struct hid_device *hdev, int level)
+  * @reqtype: hid request type
+  */
+ static inline int hid_hw_idle(struct hid_device *hdev, int report, int idle,
+-		int reqtype)
++		enum hid_class_request reqtype)
+ {
+ 	if (hdev->ll_driver->idle)
+ 		return hdev->ll_driver->idle(hdev, report, idle, reqtype);
+diff --git a/include/uapi/linux/hid.h b/include/uapi/linux/hid.h
+index b25b0bacaff2..a4dcb34386e3 100644
+--- a/include/uapi/linux/hid.h
++++ b/include/uapi/linux/hid.h
+@@ -58,12 +58,14 @@ enum hid_report_type {
+  * HID class requests
+  */
  
- SEC("tc")
- int kfunc_call_test2(struct __sk_buff *skb)
-@@ -128,4 +130,91 @@ int kfunc_syscall_test_fail(struct syscall_test_args *args)
- 	return 0;
- }
+-#define HID_REQ_GET_REPORT		0x01
+-#define HID_REQ_GET_IDLE		0x02
+-#define HID_REQ_GET_PROTOCOL		0x03
+-#define HID_REQ_SET_REPORT		0x09
+-#define HID_REQ_SET_IDLE		0x0A
+-#define HID_REQ_SET_PROTOCOL		0x0B
++enum hid_class_request {
++	HID_REQ_GET_REPORT		= 0x01,
++	HID_REQ_GET_IDLE		= 0x02,
++	HID_REQ_GET_PROTOCOL		= 0x03,
++	HID_REQ_SET_REPORT		= 0x09,
++	HID_REQ_SET_IDLE		= 0x0A,
++	HID_REQ_SET_PROTOCOL		= 0x0B,
++};
  
-+SEC("tc")
-+int kfunc_call_test_get_mem(struct __sk_buff *skb)
-+{
-+	struct prog_test_ref_kfunc *pt;
-+	unsigned long s = 0;
-+	int *p = NULL;
-+	int ret = 0;
-+
-+	pt = bpf_kfunc_call_test_acquire(&s);
-+	if (pt) {
-+		if (pt->a != 42 || pt->b != 108)
-+			ret = -1;
-+
-+		p = bpf_kfunc_call_test_get_rdwr_mem(pt, 2 * sizeof(int));
-+		if (p) {
-+			p[0] = 42;
-+			ret = p[1]; /* 108 */
-+		} else {
-+			ret = -1;
-+		}
-+
-+		if (ret >= 0) {
-+			p = bpf_kfunc_call_test_get_rdonly_mem(pt, 2 * sizeof(int));
-+			if (p)
-+				ret = p[0]; /* 42 */
-+			else
-+				ret = -1;
-+		}
-+
-+		bpf_kfunc_call_test_release(pt);
-+	}
-+	return ret;
-+}
-+
-+SEC("?tc")
-+int kfunc_call_test_get_mem_fail1(struct __sk_buff *skb)
-+{
-+	struct prog_test_ref_kfunc *pt;
-+	unsigned long s = 0;
-+	int *p = NULL;
-+	int ret = 0;
-+
-+	pt = bpf_kfunc_call_test_acquire(&s);
-+	if (pt) {
-+		if (pt->a != 42 || pt->b != 108)
-+			ret = -1;
-+
-+		p = bpf_kfunc_call_test_get_rdonly_mem(pt, 2 * sizeof(int));
-+		if (p)
-+			p[0] = 42; /* this is a read-only buffer, so -EACCES */
-+		else
-+			ret = -1;
-+
-+		bpf_kfunc_call_test_release(pt);
-+	}
-+	return ret;
-+}
-+
-+SEC("?tc")
-+int kfunc_call_test_get_mem_fail2(struct __sk_buff *skb)
-+{
-+	struct prog_test_ref_kfunc *pt;
-+	unsigned long s = 0;
-+	int *p = NULL;
-+	int ret = 0;
-+
-+	pt = bpf_kfunc_call_test_acquire(&s);
-+	if (pt) {
-+		if (pt->a != 42 || pt->b != 108)
-+			ret = -1;
-+
-+		p = bpf_kfunc_call_test_get_rdwr_mem(pt, 2 * sizeof(int));
-+		if (p) {
-+			p[0] = 42;
-+			ret = p[1]; /* 108 */
-+		} else {
-+			ret = -1;
-+		}
-+
-+		bpf_kfunc_call_test_release(pt);
-+	}
-+	if (p)
-+		ret = p[0]; /* p is not valid anymore */
-+
-+	return ret;
-+}
-+
- char _license[] SEC("license") = "GPL";
+ /*
+  * HID class descriptor types
 -- 
 2.36.1
 

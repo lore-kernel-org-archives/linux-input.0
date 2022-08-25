@@ -2,284 +2,113 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C426C676B3
-	for <linux-input@archiver.kernel.org>; Thu, 25 Aug 2022 15:02:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BBFBC1B0E9
+	for <linux-input@archiver.kernel.org>; Thu, 25 Aug 2022 16:00:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242584AbiHYPCv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 25 Aug 2022 11:02:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54148 "EHLO
+        id S242154AbiHYQAG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 25 Aug 2022 12:00:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242660AbiHYPCq (ORCPT
+        with ESMTP id S242920AbiHYQAE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 Aug 2022 11:02:46 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C507B69D6
-        for <linux-input@vger.kernel.org>; Thu, 25 Aug 2022 08:02:38 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id w19so40123652ejc.7
-        for <linux-input@vger.kernel.org>; Thu, 25 Aug 2022 08:02:37 -0700 (PDT)
+        Thu, 25 Aug 2022 12:00:04 -0400
+Received: from mail-oi1-x233.google.com (mail-oi1-x233.google.com [IPv6:2607:f8b0:4864:20::233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865485F49
+        for <linux-input@vger.kernel.org>; Thu, 25 Aug 2022 09:00:02 -0700 (PDT)
+Received: by mail-oi1-x233.google.com with SMTP id o184so23763751oif.13
+        for <linux-input@vger.kernel.org>; Thu, 25 Aug 2022 09:00:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc;
-        bh=JDSsnMBb5bGyEIsqOFE4oogNFTJPK6bYb53NB3jHEAk=;
-        b=Be2BaRurQZvcr8gg5hG1lcFg1H3YnBNusHA/x/vbqUI7kZqP4fpq3AGooHrdULWgQo
-         JzCEsl3P/1a2sU9LFPxFMRkjLUIlbbrAXJ+lzL6xlUz4bIJ+28zGWXGnHLcKav+kTO+U
-         eV6X9YmpUBEjswhLT4C4qM7FOWnM8ACCa2ZeZX4cBXEXfzeJWEwjCwr69OoqcGMbdd9P
-         pM6p0WaoSTpoqSuzipckFHDXD2Lx1p1pkcVH1qFtqjw1d0cs0zcqD2GvndO8SdIfB3L1
-         fdws4x0yohO1EuY3TyKmD99A5NPtkbhAvsSWNzYFdIKwf6qxRTXAVnlD8X5+YovPoeN8
-         kdiQ==
+        d=logitech.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc;
+        bh=SPdZxA+TEdiUaiUjaM70vGmaF74u8+aaEKbO12Z9gnY=;
+        b=NRrbnJJlHzEPkpqRqHD+0Etl3yA58yfSFan+22KRrVPm8kLVwNY5gIw7UFRBBoqttU
+         Fddf2pYe9AxZaDcP2yx8jLG8bYKHilegZdq7AD/p85CIIZv0HiZLhhCE5gOr3oJaNYTs
+         CpSkjTbIp1Xy79xLVrZHmuqSMaiu1/oT5u1WHRqhbkMRs+wRFFqhu7++TTfN3UE3Vhbk
+         PJCTF5+RLTQCez0a0g20NI6qRrJgQKPjNSzN1p8YoFFwzQ3oCkfC+UYyHjO+HaqtyBrr
+         bziWXrzZFK23KmT+YRCp6ZovLDo4sTx0uqeSy48ZYtak7K9IGk4yrjUpZL+uRbXfPkjP
+         +wwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc;
-        bh=JDSsnMBb5bGyEIsqOFE4oogNFTJPK6bYb53NB3jHEAk=;
-        b=ZRIsfSWsT/Mr6LLUJhJG7MXCNQSdlVEJOgUNpBAGejnn2+kutwTWUCYPLjyNhx916G
-         WuvcP2YCwlJsDVuP8rRf/6HXDUAjo90DFx4ViQFfpO4L9fU4L1HFYs45+TeKLNZ2rFo7
-         rfOO6yvCYm6eg5RAzgI31OrPUCuYe7ULGdPp4iM5K0bJSGyvmjYCB2SYZh6l7XG7BVOo
-         iswoO3qq6dWjITIH8nZUcEvwPsCqLyuk1zgUV0MscNaQpSQDi6tusuyjeppDYg8wHsMd
-         4Jw1Qil8IAZVaGg9QYZ8qBzsjy1aurTc7CJ25GKDlCe/+p4rtbevvOQAiaIovgB8/PwU
-         Wf8Q==
-X-Gm-Message-State: ACgBeo1ze5WHy7CdZarFZ3XpgB/V9utPj1KgmkTvN2nZT2pQ97DMPC1I
-        tiPRGXBLlEGjExh6Qhr0REglGQ==
-X-Google-Smtp-Source: AA6agR5w8EYyZM+LT9oNmJZ9c3AZmHgf221DS7nuO8bFYNFll050twW2UHRsMe/GbysTYYIFar4uEA==
-X-Received: by 2002:a17:907:75c9:b0:73d:c6b2:538c with SMTP id jl9-20020a17090775c900b0073dc6b2538cmr2750586ejc.432.1661439756325;
-        Thu, 25 Aug 2022 08:02:36 -0700 (PDT)
-Received: from blmsp.fritz.box ([2001:4090:a245:8020:2658:1f7c:362:3e99])
-        by smtp.gmail.com with ESMTPSA id r10-20020a17090609ca00b00732e3d94f4fsm2548771eje.124.2022.08.25.08.02.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Aug 2022 08:02:35 -0700 (PDT)
-From:   Markus Schneider-Pargmann <msp@baylibre.com>
-To:     Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Lee Jones <lee@kernel.org>, Tony Lindgren <tony@atomide.com>,
-        nm@ti.com, kristo@kernel.org
-Cc:     Jerome Neanne <jneanne@baylibre.com>, khilman@baylibre.com,
-        narmstrong@baylibre.com, j-keerthy@ti.com,
-        linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-        linux-omap@vger.kernel.org,
-        Markus Schneider-Pargmann <msp@baylibre.com>
-Subject: [PATCH v4 5/6] Input: Add tps65219 interrupt driven powerbutton
-Date:   Thu, 25 Aug 2022 17:02:23 +0200
-Message-Id: <20220825150224.826258-6-msp@baylibre.com>
-X-Mailer: git-send-email 2.37.2
-In-Reply-To: <20220825150224.826258-1-msp@baylibre.com>
-References: <20220825150224.826258-1-msp@baylibre.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc;
+        bh=SPdZxA+TEdiUaiUjaM70vGmaF74u8+aaEKbO12Z9gnY=;
+        b=WqCvam5cZA/QYRzkPgIOn5qYmQSwRzRfKKsUYbnRt7KGfyzmk1eohycbdNaKHsSBJJ
+         vW/KOdG8gEbnrUx8roiKuo5MRxuXSWPPkyrKEyLBSa0oK873Mf9uRaRa5nWl5y+cBgdu
+         BS+0bxMCXUAbxQ6kcrhlPYYgWLni6GyLUHSP7InVcaPmp+06DWYAjWsY+/Xiyp1scH96
+         AunjNah8eEorqnLrzmz2cbySY5n4g7L7rb98jvVczAO7ZKfMoizoGs/fFcTxHo03maMb
+         K6Vh04KqikMNVo+ogcY+O0+aNj+TX07ngwaV3eNzfZchAMgK1dIby0DVsv5p4q5ZGP1e
+         YEOw==
+X-Gm-Message-State: ACgBeo2/koqvgHXGXX0e2ZRKB5uhDldS9GY1oWkFNMFSqFW8mwFegmAx
+        bmSMvztX5/e3znumzhgA9zvtywj+f5UR8J/wFJx+0g==
+X-Google-Smtp-Source: AA6agR642r0h0C9eDWfwfMKBtI/dagMxoKPPpJ4df341DHxjrebMulK0od4dNSd7utHDPUXiyrvXPcag3dXfz3qmEro=
+X-Received: by 2002:aca:2110:0:b0:343:26cf:c6cf with SMTP id
+ 16-20020aca2110000000b0034326cfc6cfmr5891545oiz.276.1661443201756; Thu, 25
+ Aug 2022 09:00:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <4542beb149883ab5dfdcfd7f6bb4b516e5c1bcdb.camel@hadess.net>
+In-Reply-To: <4542beb149883ab5dfdcfd7f6bb4b516e5c1bcdb.camel@hadess.net>
+From:   Nestor Lopez Casado <nlopezcasad@logitech.com>
+Date:   Thu, 25 Aug 2022 17:59:35 +0200
+Message-ID: <CAE7qMrrj+rBzoAFf2FezqexgWNo+iSAd6b5NZwKFQ1C1zD_Qaw@mail.gmail.com>
+Subject: Re: [PATCH] HID: logitech-hidpp: Enable HID++ for all the Logitech
+ Bluetooth devices
+To:     Bastien Nocera <hadess@hadess.net>
+Cc:     =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@riseup.net>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org,
+        "Peter F. Patel-Schneider" <pfpschneider@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-TPS65219 has different interrupts compared to other TPS6521* chips.
-TPS65219 defines two interrupts for the powerbutton one for push and one
-for release.
+Adding Peter, as he maintains Solaar, one popular application that
+supports Logitech bluetooth devices.
+@Peter F. Patel-Schneider
+-nestor
 
-This driver is very simple in that it maps the push interrupt to a key
-input and the release interrupt to a key release.
-
-Signed-off-by: Markus Schneider-Pargmann <msp@baylibre.com>
-Signed-off-by: Jerome Neanne <jneanne@baylibre.com>
----
- drivers/input/misc/Kconfig              |  10 ++
- drivers/input/misc/Makefile             |   1 +
- drivers/input/misc/tps65219-pwrbutton.c | 149 ++++++++++++++++++++++++
- 3 files changed, 160 insertions(+)
- create mode 100644 drivers/input/misc/tps65219-pwrbutton.c
-
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index a18ab7358d8f..18d4a321e7ff 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -468,6 +468,16 @@ config INPUT_TPS65218_PWRBUTTON
- 	  To compile this driver as a module, choose M here. The module will
- 	  be called tps65218-pwrbutton.
- 
-+config INPUT_TPS65219_PWRBUTTON
-+	tristate "TPS65219 Power button driver"
-+	depends on MFD_TPS65219
-+	help
-+	  Say Y here if you want to enable power button reporting for
-+	  TPS65219 Power Management IC devices.
-+
-+	  To compile this driver as a module, choose M here. The module will
-+	  be called tps65219-pwrbutton.
-+
- config INPUT_AXP20X_PEK
- 	tristate "X-Powers AXP20X power button driver"
- 	depends on MFD_AXP20X
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 28dfc444f0a9..fe8f47402d12 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -78,6 +78,7 @@ obj-$(CONFIG_INPUT_SOC_BUTTON_ARRAY)	+= soc_button_array.o
- obj-$(CONFIG_INPUT_SPARCSPKR)		+= sparcspkr.o
- obj-$(CONFIG_INPUT_STPMIC1_ONKEY)  	+= stpmic1_onkey.o
- obj-$(CONFIG_INPUT_TPS65218_PWRBUTTON)	+= tps65218-pwrbutton.o
-+obj-$(CONFIG_INPUT_TPS65219_PWRBUTTON)	+= tps65219-pwrbutton.o
- obj-$(CONFIG_INPUT_TWL4030_PWRBUTTON)	+= twl4030-pwrbutton.o
- obj-$(CONFIG_INPUT_TWL4030_VIBRA)	+= twl4030-vibra.o
- obj-$(CONFIG_INPUT_TWL6040_VIBRA)	+= twl6040-vibra.o
-diff --git a/drivers/input/misc/tps65219-pwrbutton.c b/drivers/input/misc/tps65219-pwrbutton.c
-new file mode 100644
-index 000000000000..163b545d5a54
---- /dev/null
-+++ b/drivers/input/misc/tps65219-pwrbutton.c
-@@ -0,0 +1,149 @@
-+// SPDX-License-Identifier: GPL-2.0
-+//
-+// Driver for TPS65219 Push Button
-+//
-+// Copyright (C) 2022 BayLibre Incorporated - https://www.baylibre.com/
-+
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/mfd/tps65219.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
-+
-+struct tps65219_pwrbutton {
-+	struct device *dev;
-+	struct input_dev *idev;
-+	char phys[32];
-+};
-+
-+static irqreturn_t tps65219_pb_push_irq(int irq, void *_pwr)
-+{
-+	struct tps65219_pwrbutton *pwr = _pwr;
-+
-+	input_report_key(pwr->idev, KEY_POWER, 1);
-+	pm_wakeup_event(pwr->dev, 0);
-+	input_sync(pwr->idev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static irqreturn_t tps65219_pb_release_irq(int irq, void *_pwr)
-+{
-+	struct tps65219_pwrbutton *pwr = _pwr;
-+
-+	input_report_key(pwr->idev, KEY_POWER, 0);
-+	input_sync(pwr->idev);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int tps65219_pb_probe(struct platform_device *pdev)
-+{
-+	struct tps65219 *tps = dev_get_drvdata(pdev->dev.parent);
-+	struct device *dev = &pdev->dev;
-+	struct tps65219_pwrbutton *pwr;
-+	struct input_dev *idev;
-+	int error;
-+	int push_irq;
-+	int release_irq;
-+
-+	pwr = devm_kzalloc(dev, sizeof(*pwr), GFP_KERNEL);
-+	if (!pwr)
-+		return -ENOMEM;
-+
-+	idev = devm_input_allocate_device(dev);
-+	if (!idev)
-+		return -ENOMEM;
-+
-+	idev->name = pdev->name;
-+	snprintf(pwr->phys, sizeof(pwr->phys), "%s/input0",
-+		 pdev->name);
-+	idev->phys = pwr->phys;
-+	idev->dev.parent = dev;
-+	idev->id.bustype = BUS_I2C;
-+
-+	input_set_capability(idev, EV_KEY, KEY_POWER);
-+
-+	pwr->dev = dev;
-+	pwr->idev = idev;
-+	device_init_wakeup(dev, true);
-+
-+	push_irq = platform_get_irq(pdev, 0);
-+	if (push_irq < 0)
-+		return -EINVAL;
-+
-+	release_irq = platform_get_irq(pdev, 1);
-+	if (release_irq < 0)
-+		return -EINVAL;
-+
-+	error = devm_request_threaded_irq(dev, push_irq, NULL,
-+					  tps65219_pb_push_irq,
-+					  IRQF_ONESHOT,
-+					  dev->init_name, pwr);
-+	if (error) {
-+		dev_err(dev, "failed to request push IRQ #%d: %d\n", push_irq,
-+			error);
-+		return error;
-+	}
-+
-+	error = devm_request_threaded_irq(dev, release_irq, NULL,
-+					  tps65219_pb_release_irq,
-+					  IRQF_ONESHOT,
-+					  dev->init_name, pwr);
-+	if (error) {
-+		dev_err(dev, "failed to request release IRQ #%d: %d\n",
-+			release_irq, error);
-+		return error;
-+	}
-+
-+	error = input_register_device(idev);
-+	if (error) {
-+		dev_err(dev, "Can't register power button: %d\n", error);
-+		return error;
-+	}
-+
-+	/* Enable interrupts for the pushbutton */
-+	regmap_clear_bits(tps->regmap, TPS65219_REG_MASK_CONFIG,
-+			  TPS65219_REG_MASK_INT_FOR_PB_MASK);
-+
-+	/* Set PB/EN/VSENSE pin to be a pushbutton */
-+	regmap_update_bits(tps->regmap, TPS65219_REG_MFP_2_CONFIG,
-+			   TPS65219_MFP_2_EN_PB_VSENSE_MASK, TPS65219_MFP_2_PB);
-+
-+	return 0;
-+}
-+
-+static int tps65219_pb_remove(struct platform_device *pdev)
-+{
-+	struct tps65219 *tps = dev_get_drvdata(pdev->dev.parent);
-+
-+	/* Disable interrupt for the pushbutton */
-+	return regmap_update_bits(tps->regmap, TPS65219_REG_MASK_CONFIG,
-+				  TPS65219_REG_MASK_INT_FOR_PB_MASK,
-+				  TPS65219_REG_MASK_INT_FOR_PB_MASK);
-+}
-+
-+static const struct platform_device_id tps65219_pwrbtn_id_table[] = {
-+	{ "tps65219-pwrbutton", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(platform, tps65219_pwrbtn_id_table);
-+
-+static struct platform_driver tps65219_pb_driver = {
-+	.probe = tps65219_pb_probe,
-+	.remove = tps65219_pb_remove,
-+	.driver = {
-+		.name = "tps65219_pwrbutton",
-+	},
-+	.id_table = tps65219_pwrbtn_id_table,
-+};
-+module_platform_driver(tps65219_pb_driver);
-+
-+MODULE_DESCRIPTION("TPS65219 Power Button");
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Markus Schneider-Pargmann <msp@baylibre.com");
--- 
-2.37.2
-
+On Thu, Aug 25, 2022 at 2:29 PM Bastien Nocera <hadess@hadess.net> wrote:
+>
+> Probe for HID++ support over Bluetooth for all the Logitech Bluetooth
+> devices. As Logitech doesn't have a list of Bluetooth devices that
+> support HID++ over Bluetooth, probe every device. The HID++ driver
+> will fall back to plain HID if the device does not support HID++.
+>
+> Note that this change might cause upower to export 2 batteries for
+> certain Bluetooth LE devices which export their battery information
+> through the Bluetooth BATT profile. This particular bug is tracked at:
+> https://gitlab.freedesktop.org/upower/upower/-/issues/166
+>
+> Tested with a Logitech Signature M650 mouse, over Bluetooth
+>
+> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> ---
+>
+> Note that I could not test whether the Harmony PS3 (handled in hid-sony.c)
+> or DiNovo Edge keyboard (handled in hid-input.c) devices would correctly fallback
+> to those drivers in that case.
+>
+> Ways to test this would be appreciated (or merge this, and wait for feedback...)
+>
+>  drivers/hid/hid-logitech-hidpp.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index 81de88ab2ecc..86e7a38d8a9a 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -4347,6 +4347,9 @@ static const struct hid_device_id hidpp_devices[] = {
+>         { /* MX Master 3 mouse over Bluetooth */
+>           HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb023),
+>           .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
+> +
+> +       { /* And try to enable HID++ for all the Logitech Bluetooth devices */
+> +         HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_ANY, USB_VENDOR_ID_LOGITECH, HID_ANY_ID) },
+>         {}
+>  };
+>
+> --
+> 2.37.2
+>

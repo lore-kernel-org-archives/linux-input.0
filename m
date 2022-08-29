@@ -2,123 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 44A31ECAAD2
-	for <linux-input@archiver.kernel.org>; Mon, 29 Aug 2022 12:38:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30056ECAAD2
+	for <linux-input@archiver.kernel.org>; Mon, 29 Aug 2022 12:52:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbiH2Mia convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 29 Aug 2022 08:38:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47058 "EHLO
+        id S230099AbiH2MwC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 29 Aug 2022 08:52:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229986AbiH2MiP (ORCPT
+        with ESMTP id S230126AbiH2Mvg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 Aug 2022 08:38:15 -0400
-X-Greylist: delayed 1142 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 29 Aug 2022 05:22:09 PDT
-Received: from mslow1.mail.gandi.net (mslow1.mail.gandi.net [217.70.178.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C6026AD6
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2022 05:22:06 -0700 (PDT)
-Received: from relay4-d.mail.gandi.net (unknown [IPv6:2001:4b98:dc4:8::224])
-        by mslow1.mail.gandi.net (Postfix) with ESMTP id F0763C2D88
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2022 11:54:32 +0000 (UTC)
-Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id 963DDE0002;
-        Mon, 29 Aug 2022 11:52:22 +0000 (UTC)
-Message-ID: <cba8c6664c1fc91b784f4b9e21fe1a2165c82dd1.camel@hadess.net>
-Subject: Re: [PATCH] HID: logitech-hidpp: Enable HID++ for all the Logitech
- Bluetooth devices
-From:   Bastien Nocera <hadess@hadess.net>
-To:     "Peter F. Patel-Schneider" <pfpschneider@gmail.com>,
-        Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc:     Filipe =?ISO-8859-1?Q?La=EDns?= <lains@riseup.net>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Date:   Mon, 29 Aug 2022 13:52:22 +0200
-In-Reply-To: <f285873c4cf0a0747db996bbca7e7d9234ce77fb.camel@gmail.com>
-References: <4542beb149883ab5dfdcfd7f6bb4b516e5c1bcdb.camel@hadess.net>
-         <CAE7qMrrj+rBzoAFf2FezqexgWNo+iSAd6b5NZwKFQ1C1zD_Qaw@mail.gmail.com>
-         <f285873c4cf0a0747db996bbca7e7d9234ce77fb.camel@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.44.4 (3.44.4-1.fc36) 
+        Mon, 29 Aug 2022 08:51:36 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A335E110E;
+        Mon, 29 Aug 2022 05:39:47 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id bh13so7582480pgb.4;
+        Mon, 29 Aug 2022 05:39:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc;
+        bh=fEf0pV+OPzHy8WyIpNckWTwEQxjCvSHSf17d7p43mVU=;
+        b=ZK8+SgTptYbuWhsIQyc6mEDrMmMcX2Z3gctBdrB9CEw7Cml/ejjlEXJLihW9Wj0NqA
+         JvczC7vdOAKZAoT4RMmvyJrVPIBBrr+o4VpQLQsclugES8Gld1qfMGxAAPTSESuMCBVw
+         XBamqkyWNn24zWtFcU51g+ajQfbJga87E5IjtaFF1JaLIKccR9rpzWUaQGSsBRb4zePh
+         AS7HHIDP4Hv/PjaW520MNDKFdAiJWCxZwiQlxDOIvwDBLo48WAoJWPPXbKuVe6PgMx3g
+         N19c5fRqIiCGzMZF2DmexMoktbkdWtbuZubVLSuk7bw2n2TQfAdaDk2doerAidi6pmtR
+         VKKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc;
+        bh=fEf0pV+OPzHy8WyIpNckWTwEQxjCvSHSf17d7p43mVU=;
+        b=mBNcsadM7aBMX+Yst79Byi4FZX0ooSPAmkp4z0IyGS5aNENcpdJWrQ0G8EtEGXWToN
+         oXK/EnxJtwbAuR+TvehFlxx7R2k0tyUonHiuPFl7AU3/Kb8WBm073pijzrqpzloW0R72
+         q3udyNCSn1znn9WmIWoj4gu7tlTNygKAH+QmydOWihRT7Qhbtd3rzATdkBEkTa/6r2v8
+         xQ12s48WtzvGX1WyWvcX6LfpNWHnn20cF5hftVr0MXCpedEF8Y5dkkvddlty1rwvwGMf
+         m8BRJhYW32sKcKzBMvNv71HhqZ4k/njvVeMV54Z+45PSL4oXju0lIi2/PDKPC61cK5U8
+         fLkA==
+X-Gm-Message-State: ACgBeo0KW7Ey9T6IPaTjxlGFB/KNbVhH4U9wK/7aHXvW3FJbH8fviGih
+        DmRTLGT553VBeu27p8iIkv4=
+X-Google-Smtp-Source: AA6agR7mO1Griw3XzkfQsazvUPkd5+iIKjyWFO0U9q3nbsrJZ3tCdLWvl5uTaUpvpPClHTb0VqkFxg==
+X-Received: by 2002:a05:6a00:ad1:b0:530:2cb7:84de with SMTP id c17-20020a056a000ad100b005302cb784demr16584389pfl.3.1661776787078;
+        Mon, 29 Aug 2022 05:39:47 -0700 (PDT)
+Received: from localhost.localdomain ([193.203.214.57])
+        by smtp.gmail.com with ESMTPSA id b13-20020a170902650d00b0016be596c8afsm7367157plk.282.2022.08.29.05.39.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Aug 2022 05:39:46 -0700 (PDT)
+From:   cgel.zte@gmail.com
+X-Google-Original-From: cui.jinpeng2@zte.com.cn
+To:     djogorchock@gmail.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jinpeng Cui <cui.jinpeng2@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>
+Subject: [PATCH linux-next] HID: nintendo: remove redundant variables ret
+Date:   Mon, 29 Aug 2022 12:39:42 +0000
+Message-Id: <20220829123942.268598-1-cui.jinpeng2@zte.com.cn>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 2022-08-25 at 16:47 -0400, Peter F. Patel-Schneider wrote:
-> This patch will cause more use of a part of the driver that
-> constructs
-> messages that do not conform to the HID++ 2.0 specification.  This
-> makes now a good time to fix the parts of the driver that construct
-> non-conforming messages.  More information follows.
-> 
-> 
-> The Logitech HID++2.0 Draft Specification at
-> https://lekensteyn.nl/files/logitech/logitech_hidpp_2.0_specification_draft_2012-06-04.pdf
-> specifies (on pages 2 and 3) that the low-order nibble of the
-> function
-> (command) byte is non-zero.
-> 
-> The HID++ driver at
-> https://github.com/torvalds/linux/blob/master/drivers/hid/hid-logitech-hidpp.c
-> has 1 in that nibble for some commands, 
-> 
-> #define CMD_ROOT_GET_FEATURE                            0x01
-> #define CMD_ROOT_GET_PROTOCOL_VERSION                   0x11
-> 
-> #define CMD_GET_DEVICE_NAME_TYPE_GET_COUNT              0x01
-> #define CMD_GET_DEVICE_NAME_TYPE_GET_DEVICE_NAME        0x11
-> #define CMD_GET_DEVICE_NAME_TYPE_GET_TYPE               0x21
-> 
-> But other commands have zero in that nibble, namely
-> 
-> #define CMD_BATTERY_LEVEL_STATUS_GET_BATTERY_LEVEL_STATUS       0x00
-> #define CMD_BATTERY_LEVEL_STATUS_GET_BATTERY_CAPABILITY         0x10
-> 
-> #define CMD_BATTERY_VOLTAGE_GET_BATTERY_VOLTAGE 0x00
-> 
-> #define CMD_UNIFIED_BATTERY_GET_CAPABILITIES                    0x00
-> #define CMD_UNIFIED_BATTERY_GET_STATUS                          0x10
-> 
-> #define CMD_HI_RESOLUTION_SCROLLING_SET_HIGHRES_SCROLLING_MODE  0x10
-> 
-> #define CMD_HIRES_WHEEL_GET_WHEEL_CAPABILITY    0x00
-> #define CMD_HIRES_WHEEL_SET_WHEEL_MODE          0x20
-> 
-> #define CMD_SOLAR_SET_LIGHT_MEASURE                     0x00
-> 
-> #define CMD_TOUCHPAD_FW_ITEMS_SET                       0x10
+From: Jinpeng Cui <cui.jinpeng2@zte.com.cn>
 
-Sounds like none of those commands should have anything set in that
-lower nibble, but this patch should be enough to take care of either
-case. I don't know whether the "rap" commands are used at all for HID++
-2.0 commands, or just for HID++ 1.0.
+Return value directly from __joycon_hid_send() instead of
+getting value from redundant variable ret.
 
-Is the software ID something random that the software in question
-chooses? I chose 0x06 as we're at Linux version 6.0...
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Jinpeng Cui <cui.jinpeng2@zte.com.cn>
+---
+ drivers/hid/hid-nintendo.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 86e7a38d8a9a..4c430b24b6bc 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -41,6 +41,9 @@ module_param(disable_tap_to_click, bool, 0644);
- MODULE_PARM_DESC(disable_tap_to_click,
-        "Disable Tap-To-Click mode reporting for touchpads (only on the K400 currently).");
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index 6028af3c3aae..eee569998e02 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -1378,7 +1378,6 @@ static void joycon_parse_report(struct joycon_ctlr *ctlr,
  
-+/* Define a non-zero software ID to identify our own responses */
-+#define LINUX_KERNEL_SW_ID                     0x06
-+
- #define REPORT_ID_HIDPP_SHORT                  0x10
- #define REPORT_ID_HIDPP_LONG                   0x11
- #define REPORT_ID_HIDPP_VERY_LONG              0x12
-@@ -343,7 +346,7 @@ static int hidpp_send_fap_command_sync(struct hidpp_device *hidpp,
-        else
-                message->report_id = REPORT_ID_HIDPP_LONG;
-        message->fap.feature_index = feat_index;
--       message->fap.funcindex_clientid = funcindex_clientid;
-+       message->fap.funcindex_clientid = funcindex_clientid | LINUX_KERNEL_SW_ID;
-        memcpy(&message->fap.params, params, param_count);
+ static int joycon_send_rumble_data(struct joycon_ctlr *ctlr)
+ {
+-	int ret;
+ 	unsigned long flags;
+ 	struct joycon_rumble_output rumble_output = { 0 };
  
-        ret = hidpp_send_message_sync(hidpp, message, response);
+@@ -1403,9 +1402,8 @@ static int joycon_send_rumble_data(struct joycon_ctlr *ctlr)
+ 
+ 	joycon_enforce_subcmd_rate(ctlr);
+ 
+-	ret = __joycon_hid_send(ctlr->hdev, (u8 *)&rumble_output,
++	return __joycon_hid_send(ctlr->hdev, (u8 *)&rumble_output,
+ 				sizeof(rumble_output));
+-	return ret;
+ }
+ 
+ static void joycon_rumble_worker(struct work_struct *work)
+-- 
+2.25.1
 

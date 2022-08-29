@@ -2,89 +2,101 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4419DECAAD5
-	for <linux-input@archiver.kernel.org>; Mon, 29 Aug 2022 14:01:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2EB6ECAAD2
+	for <linux-input@archiver.kernel.org>; Mon, 29 Aug 2022 14:06:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbiH2OBe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 29 Aug 2022 10:01:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44266 "EHLO
+        id S230140AbiH2OGx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 29 Aug 2022 10:06:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229477AbiH2OBd (ORCPT
+        with ESMTP id S230110AbiH2OGx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 29 Aug 2022 10:01:33 -0400
-Received: from mail-io1-xd2c.google.com (mail-io1-xd2c.google.com [IPv6:2607:f8b0:4864:20::d2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D306D7CAA0
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2022 07:01:32 -0700 (PDT)
-Received: by mail-io1-xd2c.google.com with SMTP id z72so6576523iof.12
-        for <linux-input@vger.kernel.org>; Mon, 29 Aug 2022 07:01:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc;
-        bh=gJda1LJQ5FD9GLY+iaphVK4mNPFhGGPUjARDrfYCJc4=;
-        b=O0zjS3bO+FV8Pq8BR9FgR2E9v202xJckfTp19IbkRBTjNF71Ye9p69dPCh0zXrpTDB
-         9/HFEvMHuhc3/o5WSgRQ7no3xMfvC/mE/brsqg4w+jjQiIltj0YBuXWNRuFvaEvSUDrd
-         ewarG7+bTRs5umvoMTXNoPnYHWL9Y49Q+kCCessoElnVKhNgXMUBBPP8TWG34rmMjZ38
-         EDYmA6uo9exizvqcBTV0rAqGFyhRpHK8nX6e14kBwGK54ARP726B0RlJsnKdImteRhyU
-         QJJkEPda0OUCxNPvjY0VoqyMWkCfmc1AOoMPk55d0E5aWV9n1fvLxQTQOGcUVpnrVD2X
-         bDlw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc;
-        bh=gJda1LJQ5FD9GLY+iaphVK4mNPFhGGPUjARDrfYCJc4=;
-        b=WXfWU8axa7PiWLXmRpk6aTCsvnBHUrEfFI4OzUOFBFjv6PI/vIEvwXmaSG5+ZwsYhc
-         4ATQ5+CZ59gLDFOuZrp14yjdRIvsYhic7CYvMQqT3yecg+FEmU5iN8JNPfLTNmadis/8
-         FPTO8ERZ6Ntp/IuDVNU8X2l7fnmEXnSVoP3v2QIWSHHvMhyDftMsFHpjLV5PUYEYYaNi
-         CKZFTBjZ2sYtGNHXx/p6JVPJm29xJ1jSsb3BLpW8bnYvU2O4npFmdI+oSkqphNNWtCeb
-         ENM/l1NIoUpfaTlA0N3s1eX6LAVfI4uq/+b1pnaU+Hgnkp2Tk5Vnnxqq5XKiNDI9QvSX
-         hSmg==
-X-Gm-Message-State: ACgBeo3d3lBT2ZMgDf4VCGzefE4hYPtuopKOeBv9bejrGUOPFFZR1VkF
-        NAqtrN1MT2nPkR5LB8KKAkg=
-X-Google-Smtp-Source: AA6agR4IX4g2CQXdikQICczm1MUaiIZymEHzy0SuevKT7gVzqS1mSbPG3vFomRxHf0xUnoRB+rJ1Ow==
-X-Received: by 2002:a6b:610c:0:b0:688:820d:bd14 with SMTP id v12-20020a6b610c000000b00688820dbd14mr8368121iob.205.1661781692191;
-        Mon, 29 Aug 2022 07:01:32 -0700 (PDT)
-Received: from [192.168.0.27] ([204.237.49.50])
-        by smtp.gmail.com with ESMTPSA id o34-20020a027422000000b00349d0b0b67dsm4296583jac.120.2022.08.29.07.01.30
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Aug 2022 07:01:31 -0700 (PDT)
-Message-ID: <cf42d586-ba25-6c0c-eb59-a5301339db6c@gmail.com>
-Date:   Mon, 29 Aug 2022 10:01:29 -0400
+        Mon, 29 Aug 2022 10:06:53 -0400
+Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4BB7E303;
+        Mon, 29 Aug 2022 07:06:52 -0700 (PDT)
+Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
+        by mx0a-00128a01.pphosted.com (8.17.1.5/8.17.1.5) with ESMTP id 27TBH5qS015062;
+        Mon, 29 Aug 2022 09:15:10 -0400
+Received: from nwd2mta4.analog.com ([137.71.173.58])
+        by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 3j7d4843a3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 29 Aug 2022 09:15:10 -0400
+Received: from ASHBMBX9.ad.analog.com (ASHBMBX9.ad.analog.com [10.64.17.10])
+        by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 27TDF9RR019116
+        (version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+        Mon, 29 Aug 2022 09:15:09 -0400
+Received: from ASHBMBX9.ad.analog.com (10.64.17.10) by ASHBMBX9.ad.analog.com
+ (10.64.17.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Mon, 29 Aug
+ 2022 09:15:08 -0400
+Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx9.ad.analog.com
+ (10.64.17.10) with Microsoft SMTP Server id 15.2.986.14 via Frontend
+ Transport; Mon, 29 Aug 2022 09:15:08 -0400
+Received: from nsa.ad.analog.com ([10.44.3.68])
+        by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 27TDEeiQ026449;
+        Mon, 29 Aug 2022 09:15:01 -0400
+From:   =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
+To:     <linux-kernel@vger.kernel.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        <devicetree@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        <linux-input@vger.kernel.org>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>
+CC:     Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Michael Hennerich <michael.hennerich@analog.com>
+Subject: [PATCH v4 06/10] input: keyboard: adp5588-keys: do not check for irq presence
+Date:   Mon, 29 Aug 2022 15:15:49 +0200
+Message-ID: <20220829131553.690063-7-nuno.sa@analog.com>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20220829131553.690063-1-nuno.sa@analog.com>
+References: <20220829131553.690063-1-nuno.sa@analog.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: [PATCH] HID: logitech-hidpp: Enable HID++ for all the Logitech
- Bluetooth devices
-Content-Language: en-US
-To:     Bastien Nocera <hadess@hadess.net>,
-        Nestor Lopez Casado <nlopezcasad@logitech.com>
-Cc:     =?UTF-8?Q?Filipe_La=c3=adns?= <lains@riseup.net>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-References: <4542beb149883ab5dfdcfd7f6bb4b516e5c1bcdb.camel@hadess.net>
- <CAE7qMrrj+rBzoAFf2FezqexgWNo+iSAd6b5NZwKFQ1C1zD_Qaw@mail.gmail.com>
- <f285873c4cf0a0747db996bbca7e7d9234ce77fb.camel@gmail.com>
- <1c34957f0963138f8269d0839aca174a44e93276.camel@hadess.net>
-From:   "Peter F. Patel-Schneider" <pfpschneider@gmail.com>
-In-Reply-To: <1c34957f0963138f8269d0839aca174a44e93276.camel@hadess.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ADIRuleOP-NewSCL: Rule Triggered
+X-Proofpoint-GUID: GBjOUMR5HmnNAH9JWEE9i1T_DhgpSvaS
+X-Proofpoint-ORIG-GUID: GBjOUMR5HmnNAH9JWEE9i1T_DhgpSvaS
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.895,Hydra:6.0.517,FMLib:17.11.122.1
+ definitions=2022-08-29_07,2022-08-25_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ impostorscore=0 priorityscore=1501 bulkscore=0 clxscore=1015
+ malwarescore=0 lowpriorityscore=0 mlxlogscore=945 mlxscore=0 adultscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2207270000 definitions=main-2208290061
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Only partial documentation and I can't distribute it.
+There's no need for an extra check for 'client-irq'. Just let it fail when
+calling 'request_irq()'.
 
+Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+---
+ drivers/input/keyboard/adp5588-keys.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-peter
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 2b00bc0f174c..e716efbb2105 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -727,11 +727,6 @@ static int adp5588_probe(struct i2c_client *client,
+ 		return -EIO;
+ 	}
+ 
+-	if (!client->irq) {
+-		dev_err(&client->dev, "no IRQ?\n");
+-		return -EINVAL;
+-	}
+-
+ 	kpad = devm_kzalloc(&client->dev, sizeof(*kpad), GFP_KERNEL);
+ 	if (!kpad)
+ 		return -ENOMEM;
+-- 
+2.37.2
 
-
-On 8/29/22 09:45, Bastien Nocera wrote:
-> On Thu, 2022-08-25 at 16:47 -0400, Peter F. Patel-Schneider wrote:
->> PS: There is another HID++ 2.0 feature that reports battery
->> information, 0x1F20 ADC Measurement, but that is not in the driver
->> code.
-> Do you have documentation for this one?

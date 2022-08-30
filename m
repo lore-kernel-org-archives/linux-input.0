@@ -2,22 +2,22 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C57CECAAA1
-	for <linux-input@archiver.kernel.org>; Tue, 30 Aug 2022 11:40:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6B50C0502A
+	for <linux-input@archiver.kernel.org>; Tue, 30 Aug 2022 11:41:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230442AbiH3Lk5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 30 Aug 2022 07:40:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
+        id S231228AbiH3Lk6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 30 Aug 2022 07:40:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230435AbiH3Lkh (ORCPT
+        with ESMTP id S230444AbiH3Lki (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 30 Aug 2022 07:40:37 -0400
-Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [IPv6:2001:4b98:dc4:8::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117DAFE35D;
-        Tue, 30 Aug 2022 04:39:17 -0700 (PDT)
+        Tue, 30 Aug 2022 07:40:38 -0400
+Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [217.70.178.232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CED2786042;
+        Tue, 30 Aug 2022 04:39:15 -0700 (PDT)
 Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id 5CBEC200007;
-        Tue, 30 Aug 2022 11:39:14 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id C991120000F;
+        Tue, 30 Aug 2022 11:39:12 +0000 (UTC)
 From:   Bastien Nocera <hadess@hadess.net>
 To:     linux-input@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
@@ -25,9 +25,9 @@ Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
         =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
         Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: [v3 5/5] HID: logitech-hidpp: Remove hard-coded "Sw. Id." for HID++ 2.0 commands
-Date:   Tue, 30 Aug 2022 13:39:07 +0200
-Message-Id: <20220830113907.4886-5-hadess@hadess.net>
+Subject: [v3 4/5] HID: logitech-hidpp: Fix "Sw. Id." for HID++ 2.0 commands
+Date:   Tue, 30 Aug 2022 13:39:06 +0200
+Message-Id: <20220830113907.4886-4-hadess@hadess.net>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220830113907.4886-1-hadess@hadess.net>
 References: <20220830113907.4886-1-hadess@hadess.net>
@@ -37,58 +37,50 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some HID++ 2.0 commands had correctly set a non-zero software identifier
-directly as part of their function identifiers, but it's more correct to
-define the function identifier and the software identifier separately
-before combined them when the command is sent.
+Always set a non-zero "Sw. Id." in the lower nibble of the Function/ASE
+and Software Identifier byte in HID++ 2.0 commands.
 
-As this is now done in the previous commit, remove the hard-coded 0x1
-software identifiers in the function definitions.
+As per the "Protocol HID++2.0 essential features" section in
+https://lekensteyn.nl/files/logitech/logitech_hidpp_2.0_specification_draft_2012-06-04.pdf
+"
+Software identifier (4 bits, unsigned)
 
+A number uniquely defining the software that sends a request. The
+firmware must copy the software identifier in the response but does
+not use it in any other ways.
+
+0 Do not use (allows to distinguish a notification from a response).
+"
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215699
 Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/hid/hid-logitech-hidpp.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 9c8088d8879e..31e2ca97e0ad 100644
+index 98ebedb73d98..9c8088d8879e 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -859,8 +859,8 @@ static int hidpp_unifying_init(struct hidpp_device *hidpp)
- #define HIDPP_PAGE_ROOT					0x0000
- #define HIDPP_PAGE_ROOT_IDX				0x00
+@@ -41,6 +41,9 @@ module_param(disable_tap_to_click, bool, 0644);
+ MODULE_PARM_DESC(disable_tap_to_click,
+ 	"Disable Tap-To-Click mode reporting for touchpads (only on the K400 currently).");
  
--#define CMD_ROOT_GET_FEATURE				0x01
--#define CMD_ROOT_GET_PROTOCOL_VERSION			0x11
-+#define CMD_ROOT_GET_FEATURE				0x00
-+#define CMD_ROOT_GET_PROTOCOL_VERSION			0x10
++/* Define a non-zero software ID to identify our own requests */
++#define LINUX_KERNEL_SW_ID			0x06
++
+ #define REPORT_ID_HIDPP_SHORT			0x10
+ #define REPORT_ID_HIDPP_LONG			0x11
+ #define REPORT_ID_HIDPP_VERY_LONG		0x12
+@@ -343,7 +346,7 @@ static int hidpp_send_fap_command_sync(struct hidpp_device *hidpp,
+ 	else
+ 		message->report_id = REPORT_ID_HIDPP_LONG;
+ 	message->fap.feature_index = feat_index;
+-	message->fap.funcindex_clientid = funcindex_clientid;
++	message->fap.funcindex_clientid = funcindex_clientid | LINUX_KERNEL_SW_ID;
+ 	memcpy(&message->fap.params, params, param_count);
  
- static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
- 	u8 *feature_index, u8 *feature_type)
-@@ -937,9 +937,9 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- 
- #define HIDPP_PAGE_GET_DEVICE_NAME_TYPE			0x0005
- 
--#define CMD_GET_DEVICE_NAME_TYPE_GET_COUNT		0x01
--#define CMD_GET_DEVICE_NAME_TYPE_GET_DEVICE_NAME	0x11
--#define CMD_GET_DEVICE_NAME_TYPE_GET_TYPE		0x21
-+#define CMD_GET_DEVICE_NAME_TYPE_GET_COUNT		0x00
-+#define CMD_GET_DEVICE_NAME_TYPE_GET_DEVICE_NAME	0x10
-+#define CMD_GET_DEVICE_NAME_TYPE_GET_TYPE		0x20
- 
- static int hidpp_devicenametype_get_count(struct hidpp_device *hidpp,
- 	u8 feature_index, u8 *nameLength)
-@@ -1969,8 +1969,8 @@ static int hidpp_touchpad_fw_items_set(struct hidpp_device *hidpp,
- 
- #define HIDPP_PAGE_TOUCHPAD_RAW_XY			0x6100
- 
--#define CMD_TOUCHPAD_GET_RAW_INFO			0x01
--#define CMD_TOUCHPAD_SET_RAW_REPORT_STATE		0x21
-+#define CMD_TOUCHPAD_GET_RAW_INFO			0x00
-+#define CMD_TOUCHPAD_SET_RAW_REPORT_STATE		0x20
- 
- #define EVENT_TOUCHPAD_RAW_XY				0x00
- 
+ 	ret = hidpp_send_message_sync(hidpp, message, response);
 -- 
 2.37.2
 

@@ -2,22 +2,22 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3FCECC0502A
-	for <linux-input@archiver.kernel.org>; Tue, 30 Aug 2022 11:40:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C57CECAAA1
+	for <linux-input@archiver.kernel.org>; Tue, 30 Aug 2022 11:40:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230434AbiH3Lk4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 30 Aug 2022 07:40:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43816 "EHLO
+        id S230442AbiH3Lk5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 30 Aug 2022 07:40:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230362AbiH3Lkh (ORCPT
+        with ESMTP id S230435AbiH3Lkh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Tue, 30 Aug 2022 07:40:37 -0400
-Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [217.70.178.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCC8967458;
-        Tue, 30 Aug 2022 04:39:14 -0700 (PDT)
+Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [IPv6:2001:4b98:dc4:8::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117DAFE35D;
+        Tue, 30 Aug 2022 04:39:17 -0700 (PDT)
 Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id 6277620000B;
-        Tue, 30 Aug 2022 11:39:11 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 5CBEC200007;
+        Tue, 30 Aug 2022 11:39:14 +0000 (UTC)
 From:   Bastien Nocera <hadess@hadess.net>
 To:     linux-input@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
@@ -25,9 +25,9 @@ Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
         =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
         Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: [v3 3/5] HID: logitech-hidpp: Remove special-casing of Bluetooth devices
-Date:   Tue, 30 Aug 2022 13:39:05 +0200
-Message-Id: <20220830113907.4886-3-hadess@hadess.net>
+Subject: [v3 5/5] HID: logitech-hidpp: Remove hard-coded "Sw. Id." for HID++ 2.0 commands
+Date:   Tue, 30 Aug 2022 13:39:07 +0200
+Message-Id: <20220830113907.4886-5-hadess@hadess.net>
 X-Mailer: git-send-email 2.37.2
 In-Reply-To: <20220830113907.4886-1-hadess@hadess.net>
 References: <20220830113907.4886-1-hadess@hadess.net>
@@ -37,33 +37,58 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Now that all the Logitech Bluetooth devices are probed for HID++
-support, remove the handling of those 2 devices without any quirks, as
-they're duplicates.
+Some HID++ 2.0 commands had correctly set a non-zero software identifier
+directly as part of their function identifiers, but it's more correct to
+define the function identifier and the software identifier separately
+before combined them when the command is sent.
+
+As this is now done in the previous commit, remove the hard-coded 0x1
+software identifiers in the function definitions.
 
 Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/hid/hid-logitech-hidpp.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 641c897bf714..98ebedb73d98 100644
+index 9c8088d8879e..31e2ca97e0ad 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4350,13 +4350,9 @@ static const struct hid_device_id hidpp_devices[] = {
- 	{ /* MX5500 keyboard over Bluetooth */
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
- 	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
--	{ /* M-RCQ142 V470 Cordless Laser Mouse over Bluetooth */
--	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb008) },
- 	{ /* MX Master mouse over Bluetooth */
- 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012),
- 	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
--	{ /* MX Ergo trackball over Bluetooth */
--	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01d) },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e),
- 	  .driver_data = HIDPP_QUIRK_HI_RES_SCROLL_X2121 },
- 	{ /* MX Master 3 mouse over Bluetooth */
+@@ -859,8 +859,8 @@ static int hidpp_unifying_init(struct hidpp_device *hidpp)
+ #define HIDPP_PAGE_ROOT					0x0000
+ #define HIDPP_PAGE_ROOT_IDX				0x00
+ 
+-#define CMD_ROOT_GET_FEATURE				0x01
+-#define CMD_ROOT_GET_PROTOCOL_VERSION			0x11
++#define CMD_ROOT_GET_FEATURE				0x00
++#define CMD_ROOT_GET_PROTOCOL_VERSION			0x10
+ 
+ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
+ 	u8 *feature_index, u8 *feature_type)
+@@ -937,9 +937,9 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+ 
+ #define HIDPP_PAGE_GET_DEVICE_NAME_TYPE			0x0005
+ 
+-#define CMD_GET_DEVICE_NAME_TYPE_GET_COUNT		0x01
+-#define CMD_GET_DEVICE_NAME_TYPE_GET_DEVICE_NAME	0x11
+-#define CMD_GET_DEVICE_NAME_TYPE_GET_TYPE		0x21
++#define CMD_GET_DEVICE_NAME_TYPE_GET_COUNT		0x00
++#define CMD_GET_DEVICE_NAME_TYPE_GET_DEVICE_NAME	0x10
++#define CMD_GET_DEVICE_NAME_TYPE_GET_TYPE		0x20
+ 
+ static int hidpp_devicenametype_get_count(struct hidpp_device *hidpp,
+ 	u8 feature_index, u8 *nameLength)
+@@ -1969,8 +1969,8 @@ static int hidpp_touchpad_fw_items_set(struct hidpp_device *hidpp,
+ 
+ #define HIDPP_PAGE_TOUCHPAD_RAW_XY			0x6100
+ 
+-#define CMD_TOUCHPAD_GET_RAW_INFO			0x01
+-#define CMD_TOUCHPAD_SET_RAW_REPORT_STATE		0x21
++#define CMD_TOUCHPAD_GET_RAW_INFO			0x00
++#define CMD_TOUCHPAD_SET_RAW_REPORT_STATE		0x20
+ 
+ #define EVENT_TOUCHPAD_RAW_XY				0x00
+ 
 -- 
 2.37.2
 

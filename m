@@ -2,107 +2,175 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8230EECAAD4
-	for <linux-input@archiver.kernel.org>; Wed, 31 Aug 2022 13:43:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 190B8ECAAD4
+	for <linux-input@archiver.kernel.org>; Wed, 31 Aug 2022 14:37:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231406AbiHaNnK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 31 Aug 2022 09:43:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34824 "EHLO
+        id S231785AbiHaOhd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 31 Aug 2022 10:37:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231384AbiHaNnJ (ORCPT
+        with ESMTP id S229547AbiHaOhc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 Aug 2022 09:43:09 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C06CD127B;
-        Wed, 31 Aug 2022 06:43:07 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id c66so4183272pfc.10;
-        Wed, 31 Aug 2022 06:43:07 -0700 (PDT)
+        Wed, 31 Aug 2022 10:37:32 -0400
+Received: from mail-qv1-xf2e.google.com (mail-qv1-xf2e.google.com [IPv6:2607:f8b0:4864:20::f2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 089A565830
+        for <linux-input@vger.kernel.org>; Wed, 31 Aug 2022 07:37:31 -0700 (PDT)
+Received: by mail-qv1-xf2e.google.com with SMTP id j1so11183197qvv.8
+        for <linux-input@vger.kernel.org>; Wed, 31 Aug 2022 07:37:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc;
-        bh=QX+pK6pl51LdKNSDDQw1Lof7kBsf/PjbDKJj0w0kufU=;
-        b=MstNWsW/rd4BWnVxjuRvSSOPnjbd5+FGCvfiM9EtPwTb1rKQqMKE1g0y56Z/O2qOXL
-         KmuI1XlrmqqRLaw3gUVvtqDE5z2y1ZHARqdoG6gGJsab4Uj/nY8/Y4To03lJDNkEhu+c
-         ZnMNGHXINUTqolRFVbCftNiwX7casPkhcZGq3dLqVOCOCrjWVTTaYHyvvkz4jNRtiB/L
-         B9F4cEEZdjOjcNOIXzK8W2nhDOAPv4yqNyxTzEHNqbExfJTyYmHDAndE7E0LsAS6GA/B
-         SicjUg/qZq29h2IUu9WfN8+W7a9gZCFiZqxQRrI8EFH9saY+HGs1BxXBs/xuq0ldQ8hc
-         1ymQ==
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date;
+        bh=rnLojn8m5RIM9q/IHnLgW3r82z0fH67X9Nn6XLx+iP8=;
+        b=eP2EBWEyS5OceuUNbFWUUEhT+EaDji20F6lwBwaZaBxv8WpYTOUsYf0S6rmaThA347
+         0Ueh4D1zirBcr2kZkhBlN4xIzW5pRVT+G8+yhXfqg806chDbfySODQazELVomunSOhEm
+         zQH0SOBIDUDXqHRoSK4bYuBXgvQMaAqp35YUU=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc;
-        bh=QX+pK6pl51LdKNSDDQw1Lof7kBsf/PjbDKJj0w0kufU=;
-        b=raNALThCNOkYla6r3nR3JAGOKzllsyV/zAawe/3SUYV1ReDBqCnYqwIU602+6hURsF
-         Nt+4S+NOyNDbEYeDDCHoQS0qxOwEqrm7lbZn6RTBX3rfOvk12tl5AK9Qw0jFWAT4QInd
-         bjLSk4flCf0VtKTRevRRlf/upPT+vq2CYZwH973GBPlo+yNZIoXlENgsdoCV8pzuz9SB
-         kL8T4Ow99qe2UjgiKSuSRar66geZW/7264IN93VJZ17lF5vluMmbewgY+2JxQF2gyFZe
-         JVllPRCIbatsUoZQXqdlay+hDEIFZo7grlm7XPMdD7ewKrqQDWhcu4wtWHB1hSD653zC
-         Z+Gw==
-X-Gm-Message-State: ACgBeo24nSe/QRc62MM3Aj/zC41Sylq1IT0V1wZy1LBDQYibWs50i6jY
-        keRD2r3acFAoQyliwHJp+Q8=
-X-Google-Smtp-Source: AA6agR5LhvjAGAJAC1ejVM7dLx4XQes9u2zFghzTOqsZhZPlcA8t2SbOtphu9/fXDpMrGsTDyJr1aQ==
-X-Received: by 2002:a65:5688:0:b0:3c2:1015:988e with SMTP id v8-20020a655688000000b003c21015988emr22104168pgs.280.1661953387018;
-        Wed, 31 Aug 2022 06:43:07 -0700 (PDT)
-Received: from carlis-virtual-machine.localdomain ([156.236.96.164])
-        by smtp.gmail.com with ESMTPSA id a19-20020a170902ee9300b0016d773aae60sm7288858pld.19.2022.08.31.06.43.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 31 Aug 2022 06:43:06 -0700 (PDT)
-From:   Xuezhi Zhang <zhangxuezhi3@gmail.com>
-To:     erazor_de@users.sourceforge.net, jikos@kernel.org,
-        benjamin.tissoires@redhat.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        zhangxuezhi3@gmail.com, Xuezhi Zhang <zhangxuezhi1@coolpad.com>
-Subject: [PATCH] HID: roccat: convert sysfs snprintf to sysfs_emit
-Date:   Wed, 31 Aug 2022 21:43:02 +0800
-Message-Id: <20220831134302.366439-1-zhangxuezhi3@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=rnLojn8m5RIM9q/IHnLgW3r82z0fH67X9Nn6XLx+iP8=;
+        b=D3aOYaTXvmbqhmKm5ufnrV3jCxWYQ0vIgtVNfXV08Xg02GAWY04Swj1QH/eNPON785
+         iqpDWystjGg4Cy0z6Hh2GmF4rbfSEQUf0I4ZX5tR8ZF5mycHeKD/XxA1J6yZ9iKk5tNT
+         /1aiFzCg7IMuULtqONmPUZd0EJR4XvMIZuns90JwipW+PKPtHZ2cHpf0NXTOfTFiEXnX
+         Adj7MZiN0pJGqHudpHtvmRXlKY9Kya35u4OmbkT5Gw5eCSSh+ZBs7VTsvAFE8resKuax
+         aRZ5uPIE7jstTCuh66UK//jNW3J2Vt2nJQiAHSh+O8AO/ixhS8s5RH/aTcTKqDo2A9CX
+         XNIQ==
+X-Gm-Message-State: ACgBeo3w6961fcusdW19jaoj0sfyk79S+54AdZmgXphZ4Klr1qkN0wbf
+        MOKKvqLoYxVSGluB933bSdO5JKeYbU/60vTr
+X-Google-Smtp-Source: AA6agR4d0XV0nj40N0edMjqlGD3DRzm4grpjAkEdM9+FPPuZRVB/psfIc2pt7MPi+9j+uK00srTQng==
+X-Received: by 2002:a05:6214:2a8b:b0:499:5b9:748a with SMTP id jr11-20020a0562142a8b00b0049905b9748amr11736743qvb.70.1661956649696;
+        Wed, 31 Aug 2022 07:37:29 -0700 (PDT)
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com. [209.85.222.170])
+        by smtp.gmail.com with ESMTPSA id x22-20020a05620a449600b006af10bd3635sm10938906qkp.57.2022.08.31.07.37.22
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 31 Aug 2022 07:37:24 -0700 (PDT)
+Received: by mail-qk1-f170.google.com with SMTP id h27so10936117qkk.9
+        for <linux-input@vger.kernel.org>; Wed, 31 Aug 2022 07:37:22 -0700 (PDT)
+X-Received: by 2002:a05:620a:1650:b0:6bb:29b7:198c with SMTP id
+ c16-20020a05620a165000b006bb29b7198cmr15523438qko.552.1661956642390; Wed, 31
+ Aug 2022 07:37:22 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220830231541.1135813-1-rrangel@chromium.org> <Yw9LdxWQMpnzgFe/@smile.fi.intel.com>
+In-Reply-To: <Yw9LdxWQMpnzgFe/@smile.fi.intel.com>
+From:   Raul Rangel <rrangel@chromium.org>
+Date:   Wed, 31 Aug 2022 08:37:11 -0600
+X-Gmail-Original-Message-ID: <CAHQZ30BemtpHiZHOh+Wvh3N9wz5SSD9VdoQHNbArKhZUmudkwQ@mail.gmail.com>
+Message-ID: <CAHQZ30BemtpHiZHOh+Wvh3N9wz5SSD9VdoQHNbArKhZUmudkwQ@mail.gmail.com>
+Subject: Re: [PATCH 0/8] acpi: i2c: Use SharedAndWake and ExclusiveAndWake to
+ enable wake irq
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Linux ACPI <linux-acpi@vger.kernel.org>,
+        linux-input <linux-input@vger.kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Limonciello, Mario" <mario.limonciello@amd.com>,
+        Tim Van Patten <timvp@google.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alistair Francis <alistair@alistair23.me>,
+        Angela Czubak <acz@semihalf.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Bartosz Szczepanek <bsz@semihalf.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>, Len Brown <lenb@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Rob Herring <robh@kernel.org>, Wolfram Sang <wsa@kernel.org>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        "jingle.wu" <jingle.wu@emc.com.tw>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
+Interesting... The patch series is here:
+https://patchwork.kernel.org/project/linux-input/cover/20220830231541.11358=
+13-1-rrangel@chromium.org/
 
-Fix up all sysfs show entries to use sysfs_emit
+I'll look into why you only got added to 2 of the emails.
 
-Signed-off-by: Xuezhi Zhang <zhangxuezhi1@coolpad.com>
----
- drivers/hid/hid-roccat-pyra.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
-index 4fcc8e7d276f..8b4d2519d4c4 100644
---- a/drivers/hid/hid-roccat-pyra.c
-+++ b/drivers/hid/hid-roccat-pyra.c
-@@ -286,7 +286,7 @@ static ssize_t pyra_sysfs_show_actual_cpi(struct device *dev,
- {
- 	struct pyra_device *pyra =
- 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
--	return snprintf(buf, PAGE_SIZE, "%d\n", pyra->actual_cpi);
-+	return sysfs_emit(buf, "%d\n", pyra->actual_cpi);
- }
- static DEVICE_ATTR(actual_cpi, 0440, pyra_sysfs_show_actual_cpi, NULL);
- 
-@@ -303,7 +303,7 @@ static ssize_t pyra_sysfs_show_actual_profile(struct device *dev,
- 			&settings, PYRA_SIZE_SETTINGS);
- 	mutex_unlock(&pyra->pyra_lock);
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", settings.startup_profile);
-+	return sysfs_emit(buf, "%d\n", settings.startup_profile);
- }
- static DEVICE_ATTR(actual_profile, 0440, pyra_sysfs_show_actual_profile, NULL);
- static DEVICE_ATTR(startup_profile, 0440, pyra_sysfs_show_actual_profile, NULL);
-@@ -324,7 +324,7 @@ static ssize_t pyra_sysfs_show_firmware_version(struct device *dev,
- 			&info, PYRA_SIZE_INFO);
- 	mutex_unlock(&pyra->pyra_lock);
- 
--	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
-+	return sysfs_emit(buf, "%d\n", info.firmware_version);
- }
- static DEVICE_ATTR(firmware_version, 0440, pyra_sysfs_show_firmware_version,
- 		   NULL);
--- 
-2.25.1
-
+On Wed, Aug 31, 2022 at 5:52 AM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+>
+> On Tue, Aug 30, 2022 at 05:15:33PM -0600, Raul E Rangel wrote:
+> > Today, i2c drivers are making the assumption that their IRQs can also
+> > be used as wake IRQs. This isn't always the case and it can lead to
+> > spurious wakes. This has recently started to affect AMD Chromebooks.
+> > With the introduction of
+> > d62bd5ce12d7 ("pinctrl: amd: Implement irq_set_wake"), the AMD GPIO
+> > controller gained the capability to set the wake bit on each GPIO. The
+> > ACPI specification defines two ways to inform the system if a device is
+> > wake capable:
+> > 1) The _PRW object defines the GPE that can be used to wake the system.
+> > 2) Setting ExclusiveAndWake or SharedAndWake in the _CRS GpioInt.
+> >
+> > Currently only the first method is supported. The i2c drivers don't hav=
+e
+> > any indication that the IRQ is wake capable, so they guess. This causes
+> > spurious interrupts, for example:
+> > * We have an ACPI HID device that has `_PR0` and `_PR3`. It doesn't hav=
+e
+> >   `_PRW` or `ExclusiveAndWake` so that means the device can't wake the
+> >   system.
+> > * The IRQ line is active level low for this device and is pulled up by
+> >   the power resource defined in `_PR0`/`_PR3`.
+> > * The i2c driver will (incorrectly) arm the GPIO for wake by calling
+> >   `enable_irq_wake` as part of its suspend hook.
+> > * ACPI will power down the device since it doesn't have a wake GPE
+> >   associated with it.
+> > * When the device is powered down, the IRQ line will drop, and it will
+> >   trigger a wake event.
+> >
+> > See the following debug log:
+> > [   42.335804] PM: Suspending system (s2idle)
+> > [   42.340186] amd_gpio AMD0030:00: RX: Setting wake for pin 89 to enab=
+le
+> > [   42.467736]     power-0416 __acpi_power_off      : Power resource [P=
+R00] turned off
+> > [   42.467739] device_pm-0280 device_set_power      : Device [H05D] tra=
+nsitioned to D3cold
+> > [   42.475210] PM: pm_system_irq_wakeup: 11 triggered pinctrl_amd
+> > [   42.535293] PM: Wakeup unrelated to ACPI SCI
+> > [   42.535294] PM: resume from suspend-to-idle
+> >
+> > In order to fix this, we need to take into account the wake capable bit
+> > defined on the GpioInt. This is accomplished by:
+> > * Migrating some of the i2c drivers over to using the PM subsystem to
+> >   manage the wake IRQ. max8925-i2c, elants_i2c, and raydium_i2c_ts stil=
+l
+> >   need to be migrated, I can do that depending on the feedback to this
+> >   patch series.
+> > * Expose the wake_capable bit from the ACPI GpioInt resource to the
+> >   i2c core.
+> > * Use the wake_capable bit in the i2c core to call
+> >   `dev_pm_set_wake_irq`. This reuses the existing device tree flow.
+> > * Make the i2c drivers stop calling `dev_pm_set_wake_irq` since it's no=
+w
+> >   handled by the i2c core.
+> > * Make the ACPI device PM system aware of the wake_irq. This is
+> >   necessary so the device doesn't incorrectly get powered down when a
+> >   wake_irq is enabled.
+> >
+> > I've tested this code with various combinations of having _PRW,
+> > ExclusiveAndWake and power resources all defined or not defined, but it
+> > would be great if others could test this out on their hardware.
+>
+> I have got only cover letter and a single patch (#3). What's going on?
+>
+> Note: I'm also reviewer of I=E6=B6=8E DesignWare driver, you really have =
+to
+> fix your tools / submission process and try again. No review for this
+> series.
+>
+> --
+> With Best Regards,
+> Andy Shevchenko
+>
+>

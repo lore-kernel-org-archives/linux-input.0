@@ -2,73 +2,192 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D665ECAAD4
-	for <linux-input@archiver.kernel.org>; Wed, 31 Aug 2022 14:46:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A8247ECAAD4
+	for <linux-input@archiver.kernel.org>; Wed, 31 Aug 2022 15:19:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbiHaOqf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 31 Aug 2022 10:46:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35962 "EHLO
+        id S231698AbiHaPTK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 31 Aug 2022 11:19:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59166 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230457AbiHaOqd (ORCPT
+        with ESMTP id S230181AbiHaPTI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 Aug 2022 10:46:33 -0400
-X-Greylist: delayed 1201 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 31 Aug 2022 07:46:29 PDT
-Received: from smtp-out-04.comm2000.it (smtp-out-04.comm2000.it [212.97.32.67])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F6A4CD787;
-        Wed, 31 Aug 2022 07:46:27 -0700 (PDT)
-Received: from gaggiata.pivistrello.it (93-49-2-63.ip317.fastwebnet.it [93.49.2.63])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: francesco@dolcini.it)
-        by smtp-out-04.comm2000.it (Postfix) with ESMTPSA id 99D4CBC3523;
-        Wed, 31 Aug 2022 16:09:11 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailserver.it;
-        s=mailsrv; t=1661954951;
-        bh=WFwevAUNYHXoiwaArC/0UBzceD8ZT+ESgHntaya0Irw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=hwUBejTQyeYqeMyOJi+A720R5zpJOEOuTQFcM7Hlun0+1LmhBtsfxwqklNevyUjbr
-         2ijTkaoefKNbJ1CD4BxinA1kb82Vx4QXrZEICkWwUsAWSnlK1fxxcW2HIOUU7L/eHu
-         fe1RsjWZuH9dgQ0VlZxF3ojL1Kv+WxJFQE5xKnDhiR2gRUxHfi6IoO7YBylw5vLZPU
-         pQ1RVO4xDcC6viPWDyaQSnXQrPUzyII4xc86SuxI9OjYp8Vl9IJREHvnmfIdmSMkMk
-         Lzc1ya2R9V1O/ZpvS8DTfh1trNdi9iRxUxWFA7ANDsC15SxL1c2ahTiPW4dMvepGwi
-         IE+Eyl5EgBs7A==
-Received: by gaggiata.pivistrello.it (Postfix, from userid 1000)
-        id 5A6EB7F82D; Wed, 31 Aug 2022 16:09:11 +0200 (CEST)
-Date:   Wed, 31 Aug 2022 16:09:11 +0200
-From:   Francesco Dolcini <francesco@dolcini.it>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>
-Subject: Re: [PATCH v1 0/2] Input: touchscreen: Minor colibri-vf50-ts cleanups
-Message-ID: <Yw9rh7L3QecetL7m@gaggiata.pivistrello.it>
-References: <20220712101619.326120-1-francesco.dolcini@toradex.com>
+        Wed, 31 Aug 2022 11:19:08 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4F5FD87D1
+        for <linux-input@vger.kernel.org>; Wed, 31 Aug 2022 08:19:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1661959144;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=4Ujg0LqL4Zf7QSMNntgyL7zhBHA2KE0VEhGl9dm9Aa8=;
+        b=e8G3+XfObMLlbixQE9WG7buL5K5FL+tdzU029ovwh0vSDsh4IBoOQBNhdg5g0u2lwLg88a
+        kyoI6Oj4WlxK5XxdlxrOA3QY5PNUvmNxM8+4+ZpdVlzGCfXywAf3GijAk3yHAH22HT1q4s
+        lHTh0a2BmzpIk3y1XjmdDmG5orHx6kA=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-458-z4Dq0sEsOVywLNux4lvBrA-1; Wed, 31 Aug 2022 11:19:02 -0400
+X-MC-Unique: z4Dq0sEsOVywLNux4lvBrA-1
+Received: by mail-ej1-f69.google.com with SMTP id gn30-20020a1709070d1e00b0074144af99d1so4673597ejc.17
+        for <linux-input@vger.kernel.org>; Wed, 31 Aug 2022 08:19:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc;
+        bh=4Ujg0LqL4Zf7QSMNntgyL7zhBHA2KE0VEhGl9dm9Aa8=;
+        b=RR4yStJFIqICZI9o6m7YDTnrOKSH3iirHLoppsP7SUjzWweTsr0JC+8MGiWdQbjOsG
+         WlyUnqHw+MJbocNiDcbKnjg7vu/QJxzDec7KheiFOfGq4gCwKsKlZ8C85F7OZy6FWrFR
+         F+5rgYIhJ13RJrmMWFZBZSfDA+QHN74dRU+Eqk51ZHGmI4icror2wt9wIQD+sxPC0DMX
+         65GjPjA1GpV4lYlDu3o761bpN8Loz8kTgIuN256IVyd5Q22LyuyBpf6dsxzqCBtEh+rM
+         8Gb+mXwCGgSgrCLnKbObDBuv+wcx69XfjvW0qQFWJTjU+SP3WOcmM+BNTD+PDBI6Y/9Y
+         7lcg==
+X-Gm-Message-State: ACgBeo2cf4uZnbQh6I85XUngXaTqBWuhMJjT+yfSYMGdU1rGlvuJmmqU
+        Up6nIRm6dOLLs/j+tklcoP2A1TRF10mRnVSYsav7M7S4GixnmfWGQR8AHrxTRlcONIG4dHDX4dS
+        72expB/4LPAoDtER/LSj48ks=
+X-Received: by 2002:a05:6402:1013:b0:448:dc53:752e with SMTP id c19-20020a056402101300b00448dc53752emr6030303edu.30.1661959141259;
+        Wed, 31 Aug 2022 08:19:01 -0700 (PDT)
+X-Google-Smtp-Source: AA6agR6FlKsO4zgVlNGD3cI2hGVtIC9Q8ir2eq28ILAW4L6wdIHEW/bWr5ocfIhSZ2PI7kbJ+ZZKOA==
+X-Received: by 2002:a05:6402:1013:b0:448:dc53:752e with SMTP id c19-20020a056402101300b00448dc53752emr6030275edu.30.1661959140988;
+        Wed, 31 Aug 2022 08:19:00 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c1e:bf00:d69d:5353:dba5:ee81? (2001-1c00-0c1e-bf00-d69d-5353-dba5-ee81.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:d69d:5353:dba5:ee81])
+        by smtp.gmail.com with ESMTPSA id u16-20020a170906125000b0073d6093ac93sm7359153eja.16.2022.08.31.08.19.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 31 Aug 2022 08:19:00 -0700 (PDT)
+Message-ID: <8aa159a1-f7e0-e54a-6a03-b76c563c62a6@redhat.com>
+Date:   Wed, 31 Aug 2022 17:18:59 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220712101619.326120-1-francesco.dolcini@toradex.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: [PATCH 0/8] acpi: i2c: Use SharedAndWake and ExclusiveAndWake to
+ enable wake irq
+Content-Language: en-US
+To:     Raul Rangel <rrangel@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Linux ACPI <linux-acpi@vger.kernel.org>,
+        linux-input <linux-input@vger.kernel.org>,
+        "Limonciello, Mario" <mario.limonciello@amd.com>,
+        Tim Van Patten <timvp@google.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Alistair Francis <alistair@alistair23.me>,
+        Angela Czubak <acz@semihalf.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Bartosz Szczepanek <bsz@semihalf.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>, Len Brown <lenb@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Rob Herring <robh@kernel.org>, Wolfram Sang <wsa@kernel.org>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        "jingle.wu" <jingle.wu@emc.com.tw>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "open list:I2C SUBSYSTEM HOST DRIVERS" <linux-i2c@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+References: <20220830231541.1135813-1-rrangel@chromium.org>
+ <Yw9LdxWQMpnzgFe/@smile.fi.intel.com>
+ <CAHQZ30BemtpHiZHOh+Wvh3N9wz5SSD9VdoQHNbArKhZUmudkwQ@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <CAHQZ30BemtpHiZHOh+Wvh3N9wz5SSD9VdoQHNbArKhZUmudkwQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello all,
+Hi,
 
-On Tue, Jul 12, 2022 at 12:16:17PM +0200, Francesco Dolcini wrote:
-> Hi all,
-> This series introduce some minor cleanups on colibri-vf50-ts, allow using it
-> with any IIO ADC input and fix a couple of mistakes in the dt-bindings
-> documentation.
+On 8/31/22 16:37, Raul Rangel wrote:
+> Interesting... The patch series is here:
+> https://patchwork.kernel.org/project/linux-input/cover/20220830231541.1135813-1-rrangel@chromium.org/
 > 
-> Max Krummenacher (2):
->   Input: touchscreen: colibri-vf50-ts: don't depend on VF610_ADC
->   dt-bindings: input: colibri-vf50-ts: Improve documentation
+> I'll look into why you only got added to 2 of the emails.
+
+FWIW I also received the full series without problems.
+
+I'll try to reply to this soon-ish, but I have a bit of
+a patch backlog to process and I'm trying to process
+the backlog in FIFO order and this is one of the last
+series in the backlog ...
+
+Regards,
+
+Hans
+
+
 > 
->  .../input/touchscreen/colibri-vf50-ts.txt        | 16 ++++++++--------
->  drivers/input/touchscreen/Kconfig                |  2 +-
->  2 files changed, 9 insertions(+), 9 deletions(-)
+> On Wed, Aug 31, 2022 at 5:52 AM Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+>>
+>> On Tue, Aug 30, 2022 at 05:15:33PM -0600, Raul E Rangel wrote:
+>>> Today, i2c drivers are making the assumption that their IRQs can also
+>>> be used as wake IRQs. This isn't always the case and it can lead to
+>>> spurious wakes. This has recently started to affect AMD Chromebooks.
+>>> With the introduction of
+>>> d62bd5ce12d7 ("pinctrl: amd: Implement irq_set_wake"), the AMD GPIO
+>>> controller gained the capability to set the wake bit on each GPIO. The
+>>> ACPI specification defines two ways to inform the system if a device is
+>>> wake capable:
+>>> 1) The _PRW object defines the GPE that can be used to wake the system.
+>>> 2) Setting ExclusiveAndWake or SharedAndWake in the _CRS GpioInt.
+>>>
+>>> Currently only the first method is supported. The i2c drivers don't have
+>>> any indication that the IRQ is wake capable, so they guess. This causes
+>>> spurious interrupts, for example:
+>>> * We have an ACPI HID device that has `_PR0` and `_PR3`. It doesn't have
+>>>   `_PRW` or `ExclusiveAndWake` so that means the device can't wake the
+>>>   system.
+>>> * The IRQ line is active level low for this device and is pulled up by
+>>>   the power resource defined in `_PR0`/`_PR3`.
+>>> * The i2c driver will (incorrectly) arm the GPIO for wake by calling
+>>>   `enable_irq_wake` as part of its suspend hook.
+>>> * ACPI will power down the device since it doesn't have a wake GPE
+>>>   associated with it.
+>>> * When the device is powered down, the IRQ line will drop, and it will
+>>>   trigger a wake event.
+>>>
+>>> See the following debug log:
+>>> [   42.335804] PM: Suspending system (s2idle)
+>>> [   42.340186] amd_gpio AMD0030:00: RX: Setting wake for pin 89 to enable
+>>> [   42.467736]     power-0416 __acpi_power_off      : Power resource [PR00] turned off
+>>> [   42.467739] device_pm-0280 device_set_power      : Device [H05D] transitioned to D3cold
+>>> [   42.475210] PM: pm_system_irq_wakeup: 11 triggered pinctrl_amd
+>>> [   42.535293] PM: Wakeup unrelated to ACPI SCI
+>>> [   42.535294] PM: resume from suspend-to-idle
+>>>
+>>> In order to fix this, we need to take into account the wake capable bit
+>>> defined on the GpioInt. This is accomplished by:
+>>> * Migrating some of the i2c drivers over to using the PM subsystem to
+>>>   manage the wake IRQ. max8925-i2c, elants_i2c, and raydium_i2c_ts still
+>>>   need to be migrated, I can do that depending on the feedback to this
+>>>   patch series.
+>>> * Expose the wake_capable bit from the ACPI GpioInt resource to the
+>>>   i2c core.
+>>> * Use the wake_capable bit in the i2c core to call
+>>>   `dev_pm_set_wake_irq`. This reuses the existing device tree flow.
+>>> * Make the i2c drivers stop calling `dev_pm_set_wake_irq` since it's now
+>>>   handled by the i2c core.
+>>> * Make the ACPI device PM system aware of the wake_irq. This is
+>>>   necessary so the device doesn't incorrectly get powered down when a
+>>>   wake_irq is enabled.
+>>>
+>>> I've tested this code with various combinations of having _PRW,
+>>> ExclusiveAndWake and power resources all defined or not defined, but it
+>>> would be great if others could test this out on their hardware.
+>>
+>> I have got only cover letter and a single patch (#3). What's going on?
+>>
+>> Note: I'm also reviewer of I涎 DesignWare driver, you really have to
+>> fix your tools / submission process and try again. No review for this
+>> series.
+>>
+>> --
+>> With Best Regards,
+>> Andy Shevchenko
+>>
+>>
+> 
 
-Just a gently ping on this series, anything I should do?
-
-Francesco

@@ -2,41 +2,41 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD3EAC6FA91
-	for <linux-input@archiver.kernel.org>; Fri,  2 Sep 2022 13:59:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81232C6FA82
+	for <linux-input@archiver.kernel.org>; Fri,  2 Sep 2022 13:59:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237128AbiIBN7a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S237146AbiIBN7a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Fri, 2 Sep 2022 09:59:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35278 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237146AbiIBN6U (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2022 09:58:20 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EA54D6BA0
-        for <linux-input@vger.kernel.org>; Fri,  2 Sep 2022 06:31:10 -0700 (PDT)
+        with ESMTP id S238743AbiIBN6n (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2022 09:58:43 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50332F3AC
+        for <linux-input@vger.kernel.org>; Fri,  2 Sep 2022 06:31:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662125406;
+        s=mimecast20190719; t=1662125454;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=j4qBKLySfPQVHMQUjMiaPGXilrpFISiM0maA60dAvgI=;
-        b=fkCD3aJlhizmtVEGIBJ9AFmJ3vhjIKxjmWRW7lWy7ClfWam9pGGlGWdn1ni66oe5U9C6Uj
-        2v2sOzTilb759q+lZzccw2vcOE9Y1s4+Ho4WQ448wSCDeqtnZyb23GG22CrT8O26wmVZf9
-        9V6ZG3VFCFpBLoaXUO2Rw8sWInhefzE=
+        bh=teGkuHK0vhjhVnB4Ew/D7w4/TKzFwbnEqXMwctOZxbw=;
+        b=Cuz6+FkfCdFXT3BHi3j42ZxrTmNbst1tHzbH9NqkGo3pgN74vzVDHmMLLfmsPZbbg1OVco
+        xWFMXe1ZyJDPL9st3WYbQAToIOzqNFaWhRC5IaRUReHf5HXkSNgNWc3P8wENWop41D6L//
+        lvoVXwnpMaGK9LkKQROdcO6Vbw16XSE=
 Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
  [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-399-mg7apc6_PUmczECuoXZ5RA-1; Fri, 02 Sep 2022 09:30:00 -0400
-X-MC-Unique: mg7apc6_PUmczECuoXZ5RA-1
+ us-mta-578-JXcmZ_DMNniMjKLRkp4uFw-1; Fri, 02 Sep 2022 09:30:52 -0400
+X-MC-Unique: JXcmZ_DMNniMjKLRkp4uFw-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A15DB2919EC0;
-        Fri,  2 Sep 2022 13:29:59 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E4AF23C10158;
+        Fri,  2 Sep 2022 13:30:51 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.193.218])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CE0E6492C3B;
-        Fri,  2 Sep 2022 13:29:55 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id C2C2D492C3B;
+        Fri,  2 Sep 2022 13:30:48 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -55,9 +55,9 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v10 04/23] selftests/bpf: add test for accessing ctx from syscall program type
-Date:   Fri,  2 Sep 2022 15:29:19 +0200
-Message-Id: <20220902132938.2409206-5-benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v10 17/23] selftests/bpf: add tests for bpf_hid_hw_request
+Date:   Fri,  2 Sep 2022 15:29:32 +0200
+Message-Id: <20220902132938.2409206-18-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220902132938.2409206-1-benjamin.tissoires@redhat.com>
 References: <20220902132938.2409206-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -67,315 +67,283 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We need to also export the kfunc set to the syscall program type,
-and then add a couple of eBPF programs that are testing those calls.
-
-The first one checks for valid access, and the second one is OK
-from a static analysis point of view but fails at run time because
-we are trying to access outside of the allocated memory.
+Add tests for the newly implemented function.
+We test here only the GET_REPORT part because the other calls are pure
+HID protocol and won't infer the result of the test of the bpf hook.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-changes in v10:
-- use new definitions for tests in an array
-- add a new kfunc syscall_test_null_fail test
+no changes in v10
 
 no changes in v9
 
 no changes in v8
 
-changes in v7:
-- add 1 more case to ensure we can read the entire sizeof(ctx)
-- add a test case for when the context is NULL
+no changes in v7
 
-new in v6
+changes in v6:
+- fixed copy/paste in prog_tests when calling ASSERT_OK
+- removed the need for memcpy now that kfuncs can access ctx
+
+changes in v5:
+- use the new hid_bpf_allocate_context() API
+- remove the need for ctx_in for syscall TEST_RUN
+
+changes in v3:
+- use the new hid_get_data API
+- directly use HID_FEATURE_REPORT and HID_REQ_GET_REPORT from uapi
+
+changes in v2:
+- split the series by bpf/libbpf/hid/selftests and samples
 ---
- net/bpf/test_run.c                            |   1 +
- .../selftests/bpf/prog_tests/kfunc_call.c     | 128 ++++++++++++++++--
- .../selftests/bpf/progs/kfunc_call_fail.c     |  39 ++++++
- .../selftests/bpf/progs/kfunc_call_test.c     |  38 ++++++
- 4 files changed, 197 insertions(+), 9 deletions(-)
- create mode 100644 tools/testing/selftests/bpf/progs/kfunc_call_fail.c
+ tools/testing/selftests/bpf/prog_tests/hid.c | 114 ++++++++++++++++---
+ tools/testing/selftests/bpf/progs/hid.c      |  43 +++++++
+ 2 files changed, 139 insertions(+), 18 deletions(-)
 
-diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
-index 25d8ecf105aa..f16baf977a21 100644
---- a/net/bpf/test_run.c
-+++ b/net/bpf/test_run.c
-@@ -1634,6 +1634,7 @@ static int __init bpf_prog_test_run_init(void)
+diff --git a/tools/testing/selftests/bpf/prog_tests/hid.c b/tools/testing/selftests/bpf/prog_tests/hid.c
+index 47bc0a30c275..19172d3e0f44 100644
+--- a/tools/testing/selftests/bpf/prog_tests/hid.c
++++ b/tools/testing/selftests/bpf/prog_tests/hid.c
+@@ -77,12 +77,23 @@ static unsigned char rdesc[] = {
+ 	0xc0,			/* END_COLLECTION */
+ };
  
- 	ret = register_btf_kfunc_id_set(BPF_PROG_TYPE_SCHED_CLS, &bpf_prog_test_kfunc_set);
- 	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_TRACING, &bpf_prog_test_kfunc_set);
-+	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_SYSCALL, &bpf_prog_test_kfunc_set);
- 	return ret ?: register_btf_id_dtor_kfuncs(bpf_prog_test_dtor_kfunc,
- 						  ARRAY_SIZE(bpf_prog_test_dtor_kfunc),
- 						  THIS_MODULE);
-diff --git a/tools/testing/selftests/bpf/prog_tests/kfunc_call.c b/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
-index 21e347f46c93..84798979f3a7 100644
---- a/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
-+++ b/tools/testing/selftests/bpf/prog_tests/kfunc_call.c
-@@ -2,6 +2,7 @@
- /* Copyright (c) 2021 Facebook */
- #include <test_progs.h>
- #include <network_helpers.h>
-+#include "kfunc_call_fail.skel.h"
- #include "kfunc_call_test.skel.h"
- #include "kfunc_call_test_subprog.skel.h"
- #include "kfunc_call_test_subprog.lskel.h"
-@@ -9,27 +10,68 @@
- 
- #include "cap_helpers.h"
- 
-+static size_t log_buf_sz = 1048576; /* 1 MB */
-+static char obj_log_buf[1048576];
++static u8 feature_data[] = { 1, 2 };
 +
-+enum kfunc_test_type {
-+	tc_test = 0,
-+	syscall_test,
-+	syscall_null_ctx_test,
-+};
-+
- struct kfunc_test_params {
- 	const char *prog_name;
+ struct attach_prog_args {
+ 	int prog_fd;
+ 	unsigned int hid;
  	int retval;
-+	enum kfunc_test_type test_type;
-+	const char *expected_err_msg;
  };
  
- static struct kfunc_test_params kfunc_tests[] = {
--	{"kfunc_call_test1", 12},
--	{"kfunc_call_test2", 3},
--	{"kfunc_call_test_ref_btf_id", 0},
-+	/* failure cases:
-+	 * if retval is 0 -> the program will fail to load and the error message is an error
-+	 * if retval is not 0 -> the program can be loaded but running it will gives the
-+	 *                       provided return value. The error message is thus the one
-+	 *                       from a successful load
-+	 */
-+	{"kfunc_syscall_test_fail", -EINVAL, syscall_null_ctx_test, "processed 4 insns"},
-+	{"kfunc_syscall_test_null_fail", -EINVAL, syscall_null_ctx_test, "processed 4 insns"},
-+
-+	/* success cases */
-+	{"kfunc_call_test1", 12, tc_test, NULL},
-+	{"kfunc_call_test2", 3, tc_test, NULL},
-+	{"kfunc_call_test_ref_btf_id", 0, tc_test, NULL},
-+	{"kfunc_syscall_test", 0, syscall_test, NULL},
-+	{"kfunc_syscall_test_null", 0, syscall_null_ctx_test, NULL},
++struct hid_hw_request_syscall_args {
++	__u8 data[10];
++	unsigned int hid;
++	int retval;
++	size_t size;
++	enum hid_report_type type;
++	__u8 request_type;
 +};
 +
-+struct syscall_test_args {
-+	__u8 data[16];
-+	size_t size;
+ static pthread_mutex_t uhid_started_mtx = PTHREAD_MUTEX_INITIALIZER;
+ static pthread_cond_t uhid_started = PTHREAD_COND_INITIALIZER;
+ 
+@@ -142,7 +153,7 @@ static void destroy(int fd)
+ 
+ static int uhid_event(int fd)
+ {
+-	struct uhid_event ev;
++	struct uhid_event ev, answer;
+ 	ssize_t ret;
+ 
+ 	memset(&ev, 0, sizeof(ev));
+@@ -183,6 +194,15 @@ static int uhid_event(int fd)
+ 		break;
+ 	case UHID_GET_REPORT:
+ 		fprintf(stderr, "UHID_GET_REPORT from uhid-dev\n");
++
++		answer.type = UHID_GET_REPORT_REPLY;
++		answer.u.get_report_reply.id = ev.u.get_report.id;
++		answer.u.get_report_reply.err = ev.u.get_report.rnum == 1 ? 0 : -EIO;
++		answer.u.get_report_reply.size = sizeof(feature_data);
++		memcpy(answer.u.get_report_reply.data, feature_data, sizeof(feature_data));
++
++		uhid_write(fd, &answer);
++
+ 		break;
+ 	case UHID_SET_REPORT:
+ 		fprintf(stderr, "UHID_SET_REPORT from uhid-dev\n");
+@@ -391,6 +411,7 @@ static int open_hidraw(int dev_id)
+ struct test_params {
+ 	struct hid *skel;
+ 	int hidraw_fd;
++	int hid_id;
  };
  
- static void verify_success(struct kfunc_test_params *param)
- {
-+	LIBBPF_OPTS(bpf_test_run_opts, topts);
- 	struct kfunc_call_test *skel;
- 	struct bpf_program *prog;
- 	int prog_fd, err;
--	LIBBPF_OPTS(bpf_test_run_opts, topts,
--		.data_in = &pkt_v4,
--		.data_size_in = sizeof(pkt_v4),
--		.repeat = 1,
--	);
-+	struct syscall_test_args args = {
-+		.size = 10,
-+	};
-+
-+	switch (param->test_type) {
-+	case syscall_test:
-+		topts.ctx_in = &args;
-+		topts.ctx_size_in = sizeof(args);
-+		/* fallthrough */
-+	case syscall_null_ctx_test:
-+		break;
-+	case tc_test:
-+		topts.data_in = &pkt_v4;
-+		topts.data_size_in = sizeof(pkt_v4);
-+		topts.repeat = 1;
-+		break;
-+	}
+ static int prep_test(int dev_id, const char *prog_name, struct test_params *test_data)
+@@ -419,27 +440,33 @@ static int prep_test(int dev_id, const char *prog_name, struct test_params *test
+ 	if (!ASSERT_OK_PTR(hid_skel, "hid_skel_open"))
+ 		goto cleanup;
  
- 	skel = kfunc_call_test__open_and_load();
- 	if (!ASSERT_OK_PTR(skel, "skel"))
-@@ -50,6 +92,71 @@ static void verify_success(struct kfunc_test_params *param)
- 	kfunc_call_test__destroy(skel);
- }
+-	prog = bpf_object__find_program_by_name(*hid_skel->skeleton->obj, prog_name);
+-	if (!ASSERT_OK_PTR(prog, "find_prog_by_name"))
+-		goto cleanup;
++	if (prog_name) {
++		prog = bpf_object__find_program_by_name(*hid_skel->skeleton->obj, prog_name);
++		if (!ASSERT_OK_PTR(prog, "find_prog_by_name"))
++			goto cleanup;
  
-+static void verify_fail(struct kfunc_test_params *param)
-+{
-+	LIBBPF_OPTS(bpf_object_open_opts, opts);
-+	LIBBPF_OPTS(bpf_test_run_opts, topts);
-+	struct bpf_program *prog;
-+	struct kfunc_call_fail *skel;
-+	int prog_fd, err;
-+	struct syscall_test_args args = {
-+		.size = 10,
-+	};
-+
-+	opts.kernel_log_buf = obj_log_buf;
-+	opts.kernel_log_size = log_buf_sz;
-+	opts.kernel_log_level = 1;
-+
-+	switch (param->test_type) {
-+	case syscall_test:
-+		topts.ctx_in = &args;
-+		topts.ctx_size_in = sizeof(args);
-+		/* fallthrough */
-+	case syscall_null_ctx_test:
-+		break;
-+	case tc_test:
-+		topts.data_in = &pkt_v4;
-+		topts.data_size_in = sizeof(pkt_v4);
-+		break;
-+		topts.repeat = 1;
-+	}
-+
-+	skel = kfunc_call_fail__open_opts(&opts);
-+	if (!ASSERT_OK_PTR(skel, "kfunc_call_fail__open_opts"))
-+		goto cleanup;
-+
-+	prog = bpf_object__find_program_by_name(skel->obj, param->prog_name);
-+	if (!ASSERT_OK_PTR(prog, "bpf_object__find_program_by_name"))
-+		goto cleanup;
-+
-+	bpf_program__set_autoload(prog, true);
-+
-+	err = kfunc_call_fail__load(skel);
-+	if (!param->retval) {
-+		/* the verifier is supposed to complain and refuses to load */
-+		if (!ASSERT_ERR(err, "unexpected load success"))
-+			goto out_err;
-+
+-	bpf_program__set_autoload(prog, true);
++		bpf_program__set_autoload(prog, true);
+ 
+-	err = hid__load(hid_skel);
+-	if (!ASSERT_OK(err, "hid_skel_load"))
+-		goto cleanup;
++		err = hid__load(hid_skel);
++		if (!ASSERT_OK(err, "hid_skel_load"))
++			goto cleanup;
+ 
+-	attach_fd = bpf_program__fd(hid_skel->progs.attach_prog);
+-	if (!ASSERT_GE(attach_fd, 0, "locate attach_prog")) {
+-		err = attach_fd;
+-		goto cleanup;
+-	}
++		attach_fd = bpf_program__fd(hid_skel->progs.attach_prog);
++		if (!ASSERT_GE(attach_fd, 0, "locate attach_prog")) {
++			err = attach_fd;
++			goto cleanup;
++		}
+ 
+-	args.prog_fd = bpf_program__fd(prog);
+-	err = bpf_prog_test_run_opts(attach_fd, &tattr);
+-	snprintf(buf, sizeof(buf), "attach_hid(%s)", prog_name);
+-	if (!ASSERT_EQ(args.retval, 0, buf))
+-		goto cleanup;
++		args.prog_fd = bpf_program__fd(prog);
++		err = bpf_prog_test_run_opts(attach_fd, &tattr);
++		snprintf(buf, sizeof(buf), "attach_hid(%s)", prog_name);
++		if (!ASSERT_EQ(args.retval, 0, buf))
++			goto cleanup;
 +	} else {
-+		/* the program is loaded but must dynamically fail */
-+		if (!ASSERT_OK(err, "unexpected load error"))
-+			goto out_err;
-+
-+		prog_fd = bpf_program__fd(prog);
-+		err = bpf_prog_test_run_opts(prog_fd, &topts);
-+		if (!ASSERT_EQ(err, param->retval, param->prog_name))
-+			goto out_err;
++		err = hid__load(hid_skel);
++		if (!ASSERT_OK(err, "hid_skel_load"))
++			goto cleanup;
 +	}
-+
-+out_err:
-+	if (!ASSERT_OK_PTR(strstr(obj_log_buf, param->expected_err_msg), "expected_err_msg")) {
-+		fprintf(stderr, "Expected err_msg: %s\n", param->expected_err_msg);
-+		fprintf(stderr, "Verifier output: %s\n", obj_log_buf);
-+	}
-+cleanup:
-+	kfunc_call_fail__destroy(skel);
-+}
-+
- static void test_main(void)
- {
- 	int i;
-@@ -58,7 +165,10 @@ static void test_main(void)
- 		if (!test__start_subtest(kfunc_tests[i].prog_name))
- 			continue;
  
--		verify_success(&kfunc_tests[i]);
-+		if (!kfunc_tests[i].expected_err_msg)
-+			verify_success(&kfunc_tests[i]);
-+		else
-+			verify_fail(&kfunc_tests[i]);
- 	}
+ 	hidraw_fd = open_hidraw(dev_id);
+ 	if (!ASSERT_GE(hidraw_fd, 0, "open_hidraw"))
+@@ -447,6 +474,7 @@ static int prep_test(int dev_id, const char *prog_name, struct test_params *test
+ 
+ 	test_data->skel = hid_skel;
+ 	test_data->hidraw_fd = hidraw_fd;
++	test_data->hid_id = hid_id;
+ 
+ 	return 0;
+ 
+@@ -693,6 +721,54 @@ static int test_hid_change_report(int uhid_fd, int dev_id)
+ 	return ret;
  }
  
-diff --git a/tools/testing/selftests/bpf/progs/kfunc_call_fail.c b/tools/testing/selftests/bpf/progs/kfunc_call_fail.c
-new file mode 100644
-index 000000000000..4168027f2ab1
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/kfunc_call_fail.c
-@@ -0,0 +1,39 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/* Copyright (c) 2021 Facebook */
-+#include <vmlinux.h>
-+#include <bpf/bpf_helpers.h>
-+
-+extern void bpf_kfunc_call_test_mem_len_pass1(void *mem, int len) __ksym;
-+
-+struct syscall_test_args {
-+	__u8 data[16];
-+	size_t size;
-+};
-+
-+SEC("?syscall")
-+int kfunc_syscall_test_fail(struct syscall_test_args *args)
++/*
++ * Attach hid_user_raw_request to the given uhid device,
++ * call the bpf program from userspace
++ * check that the program is called and does the expected.
++ */
++static int test_hid_user_raw_request_call(int uhid_fd, int dev_id)
 +{
-+	bpf_kfunc_call_test_mem_len_pass1(&args->data, sizeof(*args) + 1);
++	struct test_params params;
++	int err, prog_fd;
++	int ret = -1;
++	struct hid_hw_request_syscall_args args = {
++		.retval = -1,
++		.type = HID_FEATURE_REPORT,
++		.request_type = HID_REQ_GET_REPORT,
++		.size = 10,
++	};
++	DECLARE_LIBBPF_OPTS(bpf_test_run_opts, tattrs,
++			    .ctx_in = &args,
++			    .ctx_size_in = sizeof(args),
++	);
 +
-+	return 0;
++	err = prep_test(dev_id, NULL, &params);
++	if (!ASSERT_EQ(err, 0, "prep_test()"))
++		goto cleanup;
++
++	args.hid = params.hid_id;
++	args.data[0] = 1; /* report ID */
++
++	prog_fd = bpf_program__fd(params.skel->progs.hid_user_raw_request);
++
++	err = bpf_prog_test_run_opts(prog_fd, &tattrs);
++	if (!ASSERT_EQ(err, 0, "bpf_prog_test_run_opts"))
++		goto cleanup;
++
++	if (!ASSERT_EQ(args.retval, 2, "bpf_prog_test_run_opts_retval"))
++		goto cleanup;
++
++	if (!ASSERT_EQ(args.data[1], 2, "hid_user_raw_request_check_in"))
++		goto cleanup;
++
++	ret = 0;
++
++cleanup:
++	cleanup_test(&params);
++
++	return ret;
 +}
 +
-+SEC("?syscall")
-+int kfunc_syscall_test_null_fail(struct syscall_test_args *args)
-+{
-+	/* Must be called with args as a NULL pointer
-+	 * we do not check for it to have the verifier consider that
-+	 * the pointer might not be null, and so we can load it.
-+	 *
-+	 * So the following can not be added:
-+	 *
-+	 * if (args)
-+	 *      return -22;
-+	 */
-+
-+	bpf_kfunc_call_test_mem_len_pass1(args, sizeof(*args));
-+
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
-diff --git a/tools/testing/selftests/bpf/progs/kfunc_call_test.c b/tools/testing/selftests/bpf/progs/kfunc_call_test.c
-index 5aecbb9fdc68..94c05267e5e7 100644
---- a/tools/testing/selftests/bpf/progs/kfunc_call_test.c
-+++ b/tools/testing/selftests/bpf/progs/kfunc_call_test.c
-@@ -92,4 +92,42 @@ int kfunc_call_test_pass(struct __sk_buff *skb)
+ void serial_test_hid_bpf(void)
+ {
+ 	int err, uhid_fd;
+@@ -720,6 +796,8 @@ void serial_test_hid_bpf(void)
+ 	ASSERT_OK(err, "hid_attach_detach");
+ 	err = test_hid_change_report(uhid_fd, dev_id);
+ 	ASSERT_OK(err, "hid_change_report");
++	err = test_hid_user_raw_request_call(uhid_fd, dev_id);
++	ASSERT_OK(err, "hid_user_raw_request");
+ 
+ 	destroy(uhid_fd);
+ 
+diff --git a/tools/testing/selftests/bpf/progs/hid.c b/tools/testing/selftests/bpf/progs/hid.c
+index ee7529c47ad8..fde76f63927b 100644
+--- a/tools/testing/selftests/bpf/progs/hid.c
++++ b/tools/testing/selftests/bpf/progs/hid.c
+@@ -10,6 +10,13 @@ extern __u8 *hid_bpf_get_data(struct hid_bpf_ctx *ctx,
+ 			      unsigned int offset,
+ 			      const size_t __sz) __ksym;
+ extern int hid_bpf_attach_prog(unsigned int hid_id, int prog_fd, u32 flags) __ksym;
++extern struct hid_bpf_ctx *hid_bpf_allocate_context(unsigned int hid_id) __ksym;
++extern void hid_bpf_release_context(struct hid_bpf_ctx *ctx) __ksym;
++extern int hid_bpf_hw_request(struct hid_bpf_ctx *ctx,
++			      __u8 *data,
++			      size_t buf__sz,
++			      enum hid_report_type type,
++			      enum hid_class_request reqtype) __ksym;
+ 
+ struct attach_prog_args {
+ 	int prog_fd;
+@@ -56,3 +63,39 @@ int attach_prog(struct attach_prog_args *ctx)
+ 					  0);
  	return 0;
  }
- 
-+struct syscall_test_args {
-+	__u8 data[16];
++
++struct hid_hw_request_syscall_args {
++	/* data needs to come at offset 0 so we can use it in calls */
++	__u8 data[10];
++	unsigned int hid;
++	int retval;
 +	size_t size;
++	enum hid_report_type type;
++	__u8 request_type;
 +};
 +
 +SEC("syscall")
-+int kfunc_syscall_test(struct syscall_test_args *args)
++int hid_user_raw_request(struct hid_hw_request_syscall_args *args)
 +{
-+	const int size = args->size;
++	struct hid_bpf_ctx *ctx;
++	const size_t size = args->size;
++	int i, ret = 0;
 +
 +	if (size > sizeof(args->data))
 +		return -7; /* -E2BIG */
 +
-+	bpf_kfunc_call_test_mem_len_pass1(&args->data, sizeof(args->data));
-+	bpf_kfunc_call_test_mem_len_pass1(&args->data, sizeof(*args));
-+	bpf_kfunc_call_test_mem_len_pass1(&args->data, size);
++	ctx = hid_bpf_allocate_context(args->hid);
++	if (!ctx)
++		return -1; /* EPERM check */
++
++	ret = hid_bpf_hw_request(ctx,
++				 args->data,
++				 size,
++				 args->type,
++				 args->request_type);
++	args->retval = ret;
++
++	hid_bpf_release_context(ctx);
 +
 +	return 0;
 +}
-+
-+SEC("syscall")
-+int kfunc_syscall_test_null(struct syscall_test_args *args)
-+{
-+	/* Must be called with args as a NULL pointer
-+	 * we do not check for it to have the verifier consider that
-+	 * the pointer might not be null, and so we can load it.
-+	 *
-+	 * So the following can not be added:
-+	 *
-+	 * if (args)
-+	 *      return -22;
-+	 */
-+
-+	bpf_kfunc_call_test_mem_len_pass1(args, 0);
-+
-+	return 0;
-+}
-+
- char _license[] SEC("license") = "GPL";
 -- 
 2.36.1
 

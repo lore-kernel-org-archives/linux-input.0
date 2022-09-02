@@ -2,300 +2,137 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED1A6C38145
-	for <linux-input@archiver.kernel.org>; Fri,  2 Sep 2022 14:10:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFA5CC38145
+	for <linux-input@archiver.kernel.org>; Fri,  2 Sep 2022 14:52:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238792AbiIBOKY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 2 Sep 2022 10:10:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44220 "EHLO
+        id S236883AbiIBOwH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 2 Sep 2022 10:52:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238803AbiIBOJ6 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2022 10:09:58 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AFB15D264
-        for <linux-input@vger.kernel.org>; Fri,  2 Sep 2022 06:37:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662125821;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fGoC5EFZdYb7kgErKusS52L2gMWltL5gu62vtgz6j3M=;
-        b=Tj1kpKBu98rNkk2dDfbEeTBD1J75aqbJHmt99NILqtx2NsnzaclEtbeLEAsLbSnlFb2GaI
-        PSU3lDIZrrYALi5b+OXh/n8pRUKgSuoul4H9HWelmHLG9FHJQLFSXeI5fDnMrp+ngGSwRd
-        KRyfN44PQH2pgXOWVL5g3cDJtLuYxGI=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-661-mvNt0U0ONVeaafl8pwJ53A-1; Fri, 02 Sep 2022 09:30:50 -0400
-X-MC-Unique: mvNt0U0ONVeaafl8pwJ53A-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 87A302823801;
-        Fri,  2 Sep 2022 13:30:48 +0000 (UTC)
-Received: from plouf.redhat.com (unknown [10.39.193.218])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5C5A5492C3B;
-        Fri,  2 Sep 2022 13:30:45 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Song Liu <songliubraving@fb.com>, Yonghong Song <yhs@fb.com>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Shuah Khan <shuah@kernel.org>,
-        Dave Marchevsky <davemarchevsky@fb.com>,
-        Joe Stringer <joe@cilium.io>, Jonathan Corbet <corbet@lwn.net>
-Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v10 16/23] HID: bpf: introduce hid_hw_request()
-Date:   Fri,  2 Sep 2022 15:29:31 +0200
-Message-Id: <20220902132938.2409206-17-benjamin.tissoires@redhat.com>
-In-Reply-To: <20220902132938.2409206-1-benjamin.tissoires@redhat.com>
-References: <20220902132938.2409206-1-benjamin.tissoires@redhat.com>
-MIME-Version: 1.0
+        with ESMTP id S236891AbiIBOvj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2022 10:51:39 -0400
+Received: from NAM12-BN8-obe.outbound.protection.outlook.com (mail-bn8nam12on2081.outbound.protection.outlook.com [40.107.237.81])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A5ADEC5;
+        Fri,  2 Sep 2022 07:14:51 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Y2LvnY8OjjY62J5Riar8xVxVN9esDaHeZqyqIWP8kVgtlnGY+1MuuHkOAhzHLGMqvHMFDDWLNAXO0ls6/6kIpuQE0lb8XY6B9OO4l87BzxDtjTIxbyum0RhvTFQEqYvR1csbt/3xjdh3y1zKkvTJJ03axGD3bNhpUSRmfIX4/FtgP6EP8HOHihVSlUtWOYqAJ3YolazdWa6t3ePEWDvj8mOJQdrf4PpiaxxFhAYQV8i1UFqkpI/i4bYNsxh2Uy48wnHS8zBuMovyynFKt9DMF/sC1UGqHN2YESlDR9eMPxHmu1N1m+cpLxfZIHiRaWjetpxlAfiwBzk6PGcKPHgpMw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=L97dZ+KjAnbx6QKyNy+Ty0UBrz553Ym44jXbdyJ4aHg=;
+ b=P2dIYSLSvDR/llL6XrnzWBh+dkWN4a0GWVPzuYU4aE6GyJIQG9Wiwd7DDhzX2vOH8IV/fFG5xw61EJuifHzqG5cEupQt4MCEGxLkYVMTbdNcQhnk5+pfaevZHU3rwjcP6/aG/kBRbFmwNHBPp8xKZKPc+upprQt/CNWXhBmB8zG13gynvczhLdhHjTxQDE8mY74ims/CPRIBU8t4uXcS/TOcWXZ7f8BTXabgofneOHGXxexoQajbwg5nZgFncMOYWGV67pG0MBs36RGpCnHIpLFOqIWhdLwBMuW2VRUu2GOV3Qxx3dXpAMSAyRB/3NXYhqPYnqz7nVOQh/rjUjNb8g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
+ dkim=pass header.d=labundy.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=L97dZ+KjAnbx6QKyNy+Ty0UBrz553Ym44jXbdyJ4aHg=;
+ b=NGyRvRgY83lQSk18DCyT8gHdkZ/YIlsw/al5WN9uU54KRmCJbD7OH/g8Fg6BiKFLschgeDuSTPWAjuIZLeKm+QybjKUan6JU4SZIEUINL6FSuEkMCmcjkjxixYwgVKPzHaWi1QBT6zykGWu4OtmNqeNEVVISrOPQlDT0zk8A7Ns=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=labundy.com;
+Received: from SN4PR0801MB3774.namprd08.prod.outlook.com
+ (2603:10b6:803:43::21) by BY5PR08MB6342.namprd08.prod.outlook.com
+ (2603:10b6:a03:1ec::16) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5588.10; Fri, 2 Sep
+ 2022 14:14:45 +0000
+Received: from SN4PR0801MB3774.namprd08.prod.outlook.com
+ ([fe80::e42f:30e7:7a94:efb5]) by SN4PR0801MB3774.namprd08.prod.outlook.com
+ ([fe80::e42f:30e7:7a94:efb5%7]) with mapi id 15.20.5588.016; Fri, 2 Sep 2022
+ 14:14:45 +0000
+From:   Jeff LaBundy <jeff@labundy.com>
+To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        Jeff LaBundy <jeff@labundy.com>
+Subject: [PATCH 0/2] Add support for Azoteq IQS7210A/7211A/E
+Date:   Fri,  2 Sep 2022 09:14:22 -0500
+Message-Id: <20220902141424.90063-1-jeff@labundy.com>
+X-Mailer: git-send-email 2.25.1
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
+Content-Type: text/plain
+X-ClientProxiedBy: SA0PR11CA0081.namprd11.prod.outlook.com
+ (2603:10b6:806:d2::26) To SN4PR0801MB3774.namprd08.prod.outlook.com
+ (2603:10b6:803:43::21)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 43a1b050-171c-495f-002d-08da8ced7cdb
+X-MS-TrafficTypeDiagnostic: BY5PR08MB6342:EE_
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: kjAFrygVZnCihZWg4KWaq/+393gbGhwQ1oiU0EuGE3JzrwoaZzpJ23hTrobt49D3plhL/Jh7A0YOfjZvkhwbWlTIPMrBiyYD/MYco/1aUF5ASnfww+GKpce8w7CEwWkwBOCxQeLg8WGHx5SYjXRhIs0WeuSZbJ+hwDNq/PfyQ4xoHiuDxr6c2GAy8SXB/vibSy8NkOKgOvDCi9yA/Jatf16hioK9jNom+M4PNrI6nSuYTm18Ng21/X9eAJ6EcztnWfDXF0B2b5fKA2dSGt0JYi8Xq9tdzipsf2yR8s//Qxnx6ZzdPVzfkSVsanUcR+gXYRZ17xRrst45FtDZAMEHxuf47z8OFdSN89OtHEcvq2xxNuwqmdK8TLS1EOCXHCldEVl1VPfKPoRg99eRMv+Fm6IL+9m4F7pyg5A6KK6Z8nRYT9QRlMMMv1wTxaFake1jAD7yg8THXY4UiVBvc7cBN2yRUOmLSWqnCxUoEkRZWlPHWQy6h7/yksQxkDcCkXp++2NGAtYqmJLUpCE+eAm7m98JCfIpwIkktau3mH4GfSkk1ntOXNqNnxykt+2Z+X5atFLqC/5bOI0xyo2chohSl+0zMCZBk8rBKo+6jWcMHBbnADzH27/DSQyJD+p1UFNp01P8ra0y48BxnDHf6dn0h9rGaVuqsrEPIOJ3ZT1CORy2jWz52XKBHIBunDVxpszWGcTYDJq+7UuInbQmVhtNbijXTNKNWXD7lU3R0Phzwmz2mm1NftLrJXJKSy7gjBoDxX6WYHdzYLSxwlDyafUJCb1eL9ATWrGCLrdqhfjgCnQ=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0801MB3774.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230016)(376002)(366004)(39830400003)(136003)(346002)(396003)(38100700002)(38350700002)(186003)(4326008)(66946007)(66556008)(66476007)(8676002)(316002)(2906002)(5660300002)(8936002)(26005)(52116002)(6512007)(2616005)(86362001)(1076003)(6486002)(966005)(41300700001)(6666004)(6506007)(107886003)(478600001)(36756003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?J8K+tDCgfeVmGyEbsA/YMlJDft7RqcwH1P9Q8XA02v2Gfd9D3ghUs08rKkwp?=
+ =?us-ascii?Q?+EVG0rDAFUltej8QxuvtyWfOhGI8oiUbnO2aufIgBHlHetZMZYXyQP8QiXTp?=
+ =?us-ascii?Q?5Rq1bSlEKKPL0sSowwXuB4ofb+yijm/tPrZNvuMaGk98gQAVbJK3gmZ18WBM?=
+ =?us-ascii?Q?Q87jkBdPoqnpc2xKq9oSyOzIQV4aYxuxU26TqmNX8nkOiotCVd+nvgprbCV1?=
+ =?us-ascii?Q?4vcGBu5WJhF7CylZ7BjxJTSRiUWv4q2cykByzsdSu3KbRFlbsNB4sZfHZd9l?=
+ =?us-ascii?Q?XkyY0u4OFMXprc1Q7eewbJWXsgnh3D/VLP08c7rUDwoU2qVM8A30nhueJg3K?=
+ =?us-ascii?Q?FV8am3jQS9A4GMWkYFRAQ4a4y/EAGLoTstkyNKQRqsVYuy2C5KIZjgaGGbc/?=
+ =?us-ascii?Q?HBch41BFD4dN9kcpRYLfhb80tUF5Qzv5lNLXCEmoD10ZzzMl5NZGkYwGkVF4?=
+ =?us-ascii?Q?CbjqH8QJRolFp8gkM7L+gTeI/XyFMsPDWR1XnPjKws1VuLErqfT9P4E257/o?=
+ =?us-ascii?Q?8Gx2IPzIuiNSa8O9f3ED3mMeQWObFIiuplrFhN8a9MV4ulI75BdsEKIfA70S?=
+ =?us-ascii?Q?pwNZR6EO8/sj1sZ3n4ezzf1TUYgrAfyMB0eGSfNJyIwnBMhZqc2LkLgrY9ZK?=
+ =?us-ascii?Q?ikE/uwG/zuJYGlaBoGKP80A4wPdlPTTBvjdR/7V/Xum+DNiEJvKdIWB/wBEw?=
+ =?us-ascii?Q?2ds8AlqUCABmNZIv2CVcZiFlZD+MYfTOzgvyu3/M4xYFRg4BPnCcxWh4l6vj?=
+ =?us-ascii?Q?8yOtvYeqRDz8rkRX/i2gnjddiTlB0tlWr93KVkazpbBqN6oJIEofr7Jv+PVB?=
+ =?us-ascii?Q?B8uh90yrBPkZ3XvjmabPFA3MB/qQAZHuchZvIEA8cTIMNALLS/4jbgXyEOhF?=
+ =?us-ascii?Q?55mxkm8KIMDt7t3VtdM+msKMAow/8jKPxkogEHEYVnAUZnCPEWGs0IslmXUU?=
+ =?us-ascii?Q?YLoRawQ1unJzeznRCLxBxxJWlc+MgPvc0LHbcoR+3/FQFmzLZ5DfQEyLyRj5?=
+ =?us-ascii?Q?v8m1OZklGGNFbd8qdYb/dr4bcIYBdq5fdDlAP9s06/B1agNLhetwvYbaW3BH?=
+ =?us-ascii?Q?oOcayWZEXpLy8A5DmTCmJBXQqa7vynapvlHHuBAWoQvRPD/8KrijICEYi5c/?=
+ =?us-ascii?Q?vDd3PgkQ1325KcazmCBBYkzRieYdnFXYROFi6/zyeSfZSJIAUyB9FVeRITXl?=
+ =?us-ascii?Q?05lRHy4D+YjnYchmRjA9x9r0XB0cLLpCWRTFSeJ+0AurFrRTwezfdSpvz/oD?=
+ =?us-ascii?Q?CIUs9nVVX2BvIDQBWLp3/Zmv16Wb1IKz4OHYCEuYmTQ5L6rlOQKq/Kpe4etz?=
+ =?us-ascii?Q?DFuJCgBRMTIxTBkrnq6OcPRd5qoNgsDGmNLktASWjEWC+SFJInWwiCAUAurd?=
+ =?us-ascii?Q?jzrYJsMSsCTOpEWwKQBMKClLaKew7kz46JqIinPWJhKWw438GU6Yn8V4nwAa?=
+ =?us-ascii?Q?aGyxvkJb8uv5lvnGrnneLpl9Y6Eixd1kmSEgL+1T2MyDzC9WgiaWmM6IAf5X?=
+ =?us-ascii?Q?3M9ZJlWoUObtxYBvWxIBS+PuyMwkj7JJenUpa9Ntsxnnq0Qat2Pjv2OVRsd5?=
+ =?us-ascii?Q?AjhOKni9ZEqvV3KYafLp12CYUcm+U+zOo8QXKxXG?=
+X-OriginatorOrg: labundy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 43a1b050-171c-495f-002d-08da8ced7cdb
+X-MS-Exchange-CrossTenant-AuthSource: SN4PR0801MB3774.namprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Sep 2022 14:14:45.7461
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Sps4k/7SiE7u8ii9rJHMUYbZ4tNw5l/49w+Tgr1MpDozoQuIQFtf+kTf13QWvUSn9D7jWZvL4iG5hmRMIrwR3g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR08MB6342
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This function can not be called under IRQ, thus it is only available
-while in SEC("syscall").
-For consistency, this function requires a HID-BPF context to work with,
-and so we also provide a helper to create one based on the HID unique
-ID.
+This series introduces support for the Azoteq IQS7210A, IQS7211A and
+IQS7211E trackpad/touchscreen controllers. Optimized for wearable
+applications, these devices track up to two contacts and are capable
+of reporting an array of gestures.
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+The IQS7210A includes an additional channel to support an inductive
+or capacitive button, while the IQS7211E adds an advanced assortment
+of gestures. All three devices are demonstrated in [1].
 
---
+These devices can be configured during production using OTP memory,
+or over I2C using the device tree. For the latter case, the binding
+covers all major parameters called out by the vendor in [2].
 
-no changes in v10
+[1] https://youtu.be/RjB8rNkzQJQ
+[2] https://www.azoteq.com/images/stories/pdf/azd123_iqs721xy_trackpad_userguide.pdf
 
-changes in v9:
-- fixed kfunc declaration aaccording to latest upstream changes
+Jeff LaBundy (2):
+  dt-bindings: input: Add bindings for Azoteq IQS7210A/7211A/E
+  Input: add support for Azoteq IQS7210A/7211A/E
 
-no changes in v8
+ .../input/touchscreen/azoteq,iqs7211.yaml     |  765 +++++
+ drivers/input/touchscreen/Kconfig             |   10 +
+ drivers/input/touchscreen/Makefile            |    1 +
+ drivers/input/touchscreen/iqs7211.c           | 2566 +++++++++++++++++
+ 4 files changed, 3342 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/azoteq,iqs7211.yaml
+ create mode 100644 drivers/input/touchscreen/iqs7211.c
 
-changes in v7:
-- hid_bpf_allocate_context: remove unused variable
-- ensures buf is not NULL
-
-changes in v6:
-- rename parameter size into buf__sz to teach the verifier about
-  the actual buffer size used by the call
-- remove the allocated data in the user created context, it's not used
-
-new-ish in v5
----
- drivers/hid/bpf/hid_bpf_dispatch.c | 132 +++++++++++++++++++++++++++++
- drivers/hid/hid-core.c             |   2 +
- include/linux/hid_bpf.h            |  13 ++-
- 3 files changed, 146 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/bpf/hid_bpf_dispatch.c b/drivers/hid/bpf/hid_bpf_dispatch.c
-index 33c6b3df6472..85186640e5af 100644
---- a/drivers/hid/bpf/hid_bpf_dispatch.c
-+++ b/drivers/hid/bpf/hid_bpf_dispatch.c
-@@ -220,9 +220,141 @@ hid_bpf_attach_prog(unsigned int hid_id, int prog_fd, __u32 flags)
- 	return __hid_bpf_attach_prog(hdev, prog_type, prog_fd, flags);
- }
- 
-+/**
-+ * hid_bpf_allocate_context - Allocate a context to the given HID device
-+ *
-+ * @hid_id: the system unique identifier of the HID device
-+ *
-+ * @returns A pointer to &struct hid_bpf_ctx on success, %NULL on error.
-+ */
-+noinline struct hid_bpf_ctx *
-+hid_bpf_allocate_context(unsigned int hid_id)
-+{
-+	struct hid_device *hdev;
-+	struct hid_bpf_ctx_kern *ctx_kern = NULL;
-+	struct device *dev;
-+
-+	if (!hid_bpf_ops)
-+		return NULL;
-+
-+	dev = bus_find_device(hid_bpf_ops->bus_type, NULL, &hid_id, device_match_id);
-+	if (!dev)
-+		return NULL;
-+
-+	hdev = to_hid_device(dev);
-+
-+	ctx_kern = kzalloc(sizeof(*ctx_kern), GFP_KERNEL);
-+	if (!ctx_kern)
-+		return NULL;
-+
-+	ctx_kern->ctx.hid = hdev;
-+
-+	return &ctx_kern->ctx;
-+}
-+
-+/**
-+ * hid_bpf_release_context - Release the previously allocated context @ctx
-+ *
-+ * @ctx: the HID-BPF context to release
-+ *
-+ */
-+noinline void
-+hid_bpf_release_context(struct hid_bpf_ctx *ctx)
-+{
-+	struct hid_bpf_ctx_kern *ctx_kern;
-+
-+	if (!ctx)
-+		return;
-+
-+	ctx_kern = container_of(ctx, struct hid_bpf_ctx_kern, ctx);
-+
-+	kfree(ctx_kern);
-+}
-+
-+/**
-+ * hid_bpf_hw_request - Communicate with a HID device
-+ *
-+ * @ctx: the HID-BPF context previously allocated in hid_bpf_allocate_context()
-+ * @buf: a %PTR_TO_MEM buffer
-+ * @buf__sz: the size of the data to transfer
-+ * @rtype: the type of the report (%HID_INPUT_REPORT, %HID_FEATURE_REPORT, %HID_OUTPUT_REPORT)
-+ * @reqtype: the type of the request (%HID_REQ_GET_REPORT, %HID_REQ_SET_REPORT, ...)
-+ *
-+ * @returns %0 on success, a negative error code otherwise.
-+ */
-+noinline int
-+hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
-+		   enum hid_report_type rtype, enum hid_class_request reqtype)
-+{
-+	struct hid_device *hdev = (struct hid_device *)ctx->hid; /* discard const */
-+	struct hid_report *report;
-+	struct hid_report_enum *report_enum;
-+	u8 *dma_data;
-+	u32 report_len;
-+	int ret;
-+
-+	/* check arguments */
-+	if (!ctx || !hid_bpf_ops || !buf)
-+		return -EINVAL;
-+
-+	switch (rtype) {
-+	case HID_INPUT_REPORT:
-+	case HID_OUTPUT_REPORT:
-+	case HID_FEATURE_REPORT:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	switch (reqtype) {
-+	case HID_REQ_GET_REPORT:
-+	case HID_REQ_GET_IDLE:
-+	case HID_REQ_GET_PROTOCOL:
-+	case HID_REQ_SET_REPORT:
-+	case HID_REQ_SET_IDLE:
-+	case HID_REQ_SET_PROTOCOL:
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	if (buf__sz < 1)
-+		return -EINVAL;
-+
-+	report_enum = hdev->report_enum + rtype;
-+	report = hid_bpf_ops->hid_get_report(report_enum, buf);
-+	if (!report)
-+		return -EINVAL;
-+
-+	report_len = hid_report_len(report);
-+
-+	if (buf__sz > report_len)
-+		buf__sz = report_len;
-+
-+	dma_data = kmemdup(buf, buf__sz, GFP_KERNEL);
-+	if (!dma_data)
-+		return -ENOMEM;
-+
-+	ret = hid_bpf_ops->hid_hw_raw_request(hdev,
-+					      dma_data[0],
-+					      dma_data,
-+					      buf__sz,
-+					      rtype,
-+					      reqtype);
-+
-+	if (ret > 0)
-+		memcpy(buf, dma_data, ret);
-+
-+	kfree(dma_data);
-+	return ret;
-+}
-+
- /* for syscall HID-BPF */
- BTF_SET8_START(hid_bpf_syscall_kfunc_ids)
- BTF_ID_FLAGS(func, hid_bpf_attach_prog)
-+BTF_ID_FLAGS(func, hid_bpf_allocate_context, KF_ACQUIRE | KF_RET_NULL)
-+BTF_ID_FLAGS(func, hid_bpf_release_context, KF_RELEASE)
-+BTF_ID_FLAGS(func, hid_bpf_hw_request)
- BTF_SET8_END(hid_bpf_syscall_kfunc_ids)
- 
- static const struct btf_kfunc_id_set hid_bpf_syscall_kfunc_set = {
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index cadd21a6f995..9d86f6fb5a45 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2917,6 +2917,8 @@ int hid_check_keys_pressed(struct hid_device *hid)
- EXPORT_SYMBOL_GPL(hid_check_keys_pressed);
- 
- static struct hid_bpf_ops hid_ops = {
-+	.hid_get_report = hid_get_report,
-+	.hid_hw_raw_request = hid_hw_raw_request,
- 	.owner = THIS_MODULE,
- 	.bus_type = &hid_bus_type,
- };
-diff --git a/include/linux/hid_bpf.h b/include/linux/hid_bpf.h
-index 1707e4492d7a..ef76894f7705 100644
---- a/include/linux/hid_bpf.h
-+++ b/include/linux/hid_bpf.h
-@@ -61,11 +61,15 @@ struct hid_bpf_ctx {
- int hid_bpf_device_event(struct hid_bpf_ctx *ctx);
- 
- /* Following functions are kfunc that we export to BPF programs */
--/* only available in tracing */
-+/* available everywhere in HID-BPF */
- __u8 *hid_bpf_get_data(struct hid_bpf_ctx *ctx, unsigned int offset, const size_t __sz);
- 
- /* only available in syscall */
- int hid_bpf_attach_prog(unsigned int hid_id, int prog_fd, __u32 flags);
-+int hid_bpf_hw_request(struct hid_bpf_ctx *ctx, __u8 *buf, size_t buf__sz,
-+		       enum hid_report_type rtype, enum hid_class_request reqtype);
-+struct hid_bpf_ctx *hid_bpf_allocate_context(unsigned int hid_id);
-+void hid_bpf_release_context(struct hid_bpf_ctx *ctx);
- 
- /*
-  * Below is HID internal
-@@ -84,7 +88,14 @@ enum hid_bpf_prog_type {
- 	HID_BPF_PROG_TYPE_MAX,
- };
- 
-+struct hid_report_enum;
-+
- struct hid_bpf_ops {
-+	struct hid_report *(*hid_get_report)(struct hid_report_enum *report_enum, const u8 *data);
-+	int (*hid_hw_raw_request)(struct hid_device *hdev,
-+				  unsigned char reportnum, __u8 *buf,
-+				  size_t len, enum hid_report_type rtype,
-+				  enum hid_class_request reqtype);
- 	struct module *owner;
- 	struct bus_type *bus_type;
- };
 -- 
-2.36.1
+2.25.1
 

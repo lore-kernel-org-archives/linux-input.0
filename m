@@ -2,41 +2,41 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89C75C6FA85
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0E58FC38145
 	for <linux-input@archiver.kernel.org>; Fri,  2 Sep 2022 14:03:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237417AbiIBODR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S238869AbiIBODR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Fri, 2 Sep 2022 10:03:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51352 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238877AbiIBOBc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2022 10:01:32 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0428B158ABF
-        for <linux-input@vger.kernel.org>; Fri,  2 Sep 2022 06:32:10 -0700 (PDT)
+        with ESMTP id S238871AbiIBOBb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Sep 2022 10:01:31 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0551612DCCC
+        for <linux-input@vger.kernel.org>; Fri,  2 Sep 2022 06:32:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1662125487;
+        s=mimecast20190719; t=1662125440;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=7qlbP1YBTTXbO5Rc9Pod/eIGmEwJskgJn9s6lD0lTZs=;
-        b=Pa5UxKWgicuSVeQXKGVpSfCPc1POulIXIbRL9LKaKCawGO8CNc09wHhdOJKOVy2VTdwP38
-        I32e25pq0Isz1ur07kxRJopSg+O/pbu38yUm1zARHxZl6rzQxuleWvTVcPF79/OZOsPHsT
-        b7/FDy/Z1v7erA37q3htio8s2Eavv9Q=
+        bh=fCPhsYotoB8FwxxQ6G8njzdsQ+qxsod3YHUxpf4SITc=;
+        b=hZnNJzRH3uHJKAdpaQIgoFchaTXoVNuMqeRfwJaPZ3jm+AGhAoO4NdJw6jTdovA1QC0Exs
+        R8iOhFmHNYHeKDk3NlZxTGibA14OkvDALf8v/IgjJO7+QvL4EgQhXSYYyRxHITJQc2jhs1
+        WQZ+Q8+uCBvqjBKruNCxBjuNr3l1Wj0=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-22-c9Wffl_TPn6NVE1KfgBVzw-1; Fri, 02 Sep 2022 09:31:23 -0400
-X-MC-Unique: c9Wffl_TPn6NVE1KfgBVzw-1
+ us-mta-247-FwYFBwSpMCmRXeQPdqzoTA-1; Fri, 02 Sep 2022 09:30:29 -0400
+X-MC-Unique: FwYFBwSpMCmRXeQPdqzoTA-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D25CA811E80;
-        Fri,  2 Sep 2022 13:31:11 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 15F59823F1E;
+        Fri,  2 Sep 2022 13:30:28 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.193.218])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 65F9F492C3B;
-        Fri,  2 Sep 2022 13:31:08 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D1C19492CA2;
+        Fri,  2 Sep 2022 13:30:23 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -55,504 +55,112 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH bpf-next v10 22/23] samples/bpf: HID: add Surface Dial example
-Date:   Fri,  2 Sep 2022 15:29:37 +0200
-Message-Id: <20220902132938.2409206-23-benjamin.tissoires@redhat.com>
+Subject: [PATCH bpf-next v10 11/23] HID: Kconfig: split HID support and hid-core compilation
+Date:   Fri,  2 Sep 2022 15:29:26 +0200
+Message-Id: <20220902132938.2409206-12-benjamin.tissoires@redhat.com>
 In-Reply-To: <20220902132938.2409206-1-benjamin.tissoires@redhat.com>
 References: <20220902132938.2409206-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 2.85 on 10.11.54.9
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add a more complete HID-BPF example.
+Currently, we step into drivers/hid/ based on the value of
+CONFIG_HID.
 
+However, that value is a tristate, meaning that it can be a module.
+
+As per the documentation, if we jump into the subdirectory by
+following an obj-m, we can not compile anything inside that
+subdirectory in vmlinux. It is considered as a bug.
+
+To make things more friendly to HID-BPF, split HID (the HID core
+parameter) from HID_SUPPORT (do we want any kind of HID support in the
+system?), and make this new config a boolean.
+
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
 no changes in v10
 
-changes in v9:
-- extend the usage section
-- add sleep while waiting
-- changed the title of the commit
+no changes in v9
 
 no changes in v8
 
-changes in v7:
-- remove unnecessary __must_check definition
-
-new in v6
+new in v7
 ---
- samples/bpf/.gitignore             |   1 +
- samples/bpf/Makefile               |   6 +-
- samples/bpf/hid_surface_dial.bpf.c | 161 ++++++++++++++++++++
- samples/bpf/hid_surface_dial.c     | 232 +++++++++++++++++++++++++++++
- 4 files changed, 399 insertions(+), 1 deletion(-)
- create mode 100644 samples/bpf/hid_surface_dial.bpf.c
- create mode 100644 samples/bpf/hid_surface_dial.c
+ drivers/Makefile    |  2 +-
+ drivers/hid/Kconfig | 20 +++++++++++---------
+ 2 files changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/samples/bpf/.gitignore b/samples/bpf/.gitignore
-index 65440bd618b2..6a1079d3d064 100644
---- a/samples/bpf/.gitignore
-+++ b/samples/bpf/.gitignore
-@@ -3,6 +3,7 @@ cpustat
- fds_example
- hbm
- hid_mouse
-+hid_surface_dial
- ibumad
- lathist
- lwt_len_hist
-diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
-index a965bbfaca47..5f5aa7b32565 100644
---- a/samples/bpf/Makefile
-+++ b/samples/bpf/Makefile
-@@ -58,6 +58,7 @@ tprogs-y += xdp_redirect
- tprogs-y += xdp_monitor
+diff --git a/drivers/Makefile b/drivers/Makefile
+index 057857258bfd..a24e6be80764 100644
+--- a/drivers/Makefile
++++ b/drivers/Makefile
+@@ -137,7 +137,7 @@ obj-$(CONFIG_CRYPTO)		+= crypto/
+ obj-$(CONFIG_SUPERH)		+= sh/
+ obj-y				+= clocksource/
+ obj-$(CONFIG_DCA)		+= dca/
+-obj-$(CONFIG_HID)		+= hid/
++obj-$(CONFIG_HID_SUPPORT)	+= hid/
+ obj-$(CONFIG_PPC_PS3)		+= ps3/
+ obj-$(CONFIG_OF)		+= of/
+ obj-$(CONFIG_SSB)		+= ssb/
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 6ce92830b5d1..4f24e42372dc 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -2,12 +2,18 @@
+ #
+ # HID driver configuration
+ #
+-menu "HID support"
+-     depends on INPUT
++menuconfig HID_SUPPORT
++	bool "HID bus support"
++	default y
++	depends on INPUT
++	help
++	  This option adds core support for human interface device (HID).
++	  You will also need drivers from the following menu to make use of it.
++
++if HID_SUPPORT
  
- tprogs-y += hid_mouse
-+tprogs-y += hid_surface_dial
+ config HID
+-	tristate "HID bus support"
+-	depends on INPUT
++	tristate "HID bus core support"
+ 	default y
+ 	help
+ 	  A human interface device (HID) is a type of computer device that
+@@ -24,8 +30,6 @@ config HID
  
- # Libbpf dependencies
- LIBBPF_SRC = $(TOOLS_PATH)/lib/bpf
-@@ -122,6 +123,7 @@ xdp_monitor-objs := xdp_monitor_user.o $(XDP_SAMPLE)
- xdp_router_ipv4-objs := xdp_router_ipv4_user.o $(XDP_SAMPLE)
+ 	  If unsure, say Y.
  
- hid_mouse-objs := hid_mouse.o
-+hid_surface_dial-objs := hid_surface_dial.o
+-if HID
+-
+ config HID_BATTERY_STRENGTH
+ 	bool "Battery level reporting for HID devices"
+ 	depends on HID
+@@ -1324,8 +1328,6 @@ config HID_KUNIT_TEST
  
- # Tell kbuild to always build the programs
- always-y := $(tprogs-y)
-@@ -343,6 +345,7 @@ $(obj)/hbm.o: $(src)/hbm.h
- $(obj)/hbm_edt_kern.o: $(src)/hbm.h $(src)/hbm_kern.h
+ endmenu
  
- $(obj)/hid_mouse.o: $(obj)/hid_mouse.skel.h
-+$(obj)/hid_surface_dial.o: $(obj)/hid_surface_dial.skel.h
+-endif # HID
+-
+ source "drivers/hid/usbhid/Kconfig"
  
- # Override includes for xdp_sample_user.o because $(srctree)/usr/include in
- # TPROGS_CFLAGS causes conflicts
-@@ -429,9 +432,10 @@ $(BPF_SKELS_LINKED): $(BPF_OBJS_LINKED) $(BPFTOOL)
- 	$(Q)$(BPFTOOL) gen skeleton $(@:.skel.h=.lbpf.o) name $(notdir $(@:.skel.h=)) > $@
+ source "drivers/hid/i2c-hid/Kconfig"
+@@ -1336,4 +1338,4 @@ source "drivers/hid/amd-sfh-hid/Kconfig"
  
- # Generate BPF skeletons for non XDP progs
--OTHER_BPF_SKELS := hid_mouse.skel.h
-+OTHER_BPF_SKELS := hid_mouse.skel.h hid_surface_dial.skel.h
+ source "drivers/hid/surface-hid/Kconfig"
  
- hid_mouse.skel.h-deps := hid_mouse.bpf.o
-+hid_surface_dial.skel.h-deps := hid_surface_dial.bpf.o
- 
- OTHER_BPF_SRCS_LINKED := $(patsubst %.skel.h,%.bpf.c, $(OTHER_BPF_SKELS))
- OTHER_BPF_OBJS_LINKED := $(patsubst %.bpf.c,$(obj)/%.bpf.o, $(OTHER_BPF_SRCS_LINKED))
-diff --git a/samples/bpf/hid_surface_dial.bpf.c b/samples/bpf/hid_surface_dial.bpf.c
-new file mode 100644
-index 000000000000..16c821d3decf
---- /dev/null
-+++ b/samples/bpf/hid_surface_dial.bpf.c
-@@ -0,0 +1,161 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/* Copyright (c) 2022 Benjamin Tissoires
-+ */
-+
-+#include "vmlinux.h"
-+#include <bpf/bpf_helpers.h>
-+#include <bpf/bpf_tracing.h>
-+
-+#define HID_UP_BUTTON		0x0009
-+#define HID_GD_WHEEL		0x0038
-+
-+/* following are kfuncs exported by HID for HID-BPF */
-+extern __u8 *hid_bpf_get_data(struct hid_bpf_ctx *ctx,
-+			      unsigned int offset,
-+			      const size_t __sz) __ksym;
-+extern int hid_bpf_attach_prog(unsigned int hid_id, int prog_fd, u32 flags) __ksym;
-+extern struct hid_bpf_ctx *hid_bpf_allocate_context(unsigned int hid_id) __ksym;
-+extern void hid_bpf_release_context(struct hid_bpf_ctx *ctx) __ksym;
-+extern int hid_bpf_hw_request(struct hid_bpf_ctx *ctx,
-+			      __u8 *data,
-+			      size_t buf__sz,
-+			      enum hid_report_type type,
-+			      enum hid_class_request reqtype) __ksym;
-+
-+struct attach_prog_args {
-+	int prog_fd;
-+	unsigned int hid;
-+	int retval;
-+};
-+
-+SEC("syscall")
-+int attach_prog(struct attach_prog_args *ctx)
-+{
-+	ctx->retval = hid_bpf_attach_prog(ctx->hid,
-+					  ctx->prog_fd,
-+					  0);
-+	return 0;
-+}
-+
-+SEC("fmod_ret/hid_bpf_device_event")
-+int BPF_PROG(hid_event, struct hid_bpf_ctx *hctx)
-+{
-+	__u8 *data = hid_bpf_get_data(hctx, 0 /* offset */, 9 /* size */);
-+
-+	if (!data)
-+		return 0; /* EPERM check */
-+
-+	/* Touch */
-+	data[1] &= 0xfd;
-+
-+	/* X */
-+	data[4] = 0;
-+	data[5] = 0;
-+
-+	/* Y */
-+	data[6] = 0;
-+	data[7] = 0;
-+
-+	return 0;
-+}
-+
-+/* 72 == 360 / 5 -> 1 report every 5 degrees */
-+int resolution = 72;
-+int physical = 5;
-+
-+struct haptic_syscall_args {
-+	unsigned int hid;
-+	int retval;
-+};
-+
-+static __u8 haptic_data[8];
-+
-+SEC("syscall")
-+int set_haptic(struct haptic_syscall_args *args)
-+{
-+	struct hid_bpf_ctx *ctx;
-+	const size_t size = sizeof(haptic_data);
-+	u16 *res;
-+	int ret;
-+
-+	if (size > sizeof(haptic_data))
-+		return -7; /* -E2BIG */
-+
-+	ctx = hid_bpf_allocate_context(args->hid);
-+	if (!ctx)
-+		return -1; /* EPERM check */
-+
-+	haptic_data[0] = 1;  /* report ID */
-+
-+	ret = hid_bpf_hw_request(ctx, haptic_data, size, HID_FEATURE_REPORT, HID_REQ_GET_REPORT);
-+
-+	bpf_printk("probed/remove event ret value: %d", ret);
-+	bpf_printk("buf: %02x %02x %02x",
-+		   haptic_data[0],
-+		   haptic_data[1],
-+		   haptic_data[2]);
-+	bpf_printk("     %02x %02x %02x",
-+		   haptic_data[3],
-+		   haptic_data[4],
-+		   haptic_data[5]);
-+	bpf_printk("     %02x %02x",
-+		   haptic_data[6],
-+		   haptic_data[7]);
-+
-+	/* whenever resolution multiplier is not 3600, we have the fixed report descriptor */
-+	res = (u16 *)&haptic_data[1];
-+	if (*res != 3600) {
-+//		haptic_data[1] = 72; /* resolution multiplier */
-+//		haptic_data[2] = 0;  /* resolution multiplier */
-+//		haptic_data[3] = 0;  /* Repeat Count */
-+		haptic_data[4] = 3;  /* haptic Auto Trigger */
-+//		haptic_data[5] = 5;  /* Waveform Cutoff Time */
-+//		haptic_data[6] = 80; /* Retrigger Period */
-+//		haptic_data[7] = 0;  /* Retrigger Period */
-+	} else {
-+		haptic_data[4] = 0;
-+	}
-+
-+	ret = hid_bpf_hw_request(ctx, haptic_data, size, HID_FEATURE_REPORT, HID_REQ_SET_REPORT);
-+
-+	bpf_printk("set haptic ret value: %d -> %d", ret, haptic_data[4]);
-+
-+	args->retval = ret;
-+
-+	hid_bpf_release_context(ctx);
-+
-+	return 0;
-+}
-+
-+/* Convert REL_DIAL into REL_WHEEL */
-+SEC("fmod_ret/hid_bpf_rdesc_fixup")
-+int BPF_PROG(hid_rdesc_fixup, struct hid_bpf_ctx *hctx)
-+{
-+	__u8 *data = hid_bpf_get_data(hctx, 0 /* offset */, 4096 /* size */);
-+	__u16 *res, *phys;
-+
-+	if (!data)
-+		return 0; /* EPERM check */
-+
-+	/* Convert TOUCH into a button */
-+	data[31] = HID_UP_BUTTON;
-+	data[33] = 2;
-+
-+	/* Convert REL_DIAL into REL_WHEEL */
-+	data[45] = HID_GD_WHEEL;
-+
-+	/* Change Resolution Multiplier */
-+	phys = (__u16 *)&data[61];
-+	*phys = physical;
-+	res = (__u16 *)&data[66];
-+	*res = resolution;
-+
-+	/* Convert X,Y from Abs to Rel */
-+	data[88] = 0x06;
-+	data[98] = 0x06;
-+
-+	return 0;
-+}
-+
-+char _license[] SEC("license") = "GPL";
-+u32 _version SEC("version") = 1;
-diff --git a/samples/bpf/hid_surface_dial.c b/samples/bpf/hid_surface_dial.c
-new file mode 100644
-index 000000000000..c700bb0afa81
---- /dev/null
-+++ b/samples/bpf/hid_surface_dial.c
-@@ -0,0 +1,232 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/* Copyright (c) 2022 Benjamin Tissoires
-+ *
-+ * This program will morph the Microsoft Surface Dial into a mouse,
-+ * and depending on the chosen resolution enable or not the haptic feedback:
-+ * - a resolution (-r) of 3600 will report 3600 "ticks" in one full rotation
-+ *   wihout haptic feedback
-+ * - any other resolution will report N "ticks" in a full rotation with haptic
-+ *   feedback
-+ *
-+ * A good default for low resolution haptic scrolling is 72 (1 "tick" every 5
-+ * degrees), and set to 3600 for smooth scrolling.
-+ */
-+
-+#include <assert.h>
-+#include <errno.h>
-+#include <fcntl.h>
-+#include <libgen.h>
-+#include <signal.h>
-+#include <stdbool.h>
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+#include <sys/resource.h>
-+#include <unistd.h>
-+
-+#include <linux/bpf.h>
-+#include <linux/errno.h>
-+
-+#include "bpf_util.h"
-+#include <bpf/bpf.h>
-+#include <bpf/libbpf.h>
-+
-+#include "hid_surface_dial.skel.h"
-+
-+static bool running = true;
-+
-+struct attach_prog_args {
-+	int prog_fd;
-+	unsigned int hid;
-+	int retval;
-+};
-+
-+struct haptic_syscall_args {
-+	unsigned int hid;
-+	int retval;
-+};
-+
-+static void int_exit(int sig)
-+{
-+	running = false;
-+	exit(0);
-+}
-+
-+static void usage(const char *prog)
-+{
-+	fprintf(stderr,
-+		"%s: %s [OPTIONS] /sys/bus/hid/devices/0BUS:0VID:0PID:00ID\n\n"
-+		"  OPTIONS:\n"
-+		"    -r N\t set the given resolution to the device (number of ticks per 360°)\n\n",
-+		__func__, prog);
-+	fprintf(stderr,
-+		"This program will morph the Microsoft Surface Dial into a mouse,\n"
-+		"and depending on the chosen resolution enable or not the haptic feedback:\n"
-+		"- a resolution (-r) of 3600 will report 3600 'ticks' in one full rotation\n"
-+		"  wihout haptic feedback\n"
-+		"- any other resolution will report N 'ticks' in a full rotation with haptic\n"
-+		"  feedback\n"
-+		"\n"
-+		"A good default for low resolution haptic scrolling is 72 (1 'tick' every 5\n"
-+		"degrees), and set to 3600 for smooth scrolling.\n");
-+}
-+
-+static int get_hid_id(const char *path)
-+{
-+	const char *str_id, *dir;
-+	char uevent[1024];
-+	int fd;
-+
-+	memset(uevent, 0, sizeof(uevent));
-+	snprintf(uevent, sizeof(uevent) - 1, "%s/uevent", path);
-+
-+	fd = open(uevent, O_RDONLY | O_NONBLOCK);
-+	if (fd < 0)
-+		return -ENOENT;
-+
-+	close(fd);
-+
-+	dir = basename((char *)path);
-+
-+	str_id = dir + sizeof("0003:0001:0A37.");
-+	return (int)strtol(str_id, NULL, 16);
-+}
-+
-+static int attach_prog(struct hid_surface_dial_lskel *skel, struct bpf_program *prog, int hid_id)
-+{
-+	struct attach_prog_args args = {
-+		.hid = hid_id,
-+		.retval = -1,
-+	};
-+	int attach_fd, err;
-+	DECLARE_LIBBPF_OPTS(bpf_test_run_opts, tattr,
-+			    .ctx_in = &args,
-+			    .ctx_size_in = sizeof(args),
-+	);
-+
-+	attach_fd = bpf_program__fd(skel->progs.attach_prog);
-+	if (attach_fd < 0) {
-+		fprintf(stderr, "can't locate attach prog: %m\n");
-+		return 1;
-+	}
-+
-+	args.prog_fd = bpf_program__fd(prog);
-+	err = bpf_prog_test_run_opts(attach_fd, &tattr);
-+	if (err) {
-+		fprintf(stderr, "can't attach prog to hid device %d: %m (err: %d)\n",
-+			hid_id, err);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+static int set_haptic(struct hid_surface_dial_lskel *skel, int hid_id)
-+{
-+	struct haptic_syscall_args args = {
-+		.hid = hid_id,
-+		.retval = -1,
-+	};
-+	int haptic_fd, err;
-+	DECLARE_LIBBPF_OPTS(bpf_test_run_opts, tattr,
-+			    .ctx_in = &args,
-+			    .ctx_size_in = sizeof(args),
-+	);
-+
-+	haptic_fd = bpf_program__fd(skel->progs.set_haptic);
-+	if (haptic_fd < 0) {
-+		fprintf(stderr, "can't locate haptic prog: %m\n");
-+		return 1;
-+	}
-+
-+	err = bpf_prog_test_run_opts(haptic_fd, &tattr);
-+	if (err) {
-+		fprintf(stderr, "can't set haptic configuration to hid device %d: %m (err: %d)\n",
-+			hid_id, err);
-+		return 1;
-+	}
-+	return 0;
-+}
-+
-+int main(int argc, char **argv)
-+{
-+	struct hid_surface_dial_lskel *skel;
-+	struct bpf_program *prog;
-+	const char *optstr = "r:";
-+	const char *sysfs_path;
-+	int opt, hid_id, resolution = 72;
-+
-+	while ((opt = getopt(argc, argv, optstr)) != -1) {
-+		switch (opt) {
-+		case 'r':
-+			{
-+				char *endp = NULL;
-+				long l = -1;
-+
-+				if (optarg) {
-+					l = strtol(optarg, &endp, 10);
-+					if (endp && *endp)
-+						l = -1;
-+				}
-+
-+				if (l < 0) {
-+					fprintf(stderr,
-+						"invalid r option %s - expecting a number\n",
-+						optarg ? optarg : "");
-+					exit(EXIT_FAILURE);
-+				};
-+
-+				resolution = (int) l;
-+				break;
-+			}
-+		default:
-+			usage(basename(argv[0]));
-+			return 1;
-+		}
-+	}
-+
-+	if (optind == argc) {
-+		usage(basename(argv[0]));
-+		return 1;
-+	}
-+
-+	sysfs_path = argv[optind];
-+	if (!sysfs_path) {
-+		perror("sysfs");
-+		return 1;
-+	}
-+
-+	skel = hid_surface_dial_lskel__open_and_load();
-+	if (!skel) {
-+		fprintf(stderr, "%s  %s:%d", __func__, __FILE__, __LINE__);
-+		return -1;
-+	}
-+
-+	hid_id = get_hid_id(sysfs_path);
-+	if (hid_id < 0) {
-+		fprintf(stderr, "can not open HID device: %m\n");
-+		return 1;
-+	}
-+
-+	skel->data->resolution = resolution;
-+	skel->data->physical = (int)(resolution / 72);
-+
-+	bpf_object__for_each_program(prog, *skel->skeleton->obj) {
-+		/* ignore syscalls */
-+		if (bpf_program__get_type(prog) != BPF_PROG_TYPE_TRACING)
-+			continue;
-+
-+		attach_prog(skel, prog, hid_id);
-+	}
-+
-+	signal(SIGINT, int_exit);
-+	signal(SIGTERM, int_exit);
-+
-+	set_haptic(skel, hid_id);
-+
-+	while (running)
-+		sleep(1);
-+
-+	hid_surface_dial_lskel__destroy(skel);
-+
-+	return 0;
-+}
+-endmenu
++endif # HID_SUPPORT
 -- 
 2.36.1
 

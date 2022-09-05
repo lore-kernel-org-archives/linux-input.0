@@ -2,125 +2,110 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0513C6FA89
-	for <linux-input@archiver.kernel.org>; Mon,  5 Sep 2022 07:27:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6C71ECAAD5
+	for <linux-input@archiver.kernel.org>; Mon,  5 Sep 2022 17:19:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237385AbiIEH1J convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 5 Sep 2022 03:27:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59560 "EHLO
+        id S231230AbiIERTy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 5 Sep 2022 13:19:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236333AbiIEH0r (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2022 03:26:47 -0400
-Received: from de-smtp-delivery-113.mimecast.com (de-smtp-delivery-113.mimecast.com [194.104.109.113])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46935C10
-        for <linux-input@vger.kernel.org>; Mon,  5 Sep 2022 00:24:33 -0700 (PDT)
-Received: from CHE01-GV0-obe.outbound.protection.outlook.com
- (mail-gv0che01lp2043.outbound.protection.outlook.com [104.47.22.43]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- de-mta-45-Xuy4fWX6MpeOuEZGFQC6IA-2; Mon, 05 Sep 2022 09:22:19 +0200
-X-MC-Unique: Xuy4fWX6MpeOuEZGFQC6IA-2
-Received: from ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:2e::8) by
- ZR0P278MB0758.CHEP278.PROD.OUTLOOK.COM (2603:10a6:910:43::10) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5588.10; Mon, 5 Sep 2022 07:22:18 +0000
-Received: from ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
- ([fe80::6c6d:333:ab23:3f5b]) by ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
- ([fe80::6c6d:333:ab23:3f5b%2]) with mapi id 15.20.5588.018; Mon, 5 Sep 2022
- 07:22:17 +0000
-Date:   Mon, 5 Sep 2022 09:22:16 +0200
-From:   Francesco Dolcini <francesco.dolcini@toradex.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Lee Jones <lee.jones@linaro.org>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-input@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-iio@vger.kernel.org,
-        Francesco Dolcini <francesco.dolcini@toradex.com>
-Subject: Re: [PATCH v2 5/5] dt-bindings: input: touchscreen: stmpe: Remove
- node name requirement
-Message-ID: <20220905072216.GA6496@francesco-nb.int.toradex.com>
-References: <20220712163345.445811-1-francesco.dolcini@toradex.com>
- <20220712163345.445811-6-francesco.dolcini@toradex.com>
-In-Reply-To: <20220712163345.445811-6-francesco.dolcini@toradex.com>
-X-ClientProxiedBy: MR1P264CA0133.FRAP264.PROD.OUTLOOK.COM
- (2603:10a6:501:51::18) To ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:2e::8)
+        with ESMTP id S230479AbiIERTx (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Sep 2022 13:19:53 -0400
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 070ED1EC69;
+        Mon,  5 Sep 2022 10:19:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1662398392; x=1693934392;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=H1x3D21Fgj3oIVsGcghx8kOsLr/B4ZFW56g8adE84zI=;
+  b=QCcjUe21IL33v8n9+6fJ2hC2sQ2X02M0WsJlA7jwWmuP7esoVZoMiYhB
+   sJWdwtdnQA9wv2Ej8VYAJj4wz479a4pNl5Chd8Miv4qbTaeTKqpi5+27G
+   Og5BeMkW8MqSoSpbvGsAG8y/KC5TM4D/2n9RFcenlXDBNLFq3KJqox2P5
+   /JWWhYBydIByslzvnTujshXA9Ty9IHHO4sS74QY4A4Omt4wBKSGdImPYw
+   m07KYctpFmbC+J64xOBrb6Jpk1ew60gIFqxQiiwUuyFRklPiHfiDyttV0
+   dEW1C3VUdoZAecWK60JBIVJb4vkWsdK5K2JzZZU15nZ6nVyjd+Ml68waA
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10461"; a="358143073"
+X-IronPort-AV: E=Sophos;i="5.93,291,1654585200"; 
+   d="scan'208";a="358143073"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2022 10:19:51 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,291,1654585200"; 
+   d="scan'208";a="739647611"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orsmga004.jf.intel.com with ESMTP; 05 Sep 2022 10:19:50 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 76464101; Mon,  5 Sep 2022 20:20:05 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH v1 1/1] Input: icn8505 - Utilize acpi_get_subsystem_id()
+Date:   Mon,  5 Sep 2022 20:20:01 +0300
+Message-Id: <20220905172001.69244-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 8795ca12-5361-45da-5f93-08da8f0f5d43
-X-MS-TrafficTypeDiagnostic: ZR0P278MB0758:EE_
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0
-X-Microsoft-Antispam-Message-Info: IZFINbnydV+tfarHSvJrhsU2qdskQ8S2O2wFg7LmCrRxeE4TR1whdnh8r86nVn3rWRBDPWs9qO+t0uSIkD2UM22531wA/d/dVbvh5NfFKmH08uMgqxwFI/prIIh78jVuykcR+UHi2b94/WeHvOE+mC5/x4czPDz4vzO4+ptKvKDCWujEZJfHD6Z+ydbp8W7xCS3BvpTSxWWZoTM7w/vWO+UsVMYs6VxtIO681pEhuIPo9+ycPVy3ockVUfaSh4FOanbtXt1fbxOv/GzZS/vm3lhP7XzYPqs1aA7wtvwif1Dj0qpkdSN+7ES97tD8GObUiQqTmIvNr/B6mIydoV+sFK+5CpKWdhtAPcdpqY4F9f9EMGDIJ+XfLM5UNaXGWJId0sx724YqY0AdXqFSzAiENOriToGAH5ihKVgehaDRTJnOWSazsT6Ob2GFph9Okq3oIs+sjpRzFqeRJWe+KX++VNdBwffdGMHYifmP6dHaPDF3xXoSeJCXzNYDI0ihYURBN41pi6wZ2k0nFcH5jJCePYHM15ZaZYCe8C+5vcxmvAcL6r/wl8quwGJOx0XbqVPILPkifrYM8S+Lw8Oow46cePDnmUY9bLVP2APAxXoioAZShiPiUhq6UcMicMQSbX+rf8eRZyVF7CtnVc1yI1JnOZKqg9z5FevRl9OuvMH/ExHsf/qmftnmbgyobX28piCTxS7zH16FyKZbKxiQCAB6PbSIcOTzzeczWrd3MtSF39GhniGIM176R98XpEju35um5slquZIIOcvX8mP42RoLQQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230016)(4636009)(376002)(136003)(39830400003)(396003)(366004)(346002)(2906002)(66556008)(8676002)(66946007)(66476007)(54906003)(4326008)(7416002)(4744005)(6916009)(44832011)(5660300002)(8936002)(33656002)(316002)(6486002)(478600001)(41300700001)(6512007)(186003)(1076003)(107886003)(38100700002)(52116002)(6506007)(83380400001)(26005)(86362001)(38350700002);DIR:OUT;SFP:1102
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?QzqCutbkbZUFKoXaBa85Qfkm9vxwTyqkw5SkzGwEF1nFUhWTnhBxZAMwWVeA?=
- =?us-ascii?Q?NpvvKr2dCFdy9/11y34yx/e549h/Bj2WfnUlTQvtXNb3WOtDPIZccBh47Xhp?=
- =?us-ascii?Q?ZCMZhlB+SYH/Zs9D0ThJdSD8TGDXJIFdhEaMc9Drmqas14T8ckphOaixeS7a?=
- =?us-ascii?Q?CHBlMM1623cHGemuZ9AInaXJ68wPjBV7ij/OjijQRt1lEnkfitZqKNX4nrew?=
- =?us-ascii?Q?CWzGfxYSjKH6+zG0HaW8P/MGmgY5coioOwQTwD/z5JeYp9t+ZppSkJOz4C+W?=
- =?us-ascii?Q?hMGMS16bEFUKjGwM9o6b51vF1jmU50ClfaIONgUu5xc6lo7rcd/RaCnF+mhb?=
- =?us-ascii?Q?nS6O+ArbUbf20FB5M9Z12Wu9piYJ4xYKGMNwlAWrAbVS1aH2/qpw//iWQJNa?=
- =?us-ascii?Q?/2k7QWXhdhQvVQJeEiiLgIy7Yrf/ss2lqoVTBK9918iXsvUMO2Puv8GgQvoC?=
- =?us-ascii?Q?bF0iTz3mxe8p834s8GrPvOirjARKCJUGg75cpEkIiovXlFPM17lN+Roaug39?=
- =?us-ascii?Q?JWQK3XSAj3G+iHZIl8u2WhNtFW9FwWJXh3EiNqryh60JTdnk2/+OfvMNaicG?=
- =?us-ascii?Q?emK+Qz79c7fAW1Dg5nEgsizTqBeYzjFdv77ABL+RQW4zjcKMii8kh3YW8u7B?=
- =?us-ascii?Q?h7XEv4FZxIYr8OFYxeTq+qc+NKsl0g0su3At2yS1i+jFP2XaOyrAC+da5nyY?=
- =?us-ascii?Q?pMST+gW+M+4eLiRtyLlQ3d2ASv1dex1f8U6Sj1YP3PTpBtSvgJhei7dxviRT?=
- =?us-ascii?Q?SapgzAVpGzI0MzGs23tLoIS9ExRDdIHeX4Mq9kkQYjN95PTNhkfoXDeNK+ky?=
- =?us-ascii?Q?NN5GrAIo6DtvUMgbGMIquuhcTmLkhDNjHKnZn2PepJzcbriRzogb5tYSxzsY?=
- =?us-ascii?Q?QIasS9jxw0qljM36Qs9OQT8Kr4yBtjVbkIRzyrT3vTYGTBrorPj8EmlR7cyC?=
- =?us-ascii?Q?8KGAbQKQ6aa7m7ngPOmW/g6Ky16yZ5+M8VNJQtuUlnPElABb/JmzqQAqgXOl?=
- =?us-ascii?Q?DwjcSXKrGw2Rf2id6nQ6o6v1Cf0OttQ6PDyJ6m5IV9s2detHAsUELu86hm+I?=
- =?us-ascii?Q?RgnnOsfKe3FWwVHP6B85Fc99dNKP58m6M74cudnbp2HwiRlD5zfyn+Bx+dAt?=
- =?us-ascii?Q?elVoLhAO06zL2tWYiPTRh17hFePDRx9YHjt7ODnzS6wx84GDUEymqCDJHpbi?=
- =?us-ascii?Q?lZTQuQpRc2p9S5K+CkLBdbuKJ+QTNFuLj0Qq9MfYG7EIHyif111pL0rFlwRs?=
- =?us-ascii?Q?X0gbSiqSHsOnKV+ACw9lCY34G6BpF/fhEzEFWJdhHy2TfgN8HiGeLmNSp8tu?=
- =?us-ascii?Q?8+8/2OMOpS9dF9kQyu5CsoZZvzmJsKIPTwxRqMMqRCjSjudqjFmn+a2HdcAo?=
- =?us-ascii?Q?kayyFjuadRACHULGNFS2Lh0ofIGEQ+m2NiZMU4XTH4nwuMOMbTnWilWdZRmf?=
- =?us-ascii?Q?HW/uu2LllKckdqWXVyMWY+g4G2AVUE8oN05K/fBosAs+aDYbZtPajf9CPSQe?=
- =?us-ascii?Q?uTNP5O0tt+yD+U2z6cOt0hQ6C6bQStOG/+6d7jalBbAfEQ7RfEGFcLbNBYrm?=
- =?us-ascii?Q?DK+AWRZvlME7N3V4CgwuFWNAxw4S17jX8FFr9OxWq/TszeFox354WhWS4xXI?=
- =?us-ascii?Q?Cg=3D=3D?=
-X-OriginatorOrg: toradex.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8795ca12-5361-45da-5f93-08da8f0f5d43
-X-MS-Exchange-CrossTenant-AuthSource: ZRAP278MB0495.CHEP278.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Sep 2022 07:22:17.9261
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: d9995866-0d9b-4251-8315-093f062abab4
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: JQNHazLp87XMrMuDQD2HLCc66gyAjVLin2V426cRgUZfKpkNUNOxS9aCwZI1udGTxzqL9nboAA+/Zz3kN80Q2kWnWELRULAl+50kcqpwTfc=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: ZR0P278MB0758
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: toradex.com
-Content-Type: text/plain; charset=WINDOWS-1252
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello Dmitry,
+Replace open coded variant of recently introduced acpi_get_subsystem_id().
 
-On Tue, Jul 12, 2022 at 06:33:45PM +0200, Francesco Dolcini wrote:
-> STMPE driver does not require a specific node name anymore, only the
-> compatible is checked, update binding according to this.
-> 
-> Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/input/touchscreen/chipone_icn8505.c | 29 ++++++---------------
+ 1 file changed, 8 insertions(+), 21 deletions(-)
 
-Just a gently ping, this is the last patch of this series not merged, all
-the rest was merged through the respective subsystems. Can you merge it?
-
-Thanks,
-Francesco
+diff --git a/drivers/input/touchscreen/chipone_icn8505.c b/drivers/input/touchscreen/chipone_icn8505.c
+index f9ca5502ac8c..bb5e63b87c5d 100644
+--- a/drivers/input/touchscreen/chipone_icn8505.c
++++ b/drivers/input/touchscreen/chipone_icn8505.c
+@@ -364,32 +364,19 @@ static irqreturn_t icn8505_irq(int irq, void *dev_id)
+ 
+ static int icn8505_probe_acpi(struct icn8505_data *icn8505, struct device *dev)
+ {
+-	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+-	const char *subsys = "unknown";
+-	struct acpi_device *adev;
+-	union acpi_object *obj;
+-	acpi_status status;
+-
+-	adev = ACPI_COMPANION(dev);
+-	if (!adev)
+-		return -ENODEV;
++	const char *subsys;
+ 
+-	status = acpi_evaluate_object(adev->handle, "_SUB", NULL, &buffer);
+-	if (ACPI_SUCCESS(status)) {
+-		obj = buffer.pointer;
+-		if (obj->type == ACPI_TYPE_STRING)
+-			subsys = obj->string.pointer;
+-		else
+-			dev_warn(dev, "Warning ACPI _SUB did not return a string\n");
+-	} else {
+-		dev_warn(dev, "Warning ACPI _SUB failed: %#x\n", status);
+-		buffer.pointer = NULL;
+-	}
++	subsys = acpi_get_subsystem_id(ACPI_HANDLE(dev));
++	if (IS_ERR(subsys) && PTR_ERR(subsys) != -ENODATA)
++		return PTR_ERR(subsys);
++
++	if (IS_ERR(subsys) && PTR_ERR(subsys) == -ENODATA)
++		subsys = kstrdup_const("unknown", GFP_KERNEL);
+ 
+ 	snprintf(icn8505->firmware_name, sizeof(icn8505->firmware_name),
+ 		 "chipone/icn8505-%s.fw", subsys);
+ 
+-	kfree(buffer.pointer);
++	kfree_const(subsys);
+ 	return 0;
+ }
+ 
+-- 
+2.35.1
 

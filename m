@@ -2,54 +2,66 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F41BECAAD5
-	for <linux-input@archiver.kernel.org>; Thu,  8 Sep 2022 08:31:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A66ABC54EE9
+	for <linux-input@archiver.kernel.org>; Thu,  8 Sep 2022 12:28:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230467AbiIHIbo convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 8 Sep 2022 04:31:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54800 "EHLO
+        id S231605AbiIHM2v (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 8 Sep 2022 08:28:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230483AbiIHIbl (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Sep 2022 04:31:41 -0400
-Received: from relay12.mail.gandi.net (relay12.mail.gandi.net [217.70.178.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB804E1A8E;
-        Thu,  8 Sep 2022 01:31:37 -0700 (PDT)
-Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id 54C54200005;
-        Thu,  8 Sep 2022 08:31:35 +0000 (UTC)
-Message-ID: <7b3641c5dcec258d03b178dfd1cc25b1ce81e880.camel@hadess.net>
-Subject: Re: [PATCH] HID: sony: Support for DS4 clones that do not implement
- feature report 0x81
-From:   Bastien Nocera <hadess@hadess.net>
-To:     Ivan Mironov <mironov.ivan@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Date:   Thu, 08 Sep 2022 10:31:34 +0200
-In-Reply-To: <20210113173402.17030-1-mironov.ivan@gmail.com>
-References: <20210113173402.17030-1-mironov.ivan@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.44.4 (3.44.4-1.fc36) 
+        with ESMTP id S231586AbiIHM2u (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Sep 2022 08:28:50 -0400
+Received: from bg4.exmail.qq.com (bg4.exmail.qq.com [43.154.221.58])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 048FEE5822;
+        Thu,  8 Sep 2022 05:28:48 -0700 (PDT)
+X-QQ-mid: bizesmtp86t1662640123t827xnr3
+Received: from localhost.localdomain ( [182.148.14.0])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Thu, 08 Sep 2022 20:28:42 +0800 (CST)
+X-QQ-SSF: 0100000000200090C000B00A0000000
+X-QQ-FEAT: xqT8U4SkSphd4WmtCLI8WEMU7bQn+l+hHT6vbJsiU9UG/6Z0A6fyjHjZ27SvS
+        hdhlPJXhWTjypwx/J2mhHrWEYWFMiHoJUwUAF/B01hnPo4E1ZTtkFQQR32q5V+vI2/hdftw
+        xgUFyawz4WNweiIgCwp5F9z6WV+JxiZxTQtgVKeeifvLUZjuvrblM+TyUrpRaNHJ/LYDRwU
+        ZZBkevLj6NU4lBwISFpVK+CdjwOd1VGWNu8M8r72LgoYW+6jMzKH3Uxd1S2H7JDFcz6Hxz8
+        jQvf6ko2tNZAUvqJB2Sy0rBBWE1I8CXAsY+LWAAL+UFoLPr3DavLbG99Jwyymvh4HKgWhKL
+        DSFFy6JZ1C+s1d98oAW+MISIyO9dZ/j1i5EhLl3WxeMVQYKcp3vY53tUSnl5A==
+X-QQ-GoodBg: 0
+From:   wangjianli <wangjianli@cdjrlc.com>
+To:     dmitry.torokhov@gmail.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        wangjianli <wangjianli@cdjrlc.com>
+Subject: [PATCH] input/serio: fix repeated words in comments
+Date:   Thu,  8 Sep 2022 20:28:35 +0800
+Message-Id: <20220908122835.13888-1-wangjianli@cdjrlc.com>
+X-Mailer: git-send-email 2.36.1
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:cdjrlc.com:qybglogicsvr:qybglogicsvr7
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 2021-01-13 at 22:34 +0500, Ivan Mironov wrote:
-> There are clones of DualShock 4 that are very similar to the
-> originals,
-> except of 1) they do not support HID feature report 0x81 and 2) they
-> do
-> not have any USB Audio interfaces despite they physically have audio
-> jack.
+Delete the redundant word 'in'.
 
-Do you have the brand/catalogue name for the device on which you tested
-this? I found a "YCCTEAM" joypad, but it seems that the audio interface
-is supposed to work (maybe that's only on wireless?).
+Signed-off-by: wangjianli <wangjianli@cdjrlc.com>
+---
+ drivers/input/serio/q40kbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Do you think you could also look into a patch for BlueZ's cable pairing
-plugin? It uses 0x81 too, even though it does have some fallback code.
+diff --git a/drivers/input/serio/q40kbd.c b/drivers/input/serio/q40kbd.c
+index a1c61f5de047..fd25679af251 100644
+--- a/drivers/input/serio/q40kbd.c
++++ b/drivers/input/serio/q40kbd.c
+@@ -81,7 +81,7 @@ static void q40kbd_stop(void)
+ 
+ /*
+  * q40kbd_open() is called when a port is open by the higher layer.
+- * It allocates the interrupt and enables in in the chip.
++ * It allocates the interrupt and enables in the chip.
+  */
+ 
+ static int q40kbd_open(struct serio *port)
+-- 
+2.36.1
 
-https://git.kernel.org/pub/scm/bluetooth/bluez.git/tree/plugins/sixaxis.c#n111

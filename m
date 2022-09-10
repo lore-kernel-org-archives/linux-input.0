@@ -2,134 +2,84 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEFEDC6FA82
-	for <linux-input@archiver.kernel.org>; Sat, 10 Sep 2022 18:20:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 382F9ECAAD3
+	for <linux-input@archiver.kernel.org>; Sat, 10 Sep 2022 21:16:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229543AbiIJSUV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 10 Sep 2022 14:20:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52238 "EHLO
+        id S229544AbiIJVQa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 10 Sep 2022 17:16:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbiIJSUS (ORCPT
+        with ESMTP id S229488AbiIJVQ3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 10 Sep 2022 14:20:18 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A66551AD88
-        for <linux-input@vger.kernel.org>; Sat, 10 Sep 2022 11:20:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1662834016; x=1694370016;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-transfer-encoding;
-  bh=sar5JNIsmR9HzweIdVHpYRRMB3GDTFdCY87Tt4YbuMg=;
-  b=Pa4U/vSu15C0C1/i+FuKJ3mVUwts4xYZpmsHqklbj8JA5EywOb5VpLNo
-   k4pFT96KxPsyUSirYiTeTTbes/QvraKWxz7MuiElTghw2dQBGThh4JX3R
-   npjOXsBuGrvcDwwSvb1e3jlNtkh7s4tdWxyoSsVlTgcagCPjQMCAARpJv
-   9BUX83wXa4Hs43xM+IrxnUJA81w+4NCL/7tIAI+ITc4B84+fP1UF+8Rep
-   7h1v/xBTLsI7+fUnE+TOSwBVotopjSbqlr1F0HhhGSPCf6ns229U82CaW
-   INauoq+QxES20oweL7EaSKwl/nRriK3jwC5kKHAxaN6ZTVn7T1mIeK2zC
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10466"; a="280683731"
-X-IronPort-AV: E=Sophos;i="5.93,306,1654585200"; 
-   d="scan'208";a="280683731"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Sep 2022 11:20:15 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.93,306,1654585200"; 
-   d="scan'208";a="592993326"
-Received: from lkp-server02.sh.intel.com (HELO 4011df4f4fd3) ([10.239.97.151])
-  by orsmga006.jf.intel.com with ESMTP; 10 Sep 2022 11:20:14 -0700
-Received: from kbuild by 4011df4f4fd3 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1oX55S-0000MM-04;
-        Sat, 10 Sep 2022 18:20:14 +0000
-Date:   Sun, 11 Sep 2022 02:20:01 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org
-Subject: [dtor-input:tmp-gpiolib-of-quirks] BUILD SUCCESS
- 063e18ac945d4e6f2e7baa061a9a0b7c9f550d35
-Message-ID: <631cd551.e8UVO2uUmY/z3/ZB%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+        Sat, 10 Sep 2022 17:16:29 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E593B47B88;
+        Sat, 10 Sep 2022 14:16:28 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90EDEB8091F;
+        Sat, 10 Sep 2022 21:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57097C433D6;
+        Sat, 10 Sep 2022 21:16:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1662844586;
+        bh=Yhh4HinMSFzDEq0UIYyxqbae+osLFMVeT3vElBCYf0Q=;
+        h=From:To:Cc:Subject:Date:From;
+        b=LGtwPdBXx/Lxt4bTocuLKhQUdUzhz1UjQBeMtCRJ+sTZT8yOSgmNwNiX7a7Q7nb7j
+         olOvDkffQGxKkLTM02343hxCrGDiaCIFVLtNAIVPk8utKZ6aAh8P/1XR1VNGtsbYb2
+         Nmnha+DbrVjSdTCyWxnZrxHdi9pml841xliDJfgHdJiOhws3PmtmjyjuOvDGk8KdV2
+         8ykPlbhYoBEJpwtFZjBjbVK4qSwEQifLYZg8qvI+V7mSzTMZKSAwNSi3Pw8lqdnFzo
+         hWvdfpSInYqpY5pfZPhlLQw51vb71YUMiDg4andwQItF4is5+jkH7qhL1M3NMFN+yF
+         11cSz2AUC54OA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Ondrej Jirman <megi@xff.cz>, Jarrah Gosbell <kernel@undef.tools>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, hadess@hadess.net,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.19 01/38] Input: goodix - add support for GT1158
+Date:   Sat, 10 Sep 2022 17:15:46 -0400
+Message-Id: <20220910211623.69825-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tmp-gpiolib-of-quirks
-branch HEAD: 063e18ac945d4e6f2e7baa061a9a0b7c9f550d35  gpiolib: of: factor out conversion from OF flags
+From: Ondrej Jirman <megi@xff.cz>
 
-elapsed time: 726m
+[ Upstream commit 425fe4709c76e35f93f4c0e50240f0b61b2a2e54 ]
 
-configs tested: 58
-configs skipped: 2
+This controller is used by PinePhone and PinePhone Pro. Support for
+the PinePhone Pro will be added in a later patch set.
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
+Signed-off-by: Ondrej Jirman <megi@xff.cz>
+Signed-off-by: Jarrah Gosbell <kernel@undef.tools>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20220809091200.290492-1-kernel@undef.tools
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/input/touchscreen/goodix.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-gcc tested configs:
-um                             i386_defconfig
-um                           x86_64_defconfig
-arc                              allyesconfig
-alpha                            allyesconfig
-i386                                defconfig
-x86_64                        randconfig-a013
-x86_64                        randconfig-a011
-powerpc                           allnoconfig
-m68k                             allmodconfig
-x86_64                              defconfig
-m68k                             allyesconfig
-x86_64                        randconfig-a015
-i386                             allyesconfig
-i386                          randconfig-a012
-i386                          randconfig-a014
-sh                               allmodconfig
-mips                             allyesconfig
-powerpc                          allmodconfig
-x86_64                               rhel-8.3
-i386                          randconfig-a016
-i386                          randconfig-a001
-x86_64                        randconfig-a004
-arm                                 defconfig
-i386                          randconfig-a003
-x86_64                          rhel-8.3-func
-x86_64                        randconfig-a002
-x86_64                           allyesconfig
-x86_64                         rhel-8.3-kunit
-x86_64                           rhel-8.3-kvm
-i386                          randconfig-a005
-x86_64                    rhel-8.3-kselftests
-x86_64                        randconfig-a006
-x86_64                           rhel-8.3-syz
-arc                  randconfig-r043-20220909
-arc                  randconfig-r043-20220907
-arm                              allyesconfig
-arm64                            allyesconfig
-ia64                             allmodconfig
-
-clang tested configs:
-x86_64                        randconfig-a014
-x86_64                        randconfig-a016
-x86_64                        randconfig-a012
-i386                          randconfig-a013
-i386                          randconfig-a011
-i386                          randconfig-a015
-x86_64                        randconfig-a005
-i386                          randconfig-a002
-x86_64                        randconfig-a001
-i386                          randconfig-a006
-i386                          randconfig-a004
-x86_64                        randconfig-a003
-s390                 randconfig-r044-20220907
-hexagon              randconfig-r041-20220907
-hexagon              randconfig-r041-20220909
-riscv                randconfig-r042-20220907
-hexagon              randconfig-r045-20220909
-riscv                randconfig-r042-20220909
-hexagon              randconfig-r045-20220907
-s390                 randconfig-r044-20220909
-
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index aa45a9fee6a01..06d4fcafb7666 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -95,6 +95,7 @@ static const struct goodix_chip_data gt9x_chip_data = {
+ 
+ static const struct goodix_chip_id goodix_chip_ids[] = {
+ 	{ .id = "1151", .data = &gt1x_chip_data },
++	{ .id = "1158", .data = &gt1x_chip_data },
+ 	{ .id = "5663", .data = &gt1x_chip_data },
+ 	{ .id = "5688", .data = &gt1x_chip_data },
+ 	{ .id = "917S", .data = &gt1x_chip_data },
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.35.1
+

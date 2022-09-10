@@ -2,48 +2,53 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F0EDECAAD3
-	for <linux-input@archiver.kernel.org>; Sat, 10 Sep 2022 21:17:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0497EC6FA83
+	for <linux-input@archiver.kernel.org>; Sat, 10 Sep 2022 21:17:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229931AbiIJVRN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 10 Sep 2022 17:17:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56826 "EHLO
+        id S229949AbiIJVRR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 10 Sep 2022 17:17:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229827AbiIJVQz (ORCPT
+        with ESMTP id S229835AbiIJVQ5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 10 Sep 2022 17:16:55 -0400
+        Sat, 10 Sep 2022 17:16:57 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 611764CA0A;
-        Sat, 10 Sep 2022 14:16:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18A2A4C622;
+        Sat, 10 Sep 2022 14:16:48 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A680B80942;
-        Sat, 10 Sep 2022 21:16:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 813ECC4314E;
-        Sat, 10 Sep 2022 21:16:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2E11B8094F;
+        Sat, 10 Sep 2022 21:16:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F312C43470;
+        Sat, 10 Sep 2022 21:16:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844599;
-        bh=lqB1JfxNpThETl4PF4DAqehD8LkBkbi9zagY4uOJHnc=;
+        s=k20201202; t=1662844605;
+        bh=AzSnHITp5t6kjGJzlorCsejjfhK4RLQGh1dl9cKmYFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QH1oHgv34TZN9CR8ZzV3qNcl/seDjltMQX+ZV5bV0czCHjvj01l8/ZIrPFTa/9UuN
-         /d+UOQ/AEagawoeVQBWhQUaS6F/9w61dpMSglxV/Z4UWT9BtQUJh9VIio8teSTX2Vd
-         nUzuMncpTKysHLnW1OmADI0x4IIPVmQXJv6bWIi1/2DWJiQYyEy2n1rSDTGT9g2VCh
-         AluK7hlXpUrf5WQrcIYpBRLrStDUl8nBdK8jYq4Nt0n/p/ltDXMbt10aejEiCtwz4F
-         K9D9h1Uj8fO89A89k1dm67fgviUkrUysJxtMaqNdhBodaDeXLI6OfHDPxdpuBPPmpN
-         DMGQ8QYN3BrwA==
+        b=src69G4Cq485jR5zs8tM1npeZUmi8CGsr9faL2nGpeN8esS+qnRQN1ATatjmwpHp3
+         mDfRGkAfcuFXUWP/GZJ0ekQMvthYw+31/Tt+bvRbuyUSDb9ANtrIVaY1FFhwDjy2Ge
+         WExIynGVWBJ8Bx+6A8xCIjW3jQCyjVqKAtqvGJscRYUk7NFOTzcVxohxGlx+tCgXXA
+         raYHJHYF/TT/3CC/lq6/f26OtAuKJ7gCkGMsKCdsk4mjSn8poseStd5hABbbnGV7VH
+         AdiA8mUDsuP5SmBC2yItvQE7BW7ASuDqu7rJNKgFEcw0IEwgB0H7X7CN7XE2AhEzi0
+         IYSi8jEC7TPGw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josh Kilmer <srjek2@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 09/38] HID: asus: ROG NKey: Ignore portion of 0x5a report
-Date:   Sat, 10 Sep 2022 17:15:54 -0400
-Message-Id: <20220910211623.69825-9-sashal@kernel.org>
+Cc:     =?UTF-8?q?Michael=20H=C3=BCbner?= <michaelh.95@t-online.de>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        mcoquelin.stm32@gmail.com, alexandre.torgue@foss.st.com,
+        linux-input@vger.kernel.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.19 12/38] HID: thrustmaster: Add sparco wheel and fix array length
+Date:   Sat, 10 Sep 2022 17:15:57 -0400
+Message-Id: <20220910211623.69825-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
 References: <20220910211623.69825-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,43 +56,40 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Josh Kilmer <srjek2@gmail.com>
+From: Michael Hübner <michaelh.95@t-online.de>
 
-[ Upstream commit 1c0cc9d11c665020cbeb80e660fb8929164407f4 ]
+[ Upstream commit d9a17651f3749e69890db57ca66e677dfee70829 ]
 
-On an Asus G513QY, of the 5 bytes in a 0x5a report, only the first byte
-is a meaningful keycode. The other bytes are zeroed out or hold garbage
-from the last packet sent to the keyboard.
+Add device id for the Sparco R383 Mod wheel.
 
-This patch fixes up the report descriptor for this event so that the
-general hid code will only process 1 byte for keycodes, avoiding
-spurious key events and unmapped Asus vendor usagepage code warnings.
+Fix wheel info array length to match actual wheel count present in the array.
 
-Signed-off-by: Josh Kilmer <srjek2@gmail.com>
+Signed-off-by: Michael Hübner <michaelh.95@t-online.de>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-asus.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hid/hid-thrustmaster.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 08c9a9a60ae47..b59c3dafa6a48 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1212,6 +1212,13 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 		rdesc = new_rdesc;
- 	}
+diff --git a/drivers/hid/hid-thrustmaster.c b/drivers/hid/hid-thrustmaster.c
+index c3e6d69fdfbd9..cf1679b0d4fbb 100644
+--- a/drivers/hid/hid-thrustmaster.c
++++ b/drivers/hid/hid-thrustmaster.c
+@@ -67,12 +67,13 @@ static const struct tm_wheel_info tm_wheels_infos[] = {
+ 	{0x0200, 0x0005, "Thrustmaster T300RS (Missing Attachment)"},
+ 	{0x0206, 0x0005, "Thrustmaster T300RS"},
+ 	{0x0209, 0x0005, "Thrustmaster T300RS (Open Wheel Attachment)"},
++	{0x020a, 0x0005, "Thrustmaster T300RS (Sparco R383 Mod)"},
+ 	{0x0204, 0x0005, "Thrustmaster T300 Ferrari Alcantara Edition"},
+ 	{0x0002, 0x0002, "Thrustmaster T500RS"}
+ 	//{0x0407, 0x0001, "Thrustmaster TMX"}
+ };
  
-+	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD &&
-+			*rsize == 331 && rdesc[190] == 0x85 && rdesc[191] == 0x5a &&
-+			rdesc[204] == 0x95 && rdesc[205] == 0x05) {
-+		hid_info(hdev, "Fixing up Asus N-KEY keyb report descriptor\n");
-+		rdesc[205] = 0x01;
-+	}
-+
- 	return rdesc;
- }
+-static const uint8_t tm_wheels_infos_length = 4;
++static const uint8_t tm_wheels_infos_length = 7;
  
+ /*
+  * This structs contains (in little endian) the response data
 -- 
 2.35.1
 

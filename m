@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E89F7C6FA89
-	for <linux-input@archiver.kernel.org>; Sat, 10 Sep 2022 21:24:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 961A6C6FA90
+	for <linux-input@archiver.kernel.org>; Sat, 10 Sep 2022 21:24:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230320AbiIJVYT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 10 Sep 2022 17:24:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37182 "EHLO
+        id S230401AbiIJVYV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 10 Sep 2022 17:24:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231176AbiIJVXk (ORCPT
+        with ESMTP id S231162AbiIJVXj (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 10 Sep 2022 17:23:40 -0400
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABF82495C;
-        Sat, 10 Sep 2022 14:19:48 -0700 (PDT)
+        Sat, 10 Sep 2022 17:23:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2A226175;
+        Sat, 10 Sep 2022 14:19:45 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1322CCE0AE3;
-        Sat, 10 Sep 2022 21:19:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 780E1C433B5;
-        Sat, 10 Sep 2022 21:19:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3EC3B60EB3;
+        Sat, 10 Sep 2022 21:18:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B51CC433D7;
+        Sat, 10 Sep 2022 21:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844748;
+        s=k20201202; t=1662844722;
         bh=bc2OW2J+0cXow/XWPZkMpI2LiaUOa6IBtOe2gC9WYqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ANlaxh6Qwtrbj4DILCqFWfPMnGQooK5/k64Kf5vGKeqQVAdfvOuHopppxBTTiGfcm
-         pycLKjY57+iOZfXH8iiWnrTXft0t/XEiX6NeQZhmOD9VUjoyhheMAkHHETlJ1GUlH2
-         Lax+jWBlw6e7KwhxFZ10/s0/9yhMVNEWX5t9JmQ7yYnJEd0opxzabdHj1Z9sz3ziwG
-         ZyoYRF8668H1/cCKEoOkYvAdBA+pZqJHLE/4mzU0AMdLMi9A3CVBGceEn6F8XX0bgc
-         0Z5Qlpjk+k1hjsyeriCc2B4g+Z/zZA2tnbUYUY1gfgyE7NZBZGebykl6IT+7eXyrNT
-         i1fTzNRZ/fwUw==
+        b=i49Bwr2ryt4SxHsxBBzxOiha7E6uj8GdPC1kO8BNTb7lv5AiHU154Z/SF7O7Zx3Br
+         KwZV9k05y17OpCArL3QmEULXr6ivCnUSbLt9vUC1lVoeTX8cgeZ+Zz2YNxxE3STe9D
+         +/JVqyooSqD77/YMKiNtlQ36xleZhPcgJUlEV7ZHi4Ft36Rot8/QG7gs42iWnCt9vE
+         UffhICvzIJ5Fuzi42ISU67p9KdAsS34FLIDqgibgZoU6d7FBBG8MLzIeYKbaghR8XZ
+         qLSZ3e3D0Y9gSR0ugjrZ60pWVShmORd/SDb2u4qY+i2DhehUPe7cxjbpSobXdS2NBi
+         u7cFCOx6he++A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Even Xu <even.xu@intel.com>,
@@ -39,12 +39,12 @@ Cc:     Even Xu <even.xu@intel.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         srinivas.pandruvada@linux.intel.com, jikos@kernel.org,
         benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/10] hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
-Date:   Sat, 10 Sep 2022 17:18:54 -0400
-Message-Id: <20220910211901.70760-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 05/14] hid: intel-ish-hid: ishtp: Fix ishtp client sending disordered message
+Date:   Sat, 10 Sep 2022 17:18:23 -0400
+Message-Id: <20220910211832.70579-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220910211901.70760-1-sashal@kernel.org>
-References: <20220910211901.70760-1-sashal@kernel.org>
+In-Reply-To: <20220910211832.70579-1-sashal@kernel.org>
+References: <20220910211832.70579-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore

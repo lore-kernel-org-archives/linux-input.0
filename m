@@ -2,48 +2,47 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7DFCECAAD3
-	for <linux-input@archiver.kernel.org>; Sat, 10 Sep 2022 21:19:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B24BFC6FA8D
+	for <linux-input@archiver.kernel.org>; Sat, 10 Sep 2022 21:21:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229938AbiIJVTG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 10 Sep 2022 17:19:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57552 "EHLO
+        id S230239AbiIJVVO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 10 Sep 2022 17:21:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230004AbiIJVSU (ORCPT
+        with ESMTP id S230238AbiIJVUS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 10 Sep 2022 17:18:20 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A8E84C608;
-        Sat, 10 Sep 2022 14:17:31 -0700 (PDT)
+        Sat, 10 Sep 2022 17:20:18 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D28E4F648;
+        Sat, 10 Sep 2022 14:18:08 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9359B60EBC;
-        Sat, 10 Sep 2022 21:17:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2765BC433C1;
-        Sat, 10 Sep 2022 21:17:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0915B80915;
+        Sat, 10 Sep 2022 21:18:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BFFAC43141;
+        Sat, 10 Sep 2022 21:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1662844631;
-        bh=54RdefYutBM/Gw3iVNj/W+hkwOzEHl/9vNlS+w2lrfg=;
+        s=k20201202; t=1662844683;
+        bh=lqB1JfxNpThETl4PF4DAqehD8LkBkbi9zagY4uOJHnc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ovYwvZg1DH9RMvHKRSstn/kaviXXpk3SInrbZjsRMDKUZCibt1Qsn/DjfGSi4iyB1
-         /za5LFzgvFb+oYAekePjtonZqvRTuOUirfEKCOHxIbU+G1y9FU/ORrPhCtSjSoDt2J
-         ZNflwPLHArJjtxa3oMdbh2+jKue1nAWF9RlCbrrCNj7QBK0TjwyQfYZAwGvqgEk7I6
-         NcyXmoXbd4pWtx8XHWh7bOqblt3cf7z+Fp7oy3Di6R1FkMCGY7uxw4yWIRCBS0SSno
-         +7zP4hZpkwewyOraVnvlRdAjLHluiMDG0HPPf1zjiwPJnoSqRvB106F5i56PfKIboy
-         3zMz2Lod/xeoQ==
+        b=ngHYDhxEX1K2ORNwdwMuFpqPV4UFf0k2DQtU4Mb1jtuKMz7K0jO9dyGISb9fYxXq8
+         5yth7LdMVisPym/r+4X1zYHhqCpMBNpGKvAFEjXlNpPyUUk1gInkYLsC5UqlQ7lip5
+         XVIRAJMrVTiV56q6GCVc95vzIMcv0ZWOgvwkWdDF+dnXSd5rEVVhfyg5B3cyVdhGFL
+         mLe2KXkm5AEIqqxZFtrPFvg9RXEv3OGWpieG80tNC2Tspm7stzZc8wnnQtxWdVc1v8
+         VJajtUBhKT5TQTSFAaZTt3JzwaepYUR3ss3GQeuGziuq6tfqnPHDIVud2s1UxzMcfX
+         z7CEFFg6YZlMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Tulli <greg.iforce@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, corbet@lwn.net,
-        linux-input@vger.kernel.org, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.19 23/38] Input: iforce - add support for Boeder Force Feedback Wheel
-Date:   Sat, 10 Sep 2022 17:16:08 -0400
-Message-Id: <20220910211623.69825-23-sashal@kernel.org>
+Cc:     Josh Kilmer <srjek2@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 06/21] HID: asus: ROG NKey: Ignore portion of 0x5a report
+Date:   Sat, 10 Sep 2022 17:17:37 -0400
+Message-Id: <20220910211752.70291-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20220910211623.69825-1-sashal@kernel.org>
-References: <20220910211623.69825-1-sashal@kernel.org>
+In-Reply-To: <20220910211752.70291-1-sashal@kernel.org>
+References: <20220910211752.70291-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -52,46 +51,43 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Greg Tulli <greg.iforce@gmail.com>
+From: Josh Kilmer <srjek2@gmail.com>
 
-[ Upstream commit 9c9c71168f7979f3798b61c65b4530fbfbcf19d1 ]
+[ Upstream commit 1c0cc9d11c665020cbeb80e660fb8929164407f4 ]
 
-Add a new iforce_device entry to support the Boeder Force Feedback Wheel
-device.
+On an Asus G513QY, of the 5 bytes in a 0x5a report, only the first byte
+is a meaningful keycode. The other bytes are zeroed out or hold garbage
+from the last packet sent to the keyboard.
 
-Signed-off-by: Greg Tulli <greg.iforce@gmail.com>
-Link: https://lore.kernel.org/r/3256420-c8ac-31b-8499-3c488a9880fd@gmail.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+This patch fixes up the report descriptor for this event so that the
+general hid code will only process 1 byte for keycodes, avoiding
+spurious key events and unmapped Asus vendor usagepage code warnings.
+
+Signed-off-by: Josh Kilmer <srjek2@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/input/joydev/joystick.rst     | 1 +
- drivers/input/joystick/iforce/iforce-main.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/hid-asus.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/Documentation/input/joydev/joystick.rst b/Documentation/input/joydev/joystick.rst
-index f615906a0821b..6d721396717a2 100644
---- a/Documentation/input/joydev/joystick.rst
-+++ b/Documentation/input/joydev/joystick.rst
-@@ -517,6 +517,7 @@ All I-Force devices are supported by the iforce module. This includes:
- * AVB Mag Turbo Force
- * AVB Top Shot Pegasus
- * AVB Top Shot Force Feedback Racing Wheel
-+* Boeder Force Feedback Wheel
- * Logitech WingMan Force
- * Logitech WingMan Force Wheel
- * Guillemot Race Leader Force Feedback
-diff --git a/drivers/input/joystick/iforce/iforce-main.c b/drivers/input/joystick/iforce/iforce-main.c
-index b2a68bc9f0b4d..b86de1312512b 100644
---- a/drivers/input/joystick/iforce/iforce-main.c
-+++ b/drivers/input/joystick/iforce/iforce-main.c
-@@ -50,6 +50,7 @@ static struct iforce_device iforce_device[] = {
- 	{ 0x046d, 0xc291, "Logitech WingMan Formula Force",		btn_wheel, abs_wheel, ff_iforce },
- 	{ 0x05ef, 0x020a, "AVB Top Shot Pegasus",			btn_joystick_avb, abs_avb_pegasus, ff_iforce },
- 	{ 0x05ef, 0x8884, "AVB Mag Turbo Force",			btn_wheel, abs_wheel, ff_iforce },
-+	{ 0x05ef, 0x8886, "Boeder Force Feedback Wheel",		btn_wheel, abs_wheel, ff_iforce },
- 	{ 0x05ef, 0x8888, "AVB Top Shot Force Feedback Racing Wheel",	btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc0a4, "ACT LABS Force RS",                          btn_wheel, abs_wheel, ff_iforce }, //?
- 	{ 0x061c, 0xc084, "ACT LABS Force RS",				btn_wheel, abs_wheel, ff_iforce },
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 08c9a9a60ae47..b59c3dafa6a48 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -1212,6 +1212,13 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		rdesc = new_rdesc;
+ 	}
+ 
++	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD &&
++			*rsize == 331 && rdesc[190] == 0x85 && rdesc[191] == 0x5a &&
++			rdesc[204] == 0x95 && rdesc[205] == 0x05) {
++		hid_info(hdev, "Fixing up Asus N-KEY keyb report descriptor\n");
++		rdesc[205] = 0x01;
++	}
++
+ 	return rdesc;
+ }
+ 
 -- 
 2.35.1
 

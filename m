@@ -2,62 +2,65 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9442FC6FA82
-	for <linux-input@archiver.kernel.org>; Mon, 12 Sep 2022 22:14:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A64E7C6FA82
+	for <linux-input@archiver.kernel.org>; Mon, 12 Sep 2022 22:14:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbiILWOi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 12 Sep 2022 18:14:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34336 "EHLO
+        id S230300AbiILWOr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 12 Sep 2022 18:14:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230237AbiILWOC (ORCPT
+        with ESMTP id S230242AbiILWOD (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 12 Sep 2022 18:14:02 -0400
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9180F4E613
-        for <linux-input@vger.kernel.org>; Mon, 12 Sep 2022 15:13:51 -0700 (PDT)
-Received: by mail-io1-xd2d.google.com with SMTP id b23so8019464iof.2
-        for <linux-input@vger.kernel.org>; Mon, 12 Sep 2022 15:13:51 -0700 (PDT)
+        Mon, 12 Sep 2022 18:14:03 -0400
+Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB0884E623
+        for <linux-input@vger.kernel.org>; Mon, 12 Sep 2022 15:13:54 -0700 (PDT)
+Received: by mail-io1-xd32.google.com with SMTP id z191so8149514iof.10
+        for <linux-input@vger.kernel.org>; Mon, 12 Sep 2022 15:13:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=vXHIrIo50L1riD03yC2Su3ni64w2wlYKDy3npYanFkI=;
-        b=hJd2TgNXN+rJHGuDsMGKINB1TiYRI8Zd7zX78W54wrVkKc5GvO2vvyeM5vV8xshTLd
-         VoO1IqzyPM82+99hDRQ4qo+xpv9txNbJuTK2smi71VhvCF16pN2x5odE80pSKsNv7Pl8
-         X7lTpwHh4tFXvB1f9CB+v76IR4/3Q4IYFTSE0=
+        bh=AO8ELqmpv4JTpt7IbubS6DP/bQTOugLMw7Qn2st0yGY=;
+        b=XSp5pncr9yu/es3paVMOJaxYPzJhZW5sFXx4sOGyu+zkxl0xUR9EQ2ROZ0HHsGbfzI
+         RX1Bp8NZRQZ51QjuNk5OlgbiBl8MIAZx54hrbftzqE6Ew7WNPIb3aATT1ssatyQHpF3D
+         Zo0lpM7MeqH2La8keyYOYYttUoxJlynbnBdok=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=vXHIrIo50L1riD03yC2Su3ni64w2wlYKDy3npYanFkI=;
-        b=tmnsuHKXfJU0Samyi8RAcBpctp4eVnudcykKtAPGDOzAXXZpZ+pNNzXoQNuN7dBjUE
-         qJhmNPX82yoJXu7gR0gyFf5OUamMmeAf2QuRds2JZ+l6EzeYx5CGe0+eVfg6SRmPZ6Jo
-         alR6EX4SpDy1DaU1mXO3qjBYYuh31fA5SX539lVDPmnygkcqJ/LbGP23u41IqzZm9lt4
-         Vc9lXy9LC1JRnzhVupYar8ep2K7PNGq57JSItoi+mbRnrcnX//t5CSOy1TS+ea5kS2V6
-         wweyG+XDkc/VY7aOw3KBc37flwNTKLPTQBGvnE5bOBE2c3I7nc83I+Zeept6jtOu5LsW
-         plIw==
-X-Gm-Message-State: ACgBeo102YEIExFvfMkDxRzfbCHhRgy1Po0B5BojQ8idJ/pqjHMzTh0s
-        U8Hs46ylyENaRGS86xnCOXDUqA==
-X-Google-Smtp-Source: AA6agR7cqi2okQAOz6bEwKNZTImmFicdp9oezk42RjQYf0T7Ys5LL2qgwdbh/ra8UGMg9JqDx8mg7A==
-X-Received: by 2002:a05:6638:1921:b0:350:ed6f:dc89 with SMTP id p33-20020a056638192100b00350ed6fdc89mr14743248jal.154.1663020830921;
-        Mon, 12 Sep 2022 15:13:50 -0700 (PDT)
+        bh=AO8ELqmpv4JTpt7IbubS6DP/bQTOugLMw7Qn2st0yGY=;
+        b=NYI3CK9R1BzwgR+oISzDAUviXnOG59Avbs+fdVmGndYpJ6+TV7YUDKjgW6WwPRLam2
+         ytQHbgk+yig80Ri84QboP93tycLRLGTICITGe87ldVodq5W2DF75h3d2YI9sUI42Rply
+         vaIdT/pSiozU/qwpTz66KyWgoIGW5NnBHE+68Hkiw2cOwTmaslCUap1FuMJ7I3ujEtwe
+         hfhPhVohdvjv9QCcWeGGm4F1tDmos22Y/n5s5UCgUPxEaH/ue0YtKF9j34e/SVE92sR7
+         KXOg5v0in2XQuk2XL2yrwNzta7yrFU5UwEGXtS/y8V/ISUH1ahY/QiVIUS9CfIZIYN6L
+         f9nQ==
+X-Gm-Message-State: ACgBeo1AE+UkwcyOgo0YK+bUHpND2IAJBktVceW8HStFd7uhAvjjvZt9
+        EAGe3m9qfQZfHCN399WhS4U4NQ==
+X-Google-Smtp-Source: AA6agR4j7otLmc4Qt+KhYnFBTvDOoaO/IFebheo79BvjoHtEC90WfKYj6d4ZvVT/o43pV21YYR7DAA==
+X-Received: by 2002:a05:6638:4416:b0:35a:3cca:4db3 with SMTP id bp22-20020a056638441600b0035a3cca4db3mr3340109jab.0.1663020833972;
+        Mon, 12 Sep 2022 15:13:53 -0700 (PDT)
 Received: from rrangel920.bld.corp.google.com (h24-56-189-219.arvdco.broadband.dynamic.tds.net. [24.56.189.219])
-        by smtp.gmail.com with ESMTPSA id 18-20020a056e020cb200b002f16e7021f6sm4077334ilg.22.2022.09.12.15.13.49
+        by smtp.gmail.com with ESMTPSA id 18-20020a056e020cb200b002f16e7021f6sm4077334ilg.22.2022.09.12.15.13.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 12 Sep 2022 15:13:50 -0700 (PDT)
+        Mon, 12 Sep 2022 15:13:53 -0700 (PDT)
 From:   Raul E Rangel <rrangel@chromium.org>
 To:     linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 Cc:     andriy.shevchenko@linux.intel.com, jingle.wu@emc.com.tw,
         mario.limonciello@amd.com, timvp@google.com,
         linus.walleij@linaro.org, hdegoede@redhat.com, rafael@kernel.org,
         Raul E Rangel <rrangel@chromium.org>,
-        Cai Huoqing <cai.huoqing@linux.dev>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2 04/13] Input: raydium_ts_i2c - Use PM subsystem to manage wake irq
-Date:   Mon, 12 Sep 2022 16:13:08 -0600
-Message-Id: <20220912160931.v2.4.I06b417b274bbecb31775a73993a7a3c1bc80de7b@changeid>
+        Dan Williams <dan.j.williams@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Len Brown <lenb@kernel.org>,
+        Terry Bowman <terry.bowman@amd.com>,
+        Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 06/13] ACPI: resources: Add wake_capable parameter to acpi_dev_irq_flags
+Date:   Mon, 12 Sep 2022 16:13:10 -0600
+Message-Id: <20220912160931.v2.6.I8092e417a8152475d13d8d638eb4c5d8ea12ac7b@changeid>
 X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
 In-Reply-To: <20220912221317.2775651-1-rrangel@chromium.org>
 References: <20220912221317.2775651-1-rrangel@chromium.org>
@@ -67,81 +70,205 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The raydium I2C touchscreen driver is currently manually managing the
-wake IRQ. This change removes the explicit enable_irq_wake /
-disable_irq_wake and instead relies on the PM subsystem. This is done by
-calling dev_pm_set_wake_irq.
-
-i2c_device_probe already calls dev_pm_set_wake_irq when using device
-tree, and i2c_device_remove also already calls dev_pm_clear_wake_irq.
-There could be some device tree systems that have incorrectly declared
-`wake` capabilities, so this change will set the wake irq if one is
-missing. This matches the previous behavior.
+ACPI IRQ/Interrupt resources contain a bit that describes if the
+interrupt should wake the system. This change exposes that bit via
+a new IORESOURCE_IRQ_WAKECAPABLE flag. Drivers should check this flag
+before arming an IRQ to wake the system.
 
 Signed-off-by: Raul E Rangel <rrangel@chromium.org>
 ---
 
 Changes in v2:
-- Added raydium_ts_i2c to series
+- Added ability to extract wake bit from Interrupt/IRQ resources
 
- drivers/input/touchscreen/raydium_i2c_ts.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/acpi/irq.c             | 11 ++++++++---
+ drivers/acpi/resource.c        | 24 +++++++++++++++++-------
+ drivers/pnp/pnpacpi/rsparser.c |  9 ++++++---
+ include/linux/acpi.h           |  3 ++-
+ include/linux/ioport.h         |  3 ++-
+ 5 files changed, 35 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index 3a4952935366f9..66c5b577b791d4 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -21,6 +21,7 @@
- #include <linux/interrupt.h>
- #include <linux/module.h>
- #include <linux/of.h>
-+#include <linux/pm_wakeirq.h>
- #include <linux/regulator/consumer.h>
- #include <linux/slab.h>
- #include <asm/unaligned.h>
-@@ -134,8 +135,6 @@ struct raydium_data {
- 	u8 pkg_size;
- 
- 	enum raydium_boot_mode boot_mode;
--
--	bool wake_irq_enabled;
- };
- 
- /*
-@@ -1186,6 +1185,15 @@ static int raydium_i2c_probe(struct i2c_client *client,
- 		return error;
+diff --git a/drivers/acpi/irq.c b/drivers/acpi/irq.c
+index dabe45eba055d1..5483cf9a28e3a0 100644
+--- a/drivers/acpi/irq.c
++++ b/drivers/acpi/irq.c
+@@ -147,6 +147,7 @@ struct acpi_irq_parse_one_ctx {
+  * @polarity: polarity attributes of hwirq
+  * @polarity: polarity attributes of hwirq
+  * @shareable: shareable attributes of hwirq
++ * @wake_capable: wake capable attribute of hwirq
+  * @ctx: acpi_irq_parse_one_ctx updated by this function
+  *
+  * Description:
+@@ -156,12 +157,14 @@ struct acpi_irq_parse_one_ctx {
+ static inline void acpi_irq_parse_one_match(struct fwnode_handle *fwnode,
+ 					    u32 hwirq, u8 triggering,
+ 					    u8 polarity, u8 shareable,
++					    u8 wake_capable,
+ 					    struct acpi_irq_parse_one_ctx *ctx)
+ {
+ 	if (!fwnode)
+ 		return;
+ 	ctx->rc = 0;
+-	*ctx->res_flags = acpi_dev_irq_flags(triggering, polarity, shareable);
++	*ctx->res_flags = acpi_dev_irq_flags(triggering, polarity, shareable,
++					     wake_capable);
+ 	ctx->fwspec->fwnode = fwnode;
+ 	ctx->fwspec->param[0] = hwirq;
+ 	ctx->fwspec->param[1] = acpi_dev_get_irq_type(triggering, polarity);
+@@ -204,7 +207,8 @@ static acpi_status acpi_irq_parse_one_cb(struct acpi_resource *ares,
+ 		fwnode = acpi_get_gsi_domain_id(irq->interrupts[ctx->index]);
+ 		acpi_irq_parse_one_match(fwnode, irq->interrupts[ctx->index],
+ 					 irq->triggering, irq->polarity,
+-					 irq->shareable, ctx);
++					 irq->shareable, irq->wake_capable,
++					 ctx);
+ 		return AE_CTRL_TERMINATE;
+ 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
+ 		eirq = &ares->data.extended_irq;
+@@ -218,7 +222,8 @@ static acpi_status acpi_irq_parse_one_cb(struct acpi_resource *ares,
+ 						      eirq->interrupts[ctx->index]);
+ 		acpi_irq_parse_one_match(fwnode, eirq->interrupts[ctx->index],
+ 					 eirq->triggering, eirq->polarity,
+-					 eirq->shareable, ctx);
++					 eirq->shareable, eirq->wake_capable,
++					 ctx);
+ 		return AE_CTRL_TERMINATE;
  	}
  
-+	/*
-+	 * The wake IRQ should be declared via device tree instead of assuming
-+	 * the IRQ can wake the system. This is here for legacy reasons and
-+	 * will be removed once the i2c-core supports querying ACPI for wake
-+	 * capabilities.
-+	 */
-+	if (!client->dev.power.wakeirq)
-+		dev_pm_set_wake_irq(&client->dev, client->irq);
+diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
+index 510cdec375c4d8..6a1c008a348902 100644
+--- a/drivers/acpi/resource.c
++++ b/drivers/acpi/resource.c
+@@ -336,8 +336,10 @@ EXPORT_SYMBOL_GPL(acpi_dev_resource_ext_address_space);
+  * @triggering: Triggering type as provided by ACPI.
+  * @polarity: Interrupt polarity as provided by ACPI.
+  * @shareable: Whether or not the interrupt is shareable.
++ * @wake_capable: Wake capability as provided by ACPI.
+  */
+-unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable)
++unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable,
++				 u8 wake_capable)
+ {
+ 	unsigned long flags;
+ 
+@@ -351,6 +353,9 @@ unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable)
+ 	if (shareable == ACPI_SHARED)
+ 		flags |= IORESOURCE_IRQ_SHAREABLE;
+ 
++	if (wake_capable == ACPI_WAKE_CAPABLE)
++		flags |= IORESOURCE_IRQ_WAKECAPABLE;
 +
- 	error = devm_device_add_group(&client->dev,
- 				   &raydium_i2c_attribute_group);
- 	if (error) {
-@@ -1222,8 +1230,6 @@ static int __maybe_unused raydium_i2c_suspend(struct device *dev)
+ 	return flags | IORESOURCE_IRQ;
+ }
+ EXPORT_SYMBOL_GPL(acpi_dev_irq_flags);
+@@ -442,7 +447,7 @@ static bool acpi_dev_irq_override(u32 gsi, u8 triggering, u8 polarity,
  
- 	if (device_may_wakeup(dev)) {
- 		raydium_enter_sleep(client);
--
--		ts->wake_irq_enabled = (enable_irq_wake(client->irq) == 0);
- 	} else {
- 		raydium_i2c_power_off(ts);
+ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
+ 				     u8 triggering, u8 polarity, u8 shareable,
+-				     bool check_override)
++				     u8 wake_capable, bool check_override)
+ {
+ 	int irq, p, t;
+ 
+@@ -475,7 +480,8 @@ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
+ 		}
  	}
-@@ -1237,8 +1243,6 @@ static int __maybe_unused raydium_i2c_resume(struct device *dev)
- 	struct raydium_data *ts = i2c_get_clientdata(client);
  
- 	if (device_may_wakeup(dev)) {
--		if (ts->wake_irq_enabled)
--			disable_irq_wake(client->irq);
- 		raydium_i2c_sw_reset(client);
- 	} else {
- 		raydium_i2c_power_on(ts);
+-	res->flags = acpi_dev_irq_flags(triggering, polarity, shareable);
++	res->flags = acpi_dev_irq_flags(triggering, polarity, shareable,
++					wake_capable);
+ 	irq = acpi_register_gsi(NULL, gsi, triggering, polarity);
+ 	if (irq >= 0) {
+ 		res->start = irq;
+@@ -523,7 +529,8 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
+ 		}
+ 		acpi_dev_get_irqresource(res, irq->interrupts[index],
+ 					 irq->triggering, irq->polarity,
+-					 irq->shareable, true);
++					 irq->shareable, irq->wake_capable,
++					 true);
+ 		break;
+ 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
+ 		ext_irq = &ares->data.extended_irq;
+@@ -532,9 +539,12 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
+ 			return false;
+ 		}
+ 		if (is_gsi(ext_irq))
+-			acpi_dev_get_irqresource(res, ext_irq->interrupts[index],
+-					 ext_irq->triggering, ext_irq->polarity,
+-					 ext_irq->shareable, false);
++			acpi_dev_get_irqresource(res,
++						 ext_irq->interrupts[index],
++						 ext_irq->triggering,
++						 ext_irq->polarity,
++						 ext_irq->shareable,
++						 ext_irq->wake_capable, false);
+ 		else
+ 			irqresource_disabled(res, 0);
+ 		break;
+diff --git a/drivers/pnp/pnpacpi/rsparser.c b/drivers/pnp/pnpacpi/rsparser.c
+index da78dc77aed32e..55b28fc0a94042 100644
+--- a/drivers/pnp/pnpacpi/rsparser.c
++++ b/drivers/pnp/pnpacpi/rsparser.c
+@@ -206,7 +206,8 @@ static acpi_status pnpacpi_allocated_resource(struct acpi_resource *res,
+ 		if (i >= 0) {
+ 			flags = acpi_dev_irq_flags(gpio->triggering,
+ 						   gpio->polarity,
+-						   gpio->shareable);
++						   gpio->shareable,
++						   gpio->wake_capable);
+ 		} else {
+ 			flags = IORESOURCE_DISABLED;
+ 		}
+@@ -315,7 +316,8 @@ static __init void pnpacpi_parse_irq_option(struct pnp_dev *dev,
+ 		if (p->interrupts[i])
+ 			__set_bit(p->interrupts[i], map.bits);
+ 
+-	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable);
++	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable,
++				   p->wake_capable);
+ 	pnp_register_irq_resource(dev, option_flags, &map, flags);
+ }
+ 
+@@ -339,7 +341,8 @@ static __init void pnpacpi_parse_ext_irq_option(struct pnp_dev *dev,
+ 		}
+ 	}
+ 
+-	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable);
++	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable,
++				   p->wake_capable);
+ 	pnp_register_irq_resource(dev, option_flags, &map, flags);
+ }
+ 
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 7ee946758c5bcc..10ecf935e59431 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -495,7 +495,8 @@ bool acpi_dev_resource_address_space(struct acpi_resource *ares,
+ 				     struct resource_win *win);
+ bool acpi_dev_resource_ext_address_space(struct acpi_resource *ares,
+ 					 struct resource_win *win);
+-unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable);
++unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable,
++				 u8 wake_capable);
+ unsigned int acpi_dev_get_irq_type(int triggering, int polarity);
+ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
+ 				 struct resource *res);
+diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+index 616b683563a970..3baeea4d903bfd 100644
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -79,7 +79,8 @@ struct resource {
+ #define IORESOURCE_IRQ_HIGHLEVEL	(1<<2)
+ #define IORESOURCE_IRQ_LOWLEVEL		(1<<3)
+ #define IORESOURCE_IRQ_SHAREABLE	(1<<4)
+-#define IORESOURCE_IRQ_OPTIONAL 	(1<<5)
++#define IORESOURCE_IRQ_OPTIONAL		(1<<5)
++#define IORESOURCE_IRQ_WAKECAPABLE	(1<<6)
+ 
+ /* PnP DMA specific bits (IORESOURCE_BITS) */
+ #define IORESOURCE_DMA_TYPE_MASK	(3<<0)
 -- 
 2.37.2.789.g6183377224-goog
 

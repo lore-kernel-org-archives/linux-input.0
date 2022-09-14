@@ -2,60 +2,60 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E6449C6FA8A
-	for <linux-input@archiver.kernel.org>; Wed, 14 Sep 2022 14:14:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 89BE6C6FA8B
+	for <linux-input@archiver.kernel.org>; Wed, 14 Sep 2022 14:14:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229951AbiINOOq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 14 Sep 2022 10:14:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50904 "EHLO
+        id S229939AbiINOOs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 14 Sep 2022 10:14:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229892AbiINOOk (ORCPT
+        with ESMTP id S229936AbiINOOo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Sep 2022 10:14:40 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55ED27653;
-        Wed, 14 Sep 2022 07:14:36 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id w20so3195323ply.12;
-        Wed, 14 Sep 2022 07:14:36 -0700 (PDT)
+        Wed, 14 Sep 2022 10:14:44 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 413E2B49B;
+        Wed, 14 Sep 2022 07:14:39 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id d64-20020a17090a6f4600b00202ce056566so9690846pjk.4;
+        Wed, 14 Sep 2022 07:14:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=ocPUhQ7OBcduPbHu7i7Q6uCtqSpEiO9mYjpvwrjHSrU=;
-        b=O8wvaWEqLL1t3LzrppvIU3K3DamCenQ7WgK3GMrIEz/hFW/AEzzbqueTe0Ax9ftCFZ
-         /OJK+P6TDMuvHouMturAUk6/oPUn4wrs2lC1DFpra8VFiFJG1dths2WeplKS2Ro2ZZO4
-         XVkrCigwE9ZQMmcn3c7jFHMLNRK/xLL5IY2dzdnQMjJZWqXLoGvGxcn4eYicr0h4co1D
-         C9jnZLs7Hw/qqafQ7ER4TveclMylQdyhwr4adEsOcGU/xQAJhuL3siuEUMwx52L5gdmf
-         vnyc+GcrY3Ot64GAwC+s1HwRCF0T8NpI0ANRMNB6gmtSnQatBss4YAcMShy8WfvK0wGG
-         fFqw==
+        bh=D7Rv1WZZo0HfxpirDtBnZT8VvHiByqEzO0fGerdexis=;
+        b=C5W9glDC9i54iFxt/XgUUYpTCA96hecmSGt+OGqz8QrgL9VvSY/dHxSJH9IJU6pZ/d
+         eilImrNNfSmg/C7//uO8LyFjLe82OfL5it2nIgsYnFLZkCnO+LQfR946ANsHUTwYZvFo
+         pP3HsIxSFCQ9TweMY1ToFF1Gx4LdH1LPflkjwitUwmvFTnH4/ec7NxO84sJgtUVWATvo
+         UqOIV499d/FEfXl1v1Wn+X/HvCqo0eM+pS+WIoaTs5Zx1QHqJ3p6maytSvGVynLaZKD0
+         Ce6dutPPsc6PY+f5LzTEzrnR3NiONDn69HsZpnsQ+79NXSl3l7pAup7cPaVH/3085bGg
+         dLxA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=ocPUhQ7OBcduPbHu7i7Q6uCtqSpEiO9mYjpvwrjHSrU=;
-        b=eKmakddBEkQREzspfJRthaTJyzhHEMQJDbdbNCfH7reY6UveN2dW3J0HvaoZCIQUXH
-         ZgLEVprzoskc0rrn4X6+ItxbpxpDzvfLpQ3nB/J4YYPchHixkAtI6LBT4rzIFJVVV6De
-         K3K3HsGoJ7P0VFaLPhoSfUcXM2NbTpsm4OyhiSUCOiAjVx5g48gyBp/uIKevNA+u0jSd
-         qID70D/r0k8alccaIPIdjUWjFqZndLyeL+rShqy1VNSdtcYzj2fNciYPzPyYKMAKAZZz
-         fEH5zA8/p9kuJYhJsOJSf6e0xOnmCVjaoYtxawjp91L6vj8qWMei7ZKx7L7x7OyJiPTD
-         bHOA==
-X-Gm-Message-State: ACrzQf36QVlvhwzh44nh9Uz1jWNEwIDan6rsHE6lDaroCDGX1jRQC541
-        CHrPi+eZg9TJI0YsBy5nNLY=
-X-Google-Smtp-Source: AMsMyM4xYEvk4HqDFT0iYLxNQAkRbcLni2YcyHUxIXAP7eHDKzlB6g1Wx4T39e8KYmBJZPf7J+2dzg==
-X-Received: by 2002:a17:90a:7c07:b0:202:7292:900e with SMTP id v7-20020a17090a7c0700b002027292900emr4988557pjf.37.1663164875609;
-        Wed, 14 Sep 2022 07:14:35 -0700 (PDT)
+        bh=D7Rv1WZZo0HfxpirDtBnZT8VvHiByqEzO0fGerdexis=;
+        b=aQRRRr/63gvWZxJXc/ghLI4OkBBdMGgKLt/bhEAAc48iuKIfOBdxRLBFZun8C4DteS
+         GEB+kfBG1cKncTfMrdvz5YVIp/fUuDc4MuVppxZwwctLL25xTH0zatd6lWV9xtwZdIv9
+         a542tJxEteDA4kCrMgtU1Vd3LHXXxe2Uv1eXWdtf5l8YQAqLn5qi24CEzdRra5TEXWlH
+         AC2mHKGRqfpkQ2Y8y+lRguM1Mv0L2HrIdv/ZU8KXDlCxGDJpWmyEQW4lsajQGKMw0Xlj
+         qYWb9OdQq2RNnl2xv7eZqhTcOcFp7aYvWJyQ0taEDa19t8Q6JJO6fgBHy3RGKlbGVqGA
+         aoAw==
+X-Gm-Message-State: ACrzQf218fANxRJXEJAmPzZiiJ9wc5WMtjQ81aFOUr8T7Nw7y1P7VNme
+        ObEQYVG3peftaH8oBJQMI6o=
+X-Google-Smtp-Source: AMsMyM5op+DAcF+r4ir1DqOBWr/RDD1128G+uL2B0ZElCjhUleZy9UShq90ly+85T0O/4G6Puze6xA==
+X-Received: by 2002:a17:90b:224a:b0:203:d20:b92b with SMTP id hk10-20020a17090b224a00b002030d20b92bmr5024339pjb.17.1663164878385;
+        Wed, 14 Sep 2022 07:14:38 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:2f68:fe7:a2e6:7595])
-        by smtp.gmail.com with ESMTPSA id a9-20020a170902ecc900b0017839e5abfasm6480624plh.263.2022.09.14.07.14.34
+        by smtp.gmail.com with ESMTPSA id a9-20020a170902ecc900b0017839e5abfasm6480624plh.263.2022.09.14.07.14.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Sep 2022 07:14:34 -0700 (PDT)
+        Wed, 14 Sep 2022 07:14:38 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     Heiko Stuebner <heiko@sntech.de>
 Cc:     Linus Walleij <linus.walleij@linaro.org>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5] Input: auo-pixcir-ts - do not force rising edge interrupt trigger
-Date:   Wed, 14 Sep 2022 07:14:26 -0700
-Message-Id: <20220914141428.2201784-3-dmitry.torokhov@gmail.com>
+Subject: [PATCH 5/5] dt-bindings: input: auo-pixcir-ts: fix gpio and interrupt properties
+Date:   Wed, 14 Sep 2022 07:14:28 -0700
+Message-Id: <20220914141428.2201784-5-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.37.2.789.g6183377224-goog
 In-Reply-To: <20220914141428.2201784-1-dmitry.torokhov@gmail.com>
 References: <20220914141428.2201784-1-dmitry.torokhov@gmail.com>
@@ -65,27 +65,31 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Instead of hard-coding rising edge as the interrupt trigger, let's rely on
-the platform (ACPI, DT) to configure the interrupt properly.
+Add proper interrupt trigger and gpio polarity data to the binding example.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/auo-pixcir-ts.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../devicetree/bindings/input/touchscreen/auo_pixcir_ts.txt | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
-index c3bce9fb2c94..4960a50f59ea 100644
---- a/drivers/input/touchscreen/auo-pixcir-ts.c
-+++ b/drivers/input/touchscreen/auo-pixcir-ts.c
-@@ -612,7 +612,7 @@ static int auo_pixcir_probe(struct i2c_client *client,
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/auo_pixcir_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/auo_pixcir_ts.txt
+index f40f21c642b9..b8db975e9f77 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/auo_pixcir_ts.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/auo_pixcir_ts.txt
+@@ -17,10 +17,10 @@ Example:
+ 		auo_pixcir_ts@5c {
+ 			compatible = "auo,auo_pixcir_ts";
+ 			reg = <0x5c>;
+-			interrupts = <2 0>;
++			interrupts = <2 IRQ_TYPE_LEVEL_HIGH>;
  
- 	error = devm_request_threaded_irq(&client->dev, client->irq,
- 					  NULL, auo_pixcir_interrupt,
--					  IRQF_TRIGGER_RISING | IRQF_ONESHOT,
-+					  IRQF_ONESHOT,
- 					  input_dev->name, ts);
- 	if (error) {
- 		dev_err(&client->dev, "irq %d requested failed, %d\n",
+-			gpios = <&gpf 2 0 2>, /* INT */
+-				<&gpf 5 1 0>; /* RST */
++			gpios = <&gpf 2 0 GPIO_LEVEL_HIGH>, /* INT */
++				<&gpf 5 1 GPIO_LEVEL_LOW>; /* RST */
+ 
+ 			x-size = <800>;
+ 			y-size = <600>;
 -- 
 2.37.2.789.g6183377224-goog
 

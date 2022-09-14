@@ -2,488 +2,259 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52380ECAAD3
-	for <linux-input@archiver.kernel.org>; Wed, 14 Sep 2022 18:27:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B3585ECAAD3
+	for <linux-input@archiver.kernel.org>; Wed, 14 Sep 2022 18:38:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229781AbiINS1e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 14 Sep 2022 14:27:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37786 "EHLO
+        id S229561AbiINSiM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 14 Sep 2022 14:38:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbiINS1c (ORCPT
+        with ESMTP id S229520AbiINSiL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Sep 2022 14:27:32 -0400
-Received: from mail-4316.protonmail.ch (mail-4316.protonmail.ch [185.70.43.16])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C8167F12F;
-        Wed, 14 Sep 2022 11:27:29 -0700 (PDT)
-Date:   Wed, 14 Sep 2022 18:27:15 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail3; t=1663180046; x=1663439246;
-        bh=398dxQIvPKYdjnkWKOwJbWXWYGg+0dVLHBf87D2TXrU=;
-        h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-         Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-         Message-ID;
-        b=iUJ5opnhjtS4ZMQJFgSZyFukiD+gDhRQ207Ru3fNFn+mHZrY2/EGsrYfo0vBMqTgA
-         cf8quHDl4BJJDPoNK+u9C2k4O/+uxty+338sSD55vA7iljR5AM7Pg/tQUQZLKVdpBA
-         YKp6mqP8Cq130lL8FU6jtoQ6+d0uLoC2Rv4A65BfNJttl0vVfAJ2+ZpyDuSitPzaxb
-         eIVmEYIEeZRpoupcpzRIKBjwDEiXs5UdGNtAgb8Dbh2KnUPZJ7JHn3OBwjIbrpB3Va
-         jAB+IKxHWewmPLYSYynEjmRIITOSgJXIGDNnkwBDQ0q6vnByb4AVRpGCW32aMoqZ/1
-         kgUR/lINWg/Ew==
-To:     Arvid Norlander <lkml@vorpal.se>
-From:   =?utf-8?Q?Barnab=C3=A1s_P=C5=91cze?= <pobrn@protonmail.com>
-Cc:     platform-driver-x86@vger.kernel.org,
-        Hans de Goede <hdegoede@redhat.com>,
-        linux-acpi@vger.kernel.org, Len Brown <lenb@kernel.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        linux-input@vger.kernel.org, Azael Avalos <coproscefalo@gmail.com>
-Subject: Re: [PATCH RFC 1/2] staging: quickstart: Add ACPI quickstart button (PNP0C32) driver
-Message-ID: <drXHqh3nyou52BleUraC71bm5y1IXzb1kfROkRvfC-PXNoNbaxfYrq8Lj-_8aS4pFl0RHy7ts9fkz-uw_dMy0jaf5Yx8Rw5InWgZduKnojE=@protonmail.com>
-In-Reply-To: <20220911194934.558019-2-lkml@vorpal.se>
-References: <20220911194934.558019-1-lkml@vorpal.se> <20220911194934.558019-2-lkml@vorpal.se>
-Feedback-ID: 20568564:user:proton
+        Wed, 14 Sep 2022 14:38:11 -0400
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95B574E17;
+        Wed, 14 Sep 2022 11:38:10 -0700 (PDT)
+Received: by mail-lj1-x22c.google.com with SMTP id 9so18455462ljr.2;
+        Wed, 14 Sep 2022 11:38:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date;
+        bh=78CnzaAPH4z89FBxFwtTHbWcXI9P3dep9t1OMRvZpng=;
+        b=AET+Preuyw0r7MANwiGVh8fhlMt2pbWqsDfNC+8RxBdroWgUIc44Ll3xSO9CYGGbau
+         iTf85uuXCQtGPW36YMAlCOtBuGRrTR6e5wuJwYSP/OU5KZ/mcQcf3lssQjdti1RRqp/T
+         7Dg/LeeVae0Eai9LMY6Jkaj94D+Z2i/pN54emEK5GlRjjIxl5YbbQHcuUS22IrrewlvK
+         o3OgATaAbaEABHeYYMHHTVg+Ar3pRUsNx48Bp8WKYMY84RtGJJdrd4wZrh21DMB00hgL
+         1T7UNa1B0zaBCiDhsa6CAAe2NxypqzBlHGzf412dArDxkzM3+tNJAR1H06OOerGoMRXN
+         H4HQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date;
+        bh=78CnzaAPH4z89FBxFwtTHbWcXI9P3dep9t1OMRvZpng=;
+        b=RvjabqnqF4nkzrmptaJoOV+OPqmLCqbCQZ2NasSEZvD3sOzYctmYmjMovTCpAhqHJ6
+         ERbhaEu09z4v9E9GGXygdtvoPsLbOu2ngW71S7kHoC7hajs4bvndmQdZtqEtFN5WgG8V
+         SZx28zfyNah9LntSM5l7hh3+OEJUCZ0lthHH+K/VvmJ72ElHWwVlNu9Nvx4/yPJQ6Za0
+         pHuyPry7fX8ucRqYfvDtWXiMl4ydqBzjEDNU9wsnvcFD0cm5mNX83j9DB6YUh1V1NnYH
+         43ZjyTxkW5cbqWBIWqNNDGfhwDAMzDAUURKM5qhWSYb7Ug/SnUzs8tEFIdr8x6p/SpIb
+         M0WQ==
+X-Gm-Message-State: ACgBeo0UCc1rcvOXgvi3H3wjUGSv3N8cYP7pK7lUaCratMeFkJiLfs2/
+        i1Y3bNAv3DPSReKrRV5Stko=
+X-Google-Smtp-Source: AA6agR5yMPw4sfc/ilrCzNJbQpRxEsraQo4n/QorEbeHZAqQQwwLjNmj8VH5v2VxywDZ9W54idfzyg==
+X-Received: by 2002:a2e:bf23:0:b0:26c:83e:b4d3 with SMTP id c35-20020a2ebf23000000b0026c083eb4d3mr4700513ljr.282.1663180688737;
+        Wed, 14 Sep 2022 11:38:08 -0700 (PDT)
+Received: from localhost.localdomain (82-209-154-112.cust.bredband2.com. [82.209.154.112])
+        by smtp.gmail.com with ESMTPSA id a6-20020a05651c010600b0026c079006bcsm2002102ljb.118.2022.09.14.11.38.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Sep 2022 11:38:07 -0700 (PDT)
+From:   Marcus Folkesson <marcus.folkesson@gmail.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH] HID: Add driver for PhoenixRC Flight Controller
+Date:   Wed, 14 Sep 2022 20:43:45 +0200
+Message-Id: <20220914184345.270456-1-marcus.folkesson@gmail.com>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi
+The PhoenixRC is a controller with 8 channels for use in flight
+simulators.
 
-2022. szeptember 11., vas=C3=A1rnap 21:49 keltez=C3=A9ssel, Arvid Norlander=
- =C3=ADrta:
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+---
+ MAINTAINERS            |   6 +++
+ drivers/hid/Kconfig    |   9 ++++
+ drivers/hid/Makefile   |   1 +
+ drivers/hid/hid-ids.h  |   1 +
+ drivers/hid/hid-pxrc.c | 112 +++++++++++++++++++++++++++++++++++++++++
+ 5 files changed, 129 insertions(+)
+ create mode 100644 drivers/hid/hid-pxrc.c
 
-> This is loosly based on a previous staging driver that was removed. See
-> links below for more info on that driver. The original commit ID was
-> 0be013e3dc2ee79ffab8a438bbb4e216837e3d52.
->=20
-> However, here a completely different approach is taken to the user space
-> API (which should solve the issues the original driver had). Each PNP0C32
-> device is a button, and each such button gets a separate input device
-> associated with it (instead of a shared platform input device).
->=20
-> The button ID (as read from ACPI method GHID) is provided via a sysfs fil=
-e
-> "button_id".
->=20
-> If the button caused a wakeup it will "latch" the "wakeup_cause" sysfs fi=
-le
-> to true. This can be reset by a user space process.
->=20
-> Link: https://marc.info/?l=3Dlinux-acpi&m=3D120550727131007
-> Link: https://lkml.org/lkml/2010/5/28/327
-> Signed-off-by: Arvid Norlander <lkml@vorpal.se>
-> [...]
-> +#define QUICKSTART_VERSION "1.04"
-> +
-> +#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-> +
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/init.h>
-> +#include <linux/types.h>
-> +#include <linux/acpi.h>
-> +#include <linux/input.h>
-> +#include <linux/input/sparse-keymap.h>
-> +
-> +MODULE_AUTHOR("Arvid Norlander <lkml@vorpal.se>");
-> +MODULE_AUTHOR("Angelo Arrifano");
-> +MODULE_DESCRIPTION("ACPI Direct App Launch driver");
-> +MODULE_LICENSE("GPL");
-> +
-> +#define QUICKSTART_ACPI_DEVICE_NAME=09"quickstart"
-> +#define QUICKSTART_ACPI_CLASS=09=09"quickstart"
-> +#define QUICKSTART_ACPI_HID=09=09"PNP0C32"
-> +
-> +/*
-> + * There will be two events:
-> + * 0x02 - A hot button was pressed while device was off/sleeping.
-> + * 0x80 - A hot button was pressed while device was up.
-> + */
-> +#define QUICKSTART_EVENT_WAKE=09=090x02
-> +#define QUICKSTART_EVENT_RUNTIME=090x80
-> +
-> +/*
-> + * Each PNP0C32 device is an individual button. This structure
-> + * keeps track of data associated with said device.
-> + */
-> +struct quickstart_acpi {
-> +=09struct acpi_device *acpi_dev;
-> +=09struct input_dev *input_device;
-> +=09struct quickstart_button *button;
-> +=09/* Name of button for debug messages */
-> +=09char *name;
-> +=09/* ID of button as returned by GHID */
-> +=09u32 id;
-> +=09/* Flags for cleanup */
-> +=09unsigned int input_registered : 1;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 64379c699903..2f70b7d2b4b9 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -8907,6 +8907,12 @@ L:	linux-input@vger.kernel.org
+ S:	Supported
+ F:	drivers/hid/hid-playstation.c
+ 
++HID PHOENIX RC FLIGHT CONTROLLER
++M:	Marcus Folkesson <marcus.folkesson@gmail.com>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/hid/hid-pxrc.c
++
+ HID SENSOR HUB DRIVERS
+ M:	Jiri Kosina <jikos@kernel.org>
+ M:	Jonathan Cameron <jic23@kernel.org>
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 70da5931082f..8ca58141d5be 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -950,6 +950,15 @@ config PLAYSTATION_FF
+ 	  Say Y here if you would like to enable force feedback support for
+ 	  PlayStation game controllers.
+ 
++config HID_PXRC
++       tristate "PhoenixRC HID Flight Controller"
++       depends on HID
++       help
++       Support for PhoenixRC HID Flight Controller, a 8-axis flight controller.
++
++       To compile this driver as a module, choose M here: the
++       module will be called hid-pxrc.
++
+ config HID_RAZER
+ 	tristate "Razer non-fully HID-compliant devices"
+ 	depends on HID
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index cac2cbe26d11..b3748b97d5b5 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -101,6 +101,7 @@ hid-picolcd-$(CONFIG_DEBUG_FS)		+= hid-picolcd_debugfs.o
+ obj-$(CONFIG_HID_PLANTRONICS)	+= hid-plantronics.o
+ obj-$(CONFIG_HID_PLAYSTATION)	+= hid-playstation.o
+ obj-$(CONFIG_HID_PRIMAX)	+= hid-primax.o
++obj-$(CONFIG_HID_PXRC)		+= hid-pxrc.o
+ obj-$(CONFIG_HID_RAZER)	+= hid-razer.o
+ obj-$(CONFIG_HID_REDRAGON)	+= hid-redragon.o
+ obj-$(CONFIG_HID_RETRODE)	+= hid-retrode.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index d9eb676abe96..30ac56cb238b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1381,6 +1381,7 @@
+ 
+ #define USB_VENDOR_ID_MULTIPLE_1781	0x1781
+ #define USB_DEVICE_ID_RAPHNET_4NES4SNES_OLD	0x0a9d
++#define USB_DEVICE_ID_PHOENIXRC        0x0898
+ 
+ #define USB_VENDOR_ID_DRACAL_RAPHNET	0x289b
+ #define USB_DEVICE_ID_RAPHNET_2NES2SNES	0x0002
+diff --git a/drivers/hid/hid-pxrc.c b/drivers/hid/hid-pxrc.c
+new file mode 100644
+index 000000000000..b0e517f9cde7
+--- /dev/null
++++ b/drivers/hid/hid-pxrc.c
+@@ -0,0 +1,112 @@
++// SPDX-License-Identifier: GPL-2.0-or-later
++/*
++ * HID driver for PhoenixRC 8-axis flight controller
++ *
++ * Copyright (C) 2022 Marcus Folkesson <marcus.folkesson@gmail.com>
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/module.h>
++
++#include "hid-ids.h"
++
++struct pxrc_priv {
++	u8 slider;
++	u8 dial;
++	bool alternate;
++};
++
++static __u8 pxrc_rdesc_fixed[] = {
++	0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
++	0x09, 0x04,        // Usage (Joystick)
++	0xA1, 0x01,        // Collection (Application)
++	0x09, 0x01,        //   Usage (Pointer)
++	0xA1, 0x00,        //   Collection (Physical)
++	0x09, 0x30,        //     Usage (X)
++	0x09, 0x36,        //     Usage (Slider)
++	0x09, 0x31,        //     Usage (Y)
++	0x09, 0x32,        //     Usage (Z)
++	0x09, 0x33,        //     Usage (Rx)
++	0x09, 0x34,        //     Usage (Ry)
++	0x09, 0x35,        //     Usage (Rz)
++	0x09, 0x37,        //     Usage (Dial)
++	0x15, 0x00,        //     Logical Minimum (0)
++	0x26, 0xFF, 0x00,  //     Logical Maximum (255)
++	0x35, 0x00,        //     Physical Minimum (0)
++	0x46, 0xFF, 0x00,  //     Physical Maximum (255)
++	0x75, 0x08,        //     Report Size (8)
++	0x95, 0x08,        //     Report Count (8)
++	0x81, 0x02,        //     Input (Data,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
++	0xC0,              //   End Collection
++	0xC0,              // End Collection
++};
++
++static __u8 *pxrc_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++				unsigned int *rsize)
++{
++	hid_info(hdev, "fixing up PXRC report descriptor\n");
++	*rsize = sizeof(pxrc_rdesc_fixed);
++	return pxrc_rdesc_fixed;
++}
++
++static int pxrc_raw_event(struct hid_device *hdev, struct hid_report *report,
++	 u8 *data, int size)
++{
++	struct pxrc_priv *priv = hid_get_drvdata(hdev);
++
++	if (priv->alternate)
++		priv->slider = data[7];
++	else
++		priv->dial = data[7];
++
++	data[1] = priv->slider;
++	data[7] = priv->dial;
++
++	priv->alternate = !priv->alternate;
++	return 0;
++}
++
++static int pxrc_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++	struct pxrc_priv *priv;
++
++	priv = devm_kzalloc(&hdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++	hid_set_drvdata(hdev, priv);
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static const struct hid_device_id pxrc_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MULTIPLE_1781, USB_DEVICE_ID_PHOENIXRC) },
++	{ /* sentinel */ }
++};
++MODULE_DEVICE_TABLE(hid, pxrc_devices);
++
++static struct hid_driver pxrc_driver = {
++	.name = "hid-pxrc",
++	.id_table = pxrc_devices,
++	.report_fixup = pxrc_report_fixup,
++	.probe = pxrc_probe,
++	.raw_event = pxrc_raw_event,
++};
++module_hid_driver(pxrc_driver);
++
++MODULE_AUTHOR("Marcus Folkesson <marcus.folkesson@gmail.com>");
++MODULE_DESCRIPTION("HID driver for PXRC 8-axis flight controller");
++MODULE_LICENSE("GPL");
+-- 
+2.37.1
 
-This member is set, but never read.
-
-
-> +=09unsigned int sysfs_created : 1;
-> +=09/* Track if a wakeup event was received */
-> +=09unsigned int wakeup_cause : 1;
-> +=09/* Name of input device */
-> +=09char input_name[32];
-> +=09/* Physical path for the input device */
-> +=09char phys[32];
-> +};
-> +
-> +/*
-> + * Knowing what these buttons do require system specific knowledge.
-> + * This could be done by matching on DMI data in a long quirk table.
-> + * However, it is easier to leave it up to user space to figure this out=
-.
-> + *
-> + * Using for example udev hwdb the scancode 0x1 can be remapped suitably=
-.
-> + */
-> +static const struct key_entry quickstart_keymap[] =3D {
-> +=09{ KE_KEY, 0x1, { KEY_UNKNOWN } },
-> +=09{ KE_END, 0 },
-> +};
-> +
-> +static ssize_t wakeup_cause_show(struct device *dev,
-> +=09=09=09=09 struct device_attribute *attr, char *buf)
-> +{
-> +=09struct quickstart_acpi *quickstart =3D dev_get_drvdata(dev);
-> +
-> +=09return scnprintf(buf, PAGE_SIZE, "%s\n",
-> +=09=09=09 (quickstart->wakeup_cause ? "true" : "false"));
-
-Please use `sysfs_emit()` preferably. And I think it would be easier to use=
- 0/1
-instead of true/false. And you could use `kstrtobool()` in the _store() fun=
-ction.
-
-
-> +}
-> +
-> +static ssize_t wakeup_cause_store(struct device *dev,
-> +=09=09=09=09  struct device_attribute *attr,
-> +=09=09=09=09  const char *buf, size_t count)
-> +{
-> +=09struct quickstart_acpi *quickstart =3D dev_get_drvdata(dev);
-> +
-> +=09if (count < 2)
-> +=09=09return -EINVAL;
-> +
-> +=09if (strncasecmp(buf, "false", 4) !=3D 0)
-> +=09=09return -EINVAL;
-> +
-> +=09quickstart->wakeup_cause =3D false;
-> +=09return count;
-> +}
-> +static DEVICE_ATTR_RW(wakeup_cause);
-> +
-> +static ssize_t button_id_show(struct device *dev, struct device_attribut=
-e *attr,
-> +=09=09=09      char *buf)
-> +{
-> +=09struct quickstart_acpi *quickstart =3D dev_get_drvdata(dev);
-> +
-> +=09return scnprintf(buf, PAGE_SIZE, "%d\n", quickstart->id);
-
-Since it is unsigned `%u` would probably be better.
-
-
-> +}
-> +static DEVICE_ATTR_RO(button_id);
-> +
-> +/* ACPI Driver functions */
-> +static void quickstart_acpi_notify(struct acpi_device *acpi_dev, u32 eve=
-nt)
-> +{
-> +=09struct quickstart_acpi *quickstart =3D acpi_driver_data(acpi_dev);
-> +
-> +=09if (!quickstart)
-> +=09=09return;
-> +
-> +=09switch (event) {
-> +=09case QUICKSTART_EVENT_WAKE:
-> +=09=09quickstart->wakeup_cause =3D true;
-> +=09=09break;
-> +=09case QUICKSTART_EVENT_RUNTIME:
-> +=09=09if (!sparse_keymap_report_event(quickstart->input_device, 0x1,
-> +=09=09=09=09=09=091, true)) {
-> +=09=09=09pr_info("Key handling error\n");
-> +=09=09}
-> +=09=09break;
-> +=09default:
-> +=09=09pr_err("Unexpected ACPI event notify (%u)\n", event);
-> +=09=09break;
-> +=09}
-> +}
-> +
-> +/*
-> + * The GHID ACPI method is used to indicate the "role" of the button.
-> + * However, all the meanings of these values are vendor defined.
-> + *
-> + * We do however expose this value to user space.
-> + */
-> +static int quickstart_acpi_ghid(struct quickstart_acpi *quickstart)
-> +{
-> +=09acpi_status status;
-> +=09struct acpi_buffer buffer =3D { ACPI_ALLOCATE_BUFFER, NULL };
-> +=09int ret =3D 0;
-> +=09union acpi_object *obj =3D NULL;
-> +
-> +=09/*
-> +=09 * This returns a buffer telling the button usage ID,
-> +=09 * and triggers pending notify events (The ones before booting).
-> +=09 */
-> +=09status =3D acpi_evaluate_object(quickstart->acpi_dev->handle, "GHID",
-> +=09=09=09=09      NULL, &buffer);
-> +=09if (ACPI_FAILURE(status)) {
-> +=09=09pr_err("%s GHID method failed\n", quickstart->name);
-> +=09=09return -EINVAL;
-> +=09}
-> +=09obj =3D buffer.pointer;
-> +
-> +=09/*
-> +=09 * GHID returns buffers, sanity check that is the case.
-> +=09 */
-> +=09if (obj->type !=3D ACPI_TYPE_BUFFER) {
-> +=09=09pr_err("%s GHID did not return buffer\n", quickstart->name);
-> +=09=09return -EINVAL;
-
-`buffer.pointer` is not freed here. Since you know the maximum size, you co=
-uld
-consider using an on-stack buffer.
-
-
-> +=09}
-> +
-> +=09/*
-> +=09 * Quoting the specification:
-> +=09 * "The GHID method can return a BYTE, WORD, or DWORD.
-> +=09 *  The value must be encoded in little-endian byte
-> +=09 *  order (least significant byte first)."
-> +=09 */
-> +=09switch (obj->buffer.length) {
-> +=09case 1:
-> +=09=09quickstart->id =3D *(u8 *)obj->buffer.pointer;
-> +=09=09break;
-> +=09case 2:
-> +=09=09quickstart->id =3D le16_to_cpu(*(u16 *)obj->buffer.pointer);
-
-Probably does not matter here, but I personally like to use `get_unaligned_=
-leN()`
-because those functions just always work.
-
-
-> +=09=09break;
-> +=09case 4:
-> +=09=09quickstart->id =3D le32_to_cpu(*(u32 *)obj->buffer.pointer);
-> +=09=09break;
-> +=09case 8:
-> +=09=09quickstart->id =3D le64_to_cpu(*(u64 *)obj->buffer.pointer);
-> +=09=09break;
-> +=09default:
-> +=09=09pr_err("%s GHID method returned buffer of unexpected length %lu\n"=
-,
-> +=09=09       quickstart->name, (unsigned long)obj->buffer.length);
-> +=09=09ret =3D -EINVAL;
-> +=09=09break;
-> +=09}
-> +
-> +=09kfree(buffer.pointer);
-> +
-> +=09return ret;
-> +}
-> +
-> +static int quickstart_acpi_config(struct quickstart_acpi *quickstart)
-> +{
-> +=09char *bid =3D acpi_device_bid(quickstart->acpi_dev);
-> +=09char *name;
-> +
-> +=09name =3D kmalloc(strlen(bid) + 1, GFP_KERNEL);
-> +=09if (!name)
-> +=09=09return -ENOMEM;
-> +
-> +=09quickstart->name =3D name;
-> +=09strcpy(quickstart->name, bid);
-
-You could use `kstrdup()` here, but you could probably even use `devm_kstrd=
-up()`
-and then this function could be entirely removed.
-
-
-> +
-> +=09return 0;
-> +}
-> +
-> +static struct attribute *quickstart_attributes[] =3D {
-> +=09&dev_attr_wakeup_cause.attr,
-> +=09&dev_attr_button_id.attr,
-> +=09NULL,
-> +};
-> +
-> +static const struct attribute_group quickstart_attr_group =3D {
-> +=09.attrs =3D quickstart_attributes,
-> +};
-> +
-> +static int quickstart_acpi_remove(struct acpi_device *acpi_dev)
-> +{
-> +=09struct quickstart_acpi *quickstart;
-> +
-> +=09if (!acpi_dev)
-> +=09=09return -EINVAL;
-> +
-> +=09quickstart =3D acpi_driver_data(acpi_dev);
-> +=09if (!quickstart)
-> +=09=09return -EINVAL;
-> +
-> +=09if (quickstart->sysfs_created)
-> +=09=09sysfs_remove_group(&quickstart->acpi_dev->dev.kobj,
-> +=09=09=09=09   &quickstart_attr_group);
-> +
-> +=09kfree(quickstart->name);
-> +=09quickstart->name =3D NULL;
-> +
-> +=09kfree(quickstart);
-> +
-> +=09return 0;
-> +}
-> +
-> +static int quickstart_acpi_add(struct acpi_device *acpi_dev)
-> +{
-> +=09int ret;
-> +=09struct quickstart_acpi *quickstart;
-> +
-> +=09if (!acpi_dev)
-> +=09=09return -EINVAL;
-> +
-> +=09quickstart =3D kzalloc(sizeof(*quickstart), GFP_KERNEL);
-
-Have you considered `devm_kzalloc()`?
-
-
-> +=09if (!quickstart)
-> +=09=09return -ENOMEM;
-> +
-> +=09/*
-> +=09 * This must be set early for proper cleanup on error handling path.
-> +=09 * After this point generic error handling can be used.
-> +=09 */
-> +=09acpi_dev->driver_data =3D quickstart;
-> +=09quickstart->acpi_dev =3D acpi_dev;
-> +=09dev_set_drvdata(&acpi_dev->dev, quickstart);
-> +
-> +=09strcpy(acpi_device_name(acpi_dev), QUICKSTART_ACPI_DEVICE_NAME);
-> +=09strcpy(acpi_device_class(acpi_dev), QUICKSTART_ACPI_CLASS);
-> +
-> +=09/* Initialize device name */
-> +=09ret =3D quickstart_acpi_config(quickstart);
-> +=09if (ret < 0)
-> +=09=09goto error;
-> +
-> +=09/* Retrieve the GHID ID */
-> +=09ret =3D quickstart_acpi_ghid(quickstart);
-> +=09if (ret < 0)
-> +=09=09goto error;
-> +
-> +=09/* Set up sysfs entries */
-> +=09ret =3D sysfs_create_group(&quickstart->acpi_dev->dev.kobj,
-> +=09=09=09=09 &quickstart_attr_group);
-
-You could use `devm_device_add_group()`. And then the `sysfs_created` membe=
-r
-could be removed.
-
-
-> +=09if (ret) {
-> +=09=09quickstart->sysfs_created =3D 0;
-> +=09=09pr_err("Unable to setup sysfs entries\n");
-> +=09=09goto error;
-> +=09}
-> +=09quickstart->sysfs_created =3D !ret;
-> +
-> +=09/* Set up input device */
-> +=09quickstart->input_device =3D
-> +=09=09devm_input_allocate_device(&quickstart->acpi_dev->dev);
-> +=09if (!quickstart->input_device) {
-> +=09=09ret =3D -ENOMEM;
-> +=09=09goto error;
-> +=09}
-> +=09ret =3D sparse_keymap_setup(quickstart->input_device, quickstart_keym=
-ap,
-> +=09=09=09=09  NULL);
-> +=09if (ret)
-> +=09=09goto error;
-> +
-> +=09snprintf(quickstart->input_name, sizeof(quickstart->phys),
-> +=09=09 "Quickstart Button %u", quickstart->id);
-> +=09snprintf(quickstart->phys, sizeof(quickstart->phys),
-> +=09=09 QUICKSTART_ACPI_DEVICE_NAME "/input%u", quickstart->id);
-> +
-> +=09quickstart->input_device->name =3D quickstart->input_name;
-> +=09quickstart->input_device->phys =3D quickstart->phys;
-> +=09quickstart->input_device->id.bustype =3D BUS_HOST;
-> +
-> +=09ret =3D input_register_device(quickstart->input_device);
-> +=09if (ret) {
-> +=09=09quickstart->input_registered =3D 0;
-> +=09=09pr_err("Unable to register input device\n");
-> +=09=09goto error;
-> +=09}
-> +=09quickstart->input_registered =3D !ret;
-> +
-> +=09return 0;
-> +error:
-> +=09quickstart_acpi_remove(acpi_dev);
-> +=09return ret;
-> +}
-> +
-> +static const struct acpi_device_id quickstart_device_ids[] =3D {
-> +=09{ QUICKSTART_ACPI_HID, 0 },
-> +=09{ "", 0 },
-> +};
-> +MODULE_DEVICE_TABLE(acpi, quickstart_device_ids);
-> +
-> +static struct acpi_driver quickstart_acpi_driver =3D {
-> +=09.name=09=3D "quickstart",
-> +=09.owner=09=3D THIS_MODULE,
-> +=09.class=09=3D QUICKSTART_ACPI_CLASS,
-> +=09.ids=09=3D quickstart_device_ids,
-> +=09.flags=09=3D ACPI_DRIVER_ALL_NOTIFY_EVENTS,
-> +=09.ops=09=3D {
-> +=09=09.add =3D quickstart_acpi_add,
-> +=09=09.remove =3D quickstart_acpi_remove,
-> +=09=09.notify =3D quickstart_acpi_notify
-> +=09},
-> +};
-> +
-> +/* Module functions */
-> +static void quickstart_exit(void)
-> +{
-> +=09acpi_bus_unregister_driver(&quickstart_acpi_driver);
-> +}
-> +
-> +static int __init quickstart_init(void)
-> +{
-> +=09int ret;
-> +
-> +=09/* ACPI driver register */
-> +=09ret =3D acpi_bus_register_driver(&quickstart_acpi_driver);
-> +=09if (ret)
-> +=09=09return ret;
-> +
-> +=09pr_info("ACPI Direct App Launch ver %s\n", QUICKSTART_VERSION);
-> +
-> +=09return 0;
-> +}
-> +
-> +module_init(quickstart_init);
-> +module_exit(quickstart_exit);
-
-You could use the `module_acpi_driver()` macro to generate the init/exit me=
-thods.
-
-
-> --
-> 2.37.3
-
-
-Regards,
-Barnab=C3=A1s P=C5=91cze

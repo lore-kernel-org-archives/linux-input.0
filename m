@@ -2,63 +2,64 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AB35C6FA8D
-	for <linux-input@archiver.kernel.org>; Wed, 14 Sep 2022 23:58:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A800FC6FA82
+	for <linux-input@archiver.kernel.org>; Wed, 14 Sep 2022 23:58:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229780AbiINX6L (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 14 Sep 2022 19:58:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44976 "EHLO
+        id S229539AbiINX6N (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 14 Sep 2022 19:58:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229543AbiINX6J (ORCPT
+        with ESMTP id S229459AbiINX6M (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Sep 2022 19:58:09 -0400
-Received: from mail-io1-xd2e.google.com (mail-io1-xd2e.google.com [IPv6:2607:f8b0:4864:20::d2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B516895FB
-        for <linux-input@vger.kernel.org>; Wed, 14 Sep 2022 16:58:08 -0700 (PDT)
-Received: by mail-io1-xd2e.google.com with SMTP id c4so13675985iof.3
-        for <linux-input@vger.kernel.org>; Wed, 14 Sep 2022 16:58:08 -0700 (PDT)
+        Wed, 14 Sep 2022 19:58:12 -0400
+Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 585F989806
+        for <linux-input@vger.kernel.org>; Wed, 14 Sep 2022 16:58:11 -0700 (PDT)
+Received: by mail-io1-xd32.google.com with SMTP id p3so3809939iof.13
+        for <linux-input@vger.kernel.org>; Wed, 14 Sep 2022 16:58:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=tlb/jBBoBszWVk5wX7JgxKdayuraWLIogIZ7IhePa+U=;
-        b=jjEy/jgKElInFwZkF0H4qzh1Q/dsUBj7KWr9+3FYwBTsMsk2yDGnQJjKAg/jULKS0O
-         VfP9f78UxOUG1kr5qyCqi/ARy8WNzF1kqECKwodoaEpLJtCQ4txtDDv9a7aT2Zw0E/bJ
-         m6xVm3MlXV++OLTNvp0uJ5Vnr6xJ3zZpbvbVg=
+        bh=uLFsVomnZ3NOv94HIF7hfztjoJa5WoPp5LmQm5BO1Bo=;
+        b=EpH8pFpdO3xx3hvO3BSYcXVAywxj6PJQIgEpmQ6BF6AGJ2bg7E/C4hcBZ0rilevnND
+         uW7yaSxKjUSoRUYuNLkKMMquKKgHpXLOwDFJnQL0HYx79jBHtdfC7sqv2bfxvUfdLfxl
+         Tqtwjn91EwT3rQdk9dJSboqBGHankwVOk4gkw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=tlb/jBBoBszWVk5wX7JgxKdayuraWLIogIZ7IhePa+U=;
-        b=xoEvgnm1vBkSuHaJKqewn9P2Uj8+7HAuX3HBC7eUxGz4eiYjaAI9xB6vMjpu0BQNXf
-         8Q9EgXIYjb6VWOJyZAVsQIF6Hk2dXCsd0hk9IhCjBYGcy96rI76fCAZKrgIGgOD/YMzI
-         oL7MXYrC7uvXqUwWeRiWunpTUq4BdDtWmDuUMsPG+JibVFDVDd/rXbxWhrmF83rrAKfv
-         fxOitovbtWEHknIjUBDBFqHFUq/GxN1cBkolhMGnyfAkyNLtCK/at3pMMTok/DzsnOvv
-         oSkUw6hGNJxdtCSWq+kAbz1OM5YPvZPS3CoJo260mUmosC2jvKR1IRRGpOFYiLVBKDGw
-         534w==
-X-Gm-Message-State: ACgBeo34suDDToWMTsgaxIGuy6UzCOGVMBzgrGFNl1PHMdfmRNKXRUjW
-        p2P2gbclmA0DBvMgSTG6+Nsc9g==
-X-Google-Smtp-Source: AA6agR6gY3ZcUPrnEf8WQJxDLCEZo/qOuujp3KFniSoMv0/CGDI3Qj8ODnVpXeVxk4mLouo+iwScRQ==
-X-Received: by 2002:a05:6638:22c5:b0:346:dc09:b0f5 with SMTP id j5-20020a05663822c500b00346dc09b0f5mr20279429jat.194.1663199887469;
-        Wed, 14 Sep 2022 16:58:07 -0700 (PDT)
+        bh=uLFsVomnZ3NOv94HIF7hfztjoJa5WoPp5LmQm5BO1Bo=;
+        b=axpfEgMMfNtBSkNwiK1YiczJKz0EBrGfLfwBpBXSKtHSt1xGohZYIBapzWCUyDmd99
+         lDiCuDrAP3jRbeoBKr1yhO8lD7OUYrE2RLhMszk0mOelQLpg4AduY0lq6zP2FiC/JVXE
+         8Slu1olBa6aJ8WYVXA6Wvod2i3lPwOOpXrO4xD0eEQ5njFS6w4YG3EWfQWvsjbpMDCE2
+         4s7LzwnachNnfcP8wlxGSJJHy62gP3zKIgxnp/QKdOhp9KKE653mat7Qn0YQcLRgrEEf
+         gx+Vbc5/gWYuzbs/lWm4k75hi0poVVLplGiivJ9FqzlKhqclnb2Ixya9GZPN3YN2poNp
+         xm/A==
+X-Gm-Message-State: ACgBeo3LAW43FVr7oGYE2F1sPeJWaOiliTSqLQMbJYNFeyILajo/RpOv
+        dxLEFBQoFipkNQdEqmOLU+lJQw==
+X-Google-Smtp-Source: AA6agR7cbKJmmVVP/0cwP0lPpWKLXXVbFI05Uy6WXiwVFJ056epbGbRbQNZdBbMOM4ZuMsl3Ric7lw==
+X-Received: by 2002:a05:6602:408c:b0:6a1:3fda:5633 with SMTP id bl12-20020a056602408c00b006a13fda5633mr7407200iob.194.1663199891047;
+        Wed, 14 Sep 2022 16:58:11 -0700 (PDT)
 Received: from rrangel920.bld.corp.google.com (h24-56-189-219.arvdco.broadband.dynamic.tds.net. [24.56.189.219])
-        by smtp.gmail.com with ESMTPSA id a14-20020a027a0e000000b0034c0e8829c0sm353721jac.0.2022.09.14.16.58.06
+        by smtp.gmail.com with ESMTPSA id a14-20020a027a0e000000b0034c0e8829c0sm353721jac.0.2022.09.14.16.58.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 14 Sep 2022 16:58:06 -0700 (PDT)
+        Wed, 14 Sep 2022 16:58:10 -0700 (PDT)
 From:   Raul E Rangel <rrangel@chromium.org>
 To:     linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 Cc:     jingle.wu@emc.com.tw, rafael@kernel.org,
         andriy.shevchenko@linux.intel.com, mario.limonciello@amd.com,
         hdegoede@redhat.com, linus.walleij@linaro.org, timvp@google.com,
         dmitry.torokhov@gmail.com, Raul E Rangel <rrangel@chromium.org>,
-        Alistair Francis <alistair@alistair23.me>,
-        Angela Czubak <acz@semihalf.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 01/13] HID: i2c-hid: Use PM subsystem to manage wake irq
-Date:   Wed, 14 Sep 2022 17:57:49 -0600
-Message-Id: <20220914155914.v3.1.Id4b4bdfe06e2caf2d5a3c9dd4a9b1080c38b539c@changeid>
+        Cai Huoqing <cai.huoqing@linux.dev>,
+        Douglas Anderson <dianders@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Johnny Chuang <johnny.chuang.emc@gmail.com>,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3 03/13] Input: elants_i2c - Use PM subsystem to manage wake irq
+Date:   Wed, 14 Sep 2022 17:57:51 -0600
+Message-Id: <20220914155914.v3.3.I5862429ee3e4de0f9ad5ba01ce07ad99eec10cf0@changeid>
 X-Mailer: git-send-email 2.37.3.968.ga6b4b080e4-goog
 In-Reply-To: <20220914235801.1731478-1-rrangel@chromium.org>
 References: <20220914235801.1731478-1-rrangel@chromium.org>
@@ -68,7 +69,7 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The I2C hid driver is currently manually managing the wake
+The Elan I2C touchscreen driver is currently manually managing the wake
 IRQ. This change removes the explicit enable_irq_wake/disable_irq_wake
 and instead relies on the PM subsystem. This is done by calling
 dev_pm_set_wake_irq.
@@ -79,45 +80,40 @@ There could be some device tree systems that have incorrectly declared
 `wake` capabilities, so this change will set the wake irq if one is
 missing. This matches the previous behavior.
 
-I tested this on an ACPI system that has a HID touchscreen and verified
-the IRQ was armed for wake on suspend.
-
 Signed-off-by: Raul E Rangel <rrangel@chromium.org>
 ---
 
-Changes in v3:
-- Fixed typo in if condition
+(no changes since v2)
 
 Changes in v2:
-- Set the wake_irq when not configured by the i2c-core. This is
-  different than v1, where the wake_irq was only set for non DT systems.
+- Added elants_i2c to series
 
- drivers/hid/i2c-hid/i2c-hid-core.c | 33 +++++++++++-------------------
- 1 file changed, 12 insertions(+), 21 deletions(-)
+ drivers/input/touchscreen/elants_i2c.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index baa169fadd6632..a2fa40dec04ea5 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -26,6 +26,7 @@
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/pm.h>
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index a56f042adf9d82..80e16b533c452a 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -36,6 +36,7 @@
+ #include <linux/input/touchscreen.h>
+ #include <linux/acpi.h>
+ #include <linux/of.h>
 +#include <linux/pm_wakeirq.h>
- #include <linux/device.h>
- #include <linux/wait.h>
- #include <linux/err.h>
-@@ -116,7 +117,6 @@ struct i2c_hid {
+ #include <linux/gpio/consumer.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/uuid.h>
+@@ -180,7 +181,6 @@ struct elants_data {
+ 	u8 cmd_resp[HEADER_SIZE];
+ 	struct completion cmd_done;
  
- 	wait_queue_head_t	wait;		/* For waiting the interrupt */
+-	bool wake_irq_enabled;
+ 	bool keep_power_in_suspend;
  
--	bool			irq_wake_enabled;
- 	struct mutex		reset_lock;
- 
- 	struct i2chid_ops	*ops;
-@@ -1036,6 +1036,15 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
- 	if (ret < 0)
- 		goto err_powered;
+ 	/* Must be last to be used for DMA operations */
+@@ -1582,6 +1582,15 @@ static int elants_i2c_probe(struct i2c_client *client)
+ 	if (!client->dev.of_node)
+ 		device_init_wakeup(&client->dev, true);
  
 +	/*
 +	 * The wake IRQ should be declared via device tree instead of assuming
@@ -128,55 +124,27 @@ index baa169fadd6632..a2fa40dec04ea5 100644
 +	if (!client->dev.power.wakeirq)
 +		dev_pm_set_wake_irq(&client->dev, client->irq);
 +
- 	hid = hid_allocate_device();
- 	if (IS_ERR(hid)) {
- 		ret = PTR_ERR(hid);
-@@ -1119,7 +1128,6 @@ static int i2c_hid_core_suspend(struct device *dev)
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	struct hid_device *hid = ihid->hid;
- 	int ret;
--	int wake_status;
+ 	error = devm_device_add_group(&client->dev, &elants_attribute_group);
+ 	if (error) {
+ 		dev_err(&client->dev, "failed to create sysfs attributes: %d\n",
+@@ -1626,7 +1635,7 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
+ 		 * The device will automatically enter idle mode
+ 		 * that has reduced power consumption.
+ 		 */
+-		ts->wake_irq_enabled = (enable_irq_wake(client->irq) == 0);
++		return 0;
+ 	} else if (ts->keep_power_in_suspend) {
+ 		for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
+ 			error = elants_i2c_send(client, set_sleep_cmd,
+@@ -1655,8 +1664,6 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
+ 	int error;
  
- 	ret = hid_driver_suspend(hid, PMSG_SUSPEND);
- 	if (ret < 0)
-@@ -1130,16 +1138,8 @@ static int i2c_hid_core_suspend(struct device *dev)
- 
- 	disable_irq(client->irq);
- 
--	if (device_may_wakeup(&client->dev)) {
--		wake_status = enable_irq_wake(client->irq);
--		if (!wake_status)
--			ihid->irq_wake_enabled = true;
--		else
--			hid_warn(hid, "Failed to enable irq wake: %d\n",
--				wake_status);
--	} else {
-+	if (!device_may_wakeup(&client->dev))
- 		i2c_hid_core_power_down(ihid);
--	}
- 
- 	return 0;
- }
-@@ -1150,18 +1150,9 @@ static int i2c_hid_core_resume(struct device *dev)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	struct hid_device *hid = ihid->hid;
--	int wake_status;
- 
--	if (!device_may_wakeup(&client->dev)) {
-+	if (!device_may_wakeup(&client->dev))
- 		i2c_hid_core_power_up(ihid);
--	} else if (ihid->irq_wake_enabled) {
--		wake_status = disable_irq_wake(client->irq);
--		if (!wake_status)
--			ihid->irq_wake_enabled = false;
--		else
--			hid_warn(hid, "Failed to disable irq wake: %d\n",
--				wake_status);
--	}
- 
- 	enable_irq(client->irq);
- 
+ 	if (device_may_wakeup(dev)) {
+-		if (ts->wake_irq_enabled)
+-			disable_irq_wake(client->irq);
+ 		elants_i2c_sw_reset(client);
+ 	} else if (ts->keep_power_in_suspend) {
+ 		for (retry_cnt = 0; retry_cnt < MAX_RETRIES; retry_cnt++) {
 -- 
 2.37.3.968.ga6b4b080e4-goog
 

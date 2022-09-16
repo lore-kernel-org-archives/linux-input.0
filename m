@@ -2,99 +2,125 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 811CEC6FA89
-	for <linux-input@archiver.kernel.org>; Thu, 15 Sep 2022 16:22:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98E16ECAAD8
+	for <linux-input@archiver.kernel.org>; Fri, 16 Sep 2022 04:29:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229851AbiIOQWI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 15 Sep 2022 12:22:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47560 "EHLO
+        id S229538AbiIPE3R (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 16 Sep 2022 00:29:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229889AbiIOQWH (ORCPT
+        with ESMTP id S229462AbiIPE3P (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Sep 2022 12:22:07 -0400
-Received: from mail-oa1-x2b.google.com (mail-oa1-x2b.google.com [IPv6:2001:4860:4864:20::2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 496A79DF88
-        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2022 09:22:07 -0700 (PDT)
-Received: by mail-oa1-x2b.google.com with SMTP id 586e51a60fabf-1279948d93dso48127652fac.10
-        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2022 09:22:07 -0700 (PDT)
+        Fri, 16 Sep 2022 00:29:15 -0400
+Received: from NAM02-SN1-obe.outbound.protection.outlook.com (mail-sn1anam02on2060.outbound.protection.outlook.com [40.107.96.60])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24D927E026;
+        Thu, 15 Sep 2022 21:29:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=gmXrYBj0gnSQF3SkLSvL75bxnTZOGq9unWcWSjrO38E2gQxd2jtaHnXg9sz/VTDwURsktmpGyb4gt2XmNkJWnxsAQme2ggr0mOh3DiaAcIwWJQVENU4ZdB3nKcLp5LJwB5tOyhiFKtKys0KRLYxxP3DPbXk3ehDtDAAkWigDZkdZrhFxP35DaO+nl6/88lfgfS7RPw/zgGL1RTi8VhiAbpHPF3fMr6L7OFluTwTYNW7EwlzwTKVT5RH3qw2LU2YotyYENzeo5dkiHv/7+gQL6YFLxcV/Xsb+0drgIFPxTpPz54v7ixUvJQ1ldIsvMUw6S0dXj4NVC9o+3goxlFsVJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=gamN7BYky+QLOkTs+7teByklE0UmujAL0huNfWDkqiQ=;
+ b=cuDyuWjnfISp/JZXtYOTrSVYayZ50zOuHco0QBOv1QjgojGtp8Un7H4d0Ba+d2F83k0mO6O6p9VAjPDmMy/0GqNnr5w1XTL2Ava7ZxmrhUe4UQDreNwF6uP4qQ8ClpiBUdQFk1JPUquV22jNGT4t+RZGHMWJbelxBdaPJRp8SP5c9jESlUwg50CVepeLQEE73NqgZxDSAP834P3o3yRYaTf7gWZV5r5et+u/3Tzu22SPLXY/VcNu7KIbFXTl+ssDORBWiTh9BFStnvBO84XavC8Dp1Eo9/i2q+qUubOJ501JIsdhJlVdzazT8b+O4rmDACA/gSRwQsjqu+aQXtZg5g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
+ dkim=pass header.d=labundy.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=kIZF7U62VhlKQ/wsT9kXxUWvD5ul4B0Zexz0rH7KxH0=;
-        b=dmTbYZK01Z+jat9aGUxZxkD8Imdflo3gSi4+Q0GPKYQ7ZZwhCf6XQBEeBWWU2YpIn7
-         /tlkC/LvyNz1CtSIvPDe+CSV+dzBAt5p45/NdSXDOK/Ip0lY4Q23rlb6qxulNzSxXMwD
-         aMblJjXZUMIL+xCmY+R5Z69MZ3+bMj2hbJglE=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=kIZF7U62VhlKQ/wsT9kXxUWvD5ul4B0Zexz0rH7KxH0=;
-        b=dP1aN5yIrl4/ZifS+hVFaG8qqKJnJcnyy9ErWFd2f6YTozq7psgjANsilu0PfLdwKH
-         EMMpOKRCpcTnftQ2hMx9G/91k4J8qgp9L5EjWiPKKiyyK/qPIplgpEuqKrjhEoZM2HwB
-         tuepuD3jC9kLmmGMMBBNE3LW9d1Arch75IfleksimDYRDwYUOpU2nkmpY7bk3Cf4Q/t9
-         ar7v2GVwFUWz8c3Dx7A7Sy27NkdXdmm0K+hXPxrmbf3OVAWFQ+s5vl2j7UkTPVEdILLQ
-         jnKEs2PkRUvMCi7DYHmVe1G6F4W1uCJK0DeD7m7CKy7GUZtWwmSB7SVGSKD77cyuhq96
-         RiiQ==
-X-Gm-Message-State: ACgBeo0Oa3HZJyLtu37U+/glCOF6jTdjxM4I1k0L82zHRbArmd5/0jgX
-        IatzWFo9duhFdPQzuU7V+fSioOVPJRn9vHk3QBU=
-X-Google-Smtp-Source: AA6agR4CV9JhgYjrrjlY3JTP6SrkXn+qUoyBm0CCaDOUAwKha29GA1+n/70L5u66xL0PjGHa5j16Qw==
-X-Received: by 2002:a05:6870:c0c1:b0:10d:96:737f with SMTP id e1-20020a056870c0c100b0010d0096737fmr5869687oad.101.1663258925882;
-        Thu, 15 Sep 2022 09:22:05 -0700 (PDT)
-Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com. [209.85.210.49])
-        by smtp.gmail.com with ESMTPSA id q8-20020a4aac48000000b00425806a20f5sm7989061oon.3.2022.09.15.09.22.03
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 15 Sep 2022 09:22:04 -0700 (PDT)
-Received: by mail-ot1-f49.google.com with SMTP id cm7-20020a056830650700b006587fe87d1aso2402945otb.10
-        for <linux-input@vger.kernel.org>; Thu, 15 Sep 2022 09:22:03 -0700 (PDT)
-X-Received: by 2002:a05:6830:698e:b0:636:a515:35eb with SMTP id
- cy14-20020a056830698e00b00636a51535ebmr214988otb.169.1663258923000; Thu, 15
- Sep 2022 09:22:03 -0700 (PDT)
+ d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=gamN7BYky+QLOkTs+7teByklE0UmujAL0huNfWDkqiQ=;
+ b=McPC+OVUrialc6S4EuXhL1JKcsIWInSuLnbOX2eQf4svjHXmPe0lHCBYAb+bbRk8J1wV5uBSA9ECBjAPaeqwCglR0XIZ/A8Rupprq2zZDb3mr5zzjYXDUpSTjbrBDTkipHMlhn3b3SvOXrXKL5K7V8muLbrIq5fdtIhqTss+cCI=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=labundy.com;
+Received: from DM5PR0801MB3767.namprd08.prod.outlook.com (2603:10b6:4:7c::37)
+ by PH0PR08MB7210.namprd08.prod.outlook.com (2603:10b6:510:94::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5632.16; Fri, 16 Sep
+ 2022 04:29:12 +0000
+Received: from DM5PR0801MB3767.namprd08.prod.outlook.com
+ ([fe80::446b:5d19:f4ac:66ba]) by DM5PR0801MB3767.namprd08.prod.outlook.com
+ ([fe80::446b:5d19:f4ac:66ba%6]) with mapi id 15.20.5632.016; Fri, 16 Sep 2022
+ 04:29:12 +0000
+Date:   Thu, 15 Sep 2022 23:29:11 -0500
+From:   Jeff LaBundy <jeff@labundy.com>
+To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        jeff@labundy.com
+Subject: [PATCH v2 0/7] Additional fixes for Azoteq IQS7222A/B/C
+Message-ID: <YyP7l/ts6SFI9iM2@nixie71>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-ClientProxiedBy: DM6PR12CA0001.namprd12.prod.outlook.com
+ (2603:10b6:5:1c0::14) To DM5PR0801MB3767.namprd08.prod.outlook.com
+ (2603:10b6:4:7c::37)
 MIME-Version: 1.0
-References: <20220914132146.6435-1-hadess@hadess.net>
-In-Reply-To: <20220914132146.6435-1-hadess@hadess.net>
-From:   Harry Cutts <hcutts@chromium.org>
-Date:   Thu, 15 Sep 2022 17:21:52 +0100
-X-Gmail-Original-Message-ID: <CA+jURcvMcKgLzrCxXoYoxvR9uQY-J5GfQhcrpkm6mBgqqKHqmQ@mail.gmail.com>
-Message-ID: <CA+jURcvMcKgLzrCxXoYoxvR9uQY-J5GfQhcrpkm6mBgqqKHqmQ@mail.gmail.com>
-Subject: Re: [PATCH v1] HID: logitech-hidpp: Detect hi-res scrolling support
-To:     Bastien Nocera <hadess@hadess.net>
-Cc:     linux-input <linux-input@vger.kernel.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
-        =?UTF-8?Q?Filipe_La=C3=ADns?= <lains@riseup.net>,
-        Nestor Lopez Casado <nlopezcasad@logitech.com>
-Content-Type: text/plain; charset="UTF-8"
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM5PR0801MB3767:EE_|PH0PR08MB7210:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6891b702-66a1-4faf-ca19-08da979c0192
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: d2m9/u7GeL5VWfvECbqvEU0F/YGRzIBn/hFsBbT3LQSPyo1aSKEDOIl65+gFglBk7Sdl6m/jRXygMmp/vt733UoPLtKQqiTOUWkk6Q8JsSSkaKhKupe98VnohFsLe/Z+H3llUgShy78pdrSBDshUMy0afVN5s5/Sk/ef8nODB0s4rc7cigHuafJ8PS6oGpDvg0KcqvQb4HZyUuGiqWrFhxI5W9DyDahaHNgszhHqBmJrHMecrbDMUmxk8jo/+VBuZJXILG1evu6Ktd/XIbJUwOyCH2f2BVN59miWlRqlxHYmISpqNBeG9pVxsiEYPmFXe6zdwR9rHvhwc6UcB2N6OCuIAuHpEh1CiihfvS2acB6gnW602XJb6HSJrZsG8yoGGkvyBnX5kLKTqluPNkpt952cV9WopzZKTSey2G4yPzT3HQ2P+g/YZGuRw8U+fe/kmezwVMptLthqBY4pRBx111s/ElUFfvYA/qq46bfSNJA7SNjFtCbh/G5DoRW4qzFWCqI3cPgHKZf28qkJBRTBTYk2/BPF1mw8kJjidfNDPm3tvAO80GTwbRdSA8ZfjXyC+S9HQ3K2+qP3EfbjZNynn6cdPlezPOcf06GCo2Vt8W9O9yU6ROc2EhFE5i5Ruh3XhjAB+IB7UhkMC+8UrgawJXQbaCQP4uTY+MZF2XZ5GspFJZsz08UN0uDtajQgu3P3pzUBTFRN64+356hNlNagjQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM5PR0801MB3767.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(7916004)(346002)(366004)(376002)(136003)(39830400003)(396003)(451199015)(86362001)(33716001)(6486002)(316002)(38100700002)(478600001)(6506007)(107886003)(8676002)(9686003)(26005)(6512007)(66946007)(66556008)(66476007)(4326008)(8936002)(41300700001)(2906002)(186003)(5660300002)(83380400001)(4744005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?CmPmaZpHsvFz/JJOUoa3WrSnRnm9G1W6lE68+aTj/1Tc+UeBpUb44j5lxgcB?=
+ =?us-ascii?Q?dy/0wAUljAmP1g7+IX/4eFmxRt2RltxLgAbUyKCXDITbvvX58uuwXdPAZT5v?=
+ =?us-ascii?Q?EBx7WdEs+AhztIRiM8p6WxjOUZ67//JL+ymj6OABPWdOVPiUGnrH6wPB87t/?=
+ =?us-ascii?Q?MyKVyWK2r2sqkKg7UbP2oDx8rwUpl+tseb4PElY1ktr7X7ZVjYnelN0WVrSm?=
+ =?us-ascii?Q?zQDMA3nbifAYmTAHklQ5XMdWRtfaQ3NBAjz+VfJm6qR4DuIOqK+KXNdS8HjV?=
+ =?us-ascii?Q?VdOsR1hOmwMGSn4wC84Zck7HaNXNdTtKIURiodE1AeGDJZ+8DH8Ygx5F/VgF?=
+ =?us-ascii?Q?IxQp9R6/Oos1qQO/glS9CuLD3QUoa/tOvsW1PNqnRSdVmaxjM5ipWBBb6xnV?=
+ =?us-ascii?Q?EldqPAFICDXuxAIAAsNTEdCMbJ8QM2hvavRSrU6di+OOYeF/0ZfTznWsl46h?=
+ =?us-ascii?Q?VB6y2Wn7J7QiSN2ccPbIeiHN+vTEe87BeXV34OgOxWqeYUB4bMuUvFGLavE/?=
+ =?us-ascii?Q?D7rwGp2qyaO8sezAmoaztwtAciHK1tdBDpZGhuWPkZRDTfZSPDG+H0gxnHPK?=
+ =?us-ascii?Q?X9R/OmaeqzpDe9dF2xUjOkdpPJjNHNNxN+F29GvW9fFtYXQOpjj1UZ9jGI/J?=
+ =?us-ascii?Q?icW/Yj8Tti+dIUhumhw9s16uGXKlkpR92FvvlYWyaxH2kE4kn0VA9vP/0fKu?=
+ =?us-ascii?Q?g/GQEDr0SbxXHZdbCBRfJWSrS381JKggoj8pwFCzeBmcvMvdI5Noy2V/Sqr5?=
+ =?us-ascii?Q?db2/W4imRnCHfkFY2jubj+Huk121dMwx0GxsBc2xoWvWP4UQp6Xj+54Ka5bx?=
+ =?us-ascii?Q?uTUzp81XjeD2tATy/ZALbwEgY3bRl0P6AMrZ3r5N6rroPT8jAv2g1kXXXQmo?=
+ =?us-ascii?Q?uq/CL7Me0e4aDhOfeSYQz9vX4/8T7DJjFwa5rwId27Y2e/nkPEDNzxclHcp7?=
+ =?us-ascii?Q?KVKcyqJMxrC8fPaaBl/pf5x0Fe6gLxzY0BdzHAYQA5rqMeKIeEqhgq4b0tGL?=
+ =?us-ascii?Q?jEObDR8rgYgvEC1G5i6UjJoKyTO/a20poGVZ/krHOG0GQ5Uuk/TO4UaP5AdM?=
+ =?us-ascii?Q?Bq88W4rbDbl3klrIuyt2BNStKsMOY58ah9BsbST7FvbO++kvlLQ4W8aQ9miJ?=
+ =?us-ascii?Q?Mxth4kd55oK/XjPrqadwqvglDJeJp0DaB8ESMX4bv3x+yLtm+7EYASTWNMHT?=
+ =?us-ascii?Q?Eeh2n65m0jV+ZC0AgMtjfYO6KLe/pKRrZbtEOyoWo90ow/1j3x4bm+KLxH8G?=
+ =?us-ascii?Q?00p4RIJprQ56gbCXIf5IAVsqzXos7WDU3DpNNK9csCFjH/Rf26sATVTplVqv?=
+ =?us-ascii?Q?+T4I4KYogmjNWo2A+z56ws/JnwHrjoHPkbJrnZ8LpO1o48Yw3q/5Zvsjf8Jp?=
+ =?us-ascii?Q?3UGXa91EquTvw0UQgFx98EP5XzlQamFdtQWlXexW+dH09c+xOXfnb+Vxegxo?=
+ =?us-ascii?Q?Oqy9UWTHww4guHQSmDCbeSe7W13ryQJNUbxlS2HB1GXK29QoFFE91thaN17o?=
+ =?us-ascii?Q?y7dxXq/gE4crbwyWlY5TGmWdlBHSxlCs33/n/JC1oKZYIScHaJD/GyOCO0A/?=
+ =?us-ascii?Q?9CZMdquLQpEUCVac+NkaV2s21X9VztfOnYqVAKV6?=
+X-OriginatorOrg: labundy.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6891b702-66a1-4faf-ca19-08da979c0192
+X-MS-Exchange-CrossTenant-AuthSource: DM5PR0801MB3767.namprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Sep 2022 04:29:12.4529
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 9kBs6Pa/Ld/G7bjzf6KV7y0XlS5nfxk83pau4f+aJxRy7GQirgAkPw+nhSwUONa76z3m+V5/wM1T3P+NN90Zaw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR08MB7210
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 14 Sept 2022 at 14:22, Bastien Nocera <hadess@hadess.net> wrote:
->
-> Rather than relying on a never-ending stream of patches for quirks.
->
-> This change will detect whether HID++ 1.0 hi-res scroll, HID++ 2.0
-> hi-res scroll or HID++ 2.0 hi-res scroll wheel is supported, and enable
-> the feature without the need for quirks.
->
-> Tested on a Logitech M705 mouse that was unsupported before this change.
->
-> [    9.365324] logitech-hidpp-device 0003:046D:406D.0006: input,hidraw3: USB HID v1.11 Mouse [Logitech M705] on usb-0000:00:14.0-4/input2:3
-> [   57.472434] logitech-hidpp-device 0003:046D:406D.0006: HID++ 4.5 device connected.
-> [   57.616429] logitech-hidpp-device 0003:046D:406D.0006: Detected HID++ 2.0 hi-res scroll wheel
-> [   57.712424] logitech-hidpp-device 0003:046D:406D.0006: wheel multiplier = 8
->
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=216480
-> Signed-off-by: Bastien Nocera <hadess@hadess.net>
-> ---
->  drivers/hid/hid-logitech-hidpp.c | 118 ++++++++++++++++---------------
->  1 file changed, 61 insertions(+), 57 deletions(-)
+This series comprises a second round of fixes that result from
+continued testing and updated guidance from the vendor.
 
-Ah, I'd been wanting to do this in my initial implementation, but
-couldn't work it out for some reason. Good to see the need for the
-quirks list replaced!
+Jeff LaBundy (7):
+  Input: iqs7222 - drop unused device node references
+  dt-bindings: input: iqs7222: Reduce 'linux,code' to optional
+  Input: iqs7222 - report malformed properties
+  dt-bindings: input: iqs7222: Correct minimum slider size
+  Input: iqs7222 - protect against undefined slider size
+  dt-bindings: input: iqs7222: Add support for IQS7222A v1.13+
+  Input: iqs7222 - add support for IQS7222A v1.13+
 
-Reviewed-by: Harry Cutts <hcutts@chromium.org>
+ .../bindings/input/azoteq,iqs7222.yaml        |  25 +-
+ drivers/input/misc/iqs7222.c                  | 489 +++++++++++-------
+ 2 files changed, 313 insertions(+), 201 deletions(-)
+
+-- 
+2.34.1
+

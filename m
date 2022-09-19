@@ -2,136 +2,105 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2870EC6FA86
-	for <linux-input@archiver.kernel.org>; Sun, 18 Sep 2022 20:12:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31A50ECAAD3
+	for <linux-input@archiver.kernel.org>; Mon, 19 Sep 2022 07:02:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229558AbiIRUMX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 18 Sep 2022 16:12:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43294 "EHLO
+        id S229657AbiISHCp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Sep 2022 03:02:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229473AbiIRUMW (ORCPT
+        with ESMTP id S229635AbiISHCo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Sep 2022 16:12:22 -0400
-Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A779313D52
-        for <linux-input@vger.kernel.org>; Sun, 18 Sep 2022 13:12:20 -0700 (PDT)
-Received: by mail-io1-xd2d.google.com with SMTP id p3so11615197iof.13
-        for <linux-input@vger.kernel.org>; Sun, 18 Sep 2022 13:12:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=konsulko.com; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date;
-        bh=uwwi92DRkzziP5G3a3vC0eP80gJHoxLlFlUaVUv3Y4A=;
-        b=eX9zpejPmg2yUIo2EeXY0P9k6yVrB7s2K2a5UUyr8LNbD/keMKOt2iZYGBioC7jgHo
-         ZYeuOPwAuQsJ+TOEysRZTCyPS8QSYC6tWvM/btm5mfpLptYex7qhPLvh/ue9w551oTjA
-         w0vYQDfXoaEaYn50kA7bGFjmgj3Bgk9x6Xe6I=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date;
-        bh=uwwi92DRkzziP5G3a3vC0eP80gJHoxLlFlUaVUv3Y4A=;
-        b=lIc1jAu+hSZ4UNDIvwzXpCV36PuahHT+lCJcJM8xTRW72QsjZ8tkYgd9vYrvGabCpA
-         vJNVm/fyt+a2G+mFGTlh98SckR5BV6zNwKhFFlT9MbVfEmkvKj/my0JzbaotJOZbKhxX
-         AHLGM9Q9AhYThRrX9or4oQZLmJc1x9gZhFxKd/lAUhMQgkJmRA97XQIPnIdEYvodH0dW
-         gUeiH2d8olpXyrGXBSumJiG8FGe/XbauJKBCbpIJGRtrfTBCmwJUQVYFr89VLKlp1ctn
-         VOG4ecE2NH2wRpiFFUpNznTSeF0Qcuatm8NZ33rUU63Acu+ns/HHwAj677N8nVCvDa1I
-         95PQ==
-X-Gm-Message-State: ACrzQf1BAixfLfENPBluxmSH++jd3De2kXLxQfzVbP3pq5vLu4wA5OnU
-        W91lYLZadB/lNT1H7x67wrABjniRW1fa3Fwjb7W+dw==
-X-Google-Smtp-Source: AMsMyM6x44E44imJOG600gCWyQhF+SRbbBEL1BFLiw5eUyFTdnVkdknogBUWXMEMPKnEu0PG5hjx5gD/G/vjIWK8It8=
-X-Received: by 2002:a5d:9ac1:0:b0:6a3:1938:e6b0 with SMTP id
- x1-20020a5d9ac1000000b006a31938e6b0mr1114144ion.186.1663531940006; Sun, 18
- Sep 2022 13:12:20 -0700 (PDT)
+        Mon, 19 Sep 2022 03:02:44 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E7D71CB0C;
+        Mon, 19 Sep 2022 00:02:43 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DFC2B61122;
+        Mon, 19 Sep 2022 07:02:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46387C433C1;
+        Mon, 19 Sep 2022 07:02:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1663570962;
+        bh=r7rE3QztujfpGUrKJbtq/eo8EOPVd2kk3QtrqlMwkLc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WaRQxufDDaOlWRgNKR9T5RMjCg8WwLQXD114nYKmW5vAeKW0RqlIQI1yMwFxD+qn1
+         GnR4BgXNco/ml8Rv4H/2p79ph8h2ENGScxCYaJA7zze+7WFpwhN1SndZBgwxbb1OGB
+         NsUmm2WFlvlbnYYGoogKVSvtTizAnqM3/5BR1+LLmrUyk0jdk91cuL/L3ZNRIPgMgj
+         UbRcwm1lGnK8JlzmapBN0vkUgdzBzzPOXwZGndiuwymzS/hmHrK6HFV3fRh8VdfgMr
+         LK9w1ZiSLYnk7rdEWFXPgyeQlD2VXYl85MczzivsQmVz8RAIX4/809yBQ9EvE1lo23
+         rCXcO4xCtsxeg==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1oaAnm-0004zd-Cd; Mon, 19 Sep 2022 09:02:46 +0200
+Date:   Mon, 19 Sep 2022 09:02:46 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: applespi - avoid wasting some memory
+Message-ID: <YygUFr5cSpZhYKOA@hovoldconsulting.com>
+References: <0db94f84920663f3bd45a73e2ae73950627a377f.1663506472.git.christophe.jaillet@wanadoo.fr>
 MIME-Version: 1.0
-References: <20220912173202.16723-1-matt.ranostay@konsulko.com>
- <20220912173202.16723-6-matt.ranostay@konsulko.com> <20220918164920.5bc2bc87@jic23-huawei>
-In-Reply-To: <20220918164920.5bc2bc87@jic23-huawei>
-From:   Matt Ranostay <matt.ranostay@konsulko.com>
-Date:   Sun, 18 Sep 2022 13:12:08 -0700
-Message-ID: <CAJCx=g=JPRTm-Qjy233BfOfzFiSVonM5GbS2BrRrzp8aNZA4MQ@mail.gmail.com>
-Subject: Re: [PATCH v3 5/5] HID: mcp2221: add ADC/DAC support via iio subsystem
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     gupt21@gmail.com, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0db94f84920663f3bd45a73e2ae73950627a377f.1663506472.git.christophe.jaillet@wanadoo.fr>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Sep 18, 2022 at 8:49 AM Jonathan Cameron <jic23@kernel.org> wrote:
->
-> On Mon, 12 Sep 2022 10:32:02 -0700
-> Matt Ranostay <matt.ranostay@konsulko.com> wrote:
->
-> > Add support for 3x 10-bit ADC and 1x DAC channels registered via the iio
-> > subsystem.
-> >
-> > To prevent breakage and unexpected dependencies this support only is
-> > only built if CONFIG_IIO is enabled, and is only weakly referenced by
-> > 'imply IIO' within the respective Kconfig.
-> >
-> > Additionally the iio device only gets registered if at least one channel
-> > is enabled in the power-on configuration read from SRAM.
-> >
-> > Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
->
-> Hi Matt,
->
-> Can we not provide a _scale?
-> Whilst not technically required in all IIO Drivers, a bare _raw interface
-> is rarely that much use and here the ADC and DAC clearly have very different
-> scales.
+On Sun, Sep 18, 2022 at 03:08:17PM +0200, Christophe JAILLET wrote:
+> When the 'struct applespi_data' structure is allocated at the beginning of
+> applespi_probe(), 2504 bytes are allocated.
+> 
+> Because of the way memory is allocated, it ends to a 4096 bytes allocation.
+> So, about 1500 bytes are wasted.
+> 
+> Later in this function, when 'tx_buffer', 'tx_status', 'rx_buffer' and
+> 'msg_buf' are allocated, 256, 4, 256 and 512 bytes are requested (~1 ko).
+> A devm_ memory allocation has a small overhead of 40 bytes. So, for the
+> same reason as above, it ends to allocate 512, 64, 512 and 1024 (~2 ko).
+> 
+> All that said, defining these 4 arrays as part of 'struct applespi_data'
+> saves 2 ko of runtime memory.
+> 
+> 3504 bytes are now requested, and 4096 really allocated. All these 4
+> arrays fit in the 'wasted' memory of the first allocation.
+> 
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> ---
+> Compile tested only.
+> ---
+>  drivers/input/keyboard/applespi.c | 23 ++++-------------------
+>  1 file changed, 4 insertions(+), 19 deletions(-)
+> 
+> diff --git a/drivers/input/keyboard/applespi.c b/drivers/input/keyboard/applespi.c
+> index fab5473ae5da..bee4ccfa2b05 100644
+> --- a/drivers/input/keyboard/applespi.c
+> +++ b/drivers/input/keyboard/applespi.c
+> @@ -373,11 +373,11 @@ struct applespi_data {
+>  	struct input_dev		*keyboard_input_dev;
+>  	struct input_dev		*touchpad_input_dev;
+>  
+> -	u8				*tx_buffer;
+> -	u8				*tx_status;
+> -	u8				*rx_buffer;
+> +	u8				tx_buffer[APPLESPI_PACKET_SIZE];
+> +	u8				tx_status[APPLESPI_STATUS_SIZE];
+> +	u8				rx_buffer[APPLESPI_PACKET_SIZE];
+>  
+> -	u8				*msg_buf;
+> +	u8				msg_buf[MAX_PKTS_PER_MSG * APPLESPI_PACKET_SIZE];
+>  	unsigned int			saved_msg_len;
+>  
+>  	struct applespi_tp_info		tp_info;
 
-I will check into that. The sampling voltage range is configurable
-though and will need
-to see
+This kind of change is generally broken in case DMA can be involved.
 
->
-> Otherwise, as seen below, I'd like a comment on why the registration
-> is kicked off in a delayed work item. Right now that looks like a hack
-> to ensure something else has happened first.  That's fine, but there
-> doesn't seem to be rescheduling if whatever that 'thing' is hasn't happened yet.
-> To use this sort of delayed trick, I'd definitely expect a backoff again
-> to be implemented...
+Allocating the transfer buffers separately makes sure that alignment
+requirements are met and avoids hard-to-debug memory corruption issues.
 
-Ok a retry here maybe would make sense to be sure the SRAM
-configuration is read.
-This hack is just because we have to be sure the MCP2221 is up and
-running before
-attempting to read the SRAM via a USB message, and is less ugly/wrong to pop a
-msleep in a probe function.
-
-Also in this case we can back down the half second delay since that is
-the worst case.
-
-- Matt
-
->
-> > ---
-> >  drivers/hid/Kconfig       |   1 +
-> >  drivers/hid/hid-mcp2221.c | 187 ++++++++++++++++++++++++++++++++++++++
-> >  2 files changed, 188 insertions(+)
->
->
-> ...
->
-> >  static int mcp2221_probe(struct hid_device *hdev,
-> >                                       const struct hid_device_id *id)
-> >  {
-> > @@ -902,6 +1084,11 @@ static int mcp2221_probe(struct hid_device *hdev,
-> >       if (ret)
-> >               goto err_i2c;
-> >
-> > +#if IS_REACHABLE(CONFIG_IIO)
-> > +     INIT_DELAYED_WORK(&mcp->init_work, mcp_init_work);
-> > +     schedule_delayed_work(&mcp->init_work, msecs_to_jiffies(500));
->
-> Good to have a comment here to say why you are kicking the registration of the
-> IIO device onto a delayed work path.
->
-> > +#endif
-> > +
-> >       return 0;
-> >
-> >  err_i2c:
->
+Johan

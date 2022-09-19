@@ -2,49 +2,50 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D068C6FA90
-	for <linux-input@archiver.kernel.org>; Mon, 19 Sep 2022 15:59:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 131BDC6FA86
+	for <linux-input@archiver.kernel.org>; Mon, 19 Sep 2022 15:59:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230378AbiISP73 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 19 Sep 2022 11:59:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
+        id S230148AbiISP7a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 19 Sep 2022 11:59:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230041AbiISP7Y (ORCPT
+        with ESMTP id S230353AbiISP70 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 19 Sep 2022 11:59:24 -0400
-Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A352412779
-        for <linux-input@vger.kernel.org>; Mon, 19 Sep 2022 08:59:19 -0700 (PDT)
-Received: by mail-io1-xd34.google.com with SMTP id z191so23245909iof.10
-        for <linux-input@vger.kernel.org>; Mon, 19 Sep 2022 08:59:19 -0700 (PDT)
+        Mon, 19 Sep 2022 11:59:26 -0400
+Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3C0F255B9
+        for <linux-input@vger.kernel.org>; Mon, 19 Sep 2022 08:59:21 -0700 (PDT)
+Received: by mail-io1-xd29.google.com with SMTP id 138so22239822iou.9
+        for <linux-input@vger.kernel.org>; Mon, 19 Sep 2022 08:59:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=KaD1pWaUPMswQsrZWHX8uZWCGX8Pw+yumugltNensJI=;
-        b=gwHzFhk0QuvT2H7Vj2faGgZRTHBrcXLRk2VZouECherRj3HQbRZ4kUhtRYvg/d8BhO
-         zUXSQpnEuux5hcBDaWt59boUlVYL9hK7UWw01Ei4BPI85Qur5PnnhOpVbhHy7qo/9IId
-         XwfXM7fBqsWn0RQAr5ebv4EDaE7CG2HU8GilM=
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
+        bh=FeCM68gkQ9FF2bI4ULoqKrlayWCcShzPlt5I44au1/c=;
+        b=BkoiLi25B9I8aHEcetjwQrrc6ffGJaNixtdj0y9GapFZT9pk9xuiuOjKhbFKzyPki3
+         dnC/lynaq2cypzHuPEMpcvOES5YmxJHmyIpSl7GQs2G0seIr3CVZdpsvNvqXucdsc7e1
+         5VHdX9boUcDBorL2W/h7n6K8E6AwhDGFhZ9G0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=KaD1pWaUPMswQsrZWHX8uZWCGX8Pw+yumugltNensJI=;
-        b=nOzXkAlxwV02HtW2W4lKVcc910iIKaMz2syB8+E068Nph1MqsrP+5kNvub2tkKjWzp
-         dvEoetYMonGhwojKpl5tOwBjGEmBWciA35uMG8uSUuGFxQgvnAFwYOmzFgg1yOs1qnMX
-         yUbnof8o3woJjX31FBP+KCk/VQmzUHzBTWq0kiwu5gxucNfLhSH0IiBWY41Wy5YuwZuZ
-         pIrQkiAamXd9qECLJbqUmoU4ZpenQvuAzPTxIEEsjJGxiZNH8FLUctBROowEpVGQmxWv
-         bFkI9hr59vg5Szq2pLmhFCYKh5oC2xQvV9l9FOoKT29c9U+OVPoJwFfAn3N++pAEd12R
-         oxHQ==
-X-Gm-Message-State: ACrzQf070I6jG2p57kski6OHia5NRUpYyc5MSSLvgMqfiwoRzv/6j3/c
-        laoBcDQi46O7xprpf+d8/8umdQ==
-X-Google-Smtp-Source: AMsMyM74lntwz3roPwRqRUn67N0qYgUb2HpK5DgHz6zzjvg/ge+Ib34/0PiuP6w+yq7yqVa6upfIHw==
-X-Received: by 2002:a05:6602:164b:b0:6a2:83c0:d3f5 with SMTP id y11-20020a056602164b00b006a283c0d3f5mr6255836iow.77.1663603158973;
-        Mon, 19 Sep 2022 08:59:18 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date;
+        bh=FeCM68gkQ9FF2bI4ULoqKrlayWCcShzPlt5I44au1/c=;
+        b=1Y/0r6om77W1BZu1b7iAhrgQenEuLplIy6NOW6hvjgKjS3wxagIREnCnaySFAJKDSn
+         RnMRMtwMsDvdIZYBdtGc/+PZvKTxtB15B3YUWktB9krod1jWdUK2S6vpBoVoKCFAVee4
+         9Hh+RWFextXP4sq78LHAPVftJ+4e6CghCM3MuakbpAigyNtuQX8iIgoucxGykOBLs+14
+         5Yf+9RK2XDr+C91ffMZ4G5NCcNLAyVdZlQK7yBpgTP+OBzKN9icO+w8FtKLmkQixM8Vk
+         /8Y7knx3dfR2FaZK/m5oJhd0vtf6wxUQINoD9wxpZ5z2fvUuRMQMjPq8wEAayto92Ymc
+         p0wg==
+X-Gm-Message-State: ACrzQf1z6i6NvGbVhIZKesn8GePGNuhWUTkUgBCdXKSjiE1Cj6Gf1fS5
+        LkKIqbmw0c0ERAle7lH7Y+MPHg==
+X-Google-Smtp-Source: AMsMyM4uQsbYtHrhy3e1HotDvDIJlDF3CluBTZ2x3HRVtmJdAnjyY6HjDsKlgBnrozxlQumsOE61iQ==
+X-Received: by 2002:a05:6638:3492:b0:35a:9829:6ff6 with SMTP id t18-20020a056638349200b0035a98296ff6mr6966249jal.57.1663603161047;
+        Mon, 19 Sep 2022 08:59:21 -0700 (PDT)
 Received: from rrangel920.bld.corp.google.com (h24-56-189-219.arvdco.broadband.dynamic.tds.net. [24.56.189.219])
-        by smtp.gmail.com with ESMTPSA id t70-20020a025449000000b00349fb9b1abesm5634154jaa.106.2022.09.19.08.59.17
+        by smtp.gmail.com with ESMTPSA id t70-20020a025449000000b00349fb9b1abesm5634154jaa.106.2022.09.19.08.59.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Sep 2022 08:59:18 -0700 (PDT)
+        Mon, 19 Sep 2022 08:59:20 -0700 (PDT)
 From:   Raul E Rangel <rrangel@chromium.org>
 To:     linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
 Cc:     timvp@google.com, hdegoede@redhat.com,
@@ -52,157 +53,102 @@ Cc:     timvp@google.com, hdegoede@redhat.com,
         mario.limonciello@amd.com, jingle.wu@emc.com.tw,
         mika.westerberg@linux.intel.com, dmitry.torokhov@gmail.com,
         linus.walleij@linaro.org, Raul E Rangel <rrangel@chromium.org>,
-        Alistair Francis <alistair@alistair23.me>,
-        Angela Czubak <acz@semihalf.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Bartosz Szczepanek <bsz@semihalf.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Cai Huoqing <cai.huoqing@linux.dev>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Johnny Chuang <johnny.chuang.emc@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Len Brown <lenb@kernel.org>, Rob Herring <robh@kernel.org>,
-        Terry Bowman <terry.bowman@amd.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH v4 00/13] acpi: i2c: Use SharedAndWake and ExclusiveAndWake to enable wake irq
-Date:   Mon, 19 Sep 2022 09:59:02 -0600
-Message-Id: <20220919155916.1044219-1-rrangel@chromium.org>
+Subject: [PATCH v4 02/13] Input: elan_i2c - Use PM subsystem to manage wake irq
+Date:   Mon, 19 Sep 2022 09:59:04 -0600
+Message-Id: <20220919095504.v4.2.Id022caf53d01112188308520915798f08a33cd3e@changeid>
 X-Mailer: git-send-email 2.37.3.968.ga6b4b080e4-goog
+In-Reply-To: <20220919155916.1044219-1-rrangel@chromium.org>
+References: <20220919155916.1044219-1-rrangel@chromium.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Today, i2c drivers are making the assumption that their IRQs can also
-be used as wake IRQs. This isn't always the case and it can lead to
-spurious wakes. This has recently started to affect AMD Chromebooks.
-With the introduction of
-d62bd5ce12d7 ("pinctrl: amd: Implement irq_set_wake"), the AMD GPIO
-controller gained the capability to set the wake bit on each GPIO. The
-ACPI specification defines two ways to inform the system if a device is
-wake capable:
-1) The _PRW object defines the GPE that can be used to wake the system.
-2) Setting ExclusiveAndWake or SharedAndWake in the _CRS GpioInt.
+The Elan I2C touchpad driver is currently manually managing the wake
+IRQ. This change removes the explicit enable_irq_wake/disable_irq_wake
+and instead relies on the PM subsystem. This is done by calling
+dev_pm_set_wake_irq.
 
-Currently only the first method is supported. The i2c drivers don't have
-any indication that the IRQ is wake capable, so they guess. This causes
-spurious interrupts, for example:
-* We have an ACPI HID device that has `_PR0` and `_PR3`. It doesn't have
-  `_PRW` or `ExclusiveAndWake` so that means the device can't wake the
-  system.
-* The IRQ line is active level low for this device and is pulled up by
-  the power resource defined in `_PR0`/`_PR3`.
-* The i2c driver will (incorrectly) arm the GPIO for wake by calling
-  `enable_irq_wake` as part of its suspend hook.
-* ACPI will power down the device since it doesn't have a wake GPE
-  associated with it.
-* When the device is powered down, the IRQ line will drop, and it will
-  trigger a wake event.
+i2c_device_probe already calls dev_pm_set_wake_irq when using device
+tree, and i2c_device_remove also already calls dev_pm_clear_wake_irq.
+There could be some device tree systems that have incorrectly declared
+`wake` capabilities, so this change will set the wake irq if one is
+missing. This matches the previous behavior.
 
-See the following debug log:
-[   42.335804] PM: Suspending system (s2idle)
-[   42.340186] amd_gpio AMD0030:00: RX: Setting wake for pin 89 to enable
-[   42.467736]     power-0416 __acpi_power_off      : Power resource [PR00] turned off
-[   42.467739] device_pm-0280 device_set_power      : Device [H05D] transitioned to D3cold
-[   42.475210] PM: pm_system_irq_wakeup: 11 triggered pinctrl_amd
-[   42.535293] PM: Wakeup unrelated to ACPI SCI
-[   42.535294] PM: resume from suspend-to-idle
+I tested this on an ACPI system where the touchpad doesn't have _PRW
+defined. I verified I can still wake the system and that the wake source
+was the touchpad IRQ GPIO.
 
-In order to fix this, we need to take into account the wake capable bit
-defined on the Interrupt/GpioInt. This is accomplished by:
-* Migrating some of the i2c drivers over to using the PM subsystem to
-  manage the wake IRQ.
-* Expose the wake_capable bit from the ACPI Interrupt/GpioInt resource
-  to the  i2c core.
-* Use the wake_capable bit in the i2c core to call
-  `dev_pm_set_wake_irq`. This reuses the existing device tree flow.
-* Make the i2c drivers stop calling `dev_pm_set_wake_irq` since it's now
-  handled by the i2c core.
-* Make the ACPI device PM system aware of the wake_irq. This is
-  necessary so the device doesn't incorrectly get powered down when a
-  wake_irq is enabled.
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+---
 
-I've tested this code with various combinations of having _PRW,
-ExclusiveAndWake and power resources all defined or not defined, but it
-would be great if others could test this out on their hardware.
-
-I'm sure this will surface some devices where the IRQs were not
-correctly marked as wake capable. Ideally the firmware can be fixed, but
-if not we can work around this in the kernel by providing a board
-specific `struct i2c_board_info` with the `I2C_CLIENT_WAKE` flag set.
-See `chromeos_laptop.c` for an example of matching DMI properties and
-setting the `I2C_CLIENT_WAKE` override.
-
-Thanks,
-Raul
-
-Changes in v4:
-- Added Reviewed-by
-- Reformatted with 96 char limit
-- Removed unnecessary !!
-- Removed unrelated white space change
-- Renamed i2c_acpi_add_resource to i2c_acpi_add_irq_resource
-- Expanded logic in i2c_acpi_add_i2c_resource to make it easier to read
-
-Changes in v3:
-- Kept `acpi_dev_gpio_irq_get_by` unchanged to avoid having to touch
-  unrelated drivers.
-- Converted wake_capable parameter to bool.
-- Fixed bad indent
-- Convert wake_capable to bool
-- Only update wake_capable pointer once
-- Move wake_capable local into local block
+(no changes since v2)
 
 Changes in v2:
-- Added elants_i2c to series
-- Added raydium_ts_i2c to series
-- Fixed call site in mlxbf_gige_probe
-- Added ability to extract wake bit from Interrupt/IRQ resources
-- Look at wake_cabple bit for IRQ/Interrupt resources
-- I chose not to keep the legacy code around since systems without DT or ACPI should be rare.
+- Set the wake_irq when not configured by the i2c-core. This is
+  different than v1, where the wake_irq was only set for non DT systems.
 
-Raul E Rangel (13):
-  HID: i2c-hid: Use PM subsystem to manage wake irq
-  Input: elan_i2c - Use PM subsystem to manage wake irq
-  Input: elants_i2c - Use PM subsystem to manage wake irq
-  Input: raydium_ts_i2c - Use PM subsystem to manage wake irq
-  gpiolib: acpi: Add wake_capable variants of acpi_dev_gpio_irq_get
-  ACPI: resources: Add wake_capable parameter to acpi_dev_irq_flags
-  i2c: acpi: Use ACPI wake capability bit to set wake_irq
-  ACPI: PM: Take wake IRQ into consideration when entering
-    suspend-to-idle
-  HID: i2c-hid: acpi: Stop setting wakeup_capable
-  HID: i2c-hid: Don't set wake_capable and wake_irq
-  Input: elan_i2c - Don't set wake_capable and wake_irq
-  Input: elants_i2c - Don't set wake_capable and wake_irq
-  Input: raydium_ts_i2c - Don't set wake_capable and wake_irq
+ drivers/input/mouse/elan_i2c_core.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
- drivers/acpi/device_pm.c                   | 19 +++++++++--
- drivers/acpi/irq.c                         |  8 +++--
- drivers/acpi/resource.c                    | 23 ++++++++++----
- drivers/gpio/gpiolib-acpi.c                | 15 +++++++--
- drivers/gpio/gpiolib-acpi.h                |  2 ++
- drivers/hid/i2c-hid/i2c-hid-acpi.c         |  5 ---
- drivers/hid/i2c-hid/i2c-hid-core.c         | 24 ++------------
- drivers/i2c/i2c-core-acpi.c                | 37 ++++++++++++++++------
- drivers/i2c/i2c-core-base.c                |  6 +++-
- drivers/i2c/i2c-core.h                     |  4 +--
- drivers/input/mouse/elan_i2c_core.c        | 15 +--------
- drivers/input/touchscreen/elants_i2c.c     | 13 ++------
- drivers/input/touchscreen/raydium_i2c_ts.c |  7 +---
- drivers/pnp/pnpacpi/rsparser.c             |  7 ++--
- include/linux/acpi.h                       | 23 +++++++++++---
- include/linux/ioport.h                     |  3 +-
- 16 files changed, 117 insertions(+), 94 deletions(-)
-
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index e1758d5ffe4218..3947474e93d16a 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -33,6 +33,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/completion.h>
+ #include <linux/of.h>
++#include <linux/pm_wakeirq.h>
+ #include <linux/property.h>
+ #include <linux/regulator/consumer.h>
+ #include <asm/unaligned.h>
+@@ -86,8 +87,6 @@ struct elan_tp_data {
+ 	u16			fw_page_size;
+ 	u32			fw_signature_address;
+ 
+-	bool			irq_wake;
+-
+ 	u8			min_baseline;
+ 	u8			max_baseline;
+ 	bool			baseline_ready;
+@@ -1340,6 +1339,15 @@ static int elan_probe(struct i2c_client *client,
+ 	if (!dev->of_node)
+ 		device_init_wakeup(dev, true);
+ 
++	/*
++	 * The wake IRQ should be declared via device tree instead of assuming
++	 * the IRQ can wake the system. This is here for legacy reasons and
++	 * will be removed once the i2c-core supports querying ACPI for wake
++	 * capabilities.
++	 */
++	if (!dev->power.wakeirq)
++		dev_pm_set_wake_irq(dev, client->irq);
++
+ 	return 0;
+ }
+ 
+@@ -1362,8 +1370,6 @@ static int __maybe_unused elan_suspend(struct device *dev)
+ 
+ 	if (device_may_wakeup(dev)) {
+ 		ret = elan_sleep(data);
+-		/* Enable wake from IRQ */
+-		data->irq_wake = (enable_irq_wake(client->irq) == 0);
+ 	} else {
+ 		ret = elan_set_power(data, false);
+ 		if (ret)
+@@ -1394,9 +1400,6 @@ static int __maybe_unused elan_resume(struct device *dev)
+ 			dev_err(dev, "error %d enabling regulator\n", error);
+ 			goto err;
+ 		}
+-	} else if (data->irq_wake) {
+-		disable_irq_wake(client->irq);
+-		data->irq_wake = false;
+ 	}
+ 
+ 	error = elan_set_power(data, true);
 -- 
 2.37.3.968.ga6b4b080e4-goog
 

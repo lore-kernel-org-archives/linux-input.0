@@ -2,53 +2,53 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 917C6C6FA82
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A97B1ECAAD8
 	for <linux-input@archiver.kernel.org>; Tue, 20 Sep 2022 04:26:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229733AbiITE0s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 20 Sep 2022 00:26:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38378 "EHLO
+        id S229977AbiITE0u (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 20 Sep 2022 00:26:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230000AbiITE0X (ORCPT
+        with ESMTP id S229901AbiITE0Z (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Sep 2022 00:26:23 -0400
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2908158B69;
-        Mon, 19 Sep 2022 21:26:15 -0700 (PDT)
-Received: by mail-pf1-x42a.google.com with SMTP id l65so1588573pfl.8;
-        Mon, 19 Sep 2022 21:26:14 -0700 (PDT)
+        Tue, 20 Sep 2022 00:26:25 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B113758B78;
+        Mon, 19 Sep 2022 21:26:17 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id j6-20020a17090a694600b00200bba67dadso1219668pjm.5;
+        Mon, 19 Sep 2022 21:26:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=kNFWWy7bwpQVYleHcT5hR/K7/r+CDpNqO6pCTqZ+Bqk=;
-        b=iEoOYDQuDeKqlyz9GzDA5FBF1n+Te1LRLAVTNZY+LC9cDRaDrwdI07j386rCcjd/+b
-         jWSruN7EDHX7ArOufpN/hDIWzVfTZfN7YgrBRuGcWQRg6lH7e4sbajvVJ9oXiNQeCaTe
-         76+dqf22D4yzJl3PPTKcG948hM6pO+PlHjvyW1vtG4Sf/nbJjMVxVWNCn+HTUe/cLsui
-         8Q4bs1P5Jh8MAmvTVnp2O1IF6BBq/6nJcVdYZob/VlrrTIXE574cAKRnKWGGVpINxWHM
-         QY90cN6dlVwwMtoWODH+RcX8nJPUGlI0HUXd3nEsZwXziRBq/UEfUkb12AkCK+HSvolf
-         RFkw==
+        bh=rfUpzYsI63frIDNqdmtPpUE/MEzLhWYo/H+oG5zg+h8=;
+        b=UbE8mSCw4zn9exu+f8n6nmg2N5VlvTNPteV9yQ84pmabq9FyvlDwWZUtyEB/gFIPcL
+         YcHgfHgRkZtRpwpIw4rh/OmS0bSbwYkynpmB2cY3tswQTH8tLkoHlsuMUMAbiJnKlh+Q
+         vwa5wxZ4thbiZY9lmUsdSvrjTGzmNW8t3wOPRDunGxfzfbPlbGVv/9Me9VhJFoX/T51r
+         4Xhh3R+mohFH245CVSTeW4fNK2LjuD8d8XQ0HqsO6yu9zp7usqoXjBsVJSSobWmdVKwR
+         3LF0ZJaV9A4q4w35HbOOOKioeuArN7unkZ3Ir/X1LxHGbywXfs1mqeWitwBj/iFm6QTp
+         2d/w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date;
-        bh=kNFWWy7bwpQVYleHcT5hR/K7/r+CDpNqO6pCTqZ+Bqk=;
-        b=ppK0yN/1ku2O2bVs7Y2RF3keynMe2yF8Wg4UkjNTyBsdD0gi5MFk3k15ufj3tuwQYH
-         zSkUmLvBpfYsnCEylpG0tegKwA253Ric6l4k9bPrfIq8J+V+8IXbfVRke96C3hqEq1mY
-         9m8077tPfZPuCax5Zogqn5jcbn8NWuheEAkXCEO68T67qbypPJil0s2mKFLyEAiimu4r
-         kGhq7oVPuW69bzkZOgFSf6PK9gahzyIgAaiZhbA7wyTVyj/sMYZDUjDR5PqJRQ4lPZwl
-         BM4pjgjCVYz1vIGzELH6OjqgDEs4UOjJyTubDOWybiDLBARw9lrPkr+4tNm2rfK6d/J5
-         vdCg==
-X-Gm-Message-State: ACrzQf2hCE87QpaB7n0rQmEdmG/Xe33j8f5TA8Xh1lCh3hd/XJ1TNYGt
-        3JKOtJznVCFzJ/V9cShkSPY=
-X-Google-Smtp-Source: AMsMyM6kjzieQk2rKnAzOxto0IPCpm9CxxoKAfWuP0jfdKwCKYLBCjC1iEbrRHSMs6hoOtRm5gZHew==
-X-Received: by 2002:aa7:952f:0:b0:540:e8ee:a077 with SMTP id c15-20020aa7952f000000b00540e8eea077mr22001999pfp.34.1663647973928;
-        Mon, 19 Sep 2022 21:26:13 -0700 (PDT)
+        bh=rfUpzYsI63frIDNqdmtPpUE/MEzLhWYo/H+oG5zg+h8=;
+        b=a0F+Us3NM1cilvMDJzCQhBoXu7oqQ2odWarwGgTHwA7DykhYDsfypvvTMdvF5z4Nlg
+         EKIHwRwGLnDTBFZ4CaAaDNUThYcQlP+3KqVDX5uRpfzkFZ/6h/zBYgoFHuMPakxNVgpK
+         6XtNOLH8uY0UK2tiS1LTEqxq8I5JFpDMBMKS6am4XqqHjcxk1lN/lV7FabnMabm+zWOM
+         grE2TvY2a4JREgNajSGfD6lX4ljlxG8mbxOwtiMTGHlSZs7e5R9mN1aCw2128Ulr7Qr9
+         xtmfyNNWC6/WRWEkdpXPqHCCj2AQWRCwTSjiOtbwtDQS9cY2LlVPFGy+NIfcwa/R45VZ
+         DNnw==
+X-Gm-Message-State: ACrzQf0bJa+q+7uq2I4QGKYkVNnybXJLPCe0aSLgHtfE9ktr8gUCfr4M
+        iboU2hKUeRI0CQnRRfA1nJPOQbZ2Ais=
+X-Google-Smtp-Source: AMsMyM6Eo2sVwAvW4yjDLBtQUL5K0AJwz1fwTFJsPODUbnZKBr5vLscVdpLogQsr8lAuEC1TZag7Eg==
+X-Received: by 2002:a17:902:e550:b0:177:f115:1646 with SMTP id n16-20020a170902e55000b00177f1151646mr3148201plf.112.1663647976320;
+        Mon, 19 Sep 2022 21:26:16 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:202:201:b095:5d5d:4c28:8088])
-        by smtp.gmail.com with ESMTPSA id t15-20020a17090a024f00b001fab208523esm337518pje.3.2022.09.19.21.26.12
+        by smtp.gmail.com with ESMTPSA id t15-20020a17090a024f00b001fab208523esm337518pje.3.2022.09.19.21.26.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 19 Sep 2022 21:26:13 -0700 (PDT)
+        Mon, 19 Sep 2022 21:26:15 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     Shawn Guo <shawnguo@kernel.org>,
         Sascha Hauer <s.hauer@pengutronix.de>,
@@ -56,9 +56,9 @@ To:     Shawn Guo <shawnguo@kernel.org>,
 Cc:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Fabio Estevam <festevam@gmail.com>, devicetree@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/4] dt-binding: input: egalax-ts: fix GPIO and IRQ in example
-Date:   Mon, 19 Sep 2022 21:26:06 -0700
-Message-Id: <20220920042608.1865560-2-dmitry.torokhov@gmail.com>
+Subject: [PATCH 4/4] Input: egalax_ts - do not hardcode interrupt trigger
+Date:   Mon, 19 Sep 2022 21:26:08 -0700
+Message-Id: <20220920042608.1865560-4-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.37.3.968.ga6b4b080e4-goog
 In-Reply-To: <20220920042608.1865560-1-dmitry.torokhov@gmail.com>
 References: <20220920042608.1865560-1-dmitry.torokhov@gmail.com>
@@ -68,28 +68,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The driver is using level triggered interrupt (low) which is backed by
-and active low GPIO that can be used to wake the controller by driving it
-low. Let's annotate it properly in the example.
+Stop hard-coding interrupt trigger, instead rely on the platform code
+to do the right thing, according to DT or ACPI data.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- .../devicetree/bindings/input/touchscreen/egalax-ts.txt       | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/input/touchscreen/egalax_ts.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-index 92fb2620f5e2..ebbe93810574 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-+++ b/Documentation/devicetree/bindings/input/touchscreen/egalax-ts.txt
-@@ -13,6 +13,6 @@ Example:
- 		compatible = "eeti,egalax_ts";
- 		reg = <0x04>;
- 		interrupt-parent = <&gpio1>;
--		interrupts = <9 2>;
--		wakeup-gpios = <&gpio1 9 0>;
-+		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
-+		wakeup-gpios = <&gpio1 9 GPIO_ACTIVE_LOW>;
- 	};
+diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+index 9e9b1c52720d..8333a512b605 100644
+--- a/drivers/input/touchscreen/egalax_ts.c
++++ b/drivers/input/touchscreen/egalax_ts.c
+@@ -203,10 +203,9 @@ static int egalax_ts_probe(struct i2c_client *client,
+ 			     ABS_MT_POSITION_Y, 0, EGALAX_MAX_Y, 0, 0);
+ 	input_mt_init_slots(input_dev, MAX_SUPPORT_POINTS, 0);
+ 
+-	error = devm_request_threaded_irq(&client->dev, client->irq, NULL,
+-					  egalax_ts_interrupt,
+-					  IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+-					  "egalax_ts", ts);
++	error = devm_request_threaded_irq(&client->dev, client->irq,
++					  NULL, egalax_ts_interrupt,
++					  IRQF_ONESHOT, "egalax_ts", ts);
+ 	if (error < 0) {
+ 		dev_err(&client->dev, "Failed to register interrupt\n");
+ 		return error;
 -- 
 2.37.3.968.ga6b4b080e4-goog
 

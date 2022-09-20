@@ -2,37 +2,39 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E233C6FA90
-	for <linux-input@archiver.kernel.org>; Tue, 20 Sep 2022 15:24:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 01089ECAAD8
+	for <linux-input@archiver.kernel.org>; Tue, 20 Sep 2022 15:24:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229598AbiITPYE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S229802AbiITPYE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 20 Sep 2022 11:24:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47342 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230460AbiITPYC (ORCPT
+        with ESMTP id S229598AbiITPYC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Tue, 20 Sep 2022 11:24:02 -0400
 Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2272065574
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2282965812
         for <linux-input@vger.kernel.org>; Tue, 20 Sep 2022 08:24:01 -0700 (PDT)
-Received: from dggpemm500022.china.huawei.com (unknown [172.30.72.53])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4MX4wS3bJDz14R0M
-        for <linux-input@vger.kernel.org>; Tue, 20 Sep 2022 23:19:52 +0800 (CST)
+Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.57])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4MX4wT0xFVz14R0P
+        for <linux-input@vger.kernel.org>; Tue, 20 Sep 2022 23:19:53 +0800 (CST)
 Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
- dggpemm500022.china.huawei.com (7.185.36.162) with Microsoft SMTP Server
+ dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
  15.1.2375.31; Tue, 20 Sep 2022 23:23:58 +0800
 Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
  (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Tue, 20 Sep
- 2022 23:23:57 +0800
+ 2022 23:23:58 +0800
 From:   Yang Yingliang <yangyingliang@huawei.com>
 To:     <linux-input@vger.kernel.org>
 CC:     <dmitry.torokhov@gmail.com>
-Subject: [PATCH -next 1/4] Input: adc-joystick - Switch to use dev_err_probe() helper
-Date:   Tue, 20 Sep 2022 23:30:52 +0800
-Message-ID: <20220920153055.3465115-1-yangyingliang@huawei.com>
+Subject: [PATCH -next 3/4] Input: gpio_keys - Switch to use dev_err_probe() helper
+Date:   Tue, 20 Sep 2022 23:30:54 +0800
+Message-ID: <20220920153055.3465115-3-yangyingliang@huawei.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20220920153055.3465115-1-yangyingliang@huawei.com>
+References: <20220920153055.3465115-1-yangyingliang@huawei.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -51,29 +53,26 @@ checked later through debugfs.
 
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 ---
- drivers/input/joystick/adc-joystick.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/input/keyboard/gpio_keys.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/joystick/adc-joystick.c b/drivers/input/joystick/adc-joystick.c
-index c0deff5d4282..3590d845e381 100644
---- a/drivers/input/joystick/adc-joystick.c
-+++ b/drivers/input/joystick/adc-joystick.c
-@@ -201,12 +201,9 @@ static int adc_joystick_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	joy->chans = devm_iio_channel_get_all(dev);
--	if (IS_ERR(joy->chans)) {
--		error = PTR_ERR(joy->chans);
--		if (error != -EPROBE_DEFER)
--			dev_err(dev, "Unable to get IIO channels");
--		return error;
--	}
-+	if (IS_ERR(joy->chans))
-+		return dev_err_probe(dev, PTR_ERR(joy->chans),
-+				     "Unable to get IIO channels\n");
- 
- 	error = device_property_read_u32(dev, "poll-interval", &poll_interval);
- 	if (error) {
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+index a5dc4ab87fa1..ac74e85006a8 100644
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -530,10 +530,8 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 				 */
+ 				bdata->gpiod = NULL;
+ 			} else {
+-				if (error != -EPROBE_DEFER)
+-					dev_err(dev, "failed to get gpio: %d\n",
+-						error);
+-				return error;
++				return dev_err_probe(dev, error,
++						     "failed to get gpio\n");
+ 			}
+ 		}
+ 	} else if (gpio_is_valid(button->gpio)) {
 -- 
 2.25.1
 

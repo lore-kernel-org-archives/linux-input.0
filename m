@@ -2,26 +2,26 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A65BC54EE9
-	for <linux-input@archiver.kernel.org>; Tue, 20 Sep 2022 15:24:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9877FC6FA8E
+	for <linux-input@archiver.kernel.org>; Tue, 20 Sep 2022 15:24:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230011AbiITPYC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 20 Sep 2022 11:24:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47320 "EHLO
+        id S229939AbiITPYD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 20 Sep 2022 11:24:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231180AbiITPYB (ORCPT
+        with ESMTP id S229802AbiITPYC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Sep 2022 11:24:01 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D7CC642E9
-        for <linux-input@vger.kernel.org>; Tue, 20 Sep 2022 08:24:00 -0700 (PDT)
-Received: from dggpemm500023.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4MX4xy419czpTK0
-        for <linux-input@vger.kernel.org>; Tue, 20 Sep 2022 23:21:10 +0800 (CST)
+        Tue, 20 Sep 2022 11:24:02 -0400
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2262165540
+        for <linux-input@vger.kernel.org>; Tue, 20 Sep 2022 08:24:01 -0700 (PDT)
+Received: from dggpemm500021.china.huawei.com (unknown [172.30.72.54])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4MX4wT324pz14R0S
+        for <linux-input@vger.kernel.org>; Tue, 20 Sep 2022 23:19:53 +0800 (CST)
 Received: from dggpemm500007.china.huawei.com (7.185.36.183) by
- dggpemm500023.china.huawei.com (7.185.36.83) with Microsoft SMTP Server
+ dggpemm500021.china.huawei.com (7.185.36.109) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 20 Sep 2022 23:23:58 +0800
+ 15.1.2375.31; Tue, 20 Sep 2022 23:23:59 +0800
 Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
  (7.185.36.183) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.31; Tue, 20 Sep
@@ -29,9 +29,9 @@ Received: from huawei.com (10.175.103.91) by dggpemm500007.china.huawei.com
 From:   Yang Yingliang <yangyingliang@huawei.com>
 To:     <linux-input@vger.kernel.org>
 CC:     <dmitry.torokhov@gmail.com>
-Subject: [PATCH -next 2/4] Input: bcm-keypad - Switch to use dev_err_probe() helper
-Date:   Tue, 20 Sep 2022 23:30:53 +0800
-Message-ID: <20220920153055.3465115-2-yangyingliang@huawei.com>
+Subject: [PATCH -next 4/4] Input: gpio_keys_polled - Switch to use dev_err_probe() helper
+Date:   Tue, 20 Sep 2022 23:30:55 +0800
+Message-ID: <20220920153055.3465115-4-yangyingliang@huawei.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220920153055.3465115-1-yangyingliang@huawei.com>
 References: <20220920153055.3465115-1-yangyingliang@huawei.com>
@@ -53,28 +53,29 @@ checked later through debugfs.
 
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
 ---
- drivers/input/keyboard/bcm-keypad.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/input/keyboard/gpio_keys_polled.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/keyboard/bcm-keypad.c b/drivers/input/keyboard/bcm-keypad.c
-index 56a919ec23b5..bc8bd78d74f5 100644
---- a/drivers/input/keyboard/bcm-keypad.c
-+++ b/drivers/input/keyboard/bcm-keypad.c
-@@ -368,11 +368,9 @@ static int bcm_kp_probe(struct platform_device *pdev)
- 	kp->clk = devm_clk_get(&pdev->dev, "peri_clk");
- 	if (IS_ERR(kp->clk)) {
- 		error = PTR_ERR(kp->clk);
--		if (error != -ENOENT) {
--			if (error != -EPROBE_DEFER)
--				dev_err(&pdev->dev, "Failed to get clock\n");
--			return error;
--		}
-+		if (error != -ENOENT)
-+			return dev_err_probe(&pdev->dev, error,
-+					     "Failed to get clock\n");
- 		dev_dbg(&pdev->dev,
- 			"No clock specified. Assuming it's enabled\n");
- 		kp->clk = NULL;
+diff --git a/drivers/input/keyboard/gpio_keys_polled.c b/drivers/input/keyboard/gpio_keys_polled.c
+index c3937d2fc744..ba00ecfbd343 100644
+--- a/drivers/input/keyboard/gpio_keys_polled.c
++++ b/drivers/input/keyboard/gpio_keys_polled.c
+@@ -299,13 +299,9 @@ static int gpio_keys_polled_probe(struct platform_device *pdev)
+ 							     NULL, GPIOD_IN,
+ 							     button->desc);
+ 			if (IS_ERR(bdata->gpiod)) {
+-				error = PTR_ERR(bdata->gpiod);
+-				if (error != -EPROBE_DEFER)
+-					dev_err(dev,
+-						"failed to get gpio: %d\n",
+-						error);
+ 				fwnode_handle_put(child);
+-				return error;
++				return dev_err_probe(dev, PTR_ERR(bdata->gpiod),
++						     "failed to get gpio\n");
+ 			}
+ 		} else if (gpio_is_valid(button->gpio)) {
+ 			/*
 -- 
 2.25.1
 

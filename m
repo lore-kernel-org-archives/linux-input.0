@@ -2,274 +2,221 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B32CFECAAD8
-	for <linux-input@archiver.kernel.org>; Wed, 21 Sep 2022 16:23:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B0839C6FA82
+	for <linux-input@archiver.kernel.org>; Wed, 21 Sep 2022 17:57:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbiIUQX1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 21 Sep 2022 12:23:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35590 "EHLO
+        id S230016AbiIUR5b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 21 Sep 2022 13:57:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231883AbiIUQXG (ORCPT
+        with ESMTP id S229738AbiIUR5b (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 21 Sep 2022 12:23:06 -0400
-Received: from mail-qt1-x833.google.com (mail-qt1-x833.google.com [IPv6:2607:f8b0:4864:20::833])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3148AE9F3
-        for <linux-input@vger.kernel.org>; Wed, 21 Sep 2022 09:06:09 -0700 (PDT)
-Received: by mail-qt1-x833.google.com with SMTP id r20so4404454qtn.12
-        for <linux-input@vger.kernel.org>; Wed, 21 Sep 2022 09:06:09 -0700 (PDT)
+        Wed, 21 Sep 2022 13:57:31 -0400
+Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77247287E
+        for <linux-input@vger.kernel.org>; Wed, 21 Sep 2022 10:57:29 -0700 (PDT)
+Received: by mail-io1-xd2b.google.com with SMTP id p3so5659628iof.13
+        for <linux-input@vger.kernel.org>; Wed, 21 Sep 2022 10:57:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date;
-        bh=8SWWrxYwFzT3rlQY2tEnjMDGqA2G3cQlA3Qe4PADSpg=;
-        b=krNNpBUQ+zshH2wIuYM4KZH6sXHGRjFHgerTjhkPI5y6m5+actHf3iHYU4FOGat9yg
-         F+t48u9GsyfyhtNoYTMH9LBPztNxurtwJPXJ0RxttmqZJV+jMaKUoX717dwrvSBa8kIi
-         +O4ThsnmhMu29iWLrzJe5Fgq14jrvdYTy7MoY=
+        d=konsulko.com; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date;
+        bh=lWz9vmTktmlnF8P5ct/IitkPDKwxx7s+v31tQx0NTfE=;
+        b=hPwgMa4Vzn+dr/R9yowxrWVRYm8GRaOYX2QoyN8KqjKAruRAR8nNeUXwTE8lnoP0Ri
+         UDKRiMuYU5L6x/cudqgLDdfD0EH/YL4CBP0B+PQHMz1Rbhy633LVkXBMEBO+nks+xWeP
+         WzDL/YlaWVONcpKPFD5/SY7FFqH99eKHZw8X8=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date;
-        bh=8SWWrxYwFzT3rlQY2tEnjMDGqA2G3cQlA3Qe4PADSpg=;
-        b=b7xZ2Kq2nWKkYeyRVFY5ysGsOCZE6N2O0ScIbs8NvaFo5npRUeL0fjwTwBq4+0bhhk
-         CIe8Dv4I3ppNIYZcnMm6IaWcyl5T1nUNq+A3wgrSdE9EPq7ligqsn/7l84ajFjvxBXt8
-         ihREDx9LY/PiGEWqucU/EqMwZ/RWJyrzaGCGDuBOFAzLGqM4NmmvYC3RJzcCgFb4z9Nh
-         SKoTuZWkI7sHh9JHm9ORH6oS0s6eNU6RwZqMWiFj+ch2Dt6BfT5cMz9wyISECgkrGryP
-         5p+FbL5Jofc8PGgxR88CDsVr8f4JHCffbqB07V0dsQRHwB1j+q/K7ZoLeTwnZJhJRH26
-         I0bg==
-X-Gm-Message-State: ACrzQf12DPm93a0XVVP1kAYq/+h9YUY1ZrMfO2+j7fLGDeAjAGSRhwsO
-        f3j28FgQP15vzoouGJkcZ4T0rc5Yaop/Zg==
-X-Google-Smtp-Source: AMsMyM7redZhuVtpcYd2TZE/aPDfUxbcgrXh6kfST+9BEzt3KOSN1uLWbXpVZ4NYE1fd2HaibPwgtg==
-X-Received: by 2002:a05:6638:370d:b0:35a:91f0:e358 with SMTP id k13-20020a056638370d00b0035a91f0e358mr12483069jav.84.1663775536531;
-        Wed, 21 Sep 2022 08:52:16 -0700 (PDT)
-Received: from rrangel920.bld.corp.google.com (h24-56-189-219.arvdco.broadband.dynamic.tds.net. [24.56.189.219])
-        by smtp.gmail.com with ESMTPSA id c14-20020a023b0e000000b0035a8d644a31sm1148061jaa.117.2022.09.21.08.52.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Sep 2022 08:52:16 -0700 (PDT)
-From:   Raul E Rangel <rrangel@chromium.org>
-To:     linux-acpi@vger.kernel.org, linux-input@vger.kernel.org
-Cc:     rafael@kernel.org, timvp@google.com,
-        mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        dmitry.torokhov@gmail.com, jingle.wu@emc.com.tw,
-        hdegoede@redhat.com, mario.limonciello@amd.com,
-        linus.walleij@linaro.org, Raul E Rangel <rrangel@chromium.org>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Len Brown <lenb@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Terry Bowman <terry.bowman@amd.com>, Tom Rix <trix@redhat.com>,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH v5 06/13] ACPI: resources: Add wake_capable parameter to acpi_dev_irq_flags
-Date:   Wed, 21 Sep 2022 09:51:58 -0600
-Message-Id: <20220921094736.v5.6.I8092e417a8152475d13d8d638eb4c5d8ea12ac7b@changeid>
-X-Mailer: git-send-email 2.37.3.968.ga6b4b080e4-goog
-In-Reply-To: <20220921155205.1332614-1-rrangel@chromium.org>
-References: <20220921155205.1332614-1-rrangel@chromium.org>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date;
+        bh=lWz9vmTktmlnF8P5ct/IitkPDKwxx7s+v31tQx0NTfE=;
+        b=I98JyZ3WfbitG4lWLPpRnOfbtSm4vss+a9XfjOKXELOG/ZLwtfFiLC9ivb0aVkUcJX
+         Sqef5Q6hqeYSdoFwg8IFfHu11ov9Y55JUTFBbrr4Gvgu0g9rCppRTWBKK6MrGcKLPvAh
+         em6SXQpA1ynkai7RZy94b7JoAswg8SWVRWrhQoQTX+lSLHtpKfl0OMz5lFkwDGiXB1MO
+         5fHLIX3SbGpi/NV0fxTLLIWJoRqK2n2DUaL1QjdVkV8Poo4XVwCzuW7VWcq/93N/Lem6
+         pNyKF/fwFDs3i7+SQm35IefrjX73KWa7Z3zqdtU/BUT5HZoeXMHqPfzGwML6lNYWwV9W
+         xIeQ==
+X-Gm-Message-State: ACrzQf0j9wxD4h+15KsYo/vCwcqm451zK305Lh+zx3qy0hkVzNA4whEx
+        zEDvPTevPN1Jivwe1um9H1TpgQ4o7xeeE7/XO5NcOA==
+X-Google-Smtp-Source: AMsMyM57bNVpIjGiIB5AzUj9jqWSl+gKbWzjqH3/K8KuyS1WQHhDHUSCV967QoGMG6sBH4ZRz7Psmf7S6Nv8biJzb6I=
+X-Received: by 2002:a05:6638:3818:b0:35a:8cf5:e007 with SMTP id
+ i24-20020a056638381800b0035a8cf5e007mr12843820jav.227.1663783049239; Wed, 21
+ Sep 2022 10:57:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220921063026.89619-1-matt.ranostay@konsulko.com>
+ <20220921063026.89619-5-matt.ranostay@konsulko.com> <20220921080458.3uue5ooc3svcbmxp@mail.corp.redhat.com>
+In-Reply-To: <20220921080458.3uue5ooc3svcbmxp@mail.corp.redhat.com>
+From:   Matt Ranostay <matt.ranostay@konsulko.com>
+Date:   Wed, 21 Sep 2022 10:57:18 -0700
+Message-ID: <CAJCx=gn0bZp3fToF+LZE+evR2m4nWMueusjysxcrvimH0wRhaA@mail.gmail.com>
+Subject: Re: [PATCH v4 4/5] HID: mcp2221: switch i2c registration to devm functions
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     gupt21@gmail.com, jic23@kernel.org, linux-i2c@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        Jiri Kosina <jikos@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-ACPI IRQ/Interrupt resources contain a bit that describes if the
-interrupt should wake the system. This change exposes that bit via
-a new IORESOURCE_IRQ_WAKECAPABLE flag. Drivers should check this flag
-before arming an IRQ to wake the system.
+On Wed, Sep 21, 2022 at 1:05 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> [foreword: please keep Jiri and myself (the HID maintainers) CC-ed to
+> the series, as you will need ack from us and we don't necessarily monitor
+> every single message on linux-input]
+>
+> On Sep 20 2022, Matt Ranostay wrote:
+> > Switch from i2c_add_adapter() to resource managed devm_i2c_add_adapter()
+> > for matching rest of driver initialization, and more concise code.
+> >
+> > Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
+> > ---
+> >  drivers/hid/hid-mcp2221.c | 45 +++++++++++++++++----------------------
+> >  1 file changed, 19 insertions(+), 26 deletions(-)
+> >
+> > diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+> > index de52e9f7bb8c..7ba63bcd66de 100644
+> > --- a/drivers/hid/hid-mcp2221.c
+> > +++ b/drivers/hid/hid-mcp2221.c
+> > @@ -824,6 +824,14 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+> >       return 1;
+> >  }
+> >
+> > +static void mcp2221_hid_remove(void *ptr)
+> > +{
+> > +     struct hid_device *hdev = ptr;
+> > +
+> > +     hid_hw_close(hdev);
+> > +     hid_hw_stop(hdev);
+>
+> By default, if you remove the .remove() callback, hid_hw_stop() will get
+> automatically called by hid-core.c. So we are now calling it twice,
+> which, in a way is not a big deal but it might be an issue in the long
+> run.
+>
+> Generally speaking, in the HID subsystem, that situation doesn't happen
+> a lot because hid_hw_start() is usually the last command of probe, and
+> we don't need to open the device in the driver itself.
+>
+> Here, I guess as soon as you add the i2c adapter, you might want to have
+> the communication channels ready, and thus you need to have it open
+> *before* i2c_add_adapter.
+>
+> I would suggest the following if you want to keep the devm release of
+> stop and close: please put a big fat warning before mcp2221_hid_remove()
+> explaining that this is called in devm management, *and* add a function
+> that would just return 0 as the .remove() callback with another big fat
+> warning explaining that we don't want hid-core.c to call hid_hw_stop()
+> because we are doing it ourself through devres.
+>
 
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Yeah maybe best to keep the non-devres if it isn't going to affect how the last
+change in this series is trying to implement with iio.
 
----
+I'll wait for Jonathan to chime in on this thread.
 
-Changes in v5:
-- Removed clang-format white space changes
+> Last, in the HID subsystem, we often interleave non devres with devres
+> for resource allocation, given that .remove() will be called before any
+> devres release. But that is assuming this ordering is OK, which doesn't
+> seem to be the case here. We first need to unregister the i2c adapter
+> and then close/stop the HID device.
 
-Changes in v4:
-- Added Reviewed-by
-- Reformatted with 96 char limit
+Noted.
 
-Changes in v3:
-- Fixed bad indent
+-  Matt
 
-Changes in v2:
-- Added ability to extract wake bit from Interrupt/IRQ resources
-
- drivers/acpi/irq.c             |  8 +++++---
- drivers/acpi/resource.c        | 16 +++++++++++-----
- drivers/pnp/pnpacpi/rsparser.c |  7 ++++---
- include/linux/acpi.h           |  2 +-
- include/linux/ioport.h         |  3 ++-
- 5 files changed, 23 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/acpi/irq.c b/drivers/acpi/irq.c
-index dabe45eba055d1..4bb5ab33a5ceb1 100644
---- a/drivers/acpi/irq.c
-+++ b/drivers/acpi/irq.c
-@@ -147,6 +147,7 @@ struct acpi_irq_parse_one_ctx {
-  * @polarity: polarity attributes of hwirq
-  * @polarity: polarity attributes of hwirq
-  * @shareable: shareable attributes of hwirq
-+ * @wake_capable: wake capable attribute of hwirq
-  * @ctx: acpi_irq_parse_one_ctx updated by this function
-  *
-  * Description:
-@@ -156,12 +157,13 @@ struct acpi_irq_parse_one_ctx {
- static inline void acpi_irq_parse_one_match(struct fwnode_handle *fwnode,
- 					    u32 hwirq, u8 triggering,
- 					    u8 polarity, u8 shareable,
-+					    u8 wake_capable,
- 					    struct acpi_irq_parse_one_ctx *ctx)
- {
- 	if (!fwnode)
- 		return;
- 	ctx->rc = 0;
--	*ctx->res_flags = acpi_dev_irq_flags(triggering, polarity, shareable);
-+	*ctx->res_flags = acpi_dev_irq_flags(triggering, polarity, shareable, wake_capable);
- 	ctx->fwspec->fwnode = fwnode;
- 	ctx->fwspec->param[0] = hwirq;
- 	ctx->fwspec->param[1] = acpi_dev_get_irq_type(triggering, polarity);
-@@ -204,7 +206,7 @@ static acpi_status acpi_irq_parse_one_cb(struct acpi_resource *ares,
- 		fwnode = acpi_get_gsi_domain_id(irq->interrupts[ctx->index]);
- 		acpi_irq_parse_one_match(fwnode, irq->interrupts[ctx->index],
- 					 irq->triggering, irq->polarity,
--					 irq->shareable, ctx);
-+					 irq->shareable, irq->wake_capable, ctx);
- 		return AE_CTRL_TERMINATE;
- 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
- 		eirq = &ares->data.extended_irq;
-@@ -218,7 +220,7 @@ static acpi_status acpi_irq_parse_one_cb(struct acpi_resource *ares,
- 						      eirq->interrupts[ctx->index]);
- 		acpi_irq_parse_one_match(fwnode, eirq->interrupts[ctx->index],
- 					 eirq->triggering, eirq->polarity,
--					 eirq->shareable, ctx);
-+					 eirq->shareable, eirq->wake_capable, ctx);
- 		return AE_CTRL_TERMINATE;
- 	}
- 
-diff --git a/drivers/acpi/resource.c b/drivers/acpi/resource.c
-index 510cdec375c4d8..81733369f4c1de 100644
---- a/drivers/acpi/resource.c
-+++ b/drivers/acpi/resource.c
-@@ -336,8 +336,9 @@ EXPORT_SYMBOL_GPL(acpi_dev_resource_ext_address_space);
-  * @triggering: Triggering type as provided by ACPI.
-  * @polarity: Interrupt polarity as provided by ACPI.
-  * @shareable: Whether or not the interrupt is shareable.
-+ * @wake_capable: Wake capability as provided by ACPI.
-  */
--unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable)
-+unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable, u8 wake_capable)
- {
- 	unsigned long flags;
- 
-@@ -351,6 +352,9 @@ unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable)
- 	if (shareable == ACPI_SHARED)
- 		flags |= IORESOURCE_IRQ_SHAREABLE;
- 
-+	if (wake_capable == ACPI_WAKE_CAPABLE)
-+		flags |= IORESOURCE_IRQ_WAKECAPABLE;
-+
- 	return flags | IORESOURCE_IRQ;
- }
- EXPORT_SYMBOL_GPL(acpi_dev_irq_flags);
-@@ -442,7 +446,7 @@ static bool acpi_dev_irq_override(u32 gsi, u8 triggering, u8 polarity,
- 
- static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
- 				     u8 triggering, u8 polarity, u8 shareable,
--				     bool check_override)
-+				     u8 wake_capable, bool check_override)
- {
- 	int irq, p, t;
- 
-@@ -475,7 +479,7 @@ static void acpi_dev_get_irqresource(struct resource *res, u32 gsi,
- 		}
- 	}
- 
--	res->flags = acpi_dev_irq_flags(triggering, polarity, shareable);
-+	res->flags = acpi_dev_irq_flags(triggering, polarity, shareable, wake_capable);
- 	irq = acpi_register_gsi(NULL, gsi, triggering, polarity);
- 	if (irq >= 0) {
- 		res->start = irq;
-@@ -523,7 +527,8 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
- 		}
- 		acpi_dev_get_irqresource(res, irq->interrupts[index],
- 					 irq->triggering, irq->polarity,
--					 irq->shareable, true);
-+					 irq->shareable, irq->wake_capable,
-+					 true);
- 		break;
- 	case ACPI_RESOURCE_TYPE_EXTENDED_IRQ:
- 		ext_irq = &ares->data.extended_irq;
-@@ -534,7 +539,8 @@ bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
- 		if (is_gsi(ext_irq))
- 			acpi_dev_get_irqresource(res, ext_irq->interrupts[index],
- 					 ext_irq->triggering, ext_irq->polarity,
--					 ext_irq->shareable, false);
-+					 ext_irq->shareable, ext_irq->wake_capable,
-+					 false);
- 		else
- 			irqresource_disabled(res, 0);
- 		break;
-diff --git a/drivers/pnp/pnpacpi/rsparser.c b/drivers/pnp/pnpacpi/rsparser.c
-index da78dc77aed32e..4f05f610391b00 100644
---- a/drivers/pnp/pnpacpi/rsparser.c
-+++ b/drivers/pnp/pnpacpi/rsparser.c
-@@ -206,7 +206,8 @@ static acpi_status pnpacpi_allocated_resource(struct acpi_resource *res,
- 		if (i >= 0) {
- 			flags = acpi_dev_irq_flags(gpio->triggering,
- 						   gpio->polarity,
--						   gpio->shareable);
-+						   gpio->shareable,
-+						   gpio->wake_capable);
- 		} else {
- 			flags = IORESOURCE_DISABLED;
- 		}
-@@ -315,7 +316,7 @@ static __init void pnpacpi_parse_irq_option(struct pnp_dev *dev,
- 		if (p->interrupts[i])
- 			__set_bit(p->interrupts[i], map.bits);
- 
--	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable);
-+	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable, p->wake_capable);
- 	pnp_register_irq_resource(dev, option_flags, &map, flags);
- }
- 
-@@ -339,7 +340,7 @@ static __init void pnpacpi_parse_ext_irq_option(struct pnp_dev *dev,
- 		}
- 	}
- 
--	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable);
-+	flags = acpi_dev_irq_flags(p->triggering, p->polarity, p->shareable, p->wake_capable);
- 	pnp_register_irq_resource(dev, option_flags, &map, flags);
- }
- 
-diff --git a/include/linux/acpi.h b/include/linux/acpi.h
-index cd7371a5f2839b..ea2efbdbeee511 100644
---- a/include/linux/acpi.h
-+++ b/include/linux/acpi.h
-@@ -495,7 +495,7 @@ bool acpi_dev_resource_address_space(struct acpi_resource *ares,
- 				     struct resource_win *win);
- bool acpi_dev_resource_ext_address_space(struct acpi_resource *ares,
- 					 struct resource_win *win);
--unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable);
-+unsigned long acpi_dev_irq_flags(u8 triggering, u8 polarity, u8 shareable, u8 wake_capable);
- unsigned int acpi_dev_get_irq_type(int triggering, int polarity);
- bool acpi_dev_resource_interrupt(struct acpi_resource *ares, int index,
- 				 struct resource *res);
-diff --git a/include/linux/ioport.h b/include/linux/ioport.h
-index 616b683563a970..3baeea4d903bfd 100644
---- a/include/linux/ioport.h
-+++ b/include/linux/ioport.h
-@@ -79,7 +79,8 @@ struct resource {
- #define IORESOURCE_IRQ_HIGHLEVEL	(1<<2)
- #define IORESOURCE_IRQ_LOWLEVEL		(1<<3)
- #define IORESOURCE_IRQ_SHAREABLE	(1<<4)
--#define IORESOURCE_IRQ_OPTIONAL 	(1<<5)
-+#define IORESOURCE_IRQ_OPTIONAL		(1<<5)
-+#define IORESOURCE_IRQ_WAKECAPABLE	(1<<6)
- 
- /* PnP DMA specific bits (IORESOURCE_BITS) */
- #define IORESOURCE_DMA_TYPE_MASK	(3<<0)
--- 
-2.37.3.968.ga6b4b080e4-goog
-
+>
+> > +}
+> > +
+> >  static int mcp2221_probe(struct hid_device *hdev,
+> >                                       const struct hid_device_id *id)
+> >  {
+> > @@ -849,7 +857,8 @@ static int mcp2221_probe(struct hid_device *hdev,
+> >       ret = hid_hw_open(hdev);
+> >       if (ret) {
+> >               hid_err(hdev, "can't open device\n");
+> > -             goto err_hstop;
+> > +             hid_hw_stop(hdev);
+> > +             return ret;
+> >       }
+> >
+> >       mutex_init(&mcp->lock);
+> > @@ -857,6 +866,10 @@ static int mcp2221_probe(struct hid_device *hdev,
+> >       hid_set_drvdata(hdev, mcp);
+> >       mcp->hdev = hdev;
+> >
+> > +     ret = devm_add_action_or_reset(&hdev->dev, mcp2221_hid_remove, hdev);
+> > +     if (ret)
+> > +             return ret;
+> > +
+> >       /* Set I2C bus clock diviser */
+> >       if (i2c_clk_freq > 400)
+> >               i2c_clk_freq = 400;
+> > @@ -873,19 +886,17 @@ static int mcp2221_probe(struct hid_device *hdev,
+> >                       "MCP2221 usb-i2c bridge on hidraw%d",
+> >                       ((struct hidraw *)hdev->hidraw)->minor);
+> >
+> > -     ret = i2c_add_adapter(&mcp->adapter);
+> > +     ret = devm_i2c_add_adapter(&hdev->dev, &mcp->adapter);
+> >       if (ret) {
+> >               hid_err(hdev, "can't add usb-i2c adapter: %d\n", ret);
+> > -             goto err_i2c;
+> > +             return ret;
+> >       }
+> >       i2c_set_adapdata(&mcp->adapter, mcp);
+> >
+> >       /* Setup GPIO chip */
+> >       mcp->gc = devm_kzalloc(&hdev->dev, sizeof(*mcp->gc), GFP_KERNEL);
+> > -     if (!mcp->gc) {
+> > -             ret = -ENOMEM;
+> > -             goto err_gc;
+> > -     }
+> > +     if (!mcp->gc)
+> > +             return -ENOMEM;
+> >
+> >       mcp->gc->label = "mcp2221_gpio";
+> >       mcp->gc->direction_input = mcp_gpio_direction_input;
+> > @@ -900,26 +911,9 @@ static int mcp2221_probe(struct hid_device *hdev,
+> >
+> >       ret = devm_gpiochip_add_data(&hdev->dev, mcp->gc, mcp);
+> >       if (ret)
+> > -             goto err_gc;
+> > +             return ret;
+> >
+> >       return 0;
+> > -
+> > -err_gc:
+> > -     i2c_del_adapter(&mcp->adapter);
+> > -err_i2c:
+> > -     hid_hw_close(mcp->hdev);
+> > -err_hstop:
+> > -     hid_hw_stop(mcp->hdev);
+> > -     return ret;
+> > -}
+> > -
+> > -static void mcp2221_remove(struct hid_device *hdev)
+> > -{
+> > -     struct mcp2221 *mcp = hid_get_drvdata(hdev);
+> > -
+> > -     i2c_del_adapter(&mcp->adapter);
+> > -     hid_hw_close(mcp->hdev);
+> > -     hid_hw_stop(mcp->hdev);
+> >  }
+> >
+> >  static const struct hid_device_id mcp2221_devices[] = {
+> > @@ -932,7 +926,6 @@ static struct hid_driver mcp2221_driver = {
+> >       .name           = "mcp2221",
+> >       .id_table       = mcp2221_devices,
+> >       .probe          = mcp2221_probe,
+> > -     .remove         = mcp2221_remove,
+> >       .raw_event      = mcp2221_raw_event,
+> >  };
+> >
+> > --
+> > 2.37.2
+> >
+>
+> Cheers,
+> Benjamin
+>

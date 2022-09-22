@@ -2,160 +2,228 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C10A2ECAAD8
-	for <linux-input@archiver.kernel.org>; Wed, 21 Sep 2022 22:54:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BF2AC6FA82
+	for <linux-input@archiver.kernel.org>; Thu, 22 Sep 2022 06:49:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbiIUWyf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 21 Sep 2022 18:54:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36974 "EHLO
+        id S229909AbiIVGtI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Sep 2022 02:49:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230161AbiIUWyc (ORCPT
+        with ESMTP id S229725AbiIVGtH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 21 Sep 2022 18:54:32 -0400
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535B4DAD;
-        Wed, 21 Sep 2022 15:54:30 -0700 (PDT)
-Received: by mail-pj1-x1030.google.com with SMTP id p1-20020a17090a2d8100b0020040a3f75eso295873pjd.4;
-        Wed, 21 Sep 2022 15:54:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=+9lx9pWwkpFg+deGJFraXQmhQkGgzJ44ldE4yW4YjNc=;
-        b=YuxkQrws61RLKnCTtTqRzwhJroEuDa+2u7O9RNcVFO6uGI6+Gb9LimWi2CAupO5WmP
-         u0+xKEYUHd+KYQibx9mrg2xuVUMjAyF5krQ8s143w4AiuTkdj2qndVOdVeCb7I28mLT9
-         VmSv6jaohL61/stY75UHaBmxmBszIdqvr+IxLxOFVFIkgl28+fZflWXHIPg+QBZvhrQy
-         iXsJ2oGAcoVAAnr9ANJetrKCsWeO6rf5o0NHT926wEKUj31Qry5lC1qXlzmZWFMz+xeW
-         00y2hKhiv+RjLjaw9m0JDszojR0IqoxkcvGHbC6v9cqSfc/1W6lH/GMQsvu4f/Hn+iur
-         4X9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=+9lx9pWwkpFg+deGJFraXQmhQkGgzJ44ldE4yW4YjNc=;
-        b=jmKXq1VKXVG8fM4dK2TTjay5WRcp9IcichxLd+PS3osn2xVZYX8te2wWvGu3f/F+u0
-         8KhzgTSJo5Egn/H7pBjbXgmKECoXm4gH/wdfKHywsBovVhMUIpng+XnvkIUVhvabF5Mc
-         gLQIOrhBeRi/1VPhuT7etrsY4N4LtakwlR3up8Xqa7Dqe8zwnKzD9oOPt3w3CaHonvJD
-         x0XC+fdrF9y6KmaWW9pT10YIqgGVhjfe9SQcfIiPx1PLpoKiZsSv8MsZNIi8XcubO+eT
-         0bWz+wbJoGlWgOXAWPBbFw/0YcNGMBWmXU/ftPlAUGu8M4y5Hm1RiPMD0r+xUFzdVLkW
-         EpWQ==
-X-Gm-Message-State: ACrzQf3RQz3CvP84wQE+uUxOxv4wloCVLG5KdNifmKdWh1uR6dowaTlp
-        5+TUDiafvcW95sObw0k5CbQ=
-X-Google-Smtp-Source: AMsMyM6+qWS6iD0OyI+fwoxd8rbReFk/rkcJfuesARiX+zzV9Q2OBmjqY03hPYK7PBXqNhEL4SVNqg==
-X-Received: by 2002:a17:902:b08b:b0:178:48b6:f5a8 with SMTP id p11-20020a170902b08b00b0017848b6f5a8mr314579plr.3.1663800869267;
-        Wed, 21 Sep 2022 15:54:29 -0700 (PDT)
-Received: from google.com ([2620:15c:202:201:24df:bb59:8f79:12a6])
-        by smtp.gmail.com with ESMTPSA id y14-20020a17090a474e00b001fd803f057bsm2396335pjg.33.2022.09.21.15.54.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Sep 2022 15:54:28 -0700 (PDT)
-Date:   Wed, 21 Sep 2022 15:54:24 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Raul E Rangel <rrangel@chromium.org>
-Cc:     linux-acpi@vger.kernel.org, linux-input@vger.kernel.org,
-        rafael@kernel.org, timvp@google.com,
-        mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        jingle.wu@emc.com.tw, hdegoede@redhat.com,
-        mario.limonciello@amd.com, linus.walleij@linaro.org,
-        Alistair Francis <alistair@alistair23.me>,
-        Angela Czubak <acz@semihalf.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>,
-        Bartosz Szczepanek <bsz@semihalf.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Cai Huoqing <cai.huoqing@linux.dev>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Johnny Chuang <johnny.chuang.emc@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Len Brown <lenb@kernel.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Rob Herring <robh@kernel.org>,
-        Terry Bowman <terry.bowman@amd.com>, Tom Rix <trix@redhat.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: [PATCH v5 00/13] acpi: i2c: Use SharedAndWake and
- ExclusiveAndWake to enable wake irq
-Message-ID: <YyuWICMhpUFU4Qq4@google.com>
-References: <20220921155205.1332614-1-rrangel@chromium.org>
+        Thu, 22 Sep 2022 02:49:07 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A09BB7282
+        for <linux-input@vger.kernel.org>; Wed, 21 Sep 2022 23:49:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1663829346; x=1695365346;
+  h=date:from:to:cc:subject:message-id:mime-version;
+  bh=DIgfExlmfrHNpujiaqdMIYpWBeHYs0B2T51+9ZcokPQ=;
+  b=QirYO7DMHANf4zNLXFx5yEXniIeQ93iDwg6PBWDbe6PvTTKfqSAK953u
+   5j7MgeGCAt2tyWronfiFAobbZSNVIeNTT5l+1/dICl7tMBGtudwE46yrN
+   KCgdcEvJvK54acOqpOEZkWZ+ikjxJrPzw0Gmq67/ApIiZ5XOCrtqrqg5i
+   Fud9xP6LvuyR73nggJ7U1nowq6iigNbI7P0wIqO2reenEI2Ps5Nn8eI7r
+   WGMAOgXKUkm4gvEul+S9QPTbPcmU9WwPbQTdv2pScPX7xyrzquE+A6rva
+   +DE0BOVFaZLs267Zhd81w10AA9u/NfLWZJbRW6eojxYXbz2BZV0mXaosr
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10477"; a="300201608"
+X-IronPort-AV: E=Sophos;i="5.93,335,1654585200"; 
+   d="scan'208";a="300201608"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Sep 2022 23:49:06 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.93,335,1654585200"; 
+   d="scan'208";a="570849970"
+Received: from lkp-server01.sh.intel.com (HELO c0a60f19fe7e) ([10.239.97.150])
+  by orsmga003.jf.intel.com with ESMTP; 21 Sep 2022 23:49:04 -0700
+Received: from kbuild by c0a60f19fe7e with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1obG19-0004Oa-2s;
+        Thu, 22 Sep 2022 06:49:03 +0000
+Date:   Thu, 22 Sep 2022 14:48:30 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     llvm@lists.linux.dev, kbuild-all@lists.01.org,
+        linux-input@vger.kernel.org
+Subject: [dtor-input:gpio-test 7950/7967]
+ drivers/pci/controller/pci-mvebu.c:1344:30: error: too few arguments to
+ function call, expected 2, have 1
+Message-ID: <202209221435.MEm88ThW-lkp@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220921155205.1332614-1-rrangel@chromium.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Sep 21, 2022 at 09:51:52AM -0600, Raul E Rangel wrote:
-> Today, i2c drivers are making the assumption that their IRQs can also
-> be used as wake IRQs. This isn't always the case and it can lead to
-> spurious wakes. This has recently started to affect AMD Chromebooks.
-> With the introduction of
-> d62bd5ce12d7 ("pinctrl: amd: Implement irq_set_wake"), the AMD GPIO
-> controller gained the capability to set the wake bit on each GPIO. The
-> ACPI specification defines two ways to inform the system if a device is
-> wake capable:
-> 1) The _PRW object defines the GPE that can be used to wake the system.
-> 2) Setting ExclusiveAndWake or SharedAndWake in the _CRS GpioInt.
-> 
-> Currently only the first method is supported. The i2c drivers don't have
-> any indication that the IRQ is wake capable, so they guess. This causes
-> spurious interrupts, for example:
-> * We have an ACPI HID device that has `_PR0` and `_PR3`. It doesn't have
->   `_PRW` or `ExclusiveAndWake` so that means the device can't wake the
->   system.
-> * The IRQ line is active level low for this device and is pulled up by
->   the power resource defined in `_PR0`/`_PR3`.
-> * The i2c driver will (incorrectly) arm the GPIO for wake by calling
->   `enable_irq_wake` as part of its suspend hook.
-> * ACPI will power down the device since it doesn't have a wake GPE
->   associated with it.
-> * When the device is powered down, the IRQ line will drop, and it will
->   trigger a wake event.
-> 
-> See the following debug log:
-> [   42.335804] PM: Suspending system (s2idle)
-> [   42.340186] amd_gpio AMD0030:00: RX: Setting wake for pin 89 to enable
-> [   42.467736]     power-0416 __acpi_power_off      : Power resource [PR00] turned off
-> [   42.467739] device_pm-0280 device_set_power      : Device [H05D] transitioned to D3cold
-> [   42.475210] PM: pm_system_irq_wakeup: 11 triggered pinctrl_amd
-> [   42.535293] PM: Wakeup unrelated to ACPI SCI
-> [   42.535294] PM: resume from suspend-to-idle
-> 
-> In order to fix this, we need to take into account the wake capable bit
-> defined on the Interrupt/GpioInt. This is accomplished by:
-> * Migrating some of the i2c drivers over to using the PM subsystem to
->   manage the wake IRQ.
-> * Expose the wake_capable bit from the ACPI Interrupt/GpioInt resource
->   to the  i2c core.
-> * Use the wake_capable bit in the i2c core to call
->   `dev_pm_set_wake_irq`. This reuses the existing device tree flow.
-> * Make the i2c drivers stop calling `dev_pm_set_wake_irq` since it's now
->   handled by the i2c core.
-> * Make the ACPI device PM system aware of the wake_irq. This is
->   necessary so the device doesn't incorrectly get powered down when a
->   wake_irq is enabled.
-> 
-> I've tested this code with various combinations of having _PRW,
-> ExclusiveAndWake and power resources all defined or not defined, but it
-> would be great if others could test this out on their hardware.
-> 
-> I'm sure this will surface some devices where the IRQs were not
-> correctly marked as wake capable. Ideally the firmware can be fixed, but
-> if not we can work around this in the kernel by providing a board
-> specific `struct i2c_board_info` with the `I2C_CLIENT_WAKE` flag set.
-> See `chromeos_laptop.c` for an example of matching DMI properties and
-> setting the `I2C_CLIENT_WAKE` override.
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git gpio-test
+head:   53be931d133999d54ca1f0869ffb0aed731a0289
+commit: 6bd0d18045802306e7986d47d43843d3ed388d4f [7950/7967] PCI: mvebu: switch to using gpiod API
+config: arm-defconfig (https://download.01.org/0day-ci/archive/20220922/202209221435.MEm88ThW-lkp@intel.com/config)
+compiler: clang version 16.0.0 (https://github.com/llvm/llvm-project 791a7ae1ba3efd6bca96338e10ffde557ba83920)
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # install arm cross compiling tool for clang build
+        # apt-get install binutils-arm-linux-gnueabi
+        # https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git/commit/?id=6bd0d18045802306e7986d47d43843d3ed388d4f
+        git remote add dtor-input https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git
+        git fetch --no-tags dtor-input gpio-test
+        git checkout 6bd0d18045802306e7986d47d43843d3ed388d4f
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross W=1 O=build_dir ARCH=arm SHELL=/bin/bash
 
-How do we want to land this? I see there are a few acked-by/reviewed-by
-already, should I take it through the input tree?
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
 
-Thanks.
+All errors (new ones prefixed by >>):
+
+   drivers/pci/controller/pci-mvebu.c:1100:2: error: call to undeclared function 'chained_irq_enter'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+           chained_irq_enter(chip, desc);
+           ^
+   drivers/pci/controller/pci-mvebu.c:1115:2: error: call to undeclared function 'chained_irq_exit'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+           chained_irq_exit(chip, desc);
+           ^
+>> drivers/pci/controller/pci-mvebu.c:1344:30: error: too few arguments to function call, expected 2, have 1
+                   devm_kfree(port->reset_name);
+                   ~~~~~~~~~~                 ^
+   include/linux/device.h:226:6: note: 'devm_kfree' declared here
+   void devm_kfree(struct device *dev, const void *p);
+        ^
+   3 errors generated.
+
+
+vim +1344 drivers/pci/controller/pci-mvebu.c
+
+  1258	
+  1259	static int mvebu_pcie_parse_port(struct mvebu_pcie *pcie,
+  1260		struct mvebu_pcie_port *port, struct device_node *child)
+  1261	{
+  1262		struct device *dev = &pcie->pdev->dev;
+  1263		u32 slot_power_limit;
+  1264		int ret;
+  1265		u32 num_lanes;
+  1266	
+  1267		port->pcie = pcie;
+  1268	
+  1269		if (of_property_read_u32(child, "marvell,pcie-port", &port->port)) {
+  1270			dev_warn(dev, "ignoring %pOF, missing pcie-port property\n",
+  1271				 child);
+  1272			goto skip;
+  1273		}
+  1274	
+  1275		if (of_property_read_u32(child, "marvell,pcie-lane", &port->lane))
+  1276			port->lane = 0;
+  1277	
+  1278		if (!of_property_read_u32(child, "num-lanes", &num_lanes) && num_lanes == 4)
+  1279			port->is_x4 = true;
+  1280	
+  1281		port->name = devm_kasprintf(dev, GFP_KERNEL, "pcie%d.%d", port->port,
+  1282					    port->lane);
+  1283		if (!port->name) {
+  1284			ret = -ENOMEM;
+  1285			goto err;
+  1286		}
+  1287	
+  1288		port->devfn = of_pci_get_devfn(child);
+  1289		if (port->devfn < 0)
+  1290			goto skip;
+  1291		if (PCI_FUNC(port->devfn) != 0) {
+  1292			dev_err(dev, "%s: invalid function number, must be zero\n",
+  1293				port->name);
+  1294			goto skip;
+  1295		}
+  1296	
+  1297		ret = mvebu_get_tgt_attr(dev->of_node, port->devfn, IORESOURCE_MEM,
+  1298					 &port->mem_target, &port->mem_attr);
+  1299		if (ret < 0) {
+  1300			dev_err(dev, "%s: cannot get tgt/attr for mem window\n",
+  1301				port->name);
+  1302			goto skip;
+  1303		}
+  1304	
+  1305		if (resource_size(&pcie->io) != 0) {
+  1306			mvebu_get_tgt_attr(dev->of_node, port->devfn, IORESOURCE_IO,
+  1307					   &port->io_target, &port->io_attr);
+  1308		} else {
+  1309			port->io_target = -1;
+  1310			port->io_attr = -1;
+  1311		}
+  1312	
+  1313		/*
+  1314		 * Old DT bindings do not contain "intx" interrupt
+  1315		 * so do not fail probing driver when interrupt does not exist.
+  1316		 */
+  1317		port->intx_irq = of_irq_get_byname(child, "intx");
+  1318		if (port->intx_irq == -EPROBE_DEFER) {
+  1319			ret = port->intx_irq;
+  1320			goto err;
+  1321		}
+  1322		if (port->intx_irq <= 0) {
+  1323			dev_warn(dev, "%s: legacy INTx interrupts cannot be masked individually, "
+  1324				      "%pOF does not contain intx interrupt\n",
+  1325				 port->name, child);
+  1326		}
+  1327	
+  1328		port->reset_name = devm_kasprintf(dev, GFP_KERNEL, "%s-reset",
+  1329						  port->name);
+  1330		if (!port->reset_name) {
+  1331			ret = -ENOMEM;
+  1332			goto err;
+  1333		}
+  1334	
+  1335		port->reset_gpio = devm_fwnode_gpiod_get(dev, of_fwnode_handle(child),
+  1336							 "reset", GPIOD_OUT_HIGH,
+  1337							 port->name);
+  1338		ret = PTR_ERR_OR_ZERO(port->reset_gpio);
+  1339		if (ret) {
+  1340			if (ret != -ENOENT)
+  1341				goto err;
+  1342			/* reset gpio is optional */
+  1343			port->reset_gpio = NULL;
+> 1344			devm_kfree(port->reset_name);
+  1345			port->reset_name = NULL;
+  1346		}
+  1347	
+  1348		slot_power_limit = of_pci_get_slot_power_limit(child,
+  1349					&port->slot_power_limit_value,
+  1350					&port->slot_power_limit_scale);
+  1351		if (slot_power_limit)
+  1352			dev_info(dev, "%s: Slot power limit %u.%uW\n",
+  1353				 port->name,
+  1354				 slot_power_limit / 1000,
+  1355				 (slot_power_limit / 100) % 10);
+  1356	
+  1357		port->clk = of_clk_get_by_name(child, NULL);
+  1358		if (IS_ERR(port->clk)) {
+  1359			dev_err(dev, "%s: cannot get clock\n", port->name);
+  1360			goto skip;
+  1361		}
+  1362	
+  1363		ret = devm_add_action(dev, mvebu_pcie_port_clk_put, port);
+  1364		if (ret < 0) {
+  1365			clk_put(port->clk);
+  1366			goto err;
+  1367		}
+  1368	
+  1369		return 1;
+  1370	
+  1371	skip:
+  1372		ret = 0;
+  1373	
+  1374		/* In the case of skipping, we need to free these */
+  1375		devm_kfree(dev, port->reset_name);
+  1376		port->reset_name = NULL;
+  1377		devm_kfree(dev, port->name);
+  1378		port->name = NULL;
+  1379	
+  1380	err:
+  1381		return ret;
+  1382	}
+  1383	
 
 -- 
-Dmitry
+0-DAY CI Kernel Test Service
+https://01.org/lkp

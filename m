@@ -2,35 +2,35 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49594C6FA82
-	for <linux-input@archiver.kernel.org>; Mon, 26 Sep 2022 20:50:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88F0EC07E9D
+	for <linux-input@archiver.kernel.org>; Mon, 26 Sep 2022 20:50:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbiIZUuo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 26 Sep 2022 16:50:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34306 "EHLO
+        id S230426AbiIZUup (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 26 Sep 2022 16:50:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231145AbiIZUuk (ORCPT
+        with ESMTP id S229998AbiIZUuo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 26 Sep 2022 16:50:40 -0400
+        Mon, 26 Sep 2022 16:50:44 -0400
 Received: from mail.inka.de (mail.inka.de [IPv6:2a04:c9c7:0:1073:217:a4ff:fe3b:e77c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56C80AB418
-        for <linux-input@vger.kernel.org>; Mon, 26 Sep 2022 13:50:37 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D56B3AE77
+        for <linux-input@vger.kernel.org>; Mon, 26 Sep 2022 13:50:40 -0700 (PDT)
 Received: from mail3.berkhan-weisser.de ([2a03:4000:54:b9a::4])
         by mail.inka.de with esmtpsa 
-        id 1ocudL-003t12-Fi; Mon, 26 Sep 2022 22:23:19 +0200
+        id 1ocudL-003t0q-4k; Mon, 26 Sep 2022 22:23:19 +0200
 Received: from 127.0.0.1 (helo=localhost.localdomain)
         by mail3.berkhan-weisser.de with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
         (Exim 4.94.2)
         (envelope-from <Enrik.Berkhan@inka.de>)
-        id 1ocudL-007Trr-3k; Mon, 26 Sep 2022 22:23:19 +0200
+        id 1ocudK-007Trr-OP; Mon, 26 Sep 2022 22:23:18 +0200
 From:   Enrik Berkhan <Enrik.Berkhan@inka.de>
 To:     linux-input@vger.kernel.org
 Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
         Rishi Gupta <gupt21@gmail.com>,
         Enrik Berkhan <Enrik.Berkhan@inka.de>
-Subject: [PATCH v1 4/4] HID: mcp2221: avoid stale rxbuf pointer
-Date:   Mon, 26 Sep 2022 22:22:39 +0200
-Message-Id: <20220926202239.16379-5-Enrik.Berkhan@inka.de>
+Subject: [PATCH v1 2/4] HID: mcp2221: enable HID I/O during GPIO probe
+Date:   Mon, 26 Sep 2022 22:22:37 +0200
+Message-Id: <20220926202239.16379-3-Enrik.Berkhan@inka.de>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220926202239.16379-1-Enrik.Berkhan@inka.de>
 References: <20220926202239.16379-1-Enrik.Berkhan@inka.de>
@@ -40,140 +40,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-In case the MCP2221 driver receives an unexpected read complete report
-from the device, the data should not be copied to mcp->rxbuf. The
-pointer might be NULL or even stale, having been set during an earlier
-transaction.
+As soon as the GPIO driver part will be enabled in mcp2221_probe(), the
+first HID reports will be exchanged with the chip because the GPIO
+driver immediately calls mcp_gpio_get_direction(). HID I/O has to be
+enabled explicitly during mcp2221_probe() to receive response reports.
 
-Further, some bounds checking has been added.
+Otherwise, all four mcp_gpio_get_direction() calls will run into the
+four second timeout of mcp_send_report(), which will block the driver
+for about 16s during startup.
 
 Signed-off-by: Enrik Berkhan <Enrik.Berkhan@inka.de>
 ---
- drivers/hid/hid-mcp2221.c | 44 +++++++++++++++++++++++++++++++--------
- 1 file changed, 35 insertions(+), 9 deletions(-)
+ drivers/hid/hid-mcp2221.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
 diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index d17839e09ebc..faccb3c03d33 100644
+index 0ca2a7b96825..5d8898f3f2e3 100644
 --- a/drivers/hid/hid-mcp2221.c
 +++ b/drivers/hid/hid-mcp2221.c
-@@ -94,6 +94,7 @@ struct mcp2221 {
- 	u8 *rxbuf;
- 	u8 txbuf[64];
- 	int rxbuf_idx;
-+	int rxbuf_len;
- 	int status;
- 	u8 cur_i2c_clk_div;
- 	struct gpio_chip *gc;
-@@ -286,15 +287,13 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 		total_len = smbus_len;
- 		mcp->rxbuf = smbus_buf;
- 	}
-+	mcp->rxbuf_len = total_len;
-+	mcp->rxbuf_idx = 0;
- 	spin_unlock_bh(&mcp->raw_event_lock);
+@@ -902,6 +902,9 @@ static int mcp2221_probe(struct hid_device *hdev,
+ 	mcp->gc->can_sleep = 1;
+ 	mcp->gc->parent = &hdev->dev;
  
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 4);
++	/* Enable reception of HID reports during GPIO initialization */
++	hid_device_io_start(hdev);
++
+ 	ret = devm_gpiochip_add_data(&hdev->dev, mcp->gc, mcp);
  	if (ret)
--		return ret;
--
--	spin_lock_bh(&mcp->raw_event_lock);
--	mcp->rxbuf_idx = 0;
--	spin_unlock_bh(&mcp->raw_event_lock);
-+		goto out_invalidate_rxbuf;
- 
- 	do {
- 		spin_lock_bh(&mcp->raw_event_lock);
-@@ -304,15 +303,22 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 
- 		ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
- 		if (ret)
--			return ret;
-+			goto out_invalidate_rxbuf;
- 
- 		ret = mcp_chk_last_cmd_status(mcp);
- 		if (ret)
--			return ret;
-+			goto out_invalidate_rxbuf;
- 
- 		usleep_range(980, 1000);
- 	} while (mcp->rxbuf_idx < total_len);
- 
-+out_invalidate_rxbuf:
-+	spin_lock_bh(&mcp->raw_event_lock);
-+	mcp->rxbuf = NULL;
-+	mcp->rxbuf_len = 0;
-+	mcp->rxbuf_idx = 0;
-+	spin_unlock_bh(&mcp->raw_event_lock);
-+
- 	return ret;
- }
- 
-@@ -500,9 +506,15 @@ static int mcp_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- 			spin_lock_bh(&mcp->raw_event_lock);
- 			mcp->rxbuf_idx = 0;
- 			mcp->rxbuf = data->block;
-+			mcp->rxbuf_len = sizeof(data->block);
- 			mcp->txbuf[0] = MCP2221_I2C_GET_DATA;
- 			spin_unlock_bh(&mcp->raw_event_lock);
- 			ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
-+			spin_lock_bh(&mcp->raw_event_lock);
-+			mcp->rxbuf_idx = 0;
-+			mcp->rxbuf = NULL;
-+			mcp->rxbuf_len = 0;
-+			spin_unlock_bh(&mcp->raw_event_lock);
- 			if (ret)
- 				goto exit;
- 		} else {
-@@ -525,9 +537,15 @@ static int mcp_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
- 			spin_lock_bh(&mcp->raw_event_lock);
- 			mcp->rxbuf_idx = 0;
- 			mcp->rxbuf = data->block;
-+			mcp->rxbuf_len = sizeof(data->block);
- 			mcp->txbuf[0] = MCP2221_I2C_GET_DATA;
- 			spin_unlock_bh(&mcp->raw_event_lock);
- 			ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
-+			spin_lock_bh(&mcp->raw_event_lock);
-+			mcp->rxbuf_idx = 0;
-+			mcp->rxbuf = NULL;
-+			mcp->rxbuf_len = 0;
-+			spin_unlock_bh(&mcp->raw_event_lock);
- 			if (ret)
- 				goto exit;
- 		} else {
-@@ -756,6 +774,7 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 				struct hid_report *report, u8 *data, int size)
- {
- 	u8 *buf;
-+	int len;
- 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
- 
- 	spin_lock_bh(&mcp->raw_event_lock);
-@@ -813,9 +832,15 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 				break;
- 			}
- 			if (data[2] == MCP2221_I2C_READ_COMPL) {
-+				if (mcp->rxbuf == NULL || mcp->rxbuf_idx >= mcp->rxbuf_len)
-+					goto out; /* no complete() in this case */
-+
- 				buf = mcp->rxbuf;
--				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
--				mcp->rxbuf_idx = mcp->rxbuf_idx + data[3];
-+				len = data[3];
-+				if (len > mcp->rxbuf_len - mcp->rxbuf_idx)
-+					len = mcp->rxbuf_len - mcp->rxbuf_idx;
-+				memcpy(&buf[mcp->rxbuf_idx], &data[4], len);
-+				mcp->rxbuf_idx = mcp->rxbuf_idx + len;
- 				mcp->status = 0;
- 				break;
- 			}
-@@ -865,6 +890,7 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 		complete(&mcp->wait_in_report);
- 	}
- 
-+out:
- 	spin_unlock_bh(&mcp->raw_event_lock);
- 
- 	return 1;
+ 		goto err_gc;
 -- 
 2.34.1
 

@@ -2,140 +2,318 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 291B7C07E9D
-	for <linux-input@archiver.kernel.org>; Mon, 26 Sep 2022 18:44:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1245FC6FA82
+	for <linux-input@archiver.kernel.org>; Mon, 26 Sep 2022 20:50:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231431AbiIZSor (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 26 Sep 2022 14:44:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51542 "EHLO
+        id S230505AbiIZUui (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 26 Sep 2022 16:50:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231445AbiIZSoW (ORCPT
+        with ESMTP id S229998AbiIZUuh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 26 Sep 2022 14:44:22 -0400
-Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2E9915CB
-        for <linux-input@vger.kernel.org>; Mon, 26 Sep 2022 11:43:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1664217790; x=1695753790;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   content-transfer-encoding;
-  bh=ypa03rUDrXu2qYVHMUGxqg9Hcm/HfPXmmQcBNUJ8L/o=;
-  b=D5/Ohjrx1Rw8xxFqGotY2RrjPwKlpzIU1jB4ZP7KiBPTumiwIBGhr8WY
-   VUjmJdcf7WJ72h0GF8VyqRf9cJ/84F4Hg5rm2ZSQB6tiAAXN0wWKArrRZ
-   MYNHk/j7FGUPgBESihz+PEXhuuZQ/TipHsnzaiJxCrVLODkAbFwkjPFyQ
-   +Fj1jFsVoZ2Z3aOfgfE7F0wy02FRv6iMjyWtj1aHqNaPBWSFMiZzSke7u
-   mQeYlhOjcF1C7Ywx/egNTjjHQ/IdnMaPCqFM7U/nWILsvHPTlzr5SsfTB
-   ImQwf4gddrNMTs3fu3M5NCjdHZruU98DJPohvx2yxvt0oVuyr9J+wdpLU
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10482"; a="299831058"
-X-IronPort-AV: E=Sophos;i="5.93,346,1654585200"; 
-   d="scan'208";a="299831058"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Sep 2022 11:43:09 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10482"; a="598851704"
-X-IronPort-AV: E=Sophos;i="5.93,346,1654585200"; 
-   d="scan'208";a="598851704"
-Received: from lkp-server02.sh.intel.com (HELO dfa2c9fcd321) ([10.239.97.151])
-  by orsmga006.jf.intel.com with ESMTP; 26 Sep 2022 11:43:08 -0700
-Received: from kbuild by dfa2c9fcd321 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1oct4N-0000AM-2h;
-        Mon, 26 Sep 2022 18:43:07 +0000
-Date:   Tue, 27 Sep 2022 02:42:46 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org
-Subject: [dtor-input:gpio-of-cleanups] BUILD SUCCESS
- 5c6098794cca5ac0a774ee430b72e18b8b98c032
-Message-ID: <6331f2a6.TTcU5XVlhJQWPYty%lkp@intel.com>
-User-Agent: Heirloom mailx 12.5 6/20/10
+        Mon, 26 Sep 2022 16:50:37 -0400
+Received: from mail.inka.de (mail.inka.de [IPv6:2a04:c9c7:0:1073:217:a4ff:fe3b:e77c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B49ED6C740
+        for <linux-input@vger.kernel.org>; Mon, 26 Sep 2022 13:50:34 -0700 (PDT)
+Received: from mail3.berkhan-weisser.de ([2a03:4000:54:b9a::4])
+        by mail.inka.de with esmtpsa 
+        id 1ocudL-003t0y-Az; Mon, 26 Sep 2022 22:23:19 +0200
+Received: from 127.0.0.1 (helo=localhost.localdomain)
+        by mail3.berkhan-weisser.de with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+        (Exim 4.94.2)
+        (envelope-from <Enrik.Berkhan@inka.de>)
+        id 1ocudK-007Trr-UQ; Mon, 26 Sep 2022 22:23:18 +0200
+From:   Enrik Berkhan <Enrik.Berkhan@inka.de>
+To:     linux-input@vger.kernel.org
+Cc:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Rishi Gupta <gupt21@gmail.com>,
+        Enrik Berkhan <Enrik.Berkhan@inka.de>
+Subject: [PATCH v1 3/4] HID: mcp2221: protect shared data with spin lock
+Date:   Mon, 26 Sep 2022 22:22:38 +0200
+Message-Id: <20220926202239.16379-4-Enrik.Berkhan@inka.de>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220926202239.16379-1-Enrik.Berkhan@inka.de>
+References: <20220926202239.16379-1-Enrik.Berkhan@inka.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git gpio-of-cleanups
-branch HEAD: 5c6098794cca5ac0a774ee430b72e18b8b98c032  mfd: twl6040: drop twl6040_platform_data and associated definitions
+Various fields of the driver's per instance data are read and written
+both from process context during i2c or gpio processing and the HID
+.raw_event callback. The .raw_event callback usually runs in softirq
+context. Concurrent access to the shared fields is protected with
+spin_{un}lock_bh().
 
-elapsed time: 722m
+Note: the higher level mutex to prevent user space calls from running
+concurrently is still needed. The spin lock only addresses low level
+consistency of eg. tx buffer contents and length.
 
-configs tested: 63
-configs skipped: 2
+Signed-off-by: Enrik Berkhan <Enrik.Berkhan@inka.de>
+---
+ drivers/hid/hid-mcp2221.c | 61 ++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 54 insertions(+), 7 deletions(-)
 
-The following configs have been built successfully.
-More configs may be tested in the coming days.
-
-gcc tested configs:
-um                             i386_defconfig
-um                           x86_64_defconfig
-arc                                 defconfig
-i386                                defconfig
-alpha                               defconfig
-s390                                defconfig
-s390                             allmodconfig
-i386                             allyesconfig
-arc                              allyesconfig
-alpha                            allyesconfig
-x86_64                              defconfig
-s390                             allyesconfig
-x86_64                               rhel-8.3
-x86_64                         rhel-8.3-kunit
-x86_64                          rhel-8.3-func
-x86_64                           rhel-8.3-kvm
-x86_64                    rhel-8.3-kselftests
-x86_64                           rhel-8.3-syz
-m68k                             allyesconfig
-m68k                             allmodconfig
-arm                                 defconfig
-i386                 randconfig-a001-20220926
-arm64                            allyesconfig
-arm                              allyesconfig
-i386                 randconfig-a004-20220926
-i386                 randconfig-a005-20220926
-x86_64                           allyesconfig
-powerpc                           allnoconfig
-i386                 randconfig-a006-20220926
-i386                 randconfig-a002-20220926
-powerpc                          allmodconfig
-i386                 randconfig-a003-20220926
-mips                             allyesconfig
-sh                               allmodconfig
-arc                  randconfig-r043-20220925
-x86_64               randconfig-a002-20220926
-x86_64               randconfig-a001-20220926
-riscv                randconfig-r042-20220925
-x86_64               randconfig-a003-20220926
-x86_64               randconfig-a004-20220926
-x86_64               randconfig-a006-20220926
-x86_64               randconfig-a005-20220926
-arc                  randconfig-r043-20220926
-s390                 randconfig-r044-20220925
-ia64                             allmodconfig
-
-clang tested configs:
-x86_64               randconfig-a012-20220926
-x86_64               randconfig-a014-20220926
-i386                 randconfig-a011-20220926
-x86_64               randconfig-a016-20220926
-i386                 randconfig-a014-20220926
-x86_64               randconfig-a013-20220926
-i386                 randconfig-a013-20220926
-i386                 randconfig-a012-20220926
-i386                 randconfig-a015-20220926
-x86_64               randconfig-a011-20220926
-x86_64               randconfig-a015-20220926
-i386                 randconfig-a016-20220926
-hexagon              randconfig-r045-20220925
-hexagon              randconfig-r041-20220926
-hexagon              randconfig-r045-20220926
-hexagon              randconfig-r041-20220925
-riscv                randconfig-r042-20220926
-s390                 randconfig-r044-20220926
-
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index 5d8898f3f2e3..d17839e09ebc 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -10,6 +10,7 @@
+ #include <linux/module.h>
+ #include <linux/err.h>
+ #include <linux/mutex.h>
++#include <linux/spinlock.h>
+ #include <linux/completion.h>
+ #include <linux/delay.h>
+ #include <linux/hid.h>
+@@ -88,6 +89,7 @@ struct mcp2221 {
+ 	struct hid_device *hdev;
+ 	struct i2c_adapter adapter;
+ 	struct mutex lock;
++	spinlock_t raw_event_lock;
+ 	struct completion wait_in_report;
+ 	u8 *rxbuf;
+ 	u8 txbuf[64];
+@@ -153,8 +155,10 @@ static int mcp_send_data_req_status(struct mcp2221 *mcp,
+ /* Check pass/fail for actual communication with i2c slave */
+ static int mcp_chk_last_cmd_status(struct mcp2221 *mcp)
+ {
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	memset(mcp->txbuf, 0, 8);
+ 	mcp->txbuf[0] = MCP2221_I2C_PARAM_OR_STATUS;
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 	return mcp_send_data_req_status(mcp, mcp->txbuf, 8);
+ }
+@@ -162,9 +166,11 @@ static int mcp_chk_last_cmd_status(struct mcp2221 *mcp)
+ /* Cancels last command releasing i2c bus just in case occupied */
+ static int mcp_cancel_last_cmd(struct mcp2221 *mcp)
+ {
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	memset(mcp->txbuf, 0, 8);
+ 	mcp->txbuf[0] = MCP2221_I2C_PARAM_OR_STATUS;
+ 	mcp->txbuf[2] = MCP2221_I2C_CANCEL;
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 	return mcp_send_data_req_status(mcp, mcp->txbuf, 8);
+ }
+@@ -173,10 +179,12 @@ static int mcp_set_i2c_speed(struct mcp2221 *mcp)
+ {
+ 	int ret;
+ 
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	memset(mcp->txbuf, 0, 8);
+ 	mcp->txbuf[0] = MCP2221_I2C_PARAM_OR_STATUS;
+ 	mcp->txbuf[3] = MCP2221_I2C_SET_SPEED;
+ 	mcp->txbuf[4] = mcp->cur_i2c_clk_div;
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 8);
+ 	if (ret) {
+@@ -209,12 +217,14 @@ static int mcp_i2c_write(struct mcp2221 *mcp,
+ 		len = 60;
+ 
+ 	do {
++		spin_lock_bh(&mcp->raw_event_lock);
+ 		mcp->txbuf[0] = type;
+ 		mcp->txbuf[1] = msg->len & 0xff;
+ 		mcp->txbuf[2] = msg->len >> 8;
+ 		mcp->txbuf[3] = (u8)(msg->addr << 1);
+ 
+ 		memcpy(&mcp->txbuf[4], &msg->buf[idx], len);
++		spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 		ret = mcp_send_data_req_status(mcp, mcp->txbuf, len + 4);
+ 		if (ret)
+@@ -261,6 +271,7 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
+ 	int ret;
+ 	u16 total_len;
+ 
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	mcp->txbuf[0] = type;
+ 	if (msg) {
+ 		mcp->txbuf[1] = msg->len & 0xff;
+@@ -275,16 +286,21 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
+ 		total_len = smbus_len;
+ 		mcp->rxbuf = smbus_buf;
+ 	}
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 4);
+ 	if (ret)
+ 		return ret;
+ 
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	mcp->rxbuf_idx = 0;
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 	do {
++		spin_lock_bh(&mcp->raw_event_lock);
+ 		memset(mcp->txbuf, 0, 4);
+ 		mcp->txbuf[0] = MCP2221_I2C_GET_DATA;
++		spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 		ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
+ 		if (ret)
+@@ -365,6 +381,7 @@ static int mcp_smbus_write(struct mcp2221 *mcp, u16 addr,
+ {
+ 	int data_len, ret;
+ 
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	mcp->txbuf[0] = type;
+ 	mcp->txbuf[1] = len + 1; /* 1 is due to command byte itself */
+ 	mcp->txbuf[2] = 0;
+@@ -391,6 +408,7 @@ static int mcp_smbus_write(struct mcp2221 *mcp, u16 addr,
+ 		memcpy(&mcp->txbuf[5], buf, len);
+ 		data_len = len + 5;
+ 	}
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, data_len);
+ 	if (ret)
+@@ -479,9 +497,11 @@ static int mcp_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ 			if (ret)
+ 				goto exit;
+ 
++			spin_lock_bh(&mcp->raw_event_lock);
+ 			mcp->rxbuf_idx = 0;
+ 			mcp->rxbuf = data->block;
+ 			mcp->txbuf[0] = MCP2221_I2C_GET_DATA;
++			spin_unlock_bh(&mcp->raw_event_lock);
+ 			ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
+ 			if (ret)
+ 				goto exit;
+@@ -502,9 +522,11 @@ static int mcp_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ 			if (ret)
+ 				goto exit;
+ 
++			spin_lock_bh(&mcp->raw_event_lock);
+ 			mcp->rxbuf_idx = 0;
+ 			mcp->rxbuf = data->block;
+ 			mcp->txbuf[0] = MCP2221_I2C_GET_DATA;
++			spin_unlock_bh(&mcp->raw_event_lock);
+ 			ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
+ 			if (ret)
+ 				goto exit;
+@@ -573,12 +595,16 @@ static int mcp_gpio_get(struct gpio_chip *gc,
+ 	int ret;
+ 	struct mcp2221 *mcp = gpiochip_get_data(gc);
+ 
++	mutex_lock(&mcp->lock);
++
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	mcp->txbuf[0] = MCP2221_GPIO_GET;
+ 
+ 	mcp->gp_idx = offsetof(struct mcp_get_gpio, gpio[offset].value);
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+-	mutex_lock(&mcp->lock);
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
++
+ 	mutex_unlock(&mcp->lock);
+ 
+ 	return ret;
+@@ -589,6 +615,9 @@ static void mcp_gpio_set(struct gpio_chip *gc,
+ {
+ 	struct mcp2221 *mcp = gpiochip_get_data(gc);
+ 
++	mutex_lock(&mcp->lock);
++
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	memset(mcp->txbuf, 0, 18);
+ 	mcp->txbuf[0] = MCP2221_GPIO_SET;
+ 
+@@ -596,15 +625,17 @@ static void mcp_gpio_set(struct gpio_chip *gc,
+ 
+ 	mcp->txbuf[mcp->gp_idx - 1] = 1;
+ 	mcp->txbuf[mcp->gp_idx] = !!value;
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+-	mutex_lock(&mcp->lock);
+ 	mcp_send_data_req_status(mcp, mcp->txbuf, 18);
++
+ 	mutex_unlock(&mcp->lock);
+ }
+ 
+ static int mcp_gpio_dir_set(struct mcp2221 *mcp,
+ 				unsigned int offset, u8 val)
+ {
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	memset(mcp->txbuf, 0, 18);
+ 	mcp->txbuf[0] = MCP2221_GPIO_SET;
+ 
+@@ -612,6 +643,7 @@ static int mcp_gpio_dir_set(struct mcp2221 *mcp,
+ 
+ 	mcp->txbuf[mcp->gp_idx - 1] = 1;
+ 	mcp->txbuf[mcp->gp_idx] = val;
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+ 	return mcp_send_data_req_status(mcp, mcp->txbuf, 18);
+ }
+@@ -654,21 +686,31 @@ static int mcp_gpio_get_direction(struct gpio_chip *gc,
+ 	int ret;
+ 	struct mcp2221 *mcp = gpiochip_get_data(gc);
+ 
++	mutex_lock(&mcp->lock);
++
++	spin_lock_bh(&mcp->raw_event_lock);
+ 	mcp->txbuf[0] = MCP2221_GPIO_GET;
+ 
+ 	mcp->gp_idx = offsetof(struct mcp_get_gpio, gpio[offset].direction);
++	spin_unlock_bh(&mcp->raw_event_lock);
+ 
+-	mutex_lock(&mcp->lock);
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 1);
+-	mutex_unlock(&mcp->lock);
++
++	spin_lock_bh(&mcp->raw_event_lock);
+ 
+ 	if (ret)
+-		return ret;
++		goto out_unlock;
+ 
+ 	if (mcp->gpio_dir == MCP2221_DIR_IN)
+-		return GPIO_LINE_DIRECTION_IN;
++		ret = GPIO_LINE_DIRECTION_IN;
++	else
++		ret = GPIO_LINE_DIRECTION_OUT;
+ 
+-	return GPIO_LINE_DIRECTION_OUT;
++out_unlock:
++	spin_unlock_bh(&mcp->raw_event_lock);
++	mutex_unlock(&mcp->lock);
++
++	return ret;
+ }
+ 
+ /* Gives current state of i2c engine inside mcp2221 */
+@@ -716,6 +758,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 	u8 *buf;
+ 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
+ 
++	spin_lock_bh(&mcp->raw_event_lock);
++
+ 	switch (data[0]) {
+ 
+ 	case MCP2221_I2C_WR_DATA:
+@@ -821,6 +865,8 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 		complete(&mcp->wait_in_report);
+ 	}
+ 
++	spin_unlock_bh(&mcp->raw_event_lock);
++
+ 	return 1;
+ }
+ 
+@@ -857,6 +903,7 @@ static int mcp2221_probe(struct hid_device *hdev,
+ 		goto err_hstop;
+ 	}
+ 
++	spin_lock_init(&mcp->raw_event_lock);
+ 	mutex_init(&mcp->lock);
+ 	init_completion(&mcp->wait_in_report);
+ 	hid_set_drvdata(hdev, mcp);
 -- 
-0-DAY CI Kernel Test Service
-https://01.org/lkp
+2.34.1
+

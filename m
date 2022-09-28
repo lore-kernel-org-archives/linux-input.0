@@ -2,103 +2,114 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D9C6C32771
-	for <linux-input@archiver.kernel.org>; Wed, 28 Sep 2022 07:54:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98265C6FA94
+	for <linux-input@archiver.kernel.org>; Wed, 28 Sep 2022 11:08:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233674AbiI1HyM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 28 Sep 2022 03:54:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47726 "EHLO
+        id S234201AbiI1LI0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 28 Sep 2022 07:08:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233642AbiI1Hxr (ORCPT
+        with ESMTP id S234180AbiI1LH5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 28 Sep 2022 03:53:47 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67CEE5F54;
-        Wed, 28 Sep 2022 00:53:16 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id z4so1337273lft.2;
-        Wed, 28 Sep 2022 00:53:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date;
-        bh=ou1RRtL4ikO+kz8JCQFnSDz9O1nEB+TVYO09/IQr4n4=;
-        b=W1feMDsUUM8heBYa4vtXawt72yC6wQyMdspOlzS9HApmaYel+dw/cCTks64aiZ0/FB
-         +6HaMDEdCvL7XPWJo9d/WAG97ds1/sNVKE0WlyTUN8iNppFrsOalOmFqNr3RZ0mCN72B
-         D/K7xf5y2C2jjskfDtiTRDV9y/KkuKLStrwUlF5OHGCoC8LvlDfcmN2Jf0H/YngQxNSY
-         OhbqHzxhexu6QkbepGW1gwdf7aAdoSOleG8TI+xIg9AMFpj06gBofrfaT60VvqRhtNL3
-         BvHkPmGWcUh1OXa45Y2seJQKA4mq3NMAZiXa3oWA2J9ADJUjrMSGFD8+ldovA/19mv/e
-         tMsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date;
-        bh=ou1RRtL4ikO+kz8JCQFnSDz9O1nEB+TVYO09/IQr4n4=;
-        b=U7didk73MATUnkJFhGSyn3AyerhPp+PQNYac9DpdbcR0DnsYwXHBCVFZNx6iCdkQWR
-         XyUS5Aozr0XCAXYhXlvTqzyztvN/FQtQXFY10z8VP/GDBkKmb/KVKLg/tjLE52YsQmu+
-         ZORAHM2Yx1e3Jlh8ElA74vT6kSw1lCSSbdh0nSOZWt5SKC6dKT+zons5OaDBoEvIVCUF
-         LqWhw30SnfOcvaWu3H60lGviDt7MH2SF57I/QxSh+b1q9eMxVR0LPxwdOwHps02IVGBC
-         N5a+7370+IG607wk5I7KbF9oSsgUW8pzu6P0VwH66Ky166wolcG54giiDmUDdYI1pESv
-         bl2w==
-X-Gm-Message-State: ACrzQf1cH49mCm+9O+kmRff5ss148zE8k8Xwoj+1lSI4IbxdNPAYcUiS
-        VuuqTret+1BcxYYsOsIuft3kLxJcWa6NdQ==
-X-Google-Smtp-Source: AMsMyM6SlgLcDWDW36KcWjnBSwnvB9diErjfL5vDaJZ0xj0SmsduFAf+ILDa+2jAC2TVk4RlKzUHSA==
-X-Received: by 2002:a05:6512:3d09:b0:497:ab35:fd12 with SMTP id d9-20020a0565123d0900b00497ab35fd12mr13234719lfv.539.1664351594690;
-        Wed, 28 Sep 2022 00:53:14 -0700 (PDT)
-Received: from localhost.localdomain (82-209-154-112.cust.bredband2.com. [82.209.154.112])
-        by smtp.gmail.com with ESMTPSA id b28-20020a05651c033c00b00261ccf566e3sm357770ljp.65.2022.09.28.00.53.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 28 Sep 2022 00:53:13 -0700 (PDT)
-From:   Marcus Folkesson <marcus.folkesson@gmail.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH] HID: hid-sensor-custom: set fixed size for custom attributes
-Date:   Wed, 28 Sep 2022 09:59:13 +0200
-Message-Id: <20220928075913.64125-1-marcus.folkesson@gmail.com>
-X-Mailer: git-send-email 2.37.1
+        Wed, 28 Sep 2022 07:07:57 -0400
+Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77912F594;
+        Wed, 28 Sep 2022 04:05:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1664363133; x=1695899133;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=SLyV2jVHkIQf5fwKu3f5DjAStMdYliqR3ajlaFDEgDc=;
+  b=dyO3Z0KdeXbUqjiXU4/SiZS4jc9tkc9N3s2ga8F77me+JR/Eg6n0GgZ1
+   VusrgH0xcLT2k2aVIwTKWSglGz9+TqGIzbAuhXQsKXxwf07XD03g4eOFP
+   /rynP45sDH++j56VLj2C5EN0wWtp3PpayBmcpOEiajXOfzfuIZQHHJEXQ
+   5qveXABu8W3x/1n2NEKOBDPci1Mdkpd3IDtqybfY6JOZKVNcCyrFdq2R7
+   t5pr8Jkqu5bOd4U23BACEQLLEIAezxnBhUfzmJoyDVHBT0z8FR333wjM9
+   EjCgRQkpEM25lup1FkZkFGvXg2Bc6z341GQRICFag8xDjy/P5uXo00HX2
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10483"; a="288729724"
+X-IronPort-AV: E=Sophos;i="5.93,351,1654585200"; 
+   d="scan'208";a="288729724"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Sep 2022 04:05:32 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10483"; a="950662517"
+X-IronPort-AV: E=Sophos;i="5.93,351,1654585200"; 
+   d="scan'208";a="950662517"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmsmga005.fm.intel.com with ESMTP; 28 Sep 2022 04:05:31 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+        id 2C1CC235; Wed, 28 Sep 2022 14:05:50 +0300 (EEST)
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH v2 1/1] Input: icn8505 - Utilize acpi_get_subsystem_id()
+Date:   Wed, 28 Sep 2022 14:05:48 +0300
+Message-Id: <20220928110548.43955-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is no bugfix (so no Fixes: tag is necessary) as it is
-taken care of in hid_sensor_custom_add_attributes().
+Replace open coded variant of recently introduced acpi_get_subsystem_id().
 
-The motivation for this patch is that:
-hid_sensor_custom_field.attr_name and
-hid_sensor_custom_field.attrs
-has the size of HID_CUSTOM_TOTAL_ATTRS and used in same context.
-
-We compare against HID_CUSTOM_TOTAL_ATTRS when
-looping through hid_custom_attrs.
-
-We will silent the smatch error:
-hid_sensor_custom_add_attributes() error: buffer overflow
-'hid_custom_attrs' 8 <= 10
-
-Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/hid/hid-sensor-custom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+v2: used PTR_ERR_OR_ZERO() amd twek the code accordingly (Dmitry)
+ drivers/input/touchscreen/chipone_icn8505.c | 30 +++++++--------------
+ 1 file changed, 9 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
-index 32c2306e240d..602465ad2745 100644
---- a/drivers/hid/hid-sensor-custom.c
-+++ b/drivers/hid/hid-sensor-custom.c
-@@ -62,7 +62,7 @@ struct hid_sensor_sample {
- 	u32 raw_len;
- } __packed;
+diff --git a/drivers/input/touchscreen/chipone_icn8505.c b/drivers/input/touchscreen/chipone_icn8505.c
+index f9ca5502ac8c..c421f4be2700 100644
+--- a/drivers/input/touchscreen/chipone_icn8505.c
++++ b/drivers/input/touchscreen/chipone_icn8505.c
+@@ -364,32 +364,20 @@ static irqreturn_t icn8505_irq(int irq, void *dev_id)
  
--static struct attribute hid_custom_attrs[] = {
-+static struct attribute hid_custom_attrs[HID_CUSTOM_TOTAL_ATTRS] = {
- 	{.name = "name", .mode = S_IRUGO},
- 	{.name = "units", .mode = S_IRUGO},
- 	{.name = "unit-expo", .mode = S_IRUGO},
+ static int icn8505_probe_acpi(struct icn8505_data *icn8505, struct device *dev)
+ {
+-	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
+-	const char *subsys = "unknown";
+-	struct acpi_device *adev;
+-	union acpi_object *obj;
+-	acpi_status status;
+-
+-	adev = ACPI_COMPANION(dev);
+-	if (!adev)
+-		return -ENODEV;
++	const char *subsys;
++	int error;
+ 
+-	status = acpi_evaluate_object(adev->handle, "_SUB", NULL, &buffer);
+-	if (ACPI_SUCCESS(status)) {
+-		obj = buffer.pointer;
+-		if (obj->type == ACPI_TYPE_STRING)
+-			subsys = obj->string.pointer;
+-		else
+-			dev_warn(dev, "Warning ACPI _SUB did not return a string\n");
+-	} else {
+-		dev_warn(dev, "Warning ACPI _SUB failed: %#x\n", status);
+-		buffer.pointer = NULL;
+-	}
++	subsys = acpi_get_subsystem_id(ACPI_HANDLE(dev));
++	error = PTR_ERR_OR_ZERO(subsys);
++	if (error == -ENODATA)
++		subsys = "unknown";
++	else if (error)
++		return error;
+ 
+ 	snprintf(icn8505->firmware_name, sizeof(icn8505->firmware_name),
+ 		 "chipone/icn8505-%s.fw", subsys);
+ 
+-	kfree(buffer.pointer);
++	kfree_const(subsys);
+ 	return 0;
+ }
+ 
 -- 
-2.37.1
+2.35.1
 

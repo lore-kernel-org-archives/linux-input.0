@@ -2,81 +2,90 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BD7FC4332F
-	for <linux-input@archiver.kernel.org>; Sat,  1 Oct 2022 22:11:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8995CC433FE
+	for <linux-input@archiver.kernel.org>; Sat,  1 Oct 2022 22:13:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbiJAWLe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 1 Oct 2022 18:11:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53758 "EHLO
+        id S229461AbiJAWNU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 1 Oct 2022 18:13:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbiJAWLd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Oct 2022 18:11:33 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B9D4E85A;
-        Sat,  1 Oct 2022 15:11:32 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id d11so6795759pll.8;
-        Sat, 01 Oct 2022 15:11:32 -0700 (PDT)
+        with ESMTP id S229445AbiJAWNT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Oct 2022 18:13:19 -0400
+X-Greylist: delayed 151 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 01 Oct 2022 15:13:15 PDT
+Received: from resqmta-a1p-077725.sys.comcast.net (resqmta-a1p-077725.sys.comcast.net [IPv6:2001:558:fd01:2bb4::b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1088E5BC1A
+        for <linux-input@vger.kernel.org>; Sat,  1 Oct 2022 15:13:15 -0700 (PDT)
+Received: from resomta-a1p-077050.sys.comcast.net ([96.103.145.228])
+        by resqmta-a1p-077725.sys.comcast.net with ESMTP
+        id ekUdoq8fGdCVXekh1oAmk4; Sat, 01 Oct 2022 22:10:43 +0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=SRtG4ULOwUXYrlLbHbqAnJPCi/RzxeyqQsFq7yJUZCQ=;
-        b=d6s6NGvPgWYKNtUDzbG8ra10Za7gavuLMKk7g2peadO4GMYxfOJdfq0McqeSel1QiW
-         phbeh6UoLqiGoEwrjhTLy/iFW2yrcWN3oXPiU9fJxbGEljppIg5luWHBt3WvXwNMZNK0
-         fSZ7XUq5c/2mee3+ygplZtwXVOBlRRWxL9/dQm8c8X+02vG0aUaLh78ZtmRSGH71hzd7
-         hm/mLdFh3V4QOj8KqV38AX2d40XCoRmhm3Dp0O3MDk4B9csaiPDKQuT4AxnuCwW/VvIW
-         wUVjGwFTcqWb25G23e16Yim95QikpxgfebfdP6Sh1Yzm+vK+j6D15IPSH2K7e65F6Yy9
-         Mtyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=SRtG4ULOwUXYrlLbHbqAnJPCi/RzxeyqQsFq7yJUZCQ=;
-        b=tfaEXFeg6tykcDb5nOKMXbPRjAXXXtcQwIAYexY4s7INinxJErp7xaRNv/GWhJ2b7U
-         tnw4a5zmPFpK42W7Un0YdFuhjyiQHYD/z3MCRpFva+UbPI8bxA1EDk1vcNNQtxLeEYqp
-         If45vFUFrN0L/wcs6U20MqUR3DFzOXej3oB2psRx/P30i+gybJrmsAK1hkXFM4D+UL/c
-         /kl4dPZq+zSnJ+AuzD5wTeXbi8A7araGMrMmQdqqvmyIKNL55qksG81yk0sNOKo+tXVM
-         3f9tDZ0BX1SAsjHeZIH1IhqKVVxsFulei0tm/XdV7eKpJ9jV+F6jbdc05MrupcFh5lY7
-         TecA==
-X-Gm-Message-State: ACrzQf1sePNXO+KuV8wGrT4H0UdxdorqcBHTXmrtlI5CTaHL+hWUrU6+
-        4fcJKE5w4KT4cjkK2NLEqMsm3KaIDco=
-X-Google-Smtp-Source: AMsMyM50kpqeLm3S2yWgpaeK/DsupHNloziLLUitR6V/wRmlQACr21LF1v9ZrphojveaI9hPgPwqeA==
-X-Received: by 2002:a17:903:2411:b0:178:5653:ecda with SMTP id e17-20020a170903241100b001785653ecdamr15676190plo.166.1664662291950;
-        Sat, 01 Oct 2022 15:11:31 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:63e7:415:943b:4707])
-        by smtp.gmail.com with ESMTPSA id x13-20020a170902a38d00b0017d061a6119sm2859135pla.116.2022.10.01.15.11.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 Oct 2022 15:11:31 -0700 (PDT)
-Date:   Sat, 1 Oct 2022 15:11:28 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Huacai Chen <chenhuacai@loongson.cn>
-Cc:     Arnd Bergmann <arnd@arndb.de>, Huacai Chen <chenhuacai@kernel.org>,
-        loongarch@lists.linux.dev, linux-arch@vger.kernel.org,
-        Xuefeng Li <lixuefeng@loongson.cn>,
-        Guo Ren <guoren@kernel.org>, Xuerui Wang <kernel@xen0n.name>,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] Input: i8042: Rename i8042-x86ia64io.h to
- i8042-acpipnpio.h
-Message-ID: <Yzi7EBrSXhfm24zU@google.com>
-References: <20220917064020.1639709-1-chenhuacai@loongson.cn>
+        d=comcastmailservice.net; s=20211018a; t=1664662243;
+        bh=qitxeJai/0oKwAT5WjsZgCU6W5xVlMSZp6Jn4FfIDN4=;
+        h=Received:Received:Received:Date:From:To:Subject:Message-ID:
+         MIME-Version:Content-Type;
+        b=ME+AeHUqRLlTBWzdBvCJm+pz8DaEE2N+vTadA6VMw4vqpzKXo8/184qVpbWa5yISu
+         zqFrQ5tOu+H9qDDomJdlweM0Rp6NZhGGih8ETBf0LAfNfsPlMXb3N96NPlfiTseT9G
+         bVBqrJPCNmzI6YSI9eHHyB6YrzAhtLR/GHtbpdL2gLFXjWAWx1cxzQhePTkKIQIFs5
+         6u7y66KSiapFTrMcU7etLwTbVpAk/mrpOaASCLXCXmObleFoXxnGCowkpRRcTDL0o5
+         ZKs3Wje8vGmzNxoW1+HrJDIO/JS513OFWkdyoCzuYA06sOLI5pZnJ0vM3yI2lrJWjI
+         thQO4oFt7KmeQ==
+Received: from Outgoing.brak ([69.249.67.241])
+        by resomta-a1p-077050.sys.comcast.net with ESMTPSA
+        id ekgdoJCGsiaR9ekgeowl1o; Sat, 01 Oct 2022 22:10:21 +0000
+X-Xfinity-VAAS: gggruggvucftvghtrhhoucdtuddrgedvfedrfeehiedgtdeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuvehomhgtrghsthdqtfgvshhipdfqfgfvpdfpqffurfetoffkrfenuceurghilhhouhhtmecufedtudenucgfrhhlucfvnfffucdljedtmdenucfjughrpeffhffvvefukfggtggusehttdertddttddvnecuhfhrohhmpefrrghulhcuffhinhhoucflohhnvghsuceophgruhhlsehsphgrtggvfhhrvggrkhdukedrgiihiieqnecuggftrfgrthhtvghrnhepvdfgfefhveejleevjeevueettdfgjeeggedtkeekvdejudeljeejhfduieehledunecukfhppeeiledrvdegledrieejrddvgedunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehhvghlohepqfhuthhgohhinhhgrdgsrhgrkhdpihhnvghtpeeiledrvdegledrieejrddvgedupdhmrghilhhfrhhomhepphgruhhlsehsphgrtggvfhhrvggrkhdukedrgiihiidpnhgspghrtghpthhtohephedprhgtphhtthhopegrnhhsshhirdhhrghnnhhulhgrsehgmhgrihhlrdgtohhmpdhrtghpthhtohepjhhikhhosheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhushgssehvghgvrhdrkhgvrhhnvghlrdhorh
+ hg
+X-Xfinity-VMeta: sc=70.00;st=legit
+Received: from localhost.localdomain (Linksys01880.brak [172.18.18.227])
+        by Outgoing.brak (Postfix) with ESMTPSA id A2B59B31E8C0;
+        Sat,  1 Oct 2022 22:10:19 +0000 (UTC)
+Date:   Sat, 1 Oct 2022 22:16:57 +0000
+From:   Paul Dino Jones <paul@spacefreak18.xyz>
+To:     jikos@kernel.org, anssi.hannula@gmail.com
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH] usbhid: Interpret 0 length ff effects as infinite (0xffff)
+ length effects
+Message-ID: <20221001221657.gexisc2egjn3mpog@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Description: Set zero length ff effects to infinite 0xffff length
 Content-Disposition: inline
-In-Reply-To: <20220917064020.1639709-1-chenhuacai@loongson.cn>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Sep 17, 2022 at 02:40:19PM +0800, Huacai Chen wrote:
-> Now i8042-x86ia64io.h is shared by X86 and IA64, but it can be shared
-> by more platforms (such as LoongArch) with ACPI firmware on which PNP
-> typed keyboard and mouse is configured in DSDT. So rename it to i8042-
-> acpipnpio.h.
-> 
-> Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Greetings,
 
-Applied, thank you.
+I started using my Accuforce V2 sim wheel on Linux. I was getting no
+response from racing simulators through wine, while native linux test
+tools worked properly. It appears that many real-world applications will
+send 0 as the replay length, which was resulting in the behavior I was
+observing (nothing). The PID document does not explicitly state that 0
+length effects should be interpreted as infinite, but it does mention
+null effects being infinite effects.
 
+This patch will interpret 0 length force feedback effects as 0xffff
+(infinite) length effects, leaving other values for replay length
+unchanged.
+
+Signed-off-by: Paul Dino Jones <paul@spacefreak18.xyz>
+---
+ drivers/hid/usbhid/hid-pidff.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index 3b4ee21cd811..70653451c860 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -301,7 +301,7 @@ static void pidff_set_effect_report(struct pidff_device *pidff,
+ 		pidff->block_load[PID_EFFECT_BLOCK_INDEX].value[0];
+ 	pidff->set_effect_type->value[0] =
+ 		pidff->create_new_effect_type->value[0];
+-	pidff->set_effect[PID_DURATION].value[0] = effect->replay.length;
++	pidff->set_effect[PID_DURATION].value[0] = effect->replay.length == 0 ? 0xffff : effect->replay.length;
+ 	pidff->set_effect[PID_TRIGGER_BUTTON].value[0] = effect->trigger.button;
+ 	pidff->set_effect[PID_TRIGGER_REPEAT_INT].value[0] =
+ 		effect->trigger.interval;
 -- 
-Dmitry
+2.35.1
+

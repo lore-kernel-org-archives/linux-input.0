@@ -2,102 +2,111 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8EA2C4332F
-	for <linux-input@archiver.kernel.org>; Sat,  1 Oct 2022 22:14:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B5CCC433F5
+	for <linux-input@archiver.kernel.org>; Sat,  1 Oct 2022 22:51:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229503AbiJAWOO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 1 Oct 2022 18:14:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55312 "EHLO
+        id S229631AbiJAWve (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 1 Oct 2022 18:51:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbiJAWON (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Oct 2022 18:14:13 -0400
-Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 612A65BC21;
-        Sat,  1 Oct 2022 15:14:12 -0700 (PDT)
-Received: by mail-pg1-x536.google.com with SMTP id b5so6884145pgb.6;
-        Sat, 01 Oct 2022 15:14:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date;
-        bh=qAiOnwHR8DxVKCfEBvHJAc0mY4o0LnTr9T51yYAditQ=;
-        b=IyT+lPFUg6tAoUW+XBtBdT0dkO48oz1cbgTHcZ6WZVjk1Me09JIgVyY7Rt2sQ9xKuZ
-         LgIcY7/XIa4Z/yqkN+TgGZLRIn4/vmf/6GB7Y3fCHVO/QMno0Tv88EEHCNwzvawBs/GD
-         jGjE4CXFEYgqS9eilgEJO4F3HA9dqkRb5vNsbaVuKYn8Jl13b8VQjY8K33u4QbjSA0KL
-         KLaojOtWdUbVB9x+hYiiWocL30Gm82zcPLX0ka5jnrHhYYBlmTSqe82RgHX+5FFp3Z4u
-         wcg7q7YMtI83lnzwBTNJ88ssV3eR3f+u2pkdK5HrJSGnECe6v848R5bVQRktuOnLcuKL
-         BTYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date;
-        bh=qAiOnwHR8DxVKCfEBvHJAc0mY4o0LnTr9T51yYAditQ=;
-        b=uGqRCdzw/3VOv8JynfP8cEojb2ZFZAD/d4fumWR9QEXK6NsaCCcTSizC4vsWN+KxOZ
-         7DawVxaMUN/wsjARzm9M+49Mq+e6ZFNrhCsmzciih+K4SwBUVKAFupK8lS7dvD4oyRd9
-         Rs7yldjeGCFHlhDt/LHO6ZUV2co+97Fl5bfFfSOoY3p9crr2L2f8yntpRXfpbAGodzxk
-         S5w+4I05S+JHZB0nZBoda9ViamReV8zqfcULIYsbH2mSvLE0j+LtI7MlXTbcM1erzV+5
-         9RB66KtcFi4ZQK/GiPKRjLW4HBDi8rsvBLQOUSxaW6FL0VuSQyEAPpP6dK4ytrA6Crc2
-         vOBA==
-X-Gm-Message-State: ACrzQf2vrCFdsFb7mZ3fNuceTdYS8npDBFrffrxH1Ueeg7cyO3+ctPV6
-        wqYohCeGxgP53P2IV8lF4t0=
-X-Google-Smtp-Source: AMsMyM4JHBhKCOQBTNZ7L3+7+rNTZFbX38gmTC4RE8WJg24VVadUh1+XQp5ULZ1vXnkDmW7jvIY7Bg==
-X-Received: by 2002:a05:6a00:99f:b0:543:198b:f995 with SMTP id u31-20020a056a00099f00b00543198bf995mr15367834pfg.45.1664662451683;
-        Sat, 01 Oct 2022 15:14:11 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:63e7:415:943b:4707])
-        by smtp.gmail.com with ESMTPSA id nn10-20020a17090b38ca00b0020669c8bd87sm3446036pjb.36.2022.10.01.15.14.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 01 Oct 2022 15:14:11 -0700 (PDT)
-Date:   Sat, 1 Oct 2022 15:14:08 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Jonathan Cameron <jic23@kernel.org>
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee@kernel.org>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Tony Lindgren <tony@atomide.com>, linux-iio@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/3] iio: adc: twl4030-madc: add missing of.h include
-Message-ID: <Yzi7sBI+kEHrJjHz@google.com>
-References: <20220927154611.3330871-1-dmitry.torokhov@gmail.com>
- <20220927154611.3330871-3-dmitry.torokhov@gmail.com>
- <YzMisM73yj/APB86@smile.fi.intel.com>
- <20221001180705.7002796a@jic23-huawei>
+        with ESMTP id S229686AbiJAWvV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 1 Oct 2022 18:51:21 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C200340E1B;
+        Sat,  1 Oct 2022 15:51:12 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D519B80C01;
+        Sat,  1 Oct 2022 22:51:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6130BC433D6;
+        Sat,  1 Oct 2022 22:51:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1664664670;
+        bh=hrLQYppdb7CqP7xkSUXXw+Qfwy9vLVycX6g7AnyQiXU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MY83KDh/K1C+sxW/JJ+PABlv1x8mKBQaY6/KL4yDlClyQMCvW/0lPkRrjBCSttgoL
+         CkUkU03dhlFprIdaaXrnSIGppnvivMok9p/1tGBcYOyEOepjJ1kGrUVnnCaRuh4zFJ
+         eS7k+qf+5JzpZA0q+48IV+65wqy5nFS+gjRGe10IJrzEI8YLWcjztAvkz33laBEu+0
+         T2ElLnfWRcpJ3fzulmsThKiZYfcplkvON3y6Y2Q/25oDz/3ItrApUrepYa8tP3ONXW
+         iD/2mAOPjrg/JVe3egZohk31KyxAP3goVrgFmnom+F03AthC6kpqaVHO/CUQkoTAlW
+         yUMfaHSQV8YCQ==
+Date:   Sun, 2 Oct 2022 00:51:06 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Raul E Rangel <rrangel@chromium.org>
+Cc:     linux-acpi@vger.kernel.org, linux-input@vger.kernel.org,
+        andriy.shevchenko@linux.intel.com, dmitry.torokhov@gmail.com,
+        hdegoede@redhat.com, rafael@kernel.org,
+        mika.westerberg@linux.intel.com, mario.limonciello@amd.com,
+        timvp@google.com, linus.walleij@linaro.org, jingle.wu@emc.com.tw,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v6 07/13] i2c: acpi: Use ACPI wake capability bit to set
+ wake_irq
+Message-ID: <YzjEWisPFQ312w90@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+        Raul E Rangel <rrangel@chromium.org>, linux-acpi@vger.kernel.org,
+        linux-input@vger.kernel.org, andriy.shevchenko@linux.intel.com,
+        dmitry.torokhov@gmail.com, hdegoede@redhat.com, rafael@kernel.org,
+        mika.westerberg@linux.intel.com, mario.limonciello@amd.com,
+        timvp@google.com, linus.walleij@linaro.org, jingle.wu@emc.com.tw,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220929161917.2348231-1-rrangel@chromium.org>
+ <20220929093200.v6.7.I8af4282adc72eb9f247adcd03676a43893a020a6@changeid>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="HQTkTiUnVoPhWCYs"
 Content-Disposition: inline
-In-Reply-To: <20221001180705.7002796a@jic23-huawei>
+In-Reply-To: <20220929093200.v6.7.I8af4282adc72eb9f247adcd03676a43893a020a6@changeid>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Oct 01, 2022 at 06:07:05PM +0100, Jonathan Cameron wrote:
-> On Tue, 27 Sep 2022 19:20:00 +0300
-> Andy Shevchenko <andriy.shevchenko@linux.intel.com> wrote:
-> 
-> > On Tue, Sep 27, 2022 at 08:46:11AM -0700, Dmitry Torokhov wrote:
-> > > The driver is using of_device_id/of_match_ptr() and therefore needs
-> > > to include of.h header. We used to get this definition indirectly via
-> > > inclusion of matrix_keypad.h from twl.h, but we are cleaning up
-> > > matrix_keypad.h from unnecessary includes.  
-> > 
-> > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Applied to the togreg branch of iio.git and pushed out as testing for
-> 0-day to take a look.
-> 
-> Note that this is 6.2 material now - if that's an issue for the matrix_keypad.h
-> cleanup then feel free to take it via the input tree with
-> Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> but shout in reply to this so I know to drop it from the iio tree.
 
-OK, it is not urgent, but I do not want to lose matrix keypad changes...
+--HQTkTiUnVoPhWCYs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-How about I'll wait to see where the rest of the patches end, and if
-they end up in 6.1 I'll queue twl4030-madc.c through my tree together
-with the header change?
+On Thu, Sep 29, 2022 at 10:19:11AM -0600, Raul E Rangel wrote:
+> Device tree already has a mechanism to pass the wake_irq. It does this
+> by looking for the wakeup-source property and setting the
+> I2C_CLIENT_WAKE flag. This CL adds the ACPI equivalent. It uses the
+> ACPI interrupt wake flag to determine if the interrupt can be used to
+> wake the system. Previously the i2c drivers had to make assumptions and
+> blindly enable the wake IRQ. This can cause spurious wake events. e.g.,
+> If there is a device with an Active Low interrupt and the device gets
+> powered off while suspending, the interrupt line will go low since it's
+> no longer powered and wakes the system. For this reason we should
+> respect the board designers wishes and honor the wake bit defined on the
+> interrupt.
+>=20
+> Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Thanks.
+I assume this goes in with the rest of this series, so:
 
--- 
-Dmitry
+Acked-by: Wolfram Sang <wsa@kernel.org>
+
+
+--HQTkTiUnVoPhWCYs
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmM4xFkACgkQFA3kzBSg
+KbbtMg/+OeOfIdnhO43tSGXnoUHdJyhiRUBhiHgxZ6tCwJncYH1fBBPBW5hAu2CY
++LD1pDaU5JqerLqTrOd9K/8SOduwPmzP0aOtE3sH0mMDh77pJYri5RacSUI6b+SB
+NC7yQCw6Sgpeht+VWIfe07lvwPZPFe4Mc49vzDEK0tJ859w2LBKOSQc6jfW8GVTY
+zvKtds6bd81I3LC3A1AoPM6p3PzZTuD6SZqEYP8OxAHwyhtv8Le36UL2G9/zACXZ
+X3IHNSCUnMSYder+r0tKAaGvImogEIL9vDjs5rbR6AKwiPu1kHjYDsM9U1UADygP
+xCHlhyanqZnhBt7XyI9Jfb1ah770yO5txqkJGOZ4FUbjbeQvq7rD12sBnt5PI7Vf
+3kDVHavhUtuZwd4QVH6LzJGuvvbndlVH795+Sz0CqLGi2JrsPbJyK2pyUS6rOW6p
+numLwypXGDJ4ymCplMnlONPF9fRxfd3YpvSCzuaZp/6QHr/JTqKBq3buNHHt9VB+
+R2lAow75vsNg605v6vbquQw0OZ+ZH8FMZo81UsnH44Vd6oYpi3w2Ksb7VvK8Z9I4
+vCk5a8tymFk/XI3137GxAwMCKGI269l4JaUQ6haUtALk6vVQ7B4y0ISdbETas8nt
+GaW0TWAYc36Wpw+iq7uRYMwWGqbM9dTSm+21c9MmOoNTH5YLYqA=
+=Xy2M
+-----END PGP SIGNATURE-----
+
+--HQTkTiUnVoPhWCYs--

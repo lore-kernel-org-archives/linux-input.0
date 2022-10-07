@@ -2,61 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 763A2C4332F
-	for <linux-input@archiver.kernel.org>; Fri,  7 Oct 2022 18:30:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEA87C433F5
+	for <linux-input@archiver.kernel.org>; Fri,  7 Oct 2022 18:30:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229703AbiJGSad (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S229682AbiJGSad (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Fri, 7 Oct 2022 14:30:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55738 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229682AbiJGSa0 (ORCPT
+        with ESMTP id S229834AbiJGSa0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2022 14:30:26 -0400
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A621CAE69
-        for <linux-input@vger.kernel.org>; Fri,  7 Oct 2022 11:30:22 -0700 (PDT)
-Received: by mail-wm1-x333.google.com with SMTP id n40-20020a05600c3ba800b003b49aefc35fso3054713wms.5
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2022 11:30:22 -0700 (PDT)
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 682C2CAE71
+        for <linux-input@vger.kernel.org>; Fri,  7 Oct 2022 11:30:23 -0700 (PDT)
+Received: by mail-wr1-x429.google.com with SMTP id a10so8444680wrm.12
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2022 11:30:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=semihalf.com; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=35lu5QN2zWAPxQjzdgnWOj0Wl1hHDV3zTu2YrzXNYfw=;
-        b=D5P7RuT3imORZ/p/OwbgUpaMu8ucdmni72W8l5mDMyJYyYJxiE1zdxK+mAcBUpnyVE
-         QqkPrEr/nEHN3AZDCOXU7JuCg26neAtfOtB80icljFmMKyYWtu+ea8OqNWdWNlyfoQp3
-         6SOAXxObG3/fPdiV8BDea01OlTZASHSd0RJgigTMy0vIBEc1DWbxW6xLmrgxD5rsexZG
-         K/Dq9ug0iVmhayIo6K4/d+yrZ5hfRZd03Y527N+VGUCH1qYEV6gT1QYsvBZm0bjGQfIG
-         7cHOJDL1uaSnTYx0nJ8VoSqaN36EF33JZGt/ffgJNP4BVsWo6HA/I5LXvXLb1cTPsUAk
-         Ur1w==
+        bh=JNN28EYVyipGF0nBWtHYc0eS8Dpeqf76Q08EI6PsIYU=;
+        b=qxAr0agrBtuhcTLuSxwaDckdMbmBM1fxleKKtepgIMmgz97EO5RtBq16Aloynl2ov6
+         8XBY6hmYNKFgOWfdKY0qUBW0tTrDO4xK47f6XOpdQHCyT5foyc2aMV1tC4fScK7Ne8nW
+         +gy3kQw7XdyKGuuzBaB6iHyYjZ7thDm/A1ztZo/4vTvRfoXH8kGy9Hr2LnxzT6KuAKeF
+         4j2Nz/N7rBxB8B2/bhVviWfXt2MJNlveZcMArUmp9DTHQ6Mbh2NpuRwfK4vx8CGfOa8l
+         toKpys5WqMglynMrsgyC7pQH6c31fZKHVv+RR1Bgh4VePtF6sruOak9OSOfp2vYQ9tNE
+         /BAg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=35lu5QN2zWAPxQjzdgnWOj0Wl1hHDV3zTu2YrzXNYfw=;
-        b=Uac5dnDch9QR6xP+LFS+SMlGPTXxYJnkmk91KaQY3kSQ9vKEGuA4m4aDEMUQlR+nRj
-         JY2RA4tg3zTHJ9K9jsBqfHuOHWkslrx8tcINvb88yj0Po1e10y+AmiBjl8JNIEc6yBO3
-         kWdAnvp9vC1daZNuPJAP3OuiNN24qWN2N6EWo3kNup77Jixm5DH/ohIC34SJKVew71O3
-         rxnvDaLAsTFHhJLQ0eSzu4ki+HHFNmV/HFL5trVdz6fNpd7GA/z2ODhMG3xvw9AkGWra
-         KyInUWWNsFeCltOwoPX2z4EEgiAab7eG+jyxqcFfjKcgLhHP9PCSI7qsn+49uAsYtHd4
-         OMyw==
-X-Gm-Message-State: ACrzQf05mwozNr26H73qayaWF/6KrgvHGJ2S+ZxfyowW2V8mVI4lXVdZ
-        WO9qnK59qAi/RFo9GDUSLKkz5eApQf1xbnX6
-X-Google-Smtp-Source: AMsMyM7QqZhEfs/RUcCcVdJoHOp5BkSwi2P0A8Q2QpeXl+2hBa8P3QFyj9Rk3w2iKkTSs5MgDCEytA==
-X-Received: by 2002:a05:600c:19d2:b0:3b4:a4cb:2416 with SMTP id u18-20020a05600c19d200b003b4a4cb2416mr4294246wmq.6.1665167421470;
-        Fri, 07 Oct 2022 11:30:21 -0700 (PDT)
+        bh=JNN28EYVyipGF0nBWtHYc0eS8Dpeqf76Q08EI6PsIYU=;
+        b=tMvYdJ29YP0+J9bbGoNfa/dac4zW74dwCmHTlVfbLOrGtkwR6Ow9LNVpNHcFEvo8jI
+         lyS+yQY0C1PmmbaiftIJo8Xqqfqej7PTptnMKakOTD6QCi+uNJz6h9Y0EQPewG8oYcFn
+         tJzQvlpUsrSbdXuy6hmBRLoUHMiLDxOQ1Cm1I/TtrOYyJcvx9yDQbs3z7m3MMRRNROUA
+         8r31dT6jSIao7M4ubBWZHim3VSQcM4VyexB2XQdn8zHtBXfwxWlu8x3H0zU/HZoRcqMo
+         dvFV8a4SsFsvnkuBfpOtmpZl7SwrVUim61ZW8PLQilBF2iPyME8hoCOCnLYIGFtQZ6uc
+         RRZQ==
+X-Gm-Message-State: ACrzQf0j1VVVhka1qbAGUAEU3gUNP1zNVvR7sljaoff6fgbuXVbd0iVQ
+        U3jCiUHc5he7EF4RYnXjOSy1Q0MLqy9MZsDP
+X-Google-Smtp-Source: AMsMyM5OznlW71Wh2uVbuhX3QbKu7s447vTLifwqhN25O96FWDC//RTi9aKWj742ZrNNiosUpskkIA==
+X-Received: by 2002:adf:dc41:0:b0:22e:3dac:b066 with SMTP id m1-20020adfdc41000000b0022e3dacb066mr4168953wrj.344.1665167422781;
+        Fri, 07 Oct 2022 11:30:22 -0700 (PDT)
 Received: from aczubak.c.googlers.com.com (230.213.79.34.bc.googleusercontent.com. [34.79.213.230])
-        by smtp.gmail.com with ESMTPSA id l10-20020a05600012ca00b002258235bda3sm2573627wrx.61.2022.10.07.11.30.20
+        by smtp.gmail.com with ESMTPSA id l10-20020a05600012ca00b002258235bda3sm2573627wrx.61.2022.10.07.11.30.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Oct 2022 11:30:20 -0700 (PDT)
+        Fri, 07 Oct 2022 11:30:22 -0700 (PDT)
 From:   Angela Czubak <acz@semihalf.com>
 To:     linux-input@vger.kernel.org
 Cc:     upstream@semihalf.com, benjamin.tissoires@redhat.com,
         jikos@kernel.org, dmitry.torokhov@gmail.com,
         Angela Czubak <acz@semihalf.com>
-Subject: [PATCH v4 13/17] Input: introduce EVIOCFF(TAKE|RELEASE)CONTROL
-Date:   Fri,  7 Oct 2022 18:29:41 +0000
-Message-Id: <20221007182945.1654046-14-acz@semihalf.com>
+Subject: [PATCH v4 15/17] HID: add HID device reset callback
+Date:   Fri,  7 Oct 2022 18:29:43 +0000
+Message-Id: <20221007182945.1654046-16-acz@semihalf.com>
 X-Mailer: git-send-email 2.38.0.rc1.362.ged0d419d3c-goog
 In-Reply-To: <20221007182945.1654046-1-acz@semihalf.com>
 References: <20221007182945.1654046-1-acz@semihalf.com>
@@ -66,189 +66,99 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add new ioctls which can be used for simple haptic force feedback effects.
-Once the control is taken over the effect the kernel does not generate it
-on its own (EVIOCFFTAKECONTROL).
-To revert this action use EVIOCFFRELEASECONTROL.
+HID-over-I2C devices might reset on their own. Any device configuration
+applied before the reset might be brought back to defaults so we need to
+reconfigure to make sure the driver state is consistent.
+
+Add a reset callback to the hid driver structure.
+Issue it if the driver implements it and the device reset gets observed.
 
 Signed-off-by: Angela Czubak <acz@semihalf.com>
 ---
- drivers/input/evdev.c      |  6 +++
- drivers/input/ff-core.c    | 89 +++++++++++++++++++++++++++++++++++++-
- include/linux/input.h      |  5 +++
- include/uapi/linux/input.h |  4 ++
- 4 files changed, 103 insertions(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 21 +++++++++++++++++++++
+ include/linux/hid.h                |  2 ++
+ 2 files changed, 23 insertions(+)
 
-diff --git a/drivers/input/evdev.c b/drivers/input/evdev.c
-index 95f90699d2b17..6d25eb19e28ec 100644
---- a/drivers/input/evdev.c
-+++ b/drivers/input/evdev.c
-@@ -1076,6 +1076,12 @@ static long evdev_do_ioctl(struct file *file, unsigned int cmd,
- 	case EVIOCRMFF:
- 		return input_ff_erase(dev, (int)(unsigned long) p, file);
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 95cefae47adfe..f8a54eda2ff98 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -116,6 +116,7 @@ struct i2c_hid {
+ 	struct mutex		reset_lock;
  
-+	case EVIOCFFTAKECONTROL:
-+		return input_ff_take_control(dev, (int)(unsigned long) p, file);
-+
-+	case EVIOCFFRELEASECONTROL:
-+		return input_ff_release_control(dev, (int)(unsigned long) p, file);
-+
- 	case EVIOCGEFFECTS:
- 		i = test_bit(EV_FF, dev->evbit) ?
- 				dev->ff->max_effects : 0;
-diff --git a/drivers/input/ff-core.c b/drivers/input/ff-core.c
-index 1a9a5401acb55..d6b76a479fc21 100644
---- a/drivers/input/ff-core.c
-+++ b/drivers/input/ff-core.c
-@@ -252,6 +252,91 @@ int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file)
+ 	struct i2chid_ops	*ops;
++	struct work_struct	reset_work;
+ };
+ 
+ static const struct i2c_hid_quirks {
+@@ -504,6 +505,19 @@ static int i2c_hid_hwreset(struct i2c_hid *ihid)
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(input_ff_erase);
  
-+/*
-+ * Take control over the effect if the requester is also the effect owner.
-+ * The mutex should already be locked before calling this function.
-+ */
-+static int control_effect(struct input_dev *dev, int effect_id,
-+			  struct file *file, int take)
++static void i2c_hid_reset_worker(struct work_struct *work)
 +{
-+	struct ff_device *ff = dev->ff;
-+	int error;
++	struct i2c_hid *ihid = container_of(work, struct i2c_hid, reset_work);
++	struct hid_device *hid = ihid->hid;
 +
-+	error = check_effect_access(ff, effect_id, file);
-+	if (error) {
-+		error = check_effect_shared(ff, effect_id);
-+		if (error)
-+			return error;
-+	}
++	down(&hid->driver_input_lock);
 +
-+	if (ff->change_control) {
-+		error = ff->change_control(dev, effect_id, file, take);
-+		if (error)
-+			return error;
-+	}
++	if (hid->driver && hid->driver->reset)
++		hid->driver->reset(hid);
 +
-+	return 0;
++	up(&hid->driver_input_lock);
 +}
-+/**
-+ * input_ff_take_control - take control over a force-feedback effect from kernel
-+ * @dev: input device to take control over effect from
-+ * @effect_id: id of the effect to take control over
-+ * @file: purported owner of the request
-+ *
-+ * This function switches user-controlled mode on for the given force-feedback
-+ * effect. The user-mode will persist unitl the last caller releases control.
-+ * The effect will only be taken control of if it was uploaded through the same
-+ * file handle that is requesting taking control or for simple haptic effects
-+ * 0 and 1.
-+ * Valid only for simple haptic effects (ff_hid_effect).
-+ */
-+int input_ff_take_control(struct input_dev *dev, int effect_id,
-+			  struct file *file)
-+{
-+	struct ff_device *ff = dev->ff;
-+	int ret;
 +
-+	if (!test_bit(EV_FF, dev->evbit))
-+		return -EINVAL;
+ static void i2c_hid_get_input(struct i2c_hid *ihid)
+ {
+ 	u16 size = le16_to_cpu(ihid->hdesc.wMaxInputLength);
+@@ -529,6 +543,8 @@ static void i2c_hid_get_input(struct i2c_hid *ihid)
+ 		/* host or device initiated RESET completed */
+ 		if (test_and_clear_bit(I2C_HID_RESET_PENDING, &ihid->flags))
+ 			wake_up(&ihid->wait);
++		else
++			schedule_work(&ihid->reset_work);
+ 		return;
+ 	}
+ 
+@@ -821,6 +837,10 @@ static int i2c_hid_start(struct hid_device *hid)
+ 
+ static void i2c_hid_stop(struct hid_device *hid)
+ {
++	struct i2c_client *client = hid->driver_data;
++	struct i2c_hid *ihid = i2c_get_clientdata(client);
 +
-+	mutex_lock(&ff->mutex);
-+	ret = control_effect(dev, effect_id, file, 1);
-+	mutex_unlock(&ff->mutex);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(input_ff_take_control);
-+
-+/**
-+ * input_ff_release_control - release control over a force-feedback effect
-+ * @dev: input device to release control over effect to
-+ * @effect_id: id of the effect to release control
-+ * @file: purported owner of the request
-+ *
-+ * This function switches user-controlled mode off for the given force-feedback
-+ * effect. The user-mode will persist unitl the last caller releases control.
-+ * The control will be released of if it was uploaded through the same
-+ * file handle that is requesting taking control or for simple haptic effects
-+ * 0 and 1.
-+ * Valid only for simple haptic effects (ff_hid_effect).
-+ */
-+int input_ff_release_control(struct input_dev *dev, int effect_id,
-+			     struct file *file)
-+{
-+	struct ff_device *ff = dev->ff;
-+	int ret;
-+
-+	if (!test_bit(EV_FF, dev->evbit))
-+		return -EINVAL;
-+
-+	mutex_lock(&ff->mutex);
-+	ret = control_effect(dev, effect_id, file, 0);
-+	mutex_unlock(&ff->mutex);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(input_ff_release_control);
-+
- /*
-  * input_ff_flush - erase all effects owned by a file handle
-  * @dev: input device to erase effect from
-@@ -270,8 +355,10 @@ int input_ff_flush(struct input_dev *dev, struct file *file)
++	cancel_work_sync(&ihid->reset_work);
+ 	hid->claimed = 0;
+ }
  
- 	mutex_lock(&ff->mutex);
+@@ -988,6 +1008,7 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+ 	ihid->wHIDDescRegister = cpu_to_le16(hid_descriptor_address);
  
--	for (i = 0; i < ff->max_effects; i++)
-+	for (i = 0; i < ff->max_effects; i++) {
-+		control_effect(dev, i, file, 0);
- 		erase_effect(dev, i, file);
-+	}
+ 	init_waitqueue_head(&ihid->wait);
++	INIT_WORK(&ihid->reset_work, i2c_hid_reset_worker);
+ 	mutex_init(&ihid->reset_lock);
  
- 	mutex_unlock(&ff->mutex);
- 
-diff --git a/include/linux/input.h b/include/linux/input.h
-index 49790c1bd2c43..39091730c2fca 100644
---- a/include/linux/input.h
-+++ b/include/linux/input.h
-@@ -521,6 +521,7 @@ extern struct class input_class;
-  * @upload: Called to upload an new effect into device
-  * @erase: Called to erase an effect from device
-  * @playback: Called to request device to start playing specified effect
-+ * @change_control: Called to change control over specified effect
-  * @set_gain: Called to set specified gain
-  * @set_autocenter: Called to auto-center device
-  * @destroy: called by input core when parent input device is being
-@@ -549,6 +550,8 @@ struct ff_device {
- 	int (*erase)(struct input_dev *dev, int effect_id);
- 
- 	int (*playback)(struct input_dev *dev, int effect_id, int value);
-+	int (*change_control)(struct input_dev *dev, int effect_id,
-+			      struct file *file, int take);
- 	void (*set_gain)(struct input_dev *dev, u16 gain);
- 	void (*set_autocenter)(struct input_dev *dev, u16 magnitude);
- 
-@@ -572,6 +575,8 @@ int input_ff_event(struct input_dev *dev, unsigned int type, unsigned int code,
- 
- int input_ff_upload(struct input_dev *dev, struct ff_effect *effect, struct file *file);
- int input_ff_erase(struct input_dev *dev, int effect_id, struct file *file);
-+int input_ff_take_control(struct input_dev *dev, int effect_id, struct file *file);
-+int input_ff_release_control(struct input_dev *dev, int effect_id, struct file *file);
- int input_ff_flush(struct input_dev *dev, struct file *file);
- 
- int input_ff_create_memless(struct input_dev *dev, void *data,
-diff --git a/include/uapi/linux/input.h b/include/uapi/linux/input.h
-index 3ea7c826c6fb2..a332e7fb2686f 100644
---- a/include/uapi/linux/input.h
-+++ b/include/uapi/linux/input.h
-@@ -181,6 +181,10 @@ struct input_mask {
- 
- #define EVIOCSFF		_IOW('E', 0x80, struct ff_effect)	/* send a force effect to a force feedback device */
- #define EVIOCRMFF		_IOW('E', 0x81, int)			/* Erase a force effect */
-+/* Take control over a force effect */
-+#define EVIOCFFTAKECONTROL	_IOW('E', 0x82, int)
-+/* Release control over a force effect */
-+#define EVIOCFFRELEASECONTROL	_IOW('E', 0x83, int)
- #define EVIOCGEFFECTS		_IOR('E', 0x84, int)			/* Report number of effects playable at the same time */
- 
- #define EVIOCGRAB		_IOW('E', 0x90, int)			/* Grab/Release device */
+ 	/* we need to allocate the command buffer without knowing the maximum
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 3f5899c628211..9db9b7133f1a1 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -784,6 +784,7 @@ struct hid_usage_id {
+  * @suspend: invoked on suspend (NULL means nop)
+  * @resume: invoked on resume if device was not reset (NULL means nop)
+  * @reset_resume: invoked on resume if device was reset (NULL means nop)
++ * @reset: invoked if device was reset (NULL means nop)
+  *
+  * probe should return -errno on error, or 0 on success. During probe,
+  * input will not be passed to raw_event unless hid_device_io_start is
+@@ -840,6 +841,7 @@ struct hid_driver {
+ 	int (*resume)(struct hid_device *hdev);
+ 	int (*reset_resume)(struct hid_device *hdev);
+ #endif
++	int (*reset)(struct hid_device *hdev);
+ /* private: */
+ 	struct device_driver driver;
+ };
 -- 
 2.38.0.rc1.362.ged0d419d3c-goog
 

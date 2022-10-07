@@ -2,61 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81655C433F5
-	for <linux-input@archiver.kernel.org>; Fri,  7 Oct 2022 18:30:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C318C4332F
+	for <linux-input@archiver.kernel.org>; Fri,  7 Oct 2022 18:30:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229829AbiJGSa0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 7 Oct 2022 14:30:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55462 "EHLO
+        id S229873AbiJGSa2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 7 Oct 2022 14:30:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229710AbiJGSaV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2022 14:30:21 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35DFBA3F7B
-        for <linux-input@vger.kernel.org>; Fri,  7 Oct 2022 11:30:15 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id j16so8471448wrh.5
-        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2022 11:30:15 -0700 (PDT)
+        with ESMTP id S229731AbiJGSaW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Oct 2022 14:30:22 -0400
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1809EC5113
+        for <linux-input@vger.kernel.org>; Fri,  7 Oct 2022 11:30:18 -0700 (PDT)
+Received: by mail-wr1-x435.google.com with SMTP id bk15so8429703wrb.13
+        for <linux-input@vger.kernel.org>; Fri, 07 Oct 2022 11:30:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=semihalf.com; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=drDDGSL6Q8RDfLC8xntw44nc3OWMxJhGm2KM89I9WAQ=;
-        b=F30GtYkx9OYa+gXvcFUXX4+OfQhzAotOfiX/tVdZWhbZ34fhfGcTnHK/WKlqOr+zQR
-         rt4Rr6fZ3IJPApJlVjWvp+oxtXAYsgMJVWe17f//0srhfuZMS7HXf6qdAqdPWubpLzXf
-         ZbmN9h91GF18tVXsv6vqXrqReNEI67B9RNUtOLfwoRmSUuN6MtooUUZxVXKQ3+xssmoM
-         B+OZmoi97b3SCSSt5cykjiCqOFcy8Md7H5tetSvxM6QLhUGdMgwbLvoROQeSTdHfzoHK
-         yYgDoP3Gr9yye3daUxFheKfueY/+1Go5UvFMF8S3FpycsIEYq2bfMVJMaIcd4QxvZeOY
-         aWQQ==
+        bh=EiRWz3/ju05cpZJVAmO9L3pe6FrhtoFaBzT/35Bs1Uk=;
+        b=Ky9Sli+8xgtf1RpNmKLvZ2thfkDTKWiG2hgvtWJzv2jjeo+1do7gbuJF4K25EhSXsC
+         E0n30BSVm+uuoXE3Ii4fSX3MwTkI/hB2gtTRbuYSC7QY8ho2r6fwJFZcRttXUg08GCeq
+         nt56B0WxBSpoFApO18AaUJmqmwXe+ZdTG536qMilz+CdsBBsZIJjfu74JOD2hUHOSm2d
+         KnZGSWUAfwMxObHY4gaficqSOfThCLceOAre2Nqgd5YhZ6q6yq3hEt7n2WphxLFeLjsN
+         jkhWUG5hStHXrpQITCn3YPoxvKTxcFeoMjPOMO9y9g89Mq9HVuQ0fNXBrNKypMPXdKh7
+         VFfA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=drDDGSL6Q8RDfLC8xntw44nc3OWMxJhGm2KM89I9WAQ=;
-        b=Qp2/nXvtQdQTfSbGhJKw/u0DmQr0gpwSlMIbizDZapvP19btZdJk2DdT0XYpsVxjc4
-         9Cr7cuOyyCw8xYDb3GAlVIVuSOXF8FtVfyaSV0/lET/gHyz4KRnaF3nClRr0XnYyJ1rj
-         DrFGTJjHUR+THUEnVGViM/bKBc4e1B88PUordkO8+3GBDIVMgtH38KFxSrxtjCdUIJg5
-         R8AU+UXS85tFjebkcupnXRDG2YKo1LqnTOKkEA41TRHj64+S8k/nfetkgfGJfeuySS/3
-         ecxhoZ34KkeVEy42Co1AiXlpSTgpEO8FZk01c7zvoRS0Fe8s1kWmFijy/BzxGzN+YGCt
-         WUFA==
-X-Gm-Message-State: ACrzQf3ZCf7Oo01xGkTM87Ae1eDEudq1u7HtepEG+WNRL7AQXulZQS6S
-        Gk4gnH+i5hSHxLppxWHho8dN4d9VD1rikjj5
-X-Google-Smtp-Source: AMsMyM5uOSqt6sgJrFv47k99D1KSDvUcQNUwWzj6LdXwsaANmO1qXNA41KwsNkekSMYGGiRBqMx4pg==
-X-Received: by 2002:adf:e18b:0:b0:22e:a2ce:7746 with SMTP id az11-20020adfe18b000000b0022ea2ce7746mr2897225wrb.468.1665167413910;
-        Fri, 07 Oct 2022 11:30:13 -0700 (PDT)
+        bh=EiRWz3/ju05cpZJVAmO9L3pe6FrhtoFaBzT/35Bs1Uk=;
+        b=5X6g2P7TaghPyZYesNBgVijyh0WDe/6SdZtfD9P5Kqe49yXKO785bGn3x5z+n2LQL9
+         VXe9Cxx5tZLWLa0ltDzU83IBItG8TJJZ+fezJdKUkvrha4YBtbv9dqeRipxGbB/rabGg
+         sbK90XWHvaHjbd5TfiYLiOMwLIBnDkdSjtWycg+sajrXvhC7qI/+fx3P+8/fYOQJ2dSi
+         Xnx/8lmAWSCPpM11Ev7lClQ65HAoXKm9CpsLMZZ17wX9cfe92ydQQMsmKYcHna8CTPhP
+         LDgSlsqRFaa8aCkR3iS7kdc3x/k7Ihe9QJgpVIic4/WsIu4yoTasX+zyTPTxv4+qqOQS
+         7QRg==
+X-Gm-Message-State: ACrzQf2vfsgY77L5xiHGW1LRnabEL93LCHU3qGYu39Zu0IPjnd5+atjZ
+        gQMRzqBD9tB99KlkiQbuwn51Y+0ETNjNExcj
+X-Google-Smtp-Source: AMsMyM509+WcxOKTuCBbxavkvpfF/avs/9OydMugjuhYfWYuJBx2VeXmGlmNyJCagGJQ3Kpu4T36bg==
+X-Received: by 2002:a5d:5224:0:b0:22e:397:d4da with SMTP id i4-20020a5d5224000000b0022e0397d4damr4027315wra.364.1665167417024;
+        Fri, 07 Oct 2022 11:30:17 -0700 (PDT)
 Received: from aczubak.c.googlers.com.com (230.213.79.34.bc.googleusercontent.com. [34.79.213.230])
-        by smtp.gmail.com with ESMTPSA id l10-20020a05600012ca00b002258235bda3sm2573627wrx.61.2022.10.07.11.30.13
+        by smtp.gmail.com with ESMTPSA id l10-20020a05600012ca00b002258235bda3sm2573627wrx.61.2022.10.07.11.30.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Oct 2022 11:30:13 -0700 (PDT)
+        Fri, 07 Oct 2022 11:30:16 -0700 (PDT)
 From:   Angela Czubak <acz@semihalf.com>
 To:     linux-input@vger.kernel.org
 Cc:     upstream@semihalf.com, benjamin.tissoires@redhat.com,
         jikos@kernel.org, dmitry.torokhov@gmail.com,
         Angela Czubak <acz@semihalf.com>
-Subject: [PATCH v4 03/17] HID: haptic: introduce hid_haptic_device
-Date:   Fri,  7 Oct 2022 18:29:31 +0000
-Message-Id: <20221007182945.1654046-4-acz@semihalf.com>
+Subject: [PATCH v4 07/17] HID: haptic: implement release and press effects
+Date:   Fri,  7 Oct 2022 18:29:35 +0000
+Message-Id: <20221007182945.1654046-8-acz@semihalf.com>
 X-Mailer: git-send-email 2.38.0.rc1.362.ged0d419d3c-goog
 In-Reply-To: <20221007182945.1654046-1-acz@semihalf.com>
 References: <20221007182945.1654046-1-acz@semihalf.com>
@@ -66,240 +66,71 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Define a new structure that contains simple haptic device configuration
-as well as current state.
-Add functions that recognize auto trigger and manual trigger reports
-as well as save their addresses.
-Recognize the input device as a haptic one if the reports are found.
-Verify that the pressure unit is either grams or newtons.
-Mark the input device as a haptic forcepad if the unit is correct.
+Upload shared haptic affects for release and press waveforms if a device
+exposes them and it is a forcepad
 
 Signed-off-by: Angela Czubak <acz@semihalf.com>
 ---
- drivers/hid/Kconfig      |   3 ++
- drivers/hid/Makefile     |   1 +
- drivers/hid/hid-haptic.c |  65 ++++++++++++++++++++++
- drivers/hid/hid-haptic.h | 113 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 182 insertions(+)
- create mode 100644 drivers/hid/hid-haptic.c
- create mode 100644 drivers/hid/hid-haptic.h
+ drivers/hid/hid-haptic.c | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 6ce92830b5d1f..1b47e5d0d1c07 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -89,6 +89,9 @@ config HID_GENERIC
- 
- 	If unsure, say Y.
- 
-+config HID_HAPTIC
-+	bool
-+
- menu "Special HID drivers"
- 	depends on HID
- 
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index b0bef80981394..8ae531355f5bf 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -4,6 +4,7 @@
- #
- hid-y			:= hid-core.o hid-input.o hid-quirks.o
- hid-$(CONFIG_DEBUG_FS)		+= hid-debug.o
-+hid-$(CONFIG_HID_HAPTIC)	+= hid-haptic.o
- 
- obj-$(CONFIG_HID)		+= hid.o
- obj-$(CONFIG_UHID)		+= uhid.o
 diff --git a/drivers/hid/hid-haptic.c b/drivers/hid/hid-haptic.c
-new file mode 100644
-index 0000000000000..ea1004319bc02
---- /dev/null
+index 327106152d795..3301bf27dfdee 100644
+--- a/drivers/hid/hid-haptic.c
 +++ b/drivers/hid/hid-haptic.c
-@@ -0,0 +1,65 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ *  HID Haptic support for Linux
-+ *
-+ *  Copyright (c) 2021 Angela Czubak <acz@semihalf.com>
-+ */
+@@ -361,6 +361,7 @@ int hid_haptic_init(struct hid_device *hdev,
+ 	char *name;
+ 	int (*flush)(struct input_dev *dev, struct file *file);
+ 	int (*event)(struct input_dev *dev, unsigned int type, unsigned int code, int value);
++	struct ff_effect release_effect, press_effect;
+ 
+ 	haptic->hdev = hdev;
+ 	haptic->max_waveform_id = max(2u, haptic->max_waveform_id);
+@@ -477,8 +478,44 @@ int hid_haptic_init(struct hid_device *hdev,
+ 		module_put(THIS_MODULE);
+ 		goto input_free;
+ 	}
 +
-+#include "hid-haptic.h"
++	if (!haptic->is_forcepad)
++		goto exit;
 +
-+void hid_haptic_feature_mapping(struct hid_device *hdev,
-+				struct hid_haptic_device *haptic,
-+				struct hid_field *field, struct hid_usage *usage)
-+{
-+	if (usage->hid == HID_HP_AUTOTRIGGER) {
-+		if (usage->usage_index >= field->report_count) {
-+			dev_err(&hdev->dev,
-+				"HID_HP_AUTOTRIGGER out of range\n");
-+			return;
++	effect_set_default(&release_effect);
++	if (haptic->release_ordinal_orig)
++		release_effect.u.hid.hid_usage = HID_HP_WAVEFORMRELEASE &
++			HID_USAGE;
++	ret = input_ff_upload(dev, &release_effect, (struct file *)UINTPTR_MAX);
++	if (ret || release_effect.id != HID_HAPTIC_RELEASE_EFFECT_ID) {
++		if (!ret) {
++			ret = -EBUSY;
++			input_ff_erase(dev, release_effect.id,
++				       (struct file *)UINTPTR_MAX);
 +		}
-+
-+		hid_device_io_start(hdev);
-+		hid_hw_request(hdev, field->report, HID_REQ_GET_REPORT);
-+		hid_hw_wait(hdev);
-+		hid_device_io_stop(hdev);
-+		haptic->default_auto_trigger =
-+			field->value[usage->usage_index];
-+		haptic->auto_trigger_report = field->report;
++		dev_err(&hdev->dev,
++			"Failed to allocate id 0 for release effect.\n");
++		goto input_free;
 +	}
-+}
-+EXPORT_SYMBOL_GPL(hid_haptic_feature_mapping);
-+
-+bool hid_haptic_is_forcepad(struct hid_haptic_device *haptic,
-+			    struct hid_input *hi, struct hid_field *field)
-+{
-+	if (field->unit == HID_UNIT_GRAM || field->unit == HID_UNIT_NEWTON)
-+		haptic->is_forcepad = true;
-+	return haptic->is_forcepad;
-+}
-+EXPORT_SYMBOL_GPL(hid_haptic_is_forcepad);
-+
-+int hid_haptic_input_mapping(struct hid_device *hdev,
-+			     struct hid_haptic_device *haptic,
-+			     struct hid_input *hi,
-+			     struct hid_field *field, struct hid_usage *usage,
-+			     unsigned long **bit, int *max)
-+{
-+	if (usage->hid == HID_HP_MANUALTRIGGER) {
-+		haptic->manual_trigger_report = field->report;
-+		/* we don't really want to map these fields */
-+		return -1;
++	effect_set_default(&press_effect);
++	if (haptic->press_ordinal_orig)
++		press_effect.u.hid.hid_usage = HID_HP_WAVEFORMPRESS & HID_USAGE;
++	ret = input_ff_upload(dev, &press_effect, (struct file *)UINTPTR_MAX);
++	if (ret || press_effect.id != HID_HAPTIC_PRESS_EFFECT_ID) {
++		if (!ret) {
++			ret = -EBUSY;
++			input_ff_erase(dev, press_effect.id,
++				       (struct file *)UINTPTR_MAX);
++		}
++		dev_err(&hdev->dev,
++			"Failed to allocate id 1 for press effect.\n");
++		goto release_free;
 +	}
 +
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(hid_haptic_input_mapping);
-+
-+bool hid_haptic_input_configured(struct hid_device *hdev,
-+				 struct hid_haptic_device *haptic)
-+{
-+	if (haptic->auto_trigger_report && haptic->manual_trigger_report)
-+		return true;
-+
-+	return false;
-+}
-+EXPORT_SYMBOL_GPL(hid_haptic_input_configured);
-diff --git a/drivers/hid/hid-haptic.h b/drivers/hid/hid-haptic.h
-new file mode 100644
-index 0000000000000..ea96b0fb540f2
---- /dev/null
-+++ b/drivers/hid/hid-haptic.h
-@@ -0,0 +1,113 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
-+/*
-+ *  HID Haptic support for Linux
-+ *
-+ *  Copyright (c) 2021 Angela Czubak <acz@semihalf.com>
-+ */
-+
-+/*
-+ */
-+
-+
-+#include <linux/hid.h>
-+
-+#define HID_HAPTIC_ORDINAL_WAVEFORMNONE 1
-+#define HID_HAPTIC_ORDINAL_WAVEFORMSTOP 2
-+
-+#define HID_HAPTIC_PRESS_THRESH 200
-+#define HID_HAPTIC_RELEASE_THRESH 180
-+
-+#define HID_HAPTIC_MODE_DEVICE 0
-+#define HID_HAPTIC_MODE_KERNEL 1
-+
-+struct hid_haptic_effect {
-+	u8 *report_buf;
-+	struct input_dev *input_dev;
-+	struct work_struct work;
-+	struct list_head control;
-+	struct mutex control_mutex;
-+};
-+
-+struct hid_haptic_effect_node {
-+	struct list_head node;
-+	struct file *file;
-+};
-+
-+struct hid_haptic_device {
-+	struct input_dev *input_dev;
-+	struct hid_device *hdev;
-+	struct hid_report *auto_trigger_report;
-+	struct mutex auto_trigger_mutex;
-+	struct workqueue_struct *wq;
-+	struct hid_report *manual_trigger_report;
-+	struct mutex manual_trigger_mutex;
-+	size_t manual_trigger_report_len;
-+	int pressed_state;
-+	s32 pressure;
-+	s32 force_logical_minimum;
-+	s32 force_physical_minimum;
-+	s32 force_resolution;
-+	u32 press_threshold;
-+	u32 release_threshold;
-+	u32 mode;
-+	u32 default_auto_trigger;
-+	u32 vendor_page;
-+	u32 vendor_id;
-+	u32 max_waveform_id;
-+	u32 max_duration_id;
-+	u16 *hid_usage_map;
-+	u32 *duration_map;
-+	u16 press_ordinal_orig;
-+	u16 press_ordinal_cur;
-+	u16 release_ordinal_orig;
-+	u16 release_ordinal_cur;
-+#define HID_HAPTIC_RELEASE_EFFECT_ID 0
-+#define HID_HAPTIC_PRESS_EFFECT_ID 1
-+	struct hid_haptic_effect *effect;
-+	struct hid_haptic_effect stop_effect;
-+	bool is_forcepad;
-+};
-+
-+#ifdef CONFIG_MULTITOUCH_HAPTIC
-+void hid_haptic_feature_mapping(struct hid_device *hdev,
-+				struct hid_haptic_device *haptic,
-+				struct hid_field *field, struct hid_usage
-+				*usage);
-+bool hid_haptic_is_forcepad(struct hid_haptic_device *haptic,
-+			    struct hid_input *hi, struct hid_field *field);
-+int hid_haptic_input_mapping(struct hid_device *hdev,
-+			     struct hid_haptic_device *haptic,
-+			     struct hid_input *hi,
-+			     struct hid_field *field, struct hid_usage *usage,
-+			     unsigned long **bit, int *max);
-+bool hid_haptic_input_configured(struct hid_device *hdev,
-+				 struct hid_haptic_device *haptic);
-+#else
-+static inline
-+void hid_haptic_feature_mapping(struct hid_device *hdev,
-+				struct hid_haptic_device *haptic,
-+				struct hid_field *field, struct hid_usage
-+				*usage)
-+{}
-+static inline
-+bool hid_haptic_is_forcepad(struct hid_haptic_device *haptic,
-+			    struct hid_input *hi, struct hid_field *field)
-+{
-+	return false;
-+}
-+static inline
-+int hid_haptic_input_mapping(struct hid_device *hdev,
-+			     struct hid_haptic_device *haptic,
-+			     struct hid_input *hi,
-+			     struct hid_field *field, struct hid_usage *usage,
-+			     unsigned long **bit, int *max)
-+{
-+	return 0;
-+}
-+static inline
-+bool hid_haptic_input_configured(struct hid_device *hdev,
-+				 struct hid_haptic_device *haptic)
-+{
-+	return 0;
-+}
-+#endif
+ 	return 0;
+ 
++release_free:
++	input_ff_erase(dev, release_effect.id, (struct file *)UINTPTR_MAX);
+ input_free:
+ 	input_ff_destroy(dev);
+ 	/* Do not let double free happen, input_ff_destroy will call
 -- 
 2.38.0.rc1.362.ged0d419d3c-goog
 

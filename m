@@ -2,205 +2,248 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38965C433F5
-	for <linux-input@archiver.kernel.org>; Mon, 10 Oct 2022 09:16:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 234CEC433F5
+	for <linux-input@archiver.kernel.org>; Mon, 10 Oct 2022 10:57:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230361AbiJJJQ6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 Oct 2022 05:16:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60896 "EHLO
+        id S231856AbiJJK5Y (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 Oct 2022 06:57:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230497AbiJJJQ5 (ORCPT
+        with ESMTP id S231654AbiJJK5W (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Oct 2022 05:16:57 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C078175BB
-        for <linux-input@vger.kernel.org>; Mon, 10 Oct 2022 02:16:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1665393413;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=f7FFqlw7iRHCFCsL8WYd7/wL+sVoulh1xuopPw+9mC4=;
-        b=Ydb5f87NpNA7ovqKSNdlmyXH95zJeJUCUCkt+e+h637/GeUl8eC/ulFxgLX79r62c48B/Q
-        liu2qgrMheQ/mGJbBie9RANHiPqZ29/ONTBXCyypSAyMJJrB2i9r2qq4hBcIlXylEKvCJ8
-        94XD2y+Hj/eQq//Kfn5o+GdGXuKc+78=
-Received: from mail-il1-f200.google.com (mail-il1-f200.google.com
- [209.85.166.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-628-NByJx-DXPDeKZQi-wIwGQA-1; Mon, 10 Oct 2022 05:16:51 -0400
-X-MC-Unique: NByJx-DXPDeKZQi-wIwGQA-1
-Received: by mail-il1-f200.google.com with SMTP id h10-20020a056e021d8a00b002f99580de6cso8273100ila.5
-        for <linux-input@vger.kernel.org>; Mon, 10 Oct 2022 02:16:51 -0700 (PDT)
+        Mon, 10 Oct 2022 06:57:22 -0400
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B46B65543;
+        Mon, 10 Oct 2022 03:57:20 -0700 (PDT)
+Received: by mail-wm1-x330.google.com with SMTP id bg9-20020a05600c3c8900b003bf249616b0so6166255wmb.3;
+        Mon, 10 Oct 2022 03:57:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-disposition:mime-version:message-id:subject:cc:to:date:from
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=fN4r8CDn7pemOqYmN/evGA/y9m/PE8B8URfgxXvBj2U=;
+        b=RJYs1I/1ig+l0BWr3VkcGiT1dtJb3UNnOxikQmpe8Wy3CJQbo/Udo0JHtlN0dbd9xS
+         YN5HIC1vYmbn/qF+Us/Ni05FQIdwUsV4tiUAYmwacIQqiACHmYDX+wuEUQTz1l/mT8pv
+         NQw6dix8Xnh/KDQnPjLXM6GMs2Ro1tkkOPJSkJ56kuyeGIzK0PF9zvVbmUX18pk1oDuw
+         8txGv9xryu1FF9QcZFYWII16pHMxP5xUrtNi/JuROH47B9jgc8BPNIX41oRzSmsyOE6o
+         I8EeIMsHVXbm6/za15TilJKaQPnAX+Q/Lj2R4IkFjPokvRXuXC6Xidl6f2GNayBPW146
+         v/hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=f7FFqlw7iRHCFCsL8WYd7/wL+sVoulh1xuopPw+9mC4=;
-        b=igmVt7zBAlHSptajQAwiekGGKGtKeUlBCmGcLMD4lXWTrkTB5HYXvX14HFj4mnv16n
-         ySKs6Xc43DDAecVQx6Q8j9qelsmHDfvtDVoE3w0NcRDPpUnhBlhXMrXP6/k3FnkeK4yY
-         Mr7HlBln+Ix8jYG1PgKm6mThWUrZyZ3qOBq66zBVgceeqNWKHRCqgLUIfheYdE0HSYXL
-         pMGgu93zZccVEy9oQO4qzq23tKzpzkURHzZ1shk1erOhA6VcBgb9HwCkiBKtdvc/jMWo
-         MKH6mfeeDhF5WMGs4nbCrF4WwgMaZvYcJJTKbArU3S9vTd9g1Rix9IKwSwXdeIW5uC1w
-         JhmQ==
-X-Gm-Message-State: ACrzQf0lF78XYsG8Jty0PsWRfPmHerntAnpvADqwV+wwgOyaglH1RTen
-        bb4qia4MHeF4FqxfId31QNKwklTcot06/e0j97r4sKZ4aQgOFt0Ed6UtWY9mY+CMIAd+Tzo/qG4
-        yC8FCm0T073iOYgL2SsCHWUm+2NGSuEwZUY5jZ+k=
-X-Received: by 2002:a05:6638:370d:b0:35a:91f0:e358 with SMTP id k13-20020a056638370d00b0035a91f0e358mr9070785jav.84.1665393410892;
-        Mon, 10 Oct 2022 02:16:50 -0700 (PDT)
-X-Google-Smtp-Source: AMsMyM6OyTk3az283CaahrIOrySAejKR6o9+gcEdDK0LN4rALmQaopMuTkN25qdqemDJxo2oOHX4rTMGHvVOlV+G8XI=
-X-Received: by 2002:a05:6638:370d:b0:35a:91f0:e358 with SMTP id
- k13-20020a056638370d00b0035a91f0e358mr9070772jav.84.1665393410624; Mon, 10
- Oct 2022 02:16:50 -0700 (PDT)
+        h=content-disposition:mime-version:message-id:subject:cc:to:date:from
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=fN4r8CDn7pemOqYmN/evGA/y9m/PE8B8URfgxXvBj2U=;
+        b=3IfV1ntqWdaKSZmfDJPh4wF6yy1QlU070LaZj5fcSUHG8yIzTZqCRgVijDE6CBIbXS
+         fGYpCK1ABwNE7ViN5yUx2x77v1Zykok3CqGwMQlRXuCfO9uOnojYTa8LzcwjVcpTLewB
+         RZ7CBneAGhc/jJk/5+NfuYt0dDHNYslex4lJ0UXWCbQVQZpFVlw0pPUrJMnKE6bSCKL/
+         Gkk7YolCErkWttiM6BYRAS0mSkGxlxDxsxh8h1wTrAsE7dNYSgUfceKLFzzboakOdPIr
+         KFqig1TXMNIElKqpzjc4hFyJJa3rZzHjeWvYNaT74ZgnOnTt2wyZtkxIb0P0h3Oa1Z+g
+         1b3A==
+X-Gm-Message-State: ACrzQf0z4HdTfsqJFLFdvht5dhAgqz6l44OgiZwoeO2YgapBtyFktCgu
+        QFBS8irk1zd2Vswj/gUK7ltZrIZBpQ==
+X-Google-Smtp-Source: AMsMyM7Bu1aO2pQJWWEeX6x3C/IGK3nrIxlnY8K8OGLih8x2wqgJIp3YvVJlJTfCnrNUmflKnOMgsg==
+X-Received: by 2002:a05:600c:587:b0:3c6:b64b:81fc with SMTP id o7-20020a05600c058700b003c6b64b81fcmr2940106wmd.123.1665399438907;
+        Mon, 10 Oct 2022 03:57:18 -0700 (PDT)
+Received: from octinomon ([212.121.210.249])
+        by smtp.gmail.com with ESMTPSA id c190-20020a1c35c7000000b003b492338f45sm10252213wma.39.2022.10.10.03.57.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Oct 2022 03:57:18 -0700 (PDT)
+From:   Jules Irenge <jbi.octave@gmail.com>
+X-Google-Original-From: Jules Irenge <jules.irenge@postgrad.manchester.ac.uk>
+Date:   Mon, 10 Oct 2022 11:57:15 +0100
+To:     benjamin.tissoires@redhat.com
+Cc:     erazor_de@users.sourceforge.net, jikos@kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Elana.Copperman@mobileye.com
+Subject: [PATCH v2] HID: roccat-*: Convert snprintf() to sysfs_emit()
+Message-ID: <Y0P6i8LTdgVX+0O4@octinomon>
 MIME-Version: 1.0
-References: <20221006020151.132434-1-roderick.colenbrander@sony.com> <20221006020151.132434-4-roderick.colenbrander@sony.com>
-In-Reply-To: <20221006020151.132434-4-roderick.colenbrander@sony.com>
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Mon, 10 Oct 2022 11:16:39 +0200
-Message-ID: <CAO-hwJJF4ej8J9GLb+pCaH0Ke+xLqxa6Fz5BFQ895DX5fmjPmA@mail.gmail.com>
-Subject: Re: [PATCH 3/3] HID: playstation: support updated DualSense rumble mode.
-To:     Roderick Colenbrander <roderick@gaikai.com>
-Cc:     Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
-        Roderick Colenbrander <roderick.colenbrander@sony.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Roderick,
+Coccinnelle reports a warning
+Warning: Use scnprintf or sprintf
 
-On Thu, Oct 6, 2022 at 4:02 AM Roderick Colenbrander
-<roderick@gaikai.com> wrote:
->
-> Newer DualSense firmware supports a revised classic rumble mode,
-> which feels more similar to rumble as supported on previous PlayStation
-> controllers. It has been made the default on PlayStation and non-PlayStation
-> devices now (e.g. iOS and Windows). Default to this new mode when
-> supported.
+Following the advice on kernel documentation
+https://www.kernel.org/doc/html/latest/filesystems/sysfs.html
 
-I am trying to see if this patch is 6.1 or 6.2 material. So I have a
-couple of questions for you:
-- on the current dualsense controller, with an updated firmware, is
-there any drawback in keeping the current code, or do we need to
-upgrade to the new one to keep functionalities?
-- on the new dualsense edge, does it support the old rumble, and so do
-I need to tie the addition of the DualSense Edge to this one patch?
+For show(device *...) functions we should only use sysfs_emit() or sysfs_emit_at()
+especially when formatting the value to be returned to user space.
+Convert snprintf() to sysfs_emit()
 
->
-> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
-> ---
->  drivers/hid/hid-playstation.c | 39 ++++++++++++++++++++++++++++++++++-
->  1 file changed, 38 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-> index 396356b6760a..e05c61942971 100644
-> --- a/drivers/hid/hid-playstation.c
-> +++ b/drivers/hid/hid-playstation.c
-> @@ -108,6 +108,9 @@ struct ps_led_info {
->  #define DS_STATUS_CHARGING             GENMASK(7, 4)
->  #define DS_STATUS_CHARGING_SHIFT       4
->
-> +/* Feature version from DualSense Firmware Info report. */
-> +#define DS_FEATURE_VERSION(major, minor) ((major & 0xff) << 8 | (minor & 0xff))
-> +
->  /*
->   * Status of a DualSense touch point contact.
->   * Contact IDs, with highest bit set are 'inactive'
-> @@ -126,6 +129,7 @@ struct ps_led_info {
->  #define DS_OUTPUT_VALID_FLAG1_RELEASE_LEDS BIT(3)
->  #define DS_OUTPUT_VALID_FLAG1_PLAYER_INDICATOR_CONTROL_ENABLE BIT(4)
->  #define DS_OUTPUT_VALID_FLAG2_LIGHTBAR_SETUP_CONTROL_ENABLE BIT(1)
-> +#define DS_OUTPUT_VALID_FLAG2_COMPATIBLE_VIBRATION2 BIT(2)
->  #define DS_OUTPUT_POWER_SAVE_CONTROL_MIC_MUTE BIT(4)
->  #define DS_OUTPUT_LIGHTBAR_SETUP_LIGHT_OUT BIT(1)
->
-> @@ -143,6 +147,9 @@ struct dualsense {
->         struct input_dev *sensors;
->         struct input_dev *touchpad;
->
-> +       /* Update version is used as a feature/capability version. */
-> +       __le16 update_version;
+Signed-off-by: Jules Irenge <jules.irenge@postgrad.manchester.ac.uk>
+---
+v2 - Combines the 4 previous patches into one
 
-Technically, if I am not wrong, the value stored here was already
-processed through get_unaligned_le16(), so you have a u16, and more
-likely to be consistent you should use uint16_t.
+ drivers/hid/hid-roccat-kone.c     | 12 ++++++------
+ drivers/hid/hid-roccat-koneplus.c |  4 ++--
+ drivers/hid/hid-roccat-kovaplus.c | 10 +++++-----
+ drivers/hid/hid-roccat-pyra.c     |  6 +++---
+ 4 files changed, 16 insertions(+), 16 deletions(-)
 
-> +
->         /* Calibration data for accelerometer and gyroscope. */
->         struct ps_calibration_data accel_calib_data[3];
->         struct ps_calibration_data gyro_calib_data[3];
-> @@ -153,6 +160,7 @@ struct dualsense {
->         uint32_t sensor_timestamp_us;
->
->         /* Compatible rumble state */
-> +       bool use_vibration_v2;
->         bool update_rumble;
->         uint8_t motor_left;
->         uint8_t motor_right;
-> @@ -812,6 +820,14 @@ static int dualsense_get_firmware_info(struct dualsense *ds)
->         ds->base.hw_version = get_unaligned_le32(&buf[24]);
->         ds->base.fw_version = get_unaligned_le32(&buf[28]);
->
-> +       /* Update version is some kind of feature version. It is distinct from
-> +        * the firmware version as there can be many different variations of a
-> +        * controller over time with the same physical shell, but with different
-> +        * PCBs and other internal changes. The update version (internal name) is
-> +        * used as a means to detect what features are available and change behavior.
-> +        */
-> +       ds->update_version = get_unaligned_le16(&buf[44]);
-> +
->  err_free:
->         kfree(buf);
->         return ret;
-> @@ -974,7 +990,10 @@ static void dualsense_output_worker(struct work_struct *work)
->         if (ds->update_rumble) {
->                 /* Select classic rumble style haptics and enable it. */
->                 common->valid_flag0 |= DS_OUTPUT_VALID_FLAG0_HAPTICS_SELECT;
-> -               common->valid_flag0 |= DS_OUTPUT_VALID_FLAG0_COMPATIBLE_VIBRATION;
-> +               if (ds->use_vibration_v2)
-> +                       common->valid_flag2 |= DS_OUTPUT_VALID_FLAG2_COMPATIBLE_VIBRATION2;
-> +               else
-> +                       common->valid_flag0 |= DS_OUTPUT_VALID_FLAG0_COMPATIBLE_VIBRATION;
->                 common->motor_left = ds->motor_left;
->                 common->motor_right = ds->motor_right;
->                 ds->update_rumble = false;
-> @@ -1348,6 +1367,24 @@ static struct ps_device *dualsense_create(struct hid_device *hdev)
->                 return ERR_PTR(ret);
->         }
->
-> +#define DS_FEATURE_VERSION(major, minor) ((major & 0xff) << 8 | (minor & 0xff))
-
-Was already defined above AFAICT
-
-> +       /* Original DualSense firmware simulated classic controller rumble through
-> +        * its new haptics hardware. It felt different from classic rumble users
-> +        * were used to. Since then new firmwares were introduced to change behavior
-> +        * and make this new 'v2' behavior default on PlayStation and other platforms.
-> +        * The original DualSense requires a new enough firmware as bundled with PS5
-> +        * software released in 2021. DualSense edge supports it out of the box.
-> +        */
-> +       if (hdev->product == USB_DEVICE_ID_SONY_PS5_CONTROLLER) {
-> +               /* Feature version 2.21 introduced new vibration method. */
-> +               if (ds->update_version < DS_FEATURE_VERSION(2, 21))
-> +                       ds->use_vibration_v2 = false;
-> +               else
-> +                       ds->use_vibration_v2 = true;
-
-if (conditional) then false else true; can easily be transformed into
-ds->use_vibration_v2 = ds->update_version >= DS_FEATURE_VERSION(2, 21)
-:)
-
-> +       } else if (hdev->product == USB_DEVICE_ID_SONY_PS5_CONTROLLER_2) {
-> +               ds->use_vibration_v2 = true;
-> +       }
-> +
->         ret = ps_devices_list_add(ps_dev);
->         if (ret)
->                 return ERR_PTR(ret);
-> --
-> 2.37.3
->
-
-Cheers,
-Benjamin
+diff --git a/drivers/hid/hid-roccat-kone.c b/drivers/hid/hid-roccat-kone.c
+index 76da04801ca9..f0c35c05e702 100644
+--- a/drivers/hid/hid-roccat-kone.c
++++ b/drivers/hid/hid-roccat-kone.c
+@@ -403,7 +403,7 @@ static ssize_t kone_sysfs_show_actual_profile(struct device *dev,
+ {
+ 	struct kone_device *kone =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kone->actual_profile);
++	return sysfs_emit(buf, "%d\n", kone->actual_profile);
+ }
+ static DEVICE_ATTR(actual_profile, 0440, kone_sysfs_show_actual_profile, NULL);
+ 
+@@ -412,7 +412,7 @@ static ssize_t kone_sysfs_show_actual_dpi(struct device *dev,
+ {
+ 	struct kone_device *kone =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kone->actual_dpi);
++	return sysfs_emit(buf, "%d\n", kone->actual_dpi);
+ }
+ static DEVICE_ATTR(actual_dpi, 0440, kone_sysfs_show_actual_dpi, NULL);
+ 
+@@ -435,7 +435,7 @@ static ssize_t kone_sysfs_show_weight(struct device *dev,
+ 
+ 	if (retval)
+ 		return retval;
+-	return snprintf(buf, PAGE_SIZE, "%d\n", weight);
++	return sysfs_emit(buf, "%d\n", weight);
+ }
+ static DEVICE_ATTR(weight, 0440, kone_sysfs_show_weight, NULL);
+ 
+@@ -444,7 +444,7 @@ static ssize_t kone_sysfs_show_firmware_version(struct device *dev,
+ {
+ 	struct kone_device *kone =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kone->firmware_version);
++	return sysfs_emit(buf, "%d\n", kone->firmware_version);
+ }
+ static DEVICE_ATTR(firmware_version, 0440, kone_sysfs_show_firmware_version,
+ 		   NULL);
+@@ -454,7 +454,7 @@ static ssize_t kone_sysfs_show_tcu(struct device *dev,
+ {
+ 	struct kone_device *kone =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kone->settings.tcu);
++	return sysfs_emit(buf, "%d\n", kone->settings.tcu);
+ }
+ 
+ static int kone_tcu_command(struct usb_device *usb_dev, int number)
+@@ -556,7 +556,7 @@ static ssize_t kone_sysfs_show_startup_profile(struct device *dev,
+ {
+ 	struct kone_device *kone =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kone->settings.startup_profile);
++	return sysfs_emit(buf, "%d\n", kone->settings.startup_profile);
+ }
+ 
+ static ssize_t kone_sysfs_set_startup_profile(struct device *dev,
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index 1896c69ea512..1635ddc7c3cf 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -244,7 +244,7 @@ static ssize_t koneplus_sysfs_show_actual_profile(struct device *dev,
+ {
+ 	struct koneplus_device *koneplus =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", koneplus->actual_profile);
++	return sysfs_emit(buf, "%d\n", koneplus->actual_profile);
+ }
+ 
+ static ssize_t koneplus_sysfs_set_actual_profile(struct device *dev,
+@@ -311,7 +311,7 @@ static ssize_t koneplus_sysfs_show_firmware_version(struct device *dev,
+ 			&info, KONEPLUS_SIZE_INFO);
+ 	mutex_unlock(&koneplus->koneplus_lock);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
++	return sysfs_emit(buf, "%d\n", info.firmware_version);
+ }
+ static DEVICE_ATTR(firmware_version, 0440,
+ 		   koneplus_sysfs_show_firmware_version, NULL);
+diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
+index 6fb9b9563769..7f6238a19739 100644
+--- a/drivers/hid/hid-roccat-kovaplus.c
++++ b/drivers/hid/hid-roccat-kovaplus.c
+@@ -274,7 +274,7 @@ static ssize_t kovaplus_sysfs_show_actual_profile(struct device *dev,
+ {
+ 	struct kovaplus_device *kovaplus =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_profile);
++	return sysfs_emit(buf, "%d\n", kovaplus->actual_profile);
+ }
+ 
+ static ssize_t kovaplus_sysfs_set_actual_profile(struct device *dev,
+@@ -327,7 +327,7 @@ static ssize_t kovaplus_sysfs_show_actual_cpi(struct device *dev,
+ {
+ 	struct kovaplus_device *kovaplus =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_cpi);
++	return sysfs_emit(buf, "%d\n", kovaplus->actual_cpi);
+ }
+ static DEVICE_ATTR(actual_cpi, 0440, kovaplus_sysfs_show_actual_cpi, NULL);
+ 
+@@ -336,7 +336,7 @@ static ssize_t kovaplus_sysfs_show_actual_sensitivity_x(struct device *dev,
+ {
+ 	struct kovaplus_device *kovaplus =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_x_sensitivity);
++	return sysfs_emit(buf, "%d\n", kovaplus->actual_x_sensitivity);
+ }
+ static DEVICE_ATTR(actual_sensitivity_x, 0440,
+ 		   kovaplus_sysfs_show_actual_sensitivity_x, NULL);
+@@ -346,7 +346,7 @@ static ssize_t kovaplus_sysfs_show_actual_sensitivity_y(struct device *dev,
+ {
+ 	struct kovaplus_device *kovaplus =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", kovaplus->actual_y_sensitivity);
++	return sysfs_emit(buf, "%d\n", kovaplus->actual_y_sensitivity);
+ }
+ static DEVICE_ATTR(actual_sensitivity_y, 0440,
+ 		   kovaplus_sysfs_show_actual_sensitivity_y, NULL);
+@@ -367,7 +367,7 @@ static ssize_t kovaplus_sysfs_show_firmware_version(struct device *dev,
+ 			&info, KOVAPLUS_SIZE_INFO);
+ 	mutex_unlock(&kovaplus->kovaplus_lock);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
++	return sysfs_emit(buf, "%d\n", info.firmware_version);
+ }
+ static DEVICE_ATTR(firmware_version, 0440,
+ 		   kovaplus_sysfs_show_firmware_version, NULL);
+diff --git a/drivers/hid/hid-roccat-pyra.c b/drivers/hid/hid-roccat-pyra.c
+index 4fcc8e7d276f..8b4d2519d4c4 100644
+--- a/drivers/hid/hid-roccat-pyra.c
++++ b/drivers/hid/hid-roccat-pyra.c
+@@ -286,7 +286,7 @@ static ssize_t pyra_sysfs_show_actual_cpi(struct device *dev,
+ {
+ 	struct pyra_device *pyra =
+ 			hid_get_drvdata(dev_get_drvdata(dev->parent->parent));
+-	return snprintf(buf, PAGE_SIZE, "%d\n", pyra->actual_cpi);
++	return sysfs_emit(buf, "%d\n", pyra->actual_cpi);
+ }
+ static DEVICE_ATTR(actual_cpi, 0440, pyra_sysfs_show_actual_cpi, NULL);
+ 
+@@ -303,7 +303,7 @@ static ssize_t pyra_sysfs_show_actual_profile(struct device *dev,
+ 			&settings, PYRA_SIZE_SETTINGS);
+ 	mutex_unlock(&pyra->pyra_lock);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", settings.startup_profile);
++	return sysfs_emit(buf, "%d\n", settings.startup_profile);
+ }
+ static DEVICE_ATTR(actual_profile, 0440, pyra_sysfs_show_actual_profile, NULL);
+ static DEVICE_ATTR(startup_profile, 0440, pyra_sysfs_show_actual_profile, NULL);
+@@ -324,7 +324,7 @@ static ssize_t pyra_sysfs_show_firmware_version(struct device *dev,
+ 			&info, PYRA_SIZE_INFO);
+ 	mutex_unlock(&pyra->pyra_lock);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%d\n", info.firmware_version);
++	return sysfs_emit(buf, "%d\n", info.firmware_version);
+ }
+ static DEVICE_ATTR(firmware_version, 0440, pyra_sysfs_show_firmware_version,
+ 		   NULL);
+-- 
+2.37.3
 

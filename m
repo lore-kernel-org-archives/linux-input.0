@@ -2,68 +2,148 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7568DC433F5
-	for <linux-input@archiver.kernel.org>; Tue, 11 Oct 2022 18:23:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BCC0C43219
+	for <linux-input@archiver.kernel.org>; Tue, 11 Oct 2022 19:08:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbiJKSXp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 11 Oct 2022 14:23:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
+        id S229779AbiJKTIy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 11 Oct 2022 15:08:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230521AbiJKSWh (ORCPT
+        with ESMTP id S230108AbiJKTIs (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 11 Oct 2022 14:22:37 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3D47B797;
-        Tue, 11 Oct 2022 11:22:11 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A55D66125B;
-        Tue, 11 Oct 2022 18:22:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 159F7C4347C;
-        Tue, 11 Oct 2022 18:22:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665512530;
-        bh=ttzmfGB3hvhX3OsFhFXeIm0KYgoc3KDurzCSSK9wPl4=;
-        h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-        b=QrjslGPg5/9LnZd6fEhtJAyb3AWgwNo6SukKQtXWdTh5NAHJh2tPo6o2QZYTM/l1l
-         FfCiX2Mi67jNZ+fwBI00fTwGOYhCzaqJL6ENvVLOkuYzEp5yflNgfhN2rkE4slwCLC
-         lmSNYeWqP1MOaf/L2UQvoy7NN6TDNbnH/Nb8RCXuOqN/yHE0RQoGY2KJwG/Sed+VAO
-         j++NEqsQcHjEZAP1brSMvl4gZ4xQaTAGAg14OQW09m29mST6YEBXXH6jwiKiuyoZJC
-         o5QVxHtKzXJZeWZ6gXHveoopPwrl2dzsZbP4KpGVBwCAJDgYZ2epVPUJcROWHp93IV
-         aYskSwUbgCWPg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id F2324E29F36;
-        Tue, 11 Oct 2022 18:22:09 +0000 (UTC)
-Subject: Re: [git pull] Input updates for v6.1-rc0
-From:   pr-tracker-bot@kernel.org
-In-Reply-To: <Y0O/KXxdj2gc4Sw+@google.com>
-References: <Y0O/KXxdj2gc4Sw+@google.com>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <Y0O/KXxdj2gc4Sw+@google.com>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v6.1-rc0
-X-PR-Tracked-Commit-Id: 5f8f8574c7f5585b09a9623f0f13462e4eb67b4d
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 694b37a5dd3c87235e02fabbe7b394f6ab1f444b
-Message-Id: <166551252998.20259.2643720805793098948.pr-tracker-bot@kernel.org>
-Date:   Tue, 11 Oct 2022 18:22:09 +0000
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+        Tue, 11 Oct 2022 15:08:48 -0400
+Received: from mail-4317.proton.ch (mail-4317.proton.ch [185.70.43.17])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8795C5F7DE;
+        Tue, 11 Oct 2022 12:08:41 -0700 (PDT)
+Date:   Tue, 11 Oct 2022 19:08:06 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=noorman.info;
+        s=protonmail3; t=1665515294; x=1665774494;
+        bh=AaagdgmGBM2DNArEhKKA/d2mPFttHHlEwrUlVvEX6wc=;
+        h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+         Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+         Message-ID;
+        b=S2nuJRgre1w0BovzRRSlpSyz9LZHkvMZbPA8kjHksW45kbGTBivrSGhTR0Zw1dJKt
+         DR0G5IgEfKx59MvAuNmWT74cbPfeMQlp2f/wItcZ6NN7dc7d09kqQra/zLd4CFjuEE
+         0Gj/ZWQFWiH269+G9Is63kQ7Ov2vu/3UhnrZ4Ero8up5rMD2ps6ilkUJIP02XX2tj1
+         NTPaEPrP2iDmJ2F0IZ9nDD02GRa6nP4IGWd+TOUEyebxc7uJCyGVl4YBQDgW5z/gQe
+         Mj0ZTWwimmX+i6xXsHEjsw9HCbGpxCfRqnhXNDmWmLf0lVLZZ9bDGv8viwuqW2QIkd
+         UQiO/VsD+9ung==
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+From:   Job Noorman <job@noorman.info>
+Cc:     Luca Weiss <luca@z3ntu.xyz>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] dt-bindings: touchscreen: add Himax hx83112b bindings
+Message-ID: <20221011190729.14747-2-job@noorman.info>
+In-Reply-To: <20221011190729.14747-1-job@noorman.info>
+References: <20221011190729.14747-1-job@noorman.info>
+Feedback-ID: 14439221:user:proton
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The pull request you sent on Sun, 9 Oct 2022 23:43:53 -0700:
+This patch adds device tree bindings for Himax 83112b touchscreen
+devices.
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v6.1-rc0
+Signed-off-by: Job Noorman <job@noorman.info>
+---
+ .../input/touchscreen/himax,hx83112b.yaml     | 59 +++++++++++++++++++
+ MAINTAINERS                                   |  6 ++
+ 2 files changed, 65 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/him=
+ax,hx83112b.yaml
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/694b37a5dd3c87235e02fabbe7b394f6ab1f444b
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/himax,hx83=
+112b.yaml b/Documentation/devicetree/bindings/input/touchscreen/himax,hx831=
+12b.yaml
+new file mode 100644
+index 000000000000..dcddd5f81c6f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.ya=
+ml
+@@ -0,0 +1,59 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/himax.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Himax hx83112b touchscreen controller bindings
++
++maintainers:
++  - Job Noorman <job@noorman.info>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    enum:
++      - himax,hx83112b
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-swapped-x-y: true
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - reset-gpios
++
++examples:
++  - |
++    i2c {
++      #address-cells =3D <1>;
++      #size-cells =3D <0>;
++      touchscreen@48 {
++        compatible =3D "himax,hx83112b";
++        reg =3D <0x48>;
++        interrupt-parent =3D <&tlmm>;
++        interrupts =3D <65 IRQ_TYPE_LEVEL_LOW>;
++        touchscreen-size-x =3D <1080>;
++        touchscreen-size-y =3D <2160>;
++        reset-gpios =3D <&tlmm 64 GPIO_ACTIVE_LOW>;
++      };
++    };
++
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 9ddcc242081c..2418bffe9187 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9094,6 +9094,12 @@ W:=09http://www.highpoint-tech.com
+ F:=09Documentation/scsi/hptiop.rst
+ F:=09drivers/scsi/hptiop.c
 
-Thank you!
++HIMAX HX83112B TOUCHSCREEN SUPPORT
++M:=09Job Noorman <job@noorman.info>
++L:=09linux-input@vger.kernel.org
++S:=09Maintained
++F:=09Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.ya=
+ml
++
+ HIPPI
+ M:=09Jes Sorensen <jes@trained-monkey.org>
+ L:=09linux-hippi@sunsite.dk
+--
+2.38.0
 
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+

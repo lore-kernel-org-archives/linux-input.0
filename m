@@ -2,48 +2,48 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A66EDC07E9D
-	for <linux-input@archiver.kernel.org>; Thu, 13 Oct 2022 00:30:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D35EEC4332F
+	for <linux-input@archiver.kernel.org>; Thu, 13 Oct 2022 00:35:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231423AbiJMAaL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 12 Oct 2022 20:30:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47136 "EHLO
+        id S231694AbiJMAft (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 12 Oct 2022 20:35:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231766AbiJMA3K (ORCPT
+        with ESMTP id S232058AbiJMAeF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 12 Oct 2022 20:29:10 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E629B11E45B;
-        Wed, 12 Oct 2022 17:26:22 -0700 (PDT)
+        Wed, 12 Oct 2022 20:34:05 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE686DFC14;
+        Wed, 12 Oct 2022 17:29:03 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 41185B81CE8;
-        Thu, 13 Oct 2022 00:25:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38680C433C1;
-        Thu, 13 Oct 2022 00:25:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C55FB616DE;
+        Thu, 13 Oct 2022 00:28:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D631C433D6;
+        Thu, 13 Oct 2022 00:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1665620740;
-        bh=E39Li0uqkuNcL8pWsEL0CUY9ShjGGReIR53QVQ35SFY=;
+        s=k20201202; t=1665620889;
+        bh=I8tDkkhVlI0xI5B8QOSYoWRpdNrVeD0qfzp2Xv/pGWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L95OuCD5dMG1PXO617xBzTh/Rc+niyFzWESZ4qxH9PssVTQlEzks5Uxx+O7ohWHHO
-         1Sz6V5PrYq4QgFfita75enm54Z673CYM/mJz/fwZ+LkhxsDsAL2Cc725fJn844msJ8
-         WmfyBQiSX/C5xlDEu5u/E2k1lP4flDQekzg0WnwcMSSJ6fkDFM7YtMLFwg4pirZHNI
-         lAdyDVP+EYV+Y6SM4bxFQaML2oGS22es/IURyEFHWu9WjDGAUHAjTK6GEiyfSBknuw
-         kmCYVDnbWAOToXaCQWUtutVH8dtELltWzBJSI20gVVAjRvRtpHadGPFMAXcoMGPR6W
-         tBKvogvDGMIIg==
+        b=rIJOdJLjxPj6JjG0q93AFj98fGiADNyGBe3kUDXzLEcUAB8hoZb3v0jb/6yjGk4vV
+         zEYebmvcf52qTM4/QBP6C/UffsYO5Gxq0q8uxaHZ29eL+ELdYxw87Myi3O4KFllt6I
+         BHMWHcy0ckvakkXZWrNKD/NdQmnuDOQJP/QNa0KNfGlch+RCr1QRjfaAvcLKC4Eyfh
+         fSYAdsLtGK+UYICoK5DgGc+QKfxOifyIXyHW7rbKYfjlU7nZxEAzODCQY1hI3nGxoz
+         fn/nz74w4SRXV9ZpOlUjwlv+Zrkt+yoptrCeL0WuICD1IYz5qD41J0Hd4Pur/1de+5
+         B3+tQSVa4eZTA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Harry Stern <harry@harrystern.net>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 12/27] hid: topre: Add driver fixing report descriptor
-Date:   Wed, 12 Oct 2022 20:24:44 -0400
-Message-Id: <20221013002501.1895204-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 03/10] hid: topre: Add driver fixing report descriptor
+Date:   Wed, 12 Oct 2022 20:27:50 -0400
+Message-Id: <20221013002802.1896096-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221013002501.1895204-1-sashal@kernel.org>
-References: <20221013002501.1895204-1-sashal@kernel.org>
+In-Reply-To: <20221013002802.1896096-1-sashal@kernel.org>
+References: <20221013002802.1896096-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -86,10 +86,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  create mode 100644 drivers/hid/hid-topre.c
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 5169a38ee47a..56315a0be78a 100644
+index 2b5ae00f8df2..80c54cd437db 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -992,6 +992,12 @@ config HID_TOPSEED
+@@ -837,6 +837,12 @@ config HID_TOPSEED
  	Say Y if you have a TopSeed Cyberlink or BTC Emprex or Conceptronic
  	CLLRCMCE remote control.
  
@@ -103,22 +103,22 @@ index 5169a38ee47a..56315a0be78a 100644
  	tristate "ThingM blink(1) USB RGB LED"
  	depends on HID
 diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 0c03308cfb08..bb618c74c442 100644
+index 86b2b5785fd2..245878158850 100644
 --- a/drivers/hid/Makefile
 +++ b/drivers/hid/Makefile
-@@ -110,6 +110,7 @@ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
+@@ -94,6 +94,7 @@ obj-$(CONFIG_HID_GREENASIA)	+= hid-gaff.o
  obj-$(CONFIG_HID_THRUSTMASTER)	+= hid-tmff.o
  obj-$(CONFIG_HID_TIVO)		+= hid-tivo.o
  obj-$(CONFIG_HID_TOPSEED)	+= hid-topseed.o
 +obj-$(CONFIG_HID_TOPRE)	+= hid-topre.o
  obj-$(CONFIG_HID_TWINHAN)	+= hid-twinhan.o
- obj-$(CONFIG_HID_U2FZERO)	+= hid-u2fzero.o
- hid-uclogic-objs		:= hid-uclogic-core.o \
+ obj-$(CONFIG_HID_UCLOGIC)	+= hid-uclogic.o
+ obj-$(CONFIG_HID_LED)		+= hid-led.o
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c587a77d493c..fbceead99b3c 100644
+index 1f641870d860..3ae9f6489f8f 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1156,6 +1156,9 @@
+@@ -1001,6 +1001,9 @@
  #define USB_DEVICE_ID_TIVO_SLIDE	0x1201
  #define USB_DEVICE_ID_TIVO_SLIDE_PRO	0x1203
  

@@ -2,125 +2,124 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7ACCC433FE
-	for <linux-input@archiver.kernel.org>; Thu, 20 Oct 2022 16:14:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF256C4321E
+	for <linux-input@archiver.kernel.org>; Thu, 20 Oct 2022 16:21:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229908AbiJTQOc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 20 Oct 2022 12:14:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59502 "EHLO
+        id S231136AbiJTQVU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 20 Oct 2022 12:21:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50832 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229880AbiJTQOb (ORCPT
+        with ESMTP id S230327AbiJTQVS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Oct 2022 12:14:31 -0400
-Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 412C4D2CA
-        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2022 09:14:29 -0700 (PDT)
-Received: by mail-pj1-x1049.google.com with SMTP id o11-20020a17090aac0b00b0020625062cbaso2290939pjq.2
-        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2022 09:14:29 -0700 (PDT)
+        Thu, 20 Oct 2022 12:21:18 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 928AB1BC155
+        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2022 09:21:12 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id o20-20020a05600c4fd400b003b4a516c479so2596458wmq.1
+        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2022 09:21:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=hkX5nKlhQ/TrI2mbSx0miDUCy9S+/kM4hXZnMa/gNZs=;
-        b=LBnxNhJE5Ik9FjyUR6Uw01rjCvO4wgUO+BCw9GX/+ayIWVLOkx3bCwr2ETERe66Eo+
-         xjw2IWH2V+0nl0rgUX0g7s6bB4mse2E6XRC29GHmSomTfJJnwZALGJJyhZWPlZnaOZbx
-         BKct+2L7uWOeyL4tjBBeTYYBbY6rjB2eo+KXrTrBolSW44U+lnfuAEu6ocrjyNl19XZX
-         L3juAmNUi4GcF/a6PTXdQzPkajHgX0q7QPkKU7HONItJzoHwF7fLbiDJdyd0oIAyw3se
-         ACdAJkywSHGKPGkez3dkCufZwGl18lQGMliWsWm46z7CQByMCxwvjnGklzglEROIlTvT
-         RotQ==
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GaS744uQPmWBXBI6ZqLder+xi41I4zdp+0x6pn9qEpI=;
+        b=BiWAgX/Qr8Rtaa1n4HaNEsXokIi2t7akCjokMnnVo9izFmTT3d1OYSv7Wls0Jw0TVG
+         wnHniUa/aJWLtVFhMN4C6h7OqT0SEHs/I+Qz/Nek5lUoSxieBitDj95Gs8p4//CxDAPM
+         EFtIovz6/Bg77YsQPiSiA79FgW2uMp/5ohlF5p1VrVItPrkwOkQpSQyk+C2FBhrxPtpu
+         WqHTyElGaawjZEW7CwY272Dm9Opr7cMu7GWpP8Gi3IC1zm1YeBT5C+6EaFZRp5B8iJVV
+         XoU4pX9m689/ASxVf317uv+VaYvXCGtxT0p5pjOMgBO02+pg3ktPsiK5Q//EzxGOOZeA
+         HReQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hkX5nKlhQ/TrI2mbSx0miDUCy9S+/kM4hXZnMa/gNZs=;
-        b=TwgL2KxhZbrmzpoParWFcIlkGYn4JvyWjTyQ7+bjErgQeF47X/tEyyPuzeylzf9nvN
-         Gci9KIPCm6hnazXcWk9iIrM2oVCUNd+OmEMj3+XsDMNfvJOVSb59ywf2bO0H8UWB2n0F
-         hTPuxYFPh2Wgcj5d72fAwh2ZpwQFil6AQGGRmVfAtxUEtF49C/JcF9n+NJdTFNd7KLqI
-         X1X7tU3Ju5vDCY5BILGuRdNBJAHsAxzHJAngDKW+GY2K5ZibA/U/fsCi0k0gcRBehFH7
-         mNeJruRRqWZlkUhgw8WJUWYTSzGiftn+WXqJyJjrO2g1Uxp0v0HJNI1+X/pb984KjtCq
-         XFzQ==
-X-Gm-Message-State: ACrzQf1mj5poRt5OQqkgmDSSj3ZItsQB+OuAOrP39MsczytlyvbxXO6H
-        qE3xrf0kmMSi5p/TWQsGlj6qBV4=
-X-Google-Smtp-Source: AMsMyM7T+fFcJkP1w/E13ym1azio4l49QEJ9D+j2qYquJ7qqA+6cxLumXVBGVl+L3p6PuCzC/vNJIwM=
-X-Received: from svv0.mtv.corp.google.com ([2620:15c:211:202:b62c:23f0:d55a:5c42])
- (user=svv job=sendgmr) by 2002:a63:6b83:0:b0:460:c07c:553b with SMTP id
- g125-20020a636b83000000b00460c07c553bmr12370283pgc.209.1666282468718; Thu, 20
- Oct 2022 09:14:28 -0700 (PDT)
-Date:   Thu, 20 Oct 2022 09:14:01 -0700
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.38.0.135.g90850a2211-goog
-Message-ID: <20221020161401.941927-1-svv@google.com>
-Subject: [PATCH] Add rumble support to latest xbox controllers
-From:   Siarhei Vishniakou <svv@google.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Siarhei Vishniakou <svv@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GaS744uQPmWBXBI6ZqLder+xi41I4zdp+0x6pn9qEpI=;
+        b=plZbhQH9RawcSh67kZ+Lzi1p04jTR+Ju5kGEUBDOszYMsvUO/spLXfATudi+K+Tim6
+         y1ZbbPKfUjuoeTEhtrikj21k3K3WjOabh2h0NP2AUyzgQ7kWqfIGi5eWFsexy9ukGcM2
+         i+Vyd0Hxtjezuw/IU8VbsY1J6/uZkGZ9pM98QG5Ycwov7hVDtFiCkb6Qn9YqImz454RA
+         Ch8iE9h3RnRT5Bl0V3+/CM6rbZgtFmSOVeVBrTXVvklWJ6hBcDxV8o97C2ePu/CEg638
+         XgzTNLi/kOyq/S/FJpw9552318vYkyJqBgutJpaJtBUrdA8HcVVHx5Hv2+hnCw7yZAx/
+         O8SQ==
+X-Gm-Message-State: ACrzQf1xkadTtROTLI7o37o8epbjMPiHgeCKUe+A2ti4xp+mf4pBWpjg
+        FzDO7SZrOw1EnEQPpHyhWljU5A==
+X-Google-Smtp-Source: AMsMyM4zHtUzyycG6m90vzzUecGOcjVx/uHTBFmgXqMhKmqeWtCLahlCPFtUo1o9TPVoTLPotl4Wkw==
+X-Received: by 2002:a05:600c:502c:b0:3c6:f5ff:e089 with SMTP id n44-20020a05600c502c00b003c6f5ffe089mr9915804wmr.108.1666282870743;
+        Thu, 20 Oct 2022 09:21:10 -0700 (PDT)
+Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
+        by smtp.googlemail.com with ESMTPSA id m14-20020a05600c3b0e00b003b4fe03c881sm208028wms.48.2022.10.20.09.21.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Oct 2022 09:21:10 -0700 (PDT)
+From:   Alexandre Mergnat <amergnat@baylibre.com>
+Date:   Thu, 20 Oct 2022 18:20:45 +0200
+Subject: [PATCH v3 1/5] dt-bindings: mfd: mt6397: add binding for MT6357
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20221005-mt6357-support-v3-1-7e0bd7c315b2@baylibre.com>
+References: <20221005-mt6357-support-v3-0-7e0bd7c315b2@baylibre.com>
+In-Reply-To: <20221005-mt6357-support-v3-0-7e0bd7c315b2@baylibre.com>
+To:     Mark Brown <broonie@kernel.org>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Lee Jones <lee@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Fabien Parent <fabien.parent@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+Cc:     AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Fabien Parent <fparent@baylibre.com>,
+        Rob Herring <robh@kernel.org>,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+        Alexandre Mergnat <amergnat@baylibre.com>
+X-Mailer: b4 0.10.1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=882; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=uiI/lTRtppBO+0nDIciFuabIoTVXVizM4YxyzOA2AfE=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjUXV0FVtsiYSeZAnNVIPphZdWfF4LyDG6G1xUR+hY
+ qezaStqJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY1F1dAAKCRArRkmdfjHURcbQD/
+ 9ZsaHlwgCKvcsyUDObkfQQjeMSZYlAX2q5PSCyCwS4vicU+djfUIZZZ4DYVVJLEeV/1jw8S8COwjtM
+ /gQ+FT2Ud6no8KNQ9XvvXNS8/hES8mEFwnz+Ne25aHAw794Z+9oMYem49sSNY8rkVyfTfI8A2A3188
+ TywOl73c/t1RNnLqrvQYq226VrdewLgd6AaHvOzejK+BHwUOI8OL71k7zIlkoW2fyPnZLYsqIS+66/
+ KAp7FWzWXpfO+51hnaMIJRo6fGvXcn73LVUR+oExo3xIbwE9opKu8tv93irqLjzDjIE5+egOrBNIdf
+ BWqI55Ib2NORmzfa05bH7l3MjErS7A0gRDAufHenjyV6xVQEc+xkzLx9a0X0QYq8PjGi5fOUKa9+ca
+ jdFrhMs+jsCV3iyMbXa2xOXfqUtCVKor4TOPUO6o/lc4CYCIUfIfZRTysxAfyB2hp7mn6h5lab49RK
+ pCeX/Tn1Mk1MvBRtd3TJR2UzE+/2hSaY8lh2Pi0Zxa2jzz1Q0P+pc0+QQAPNnB9ZZWDjZ0m51DgJ3X
+ fkDmw8gqjpK+T6LiT/8GVLpdJ5PhHdDi+MfmlooHMayfI2t9Li85L9RDDKILZCR9aUO9t5RsxCVu8N
+ HYmyzxXKz5+e7+YyEyWhJ03Xc1tLbKhpCIMTILDwPt5wFF+tNOifJI3+w83w==
+X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
+ fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Currently, rumble is only supported via bluetooth on a single xbox
-controller, called 'model 1708'. On the back of the device, it's named
-'wireless controller for xbox one'. However, in 2021, Microsoft released
-a firmware update for this controller. As part of this update, the HID
-descriptor of the device changed. The product ID was also changed from
-0x02fd to 0x0b20. On this controller, rumble was supported via
-hid-microsoft, which matched against the old product id (0x02fd). As a
-result, the firmware update broke rumble support on this controller.
+From: Fabien Parent <fparent@baylibre.com>
 
-The hid-microsoft driver actually supports rumble on the new firmware,
-as well. So simply adding new product id is sufficient to bring back
-this support.
+Add binding documentation for the MT6357 PMIC.
 
-After discussing further with the xbox team, it was pointed out that
-other xbox controllers, such as xbox elite, should also be possible to
-support in a similar way. However, I could only verify this on 2
-controllers so far.
-
-In this patch, add rumble support for the following 2 controllers:
-1. 'wireless controller for xbox one', model 1708, after applying the
-   most recent firmware update as of 2022-10-20.
-2. 'xbox wireless controller', model 1914. This is also sometimes
-   referred to as 'xbox series S|X'.
-
-I verified rumble support on both bluetooth and usb.
-
-Signed-off-by: Siarhei Vishniakou <svv@google.com>
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+Acked-by: Rob Herring <robh@kernel.org>
 ---
- drivers/hid/hid-ids.h       | 2 ++
- drivers/hid/hid-microsoft.c | 4 ++++
- 2 files changed, 6 insertions(+)
+ Documentation/devicetree/bindings/mfd/mt6397.txt | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index da86565f04d4..e9c7eae849b6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -914,6 +914,8 @@
- #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
- #define USB_DEVICE_ID_MS_SURFACE3_COVER		0x07de
- #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
-+#define USB_DEVICE_ID_MS_XBOX_ONE_S_2021_FIRMWARE 0x0b20
-+#define USB_DEVICE_ID_MS_XBOX_WIRELESS_CONTROLLER 0x0b13
- #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
- #define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
- 
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 071fd093a5f4..2973e91fc7a1 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -448,6 +448,10 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_SURFACE_DIAL },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER),
- 		.driver_data = MS_QUIRK_FF },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_ONE_S_2021_FIRMWARE),
-+		.driver_data = MS_QUIRK_FF },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_WIRELESS_CONTROLLER),
-+		.driver_data = MS_QUIRK_FF },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS),
- 		.driver_data = MS_QUIRK_FF },
- 	{ }
+diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+index 0088442efca1..518986c44880 100644
+--- a/Documentation/devicetree/bindings/mfd/mt6397.txt
++++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+@@ -21,6 +21,7 @@ Required properties:
+ compatible:
+ 	"mediatek,mt6323" for PMIC MT6323
+ 	"mediatek,mt6331" for PMIC MT6331 and MT6332
++	"mediatek,mt6357" for PMIC MT6357
+ 	"mediatek,mt6358" for PMIC MT6358 and MT6366
+ 	"mediatek,mt6359" for PMIC MT6359
+ 	"mediatek,mt6397" for PMIC MT6397
+
 -- 
-2.38.0.135.g90850a2211-goog
-
+b4 0.10.1

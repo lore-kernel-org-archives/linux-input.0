@@ -2,75 +2,115 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3194C433FE
-	for <linux-input@archiver.kernel.org>; Thu, 20 Oct 2022 15:30:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B30EC4332F
+	for <linux-input@archiver.kernel.org>; Thu, 20 Oct 2022 15:30:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230384AbiJTPat (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 20 Oct 2022 11:30:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48374 "EHLO
+        id S230462AbiJTPaw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 20 Oct 2022 11:30:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230387AbiJTPad (ORCPT
+        with ESMTP id S230464AbiJTPaf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Oct 2022 11:30:33 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C865613C1F3
-        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2022 08:30:18 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id t10-20020a17090a4e4a00b0020af4bcae10so3433042pjl.3
-        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2022 08:30:18 -0700 (PDT)
+        Thu, 20 Oct 2022 11:30:35 -0400
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B026E14EC52
+        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2022 08:30:22 -0700 (PDT)
+Received: by mail-pj1-x1030.google.com with SMTP id z5-20020a17090a8b8500b00210a3a2364fso2617029pjn.0
+        for <linux-input@vger.kernel.org>; Thu, 20 Oct 2022 08:30:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=konsulko.com; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Xw/wzzxFoJzqgkrmVz3/8prD9U8W2m/3Mf/184NLppo=;
-        b=ULRlJ/4pac1Ig06J85oQtja3WTUQNdt6dlsgOQtv55nJF4tV75nzPw3j1d9TQZiWqa
-         SCX3IUbID4vVEGFHrBzwS8wEc7r/3UB6IOG2F2n69JjbWCORoXgIIcu0NfwVZ297MKYE
-         ojwbfcXDfwwk/61bi3HS8qj9uHh9GNhCGiq0g=
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vtWFlgHeVLIcgszEX3flHZnMq+ff54nK2nEe6Uwrz/o=;
+        b=BOspPNzDA55Fc0Dnl+fV9GJtyS2F685mxp9ZW5T6xDxNNpriknB1RMS6EkOvelR/Ru
+         HJgc1D9fYrYEwC4x68oomFLZ7AdEWEw0NWLWNJdSKpsq/v/LGsU/dliHiz1y8dyVB/b+
+         nfN7oCBZU2ViR0mDL5555BaPu29rXupHh72M4=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=Xw/wzzxFoJzqgkrmVz3/8prD9U8W2m/3Mf/184NLppo=;
-        b=dGJhRNSjQLuvH4ToFZbifx07rReYtug19z2HMF/2wGPZH/8K7QDp0HBU/ZFjmKyDB9
-         m86pg+8MAkaCn6iU3rG2TGB7C/Gxxob6cmoWcdq0Sy33RoGtncBYu6HbomG0m7fSPoED
-         da+4h2j9XCBNAK7ZYfU6dI0fVZYKUna9vfpPJmZmK62GTrTIy0XpKZUZIXE6H3hqoBzz
-         XWnLI3FGiDJ0p/cv+/f3zK6tGdYn97/uFSuQEma+oZ8+8jl322MbdfWg3UJb8Im9r+Q2
-         2McdRQDtNApecvjMjeGLhYn3LsDnnAPUVQ9HzmODSnCe1CKRMo/iJtYRQ64vVzqBaQcW
-         oOew==
-X-Gm-Message-State: ACrzQf2Ec3BJUugXyARhMSMXXEeZ04KZ2mJOWLGHauOsz8jkxbYHMco3
-        ox9cMX70876GT+y6PfWfz8uc3g==
-X-Google-Smtp-Source: AMsMyM4ljqNx0GL1dsL74zLjNrunF0bMqLw9FWYYVocr30rKCBDBlDCMdXmpCglMMS0tYqGELyXo4w==
-X-Received: by 2002:a17:902:7297:b0:17f:93b5:5ecc with SMTP id d23-20020a170902729700b0017f93b55eccmr14228010pll.93.1666279807019;
-        Thu, 20 Oct 2022 08:30:07 -0700 (PDT)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vtWFlgHeVLIcgszEX3flHZnMq+ff54nK2nEe6Uwrz/o=;
+        b=Jbrm5aJh5fpfCCJXn3boREIzPoBYFHbJu7q/RM5DD9QuFInD+KXKSJbjLMGtTHrAKg
+         A1j2pnGIpHUq2lMRlG3+0UB/0WtSuFicW/zpMm7s7xk9JZCiG5Cb0QYoWc9AxYoizEuf
+         jwIZnbWjx8ZC8BS7D+lfMhu5ltoEgWatM2XGKTN9/Soa6KFfK9NYYUj/pnT/XV3Lt7FL
+         j2sBOnMiMdnumAgLDtuPcX/avIy+tlVHRj7150WEB2N1A9ubuGWHFCWaq702Cfdgy43k
+         goAePKYJ1o+o3sE2GnONU9kiLhc69nL8bypiakNaC03GLCzKuxYR1HCwZ+bV+juBfN4C
+         v0+A==
+X-Gm-Message-State: ACrzQf1UVNF6PQsQ1HhYo1Br+i/An93p4gZXFhj0dwSynzEWaNr0GeIq
+        SsjU1W9vFv1HkYDhYgJwL8tfxyn6xPhEsMF4cK8=
+X-Google-Smtp-Source: AMsMyM6KWPhkYRlTgssiPrJgt9Pbxfw7BMQgVS5CkT763o2nXVUzgkyW71nyKSuz+v4ZZIXI4//Vvg==
+X-Received: by 2002:a17:90b:2247:b0:20d:a2be:95ae with SMTP id hk7-20020a17090b224700b0020da2be95aemr46792148pjb.244.1666279811633;
+        Thu, 20 Oct 2022 08:30:11 -0700 (PDT)
 Received: from roguebox.lan ([164.92.70.235])
-        by smtp.gmail.com with ESMTPSA id y16-20020a17090264d000b0016c50179b1esm12965573pli.152.2022.10.20.08.30.04
+        by smtp.gmail.com with ESMTPSA id y16-20020a17090264d000b0016c50179b1esm12965573pli.152.2022.10.20.08.30.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Oct 2022 08:30:06 -0700 (PDT)
+        Thu, 20 Oct 2022 08:30:11 -0700 (PDT)
 From:   Matt Ranostay <matt.ranostay@konsulko.com>
 To:     jikos@kernel.org, jic23@kernel.org
 Cc:     linux-input@vger.kernel.org,
         Matt Ranostay <matt.ranostay@konsulko.com>
-Subject: [PATCH 0/2]  HID: mcp2221: fixes related to IIO additions
-Date:   Thu, 20 Oct 2022 23:29:58 +0800
-Message-Id: <20221020153000.30874-1-matt.ranostay@konsulko.com>
+Subject: [PATCH 2/2] HID: mcp2221: correct undefined references when CONFIG_GPIOLIB isn't defined
+Date:   Thu, 20 Oct 2022 23:30:00 +0800
+Message-Id: <20221020153000.30874-3-matt.ranostay@konsulko.com>
 X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221020153000.30874-1-matt.ranostay@konsulko.com>
+References: <20221020153000.30874-1-matt.ranostay@konsulko.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series resolves sparse warnings, and undefined references errors when
-GPIOLIB isn't enabled.
+Singular #ifdef IS_REACHABLE(CONFIG_GPIOLIB) weren't covering all the
+gpiolib functions that were being referenced.
 
-Matt Ranostay (2):
-  HID: mcp2221: fix 'cast to restricted __le16' sparse warnings
-  HID: mcp2221: correct undefined references when CONFIG_GPIOLIB isn't
-    defined
+Update the code regions that are commented out when CONFIG_GPIOLIB isn't
+enabled to avoid errors.
 
- drivers/hid/hid-mcp2221.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+Fixes: 960f9df7c620 ("HID: mcp2221: add ADC/DAC support via iio subsystem")
+Signed-off-by: Matt Ranostay <matt.ranostay@konsulko.com>
+---
+ drivers/hid/hid-mcp2221.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index 3014932c8cef..5886543b17f3 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -585,6 +585,7 @@ static const struct i2c_algorithm mcp_i2c_algo = {
+ 	.functionality = mcp_i2c_func,
+ };
+ 
++#if IS_REACHABLE(CONFIG_GPIOLIB)
+ static int mcp_gpio_get(struct gpio_chip *gc,
+ 				unsigned int offset)
+ {
+@@ -688,6 +689,7 @@ static int mcp_gpio_get_direction(struct gpio_chip *gc,
+ 
+ 	return GPIO_LINE_DIRECTION_OUT;
+ }
++#endif
+ 
+ /* Gives current state of i2c engine inside mcp2221 */
+ static int mcp_get_i2c_eng_state(struct mcp2221 *mcp,
+@@ -1153,6 +1155,7 @@ static int mcp2221_probe(struct hid_device *hdev,
+ 	}
+ 	i2c_set_adapdata(&mcp->adapter, mcp);
+ 
++#if IS_REACHABLE(CONFIG_GPIOLIB)
+ 	/* Setup GPIO chip */
+ 	mcp->gc = devm_kzalloc(&hdev->dev, sizeof(*mcp->gc), GFP_KERNEL);
+ 	if (!mcp->gc)
+@@ -1169,7 +1172,6 @@ static int mcp2221_probe(struct hid_device *hdev,
+ 	mcp->gc->can_sleep = 1;
+ 	mcp->gc->parent = &hdev->dev;
+ 
+-#if IS_REACHABLE(CONFIG_GPIOLIB)
+ 	ret = devm_gpiochip_add_data(&hdev->dev, mcp->gc, mcp);
+ 	if (ret)
+ 		return ret;
 -- 
 2.30.2
 

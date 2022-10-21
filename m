@@ -2,61 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00537C4167B
-	for <linux-input@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0C69C4167E
+	for <linux-input@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231134AbiJUJJD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 21 Oct 2022 05:09:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35596 "EHLO
+        id S231182AbiJUJJE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 21 Oct 2022 05:09:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231149AbiJUJI7 (ORCPT
+        with ESMTP id S230513AbiJUJIz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Oct 2022 05:08:59 -0400
-Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521521A3E1B
-        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:08:56 -0700 (PDT)
-Received: by mail-wr1-x430.google.com with SMTP id bk15so3761177wrb.13
-        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:08:55 -0700 (PDT)
+        Fri, 21 Oct 2022 05:08:55 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B3B61A3E07
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id 186-20020a1c02c3000000b003c6c154d528so4530582wmc.4
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=+bmpdylSa1sCy8CqzpRBiwfPofyXUjj2ucEcBN7svr0=;
-        b=p8sK2G9D3ocfVsbCOVy+pUyyryGnPjWOUTja0RQ3u4t+E18YB3GqWBcdGEetM9uIgR
-         jCmBS8IAfwMfHpUylIPDelF0weXl/Km68WCibqLaeZ+CVNVuyIAmRLbtQS4BTwUlD/zR
-         kdBhVEmqc4bTfQF4jdvr30rlsBQ7HaIwMJGmWnbzvtqjfyi+K8KTAvWcn04WcizUFfpe
-         g9OxR2WlB/JYIsAIv+/FRGyfFcxJPXrhzJ+F5eT3C2k1E55dXTV7QeYSZefO7beEm8w5
-         TscpJOmuuLVZI35QJCGCBPM3Sul+R5TC7BZCj702RYsFNdyAKLz0bABIUzPZlteX8zAL
-         KGvg==
+        bh=vd4kM4iLHeRkVbVm5qnb83YtTvz+Uiv2cMXrmKRaEkw=;
+        b=SkJyUMFNsDqLAGyKgQ/sjrrSN+HLQd++XI8/ZkHMxItPDlUVR3ajA3bDGOEeBG0To2
+         bV0KHxEzKcpC6gOXrRVW7tDgpBCU0eLP8BKBZoqDI62swfKN8OxClVHRkDdrHmi/fD6U
+         eH5wyzyZDgZFIkAzLABhNvmxYrGJvdcBQjVVs+hnyZfrCN3DuIGY9AzT4qWzv8m/jsDa
+         JeeKsVSYqWUvMBE6FbW4NxfNLFPyCoQArt9YpLX4WfrBNLp47w882R5pQJfLUDE9mVRl
+         CtCxtuYRK+5NAsfJSKDgT2f42xn4cNWAUK3LFd2IJEnJhvPhq8MqITYyWCwQxkWKYX4E
+         Hcfw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+bmpdylSa1sCy8CqzpRBiwfPofyXUjj2ucEcBN7svr0=;
-        b=2AmcgEPcNLrhntIJ42prZypUYK5Vx5Juv81CtOKBBv16gNxDV2+cuhHypXbL7rabwM
-         T2oUIL09SHfEr1ct43RUVPTAXdUFKw09HVQu5/upDfcAMv5i2DPuCluD0wOrjkg643b1
-         F7XxaAIH/77wp53EewQfnbU7nKf2fJ7yM6wXxYV4SimVbKYA0T5Pb8WPq+GYq+kO+v9C
-         SbYmkrXaBRSDk9NMj9BMldBsopZbLxMD6Xy8UMdX1yO6hySzn/DQEV7nLV7ApSRloLz/
-         XhuqYqKeu05OWg3T7rZ83pzuUTVJQCpf7P5yPql/+y6xkPVItq58WsD9diV7ezdoOYn8
-         eCcw==
-X-Gm-Message-State: ACrzQf0ek3HAoCf5TN5MsvpaakoabwToIfSacQZbvcMeDxfeWbsUp20e
-        hddu70IXGze7/xJAxpva7PO0Yw==
-X-Google-Smtp-Source: AMsMyM6t/CCsb0Stm67+bgDD4Gv/5fYYhC5J2XpPUaLomRSmuSCCbQe3bYxY+Ii3rM+5pLRcJ52eCA==
-X-Received: by 2002:adf:fc10:0:b0:22e:55e5:9bb5 with SMTP id i16-20020adffc10000000b0022e55e59bb5mr11487698wrr.112.1666343334296;
-        Fri, 21 Oct 2022 02:08:54 -0700 (PDT)
+        bh=vd4kM4iLHeRkVbVm5qnb83YtTvz+Uiv2cMXrmKRaEkw=;
+        b=zuLM0KtHj2E6m8MEST2oZYUcBdbdIqGrPI+ALTYMx3hz/jgGCaEh/S/7R5rJIwycQ8
+         +U0hrS9FCsCjLPUg4SmrQgDI9XP9gCLywG56MoWZAgzx9rXk50hJfolqiiqt8QKhiy3f
+         jTmYPM5K+xmhtz0OvF4Y5XZ1Xl2ioCyvC0VZBUQbdjCYADGSlnIO/bNlsWyKiK5nM94A
+         ZnZoipeviZh6DSZ6ZRXTKk4zJJDJTM4hrO/OkUO8hGy1jYI8l4fb5VG4C0HyDQK5YuBw
+         06ysP+ghaXvTQgyX0/V+NzZs7xAzjGq2JPj5LyIu6lakRIOuSxOdnesYgmalHypkB4kr
+         rVHw==
+X-Gm-Message-State: ACrzQf0fWIyoaRrT/HxJY9Zl/sDyz7Wy9ueFDzy1K8+Fj+BON4/MOSsT
+        Woh+L6EfXU6mpQPDxT1p5GuTIg==
+X-Google-Smtp-Source: AMsMyM6W4Tv1zSV3ApzexTkV6ChDGf/w4gpuwGXWRHVoNE1V5yDCRebZT8BJEY22Jci730jRA/peRw==
+X-Received: by 2002:a05:600c:502c:b0:3c6:f5ff:e089 with SMTP id n44-20020a05600c502c00b003c6f5ffe089mr12156663wmr.108.1666343331390;
+        Fri, 21 Oct 2022 02:08:51 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.53
+        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
+        Fri, 21 Oct 2022 02:08:51 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Fri, 21 Oct 2022 11:06:42 +0200
-Subject: [PATCH v4 06/11] dt-bindings: input: qcom,pm8921-pwrkey: convert to dt-schema
+Date:   Fri, 21 Oct 2022 11:06:39 +0200
+Subject: [PATCH v4 03/11] arm: dts: qcom: mdm9615: add missing reg in cpu@0 node
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-6-dac2dfaac703@linaro.org>
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-3-dac2dfaac703@linaro.org>
 References: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
 In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
 To:     Bjorn Andersson <andersson@kernel.org>,
@@ -81,150 +81,26 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert input/qcom,pm8xxx-pwrkey.txt to YAML, and take in account that
-the PM8921 pwrkey compatible is used as fallback for the PM8018 pwrkey.
+Fixes cpu@0: 'reg' is a required property from dtbs check.
 
-Reviewed-by: Rob Herring <robh@kernel.org>
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- .../bindings/input/qcom,pm8921-pwrkey.yaml         | 75 ++++++++++++++++++++++
- .../bindings/input/qcom,pm8xxx-pwrkey.txt          | 46 -------------
- 2 files changed, 75 insertions(+), 46 deletions(-)
+ arch/arm/boot/dts/qcom-mdm9615.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml b/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml
-new file mode 100644
-index 000000000000..12c74c083258
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml
-@@ -0,0 +1,75 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/qcom,pm8921-pwrkey.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Qualcomm PM8921 PMIC Power Key
-+
-+maintainers:
-+  - Bjorn Andersson <andersson@kernel.org>
-+
-+allOf:
-+  - $ref: input.yaml#
-+
-+properties:
-+  compatible:
-+    oneOf:
-+      - enum:
-+          - qcom,pm8921-pwrkey
-+          - qcom,pm8058-pwrkey
-+      - items:
-+          - enum:
-+              - qcom,pm8018-pwrkey
-+          - const: qcom,pm8921-pwrkey
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    items:
-+      - description: key release
-+      - description: key press
-+
-+  debounce:
-+    description:
-+      Time in microseconds that key must be pressed or
-+      released for state change interrupt to trigger.
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+
-+  pull-up:
-+    description:
-+      Presence of this property indicates that the KPDPWR_N
-+      pin should be configured for pull up.
-+    $ref: /schemas/types.yaml#/definitions/flag
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+   #include <dt-bindings/interrupt-controller/irq.h>
-+   ssbi {
-+     #address-cells = <1>;
-+     #size-cells = <0>;
-+
-+     pmic@0 {
-+       reg = <0x0>;
-+       #address-cells = <1>;
-+       #size-cells = <0>;
-+
-+       pwrkey@1c {
-+         compatible = "qcom,pm8921-pwrkey";
-+         reg = <0x1c>;
-+         interrupt-parent = <&pmicint>;
-+         interrupts = <50 IRQ_TYPE_EDGE_RISING>, <51 IRQ_TYPE_EDGE_RISING>;
-+         debounce = <15625>;
-+         pull-up;
-+       };
-+     };
-+   };
-+...
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-deleted file mode 100644
-index 588536cc96ed..000000000000
---- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
-+++ /dev/null
-@@ -1,46 +0,0 @@
--Qualcomm PM8xxx PMIC Power Key
--
--PROPERTIES
--
--- compatible:
--	Usage: required
--	Value type: <string>
--	Definition: must be one of:
--		    "qcom,pm8058-pwrkey"
--		    "qcom,pm8921-pwrkey"
--
--- reg:
--	Usage: required
--	Value type: <prop-encoded-array>
--	Definition: address of power key control register
--
--- interrupts:
--	Usage: required
--	Value type: <prop-encoded-array>
--	Definition: the first interrupt specifies the key release interrupt
--		    and the second interrupt specifies the key press interrupt.
--		    The format of the specifier is defined by the binding
--		    document describing the node's interrupt parent.
--
--- debounce:
--	Usage: optional
--	Value type: <u32>
--	Definition: time in microseconds that key must be pressed or release
--		    for state change interrupt to trigger.
--
--- pull-up:
--	Usage: optional
--	Value type: <empty>
--	Definition: presence of this property indicates that the KPDPWR_N pin
--		    should be configured for pull up.
--
--EXAMPLE
--
--	pwrkey@1c {
--		compatible = "qcom,pm8921-pwrkey";
--		reg = <0x1c>;
--		interrupt-parent = <&pmicintc>;
--		interrupts = <50 1>, <51 1>;
--		debounce = <15625>;
--		pull-up;
--	};
+diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+index de36e4545e75..eaa3236f62db 100644
+--- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
++++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
+@@ -27,6 +27,7 @@ cpus {
+ 
+ 		cpu0: cpu@0 {
+ 			compatible = "arm,cortex-a5";
++			reg = <0>;
+ 			device_type = "cpu";
+ 			next-level-cache = <&L2>;
+ 		};
 
 -- 
 b4 0.10.1

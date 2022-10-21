@@ -2,62 +2,62 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A4B0C3A5A1
-	for <linux-input@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 065CAC4167B
+	for <linux-input@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231132AbiJUJJN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S229882AbiJUJJN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Fri, 21 Oct 2022 05:09:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35586 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231128AbiJUJI5 (ORCPT
+        with ESMTP id S231194AbiJUJJG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Oct 2022 05:08:57 -0400
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 485501A3E0F
-        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:08:54 -0700 (PDT)
-Received: by mail-wr1-x434.google.com with SMTP id n12so3771406wrp.10
-        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:08:54 -0700 (PDT)
+        Fri, 21 Oct 2022 05:09:06 -0400
+Received: from mail-wr1-x42d.google.com (mail-wr1-x42d.google.com [IPv6:2a00:1450:4864:20::42d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55BEE1A3E08
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:09:00 -0700 (PDT)
+Received: by mail-wr1-x42d.google.com with SMTP id v1so3787249wrt.11
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:09:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=jKPmuyWzuvi/ZRN3fqLVs1CIkyhJEvTnfd6fDEo2uxM=;
-        b=iUmxD397xmDG1Eo1uMteRzyuqdf8LQdNEDCWpQ974QtzaBvQTlMv/JE9fg04xNV8K4
-         Hz/+/FILe55oW02X7cTImwfyc6tE9uuiaYR15cmkOO+m0onc9uyHNPJMnzYfIu7d9FK7
-         VWABlPmLHxVvGWZYS7ZC9NNawrK0NUMi5QgShN3wDGAYVUdIpuO0laO129b0iO0s7ZSj
-         EvJDmDkqE+5dcKAgz9UehTa26B4eFKCjGqaU8bLU1S2BLRLLVLNjPjmmrrRAdZ2rIjGs
-         W1u01KXsS0RWZ94GOsW2h6/6EdcaQNCZJ4EtpGjVLXwGGdITdEADNtiU9qachSYkAFSq
-         6eOg==
+        bh=CyWYYyXZ9YYnbw9nEI1oSUAVddSBrod4dJsXHXySnM4=;
+        b=zVpaKKrmBTCzHmbZ7qra04yPk4E85uPIphnT+3SQwEc/selYL30bjCWDFKS/Fsi8Zj
+         b8k62vmd80/1dMEIQcAeyQr4HxhRYXHPhi+UeTIPq3Ez7er2NBDh4dANVqLJpi26UFf/
+         +bzmB2uzmn0ayoO2jMztEEOhAS0aCEqswG93ow2T17PBlZWxiVs4Knityp9CW6zFQKod
+         inkoO9jmFA2kTaspWBVnd82pmIJCZKRC4HNhB8X2L7DHXhgB32Mi4HB2SzO8xIijnWwZ
+         BFJKpsxefyHk+K3qsvU+ha9aD+Uzw1+76Z/JATATm2WTcVgwwdA0waSDKmlBcK0tx1Cg
+         qpbg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jKPmuyWzuvi/ZRN3fqLVs1CIkyhJEvTnfd6fDEo2uxM=;
-        b=fpu90tdTkT94POBCYjYRiIxwu/0BAexna35LOEtXyzHxTe2/JgLhYERyaUkIBaGHTX
-         k3ceBE7m+qzkB5MrYC39Yy8xf659QhZV0oTVdTa8IrVesEZahmjG6mUrrZ9IZ1UcCaFc
-         93E2r8VDrouuakHMy3YG5PRFNTsHsKc8jNyETHOZVoeXFNhs8Im3Lwb271g0efE0cyWz
-         UGj55b0S1h/ywgwerGqwRmjiGlck3ERpqzb375moGVDT6SvNdzvx3CWlS279GVu7rIS6
-         lio2XNQuKrfhZONkoUXYf3OGweFubRjK0sSIDecC+qHdLSQxBOOS02pPC2Px0rlEKSys
-         upRQ==
-X-Gm-Message-State: ACrzQf3FCfb0DWVyd1j9KHW+s9w5Y6tvttop5N2ChB8n9WeqD5ou7Dgy
-        QsLPbVcBHe8RdXtHHc7iIiGOJA==
-X-Google-Smtp-Source: AMsMyM6hvkR8ZNGe9uXbeUSSSOWi0dr8iirT5WKTZh7kAukcQglkFKbgy+kf+H+fXMxbl1ZmRpzQXA==
-X-Received: by 2002:adf:f447:0:b0:236:5840:1c72 with SMTP id f7-20020adff447000000b0023658401c72mr82639wrp.686.1666343332348;
-        Fri, 21 Oct 2022 02:08:52 -0700 (PDT)
+        bh=CyWYYyXZ9YYnbw9nEI1oSUAVddSBrod4dJsXHXySnM4=;
+        b=azhdkn+yUxxxOs2q08mwnARbpw3Cc40xZC++3SA22QDD49EuAhjNUHiOTo3FN+YK8F
+         BeIMMkqsnl5D5IIpjQbetawaG6FNDFWPSCp05cGdWmzSQRDKToekt9Pd7Vf+agpOP1C4
+         N8I+crQ3ZWFUH6rEwnDKJLr10VO3KLTRJhVG7CJSvfI9z+AF0KXaT7xr9NK3RhxUcBzE
+         XRsW6BNxNYX+0izn7mNoYOGuMf6waXB46O6q2/UZap70/W5DpQ020cOS0Zd2eZQSEJgt
+         Tsv4cq46V1CXdCn4UbVgtJbFdZ6aE09hrsVDN7IcYC/e8xVISsqAMuNkPQyb1PO/bUoR
+         pr3A==
+X-Gm-Message-State: ACrzQf3tY4/VQmPqR0FhZVQ23FpM9WyejDKVKIn45kVsKNEjAHiRM9Jy
+        RN8SBnJQJRfzPuRc1E5ggIUS/g==
+X-Google-Smtp-Source: AMsMyM7ioCHIMym+8Lhdwt5hnOFZoiqNCtHBJubLwYlaemy1/k5E1lFyNOcos7zW+PfczzATD57fDA==
+X-Received: by 2002:a5d:6d0a:0:b0:22e:3f3a:5cdf with SMTP id e10-20020a5d6d0a000000b0022e3f3a5cdfmr10949674wrq.156.1666343338301;
+        Fri, 21 Oct 2022 02:08:58 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.51
+        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Oct 2022 02:08:52 -0700 (PDT)
+        Fri, 21 Oct 2022 02:08:58 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Fri, 21 Oct 2022 11:06:40 +0200
-Subject: [PATCH v4 04/11] arm: dts: qcom: mdm9615: remove invalid spi-max-frequency
- gsbi3_spi node
+Date:   Fri, 21 Oct 2022 11:06:46 +0200
+Subject: [PATCH v4 10/11] arm: dts: qcom: mdm9615: remove invalid interrupt-names from
+ pl18x mmc nodes
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-4-dac2dfaac703@linaro.org>
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-10-dac2dfaac703@linaro.org>
 References: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
 In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
 To:     Bjorn Andersson <andersson@kernel.org>,
@@ -82,27 +82,33 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The spi-max-frequency property has nothing to do in the controller's node,
-remove it and fix the 'spi-max-frequency' was unexpected dtbs check error.
+This solves the 'interrupt-names' was unexpected dtbs check error.
 
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 ---
- arch/arm/boot/dts/qcom-mdm9615.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ arch/arm/boot/dts/qcom-mdm9615.dtsi | 2 --
+ 1 file changed, 2 deletions(-)
 
 diff --git a/arch/arm/boot/dts/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-index eaa3236f62db..366241dee522 100644
+index 366241dee522..9d950f96280d 100644
 --- a/arch/arm/boot/dts/qcom-mdm9615.dtsi
 +++ b/arch/arm/boot/dts/qcom-mdm9615.dtsi
-@@ -170,7 +170,6 @@ gsbi3_spi: spi@16280000 {
- 				#size-cells = <0>;
- 				reg = <0x16280000 0x1000>;
- 				interrupts = <GIC_SPI 151 IRQ_TYPE_LEVEL_HIGH>;
--				spi-max-frequency = <24000000>;
- 
- 				clocks = <&gcc GSBI3_QUP_CLK>, <&gcc GSBI3_H_CLK>;
- 				clock-names = "core", "iface";
+@@ -325,7 +325,6 @@ sdcc1: mmc@12180000 {
+ 				arm,primecell-periphid = <0x00051180>;
+ 				reg = <0x12180000 0x2000>;
+ 				interrupts = <GIC_SPI 104 IRQ_TYPE_LEVEL_HIGH>;
+-				interrupt-names = "cmd_irq";
+ 				clocks = <&gcc SDC1_CLK>, <&gcc SDC1_H_CLK>;
+ 				clock-names = "mclk", "apb_pclk";
+ 				bus-width = <8>;
+@@ -345,7 +344,6 @@ sdcc2: mmc@12140000 {
+ 				status = "disabled";
+ 				reg = <0x12140000 0x2000>;
+ 				interrupts = <GIC_SPI 103 IRQ_TYPE_LEVEL_HIGH>;
+-				interrupt-names = "cmd_irq";
+ 				clocks = <&gcc SDC2_CLK>, <&gcc SDC2_H_CLK>;
+ 				clock-names = "mclk", "apb_pclk";
+ 				bus-width = <4>;
 
 -- 
 b4 0.10.1

@@ -2,61 +2,229 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10D69C433FE
-	for <linux-input@archiver.kernel.org>; Fri, 21 Oct 2022 08:57:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00537C4167B
+	for <linux-input@archiver.kernel.org>; Fri, 21 Oct 2022 09:09:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230389AbiJUI5k (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 21 Oct 2022 04:57:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33198 "EHLO
+        id S231134AbiJUJJD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 21 Oct 2022 05:09:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230392AbiJUI5i (ORCPT
+        with ESMTP id S231149AbiJUJI7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 21 Oct 2022 04:57:38 -0400
-Received: from out30-131.freemail.mail.aliyun.com (out30-131.freemail.mail.aliyun.com [115.124.30.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8B62250EC0;
-        Fri, 21 Oct 2022 01:57:35 -0700 (PDT)
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R741e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=ay29a033018046049;MF=yang.lee@linux.alibaba.com;NM=1;PH=DS;RN=8;SR=0;TI=SMTPD_---0VSikoqm_1666342652;
-Received: from localhost(mailfrom:yang.lee@linux.alibaba.com fp:SMTPD_---0VSikoqm_1666342652)
-          by smtp.aliyun-inc.com;
-          Fri, 21 Oct 2022 16:57:33 +0800
-From:   Yang Li <yang.lee@linux.alibaba.com>
-To:     gupt21@gmail.com
-Cc:     jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>
-Subject: [PATCH -next RESEND] HID: mcp2221: Remove unneeded semicolon
-Date:   Fri, 21 Oct 2022 16:57:27 +0800
-Message-Id: <20221021085727.118133-1-yang.lee@linux.alibaba.com>
-X-Mailer: git-send-email 2.20.1.7.g153144c
+        Fri, 21 Oct 2022 05:08:59 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521521A3E1B
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:08:56 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id bk15so3761177wrb.13
+        for <linux-input@vger.kernel.org>; Fri, 21 Oct 2022 02:08:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+bmpdylSa1sCy8CqzpRBiwfPofyXUjj2ucEcBN7svr0=;
+        b=p8sK2G9D3ocfVsbCOVy+pUyyryGnPjWOUTja0RQ3u4t+E18YB3GqWBcdGEetM9uIgR
+         jCmBS8IAfwMfHpUylIPDelF0weXl/Km68WCibqLaeZ+CVNVuyIAmRLbtQS4BTwUlD/zR
+         kdBhVEmqc4bTfQF4jdvr30rlsBQ7HaIwMJGmWnbzvtqjfyi+K8KTAvWcn04WcizUFfpe
+         g9OxR2WlB/JYIsAIv+/FRGyfFcxJPXrhzJ+F5eT3C2k1E55dXTV7QeYSZefO7beEm8w5
+         TscpJOmuuLVZI35QJCGCBPM3Sul+R5TC7BZCj702RYsFNdyAKLz0bABIUzPZlteX8zAL
+         KGvg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+bmpdylSa1sCy8CqzpRBiwfPofyXUjj2ucEcBN7svr0=;
+        b=2AmcgEPcNLrhntIJ42prZypUYK5Vx5Juv81CtOKBBv16gNxDV2+cuhHypXbL7rabwM
+         T2oUIL09SHfEr1ct43RUVPTAXdUFKw09HVQu5/upDfcAMv5i2DPuCluD0wOrjkg643b1
+         F7XxaAIH/77wp53EewQfnbU7nKf2fJ7yM6wXxYV4SimVbKYA0T5Pb8WPq+GYq+kO+v9C
+         SbYmkrXaBRSDk9NMj9BMldBsopZbLxMD6Xy8UMdX1yO6hySzn/DQEV7nLV7ApSRloLz/
+         XhuqYqKeu05OWg3T7rZ83pzuUTVJQCpf7P5yPql/+y6xkPVItq58WsD9diV7ezdoOYn8
+         eCcw==
+X-Gm-Message-State: ACrzQf0ek3HAoCf5TN5MsvpaakoabwToIfSacQZbvcMeDxfeWbsUp20e
+        hddu70IXGze7/xJAxpva7PO0Yw==
+X-Google-Smtp-Source: AMsMyM6t/CCsb0Stm67+bgDD4Gv/5fYYhC5J2XpPUaLomRSmuSCCbQe3bYxY+Ii3rM+5pLRcJ52eCA==
+X-Received: by 2002:adf:fc10:0:b0:22e:55e5:9bb5 with SMTP id i16-20020adffc10000000b0022e55e59bb5mr11487698wrr.112.1666343334296;
+        Fri, 21 Oct 2022 02:08:54 -0700 (PDT)
+Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
+        by smtp.gmail.com with ESMTPSA id v10-20020a05600c444a00b003c6f27d275dsm2230286wmn.33.2022.10.21.02.08.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 Oct 2022 02:08:53 -0700 (PDT)
+From:   Neil Armstrong <neil.armstrong@linaro.org>
+Date:   Fri, 21 Oct 2022 11:06:42 +0200
+Subject: [PATCH v4 06/11] dt-bindings: input: qcom,pm8921-pwrkey: convert to dt-schema
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Message-Id: <20220928-mdm9615-dt-schema-fixes-v4-6-dac2dfaac703@linaro.org>
+References: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
+In-Reply-To: <20220928-mdm9615-dt-schema-fixes-v4-0-dac2dfaac703@linaro.org>
+To:     Bjorn Andersson <andersson@kernel.org>,
+        Satya Priya <quic_c_skakit@quicinc.com>,
+        Lee Jones <lee@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Andy Gross <agross@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>
+Cc:     Bjorn Andersson <andersson@kernel.org>,
+        linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        devicetree@vger.kernel.org,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Rob Herring <robh@kernel.org>, linux-rtc@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+X-Mailer: b4 0.10.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-./drivers/hid/hid-mcp2221.c:1019:3-4: Unneeded semicolon
+Convert input/qcom,pm8xxx-pwrkey.txt to YAML, and take in account that
+the PM8921 pwrkey compatible is used as fallback for the PM8018 pwrkey.
 
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=2485
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- drivers/hid/hid-mcp2221.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../bindings/input/qcom,pm8921-pwrkey.yaml         | 75 ++++++++++++++++++++++
+ .../bindings/input/qcom,pm8xxx-pwrkey.txt          | 46 -------------
+ 2 files changed, 75 insertions(+), 46 deletions(-)
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index b3eaf170f0ec..9287730aab27 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -1019,7 +1019,7 @@ static int mcp_iio_channels(struct mcp2221 *mcp)
- 			break;
- 		default:
- 			continue;
--		};
-+		}
- 
- 		chan->type = IIO_VOLTAGE;
- 		chan->indexed = 1;
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml b/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml
+new file mode 100644
+index 000000000000..12c74c083258
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/qcom,pm8921-pwrkey.yaml
+@@ -0,0 +1,75 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/qcom,pm8921-pwrkey.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Qualcomm PM8921 PMIC Power Key
++
++maintainers:
++  - Bjorn Andersson <andersson@kernel.org>
++
++allOf:
++  - $ref: input.yaml#
++
++properties:
++  compatible:
++    oneOf:
++      - enum:
++          - qcom,pm8921-pwrkey
++          - qcom,pm8058-pwrkey
++      - items:
++          - enum:
++              - qcom,pm8018-pwrkey
++          - const: qcom,pm8921-pwrkey
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    items:
++      - description: key release
++      - description: key press
++
++  debounce:
++    description:
++      Time in microseconds that key must be pressed or
++      released for state change interrupt to trigger.
++    $ref: /schemas/types.yaml#/definitions/uint32
++
++  pull-up:
++    description:
++      Presence of this property indicates that the KPDPWR_N
++      pin should be configured for pull up.
++    $ref: /schemas/types.yaml#/definitions/flag
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++   #include <dt-bindings/interrupt-controller/irq.h>
++   ssbi {
++     #address-cells = <1>;
++     #size-cells = <0>;
++
++     pmic@0 {
++       reg = <0x0>;
++       #address-cells = <1>;
++       #size-cells = <0>;
++
++       pwrkey@1c {
++         compatible = "qcom,pm8921-pwrkey";
++         reg = <0x1c>;
++         interrupt-parent = <&pmicint>;
++         interrupts = <50 IRQ_TYPE_EDGE_RISING>, <51 IRQ_TYPE_EDGE_RISING>;
++         debounce = <15625>;
++         pull-up;
++       };
++     };
++   };
++...
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
+deleted file mode 100644
+index 588536cc96ed..000000000000
+--- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-pwrkey.txt
++++ /dev/null
+@@ -1,46 +0,0 @@
+-Qualcomm PM8xxx PMIC Power Key
+-
+-PROPERTIES
+-
+-- compatible:
+-	Usage: required
+-	Value type: <string>
+-	Definition: must be one of:
+-		    "qcom,pm8058-pwrkey"
+-		    "qcom,pm8921-pwrkey"
+-
+-- reg:
+-	Usage: required
+-	Value type: <prop-encoded-array>
+-	Definition: address of power key control register
+-
+-- interrupts:
+-	Usage: required
+-	Value type: <prop-encoded-array>
+-	Definition: the first interrupt specifies the key release interrupt
+-		    and the second interrupt specifies the key press interrupt.
+-		    The format of the specifier is defined by the binding
+-		    document describing the node's interrupt parent.
+-
+-- debounce:
+-	Usage: optional
+-	Value type: <u32>
+-	Definition: time in microseconds that key must be pressed or release
+-		    for state change interrupt to trigger.
+-
+-- pull-up:
+-	Usage: optional
+-	Value type: <empty>
+-	Definition: presence of this property indicates that the KPDPWR_N pin
+-		    should be configured for pull up.
+-
+-EXAMPLE
+-
+-	pwrkey@1c {
+-		compatible = "qcom,pm8921-pwrkey";
+-		reg = <0x1c>;
+-		interrupt-parent = <&pmicintc>;
+-		interrupts = <50 1>, <51 1>;
+-		debounce = <15625>;
+-		pull-up;
+-	};
+
 -- 
-2.20.1.7.g153144c
-
+b4 0.10.1

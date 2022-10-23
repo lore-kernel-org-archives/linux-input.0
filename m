@@ -2,154 +2,67 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D82A7C3A59D
-	for <linux-input@archiver.kernel.org>; Sun, 23 Oct 2022 16:31:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D45ECECAAA1
+	for <linux-input@archiver.kernel.org>; Sun, 23 Oct 2022 16:34:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230385AbiJWQb0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 23 Oct 2022 12:31:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51748 "EHLO
+        id S229756AbiJWQeu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 23 Oct 2022 12:34:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230307AbiJWQbZ (ORCPT
+        with ESMTP id S230125AbiJWQes (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 23 Oct 2022 12:31:25 -0400
+        Sun, 23 Oct 2022 12:34:48 -0400
 Received: from mout-y-111.mailbox.org (mout-y-111.mailbox.org [IPv6:2001:67c:2050:103:465::111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B349721A3;
-        Sun, 23 Oct 2022 09:31:24 -0700 (PDT)
-Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A8F22B26;
+        Sun, 23 Oct 2022 09:34:42 -0700 (PDT)
+Received: from smtp102.mailbox.org (unknown [91.198.250.119])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
         (No client certificate requested)
-        by mout-y-111.mailbox.org (Postfix) with ESMTPS id 4MwNxj1Mkfz9sm5;
-        Sun, 23 Oct 2022 18:31:21 +0200 (CEST)
+        by mout-y-111.mailbox.org (Postfix) with ESMTPS id 4MwP1J3cHLz9sZZ;
+        Sun, 23 Oct 2022 18:34:28 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=noorman.info;
-        s=MBO0001; t=1666542681;
+        s=MBO0001; t=1666542868;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=gXQSD1zxa+oOUXSHuzmsAxjEkA9246ygmBiGCg/rylA=;
-        b=fp+KqnAOyTBRj5r2N4pwyBqXGfjDvm1DLFP3laoULODQeNq3gM4/z/mdwTgdHzSNuH6GQh
-        3lboxDtn6uzYUgvnMla9F43pngC9G2DXp8dCGojw4a959lVDSYxiDhReueCvv2RCmaLeXd
-        FCCzBDynwdBjxVqd8KztEcR/O/n/jbOE+4gx0rgdwFsdSRhuYCb3NtxlVsEe/iimawqLHg
-        oxuiU/Y7/9WELhXvsTaiQUjsvcfJPl7bmKVD6b+4SFZFpMVy7SdrAlSdhUr165ARxQfWoG
-        uBNpO2HE3hoKk7JbXOX1YJloefPOvuZCE2wvF9yua4pUE+zA3sZqTvHxS50iPg==
-From:   Job Noorman <job@noorman.info>
-To:     Job Noorman <job@noorman.info>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Cc:     Luca Weiss <luca@z3ntu.xyz>, Rob Herring <robh@kernel.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v5 1/3] dt-bindings: touchscreen: add Himax hx83112b bindings
-Date:   Sun, 23 Oct 2022 18:30:29 +0200
-Message-Id: <20221023163032.144150-2-job@noorman.info>
-In-Reply-To: <20221023163032.144150-1-job@noorman.info>
-References: <20221023163032.144150-1-job@noorman.info>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 4MwNxj1Mkfz9sm5
+        bh=VTlByM7X0a7TGoECHCtYIhOyKZuzkGCKgtZ/y3W75rs=;
+        b=oUU7bQEEbPDGCE41tFrPcWAUZbdxkQV2PhLsTAGe++RlpUCQr4jKPG93Bb4fZzo2Sm3ivk
+        oTuOaKO/JCpG0y3r6gz6bARdwtGmgHjuI+RPi6lYYk6zKMTbevzHoNSMb7Decz9rKsxAwm
+        fC9EcHMnoO8uOOj0UB6tVjVFTedCppszC6yq0h7e7AddcXJ3SPCMBj3hYdOcbvhvf2GFyl
+        68izRtfS4ChwUskCcmHnMVMahGYbsxM76rPxjsZsy9zo5afIdTcDMbTh4sqEhlfsRhdWUW
+        alkG20STwbjZs4RwuPLLbn1kpu3M8Af9FXRKkRB0oIj5UJRUCDEuLHyKK6tvSQ==
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date:   Sun, 23 Oct 2022 18:34:27 +0200
+Message-Id: <CNTG53X3S1UV.22Z2IAXN79SJA@ancom>
+Cc:     "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+        "Henrik Rydberg" <rydberg@bitmath.org>,
+        "Luca Weiss" <luca@z3ntu.xyz>, <linux-kernel@vger.kernel.org>,
+        <linux-input@vger.kernel.org>
+Subject: Re: [PATCH v4 2/3] Input: add driver for Himax hx83112b touchscreen
+ devices
+From:   "Job Noorman" <job@noorman.info>
+To:     "Jeff LaBundy" <jeff@labundy.com>
+References: <20221017100409.189293-1-job@noorman.info>
+ <20221017100409.189293-3-job@noorman.info> <Y1NwxQ5DbusemrFc@nixie71>
+In-Reply-To: <Y1NwxQ5DbusemrFc@nixie71>
+X-Rspamd-Queue-Id: 4MwP1J3cHLz9sZZ
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch adds device tree bindings for Himax 83112b touchscreen
-devices.
+Hi Jeff,
 
-Signed-off-by: Job Noorman <job@noorman.info>
-Reviewed-by: Rob Herring <robh@kernel.org>
----
- .../input/touchscreen/himax,hx83112b.yaml     | 63 +++++++++++++++++++
- MAINTAINERS                                   |  6 ++
- 2 files changed, 69 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
+On Sat Oct 22, 2022 at 6:25 AM CEST, Jeff LaBundy wrote:
+> Hi Job,
+>
+> Great work so far, just a few remaining comments.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml b/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
-new file mode 100644
-index 000000000000..be2ba185c086
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
-@@ -0,0 +1,63 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/himax,hx83112b.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Himax hx83112b touchscreen controller bindings
-+
-+maintainers:
-+  - Job Noorman <job@noorman.info>
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - himax,hx83112b
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+  touchscreen-inverted-x: true
-+  touchscreen-inverted-y: true
-+  touchscreen-size-x: true
-+  touchscreen-size-y: true
-+  touchscreen-swapped-x-y: true
-+
-+additionalProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+  - touchscreen-size-x
-+  - touchscreen-size-y
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+      touchscreen@48 {
-+        compatible = "himax,hx83112b";
-+        reg = <0x48>;
-+        interrupt-parent = <&tlmm>;
-+        interrupts = <65 IRQ_TYPE_LEVEL_LOW>;
-+        touchscreen-size-x = <1080>;
-+        touchscreen-size-y = <2160>;
-+        reset-gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
-+      };
-+    };
-+
-+...
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9ddcc242081c..2418bffe9187 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9094,6 +9094,12 @@ W:	http://www.highpoint-tech.com
- F:	Documentation/scsi/hptiop.rst
- F:	drivers/scsi/hptiop.c
- 
-+HIMAX HX83112B TOUCHSCREEN SUPPORT
-+M:	Job Noorman <job@noorman.info>
-+L:	linux-input@vger.kernel.org
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
-+
- HIPPI
- M:	Jes Sorensen <jes@trained-monkey.org>
- L:	linux-hippi@sunsite.dk
--- 
-2.38.1
+Thanks a lot for your second round of comments! Everything has been
+addressed in v5.
 
+Best regards,
+Job

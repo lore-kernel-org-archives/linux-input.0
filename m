@@ -2,111 +2,72 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D43AFA373E
-	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 14:50:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C941FA373D
+	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 14:59:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235410AbiJXOu5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Oct 2022 10:50:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33446 "EHLO
+        id S229588AbiJXO7a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Oct 2022 10:59:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231139AbiJXOui (ORCPT
+        with ESMTP id S231149AbiJXO6j (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Oct 2022 10:50:38 -0400
-Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4699D109D45;
-        Mon, 24 Oct 2022 06:28:13 -0700 (PDT)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 39C833200929;
-        Mon, 24 Oct 2022 09:02:29 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute3.internal (MEProxy); Mon, 24 Oct 2022 09:02:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1666616548; x=1666702948; bh=fnUx1p++KA
-        gQPiBJE68Mp5QTxMcFigBIoFmgz0FSbXg=; b=Ciftl+pnvzR/NkjC1/DqpZioet
-        mnNu0E4l+5B5n770Eka+AsL+NG9UmPQs+qyqA2ZBWqJ+Dj3pgiq48TNSrHK8Y00G
-        j9pND3I5ATMW4osmuiOo3MO2pojazrzNveyiTSMpJxZV1ABR0llIR/RDp9q+jhYJ
-        nZfr/R03qN1h4sDqh6YSWRvk9hBlAye8YkblCCxOQOox4dJfaca7aDmlgW5vxXOE
-        y/ZNkpWYYum/YVp0Q6e7VyxjCDmFtoadWL0DkFP9FRtj+WHfcgPvwOvYBtRXOSyq
-        sYuY1iLMGMy2+weG0qbv+iT8zD85+jEc2LAs38vu1H9FTCAE2NQB/pNnlj2g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; t=1666616548; x=1666702948; bh=fnUx1p++KAgQPiBJE68Mp5QTxMcF
-        igBIoFmgz0FSbXg=; b=HIpo0JS8spKcPxCx6vTiUvfI6jPkE2rb6B6ulpnKkEFl
-        tGqWSJV6LtM2znMrj8lziMf6SxqYZojDYy+XI7UjBDiIl3UYBBMEhTmZ+/nNciAC
-        U9qz59tXzdxVkfJ4ylHx4kRYQRHqd5zzHUMEsNw4i7tyitA7DpZKYqRzNsSjLK/N
-        6y4vifV5AFXDdcWLOZ4yCjjVOlnvNqqCYrYZcTvEQpEwXI1CLoW4wPEYfk8jekBE
-        /rlircUjRq5yi94BjKD7Fro9jGC3GekcTBhiJo6ia5BdspcPMtSCEnfF/0vVqqBF
-        aLYRR6m50F5dBOFixJeCSvbF/NfUD7RBB9EkTU9o/w==
-X-ME-Sender: <xms:44xWYwGcAcFGNJwxn-swI999BN6vmv1YzLwrVhBvg3kbnxMX6wrFIw>
-    <xme:44xWY5VuupZ59qDiHlR6FnEZiJiZsrFSBhG409gAIsjCbhaDoYNFwas4ag-F2EA4Q
-    P_c-_9TUFFkorRAkt4>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrgedtgedgheehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:44xWY6JLd8s5lkVR7mtvPK1NGJ6oUaz4YqP25rn05Evd7HF42aO2Qg>
-    <xmx:44xWYyEs-kkQDDpW1Vltbq1EQuyg2l-v2Zw6KTgvs4KhJtYPx8bFiQ>
-    <xmx:44xWY2U02svQNmG5lwDMe_lplRsbvj006jLf6f7LvvtoMsOh_eXc2A>
-    <xmx:5IxWYxHIIKjif0AqMcgy4jrMKZSSy2ObDXHVcpxf3QTNRkhcDXB2lA>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 876A9B6008D; Mon, 24 Oct 2022 09:02:27 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.7.0-alpha0-1047-g9e4af4ada4-fm-20221005.001-g9e4af4ad
-Mime-Version: 1.0
-Message-Id: <a074e9c5-7a1e-4b76-b75e-9f46d621ec0e@app.fastmail.com>
-In-Reply-To: <ce7c18ef-8619-1719-59e8-7983e4b0bdc1@linaro.org>
-References: <20221021202254.4142411-1-arnd@kernel.org>
- <20221021203329.4143397-17-arnd@kernel.org>
- <ce7c18ef-8619-1719-59e8-7983e4b0bdc1@linaro.org>
-Date:   Mon, 24 Oct 2022 15:02:07 +0200
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Krzysztof Kozlowski" <krzysztof.kozlowski@linaro.org>,
-        "Arnd Bergmann" <arnd@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
-        "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, "Ben Dooks" <ben-linux@fluff.org>,
-        "Simtec Linux Team" <linux@simtec.co.uk>,
-        "Alim Akhtar" <alim.akhtar@samsung.com>,
-        linux-input@vger.kernel.org, linux-samsung-soc@vger.kernel.org
-Subject: Re: [PATCH 17/21] input: remove s3c24xx touchscreen driver
-Content-Type: text/plain
+        Mon, 24 Oct 2022 10:58:39 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0F32127924;
+        Mon, 24 Oct 2022 06:35:52 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F343A6133A;
+        Mon, 24 Oct 2022 13:29:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4706FC433C1;
+        Mon, 24 Oct 2022 13:29:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666618149;
+        bh=U1pNoBuIsIrExwJDjLtiHnNqQQfx2eDzrYReKYQoZ6Q=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=mCMPRAzxB37qBXEUSaLJsoak5S6iq9Mj2xUcw969M8txWB28BGpykxaigbhh68y8A
+         n4wd8v64FHf9J4FxMYvcJSiItOyIJ5pDlv2Dc9Zo3AlErMZZdwGn71tyi+ZJhzpeV2
+         5HvGknqpCnE5hXtYS2+9kV3MFWUQxEbNBeHef27D/e3W7mta4+jre9pDzgL72eIshQ
+         FwnY4gcnMw7g0lXZFgDG/haRvnvNRN7A08nfqlbBd95FK9yXnWAsKy+TKwlYAgd99u
+         FjD8fohSJS3kSgQyjcrbkc7JnvyezPtO+8XrQz5nIqCC1InlxaDi/yn87Epw20S2LB
+         PrZZEIE7TzJGA==
+Date:   Mon, 24 Oct 2022 15:29:05 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Paulo Miguel Almeida <paulo.miguel.almeida.rodenas@gmail.com>
+cc:     "K. Y. Srinivasan" <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [next] HID: hyperv: remove unused struct synthhid_msg
+In-Reply-To: <Y1XjBjiE39bPNj1d@mail.google.com>
+Message-ID: <nycvar.YFH.7.76.2210241528550.29912@cbobk.fhfr.pm>
+References: <Y1XjBjiE39bPNj1d@mail.google.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Oct 24, 2022, at 14:50, Krzysztof Kozlowski wrote:
-> On 21/10/2022 16:27, Arnd Bergmann wrote:
->> From: Arnd Bergmann <arnd@arndb.de>
->> 
->> The s3c24xx SoC support and its adc driver was removed, so this driver
->> has no remaining users.
->> 
->> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
->> ---
->>  drivers/input/touchscreen/Kconfig      |  12 -
->>  drivers/input/touchscreen/Makefile     |   1 -
->>  drivers/input/touchscreen/s3c2410_ts.c | 464 -------------------------
->>  3 files changed, 477 deletions(-)
->
-> This also could be usable on S3C64xx, but it seems no one added any DT
-> nodes, so:
->
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+On Mon, 24 Oct 2022, Paulo Miguel Almeida wrote:
 
-Thanks. To clarify, the key bit here is the 'depends on S3C_ADC',
-and that driver in turn 'depends on !ARCH_MULTIPLATFORM' since
-2014. So even for the boardfile variant of s3c64xx, it was
-already impossible to use for a long time without anyone complaining
-or trying to fix it.
+> struct synthhid_msg was meant to be a generic representation of the
+> possible protocol messages sent through VMBus. In practice, only the
+> header is read and depending on the message type, a cast to the actual
+> type is done. Also, SYNTHHID_MAX_INPUT_REPORT_SIZE constant isn't used
+> which I suspect is a leftover from the refactoring made while this
+> driver was at the staging folder.
+> 
+> This patch removes struct synthhid_msg and refactor the code
+> accordingly.
 
-     Arnd
+Applied, thanks.
+
+-- 
+Jiri Kosina
+SUSE Labs
+

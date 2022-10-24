@@ -2,104 +2,76 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD9D3ECAAA1
-	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 15:00:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4A36C38A2D
+	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 15:16:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232116AbiJXPAF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Oct 2022 11:00:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59418 "EHLO
+        id S232406AbiJXPQG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Oct 2022 11:16:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231733AbiJXO7d (ORCPT
+        with ESMTP id S231699AbiJXPPo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Oct 2022 10:59:33 -0400
-Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352DA12FFB6;
-        Mon, 24 Oct 2022 06:36:51 -0700 (PDT)
-Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-13ba86b5ac0so3210614fac.1;
-        Mon, 24 Oct 2022 06:36:50 -0700 (PDT)
+        Mon, 24 Oct 2022 11:15:44 -0400
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C62721E29;
+        Mon, 24 Oct 2022 06:54:41 -0700 (PDT)
+Received: by mail-pj1-x1032.google.com with SMTP id u8-20020a17090a5e4800b002106dcdd4a0so13055780pji.1;
+        Mon, 24 Oct 2022 06:54:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=8lEhJhNYrJyVdV9ncTkj+ktV/kTdL2ObxQ9D4QNhvTU=;
+        b=bTuKS/c1mvo5li261XMFcNENZgJuwEYgzg97KVKYJ0dS21QtyKdjaTgOcWToSC8aO7
+         KZxWd2wUqwtWm8mkG9zQekHqUyMAhCsbSFptSGiaD+MyDkaAVCzwZcatk3pXuoqIYnN2
+         O9xk3RMtwVz9iFHV6nKOnRKM2uV8cTq9ldu9AWEBL9zfDEoPGWTOq0V9k/nur56Vkce6
+         Zig/2QN4kJkMC9UTz2mgc27mpsM/U+ENjK7lUU31UKg6ltePg0LDUBNwgbk/WVjaghGB
+         JNuDVLFbKGOc9agHYJejVEyie9aMCAQPXnkqRRia+DMK5blFCQFFkicLQL1X4klC7vMH
+         Qnrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=date:subject:message-id:references:in-reply-to:cc:to:from
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Jt2lFq6dbGdtBXekxOfaNEZN/Q3vZqwLHuw1ZuGP6SI=;
-        b=ROKv94ke9wBlRPHup/6BG2oxiMGJt+NrAwhUwJsBDlJNQ9nNLFsW1cWlLh/a1fhkg4
-         KVbE+ytiVb/PX2dBzwKp9H/GtphmxRGpubh5J6YKQDTtbuY4k/D2LxoA+Vt3LUk01Vyx
-         5/onBG1IyyGbTSjAoIFF6hsj5RXXjYoAw498ZYL5AwpYb/CSSzj3+qvNDvQoDUz/9d4S
-         nScT04nfAfcvWCvJ74ASw85ulhjU0vcGeGtpj0NhVEgthN+co76PlRj/BjUlZVDvEAuj
-         2E2VGiLZi2ktnCbInLyu8mD8oA3NijIomMypW/hx62JD/AxzY1pZsekeqeiURelLV3Mz
-         bdKA==
-X-Gm-Message-State: ACrzQf3fxLgK8Lj8SHiT3m5a6YRFEv3lsldV5JWMcIB/YtHeIN3zvaaf
-        Kak1B+jnIN/NMMj7OmvuVQ==
-X-Google-Smtp-Source: AMsMyM65vyCZmrc6iE43AdD0YaQicAamKi0gPl15tMyryUnDapOZDkfhwpb+7+SFF1/+YvncsLwmmA==
-X-Received: by 2002:a05:6870:d285:b0:12b:cdce:63d8 with SMTP id d5-20020a056870d28500b0012bcdce63d8mr36138626oae.140.1666618205246;
-        Mon, 24 Oct 2022 06:30:05 -0700 (PDT)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id v5-20020a05683024a500b0066102eb189fsm4381512ots.26.2022.10.24.06.30.04
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8lEhJhNYrJyVdV9ncTkj+ktV/kTdL2ObxQ9D4QNhvTU=;
+        b=NTozIYDRELTnDmjVOZ2CY/m3hMev34PaFn5L8U3y97J7ruiI6aVALBI0H3QBtDfijL
+         +MtYSnrVjrIzhwhxuHOcisc0X/i7Kieb77k0NBiJ0QRRjRmjhAvFSwNUOfjvYTDj/owb
+         Z27VHXWffXulp9sRaxaRNJmswRfxSDrSZr+hlbkk0aYSS/xIlfg6Wpb/eXnZLeDAa1AM
+         THq+3/m+6LMGUIsbQ0pEl0gVB6SyiZsVroLuaM8j4RElpBsdu7g7RZBiJlC8mjFYGFBd
+         ilgaUMcUssmgMNz6+6OeGMmVuuDf9lrYsF+J5H+aYwSiELi0d8FaDiGghblAFPaLyHX4
+         xNJg==
+X-Gm-Message-State: ACrzQf0lprxmZNqDI53cDA8JAulabgwm+vXHlVnZ7zhEABuUYv1Rt2/p
+        T26iLIKc17aAmYry6ebR9KNC8/EJKY0hDA==
+X-Google-Smtp-Source: AMsMyM6rrLGnzYSpUMpqzUHEUu978FrkEXYqX08g8cmUrmbT1TyyLxE8Jdo+56cIy5QKoDk3jkSuvA==
+X-Received: by 2002:a17:903:1112:b0:178:a030:5f72 with SMTP id n18-20020a170903111200b00178a0305f72mr33101227plh.12.1666612774369;
+        Mon, 24 Oct 2022 04:59:34 -0700 (PDT)
+Received: from google.com ([2620:15c:9d:2:3698:60f8:9964:1fb4])
+        by smtp.gmail.com with ESMTPSA id o15-20020a6548cf000000b0043c22e926f8sm17238603pgs.84.2022.10.24.04.59.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Oct 2022 06:30:04 -0700 (PDT)
-Received: (nullmailer pid 1686095 invoked by uid 1000);
-        Mon, 24 Oct 2022 13:30:04 -0000
-From:   Rob Herring <robh@kernel.org>
-To:     Alistair Francis <alistair@alistair23.me>
-Cc:     s.hauer@pengutronix.de, dmitry.torokhov@gmail.com,
-        linux-kernel@vger.kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        andreas@kemnade.info, linux-arm-kernel@lists.infradead.org,
-        devicetree@vger.kernel.org, robh+dt@kernel.org,
-        linux-input@vger.kernel.org, linus.walleij@linaro.org,
-        alistair23@gmail.com, shawnguo@kernel.org, rydberg@bitmath.org
-In-Reply-To: <20221024111017.43859-3-alistair@alistair23.me>
-References: <20221024111017.43859-1-alistair@alistair23.me> <20221024111017.43859-3-alistair@alistair23.me>
-Message-Id: <166661790048.1678635.3297196935905640224.robh@kernel.org>
-Subject: Re: [PATCH v9 2/4] dt-bindings: input: Add Cypress TT2100 touchscreen controller
-Date:   Mon, 24 Oct 2022 08:30:04 -0500
+        Mon, 24 Oct 2022 04:59:33 -0700 (PDT)
+Date:   Mon, 24 Oct 2022 04:59:31 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Colin Ian King <colin.i.king@gmail.com>
+Cc:     linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: tps6507x-ts: remove variable loops
+Message-ID: <Y1Z+I7EBn+P0m6wG@google.com>
+References: <20221020181642.24417-1-colin.i.king@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221020181642.24417-1-colin.i.king@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 24 Oct 2022 21:10:15 +1000, Alistair Francis wrote:
-> Add the Cypress TrueTouch Generation 5 touchscreen device tree bindings
-> documentation. It can use I2C or SPI bus.
-> This touchscreen can handle some defined zone that are designed and
-> sent as button. To be able to customize the keycode sent, the
-> "linux,code" property in a "button" sub-node can be used.
+On Thu, Oct 20, 2022 at 07:16:42PM +0100, Colin Ian King wrote:
+> The variable loops is being incremented but is never referenced,
+> it is redundant and can be removed.
 > 
-> Signed-off-by: Alistair Francis <alistair@alistair23.me>
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> Reviewed-by: Rob Herring <robh@kernel.org>
-> ---
->  .../input/touchscreen/cypress,tt21000.yaml    | 100 ++++++++++++++++++
->  1 file changed, 100 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
-> 
+> Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
 
-My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
-on your patch (DT_CHECKER_FLAGS is new in v5.13):
+Applied, thank you.
 
-yamllint warnings/errors:
-
-dtschema/dtc warnings/errors:
-./Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml: Unable to find schema file matching $id: http://devicetree.org/schemas/input/touchscreen/input.yaml
-/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dtb: touchscreen@24: button@0: False schema does not allow {'reg': [[0]], 'linux,keycodes': [[172]]}
-	From schema: /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
-/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dtb: touchscreen@24: button@1: False schema does not allow {'reg': [[1]], 'linux,keycodes': [[139]]}
-	From schema: /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
-/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dtb: touchscreen@24: button@2: False schema does not allow {'reg': [[2]], 'linux,keycodes': [[158]]}
-	From schema: /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
-/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dtb: touchscreen@24: Unevaluated properties are not allowed ('#address-cells', '#size-cells' were unexpected)
-	From schema: /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
-
-doc reference errors (make refcheckdocs):
-
-See https://patchwork.ozlabs.org/patch/
-
-This check can fail if there are any dependencies. The base for a patch
-series is generally the most recent rc1.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit.
-
+-- 
+Dmitry

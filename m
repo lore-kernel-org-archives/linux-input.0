@@ -2,106 +2,109 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47150C38A2D
-	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 18:41:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B883C67871
+	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 20:06:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232177AbiJXSlD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Oct 2022 14:41:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59426 "EHLO
+        id S233238AbiJXUGs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Oct 2022 16:06:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232213AbiJXSkd (ORCPT
+        with ESMTP id S233239AbiJXUGO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Oct 2022 14:40:33 -0400
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C0FC1759A;
-        Mon, 24 Oct 2022 10:22:23 -0700 (PDT)
-Received: by mail-wr1-x431.google.com with SMTP id k8so8624610wrh.1;
-        Mon, 24 Oct 2022 10:22:23 -0700 (PDT)
+        Mon, 24 Oct 2022 16:06:14 -0400
+Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCD1D297F25
+        for <linux-input@vger.kernel.org>; Mon, 24 Oct 2022 11:26:34 -0700 (PDT)
+Received: by mail-pf1-x430.google.com with SMTP id g16so4234083pfr.12
+        for <linux-input@vger.kernel.org>; Mon, 24 Oct 2022 11:26:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=jYf7cTB4wDVQpysigBRvPC/XQ9ZNHdrnvPwPX4mSzYs=;
-        b=ZtbjaQFrkNjsUuUy2r1veI7zdJmUQBlKdcg8EY691iFQsz4/fvFVeHJL0JZ5Z5+WMe
-         8t24dv6AwIwCv71gQfgEOwq0jm9Q6LJ9rAVawleQ/KrrNErlGgEcEJkorwXT5Boy8n5c
-         GwX02Jh7vMyjQR3cF65f0siOmQUp/wcjTCzKnslrriz5psty1cJ3U5FWABv7MDzInSeY
-         ZzxH+kpCsf8c3vEcZp5nP2WfO9QfUjkBN3xt/1MQrDUTpirv82tDA8fvChKCOi4ozdoB
-         42ztCXuut/sb/17z2BhpuZ2DyGxBw/6cjHdY1aT7lKl2JlIgYIkLnl3Jxt7mV/vHXNkf
-         1o6Q==
+        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:from:to:cc:subject:date:message-id:reply-to;
+        bh=4oIVzfpMgaAT0HX4FWTthc6xrrun7ylc9/g6rsWhf08=;
+        b=1O1ZHqYiBlXY2fwJNdkh+vQ/VNUVsNL1SE/FLAfOhoxD5MPiaq4El7Qm3wHo+8cgb3
+         gl9aeVRIggYlqbyizkSb3bBtxGG+NDi5jQPFLC5t5vcs2zVF6v3XXS2LwIAxKpdiwggC
+         n0PBC2uHZpCn05uEfUStTvJ1YOjR10a1WhlYwJ1EMZXodMLzQ2LjYg7xigqwXSPkiO03
+         194iUFBYOfLlARIf+xoEZo/W0V34QwVqxfhOTk30UjgjuOg0gjGBGTFOiN2O2yCX/CJd
+         B7mqvd4VripHn5nnSvfz8dNOkV/MSTcHE9+6t9xVPrjJY5DORvB26GRhxou4kxGlK326
+         FM1Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jYf7cTB4wDVQpysigBRvPC/XQ9ZNHdrnvPwPX4mSzYs=;
-        b=avGNW09O+bSG6GhzuZL+QJ4ZhIOxmdNRL/uXWf3YKK/y11CflDu4B95MaJYZhQI5Qc
-         60kBeZExamxwHid97nML6UvwOAnpJZJuflZggQBykocGssUq/aQPanOzfCNMrosjEXTe
-         3phNjgWfuJ5I5YoQch4fDi3bjii7kmDoqZI8zedP38CIsbHUe7FPB47b/xcVQ0Kw03q7
-         BBwqy4wrZFUKPP2vCDRb85LDcIQ9Byal4T+anw8bZbSE+RNfOdcWAZ6QUnscxNaFkDmL
-         gWGnLLHgNbR4K4bZw9VwTVPZTt0dajwjc7XcciejY2aDqs3Bqh2Z4OckO3mhgkcUmKqz
-         dR1g==
-X-Gm-Message-State: ACrzQf3AoFD13izflUJ7MkqBh7VP/jv7pd0WiuqSZ6HGgW9eIiETKMYr
-        b4FOosuRBYjA3aGQPprnvyzvN6wDti/DClDF
-X-Google-Smtp-Source: AMsMyM6aq2UQDlHmeTkXIJvJ9kWzInvPWV2UA72I3i2TsH9IXL+6obK98pW6NhB5zlKTxgDbROWQAg==
-X-Received: by 2002:a05:6000:788:b0:22e:412b:7959 with SMTP id bu8-20020a056000078800b0022e412b7959mr21871223wrb.491.1666627863318;
-        Mon, 24 Oct 2022 09:11:03 -0700 (PDT)
-Received: from localhost (cpc154979-craw9-2-0-cust193.16-3.cable.virginm.net. [80.193.200.194])
-        by smtp.gmail.com with ESMTPSA id r13-20020a05600c458d00b003c6f3f6675bsm8873808wmo.26.2022.10.24.09.11.02
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4oIVzfpMgaAT0HX4FWTthc6xrrun7ylc9/g6rsWhf08=;
+        b=fuQfUVkW9LXtJhwprgvr85XWVWrlCjpVZvG3V6wjw0UsTWSxoTFVEg+XOBmvwHH58T
+         4lDPcNxzVlCffMxEfA1zGfna97a+o0KhSLfKDGcUpYeQ80OilmYnj8wnKnECQvDVBUQu
+         4TrcN/83xJn78QqRR42HfjYLwcBZ+CFfIH12rJqfvz4tmnv3SXU+TWzuYISLNTHUpxj4
+         ZH1SVJw4H3rFkO9eCowwBYAZIkgyzapnF8Y2UcCozl1upTyhIqWK5OlN9sjS7YpuRlXD
+         +bgoEpBaLJG1nMY6Vbccp1/AJNBTdm60M4zTS1B9LyHeF9iD3X8YbtHB3/aUFbN/ihZr
+         uaQQ==
+X-Gm-Message-State: ACrzQf27Ni/EdnxN+My3O43FKB+xDuo0+PbPf1pVnyrVO1f4LPuWd4yA
+        OIBQIuFjGmaQRCpavTLkjSdIjw==
+X-Google-Smtp-Source: AMsMyM5NJO1kEdsQTHB/8tQPhUzIwVroAro5GyKcBeo3+9Tpkq+lfovTaDaocHC24z3Nm955Wr4NWg==
+X-Received: by 2002:aa7:81cc:0:b0:563:4e53:c08b with SMTP id c12-20020aa781cc000000b005634e53c08bmr34743652pfn.19.1666635958991;
+        Mon, 24 Oct 2022 11:25:58 -0700 (PDT)
+Received: from localhost ([75.172.140.17])
+        by smtp.gmail.com with ESMTPSA id z11-20020a170903018b00b00177f4ef7970sm72911plg.11.2022.10.24.11.25.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Oct 2022 09:11:02 -0700 (PDT)
-From:   Colin Ian King <colin.i.king@gmail.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org
-Cc:     kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: asus: Remove variable count
-Date:   Mon, 24 Oct 2022 17:11:02 +0100
-Message-Id: <20221024161102.2171702-1-colin.i.king@gmail.com>
-X-Mailer: git-send-email 2.37.3
+        Mon, 24 Oct 2022 11:25:58 -0700 (PDT)
+From:   Kevin Hilman <khilman@baylibre.com>
+To:     Arnd Bergmann <arnd@kernel.org>, Sekhar Nori <nsekhar@ti.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Russell King <linux@armlinux.org.uk>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        David Lechner <david@lechnology.com>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Marc Zyngier <maz@kernel.org>,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Lee Jones <lee@kernel.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Bin Liu <b-liu@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        linux-media@vger.kernel.org, linux-ide@vger.kernel.org,
+        linux-clk@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-staging@lists.linux.dev,
+        linux-usb@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: Re: [PATCH 00/14] ARM: remove unused davinci board & drivers
+In-Reply-To: <20221019152947.3857217-1-arnd@kernel.org>
+References: <20221019152947.3857217-1-arnd@kernel.org>
+Date:   Mon, 24 Oct 2022 11:25:57 -0700
+Message-ID: <7h7d0phydm.fsf@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Variable count is just being incremented and it's never used
-anywhere else. The variable and the increment are redundant so
-remove it.
+Arnd Bergmann <arnd@kernel.org> writes:
 
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
----
- drivers/hid/hid-asus.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> As part of removing all board files that were previously marked as unused,
+> I looked through the davinci platform and recursively removed everything
+> that has now become unused.
+>
+> In particular, this is for all dm3xx support, in addition to the dm64xx
+> support removed previously. The remaining support is now for da8xx using
+> devicetree only, which means a lot of the da8xx specific device support
+> can also go away.
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index b59c3dafa6a4..f99752b998f3 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -219,14 +219,13 @@ static void asus_report_tool_width(struct asus_drvdata *drvdat)
- {
- 	struct input_mt *mt = drvdat->input->mt;
- 	struct input_mt_slot *oldest;
--	int oldid, count, i;
-+	int oldid, i;
- 
- 	if (drvdat->tp->contact_size < 5)
- 		return;
- 
- 	oldest = NULL;
- 	oldid = mt->trkid;
--	count = 0;
- 
- 	for (i = 0; i < mt->num_slots; ++i) {
- 		struct input_mt_slot *ps = &mt->slots[i];
-@@ -238,7 +237,6 @@ static void asus_report_tool_width(struct asus_drvdata *drvdat)
- 			oldest = ps;
- 			oldid = id;
- 		}
--		count++;
- 	}
- 
- 	if (oldest) {
--- 
-2.37.3
+Acked-by: Kevin Hilman <khilman@baylibre.com>
 
+Kevin

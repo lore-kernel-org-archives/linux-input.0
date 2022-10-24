@@ -2,117 +2,207 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 284B8FA3746
-	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 14:30:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6982C38A2D
+	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 14:34:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235458AbiJXOaf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Oct 2022 10:30:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56216 "EHLO
+        id S234730AbiJXOek (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Oct 2022 10:34:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234904AbiJXO2v (ORCPT
+        with ESMTP id S237206AbiJXOeF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Oct 2022 10:28:51 -0400
-Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ED92D73C2;
-        Mon, 24 Oct 2022 06:02:17 -0700 (PDT)
-Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-13b23e29e36so10999254fac.8;
-        Mon, 24 Oct 2022 06:02:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=p+x9joGdXdBFLPPxN1p6d7/jrm+b1E7zu0ZikUl9XbM=;
-        b=kN4xIs/QEGJ+oT9qrn2OjPi/N6FcvGH6BvACP76blbVF103TXYi+7qEU5tINWQ+OJz
-         dApYzrcvxoO2ZIXOFTxb7h3JgOvX67e53Ux9I2wwMvKPIJrbpeDZZobSiNgXQhwqMaF/
-         R3ztR06WTPRqxKei/NzyOWyK9tZuNZ0Cm15uInIPmFb7tUxRSre+3lm52uo1EfezpHK9
-         o9VNCRaweqKifLKL/48NiILy3trNo3072uYGiXhEVisoQwGcZ30ghYt4hAv1vlMBiN/X
-         ltLvQXpHTYGfKkWtuOvorD19U4Zbzkwzp6qZaLG5THbYH133b9fRVRaPubb8xH2WHVbL
-         oPdg==
-X-Gm-Message-State: ACrzQf3i7XkzH7UpZj1xKGIMrADeoCGwSUDmJj0hXhqGuTa4oC2Svjr2
-        vms3XoPp+qtUCiVrBxssV68CXNLJaw==
-X-Google-Smtp-Source: AMsMyM4RB1x55W7tWXLqKMCfn9+yNGKoyP28eeDXqoWuK46CSg7FurAIxSSG6961lNUtLuCZU2W88g==
-X-Received: by 2002:a05:6870:e9a8:b0:133:223f:49a1 with SMTP id r40-20020a056870e9a800b00133223f49a1mr38235091oao.114.1666616434841;
-        Mon, 24 Oct 2022 06:00:34 -0700 (PDT)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id g20-20020a056870c15400b0012796e8033dsm2716705oad.57.2022.10.24.06.00.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Oct 2022 06:00:34 -0700 (PDT)
-Received: (nullmailer pid 1652638 invoked by uid 1000);
-        Mon, 24 Oct 2022 13:00:35 -0000
-Date:   Mon, 24 Oct 2022 08:00:35 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Arnd Bergmann <arnd@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        linux-kernel@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
-        Simtec Linux Team <linux@simtec.co.uk>,
-        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
-        linux-samsung-soc@vger.kernel.org, devicetree@vger.kernel.org,
-        patches@opensource.cirrus.com,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-ide@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-pm@vger.kernel.org, dmaengine@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-spi@vger.kernel.org, linux-serial@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-watchdog@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-pwm@vger.kernel.org
-Subject: Re: [PATCH 00/21] ARM: s3c: clean out obsolete platforms
-Message-ID: <20221024130035.GA1645003-robh@kernel.org>
-References: <20221021202254.4142411-1-arnd@kernel.org>
+        Mon, 24 Oct 2022 10:34:05 -0400
+Received: from na01-obe.outbound.protection.outlook.com (mail-eastusazlp170100001.outbound.protection.outlook.com [IPv6:2a01:111:f403:c100::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304259F360;
+        Mon, 24 Oct 2022 06:09:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=T8mScEK8PWMbrJ/sxIVzrEW60ulSChOzeW3Ny494dtTZDKAtVqCsqSLn3x2y54dgTk8tWSJG+XZjePXtFqUssAwl1G4zjs1ssslJuZ60o8YJxUes+dsYZbzZ/y6/pHali2WrPnRfmJM2KVxE5wAIEmAE+6ECOTo7rRAmfZOdtGlO9l8sffeZ2HQrBiLFh8MkoNSgzfajvJpp6Tb4Nddi9ol/4cVPh5N1YsO6BQozd6Sgaa/dpc+AJD8boSSUbKcfGMneld0bniIEtpfLkhXK2aB4Mho/r6198z2YQm8x5pIoSWfTPeF2O0vmXvq4Y1vAYkeP2ck9zotBsMvYO3Odeg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6/f/0QnoV9CG+8Vh3zC+Rc/P/kv1BHtT89fYX2qh8pA=;
+ b=ij7mjUkNd9g2/IFJyCMdE3blVm4ioZe0JMb3n2EAtMWNw8Is4/mXX//aA4JumeUIVptizAlTiUg0Y2IIbmr6rUqlSoAAdOjZfk0tWtAnunt95L8JCeRKeCh+PZeQ2716fQxBdisIXwsFhrtkHhHFZcNo6wUp0q+kA0ZRRCD4yAW5ucvoyZUIoH2U7cHeGequuC8fpNg2XaBmF5a8gobjZI8hOy9iJa5zC2VDmLbI6/M4Cgg4+azVNIBcJEKM2u151qzoSZf9/vOOQCdQM9y2qyWv6NxHnsT9yjImozu3PpHP3d1cvA8COoWd1uVmsr1oC8ryZbf60Si/FmSByJv/pw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6/f/0QnoV9CG+8Vh3zC+Rc/P/kv1BHtT89fYX2qh8pA=;
+ b=HFKfBhB7TXybgEckhOmOvcCtcUgBF734k58KMIBaIFhaQJBGIcguAgMa5dTFrn1KgBmotuzSCVt34TYlqu3gl7xUBZo/WC+hJNbyilb0jVtiG+TyQH2xdhtmDXchPhQAdqByWOqMIx2dMw8Hbu+LT7He6bOaH0fsP4dy0bJFzaY=
+Received: from BYAPR21MB1688.namprd21.prod.outlook.com (2603:10b6:a02:bf::26)
+ by BL1PR21MB3160.namprd21.prod.outlook.com (2603:10b6:208:394::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.5746.11; Mon, 24 Oct
+ 2022 13:04:37 +0000
+Received: from BYAPR21MB1688.namprd21.prod.outlook.com
+ ([fe80::f565:80ed:8070:474b]) by BYAPR21MB1688.namprd21.prod.outlook.com
+ ([fe80::f565:80ed:8070:474b%6]) with mapi id 15.20.5791.005; Mon, 24 Oct 2022
+ 13:04:37 +0000
+From:   "Michael Kelley (LINUX)" <mikelley@microsoft.com>
+To:     Paulo Miguel Almeida <paulo.miguel.almeida.rodenas@gmail.com>,
+        KY Srinivasan <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        Stephen Hemminger <sthemmin@microsoft.com>,
+        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+CC:     "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] [next] HID: hyperv: remove unused struct synthhid_msg
+Thread-Topic: [PATCH] [next] HID: hyperv: remove unused struct synthhid_msg
+Thread-Index: AQHY50Opj4DvWwB85UygYbYyTD2kgq4dguZQ
+Date:   Mon, 24 Oct 2022 13:04:36 +0000
+Message-ID: <BYAPR21MB168847D621D896906222390ED72E9@BYAPR21MB1688.namprd21.prod.outlook.com>
+References: <Y1XjBjiE39bPNj1d@mail.google.com>
+In-Reply-To: <Y1XjBjiE39bPNj1d@mail.google.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+msip_labels: MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=44585f42-80bd-408f-91fa-8446addfa354;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2022-10-24T13:01:21Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BYAPR21MB1688:EE_|BL1PR21MB3160:EE_
+x-ms-office365-filtering-correlation-id: 41bf8edb-9129-4a22-29f1-08dab5c04dc1
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 81Zc5ci3x8IKubbhMV4ho/L4oP0mQW5bpI29dXcmqjKnFyJoNbNILhYGxgZnJQle2K8y8uKTA6osil+6whQNujxUQRnPZACkwQX77XvyhqIUzoK7IOUHircM36q/Jksd77pie/b7+89kvndW7T2lr8Jf4g30b9nGYaQUYbUnvyzWUeEkQhX0v0r9kgcLe+BrQNkSwe2x2ExWi5pmYQEpLCrt6080n1Sn5jUoo0/GeBWIkRd5uEgzZb6wCUegMPjO9M7++HOguKUK/D5M098tuXZfosCHXrs/vS5IPdP+EpA4ALbdJ2bZSjKq49C7IU+Lwa42E4x/jWm8IDJBTbigUru3Vm8FhVlb9KZMuVSrGM9yg3FZ4hHda4oE3t9mD8xEnoE9+sE0YKT/xjtg0Q/xSlheVjuxEarcJikk+iw0mXcQSI4oyikFukNFDqgwICDoX3AFPdz3E60X/J/Y1cQ+w5mRAXz6Do8fVp+nH/MaX8WcKoWTQ7o8WII8COpIMcucPpHd7weQqrkpk3qaVoqjIGR0XL7LquBQR8qggIm2TTMxDZdfUJ7euPpGAn4jh4hg5OToCiIFuWWrX7jj7LWImuLtg2fyZT8ElWy3oJwn65SQ+2PSYIxAbGJs6O1o5dGp1J18QNxllbw6uU99cco0fxkMJoR56zZYY6IbPmK7Ai+kKkyUFpq8elslaWT7OaajTVt5WlCupC9iru8NzGfoXnqiJGdVcSnexi5BxFb24F9WVSUkMRHA6p9bxGAdwFVTATrxAxipYAwkUFH3GDeJ7P0TcxI/uPW5Or5o8DiZvShS5yRmzxX6es1P1W8l7Z4g
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR21MB1688.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(4636009)(396003)(39860400002)(346002)(136003)(376002)(366004)(451199015)(8990500004)(2906002)(6506007)(9686003)(8936002)(33656002)(5660300002)(52536014)(4326008)(86362001)(82960400001)(38070700005)(478600001)(186003)(41300700001)(66946007)(26005)(64756008)(66446008)(76116006)(8676002)(71200400001)(66476007)(55016003)(83380400001)(66556008)(38100700002)(316002)(122000001)(82950400001)(10290500003)(7696005)(54906003)(110136005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?wOjKqGenB9K4VXPbucZALOOCyvZnAFUTtdEV8tYnjzbqSNG3wYlKwbomNN2a?=
+ =?us-ascii?Q?TZSmGCCjGXdAZQkzSJphNUwkwIwnOX2S2JIMyuyqKPqEJfJ5NP0280U0vn0H?=
+ =?us-ascii?Q?f/r853cHxbmSwf5Agcy43zD5gDwmbj1/LiBtB/Q+ioqzYCivNCuMii5/z2so?=
+ =?us-ascii?Q?haYvOcpaDzFwYXVGLP+WW1JV22XoxTLVG1s0Op8w/adW8kyfs3yPJXmjjnpq?=
+ =?us-ascii?Q?rB7mjS9wiTfGVpN6HY/m8CHqaC/yKSgZixhDXR0pkaCLZnkcy0iJUM6Vv1lU?=
+ =?us-ascii?Q?ggAB5Zyl7yF6rp9vMWwV6yqX6t23axiEnXh9HVNFDEXSKPNOp1lZER5Z1Qjz?=
+ =?us-ascii?Q?qYsYgOf+S/XI8HHpd73Ps5qVx/csTuODVbRKN0j6otDSM+jJuVTR9li0GllK?=
+ =?us-ascii?Q?OXjIkzTLSVWQlIONqxELGkX8gWnlE8k+8FXEhSUMGKou8DoJRuOieDHZMY6b?=
+ =?us-ascii?Q?ZliHvukRPIJBrzIVV6qrneROQUXiHt/nr2qEMs5/t5RZFbzawoeYTWx6AB/I?=
+ =?us-ascii?Q?cw6QWGpHiFwzCngnMAyJ70Uw1gc4xoFc0gSdDnlCQoECU4axoP8+2GAN4Awc?=
+ =?us-ascii?Q?9fbcdmeW4BF2XR6ULoLIY/MwGJtr8C5r4zUmGj4NzCCknQ3XIsK5Xlm63wHN?=
+ =?us-ascii?Q?gZYDHZkdgw92QSUzgml02fIdGrUyko1hZoJAM7P3IRLHDGMHTC1WveG2KRNT?=
+ =?us-ascii?Q?Zv7dYJfVh3Q0jFZJWYJ4Jzk4B7M0/XX9Yq2IN7UBhWNBqiNOUNsDu5CKN5QH?=
+ =?us-ascii?Q?MdHBbIigaHN0K7S6W30PRhoKZGhf34ukTS9+8t5QEwORXIniUHFalPgLPOoC?=
+ =?us-ascii?Q?kTOHvOD/kCxgBtGu68jpxF3avaz5Lo7Bjw1ku67eTxc4UKtrwQmjRkdgGKZK?=
+ =?us-ascii?Q?CJvlBftoX+Qo4r0YVybxUFHw4Y39LPVLOqvWPRXoBIgWecZY3NXtaBz1URrK?=
+ =?us-ascii?Q?dd/dfJsg7mHJROh65uN2gskDdX2tjZ80Hy5lFw2rmosplEnUdVZiJZyNDQ7c?=
+ =?us-ascii?Q?sa2QFSZ5KB2kZLRduPazFdt/S8Fp5HgJHVbqcjsbIPdE+eYet3jRXA41Ns4e?=
+ =?us-ascii?Q?YEvog1va6XzfOEk16WPEMIaX1A5ItG3N+lc0KhX6L8suO1cxVBhYiSj9jx9N?=
+ =?us-ascii?Q?fAx4xFx6KliULc/TXCezeVJtCspMCXjBhKeYcQ0LTuvdPvk3Alh3wICitZLH?=
+ =?us-ascii?Q?XbzmgFjD96CvpJYscznb9DDgcDrwy+CM4W8FGPA6vtTInh1+0Q6l4SVsUFU1?=
+ =?us-ascii?Q?wQrtfUamTgKfNitZOVgRcjz/Gi81hy3yzZSto7V5JT5KaC8CprmE31r+UJGr?=
+ =?us-ascii?Q?DqnI6QagAMGhFUQaIJDAM1jCnw6AFNkzi6G/f8KL63zwYV6KqA1Ckxu2kWQM?=
+ =?us-ascii?Q?RUcPsH1/2NNPZFzTEyO1+q+kGRS8/Iqwu2CmBxiFDz0MLNEdq/ZqSh/8Drsq?=
+ =?us-ascii?Q?zn4cmp8+FHBzKsGuKBPOoegtQM0KmuvtmXF/5B8TwAFKdRNGkz+TVM10jG73?=
+ =?us-ascii?Q?yQXim7ES1lfyYxYGCwkkxF4lNuiDXaQ1fD0frlexEi//TAwtf2atxa+2H04n?=
+ =?us-ascii?Q?n5Ds/RLdLzExu7ZDD3TeQ/vLXh7GeqbcCBq6mLkNGDUZ6Lnc84OOeoP1sp0f?=
+ =?us-ascii?Q?ng=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221021202254.4142411-1-arnd@kernel.org>
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR21MB1688.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 41bf8edb-9129-4a22-29f1-08dab5c04dc1
+X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Oct 2022 13:04:36.8730
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: NugRGTEINATNqwNW4jwL/7RIqBUS86qv7wo6vl1qPk2UaaNqPeX1sgFTQyIBmwavw75AID8nwxnyGFopNPoEZ74aybJXYuhT3ie7Qp/Jm/4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR21MB3160
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Oct 21, 2022 at 10:22:28PM +0200, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
-> 
-> The s3c24xx platform was marked as deprecated a while ago,
-> and for the s3c64xx platform, we marked all except one legacy
-> board file as unused.
-> 
-> This series removes all of those, leaving only s3c64xx support
-> for DT based boots as well as the cragg6410 board file.
-> 
-> About half of the s3c specific drivers were only used on
-> the now removed machines, so these drivers can be retired
-> as well. I can either merge the driver removal patches through
-> the soc tree along with the board file patches, or subsystem
-> maintainers can pick them up into their own trees, whichever
-> they prefer.
+From: Paulo Miguel Almeida <paulo.miguel.almeida.rodenas@gmail.com> Sent: S=
+unday, October 23, 2022 5:58 PM
+>=20
+> struct synthhid_msg was meant to be a generic representation of the
+> possible protocol messages sent through VMBus. In practice, only the
+> header is read and depending on the message type, a cast to the actual
+> type is done. Also, SYNTHHID_MAX_INPUT_REPORT_SIZE constant isn't used
+> which I suspect is a leftover from the refactoring made while this
+> driver was at the staging folder.
+>=20
+> This patch removes struct synthhid_msg and refactor the code
+> accordingly.
+>=20
+> Signed-off-by: Paulo Miguel Almeida <paulo.miguel.almeida.rodenas@gmail.c=
+om>
 
-[...]
+I noticed this as well when reviewing your change to use flexible arrays.
+Thanks for doing this cleanup!
 
->  Documentation/arm/index.rst                   |    1 -
->  Documentation/arm/samsung-s3c24xx/cpufreq.rst |   77 -
->  .../arm/samsung-s3c24xx/eb2410itx.rst         |   59 -
->  Documentation/arm/samsung-s3c24xx/gpio.rst    |  172 --
->  Documentation/arm/samsung-s3c24xx/h1940.rst   |   41 -
->  Documentation/arm/samsung-s3c24xx/index.rst   |   20 -
->  Documentation/arm/samsung-s3c24xx/nand.rst    |   30 -
->  .../arm/samsung-s3c24xx/overview.rst          |  311 ---
->  Documentation/arm/samsung-s3c24xx/s3c2412.rst |  121 -
->  Documentation/arm/samsung-s3c24xx/s3c2413.rst |   22 -
->  .../arm/samsung-s3c24xx/smdk2440.rst          |   57 -
->  Documentation/arm/samsung-s3c24xx/suspend.rst |  137 --
->  .../arm/samsung-s3c24xx/usb-host.rst          |   91 -
->  Documentation/arm/samsung/overview.rst        |   13 -
+Reviewed-by: Michael Kelley <mikelley@microsoft.com>
 
-What about?:
+> ---
+>  drivers/hid/hid-hyperv.c | 16 ++++------------
+>  1 file changed, 4 insertions(+), 12 deletions(-)
+>=20
+> diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
+> index 208cf8d981a5..0be717bb09d4 100644
+> --- a/drivers/hid/hid-hyperv.c
+> +++ b/drivers/hid/hid-hyperv.c
+> @@ -22,9 +22,6 @@ struct hv_input_dev_info {
+>  	unsigned short reserved[11];
+>  };
+>=20
+> -/* The maximum size of a synthetic input message. */
+> -#define SYNTHHID_MAX_INPUT_REPORT_SIZE 16
+> -
+>  /*
+>   * Current version
+>   *
+> @@ -59,11 +56,6 @@ struct synthhid_msg_hdr {
+>  	u32 size;
+>  };
+>=20
+> -struct synthhid_msg {
+> -	struct synthhid_msg_hdr header;
+> -	char data[]; /* Enclosed message */
+> -};
+> -
+>  union synthhid_version {
+>  	struct {
+>  		u16 minor_version;
+> @@ -251,7 +243,7 @@ static void mousevsc_on_receive(struct hv_device *dev=
+ice,
+>  				struct vmpacket_descriptor *packet)
+>  {
+>  	struct pipe_prt_msg *pipe_msg;
+> -	struct synthhid_msg *hid_msg;
+> +	struct synthhid_msg_hdr *hid_msg_hdr;
+>  	struct mousevsc_dev *input_dev =3D hv_get_drvdata(device);
+>  	struct synthhid_input_report *input_report;
+>  	size_t len;
+> @@ -262,9 +254,9 @@ static void mousevsc_on_receive(struct hv_device *dev=
+ice,
+>  	if (pipe_msg->type !=3D PIPE_MESSAGE_DATA)
+>  		return;
+>=20
+> -	hid_msg =3D (struct synthhid_msg *)pipe_msg->data;
+> +	hid_msg_hdr =3D (struct synthhid_msg_hdr *)pipe_msg->data;
+>=20
+> -	switch (hid_msg->header.type) {
+> +	switch (hid_msg_hdr->type) {
+>  	case SYNTH_HID_PROTOCOL_RESPONSE:
+>  		/*
+>  		 * While it will be impossible for us to protect against
+> @@ -309,7 +301,7 @@ static void mousevsc_on_receive(struct hv_device *dev=
+ice,
+>  		break;
+>  	default:
+>  		pr_err("unsupported hid msg type - type %d len %d\n",
+> -		       hid_msg->header.type, hid_msg->header.size);
+> +		       hid_msg_hdr->type, hid_msg_hdr->size);
+>  		break;
+>  	}
+>=20
+> --
+> 2.37.3
 
-Documentation/devicetree/bindings/clock/samsung,s3c2410-clock.txt
-Documentation/devicetree/bindings/interrupt-controller/samsung,s3c24xx-irq.txt
-Documentation/devicetree/bindings/mmc/samsung,s3cmci.txt
-Documentation/devicetree/bindings/mtd/samsung-s3c2410.txt
-Documentation/devicetree/bindings/usb/s3c2410-usb.txt
-
-Rob

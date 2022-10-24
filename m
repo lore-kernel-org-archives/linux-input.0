@@ -2,76 +2,84 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E4A36C38A2D
-	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 15:16:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7ADCCC38A2D
+	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 15:49:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232406AbiJXPQG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Oct 2022 11:16:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47638 "EHLO
+        id S230463AbiJXPte (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Oct 2022 11:49:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231699AbiJXPPo (ORCPT
+        with ESMTP id S232302AbiJXPtO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Oct 2022 11:15:44 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C62721E29;
-        Mon, 24 Oct 2022 06:54:41 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id u8-20020a17090a5e4800b002106dcdd4a0so13055780pji.1;
-        Mon, 24 Oct 2022 06:54:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=8lEhJhNYrJyVdV9ncTkj+ktV/kTdL2ObxQ9D4QNhvTU=;
-        b=bTuKS/c1mvo5li261XMFcNENZgJuwEYgzg97KVKYJ0dS21QtyKdjaTgOcWToSC8aO7
-         KZxWd2wUqwtWm8mkG9zQekHqUyMAhCsbSFptSGiaD+MyDkaAVCzwZcatk3pXuoqIYnN2
-         O9xk3RMtwVz9iFHV6nKOnRKM2uV8cTq9ldu9AWEBL9zfDEoPGWTOq0V9k/nur56Vkce6
-         Zig/2QN4kJkMC9UTz2mgc27mpsM/U+ENjK7lUU31UKg6ltePg0LDUBNwgbk/WVjaghGB
-         JNuDVLFbKGOc9agHYJejVEyie9aMCAQPXnkqRRia+DMK5blFCQFFkicLQL1X4klC7vMH
-         Qnrw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=8lEhJhNYrJyVdV9ncTkj+ktV/kTdL2ObxQ9D4QNhvTU=;
-        b=NTozIYDRELTnDmjVOZ2CY/m3hMev34PaFn5L8U3y97J7ruiI6aVALBI0H3QBtDfijL
-         +MtYSnrVjrIzhwhxuHOcisc0X/i7Kieb77k0NBiJ0QRRjRmjhAvFSwNUOfjvYTDj/owb
-         Z27VHXWffXulp9sRaxaRNJmswRfxSDrSZr+hlbkk0aYSS/xIlfg6Wpb/eXnZLeDAa1AM
-         THq+3/m+6LMGUIsbQ0pEl0gVB6SyiZsVroLuaM8j4RElpBsdu7g7RZBiJlC8mjFYGFBd
-         ilgaUMcUssmgMNz6+6OeGMmVuuDf9lrYsF+J5H+aYwSiELi0d8FaDiGghblAFPaLyHX4
-         xNJg==
-X-Gm-Message-State: ACrzQf0lprxmZNqDI53cDA8JAulabgwm+vXHlVnZ7zhEABuUYv1Rt2/p
-        T26iLIKc17aAmYry6ebR9KNC8/EJKY0hDA==
-X-Google-Smtp-Source: AMsMyM6rrLGnzYSpUMpqzUHEUu978FrkEXYqX08g8cmUrmbT1TyyLxE8Jdo+56cIy5QKoDk3jkSuvA==
-X-Received: by 2002:a17:903:1112:b0:178:a030:5f72 with SMTP id n18-20020a170903111200b00178a0305f72mr33101227plh.12.1666612774369;
-        Mon, 24 Oct 2022 04:59:34 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:3698:60f8:9964:1fb4])
-        by smtp.gmail.com with ESMTPSA id o15-20020a6548cf000000b0043c22e926f8sm17238603pgs.84.2022.10.24.04.59.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Oct 2022 04:59:33 -0700 (PDT)
-Date:   Mon, 24 Oct 2022 04:59:31 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Colin Ian King <colin.i.king@gmail.com>
-Cc:     linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Input: tps6507x-ts: remove variable loops
-Message-ID: <Y1Z+I7EBn+P0m6wG@google.com>
-References: <20221020181642.24417-1-colin.i.king@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221020181642.24417-1-colin.i.king@gmail.com>
+        Mon, 24 Oct 2022 11:49:14 -0400
+Received: from mout-y-209.mailbox.org (mout-y-209.mailbox.org [IPv6:2001:67c:2050:103:465::209])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69ABAED9A5;
+        Mon, 24 Oct 2022 07:42:39 -0700 (PDT)
+Received: from smtp202.mailbox.org (smtp202.mailbox.org [IPv6:2001:67c:2050:b231:465::202])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mout-y-209.mailbox.org (Postfix) with ESMTPS id 4Mwxcg4D11z9spy;
+        Mon, 24 Oct 2022 16:03:31 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=noorman.info;
+        s=MBO0001; t=1666620211;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=bUqqF2wPQM4zFYYLFWVSuLSKsQw7baH8AiQHiHkoi9Y=;
+        b=tqc028RVGkZIeNEO7kzRCs6080pD76MHDAgcqJyBU3CiL3MxhBuzPlmSbgmly2LkqkJbys
+        yhFkWwMXkJtovkZMwabq3MWhPKYEFSiqEGyCK8/HYPcG3LiytvcdvBtia80Fkr0lCB+AIJ
+        4fYn1r2RlZ6u+YZM7+SC/cU+95IWpCfaMcpGXth+s4IGGX6rqzr1XUw8GtHfjJxt6HnVsj
+        e7sc5cc02JIQ3aWUWw44GVCrf47h3Oy+0c519/1PbE4+0l6k5eroU/4iAFBcawe+ZH4jbY
+        lc+j05+T+6CsVPI2MHxzsSEwgs6R0J8qzpuelRbm8NIUs8cg4joDZcQvPuY+qA==
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date:   Mon, 24 Oct 2022 16:03:30 +0200
+Message-Id: <CNU7K2WVE8IR.3400IWODUPYYK@ancom>
+Cc:     "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+        "Henrik Rydberg" <rydberg@bitmath.org>,
+        "Luca Weiss" <luca@z3ntu.xyz>, <linux-kernel@vger.kernel.org>,
+        <linux-input@vger.kernel.org>
+Subject: Re: [PATCH v5 2/3] Input: add driver for Himax hx83112b touchscreen
+ devices
+From:   "Job Noorman" <job@noorman.info>
+To:     "Jeff LaBundy" <jeff@labundy.com>
+References: <20221023163032.144150-1-job@noorman.info>
+ <20221023163032.144150-3-job@noorman.info> <Y1We8NgutWBbbNpV@nixie71>
+In-Reply-To: <Y1We8NgutWBbbNpV@nixie71>
+X-Rspamd-Queue-Id: 4Mwxcg4D11z9spy
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Oct 20, 2022 at 07:16:42PM +0100, Colin Ian King wrote:
-> The variable loops is being incremented but is never referenced,
-> it is redundant and can be removed.
-> 
-> Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Hi Jeff,
 
-Applied, thank you.
+On Sun Oct 23, 2022 at 10:07 PM CEST, Jeff LaBundy wrote:
+> Hi Job,
+>
+> Looks great; just a few tiny nits that I missed last time. Sorry
+> about that!
 
--- 
-Dmitry
+No problem!
+
+> > +	ts->regmap =3D devm_regmap_init_i2c(client, &himax_regmap_config);
+> > +	error =3D PTR_ERR_OR_ZERO(ts->regmap);
+> > +	if (error) {
+> > +		dev_err(&client->dev,
+>
+> We already have a locally declared dev pointer which at this point is
+> equal to &client->dev as well as &ts->client->dev, so we can just use
+> that here instead.
+
+Nice catch! Fixed this one and all others in v6.
+
+> With those remaining points resolved:
+>
+> Reviewed-by: Jeff LaBundy <jeff@labundy.com>
+
+Thanks! Added in v6.
+
+Kind regards,
+Job

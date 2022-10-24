@@ -2,143 +2,90 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D859C67871
-	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 20:43:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7BE32FA373F
+	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 21:11:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235039AbiJXUnS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Oct 2022 16:43:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58740 "EHLO
+        id S232465AbiJXVLu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Oct 2022 17:11:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234933AbiJXUmn (ORCPT
+        with ESMTP id S231933AbiJXVLW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Oct 2022 16:42:43 -0400
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [IPv6:2a01:238:4321:8900:456f:ecd6:43e:202c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66C95B1B83;
-        Mon, 24 Oct 2022 11:50:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=kemnade.info; s=20220719; h=Content-Transfer-Encoding:Content-Type:
-        MIME-Version:References:In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=rxB2FjaZ9ZC5MOe8rAcEH+DbpA4H6kqr69ZwAxYWy3w=; b=2SpxXp+WJxWYA+TqzODzh8lOqr
-        qmj9cDaJSvrb7PleUO7oOYPnoUNim0LDb8BgOUadHv+4kQUSr3ZgtaJ7O25Ws4hjyTOz+G1qJt+M8
-        wWzCteWwy70L8CMrulJUPpUNt6UpWFEbcKGlhrFaqeYwgz5ITqEuUb767QmUjdpcvIwUCnegfIk5M
-        5IgIIyvuF/CAktILfPovYkzUrx/INUq2G6G4U4rZz6oh8NBxssQjakU1yVHMyTR8fgLrLxKUrVMrO
-        BASBlGQPKI8+6N34iDiGnwJSLZptb7tGfWPEugWeGKJUXjDPPPj9PoySdzwZ93YHHblk/uJM6bjme
-        kIi5JJuQ==;
-Received: from p200300ccff06c5001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:cc:ff06:c500:1a3d:a2ff:febf:d33a] helo=aktux)
-        by mail.andi.de1.cc with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <andreas@kemnade.info>)
-        id 1on1Oe-0003lA-1x; Mon, 24 Oct 2022 19:37:56 +0200
-Date:   Mon, 24 Oct 2022 19:37:54 +0200
-From:   Andreas Kemnade <andreas@kemnade.info>
-To:     Alistair Francis <alistair@alistair23.me>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linus.walleij@linaro.org, s.hauer@pengutronix.de,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        alistair23@gmail.com, dmitry.torokhov@gmail.com,
-        rydberg@bitmath.org, shawnguo@kernel.org,
-        Rob Herring <robh@kernel.org>
-Subject: Re: [PATCH v9 2/4] dt-bindings: input: Add Cypress TT2100
- touchscreen controller
-Message-ID: <20221024193754.2c3163fa@aktux>
-In-Reply-To: <20221024111017.43859-3-alistair@alistair23.me>
-References: <20221024111017.43859-1-alistair@alistair23.me>
-        <20221024111017.43859-3-alistair@alistair23.me>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        Mon, 24 Oct 2022 17:11:22 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6373A2D038F;
+        Mon, 24 Oct 2022 12:17:54 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D728B817B0;
+        Mon, 24 Oct 2022 12:51:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84E0DC433D6;
+        Mon, 24 Oct 2022 12:51:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1666615874;
+        bh=4cT1AgEscL+bDejuGY6uubW9ABwIZGuR4hZ++Wp8v4w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kq3W0qANSUbPg7Xp/RRLV7VbWyzUd4fFQfb2glXmct6bX6PIhetoQgY85xKNVeA+J
+         G6jvtiH0AxGM35AE0jkcMeu8B3ip0EwROrkAQfDl6VVWPpT19T544nwG7qFVCop0VI
+         HDNSyETZfrbbhPwwU7JyS7whFHvKU4rqL4Qy4qZsH6Z9upRjNew40drv8HnH1wbgMW
+         I/bZPHsz9Gi23tSc8LlxSOnHWY6O4v9KT3nTwLO3zW6yfkolKWKQwH4wnwT3LBcdsn
+         W+D1mLFp2BV/5+TXP/f9FolibKs2KNirfCEyZNpHUj20JdWj8iYfZvGEUe+miHsp/n
+         ip4jPJQHClUqA==
+Date:   Mon, 24 Oct 2022 13:51:07 +0100
+From:   Lee Jones <lee@kernel.org>
+To:     Alexandre Mergnat <amergnat@baylibre.com>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org, Fabien Parent <fparent@baylibre.com>
+Subject: Re: [PATCH v2 1/5] dt-bindings: mfd: mt6397: add binding for MT6357
+Message-ID: <Y1aKOxGTNAsb2vgz@google.com>
+References: <20221005-mt6357-support-v2-0-f17ba2d2d0a9@baylibre.com>
+ <20221005-mt6357-support-v2-1-f17ba2d2d0a9@baylibre.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221005-mt6357-support-v2-1-f17ba2d2d0a9@baylibre.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+On Wed, 05 Oct 2022, Alexandre Mergnat wrote:
 
-this should go in, I am tired of carrying it around...
-to make the bot happy, the following things need to be changed.
-
-On Mon, 24 Oct 2022 21:10:15 +1000
-Alistair Francis <alistair@alistair23.me> wrote:
-
-> Add the Cypress TrueTouch Generation 5 touchscreen device tree bindings
-> documentation. It can use I2C or SPI bus.
-> This touchscreen can handle some defined zone that are designed and
-> sent as button. To be able to customize the keycode sent, the
-> "linux,code" property in a "button" sub-node can be used.
+> From: Fabien Parent <fparent@baylibre.com>
 > 
-> Signed-off-by: Alistair Francis <alistair@alistair23.me>
-> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> Reviewed-by: Rob Herring <robh@kernel.org>
+> Add binding documentation for the MT6357 PMIC.
+> 
+> Signed-off-by: Fabien Parent <fparent@baylibre.com>
+> Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+> Acked-by: Rob Herring <robh@kernel.org>
 > ---
->  .../input/touchscreen/cypress,tt21000.yaml    | 100 ++++++++++++++++++
->  1 file changed, 100 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
+>  Documentation/devicetree/bindings/mfd/mt6397.txt | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml b/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
-> new file mode 100644
-> index 000000000000..0913b585af5c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
-> @@ -0,0 +1,100 @@
-> +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/touchscreen/cypress,tt21000.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Cypress TT2100 touchscreen controller
-> +
-TT21000
+> diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
+> index 0088442efca1..518986c44880 100644
+> --- a/Documentation/devicetree/bindings/mfd/mt6397.txt
+> +++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
+> @@ -21,6 +21,7 @@ Required properties:
+>  compatible:
+>  	"mediatek,mt6323" for PMIC MT6323
+>  	"mediatek,mt6331" for PMIC MT6331 and MT6332
+> +	"mediatek,mt6357" for PMIC MT6357
+>  	"mediatek,mt6358" for PMIC MT6358 and MT6366
+>  	"mediatek,mt6359" for PMIC MT6359
+>  	"mediatek,mt6397" for PMIC MT6397
 
-> +description: The Cypress TT2100 series (also known as "CYTTSP5" after
-TT21000 (also in the subject)
+Let me know when it's safe to merge this.
 
-> +  the marketing name Cypress TrueTouch Standard Product series 5).
-> +
-> +maintainers:
-> +  - Alistair Francis <alistair@alistair23.me>
-> +
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: cypress,tt21000
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-
-'#address-cells':
-  const: 1
-
-'#size-cells':
-  const: 0
-
-
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  vdd-supply:
-> +    description: Regulator for voltage.
-> +
-> +  reset-gpios:
-> +    maxItems: 1
-> +
-> +  linux,keycodes:
-> +    description: EV_ABS specific event code generated by the axis.
-> +
-> +patternProperties:
-> +  "^button@[0-9]+$":
-> +    type: object
-> +    $ref: input.yaml#
-$ref: ../input.yaml#
-
-
-Regards,
-Andreas
-
+-- 
+Lee Jones [李琼斯]

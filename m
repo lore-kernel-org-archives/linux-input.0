@@ -2,80 +2,117 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEA01FA3740
-	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 14:25:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 284B8FA3746
+	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 14:30:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235547AbiJXOZa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Oct 2022 10:25:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51176 "EHLO
+        id S235458AbiJXOaf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Oct 2022 10:30:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237041AbiJXOY2 (ORCPT
+        with ESMTP id S234904AbiJXO2v (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Oct 2022 10:24:28 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19FCA9834A;
-        Mon, 24 Oct 2022 05:59:18 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 16135612F4;
-        Mon, 24 Oct 2022 12:50:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCBE4C433D6;
-        Mon, 24 Oct 2022 12:50:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1666615833;
-        bh=muZZQCY2YzmlU83yu+6go4k9bEyOW1zq3CdA5eo6BEU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=D3gaU+rlu3tHAPHeK/twHPUpXCK2BibDRPeLcmuyZnr5/ogwB5gL5452WF7WxeFkr
-         LiFv0N0G/mv8Pz/fjbe5um3/fgiUvVDCdV/ggczrVZG8pshGu3uuecHahC+OB/4Idp
-         GMSj7ylh26GrcbGg2jjUlJDzOO+YDgG/c6iymYVD1w8z//TQVcv+CtlBq3jzx52mFp
-         agXgmdbsbLT+8huJHUVloo8T8wQQ3K9m939uhLyHhLRTTOlOwbVu5m/6yoJbnW3Ovt
-         xlljEMYYI1GXC1a36p99/SKm6tzw1hE+rI0WulrjFaAwt0wDlk0+CofHaFoHZAdfRl
-         2Uv3UPdyz4LHg==
-Date:   Mon, 24 Oct 2022 13:50:26 +0100
-From:   Lee Jones <lee@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Alexandre Mergnat <amergnat@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        Rob Herring <robh@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org, Fabien Parent <fparent@baylibre.com>
-Subject: Re: [PATCH v2 5/5] Input: mtk-pmic-keys: add MT6357 support
-Message-ID: <Y1aKEgitetNgNDNa@google.com>
-References: <20221005-mt6357-support-v2-0-f17ba2d2d0a9@baylibre.com>
- <20221005-mt6357-support-v2-5-f17ba2d2d0a9@baylibre.com>
- <Y0ReqmnLfKo20HO5@google.com>
+        Mon, 24 Oct 2022 10:28:51 -0400
+Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ED92D73C2;
+        Mon, 24 Oct 2022 06:02:17 -0700 (PDT)
+Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-13b23e29e36so10999254fac.8;
+        Mon, 24 Oct 2022 06:02:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=p+x9joGdXdBFLPPxN1p6d7/jrm+b1E7zu0ZikUl9XbM=;
+        b=kN4xIs/QEGJ+oT9qrn2OjPi/N6FcvGH6BvACP76blbVF103TXYi+7qEU5tINWQ+OJz
+         dApYzrcvxoO2ZIXOFTxb7h3JgOvX67e53Ux9I2wwMvKPIJrbpeDZZobSiNgXQhwqMaF/
+         R3ztR06WTPRqxKei/NzyOWyK9tZuNZ0Cm15uInIPmFb7tUxRSre+3lm52uo1EfezpHK9
+         o9VNCRaweqKifLKL/48NiILy3trNo3072uYGiXhEVisoQwGcZ30ghYt4hAv1vlMBiN/X
+         ltLvQXpHTYGfKkWtuOvorD19U4Zbzkwzp6qZaLG5THbYH133b9fRVRaPubb8xH2WHVbL
+         oPdg==
+X-Gm-Message-State: ACrzQf3i7XkzH7UpZj1xKGIMrADeoCGwSUDmJj0hXhqGuTa4oC2Svjr2
+        vms3XoPp+qtUCiVrBxssV68CXNLJaw==
+X-Google-Smtp-Source: AMsMyM4RB1x55W7tWXLqKMCfn9+yNGKoyP28eeDXqoWuK46CSg7FurAIxSSG6961lNUtLuCZU2W88g==
+X-Received: by 2002:a05:6870:e9a8:b0:133:223f:49a1 with SMTP id r40-20020a056870e9a800b00133223f49a1mr38235091oao.114.1666616434841;
+        Mon, 24 Oct 2022 06:00:34 -0700 (PDT)
+Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
+        by smtp.gmail.com with ESMTPSA id g20-20020a056870c15400b0012796e8033dsm2716705oad.57.2022.10.24.06.00.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Oct 2022 06:00:34 -0700 (PDT)
+Received: (nullmailer pid 1652638 invoked by uid 1000);
+        Mon, 24 Oct 2022 13:00:35 -0000
+Date:   Mon, 24 Oct 2022 08:00:35 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Arnd Bergmann <arnd@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-kernel@vger.kernel.org, Ben Dooks <ben-linux@fluff.org>,
+        Simtec Linux Team <linux@simtec.co.uk>,
+        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
+        linux-samsung-soc@vger.kernel.org, devicetree@vger.kernel.org,
+        patches@opensource.cirrus.com,
+        linux-stm32@st-md-mailman.stormreply.com,
+        linux-ide@vger.kernel.org, linux-clk@vger.kernel.org,
+        linux-pm@vger.kernel.org, dmaengine@vger.kernel.org,
+        linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
+        linux-gpio@vger.kernel.org, linux-rtc@vger.kernel.org,
+        linux-spi@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-fbdev@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linux-watchdog@vger.kernel.org,
+        alsa-devel@alsa-project.org, linux-pwm@vger.kernel.org
+Subject: Re: [PATCH 00/21] ARM: s3c: clean out obsolete platforms
+Message-ID: <20221024130035.GA1645003-robh@kernel.org>
+References: <20221021202254.4142411-1-arnd@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y0ReqmnLfKo20HO5@google.com>
+In-Reply-To: <20221021202254.4142411-1-arnd@kernel.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 10 Oct 2022, Dmitry Torokhov wrote:
-
-> On Wed, Oct 05, 2022 at 04:57:25PM +0200, Alexandre Mergnat wrote:
-> > From: Fabien Parent <fparent@baylibre.com>
-> > 
-> > Add PMIC Keys support on MT6357 SoC.
-> > 
-> > Signed-off-by: Fabien Parent <fparent@baylibre.com>
-> > Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+On Fri, Oct 21, 2022 at 10:22:28PM +0200, Arnd Bergmann wrote:
+> From: Arnd Bergmann <arnd@arndb.de>
 > 
-> Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> The s3c24xx platform was marked as deprecated a while ago,
+> and for the s3c64xx platform, we marked all except one legacy
+> board file as unused.
 > 
-> Please merge through MFD tree with the rest of the patches.
+> This series removes all of those, leaving only s3c64xx support
+> for DT based boots as well as the cragg6410 board file.
+> 
+> About half of the s3c specific drivers were only used on
+> the now removed machines, so these drivers can be retired
+> as well. I can either merge the driver removal patches through
+> the soc tree along with the board file patches, or subsystem
+> maintainers can pick them up into their own trees, whichever
+> they prefer.
 
-The MFD part is only a small doc change.  The Input and Regulator
-changes should be merged through their own subsystems IMHO.
+[...]
 
--- 
-Lee Jones [李琼斯]
+>  Documentation/arm/index.rst                   |    1 -
+>  Documentation/arm/samsung-s3c24xx/cpufreq.rst |   77 -
+>  .../arm/samsung-s3c24xx/eb2410itx.rst         |   59 -
+>  Documentation/arm/samsung-s3c24xx/gpio.rst    |  172 --
+>  Documentation/arm/samsung-s3c24xx/h1940.rst   |   41 -
+>  Documentation/arm/samsung-s3c24xx/index.rst   |   20 -
+>  Documentation/arm/samsung-s3c24xx/nand.rst    |   30 -
+>  .../arm/samsung-s3c24xx/overview.rst          |  311 ---
+>  Documentation/arm/samsung-s3c24xx/s3c2412.rst |  121 -
+>  Documentation/arm/samsung-s3c24xx/s3c2413.rst |   22 -
+>  .../arm/samsung-s3c24xx/smdk2440.rst          |   57 -
+>  Documentation/arm/samsung-s3c24xx/suspend.rst |  137 --
+>  .../arm/samsung-s3c24xx/usb-host.rst          |   91 -
+>  Documentation/arm/samsung/overview.rst        |   13 -
+
+What about?:
+
+Documentation/devicetree/bindings/clock/samsung,s3c2410-clock.txt
+Documentation/devicetree/bindings/interrupt-controller/samsung,s3c24xx-irq.txt
+Documentation/devicetree/bindings/mmc/samsung,s3cmci.txt
+Documentation/devicetree/bindings/mtd/samsung-s3c2410.txt
+Documentation/devicetree/bindings/usb/s3c2410-usb.txt
+
+Rob

@@ -2,166 +2,102 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42B87C38A2D
-	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 18:12:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 192A2ECAAA1
+	for <linux-input@archiver.kernel.org>; Mon, 24 Oct 2022 18:19:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232720AbiJXSMy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Oct 2022 14:12:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48130 "EHLO
+        id S230505AbiJXSTr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Oct 2022 14:19:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231854AbiJXSMU (ORCPT
+        with ESMTP id S231254AbiJXSTe (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Oct 2022 14:12:20 -0400
-Received: from wnew4-smtp.messagingengine.com (wnew4-smtp.messagingengine.com [64.147.123.18])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C56126C452;
-        Mon, 24 Oct 2022 09:53:44 -0700 (PDT)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailnew.west.internal (Postfix) with ESMTP id 011D42B066F0;
-        Mon, 24 Oct 2022 09:19:09 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute3.internal (MEProxy); Mon, 24 Oct 2022 09:19:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1666617549; x=1666624749; bh=dNk4I7ELz1
-        Q72dRob/8j+4seSTYFKAZT/RUPASjRJ5c=; b=q+NqZuUcR73y8BnZPPG5dx1Zsk
-        6km9xLqa6tEkJrornmVIrbgVsoTaG0EQRj//U3P/qs5FFUR0kQj3xsDpIMDiHNAP
-        KHymuWr00P67rJl6tNZNMaSvfwBvDXs8mjOeO+DtIb91LFvy9u7IqPZlLBHzDqVY
-        OqQ+UV/5sGJOiUEzmGUI9NOmwTaSDzu4RgOGbpc9QTg1ReluTq9aBn60FamJs6vN
-        DKIJe0X1BrhoAYInvyHnNd5GZdOejs+w4Suvb5ImKHNqRwAYBvpipR0/HvaVLckd
-        CHTLMlrLH5H5bEpdNq1ZJ2ZVvg8gjN0DzzHIiqNjzW420ViiiKKJHNZdB8zg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; t=1666617549; x=1666624749; bh=dNk4I7ELz1Q72dRob/8j+4seSTYF
-        KAZT/RUPASjRJ5c=; b=uYEImk9/JaoBLZkHmS4JMUN51UUW3Adz4NZ33zTXfhfn
-        X2zc+bMCIXUEr4nNHo354GqKRASijikTpJx4FFU+epgcfr8J1IPlgZPNpNiYVB9M
-        w8ihE4tr46Zh/a1sL2xOLJxavoW+rkvJ5mUtViAoLX1JGrLBO17yVcJcaCCL+4DZ
-        U79zEm+ybsbN3XMbJe7XZH2qegoAJbChw5mNkbbe1D33ukaTT9FYQuJEpTpQ+3Cm
-        dcgc9DJADBfxr4sonBlprzuNuFtddjyQxgp5OFhdXtZwXkncp0R9eBa1XvUUpv5H
-        Fai3j/IlJ8ZfnHiUrjBdKzUP8vcWG93GWsi2JgpEew==
-X-ME-Sender: <xms:zZBWY4d6hZdrWDWBmQnXOunjtmGBLNtVOGtYlcpUAkqGnIq3nQ_ULg>
-    <xme:zZBWY6ORVL4inZtEZ347UGYnYKlOyas-DedRgWZhgJSTlHghoiUBMTH5Vdl7j2SlB
-    orGRM2A45E3sznwkiE>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvfedrgedtgedgheelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedftehr
-    nhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrth
-    htvghrnhepffehueegteeihfegtefhjefgtdeugfegjeelheejueethfefgeeghfektdek
-    teffnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hrnhgusegrrhhnuggsrdguvg
-X-ME-Proxy: <xmx:zZBWY5jMfpgYOekZ5Xiy1zZWPWGF2N1SaGbKcsqvIIsAoksVTelYew>
-    <xmx:zZBWY98Y0Yr03VdtjC58Vfn64oQoe8znN7FH4bLecym0d8-7ie150w>
-    <xmx:zZBWY0u1N4N4cR6ZhhO6MwuQK8N3p7TbkgEiIMvu0C2hnaFTg0G-QA>
-    <xmx:zZBWY2px7fOBs4XObZs9jNKaCaM5g4TthCLLA4wr0bUEo7pzc_VBCiqJhiU>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 3DDB5B60086; Mon, 24 Oct 2022 09:19:09 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.7.0-alpha0-1047-g9e4af4ada4-fm-20221005.001-g9e4af4ad
-Mime-Version: 1.0
-Message-Id: <e5aa233d-526b-45ab-9acb-ab792b8686bc@app.fastmail.com>
-In-Reply-To: <20221024130035.GA1645003-robh@kernel.org>
-References: <20221021202254.4142411-1-arnd@kernel.org>
- <20221024130035.GA1645003-robh@kernel.org>
-Date:   Mon, 24 Oct 2022 15:18:41 +0200
-From:   "Arnd Bergmann" <arnd@arndb.de>
-To:     "Rob Herring" <robh@kernel.org>, "Arnd Bergmann" <arnd@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org,
-        "Krzysztof Kozlowski" <krzysztof.kozlowski@linaro.org>,
-        linux-kernel@vger.kernel.org, "Ben Dooks" <ben-linux@fluff.org>,
-        "Simtec Linux Team" <linux@simtec.co.uk>,
-        linux-doc@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
-        devicetree@vger.kernel.org, patches@opensource.cirrus.com,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-ide@vger.kernel.org, linux-clk@vger.kernel.org,
-        linux-pm@vger.kernel.org, dmaengine@vger.kernel.org,
-        linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-        "linux-mmc @ vger . kernel . org" <linux-mmc@vger.kernel.org>,
-        linux-mtd@lists.infradead.org,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
-        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-watchdog@vger.kernel.org, alsa-devel@alsa-project.org,
-        linux-pwm@vger.kernel.org
-Subject: Re: [PATCH 00/21] ARM: s3c: clean out obsolete platforms
-Content-Type: text/plain
+        Mon, 24 Oct 2022 14:19:34 -0400
+Received: from mail-io1-f48.google.com (mail-io1-f48.google.com [209.85.166.48])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D7A92717
+        for <linux-input@vger.kernel.org>; Mon, 24 Oct 2022 10:00:22 -0700 (PDT)
+Received: by mail-io1-f48.google.com with SMTP id 137so8202334iou.9
+        for <linux-input@vger.kernel.org>; Mon, 24 Oct 2022 10:00:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=VpFxVbNlUVx4khx8wR7XZ3WqQqzobxqL9P5HDrXvqlc=;
+        b=VtmMvdAmjbQlupNcboZB0rYkr/vfgXXmpLysoK7V5k6cOP3hZENoSlDJcCHANlahB8
+         UIoG0JHOiXdlN4kBaXY4TH5I1k8MZUxKzDcmFd41zxisSMb/oaM9JkFjAdMOdgztd2kE
+         CmWIxolWQwmB2kmV4aPHXnTfE/VHN7fi/wTu2dKbUvO1pm+UXg4gibOU6vfj9DlfZKPq
+         M8+PUy2IKVoBb0mCYs15vttJG0xGVXb+ywbmjjhDbGKS0zkZgUR8CTKQLWCdiZFnwZXB
+         3OAq55fsKwpxhjOI63LrU9jcuHfR3oKCbAVXHwUs8ioSPq52PM284h5BtT6FWl5ghBp8
+         bxtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=VpFxVbNlUVx4khx8wR7XZ3WqQqzobxqL9P5HDrXvqlc=;
+        b=4fW92h0vB0+LWMBZWeJ3zdpaZfDng3zU/LW9CrwDKdO4S9pMNHVDtBIPelcZzkTEbB
+         P9Aa8JDXzXJbeQoA9xLSLAzdk6uiexssoDJjHwQhbHmSYUdvkI5zzM7W9db9q4UEUrOJ
+         KMQ58yRWkRL0mC9RIZAk571RJvV+a7nvh9aj4+al5A7F/Tx7f7CViPXVXBCq1eZEzqAU
+         0FNpIhandD+V88hbkkqWlhT+4vpcS+afpgN0VT9Clvmcu4D7niVmXos9wylfC145Gs1/
+         9tuYn9c/RQN+FSs239FEbi1RHc2D95qvNOuvQ6NFb5svnND/17jSIHLHqPPk49RcneoU
+         ABhg==
+X-Gm-Message-State: ACrzQf0lTS5JHlirNf9PlGspBc3WspVKkBiDI2bZbqjW4zpL9wPP8gmW
+        E6+jFwQFuti5PTo/VklfHvY3fW8EHLLHcw==
+X-Google-Smtp-Source: AMsMyM4N7VSQhNGDlB28vU1BJ0fiLgP+WhtT+9B869oCikzicsq0fwHB+QI2//H2iNap7alEzCxiog==
+X-Received: by 2002:ac8:5c49:0:b0:39c:d73f:a7cd with SMTP id j9-20020ac85c49000000b0039cd73fa7cdmr28269946qtj.317.1666630081466;
+        Mon, 24 Oct 2022 09:48:01 -0700 (PDT)
+Received: from [192.168.1.8] ([64.57.193.93])
+        by smtp.gmail.com with ESMTPSA id l12-20020ac8458c000000b00397e97baa96sm266984qtn.0.2022.10.24.09.47.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Oct 2022 09:48:00 -0700 (PDT)
+Message-ID: <db92a42c-e362-e40d-67a1-b003f8bcab55@linaro.org>
+Date:   Mon, 24 Oct 2022 12:47:59 -0400
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.0
+Subject: Re: [PATCH v9 3/4] ARM: imx_v6_v7_defconfig: Enable the cyttsp5
+ touchscreen
+Content-Language: en-US
+To:     Andreas Kemnade <andreas@kemnade.info>
+Cc:     Alistair Francis <alistair@alistair23.me>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linus.walleij@linaro.org, s.hauer@pengutronix.de,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        alistair23@gmail.com, dmitry.torokhov@gmail.com,
+        rydberg@bitmath.org, shawnguo@kernel.org
+References: <20221024111017.43859-1-alistair@alistair23.me>
+ <20221024111017.43859-4-alistair@alistair23.me>
+ <08cb81ce-7ebd-d79f-3f5c-4df596b5cb95@linaro.org>
+ <20221024170232.6b0175df@aktux>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20221024170232.6b0175df@aktux>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Oct 24, 2022, at 15:00, Rob Herring wrote:
-> On Fri, Oct 21, 2022 at 10:22:28PM +0200, Arnd Bergmann wrote:
->> From: Arnd Bergmann <arnd@arndb.de>
->> 
->> The s3c24xx platform was marked as deprecated a while ago,
->> and for the s3c64xx platform, we marked all except one legacy
->> board file as unused.
->> 
->> This series removes all of those, leaving only s3c64xx support
->> for DT based boots as well as the cragg6410 board file.
->> 
->> About half of the s3c specific drivers were only used on
->> the now removed machines, so these drivers can be retired
->> as well. I can either merge the driver removal patches through
->> the soc tree along with the board file patches, or subsystem
->> maintainers can pick them up into their own trees, whichever
->> they prefer.
->
-> [...]
->
->>  Documentation/arm/index.rst                   |    1 -
->>  Documentation/arm/samsung-s3c24xx/cpufreq.rst |   77 -
->>  .../arm/samsung-s3c24xx/eb2410itx.rst         |   59 -
->>  Documentation/arm/samsung-s3c24xx/gpio.rst    |  172 --
->>  Documentation/arm/samsung-s3c24xx/h1940.rst   |   41 -
->>  Documentation/arm/samsung-s3c24xx/index.rst   |   20 -
->>  Documentation/arm/samsung-s3c24xx/nand.rst    |   30 -
->>  .../arm/samsung-s3c24xx/overview.rst          |  311 ---
->>  Documentation/arm/samsung-s3c24xx/s3c2412.rst |  121 -
->>  Documentation/arm/samsung-s3c24xx/s3c2413.rst |   22 -
->>  .../arm/samsung-s3c24xx/smdk2440.rst          |   57 -
->>  Documentation/arm/samsung-s3c24xx/suspend.rst |  137 --
->>  .../arm/samsung-s3c24xx/usb-host.rst          |   91 -
->>  Documentation/arm/samsung/overview.rst        |   13 -
->
-> What about?:
->
-> Documentation/devicetree/bindings/clock/samsung,s3c2410-clock.txt
-> Documentation/devicetree/bindings/interrupt-controller/samsung,s3c24xx-irq.txt
-> Documentation/devicetree/bindings/mmc/samsung,s3cmci.txt
+On 24/10/2022 11:02, Andreas Kemnade wrote:
+> Hi,
+> 
+> I want to get that thing in, so I am tring to help as much as possible.
+> 
+> On Mon, 24 Oct 2022 08:21:45 -0400
+> Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org> wrote:
+> 
+>> On 24/10/2022 07:10, Alistair Francis wrote:
+>>> Signed-off-by: Alistair Francis <alistair@alistair23.me>  
+>>
+>> you miss here commit msg explaining why you want to enable this.
+>>
+> proposal:
+> The imx6/7 based devices Remarkable 2, Kobo Clara HD, Kobo Libra H2O,
+> Tolino Shine 3, Tolino Vision 5 all cantain a Cypress TT2100
+> touchscreen so enable the corresponding driver.
 
-Good catch!
+Sounds great!
 
-I've removed these three now and and will add the removal to
-the same patch, also the related
-samsung,s3c2412-clock.txt and samsung,s3c2443-clock.txt
-files.
+Best regards,
+Krzysztof
 
-> Documentation/devicetree/bindings/mtd/samsung-s3c2410.txt
-
-samsung,s3c2412-nand is apparently still used on s3c6400,
-and the driver is selectable on that platform, so I think
-that should remain in there until we remove s3c64xx in 2024,
-even if it is not referenced by the dts files in the kernel.
-
-> Documentation/devicetree/bindings/usb/s3c2410-usb.txt
-
-Similarly, the driver is used on the crag6410 board
-(without DT), and probably just works with the DT based
-boards if one adds a node to s3c64xx.dtsi.
-
-I've also checked if any of the other removed drivers
-matches of_device_id[] strings to see if there are more
-bindings to kill off, but I don't see any that have
-now become obsolete. It did point me to pxa2xx_ac97_dt_ids,
-which Robert already complained about, this apparently
-is still used with dts files outside of mainline.
-
-      Arnd

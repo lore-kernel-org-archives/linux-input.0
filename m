@@ -2,18 +2,18 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA97EC04A95
-	for <linux-input@archiver.kernel.org>; Tue, 25 Oct 2022 12:29:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 02122C38A2D
+	for <linux-input@archiver.kernel.org>; Tue, 25 Oct 2022 12:29:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231639AbiJYM3p (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 25 Oct 2022 08:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46318 "EHLO
+        id S231656AbiJYM3q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 25 Oct 2022 08:29:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231690AbiJYM3m (ORCPT
+        with ESMTP id S231696AbiJYM3n (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Oct 2022 08:29:42 -0400
+        Tue, 25 Oct 2022 08:29:43 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F5B911E47D
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E17311F484
         for <linux-input@vger.kernel.org>; Tue, 25 Oct 2022 05:29:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
         s=mimecast20190719; t=1666700981;
@@ -21,30 +21,30 @@ DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=sLJrbmQYx5qLz4I3isFLP0Xs6urszSZp3lm0OAOGEMM=;
-        b=YObccfA1eMN+aUSkU3N3v3zKbmLkiI/PKA+Tz6c503/CyXwlpiK1Pg3F8Kc60in2lXQ3KO
-        pRduhlaQ5aE1GkkPTmd6I2ltcWNgx1TzX/JFSyqeeOzhFMezGehM9SGLd5TpOWy8xrF9HI
-        M0dDedTybdrjR4FVSOkI4LMfV3vlx60=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=0OGoyHtqnmD9ACt9x2y6qnsRK8WGuXI56KZ+SPguV7A=;
+        b=BCz1T3F3Kmk6XXbo42I92f58Z45kZPAydKS4GZ4zf3ZvZ1JUHRyvKuIxHXgVWtlkX+N3y1
+        z6O/KueYpZm0pmOLeXyRS3AtPzzOKoC4CmjS1OdEG3xVxMbwvioUAknRPAvnnGCuA5aS1x
+        PCt8zdwpehbJuEi/tp3I8UNahal6CCY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-628-aSIO7qHeMNaz47rHxs0K9g-1; Tue, 25 Oct 2022 08:29:35 -0400
-X-MC-Unique: aSIO7qHeMNaz47rHxs0K9g-1
+ us-mta-382-O9Rv6JDRNr2cozZVblRTWg-1; Tue, 25 Oct 2022 08:29:38 -0400
+X-MC-Unique: O9Rv6JDRNr2cozZVblRTWg-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id F07EE3817989;
-        Tue, 25 Oct 2022 12:29:33 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id CAB1C823F65;
+        Tue, 25 Oct 2022 12:29:37 +0000 (UTC)
 Received: from shalem.redhat.com (unknown [10.39.195.71])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F001B4A9255;
-        Tue, 25 Oct 2022 12:29:32 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 196BD492CA4;
+        Tue, 25 Oct 2022 12:29:36 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>,
         Bastien Nocera <hadess@hadess.net>, linux-input@vger.kernel.org
-Subject: [PATCH 1/4] Input: goodix - Try resetting the controller when no config is set
-Date:   Tue, 25 Oct 2022 14:29:27 +0200
-Message-Id: <20221025122930.421377-2-hdegoede@redhat.com>
+Subject: [PATCH 4/4] Input: goodix - Add a settings module-parameter
+Date:   Tue, 25 Oct 2022 14:29:30 +0200
+Message-Id: <20221025122930.421377-5-hdegoede@redhat.com>
 In-Reply-To: <20221025122930.421377-1-hdegoede@redhat.com>
 References: <20221025122930.421377-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -54,58 +54,50 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On ACPI systems (irq_pin_access_method == IRQ_PIN_ACCESS_ACPI_*) the driver
-does not reset the controller at probe time, because sometimes the system
-firmware loads a config and resetting might loose this config.
+Add a settings module-parameter which can be allowed to specify/override
+various device-properties.
 
-On the Nanote UMPC-01 device OTOH the config is in flash of the controller,
-the controller needs a reset to load this; and the system firmware does not
-reset the controller on a cold boot.
+Usuually Goodix touchscreens on x86 devices (where there is no devicetree
+to specify the properties) just work. But in some cases the touchscreen is
+mounted 90 or 180 degrees rotated vs the display, requiring setting the
+touchscreen-x/y-inverted or touchscreen-swapped-x-y properties.
 
-To fix the Nanote UMPC-01 touchscreen not working on a cold boot, try
-resetting the controller and then re-reading the config when encountering
-a config with 0 width/height/max_touch_num value and the controller has
-not already been reset by goodix_ts_probe().
+Being able to specify the necessary properties through a module parameter,
+allows users of new device-models to help us with bringing up support for
+new devices without them needing to do a local kernel-build just to modify
+these settings.
 
-This should be safe to do in general because normally we should never
-encounter a config with 0 width/height/max_touch_num. Doing this in
-general not only avoids the need for a DMI quirk, but also might help
-other systems.
-
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/goodix.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/input/touchscreen/goodix.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index a33cc7950cf5..c281e49826c2 100644
+index c281e49826c2..36873f053f63 100644
 --- a/drivers/input/touchscreen/goodix.c
 +++ b/drivers/input/touchscreen/goodix.c
-@@ -1158,6 +1158,7 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
- 	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
- 	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
+@@ -53,6 +53,10 @@
+ #define ACPI_GPIO_SUPPORT
+ #endif
  
-+retry_read_config:
- 	/* Read configuration and apply touchscreen parameters */
++static char *settings;
++module_param(settings, charp, 0444);
++MODULE_PARM_DESC(settings, "Override touchscreen settings using a ; separated key=value list, e.g. \"touchscreen-fuzz-x=5;touchscreen-fuzz-y=5;touchscreen-swapped-x-y\"");
++
+ struct goodix_chip_id {
+ 	const char *id;
+ 	const struct goodix_chip_data *data;
+@@ -1163,7 +1167,8 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
  	goodix_read_config(ts);
  
-@@ -1165,6 +1166,16 @@ static int goodix_configure_dev(struct goodix_ts_data *ts)
- 	touchscreen_parse_properties(ts->input_dev, true, &ts->prop);
+ 	/* Try overriding touchscreen parameters via device properties */
+-	touchscreen_parse_properties(ts->input_dev, true, &ts->prop);
++	touchscreen_parse_properties_with_settings(ts->input_dev, true,
++						   &ts->prop, settings);
  
  	if (!ts->prop.max_x || !ts->prop.max_y || !ts->max_touch_num) {
-+		if (!ts->reset_controller_at_probe &&
-+		    ts->irq_pin_access_method != IRQ_PIN_ACCESS_NONE) {
-+			dev_info(&ts->client->dev, "Config not set, resetting controller\n");
-+			/* Retry after a controller reset */
-+			ts->reset_controller_at_probe = true;
-+			error = goodix_reset(ts);
-+			if (error)
-+				return error;
-+			goto retry_read_config;
-+		}
- 		dev_err(&ts->client->dev,
- 			"Invalid config (%d, %d, %d), using defaults\n",
- 			ts->prop.max_x, ts->prop.max_y, ts->max_touch_num);
+ 		if (!ts->reset_controller_at_probe &&
 -- 
 2.37.3
 

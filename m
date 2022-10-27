@@ -2,109 +2,135 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24DD5FA3742
-	for <linux-input@archiver.kernel.org>; Thu, 27 Oct 2022 16:38:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E456CECAAA1
+	for <linux-input@archiver.kernel.org>; Thu, 27 Oct 2022 19:02:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235704AbiJ0Qiw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Oct 2022 12:38:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54900 "EHLO
+        id S229565AbiJ0TC5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Oct 2022 15:02:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235659AbiJ0Qiv (ORCPT
+        with ESMTP id S235971AbiJ0TCz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Oct 2022 12:38:51 -0400
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6669B18708A;
-        Thu, 27 Oct 2022 09:38:51 -0700 (PDT)
-Received: by mail-pj1-x1033.google.com with SMTP id f5-20020a17090a4a8500b002131bb59d61so6050189pjh.1;
-        Thu, 27 Oct 2022 09:38:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=4/1b1qcy/q10T/xwgjyAFlhqgrlOQeWECP0LCGi9PrM=;
-        b=kR+vQY5k4SVLrCb743A3JHbbgYqiBt7Cq6HYCSuJ1fDX1M8gu+PLLJA8as+BSESMpS
-         EdCqdj+v9yDXU2Mg8ZoETV7ph55TjCA3sImosMIChII8sFDgeth2mVWVuPnyEO/rN5T/
-         4WK4C97ij4A8rOw9RMEqwBvb0nE5idBSnEEpwuC4Xbl9zRJLndurVLtgWtBTGn4ZNA9A
-         AncikKgof6oFcmmYtXlXzESkC+wLxWGu0QTnqIMoPxoiegZGNu0NaUngeDMzRIG2ovU8
-         o57CHpi+d/YhjTbR2hUGYn8hs8hm70BLNv/eUnGC9o0WLWmS3AeT0jSkf9bLY6Gcrd5j
-         rang==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4/1b1qcy/q10T/xwgjyAFlhqgrlOQeWECP0LCGi9PrM=;
-        b=xLGUcFFY2mb/Ilfm3iAvzUYS0qJb8VMZOajySugPRCPeK5hTAU9eKBctt7c4la8ivC
-         Yem/2MnH8Sz8/5SV3f5fLBnsbI+mHdvU3Z/0YqUVC2G6C/xXl1bk23uOqOvvJEpWhAuo
-         hskyjFkhlJBEJ1xLUHA0xuXN9U2txQYAYCFq5pK8xiqs9w4wXEmceDIdtm71HNMy9vKL
-         reRSrJZGMTpHlPfZIURalDF+S2L+b/EiDxnT1l2o+QLBrlCmzi+9sBJavMHCOlSxSUiz
-         gx48K9AFO1gYskV59zTb18LTdaFImGMjXrGX2MFBwuW7VB+Ll32Mjoea27TqpWb5UyUL
-         gFVA==
-X-Gm-Message-State: ACrzQf1U3p4caOxWy+Pist7AUcoSjEXSwb4WqsLlCCCni49XKdxxHudZ
-        zNcrrtoJFeiO1zaLEcJ7l+E=
-X-Google-Smtp-Source: AMsMyM6NQyy9M6pqOOyiHu/Iq8naC2MMbmNJilYhAd895GtcEme5YsDNjgXNAMotBpRf5wqwbsIfNw==
-X-Received: by 2002:a17:90a:c691:b0:212:fd5f:1ab8 with SMTP id n17-20020a17090ac69100b00212fd5f1ab8mr10886380pjt.11.1666888730774;
-        Thu, 27 Oct 2022 09:38:50 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:99d6:ae15:f9aa:1819])
-        by smtp.gmail.com with ESMTPSA id a6-20020a170902710600b001865e69b4d7sm1370799pll.264.2022.10.27.09.38.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Oct 2022 09:38:50 -0700 (PDT)
-Date:   Thu, 27 Oct 2022 09:38:46 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-        "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-        Helge Deller <deller@gmx.de>, Tony Lindgren <tony@atomide.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org,
-        linux-parisc@vger.kernel.org
-Subject: Re: [RFC][PATCH v2 15/31] timers: Input: Use del_timer_shutdown()
- before freeing timer
-Message-ID: <Y1q0FiznpwJ7/TPm@google.com>
-References: <20221027150525.753064657@goodmis.org>
- <20221027150927.992061541@goodmis.org>
- <20221027112117.7324570a@gandalf.local.home>
+        Thu, 27 Oct 2022 15:02:55 -0400
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1E6222513
+        for <linux-input@vger.kernel.org>; Thu, 27 Oct 2022 12:02:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1666897372; x=1698433372;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   content-transfer-encoding;
+  bh=x8S4ON823IRZQZNfu97omtKDvf9vU/7loWHIa30bXts=;
+  b=GIjq13KN1t4W3p6Thl7JJa7cmmBck8z8PgMAZGtUbwYZYyIEkVT1CeCk
+   2B1jNtGPWe26GDN7u/pWXRigJoiBWpS6accAXcLMcYdtSXaA7upVSCiNh
+   mxhUgWBvA4S3U4eVqpOsDw4h+aVHMUc+z7gceu7uJL4kW6awXOWOREf/Z
+   0IJY9VZ1mgnEhOaE0vLVac4G3CAHyNEhClv2YONX2y5NSEiBWio7U07uM
+   WSLG93Hd13tfpmhEe8cXhbdyjXVGXLtLYkN1sMja8L55W4T431U/hQDOu
+   pAHKooNwjQpkBk1L99XqnLqlQBFA1NT8/vh45FAxkfDx/afQgPg3zmYrq
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10513"; a="288033409"
+X-IronPort-AV: E=Sophos;i="5.95,218,1661842800"; 
+   d="scan'208";a="288033409"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Oct 2022 12:02:27 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10513"; a="775106940"
+X-IronPort-AV: E=Sophos;i="5.95,218,1661842800"; 
+   d="scan'208";a="775106940"
+Received: from lkp-server02.sh.intel.com (HELO b6d29c1a0365) ([10.239.97.151])
+  by fmsmga001.fm.intel.com with ESMTP; 27 Oct 2022 12:02:26 -0700
+Received: from kbuild by b6d29c1a0365 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1oo893-00095L-2v;
+        Thu, 27 Oct 2022 19:02:25 +0000
+Date:   Fri, 28 Oct 2022 03:01:37 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: [dtor-input:tmp-gpiolib-swnode] BUILD SUCCESS
+ 27103fbbe0c396313c7b89742b8dae15cd9d16ea
+Message-ID: <635ad591.NpnYOpBHgxYl/6kP%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20221027112117.7324570a@gandalf.local.home>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Oct 27, 2022 at 11:21:17AM -0400, Steven Rostedt wrote:
-> [
->   quilt mail --send still can't handle unicode characters.
->     Here's the patch again
-> ]
-> 
-> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-> 
-> Before a timer is freed, del_timer_shutdown() must be called.
-> 
-> Link: https://lore.kernel.org/all/20220407161745.7d6754b3@gandalf.local.home/
-> 
-> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Cc: "Pali Rohár" <pali@kernel.org>
-> Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-> Cc: Helge Deller <deller@gmx.de>
-> Cc: Tony Lindgren <tony@atomide.com>
-> Cc: Arnd Bergmann <arnd@arndb.de>
-> Cc: linux-input@vger.kernel.org
-> Cc: linux-parisc@vger.kernel.org
-> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tmp-gpiolib-swnode
+branch HEAD: 27103fbbe0c396313c7b89742b8dae15cd9d16ea  gpiolib: add support for software nodes
 
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+elapsed time: 724m
 
-Please feel free to merge with the rest of the series.
+configs tested: 58
+configs skipped: 2
 
-Thanks.
+The following configs have been built successfully.
+More configs may be tested in the coming days.
+
+gcc tested configs:
+arc                                 defconfig
+alpha                               defconfig
+um                           x86_64_defconfig
+um                             i386_defconfig
+x86_64                        randconfig-a004
+x86_64                        randconfig-a002
+x86_64                         rhel-8.3-kunit
+s390                                defconfig
+s390                             allmodconfig
+x86_64                           rhel-8.3-kvm
+x86_64                        randconfig-a006
+ia64                             allmodconfig
+x86_64                           rhel-8.3-syz
+x86_64                              defconfig
+i386                          randconfig-a014
+powerpc                           allnoconfig
+x86_64                        randconfig-a013
+x86_64                        randconfig-a011
+powerpc                          allmodconfig
+mips                             allyesconfig
+i386                          randconfig-a012
+i386                                defconfig
+s390                             allyesconfig
+alpha                            allyesconfig
+riscv                randconfig-r042-20221026
+arm                                 defconfig
+x86_64                        randconfig-a015
+arc                  randconfig-r043-20221026
+i386                          randconfig-a016
+s390                 randconfig-r044-20221026
+x86_64                               rhel-8.3
+sh                               allmodconfig
+arc                              allyesconfig
+m68k                             allyesconfig
+i386                          randconfig-a001
+x86_64                          rhel-8.3-func
+x86_64                           allyesconfig
+x86_64                    rhel-8.3-kselftests
+m68k                             allmodconfig
+i386                          randconfig-a003
+i386                          randconfig-a005
+arm                              allyesconfig
+arm64                            allyesconfig
+i386                             allyesconfig
+
+clang tested configs:
+x86_64                        randconfig-a001
+x86_64                        randconfig-a003
+x86_64                        randconfig-a005
+i386                          randconfig-a013
+i386                          randconfig-a015
+hexagon              randconfig-r045-20221026
+i386                          randconfig-a011
+x86_64                        randconfig-a012
+hexagon              randconfig-r041-20221026
+x86_64                        randconfig-a014
+x86_64                        randconfig-a016
+i386                          randconfig-a002
+i386                          randconfig-a004
+i386                          randconfig-a006
 
 -- 
-Dmitry
+0-DAY CI Kernel Test Service
+https://01.org/lkp

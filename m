@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 16EEDFA3744
-	for <linux-input@archiver.kernel.org>; Sat, 29 Oct 2022 12:04:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD455C433FE
+	for <linux-input@archiver.kernel.org>; Sat, 29 Oct 2022 12:04:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229802AbiJ2MEa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 29 Oct 2022 08:04:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33474 "EHLO
+        id S229842AbiJ2MEq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 29 Oct 2022 08:04:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229792AbiJ2ME3 (ORCPT
+        with ESMTP id S229850AbiJ2MEn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 29 Oct 2022 08:04:29 -0400
-Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38F1F315;
-        Sat, 29 Oct 2022 05:04:27 -0700 (PDT)
-Received: by mail-wm1-x32e.google.com with SMTP id c7-20020a05600c0ac700b003c6cad86f38so8033512wmr.2;
-        Sat, 29 Oct 2022 05:04:27 -0700 (PDT)
+        Sat, 29 Oct 2022 08:04:43 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35B401005C;
+        Sat, 29 Oct 2022 05:04:32 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id j15so9730492wrq.3;
+        Sat, 29 Oct 2022 05:04:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+Bb6ASl23RrFIKXOSlIN+mXfWnuBP94uLLqr0AkpKDA=;
-        b=UKY4lfhgMvDyzlpHGK828TVKM8bLmKYfTAbbSosf7Z9b84uk2IIBBGreNKB7zsd0Oe
-         YhsjFdEHsTFBOH9hvI5wWplfWVVRKTdlg3VdEkA+rkxHnzl7ZwQcCdinB/clMYnxXFRP
-         W7lTS0jxMLMzV0kIVLxjSNXsLxW1ckwMdyP/zWsBOXOJXEA8UElXeqTB5wWzzie+1rVm
-         bPV6gcn2brP9Cg+2I83F4U/IV5o10Krrqv8ZY9eng4gOYGNRBjk3621/sLepeXIthPDE
-         0EHXPhsmdSFBK0nXg/5SsuNUk2hkYFjhM8vWD82cJU/l9T6WUBrdkoyvl4qjKgz14Oci
-         sJUw==
+        bh=ZJQTmtw1LKn8R21PdJOf+BsVQdKZOWcICNuuo0tryIQ=;
+        b=hj63AntOayLxGuhmd58BTJfnSBtEsisiCc4yTtPlicPA/vqQRHwocJeXFMOZBBAUis
+         OrGl0YhFMzlRDqEYYqWWMd2ipJb7mf8yB+DnMlbO5Mz5/j3woffowngqthtWzVDjbwX7
+         +M6l8hd/tf1kXrCsiBs0H8eJ5pOrkuyNAjGi/5ANOs+c/gMEbl/tUARRR/YOI0JnjXFt
+         Ospy3Gl6sb59dTzyVYlp/YwJMsITljO61XAArV2qXP9yrqi277G3AGaaJsnXyK1ocJtB
+         DegxftzOYqKeE1R2KpAGWhB3tbXOW/lC/Hjr87zDkRU1U1AsLyg+rhoW3aX6HCUGtkiL
+         y98g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+Bb6ASl23RrFIKXOSlIN+mXfWnuBP94uLLqr0AkpKDA=;
-        b=Hu7DAdn4GRI9napf+xc7pHBP5EICA/9c3V42/9/6sM8GCPcRoxvlBMKzhYR1hb4Ttc
-         mnKswA8ECsF+v5QQuGn66FzjiTHejzMRU/d9R/E8LN/DwEkrC3vTqc/XiZbpq3uWDAnB
-         qkArHTPgkwCVULz+3Kmk015CZA+0ZWFyzJywyK5TXJDTNmElVv4F8SDiTOAuIbu3Yj4I
-         onF/X8GZC527zqTeMd0aCMTtie4M8T/YF/DOkRFXU3n+3Po8Tw2xHgLTBYVe94QzCAQ9
-         tW3nwXtu5VOUrxS7JqGLBt5j4ZLdIpc7rgWmTSaWiuyMH1aoAkSYJrhBOlbxpkT0QorX
-         zo2Q==
-X-Gm-Message-State: ACrzQf1vGmpjmbZ2xBkeuEHfjx1eonkVjWkT+ymEkd0iHBcd8kZFGX3S
-        TJEP8BN74MgyBBsTmz9bcW9qgkJB9OEkWA==
-X-Google-Smtp-Source: AMsMyM4blD5KXFo+73nrI0cCUSDVZ0u2eLk1j3hQA9bFmryN7RZlb9mNN95IIWqw1SMHdaPNElMPUQ==
-X-Received: by 2002:a05:600c:1da7:b0:3ce:a1:f961 with SMTP id p39-20020a05600c1da700b003ce00a1f961mr12107085wms.175.1667045065486;
-        Sat, 29 Oct 2022 05:04:25 -0700 (PDT)
+        bh=ZJQTmtw1LKn8R21PdJOf+BsVQdKZOWcICNuuo0tryIQ=;
+        b=1DJHjjefWCuhCke6r7ZIBjGE9X0lxUquEO5a3tvb5Q2tcJcqljYa+wi6s09imD90X7
+         H3haiRmvXxaUIjDL8RffC+BQfcXVbeARiuVtr+P3pF7ezE0Hb/mNRhngDuXxaLY/LxE+
+         bnGMSv+m9sVUExu8ewHy+nvsgTiVW+ZEK5lZAiXDNoLI+CE1Db+HVdBhmJNOFr/pQ6fr
+         iIb1koG1Z8Gz3lmjCyj/QfdmPBFqrzq8OAKPabVMjGK0pQ6vC4jiE858DDaqpI/qK/C8
+         q7uHezxcDzurIGO1mYhas1fT2hm88IfD910djY+edcwz75NE7GSkjcb+QWu8EhrOVpvY
+         1PSg==
+X-Gm-Message-State: ACrzQf2TQ9TcOm/fL3t4rQ65pRSUH5kOD3ZPtrBacs5zmokZHEasnROt
+        /evkSgKzJBJKYH56S02Qk6HyCCeLKZ4aWw==
+X-Google-Smtp-Source: AMsMyM7OfCgLILJ83WkCh8TrI7OLLHhrYyEMgaMdNxM6SuI9o6UysEZ0xPGxUNPgHnEBOXq5Jmxdew==
+X-Received: by 2002:adf:dd4d:0:b0:236:6e72:be17 with SMTP id u13-20020adfdd4d000000b002366e72be17mr2138838wrm.460.1667045070606;
+        Sat, 29 Oct 2022 05:04:30 -0700 (PDT)
 Received: from eray-Lenovo-Z50-70.. ([188.132.247.187])
-        by smtp.googlemail.com with ESMTPSA id z17-20020a05600c0a1100b003b492753826sm1472439wmp.43.2022.10.29.05.04.24
+        by smtp.googlemail.com with ESMTPSA id z17-20020a05600c0a1100b003b492753826sm1472439wmp.43.2022.10.29.05.04.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Oct 2022 05:04:25 -0700 (PDT)
+        Sat, 29 Oct 2022 05:04:30 -0700 (PDT)
 From:   =?UTF-8?q?Eray=20Or=C3=A7unus?= <erayorcunus@gmail.com>
 To:     platform-driver-x86@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
@@ -57,9 +57,9 @@ Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com,
         hdegoede@redhat.com, mgross@linux.intel.com, pobrn@protonmail.com,
         =?UTF-8?q?Eray=20Or=C3=A7unus?= <erayorcunus@gmail.com>
-Subject: [PATCH v2 2/7] HID: add mapping for camera access keys
-Date:   Sat, 29 Oct 2022 15:03:07 +0300
-Message-Id: <20221029120311.11152-3-erayorcunus@gmail.com>
+Subject: [PATCH v2 4/7] platform/x86: ideapad-laptop: Add new _CFG bit numbers for future use
+Date:   Sat, 29 Oct 2022 15:03:09 +0300
+Message-Id: <20221029120311.11152-5-erayorcunus@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20221029120311.11152-1-erayorcunus@gmail.com>
 References: <20221029120311.11152-1-erayorcunus@gmail.com>
@@ -70,64 +70,67 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-HUTRR72 added 3 new usage codes for keys that are supposed to enable,
-disable and toggle camera access. These are useful, considering many
-laptops today have key(s) for toggling access to camera.
-
-This patch adds new key definitions for KEY_CAMERA_ACCESS_ENABLE,
-KEY_CAMERA_ACCESS_DISABLE and KEY_CAMERA_ACCESS_TOGGLE. Additionally
-hid-debug is adjusted to recognize this new usage codes as well.
+Later IdeaPads report various things in last 8 bits of _CFG, at least
+5 of them represent supported on-screen-displays. Add those bit numbers
+to the enum, and use CFG_OSD_ as prefix of their names. Also expose
+the values of these bits to debugfs, since they can be useful.
 
 Signed-off-by: Eray Orçunus <erayorcunus@gmail.com>
-Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/hid/hid-debug.c                | 3 +++
- drivers/hid/hid-input.c                | 3 +++
- include/uapi/linux/input-event-codes.h | 3 +++
- 3 files changed, 9 insertions(+)
+ drivers/platform/x86/ideapad-laptop.c | 33 +++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index f48d3534e020..991f880fdbd4 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -936,6 +936,9 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_ASSISTANT] = "Assistant",
- 	[KEY_KBD_LAYOUT_NEXT] = "KbdLayoutNext",
- 	[KEY_EMOJI_PICKER] = "EmojiPicker",
-+	[KEY_CAMERA_ACCESS_ENABLE] = "CameraAccessEnable",
-+	[KEY_CAMERA_ACCESS_DISABLE] = "CameraAccessDisable",
-+	[KEY_CAMERA_ACCESS_TOGGLE] = "CameraAccessToggle",
- 	[KEY_DICTATE] = "Dictate",
- 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
- 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index f197aed6444a..f8e6513e77b8 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -995,6 +995,9 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
- 		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
+diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
+index 0ef40b88b240..f3d4f2beda07 100644
+--- a/drivers/platform/x86/ideapad-laptop.c
++++ b/drivers/platform/x86/ideapad-laptop.c
+@@ -46,10 +46,22 @@ static const char *const ideapad_wmi_fnesc_events[] = {
+ #endif
  
-+		case 0x0d5: map_key_clear(KEY_CAMERA_ACCESS_ENABLE);		break;
-+		case 0x0d6: map_key_clear(KEY_CAMERA_ACCESS_DISABLE);		break;
-+		case 0x0d7: map_key_clear(KEY_CAMERA_ACCESS_TOGGLE);		break;
- 		case 0x0d8: map_key_clear(KEY_DICTATE);		break;
- 		case 0x0d9: map_key_clear(KEY_EMOJI_PICKER);	break;
+ enum {
+-	CFG_CAP_BT_BIT   = 16,
+-	CFG_CAP_3G_BIT   = 17,
+-	CFG_CAP_WIFI_BIT = 18,
+-	CFG_CAP_CAM_BIT  = 19,
++	CFG_CAP_BT_BIT       = 16,
++	CFG_CAP_3G_BIT       = 17,
++	CFG_CAP_WIFI_BIT     = 18,
++	CFG_CAP_CAM_BIT      = 19,
++
++	/*
++	 * These are OnScreenDisplay support bits that can be useful to determine
++	 * whether a hotkey exists/should show OSD. But they aren't particularly
++	 * meaningful since they were introduced later, i.e. 2010 IdeaPads
++	 * don't have these, but they still have had OSD for hotkeys.
++	 */
++	CFG_OSD_NUMLK_BIT    = 27,
++	CFG_OSD_CAPSLK_BIT   = 28,
++	CFG_OSD_MICMUTE_BIT  = 29,
++	CFG_OSD_TOUCHPAD_BIT = 30,
++	CFG_OSD_CAM_BIT      = 31,
+ };
  
-diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-index 7989d9483ea7..ef392d0f943f 100644
---- a/include/uapi/linux/input-event-codes.h
-+++ b/include/uapi/linux/input-event-codes.h
-@@ -614,6 +614,9 @@
- #define KEY_KBD_LAYOUT_NEXT	0x248	/* AC Next Keyboard Layout Select */
- #define KEY_EMOJI_PICKER	0x249	/* Show/hide emoji picker (HUTRR101) */
- #define KEY_DICTATE		0x24a	/* Start or Stop Voice Dictation Session (HUTRR99) */
-+#define KEY_CAMERA_ACCESS_ENABLE	0x24b	/* Enables programmatic access to camera devices. (HUTRR72) */
-+#define KEY_CAMERA_ACCESS_DISABLE	0x24c	/* Disables programmatic access to camera devices. (HUTRR72) */
-+#define KEY_CAMERA_ACCESS_TOGGLE	0x24d	/* Toggles the current state of the camera access control. (HUTRR72) */
+ enum {
+@@ -368,6 +380,19 @@ static int debugfs_cfg_show(struct seq_file *s, void *data)
+ 		seq_puts(s, " camera");
+ 	seq_puts(s, "\n");
  
- #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
- #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
++	seq_puts(s, "OSD support:");
++	if (test_bit(CFG_OSD_NUMLK_BIT, &priv->cfg))
++		seq_puts(s, " num-lock");
++	if (test_bit(CFG_OSD_CAPSLK_BIT, &priv->cfg))
++		seq_puts(s, " caps-lock");
++	if (test_bit(CFG_OSD_MICMUTE_BIT, &priv->cfg))
++		seq_puts(s, " mic-mute");
++	if (test_bit(CFG_OSD_TOUCHPAD_BIT, &priv->cfg))
++		seq_puts(s, " touchpad");
++	if (test_bit(CFG_OSD_CAM_BIT, &priv->cfg))
++		seq_puts(s, " camera");
++	seq_puts(s, "\n");
++
+ 	seq_puts(s, "Graphics: ");
+ 	switch (priv->cfg & 0x700) {
+ 	case 0x100:
 -- 
 2.34.1
 

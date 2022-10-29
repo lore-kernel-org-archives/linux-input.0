@@ -2,237 +2,139 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 27B23C38A02
-	for <linux-input@archiver.kernel.org>; Sat, 29 Oct 2022 12:05:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AB43C38A02
+	for <linux-input@archiver.kernel.org>; Sat, 29 Oct 2022 12:13:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229943AbiJ2MFE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 29 Oct 2022 08:05:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35048 "EHLO
+        id S229491AbiJ2MN1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 29 Oct 2022 08:13:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229900AbiJ2ME7 (ORCPT
+        with ESMTP id S229489AbiJ2MN0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 29 Oct 2022 08:04:59 -0400
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D62113DFA;
-        Sat, 29 Oct 2022 05:04:37 -0700 (PDT)
-Received: by mail-wr1-x435.google.com with SMTP id k8so9742877wrh.1;
-        Sat, 29 Oct 2022 05:04:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=t0H3gS6ENUsKWeShTc04Oxh9TJLnxL4twvq+6xgLItU=;
-        b=qmjvl3YwbZ9mkYjbQnkigZC7V3qmEQ2UkKRzeSCA2PEwioQMDglgswpCaUnqSfH9Xc
-         3j5TVf51w7mEQcoFE8Gn2UqEGZNW1D/TCM635RxBGHovBX3n776hU4C8kyzKTO7BQ7IL
-         LXxys5AXgm6dTws9lozGV9I+zF0lLsIKSLvAYtPWDC9aRFE7DnwHl9sLDfY88+2CM0Mu
-         AmpmlSJa6xnU52SXAOa9eYXUvGfNH/B2k69svh5tiFZRSGkqoe2bvWdTAzLMhhJkMDOS
-         nNiJTZYwHuRWx27K+gLFTKkFS03rPTKMeja5i0uNUePqfoN3znGR/KbTMMoXrfA2Dp+6
-         Du3Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=t0H3gS6ENUsKWeShTc04Oxh9TJLnxL4twvq+6xgLItU=;
-        b=omOXRDDqNj5p4KM7H2e6CZDgsZuogpsQAu6tqvrmHLzLSyggskuJa1vvGLcyyixEZI
-         Hu384tYWB45bZOQFd5JMFGrBCO/t6av8FlShgSN5gcwIqZJ9nKOUBD2rDEEtIKEpZPR+
-         IK35EIfw1urGmaABHnRNbByhDdfGNQLEQtOGu9ADf8OSg0pRqA323pnvcWNDE17Ene8z
-         6E9UehiofAyupnl0qYzmawufnQ4P3H20htKH4fJ9DIxcgadzKmZ8KDvE61OuI5avy/AO
-         0KDj7S8D3/Iy0gWiKShxX93AsOVmmoly8Xpq97uNz0qdoTn/F1VgG+F/8OQTT3/QfvMR
-         tR/g==
-X-Gm-Message-State: ACrzQf01XlAzBiHIR+j67OXAQvuPucdnY5eqkVsMm5NffDoIyDoL2He+
-        T4VZ972K+PQPd9owpgPfnkm8tEqXf6WyPg==
-X-Google-Smtp-Source: AMsMyM6R6lm46LHofH7az0q1px/k2yLCPNdrU5kIBjZo0Fy3rKRfp6gznMV4LthIARbqwRp5ue6iaQ==
-X-Received: by 2002:adf:e38d:0:b0:236:7217:827e with SMTP id e13-20020adfe38d000000b002367217827emr2283094wrm.652.1667045075620;
-        Sat, 29 Oct 2022 05:04:35 -0700 (PDT)
-Received: from eray-Lenovo-Z50-70.. ([188.132.247.187])
-        by smtp.googlemail.com with ESMTPSA id z17-20020a05600c0a1100b003b492753826sm1472439wmp.43.2022.10.29.05.04.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Oct 2022 05:04:35 -0700 (PDT)
-From:   =?UTF-8?q?Eray=20Or=C3=A7unus?= <erayorcunus@gmail.com>
-To:     platform-driver-x86@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        ike.pan@canonical.com, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com,
-        hdegoede@redhat.com, mgross@linux.intel.com, pobrn@protonmail.com,
-        =?UTF-8?q?Eray=20Or=C3=A7unus?= <erayorcunus@gmail.com>
-Subject: [PATCH v2 6/7] platform/x86: ideapad-laptop: Keyboard backlight support for more IdeaPads
-Date:   Sat, 29 Oct 2022 15:03:11 +0300
-Message-Id: <20221029120311.11152-7-erayorcunus@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221029120311.11152-1-erayorcunus@gmail.com>
-References: <20221029120311.11152-1-erayorcunus@gmail.com>
+        Sat, 29 Oct 2022 08:13:26 -0400
+X-Greylist: delayed 41851 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 29 Oct 2022 05:13:25 PDT
+Received: from redpilled.dev (redpilled.dev [IPv6:2a01:4f8:1c1c:f8e2::])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9FFE77E8C;
+        Sat, 29 Oct 2022 05:13:24 -0700 (PDT)
+Date:   Sat, 29 Oct 2022 15:13:19 +0300
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redpilled.dev;
+        s=mail; t=1667045602;
+        bh=iecAOUrXA5SLA/RHjbWjdCfOOsBiEh01Dkv1Qck30Ok=;
+        h=Date:From:To:CC:Subject:In-Reply-To:References;
+        b=j1yJl6a8D9c78OedEOwHsOMCZh/wKr9iKbPSaT8CZ2JV+PcX4Es6yKKdbjpIVJSx2
+         yHPDbAwmrUqNEbYskcfB0uEp0q/pqRsF9Ql3N0xe8jvoSYft2V+mTQNGYO+iui4naQ
+         bdaO4Ya81DnRU1xZhezMOuMXVp2UatRzq6SBsYJ4=
+From:   Mia Kanashi <chad@redpilled.dev>
+To:     =?ISO-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
+CC:     jikos@kernel.org, benjamin.tissoires@redhat.com, spbnick@gmail.com,
+        pobrn@protonmail.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Andreas Grosse <andig.mail@t-online.de>
+Subject: Re: [PATCH v2] HID: uclogic: Add support for XP-PEN Deco LW
+In-Reply-To: <20221029075832.GA8790@elementary>
+References: <20221028082348.22386-1-jose.exposito89@gmail.com> <ED1CBF63-A70C-44FF-9F0B-80090EB347EA@redpilled.dev> <20221029075832.GA8790@elementary>
+Message-ID: <21CA0A00-1B9F-4E97-B942-A3B7CAA2B52E@redpilled.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-IdeaPads with HALS_KBD_BL_SUPPORT_BIT have full keyboard light support,
-and they send an event via ACPI on light state change. Whereas some
-IdeaPads that don't have this bit set, i.e. 520-15ikb, 330-17ich and
-5 (15), don't send an event, yet they still support switching keyboard
-light via KBLO object on DSDT. Detect these IdeaPads with searching for
-KBLO object, set their kbd_bl_partial to true and register led device
-for them. Tested on 520-15ikb.
+On 29 October 2022 10:58:32 EEST, "Jos=C3=A9 Exp=C3=B3sito" <jose=2Eexposit=
+o89@gmail=2Ecom> wrote:
+>Hi Mia,
+>
+>Thanks for testing :D
+>
+>On Sat, Oct 29, 2022 at 03:28:10AM +0300, Mia Kanashi wrote:
+>> Hello!
+>>=20
+>> Before device sends a battery report, you can notice garbage values in =
+a power supply capacity=2E
+>>=20
+>> You can see this by running
+>> `watch -n0=2E1 cat /sys/class/power_supply/hid-28bd-935-battery/uevent`
+>> and then connecting the tablet=2E
+>>=20
+>> You can set it to a value here, but i think this is a problem in the gl=
+obal hid driver?
+>
+>That shouldn't be problematic, because the charging status should be
+>initially set to unknown and change to charging/discharging [1] once
+>the device sends the first report=2E
+>
+>Your desktop environment shouldn't display the battery percentage
+>while the status is unknown, so the initial values are ignored=2E
+>
+>Here is my output of my XP-Pen Deco SW before receiving the battery
+>percentage:
+>
+> POWER_SUPPLY_NAME=3Dhid-28bd-933-battery
+> POWER_SUPPLY_TYPE=3DBattery
+> POWER_SUPPLY_PRESENT=3D1
+> POWER_SUPPLY_ONLINE=3D1
+> POWER_SUPPLY_MODEL_NAME=3DUGTABLET Deco Pro SW
+> POWER_SUPPLY_SCOPE=3DDevice
+>
+>And after:
+>
+> POWER_SUPPLY_NAME=3Dhid-28bd-933-battery
+> POWER_SUPPLY_TYPE=3DBattery
+> POWER_SUPPLY_PRESENT=3D1
+> POWER_SUPPLY_ONLINE=3D1
+> POWER_SUPPLY_CAPACITY=3D99
+> POWER_SUPPLY_MODEL_NAME=3DUGTABLET Deco Pro SW
+> POWER_SUPPLY_STATUS=3DDischarging
+> POWER_SUPPLY_SCOPE=3DDevice
+>
+>Jose
+>
+>[1] Actually it should be set to discharging until this gets merged:
+>    https://lore=2Ekernel=2Eorg/linux-input/20221028181849=2E23157-1-jose=
+=2Eexposito89@gmail=2Ecom/T/
 
-Signed-off-by: Eray Orçunus <erayorcunus@gmail.com>
----
- drivers/platform/x86/ideapad-laptop.c | 79 ++++++++++++++++++++++++---
- 1 file changed, 70 insertions(+), 9 deletions(-)
+Hello, for me it first looks like this:
 
-diff --git a/drivers/platform/x86/ideapad-laptop.c b/drivers/platform/x86/ideapad-laptop.c
-index e8c088e7a53d..b34fbc4d741c 100644
---- a/drivers/platform/x86/ideapad-laptop.c
-+++ b/drivers/platform/x86/ideapad-laptop.c
-@@ -149,6 +149,7 @@ struct ideapad_private {
- 		bool fn_lock              : 1;
- 		bool hw_rfkill_switch     : 1;
- 		bool kbd_bl               : 1;
-+		bool kbd_bl_partial       : 1;
- 		bool cam_ctrl_via_ec      : 1;
- 		bool touchpad_ctrl_via_ec : 1;
- 		bool usb_charging         : 1;
-@@ -157,6 +158,9 @@ struct ideapad_private {
- 		bool initialized;
- 		struct led_classdev led;
- 		unsigned int last_brightness;
-+		/* Below are used only if kbd_bl_partial is set */
-+		acpi_handle lfcm_mutex;
-+		acpi_handle kblo_obj;
- 	} kbd_bl;
- };
- 
-@@ -1300,19 +1304,52 @@ static void ideapad_backlight_notify_brightness(struct ideapad_private *priv)
- 		backlight_force_update(priv->blightdev, BACKLIGHT_UPDATE_HOTKEY);
- }
- 
-+#define IDEAPAD_ACPI_MUTEX_TIMEOUT 1500
-+
- /*
-  * keyboard backlight
-  */
- static int ideapad_kbd_bl_brightness_get(struct ideapad_private *priv)
- {
--	unsigned long hals;
-+	unsigned long ret_val;
- 	int err;
-+	acpi_status status;
- 
--	err = eval_hals(priv->adev->handle, &hals);
-+	/*
-+	 * Some IdeaPads with partially implemented keyboard lights don't give
-+	 * us the light state on HALS_KBD_BL_STATE_BIT in the return value of HALS,
-+	 * i.e. 5 (15) and 330-17ich. Fortunately we know how to gather it.
-+	 * Even if it won't work, we will still give HALS a try, because
-+	 * some IdeaPads with kbd_bl_partial, i.e. 520-15ikb,
-+	 * correctly sets HALS_KBD_BL_STATE_BIT in HALS return value.
-+	 */
-+
-+	if (priv->features.kbd_bl_partial &&
-+	    priv->kbd_bl.lfcm_mutex != NULL && priv->kbd_bl.kblo_obj != NULL) {
-+
-+		status = acpi_acquire_mutex(priv->kbd_bl.lfcm_mutex, NULL,
-+					    IDEAPAD_ACPI_MUTEX_TIMEOUT);
-+
-+		if (ACPI_SUCCESS(status)) {
-+			err = eval_int(priv->kbd_bl.kblo_obj, NULL, &ret_val);
-+
-+			status = acpi_release_mutex(priv->kbd_bl.lfcm_mutex, NULL);
-+			if (ACPI_FAILURE(status))
-+				dev_err(&priv->platform_device->dev,
-+					"Failed to release LFCM mutex");
-+
-+			if (err)
-+				return err;
-+
-+			return !!ret_val;
-+		}
-+	}
-+
-+	err = eval_hals(priv->adev->handle, &ret_val);
- 	if (err)
- 		return err;
- 
--	return !!test_bit(HALS_KBD_BL_STATE_BIT, &hals);
-+	return !!test_bit(HALS_KBD_BL_STATE_BIT, &ret_val);
- }
- 
- static enum led_brightness ideapad_kbd_bl_led_cdev_brightness_get(struct led_classdev *led_cdev)
-@@ -1329,7 +1366,8 @@ static int ideapad_kbd_bl_brightness_set(struct ideapad_private *priv, unsigned
- 	if (err)
- 		return err;
- 
--	priv->kbd_bl.last_brightness = brightness;
-+	if (!priv->features.kbd_bl_partial)
-+		priv->kbd_bl.last_brightness = brightness;
- 
- 	return 0;
- }
-@@ -1349,6 +1387,9 @@ static void ideapad_kbd_bl_notify(struct ideapad_private *priv)
- 	if (!priv->kbd_bl.initialized)
- 		return;
- 
-+	if (priv->features.kbd_bl_partial)
-+		return;
-+
- 	brightness = ideapad_kbd_bl_brightness_get(priv);
- 	if (brightness < 0)
- 		return;
-@@ -1371,17 +1412,20 @@ static int ideapad_kbd_bl_init(struct ideapad_private *priv)
- 	if (WARN_ON(priv->kbd_bl.initialized))
- 		return -EEXIST;
- 
--	brightness = ideapad_kbd_bl_brightness_get(priv);
--	if (brightness < 0)
--		return brightness;
-+	/* IdeaPads with kbd_bl_partial don't have keyboard backlight event */
-+	if (!priv->features.kbd_bl_partial) {
-+		brightness = ideapad_kbd_bl_brightness_get(priv);
-+		if (brightness < 0)
-+			return brightness;
- 
--	priv->kbd_bl.last_brightness = brightness;
-+		priv->kbd_bl.last_brightness         = brightness;
-+		priv->kbd_bl.led.flags               = LED_BRIGHT_HW_CHANGED;
-+	}
- 
- 	priv->kbd_bl.led.name                    = "platform::" LED_FUNCTION_KBD_BACKLIGHT;
- 	priv->kbd_bl.led.max_brightness          = 1;
- 	priv->kbd_bl.led.brightness_get          = ideapad_kbd_bl_led_cdev_brightness_get;
- 	priv->kbd_bl.led.brightness_set_blocking = ideapad_kbd_bl_led_cdev_brightness_set;
--	priv->kbd_bl.led.flags                   = LED_BRIGHT_HW_CHANGED;
- 
- 	err = led_classdev_register(&priv->platform_device->dev, &priv->kbd_bl.led);
- 	if (err)
-@@ -1594,8 +1638,25 @@ static void ideapad_check_features(struct ideapad_private *priv)
- 			if (test_bit(HALS_FNLOCK_SUPPORT_BIT, &val))
- 				priv->features.fn_lock = true;
- 
-+			/*
-+			 * IdeaPads with HALS_KBD_BL_SUPPORT_BIT have full keyboard
-+			 * light support, and they send an event via ACPI on light
-+			 * state change. Whereas some IdeaPads, at least 520-15ikb
-+			 * and 5 (15), don't send an event, yet they still have
-+			 * KBLO object. In this case, set kbd_bl_partial to true
-+			 * and cache the LFCM mutex, it might be useful while
-+			 * getting the brightness.
-+			 */
-+
- 			if (test_bit(HALS_KBD_BL_SUPPORT_BIT, &val))
- 				priv->features.kbd_bl = true;
-+			else if (ACPI_SUCCESS(acpi_get_handle(handle, "^KBLO",
-+							      &priv->kbd_bl.kblo_obj))) {
-+				priv->features.kbd_bl = true;
-+				priv->features.kbd_bl_partial = true;
-+				(void)acpi_get_handle(handle, "^LFCM",
-+						      &priv->kbd_bl.lfcm_mutex);
-+			}
- 
- 			if (test_bit(HALS_USB_CHARGING_SUPPORT_BIT, &val))
- 				priv->features.usb_charging = true;
--- 
-2.34.1
+ POWER_SUPPLY_NAME=3Dhid-28bd-935-battery
+ POWER_SUPPLY_TYPE=3DBattery
+ POWER_SUPPLY_PRESENT=3D1
+ POWER_SUPPLY_ONLINE=3D1
+ POWER_SUPPLY_MODEL_NAME=3DHanvon Ugee Deco LW
+ POWER_SUPPLY_SCOPE=3DDevice
 
+Then it looks like this for a very brief (or not so brief) period of time,=
+ it also isn't always there, i suggest trying plugging it in multiple times=
+:
+
+ POWER_SUPPLY_NAME=3Dhid-28bd-935-battery
+ POWER_SUPPLY_TYPE=3DBattery
+ POWER_SUPPLY_PRESENT=3D1
+ POWER_SUPPLY_ONLINE=3D1
+ POWER_SUPPLY_CAPACITY=3D160
+ POWER_SUPPLY_MODEL_NAME=3DHanvon Ugee Deco LW
+ POWER_SUPPLY_STATUS=3DDischarging
+ POWER_SUPPLY_SCOPE=3DDevice
+
+Here value is 160, obvious garbage, it can have any other value depending =
+on your luck=2E
+
+And then after that it looks like this:
+
+ POWER_SUPPLY_NAME=3Dhid-28bd-935-battery
+ POWER_SUPPLY_TYPE=3DBattery
+ POWER_SUPPLY_PRESENT=3D1
+ POWER_SUPPLY_ONLINE=3D1
+ POWER_SUPPLY_CAPACITY=3D40
+ POWER_SUPPLY_MODEL_NAME=3DHanvon Ugee Deco LW
+ POWER_SUPPLY_STATUS=3DDischarging
+ POWER_SUPPLY_SCOPE=3DDevice
+
+
+>[1] Actually it should be set to discharging until this gets merged:
+>    https://lore=2Ekernel=2Eorg/linux-input/20221028181849=2E23157-1-jose=
+=2Eexposito89@gmail=2Ecom/T/
+
+But i also currently applied this ^ patch, i will try testing without it a=
+nd then report=2E

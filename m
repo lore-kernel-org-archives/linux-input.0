@@ -2,28 +2,28 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8AB43C38A02
-	for <linux-input@archiver.kernel.org>; Sat, 29 Oct 2022 12:13:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF8BBC38A02
+	for <linux-input@archiver.kernel.org>; Sat, 29 Oct 2022 13:55:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229491AbiJ2MN1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 29 Oct 2022 08:13:27 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45222 "EHLO
+        id S229457AbiJ2Nz3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 29 Oct 2022 09:55:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229489AbiJ2MN0 (ORCPT
+        with ESMTP id S229497AbiJ2Nz2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 29 Oct 2022 08:13:26 -0400
-X-Greylist: delayed 41851 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 29 Oct 2022 05:13:25 PDT
-Received: from redpilled.dev (redpilled.dev [IPv6:2a01:4f8:1c1c:f8e2::])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9FFE77E8C;
-        Sat, 29 Oct 2022 05:13:24 -0700 (PDT)
-Date:   Sat, 29 Oct 2022 15:13:19 +0300
+        Sat, 29 Oct 2022 09:55:28 -0400
+X-Greylist: delayed 48431 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 29 Oct 2022 06:55:27 PDT
+Received: from redpilled.dev (redpilled.dev [195.201.122.22])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 771F532D95;
+        Sat, 29 Oct 2022 06:55:27 -0700 (PDT)
+Date:   Sat, 29 Oct 2022 16:55:21 +0300
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redpilled.dev;
-        s=mail; t=1667045602;
-        bh=iecAOUrXA5SLA/RHjbWjdCfOOsBiEh01Dkv1Qck30Ok=;
+        s=mail; t=1667051724;
+        bh=kUdiw4ahjwJwkABVSWcAn3AL0mmdeXZ3h2UHy5jAxlM=;
         h=Date:From:To:CC:Subject:In-Reply-To:References;
-        b=j1yJl6a8D9c78OedEOwHsOMCZh/wKr9iKbPSaT8CZ2JV+PcX4Es6yKKdbjpIVJSx2
-         yHPDbAwmrUqNEbYskcfB0uEp0q/pqRsF9Ql3N0xe8jvoSYft2V+mTQNGYO+iui4naQ
-         bdaO4Ya81DnRU1xZhezMOuMXVp2UatRzq6SBsYJ4=
+        b=EUjxdw4FqDssq+J5Dd5ZMQ+slA3tgglJKCIb0pTR5+SXg+D3LmeQS7HhhmYcXkvYk
+         rIGkytqO0BXqx/pdAqfwlUF6nrrkIti85Z0ie0Sd6fn9gcl+83uvOqoIspA4/mbFiv
+         M2bbQWvfzs2VptPjWbQMrKxEZfhu2cxdjNo3Z1mE=
 From:   Mia Kanashi <chad@redpilled.dev>
 To:     =?ISO-8859-1?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
 CC:     jikos@kernel.org, benjamin.tissoires@redhat.com, spbnick@gmail.com,
@@ -31,9 +31,9 @@ CC:     jikos@kernel.org, benjamin.tissoires@redhat.com, spbnick@gmail.com,
         linux-kernel@vger.kernel.org,
         Andreas Grosse <andig.mail@t-online.de>
 Subject: Re: [PATCH v2] HID: uclogic: Add support for XP-PEN Deco LW
-In-Reply-To: <20221029075832.GA8790@elementary>
-References: <20221028082348.22386-1-jose.exposito89@gmail.com> <ED1CBF63-A70C-44FF-9F0B-80090EB347EA@redpilled.dev> <20221029075832.GA8790@elementary>
-Message-ID: <21CA0A00-1B9F-4E97-B942-A3B7CAA2B52E@redpilled.dev>
+In-Reply-To: <21CA0A00-1B9F-4E97-B942-A3B7CAA2B52E@redpilled.dev>
+References: <20221028082348.22386-1-jose.exposito89@gmail.com> <ED1CBF63-A70C-44FF-9F0B-80090EB347EA@redpilled.dev> <20221029075832.GA8790@elementary> <21CA0A00-1B9F-4E97-B942-A3B7CAA2B52E@redpilled.dev>
+Message-ID: <C7FD0EC0-899A-4D29-8363-D2FAD8E89BBD@redpilled.dev>
 MIME-Version: 1.0
 Content-Type: text/plain;
  charset=utf-8
@@ -42,99 +42,15 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 29 October 2022 10:58:32 EEST, "Jos=C3=A9 Exp=C3=B3sito" <jose=2Eexposit=
-o89@gmail=2Ecom> wrote:
->Hi Mia,
+>>[1] Actually it should be set to discharging until this gets merged:
+>>    https://lore=2Ekernel=2Eorg/linux-input/20221028181849=2E23157-1-jos=
+e=2Eexposito89@gmail=2Ecom/T/
 >
->Thanks for testing :D
->
->On Sat, Oct 29, 2022 at 03:28:10AM +0300, Mia Kanashi wrote:
->> Hello!
->>=20
->> Before device sends a battery report, you can notice garbage values in =
-a power supply capacity=2E
->>=20
->> You can see this by running
->> `watch -n0=2E1 cat /sys/class/power_supply/hid-28bd-935-battery/uevent`
->> and then connecting the tablet=2E
->>=20
->> You can set it to a value here, but i think this is a problem in the gl=
-obal hid driver?
->
->That shouldn't be problematic, because the charging status should be
->initially set to unknown and change to charging/discharging [1] once
->the device sends the first report=2E
->
->Your desktop environment shouldn't display the battery percentage
->while the status is unknown, so the initial values are ignored=2E
->
->Here is my output of my XP-Pen Deco SW before receiving the battery
->percentage:
->
-> POWER_SUPPLY_NAME=3Dhid-28bd-933-battery
-> POWER_SUPPLY_TYPE=3DBattery
-> POWER_SUPPLY_PRESENT=3D1
-> POWER_SUPPLY_ONLINE=3D1
-> POWER_SUPPLY_MODEL_NAME=3DUGTABLET Deco Pro SW
-> POWER_SUPPLY_SCOPE=3DDevice
->
->And after:
->
-> POWER_SUPPLY_NAME=3Dhid-28bd-933-battery
-> POWER_SUPPLY_TYPE=3DBattery
-> POWER_SUPPLY_PRESENT=3D1
-> POWER_SUPPLY_ONLINE=3D1
-> POWER_SUPPLY_CAPACITY=3D99
-> POWER_SUPPLY_MODEL_NAME=3DUGTABLET Deco Pro SW
-> POWER_SUPPLY_STATUS=3DDischarging
-> POWER_SUPPLY_SCOPE=3DDevice
->
->Jose
->
->[1] Actually it should be set to discharging until this gets merged:
->    https://lore=2Ekernel=2Eorg/linux-input/20221028181849=2E23157-1-jose=
-=2Eexposito89@gmail=2Ecom/T/
+>But i also currently applied this ^ patch, i will try testing without it =
+and then report=2E
 
-Hello, for me it first looks like this:
-
- POWER_SUPPLY_NAME=3Dhid-28bd-935-battery
- POWER_SUPPLY_TYPE=3DBattery
- POWER_SUPPLY_PRESENT=3D1
- POWER_SUPPLY_ONLINE=3D1
- POWER_SUPPLY_MODEL_NAME=3DHanvon Ugee Deco LW
- POWER_SUPPLY_SCOPE=3DDevice
-
-Then it looks like this for a very brief (or not so brief) period of time,=
- it also isn't always there, i suggest trying plugging it in multiple times=
-:
-
- POWER_SUPPLY_NAME=3Dhid-28bd-935-battery
- POWER_SUPPLY_TYPE=3DBattery
- POWER_SUPPLY_PRESENT=3D1
- POWER_SUPPLY_ONLINE=3D1
- POWER_SUPPLY_CAPACITY=3D160
- POWER_SUPPLY_MODEL_NAME=3DHanvon Ugee Deco LW
- POWER_SUPPLY_STATUS=3DDischarging
- POWER_SUPPLY_SCOPE=3DDevice
-
-Here value is 160, obvious garbage, it can have any other value depending =
-on your luck=2E
-
-And then after that it looks like this:
-
- POWER_SUPPLY_NAME=3Dhid-28bd-935-battery
- POWER_SUPPLY_TYPE=3DBattery
- POWER_SUPPLY_PRESENT=3D1
- POWER_SUPPLY_ONLINE=3D1
- POWER_SUPPLY_CAPACITY=3D40
- POWER_SUPPLY_MODEL_NAME=3DHanvon Ugee Deco LW
- POWER_SUPPLY_STATUS=3DDischarging
- POWER_SUPPLY_SCOPE=3DDevice
+Tested without it, same issue=2E
+So yeah it seems that hid-input driver can set supply status to dischargin=
+g before setting a battery capacity?=20
 
 
->[1] Actually it should be set to discharging until this gets merged:
->    https://lore=2Ekernel=2Eorg/linux-input/20221028181849=2E23157-1-jose=
-=2Eexposito89@gmail=2Ecom/T/
-
-But i also currently applied this ^ patch, i will try testing without it a=
-nd then report=2E

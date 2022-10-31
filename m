@@ -2,105 +2,210 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 583C4FA3744
-	for <linux-input@archiver.kernel.org>; Sun, 30 Oct 2022 20:35:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8A88C38A02
+	for <linux-input@archiver.kernel.org>; Mon, 31 Oct 2022 09:30:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229947AbiJ3UfV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 30 Oct 2022 16:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46460 "EHLO
+        id S230046AbiJaJao (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 31 Oct 2022 05:30:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229909AbiJ3UfJ (ORCPT
+        with ESMTP id S230178AbiJaJam (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 30 Oct 2022 16:35:09 -0400
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3DF7BC0C;
-        Sun, 30 Oct 2022 13:34:43 -0700 (PDT)
-Received: by mail-wm1-x32d.google.com with SMTP id f16-20020a05600c491000b003cf66a2e7c0so2311329wmp.5;
-        Sun, 30 Oct 2022 13:34:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ITcMCaKfMZfpT5FNI3zHkV64gyDtL5X1yd5OeMk6v78=;
-        b=ZXKYgW2OmUN+mOeH+tEszk3tevmdmmSH8NV6DLpJ8vDP//0HHJC6J/EuFOsCjnlWmv
-         kWknIQTJL5wfogjwX9ZxA2adFQQkVUfARYye1syIM+QUqfKuuixvoZE4oGZ2MH3Z37IT
-         5fCrl34VpUmzFHMzuklsoWg45dAxmh//WAmgPbFfsKzR4Vn3Vf8BjRp7dYU06p+sjsAj
-         dP/7yzJJfYVi0pS+KznAD/OiG+G3nGrxXzoWL4TbvchSHPwH8kRCSsglyCe2opMsh2l/
-         FJadjV9UVYbzdwbS+Dv+w4G6+PrPmNzeWviB4GwLHsDyETI5zcDjxO2w6i5Jj6WILS9T
-         dUFA==
+        Mon, 31 Oct 2022 05:30:42 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F4F0DEA4
+        for <linux-input@vger.kernel.org>; Mon, 31 Oct 2022 02:29:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667208589;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=adeZcV5bQeJf8TMnWSAubv09JFdbgKL00xsMhzGx5CA=;
+        b=cpqQ0CkgstDllONVD88aBqZae7kFkR3DoyMZ1fdoTHC74lWzbj7TcNSIeM8iafQogOqW38
+        ZAZ6awpWxvUV/6g74GmOw4WWKyzwCsTbGfJJnD/LMzi396Yzljv3Ydf+KqsOwfq3IlSuOc
+        VZNQ8wbv1nPZNU/I6wBSOb+L7U6ViJ0=
+Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
+ [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-141-6-JMtlw1Ovu8c8ftOpIZww-1; Mon, 31 Oct 2022 05:29:47 -0400
+X-MC-Unique: 6-JMtlw1Ovu8c8ftOpIZww-1
+Received: by mail-lj1-f199.google.com with SMTP id e23-20020a2e9e17000000b0026e8e74be94so4457463ljk.3
+        for <linux-input@vger.kernel.org>; Mon, 31 Oct 2022 02:29:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ITcMCaKfMZfpT5FNI3zHkV64gyDtL5X1yd5OeMk6v78=;
-        b=QUTihgeS5nyu8Mpi5UcrOtptnK4dpkYDdYvAXu7ReUhMyVIta3+u8wrQsdIEAoF6aq
-         bzdXE1FCrlZs1qEEtpReQ+NAUI+P24IXBJzFehG1p4ZnAuKrnp8R5qSrnCsEpMknMBPJ
-         nNR63f1Pb4kSPOIP+6txTV8gtSsCYZJaAte+DpYxQqFZqnQBCulHby1Yo5kQZKxfKJIC
-         9+hZJrJpXaFvYqCNtL8SZGWipHduIO9trxRaUD1AlwFkWYfya8Q1ofzHpDL99wi2rD9Q
-         Ylgp8OtuZW9SDtHvl63bp5djN/asNM3nG/CJRzAsuXFDt4RvOpv0jdbKZNhot+OiYiKq
-         8PPg==
-X-Gm-Message-State: ACrzQf0fG5bJddaBDR6aTA6ovpQlmyT4w+0Kr5KmLvWLzC1KO69WgjLp
-        UHoxE3AkVbqeiTsp+IBx748=
-X-Google-Smtp-Source: AMsMyM5cS1XXi9FhT0S9YX0QH41H8184CWU4WzeFAJo5pztK7u4CONZRIZbxMTaeIhc1ZvzukelhSQ==
-X-Received: by 2002:a05:600c:5486:b0:3b4:7e47:e19 with SMTP id iv6-20020a05600c548600b003b47e470e19mr5929744wmb.12.1667162082460;
-        Sun, 30 Oct 2022 13:34:42 -0700 (PDT)
-Received: from michael-VirtualBox.. (89-139-44-91.bb.netvision.net.il. [89.139.44.91])
-        by smtp.googlemail.com with ESMTPSA id n25-20020a05600c181900b003b95ed78275sm4939385wmp.20.2022.10.30.13.34.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 30 Oct 2022 13:34:42 -0700 (PDT)
-From:   Michael Zaidman <michael.zaidman@gmail.com>
-To:     jikos@kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-i2c@vger.kernel.org, germain.hebert@ca.abb.com,
-        Enrik.Berkhan@inka.de, Michael Zaidman <michael.zaidman@gmail.com>
-Subject: [PATCH v3 11/12] HID: ft260: fix a NULL pointer dereference in ft260_i2c_write
-Date:   Sun, 30 Oct 2022 22:34:02 +0200
-Message-Id: <20221030203403.4637-12-michael.zaidman@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221030203403.4637-1-michael.zaidman@gmail.com>
-References: <20221030203403.4637-1-michael.zaidman@gmail.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=adeZcV5bQeJf8TMnWSAubv09JFdbgKL00xsMhzGx5CA=;
+        b=LlmlMGOoOO1n9oKKvv2cvPLe2ZaKPk+p9UtvasIveQWtPSayuehp+2Oqz6ZuBE4LsS
+         6+WIKfo+o9Kq/Vk+WUt+mk36I9zFn2iRQ9zSmcSqAX9Hi9MhJcGwC0JKB81BXLN3Bo82
+         JdUA0xXCMYyPrW8aOs8IxTnzDb6qdzDbWYm+Igms5XHT+dZJ8pWiNjX1PiWwP/38mbZj
+         Yqv/0syU8PYIG9kD8a46lbrh0gzkOOoGNzLqfnSAI0JT9j/vRw533aRt9222oEd/Ty1z
+         4MikW9nGs9eCZYoLr7tW+dnOd2wfpLVCvqnDa8u4Yeyvr+n42Y/Hix5wNE9h1CJBs/Si
+         EIXw==
+X-Gm-Message-State: ACrzQf14VPJVYTzNtk2RxbpjKhSH0sCbw2Ph2G7YSxKebMPx01nB/Req
+        Nd4cNmHqphBH0/mGQmtFDUHRDMqr253vz1gnBiqIUaTv+0M7dOP/Aw7cFw+vSPZ/DSTg3tbZM2N
+        ipcWU6FCNPX0wWfaJ1yJChOTLMWQk1qleVr4raFA=
+X-Received: by 2002:ac2:46c9:0:b0:4a4:47cc:fc9d with SMTP id p9-20020ac246c9000000b004a447ccfc9dmr5364380lfo.1.1667208586396;
+        Mon, 31 Oct 2022 02:29:46 -0700 (PDT)
+X-Google-Smtp-Source: AMsMyM6S0p/s8TdsNI4JUs/aUhh7RgPIdGjlxlTxHMA/QDu4+HNl+tNfInExD2i4LaG5JOJvWlDmj0hM+LqlqpzrbB8=
+X-Received: by 2002:ac2:46c9:0:b0:4a4:47cc:fc9d with SMTP id
+ p9-20020ac246c9000000b004a447ccfc9dmr5364376lfo.1.1667208586135; Mon, 31 Oct
+ 2022 02:29:46 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <Y1AVDck5sQf8+QFX@rowland.harvard.edu> <CABfF9mPU52OXTGcsbatJCG4nbP4zaPN3iJnttMg+xRyGY6dUEQ@mail.gmail.com>
+ <CAO-hwJJ7cF-4kd8Mi6bb5n-k5LuMrWbpdMqFs82y7iQOscr-7g@mail.gmail.com>
+ <CABfF9mNfU=swmpVXfVr7pYWs72jrd-HDY8+_NXyBDAKa4CWG5Q@mail.gmail.com>
+ <CAO-hwJ+i3zd=CyU0T+Nb1vGfZfenMBH16ern_ncTTKEpyGAuBA@mail.gmail.com> <CABfF9mNrMx2BzU5tbBeapY15M4Ls_5xYBGfVB=Up5TJu=eWCcg@mail.gmail.com>
+In-Reply-To: <CABfF9mNrMx2BzU5tbBeapY15M4Ls_5xYBGfVB=Up5TJu=eWCcg@mail.gmail.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Mon, 31 Oct 2022 09:30:47 +0000
+Message-ID: <CAO-hwJJGAWkhZgGeLBruqCoskY5PBP-STs4kh-P6fBvpuSgpUw@mail.gmail.com>
+Subject: Re: Litra Glow on Linux
+To:     Andreas Bergmeier <abergmeier@gmx.net>
+Cc:     linux-input@vger.kernel.org,
+        USB mailing list <linux-usb@vger.kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Jiri Kosina <jikos@kernel.org>, linux-leds@vger.kernel.org,
+        Nestor Lopez Casado <nlopezcasad@logitech.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The len=0 passed into the ft260_i2c_write() triggered the NULL
-pointer dereference in the debug message on access to data[0].
-Since a Write without data makes little sense in this context,
-do not allow it.
+[adding linux-leds in Cc]
 
-Before:
+On Sat, Oct 29, 2022 at 9:21 AM Andreas Bergmeier <abergmeier@gmx.net> wrote:
+>
+> Sorry, another set of questions - seems like I am a bit dense.
+>
+> On Thu, 27 Oct 2022 at 11:44, Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> > It's just Logitech's common HID protocol. The advantage is that if
+> > Logitech reuses the feature on a different hardware, we won't have to
+> > implement anything new in the kernel.
+> Started implementing some illumination code but will take a while
+> until I figure out the driver I think.
+>
+> > But from where you are now, you should probably be able to implement
+> > the basic on/off feature by looking at the function 0x1000 in the
+> > hid-logitech-hidpp code:
+> > - you need define a few macros for your functionality (the class, the
+> > commands, the events)
+> So my approach would be to identify the GLOW device and then at some
+> later point create the
+> illumination state and from there only handle common illumination.
 
-$ sudo i2ctransfer -y 13 w0@0x51
-Killed
+For identifying the GLOW device you should be adding an id in the
+table of hid-logitech-hidpp, with a driver data that tells the driver
+to look for 0x1990.
 
-After:
+>
+> > - you need to add a hook in connect_event to register the led class
+> > device that will hook on to the actual LED of the device
+> I did read all the LED specs/headers that I could find and from what I
+> have seen all you can currently do with this interface is control
+> brightness. There seems to be no way of controlling the Color
+> temperature, though.
 
-$ sudo i2ctransfer -y 13 w0@0x51
-Error: Sending messages failed: Invalid argument
+Leds can be multicolor. See drivers/hid/hid-playstation.c for an example.
 
-Reported-by: Enrik Berkhan <Enrik.Berkhan@inka.de>
-Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+So I think you should be able to give a color to the LED that can be
+controlled as a separate channel, different from the brightness. The
+LEDs folks will know better.
+
+> So either this then would have to be exposed as a special device or
+> get handled entirely in userspace.
+> The latter seems to work against "implementing illumination handling
+> once in driver and reusing it".
+
+I would rather have it handled as a standard LED class, a colored LED
+one. There might be a special structure for colored LEDs, and if not
+you should probably be able to use a multi-color led with just one
+color channel.
+
+>
+> > [0] https://pwr-solaar.github.io/Solaar
+> > [1] https://github.com/pwr-Solaar/Solaar/blob/master/docs/hidpp-documentation.txt
+> Thanks. Never would have found the specs on my own.
+> That said - I read x1990 spec and tried to access getIllumination from
+> userspace.
+
+Oh, good point, Nestor added that spec back in May :)
+Thanks, Nestor!
+
+> The spec seems a bit vague for my limited experience level.
+> For example I have not yet figured out what the communication (bytes)
+> difference between _getIllumination()_ and _illuminationChangedEvent_
+> is.
+> What seems to work is accessing events:
+>
+> So I tried:
+> ```c
+>
+> #define LONG_REPORT_ID 0x11
+>
+>     struct hiddev_usage_ref_multi multi;
+>     memset(&multi, 0, sizeof(multi));
+>     multi.uref.report_type = HID_REPORT_TYPE_INPUT;
+>     multi.uref.report_id = LONG_REPORT_ID;
+>     multi.uref.field_index = 0x0;
+>     multi.uref.usage_index = 0x03;
+>     multi.uref.usage_code = 0xff430002;
+>     multi.num_values = 1;
+>
+>     if (ioctl(fd, HIDIOCGUSAGES, &multi) < 0)
+>     {
+>         perror("HIDIOCGUSAGES getIllumination");
+>         return -11;
+>     }
+>
+>     printf("VALUE: %0x\n", multi.values[0]);
+>
+> ```
+> Which seems to report the illumination state until I press another
+> hardware button. So this seems to access the last event, which seems
+> to be _illuminationChangedEvent_ in my case.
+> No idea currently how to get _getIllumination_ to work.
+
+IIRC, HIDIOCGUSAGES doesn't do anything with the device, you are
+querying the kernel of its current state. Which explains why you are
+not getting the current state, but the previous known state.
+
+What you need to do, is actually emit a command to the device
+(completely untested, of course):
 ---
- drivers/hid/hid-ft260.c | 2 ++
- 1 file changed, 2 insertions(+)
+#define APPLICATION_ID 0x06 // can be anything between 0x01  and 0xF,
+0x1 being the ID from the kernel
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 00cbe7693ba0..b3f715f6ea86 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -395,6 +395,8 @@ static int ft260_i2c_write(struct ft260_device *dev, u8 addr, u8 *data,
- 	struct ft260_i2c_write_request_report *rep =
- 		(struct ft260_i2c_write_request_report *)dev->write_buf;
- 
-+	if (len < 1)
-+		return -EINVAL;
- 
- 	if (time_is_before_jiffies(dev->need_wakeup_at)) {
- 		(void)ft260_xfer_status(dev);
--- 
-2.34.1
+#define HIDPP_1990_GET_ILLUMINATION 0x00
+#define HIDPP_1990_SET_ILLUMINATION 0x10
+#define ....
+
+unsigned char cmd = HIDPP_1990_GET_ILLUMINATION | APPLICATION_ID;
+unsigned char buf[20] = {0x11, 0xff, 0x04}; // HIDPP ID, DEVICE INDEX,
+FEATURE INDEX in the feature table
+
+buf[3] = cmd;
+write(fd, buf, sizeof(buf));
+memset(buf, sizeof(buf), 0);
+while (buf[3] != cmd)
+  read(fd, buf, sizeof(buf));
+
+printf("VALUE: %0x\n", buf[4]);
+---
+
+It is important to set an application id so you can differentiate your
+requests from the events (the application ID from an event is always
+0).
+
+With that in mind, you should now be able to understand why you had to
+send {0x11, 0xff, 0x04, 0x10, 0x01} to set the illumination. And
+again, for being sure you can get the feedback you should use 0x16 as
+the fourth byte here, so you can detect your answer.
+
+I hope it makes more sense now.
+
+Cheers,
+Benjamin
 

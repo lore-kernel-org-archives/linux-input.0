@@ -2,108 +2,89 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19564FA3743
-	for <linux-input@archiver.kernel.org>; Tue,  1 Nov 2022 11:37:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA256FA3743
+	for <linux-input@archiver.kernel.org>; Tue,  1 Nov 2022 11:53:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231255AbiKALh3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 1 Nov 2022 07:37:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
+        id S231418AbiKALw7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 1 Nov 2022 07:52:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231171AbiKALhG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2022 07:37:06 -0400
+        with ESMTP id S230316AbiKALwf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Nov 2022 07:52:35 -0400
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49CAD1D328;
-        Tue,  1 Nov 2022 04:32:02 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B7FE1BEA1;
+        Tue,  1 Nov 2022 04:50:37 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5444FB81CD1;
-        Tue,  1 Nov 2022 11:31:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B421C433D6;
-        Tue,  1 Nov 2022 11:31:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0C12B81CC1;
+        Tue,  1 Nov 2022 11:50:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B42DC43142;
+        Tue,  1 Nov 2022 11:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1667302275;
-        bh=L9aQ73/4PQIxYU6PJzWji8OE/jJa6y6rkGYuYWnYiko=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LkX6AvLDN+FabWKcZfQ8JsWeXuv9vLb8sxzg+mQbTuCI8BHIMVM9NEVdrc4kop8Yq
-         yfPmiu4OvUbue237hH+/7d5PPdobcZP0Mkj4LTY9BDneNxWgHBMVDKjDZmneMtp8sC
-         qq5fuzqXIfY3R8f5S6QuP5HqCY8fGB7mqwy04Q8Scy3lGXMrNunFIHJwP8fjVgMe8b
-         i69EiPasv/CdjBJXoeO5Wy3gtFzwNYwmTvb93ySTvv+ZYHbigEs5GfjP0Iwp486NKQ
-         zngm2ZR2eDrBFOtzH5UhxosUYVb5Ar0ImFyGRwUDbisZc21gKJPQmdfgfh05CqC4XD
-         ahYbuK3eHuOdg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Samuel Bailey <samuel.bailey1@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 7/8] HID: saitek: add madcatz variant of MMO7 mouse device ID
-Date:   Tue,  1 Nov 2022 07:30:56 -0400
-Message-Id: <20221101113059.800777-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221101113059.800777-1-sashal@kernel.org>
-References: <20221101113059.800777-1-sashal@kernel.org>
+        s=k20201202; t=1667303434;
+        bh=b9DuYeJ8UAyKN4iunSt8QITKWhgj/OI7HXDzc4+2l1s=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=UYRKmAH9YdIMxLU8EIhuvvnbpOp7f11/bypSfTgAnJ565eqzNIZhOubyyXnOkFswX
+         rhxW/gDb/p+cg9Lu0k0BFY9UoeX9g+O320lJ4oyNnP39nPcim7deDVUf6OcbZAz/i3
+         zHvY+drmkwx21kwgXW1OfmfPT0Te1NND2AK6kynHuFF0rqSGxEqrD629HK7QXRFz+V
+         Le522I8ivpz1IgpVuvWozjhySVwzSABDDZkwEjdKqI51HxP9ORUYEvx7pXo+rTWQ9l
+         aMxApK4Kt9dNwjIF60jmsZlHYfRYvz0WxGzXm2ghiWZpCemYMCfygsCZWQ0pFASGoR
+         CsU8sKuJgpGYw==
+Received: by mail-lf1-f52.google.com with SMTP id t4so10102074lfp.2;
+        Tue, 01 Nov 2022 04:50:34 -0700 (PDT)
+X-Gm-Message-State: ACrzQf3ExM1ZhFcAohp/pUws3qOdk8rf+u8UQzY+GN/iaD5Z/lCN6vZo
+        TbPe/bkf+K3WtSfuQGtHPFYwSNuyiVzMSPQLZw==
+X-Google-Smtp-Source: AMsMyM5KpWl/s5M/2RwB97O0OoBTIFMD/4tFktgErD2EfbHM6BU8nZZywCB3++o+IvLHYAQ1WNuxKb0WTeinXEUk2sM=
+X-Received: by 2002:a05:6512:3e10:b0:4a2:48c1:8794 with SMTP id
+ i16-20020a0565123e1000b004a248c18794mr6906292lfv.17.1667303432390; Tue, 01
+ Nov 2022 04:50:32 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20221026114908.191472-1-alistair@alistair23.me>
+ <20221026114908.191472-3-alistair@alistair23.me> <Y2BfCkVhE9GNdjWI@google.com>
+In-Reply-To: <Y2BfCkVhE9GNdjWI@google.com>
+From:   Rob Herring <robh+dt@kernel.org>
+Date:   Tue, 1 Nov 2022 06:50:23 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqKppGZ2Dm3GiDY-e4TvLSvcc-EHwafXNwfoSD1AHzz=GA@mail.gmail.com>
+Message-ID: <CAL_JsqKppGZ2Dm3GiDY-e4TvLSvcc-EHwafXNwfoSD1AHzz=GA@mail.gmail.com>
+Subject: Re: [PATCH v10 2/4] dt-bindings: input: Add Cypress TT21000
+ touchscreen controller
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Alistair Francis <alistair@alistair23.me>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, linus.walleij@linaro.org,
+        shawnguo@kernel.org, rydberg@bitmath.org, alistair23@gmail.com,
+        s.hauer@pengutronix.de, andreas@kemnade.info
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Samuel Bailey <samuel.bailey1@gmail.com>
+On Mon, Oct 31, 2022 at 6:49 PM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> On Wed, Oct 26, 2022 at 09:49:06PM +1000, Alistair Francis wrote:
+> > Add the Cypress TrueTouch Generation 5 touchscreen device tree bindings
+> > documentation. It can use I2C or SPI bus.
+> > This touchscreen can handle some defined zone that are designed and
+> > sent as button. To be able to customize the keycode sent, the
+> > "linux,code" property in a "button" sub-node can be used.
+> >
+> > Signed-off-by: Alistair Francis <alistair@alistair23.me>
+> > Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> > Reviewed-by: Rob Herring <robh@kernel.org>
+>
+> Applied, thank you.
 
-[ Upstream commit 79425b297f56bd481c6e97700a9a4e44c7bcfa35 ]
+It looks like you applied v8, not this version. linux-next now has a warning:
 
-The MadCatz variant of the MMO7 mouse has the ID 0738:1713 and the same
-quirks as the Saitek variant.
+/builds/robherring/linux-dt/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.example.dtb:
+touchscreen@24: Unevaluated properties are not allowed
+('#address-cells', '#size-cells' were unexpected)
+        From schema:
+/builds/robherring/linux-dt/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
 
-Signed-off-by: Samuel Bailey <samuel.bailey1@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- drivers/hid/hid-saitek.c | 2 ++
- 3 files changed, 4 insertions(+)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c587a77d493c..d6cd94cad571 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -818,6 +818,7 @@
- #define USB_DEVICE_ID_MADCATZ_BEATPAD	0x4540
- #define USB_DEVICE_ID_MADCATZ_RAT5	0x1705
- #define USB_DEVICE_ID_MADCATZ_RAT9	0x1709
-+#define USB_DEVICE_ID_MADCATZ_MMO7  0x1713
- 
- #define USB_VENDOR_ID_MCC		0x09db
- #define USB_DEVICE_ID_MCC_PMD1024LS	0x0076
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 45eba224cdc7..89e236b71ddf 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -615,6 +615,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT5) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_RAT9) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7) },
- #endif
- #if IS_ENABLED(CONFIG_HID_SAMSUNG)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAMSUNG, USB_DEVICE_ID_SAMSUNG_IR_REMOTE) },
-diff --git a/drivers/hid/hid-saitek.c b/drivers/hid/hid-saitek.c
-index c7bf14c01960..b84e975977c4 100644
---- a/drivers/hid/hid-saitek.c
-+++ b/drivers/hid/hid-saitek.c
-@@ -187,6 +187,8 @@ static const struct hid_device_id saitek_devices[] = {
- 		.driver_data = SAITEK_RELEASE_MODE_RAT7 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_MMO7),
- 		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_MADCATZ, USB_DEVICE_ID_MADCATZ_MMO7),
-+		.driver_data = SAITEK_RELEASE_MODE_MMO7 },
- 	{ }
- };
- 
--- 
-2.35.1
-
+>
+> --
+> Dmitry

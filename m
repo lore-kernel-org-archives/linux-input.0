@@ -2,130 +2,92 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D94D2C4332F
-	for <linux-input@archiver.kernel.org>; Fri,  4 Nov 2022 12:58:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43860C4332F
+	for <linux-input@archiver.kernel.org>; Fri,  4 Nov 2022 13:13:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231319AbiKDM6Z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 4 Nov 2022 08:58:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38428 "EHLO
+        id S231857AbiKDNNo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 4 Nov 2022 09:13:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229553AbiKDM6Y (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Nov 2022 08:58:24 -0400
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EC2E2DA8E
-        for <linux-input@vger.kernel.org>; Fri,  4 Nov 2022 05:58:19 -0700 (PDT)
-Received: by mail-wm1-x32c.google.com with SMTP id m7-20020a05600c090700b003cf8a105d9eso3116155wmp.5
-        for <linux-input@vger.kernel.org>; Fri, 04 Nov 2022 05:58:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZwyHad34mlqqMFn53iMCM8+Gqhzyvbyy9wGcSB66m8s=;
-        b=neP1+M2g3j63Zk6HSrC43BrOUyCjmbe3/+IvveBVBi7gFujI/d+PxhgurHM3X/AWLP
-         on484xeONjUN3C9AolgI+T10FS8j8TopMXBAWO14HZuYKvgO+eycy2CHuIVgGsjBsj7g
-         2kurz8SrJM1ePJrlnrfcMAM7ZH5JyzdEaaw8uCXdV5U9EjrNc/yUX4lYJXYRLBMhNI8P
-         FvWZYCEUmwfcwmQUGEJI8WrkGqvfdKiqJ1OUHYs4EhJQOzi0INPeOvoLxoO8Lgg/yLNQ
-         8O8srjXkSmkuXFCQ59OJG1nXKFKtfI1xxMqqwlm+ryU15Z7qxmhTysmN8vSxZh0lNuQB
-         jAkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZwyHad34mlqqMFn53iMCM8+Gqhzyvbyy9wGcSB66m8s=;
-        b=djSg19R1kjeuISGGqcwyi9V3MTAcqcZ0FJEv/ugb/IE+Rio8fFm2BTnp77okDQP3PL
-         gwWaj/fc+xVlKS6Gbwk6jD+EZKhVLThctX3Sco1hMSL33na0qCoe1Z1aKeJL5PqqoLNp
-         94nsVXbrwkPzPhCB25WtDAjoRd3DJlhN2RrsOLruL1vOer1fsutwbsHX918QnW/fJr3B
-         dvHehfY1y0V+ZOIA6U/zCPkZ2x/1JLaNQ0bEytmpN6z2LK/teSKRX+eSbmvksjWJLrlF
-         T6M/7sxi9WZ01BUAbVamdZ/qoxmIj9VU6KChQFq1CyEyQgVs4QSp+o7/HrFIZB74zMCq
-         do/Q==
-X-Gm-Message-State: ACrzQf2d8yOhLEOmrSI76k3YmUAXtcSJU4uIUGSiM5VYoLg6cR9j9Wry
-        zEXVJ8aoGVkeLovbeIHqnT7kxA==
-X-Google-Smtp-Source: AMsMyM4PSqJTDG/ErJjBhO/AmAS5cO82QRykgTTHga1nzb8GnNE2KHwmgXPc7rwm6thvlMQoPRjSCA==
-X-Received: by 2002:a05:600c:1819:b0:3cf:63fe:944a with SMTP id n25-20020a05600c181900b003cf63fe944amr23041803wmp.17.1667566697875;
-        Fri, 04 Nov 2022 05:58:17 -0700 (PDT)
-Received: from [10.101.1.4] (laubervilliers-658-1-213-31.w90-63.abo.wanadoo.fr. [90.63.244.31])
-        by smtp.gmail.com with ESMTPSA id p10-20020a05600c1d8a00b003c6bd91caa5sm2941833wms.17.2022.11.04.05.58.15
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Nov 2022 05:58:17 -0700 (PDT)
-Message-ID: <1383fd22-c720-811e-a2bb-be2151675089@baylibre.com>
-Date:   Fri, 4 Nov 2022 13:58:13 +0100
+        with ESMTP id S230164AbiKDNNk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 4 Nov 2022 09:13:40 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B33B22AE36;
+        Fri,  4 Nov 2022 06:13:39 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C971E6218E;
+        Fri,  4 Nov 2022 13:13:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E92FC433D6;
+        Fri,  4 Nov 2022 13:13:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1667567618;
+        bh=2L0t5GV0svc8x8FXSIWytbw3XtM5sDI9NefKpvdamZc=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=aiM3gQe3TqyOh4IX07Yhh8Jy7rfZ5qBN5pfAzlk4yhQcob3DvCI/oBI2e2JBgJwdY
+         u7xqCWkOKtVUJekKX0xSAtMh1kGS/GCVj375a1FKdMTPz/q5cxD+/L+8ixf5UPVPK9
+         Jbrh6mRZoN/QWbyYkOJ7jqm7TI6IiYXjxMF/7JSHSakUbtaS7d/bjDuFVxkwBD9PaW
+         hFg8La5WvzM0ZbMLrBRokHG9T8a8fU9OyPkXRQ+v7wckMEtTeZEirpfwybncNXrPB4
+         mOWimNV7zxZ4m7GSHj/s8o8cGnDaYcaU8PG7apRxGa3nSqRe3jgrCCPgTqqeNZC9P2
+         nTUfW1dgzcqKQ==
+Date:   Fri, 4 Nov 2022 14:13:34 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Mia Kanashi <chad@redpilled.dev>
+cc:     =?ISO-8859-15?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>,
+        benjamin.tissoires@redhat.com, spbnick@gmail.com,
+        pobrn@protonmail.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/2] HID: input: do not query XP-PEN Deco LW battery
+In-Reply-To: <1701DB3A-5538-4B58-8232-E6705B9C70DF@redpilled.dev>
+Message-ID: <nycvar.YFH.7.76.2211041412500.29912@cbobk.fhfr.pm>
+References: <20221029161240.15548-1-jose.exposito89@gmail.com> <20221029161240.15548-2-jose.exposito89@gmail.com> <1701DB3A-5538-4B58-8232-E6705B9C70DF@redpilled.dev>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.2
-Subject: Re: [PATCH v6 4/6] mfd: tps65219: Add driver for TI TPS65219 PMIC
-Content-Language: en-US
-To:     Lee Jones <lee@kernel.org>
-Cc:     lgirdwood@gmail.com, broonie@kernel.org, robh+dt@kernel.org,
-        nm@ti.com, kristo@kernel.org, dmitry.torokhov@gmail.com,
-        krzysztof.kozlowski+dt@linaro.org, catalin.marinas@arm.com,
-        will@kernel.org, tony@atomide.com, vigneshr@ti.com,
-        bjorn.andersson@linaro.org, shawnguo@kernel.org,
-        geert+renesas@glider.be, dmitry.baryshkov@linaro.org,
-        marcel.ziswiler@toradex.com, vkoul@kernel.org,
-        biju.das.jz@bp.renesas.com, arnd@arndb.de, jeff@labundy.com,
-        afd@ti.com, khilman@baylibre.com, narmstrong@baylibre.com,
-        msp@baylibre.com, j-keerthy@ti.com, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-input@vger.kernel.org, linux-omap@vger.kernel.org
-References: <20221011140549.16761-1-jneanne@baylibre.com>
- <20221011140549.16761-5-jneanne@baylibre.com> <Y1+q2Usm9ecicXqp@google.com>
-From:   jerome Neanne <jneanne@baylibre.com>
-In-Reply-To: <Y1+q2Usm9ecicXqp@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Sat, 29 Oct 2022, Mia Kanashi wrote:
 
+> >The XP-PEN Deco LW drawing tablet can be connected by USB cable or using
+> >a USB Bluetooth dongle. When it is connected using the dongle, there
+> >might be a small delay until the tablet is paired with the dongle.
+> >
+> >Fetching the device battery during this delay results in random battery
+> >percentage values.
+> >
+> >Add a quirk to avoid actively querying the battery percentage and wait
+> >for the device to report it on its own.
+> >
+> >Reported-by: Mia Kanashi <chad@redpilled.dev>
+> >Signed-off-by: José Expósito <jose.exposito89@gmail.com>
 
-On 31/10/2022 12:00, Lee Jones wrote:
->> diff --git a/include/linux/mfd/tps65219.h b/include/linux/mfd/tps65219.h
->> new file mode 100644
->> index 000000000000..2c1cf92e92ac
->> --- /dev/null
->> +++ b/include/linux/mfd/tps65219.h
+[ ... snip ... ]
 
->> +/**
->> + * struct tps65219 - tps65219 sub-driver chip access routines
->> + *
->> + * Device data may be used to access the TPS65219 chip
->> + *
->> + * @dev MFD device
->> + * @regmap Regmap for accessing the device registers
->> + * @irq_data Regmap irq data used for the irq chip
->> + * @nb notifier block for the restart handler
->> + */
+> I've tested this patch and now power supply status is correctly set to 
+> Unknown and capacity is set to 0 initially.
 > 
-> This header needs work.
-I'm not sure to get your point here. Just something like below to match 
-format or do you expect more:
-
-/**
-  * struct tps65219 - tps65219 sub-driver chip access routines
-  *
-  * Device data may be used to access the TPS65219 chip
-  *
-  * @dev: MFD device
-  * @regmap: Regmap for accessing the device registers
-  * @irq_data: Regmap irq data used for the irq chip
-  * @nb: notifier block for the restart handler
-  */
-
+> Just a note that that issue occured not only with the dongle, but a 
+> cable also. It seems that tablet just doesn't respond to the query.
 > 
-> Can you try an compile with W=1 please.
-This raise one warning on mfd:
-drivers/mfd/tps65219.c:28:12: warning: ‘tps65219_soft_shutdown’ defined 
-but not used [-Wunused-function]
-    28 | static int tps65219_soft_shutdown(struct tps65219 *tps)
-       |            ^~~~~~~~~~~~~~~~~~~~~~
-soft_shutdown has been validated and is used in TI baseline even if not 
-hooked in upstream version further to this review:
-https://lore.kernel.org/lkml/20220825150224.826258-5-msp@baylibre.com/
+> Thank you for the work!
 
-It was a TI requirement to implement it...
-Let me know if you want me to remove this function or if we can keep it 
-like this.
+Based on this, can I assume that I can turn
+
+	Reported-by: Mia Kanashi <chad@redpilled.dev>
+
+into
+
+	Reported-and-tested-by: Mia Kanashi <chad@redpilled.dev>
+
+for the final version?
+
+Thanks,
+
+-- 
+Jiri Kosina
+SUSE Labs
 

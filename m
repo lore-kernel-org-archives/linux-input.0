@@ -2,488 +2,176 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6534C433FE
-	for <linux-input@archiver.kernel.org>; Mon,  7 Nov 2022 10:56:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB20FC433FE
+	for <linux-input@archiver.kernel.org>; Mon,  7 Nov 2022 12:22:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231927AbiKGK4b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Nov 2022 05:56:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
+        id S232010AbiKGMWD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Nov 2022 07:22:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231237AbiKGK4W (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2022 05:56:22 -0500
-Received: from mout-y-111.mailbox.org (mout-y-111.mailbox.org [91.198.250.236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2252F9;
-        Mon,  7 Nov 2022 02:56:20 -0800 (PST)
-Received: from smtp202.mailbox.org (smtp202.mailbox.org [IPv6:2001:67c:2050:b231:465::202])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange ECDHE (P-384) server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mout-y-111.mailbox.org (Postfix) with ESMTPS id 4N5Sp950cxz9tVH;
-        Mon,  7 Nov 2022 11:56:17 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=noorman.info;
-        s=MBO0001; t=1667818577;
+        with ESMTP id S232128AbiKGMWA (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2022 07:22:00 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DACA5D62
+        for <linux-input@vger.kernel.org>; Mon,  7 Nov 2022 04:21:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1667823667;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=lG19b8bVZfycBiA7HG/6xC2f6AKx1JjMt+tWxdZQ6g4=;
-        b=Hra8eqGeXVbXpRjjE25X6st4uPrJ3kIJd/XpYMgXAiitXn8x9wnHLPYxceLY5EgjiG1nyU
-        xlhVFVfkh560e71C7YvfZy+4UnyqzUoCIeENc8hO2YfvhthbJk0rsoc5foLyFQAbBrcg5g
-        2a/5RaUj2KhuRizRS7DxrPzChuqONHVLVwLmXMXYopT68IPhaqgfmwQs+9W+QVrvY4tO1K
-        0DSePnGLCOT+A2S6KtzEod9h5MqXeMe4FcwoUoTqSXZiFOpNGLD5k6xC3qFqorpJMwEXzi
-        broEgwsiN9ytHcT+NDWSkN/C7MKRMQmK46uym4sbty4IXIrM7ryqgHQ6a1ZRuw==
-From:   Job Noorman <job@noorman.info>
-To:     Job Noorman <job@noorman.info>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>
-Cc:     Jeff LaBundy <jeff@labundy.com>, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Luca Weiss <luca@z3ntu.xyz>
-Subject: [PATCH RESEND v6 2/3] Input: add driver for Himax hx83112b touchscreen devices
-Date:   Mon,  7 Nov 2022 11:56:03 +0100
-Message-Id: <20221107105604.26541-3-job@noorman.info>
-In-Reply-To: <20221107105604.26541-1-job@noorman.info>
-References: <20221107105604.26541-1-job@noorman.info>
+        bh=UcspqJApO0NOnS5NS4GdB0SX4RQjBxE7UoOSIEHHcKI=;
+        b=eiV5DyEDmVPgpgrVqfb+AIUzMLpvso1RErEchIByYIGmA40eL7XkgMW4DQe0yYmQ4e+PL6
+        S9T9Z1K4C7Rg1FLMWHEOYvOTuxZbQBosWc8H9ooEbrbgz5MuEekz6fvgwLKqWa5aC+60s+
+        IQqs/a8rsck9GOuMn2KZECbYZIRZIU4=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-97-ht_T277HOEWs5Fga1g4WWg-1; Mon, 07 Nov 2022 07:21:06 -0500
+X-MC-Unique: ht_T277HOEWs5Fga1g4WWg-1
+Received: by mail-ed1-f72.google.com with SMTP id b13-20020a056402350d00b00464175c3f1eso8215994edd.11
+        for <linux-input@vger.kernel.org>; Mon, 07 Nov 2022 04:21:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=UcspqJApO0NOnS5NS4GdB0SX4RQjBxE7UoOSIEHHcKI=;
+        b=6G41bbzE+rlZs1DJ8O+xQCgK9oH4p0DXYusrvRKpdIAlkib3iXEZtPF1mPtAJiN3zl
+         CF+KMZP6SGR3MelpjyxCSlxlHHsRFgOHU+wYJjIwGp+xwkZj8jAuTH9VkMxuQiQ0Ymxv
+         7pnEXtDW0C1EwrFzyzkrbNa/yvVgCyBm58V9XDBtbQ9BS30oP+HqxF92Gs1M/DOWzYpe
+         f2JRHHkawvakjk3NAdZDbjYMybf284xd/+dkkCGuDsdfWReMpuu0tNN36qvYlKxNyEKc
+         Usr0a8PA7iRtxetRchmmQZ06LQzqiusl5d81ZbkWPm8YUkjsEdwfRrRy2o+0RceUtAkn
+         lH3Q==
+X-Gm-Message-State: ACrzQf2ML2YO/b0N6c+Ekb5PyNi9bpP0CqWMsIh459nXNJQmgKFcn/qV
+        6L/1Kfn1vaxssPQhubTg1nXPZGkyAyY4IqxdnVbdtWL1PsRHWMX10Dced1cNIk47QmPV/3I6Ich
+        S4SrwqX8j9w2/QuuPdYgFC04=
+X-Received: by 2002:aa7:dd57:0:b0:453:2d35:70bb with SMTP id o23-20020aa7dd57000000b004532d3570bbmr50676122edw.26.1667823664560;
+        Mon, 07 Nov 2022 04:21:04 -0800 (PST)
+X-Google-Smtp-Source: AMsMyM6acwTSAHhKPd/NL81CMMwuivR1LuHdu/Y9FBPag9bWdyJTVzmYPqa6LyAIeDoaqAY5KPnEVQ==
+X-Received: by 2002:aa7:dd57:0:b0:453:2d35:70bb with SMTP id o23-20020aa7dd57000000b004532d3570bbmr50676106edw.26.1667823664349;
+        Mon, 07 Nov 2022 04:21:04 -0800 (PST)
+Received: from [10.40.98.142] ([78.108.130.194])
+        by smtp.gmail.com with ESMTPSA id f26-20020a17090631da00b0078cb06c2ef9sm3340134ejf.8.2022.11.07.04.21.03
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 07 Nov 2022 04:21:03 -0800 (PST)
+Message-ID: <a804b4e1-4a17-96f8-671b-4da0dad149b1@redhat.com>
+Date:   Mon, 7 Nov 2022 13:21:02 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 4N5Sp950cxz9tVH
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.3.1
+Subject: Re: Detecting if a laptop is using a i2c/smbus or a ps/2 attached
+ touchpad?
+Content-Language: en-US
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input <linux-input@vger.kernel.org>,
+        Manyi Li <limanyi@uniontech.com>
+References: <ae50236e-1ce8-b526-9c17-7bc0463ebb86@redhat.com>
+ <CAO-hwJJUdXb1iBN7AVushaJz9LawuaO5hP8GWKucWuxzDpnCTg@mail.gmail.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <CAO-hwJJUdXb1iBN7AVushaJz9LawuaO5hP8GWKucWuxzDpnCTg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This patch adds support for Himax hx83112b touchscreen devices. As there
-are no publicly available data sheets for these devices, the
-implementation is based on the driver of the downstream Android kernel
-used in the Fairphone 3. This patch is a complete rewrite, though, and
-the code bears no resemblence to the original implementation.
+Hi,
 
-The driver has been tested on the aforementioned phone.
+On 11/7/22 11:52, Benjamin Tissoires wrote:
+> Hi Hans,
+> 
+> On Mon, Nov 7, 2022 at 11:10 AM Hans de Goede <hdegoede@redhat.com> wrote:
+>>
+>> Hi Benjamin, et. al.,
+>>
+>> I have just merged a patch which adds a couple of DMI quirks to disable
+>> the touchpad on/off functionality of the ideapad-laptop module on some models,
+>> because it is causing issues there.
+>>
+>> Patch:      https://lore.kernel.org/platform-driver-x86/20221018095323.14591-1-limanyi@uniontech.com/
+>> Discussion: https://lore.kernel.org/platform-driver-x86/fdceb6d2-c38c-e8ff-4c19-b01521ca46c0@redhat.com/
+>>
+>> Rather then using DMI quirks I would prefer to just disable it everywhere
+>> where a i2c-attached touchpad is used. Be it either one only attached to
+>> i2c, or one of the synaptics intertouch thingies. I'm still trying to
+>> figure out why the ideapad-laptop module's touchpad control (which
+>> uses the EC + enabling/disabling the i8042 aux-port) matters for
+>> i2c-attached touchpads at all, so I suspect that intertouch might be
+>> a part of it.
+>>
+>> So now I'm wondering if there is some nice way for the ideapad-laptop
+>> code to check if the touchpad is intertouch and/or if it is i2c-attached
+>> only ...
+>>
+>> Any ideas?
+> 
+> TL;DR: it's a complete mess.
+> 
+> For mostly UEFI/BIOS compatibility, all touchpads on modern laptops
+> have a PS/2 interface.
+> 
+> But then, most of the touchpads (and of course not all) can also use
+> I2C or SMBus to communicate.
+> 
+> And this is where things are bad:
+> 
+> - when using i2c-hid, there is a DT entry that enumerates the
+> touchpad, but sometimes the manufacturers like to reuse the same DT
+> and just enable/disable devices in it, so it's not easy to do.
+> In the i2c-hid case, the PS/2 node has no idea it is not used anymore,
+> and thus is kept up forever
+> 
+> - for touchpads using SMBus (on Intel platforms only currently), the
+> enumeration is done at the PS/2 level: there is a byte that says that
+> the touchpad supports another bus or not.
+> This is valid for both Synaptics, and Elan, as you figured out.
+> 
+> But in the SMBus case there are many cases where it is not working: if
+> the SMBus doesn't support Host Notify (AMD platforms), or if the
+> enumeration is not working because the touchpad is not happy, etc...
+> 
+> So again, in SMBus, we can not disable the PS/2 nodes, because there
+> is a high chance the touchpad will not work. Not to mention that the
+> specific bit to enable the touchpad might also be required when coming
+> back from suspend (not entirely sure though).
+> 
+> However, in the Synaptics SMbus case, we took a safer approach
+> (because the SMBus driver is not standard and sometimes breaks on new
+> hardware), so we are using the PnP ID to selectively enable the
+> devices (see smbus_pnp_ids[] in drivers/input/mouse/synaptics.c)
+> 
+> In the Elan case, if the touchpad exports the magic bit, we forward it
+> to SMBus as the driver is behaving better with new devices.
+> 
+> As a result, from user space, it's easier to know if the device uses
+> smbus/i2c, simply because you can enumerate all devices.
+> But from the kernel, either you have to look for the ACPI tables, and
+> hope that the I2C bus is correctly supported in the system, or you
+> have to talk over PS/2 and hope that the platform supports
+> HostNotify...
+> 
+>>
+>> Regards,
+>>
+>> Hans
+>>
+>> p.s.
+>>
+>> Is it possible that Elan touchpads use something similar to intertouch,
+>> or is that a synaptics thing only (under Linux)  ?
+>>
+> 
+> Yep, see above. If the touchpad says it can be driven through SMBus,
+> we forward it.
 
-Signed-off-by: Job Noorman <job@noorman.info>
-Reviewed-by: Jeff LaBundy <jeff@labundy.com>
----
- MAINTAINERS                                |   1 +
- drivers/input/touchscreen/Kconfig          |  12 +
- drivers/input/touchscreen/Makefile         |   1 +
- drivers/input/touchscreen/himax_hx83112b.c | 361 +++++++++++++++++++++
- 4 files changed, 375 insertions(+)
- create mode 100644 drivers/input/touchscreen/himax_hx83112b.c
+Ok, thank you for the long answer.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 469ab6382906..8d9fe0ac632c 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -9167,6 +9167,7 @@ M:	Job Noorman <job@noorman.info>
- L:	linux-input@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
-+F:	drivers/input/touchscreen/himax_hx83112b.c
- 
- HIPPI
- M:	Jes Sorensen <jes@trained-monkey.org>
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 317250b62e08..3f68eee71a4e 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -1407,4 +1407,16 @@ config TOUCHSCREEN_ZINITIX
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called zinitix.
- 
-+config TOUCHSCREEN_HIMAX_HX83112B
-+	tristate "Himax hx83112b touchscreen driver"
-+	depends on I2C
-+	select REGMAP_I2C
-+	help
-+	  Say Y here to enable support for Himax hx83112b touchscreens.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called himax_hx83112b.
-+
- endif
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 03ad13f3fcce..4968c370479a 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -118,3 +118,4 @@ obj-$(CONFIG_TOUCHSCREEN_ROHM_BU21023)	+= rohm_bu21023.o
- obj-$(CONFIG_TOUCHSCREEN_RASPBERRYPI_FW)	+= raspberrypi-ts.o
- obj-$(CONFIG_TOUCHSCREEN_IQS5XX)	+= iqs5xx.o
- obj-$(CONFIG_TOUCHSCREEN_ZINITIX)	+= zinitix.o
-+obj-$(CONFIG_TOUCHSCREEN_HIMAX_HX83112B)	+= himax_hx83112b.o
-diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
-new file mode 100644
-index 000000000000..ed550cd33eb7
---- /dev/null
-+++ b/drivers/input/touchscreen/himax_hx83112b.c
-@@ -0,0 +1,361 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Driver for Himax hx83112b touchscreens
-+ *
-+ * Copyright (C) 2022 Job Noorman <job@noorman.info>
-+ *
-+ * This code is based on "Himax Android Driver Sample Code for QCT platform":
-+ *
-+ * Copyright (C) 2017 Himax Corporation.
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/i2c.h>
-+#include <linux/input.h>
-+#include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
-+#include <linux/interrupt.h>
-+#include <linux/kernel.h>
-+#include <linux/regmap.h>
-+
-+#define HIMAX_ID_83112B			0x83112b
-+
-+#define HIMAX_MAX_POINTS		10
-+
-+#define HIMAX_REG_CFG_SET_ADDR		0x00
-+#define HIMAX_REG_CFG_INIT_READ		0x0c
-+#define HIMAX_REG_CFG_READ_VALUE	0x08
-+#define HIMAX_REG_READ_EVENT		0x30
-+
-+#define HIMAX_CFG_PRODUCT_ID		0x900000d0
-+
-+#define HIMAX_INVALID_COORD		0xffff
-+
-+struct himax_event_point {
-+	__be16 x;
-+	__be16 y;
-+} __packed;
-+
-+struct himax_event {
-+	struct himax_event_point points[HIMAX_MAX_POINTS];
-+	u8 majors[HIMAX_MAX_POINTS];
-+	u8 pad0[2];
-+	u8 num_points;
-+	u8 pad1[2];
-+	u8 checksum_fix;
-+} __packed;
-+
-+static_assert(sizeof(struct himax_event) == 56);
-+
-+struct himax_ts_data {
-+	struct gpio_desc *gpiod_rst;
-+	struct input_dev *input_dev;
-+	struct i2c_client *client;
-+	struct regmap *regmap;
-+	struct touchscreen_properties props;
-+};
-+
-+static const struct regmap_config himax_regmap_config = {
-+	.reg_bits = 8,
-+	.val_bits = 32,
-+	.val_format_endian = REGMAP_ENDIAN_LITTLE,
-+};
-+
-+static int himax_read_config(struct himax_ts_data *ts, u32 address, u32 *dst)
-+{
-+	int error;
-+
-+	error = regmap_write(ts->regmap, HIMAX_REG_CFG_SET_ADDR, address);
-+	if (error)
-+		return error;
-+
-+	error = regmap_write(ts->regmap, HIMAX_REG_CFG_INIT_READ, 0x0);
-+	if (error)
-+		return error;
-+
-+	error = regmap_read(ts->regmap, HIMAX_REG_CFG_READ_VALUE, dst);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static void himax_reset(struct himax_ts_data *ts)
-+{
-+	gpiod_set_value_cansleep(ts->gpiod_rst, 1);
-+
-+	/* Delay copied from downstream driver */
-+	msleep(20);
-+	gpiod_set_value_cansleep(ts->gpiod_rst, 0);
-+
-+	/*
-+	 * The downstream driver doesn't contain this delay but is seems safer
-+	 * to include it. The range is just a guess that seems to work well.
-+	 */
-+	usleep_range(1000, 1100);
-+}
-+
-+static int himax_read_product_id(struct himax_ts_data *ts, u32 *product_id)
-+{
-+	int error;
-+
-+	error = himax_read_config(ts, HIMAX_CFG_PRODUCT_ID, product_id);
-+	if (error)
-+		return error;
-+
-+	*product_id >>= 8;
-+	return 0;
-+}
-+
-+static int himax_check_product_id(struct himax_ts_data *ts)
-+{
-+	int error;
-+	u32 product_id;
-+
-+	error = himax_read_product_id(ts, &product_id);
-+	if (error)
-+		return error;
-+
-+	dev_dbg(&ts->client->dev, "Product id: %x\n", product_id);
-+
-+	switch (product_id) {
-+	case HIMAX_ID_83112B:
-+		return 0;
-+
-+	default:
-+		dev_err(&ts->client->dev,
-+			"Unknown product id: %x\n", product_id);
-+		return -EINVAL;
-+	}
-+}
-+
-+static int himax_input_register(struct himax_ts_data *ts)
-+{
-+	int error;
-+
-+	ts->input_dev = devm_input_allocate_device(&ts->client->dev);
-+	if (!ts->input_dev) {
-+		dev_err(&ts->client->dev, "Failed to allocate input device\n");
-+		return -ENOMEM;
-+	}
-+
-+	ts->input_dev->name = "Himax Touchscreen";
-+
-+	input_set_capability(ts->input_dev, EV_ABS, ABS_MT_POSITION_X);
-+	input_set_capability(ts->input_dev, EV_ABS, ABS_MT_POSITION_Y);
-+	input_set_abs_params(ts->input_dev, ABS_MT_WIDTH_MAJOR, 0, 200, 0, 0);
-+	input_set_abs_params(ts->input_dev, ABS_MT_TOUCH_MAJOR, 0, 200, 0, 0);
-+
-+	touchscreen_parse_properties(ts->input_dev, true, &ts->props);
-+
-+	error = input_mt_init_slots(ts->input_dev, HIMAX_MAX_POINTS,
-+				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-+	if (error) {
-+		dev_err(&ts->client->dev,
-+			"Failed to initialize MT slots: %d\n", error);
-+		return error;
-+	}
-+
-+	error = input_register_device(ts->input_dev);
-+	if (error) {
-+		dev_err(&ts->client->dev,
-+			"Failed to register input device: %d\n", error);
-+		return error;
-+	}
-+
-+	return 0;
-+}
-+
-+static u8 himax_event_get_num_points(const struct himax_event *event)
-+{
-+	if (event->num_points == 0xff)
-+		return 0;
-+	else
-+		return event->num_points & 0x0f;
-+}
-+
-+static bool himax_process_event_point(struct himax_ts_data *ts,
-+				      const struct himax_event *event,
-+				      int point_index)
-+{
-+	const struct himax_event_point *point = &event->points[point_index];
-+	u16 x = be16_to_cpu(point->x);
-+	u16 y = be16_to_cpu(point->y);
-+	u8 w = event->majors[point_index];
-+
-+	if (x == HIMAX_INVALID_COORD || y == HIMAX_INVALID_COORD)
-+		return false;
-+
-+	input_mt_slot(ts->input_dev, point_index);
-+	input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER, true);
-+	touchscreen_report_pos(ts->input_dev, &ts->props, x, y, true);
-+	input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR, w);
-+	input_report_abs(ts->input_dev, ABS_MT_WIDTH_MAJOR, w);
-+	return true;
-+}
-+
-+static void himax_process_event(struct himax_ts_data *ts,
-+				const struct himax_event *event)
-+{
-+	int i;
-+	int num_points_left = himax_event_get_num_points(event);
-+
-+	for (i = 0; i < HIMAX_MAX_POINTS && num_points_left > 0; i++) {
-+		if (himax_process_event_point(ts, event, i))
-+			num_points_left--;
-+	}
-+
-+	input_mt_sync_frame(ts->input_dev);
-+	input_sync(ts->input_dev);
-+}
-+
-+static bool himax_verify_checksum(struct himax_ts_data *ts,
-+				  const struct himax_event *event)
-+{
-+	u8 *data = (u8 *)event;
-+	int i;
-+	u16 checksum = 0;
-+
-+	for (i = 0; i < sizeof(*event); i++)
-+		checksum += data[i];
-+
-+	if ((checksum & 0x00ff) != 0) {
-+		dev_err(&ts->client->dev, "Wrong event checksum: %04x\n",
-+			checksum);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
-+static int himax_handle_input(struct himax_ts_data *ts)
-+{
-+	int error;
-+	struct himax_event event;
-+
-+	error = regmap_raw_read(ts->regmap, HIMAX_REG_READ_EVENT, &event,
-+				sizeof(event));
-+	if (error) {
-+		dev_err(&ts->client->dev, "Failed to read input event: %d\n",
-+			error);
-+		return error;
-+	}
-+
-+	/*
-+	 * Only process the current event when it has a valid checksum but
-+	 * don't consider it a fatal error when it doesn't.
-+	 */
-+	if (himax_verify_checksum(ts, &event))
-+		himax_process_event(ts, &event);
-+
-+	return 0;
-+}
-+
-+static irqreturn_t himax_irq_handler(int irq, void *dev_id)
-+{
-+	int error;
-+	struct himax_ts_data *ts = dev_id;
-+
-+	error = himax_handle_input(ts);
-+	if (error)
-+		return IRQ_NONE;
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int himax_probe(struct i2c_client *client,
-+		       const struct i2c_device_id *id)
-+{
-+	int error;
-+	struct device *dev = &client->dev;
-+	struct himax_ts_data *ts;
-+
-+	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
-+		dev_err(dev, "I2C check functionality failed\n");
-+		return -ENXIO;
-+	}
-+
-+	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
-+	if (!ts)
-+		return -ENOMEM;
-+
-+	i2c_set_clientdata(client, ts);
-+	ts->client = client;
-+
-+	ts->regmap = devm_regmap_init_i2c(client, &himax_regmap_config);
-+	error = PTR_ERR_OR_ZERO(ts->regmap);
-+	if (error) {
-+		dev_err(dev, "Failed to initialize regmap: %d\n", error);
-+		return error;
-+	}
-+
-+	ts->gpiod_rst = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
-+	error = PTR_ERR_OR_ZERO(ts->gpiod_rst);
-+	if (error) {
-+		dev_err(dev, "Failed to get reset GPIO: %d\n", error);
-+		return error;
-+	}
-+
-+	himax_reset(ts);
-+
-+	error = himax_check_product_id(ts);
-+	if (error)
-+		return error;
-+
-+	error = himax_input_register(ts);
-+	if (error)
-+		return error;
-+
-+	return devm_request_threaded_irq(dev, client->irq, NULL,
-+					 himax_irq_handler, IRQF_ONESHOT,
-+					 client->name, ts);
-+}
-+
-+static int himax_suspend(struct device *dev)
-+{
-+	struct himax_ts_data *ts = dev_get_drvdata(dev);
-+
-+	disable_irq(ts->client->irq);
-+	return 0;
-+}
-+
-+static int himax_resume(struct device *dev)
-+{
-+	struct himax_ts_data *ts = dev_get_drvdata(dev);
-+
-+	enable_irq(ts->client->irq);
-+	return 0;
-+}
-+
-+static DEFINE_SIMPLE_DEV_PM_OPS(himax_pm_ops, himax_suspend, himax_resume);
-+
-+static const struct i2c_device_id himax_ts_id[] = {
-+	{ "hx83112b", 0 },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(i2c, himax_ts_id);
-+
-+#ifdef CONFIG_OF
-+static const struct of_device_id himax_of_match[] = {
-+	{ .compatible = "himax,hx83112b" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, himax_of_match);
-+#endif
-+
-+static struct i2c_driver himax_ts_driver = {
-+	.probe = himax_probe,
-+	.id_table = himax_ts_id,
-+	.driver = {
-+		.name = "Himax-hx83112b-TS",
-+		.of_match_table = of_match_ptr(himax_of_match),
-+		.pm = pm_sleep_ptr(&himax_pm_ops),
-+	},
-+};
-+module_i2c_driver(himax_ts_driver);
-+
-+MODULE_AUTHOR("Job Noorman <job@noorman.info>");
-+MODULE_DESCRIPTION("Himax hx83112b touchscreen driver");
-+MODULE_LICENSE("GPL");
--- 
-2.38.1
+I will try to find some generic solution on the ideapad-laptop driver
+side. First of all we need to root cause which call in that driver
+is exactly causing the touchpad to not work.
+
+Regards,
+
+hans
 

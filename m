@@ -2,176 +2,232 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB20FC433FE
-	for <linux-input@archiver.kernel.org>; Mon,  7 Nov 2022 12:22:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 79B90C433FE
+	for <linux-input@archiver.kernel.org>; Mon,  7 Nov 2022 16:48:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232010AbiKGMWD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Nov 2022 07:22:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48276 "EHLO
+        id S232215AbiKGQr7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Nov 2022 11:47:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232128AbiKGMWA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2022 07:22:00 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DACA5D62
-        for <linux-input@vger.kernel.org>; Mon,  7 Nov 2022 04:21:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1667823667;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=UcspqJApO0NOnS5NS4GdB0SX4RQjBxE7UoOSIEHHcKI=;
-        b=eiV5DyEDmVPgpgrVqfb+AIUzMLpvso1RErEchIByYIGmA40eL7XkgMW4DQe0yYmQ4e+PL6
-        S9T9Z1K4C7Rg1FLMWHEOYvOTuxZbQBosWc8H9ooEbrbgz5MuEekz6fvgwLKqWa5aC+60s+
-        IQqs/a8rsck9GOuMn2KZECbYZIRZIU4=
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
- [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-97-ht_T277HOEWs5Fga1g4WWg-1; Mon, 07 Nov 2022 07:21:06 -0500
-X-MC-Unique: ht_T277HOEWs5Fga1g4WWg-1
-Received: by mail-ed1-f72.google.com with SMTP id b13-20020a056402350d00b00464175c3f1eso8215994edd.11
-        for <linux-input@vger.kernel.org>; Mon, 07 Nov 2022 04:21:05 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=UcspqJApO0NOnS5NS4GdB0SX4RQjBxE7UoOSIEHHcKI=;
-        b=6G41bbzE+rlZs1DJ8O+xQCgK9oH4p0DXYusrvRKpdIAlkib3iXEZtPF1mPtAJiN3zl
-         CF+KMZP6SGR3MelpjyxCSlxlHHsRFgOHU+wYJjIwGp+xwkZj8jAuTH9VkMxuQiQ0Ymxv
-         7pnEXtDW0C1EwrFzyzkrbNa/yvVgCyBm58V9XDBtbQ9BS30oP+HqxF92Gs1M/DOWzYpe
-         f2JRHHkawvakjk3NAdZDbjYMybf284xd/+dkkCGuDsdfWReMpuu0tNN36qvYlKxNyEKc
-         Usr0a8PA7iRtxetRchmmQZ06LQzqiusl5d81ZbkWPm8YUkjsEdwfRrRy2o+0RceUtAkn
-         lH3Q==
-X-Gm-Message-State: ACrzQf2ML2YO/b0N6c+Ekb5PyNi9bpP0CqWMsIh459nXNJQmgKFcn/qV
-        6L/1Kfn1vaxssPQhubTg1nXPZGkyAyY4IqxdnVbdtWL1PsRHWMX10Dced1cNIk47QmPV/3I6Ich
-        S4SrwqX8j9w2/QuuPdYgFC04=
-X-Received: by 2002:aa7:dd57:0:b0:453:2d35:70bb with SMTP id o23-20020aa7dd57000000b004532d3570bbmr50676122edw.26.1667823664560;
-        Mon, 07 Nov 2022 04:21:04 -0800 (PST)
-X-Google-Smtp-Source: AMsMyM6acwTSAHhKPd/NL81CMMwuivR1LuHdu/Y9FBPag9bWdyJTVzmYPqa6LyAIeDoaqAY5KPnEVQ==
-X-Received: by 2002:aa7:dd57:0:b0:453:2d35:70bb with SMTP id o23-20020aa7dd57000000b004532d3570bbmr50676106edw.26.1667823664349;
-        Mon, 07 Nov 2022 04:21:04 -0800 (PST)
-Received: from [10.40.98.142] ([78.108.130.194])
-        by smtp.gmail.com with ESMTPSA id f26-20020a17090631da00b0078cb06c2ef9sm3340134ejf.8.2022.11.07.04.21.03
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 07 Nov 2022 04:21:03 -0800 (PST)
-Message-ID: <a804b4e1-4a17-96f8-671b-4da0dad149b1@redhat.com>
-Date:   Mon, 7 Nov 2022 13:21:02 +0100
+        with ESMTP id S232211AbiKGQr7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Nov 2022 11:47:59 -0500
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89D871F2C9;
+        Mon,  7 Nov 2022 08:47:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1667839677; x=1699375677;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   content-transfer-encoding;
+  bh=ZlkYnRti0+UTe1aeerFDnAOYCAevO6FI6ZHWjCipoiU=;
+  b=RkaTzkqCyCN90YEwG89LeKkpchFbTd4nakhPF8IJ04d4DOEkgruR8NMT
+   KU9B//1Nv5yfOxYFrTy7O8dHogjsAbqa9Fd3ejLvtaF0VMj6+qAmKp/M3
+   XOVbsMUuiWso0fX4Krai+4KvGXyMSlfyWY81de+CEe0+8tQ/DBh07gwUR
+   fZb98lTLUH3PWGAWhUS1j+v4xnzzTFXCBtyXn7QAOudXYXSYRCW/eAINL
+   5eajq16wBYlvJnrQ418t8uvWThXdZnJzZODxUXp/ua6i9PIQm4JmMZsXr
+   EV/b62EQgpcUG4tZ1NarDUzPy9No78aCR371MDgbzyZcKQTlA5VKB211f
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10524"; a="374712585"
+X-IronPort-AV: E=Sophos;i="5.96,145,1665471600"; 
+   d="scan'208";a="374712585"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Nov 2022 08:47:57 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10524"; a="965218046"
+X-IronPort-AV: E=Sophos;i="5.96,145,1665471600"; 
+   d="scan'208";a="965218046"
+Received: from lkp-server01.sh.intel.com (HELO 462403710aa9) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 07 Nov 2022 08:47:54 -0800
+Received: from kbuild by 462403710aa9 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1os5Ht-0000pW-33;
+        Mon, 07 Nov 2022 16:47:53 +0000
+Date:   Tue, 08 Nov 2022 00:47:02 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     ntfs3@lists.linux.dev, netdev@vger.kernel.org, linux-mm@kvack.org,
+        linux-input@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        amd-gfx@lists.freedesktop.org,
+        Linux Memory Management List <linux-mm@kvack.org>
+Subject: [linux-next:master] BUILD REGRESSION
+ d8e87774068af213ab5b058b1b114dc397b577aa
+Message-ID: <63693686.+ibq7thC8cVt3vzW%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.3.1
-Subject: Re: Detecting if a laptop is using a i2c/smbus or a ps/2 attached
- touchpad?
-Content-Language: en-US
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input <linux-input@vger.kernel.org>,
-        Manyi Li <limanyi@uniontech.com>
-References: <ae50236e-1ce8-b526-9c17-7bc0463ebb86@redhat.com>
- <CAO-hwJJUdXb1iBN7AVushaJz9LawuaO5hP8GWKucWuxzDpnCTg@mail.gmail.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <CAO-hwJJUdXb1iBN7AVushaJz9LawuaO5hP8GWKucWuxzDpnCTg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+branch HEAD: d8e87774068af213ab5b058b1b114dc397b577aa  Add linux-next specific files for 20221107
 
-On 11/7/22 11:52, Benjamin Tissoires wrote:
-> Hi Hans,
-> 
-> On Mon, Nov 7, 2022 at 11:10 AM Hans de Goede <hdegoede@redhat.com> wrote:
->>
->> Hi Benjamin, et. al.,
->>
->> I have just merged a patch which adds a couple of DMI quirks to disable
->> the touchpad on/off functionality of the ideapad-laptop module on some models,
->> because it is causing issues there.
->>
->> Patch:      https://lore.kernel.org/platform-driver-x86/20221018095323.14591-1-limanyi@uniontech.com/
->> Discussion: https://lore.kernel.org/platform-driver-x86/fdceb6d2-c38c-e8ff-4c19-b01521ca46c0@redhat.com/
->>
->> Rather then using DMI quirks I would prefer to just disable it everywhere
->> where a i2c-attached touchpad is used. Be it either one only attached to
->> i2c, or one of the synaptics intertouch thingies. I'm still trying to
->> figure out why the ideapad-laptop module's touchpad control (which
->> uses the EC + enabling/disabling the i8042 aux-port) matters for
->> i2c-attached touchpads at all, so I suspect that intertouch might be
->> a part of it.
->>
->> So now I'm wondering if there is some nice way for the ideapad-laptop
->> code to check if the touchpad is intertouch and/or if it is i2c-attached
->> only ...
->>
->> Any ideas?
-> 
-> TL;DR: it's a complete mess.
-> 
-> For mostly UEFI/BIOS compatibility, all touchpads on modern laptops
-> have a PS/2 interface.
-> 
-> But then, most of the touchpads (and of course not all) can also use
-> I2C or SMBus to communicate.
-> 
-> And this is where things are bad:
-> 
-> - when using i2c-hid, there is a DT entry that enumerates the
-> touchpad, but sometimes the manufacturers like to reuse the same DT
-> and just enable/disable devices in it, so it's not easy to do.
-> In the i2c-hid case, the PS/2 node has no idea it is not used anymore,
-> and thus is kept up forever
-> 
-> - for touchpads using SMBus (on Intel platforms only currently), the
-> enumeration is done at the PS/2 level: there is a byte that says that
-> the touchpad supports another bus or not.
-> This is valid for both Synaptics, and Elan, as you figured out.
-> 
-> But in the SMBus case there are many cases where it is not working: if
-> the SMBus doesn't support Host Notify (AMD platforms), or if the
-> enumeration is not working because the touchpad is not happy, etc...
-> 
-> So again, in SMBus, we can not disable the PS/2 nodes, because there
-> is a high chance the touchpad will not work. Not to mention that the
-> specific bit to enable the touchpad might also be required when coming
-> back from suspend (not entirely sure though).
-> 
-> However, in the Synaptics SMbus case, we took a safer approach
-> (because the SMBus driver is not standard and sometimes breaks on new
-> hardware), so we are using the PnP ID to selectively enable the
-> devices (see smbus_pnp_ids[] in drivers/input/mouse/synaptics.c)
-> 
-> In the Elan case, if the touchpad exports the magic bit, we forward it
-> to SMBus as the driver is behaving better with new devices.
-> 
-> As a result, from user space, it's easier to know if the device uses
-> smbus/i2c, simply because you can enumerate all devices.
-> But from the kernel, either you have to look for the ACPI tables, and
-> hope that the I2C bus is correctly supported in the system, or you
-> have to talk over PS/2 and hope that the platform supports
-> HostNotify...
-> 
->>
->> Regards,
->>
->> Hans
->>
->> p.s.
->>
->> Is it possible that Elan touchpads use something similar to intertouch,
->> or is that a synaptics thing only (under Linux)  ?
->>
-> 
-> Yep, see above. If the touchpad says it can be driven through SMBus,
-> we forward it.
+Error/Warning reports:
 
-Ok, thank you for the long answer.
+https://lore.kernel.org/linux-mm/202210090954.pTR6m6rj-lkp@intel.com
+https://lore.kernel.org/linux-mm/202210111318.mbUfyhps-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202211041320.coq8EELJ-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202211071905.HjT4Cwsk-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202211072023.hRrEPGnJ-lkp@intel.com
+https://lore.kernel.org/oe-kbuild-all/202211072213.KSrsyiuE-lkp@intel.com
 
-I will try to find some generic solution on the ideapad-laptop driver
-side. First of all we need to root cause which call in that driver
-is exactly causing the touchpad to not work.
+Error/Warning: (recently discovered and may have been fixed)
 
-Regards,
+drivers/gpu/drm/amd/amdgpu/../display/dc/core/dc.c:4878: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+drivers/gpu/drm/amd/amdgpu/../display/dc/core/dc_link_dp.c:5044:24: warning: implicit conversion from 'enum <anonymous>' to 'enum dc_status' [-Wenum-conversion]
+drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_vdac.c:75:8: error: call to undeclared function 'readl'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_vdac.c:80:2: error: call to undeclared function 'writel'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+lib/test_maple_tree.c:453:12: warning: result of comparison of constant 4398046511104 with expression of type 'unsigned long' is always false [-Wtautological-constant-out-of-range-compare]
+lib/test_objpool.c:106:6: warning: no previous prototype for function 'ot_vfree' [-Wmissing-prototypes]
+lib/test_objpool.c:80:7: warning: no previous prototype for function 'ot_kzalloc' [-Wmissing-prototypes]
+lib/test_objpool.c:89:6: warning: no previous prototype for function 'ot_kfree' [-Wmissing-prototypes]
+lib/test_objpool.c:97:7: warning: no previous prototype for function 'ot_vmalloc' [-Wmissing-prototypes]
+net/dcb/dcbnl.c:1230:1: warning: the frame size of 1244 bytes is larger than 1024 bytes [-Wframe-larger-than=]
 
-hans
+Unverified Error/Warning (likely false positive, please contact us if interested):
 
+drivers/input/touchscreen/hynitron_cstxxx.c:238 cst3xx_bootloader_enter() error: uninitialized symbol 'tmp'.
+lib/zstd/compress/huf_compress.c:460 HUF_getIndex() warn: the 'RANK_POSITION_LOG_BUCKETS_BEGIN' macro might need parens
+lib/zstd/decompress/zstd_decompress_block.c:1009 ZSTD_execSequence() warn: inconsistent indenting
+lib/zstd/decompress/zstd_decompress_block.c:894 ZSTD_execSequenceEnd() warn: inconsistent indenting
+lib/zstd/decompress/zstd_decompress_block.c:942 ZSTD_execSequenceEndSplitLitBuffer() warn: inconsistent indenting
+lib/zstd/decompress/zstd_decompress_internal.h:206 ZSTD_DCtx_get_bmi2() warn: inconsistent indenting
+
+Error/Warning ids grouped by kconfigs:
+
+gcc_recent_errors
+|-- alpha-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- arc-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- arc-randconfig-r002-20221106
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- arm-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- arm64-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- i386-allyesconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- i386-buildonly-randconfig-r006-20221107
+|   `-- net-dcb-dcbnl.c:warning:the-frame-size-of-bytes-is-larger-than-bytes
+|-- i386-randconfig-m021-20221107
+|   |-- arch-x86-kernel-apic-apic.c-generic_processor_info()-warn:always-true-condition-(num_processors-()-)-(-u32max-)
+|   |-- lib-zstd-compress-huf_compress.c-HUF_getIndex()-warn:the-RANK_POSITION_LOG_BUCKETS_BEGIN-macro-might-need-parens
+|   |-- lib-zstd-decompress-zstd_decompress_block.c-ZSTD_execSequence()-warn:inconsistent-indenting
+|   |-- lib-zstd-decompress-zstd_decompress_block.c-ZSTD_execSequenceEnd()-warn:inconsistent-indenting
+|   |-- lib-zstd-decompress-zstd_decompress_block.c-ZSTD_execSequenceEndSplitLitBuffer()-warn:inconsistent-indenting
+|   `-- lib-zstd-decompress-zstd_decompress_internal.h-ZSTD_DCtx_get_bmi2()-warn:inconsistent-indenting
+|-- ia64-allmodconfig
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- loongarch-buildonly-randconfig-r001-20221106
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- loongarch-randconfig-r005-20221106
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- loongarch-randconfig-r032-20221107
+|   |-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc.c:warning:This-comment-starts-with-but-isn-t-a-kernel-doc-comment.-Refer-Documentation-doc-guide-kernel-doc.rst
+|   `-- drivers-gpu-drm-amd-amdgpu-..-display-dc-core-dc_link_dp.c:warning:implicit-conversion-from-enum-anonymous-to-enum-dc_status
+|-- m68k-randconfig-m041-20221107
+|   |-- drivers-input-touchscreen-hynitron_cstxxx.c-cst3xx_bootloader_enter()-error:uninitialized-symbol-tmp-.
+|   |-- lib-zstd-compress-huf_compress.c-HUF_getIndex()-warn:the-RANK_POSITION_LOG_BUCKETS_BEGIN-macro-might-need-parens
+|   |-- lib-zstd-decompress-zstd_decompress_block.c-ZSTD_execSequence()-warn:inconsistent-indenting
+|   |-- lib-zstd-decompress-zstd_decompress_block.c-ZSTD_execSequenceEnd()-warn:inconsistent-indenting
+|   |-- lib-zstd-decompress-zstd_decompress_block.c-ZSTD_execSequenceEndSplitLitBuffer()-warn:inconsistent-indenting
+|   `-- lib-zstd-decompress-zstd_decompress_internal.h-ZSTD_DCtx_get_bmi2()-warn:inconsistent-indenting
+|-- microblaze-randconfig-s033-20221107
+|   |-- fs-ntfs3-index.c:sparse:sparse:restricted-__le32-degrades-to-integer
+|   |-- fs-ntfs3-namei.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-restricted-__le16-const-usertype-s1-got-unsigned-short
+|   `-- fs-ntfs3-namei.c:sparse:sparse:incorrect-type-in-argument-(different-base-types)-expected-restricted-__le16-const-usertype-s2-got-unsigned-short
+clang_recent_errors
+|-- hexagon-randconfig-r041-20221106
+|   `-- lib-test_maple_tree.c:warning:result-of-comparison-of-constant-with-expression-of-type-unsigned-long-is-always-false
+|-- powerpc-buildonly-randconfig-r001-20221107
+|   |-- lib-test_objpool.c:warning:no-previous-prototype-for-function-ot_kfree
+|   |-- lib-test_objpool.c:warning:no-previous-prototype-for-function-ot_kzalloc
+|   |-- lib-test_objpool.c:warning:no-previous-prototype-for-function-ot_vfree
+|   `-- lib-test_objpool.c:warning:no-previous-prototype-for-function-ot_vmalloc
+|-- s390-randconfig-r021-20221107
+|   |-- drivers-gpu-drm-hisilicon-hibmc-hibmc_drm_vdac.c:error:call-to-undeclared-function-readl-ISO-C99-and-later-do-not-support-implicit-function-declarations
+|   `-- drivers-gpu-drm-hisilicon-hibmc-hibmc_drm_vdac.c:error:call-to-undeclared-function-writel-ISO-C99-and-later-do-not-support-implicit-function-declarations
+`-- x86_64-randconfig-a016
+    `-- vmlinux.o:warning:objtool:handle_bug:call-to-kmsan_unpoison_entry_regs()-leaves-.noinstr.text-section
+
+elapsed time: 723m
+
+configs tested: 58
+configs skipped: 2
+
+gcc tested configs:
+um                             i386_defconfig
+um                           x86_64_defconfig
+arc                                 defconfig
+s390                             allmodconfig
+alpha                               defconfig
+s390                             allyesconfig
+x86_64                           rhel-8.3-kvm
+s390                                defconfig
+x86_64                           rhel-8.3-syz
+x86_64                         rhel-8.3-kunit
+i386                                defconfig
+x86_64                              defconfig
+i386                 randconfig-a002-20221107
+x86_64                        randconfig-a013
+x86_64               randconfig-a004-20221107
+i386                 randconfig-a003-20221107
+ia64                             allmodconfig
+i386                 randconfig-a004-20221107
+arm                                 defconfig
+i386                 randconfig-a005-20221107
+x86_64               randconfig-a001-20221107
+i386                          randconfig-a014
+x86_64                               rhel-8.3
+x86_64                        randconfig-a011
+x86_64                           allyesconfig
+i386                          randconfig-a012
+x86_64               randconfig-a003-20221107
+powerpc                           allnoconfig
+x86_64               randconfig-a002-20221107
+i386                          randconfig-a016
+i386                 randconfig-a001-20221107
+arm                              allyesconfig
+x86_64                        randconfig-a015
+x86_64               randconfig-a005-20221107
+riscv                randconfig-r042-20221106
+i386                 randconfig-a006-20221107
+powerpc                          allmodconfig
+x86_64               randconfig-a006-20221107
+mips                             allyesconfig
+arm64                            allyesconfig
+sh                               allmodconfig
+arc                  randconfig-r043-20221106
+s390                 randconfig-r044-20221106
+x86_64                          rhel-8.3-func
+x86_64                    rhel-8.3-kselftests
+m68k                             allmodconfig
+arc                              allyesconfig
+alpha                            allyesconfig
+m68k                             allyesconfig
+i386                             allyesconfig
+
+clang tested configs:
+i386                          randconfig-a013
+i386                          randconfig-a011
+x86_64                        randconfig-a016
+x86_64                        randconfig-a012
+i386                          randconfig-a015
+x86_64                        randconfig-a014
+hexagon              randconfig-r045-20221106
+hexagon              randconfig-r041-20221106
+
+-- 
+0-DAY CI Kernel Test Service
+https://01.org/lkp

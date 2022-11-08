@@ -2,103 +2,132 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ADF8C4332F
-	for <linux-input@archiver.kernel.org>; Tue,  8 Nov 2022 14:20:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F2DDFC4332F
+	for <linux-input@archiver.kernel.org>; Tue,  8 Nov 2022 14:49:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233859AbiKHOUd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 8 Nov 2022 09:20:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57010 "EHLO
+        id S233203AbiKHOt4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 8 Nov 2022 09:49:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234641AbiKHOUb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2022 09:20:31 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3415E862CD;
-        Tue,  8 Nov 2022 06:20:31 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id DC75F1FB53;
-        Tue,  8 Nov 2022 14:20:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1667917229; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=9KWUUeKMXiZSqdEIS1S6BaBGZwj1pIHQSqEA5W/I1VU=;
-        b=tbbRfJpzIJ7PQ10SRBbpSWHoC19acB3PZOEGxZ2rqdNnop+GrMI8NNx2evMA7nGQ5yfo9T
-        H0YparVtcvq939VkqDfjX4jkvBNONNV4LiX/6fGSwFcvulbcl5Rqcwpm5E4MubnvP2q4Xk
-        iy6G1MLfZ6T8gtyjivBJAvDeWdpwKwU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1667917229;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=9KWUUeKMXiZSqdEIS1S6BaBGZwj1pIHQSqEA5W/I1VU=;
-        b=FcVQWduHHWMDkHI7Zfuj49bLp8GLUnBZ/mO64sOWYQ3OTq8X6hBVsgKQe8k9gXkc11Wdtt
-        vn37g5IO4ebYWoDw==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B9E6713398;
-        Tue,  8 Nov 2022 14:20:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id R4KjLK1lamPZKAAAMHmgww
-        (envelope-from <tiwai@suse.de>); Tue, 08 Nov 2022 14:20:29 +0000
-From:   Takashi Iwai <tiwai@suse.de>
+        with ESMTP id S233736AbiKHOtz (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2022 09:49:55 -0500
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3368F09
+        for <linux-input@vger.kernel.org>; Tue,  8 Nov 2022 06:49:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1667918994; x=1699454994;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   content-transfer-encoding;
+  bh=fOjdY2nax4TULpWO8QXYy3FMxleVVQb8Nv9dxT16Tdc=;
+  b=PVSsxEs4u9fRFQShD3WUsi6PZZWrv9daDstACef56BkHikN6owbj5Z02
+   mE1wC8vx2LwVPvVZTM0DPot0HHvuuYa/gwtW3/JIt7ffVpIN7Q9k211fz
+   uPwVdvK2LgNEy3UdPjHTGQXsSzp//P096o41BWsUwbqWpuwBEYOfudiiD
+   9yWKTIIb/LvYSy5NqvzzrLZEQYgiZOVZJEjHaoN+DAwPPie4Auhk97d09
+   1DSRrg4AP4WVQSw5tEWhqzqtbJ+M+gT6su95oLsDm5NKVIp3TRezd746X
+   tPX03jJkGgSAHHoWowrOJae2SSxBQdQcFCdET7718hg4E/FqZ2YpMI9EV
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10525"; a="310706790"
+X-IronPort-AV: E=Sophos;i="5.96,148,1665471600"; 
+   d="scan'208";a="310706790"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Nov 2022 06:49:54 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10525"; a="614298827"
+X-IronPort-AV: E=Sophos;i="5.96,148,1665471600"; 
+   d="scan'208";a="614298827"
+Received: from lkp-server01.sh.intel.com (HELO e783503266e8) ([10.239.97.150])
+  by orsmga006.jf.intel.com with ESMTP; 08 Nov 2022 06:49:52 -0800
+Received: from kbuild by e783503266e8 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1osPvE-0000Pm-0r;
+        Tue, 08 Nov 2022 14:49:52 +0000
+Date:   Tue, 08 Nov 2022 22:49:47 +0800
+From:   kernel test robot <lkp@intel.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH RESEND] Input: i8042 - Apply probe defer to more ASUS ZenBook models
-Date:   Tue,  8 Nov 2022 15:20:27 +0100
-Message-Id: <20221108142027.28480-1-tiwai@suse.de>
-X-Mailer: git-send-email 2.35.3
+Cc:     linux-input@vger.kernel.org
+Subject: [dtor-input:next] BUILD SUCCESS
+ 6100a19c4fcfe154dd32f8a8ef4e8c0b1f607c75
+Message-ID: <636a6c8b.QAUNTC4Fvhnm584x%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-There are yet a few more ASUS ZenBook models that require the deferred
-probe.  At least, there are different ZenBook UX325x and UX425x
-models.  Let's extend the DMI matching table entries for adapting
-those missing models.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+branch HEAD: 6100a19c4fcfe154dd32f8a8ef4e8c0b1f607c75  Input: joystick - fix Kconfig warning for JOYSTICK_ADC
 
-Link: https://bugzilla.suse.com/show_bug.cgi?id=1190256
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
----
+elapsed time: 1099m
 
-This fix was submitted some time ago but fell into a crack.
-Resubmitted after rebasing to the latest code.
+configs tested: 56
+configs skipped: 3
 
- drivers/input/serio/i8042-acpipnpio.h | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
-index 0778dc03cd9e..46f8a694291e 100644
---- a/drivers/input/serio/i8042-acpipnpio.h
-+++ b/drivers/input/serio/i8042-acpipnpio.h
-@@ -115,18 +115,18 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_NEVER)
- 	},
- 	{
--		/* ASUS ZenBook UX425UA */
-+		/* ASUS ZenBook UX425UA/QA */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425UA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425"),
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_PROBE_DEFER | SERIO_QUIRK_RESET_NEVER)
- 	},
- 	{
--		/* ASUS ZenBook UM325UA */
-+		/* ASUS ZenBook UM325UA/QA */
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325UA_UM325UA"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325"),
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_PROBE_DEFER | SERIO_QUIRK_RESET_NEVER)
- 	},
+gcc tested configs:
+um                             i386_defconfig
+um                           x86_64_defconfig
+arc                                 defconfig
+alpha                               defconfig
+s390                                defconfig
+m68k                             allyesconfig
+s390                             allmodconfig
+powerpc                           allnoconfig
+s390                             allyesconfig
+x86_64                    rhel-8.3-kselftests
+arc                  randconfig-r043-20221107
+x86_64                          rhel-8.3-func
+sh                               allmodconfig
+alpha                            allyesconfig
+m68k                             allmodconfig
+mips                             allyesconfig
+arc                              allyesconfig
+powerpc                          allmodconfig
+x86_64                              defconfig
+x86_64                           rhel-8.3-syz
+x86_64                         rhel-8.3-kunit
+x86_64                           rhel-8.3-kvm
+x86_64                               rhel-8.3
+ia64                             allmodconfig
+x86_64                           allyesconfig
+i386                             allyesconfig
+i386                                defconfig
+arm                                 defconfig
+arm                              allyesconfig
+arm64                            allyesconfig
+x86_64                            allnoconfig
+x86_64                        randconfig-a006
+x86_64                        randconfig-a004
+x86_64                        randconfig-a002
+i386                          randconfig-a012
+i386                          randconfig-a014
+i386                          randconfig-a016
+arm                             pxa_defconfig
+riscv                               defconfig
+sh                            titan_defconfig
+mips                  decstation_64_defconfig
+powerpc                mpc7448_hpc2_defconfig
+nios2                               defconfig
+
+clang tested configs:
+hexagon              randconfig-r041-20221107
+hexagon              randconfig-r045-20221107
+s390                 randconfig-r044-20221107
+riscv                randconfig-r042-20221107
+x86_64               randconfig-a014-20221107
+x86_64               randconfig-a015-20221107
+x86_64               randconfig-a013-20221107
+x86_64               randconfig-a012-20221107
+x86_64               randconfig-a011-20221107
+x86_64               randconfig-a016-20221107
+i386                          randconfig-a002
+i386                          randconfig-a006
+i386                          randconfig-a004
+
 -- 
-2.35.3
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp

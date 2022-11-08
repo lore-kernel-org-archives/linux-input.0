@@ -2,250 +2,103 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DE6EC43219
-	for <linux-input@archiver.kernel.org>; Tue,  8 Nov 2022 11:15:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4ADF8C4332F
+	for <linux-input@archiver.kernel.org>; Tue,  8 Nov 2022 14:20:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233103AbiKHLPT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 8 Nov 2022 06:15:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56986 "EHLO
+        id S233859AbiKHOUd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 8 Nov 2022 09:20:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233655AbiKHLPR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2022 06:15:17 -0500
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DCE211179
-        for <linux-input@vger.kernel.org>; Tue,  8 Nov 2022 03:15:15 -0800 (PST)
-Received: by mail-lj1-x234.google.com with SMTP id d3so20592821ljl.1
-        for <linux-input@vger.kernel.org>; Tue, 08 Nov 2022 03:15:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=P3ZLCmxWvOh6TEjZjrnrV0zDBY9aQOqVbQrPCQaVAEk=;
-        b=WlHPlygiKtyT62slIvPbpfz+YDg3uwUYL7kuUpr0P4ikg+xjHYRdvsRpoOUFMUl/VR
-         nNCxYLM/ia4qVZuLlr3QB76vsCqD7JhhbJYMBPjbnWpAlgzMj9fMGLvuS99I4Myqtl48
-         AOBOIU2yFSAwSycSlW1K49U30XNmOudUQNtQn8YN4lVVXY5cvwzCoyR2vGBfzmpH9P2P
-         mfmw9WqVyD0BQ1Ko2O+I45oVecEwoSIm7KP/7n3tvTy6r1f//lr8HPLCj7LO5K3ZbjH7
-         vVvEFRiiSiLDHI9Gpc4FZVwIrZGSgGvPNuUZXqffZJMiL2SpsCasBtzLxvFL3DfvE0aL
-         7h/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=P3ZLCmxWvOh6TEjZjrnrV0zDBY9aQOqVbQrPCQaVAEk=;
-        b=QXbgAtrZ4jpSholc6FiItvWXnA/33L2DuZ6OFsAyiEZ9tv73/ktuMXOqZS/pE4Yqlc
-         QFhf0whZc44o/IJuLOfhWD1MMEOVWuxVIKZ1fg9OSsvZC8Lv9NG5wKHodn6dAMl3jPuh
-         N2vIn2bcKfNkEKl3yWi3AKuRTug/Dr6KHX4Oqej3g0t00qna6kY9z3dGhvarPmB7Pd4+
-         u5a5Jm/ite+sHBigY+e/bbPZny1MCaCthTH/NSeOnjNT1gnW5XHfauWYkz5X2ZcqKAnk
-         Zk1VTnCiwjaA++oc6nE91/Imf9QA1jnlGEgZ2cEyVizJF5iLU1+xbM5Th/8wZl9coj3c
-         /QWw==
-X-Gm-Message-State: ACrzQf2wWZFxB9sTGbDJOmRrqZQ5oxp6F1MylgwsQj6zsr2dPKZx02Wh
-        GQoGInd6MRJ7mN2oG9FMKemSbg7KgDS8lQ==
-X-Google-Smtp-Source: AMsMyM6C8QkOCZEfi1KXMfCOZLj5buP/8v1j6qCGkx9gYNA11mZiiiWjFjNA7/XWUJ6g/M4rGe+7OA==
-X-Received: by 2002:a05:651c:1c4:b0:277:5059:8298 with SMTP id d4-20020a05651c01c400b0027750598298mr17627642ljn.325.1667906113246;
-        Tue, 08 Nov 2022 03:15:13 -0800 (PST)
-Received: from [192.168.0.20] (088156142199.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.199])
-        by smtp.gmail.com with ESMTPSA id f8-20020a2ea0c8000000b0025ebaef9570sm1698045ljm.40.2022.11.08.03.15.11
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Nov 2022 03:15:12 -0800 (PST)
-Message-ID: <1166e892-d630-fcd4-6931-212081819493@linaro.org>
-Date:   Tue, 8 Nov 2022 12:15:11 +0100
+        with ESMTP id S234641AbiKHOUb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 8 Nov 2022 09:20:31 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3415E862CD;
+        Tue,  8 Nov 2022 06:20:31 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id DC75F1FB53;
+        Tue,  8 Nov 2022 14:20:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1667917229; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=9KWUUeKMXiZSqdEIS1S6BaBGZwj1pIHQSqEA5W/I1VU=;
+        b=tbbRfJpzIJ7PQ10SRBbpSWHoC19acB3PZOEGxZ2rqdNnop+GrMI8NNx2evMA7nGQ5yfo9T
+        H0YparVtcvq939VkqDfjX4jkvBNONNV4LiX/6fGSwFcvulbcl5Rqcwpm5E4MubnvP2q4Xk
+        iy6G1MLfZ6T8gtyjivBJAvDeWdpwKwU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1667917229;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=9KWUUeKMXiZSqdEIS1S6BaBGZwj1pIHQSqEA5W/I1VU=;
+        b=FcVQWduHHWMDkHI7Zfuj49bLp8GLUnBZ/mO64sOWYQ3OTq8X6hBVsgKQe8k9gXkc11Wdtt
+        vn37g5IO4ebYWoDw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id B9E6713398;
+        Tue,  8 Nov 2022 14:20:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id R4KjLK1lamPZKAAAMHmgww
+        (envelope-from <tiwai@suse.de>); Tue, 08 Nov 2022 14:20:29 +0000
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH RESEND] Input: i8042 - Apply probe defer to more ASUS ZenBook models
+Date:   Tue,  8 Nov 2022 15:20:27 +0100
+Message-Id: <20221108142027.28480-1-tiwai@suse.de>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH v3] dt-bindings: input: Convert ti,drv260x to DT schema
-Content-Language: en-US
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Luca Weiss <luca@z3ntu.xyz>
-Cc:     linux-input@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht,
-        phone-devel@vger.kernel.org, Andrew Davis <afd@ti.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20221105141707.92652-1-luca@z3ntu.xyz>
- <Y2ldc33ByZB/T+kZ@google.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <Y2ldc33ByZB/T+kZ@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 07/11/2022 20:33, Dmitry Torokhov wrote:
-> On Sat, Nov 05, 2022 at 03:17:06PM +0100, Luca Weiss wrote:
->> Convert the drv260x haptics binding to DT schema format.
->>
->> The only notable change from .txt format is that vbat-supply is not
->> actually required, so don't make it a required property.
->>
->> Acked-by: Andrew Davis <afd@ti.com>
->> Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
->> ---
->> Changes since v2:
->> * add default values for vib-*-mv
->> * add note about 'mode' property
->> * add enable-gpios, deprecate enable-gpio
->>
->>  .../devicetree/bindings/input/ti,drv260x.txt  |  50 --------
->>  .../devicetree/bindings/input/ti,drv260x.yaml | 109 ++++++++++++++++++
->>  2 files changed, 109 insertions(+), 50 deletions(-)
->>  delete mode 100644 Documentation/devicetree/bindings/input/ti,drv260x.txt
->>  create mode 100644 Documentation/devicetree/bindings/input/ti,drv260x.yaml
->>
->> diff --git a/Documentation/devicetree/bindings/input/ti,drv260x.txt b/Documentation/devicetree/bindings/input/ti,drv260x.txt
->> deleted file mode 100644
->> index 4c5312eaaa85..000000000000
->> --- a/Documentation/devicetree/bindings/input/ti,drv260x.txt
->> +++ /dev/null
->> @@ -1,50 +0,0 @@
->> -* Texas Instruments - drv260x Haptics driver family
->> -
->> -Required properties:
->> -	- compatible - One of:
->> -		"ti,drv2604" - DRV2604
->> -		"ti,drv2605" - DRV2605
->> -		"ti,drv2605l" - DRV2605L
->> -	- reg -  I2C slave address
->> -	- vbat-supply - Required supply regulator
->> -	- mode - Power up mode of the chip (defined in include/dt-bindings/input/ti-drv260x.h)
->> -		DRV260X_LRA_MODE - Linear Resonance Actuator mode (Piezoelectric)
->> -		DRV260X_LRA_NO_CAL_MODE - This is a LRA Mode but there is no calibration
->> -				sequence during init.  And the device is configured for real
->> -				time playback mode (RTP mode).
->> -		DRV260X_ERM_MODE - Eccentric Rotating Mass mode (Rotary vibrator)
->> -	- library-sel - These are ROM based waveforms pre-programmed into the IC.
->> -				This should be set to set the library to use at power up.
->> -				(defined in include/dt-bindings/input/ti-drv260x.h)
->> -		DRV260X_LIB_EMPTY - Do not use a pre-programmed library
->> -		DRV260X_ERM_LIB_A - Pre-programmed Library
->> -		DRV260X_ERM_LIB_B - Pre-programmed Library
->> -		DRV260X_ERM_LIB_C - Pre-programmed Library
->> -		DRV260X_ERM_LIB_D - Pre-programmed Library
->> -		DRV260X_ERM_LIB_E - Pre-programmed Library
->> -		DRV260X_ERM_LIB_F - Pre-programmed Library
->> -		DRV260X_LIB_LRA - Pre-programmed LRA Library
->> -
->> -Optional properties:
->> -	- enable-gpio - gpio pin to enable/disable the device.
->> -	- vib-rated-mv - The rated voltage of the actuator in millivolts.
->> -			  If this is not set then the value will be defaulted to
->> -			  3.2 v.
->> -	- vib-overdrive-mv - The overdrive voltage of the actuator in millivolts.
->> -			  If this is not set then the value will be defaulted to
->> -			  3.2 v.
->> -Example:
->> -
->> -haptics: haptics@5a {
->> -	compatible = "ti,drv2605l";
->> -	reg = <0x5a>;
->> -	vbat-supply = <&vbat>;
->> -	enable-gpio = <&gpio1 28 GPIO_ACTIVE_HIGH>;
->> -	mode = <DRV260X_LRA_MODE>;
->> -	library-sel = <DRV260X_LIB_LRA>;
->> -	vib-rated-mv = <3200>;
->> -	vib-overdrive-mv = <3200>;
->> -}
->> -
->> -For more product information please see the link below:
->> -http://www.ti.com/product/drv2605
->> diff --git a/Documentation/devicetree/bindings/input/ti,drv260x.yaml b/Documentation/devicetree/bindings/input/ti,drv260x.yaml
->> new file mode 100644
->> index 000000000000..63230977043e
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/input/ti,drv260x.yaml
->> @@ -0,0 +1,109 @@
->> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
->> +%YAML 1.2
->> +---
->> +$id: http://devicetree.org/schemas/input/ti,drv260x.yaml#
->> +$schema: http://devicetree.org/meta-schemas/core.yaml#
->> +
->> +title: Texas Instruments - drv260x Haptics driver family
->> +
->> +maintainers:
->> +  - Andrew Davis <afd@ti.com>
->> +
->> +properties:
->> +  compatible:
->> +    enum:
->> +      - ti,drv2604
->> +      - ti,drv2605
->> +      - ti,drv2605l
->> +
->> +  reg:
->> +    maxItems: 1
->> +
->> +  vbat-supply:
->> +    description: Power supply to the haptic motor
->> +
->> +  # TODO: Deprecate 'mode' in favor of differently named property
->> +  mode:
->> +    $ref: /schemas/types.yaml#/definitions/uint32
->> +    description: |
->> +      Power up mode of the chip
->> +      (defined in include/dt-bindings/input/ti-drv260x.h)
->> +
->> +      DRV260X_LRA_MODE
->> +        Linear Resonance Actuator mode (Piezoelectric)
->> +
->> +      DRV260X_LRA_NO_CAL_MODE
->> +        This is a LRA Mode but there is no calibration sequence during init.
->> +        And the device is configured for real time playback mode (RTP mode).
->> +
->> +      DRV260X_ERM_MODE
->> +        Eccentric Rotating Mass mode (Rotary vibrator)
->> +    enum: [ 0, 1, 2 ]
->> +
->> +  library-sel:
->> +    $ref: /schemas/types.yaml#/definitions/uint32
->> +    description: |
->> +      These are ROM based waveforms pre-programmed into the IC.
->> +      This should be set to set the library to use at power up.
->> +      (defined in include/dt-bindings/input/ti-drv260x.h)
->> +
->> +      DRV260X_LIB_EMPTY - Do not use a pre-programmed library
->> +      DRV260X_ERM_LIB_A - Pre-programmed Library
->> +      DRV260X_ERM_LIB_B - Pre-programmed Library
->> +      DRV260X_ERM_LIB_C - Pre-programmed Library
->> +      DRV260X_ERM_LIB_D - Pre-programmed Library
->> +      DRV260X_ERM_LIB_E - Pre-programmed Library
->> +      DRV260X_ERM_LIB_F - Pre-programmed Library
->> +      DRV260X_LIB_LRA - Pre-programmed LRA Library
->> +    enum: [ 0, 1, 2, 3, 4, 5, 6, 7 ]
->> +
->> +  enable-gpio:
->> +    maxItems: 1
->> +    deprecated: true
->> +
->> +  enable-gpios:
->> +    maxItems: 1
->> +
->> +  vib-rated-mv:
->> +    $ref: /schemas/types.yaml#/definitions/uint32
->> +    description: |
->> +      The rated voltage of the actuator in millivolts.
->> +      If this is not set then the value will be defaulted to 3200 mV.
->> +    default: 3200
->> +
->> +  vib-overdrive-mv:
->> +    $ref: /schemas/types.yaml#/definitions/uint32
->> +    description: |
->> +      The overdrive voltage of the actuator in millivolts.
->> +      If this is not set then the value will be defaulted to 3200 mV.
->> +    default: 3200
->> +
->> +required:
->> +  - compatible
->> +  - reg
->> +  - enable-gpio
-> 
-> It is weird to have a deprecated property listed in required list and
-> also in the example...
+There are yet a few more ASUS ZenBook models that require the deferred
+probe.  At least, there are different ZenBook UX325x and UX425x
+models.  Let's extend the DMI matching table entries for adapting
+those missing models.
 
-Yep, this should be fixed.
+Link: https://bugzilla.suse.com/show_bug.cgi?id=1190256
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+---
 
-Best regards,
-Krzysztof
+This fix was submitted some time ago but fell into a crack.
+Resubmitted after rebasing to the latest code.
+
+ drivers/input/serio/i8042-acpipnpio.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
+index 0778dc03cd9e..46f8a694291e 100644
+--- a/drivers/input/serio/i8042-acpipnpio.h
++++ b/drivers/input/serio/i8042-acpipnpio.h
+@@ -115,18 +115,18 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_NEVER)
+ 	},
+ 	{
+-		/* ASUS ZenBook UX425UA */
++		/* ASUS ZenBook UX425UA/QA */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425UA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425"),
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_PROBE_DEFER | SERIO_QUIRK_RESET_NEVER)
+ 	},
+ 	{
+-		/* ASUS ZenBook UM325UA */
++		/* ASUS ZenBook UM325UA/QA */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325UA_UM325UA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325"),
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_PROBE_DEFER | SERIO_QUIRK_RESET_NEVER)
+ 	},
+-- 
+2.35.3
 

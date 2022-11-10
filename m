@@ -2,31 +2,30 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59BC0C43219
-	for <linux-input@archiver.kernel.org>; Thu, 10 Nov 2022 17:20:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 818D9C4332F
+	for <linux-input@archiver.kernel.org>; Thu, 10 Nov 2022 17:20:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231365AbiKJRU2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 10 Nov 2022 12:20:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45066 "EHLO
+        id S229958AbiKJRUb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 10 Nov 2022 12:20:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229940AbiKJRU0 (ORCPT
+        with ESMTP id S231447AbiKJRUa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 10 Nov 2022 12:20:26 -0500
-X-Greylist: delayed 81179 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 10 Nov 2022 09:20:20 PST
-Received: from msg-2.mailo.com (msg-2.mailo.com [213.182.54.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 624F0A4;
-        Thu, 10 Nov 2022 09:20:20 -0800 (PST)
+        Thu, 10 Nov 2022 12:20:30 -0500
+Received: from msg-4.mailo.com (msg-4.mailo.com [213.182.54.15])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C208A4;
+        Thu, 10 Nov 2022 09:20:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailoo.org; s=mailo;
-        t=1668100809; bh=vZWdl4U5AIVvqtvaInt8viyZUhV0hsuZo7TtEgTSbBE=;
+        t=1668100819; bh=BfMnzoCXhU0WRxUZKEPynpBofOMASUhpqpPL7tHyjf8=;
         h=X-EA-Auth:From:To:Cc:Subject:Date:Message-Id:X-Mailer:In-Reply-To:
          References:MIME-Version:Content-Transfer-Encoding;
-        b=ky3PU+IRyZfUu/ZeE9r7bSdzq8mBI9fPXo4BXfaoFC80J1zLeA8zQzfS+v0WeZSsA
-         KtRLMzN1mkXgxYwUMV6TGZqPk+OloKNco6xpCiRO17jreLqMJUkXhTxOvGaPS+W4Dv
-         CzfveUKZAV/CsJ2tWhhu3AijzjwM8AHScTLi4wZo=
+        b=gUmm+U8u9/xOjYhulH+CKNCe7G5zeSobyUD6cytzrQxhiXxoaNTrbnlG32W9rWBwe
+         RBPQ7HSU5lAugLiGZvxkeKyHEcj2voNMJqtuOXDWa/OltknKFMEMsQgbgOE4EH9Tmu
+         Ft0c8CGcbq5XKl2vOHcnZk85WRSxKgACLCPHf5/A=
 Received: by b-6.in.mailobj.net [192.168.90.16] with ESMTP
         via proxy.mailoo.org [213.182.55.207]
-        Thu, 10 Nov 2022 18:20:09 +0100 (CET)
-X-EA-Auth: xuvYD7bLq1ZEZG8yiJC4uzcXUmjumj407oSW8cgqC8cDlnWNOLsGn9ctkKv/TLXhkmKRof840q39uuQJxhX2JhoyOUH6AcG6TPnRm10Yh3k=
+        Thu, 10 Nov 2022 18:20:19 +0100 (CET)
+X-EA-Auth: CEwPyxhJgWkM9+ozqN5+L4Grm/OGTtQepuqi1ltfBBjPhYf2gumhRWVN7pPBc9WZBoZcH/6M7ObfE6KEV3wKJmaV4FL8q8T4X3PxZdX+6YA=
 From:   Vincent Knecht <vincent.knecht@mailoo.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
@@ -36,9 +35,9 @@ To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-kernel@vger.kernel.org
 Cc:     w.david0@protonmail.com, stephan@gerhold.net,
         phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
-Subject: [PATCH v4 1/5] Input: msg2638 - Set max finger number and irqhandler from driver data
-Date:   Thu, 10 Nov 2022 18:19:44 +0100
-Message-Id: <20221110171952.34207-2-vincent.knecht@mailoo.org>
+Subject: [PATCH v4 3/5] Input: msg2638 - Add support for msg2138
+Date:   Thu, 10 Nov 2022 18:19:46 +0100
+Message-Id: <20221110171952.34207-4-vincent.knecht@mailoo.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221110171952.34207-1-vincent.knecht@mailoo.org>
 References: <20221110171952.34207-1-vincent.knecht@mailoo.org>
@@ -48,142 +47,148 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This will allow us to add other MStar touchscreen variants' support.
-No functional change.
+msg2138 only supports 2 fingers presses, and needs different processing
+since second finger press is encoded as a delta position wrt. first one
+and the packet/touch_event structs are not the same as msg2638.
+
+Add support for it by implementing distinct structs and irq handler.
 
 Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
 ---
- drivers/input/touchscreen/msg2638.c | 40 +++++++++++++++++++++--------
- 1 file changed, 30 insertions(+), 10 deletions(-)
+ drivers/input/touchscreen/msg2638.c | 93 +++++++++++++++++++++++++++++
+ 1 file changed, 93 insertions(+)
 
 diff --git a/drivers/input/touchscreen/msg2638.c b/drivers/input/touchscreen/msg2638.c
-index 75536bc88969..222adedf78bf 100644
+index 222adedf78bf..73e1b4d550fb 100644
 --- a/drivers/input/touchscreen/msg2638.c
 +++ b/drivers/input/touchscreen/msg2638.c
-@@ -26,23 +26,28 @@
+@@ -26,6 +26,7 @@
  
  #define MODE_DATA_RAW			0x5A
  
--#define MAX_SUPPORTED_FINGER_NUM	5
-+#define MSG2638_MAX_FINGERS		5
++#define MSG2138_MAX_FINGERS		2
+ #define MSG2638_MAX_FINGERS		5
  
  #define CHIP_ON_DELAY_MS		15
- #define FIRMWARE_ON_DELAY_MS		50
- #define RESET_DELAY_MIN_US		10000
- #define RESET_DELAY_MAX_US		11000
+@@ -38,6 +39,18 @@ struct msg_chip_data {
+ 	unsigned int max_fingers;
+ };
  
--struct packet {
-+struct msg_chip_data {
-+	irq_handler_t irq_handler;
-+	unsigned int max_fingers;
++struct msg2138_packet {
++	u8	xy_hi; /* higher bits of x and y coordinates */
++	u8	x_low;
++	u8	y_low;
 +};
 +
-+struct msg2638_packet {
++struct msg2138_touch_event {
++	u8	magic;
++	struct	msg2138_packet pkt[MSG2138_MAX_FINGERS];
++	u8	checksum;
++};
++
+ struct msg2638_packet {
  	u8	xy_hi; /* higher bits of x and y coordinates */
  	u8	x_low;
- 	u8	y_low;
- 	u8	pressure;
- };
+@@ -72,6 +85,80 @@ static u8 msg2638_checksum(u8 *data, u32 length)
+ 	return (u8)((-sum) & 0xFF);
+ }
  
--struct touch_event {
-+struct msg2638_touch_event {
- 	u8	mode;
--	struct	packet pkt[MAX_SUPPORTED_FINGER_NUM];
-+	struct	msg2638_packet pkt[MSG2638_MAX_FINGERS];
- 	u8	proximity;
- 	u8	checksum;
- };
-@@ -53,6 +58,7 @@ struct msg2638_ts_data {
- 	struct touchscreen_properties prop;
- 	struct regulator_bulk_data supplies[2];
- 	struct gpio_desc *reset_gpiod;
-+	int max_fingers;
- };
- 
- static u8 msg2638_checksum(u8 *data, u32 length)
-@@ -71,7 +77,7 @@ static irqreturn_t msg2638_ts_irq_handler(int irq, void *msg2638_handler)
- 	struct msg2638_ts_data *msg2638 = msg2638_handler;
- 	struct i2c_client *client = msg2638->client;
- 	struct input_dev *input = msg2638->input_dev;
--	struct touch_event touch_event;
-+	struct msg2638_touch_event touch_event;
- 	u32 len = sizeof(touch_event);
- 	struct i2c_msg msg[] = {
- 		{
-@@ -81,7 +87,7 @@ static irqreturn_t msg2638_ts_irq_handler(int irq, void *msg2638_handler)
- 			.buf	= (u8 *)&touch_event,
- 		},
- 	};
--	struct packet *p;
-+	struct msg2638_packet *p;
- 	u16 x, y;
- 	int ret;
- 	int i;
-@@ -103,7 +109,7 @@ static irqreturn_t msg2638_ts_irq_handler(int irq, void *msg2638_handler)
- 		goto out;
- 	}
- 
--	for (i = 0; i < MAX_SUPPORTED_FINGER_NUM; i++) {
-+	for (i = 0; i < msg2638->max_fingers; i++) {
- 		p = &touch_event.pkt[i];
- 
- 		/* Ignore non-pressed finger data */
-@@ -215,7 +221,7 @@ static int msg2638_init_input_dev(struct msg2638_ts_data *msg2638)
- 		return -EINVAL;
- 	}
- 
--	error = input_mt_init_slots(input_dev, MAX_SUPPORTED_FINGER_NUM,
-+	error = input_mt_init_slots(input_dev, msg2638->max_fingers,
- 				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
- 	if (error) {
- 		dev_err(dev, "Failed to initialize MT slots: %d\n", error);
-@@ -233,6 +239,7 @@ static int msg2638_init_input_dev(struct msg2638_ts_data *msg2638)
- 
- static int msg2638_ts_probe(struct i2c_client *client)
- {
-+	const struct msg_chip_data *chip_data;
- 	struct device *dev = &client->dev;
- 	struct msg2638_ts_data *msg2638;
- 	int error;
-@@ -249,6 +256,14 @@ static int msg2638_ts_probe(struct i2c_client *client)
- 	msg2638->client = client;
- 	i2c_set_clientdata(client, msg2638);
- 
-+	chip_data = device_get_match_data(&client->dev);
-+	if (!chip_data || !chip_data->max_fingers) {
-+		dev_err(dev, "Invalid or missing chip data\n");
-+		return -EINVAL;
++static irqreturn_t msg2138_ts_irq_handler(int irq, void *msg2638_handler)
++{
++	struct msg2638_ts_data *msg2638 = msg2638_handler;
++	struct i2c_client *client = msg2638->client;
++	struct input_dev *input = msg2638->input_dev;
++	struct msg2138_touch_event touch_event;
++	u32 len = sizeof(touch_event);
++	struct i2c_msg msg[] = {
++		{
++			.addr	= client->addr,
++			.flags	= I2C_M_RD,
++			.len	= sizeof(touch_event),
++			.buf	= (u8 *)&touch_event,
++		},
++	};
++	struct msg2138_packet *p0, *p1;
++	u16 x, y, delta_x, delta_y;
++	int ret;
++
++	ret = i2c_transfer(client->adapter, msg, ARRAY_SIZE(msg));
++	if (ret != ARRAY_SIZE(msg)) {
++		dev_err(&client->dev,
++			"Failed I2C transfer in irq handler: %d\n",
++			ret < 0 ? ret : -EIO);
++		goto out;
 +	}
 +
-+	msg2638->max_fingers = chip_data->max_fingers;
++	if (msg2638_checksum((u8 *)&touch_event, len - 1) !=
++						touch_event.checksum) {
++		dev_err(&client->dev, "Failed checksum!\n");
++		goto out;
++	}
 +
- 	msg2638->supplies[0].supply = "vdd";
- 	msg2638->supplies[1].supply = "vddio";
- 	error = devm_regulator_bulk_get(dev, ARRAY_SIZE(msg2638->supplies),
-@@ -272,7 +287,7 @@ static int msg2638_ts_probe(struct i2c_client *client)
- 	}
- 
- 	error = devm_request_threaded_irq(dev, client->irq,
--					  NULL, msg2638_ts_irq_handler,
-+					  NULL, chip_data->irq_handler,
- 					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
- 					  client->name, msg2638);
- 	if (error) {
-@@ -316,8 +331,13 @@ static int __maybe_unused msg2638_resume(struct device *dev)
++	p0 = &touch_event.pkt[0];
++	p1 = &touch_event.pkt[1];
++
++	/* Ignore non-pressed finger data */
++	if (p0->xy_hi == 0xFF && p0->x_low == 0xFF && p0->y_low == 0xFF)
++		goto report;
++
++	x = (((p0->xy_hi & 0xF0) << 4) | p0->x_low);
++	y = (((p0->xy_hi & 0x0F) << 8) | p0->y_low);
++
++	input_mt_slot(input, 0);
++	input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
++	touchscreen_report_pos(input, &msg2638->prop, x, y, true);
++
++	/* Ignore non-pressed finger data */
++	if (p1->xy_hi == 0xFF && p1->x_low == 0xFF && p1->y_low == 0xFF)
++		goto report;
++
++	/* Second finger is reported as a delta position */
++	delta_x = (((p1->xy_hi & 0xF0) << 4) | p1->x_low);
++	delta_y = (((p1->xy_hi & 0x0F) << 8) | p1->y_low);
++
++	/* Ignore second finger if both deltas equal 0 */
++	if (delta_x == 0 && delta_y == 0)
++		goto report;
++
++	x += delta_x;
++	y += delta_y;
++
++	input_mt_slot(input, 1);
++	input_mt_report_slot_state(input, MT_TOOL_FINGER, true);
++	touchscreen_report_pos(input, &msg2638->prop, x, y, true);
++
++report:
++	input_mt_sync_frame(msg2638->input_dev);
++	input_sync(msg2638->input_dev);
++
++out:
++	return IRQ_HANDLED;
++}
++
+ static irqreturn_t msg2638_ts_irq_handler(int irq, void *msg2638_handler)
+ {
+ 	struct msg2638_ts_data *msg2638 = msg2638_handler;
+@@ -331,12 +418,18 @@ static int __maybe_unused msg2638_resume(struct device *dev)
  
  static SIMPLE_DEV_PM_OPS(msg2638_pm_ops, msg2638_suspend, msg2638_resume);
  
-+static const struct msg_chip_data msg2638_data = {
-+	.irq_handler = msg2638_ts_irq_handler,
-+	.max_fingers = MSG2638_MAX_FINGERS,
++static const struct msg_chip_data msg2138_data = {
++	.irq_handler = msg2138_ts_irq_handler,
++	.max_fingers = MSG2138_MAX_FINGERS,
 +};
 +
+ static const struct msg_chip_data msg2638_data = {
+ 	.irq_handler = msg2638_ts_irq_handler,
+ 	.max_fingers = MSG2638_MAX_FINGERS,
+ };
+ 
  static const struct of_device_id msg2638_of_match[] = {
--	{ .compatible = "mstar,msg2638" },
-+	{ .compatible = "mstar,msg2638", .data = &msg2638_data },
++	{ .compatible = "mstar,msg2138", .data = &msg2138_data },
+ 	{ .compatible = "mstar,msg2638", .data = &msg2638_data },
  	{ }
  };
- MODULE_DEVICE_TABLE(of, msg2638_of_match);
 -- 
 2.38.1
 

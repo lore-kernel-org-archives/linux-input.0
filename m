@@ -2,133 +2,132 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4491BC433FE
-	for <linux-input@archiver.kernel.org>; Sat, 12 Nov 2022 02:45:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DD8C4C4332F
+	for <linux-input@archiver.kernel.org>; Sat, 12 Nov 2022 15:37:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230037AbiKLCpN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 11 Nov 2022 21:45:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49452 "EHLO
+        id S235012AbiKLPhS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 12 Nov 2022 10:37:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231911AbiKLCpM (ORCPT
+        with ESMTP id S231404AbiKLPhS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 11 Nov 2022 21:45:12 -0500
-Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DF8E029
-        for <linux-input@vger.kernel.org>; Fri, 11 Nov 2022 18:44:57 -0800 (PST)
-Received: (Authenticated sender: alex@alexyzhang.dev)
-        by mail.gandi.net (Postfix) with ESMTPSA id 54D3AE0002;
-        Sat, 12 Nov 2022 02:44:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alexyzhang.dev;
-        s=gm1; t=1668221096;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=KNHXQH7G1uo0bb1rGKzbXIsnEpHoQzNrCzi26ZjRdRA=;
-        b=fNJONnALlGk3DqII+d1EmFQGB8P2Q9R459TNKtK2wwo4iTx2godAJfb3N0Q8S4TCtN+bKQ
-        6EeAsmT0ENhnui94f1dqMT549OaOabnFla1rBrF/dMGNZi4yjpId+GkYlXZuoDE4PxtZ4O
-        YYdKxo6wuTBOecGIY58VlS7iIrIPRWlgg/4ygt4XqBBPWiaXtgXf6OQhdykymCWnugOPiZ
-        9zSUn5Qr3beWTZhtm/N7D80Hnl3leEp3uYfb5yKTwR296q/9HTeiuBV9BaghWMejwmvsvD
-        H9zl+0e+Ekfj+0Z0EP2zR1QF6itCf1nO1DESWMRCaIqgvp23iXjYdsOFrPHs6g==
-Message-ID: <d0daeb38-e939-95e8-5191-9727adbdd278@alexyzhang.dev>
-Date:   Fri, 11 Nov 2022 18:44:50 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.1
-Content-Language: en-US
-To:     =?UTF-8?B?Sm9zw6kgRXhww7NzaXRv?= <jose.exposito89@gmail.com>
-Cc:     Thorsten Leemhuis <regressions@leemhuis.info>,
+        Sat, 12 Nov 2022 10:37:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC2FF1758F;
+        Sat, 12 Nov 2022 07:37:16 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 871126068A;
+        Sat, 12 Nov 2022 15:37:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94205C433C1;
+        Sat, 12 Nov 2022 15:37:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1668267435;
+        bh=QflFnRa/zdMTL17M319ygZkJ5mADdj1qWoRO1wd8ejM=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=liKvT+yD9NTJ+NGE4LMcQ4EV2XrDkEoB9/cWYTKDDPs4buJfPrqI+RDyNue2lQ461
+         3LUWlhHy7R/bJ61QgeI2FlQEaNAFv5Qkz7r+Bqh4ZGj4xasS22GITMcRH208XH6LtC
+         jZ6BKjENQy/repG4/yGHkkpTqCKZ4Uhg4v+xUf35HI3/rGScwz+101oQ22sp5ytEsq
+         9FOzZi+8L5eRJfSxqa7PjMK2d2807Hb+GdpgXohL/RrUrswoVIiFmksowiUb9H/iqn
+         qSGuvUSh0DbteyFuJVWKx+qcoAMcRRQ6R/GLB1H9pTHKwISwT+GRZKhj9ge10BcH1x
+         g1HHGQnuMxBWg==
+Date:   Sat, 12 Nov 2022 15:49:31 +0000
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Yauhen Kharuzhy <jekhor@gmail.com>
+Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Torge Matthies <openglfreak@googlemail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        Nikolai Kondrashov <spbnick@gmail.com>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>
-References: <20220804151832.30373-1-openglfreak@googlemail.com>
- <20220804180038.GA8906@elementary>
- <CAO-hwJJsKC=fyeFLCmdXMRkxEQFVGZ189GKphTVK83QJWc=udA@mail.gmail.com>
- <2717adbe-e9b2-3c5a-7ccf-3d851a55744c@alexyzhang.dev>
- <1db88d01-1004-0e42-b9aa-3e0bb2b22cdb@leemhuis.info>
- <b1536115-1d4b-67dd-197e-4b6ed8e5cbc6@alexyzhang.dev>
- <20221110174808.GA396731@elementary>
-From:   Alexander Zhang <alex@alexyzhang.dev>
-Subject: Re: [PATCH] HID: Accept Digitizers as input devices
-In-Reply-To: <20221110174808.GA396731@elementary>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Jiri Kosina <jikos@kernel.org>
+Subject: Re: [PATCH] HID: hid-sensor-custom: Allow more than one hinge angle
+ sensor
+Message-ID: <20221112154931.7023bc11@jic23-huawei>
+In-Reply-To: <Y2gRzHpH5FwNVBoO@jeknote.loshitsa1.net>
+References: <20221105223422.417316-1-jekhor@gmail.com>
+        <20221106173643.5b4f2a0b@jic23-huawei>
+        <Y2gRzHpH5FwNVBoO@jeknote.loshitsa1.net>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.34; x86_64-pc-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi José,
+On Sun, 6 Nov 2022 21:58:04 +0200
+Yauhen Kharuzhy <jekhor@gmail.com> wrote:
 
-On 11/10/22 9:48 AM, José Expósito wrote:
-> Hi!
+> On Sun, Nov 06, 2022 at 05:36:43PM +0000, Jonathan Cameron wrote:
+> > On Sun,  6 Nov 2022 00:34:22 +0200
+> > Yauhen Kharuzhy <jekhor@gmail.com> wrote:
+> >   
+> > > Some devices has two sets of accelerometers and the sensor hub exports
+> > > two hinge angle 'sensors' based on accelerometer values. To allow more
+> > > than one sensor of the same type, use PLATFORM_DEVID_AUTO instead of
+> > > PLATFORM_DEVID_NONE when registering platform device for it.
+> > > 
+> > > Checked on the Lenovo Yoga Book YB1-X91L tablet.
+> > > 
+> > > Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>  
+> > 
+> > Purely for curiosity sake, but where are the two sets of sensors?
+> > Doesn't look like it has two hinges at first glance!  
 > 
->>> On 27.10.22 00:42, Alexander Zhang wrote:
->>>> On 8/11/22 8:27 AM, Benjamin Tissoires wrote:
->>>>> On Thu, Aug 4, 2022 at 8:00 PM José Expósito
->>>>> <jose.exposito89@gmail.com> wrote:
->>>>>> On Thu, Aug 04, 2022 at 05:18:32PM +0200, Torge Matthies wrote:
->>>>>>> Commit f7d8e387d9ae ("HID: uclogic: Switch to Digitizer usage for
->>>>>>> styluses") broke input from my XP-Pen Star G640. This is because the
->>>>>>> "Digitizer" usage is not recognized as a valid usage for input devices.
->>>>>>>
->>>>>>> This patch changes the IS_INPUT_APPLICATION macro so that the
->>>>>>> "Digitizer"
->>>>>>> (HID_DG_DIGITIZER) usage is recognized as an input device usage.
->>>>>>>
->>>>>>> Fixes: f7d8e387d9ae ("HID: uclogic: Switch to Digitizer usage for
->>>>>>> styluses")
->>>>>>> Signed-off-by: Torge Matthies <openglfreak@googlemail.com>
->>>>>>> ---
->>>>>>> This patch could be risky, because any digitizer devices that were
->>>>>>> previously not treated as input devices are now used for input.
->>>>>>> Alternatively the linked commit could be reverted, but that would
->>>>>>> re-introduce the problem detailed in its commit message.
->>>>>>>
->>>>>>>     include/linux/hid.h | 2 +-
->>>>>>>     1 file changed, 1 insertion(+), 1 deletion(-)
->>>>>>
->>>>>> I hesitated about this when I sent the patch you mentioned. In the end,
->>>>>> I didn't include any fix because the digitizer use was tested for 2
->>>>>> years in DIGImend, so I (wrongly) assumed that it was safe enough.
->>>>>>
->>>>>> However, my initial thought was to add in uclogic_probe():
->>>>>>
->>>>>>            hdev->quirks |= HID_QUIRK_HIDINPUT_FORCE;
->>>>>> +       hdev->quirks |= HID_QUIRK_HIDINPUT_FORCE;
->>>>>>
->>>>>> Let's see if we can hear more opinions, but if you are worried about
->>>>>> affecting other drivers, that could be a good solution.
->>>>>
->>>>> Sadly, my automated regression tests are broken for a while and I
->>>>> haven't checked if that patch is introducing errors in hid-multitouch.
->>>>>
->>>>> FWIW, this part has always been painful because some tablets were not
->>>>> using the correct usages. And so that's why we are ending up in that
->>>>> weird situation.
->>>>>
->>>>> Anyway, just to mention that any code that touches this part should be
->>>>> tested against the hid regression tests suite[0], because that's the
->>>>> only way to find out if the change is affecting other devices.
+> It sounds crazy, yes :)
 > 
-> Since it seems like this patch is kind of stuck, I sent you a different
-> patch [1] that aims to fix the same issue but using a more conservative
-> approach.
+> The Lenovo Yoga Book YB1-X91L looks to be strange device in many ways.
 > 
-> Could you test it and confirm that it fixes your problem, please?
+> There are two accelerometers at display side and two at keyboard side (for
+> detecting the rotation movement as I understand). For
+> some reasons ISH exposed two virtual hinge angle sensors (I guess that
+> one for each pair of accelerometers):
+> 
+> ...
+> [    6.230627] Registering platform device 'HID-SENSOR-INT-020b.35.auto'. Parent at 001F:8087:0AC2.0005
+> [    6.230658] device: 'HID-SENSOR-INT-020b.35.auto': device_add
+> [    6.230705] bus: 'platform': add device HID-SENSOR-INT-020b.35.auto
+> [    6.230737] PM: Adding info for platform:HID-SENSOR-INT-020b.35.auto
+> ...
+> [    6.249248] Registering platform device 'HID-SENSOR-INT-020b.36.auto'. Parent at 001F:8087:8AC2.0006
+> [    6.249266] device: 'HID-SENSOR-INT-020b.36.auto': device_add
+> [    6.249295] bus: 'platform': add device HID-SENSOR-INT-020b.36.auto
+> [    6.249394] PM: Adding info for platform:HID-SENSOR-INT-020b.36.auto
+> 
+> This is senseless but it is what it is. Moreover, this 'sensor' is always
+> returns 360 degrees angle, although display and keyboard 'absolute' angles are
+> reported correctly.
+> 
+> In any way, this patch is generic and will be useful for other custom HID
+> sensors if they will be added in the future.
 
-I tested the patch on commit 4bbf3422df78 and it fixes the issue. 
-(Sending this again to make sure it reaches everyone.)
+Thanks for the explanation.
 
-Thank you,
-Alexander Zhang
+Far as I'm concerned patch seems sensible.
 
-> Hopefully, we'd manage to get it merged as the risk of doing so would
-> be smaller.
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+
 > 
-> Jose
+> > 
+> > Jonathan
+> >   
+> > > ---
+> > >  drivers/hid/hid-sensor-custom.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
+> > > index 32c2306e240d6..a6fc89ee1287c 100644
+> > > --- a/drivers/hid/hid-sensor-custom.c
+> > > +++ b/drivers/hid/hid-sensor-custom.c
+> > > @@ -862,7 +862,7 @@ hid_sensor_register_platform_device(struct platform_device *pdev,
+> > >  		return ERR_PTR(-ENOMEM);
+> > >  
+> > >  	custom_pdev = platform_device_register_data(pdev->dev.parent, dev_name,
+> > > -						    PLATFORM_DEVID_NONE, hsdev,
+> > > +						    PLATFORM_DEVID_AUTO, hsdev,
+> > >  						    sizeof(*hsdev));
+> > >  	kfree(dev_name);
+> > >  	return custom_pdev;  
+> >   
 > 
-> [1] https://lore.kernel.org/linux-input/20221110174056.393697-1-jose.exposito89@gmail.com/T/
-> 
+

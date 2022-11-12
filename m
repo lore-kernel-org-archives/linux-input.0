@@ -2,97 +2,95 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AFEBEC433FE
-	for <linux-input@archiver.kernel.org>; Sat, 12 Nov 2022 15:54:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C615C433FE
+	for <linux-input@archiver.kernel.org>; Sat, 12 Nov 2022 16:09:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232311AbiKLPyQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 12 Nov 2022 10:54:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38906 "EHLO
+        id S231534AbiKLQJo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 12 Nov 2022 11:09:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231404AbiKLPyQ (ORCPT
+        with ESMTP id S230257AbiKLQJn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 12 Nov 2022 10:54:16 -0500
-X-Greylist: delayed 1858 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 12 Nov 2022 07:54:13 PST
-Received: from marmot.wormnet.eu (marmot.wormnet.eu [IPv6:2a03:9800:10:2d:3203:b3a5:8bdc:5b68])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56ECF234
-        for <linux-input@vger.kernel.org>; Sat, 12 Nov 2022 07:54:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=lentin.co.uk; s=budgerigar; h=Message-ID:References:In-Reply-To:Subject:Cc:
-        To:From:Date:Content-Transfer-Encoding:Content-Type:MIME-Version:Sender:
-        Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender
-        :Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=omvvfR3YDbqrohFHNj/MayIbwsrzvhGgOUIUPvhuPB0=; b=DqbWsF8L/JYugGLJCbl/2FoNIk
-        5qZWHUHlANrypkgPXrwo78Kzf2Qb34biz67aoS13qLawIghsY4pMOjN7DbxxV/avY4oTH64XpDUJZ
-        QUUBNrv1X90ixB1x69RJ5nWJ8RmjKh+6vLJUxJf6Q7/HhziA6H51kXQ8kWxDNxZedKO0=;
-Received: from localhost ([::1] helo=webmail.wormnet.eu)
-        by marmot.wormnet.eu with esmtp (Exim 4.94)
-        (envelope-from <jm@lentin.co.uk>)
-        id 1otsLf-0001jf-Ky; Sat, 12 Nov 2022 15:23:11 +0000
+        Sat, 12 Nov 2022 11:09:43 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01D9A101DA;
+        Sat, 12 Nov 2022 08:09:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1668269383; x=1699805383;
+  h=message-id:subject:from:to:cc:date:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=NhaN+BDPmF2eKeW73xN887VbxSfqdp+cpLWncxJ2vNc=;
+  b=iVNEQdLKv0t0COw8Qymo/ys6AoF0ETsefTamudeWdCwb7GXxPCWHPXQU
+   1lnbZQBF4c6c4WuxGJM1e+fUbBRUvQcdJy3M4agHqQvlUf2y8/7YtSBeW
+   EBIttmkzPetCbrP+zR0ChcxK+UKfpfMWefA4u0sG2SStesNH0qAqMWRT1
+   tq28R1c36hMGZ8x9bAtttZYGAz1kIPvZg0u4UA9p+I2sc3droak39ETdv
+   VdMkq15s+5rjh8aYHem7kv5FHa6aSyMwtrpUv5I+SLkffmdoeoDhD4gKn
+   5SRMmrYobZ3rr9exNCmK8PEyAatZdkjl7o6UQWXNUnUVmG6jJQEzW3zeD
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10529"; a="373867466"
+X-IronPort-AV: E=Sophos;i="5.96,160,1665471600"; 
+   d="scan'208";a="373867466"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2022 08:09:42 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10529"; a="615762209"
+X-IronPort-AV: E=Sophos;i="5.96,160,1665471600"; 
+   d="scan'208";a="615762209"
+Received: from shambhav-mobl.amr.corp.intel.com (HELO spandruv-desk1.amr.corp.intel.com) ([10.251.12.9])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Nov 2022 08:09:42 -0800
+Message-ID: <386734b3660eb3298cfbd5245f18994777a3296c.camel@linux.intel.com>
+Subject: Re: [PATCH] HID: hid-sensor-custom: Allow more than one hinge angle
+ sensor
+From:   srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+To:     Yauhen Kharuzhy <jekhor@gmail.com>, linux-input@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jonathan Cameron <jic23@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>
+Date:   Sat, 12 Nov 2022 08:09:42 -0800
+In-Reply-To: <20221105223422.417316-1-jekhor@gmail.com>
+References: <20221105223422.417316-1-jekhor@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Sat, 12 Nov 2022 15:23:11 +0000
-From:   Jamie Lentin <jm@lentin.co.uk>
-To:     Josh Triplett <josh@joshtriplett.org>
-Cc:     linux-input@vger.kernel.org, 1006251@bugs.debian.org
-Subject: Re: USB Lenovo ThinkPad Compact Keyboard has fn_lock inverted
-In-Reply-To: <Y26BMXn15Kbt6a2u@localhost>
-References: <Y26BMXn15Kbt6a2u@localhost>
-Message-ID: <a031b2a5ed783b1558bceedd3041bf6a@lentin.co.uk>
-X-Sender: jm@lentin.co.uk
-User-Agent: Roundcube Webmail/1.3.16
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 2022-11-11 17:06, Josh Triplett wrote:
-> I have an external ThinkPad USB keyboard:
+On Sun, 2022-11-06 at 00:34 +0200, Yauhen Kharuzhy wrote:
+> Some devices has two sets of accelerometers and the sensor hub
+> exports
+> two hinge angle 'sensors' based on accelerometer values. To allow
+> more
+> than one sensor of the same type, use PLATFORM_DEVID_AUTO instead of
+> PLATFORM_DEVID_NONE when registering platform device for it.
 > 
-> $ lsusb | grep -i keyboard
-> Bus 003 Device 022: ID 17ef:6047 Lenovo ThinkPad Compact Keyboard with
-> TrackPoint
+> Checked on the Lenovo Yoga Book YB1-X91L tablet.
 > 
-> The Linux kernel exposes a fn_lock attribute in sysfs for this 
-> keyboard:
+> Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+
+> ---
+>  drivers/hid/hid-sensor-custom.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> $ cat
-> sys/devices/pci0000:00/0000:00:14.0/usb3/3-5/3-5.4/3-5.4.3/3-5.4.3:1.1/0003:17EF:6047.000F/fn_lock
-> 1
-> 
-> However, this attribute appears inverted for this particular keyboard:
-> it seems to be 1 when FnLock is *disabled* and 0 when FnLock is
-> *enabled*. In order to enable FnLock, I have to write 0 to this file.
+> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-
+> sensor-custom.c
+> index 32c2306e240d6..a6fc89ee1287c 100644
+> --- a/drivers/hid/hid-sensor-custom.c
+> +++ b/drivers/hid/hid-sensor-custom.c
+> @@ -862,7 +862,7 @@ hid_sensor_register_platform_device(struct
+> platform_device *pdev,
+>                 return ERR_PTR(-ENOMEM);
+>  
+>         custom_pdev = platform_device_register_data(pdev->dev.parent,
+> dev_name,
+> -                                                  
+> PLATFORM_DEVID_NONE, hsdev,
+> +                                                  
+> PLATFORM_DEVID_AUTO, hsdev,
+>                                                     sizeof(*hsdev));
+>         kfree(dev_name);
+>         return custom_pdev;
 
-Under Windows the default actions of the Function keys are the media 
-keys, i.e. pressing F1 is Mute. Fn-"Mute" is F1, or enabling Fn-Lock & 
-"Mute". That's why when /fn_lock is 1, the Mute key is F1.
-
-With keyboards built into Thinkpads there's a BIOS setting to invert the 
-behaviour of Fn-Lock (and thus have Fn keys by default), as well as 
-swapping Fn<->Ctrl, but there's no equivalent option for the external 
-keyboards.
-
-What's the wrong way around here is hid-lenovo assumes that you want 
-Fn-Lock on when connecting to the keyboard, not off. My assumption at 
-the time was that whilst it's different to how the keyboard behaves 
-under Windows, it'd be a more useful default.
-
-> (Also, separately from that, it would be nice if the kernel could 
-> handle
-> fn_lock toggling *internally*, rather than expecting userspace to do 
-> it.
-> As far as I can tell, it does handle similar things for some keyboards,
-> but not this one.)
-
-Agreed. This was something I looked into when I was adding support for 
-the keyboards. For yours it's a pretty trivial addition, but for the USB 
-variant you can't send the command in the middle of the USB interrupt 
-receiving the keypress, solving this seemed to require quite a lot of 
-boilerplate for what would have been pretty trivial in userland.
-
-Of course, It's very easily possible that I missed something, or there's 
-a helper to do this sort of thing that now exists.
-
-Cheers,

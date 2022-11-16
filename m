@@ -2,75 +2,69 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BFBC2C4167D
-	for <linux-input@archiver.kernel.org>; Wed, 16 Nov 2022 21:17:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D7C82C4332F
+	for <linux-input@archiver.kernel.org>; Wed, 16 Nov 2022 22:01:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233712AbiKPVRA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 16 Nov 2022 16:17:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33268 "EHLO
+        id S233688AbiKPWBQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 16 Nov 2022 17:01:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229931AbiKPVQu (ORCPT
+        with ESMTP id S229931AbiKPWBO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 16 Nov 2022 16:16:50 -0500
-X-Greylist: delayed 10740 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 16 Nov 2022 13:16:48 PST
-Received: from msg-2.mailo.com (msg-2.mailo.com [213.182.54.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96F304C258;
-        Wed, 16 Nov 2022 13:16:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=mailoo.org; s=mailo;
-        t=1668633397; bh=a9KYl1hIoBIvL/U20k0sy5lGRkz1Wjptty6bd6cHvaw=;
-        h=X-EA-Auth:From:To:Cc:Subject:Date:Message-Id:X-Mailer:
-         MIME-Version:Content-Transfer-Encoding;
-        b=alsFQWzlcynUT9NOYcOgTHGgXhAJFF9oZsXszQFUGVu992kSCjWuNnmQiPXt2v4pK
-         SUPKJOsBixG7l4j1DMGN352f28hjLwHWL1T2z6V0s1Y4LcMGoG0FDYXmU1aRDIQJR4
-         i1sDJ2BK3zp3PrGPY5gGp0UNWGhDvHyG7qkq8xUw=
-Received: by b-1.in.mailobj.net [192.168.90.11] with ESMTP
-        via proxy.mailoo.org [213.182.55.207]
-        Wed, 16 Nov 2022 22:16:37 +0100 (CET)
-X-EA-Auth: uD+aQfuNBm/LqnABbr3Z0uz4NmqWq5ah2sr48xayCWyEU7CEcCNESIjFTPXu3QQahqr3/+CrAB+zNOu7VJtBDWE7jFUZMpwxGimeb5RRoLM=
-From:   Vincent Knecht <vincent.knecht@mailoo.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Vincent Knecht <vincent.knecht@mailoo.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     w.david0@protonmail.com, stephan@gerhold.net,
-        phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
-Subject: [PATCH v6 0/2] Input: msg2638: Add support for msg2138 and key events
-Date:   Wed, 16 Nov 2022 22:16:15 +0100
-Message-Id: <20221116211622.2155747-1-vincent.knecht@mailoo.org>
-X-Mailer: git-send-email 2.38.1
+        Wed, 16 Nov 2022 17:01:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C023F57B56;
+        Wed, 16 Nov 2022 14:01:13 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B293B81D80;
+        Wed, 16 Nov 2022 22:01:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58AF0C433D6;
+        Wed, 16 Nov 2022 22:01:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1668636071;
+        bh=mfKrZ8tATSZA5qSJwQFPA+KqxAXPJV+e+BMQU0b5UAc=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=dGSj/nTGaWRVMNLMa1SEQ7Mi2BSX8giEqei4aC/myPELxg9GvjcxuECOQYooMk5zE
+         99EuZeb4Qa2wnMqlP4YOOj/V1aWUKaQQkeBTGy1hta4Rlnwg+qtRbJig9Iy1fQqsev
+         vMnzOaEM4Bd/rXB2iUaoFGBq6NzWnSlLh5lWp+BRved+6bVRjPsP3SNlMA9mRObPVW
+         ZEXjde8GLSTc9VF5m4vbhNZiQB2nR+k9PyIiF79qRcznJq+jDDLAUCIOYUIHorBocg
+         K1vZBVhgEFR0Jj4h4tRVKlxLVS6Ttkqwcq7YhHUMCWzq1tW67C5iY/hmOCWMJ1c+Ab
+         DCLXAnZu3vk6Q==
+Date:   Wed, 16 Nov 2022 23:01:09 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: bpf: return non NULL data pointer when CONFIG_HID_BPF
+ is not set
+In-Reply-To: <20221116103110.1746497-1-benjamin.tissoires@redhat.com>
+Message-ID: <nycvar.YFH.7.76.2211162300500.6045@cbobk.fhfr.pm>
+References: <20221116103110.1746497-1-benjamin.tissoires@redhat.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series is the continuation of v4 [1] from which the first 3 patches
-have been merged already.
+On Wed, 16 Nov 2022, Benjamin Tissoires wrote:
 
-v6:
-  - use property_* functions instead of fwnode_* (Dmitry)
-  - use %zd format instead of %ld to print ARRAY_SIZE() (Dmitry)
+> dispatch_hid_bpf_device_event() is supposed to return either an error,
+> or a valid pointer to memory containing the data.
+> 
+> Returning NULL simply makes a segfault when CONFIG_HID_BPF is not set
+> for any processed event.
+> 
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-v5:
-  - keep only the non-merged patch
-  - remove double-negation in call to input_report_key() (Dmitry)
-  - change keycodes retrieval to use device property API (Dmitry)
-  - due to previous point, add a check and a warning if more than
-    the supported number of keys are found.
-    Should that happen, ignore the keys in excess.
+I have added
 
-Vincent Knecht (2):
-  dt-bindings: input: touchscreen: msg2638: Document keys support
-  Input: msg2638 - Add support for msg2138 key events
+	Fixes: 658ee5a64fcfbbf ("HID: bpf: allocate data memory for device_event BPF program")
 
- .../input/touchscreen/mstar,msg2638.yaml      |  4 ++
- drivers/input/touchscreen/msg2638.c           | 57 +++++++++++++++++--
- 2 files changed, 57 insertions(+), 4 deletions(-)
+and applied on top of the HID-BPF pile. Thanks,
 
 -- 
-2.38.1
-
-
+Jiri Kosina
+SUSE Labs
 

@@ -2,380 +2,135 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EE579C4167E
-	for <linux-input@archiver.kernel.org>; Thu, 17 Nov 2022 12:42:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 162DAC4332F
+	for <linux-input@archiver.kernel.org>; Thu, 17 Nov 2022 13:03:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239903AbiKQMmf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Nov 2022 07:42:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37170 "EHLO
+        id S239485AbiKQNDB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Nov 2022 08:03:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239846AbiKQMlF (ORCPT
+        with ESMTP id S234724AbiKQNC7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Nov 2022 07:41:05 -0500
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96D0874A94
-        for <linux-input@vger.kernel.org>; Thu, 17 Nov 2022 04:39:47 -0800 (PST)
-Received: by mail-lj1-x22d.google.com with SMTP id l8so2486019ljh.13
-        for <linux-input@vger.kernel.org>; Thu, 17 Nov 2022 04:39:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=FJFFdNTCilBROsHdo24V63ZbZAhhEEgqcZxfhZbN7o8=;
-        b=rdz5PIXMqObB86l1KhoZJKcSKbC+xg6NRkgTB1NATFdSIlglOWlXRIvjuNjAzjvTCO
-         y8zZsFvyNaBAJ3JYgXO1JPdPh3To3UQBQF8ZYT+Xs+SqZ3Pz85WQP1ifCFiiPrF+7IsA
-         igQY+5y+DrCUl7a8xmGOtKdzQJMqiZDbwefYzZghibsOKI6dmXc/er8ez17uTiah1G7l
-         7mQ4NF/RzyMelV1c9UT/LoARjsuZLkFC3+x+2gPh/sPASOPAxd0p4szB44T219qd73o3
-         xVm9bFa2ZmqMpeG1LwRd/nrLaH2Uk+lR7uJv3y937vG7+grMPRcepOLACr3489eRm49J
-         vqFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=FJFFdNTCilBROsHdo24V63ZbZAhhEEgqcZxfhZbN7o8=;
-        b=BwbR6eLCAGfO2V1XlXHdwknO+o4uY78tA+QVs5HFbZHfs+HHrtWZmoBDf4JyzubF2Q
-         IhhOAmV7+VgL38ewMh83pbzeSF646Z+hTNR20OmVU9C+rRuSZFOwEU5UAztHdvw/dj10
-         vLhgwWRzmDZX4cQO4csIRXM0xtxG9UY6I30eNuDvhGg4W9/u6sRahl/KdgJRKPU1z9ff
-         LwllR1MQNgjkOWRG/mhrmBHrzJHnZ56woRWQUtVLnXrR4gQtS4ya2T9Uu1dYe9jattYq
-         w6GdzAzLGxFU7fWM4bJfgkDSwFW/2eWpVplikmPHiCjoJviOXG4TE0bljcS65tiTSoHa
-         m0HQ==
-X-Gm-Message-State: ANoB5plnIyVes2kONPWbvTNhLg1lcZcAAvMTomo63CzbttheZjn3biFi
-        +eK3H+Udsl4IX8NsW2C08xus3Q==
-X-Google-Smtp-Source: AA0mqf7DipsuY/Cd5bO8hrjb2IxaeO35/7waWPRAbVpXYlqoqtTpdo18Hp5PA/jEtmhgdlbc5yHKpQ==
-X-Received: by 2002:a05:651c:987:b0:26f:c065:4e99 with SMTP id b7-20020a05651c098700b0026fc0654e99mr997284ljq.394.1668688759946;
-        Thu, 17 Nov 2022 04:39:19 -0800 (PST)
-Received: from krzk-bin.NAT.warszawa.vectranet.pl (088156142067.dynamic-2-waw-k-3-2-0.vectranet.pl. [88.156.142.67])
-        by smtp.gmail.com with ESMTPSA id u28-20020ac24c3c000000b004972b0bb426sm127855lfq.257.2022.11.17.04.39.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 17 Nov 2022 04:39:19 -0800 (PST)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Andrew Lunn <andrew@lunn.ch>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        netdev@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        linux-usb@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-watchdog@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [RFC PATCH 8/9] dt-bindings: clock: drop redundant part of title
-Date:   Thu, 17 Nov 2022 13:38:49 +0100
-Message-Id: <20221117123850.368213-9-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20221117123850.368213-1-krzysztof.kozlowski@linaro.org>
-References: <20221117123850.368213-1-krzysztof.kozlowski@linaro.org>
+        Thu, 17 Nov 2022 08:02:59 -0500
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C695764570
+        for <linux-input@vger.kernel.org>; Thu, 17 Nov 2022 05:02:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1668690178; x=1700226178;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   content-transfer-encoding;
+  bh=cUmJiR1owhgDO/ygBzgNJQl2q3O6xi6LzOFFVtz2y6U=;
+  b=dmgK/CY2EgtVPKGfzZTrbO2gTfISTSEfZev1bPa9QYyVTw1ShUMjMvJ0
+   c5KpoNe6nwEUHws/tHoCSP6LV7Hgk/+BDfTb4KCQ1uInM67H6gMmbUxA/
+   u2mdNiCzNWONPWcUkqvQ4Az5h8tXHYzi8yjnl0CYQJ7uPr2PG9Y1ZZNNJ
+   8XTiMk2gNOV863ek1QFVb+os655vV0Bxel1R7vJtxV3aMgZgjISDywuuh
+   I3fCBF9i5hbvqTqsWqJKqLnN8/uj7W9Vv6dxsAo1b3pwiHpk20GppZvae
+   o8FridSOdiNMTV3WDkyuhSilykuUU/cSZQo1+nuPbFGGpR4HnZoMS3P20
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10533"; a="311546631"
+X-IronPort-AV: E=Sophos;i="5.96,171,1665471600"; 
+   d="scan'208";a="311546631"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Nov 2022 05:02:58 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10533"; a="672801890"
+X-IronPort-AV: E=Sophos;i="5.96,171,1665471600"; 
+   d="scan'208";a="672801890"
+Received: from lkp-server01.sh.intel.com (HELO 55744f5052f8) ([10.239.97.150])
+  by orsmga001.jf.intel.com with ESMTP; 17 Nov 2022 05:02:57 -0800
+Received: from kbuild by 55744f5052f8 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1oveXg-0000KF-1D;
+        Thu, 17 Nov 2022 13:02:56 +0000
+Date:   Thu, 17 Nov 2022 21:02:40 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: [dtor-input:next] BUILD SUCCESS
+ 5e7a0af793ce7ed528117145f856224deb81b7a7
+Message-ID: <637630f0.w4AcrdvdQbAMesS1%lkp@intel.com>
+User-Agent: Heirloom mailx 12.5 6/20/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The Devicetree bindings document does not have to say in the title that
-it is a "Devicetree binding", but instead just describe the hardware.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+branch HEAD: 5e7a0af793ce7ed528117145f856224deb81b7a7  fixp-arith: do not require users to include bug.h
 
-Drop "Devicetree bindings" in various forms:
+elapsed time: 757m
 
-  find Documentation/devicetree/bindings/ -type f -name '*.yaml' \
-    -exec sed -i -e 's/^title: [dD]evice[ -]\?[tT]ree [cC]lock [bB]indings\? for \([tT]he \)\?\(.*\)$/title: \u\2 Clock Controller/' {} \;
+configs tested: 58
+configs skipped: 2
 
-  find Documentation/devicetree/bindings/ -type f -name '*.yaml' \
-    -exec sed -i -e 's/^title: [cC]lock [bB]indings\? for \([tT]he \)\?\(.*\)$/title: \u\2 Clock Controller/' {} \;
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- Documentation/devicetree/bindings/clock/calxeda.yaml           | 2 +-
- Documentation/devicetree/bindings/clock/imx1-clock.yaml        | 2 +-
- Documentation/devicetree/bindings/clock/imx21-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx23-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx25-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx27-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx28-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx31-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx35-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx5-clock.yaml        | 2 +-
- Documentation/devicetree/bindings/clock/imx6q-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx6sl-clock.yaml      | 2 +-
- Documentation/devicetree/bindings/clock/imx6sll-clock.yaml     | 2 +-
- Documentation/devicetree/bindings/clock/imx6sx-clock.yaml      | 2 +-
- Documentation/devicetree/bindings/clock/imx6ul-clock.yaml      | 2 +-
- Documentation/devicetree/bindings/clock/imx7d-clock.yaml       | 2 +-
- Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml | 2 +-
- Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml | 2 +-
- Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml   | 2 +-
- Documentation/devicetree/bindings/clock/ti,lmk04832.yaml       | 2 +-
- 20 files changed, 20 insertions(+), 20 deletions(-)
+gcc tested configs:
+arc                                 defconfig
+alpha                               defconfig
+s390                                defconfig
+s390                             allmodconfig
+um                             i386_defconfig
+um                           x86_64_defconfig
+powerpc                           allnoconfig
+powerpc                          allmodconfig
+mips                             allyesconfig
+alpha                            allyesconfig
+sh                               allmodconfig
+arc                              allyesconfig
+m68k                             allmodconfig
+m68k                             allyesconfig
+x86_64                    rhel-8.3-kselftests
+x86_64                          rhel-8.3-func
+ia64                             allmodconfig
+x86_64                           rhel-8.3-kvm
+x86_64                           rhel-8.3-syz
+x86_64                         rhel-8.3-kunit
+i386                          randconfig-a005
+x86_64                        randconfig-a004
+x86_64                        randconfig-a002
+i386                          randconfig-a001
+x86_64                        randconfig-a006
+x86_64                              defconfig
+i386                          randconfig-a003
+x86_64                               rhel-8.3
+arc                  randconfig-r043-20221117
+i386                                defconfig
+x86_64                        randconfig-a011
+x86_64                        randconfig-a015
+x86_64                        randconfig-a013
+x86_64                           allyesconfig
+s390                 randconfig-r044-20221117
+riscv                randconfig-r042-20221117
+i386                          randconfig-a014
+i386                          randconfig-a012
+i386                          randconfig-a016
+i386                             allyesconfig
+s390                             allyesconfig
+arm                                 defconfig
+arm                              allyesconfig
+arm64                            allyesconfig
 
-diff --git a/Documentation/devicetree/bindings/clock/calxeda.yaml b/Documentation/devicetree/bindings/clock/calxeda.yaml
-index a34cbf3c9aaf..a88fbe20fef1 100644
---- a/Documentation/devicetree/bindings/clock/calxeda.yaml
-+++ b/Documentation/devicetree/bindings/clock/calxeda.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/calxeda.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Device Tree Clock bindings for Calxeda highbank platform
-+title: Calxeda highbank platform Clock Controller
- 
- description: |
-   This binding covers the Calxeda SoC internal peripheral and bus clocks
-diff --git a/Documentation/devicetree/bindings/clock/imx1-clock.yaml b/Documentation/devicetree/bindings/clock/imx1-clock.yaml
-index 56f524780b1a..7ade4c32aff3 100644
---- a/Documentation/devicetree/bindings/clock/imx1-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx1-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx1-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX1 CPUs
-+title: Freescale i.MX1 CPUs Clock Controller
- 
- maintainers:
-   - Alexander Shiyan <shc_work@mail.ru>
-diff --git a/Documentation/devicetree/bindings/clock/imx21-clock.yaml b/Documentation/devicetree/bindings/clock/imx21-clock.yaml
-index e2d50544700a..79cc843703ec 100644
---- a/Documentation/devicetree/bindings/clock/imx21-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx21-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx21-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX21
-+title: Freescale i.MX21 Clock Controller
- 
- maintainers:
-   - Alexander Shiyan <shc_work@mail.ru>
-diff --git a/Documentation/devicetree/bindings/clock/imx23-clock.yaml b/Documentation/devicetree/bindings/clock/imx23-clock.yaml
-index 7e890ab9c77d..5e71c9219500 100644
---- a/Documentation/devicetree/bindings/clock/imx23-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx23-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx23-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX23
-+title: Freescale i.MX23 Clock Controller
- 
- maintainers:
-   - Shawn Guo <shawnguo@kernel.org>
-diff --git a/Documentation/devicetree/bindings/clock/imx25-clock.yaml b/Documentation/devicetree/bindings/clock/imx25-clock.yaml
-index 1792e138984b..c626a158590e 100644
---- a/Documentation/devicetree/bindings/clock/imx25-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx25-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx25-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX25
-+title: Freescale i.MX25 Clock Controller
- 
- maintainers:
-   - Sascha Hauer <s.hauer@pengutronix.de>
-diff --git a/Documentation/devicetree/bindings/clock/imx27-clock.yaml b/Documentation/devicetree/bindings/clock/imx27-clock.yaml
-index 99925aa22a4c..71d78a0b551f 100644
---- a/Documentation/devicetree/bindings/clock/imx27-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx27-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx27-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX27
-+title: Freescale i.MX27 Clock Controller
- 
- maintainers:
-   - Fabio Estevam <festevam@gmail.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx28-clock.yaml b/Documentation/devicetree/bindings/clock/imx28-clock.yaml
-index a542d680b1ca..4aaad7b9c66e 100644
---- a/Documentation/devicetree/bindings/clock/imx28-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx28-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx28-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX28
-+title: Freescale i.MX28 Clock Controller
- 
- maintainers:
-   - Shawn Guo <shawnguo@kernel.org>
-diff --git a/Documentation/devicetree/bindings/clock/imx31-clock.yaml b/Documentation/devicetree/bindings/clock/imx31-clock.yaml
-index 168c8ada5e81..50a8498eef8a 100644
---- a/Documentation/devicetree/bindings/clock/imx31-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx31-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx31-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX31
-+title: Freescale i.MX31 Clock Controller
- 
- maintainers:
-   - Fabio Estevam <festevam@gmail.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx35-clock.yaml b/Documentation/devicetree/bindings/clock/imx35-clock.yaml
-index 6415bb6a8d04..c063369de3ec 100644
---- a/Documentation/devicetree/bindings/clock/imx35-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx35-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx35-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX35
-+title: Freescale i.MX35 Clock Controller
- 
- maintainers:
-   - Steffen Trumtrar <s.trumtrar@pengutronix.de>
-diff --git a/Documentation/devicetree/bindings/clock/imx5-clock.yaml b/Documentation/devicetree/bindings/clock/imx5-clock.yaml
-index c0e19ff92c76..423c0142c1d3 100644
---- a/Documentation/devicetree/bindings/clock/imx5-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx5-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx5-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX5
-+title: Freescale i.MX5 Clock Controller
- 
- maintainers:
-   - Fabio Estevam <festevam@gmail.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx6q-clock.yaml b/Documentation/devicetree/bindings/clock/imx6q-clock.yaml
-index 4f4637eddb8b..bae4fcb3aacc 100644
---- a/Documentation/devicetree/bindings/clock/imx6q-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx6q-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx6q-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX6 Quad
-+title: Freescale i.MX6 Quad Clock Controller
- 
- maintainers:
-   - Anson Huang <Anson.Huang@nxp.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx6sl-clock.yaml b/Documentation/devicetree/bindings/clock/imx6sl-clock.yaml
-index b83c8f43d664..c85ff6ea3d24 100644
---- a/Documentation/devicetree/bindings/clock/imx6sl-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx6sl-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx6sl-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX6 SoloLite
-+title: Freescale i.MX6 SoloLite Clock Controller
- 
- maintainers:
-   - Anson Huang <Anson.Huang@nxp.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx6sll-clock.yaml b/Documentation/devicetree/bindings/clock/imx6sll-clock.yaml
-index 484894a4b23f..6b549ed1493c 100644
---- a/Documentation/devicetree/bindings/clock/imx6sll-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx6sll-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx6sll-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX6 SLL
-+title: Freescale i.MX6 SLL Clock Controller
- 
- maintainers:
-   - Anson Huang <Anson.Huang@nxp.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx6sx-clock.yaml b/Documentation/devicetree/bindings/clock/imx6sx-clock.yaml
-index e6c795657c24..55dcad18b7c6 100644
---- a/Documentation/devicetree/bindings/clock/imx6sx-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx6sx-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx6sx-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX6 SoloX
-+title: Freescale i.MX6 SoloX Clock Controller
- 
- maintainers:
-   - Anson Huang <Anson.Huang@nxp.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx6ul-clock.yaml b/Documentation/devicetree/bindings/clock/imx6ul-clock.yaml
-index 6a51a3f51cd9..be54d4df5afa 100644
---- a/Documentation/devicetree/bindings/clock/imx6ul-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx6ul-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx6ul-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX6 UltraLite
-+title: Freescale i.MX6 UltraLite Clock Controller
- 
- maintainers:
-   - Anson Huang <Anson.Huang@nxp.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx7d-clock.yaml b/Documentation/devicetree/bindings/clock/imx7d-clock.yaml
-index cefb61db01a8..e7d8427e4957 100644
---- a/Documentation/devicetree/bindings/clock/imx7d-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx7d-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx7d-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX7 Dual
-+title: Freescale i.MX7 Dual Clock Controller
- 
- maintainers:
-   - Frank Li <Frank.Li@nxp.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml b/Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml
-index 739c3378f8c8..76842038f52e 100644
---- a/Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx7ulp-pcc-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx7ulp-pcc-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX7ULP Peripheral Clock Control (PCC) modules
-+title: Freescale i.MX7ULP Peripheral Clock Control (PCC) modules Clock Controller
- 
- maintainers:
-   - A.s. Dong <aisheng.dong@nxp.com>
-diff --git a/Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml b/Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml
-index d06344d7e34f..5e25bc6d1372 100644
---- a/Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imx7ulp-scg-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imx7ulp-scg-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MX7ULP System Clock Generation (SCG) modules
-+title: Freescale i.MX7ULP System Clock Generation (SCG) modules Clock Controller
- 
- maintainers:
-   - A.s. Dong <aisheng.dong@nxp.com>
-diff --git a/Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml b/Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml
-index 03fc5c1a2939..777af4aad4b2 100644
---- a/Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml
-+++ b/Documentation/devicetree/bindings/clock/imxrt1050-clock.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/imxrt1050-clock.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for Freescale i.MXRT
-+title: Freescale i.MXRT Clock Controller
- 
- maintainers:
-   - Giulio Benetti <giulio.benetti@benettiengineering.com>
-diff --git a/Documentation/devicetree/bindings/clock/ti,lmk04832.yaml b/Documentation/devicetree/bindings/clock/ti,lmk04832.yaml
-index bd8173848253..73d17830f165 100644
---- a/Documentation/devicetree/bindings/clock/ti,lmk04832.yaml
-+++ b/Documentation/devicetree/bindings/clock/ti,lmk04832.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/clock/ti,lmk04832.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
- 
--title: Clock bindings for the Texas Instruments LMK04832
-+title: Texas Instruments LMK04832 Clock Controller
- 
- maintainers:
-   - Liam Beguin <liambeguin@gmail.com>
+clang tested configs:
+i386                          randconfig-a006
+i386                          randconfig-a004
+x86_64                        randconfig-a001
+x86_64                        randconfig-a003
+i386                          randconfig-a002
+x86_64                        randconfig-a005
+x86_64                        randconfig-a016
+x86_64                        randconfig-a012
+x86_64                        randconfig-a014
+hexagon              randconfig-r041-20221117
+hexagon              randconfig-r045-20221117
+i386                          randconfig-a013
+i386                          randconfig-a015
+i386                          randconfig-a011
+
 -- 
-2.34.1
-
+0-DAY CI Kernel Test Service
+https://01.org/lkp

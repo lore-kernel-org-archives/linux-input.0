@@ -2,47 +2,44 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC0B6C433FE
-	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:40:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 81367C43217
+	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:40:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236614AbiKSAkS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:40:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42014 "EHLO
+        id S233122AbiKSAkV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:40:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235628AbiKSAjQ (ORCPT
+        with ESMTP id S234073AbiKSAjW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 19:39:16 -0500
+        Fri, 18 Nov 2022 19:39:22 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29CC7C80C5
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2901C80D5
         for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:44:26 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8N-0001cD-CJ; Fri, 18 Nov 2022 23:46:55 +0100
+        id 1owA8b-0002OE-I3; Fri, 18 Nov 2022 23:47:09 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8J-0058NN-NJ; Fri, 18 Nov 2022 23:46:52 +0100
+        id 1owA8Y-0058ST-Mg; Fri, 18 Nov 2022 23:47:07 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8J-00Hb7f-LH; Fri, 18 Nov 2022 23:46:51 +0100
+        id 1owA8Y-00008Z-On; Fri, 18 Nov 2022 23:47:06 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Peter Rosin <peda@axentia.se>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 197/606] Input: lm8333 - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:51 +0100
-Message-Id: <20221118224540.619276-198-uwe@kleine-koenig.org>
+Subject: [PATCH 261/606] Input: sx8654 - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:39:55 +0100
+Message-Id: <20221118224540.619276-262-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -59,37 +56,39 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/keyboard/lm8333.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/sx8654.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/lm8333.c b/drivers/input/keyboard/lm8333.c
-index 3052cd6dedac..7457c3220f90 100644
---- a/drivers/input/keyboard/lm8333.c
-+++ b/drivers/input/keyboard/lm8333.c
-@@ -125,8 +125,7 @@ static irqreturn_t lm8333_irq_thread(int irq, void *data)
- 	return IRQ_HANDLED;
+diff --git a/drivers/input/touchscreen/sx8654.c b/drivers/input/touchscreen/sx8654.c
+index de85e57b2486..52ae73035830 100644
+--- a/drivers/input/touchscreen/sx8654.c
++++ b/drivers/input/touchscreen/sx8654.c
+@@ -306,9 +306,9 @@ static void sx8654_close(struct input_dev *dev)
+ 	}
  }
  
--static int lm8333_probe(struct i2c_client *client,
--				  const struct i2c_device_id *id)
-+static int lm8333_probe(struct i2c_client *client)
+-static int sx8654_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int sx8654_probe(struct i2c_client *client)
  {
- 	const struct lm8333_platform_data *pdata =
- 			dev_get_platdata(&client->dev);
-@@ -219,7 +218,7 @@ static struct i2c_driver lm8333_driver = {
- 	.driver = {
- 		.name		= "lm8333",
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct sx8654 *sx8654;
+ 	struct input_dev *input;
+ 	int error;
+@@ -470,7 +470,7 @@ static struct i2c_driver sx8654_driver = {
+ 		.of_match_table = of_match_ptr(sx8654_of_match),
  	},
--	.probe		= lm8333_probe,
-+	.probe_new	= lm8333_probe,
- 	.remove		= lm8333_remove,
- 	.id_table	= lm8333_id,
+ 	.id_table = sx8654_id_table,
+-	.probe = sx8654_probe,
++	.probe_new = sx8654_probe,
  };
+ module_i2c_driver(sx8654_driver);
+ 
 -- 
 2.38.1
 

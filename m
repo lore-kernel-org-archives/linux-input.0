@@ -2,48 +2,44 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AB87C4167E
-	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 23:48:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24038C433FE
+	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 23:49:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233986AbiKRXsH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:48:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42554 "EHLO
+        id S234401AbiKRXth (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:49:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237093AbiKRXr1 (ORCPT
+        with ESMTP id S236834AbiKRXs4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 18:47:27 -0500
+        Fri, 18 Nov 2022 18:48:56 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A31EEE3D1E
-        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:25:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEED1EC08D
+        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:26:27 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8T-00021f-0K; Fri, 18 Nov 2022 23:47:01 +0100
+        id 1owA8N-0001eM-Ie; Fri, 18 Nov 2022 23:46:55 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8Q-0058Pb-Do; Fri, 18 Nov 2022 23:46:59 +0100
+        id 1owA8K-0058NY-71; Fri, 18 Nov 2022 23:46:53 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8Q-00006B-KF; Fri, 18 Nov 2022 23:46:58 +0100
+        id 1owA8K-00Hb7q-Eb; Fri, 18 Nov 2022 23:46:52 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 224/606] Input: rmi_smbus - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:18 +0100
-Message-Id: <20221118224540.619276-225-uwe@kleine-koenig.org>
+Subject: [PATCH 200/606] Input: mpr121_touchkey - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:38:54 +0100
+Message-Id: <20221118224540.619276-201-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -65,32 +61,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/rmi4/rmi_smbus.c | 5 ++---
+ drivers/input/keyboard/mpr121_touchkey.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index c130468541b7..8a9ee2bd7402 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -268,8 +268,7 @@ static const struct rmi_transport_ops rmi_smb_ops = {
- 	.reset		= rmi_smb_reset,
- };
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+index 230ab3d50b9e..4610ef55903c 100644
+--- a/drivers/input/keyboard/mpr121_touchkey.c
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -230,8 +230,7 @@ static int mpr121_phys_init(struct mpr121_touchkey *mpr121,
+ 	return ret;
+ }
  
--static int rmi_smb_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int rmi_smb_probe(struct i2c_client *client)
+-static int mpr_touchkey_probe(struct i2c_client *client,
+-			      const struct i2c_device_id *id)
++static int mpr_touchkey_probe(struct i2c_client *client)
  {
- 	struct rmi_device_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct rmi_smb_xport *rmi_smb;
-@@ -420,7 +419,7 @@ static struct i2c_driver rmi_smb_driver = {
- 		.pm	= &rmi_smb_pm,
+ 	struct device *dev = &client->dev;
+ 	struct regulator *vdd_supply;
+@@ -390,7 +389,7 @@ static struct i2c_driver mpr_touchkey_driver = {
+ 		.of_match_table = of_match_ptr(mpr121_touchkey_dt_match_table),
  	},
- 	.id_table	= rmi_id,
--	.probe		= rmi_smb_probe,
-+	.probe_new	= rmi_smb_probe,
- 	.remove		= rmi_smb_remove,
+ 	.id_table	= mpr121_id,
+-	.probe		= mpr_touchkey_probe,
++	.probe_new	= mpr_touchkey_probe,
  };
  
+ module_i2c_driver(mpr_touchkey_driver);
 -- 
 2.38.1
 

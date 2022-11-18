@@ -2,31 +2,31 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 79B87C4332F
-	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:40:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B69CDC433FE
+	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:41:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236702AbiKSAkZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:40:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39896 "EHLO
+        id S236864AbiKSAlB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:41:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbiKSAj1 (ORCPT
+        with ESMTP id S236031AbiKSAj5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 19:39:27 -0500
+        Fri, 18 Nov 2022 19:39:57 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77121C80D2
-        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:44:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C00DBD9188
+        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:44:35 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8V-00028l-05; Fri, 18 Nov 2022 23:47:03 +0100
+        id 1owA8d-0002S9-97; Fri, 18 Nov 2022 23:47:11 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8S-0058QF-Fj; Fri, 18 Nov 2022 23:47:01 +0100
+        id 1owA8a-0058T3-AL; Fri, 18 Nov 2022 23:47:09 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8S-00006l-Ce; Fri, 18 Nov 2022 23:47:00 +0100
+        id 1owA8a-000091-IT; Fri, 18 Nov 2022 23:47:08 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
@@ -37,9 +37,9 @@ Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 233/606] Input: cy8ctmg110_ts - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:27 +0100
-Message-Id: <20221118224540.619276-234-uwe@kleine-koenig.org>
+Subject: [PATCH 267/606] Input: zforce_ts - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:40:01 +0100
+Message-Id: <20221118224540.619276-268-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +61,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/cy8ctmg110_ts.c | 5 ++---
+ drivers/input/touchscreen/zforce_ts.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/cy8ctmg110_ts.c b/drivers/input/touchscreen/cy8ctmg110_ts.c
-index 495ef156cf43..7c2b7309dbaf 100644
---- a/drivers/input/touchscreen/cy8ctmg110_ts.c
-+++ b/drivers/input/touchscreen/cy8ctmg110_ts.c
-@@ -168,8 +168,7 @@ static void cy8ctmg110_shut_off(void *_ts)
- 	cy8ctmg110_power(ts, false);
+diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+index 495629628af6..24e78ca83fa3 100644
+--- a/drivers/input/touchscreen/zforce_ts.c
++++ b/drivers/input/touchscreen/zforce_ts.c
+@@ -732,8 +732,7 @@ static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev)
+ 	return pdata;
  }
  
--static int cy8ctmg110_probe(struct i2c_client *client,
--					const struct i2c_device_id *id)
-+static int cy8ctmg110_probe(struct i2c_client *client)
+-static int zforce_probe(struct i2c_client *client,
+-			const struct i2c_device_id *id)
++static int zforce_probe(struct i2c_client *client)
  {
- 	struct cy8ctmg110 *ts;
- 	struct input_dev *input_dev;
-@@ -279,7 +278,7 @@ static struct i2c_driver cy8ctmg110_driver = {
- 		.pm	= &cy8ctmg110_pm,
+ 	const struct zforce_ts_platdata *pdata = dev_get_platdata(&client->dev);
+ 	struct zforce_ts *ts;
+@@ -945,7 +944,7 @@ static struct i2c_driver zforce_driver = {
+ 		.pm	= &zforce_pm_ops,
+ 		.of_match_table	= of_match_ptr(zforce_dt_idtable),
  	},
- 	.id_table	= cy8ctmg110_idtable,
--	.probe		= cy8ctmg110_probe,
-+	.probe_new	= cy8ctmg110_probe,
+-	.probe		= zforce_probe,
++	.probe_new	= zforce_probe,
+ 	.id_table	= zforce_idtable,
  };
  
- module_i2c_driver(cy8ctmg110_driver);
 -- 
 2.38.1
 

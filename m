@@ -2,159 +2,93 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A81AC433FE
-	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 23:59:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1103EC4167B
+	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:04:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237291AbiKRX7w (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:59:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43324 "EHLO
+        id S237207AbiKSAEC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:04:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237596AbiKRX6a (ORCPT
+        with ESMTP id S237778AbiKSADO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 18:58:30 -0500
-Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46402776CE;
-        Fri, 18 Nov 2022 15:29:23 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id B26AE5C044F;
-        Fri, 18 Nov 2022 18:29:22 -0500 (EST)
-Received: from imap43 ([10.202.2.93])
-  by compute2.internal (MEProxy); Fri, 18 Nov 2022 18:29:22 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alistair23.me;
-         h=cc:cc:content-type:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm1; t=1668814162; x=1668900562; bh=jd
-        aVVyoiR0VCQOud2KCglQnSQfOgAw/rL0a1ZKTNzvI=; b=d6tNv2qI8DBti//IDo
-        KpsXzFVC+ZrSzmDsLIt3AziO09/eIZs+84NFj2js4XtZbiJElq3mDN+ng4Fv6Y/i
-        v22Sjr38OAzC3hrd0txZkmcsMbJGtOFLW62kwy/nkAym1jRhpICdUaJ+LiklUCRC
-        ua76rqPMmD0NSgRyhVoo0xNne4AP23Qb7mQPLIUDC/K0tBqJIn68v3rO1ZMjabyF
-        yKh07lohWayKMzYv8NwyI77edrq6ERZwwli47OcVqU0vnu4cBhZRbc2z4NqIlRLe
-        VmBXsVGZ/yVuL6vcA0YiaQh5qRoO5b1xx88bHD1zv332RZpfHT2i+GctNcKlPm+L
-        R8pA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1668814162; x=1668900562; bh=jdaVVyoiR0VCQOud2KCglQnSQfOg
-        Aw/rL0a1ZKTNzvI=; b=AMOCmt026IUrsemIgu7w4kfYogHwuMWmHTO4XZ5NmrFT
-        M1cPI1uo14acViwzowT3nCqBZTg4bnKZzHMSF0RPlxeMmzjR5j0IZz+771DQJj8l
-        6desYz2Qe3gqTqXYpv2d5vFcbmK4XNp4td81LCM3xzPrL0TEQBv5G3uZGyYVrmUy
-        mwRtbIzNVeVaGtOxEBXMuT9pGhJWuY6S+FLfZk9xve6aPAASRYf/gVR7ZGf0cqYn
-        2YwiGsaFNCSgcPtM6Y5Imbn328JoY/0K6wVlxLeM9XzD0tACb73qpaeUtjo28Dhf
-        F23Eo+f9SIVn9J9ubniOTi0FGsg8bvtPaY/uRlfrqA==
-X-ME-Sender: <xms:UhV4Y4udhcoQ73vA7XqifMmYm9OFi3Jojop3hM6ZmiLvA-3KC6zrXA>
-    <xme:UhV4Y1cSiVQWxoHbmXMkCGb86vkbMTgYm5X1ZXyZqxmbHRNk_tksYM2shZiU6GPXw
-    bm2CgngXshkoUIIP3w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrhedugdduvdcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomheptehlihhs
-    thgrihhruceorghlihhsthgrihhrsegrlhhishhtrghirhdvfedrmhgvqeenucggtffrrg
-    htthgvrhhnpeeukeffkefhjeethedtieegudejvedvhfejleekheefhfdufffhjefgjeei
-    heehhfenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grlhhishhtrghirhesrghlihhsthgrihhrvdefrdhmvg
-X-ME-Proxy: <xmx:UhV4YzxRa3arT6IrVxvZLL3z799u--__KBwLoIlA8hkHECThy3pNwA>
-    <xmx:UhV4Y7Pq4AaNVsbdZtvaGdUEMAjVjlLv_QkwS_hrBNCHO2DcLgL5Jg>
-    <xmx:UhV4Y4-E6NPZY8IZKfB8UUOfkifQPjxtwbdBp-qkXpe8ETThgnuAfA>
-    <xmx:UhV4Y3nNfYhSyiuIJJ2hXHkLXV9fdxLyzq2UuA7DdGcz5cxZO2-IwA>
-Feedback-ID: ifd214418:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 8BD2D2D40090; Fri, 18 Nov 2022 18:29:22 -0500 (EST)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
-Mime-Version: 1.0
-Message-Id: <b32cf5f3-2be6-4401-86f2-37c880d46a3a@app.fastmail.com>
-In-Reply-To: <20221117190507.87535-3-linmengbo0689@protonmail.com>
-References: <20221117190507.87535-1-linmengbo0689@protonmail.com>
- <20221117190507.87535-3-linmengbo0689@protonmail.com>
-Date:   Sat, 19 Nov 2022 09:29:00 +1000
-From:   Alistair <alistair@alistair23.me>
-To:     "Lin, Meng-Bo" <linmengbo0689@protonmail.com>,
-        linux-input@vger.kernel.org
-Cc:     "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
-        "Rob Herring" <robh+dt@kernel.org>,
-        "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>,
-        "Linus Walleij" <linus.walleij@linaro.org>,
-        devicetree@vger.kernel.org,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] Input: cyttsp5 - add vddio regulator
-Content-Type: text/plain
+        Fri, 18 Nov 2022 19:03:14 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F22CFB9F
+        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:30:32 -0800 (PST)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1owA8a-0002MF-8r; Fri, 18 Nov 2022 23:47:08 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1owA8X-0058S8-Q3; Fri, 18 Nov 2022 23:47:06 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ukl@pengutronix.de>)
+        id 1owA8W-000085-VX; Fri, 18 Nov 2022 23:47:04 +0100
+From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
+To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Grant Likely <grant.likely@linaro.org>,
+        Wolfram Sang <wsa@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH 253/606] Input: pixcir_i2c_ts - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:39:47 +0100
+Message-Id: <20221118224540.619276-254-uwe@kleine-koenig.org>
+X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
+References: <20221118224540.619276-1-uwe@kleine-koenig.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 18 Nov 2022, at 5:05 AM, Lin, Meng-Bo wrote:
-> The Samsung touchscreen controllers are often used with external pull-up
-> for the interrupt line and the I2C lines, so we might need to enable
-> a regulator to bring the lines into usable state. Otherwise, this might
-> cause spurious interrupts and reading from I2C will fail.
-> 
-> Implement support for a "vddio-supply" that is enabled by the cyttsp5
-> driver so that the regulator gets enabled when needed.
-> 
-> Signed-off-by: Lin, Meng-Bo <linmengbo0689@protonmail.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-Acked-by: Alistair Francis <alistair@alistair23.me>
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
-> ---
-> drivers/input/touchscreen/cyttsp5.c | 19 ++++++++++++-------
-> 1 file changed, 12 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscreen/cyttsp5.c
-> index 24ab1df9fc07..d02fdb940edf 100644
-> --- a/drivers/input/touchscreen/cyttsp5.c
-> +++ b/drivers/input/touchscreen/cyttsp5.c
-> @@ -190,7 +190,7 @@ struct cyttsp5 {
-> int num_prv_rec;
-> struct regmap *regmap;
-> struct touchscreen_properties prop;
-> - struct regulator *vdd;
-> + struct regulator_bulk_data supplies[2];
-> };
->  
-> /*
-> @@ -767,7 +767,7 @@ static void cyttsp5_cleanup(void *data)
-> {
-> struct cyttsp5 *ts = data;
->  
-> - regulator_disable(ts->vdd);
-> + regulator_bulk_disable(ARRAY_SIZE(ts->supplies), ts->supplies);
-> }
->  
-> static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
-> @@ -790,9 +790,12 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
-> init_completion(&ts->cmd_done);
->  
-> /* Power up the device */
-> - ts->vdd = devm_regulator_get(dev, "vdd");
-> - if (IS_ERR(ts->vdd)) {
-> - error = PTR_ERR(ts->vdd);
-> + ts->supplies[0].supply = "vdd";
-> + ts->supplies[1].supply = "vddio";
-> + error = devm_regulator_bulk_get(dev, ARRAY_SIZE(ts->supplies),
-> +       ts->supplies);
-> + if (error < 0) {
-> + dev_err(ts->dev, "Failed to get regulators, error %d\n", error);
-> return error;
-> }
->  
-> @@ -800,9 +803,11 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
-> if (error)
-> return error;
->  
-> - error = regulator_enable(ts->vdd);
-> - if (error)
-> + error = regulator_bulk_enable(ARRAY_SIZE(ts->supplies), ts->supplies);
-> + if (error < 0) {
-> + dev_err(ts->dev, "Failed to enable regulators, error %d\n", error);
-> return error;
-> + }
->  
-> ts->input = devm_input_allocate_device(dev);
-> if (!ts->input) {
-> -- 
-> 2.30.2
-> 
-> 
-> 
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/input/touchscreen/pixcir_i2c_ts.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
+index dc148b4bed74..7959947a3458 100644
+--- a/drivers/input/touchscreen/pixcir_i2c_ts.c
++++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
+@@ -462,9 +462,9 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
+ 			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
+ 
+-static int pixcir_i2c_ts_probe(struct i2c_client *client,
+-			       const struct i2c_device_id *id)
++static int pixcir_i2c_ts_probe(struct i2c_client *client)
+ {
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct device *dev = &client->dev;
+ 	struct pixcir_i2c_ts_data *tsdata;
+ 	struct input_dev *input;
+@@ -617,7 +617,7 @@ static struct i2c_driver pixcir_i2c_ts_driver = {
+ 		.pm	= &pixcir_dev_pm_ops,
+ 		.of_match_table = of_match_ptr(pixcir_of_match),
+ 	},
+-	.probe		= pixcir_i2c_ts_probe,
++	.probe_new	= pixcir_i2c_ts_probe,
+ 	.id_table	= pixcir_i2c_ts_id,
+ };
+ 
+-- 
+2.38.1
+

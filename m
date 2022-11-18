@@ -2,48 +2,44 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E855EC4332F
-	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 22:53:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 61E6DC43219
+	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 22:53:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234544AbiKRWxn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 17:53:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51956 "EHLO
+        id S234742AbiKRWxo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 17:53:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234469AbiKRWxE (ORCPT
+        with ESMTP id S234567AbiKRWxH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 17:53:04 -0500
+        Fri, 18 Nov 2022 17:53:07 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE647B8579
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE3B6BE259
         for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 14:47:48 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8N-0001cp-BN; Fri, 18 Nov 2022 23:46:55 +0100
+        id 1owA8U-00023U-2l; Fri, 18 Nov 2022 23:47:02 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8J-0058NU-Rb; Fri, 18 Nov 2022 23:46:52 +0100
+        id 1owA8Q-0058Pm-TW; Fri, 18 Nov 2022 23:46:59 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8K-00Hb7n-5m; Fri, 18 Nov 2022 23:46:52 +0100
+        id 1owA8R-00006N-6K; Fri, 18 Nov 2022 23:46:59 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Luca Ceresoli <luca.ceresoli@bootlin.com>
+        Wolfram Sang <wsa@kernel.org>, Nick Dyer <nick@shmanahar.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 199/606] Input: mcs_touchkey - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:38:53 +0100
-Message-Id: <20221118224540.619276-200-uwe@kleine-koenig.org>
+Subject: [PATCH 227/606] Input: atmel_mxt_ts - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:39:21 +0100
+Message-Id: <20221118224540.619276-228-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -60,39 +56,36 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-.probe_new() doesn't get the i2c_device_id * parameter, so determine
-that explicitly in the probe function.
+The probe function doesn't make use of the i2c_device_id * parameter so it
+can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/keyboard/mcs_touchkey.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/atmel_mxt_ts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
-index ac1637a3389e..34683458524c 100644
---- a/drivers/input/keyboard/mcs_touchkey.c
-+++ b/drivers/input/keyboard/mcs_touchkey.c
-@@ -92,9 +92,9 @@ static irqreturn_t mcs_touchkey_interrupt(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index ccecd1441f0b..39ef2664b852 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -3129,7 +3129,7 @@ static const struct dmi_system_id chromebook_T9_suspend_dmi[] = {
+ 	{ }
+ };
  
--static int mcs_touchkey_probe(struct i2c_client *client,
--		const struct i2c_device_id *id)
-+static int mcs_touchkey_probe(struct i2c_client *client)
+-static int mxt_probe(struct i2c_client *client, const struct i2c_device_id *id)
++static int mxt_probe(struct i2c_client *client)
  {
-+	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	const struct mcs_platform_data *pdata;
- 	struct mcs_touchkey_data *data;
- 	struct input_dev *input_dev;
-@@ -260,7 +260,7 @@ static struct i2c_driver mcs_touchkey_driver = {
- 		.name	= "mcs_touchkey",
- 		.pm	= &mcs_touchkey_pm_ops,
+ 	struct mxt_data *data;
+ 	int error;
+@@ -3377,7 +3377,7 @@ static struct i2c_driver mxt_driver = {
+ 		.acpi_match_table = ACPI_PTR(mxt_acpi_id),
+ 		.pm	= &mxt_pm_ops,
  	},
--	.probe		= mcs_touchkey_probe,
-+	.probe_new	= mcs_touchkey_probe,
- 	.remove		= mcs_touchkey_remove,
- 	.shutdown       = mcs_touchkey_shutdown,
- 	.id_table	= mcs_touchkey_id,
+-	.probe		= mxt_probe,
++	.probe_new	= mxt_probe,
+ 	.remove		= mxt_remove,
+ 	.id_table	= mxt_id,
+ };
 -- 
 2.38.1
 

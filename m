@@ -2,92 +2,121 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F9AFC43217
-	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 23:54:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CDB8EC43217
+	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 23:56:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbiKRXyZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:54:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57976 "EHLO
+        id S237051AbiKRX4F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:56:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236956AbiKRXwt (ORCPT
+        with ESMTP id S236982AbiKRXzA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 18:52:49 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3BBCC75BC
-        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:27:39 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8V-00029C-EM; Fri, 18 Nov 2022 23:47:03 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8S-0058QK-Jt; Fri, 18 Nov 2022 23:47:01 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8R-00006S-F0; Fri, 18 Nov 2022 23:46:59 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>
-Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 228/606] Input: auo-pixcir-ts - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:22 +0100
-Message-Id: <20221118224540.619276-229-uwe@kleine-koenig.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
-References: <20221118224540.619276-1-uwe@kleine-koenig.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+        Fri, 18 Nov 2022 18:55:00 -0500
+Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51396BE84B;
+        Fri, 18 Nov 2022 15:28:02 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id BCE6C5C0452;
+        Fri, 18 Nov 2022 18:28:01 -0500 (EST)
+Received: from imap43 ([10.202.2.93])
+  by compute2.internal (MEProxy); Fri, 18 Nov 2022 18:28:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alistair23.me;
+         h=cc:cc:content-type:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1668814081; x=1668900481; bh=Em
+        Q0dI/Gjx0666r9UJYHPwl0Uf9CBk7ouATv1q7n5/I=; b=hBYuZJsLbPJkH0T13B
+        dQlwf74qszBFR7+i+3xGPK+q8efi4WSCtF+rfsikE6W4LuRpfa3I0b92mo4JHYlH
+        IL5jfgfq1oPz577dxNXW+4Zb2AQYso6xG23qADFq8Z9IOK1tXPS/s106nBdRPc+S
+        imIjPE1IZrdBR+c12yqMrDXTosA/xOUQw1HoGWE4m4EH9mro0XkElKxTastAJg2e
+        hT71y+k3WAYxJW43kXUlUbekyKqrwnA6779egUk1hVPXoTQ3xSWo8QfJFrJ/jYif
+        YKFIyDfOniyLHyBEG0MCx9fsMX8SfWF9BQ8QIAhY3RfqY4dl+hyXefDudOYuAnio
+        9WTg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1668814081; x=1668900481; bh=EmQ0dI/Gjx0666r9UJYHPwl0Uf9C
+        Bk7ouATv1q7n5/I=; b=lhxgsfh6+XIQCHG64wuk4L3O9Y2mQoJdwdwKyuyUmlWw
+        vdQVX+GyHjkKgLwJW1yxnjFDwOG+3BE4f6O4952Jo6dWVVoyBSiI2MF0nf0ywxCp
+        mdPOws7uvsr3JZr4syQusKz6AMYlGT4AFAN/NVuAmRPNqTHWfM4QW3bLbnFZwRom
+        Y0BTi2e9hPyQEtz6AmGCmoMhrEieONsvLPWSXEtNNmNlzlIEnDv8W+zl4lg/RM6g
+        6AJZkjR/qL0uqSn10l6xwLd4kAIUgmN6v0ikRV1kbTVxzPmp4EDh5LxBojliW6Vw
+        hwMykwEaXIHj2yHWk72ZxHbcxJKgqBWTv7xyWG7QjA==
+X-ME-Sender: <xms:ARV4YytcmM5encL_jFy9qzh1J1MGTWgQPN1GVelQnZe6PwPybwGx2g>
+    <xme:ARV4Y3f8R2PAuc2SVxuZgz7QJ5ip0H5LfsD6Uqn0Pqn8aTUNMl59AjM1Si3EE6Tgc
+    u84-znVpVB3H-m1F6U>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvgedrhedugdduudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomheptehlihhs
+    thgrihhruceorghlihhsthgrihhrsegrlhhishhtrghirhdvfedrmhgvqeenucggtffrrg
+    htthgvrhhnpeeukeffkefhjeethedtieegudejvedvhfejleekheefhfdufffhjefgjeei
+    heehhfenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    grlhhishhtrghirhesrghlihhsthgrihhrvdefrdhmvg
+X-ME-Proxy: <xmx:ARV4Y9zAjdmvnzSBrBtzB1LoH-nh_q0SdU39bKjFcDV1nneIoT445A>
+    <xmx:ARV4Y9MxVNREu4GfZokXBsnqK7CFVSZqveqBOwhaMS8DlhaTrDTuaA>
+    <xmx:ARV4Yy-NZDHYBeQRzwuFhx3zqQKZmjm1fVjw9XZHkEq1CL9CczL9BA>
+    <xmx:ARV4Y5lqWBT6WOPeUAS7q7AlKL60TUjtqBPMsH9uLRwIGuS8yMQFqg>
+Feedback-ID: ifd214418:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id 8EBC42D40090; Fri, 18 Nov 2022 18:28:01 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.7.0-alpha0-1115-g8b801eadce-fm-20221102.001-g8b801ead
+Mime-Version: 1.0
+Message-Id: <6cb6c30b-2670-446a-8425-92d340ab5b90@app.fastmail.com>
+In-Reply-To: <20221117190507.87535-2-linmengbo0689@protonmail.com>
+References: <20221117190507.87535-1-linmengbo0689@protonmail.com>
+ <20221117190507.87535-2-linmengbo0689@protonmail.com>
+Date:   Sat, 19 Nov 2022 09:27:39 +1000
+From:   Alistair <alistair@alistair23.me>
+To:     "Lin, Meng-Bo" <linmengbo0689@protonmail.com>,
+        linux-input@vger.kernel.org
+Cc:     "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+        "Rob Herring" <robh+dt@kernel.org>,
+        "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>,
+        "Linus Walleij" <linus.walleij@linaro.org>,
+        devicetree@vger.kernel.org,
+        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/2] dt-bindings: input: cyttsp5: document vddio-supply
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+On Fri, 18 Nov 2022, at 5:05 AM, Lin, Meng-Bo wrote:
+> The Samsung touchscreen controllers are often used with external pull-up
+> for the interrupt line and the I2C lines, so we might need to enable
+> a regulator to bring the lines into usable state. Otherwise, this might
+> cause spurious interrupts and reading from I2C will fail.
+> 
+> Document support for a "vddio-supply" that is enabled by the cyttsp5
+> driver so that the regulator gets enabled when needed.
+> 
+> Signed-off-by: Lin, Meng-Bo <linmengbo0689@protonmail.com>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+Reviewed-by: Alistair Francis <alistair@alistair23.me>
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/input/touchscreen/auo-pixcir-ts.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/input/touchscreen/auo-pixcir-ts.c b/drivers/input/touchscreen/auo-pixcir-ts.c
-index 2deae5a6823a..a4a1d58aeeac 100644
---- a/drivers/input/touchscreen/auo-pixcir-ts.c
-+++ b/drivers/input/touchscreen/auo-pixcir-ts.c
-@@ -482,8 +482,7 @@ static void auo_pixcir_reset(void *data)
- 	gpiod_set_value_cansleep(ts->gpio_rst, 1);
- }
- 
--static int auo_pixcir_probe(struct i2c_client *client,
--			    const struct i2c_device_id *id)
-+static int auo_pixcir_probe(struct i2c_client *client)
- {
- 	struct auo_pixcir_ts *ts;
- 	struct input_dev *input_dev;
-@@ -637,7 +636,7 @@ static struct i2c_driver auo_pixcir_driver = {
- 		.pm	= &auo_pixcir_pm_ops,
- 		.of_match_table	= of_match_ptr(auo_pixcir_ts_dt_idtable),
- 	},
--	.probe		= auo_pixcir_probe,
-+	.probe_new	= auo_pixcir_probe,
- 	.id_table	= auo_pixcir_idtable,
- };
- 
--- 
-2.38.1
-
+> ---
+> .../devicetree/bindings/input/touchscreen/cypress,tt21000.yaml | 3 +++
+> 1 file changed, 3 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml b/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
+> index 1959ec394768..869a9bdd962f 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/cypress,tt21000.yaml
+> @@ -34,6 +34,9 @@ properties:
+>    vdd-supply:
+>      description: Regulator for voltage.
+>  
+> +  vddio-supply:
+> +    description: Optional Regulator for I/O voltage.
+> +
+>    reset-gpios:
+>      maxItems: 1
+>  
+> -- 
+> 2.30.2
+> 
+> 
+> 

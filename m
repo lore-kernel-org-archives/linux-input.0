@@ -2,44 +2,48 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33FB4C4332F
-	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:10:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15F72C4321E
+	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:12:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237514AbiKSAKp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:10:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40106 "EHLO
+        id S237564AbiKSAMe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:12:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231543AbiKSAJw (ORCPT
+        with ESMTP id S237657AbiKSAKu (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 19:09:52 -0500
+        Fri, 18 Nov 2022 19:10:50 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 877967C698
-        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:33:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52C891BE96
+        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:33:34 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8c-0002RY-Ml; Fri, 18 Nov 2022 23:47:10 +0100
+        id 1owA8W-0002Ak-CX; Fri, 18 Nov 2022 23:47:04 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8a-0058Sx-3B; Fri, 18 Nov 2022 23:47:09 +0100
+        id 1owA8T-0058QS-7J; Fri, 18 Nov 2022 23:47:02 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8a-00008x-CF; Fri, 18 Nov 2022 23:47:08 +0100
+        id 1owA8T-000070-6d; Fri, 18 Nov 2022 23:47:01 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Oliver Graute <oliver.graute@kococonnector.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 266/606] Input: zet6223 - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:40:00 +0100
-Message-Id: <20221118224540.619276-267-uwe@kleine-koenig.org>
+Subject: [PATCH 237/606] Input: edt-ft5x06 - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:39:31 +0100
+Message-Id: <20221118224540.619276-238-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -56,37 +60,39 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+.probe_new() doesn't get the i2c_device_id * parameter, so determine
+that explicitly in the probe function.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/zet6223.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/edt-ft5x06.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/zet6223.c b/drivers/input/touchscreen/zet6223.c
-index 3b6f7ee1e38f..bfa0c637d569 100644
---- a/drivers/input/touchscreen/zet6223.c
-+++ b/drivers/input/touchscreen/zet6223.c
-@@ -167,8 +167,7 @@ static int zet6223_query_device(struct zet6223_ts *ts)
- 	return 0;
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 9ac1378610bc..ddd0f1f62458 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -1131,9 +1131,9 @@ static void edt_ft5x06_disable_regulators(void *arg)
+ 	regulator_disable(data->iovcc);
  }
  
--static int zet6223_probe(struct i2c_client *client,
--			 const struct i2c_device_id *id)
-+static int zet6223_probe(struct i2c_client *client)
+-static int edt_ft5x06_ts_probe(struct i2c_client *client,
+-					 const struct i2c_device_id *id)
++static int edt_ft5x06_ts_probe(struct i2c_client *client)
  {
- 	struct device *dev = &client->dev;
- 	struct zet6223_ts *ts;
-@@ -249,7 +248,7 @@ static struct i2c_driver zet6223_driver = {
- 		.name = "zet6223",
- 		.of_match_table = zet6223_of_match,
++	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	const struct edt_i2c_chip_data *chip_data;
+ 	struct edt_ft5x06_ts_data *tsdata;
+ 	u8 buf[2] = { 0xfc, 0x00 };
+@@ -1504,7 +1504,7 @@ static struct i2c_driver edt_ft5x06_ts_driver = {
+ 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
  	},
--	.probe = zet6223_probe,
-+	.probe_new = zet6223_probe,
- 	.id_table = zet6223_id
+ 	.id_table = edt_ft5x06_ts_id,
+-	.probe    = edt_ft5x06_ts_probe,
++	.probe_new = edt_ft5x06_ts_probe,
+ 	.remove   = edt_ft5x06_ts_remove,
  };
- module_i2c_driver(zet6223_driver);
+ 
 -- 
 2.38.1
 

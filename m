@@ -2,31 +2,31 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3D8EC4332F
-	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 23:26:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6C00C433FE
+	for <linux-input@archiver.kernel.org>; Fri, 18 Nov 2022 23:28:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235565AbiKRXZ5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 18:25:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35994 "EHLO
+        id S235760AbiKRX2c (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 18:28:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39352 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235598AbiKRXYK (ORCPT
+        with ESMTP id S235636AbiKRX17 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 18:24:10 -0500
+        Fri, 18 Nov 2022 18:27:59 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2170D5801C
-        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:14:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFC67BFF77
+        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:15:41 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8Y-0002IK-KY; Fri, 18 Nov 2022 23:47:06 +0100
+        id 1owA8N-0001cI-1u; Fri, 18 Nov 2022 23:46:55 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8W-0058Rf-8q; Fri, 18 Nov 2022 23:47:05 +0100
+        id 1owA8J-0058NO-Nh; Fri, 18 Nov 2022 23:46:52 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8W-00007r-4e; Fri, 18 Nov 2022 23:47:04 +0100
+        id 1owA8J-00Hb7j-Tp; Fri, 18 Nov 2022 23:46:51 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
@@ -37,9 +37,9 @@ Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 249/606] Input: mcs5000_ts - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:43 +0100
-Message-Id: <20221118224540.619276-250-uwe@kleine-koenig.org>
+Subject: [PATCH 198/606] Input: max7359_keypad - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:38:52 +0100
+Message-Id: <20221118224540.619276-199-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +61,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/mcs5000_ts.c | 5 ++---
+ drivers/input/keyboard/max7359_keypad.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/mcs5000_ts.c b/drivers/input/touchscreen/mcs5000_ts.c
-index 5376d8f740ab..ea9517cad695 100644
---- a/drivers/input/touchscreen/mcs5000_ts.c
-+++ b/drivers/input/touchscreen/mcs5000_ts.c
-@@ -180,8 +180,7 @@ static void mcs5000_ts_phys_init(struct mcs5000_ts_data *data,
- 			OP_MODE_ACTIVE | REPORT_RATE_80);
+diff --git a/drivers/input/keyboard/max7359_keypad.c b/drivers/input/keyboard/max7359_keypad.c
+index 62ce93462955..1bba11ed4132 100644
+--- a/drivers/input/keyboard/max7359_keypad.c
++++ b/drivers/input/keyboard/max7359_keypad.c
+@@ -155,8 +155,7 @@ static void max7359_initialize(struct i2c_client *client)
+ 	max7359_fall_deepsleep(client);
  }
  
--static int mcs5000_ts_probe(struct i2c_client *client,
--			    const struct i2c_device_id *id)
-+static int mcs5000_ts_probe(struct i2c_client *client)
+-static int max7359_probe(struct i2c_client *client,
+-					const struct i2c_device_id *id)
++static int max7359_probe(struct i2c_client *client)
  {
- 	const struct mcs_platform_data *pdata;
- 	struct mcs5000_ts_data *data;
-@@ -272,7 +271,7 @@ static const struct i2c_device_id mcs5000_ts_id[] = {
- MODULE_DEVICE_TABLE(i2c, mcs5000_ts_id);
+ 	const struct matrix_keymap_data *keymap_data =
+ 			dev_get_platdata(&client->dev);
+@@ -283,7 +282,7 @@ static struct i2c_driver max7359_i2c_driver = {
+ 		.name = "max7359",
+ 		.pm   = &max7359_pm,
+ 	},
+-	.probe		= max7359_probe,
++	.probe_new	= max7359_probe,
+ 	.id_table	= max7359_ids,
+ };
  
- static struct i2c_driver mcs5000_ts_driver = {
--	.probe		= mcs5000_ts_probe,
-+	.probe_new	= mcs5000_ts_probe,
- 	.driver = {
- 		.name = "mcs5000_ts",
- 		.pm   = &mcs5000_ts_pm,
 -- 
 2.38.1
 

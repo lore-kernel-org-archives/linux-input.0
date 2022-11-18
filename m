@@ -2,44 +2,46 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EBE4C4332F
-	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:37:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3360AC433FE
+	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:38:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231836AbiKSAhO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:37:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57864 "EHLO
+        id S234720AbiKSAiG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 19:38:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236561AbiKSAgM (ORCPT
+        with ESMTP id S234574AbiKSAhS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 19:36:12 -0500
+        Fri, 18 Nov 2022 19:37:18 -0500
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08DBF2A2
-        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:43:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C11A2FC1B4
+        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:43:40 -0800 (PST)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8Z-0002K5-G5; Fri, 18 Nov 2022 23:47:07 +0100
+        id 1owA8V-00029T-4I; Fri, 18 Nov 2022 23:47:03 +0100
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8W-0058Rt-TY; Fri, 18 Nov 2022 23:47:05 +0100
+        id 1owA8S-0058QN-ML; Fri, 18 Nov 2022 23:47:01 +0100
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1owA8X-000088-5V; Fri, 18 Nov 2022 23:47:05 +0100
+        id 1owA8R-00006X-Lv; Fri, 18 Nov 2022 23:46:59 +0100
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
 To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
         Lee Jones <lee.jones@linaro.org>,
         Grant Likely <grant.likely@linaro.org>,
         Wolfram Sang <wsa@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        =?utf-8?q?Marek_Beh=C3=BAn?= <kabel@kernel.org>,
+        Vladimir Oltean <olteanv@gmail.com>
 Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
         =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 254/606] Input: raydium_i2c_ts - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:48 +0100
-Message-Id: <20221118224540.619276-255-uwe@kleine-koenig.org>
+Subject: [PATCH 229/606] Input: bu21013_ts - Convert to i2c's .probe_new()
+Date:   Fri, 18 Nov 2022 23:39:23 +0100
+Message-Id: <20221118224540.619276-230-uwe@kleine-koenig.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
 References: <20221118224540.619276-1-uwe@kleine-koenig.org>
@@ -61,32 +63,32 @@ can be trivially converted.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/raydium_i2c_ts.c | 5 ++---
+ drivers/input/touchscreen/bu21013_ts.c | 5 ++---
  1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
-index 3a4952935366..181c675e9d34 100644
---- a/drivers/input/touchscreen/raydium_i2c_ts.c
-+++ b/drivers/input/touchscreen/raydium_i2c_ts.c
-@@ -1064,8 +1064,7 @@ static void raydium_i2c_power_off(void *_data)
- 	}
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index 34f422e246ef..5a4dbd39a372 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -404,8 +404,7 @@ static void bu21013_disable_chip(void *_ts)
+ 	gpiod_set_value(ts->cs_gpiod, 0);
  }
  
--static int raydium_i2c_probe(struct i2c_client *client,
--			     const struct i2c_device_id *id)
-+static int raydium_i2c_probe(struct i2c_client *client)
+-static int bu21013_probe(struct i2c_client *client,
+-			 const struct i2c_device_id *id)
++static int bu21013_probe(struct i2c_client *client)
  {
- 	union i2c_smbus_data dummy;
- 	struct raydium_data *ts;
-@@ -1277,7 +1276,7 @@ MODULE_DEVICE_TABLE(of, raydium_of_match);
- #endif
- 
- static struct i2c_driver raydium_i2c_driver = {
--	.probe = raydium_i2c_probe,
-+	.probe_new = raydium_i2c_probe,
- 	.id_table = raydium_i2c_id,
- 	.driver = {
- 		.name = "raydium_ts",
+ 	struct bu21013_ts *ts;
+ 	struct input_dev *in_dev;
+@@ -618,7 +617,7 @@ static struct i2c_driver bu21013_driver = {
+ 		.name	=	DRIVER_TP,
+ 		.pm	=	&bu21013_dev_pm_ops,
+ 	},
+-	.probe		=	bu21013_probe,
++	.probe_new	=	bu21013_probe,
+ 	.remove		=	bu21013_remove,
+ 	.id_table	=	bu21013_id,
+ };
 -- 
 2.38.1
 

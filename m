@@ -2,90 +2,119 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 531B3C4332F
-	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 00:43:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F731C4332F
+	for <linux-input@archiver.kernel.org>; Sat, 19 Nov 2022 01:51:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233094AbiKSAnD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 18 Nov 2022 19:43:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42682 "EHLO
+        id S233350AbiKSBvd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 18 Nov 2022 20:51:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbiKSAk0 (ORCPT
+        with ESMTP id S233478AbiKSBvK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 18 Nov 2022 19:40:26 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7782CD9192
-        for <linux-input@vger.kernel.org>; Fri, 18 Nov 2022 15:44:51 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8a-0002Ib-6Q; Fri, 18 Nov 2022 23:47:08 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8W-0058Rj-BJ; Fri, 18 Nov 2022 23:47:05 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1owA8W-00007u-BN; Fri, 18 Nov 2022 23:47:04 +0100
-From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>
-To:     Angel Iglesias <ang.iglesiasg@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Grant Likely <grant.likely@linaro.org>,
-        Wolfram Sang <wsa@kernel.org>, Sangwon Jee <jeesw@melfas.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-i2c@vger.kernel.org, kernel@pengutronix.de,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 250/606] Input: melfas_mip4 - Convert to i2c's .probe_new()
-Date:   Fri, 18 Nov 2022 23:39:44 +0100
-Message-Id: <20221118224540.619276-251-uwe@kleine-koenig.org>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221118224540.619276-1-uwe@kleine-koenig.org>
-References: <20221118224540.619276-1-uwe@kleine-koenig.org>
+        Fri, 18 Nov 2022 20:51:10 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56BBABF588;
+        Fri, 18 Nov 2022 17:26:38 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id v3so6441149pgh.4;
+        Fri, 18 Nov 2022 17:26:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=b13YnJSN+Dro2FOesT9TTNasbIlBrkbmQwEz7zWWNSg=;
+        b=UJDfM/MjB6gKPirL+rTWVIwRJvkomxu0q7M3eFzwCMhDXKZnNJFCh9UJyjyQzTGsew
+         SNY3hFPNUMEvMrhUQf73So7TC/bHvQVV1hH8q8Uytg+EWPsodWo4CVT8W3q/anAizaKa
+         s1V8tI3hy1vRN9JJQM9modnDZ5Nf7Oej49G9bhN1Fcdvci9Hl23N8tttJuBP29XN/FIG
+         QYvKQWNyusE40UjEVh4ZuMjdjVKoirQi4EXr91KwSKopUCrbt0DadnLf3xkEYivUrFkO
+         dtfjRH0UAzi+7clf0LMvXg5TTTVTRiPRek16bBgzze2GZ/BkJo+SiwVe/L3MtZw7poWw
+         aEaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=b13YnJSN+Dro2FOesT9TTNasbIlBrkbmQwEz7zWWNSg=;
+        b=AP15r5O6Xq/mP1IEpYzsO7CMNB7KL7+UF+c7qYUAJTW9o3Tuh2ImZcAeb/9NkKaNxQ
+         nqcfm3O0sIJkzWFPU4uxZ8z/4Op+iiVHUr0YOxPuTDd+rpULz+2ZIAjDcsO7uKQ1vLaK
+         X4MQS2RGfhKr2m3UCo5W3vnzDT2inxNE7tOewksPvvNJXsfmJKOLVYoC5vuxqfz1JIoh
+         TFTAe18/0/y1g02wLEBTsx4mvxeB+N+U3btRgSRbDpmB1wWCAwEESHJkiyl8NjW0SFfl
+         GVpVojuxufpAwdmhnr4iNLhDOQqB7FOp3pREoqjxCerTj5LlUNqhdZcblvxdybc50ir1
+         w8iQ==
+X-Gm-Message-State: ANoB5pnDHx7MUC+JTyoL+EFk+0mr15adEk7NTTZ+zWtm9E03pg1tU38j
+        tikBrwAkSq4IUp88a30+K5XcHfUS40U=
+X-Google-Smtp-Source: AA0mqf5CO2z6QTJdSBKwQNlvXhefGikS98CFDAqX9AzWHh7QA4reJFqNablT7JpxWsxczEvVSr/Wtg==
+X-Received: by 2002:a63:64b:0:b0:43c:2e57:9636 with SMTP id 72-20020a63064b000000b0043c2e579636mr8933800pgg.81.1668821197595;
+        Fri, 18 Nov 2022 17:26:37 -0800 (PST)
+Received: from google.com ([2620:15c:9d:2:6aac:8482:2371:80a3])
+        by smtp.gmail.com with ESMTPSA id u8-20020a1709026e0800b001745662d568sm4288018plk.278.2022.11.18.17.26.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 18 Nov 2022 17:26:36 -0800 (PST)
+Date:   Fri, 18 Nov 2022 17:26:33 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [git pull] Input updates for v6.1-rc5
+Message-ID: <Y3gwySzRvhCwdSgW@google.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Hi Linus,
 
-The probe function doesn't make use of the i2c_device_id * parameter so it
-can be trivially converted.
+Please pull from:
 
-Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
----
- drivers/input/touchscreen/melfas_mip4.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v6.1-rc5
 
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 83f4be05e27b..4ee8ed4c930c 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -1424,7 +1424,7 @@ static const struct attribute_group mip4_attr_group = {
- 	.attrs = mip4_attrs,
- };
- 
--static int mip4_probe(struct i2c_client *client, const struct i2c_device_id *id)
-+static int mip4_probe(struct i2c_client *client)
- {
- 	struct mip4_ts *ts;
- 	struct input_dev *input;
-@@ -1590,7 +1590,7 @@ MODULE_DEVICE_TABLE(i2c, mip4_i2c_ids);
- 
- static struct i2c_driver mip4_driver = {
- 	.id_table = mip4_i2c_ids,
--	.probe = mip4_probe,
-+	.probe_new = mip4_probe,
- 	.driver = {
- 		.name = MIP4_DEVICE_NAME,
- 		.of_match_table = of_match_ptr(mip4_of_match),
+to receive updates for the input subsystem. You will get:
+
+- a fix for 8042 to stop leaking platform device on unload
+- a fix for Goodix touchscreens on devices like Nanote UMPC-01 where we
+  need to reset controller to load config from firmware
+- a workaround for Acer Switch to avoid interrupt storm from home and
+  power buttons
+- a workaround for more ASUS ZenBook models to detect keyboard cnotroller
+- a fix for iforce driver to properly handle communication errors
+- touchpad on HP Laptop 15-da3001TU switched to RMI mode
+
+Changelog:
+---------
+
+Aman Dhoot (1):
+      Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode
+
+Chen Jun (1):
+      Input: i8042 - fix leaking of platform device on module removal
+
+Hans de Goede (3):
+      Input: goodix - try resetting the controller when no config is set
+      Input: soc_button_array - add use_low_level_irq module parameter
+      Input: soc_button_array - add Acer Switch V 10 to dmi_use_low_level_irq[]
+
+Sheng-Liang Pan (1):
+      dt-bindings: input: touchscreen: Add compatible for Goodix GT7986U chip
+
+Takashi Iwai (1):
+      Input: i8042 - apply probe defer to more ASUS ZenBook models
+
+Tetsuo Handa (1):
+      Input: iforce - invert valid length check when fetching device IDs
+
+Diffstat:
+--------
+
+ .../devicetree/bindings/input/goodix,gt7375p.yaml          |  5 ++++-
+ drivers/input/joystick/iforce/iforce-main.c                |  8 ++++----
+ drivers/input/misc/soc_button_array.c                      | 14 +++++++++++++-
+ drivers/input/mouse/synaptics.c                            |  1 +
+ drivers/input/serio/i8042-acpipnpio.h                      |  8 ++++----
+ drivers/input/serio/i8042.c                                |  4 ----
+ drivers/input/touchscreen/goodix.c                         | 11 +++++++++++
+ 7 files changed, 37 insertions(+), 14 deletions(-)
+
+Thanks.
+
+
 -- 
-2.38.1
-
+Dmitry

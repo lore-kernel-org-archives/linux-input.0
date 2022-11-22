@@ -2,122 +2,133 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E302C43217
-	for <linux-input@archiver.kernel.org>; Tue, 22 Nov 2022 08:14:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A6FBC433FE
+	for <linux-input@archiver.kernel.org>; Tue, 22 Nov 2022 09:29:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232528AbiKVIOy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 22 Nov 2022 03:14:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
+        id S232516AbiKVJ3l (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 22 Nov 2022 04:29:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232158AbiKVIOw (ORCPT
+        with ESMTP id S232333AbiKVJ3k (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 22 Nov 2022 03:14:52 -0500
-Received: from mail-ej1-x630.google.com (mail-ej1-x630.google.com [IPv6:2a00:1450:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B674240B0
-        for <linux-input@vger.kernel.org>; Tue, 22 Nov 2022 00:14:50 -0800 (PST)
-Received: by mail-ej1-x630.google.com with SMTP id n21so33916994ejb.9
-        for <linux-input@vger.kernel.org>; Tue, 22 Nov 2022 00:14:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jM+75qOkESHdT/LFEmzbTRIChEQ87MS6sqDcZEDZv3g=;
-        b=422yluu6GBF7Zr8QFIXloUOKlAx11LZ27aEbqh7AODAtsk61284Y3nnC+EgMqu/9WL
-         6jS2Z79QFgqsYOKlQWq6JPzOBQcZlx5JIrOzqgveXm47bKryMuC5Xf5vrlJvt8kY8q30
-         ZUX8nrNp2bxl4EQ9SdPNsbgF4Eudy1KG6fhl6775TBIErHLldgVq7KzcdAg3Uj8jtdWj
-         MEhvKmxAo3OyI4JWdAG1OyRXomAEgtfnxhUzlipXJcOBQqEFazeagbMDnKIKK7bFKrDF
-         2wL5qv7dljBITPw0xbj1QyPIE7K2gSV4Sjz8AN1RbNAUqDGOD2w/C/GmHzTKvFvSPG1K
-         IkPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jM+75qOkESHdT/LFEmzbTRIChEQ87MS6sqDcZEDZv3g=;
-        b=dDlJ2ZfiOsA8QJP7WlIAFdF9R9WUp7e1HtGxlwjXOsmIuwLn17aBwY1YdORSt5YguS
-         /07hGgQsC+69aw7UYlleKf4t1kLhTxQfMS854ter/kDJDrE8W9dt9OmNfuRHK2ZAX5VV
-         H7lirDIAf8ogh80yt5koZyB+IbyQ32teVZ0JVxSOFoaidmmrMewzaMX0xxgnih6cvtrT
-         pnrCvDEshf9WOmv84sQA/eYbnTr8vFcTeS1I63Uq2is5ReVxgBRmNfH5x7IvJJBnv1DW
-         B0V8SSr0NxtSji5J+grQCPSs1K5AfmCh1Cx50DoZ4q8C5kZHr1KpVM7+97pJh2CKEuw2
-         RbSg==
-X-Gm-Message-State: ANoB5plYDI35TPMX/7L0qj61f3bEKzV9a/DHiBAWztbooDX8qUMc+t0x
-        LhC20TcWeUDJrjdHlvJR31VexWIKjVdsGI54QXtjbw==
-X-Google-Smtp-Source: AA0mqf714aLOvgKM5W9MtFw+gOA+gv/Zq8lXPGhFeko4gMI2aAQta5XL7+Zp40MYnqfj6bo3sT/69zgTGr4hP81odgU=
-X-Received: by 2002:a17:906:4a55:b0:7ad:9ada:79c6 with SMTP id
- a21-20020a1709064a5500b007ad9ada79c6mr19023201ejv.86.1669104889006; Tue, 22
- Nov 2022 00:14:49 -0800 (PST)
+        Tue, 22 Nov 2022 04:29:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C925F2F668;
+        Tue, 22 Nov 2022 01:29:39 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BEE9615CC;
+        Tue, 22 Nov 2022 09:29:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3D4C433D7;
+        Tue, 22 Nov 2022 09:29:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1669109378;
+        bh=gHG9zTs3gcESCSIEtqzL0lojXTHhoW87qwPZ4/mUsqI=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=hr1v7X8/YDlU4k+8beXAtBMShpzVe9doUgHh8gGi2gCcHQV98gVtgMYgimPxTG1I+
+         0vTunFKIbqqgT5aeEvHWOTzto20Errnjq2imWnqLaPbdRasnrF6jGoYUj9pfnyO0+6
+         fRVn8z+LV4hSKip9QseLi1sWpi72ZJY6SCBYJUet2nb09AGuOrmGE9fZwkG+m4YXuS
+         7UxrlTRf8PlJPCA5zSW8h19BkWxW0wQAOnEZWWm0jdUC8uVLQsJmakt0mRbPfz05B7
+         JPB7j3/pzCIhHfQgmlRpNxHkJQi6Jh7W8ertn43uUYzjp66jO9ByDp/Td1RbJxJWV/
+         g8gV923AHaLoQ==
+Date:   Tue, 22 Nov 2022 10:29:37 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     David Yang <mmyangfl@gmail.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3] HID: kye: Add support for MousePen M508X
+In-Reply-To: <20221119205057.11694-1-mmyangfl@gmail.com>
+Message-ID: <nycvar.YFH.7.76.2211221028170.6045@cbobk.fhfr.pm>
+References: <20221119191743.6466-1-mmyangfl@gmail.com> <20221119205057.11694-1-mmyangfl@gmail.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-References: <20221005-mt6357-support-v5-0-8210d955dd3d@baylibre.com>
- <20221005-mt6357-support-v5-6-8210d955dd3d@baylibre.com> <47ae0770-1cd4-cfea-7222-f91d1d85f133@gmail.com>
-In-Reply-To: <47ae0770-1cd4-cfea-7222-f91d1d85f133@gmail.com>
-From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Tue, 22 Nov 2022 09:14:38 +0100
-Message-ID: <CAFGrd9rWHdwSaDv7L7XGnBiPp-HHXTqvMToeHLoQsH_9qxhTsg@mail.gmail.com>
-Subject: Re: [PATCH v5 06/10] dt-bindings: soc: mediatek: convert pwrap documentation
-To:     Matthias Brugger <matthias.bgg@gmail.com>
-Cc:     Flora Fu <flora.fu@mediatek.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Tianping Fang <tianping.fang@mediatek.com>,
-        Fabien Parent <fabien.parent@linaro.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Pavel Machek <pavel@ucw.cz>, Lee Jones <lee@kernel.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Rob Herring <robh@kernel.org>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        linux-mediatek@lists.infradead.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-leds@vger.kernel.org, Fabien Parent <fparent@baylibre.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        linux-rtc@vger.kernel.org, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Le jeu. 17 nov. 2022 =C3=A0 17:06, Matthias Brugger
-<matthias.bgg@gmail.com> a =C3=A9crit :
-> > +              - mediatek,mt8173-pwrap
-> > +              - mediatek,mt8183-pwrap
->
-> Missing mediatek,mt8186-pwrap
+On Sun, 20 Nov 2022, David Yang wrote:
 
-I add it
+> Genius MousePen M508X digitizer tablet sends incorrect report descriptor by
+> default. This patch replaces it with a corrected one.
+> 
+> Signed-off-by: David Yang <mmyangfl@gmail.com>
 
->
-> > +              - mediatek,mt8188-pwrap
->
-> mt8188 has mt8195 as fallback, that must be kept as otherwise the driver =
-does
-> not bind.
+Thanks for the fix. A few comments below.
 
-I add it
+> @@ -626,18 +751,24 @@ static __u8 *kye_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+>  			*rsize = sizeof(easypen_m610x_rdesc_fixed);
+>  		}
+>  		break;
+> -	case USB_DEVICE_ID_KYE_EASYPEN_M406XE:
+> -		if (*rsize == EASYPEN_M406XE_RDESC_ORIG_SIZE) {
+> -			rdesc = easypen_m406xe_rdesc_fixed;
+> -			*rsize = sizeof(easypen_m406xe_rdesc_fixed);
+> -		}
+> -		break;
+>  	case USB_DEVICE_ID_KYE_PENSKETCH_M912:
+>  		if (*rsize == PENSKETCH_M912_RDESC_ORIG_SIZE) {
+>  			rdesc = pensketch_m912_rdesc_fixed;
+>  			*rsize = sizeof(pensketch_m912_rdesc_fixed);
+>  		}
+>  		break;
+> +	case USB_DEVICE_ID_KYE_MOUSEPEN_M508X:
+> +		if (*rsize == MOUSEPEN_M508X_RDESC_ORIG_SIZE) {
+> +			rdesc = mousepen_m508x_rdesc_fixed;
+> +			*rsize = sizeof(mousepen_m508x_rdesc_fixed);
+> +		}
+> +		break;
+> +	case USB_DEVICE_ID_KYE_EASYPEN_M406XE:
+> +		if (*rsize == EASYPEN_M406XE_RDESC_ORIG_SIZE) {
+> +			rdesc = easypen_m406xe_rdesc_fixed;
+> +			*rsize = sizeof(easypen_m406xe_rdesc_fixed);
+> +		}
+> +		break;
 
->
-> > +              - mediatek,mt8365-pwrap
-> > +              - mediatek,mt8516-pwrap
-> > +      - items:
-> > +          - enum:
-> > +              - mediatek,mt8186-pwrap
-> > +              - mediatek,mt8195-pwrap
-> > +          - const: syscon
->
-> Not in the original txt binding, maybe add that in a first patch and then=
- convert.
+What is the reason for moving USB_DEVICE_ID_KYE_EASYPEN_M406XE around?
 
-I think, instead of fixing a deprecated file, I should fix it directly
-here. Actually, I forgot to
-mention this change in the commit message, but I will add it for the
-next version.
+>  	case USB_DEVICE_ID_GENIUS_GILA_GAMING_MOUSE:
+>  		rdesc = kye_consumer_control_fixup(hdev, rdesc, rsize, 104,
+>  					"Genius Gila Gaming Mouse");
+> @@ -721,8 +852,9 @@ static int kye_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X:
+>  	case USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2:
+>  	case USB_DEVICE_ID_KYE_EASYPEN_M610X:
+> -	case USB_DEVICE_ID_KYE_EASYPEN_M406XE:
+>  	case USB_DEVICE_ID_KYE_PENSKETCH_M912:
+> +	case USB_DEVICE_ID_KYE_MOUSEPEN_M508X:
+> +	case USB_DEVICE_ID_KYE_EASYPEN_M406XE:
+
+Same here.
+
+>  		ret = kye_tablet_enable(hdev);
+>  		if (ret) {
+>  			hid_err(hdev, "tablet enabling failed\n");
+> @@ -756,6 +888,10 @@ static const struct hid_device_id kye_devices[] = {
+>  				USB_DEVICE_ID_KYE_MOUSEPEN_I608X_V2) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+>  				USB_DEVICE_ID_KYE_EASYPEN_M610X) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+> +				USB_DEVICE_ID_KYE_PENSKETCH_M912) },
+> +	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+> +				USB_DEVICE_ID_KYE_MOUSEPEN_M508X) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+>  				USB_DEVICE_ID_KYE_EASYPEN_M406XE) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+> @@ -764,8 +900,6 @@ static const struct hid_device_id kye_devices[] = {
+>  				USB_DEVICE_ID_GENIUS_GX_IMPERATOR) },
+>  	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+>  				USB_DEVICE_ID_GENIUS_MANTICORE) },
+> -	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE,
+> -				USB_DEVICE_ID_KYE_PENSKETCH_M912) },
+
+This looks unrelated and incorrect, why are you dropping 
+USB_DEVICE_ID_KYE_PENSKETCH_M912 from the device table?
 
 Thanks,
-Alex
+
+-- 
+Jiri Kosina
+SUSE Labs
+

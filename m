@@ -2,105 +2,147 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39713C433FE
-	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 15:53:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE111C4332F
+	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 16:25:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238865AbiKWPxr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 23 Nov 2022 10:53:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38210 "EHLO
+        id S238054AbiKWQZl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 23 Nov 2022 11:25:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238785AbiKWPxB (ORCPT
+        with ESMTP id S238960AbiKWQZg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Nov 2022 10:53:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 121AC5A6EA;
-        Wed, 23 Nov 2022 07:52:57 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73E2E61DD9;
-        Wed, 23 Nov 2022 15:52:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F5EEC43144;
-        Wed, 23 Nov 2022 15:52:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669218776;
-        bh=ZtsEDAGH6M1Hm2mKwIp+nkyl3EOfULlsa+PR5Jh+/yY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=aCYae1otHmgUnvQhYydPYexYhzz0miYjM4zpf8c2mnxAms5CtVYUfAM7tWuXKgBlL
-         NCzjlOivqXZ6UqIGFo6Q3BntqxLP3hoWG6T432NPpsWDwgRF2tNVlSSreyLi6w5epT
-         5yRu6zDAJOHqLx2PKvtXWr2dbpMJrrYdASELSXDQ7oXGnQVROdJjqD20wCxJmK/TbF
-         LxosEZjoFf2ROozxpxjVeaVFcuzQLwzX93rS2p4/AwotUvzWq5hYJvRgCJVOQBQ8wc
-         Y+r3iBPxcrfDRitsbVrK4soZK4ULKoO7A7tHxHwHfbIwT8fluQgTwO6NOBHUOHbov+
-         PWGuJ73a1veDQ==
-Date:   Wed, 23 Nov 2022 15:52:45 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Andrew Lunn <andrew@lunn.ch>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        netdev@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        linux-usb@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-watchdog@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Viresh Kumar <vireshk@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        Wed, 23 Nov 2022 11:25:36 -0500
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DABB28FB0F
+        for <linux-input@vger.kernel.org>; Wed, 23 Nov 2022 08:25:34 -0800 (PST)
+Received: by mail-qt1-x834.google.com with SMTP id h24so11526927qta.9
+        for <linux-input@vger.kernel.org>; Wed, 23 Nov 2022 08:25:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=PhJSJnLVsP1vBula4KCFSx5kBTht7CuZrspFHU0N884=;
+        b=ebGDyq+q12UGY7Qk5Tupc9qhDLGyIcTZVkm5UZYo/563kMYJJqyAeOt5CzUtM4J8DZ
+         3trFHny8FIDylUgXR9JjN8PS72NcWsvrDfr1Nd1Q7FDnTR43onbW+jw1+Ctw0cwtwrCd
+         T18F6CTTWbwHWY6WrhS9prZWxtXaTjwzs7IQnIsjaZTmFdCmKdzeecD0BbnuyMQqVQVg
+         z0s4POzfjTxMQ62r8mCHZM0rSmjmaRN4hzlYV7zdZbP1xMXxym5gxZ3SKz4kt6tgYYum
+         EfCUt6/g2D4WDco0MNWeSPD0NJ6lencxZ7NqZJCJlD8ikZ4WiUl7N0yJnMd2Q4wIPSG2
+         7pnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PhJSJnLVsP1vBula4KCFSx5kBTht7CuZrspFHU0N884=;
+        b=w2tciLqcwsQTCzbhhhy0QC5/UYY1BCdS/JKudrlgXWsdMJrQOFL/wt5Ab7ZGYrYmTd
+         h8mG5Rsl6mCjETzNhhYQZ6b/D1WBZFMiAKi9VRl/0Jb+bJ9QCy75e4habw71UCbIEITP
+         sjxb5e9QxmuxJGPfgHulsfkerDVCtxZhDq7nBh6sv8lz+djrRA1t8P0gxfhWYVd8CdSE
+         m8IouM8+0tHJYYJro/aBwxKlux/PEwVXjh/0lmYkW7Tu5geVHrGageLfJpxv2iawINTz
+         A/zhGAFnD7FGa/EPBsmS3YxlZ+ShEpjDLTwTdeI1TcwJ6whSBKPiURaiY4r3iP/ENnt4
+         BRrw==
+X-Gm-Message-State: ANoB5pkG/x3i6/Ingh2rapQzYV0OmKmS43iO3LlSPANpVUPgZoeKRHdc
+        iKql42mHBD4eYL4tk4y08l/i2g==
+X-Google-Smtp-Source: AA0mqf7URgWK3LZKBiCOJvrYX2BcRTBThzd2VlaYXoILbXTQHzjAWJMWnGzlcI0wVuCFvjEWzX6GjA==
+X-Received: by 2002:ac8:60c:0:b0:3a6:37bd:ace5 with SMTP id d12-20020ac8060c000000b003a637bdace5mr14127789qth.426.1669220734011;
+        Wed, 23 Nov 2022 08:25:34 -0800 (PST)
+Received: from ziepe.ca (hlfxns017vw-47-55-122-23.dhcp-dynamic.fibreop.ns.bellaliant.net. [47.55.122.23])
+        by smtp.gmail.com with ESMTPSA id q7-20020a05620a0d8700b006f8665f483fsm12561497qkl.85.2022.11.23.08.25.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 23 Nov 2022 08:25:33 -0800 (PST)
+Received: from jgg by wakko with local (Exim 4.95)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1oxsZ2-00AOLL-MZ;
+        Wed, 23 Nov 2022 12:25:32 -0400
+Date:   Wed, 23 Nov 2022 12:25:32 -0400
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-kernel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Wolfram Sang <wsa@kernel.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v2 9/9] dt-bindings: drop redundant part of title (manual)
-Message-ID: <Y35BzU80hf36eRyo@sirena.org.uk>
-References: <20221121110615.97962-1-krzysztof.kozlowski@linaro.org>
- <20221121110615.97962-10-krzysztof.kozlowski@linaro.org>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Sanyog Kale <sanyog.r.kale@intel.com>,
+        Andreas Noever <andreas.noever@gmail.com>,
+        Michael Jamet <michael.jamet@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        Jilin Yuan <yuanjilin@cdjrlc.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Won Chung <wonchung@google.com>, alsa-devel@alsa-project.org,
+        devicetree@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-i3c@lists.infradead.org, linux-input@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH 3/5] driver core: make struct device_type.uevent() take a
+ const *
+Message-ID: <Y35JfNJDppRp5bLX@ziepe.ca>
+References: <20221123122523.1332370-1-gregkh@linuxfoundation.org>
+ <20221123122523.1332370-3-gregkh@linuxfoundation.org>
+ <711d5275-7e80-c00d-0cdc-0f3d52175361@gmail.com>
+ <Y34hgIW8p1RlQTBB@smile.fi.intel.com>
+ <97be39ed-3cea-d55a-caa6-c2652baef399@gmail.com>
+ <Y34zyzdbRUdyOSkA@casper.infradead.org>
+ <Y34+V2bCDdqujBDk@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="QAOhPtWQs4kr9fZE"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221121110615.97962-10-krzysztof.kozlowski@linaro.org>
-X-Cookie: I'm rated PG-34!!
+In-Reply-To: <Y34+V2bCDdqujBDk@kroah.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Wed, Nov 23, 2022 at 04:37:59PM +0100, Greg Kroah-Hartman wrote:
+> static inline struct device *__kobj_to_dev(struct kobject *kobj)
+> {
+>         return container_of(kobj, struct device, kobj);
+> }
+> 
+> static inline const struct device *__kobj_to_dev_const(const struct kobject *kobj)
+> {
+>         return container_of(kobj, const struct device, kobj);
+> }
+> 
+> /*
+>  * container_of() will happily take a const * and spit back a non-const * as it
+>  * is just doing pointer math.  But we want to be a bit more careful in the
+>  * driver code, so manually force any const * of a kobject to also be a const *
+>  * to a device.
+>  */
+> #define kobj_to_dev(kobj)                                       \
+>         _Generic((kobj),                                        \
+>                  const struct kobject *: __kobj_to_dev_const,   \
+>                  struct kobject *: __kobj_to_dev)(kobj)
+> 
+> 
+> Want me to do the same thing here as well?
 
---QAOhPtWQs4kr9fZE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+It would be nice to have a shared macro code gen all of the above
+instead of copy and pasting it. Then maybe other cases beyond struct
+device could adopt const too..
 
-On Mon, Nov 21, 2022 at 12:06:15PM +0100, Krzysztof Kozlowski wrote:
-> The Devicetree bindings document does not have to say in the title that
-> it is a "Devicetree binding" or a "schema", but instead just describe
-> the hardware.
-
-Acked-by: Mark Brown <broonie@kernel.org>
-
---QAOhPtWQs4kr9fZE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmN+QcwACgkQJNaLcl1U
-h9AXjAf8DK+4g+6i+PYcdDNKGnFY/1uo0vNGE7MKgsNgIAMn42Y9Tw++ts0ZwHYw
-EDuQqMblUcsp9NKWMs1LVsvQ2YGAbZUXjgUzWpiImszGWwmUf6DZkjwNojGA5ngh
-GAGhKyUYUGXRb0MKJ1X4O3pobituSQSnz8UWlDrpBOO2OiWnWvdbURWlhNYNqMSm
-70ahwExSo8nv/Dxkvf+GV0FHLToE5K4JZxqRh/Gn0l0206IYzY4jvEbCq0DEuZPH
-Jt7Az6phpVvce86sAHnvukNdIa0EQ/8pR+v9idvZiGVY5NJvdJA54BR+1AoXlMna
-RQueknzjRrsbdQSr0xa/wr8lQW5rpw==
-=Wum3
------END PGP SIGNATURE-----
-
---QAOhPtWQs4kr9fZE--
+Jason

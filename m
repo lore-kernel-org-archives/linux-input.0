@@ -2,46 +2,47 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 145B3C3A59F
-	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 12:47:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FD97C47089
+	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 12:47:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236788AbiKWMrf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 23 Nov 2022 07:47:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48876 "EHLO
+        id S237758AbiKWMrh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 23 Nov 2022 07:47:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237887AbiKWMqn (ORCPT
+        with ESMTP id S237917AbiKWMq7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Nov 2022 07:46:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74B3310070;
-        Wed, 23 Nov 2022 04:43:00 -0800 (PST)
+        Wed, 23 Nov 2022 07:46:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AB6459168;
+        Wed, 23 Nov 2022 04:43:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FF53B81F31;
-        Wed, 23 Nov 2022 12:42:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E6BFC433C1;
-        Wed, 23 Nov 2022 12:42:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 07E79B81F40;
+        Wed, 23 Nov 2022 12:43:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B16FFC433B5;
+        Wed, 23 Nov 2022 12:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207378;
-        bh=yo4vx89wcKuh+ZbIVTuXWYGqPrrUOxpS8eEJxC3Dpec=;
+        s=k20201202; t=1669207384;
+        bh=RUpOMe3BO0dzbxwVHpa6aIEvvuaeeCposlJJy+mWPjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O9qjiUppmoSOmWeHWzewJjCgu4Gk1j34zAwKohnX87h2vkgExce8PwNpsi2xYUaHn
-         bmri3KBSUC8TtNJOshBGYaV4nsakIwxwMW1f52Bu/6f+tPCTnoV10kvTRMWcpgOe3S
-         bhQA3U2FvDX8OLCAdwwZdywLolWUvuqCtMqQrMsWoqAbk0ivrt3a69lexRMgw1jk1v
-         FUttKO3Ezfb+4cpm/W/xzvewO209U0pn+txkgoUNQKmngfs0IW3N5TaTF4mjmn7Twe
-         tvZlHuN5bZ5dY59/kU51kPu3Yics6Kim3IZA0KZ1TRMeZkvUSQvaCg3yjmOUUdgDjM
-         4XGmDaQ1upwXg==
+        b=LE5k4tUTbjzKxSGd8lcskvSKGQF/DOePDIgsDXm4Kg9RrquFNFEYGldLYKZlKlMW0
+         d0Pzas5AMlX/htfSnt/yY9L8fk/O2x/254XmEtUcqN0FXuUxkvfImHNuCvHwc684uv
+         nit2ZUEji6yi1Db+U9qfUSmbInFCqCBeDgCIrMMe86lOJP/Mv+3Hb37UTSUnQ8SZgq
+         yPvFR7DUBPZLYN8f3g6OE2KF/DwkOiWJIIk3DCBpkRRCgVrPGDtVzJODDGgY2Tfq1S
+         HMEyJHk9RZEa+5k2RXZNzJRJ1UUtdvaxHbqNcWM/NNJkpWb7rZjBKVHIgPzeP+E7Ws
+         s6AebWyGqTu+A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
+Cc:     Takashi Iwai <tiwai@suse.de>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>,
-        andriy.shevchenko@linux.intel.com, mail@mariushoch.de,
-        rafael.j.wysocki@intel.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 09/31] Input: soc_button_array - add use_low_level_irq module parameter
-Date:   Wed, 23 Nov 2022 07:42:10 -0500
-Message-Id: <20221123124234.265396-9-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, hdegoede@redhat.com,
+        wse@tuxedocomputers.com, samuel@cavoj.net,
+        wsa+renesas@sang-engineering.com, chenhuacai@kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 11/31] Input: i8042 - apply probe defer to more ASUS ZenBook models
+Date:   Wed, 23 Nov 2022 07:42:12 -0500
+Message-Id: <20221123124234.265396-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124234.265396-1-sashal@kernel.org>
 References: <20221123124234.265396-1-sashal@kernel.org>
@@ -53,62 +54,50 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 8e9ada1d0e72b4737df400fe1bba48dc42a68df7 ]
+[ Upstream commit 26c263bf1847d4dadba016a0457c4c5f446407bf ]
 
-It seems that the Windows drivers for the ACPI0011 soc_button_array
-device use low level triggered IRQs rather then using edge triggering.
+There are yet a few more ASUS ZenBook models that require the deferred
+probe.  At least, there are different ZenBook UX325x and UX425x
+models.  Let's extend the DMI matching table entries for adapting
+those missing models.
 
-Some ACPI tables depend on this, directly poking the GPIO controller's
-registers to clear the trigger type when closing a laptop's/2-in-1's lid
-and re-instating the trigger when opening the lid again.
-
-Linux sets the edge/level on which to trigger to both low+high since
-it is using edge type IRQs, the ACPI tables then ends up also setting
-the bit for level IRQs and since both low and high level have been
-selected by Linux we get an IRQ storm leading to soft lockups.
-
-As a workaround for this the soc_button_array already contains
-a DMI quirk table with device models known to have this issue.
-
-Add a module parameter for this so that users can easily test if their
-device is affected too and so that they can use the module parameter
-as a workaround.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20221106215320.67109-1-hdegoede@redhat.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20221108142027.28480-1-tiwai@suse.de
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/soc_button_array.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/input/serio/i8042-x86ia64io.h | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
-index efffcf0ebd3b..46ba8218de99 100644
---- a/drivers/input/misc/soc_button_array.c
-+++ b/drivers/input/misc/soc_button_array.c
-@@ -18,6 +18,10 @@
- #include <linux/gpio.h>
- #include <linux/platform_device.h>
- 
-+static bool use_low_level_irq;
-+module_param(use_low_level_irq, bool, 0444);
-+MODULE_PARM_DESC(use_low_level_irq, "Use low-level triggered IRQ instead of edge triggered");
-+
- struct soc_button_info {
- 	const char *name;
- 	int acpi_index;
-@@ -164,7 +168,8 @@ soc_button_device_create(struct platform_device *pdev,
- 		}
- 
- 		/* See dmi_use_low_level_irq[] comment */
--		if (!autorepeat && dmi_check_system(dmi_use_low_level_irq)) {
-+		if (!autorepeat && (use_low_level_irq ||
-+				    dmi_check_system(dmi_use_low_level_irq))) {
- 			irq_set_irq_type(irq, IRQ_TYPE_LEVEL_LOW);
- 			gpio_keys[n_buttons].irq = irq;
- 			gpio_keys[n_buttons].gpio = -ENOENT;
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index 4b0201cf71f5..3a41ac9af2e7 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -114,18 +114,18 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_NEVER)
+ 	},
+ 	{
+-		/* ASUS ZenBook UX425UA */
++		/* ASUS ZenBook UX425UA/QA */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425UA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX425"),
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_PROBE_DEFER | SERIO_QUIRK_RESET_NEVER)
+ 	},
+ 	{
+-		/* ASUS ZenBook UM325UA */
++		/* ASUS ZenBook UM325UA/QA */
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325UA_UM325UA"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "ZenBook UX325"),
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_PROBE_DEFER | SERIO_QUIRK_RESET_NEVER)
+ 	},
 -- 
 2.35.1
 

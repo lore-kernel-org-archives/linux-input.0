@@ -2,105 +2,199 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD38BC4332F
-	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 15:50:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7696CC4167D
+	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 15:53:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238892AbiKWPui (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 23 Nov 2022 10:50:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38116 "EHLO
+        id S238724AbiKWPx0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 23 Nov 2022 10:53:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238744AbiKWPuI (ORCPT
+        with ESMTP id S238772AbiKWPwz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Nov 2022 10:50:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9E2FC604D;
-        Wed, 23 Nov 2022 07:49:43 -0800 (PST)
+        Wed, 23 Nov 2022 10:52:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB32457B76;
+        Wed, 23 Nov 2022 07:52:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94278B820D2;
-        Wed, 23 Nov 2022 15:49:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5620C433C1;
-        Wed, 23 Nov 2022 15:49:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669218581;
-        bh=T0mf0ijZQTzNBNeBPF5fkFm6qTXOYlAmsvGjPYhocZE=;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57703B82172;
+        Wed, 23 Nov 2022 15:52:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DFB3C433D6;
+        Wed, 23 Nov 2022 15:52:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1669218768;
+        bh=/DumSgjbm3+bFjW/YII5HB+37hZffmS6RIQzxFus23A=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QYvvVVFg3xABYgJQEwfoWni/oYrfqNnbcqqcQVrcp6uxcLqxAT3Hv4qpUOukDjTs/
-         0p7LoCYEfkSeEAiiX+7nrXQkbqjw1137EJi8AGbebG+uSGbSuFWy6ItixRDZdgYjzd
-         wI4+oGGgg+c8KPKVUQ5ZdWR+K+nR9Wh8y+eMc16I0PC838GB+J3v6zlQjhWOtg1c1c
-         6e5RsTLcd6FqRQaHdPekbba0bcco/SKnkdwTGzLKgRh+Lpo1he1WOZKJOaw2ZEIIXQ
-         GRY+SoMl3sj6Xk7pnSLZNQi8V4EhDNugotUmyQAc8a1pA6HLWIGeNLAtS34DQuw57+
-         eXjalnxk49wTQ==
-Date:   Wed, 23 Nov 2022 15:49:30 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Andrew Lunn <andrew@lunn.ch>, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-arm-msm@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-gpio@vger.kernel.org, linux-iio@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-leds@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        netdev@vger.kernel.org, linux-can@vger.kernel.org,
-        linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-serial@vger.kernel.org,
-        alsa-devel@alsa-project.org, linux-spi@vger.kernel.org,
-        linux-usb@vger.kernel.org,
-        virtualization@lists.linux-foundation.org,
-        linux-watchdog@vger.kernel.org, Stephen Boyd <sboyd@kernel.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Viresh Kumar <vireshk@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Guenter Roeck <linux@roeck-us.net>,
+        b=Axk59HaPRU6B2o8/sQ2xV/J3QDnuJbllXINFmP+zTkfGNyl9/NsBA856568zy/Zy0
+         ziibqVHor7E2pImZW09H3fsO0rmk5lAkiY8/xImxvEPWF1JugZkU42k7XZp/1gGlxF
+         YjrYDdmJl0DMzZ+GHnRpj/dpCWN4eBZtN+hiAE0Q=
+Date:   Wed, 23 Nov 2022 16:52:45 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Maximilian Luz <luzmaximilian@gmail.com>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        linux-kernel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Len Brown <lenb@kernel.org>,
+        Stefan Richter <stefanr@s5r6.in-berlin.de>,
+        Wolfram Sang <wsa@kernel.org>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v2 7/9] dt-bindings: drop redundant part of title
- (beginning)
-Message-ID: <Y35BCpD/tr/7prMh@sirena.org.uk>
-References: <20221121110615.97962-1-krzysztof.kozlowski@linaro.org>
- <20221121110615.97962-8-krzysztof.kozlowski@linaro.org>
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <markgross@kernel.org>,
+        Vinod Koul <vkoul@kernel.org>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Sanyog Kale <sanyog.r.kale@intel.com>,
+        Andreas Noever <andreas.noever@gmail.com>,
+        Michael Jamet <michael.jamet@intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Ming Lei <ming.lei@redhat.com>,
+        Jilin Yuan <yuanjilin@cdjrlc.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Won Chung <wonchung@google.com>, alsa-devel@alsa-project.org,
+        devicetree@vger.kernel.org, linux-acpi@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-i3c@lists.infradead.org, linux-input@vger.kernel.org,
+        linux-media@vger.kernel.org, linux-serial@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux1394-devel@lists.sourceforge.net,
+        platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH 3/5] driver core: make struct device_type.uevent() take a
+ const *
+Message-ID: <Y35BzXYg8/WGqf6V@kroah.com>
+References: <20221123122523.1332370-1-gregkh@linuxfoundation.org>
+ <20221123122523.1332370-3-gregkh@linuxfoundation.org>
+ <711d5275-7e80-c00d-0cdc-0f3d52175361@gmail.com>
+ <Y34hgIW8p1RlQTBB@smile.fi.intel.com>
+ <97be39ed-3cea-d55a-caa6-c2652baef399@gmail.com>
+ <Y34zyzdbRUdyOSkA@casper.infradead.org>
+ <Y34+V2bCDdqujBDk@kroah.com>
+ <b93a9fcd-0d7b-14fd-1018-bba35f961a27@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="uLB1Llf0h2iQ6rin"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20221121110615.97962-8-krzysztof.kozlowski@linaro.org>
-X-Cookie: I'm rated PG-34!!
+In-Reply-To: <b93a9fcd-0d7b-14fd-1018-bba35f961a27@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+On Wed, Nov 23, 2022 at 04:48:41PM +0100, Maximilian Luz wrote:
+> On 11/23/22 16:37, Greg Kroah-Hartman wrote:
+> > On Wed, Nov 23, 2022 at 02:52:59PM +0000, Matthew Wilcox wrote:
+> > > On Wed, Nov 23, 2022 at 02:59:00PM +0100, Maximilian Luz wrote:
+> > > > On 11/23/22 14:34, Andy Shevchenko wrote:
+> > > > > On Wed, Nov 23, 2022 at 02:14:31PM +0100, Maximilian Luz wrote:
+> > > > > > On 11/23/22 13:25, Greg Kroah-Hartman wrote:
+> > > > > > > The uevent() callback in struct device_type should not be modifying the
+> > > > > > > device that is passed into it, so mark it as a const * and propagate the
+> > > > > > > function signature changes out into all relevant subsystems that use
+> > > > > > > this callback.
+> > > > > 
+> > > > > [...]
+> > > > > 
+> > > > > > > -static inline struct ssam_device *to_ssam_device(struct device *d)
+> > > > > > > +static inline struct ssam_device *to_ssam_device(const struct device *d)
+> > > > > > >     {
+> > > > > > >     	return container_of(d, struct ssam_device, dev);
+> > > > > > >     }
+> > > > > > 
+> > > > > > I am slightly conflicted about this change as that now more or less
+> > > > > > implicitly drops the const. So I'm wondering if it wouldn't be better to
+> > > > > > either create a function specifically for const pointers or to just
+> > > > > > open-code it in the instance above.
+> > > > > > 
+> > > > > > I guess we could also convert this to a macro. Then at least there
+> > > > > > wouldn't be an explicit and potentially misleading const-conversion
+> > > > > > indicated in the function signature.
+> > > > > 
+> > > > > This is an intermediate step as far as I know since moving container_of to
+> > > > > recognize const is a bit noisy right now. I guess you can find a discussion
+> > > > > on the topic between Greg and Sakari.
+> > > > 
+> > > > Thanks! I assume you are referring to the following?
+> > > > 
+> > > > 	https://lore.kernel.org/lkml/4218173bd72b4f1899d4c41a8e251f0d@AcuMS.aculab.com/T/
+> > > > 
+> > > > As far as I can tell this is only a warning in documentation, not
+> > > > compile time (which would probably be impossible?).
+> > > > 
+> > > > As I've said I'd be fine with converting the function to a macro (and
+> > > > preferably adding a similar warning like the one proposed in that
+> > > > thread). The point that irks me up is just that, as proposed, the
+> > > > function signature would now advertise a conversion that should never be
+> > > > happening.
+> > > > 
+> > > > Having two separate functions would create a compile-time guarantee, so
+> > > > I'd prefer that, but I can understand if that might be considered too
+> > > > noisy in code. Or if there is a push to make container_of() emit a
+> > > > compile-time warning I'd also be perfectly happy with converting it to a
+> > > > macro now as that'd alleviate the need for functions in the future.
+> > > 
+> > > Can't we do:
+> > > 
+> > > static inline const struct ssam_device *to_ssam_device(const struct device *d)
+> > > {
+> > > 	return container_of(d, const struct ssam_device, dev);
+> > > }
+> > > 
+> > 
+> > You could, if you can always handle a const pointer coming out of this
+> > function, but I don't think you can.
+> > 
+> > What you might want to do instead, and I'll be glad to do it for all of
+> > the functions like this I change, is to do what we have for struct
+> > device now:
+> > 
+> > static inline struct device *__kobj_to_dev(struct kobject *kobj)
+> > {
+> >          return container_of(kobj, struct device, kobj);
+> > }
+> > 
+> > static inline const struct device *__kobj_to_dev_const(const struct kobject *kobj)
+> > {
+> >          return container_of(kobj, const struct device, kobj);
+> > }
+> > 
+> > /*
+> >   * container_of() will happily take a const * and spit back a non-const * as it
+> >   * is just doing pointer math.  But we want to be a bit more careful in the
+> >   * driver code, so manually force any const * of a kobject to also be a const *
+> >   * to a device.
+> >   */
+> > #define kobj_to_dev(kobj)                                       \
+> >          _Generic((kobj),                                        \
+> >                   const struct kobject *: __kobj_to_dev_const,   \
+> >                   struct kobject *: __kobj_to_dev)(kobj)
+> > 
+> > 
+> > Want me to do the same thing here as well?
+> 
+> That looks great! Thanks!
+> 
+> I would very much prefer that.
 
---uLB1Llf0h2iQ6rin
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ok, will respin this patch as at least 2 individual patches, one that
+does the change to to_ssam_device() and the next that does the bus-wide
+changes.
 
-On Mon, Nov 21, 2022 at 12:06:13PM +0100, Krzysztof Kozlowski wrote:
-> The Devicetree bindings document does not have to say in the title that
-> it is a "Devicetree binding", but instead just describe the hardware.
+I'll review the other container_of() users in this patch as well to see
+if they can be converted as well.
 
-Acked-by: Mark Brown <broonie@kernel.org>
+thanks,
 
---uLB1Llf0h2iQ6rin
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmN+QQkACgkQJNaLcl1U
-h9C5lAf8Dpp6enFuhrAPv0ZsgsZe6xWsOHu4pelgjbPEH8V7tDwUPWITXN5vLI3+
-RuqFuOP0hYHIa9rUjaI4dZX0sPV7cFMF2BdyjTFdczyAizXljoNVh2r23soCG0RX
-66rxbmsNE++z+1DObKtZgJoutGaB/ZAqMpW0t0XJERPq1KbjBGmy8D/fIq8lvoy/
-4297MfYX3okBCVVhPRX/v+unG3sVqED0Bhdjpo/bwY0150YItakf4eVUXwFxfvTK
-25XCxunGEShq5zi//+/abs2X89ZjhqLTfJtYtUVnj1xtSfEqoRb6mf82WrkieRvA
-dYORYgupqLBXMecamcwbhHMcJBNZ3w==
-=hyWV
------END PGP SIGNATURE-----
-
---uLB1Llf0h2iQ6rin--
+greg k-h

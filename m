@@ -2,48 +2,46 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F96CC433FE
-	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 12:46:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 145B3C3A59F
+	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 12:47:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237693AbiKWMq0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 23 Nov 2022 07:46:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47678 "EHLO
+        id S236788AbiKWMrf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 23 Nov 2022 07:47:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237450AbiKWMp3 (ORCPT
+        with ESMTP id S237887AbiKWMqn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Nov 2022 07:45:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEEFA13F6F;
-        Wed, 23 Nov 2022 04:42:39 -0800 (PST)
+        Wed, 23 Nov 2022 07:46:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74B3310070;
+        Wed, 23 Nov 2022 04:43:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BCD861CAA;
-        Wed, 23 Nov 2022 12:42:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDD93C433B5;
-        Wed, 23 Nov 2022 12:42:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8FF53B81F31;
+        Wed, 23 Nov 2022 12:42:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E6BFC433C1;
+        Wed, 23 Nov 2022 12:42:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207358;
-        bh=bIKzhlWihw6BMocxBKmt5Jc2XRYsG55ra2FWrhx/Q1k=;
+        s=k20201202; t=1669207378;
+        bh=yo4vx89wcKuh+ZbIVTuXWYGqPrrUOxpS8eEJxC3Dpec=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prnzWUdY2sq6xRcGSN/FDaGwJgZV5jTY/44LwbEGZqMDO+65Avz5iEZHJ2PBGwZOn
-         plFJ82GTMDHrsuLf7tkq/OZXpgLsS87PkO1OmkGlxRdItm68RkGeqQWLDjIWx/naj8
-         RfdpfoywUQH66X4KyPcHt2zRPWjPomgShMYzEGwyaomGmu0FhajuuUTZdtdYDHFhL1
-         G7HIPaN2v6YULAUa/X4mWaOn1PgGXd1gKmk9JCvMMv8nVB6UhGo6S6ianN8naaYzYI
-         na7vSYeJsThrTMZeUBDWwM3nQuLEeX2+QyvxWhtReumLUikQLjI+hQsSTtgGKH7T5J
-         Hvc1MOEaxSHdg==
+        b=O9qjiUppmoSOmWeHWzewJjCgu4Gk1j34zAwKohnX87h2vkgExce8PwNpsi2xYUaHn
+         bmri3KBSUC8TtNJOshBGYaV4nsakIwxwMW1f52Bu/6f+tPCTnoV10kvTRMWcpgOe3S
+         bhQA3U2FvDX8OLCAdwwZdywLolWUvuqCtMqQrMsWoqAbk0ivrt3a69lexRMgw1jk1v
+         FUttKO3Ezfb+4cpm/W/xzvewO209U0pn+txkgoUNQKmngfs0IW3N5TaTF4mjmn7Twe
+         tvZlHuN5bZ5dY59/kU51kPu3Yics6Kim3IZA0KZ1TRMeZkvUSQvaCg3yjmOUUdgDjM
+         4XGmDaQ1upwXg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sheng-Liang Pan <sheng-liang.pan@quanta.corp-partner.google.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Rob Herring <robh@kernel.org>,
+Cc:     Hans de Goede <hdegoede@redhat.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 02/31] dt-bindings: input: touchscreen: Add compatible for Goodix GT7986U chip
-Date:   Wed, 23 Nov 2022 07:42:03 -0500
-Message-Id: <20221123124234.265396-2-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        andriy.shevchenko@linux.intel.com, mail@mariushoch.de,
+        rafael.j.wysocki@intel.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 09/31] Input: soc_button_array - add use_low_level_irq module parameter
+Date:   Wed, 23 Nov 2022 07:42:10 -0500
+Message-Id: <20221123124234.265396-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20221123124234.265396-1-sashal@kernel.org>
 References: <20221123124234.265396-1-sashal@kernel.org>
@@ -55,40 +53,62 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Sheng-Liang Pan <sheng-liang.pan@quanta.corp-partner.google.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a01aca4b05174b6dee2392ec44406f85e0f8bd46 ]
+[ Upstream commit 8e9ada1d0e72b4737df400fe1bba48dc42a68df7 ]
 
-Add a compatible for Goodix touch screen chip GT7986U which is
-is expected to be fully compatible with a driver written for GT7375P.
+It seems that the Windows drivers for the ACPI0011 soc_button_array
+device use low level triggered IRQs rather then using edge triggering.
 
-Signed-off-by: Sheng-Liang Pan <sheng-liang.pan@quanta.corp-partner.google.com>
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20221006185333.v7.3.I52e4b4b20e2eb0ae20f2a9bb198aa6410f04cf16@changeid
+Some ACPI tables depend on this, directly poking the GPIO controller's
+registers to clear the trigger type when closing a laptop's/2-in-1's lid
+and re-instating the trigger when opening the lid again.
+
+Linux sets the edge/level on which to trigger to both low+high since
+it is using edge type IRQs, the ACPI tables then ends up also setting
+the bit for level IRQs and since both low and high level have been
+selected by Linux we get an IRQ storm leading to soft lockups.
+
+As a workaround for this the soc_button_array already contains
+a DMI quirk table with device models known to have this issue.
+
+Add a module parameter for this so that users can easily test if their
+device is affected too and so that they can use the module parameter
+as a workaround.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20221106215320.67109-1-hdegoede@redhat.com
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/devicetree/bindings/input/goodix,gt7375p.yaml | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/input/misc/soc_button_array.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml b/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-index fe1c5016f7f3..1c191bc5a178 100644
---- a/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-+++ b/Documentation/devicetree/bindings/input/goodix,gt7375p.yaml
-@@ -16,8 +16,11 @@ description:
+diff --git a/drivers/input/misc/soc_button_array.c b/drivers/input/misc/soc_button_array.c
+index efffcf0ebd3b..46ba8218de99 100644
+--- a/drivers/input/misc/soc_button_array.c
++++ b/drivers/input/misc/soc_button_array.c
+@@ -18,6 +18,10 @@
+ #include <linux/gpio.h>
+ #include <linux/platform_device.h>
  
- properties:
-   compatible:
--    items:
-+    oneOf:
-       - const: goodix,gt7375p
-+      - items:
-+          - const: goodix,gt7986u
-+          - const: goodix,gt7375p
++static bool use_low_level_irq;
++module_param(use_low_level_irq, bool, 0444);
++MODULE_PARM_DESC(use_low_level_irq, "Use low-level triggered IRQ instead of edge triggered");
++
+ struct soc_button_info {
+ 	const char *name;
+ 	int acpi_index;
+@@ -164,7 +168,8 @@ soc_button_device_create(struct platform_device *pdev,
+ 		}
  
-   reg:
-     enum:
+ 		/* See dmi_use_low_level_irq[] comment */
+-		if (!autorepeat && dmi_check_system(dmi_use_low_level_irq)) {
++		if (!autorepeat && (use_low_level_irq ||
++				    dmi_check_system(dmi_use_low_level_irq))) {
+ 			irq_set_irq_type(irq, IRQ_TYPE_LEVEL_LOW);
+ 			gpio_keys[n_buttons].irq = irq;
+ 			gpio_keys[n_buttons].gpio = -ENOENT;
 -- 
 2.35.1
 

@@ -2,46 +2,47 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 686D9C4708C
-	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 12:53:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 482F7C4708D
+	for <linux-input@archiver.kernel.org>; Wed, 23 Nov 2022 12:53:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238199AbiKWMxl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 23 Nov 2022 07:53:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48504 "EHLO
+        id S238206AbiKWMxm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 23 Nov 2022 07:53:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238545AbiKWMwu (ORCPT
+        with ESMTP id S238303AbiKWMwG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 23 Nov 2022 07:52:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 205088B849;
-        Wed, 23 Nov 2022 04:45:03 -0800 (PST)
+        Wed, 23 Nov 2022 07:52:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8BF86A7F;
+        Wed, 23 Nov 2022 04:44:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BAC24B81F3A;
-        Wed, 23 Nov 2022 12:45:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E0C6C433D6;
-        Wed, 23 Nov 2022 12:45:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2201F61C63;
+        Wed, 23 Nov 2022 12:44:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 971D5C433C1;
+        Wed, 23 Nov 2022 12:44:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669207501;
-        bh=pjV+YzoeVY7nvyOqe8WbShBBG5zI+yI93RPzfb2bX6A=;
+        s=k20201202; t=1669207470;
+        bh=cYb27BGY8SejQ3AIoV3asHQMvxsSPUbpmRYdgDbOY+I=;
         h=From:To:Cc:Subject:Date:From;
-        b=NoYdPI8YEfHHuewTa/FlWKV+fPYRUDxhV/+wQNorRG/ylYQcDSxiI+G4KxIqrbPg7
-         Bphbm6oDEE7nj+t/uyXl33wntzawuO8G/fWVmtNJOAI99MFek3bFRFPXcg1LIYmJ9g
-         uyTEM6gq3E5kjZdx21PPzs7hHNf7XZeEX4C88GGcEJs18AMxZUyoK448wBhjqeU1hx
-         g5dWqoDuCS/Ui81HwJAXCg/t7GgESEDP6goO6WDp+cX6XW6FAuyRXIp39b98gFbIj6
-         YDulRJvehMuWebBXL3sa4tynRBWCR0qWPdU3Vkh7rPpAg9g9e96IVbizeMq1BH9oTL
-         lk3p8IaZ+Wq/Q==
+        b=OPXU3TetrnoLiOOUnrzYoE/KTURIAyQ7U4b5kgTOXo4a3yoLIiAHO8PDQ+vCY3eea
+         hZijpQaU5MSmayv+Ul2QAvZ3fUhTla3BuzQwTRc3YNIvG21Fc8/gR7NGIwPyjrrgLO
+         8lVJFhUEIWGiWS3TdThZW/W6HctKATqlAyTFGhIoBp/0cEkdDmAfLAJogRpRSoV/l8
+         pwBJSXNyqAXStpOhMn9RG3GS5I5Lxjue2GuH9oPL5Sa7p0O1/dBDUHxUA5gEiuf9yZ
+         FuM+J/HrfiKuB94aEOpa7q7pGTZAIjF1g0ReLkshZuRZFjmrXa0FITdurCeDBVwP7T
+         wk609XxpDynCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Aman Dhoot <amandhoot12@gmail.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, markpearson@lenovo.com,
-        lyude@redhat.com, wsa+renesas@sang-engineering.com,
-        snafu109@gmail.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 01/11] Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode
-Date:   Wed, 23 Nov 2022 07:44:46 -0500
-Message-Id: <20221123124458.266492-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        wsa+renesas@sang-engineering.com, lyude@redhat.com,
+        markpearson@lenovo.com, snafu109@gmail.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/15] Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode
+Date:   Wed, 23 Nov 2022 07:44:11 -0500
+Message-Id: <20221123124427.266286-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 X-stable: review
@@ -66,10 +67,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index c6d393114502..7dc8ca5fd75f 100644
+index 4b81b2d0fe06..05b007d0a89b 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -192,6 +192,7 @@ static const char * const smbus_pnp_ids[] = {
+@@ -189,6 +189,7 @@ static const char * const smbus_pnp_ids[] = {
  	"SYN3221", /* HP 15-ay000 */
  	"SYN323d", /* HP Spectre X360 13-w013dx */
  	"SYN3257", /* HP Envy 13-ad105ng */

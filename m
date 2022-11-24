@@ -2,106 +2,191 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82D94C433FE
-	for <linux-input@archiver.kernel.org>; Thu, 24 Nov 2022 15:19:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55214C43217
+	for <linux-input@archiver.kernel.org>; Thu, 24 Nov 2022 15:52:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230119AbiKXPTy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 24 Nov 2022 10:19:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57382 "EHLO
+        id S229673AbiKXPwQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 24 Nov 2022 10:52:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229879AbiKXPTJ (ORCPT
+        with ESMTP id S229770AbiKXPwO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Nov 2022 10:19:09 -0500
+        Thu, 24 Nov 2022 10:52:14 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C1DF16F0F7
-        for <linux-input@vger.kernel.org>; Thu, 24 Nov 2022 07:16:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E3BB12E213
+        for <linux-input@vger.kernel.org>; Thu, 24 Nov 2022 07:50:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669302989;
+        s=mimecast20190719; t=1669305026;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=YVpzZ9PuKYYYwbqGuIV03fYvtpDzSokFyED3tXA9BEI=;
-        b=CoG6sDvyAH33hagPv4mXJpilRRmJiC0QiKv4ZRwc6WXkj+EJoHqaSLIqrpP8UVnX1HVnPH
-        jtbB8vl0E78RuamI9scY9vNIkRwL6QuqqWtRn2Gm+4SYtBYtOqikM/6ZfOrqawZTV/5Kbv
-        77cbMm+oX1x2vrQH9P1wYSkqxtoNJ/A=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-246-nlR9u26LOHi58kiUJjaWYA-1; Thu, 24 Nov 2022 10:16:28 -0500
-X-MC-Unique: nlR9u26LOHi58kiUJjaWYA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B97293C01E0F;
-        Thu, 24 Nov 2022 15:16:27 +0000 (UTC)
-Received: from plouf.redhat.com (unknown [10.39.193.200])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 06D4940C2064;
-        Thu, 24 Nov 2022 15:16:25 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [RFC hid v1 09/10] selftests: hid: ensure the program is correctly pinned
-Date:   Thu, 24 Nov 2022 16:16:02 +0100
-Message-Id: <20221124151603.807536-10-benjamin.tissoires@redhat.com>
-In-Reply-To: <20221124151603.807536-1-benjamin.tissoires@redhat.com>
-References: <20221124151603.807536-1-benjamin.tissoires@redhat.com>
+        bh=RY55+mI/DdVynf6mJobax2x0nouP9gB/94T/eEnCQ84=;
+        b=egxyMFAATt54B3ggjsENHaAeOPGeZzzM4+ri4I0+tZddstdyBa43wBLS0c35Exn9BUBVnv
+        RpAaGOKzzwyHULohDVa49qtKXnogkbt/GVlB6EYEs7y+yIVubJAbXg4Eug7bJjW6seSX0J
+        C+nK8y+j+7SMO03oG0kIZM1/fQC3H+U=
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com
+ [209.85.166.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-184-rfhGQ2ijMiKEa7_V8HrgkA-1; Thu, 24 Nov 2022 10:50:22 -0500
+X-MC-Unique: rfhGQ2ijMiKEa7_V8HrgkA-1
+Received: by mail-io1-f70.google.com with SMTP id a14-20020a6b660e000000b006bd37975cdfso1016074ioc.10
+        for <linux-input@vger.kernel.org>; Thu, 24 Nov 2022 07:50:22 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=RY55+mI/DdVynf6mJobax2x0nouP9gB/94T/eEnCQ84=;
+        b=vR5dWltmfu7m56QrlX0kN7TZeOryHX75cVWnYKWXXmP5DlrMy5l//8E6P7Lx8IStbV
+         8aeDHpbSrNkgMri+hO6VMT07HRewXmdlr4GxkRkeomB2/69BSYISfh0qNrUPQwYUwHGs
+         mz9R4wdzzt0mEuGtJ0YSd11MlvVgTLqVHy/GnWuccl1dwuV3nMj8h4TikYIR7WerjnKL
+         03TijYPB/KQihPsEVrSLD7dBgL8UASRw7WUI9/zxLu51cR4WC5ILaGrVSyfac6TZpPnq
+         XZ5sg2zh8zQA4hzqp5Sfeo+PNnAGrZd0/EJrqy+vBp2+9htQXH+8eKWIN6UBj792yBD2
+         NWTQ==
+X-Gm-Message-State: ANoB5pkKYSshZ/zGCJXxH2oBjcOrmYWImkfWb8ajwwtNPguGBkIefnMk
+        G1ae4zS0TM6Lb6rBoE/6mETA7gotks5gCDkjN6jU01ppucWVvXhDdGCJy9YhWXkc4J1h9G353Tl
+        lW6z8w99meCjQqv/U7ZRUWES+w9lbPhaGJnojI+g=
+X-Received: by 2002:a05:6e02:12c2:b0:302:e38e:761b with SMTP id i2-20020a056e0212c200b00302e38e761bmr2982581ilm.61.1669305021742;
+        Thu, 24 Nov 2022 07:50:21 -0800 (PST)
+X-Google-Smtp-Source: AA0mqf50DvoaFAAKrDAN6ynBtlfajIpvDYjTyVfoAXhh1Q93IuTagRMPKBRzK4dRjX385fP/AwgqliXF5ra1BppOhJk=
+X-Received: by 2002:a05:6e02:12c2:b0:302:e38e:761b with SMTP id
+ i2-20020a056e0212c200b00302e38e761bmr2982569ilm.61.1669305021479; Thu, 24 Nov
+ 2022 07:50:21 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.1
+References: <20221103155756.687789-1-benjamin.tissoires@redhat.com>
+ <20221103155756.687789-4-benjamin.tissoires@redhat.com> <ff1a0b34-71f2-cebe-a6ef-675936b276eb@nvidia.com>
+ <CAO-hwJJZxgeTT8mLwFrYynSVASva=o7qL9Kr4xOywV3KDUu2GA@mail.gmail.com> <CAADnVQ+kE+EJ9LAfwge9ksC0LR8r+ShQNYi5g-MDajufXq8Yxw@mail.gmail.com>
+In-Reply-To: <CAADnVQ+kE+EJ9LAfwge9ksC0LR8r+ShQNYi5g-MDajufXq8Yxw@mail.gmail.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Thu, 24 Nov 2022 16:50:10 +0100
+Message-ID: <CAO-hwJJGxvrLRGSt7g0T1rYiuCCigVzQ-L6yKLM1-44EpYqmsQ@mail.gmail.com>
+Subject: Re: [PATCH hid v12 03/15] HID: initial BPF implementation
+To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc:     Florent Revest <revest@chromium.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Shuah Khan <shuah@kernel.org>,
+        Tero Kristo <tero.kristo@linux.intel.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        bpf <bpf@vger.kernel.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        "linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Turns out that if bpffs was not mounted, the test was silently passing.
+On Wed, Nov 23, 2022 at 9:14 PM Alexei Starovoitov
+<alexei.starovoitov@gmail.com> wrote:
+>
+> On Wed, Nov 23, 2022 at 6:53 AM Benjamin Tissoires
+> <benjamin.tissoires@redhat.com> wrote:
+> >
+> > Hi Jon,
+> >
+> > On Wed, Nov 23, 2022 at 2:25 PM Jon Hunter <jonathanh@nvidia.com> wrote:
+> > >
+> > >
+> > > On 03/11/2022 15:57, Benjamin Tissoires wrote:
+> > > > Declare an entry point that can use fmod_ret BPF programs, and
+> > > > also an API to access and change the incoming data.
+> > > >
+> > > > A simpler implementation would consist in just calling
+> > > > hid_bpf_device_event() for any incoming event and let users deal
+> > > > with the fact that they will be called for any event of any device.
+> > > >
+> > > > The goal of HID-BPF is to partially replace drivers, so this situation
+> > > > can be problematic because we might have programs which will step on
+> > > > each other toes.
+> > > >
+> > > > For that, we add a new API hid_bpf_attach_prog() that can be called
+> > > > from a syscall and we manually deal with a jump table in hid-bpf.
+> > > >
+> > > > Whenever we add a program to the jump table (in other words, when we
+> > > > attach a program to a HID device), we keep the number of time we added
+> > > > this program in the jump table so we can release it whenever there are
+> > > > no other users.
+> > > >
+> > > > HID devices have an RCU protected list of available programs in the
+> > > > jump table, and those programs are called one after the other thanks
+> > > > to bpf_tail_call().
+> > > >
+> > > > To achieve the detection of users losing their fds on the programs we
+> > > > attached, we add 2 tracing facilities on bpf_prog_release() (for when
+> > > > a fd is closed) and bpf_free_inode() (for when a pinned program gets
+> > > > unpinned).
+> > > >
+> > > > Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > > Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> > >
+> > > ...
+> > >
+> > > > +static int __init hid_bpf_init(void)
+> > > > +{
+> > > > +     int err;
+> > > > +
+> > > > +     /* Note: if we exit with an error any time here, we would entirely break HID, which
+> > > > +      * is probably not something we want. So we log an error and return success.
+> > > > +      *
+> > > > +      * This is not a big deal: the syscall allowing to attach a BPF program to a HID device
+> > > > +      * will not be available, so nobody will be able to use the functionality.
+> > > > +      */
+> > > > +
+> > > > +     err = register_btf_kfunc_id_set(BPF_PROG_TYPE_TRACING, &hid_bpf_kfunc_set);
+> > > > +     if (err) {
+> > > > +             pr_warn("error while setting HID BPF tracing kfuncs: %d", err);
+> > > > +             return 0;
+> > > > +     }
+> > > > +
+> > > > +     err = hid_bpf_preload_skel();
+> > > > +     if (err) {
+> > > > +             pr_warn("error while preloading HID BPF dispatcher: %d", err);
+> > > > +             return 0;
+> > > > +     }
+> > > > +
+> > > > +     /* register syscalls after we are sure we can load our preloaded bpf program */
+> > > > +     err = register_btf_kfunc_id_set(BPF_PROG_TYPE_SYSCALL, &hid_bpf_syscall_kfunc_set);
+> > > > +     if (err) {
+> > > > +             pr_warn("error while setting HID BPF syscall kfuncs: %d", err);
+> > > > +             return 0;
+> > > > +     }
+> > > > +
+> > > > +     return 0;
+> > > > +}
+> > >
+> > >
+> > > We have a kernel test that checks for new warning and error messages on
+> > > boot and with this change I am now seeing the following error message on
+> > > our Tegra platforms ...
+> > >
+> > >   WARNING KERN hid_bpf: error while preloading HID BPF dispatcher: -13
+> > >
+> > > I have a quick look at the code, but I can't say I am familiar with
+> > > this. So I wanted to ask if a way to fix this or avoid this? I see the
+> > > code returns 0, so one option would be to make this an informational or
+> > > debug print.
+> >
+> > I am not in favor of debug in that case, because I suspect it'll hide
+> > too much when getting a bug report. Informational could do, yes.
+> >
+> > However, before that, I'd like to dig a little bit more on why it is
+> > failing. I thought arm64 now has support of tracing bpf programs, so I
+> > would not expect this to fail.
+>
+> Unfortunately the patches to add support for such tracing bpf progs got stuck.
+> Florent/Mark can probably share the latest status.
+>
 
-So ensure it passes, but also force the mount of the bpffs in vmtest.sh
-so we get passing results.
+Oh... I noticed Jon's config was lacking CONFIG_FTRACE. So should I
+also add a depends on CONFIG_FTRACE to enable HID-BPF?
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- tools/testing/selftests/hid/hid_bpf.c | 3 ++-
- tools/testing/selftests/hid/vmtest.sh | 4 +++-
- 2 files changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/tools/testing/selftests/hid/hid_bpf.c b/tools/testing/selftests/hid/hid_bpf.c
-index 4bdd1cfa7d13..3ae544bf24fe 100644
---- a/tools/testing/selftests/hid/hid_bpf.c
-+++ b/tools/testing/selftests/hid/hid_bpf.c
-@@ -712,7 +712,8 @@ TEST_F(hid_bpf, test_attach_detach)
- 
- 	/* pin the program and immediately unpin it */
- #define PIN_PATH "/sys/fs/bpf/hid_first_event"
--	bpf_program__pin(self->skel->progs.hid_first_event, PIN_PATH);
-+	err = bpf_program__pin(self->skel->progs.hid_first_event, PIN_PATH);
-+	ASSERT_OK(err) TH_LOG("error while calling bpf_program__pin");
- 	remove(PIN_PATH);
- #undef PIN_PATH
- 	usleep(100000);
-diff --git a/tools/testing/selftests/hid/vmtest.sh b/tools/testing/selftests/hid/vmtest.sh
-index f124cf6b0d0f..bd60f65acb72 100755
---- a/tools/testing/selftests/hid/vmtest.sh
-+++ b/tools/testing/selftests/hid/vmtest.sh
-@@ -108,8 +108,10 @@ EOF
- 	if [[ "${debug_shell}" != "yes" ]]
- 	then
- 		touch ${OUTPUT_DIR}/${LOG_FILE}
--		command="set -o pipefail ; ${command} 2>&1 | tee ${OUTPUT_DIR}/${LOG_FILE}"
-+		command="mount bpffs -t bpf /sys/fs/bpf/; set -o pipefail ; ${command} 2>&1 | tee ${OUTPUT_DIR}/${LOG_FILE}"
- 		post_command="cat ${OUTPUT_DIR}/${LOG_FILE}"
-+	else
-+		command="mount bpffs -t bpf /sys/fs/bpf/; ${command}"
- 	fi
- 
- 	set +e
--- 
-2.38.1
+Cheers,
+Benjamin
 

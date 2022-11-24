@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 095FCC46467
-	for <linux-input@archiver.kernel.org>; Thu, 24 Nov 2022 15:18:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CAAAEC433FE
+	for <linux-input@archiver.kernel.org>; Thu, 24 Nov 2022 15:18:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229944AbiKXPSH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 24 Nov 2022 10:18:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57382 "EHLO
+        id S229994AbiKXPSz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 24 Nov 2022 10:18:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229937AbiKXPSC (ORCPT
+        with ESMTP id S229635AbiKXPSy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 24 Nov 2022 10:18:02 -0500
+        Thu, 24 Nov 2022 10:18:54 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BCA81609DA
-        for <linux-input@vger.kernel.org>; Thu, 24 Nov 2022 07:16:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 575FA16E8FF
+        for <linux-input@vger.kernel.org>; Thu, 24 Nov 2022 07:16:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1669302975;
+        s=mimecast20190719; t=1669302984;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=KAJYIVS7w3VHw6GPJCxv8d/p+6Nx7C8D/UTcdk+DlLc=;
-        b=E72kW2PkeKR4fI+wL689/nMls4h0qvTzspRPJJ3lpzXAy0BEOW+YMrMkxeIWYDkwMx4RKV
-        pjKMbOLDlLZXOulA9rvn+TCs0tC4pLFvJXyeMlpOKn2jMYXKx36UFxWj7l9DAgLmqQcse6
-        ubtVQaC9nYzlu1XZdyqMkyhUDNyqC8c=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=a63w9CoIFkndcfzkV+UlHKPl/w2rk67fLhqjC6Ra/nQ=;
+        b=HmsAvzJG7707Wwv/iqLX4lNEui/lBHrycjwvScZtZRshLry8vodwoFHEaCMAeE/57o4p/h
+        9k5K08VaTm+oxfBSVXyzePKSFDV7VssYBgEky4gacG+dOjWHkFBT/2JyD/6S4qiEpWLX9X
+        WJEceEdGHnnvGbjgnXLsuDogspQ1FcY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-422-HPzI6D8PNnm5Bc0Sqkuylw-1; Thu, 24 Nov 2022 10:16:12 -0500
-X-MC-Unique: HPzI6D8PNnm5Bc0Sqkuylw-1
+ us-mta-136-tAQIrwjqPDig82dTfIdrlw-1; Thu, 24 Nov 2022 10:16:20 -0500
+X-MC-Unique: tAQIrwjqPDig82dTfIdrlw-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.rdu2.redhat.com [10.11.54.1])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8C61E29AB3F2;
-        Thu, 24 Nov 2022 15:16:11 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A6B41185A78B;
+        Thu, 24 Nov 2022 15:16:19 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.193.200])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CE91640C2064;
-        Thu, 24 Nov 2022 15:16:09 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CB78040C2064;
+        Thu, 24 Nov 2022 15:16:17 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         Jiri Kosina <jikos@kernel.org>,
@@ -49,9 +49,9 @@ Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         netdev@vger.kernel.org, bpf@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [RFC hid v1 01/10] bpftool: generate json output of skeletons
-Date:   Thu, 24 Nov 2022 16:15:54 +0100
-Message-Id: <20221124151603.807536-2-benjamin.tissoires@redhat.com>
+Subject: [RFC hid v1 05/10] HID: add report descriptor override for the X-Keys XK24
+Date:   Thu, 24 Nov 2022 16:15:58 +0100
+Message-Id: <20221124151603.807536-6-benjamin.tissoires@redhat.com>
 In-Reply-To: <20221124151603.807536-1-benjamin.tissoires@redhat.com>
 References: <20221124151603.807536-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -61,126 +61,458 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-So we can then build light skeletons with loaders in any language.
+The current report descriptor of the XK-24 is hiding all programmable
+buttons. However, we can export them as such, so userspace do not need
+to reprogram the device itself and can have some handling depending on
+the application.
+
+Also add the compiled files as a demonstration of the output, but
+hopefully these outputs should be generated automatically when running
+make at the root of the kernel sources.
 
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- tools/bpf/bpftool/gen.c | 95 +++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 95 insertions(+)
+ .../bpf/progs/b0003g0001v05F3p0405-xk24.bpf.c | 106 +++++++
+ .../progs/b0003g0001v05F3p0405-xk24.hidbpf.h  | 292 ++++++++++++++++++
+ drivers/hid/bpf/progs/hid_bpf_progs.h         |   5 +-
+ 3 files changed, 401 insertions(+), 2 deletions(-)
+ create mode 100644 drivers/hid/bpf/progs/b0003g0001v05F3p0405-xk24.bpf.c
+ create mode 100644 drivers/hid/bpf/progs/b0003g0001v05F3p0405-xk24.hidbpf.h
 
-diff --git a/tools/bpf/bpftool/gen.c b/tools/bpf/bpftool/gen.c
-index cf8b4e525c88..818a5209b3ac 100644
---- a/tools/bpf/bpftool/gen.c
-+++ b/tools/bpf/bpftool/gen.c
-@@ -904,6 +904,96 @@ codegen_progs_skeleton(struct bpf_object *obj, size_t prog_cnt, bool populate_li
- 	}
- }
- 
-+static int gen_json(struct bpf_object *obj, const char *obj_name, size_t file_sz, uint8_t *obj_data)
+diff --git a/drivers/hid/bpf/progs/b0003g0001v05F3p0405-xk24.bpf.c b/drivers/hid/bpf/progs/b0003g0001v05F3p0405-xk24.bpf.c
+new file mode 100644
+index 000000000000..736861988a94
+--- /dev/null
++++ b/drivers/hid/bpf/progs/b0003g0001v05F3p0405-xk24.bpf.c
+@@ -0,0 +1,106 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/* Copyright (c) 2022 Benjamin Tissoires
++ */
++
++#include "vmlinux.h"
++#include "hid_bpf_helpers.h"
++#include <bpf/bpf_tracing.h>
++
++static const __u8 fixed_rdesc[] = {
++	0x05, 0x0c,                    // Usage Page (Consumer Devices)
++	0x09, 0x01,                    // Usage (Consumer Control)
++	0xa1, 0x01,                    // Collection (Application)
++
++	0xa1, 0x02,                    //  Collection (Logical)
++	0x05, 0x08,                    //   Usage Page (LEDs)
++	0x09, 0x4b,                    //   Usage (Generic Indicator)
++	0x75, 0x08,                    //   Report Size (8)
++	0x95, 0x23,                    //   Report Count (35)
++	0x91, 0x02,                    //   Output (Data,Var,Abs)
++	0xc0,                          //  End Collection
++
++	0xa1, 0x02,                    //  Collection (Logical)
++	0x09, 0x00,                    //   Usage (Undefined)
++	0x75, 0x08,                    //   Report Size (8)
++	0x95, 0x01,                    //   Report Count (1)
++	0x81, 0x03,                    //   Input (Cnst,Var,Abs)
++	0x05, 0x09,                    //   Usage Page (Button)
++	0x09, 0xff,                    //   Usage (Vendor Usage 0xff)
++	0x75, 0x01,                    //   Report Size (1)
++	0x95, 0x01,                    //   Report Count (1)
++	0x81, 0x02,                    //   Input (Data,Var,Abs)
++	0x95, 0x07,                    //   Report Count (7)
++	0x81, 0x03,                    //   Input (Cnst,Var,Abs)
++
++	0x05, 0x0c,                    //   Usage Page (Consumer Devices)
++	0x09, 0x03,                    //   Usage (Programmable Buttons)
++	0xa1, 0x04,                    //   Collection (Named_array)
++	0x05, 0x09,                    //   Usage Page (Button)
++
++	0x19, 0x01,                    //   Usage Minimum (1)
++	0x29, 0x06,                    //   Usage Maximum (6)
++	0x95, 0x06,                    //   Report Count (6)
++	0x81, 0x02,                    //   Input (Data,Var,Abs)
++	0x95, 0x02,                    //   Report Count (2)
++	0x81, 0x03,                    //   Input (Cnst,Var,Abs)
++
++	0x19, 0x07,                    //   Usage Minimum (7)
++	0x29, 0x0c,                    //   Usage Maximum (12)
++	0x95, 0x06,                    //   Report Count (6)
++	0x81, 0x02,                    //   Input (Data,Var,Abs)
++	0x95, 0x02,                    //   Report Count (2)
++	0x81, 0x03,                    //   Input (Cnst,Var,Abs)
++
++	0x19, 0x0d,                    //   Usage Minimum (13)
++	0x29, 0x12,                    //   Usage Maximum (18)
++	0x95, 0x06,                    //   Report Count (6)
++	0x81, 0x02,                    //   Input (Data,Var,Abs)
++	0x95, 0x02,                    //   Report Count (2)
++	0x81, 0x03,                    //   Input (Cnst,Var,Abs)
++
++	0x19, 0x13,                    //   Usage Minimum (19)
++	0x29, 0x19,                    //   Usage Maximum (24)
++	0x95, 0x06,                    //   Report Count (6)
++	0x81, 0x02,                    //   Input (Data,Var,Abs)
++	0x95, 0x02,                    //   Report Count (2)
++	0x81, 0x03,                    //   Input (Cnst,Var,Abs)
++
++	0xc0,                          //   End Collection
++
++	0x75, 0x08,                    //   Report Size (8)
++	0x95, 0x1a,                    //   Report Count (26)
++	0x81, 0x03,                    //   Input (Cnst,Var,Abs)
++	0xc0,                          //  End Collection
++	0xc0,                          // End Collection
++};
++
++SEC("fmod_ret/hid_bpf_rdesc_fixup")
++int BPF_PROG(hid_fix_rdesc, struct hid_bpf_ctx *hctx)
 +{
-+	struct bpf_program *prog;
-+	struct bpf_map *map;
-+	char ident[256];
++	s16 y;
++	__u8 *data = hid_bpf_get_data(hctx, 0 /* offset */, 4096 /* size */);
 +
-+	jsonw_start_object(json_wtr);	/* root object */
++	if (!data)
++		return 0; /* EPERM check */
 +
-+	jsonw_string_field(json_wtr, "name", obj_name);
++	__builtin_memcpy(data, fixed_rdesc, sizeof(fixed_rdesc));
 +
-+	jsonw_bool_field(json_wtr, "use_loader", use_loader);
-+
-+	/* print all maps */
-+	jsonw_name(json_wtr, "maps");
-+	jsonw_start_array(json_wtr);
-+	bpf_object__for_each_map(map, obj) {
-+		if (!get_map_ident(map, ident, sizeof(ident))) {
-+			p_err("ignoring unrecognized internal map '%s'...",
-+			      bpf_map__name(map));
-+			continue;
-+		}
-+
-+		jsonw_start_object(json_wtr);	/* map object */
-+		jsonw_string_field(json_wtr, "ident", ident);
-+		jsonw_string_field(json_wtr, "name", bpf_map__name(map));
-+
-+		/* print mmap data value */
-+		if (is_internal_mmapable_map(map, ident, sizeof(ident))) {
-+			const void *mmap_data = NULL;
-+			size_t mmap_size = 0;
-+
-+			mmap_data = bpf_map__initial_value(map, &mmap_size);
-+
-+			jsonw_uint_field(json_wtr, "size", mmap_size);
-+			jsonw_uint_field(json_wtr, "mmap_sz", bpf_map_mmap_sz(map));
-+			jsonw_name(json_wtr, "data");
-+			print_hex_data_json((uint8_t *)mmap_data, mmap_size);
-+
-+		}
-+		jsonw_end_object(json_wtr);	/* map object */
-+	}
-+	jsonw_end_array(json_wtr);
-+
-+	/* print all progs */
-+	jsonw_name(json_wtr, "progs");
-+	jsonw_start_array(json_wtr);
-+	bpf_object__for_each_program(prog, obj) {
-+		jsonw_start_object(json_wtr);	/* prog object */
-+		jsonw_string_field(json_wtr, "name", bpf_program__name(prog));
-+		jsonw_string_field(json_wtr, "sec", bpf_program__section_name(prog));
-+		jsonw_end_object(json_wtr);	/* prog object */
-+	}
-+	jsonw_end_array(json_wtr);
-+
-+	/* print object data */
-+	if (use_loader) {
-+		DECLARE_LIBBPF_OPTS(gen_loader_opts, opts);
-+		int err = 0;
-+
-+		err = bpf_object__gen_loader(obj, &opts);
-+		if (err)
-+			return err;
-+
-+		err = bpf_object__load(obj);
-+		if (err) {
-+			p_err("failed to load object file");
-+			return err;
-+		}
-+		/* If there was no error during load then gen_loader_opts
-+		 * are populated with the loader program.
-+		 */
-+
-+		jsonw_uint_field(json_wtr, "data_sz", opts.data_sz);
-+		jsonw_name(json_wtr, "data");
-+		print_hex_data_json((uint8_t *)opts.data, opts.data_sz);
-+
-+		jsonw_uint_field(json_wtr, "insns_sz", opts.insns_sz);
-+		jsonw_name(json_wtr, "insns");
-+		print_hex_data_json((uint8_t *)opts.insns, opts.insns_sz);
-+
-+	} else {
-+		jsonw_name(json_wtr, "data");
-+		print_hex_data_json(obj_data, file_sz);
-+	}
-+
-+	jsonw_end_object(json_wtr);	/* root object */
++	return sizeof(fixed_rdesc);
 +
 +	return 0;
 +}
 +
- static int do_skeleton(int argc, char **argv)
- {
- 	char header_guard[MAX_OBJ_NAME_LEN + sizeof("__SKEL_H__")];
-@@ -986,6 +1076,11 @@ static int do_skeleton(int argc, char **argv)
- 		goto out;
- 	}
- 
-+	if (json_output) {
-+		err = gen_json(obj, obj_name, file_sz, (uint8_t *)obj_data);
-+		goto out;
-+	}
++SEC("syscall")
++int probe(struct hid_bpf_probe_args *ctx)
++{
++	/*
++	 * The device exports 3 interfaces.
++	 */
++	ctx->retval = ctx->rdesc_size != 33;
++	if (ctx->retval)
++		ctx->retval = -22;
 +
- 	bpf_object__for_each_map(map, obj) {
- 		if (!get_map_ident(map, ident, sizeof(ident))) {
- 			p_err("ignoring unrecognized internal map '%s'...",
++	return 0;
++}
++
++char _license[] SEC("license") = "GPL";
+diff --git a/drivers/hid/bpf/progs/b0003g0001v05F3p0405-xk24.hidbpf.h b/drivers/hid/bpf/progs/b0003g0001v05F3p0405-xk24.hidbpf.h
+new file mode 100644
+index 000000000000..f193d4dea6fd
+--- /dev/null
++++ b/drivers/hid/bpf/progs/b0003g0001v05F3p0405-xk24.hidbpf.h
+@@ -0,0 +1,292 @@
++/* SPDX-License-Identifier: (LGPL-2.1 OR BSD-2-Clause) */
++/* THIS FILE IS AUTOGENERATED BY build_progs_list.py ! */
++
++#ifndef __B0003G0001V05F3P0405_XK24_HIDBPF_H__
++#define __B0003G0001V05F3P0405_XK24_HIDBPF_H__
++
++{
++	.id = {
++		.bus = 0x0003,
++		.group = 0x0001,
++		.vendor = 0x05F3,
++		.product = 0x0405,
++	},
++	.map_cnt = 1,
++	.prog_cnt = 2,
++	.probe = 1,
++	.rodata = 0,
++	.maps = {
++		{
++			.size = 108,
++			.mmap_sz = 4096,
++			.data = "\
++\x05\x0c\x09\x01\xa1\x01\xa1\x02\x05\x08\x09\x4b\x75\x08\x95\x23\x91\x02\xc0\
++\xa1\x02\x09\0\x75\x08\x95\x01\x81\x03\x05\x09\x09\xff\x75\x01\x95\x01\x81\x02\
++\x95\x07\x81\x03\x05\x0c\x09\x03\xa1\x04\x05\x09\x19\x01\x29\x06\x95\x06\x81\
++\x02\x95\x02\x81\x03\x19\x07\x29\x0c\x95\x06\x81\x02\x95\x02\x81\x03\x19\x0d\
++\x29\x12\x95\x06\x81\x02\x95\x02\x81\x03\x19\x13\x29\x19\x95\x06\x81\x02\x95\
++\x02\x81\x03\xc0\x75\x08\x95\x1a\x81\x03\xc0\xc0",
++		},
++	},
++	.data_sz = 5088,
++	.data = "\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x9f\xeb\x01\0\
++\x18\0\0\0\0\0\0\0\x28\x03\0\0\x28\x03\0\0\x4c\x03\0\0\0\0\0\0\0\0\0\x02\x02\0\
++\0\0\x01\0\0\0\0\0\0\x01\x08\0\0\0\x40\0\0\0\0\0\0\0\x01\0\0\x0d\x04\0\0\0\x14\
++\0\0\0\x01\0\0\0\x18\0\0\0\0\0\0\x01\x04\0\0\0\x20\0\0\x01\x1c\0\0\0\x01\0\0\
++\x0c\x03\0\0\0\0\0\0\0\x03\0\0\x0d\x07\0\0\0\x41\x03\0\0\x0a\0\0\0\x41\x03\0\0\
++\x0d\0\0\0\x41\x03\0\0\x13\0\0\0\0\0\0\0\0\0\0\x02\x08\0\0\0\x58\x01\0\0\0\0\0\
++\x08\x09\0\0\0\x5d\x01\0\0\0\0\0\x01\x01\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\x02\x0b\
++\0\0\0\x6b\x01\0\0\x05\0\0\x04\x20\0\0\0\x77\x01\0\0\x0c\0\0\0\0\0\0\0\x7d\x01\
++\0\0\x0e\0\0\0\x40\0\0\0\x81\x01\0\0\x0c\0\0\0\x80\0\0\0\x90\x01\0\0\x10\0\0\0\
++\xa0\0\0\0\0\0\0\0\x11\0\0\0\xc0\0\0\0\x9c\x01\0\0\0\0\0\x08\x0d\0\0\0\xa2\x01\
++\0\0\0\0\0\x01\x04\0\0\0\x20\0\0\0\0\0\0\0\0\0\0\x02\x0f\0\0\0\0\0\0\0\0\0\0\
++\x0a\x28\0\0\0\xaf\x01\0\0\x04\0\0\x06\x04\0\0\0\xbf\x01\0\0\0\0\0\0\xd0\x01\0\
++\0\x01\0\0\0\xe2\x01\0\0\x02\0\0\0\xf5\x01\0\0\x03\0\0\0\0\0\0\0\x02\0\0\x05\
++\x04\0\0\0\x06\x02\0\0\x12\0\0\0\0\0\0\0\x0d\x02\0\0\x12\0\0\0\0\0\0\0\x12\x02\
++\0\0\0\0\0\x08\x04\0\0\0\0\0\0\0\0\0\0\x0a\x14\0\0\0\x18\x02\0\0\0\0\0\x08\x15\
++\0\0\0\x1f\x02\0\0\0\0\0\x08\x16\0\0\0\x2f\x02\0\0\0\0\0\x08\x17\0\0\0\x40\x02\
++\0\0\0\0\0\x01\x08\0\0\0\x40\0\0\0\x4e\x02\0\0\x01\0\0\x0c\x06\0\0\0\0\0\0\0\0\
++\0\0\x02\x1a\0\0\0\x5f\x02\0\0\x04\0\0\x04\x0c\x10\0\0\x7d\x01\0\0\x0d\0\0\0\0\
++\0\0\0\x72\x02\0\0\x0d\0\0\0\x20\0\0\0\x7d\x02\0\0\x1b\0\0\0\x40\0\0\0\x06\x02\
++\0\0\x04\0\0\0\x40\x80\0\0\0\0\0\0\0\0\0\x03\0\0\0\0\x09\0\0\0\x1c\0\0\0\0\x10\
++\0\0\x83\x02\0\0\0\0\0\x01\x04\0\0\0\x20\0\0\0\0\0\0\0\x01\0\0\x0d\x04\0\0\0\
++\x14\0\0\0\x19\0\0\0\x97\x02\0\0\x01\0\0\x0c\x1d\0\0\0\x05\x03\0\0\0\0\0\x01\
++\x01\0\0\0\x08\0\0\x01\0\0\0\0\0\0\0\x03\0\0\0\0\x1f\0\0\0\x1c\0\0\0\x04\0\0\0\
++\x0a\x03\0\0\0\0\0\x0e\x20\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\x0a\x08\0\0\0\0\0\0\0\
++\0\0\0\x03\0\0\0\0\x22\0\0\0\x1c\0\0\0\x6c\0\0\0\x13\x03\0\0\0\0\0\x0e\x23\0\0\
++\0\0\0\0\0\x1f\x03\0\0\x01\0\0\x0f\x04\0\0\0\x29\0\0\0\0\0\0\0\x04\0\0\0\x26\
++\x03\0\0\x01\0\0\x0f\x6c\0\0\0\x24\0\0\0\0\0\0\0\x6c\0\0\0\x2e\x03\0\0\x01\0\0\
++\x0f\x04\0\0\0\x21\0\0\0\0\0\0\0\x04\0\0\0\x36\x03\0\0\0\0\0\x07\0\0\0\0\x41\
++\x03\0\0\0\0\0\x0e\x04\0\0\0\x01\0\0\0\0\x75\x6e\x73\x69\x67\x6e\x65\x64\x20\
++\x6c\x6f\x6e\x67\x20\x6c\x6f\x6e\x67\0\x63\x74\x78\0\x69\x6e\x74\0\x68\x69\x64\
++\x5f\x66\x69\x78\x5f\x72\x64\x65\x73\x63\0\x66\x6d\x6f\x64\x5f\x72\x65\x74\x2f\
++\x68\x69\x64\x5f\x62\x70\x66\x5f\x72\x64\x65\x73\x63\x5f\x66\x69\x78\x75\x70\0\
++\x2f\x68\x6f\x6d\x65\x2f\x62\x74\x69\x73\x73\x6f\x69\x72\x2f\x53\x72\x63\x2f\
++\x68\x69\x64\x2f\x64\x72\x69\x76\x65\x72\x73\x2f\x68\x69\x64\x2f\x62\x70\x66\
++\x2f\x70\x72\x6f\x67\x73\x2f\x62\x30\x30\x30\x33\x67\x30\x30\x30\x31\x76\x30\
++\x35\x46\x33\x70\x30\x34\x30\x35\x2d\x78\x6b\x32\x34\x2e\x62\x70\x66\x2e\x63\0\
++\x69\x6e\x74\x20\x42\x50\x46\x5f\x50\x52\x4f\x47\x28\x68\x69\x64\x5f\x66\x69\
++\x78\x5f\x72\x64\x65\x73\x63\x2c\x20\x73\x74\x72\x75\x63\x74\x20\x68\x69\x64\
++\x5f\x62\x70\x66\x5f\x63\x74\x78\x20\x2a\x68\x63\x74\x78\x29\0\x09\x5f\x5f\x75\
++\x38\x20\x2a\x64\x61\x74\x61\x20\x3d\x20\x68\x69\x64\x5f\x62\x70\x66\x5f\x67\
++\x65\x74\x5f\x64\x61\x74\x61\x28\x68\x63\x74\x78\x2c\x20\x30\x20\x2f\x2a\x20\
++\x6f\x66\x66\x73\x65\x74\x20\x2a\x2f\x2c\x20\x34\x30\x39\x36\x20\x2f\x2a\x20\
++\x73\x69\x7a\x65\x20\x2a\x2f\x29\x3b\0\x09\x69\x66\x20\x28\x21\x64\x61\x74\x61\
++\x29\0\x09\x5f\x5f\x62\x75\x69\x6c\x74\x69\x6e\x5f\x6d\x65\x6d\x63\x70\x79\x28\
++\x64\x61\x74\x61\x2c\x20\x66\x69\x78\x65\x64\x5f\x72\x64\x65\x73\x63\x2c\x20\
++\x73\x69\x7a\x65\x6f\x66\x28\x66\x69\x78\x65\x64\x5f\x72\x64\x65\x73\x63\x29\
++\x29\x3b\0\x5f\x5f\x75\x38\0\x75\x6e\x73\x69\x67\x6e\x65\x64\x20\x63\x68\x61\
++\x72\0\x68\x69\x64\x5f\x62\x70\x66\x5f\x63\x74\x78\0\x69\x6e\x64\x65\x78\0\x68\
++\x69\x64\0\x61\x6c\x6c\x6f\x63\x61\x74\x65\x64\x5f\x73\x69\x7a\x65\0\x72\x65\
++\x70\x6f\x72\x74\x5f\x74\x79\x70\x65\0\x5f\x5f\x75\x33\x32\0\x75\x6e\x73\x69\
++\x67\x6e\x65\x64\x20\x69\x6e\x74\0\x68\x69\x64\x5f\x72\x65\x70\x6f\x72\x74\x5f\
++\x74\x79\x70\x65\0\x48\x49\x44\x5f\x49\x4e\x50\x55\x54\x5f\x52\x45\x50\x4f\x52\
++\x54\0\x48\x49\x44\x5f\x4f\x55\x54\x50\x55\x54\x5f\x52\x45\x50\x4f\x52\x54\0\
++\x48\x49\x44\x5f\x46\x45\x41\x54\x55\x52\x45\x5f\x52\x45\x50\x4f\x52\x54\0\x48\
++\x49\x44\x5f\x52\x45\x50\x4f\x52\x54\x5f\x54\x59\x50\x45\x53\0\x72\x65\x74\x76\
++\x61\x6c\0\x73\x69\x7a\x65\0\x5f\x5f\x73\x33\x32\0\x73\x69\x7a\x65\x5f\x74\0\
++\x5f\x5f\x6b\x65\x72\x6e\x65\x6c\x5f\x73\x69\x7a\x65\x5f\x74\0\x5f\x5f\x6b\x65\
++\x72\x6e\x65\x6c\x5f\x75\x6c\x6f\x6e\x67\x5f\x74\0\x75\x6e\x73\x69\x67\x6e\x65\
++\x64\x20\x6c\x6f\x6e\x67\0\x68\x69\x64\x5f\x62\x70\x66\x5f\x67\x65\x74\x5f\x64\
++\x61\x74\x61\0\x68\x69\x64\x5f\x62\x70\x66\x5f\x70\x72\x6f\x62\x65\x5f\x61\x72\
++\x67\x73\0\x72\x64\x65\x73\x63\x5f\x73\x69\x7a\x65\0\x72\x64\x65\x73\x63\0\x5f\
++\x5f\x41\x52\x52\x41\x59\x5f\x53\x49\x5a\x45\x5f\x54\x59\x50\x45\x5f\x5f\0\x70\
++\x72\x6f\x62\x65\0\x73\x79\x73\x63\x61\x6c\x6c\0\x30\x3a\x31\0\x09\x63\x74\x78\
++\x2d\x3e\x72\x65\x74\x76\x61\x6c\x20\x3d\x20\x63\x74\x78\x2d\x3e\x72\x64\x65\
++\x73\x63\x5f\x73\x69\x7a\x65\x20\x21\x3d\x20\x33\x33\x3b\0\x30\x3a\x33\0\x09\
++\x69\x66\x20\x28\x63\x74\x78\x2d\x3e\x72\x65\x74\x76\x61\x6c\x29\0\x09\x09\x63\
++\x74\x78\x2d\x3e\x72\x65\x74\x76\x61\x6c\x20\x3d\x20\x2d\x32\x32\x3b\0\x09\x72\
++\x65\x74\x75\x72\x6e\x20\x30\x3b\0\x63\x68\x61\x72\0\x5f\x6c\x69\x63\x65\x6e\
++\x73\x65\0\x66\x69\x78\x65\x64\x5f\x72\x64\x65\x73\x63\0\x2e\x6b\x73\x79\x6d\
++\x73\0\x2e\x72\x6f\x64\x61\x74\x61\0\x6c\x69\x63\x65\x6e\x73\x65\0\x68\x69\x64\
++\x5f\x64\x65\x76\x69\x63\x65\0\x64\x75\x6d\x6d\x79\x5f\x6b\x73\x79\x6d\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x8c\x06\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x02\0\0\
++\0\x04\0\0\0\x6c\0\0\0\x01\0\0\0\x80\x04\0\0\0\0\0\0\0\0\0\0\x62\x30\x30\x30\
++\x33\x67\x30\x30\x2e\x72\x6f\x64\x61\x74\x61\0\0\0\0\0\0\0\0\0\0\0\0\0\x26\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\x05\x0c\x09\x01\xa1\x01\xa1\x02\x05\x08\x09\x4b\x75\
++\x08\x95\x23\x91\x02\xc0\xa1\x02\x09\0\x75\x08\x95\x01\x81\x03\x05\x09\x09\xff\
++\x75\x01\x95\x01\x81\x02\x95\x07\x81\x03\x05\x0c\x09\x03\xa1\x04\x05\x09\x19\
++\x01\x29\x06\x95\x06\x81\x02\x95\x02\x81\x03\x19\x07\x29\x0c\x95\x06\x81\x02\
++\x95\x02\x81\x03\x19\x0d\x29\x12\x95\x06\x81\x02\x95\x02\x81\x03\x19\x13\x29\
++\x19\x95\x06\x81\x02\x95\x02\x81\x03\xc0\x75\x08\x95\x1a\x81\x03\xc0\xc0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\x47\x50\x4c\0\0\0\0\0\x79\x11\0\0\0\0\0\0\xb7\x06\0\0\0\0\
++\0\0\xb7\x02\0\0\0\0\0\0\xb7\x03\0\0\0\x10\0\0\x85\x20\0\0\0\0\0\0\x15\0\x87\0\
++\0\0\0\0\xb7\x01\0\0\x1a\0\0\0\x73\x10\x67\0\0\0\0\0\xb7\x01\0\0\x13\0\0\0\x73\
++\x10\x58\0\0\0\0\0\xb7\x01\0\0\x12\0\0\0\x73\x10\x4e\0\0\0\0\0\xb7\x01\0\0\x0d\
++\0\0\0\x73\x10\x4c\0\0\0\0\0\xb7\x01\0\0\x06\0\0\0\x73\x10\x5c\0\0\0\0\0\x73\
++\x10\x50\0\0\0\0\0\x73\x10\x44\0\0\0\0\0\x73\x10\x38\0\0\0\0\0\x73\x10\x36\0\0\
++\0\0\0\xb7\x01\0\0\x29\0\0\0\x73\x10\x59\0\0\0\0\0\x73\x10\x4d\0\0\0\0\0\x73\
++\x10\x41\0\0\0\0\0\x73\x10\x35\0\0\0\0\0\xb7\x01\0\0\x19\0\0\0\x73\x10\x5a\0\0\
++\0\0\0\x73\x10\x57\0\0\0\0\0\x73\x10\x4b\0\0\0\0\0\x73\x10\x3f\0\0\0\0\0\x73\
++\x10\x33\0\0\0\0\0\xb7\x01\0\0\x04\0\0\0\x73\x10\x30\0\0\0\0\0\xb7\x01\0\0\x07\
++\0\0\0\x73\x10\x40\0\0\0\0\0\x73\x10\x28\0\0\0\0\0\xb7\x01\0\0\xff\0\0\0\x73\
++\x10\x20\0\0\0\0\0\xb7\x01\0\0\x03\0\0\0\x73\x10\x69\0\0\0\0\0\x73\x10\x62\0\0\
++\0\0\0\x73\x10\x56\0\0\0\0\0\x73\x10\x4a\0\0\0\0\0\x73\x10\x3e\0\0\0\0\0\x73\
++\x10\x2e\0\0\0\0\0\x73\x10\x2a\0\0\0\0\0\x73\x10\x1c\0\0\0\0\0\xb7\x01\0\0\x81\
++\0\0\0\x73\x10\x68\0\0\0\0\0\x73\x10\x61\0\0\0\0\0\x73\x10\x5d\0\0\0\0\0\x73\
++\x10\x55\0\0\0\0\0\x73\x10\x51\0\0\0\0\0\x73\x10\x49\0\0\0\0\0\x73\x10\x45\0\0\
++\0\0\0\x73\x10\x3d\0\0\0\0\0\x73\x10\x39\0\0\0\0\0\x73\x10\x29\0\0\0\0\0\x73\
++\x10\x25\0\0\0\0\0\x73\x10\x1b\0\0\0\0\0\xb7\x01\0\0\0\0\0\0\x73\x10\x16\0\0\0\
++\0\0\xb7\x01\0\0\xc0\0\0\0\x73\x10\x6b\0\0\0\0\0\x73\x10\x6a\0\0\0\0\0\x73\x10\
++\x63\0\0\0\0\0\x73\x10\x12\0\0\0\0\0\xb7\x01\0\0\x91\0\0\0\x73\x10\x10\0\0\0\0\
++\0\xb7\x01\0\0\x23\0\0\0\x73\x10\x0f\0\0\0\0\0\xb7\x01\0\0\x95\0\0\0\x73\x10\
++\x66\0\0\0\0\0\x73\x10\x5f\0\0\0\0\0\x73\x10\x5b\0\0\0\0\0\x73\x10\x53\0\0\0\0\
++\0\x73\x10\x4f\0\0\0\0\0\x73\x10\x47\0\0\0\0\0\x73\x10\x43\0\0\0\0\0\x73\x10\
++\x3b\0\0\0\0\0\x73\x10\x37\0\0\0\0\0\x73\x10\x27\0\0\0\0\0\x73\x10\x23\0\0\0\0\
++\0\x73\x10\x19\0\0\0\0\0\x73\x10\x0e\0\0\0\0\0\xb7\x01\0\0\x75\0\0\0\x73\x10\
++\x64\0\0\0\0\0\x73\x10\x21\0\0\0\0\0\x73\x10\x17\0\0\0\0\0\x73\x10\x0c\0\0\0\0\
++\0\xb7\x01\0\0\x4b\0\0\0\x73\x10\x0b\0\0\0\0\0\xb7\x01\0\0\x08\0\0\0\x73\x10\
++\x65\0\0\0\0\0\x73\x10\x18\0\0\0\0\0\x73\x10\x0d\0\0\0\0\0\x73\x10\x09\0\0\0\0\
++\0\xb7\x01\0\0\x02\0\0\0\x73\x10\x60\0\0\0\0\0\x73\x10\x5e\0\0\0\0\0\x73\x10\
++\x54\0\0\0\0\0\x73\x10\x52\0\0\0\0\0\x73\x10\x48\0\0\0\0\0\x73\x10\x46\0\0\0\0\
++\0\x73\x10\x3c\0\0\0\0\0\x73\x10\x3a\0\0\0\0\0\x73\x10\x26\0\0\0\0\0\x73\x10\
++\x14\0\0\0\0\0\x73\x10\x11\0\0\0\0\0\x73\x10\x07\0\0\0\0\0\xb7\x01\0\0\xa1\0\0\
++\0\x73\x10\x2f\0\0\0\0\0\x73\x10\x13\0\0\0\0\0\x73\x10\x06\0\0\0\0\0\x73\x10\
++\x04\0\0\0\0\0\xb7\x01\0\0\x01\0\0\0\x73\x10\x34\0\0\0\0\0\x73\x10\x24\0\0\0\0\
++\0\x73\x10\x22\0\0\0\0\0\x73\x10\x1a\0\0\0\0\0\x73\x10\x05\0\0\0\0\0\x73\x10\
++\x03\0\0\0\0\0\xb7\x01\0\0\x09\0\0\0\x73\x10\x32\0\0\0\0\0\x73\x10\x2d\0\0\0\0\
++\0\x73\x10\x1f\0\0\0\0\0\x73\x10\x1e\0\0\0\0\0\x73\x10\x15\0\0\0\0\0\x73\x10\
++\x0a\0\0\0\0\0\x73\x10\x02\0\0\0\0\0\xb7\x01\0\0\x0c\0\0\0\x73\x10\x42\0\0\0\0\
++\0\x73\x10\x2c\0\0\0\0\0\x73\x10\x01\0\0\0\0\0\xb7\x01\0\0\x05\0\0\0\x73\x10\
++\x31\0\0\0\0\0\x73\x10\x2b\0\0\0\0\0\x73\x10\x1d\0\0\0\0\0\x73\x10\x08\0\0\0\0\
++\0\x73\x10\0\0\0\0\0\0\xb7\x06\0\0\x6c\0\0\0\xbf\x60\0\0\0\0\0\0\x95\0\0\0\0\0\
++\0\0\0\0\0\0\x05\0\0\0\0\0\0\0\x47\0\0\0\x94\0\0\0\x05\x38\x01\0\x02\0\0\0\x47\
++\0\0\0\xca\0\0\0\x0f\x44\x01\0\x05\0\0\0\x47\0\0\0\x11\x01\0\0\x06\x4c\x01\0\
++\x07\0\0\0\x47\0\0\0\x1d\x01\0\0\x02\x58\x01\0\x8d\0\0\0\x47\0\0\0\x94\0\0\0\
++\x05\x38\x01\0\x1a\0\0\0\x8f\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x68\x69\x64\x5f\x66\x69\x78\x5f\x72\x64\
++\x65\x73\x63\0\0\0\0\0\0\0\x1a\0\0\0\0\0\0\0\x08\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\
++\0\x10\0\0\0\0\0\0\0\0\0\0\0\x05\0\0\0\x01\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\x10\0\0\0\0\0\0\0\x68\x69\x64\x5f\x62\x70\x66\x5f\x72\x64\
++\x65\x73\x63\x5f\x66\x69\x78\x75\x70\0\0\0\0\0\x68\x69\x64\x5f\x62\x70\x66\x5f\
++\x67\x65\x74\x5f\x64\x61\x74\x61\0\0\0\0\0\0\0\0\x47\x50\x4c\0\0\0\0\0\x61\x13\
++\x04\0\0\0\0\0\xb7\x02\0\0\x01\0\0\0\x55\x03\x01\0\x21\0\0\0\xb7\x02\0\0\0\0\0\
++\0\x63\x21\x08\x10\0\0\0\0\x61\x12\x08\x10\0\0\0\0\x15\x02\x03\0\0\0\0\0\x18\
++\x02\0\0\xea\xff\xff\xff\0\0\0\0\0\0\0\0\x63\x21\x08\x10\0\0\0\0\xb7\0\0\0\0\0\
++\0\0\x95\0\0\0\0\0\0\0\0\0\0\0\x1e\0\0\0\0\0\0\0\x47\0\0\0\xa9\x02\0\0\x15\x8c\
++\x01\0\x02\0\0\0\x47\0\0\0\xa9\x02\0\0\x20\x8c\x01\0\x04\0\0\0\x47\0\0\0\xa9\
++\x02\0\0\x0e\x8c\x01\0\x05\0\0\0\x47\0\0\0\xd3\x02\0\0\x0b\x90\x01\0\x06\0\0\0\
++\x47\0\0\0\xd3\x02\0\0\x06\x90\x01\0\x09\0\0\0\x47\0\0\0\xe5\x02\0\0\x0f\x94\
++\x01\0\x0a\0\0\0\x47\0\0\0\xfa\x02\0\0\x02\x9c\x01\0\0\0\0\0\x1a\0\0\0\xa5\x02\
++\0\0\0\0\0\0\x20\0\0\0\x1a\0\0\0\xcf\x02\0\0\0\0\0\0\x28\0\0\0\x1a\0\0\0\xcf\
++\x02\0\0\0\0\0\0\x48\0\0\0\x1a\0\0\0\xcf\x02\0\0\0\0\0\0\x1f\0\0\0\x0c\0\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x10\0\0\
++\0\x70\x72\x6f\x62\x65\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x08\0\0\0\
++\0\0\0\0\0\0\0\0\x01\0\0\0\x10\0\0\0\0\0\0\0\0\0\0\0\x07\0\0\0\0\0\0\0\0\0\0\0\
++\x04\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x10\0\0\0\0\0\0\0",
++	.insns_sz = 2304,
++	.insns = "\
++\xbf\x16\0\0\0\0\0\0\xbf\xa1\0\0\0\0\0\0\x07\x01\0\0\x78\xff\xff\xff\xb7\x02\0\
++\0\x88\0\0\0\xb7\x03\0\0\0\0\0\0\x85\0\0\0\x71\0\0\0\x05\0\x14\0\0\0\0\0\x61\
++\xa1\x78\xff\0\0\0\0\xd5\x01\x01\0\0\0\0\0\x85\0\0\0\xa8\0\0\0\x61\xa1\x7c\xff\
++\0\0\0\0\xd5\x01\x01\0\0\0\0\0\x85\0\0\0\xa8\0\0\0\x61\xa1\x80\xff\0\0\0\0\xd5\
++\x01\x01\0\0\0\0\0\x85\0\0\0\xa8\0\0\0\x61\xa1\x84\xff\0\0\0\0\xd5\x01\x01\0\0\
++\0\0\0\x85\0\0\0\xa8\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x61\x01\0\0\0\0\
++\0\0\xd5\x01\x02\0\0\0\0\0\xbf\x19\0\0\0\0\0\0\x85\0\0\0\xa8\0\0\0\xbf\x70\0\0\
++\0\0\0\0\x95\0\0\0\0\0\0\0\x61\x60\x08\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\
++\xa8\x0b\0\0\x63\x01\0\0\0\0\0\0\x61\x60\x0c\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\
++\0\0\xa4\x0b\0\0\x63\x01\0\0\0\0\0\0\x79\x60\x10\0\0\0\0\0\x18\x61\0\0\0\0\0\0\
++\0\0\0\0\x98\x0b\0\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\0\x05\0\0\
++\x18\x61\0\0\0\0\0\0\0\0\0\0\x90\x0b\0\0\x7b\x01\0\0\0\0\0\0\xb7\x01\0\0\x12\0\
++\0\0\x18\x62\0\0\0\0\0\0\0\0\0\0\x90\x0b\0\0\xb7\x03\0\0\x1c\0\0\0\x85\0\0\0\
++\xa6\0\0\0\xbf\x07\0\0\0\0\0\0\xc5\x07\xd4\xff\0\0\0\0\x63\x7a\x78\xff\0\0\0\0\
++\x61\xa0\x78\xff\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xe0\x0b\0\0\x63\x01\0\0\0\
++\0\0\0\x61\x60\x1c\0\0\0\0\0\x15\0\x03\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\
++\xbc\x0b\0\0\x63\x01\0\0\0\0\0\0\xb7\x01\0\0\0\0\0\0\x18\x62\0\0\0\0\0\0\0\0\0\
++\0\xb0\x0b\0\0\xb7\x03\0\0\x48\0\0\0\x85\0\0\0\xa6\0\0\0\xbf\x07\0\0\0\0\0\0\
++\xc5\x07\xc3\xff\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\0\0\0\0\x63\x71\0\0\0\0\0\
++\0\x79\x63\x20\0\0\0\0\0\x15\x03\x08\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xf8\
++\x0b\0\0\xb7\x02\0\0\x6c\0\0\0\x61\x60\x04\0\0\0\0\0\x45\0\x02\0\x01\0\0\0\x85\
++\0\0\0\x94\0\0\0\x05\0\x01\0\0\0\0\0\x85\0\0\0\x71\0\0\0\x18\x62\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\0\x61\x20\0\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x70\x0c\0\0\x63\
++\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\x68\x0c\0\0\x18\x61\0\0\0\0\0\0\0\
++\0\0\0\x78\x0c\0\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\xf8\x0b\0\0\
++\x18\x61\0\0\0\0\0\0\0\0\0\0\x80\x0c\0\0\x7b\x01\0\0\0\0\0\0\xb7\x01\0\0\x02\0\
++\0\0\x18\x62\0\0\0\0\0\0\0\0\0\0\x70\x0c\0\0\xb7\x03\0\0\x20\0\0\0\x85\0\0\0\
++\xa6\0\0\0\xbf\x07\0\0\0\0\0\0\xc5\x07\x9f\xff\0\0\0\0\x18\x62\0\0\0\0\0\0\0\0\
++\0\0\0\0\0\0\x61\x20\0\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x90\x0c\0\0\x63\
++\x01\0\0\0\0\0\0\xb7\x01\0\0\x16\0\0\0\x18\x62\0\0\0\0\0\0\0\0\0\0\x90\x0c\0\0\
++\xb7\x03\0\0\x04\0\0\0\x85\0\0\0\xa6\0\0\0\xbf\x07\0\0\0\0\0\0\xc5\x07\x92\xff\
++\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\x98\x0c\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\
++\x80\x11\0\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\xa0\x0c\0\0\x18\
++\x61\0\0\0\0\0\0\0\0\0\0\x78\x11\0\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\
++\0\0\0\x18\x11\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xc0\x11\0\0\x7b\x01\0\0\0\0\0\0\
++\x18\x60\0\0\0\0\0\0\0\0\0\0\x20\x11\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xd0\x11\0\
++\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\x70\x11\0\0\x18\x61\0\0\0\0\
++\0\0\0\0\0\0\xf0\x11\0\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\0\0\0\
++\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xe8\x11\0\0\x7b\x01\0\0\0\0\0\0\x61\x60\x08\0\0\
++\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x88\x11\0\0\x63\x01\0\0\0\0\0\0\x61\x60\x0c\
++\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x8c\x11\0\0\x63\x01\0\0\0\0\0\0\x79\x60\
++\x10\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x90\x11\0\0\x7b\x01\0\0\0\0\0\0\x61\
++\xa0\x78\xff\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xb8\x11\0\0\x63\x01\0\0\0\0\0\
++\0\x18\x61\0\0\0\0\0\0\0\0\0\0\0\x12\0\0\xb7\x02\0\0\x14\0\0\0\xb7\x03\0\0\x0c\
++\0\0\0\xb7\x04\0\0\0\0\0\0\x85\0\0\0\xa7\0\0\0\xbf\x07\0\0\0\0\0\0\xc5\x07\x5c\
++\xff\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\x70\x11\0\0\x63\x70\x6c\0\0\0\0\0\x77\
++\x07\0\0\x20\0\0\0\x63\x70\x70\0\0\0\0\0\x18\x68\0\0\0\0\0\0\0\0\0\0\xc0\x0c\0\
++\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x18\x12\0\0\xb7\x02\0\0\x11\0\0\0\xb7\x03\0\0\
++\x0c\0\0\0\xb7\x04\0\0\0\0\0\0\x85\0\0\0\xa7\0\0\0\xbf\x07\0\0\0\0\0\0\xc5\x07\
++\x4d\xff\0\0\0\0\x75\x07\x03\0\0\0\0\0\x62\x08\x04\0\0\0\0\0\x6a\x08\x02\0\0\0\
++\0\0\x05\0\x0a\0\0\0\0\0\x63\x78\x04\0\0\0\0\0\xbf\x79\0\0\0\0\0\0\x77\x09\0\0\
++\x20\0\0\0\x55\x09\x02\0\0\0\0\0\x6a\x08\x02\0\0\0\0\0\x05\0\x04\0\0\0\0\0\x18\
++\x60\0\0\0\0\0\0\0\0\0\0\0\x01\0\0\x63\x90\0\0\0\0\0\0\x6a\x08\x02\0\x40\0\0\0\
++\xb7\x01\0\0\x05\0\0\0\x18\x62\0\0\0\0\0\0\0\0\0\0\x70\x11\0\0\xb7\x03\0\0\x8c\
++\0\0\0\x85\0\0\0\xa6\0\0\0\xbf\x07\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\0\
++\x01\0\0\x61\x01\0\0\0\0\0\0\xd5\x01\x02\0\0\0\0\0\xbf\x19\0\0\0\0\0\0\x85\0\0\
++\0\xa8\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\xe0\x11\0\0\x61\x01\0\0\0\0\0\0\xd5\
++\x01\x02\0\0\0\0\0\xbf\x19\0\0\0\0\0\0\x85\0\0\0\xa8\0\0\0\xc5\x07\x2c\xff\0\0\
++\0\0\x63\x7a\x80\xff\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\x30\x12\0\0\x18\x61\0\
++\0\0\0\0\0\0\0\0\0\x60\x13\0\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\
++\x38\x12\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x58\x13\0\0\x7b\x01\0\0\0\0\0\0\x18\
++\x60\0\0\0\0\0\0\0\0\0\0\x98\x12\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xa0\x13\0\0\
++\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\xa0\x12\0\0\x18\x61\0\0\0\0\0\
++\0\0\0\0\0\xb0\x13\0\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\0\0\0\0\0\0\0\x10\x13\
++\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xd0\x13\0\0\x7b\x01\0\0\0\0\0\0\x18\x60\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\xc8\x13\0\0\x7b\x01\0\0\0\0\
++\0\0\x61\x60\x08\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x68\x13\0\0\x63\x01\0\0\
++\0\0\0\0\x61\x60\x0c\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x6c\x13\0\0\x63\x01\
++\0\0\0\0\0\0\x79\x60\x10\0\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x70\x13\0\0\x7b\
++\x01\0\0\0\0\0\0\x61\xa0\x78\xff\0\0\0\0\x18\x61\0\0\0\0\0\0\0\0\0\0\x98\x13\0\
++\0\x63\x01\0\0\0\0\0\0\xb7\x01\0\0\x05\0\0\0\x18\x62\0\0\0\0\0\0\0\0\0\0\x50\
++\x13\0\0\xb7\x03\0\0\x8c\0\0\0\x85\0\0\0\xa6\0\0\0\xbf\x07\0\0\0\0\0\0\xc5\x07\
++\xf6\xfe\0\0\0\0\x63\x7a\x84\xff\0\0\0\0\x61\xa1\x78\xff\0\0\0\0\xd5\x01\x02\0\
++\0\0\0\0\xbf\x19\0\0\0\0\0\0\x85\0\0\0\xa8\0\0\0\x61\xa0\x80\xff\0\0\0\0\x63\
++\x06\x28\0\0\0\0\0\x61\xa0\x84\xff\0\0\0\0\x63\x06\x2c\0\0\0\0\0\x18\x61\0\0\0\
++\0\0\0\0\0\0\0\0\0\0\0\x61\x10\0\0\0\0\0\0\x63\x06\x18\0\0\0\0\0\xb7\0\0\0\0\0\
++\0\0\x95\0\0\0\0\0\0\0",
++},
++
++#endif /* __B0003G0001V05F3P0405_XK24_HIDBPF_H__ */
+diff --git a/drivers/hid/bpf/progs/hid_bpf_progs.h b/drivers/hid/bpf/progs/hid_bpf_progs.h
+index 430e0fb47484..be911c3c725b 100644
+--- a/drivers/hid/bpf/progs/hid_bpf_progs.h
++++ b/drivers/hid/bpf/progs/hid_bpf_progs.h
+@@ -28,9 +28,9 @@ struct hid_bpf_prog {
+ struct hid_bpf_object {
+ 	struct hid_device_id id;
+ 	unsigned int map_cnt;
+-	struct hid_bpf_map maps[0];
++	struct hid_bpf_map maps[1];
+ 	unsigned int prog_cnt;
+-	struct hid_bpf_prog progs[0];
++	struct hid_bpf_prog progs[2];
+ 	unsigned int probe;
+ 	unsigned int rodata;
+ 	unsigned int data_sz;
+@@ -41,6 +41,7 @@ struct hid_bpf_object {
+ 
+ static struct hid_bpf_object hid_objects[] = {
+ 
++#include "b0003g0001v05F3p0405-xk24.hidbpf.h"
+ 
+ 	{ },
+ };
 -- 
 2.38.1
 

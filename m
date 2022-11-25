@@ -2,61 +2,61 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71AF3C4708B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D081EC4708C
 	for <linux-input@archiver.kernel.org>; Fri, 25 Nov 2022 15:12:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230343AbiKYPMD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 25 Nov 2022 10:12:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36470 "EHLO
+        id S230351AbiKYPME (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Nov 2022 10:12:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229711AbiKYPLs (ORCPT
+        with ESMTP id S230302AbiKYPLx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Nov 2022 10:11:48 -0500
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359491C114
-        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2022 07:11:28 -0800 (PST)
-Received: by mail-wr1-x432.google.com with SMTP id q7so6297116wrr.8
-        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2022 07:11:28 -0800 (PST)
+        Fri, 25 Nov 2022 10:11:53 -0500
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFBD043849
+        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2022 07:11:31 -0800 (PST)
+Received: by mail-wm1-x329.google.com with SMTP id i64-20020a1c3b43000000b003d016c21100so6406853wma.3
+        for <linux-input@vger.kernel.org>; Fri, 25 Nov 2022 07:11:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=fFLpoKOjjafPrfMvZwJR0cikHQtMiBmS0YHJBgB8k3A=;
-        b=Oa3XK1Awha+MfM4z1MyjpmDvL6US7UxH/bpAz9TrdTL4aHAHrIjgJA7Cfixm+/n0sg
-         qsJrA6eXIdayf+W6K2aaGTOnYP4dE076b96CJZuYj57EMVgd53QdVN1tUMn8Owc4W5q9
-         jVr7LArK/KGmFN4O79LQz8sUzge1z0WhaH7a8JpH6YLvw0021fgS2O0jagFD4SU5EE8t
-         6OY4WHcNVuXMnF1p7IBCwEiaLbAM7m/M45/A3rvXj2ImyeXGmDD0wF5vvPjKWUVI2MZ6
-         0eHkUyV2r2aHNQwikxynxi8uBoipMc9IqRf02GNLNkKzwwZQDW1JTo6BxeJDJUtGiEvn
-         jcSw==
+        bh=I+WYtC3mBmE4HBeCSm4jFYtF3t8u3124l8X3DjUJU0g=;
+        b=tKdwOqeUUtpYkHxhDIic6WxhmF7Sm/o3BNoVWjVyf24t8qGEmvAULev1njq22iu2h+
+         9FiNdxVdSVtU1pB34Wzn8jdN8+Y3Xixs+/5/IkzmX8kNsdFX1lHizerpNcSFw17JGkje
+         ZBxtdboqcbBeXGgvWAzyh39h+mutnO1ZP2KiX8wHE9G63Pp19YHyh39BZAnK3QtDOceG
+         DquhBRxTEjjLqY/Ip32s8yci5Z6nTYDYXbIMbquhiZXF7av7YjtLlSSr38fa3pJqG1ZT
+         pFJkxZQFznuUg6vD2liRoABbFSFkCfXORcizC7tenu15jQ4JxmYSvDPYG1pcpMXrDkcD
+         acUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fFLpoKOjjafPrfMvZwJR0cikHQtMiBmS0YHJBgB8k3A=;
-        b=SyUxysseZSM/U8ijcNAldJCrGHPywTAwfs41oea2txfPSowvoQX0kX7i5Xu38Rf6Mo
-         6RSnZKnV/YSekWVOj5ZQlDUcZAlKwcp7UsFbdX7JvAB+hGEzyLWY/BkqOzpkVyjwz8vD
-         snTktIQ90myGF9Mai/lO60Xb9GwcPkmGAnpn+pv+RAofENjbX6IGmRUWwXY17azgL4Fa
-         oq+KCdmmwxySPTqlzqbyEb1oX7VGsQMZVq46hJrbFzyQv9WTdsvGL2yOBpOBgQki/NQ5
-         A2nIAaXK9H+hyAxXBy6D6l0PDzv/TW05LyHccL55fhq5ztsYzIxuMCfwQheRnJfS/6nH
-         mMhg==
-X-Gm-Message-State: ANoB5plCIHa0PhKD7INLI+ju3PQKlMB0IFq/uXst/dxAO+Llmi4oBv0I
-        yMc/+hOvTG8dDeuMruCVeej/Dw==
-X-Google-Smtp-Source: AA0mqf7x166PwYc0AK1minps2ypKHTl4Drd2limM2an+XZCN8kqT5R585FRzD5cV/FU3ubAiz+wk8Q==
-X-Received: by 2002:a05:6000:128c:b0:236:e512:1a9e with SMTP id f12-20020a056000128c00b00236e5121a9emr14907787wrx.416.1669389086581;
-        Fri, 25 Nov 2022 07:11:26 -0800 (PST)
+        bh=I+WYtC3mBmE4HBeCSm4jFYtF3t8u3124l8X3DjUJU0g=;
+        b=GiCTL3jv3/LvgNJv1VAETQEM98wdRM391j5894r/wX//AN7gC0BgORSoP/JkMbKS/g
+         jeeHX6dtq5dk1iOJmpXvXt1AJxh3LYLGb23B8rEuixMCjgmrDe5MvjjIG/1aMBT8h4sT
+         sSbLVBEAtkdKdHTCfgmAiK0H6WC5+PijOA5Q/wclU5UiXN9B5CNnRrk3RrGo69W0HM8a
+         aDpVceG9ouLsE1GtVov+/X8IhoxBp7cUmcm462pWr2fYHYVH4xpspp4VFesJz0GsaA3p
+         eSushZJZNH4P5KSdFCt339yUyzmUbFlvNE+L6avgRNlvUVtNlAlS05bwJ3FwFas3kSLh
+         GA6Q==
+X-Gm-Message-State: ANoB5pmlkZKIyY0Hbs2IYFsgOsf6kBEZnl+MNnfjMsTWQt8G6py0ZCje
+        aCBa9VgoI3GA6H9wFaQJd/Fr6Q==
+X-Google-Smtp-Source: AA0mqf4ryQtntPLvq7v934Ywv5cEcthT5nQkZmHhQ13Wvf4EawNAMa2N8h+HJB9NFNsm4DAEEKRFqQ==
+X-Received: by 2002:a1c:ed17:0:b0:3cf:cfce:9d9e with SMTP id l23-20020a1ced17000000b003cfcfce9d9emr16152932wmh.66.1669389091172;
+        Fri, 25 Nov 2022 07:11:31 -0800 (PST)
 Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
-        by smtp.googlemail.com with ESMTPSA id w10-20020a05600c474a00b003b435c41103sm11565885wmo.0.2022.11.25.07.11.25
+        by smtp.googlemail.com with ESMTPSA id w10-20020a05600c474a00b003b435c41103sm11565885wmo.0.2022.11.25.07.11.30
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 25 Nov 2022 07:11:26 -0800 (PST)
+        Fri, 25 Nov 2022 07:11:30 -0800 (PST)
 From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Fri, 25 Nov 2022 16:10:16 +0100
-Subject: [PATCH v6 05/10] dt-bindings: soc: mediatek: convert pwrap documentation
+Date:   Fri, 25 Nov 2022 16:10:20 +0100
+Subject: [PATCH v6 09/10] regulator: add mt6357 regulator
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221005-mt6357-support-v6-5-4f589756befa@baylibre.com>
+Message-Id: <20221005-mt6357-support-v6-9-4f589756befa@baylibre.com>
 References: <20221005-mt6357-support-v6-0-4f589756befa@baylibre.com>
 In-Reply-To: <20221005-mt6357-support-v6-0-4f589756befa@baylibre.com>
 To:     Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -85,296 +85,588 @@ Cc:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-leds@vger.kernel.org
 X-Mailer: b4 0.10.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=9574; i=amergnat@baylibre.com;
- h=from:subject:message-id; bh=lGcU/tLnBFuf2FChwx+BufI9cy58Bma4z2fSLbd1Gq8=;
- b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjgNsXrE+qken7Fg4GdIMw699mOYmNxNcxMzRrKYcW
- DqDHHiGJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY4DbFwAKCRArRkmdfjHURdcfD/
- 4yUBxuy8lZAuqNkA98FGpztVt3vWRQg+DjKN+vKmyIg+em2/axvFo80WIiVPVkzWCXPRP3HLhGcUvt
- vyDGcS69fXg8EWL0G1pZHl2fmweNpTq0L1nFRpV1jpfeDNPmH9TBGO2MVkJ33q1Mi8Jc/7AGb3pCJ1
- SZn7D7nkmcKjcac0cLWe4YBpnD7wtCb6OXGb+8VOPZtD4J7B/jJwzmVJluC6cBA6JTrtlQ9ImNC0m+
- rhpCLu0m7w2uKvO1GSQO/lK2LoVEgYiEXvnx5gQtrqZ6cpFanYRx4RW7ZCNG4mnj4NExLHhJlL97Jr
- WBCx5niS8fGHK3SAWrYnbYrx4zM3NVvWkCsy26CNo8Em0InrrS1c4XZqvnP9fU3Qrf/rf/QUMtVIk4
- 8+vjaee5dLm2nCrEsYhDq3bLybbhaKfWgQgqdlHhlAHpeUrycQaQ2PY+to2wW870uE/bIjBPyWtygp
- XAGZIgl1UMhQCYQY3qANQYw/1rWZQZ/tX57qSIkhZz71SD4y2dS1ABdQFo33l2JAWRWy4hi3ZLn1+B
- QzCZ9XbYdETYL8ZMl8U5Mvaz/m0KlyJ0Z+erc7+CKyJZFdBWW7jza/EWDVmjG6awoT6bF9uLy5dbyk
- LKLTCDU8a0iLr1YIRW6ooy0xG5JvMAbxt/pNkWaUGkgqxH6wRTicTb7jg6aA==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=15592;
+ i=amergnat@baylibre.com; h=from:subject:message-id;
+ bh=FjHm7XarKGTIp+0w1oTz5v6T1oFuXdTPbkzeC2DNWpw=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjgNsXKXtTvyC3B5v+S5OaWp+Vgpu5muqeIyubu6bb
+ h7WDpWiJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY4DbFwAKCRArRkmdfjHURdEhEA
+ CYsj/PhOobj/WJ12f9hcGlO2eH8uRd9qKcVhL1tgOuvSiCxEsxrukjGEF8pPJ4Gm8mIXgm9jJzuMVK
+ am4RKjK9leCoUSNrmMw1jDn+vwad+dm+Z7zhzkwFESij2ryfBpqc1V7OrIDFEyjAZmI4qO21+QxjkM
+ ++UwegzyKHtBZRUQGm0NI266ZIa58oM5RjlSBFVT85WZNPIvVr8M0z64VIesHINzoS2y4+XdywGq81
+ w64U9tbnMJ/OT8imt+kR03jKQsXiWHj8coXrbVjfJNDta3ZEONyiuQxlMkyo2MSUzMkmD1BO9Acuzx
+ sBsReGt5Wb7k2LbSLuZfiL7CvragmELy47F4Vy7jD6IUcCTt1bX4Rdnx84S8LFSIOVfzF8Vnjm2/1a
+ +1NouE6OXjTu24CdE3iGCNw9jhZ5VC3mlVArQliavtPkgOsftweW/Is6GKB8SV1QuaG4zMaF8eo+5b
+ 8+zpIvf1/7yN8uoiJdVWcrJ6TpapcZ8kBTCnyX60RPorvya3iDksv7cgBmIYIq9ZKc7toCO20lWm8U
+ STj8dTW7mTjXnQIJooi4Oz7RNjeVfO7FbKDFr5FJHPTEHgjHqOV3goD/NHSzRnjNGcUqAzIAGjEtyG
+ ZiUnPv13m2sjBssplmrM9FE3DDEvPM3kudbGv4HReB+uv1Dy14bHL192yrtw==
 X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
  fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-- Convert soc/mediatek/pwrap.txt to soc/mediatek/mediatek,pwrap.yaml
-- Add syscon compatible const for mt8186 and mt8195 to match the DTS needs.
+From: Fabien Parent <fparent@baylibre.com>
 
+Add regulator driver for the MT6357 PMIC.
+
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
 ---
- .../devicetree/bindings/leds/leds-mt6323.txt       |   2 +-
- Documentation/devicetree/bindings/mfd/mt6397.txt   |   2 +-
- .../bindings/soc/mediatek/mediatek,pwrap.yaml      | 147 +++++++++++++++++++++
- .../devicetree/bindings/soc/mediatek/pwrap.txt     |  75 -----------
- 4 files changed, 149 insertions(+), 77 deletions(-)
+ drivers/regulator/Kconfig                  |   9 +
+ drivers/regulator/Makefile                 |   1 +
+ drivers/regulator/mt6357-regulator.c       | 453 +++++++++++++++++++++++++++++
+ include/linux/regulator/mt6357-regulator.h |  51 ++++
+ 4 files changed, 514 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/leds/leds-mt6323.txt b/Documentation/devicetree/bindings/leds/leds-mt6323.txt
-index 45bf9f7d85f3..73353692efa1 100644
---- a/Documentation/devicetree/bindings/leds/leds-mt6323.txt
-+++ b/Documentation/devicetree/bindings/leds/leds-mt6323.txt
-@@ -9,7 +9,7 @@ MT6323 PMIC hardware.
- For MT6323 MFD bindings see:
- Documentation/devicetree/bindings/mfd/mt6397.txt
- For MediaTek PMIC wrapper bindings see:
--Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
-+Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml
+diff --git a/drivers/regulator/Kconfig b/drivers/regulator/Kconfig
+index 070e4403c6c2..a659a57438f4 100644
+--- a/drivers/regulator/Kconfig
++++ b/drivers/regulator/Kconfig
+@@ -805,6 +805,15 @@ config REGULATOR_MT6332
+ 	  This driver supports the control of different power rails of device
+ 	  through regulator interface
  
- Required properties:
- - compatible : Must be "mediatek,mt6323-led"
-diff --git a/Documentation/devicetree/bindings/mfd/mt6397.txt b/Documentation/devicetree/bindings/mfd/mt6397.txt
-index 79aaf21af8e9..3bee4a42555d 100644
---- a/Documentation/devicetree/bindings/mfd/mt6397.txt
-+++ b/Documentation/devicetree/bindings/mfd/mt6397.txt
-@@ -13,7 +13,7 @@ MT6397/MT6323 is a multifunction device with the following sub modules:
- It is interfaced to host controller using SPI interface by a proprietary hardware
- called PMIC wrapper or pwrap. MT6397/MT6323 MFD is a child device of pwrap.
- See the following for pwarp node definitions:
--../soc/mediatek/pwrap.txt
-+../soc/mediatek/mediatek,pwrap.yaml
- 
- This document describes the binding for MFD device and its sub module.
- 
-diff --git a/Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml b/Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml
++config REGULATOR_MT6357
++	tristate "MediaTek MT6357 PMIC"
++	depends on MFD_MT6397
++	help
++	  Say y here to select this option to enable the power regulator of
++	  MediaTek MT6357 PMIC.
++	  This driver supports the control of different power rails of device
++	  through regulator interface.
++
+ config REGULATOR_MT6358
+ 	tristate "MediaTek MT6358 PMIC"
+ 	depends on MFD_MT6397
+diff --git a/drivers/regulator/Makefile b/drivers/regulator/Makefile
+index 5962307e1130..e4d67b7b1af6 100644
+--- a/drivers/regulator/Makefile
++++ b/drivers/regulator/Makefile
+@@ -97,6 +97,7 @@ obj-$(CONFIG_REGULATOR_MT6315) += mt6315-regulator.o
+ obj-$(CONFIG_REGULATOR_MT6323)	+= mt6323-regulator.o
+ obj-$(CONFIG_REGULATOR_MT6331)	+= mt6331-regulator.o
+ obj-$(CONFIG_REGULATOR_MT6332)	+= mt6332-regulator.o
++obj-$(CONFIG_REGULATOR_MT6357)	+= mt6357-regulator.o
+ obj-$(CONFIG_REGULATOR_MT6358)	+= mt6358-regulator.o
+ obj-$(CONFIG_REGULATOR_MT6359)	+= mt6359-regulator.o
+ obj-$(CONFIG_REGULATOR_MT6360) += mt6360-regulator.o
+diff --git a/drivers/regulator/mt6357-regulator.c b/drivers/regulator/mt6357-regulator.c
 new file mode 100644
-index 000000000000..3969871eaced
+index 000000000000..b2352b96aed2
 --- /dev/null
-+++ b/Documentation/devicetree/bindings/soc/mediatek/mediatek,pwrap.yaml
-@@ -0,0 +1,147 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/soc/mediatek/mediatek,pwrap.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
++++ b/drivers/regulator/mt6357-regulator.c
+@@ -0,0 +1,453 @@
++// SPDX-License-Identifier: GPL-2.0
++//
++// Copyright (c) 2022 MediaTek Inc.
++// Copyright (c) 2022 BayLibre, SAS.
++// Author: Chen Zhong <chen.zhong@mediatek.com>
++// Author: Fabien Parent <fparent@baylibre.com>
++// Author: Alexandre Mergnat <amergnat@baylibre.com>
++//
++// Based on mt6397-regulator.c
++//
 +
-+title: Mediatek PMIC Wrapper
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/mfd/mt6397/core.h>
++#include <linux/mfd/mt6357/registers.h>
++#include <linux/regulator/driver.h>
++#include <linux/regulator/machine.h>
++#include <linux/regulator/mt6357-regulator.h>
++#include <linux/regulator/of_regulator.h>
 +
-+maintainers:
-+  - Flora Fu <flora.fu@mediatek.com>
-+  - Alexandre Mergnat <amergnat@baylibre.com>
++/*
++ * MT6357 regulators' information
++ *
++ * @desc: standard fields of regulator description.
++ * @da_vsel_reg: Monitor register for query buck's voltage.
++ * @da_vsel_mask: Mask for query buck's voltage.
++ */
++struct mt6357_regulator_info {
++	struct regulator_desc desc;
++	u32 da_vsel_reg;
++	u32 da_vsel_mask;
++};
 +
-+description:
-+  On MediaTek SoCs the PMIC is connected via SPI. The SPI master interface
-+  is not directly visible to the CPU, but only through the PMIC wrapper
-+  inside the SoC. The communication between the SoC and the PMIC can
-+  optionally be encrypted. Also a non standard Dual IO SPI mode can be
-+  used to increase speed.
++#define MT6357_BUCK(match, vreg, min, max, step,		\
++	volt_ranges, vosel_reg, vosel_mask, _da_vsel_mask)	\
++[MT6357_ID_##vreg] = {		\
++	.desc = {		\
++		.name = #vreg,	\
++		.of_match = of_match_ptr(match),		\
++		.regulators_node = "regulators",		\
++		.ops = &mt6357_volt_range_ops,	\
++		.type = REGULATOR_VOLTAGE,	\
++		.id = MT6357_ID_##vreg,		\
++		.owner = THIS_MODULE,		\
++		.n_voltages = ((max) - (min)) / (step) + 1,	\
++		.linear_ranges = volt_ranges,			\
++		.n_linear_ranges = ARRAY_SIZE(volt_ranges),	\
++		.vsel_reg = vosel_reg,		\
++		.vsel_mask = vosel_mask,	\
++		.enable_reg = MT6357_BUCK_##vreg##_CON0,	\
++		.enable_mask = BIT(0),		\
++	},	\
++	.da_vsel_reg = MT6357_BUCK_##vreg##_DBG0,		\
++	.da_vsel_mask = vosel_mask,		\
++}
 +
-+  IP Pairing
++#define MT6357_LDO(match, vreg, ldo_volt_table,	\
++	enreg, vosel, vosel_mask)		\
++[MT6357_ID_##vreg] = {		\
++	.desc = {		\
++		.name = #vreg,	\
++		.of_match = of_match_ptr(match),		\
++		.regulators_node = "regulators",		\
++		.ops = &mt6357_volt_table_ops,	\
++		.type = REGULATOR_VOLTAGE,	\
++		.id = MT6357_ID_##vreg,		\
++		.owner = THIS_MODULE,		\
++		.n_voltages = ARRAY_SIZE(ldo_volt_table),	\
++		.volt_table = ldo_volt_table,	\
++		.vsel_reg = vosel,		\
++		.vsel_mask = vosel_mask,	\
++		.enable_reg = enreg,		\
++		.enable_mask = BIT(0),		\
++	},	\
++}
 +
-+  On MT8135 the pins of some SoC internal peripherals can be on the PMIC.
-+  The signals of these pins are routed over the SPI bus using the pwrap
-+  bridge. In the binding description below the properties needed for bridging
-+  are marked with "IP Pairing". These are optional on SoCs which do not support
-+  IP Pairing
++#define MT6357_LDO1(match, vreg, min, max, step, volt_ranges,	\
++	enreg, vosel, vosel_mask)		\
++[MT6357_ID_##vreg] = {		\
++	.desc = {		\
++		.name = #vreg,	\
++		.of_match = of_match_ptr(match),		\
++		.regulators_node = "regulators",		\
++		.ops = &mt6357_volt_range_ops,	\
++		.type = REGULATOR_VOLTAGE,	\
++		.id = MT6357_ID_##vreg,		\
++		.owner = THIS_MODULE,		\
++		.n_voltages = ((max) - (min)) / (step) + 1,	\
++		.linear_ranges = volt_ranges,	\
++		.n_linear_ranges = ARRAY_SIZE(volt_ranges),	\
++		.vsel_reg = vosel,		\
++		.vsel_mask = vosel_mask,	\
++		.enable_reg = enreg,		\
++		.enable_mask = BIT(0),		\
++	},	\
++	.da_vsel_reg = MT6357_LDO_##vreg##_DBG0,		\
++	.da_vsel_mask = 0x7f00,	\
++}
 +
-+properties:
-+  compatible:
-+    oneOf:
-+      - items:
-+          - enum:
-+              - mediatek,mt2701-pwrap
-+              - mediatek,mt6765-pwrap
-+              - mediatek,mt6779-pwrap
-+              - mediatek,mt6797-pwrap
-+              - mediatek,mt6873-pwrap
-+              - mediatek,mt7622-pwrap
-+              - mediatek,mt8135-pwrap
-+              - mediatek,mt8173-pwrap
-+              - mediatek,mt8183-pwrap
-+              - mediatek,mt8186-pwrap
-+              - mediatek,mt8188-pwrap
-+              - mediatek,mt8195-pwrap
-+              - mediatek,mt8365-pwrap
-+              - mediatek,mt8516-pwrap
-+      - items:
-+          - enum:
-+              - mediatek,mt8186-pwrap
-+              - mediatek,mt8195-pwrap
-+          - const: syscon
++#define MT6357_REG_FIXED(match, vreg, volt)	\
++[MT6357_ID_##vreg] = {					\
++	.desc = {					\
++		.name = #vreg,				\
++		.of_match = of_match_ptr(match),	\
++		.regulators_node = "regulators",	\
++		.ops = &mt6357_volt_fixed_ops,		\
++		.type = REGULATOR_VOLTAGE,		\
++		.id = MT6357_ID_##vreg,			\
++		.owner = THIS_MODULE,			\
++		.n_voltages = 1,			\
++		.enable_reg = MT6357_LDO_##vreg##_CON0,	\
++		.enable_mask = BIT(0),			\
++		.min_uV = volt,				\
++	},						\
++}
 +
-+  reg:
-+    minItems: 1
-+    items:
-+      - description: PMIC wrapper registers
-+      - description: IP pairing registers
++/**
++ * mt6357_get_buck_voltage_sel - get_voltage_sel for regmap users
++ *
++ * @rdev: regulator to operate on
++ *
++ * Regulators that use regmap for their register I/O can set the
++ * da_vsel_reg and da_vsel_mask fields in the info structure and
++ * then use this as their get_voltage_vsel operation.
++ */
++static int mt6357_get_buck_voltage_sel(struct regulator_dev *rdev)
++{
++	int ret, regval;
++	struct mt6357_regulator_info *info = rdev_get_drvdata(rdev);
 +
-+  reg-names:
-+    minItems: 1
-+    items:
-+      - const: pwrap
-+      - const: pwrap-bridge
++	ret = regmap_read(rdev->regmap, info->da_vsel_reg, &regval);
++	if (ret != 0) {
++		dev_err(&rdev->dev,
++			"Failed to get mt6357 Buck %s vsel reg: %d\n",
++			info->desc.name, ret);
++		return ret;
++	}
 +
-+  interrupts:
-+    maxItems: 1
++	regval &= info->da_vsel_mask;
++	regval >>= ffs(info->da_vsel_mask) - 1;
 +
-+  clocks:
-+    minItems: 2
-+    items:
-+      - description: SPI bus clock
-+      - description: Main module clock
-+      - description: System module clock
-+      - description: Timer module clock
++	return regval;
++}
 +
-+  clock-names:
-+    minItems: 2
-+    items:
-+      - const: spi
-+      - const: wrap
-+      - const: sys
-+      - const: tmr
++static const struct regulator_ops mt6357_volt_range_ops = {
++	.list_voltage = regulator_list_voltage_linear_range,
++	.map_voltage = regulator_map_voltage_linear_range,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = mt6357_get_buck_voltage_sel,
++	.set_voltage_time_sel = regulator_set_voltage_time_sel,
++	.enable = regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++};
 +
-+  resets:
-+    minItems: 1
-+    items:
-+      - description: PMIC wrapper reset
-+      - description: IP pairing reset
++static const struct regulator_ops mt6357_volt_table_ops = {
++	.list_voltage = regulator_list_voltage_table,
++	.map_voltage = regulator_map_voltage_iterate,
++	.set_voltage_sel = regulator_set_voltage_sel_regmap,
++	.get_voltage_sel = regulator_get_voltage_sel_regmap,
++	.set_voltage_time_sel = regulator_set_voltage_time_sel,
++	.enable = regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++};
 +
-+  reset-names:
-+    minItems: 1
-+    items:
-+      - const: pwrap
-+      - const: pwrap-bridge
++static const struct regulator_ops mt6357_volt_fixed_ops = {
++	.list_voltage = regulator_list_voltage_linear,
++	.enable = regulator_enable_regmap,
++	.disable = regulator_disable_regmap,
++	.is_enabled = regulator_is_enabled_regmap,
++};
 +
-+  pmic:
-+    type: object
++static const int vxo22_voltages[] = {
++	2200000,
++	0,
++	2400000,
++};
 +
-+required:
-+  - compatible
-+  - reg
-+  - reg-names
-+  - interrupts
-+  - clocks
-+  - clock-names
++static const int vefuse_voltages[] = {
++	1200000,
++	1300000,
++	1500000,
++	0,
++	1800000,
++	0,
++	0,
++	0,
++	0,
++	2800000,
++	2900000,
++	3000000,
++	0,
++	3300000,
++};
 +
-+dependentRequired:
-+  resets: [reset-names]
++static const int vcn33_voltages[] = {
++	0,
++	3300000,
++	3400000,
++	3500000,
++};
 +
-+allOf:
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: mediatek,mt8365-pwrap
-+    then:
-+      properties:
-+        clocks:
-+          minItems: 4
++static const int vcama_voltages[] = {
++	0,
++	0,
++	0,
++	0,
++	0,
++	0,
++	0,
++	2500000,
++	0,
++	0,
++	2800000,
++};
 +
-+        clock-names:
-+          minItems: 4
++static const int vcamd_voltages[] = {
++	0,
++	0,
++	0,
++	0,
++	1000000,
++	1100000,
++	1200000,
++	1300000,
++	0,
++	1500000,
++	0,
++	0,
++	1800000,
++};
 +
-+additionalProperties: false
++static const int vldo28_voltages[] = {
++	0,
++	2800000,
++	0,
++	3000000,
++};
 +
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    #include <dt-bindings/reset/mt8135-resets.h>
++static const int vdram_voltages[] = {
++	0,
++	1100000,
++	1200000,
++};
 +
-+    soc {
-+        #address-cells = <2>;
-+        #size-cells = <2>;
-+        pwrap@1000d000 {
-+            compatible = "mediatek,mt8135-pwrap";
-+            reg = <0 0x1000f000 0 0x1000>,
-+                  <0 0x11017000 0 0x1000>;
-+            reg-names = "pwrap", "pwrap-bridge";
-+            interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>;
-+            clocks = <&clk26m>, <&clk26m>;
-+            clock-names = "spi", "wrap";
-+            resets = <&infracfg MT8135_INFRA_PMIC_WRAP_RST>,
-+                     <&pericfg MT8135_PERI_PWRAP_BRIDGE_SW_RST>;
-+            reset-names = "pwrap", "pwrap-bridge";
-+        };
-+    };
-diff --git a/Documentation/devicetree/bindings/soc/mediatek/pwrap.txt b/Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
-deleted file mode 100644
-index 8424b93c432e..000000000000
---- a/Documentation/devicetree/bindings/soc/mediatek/pwrap.txt
-+++ /dev/null
-@@ -1,75 +0,0 @@
--MediaTek PMIC Wrapper Driver
--
--This document describes the binding for the MediaTek PMIC wrapper.
--
--On MediaTek SoCs the PMIC is connected via SPI. The SPI master interface
--is not directly visible to the CPU, but only through the PMIC wrapper
--inside the SoC. The communication between the SoC and the PMIC can
--optionally be encrypted. Also a non standard Dual IO SPI mode can be
--used to increase speed.
--
--IP Pairing
--
--on MT8135 the pins of some SoC internal peripherals can be on the PMIC.
--The signals of these pins are routed over the SPI bus using the pwrap
--bridge. In the binding description below the properties needed for bridging
--are marked with "IP Pairing". These are optional on SoCs which do not support
--IP Pairing
--
--Required properties in pwrap device node.
--- compatible:
--	"mediatek,mt2701-pwrap" for MT2701/7623 SoCs
--	"mediatek,mt6765-pwrap" for MT6765 SoCs
--	"mediatek,mt6779-pwrap" for MT6779 SoCs
--	"mediatek,mt6797-pwrap" for MT6797 SoCs
--	"mediatek,mt6873-pwrap" for MT6873/8192 SoCs
--	"mediatek,mt7622-pwrap" for MT7622 SoCs
--	"mediatek,mt8135-pwrap" for MT8135 SoCs
--	"mediatek,mt8173-pwrap" for MT8173 SoCs
--	"mediatek,mt8183-pwrap" for MT8183 SoCs
--	"mediatek,mt8186-pwrap" for MT8186 SoCs
--	"mediatek,mt8188-pwrap", "mediatek,mt8195-pwrap" for MT8188 SoCs
--	"mediatek,mt8195-pwrap" for MT8195 SoCs
--	"mediatek,mt8365-pwrap" for MT8365 SoCs
--	"mediatek,mt8516-pwrap" for MT8516 SoCs
--- interrupts: IRQ for pwrap in SOC
--- reg-names: "pwrap" is required; "pwrap-bridge" is optional.
--  "pwrap": Main registers base
--  "pwrap-bridge": bridge base (IP Pairing)
--- reg: Must contain an entry for each entry in reg-names.
--- clock-names: Must include the following entries:
--  "spi": SPI bus clock
--  "wrap": Main module clock
--  "sys": System module clock (for MT8365 SoC)
--  "tmr": Timer module clock (for MT8365 SoC)
--- clocks: Must contain an entry for each entry in clock-names.
--
--Optional properities:
--- reset-names: Some SoCs include the following entries:
--  "pwrap"
--  "pwrap-bridge" (IP Pairing)
--- resets: Must contain an entry for each entry in reset-names.
--- pmic: Using either MediaTek PMIC MFD as the child device of pwrap
--  See the following for child node definitions:
--  Documentation/devicetree/bindings/mfd/mt6397.txt
--  or the regulator-only device as the child device of pwrap, such as MT6380.
--  See the following definitions for such kinds of devices.
--  Documentation/devicetree/bindings/regulator/mt6380-regulator.txt
--
--Example:
--	pwrap: pwrap@1000f000 {
--		compatible = "mediatek,mt8135-pwrap";
--		reg = <0 0x1000f000 0 0x1000>,
--			<0 0x11017000 0 0x1000>;
--		reg-names = "pwrap", "pwrap-bridge";
--		interrupts = <GIC_SPI 128 IRQ_TYPE_LEVEL_HIGH>;
--		resets = <&infracfg MT8135_INFRA_PMIC_WRAP_RST>,
--				<&pericfg MT8135_PERI_PWRAP_BRIDGE_SW_RST>;
--		reset-names = "pwrap", "pwrap-bridge";
--		clocks = <&clk26m>, <&clk26m>;
--		clock-names = "spi", "wrap";
--
--		pmic {
--			compatible = "mediatek,mt6397";
--		};
--	};
++static const int vsim_voltages[] = {
++	0,
++	0,
++	0,
++	1700000,
++	1800000,
++	0,
++	0,
++	0,
++	2700000,
++	0,
++	0,
++	3000000,
++	3100000,
++};
++
++static const int vibr_voltages[] = {
++	1200000,
++	1300000,
++	1500000,
++	0,
++	1800000,
++	2000000,
++	0,
++	0,
++	0,
++	2800000,
++	0,
++	3000000,
++	0,
++	3300000,
++};
++
++static const int vmc_voltages[] = {
++	0,
++	0,
++	0,
++	0,
++	1800000,
++	0,
++	0,
++	0,
++	0,
++	0,
++	2900000,
++	3000000,
++	0,
++	3300000,
++};
++
++static const int vmch_voltages[] = {
++	0,
++	0,
++	2900000,
++	3000000,
++	0,
++	3300000,
++};
++
++static const int vemc_voltages[] = {
++	0,
++	0,
++	2900000,
++	3000000,
++	0,
++	3300000,
++};
++
++static const int vusb_voltages[] = {
++	0,
++	0,
++	0,
++	3000000,
++	3100000,
++};
++
++static const struct linear_range buck_volt_range1[] = {
++	REGULATOR_LINEAR_RANGE(518750, 0, 0x7f, 6250),
++};
++
++static const struct linear_range buck_volt_range2[] = {
++	REGULATOR_LINEAR_RANGE(500000, 0, 0x7f, 6250),
++};
++
++static const struct linear_range buck_volt_range3[] = {
++	REGULATOR_LINEAR_RANGE(500000, 0, 0x3f, 50000),
++};
++
++static const struct linear_range buck_volt_range4[] = {
++	REGULATOR_LINEAR_RANGE(1200000, 0, 0x7f, 12500),
++};
++
++/* The array is indexed by id(MT6357_ID_XXX) */
++static struct mt6357_regulator_info mt6357_regulators[] = {
++	/* Bucks */
++	MT6357_BUCK("buck-vcore", VCORE, 518750, 1312500, 6250,
++		buck_volt_range1, MT6357_BUCK_VCORE_ELR0, 0x7f, 0x7f),
++	MT6357_BUCK("buck-vproc", VPROC, 518750, 1312500, 6250,
++		buck_volt_range1, MT6357_BUCK_VPROC_ELR0, 0x7f, 0x7f),
++	MT6357_BUCK("buck-vmodem", VMODEM, 500000, 1293750, 6250,
++		buck_volt_range2, MT6357_BUCK_VMODEM_ELR0, 0x7f, 0x7f),
++	MT6357_BUCK("buck-vpa", VPA, 500000, 3650000, 50000,
++		buck_volt_range3, MT6357_BUCK_VPA_CON1, 0x3f, 0x3f),
++	MT6357_BUCK("buck-vs1", VS1, 1200000, 2787500, 12500,
++		buck_volt_range4, MT6357_BUCK_VS1_ELR0, 0x7f, 0x7f),
++
++	/* LDOs */
++	MT6357_LDO("ldo-vcama", VCAMA, vcama_voltages,
++		   MT6357_LDO_VCAMA_CON0, MT6357_VCAMA_ANA_CON0, 0xf00),
++	MT6357_LDO("ldo-vcamd", VCAMD, vcamd_voltages,
++		   MT6357_LDO_VCAMD_CON0, MT6357_VCAMD_ANA_CON0, 0xf00),
++	MT6357_LDO("ldo-vcn33-bt", VCN33_BT, vcn33_voltages,
++		   MT6357_LDO_VCN33_CON0_0, MT6357_VCN33_ANA_CON0, 0x300),
++	MT6357_LDO("ldo-vcn33-wifi", VCN33_WIFI, vcn33_voltages,
++		   MT6357_LDO_VCN33_CON0_1, MT6357_VCN33_ANA_CON0, 0x300),
++	MT6357_LDO("ldo-vdram", VDRAM, vdram_voltages,
++		   MT6357_LDO_VDRAM_CON0, MT6357_VDRAM_ELR_2, 0x300),
++	MT6357_LDO("ldo-vefuse", VEFUSE, vefuse_voltages,
++		   MT6357_LDO_VEFUSE_CON0, MT6357_VEFUSE_ANA_CON0, 0xf00),
++	MT6357_LDO("ldo-vemc", VEMC, vemc_voltages,
++		   MT6357_LDO_VEMC_CON0, MT6357_VEMC_ANA_CON0, 0x700),
++	MT6357_LDO("ldo-vibr", VIBR, vibr_voltages,
++		   MT6357_LDO_VIBR_CON0, MT6357_VIBR_ANA_CON0, 0xf00),
++	MT6357_LDO("ldo-vldo28", VLDO28, vldo28_voltages,
++		   MT6357_LDO_VLDO28_CON0_0, MT6357_VLDO28_ANA_CON0, 0x300),
++	MT6357_LDO("ldo-vmc", VMC, vmc_voltages,
++		   MT6357_LDO_VMC_CON0, MT6357_VMC_ANA_CON0, 0xf00),
++	MT6357_LDO("ldo-vmch", VMCH, vmch_voltages,
++		   MT6357_LDO_VMCH_CON0, MT6357_VMCH_ANA_CON0, 0x700),
++	MT6357_LDO("ldo-vsim1", VSIM1, vsim_voltages,
++		   MT6357_LDO_VSIM1_CON0, MT6357_VSIM1_ANA_CON0, 0xf00),
++	MT6357_LDO("ldo-vsim2", VSIM2, vsim_voltages,
++		   MT6357_LDO_VSIM2_CON0, MT6357_VSIM2_ANA_CON0, 0xf00),
++	MT6357_LDO("ldo-vusb33", VUSB33, vusb_voltages,
++		   MT6357_LDO_VUSB33_CON0_0, MT6357_VUSB33_ANA_CON0, 0x700),
++	MT6357_LDO("ldo-vxo22", VXO22, vxo22_voltages,
++		   MT6357_LDO_VXO22_CON0, MT6357_VXO22_ANA_CON0, 0x300),
++
++	MT6357_LDO1("ldo-vsram-proc", VSRAM_PROC, 518750, 1312500, 6250,
++		   buck_volt_range1, MT6357_LDO_VSRAM_PROC_CON0,
++		   MT6357_LDO_VSRAM_CON0, 0x7f00),
++	MT6357_LDO1("ldo-vsram-others", VSRAM_OTHERS, 518750, 1312500, 6250,
++		   buck_volt_range1, MT6357_LDO_VSRAM_OTHERS_CON0,
++		   MT6357_LDO_VSRAM_CON1, 0x7f00),
++
++	MT6357_REG_FIXED("ldo-vaud28", VAUD28, 2800000),
++	MT6357_REG_FIXED("ldo-vaux18", VAUX18, 1800000),
++	MT6357_REG_FIXED("ldo-vcamio18", VCAMIO, 1800000),
++	MT6357_REG_FIXED("ldo-vcn18", VCN18, 1800000),
++	MT6357_REG_FIXED("ldo-vcn28", VCN28, 2800000),
++	MT6357_REG_FIXED("ldo-vfe28", VFE28, 2800000),
++	MT6357_REG_FIXED("ldo-vio18", VIO18, 1800000),
++	MT6357_REG_FIXED("ldo-vio28", VIO28, 2800000),
++	MT6357_REG_FIXED("ldo-vrf12", VRF12, 1200000),
++	MT6357_REG_FIXED("ldo-vrf18", VRF18, 1800000),
++};
++
++static int mt6357_regulator_probe(struct platform_device *pdev)
++{
++	struct mt6397_chip *mt6357 = dev_get_drvdata(pdev->dev.parent);
++	struct regulator_config config = {};
++	struct regulator_dev *rdev;
++	int i;
++
++	pdev->dev.of_node = pdev->dev.parent->of_node;
++
++	for (i = 0; i < MT6357_MAX_REGULATOR; i++) {
++		config.dev = &pdev->dev;
++		config.driver_data = &mt6357_regulators[i];
++		config.regmap = mt6357->regmap;
++
++		rdev = devm_regulator_register(&pdev->dev,
++					       &mt6357_regulators[i].desc,
++					       &config);
++		if (IS_ERR(rdev)) {
++			dev_err(&pdev->dev, "failed to register %s\n",
++				mt6357_regulators[i].desc.name);
++			return PTR_ERR(rdev);
++		}
++	}
++
++	return 0;
++}
++
++static const struct platform_device_id mt6357_platform_ids[] = {
++	{ "mt6357-regulator" },
++	{ /* sentinel */ },
++};
++MODULE_DEVICE_TABLE(platform, mt6357_platform_ids);
++
++static struct platform_driver mt6357_regulator_driver = {
++	.driver = {
++		.name = "mt6357-regulator",
++	},
++	.probe = mt6357_regulator_probe,
++	.id_table = mt6357_platform_ids,
++};
++
++module_platform_driver(mt6357_regulator_driver);
++
++MODULE_AUTHOR("Chen Zhong <chen.zhong@mediatek.com>");
++MODULE_AUTHOR("Fabien Parent <fabien.parent@linaro.org>");
++MODULE_AUTHOR("Alexandre Mergnat <amergnat@baylibre.com>");
++MODULE_DESCRIPTION("Regulator Driver for MediaTek MT6357 PMIC");
++MODULE_LICENSE("GPL");
+diff --git a/include/linux/regulator/mt6357-regulator.h b/include/linux/regulator/mt6357-regulator.h
+new file mode 100644
+index 000000000000..238b1ee77ea6
+--- /dev/null
++++ b/include/linux/regulator/mt6357-regulator.h
+@@ -0,0 +1,51 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * Copyright (c) 2022 MediaTek Inc.
++ */
++
++#ifndef __LINUX_REGULATOR_MT6357_H
++#define __LINUX_REGULATOR_MT6357_H
++
++enum {
++	/* Bucks */
++	MT6357_ID_VCORE,
++	MT6357_ID_VMODEM,
++	MT6357_ID_VPA,
++	MT6357_ID_VPROC,
++	MT6357_ID_VS1,
++
++	/* LDOs */
++	MT6357_ID_VAUX18,
++	MT6357_ID_VAUD28,
++	MT6357_ID_VCAMA,
++	MT6357_ID_VCAMD,
++	MT6357_ID_VCAMIO,
++	MT6357_ID_VCN18,
++	MT6357_ID_VCN28,
++	MT6357_ID_VCN33_BT,
++	MT6357_ID_VCN33_WIFI,
++	MT6357_ID_VDRAM,
++	MT6357_ID_VEFUSE,
++	MT6357_ID_VEMC,
++	MT6357_ID_VFE28,
++	MT6357_ID_VIBR,
++	MT6357_ID_VIO18,
++	MT6357_ID_VIO28,
++	MT6357_ID_VLDO28,
++	MT6357_ID_VMC,
++	MT6357_ID_VMCH,
++	MT6357_ID_VRF12,
++	MT6357_ID_VRF18,
++	MT6357_ID_VSIM1,
++	MT6357_ID_VSIM2,
++	MT6357_ID_VSRAM_OTHERS,
++	MT6357_ID_VSRAM_PROC,
++	MT6357_ID_VUSB33,
++	MT6357_ID_VXO22,
++
++	MT6357_ID_RG_MAX,
++};
++
++#define MT6357_MAX_REGULATOR	MT6357_ID_RG_MAX
++
++#endif /* __LINUX_REGULATOR_MT6357_H */
 
 -- 
 b4 0.10.1

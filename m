@@ -2,44 +2,45 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ABCDCC352A1
-	for <linux-input@archiver.kernel.org>; Sun, 27 Nov 2022 14:29:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BB917C4332F
+	for <linux-input@archiver.kernel.org>; Sun, 27 Nov 2022 14:29:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229541AbiK0O27 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 27 Nov 2022 09:28:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41006 "EHLO
+        id S229616AbiK0O3B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 27 Nov 2022 09:29:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41036 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbiK0O26 (ORCPT
+        with ESMTP id S229496AbiK0O3A (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 27 Nov 2022 09:28:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CD85DFE7
-        for <linux-input@vger.kernel.org>; Sun, 27 Nov 2022 06:28:57 -0800 (PST)
+        Sun, 27 Nov 2022 09:29:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 290D6DFE7
+        for <linux-input@vger.kernel.org>; Sun, 27 Nov 2022 06:29:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24BFCB80AF9
-        for <linux-input@vger.kernel.org>; Sun, 27 Nov 2022 14:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE39C433D6;
-        Sun, 27 Nov 2022 14:28:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA1EC60DC8
+        for <linux-input@vger.kernel.org>; Sun, 27 Nov 2022 14:28:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0997CC433B5;
+        Sun, 27 Nov 2022 14:28:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1669559334;
-        bh=cwzky6ouGybQ8mPYMRkwMibBYbZn51YfowH4xCJf9kw=;
+        s=k20201202; t=1669559339;
+        bh=L18Nv4SsEp06ll09Dam+tSqGsS4Z0+vqMn31KwkBqE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3XyN7Punt3ugCdBAzt8rVGIQNKONOQ1PK0nx+w/aq3ZW831Y72ejYMajS8ZYROxC
-         2JPkNDds/vtm0+JpsTHv4ezAx1RID0V0O6x+UJYkYWX21jyHpsRTtbrP9BICCiIUZw
-         EqvejmaSdOkfrkAKY3gTb/S+EYMLdTMnUByAKWqGZlxJuXJpDAxMLW35Zby3Lj42Nb
-         J3HkvgnuJ30HcTJm/H+QXAUAL/bb/nw/PZdx9+LfLHzUYVJQ0Bmerv5GnW7uUFjXIp
-         tca30w4NtkU9W8aOWX53CXxThiM6rhZSM9f4q4IYE2T2Cgu3y+DdF92Msk61TOXxeb
-         F5xm8nTYCoLjg==
+        b=D8SPPc5uYsTQCIDSyMdEZTvqVY5TXgJYt1ThaECoiRGoISnvvZSAuujzheUh6kggW
+         Z1Wco4nPrWS3iHKze4uGoNNtNiTNFpmham0jXukO+qqXunTxDfqTCDm07RsnRN62hn
+         nPaf3opDS+8+u2DMBTXB11Ary+gBkFuEDcfTDroDrxN+i48zw3Y6ROwlf4XIF12TC9
+         CxBCUXiXU8hftZDNdJIaF2/rEOIz14uXqK37xgOEA60qHF0PjkTftQhel06Q90HN88
+         XJhIcfp9SJvQIO4k1X+Fd2MkF5XxxTJKDVJ7LDJhEsek71mvpirOxK2r807bPzcIrl
+         OP3McQtHBoDcw==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Michael Hennerich <michael.hennerich@analog.com>
-Subject: [PATCH 2/9] Input: ad714x - Fix padding for DMA safe buffers.
-Date:   Sun, 27 Nov 2022 14:41:09 +0000
-Message-Id: <20221127144116.1418083-3-jic23@kernel.org>
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5/9] Input: cyttsp - Fix padding for DMA safe buffers.
+Date:   Sun, 27 Nov 2022 14:41:12 +0000
+Message-Id: <20221127144116.1418083-6-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221127144116.1418083-1-jic23@kernel.org>
 References: <20221127144116.1418083-1-jic23@kernel.org>
@@ -64,29 +65,30 @@ As such the correct alignment requirement is
 __aligned(ARCH_KMALLOC_MINALIGN).
 This has recently been fixed in other subsystems such as IIO.
 
-Fixes tag is inprecise because there may not have been any architectures
-where the two values were different at the time of the earlier fix.
+Fixes tag for this is complex as at the time of original introduction, it
+is likely that there were no cases where the two alignments were different.
 
-Fixes: c0409feb8689 ("Input: ad714x - use DMA-safe buffers for spi_write()")
+Fixes: 4065d1e7b216 ("Input: add Cypress TTSP capacitive multi-touch screen support")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>
+Cc: Javier Martinez Canillas <javier@dowhile0.org>
+Cc: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/input/misc/ad714x.h | 2 +-
+ drivers/input/touchscreen/cyttsp_core.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/misc/ad714x.h b/drivers/input/misc/ad714x.h
-index af847b5f0d0e..2b8b901183be 100644
---- a/drivers/input/misc/ad714x.h
-+++ b/drivers/input/misc/ad714x.h
-@@ -41,7 +41,7 @@ struct ad714x_chip {
- 	unsigned product;
- 	unsigned version;
+diff --git a/drivers/input/touchscreen/cyttsp_core.h b/drivers/input/touchscreen/cyttsp_core.h
+index 075509e695a2..e87cb323623c 100644
+--- a/drivers/input/touchscreen/cyttsp_core.h
++++ b/drivers/input/touchscreen/cyttsp_core.h
+@@ -131,7 +131,7 @@ struct cyttsp {
+ 	u8 lp_intrvl;
+ 	u8 *bl_keys;
  
--	__be16 xfer_buf[16] ____cacheline_aligned;
-+	__be16 xfer_buf[16] __aligned(ARCH_KMALLOC_MINALIGN);
- 
+-	u8 xfer_buf[] ____cacheline_aligned;
++	u8 xfer_buf[] __aligned(ARCH_KMALLOC_MINALIGN);
  };
  
+ struct cyttsp *cyttsp_probe(const struct cyttsp_bus_ops *bus_ops,
 -- 
 2.38.1
 

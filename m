@@ -2,99 +2,95 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 651B2C4167B
-	for <linux-input@archiver.kernel.org>; Tue, 29 Nov 2022 15:38:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 735A9C4167B
+	for <linux-input@archiver.kernel.org>; Tue, 29 Nov 2022 15:39:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230353AbiK2PiZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Nov 2022 10:38:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37608 "EHLO
+        id S234741AbiK2Pji (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Nov 2022 10:39:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38308 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230151AbiK2PiY (ORCPT
+        with ESMTP id S234931AbiK2Pjg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2022 10:38:24 -0500
-Received: from smtpcmd04131.aruba.it (smtpcmd04131.aruba.it [62.149.158.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 51420FD16
-        for <linux-input@vger.kernel.org>; Tue, 29 Nov 2022 07:38:23 -0800 (PST)
-Received: from asem-TANK-H61.asem.intra ([151.1.184.193])
-        by Aruba Outgoing Smtp  with ESMTPSA
-        id 02Ozp6txJm9gv02PApWxO5; Tue, 29 Nov 2022 16:20:18 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-        t=1669735218; bh=zTsu9YvjjwpwF7zSkRalIemgq9HBKFWhACD/LncT3zM=;
-        h=From:To:Subject:Date:MIME-Version;
-        b=EvoQWEPn6+aJ7OysISOue95GBqEH3etE/fPxXolkiY7Kmhwk++Wb9DGdIh+5Y4Wgn
-         n4iEN4TXMtpeeFnvNL0nG3N0y5XlPpqinowcRLrbFwdCfqy5ctEGh5vBrVeFzdiuww
-         u981UjGzk9dv5FbIz7OtNxKsnuWN/Rmth41Dz4k2/0LzNq8TvDddhbldxsrcNmaes0
-         TA145W2IKxaPzYBxkLvrsv3N+u1Ny4kuOT/e/Bcggx5ktbw/poTudnjdAfvGbxmHqM
-         PSEFZvhFZZ1L0YjHBeD9XstF/Cg0bL3ir3tJcKbR+0juZ8x2oAcMYxo0dodDbJmK9c
-         8cDWRrTxrawqA==
-From:   Luca Ellero <l.ellero@asem.it>
-To:     dmitry.torokhov@gmail.com, daniel@zonque.org,
-        m.felsch@pengutronix.de, andriy.shevchenko@linux.intel.com,
-        u.kleine-koenig@pengutronix.de, mkl@pengutronix.de,
-        miquel.raynal@bootlin.com, imre.deak@nokia.com,
-        luca.ellero@brickedbrain.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Luca Ellero <l.ellero@asem.it>
-Subject: [PATCH 2/3] ads7846: always set last command to PWRDOWN
-Date:   Tue, 29 Nov 2022 16:19:58 +0100
-Message-Id: <20221129151959.26052-3-l.ellero@asem.it>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20221129151959.26052-1-l.ellero@asem.it>
-References: <20221129151959.26052-1-l.ellero@asem.it>
+        Tue, 29 Nov 2022 10:39:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 507981CB0C;
+        Tue, 29 Nov 2022 07:39:36 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1930617A5;
+        Tue, 29 Nov 2022 15:39:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B46DC433C1;
+        Tue, 29 Nov 2022 15:39:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1669736375;
+        bh=3WvpfKAMMBXTqgD9OElc2LMfZiGvyFTgYTlwBSpfPUA=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=c9q1ApteullDnEXtba85UEGzFJ5a/cjyrIbSsgP3eENCfn7eovuS5qxLAvcB+bVBE
+         rJ4wTjQKWkiemyXd0GXENy+T1bg6BaqE5yvNaafX/JiCrby6WAkFdVA5Ky4haHXMTL
+         u9QbnI3J60WuMxrPVAunA0oUt84VwSPgz3blJKYvTP0i8TUamEIxm31NbJhOyOL1OH
+         7FTefHvFJYHOiS4Q3AgaixZh5zbSf5cWSqdzXVpU24tmvUZZ31zz0lg/QYeL1/HYIe
+         8naJaG677gMStMZtpR6NuTOgWB5Itn3oXOWIV5NPJRjnfOpAE9rAuQVpN9cw/WKCBa
+         KjXkzNw2i3dLA==
+Date:   Tue, 29 Nov 2022 09:39:33 -0600
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Lars Povlsen <lars.povlsen@microchip.com>
+Cc:     Rishi Gupta <gupt21@gmail.com>, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        UNGLinuxDriver <UNGLinuxDriver@microchip.com>,
+        linux-i2c@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Takayuki 'January June' Suwa <jjsuwa_sys3175@yahoo.co.jp>
+Subject: Re: [PATCH] HID: mcp2221: Fix GPIO output handling
+Message-ID: <20221129153933.GA716319@bhelgaas>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfAmA3u28NvvV4JGz2hpRmeIayrM1Psfe+/ROG4Pc5pcbewBBCWDiNDpCFeyPYwVYM80csFMbbKUZ3XJG/cmlxqQkfGE1tCpBO72NEMQqgs409Sl0IJe8
- WdKCYuFi7Cimg+x3BdKcXcV57LD0oMM5q4CQouGNwIvsBVD8U7pY6kzndCdQuTEHsGXt4byoe/LB41mNrwUGz35RgPTMb4H3WVlrJSetuS8u+E2jo0sZarZi
- c4KXesBtVAZWTH8TnHo1O+1ehgUpsXrNfrY0NKAWM1P6A1CCvDPKopS44bm3YdR8+GRCZqm6ASQ0KYaBfA6+2YJuQvmdwmtYN3VeRtOXI5IgOs1ibDFLwqnV
- +UuVkpmAAcIPV2TuP9yrRMo0BDQHhzMkS+79M14fUTWyA4GLqghnwdPmwf34RPItmIpdRozEyOe3U/1ZJAPGS0Xn+li5vLQLvOtUqpygp+as2j6fT3S4yETr
- T88OxdfG2xFhM8bvtwGJaJw/EBYltnV4Pwv3yTPdA9NvJz2J8SfCpaLO5F81NbXM9EV73+QLxzuv0Nv74bWfyh0a6Yeq8oX24ZlYMQ4mqUf693lvS5TyYFc0
- GIHuMUBsrUj+csjCHeqNyeur
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20201104220223.293253-1-lars.povlsen@microchip.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Controllers that report pressure (e.g. ADS7846) use 5 commands and the
-correct sequence is READ_X, READ_Y, READ_Z1, READ_Z2, PWRDOWN.
+[+cc Takayuki, thanks for your report!]
 
-Controllers that don't report pressure (e.g. ADS7845/ADS7843) use only 3
-commands and the correct sequence should be READ_X, READ_Y, PWRDOWN. But
-the sequence sent was incorrect: READ_X, READ_Y, READ_Z1.
+On Wed, Nov 04, 2020 at 11:02:23PM +0100, Lars Povlsen wrote:
+> The mcp2221 driver GPIO output handling has has several issues.
+> 
+> * A wrong value is used for the GPIO direction.
+> 
+> * Wrong offsets are calculated for some GPIO set value/set direction
+>   operations, when offset is larger than 0.
+> 
+> This has been fixed by introducing proper manifest constants for the
+> direction encoding, and using 'offsetof' when calculating GPIO
+> register offsets.
+> 
+> The updated driver has been tested with the Sparx5 pcb134/pcb135
+> board, which has the mcp2221 device with several (output) GPIO's.
+> 
+> Signed-off-by: Lars Povlsen <lars.povlsen@microchip.com>
+> ---
+>  drivers/hid/hid-mcp2221.c | 48 +++++++++++++++++++++++++++++++--------
+>  1 file changed, 39 insertions(+), 9 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+> index 0d27ccb55dd9..4211b9839209 100644
+> --- a/drivers/hid/hid-mcp2221.c
+> +++ b/drivers/hid/hid-mcp2221.c
 
-This patch fixes it.
+> +/* MCP GPIO get command layout */
+> +struct mcp_get_gpio {
+> +	u8 cmd;
+> +	u8 dummy;
+> +	struct {
+> +		u8 direction;
+> +		u8 value;
+> +	} gpio[MCP_NGPIO];
+> +} __packed;
 
-Signed-off-by: Luca Ellero <l.ellero@asem.it>
----
- drivers/input/touchscreen/ads7846.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+This bug report: https://bugzilla.kernel.org/show_bug.cgi?id=216736
+suggests that direction and value may be reversed here.
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 24605c40d039..9e15cdf6faa0 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1066,6 +1066,9 @@ static int ads7846_setup_spi_msg(struct ads7846 *ts,
- 		struct ads7846_buf_layout *l = &packet->l[cmd_idx];
- 		unsigned int max_count;
- 
-+		if (cmd_idx == packet->cmds - 1)
-+			cmd_idx = ADS7846_PWDOWN;
-+
- 		if (ads7846_cmd_need_settle(cmd_idx))
- 			max_count = packet->count + packet->count_skip;
- 		else
-@@ -1102,7 +1105,12 @@ static int ads7846_setup_spi_msg(struct ads7846 *ts,
- 
- 	for (cmd_idx = 0; cmd_idx < packet->cmds; cmd_idx++) {
- 		struct ads7846_buf_layout *l = &packet->l[cmd_idx];
--		u8 cmd = ads7846_get_cmd(cmd_idx, vref);
-+		u8 cmd;
-+
-+		if (cmd_idx == packet->cmds - 1)
-+			cmd_idx = ADS7846_PWDOWN;
-+
-+		cmd = ads7846_get_cmd(cmd_idx, vref);
- 
- 		for (b = 0; b < l->count; b++)
- 			packet->tx[l->offset + b].cmd = cmd;
--- 
-2.25.1
+Mentioning here in case nobody actively monitors the bugzilla.
 
+Bjorn

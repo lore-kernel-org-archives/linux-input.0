@@ -2,131 +2,87 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81CA9C4332F
-	for <linux-input@archiver.kernel.org>; Tue, 29 Nov 2022 09:18:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00053C4167B
+	for <linux-input@archiver.kernel.org>; Tue, 29 Nov 2022 15:30:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbiK2JSo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 29 Nov 2022 04:18:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54302 "EHLO
+        id S235837AbiK2Pai (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 29 Nov 2022 10:30:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230194AbiK2JSn (ORCPT
+        with ESMTP id S235754AbiK2Pag (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 29 Nov 2022 04:18:43 -0500
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB242FFF9
-        for <linux-input@vger.kernel.org>; Tue, 29 Nov 2022 01:18:36 -0800 (PST)
-Received: from frapeml500002.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4NLxX724hrz6H74g;
-        Tue, 29 Nov 2022 17:15:51 +0800 (CST)
-Received: from lhrpeml500005.china.huawei.com (7.191.163.240) by
- frapeml500002.china.huawei.com (7.182.85.205) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.31; Tue, 29 Nov 2022 10:18:34 +0100
-Received: from localhost (10.45.149.100) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Tue, 29 Nov
- 2022 09:18:33 +0000
-Date:   Tue, 29 Nov 2022 09:18:28 +0000
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-CC:     Jonathan Cameron <jic23@kernel.org>, <linux-input@vger.kernel.org>,
-        Daniel Mack <daniel@zonque.org>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Tomohiro Yoshidomi <sylph23k@gmail.com>,
-        Javier Martinez Canillas <javier@dowhile0.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Lauri Kasanen <cand@gmx.com>,
-        "Daniel Hung-yu Wu" <hywu@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Subject: Re: [PATCH 0/9] Input: Fix insufficent DMA alignment.
-Message-ID: <20221129091828.0000530d@Huawei.com>
-In-Reply-To: <Y4T6/5968KFxJAhP@google.com>
-References: <20221127144116.1418083-1-jic23@kernel.org>
-        <Y4T6/5968KFxJAhP@google.com>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+        Tue, 29 Nov 2022 10:30:36 -0500
+X-Greylist: delayed 622 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 29 Nov 2022 07:30:32 PST
+Received: from smtpcmd04131.aruba.it (smtpcmd04131.aruba.it [62.149.158.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 7A7AD60EAE
+        for <linux-input@vger.kernel.org>; Tue, 29 Nov 2022 07:30:32 -0800 (PST)
+Received: from asem-TANK-H61.asem.intra ([151.1.184.193])
+        by Aruba Outgoing Smtp  with ESMTPSA
+        id 02Ozp6txJm9gv02PLpWxUk; Tue, 29 Nov 2022 16:20:28 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
+        t=1669735228; bh=loRkK3v18v6DijDl9IFXyx+yOfz6h4JPvTbCHffpCLU=;
+        h=From:To:Subject:Date:MIME-Version;
+        b=NVog6tFKruhE4LHx4UXgTbTlJRMCJ09Mesd28Y1WSlXkGshLggIOoDcdrvOt684/f
+         SpEDYj8adL30DmT/9Hv3vWIp8wY9cnyrKReW07yj8bkCJtRiCct7+vxoJ9P8wgQ9sJ
+         WEx6bpst52PkcMuhzCyMvx8ovPwfKVA32Z0cgvk7rAoGTyy2lsay0gBimtbPKDyLLO
+         ok8Im3Gfi7dfTCCprKTqdqyhLQoH23wT8tFiXx2HpEZeD4a2v56bvcn3Te34J/jAzv
+         KbbpKjRLhG9gjcol8/9I/Upg1Q97eX+KbVII7X4P8+yCBf8SSa3Z3UDGtS4/kPYs4b
+         8JiTlx7Du4OzQ==
+From:   Luca Ellero <l.ellero@asem.it>
+To:     dmitry.torokhov@gmail.com, daniel@zonque.org,
+        m.felsch@pengutronix.de, andriy.shevchenko@linux.intel.com,
+        u.kleine-koenig@pengutronix.de, mkl@pengutronix.de,
+        miquel.raynal@bootlin.com, imre.deak@nokia.com,
+        luca.ellero@brickedbrain.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Luca Ellero <l.ellero@asem.it>
+Subject: [PATCH 3/3] ads7846: don't check penirq immediately for 7845
+Date:   Tue, 29 Nov 2022 16:19:59 +0100
+Message-Id: <20221129151959.26052-4-l.ellero@asem.it>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20221129151959.26052-1-l.ellero@asem.it>
+References: <20221129151959.26052-1-l.ellero@asem.it>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.45.149.100]
-X-ClientProxiedBy: lhrpeml100004.china.huawei.com (7.191.162.219) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4xfPYgu1vwqK7707YHL9+lchuSqtqnDkS9kvjahqpsSp7Xa4s3YkRoB80VbCh+Hclx9Lqq/tvTOYfd+z/N1RpqouOgqeBV41BZDtVBFrVjW2rqD25cL63O
+ +NT1tz+G+LHT1wA3I+hRqswcuHn3xNi+AoEwPxvhM47C/ggi6NcOidSvPiOuaASNEvyqNnV5hBvTEJmck1ho1TT7T7bP5veh4bB7fhagCqfQ/91R7zFG9Pt6
+ P210cEjQHfXqV5OEQJ3LUXEuIsn5Kchh3oYW/ZuymzC0odv0bhCGRM7+3iqrUpAxkgvgfaBaTVt2kcWMbcVIc0A4niOE0cdGgGLnpZ3++qw+Hfmzoi9Rv2YX
+ MU1atxttLF27kcvkckMLmLWxnAYx2buzNrxYp5hRcXqxD7aobfMxlnXT6+ero3uqN4Qggy2iUpaDZIz6xP8/yZvW70oJoGmVBClPZiAoX6s0U/mHnUN41XEZ
+ fjdTuPxpaI8c1idaT2EVrNWqTtras8dxd3Miym5RLYX4o/inLr7G7275/YUC7vXL5M/Bl9t6kKR7vXa8P60o/pbdMQwAl+1YRWsRMFPZL1WJPihQRWUTXnz/
+ 2ZQ9ZL/j0LgA0No50m1NF2F/
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 28 Nov 2022 10:16:31 -0800
-Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+To discard false readings, one should use "ti,penirq-recheck-delay-usecs".
+Checking get_pendown_state() at the beginning, most of the time fails
+causing malfunctioning.
 
-> Hi Jonathan,
-> 
-> On Sun, Nov 27, 2022 at 02:41:07PM +0000, Jonathan Cameron wrote:
-> > From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> > 
-> > This problem was discovered in IIO as a side effect of the discussions about
-> > relaxing kmalloc alignment on arm64 and resulted in a series of large
-> > patch sets.
-> > 
-> > https://lore.kernel.org/linux-iio/20220508175712.647246-1-jic23@kernel.org/
-> > 
-> > Unsurprisingly there are cases of it in other subsystems.
-> > 
-> > The short version of this is that there are a few known arm64 chips where
-> > ___cacheline_aligned enforces 64 byte alignment which is what we typically
-> > want for performance optimization as the size of the L1 cache lines.
-> > However, further out in the cache hierarchy we have caches with 128 byte
-> > lines.  Those are the ones that matter for DMA safety.
-> > So we need the larger alignment guarantees of ARCH_KMALLOC_MINALIGN which
-> > in this case is 128 bytes.  
-> 
-> I wonder if we could have something like ____dmasafe_aligned instead of
-> sprinkling ARCH_KMALLOC_MINALIGN around?
+Signed-off-by: Luca Ellero <l.ellero@asem.it>
+---
+ drivers/input/touchscreen/ads7846.c | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
-I agree in principle and eventually that will be ARCH_DMA_MINALIGN.
-But it isn't useable yet for backports.
-Catalin has worked on several approaches to reducing the alignment of kmalloc.
-I may well be lagging on the current plan...
-https://lore.kernel.org/linux-arm-kernel/20221106220143.2129263-1-catalin.marinas@arm.com/#r
-
-The way crypto and IIO handled this was to add a local define
-IIO_DMA_MINALIGN, CRYPTO_MINALIGN
-
-Catalin, if you do forwards with making ARCH_DMA_MINALIGN global available, make sure
-to include IIO_DMA_MINALIGN.  I'm fine with the approach you used for crypto of changing
-the local define.  Note that in IIO this typically only bloats a single structure
-per device instance, so it's not worth the complexity of dynamic alignment.
-As we are marking structure elements with it, in all cases they are multiples of
-IIO_DMA_MINALIGN in size, so everything is easy.
-
-On the other side of things, we might be able to relax most of these alignment tricks
-in IIO (and input) if swiotlb is the approach eventually used.  I'm personally not that
-keen on that transition but meh, this stuff usually involves a serial bus, so the extra
-bounce isnt' too painful. Note that we regularly do fun things like setting tx
-buffer to be ARCH_KMALLOC_MINALIGN and the rx buffer to be that +n bytes on the basis
-that a given serial bus master won't trash itself and hence this is safe. I think your
-approach will bounce all of those which is somewhat unfortunate.  Other fun things
-include DMA mapping a series of small buffers in one allocation for a series of serial
-messages.  Again, that is guaranteed to be safe.
-
-Jonathan
-
-
-
-
-
-
-> 
-> > 
-> > There is one other use of ____cacheline_aligned in input:
-> > joystick/iforce/iforce-usb.c
-> > 
-> > Whilst suspicious I'm not sure enough of the requirements of USB to
-> > know if they are there for DMA safety or some other constraint.  
-> 
-> Yes, USB has requirements similar to SPI.
-> 
-> Thanks.
-> 
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index 9e15cdf6faa0..122d3a13b7c5 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -843,14 +843,8 @@ static void ads7846_report_state(struct ads7846 *ts)
+ 	if (x == MAX_12BIT)
+ 		x = 0;
+ 
+-	if (ts->model == 7843) {
++	if (ts->model == 7843 || ts->model == 7845) {
+ 		Rt = ts->pressure_max / 2;
+-	} else if (ts->model == 7845) {
+-		if (get_pendown_state(ts))
+-			Rt = ts->pressure_max / 2;
+-		else
+-			Rt = 0;
+-		dev_vdbg(&ts->spi->dev, "x/y: %d/%d, PD %d\n", x, y, Rt);
+ 	} else if (likely(x && z1)) {
+ 		/* compute touch pressure resistance using equation #2 */
+ 		Rt = z2;
+-- 
+2.25.1
 

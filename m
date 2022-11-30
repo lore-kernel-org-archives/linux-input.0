@@ -2,200 +2,91 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B276C4321E
-	for <linux-input@archiver.kernel.org>; Wed, 30 Nov 2022 23:06:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F528C352A1
+	for <linux-input@archiver.kernel.org>; Wed, 30 Nov 2022 23:25:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229601AbiK3XGM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 30 Nov 2022 18:06:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41974 "EHLO
+        id S229997AbiK3XZl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 30 Nov 2022 18:25:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229586AbiK3XGL (ORCPT
+        with ESMTP id S229978AbiK3XZX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Nov 2022 18:06:11 -0500
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B28D397033;
-        Wed, 30 Nov 2022 15:06:07 -0800 (PST)
-Received: by mail-ed1-x52e.google.com with SMTP id s5so76819edc.12;
-        Wed, 30 Nov 2022 15:06:07 -0800 (PST)
+        Wed, 30 Nov 2022 18:25:23 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53804BF91A;
+        Wed, 30 Nov 2022 15:17:08 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id w4-20020a17090ac98400b002186f5d7a4cso3529960pjt.0;
+        Wed, 30 Nov 2022 15:17:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=UQlapujHjKw7zEIFDE0bIVyHKZ7ZDtpnlk0TFhcybwA=;
-        b=Ysm8TV/wU765nO4TfDrEonAPGjEFGm6E5iiVUYJOpUTVRLXFO3g8PSVucc0QBO77qc
-         RotMShY3b1/V8LPZ+LTzTvOwYtDXl1whxa23u4QnDrou4mw86hzWbB2eCC69gybYw7TW
-         smQ5ZQXFdzRLVJu1tRka0CNIHqBmT/wN6ONRqZOsbUTSP9z0IdRTPONmCLEg8YTZND9D
-         KmvHnVx4MzMB4nGmQMVWwjCW9Tt/5g8kUHJEpPsSx6OdWTbHV0/fS8i0NaJWBnhCCTEJ
-         jppNDTC7lFN5JUGJCU/NNBRqRydvrYiGDi+FAvFuu7z25o5hk8qSlAm27IylwMNvc2k/
-         K9WA==
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=OI4oe9f9CJ36Kp9mJv1gCGk1ojeGZwXUPKDrYbhDj4k=;
+        b=UVR8LpN1aCq4PBkeoinaOtXdDTMRH+RSulkUIjjbH1VEtqx3WlY0N816NC3l4XGdZQ
+         deZFVpTfMZloq63bb+cMsor+078WnOOAMg+4Itrf0bXUcRVjr8cARcdbIE0AE6QRNdqm
+         AJvR/abVLCwjQmu76DuT+7lT88knfBiSMu+g1xqzXcA6OIeYnBjWoSRP7udLz2nMlXuA
+         bAmJkuhfkutXKRLaJYDhvzYcwvWscu48qjRT1h/GPSBW5OlDs38VPv79RkAOF5u+Q36q
+         /YHHkNTUnG7HZfpaqHumPFTCGNSeLZSlYrKYSzflbmfqojCWPRN+a4Lg+WrbO7n3oLRs
+         tbCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UQlapujHjKw7zEIFDE0bIVyHKZ7ZDtpnlk0TFhcybwA=;
-        b=0oF7Pz2wmfcwxj93D4G47KqsMaJxgUTSEmbxJMeNa30l4U30ihwuvMaNvroOCLGBs3
-         pCjillY+bSJN+RHdli34+TUTR9wdQe9i5v2uC9YjPdUFUYORQVwKCEk5hr7b0h18zUB6
-         8gdWzgeMG3jZXKnL99jWgxwobui0AhzYfMaQZ+nQT3bl48USzzqpXClO+n4mJTeGyMlH
-         Kfi1L/ciG7gkLZ853QjxtKYlEFDMvCltajBaNPNLSuQqVDFzWWliuwtt0TTU4X9yjyp6
-         AY2PHtXAyv0Q116O1n5tVicLpqtxsy9DTnDwL2WbjY4vCWZg28uGs+Yj8GwhRBdiI8Bu
-         GAbQ==
-X-Gm-Message-State: ANoB5pnqQXRdiCXUr6jtmc8poYzQ68Qjp3ExJJc0S/da3IlIxESx7eKL
-        HvDW4Ip/WNTqHjw0Y3NNHcuVCQQQcBpcsWw4ql/ePrCl
-X-Google-Smtp-Source: AA0mqf7PtDPrIxDqKatcWfpFTL79ZuvV3WUTnTPNI4tc9Zv92huJfMiwWmwTqHWYV+x88CA6tbxVdC/+182b6AVVNFs=
-X-Received: by 2002:a50:ed90:0:b0:46a:e6e3:b3cf with SMTP id
- h16-20020a50ed90000000b0046ae6e3b3cfmr21089221edr.333.1669849566068; Wed, 30
- Nov 2022 15:06:06 -0800 (PST)
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OI4oe9f9CJ36Kp9mJv1gCGk1ojeGZwXUPKDrYbhDj4k=;
+        b=YeKfRVrZ+2t7Md7+84NhwSnXAUhvCki7OPHeHz3GvVKRWwhrS7ffFv7IcS6zUQP0+4
+         Xnx261iLnbNelx+35QMndCa6Zojjyv1nIfrA8h9zZqjh8s6ZBhT4vfA4hHw4QC4aIE+e
+         vmb6sUa8Yfl2XZEDOGAVLgxwPkH+k1rJJ7fAiylsh889AIbPY2YOeGjp9wjkfyZAZNuL
+         G0+B50CfU/1Y88LgSs9oB69VehnamHrQwxz0u7jBJVtLgySOzDIxyYEGcvaYjd1XDfgD
+         Ks+/D6kqFfZ45rcA7wqRIlJOnqDWi1bT97ddyPkYYwbUKrqXUyJlEGBFb26RmUrU18Cp
+         tsog==
+X-Gm-Message-State: ANoB5pnYW/OQIw92f0v/0Zcz6kziUTpZnCAwcqkvSGCbGRstUGf1XZu0
+        jUQZ/9O9uwENJNvoSDxHPyQOlDN9R5E=
+X-Google-Smtp-Source: AA0mqf5bQhX1KOZl7ZuLYypPGnOmCEf/iMe9H+mgCFFH7lLQUvqJXOKgfns+n8I09yS1nrd9RZ5HBA==
+X-Received: by 2002:a17:90a:bd11:b0:206:64cd:4797 with SMTP id y17-20020a17090abd1100b0020664cd4797mr67221140pjr.103.1669850171343;
+        Wed, 30 Nov 2022 15:16:11 -0800 (PST)
+Received: from google.com ([2620:15c:9d:2:360e:7e9f:b234:c094])
+        by smtp.gmail.com with ESMTPSA id f23-20020aa79697000000b005742ee3bf71sm1905211pfk.20.2022.11.30.15.16.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 30 Nov 2022 15:16:10 -0800 (PST)
+Date:   Wed, 30 Nov 2022 15:16:07 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-kernel@vger.kernel.org,
+        Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
+        Miloslav Trmac <mitr@volny.cz>, linux-input@vger.kernel.org,
+        linux-um@lists.infradead.org
+Subject: Re: [PATCH] input/misc: wistron_btns: disable on UML
+Message-ID: <Y4fkNy9URvaW+AtN@google.com>
+References: <20221130161604.1879-1-rdunlap@infradead.org>
 MIME-Version: 1.0
-References: <20221124151603.807536-1-benjamin.tissoires@redhat.com> <20221124151603.807536-2-benjamin.tissoires@redhat.com>
-In-Reply-To: <20221124151603.807536-2-benjamin.tissoires@redhat.com>
-From:   Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Date:   Wed, 30 Nov 2022 15:05:53 -0800
-Message-ID: <CAEf4Bzaq3QfhzqQK=BqCkzNcoS3A5L-ntJ5vj16uMc=jS4bxkw@mail.gmail.com>
-Subject: Re: [RFC hid v1 01/10] bpftool: generate json output of skeletons
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Tero Kristo <tero.kristo@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20221130161604.1879-1-rdunlap@infradead.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, Nov 24, 2022 at 7:16 AM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
-> So we can then build light skeletons with loaders in any language.
->
+On Wed, Nov 30, 2022 at 08:16:04AM -0800, Randy Dunlap wrote:
+> The wistron_btns driver calls rtc_cmos_read(), which isn't
+> available with UML builds, so disable this driver on UML.
+> 
+> Prevents this build error:
+> 
+> ld: drivers/input/misc/wistron_btns.o: in function `poll_bios':
+> wistron_btns.c:(.text+0x4be): undefined reference to `rtc_cmos_read'
+> 
+> Fixes: 0bbadafdc49d ("um: allow disabling NO_IOMEM") # v5.14+
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Johannes Berg <johannes.berg@intel.com>
+> Cc: Richard Weinberger <richard@nod.at>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: Miloslav Trmac <mitr@volny.cz>
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-um@lists.infradead.org
 
-It would be useful to include an example generated JSON. Other than
-that the overall idea makes sense. Kind of machine-friendly "BPF
-object schema" to allow automation.
+Applied, thank you.
 
-> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
->  tools/bpf/bpftool/gen.c | 95 +++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 95 insertions(+)
->
-> diff --git a/tools/bpf/bpftool/gen.c b/tools/bpf/bpftool/gen.c
-> index cf8b4e525c88..818a5209b3ac 100644
-> --- a/tools/bpf/bpftool/gen.c
-> +++ b/tools/bpf/bpftool/gen.c
-> @@ -904,6 +904,96 @@ codegen_progs_skeleton(struct bpf_object *obj, size_t prog_cnt, bool populate_li
->         }
->  }
->
-> +static int gen_json(struct bpf_object *obj, const char *obj_name, size_t file_sz, uint8_t *obj_data)
-> +{
-> +       struct bpf_program *prog;
-> +       struct bpf_map *map;
-> +       char ident[256];
-> +
-> +       jsonw_start_object(json_wtr);   /* root object */
-> +
-> +       jsonw_string_field(json_wtr, "name", obj_name);
-> +
-> +       jsonw_bool_field(json_wtr, "use_loader", use_loader);
-> +
-> +       /* print all maps */
-> +       jsonw_name(json_wtr, "maps");
-> +       jsonw_start_array(json_wtr);
-> +       bpf_object__for_each_map(map, obj) {
-> +               if (!get_map_ident(map, ident, sizeof(ident))) {
-> +                       p_err("ignoring unrecognized internal map '%s'...",
-> +                             bpf_map__name(map));
-> +                       continue;
-> +               }
-> +
-> +               jsonw_start_object(json_wtr);   /* map object */
-> +               jsonw_string_field(json_wtr, "ident", ident);
-> +               jsonw_string_field(json_wtr, "name", bpf_map__name(map));
-> +
-> +               /* print mmap data value */
-> +               if (is_internal_mmapable_map(map, ident, sizeof(ident))) {
-> +                       const void *mmap_data = NULL;
-> +                       size_t mmap_size = 0;
-> +
-> +                       mmap_data = bpf_map__initial_value(map, &mmap_size);
-> +
-> +                       jsonw_uint_field(json_wtr, "size", mmap_size);
-> +                       jsonw_uint_field(json_wtr, "mmap_sz", bpf_map_mmap_sz(map));
-> +                       jsonw_name(json_wtr, "data");
-> +                       print_hex_data_json((uint8_t *)mmap_data, mmap_size);
-> +
-> +               }
-> +               jsonw_end_object(json_wtr);     /* map object */
-> +       }
-> +       jsonw_end_array(json_wtr);
-> +
-> +       /* print all progs */
-> +       jsonw_name(json_wtr, "progs");
-> +       jsonw_start_array(json_wtr);
-> +       bpf_object__for_each_program(prog, obj) {
-> +               jsonw_start_object(json_wtr);   /* prog object */
-> +               jsonw_string_field(json_wtr, "name", bpf_program__name(prog));
-> +               jsonw_string_field(json_wtr, "sec", bpf_program__section_name(prog));
-> +               jsonw_end_object(json_wtr);     /* prog object */
-> +       }
-> +       jsonw_end_array(json_wtr);
-> +
-> +       /* print object data */
-> +       if (use_loader) {
-> +               DECLARE_LIBBPF_OPTS(gen_loader_opts, opts);
-> +               int err = 0;
-> +
-> +               err = bpf_object__gen_loader(obj, &opts);
-> +               if (err)
-> +                       return err;
-> +
-> +               err = bpf_object__load(obj);
-> +               if (err) {
-> +                       p_err("failed to load object file");
-> +                       return err;
-> +               }
-> +               /* If there was no error during load then gen_loader_opts
-> +                * are populated with the loader program.
-> +                */
-> +
-> +               jsonw_uint_field(json_wtr, "data_sz", opts.data_sz);
-> +               jsonw_name(json_wtr, "data");
-> +               print_hex_data_json((uint8_t *)opts.data, opts.data_sz);
-> +
-> +               jsonw_uint_field(json_wtr, "insns_sz", opts.insns_sz);
-> +               jsonw_name(json_wtr, "insns");
-> +               print_hex_data_json((uint8_t *)opts.insns, opts.insns_sz);
-> +
-> +       } else {
-> +               jsonw_name(json_wtr, "data");
-> +               print_hex_data_json(obj_data, file_sz);
-> +       }
-> +
-> +       jsonw_end_object(json_wtr);     /* root object */
-> +
-> +       return 0;
-> +}
-> +
->  static int do_skeleton(int argc, char **argv)
->  {
->         char header_guard[MAX_OBJ_NAME_LEN + sizeof("__SKEL_H__")];
-> @@ -986,6 +1076,11 @@ static int do_skeleton(int argc, char **argv)
->                 goto out;
->         }
->
-> +       if (json_output) {
-> +               err = gen_json(obj, obj_name, file_sz, (uint8_t *)obj_data);
-> +               goto out;
-> +       }
-> +
->         bpf_object__for_each_map(map, obj) {
->                 if (!get_map_ident(map, ident, sizeof(ident))) {
->                         p_err("ignoring unrecognized internal map '%s'...",
-> --
-> 2.38.1
->
+-- 
+Dmitry

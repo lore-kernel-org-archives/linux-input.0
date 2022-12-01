@@ -2,79 +2,126 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 697A7C47088
-	for <linux-input@archiver.kernel.org>; Wed, 30 Nov 2022 23:26:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4666BC4321E
+	for <linux-input@archiver.kernel.org>; Thu,  1 Dec 2022 03:03:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230109AbiK3X0f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 30 Nov 2022 18:26:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45528 "EHLO
+        id S229615AbiLADDJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 30 Nov 2022 22:03:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbiK3X0O (ORCPT
+        with ESMTP id S229541AbiLADDI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Nov 2022 18:26:14 -0500
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEE10212;
-        Wed, 30 Nov 2022 15:17:32 -0800 (PST)
-Received: by mail-pj1-f48.google.com with SMTP id t11-20020a17090a024b00b0021932afece4so3474094pje.5;
-        Wed, 30 Nov 2022 15:17:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JHPYnqkf2NRISNr9s2sdmwDxCB7+PKLiB+fahjpgjKA=;
-        b=Gwnn1Tg36v0C9UFyL+lfSUR9DkSygRbLxrb0z2WIrXYkRzlGM3QFGEFI4uA2JlgMui
-         NMpWWekWX17ucbs9h107b3sRwm4dqz9UIKTEQR5srBdTr28vW2aJ1E5T4F991BKPovLZ
-         BniOrKueHLHlvG2UtMzzMuFdYAPZ6eh9F4N1CXVpjGzD+CgEfi/JkoBqsVurT0q5agiL
-         i3cyFj0I13BqOb6HwZHFbvzAN1u1IfLRBpmEAHPGR9CKl/M1JNZs5R+5b3Maj0wvipiR
-         c+cdy7zCrkCgdsaNtGA9jOzcvs9DHwOit1X/ax0rgrbsfHihXYFtUo6m0HovfcBb0hGa
-         E2aA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JHPYnqkf2NRISNr9s2sdmwDxCB7+PKLiB+fahjpgjKA=;
-        b=3azB3gp6GFCSGRqMfyuwL6PCiG97WIcZ29b6QmJ8XgSC5qjBzGjTarMu5Ray4t1q6E
-         EpUqPQ3doTTBMfrIScllQqpdKZ11GuKeUz/VK0s3G2WVsBMWJnQ5yMVIFIAsGCYk+vlV
-         RRTNOiOKiEwXPPEiLNxpbhAfaTZBcORugsC3Rn6WOCL2EvQg+XJ71EmIkyMrmpFmC5uA
-         ga9EEE7XGr+L98XRF72FPp0Ed4rQBu9j2OtskSFn7N1Qev9VOiEHNNRRdPyrYcE6eKkY
-         Eyf10pymkqSW1pcwbncw73KOpLiBVu8knoF5u2HBB6spuBLXWmzKniIOmvzFhMPo3Ex4
-         n9OQ==
-X-Gm-Message-State: ANoB5pkhn6aFUiBIiXSbGxzpN9CFoP0Qkbc0MchmUrVkylfcxFeuWo7L
-        9Quo7vwX0NMNK6VMbGEKncOvSbADWng=
-X-Google-Smtp-Source: AA0mqf4hOUlc1LUnq7PCe3mgcQJ4Gx4HpQumuFCEp6biAMVWm1P3NUpo9JWayWHSlGl6ufDrh2SjXA==
-X-Received: by 2002:a17:902:7d93:b0:186:9cf4:e53b with SMTP id a19-20020a1709027d9300b001869cf4e53bmr48580264plm.50.1669850160375;
-        Wed, 30 Nov 2022 15:16:00 -0800 (PST)
-Received: from google.com ([2620:15c:9d:2:360e:7e9f:b234:c094])
-        by smtp.gmail.com with ESMTPSA id n12-20020a170903110c00b00186a6b63525sm2035082plh.120.2022.11.30.15.15.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 30 Nov 2022 15:15:59 -0800 (PST)
-Date:   Wed, 30 Nov 2022 15:15:56 -0800
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Vincent Knecht <vincent.knecht@mailoo.org>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        w.david0@protonmail.com, stephan@gerhold.net,
-        phone-devel@vger.kernel.org
-Subject: Re: [PATCH RESEND] Input: msg2638 - only read linux,keycodes array
- if necessary
-Message-ID: <Y4fkLL6nvq6655MW@google.com>
-References: <20221130210202.2069213-1-vincent.knecht@mailoo.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20221130210202.2069213-1-vincent.knecht@mailoo.org>
+        Wed, 30 Nov 2022 22:03:08 -0500
+Received: from mxhk.zte.com.cn (mxhk.zte.com.cn [63.216.63.40])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B901C165BF;
+        Wed, 30 Nov 2022 19:03:07 -0800 (PST)
+Received: from mse-fl1.zte.com.cn (unknown [10.5.228.132])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mxhk.zte.com.cn (FangMail) with ESMTPS id 4NN1962Zzdz8QrkZ;
+        Thu,  1 Dec 2022 11:03:06 +0800 (CST)
+Received: from xaxapp01.zte.com.cn ([10.88.40.50])
+        by mse-fl1.zte.com.cn with SMTP id 2B132vl0040902;
+        Thu, 1 Dec 2022 11:02:57 +0800 (+08)
+        (envelope-from ye.xingchen@zte.com.cn)
+Received: from mapi (xaxapp01[null])
+        by mapi (Zmail) with MAPI id mid31;
+        Thu, 1 Dec 2022 11:02:58 +0800 (CST)
+Date:   Thu, 1 Dec 2022 11:02:58 +0800 (CST)
+X-Zmail-TransId: 2af9638819624952e6b0
+X-Mailer: Zmail v1.0
+Message-ID: <202212011102587309217@zte.com.cn>
+Mime-Version: 1.0
+From:   <ye.xingchen@zte.com.cn>
+To:     <jikos@kernel.org>
+Cc:     <benjamin.tissoires@redhat.com>, <michael.zaidman@gmail.com>,
+        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>
+Subject: =?UTF-8?B?W1BBVENIXSBISUQ6IHVzZSBzeXNmc19lbWl0KCkgdG8gaW5zdGVhZCBvZiBzY25wcmludGYoKQ==?=
+Content-Type: text/plain;
+        charset="UTF-8"
+X-MAIL: mse-fl1.zte.com.cn 2B132vl0040902
+X-Fangmail-Gw-Spam-Type: 0
+X-FangMail-Miltered: at cgslv5.04-192.168.250.137.novalocal with ID 6388196A.001 by FangMail milter!
+X-FangMail-Envelope: 1669863786/4NN1962Zzdz8QrkZ/6388196A.001/10.5.228.132/[10.5.228.132]/mse-fl1.zte.com.cn/<ye.xingchen@zte.com.cn>
+X-Fangmail-Anti-Spam-Filtered: true
+X-Fangmail-MID-QID: 6388196A.001/4NN1962Zzdz8QrkZ
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Nov 30, 2022 at 10:01:59PM +0100, Vincent Knecht wrote:
-> The linux,keycodes property is optional.
-> Fix the driver not probing when it's not specified.
-> 
-> Fixes: c18ef50346f2 ("Input: msg2638 - add support for msg2138 key events")
-> Signed-off-by: Vincent Knecht <vincent.knecht@mailoo.org>
+From: ye xingchen <ye.xingchen@zte.com.cn>
 
-Applied, thank you.
+Replace the open-code with sysfs_emit() to simplify the code.
 
+Signed-off-by: ye xingchen <ye.xingchen@zte.com.cn>
+---
+ drivers/hid/hid-core.c   | 2 +-
+ drivers/hid/hid-cp2112.c | 2 +-
+ drivers/hid/hid-ft260.c  | 4 ++--
+ drivers/hid/hid-gt683r.c | 2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index b973df3b825d..ae1ecb21121a 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -2658,7 +2658,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
+ {
+ 	struct hid_device *hdev = container_of(dev, struct hid_device, dev);
+
+-	return scnprintf(buf, PAGE_SIZE, "hid:b%04Xg%04Xv%08Xp%08X\n",
++	return sysfs_emit(buf, "hid:b%04Xg%04Xv%08Xp%08X\n",
+ 			 hdev->bus, hdev->group, hdev->vendor, hdev->product);
+ }
+ static DEVICE_ATTR_RO(modalias);
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 1e16b0fa310d..810e3b4b1728 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -895,7 +895,7 @@ static ssize_t name##_show(struct device *kdev, \
+ 	int ret = cp2112_get_usb_config(hdev, &cfg); \
+ 	if (ret) \
+ 		return ret; \
+-	return scnprintf(buf, PAGE_SIZE, format, ##__VA_ARGS__); \
++	return sysfs_emit(buf, format, ##__VA_ARGS__); \
+ } \
+ static DEVICE_ATTR_RW(name);
+
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+index 333341e80b0e..8677bea46bea 100644
+--- a/drivers/hid/hid-ft260.c
++++ b/drivers/hid/hid-ft260.c
+@@ -826,7 +826,7 @@ static int ft260_byte_show(struct hid_device *hdev, int id, u8 *cfg, int len,
+ 	if (ret < 0)
+ 		return ret;
+
+-	return scnprintf(buf, PAGE_SIZE, "%d\n", *field);
++	return sysfs_emit(buf, "%d\n", *field);
+ }
+
+ static int ft260_word_show(struct hid_device *hdev, int id, u8 *cfg, int len,
+@@ -838,7 +838,7 @@ static int ft260_word_show(struct hid_device *hdev, int id, u8 *cfg, int len,
+ 	if (ret < 0)
+ 		return ret;
+
+-	return scnprintf(buf, PAGE_SIZE, "%d\n", le16_to_cpu(*field));
++	return sysfs_emit(buf, "%d\n", le16_to_cpu(*field));
+ }
+
+ #define FT260_ATTR_SHOW(name, reptype, id, type, func)			       \
+diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
+index 29ccb0accfba..fa453de406b9 100644
+--- a/drivers/hid/hid-gt683r.c
++++ b/drivers/hid/hid-gt683r.c
+@@ -90,7 +90,7 @@ static ssize_t mode_show(struct device *dev,
+ 	else
+ 		sysfs_mode = 2;
+
+-	return scnprintf(buf, PAGE_SIZE, "%u\n", sysfs_mode);
++	return sysfs_emit(buf, "%u\n", sysfs_mode);
+ }
+
+ static ssize_t mode_store(struct device *dev,
 -- 
-Dmitry
+2.25.1

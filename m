@@ -2,43 +2,43 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 91B4CC3A5A7
-	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:56:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE485C47089
+	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:56:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230282AbiLDR4S (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 4 Dec 2022 12:56:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41416 "EHLO
+        id S229970AbiLDR4T (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Dec 2022 12:56:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230123AbiLDR4R (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E24A140D2
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:17 -0800 (PST)
+        with ESMTP id S229960AbiLDR4S (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 320A7140CD
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB374B80886
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D032C433C1;
-        Sun,  4 Dec 2022 17:56:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBA1D60DEB
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52438C433C1;
+        Sun,  4 Dec 2022 17:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670176574;
-        bh=3Lky+xKxHB3nBcYHWbORFQoR4+X4lAy6Ei+zknpbUG4=;
+        s=k20201202; t=1670176577;
+        bh=r8D8Sd1WxQQUnUAbhdzbXR9bTkQGae2Mgvb+dbVYKiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jvAwqj1WBtNU4nn27LeuWO3VOOf0TOiqWcfwexSqxSfOdUH0W1RzM+JGTfEh1eI6L
-         etRktfxiV40G1/LHJPOeJtu082l/+O52XRygyHV0sogv8AEfvzT4AGxCUkN8St0FFJ
-         18h9SZCFks2qQya5uf5FRVvSofJLsoTBZYmqRCtLaQqSLNE3UMVGl2z1hWjWA2wYBd
-         suA4zIFgSYiTqrgi4xyS0LXfR3bb9aiDYSGK/7dBEBZzqd5/L0ttavs7WJdWvazcdD
-         T7gjbNSdyj5F2K84GsN7AUN4GMvQztyBhBQ0otyizSZr7hyAiTBemQOoc2kZciYwT9
-         QfG8ZRxMr/TQA==
+        b=p8y1TwgC26BKweWKqkGyBzclkrHthI6gwfQMgObONQbLuhkLQ6HE+FH+mpIAemngb
+         WEcA4bp+MViao64LzbWiwFGT+RLVb5Exx44DMoKjRWZa8FeoKzKyxBqSd4eA4TJKTP
+         8wspfnvjmkiacB+J9lCUrKF/i9PA1LUsSyKdrLPtdkldOwG4sFRcQJHmGyBiMikVs9
+         OVdKyXarGubdrblUwe6qH7CvMqscQ2lsG762P4/XuZPTpIunx+Yx5Dw/8uhm5vl3vF
+         YOwtsonLmMWcxTUbMrZVZtPEFHRY5Ebxfay79rSvJ6/MuuQVPZAZJucWC1KX/5ETh9
+         WC9iMHRdSMqyg==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 07/32] Input: ipaq-micro-keys - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Sun,  4 Dec 2022 18:08:16 +0000
-Message-Id: <20221204180841.2211588-8-jic23@kernel.org>
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Subject: [PATCH 09/32] Input: mtk-pmic-keys - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Sun,  4 Dec 2022 18:08:18 +0000
+Message-Id: <20221204180841.2211588-10-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221204180841.2211588-1-jic23@kernel.org>
 References: <20221204180841.2211588-1-jic23@kernel.org>
@@ -57,51 +57,53 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-
+Cc: Mattijs Korpershoek <mkorpershoek@baylibre.com>
 ---
- drivers/input/keyboard/ipaq-micro-keys.c | 10 +++++-----
+ drivers/input/keyboard/mtk-pmic-keys.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/keyboard/ipaq-micro-keys.c b/drivers/input/keyboard/ipaq-micro-keys.c
-index 13a66a8e3411..7b509bce2b33 100644
---- a/drivers/input/keyboard/ipaq-micro-keys.c
-+++ b/drivers/input/keyboard/ipaq-micro-keys.c
-@@ -124,7 +124,7 @@ static int micro_key_probe(struct platform_device *pdev)
+diff --git a/drivers/input/keyboard/mtk-pmic-keys.c b/drivers/input/keyboard/mtk-pmic-keys.c
+index 9b34da0ec260..3d4ffa25e3df 100644
+--- a/drivers/input/keyboard/mtk-pmic-keys.c
++++ b/drivers/input/keyboard/mtk-pmic-keys.c
+@@ -231,7 +231,7 @@ static int mtk_pmic_key_setup(struct mtk_pmic_keys *keys,
  	return 0;
  }
  
--static int __maybe_unused micro_key_suspend(struct device *dev)
-+static int micro_key_suspend(struct device *dev)
+-static int __maybe_unused mtk_pmic_keys_suspend(struct device *dev)
++static int mtk_pmic_keys_suspend(struct device *dev)
  {
- 	struct ipaq_micro_keys *keys = dev_get_drvdata(dev);
- 
-@@ -133,7 +133,7 @@ static int __maybe_unused micro_key_suspend(struct device *dev)
+ 	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
+ 	int index;
+@@ -247,7 +247,7 @@ static int __maybe_unused mtk_pmic_keys_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused micro_key_resume(struct device *dev)
-+static int micro_key_resume(struct device *dev)
+-static int __maybe_unused mtk_pmic_keys_resume(struct device *dev)
++static int mtk_pmic_keys_resume(struct device *dev)
  {
- 	struct ipaq_micro_keys *keys = dev_get_drvdata(dev);
- 	struct input_dev *input = keys->input;
-@@ -148,13 +148,13 @@ static int __maybe_unused micro_key_resume(struct device *dev)
+ 	struct mtk_pmic_keys *keys = dev_get_drvdata(dev);
+ 	int index;
+@@ -263,8 +263,8 @@ static int __maybe_unused mtk_pmic_keys_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(micro_key_dev_pm_ops,
--			 micro_key_suspend, micro_key_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(micro_key_dev_pm_ops,
-+				micro_key_suspend, micro_key_resume);
+-static SIMPLE_DEV_PM_OPS(mtk_pmic_keys_pm_ops, mtk_pmic_keys_suspend,
+-			mtk_pmic_keys_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(mtk_pmic_keys_pm_ops, mtk_pmic_keys_suspend,
++				mtk_pmic_keys_resume);
  
- static struct platform_driver micro_key_device_driver = {
+ static const struct of_device_id of_mtk_pmic_keys_match_tbl[] = {
+ 	{
+@@ -387,7 +387,7 @@ static struct platform_driver pmic_keys_pdrv = {
  	.driver = {
- 		.name    = "ipaq-micro-keys",
--		.pm	= &micro_key_dev_pm_ops,
-+		.pm	= pm_sleep_ptr(&micro_key_dev_pm_ops),
+ 		   .name = "mtk-pmic-keys",
+ 		   .of_match_table = of_mtk_pmic_keys_match_tbl,
+-		   .pm = &mtk_pmic_keys_pm_ops,
++		   .pm = pm_sleep_ptr(&mtk_pmic_keys_pm_ops),
  	},
- 	.probe   = micro_key_probe,
  };
+ 
 -- 
 2.38.1
 

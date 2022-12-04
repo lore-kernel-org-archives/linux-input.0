@@ -2,46 +2,48 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C1962C636F8
-	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:56:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 180B3C4321E
+	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:56:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230209AbiLDR4Q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 4 Dec 2022 12:56:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41396 "EHLO
+        id S230268AbiLDR4S (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Dec 2022 12:56:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230268AbiLDR4P (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81766140D0
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:14 -0800 (PST)
+        with ESMTP id S229960AbiLDR4R (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCE34140CD
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4340FB80886
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45DF0C433C1;
-        Sun,  4 Dec 2022 17:56:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79DCA60DEB
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3BFEC433D6;
+        Sun,  4 Dec 2022 17:56:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670176572;
-        bh=XlqaHO4DKK4/tExXGHlwiTmpl72Ain9+PidTnAzVTzA=;
+        s=k20201202; t=1670176575;
+        bh=7Vkbkwa2VGJ7g3SZ6ixVK9ZHktVllTsPZZe/aAxuBFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cc3QqKQliuAClX/k5qsL4MJLkXvi3vMoCCFlNlYUS2Qpy/5Dq0DNFyucmn+eajCrN
-         So4xWcuzcV7NHWCvRlM/SkSnUbZdsvQihz6Z2/oTO+xDAD2yOA5IOi2v0QJb/7JT8o
-         6DPE14Of5yjfdCf9ameRVlScMZwB6UzcJPU4a1Pogbb+MULuV08QlEtBU/uLDawCEC
-         dCLjnLlZZTJ8q16Tni23gr+n//1te1IJ+i32dcutSqF/A4MePYFceXk8WrzW6ZkDFZ
-         AT5FLI0dPWVHEbR2PG7Gmp/WKLfNRtoFynmVjbrBIi3+iJ2jR+2CuWwE41IumpmLSv
-         BRw6n+uITTxNQ==
+        b=mB+jCtXJQwqebxc5T5WTqQhvPR4L0Jde1cXk1fEBjtyJ2WicrhOvyvRFueaFasrvx
+         L8kgfYXfBGsjKGvTamYzx5FI1u3EGWMb4SX0UXXgag61/SCdQ7zz/KIak9qMgUFSgU
+         21Mug5U3fzEEZaMxsVyjKGlFsPHSNSCJicgJcIVg221zckJyLYcglnJxFi2Z3mhwp/
+         ZjGpuDq2c2PYEJpwqJ+pyG3OPp2N55dfLm5DgrgUcA9eyGU5jd9YRqNJI4uRz5oaS9
+         wvdSwi9Q4xhDVemkcwFM/EwLm6NcbAgQzAiNrSDVIu/tL3GxOw2BT6NIBNNI0dlg/y
+         lpF0/4rdP6PLQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 05/32] Input: ep39xx-keypad - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Sun,  4 Dec 2022 18:08:14 +0000
-Message-Id: <20221204180841.2211588-6-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        =?UTF-8?q?Michal=20Vok=C3=A1=C4=8D?= <michal.vokac@ysoft.com>
+Subject: [PATCH 08/32] Input: mpr121-touchkey - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Sun,  4 Dec 2022 18:08:17 +0000
+Message-Id: <20221204180841.2211588-9-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221204180841.2211588-1-jic23@kernel.org>
 References: <20221204180841.2211588-1-jic23@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -56,52 +58,51 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Michal Vokáč <michal.vokac@ysoft.com>
 ---
- drivers/input/keyboard/ep93xx_keypad.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/keyboard/mpr121_touchkey.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/ep93xx_keypad.c b/drivers/input/keyboard/ep93xx_keypad.c
-index f5bf7524722a..55075addcac2 100644
---- a/drivers/input/keyboard/ep93xx_keypad.c
-+++ b/drivers/input/keyboard/ep93xx_keypad.c
-@@ -178,7 +178,7 @@ static void ep93xx_keypad_close(struct input_dev *pdev)
- }
- 
- 
--static int __maybe_unused ep93xx_keypad_suspend(struct device *dev)
-+static int ep93xx_keypad_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct ep93xx_keypad *keypad = platform_get_drvdata(pdev);
-@@ -196,7 +196,7 @@ static int __maybe_unused ep93xx_keypad_suspend(struct device *dev)
+diff --git a/drivers/input/keyboard/mpr121_touchkey.c b/drivers/input/keyboard/mpr121_touchkey.c
+index 4610ef55903c..74ad353462a3 100644
+--- a/drivers/input/keyboard/mpr121_touchkey.c
++++ b/drivers/input/keyboard/mpr121_touchkey.c
+@@ -340,7 +340,7 @@ static int mpr_touchkey_probe(struct i2c_client *client)
  	return 0;
  }
  
--static int __maybe_unused ep93xx_keypad_resume(struct device *dev)
-+static int ep93xx_keypad_resume(struct device *dev)
+-static int __maybe_unused mpr_suspend(struct device *dev)
++static int mpr_suspend(struct device *dev)
  {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct ep93xx_keypad *keypad = platform_get_drvdata(pdev);
-@@ -217,8 +217,8 @@ static int __maybe_unused ep93xx_keypad_resume(struct device *dev)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 
+@@ -352,7 +352,7 @@ static int __maybe_unused mpr_suspend(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(ep93xx_keypad_pm_ops,
--			 ep93xx_keypad_suspend, ep93xx_keypad_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(ep93xx_keypad_pm_ops,
-+				ep93xx_keypad_suspend, ep93xx_keypad_resume);
- 
- static void ep93xx_keypad_release_gpio_action(void *_pdev)
+-static int __maybe_unused mpr_resume(struct device *dev)
++static int mpr_resume(struct device *dev)
  {
-@@ -318,7 +318,7 @@ static int ep93xx_keypad_remove(struct platform_device *pdev)
- static struct platform_driver ep93xx_keypad_driver = {
- 	.driver		= {
- 		.name	= "ep93xx-keypad",
--		.pm	= &ep93xx_keypad_pm_ops,
-+		.pm	= pm_sleep_ptr(&ep93xx_keypad_pm_ops),
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct mpr121_touchkey *mpr121 = i2c_get_clientdata(client);
+@@ -366,7 +366,7 @@ static int __maybe_unused mpr_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(mpr121_touchkey_pm_ops, mpr_suspend, mpr_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(mpr121_touchkey_pm_ops, mpr_suspend, mpr_resume);
+ 
+ static const struct i2c_device_id mpr121_id[] = {
+ 	{ "mpr121_touchkey", 0 },
+@@ -385,7 +385,7 @@ MODULE_DEVICE_TABLE(of, mpr121_touchkey_dt_match_table);
+ static struct i2c_driver mpr_touchkey_driver = {
+ 	.driver = {
+ 		.name	= "mpr121",
+-		.pm	= &mpr121_touchkey_pm_ops,
++		.pm	= pm_sleep_ptr(&mpr121_touchkey_pm_ops),
+ 		.of_match_table = of_match_ptr(mpr121_touchkey_dt_match_table),
  	},
- 	.probe		= ep93xx_keypad_probe,
- 	.remove		= ep93xx_keypad_remove,
+ 	.id_table	= mpr121_id,
 -- 
 2.38.1
 

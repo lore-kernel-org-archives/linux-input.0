@@ -2,43 +2,43 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 046FEC4708D
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A8EFC636F8
 	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:57:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229983AbiLDR4v (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 4 Dec 2022 12:56:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41450 "EHLO
+        id S230036AbiLDR4x (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Dec 2022 12:56:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230158AbiLDR4Z (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:25 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4FD9140CD
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:24 -0800 (PST)
+        with ESMTP id S230286AbiLDR41 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65C1C140CD
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 087C8CE0BAD
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D44AC433D6;
-        Sun,  4 Dec 2022 17:56:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 205D8B80B8A
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7283C433C1;
+        Sun,  4 Dec 2022 17:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670176581;
-        bh=dZpy/GJ340BdOCA7F3pmskMstdkhkITN4BXYoije6z4=;
+        s=k20201202; t=1670176584;
+        bh=9lLSaUUPEH0GXqgySigGjoaOcjTG/JbDCrjpOyjkK7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ubGjBeWniol2/OkpEY6phtrSLBPui3vXv/Lc3LlDSnVlcZ0qwENMxRpcvtt+6lCVp
-         out+fI754K640DU4xzlOjEJIcG22gPU5rol16cVa/ufjx04Hp/QBsD+2ykZXzPtL9E
-         nyIroybbz0G9/Kwls5W+TjQuaeT0altKAjpUYqm+sMY6Qj1KvtmFn4+7ziO/f4+z6Q
-         AGc/0y5xesQ8HYx3bp4322zOyfUXLuOr5lSTfdLq/J4ReLZCXBuZacWRXyzJhHRw8J
-         SDljmKQiQH419qR1DBMoYh1eU8d+hmVP2AobjurBmbqbNpxgr8fBXl96rNMYb7OGUA
-         qyS/oRfgrwLmQ==
+        b=kmyuIFv73eUxAwCekcJa2Gujopt5XGcrUWQdcvHIBGXRo6sw2VghlfKuaPB8xNNRV
+         JYP/x3S6nI7PF2ls5zp1jvw9DSzNRc3LwOmObHGp68cMycon+OJFARh4zyZGPGfQoI
+         TZb7U8l06VpkzhgmZY7g4qly6zczDpaj/LKxv5y3YWPvhxosnGcFOKN85zJR9zNIhZ
+         RpGrHEdXn8Jmq/xvc6iuWNVplSR1dE2KR+i+rCj7Uw8vUFn5o5xQS0LivYh5fYa43Y
+         t2qsYH3Uri9swZlQPdpI7WY0aJGNJtWyNVUJi39SjKkJ0ZY42yggWQqQ4NRalbp356
+         4Q+s+/JeEU08Q==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stephan Gerhold <stephan@gerhold.net>
-Subject: [PATCH 12/32] Input: tm2-touchkey - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Sun,  4 Dec 2022 18:08:21 +0000
-Message-Id: <20221204180841.2211588-13-jic23@kernel.org>
+        Marek Vasut <marek.vasut@gmail.com>
+Subject: [PATCH 15/32] Input: matrix-keypad - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Sun,  4 Dec 2022 18:08:24 +0000
+Message-Id: <20221204180841.2211588-16-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221204180841.2211588-1-jic23@kernel.org>
 References: <20221204180841.2211588-1-jic23@kernel.org>
@@ -54,56 +54,48 @@ SIMPLE_DEV_PM_OPS() is deprecated as it requires explicit protection
 against unused function warnings.  The new combination of pm_sleep_ptr()
 and DEFINE_SIMPLE_DEV_PM_OPS() allows the compiler to see the functions,
 thus suppressing the warning, but still allowing the unused code to be
-removed. Thus also drop the __maybe_unused markings.
+removed. Thus also drop the ifdef guards.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Stephan Gerhold <stephan@gerhold.net>
+Cc: Marek Vasut <marek.vasut@gmail.com>
 ---
- drivers/input/keyboard/tm2-touchkey.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/keyboard/matrix_keypad.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/keyboard/tm2-touchkey.c b/drivers/input/keyboard/tm2-touchkey.c
-index 086aafaf0418..6627e65f06e5 100644
---- a/drivers/input/keyboard/tm2-touchkey.c
-+++ b/drivers/input/keyboard/tm2-touchkey.c
-@@ -297,7 +297,7 @@ static int tm2_touchkey_probe(struct i2c_client *client)
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index b4c0325bbf1a..203310727d88 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -230,7 +230,6 @@ static void matrix_keypad_stop(struct input_dev *dev)
+ 	disable_row_irqs(keypad);
+ }
+ 
+-#ifdef CONFIG_PM_SLEEP
+ static void matrix_keypad_enable_wakeup(struct matrix_keypad *keypad)
+ {
+ 	const struct matrix_keypad_platform_data *pdata = keypad->pdata;
+@@ -299,10 +298,9 @@ static int matrix_keypad_resume(struct device *dev)
+ 
  	return 0;
  }
+-#endif
  
--static int __maybe_unused tm2_touchkey_suspend(struct device *dev)
-+static int tm2_touchkey_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct tm2_touchkey_data *touchkey = i2c_get_clientdata(client);
-@@ -308,7 +308,7 @@ static int __maybe_unused tm2_touchkey_suspend(struct device *dev)
- 	return 0;
- }
+-static SIMPLE_DEV_PM_OPS(matrix_keypad_pm_ops,
+-			 matrix_keypad_suspend, matrix_keypad_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(matrix_keypad_pm_ops,
++				matrix_keypad_suspend, matrix_keypad_resume);
  
--static int __maybe_unused tm2_touchkey_resume(struct device *dev)
-+static int tm2_touchkey_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct tm2_touchkey_data *touchkey = i2c_get_clientdata(client);
-@@ -323,8 +323,8 @@ static int __maybe_unused tm2_touchkey_resume(struct device *dev)
- 	return ret;
- }
- 
--static SIMPLE_DEV_PM_OPS(tm2_touchkey_pm_ops,
--			 tm2_touchkey_suspend, tm2_touchkey_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(tm2_touchkey_pm_ops,
-+				tm2_touchkey_suspend, tm2_touchkey_resume);
- 
- static const struct i2c_device_id tm2_touchkey_id_table[] = {
- 	{ TM2_TOUCHKEY_DEV_NAME, 0 },
-@@ -353,7 +353,7 @@ MODULE_DEVICE_TABLE(of, tm2_touchkey_of_match);
- static struct i2c_driver tm2_touchkey_driver = {
- 	.driver = {
- 		.name = TM2_TOUCHKEY_DEV_NAME,
--		.pm = &tm2_touchkey_pm_ops,
-+		.pm = pm_sleep_ptr(&tm2_touchkey_pm_ops),
- 		.of_match_table = of_match_ptr(tm2_touchkey_of_match),
+ static int matrix_keypad_init_gpio(struct platform_device *pdev,
+ 				   struct matrix_keypad *keypad)
+@@ -577,7 +575,7 @@ static struct platform_driver matrix_keypad_driver = {
+ 	.remove		= matrix_keypad_remove,
+ 	.driver		= {
+ 		.name	= "matrix-keypad",
+-		.pm	= &matrix_keypad_pm_ops,
++		.pm	= pm_sleep_ptr(&matrix_keypad_pm_ops),
+ 		.of_match_table = of_match_ptr(matrix_keypad_dt_match),
  	},
- 	.probe_new = tm2_touchkey_probe,
+ };
 -- 
 2.38.1
 

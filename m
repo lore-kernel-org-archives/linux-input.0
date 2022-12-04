@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A557C6370B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EE64C63713
 	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:57:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230293AbiLDR44 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 4 Dec 2022 12:56:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41520 "EHLO
+        id S230297AbiLDR46 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Dec 2022 12:56:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230296AbiLDR4d (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2C44140D2
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:32 -0800 (PST)
+        with ESMTP id S230299AbiLDR4h (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13058140D2
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A460160EE7
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A462C433D6;
-        Sun,  4 Dec 2022 17:56:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9306B80B89
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8C58C433B5;
+        Sun,  4 Dec 2022 17:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670176592;
-        bh=pqJfGsQ3XwlQtiiA8BbghJui3arS74gMf/3FN6Kc+5A=;
+        s=k20201202; t=1670176594;
+        bh=gKIvMf4wVEHJ4qJUOqbOF0pyWbzOSoVIFHxEQQklGi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9NrkQ+tifCU/FXfBgCUnGZl2iyrf6RIQRBRuMW4sf9l7Pxq9IOXoF8DT46+VR8ad
-         u+g0WfhTRSK/AnOlz1fQM7M3iH09iYCpq+dMX8iOg/MtzlNjt7TDIUWqADUntntJbk
-         8mh5asR4aS57UFFLZVEYdKkhBpUncEVBQla497poyPtsVdUhTYZd6Q5AqAhjzJA01n
-         zWNvzuPTUvvEXlmsfBkAvgsij0Uh2dd7s4g8TGHaKqFCITZ3lMAu9jqmUiv9fYsKnK
-         +s6Zz7scbelRdp4KWG9JDoVj3UeqEXLHE3yMKOeAW3klsZBJxocHd1OHVAQlC6L1XK
-         2gJaK7kxlVVRA==
+        b=sZOVfYLFBGZ74W5Mxr/xy3KaPzyfzTD+LkGZRZxh8F7OSUQLXWI5LoLo+0w/mpyli
+         VYu+0NsYUbRjCN3+xuuJIHrP339gl2ohTqHmI3C9jE2VNpwpKIatExDoNXf8FHqrLV
+         jmhUNleneKhMVd2eD1cBmhI1sh0kXxfhTsyIh/XKJn/cSKc8dLj+MoVqzeU1bremzR
+         BTOv/ojp5D9Y9dE2RDQoUocFmZ8qTkbud8fxrHlGAYkTc76XsztGkp1sAa7xjXq3gl
+         TK9JoXSb+qGEt3ajQ/hsfCm1RFl43TEXIPvusrxQkBrwr26feEglAHZ6XhgaJpzTIg
+         Z7ZUKZtOEtdNg==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 21/32] Input: qt1070 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Sun,  4 Dec 2022 18:08:30 +0000
-Message-Id: <20221204180841.2211588-22-jic23@kernel.org>
+Subject: [PATCH 23/32] Input: st-keyscan - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Sun,  4 Dec 2022 18:08:32 +0000
+Message-Id: <20221204180841.2211588-24-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221204180841.2211588-1-jic23@kernel.org>
 References: <20221204180841.2211588-1-jic23@kernel.org>
@@ -57,41 +57,42 @@ removed. Thus also drop the ifdef guards.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/input/keyboard/qt1070.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/input/keyboard/st-keyscan.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/qt1070.c b/drivers/input/keyboard/qt1070.c
-index 533bb0375223..fabb50bde844 100644
---- a/drivers/input/keyboard/qt1070.c
-+++ b/drivers/input/keyboard/qt1070.c
-@@ -226,7 +226,6 @@ static void qt1070_remove(struct i2c_client *client)
- 	kfree(data);
+diff --git a/drivers/input/keyboard/st-keyscan.c b/drivers/input/keyboard/st-keyscan.c
+index a62bb8fff88c..13735a5e8391 100644
+--- a/drivers/input/keyboard/st-keyscan.c
++++ b/drivers/input/keyboard/st-keyscan.c
+@@ -212,7 +212,6 @@ static int keyscan_probe(struct platform_device *pdev)
+ 	return 0;
  }
  
 -#ifdef CONFIG_PM_SLEEP
- static int qt1070_suspend(struct device *dev)
+ static int keyscan_suspend(struct device *dev)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
-@@ -248,9 +247,8 @@ static int qt1070_resume(struct device *dev)
- 
- 	return 0;
+ 	struct platform_device *pdev = to_platform_device(dev);
+@@ -247,9 +246,9 @@ static int keyscan_resume(struct device *dev)
+ 	mutex_unlock(&input->mutex);
+ 	return retval;
  }
 -#endif
  
--static SIMPLE_DEV_PM_OPS(qt1070_pm_ops, qt1070_suspend, qt1070_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(qt1070_pm_ops, qt1070_suspend, qt1070_resume);
+-static SIMPLE_DEV_PM_OPS(keyscan_dev_pm_ops, keyscan_suspend, keyscan_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(keyscan_dev_pm_ops,
++				keyscan_suspend, keyscan_resume);
  
- static const struct i2c_device_id qt1070_id[] = {
- 	{ "qt1070", 0 },
-@@ -270,7 +268,7 @@ static struct i2c_driver qt1070_driver = {
- 	.driver	= {
- 		.name	= "qt1070",
- 		.of_match_table = of_match_ptr(qt1070_of_match),
--		.pm	= &qt1070_pm_ops,
-+		.pm	= pm_sleep_ptr(&qt1070_pm_ops),
- 	},
- 	.id_table	= qt1070_id,
- 	.probe_new	= qt1070_probe,
+ static const struct of_device_id keyscan_of_match[] = {
+ 	{ .compatible = "st,sti-keyscan" },
+@@ -261,7 +260,7 @@ static struct platform_driver keyscan_device_driver = {
+ 	.probe		= keyscan_probe,
+ 	.driver		= {
+ 		.name	= "st-keyscan",
+-		.pm	= &keyscan_dev_pm_ops,
++		.pm	= pm_sleep_ptr(&keyscan_dev_pm_ops),
+ 		.of_match_table = of_match_ptr(keyscan_of_match),
+ 	}
+ };
 -- 
 2.38.1
 

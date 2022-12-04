@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88C2FC63715
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C7E20C63716
 	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:57:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230352AbiLDR47 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 4 Dec 2022 12:56:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41546 "EHLO
+        id S230302AbiLDR5B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Dec 2022 12:57:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230298AbiLDR4h (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EFA3140CD
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:36 -0800 (PST)
+        with ESMTP id S230306AbiLDR4m (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29F90140D2
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B52660DEB
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D537BC43470;
-        Sun,  4 Dec 2022 17:56:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D071CB80B8E
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB925C433D7;
+        Sun,  4 Dec 2022 17:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670176595;
-        bh=60Ukzlb6cd5F4UzQ06v/qkbtLwp5G12OMTw7hfYOvLE=;
+        s=k20201202; t=1670176600;
+        bh=9ZNztioYN8Es4L26nzCb/rarDJBUysAcnb5GkctwPog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mmkxBeMTLqeDQUELypssZm7upcFsjijMZYhoWZ7CUT8ruEvfLewy18zQIy+C/7eWO
-         7yAFmfnEbzlYEjhxt5EGOFMM0oKvG1PIttu6b0JT8wOUJXjC2LaJ10QCKNCNQ5cyj0
-         vdjp/fRhyE7QbgItHj6tKEJ8A89nDEOWqDnUvLO91ENUB/HFO1O+qYB7oMZjjXCHmh
-         5yGcbmLJYVL4LdI9dQvt0BS+rvfvFMH/o7Yfl9XeKi9sAemeJsYhXiCAwurNGWmDy2
-         at7157qI/vYlnTPGh2331HQIo9pZ7owf6j45BuJ/G6/IEKA2opEIrzR2L1u2UFiOre
-         u3h3unCH8AUUA==
+        b=u6XQjcaC3p2SOPBWid2SZzP5qXOD6UCNrvx4dabC3mBgTXLhnwI872mdnMuMW7P/u
+         5lK7PFo73FsW92047J1LsErCjs4Mui0ldlEffNMq9kZP2Kw0yytrjxeEnx+Bve0mie
+         qxPnoUd8ttlQtfupuVQodegzLsfpRnAo0zOqttRy1IRX/l6A32ePro23l0z+rnAsUE
+         1lKr8WDYMvDiv226NcwEDk1D38EhMCvngcjNm61xKiOPEPPpRDsMOLMa9ObH2u5rO8
+         lAHEahjt6xTRGgLHQ74wUVY2+GsF/3eDnO1C/kwLOHhHai5/kQ2RFKSsCUUTVlgvmf
+         VvfcYye4UsPLw==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 24/32] Input: tc3589x - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Sun,  4 Dec 2022 18:08:33 +0000
-Message-Id: <20221204180841.2211588-25-jic23@kernel.org>
+Subject: [PATCH 28/32] Input: spear-keyboard - improve build coverage using COMPILE_TEST
+Date:   Sun,  4 Dec 2022 18:08:37 +0000
+Message-Id: <20221204180841.2211588-29-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221204180841.2211588-1-jic23@kernel.org>
 References: <20221204180841.2211588-1-jic23@kernel.org>
@@ -49,48 +49,26 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-SIMPLE_DEV_PM_OPS() is deprecated as it requires explicit protection
-against unused function warnings.  The new combination of pm_sleep_ptr()
-and DEFINE_SIMPLE_DEV_PM_OPS() allows the compiler to see the functions,
-thus suppressing the warning, but still allowing the unused code to be
-removed. Thus also drop the ifdef guards.
+Used to test the PM changes.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/input/keyboard/tc3589x-keypad.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/input/keyboard/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/tc3589x-keypad.c b/drivers/input/keyboard/tc3589x-keypad.c
-index 78e55318ccd6..b0d86621c60a 100644
---- a/drivers/input/keyboard/tc3589x-keypad.c
-+++ b/drivers/input/keyboard/tc3589x-keypad.c
-@@ -455,7 +455,6 @@ static int tc3589x_keypad_probe(struct platform_device *pdev)
- 	return 0;
- }
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 28a9ad8a1466..39717a2e1757 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -709,7 +709,7 @@ config KEYBOARD_OMAP4
  
--#ifdef CONFIG_PM_SLEEP
- static int tc3589x_keypad_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
-@@ -492,15 +491,14 @@ static int tc3589x_keypad_resume(struct device *dev)
- 
- 	return 0;
- }
--#endif
- 
--static SIMPLE_DEV_PM_OPS(tc3589x_keypad_dev_pm_ops,
--			 tc3589x_keypad_suspend, tc3589x_keypad_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(tc3589x_keypad_dev_pm_ops,
-+				tc3589x_keypad_suspend, tc3589x_keypad_resume);
- 
- static struct platform_driver tc3589x_keypad_driver = {
- 	.driver	= {
- 		.name	= "tc3589x-keypad",
--		.pm	= &tc3589x_keypad_dev_pm_ops,
-+		.pm	= pm_sleep_ptr(&tc3589x_keypad_dev_pm_ops),
- 	},
- 	.probe	= tc3589x_keypad_probe,
- };
+ config KEYBOARD_SPEAR
+ 	tristate "ST SPEAR keyboard support"
+-	depends on PLAT_SPEAR
++	depends on PLAT_SPEAR || COMPILE_TEST
+ 	select INPUT_MATRIXKMAP
+ 	help
+ 	  Say Y here if you want to use the SPEAR keyboard.
 -- 
 2.38.1
 

@@ -2,43 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8631C6371A
-	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:57:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5695EC6371D
+	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:57:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230361AbiLDR5A (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 4 Dec 2022 12:57:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41564 "EHLO
+        id S230371AbiLDR5C (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Dec 2022 12:57:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230302AbiLDR4k (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85BA7140D0
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:39 -0800 (PST)
+        with ESMTP id S230307AbiLDR4n (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7530140D3
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39CE0B80B8C
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D41CC433C1;
-        Sun,  4 Dec 2022 17:56:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4499960EDD
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6958C433C1;
+        Sun,  4 Dec 2022 17:56:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670176597;
-        bh=es+q7h2YGeWq9XshkCivTogjo/hEOQ+U4iQW7XOvkqw=;
+        s=k20201202; t=1670176601;
+        bh=5USbCND1vtOk+Ddksu9R9JsvT7SWTg3/FPRw82671DA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M2qFLzW9XehAxz+qNkR9x3c/pkPjy4nTwriP3cIUKoBNboWNt5yhKXEFw4pEDonVb
-         bCVpXp/2tekvyYzVLIudeNwDvuJ+oBxcKZWUGgTMMZUuE1JcDHw6g+xnkEKxeKMaBq
-         de0Mlm6VLSMg7tpu8NwkMQlk8G3GF2Z3yfQjoJ3uPPQsG/IqZazqY1EYOa/2oD0Fy1
-         Ewu2cgzMb7AVAAXllJOdxDpfU0jeWrCrNhbLGsEhDeuUF7MraAORki0S9n972CkONy
-         J+Gk5fmxpR9TfjqI7vOb9vlTWZi9PnFSDhQZ577sn3WbZgmgUQ+mESBTXzscp5urs6
-         yzmiDvUIlF8gA==
+        b=EuVr9EceeSC5RXnbNNcOV7WmoNP49TvSq/c1y641y/c3aLPstDSOA10kxutz2oxye
+         78t4fdFrWxrbdf4eNSzksFgdeyS6gyb5iFBGGsGDuAuVFMRRcWHZtZQYkVLQD6fRFO
+         KzvLwbueerxNhEYscbvDOdVXreKg62e3PYNE01nlzLr142V83oWtYsfUjXSNL5wacT
+         drSYC8nTXWv+ISPSjoqbtm7DE8sMgFDbE31SuF3XpPmiP8HAXM/KRSwXl8uud8oysO
+         qpv/9cMI/OeEr/ouQ4SO6gNqnWeQT4n1aFSF91DyJcOPVyyj+FbyOjsG/gL0a4B5yL
+         NGJcBmgqe56nA==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 25/32] Input: tca6416-keypad - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Sun,  4 Dec 2022 18:08:34 +0000
-Message-Id: <20221204180841.2211588-26-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 29/32] Input: pxa27xx-keypad - allow build with COMPILE_TEST
+Date:   Sun,  4 Dec 2022 18:08:38 +0000
+Message-Id: <20221204180841.2211588-30-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221204180841.2211588-1-jic23@kernel.org>
 References: <20221204180841.2211588-1-jic23@kernel.org>
@@ -50,49 +49,26 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-SIMPLE_DEV_PM_OPS() is deprecated as it requires explicit protection
-against unused function warnings.  The new combination of pm_sleep_ptr()
-and DEFINE_SIMPLE_DEV_PM_OPS() allows the compiler to see the functions,
-thus suppressing the warning, but still allowing the unused code to be
-removed. Thus also drop the ifdef guards.
+Used to build test PM changes.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/input/keyboard/tca6416-keypad.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/input/keyboard/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
-index 281d9ec163cc..673b905af6fe 100644
---- a/drivers/input/keyboard/tca6416-keypad.c
-+++ b/drivers/input/keyboard/tca6416-keypad.c
-@@ -320,7 +320,6 @@ static void tca6416_keypad_remove(struct i2c_client *client)
- 	kfree(chip);
- }
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 39717a2e1757..1a949445f116 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -542,7 +542,7 @@ config KEYBOARD_PINEPHONE
  
--#ifdef CONFIG_PM_SLEEP
- static int tca6416_keypad_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
-@@ -342,15 +341,14 @@ static int tca6416_keypad_resume(struct device *dev)
- 
- 	return 0;
- }
--#endif
- 
--static SIMPLE_DEV_PM_OPS(tca6416_keypad_dev_pm_ops,
--			 tca6416_keypad_suspend, tca6416_keypad_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(tca6416_keypad_dev_pm_ops,
-+				tca6416_keypad_suspend, tca6416_keypad_resume);
- 
- static struct i2c_driver tca6416_keypad_driver = {
- 	.driver = {
- 		.name	= "tca6416-keypad",
--		.pm	= &tca6416_keypad_dev_pm_ops,
-+		.pm	= pm_sleep_ptr(&tca6416_keypad_dev_pm_ops),
- 	},
- 	.probe_new	= tca6416_keypad_probe,
- 	.remove		= tca6416_keypad_remove,
+ config KEYBOARD_PXA27x
+ 	tristate "PXA27x/PXA3xx keypad support"
+-	depends on PXA27x || PXA3xx || ARCH_MMP
++	depends on PXA27x || PXA3xx || ARCH_MMP || COMPILE_TEST
+ 	select INPUT_MATRIXKMAP
+ 	help
+ 	  Enable support for PXA27x/PXA3xx keypad controller.
 -- 
 2.38.1
 

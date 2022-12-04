@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5695EC6371D
-	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:57:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A96CC64E66
+	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:57:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230371AbiLDR5C (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 4 Dec 2022 12:57:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
+        id S230308AbiLDR5E (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Dec 2022 12:57:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230307AbiLDR4n (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7530140D3
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:42 -0800 (PST)
+        with ESMTP id S230311AbiLDR4r (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2902140CD
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4499960EDD
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6958C433C1;
-        Sun,  4 Dec 2022 17:56:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 68957B80B8E
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A128C4347C;
+        Sun,  4 Dec 2022 17:56:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670176601;
-        bh=5USbCND1vtOk+Ddksu9R9JsvT7SWTg3/FPRw82671DA=;
+        s=k20201202; t=1670176604;
+        bh=K+fSMOvuU2e10al0zWqvjQjWybt+yokjbg0Uk34WpBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EuVr9EceeSC5RXnbNNcOV7WmoNP49TvSq/c1y641y/c3aLPstDSOA10kxutz2oxye
-         78t4fdFrWxrbdf4eNSzksFgdeyS6gyb5iFBGGsGDuAuVFMRRcWHZtZQYkVLQD6fRFO
-         KzvLwbueerxNhEYscbvDOdVXreKg62e3PYNE01nlzLr142V83oWtYsfUjXSNL5wacT
-         drSYC8nTXWv+ISPSjoqbtm7DE8sMgFDbE31SuF3XpPmiP8HAXM/KRSwXl8uud8oysO
-         qpv/9cMI/OeEr/ouQ4SO6gNqnWeQT4n1aFSF91DyJcOPVyyj+FbyOjsG/gL0a4B5yL
-         NGJcBmgqe56nA==
+        b=f3TluiuDhVEEUDv83UOPSxzrAa9F+vPCrnkqKIEoSPMORPHyBTRLatE4gQ9XVy+un
+         533MJtsD8UNNZ5dyBlCa8ZC1C/QzDXtkWI29Mu8BkIhneVHOT01iHob+6wntDAYWq9
+         kdgK9Dtxm9RzZi0J8LKPlbZE0c9KLbzpVic7JKzpnvfXIECWsqJ7s1Yo+xp8foSVAm
+         jds8UvmB+xjFcMriu9uRgT/kim7ZqPDQ0x4onxzgtuj/29wEaC6w3cwePmyxDQbqRe
+         U6YQ/UVNuxVZRmocxnQkv86m0kYRFIL1IFXoubp/WBFOodNdUqWHms/k303jb+xtxT
+         u3R8g0pZEbpxQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 29/32] Input: pxa27xx-keypad - allow build with COMPILE_TEST
-Date:   Sun,  4 Dec 2022 18:08:38 +0000
-Message-Id: <20221204180841.2211588-30-jic23@kernel.org>
+Subject: [PATCH 31/32] Input: lpc32xx - allow building with COMPILE_TEST
+Date:   Sun,  4 Dec 2022 18:08:40 +0000
+Message-Id: <20221204180841.2211588-32-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221204180841.2211588-1-jic23@kernel.org>
 References: <20221204180841.2211588-1-jic23@kernel.org>
@@ -49,7 +49,7 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-Used to build test PM changes.
+Used to test the PM changes.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
@@ -57,18 +57,18 @@ Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
-index 39717a2e1757..1a949445f116 100644
+index 3f232d727e31..84490915ae4d 100644
 --- a/drivers/input/keyboard/Kconfig
 +++ b/drivers/input/keyboard/Kconfig
-@@ -542,7 +542,7 @@ config KEYBOARD_PINEPHONE
+@@ -390,7 +390,7 @@ config KEYBOARD_LOCOMO
  
- config KEYBOARD_PXA27x
- 	tristate "PXA27x/PXA3xx keypad support"
--	depends on PXA27x || PXA3xx || ARCH_MMP
-+	depends on PXA27x || PXA3xx || ARCH_MMP || COMPILE_TEST
+ config KEYBOARD_LPC32XX
+ 	tristate "LPC32XX matrix key scanner support"
+-	depends on ARCH_LPC32XX && OF
++	depends on (ARCH_LPC32XX && OF) || COMPILE_TEST
  	select INPUT_MATRIXKMAP
  	help
- 	  Enable support for PXA27x/PXA3xx keypad controller.
+ 	  Say Y here if you want to use NXP LPC32XX SoC key scanner interface,
 -- 
 2.38.1
 

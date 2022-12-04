@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B3EE1C63707
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C49DFC63706
 	for <linux-input@archiver.kernel.org>; Sun,  4 Dec 2022 17:57:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230331AbiLDR4z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 4 Dec 2022 12:56:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41490 "EHLO
+        id S230288AbiLDR44 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Dec 2022 12:56:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230292AbiLDR4a (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F02140D2
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:29 -0800 (PST)
+        with ESMTP id S230293AbiLDR4b (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Dec 2022 12:56:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAB2D140CD
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 09:56:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64A80B80B8A
-        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65529C433B5;
-        Sun,  4 Dec 2022 17:56:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 485EC60EDC
+        for <linux-input@vger.kernel.org>; Sun,  4 Dec 2022 17:56:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E578BC433D6;
+        Sun,  4 Dec 2022 17:56:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1670176587;
-        bh=1uYTSA3Wuayjm+Jl/K7BBz072B6EuiSzLKQAvcY0wsw=;
+        s=k20201202; t=1670176589;
+        bh=srjWXdPFJfvPJ/zI6w+DJeiqewJpTejo8GBm47iv9Fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sn+fzMS28oYN/OjneVqmw0loXTvNRykExEEVDxgA0rt9EIvHkPGhaPUR+zS3pybSS
-         lJ/5yDN1mX5jnctao2fumkAsSStcCnYVcJCl54l+T9kfcpBIxMyoz0EhBi60isD50U
-         s2VD1z6QZ66d/hpehXmMRPI3/rjape7t1PAbm1VSwjxX6QCEd55ur6lCNI2W194gam
-         I7AP5P4dbGZnoyfZu46TepWD/dCOTjgLSstkEi0sInebhO+BsN4Wo7wTO9KNtuyKPw
-         ZDtdl32LYFiBIMfVtncvANFt3zLwvxgjPn92cUhfzc5LQYRkZ8ciYP4nqy7ph4JtJU
-         g73ncV4hCrA8g==
+        b=ZOz0F72lLx73D2zlKNJOq0MR2lMDcscw7l4UsdzUNcOHVJjMgeikfKx1kCr4eHWzC
+         AWKU80VeXkQez123hx41Y2DgrmwxnFEX0HgDXuAZ8Fj11TQzcYaAbBWGsev+VAB4AD
+         k4y3dwU6OZdTjZTqdJvV6tRdI0oW5ESLxkHjE7m0fvLcs3BDgJmuEEzvgZGHc+o6z0
+         UUMxJcqIOGBPgxkrHLBC9Q7elw8FxLMIkK23bn3y2QH7pXTivTmknrGmmN6zUY3IwJ
+         5Yf0Q5Z0WP0d2JpFsNwfbxjNg2O8uQvjaR64bIPknuD+ikd2SA8GYq4fxNm4nvr+KE
+         hZ83l1klTX/Yg==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 17/32] Input: mcs-touchkey - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Sun,  4 Dec 2022 18:08:26 +0000
-Message-Id: <20221204180841.2211588-18-jic23@kernel.org>
+Subject: [PATCH 19/32] Input: pmic8xxx-keypad - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Sun,  4 Dec 2022 18:08:28 +0000
+Message-Id: <20221204180841.2211588-20-jic23@kernel.org>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221204180841.2211588-1-jic23@kernel.org>
 References: <20221204180841.2211588-1-jic23@kernel.org>
@@ -57,43 +57,43 @@ removed. Thus also drop the ifdef guards.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/input/keyboard/mcs_touchkey.c | 8 +++-----
+ drivers/input/keyboard/pmic8xxx-keypad.c | 8 +++-----
  1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/keyboard/mcs_touchkey.c b/drivers/input/keyboard/mcs_touchkey.c
-index 34683458524c..d414e19e4559 100644
---- a/drivers/input/keyboard/mcs_touchkey.c
-+++ b/drivers/input/keyboard/mcs_touchkey.c
-@@ -213,7 +213,6 @@ static void mcs_touchkey_shutdown(struct i2c_client *client)
- 		data->poweron(false);
+diff --git a/drivers/input/keyboard/pmic8xxx-keypad.c b/drivers/input/keyboard/pmic8xxx-keypad.c
+index 4766c5048ce2..26a005f9ace3 100644
+--- a/drivers/input/keyboard/pmic8xxx-keypad.c
++++ b/drivers/input/keyboard/pmic8xxx-keypad.c
+@@ -621,7 +621,6 @@ static int pmic8xxx_kp_probe(struct platform_device *pdev)
+ 	return 0;
  }
  
 -#ifdef CONFIG_PM_SLEEP
- static int mcs_touchkey_suspend(struct device *dev)
+ static int pmic8xxx_kp_suspend(struct device *dev)
  {
- 	struct mcs_touchkey_data *data = dev_get_drvdata(dev);
-@@ -243,10 +242,9 @@ static int mcs_touchkey_resume(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+@@ -661,10 +660,9 @@ static int pmic8xxx_kp_resume(struct device *dev)
  
  	return 0;
  }
 -#endif
  
--static SIMPLE_DEV_PM_OPS(mcs_touchkey_pm_ops,
--			 mcs_touchkey_suspend, mcs_touchkey_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(mcs_touchkey_pm_ops,
-+				mcs_touchkey_suspend, mcs_touchkey_resume);
+-static SIMPLE_DEV_PM_OPS(pm8xxx_kp_pm_ops,
+-			 pmic8xxx_kp_suspend, pmic8xxx_kp_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(pm8xxx_kp_pm_ops,
++				pmic8xxx_kp_suspend, pmic8xxx_kp_resume);
  
- static const struct i2c_device_id mcs_touchkey_id[] = {
- 	{ "mcs5000_touchkey", MCS5000_TOUCHKEY },
-@@ -258,7 +256,7 @@ MODULE_DEVICE_TABLE(i2c, mcs_touchkey_id);
- static struct i2c_driver mcs_touchkey_driver = {
- 	.driver = {
- 		.name	= "mcs_touchkey",
--		.pm	= &mcs_touchkey_pm_ops,
-+		.pm	= pm_sleep_ptr(&mcs_touchkey_pm_ops),
+ static const struct of_device_id pm8xxx_match_table[] = {
+ 	{ .compatible = "qcom,pm8058-keypad" },
+@@ -677,7 +675,7 @@ static struct platform_driver pmic8xxx_kp_driver = {
+ 	.probe		= pmic8xxx_kp_probe,
+ 	.driver		= {
+ 		.name = "pm8xxx-keypad",
+-		.pm = &pm8xxx_kp_pm_ops,
++		.pm = pm_sleep_ptr(&pm8xxx_kp_pm_ops),
+ 		.of_match_table = pm8xxx_match_table,
  	},
- 	.probe_new	= mcs_touchkey_probe,
- 	.remove		= mcs_touchkey_remove,
+ };
 -- 
 2.38.1
 

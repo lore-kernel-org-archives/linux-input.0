@@ -2,40 +2,41 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DE8FEC4332F
-	for <linux-input@archiver.kernel.org>; Mon,  5 Dec 2022 16:51:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EA21C47089
+	for <linux-input@archiver.kernel.org>; Mon,  5 Dec 2022 16:51:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232060AbiLEQvi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 5 Dec 2022 11:51:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46930 "EHLO
+        id S230363AbiLEQvh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 5 Dec 2022 11:51:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231516AbiLEQuv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Dec 2022 11:50:51 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83364E4D
-        for <linux-input@vger.kernel.org>; Mon,  5 Dec 2022 08:49:07 -0800 (PST)
+        with ESMTP id S232001AbiLEQuz (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Dec 2022 11:50:55 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75E8D655B
+        for <linux-input@vger.kernel.org>; Mon,  5 Dec 2022 08:49:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670258946;
+        s=mimecast20190719; t=1670258950;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=bsnqQAP9mq9bp37v+PtTYRzX/Oieujg8IWjQ8JkmFYE=;
-        b=Z5q7nJ9CLQ5+zmpi6Ys1oErpAxSqyOmYGESczrD7N3Ei2kin2H2T7+AJHmpDzH7/Kb3mI8
-        zC1yaVuA/Wxl4/yiqun/5KZbcyCdjAzBa7Zf6+qgdeRP+jPGynMsj0QSBA6G4m2e60+/Vb
-        WxSQhHB04UjrJstw/fdVnnKxDhBhm/Q=
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=/we/TY9X/UjbEuq3HgYT/C/G2oJ1wSnJ8iPzmf0TirQ=;
+        b=ZEfZ/re+Wa3fWF/0DGmkXH9ceM/Mk4Hm1YQZuqujxLSF2cojfF1Le+U0KLUHdbfHlMpLB9
+        w86hfEIQxf+Nd/CbKPlP+ZXIvJxwT3ySV/yQOJZVGa0WSCFSGsHz1SL7J9mQd8SLc9mINL
+        j/2PtomNAPJTEyGTCAmRgwkYA2n7djM=
 Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
  [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-562-wBQ1drpcOHalFETe-pWhnA-1; Mon, 05 Dec 2022 11:49:03 -0500
-X-MC-Unique: wBQ1drpcOHalFETe-pWhnA-1
+ us-mta-351-rezvupzTNJOOL9Gm4IAPAw-1; Mon, 05 Dec 2022 11:49:09 -0500
+X-MC-Unique: rezvupzTNJOOL9Gm4IAPAw-1
 Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 265FB185A794;
-        Mon,  5 Dec 2022 16:49:03 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B2A7785A5A6;
+        Mon,  5 Dec 2022 16:49:08 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.194.203])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7BA30141511A;
-        Mon,  5 Dec 2022 16:49:01 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1BCE2141511A;
+        Mon,  5 Dec 2022 16:49:06 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Florent Revest <revest@chromium.org>,
@@ -46,9 +47,11 @@ To:     Jiri Kosina <jikos@kernel.org>,
 Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH HID for-next v2 0/4] HID: bpf: remove the need for ALLOW_ERROR_INJECTION and Kconfig fixes
-Date:   Mon,  5 Dec 2022 17:48:52 +0100
-Message-Id: <20221205164856.705656-1-benjamin.tissoires@redhat.com>
+Subject: [PATCH HID for-next v2 3/4] HID: bpf: enforce HID_BPF dependencies
+Date:   Mon,  5 Dec 2022 17:48:55 +0100
+Message-Id: <20221205164856.705656-4-benjamin.tissoires@redhat.com>
+In-Reply-To: <20221205164856.705656-1-benjamin.tissoires@redhat.com>
+References: <20221205164856.705656-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
@@ -56,45 +59,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+As mentioned in the link below, having JIT and BPF is not enough to
+have fentry/fexit/fmod_ret APIs. This resolves the error that
+happens on a system without tracing enabled when hid-bpf tries to
+load itself.
 
-So this patch series aims at solving both [0] and [1].
+Link: https://lore.kernel.org/r/CABRcYmKyRchQhabi1Vd9RcMQFCcb=EtWyEbFDFRTc-L-U8WhgA@mail.gmail.com
+Fixes: f5c27da4e3c8 ("HID: initial BPF implementation")
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ drivers/hid/bpf/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-The first one is bpf related and concerns the ALLOW_ERROR_INJECTION API.
-It is considered as a hack to begin with, so introduce a proper kernel
-API to declare when a BPF hook can have its return value changed.
-
-The second one is related to the fact that
-DYNAMIC_FTRACE_WITH_DIRECT_CALLS is currently not enabled on arm64, and
-that means that the current HID-BPF implementation doesn't work there
-for now.
-
-The first patch actually touches the bpf core code, but it would be
-easier if we could merge it through the hid tree in the for-6.2/hid-bpf
-branch once we get the proper acks.
-
-Cheers,
-Benjamin
-
-[0] https://lore.kernel.org/all/20221121104403.1545f9b5@gandalf.local.home/
-[1] https://lore.kernel.org/r/CABRcYmKyRchQhabi1Vd9RcMQFCcb=EtWyEbFDFRTc-L-U8WhgA@mail.gmail.com
-
-Benjamin Tissoires (4):
-  bpf: do not rely on ALLOW_ERROR_INJECTION for fmod_ret
-  HID: bpf: do not rely on ALLOW_ERROR_INJECTION
-  HID: bpf: enforce HID_BPF dependencies
-  selftests: hid: ensures we have the proper requirements in config
-
- drivers/hid/bpf/Kconfig             |  3 ++-
- drivers/hid/bpf/hid_bpf_dispatch.c  | 20 ++++++++++++--
- drivers/hid/bpf/hid_bpf_jmp_table.c |  1 -
- include/linux/btf.h                 |  3 +++
- kernel/bpf/btf.c                    | 41 +++++++++++++++++++++++++++++
- kernel/bpf/verifier.c               | 17 ++++++++++--
- net/bpf/test_run.c                  | 14 +++++++---
- tools/testing/selftests/hid/config  |  1 +
- 8 files changed, 91 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/hid/bpf/Kconfig b/drivers/hid/bpf/Kconfig
+index 298634fc3335..03f52145b83b 100644
+--- a/drivers/hid/bpf/Kconfig
++++ b/drivers/hid/bpf/Kconfig
+@@ -4,7 +4,8 @@ menu "HID-BPF support"
+ config HID_BPF
+ 	bool "HID-BPF support"
+ 	default HID_SUPPORT
+-	depends on BPF && BPF_SYSCALL
++	depends on BPF && BPF_SYSCALL && \
++		   DYNAMIC_FTRACE_WITH_DIRECT_CALLS
+ 	help
+ 	This option allows to support eBPF programs on the HID subsystem.
+ 	eBPF programs can fix HID devices in a lighter way than a full
 -- 
 2.38.1
 

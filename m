@@ -2,21 +2,21 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 908DBC4708D
-	for <linux-input@archiver.kernel.org>; Mon,  5 Dec 2022 13:42:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EB28C4708C
+	for <linux-input@archiver.kernel.org>; Mon,  5 Dec 2022 13:43:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232417AbiLENm4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 5 Dec 2022 08:42:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34932 "EHLO
+        id S232321AbiLENnq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 5 Dec 2022 08:43:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232345AbiLENlz (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Dec 2022 08:41:55 -0500
+        with ESMTP id S232381AbiLENnW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Dec 2022 08:43:22 -0500
 Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658111CFE6;
-        Mon,  5 Dec 2022 05:41:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8BA51B1EA;
+        Mon,  5 Dec 2022 05:42:57 -0800 (PST)
 Received: (Authenticated sender: foss@0leil.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id B3B56FF802;
-        Mon,  5 Dec 2022 13:41:37 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id E6ABCFF808;
+        Mon,  5 Dec 2022 13:42:40 +0000 (UTC)
 From:   Quentin Schulz <foss+kernel@0leil.net>
 To:     Samuel Holland <samuel@sholland.org>,
         Bastien Nocera <hadess@hadess.net>,
@@ -53,9 +53,9 @@ Cc:     Quentin Schulz <quentin.schulz@theobroma-systems.com>,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-sunxi@lists.linux.dev, devicetree@vger.kernel.org,
         linux-rockchip@lists.infradead.org
-Subject: [PATCH v3 4/9] ARM: dts: imx: fix touchscreen reset GPIO polarity
-Date:   Mon,  5 Dec 2022 14:40:33 +0100
-Message-Id: <20221103-upstream-goodix-reset-v3-4-0975809eb183@theobroma-systems.com>
+Subject: [PATCH v3 8/9] arm64: dts: qcom: msm8998-fxtec: fix touchscreen reset GPIO polarity
+Date:   Mon,  5 Dec 2022 14:40:37 +0100
+Message-Id: <20221103-upstream-goodix-reset-v3-8-0975809eb183@theobroma-systems.com>
 X-Mailer: git-send-email 2.38.1
 In-Reply-To: <20221103-upstream-goodix-reset-v3-0-0975809eb183@theobroma-systems.com>
 References: <20221103-upstream-goodix-reset-v3-0-0975809eb183@theobroma-systems.com>
@@ -74,36 +74,22 @@ let's fix the polarity in the Device Tree node.
 
 Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
 ---
- arch/arm/boot/dts/imx6q-kp.dtsi            | 2 +-
- arch/arm/boot/dts/imx6ul-kontron-bl-43.dts | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx6q-kp.dtsi b/arch/arm/boot/dts/imx6q-kp.dtsi
-index 1ade0bff681d6..dae14aaf803a8 100644
---- a/arch/arm/boot/dts/imx6q-kp.dtsi
-+++ b/arch/arm/boot/dts/imx6q-kp.dtsi
-@@ -188,7 +188,7 @@ touchscreen@5d {
- 		interrupt-parent = <&gpio1>;
- 		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
- 		irq-gpios = <&gpio1 9 GPIO_ACTIVE_HIGH>;
--		reset-gpios = <&gpio5 2 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&gpio5 2 GPIO_ACTIVE_LOW>;
- 	};
- 
- 	ds1307: rtc@32 {
-diff --git a/arch/arm/boot/dts/imx6ul-kontron-bl-43.dts b/arch/arm/boot/dts/imx6ul-kontron-bl-43.dts
-index 0c643706a158b..767ef5da76136 100644
---- a/arch/arm/boot/dts/imx6ul-kontron-bl-43.dts
-+++ b/arch/arm/boot/dts/imx6ul-kontron-bl-43.dts
-@@ -29,7 +29,7 @@ touchscreen@5d {
- 		pinctrl-0 = <&pinctrl_cap_touch>;
- 		interrupt-parent = <&gpio5>;
- 		interrupts = <6 IRQ_TYPE_LEVEL_LOW>;
--		reset-gpios = <&gpio5 8 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&gpio5 8 GPIO_ACTIVE_LOW>;
- 		irq-gpios = <&gpio5 6 GPIO_ACTIVE_HIGH>;
- 	};
- };
+diff --git a/arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts b/arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts
+index 429ba57e20f71..8f738cade2652 100644
+--- a/arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts
++++ b/arch/arm64/boot/dts/qcom/msm8998-fxtec-pro1.dts
+@@ -249,7 +249,7 @@ touchscreen@14 {
+ 		reg = <0x14>;
+ 		interrupt-parent = <&tlmm>;
+ 		interrupts = <125 IRQ_TYPE_LEVEL_LOW>;
+-		reset-gpios = <&tlmm 89 GPIO_ACTIVE_HIGH>;
++		reset-gpios = <&tlmm 89 GPIO_ACTIVE_LOW>;
+ 		AVDD28-supply = <&vreg_l28_3p0>;
+ 		VDDIO-supply = <&ts_vio_vreg>;
+ 		pinctrl-names = "active";
 
 -- 
 b4 0.10.1

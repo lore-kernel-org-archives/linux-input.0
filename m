@@ -2,122 +2,245 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A52FAC47089
-	for <linux-input@archiver.kernel.org>; Mon,  5 Dec 2022 13:44:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78FBDC4332F
+	for <linux-input@archiver.kernel.org>; Mon,  5 Dec 2022 16:51:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232452AbiLENob (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 5 Dec 2022 08:44:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36766 "EHLO
+        id S233314AbiLEQv0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 5 Dec 2022 11:51:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231906AbiLENoA (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Dec 2022 08:44:00 -0500
-Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 626E91DF05;
-        Mon,  5 Dec 2022 05:43:25 -0800 (PST)
-Received: (Authenticated sender: foss@0leil.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id 94B6DFF80A;
-        Mon,  5 Dec 2022 13:42:52 +0000 (UTC)
-From:   Quentin Schulz <foss+kernel@0leil.net>
-To:     Samuel Holland <samuel@sholland.org>,
-        Bastien Nocera <hadess@hadess.net>,
-        =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Angus Ainslie <angus@akkea.ca>,
-        Ondrej Jirman <megous@megous.com>,
-        Icenowy Zheng <icenowy@aosc.io>,
-        Andy Gross <agross@kernel.org>,
-        Aleksei Mamlin <mamlinav@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        David Jander <david@protonic.nl>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Peter Geis <pgwipeout@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Lukasz Majewski <lukma@denx.de>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Michael Riesch <michael.riesch@wolfvision.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jagan Teki <jagan@amarulasolutions.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Cc:     Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-sunxi@lists.linux.dev, devicetree@vger.kernel.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH v3 9/9] arm64: dts: rockchip: fix touchscreen reset GPIO polarity
-Date:   Mon,  5 Dec 2022 14:40:38 +0100
-Message-Id: <20221103-upstream-goodix-reset-v3-9-0975809eb183@theobroma-systems.com>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20221103-upstream-goodix-reset-v3-0-0975809eb183@theobroma-systems.com>
-References: <20221103-upstream-goodix-reset-v3-0-0975809eb183@theobroma-systems.com>
+        with ESMTP id S231887AbiLEQuw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Dec 2022 11:50:52 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D6338B2
+        for <linux-input@vger.kernel.org>; Mon,  5 Dec 2022 08:49:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1670258948;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=QsBvXKlr8/ZXxysANtnuvwsqOxsB1GOMFs9Y2NQRG7U=;
+        b=MH4KddSR+WN9B3RdPNRMIGt4d9YC7HahxqT+8D00Sx5G+jp6ZeG0bWYfOIVdK6GTZJowbs
+        zvIOP61xqfyVLO92MHu2QrbjAnshN8+oCcyINe96gNuBsnt5b5OONnXuzwcQpw0JrURJ+4
+        35n1cQ+VOYtLIvpY1haTPqia/LJU4dk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-442-XYIlecXDPXeDGSdCJ-LndA-1; Mon, 05 Dec 2022 11:49:05 -0500
+X-MC-Unique: XYIlecXDPXeDGSdCJ-LndA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 057A2800B23;
+        Mon,  5 Dec 2022 16:49:05 +0000 (UTC)
+Received: from plouf.redhat.com (unknown [10.39.194.203])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 616F91401C20;
+        Mon,  5 Dec 2022 16:49:03 +0000 (UTC)
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Florent Revest <revest@chromium.org>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>
+Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH HID for-next v2 1/4] bpf: do not rely on ALLOW_ERROR_INJECTION for fmod_ret
+Date:   Mon,  5 Dec 2022 17:48:53 +0100
+Message-Id: <20221205164856.705656-2-benjamin.tissoires@redhat.com>
+In-Reply-To: <20221205164856.705656-1-benjamin.tissoires@redhat.com>
+References: <20221205164856.705656-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-X-Mailer: b4 0.10.1
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+The current way of expressing that a non-bpf kernel component is willing
+to accept that bpf programs can be attached to it and that they can change
+the return value is to abuse ALLOW_ERROR_INJECTION.
+This is debated in the link below, and the result is that it is not a
+reasonable thing to do.
 
-The reset line is active low for the Goodix touchscreen controller so
-let's fix the polarity in the Device Tree node.
+Reuse the kfunc declaration structure to also tag the kernel functions
+we want to be fmodret. This way we can control from any subsystem which
+functions are being modified by bpf without touching the verifier.
 
-Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
+
+Link: https://lore.kernel.org/all/20221121104403.1545f9b5@gandalf.local.home/
+Suggested-by: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 ---
- arch/arm64/boot/dts/rockchip/px30-evb.dts          | 2 +-
- arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dtsi | 2 +-
- arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts   | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ include/linux/btf.h   |  3 +++
+ kernel/bpf/btf.c      | 41 +++++++++++++++++++++++++++++++++++++++++
+ kernel/bpf/verifier.c | 17 +++++++++++++++--
+ net/bpf/test_run.c    | 14 +++++++++++---
+ 4 files changed, 70 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/px30-evb.dts b/arch/arm64/boot/dts/rockchip/px30-evb.dts
-index c1bbd555f5f5b..2087dc7299446 100644
---- a/arch/arm64/boot/dts/rockchip/px30-evb.dts
-+++ b/arch/arm64/boot/dts/rockchip/px30-evb.dts
-@@ -420,7 +420,7 @@ touchscreen@14 {
- 		interrupt-parent = <&gpio0>;
- 		interrupts = <RK_PA5 IRQ_TYPE_LEVEL_LOW>;
- 		irq-gpios = <&gpio0 RK_PA5 GPIO_ACTIVE_LOW>;
--		reset-gpios = <&gpio0 RK_PB4 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&gpio0 RK_PB4 GPIO_ACTIVE_LOW>;
- 		VDDIO-supply = <&vcc3v3_lcd>;
- 	};
+diff --git a/include/linux/btf.h b/include/linux/btf.h
+index f9aababc5d78..f71cfb20b9bf 100644
+--- a/include/linux/btf.h
++++ b/include/linux/btf.h
+@@ -412,8 +412,11 @@ struct btf *bpf_prog_get_target_btf(const struct bpf_prog *prog);
+ u32 *btf_kfunc_id_set_contains(const struct btf *btf,
+ 			       enum bpf_prog_type prog_type,
+ 			       u32 kfunc_btf_id);
++u32 *btf_kern_func_is_modify_return(const struct btf *btf,
++				    u32 kfunc_btf_id);
+ int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
+ 			      const struct btf_kfunc_id_set *s);
++int register_btf_fmodret_id_set(const struct btf_kfunc_id_set *kset);
+ s32 btf_find_dtor_kfunc(struct btf *btf, u32 btf_id);
+ int register_btf_id_dtor_kfuncs(const struct btf_id_dtor_kfunc *dtors, u32 add_cnt,
+ 				struct module *owner);
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index 35c07afac924..a22f3f45aca3 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -204,6 +204,7 @@ enum btf_kfunc_hook {
+ 	BTF_KFUNC_HOOK_STRUCT_OPS,
+ 	BTF_KFUNC_HOOK_TRACING,
+ 	BTF_KFUNC_HOOK_SYSCALL,
++	BTF_KFUNC_HOOK_FMODRET,
+ 	BTF_KFUNC_HOOK_MAX,
+ };
  
-diff --git a/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dtsi
-index 78157521e9449..e63491fb443be 100644
---- a/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk3399-rockpro64.dtsi
-@@ -588,7 +588,7 @@ touch: touchscreen@5d {
- 		AVDD28-supply = <&vcc3v0_touch>;
- 		VDDIO-supply = <&vcc3v0_touch>;
- 		irq-gpios = <&gpio4 RK_PD5 GPIO_ACTIVE_HIGH>;
--		reset-gpios = <&gpio4 RK_PD6 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&gpio4 RK_PD6 GPIO_ACTIVE_LOW>;
- 		status = "disabled";
+@@ -7448,6 +7449,19 @@ u32 *btf_kfunc_id_set_contains(const struct btf *btf,
+ 	return __btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id);
+ }
+ 
++/* Caution:
++ * Reference to the module (obtained using btf_try_get_module) corresponding to
++ * the struct btf *MUST* be held when calling this function from verifier
++ * context. This is usually true as we stash references in prog's kfunc_btf_tab;
++ * keeping the reference for the duration of the call provides the necessary
++ * protection for looking up a well-formed btf->kfunc_set_tab.
++ */
++u32 *btf_kern_func_is_modify_return(const struct btf *btf,
++				    u32 kfunc_btf_id)
++{
++	return __btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id);
++}
++
+ /* This function must be invoked only from initcalls/module init functions */
+ int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
+ 			      const struct btf_kfunc_id_set *kset)
+@@ -7478,6 +7492,33 @@ int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
+ }
+ EXPORT_SYMBOL_GPL(register_btf_kfunc_id_set);
+ 
++/* This function must be invoked only from initcalls/module init functions */
++int register_btf_fmodret_id_set(const struct btf_kfunc_id_set *kset)
++{
++	struct btf *btf;
++	int ret;
++
++	btf = btf_get_module_btf(kset->owner);
++	if (!btf) {
++		if (!kset->owner && IS_ENABLED(CONFIG_DEBUG_INFO_BTF)) {
++			pr_err("missing vmlinux BTF, cannot register kfuncs\n");
++			return -ENOENT;
++		}
++		if (kset->owner && IS_ENABLED(CONFIG_DEBUG_INFO_BTF_MODULES)) {
++			pr_err("missing module BTF, cannot register kfuncs\n");
++			return -ENOENT;
++		}
++		return 0;
++	}
++	if (IS_ERR(btf))
++		return PTR_ERR(btf);
++
++	ret = btf_populate_kfunc_set(btf, BTF_KFUNC_HOOK_FMODRET, kset->set);
++	btf_put(btf);
++	return ret;
++}
++EXPORT_SYMBOL_GPL(register_btf_fmodret_id_set);
++
+ s32 btf_find_dtor_kfunc(struct btf *btf, u32 btf_id)
+ {
+ 	struct btf_id_dtor_kfunc_tab *tab = btf->dtor_kfunc_tab;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 225666307bba..0525972de998 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -15021,12 +15021,22 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
+ 			ret = -EINVAL;
+ 			switch (prog->type) {
+ 			case BPF_PROG_TYPE_TRACING:
+-				/* fentry/fexit/fmod_ret progs can be sleepable only if they are
++
++				/* fentry/fexit/fmod_ret progs can be sleepable if they are
+ 				 * attached to ALLOW_ERROR_INJECTION and are not in denylist.
+ 				 */
+ 				if (!check_non_sleepable_error_inject(btf_id) &&
+ 				    within_error_injection_list(addr))
+ 					ret = 0;
++				/* fentry/fexit/fmod_ret progs can also be sleepable if they are
++				 * in the fmodret id set with the KF_SLEEPABLE flag.
++				 */
++				else {
++					u32 *flags = btf_kern_func_is_modify_return(btf, btf_id);
++
++					if (flags && (*flags & KF_SLEEPABLE))
++						ret = 0;
++				}
+ 				break;
+ 			case BPF_PROG_TYPE_LSM:
+ 				/* LSM progs check that they are attached to bpf_lsm_*() funcs.
+@@ -15047,7 +15057,10 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
+ 				bpf_log(log, "can't modify return codes of BPF programs\n");
+ 				return -EINVAL;
+ 			}
+-			ret = check_attach_modify_return(addr, tname);
++			ret = -EINVAL;
++			if (btf_kern_func_is_modify_return(btf, btf_id) ||
++			    !check_attach_modify_return(addr, tname))
++				ret = 0;
+ 			if (ret) {
+ 				bpf_log(log, "%s() is not modifiable\n", tname);
+ 				return ret;
+diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
+index 13d578ce2a09..5079fb089b5f 100644
+--- a/net/bpf/test_run.c
++++ b/net/bpf/test_run.c
+@@ -489,7 +489,6 @@ int noinline bpf_fentry_test1(int a)
+ 	return a + 1;
+ }
+ EXPORT_SYMBOL_GPL(bpf_fentry_test1);
+-ALLOW_ERROR_INJECTION(bpf_fentry_test1, ERRNO);
+ 
+ int noinline bpf_fentry_test2(int a, u64 b)
+ {
+@@ -733,7 +732,15 @@ noinline void bpf_kfunc_call_test_destructive(void)
+ 
+ __diag_pop();
+ 
+-ALLOW_ERROR_INJECTION(bpf_modify_return_test, ERRNO);
++BTF_SET8_START(bpf_test_modify_return_ids)
++BTF_ID_FLAGS(func, bpf_modify_return_test)
++BTF_ID_FLAGS(func, bpf_fentry_test1, KF_SLEEPABLE)
++BTF_SET8_END(bpf_test_modify_return_ids)
++
++static const struct btf_kfunc_id_set bpf_test_modify_return_set = {
++	.owner = THIS_MODULE,
++	.set   = &bpf_test_modify_return_ids,
++};
+ 
+ BTF_SET8_START(test_sk_check_kfunc_ids)
+ BTF_ID_FLAGS(func, bpf_kfunc_call_test1)
+@@ -1668,7 +1675,8 @@ static int __init bpf_prog_test_run_init(void)
  	};
- };
-diff --git a/arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts b/arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts
-index 674792567fa6e..234531aaa430a 100644
---- a/arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3568-evb1-v10.dts
-@@ -495,7 +495,7 @@ touchscreen0: goodix@14 {
- 		irq-gpios = <&gpio0 RK_PB5 GPIO_ACTIVE_HIGH>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&touch_int &touch_rst>;
--		reset-gpios = <&gpio0 RK_PB6 GPIO_ACTIVE_HIGH>;
-+		reset-gpios = <&gpio0 RK_PB6 GPIO_ACTIVE_LOW>;
- 		VDDIO-supply = <&vcc3v3_lcd0_n>;
- 	};
- };
-
+ 	int ret;
+ 
+-	ret = register_btf_kfunc_id_set(BPF_PROG_TYPE_SCHED_CLS, &bpf_prog_test_kfunc_set);
++	ret = register_btf_fmodret_id_set(&bpf_test_modify_return_set);
++	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_SCHED_CLS, &bpf_prog_test_kfunc_set);
+ 	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_TRACING, &bpf_prog_test_kfunc_set);
+ 	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_SYSCALL, &bpf_prog_test_kfunc_set);
+ 	return ret ?: register_btf_id_dtor_kfuncs(bpf_prog_test_dtor_kfunc,
 -- 
-b4 0.10.1
+2.38.1
+

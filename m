@@ -2,41 +2,41 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A169DC47090
-	for <linux-input@archiver.kernel.org>; Tue,  6 Dec 2022 15:07:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F5B9C4708C
+	for <linux-input@archiver.kernel.org>; Tue,  6 Dec 2022 15:07:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233199AbiLFPHG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 6 Dec 2022 10:07:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58248 "EHLO
+        id S235045AbiLFPH1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 6 Dec 2022 10:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235056AbiLFPG2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2022 10:06:28 -0500
+        with ESMTP id S235221AbiLFPGc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2022 10:06:32 -0500
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1919232BBC
-        for <linux-input@vger.kernel.org>; Tue,  6 Dec 2022 06:59:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842EA2E9E2
+        for <linux-input@vger.kernel.org>; Tue,  6 Dec 2022 06:59:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1670338788;
+        s=mimecast20190719; t=1670338796;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=HSdZJQSYji1CS/LRhNVKICa1dzFhmYVtK87Hjv0Ja0w=;
-        b=h41oMgkIoIw+JYGhIC9ISUe7n5aB/IFI2LhhdRu9agc4A8S8Iy54JATI0RDK9pJIadHcHR
-        2vwbniQgpUjFWT3Y7IL2IKY5K32shgVEE7EhyrBmJ60sFEULq33xoQrZhRaS4NZXOq7c6D
-        5+yeVAtZw/KhgYz7EICIjhuMZvgzRHs=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+        bh=j0Cs3s9/XrNdXYu1iTbXoXBPyJJ8fDscz+47ISINcok=;
+        b=GGJhlrh5byor3DLfFJMNA8EDaVxu16EGP56caK5eV+68a4qdrVQXgcfew6Oe2n2segqHYX
+        7HeSW4nyLWmTJ1sHxnm0ZftgWs3F4Z59JFfFyUzUBjoGxl/Lx8DLEW5giNcHy9iivNmOEF
+        HC7UCYG3vjCS+O8WxUUYeb1YVWBa80g=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-617-R7RqIA-_P6q66p73UY98ng-1; Tue, 06 Dec 2022 09:59:45 -0500
-X-MC-Unique: R7RqIA-_P6q66p73UY98ng-1
+ us-mta-119-LwnsOCfJMjy305Ga6-HEwg-1; Tue, 06 Dec 2022 09:59:52 -0500
+X-MC-Unique: LwnsOCfJMjy305Ga6-HEwg-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 74B2C3C0F42A;
-        Tue,  6 Dec 2022 14:59:44 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 29AFA86C15F;
+        Tue,  6 Dec 2022 14:59:52 +0000 (UTC)
 Received: from plouf.redhat.com (unknown [10.39.193.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C77AB4A9254;
-        Tue,  6 Dec 2022 14:59:42 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 4EF304A9254;
+        Tue,  6 Dec 2022 14:59:50 +0000 (UTC)
 From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Florent Revest <revest@chromium.org>,
@@ -46,10 +46,11 @@ To:     Jiri Kosina <jikos@kernel.org>,
         Andrii Nakryiko <andrii@kernel.org>
 Cc:     bpf@vger.kernel.org, netdev@vger.kernel.org,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH HID for-next v3 1/5] bpf: do not rely on ALLOW_ERROR_INJECTION for fmod_ret
-Date:   Tue,  6 Dec 2022 15:59:32 +0100
-Message-Id: <20221206145936.922196-2-benjamin.tissoires@redhat.com>
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH HID for-next v3 5/5] kselftests: hid: fix missing headers_install step
+Date:   Tue,  6 Dec 2022 15:59:36 +0100
+Message-Id: <20221206145936.922196-6-benjamin.tissoires@redhat.com>
 In-Reply-To: <20221206145936.922196-1-benjamin.tissoires@redhat.com>
 References: <20221206145936.922196-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
@@ -59,194 +60,109 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The current way of expressing that a non-bpf kernel component is willing
-to accept that bpf programs can be attached to it and that they can change
-the return value is to abuse ALLOW_ERROR_INJECTION.
-This is debated in the link below, and the result is that it is not a
-reasonable thing to do.
+The Makefile was assuming that headers_install was already done in
+the top source directory, and was searching for installed uapi headers
+there.
+Unfortunately this is not the case and we need to manually call that step.
 
-Reuse the kfunc declaration structure to also tag the kernel functions
-we want to be fmodret. This way we can control from any subsystem which
-functions are being modified by bpf without touching the verifier.
+To do so, reorder the declaration of the variables, and reuses top_srcdir
+provided by lib.mk
 
-
-Link: https://lore.kernel.org/all/20221121104403.1545f9b5@gandalf.local.home/
-Suggested-by: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/all/202212060216.a6X8Py5H-lkp@intel.com/#t
 Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
 ---
 
-changes in v3:
-- renamed btf_kern_func_is_modify_return() into btf_kfunc_is_modify_return()
-- removed copy/paste in register_btf_fmodret_id_set()
-
-changes in v2:
-- compared to https://lore.kernel.org/all/c9912b24-f611-29b8-28e1-5e8be0d5ad41@redhat.com/
-- make use of register_btf_kfunc_id_set() so we don't have to include
-  hid-bpf.h in bpf core.
+new in v3
 ---
- include/linux/btf.h   |  2 ++
- kernel/bpf/btf.c      | 30 +++++++++++++++++++++++++-----
- kernel/bpf/verifier.c | 17 +++++++++++++++--
- net/bpf/test_run.c    | 14 +++++++++++---
- 4 files changed, 53 insertions(+), 10 deletions(-)
+ tools/testing/selftests/hid/Makefile | 26 ++++++++++++--------------
+ 1 file changed, 12 insertions(+), 14 deletions(-)
 
-diff --git a/include/linux/btf.h b/include/linux/btf.h
-index f9aababc5d78..6a0808e7845c 100644
---- a/include/linux/btf.h
-+++ b/include/linux/btf.h
-@@ -412,8 +412,10 @@ struct btf *bpf_prog_get_target_btf(const struct bpf_prog *prog);
- u32 *btf_kfunc_id_set_contains(const struct btf *btf,
- 			       enum bpf_prog_type prog_type,
- 			       u32 kfunc_btf_id);
-+u32 *btf_kfunc_is_modify_return(const struct btf *btf, u32 kfunc_btf_id);
- int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
- 			      const struct btf_kfunc_id_set *s);
-+int register_btf_fmodret_id_set(const struct btf_kfunc_id_set *kset);
- s32 btf_find_dtor_kfunc(struct btf *btf, u32 btf_id);
- int register_btf_id_dtor_kfuncs(const struct btf_id_dtor_kfunc *dtors, u32 add_cnt,
- 				struct module *owner);
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index 35c07afac924..c1df506293e4 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -204,6 +204,7 @@ enum btf_kfunc_hook {
- 	BTF_KFUNC_HOOK_STRUCT_OPS,
- 	BTF_KFUNC_HOOK_TRACING,
- 	BTF_KFUNC_HOOK_SYSCALL,
-+	BTF_KFUNC_HOOK_FMODRET,
- 	BTF_KFUNC_HOOK_MAX,
- };
+diff --git a/tools/testing/selftests/hid/Makefile b/tools/testing/selftests/hid/Makefile
+index 693f1cb6e47a..f6fc5cfff770 100644
+--- a/tools/testing/selftests/hid/Makefile
++++ b/tools/testing/selftests/hid/Makefile
+@@ -7,17 +7,9 @@ include ../../../scripts/Makefile.include
  
-@@ -7448,11 +7449,14 @@ u32 *btf_kfunc_id_set_contains(const struct btf *btf,
- 	return __btf_kfunc_id_set_contains(btf, hook, kfunc_btf_id);
- }
+ CXX ?= $(CROSS_COMPILE)g++
  
--/* This function must be invoked only from initcalls/module init functions */
--int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
--			      const struct btf_kfunc_id_set *kset)
-+u32 *btf_kfunc_is_modify_return(const struct btf *btf, u32 kfunc_btf_id)
-+{
-+	return __btf_kfunc_id_set_contains(btf, BTF_KFUNC_HOOK_FMODRET, kfunc_btf_id);
-+}
+-CURDIR := $(abspath .)
+-TOOLSDIR := $(abspath ../../..)
+-TOP_SRCDIR = $(CURDIR)/../../../..
+-KHDR_INCLUDES := $(TOP_SRCDIR)/usr/include
+-LIBDIR := $(TOOLSDIR)/lib
+-BPFDIR := $(LIBDIR)/bpf
+-TOOLSINCDIR := $(TOOLSDIR)/include
+-BPFTOOLDIR := $(TOOLSDIR)/bpf/bpftool
+ HOSTPKG_CONFIG := pkg-config
+ 
+-CFLAGS += -g -O0 -rdynamic -Wall -Werror -I$(KHDR_INCLUDES)
++CFLAGS += -g -O0 -rdynamic -Wall -Werror -I$(KHDR_INCLUDES) -I$(OUTPUT)
+ LDLIBS += -lelf -lz -lrt -lpthread
+ 
+ # Silence some warnings when compiled with clang
+@@ -53,9 +45,15 @@ endef
+ 
+ include ../lib.mk
+ 
++TOOLSDIR := $(top_srcdir)/tools
++LIBDIR := $(TOOLSDIR)/lib
++BPFDIR := $(LIBDIR)/bpf
++TOOLSINCDIR := $(TOOLSDIR)/include
++BPFTOOLDIR := $(TOOLSDIR)/bpf/bpftool
+ SCRATCH_DIR := $(OUTPUT)/tools
+ BUILD_DIR := $(SCRATCH_DIR)/build
+ INCLUDE_DIR := $(SCRATCH_DIR)/include
++KHDR_INCLUDES := $(SCRATCH_DIR)/uapi/include
+ BPFOBJ := $(BUILD_DIR)/libbpf/libbpf.a
+ ifneq ($(CROSS_COMPILE),)
+ HOST_BUILD_DIR		:= $(BUILD_DIR)/host
+@@ -122,7 +120,6 @@ $(DEFAULT_BPFTOOL): $(wildcard $(BPFTOOLDIR)/*.[ch] $(BPFTOOLDIR)/Makefile)    \
+ 		    prefix= DESTDIR=$(HOST_SCRATCH_DIR)/ install-bin
+ 
+ $(BPFOBJ): $(wildcard $(BPFDIR)/*.[ch] $(BPFDIR)/Makefile)		       \
+-	   $(KHDR_INCLUDES)/linux/bpf.h					       \
+ 	   | $(BUILD_DIR)/libbpf
+ 	$(Q)$(MAKE) $(submake_extras) -C $(BPFDIR) OUTPUT=$(BUILD_DIR)/libbpf/ \
+ 		    EXTRA_CFLAGS='-g -O0'				       \
+@@ -130,7 +127,6 @@ $(BPFOBJ): $(wildcard $(BPFDIR)/*.[ch] $(BPFDIR)/Makefile)		       \
+ 
+ ifneq ($(BPFOBJ),$(HOST_BPFOBJ))
+ $(HOST_BPFOBJ): $(wildcard $(BPFDIR)/*.[ch] $(BPFDIR)/Makefile)		       \
+-		$(KHDR_INCLUDES)/linux/bpf.h					       \
+ 		| $(HOST_BUILD_DIR)/libbpf
+ 	$(Q)$(MAKE) $(submake_extras) -C $(BPFDIR)                             \
+ 		    EXTRA_CFLAGS='-g -O0' ARCH= CROSS_COMPILE=		       \
+@@ -147,6 +143,9 @@ else
+ 	$(Q)cp "$(VMLINUX_H)" $@
+ endif
+ 
++$(KHDR_INCLUDES)/linux/hid.h: $(top_srcdir)/include/uapi/linux/hid.h
++	$(MAKE) -C $(top_srcdir) INSTALL_HDR_PATH=$(SCRATCH_DIR)/uapi headers_install
 +
-+static int __register_btf_kfunc_id_set(enum btf_kfunc_hook hook,
-+				       const struct btf_kfunc_id_set *kset)
- {
--	enum btf_kfunc_hook hook;
- 	struct btf *btf;
- 	int ret;
+ $(RESOLVE_BTFIDS): $(HOST_BPFOBJ) | $(HOST_BUILD_DIR)/resolve_btfids	\
+ 		       $(TOOLSDIR)/bpf/resolve_btfids/main.c	\
+ 		       $(TOOLSDIR)/lib/rbtree.c			\
+@@ -178,8 +177,7 @@ MENDIAN=$(if $(IS_LITTLE_ENDIAN),-mlittle-endian,-mbig-endian)
  
-@@ -7471,13 +7475,29 @@ int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
- 	if (IS_ERR(btf))
- 		return PTR_ERR(btf);
+ CLANG_SYS_INCLUDES = $(call get_sys_includes,$(CLANG))
+ BPF_CFLAGS = -g -Werror -D__TARGET_ARCH_$(SRCARCH) $(MENDIAN) 		\
+-	     -I$(INCLUDE_DIR) -I$(CURDIR) -I$(KHDR_INCLUDES)		\
+-	     -I$(abspath $(OUTPUT)/../usr/include)
++	     -I$(INCLUDE_DIR)
  
--	hook = bpf_prog_type_to_kfunc_hook(prog_type);
- 	ret = btf_populate_kfunc_set(btf, hook, kset->set);
- 	btf_put(btf);
- 	return ret;
- }
-+
-+/* This function must be invoked only from initcalls/module init functions */
-+int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
-+			      const struct btf_kfunc_id_set *kset)
-+{
-+	enum btf_kfunc_hook hook;
-+
-+	hook = bpf_prog_type_to_kfunc_hook(prog_type);
-+	return __register_btf_kfunc_id_set(hook, kset);
-+}
- EXPORT_SYMBOL_GPL(register_btf_kfunc_id_set);
+ CLANG_CFLAGS = $(CLANG_SYS_INCLUDES) \
+ 	       -Wno-compare-distinct-pointer-types
+@@ -225,7 +223,7 @@ $(BPF_SKELS): %.skel.h: %.bpf.o $(BPFTOOL) | $(OUTPUT)
+ 	$(Q)$(BPFTOOL) gen object $(<:.o=.linked1.o) $<
+ 	$(Q)$(BPFTOOL) gen skeleton $(<:.o=.linked1.o) name $(notdir $(<:.bpf.o=)) > $@
  
-+/* This function must be invoked only from initcalls/module init functions */
-+int register_btf_fmodret_id_set(const struct btf_kfunc_id_set *kset)
-+{
-+	return __register_btf_kfunc_id_set(BTF_KFUNC_HOOK_FMODRET, kset);
-+}
-+EXPORT_SYMBOL_GPL(register_btf_fmodret_id_set);
-+
- s32 btf_find_dtor_kfunc(struct btf *btf, u32 btf_id)
- {
- 	struct btf_id_dtor_kfunc_tab *tab = btf->dtor_kfunc_tab;
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 225666307bba..ec2e6ec7309e 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -15021,12 +15021,22 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
- 			ret = -EINVAL;
- 			switch (prog->type) {
- 			case BPF_PROG_TYPE_TRACING:
--				/* fentry/fexit/fmod_ret progs can be sleepable only if they are
-+
-+				/* fentry/fexit/fmod_ret progs can be sleepable if they are
- 				 * attached to ALLOW_ERROR_INJECTION and are not in denylist.
- 				 */
- 				if (!check_non_sleepable_error_inject(btf_id) &&
- 				    within_error_injection_list(addr))
- 					ret = 0;
-+				/* fentry/fexit/fmod_ret progs can also be sleepable if they are
-+				 * in the fmodret id set with the KF_SLEEPABLE flag.
-+				 */
-+				else {
-+					u32 *flags = btf_kfunc_is_modify_return(btf, btf_id);
-+
-+					if (flags && (*flags & KF_SLEEPABLE))
-+						ret = 0;
-+				}
- 				break;
- 			case BPF_PROG_TYPE_LSM:
- 				/* LSM progs check that they are attached to bpf_lsm_*() funcs.
-@@ -15047,7 +15057,10 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
- 				bpf_log(log, "can't modify return codes of BPF programs\n");
- 				return -EINVAL;
- 			}
--			ret = check_attach_modify_return(addr, tname);
-+			ret = -EINVAL;
-+			if (btf_kfunc_is_modify_return(btf, btf_id) ||
-+			    !check_attach_modify_return(addr, tname))
-+				ret = 0;
- 			if (ret) {
- 				bpf_log(log, "%s() is not modifiable\n", tname);
- 				return ret;
-diff --git a/net/bpf/test_run.c b/net/bpf/test_run.c
-index 13d578ce2a09..5079fb089b5f 100644
---- a/net/bpf/test_run.c
-+++ b/net/bpf/test_run.c
-@@ -489,7 +489,6 @@ int noinline bpf_fentry_test1(int a)
- 	return a + 1;
- }
- EXPORT_SYMBOL_GPL(bpf_fentry_test1);
--ALLOW_ERROR_INJECTION(bpf_fentry_test1, ERRNO);
+-$(OUTPUT)/%:%.c $(BPF_SKELS)
++$(OUTPUT)/%:%.c $(BPF_SKELS) $(KHDR_INCLUDES)/linux/hid.h
+ 	$(call msg,BINARY,,$@)
+ 	$(Q)$(LINK.c) $^ $(LDLIBS) -o $@
  
- int noinline bpf_fentry_test2(int a, u64 b)
- {
-@@ -733,7 +732,15 @@ noinline void bpf_kfunc_call_test_destructive(void)
- 
- __diag_pop();
- 
--ALLOW_ERROR_INJECTION(bpf_modify_return_test, ERRNO);
-+BTF_SET8_START(bpf_test_modify_return_ids)
-+BTF_ID_FLAGS(func, bpf_modify_return_test)
-+BTF_ID_FLAGS(func, bpf_fentry_test1, KF_SLEEPABLE)
-+BTF_SET8_END(bpf_test_modify_return_ids)
-+
-+static const struct btf_kfunc_id_set bpf_test_modify_return_set = {
-+	.owner = THIS_MODULE,
-+	.set   = &bpf_test_modify_return_ids,
-+};
- 
- BTF_SET8_START(test_sk_check_kfunc_ids)
- BTF_ID_FLAGS(func, bpf_kfunc_call_test1)
-@@ -1668,7 +1675,8 @@ static int __init bpf_prog_test_run_init(void)
- 	};
- 	int ret;
- 
--	ret = register_btf_kfunc_id_set(BPF_PROG_TYPE_SCHED_CLS, &bpf_prog_test_kfunc_set);
-+	ret = register_btf_fmodret_id_set(&bpf_test_modify_return_set);
-+	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_SCHED_CLS, &bpf_prog_test_kfunc_set);
- 	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_TRACING, &bpf_prog_test_kfunc_set);
- 	ret = ret ?: register_btf_kfunc_id_set(BPF_PROG_TYPE_SYSCALL, &bpf_prog_test_kfunc_set);
- 	return ret ?: register_btf_id_dtor_kfuncs(bpf_prog_test_dtor_kfunc,
 -- 
 2.38.1
 

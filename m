@@ -2,171 +2,110 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E5EDC4708E
-	for <linux-input@archiver.kernel.org>; Tue,  6 Dec 2022 12:42:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E608C4708C
+	for <linux-input@archiver.kernel.org>; Tue,  6 Dec 2022 15:04:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234483AbiLFMm3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 6 Dec 2022 07:42:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50740 "EHLO
+        id S232321AbiLFPEt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 6 Dec 2022 10:04:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234379AbiLFMmW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2022 07:42:22 -0500
-Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B99AB2A25E;
-        Tue,  6 Dec 2022 04:42:14 -0800 (PST)
-Received: from wsk (85-222-111-42.dynamic.chello.pl [85.222.111.42])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        with ESMTP id S231220AbiLFPE2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 6 Dec 2022 10:04:28 -0500
+Received: from cloudserver094114.home.pl (cloudserver094114.home.pl [79.96.170.134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E7932FC1B;
+        Tue,  6 Dec 2022 06:58:16 -0800 (PST)
+Received: from localhost (127.0.0.1) (HELO v370.home.net.pl)
+ by /usr/run/smtp (/usr/run/postfix/private/idea_relay_lmtp) via UNIX with SMTP (IdeaSmtpServer 5.1.0)
+ id d31926fc1cae3eed; Tue, 6 Dec 2022 15:58:12 +0100
+Received: from kreacher.localnet (unknown [213.134.163.187])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        (Authenticated sender: lukma@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 5052E85453;
-        Tue,  6 Dec 2022 13:42:09 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1670330531;
-        bh=iI5SeUL51UC7eISdgdq26IjAocTkIL/OIraEMeV0ztw=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=kohTwBtNeMzWD5rKFY2zLgtxNV3zwHgzPawC0atjqRcJLpxirfFpg13Hq82Zwlamu
-         sfG576AIyFhd/Y/MTkXpXEnLyuM+Zk9sC/hSq1SPR8vCaVL4EnDUdWyaApDZb5s27p
-         YAnrTzcZdILPc37J49JVyzpBuiShP8+xmX55o7rEVlH7cxE7PZXcOvonhLMUeedo3q
-         CtiVJdkmWSLBAQJN6rYBO7RdsT1BbqwBzYB1uws42EYmwaGMvKpPFxZn7atebPiuUP
-         /CYp2V0pE+b7s1z+DnntkIPisnI5a62ezTyrL82FZCx252xmaDV0+TWNdHMtXwVwqF
-         USZMAjXhOD3VQ==
-Date:   Tue, 6 Dec 2022 13:42:01 +0100
-From:   Lukasz Majewski <lukma@denx.de>
-To:     Frieder Schrempf <frieder.schrempf@kontron.de>
-Cc:     Quentin Schulz <foss+kernel@0leil.net>,
-        Samuel Holland <samuel@sholland.org>,
-        Bastien Nocera <hadess@hadess.net>,
-        Guido =?UTF-8?B?R8O8bnRoZXI=?= <agx@sigxcpu.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Angus Ainslie <angus@akkea.ca>,
-        Ondrej Jirman <megous@megous.com>,
-        Icenowy Zheng <icenowy@aosc.io>,
-        Andy Gross <agross@kernel.org>,
-        Aleksei Mamlin <mamlinav@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        David Jander <david@protonic.nl>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@somainline.org>,
-        Peter Geis <pgwipeout@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Michael Riesch <michael.riesch@wolfvision.net>,
-        Rob Herring <robh+dt@kernel.org>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jagan Teki <jagan@amarulasolutions.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Quentin Schulz <quentin.schulz@theobroma-systems.com>,
-        linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-sunxi@lists.linux.dev, devicetree@vger.kernel.org,
-        linux-rockchip@lists.infradead.org
-Subject: Re: [PATCH v3 4/9] ARM: dts: imx: fix touchscreen reset GPIO
- polarity
-Message-ID: <20221206134201.703ad352@wsk>
-In-Reply-To: <b37272ae-a939-1dce-de47-e237c6363a0f@kontron.de>
-References: <20221103-upstream-goodix-reset-v3-0-0975809eb183@theobroma-systems.com>
-        <20221103-upstream-goodix-reset-v3-4-0975809eb183@theobroma-systems.com>
-        <b37272ae-a939-1dce-de47-e237c6363a0f@kontron.de>
-Organization: denx.de
-X-Mailer: Claws Mail 3.19.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+        by v370.home.net.pl (Postfix) with ESMTPSA id D5840940A67;
+        Tue,  6 Dec 2022 15:58:11 +0100 (CET)
+Authentication-Results: v370.home.net.pl; dmarc=none (p=none dis=none) header.from=rjwysocki.net
+Authentication-Results: v370.home.net.pl; spf=fail smtp.mailfrom=rjwysocki.net
+From:   "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To:     Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>
+Cc:     Filipe =?ISO-8859-1?Q?La=EDns?= <lains@riseup.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Thorsten Leemhuis <regressions@leemhuis.info>
+Subject: [Regression] Logitech BT mouse unusable after commit 532223c8ac57 (still in 6.1-rc8)
+Date:   Tue, 06 Dec 2022 15:58:11 +0100
+Message-ID: <2262737.ElGaqSPkdT@kreacher>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="Sig_/wSkO.yKQ_Y+Ill11MbjpZ3n";
- protocol="application/pgp-signature"; micalg=pgp-sha512
-X-Virus-Scanned: clamav-milter 0.103.6 at phobos.denx.de
-X-Virus-Status: Clean
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
+X-CLIENT-IP: 213.134.163.187
+X-CLIENT-HOSTNAME: 213.134.163.187
+X-VADE-SPAMSTATE: clean
+X-VADE-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrudeigdejtdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfjqffogffrnfdpggftiffpkfenuceurghilhhouhhtmecuudehtdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkggfgtgesthfuredttddtjeenucfhrhhomhepfdftrghfrggvlhculfdrucghhihsohgtkhhifdcuoehrjhifsehrjhifhihsohgtkhhirdhnvghtqeenucggtffrrghtthgvrhhnpeffffffkefgheehffelteeiveeffeevhfelteejvddvieejjeelvdeiheeuveeuffenucfkphepvddufedrudefgedrudeifedrudekjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvudefrddufeegrdduieefrddukeejpdhhvghlohepkhhrvggrtghhvghrrdhlohgtrghlnhgvthdpmhgrihhlfhhrohhmpedftfgrfhgrvghlucflrdcuhgihshhotghkihdfuceorhhjfiesrhhjfiihshhotghkihdrnhgvtheqpdhnsggprhgtphhtthhopeekpdhrtghpthhtohepjhhikhhosheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohephhgruggvshhssehhrgguvghsshdrnhgvthdprhgtphhtthhopehlrghinhhssehrihhsvghuphdrnhgvthdprhgtphhtthhopegsvghnjhgrmhhinhdrthhishhsohhirhgvshesrhgvughhrghtrdgtohhmpdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghrrdhkvghr
+ nhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehrrghfrggvlheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprhgvghhrvghsshhiohhnsheslhgvvghmhhhuihhsrdhinhhfoh
+X-DCC--Metrics: v370.home.net.pl 1024; Body=8 Fuz1=8 Fuz2=8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
---Sig_/wSkO.yKQ_Y+Ill11MbjpZ3n
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+Bastien, Jiri,
 
-On Tue, 6 Dec 2022 12:25:29 +0100
-Frieder Schrempf <frieder.schrempf@kontron.de> wrote:
+Commit 532223c8ac57 ("HID: logitech-hidpp: Enable HID++ for all the Logitech
+Bluetooth devices") caused my Logitech Bluetooth mouse to become unusable.
 
-> On 05.12.22 14:40, Quentin Schulz wrote:
-> > From: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-> >=20
-> > The reset line is active low for the Goodix touchscreen controller
-> > so let's fix the polarity in the Device Tree node.
-> >=20
-> > Signed-off-by: Quentin Schulz <quentin.schulz@theobroma-systems.com>
-> > ---
-> >  arch/arm/boot/dts/imx6q-kp.dtsi            | 2 +-
-> >  arch/arm/boot/dts/imx6ul-kontron-bl-43.dts | 2 +-
-> >  2 files changed, 2 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/arch/arm/boot/dts/imx6q-kp.dtsi
-> > b/arch/arm/boot/dts/imx6q-kp.dtsi index
-> > 1ade0bff681d6..dae14aaf803a8 100644 ---
-> > a/arch/arm/boot/dts/imx6q-kp.dtsi +++
-> > b/arch/arm/boot/dts/imx6q-kp.dtsi @@ -188,7 +188,7 @@
-> > touchscreen@5d { interrupt-parent =3D <&gpio1>;
-> >  		interrupts =3D <9 IRQ_TYPE_EDGE_FALLING>;
-> >  		irq-gpios =3D <&gpio1 9 GPIO_ACTIVE_HIGH>;
-> > -		reset-gpios =3D <&gpio5 2 GPIO_ACTIVE_HIGH>;
-> > +		reset-gpios =3D <&gpio5 2 GPIO_ACTIVE_LOW>;
-> >  	};
-> > =20
-> >  	ds1307: rtc@32 {
-> > diff --git a/arch/arm/boot/dts/imx6ul-kontron-bl-43.dts
-> > b/arch/arm/boot/dts/imx6ul-kontron-bl-43.dts index
-> > 0c643706a158b..767ef5da76136 100644 ---
-> > a/arch/arm/boot/dts/imx6ul-kontron-bl-43.dts +++
-> > b/arch/arm/boot/dts/imx6ul-kontron-bl-43.dts @@ -29,7 +29,7 @@
-> > touchscreen@5d { pinctrl-0 =3D <&pinctrl_cap_touch>;
-> >  		interrupt-parent =3D <&gpio5>;
-> >  		interrupts =3D <6 IRQ_TYPE_LEVEL_LOW>;
-> > -		reset-gpios =3D <&gpio5 8 GPIO_ACTIVE_HIGH>;
-> > +		reset-gpios =3D <&gpio5 8 GPIO_ACTIVE_LOW>;
-> >  		irq-gpios =3D <&gpio5 6 GPIO_ACTIVE_HIGH>;
-> >  	};
-> >  }; =20
->=20
-> The imx6ul-kontron-bl-43.dts misses a working panel node, so I'm
-> pretty sure it is not used and nobody will bother about change
-> breaking compatibility. I don't have the hardware at hand at the
-> moment to perform a test, so for now:
->=20
-> Acked-by: Frieder Schrempf <frieder.schrempf@kontron.de> #
-> imx6ul-kontron-bl-43.dts
+Appended is the change I need to make it work again (note that adding the
+device ID to unhandled_hidpp_devices[] doesn't help, so there must be some
+significant enough difference in how the two cases are handled in the stack).
 
-Reviewed-by: Lukasz Majewski <lukma@denx.de>
+Here's what I get in the log without the patch below:
 
-For imx6 TPC70 device.
+[   36.710574] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
+[   36.710592] Bluetooth: HIDP socket layer initialized
+[   36.724644] hid-generic 0005:046D:B016.0001: unknown main item tag 0x0
+[   36.725860] input: Bluetooth Mouse M336/M337/M535 Mouse as /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input14
+[   36.728036] input: Bluetooth Mouse M336/M337/M535 Consumer Control as /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input15
+[   36.728823] input: Bluetooth Mouse M336/M337/M535 Keyboard as /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input18
+[   36.731550] hid-generic 0005:046D:B016.0001: input,hidraw0: BLUETOOTH HID v12.03 Mouse [Bluetooth Mouse M336/M337/M535] on 9c:b6:d0:96:8e:c8
+[   36.833039] logitech-hidpp-device 0005:046D:B016.0001: unknown main item tag 0x0
+[   36.999064] logitech-hidpp-device 0005:046D:B016.0001: Device not connected
 
-Best regards,
+and here's what I get with it:
 
-Lukasz Majewski
+[   43.642546] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
+[   43.642559] Bluetooth: HIDP socket layer initialized
+[   43.652898] hid-generic 0005:046D:B016.0001: unknown main item tag 0x0
+[   43.653833] input: Bluetooth Mouse M336/M337/M535 Mouse as /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input14
+[   43.655025] input: Bluetooth Mouse M336/M337/M535 Consumer Control as /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input15
+[   43.655400] input: Bluetooth Mouse M336/M337/M535 Keyboard as /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input18
+[   43.657521] hid-generic 0005:046D:B016.0001: input,hidraw0: BLUETOOTH HID v12.03 Mouse [Bluetooth Mouse M336/M337/M535] on 9c:b6:d0:96:8e:c8
 
---
+The only difference seems to be that in the former case the logitech-hidpp
+driver tries to bind to the device, but I guess that is expected.  However,
+when the device ID is added to unhandled_hidpp_devices[], the messages look
+exactly like in the "good" case, but the mouse still doesn't work.
 
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-Phone: (+49)-8142-66989-59 Fax: (+49)-8142-66989-80 Email: lukma@denx.de
+Thanks,
+Rafael
 
---Sig_/wSkO.yKQ_Y+Ill11MbjpZ3n
-Content-Type: application/pgp-signature
-Content-Description: OpenPGP digital signature
 
------BEGIN PGP SIGNATURE-----
+---
+ drivers/hid/hid-logitech-hidpp.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
-iQEzBAEBCgAdFiEEgAyFJ+N6uu6+XupJAR8vZIA0zr0FAmOPOJkACgkQAR8vZIA0
-zr3LxAf/cTdBTk+iiToN5yxnqM4qT8HJEan6BzkjWYMZcb6PMMKqHZW+Zsr/SP8o
-O+3ChkrLogmz7NjwQqaA09s4IIqYJA5+Wfqd/AqYxjoed5hnRK7tsItBPzJtBmtc
-wHxhAkrz/cMcALf8pTfzM3SL1dTB4y+8rPr7O1vhMGS7GPTZMdfXa0WU/QGi6TtZ
-GgBZjk8Qutd0SjxaHiqH0FuciHrBNXGX3cLKytigm+WFgtqSFYw9+cU41SyN1Kdx
-TodH+8TTz1tURnTAd5vBcq8INdx9N0C2xyeq228bGO2xfnGxjsuOmA00EUzsOmbU
-pp/MnwgcQS0r4qXma8E7t1o19CU7Dg==
-=buG3
------END PGP SIGNATURE-----
+Index: linux-pm/drivers/hid/hid-logitech-hidpp.c
+===================================================================
+--- linux-pm.orig/drivers/hid/hid-logitech-hidpp.c
++++ linux-pm/drivers/hid/hid-logitech-hidpp.c
+@@ -4367,9 +4367,6 @@ static const struct hid_device_id hidpp_
+ 	{ /* MX5500 keyboard over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+ 	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
+-
+-	{ /* And try to enable HID++ for all the Logitech Bluetooth devices */
+-	  HID_DEVICE(BUS_BLUETOOTH, HID_GROUP_ANY, USB_VENDOR_ID_LOGITECH, HID_ANY_ID) },
+ 	{}
+ };
+ 
 
---Sig_/wSkO.yKQ_Y+Ill11MbjpZ3n--
+
+

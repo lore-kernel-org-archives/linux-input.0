@@ -2,137 +2,78 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCDB8C352A1
-	for <linux-input@archiver.kernel.org>; Wed,  7 Dec 2022 09:07:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66838C352A1
+	for <linux-input@archiver.kernel.org>; Wed,  7 Dec 2022 09:13:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229497AbiLGJHl convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 7 Dec 2022 04:07:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55256 "EHLO
+        id S230136AbiLGJNu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 7 Dec 2022 04:13:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229456AbiLGJHk (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2022 04:07:40 -0500
-Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E635E2F4;
-        Wed,  7 Dec 2022 01:07:37 -0800 (PST)
-Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id 594B3240005;
-        Wed,  7 Dec 2022 09:07:34 +0000 (UTC)
-Message-ID: <7fabe0c91945b61bae7825dfcdbc2f88d0f2b98c.camel@hadess.net>
-Subject: Re: [Regression] Logitech BT mouse unusable after commit
- 532223c8ac57 (still in 6.1-rc8)
-From:   Bastien Nocera <hadess@hadess.net>
-To:     "Rafael J. Wysocki" <rafael@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>
+        with ESMTP id S230143AbiLGJNG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Dec 2022 04:13:06 -0500
+Received: from cloudserver094114.home.pl (cloudserver094114.home.pl [79.96.170.134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AB381F61D;
+        Wed,  7 Dec 2022 01:13:04 -0800 (PST)
+Received: from localhost (127.0.0.1) (HELO v370.home.net.pl)
+ by /usr/run/smtp (/usr/run/postfix/private/idea_relay_lmtp) via UNIX with SMTP (IdeaSmtpServer 5.1.0)
+ id 4e8274c1484625d8; Wed, 7 Dec 2022 10:13:03 +0100
+Received: from kreacher.localnet (unknown [213.134.169.108])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by v370.home.net.pl (Postfix) with ESMTPSA id 64ECE780872;
+        Wed,  7 Dec 2022 10:13:02 +0100 (CET)
+Authentication-Results: v370.home.net.pl; dmarc=none (p=none dis=none) header.from=rjwysocki.net
+Authentication-Results: v370.home.net.pl; spf=fail smtp.mailfrom=rjwysocki.net
+From:   "Rafael J. Wysocki" <rjw@rjwysocki.net>
+To:     Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>
 Cc:     Filipe =?ISO-8859-1?Q?La=EDns?= <lains@riseup.net>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
         Thorsten Leemhuis <regressions@leemhuis.info>
-Date:   Wed, 07 Dec 2022 10:07:33 +0100
-In-Reply-To: <CAJZ5v0jBo-_XnN2m0jeVdeTi7kjr6C3OSzc1NEJgav0srD0JGQ@mail.gmail.com>
-References: <2262737.ElGaqSPkdT@kreacher>
-         <CAJZ5v0jBo-_XnN2m0jeVdeTi7kjr6C3OSzc1NEJgav0srD0JGQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8BIT
-User-Agent: Evolution 3.46.2 (3.46.2-1.fc37) 
+Subject: [PATCH v1 2/2] HID: logitech-hidpp: Add Bluetooth Mouse M336/M337/M535 to unhandled_hidpp_devices[]
+Date:   Wed, 07 Dec 2022 10:12:39 +0100
+Message-ID: <2283816.ElGaqSPkdT@kreacher>
+In-Reply-To: <5647715.DvuYhMxLoT@kreacher>
+References: <2262737.ElGaqSPkdT@kreacher> <5647715.DvuYhMxLoT@kreacher>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="UTF-8"
+X-CLIENT-IP: 213.134.169.108
+X-CLIENT-HOSTNAME: 213.134.169.108
+X-VADE-SPAMSTATE: clean
+X-VADE-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrudekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecujffqoffgrffnpdggtffipffknecuuegrihhlohhuthemucduhedtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkfgjfhgggfgtsehtufertddttdejnecuhfhrohhmpedftfgrfhgrvghlucflrdcuhgihshhotghkihdfuceorhhjfiesrhhjfiihshhotghkihdrnhgvtheqnecuggftrfgrthhtvghrnhepvdffueeitdfgvddtudegueejtdffteetgeefkeffvdeftddttdeuhfegfedvjefhnecukfhppedvudefrddufeegrdduieelrddutdeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvddufedrudefgedrudeiledruddtkedphhgvlhhopehkrhgvrggthhgvrhdrlhhotggrlhhnvghtpdhmrghilhhfrhhomhepfdftrghfrggvlhculfdrucghhihsohgtkhhifdcuoehrjhifsehrjhifhihsohgtkhhirdhnvghtqedpnhgspghrtghpthhtohepkedprhgtphhtthhopehjihhkohhssehkvghrnhgvlhdrohhrghdprhgtphhtthhopehhrgguvghssheshhgruggvshhsrdhnvghtpdhrtghpthhtoheplhgrihhnshesrhhishgvuhhprdhnvghtpdhrtghpthhtohepsggvnhhjrghmihhnrdhtihhsshhoihhrvghssehrvgguhhgrthdrtghomhdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvghgvrhdrkhgvrhhn
+ vghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprhgrfhgrvghlsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehrvghgrhgvshhsihhonhhssehlvggvmhhhuhhishdrihhnfhho
+X-DCC--Metrics: v370.home.net.pl 1024; Body=8 Fuz1=8 Fuz2=8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 2022-12-07 at 09:58 +0100, Rafael J. Wysocki wrote:
-> On Tue, Dec 6, 2022 at 3:58 PM Rafael J. Wysocki <rjw@rjwysocki.net>
-> wrote:
-> > 
-> > Bastien, Jiri,
-> > 
-> > Commit 532223c8ac57 ("HID: logitech-hidpp: Enable HID++ for all the
-> > Logitech
-> > Bluetooth devices") caused my Logitech Bluetooth mouse to become
-> > unusable.
-> > 
-> > Appended is the change I need to make it work again (note that
-> > adding the
-> > device ID to unhandled_hidpp_devices[] doesn't help, so there must
-> > be some
-> > significant enough difference in how the two cases are handled in
-> > the stack).
-> > 
-> > Here's what I get in the log without the patch below:
-> > 
-> > [   36.710574] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
-> > [   36.710592] Bluetooth: HIDP socket layer initialized
-> > [   36.724644] hid-generic 0005:046D:B016.0001: unknown main item
-> > tag 0x0
-> > [   36.725860] input: Bluetooth Mouse M336/M337/M535 Mouse as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-
-> > 7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input14
-> > [   36.728036] input: Bluetooth Mouse M336/M337/M535 Consumer
-> > Control as /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-
-> > 7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input15
-> > [   36.728823] input: Bluetooth Mouse M336/M337/M535 Keyboard as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-
-> > 7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input18
-> > [   36.731550] hid-generic 0005:046D:B016.0001: input,hidraw0:
-> > BLUETOOTH HID v12.03 Mouse [Bluetooth Mouse M336/M337/M535] on
-> > 9c:b6:d0:96:8e:c8
-> > [   36.833039] logitech-hidpp-device 0005:046D:B016.0001: unknown
-> > main item tag 0x0
-> > [   36.999064] logitech-hidpp-device 0005:046D:B016.0001: Device
-> > not connected
-> > 
-> > and here's what I get with it:
-> > 
-> > [   43.642546] Bluetooth: HIDP (Human Interface Emulation) ver 1.2
-> > [   43.642559] Bluetooth: HIDP socket layer initialized
-> > [   43.652898] hid-generic 0005:046D:B016.0001: unknown main item
-> > tag 0x0
-> > [   43.653833] input: Bluetooth Mouse M336/M337/M535 Mouse as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-
-> > 7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input14
-> > [   43.655025] input: Bluetooth Mouse M336/M337/M535 Consumer
-> > Control as /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-
-> > 7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input15
-> > [   43.655400] input: Bluetooth Mouse M336/M337/M535 Keyboard as
-> > /devices/pci0000:00/0000:00:14.0/usb1/1-7/1-
-> > 7:1.0/bluetooth/hci0/hci0:1/0005:046D:B016.0001/input/input18
-> > [   43.657521] hid-generic 0005:046D:B016.0001: input,hidraw0:
-> > BLUETOOTH HID v12.03 Mouse [Bluetooth Mouse M336/M337/M535] on
-> > 9c:b6:d0:96:8e:c8
-> > 
-> > The only difference seems to be that in the former case the
-> > logitech-hidpp
-> > driver tries to bind to the device, but I guess that is expected. 
-> > However,
-> > when the device ID is added to unhandled_hidpp_devices[], the
-> > messages look
-> > exactly like in the "good" case, but the mouse still doesn't work.
-> 
-> Here's what happens.
-> 
-> - The logitech-hidpp driver is modular and is not present initially,
-> so hid-generic probes first (successfully).
-> 
-> - logitech-hidpp is loaded which causes the device to be reporobed
-> due
-> to __hid_bus_driver_added().
-> 
-> - Because the ->match() callback in hid-generic returns 0 for the
-> device now, it is unbound from the device.
-> 
-> - The probing of logitech-hidpp fails (due to an error in ->probe()).
-> 
-> - The probing of hid-generic fails due to the failing ->match().
-> 
-> So in order for unhandled_hidpp_devices[] in logitech-hidpp to work
-> with hid-generic, __check_hid_generic() needs to be amended with a
-> change to run the ->match() callback of the "specific" driver being
-> tried.
-> 
-> I have a working patch for this that will be sent shortly.
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-I'm glad my belated questioning of the hid-generic fallback code was
-correct ;)
+Evidently, Logitech Bluetooth Mouse M336/M337/M535 (0xb016) does not
+work when HID++ is enabled for it, so add it to the list of devices
+that are not handled by logitech-hidpp.
 
-My question about getting the output from the HID++ tool still stands
-though.
+Fixes: 532223c8ac57 ("HID: logitech-hidpp: Enable HID++ for all the Logitech Bluetooth devices")
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+---
+ drivers/hid/hid-logitech-hidpp.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+Index: linux-pm/drivers/hid/hid-logitech-hidpp.c
+===================================================================
+--- linux-pm.orig/drivers/hid/hid-logitech-hidpp.c
++++ linux-pm/drivers/hid/hid-logitech-hidpp.c
+@@ -4274,6 +4274,7 @@ static const struct hid_device_id unhand
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_HARMONY_PS3) },
+ 	/* Handled in hid-generic */
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb016) },
+ 	{}
+ };
+ 
+
+
+

@@ -2,291 +2,243 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CE4F3C10F1E
-	for <linux-input@archiver.kernel.org>; Sun, 18 Dec 2022 16:25:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9A63C4332F
+	for <linux-input@archiver.kernel.org>; Sun, 18 Dec 2022 21:47:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232018AbiLRQZB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 18 Dec 2022 11:25:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33926 "EHLO
+        id S230481AbiLRVrz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 18 Dec 2022 16:47:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231822AbiLRQXi (ORCPT
+        with ESMTP id S229537AbiLRVry (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 18 Dec 2022 11:23:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2C9B13E2C;
-        Sun, 18 Dec 2022 08:09:37 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D42C60DCC;
-        Sun, 18 Dec 2022 16:08:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC11FC433F1;
-        Sun, 18 Dec 2022 16:08:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1671379726;
-        bh=8cNekZ4Ly99pLxeUE847IppAKRmEzQ5qOYdrADTmNG4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJ4LsjQFxfV8kqHvNRUCrdvgkQLcvQ+LcMmRibYTyndDht/DcW+19vymCvWc6qYCY
-         LRrD01Wtdv0PwOMCjVEm5jha9pnz3MSWUPBiGd5Nc9NN/ugX6aWQ5WNzGr66ZMqe2f
-         fQ55LAQcwEoJ5T+mchV4kHeI0Ss9dg4cqAFVZqp7cdYeOEzuKVZzl+RVBmE1Z0t3BN
-         j21yxX/WPD0Jul+zJ1nM0cEHiILixRWElASfhOyGsCHJbWf7qWM/NVJAXMY4k8j/2K
-         pjrbb5MopWj/4h9MDI0r8BSDJqTdQcjXvG4yhf1jZTgZbN6mFlaStHyPUcz7ZJ6StV
-         pA0Uo7so+LcRg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kerem Karabay <kekrby@gmail.com>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.0 15/73] HID: apple: fix key translations where multiple quirks attempt to translate the same key
-Date:   Sun, 18 Dec 2022 11:06:43 -0500
-Message-Id: <20221218160741.927862-15-sashal@kernel.org>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20221218160741.927862-1-sashal@kernel.org>
-References: <20221218160741.927862-1-sashal@kernel.org>
+        Sun, 18 Dec 2022 16:47:54 -0500
+Received: from freundtech.com (freundtech.com [IPv6:2a01:4f8:c17:2d66::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18A5BC9A;
+        Sun, 18 Dec 2022 13:47:51 -0800 (PST)
+Received: from arch-desktop.fritz.box (unknown [IPv6:2a02:8071:2b80:7760:fecd:7e78:31fb:a087])
+        by freundtech.com (Postfix) with ESMTPSA id 4E3ED1E2F15;
+        Sun, 18 Dec 2022 22:47:49 +0100 (CET)
+From:   Adrian Freund <adrian@freund.io>
+To:     linux-input@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Basavaraj Natikar <basavaraj.natikar@amd.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "Luke D. Jones" <luke@ljones.dev>, Ivan Dovgal <iv.dovg@gmail.com>,
+        Adrian Freund <adrian@freund.io>
+Subject: [PATCH v2] HID: amd_sfh: Add support for tablet-mode-switch sensor
+Date:   Sun, 18 Dec 2022 22:47:23 +0100
+Message-Id: <20221218214723.14735-1-adrian@freund.io>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Kerem Karabay <kekrby@gmail.com>
+This patch adds support for the tablet mode switch sensors on
+convertible devices where that sensor is managed by AMD SFH, like the
+Asus Flow X13 and the Lenovo ThinkPad L13 Yoga Gen2 (AMD).
 
-[ Upstream commit 5476fcf7f7b901db1cea92acb1abdd12609e30e1 ]
-
-The hid-apple driver does not support chaining translations or
-dependencies on other translations. This creates two problems:
-
-1 - In Non-English keyboards of Macs, KEY_102ND and KEY_GRAVE are
-swapped and the APPLE_ISO_TILDE_QUIRK is used to work around this
-problem. The quirk is not set for the Macs where these bugs happen yet
-(see the 2nd patch for that), but this can be forced by setting the
-iso_layout parameter. Unfortunately, this only partially works.
-KEY_102ND gets translated to KEY_GRAVE, but KEY_GRAVE does not get
-translated to KEY_102ND, so both of them end up functioning as
-KEY_GRAVE. This is because the driver translates the keys as if Fn was
-pressed and the original is sent if it is not pressed, without any
-further translations happening on the key[#463]. KEY_GRAVE is present at
-macbookpro_no_esc_fn_keys[#195], so this is what happens:
-
-    - KEY_GRAVE -> KEY_ESC (as if Fn is pressed)
-    - KEY_GRAVE is returned (Fn isn't pressed, so translation is discarded)
-    - KEY_GRAVE -> KEY_102ND (this part is not reached!)
-    ...
-
-2 - In case the touchbar does not work, the driver supports sending
-Escape when Fn+KEY_GRAVE is pressed. As mentioned previously, KEY_102ND
-is actually KEY_GRAVE and needs to be translated before this happens.
-
-Normally, these are the steps that should happen:
-
-    - KEY_102ND -> KEY_GRAVE
-    - KEY_GRAVE -> KEY_ESC (Fn is pressed)
-    - KEY_ESC is returned
-
-Though this is what happens instead, as dependencies on other
-translations are not supported:
-
-    - KEY_102ND -> KEY_ESC (Fn is pressed)
-    - KEY_ESC is returned
-
-This patch fixes both bugs by ordering the translations correctly and by
-making the translations continue and not return immediately after
-translating a key so that chained translations work and translations can
-depend on other ones.
-
-This patch also simplifies the implementation of the swap_fn_leftctrl
-option a little bit, as it makes it simply use a normal translation
-instead adding extra code to translate a key to KEY_FN[#381]. This change
-wasn't put in another patch as the code that translates the Fn key needs
-to be changed because of the changes in the patch, and those changes
-would be discarded with the next patch anyway (the part that originally
-translates KEY_FN to KEY_LEFTCTRL needs to be made an else-if branch of
-the part that transltes KEY_LEFTCTRL to KEY_FN).
-
-Note: Line numbers (#XYZ) are for drivers/hid/hid-apple.c at commit
-20afcc462579 ("HID: apple: Add "GANSS" to the non-Apple list").
-
-Note: These bugs are only present on Macs with a keyboard with no
-dedicated escape key and a non-English layout.
-
-Signed-off-by: Kerem Karabay <kekrby@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Co-developed-by: Ivan Dovgal <iv.dovg@gmail.com>
+Signed-off-by: Ivan Dovgal <iv.dovg@gmail.com>
+Co-developed-by: Luke D. Jones <luke@ljones.dev>
+Signed-off-by: Luke D. Jones <luke@ljones.dev>
+Signed-off-by: Adrian Freund <adrian@freund.io>
 ---
- drivers/hid/hid-apple.c | 102 +++++++++++++++++-----------------------
- 1 file changed, 44 insertions(+), 58 deletions(-)
+v2:
+* Fixed build warning reported by kernel test robot <lkp@intel.com>
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 6970797cdc56..e86bbf85b87e 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -314,6 +314,7 @@ static const struct apple_key_translation swapped_option_cmd_keys[] = {
+ drivers/hid/amd-sfh-hid/amd_sfh_client.c      |  2 ++
+ drivers/hid/amd-sfh-hid/amd_sfh_hid.h         |  2 +-
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.c        |  4 +++
+ drivers/hid/amd-sfh-hid/amd_sfh_pcie.h        |  1 +
+ .../hid_descriptor/amd_sfh_hid_desc.c         | 27 +++++++++++++++++++
+ .../hid_descriptor/amd_sfh_hid_desc.h         |  7 +++++
+ .../hid_descriptor/amd_sfh_hid_report_desc.h  | 21 +++++++++++++++
+ 7 files changed, 63 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+index 8275bba63611..83dd0402933c 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
+@@ -146,6 +146,8 @@ static const char *get_sensor_name(int idx)
+ 		return "gyroscope";
+ 	case mag_idx:
+ 		return "magnetometer";
++	case tms_idx:
++		return "tablet-mode-switch";
+ 	case als_idx:
+ 		return "ALS";
+ 	case HPD_IDX:
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
+index 3754fb423e3a..f10ec16bb8aa 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_hid.h
+@@ -11,7 +11,7 @@
+ #ifndef AMDSFH_HID_H
+ #define AMDSFH_HID_H
  
- static const struct apple_key_translation swapped_fn_leftctrl_keys[] = {
- 	{ KEY_FN, KEY_LEFTCTRL },
-+	{ KEY_LEFTCTRL, KEY_FN },
- 	{ }
+-#define MAX_HID_DEVICES		5
++#define MAX_HID_DEVICES		6
+ #define AMD_SFH_HID_VENDOR	0x1022
+ #define AMD_SFH_HID_PRODUCT	0x0001
+ 
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+index 47774b9ab3de..cfda797f0a62 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
+@@ -27,6 +27,7 @@
+ #define ACEL_EN		BIT(0)
+ #define GYRO_EN		BIT(1)
+ #define MAGNO_EN	BIT(2)
++#define TMS_EN		BIT(15)
+ #define HPD_EN		BIT(16)
+ #define ALS_EN		BIT(19)
+ 
+@@ -227,6 +228,9 @@ int amd_mp2_get_sensor_num(struct amd_mp2_dev *privdata, u8 *sensor_id)
+ 	if (MAGNO_EN & activestatus)
+ 		sensor_id[num_of_sensors++] = mag_idx;
+ 
++	if (TMS_EN & activestatus)
++		sensor_id[num_of_sensors++] = tms_idx;
++
+ 	if (ALS_EN & activestatus)
+ 		sensor_id[num_of_sensors++] = als_idx;
+ 
+diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
+index dfb7cabd82ef..e18ceee9e5db 100644
+--- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
++++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.h
+@@ -78,6 +78,7 @@ enum sensor_idx {
+ 	accel_idx = 0,
+ 	gyro_idx = 1,
+ 	mag_idx = 2,
++	tms_idx = 15,
+ 	als_idx = 19
  };
  
-@@ -375,24 +376,40 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 	struct apple_sc *asc = hid_get_drvdata(hid);
- 	const struct apple_key_translation *trans, *table;
- 	bool do_translate;
--	u16 code = 0;
-+	u16 code = usage->code;
- 	unsigned int real_fnmode;
- 
--	u16 fn_keycode = (swap_fn_leftctrl) ? (KEY_LEFTCTRL) : (KEY_FN);
--
--	if (usage->code == fn_keycode) {
--		asc->fn_on = !!value;
--		input_event_with_scancode(input, usage->type, KEY_FN,
--				usage->hid, value);
--		return 1;
--	}
--
- 	if (fnmode == 3) {
- 		real_fnmode = (asc->quirks & APPLE_IS_NON_APPLE) ? 2 : 1;
- 	} else {
- 		real_fnmode = fnmode;
- 	}
- 
-+	if (swap_fn_leftctrl) {
-+		trans = apple_find_translation(swapped_fn_leftctrl_keys, code);
-+
-+		if (trans)
-+			code = trans->to;
-+	}
-+
-+	if (iso_layout > 0 || (iso_layout < 0 && (asc->quirks & APPLE_ISO_TILDE_QUIRK) &&
-+			hid->country == HID_COUNTRY_INTERNATIONAL_ISO)) {
-+		trans = apple_find_translation(apple_iso_keyboard, code);
-+
-+		if (trans)
-+			code = trans->to;
-+	}
-+
-+	if (swap_opt_cmd) {
-+		trans = apple_find_translation(swapped_option_cmd_keys, code);
-+
-+		if (trans)
-+			code = trans->to;
-+	}
-+
-+	if (code == KEY_FN)
-+		asc->fn_on = !!value;
-+
- 	if (real_fnmode) {
- 		if (hid->product == USB_DEVICE_ID_APPLE_ALU_WIRELESS_ANSI ||
- 		    hid->product == USB_DEVICE_ID_APPLE_ALU_WIRELESS_ISO ||
-@@ -430,15 +447,18 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 		else
- 			table = apple_fn_keys;
- 
--		trans = apple_find_translation (table, usage->code);
-+		trans = apple_find_translation(table, code);
- 
- 		if (trans) {
--			if (test_bit(trans->from, input->key))
-+			bool from_is_set = test_bit(trans->from, input->key);
-+			bool to_is_set = test_bit(trans->to, input->key);
-+
-+			if (from_is_set)
- 				code = trans->from;
--			else if (test_bit(trans->to, input->key))
-+			else if (to_is_set)
- 				code = trans->to;
- 
--			if (!code) {
-+			if (!(from_is_set || to_is_set)) {
- 				if (trans->flags & APPLE_FLAG_FKEY) {
- 					switch (real_fnmode) {
- 					case 1:
-@@ -455,62 +475,31 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 					do_translate = asc->fn_on;
- 				}
- 
--				code = do_translate ? trans->to : trans->from;
-+				if (do_translate)
-+					code = trans->to;
- 			}
--
--			input_event_with_scancode(input, usage->type, code,
--					usage->hid, value);
--			return 1;
+diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
+index f9a8c02d5a7b..181973f35f05 100644
+--- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
++++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.c
+@@ -47,6 +47,11 @@ static int get_report_descriptor(int sensor_idx, u8 *rep_desc)
+ 		memcpy(rep_desc, comp3_report_descriptor,
+ 		       sizeof(comp3_report_descriptor));
+ 		break;
++	case tms_idx: /* tablet mode switch */
++		memset(rep_desc, 0, sizeof(tms_report_descriptor));
++		memcpy(rep_desc, tms_report_descriptor,
++		       sizeof(tms_report_descriptor));
++		break;
+ 	case als_idx: /* ambient light sensor */
+ 		memset(rep_desc, 0, sizeof(als_report_descriptor));
+ 		memcpy(rep_desc, als_report_descriptor,
+@@ -96,6 +101,16 @@ static u32 get_descr_sz(int sensor_idx, int descriptor_name)
+ 			return sizeof(struct magno_feature_report);
  		}
+ 		break;
++	case tms_idx:
++		switch (descriptor_name) {
++		case descr_size:
++			return sizeof(tms_report_descriptor);
++		case input_size:
++			return sizeof(struct tms_input_report);
++		case feature_size:
++			return sizeof(struct tms_feature_report);
++		}
++		break;
+ 	case als_idx:
+ 		switch (descriptor_name) {
+ 		case descr_size:
+@@ -138,6 +153,7 @@ static u8 get_feature_report(int sensor_idx, int report_id, u8 *feature_report)
+ 	struct accel3_feature_report acc_feature;
+ 	struct gyro_feature_report gyro_feature;
+ 	struct magno_feature_report magno_feature;
++	struct tms_feature_report tms_feature;
+ 	struct hpd_feature_report hpd_feature;
+ 	struct als_feature_report als_feature;
+ 	u8 report_size = 0;
+@@ -173,6 +189,11 @@ static u8 get_feature_report(int sensor_idx, int report_id, u8 *feature_report)
+ 		memcpy(feature_report, &magno_feature, sizeof(magno_feature));
+ 		report_size = sizeof(magno_feature);
+ 		break;
++	case tms_idx:  /* tablet mode switch */
++		get_common_features(&tms_feature.common_property, report_id);
++		memcpy(feature_report, &tms_feature, sizeof(tms_feature));
++		report_size = sizeof(tms_feature);
++		break;
+ 	case als_idx:  /* ambient light sensor */
+ 		get_common_features(&als_feature.common_property, report_id);
+ 		als_feature.als_change_sesnitivity = HID_DEFAULT_SENSITIVITY;
+@@ -211,6 +232,7 @@ static u8 get_input_report(u8 current_index, int sensor_idx, int report_id,
+ 	struct accel3_input_report acc_input;
+ 	struct gyro_input_report gyro_input;
+ 	struct hpd_input_report hpd_input;
++	struct tms_input_report tms_input;
+ 	struct als_input_report als_input;
+ 	struct hpd_status hpdstatus;
+ 	u8 report_size = 0;
+@@ -244,6 +266,11 @@ static u8 get_input_report(u8 current_index, int sensor_idx, int report_id,
+ 		memcpy(input_report, &magno_input, sizeof(magno_input));
+ 		report_size = sizeof(magno_input);
+ 		break;
++	case tms_idx: /* tablet mode switch */
++		get_common_inputs(&tms_input.common_property, report_id);
++		report_size = sizeof(tms_input);
++		memcpy(input_report, &tms_input, sizeof(tms_input));
++		break;
+ 	case als_idx: /* Als */
+ 		get_common_inputs(&als_input.common_property, report_id);
+ 		/* For ALS ,V2 Platforms uses C2P_MSG5 register instead of DRAM access method */
+diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+index ebd55675eb62..b22068a47429 100644
+--- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
++++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_desc.h
+@@ -111,4 +111,11 @@ struct hpd_input_report {
+ 	u8 human_presence;
+ } __packed;
  
- 		if (asc->quirks & APPLE_NUMLOCK_EMULATION &&
--				(test_bit(usage->code, asc->pressed_numlock) ||
-+				(test_bit(code, asc->pressed_numlock) ||
- 				test_bit(LED_NUML, input->led))) {
--			trans = apple_find_translation(powerbook_numlock_keys,
--					usage->code);
-+			trans = apple_find_translation(powerbook_numlock_keys, code);
++struct tms_feature_report {
++	struct common_feature_property common_property;
++} __packed;
++
++struct tms_input_report {
++	struct common_input_property common_property;
++} __packed;
+ #endif
+diff --git a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+index 697f2791ea9c..96cbc1e5b9a7 100644
+--- a/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
++++ b/drivers/hid/amd-sfh-hid/hid_descriptor/amd_sfh_hid_report_desc.h
+@@ -644,6 +644,27 @@ static const u8 als_report_descriptor[] = {
+ 0xC0			/* HID end collection */
+ };
  
- 			if (trans) {
- 				if (value)
--					set_bit(usage->code,
--							asc->pressed_numlock);
-+					set_bit(code, asc->pressed_numlock);
- 				else
--					clear_bit(usage->code,
--							asc->pressed_numlock);
-+					clear_bit(code, asc->pressed_numlock);
- 
--				input_event_with_scancode(input, usage->type,
--						trans->to, usage->hid, value);
-+				code = trans->to;
- 			}
--
--			return 1;
- 		}
- 	}
- 
--	if (iso_layout > 0 || (iso_layout < 0 && (asc->quirks & APPLE_ISO_TILDE_QUIRK) &&
--			hid->country == HID_COUNTRY_INTERNATIONAL_ISO)) {
--		trans = apple_find_translation(apple_iso_keyboard, usage->code);
--		if (trans) {
--			input_event_with_scancode(input, usage->type,
--					trans->to, usage->hid, value);
--			return 1;
--		}
--	}
-+	if (usage->code != code) {
-+		input_event_with_scancode(input, usage->type, code, usage->hid, value);
- 
--	if (swap_opt_cmd) {
--		trans = apple_find_translation(swapped_option_cmd_keys, usage->code);
--		if (trans) {
--			input_event_with_scancode(input, usage->type,
--					trans->to, usage->hid, value);
--			return 1;
--		}
--	}
--
--	if (swap_fn_leftctrl) {
--		trans = apple_find_translation(swapped_fn_leftctrl_keys, usage->code);
--		if (trans) {
--			input_event_with_scancode(input, usage->type,
--					trans->to, usage->hid, value);
--			return 1;
--		}
-+		return 1;
- 	}
- 
- 	return 0;
-@@ -640,9 +629,6 @@ static void apple_setup_input(struct input_dev *input)
- 	apple_setup_key_translation(input, apple2021_fn_keys);
- 	apple_setup_key_translation(input, macbookpro_no_esc_fn_keys);
- 	apple_setup_key_translation(input, macbookpro_dedicated_esc_fn_keys);
--
--	if (swap_fn_leftctrl)
--		apple_setup_key_translation(input, swapped_fn_leftctrl_keys);
- }
- 
- static int apple_input_mapping(struct hid_device *hdev, struct hid_input *hi,
++
++/* TABLET MODE SWITCH */
++__maybe_unused // Used by sfh1.0, but not yet implemented in sfh1.1
++static const u8 tms_report_descriptor[] = {
++0x06, 0x43, 0xFF,  // Usage Page (Vendor Defined 0xFF43)
++0x0A, 0x02, 0x02,  // Usage (0x0202)
++0xA1, 0x01, // Collection (Application)
++0x85, 0x11, //   Report ID (17)
++0x15, 0x00, //   Logical Minimum (0)
++0x25, 0x01, //   Logical Maximum (1)
++0x35, 0x00, //   Physical Minimum (0)
++0x45, 0x01, //   Physical Maximum (1)
++0x65, 0x00, //   Unit (None)
++0x55, 0x00, //   Unit Exponent (0)
++0x75, 0x01, //   Report Size (1)
++0x95, 0x98, //   Report Count (-104)
++0x81, 0x03, //   Input (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position)
++0x91, 0x03, //   Output (Const,Var,Abs,No Wrap,Linear,Preferred State,No Null Position,Non-volatile)
++0xC1, 0x00, // End Collection
++};
++
+ /* BIOMETRIC PRESENCE*/
+ static const u8 hpd_report_descriptor[] = {
+ 0x05, 0x20,          /* Usage page */
 -- 
-2.35.1
+2.38.1
 

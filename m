@@ -2,22 +2,22 @@ Return-Path: <linux-input-owner@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21778C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B49ACC10F1E
 	for <linux-input@archiver.kernel.org>; Tue, 20 Dec 2022 15:43:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229551AbiLTPny (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 20 Dec 2022 10:43:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39840 "EHLO
+        id S233610AbiLTPnz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 20 Dec 2022 10:43:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233509AbiLTPnw (ORCPT
+        with ESMTP id S233534AbiLTPny (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Dec 2022 10:43:52 -0500
-Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::221])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C689E1838D;
-        Tue, 20 Dec 2022 07:43:50 -0800 (PST)
+        Tue, 20 Dec 2022 10:43:54 -0500
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF7CE18686;
+        Tue, 20 Dec 2022 07:43:53 -0800 (PST)
 Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id B098024000A;
-        Tue, 20 Dec 2022 15:43:45 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 6E45024000C;
+        Tue, 20 Dec 2022 15:43:50 +0000 (UTC)
 From:   Bastien Nocera <hadess@hadess.net>
 To:     linux-input@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
@@ -25,58 +25,71 @@ Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
         "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
         =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
         Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: [PATCH v2 1/3] Revert "HID: logitech-hidpp: add a module parameter to keep firmware gestures"
-Date:   Tue, 20 Dec 2022 16:43:43 +0100
-Message-Id: <20221220154345.474596-1-hadess@hadess.net>
+Subject: [PATCH v2 3/3] HID: logitech-hidpp: Remove HIDPP_QUIRK_NO_HIDINPUT quirk
+Date:   Tue, 20 Dec 2022 16:43:45 +0100
+Message-Id: <20221220154345.474596-3-hadess@hadess.net>
 X-Mailer: git-send-email 2.38.1
+In-Reply-To: <20221220154345.474596-1-hadess@hadess.net>
+References: <20221220154345.474596-1-hadess@hadess.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Now that we're in 2022, and the majority of desktop environments can and
-should support touchpad gestures through libinput, remove the legacy
-module parameter that made it possible to use gestures implemented in
-firmware.
+HIDPP_QUIRK_NO_HIDINPUT isn't used by any devices but still happens to
+work as HIDPP_QUIRK_DELAYED_INIT is defined to the same value. Remove
+HIDPP_QUIRK_NO_HIDINPUT and use HIDPP_QUIRK_DELAYED_INIT everywhere
+instead.
 
-This will eventually allow simplifying the driver's initialisation code.
-
-This reverts commit 9188dbaed68a4b23dc96eba165265c08caa7dc2a.
+Tested on a T650 which requires that quirk, and a number of unifying and
+Bluetooth devices that don't.
 
 Signed-off-by: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/hid/hid-logitech-hidpp.c | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 08ad19097e9e..7f9187201913 100644
+index b4e4a8c79c75..2092fb1be627 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -32,11 +32,6 @@ MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
- MODULE_AUTHOR("Nestor Lopez Casado <nlopezcasad@logitech.com>");
+@@ -67,7 +67,7 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ /* bits 2..20 are reserved for classes */
+ /* #define HIDPP_QUIRK_CONNECT_EVENTS		BIT(21) disabled */
+ #define HIDPP_QUIRK_WTP_PHYSICAL_BUTTONS	BIT(22)
+-#define HIDPP_QUIRK_NO_HIDINPUT			BIT(23)
++#define HIDPP_QUIRK_DELAYED_INIT		BIT(23)
+ #define HIDPP_QUIRK_FORCE_OUTPUT_REPORTS	BIT(24)
+ #define HIDPP_QUIRK_UNIFYING			BIT(25)
+ #define HIDPP_QUIRK_HIDPP_WHEELS		BIT(26)
+@@ -83,8 +83,6 @@ MODULE_PARM_DESC(disable_tap_to_click,
+ 					 HIDPP_CAPABILITY_HIDPP20_HI_RES_SCROLL | \
+ 					 HIDPP_CAPABILITY_HIDPP20_HI_RES_WHEEL)
  
--static bool disable_raw_mode;
--module_param(disable_raw_mode, bool, 0644);
--MODULE_PARM_DESC(disable_raw_mode,
--	"Disable Raw mode reporting for touchpads and keep firmware gestures.");
+-#define HIDPP_QUIRK_DELAYED_INIT		HIDPP_QUIRK_NO_HIDINPUT
 -
- static bool disable_tap_to_click;
- module_param(disable_tap_to_click, bool, 0644);
- MODULE_PARM_DESC(disable_tap_to_click,
-@@ -4355,11 +4350,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	    hidpp_application_equals(hdev, HID_GD_KEYBOARD))
- 		hidpp->quirks |= HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS;
+ #define HIDPP_CAPABILITY_HIDPP10_BATTERY	BIT(0)
+ #define HIDPP_CAPABILITY_HIDPP20_BATTERY	BIT(1)
+ #define HIDPP_CAPABILITY_BATTERY_MILEAGE	BIT(2)
+@@ -4205,7 +4203,7 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
+ 	if (hidpp->capabilities & HIDPP_CAPABILITY_HI_RES_SCROLL)
+ 		hi_res_scroll_enable(hidpp);
  
--	if (disable_raw_mode) {
--		hidpp->quirks &= ~HIDPP_QUIRK_CLASS_WTP;
--		hidpp->quirks &= ~HIDPP_QUIRK_NO_HIDINPUT;
--	}
--
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
- 		ret = wtp_allocate(hdev, id);
- 		if (ret)
+-	if (!(hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT) || hidpp->delayed_input)
++	if (!(hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT) || hidpp->delayed_input)
+ 		/* if the input nodes are already created, we can stop now */
+ 		return;
+ 
+@@ -4436,7 +4434,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		hid_hw_close(hdev);
+ 		hid_hw_stop(hdev);
+ 
+-		if (hidpp->quirks & HIDPP_QUIRK_NO_HIDINPUT)
++		if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
+ 			connect_mask &= ~HID_CONNECT_HIDINPUT;
+ 
+ 		/* Now export the actual inputs and hidraw nodes to the world */
 -- 
 2.38.1
 

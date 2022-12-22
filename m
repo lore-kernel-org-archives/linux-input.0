@@ -2,133 +2,104 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BECB8C4332F
-	for <linux-input@archiver.kernel.org>; Thu, 22 Dec 2022 02:15:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A1C1DC4332F
+	for <linux-input@archiver.kernel.org>; Thu, 22 Dec 2022 05:10:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229854AbiLVCPz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 21 Dec 2022 21:15:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41128 "EHLO
+        id S234459AbiLVFKy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Dec 2022 00:10:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231657AbiLVCPw (ORCPT
+        with ESMTP id S230417AbiLVFKw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 21 Dec 2022 21:15:52 -0500
-Received: from mail-pj1-x1041.google.com (mail-pj1-x1041.google.com [IPv6:2607:f8b0:4864:20::1041])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75EEE1EC56
-        for <linux-input@vger.kernel.org>; Wed, 21 Dec 2022 18:15:51 -0800 (PST)
-Received: by mail-pj1-x1041.google.com with SMTP id o1-20020a17090a678100b00219cf69e5f0so4312807pjj.2
-        for <linux-input@vger.kernel.org>; Wed, 21 Dec 2022 18:15:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=msi-corp-partner-google-com.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5pMtoNjAwIQUvGwTR7JCUzDt1hzSa3SUyDledqQ1II4=;
-        b=Q6MhEJDaep967D5w2qUF36srj3NDACk7BOk56l1MYh1GvdlnNF8ZEglDBfiEzHfcD+
-         POvoaIeId8WV/9ge5PV43ewLIj0fHWx3ad3skDC0iKsfKNExhusKpkVxg1D517njaxGC
-         QZenOz+ynDr1WivFV+t+y+/qvvOMQwC/7Mt83tTD/0sgscL/gvI4YsFwRnsqGSkPavPX
-         jeszAW+J2ZJT0xdVMCTYS4my5C424Ro5bKj/hC+ybDGcjr4TMNTQeFz1GK1jWZsxL2zn
-         tGAyZ/Flili5R2hR6n29S8f3+YbZ5GQvGMDpElIxLGI2nNKnufAIyAg2XyzNKxqVs1al
-         n/qw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5pMtoNjAwIQUvGwTR7JCUzDt1hzSa3SUyDledqQ1II4=;
-        b=1tWRSUAHzMhK5I8lf77BDCU1/VLxmvOqdchqGFwVacqkEdbUkIKZBG5jYbYe/yoSCk
-         Efk7zaRDq1slPwJC5EFQ5GDAyTIkVghCWertZkI3CTgSr/Jd7bh30iJLGo2VWmAmMGxs
-         SaMiJkKzU/lzJ3fqoHY/5lTtrbAqBJGqdLrpnuv3Jn3OVeMZi0l21+XGFwcrQmy8J2vH
-         UcgsEnQE51h95Zs4XEuCcLrej9XuZsjnJ1a2myngxFHWN2TfN4LMI1GXlYrN7k4gy4TI
-         gAHiT76prWkgdQ4VMcEi0nKByW209R4Id7Tkk60WsCIJcQmb3bbGa9cgPZIJAnbMH94q
-         iJCg==
-X-Gm-Message-State: AFqh2koI6pggS+lsWmtWfukGuC5Mo1Dz75AsLz1gQ6CkBAW1Jlw+tFYD
-        yd9JC8cRmAPaMq7n/XAZUGr+fg==
-X-Google-Smtp-Source: AMrXdXsJGC5V725RQYKSvnHp/eZhEhgA5pWxuQtOYcAI4IF4DfDmZZZWuVchRgxyd5FYIcWCw2DFTA==
-X-Received: by 2002:a17:902:7d89:b0:190:fe60:48c4 with SMTP id a9-20020a1709027d8900b00190fe6048c4mr19406377plm.21.1671675350984;
-        Wed, 21 Dec 2022 18:15:50 -0800 (PST)
-Received: from localhost.localdomain (211-20-230-25.hinet-ip.hinet.net. [211.20.230.25])
-        by smtp.gmail.com with ESMTPSA id q18-20020a17090311d200b00188f07c9eedsm12127824plh.176.2022.12.21.18.15.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Dec 2022 18:15:50 -0800 (PST)
-From:   Joe Wu <joewu@msi.corp-partner.google.com>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     Furquan Shaikh <furquan@chromium.org>,
-        Daisuke Nojiri <dnojiri@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benson Leung <bleung@chromium.org>,
-        Derek Huang <derekhuang@google.com>,
-        "Dustin L . Howett" <dustin@howett.net>, Joe Wu <joewu@msi.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        linux-input@vger.kernel.org, Xiang wangx <wangxiang@cdjrlc.com>,
-        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
-        Prashant Malani <pmalani@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Tzung-Bi Shih <tzungbi@kernel.org>,
-        chrome-platform@lists.linux.dev,
-        Stephen Boyd <swboyd@chromium.org>,
-        Joe Wu <joewu@msi.corp-partner.google.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Tinghan Shen <tinghan.shen@mediatek.com>
-Subject: [PATCH] cros_ec_keyb: Add 3 buttons for monitor function
-Date:   Thu, 22 Dec 2022 10:15:42 +0800
-Message-Id: <20221222021542.11706-1-joewu@msi.corp-partner.google.com>
-X-Mailer: git-send-email 2.17.1
+        Thu, 22 Dec 2022 00:10:52 -0500
+Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12268165B2;
+        Wed, 21 Dec 2022 21:10:50 -0800 (PST)
+From:   Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
+        s=mail; t=1671685848;
+        bh=RIY1KZguWJeqHeg13Dbz3EKLW3n5Yawly4C6fJX/LRo=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+        b=B4KopxcGDKneLhdAvB+atbk/GeTqzo6ATdvLeucyapM3W/3YYRA4GH5o+Aa+jUqvr
+         DsyaescBu1lPdwZen5tz3kT2577Fh2cp5C3B75c5tTBQfFMdE6YSMkbudcV3v/42nf
+         0mRODCEI7Tom4lYQPSvqzdcZijSAf7VZXJ4NEWcs=
+Date:   Thu, 22 Dec 2022 05:10:47 +0000
+Subject: [PATCH 4/8] HID: Unexport struct usb_hid_driver
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Message-Id: <20221222-hid-v1-4-f4a6c35487a5@weissschuh.net>
+References: <20221222-hid-v1-0-f4a6c35487a5@weissschuh.net>
+In-Reply-To: <20221222-hid-v1-0-f4a6c35487a5@weissschuh.net>
+To:     Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        David Rheinsberg <david.rheinsberg@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org,
+        netdev@vger.kernel.org,
+        Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
+X-Mailer: b4 0.11.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1671685845; l=1454;
+ i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
+ bh=RIY1KZguWJeqHeg13Dbz3EKLW3n5Yawly4C6fJX/LRo=;
+ b=Twlbh9MUsolPC82vCzevu0rgTC04hHdXtPIymvu1dlWN4lhliG2xZcHHYVBpMH7XO1SMuEjKKlp7
+ hpKtj9u4C3bfXOpPLVvR2NF9tVYHgzvL6IRNjQZRixgb8yX4EhSl
+X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
+ pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Joe Wu <joewu@msi.com>
+As no external users remain this implementation detail does not need to
+be exported anymore.
 
-Add 3 extra buttons: 'brightness up', 'brightness down'
-and 'screen lock' to support monitor manipulating function.
-
-Signed-off-by: Joe Wu <joewu@msi.com>
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
+ drivers/hid/usbhid/hid-core.c | 3 +--
+ include/linux/hid.h           | 1 -
+ 2 files changed, 1 insertion(+), 3 deletions(-)
 
- drivers/input/keyboard/cros_ec_keyb.c          | 15 +++++++++++++++
- include/linux/platform_data/cros_ec_commands.h |  3 +++
- 2 files changed, 18 insertions(+)
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 54b0280d0073..4143bab3380a 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -1318,7 +1318,7 @@ static bool usbhid_may_wakeup(struct hid_device *hid)
+ 	return device_may_wakeup(&dev->dev);
+ }
+ 
+-struct hid_ll_driver usb_hid_driver = {
++static struct hid_ll_driver usb_hid_driver = {
+ 	.parse = usbhid_parse,
+ 	.start = usbhid_start,
+ 	.stop = usbhid_stop,
+@@ -1332,7 +1332,6 @@ struct hid_ll_driver usb_hid_driver = {
+ 	.idle = usbhid_idle,
+ 	.may_wakeup = usbhid_may_wakeup,
+ };
+-EXPORT_SYMBOL_GPL(usb_hid_driver);
+ 
+ bool hid_is_usb(const struct hid_device *hdev)
+ {
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 7c5fce6a189e..170cad696541 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -856,7 +856,6 @@ struct hid_ll_driver {
+ extern struct hid_ll_driver i2c_hid_ll_driver;
+ extern struct hid_ll_driver hidp_hid_driver;
+ extern struct hid_ll_driver uhid_hid_driver;
+-extern struct hid_ll_driver usb_hid_driver;
+ 
+ extern bool hid_is_usb(const struct hid_device *hdev);
+ 
 
-diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
-index 6f435125ec03..e7ecfca838df 100644
---- a/drivers/input/keyboard/cros_ec_keyb.c
-+++ b/drivers/input/keyboard/cros_ec_keyb.c
-@@ -100,6 +100,21 @@ static const struct cros_ec_bs_map cros_ec_keyb_bs[] = {
- 		.code		= KEY_VOLUMEDOWN,
- 		.bit		= EC_MKBP_VOL_DOWN,
- 	},
-+	{
-+		.ev_type        = EV_KEY,
-+		.code           = KEY_BRIGHTNESSUP,
-+		.bit            = EC_MKBP_BRI_UP,
-+	},
-+	{
-+		.ev_type        = EV_KEY,
-+		.code           = KEY_BRIGHTNESSDOWN,
-+		.bit            = EC_MKBP_BRI_DOWN,
-+	},
-+	{
-+		.ev_type        = EV_KEY,
-+		.code           = KEY_SCREENLOCK,
-+		.bit            = EC_MKBP_SCREEN_LOCK,
-+	},
- 
- 	/* Switches */
- 	{
-diff --git a/include/linux/platform_data/cros_ec_commands.h b/include/linux/platform_data/cros_ec_commands.h
-index 5744a2d746aa..502f0397a402 100644
---- a/include/linux/platform_data/cros_ec_commands.h
-+++ b/include/linux/platform_data/cros_ec_commands.h
-@@ -3471,6 +3471,9 @@ struct ec_response_get_next_event_v1 {
- #define EC_MKBP_VOL_UP		1
- #define EC_MKBP_VOL_DOWN	2
- #define EC_MKBP_RECOVERY	3
-+#define EC_MKBP_BRI_UP          4
-+#define EC_MKBP_BRI_DOWN        5
-+#define EC_MKBP_SCREEN_LOCK     6
- 
- /* Switches */
- #define EC_MKBP_LID_OPEN	0
 -- 
-2.17.1
-
+2.39.0

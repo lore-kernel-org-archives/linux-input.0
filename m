@@ -2,105 +2,80 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC60DC4332F
-	for <linux-input@archiver.kernel.org>; Thu, 22 Dec 2022 05:11:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEC97C4332F
+	for <linux-input@archiver.kernel.org>; Thu, 22 Dec 2022 05:51:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235051AbiLVFLO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Dec 2022 00:11:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59898 "EHLO
+        id S229567AbiLVFvS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Dec 2022 00:51:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234935AbiLVFK4 (ORCPT
+        with ESMTP id S234882AbiLVFvR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Dec 2022 00:10:56 -0500
-Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 381B31658E;
-        Wed, 21 Dec 2022 21:10:54 -0800 (PST)
-From:   Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
-        s=mail; t=1671685851;
-        bh=3tt57RWBYX5CpuseBTCAV7ztLBfuQPQBKVNcrS3Coqo=;
-        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=epcg2+BoRcWGmGGExUkIbvMK3fOGUjiEpfuFMiP5Tk8cnxTRWIzvBWidu537lLYcD
-         XHcmWj/niC/YYxHl2d9Tp0CCnRI/ez+gg1Vk9vrfKrMDW/6mLdadFHCPQe40DB5U0f
-         LMgI6Wat2IpMhJynmRD6LU6BVfS5HjScNkZKUq7I=
-Date:   Thu, 22 Dec 2022 05:10:50 +0000
-Subject: [PATCH 7/8] HID: Unexport struct i2c_hid_ll_driver
+        Thu, 22 Dec 2022 00:51:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 971602A2;
+        Wed, 21 Dec 2022 21:51:15 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 429AFB81CF7;
+        Thu, 22 Dec 2022 05:51:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 558A9C433EF;
+        Thu, 22 Dec 2022 05:51:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1671688273;
+        bh=gztgrP+lGDWx+pboL1x3QVUonCOW/rqRT649jwqAW8s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wTBUgATBlzR4xjtGWjCda5bOqbz70n36sGPs0Sv4hnetKghJHkoG2POwXn8COGtLy
+         yT6KHhuze8Ojk9lHtkzXCJoCncwrdvWSrZ0HvrIkdBeQbLvuWoywk/B8Soke8PL8QB
+         lqCeYTRFd/2pzI4AW50W6X/5C+AEBfNfqmJc3I6o=
+Date:   Thu, 22 Dec 2022 06:51:10 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     =?utf-8?B?am9ld3Uo5ZCz5Luy5oyvKQ==?= <joewu@msi.com>
+Cc:     Joe Wu <joewu@msi.corp-partner.google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Tzung-Bi Shih <tzungbi@kernel.org>,
+        "Dustin L . Howett" <dustin@howett.net>,
+        Benson Leung <bleung@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Xiang wangx <wangxiang@cdjrlc.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        Prashant Malani <pmalani@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Daisuke Nojiri <dnojiri@chromium.org>,
+        Furquan Shaikh <furquan@chromium.org>,
+        "Gustavo A . R . Silva" <gustavoars@kernel.org>,
+        Derek Huang <derekhuang@google.com>,
+        "chrome-platform@lists.linux.dev" <chrome-platform@lists.linux.dev>,
+        Guenter Roeck <groeck@chromium.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Tinghan Shen <tinghan.shen@mediatek.com>
+Subject: Re: [PATCH] cros_ec_keyb: Add 3 buttons for monitor function
+Message-ID: <Y6PwTu2xWjjprBCR@kroah.com>
+References: <20221220080226.17904-1-joewu@msi.corp-partner.google.com>
+ <Y6K1sjCTM2Z6d4iU@kroah.com>
+ <6fa20adbcc4b43f4947a52d50083eedc@msi.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221222-hid-v1-7-f4a6c35487a5@weissschuh.net>
-References: <20221222-hid-v1-0-f4a6c35487a5@weissschuh.net>
-In-Reply-To: <20221222-hid-v1-0-f4a6c35487a5@weissschuh.net>
-To:     Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        David Rheinsberg <david.rheinsberg@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-bluetooth@vger.kernel.org,
-        netdev@vger.kernel.org,
-        Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
-X-Mailer: b4 0.11.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1671685845; l=1468;
- i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=3tt57RWBYX5CpuseBTCAV7ztLBfuQPQBKVNcrS3Coqo=;
- b=osblnINoh9h3TCBJu+R5RiGx1YADyMfECKm+DAviSnAPrv2sUjAeix34W7wZKB3wMhcCKrZ6KPas
- ScB0DkgNAuPTRFqHvN9l+muu7v+WUErl0i20VnRMX4+88j1EYq/f
-X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
- pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
+In-Reply-To: <6fa20adbcc4b43f4947a52d50083eedc@msi.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-As there are no external users this implementation detail does not need
-to be exported.
+On Thu, Dec 22, 2022 at 01:50:15AM +0000, joewu(吳仲振) wrote:
+> *****CONFIDENTIAL INFORMATION*****
+> 
+> This email is intended only for the use of the person or entity to whom it is
+> addressed and contains information that may be subject to and/or may be
+> restricted from disclosure by contract or applicable law. If you are not the 
+> intended recipient of this email, be advised that any disclosure, copy, 
+> distribution or use of the contents of this message is strictly prohibited. 
+> If you are not the intended recipient of this email, please notify the sender 
+> that you have received this in error by replying to this message. Then, 
+> please delete it from your system. Our Privacy Policy is available here 
+> https://www.msi.com/page/privacy-policy. Thank you.
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
----
- drivers/hid/i2c-hid/i2c-hid-core.c | 3 +--
- include/linux/hid.h                | 2 --
- 2 files changed, 1 insertion(+), 4 deletions(-)
-
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index b86b62f97108..fc5a0dd4eb92 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -842,7 +842,7 @@ static void i2c_hid_close(struct hid_device *hid)
- 	clear_bit(I2C_HID_STARTED, &ihid->flags);
- }
- 
--struct hid_ll_driver i2c_hid_ll_driver = {
-+static struct hid_ll_driver i2c_hid_ll_driver = {
- 	.parse = i2c_hid_parse,
- 	.start = i2c_hid_start,
- 	.stop = i2c_hid_stop,
-@@ -851,7 +851,6 @@ struct hid_ll_driver i2c_hid_ll_driver = {
- 	.output_report = i2c_hid_output_report,
- 	.raw_request = i2c_hid_raw_request,
- };
--EXPORT_SYMBOL_GPL(i2c_hid_ll_driver);
- 
- static int i2c_hid_init_irq(struct i2c_client *client)
- {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 21017e1ddbdb..60a092150bc6 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -853,8 +853,6 @@ struct hid_ll_driver {
- 	bool (*may_wakeup)(struct hid_device *hdev);
- };
- 
--extern struct hid_ll_driver i2c_hid_ll_driver;
--
- extern bool hid_is_usb(const struct hid_device *hdev);
- 
- #define	PM_HINT_FULLON	1<<5
-
--- 
-2.39.0
+Now deleted.

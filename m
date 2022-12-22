@@ -2,33 +2,33 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46225C46467
-	for <linux-input@archiver.kernel.org>; Thu, 22 Dec 2022 05:11:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EC60DC4332F
+	for <linux-input@archiver.kernel.org>; Thu, 22 Dec 2022 05:11:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235046AbiLVFLN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Dec 2022 00:11:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59916 "EHLO
+        id S235051AbiLVFLO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Dec 2022 00:11:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234968AbiLVFK5 (ORCPT
+        with ESMTP id S234935AbiLVFK4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Dec 2022 00:10:57 -0500
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D39217067;
-        Wed, 21 Dec 2022 21:10:55 -0800 (PST)
+        Thu, 22 Dec 2022 00:10:56 -0500
+Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 381B31658E;
+        Wed, 21 Dec 2022 21:10:54 -0800 (PST)
 From:   Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
-        s=mail; t=1671685848;
-        bh=aJ7IVJ34rJu4bypYe1rv5vqdZ+Bmi73wBdQLIivw4ts=;
+        s=mail; t=1671685851;
+        bh=3tt57RWBYX5CpuseBTCAV7ztLBfuQPQBKVNcrS3Coqo=;
         h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=nzvPq4V4YM3yepefWrKQUEa+Nby91i6BGB4MbAPtZ9zCehBQTP7ZpumFTXCngMTPy
-         b/oKA3a98bIv/t3N+WjrRDOIWjX0AM5Bteqs1FSAEd1sR+WrLz4MJY0m4sqxC8tKlc
-         3jCIbs3NbFjQ/GhUp0eDBxj0UZWf7KtbgF29MyM4=
-Date:   Thu, 22 Dec 2022 05:10:46 +0000
-Subject: [PATCH 3/8] HID: Remove unused function hid_is_using_ll_driver()
+        b=epcg2+BoRcWGmGGExUkIbvMK3fOGUjiEpfuFMiP5Tk8cnxTRWIzvBWidu537lLYcD
+         XHcmWj/niC/YYxHl2d9Tp0CCnRI/ez+gg1Vk9vrfKrMDW/6mLdadFHCPQe40DB5U0f
+         LMgI6Wat2IpMhJynmRD6LU6BVfS5HjScNkZKUq7I=
+Date:   Thu, 22 Dec 2022 05:10:50 +0000
+Subject: [PATCH 7/8] HID: Unexport struct i2c_hid_ll_driver
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221222-hid-v1-3-f4a6c35487a5@weissschuh.net>
+Message-Id: <20221222-hid-v1-7-f4a6c35487a5@weissschuh.net>
 References: <20221222-hid-v1-0-f4a6c35487a5@weissschuh.net>
 In-Reply-To: <20221222-hid-v1-0-f4a6c35487a5@weissschuh.net>
 To:     Hans de Goede <hdegoede@redhat.com>,
@@ -47,37 +47,56 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         netdev@vger.kernel.org,
         Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.11.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1671685845; l=761;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1671685845; l=1468;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=aJ7IVJ34rJu4bypYe1rv5vqdZ+Bmi73wBdQLIivw4ts=;
- b=CO/ajOHSL68RVBZncIxSRsKPvD1NB0gAon57+ErnZ3WV+3ZsBndBhdn4vhj39QQXFDdBmKBW3Fnl
- n/fw2GoHClUGZswPDlzct7sDSUC125wbm+rYgxjPxpSxQNl9uN37
+ bh=3tt57RWBYX5CpuseBTCAV7ztLBfuQPQBKVNcrS3Coqo=;
+ b=osblnINoh9h3TCBJu+R5RiGx1YADyMfECKm+DAviSnAPrv2sUjAeix34W7wZKB3wMhcCKrZ6KPas
+ ScB0DkgNAuPTRFqHvN9l+muu7v+WUErl0i20VnRMX4+88j1EYq/f
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-As the last user was removed we can delete this function.
+As there are no external users this implementation detail does not need
+to be exported.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- include/linux/hid.h | 6 ------
- 1 file changed, 6 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 3 +--
+ include/linux/hid.h                | 2 --
+ 2 files changed, 1 insertion(+), 4 deletions(-)
 
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index b86b62f97108..fc5a0dd4eb92 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -842,7 +842,7 @@ static void i2c_hid_close(struct hid_device *hid)
+ 	clear_bit(I2C_HID_STARTED, &ihid->flags);
+ }
+ 
+-struct hid_ll_driver i2c_hid_ll_driver = {
++static struct hid_ll_driver i2c_hid_ll_driver = {
+ 	.parse = i2c_hid_parse,
+ 	.start = i2c_hid_start,
+ 	.stop = i2c_hid_stop,
+@@ -851,7 +851,6 @@ struct hid_ll_driver i2c_hid_ll_driver = {
+ 	.output_report = i2c_hid_output_report,
+ 	.raw_request = i2c_hid_raw_request,
+ };
+-EXPORT_SYMBOL_GPL(i2c_hid_ll_driver);
+ 
+ static int i2c_hid_init_irq(struct i2c_client *client)
+ {
 diff --git a/include/linux/hid.h b/include/linux/hid.h
-index e8400aa78522..7c5fce6a189e 100644
+index 21017e1ddbdb..60a092150bc6 100644
 --- a/include/linux/hid.h
 +++ b/include/linux/hid.h
-@@ -858,12 +858,6 @@ extern struct hid_ll_driver hidp_hid_driver;
- extern struct hid_ll_driver uhid_hid_driver;
- extern struct hid_ll_driver usb_hid_driver;
+@@ -853,8 +853,6 @@ struct hid_ll_driver {
+ 	bool (*may_wakeup)(struct hid_device *hdev);
+ };
  
--static inline bool hid_is_using_ll_driver(struct hid_device *hdev,
--		struct hid_ll_driver *driver)
--{
--	return hdev->ll_driver == driver;
--}
+-extern struct hid_ll_driver i2c_hid_ll_driver;
 -
  extern bool hid_is_usb(const struct hid_device *hdev);
  

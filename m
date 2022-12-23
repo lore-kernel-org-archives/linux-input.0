@@ -2,33 +2,33 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 36F34C4332F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80EA6C4167B
 	for <linux-input@archiver.kernel.org>; Fri, 23 Dec 2022 02:53:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229704AbiLWCxy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Dec 2022 21:53:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49474 "EHLO
+        id S229874AbiLWCxz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Dec 2022 21:53:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229613AbiLWCxy (ORCPT
+        with ESMTP id S229675AbiLWCxy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Thu, 22 Dec 2022 21:53:54 -0500
 Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3292D21269;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 360B22180C;
         Thu, 22 Dec 2022 18:53:50 -0800 (PST)
 From:   Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
         s=mail; t=1671764028;
-        bh=B99KsiMvt1tHeatg1X68sSjUpUUP66/qiYRoMzEGvSg=;
+        bh=tp5IQDd66HLaPMlHoJO8oXKo0WL+92UpGzSydpX6ai0=;
         h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=Ed1YIJRuwxAWxH+Jlch5EZIqTvS9nUgRMrj7OWwj17Yrqj1N9Yodo6ryVWSKu83jZ
-         7aQlNa3PlMPBz/IY5i3IF57cQPJBETE6NITo/wp5mcJQPxRuJCCqLWTq6AjJMw9MxE
-         mK2MHr6RW2mUBT0OahxHXpdYkWA9cfqX5yDUbzhQ=
-Date:   Fri, 23 Dec 2022 02:53:35 +0000
-Subject: [PATCH 2/2] HID: i2c-hid: use uniform debugging APIs
+        b=AMwilpGQDPP/ws734/mKVdWFmLNZ9dK60BkBTUALWMycuOhW3RPwTX+0zqo76hVR5
+         5z48pYagnvvB+0M4xqFN7h1GZ9ODLPam/AOVmP+mPnwxSQa365TUKmBYrL9xyZ5LUn
+         Q91rAK9QuVW3SSVSNxDzZUpVDtAAs6XPbSws5Niw=
+Date:   Fri, 23 Dec 2022 02:53:34 +0000
+Subject: [PATCH 1/2] HID: i2c-hid: switch to standard debugging APIs
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Message-Id: <20221223-hid-dbg-v1-2-f641e80263eb@weissschuh.net>
+Message-Id: <20221223-hid-dbg-v1-1-f641e80263eb@weissschuh.net>
 References: <20221223-hid-dbg-v1-0-f641e80263eb@weissschuh.net>
 In-Reply-To: <20221223-hid-dbg-v1-0-f641e80263eb@weissschuh.net>
 To:     Jiri Kosina <jikos@kernel.org>,
@@ -36,48 +36,51 @@ To:     Jiri Kosina <jikos@kernel.org>,
 Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.11.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1671764024; l=1238;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1671764024; l=1216;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=B99KsiMvt1tHeatg1X68sSjUpUUP66/qiYRoMzEGvSg=;
- b=mQnHRn/UVse5r6MZaKGtGUi7cQMTj6a4EGaSfTS1kuP4EBYXIefrXWIcTajmWpHcC+sSZZliL1Qg
- 0wGv6Np5DJrSoVBGM7lynSwM8FGNPYdSsriDIY5K0a+L2M+uy8Zu
+ bh=tp5IQDd66HLaPMlHoJO8oXKo0WL+92UpGzSydpX6ai0=;
+ b=3sQ6cV6Ra3YIWhahC/1T8wR2PjNCVNqOr8YLeqWW4DYvSYvsTtD3JxL3eHh5f5ZK36XfDKb1D8gs
+ yKxHy15qBWLs2TUL4hYaU3NJfWuGSnxvHEjTZeIru+R2ipudb/BZ
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Only two locations in i2c-hid are using the standard dev_dbg() APIs.
-The rest are all using the custom i2c_hid_dbg(), which in turn uses
-dev_dbg().
+Instead of implementing a custom form of dynamic debugging we can use
+the standard debugging APIs. If the kernel is built with
+CONFIG_DYNAMIC_DEBUG this will be more discoverable and featureful.
+
+Also the previous module parameter "debug" is read-only so it can't
+actually be enabled.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- drivers/hid/i2c-hid/i2c-hid-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 11 +----------
+ 1 file changed, 1 insertion(+), 10 deletions(-)
 
 diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index b4ed21f25600..c83c93716782 100644
+index b86b62f97108..b4ed21f25600 100644
 --- a/drivers/hid/i2c-hid/i2c-hid-core.c
 +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -850,7 +850,7 @@ static int i2c_hid_init_irq(struct i2c_client *client)
- 	unsigned long irqflags = 0;
- 	int ret;
+@@ -67,16 +67,7 @@
+ #define I2C_HID_PWR_ON		0x00
+ #define I2C_HID_PWR_SLEEP	0x01
  
--	dev_dbg(&client->dev, "Requesting IRQ: %d\n", client->irq);
-+	i2c_hid_dbg(ihid, "Requesting IRQ: %d\n", client->irq);
+-/* debug option */
+-static bool debug;
+-module_param(debug, bool, 0444);
+-MODULE_PARM_DESC(debug, "print a lot of debug information");
+-
+-#define i2c_hid_dbg(ihid, fmt, arg...)					  \
+-do {									  \
+-	if (debug)							  \
+-		dev_printk(KERN_DEBUG, &(ihid)->client->dev, fmt, ##arg); \
+-} while (0)
++#define i2c_hid_dbg(ihid, ...) dev_dbg(&(ihid)->client->dev, __VA_ARGS__)
  
- 	if (!irq_get_trigger_type(client->irq))
- 		irqflags = IRQF_TRIGGER_LOW;
-@@ -994,7 +994,7 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
- 	/* Make sure there is something at this address */
- 	ret = i2c_smbus_read_byte(client);
- 	if (ret < 0) {
--		dev_dbg(&client->dev, "nothing at this address: %d\n", ret);
-+		i2c_hid_dbg(ihid, "nothing at this address: %d\n", ret);
- 		ret = -ENXIO;
- 		goto err_powered;
- 	}
+ struct i2c_hid_desc {
+ 	__le16 wHIDDescLength;
 
 -- 
 2.39.0

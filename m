@@ -2,197 +2,82 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4271C4332F
-	for <linux-input@archiver.kernel.org>; Thu, 22 Dec 2022 22:31:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36F34C4332F
+	for <linux-input@archiver.kernel.org>; Fri, 23 Dec 2022 02:53:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230076AbiLVWbP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Dec 2022 17:31:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37988 "EHLO
+        id S229704AbiLWCxy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Dec 2022 21:53:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230022AbiLVWbO (ORCPT
+        with ESMTP id S229613AbiLWCxy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Dec 2022 17:31:14 -0500
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17206DF26;
-        Thu, 22 Dec 2022 14:31:13 -0800 (PST)
-Received: from pendragon.ideasonboard.com (213-243-189-158.bb.dnainternet.fi [213.243.189.158])
-        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 24E18890;
-        Thu, 22 Dec 2022 23:31:10 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-        s=mail; t=1671748270;
-        bh=4/t+YVQ93NeTOT2q8i2JnCNw/16YvgJAmUtLne/NeoU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=i+bLXhyf69PykRZ9sVs9HCIaKV1KQ7YcI+ummSNc8c7g1gooBjwAdQF3DAoWfJby+
-         921g6uaYrhQnPhn+xzvCGw5OkLMw1O/sx+syyUcfhoU6LE8OTxlPKjuVLyhsecDpGg
-         6oolZwu59nlKMRakA4vgM+6az4ArBLkAg8cWKmUw=
-Date:   Fri, 23 Dec 2022 00:31:05 +0200
-From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-To:     Ivan Mironov <mironov.ivan@gmail.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] HID: sony: Support for DS4 clones that do not implement
- feature report 0x81
-Message-ID: <Y6TaqXproHyRSThH@pendragon.ideasonboard.com>
-References: <20210113173402.17030-1-mironov.ivan@gmail.com>
- <8a2463a97af411e4167f3c4abc2d4be6447e51ac.camel@gmail.com>
+        Thu, 22 Dec 2022 21:53:54 -0500
+Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3292D21269;
+        Thu, 22 Dec 2022 18:53:50 -0800 (PST)
+From:   Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
+        s=mail; t=1671764028;
+        bh=B99KsiMvt1tHeatg1X68sSjUpUUP66/qiYRoMzEGvSg=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+        b=Ed1YIJRuwxAWxH+Jlch5EZIqTvS9nUgRMrj7OWwj17Yrqj1N9Yodo6ryVWSKu83jZ
+         7aQlNa3PlMPBz/IY5i3IF57cQPJBETE6NITo/wp5mcJQPxRuJCCqLWTq6AjJMw9MxE
+         mK2MHr6RW2mUBT0OahxHXpdYkWA9cfqX5yDUbzhQ=
+Date:   Fri, 23 Dec 2022 02:53:35 +0000
+Subject: [PATCH 2/2] HID: i2c-hid: use uniform debugging APIs
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <8a2463a97af411e4167f3c4abc2d4be6447e51ac.camel@gmail.com>
+Message-Id: <20221223-hid-dbg-v1-2-f641e80263eb@weissschuh.net>
+References: <20221223-hid-dbg-v1-0-f641e80263eb@weissschuh.net>
+In-Reply-To: <20221223-hid-dbg-v1-0-f641e80263eb@weissschuh.net>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Thomas =?utf-8?q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
+X-Mailer: b4 0.11.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1671764024; l=1238;
+ i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
+ bh=B99KsiMvt1tHeatg1X68sSjUpUUP66/qiYRoMzEGvSg=;
+ b=mQnHRn/UVse5r6MZaKGtGUi7cQMTj6a4EGaSfTS1kuP4EBYXIefrXWIcTajmWpHcC+sSZZliL1Qg
+ 0wGv6Np5DJrSoVBGM7lynSwM8FGNPYdSsriDIY5K0a+L2M+uy8Zu
+X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
+ pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Ivan,
+Only two locations in i2c-hid are using the standard dev_dbg() APIs.
+The rest are all using the custom i2c_hid_dbg(), which in turn uses
+dev_dbg().
 
-On Sat, Feb 13, 2021 at 09:02:45AM +0500, Ivan Mironov wrote:
-> Ignore this patch, I am working on a better one.
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+---
+ drivers/hid/i2c-hid/i2c-hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Have you managed to write a better patch ? I've successfuly tested this
-one with a PS4 controller clone.
-
-> On Wed, 2021-01-13 at 22:34 +0500, Ivan Mironov wrote:
-> > There are clones of DualShock 4 that are very similar to the originals,
-> > except of 1) they do not support HID feature report 0x81 and 2) they do
-> > not have any USB Audio interfaces despite they physically have audio
-> > jack.
-> > 
-> > Such controllers are working fine with Linux when connected via
-> > Bluetooth, but not when connected via USB. Here is how failed USB
-> > connection attempt looks in log:
-> > 
-> > 	usb 1-5: New USB device found, idVendor=054c, idProduct=05c4, bcdDevice= 1.00
-> > 	usb 1-5: New USB device strings: Mfr=1, Product=2, SerialNumber=0
-> > 	usb 1-5: Product: Wireless Controller
-> > 	usb 1-5: Manufacturer: Sony Computer Entertainment
-> > 	sony 0003:054C:05C4.0007: failed to retrieve feature report 0x81 with the DualShock 4 MAC address
-> > 	sony 0003:054C:05C4.0007: hidraw6: USB HID v81.11 Gamepad [Sony Computer Entertainment Wireless Controller] on usb-0000:00:14.0-5/input0
-> > 	sony 0003:054C:05C4.0007: failed to claim input
-> > 
-> > This patch adds support of using feature report 0x12 as a fallback for
-> > Bluetooth MAC address retrieval. Feature report 0x12 also seems to be
-> > used by DS4Windows[1] for all DS4 controllers.
-> > 
-> > [1] https://github.com/Ryochan7/DS4Windows/blob/1b74a4440089f38a24ee2c2483c1d733a0692b8f/DS4Windows/HidLibrary/HidDevice.cs#L479
-> > 
-> > Signed-off-by: Ivan Mironov <mironov.ivan@gmail.com>
-> > ---
-> >  drivers/hid/hid-sony.c | 72 ++++++++++++++++++++++++++++++------------
-> >  1 file changed, 52 insertions(+), 20 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-> > index e3a557dc9ffd..97df12180e45 100644
-> > --- a/drivers/hid/hid-sony.c
-> > +++ b/drivers/hid/hid-sony.c
-> > @@ -491,6 +491,7 @@ struct motion_output_report_02 {
-> >  
-> > 
-> >  #define DS4_FEATURE_REPORT_0x02_SIZE 37
-> >  #define DS4_FEATURE_REPORT_0x05_SIZE 41
-> > +#define DS4_FEATURE_REPORT_0x12_SIZE 16
-> >  #define DS4_FEATURE_REPORT_0x81_SIZE 7
-> >  #define DS4_FEATURE_REPORT_0xA3_SIZE 49
-> >  #define DS4_INPUT_REPORT_0x11_SIZE 78
-> > @@ -2593,6 +2594,53 @@ static int sony_get_bt_devaddr(struct sony_sc *sc)
-> >  	return 0;
-> >  }
-> >  
-> > 
-> > +static int sony_get_usb_ds4_devaddr(struct sony_sc *sc)
-> > +{
-> > +	u8 *buf = NULL;
-> > +	int ret;
-> > +
-> > +	buf = kmalloc(max(DS4_FEATURE_REPORT_0x12_SIZE, DS4_FEATURE_REPORT_0x81_SIZE), GFP_KERNEL);
-> > +	if (!buf)
-> > +		return -ENOMEM;
-> > +
-> > +	/*
-> > +	 * The MAC address of a DS4 controller connected via USB can be
-> > +	 * retrieved with feature report 0x81. The address begins at
-> > +	 * offset 1.
-> > +	 */
-> > +	ret = hid_hw_raw_request(sc->hdev, 0x81, buf,
-> > +			DS4_FEATURE_REPORT_0x81_SIZE, HID_FEATURE_REPORT,
-> > +			HID_REQ_GET_REPORT);
-> > +	if (ret == DS4_FEATURE_REPORT_0x81_SIZE) {
-> > +		memcpy(sc->mac_address, &buf[1], sizeof(sc->mac_address));
-> > +		goto out_free;
-> > +	}
-> > +	dbg_hid("%s: hid_hw_raw_request(..., 0x81, ...) returned %d\n", __func__, ret);
-> > +
-> > +	/*
-> > +	 * Some variants do not implement feature report 0x81 at all.
-> > +	 * Fortunately, feature report 0x12 also contains the MAC address of
-> > +	 * a controller.
-> > +	 */
-> > +	ret = hid_hw_raw_request(sc->hdev, 0x12, buf,
-> > +			DS4_FEATURE_REPORT_0x12_SIZE, HID_FEATURE_REPORT,
-> > +			HID_REQ_GET_REPORT);
-> > +	if (ret == DS4_FEATURE_REPORT_0x12_SIZE) {
-> > +		memcpy(sc->mac_address, &buf[1], sizeof(sc->mac_address));
-> > +		goto out_free;
-> > +	}
-> > +	dbg_hid("%s: hid_hw_raw_request(..., 0x12, ...) returned %d\n", __func__, ret);
-> > +
-> > +	hid_err(sc->hdev, "failed to retrieve feature reports 0x81 and 0x12 with the DualShock 4 MAC address\n");
-> > +	ret = ret < 0 ? ret : -EINVAL;
-> > +
-> > +out_free:
-> > +
-> > +	kfree(buf);
-> > +
-> > +	return ret;
-> > +}
-> > +
-> >  static int sony_check_add(struct sony_sc *sc)
-> >  {
-> >  	u8 *buf = NULL;
-> > @@ -2613,26 +2661,9 @@ static int sony_check_add(struct sony_sc *sc)
-> >  			return 0;
-> >  		}
-> >  	} else if (sc->quirks & (DUALSHOCK4_CONTROLLER_USB | DUALSHOCK4_DONGLE)) {
-> > -		buf = kmalloc(DS4_FEATURE_REPORT_0x81_SIZE, GFP_KERNEL);
-> > -		if (!buf)
-> > -			return -ENOMEM;
-> > -
-> > -		/*
-> > -		 * The MAC address of a DS4 controller connected via USB can be
-> > -		 * retrieved with feature report 0x81. The address begins at
-> > -		 * offset 1.
-> > -		 */
-> > -		ret = hid_hw_raw_request(sc->hdev, 0x81, buf,
-> > -				DS4_FEATURE_REPORT_0x81_SIZE, HID_FEATURE_REPORT,
-> > -				HID_REQ_GET_REPORT);
-> > -
-> > -		if (ret != DS4_FEATURE_REPORT_0x81_SIZE) {
-> > -			hid_err(sc->hdev, "failed to retrieve feature report 0x81 with the DualShock 4 MAC address\n");
-> > -			ret = ret < 0 ? ret : -EINVAL;
-> > -			goto out_free;
-> > -		}
-> > -
-> > -		memcpy(sc->mac_address, &buf[1], sizeof(sc->mac_address));
-> > +		ret = sony_get_usb_ds4_devaddr(sc);
-> > +		if (ret < 0)
-> > +			return ret;
-> >  
-> > 
-> >  		snprintf(sc->hdev->uniq, sizeof(sc->hdev->uniq),
-> >  			 "%pMR", sc->mac_address);
-> > @@ -2670,6 +2701,7 @@ static int sony_check_add(struct sony_sc *sc)
-> >  		return 0;
-> >  	}
-> >  
-> > 
-> > +	dbg_hid("%s: retrieved MAC address: %s\n", __func__, sc->hdev->uniq);
-> >  	ret = sony_check_add_dev_list(sc);
-> >  
-> > 
-> >  out_free:
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index b4ed21f25600..c83c93716782 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -850,7 +850,7 @@ static int i2c_hid_init_irq(struct i2c_client *client)
+ 	unsigned long irqflags = 0;
+ 	int ret;
+ 
+-	dev_dbg(&client->dev, "Requesting IRQ: %d\n", client->irq);
++	i2c_hid_dbg(ihid, "Requesting IRQ: %d\n", client->irq);
+ 
+ 	if (!irq_get_trigger_type(client->irq))
+ 		irqflags = IRQF_TRIGGER_LOW;
+@@ -994,7 +994,7 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+ 	/* Make sure there is something at this address */
+ 	ret = i2c_smbus_read_byte(client);
+ 	if (ret < 0) {
+-		dev_dbg(&client->dev, "nothing at this address: %d\n", ret);
++		i2c_hid_dbg(ihid, "nothing at this address: %d\n", ret);
+ 		ret = -ENXIO;
+ 		goto err_powered;
+ 	}
 
 -- 
-Regards,
-
-Laurent Pinchart
+2.39.0

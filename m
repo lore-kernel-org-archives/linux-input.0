@@ -2,43 +2,42 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BE106C3DA7A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E5FBCC678D6
 	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236513AbjABSG5 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:06:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49220 "EHLO
+        id S236519AbjABSG7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:06:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236490AbjABSGe (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 135F6DAD
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:34 -0800 (PST)
+        with ESMTP id S236488AbjABSGd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0464DDB1
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A54D361038
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB42C433EF;
-        Mon,  2 Jan 2023 18:06:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6D6FB80DDE
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B18B0C433F0;
+        Mon,  2 Jan 2023 18:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682793;
-        bh=A/p+bOHqSv9ECzGy2jdon9H3yyyOlExiHZ/PsPc3q6o=;
+        s=k20201202; t=1672682790;
+        bh=JxgXGRC1AuHOUHx4JHC+Q1Fdj2PY8yXCBtkWTbn94Fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLWW1KrkIWVrqmBl8dK2N+InEIT9rdFLcoaQELk0WyhSjfAM+hBokqJhj782ycyjc
-         lkfSTjgVo39Y8xalbnVirVCfuxHnYOW52JjCUjw9kQiFoh3YEiLX4fZvVLo9kx5W5X
-         ETMC6CH3Z9aM9BFJQmCmEwcrkInwbEsmSr8o7Ue+YwHU12cUByIJ36Ew5fa/XYrXKV
-         MBpcqieoKJg5MUTIVh4+DqNPCngTTqitZZrKyNc/uMJTgSLR9oNDz5LqylmIY2IZn6
-         iF8wI62jPMbC1tNYufGt16TDmVrs129npuBo2xEeg0/2UrPyrJdh+ej/C9M/5vANjI
-         qSlTiRAE82NEQ==
+        b=CkUnqwDW9iPjk/qBMsCSd/zpj6NxynoZYndEzQmWaBV+MbYmCluGqw3U5mDcKSLK2
+         dBPiBkbCq0bR580T/m7F21XSwOLAtW2TQo2QyaDM3ULVbORrH+6MVUq9NbK9MtQRu1
+         GCYCGNCY2ZV7npuE0Q16BuDIIrp5fGjvnEUY1Sd9LKikAsCS6ghH+Hu7fAzrDHt235
+         bR6K450/+nH7h4NYIO3oyOdJkWrKMPQ2ZbmlsvYX2DM8ZHhnrsBlKGY/zb3V+uQgaR
+         PR3xBr+pXFYs4jqXQOCC390LP830Yz62Z4VYlZ/8lLrRZdjw9giWwIEkZFh29CpIzV
+         03l1aOc1FBC/g==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Michael Hennerich <michael.hennerich@analog.com>
-Subject: [PATCH 30/69] Input: ad7877 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:03 +0000
-Message-Id: <20230102181842.718010-31-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 28/69] Input: synaptics_i2c - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:01 +0000
+Message-Id: <20230102181842.718010-29-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,48 +56,52 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Michael Hennerich <michael.hennerich@analog.com>
 ---
- drivers/input/touchscreen/ad7877.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/mouse/synaptics_i2c.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
-index 08f5372f0bfd..edb36d663f22 100644
---- a/drivers/input/touchscreen/ad7877.c
-+++ b/drivers/input/touchscreen/ad7877.c
-@@ -788,7 +788,7 @@ static int ad7877_probe(struct spi_device *spi)
- 	return 0;
+diff --git a/drivers/input/mouse/synaptics_i2c.c b/drivers/input/mouse/synaptics_i2c.c
+index 6487c8c60d5e..068692a8aba5 100644
+--- a/drivers/input/mouse/synaptics_i2c.c
++++ b/drivers/input/mouse/synaptics_i2c.c
+@@ -597,7 +597,7 @@ static void synaptics_i2c_remove(struct i2c_client *client)
+ 	kfree(touch);
  }
  
--static int __maybe_unused ad7877_suspend(struct device *dev)
-+static int ad7877_suspend(struct device *dev)
+-static int __maybe_unused synaptics_i2c_suspend(struct device *dev)
++static int synaptics_i2c_suspend(struct device *dev)
  {
- 	struct ad7877 *ts = dev_get_drvdata(dev);
- 
-@@ -797,7 +797,7 @@ static int __maybe_unused ad7877_suspend(struct device *dev)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct synaptics_i2c *touch = i2c_get_clientdata(client);
+@@ -610,7 +610,7 @@ static int __maybe_unused synaptics_i2c_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused ad7877_resume(struct device *dev)
-+static int ad7877_resume(struct device *dev)
+-static int __maybe_unused synaptics_i2c_resume(struct device *dev)
++static int synaptics_i2c_resume(struct device *dev)
  {
- 	struct ad7877 *ts = dev_get_drvdata(dev);
- 
-@@ -806,12 +806,12 @@ static int __maybe_unused ad7877_resume(struct device *dev)
+ 	int ret;
+ 	struct i2c_client *client = to_i2c_client(dev);
+@@ -626,8 +626,8 @@ static int __maybe_unused synaptics_i2c_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(ad7877_pm, ad7877_suspend, ad7877_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(ad7877_pm, ad7877_suspend, ad7877_resume);
+-static SIMPLE_DEV_PM_OPS(synaptics_i2c_pm, synaptics_i2c_suspend,
+-			 synaptics_i2c_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(synaptics_i2c_pm, synaptics_i2c_suspend,
++				synaptics_i2c_resume);
  
- static struct spi_driver ad7877_driver = {
+ static const struct i2c_device_id synaptics_i2c_id_table[] = {
+ 	{ "synaptics_i2c", 0 },
+@@ -647,7 +647,7 @@ static struct i2c_driver synaptics_i2c_driver = {
  	.driver = {
- 		.name	= "ad7877",
--		.pm	= &ad7877_pm,
-+		.pm	= pm_sleep_ptr(&ad7877_pm),
+ 		.name	= DRIVER_NAME,
+ 		.of_match_table = of_match_ptr(synaptics_i2c_of_match),
+-		.pm	= &synaptics_i2c_pm,
++		.pm	= pm_sleep_ptr(&synaptics_i2c_pm),
  	},
- 	.probe		= ad7877_probe,
- };
+ 
+ 	.probe_new	= synaptics_i2c_probe,
 -- 
 2.39.0
 

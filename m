@@ -2,42 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7BC8C4708D
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8764BC4708E
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236452AbjABSHf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S236475AbjABSHf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 2 Jan 2023 13:07:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49752 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236496AbjABSHZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A10F9DB1
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:24 -0800 (PST)
+        with ESMTP id S236495AbjABSH1 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 939EA2F5
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 496A9B80DF4
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D02AC433F0;
-        Mon,  2 Jan 2023 18:07:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32CCE61038
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A952DC433EF;
+        Mon,  2 Jan 2023 18:07:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682841;
-        bh=D+xzrm8+tGJWej4XFfR/tu4Ix5fet+t3h85ezQCOn3g=;
+        s=k20201202; t=1672682844;
+        bh=fKlwZBB5vriG9IeekEsuZH7scn4rXfepY25G/m2u79g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fOvqJyL9GCaiXFyW+lgySGPalm6qwowQgnB5HLxF5REoW1ktRYIV7bCb+m8niLcsY
-         sg1PkXaRkSMB+PDQS4O4LQwKb483Tt8gCNMwmNobEaWSrKZZoH7AvxoqVx1l0MMa+C
-         /j7ODlavDeVtOqBtcJM56nAP/hwhBSv+vEbCgS7AkY8zLzV7SVR5M4XT4uw8Kkfvf+
-         IUJUUKXMfnWClGE6tUi/jV89mIPJFq/FjTQXs3EmlRGNCnK0GtEcHcbAGwhzwNNn8m
-         C4KdnaS9xlayKnQqzfxDhTZmc0ZMIHdJAPVz0DVXYLrMnkvBGUikI38nlMPX5INLvK
-         i7tA6EwI0Fidg==
+        b=Kc1gCAxmg8xRe1RwTqrLp7CjVLDreLAJs5Z2ILwlrxNiqKvzI5rJ5OA3VZQXwsq9+
+         nz02aLEn3ejSY4XkmCcnw4jvjHj87vxmtzRKLh8sEyvAPiH3PoJiEOtL80w6sP2caL
+         l7EvQX5xQubLZVv39BAZ21vOOgMhV4UsoICpOM6du2GoiIVNMiQoG78twFww2QhjZ7
+         u3/TnWgSGFRUhOq+KqCe3vrzScn3ryjMjzwE9ghiy97cPxUINTj36P822n6rbqysuE
+         fSovdJodRAeTxxbSZRtj/fl3cVaL2+XFBGyt13785TxHxxviC/h1Nb2JNYE3eVqXL/
+         X4Wjdu2D2H5qw==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 67/69] Input: zforce_ts - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:40 +0000
-Message-Id: <20230102181842.718010-68-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 69/69] Input: ipaq-micro-ts - use DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:42 +0000
+Message-Id: <20230102181842.718010-70-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -49,57 +50,61 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-SIMPLE_DEV_PM_OPS() is deprecated as it requires explicit protection
-against unused function warnings.  The new combination of pm_sleep_ptr()
-and DEFINE_SIMPLE_DEV_PM_OPS() allows the compiler to see the functions,
-thus suppressing the warning, but still allowing the unused code to be
-removed. Thus also drop the __maybe_unused markings.
+This driver never used the older SIMPLE_DEV_PM_OPS() but instead just
+set two of the callbacks directly.  Skip that deprecated macro and go
+straight to the new form that avoids the need for guarding or marking
+callbacks __maybe_unused.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+--
+It is possible there is some subtle reason why only two of the
+callbacks normally set by SIMPLE_DEV_PM_OPS() are set. As such,
+this one needs some closer reading than many of the others.
 ---
- drivers/input/touchscreen/zforce_ts.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/ipaq-micro-ts.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
-index 24e78ca83fa3..76b194285e1c 100644
---- a/drivers/input/touchscreen/zforce_ts.c
-+++ b/drivers/input/touchscreen/zforce_ts.c
-@@ -608,7 +608,7 @@ static void zforce_input_close(struct input_dev *dev)
- 	return;
+diff --git a/drivers/input/touchscreen/ipaq-micro-ts.c b/drivers/input/touchscreen/ipaq-micro-ts.c
+index 0eb5689fe65f..d8e25b502968 100644
+--- a/drivers/input/touchscreen/ipaq-micro-ts.c
++++ b/drivers/input/touchscreen/ipaq-micro-ts.c
+@@ -119,7 +119,7 @@ static int micro_ts_probe(struct platform_device *pdev)
+ 	return 0;
  }
  
--static int __maybe_unused zforce_suspend(struct device *dev)
-+static int zforce_suspend(struct device *dev)
+-static int __maybe_unused micro_ts_suspend(struct device *dev)
++static int micro_ts_suspend(struct device *dev)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct zforce_ts *ts = i2c_get_clientdata(client);
-@@ -653,7 +653,7 @@ static int __maybe_unused zforce_suspend(struct device *dev)
- 	return ret;
+ 	struct touchscreen_data *ts = dev_get_drvdata(dev);
+ 
+@@ -128,7 +128,7 @@ static int __maybe_unused micro_ts_suspend(struct device *dev)
+ 	return 0;
  }
  
--static int __maybe_unused zforce_resume(struct device *dev)
-+static int zforce_resume(struct device *dev)
+-static int __maybe_unused micro_ts_resume(struct device *dev)
++static int micro_ts_resume(struct device *dev)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct zforce_ts *ts = i2c_get_clientdata(client);
-@@ -691,7 +691,7 @@ static int __maybe_unused zforce_resume(struct device *dev)
- 	return ret;
+ 	struct touchscreen_data *ts = dev_get_drvdata(dev);
+ 	struct input_dev *input = ts->input;
+@@ -143,14 +143,13 @@ static int __maybe_unused micro_ts_resume(struct device *dev)
+ 	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(zforce_pm_ops, zforce_suspend, zforce_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(zforce_pm_ops, zforce_suspend, zforce_resume);
+-static const struct dev_pm_ops micro_ts_dev_pm_ops = {
+-	SET_SYSTEM_SLEEP_PM_OPS(micro_ts_suspend, micro_ts_resume)
+-};
++static DEFINE_SIMPLE_DEV_PM(micro_ts_dev_pm_ops,
++			    micro_ts_suspend, micro_ts_resume);
  
- static void zforce_reset(void *data)
- {
-@@ -941,7 +941,7 @@ MODULE_DEVICE_TABLE(of, zforce_dt_idtable);
- static struct i2c_driver zforce_driver = {
- 	.driver = {
- 		.name	= "zforce-ts",
--		.pm	= &zforce_pm_ops,
-+		.pm	= pm_sleep_ptr(&zforce_pm_ops),
- 		.of_match_table	= of_match_ptr(zforce_dt_idtable),
+ static struct platform_driver micro_ts_device_driver = {
+ 	.driver	= {
+ 		.name	= "ipaq-micro-ts",
+-		.pm	= &micro_ts_dev_pm_ops,
++		.pm	= pm_sleep_ptr(&micro_ts_dev_pm_ops),
  	},
- 	.probe_new	= zforce_probe,
+ 	.probe	= micro_ts_probe,
+ };
 -- 
 2.39.0
 

@@ -2,47 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AD3EC677F1
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17B65C54EBE
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236433AbjABSGz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:06:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49138 "EHLO
+        id S235952AbjABSHV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236457AbjABSG0 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 602C9C25
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:26 -0800 (PST)
+        with ESMTP id S236475AbjABSG4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C537755BB
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAA6661084
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4424FC433F1;
-        Mon,  2 Jan 2023 18:06:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 791A4B80DED
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12202C433D2;
+        Mon,  2 Jan 2023 18:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682785;
-        bh=KJ/6Fiq+66gE9QBOZoiYId0WA81ucFP75UxDeS2Imk0=;
+        s=k20201202; t=1672682812;
+        bh=A+adGC5uX20xMfqb5JGln2JU+zgoaUd7BOyB9DkXiN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4yvhEs0xPTsnkD5HH60UsUBQP0Fd2zXRInJMyj/+aMx8MieFxqKp/RVuXJ7NYfuV
-         z7gVpYD2XxSfBkT9ftrg7PLpkFA9yTbNyRY/SilpBkQxAEfa15jn5viQKOjBJ28KCF
-         9rs23lqUHX3o3SZvfI8HYdRlb1eiSF0VtvBaz0doJOxB/fLt1Xooh/OzFVl26uwGwr
-         rRBBYUwo/OM+4A0/KnLW1cwNc1hUF5OFJl9pFzec7uReUyMk2wxQq7IOlky/wv36pS
-         YFC0+NHg4BpmY7oKC4g+Q5Iok0/sv4Z0iuWpZRiWa1xx1JipYc3kGUM8wGpytzlrFC
-         JRu1IhT81IUGg==
+        b=AwxCjGiutQjBNOZASt6LPGlZ4ntLyMzcI69jU1kJ7f5U5G+V9L9ZXUwXIbn3MXTbb
+         eBe9wGv7bqDj1nZ1pvK5j9nXF9N+SQ+Ih+zCMuRCXi0v4ElVlBRvxcjUJQHYVsKO1E
+         /ox2WpZtCfXpdawYfNwRVZV0BeH5ZY83r34Wk/N/4+0vbqqWNyHyxVjRD9vfc4I03/
+         IjzAUbTJNXgN/HJwVjIGsqOP/yqPXWNQUw8akJl8Xzoab+jV31BFT2iKyqb6dC8hg+
+         UCYgBUu1QRolmVEEMsTTNpU2Kxhu16DXvbP2cGLd6PmfhwR1odxxVMIZTl0PVaMgYa
+         noMpnMzklLEdw==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 24/69] Input: twl4030-vibra - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:17:57 +0000
-Message-Id: <20230102181842.718010-25-jic23@kernel.org>
+        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 44/69] input: ektf2127 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:17 +0000
+Message-Id: <20230102181842.718010-45-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -57,51 +59,54 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Tony Lindgren <tony@atomide.com>
+Cc: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Cc: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/misc/twl4030-vibra.c | 10 +++++-----
+ drivers/input/touchscreen/ektf2127.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/misc/twl4030-vibra.c b/drivers/input/misc/twl4030-vibra.c
-index 5619996da86f..101548b35ee3 100644
---- a/drivers/input/misc/twl4030-vibra.c
-+++ b/drivers/input/misc/twl4030-vibra.c
-@@ -143,7 +143,7 @@ static void twl4030_vibra_close(struct input_dev *input)
+diff --git a/drivers/input/touchscreen/ektf2127.c b/drivers/input/touchscreen/ektf2127.c
+index 328841eaa1b7..e6f1e46d003d 100644
+--- a/drivers/input/touchscreen/ektf2127.c
++++ b/drivers/input/touchscreen/ektf2127.c
+@@ -177,7 +177,7 @@ static void ektf2127_stop(struct input_dev *dev)
+ 	gpiod_set_value_cansleep(ts->power_gpios, 0);
  }
  
- /*** Module ***/
--static int __maybe_unused twl4030_vibra_suspend(struct device *dev)
-+static int twl4030_vibra_suspend(struct device *dev)
+-static int __maybe_unused ektf2127_suspend(struct device *dev)
++static int ektf2127_suspend(struct device *dev)
  {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct vibra_info *info = platform_get_drvdata(pdev);
-@@ -154,14 +154,14 @@ static int __maybe_unused twl4030_vibra_suspend(struct device *dev)
+ 	struct ektf2127_ts *ts = i2c_get_clientdata(to_i2c_client(dev));
+ 
+@@ -189,7 +189,7 @@ static int __maybe_unused ektf2127_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused twl4030_vibra_resume(struct device *dev)
-+static int twl4030_vibra_resume(struct device *dev)
+-static int __maybe_unused ektf2127_resume(struct device *dev)
++static int ektf2127_resume(struct device *dev)
  {
- 	vibra_disable_leds();
+ 	struct ektf2127_ts *ts = i2c_get_clientdata(to_i2c_client(dev));
+ 
+@@ -201,8 +201,8 @@ static int __maybe_unused ektf2127_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
--			 twl4030_vibra_suspend, twl4030_vibra_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(twl4030_vibra_pm_ops,
-+				twl4030_vibra_suspend, twl4030_vibra_resume);
+-static SIMPLE_DEV_PM_OPS(ektf2127_pm_ops, ektf2127_suspend,
+-			 ektf2127_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(ektf2127_pm_ops, ektf2127_suspend,
++				ektf2127_resume);
  
- static bool twl4030_vibra_check_coexist(struct device_node *parent)
+ static int ektf2127_query_dimension(struct i2c_client *client, bool width)
  {
-@@ -234,7 +234,7 @@ static struct platform_driver twl4030_vibra_driver = {
- 	.probe		= twl4030_vibra_probe,
- 	.driver		= {
- 		.name	= "twl4030-vibra",
--		.pm	= &twl4030_vibra_pm_ops,
-+		.pm	= pm_sleep_ptr(&twl4030_vibra_pm_ops),
+@@ -348,7 +348,7 @@ MODULE_DEVICE_TABLE(i2c, ektf2127_i2c_id);
+ static struct i2c_driver ektf2127_driver = {
+ 	.driver = {
+ 		.name	= "elan_ektf2127",
+-		.pm	= &ektf2127_pm_ops,
++		.pm	= pm_sleep_ptr(&ektf2127_pm_ops),
+ 		.of_match_table = of_match_ptr(ektf2127_of_match),
  	},
- };
- module_platform_driver(twl4030_vibra_driver);
+ 	.probe_new = ektf2127_probe,
 -- 
 2.39.0
 

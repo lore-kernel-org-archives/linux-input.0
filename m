@@ -2,44 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5140C67871
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BAB2C4708E
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236448AbjABSG4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:06:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49204 "EHLO
+        id S234664AbjABSHQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236480AbjABSGb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:31 -0500
+        with ESMTP id S236329AbjABSGo (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68E255BB
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 735B460C5
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72169B80DE3
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0436DC433D2;
-        Mon,  2 Jan 2023 18:06:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CB72B80DE8
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E04C433D2;
+        Mon,  2 Jan 2023 18:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682788;
-        bh=g7UO7iKHYk0zDfciAqVRrsAYuaIPGXqDb8Nz8BCx4bs=;
+        s=k20201202; t=1672682799;
+        bh=6sMKeo3C8fj8EQqv6VxbCdOrcGolTm+q78xJDXML3Zo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbVX+zF6IUFfHT/mIlBVehdut3KTB6g7wtmUapr+kcfEJGRXBo2+fBaoDS7iuYSeB
-         bX6OIm770bDpR6YAwc+1AEAmMObO7EyB3ZyOF56P2ELjsdH21HmmSwY1baOicoukx8
-         FAODKAEeaVWNC4qxCVZ8Hk740TfV1g34pLF7uOjpn636Wn4aW9are61DI3au/QNFKq
-         EaCj6UO8rttrWEnpEo3DNKxWdQ9HxAJo1QLBNC8mjpd1nMQ4dVieAzAvOHU5YivKJi
-         Nk+iSRoK4ZamjFHYEFceroL2MVUEy5uRfwykkGHnmEiz/vSVaXGEmmjxNk485Xbu7/
-         GD0Wf1eLd7X+A==
+        b=sH0o4v/Uj0ja3NqCyrGOYBaVXuWHOg37WpURjZvaAQJsB3Ukz2FlQZL66YLcQ3LU4
+         P5npwcrKfb5jncWgW3eg9MEXJqABa6R5Dh44if/ELwgiJc6UD7t0MYNdNS58MVok9t
+         tkJna8YRLp54Bc8oHqeT0x51hiPbkmt0z1rOHY3jDTIEqBMjUXYQi4VUKKXRVkyfd+
+         xInH0weeMo6AC1P5ZQxta2n4ZW5OYE2F+GSCZFDQdHu9X1TUv4eAQbakEtHewD0fbn
+         IdExqRO2eNZk4jVpImme0dDKR+ymIpykWk+pfV5QHKt7CiwtbR4KpznUIi167a5eYy
+         XVnNT+wTqlaoQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 26/69] Input: elan_i2c_core - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:17:59 +0000
-Message-Id: <20230102181842.718010-27-jic23@kernel.org>
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 35/69] Input: bu21013_ts - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:08 +0000
+Message-Id: <20230102181842.718010-36-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -58,52 +57,51 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Raul E Rangel <rrangel@chromium.org>
-Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
 ---
- drivers/input/mouse/elan_i2c_core.c | 8 ++++----
+ drivers/input/touchscreen/bu21013_ts.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
-index 76729ada1582..5f0d75a45c80 100644
---- a/drivers/input/mouse/elan_i2c_core.c
-+++ b/drivers/input/mouse/elan_i2c_core.c
-@@ -1328,7 +1328,7 @@ static int elan_probe(struct i2c_client *client)
+diff --git a/drivers/input/touchscreen/bu21013_ts.c b/drivers/input/touchscreen/bu21013_ts.c
+index 5a4dbd39a372..c994ab6f4e58 100644
+--- a/drivers/input/touchscreen/bu21013_ts.c
++++ b/drivers/input/touchscreen/bu21013_ts.c
+@@ -560,7 +560,7 @@ static void bu21013_remove(struct i2c_client *client)
+ 	/* The resources will be freed by devm */
+ }
+ 
+-static int __maybe_unused bu21013_suspend(struct device *dev)
++static int bu21013_suspend(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct bu21013_ts *ts = i2c_get_clientdata(client);
+@@ -575,7 +575,7 @@ static int __maybe_unused bu21013_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused elan_suspend(struct device *dev)
-+static int elan_suspend(struct device *dev)
+-static int __maybe_unused bu21013_resume(struct device *dev)
++static int bu21013_resume(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct elan_tp_data *data = i2c_get_clientdata(client);
-@@ -1365,7 +1365,7 @@ static int __maybe_unused elan_suspend(struct device *dev)
- 	return ret;
+ 	struct bu21013_ts *ts = i2c_get_clientdata(client);
+@@ -604,7 +604,7 @@ static int __maybe_unused bu21013_resume(struct device *dev)
+ 	return 0;
  }
  
--static int __maybe_unused elan_resume(struct device *dev)
-+static int elan_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct elan_tp_data *data = i2c_get_clientdata(client);
-@@ -1394,7 +1394,7 @@ static int __maybe_unused elan_resume(struct device *dev)
- 	return error;
- }
+-static SIMPLE_DEV_PM_OPS(bu21013_dev_pm_ops, bu21013_suspend, bu21013_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(bu21013_dev_pm_ops, bu21013_suspend, bu21013_resume);
  
--static SIMPLE_DEV_PM_OPS(elan_pm_ops, elan_suspend, elan_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(elan_pm_ops, elan_suspend, elan_resume);
- 
- static const struct i2c_device_id elan_id[] = {
- 	{ DRIVER_NAME, 0 },
-@@ -1418,7 +1418,7 @@ MODULE_DEVICE_TABLE(of, elan_of_match);
- static struct i2c_driver elan_driver = {
- 	.driver = {
- 		.name	= DRIVER_NAME,
--		.pm	= &elan_pm_ops,
-+		.pm	= pm_sleep_ptr(&elan_pm_ops),
- 		.acpi_match_table = ACPI_PTR(elan_acpi_id),
- 		.of_match_table = of_match_ptr(elan_of_match),
- 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
+ static const struct i2c_device_id bu21013_id[] = {
+ 	{ DRIVER_TP, 0 },
+@@ -615,7 +615,7 @@ MODULE_DEVICE_TABLE(i2c, bu21013_id);
+ static struct i2c_driver bu21013_driver = {
+ 	.driver	= {
+ 		.name	=	DRIVER_TP,
+-		.pm	=	&bu21013_dev_pm_ops,
++		.pm	=	pm_sleep_ptr(&bu21013_dev_pm_ops),
+ 	},
+ 	.probe_new	=	bu21013_probe,
+ 	.remove		=	bu21013_remove,
 -- 
 2.39.0
 

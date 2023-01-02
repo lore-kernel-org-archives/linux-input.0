@@ -2,43 +2,44 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B83F1C678DB
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A241C54EF0
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236182AbjABSHQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49404 "EHLO
+        id S236440AbjABSHV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236361AbjABSGq (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 529DB38BD
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:46 -0800 (PST)
+        with ESMTP id S236490AbjABSG7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C65A116B
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA38C61038
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62309C433F0;
-        Mon,  2 Jan 2023 18:06:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 414C1B80DEC
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0292C433EF;
+        Mon,  2 Jan 2023 18:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682805;
-        bh=P52FlEoCRfPh6+uYTUIosrqGHhs0uvLmWr7ieXaP2pU=;
+        s=k20201202; t=1672682815;
+        bh=DIMShl4zaE2YV+7C0HGEGNxIMwfKzQ/0f0VBb7kDREw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MW5o7lbLLzncWae+N9RQ0A08mYZuMwUlc008XgCwfRu5HKBCuhjGjOuqTjD8D8ap/
-         3vLPBLELVar1GXlf2BfaDaa3stWFkMLyvarnKV1j1jarJqC8aM6JoH2VVfmjvNtjoC
-         rzvVUOPpo96cs/g8lRzeByvT2DyeIzDdXSQc/2A5Yp2Vl1T/gDYkozJZG8jhTVmJho
-         9tckmVkmj3rX3D/FliIWNGUBRaXvpo3yL7914yIMgFMhj0k9UUqwiEww2B96E+WxDR
-         reM3BvhHAlg095ERCaIHzINKmFJVGqEP6zvZNzYxLlGUAWU8YUH95w+xlxnWzyEm1c
-         dlUJO7J0tg6eg==
+        b=tiWR/X9bBKkTVhvZSo1ggYOfQe1o/jL4+fGSbm6R1H5cwVZow3nP9EFrnLj9eFTOv
+         AHQhE+9gYNa3akIxgXCt71zBI1NnO9dXS+rJMjNcnkb6Ycqq8PfCzjOyeNJpbrCDXf
+         P+lU4DxEVqDXXqwb+Ndah3ULwxooczI1iTsAeK9QfGSsR9T9KWaBItFZVRkfq990wH
+         MRq725ok4ePrNeJgv3vWVPACOAiPC2RgjDRubkdlPWV6p5RA/znETyYSWG2rZ8j4sD
+         pRdr+dm1NfkcuBlih90uaCBvHOeYi7uw6IvTp1XaixjF0eizeKUN1rgeuV0/pM3Q8P
+         Vwew9Z6bu/uvQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH 39/69] Input: cy8ctma140 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:12 +0000
-Message-Id: <20230102181842.718010-40-jic23@kernel.org>
+        Hans de Goede <hdegoede@redhat.com>,
+        Bastien Nocera <hadess@hadess.net>
+Subject: [PATCH 46/69] Input: goodix - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:19 +0000
+Message-Id: <20230102181842.718010-47-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,52 +58,52 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Bastien Nocera <hadess@hadess.net>
 ---
- drivers/input/touchscreen/cy8ctma140.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/goodix.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/cy8ctma140.c b/drivers/input/touchscreen/cy8ctma140.c
-index 3a91d948b7f6..cd86477d971a 100644
---- a/drivers/input/touchscreen/cy8ctma140.c
-+++ b/drivers/input/touchscreen/cy8ctma140.c
-@@ -296,7 +296,7 @@ static int cy8ctma140_probe(struct i2c_client *client)
- 	return 0;
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 8a0a8078de8f..b348172f19c3 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -1401,7 +1401,7 @@ static void goodix_ts_remove(struct i2c_client *client)
+ 		wait_for_completion(&ts->firmware_loading_complete);
  }
  
--static int __maybe_unused cy8ctma140_suspend(struct device *dev)
-+static int cy8ctma140_suspend(struct device *dev)
+-static int __maybe_unused goodix_suspend(struct device *dev)
++static int goodix_suspend(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct cy8ctma140 *ts = i2c_get_clientdata(client);
-@@ -307,7 +307,7 @@ static int __maybe_unused cy8ctma140_suspend(struct device *dev)
+ 	struct goodix_ts_data *ts = i2c_get_clientdata(client);
+@@ -1448,7 +1448,7 @@ static int __maybe_unused goodix_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused cy8ctma140_resume(struct device *dev)
-+static int cy8ctma140_resume(struct device *dev)
+-static int __maybe_unused goodix_resume(struct device *dev)
++static int goodix_resume(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct cy8ctma140 *ts = i2c_get_clientdata(client);
-@@ -322,7 +322,8 @@ static int __maybe_unused cy8ctma140_resume(struct device *dev)
+ 	struct goodix_ts_data *ts = i2c_get_clientdata(client);
+@@ -1497,7 +1497,7 @@ static int __maybe_unused goodix_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(cy8ctma140_pm, cy8ctma140_suspend, cy8ctma140_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(cy8ctma140_pm,
-+				cy8ctma140_suspend, cy8ctma140_resume);
+-static SIMPLE_DEV_PM_OPS(goodix_pm_ops, goodix_suspend, goodix_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(goodix_pm_ops, goodix_suspend, goodix_resume);
  
- static const struct i2c_device_id cy8ctma140_idtable[] = {
- 	{ CY8CTMA140_NAME, 0 },
-@@ -339,7 +340,7 @@ MODULE_DEVICE_TABLE(of, cy8ctma140_of_match);
- static struct i2c_driver cy8ctma140_driver = {
- 	.driver		= {
- 		.name	= CY8CTMA140_NAME,
--		.pm	= &cy8ctma140_pm,
-+		.pm	= pm_sleep_ptr(&cy8ctma140_pm),
- 		.of_match_table = cy8ctma140_of_match,
+ static const struct i2c_device_id goodix_ts_id[] = {
+ 	{ "GDIX1001:00", 0 },
+@@ -1543,7 +1543,7 @@ static struct i2c_driver goodix_ts_driver = {
+ 		.name = "Goodix-TS",
+ 		.acpi_match_table = ACPI_PTR(goodix_acpi_match),
+ 		.of_match_table = of_match_ptr(goodix_of_match),
+-		.pm = &goodix_pm_ops,
++		.pm = pm_sleep_ptr(&goodix_pm_ops),
  	},
- 	.id_table	= cy8ctma140_idtable,
+ };
+ module_i2c_driver(goodix_ts_driver);
 -- 
 2.39.0
 

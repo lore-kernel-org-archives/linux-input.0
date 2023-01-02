@@ -2,43 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5313AC54E76
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D240C53210
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236347AbjABSHT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49436 "EHLO
+        id S231908AbjABSHR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236500AbjABSGx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF56C2F5
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:51 -0800 (PST)
+        with ESMTP id S236347AbjABSGq (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAF98DAD
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A944FB80DEC
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B7A8C433EF;
-        Mon,  2 Jan 2023 18:06:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8790061057
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FF53C433EF;
+        Mon,  2 Jan 2023 18:06:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682809;
-        bh=d4MO4Fl+LVtQkwl5qpm268Fadx1u/sLrfvHPk8I0zRo=;
+        s=k20201202; t=1672682804;
+        bh=i+FyiKYmLe1L+sLbYHa7msOReo53wYA1a5SokQf2hQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zhjr7UcoYKkadJs5KnYx76vpYh5Z+alzIgjSvWt0tjcNgRcmKvhnkCCwrWHEOZ9cF
-         n1/XBwE8OndB1MPhj8m4Zq7ZBW6lI9WVK531LzP0salBuQuT9sGrxq3lYjXSI4epEu
-         b+0cX88Uh2I1tXCyYQDIyXF/zv95Y2A79PLHdxeguTrPrSjxmfyUBcMo47xSGhwHPB
-         +6kF1xoyOrFoRff5lhpKJZEFREKmXiYYcN0MVArY12EGEbH71bTTNqPfBX1w6AeKUg
-         A4ew0s35cgz1UxvsA9irNdfpAK0Dv3iOXoE0MGoriW4I8R/faC2tIu6cCLPLGisI38
-         x3nsM/2Fx78yQ==
+        b=lVXHcPBXEBrlH/YeNhU7APtSZw8Rvvmyn85lgl3m0B8xZIWg6GbHBpH+q8BBYdOxl
+         tP3nuDh74WyeswyZC+CCqYlbfWxNSN1rhf4FaIujiMg0yaaCwFuDp3i7SA3r2QPWUU
+         EWVCI774pTB3bPZCweqCQtykAYjXwqZZarQzn8viRrurXUvtG9tnQ5hIom9+t2GSv+
+         3AiHoQdBBXKRPozvVfKLXTwa9fdXZtJr2M6z7LBW6JkFOZf5PVSJPuPrre4Nsc6Rqq
+         uA4C5Wl9tn3W/7i/x1jgNb1koZDZ3M9lQQqiu6EhxryPT0VrWp6sMoMprOQh1Ztzn1
+         reqMXwE+3lNdQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Daniel Mack <daniel@zonque.org>
-Subject: [PATCH 42/69] Input: eeti_ts - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:15 +0000
-Message-Id: <20230102181842.718010-43-jic23@kernel.org>
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 38/69] Input: chipone_icn8505 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:11 +0000
+Message-Id: <20230102181842.718010-39-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,51 +57,51 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Daniel Mack <daniel@zonque.org>
+Cc: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/eeti_ts.c | 8 ++++----
+ drivers/input/touchscreen/chipone_icn8505.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/eeti_ts.c b/drivers/input/touchscreen/eeti_ts.c
-index c8ab03f49227..56fa21688bdb 100644
---- a/drivers/input/touchscreen/eeti_ts.c
-+++ b/drivers/input/touchscreen/eeti_ts.c
-@@ -232,7 +232,7 @@ static int eeti_ts_probe(struct i2c_client *client)
+diff --git a/drivers/input/touchscreen/chipone_icn8505.c b/drivers/input/touchscreen/chipone_icn8505.c
+index c421f4be2700..246bee0bee53 100644
+--- a/drivers/input/touchscreen/chipone_icn8505.c
++++ b/drivers/input/touchscreen/chipone_icn8505.c
+@@ -460,7 +460,7 @@ static int icn8505_probe(struct i2c_client *client)
  	return 0;
  }
  
--static int __maybe_unused eeti_ts_suspend(struct device *dev)
-+static int eeti_ts_suspend(struct device *dev)
+-static int __maybe_unused icn8505_suspend(struct device *dev)
++static int icn8505_suspend(struct device *dev)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct eeti_ts *eeti = i2c_get_clientdata(client);
-@@ -251,7 +251,7 @@ static int __maybe_unused eeti_ts_suspend(struct device *dev)
+ 	struct icn8505_data *icn8505 = i2c_get_clientdata(to_i2c_client(dev));
+ 
+@@ -471,7 +471,7 @@ static int __maybe_unused icn8505_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused eeti_ts_resume(struct device *dev)
-+static int eeti_ts_resume(struct device *dev)
+-static int __maybe_unused icn8505_resume(struct device *dev)
++static int icn8505_resume(struct device *dev)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct eeti_ts *eeti = i2c_get_clientdata(client);
-@@ -270,7 +270,7 @@ static int __maybe_unused eeti_ts_resume(struct device *dev)
+ 	struct icn8505_data *icn8505 = i2c_get_clientdata(to_i2c_client(dev));
+ 	int error;
+@@ -484,7 +484,7 @@ static int __maybe_unused icn8505_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(eeti_ts_pm, eeti_ts_suspend, eeti_ts_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(eeti_ts_pm, eeti_ts_suspend, eeti_ts_resume);
+-static SIMPLE_DEV_PM_OPS(icn8505_pm_ops, icn8505_suspend, icn8505_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(icn8505_pm_ops, icn8505_suspend, icn8505_resume);
  
- static const struct i2c_device_id eeti_ts_id[] = {
- 	{ "eeti_ts", 0 },
-@@ -288,7 +288,7 @@ static const struct of_device_id of_eeti_ts_match[] = {
- static struct i2c_driver eeti_ts_driver = {
+ static const struct acpi_device_id icn8505_acpi_match[] = {
+ 	{ "CHPN0001" },
+@@ -495,7 +495,7 @@ MODULE_DEVICE_TABLE(acpi, icn8505_acpi_match);
+ static struct i2c_driver icn8505_driver = {
  	.driver = {
- 		.name = "eeti_ts",
--		.pm = &eeti_ts_pm,
-+		.pm = pm_sleep_ptr(&eeti_ts_pm),
- 		.of_match_table = of_match_ptr(of_eeti_ts_match),
+ 		.name	= "chipone_icn8505",
+-		.pm	= &icn8505_pm_ops,
++		.pm	= pm_sleep_ptr(&icn8505_pm_ops),
+ 		.acpi_match_table = icn8505_acpi_match,
  	},
- 	.probe_new = eeti_ts_probe,
+ 	.probe_new = icn8505_probe,
 -- 
 2.39.0
 

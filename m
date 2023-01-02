@@ -2,124 +2,102 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B05CC4708D
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 16:43:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE830C3DA7A
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:06:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229447AbjABQnH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 11:43:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44142 "EHLO
+        id S234650AbjABSGI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:06:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230120AbjABQnG (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 11:43:06 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C57ADDFB;
-        Mon,  2 Jan 2023 08:43:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1672677784; x=1704213784;
-  h=message-id:subject:from:to:cc:date:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=mnxJ6XmSgkvongoJ93IRsYTokk5mqjqpPWZx8tLs2R8=;
-  b=aabqG//Px1DlmFt35IE/YjpzDdZ9vUoS0Ch8LIFiLxwfc85+uN4/J7IH
-   UuCVlmvS8GUf9DKeOe9EWyD0bfybmkauzZw6m7aJey42B9E+sR9DIltKs
-   8eiPXpyA2Y22bvGYRolVg4OVIQEkQRSiFhcP469HHjSSFxt1iRVRFmzP8
-   KmhmcSlySw4GBWoijiq1kZOSMVv9oIfGFCunIN54Dw6vmxBjvhMZ+Bd7b
-   uI8L/zjkIV/9w021cKFtXD3xD/+aDcZcH3lua6h6HbiIcePMvJ4zBQIiT
-   EWy4T/gTpg+P31mObv7tyb4OqMcMFi8aptWNMk0r0HkV8SG5RnBeYf6zE
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10578"; a="323503498"
-X-IronPort-AV: E=Sophos;i="5.96,294,1665471600"; 
-   d="scan'208";a="323503498"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jan 2023 08:43:04 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10578"; a="656519333"
-X-IronPort-AV: E=Sophos;i="5.96,294,1665471600"; 
-   d="scan'208";a="656519333"
-Received: from mkumar2-mobl1.amr.corp.intel.com (HELO spandruv-desk1.amr.corp.intel.com) ([10.252.140.101])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jan 2023 08:43:03 -0800
-Message-ID: <19d6dc836b4c843e42387dc1968ecbb63811ac16.camel@linux.intel.com>
-Subject: Re: [PATCH] IIO: hid-sensor-prox: add missing scale attribute
-From:   srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
-To:     Philipp Jungkamp <p.jungkamp@gmx.net>,
-        Jiri Kosina <jikos@kernel.org>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>
-Cc:     linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Date:   Mon, 02 Jan 2023 08:43:03 -0800
-In-Reply-To: <20221222120742.232087-1-p.jungkamp@gmx.net>
-References: <20221222120742.232087-1-p.jungkamp@gmx.net>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.4 (3.42.4-2.fc35) 
+        with ESMTP id S231454AbjABSF5 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:05:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0B2CDD4
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:05:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4426761038
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:05:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFF4FC433F1;
+        Mon,  2 Jan 2023 18:05:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1672682755;
+        bh=1/9diJ0LyAqf/5EINz6bE03sh0wkbD6nhUaZgN+4Kx8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PNVekfGTXGAzry4fUVR8Nj5ewZoObEx9shHqaDdY8e0EQXgfZdIOve1c0idkarDgv
+         YRSX8hQWzhCrabJtr+i1G64PAnpF6UaQgap/ire9AArzZzDCoo+dGls84mLPCZQkgg
+         ZNvaWoQ1in4hrmX63r7o2K9/7+xRk0WR9JMswJN3a+nnJD84QgUHT/fdRB1ilJ05Rc
+         T/PwKGZjRpMrxxeIwziJDAi7G2gCBDxa7FmSeRw/jGaoYXG/H3F1dT4AcJZKP4wHYa
+         hMyVjgSdoeBfobC6YyzVLT3uqPMSLJpZD8nBKSsnkNr9fAUDO9rJiUHolosZQxUvt+
+         fDpR1qpPsrpbw==
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 01/69] Input: 88pm860x - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:17:34 +0000
+Message-Id: <20230102181842.718010-2-jic23@kernel.org>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
+References: <20230102181842.718010-1-jic23@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 2022-12-22 at 13:07 +0100, Philipp Jungkamp wrote:
-> The hid-sensor-prox returned an empty string on sysfs
-> in_proximity_scale
-> read. This is due to the the drivers reporting it's scale from an
-> internal value which is never changed from zero.
-> 
-> Try to query the scale of the HID sensor using
-> hid_sensor_format_scale.
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-By spec there is no unit for this attribute:
+SIMPLE_DEV_PM_OPS() is deprecated as it requires explicit protection
+against unused function warnings.  The new combination of pm_sleep_ptr()
+and DEFINE_SIMPLE_DEV_PM_OPS() allows the compiler to see the functions,
+thus suppressing the warning, but still allowing the unused code to be
+removed. Thus also drop the __maybe_unused markings.
 
-"
-An application-level or physical collection that identifies
-a device that detects human presence (Boolean yes or no).
-"
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+---
+ drivers/input/misc/88pm860x_onkey.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-There is no use of calling hid_sensor_format_scale() as there is no
-conversion. With the call this is setting scale_pre_decml to 1.
-
-Better to set scale_pre_decml to 1 instead of calling
-hid_sensor_format_scale(), which gives wrong impression that we are
-converting to some scale.
-
-Thanks,
-Srinivas
-
-> 
-> Signed-off-by: Philipp Jungkamp <p.jungkamp@gmx.net>
-> ---
-> Hello,
-> 
-> While trying to utilize hid_sensor_prox driver I noticed this
-> problem.
-> Should this be part of the branch created for the other patch series
-> I
-> have submitted?
-> See:
-> https://lore.kernel.org/linux-iio/nycvar.YFH.7.76.2212201525010.9000@cbobk.fhfr.pm/T/#u
-> 
-> Regards,
-> Philipp Jungkamp
-> 
->  drivers/iio/light/hid-sensor-prox.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/iio/light/hid-sensor-prox.c
-> b/drivers/iio/light/hid-sensor-prox.c
-> index f10fa2abfe72..3322f8e56f41 100644
-> --- a/drivers/iio/light/hid-sensor-prox.c
-> +++ b/drivers/iio/light/hid-sensor-prox.c
-> @@ -222,6 +222,9 @@ static int prox_parse_report(struct
-> platform_device *pdev,
->         dev_dbg(&pdev->dev, "prox %x:%x\n", st->prox_attr.index,
->                         st->prox_attr.report_id);
-> 
-> +       st->scale_precision = hid_sensor_format_scale(usage_id, &st-
-> >prox_attr,
-> +                               &st->scale_pre_decml, &st-
-> >scale_post_decml);
-> +
->         return ret;
->  }
-> 
-> --
-> 2.39.0
-> 
+diff --git a/drivers/input/misc/88pm860x_onkey.c b/drivers/input/misc/88pm860x_onkey.c
+index 685995cad73f..0f8b7ffb3aff 100644
+--- a/drivers/input/misc/88pm860x_onkey.c
++++ b/drivers/input/misc/88pm860x_onkey.c
+@@ -110,7 +110,7 @@ static int pm860x_onkey_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int __maybe_unused pm860x_onkey_suspend(struct device *dev)
++static int pm860x_onkey_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pm860x_chip *chip = dev_get_drvdata(pdev->dev.parent);
+@@ -119,7 +119,7 @@ static int __maybe_unused pm860x_onkey_suspend(struct device *dev)
+ 		chip->wakeup_flag |= 1 << PM8607_IRQ_ONKEY;
+ 	return 0;
+ }
+-static int __maybe_unused pm860x_onkey_resume(struct device *dev)
++static int pm860x_onkey_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct pm860x_chip *chip = dev_get_drvdata(pdev->dev.parent);
+@@ -129,12 +129,13 @@ static int __maybe_unused pm860x_onkey_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(pm860x_onkey_pm_ops, pm860x_onkey_suspend, pm860x_onkey_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(pm860x_onkey_pm_ops,
++				pm860x_onkey_suspend, pm860x_onkey_resume);
+ 
+ static struct platform_driver pm860x_onkey_driver = {
+ 	.driver		= {
+ 		.name	= "88pm860x-onkey",
+-		.pm	= &pm860x_onkey_pm_ops,
++		.pm	= pm_sleep_ptr(&pm860x_onkey_pm_ops),
+ 	},
+ 	.probe		= pm860x_onkey_probe,
+ };
+-- 
+2.39.0
 

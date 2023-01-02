@@ -2,43 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3F746C4708D
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 950AFC54EF0
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232151AbjABSHa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49640 "EHLO
+        id S236329AbjABSHb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236298AbjABSHQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8E495F96
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:15 -0800 (PST)
+        with ESMTP id S236388AbjABSHT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6189B38BD
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6985BB80DF0
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2341FC433D2;
-        Mon,  2 Jan 2023 18:07:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F2F9D61084
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77444C433EF;
+        Mon,  2 Jan 2023 18:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682833;
-        bh=pOtQFRFZ1Jm3XVuE8vq2Jxymty7rjqd8mlv/ZM2z+XM=;
+        s=k20201202; t=1672682838;
+        bh=ZxdRays0U7aO4JHI2VFh9dHUrLZ768y6jSLQmU6jWtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I1e/G7wW1SrKMVNEdCMIMvF3viToD3anMAafpbyB3prQeHD0FF7dFGMvDlhMSPu5K
-         n3WOD6fAMHLCaTVPPXLkHAdJROFXjduELd56PK5aKgo/st4BdECyf3P80lZCf5hdJH
-         SfHyIF7rHnRqB2dWulF3cd5YLSOP0niKUKE1H5q9xlrb+Gzaj0iBFhqq6I/cuBiBWn
-         eS6yLzX3pTvXgxQcUpKF3g4QemDDkb0I2YoQBtOCQoedmc6+7VakT6yX/ugh/tvlBc
-         tsied90hwwc0VnbXz1TCYA5lrPzIlwMB/k7WCkg3Jqie0egYNYCXw/U1o8A2wQeUwa
-         LhsJtYgy4Za7g==
+        b=dEoo2mVNyUmOjnKXL5wam1VukUsvmoUjUlc2i9R3MeDTug6Xl0kE5tVMIdGa9bwWl
+         xaCz1pzEKvLJgiMtOxVLmI/2Jqld2DcLWuFWTNUV/532bAzZK1fnPoUP4kB59ULfDz
+         /R3T7tgmX3dTaaaCySBdA1cnwSsn1VszY8AMUeloFJo8sAyvUfLsMJbDqVhWP5e6a0
+         U8WED45hFSnnuWtKnhpTIcjL1IZNfh2SspBzmyZG8jPskM19PHAN2ep80jVsJjgkin
+         coaSof51lZbsfqz5dJNa7YUumOKTIQZ6+EUUArvAWlF3UdxJURzjVkQ4vDmX3fRuop
+         Ln1RpxAZJY+6A==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        John Keeping <john@metanate.com>
-Subject: [PATCH 60/69] Input: st1232 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:33 +0000
-Message-Id: <20230102181842.718010-61-jic23@kernel.org>
+        Alistair Francis <alistair@alistair23.me>
+Subject: [PATCH 64/69] Input: wacom_i2c - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:37 +0000
+Message-Id: <20230102181842.718010-65-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,53 +57,51 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: John Keeping <john@metanate.com>
+Cc: Alistair Francis <alistair@alistair23.me>
 ---
- drivers/input/touchscreen/st1232.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/wacom_i2c.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index bd68633dc6c0..f49566dc96f8 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -340,7 +340,7 @@ static int st1232_ts_probe(struct i2c_client *client)
+diff --git a/drivers/input/touchscreen/wacom_i2c.c b/drivers/input/touchscreen/wacom_i2c.c
+index c9188ee00c62..a145b9105255 100644
+--- a/drivers/input/touchscreen/wacom_i2c.c
++++ b/drivers/input/touchscreen/wacom_i2c.c
+@@ -232,7 +232,7 @@ static int wacom_i2c_probe(struct i2c_client *client)
  	return 0;
  }
  
--static int __maybe_unused st1232_ts_suspend(struct device *dev)
-+static int st1232_ts_suspend(struct device *dev)
+-static int __maybe_unused wacom_i2c_suspend(struct device *dev)
++static int wacom_i2c_suspend(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct st1232_ts_data *ts = i2c_get_clientdata(client);
-@@ -353,7 +353,7 @@ static int __maybe_unused st1232_ts_suspend(struct device *dev)
+ 
+@@ -241,7 +241,7 @@ static int __maybe_unused wacom_i2c_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused st1232_ts_resume(struct device *dev)
-+static int st1232_ts_resume(struct device *dev)
+-static int __maybe_unused wacom_i2c_resume(struct device *dev)
++static int wacom_i2c_resume(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct st1232_ts_data *ts = i2c_get_clientdata(client);
-@@ -366,8 +366,8 @@ static int __maybe_unused st1232_ts_resume(struct device *dev)
+ 
+@@ -250,7 +250,7 @@ static int __maybe_unused wacom_i2c_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(st1232_ts_pm_ops,
--			 st1232_ts_suspend, st1232_ts_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(st1232_ts_pm_ops,
-+				st1232_ts_suspend, st1232_ts_resume);
+-static SIMPLE_DEV_PM_OPS(wacom_i2c_pm, wacom_i2c_suspend, wacom_i2c_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(wacom_i2c_pm, wacom_i2c_suspend, wacom_i2c_resume);
  
- static const struct i2c_device_id st1232_ts_id[] = {
- 	{ ST1232_TS_NAME, (unsigned long)&st1232_chip_info },
-@@ -390,7 +390,7 @@ static struct i2c_driver st1232_ts_driver = {
- 		.name	= ST1232_TS_NAME,
- 		.of_match_table = st1232_ts_dt_ids,
- 		.probe_type	= PROBE_PREFER_ASYNCHRONOUS,
--		.pm	= &st1232_ts_pm_ops,
-+		.pm	= pm_sleep_ptr(&st1232_ts_pm_ops),
+ static const struct i2c_device_id wacom_i2c_id[] = {
+ 	{ "WAC_I2C_EMR", 0 },
+@@ -261,7 +261,7 @@ MODULE_DEVICE_TABLE(i2c, wacom_i2c_id);
+ static struct i2c_driver wacom_i2c_driver = {
+ 	.driver	= {
+ 		.name	= "wacom_i2c",
+-		.pm	= &wacom_i2c_pm,
++		.pm	= pm_sleep_ptr(&wacom_i2c_pm),
  	},
- };
  
+ 	.probe_new	= wacom_i2c_probe,
 -- 
 2.39.0
 

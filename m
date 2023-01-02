@@ -2,42 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA407C54EBE
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 03274C63705
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236323AbjABSGr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:06:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49012 "EHLO
+        id S235261AbjABSGt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:06:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236410AbjABSGP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E72413B
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:14 -0800 (PST)
+        with ESMTP id S236423AbjABSGU (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E10CC25
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B93C61057
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0B15C433F0;
-        Mon,  2 Jan 2023 18:06:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFFECB80DDE
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9792C433EF;
+        Mon,  2 Jan 2023 18:06:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682773;
-        bh=5VLcsaZXDvy3xLFQdEdVLBMXMe2LcAIztX8IsNzrPyY=;
+        s=k20201202; t=1672682777;
+        bh=oFc+PQl/9z4J6KHsg/Qo2TKXa4P5EbaXoA5U9NLooSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MCKfEYw+HLsmAP3UNm3P7tpKIIGUc1DSwKOHhZfU1/6xKCWoMeShEXPOKo36R7P5S
-         kkF4+KTvOIFYDKEspwdoyNNN/38a5VDT87eZaijM5mTPXJzYUkZDy+07XZJScAtsax
-         HbK0JviEDcksstNYcqacEOjp3LFOodRs+EaqJDbCzuyS9RoQM2OvY63lAzuMuKnmq7
-         I7n2h6ME4u1ISQxLcYFZCI57BcpMakgqnXxPcbBiivZNRL+DpM/3CNHH6HJAyUcuYt
-         nkOTcLRX9pTm0H3uE7U+2XdEuyG/L9PPf4DBktwnC2NZGrj0Wc1DRGoiJaVxoB9I3X
-         PqmflthgtnoqQ==
+        b=RJKcp1X+fy0TcFlFIiaFyD/uzzJcIK7+dwB5OVMnqlBnRNeYs2GArrI9dltPbgIT6
+         ljQ2miQBcbKuTIaPpFyEUzDjX6+KKF3kTxJE4o042XybMzsGHKALtNrd9MX2Ea1sP5
+         QaRfq7OPkI2aNBTHfztMegQJ0pJMLrnuTIyd0QTyWzVJRt6oq+HlZC4p5B6Hzya+Ya
+         l8IlQBFUFch1JjgalBxWx0ryscZqYWegbqidQT/jJJrcCy75hTTW7uFKsWIP7gUNYU
+         /r8nlwnn6xm1mRFCJhwPGcEPBXKv2q2TBQOiFkNteP2JUNW18JLHvEourW4QAFHr7K
+         pbNrp83AhS4hQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 15/69] Input: pcfg8574_keypad - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:17:48 +0000
-Message-Id: <20230102181842.718010-16-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH 18/69] Input: pmic8xxx-pwrkey - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:17:51 +0000
+Message-Id: <20230102181842.718010-19-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -53,54 +54,54 @@ SIMPLE_DEV_PM_OPS() is deprecated as it requires explicit protection
 against unused function warnings.  The new combination of pm_sleep_ptr()
 and DEFINE_SIMPLE_DEV_PM_OPS() allows the compiler to see the functions,
 thus suppressing the warning, but still allowing the unused code to be
-removed. Thus also drop the #ifdef guards.
+removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Stephen Boyd <swboyd@chromium.org>
 ---
- drivers/input/misc/pcf8574_keypad.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ drivers/input/misc/pmic8xxx-pwrkey.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/pcf8574_keypad.c b/drivers/input/misc/pcf8574_keypad.c
-index fd1ff3f1cd92..6323c3d37ef7 100644
---- a/drivers/input/misc/pcf8574_keypad.c
-+++ b/drivers/input/misc/pcf8574_keypad.c
-@@ -167,7 +167,6 @@ static void pcf8574_kp_remove(struct i2c_client *client)
- 	kfree(lp);
+diff --git a/drivers/input/misc/pmic8xxx-pwrkey.c b/drivers/input/misc/pmic8xxx-pwrkey.c
+index 0e818a3d28c5..89fb137e3715 100644
+--- a/drivers/input/misc/pmic8xxx-pwrkey.c
++++ b/drivers/input/misc/pmic8xxx-pwrkey.c
+@@ -100,7 +100,7 @@ static irqreturn_t pwrkey_release_irq(int irq, void *_pwr)
+ 	return IRQ_HANDLED;
  }
  
--#ifdef CONFIG_PM
- static int pcf8574_kp_resume(struct device *dev)
+-static int __maybe_unused pmic8xxx_pwrkey_suspend(struct device *dev)
++static int pmic8xxx_pwrkey_suspend(struct device *dev)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
-@@ -186,15 +185,8 @@ static int pcf8574_kp_suspend(struct device *dev)
+ 	struct pmic8xxx_pwrkey *pwrkey = dev_get_drvdata(dev);
+ 
+@@ -110,7 +110,7 @@ static int __maybe_unused pmic8xxx_pwrkey_suspend(struct device *dev)
  	return 0;
  }
  
--static const struct dev_pm_ops pcf8574_kp_pm_ops = {
--	.suspend	= pcf8574_kp_suspend,
--	.resume		= pcf8574_kp_resume,
--};
--
--#else
--# define pcf8574_kp_resume  NULL
--# define pcf8574_kp_suspend NULL
--#endif
-+static DEFINE_SIMPLE_DEV_PM_OPS(pcf8574_kp_pm_ops,
-+				pcf8574_kp_suspend, pcf8574_kp_resume);
+-static int __maybe_unused pmic8xxx_pwrkey_resume(struct device *dev)
++static int pmic8xxx_pwrkey_resume(struct device *dev)
+ {
+ 	struct pmic8xxx_pwrkey *pwrkey = dev_get_drvdata(dev);
  
- static const struct i2c_device_id pcf8574_kp_id[] = {
- 	{ DRV_NAME, 0 },
-@@ -205,9 +197,7 @@ MODULE_DEVICE_TABLE(i2c, pcf8574_kp_id);
- static struct i2c_driver pcf8574_kp_driver = {
- 	.driver = {
- 		.name  = DRV_NAME,
--#ifdef CONFIG_PM
--		.pm = &pcf8574_kp_pm_ops,
--#endif
-+		.pm = pm_sleep_ptr(&pcf8574_kp_pm_ops),
+@@ -120,7 +120,7 @@ static int __maybe_unused pmic8xxx_pwrkey_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(pm8xxx_pwr_key_pm_ops,
++static DEFINE_SIMPLE_DEV_PM_OPS(pm8xxx_pwr_key_pm_ops,
+ 		pmic8xxx_pwrkey_suspend, pmic8xxx_pwrkey_resume);
+ 
+ static void pmic8xxx_pwrkey_shutdown(struct platform_device *pdev)
+@@ -442,7 +442,7 @@ static struct platform_driver pmic8xxx_pwrkey_driver = {
+ 	.shutdown	= pmic8xxx_pwrkey_shutdown,
+ 	.driver		= {
+ 		.name	= "pm8xxx-pwrkey",
+-		.pm	= &pm8xxx_pwr_key_pm_ops,
++		.pm	= pm_sleep_ptr(&pm8xxx_pwr_key_pm_ops),
+ 		.of_match_table = pm8xxx_pwr_key_id_table,
  	},
- 	.probe_new = pcf8574_kp_probe,
- 	.remove   = pcf8574_kp_remove,
+ };
 -- 
 2.39.0
 

@@ -2,43 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C01CC64981
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C9B3C677F0
 	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236505AbjABSGx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:06:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49126 "EHLO
+        id S236508AbjABSGy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:06:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236440AbjABSGZ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4ABE625E
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:24 -0800 (PST)
+        with ESMTP id S236475AbjABSG2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90838116B
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7359B61057
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E165BC433EF;
-        Mon,  2 Jan 2023 18:06:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E2C561084
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1265C433EF;
+        Mon,  2 Jan 2023 18:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682783;
-        bh=j0NIpOWit3G+Wo+4eOhQ1LFPtxE87nfPnMfqWmARnRc=;
+        s=k20201202; t=1672682786;
+        bh=kJHZb0C+/iFCJLe0VK0nSQP3gxiI/hMvlbaIkD1LlRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HmhUu48iy4KtPBnj1L+7wltIrnpC8R0xyxZs8SnswJbT+nFIix7SUsBL1qbMsS2Sg
-         NDguVUxDs3Cl22hVAUCTuRd7suDzd+kf0LG75dCAGwlo1V9whoLejr8r5hLvR+raKb
-         S+NzGs20fgJOYvI9g5fA0mndNH409TPXyouq62Ssj5cPdn8bBI0fLm9wpPq5oewBjb
-         sF+YrOpP1HEKDmAZ4T4M+3ackmEa3oHpRKFL3yYqRiAkf9NmMLn1n0qgvvOgpOy02z
-         avqtaSo609+5/mzkuUUiXF7kgMKmPNVrA/OAB/uqqbwn/Aaxk1SsmxZVVPXJ3BF9Te
-         Y5cG6nsYTudvg==
+        b=m550oxrW8uz81BVZhp43Q+SrcTp+I1b5QTzui7aN5N86wSCglfskTgQo+JQ9gTxXs
+         zw3AMPpDWcrC6eE8rGN54m20iGFfvaJylitV8FS8c8yrxu8qupg9QQWczp/ipNgSwK
+         vz/JLUOf0+Ejx1tnrZXqs0vUSCxrtl8YR5E2BOKJz9NH/qJbRTYU5ysD+qjTgnJkHU
+         2ezZ3CxhLmNQL84xLV/kLLd64RrbbRHvVh9tMvys6PFTOjS9n85n0K6yXhSeHQMu7d
+         j6rAIED9usk66QIEPLULXZGZ5rP+KaHXVjEmWT8rl4qTMJ7tljYl1YJQUJunDo8KYg
+         7RILEjnrCaTSg==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Pascal Paillet <p.paillet@st.com>
-Subject: [PATCH 23/69] Input: stpmic1_onekey - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:17:56 +0000
-Message-Id: <20230102181842.718010-24-jic23@kernel.org>
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 25/69] Input: twl6030-vibra - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:17:58 +0000
+Message-Id: <20230102181842.718010-26-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,55 +57,43 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Pascal Paillet <p.paillet@st.com>
+Cc: Tony Lindgren <tony@atomide.com>
 ---
- drivers/input/misc/stpmic1_onkey.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/input/misc/twl6040-vibra.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/stpmic1_onkey.c b/drivers/input/misc/stpmic1_onkey.c
-index d8dc2f2f8000..d5ebca7b90a5 100644
---- a/drivers/input/misc/stpmic1_onkey.c
-+++ b/drivers/input/misc/stpmic1_onkey.c
-@@ -142,7 +142,7 @@ static int stpmic1_onkey_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
+index bf6644927630..78f0b63e5c20 100644
+--- a/drivers/input/misc/twl6040-vibra.c
++++ b/drivers/input/misc/twl6040-vibra.c
+@@ -210,7 +210,7 @@ static void twl6040_vibra_close(struct input_dev *input)
+ 		twl6040_vibra_disable(info);
  }
  
--static int __maybe_unused stpmic1_onkey_suspend(struct device *dev)
-+static int stpmic1_onkey_suspend(struct device *dev)
+-static int __maybe_unused twl6040_vibra_suspend(struct device *dev)
++static int twl6040_vibra_suspend(struct device *dev)
  {
  	struct platform_device *pdev = to_platform_device(dev);
- 	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
-@@ -154,7 +154,7 @@ static int __maybe_unused stpmic1_onkey_suspend(struct device *dev)
+ 	struct vibra_info *info = platform_get_drvdata(pdev);
+@@ -223,7 +223,8 @@ static int __maybe_unused twl6040_vibra_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused stpmic1_onkey_resume(struct device *dev)
-+static int stpmic1_onkey_resume(struct device *dev)
+-static SIMPLE_DEV_PM_OPS(twl6040_vibra_pm_ops, twl6040_vibra_suspend, NULL);
++static DEFINE_SIMPLE_DEV_PM_OPS(twl6040_vibra_pm_ops,
++				twl6040_vibra_suspend, NULL);
+ 
+ static int twl6040_vibra_probe(struct platform_device *pdev)
  {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct stpmic1_onkey *onkey = platform_get_drvdata(pdev);
-@@ -166,9 +166,9 @@ static int __maybe_unused stpmic1_onkey_resume(struct device *dev)
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(stpmic1_onkey_pm,
--			 stpmic1_onkey_suspend,
--			 stpmic1_onkey_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(stpmic1_onkey_pm,
-+				stpmic1_onkey_suspend,
-+				stpmic1_onkey_resume);
- 
- static const struct of_device_id of_stpmic1_onkey_match[] = {
- 	{ .compatible = "st,stpmic1-onkey" },
-@@ -182,7 +182,7 @@ static struct platform_driver stpmic1_onkey_driver = {
- 	.driver	= {
- 		.name	= "stpmic1_onkey",
- 		.of_match_table = of_match_ptr(of_stpmic1_onkey_match),
--		.pm	= &stpmic1_onkey_pm,
-+		.pm	= pm_sleep_ptr(&stpmic1_onkey_pm),
+@@ -354,7 +355,7 @@ static struct platform_driver twl6040_vibra_driver = {
+ 	.probe		= twl6040_vibra_probe,
+ 	.driver		= {
+ 		.name	= "twl6040-vibra",
+-		.pm	= &twl6040_vibra_pm_ops,
++		.pm	= pm_sleep_ptr(&twl6040_vibra_pm_ops),
  	},
  };
- module_platform_driver(stpmic1_onkey_driver);
+ module_platform_driver(twl6040_vibra_driver);
 -- 
 2.39.0
 

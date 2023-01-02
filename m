@@ -2,42 +2,42 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54562C6379F
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6675FC63797
 	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236482AbjABSGw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S236499AbjABSGw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 2 Jan 2023 13:06:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49110 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236452AbjABSGY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FDAADAD
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:23 -0800 (PST)
+        with ESMTP id S236435AbjABSGW (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3FC62E2
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10B2361084
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2CD3C433F0;
-        Mon,  2 Jan 2023 18:06:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 719B8B80D0D
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E93FC433EF;
+        Mon,  2 Jan 2023 18:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682782;
-        bh=+ch5UtL+cUuPYvpicRKC+EljnWwBiDjO5qkHl2IAZ9w=;
+        s=k20201202; t=1672682780;
+        bh=JXQWNe5ogfkH4k+8uuyvdtpGaRn0P1ym2tvP5GvgHlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TcDxTHnD0wwhjkUo+Fp6nTLFSMjCXn4C/08DcgksOYi5puuCZZqnEMS5JQaTtElIz
-         PfMzVIY1U7x5kdy8AUbuKUfWa2pyM6yMycjWKO8PS9+l1LSlC10JFwX09Ch9HWYA/0
-         N+pKXJ3SjnYVTo2HeqtFrd2HPPBgmCuhuPoJcjl/BneC12xA9j2irnfXQd3lDYpof+
-         XZzPp/ymEMbCK+b/sbS4rsSuiVbkDc/K93ODo3ClJlR4Qoy75Z959OsK3yr03plIDJ
-         G/X+omuy1mhlnTObcqY0xenhXfosSonnd/f31my6cFOeSiT7sejdRSRpBUMM/UPQmD
-         RQcuYvqxSQYAQ==
+        b=rr38E2PjHPrEwb68kyPJs7OCtrbzDqZXMfTPe3dPkBK9Zhp8yifjgvC64VgHyaed6
+         T9HoNa13CbSTVdW9RaURxA3PQFRNRpx5cDmyXa03expxRf6pV8aP97TYQOF+4r3YRb
+         ll1PuyGlvOgu5Sw73a+vv738OFLAt/zC/NmPnakL0A82Fip9lO3LZ24YiY4IK9Ac6p
+         k7P3kRaPm9P1WHREHw+CSx0TfIMF4YKLpLTY3Sr7MnPTRrRrJUnQ65iAf8M1HHHbLi
+         xKqmz7y8hwlWXWsYgQfFDsBbe9aTGuC6lgMbH7O2V8T/nAdiRT3jVP0XBKGbsGUtKl
+         I7qalREU29Elw==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 22/69] Input: rotary-encoder - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:17:55 +0000
-Message-Id: <20230102181842.718010-23-jic23@kernel.org>
+Subject: [PATCH 20/69] Input: pwm-vibra - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:17:53 +0000
+Message-Id: <20230102181842.718010-21-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,50 +57,50 @@ removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/input/misc/rotary_encoder.c | 10 +++++-----
+ drivers/input/misc/pwm-vibra.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/misc/rotary_encoder.c b/drivers/input/misc/rotary_encoder.c
-index 6d613f2a017c..22ec62083065 100644
---- a/drivers/input/misc/rotary_encoder.c
-+++ b/drivers/input/misc/rotary_encoder.c
-@@ -317,7 +317,7 @@ static int rotary_encoder_probe(struct platform_device *pdev)
+diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
+index 81e777a04b88..d0e58a7cdfa3 100644
+--- a/drivers/input/misc/pwm-vibra.c
++++ b/drivers/input/misc/pwm-vibra.c
+@@ -222,7 +222,7 @@ static int pwm_vibrator_probe(struct platform_device *pdev)
  	return 0;
  }
  
--static int __maybe_unused rotary_encoder_suspend(struct device *dev)
-+static int rotary_encoder_suspend(struct device *dev)
+-static int __maybe_unused pwm_vibrator_suspend(struct device *dev)
++static int pwm_vibrator_suspend(struct device *dev)
  {
- 	struct rotary_encoder *encoder = dev_get_drvdata(dev);
- 	unsigned int i;
-@@ -330,7 +330,7 @@ static int __maybe_unused rotary_encoder_suspend(struct device *dev)
+ 	struct pwm_vibrator *vibrator = dev_get_drvdata(dev);
+ 
+@@ -233,7 +233,7 @@ static int __maybe_unused pwm_vibrator_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused rotary_encoder_resume(struct device *dev)
-+static int rotary_encoder_resume(struct device *dev)
+-static int __maybe_unused pwm_vibrator_resume(struct device *dev)
++static int pwm_vibrator_resume(struct device *dev)
  {
- 	struct rotary_encoder *encoder = dev_get_drvdata(dev);
- 	unsigned int i;
-@@ -343,8 +343,8 @@ static int __maybe_unused rotary_encoder_resume(struct device *dev)
+ 	struct pwm_vibrator *vibrator = dev_get_drvdata(dev);
+ 
+@@ -243,8 +243,8 @@ static int __maybe_unused pwm_vibrator_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(rotary_encoder_pm_ops,
--			 rotary_encoder_suspend, rotary_encoder_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(rotary_encoder_pm_ops,
-+				rotary_encoder_suspend, rotary_encoder_resume);
+-static SIMPLE_DEV_PM_OPS(pwm_vibrator_pm_ops,
+-			 pwm_vibrator_suspend, pwm_vibrator_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(pwm_vibrator_pm_ops,
++				pwm_vibrator_suspend, pwm_vibrator_resume);
  
  #ifdef CONFIG_OF
- static const struct of_device_id rotary_encoder_of_match[] = {
-@@ -358,7 +358,7 @@ static struct platform_driver rotary_encoder_driver = {
- 	.probe		= rotary_encoder_probe,
- 	.driver		= {
- 		.name	= DRV_NAME,
--		.pm	= &rotary_encoder_pm_ops,
-+		.pm	= pm_sleep_ptr(&rotary_encoder_pm_ops),
- 		.of_match_table = of_match_ptr(rotary_encoder_of_match),
- 	}
+ static const struct of_device_id pwm_vibra_dt_match_table[] = {
+@@ -258,7 +258,7 @@ static struct platform_driver pwm_vibrator_driver = {
+ 	.probe	= pwm_vibrator_probe,
+ 	.driver	= {
+ 		.name	= "pwm-vibrator",
+-		.pm	= &pwm_vibrator_pm_ops,
++		.pm	= pm_sleep_ptr(&pwm_vibrator_pm_ops),
+ 		.of_match_table = of_match_ptr(pwm_vibra_dt_match_table),
+ 	},
  };
 -- 
 2.39.0

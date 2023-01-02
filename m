@@ -2,43 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF652C677F0
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D694BC54EBC
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236490AbjABSH1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49554 "EHLO
+        id S236298AbjABSHa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236543AbjABSHH (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04DCDB1
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:06 -0800 (PST)
+        with ESMTP id S236313AbjABSHR (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBF3D5F96
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81DD9B80DF1
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48EA4C433F1;
-        Mon,  2 Jan 2023 18:07:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 776BB61084
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F03EDC433EF;
+        Mon,  2 Jan 2023 18:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682824;
-        bh=XLU9Se8YrY4ehr2z+FI0cF0zuYf5sdDf7ODC2YjDrVc=;
+        s=k20201202; t=1672682835;
+        bh=48Vj5p6AnR2rJaq9SOgxMVfQh0dhal3ebs2RixzwhmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeUJ/NtZSX9AeBe2zNMlr0rLqfNI4A1imI16A5TS/7r2rhzBoabZmTK+NU4AMLDzW
-         J76GRdpMatJAZOMBxQrf9UVg8uB9we0r7VrB8UDhL0Yac9aLtOF8NtYDQmzg5DtH35
-         92PzSKdSmog1cCK+Pz86vnUeERvANPDQozEQ7pe4tls+wBJRW+AVsXhLabb4yiCHKk
-         3cveQy7MQeXQrrdkvixPBHCPyUq7eCPxccwYswHYf3aA2HDD9h1PijjlrKZQjB7P8o
-         A4uyerMMXdFx1JXwi9jdfZZtg5dBYmFzubuma18E2eI+UR+1rWrxleySw17TfFez6G
-         qQdN4RKWQ4hbQ==
+        b=uuoazqvTfckPAxvYnI2hWBfSMD9MBhzzlbLqQ4G/TffjOcbgi17OaZeBC2TAehzK/
+         ik4gw1+0aouwUfPNDBw4KZmnWb+4IuoJ5AsSoYyPDyH28ZZUdZlfWRF89P23h3OzBe
+         qsOGglx6BPs1kz0hVPh85un9pHn2xlrF6+oBTWjK2xUxj0KysOzgvJbR5O52ryIJpR
+         Qv5oaFXvS0pKMWRiTC5MHWsTtVHExgCqz8yC6F2IUJ2UppEUI/50+tA4V8di18pd0S
+         0Jcybz81XnOcVsZP+mZqHyGlUy9xNZjJFbEyVfTu2R2u9LtFsGDFxLdsnjYHNRo1FO
+         04bdqWqZ9+25A==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sangwon Jee <jeesw@melfas.com>
-Subject: [PATCH 53/69] Input: melfas_mip4 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:26 +0000
-Message-Id: <20230102181842.718010-54-jic23@kernel.org>
+        Dario Binacchi <dariobin@libero.it>
+Subject: [PATCH 62/69] Input: ti_am335x_tsc - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:35 +0000
+Message-Id: <20230102181842.718010-63-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,51 +57,51 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Sangwon Jee <jeesw@melfas.com>
+Cc: Dario Binacchi <dariobin@libero.it>
 ---
- drivers/input/touchscreen/melfas_mip4.c | 8 ++++----
+ drivers/input/touchscreen/ti_am335x_tsc.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 4ee8ed4c930c..acdfbdea2b6e 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -1528,7 +1528,7 @@ static int mip4_probe(struct i2c_client *client)
+diff --git a/drivers/input/touchscreen/ti_am335x_tsc.c b/drivers/input/touchscreen/ti_am335x_tsc.c
+index f2fb6a9a1a57..decf2d24a115 100644
+--- a/drivers/input/touchscreen/ti_am335x_tsc.c
++++ b/drivers/input/touchscreen/ti_am335x_tsc.c
+@@ -512,7 +512,7 @@ static int titsc_remove(struct platform_device *pdev)
  	return 0;
  }
  
--static int __maybe_unused mip4_suspend(struct device *dev)
-+static int mip4_suspend(struct device *dev)
+-static int __maybe_unused titsc_suspend(struct device *dev)
++static int titsc_suspend(struct device *dev)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct mip4_ts *ts = i2c_get_clientdata(client);
-@@ -1546,7 +1546,7 @@ static int __maybe_unused mip4_suspend(struct device *dev)
+ 	struct titsc *ts_dev = dev_get_drvdata(dev);
+ 	unsigned int idle;
+@@ -527,7 +527,7 @@ static int __maybe_unused titsc_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused mip4_resume(struct device *dev)
-+static int mip4_resume(struct device *dev)
+-static int __maybe_unused titsc_resume(struct device *dev)
++static int titsc_resume(struct device *dev)
  {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct mip4_ts *ts = i2c_get_clientdata(client);
-@@ -1564,7 +1564,7 @@ static int __maybe_unused mip4_resume(struct device *dev)
+ 	struct titsc *ts_dev = dev_get_drvdata(dev);
+ 
+@@ -543,7 +543,7 @@ static int __maybe_unused titsc_resume(struct device *dev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(mip4_pm_ops, mip4_suspend, mip4_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(mip4_pm_ops, mip4_suspend, mip4_resume);
+-static SIMPLE_DEV_PM_OPS(titsc_pm_ops, titsc_suspend, titsc_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(titsc_pm_ops, titsc_suspend, titsc_resume);
  
- #ifdef CONFIG_OF
- static const struct of_device_id mip4_of_match[] = {
-@@ -1595,7 +1595,7 @@ static struct i2c_driver mip4_driver = {
- 		.name = MIP4_DEVICE_NAME,
- 		.of_match_table = of_match_ptr(mip4_of_match),
- 		.acpi_match_table = ACPI_PTR(mip4_acpi_match),
--		.pm = &mip4_pm_ops,
-+		.pm = pm_sleep_ptr(&mip4_pm_ops),
+ static const struct of_device_id ti_tsc_dt_ids[] = {
+ 	{ .compatible = "ti,am3359-tsc", },
+@@ -556,7 +556,7 @@ static struct platform_driver ti_tsc_driver = {
+ 	.remove	= titsc_remove,
+ 	.driver	= {
+ 		.name   = "TI-am335x-tsc",
+-		.pm	= &titsc_pm_ops,
++		.pm	= pm_sleep_ptr(&titsc_pm_ops),
+ 		.of_match_table = ti_tsc_dt_ids,
  	},
  };
- module_i2c_driver(mip4_driver);
 -- 
 2.39.0
 

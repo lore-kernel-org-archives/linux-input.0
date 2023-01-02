@@ -2,100 +2,133 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AD8CC4708D
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 16:11:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76547C3DA7A
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 16:28:53 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232655AbjABQLc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 11:11:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56954 "EHLO
+        id S229740AbjABQ2w (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 11:28:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236540AbjABQK4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 11:10:56 -0500
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B09E8B862
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 08:10:34 -0800 (PST)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-48641a481dfso230508197b3.11
-        for <linux-input@vger.kernel.org>; Mon, 02 Jan 2023 08:10:34 -0800 (PST)
+        with ESMTP id S236499AbjABQG2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 11:06:28 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FFFBDF9
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 08:06:25 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id j17so21320795wrr.7
+        for <linux-input@vger.kernel.org>; Mon, 02 Jan 2023 08:06:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=baylibre-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=bvv0wIbNtCiGn+iqYLphgYeyinreINxvRAbN060SZ3Y=;
-        b=iP1gzyrVsDS1IKTAeqTr+7uO4W7fU3lQ6MZFdC2vu7/3hHkjMj1To5Wwgrx2qEAHyg
-         vzArTd2WrgZIhwJwdIxDO7wJC3eDdD3ncDEGHpAgVQVUa08V/BpMJI4QCEd8M9hwXCIK
-         TBqbtpAQaK5wJREcqahn2CvXHUKhJC4MHPOxYBYS5BRL5ytj9NUFD7p2Z09IlIZyMvgM
-         8Uct/TNCd8av5MVD+6qNgKTisqIfaidaNPTW0YKt6eQJlV1kPuhqXT7lqh8Q9L7kG1/V
-         ITn5u95Jfaoojh+Ydv6+zAXyGEbmkevEAo+18kKqp1OiJWpZ2BsSE1cUbuFSITyYlqOV
-         bexA==
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vlDqIjsLXTsLOVaB8vd3OkA5S2UoaPdLtsIDpj43x2c=;
+        b=DYBB+eO5TJw810S2GfO4VDKyg09GvKexUGZ5EShT5lsQarhuAX5y810FMN6+PQKZtt
+         f25CBQ33/Oe/HGJ8hluE4/26J3mk/wXhSVoGwBqoEcG49cBdtQQ1/X0v2o53RlCwNc0x
+         fEo60GQDFHQ9YQi4XkAN1h85B+2XRqWJXUaqhocDl6l6uqWj4LBbD2MoZtzuNwI5Sy1m
+         atbsUh47G8VXLb2m4O+FkIma1KraSz2xiwGz8kRXEqlwRusjyCod8oKG0QxX9SUu5/JH
+         AnWRcouBMuTqjZUA1gNYiiIRhLA8Bz32TgO2if/FG829FULxFyi/hPXit5b1UhG/6pUF
+         I7ew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=bvv0wIbNtCiGn+iqYLphgYeyinreINxvRAbN060SZ3Y=;
-        b=BsEmoMq4i9Y8lTsp65iq7hx6MyNY4R/lI5dEwyfOoXcpCy+Re9CApRFso+yQJXuGEt
-         9Z+yRs2YLXvWuQ2ayamhX7XyAtxuPGWY+0Ynd0eoquAtWN+E/93eabzx9q9Is/WRChqm
-         o5D+PyA3s5VVX25WRxiKLJ8+sygOwxO0rFg3E7doDJcThV3PS2Dn+Qu4M7kMQMSfOtmv
-         xuIFbUaXOqzv+ecX1B1h8yfx9gCBiVGxRZLEqGWUE3+Ojysa41ZqjuADxfzo1knriaW3
-         eL0stLOMDi8qvgMa0Z5+3NutbZLQ9nYbYhwCBAwabhw5GCdkZgR3ACEm1Nv7hSEGPAOv
-         RyiA==
-X-Gm-Message-State: AFqh2kodYqtciEBXmVZSmQSLuT+HOM84rFC6cXfm2skYq9s10sF1Wk9M
-        A9n4DxKSdozc/TBAotmdbDbgHyJvwz7Bqm6tVfwgDA==
-X-Google-Smtp-Source: AMrXdXu+OIItaQft1LqXq3zKwzkIEonX8EHxKg9gNj8jqifsZEugW4apEpuFnr7GyLF2aKsieT66zLV86sMbxCHSFSw=
-X-Received: by 2002:a0d:d981:0:b0:369:69:e72f with SMTP id b123-20020a0dd981000000b003690069e72fmr5290134ywe.103.1672675833856;
- Mon, 02 Jan 2023 08:10:33 -0800 (PST)
-MIME-Version: 1.0
-References: <20221005-mt6357-support-v7-0-477e60126749@baylibre.com>
- <7hr0xe56uf.fsf@baylibre.com> <0fc0217e-f1dd-d64c-d43c-cd47a8acbfd4@gmail.com>
-In-Reply-To: <0fc0217e-f1dd-d64c-d43c-cd47a8acbfd4@gmail.com>
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vlDqIjsLXTsLOVaB8vd3OkA5S2UoaPdLtsIDpj43x2c=;
+        b=IPWOmZsRV/d7SLjvXaQsq4BlFLstQIUEo2uj88e3CTNMNO6kA1DtLZKWqUHWgC3i78
+         4w+UIauCzEJ/evhHSHfNXQkmT4tzGXQ+FQFO5LZpAAewt1M2ggEDKWRw7VioMuSsgIa1
+         8E7G9q2Gbsctz1lk2B9Z4/VHTr7CubThDSqgiRtqQ0F8OfVkeUuEees5kmk/ED3CTmMN
+         tfa2GLMy/RCKBFQviI9ljzNdamOQ1PYUDlALrcBrQD6Z2QkwfljQgGoFmbAXQ+1mgPRF
+         Uk8HI0Uigl70Uonia5Wn4gUkNMDTC7iC6jVJKWFARqS9NmiOQ8uNT8Y8uNOCD6dW1yi0
+         Mxkg==
+X-Gm-Message-State: AFqh2kpPELyARG1APP2R9TScQJKxT5s+/AHaXCbj7pG213YUzwVxo1wH
+        KBoJ4Wm9ToflrA7bwza63BRI/w==
+X-Google-Smtp-Source: AMrXdXtpGdYxEH97hoopGDFiS2NRpY9XAurXyiQcxxBvFbsJM6oJ3LxD9eaF4TJFljPxdyl2RXIvCQ==
+X-Received: by 2002:a05:6000:1f14:b0:242:5a34:fb7b with SMTP id bv20-20020a0560001f1400b002425a34fb7bmr25842859wrb.70.1672675584145;
+        Mon, 02 Jan 2023 08:06:24 -0800 (PST)
+Received: from [127.0.1.1] (158.22.5.93.rev.sfr.net. [93.5.22.158])
+        by smtp.googlemail.com with ESMTPSA id t5-20020a5d49c5000000b0028cf987d944sm11868020wrs.33.2023.01.02.08.06.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 02 Jan 2023 08:06:23 -0800 (PST)
 From:   Alexandre Mergnat <amergnat@baylibre.com>
-Date:   Mon, 2 Jan 2023 17:10:22 +0100
-Message-ID: <CAFGrd9qZzpxPWpiEOJacc9m2WDFB8Mgr5U5too89mZmqqFir_Q@mail.gmail.com>
-Subject: Re: [PATCH v7 0/8] Add MediaTek MT6357 PMIC support
-To:     Matthias Brugger <matthias.bgg@gmail.com>
-Cc:     Kevin Hilman <khilman@kernel.org>, Mark Brown <broonie@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Fabien Parent <fabien.parent@linaro.org>,
+Date:   Mon, 02 Jan 2023 17:06:02 +0100
+Subject: [PATCH v8 1/6] dt-bindings: input: mtk-pmic-keys: add binding for MT6357
+ PMIC
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20221005-mt6357-support-v8-1-560caaafee53@baylibre.com>
+References: <20221005-mt6357-support-v8-0-560caaafee53@baylibre.com>
+In-Reply-To: <20221005-mt6357-support-v8-0-560caaafee53@baylibre.com>
+To:     Mark Brown <broonie@kernel.org>,
         Tianping Fang <tianping.fang@mediatek.com>,
-        Flora Fu <flora.fu@mediatek.com>,
-        Chen Zhong <chen.zhong@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>, Lee Jones <lee@kernel.org>,
-        Pavel Machek <pavel@ucw.cz>,
+        Alessandro Zummo <a.zummo@towertech.it>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-mediatek@lists.infradead.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Fabien Parent <fabien.parent@linaro.org>,
+        Lee Jones <lee@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Chen Zhong <chen.zhong@mediatek.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Sean Wang <sean.wang@mediatek.com>,
+        Flora Fu <flora.fu@mediatek.com>,
+        Liam Girdwood <lgirdwood@gmail.com>
+Cc:     Alexandre Mergnat <amergnat@baylibre.com>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        linux-rtc@vger.kernel.org, linux-leds@vger.kernel.org,
+        Rob Herring <robh@kernel.org>, devicetree@vger.kernel.org,
+        Fabien Parent <fparent@baylibre.com>,
+        linux-input@vger.kernel.org, linux-mediatek@lists.infradead.org,
         AngeloGioacchino Del Regno 
         <angelogioacchino.delregno@collabora.com>,
-        linux-kernel@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        linux-rtc@vger.kernel.org, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Fabien Parent <fparent@baylibre.com>,
-        linux-leds@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+X-Mailer: b4 0.10.1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1006; i=amergnat@baylibre.com;
+ h=from:subject:message-id; bh=acIU37N8P1oQiEeAFVfuuIgjK7XT7A/zFtqy1fGJDhM=;
+ b=owEBbQKS/ZANAwAKAStGSZ1+MdRFAcsmYgBjswD8/dmSbDHXT0RPN/nBYhd5ARuFoEmUA2rEl4oh
+ l6sU6ieJAjMEAAEKAB0WIQQjG17X8+qqcA5g/osrRkmdfjHURQUCY7MA/AAKCRArRkmdfjHURdB8D/
+ 4rcsQLX8aNJdUgxyojMErzvCfM9FymMgsIZSBiIjIM0Gf4DsAuCQDVLUpuhSA931Mkd7z9STLcyKxE
+ t2D5p13JdGitxfTdFVvunXRokM3IxF+i3lP3yX1LT5+wNXjcdD6yh/H5BzAS6yncncuiyTXMW09Qh/
+ s22ByxFif6nNybNM64cJTcg3TF1wRyODDN+Dyf/cNw+XPSzlhs42NY8VEzzRrTtc0XPlInSWm5veuP
+ VyaezR067LxlNe5Er0io+4jeDKWLDz7FbQ2SV51GN6Jt8xwWa6KbhlS0S/8QREs13F1cIZKnQzbB+G
+ fdqQXfippFvt3IVl6dht4j66HD3x3YSp8JbKsNEMjQSKLNAdT8rqvvJedaaiUICE3B9K9/sKAlYNy7
+ FKyiZwI3YlPYi+fdICAJ/p7EQllFU1x4RHhJ7G6HKxcHSbb6wLQPvJ+mtNefVW/8V3m12cX0gEna5p
+ KhYCy+mZLKoXUv0OjapoEZme06jfwGHXiWuViyhHApOn3T4f5n0qoCgSvE66bwoHH8AnIKFfjNUAmn
+ mrRkeHWN+wzS2/NEqc1vUh8bRaWeRmGmzqWOri+wZ2rgpv6XOsnCYLaLToN6wLZAtnF4eQ0eQhdZph
+ jd2+RYrLepsIOxD5PJ18bzzNOBL7DYEn+ZGbs/msNLR1VOYUeKYUUkrjOBvg==
+X-Developer-Key: i=amergnat@baylibre.com; a=openpgp;
+ fpr=231B5ED7F3EAAA700E60FE8B2B46499D7E31D445
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-> >> This patch series adds MFD, PMIC keys, and regulator support for MT6357.
-> >> MT6357 is a MediaTek PMIC very similar to MT6358.
-> >
-> > The regulator driver (and bindings) were merged by Mark.  Could you take
-> > the rest of this series via your mediatek tree?  The input driver (and
-> > bindings) are ack'd by Dmitry.
-> >
->
-> Yes I can do that but 3/8 does not apply cleanly. Could you please rebase on top
-> of v6.2-tmp/soc?
+From: Fabien Parent <fparent@baylibre.com>
 
-Hi Matthias,
+Add binding documentation for the PMIC keys on MT6357.
 
-I've pushed the V8 rebased on top of v6.2-tmp/soc.
-https://lore.kernel.org/r/20221005-mt6357-support-v8-0-560caaafee53@baylibre.com
+Signed-off-by: Fabien Parent <fparent@baylibre.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Alexandre Mergnat <amergnat@baylibre.com>
+---
+ Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-Thanks,
-Alex
+diff --git a/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml b/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
+index 2f72ec418415..037c3ae9f1c3 100644
+--- a/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
++++ b/Documentation/devicetree/bindings/input/mediatek,pmic-keys.yaml
+@@ -26,6 +26,7 @@ properties:
+     enum:
+       - mediatek,mt6323-keys
+       - mediatek,mt6331-keys
++      - mediatek,mt6357-keys
+       - mediatek,mt6358-keys
+       - mediatek,mt6397-keys
+ 
+
+-- 
+b4 0.10.1

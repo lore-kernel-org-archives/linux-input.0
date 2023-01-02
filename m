@@ -2,43 +2,42 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EDBDC53210
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BADABC54EBF
 	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236307AbjABSGn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:06:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47614 "EHLO
+        id S231716AbjABSGp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:06:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236361AbjABSGK (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:10 -0500
+        with ESMTP id S236298AbjABSGN (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1B65116B
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0779D13B
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C6E36109E
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B14BBC433D2;
-        Mon,  2 Jan 2023 18:06:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 974826109A
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ECC0C433F1;
+        Mon,  2 Jan 2023 18:06:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682768;
-        bh=rB5/nHkFGyj35jSAxOJAtOMC42cp1lz66fm9KeMNI5Q=;
+        s=k20201202; t=1672682771;
+        bh=lmqJgWMbi4NXarTWyOwsqOnQ1nXopq+uyJ9COLF+gYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ngjEWFRji/QKFl0reVNiTDOABjPskEdp84R8Yqpf+fhAjvr4qnFl3Mr7wuznuW3yO
-         KXYdP/B+gfwo4iIYQ4Rgg7afxdIIqwqjA2MHWHwRzvOr4lN4WmQyoZxKXhYkSZi7DI
-         H4hce9r7opqSsxf+V+rMeLkAhzS/CTOOFSm0s4A+qKu7mqoEAm24rPSzJN6cds6KnL
-         01CqdUIDHeW5/a+0iJvGWyRJOofNgSlQKLlZfAzIPcBkaTcRN2unj2AWcMKvNnszjG
-         /G3wxrXxsix5yju3nxbxfg5LKFXIBv1cLNVKhU902HjhCkbgCXd1JutdFZKNWrei7W
-         3owahULmXrTLw==
+        b=aHFZ5nZZWSVaCURJ39v68hiJ+hYMUIaIVagq1MIM7ldIYDy8jeBE9ujDwOBrLzbT9
+         5ks414m8hTgIpYlmtp0X3RpghAqcOUmkOThVsmBUsp0HIapHLiOQ9pSkYmLsde6fWJ
+         w1X/IcxZZ0PqY1idt20NytmIQPOtiqcXy4aPXvDW47HzU2qoRdEgEZvHbZLckNrITl
+         zN+9ci0Il4kAQO6k8yvVcIRo1eq06S0RSkwPF/dxRFxQ1Csep2JRc+CdIy5a7JTh2u
+         81zdC7HThCz6ELx4ttBRhWY1BgtED0WyWpO253sIWRrWDWxArNipsX4v49nRydDLKP
+         MrhGeS23fkSKw==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH 11/69] Input: max77693-haptic - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:17:44 +0000
-Message-Id: <20230102181842.718010-12-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 13/69] Input: max8997_haptic - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:17:46 +0000
+Message-Id: <20230102181842.718010-14-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,54 +56,42 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 ---
- drivers/input/misc/max77693-haptic.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/input/misc/max8997_haptic.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
-index 4369d3c04d38..80f4416ffe2f 100644
---- a/drivers/input/misc/max77693-haptic.c
-+++ b/drivers/input/misc/max77693-haptic.c
-@@ -375,7 +375,7 @@ static int max77693_haptic_probe(struct platform_device *pdev)
+diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
+index 99cbc5ee89d1..c4dff476d479 100644
+--- a/drivers/input/misc/max8997_haptic.c
++++ b/drivers/input/misc/max8997_haptic.c
+@@ -366,7 +366,7 @@ static int max8997_haptic_remove(struct platform_device *pdev)
  	return 0;
  }
  
--static int __maybe_unused max77693_haptic_suspend(struct device *dev)
-+static int max77693_haptic_suspend(struct device *dev)
+-static int __maybe_unused max8997_haptic_suspend(struct device *dev)
++static int max8997_haptic_suspend(struct device *dev)
  {
  	struct platform_device *pdev = to_platform_device(dev);
- 	struct max77693_haptic *haptic = platform_get_drvdata(pdev);
-@@ -388,7 +388,7 @@ static int __maybe_unused max77693_haptic_suspend(struct device *dev)
+ 	struct max8997_haptic *chip = platform_get_drvdata(pdev);
+@@ -376,7 +376,8 @@ static int __maybe_unused max8997_haptic_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused max77693_haptic_resume(struct device *dev)
-+static int max77693_haptic_resume(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct max77693_haptic *haptic = platform_get_drvdata(pdev);
-@@ -401,8 +401,9 @@ static int __maybe_unused max77693_haptic_resume(struct device *dev)
- 	return 0;
- }
+-static SIMPLE_DEV_PM_OPS(max8997_haptic_pm_ops, max8997_haptic_suspend, NULL);
++static DEFINE_SIMPLE_DEV_PM_OPS(max8997_haptic_pm_ops,
++				max8997_haptic_suspend, NULL);
  
--static SIMPLE_DEV_PM_OPS(max77693_haptic_pm_ops,
--			 max77693_haptic_suspend, max77693_haptic_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(max77693_haptic_pm_ops,
-+				max77693_haptic_suspend,
-+				max77693_haptic_resume);
- 
- static const struct platform_device_id max77693_haptic_id[] = {
- 	{ "max77693-haptic", TYPE_MAX77693 },
-@@ -414,7 +415,7 @@ MODULE_DEVICE_TABLE(platform, max77693_haptic_id);
- static struct platform_driver max77693_haptic_driver = {
- 	.driver		= {
- 		.name	= "max77693-haptic",
--		.pm	= &max77693_haptic_pm_ops,
-+		.pm	= pm_sleep_ptr(&max77693_haptic_pm_ops),
+ static const struct platform_device_id max8997_haptic_id[] = {
+ 	{ "max8997-haptic", 0 },
+@@ -387,7 +388,7 @@ MODULE_DEVICE_TABLE(platform, max8997_haptic_id);
+ static struct platform_driver max8997_haptic_driver = {
+ 	.driver	= {
+ 		.name	= "max8997-haptic",
+-		.pm	= &max8997_haptic_pm_ops,
++		.pm	= pm_sleep_ptr(&max8997_haptic_pm_ops),
  	},
- 	.probe		= max77693_haptic_probe,
- 	.id_table	= max77693_haptic_id,
+ 	.probe		= max8997_haptic_probe,
+ 	.remove		= max8997_haptic_remove,
 -- 
 2.39.0
 

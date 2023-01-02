@@ -2,43 +2,42 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C776EC63797
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FE0CC63707
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236360AbjABSHZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S236480AbjABSHZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 2 Jan 2023 13:07:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49508 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236530AbjABSHB (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2685BDAD
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:00 -0800 (PST)
+        with ESMTP id S236495AbjABSHE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5324DAD
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9379461090
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1607EC433F0;
-        Mon,  2 Jan 2023 18:06:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7219261090
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E1DEC433D2;
+        Mon,  2 Jan 2023 18:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682819;
-        bh=OpLp46EogIxb5OGUTW6thnW7f1HE9c0MSmMVIedzrgI=;
+        s=k20201202; t=1672682822;
+        bh=V97y/4xYbFUsag90T3R8pWIjov8QCz4DCEl+aFdulVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lI8cC7beBsvHLyG6bP8WkAL5T3878//WobUVFFLzlAzdWE4WXXnglk+MaFel039Nl
-         444MsIo+tWFLtYqnEMHa+ok5z5pX+xUr63OD5gqEXoKxCS1Sm4QaSTUoLEH+0ORQfP
-         M4gv68wP36ofUAInkyz/8CpAYpbwtRh6spbKhvmASynrEeziTULclU/GteP/vIyU7y
-         u5/+Dg4clmA7o+VLIclj6j5wuOdvIRf2+nbeZaxJgMwUcm2/eiiHkdn7039B+NRRdt
-         j9FOrcX0wAjsAQ4m1/raLdxFIXV7397Y+J5mVkhz8L4sY5DEdD5Wm/aOcPk1+gtyIN
-         54K1Kgu/GsbOg==
+        b=aQImDPDzVOpxSWMoooRUF6EhxGk3ve2/K0v/5UGpoPjBw0CPex67FAdF1j+QMYHo4
+         AFZg/5xLm3Vt3DeeOCBcx2mzUHKdwg1CCchOy4REQSED1WlmrjX6scgrvNLkNzZNLY
+         aSEW5BXU6o8knZs1agiPlnU930oH+oOoVw7E0g/oSNd2GHONrzdeGtJvJ7FxSsSdWk
+         LnZLHQVhLRS0J13U/BM16xl3UXVme/E3w41ypSIjDLH3dlkKwsClLxzyH2cSWOq4b0
+         oa0ybRCaH83Tm8lY8Rwc9I7h+oQevtW4/g2KHfGqpeG7+EGI9MJN4xdlNIgPWoqnpL
+         dgdLvXX7qvECQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Markuss Broks <markuss.broks@gmail.com>
-Subject: [PATCH 49/69] Input: imagis - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:22 +0000
-Message-Id: <20230102181842.718010-50-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 52/69] Input: mcs5000_ts - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:25 +0000
+Message-Id: <20230102181842.718010-53-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,51 +56,51 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Markuss Broks <markuss.broks@gmail.com>
 ---
- drivers/input/touchscreen/imagis.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/mcs5000_ts.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/imagis.c b/drivers/input/touchscreen/imagis.c
-index e2697e6c6d2a..de1b16e94bb8 100644
---- a/drivers/input/touchscreen/imagis.c
-+++ b/drivers/input/touchscreen/imagis.c
-@@ -309,7 +309,7 @@ static int imagis_probe(struct i2c_client *i2c)
+diff --git a/drivers/input/touchscreen/mcs5000_ts.c b/drivers/input/touchscreen/mcs5000_ts.c
+index ea9517cad695..704e36087ca2 100644
+--- a/drivers/input/touchscreen/mcs5000_ts.c
++++ b/drivers/input/touchscreen/mcs5000_ts.c
+@@ -241,7 +241,7 @@ static int mcs5000_ts_probe(struct i2c_client *client)
  	return 0;
  }
  
--static int __maybe_unused imagis_suspend(struct device *dev)
-+static int imagis_suspend(struct device *dev)
+-static int __maybe_unused mcs5000_ts_suspend(struct device *dev)
++static int mcs5000_ts_suspend(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct imagis_ts *ts = i2c_get_clientdata(client);
-@@ -325,7 +325,7 @@ static int __maybe_unused imagis_suspend(struct device *dev)
- 	return retval;
+ 
+@@ -251,7 +251,7 @@ static int __maybe_unused mcs5000_ts_suspend(struct device *dev)
+ 	return 0;
  }
  
--static int __maybe_unused imagis_resume(struct device *dev)
-+static int imagis_resume(struct device *dev)
+-static int __maybe_unused mcs5000_ts_resume(struct device *dev)
++static int mcs5000_ts_resume(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct imagis_ts *ts = i2c_get_clientdata(client);
-@@ -341,7 +341,7 @@ static int __maybe_unused imagis_resume(struct device *dev)
- 	return retval;
+ 	struct mcs5000_ts_data *data = i2c_get_clientdata(client);
+@@ -262,7 +262,8 @@ static int __maybe_unused mcs5000_ts_resume(struct device *dev)
+ 	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(imagis_pm_ops, imagis_suspend, imagis_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(imagis_pm_ops, imagis_suspend, imagis_resume);
+-static SIMPLE_DEV_PM_OPS(mcs5000_ts_pm, mcs5000_ts_suspend, mcs5000_ts_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(mcs5000_ts_pm,
++				mcs5000_ts_suspend, mcs5000_ts_resume);
  
- #ifdef CONFIG_OF
- static const struct of_device_id imagis_of_match[] = {
-@@ -354,7 +354,7 @@ MODULE_DEVICE_TABLE(of, imagis_of_match);
- static struct i2c_driver imagis_ts_driver = {
+ static const struct i2c_device_id mcs5000_ts_id[] = {
+ 	{ "mcs5000_ts", 0 },
+@@ -274,7 +275,7 @@ static struct i2c_driver mcs5000_ts_driver = {
+ 	.probe_new	= mcs5000_ts_probe,
  	.driver = {
- 		.name = "imagis-touchscreen",
--		.pm = &imagis_pm_ops,
-+		.pm = pm_sleep_ptr(&imagis_pm_ops),
- 		.of_match_table = of_match_ptr(imagis_of_match),
+ 		.name = "mcs5000_ts",
+-		.pm   = &mcs5000_ts_pm,
++		.pm   = pm_sleep_ptr(&mcs5000_ts_pm),
  	},
- 	.probe_new = imagis_probe,
+ 	.id_table	= mcs5000_ts_id,
+ };
 -- 
 2.39.0
 

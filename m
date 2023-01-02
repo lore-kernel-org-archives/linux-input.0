@@ -2,43 +2,42 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA6FBC53210
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2FEFC54EBF
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236528AbjABSH3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49630 "EHLO
+        id S236361AbjABSHT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232151AbjABSHP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82F4038BD
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:14 -0800 (PST)
+        with ESMTP id S236502AbjABSGx (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DCD52E2
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14C7FB80DED
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C58EAC433F0;
-        Mon,  2 Jan 2023 18:07:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CE6261084
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC3CBC433F0;
+        Mon,  2 Jan 2023 18:06:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682831;
-        bh=ZNJoi6CRGYY42ylwYrS7E+kQ1L3lM7YrqHcIxI5m09Q=;
+        s=k20201202; t=1672682810;
+        bh=Bfpirfi1/wnNoY0OXjR20imqa1gbuOi0JsIrNeOfC+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vuy2w1mvVSExR4vUvZR9X94Bm0Iqyebr6ZD1R1bhuXKRGLQc7chmXyShr4dK7xOuF
-         q7DBJwZd/n9MvrIoodUXsKb0iLG3pIx/1jLuZKQ2oHIc2cqQP69a8fxPZMMRBAM5s0
-         uUKUdjY3AElTAg2wwHdulDrnstQkmUuCI51twSyNIuEfo3HkzeCh/lUr0s8Owxk7Fh
-         4UcAq04qVWnMdKXc2KPKwrXbD7TbcTwyS33BD6xQUwLQPv2PwL8YQRLqApvauErKFS
-         LE7eEekN8hEBv8lzAYmxF8WE7RwSEPZOqiLL6TEFsvN+YwIEYrrFFVpvYfozeAZyga
-         Jcy7GSrYLSToA==
+        b=A7biqdAU1EOqdwZZXE1T5TWfesrJQtKvlY6WtRKAikHcsYP8W2BVowDKvLB7FQncP
+         FOgkCPZ9ss7cPjfplQr5Fbc19zYDk6QJpQ9EsWQaTFOadKMDG4txR0PmNY9dWUDXj4
+         LASKsF7vZ1yKs8+z3FlYjL7HMdVuv1B9bHpK9HKRPpcvMmEyIWeGFXt+TuN3Ayrn0b
+         I+gV7twoXplxZR7eTfDWDOkUto3z00fuY/6p++D80yrr+bs5R1jnGT5cmZRpr/YBup
+         YlOX/BIR1NdxDDAMjjhnfzyYiziDhgY8wXiPZBJG1My+i6QFiuQLBN2dylkmLu/xCa
+         qclkBpfBLCyDw==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 59/69] Input: silead - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:32 +0000
-Message-Id: <20230102181842.718010-60-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 43/69] Input: egalax_ts - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:16 +0000
+Message-Id: <20230102181842.718010-44-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,51 +56,51 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/silead.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/input/touchscreen/egalax_ts.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 8a7351c4414c..a37fac089010 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -736,7 +736,7 @@ static int silead_ts_probe(struct i2c_client *client)
- 	return 0;
- }
- 
--static int __maybe_unused silead_ts_suspend(struct device *dev)
-+static int silead_ts_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 
-@@ -745,7 +745,7 @@ static int __maybe_unused silead_ts_suspend(struct device *dev)
- 	return 0;
- }
- 
--static int __maybe_unused silead_ts_resume(struct device *dev)
-+static int silead_ts_resume(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	bool second_try = false;
-@@ -784,7 +784,7 @@ static int __maybe_unused silead_ts_resume(struct device *dev)
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(silead_ts_pm, silead_ts_suspend, silead_ts_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(silead_ts_pm, silead_ts_suspend, silead_ts_resume);
- 
- static const struct i2c_device_id silead_ts_id[] = {
- 	{ "gsl1680", 0 },
-@@ -832,7 +832,7 @@ static struct i2c_driver silead_ts_driver = {
- 		.name = SILEAD_TS_NAME,
- 		.acpi_match_table = ACPI_PTR(silead_ts_acpi_match),
- 		.of_match_table = of_match_ptr(silead_ts_of_match),
--		.pm = &silead_ts_pm,
-+		.pm = pm_sleep_ptr(&silead_ts_pm),
- 	},
+diff --git a/drivers/input/touchscreen/egalax_ts.c b/drivers/input/touchscreen/egalax_ts.c
+index 742d47a75ac1..1a9805938e6d 100644
+--- a/drivers/input/touchscreen/egalax_ts.c
++++ b/drivers/input/touchscreen/egalax_ts.c
+@@ -223,7 +223,7 @@ static const struct i2c_device_id egalax_ts_id[] = {
  };
- module_i2c_driver(silead_ts_driver);
+ MODULE_DEVICE_TABLE(i2c, egalax_ts_id);
+ 
+-static int __maybe_unused egalax_ts_suspend(struct device *dev)
++static int egalax_ts_suspend(struct device *dev)
+ {
+ 	static const u8 suspend_cmd[MAX_I2C_DATA_LEN] = {
+ 		0x3, 0x6, 0xa, 0x3, 0x36, 0x3f, 0x2, 0, 0, 0
+@@ -238,7 +238,7 @@ static int __maybe_unused egalax_ts_suspend(struct device *dev)
+ 	return ret > 0 ? 0 : ret;
+ }
+ 
+-static int __maybe_unused egalax_ts_resume(struct device *dev)
++static int egalax_ts_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 
+@@ -248,7 +248,8 @@ static int __maybe_unused egalax_ts_resume(struct device *dev)
+ 	return egalax_wake_up_device(client);
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(egalax_ts_pm_ops, egalax_ts_suspend, egalax_ts_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(egalax_ts_pm_ops,
++				egalax_ts_suspend, egalax_ts_resume);
+ 
+ static const struct of_device_id egalax_ts_dt_ids[] = {
+ 	{ .compatible = "eeti,egalax_ts" },
+@@ -259,7 +260,7 @@ MODULE_DEVICE_TABLE(of, egalax_ts_dt_ids);
+ static struct i2c_driver egalax_ts_driver = {
+ 	.driver = {
+ 		.name	= "egalax_ts",
+-		.pm	= &egalax_ts_pm_ops,
++		.pm	= pm_sleep_ptr(&egalax_ts_pm_ops),
+ 		.of_match_table	= egalax_ts_dt_ids,
+ 	},
+ 	.id_table	= egalax_ts_id,
 -- 
 2.39.0
 

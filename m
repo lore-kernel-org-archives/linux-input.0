@@ -2,43 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A189C3DA7A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF652C677F0
 	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236479AbjABSHZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49530 "EHLO
+        id S236490AbjABSH1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236534AbjABSHF (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:05 -0500
+        with ESMTP id S236543AbjABSHH (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:07 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62DADDB1
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D04DCDB1
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13A58B80DF0
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0086C433EF;
-        Mon,  2 Jan 2023 18:07:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81DD9B80DF1
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48EA4C433F1;
+        Mon,  2 Jan 2023 18:07:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682821;
-        bh=jWijrKeYCGjamKjpO42XPQkqBGuRvod0lS5P3mSEp4M=;
+        s=k20201202; t=1672682824;
+        bh=XLU9Se8YrY4ehr2z+FI0cF0zuYf5sdDf7ODC2YjDrVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tX0akr+djH5OFgY2REHQZbuuk3wbkAR6Vv7Xqeptfqlr2y5S6YEXNkiCPSsXxp/rg
-         sIKFtTgiauYl1Ugj7+5K9opayJ2gljjqN8nGS5Vbls8DFM7NQEaDbmG3Itbad88nXJ
-         SRONtiAVEHMjnD8AQOlsOKGRmXon7OJKD45AmkezVcjoe0wK9SIHGdnkLT1x5i9NmX
-         RsQF/hB+W4CABaMmEvRPWHWWQrttXXrItS+S4Bt97qxadBtEqjBLES/0ZGkdapvEqV
-         ag0pTfaGydv/KQLAW3/P8KH7Nsgz3N+hMLZbwcUZ/CbPQpUJPuUylFjV8qYn71stOp
-         j4P2yDT1WV4Vg==
+        b=JeUJ/NtZSX9AeBe2zNMlr0rLqfNI4A1imI16A5TS/7r2rhzBoabZmTK+NU4AMLDzW
+         J76GRdpMatJAZOMBxQrf9UVg8uB9we0r7VrB8UDhL0Yac9aLtOF8NtYDQmzg5DtH35
+         92PzSKdSmog1cCK+Pz86vnUeERvANPDQozEQ7pe4tls+wBJRW+AVsXhLabb4yiCHKk
+         3cveQy7MQeXQrrdkvixPBHCPyUq7eCPxccwYswHYf3aA2HDD9h1PijjlrKZQjB7P8o
+         A4uyerMMXdFx1JXwi9jdfZZtg5dBYmFzubuma18E2eI+UR+1rWrxleySw17TfFez6G
+         qQdN4RKWQ4hbQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Jeff LaBundy <jeff@labundy.com>
-Subject: [PATCH 51/69] Input: iqs5xx - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:24 +0000
-Message-Id: <20230102181842.718010-52-jic23@kernel.org>
+        Sangwon Jee <jeesw@melfas.com>
+Subject: [PATCH 53/69] Input: melfas_mip4 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:26 +0000
+Message-Id: <20230102181842.718010-54-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,51 +57,51 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Jeff LaBundy <jeff@labundy.com>
+Cc: Sangwon Jee <jeesw@melfas.com>
 ---
- drivers/input/touchscreen/iqs5xx.c | 8 ++++----
+ drivers/input/touchscreen/melfas_mip4.c | 8 ++++----
  1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/iqs5xx.c b/drivers/input/touchscreen/iqs5xx.c
-index dc3137a34f35..c73e9c5c0077 100644
---- a/drivers/input/touchscreen/iqs5xx.c
-+++ b/drivers/input/touchscreen/iqs5xx.c
-@@ -979,7 +979,7 @@ static const struct attribute_group iqs5xx_attr_group = {
- 	.attrs = iqs5xx_attrs,
- };
- 
--static int __maybe_unused iqs5xx_suspend(struct device *dev)
-+static int iqs5xx_suspend(struct device *dev)
- {
- 	struct iqs5xx_private *iqs5xx = dev_get_drvdata(dev);
- 	struct input_dev *input = iqs5xx->input;
-@@ -998,7 +998,7 @@ static int __maybe_unused iqs5xx_suspend(struct device *dev)
- 	return error;
+diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
+index 4ee8ed4c930c..acdfbdea2b6e 100644
+--- a/drivers/input/touchscreen/melfas_mip4.c
++++ b/drivers/input/touchscreen/melfas_mip4.c
+@@ -1528,7 +1528,7 @@ static int mip4_probe(struct i2c_client *client)
+ 	return 0;
  }
  
--static int __maybe_unused iqs5xx_resume(struct device *dev)
-+static int iqs5xx_resume(struct device *dev)
+-static int __maybe_unused mip4_suspend(struct device *dev)
++static int mip4_suspend(struct device *dev)
  {
- 	struct iqs5xx_private *iqs5xx = dev_get_drvdata(dev);
- 	struct input_dev *input = iqs5xx->input;
-@@ -1017,7 +1017,7 @@ static int __maybe_unused iqs5xx_resume(struct device *dev)
- 	return error;
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct mip4_ts *ts = i2c_get_clientdata(client);
+@@ -1546,7 +1546,7 @@ static int __maybe_unused mip4_suspend(struct device *dev)
+ 	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(iqs5xx_pm, iqs5xx_suspend, iqs5xx_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(iqs5xx_pm, iqs5xx_suspend, iqs5xx_resume);
- 
- static int iqs5xx_probe(struct i2c_client *client)
+-static int __maybe_unused mip4_resume(struct device *dev)
++static int mip4_resume(struct device *dev)
  {
-@@ -1090,7 +1090,7 @@ static struct i2c_driver iqs5xx_i2c_driver = {
- 	.driver = {
- 		.name		= "iqs5xx",
- 		.of_match_table	= iqs5xx_of_match,
--		.pm		= &iqs5xx_pm,
-+		.pm		= pm_sleep_ptr(&iqs5xx_pm),
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct mip4_ts *ts = i2c_get_clientdata(client);
+@@ -1564,7 +1564,7 @@ static int __maybe_unused mip4_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(mip4_pm_ops, mip4_suspend, mip4_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(mip4_pm_ops, mip4_suspend, mip4_resume);
+ 
+ #ifdef CONFIG_OF
+ static const struct of_device_id mip4_of_match[] = {
+@@ -1595,7 +1595,7 @@ static struct i2c_driver mip4_driver = {
+ 		.name = MIP4_DEVICE_NAME,
+ 		.of_match_table = of_match_ptr(mip4_of_match),
+ 		.acpi_match_table = ACPI_PTR(mip4_acpi_match),
+-		.pm = &mip4_pm_ops,
++		.pm = pm_sleep_ptr(&mip4_pm_ops),
  	},
- 	.id_table	= iqs5xx_id,
- 	.probe_new	= iqs5xx_probe,
+ };
+ module_i2c_driver(mip4_driver);
 -- 
 2.39.0
 

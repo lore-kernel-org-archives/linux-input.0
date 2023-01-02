@@ -2,43 +2,44 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D897C63707
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55B13C678DC
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236420AbjABSGu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:06:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49072 "EHLO
+        id S232708AbjABSHP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236433AbjABSGW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8724C2F5
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:21 -0800 (PST)
+        with ESMTP id S236182AbjABSGm (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45B2B5F96
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33F1AB80DE1
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08D1AC433D2;
-        Mon,  2 Jan 2023 18:06:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5A9D61084
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3609AC433F0;
+        Mon,  2 Jan 2023 18:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682779;
-        bh=A3VDr3P6iTDUlRzaCvvkA0+YjH0psQx1Ojm4OakkKgA=;
+        s=k20201202; t=1672682801;
+        bh=Hm+NMfy8u4Ey3XwANoh8EzMdtU1FKdyDxaIe/img+7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m3OTM4/X8GSvXOZwqecv6G589Nu63L2icqTFXfjxFsg/i2R5bSikQABNvSS/ql1Zt
-         aP/72H85NJ83SjtwgrooDGoRdDBnLgXjolDWqO9WzVffWQ+DA58VfdjW874OnmndA4
-         I5h1gvA/gwdJ94RhadPWXgkTSsF+tKxkQXu4hmlfsvAc4P+b/TfPjvebIBtHOAVfBP
-         Q1XBYneEZ1zF2JUD8QskK80yLVeLONDzWLmTPBtUX2AgJJgcLlUzdyb49xNJ73UqBS
-         IQek/Mh9m0hhEwlmR1t/ADr5HDqmIUnzl2ylm95ru8jRMTWJcoYnEt4yB0m/qSnlU5
-         ynYb7sjKVnAtg==
+        b=Qlc3ZPIwuehOhcOT0Wdgsfc5uX2E1ZlxDUiWDE4fF1ui8sn1JUWIjSe09lWeOq9gX
+         rDz/wc3wxJih/dBvj97W4z+HiCxhE+Asn7eSoRSMdIyTxCiao/6ZHbeIQ2KTjPqL6L
+         t+94w0/Mp+6theDOz8pjkpa8fH1nvFEpJFUf5mNwQOWGdG71074PKqcWx32ejM4r3a
+         zY3le2rX+E+VDPQbRGT86V5akxoqmj69q/mE68ZsE9ZHUe2ZBbzATmC6kCL83toINT
+         F+MghwZ05ZWs31SR/fgO2lb8ZI/Y6WDvgV65r2fL6UW1Q5PfJ/N0vOOyLT7FPgFR8C
+         gelaE8oytW6UQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Lars-Peter Clausen <lars@metafoo.de>
-Subject: [PATCH 19/69] Input: pwm-beeper - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:17:52 +0000
-Message-Id: <20230102181842.718010-20-jic23@kernel.org>
+        Zhu Yi <yi.zhu5@cn.bosch.com>,
+        Mark Jonas <mark.jonas@de.bosch.com>
+Subject: [PATCH 36/69] Input: bu21029 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:09 +0000
+Message-Id: <20230102181842.718010-37-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,53 +58,52 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Lars-Peter Clausen <lars@metafoo.de>
+Cc: Zhu Yi <yi.zhu5@cn.bosch.com>
+Cc: Mark Jonas <mark.jonas@de.bosch.com>
 ---
- drivers/input/misc/pwm-beeper.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/bu21029_ts.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index d6b12477748a..3cf1812384e6 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -203,7 +203,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+diff --git a/drivers/input/touchscreen/bu21029_ts.c b/drivers/input/touchscreen/bu21029_ts.c
+index 215f4dc5105d..8f1442894ff9 100644
+--- a/drivers/input/touchscreen/bu21029_ts.c
++++ b/drivers/input/touchscreen/bu21029_ts.c
+@@ -422,7 +422,7 @@ static int bu21029_probe(struct i2c_client *client)
  	return 0;
  }
  
--static int __maybe_unused pwm_beeper_suspend(struct device *dev)
-+static int pwm_beeper_suspend(struct device *dev)
+-static int __maybe_unused bu21029_suspend(struct device *dev)
++static int bu21029_suspend(struct device *dev)
  {
- 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
- 
-@@ -221,7 +221,7 @@ static int __maybe_unused pwm_beeper_suspend(struct device *dev)
+ 	struct i2c_client *i2c = to_i2c_client(dev);
+ 	struct bu21029_ts_data *bu21029 = i2c_get_clientdata(i2c);
+@@ -437,7 +437,7 @@ static int __maybe_unused bu21029_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused pwm_beeper_resume(struct device *dev)
-+static int pwm_beeper_resume(struct device *dev)
+-static int __maybe_unused bu21029_resume(struct device *dev)
++static int bu21029_resume(struct device *dev)
  {
- 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+ 	struct i2c_client *i2c = to_i2c_client(dev);
+ 	struct bu21029_ts_data *bu21029 = i2c_get_clientdata(i2c);
+@@ -451,7 +451,7 @@ static int __maybe_unused bu21029_resume(struct device *dev)
  
-@@ -235,8 +235,8 @@ static int __maybe_unused pwm_beeper_resume(struct device *dev)
  	return 0;
  }
+-static SIMPLE_DEV_PM_OPS(bu21029_pm_ops, bu21029_suspend, bu21029_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(bu21029_pm_ops, bu21029_suspend, bu21029_resume);
  
--static SIMPLE_DEV_PM_OPS(pwm_beeper_pm_ops,
--			 pwm_beeper_suspend, pwm_beeper_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(pwm_beeper_pm_ops,
-+				pwm_beeper_suspend, pwm_beeper_resume);
- 
- #ifdef CONFIG_OF
- static const struct of_device_id pwm_beeper_match[] = {
-@@ -250,7 +250,7 @@ static struct platform_driver pwm_beeper_driver = {
- 	.probe	= pwm_beeper_probe,
- 	.driver = {
- 		.name	= "pwm-beeper",
--		.pm	= &pwm_beeper_pm_ops,
-+		.pm	= pm_sleep_ptr(&pwm_beeper_pm_ops),
- 		.of_match_table = of_match_ptr(pwm_beeper_match),
+ static const struct i2c_device_id bu21029_ids[] = {
+ 	{ DRIVER_NAME, 0 },
+@@ -471,7 +471,7 @@ static struct i2c_driver bu21029_driver = {
+ 	.driver	= {
+ 		.name		= DRIVER_NAME,
+ 		.of_match_table	= of_match_ptr(bu21029_of_ids),
+-		.pm		= &bu21029_pm_ops,
++		.pm		= pm_sleep_ptr(&bu21029_pm_ops),
  	},
- };
+ 	.id_table	= bu21029_ids,
+ 	.probe_new	= bu21029_probe,
 -- 
 2.39.0
 

@@ -2,43 +2,42 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 059DEC678D5
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6ECFEC64981
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236517AbjABSH2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49610 "EHLO
+        id S236354AbjABSH0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236559AbjABSHM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAEB5116B
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:11 -0800 (PST)
+        with ESMTP id S236541AbjABSHG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:07:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CB6C2E2
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:07:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70B96B80DF1
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C043C433F0;
-        Mon,  2 Jan 2023 18:07:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F082961084
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C180C433EF;
+        Mon,  2 Jan 2023 18:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682829;
-        bh=azSq6YF+4EV+1uK5JouKOAdUVIRIYfWtQYtVkDFsx1w=;
+        s=k20201202; t=1672682825;
+        bh=OJIoV+HcGll9TYddayhFSQT37QbfYXxlNbkCQsuoV/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q7obHyV0gW/W3ksX777MK+MaP0gLXv6pGm/6p0Tbau7FZ15dEZaQfUIgtwk31X1Hh
-         rnmBpwUuezSGNXQTDZ12/9NiUHVWsACdB6z00iPiyDAibz4BE1h5MnM6NEaBsFyDFx
-         Uc/tPRCJIgMR0XmXwg3NbHiihSInZWQDjeHfNw5r2RYzBnIViQ1ngXWi89ggIVXTEg
-         92Y8PVgl/9By8PtTLfqb+Fpto97jCn7yKmKzjGvPoPKOvUi7Mxe9SwFcy1MXTeOApb
-         qi21vcxSCVM3H3Bytt9QCr140NnqJFlBDjA5HWNAvh5AcD/1DcGQGdnMjc2K9Fe98L
-         +mKkjiT+M69EQ==
+        b=qeMEycqEeUmfWU2PNaQpGXda3HBipV6s6IHjLGSk3BC3/WL31DalF5Q8R15yunsnk
+         pVygmwPY0tOg3xC53zrc7fOsLuS/bwieCsfv5I33mXTOTAyICyY1U6Ix20LUpZP2OP
+         2OZkcraQPTAbRb1cZM8TlSCgC3De1M3twAWSSvhdwZrFx82eyUdeTgbCYx42JlEN1Y
+         QSoGtAJ5JWJOOFP2WTcmtFyYhKEDTR6lmdjuBemFupqB+tG8MvW9t9qz9+pa0tiERV
+         i1GBtbPRClYa//TxiZkX1BvwzttPNuKBZxc1SJvZ4FabRVmRQtNF2wD73rPnQNU+Nr
+         6xuAI5Mt6b/RQ==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Fabio Estevam <festevam@gmail.com>
-Subject: [PATCH 57/69] Input: pixcir_i2c_ts - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:30 +0000
-Message-Id: <20230102181842.718010-58-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 54/69] input: migor_ts - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:27 +0000
+Message-Id: <20230102181842.718010-55-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,53 +56,50 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Fabio Estevam <festevam@gmail.com>
 ---
- drivers/input/touchscreen/pixcir_i2c_ts.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/touchscreen/migor_ts.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/pixcir_i2c_ts.c b/drivers/input/touchscreen/pixcir_i2c_ts.c
-index 7959947a3458..f09f4831bad4 100644
---- a/drivers/input/touchscreen/pixcir_i2c_ts.c
-+++ b/drivers/input/touchscreen/pixcir_i2c_ts.c
-@@ -405,7 +405,7 @@ static void pixcir_input_close(struct input_dev *dev)
- 	pixcir_stop(ts);
+diff --git a/drivers/input/touchscreen/migor_ts.c b/drivers/input/touchscreen/migor_ts.c
+index ff0f605f3a3a..69fcc88d4f80 100644
+--- a/drivers/input/touchscreen/migor_ts.c
++++ b/drivers/input/touchscreen/migor_ts.c
+@@ -186,7 +186,7 @@ static void migor_ts_remove(struct i2c_client *client)
+ 	dev_set_drvdata(&client->dev, NULL);
  }
  
--static int __maybe_unused pixcir_i2c_ts_suspend(struct device *dev)
-+static int pixcir_i2c_ts_suspend(struct device *dev)
+-static int __maybe_unused migor_ts_suspend(struct device *dev)
++static int migor_ts_suspend(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
-@@ -432,7 +432,7 @@ static int __maybe_unused pixcir_i2c_ts_suspend(struct device *dev)
- 	return ret;
+ 	struct migor_ts_priv *priv = i2c_get_clientdata(client);
+@@ -197,7 +197,7 @@ static int __maybe_unused migor_ts_suspend(struct device *dev)
+ 	return 0;
  }
  
--static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
-+static int pixcir_i2c_ts_resume(struct device *dev)
+-static int __maybe_unused migor_ts_resume(struct device *dev)
++static int migor_ts_resume(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct pixcir_i2c_ts_data *ts = i2c_get_clientdata(client);
-@@ -459,8 +459,8 @@ static int __maybe_unused pixcir_i2c_ts_resume(struct device *dev)
- 	return ret;
+ 	struct migor_ts_priv *priv = i2c_get_clientdata(client);
+@@ -208,7 +208,7 @@ static int __maybe_unused migor_ts_resume(struct device *dev)
+ 	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
--			 pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(pixcir_dev_pm_ops,
-+				pixcir_i2c_ts_suspend, pixcir_i2c_ts_resume);
+-static SIMPLE_DEV_PM_OPS(migor_ts_pm, migor_ts_suspend, migor_ts_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(migor_ts_pm, migor_ts_suspend, migor_ts_resume);
  
- static int pixcir_i2c_ts_probe(struct i2c_client *client)
- {
-@@ -614,7 +614,7 @@ MODULE_DEVICE_TABLE(of, pixcir_of_match);
- static struct i2c_driver pixcir_i2c_ts_driver = {
+ static const struct i2c_device_id migor_ts_id[] = {
+ 	{ "migor_ts", 0 },
+@@ -219,7 +219,7 @@ MODULE_DEVICE_TABLE(i2c, migor_ts_id);
+ static struct i2c_driver migor_ts_driver = {
  	.driver = {
- 		.name	= "pixcir_ts",
--		.pm	= &pixcir_dev_pm_ops,
-+		.pm	= pm_sleep_ptr(&pixcir_dev_pm_ops),
- 		.of_match_table = of_match_ptr(pixcir_of_match),
+ 		.name = "migor_ts",
+-		.pm = &migor_ts_pm,
++		.pm = pm_sleep_ptr(&migor_ts_pm),
  	},
- 	.probe_new	= pixcir_i2c_ts_probe,
+ 	.probe_new = migor_ts_probe,
+ 	.remove = migor_ts_remove,
 -- 
 2.39.0
 

@@ -2,49 +2,48 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17B65C54EBE
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5140C67871
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235952AbjABSHV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49478 "EHLO
+        id S236448AbjABSG4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:06:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236475AbjABSG4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C537755BB
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:54 -0800 (PST)
+        with ESMTP id S236480AbjABSGb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68E255BB
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 791A4B80DED
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12202C433D2;
-        Mon,  2 Jan 2023 18:06:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72169B80DE3
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0436DC433D2;
+        Mon,  2 Jan 2023 18:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682812;
-        bh=A+adGC5uX20xMfqb5JGln2JU+zgoaUd7BOyB9DkXiN4=;
+        s=k20201202; t=1672682788;
+        bh=g7UO7iKHYk0zDfciAqVRrsAYuaIPGXqDb8Nz8BCx4bs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AwxCjGiutQjBNOZASt6LPGlZ4ntLyMzcI69jU1kJ7f5U5G+V9L9ZXUwXIbn3MXTbb
-         eBe9wGv7bqDj1nZ1pvK5j9nXF9N+SQ+Ih+zCMuRCXi0v4ElVlBRvxcjUJQHYVsKO1E
-         /ox2WpZtCfXpdawYfNwRVZV0BeH5ZY83r34Wk/N/4+0vbqqWNyHyxVjRD9vfc4I03/
-         IjzAUbTJNXgN/HJwVjIGsqOP/yqPXWNQUw8akJl8Xzoab+jV31BFT2iKyqb6dC8hg+
-         UCYgBUu1QRolmVEEMsTTNpU2Kxhu16DXvbP2cGLd6PmfhwR1odxxVMIZTl0PVaMgYa
-         noMpnMzklLEdw==
+        b=CbVX+zF6IUFfHT/mIlBVehdut3KTB6g7wtmUapr+kcfEJGRXBo2+fBaoDS7iuYSeB
+         bX6OIm770bDpR6YAwc+1AEAmMObO7EyB3ZyOF56P2ELjsdH21HmmSwY1baOicoukx8
+         FAODKAEeaVWNC4qxCVZ8Hk740TfV1g34pLF7uOjpn636Wn4aW9are61DI3au/QNFKq
+         EaCj6UO8rttrWEnpEo3DNKxWdQ9HxAJo1QLBNC8mjpd1nMQ4dVieAzAvOHU5YivKJi
+         Nk+iSRoK4ZamjFHYEFceroL2MVUEy5uRfwykkGHnmEiz/vSVaXGEmmjxNk485Xbu7/
+         GD0Wf1eLd7X+A==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        =?UTF-8?q?Jonathan=20Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Raul E Rangel <rrangel@chromium.org>,
         Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 44/69] input: ektf2127 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:17 +0000
-Message-Id: <20230102181842.718010-45-jic23@kernel.org>
+Subject: [PATCH 26/69] Input: elan_i2c_core - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:17:59 +0000
+Message-Id: <20230102181842.718010-27-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -59,54 +58,52 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Jonathan Neuschäfer <j.neuschaefer@gmx.net>
+Cc: Raul E Rangel <rrangel@chromium.org>
 Cc: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/touchscreen/ektf2127.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/input/mouse/elan_i2c_core.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ektf2127.c b/drivers/input/touchscreen/ektf2127.c
-index 328841eaa1b7..e6f1e46d003d 100644
---- a/drivers/input/touchscreen/ektf2127.c
-+++ b/drivers/input/touchscreen/ektf2127.c
-@@ -177,7 +177,7 @@ static void ektf2127_stop(struct input_dev *dev)
- 	gpiod_set_value_cansleep(ts->power_gpios, 0);
- }
- 
--static int __maybe_unused ektf2127_suspend(struct device *dev)
-+static int ektf2127_suspend(struct device *dev)
- {
- 	struct ektf2127_ts *ts = i2c_get_clientdata(to_i2c_client(dev));
- 
-@@ -189,7 +189,7 @@ static int __maybe_unused ektf2127_suspend(struct device *dev)
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 76729ada1582..5f0d75a45c80 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -1328,7 +1328,7 @@ static int elan_probe(struct i2c_client *client)
  	return 0;
  }
  
--static int __maybe_unused ektf2127_resume(struct device *dev)
-+static int ektf2127_resume(struct device *dev)
+-static int __maybe_unused elan_suspend(struct device *dev)
++static int elan_suspend(struct device *dev)
  {
- 	struct ektf2127_ts *ts = i2c_get_clientdata(to_i2c_client(dev));
- 
-@@ -201,8 +201,8 @@ static int __maybe_unused ektf2127_resume(struct device *dev)
- 	return 0;
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elan_tp_data *data = i2c_get_clientdata(client);
+@@ -1365,7 +1365,7 @@ static int __maybe_unused elan_suspend(struct device *dev)
+ 	return ret;
  }
  
--static SIMPLE_DEV_PM_OPS(ektf2127_pm_ops, ektf2127_suspend,
--			 ektf2127_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(ektf2127_pm_ops, ektf2127_suspend,
-+				ektf2127_resume);
- 
- static int ektf2127_query_dimension(struct i2c_client *client, bool width)
+-static int __maybe_unused elan_resume(struct device *dev)
++static int elan_resume(struct device *dev)
  {
-@@ -348,7 +348,7 @@ MODULE_DEVICE_TABLE(i2c, ektf2127_i2c_id);
- static struct i2c_driver ektf2127_driver = {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elan_tp_data *data = i2c_get_clientdata(client);
+@@ -1394,7 +1394,7 @@ static int __maybe_unused elan_resume(struct device *dev)
+ 	return error;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(elan_pm_ops, elan_suspend, elan_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(elan_pm_ops, elan_suspend, elan_resume);
+ 
+ static const struct i2c_device_id elan_id[] = {
+ 	{ DRIVER_NAME, 0 },
+@@ -1418,7 +1418,7 @@ MODULE_DEVICE_TABLE(of, elan_of_match);
+ static struct i2c_driver elan_driver = {
  	.driver = {
- 		.name	= "elan_ektf2127",
--		.pm	= &ektf2127_pm_ops,
-+		.pm	= pm_sleep_ptr(&ektf2127_pm_ops),
- 		.of_match_table = of_match_ptr(ektf2127_of_match),
- 	},
- 	.probe_new = ektf2127_probe,
+ 		.name	= DRIVER_NAME,
+-		.pm	= &elan_pm_ops,
++		.pm	= pm_sleep_ptr(&elan_pm_ops),
+ 		.acpi_match_table = ACPI_PTR(elan_acpi_id),
+ 		.of_match_table = of_match_ptr(elan_of_match),
+ 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
 -- 
 2.39.0
 

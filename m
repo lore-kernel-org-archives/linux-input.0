@@ -2,44 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F7AAC4708D
-	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E735C54EF1
+	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236341AbjABSHR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:07:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49420 "EHLO
+        id S236439AbjABSHU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:07:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49470 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236451AbjABSGu (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:50 -0500
+        with ESMTP id S236440AbjABSG4 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 249B92E2
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD992F5
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B59F561090
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12E77C433F0;
-        Mon,  2 Jan 2023 18:06:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 197DC61038
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B7F6C433F0;
+        Mon,  2 Jan 2023 18:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682808;
-        bh=d0bE5TyAe4V50qpq3vKJGk5/0QIrUcAqB5bT5nqLoKM=;
+        s=k20201202; t=1672682813;
+        bh=Q6SeAcYj+zkhpFnXxlYMG9Y1KqQ5hi0Qo7CJ5UiuGh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4+jRWkmAA1t8HARlu95ZNiojN1/47rsAyy16VbHP26CGjKmbDNgReQs4panN3USU
-         NfJdg5QMvNotQPzBpcZ1fzWpxpLCW6IaNHq2eYRNyaWZO6CD5wCM/HK0mISNABdNSA
-         Ft1ILY7yUA1cQZymmaTwEg2v9Jv9JRHnwbhV7AomqSXVlL6huxdhwC2w5N5WainzJo
-         qRuCtiU4EHhgvXR652ZT1FQJh2sB+J9ZE2qR13oU97TUf1qbhsG5zL4Rl6O1+2bNlX
-         YfWatccWAqTF1HYNtkz1a9/GiyS/FN1bjwyBbhTt2IWiulV5gDbVd6VAkLdR453zuo
-         HAC8okPc4kilQ==
+        b=JyBIdzpPlHSmARpjXxB+09UgvjxwZ+akgXJNzCAxKXerVHGeHX30fnh3pI+LtfgGH
+         ZI5VVOw/BSrNwAqiXlYReDC1zVnJsEij7uQRE7KrvYYFghXYBpvFya/8PgmH6yrHzv
+         DMFfLFY5GbyxItOVvaDUkKCdntoK5MPScG8zSQbpQ/BLCXtFNLG4PpvnB0tRuJSId4
+         gLp5oBsDtHxIbGiSwJ92Kfp8Sb45QEg0OJtB7B8t2at0WueyE7OhoNPikWZSrsYtLe
+         BQDONdbNkOo/WkLst9c9NrVZ0Wrm73d1bW970J5KZTYP5Mo9Po3eQTuHkvFTFoQKHk
+         AVW78LFMnjH/Q==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>
-Subject: [PATCH 41/69] Input: edt-ft5x06 - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:18:14 +0000
-Message-Id: <20230102181842.718010-42-jic23@kernel.org>
+        Douglas Anderson <dianders@chromium.org>
+Subject: [PATCH 45/69] Input: elants_i2c - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:18 +0000
+Message-Id: <20230102181842.718010-46-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -58,54 +57,53 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Michael Trimarchi <michael@amarulasolutions.com>
-Cc: Dario Binacchi <dario.binacchi@amarulasolutions.com>
+Cc: Douglas Anderson <dianders@chromium.org>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 10 +++++-----
+ drivers/input/touchscreen/elants_i2c.c | 10 +++++-----
  1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index ddd0f1f62458..d09bfeaa7da6 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -1353,7 +1353,7 @@ static void edt_ft5x06_ts_remove(struct i2c_client *client)
- 	edt_ft5x06_ts_teardown_debugfs(tsdata);
- }
- 
--static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
-+static int edt_ft5x06_ts_suspend(struct device *dev)
- {
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-@@ -1396,7 +1396,7 @@ static int __maybe_unused edt_ft5x06_ts_suspend(struct device *dev)
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 5452b50f8a77..8a16eb51481f 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -1572,7 +1572,7 @@ static int elants_i2c_probe(struct i2c_client *client)
  	return 0;
  }
  
--static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
-+static int edt_ft5x06_ts_resume(struct device *dev)
+-static int __maybe_unused elants_i2c_suspend(struct device *dev)
++static int elants_i2c_suspend(struct device *dev)
  {
  	struct i2c_client *client = to_i2c_client(dev);
- 	struct edt_ft5x06_ts_data *tsdata = i2c_get_clientdata(client);
-@@ -1459,8 +1459,8 @@ static int __maybe_unused edt_ft5x06_ts_resume(struct device *dev)
- 	return ret;
+ 	struct elants_data *ts = i2c_get_clientdata(client);
+@@ -1611,7 +1611,7 @@ static int __maybe_unused elants_i2c_suspend(struct device *dev)
+ 	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
--			 edt_ft5x06_ts_suspend, edt_ft5x06_ts_resume);
-+static DEFINE_SIMPLE_DEV_PM_OPS(edt_ft5x06_ts_pm_ops,
-+				edt_ft5x06_ts_suspend, edt_ft5x06_ts_resume);
+-static int __maybe_unused elants_i2c_resume(struct device *dev)
++static int elants_i2c_resume(struct device *dev)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct elants_data *ts = i2c_get_clientdata(client);
+@@ -1644,8 +1644,8 @@ static int __maybe_unused elants_i2c_resume(struct device *dev)
+ 	return 0;
+ }
  
- static const struct edt_i2c_chip_data edt_ft5x06_data = {
- 	.max_support_points = 5,
-@@ -1500,7 +1500,7 @@ static struct i2c_driver edt_ft5x06_ts_driver = {
+-static SIMPLE_DEV_PM_OPS(elants_i2c_pm_ops,
+-			 elants_i2c_suspend, elants_i2c_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(elants_i2c_pm_ops,
++				elants_i2c_suspend, elants_i2c_resume);
+ 
+ static const struct i2c_device_id elants_i2c_id[] = {
+ 	{ DEVICE_NAME, EKTH3500 },
+@@ -1677,7 +1677,7 @@ static struct i2c_driver elants_i2c_driver = {
+ 	.id_table = elants_i2c_id,
  	.driver = {
- 		.name = "edt_ft5x06",
- 		.of_match_table = edt_ft5x06_of_match,
--		.pm = &edt_ft5x06_ts_pm_ops,
-+		.pm = pm_sleep_ptr(&edt_ft5x06_ts_pm_ops),
+ 		.name = DEVICE_NAME,
+-		.pm = &elants_i2c_pm_ops,
++		.pm = pm_sleep_ptr(&elants_i2c_pm_ops),
+ 		.acpi_match_table = ACPI_PTR(elants_acpi_id),
+ 		.of_match_table = of_match_ptr(elants_of_match),
  		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
- 	},
- 	.id_table = edt_ft5x06_ts_id,
 -- 
 2.39.0
 

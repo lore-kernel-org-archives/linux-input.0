@@ -2,43 +2,42 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C9B3C677F0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9766C678D5
 	for <linux-input@archiver.kernel.org>; Mon,  2 Jan 2023 18:07:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236508AbjABSGy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 2 Jan 2023 13:06:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49176 "EHLO
+        id S236435AbjABSGz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 2 Jan 2023 13:06:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236475AbjABSG2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:28 -0500
+        with ESMTP id S236479AbjABSGb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 2 Jan 2023 13:06:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90838116B
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C15E116B
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 10:06:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E2C561084
-        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1265C433EF;
-        Mon,  2 Jan 2023 18:06:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4A4961090
+        for <linux-input@vger.kernel.org>; Mon,  2 Jan 2023 18:06:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE08C433EF;
+        Mon,  2 Jan 2023 18:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1672682786;
-        bh=kJHZb0C+/iFCJLe0VK0nSQP3gxiI/hMvlbaIkD1LlRA=;
+        s=k20201202; t=1672682789;
+        bh=PhkmDoI+0I6gM2p/4+vbRdX2WIzy2DkWL1S+oB0vbTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m550oxrW8uz81BVZhp43Q+SrcTp+I1b5QTzui7aN5N86wSCglfskTgQo+JQ9gTxXs
-         zw3AMPpDWcrC6eE8rGN54m20iGFfvaJylitV8FS8c8yrxu8qupg9QQWczp/ipNgSwK
-         vz/JLUOf0+Ejx1tnrZXqs0vUSCxrtl8YR5E2BOKJz9NH/qJbRTYU5ysD+qjTgnJkHU
-         2ezZ3CxhLmNQL84xLV/kLLd64RrbbRHvVh9tMvys6PFTOjS9n85n0K6yXhSeHQMu7d
-         j6rAIED9usk66QIEPLULXZGZ5rP+KaHXVjEmWT8rl4qTMJ7tljYl1YJQUJunDo8KYg
-         7RILEjnrCaTSg==
+        b=kqWoHpMhAFLZm+6iSw3mx+j88uDEu7nNbZrqOxtHa5K6rkdxIBYcSRlWH1V1C4v45
+         gmUE8U1qaTLUyXcNjMeHrGirXaJVrq7vV/eERgOC9aTmD2Qn1PXZ1pTkJitf4v9lz2
+         f01hscYMPvnhXeemzhrOR9DO4AVGaUEx1vY6jOGHUZ1UTkHKCQdrqDpDqDElnzvwcU
+         5RN8U5AGo7+5OPGPN+zPaE3sgdD8dNAfdAJnlzIdMGy5pcaYGvFvAKi2jCOMrcf7BJ
+         7jwbQ1ViGJhhxQ96UNV1vaux0Tu1TQWuR36ZwE0Tn2WEt1Fv6O8EpMO9+CCuGWH81p
+         qJpTBZ3IvMuzg==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Tony Lindgren <tony@atomide.com>
-Subject: [PATCH 25/69] Input: twl6030-vibra - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Mon,  2 Jan 2023 18:17:58 +0000
-Message-Id: <20230102181842.718010-26-jic23@kernel.org>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 27/69] Input: navpoint - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
+Date:   Mon,  2 Jan 2023 18:18:00 +0000
+Message-Id: <20230102181842.718010-28-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230102181842.718010-1-jic23@kernel.org>
 References: <20230102181842.718010-1-jic23@kernel.org>
@@ -57,43 +56,50 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Tony Lindgren <tony@atomide.com>
 ---
- drivers/input/misc/twl6040-vibra.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/input/mouse/navpoint.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/twl6040-vibra.c b/drivers/input/misc/twl6040-vibra.c
-index bf6644927630..78f0b63e5c20 100644
---- a/drivers/input/misc/twl6040-vibra.c
-+++ b/drivers/input/misc/twl6040-vibra.c
-@@ -210,7 +210,7 @@ static void twl6040_vibra_close(struct input_dev *input)
- 		twl6040_vibra_disable(info);
- }
- 
--static int __maybe_unused twl6040_vibra_suspend(struct device *dev)
-+static int twl6040_vibra_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
- 	struct vibra_info *info = platform_get_drvdata(pdev);
-@@ -223,7 +223,8 @@ static int __maybe_unused twl6040_vibra_suspend(struct device *dev)
+diff --git a/drivers/input/mouse/navpoint.c b/drivers/input/mouse/navpoint.c
+index 4d67575bb276..2b7b86eef280 100644
+--- a/drivers/input/mouse/navpoint.c
++++ b/drivers/input/mouse/navpoint.c
+@@ -315,7 +315,7 @@ static int navpoint_remove(struct platform_device *pdev)
  	return 0;
  }
  
--static SIMPLE_DEV_PM_OPS(twl6040_vibra_pm_ops, twl6040_vibra_suspend, NULL);
-+static DEFINE_SIMPLE_DEV_PM_OPS(twl6040_vibra_pm_ops,
-+				twl6040_vibra_suspend, NULL);
- 
- static int twl6040_vibra_probe(struct platform_device *pdev)
+-static int __maybe_unused navpoint_suspend(struct device *dev)
++static int navpoint_suspend(struct device *dev)
  {
-@@ -354,7 +355,7 @@ static struct platform_driver twl6040_vibra_driver = {
- 	.probe		= twl6040_vibra_probe,
- 	.driver		= {
- 		.name	= "twl6040-vibra",
--		.pm	= &twl6040_vibra_pm_ops,
-+		.pm	= pm_sleep_ptr(&twl6040_vibra_pm_ops),
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct navpoint *navpoint = platform_get_drvdata(pdev);
+@@ -329,7 +329,7 @@ static int __maybe_unused navpoint_suspend(struct device *dev)
+ 	return 0;
+ }
+ 
+-static int __maybe_unused navpoint_resume(struct device *dev)
++static int navpoint_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct navpoint *navpoint = platform_get_drvdata(pdev);
+@@ -343,14 +343,15 @@ static int __maybe_unused navpoint_resume(struct device *dev)
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(navpoint_pm_ops, navpoint_suspend, navpoint_resume);
++static DEFINE_SIMPLE_DEV_PM_OPS(navpoint_pm_ops,
++				navpoint_suspend, navpoint_resume);
+ 
+ static struct platform_driver navpoint_driver = {
+ 	.probe		= navpoint_probe,
+ 	.remove		= navpoint_remove,
+ 	.driver = {
+ 		.name	= "navpoint",
+-		.pm	= &navpoint_pm_ops,
++		.pm	= pm_sleep_ptr(&navpoint_pm_ops),
  	},
  };
- module_platform_driver(twl6040_vibra_driver);
+ 
 -- 
 2.39.0
 

@@ -2,52 +2,68 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B17AC4332F
-	for <linux-input@archiver.kernel.org>; Wed,  4 Jan 2023 10:33:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9ABA5C46467
+	for <linux-input@archiver.kernel.org>; Wed,  4 Jan 2023 14:00:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234688AbjADKdR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Jan 2023 05:33:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50672 "EHLO
+        id S229461AbjADOAc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Jan 2023 09:00:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233446AbjADKdQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2023 05:33:16 -0500
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 780941E3D4
-        for <linux-input@vger.kernel.org>; Wed,  4 Jan 2023 02:33:13 -0800 (PST)
-Received: from ip5b412258.dynamic.kabel-deutschland.de ([91.65.34.88] helo=diego.localnet)
-        by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <heiko@sntech.de>)
-        id 1pD153-0005Yn-Qh; Wed, 04 Jan 2023 11:33:09 +0100
-From:   Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-To:     linux-input@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Cameron <jic23@kernel.org>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH 34/69] Input: auo-pixcir-ts - switch to DEFINE_SIMPLE_DEV_PM_OPS() and pm_sleep_ptr()
-Date:   Wed, 04 Jan 2023 11:33:09 +0100
-Message-ID: <4458575.LvFx2qVVIh@diego>
-In-Reply-To: <20230102181842.718010-35-jic23@kernel.org>
-References: <20230102181842.718010-1-jic23@kernel.org> <20230102181842.718010-35-jic23@kernel.org>
+        with ESMTP id S229449AbjADOAa (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Jan 2023 09:00:30 -0500
+Received: from smtp2.axis.com (smtp2.axis.com [195.60.68.18])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4869A17061;
+        Wed,  4 Jan 2023 06:00:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=axis.com; q=dns/txt; s=axis-central1; t=1672840829;
+  x=1704376829;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=tuPHn0rueNqU221bzy8Hvvowp1SeYU4HeuNQGuvbPlI=;
+  b=oR+p1SbP86xKZeKvchWk1O7i8NCCihZduuyRhp+DKYcWgS7yMg9WGz99
+   mYdbFxzDMOTQvuaIpmTINeY8GnodGpZ8c3eXYbLVJqT/ZAI7JbpyQv/0p
+   NlodqczIogvxZeN6YLk9GIK93Pnx6WAPXS6q6i1KfUasi1uXcE4j96DH0
+   CagmZ30K/QjtudUc13gyHbTGyBMxEHYMNgtrhnhniQgPiRJiwLUaIMe0Z
+   ++Z9s5iPNHSMzTyfSu057yyDwv45z0VtrfjRR67SysBzeHANxnzJ88Beh
+   Fra06kh7Y+Mf1yqTd8m5HgoRRgg8IvIRKN9fG0AzKl6YfDaqH1f3SLfa+
+   Q==;
+From:   Jiri Valek - 2N <jiriv@axis.com>
+To:     <jiriv@axis.com>
+CC:     <devicetree@vger.kernel.org>, <dmitry.torokhov@gmail.com>,
+        <krzysztof.kozlowski+dt@linaro.org>, <linux-input@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <robh+dt@kernel.org>,
+        <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH v2 0/2] Input: cap11xx add support for cap1203, cap1293 and cap1298
+Date:   Wed, 4 Jan 2023 14:59:49 +0100
+Message-ID: <20230104135951.930783-1-jiriv@axis.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230103134105.736346-3-jiriv@axis.com>
+References: <20230103134105.736346-3-jiriv@axis.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.0.5.60]
+X-ClientProxiedBy: se-mail05w.axis.com (10.20.40.11) To se-mail03w.axis.com
+ (10.20.40.9)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Am Montag, 2. Januar 2023, 19:18:07 CET schrieb Jonathan Cameron:
-> From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> 
-> SIMPLE_DEV_PM_OPS() is deprecated as it requires explicit protection
-> against unused function warnings.  The new combination of pm_sleep_ptr()
-> and DEFINE_SIMPLE_DEV_PM_OPS() allows the compiler to see the functions,
-> thus suppressing the warning, but still allowing the unused code to be
-> removed. Thus also drop the __maybe_unused markings.
-> 
-> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Cc: Heiko Stuebner <heiko@sntech.de>
+PATCH 1 - add compatible string for new models
+PATCH 2 - add support for new models into driver
 
-Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Changes in v2:
+  - Fixed if statement in PATCH 2.
 
+Jiri Valek - 2N (2):
+  dt-bindings: input: microchip,cap11xx: add cap1203, cap1293 and
+    cap1298
+  Input: cap11xx - add support for cap1203, cap1293 and cap1298
+
+ .../bindings/input/microchip,cap11xx.yaml     |  3 +++
+ drivers/input/keyboard/cap11xx.c              | 19 +++++++++++++++++--
+ 2 files changed, 20 insertions(+), 2 deletions(-)
+
+-- 
+2.25.1
 

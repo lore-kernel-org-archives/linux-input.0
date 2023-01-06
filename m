@@ -2,130 +2,105 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88EDEC54E76
-	for <linux-input@archiver.kernel.org>; Fri,  6 Jan 2023 07:11:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F16BC3DA7A
+	for <linux-input@archiver.kernel.org>; Fri,  6 Jan 2023 10:24:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231561AbjAFHLq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 6 Jan 2023 02:11:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46166 "EHLO
+        id S232474AbjAFKYf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 6 Jan 2023 05:24:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229737AbjAFHLp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Jan 2023 02:11:45 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2D91C93F;
-        Thu,  5 Jan 2023 23:11:44 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id p1-20020a05600c1d8100b003d8c9b191e0so489375wms.4;
-        Thu, 05 Jan 2023 23:11:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=lpGhRYJaxmtI/yjnQkZLt/0Jz7oT/+CyaSTcffJbcOg=;
-        b=nqB4bFsGApMI5i2Y8+sBCr32FWRItSVzk7d4G69jme+Jc/TBU7l+HqHovDTFR4D1Vo
-         KMI3/kW3wh94z4ac1qDo1PcnsCoA+e/o42NFvDrKWiB0oWB5rO3vL2rA166p9VricF62
-         Bb9wESQnpmWEUc1VVl/m9i8Cu7qv4qXIA6uG2A/71PAqDEbC1mL34i9zaxS8SnqtU3qp
-         xasq3FDpLwbtmyzutudEYdc87yXIUbSzRgGzTliPffTdUWaXD7N5GkCtfOzrN7uerEzG
-         ZC6ypppSo7XV+kBsE9g/HlRzGBOax5S/JvhvQEagjL8Ohe/CKWg4cLri660gT+WY7YuP
-         HoWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=lpGhRYJaxmtI/yjnQkZLt/0Jz7oT/+CyaSTcffJbcOg=;
-        b=FLklmxBhTdSMq9rWcVlB811jVfnQnvOi+AM7HRH0E2EbMyTw606KzJ8mLYliU/bBjs
-         lgTNYc18F6ihL6NN3kFIkEjpKuczLnfRNSu7cC6a5LeQQqPtLHJH9PGbqDB6P+pOKTFz
-         7u9XNJ1vQOSB5DLg9geAoZhWH1P18ZugTscXIDVRhyptNluCRQPFfs6K7q8V5DliY0ep
-         ZfX5ok3C8gFvrfciT5S3EQLEcVGeBraZUQa0za+qOoZ5LizzQ5Evz45gUUlLIYTkCrYU
-         5wwKrReHs03YoDAPFlvhCsdZB7Z0Nl2S7B0lX+BQPNgHRRUg6cVu7+jDC64jIc4bf0GD
-         +s5A==
-X-Gm-Message-State: AFqh2koei5KKe262UJH43srJohW1uG6xzUn0XO0d5xhEAzKNPZDpExtN
-        EawfEeINCaHwRsHl88neSIk=
-X-Google-Smtp-Source: AMrXdXuU5fNYCWFiCWYLVZFvAo4qlxXdeeEggh+4CF8o9+emnP/Rdmm02Z8r0sISURHsvOtjcD6y6w==
-X-Received: by 2002:a05:600c:35d1:b0:3d3:58d1:2588 with SMTP id r17-20020a05600c35d100b003d358d12588mr39851772wmq.41.1672989103024;
-        Thu, 05 Jan 2023 23:11:43 -0800 (PST)
-Received: from localhost ([102.36.222.112])
-        by smtp.gmail.com with ESMTPSA id l27-20020a05600c2cdb00b003a84375d0d1sm5315133wmc.44.2023.01.05.23.11.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Jan 2023 23:11:42 -0800 (PST)
-Date:   Fri, 6 Jan 2023 10:11:35 +0300
-From:   Dan Carpenter <error27@gmail.com>
-To:     oe-kbuild@lists.linux.dev, Jiri Valek - 2N <jiriv@axis.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>
-Cc:     lkp@intel.com, oe-kbuild-all@lists.linux.dev,
-        Jiri Valek - 2N <jiriv@axis.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." 
-        <linux-input@vger.kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] Input: cap11xx - add support for cap1203, cap1293
- and cap1298
-Message-ID: <202301060047.MIcDVwKC-lkp@intel.com>
+        with ESMTP id S232538AbjAFKYc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Jan 2023 05:24:32 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB64269B35
+        for <linux-input@vger.kernel.org>; Fri,  6 Jan 2023 02:23:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1673000630;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=PziZJrBZEmAJ2mCxXBb9H2GVdzSAZnr8fRD1vWo64L8=;
+        b=Fm7iwG+8HfgI3c0K8OoQSH9WXFkkzpuDZ9WGH2xTKgRhwJhXD3BrVJOb8rjTSY0p39VfAE
+        BymcT+NMYFz0BztuNLdPQk2JduDiM5S6TAUuiRFZ3YIBkOJmdEBx7ngyVQGDesqfX1AWRe
+        rrAiKg8Hdir9CbIVynh4KQWtONd+H0I=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-112-k44jRNtVMl-k4sI-WSFmwg-1; Fri, 06 Jan 2023 05:23:44 -0500
+X-MC-Unique: k44jRNtVMl-k4sI-WSFmwg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 430BD1871D9A;
+        Fri,  6 Jan 2023 10:23:44 +0000 (UTC)
+Received: from plouf.redhat.com (unknown [10.39.192.97])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 50775C15BAD;
+        Fri,  6 Jan 2023 10:23:42 +0000 (UTC)
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To:     Greg KH <gregkh@linuxfoundation.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org,
+        linux-kselftest@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH HID for-next v1 2/9] selftests: hid: allow to compile hid_bpf with LLVM
+Date:   Fri,  6 Jan 2023 11:23:25 +0100
+Message-Id: <20230106102332.1019632-3-benjamin.tissoires@redhat.com>
+In-Reply-To: <20230106102332.1019632-1-benjamin.tissoires@redhat.com>
+References: <20230106102332.1019632-1-benjamin.tissoires@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230103134105.736346-3-jiriv@axis.com>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Jiri,
+clang doesn't like to compile a source to the final binary directly:
 
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+clang-14: error: cannot specify -o when generating multiple output files
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Jiri-Valek-2N/dt-bindings-input-microchip-cap11xx-add-cap1203-cap1293-and-cap1298/20230103-214328
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-patch link:    https://lore.kernel.org/r/20230103134105.736346-3-jiriv%40axis.com
-patch subject: [PATCH 2/2] Input: cap11xx - add support for cap1203, cap1293 and cap1298
-config: loongarch-randconfig-m031-20230101
-compiler: loongarch64-linux-gcc (GCC) 12.1.0
+So split the final rule in 2, and ensure we compile all dependencies
+before.
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Reported-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+---
+ tools/testing/selftests/hid/Makefile | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-smatch warnings:
-drivers/input/keyboard/cap11xx.c:400 cap11xx_i2c_probe() warn: was && intended here instead of ||?
-
-vim +400 drivers/input/keyboard/cap11xx.c
-
-c77fd0a42b24ac Matt Ranostay    2014-10-31  390  	if (!of_property_read_u32(node, "microchip,sensor-gain", &gain32)) {
-322a552e195508 Jesse Taube      2021-11-02  391  		if (cap->no_gain)
-322a552e195508 Jesse Taube      2021-11-02  392  			dev_warn(dev,
-322a552e195508 Jesse Taube      2021-11-02  393  				 "This version doesn't support sensor gain\n");
-322a552e195508 Jesse Taube      2021-11-02  394  		else if (is_power_of_2(gain32) && gain32 <= 8)
-c77fd0a42b24ac Matt Ranostay    2014-10-31  395  			gain = ilog2(gain32);
-c77fd0a42b24ac Matt Ranostay    2014-10-31  396  		else
-c77fd0a42b24ac Matt Ranostay    2014-10-31  397  			dev_err(dev, "Invalid sensor-gain value %d\n", gain32);
-c77fd0a42b24ac Matt Ranostay    2014-10-31  398  	}
-c77fd0a42b24ac Matt Ranostay    2014-10-31  399  
-e3f771deec5bca Jiri Valek - 2N  2023-01-03 @400  	if ((id->driver_data != CAP1206) ||
-e3f771deec5bca Jiri Valek - 2N  2023-01-03  401  		(id->driver_data != CAP1203) ||
-e3f771deec5bca Jiri Valek - 2N  2023-01-03  402  		(id->driver_data != CAP1293) ||
-e3f771deec5bca Jiri Valek - 2N  2023-01-03  403  		(id->driver_data != CAP1298)) {
-
-Yep.  && isntead of ||.  ->driver_data can't be equal to *all* of
-those at the same time.
-
-6bdd2fd1ed6f66 Matt Ranostay    2014-10-31  404  		if (of_property_read_bool(node, "microchip,irq-active-high")) {
-322a552e195508 Jesse Taube      2021-11-02  405  			error = regmap_update_bits(priv->regmap,
-322a552e195508 Jesse Taube      2021-11-02  406  						   CAP11XX_REG_CONFIG2,
-322a552e195508 Jesse Taube      2021-11-02  407  						   CAP11XX_REG_CONFIG2_ALT_POL,
-322a552e195508 Jesse Taube      2021-11-02  408  						   0);
-6bdd2fd1ed6f66 Matt Ranostay    2014-10-31  409  			if (error)
-6bdd2fd1ed6f66 Matt Ranostay    2014-10-31  410  				return error;
-6bdd2fd1ed6f66 Matt Ranostay    2014-10-31  411  		}
-322a552e195508 Jesse Taube      2021-11-02  412  	}
-6bdd2fd1ed6f66 Matt Ranostay    2014-10-31  413  
-c77fd0a42b24ac Matt Ranostay    2014-10-31  414  	/* Provide some useful defaults */
-7609a5e973c43a Matt Ranostay    2014-10-31  415  	for (i = 0; i < cap->num_channels; i++)
-
+diff --git a/tools/testing/selftests/hid/Makefile b/tools/testing/selftests/hid/Makefile
+index f6fc5cfff770..83e8f87d643a 100644
+--- a/tools/testing/selftests/hid/Makefile
++++ b/tools/testing/selftests/hid/Makefile
+@@ -91,10 +91,6 @@ $(MAKE_DIRS):
+ 	$(call msg,MKDIR,,$@)
+ 	$(Q)mkdir -p $@
+ 
+-$(OUTPUT)/%.o: %.c
+-	$(call msg,CC,,$@)
+-	$(Q)$(CC) $(CFLAGS) -c $(filter %.c,$^) $(LDLIBS) -o $@
+-
+ # LLVM's ld.lld doesn't support all the architectures, so use it only on x86
+ ifeq ($(SRCARCH),x86)
+ LLD := lld
+@@ -223,7 +219,11 @@ $(BPF_SKELS): %.skel.h: %.bpf.o $(BPFTOOL) | $(OUTPUT)
+ 	$(Q)$(BPFTOOL) gen object $(<:.o=.linked1.o) $<
+ 	$(Q)$(BPFTOOL) gen skeleton $(<:.o=.linked1.o) name $(notdir $(<:.bpf.o=)) > $@
+ 
+-$(OUTPUT)/%:%.c $(BPF_SKELS) $(KHDR_INCLUDES)/linux/hid.h
++$(OUTPUT)/%.o: %.c $(BPF_SKELS) $(KHDR_INCLUDES)/linux/hid.h
++	$(call msg,CC,,$@)
++	$(Q)$(CC) $(CFLAGS) -c $(filter %.c,$^) $(LDLIBS) -o $@
++
++$(OUTPUT)/%: $(OUTPUT)/%.o
+ 	$(call msg,BINARY,,$@)
+ 	$(Q)$(LINK.c) $^ $(LDLIBS) -o $@
+ 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.38.1
 

@@ -2,156 +2,248 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC32AC54E76
-	for <linux-input@archiver.kernel.org>; Fri,  6 Jan 2023 10:26:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8774C54EBE
+	for <linux-input@archiver.kernel.org>; Fri,  6 Jan 2023 14:33:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229703AbjAFK0y (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 6 Jan 2023 05:26:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60500 "EHLO
+        id S234049AbjAFOcb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 6 Jan 2023 09:32:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233923AbjAFK0A (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Jan 2023 05:26:00 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B60F6EC9B
-        for <linux-input@vger.kernel.org>; Fri,  6 Jan 2023 02:24:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1673000695;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=3H/Euuxq7LIt7GwPww0Ivp2k4XBNQIOZw45JfduHe6c=;
-        b=UwHQD4yZGMW3Wk+Yu1Pd5q5AMMZtQQ67TOk8iqFEc5oI5tnaH27GMdQXmjwcJ8f0tqx03r
-        4aOvO8cRQUGDhv7J/SpykAip4lq7ZJTjJ6mShdRgdY+y0Dx+5eO6qUsozQfOGnyfESaBJ1
-        tmia+T9Ozq5Sej4gSGZ0THXmen8BoF4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-62-VYt_rQIsME2M06_D17bI_w-1; Fri, 06 Jan 2023 05:23:52 -0500
-X-MC-Unique: VYt_rQIsME2M06_D17bI_w-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 617FF1871D94;
-        Fri,  6 Jan 2023 10:23:51 +0000 (UTC)
-Received: from plouf.redhat.com (unknown [10.39.192.97])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DFD14C15BAD;
-        Fri,  6 Jan 2023 10:23:48 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Tero Kristo <tero.kristo@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH HID for-next v1 5/9] selftests: hid: prepare tests for HID_BPF API change
-Date:   Fri,  6 Jan 2023 11:23:28 +0100
-Message-Id: <20230106102332.1019632-6-benjamin.tissoires@redhat.com>
-In-Reply-To: <20230106102332.1019632-1-benjamin.tissoires@redhat.com>
-References: <20230106102332.1019632-1-benjamin.tissoires@redhat.com>
+        with ESMTP id S235045AbjAFOcM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Jan 2023 09:32:12 -0500
+Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [81.169.146.165])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 023A77F46C
+        for <linux-input@vger.kernel.org>; Fri,  6 Jan 2023 06:32:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1673015346;
+    s=strato-dkim-0002; d=xenosoft.de;
+    h=In-Reply-To:Cc:References:To:From:Subject:Date:Message-ID:Cc:Date:
+    From:Subject:Sender;
+    bh=D5q7Av8PI/yow+od4ses6EOAcMhbz5eCt7aseWcHWEg=;
+    b=bHnQfySX4BHxaw/68wyNM4b7SxOnz1NLt5pWCro9V1AoNa07LVe7eOIAVa7Sl6kGr7
+    K3LXJlJ8gFW58WDcCRgZrswPoZ4gyJiCCnYUZttSnZ2mblrRi/8d8ZXLQaJ69dNA5XOy
+    klRV6nRTgYoN/aG5oZ4MPGHwSurdTnFGqJLtcfpjVSvF9YzG8Xh37w1oVAfM6/YDKVoz
+    bV1mySauHapS8KhE8lweXhrypc6XhBsaW2eWBNle3XhntFe2zql2Xcl4jsoYj7jduSpr
+    MgFnqp51GdI1Lm+TruVfxJAu5Rz6r9iwSmX/nPVxjyjSILbjkr3NqNBf/vvi82Z3rkWk
+    KkWQ==
+Authentication-Results: strato.com;
+    dkim=none
+X-RZG-AUTH: ":L2QefEenb+UdBJSdRCXu93KJ1bmSGnhMdmOod1DhGM4l4Hio94KKxRySfLxnHfJ+Dkjp5DdBfio0GngadwiD6ZxUZL738U2gX7JjvUZgWUP2Fw=="
+X-RZG-CLASS-ID: mo00
+Received: from [IPV6:2a02:8109:8980:4474:f0be:1eb9:476d:2a34]
+    by smtp.strato.de (RZmta 48.2.1 AUTH)
+    with ESMTPSA id e28afdz06ET5USa
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+        (Client did not present a certificate);
+    Fri, 6 Jan 2023 15:29:05 +0100 (CET)
+Message-ID: <75f18191-c311-18f2-bfdb-ac82fb166e1b@xenosoft.de>
+Date:   Fri, 6 Jan 2023 15:29:05 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.6.1
+Subject: [PASEMI] Nemo board doesn't reboot anymore after the commit "HID:
+ usbhid: Add ALWAYS_POLL quirk for some mice"
+From:   Christian Zigotzky <chzigotzky@xenosoft.de>
+To:     anpatel@nvidia.com, jkosina@suse.cz, linux-input@vger.kernel.org,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Darren Stevens <darren@stevens-zone.net>,
+        "R.T.Dickinson" <rtd2@xtra.co.nz>, linux-input@vger.kernel.org,
+        mad skateman <madskateman@gmail.com>
+References: <747e3240-bb3f-3a0c-e998-02f3b4826704@xenosoft.de>
+Cc:     Christian Zigotzky <info@xenosoft.de>
+In-Reply-To: <747e3240-bb3f-3a0c-e998-02f3b4826704@xenosoft.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-We plan on changing the return value of hid_bpf_attach_prog().
-Instead of returning an error code, it will return an fd to a bpf_link.
-This bpf_link is responsible for the binding between the bpf program and
-the hid device.
+Hello,
 
-Add a fallback mechanism to not break bisections by pinning the program
-when we run this test against the non changed kernel.
+The reboot issue is still present in the RC2 of kernel 6.2. We still 
+need the usbhid.patch. [1]
 
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
----
- tools/testing/selftests/hid/hid_bpf.c | 29 +++++++++++++++++++++++----
- 1 file changed, 25 insertions(+), 4 deletions(-)
+Please check the bad commit. [2]
 
-diff --git a/tools/testing/selftests/hid/hid_bpf.c b/tools/testing/selftests/hid/hid_bpf.c
-index 3b204a15e44b..9a262fe99b32 100644
---- a/tools/testing/selftests/hid/hid_bpf.c
-+++ b/tools/testing/selftests/hid/hid_bpf.c
-@@ -444,13 +444,21 @@ FIXTURE(hid_bpf) {
- 	int hid_id;
- 	pthread_t tid;
- 	struct hid *skel;
-+	int hid_links[3]; /* max number of programs loaded in a single test */
- };
- static void detach_bpf(FIXTURE_DATA(hid_bpf) * self)
- {
-+	int i;
-+
- 	if (self->hidraw_fd)
- 		close(self->hidraw_fd);
- 	self->hidraw_fd = 0;
- 
-+	for (i = 0; i < ARRAY_SIZE(self->hid_links); i++) {
-+		if (self->hid_links[i])
-+			close(self->hid_links[i]);
-+	}
-+
- 	hid__destroy(self->skel);
- 	self->skel = NULL;
- }
-@@ -512,6 +520,9 @@ static void load_programs(const struct test_program programs[],
- 			    .ctx_size_in = sizeof(args),
- 	);
- 
-+	ASSERT_LE(progs_count, ARRAY_SIZE(self->hid_links))
-+		TH_LOG("too many programs are to be loaded");
-+
- 	/* open the bpf file */
- 	self->skel = hid__open();
- 	ASSERT_OK_PTR(self->skel) TEARDOWN_LOG("Error while calling hid__open");
-@@ -543,7 +554,10 @@ static void load_programs(const struct test_program programs[],
- 		args.hid = self->hid_id;
- 		args.insert_head = programs[i].insert_head;
- 		err = bpf_prog_test_run_opts(attach_fd, &tattr);
--		ASSERT_OK(args.retval) TH_LOG("attach_hid(%s): %d", programs[i].name, args.retval);
-+		ASSERT_GE(args.retval, 0)
-+			TH_LOG("attach_hid(%s): %d", programs[i].name, args.retval);
-+
-+		self->hid_links[i] = args.retval;
- 	}
- 
- 	self->hidraw_fd = open_hidraw(self->dev_id);
-@@ -619,10 +633,17 @@ TEST_F(hid_bpf, test_attach_detach)
- 		{ .name = "hid_second_event" },
- 	};
- 	__u8 buf[10] = {0};
--	int err;
-+	int err, link;
- 
- 	LOAD_PROGRAMS(progs);
- 
-+	link = self->hid_links[0];
-+	/* we might not be using the new code path where hid_bpf_attach_prog()
-+	 * returns a link.
-+	 */
-+	if (!link)
-+		link = bpf_program__fd(self->skel->progs.hid_first_event);
-+
- 	/* inject one event */
- 	buf[0] = 1;
- 	buf[1] = 42;
-@@ -640,8 +661,8 @@ TEST_F(hid_bpf, test_attach_detach)
- 
- 	/* pin the first program and immediately unpin it */
- #define PIN_PATH "/sys/fs/bpf/hid_first_event"
--	err = bpf_program__pin(self->skel->progs.hid_first_event, PIN_PATH);
--	ASSERT_OK(err) TH_LOG("error while calling bpf_program__pin");
-+	err = bpf_obj_pin(link, PIN_PATH);
-+	ASSERT_OK(err) TH_LOG("error while calling bpf_obj_pin");
- 	remove(PIN_PATH);
- #undef PIN_PATH
- 	usleep(100000);
--- 
-2.38.1
+Thanks,
+Christian
+
+[1] https://forum.hyperion-entertainment.com/viewtopic.php?p=56303#p56303
+[2] 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v6.1&id=f6d910a89a2391e5ce1f275d205023880a33d3f8 
+
+
+
+On 22 December 2022 at 11:42 am, Christian Zigotzky wrote:
+> Hello,
+>
+> The Nemo board [1] doesn't reboot anymore since the final kernel 6.1. 
+> The reboot works with the RC8 of kernel 6.1.
+> Actually, a reboot works but the CFE firmware is not loaded. Maybe 
+> there is still something in the memory after the reboot.
+>
+> I bisected today. [2]
+>
+> The commit "HID: usbhid: Add ALWAYS_POLL quirk for some mice". [3] is 
+> the problem.
+>
+> I was able to revert this commit and the reboot works without any 
+> problems again.
+>
+> I created a patch for reverting the bad commit. [4]
+>
+> Then I compiled the kernel with this patch. After that, the X1000 
+> reboots without any problems.
+>
+> I use a Cherry USB mouse. [5]
+>
+> Please check the bad commit.
+>
+> Thanks,
+> Christian
+>
+>
+> [1] https://en.wikipedia.org/wiki/AmigaOne_X1000
+> [2] https://forum.hyperion-entertainment.com/viewtopic.php?p=56303#p56303
+> [3] 
+> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v6.1&id=f6d910a89a2391e5ce1f275d205023880a33d3f8
+> [4] usbhid.patch:
+>
+> diff -rupN a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+> --- a/drivers/hid/hid-ids.h    2022-12-22 10:24:06.842881276 +0100
+> +++ b/drivers/hid/hid-ids.h    2022-12-22 10:23:35.903328869 +0100
+> @@ -274,7 +274,6 @@
+>  #define USB_DEVICE_ID_CH_AXIS_295    0x001c
+>
+>  #define USB_VENDOR_ID_CHERRY        0x046a
+> -#define USB_DEVICE_ID_CHERRY_MOUSE_000C    0x000c
+>  #define USB_DEVICE_ID_CHERRY_CYMOTION    0x0023
+>  #define USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR    0x0027
+>
+> @@ -919,7 +918,6 @@
+>  #define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER    0x02fd
+>  #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
+>  #define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
+> -#define USB_DEVICE_ID_MS_MOUSE_0783      0x0783
+>
+>  #define USB_VENDOR_ID_MOJO        0x8282
+>  #define USB_DEVICE_ID_RETRO_ADAPTER    0x3201
+> @@ -1388,7 +1386,6 @@
+>
+>  #define USB_VENDOR_ID_PRIMAX    0x0461
+>  #define USB_DEVICE_ID_PRIMAX_MOUSE_4D22    0x4d22
+> -#define USB_DEVICE_ID_PRIMAX_MOUSE_4E2A    0x4e2a
+>  #define USB_DEVICE_ID_PRIMAX_KEYBOARD    0x4e05
+>  #define USB_DEVICE_ID_PRIMAX_REZEL    0x4e72
+>  #define USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F    0x4d0f
+> diff -rupN a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+> --- a/drivers/hid/hid-quirks.c    2022-12-22 10:24:06.844881247 +0100
+> +++ b/drivers/hid/hid-quirks.c    2022-12-22 10:23:35.904328855 +0100
+> @@ -54,7 +54,6 @@ static const struct hid_device_id hid_qu
+>      { HID_USB_DEVICE(USB_VENDOR_ID_CH, 
+> USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE), HID_QUIRK_NOGET },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS), 
+> HID_QUIRK_NOGET },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_CH, 
+> USB_DEVICE_ID_CH_PRO_THROTTLE), HID_QUIRK_NOGET },
+> -    { HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, 
+> USB_DEVICE_ID_CHERRY_MOUSE_000C), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, 
+> USB_DEVICE_ID_CORSAIR_K65RGB), HID_QUIRK_NO_INIT_REPORTS },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, 
+> USB_DEVICE_ID_CORSAIR_K65RGB_RAPIDFIRE), HID_QUIRK_NO_INIT_REPORTS | 
+> HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, 
+> USB_DEVICE_ID_CORSAIR_K70RGB), HID_QUIRK_NO_INIT_REPORTS },
+> @@ -123,7 +122,6 @@ static const struct hid_device_id hid_qu
+>      { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
+> USB_DEVICE_ID_LOGITECH_MOUSE_C05A), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 
+> USB_DEVICE_ID_LOGITECH_MOUSE_C06A), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_MCS, 
+> USB_DEVICE_ID_MCS_GAMEPADBLOCK), HID_QUIRK_MULTI_INPUT },
+> -    { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+> USB_DEVICE_ID_MS_MOUSE_0783), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+> USB_DEVICE_ID_MS_PIXART_MOUSE), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+> USB_DEVICE_ID_MS_POWER_COVER), HID_QUIRK_NO_INIT_REPORTS },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_MICROSOFT, 
+> USB_DEVICE_ID_MS_SURFACE3_COVER), HID_QUIRK_NO_INIT_REPORTS },
+> @@ -148,7 +146,6 @@ static const struct hid_device_id hid_qu
+>      { HID_USB_DEVICE(USB_VENDOR_ID_PIXART, 
+> USB_DEVICE_ID_PIXART_OPTICAL_TOUCH_SCREEN), HID_QUIRK_NO_INIT_REPORTS },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_PIXART, 
+> USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, 
+> USB_DEVICE_ID_PRIMAX_MOUSE_4D22), HID_QUIRK_ALWAYS_POLL },
+> -    { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, 
+> USB_DEVICE_ID_PRIMAX_MOUSE_4E2A), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, 
+> USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D0F), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, 
+> USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4D65), HID_QUIRK_ALWAYS_POLL },
+>      { HID_USB_DEVICE(USB_VENDOR_ID_PRIMAX, 
+> USB_DEVICE_ID_PRIMAX_PIXART_MOUSE_4E22), HID_QUIRK_ALWAYS_POLL },
+>
+> [5]
+>
+> Bus 003 Device 002: ID 046a:000c Cherry GmbH
+> Couldn't open device, some information will be missing
+> Device Descriptor:
+>   bLength                18
+>   bDescriptorType         1
+>   bcdUSB               1.10
+>   bDeviceClass            0
+>   bDeviceSubClass         0
+>   bDeviceProtocol         0
+>   bMaxPacketSize0         8
+>   idVendor           0x046a Cherry GmbH
+>   idProduct          0x000c
+>   bcdDevice            8.10
+>   iManufacturer           0
+>   iProduct                0
+>   iSerial                 0
+>   bNumConfigurations      1
+>   Configuration Descriptor:
+>     bLength                 9
+>     bDescriptorType         2
+>     wTotalLength       0x0022
+>     bNumInterfaces          1
+>     bConfigurationValue     1
+>     iConfiguration          0
+>     bmAttributes         0xa0
+>       (Bus Powered)
+>       Remote Wakeup
+>     MaxPower              100mA
+>     Interface Descriptor:
+>       bLength                 9
+>       bDescriptorType         4
+>       bInterfaceNumber        0
+>       bAlternateSetting       0
+>       bNumEndpoints           1
+>       bInterfaceClass         3 Human Interface Device
+>       bInterfaceSubClass      1 Boot Interface Subclass
+>       bInterfaceProtocol      2 Mouse
+>       iInterface              0
+>         HID Device Descriptor:
+>           bLength                 9
+>           bDescriptorType        33
+>           bcdHID               1.00
+>           bCountryCode            0 Not supported
+>           bNumDescriptors         1
+>           bDescriptorType        34 Report
+>           wDescriptorLength      52
+>          Report Descriptors:
+>            ** UNAVAILABLE **
+>       Endpoint Descriptor:
+>         bLength                 7
+>         bDescriptorType         5
+>         bEndpointAddress     0x81  EP 1 IN
+>         bmAttributes            3
+>           Transfer Type            Interrupt
+>           Synch Type               None
+>           Usage Type               Data
+>         wMaxPacketSize     0x0004  1x 4 bytes
+>         bInterval              10
+>
 

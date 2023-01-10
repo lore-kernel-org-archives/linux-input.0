@@ -2,81 +2,85 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 347E8C46467
-	for <linux-input@archiver.kernel.org>; Tue, 10 Jan 2023 14:00:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 60880C54EBC
+	for <linux-input@archiver.kernel.org>; Tue, 10 Jan 2023 14:06:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230432AbjAJOAS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Jan 2023 09:00:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53038 "EHLO
+        id S238637AbjAJOGJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Jan 2023 09:06:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238169AbjAJN7x (ORCPT
+        with ESMTP id S238493AbjAJOFg (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Jan 2023 08:59:53 -0500
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ACD03FA0F;
-        Tue, 10 Jan 2023 05:59:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1673359192; x=1704895192;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=CRS2K4zBotqHWkxsfKVWb7fKlZiMZd2LF1APTx5JxHM=;
-  b=bEg5ZCEiGPdDK1ukkziTKTBlK99ChO4bN8xsFkpvQK8NwUrqUe6tlWaC
-   +ka9pIxunn+pedl17zUZhCPNZx5Dm/hXK3mqYiIYzHy9qmj3l6avx8JHA
-   yHkWlNhkUbEylPuydTFWBgqnTyTUn0bSyqaE2x/SrabXhi1UaSWS96tqm
-   skxk4ZGTexWsA6ZMoWpSAMqnIFx9oxohIjtg/YKdxegfSv8Nu4znQOnSw
-   MinhqlJs+L++57ECJKsZXJAL1tL8n+lBgNgKL8wym/yLSQlnmrmFj4D2r
-   wIJ/D17UaqolkT69YkbKhuHaIEGm0DTNardhiRm7WdcYi6Ima9cjD2fyr
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="387600562"
-X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="387600562"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Jan 2023 05:59:47 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10585"; a="830997736"
-X-IronPort-AV: E=Sophos;i="5.96,315,1665471600"; 
-   d="scan'208";a="830997736"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by orsmga005.jf.intel.com with ESMTP; 10 Jan 2023 05:59:46 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1pFFAG-0073P5-2e;
-        Tue, 10 Jan 2023 15:59:44 +0200
-Date:   Tue, 10 Jan 2023 15:59:44 +0200
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v1 1/2] HID: i2c-hid: acpi: Drop unneded NULL check of
- adev
-Message-ID: <Y71vUGrUtsAK0zIk@smile.fi.intel.com>
-References: <20221122191821.18076-1-andriy.shevchenko@linux.intel.com>
- <Y6wNX12SyXpU5UKI@smile.fi.intel.com>
+        Tue, 10 Jan 2023 09:05:36 -0500
+X-Greylist: delayed 600 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 10 Jan 2023 06:05:19 PST
+Received: from srv6.fidu.org (srv6.fidu.org [159.69.62.71])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D2359323;
+        Tue, 10 Jan 2023 06:05:19 -0800 (PST)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by srv6.fidu.org (Postfix) with ESMTP id 5805FC80098;
+        Tue, 10 Jan 2023 14:45:29 +0100 (CET)
+Authentication-Results: srv6.fidu.org (amavisd-new); dkim=pass (1024-bit key)
+        reason="pass (just generated, assumed good)"
+        header.d=tuxedocomputers.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        tuxedocomputers.com; h=content-transfer-encoding:mime-version
+        :x-mailer:message-id:date:date:subject:subject:from:from; s=
+        default; t=1673358329; x=1675172730; bh=4DKaJu+WPPVZCeQEpaqoy53S
+        NXY+bFCNbliOvLVKW0Q=; b=bS/gkEDf6oX+HG9tC2M9C4lY3gi0ir9y2TrSj6oc
+        GXWhK0vyJY92wxKWdtOOuK4Bzt+KbSZQKqe9sO9STon/ATN+OeXl/Zz8yXHo42Lb
+        iEtiPJ4jORXBJA54q/BIhrqYFQHJWkhOYA59bRkhdqgBcnPJs1/dU5sjGCGOkVbt
+        oPM=
+X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
+Received: from srv6.fidu.org ([127.0.0.1])
+        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
+        with LMTP id w4yJp4eBLLND; Tue, 10 Jan 2023 14:45:29 +0100 (CET)
+Received: from wsembach-tuxedo.fritz.box (host-88-217-226-44.customer.m-online.net [88.217.226.44])
+        (Authenticated sender: wse@tuxedocomputers.com)
+        by srv6.fidu.org (Postfix) with ESMTPA id AEF64C80097;
+        Tue, 10 Jan 2023 14:45:28 +0100 (CET)
+From:   Werner Sembach <wse@tuxedocomputers.com>
+To:     dmitry.torokhov@gmail.com, hdegoede@redhat.com,
+        wse@tuxedocomputers.com, mkorpershoek@baylibre.com,
+        chenhuacai@kernel.org, tiwai@suse.de,
+        wsa+renesas@sang-engineering.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: i8042 - add Clevo PCX0DX to i8042 quirk table
+Date:   Tue, 10 Jan 2023 14:45:24 +0100
+Message-Id: <20230110134524.553620-1-wse@tuxedocomputers.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y6wNX12SyXpU5UKI@smile.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, Dec 28, 2022 at 11:33:19AM +0200, Andy Shevchenko wrote:
-> On Tue, Nov 22, 2022 at 09:18:20PM +0200, Andy Shevchenko wrote:
-> > The driver is enumerated on ACPI platforms, so adev is valid.
-> > Since there is no valid I²C ID table provided, there is no
-> > possibility to bind a device to this driver via user space.
-> > Hence, drop unneeded NULL check of adev.
-> 
-> Is there any comment on this?
-> Can it be applied?
+The Clevo PCX0DX/TUXEDO XP1511, need quirks for the keyboard to not be
+occasionally unresponsive after resume.
 
-Whom should I ask about this series?
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/input/serio/i8042-acpipnpio.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
+diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
+index 46f8a694291ed..efc61736099b9 100644
+--- a/drivers/input/serio/i8042-acpipnpio.h
++++ b/drivers/input/serio/i8042-acpipnpio.h
+@@ -1238,6 +1238,13 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
+ 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
+ 	},
++	{
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "PCX0DX"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
+ 	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "X170SM"),
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.34.1
 

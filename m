@@ -2,85 +2,144 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 60880C54EBC
-	for <linux-input@archiver.kernel.org>; Tue, 10 Jan 2023 14:06:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D900CC678D6
+	for <linux-input@archiver.kernel.org>; Tue, 10 Jan 2023 14:48:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238637AbjAJOGJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Jan 2023 09:06:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57404 "EHLO
+        id S238460AbjAJOse (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Jan 2023 09:48:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238493AbjAJOFg (ORCPT
+        with ESMTP id S238702AbjAJOsZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Jan 2023 09:05:36 -0500
-X-Greylist: delayed 600 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 10 Jan 2023 06:05:19 PST
-Received: from srv6.fidu.org (srv6.fidu.org [159.69.62.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94D2359323;
-        Tue, 10 Jan 2023 06:05:19 -0800 (PST)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id 5805FC80098;
-        Tue, 10 Jan 2023 14:45:29 +0100 (CET)
-Authentication-Results: srv6.fidu.org (amavisd-new); dkim=pass (1024-bit key)
-        reason="pass (just generated, assumed good)"
-        header.d=tuxedocomputers.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        tuxedocomputers.com; h=content-transfer-encoding:mime-version
-        :x-mailer:message-id:date:date:subject:subject:from:from; s=
-        default; t=1673358329; x=1675172730; bh=4DKaJu+WPPVZCeQEpaqoy53S
-        NXY+bFCNbliOvLVKW0Q=; b=bS/gkEDf6oX+HG9tC2M9C4lY3gi0ir9y2TrSj6oc
-        GXWhK0vyJY92wxKWdtOOuK4Bzt+KbSZQKqe9sO9STon/ATN+OeXl/Zz8yXHo42Lb
-        iEtiPJ4jORXBJA54q/BIhrqYFQHJWkhOYA59bRkhdqgBcnPJs1/dU5sjGCGOkVbt
-        oPM=
-X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
-Received: from srv6.fidu.org ([127.0.0.1])
-        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
-        with LMTP id w4yJp4eBLLND; Tue, 10 Jan 2023 14:45:29 +0100 (CET)
-Received: from wsembach-tuxedo.fritz.box (host-88-217-226-44.customer.m-online.net [88.217.226.44])
-        (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPA id AEF64C80097;
-        Tue, 10 Jan 2023 14:45:28 +0100 (CET)
-From:   Werner Sembach <wse@tuxedocomputers.com>
-To:     dmitry.torokhov@gmail.com, hdegoede@redhat.com,
-        wse@tuxedocomputers.com, mkorpershoek@baylibre.com,
-        chenhuacai@kernel.org, tiwai@suse.de,
-        wsa+renesas@sang-engineering.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: i8042 - add Clevo PCX0DX to i8042 quirk table
-Date:   Tue, 10 Jan 2023 14:45:24 +0100
-Message-Id: <20230110134524.553620-1-wse@tuxedocomputers.com>
-X-Mailer: git-send-email 2.34.1
+        Tue, 10 Jan 2023 09:48:25 -0500
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0A724FCF2;
+        Tue, 10 Jan 2023 06:48:24 -0800 (PST)
+Received: by mail-lj1-x22f.google.com with SMTP id p25so6524944ljn.12;
+        Tue, 10 Jan 2023 06:48:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=v5WsDUKqWc4u2jJZSjpZXWIATqF3Ue62OEMi4UxyJJ0=;
+        b=oc2q/yf7Mk3QIlXAJYeunlc0xCzF2jvNa+OlXsTXr8lFDtVjeEoCiol1ouFQbJZ1B/
+         DVduttuoKizppvkqtLxYQMTN1QKiOES3NgF5UoqkbILX/9nFbBsNVPPoS/kJBTtUDqQc
+         Ik8CVMr+t/u/sRvPOc1FGAoLlVDF5BbKylVDYae3TcaZwzoGO9F8VhJUtQ5Y6X0Z36Ta
+         36QV6jghOZeBndrBoq15x2Sjvk+jMdZovO0HHTsV281PKgjZOJwrbIwxn5ocyhEI5FLU
+         8ax3oiWPUPJ9jSZ1wFRrDypucm2G1ZtJvrPVSdzNQ6o7UPBE6qtodw3i1TYsypPXfi6a
+         aqAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=v5WsDUKqWc4u2jJZSjpZXWIATqF3Ue62OEMi4UxyJJ0=;
+        b=0JVdiHa+KxICLADOT3e2rcItXgVvuVGZhxd9stmLuk2GkMTHVq+WDlsm4JO/2Lc5aA
+         nc6AVzpLKEJjOSIf+IVYL3/skTExZF0+0M7QVlbVCR92mVUo1UCg5un7+VOtD6sTP5+h
+         JegD69BaSNH6nMTywo0zBdgaTpgWXpwj9Gi1iPmkByuACzJvY83v9J5D5+WBKgpZjyep
+         qIvBo0ma77YY39VG0TG7xUbmnlWHGBmekB9TqhQW0IoKIXXya+7UotGzchO7H/78Me68
+         /+7jJhnk1+7BK8JA8E73oCsz4+RJjMwuv4U/TaMXpQjh6MnssY2ltgcwknToxz6JRBoP
+         6KWQ==
+X-Gm-Message-State: AFqh2kpO0qJNKImfr4vBONVdM8EioK5MSl8V1vZxqw2UkVBl0JVY5Rvx
+        9qIItHe2wcAxNtq3w5wT5nU=
+X-Google-Smtp-Source: AMrXdXsgTVvxwQgYkltkVwEjosBkKDYfG19UHkSooATESFBmQ4jCcULgczuaRd9ZB3b5tLhmA/IqUQ==
+X-Received: by 2002:a2e:95c6:0:b0:285:74d8:fd15 with SMTP id y6-20020a2e95c6000000b0028574d8fd15mr1698704ljh.9.1673362102984;
+        Tue, 10 Jan 2023 06:48:22 -0800 (PST)
+Received: from gmail.com (82-209-154-112.cust.bredband2.com. [82.209.154.112])
+        by smtp.gmail.com with ESMTPSA id t21-20020a2e8e75000000b0027b54ff90c0sm1323531ljk.139.2023.01.10.06.48.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Jan 2023 06:48:21 -0800 (PST)
+Date:   Tue, 10 Jan 2023 15:48:33 +0100
+From:   Marcus Folkesson <marcus.folkesson@gmail.com>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Jonathan Corbet <corbet@lwn.net>, Jiri Kosina <jikos@kernel.org>,
+        Linux Doc Mailing List <linux-doc@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>
+Subject: Re: [RESEND PATCH 1/2] HID: Add driver for RC Simulator Controllers
+Message-ID: <Y716wUFVm+PvkMqv@gmail.com>
+References: <20220822060936.769855-1-marcus.folkesson@gmail.com>
+ <CAO-hwJ+3Yrr--cr=r5+jvs4A=A-cmDtrKQETo=YOYDC3nXTMBg@mail.gmail.com>
+ <YwTvrNuulKx0SB6H@gmail.com>
+ <CAO-hwJKiq50fWwXNUGcXeWtWcUXb65ZmJMsADfrsUTac_Xj2dw@mail.gmail.com>
+ <YwcbVJswrL1Doi4s@gmail.com>
+ <CAO-hwJJ86oAuaFD+uX7Rwv7cASO=4mchRJ1UBTxz9gYs6M1rUg@mail.gmail.com>
+ <YyLVblZkIPCvNd/2@gmail.com>
+ <CAO-hwJJ5dRrgxrae-RasYXuu7C9xjw6RmPaPfmO=YU3StMaQ3A@mail.gmail.com>
+ <d4b420a0-23da-6ab6-886a-7342f7e63651@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="CYuxnQgK2200QJ9N"
+Content-Disposition: inline
+In-Reply-To: <d4b420a0-23da-6ab6-886a-7342f7e63651@redhat.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The Clevo PCX0DX/TUXEDO XP1511, need quirks for the keyboard to not be
-occasionally unresponsive after resume.
 
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Cc: stable@vger.kernel.org
----
- drivers/input/serio/i8042-acpipnpio.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+--CYuxnQgK2200QJ9N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
-index 46f8a694291ed..efc61736099b9 100644
---- a/drivers/input/serio/i8042-acpipnpio.h
-+++ b/drivers/input/serio/i8042-acpipnpio.h
-@@ -1238,6 +1238,13 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
- 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
- 	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "PCX0DX"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "X170SM"),
--- 
-2.34.1
+Hi Benjamin,
 
+On Mon, Sep 19, 2022 at 03:32:37PM +0200, Benjamin Tissoires wrote:
+>=20
+>=20
+
+[...]
+
+>=20
+> I am back home, and I just tested that. I had a doubt, and it is indeed
+> failing. You need the following change for this to be working (I need to
+> send it as a proper patch after assessing it hasn't side effects)
+
+Did it come up with any side effects? :-)
+
+>=20
+> ---
+>=20
+> diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+> index 13cce286247e..f37ffe2bd488 100644
+> --- a/drivers/hid/usbhid/hid-core.c
+> +++ b/drivers/hid/usbhid/hid-core.c
+> @@ -275,6 +275,7 @@ static void hid_irq_in(struct urb *urb)
+>         int                     status;
+>         switch (urb->status) {
+> +       case -EOVERFLOW:        /* happens with modified report descripto=
+rs */
+>         case 0:                 /* success */
+>                 usbhid->retry_delay =3D 0;
+>                 if (!test_bit(HID_OPENED, &usbhid->iofl))
+> ---
+>=20
+> Cheers,
+> Benjamin
+>=20
+
+Best regards,
+Marcus Folkesson
+
+
+--CYuxnQgK2200QJ9N
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAmO9erwACgkQiIBOb1ld
+UjIKFA//chEo/4qumcU+/1AFw44iiyHLU7hw3sANpAQkevMeFkzQUrE25/7/Oul9
+PRzga+rowCyIFQMWqlj5qrr3ns5tOXUFZaCZmcK0az0sKIFhPnSgR8fBHEAmgUiK
+mPyMuOQ6DMTkO6wvv4tstNw2SzA4xjaxRsVKsb/B4NFjJOefLTxWKQPWcPMkJNtn
++GOsdDBwj+r1pd9xse0d6VHpZklV5tGw0nONclTisQ8WvtQS+PQVWkAFoJoj0kF6
+wLu2059i2T4sxZr8vpJiqZzM4DVAG2z3lvdp5j5SxoUDxp+TA+m8J/xMRMElhIpK
+iO8QWlvOWS9q1PKzN6rJHqffhGPeoHt11zoKeHD67mYE/s+C0SX3tiXefobRjkFf
+/bl+kve2AgJBAMBbQdUEHt1v4uoczj2oqljKQxkOwY1Uu7a1QxuWUfaVWHuklVsq
+tUffwME//mjn/liJsALqJA7k75ZmlApHJiCv0+LOq4LWdC0LIHWN5Z4/oRmClLpp
+o/mpTlUA3G+pEw0Gkv4ypMmDLoj5S7ljIdH08wmB4lhe2l38Fq5m6Y7Q/iXm1TXX
+XkTOo6a2185ExqVk+MPAkRhr/v95ZFHLnYM56oyERMW2zEgBvWSnQrL49xcOVzDb
+mE4ubjD7WygIVPc558GpEiwAGiPk1sMH+k4Exuj5fptk9kHviAU=
+=JxWA
+-----END PGP SIGNATURE-----
+
+--CYuxnQgK2200QJ9N--

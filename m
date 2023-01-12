@@ -2,150 +2,114 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4256BC61DB3
-	for <linux-input@archiver.kernel.org>; Thu, 12 Jan 2023 19:14:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDD13C61DB3
+	for <linux-input@archiver.kernel.org>; Thu, 12 Jan 2023 20:07:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240066AbjALTOg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Jan 2023 14:14:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40938 "EHLO
+        id S232442AbjALUH1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 12 Jan 2023 15:07:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240686AbjALTN7 (ORCPT
+        with ESMTP id S241389AbjALUDw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Jan 2023 14:13:59 -0500
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2078.outbound.protection.outlook.com [40.107.94.78])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD5AE6382;
-        Thu, 12 Jan 2023 11:02:11 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=iFjrTbLjHZfnMB4R3neyWIsGlU2RBh902Zadp9uYub9Wc/xZbsmdP31fm+WfNZpW34RZJ91dBz1Ope9eiTLv+952KKR5ynuBvD8hWZo0vI+LCFiUMdYkFRrgzO9vkmCBBHua93c+xCDoqvnxzSUDzo7QvbHOxGXtwhlIb5tAzuQa6rv/snFst3oc2RGVjqVJ5j18q5HqHw8aN6wiG5DnHxndun8Co2gC49IY+Mf01wG3vDDz7YUaHBpULh3tCAJjYXyjQqLeGtnJNYexbU2xjLaObOnTO/DSpnh4p2XhL9CGUHV9QJLDu+QNvBe9NQp8XvjOG5I2u7a9CUmC5zjhVg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VcWz4bGvK7Lm8TTvYRIv15B/9fACHNrbCYg7PRki43w=;
- b=JqAF5c8FoLHlAkyXmnUc+IBjdsUfwy++5NGqEAoc3OR6Q0vkOdRsAnDmgMPbE6PmEA03BkBe1zQzZ19LKmj56cKRBl1qilgkNmbaAjDA+//mfEPSlK01kTZmPugIzaxP/nPVM434RntTs/6Tzcf/jagzHExTAybgRfcyDHVbcy+KN+eYvT6mpJSeoG5KHTmFuHXUgGwbRztGOiAdm4nKnDX3DvgB+Gos7usLHmOfs4EM9RNdYbWOSyWOcjwGnZ7arQRqq7A5i9+5MU5xOr3S4vJNWueQu+9/o58/6hYW3ZNhLZPqNseEcpRbnzgcA52g7fcM93WgxKRhXcHRaC3XyA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=suse.cz smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VcWz4bGvK7Lm8TTvYRIv15B/9fACHNrbCYg7PRki43w=;
- b=GXdxuKT3e8KNqU38Bnu9VpF2sjvuMmFR3g9TVpLMs/Uc8SjQRsQwbZAjW5P2zWxyWRakft2/P+sqcg7187XAxrcP1dXxwEcDzftePHeEKnlVLgnhiO0+fcLl6kBcVUPPaekLGe1wlErNPaxRzpZjTvpTuWpI0bvmcPcKCJGCZ1g=
-Received: from DS7PR05CA0076.namprd05.prod.outlook.com (2603:10b6:8:57::13) by
- CH0PR12MB5281.namprd12.prod.outlook.com (2603:10b6:610:d4::23) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.5986.19; Thu, 12 Jan 2023 19:02:10 +0000
-Received: from DM6NAM11FT088.eop-nam11.prod.protection.outlook.com
- (2603:10b6:8:57:cafe::dd) by DS7PR05CA0076.outlook.office365.com
- (2603:10b6:8:57::13) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6023.6 via Frontend
- Transport; Thu, 12 Jan 2023 19:02:09 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT088.mail.protection.outlook.com (10.13.172.147) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6002.13 via Frontend Transport; Thu, 12 Jan 2023 19:02:09 +0000
-Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Thu, 12 Jan
- 2023 13:02:08 -0600
-From:   Mario Limonciello <mario.limonciello@amd.com>
-To:     Basavaraj Natikar <basavaraj.natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>
-CC:     Mario Limonciello <mario.limonciello@amd.com>,
-        Xaver Hugl <xaver.hugl@gmail.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] HID: amd_sfh: if no sensors are enabled, clean up
-Date:   Thu, 12 Jan 2023 13:01:31 -0600
-Message-ID: <20230112190131.24460-1-mario.limonciello@amd.com>
-X-Mailer: git-send-email 2.25.1
+        Thu, 12 Jan 2023 15:03:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4252713E2A;
+        Thu, 12 Jan 2023 12:01:31 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0FBDB81E62;
+        Thu, 12 Jan 2023 20:01:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28061C433D2;
+        Thu, 12 Jan 2023 20:01:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673553688;
+        bh=DjplknG/Og42vIVzT/q7FbntQdQMbrnKJqFFsTyhjNM=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=EUafdQGi6kPVntwFcsX8dQ++eMfDpAt4hRufXGYp4rn3498p9O5an8Dtzb32f8VZO
+         /0dwxqLx9EiZWyrofGYjXdGydKTREAjzdQvusJ0Ow7D4V0fv83WO6VIMOVK93JIW2S
+         WKNFKVIBv7VwC+kTD5h1WgF5etFBp2YPn8S3ZXmT1Seav9nsmaQ1vhNBslaNNmcYRn
+         zsCLB4TmasZgZxWFa1UpanGfaUnDdJStrP+pk1HardQUH3NiBxgoCCXTezH0ic2ZBw
+         6otuSPV9m9aONvZu3dzL7IfHqeZgMZCL4VALktP1HibdXNi78cOSWjN0jogQQsvptF
+         31XhLFJQie5QQ==
+From:   Mark Brown <broonie@kernel.org>
+To:     Robert Jarzmik <robert.jarzmik@free.fr>,
+        Arnd Bergmann <arnd@kernel.org>
+Cc:     Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Arnd Bergmann <arnd@arndb.de>, stern@rowland.harvard.edu,
+        alexandre.belloni@bootlin.com, brgl@bgdev.pl,
+        damien.lemoal@opensource.wdc.com, dmitry.torokhov@gmail.com,
+        linux@dominikbrodowski.net, balbi@kernel.org,
+        gregkh@linuxfoundation.org, deller@gmx.de, perex@perex.cz,
+        jingoohan1@gmail.com, lee@kernel.org, kernel@wantstofly.org,
+        lgirdwood@gmail.com, linus.walleij@linaro.org,
+        marek.vasut@gmail.com, mkpetch@internode.on.net,
+        miquel.raynal@bootlin.com, lost.distance@yahoo.com,
+        philipp.zabel@gmail.com, linux@armlinux.org.uk, sre@kernel.org,
+        slapin@ossfans.org, s.shtylyov@omp.ru, sudipm.mukherjee@gmail.com,
+        tiwai@suse.com, ulf.hansson@linaro.org, vigneshr@ti.com,
+        viresh.kumar@linaro.org, wsa+renesas@sang-engineering.com,
+        linux-pm@vger.kernel.org, linux-ide@vger.kernel.org,
+        linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+        patches@opensource.cirrus.com, linux-leds@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+        linux-mtd@lists.infradead.org, linux-rtc@vger.kernel.org,
+        linux-usb@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org
+In-Reply-To: <20230105134622.254560-1-arnd@kernel.org>
+References: <20230105134622.254560-1-arnd@kernel.org>
+Subject: Re: (subset) [PATCH v2 00/27] ARM: pxa: remove all unused boards&drivers
+Message-Id: <167355367885.2500964.3629822486060649314.b4-ty@kernel.org>
+Date:   Thu, 12 Jan 2023 20:01:18 +0000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM6NAM11FT088:EE_|CH0PR12MB5281:EE_
-X-MS-Office365-Filtering-Correlation-Id: 93a6b007-0e04-4da7-bb70-08daf4cf819f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: /ySzK8wWMq6iTykGT8EiJhwq6paDrcUJkx3S/M0wqBW0DH8zXGkPJ/HUIu5dWeIsLrgakYFkEVkNQD0/OAL+G4yU6AQP0NHp9A2HwClnlRSs2VPYyhHiBOYAuUhPEo74iJyOeC7gWRAaUx+5RPK+2LPDazRm5A3nlU1fn1Rp+1GzRvgkQ3wgmSoX+xy20EX5XuZUzLhjH+aCx/OEDDdME3mAxGo19nslWoQiB/mZ4yp/6ARwINyDiC1lnvQWnFvWJhiq6IUo2bs7Oo4cRVvs4m06DSLmd3twUDZUsEjfxfP6m6k0VTJN5eb+HYecQba/2EwDBB/9Dq8LBXLIjN39pcpmQRNJ9qj/aRooSD1DtzYgMd/yCE1DtdPaDe2BdH28csIW8GL+ZgMC1agL4nZyf+h938plkR5g3BIcq4DDikn8GUiL11SGWkTAORYaWbw4iwXqXWwmzGZaQ5iK/XZWx3RiDSc34La3EfNs7nhL8EUBeqp720IrN+bjnq6X3oJHHJlYxLEEwaYiYkjCaGKG0guUoMvt0a2T7lGq8uoQluoPusc2yNVmvZDTTFtBcaE9OI0Fpb33x6GH4RNngpePHc2DO0IGUuoFFymRR2VBJ6FJekuQp2rj9pjecN9u9c4suFqvUarV9zGYUUSj6tM0oz1tmAs2vK62HP1OB4pw/SUjarP1aNdbEI0jlpXrAs1/
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230022)(4636009)(136003)(39860400002)(396003)(376002)(346002)(451199015)(36840700001)(46966006)(40470700004)(7696005)(16526019)(966005)(186003)(26005)(478600001)(1076003)(316002)(70206006)(54906003)(6666004)(110136005)(2616005)(70586007)(4326008)(336012)(8676002)(36860700001)(47076005)(426003)(81166007)(8936002)(5660300002)(41300700001)(83380400001)(40480700001)(44832011)(86362001)(356005)(36756003)(82310400005)(82740400003)(2906002)(40460700003)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jan 2023 19:02:09.5701
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 93a6b007-0e04-4da7-bb70-08daf4cf819f
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT088.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH0PR12MB5281
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.12-dev-8b3d1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It was reported that commit b300667b33b2 ("HID: amd_sfh: Disable the
-interrupt for all command") had caused increased resume time on HP Envy
-x360.
+On Thu, 05 Jan 2023 14:45:55 +0100, Arnd Bergmann wrote:
+> Most of the legacy PXA board files were marked as unused in linux-5.19 and
+> can get removed in linux-6.3. There is support for pxa250/pxa270/pxa300
+> using devicetree already, which supports a number of boards, but progress
+> on converting the remaining ones has stalled over the past few years.
+> 
+> The two boards that are left in the tree for now are the three 'sharpsl'
+> variants (spitz/akita/borzoi) and the 'gumstix' family of machines.
+> Both of these are supported by qemu, which can be helpful for completing
+> the DT conversion.
+> 
+> [...]
 
-Before this commit 3 sensors were reported, but they were not actually
-functional.  After this commit the sensors are no longer reported, but
-also the resume time increased.
+Applied to
 
-To avoid this problem explicitly look for the number of disabled sensors.
-If all the sensors are disabled, clean everything up.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-next
 
-Fixes: b300667b33b2 ("HID: amd_sfh: Disable the interrupt for all command")
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2115
-Reported-by: Xaver Hugl <xaver.hugl@gmail.com>
-Tested-by: Xaver Hugl <xaver.hugl@gmail.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
----
- drivers/hid/amd-sfh-hid/amd_sfh_client.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+Thanks!
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-index ab125f79408f2..7469691b4a633 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-@@ -227,6 +227,7 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
- 	cl_data->num_hid_devices = amd_mp2_get_sensor_num(privdata, &cl_data->sensor_idx[0]);
- 	if (cl_data->num_hid_devices == 0)
- 		return -ENODEV;
-+	cl_data->hid_dev_count = cl_data->num_hid_devices;
- 
- 	INIT_DELAYED_WORK(&cl_data->work, amd_sfh_work);
- 	INIT_DELAYED_WORK(&cl_data->work_buffer, amd_sfh_work_buffer);
-@@ -301,12 +302,18 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
- 					cl_data->sensor_sts[i]);
- 				goto cleanup;
- 			}
-+		} else {
-+			mp2_ops->stop(privdata, cl_data->sensor_idx[i]);
-+			status = amd_sfh_wait_for_response
-+				(privdata, cl_data->sensor_idx[i], SENSOR_DISABLED);
-+			cl_data->hid_dev_count--;
- 		}
- 		dev_dbg(dev, "sid 0x%x (%s) status 0x%x\n",
- 			cl_data->sensor_idx[i], get_sensor_name(cl_data->sensor_idx[i]),
- 			cl_data->sensor_sts[i]);
- 	}
--	if (mp2_ops->discovery_status && mp2_ops->discovery_status(privdata) == 0) {
-+	if (!cl_data->hid_dev_count ||
-+	   (mp2_ops->discovery_status && mp2_ops->discovery_status(privdata) == 0)) {
- 		amd_sfh_hid_client_deinit(privdata);
- 		for (i = 0; i < cl_data->num_hid_devices; i++) {
- 			devm_kfree(dev, cl_data->feature_report[i]);
--- 
-2.34.1
+[14/27] ASoC: PXA: make SND_PXA2XX_SOC_AC97 user-selectable
+        commit: 5eab9265759e2fb042aa452931c3d06ab7ab8dae
+[15/27] ASoC: pxa: remove unused board support
+        (no commit info)
 
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
+
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
+
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
+
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
+
+Thanks,
+Mark

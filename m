@@ -2,108 +2,92 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BEFCC61DB3
-	for <linux-input@archiver.kernel.org>; Thu, 12 Jan 2023 20:50:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6CC3C61DB3
+	for <linux-input@archiver.kernel.org>; Fri, 13 Jan 2023 06:25:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232627AbjALUuV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 12 Jan 2023 15:50:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52292 "EHLO
+        id S239644AbjAMGZA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 13 Jan 2023 01:25:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239769AbjALUt5 (ORCPT
+        with ESMTP id S236259AbjAMGYQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 12 Jan 2023 15:49:57 -0500
-X-Greylist: delayed 1346 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 12 Jan 2023 12:20:20 PST
-Received: from srv6.fidu.org (srv6.fidu.org [159.69.62.71])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB89D12609;
-        Thu, 12 Jan 2023 12:20:20 -0800 (PST)
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by srv6.fidu.org (Postfix) with ESMTP id 83B4FC80091;
-        Thu, 12 Jan 2023 20:57:52 +0100 (CET)
-X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
-Received: from srv6.fidu.org ([127.0.0.1])
-        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10024)
-        with LMTP id Et299hrPquQa; Thu, 12 Jan 2023 20:57:52 +0100 (CET)
-Received: from [192.168.176.165] (host-88-217-226-44.customer.m-online.net [88.217.226.44])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (No client certificate requested)
-        (Authenticated sender: wse@tuxedocomputers.com)
-        by srv6.fidu.org (Postfix) with ESMTPSA id 6319BC8008D;
-        Thu, 12 Jan 2023 20:57:51 +0100 (CET)
-Message-ID: <5824c823-dced-bdff-dbd1-5cec9e89480f@tuxedocomputers.com>
-Date:   Thu, 12 Jan 2023 20:57:50 +0100
+        Fri, 13 Jan 2023 01:24:16 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469BF5BA26;
+        Thu, 12 Jan 2023 22:23:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=pE5vHsweVi9sw+XFtbQOjd8ZmlFDvTP0hqXRxtOPgdI=; b=UPm4fiFNqG828TmS+12Rola8gO
+        eqHlHcKs17NiINhJVso8pQaJLXAawxXFCKuLlP7HRjKIjJN2ZXqL/cl3jIEux4plqaePmjKWoVYai
+        QlJizCpTb7yVhQxL/QJWjJ37KmX8qVxA7Rot4hYXsbm50Ukgoehbb75E6d7ZbOqa0NS55yCF1vD12
+        hTv+9XqO7HKABDyO220qXwurWxcmgcwBxl9/GRlKpDUCPyGWGMAz1KKVnajqZK+KC0juYlZ2W8UlT
+        3xv/hB5gSMNo2fI0kJb/GNm6IFqQb0S3ZTYgJMi4xbRkGq5u2ysaI8Zc1eFL7BGimSK1gVFq75foe
+        LEx3cuRw==;
+Received: from [2001:4bb8:181:656b:9509:7d20:8d39:f895] (helo=localhost)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pGDTf-000lNa-NO; Fri, 13 Jan 2023 06:23:48 +0000
+From:   Christoph Hellwig <hch@lst.de>
+To:     Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arch@vger.kernel.org,
+        dmaengine@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
+        netdev@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
+        linux-sh@vger.kernel.org
+Subject: [PATCH 02/22] usb: remove the dead USB_OHCI_SH option
+Date:   Fri, 13 Jan 2023 07:23:19 +0100
+Message-Id: <20230113062339.1909087-3-hch@lst.de>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230113062339.1909087-1-hch@lst.de>
+References: <20230113062339.1909087-1-hch@lst.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH v6 09/13] HID: i2c-hid: acpi: Stop setting wakeup_capable
-Content-Language: en-US
-To:     Raul E Rangel <rrangel@chromium.org>, linux-acpi@vger.kernel.org,
-        linux-input@vger.kernel.org
-Cc:     andriy.shevchenko@linux.intel.com, dmitry.torokhov@gmail.com,
-        hdegoede@redhat.com, rafael@kernel.org,
-        mika.westerberg@linux.intel.com, mario.limonciello@amd.com,
-        timvp@google.com, linus.walleij@linaro.org, jingle.wu@emc.com.tw,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Alistair Francis <alistair@alistair23.me>,
-        Jiri Kosina <jikos@kernel.org>, Rob Herring <robh@kernel.org>,
-        linux-kernel@vger.kernel.org
-References: <20220929161917.2348231-1-rrangel@chromium.org>
- <20220929093200.v6.9.I2efb7f551e0aa2dc4c53b5fd5bbea91a1cdd9b32@changeid>
-From:   Werner Sembach <wse@tuxedocomputers.com>
-In-Reply-To: <20220929093200.v6.9.I2efb7f551e0aa2dc4c53b5fd5bbea91a1cdd9b32@changeid>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by bombadil.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+USB_OHCI_SH is a dummy option that never builds any code, remove it.
 
-Am 29.09.22 um 18:19 schrieb Raul E Rangel:
-> This is now handled by the i2c-core drive >
-> Signed-off-by: Raul E Rangel <rrangel@chromium.org>
-> Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> ---
-> 
-> (no changes since v5)
-> 
-> Changes in v5:
-> - Added Acked-by: Benjamin Tissoires
-> 
->   drivers/hid/i2c-hid/i2c-hid-acpi.c | 5 -----
->   1 file changed, 5 deletions(-)
-> 
-> diff --git a/drivers/hid/i2c-hid/i2c-hid-acpi.c b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-> index b96ae15e0ad917e..375c77c3db74d92 100644
-> --- a/drivers/hid/i2c-hid/i2c-hid-acpi.c
-> +++ b/drivers/hid/i2c-hid/i2c-hid-acpi.c
-> @@ -105,11 +105,6 @@ static int i2c_hid_acpi_probe(struct i2c_client *client)
->   
->   	acpi_device_fix_up_power(adev);
->   
-> -	if (acpi_gbl_FADT.flags & ACPI_FADT_LOW_POWER_S0) {
-> -		device_set_wakeup_capable(dev, true);
-> -		device_set_wakeup_enable(dev, false);
-> -	}
-> -
->   	return i2c_hid_core_probe(client, &ihid_acpi->ops,
->   				  hid_descriptor_address, 0);
->   }
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/usb/host/Kconfig | 11 -----------
+ 1 file changed, 11 deletions(-)
 
-this patch is causing a regression on the Clevo NL50RU of which the touchpad 
-instantly wakes up the device when going to sleep. That wasn't triggered until 
-this patch by the default settings: Setting wake capable but not enabling it by 
-default. So unless a user enabled it by hand, the device went correctly to sleep.
+diff --git a/drivers/usb/host/Kconfig b/drivers/usb/host/Kconfig
+index 8d799d23c476e1..ca5f657c092cf4 100644
+--- a/drivers/usb/host/Kconfig
++++ b/drivers/usb/host/Kconfig
+@@ -548,17 +548,6 @@ config USB_OHCI_HCD_SSB
+ 
+ 	  If unsure, say N.
+ 
+-config USB_OHCI_SH
+-	bool "OHCI support for SuperH USB controller (DEPRECATED)"
+-	depends on SUPERH || COMPILE_TEST
+-	select USB_OHCI_HCD_PLATFORM
+-	help
+-	  This option is deprecated now and the driver was removed, use
+-	  USB_OHCI_HCD_PLATFORM instead.
+-
+-	  Enables support for the on-chip OHCI controller on the SuperH.
+-	  If you use the PCI OHCI controller, this option is not necessary.
+-
+ config USB_OHCI_EXYNOS
+ 	tristate "OHCI support for Samsung S5P/Exynos SoC Series"
+ 	depends on ARCH_S5PV210 || ARCH_EXYNOS || COMPILE_TEST
+-- 
+2.39.0
 
-I'm not deep into this subsystem so I don't know what the best approach is to 
-?work around this firmware bug?/?fix this issue?:
-- Changing the default back again?
-- Adding a quirk list for bad devices?
-- Maybe this isn't a firmware bug, but the touchpad was not meant to wakeup the 
-device and we can somehow detect that?
-
-For reference: The debugging issue that lead me here: 
-https://gitlab.freedesktop.org/drm/amd/-/issues/1722#note_1719789
-
-Kind regards,
-Werner

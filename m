@@ -2,45 +2,44 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4AFBDC46467
-	for <linux-input@archiver.kernel.org>; Sat, 14 Jan 2023 17:03:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ACDDBC67871
+	for <linux-input@archiver.kernel.org>; Sat, 14 Jan 2023 17:03:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230272AbjANRDA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 14 Jan 2023 12:03:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37916 "EHLO
+        id S229566AbjANRDC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 14 Jan 2023 12:03:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230265AbjANRC6 (ORCPT
+        with ESMTP id S230295AbjANRC7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 14 Jan 2023 12:02:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 909DFA5D8
-        for <linux-input@vger.kernel.org>; Sat, 14 Jan 2023 09:02:57 -0800 (PST)
+        Sat, 14 Jan 2023 12:02:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B91EBB777
+        for <linux-input@vger.kernel.org>; Sat, 14 Jan 2023 09:02:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6623B808C2
-        for <linux-input@vger.kernel.org>; Sat, 14 Jan 2023 17:02:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E6C7C433D2;
-        Sat, 14 Jan 2023 17:02:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49CC860BC1
+        for <linux-input@vger.kernel.org>; Sat, 14 Jan 2023 17:02:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DF6DC433F0;
+        Sat, 14 Jan 2023 17:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1673715774;
-        bh=sCMLoY0TZl0mA3CTDTauBhZyEf4eqEFuiC41HUSHGgY=;
+        s=k20201202; t=1673715777;
+        bh=WmulUa00nVBFtJzNq66tmRXEyQB2Lu/VtCKKfiisxaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ubrC/Q49ITWH5ScYRm3rbD5zeJY5iYXPr/5bzET1mTObp5dj9JtrBtGYlQ6S4Fz+o
-         pExLNIldgIpQ5kTxR6yhu5oky9H2Ye4pj194P5m3VRbehljxPnVT9jc9C2COm3MImt
-         95Xrv6DRASviCYPEdV737ZXe5kfwTEq0wXo8i1dfq/lnhiEJ1QxqqmxuqyCPH7d6mE
-         8Hza1K0esOyJwkc0YerpK6XOSJoQBY6kdVIlzYsdL9JLKXaW5IXJK+zLZZNRaEQSuE
-         zayHNgfjhoC938QdK/tN+AD9CyT3Ot6WdsalEWYOHMLm99lVQvNJ3Ms3kvf1PdgERd
-         cx9LQpkt67MIA==
+        b=LZX9lPzwd1SPD1gjIqO+VdUQ29yowdrwi/zygoqdtdtH4BGoioVWeSaz708KpCYtP
+         XfuCFc+BlhhRQNS7XJlDb9kNa8h8v4uChE1/r1vZKavxH7bXD+74ZCe9hIIBFqhWvy
+         3vYXcDrB/UEsPnPgNSMFpvq4w6ZOn4CH/zbZfztZTU3gW77jKJPUBtToIzRMcCEwT1
+         JHS/Rejua8imUtNJzYQdfE7Y95yB+2GLsW5K5yU5TkjGVBMRtuPR2X5JCXueu1CmIr
+         usN2tFLkg9RZndvWQHMK2Z7vE6l94hlalS/6iwEsbSJoMCcSY0AnZ7yVDI1isuZ7Ok
+         fZHlvkcfaoBhA==
 From:   Jonathan Cameron <jic23@kernel.org>
 To:     linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     jic23@kernel.org, Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Caleb Connolly <caleb@connolly.tech>,
         Andi Shyti <andi@etezian.org>
-Subject: [PATCH 04/16] Input: s6sy761 - switch to SYSTEM_SLEEP_/RUNTIME_PM_OPS() and pm_ptr()
-Date:   Sat, 14 Jan 2023 17:16:08 +0000
-Message-Id: <20230114171620.42891-5-jic23@kernel.org>
+Subject: [PATCH 06/16] Input: stmfts - switch to SYSTEM_SLEEP_/RUNTIME_PM_OPS() and pm_ptr()
+Date:   Sat, 14 Jan 2023 17:16:10 +0000
+Message-Id: <20230114171620.42891-7-jic23@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230114171620.42891-1-jic23@kernel.org>
 References: <20230114171620.42891-1-jic23@kernel.org>
@@ -60,73 +59,71 @@ thus suppressing the warning, but still allowing the unused code to be
 removed. Thus also drop the __maybe_unused markings.
 
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Caleb Connolly <caleb@connolly.tech>
 Cc: Andi Shyti <andi@etezian.org>
 ---
- drivers/input/touchscreen/s6sy761.c | 15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/input/touchscreen/stmfts.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/input/touchscreen/s6sy761.c b/drivers/input/touchscreen/s6sy761.c
-index cc417c03aaca..371cf4848ad5 100644
---- a/drivers/input/touchscreen/s6sy761.c
-+++ b/drivers/input/touchscreen/s6sy761.c
-@@ -479,7 +479,7 @@ static void s6sy761_remove(struct i2c_client *client)
+diff --git a/drivers/input/touchscreen/stmfts.c b/drivers/input/touchscreen/stmfts.c
+index d092e89d40e8..fdbf5e68943c 100644
+--- a/drivers/input/touchscreen/stmfts.c
++++ b/drivers/input/touchscreen/stmfts.c
+@@ -742,7 +742,7 @@ static void stmfts_remove(struct i2c_client *client)
  	pm_runtime_disable(&client->dev);
  }
  
--static int __maybe_unused s6sy761_runtime_suspend(struct device *dev)
-+static int s6sy761_runtime_suspend(struct device *dev)
+-static int __maybe_unused stmfts_runtime_suspend(struct device *dev)
++static int stmfts_runtime_suspend(struct device *dev)
  {
- 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
- 
-@@ -487,7 +487,7 @@ static int __maybe_unused s6sy761_runtime_suspend(struct device *dev)
- 				S6SY761_APPLICATION_MODE, S6SY761_APP_SLEEP);
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
+ 	int ret;
+@@ -754,7 +754,7 @@ static int __maybe_unused stmfts_runtime_suspend(struct device *dev)
+ 	return ret;
  }
  
--static int __maybe_unused s6sy761_runtime_resume(struct device *dev)
-+static int s6sy761_runtime_resume(struct device *dev)
+-static int __maybe_unused stmfts_runtime_resume(struct device *dev)
++static int stmfts_runtime_resume(struct device *dev)
  {
- 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
- 
-@@ -495,7 +495,7 @@ static int __maybe_unused s6sy761_runtime_resume(struct device *dev)
- 				S6SY761_APPLICATION_MODE, S6SY761_APP_NORMAL);
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
+ 	int ret;
+@@ -766,7 +766,7 @@ static int __maybe_unused stmfts_runtime_resume(struct device *dev)
+ 	return ret;
  }
  
--static int __maybe_unused s6sy761_suspend(struct device *dev)
-+static int s6sy761_suspend(struct device *dev)
+-static int __maybe_unused stmfts_suspend(struct device *dev)
++static int stmfts_suspend(struct device *dev)
  {
- 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
  
-@@ -504,7 +504,7 @@ static int __maybe_unused s6sy761_suspend(struct device *dev)
+@@ -775,7 +775,7 @@ static int __maybe_unused stmfts_suspend(struct device *dev)
  	return 0;
  }
  
--static int __maybe_unused s6sy761_resume(struct device *dev)
-+static int s6sy761_resume(struct device *dev)
+-static int __maybe_unused stmfts_resume(struct device *dev)
++static int stmfts_resume(struct device *dev)
  {
- 	struct s6sy761_data *sdata = dev_get_drvdata(dev);
+ 	struct stmfts_data *sdata = dev_get_drvdata(dev);
  
-@@ -514,9 +514,8 @@ static int __maybe_unused s6sy761_resume(struct device *dev)
+@@ -783,8 +783,8 @@ static int __maybe_unused stmfts_resume(struct device *dev)
  }
  
- static const struct dev_pm_ops s6sy761_pm_ops = {
--	SET_SYSTEM_SLEEP_PM_OPS(s6sy761_suspend, s6sy761_resume)
--	SET_RUNTIME_PM_OPS(s6sy761_runtime_suspend,
--				s6sy761_runtime_resume, NULL)
-+	SYSTEM_SLEEP_PM_OPS(s6sy761_suspend, s6sy761_resume)
-+	RUNTIME_PM_OPS(s6sy761_runtime_suspend, s6sy761_runtime_resume, NULL)
+ static const struct dev_pm_ops stmfts_pm_ops = {
+-	SET_SYSTEM_SLEEP_PM_OPS(stmfts_suspend, stmfts_resume)
+-	SET_RUNTIME_PM_OPS(stmfts_runtime_suspend, stmfts_runtime_resume, NULL)
++	SYSTEM_SLEEP_PM_OPS(stmfts_suspend, stmfts_resume)
++	RUNTIME_PM_OPS(stmfts_runtime_suspend, stmfts_runtime_resume, NULL)
  };
  
  #ifdef CONFIG_OF
-@@ -537,7 +536,7 @@ static struct i2c_driver s6sy761_driver = {
+@@ -805,7 +805,7 @@ static struct i2c_driver stmfts_driver = {
  	.driver = {
- 		.name = S6SY761_DEV_NAME,
- 		.of_match_table = of_match_ptr(s6sy761_of_match),
--		.pm = &s6sy761_pm_ops,
-+		.pm = pm_ptr(&s6sy761_pm_ops),
+ 		.name = STMFTS_DEV_NAME,
+ 		.of_match_table = of_match_ptr(stmfts_of_match),
+-		.pm = &stmfts_pm_ops,
++		.pm = pm_ptr(&stmfts_pm_ops),
+ 		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
  	},
- 	.probe_new = s6sy761_probe,
- 	.remove = s6sy761_remove,
+ 	.probe_new = stmfts_probe,
 -- 
 2.39.0
 

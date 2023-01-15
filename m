@@ -2,117 +2,127 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B7FAC004D4
-	for <linux-input@archiver.kernel.org>; Thu, 19 Jan 2023 15:06:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 030BAC3DA78
+	for <linux-input@archiver.kernel.org>; Sun, 15 Jan 2023 15:09:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230114AbjASPGz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 19 Jan 2023 10:06:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48436 "EHLO
+        id S230432AbjAOPJP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 15 Jan 2023 10:09:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230122AbjASPGw (ORCPT
+        with ESMTP id S231280AbjAOPJO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 19 Jan 2023 10:06:52 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E0045C0F5;
-        Thu, 19 Jan 2023 07:06:48 -0800 (PST)
-Received: from [2a02:8108:963f:de38:4bc7:2566:28bd:b73c]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pIWV4-0001HO-Tw; Thu, 19 Jan 2023 16:06:46 +0100
-Message-ID: <32a14a8a-9795-4c8c-7e00-da9012f548f8@leemhuis.info>
-Date:   Thu, 19 Jan 2023 16:06:46 +0100
+        Sun, 15 Jan 2023 10:09:14 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECFA87ED1
+        for <linux-input@vger.kernel.org>; Sun, 15 Jan 2023 07:09:12 -0800 (PST)
+Received: from zn.tnic (p5de8e9fe.dip0.t-ipconnect.de [93.232.233.254])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 876821EC042F
+        for <linux-input@vger.kernel.org>; Sun, 15 Jan 2023 16:09:11 +0100 (CET)
+Received: from deliver ([unix socket])
+         by localhost (Cyrus v2.4.17-caldav-beta9-Debian-2.4.17+caldav~beta9-3) with LMTPA;
+         Sun, 15 Jan 2023 15:19:22 +0100
+X-Sieve: CMU Sieve 2.4
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPS id 0FED41EC0513
+        for <bp@alien8.de>; Sun, 15 Jan 2023 15:19:22 +0100 (CET)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 89C0260C8E
+        for <bp@alien8.de>; Sun, 15 Jan 2023 14:19:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id E6E54C433F2
+        for <bp@alien8.de>; Sun, 15 Jan 2023 14:19:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1673792359;
+        bh=8QG0LoL5mJCyDTNQGeLr5sOqIRFyOE9VEs16f7QMd8w=;
+        h=From:To:Subject:Date:From;
+        b=ZIMrtcltaahxv+JPXwAlVIU5cCpsYnCep12iu5Kw9Qq1PVNdUGErgy7v0LRfz2Zlc
+         QGMlh/nhVEnRyPAWNljdZ3mHb+4/HHiDUXoSDRKtxELLY6QE+TiscZx2goTcU54TZC
+         M4rPMfCNgujs3o8gbhVtIQOi9norGDMgDf3YeATblTk9v/q0immdYZG3LH7twjTpBw
+         gl8Tbhl52eBRb0ShmFcwA253YNzUJMyTMsRXdSSUcd3TBOXljm7ZybNpmg76JN1euL
+         ndU8C/cO3PH46Hl1/i27+r6lUos+tljVJFriOwuuodAKhR3m4WEDWazwL5LvYXmObv
+         ONKTkExJHpPiA==
+Received: by aws-us-west-2-korg-bugzilla-1.web.codeaurora.org (Postfix, from userid 48)
+        id D183AC43145; Sun, 15 Jan 2023 14:19:19 +0000 (UTC)
+From:   bugzilla-daemon@kernel.org
+To:     bp@alien8.de
+Subject: [Bug 216933] New: brightness keys not working on Lenovo ideapad 3
+Date:   Sun, 15 Jan 2023 14:19:19 +0000
+X-Bugzilla-Reason: None
+X-Bugzilla-Type: new
+X-Bugzilla-Watch-Reason: AssignedTo platform_x86_64@kernel-bugs.osdl.org
+X-Bugzilla-Product: Platform Specific/Hardware
+X-Bugzilla-Component: x86-64
+X-Bugzilla-Version: 2.5
+X-Bugzilla-Keywords: 
+X-Bugzilla-Severity: normal
+X-Bugzilla-Who: tuxuser@quantentunnel.de
+X-Bugzilla-Status: NEW
+X-Bugzilla-Resolution: 
+X-Bugzilla-Priority: P1
+X-Bugzilla-Assigned-To: platform_x86_64@kernel-bugs.osdl.org
+X-Bugzilla-Flags: 
+X-Bugzilla-Changed-Fields: bug_id short_desc product version
+ cf_kernel_version rep_platform op_sys cf_tree bug_status bug_severity
+ priority component assigned_to reporter cf_regression
+Message-ID: <bug-216933-6385@https.bugzilla.kernel.org/>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Bugzilla-URL: https://bugzilla.kernel.org/
+Auto-Submitted: auto-generated
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-From:   "Linux kernel regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Content-Language: en-US, de-DE
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux kernel regressions list <regressions@lists.linux.dev>,
-        =?UTF-8?Q?G=c3=a9_Koerkamp?= <ge.koerkamp@gmail.com>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-Subject: [regression] Bug 216946 - Toshiba satellite click mini l9w-b:
- touchscreen: no touch events with kernel 6.1.4
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1674140808;d6e636b7;
-X-HE-SMSGID: 1pIWV4-0001HO-Tw
+Authentication-Results: mail.skyhub.de;
+        dkim=pass header.d=kernel.org header.s=k20201202 header.b=ZIMrtclt;
+        dmarc=pass (policy=none) header.from=kernel.org;
+        spf=pass (mail.skyhub.de: domain of bugzilla-daemon@kernel.org designates 2604:1380:4641:c500::1 as permitted sender) smtp.mailfrom=bugzilla-daemon@kernel.org
+X-Spamd-Bar: --------
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi, this is your Linux kernel regression tracker.
+https://bugzilla.kernel.org/show_bug.cgi?id=3D216933
 
-I noticed a regression report in bugzilla.kernel.org. As many (most?)
-kernel developer don't keep an eye on it, I decided to forward it by
-mail. Quoting from https://bugzilla.kernel.org/show_bug.cgi?id=216946 :
+            Bug ID: 216933
+           Summary: brightness keys not working on Lenovo ideapad 3
+           Product: Platform Specific/Hardware
+           Version: 2.5
+    Kernel Version: 6.1.5
+          Hardware: Intel
+                OS: Linux
+              Tree: Mainline
+            Status: NEW
+          Severity: normal
+          Priority: P1
+         Component: x86-64
+          Assignee: platform_x86_64@kernel-bugs.osdl.org
+          Reporter: tuxuser@quantentunnel.de
+        Regression: No
 
->  Gé Koerkamp 2023-01-17 20:21:51 UTC
-> 
-> Created attachment 303619 [details]
-> Kernel configuration for v6.1.4/ journalctl (dmesg)/ ACPIdump/lsmod
-> 
-> Overview: 
-> The touchscreen does not react on touch events.
-> Touchscreen display and touchpad are working.
-> 
-> Step to reproduce:
-> Open any UI page
-> Try to use touch on relevant UI controls (buttons etc.)
-> 
-> Result:
-> No reaction on screen touches
-> 
-> Expected result:
-> Reaction on touched control, same as when using the touch pad or connected mouse (which do work).
-> 
-> Build information:
-> The error happens with kernel version 6.1.4
-> After rebuilding with different kernel versions, it appears that it first fails with kernel 5.16
-> 
-> Additional builds:
-> The click mini l9w-b still works with kernel 5.10.y LTS and 5.15.y LTS.
-> 
-> Important remark:
-> Touchscreen still works fine with kernel 6.1.4 using  
-> - an HP x2 detachable 10-p0xx or
-> - a Lenovo yoga 520-14ikb
-> 
-> So it could be a hardware dependent issue
+System: Lenovo ideapad 3
+OS: openSUSE Leap 15.4, all updates installed
+Kernel: 6.1.5, 5.14.21-150400.38-default
 
-See the ticket for more details.
+Brightness keys are not working. When pressing these in kde plasma no
+brightness increase / decrease indicator is shown.
+The brightness system itself is working: When changing the brightness using=
+ the
+plasma battery applet, the brightness changes as expected.
 
+Changing to runlevel 3 showkey and evtest don't respond to pressing these k=
+eys.
+They only respond to other keys.
+evtest displays
+/dev/input/event1 is Video Bus
+Here it displays Event code 224 for KEY_BRIGHTNESSDOWN and Event code 225 f=
+or
+KEY_BRIGHTNESSUP. But pressing the buttons leads to no response.
 
-[TLDR for the rest of this mail: I'm adding this report to the list of
-tracked Linux kernel regressions; the text you find below is based on a
-few templates paragraphs you might have encountered already in similar
-form.]
+--=20
+You may reply to this email to add a comment.
 
-BTW, let me use this mail to also add the report to the list of tracked
-regressions to ensure it's doesn't fall through the cracks:
-
-#regzbot introduced: v5.15..v5.16
-https://bugzilla.kernel.org/show_bug.cgi?id=216946
-#regzbot title: hid: touchscreen broken with Toshiba satellite click
-mini l9w-b
-#regzbot ignore-activity
-
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply and tell me -- ideally
-while also telling regzbot about it, as explained by the page listed in
-the footer of this mail.
-
-Developers: When fixing the issue, remember to add 'Link:' tags pointing
-to the report (e.g. the buzgzilla ticket and maybe this mail as well, if
-this thread sees some discussion). See page linked in footer for details.
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-If I did something stupid, please tell me, as explained on that page.
+You are receiving this mail because:
+You are watching the assignee of the bug.=

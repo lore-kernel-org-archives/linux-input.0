@@ -2,88 +2,108 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B9C30C67871
-	for <linux-input@archiver.kernel.org>; Mon, 16 Jan 2023 08:52:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28D12C46467
+	for <linux-input@archiver.kernel.org>; Mon, 16 Jan 2023 11:12:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232383AbjAPIwb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 16 Jan 2023 03:52:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57744 "EHLO
+        id S229531AbjAPLMG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 16 Jan 2023 06:12:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232371AbjAPIw0 (ORCPT
+        with ESMTP id S229706AbjAPLME (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 16 Jan 2023 03:52:26 -0500
-Received: from outpost1.zedat.fu-berlin.de (outpost1.zedat.fu-berlin.de [130.133.4.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2646044A1;
-        Mon, 16 Jan 2023 00:52:24 -0800 (PST)
-Received: from inpost2.zedat.fu-berlin.de ([130.133.4.69])
-          by outpost.zedat.fu-berlin.de (Exim 4.95)
-          with esmtps (TLS1.3)
-          tls TLS_AES_256_GCM_SHA384
-          (envelope-from <glaubitz@zedat.fu-berlin.de>)
-          id 1pHLDw-0003Fv-T9; Mon, 16 Jan 2023 09:52:12 +0100
-Received: from p57bd9464.dip0.t-ipconnect.de ([87.189.148.100] helo=[192.168.178.81])
-          by inpost2.zedat.fu-berlin.de (Exim 4.95)
-          with esmtpsa (TLS1.3)
-          tls TLS_AES_128_GCM_SHA256
-          (envelope-from <glaubitz@physik.fu-berlin.de>)
-          id 1pHLDw-000TdQ-Lf; Mon, 16 Jan 2023 09:52:12 +0100
-Message-ID: <40dc1bc1-d9cd-d9be-188e-5167ebae235c@physik.fu-berlin.de>
-Date:   Mon, 16 Jan 2023 09:52:10 +0100
+        Mon, 16 Jan 2023 06:12:04 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D1386A7
+        for <linux-input@vger.kernel.org>; Mon, 16 Jan 2023 03:12:02 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id z11so40271107ede.1
+        for <linux-input@vger.kernel.org>; Mon, 16 Jan 2023 03:12:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=diag.uniroma1.it; s=google;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=OTrwWvqf/cRj16lBWCPzPOJDd8vRArGRQ3nxDRY36BM=;
+        b=FeV4C76oPMHwPkqAKitzAGRxcwdsIdeIsI30Tuv05Q4IgMwrOK6YPHgoT2xX2JA43g
+         N1RRB2mTfRN8LFTHj7JwlLHR250+ARiKjprLGBiXP0CvlEXCwlSFiYlv0Z74OzS/WE1t
+         +0pu4a4gd7Qrmfr/Rp0UHdWaTGHXGWT7VoGvo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OTrwWvqf/cRj16lBWCPzPOJDd8vRArGRQ3nxDRY36BM=;
+        b=GdF738wt4J33sJTKT0nj2hkX4/cGVZoSv1byUO/uLZWHchG6SWYVBFUKPYJ1bpy6e/
+         Al2lGYzTompoS34B6Z57vMhJb1Qfo4MjGJMKmigTz+igvwSerGxtT6tpvTudBYmRbMi6
+         28Zf2vhHAUtOggchlHMyU7uc6Hvy6ogHi8e6dJEuxii++I+LXwigBfeRH/7gpbtNbvLn
+         HCjrLnnClVRqQSLAj1A0eUfEFo4OGrgfYonolREfprFow43SaBR6Sf5MicGpBgbkN66r
+         N0O21CjRpWSym7oxp+BC+C5u61nikCTtfTCdhSlbyw45fe815TiZBPuzzEFnUFNOe4Pt
+         B+/g==
+X-Gm-Message-State: AFqh2ko7NMovKAM+X7YVS+a5yCYQmI90d1rmEFNMgdT2mOUIutu4UxfE
+        HawsgXiJSkQPnZg3JVARnYWSug==
+X-Google-Smtp-Source: AMrXdXtrB2AvCCe5ljQEIoSQlRC1Hoi6lqHsGHrUDSpKjSdJUD4tpHCC9jx42+tVPCQ+9iIMEwwS/g==
+X-Received: by 2002:aa7:cb42:0:b0:496:f517:d30d with SMTP id w2-20020aa7cb42000000b00496f517d30dmr32959917edt.38.1673867520946;
+        Mon, 16 Jan 2023 03:12:00 -0800 (PST)
+Received: from [192.168.17.2] (wolkje-127.labs.vu.nl. [130.37.198.127])
+        by smtp.gmail.com with ESMTPSA id dk1-20020a0564021d8100b0049be07c9ff5sm4116903edb.4.2023.01.16.03.12.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Jan 2023 03:12:00 -0800 (PST)
+From:   Pietro Borrello <borrello@diag.uniroma1.it>
+Date:   Mon, 16 Jan 2023 11:11:24 +0000
+Subject: [PATCH 1/2] HID: check empty report_list in hid_validate_values()
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: remove arch/sh
-To:     Christoph Hellwig <hch@lst.de>
-Cc:     Yoshinori Sato <ysato@users.sourceforge.jp>,
-        Rich Felker <dalias@libc.org>, Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        linux-kernel@vger.kernel.org, linux-watchdog@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arch@vger.kernel.org,
-        dmaengine@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-mtd@lists.infradead.org,
-        netdev@vger.kernel.org, linux-gpio@vger.kernel.org,
-        linux-rtc@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, alsa-devel@alsa-project.org,
-        linux-sh@vger.kernel.org
-References: <20230113062339.1909087-1-hch@lst.de>
- <11e2e0a8-eabe-2d8c-d612-9cdd4bcc3648@physik.fu-berlin.de>
- <20230116071306.GA15848@lst.de>
-Content-Language: en-US
-From:   John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-In-Reply-To: <20230116071306.GA15848@lst.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Original-Sender: glaubitz@physik.fu-berlin.de
-X-Originating-IP: 87.189.148.100
+Message-Id: <20230114-hid-fix-emmpty-report-list-v1-1-e4d02fad3ba5@diag.uniroma1.it>
+References: <20230114-hid-fix-emmpty-report-list-v1-0-e4d02fad3ba5@diag.uniroma1.it>
+In-Reply-To: <20230114-hid-fix-emmpty-report-list-v1-0-e4d02fad3ba5@diag.uniroma1.it>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Kees Cook <keescook@chromium.org>, Hanno Zulla <abos@hanno.de>
+Cc:     Cristiano Giuffrida <c.giuffrida@vu.nl>,
+        "Bos, H.J." <h.j.bos@vu.nl>, Jakob Koschel <jkl820.git@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Pietro Borrello <borrello@diag.uniroma1.it>
+X-Mailer: b4 0.11.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1673867519; l=1184;
+ i=borrello@diag.uniroma1.it; s=20221223; h=from:subject:message-id;
+ bh=lt3do0cht6iOkduDwABvx2MxZ4GcPzw6T54suUgL54M=;
+ b=D3EiqPP7uMKKmpKLJr7Zf6V5hG96SLdJWn+3FwR3uTqwjfK+hlIpfSI6dO3BZ3Io7YVXWw37E29d
+ ssVUXB95AYjJfF27QCNsq7yJw/LVCZ4AnhgNYkTRjBbn286Z1Pxv
+X-Developer-Key: i=borrello@diag.uniroma1.it; a=ed25519;
+ pk=4xRQbiJKehl7dFvrG33o2HpveMrwQiUPKtIlObzKmdY=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello Christoph!
+Add a check for empty report_list in hid_validate_values().
+The missing check causes a type confusion when issuing a list_entry()
+on an empty report_list.
+The problem is caused by the assumption that the device must
+have valid report_list. While this will be true for all normal HID
+devices, a suitably malicious device can violate the assumption.
 
-On 1/16/23 08:13, Christoph Hellwig wrote:
-> On Fri, Jan 13, 2023 at 09:09:52AM +0100, John Paul Adrian Glaubitz wrote:
->> I'm still maintaining and using this port in Debian.
->>
->> It's a bit disappointing that people keep hammering on it. It works fine for me.
-> 
-> What platforms do you (or your users) use it on?
+Fixes: 1b15d2e5b807 ("HID: core: fix validation of report id 0")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+---
+ drivers/hid/hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-We have had a discussion between multiple people invested in the SuperH port and
-I have decided to volunteer as a co-maintainer of the port to support Rich Felker
-when he isn't available.
-
-Adrian
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index bd47628da6be..3e1803592bd4 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -993,8 +993,8 @@ struct hid_report *hid_validate_values(struct hid_device *hid,
+ 		 * Validating on id 0 means we should examine the first
+ 		 * report in the list.
+ 		 */
+-		report = list_entry(
+-				hid->report_enum[type].report_list.next,
++		report = list_first_entry_or_null(
++				&hid->report_enum[type].report_list,
+ 				struct hid_report, list);
+ 	} else {
+ 		report = hid->report_enum[type].report_id_hash[id];
 
 -- 
-  .''`.  John Paul Adrian Glaubitz
-: :' :  Debian Developer
-`. `'   Physicist
-   `-    GPG: 62FF 8A75 84E0 2956 9546  0006 7426 3B37 F5B5 F913
-
+2.25.1

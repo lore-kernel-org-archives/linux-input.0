@@ -2,23 +2,24 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56755C678DC
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 23:47:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AA1FC677F1
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 23:53:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230161AbjARXr1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Jan 2023 18:47:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50506 "EHLO
+        id S230121AbjARXxI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Jan 2023 18:53:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230113AbjARXrW (ORCPT
+        with ESMTP id S230026AbjARXww (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 18:47:22 -0500
+        Wed, 18 Jan 2023 18:52:52 -0500
+X-Greylist: delayed 306 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 18 Jan 2023 15:52:07 PST
 Received: from irl.hu (irl.hu [95.85.9.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144683B3DA
-        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 15:46:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 732F24617C;
+        Wed, 18 Jan 2023 15:52:04 -0800 (PST)
 Received: from fedori.lan (c3e47541.dsl.pool.telekom.hu [::ffff:195.228.117.65])
   (AUTH: CRAM-MD5 soyer@irl.hu, )
   by irl.hu with ESMTPSA
-  id 0000000000068C5C.0000000063C884EF.0028DB3D; Thu, 19 Jan 2023 00:46:55 +0100
+  id 00000000000642EF.0000000063C884ED.0028DB16; Thu, 19 Jan 2023 00:46:52 +0100
 From:   Gergo Koteles <soyer@irl.hu>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Jonathan Corbet <corbet@lwn.net>,
@@ -33,12 +34,10 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         Caleb Connolly <caleb@connolly.tech>,
         Gergo Koteles <soyer@irl.hu>
-Subject: [PATCH 3/3] arm64: dts: qcom: sdm845-oneplus: add tri-state-key
-Date:   Thu, 19 Jan 2023 00:46:38 +0100
-Message-Id: <20230118234638.189098-4-soyer@irl.hu>
+Subject: [PATCH 0/3] Add tri-state-key for oneplus
+Date:   Thu, 19 Jan 2023 00:46:35 +0100
+Message-Id: <20230118234638.189098-1-soyer@irl.hu>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230118234638.189098-1-soyer@irl.hu>
-References: <20230118234638.189098-1-soyer@irl.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
@@ -47,81 +46,18 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The tri-state-key is a sound profile switch found on the OnePlus 6,
-Android maps the states to "mute", "vibrate" and "ring", expose them as
-ABS_SND_PROFILE events.
-The previous GPIO numbers were wrong, the patch updates them to the correct
-ones.
+Gergo Koteles (3):
+  Input: gpio-keys - add support for linux,input-value dts property
+  Input: add ABS_SND_PROFILE
+  arm64: dts: qcom: sdm845-oneplus: add tri-state-key
 
-Co-developed-by: Caleb Connolly <caleb@connolly.tech>
-Signed-off-by: Caleb Connolly <caleb@connolly.tech>
-Signed-off-by: Gergo Koteles <soyer@irl.hu>
----
+ Documentation/input/event-codes.rst           |  6 +++
  .../boot/dts/qcom/sdm845-oneplus-common.dtsi  | 43 ++++++++++++++++++-
- 1 file changed, 41 insertions(+), 2 deletions(-)
+ drivers/hid/hid-debug.c                       |  1 +
+ drivers/input/keyboard/gpio_keys.c            |  3 ++
+ include/uapi/linux/input-event-codes.h        |  1 +
+ 5 files changed, 52 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-index 42cf4dd5ea28..33215ad17513 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
-@@ -49,6 +49,44 @@ key-vol-up {
- 		};
- 	};
- 
-+	tri-state-key {
-+		compatible = "gpio-keys";
-+		label = "Tri-state key";
-+
-+		pinctrl-names = "default";
-+		pinctrl-0 = <&tri_state_key_default>;
-+
-+		state-top {
-+			label = "Tri-state key top";
-+			linux,input-type = <EV_ABS>;
-+			linux,code = <ABS_SND_PROFILE>;
-+			linux,input-value = <0>;
-+			gpios = <&tlmm 126 GPIO_ACTIVE_LOW>;
-+			debounce-interval = <50>;
-+			linux,can-disable;
-+		};
-+
-+		state-middle {
-+			label = "Tri-state key middle";
-+			linux,input-type = <EV_ABS>;
-+			linux,code = <ABS_SND_PROFILE>;
-+			linux,input-value = <1>;
-+			gpios = <&tlmm 52 GPIO_ACTIVE_LOW>;
-+			debounce-interval = <50>;
-+			linux,can-disable;
-+		};
-+
-+		state-bottom {
-+			label = "Tri-state key bottom";
-+			linux,input-type = <EV_ABS>;
-+			linux,code = <ABS_SND_PROFILE>;
-+			linux,input-value = <2>;
-+			gpios = <&tlmm 24 GPIO_ACTIVE_LOW>;
-+			debounce-interval = <50>;
-+			linux,can-disable;
-+		};
-+	};
-+
- 	reserved-memory {
- 		/*
- 		 * The rmtfs_mem needs to be guarded due to "XPU limitations"
-@@ -588,9 +626,10 @@ &usb_1_hsphy {
- &tlmm {
- 	gpio-reserved-ranges = <0 4>, <81 4>;
- 
--	tri_state_key_default: tri_state_key_default {
-+	// The GPIOs have a hardware pullup.
-+	tri_state_key_default: tri-state-pins {
- 		mux {
--			pins = "gpio40", "gpio42", "gpio26";
-+			pins = "gpio126", "gpio52", "gpio24";
- 			function = "gpio";
- 			drive-strength = <2>;
- 			bias-disable;
 -- 
 2.39.0
 

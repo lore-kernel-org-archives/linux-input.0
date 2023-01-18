@@ -2,71 +2,69 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C93D0C004D4
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 10:08:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF074C004D4
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 10:09:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229802AbjARKIh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Jan 2023 05:08:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43846 "EHLO
+        id S229448AbjARKJf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Jan 2023 05:09:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229576AbjARKHy (ORCPT
+        with ESMTP id S229947AbjARKGY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 05:07:54 -0500
-Received: from freundtech.com (freundtech.com [IPv6:2a01:4f8:c17:2d66::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8567656CF;
-        Wed, 18 Jan 2023 01:13:24 -0800 (PST)
-Received: from [IPV6:2a02:8071:2b80:7760:fecd:7e78:31fb:a087] (unknown [IPv6:2a02:8071:2b80:7760:fecd:7e78:31fb:a087])
-        by freundtech.com (Postfix) with ESMTPSA id C554C1EBBBE;
-        Wed, 18 Jan 2023 10:13:22 +0100 (CET)
-Message-ID: <e2b16837-cc05-4f04-f58e-a8315ab85321@freund.io>
-Date:   Wed, 18 Jan 2023 10:13:22 +0100
+        Wed, 18 Jan 2023 05:06:24 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5F0569B29
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 01:11:58 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 77BFEB8164A
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 09:11:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A00C433F0;
+        Wed, 18 Jan 2023 09:11:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674033116;
+        bh=ME0uHqgfTif+hN/57UWd/O92dCQxUCC7eg6fpwvBCMg=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=P9/i9WZ1f380g36jTFZy1AuvqQPx+hnI7XZbzkzeZiToy4/lIy2WM8OObmNgen+xG
+         oOePymmAPwfO7h66X2FyWuEVbFdoSbd0Kr941ZNK8lZBytGRIBcmeP8OwaLPQxHlVx
+         /JgxnidT7ShFbKL8beA98xYY7ytghNgBdTVzNZNQ6Yuf9sRy/ykyJ6I4xrEo4lcxnS
+         AAIwAjmcdTMzhRyyivjI82j/oVP+1Mn2qrAaDCvqBU5fyVwUCmJOS4U9x1Cu0Cun+V
+         VCraKNIhwelh3hH4YjEG5guY+O7cIKswWLpcHj7H/Sq5KrvwKY1DGmMhcNjecmXal+
+         qg5X34995prTw==
+Date:   Wed, 18 Jan 2023 10:11:56 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Roderick Colenbrander <roderick@gaikai.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <error27@gmail.com>
+Subject: Re: [PATCH 1/5] HID: playstation: fix DualShock4 unreachable
+ calibration code.
+In-Reply-To: <20230106015910.3031670-2-roderick.colenbrander@sony.com>
+Message-ID: <nycvar.YFH.7.76.2301181011490.1734@cbobk.fhfr.pm>
+References: <20230106015910.3031670-1-roderick.colenbrander@sony.com> <20230106015910.3031670-2-roderick.colenbrander@sony.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH v2] HID: amd_sfh: Add support for tablet-mode-switch
- sensor
-Content-Language: en-US
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Basavaraj Natikar <basavaraj.natikar@amd.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "Luke D. Jones" <luke@ljones.dev>, Ivan Dovgal <iv.dovg@gmail.com>
-References: <20221218214723.14735-1-adrian@freund.io>
- <nycvar.YFH.7.76.2301180948450.1734@cbobk.fhfr.pm>
-From:   Adrian Freund <adrian@freund.io>
-In-Reply-To: <nycvar.YFH.7.76.2301180948450.1734@cbobk.fhfr.pm>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 1/18/23 09:49, Jiri Kosina wrote:
-> On Sun, 18 Dec 2022, Adrian Freund wrote:
->
->> This patch adds support for the tablet mode switch sensors on
->> convertible devices where that sensor is managed by AMD SFH, like the
->> Asus Flow X13 and the Lenovo ThinkPad L13 Yoga Gen2 (AMD).
->>
->> Co-developed-by: Ivan Dovgal <iv.dovg@gmail.com>
->> Signed-off-by: Ivan Dovgal <iv.dovg@gmail.com>
->> Co-developed-by: Luke D. Jones <luke@ljones.dev>
->> Signed-off-by: Luke D. Jones <luke@ljones.dev>
->> Signed-off-by: Adrian Freund <adrian@freund.io>
-> Basavaraj, could you please review this? Thanks,
->
-I think this doesn't need a review right now. I recently found some big 
-problems with the patch recently and am working on an updated version. I 
-think reviewing once I send v3 should be enough.
+On Thu, 5 Jan 2023, Roderick Colenbrander wrote:
 
-In short: This patch generates nonsensical HID messages that don't even 
-contain the sensor state.
-It still makes the tablet-mode-switch work on some but not all devices 
-due to a mechanism I don't fully understand yet. Somehow ACPI devices 
-that previously did nothing suddenly work with this patch and are then 
-getting picked up by various platform drivers depending on the device. 
-This driver however doesn't properly handle the actual data directly 
-from the sensor.
+> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+> Reported-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Reported-by: Dan Carpenter <error27@gmail.com>
+> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
 
----
-Adrian
+Applied to for-6.3/sony.
+
+-- 
+Jiri Kosina
+SUSE Labs
+

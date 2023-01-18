@@ -2,88 +2,78 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 842DCC32793
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 11:54:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B8C20C32793
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 15:00:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230169AbjARLym (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Jan 2023 06:54:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36136 "EHLO
+        id S229663AbjARPAc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Jan 2023 10:00:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230338AbjARLwg (ORCPT
+        with ESMTP id S231698AbjARPAK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 06:52:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB096E831;
-        Wed, 18 Jan 2023 03:09:51 -0800 (PST)
+        Wed, 18 Jan 2023 10:00:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8F5A5AB48;
+        Wed, 18 Jan 2023 06:55:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBF97B81C16;
-        Wed, 18 Jan 2023 11:09:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC90FC433EF;
-        Wed, 18 Jan 2023 11:09:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 44E4B6185C;
+        Wed, 18 Jan 2023 14:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71347C433D2;
+        Wed, 18 Jan 2023 14:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674040188;
-        bh=NZW9HiYlTqxS3hzsVzUHhCSns2PIpY7e66VoK9HVTLg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=V9GY2h1POWPM4omeBU1RQWCB2P8xzsiyNNn4SDIbh96+c0FJw9PzlpDWU9R9o0Mnl
-         eg7DDc2wABs+Fbiw8FseF24qqKr9sDgLqNUthJjtq25MdasDkU3GxCO2OfPH7FKO1J
-         XDQ1cuwB5qKVCTjOzK+gxK7l4Miif+6KTQhLAp2OQJRMkp1l+FjzEnmTHP6byD/aj2
-         bCLGvCdbTthkBWATMpGnPkx/afltV13dA3iO5O0XL4hE286F4OuhqRVWrBDDFDLChB
-         fY0Lsh/GE+dBeVLoTI0vQ/JEhwQkXOC43ySr1ZnBc5lwvtyMoztYJ5qimuYcqRkDoN
-         ACi0p1kS9b2HQ==
-Date:   Wed, 18 Jan 2023 11:09:43 +0000
-From:   Lee Jones <lee@kernel.org>
-To:     Jiri Kosina <jikos@kernel.org>
-Cc:     benjamin.tissoires@redhat.com, avid.rheinsberg@gmail.com,
+        s=k20201202; t=1674053725;
+        bh=wjglZMLOEjQw+vq02RhUK9jEtIO+B6Bqz4mUgDY3ieY=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=O30xWI6z44KBeWjES0Q+xaK/kQvDQoRnFLDXLidPgskZam0Us1qX5SErhY2uqB7f0
+         1Hq/zby63ptVXMEGOd/bslV1Me7c4YcdfPiUYexlgnd93zUXkeNnc4MBbeff8TiiSg
+         Odl0oCDgki+7RHty31CatojngdO+l8wC3yMAiG7Gbj3Czvl6obwg3L1UNyOY438koG
+         xLZk0hyqISVQ5rQ9lIrmjmLX35omEqK4lB1EGOecnD+2WOBXfvn3Jy5wpx4WxkSt4K
+         j5n8xGkMw/Gx4bOdw9TyLYD5cKN3clag3O1I6b8a+wIoGHTDRgBG7q/No5ClfoYrO9
+         +MvZWaDpllSiQ==
+Date:   Wed, 18 Jan 2023 15:55:26 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Lee Jones <lee@kernel.org>
+cc:     benjamin.tissoires@redhat.com, avid.rheinsberg@gmail.com,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
 Subject: Re: [PATCH 1/2] HID: core: Provide new max_buffer_size attribute to
  over-ride the default
-Message-ID: <Y8fTd0VJXqKkPIuo@google.com>
-References: <20230113150557.1308176-1-lee@kernel.org>
- <nycvar.YFH.7.76.2301181002550.1734@cbobk.fhfr.pm>
+In-Reply-To: <Y8fTd0VJXqKkPIuo@google.com>
+Message-ID: <nycvar.YFH.7.76.2301181554370.1734@cbobk.fhfr.pm>
+References: <20230113150557.1308176-1-lee@kernel.org> <nycvar.YFH.7.76.2301181002550.1734@cbobk.fhfr.pm> <Y8fTd0VJXqKkPIuo@google.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <nycvar.YFH.7.76.2301181002550.1734@cbobk.fhfr.pm>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 18 Jan 2023, Jiri Kosina wrote:
+On Wed, 18 Jan 2023, Lee Jones wrote:
 
-> On Fri, 13 Jan 2023, Lee Jones wrote:
+> > > Presently, when a report is processed, its size is compared solely 
+> > > against the value specified by user-space.  
+> > 
+> > While I am generally fine with the idea, I don't understand this sentence. 
+> > What exactly do you mean by 'specified by user-space'? It's defined as a 
+> > compile-time constant.
+> > 
+> > > If the received report ends up being smaller than this, the
+> > > remainder of the buffer is zeroed. 
 > 
-> > Presently, when a report is processed, its size is compared solely 
-> > against the value specified by user-space.  
+> Apologies for any ambiguity.
 > 
-> While I am generally fine with the idea, I don't understand this sentence. 
-> What exactly do you mean by 'specified by user-space'? It's defined as a 
-> compile-time constant.
+> "its size" == "compile-time constant"
 > 
-> > If the received report ends up being smaller than this, the
-> > remainder of the buffer is zeroed. 
+> Would "its maximum size" read better?
 
-Apologies for any ambiguity.
+I think that the confusion comes from the fact that the changelog is 
+written solely with the UHID usercase on mind ... ? (which is dealt with 
+in the independent followup patch).
 
-"its size" == "compile-time constant"
-
-Would "its maximum size" read better?
-
-These sentences are an attempt to describe this statement:
-
-    if (csize < rsize) {
-        dbg_hid("report %d is too short, (%d < %d)\n", report->id,
-            csize, rsize);
-        memset(cdata + csize, 0, rsize - csize);
-    }
-
-Where csize is "the [size of the] received report" and rsize is the
-"value [size] specified by user-space".  Thus, if user-space says the
-report will be 8-Bytes (rsize) and it actually only only submits 6-Bytes
-(csize), then the subsystem will complain that the "report is too short"
-and it will attempt to zero the seemingly unused 2-Bytes.
+Thanks,
 
 -- 
-Lee Jones [李琼斯]
+Jiri Kosina
+SUSE Labs
+

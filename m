@@ -2,74 +2,78 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32162C32793
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 09:28:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF5BCC004D4
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 09:37:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229872AbjARJ2e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Jan 2023 04:28:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45466 "EHLO
+        id S229934AbjARJhj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Jan 2023 04:37:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55628 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230285AbjARJZQ (ORCPT
+        with ESMTP id S230040AbjARJfC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 04:25:16 -0500
-Received: from mail.bostmarktrun.com (mail.bostmarktrun.com [135.125.238.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF92251C4A
-        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 00:50:40 -0800 (PST)
-Received: by mail.bostmarktrun.com (Postfix, from userid 1002)
-        id 7408CA281A; Wed, 18 Jan 2023 08:50:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bostmarktrun.com;
-        s=mail; t=1674031839;
-        bh=gfWmJwOZk+B/IN1TMPg7emKhIvoExrJdUiyEL8yd2Jk=;
-        h=Date:From:To:Subject:From;
-        b=ZBgPQ2mx1jIxDmGjvoRlK5HQgfTFMHuEME9tHEuy3bX4nhhFD7LEsr6mwv41QyNN3
-         BeBZ27kNfyGj3h4maedXGbFDidfeJBIXtL2Gh8CXSTHyJ0NOIE577EEZrSHTEfeYgy
-         8YN0k1K5+T3A8OctWb6ScYumZqIw3YsqFvnFrcS51OdtOBLSCGSzvhSrbh4J99WxW1
-         0UZ72vxsohV2zAGCbzRa2M0jcgb4I5ROWBdNqfB2db6AGDgLWbWDu2XUAoV1A74fv6
-         4GtFbqC+2V+kJ81PdLAeP1QOhXQAUPE/WRZ8Vhd1HCy3XWQpwcwNTY0BZX47uD/Wzz
-         SakdUW6xx+xJw==
-Received: by mail.bostmarktrun.com for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 08:50:31 GMT
-Message-ID: <20230118074500-0.1.4p.wrpn.0.b3obpac5tl@bostmarktrun.com>
-Date:   Wed, 18 Jan 2023 08:50:31 GMT
-From:   "Corey Webb" <corey.webb@bostmarktrun.com>
-To:     <linux-input@vger.kernel.org>
-Subject: Custom Software Development
-X-Mailer: mail.bostmarktrun.com
+        Wed, 18 Jan 2023 04:35:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0396A193DE;
+        Wed, 18 Jan 2023 00:54:49 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F81BB8118F;
+        Wed, 18 Jan 2023 08:54:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D8DC433F0;
+        Wed, 18 Jan 2023 08:54:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674032086;
+        bh=qpbIsiLmAWo/Yyxp9eZJRCZtQ25fsobPBsJ/XpH9rEA=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=YhCyzSQcoTw8iqjo7c+CNIZCUhXds2k7rVb4XcN+Joyx3dW8gmlKluhfsTdV3fZnk
+         Iz/A/2/KJqWZgb5dto5rbgTDx2HxISQyNyOvPDB3IC69jd1xhL4gLmFmRq29q4K9eF
+         R1MdX8X/dqciwv9WSJhx3AiF0ixAjtKGqI1J8QIyYRXMIcZSL7Pfae6XvKRahJjr5M
+         HoFCeHmLT7BnzDvklHdLeuatRGc2TIMBnxKgYUQRpYLdDwhCj68WLntkVR/AiX+XOY
+         kwxMEVSNtdsO8rOkSoLI50KY1EWy6g6QYy/vfrlN9Mdw3Z/DJse9EfEO7wZjEuxDao
+         0P70JC9bKnDbA==
+Date:   Wed, 18 Jan 2023 09:54:46 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Aditya Garg <gargaditya08@live.com>
+cc:     "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>,
+        "jic23@kernel.org" <jic23@kernel.org>,
+        "srinivas.pandruvada@linux.intel.com" 
+        <srinivas.pandruvada@linux.intel.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+        "orlandoch.dev@gmail.com" <orlandoch.dev@gmail.com>,
+        "ronald@innovation.ch" <ronald@innovation.ch>
+Subject: Re: [PATCH v3] HID: Recognize sensors with application collections
+In-Reply-To: <9E66CF6F-99A0-4CC5-9FA0-3A9DCFCA0388@live.com>
+Message-ID: <nycvar.YFH.7.76.2301180953340.1734@cbobk.fhfr.pm>
+References: <8DA00FF4-DB08-4CEC-A5B4-47A71DC09C13@live.com> <01D620E2-18CA-40F6-A330-454CBC20C542@live.com> <EFCEA45A-C6F4-477A-B011-9C9E6E61E488@live.com> <9E66CF6F-99A0-4CC5-9FA0-3A9DCFCA0388@live.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,=20
+On Wed, 11 Jan 2023, Aditya Garg wrote:
 
-I would like to reach the person responsible for the implementation of yo=
-ur company's goals, vision and mission or the decision-maker in the devel=
-opment of your technology strategy.
+> From: Ronald Tschalär <ronald@innovation.ch>
+> 
+> According to HUTRR39 logical sensor devices may be nested inside
+> physical collections or may be specified in multiple top-level
+> application collections (see page 59, strategies 1 and 2). However,
+> the current code was only recognizing those with physical collections.
+> 
+> This issue turned up in the T2 MacBook Pros which define the ALS in
+> a top-level application collection.
+> 
+> Signed-off-by: Ronald Tschalär <ronald@innovation.ch>
+> Signed-off-by: Aditya Garg <gargaditya08@live.com>
 
-I represent provider of lucrative IT solutions that remove the barriers t=
-o process development resulting from limited access to appropriate IT res=
-ources.
+Makes sense. Queued in for-6.3/hid-core. Thanks,
 
-We guarantee you access to the knowledge and experience of outstanding 3,=
-000 software developers from Poland and 500 professional consultants and =
-senior developers in the United States and other Western countries. =20
+-- 
+Jiri Kosina
+SUSE Labs
 
-We respond to a variety of needs, ranging from expanding your project tea=
-m with specialists with specific skills to supporting project managers, e=
-xperienced innovation teams to creating a Minimum Viable Project (MVP).
-
-The comprehensiveness of our services guarantees you dynamic software dev=
-elopment including creation, testing and implementation systems that are =
-the backbone of effective management of the entire organization.
-
-A partnership that lasts for years is the best proof that our clients mee=
-t their unique requirements within a specific timeframe, introduce new op=
-portunities and grow their business while we solve their problems.
-
-Are you available for a brief call? I will be looking forward to hearing =
-from you.
-
-
-Best regards
-Corey Webb

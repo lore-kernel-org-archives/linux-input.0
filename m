@@ -2,91 +2,103 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CA4AC38147
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 21:13:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A67FC678D4
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 23:47:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230425AbjARVNU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Jan 2023 16:13:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39078 "EHLO
+        id S230121AbjARXrY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Jan 2023 18:47:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230450AbjARVMc (ORCPT
+        with ESMTP id S229939AbjARXrV (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 16:12:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB2159254;
-        Wed, 18 Jan 2023 13:12:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C3171B81F47;
-        Wed, 18 Jan 2023 21:12:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15D15C433D2;
-        Wed, 18 Jan 2023 21:12:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674076335;
-        bh=8P80n6qx5S3Q2eIr8WgJ/JcazzRERFHfvAb6s1HWsic=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=EK70jyKqfGLdxWibkaJeYVSwhRafme6D6x85n44Vb4viG5zNdH4iaqo/WILUYd3yI
-         +gG4SfH0XxdmsWvFbUb+NKZK1jJPLpwpMhmjgQ8aeGgMfLUf5OJPgfewcjM26uLmXG
-         j5ZXDySRLNXZynaay/1vZQ+XYZgcPL/8hfpKiShoQG6nHljMpvIfOqJb/23t5whApn
-         29b6cq8k0fD90UHXoyKehRXHiLB4FleXhKblf/J+cHpSl/tdyuZR43Kt6cyXG2Jtht
-         sSBhcVaK4QTTCLrnFS1iyq29nuFnuxjgsfGSaqnQ2/Sr6BKR1lEknxXNtvBtBVIGu3
-         3BClnxZB2o5ww==
-Date:   Wed, 18 Jan 2023 22:12:15 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Tero Kristo <tero.kristo@linux.intel.com>,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org,
-        linux-kselftest@vger.kernel.org
-Subject: Re: [PATCH HID for-next v2 0/9] HID-BPF LLVM fixes, no more hacks
-In-Reply-To: <20230113090935.1763477-1-benjamin.tissoires@redhat.com>
-Message-ID: <nycvar.YFH.7.76.2301182211400.1734@cbobk.fhfr.pm>
-References: <20230113090935.1763477-1-benjamin.tissoires@redhat.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+        Wed, 18 Jan 2023 18:47:21 -0500
+Received: from irl.hu (irl.hu [95.85.9.111])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105EF38B47
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 15:46:56 -0800 (PST)
+Received: from fedori.lan (c3e47541.dsl.pool.telekom.hu [::ffff:195.228.117.65])
+  (AUTH: CRAM-MD5 soyer@irl.hu, )
+  by irl.hu with ESMTPSA
+  id 0000000000068C44.0000000063C884EE.0028DB27; Thu, 19 Jan 2023 00:46:54 +0100
+From:   Gergo Koteles <soyer@irl.hu>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        Caleb Connolly <caleb@connolly.tech>,
+        Gergo Koteles <soyer@irl.hu>
+Subject: [PATCH 2/3] Input: add ABS_SND_PROFILE
+Date:   Thu, 19 Jan 2023 00:46:37 +0100
+Message-Id: <20230118234638.189098-3-soyer@irl.hu>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230118234638.189098-1-soyer@irl.hu>
+References: <20230118234638.189098-1-soyer@irl.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Mime-Autoconverted: from 8bit to 7bit by courier 1.0
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 13 Jan 2023, Benjamin Tissoires wrote:
+ABS_SND_PROFILE used to describe the state of a multi-value sound profile
+switch. This will be used for the tri-state key on OnePlus phones or other
+phones.
 
-> Hi,
-> 
-> So this is the fix for the bug that actually prevented me to integrate
-> HID-BPF in v6.2.
-> 
-> While testing the code base with LLVM, I realized that clang was smarter
-> than I expected it to be, and it sometimes inlined a function or not
-> depending on the branch. This lead to segfaults because my current code
-> in linux-next is messing up the bpf programs refcounts assuming that I
-> had enough observability over the kernel.
-> 
-> So I came back to the drawing board and realized that what I was missing
-> was exactly a bpf_link, to represent the attachment of a bpf program to
-> a HID device. This is the bulk of the series, in patch 6/9.
-> 
-> The other patches are cleanups, tests, and also the addition of the
-> vmtests.sh script I run locally, largely inspired by the one in the bpf
-> selftests dir. This allows very fast development of HID-BPF, assuming we
-> have tests that cover the bugs :)
-> 
-> 
-> changes in v2:
-> - took Alexei's remarks into account and renamed the indexes into
->   prog_table_index and hid_table_index
-> - fixed unused function as reported by the Intel kbuild bot
+Signed-off-by: Gergo Koteles <soyer@irl.hu>
+---
+ Documentation/input/event-codes.rst    | 6 ++++++
+ drivers/hid/hid-debug.c                | 1 +
+ include/uapi/linux/input-event-codes.h | 1 +
+ 3 files changed, 8 insertions(+)
 
-I've now applied this on top of the previous work in 
-hid.git#for-6.3/hid-bpf
-
+diff --git a/Documentation/input/event-codes.rst b/Documentation/input/event-codes.rst
+index b4557462edd7..d43336e64d6a 100644
+--- a/Documentation/input/event-codes.rst
++++ b/Documentation/input/event-codes.rst
+@@ -241,6 +241,12 @@ A few EV_ABS codes have special meanings:
+     emitted only when the selected profile changes, indicating the newly
+     selected profile value.
+ 
++* ABS_SND_PROFILE:
++
++  - Used to describe the state of a multi-value sound profile switch.
++    An event is emitted only when the selected profile changes,
++    indicating the newly selected profile value.
++
+ * ABS_MT_<name>:
+ 
+   - Used to describe multitouch input events. Please see
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index e213bdde543a..76fb2ecbbc51 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -1018,6 +1018,7 @@ static const char *absolutes[ABS_CNT] = {
+ 	[ABS_DISTANCE] = "Distance",	[ABS_TILT_X] = "XTilt",
+ 	[ABS_TILT_Y] = "YTilt",		[ABS_TOOL_WIDTH] = "ToolWidth",
+ 	[ABS_VOLUME] = "Volume",	[ABS_PROFILE] = "Profile",
++	[ABS_SND_PROFILE] = "SoundProfile",
+ 	[ABS_MISC] = "Misc",
+ 	[ABS_MT_TOUCH_MAJOR] = "MTMajor",
+ 	[ABS_MT_TOUCH_MINOR] = "MTMinor",
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index 022a520e31fc..e765a8f9a3ae 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -866,6 +866,7 @@
+ 
+ #define ABS_VOLUME		0x20
+ #define ABS_PROFILE		0x21
++#define ABS_SND_PROFILE		0x22
+ 
+ #define ABS_MISC		0x28
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+2.39.0
 

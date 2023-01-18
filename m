@@ -2,48 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D39C4C32793
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 09:26:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24BD0C004D4
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 09:27:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbjARJZq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Jan 2023 04:25:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45488 "EHLO
+        id S229997AbjARJ1T (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Jan 2023 04:27:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229862AbjARJYE (ORCPT
+        with ESMTP id S230282AbjARJZO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 04:24:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE28798CF;
-        Wed, 18 Jan 2023 00:49:03 -0800 (PST)
+        Wed, 18 Jan 2023 04:25:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 898D44FCF3
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 00:50:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74D12B81BB6;
-        Wed, 18 Jan 2023 08:49:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 649A9C433EF;
-        Wed, 18 Jan 2023 08:48:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30848616F7
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 08:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 949FCC433D2;
+        Wed, 18 Jan 2023 08:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674031741;
-        bh=YvCaTb+WM1z/jkE0eRVvRdXaotfkYrFvJyzz047AbI8=;
+        s=k20201202; t=1674031835;
+        bh=QauonNv0EXGoSeatSna+JMFAAXtdwXpakLfDdsWLD2g=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=RYVadmqaFiwuo8ltlbKzzttPYuuJ91PPCxm4CiOpnbV9GVB8VcvJnVVvn39UOfj5G
-         GpDwsAmFLTjh9eYy5yd9eFtS0gP9CpPgKFnbTvOBYt6NVPJ5OFekCtX3QQyNP0/odn
-         IouAiYWr9v8qtvEVQ8IEP/noMEvinEL8nCWLTVvnOV5YM+pnu884Me56BseX3IARhB
-         1XhP/NYf1NJbPkA6KEICHzO0ntfUxcN9qZfItotT97dQNHWkHa801JKKmfvJonPG60
-         ESH0ritSJcKb5CTFxmeo6qLOigJCwzsWUFA9eYs+iV9na4IOSezVrQYm7SOloqF5h7
-         QdWDaPtC71Zrg==
-Date:   Wed, 18 Jan 2023 09:49:01 +0100 (CET)
+        b=TwOUcfYZaa7xvDmEJDaj7Q0DnMZLH/hhyptlcGyE+8GEPq0PHRA8g62cuSkGYtisa
+         QhVe7RpMTqjFJXlDHB31+Xzfyfd9TqdJSK7+aWVJbmFGpKSKwmQkCPxx72iHqvHzom
+         OwMNCtBzKywhN/aRX7D8PCMa0SpTp3+mgKS3FN3hBc3/Q/i83cR2Sm3NIwoeokeLNk
+         cB6vs86CYv3FqgEfYYHuJ+ccN2+g7zVl/48u9VMsb8jQnfU1cqf8eGtc98Sa0D6sEn
+         bYcjSoC+1CnTDyeRwhRTOvtv+ATwqjKx7d8f1v8PLZ/qMa/Y9tz1WPMh5pHcowsXLh
+         eVyLCYyv50PRg==
+Date:   Wed, 18 Jan 2023 09:50:36 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Adrian Freund <adrian@freund.io>
-cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Basavaraj Natikar <basavaraj.natikar@amd.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "Luke D. Jones" <luke@ljones.dev>, Ivan Dovgal <iv.dovg@gmail.com>
-Subject: Re: [PATCH v2] HID: amd_sfh: Add support for tablet-mode-switch
- sensor
-In-Reply-To: <20221218214723.14735-1-adrian@freund.io>
-Message-ID: <nycvar.YFH.7.76.2301180948450.1734@cbobk.fhfr.pm>
-References: <20221218214723.14735-1-adrian@freund.io>
+To:     Roderick Colenbrander <roderick@gaikai.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>
+Subject: Re: [PATCH] HID: sony: remove DualShock4 support.
+In-Reply-To: <20230106211425.3048993-1-roderick.colenbrander@sony.com>
+Message-ID: <nycvar.YFH.7.76.2301180949580.1734@cbobk.fhfr.pm>
+References: <20230106211425.3048993-1-roderick.colenbrander@sony.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -51,19 +49,19 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 18 Dec 2022, Adrian Freund wrote:
+On Fri, 6 Jan 2023, Roderick Colenbrander wrote:
 
-> This patch adds support for the tablet mode switch sensors on
-> convertible devices where that sensor is managed by AMD SFH, like the
-> Asus Flow X13 and the Lenovo ThinkPad L13 Yoga Gen2 (AMD).
+> Now that hid-playstation provides DualShock4 support, remove
+> DualShock4 support from hid-sony as it is redundant.
 > 
-> Co-developed-by: Ivan Dovgal <iv.dovg@gmail.com>
-> Signed-off-by: Ivan Dovgal <iv.dovg@gmail.com>
-> Co-developed-by: Luke D. Jones <luke@ljones.dev>
-> Signed-off-by: Luke D. Jones <luke@ljones.dev>
-> Signed-off-by: Adrian Freund <adrian@freund.io>
+> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+> ---
+>  drivers/hid/hid-sony.c | 1021 ++--------------------------------------
+>  1 file changed, 40 insertions(+), 981 deletions(-)
 
-Basavaraj, could you please review this? Thanks,
+What's not to like about this diffstat :)
+
+Applied, thanks Roderick.
 
 -- 
 Jiri Kosina

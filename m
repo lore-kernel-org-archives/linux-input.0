@@ -2,90 +2,84 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00DE6C54EBE
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 09:24:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93B90C32793
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 09:24:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbjARJYC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Jan 2023 04:24:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45468 "EHLO
+        id S229846AbjARJYh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Jan 2023 04:24:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230195AbjARJVR (ORCPT
+        with ESMTP id S229987AbjARJVP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 04:21:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BE0B5D929;
-        Wed, 18 Jan 2023 00:46:09 -0800 (PST)
+        Wed, 18 Jan 2023 04:21:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0E0475738;
+        Wed, 18 Jan 2023 00:41:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D00CCB81BD9;
-        Wed, 18 Jan 2023 08:46:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ED2FC433EF;
-        Wed, 18 Jan 2023 08:46:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33C6761711;
+        Wed, 18 Jan 2023 08:41:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EE5DC433F0;
+        Wed, 18 Jan 2023 08:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674031566;
-        bh=BfVz+1XSSoBmIGSKdQBPSPKSsPjEBMB8GohAlfIZU4w=;
+        s=k20201202; t=1674031304;
+        bh=JE6oTJJg8zFAswHFzhsBSx8vEF1SwFX6/4C5ABy+iY0=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=CdLuO4+Dv0QA+8RJr998SMrveSx9ciXPAx3TNhJIFKKiHNxerqnVOr4nGTbMOa+Ai
-         +szkBCXg+7OWDSvXfWpZ5ymTOavGOsageZjS/jWGPHCwdUS+t7Cr9uWuWmCXLJgBOk
-         iXD23AEVocndO07IgsLBXjeBlYLqOdMe2Qxjqd22kE16gQ2bjhrj0BCfk+8783biD2
-         ZHJk3PVNffThUgWLIvtJ4PzXzoeqGhrtyB9B4n/vNTNu9kR6RybS+NycYgTxbaOuDN
-         v4lof1LHIsMqv9HdJT9Quo39uM+aOty9ffimaVCEq6iPte7ivjPXrzdZzywsYt6mBq
-         D8QgqX8CmzoIQ==
-Date:   Wed, 18 Jan 2023 09:46:07 +0100 (CET)
+        b=SXiCadhBShJUM4bmF7D7uYdxd18+idPeX426h+8/2OoSg8BH7luvDzHApwhpt0GQT
+         IQ/QqI4S5P7ABpQWVyO57qVJOg0NK7V1ug6ArMVmXJvAXDk60KRqZWJZTSAvBXZPv3
+         zrcs4ZZqDdwvl55tEObZSRpj/0JX30tJzNVcPDGAFNXtx72+Z7QYEX8x0jRgagALTN
+         Z6PBATJNH899vMzKeaHHbE3lHncUCOWRhQTZYK8OTMjghMbSmudRLP5Du5R0Xnip8s
+         FfhoMSC1X/rjjsFNfDHV8Qhbf50QGaV8UESRswYVw8UNVavcQknwQFLb/icxb6dCFv
+         CZ4/yMJ3GrLbw==
+Date:   Wed, 18 Jan 2023 09:41:45 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     =?ISO-8859-15?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
-cc:     benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/6] HID: uclogic: Add support for XP-PEN Deco PRO SW
- and MW
-In-Reply-To: <20221226125454.16106-1-jose.exposito89@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2301180945190.1734@cbobk.fhfr.pm>
-References: <20221226125454.16106-1-jose.exposito89@gmail.com>
+To:     =?ISO-8859-15?Q?Thomas_Wei=DFschuh?= <linux@weissschuh.net>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/2] HID: i2c-hid: use standard debugging APIs
+In-Reply-To: <20221223-hid-dbg-v1-0-f641e80263eb@weissschuh.net>
+Message-ID: <nycvar.YFH.7.76.2301180941320.1734@cbobk.fhfr.pm>
+References: <20221223-hid-dbg-v1-0-f641e80263eb@weissschuh.net>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 26 Dec 2022, José Expósito wrote:
+On Fri, 23 Dec 2022, Thomas Weißschuh wrote:
 
-> Hi!
+> When trying to debug i2c-hid I was not able to use the builtin debug
+> mechanism because the "debug" module parameter is not writable.
 > 
-> This series add support for the XP-PEN Deco PRO SW and MW drawing
-> tablets.
+> We can change i2c-hid to use the standard kernel debugging APIs which are
+> more discoverable and have more features.
 > 
-> Both tablets are similar, the only difference between them is their
-> size and their IDs. I own one of them and Andreas helped me test the
-> other one, so thanks a lot!
+> There is a bit of a stilistic conflict between consistently using
+> i2c_hid_dbg() and consistently using dev_<level>().
 > 
-> Please note that this series might cause conflicts with [1], but they
-> should be really easy to fix/I can rebase once it is merged.
+> The second patch aligns debugging on i2c_hid_dbg().
+> If this is unneeded, feel free to drop it.
 > 
-> About the patches:
+> It would also be easy to just use dev_dbg() everywhere for consistency.
 > 
->  - The first patch introduces a quirks to be able to fix the frame type
->    reported by these devices.
->  - The second patch adds another quirks to know whether a tablet has
->    battery or not. I didn't find any difference in the information
->    reported by the firmware nor in the Windows driver to obtain this
->    information, so I added a manual flag.
->  - The fourth patch adds a generic mechanism to schedule jobs when an
->    event is received, in this case, to reconnect the tablet.
->  - The last two patches add support for the tablets.
+> To: Jiri Kosina <jikos@kernel.org>
+> To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 > 
-> Best wishes,
-> José Expósito
+> ---
+> Thomas Weißschuh (2):
+>       HID: i2c-hid: switch to standard debugging APIs
+>       HID: i2c-hid: use uniform debugging APIs
 > 
-> [1] [PATCH] HID: uclogic: Add support for XP-PEN Deco 01 V2
->     https://lore.kernel.org/linux-input/20221226123456.14822-1-jose.exposito89@gmail.com/T/
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 15 +++------------
+>  1 file changed, 3 insertions(+), 12 deletions(-)
 
-I have queued this in for-6.3/uclogic branch. The conflict is a nobrainer, 
-so that shouldn't be an issue at all.
-
-Thanks,
+Applied to for-6.3/i2c-hid branch, thanks Thomas.
 
 -- 
 Jiri Kosina

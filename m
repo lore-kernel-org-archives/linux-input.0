@@ -2,69 +2,113 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF074C004D4
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 10:09:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93F25C38147
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 10:45:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229448AbjARKJf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Jan 2023 05:09:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43052 "EHLO
+        id S229682AbjARKpf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Jan 2023 05:45:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbjARKGY (ORCPT
+        with ESMTP id S229932AbjARKoA (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 05:06:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5F0569B29
-        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 01:11:58 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77BFEB8164A
-        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 09:11:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79A00C433F0;
-        Wed, 18 Jan 2023 09:11:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674033116;
-        bh=ME0uHqgfTif+hN/57UWd/O92dCQxUCC7eg6fpwvBCMg=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=P9/i9WZ1f380g36jTFZy1AuvqQPx+hnI7XZbzkzeZiToy4/lIy2WM8OObmNgen+xG
-         oOePymmAPwfO7h66X2FyWuEVbFdoSbd0Kr941ZNK8lZBytGRIBcmeP8OwaLPQxHlVx
-         /JgxnidT7ShFbKL8beA98xYY7ytghNgBdTVzNZNQ6Yuf9sRy/ykyJ6I4xrEo4lcxnS
-         AAIwAjmcdTMzhRyyivjI82j/oVP+1Mn2qrAaDCvqBU5fyVwUCmJOS4U9x1Cu0Cun+V
-         VCraKNIhwelh3hH4YjEG5guY+O7cIKswWLpcHj7H/Sq5KrvwKY1DGmMhcNjecmXal+
-         qg5X34995prTw==
-Date:   Wed, 18 Jan 2023 10:11:56 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Roderick Colenbrander <roderick@gaikai.com>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org,
-        Roderick Colenbrander <roderick.colenbrander@sony.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>
-Subject: Re: [PATCH 1/5] HID: playstation: fix DualShock4 unreachable
- calibration code.
-In-Reply-To: <20230106015910.3031670-2-roderick.colenbrander@sony.com>
-Message-ID: <nycvar.YFH.7.76.2301181011490.1734@cbobk.fhfr.pm>
-References: <20230106015910.3031670-1-roderick.colenbrander@sony.com> <20230106015910.3031670-2-roderick.colenbrander@sony.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        Wed, 18 Jan 2023 05:44:00 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E218611D6
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 01:50:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1674035408;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=ekqaAGVHn5lsNsby5X1WXEtZvyYCj4CzjjlIaOH2e9I=;
+        b=CSlMN7oRbU8Hp9eMp49y71S5rC4kQSoLv3S4t9Od2wxfwhncjDL8frT2OPICrVGA2JvcYT
+        1mI9Lue5p5VHFlsObnPvPEYXsnd3/h+13W5bshK0p/boUhLNHdEfm6CHhL8uwYSXlu0FRe
+        NSAzZIylOWCuD71RXcxcIwy7HEgIUT4=
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com
+ [209.85.166.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-661-N5ZU0p-WMC2tTaimAl2NHw-1; Wed, 18 Jan 2023 04:50:07 -0500
+X-MC-Unique: N5ZU0p-WMC2tTaimAl2NHw-1
+Received: by mail-il1-f198.google.com with SMTP id h4-20020a056e021b8400b0030d901a84d9so23624602ili.6
+        for <linux-input@vger.kernel.org>; Wed, 18 Jan 2023 01:50:07 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ekqaAGVHn5lsNsby5X1WXEtZvyYCj4CzjjlIaOH2e9I=;
+        b=iJ8TQlXUyI2hHg1qR+LRlh3O+VwcXKhfJQeWB4yXbl6AthK0ekuJACZN+lZ7B7wzqz
+         /eJUKiINa64IehGy2yMQWIk3tPdjkL6qvoTrgpc+xmc8YCn6quSPtKn5VTIFy08mzvOL
+         O+j3zUV2K/v1lyEM9HjPUqvZ4yILiirVqdse7CVHv1COrfKx8dwL3J62JGTY7fGUA94j
+         0oY+SX54aWNwhMekuEbxeq1Ht2TU5m0eEWQo1YxhFgAtXb1eY2re0CeTtJUJlkmX20CK
+         HNB4Sy2nmuuB96FpebL8sMmokcqgeL3Q0pNdRWID/mA2i6zPvHMFinkEy+JBNg8joQAu
+         wFqw==
+X-Gm-Message-State: AFqh2kpwcGMavdB2EdRg7wipiBccaurIJCOEjlcJENQzviDDQqwlu+no
+        qyBCtLITN4AGKMQKaPGO7sEQ+yxaWraKT1zW4ZEYQGy01Qyx3zp5zRIBk5XYNwN9V9gD4vpVEWE
+        v8rzLRFe3ZGfdFPn3p980MwiRfR2S7tMAky8ttfk=
+X-Received: by 2002:a02:c984:0:b0:3a0:7a0b:fcc with SMTP id b4-20020a02c984000000b003a07a0b0fccmr448423jap.106.1674035407022;
+        Wed, 18 Jan 2023 01:50:07 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXuFdpCs8xaAFrJJK3/17Lu8n/8pHgKIs0fo3byjnvosyRSj8soAeBwATrJIsEgQxjEga2Z8oCIhaVFDJNlXWNI=
+X-Received: by 2002:a02:c984:0:b0:3a0:7a0b:fcc with SMTP id
+ b4-20020a02c984000000b003a07a0b0fccmr448419jap.106.1674035406826; Wed, 18 Jan
+ 2023 01:50:06 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20221219105521.73467-1-benjamin.tissoires@redhat.com>
+In-Reply-To: <20221219105521.73467-1-benjamin.tissoires@redhat.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Wed, 18 Jan 2023 10:49:55 +0100
+Message-ID: <CAO-hwJ+4zit=65oS6Q9aBp3GZiVaOP3f__tcT+1VSRx=1hcxrg@mail.gmail.com>
+Subject: Re: [PATCH] HID: multitouch: enable trackstick of Asus ExpertBook B2502
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 5 Jan 2023, Roderick Colenbrander wrote:
+On Mon, Dec 19, 2022 at 11:55 AM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> This device has a trackstick that is sent through the same HID device
+> than the touchpad.
+> Unfortunately there are 2 mice attached to that device descriptor, with
+> the first one for the touchpad when the second is for the trackstick.
+>
+> Force all devices to be exported.
+>
+> Cc: stable@vger.kernel.org # 5.8+
+> Link: https://bugzilla.redhat.com/show_bug.cgi?id=2154204
+> Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 
-> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-> Reported-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-> Reported-by: kernel test robot <lkp@intel.com>
-> Reported-by: Dan Carpenter <error27@gmail.com>
-> Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+FTR, this patch was already taken through
+4eab1c2fe06c98a4dff258dd64800b6986c101e9, so we can safely ditch it.
 
-Applied to for-6.3/sony.
+Cheers,
+Benjamin
 
--- 
-Jiri Kosina
-SUSE Labs
+> ---
+>  drivers/hid/hid-multitouch.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 91a4d3fc30e0..91ac72b32d45 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -1860,6 +1860,12 @@ static const struct hid_device_id mt_devices[] = {
+>                         USB_VENDOR_ID_ASUSTEK,
+>                         USB_DEVICE_ID_ASUSTEK_T304_KEYBOARD) },
+>
+> +       /* Asus ExpertBook with trackstick */
+> +       { .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+> +               HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+> +                       USB_VENDOR_ID_ELAN,
+> +                       0x3148) },
+> +
+>         /* Atmel panels */
+>         { .driver_data = MT_CLS_SERIAL,
+>                 MT_USB_DEVICE(USB_VENDOR_ID_ATMEL,
+> --
+> 2.38.1
+>
 

@@ -2,45 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43ADEC004D4
-	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 09:24:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A633C54EBE
+	for <linux-input@archiver.kernel.org>; Wed, 18 Jan 2023 09:24:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230024AbjARJYo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S230107AbjARJYo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 18 Jan 2023 04:24:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45496 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229993AbjARJVP (ORCPT
+        with ESMTP id S230203AbjARJXR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Jan 2023 04:21:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F1755D113;
-        Wed, 18 Jan 2023 00:43:49 -0800 (PST)
+        Wed, 18 Jan 2023 04:23:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0288378AB2;
+        Wed, 18 Jan 2023 00:47:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FD0EB81B7C;
-        Wed, 18 Jan 2023 08:43:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA4BC433EF;
-        Wed, 18 Jan 2023 08:43:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 927006170C;
+        Wed, 18 Jan 2023 08:47:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7861C433D2;
+        Wed, 18 Jan 2023 08:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674031426;
-        bh=uBrpKtIVouSZXTyCK2yKdIiaTlwn4rB2jgmpNTB0o4I=;
+        s=k20201202; t=1674031647;
+        bh=eGelRK0QxB4MHLWy0yYg1Wv7neg8Dl520nKPLbMU4aA=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=jg4TS+p2YOzL+Y4NZPwiGdT9eF5O24/zevNrrlsYJs+8ClVTaT4P2FlsjAGCfnWNx
-         5FtENdQoau/zsHs1uUA/cKxhcWqDoFIEu2PE+1LlQGpyI058XeMFCr/BSMO/fWGn65
-         GYCTHH2ZUIE1D+n2IObTGIo+S5MOhQqhssFhKS48eNRU2uY3fKUZJxjNqy2wJL9xD9
-         Q8H/Ntu72EYx6ldYMMm5d8kFki0CjA72RQtqjGHVXlil9G+/YmzqRQ94GvDvvaKdDK
-         d50iCPmle0dLsjjvY05vKFscffgqCCHHfhusf/TJVWhUalHJ6ypTLJqseaMPxD/M7Y
-         xJzVuyc0+39VQ==
-Date:   Wed, 18 Jan 2023 09:43:47 +0100 (CET)
+        b=sS7XrDHS/o9lxqEMfAYhwR5Fqlu9awESG6q4VEp79BN3Old4eI8JzG4Yjhgs9Zdsf
+         fMoudhuaeYeTRj17o2Pw5X6/l7IX/S7ybP7RtnK46P9owfsSeowL1Xe5ff7eda/fcs
+         NeGgxGZ3EYdY1KZKfoR6nCbeucRBdcYoKjrVuGNUnvvKYawo0I7jc0a4ZLlAyILF4B
+         upj1v1Ntf7YbLlkvi3qVx2VhYQHKm7WADhxiq1ZsmOyteE3DH+kSREvaez7ddG9PrW
+         BaIgS6qUnz2wm395RBkzKx50UNDXYSkpy2qaEFIL042Vji8Sk5e7OPXYj9u4x2iMKg
+         A9XUE0FkV94nA==
+Date:   Wed, 18 Jan 2023 09:47:27 +0100 (CET)
 From:   Jiri Kosina <jikos@kernel.org>
 To:     =?ISO-8859-15?Q?Jos=E9_Exp=F3sito?= <jose.exposito89@gmail.com>
-cc:     benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Mark Waddoups <mwaddoups@gmail.com>
-Subject: Re: [PATCH] HID: uclogic: Add support for XP-PEN Deco 01 V2
-In-Reply-To: <20221226123456.14822-1-jose.exposito89@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2301180943340.1734@cbobk.fhfr.pm>
-References: <20221226123456.14822-1-jose.exposito89@gmail.com>
+cc:     benjamin.tissoires@redhat.com, mcanal@igalia.com,
+        mairacanal@riseup.net, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: uclogic: Use KUNIT_EXPECT_MEMEQ
+In-Reply-To: <20221226125736.18053-1-jose.exposito89@gmail.com>
+Message-ID: <nycvar.YFH.7.76.2301180947220.1734@cbobk.fhfr.pm>
+References: <20221226125736.18053-1-jose.exposito89@gmail.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,16 +52,38 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 On Mon, 26 Dec 2022, José Expósito wrote:
 
-> The XP-PEN Deco 01 V2 is a UGEE v2 device with a frame with 8 buttons.
-> Its pen has 2 buttons, supports tilt and pressure.
+> Commit b8a926bea8b1 ("kunit: Introduce KUNIT_EXPECT_MEMEQ and
+> KUNIT_EXPECT_MEMNEQ macros") introduced a new macro to compare blocks of
+> memory and, if the test fails, print the result in a human friendly
+> format. For example, this is the output of a test failure:
 > 
-> Add its ID in order to support the device.
+>  Expected res == params->expected, but
+>      res ==
+>       01  02  aa  00  00  00  03  bb  00 <00> 00  04  05
+>      params->expected ==
+>       01  02  aa  00  00  00  03  bb  00 <01> 00  04  05
 > 
-> Link: https://gitlab.freedesktop.org/libinput/libinput/-/issues/839
-> Tested-by: Mark Waddoups <mwaddoups@gmail.com>
+> Use this new macro to replace KUNIT_EXPECT_EQ + memcmp.
+> 
 > Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+> ---
+>  drivers/hid/hid-uclogic-rdesc-test.c | 3 +--
+>  1 file changed, 1 insertion(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-uclogic-rdesc-test.c b/drivers/hid/hid-uclogic-rdesc-test.c
+> index b429c541bf2f..90bf4e586e01 100644
+> --- a/drivers/hid/hid-uclogic-rdesc-test.c
+> +++ b/drivers/hid/hid-uclogic-rdesc-test.c
+> @@ -197,8 +197,7 @@ static void hid_test_uclogic_template(struct kunit *test)
+>  					   params->param_list,
+>  					   params->param_num);
+>  	KUNIT_ASSERT_NOT_ERR_OR_NULL(test, res);
+> -	KUNIT_EXPECT_EQ(test, 0,
+> -			memcmp(res, params->expected, params->template_size));
+> +	KUNIT_EXPECT_MEMEQ(test, res, params->expected, params->template_size);
+>  	kfree(res);
 
-Applied to hid.git#for-6.2/upstream-fixes. Thanks,
+Applied, thanks.
 
 -- 
 Jiri Kosina

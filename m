@@ -2,83 +2,124 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A0DBBC05027
-	for <linux-input@archiver.kernel.org>; Thu, 26 Jan 2023 11:11:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3004C54EAA
+	for <linux-input@archiver.kernel.org>; Thu, 26 Jan 2023 12:10:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237182AbjAZLLy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 26 Jan 2023 06:11:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59282 "EHLO
+        id S236212AbjAZMK6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 26 Jan 2023 07:10:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236312AbjAZLLx (ORCPT
+        with ESMTP id S232615AbjAZMK5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Jan 2023 06:11:53 -0500
-Received: from smtpweb146.aruba.it (smtpweb146.aruba.it [62.149.158.146])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC65063854
-        for <linux-input@vger.kernel.org>; Thu, 26 Jan 2023 03:11:18 -0800 (PST)
-Received: from asem-TANK-H61.asem.intra ([151.1.184.193])
-        by Aruba Outgoing Smtp  with ESMTPSA
-        id KzrppyQ5bn7VrKzrspdlp8; Thu, 26 Jan 2023 11:52:33 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-        t=1674730353; bh=j13KKIJM6fFKosjFnovvgyqOUFOoD8QPhU4cG+FAZMI=;
-        h=From:To:Subject:Date:MIME-Version;
-        b=mAmqc8KP+o2c6Fy9qMAEg4cY9eYB/bhoxSEUVuK1B0Gahe6ZkdrJI2v924g8k7onr
-         oKbcfUPTcmK4+LoMGo15+gK/TJ8DcVIBWfhnEb7nB3raGvtq+7Oj8L/idX9YfT2Jkz
-         +6dvjnlnsdLj2xD3TyO7OxZvbucmh7XsIeWmd7l6Xij+R8k4IfOHORDAQ3ZMKkMnyj
-         Ze61iwZ3oBTijtUTieUHHmmk9jwqv3Im7NqHY7vLwBkvwM2h0bdjrL7lBh30OZgNoQ
-         AtDhNVoTdW5xJnO0SJPRtoDbwQMRqrVJcJtVMgh0lUGRtt0/OySIV8GyjjQN3LIz2j
-         AfHO7+g5OpsEg==
-From:   Luca Ellero <l.ellero@asem.it>
-To:     dmitry.torokhov@gmail.com, daniel@zonque.org,
-        m.felsch@pengutronix.de, andriy.shevchenko@linux.intel.com,
-        u.kleine-koenig@pengutronix.de, mkl@pengutronix.de,
-        miquel.raynal@bootlin.com, imre.deak@nokia.com,
-        luca.ellero@brickedbrain.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Luca Ellero <l.ellero@asem.it>
-Subject: [PATCH 1/3] Input: ads7846 - don't report pressure for ads7845
-Date:   Thu, 26 Jan 2023 11:52:25 +0100
-Message-Id: <20230126105227.47648-2-l.ellero@asem.it>
+        Thu, 26 Jan 2023 07:10:57 -0500
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92E7A42BFC
+        for <linux-input@vger.kernel.org>; Thu, 26 Jan 2023 04:10:55 -0800 (PST)
+Received: by mail-ed1-x536.google.com with SMTP id y15so987459edq.13
+        for <linux-input@vger.kernel.org>; Thu, 26 Jan 2023 04:10:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=diag.uniroma1.it; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eVbivV8EGu+km89gAq7ikjZD9Nt9wLtDAtt21fJbyIE=;
+        b=Z+Jx3ESL49Z2PCF4IUnISXt1Ax3Bh5RhOtxjA77Q+aTXwdTogaLdApCZ0YageHuLgS
+         qtiYhwM7TJDQQE0gtq3wj3rQUL+qBWAvUl9jsDW1xrQZKGL7EgWvxNPuBBvULej9v72Z
+         uXzY72TclGoeq2vUHaX6eq6+1gn2y/RP7Md/c=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=eVbivV8EGu+km89gAq7ikjZD9Nt9wLtDAtt21fJbyIE=;
+        b=wJIxNTNmZDjsWkXg5yhckNaYPrE8os0rS58zx05zR2CXRcPnXicbmkYFlgujzBsEt7
+         harbi8O0RQx5U1/1D8N3/EjL0tnvwBgcKz2WCCoV09/LcjW8+U/ljML9SKqzLfeGdtmy
+         uW+ocf/AT+ucE24eMAOU2xBjMZssnkriqwTK7DDZDQZdfH8iViC3ZB02DBcWD4RhPw8a
+         XJQYYRzgpJtIw+EjOOv/kpBMHFLKaIM7sug7dqCdVh4mGyw6IVOEOTZXVMO9ANLf4PGB
+         4kxAhFNoe2/IOvFjmD8b02jePhTuohL8nJ4KVB5lOyY+aaGSUvbWla+vC3myPDQuD0zV
+         ZMVQ==
+X-Gm-Message-State: AFqh2ko3YgzTjiq6Fjt1D42n5VRWkMPp4wcK3/54mBRMZvxHwnzEJj/k
+        KYHzKtgaYo5RhNzOp30kjX9zDQ==
+X-Google-Smtp-Source: AMrXdXsukXmzEgZnFOHM0z7on12mUpXq2NJAYUtr0KLvu8zMkX/pzniYGESNkYwGVqZ6WycqNgozXw==
+X-Received: by 2002:a05:6402:3214:b0:49d:bc8c:c3eb with SMTP id g20-20020a056402321400b0049dbc8cc3ebmr43983796eda.15.1674735053993;
+        Thu, 26 Jan 2023 04:10:53 -0800 (PST)
+Received: from pborrello-1.vm.vusec.net (wolkje-127.labs.vu.nl. [130.37.198.127])
+        by smtp.gmail.com with ESMTPSA id j2-20020aa7ca42000000b0049ef56c01d0sm645490edt.79.2023.01.26.04.10.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Jan 2023 04:10:53 -0800 (PST)
+From:   Pietro Borrello <borrello@diag.uniroma1.it>
+To:     Roderick Colenbrander <thunderbird2k@gmail.com>
+Cc:     Pietro Borrello <borrello@diag.uniroma1.it>,
+        linux-leds@vger.kernel.org,
+        Cristiano Giuffrida <c.giuffrida@vu.nl>,
+        "Bos, H.J." <h.j.bos@vu.nl>, Jakob Koschel <jkl820.git@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiri Kosina <jkosina@suse.cz>,
+        Roderick Colenbrander <roderick@gaikai.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Hanno Zulla <kontakt@hanno.de>, Pavel Machek <pavel@ucw.cz>,
+        Lee Jones <lee@kernel.org>,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        Sven Eckelmann <sven@narfation.org>
+Subject: [PATCH v2 3/5] HID: dualsense_remove: manually unregister leds
+Date:   Thu, 26 Jan 2023 12:09:18 +0000
+Message-Id: <20230125-hid-unregister-leds-v2-3-514437b19297@diag.uniroma1.it>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230126105227.47648-1-l.ellero@asem.it>
-References: <20230126105227.47648-1-l.ellero@asem.it>
+In-Reply-To: <CAEc3jaDRzvw4wqomWTZ4QiGT7ndm0u+LQuqDTOWB=B-6w=2yzg@mail.gmail.com>
+References: <20230125-hid-unregister-leds-v2-0-514437b19297@diag.uniroma1.it>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+X-Mailer: b4 0.11.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1674734023; l=1556; i=borrello@diag.uniroma1.it; s=20221223; h=from:subject:message-id; bh=I/aK9DcIPRri1R7+BoQmPFot08oQLGwMbJpqlNV1B8M=; b=x78P2ebxLLwLOWOjBnnzLG/enTMXSF9YH3QbZDzWhLC4Tzv7V/zRQOi1YIKOhINhDOkegJK42hLC m1jeKayWD9ELcEL8IQp12s8Y82S82CkgS5gm1+YzswCDoo5jieve
+X-Developer-Key: i=borrello@diag.uniroma1.it; a=ed25519; pk=4xRQbiJKehl7dFvrG33o2HpveMrwQiUPKtIlObzKmdY=
 Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfDOQITVe5HdccN8ZR7js8LsXxDXfRRRw3BoVo61j0dBfmGWMLnQShJQUqk7l2JrYX3VpXhOiMs57ly0R+i3Gp6liuLXKW55xuGWNA0EDwPqoQlspu9hy
- G6QDM7ooc0tN39LOWKVFJ88zmjd1J49NgjJ4pngmVSoxGYamRo6pgHZVPVxZYvnmhe4GmF7iIjksSbZ3yVMf4EbdAgY9p+Q4UoNtv/Joa56wYbJDzdSEpO1W
- QZjjv4U5hOj3nv4Dpvn0/iaa1Pkh8JRd+hFA+J4rC868YFiHzuQj7yDxJ2ai7gJ8Vh1RRMPcirUYWTr91CXqC5FeJQU42gGTozACaG3z5/fof+l0mmU3AA1K
- XBWWBunJ3WkpXdk+Y6VPMHHojINGWkPUIuQXs3zDYftYjBkXYPxe28RlDpfYjP87SI/8ZdPbEyPRKvWQSiYOh2EnFo3ls9wbamuAdCjWcmpINqsZQkTRn+qW
- BJMb2Nw5by6rOWLQIhraBL/3c7IIdRAxIpGNTnEU9bK0rMrHhQdj+OvbjAIW1UQBhDE8TDvv96YoFF8OH+ckXZVK/6BLFcFLDAcNiA0EY5Dse5YwLD9/+mQf
- wAsJFD7HDN7YkFyKIpqdauf/
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-ADS7845 doesn't support pressure.
-Avoid the following error reported by libinput-list-devices:
-"ADS7845 Touchscreen: kernel bug: device has min == max on ABS_PRESSURE".
+Unregister the LED controllers before device removal, to prevent
+unnecessary runs of dualsense_player_led_set_brightness().
 
-Fixes: ffa458c1bd9b ("spi: ads7846 driver")
-Signed-off-by: Luca Ellero <l.ellero@asem.it>
+Fixes: 8c0ab553b072 ("HID: playstation: expose DualSense player LEDs through LED class.")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+
 ---
- drivers/input/touchscreen/ads7846.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
-index 4c3dd01902d0..f11b444f2138 100644
---- a/drivers/input/touchscreen/ads7846.c
-+++ b/drivers/input/touchscreen/ads7846.c
-@@ -1316,8 +1316,9 @@ static int ads7846_probe(struct spi_device *spi)
- 			pdata->y_min ? : 0,
- 			pdata->y_max ? : MAX_12BIT,
- 			0, 0);
--	input_set_abs_params(input_dev, ABS_PRESSURE,
--			pdata->pressure_min, pdata->pressure_max, 0, 0);
-+	if (ts->model != 7845)
-+		input_set_abs_params(input_dev, ABS_PRESSURE,
-+				pdata->pressure_min, pdata->pressure_max, 0, 0);
+Contrary to the other patches in this series, failing to unregister
+the led controller does not results into a use-after-free thanks
+to the output_worker_initialized variable and the spinlock checks.
+
+Changes in v2:
+- Unregister multicolor led controller
+- Clarify UAF
+- Link to v1: https://lore.kernel.org/all/20230125-hid-unregister-leds-v1-3-9a5192dcef16@diag.uniroma1.it/
+---
+ drivers/hid/hid-playstation.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index 27c40894acab..f23186ca2d76 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -1503,11 +1503,17 @@ static void dualsense_remove(struct ps_device *ps_dev)
+ {
+ 	struct dualsense *ds = container_of(ps_dev, struct dualsense, base);
+ 	unsigned long flags;
++	int i;
  
- 	/*
- 	 * Parse common framework properties. Must be done here to ensure the
+ 	spin_lock_irqsave(&ds->base.lock, flags);
+ 	ds->output_worker_initialized = false;
+ 	spin_unlock_irqrestore(&ds->base.lock, flags);
+ 
++	for (i = 0; i < ARRAY_SIZE(ds->player_leds); i++)
++		devm_led_classdev_unregister(&ps_dev->hdev->dev, &ds->player_leds[i]);
++
++	devm_led_classdev_multicolor_unregister(&ps_dev->hdev->dev, &ds->lightbar);
++
+ 	cancel_work_sync(&ds->output_worker);
+ }
+ 
+
 -- 
 2.25.1
-

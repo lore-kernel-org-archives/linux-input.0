@@ -2,297 +2,188 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 49965C61DA3
-	for <linux-input@archiver.kernel.org>; Thu, 26 Jan 2023 09:19:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B721C61DA0
+	for <linux-input@archiver.kernel.org>; Thu, 26 Jan 2023 09:19:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236786AbjAZJTZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 26 Jan 2023 04:19:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57842 "EHLO
+        id S233508AbjAZJTX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 26 Jan 2023 04:19:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236801AbjAZJTL (ORCPT
+        with ESMTP id S236770AbjAZJTK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Jan 2023 04:19:11 -0500
+        Thu, 26 Jan 2023 04:19:10 -0500
 Received: from EUR02-AM0-obe.outbound.protection.outlook.com (mail-am0eur02on2123.outbound.protection.outlook.com [40.107.247.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA80E6DB14;
-        Thu, 26 Jan 2023 01:18:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3E1D6DB0A;
+        Thu, 26 Jan 2023 01:18:49 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Ts1j73u6yCokLSghILYKzhv2CbswEGE6sAy25iCtcFKIZuW2tGlIVIAkrv6FJR1Q49O6qCZRbRTxGfn55uGHu9xgGI2TvQzmJRw/XoOnL0I98DwxR4mQDdzrtiIZEwaZfIjSRhW8RqGXtDewnwBxR5TXNV96HfCuUAQX0yKrfMMJ4PU9joVndM2wsvnlkeh3kUUVFy6G95VzsRPaDHu4BsFR9BrTS6UuSKd5VEuVRzQcBZpAIaVcWk4V1qCvF/Wf8fKle1vwxUQmsHIydjLGMH8xjytyV8x80EE5sTOKcSs+TP1Q5jj16Kjdd5rigFQ8sKov2+3nsAWkLFkFApT5GQ==
+ b=I5sgraiU8r22pIX3lE4GkQPRfwibaWXeedWX06LG23WcEGYPS0nnpKMe5FyJ1FsS6gxpxCt9tFqJS0Ne6TUEJ4A2SsXaQGyPqe8WhZyHO2o2eaamdyq1k48sGqmqlv2hhbuL1esf8aiV6xfbOtzA9erxwWuC6S7aK91/n1slpGKCakc9+dKYooitbC87E6X6zX4ACLj1ZHEJGSJ7xAwjiqELxqj0QQOZDHlPI4jGhcR+7LODRL4XlttEPwEe9Ysg7IVIq/6lWOCQDsT0JD0xnevcXx/RcrlDN9inbUjfKIiyQAfgoyy5nIYlUaksBeFz5RbEVwPN9XxR7K9+f+tqeQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=5qZ+QAPBkkp6i4N/ZgKEFvHq4ipLNJJbcuwCaeCLOdk=;
- b=dAR+BmahHX63Y3xmRwvnu8wq+zhRf7SZpqx5BwQu0fV1jNy6AzVrD1g0HnGTXIP8MvzLKhOVDA23zpgadNWbLTwBjsdSsQ6CBxDcPGTa9z8JACnjQQ8KoioRdcvqQ0ZBwPp4wgxcDK71BW/6z38zHt7Gcp92jfZEd+VggX5ICEghEO8u3YkuFP3Yf/u8/EvZUpWVThHWbPLmN8qU7LtAd+r5NpY80VBQnzfHcIxf2Nqc+uI2W7Kk8WVdwydSU7T1XXRZaE0xkgR5kkR0mhTKxGIuhp6AsvkZoU3Cg9L5gSmza+RAW7lqp8lA+fE8r+RBHnaaq0jIx0JH/1/jU+fkqg==
+ bh=UNQQ4JlyEMifq4exMQKAozl+VAGJ569Fh7Ra1BcznpI=;
+ b=gmbQm/dlqyQCZFTn5p+5735FjK3uxitkdeXJcgeGsM0g3pQqQTZGPmpYyTYgJNrducNGvUTw+TA1JONGdJ5nKfjkY/g+ppKrJtdd4xFM8EA2xTAwTuR/FHs8JiPW9rvQIGsowoe32zo1VU5IFrTCw4H5r2jXo+RLKvcuDJ8XTAJWPtsZzbKJA2jEZZfL8nrNZq+Adcyz22WVOANofrm4QB1atpYuVvemierWNz1CMu8elHfn+Rr3XTNPzyHUK7bVYWhPTTsnbovjtEQ2XNrvDvsBVTaxystLLgsO50XDIBXk+apxM22W3Wndfu4rQ2oqdzr+PTUYVnm1ZEkk6E5KsA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=mt.com; dmarc=pass action=none header.from=mt.com; dkim=pass
  header.d=mt.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mt.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=5qZ+QAPBkkp6i4N/ZgKEFvHq4ipLNJJbcuwCaeCLOdk=;
- b=H+hNOrhAdyHFoLTE6NEm0IlUKrGhPKvL3InOHiCjYogQpj+vgIVaEveJbi1pOPTifS3is4iHYaiW1vdvIOGXphLo4N17grGOifNCa7Zh/oBa9e1DMEtupbNoheC0krtmY5xuHSOd5Un2ZNsrSw+FfhmsMhotdBOBPaOAxBBlqB8HLrIG2lQc/4ulKisiRKsXV2OgeSCBXFuy60eJpPGd6W/qtqU+Z/gG9emy4h/PbAVYG7v0oz6aKroEtQH/Rp3S06dMqW0PZeKLFnYTDmjhgy5+2zdQMwddWB4WTJ1q3lUcFjAbrHZ0DCdDujL/vtaTKFqG2yaSHCgI7DFQ7aNDvA==
+ bh=UNQQ4JlyEMifq4exMQKAozl+VAGJ569Fh7Ra1BcznpI=;
+ b=CT1wl4gv7jt2lhZ9JcTlSsi1JfXHhC8LNyTQXy9tvg/HDw3djiCia5wyq0X79hETYgbVsVE3znoTelLKWdbSlQorFJW1uIhjM5p6jgl76OUvS9F+CWx4wkYryrWJexaCo2OWEZ0ro0ZmN/6YlIuomyiFrlyDw5nUT2I5x62XNoRQBMprYPeOTsLCJQquN6vP/L45XyTzLxqyBqJD0hEUr0lGwPfD72z5+z+t3cujocGkTHL71llBSY4aH43gljyzS5/OOI19hAGXX8gpdR+9uxT19Zhk3DDJDBPc34UOU5858iuCOQEkvoTvLPW+Nvn4NROgkRhmblBfKtONj05dXg==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=mt.com;
 Received: from AS8PR03MB7621.eurprd03.prod.outlook.com (2603:10a6:20b:345::20)
  by AS2PR03MB9516.eurprd03.prod.outlook.com (2603:10a6:20b:598::6) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6043.22; Thu, 26 Jan
- 2023 09:18:50 +0000
+ 2023 09:18:47 +0000
 Received: from AS8PR03MB7621.eurprd03.prod.outlook.com
  ([fe80::b42f:82f8:24cb:a225]) by AS8PR03MB7621.eurprd03.prod.outlook.com
  ([fe80::b42f:82f8:24cb:a225%9]) with mapi id 15.20.6043.022; Thu, 26 Jan 2023
- 09:18:50 +0000
+ 09:18:47 +0000
 From:   Manuel Traut <manuel.traut@mt.com>
 To:     linux-kernel@vger.kernel.org
-Cc:     Frieder Schrempf <frieder.schrempf@kontron.de>,
+Cc:     Manuel Traut <manuel.traut@mt.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Manuel Traut <manuel.traut@mt.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH v8 2/5] input: pwm-beeper: add feature to set volume via sysfs
-Date:   Thu, 26 Jan 2023 10:18:22 +0100
-Message-Id: <20230126091825.220646-3-manuel.traut@mt.com>
+Subject: [PATCH v8 0/5] input: pwm-beeper: add feature to set volume level
+Date:   Thu, 26 Jan 2023 10:18:20 +0100
+Message-Id: <20230126091825.220646-1-manuel.traut@mt.com>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230126091825.220646-1-manuel.traut@mt.com>
-References: <20230126091825.220646-1-manuel.traut@mt.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: FR2P281CA0136.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:9e::18) To AS8PR03MB7621.eurprd03.prod.outlook.com
+X-ClientProxiedBy: FR2P281CA0023.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:14::10) To AS8PR03MB7621.eurprd03.prod.outlook.com
  (2603:10a6:20b:345::20)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: AS8PR03MB7621:EE_|AS2PR03MB9516:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2cdc028c-31d6-4b42-9b71-08daff7e55be
+X-MS-Office365-Filtering-Correlation-Id: 7ec10960-99c0-49b9-698b-08daff7e5486
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: cWhvEMT4c2QiWAg6e6BKS5E9eCyeL+NL0LHA5I7JMzSu1rQ4jiuQBlR23z4wKO7QU36jolttbsfESC5WSmQdKkZnbZtdH0UhnhWcgei8ZRlQdrnpPQb6AU/BpSHwcytWI0um/uCEDaq4BQhZcSICk/nmJNWJqFnrJ8Fr5GNlY4z0BK2VjMW2j9TDmJPnX+vRcJq/JEWoENiOpMvCC28CK9UjFczMOHI2j4jqw9uS88PoZ/Thc1NtKXHXl+bbs2bQM6n9dYV5P7VA5jhi5XKsdJnHrlBfKLylQVWntExUzqjNOdDNB9QDCsKzaUaDGF4BR5vMaRPnf0oZkoJkZO7s0CNJ3hFjuCDtS10abslUdW/Q40OvOFEzewK7tE+kHUAwowECuSdZrOpCHUVRBSpKL8xhskQT4xoBksS46ZJkuXSFwOPvXrwv2r9pN9CH4KU7EhtxzPeS+HDdtz9nWiVGQt3OlRlNTgDxHfXu8dU7VAKGHABVJgUSyDH7hWLvzi9x9qBlneqVR4o8i9oHdUE1MhdojzfYcZFFA+8DFqtan73LnlZ0wA4vh/YxACE7oOmZ5AB+ahBBhZFJCGAHi0ndOqkX1k7orddnrKWucbjo14218HBP+4WWXoCj7BXG5GT0BYxE33IMreZrFQU12rT3GAMIluy8Tvs6SXLDLObO8SGeLyxBi0Ve6lzzYMI7u6JGg55lDFqVIFEWaptGlGPzKQ==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS8PR03MB7621.eurprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(346002)(366004)(396003)(136003)(376002)(451199018)(44832011)(2906002)(38350700002)(38100700002)(2616005)(1076003)(6666004)(6506007)(6512007)(186003)(26005)(86362001)(83380400001)(66556008)(66476007)(6916009)(66946007)(8676002)(4326008)(5660300002)(36756003)(41300700001)(8936002)(52116002)(6486002)(478600001)(316002)(54906003);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: bg9jTAlLsY52jw0j6rvWwZ11foQ8I3pARx9Mnwzh6u/TJ6incH9fNPBMBUcacaGav7GLMNM3VYc115ezSuFVraSCgNTQBH7YB1hK4yxClfrxOYlWorRf2dY98aaRI+37YXhl66K3no2jK7kGAwo/VuUurqSdKzGgURri1DXUI7q4IhcEH9wWBv2CVkXHZ7RO8RZZiglM8p9Z+Pgmh8R7A7sACVsnYbbObFTXozokbovnbB9XXAgpsrvKMwCCdJ0/cGArZeOup1NqeyPV0bG5HOQU+3jMGnky/3MNvd8WvnlIRpzR3h+2v0ptXsnPaqOJxnuB7+t//izloJjpwrzgejnaMYg77n6CigqTERVJRnfDge9Yuf55SUAVyCeGrWmH931PpmXSRSkzQO7K0fQGnH7OQE0iNo0Wnn+ztF6EmWQQs74DPJjMusUIuXER4p2pTlr2vd9kwCS80AGmlOiiZJl/7e9+BKvJ1LCg2ezb9rRzuE/hBq7DeL4qH9yfcj8AgkKhIaqPkj8Qat9nNYTMh+q6n3RnrNypqKO9WyzuBMHTuE4Q6yWhQF0QZ3Be9KDWdREKv8YawxlSaTSip0iUBgWES/jdKO6wpOyq/3LJvfOeqEawM0djmNfiHIDZAC8L7WuvC1ZLl95FN0crSUv/VqW+VGixVBTUeAEfsgZkHMb8yu4B391tddfv62J3wyXIO3HtpSztEIeXsOPpqiuaSOFXsUsnUDrWk/kEYjVzdJo=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS8PR03MB7621.eurprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(346002)(366004)(396003)(136003)(376002)(451199018)(44832011)(2906002)(38350700002)(38100700002)(2616005)(1076003)(6666004)(6506007)(6512007)(186003)(26005)(86362001)(83380400001)(66556008)(66476007)(6916009)(66946007)(8676002)(4326008)(5660300002)(36756003)(41300700001)(8936002)(52116002)(6486002)(478600001)(316002)(966005)(54906003);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?LRejyvnxgnm5Whf0ZFrR6kzok95QMxbHsPuh95Pw0XcNcPKKI6LQyU8NI36l?=
- =?us-ascii?Q?lyx6jKa1vpUpWbt0GI2ltX5knT4dB5W+LCJc73GMPzBkx69Y9IE7Ks2YCjKG?=
- =?us-ascii?Q?/e61kkoNW28qEGWcRhAjvHttRobAwdviPVS1/8Zd6W+Gd3ef3IvAjoj/IQWW?=
- =?us-ascii?Q?v92JKZVRRh9VP9JdUCDgQefPTXg/uLml7gE2cGGmymW8w915Uh/W7mu8w1OV?=
- =?us-ascii?Q?EzTbw+6fFsuMStfmlL373MxRu0NK7JYAgm4Jtaedz2Nes+899oQG8yqwnYRf?=
- =?us-ascii?Q?k+UQo/VVhBubZuF7yxNkuGyFu2FmfVEx8junYe+Io9mgcfr2gExA0QUUgU+U?=
- =?us-ascii?Q?WgtakdH6wAVUM496ZM72fUnadrJirEuQvsWoVdp4bmUGyOIe7jDwhRs6rjKy?=
- =?us-ascii?Q?PLz6guYd8eogK+KPhd3hHBRj5MfznWNo89wLbNJYkaDLcv9gWpum/T8+UOyi?=
- =?us-ascii?Q?eV2TRR9nBtOYuA24mZklavhPRzIDRwxIov549igyx6G7wa4MA4b9cfP9VVXH?=
- =?us-ascii?Q?0rx1lYpS9VUD8VNeIHIorNjw+3/s7XlpcvA4bV+T2ue63R/0aM4CjKFJF4oX?=
- =?us-ascii?Q?hsPNN3LEfcswqYCllUuv20bMGn2Vjf/MbvVT91jqYPb0XcNuxOH6VXKxtWGW?=
- =?us-ascii?Q?HwXjwbcBj2y3QHAS1UJJLbT+QWFSNAm1rjalzSEXWMyJG0SDnaxcENEqgebx?=
- =?us-ascii?Q?1Kfj/Rnbh2c3GBqmUA+OFEPeHNnOD33OFk2kF76xLN4hJlznZr9wamIka0qa?=
- =?us-ascii?Q?+IFbEm/iti3TNKF2xZ+K3F9jk4vMwrm1bb2TN9MHYFso4wK0LTMv4iIhMBn2?=
- =?us-ascii?Q?xGd5x1fjeicG65gn4AV/1doCCW0eckr6l/LsYLdiIv7fD7vK2SETW/B/zKM5?=
- =?us-ascii?Q?RI7T8TeR2peh0kaeNjPPOCEJLDL40i5atXVenpBNQDdaXg1ey5TGLFBkEu+X?=
- =?us-ascii?Q?caMzwjTtAxsdgIl9XgXeg6og5ScIPSTlRZt6k0EG1LK9T0CxmZzdD+o9aukG?=
- =?us-ascii?Q?Z+nGsh/m1VaFhUPGOsglksqu8MllNoUhiCyg+utf+frGxk6tOLGpzzTLLLB/?=
- =?us-ascii?Q?Wn5yMZ8QLqIpAYYqTRtvZIB+Z+P7iaCze4pC7M9IR79g7d4PMv/M+f7L+y8s?=
- =?us-ascii?Q?1d/CkEZZxVAvDMPnh8pLFStrkPTWyBQP2KSlz3Y6l81l6AgD08qPRlKhTqGM?=
- =?us-ascii?Q?ld7jdKWHsr5yhi0+A5L2bLFt/lWl6i3jW6BV0bc+6BeWhwFcfc+mYPTYGerK?=
- =?us-ascii?Q?ZWaMMN5zkjfG9q67/s2TB9cA4jK5f+mC1euxL5KlPADv1nWhyCYGjvC8Wc+R?=
- =?us-ascii?Q?i5eaSDaw2NmRPsZROF+hid5v885vAy/ukvwqX1KRKdGq5Adk6tqX5GTTDttT?=
- =?us-ascii?Q?gOkwK7co02WnuLY5gU5+wpsSWElkPTrl/PfIuQOFw/oPTnPayL0zAN69VcR+?=
- =?us-ascii?Q?R+4b2rNkd4FupICf+SA66p3GhkK00BwWc/kNmMABVcqOG+ofkE2nDS5dXwYN?=
- =?us-ascii?Q?X/W/qd1OrdE/2wct6Ya+of4ccgXOZJ0BUsQEuVzQ32iTHkXuF4xVbWx2OfuU?=
- =?us-ascii?Q?WHaiwKmc325MehoNfSobznB7/jaExY2WeYKxcr7c?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?7jvp2w+S+QT4FqsPYPEreotwF9M+aCMOdmz8CaISZzzmD1eilvPjl/wqui1O?=
+ =?us-ascii?Q?Atw9KV5EMaBpa/D1tihgRh+84diXVCWOMchFZEd1jF7Ql2zsucK48TG9Mc5W?=
+ =?us-ascii?Q?7jbaJaPvLK/hLfQgBnVZpeezyN1RXsfruIrgTTRW00aSCkgF0xcVuX+vOefN?=
+ =?us-ascii?Q?AEKzy45S5mqgqqF8P6tI2cP4560MXqQZRRl3bU9lKQcuEUxyb2vjwCPlBrdl?=
+ =?us-ascii?Q?Xjds2ckGSIUK/Ba6XzcVhPEpD2RafdTsD4Cviv4exKMW3ngFJm+FeFIWbuLi?=
+ =?us-ascii?Q?GNC5MHXS9gdyKGR5RM45TZMq0Gbpu1ekyfs/KYOsVXysbniRICvjNgvWoWfH?=
+ =?us-ascii?Q?DGODKEpESDAYeuFDxruF7m/jTzPH4GrUEH3DOt1ceSS6y5o62frSnHTQ+rWT?=
+ =?us-ascii?Q?+4bCPVsSg0LenMhJjROJJ9Ti6CtbGvSFIW5fLsDhGt++Es0YDWa7DT8qwEoz?=
+ =?us-ascii?Q?b51uIebWOaBK4w9MkZ9Xxv68o5IvhJC9JrGMDHOaddxtW7Y3ZMacjxYhhM0b?=
+ =?us-ascii?Q?ogUO2gCBJ9oArqXl46HcF2+QMNxQuMexWJb4d/Z/REYcvyGs8BJauclyeWqe?=
+ =?us-ascii?Q?bWzv5BwVUKCPimDiK3uf6TkEPy8AvMa6+wQVU1RFPfXNxiK1i/5haqj7vkxX?=
+ =?us-ascii?Q?2mwa3WAyJ3tTzER3Z8VYu2FOh7hISoGkNvcGQL36/y70n9uBX5NbdqxUCdHt?=
+ =?us-ascii?Q?IOxi5S2Go286gLvRpqUPaE/KvEveqyfBlBE4somCM8LTc0smiXhrZCdrmH8V?=
+ =?us-ascii?Q?TFwkCvhrYXdAX8gEtZEZ4rcggqSJ8qBtzF8tr0BlD+S1ub+iZsFbcA5Ddz4k?=
+ =?us-ascii?Q?eniellT/G+S9l4JETllJilgBhdtOAJcGl52yVVM9QO5Vxz61LWDPUbpYjP4w?=
+ =?us-ascii?Q?N2Vh5S0XruUKS/ZNi8l51GInOiQwHcuTN4CW9PHRrl7zfTb1AakRTirTQ/Ex?=
+ =?us-ascii?Q?FsTNCvE11YycJkM6s8132Fe4MkytTdrUGRvDWFU7WrQSegBD8mpcucKD8zxS?=
+ =?us-ascii?Q?pUVjQ2Ia7yqrFLgA+4eWFKIUM+0vsF+jEOFv5NX0jyRvioclHkTRpD6aVHEM?=
+ =?us-ascii?Q?SEapQX0rNMVM2MAC20XMLzkk4DXro8syEdBhJ4+kUkqr0/uQe/9n1fNXQWt1?=
+ =?us-ascii?Q?7wJKIye9KEaEzZKcgrs7m7rlrMz84oGTkAdS97tcnrTTBU7Et40WZlWOHJ3p?=
+ =?us-ascii?Q?QkkFbzX2zFFmNJjnqmZiEufje6yyWYS3hhNllNk3RpkdX1HvTxT9Bzc4/6N0?=
+ =?us-ascii?Q?UPOO1/al67pSbNm4DJrqr1yt1qHiMsewFAFbksWBOO80Dlg0l/9FacSLY+Lk?=
+ =?us-ascii?Q?Yb4ARM0bbyEERmlAwt67zkhPNW9A/q+WovN7zu7TUkp/JYysi3GYwRttH3p8?=
+ =?us-ascii?Q?ydzo6nKuDLSAjqZ3+HiWdI9d8wVAR4ySLlZ/jjetVQG7mixaENI/qHSjrRod?=
+ =?us-ascii?Q?o8VrwS7TyVa95Y88CbEWTqdoeciLvk42jjKSr2O/Aj0ISDye0NtjB1mVAr0F?=
+ =?us-ascii?Q?oPTFn0O1FfZmO3Uvao+Ki7iqbhviPqMO5c0Y29XXHSO8nJJgr87XdJQyYa7X?=
+ =?us-ascii?Q?X9SufRRRt7ooPgmFOdQvvRQ5/5bgFDoVQLJV0WM+?=
 X-OriginatorOrg: mt.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2cdc028c-31d6-4b42-9b71-08daff7e55be
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7ec10960-99c0-49b9-698b-08daff7e5486
 X-MS-Exchange-CrossTenant-AuthSource: AS8PR03MB7621.eurprd03.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jan 2023 09:18:49.9456
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jan 2023 09:18:47.6184
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: fb4c0aee-6cd2-482f-a1a5-717e7c02496b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: jZEFnC/eATQoNK1o6TjC9fFW1ZhVjHj+tZL5CcNFGF+x2i+UtZxZlnEkYSH/zHHxtVH5Go6/gJcy0aEIg1M6KQ==
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8cnd5BrXogJ4ZLvr1yt93HDg1Qcopfb+LFplTvRIVU37gTSFkBVTQQsBMd/8/sRW09NnFvUuk3nabhzUdVx20Q==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS2PR03MB9516
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+This implements volume control for the pwm-beeper via sysfs.
 
-Make the driver accept switching volume levels via sysfs.
-This can be helpful if the beep/bell sound intensity needs
-to be adapted to the environment of the device.
+The first patch changes the devicetree documentation from txt to yaml.
 
-The volume adjustment is done by changing the duty cycle of
-the pwm signal.
+The original author of this is Frieder Schrempf.
+I picked them from this [0] LKML thread from 2017. Since it looks like
+his email address changed in the meantime I changed it in the Author
+and Signed-off-by, as well as in the copyright statements.
+I did some minor changes on the patches that they apply and work with
+the current kernel.
 
-Add a sysfs interface with 5 default volume levels:
-  0 - mute
-  ..
-  4 - max. volume
+The last patch was added to fix loading/unloading of the driver.
 
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Signed-off-by: Manuel Traut <manuel.traut@mt.com>
-Tested-by: Manuel Traut <manuel.traut@mt.com>
----
- .../ABI/testing/sysfs-devices-pwm-beeper      | 17 ++++
- drivers/input/misc/pwm-beeper.c               | 83 ++++++++++++++++++-
- 2 files changed, 99 insertions(+), 1 deletion(-)
+
+checkpatch still reports warnings regarding the changes:
+  * from txt to yaml of the devicetree documentation:
+      WARNING: added, moved or deleted file(s), does MAINTAINERS need updating?
+      WARNING: DT binding docs and includes should be a separate patch.
+  * and the introduction of Documentation/ABI/testing/sysfs-devices-pwm-beeper:
+      WARNING: added, moved or deleted file(s), does MAINTAINERS need updating?
+  I am not sure how to fix these warnings. So any suggestion would be helpful.
+
+
+Changes since v7 [1]:
+
+ * yaml devicetree doc:
+    * Use shorter subject
+    * Fix indent
+    * Use units
+    * 'make dt_binding_check' succeeds
+    * 'make dtbs_check' does not report new errors
+
+ * Reworded commit messages avoiding 'this patch' phrase
+ * Fix wrong indent in [PATCH 5/5 v7] input: pwm-beeper: handle module unloading properly
+ * Use current date in Documentation/ABI/testing/sysfs-devices-pwm-beeper
+
+ * Hopefully fixed my setup that
+   * mails are CC'ed correctly
+   * patches are sent as replies to the cover letter
+
+Changes since v6 [2]:
+
+ * Convert devicetree binding documentation from txt to yaml
+ * Use DEVICE_ATTR_[RO|RW] properly
+ * Change Frieders Mail address
+ * Added Signed-off and Tested-by statements
+ * Fix module unloading
+
+
+Frieder Schrempf (2):
+  input: pwm-beeper: add feature to set volume via sysfs
+  input: pwm-beeper: set volume levels by devicetree
+
+Manuel Traut (3):
+  dt-bindings: input: pwm-beeper: Convert txt bindings to yaml
+  dt-bindings: input: pwm-beeper: add volume
+  input: pwm-beeper: handle module unloading properly
+
+ .../ABI/testing/sysfs-devices-pwm-beeper      |  17 +++
+ .../devicetree/bindings/input/pwm-beeper.txt  |  24 ----
+ .../devicetree/bindings/input/pwm-beeper.yaml |  68 ++++++++++
+ drivers/input/misc/pwm-beeper.c               | 122 +++++++++++++++++-
+ 4 files changed, 205 insertions(+), 26 deletions(-)
  create mode 100644 Documentation/ABI/testing/sysfs-devices-pwm-beeper
+ delete mode 100644 Documentation/devicetree/bindings/input/pwm-beeper.txt
+ create mode 100644 Documentation/devicetree/bindings/input/pwm-beeper.yaml
 
-diff --git a/Documentation/ABI/testing/sysfs-devices-pwm-beeper b/Documentation/ABI/testing/sysfs-devices-pwm-beeper
-new file mode 100644
-index 000000000000..d2a22516f31d
---- /dev/null
-+++ b/Documentation/ABI/testing/sysfs-devices-pwm-beeper
-@@ -0,0 +1,17 @@
-+What:		/sys/devices/.../pwm-beeper/volume
-+Date:		January 2023
-+KernelVersion:
-+Contact:	Frieder Schrempf <frieder.schrempf@kontron.de>
-+Description:
-+		Control the volume of this pwm-beeper. Values
-+		are between 0 and max_volume. This file will also
-+		show the current volume level stored in the driver.
-+
-+What:		/sys/devices/.../pwm-beeper/max_volume
-+Date:		February 2023
-+KernelVersion:
-+Contact:	Frieder Schrempf <frieder.schrempf@kontron.de>
-+Description:
-+		This file shows the maximum volume level that can be
-+		assigned to volume.
-+
-diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
-index d6b12477748a..865e1ec5c39d 100644
---- a/drivers/input/misc/pwm-beeper.c
-+++ b/drivers/input/misc/pwm-beeper.c
-@@ -1,9 +1,14 @@
- // SPDX-License-Identifier: GPL-2.0-or-later
- /*
-  *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
-+ *
-+ *  Copyright (C) 2016, Frieder Schrempf <frieder.schrempf@kontron.de>
-+ *  (volume support)
-+ *
-  *  PWM beeper driver
-  */
- 
-+#include <linux/device.h>
- #include <linux/input.h>
- #include <linux/regulator/consumer.h>
- #include <linux/module.h>
-@@ -24,10 +29,61 @@ struct pwm_beeper {
- 	unsigned int bell_frequency;
- 	bool suspended;
- 	bool amplifier_on;
-+	unsigned int volume;
-+	unsigned int *volume_levels;
-+	unsigned int max_volume;
- };
- 
- #define HZ_TO_NANOSECONDS(x) (1000000000UL/(x))
- 
-+static ssize_t volume_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct pwm_beeper *beeper = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", beeper->volume);
-+}
-+
-+static ssize_t max_volume_show(struct device *dev,
-+		struct device_attribute *attr, char *buf)
-+{
-+	struct pwm_beeper *beeper = dev_get_drvdata(dev);
-+
-+	return sprintf(buf, "%d\n", beeper->max_volume);
-+}
-+
-+static ssize_t volume_store(struct device *dev,
-+		struct device_attribute *attr, const char *buf, size_t count)
-+{
-+	int rc;
-+	struct pwm_beeper *beeper = dev_get_drvdata(dev);
-+	unsigned int volume;
-+
-+	rc = kstrtouint(buf, 0, &volume);
-+	if (rc)
-+		return rc;
-+
-+	if (volume > beeper->max_volume)
-+		return -EINVAL;
-+	pr_debug("set volume to %u\n", volume);
-+	beeper->volume = volume;
-+
-+	return count;
-+}
-+
-+static DEVICE_ATTR_RW(volume);
-+static DEVICE_ATTR_RO(max_volume);
-+
-+static struct attribute *pwm_beeper_attributes[] = {
-+	&dev_attr_volume.attr,
-+	&dev_attr_max_volume.attr,
-+	NULL,
-+};
-+
-+static struct attribute_group pwm_beeper_attribute_group = {
-+	.attrs = pwm_beeper_attributes,
-+};
-+
- static int pwm_beeper_on(struct pwm_beeper *beeper, unsigned long period)
- {
- 	struct pwm_state state;
-@@ -37,7 +93,7 @@ static int pwm_beeper_on(struct pwm_beeper *beeper, unsigned long period)
- 
- 	state.enabled = true;
- 	state.period = period;
--	pwm_set_relative_duty_cycle(&state, 50, 100);
-+	pwm_set_relative_duty_cycle(&state, beeper->volume_levels[beeper->volume], 1000);
- 
- 	error = pwm_apply_state(beeper->pwm, &state);
- 	if (error)
-@@ -126,6 +182,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 	struct pwm_state state;
- 	u32 bell_frequency;
- 	int error;
-+	size_t size;
- 
- 	beeper = devm_kzalloc(dev, sizeof(*beeper), GFP_KERNEL);
- 	if (!beeper)
-@@ -171,6 +228,24 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 
- 	beeper->bell_frequency = bell_frequency;
- 
-+	beeper->max_volume = 4;
-+
-+	size = sizeof(*beeper->volume_levels) *
-+		(beeper->max_volume + 1);
-+
-+	beeper->volume_levels = devm_kzalloc(&(pdev->dev), size,
-+		GFP_KERNEL);
-+	if (!beeper->volume_levels)
-+		return -ENOMEM;
-+
-+	beeper->volume_levels[0] = 0;
-+	beeper->volume_levels[1] = 8;
-+	beeper->volume_levels[2] = 20;
-+	beeper->volume_levels[3] = 40;
-+	beeper->volume_levels[4] = 500;
-+
-+	beeper->volume = beeper->max_volume;
-+
- 	beeper->input = devm_input_allocate_device(dev);
- 	if (!beeper->input) {
- 		dev_err(dev, "Failed to allocate input device\n");
-@@ -192,6 +267,12 @@ static int pwm_beeper_probe(struct platform_device *pdev)
- 
- 	input_set_drvdata(beeper->input, beeper);
- 
-+	error = sysfs_create_group(&pdev->dev.kobj, &pwm_beeper_attribute_group);
-+	if (error) {
-+		dev_err(&pdev->dev, "Failed to create sysfs group: %d\n", error);
-+		return error;
-+	}
-+
- 	error = input_register_device(beeper->input);
- 	if (error) {
- 		dev_err(dev, "Failed to register input device: %d\n", error);
+
+Regards
+Manuel
+
+[0] https://lore.kernel.org/all/cover.1487323753.git.frieder.schrempf@exceet.de/
+[1] https://lore.kernel.org/all/Y9AIq3cSNzI9T%2FdU@mt.com/
+[2] https://lkml.org/lkml/2023/1/24/379
+
 -- 
 2.39.0
 

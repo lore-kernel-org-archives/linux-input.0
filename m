@@ -2,197 +2,115 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCEC7C54EED
-	for <linux-input@archiver.kernel.org>; Wed, 25 Jan 2023 22:14:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51864C54EAA
+	for <linux-input@archiver.kernel.org>; Thu, 26 Jan 2023 00:25:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235859AbjAYWO3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 25 Jan 2023 17:14:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33022 "EHLO
+        id S230373AbjAZAZV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 25 Jan 2023 19:25:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235895AbjAYWO3 (ORCPT
+        with ESMTP id S229453AbjAZAZU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 25 Jan 2023 17:14:29 -0500
-Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com [209.85.161.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 117255DC36;
-        Wed, 25 Jan 2023 14:14:23 -0800 (PST)
-Received: by mail-oo1-f41.google.com with SMTP id d16-20020a4a5210000000b004f23d1aea58so38627oob.3;
-        Wed, 25 Jan 2023 14:14:23 -0800 (PST)
+        Wed, 25 Jan 2023 19:25:20 -0500
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E6F64684
+        for <linux-input@vger.kernel.org>; Wed, 25 Jan 2023 16:25:18 -0800 (PST)
+Received: by mail-ej1-x636.google.com with SMTP id az20so1184156ejc.1
+        for <linux-input@vger.kernel.org>; Wed, 25 Jan 2023 16:25:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=diag.uniroma1.it; s=google;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=uOYadJvP8u49K2x2oSYl+EYqiXssZ4idBGq/e4Tz9NY=;
+        b=O4V0DOQaxPn+3nnvaVO3+OedTg4H8gEUR2e+X840qxeB1rz3lPMUCUHPlScsQb9ImT
+         yOEROGe1pUIaxqUwsrMKjOB9Mqj5b6UOwVGFASYzb0AVOwqDbZnExHiTorFoOWeZPaWV
+         5K0fcSdfaRny3eW0RpfddFm2xA7FOcBDNEvRc=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=TRsSGAl2CGcYFcqgB1OeEgrNSIUIRdd1BXIPULvuyvI=;
-        b=D9DiXb9c4OqE/DjkRaBlswSX3xb9MJM5R+fK31hcYMsZbukcajAfxpkPeDGU83MPVi
-         D7z9kUcVJ88pcMTUF2rbBZKxgvt6zW2JE1M2O21NA0ip4z5ksphEqc35HPrXydeGNxgx
-         cZ4+wCwoOya6rDNWDFmL73yk9UwnosPTwpYO+/HQiXYag9Ls0or7QYMmsIyKCy3/VElB
-         Tn2LxyuMoKUe+XG6dnHGZ0DbG6mVG1P0Txy930oK+HQcRkl9bH20Q42+4ZVexLE+uM0r
-         Dxo1kPSirNeDn2izauo6L9MAR230rIQoptXahDKBxTzaeQ6ycPiI8oZWq9bN8kJalwYo
-         kiPA==
-X-Gm-Message-State: AFqh2kqZiwNcy62m5r5Qz9mBIWUupSaZkKcFYLRHBlFYEdCxo2pl/EZe
-        JbsM7t+ZDvfgMLlzgDhxUFep4o3R7g==
-X-Google-Smtp-Source: AMrXdXs889ebHzWIpbHPxUkkawgOwkSLjH7nH2aak7Zb4nrjTTK9awgrKpOifPbczyp1GaTDyJjadg==
-X-Received: by 2002:a4a:c189:0:b0:4f3:6e99:e6c1 with SMTP id w9-20020a4ac189000000b004f36e99e6c1mr15181059oop.4.1674684862253;
-        Wed, 25 Jan 2023 14:14:22 -0800 (PST)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id x1-20020a4aaa01000000b00499527def25sm2337009oom.47.2023.01.25.14.14.21
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uOYadJvP8u49K2x2oSYl+EYqiXssZ4idBGq/e4Tz9NY=;
+        b=thhHItLnTTDvocaSbabGfEXJVdCdih/Z+qrLfTdhSCpqrFzHm+srog8uw0o6pWyxox
+         qViZvBYYYvdD79OMDi4uDDUediMCDR6gQinYP1XnES+Xw6NIVNaPBlI6JXiQzVZNef+4
+         qiTRjF+RU3VZNqC1V6w5YCT115CODHsq0+Oy9rPab5JMu5PL4nzHrsM9IBKT5AtmdGAW
+         miGe7WolrjtNbyka+g6pOsDKM/cqmWfK6OLgyVGhkxKJIquOg+T7tbFn+oMeN5xssH80
+         Bh5AWKwpvqVf41C1kYAgVxkqG4HR0Jbb5OQsLvmB1DDKtlrSPe44MGm1pMGBOfK6zX0y
+         WpuQ==
+X-Gm-Message-State: AFqh2kozzEptrI/6tTZKmQU5Lc9pB2TorrRqmAKKOjsUAAE7MzMkzvBm
+        0BlrYX8+Kn7zyqYeIRPr9Wg2KA==
+X-Google-Smtp-Source: AMrXdXuntbpvN+806ZegH5ixi1SfuWScLJxEwEMFaUWL58CNZT81ZcYZ2PCbsG6v0BxwZvZ7PsRBtQ==
+X-Received: by 2002:a17:907:76b0:b0:7c1:7045:1a53 with SMTP id jw16-20020a17090776b000b007c170451a53mr32550663ejc.15.1674692716489;
+        Wed, 25 Jan 2023 16:25:16 -0800 (PST)
+Received: from [192.168.17.2] (wolkje-127.labs.vu.nl. [130.37.198.127])
+        by smtp.gmail.com with ESMTPSA id jy12-20020a170907762c00b008784e808553sm555707ejc.6.2023.01.25.16.25.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Jan 2023 14:14:21 -0800 (PST)
-Received: (nullmailer pid 3058167 invoked by uid 1000);
-        Wed, 25 Jan 2023 22:14:21 -0000
-From:   Rob Herring <robh@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Jeff LaBundy <jeff@labundy.com>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] dt-bindings: input: azoteq: Fix differing types
-Date:   Wed, 25 Jan 2023 16:14:16 -0600
-Message-Id: <20230125221416.3058051-1-robh@kernel.org>
-X-Mailer: git-send-email 2.39.0
+        Wed, 25 Jan 2023 16:25:16 -0800 (PST)
+From:   Pietro Borrello <borrello@diag.uniroma1.it>
+Date:   Thu, 26 Jan 2023 00:24:53 +0000
+Subject: [PATCH 1/5] HID: bigben_remove: manually unregister leds
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230125-hid-unregister-leds-v1-1-9a5192dcef16@diag.uniroma1.it>
+References: <20230125-hid-unregister-leds-v1-0-9a5192dcef16@diag.uniroma1.it>
+In-Reply-To: <20230125-hid-unregister-leds-v1-0-9a5192dcef16@diag.uniroma1.it>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Hanno Zulla <kontakt@hanno.de>,
+        Carlo Caione <carlo@endlessm.com>, Pavel Machek <pavel@ucw.cz>,
+        Lee Jones <lee@kernel.org>,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        Sven Eckelmann <sven@narfation.org>
+Cc:     linux-leds@vger.kernel.org,
+        Cristiano Giuffrida <c.giuffrida@vu.nl>,
+        "Bos, H.J." <h.j.bos@vu.nl>, Jakob Koschel <jkl820.git@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiri Kosina <jkosina@suse.cz>,
+        Roderick Colenbrander <roderick@gaikai.com>,
+        Pietro Borrello <borrello@diag.uniroma1.it>
+X-Mailer: b4 0.11.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1674692715; l=1037;
+ i=borrello@diag.uniroma1.it; s=20221223; h=from:subject:message-id;
+ bh=wlU1zbXd7qFTSbVqYvqS9BOVrqglVS3eHD1ePCtISHc=;
+ b=GeizybQArtv4+HBTakrKxETsSVRvGKMNeRue1tkG2U0KcYshHgneXwski3bWn3Wnk7Dda4OEQvQ1
+ jAU9iMk1B2kBNODa9HOqbXggvFc3nR73/XdctsvKQ04xtFJglhqI
+X-Developer-Key: i=borrello@diag.uniroma1.it; a=ed25519;
+ pk=4xRQbiJKehl7dFvrG33o2HpveMrwQiUPKtIlObzKmdY=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-'azoteq,ati-base' and 'azoteq,thresh' properties are defined in multiple
-bindings, but have differing types defined. Both 'uint32' and
-'uint32-array' are used. Unify these to use 'uint32-array' everywhere.
+Unregister the LED controllers before device removal, as
+bigben_set_led() may schedule bigben->worker after the structure has
+been freed, causing a use-after-free.
 
-Signed-off-by: Rob Herring <robh@kernel.org>
+Fixes: 4eb1b01de5b9 ("HID: hid-bigbenff: fix race condition for scheduled work during removal")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
 ---
- .../bindings/input/azoteq,iqs7222.yaml        | 12 ++++---
- .../devicetree/bindings/input/iqs269a.yaml    | 34 +++++++++++--------
- .../devicetree/bindings/input/iqs626a.yaml    | 12 ++++---
- 3 files changed, 33 insertions(+), 25 deletions(-)
+ drivers/hid/hid-bigbenff.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-index 9ddba7f2e7aa..f2382a56884d 100644
---- a/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-+++ b/Documentation/devicetree/bindings/input/azoteq,iqs7222.yaml
-@@ -354,10 +354,11 @@ patternProperties:
-         description: Specifies the channel's ATI target.
+diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
+index e8b16665860d..d3201b755595 100644
+--- a/drivers/hid/hid-bigbenff.c
++++ b/drivers/hid/hid-bigbenff.c
+@@ -306,9 +306,14 @@ static enum led_brightness bigben_get_led(struct led_classdev *led)
  
-       azoteq,ati-base:
--        $ref: /schemas/types.yaml#/definitions/uint32
--        multipleOf: 16
--        minimum: 0
--        maximum: 496
-+        $ref: /schemas/types.yaml#/definitions/uint32-array
-+        items:
-+          - multipleOf: 16
-+            minimum: 0
-+            maximum: 496
-         description: Specifies the channel's ATI base.
+ static void bigben_remove(struct hid_device *hid)
+ {
++	int n;
+ 	struct bigben_device *bigben = hid_get_drvdata(hid);
  
-       azoteq,ati-mode:
-@@ -440,7 +441,8 @@ patternProperties:
-               slider gesture).
- 
-           azoteq,thresh:
--            $ref: /schemas/types.yaml#/definitions/uint32
-+            $ref: /schemas/types.yaml#/definitions/uint32-array
-+            maxItems: 1
-             description:
-               Specifies the threshold for the event. Valid entries range from
-               0-127 and 0-255 for proximity and touch events, respectively.
-diff --git a/Documentation/devicetree/bindings/input/iqs269a.yaml b/Documentation/devicetree/bindings/input/iqs269a.yaml
-index 3c430d38594f..4fa20f0f6847 100644
---- a/Documentation/devicetree/bindings/input/iqs269a.yaml
-+++ b/Documentation/devicetree/bindings/input/iqs269a.yaml
-@@ -334,9 +334,10 @@ patternProperties:
-           3: Full
- 
-       azoteq,ati-base:
--        $ref: /schemas/types.yaml#/definitions/uint32
--        enum: [75, 100, 150, 200]
--        default: 100
-+        $ref: /schemas/types.yaml#/definitions/uint32-array
-+        items:
-+          - enum: [75, 100, 150, 200]
-+            default: 100
-         description: Specifies the channel's ATI base.
- 
-       azoteq,ati-target:
-@@ -391,10 +392,11 @@ patternProperties:
- 
-         properties:
-           azoteq,thresh:
--            $ref: /schemas/types.yaml#/definitions/uint32
--            minimum: 0
--            maximum: 255
--            default: 10
-+            $ref: /schemas/types.yaml#/definitions/uint32-array
-+            items:
-+              - minimum: 0
-+                maximum: 255
-+                default: 10
-             description: Specifies the threshold for the event.
- 
-           linux,code: true
-@@ -408,10 +410,11 @@ patternProperties:
- 
-         properties:
-           azoteq,thresh:
--            $ref: /schemas/types.yaml#/definitions/uint32
--            minimum: 0
--            maximum: 255
--            default: 8
-+            $ref: /schemas/types.yaml#/definitions/uint32-array
-+            items:
-+              - minimum: 0
-+                maximum: 255
-+                default: 8
-             description: Specifies the threshold for the event.
- 
-           azoteq,hyst:
-@@ -432,10 +435,11 @@ patternProperties:
- 
-         properties:
-           azoteq,thresh:
--            $ref: /schemas/types.yaml#/definitions/uint32
--            minimum: 0
--            maximum: 255
--            default: 26
-+            $ref: /schemas/types.yaml#/definitions/uint32-array
-+            items:
-+              - minimum: 0
-+                maximum: 255
-+                default: 26
-             description: Specifies the threshold for the event.
- 
-           azoteq,hyst:
-diff --git a/Documentation/devicetree/bindings/input/iqs626a.yaml b/Documentation/devicetree/bindings/input/iqs626a.yaml
-index 7a27502095f3..dbd63d48605c 100644
---- a/Documentation/devicetree/bindings/input/iqs626a.yaml
-+++ b/Documentation/devicetree/bindings/input/iqs626a.yaml
-@@ -234,8 +234,9 @@ patternProperties:
-           about the available RUI options.
- 
-       azoteq,ati-base:
--        $ref: /schemas/types.yaml#/definitions/uint32
--        enum: [75, 100, 150, 200]
-+        $ref: /schemas/types.yaml#/definitions/uint32-array
-+        items:
-+          - enum: [75, 100, 150, 200]
-         description:
-           Specifies the channel's ATI base. The default value is a function
-           of the channel and the device's RUI.
-@@ -475,9 +476,10 @@ patternProperties:
- 
-         properties:
-           azoteq,thresh:
--            $ref: /schemas/types.yaml#/definitions/uint32
--            minimum: 0
--            maximum: 255
-+            $ref: /schemas/types.yaml#/definitions/uint32-array
-+            items:
-+              - minimum: 0
-+                maximum: 255
-             description: Specifies the threshold for the event.
- 
-           azoteq,hyst:
+ 	bigben->removed = true;
++	for (n = 0; n < NUM_LEDS; n++) {
++		if (bigben->leds[n])
++			devm_led_classdev_unregister(&hid->dev, bigben->leds[n]);
++	}
+ 	cancel_work_sync(&bigben->worker);
+ 	hid_hw_stop(hid);
+ }
+
 -- 
-2.39.0
-
+2.25.1

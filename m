@@ -2,44 +2,44 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B721C61DA0
-	for <linux-input@archiver.kernel.org>; Thu, 26 Jan 2023 09:19:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CFA39C05027
+	for <linux-input@archiver.kernel.org>; Thu, 26 Jan 2023 09:19:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233508AbjAZJTX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 26 Jan 2023 04:19:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57858 "EHLO
+        id S236684AbjAZJT0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 26 Jan 2023 04:19:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236770AbjAZJTK (ORCPT
+        with ESMTP id S236802AbjAZJTL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Jan 2023 04:19:10 -0500
+        Thu, 26 Jan 2023 04:19:11 -0500
 Received: from EUR02-AM0-obe.outbound.protection.outlook.com (mail-am0eur02on2123.outbound.protection.outlook.com [40.107.247.123])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3E1D6DB0A;
-        Thu, 26 Jan 2023 01:18:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FA2517CF7;
+        Thu, 26 Jan 2023 01:19:04 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=I5sgraiU8r22pIX3lE4GkQPRfwibaWXeedWX06LG23WcEGYPS0nnpKMe5FyJ1FsS6gxpxCt9tFqJS0Ne6TUEJ4A2SsXaQGyPqe8WhZyHO2o2eaamdyq1k48sGqmqlv2hhbuL1esf8aiV6xfbOtzA9erxwWuC6S7aK91/n1slpGKCakc9+dKYooitbC87E6X6zX4ACLj1ZHEJGSJ7xAwjiqELxqj0QQOZDHlPI4jGhcR+7LODRL4XlttEPwEe9Ysg7IVIq/6lWOCQDsT0JD0xnevcXx/RcrlDN9inbUjfKIiyQAfgoyy5nIYlUaksBeFz5RbEVwPN9XxR7K9+f+tqeQ==
+ b=X6sa+sKjmO+2KkmUDYJfbnpJilnwT3LEyn2pi4Hb9yO2yjPei+05VcA6T0z9Bemn0powVZatx8KZ2kWtYnBrkZ4v/JSTVOlsHGmDEmwv4TNcQuh82HtReVz+VyFx3zYMmVojoDiTeMTdvzTe7Hboz6tBdhfeBE2xt89sS2J1u9Ub4KF5B67mrFPxqIxm5aDv0n9CsQDxh1377oAjK4Q7/FCWJvngyeu8nhZRDOkW4D8oFP/qqMPHZSguGm0JGzQNgkXjAo8aD1NOoY3GZOkgh6vVr+byyhb8JrCHlSMNIUNWbh8gzl59brYHVX1kuVGt0yS2XPIucx38363ETr6etQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=UNQQ4JlyEMifq4exMQKAozl+VAGJ569Fh7Ra1BcznpI=;
- b=gmbQm/dlqyQCZFTn5p+5735FjK3uxitkdeXJcgeGsM0g3pQqQTZGPmpYyTYgJNrducNGvUTw+TA1JONGdJ5nKfjkY/g+ppKrJtdd4xFM8EA2xTAwTuR/FHs8JiPW9rvQIGsowoe32zo1VU5IFrTCw4H5r2jXo+RLKvcuDJ8XTAJWPtsZzbKJA2jEZZfL8nrNZq+Adcyz22WVOANofrm4QB1atpYuVvemierWNz1CMu8elHfn+Rr3XTNPzyHUK7bVYWhPTTsnbovjtEQ2XNrvDvsBVTaxystLLgsO50XDIBXk+apxM22W3Wndfu4rQ2oqdzr+PTUYVnm1ZEkk6E5KsA==
+ bh=UWEkzbCpBJZ1J6AGtrB4vzIydngUMIOXRQJ2gnoyK40=;
+ b=nOvGygV8QBT2VTpXZN58zBIiG4Jxtyh7b8rMVwz25hD7TJveJHp1doV/vkHZCKf7+Sc0myY8Wzcc9TrnA0Nu1W0HihFI0e567fh+S3dUtJMpQcC+Dv+6NlWig6xx4UTak1mp7Mk+1sLOnkvXW/8nsPSGUKIbmU2Gwmlh8CwUaDZ5ImofeYvzcVsucjxZbN12rBIqltFFt+aqtEJPPUMkl+IjYrwZzxORDjoMaD8HAI+7rhnGB93n7K4Ijdsw0sEExNBTm2zAtclkZ4P9XPYvWTs1SBTrF47N/6GgsgcoYp5A8I/9giYIxHBbI1vk65nDDnCwXEyp7eG0yN46RKqcNg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=mt.com; dmarc=pass action=none header.from=mt.com; dkim=pass
  header.d=mt.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mt.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=UNQQ4JlyEMifq4exMQKAozl+VAGJ569Fh7Ra1BcznpI=;
- b=CT1wl4gv7jt2lhZ9JcTlSsi1JfXHhC8LNyTQXy9tvg/HDw3djiCia5wyq0X79hETYgbVsVE3znoTelLKWdbSlQorFJW1uIhjM5p6jgl76OUvS9F+CWx4wkYryrWJexaCo2OWEZ0ro0ZmN/6YlIuomyiFrlyDw5nUT2I5x62XNoRQBMprYPeOTsLCJQquN6vP/L45XyTzLxqyBqJD0hEUr0lGwPfD72z5+z+t3cujocGkTHL71llBSY4aH43gljyzS5/OOI19hAGXX8gpdR+9uxT19Zhk3DDJDBPc34UOU5858iuCOQEkvoTvLPW+Nvn4NROgkRhmblBfKtONj05dXg==
+ bh=UWEkzbCpBJZ1J6AGtrB4vzIydngUMIOXRQJ2gnoyK40=;
+ b=h+CmQX+F7eQi9oFqmsIFFApG2v7eV79/NywulZbEX+aJPQF/7vRpkyKoK6gFS09ysOyRTt8aUUAXOVzhPpjaezuYYOBLLjmp3goL97s6JqdBJ4Gjzdwcuxm/ebs6a69XhRkttHCSiN6iWiuJ+en+YIPIk09e0J1dPSwHUpjMgOqTBw0bHIauffyCUHB3oeWA2aymgyBy31PHy/VtJyyfXlx7a2ejUPslH6GeL22IsBw1zeKcGzsclYENRrmwmK6vrkbZvlnhjM0F3a27BBB3kZCP3FYLDK+kw8GJ+lY84wPSWbeHMKSf5teaeGc4RMQUDYhMNihydSlkeGC6x2xQ2A==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=mt.com;
 Received: from AS8PR03MB7621.eurprd03.prod.outlook.com (2603:10a6:20b:345::20)
  by AS2PR03MB9516.eurprd03.prod.outlook.com (2603:10a6:20b:598::6) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6043.22; Thu, 26 Jan
- 2023 09:18:47 +0000
+ 2023 09:18:53 +0000
 Received: from AS8PR03MB7621.eurprd03.prod.outlook.com
  ([fe80::b42f:82f8:24cb:a225]) by AS8PR03MB7621.eurprd03.prod.outlook.com
  ([fe80::b42f:82f8:24cb:a225%9]) with mapi id 15.20.6043.022; Thu, 26 Jan 2023
- 09:18:47 +0000
+ 09:18:53 +0000
 From:   Manuel Traut <manuel.traut@mt.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     Manuel Traut <manuel.traut@mt.com>,
@@ -48,142 +48,120 @@ Cc:     Manuel Traut <manuel.traut@mt.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Frieder Schrempf <frieder.schrempf@kontron.de>,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Subject: [PATCH v8 0/5] input: pwm-beeper: add feature to set volume level
-Date:   Thu, 26 Jan 2023 10:18:20 +0100
-Message-Id: <20230126091825.220646-1-manuel.traut@mt.com>
+Subject: [PATCH v8 5/5] input: pwm-beeper: handle module unloading properly
+Date:   Thu, 26 Jan 2023 10:18:25 +0100
+Message-Id: <20230126091825.220646-6-manuel.traut@mt.com>
 X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230126091825.220646-1-manuel.traut@mt.com>
+References: <20230126091825.220646-1-manuel.traut@mt.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: FR2P281CA0023.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:14::10) To AS8PR03MB7621.eurprd03.prod.outlook.com
- (2603:10a6:20b:345::20)
+X-ClientProxiedBy: FRYP281CA0008.DEUP281.PROD.OUTLOOK.COM (2603:10a6:d10::18)
+ To AS8PR03MB7621.eurprd03.prod.outlook.com (2603:10a6:20b:345::20)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: AS8PR03MB7621:EE_|AS2PR03MB9516:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7ec10960-99c0-49b9-698b-08daff7e5486
+X-MS-Office365-Filtering-Correlation-Id: 0df6ba51-1538-4936-6cd6-08daff7e57ba
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: bg9jTAlLsY52jw0j6rvWwZ11foQ8I3pARx9Mnwzh6u/TJ6incH9fNPBMBUcacaGav7GLMNM3VYc115ezSuFVraSCgNTQBH7YB1hK4yxClfrxOYlWorRf2dY98aaRI+37YXhl66K3no2jK7kGAwo/VuUurqSdKzGgURri1DXUI7q4IhcEH9wWBv2CVkXHZ7RO8RZZiglM8p9Z+Pgmh8R7A7sACVsnYbbObFTXozokbovnbB9XXAgpsrvKMwCCdJ0/cGArZeOup1NqeyPV0bG5HOQU+3jMGnky/3MNvd8WvnlIRpzR3h+2v0ptXsnPaqOJxnuB7+t//izloJjpwrzgejnaMYg77n6CigqTERVJRnfDge9Yuf55SUAVyCeGrWmH931PpmXSRSkzQO7K0fQGnH7OQE0iNo0Wnn+ztF6EmWQQs74DPJjMusUIuXER4p2pTlr2vd9kwCS80AGmlOiiZJl/7e9+BKvJ1LCg2ezb9rRzuE/hBq7DeL4qH9yfcj8AgkKhIaqPkj8Qat9nNYTMh+q6n3RnrNypqKO9WyzuBMHTuE4Q6yWhQF0QZ3Be9KDWdREKv8YawxlSaTSip0iUBgWES/jdKO6wpOyq/3LJvfOeqEawM0djmNfiHIDZAC8L7WuvC1ZLl95FN0crSUv/VqW+VGixVBTUeAEfsgZkHMb8yu4B391tddfv62J3wyXIO3HtpSztEIeXsOPpqiuaSOFXsUsnUDrWk/kEYjVzdJo=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS8PR03MB7621.eurprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(346002)(366004)(396003)(136003)(376002)(451199018)(44832011)(2906002)(38350700002)(38100700002)(2616005)(1076003)(6666004)(6506007)(6512007)(186003)(26005)(86362001)(83380400001)(66556008)(66476007)(6916009)(66946007)(8676002)(4326008)(5660300002)(36756003)(41300700001)(8936002)(52116002)(6486002)(478600001)(316002)(966005)(54906003);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: j1hmOApjRY4HdKIelEO3yYp+BED7XfPAeptHLBjS7sEFcnChlBXewlowrCq/flGOABegEUAS0PxsY66ALkbKz4ZFWR3gfzRn+ONGbRbofIHPZUe9lFNBZcwTiUkLiiQ93FeHWGIyBMZoJr8Ib8LDnt7oQ8sRj9o/SoOZhFEUfxSCxpC6FlNA4XHXOkYfMiwSRZBIwrzfiOkxuCDXR5WhhC6+YQ5N9WVNR9skcnhv99/cYqF44fimlc913LR77oCvY42cLBnBYnsNnLe7AeNoGJIZsp2W0f8koU/MMkuqLxM14cdVIIBBxY42Y8tUyAExPj8m5MAt3WRkIu0KHZaiKG4uRwAr20Gu+B5zYqQwghWhG7tdDp66IjQvUKa3eekhINdBEhnnn5XrAo+++UlGZl80nB0xQjvAfYVuDMzXu9bLRLVo7evp8EkEOdQX8LjcXdADg4lBGj/m6mc5tUDfy8b8+dndRZ47EDXpI5n7BHEIPsyzeE9siUOhBekR9SG5y3ZRI1SPBwkDZhO+1YdtUOgxBo1HyZkt/GunND04r0r0qBWFLJu+33U5oKId4XnwErx+jqmQVnRWEAB7vAjcq2EW+TCv08r6isJD7JhHaT2oJWm7fBXYTDjJAhQ3uqP6tkb5mu4wiXwFFjKnK89b7cvY9hEY/zy5EarQcV72L8W3PYzFHMIekrrn2xWXdB7tUNCEtURvhRUilfWbByxofg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS8PR03MB7621.eurprd03.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(39860400002)(346002)(366004)(396003)(136003)(376002)(451199018)(44832011)(2906002)(38350700002)(38100700002)(2616005)(1076003)(6666004)(6506007)(6512007)(186003)(26005)(86362001)(83380400001)(66556008)(66476007)(6916009)(66946007)(8676002)(4326008)(5660300002)(36756003)(41300700001)(8936002)(52116002)(6486002)(478600001)(316002)(54906003);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?7jvp2w+S+QT4FqsPYPEreotwF9M+aCMOdmz8CaISZzzmD1eilvPjl/wqui1O?=
- =?us-ascii?Q?Atw9KV5EMaBpa/D1tihgRh+84diXVCWOMchFZEd1jF7Ql2zsucK48TG9Mc5W?=
- =?us-ascii?Q?7jbaJaPvLK/hLfQgBnVZpeezyN1RXsfruIrgTTRW00aSCkgF0xcVuX+vOefN?=
- =?us-ascii?Q?AEKzy45S5mqgqqF8P6tI2cP4560MXqQZRRl3bU9lKQcuEUxyb2vjwCPlBrdl?=
- =?us-ascii?Q?Xjds2ckGSIUK/Ba6XzcVhPEpD2RafdTsD4Cviv4exKMW3ngFJm+FeFIWbuLi?=
- =?us-ascii?Q?GNC5MHXS9gdyKGR5RM45TZMq0Gbpu1ekyfs/KYOsVXysbniRICvjNgvWoWfH?=
- =?us-ascii?Q?DGODKEpESDAYeuFDxruF7m/jTzPH4GrUEH3DOt1ceSS6y5o62frSnHTQ+rWT?=
- =?us-ascii?Q?+4bCPVsSg0LenMhJjROJJ9Ti6CtbGvSFIW5fLsDhGt++Es0YDWa7DT8qwEoz?=
- =?us-ascii?Q?b51uIebWOaBK4w9MkZ9Xxv68o5IvhJC9JrGMDHOaddxtW7Y3ZMacjxYhhM0b?=
- =?us-ascii?Q?ogUO2gCBJ9oArqXl46HcF2+QMNxQuMexWJb4d/Z/REYcvyGs8BJauclyeWqe?=
- =?us-ascii?Q?bWzv5BwVUKCPimDiK3uf6TkEPy8AvMa6+wQVU1RFPfXNxiK1i/5haqj7vkxX?=
- =?us-ascii?Q?2mwa3WAyJ3tTzER3Z8VYu2FOh7hISoGkNvcGQL36/y70n9uBX5NbdqxUCdHt?=
- =?us-ascii?Q?IOxi5S2Go286gLvRpqUPaE/KvEveqyfBlBE4somCM8LTc0smiXhrZCdrmH8V?=
- =?us-ascii?Q?TFwkCvhrYXdAX8gEtZEZ4rcggqSJ8qBtzF8tr0BlD+S1ub+iZsFbcA5Ddz4k?=
- =?us-ascii?Q?eniellT/G+S9l4JETllJilgBhdtOAJcGl52yVVM9QO5Vxz61LWDPUbpYjP4w?=
- =?us-ascii?Q?N2Vh5S0XruUKS/ZNi8l51GInOiQwHcuTN4CW9PHRrl7zfTb1AakRTirTQ/Ex?=
- =?us-ascii?Q?FsTNCvE11YycJkM6s8132Fe4MkytTdrUGRvDWFU7WrQSegBD8mpcucKD8zxS?=
- =?us-ascii?Q?pUVjQ2Ia7yqrFLgA+4eWFKIUM+0vsF+jEOFv5NX0jyRvioclHkTRpD6aVHEM?=
- =?us-ascii?Q?SEapQX0rNMVM2MAC20XMLzkk4DXro8syEdBhJ4+kUkqr0/uQe/9n1fNXQWt1?=
- =?us-ascii?Q?7wJKIye9KEaEzZKcgrs7m7rlrMz84oGTkAdS97tcnrTTBU7Et40WZlWOHJ3p?=
- =?us-ascii?Q?QkkFbzX2zFFmNJjnqmZiEufje6yyWYS3hhNllNk3RpkdX1HvTxT9Bzc4/6N0?=
- =?us-ascii?Q?UPOO1/al67pSbNm4DJrqr1yt1qHiMsewFAFbksWBOO80Dlg0l/9FacSLY+Lk?=
- =?us-ascii?Q?Yb4ARM0bbyEERmlAwt67zkhPNW9A/q+WovN7zu7TUkp/JYysi3GYwRttH3p8?=
- =?us-ascii?Q?ydzo6nKuDLSAjqZ3+HiWdI9d8wVAR4ySLlZ/jjetVQG7mixaENI/qHSjrRod?=
- =?us-ascii?Q?o8VrwS7TyVa95Y88CbEWTqdoeciLvk42jjKSr2O/Aj0ISDye0NtjB1mVAr0F?=
- =?us-ascii?Q?oPTFn0O1FfZmO3Uvao+Ki7iqbhviPqMO5c0Y29XXHSO8nJJgr87XdJQyYa7X?=
- =?us-ascii?Q?X9SufRRRt7ooPgmFOdQvvRQ5/5bgFDoVQLJV0WM+?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?/zXILcEhhvleoKW1/gKlCaFiyQAejEBygnReGxZOcr4UfXhfIuZKweoZ7mhu?=
+ =?us-ascii?Q?kRXqFaRU0R3g/MacxjZMjOer/Y9c90W2HQt8VZyM7qky4iRKZYRMMbvjxMUq?=
+ =?us-ascii?Q?6eC75x9MoRDrVSrvRl+yeeAsYFNddOsQYH1XVOBJTt3NqGvqvBK7puOIFnEY?=
+ =?us-ascii?Q?ACtmD/9bTwE8+708VBtIkmJoYHto/T3Tl6nfJvY6AzcgUIajjXUjIkLukQsv?=
+ =?us-ascii?Q?7x5KrNoW02CrtFUhBKWjiryOkvb/M8ixoe/VWDJ1VPdToofFsfcebow8vnua?=
+ =?us-ascii?Q?cEpkhXvRj7TZlQj6xt7AkJHyYYgGAoUV7vdjbCLYaiVZfD2wcJp/mhDEVdcW?=
+ =?us-ascii?Q?FcXOVAlX1IkgNcjgJeB/jpBLZMKlMbJazSYKF7Ln+yW6DrkR7THNoIfpQAfC?=
+ =?us-ascii?Q?Nq15TBwzQgPbzrs0nPIsZQGcv7kgzTUn5cGYX1jdHySnepEQnjIT2c/nJ/FC?=
+ =?us-ascii?Q?6GmzMy2fS8nzEj7+Kyjh8ZmB8L1bcHmdUztqhQlt040hjUObEOuucMZwG/oL?=
+ =?us-ascii?Q?mDGzg2kJvNK6AwZ5kLWF1wRzCT+A5xrXmHhb6YKp5P/nn8uKEu75DI0Mg5aU?=
+ =?us-ascii?Q?TzCuahSzRBRuItA2dVDskcSndMC3lJpBtFg+1m1FROboF7engOHGLdB7Sfyu?=
+ =?us-ascii?Q?8mZGA+m6Ki7jKiXn5ui8nGzmkUZus5pFV0/Tqmd59RLGRhQ1feL9EPFYq2b2?=
+ =?us-ascii?Q?8aDPrCxRg+6T2bkXs9/ZVg0gQvjTnvm7AMytzqrab1c07NZjnvhaEBaFE3qM?=
+ =?us-ascii?Q?WSps223vBJE7bOb5kVDfxa87jtQVF1ZzfjZrcOzkJwO3lkxQ2n/cJD4aC32T?=
+ =?us-ascii?Q?O6ghDHTOER9Wk83aUZiB4bvnz87NjACQH/Ca7aKuLmryfiNqptNEyO0Fuqdi?=
+ =?us-ascii?Q?9nHkHO3YRa54OSPVc59WELW9UkyJ0du/GB2sivpUEK+OO+WJgWgEoMJEHDI+?=
+ =?us-ascii?Q?Wh8ZggBftorKac+2e8kwAgje4Xs568gYA0AZYHIvRQ1ei6th69uOzXDdJdAM?=
+ =?us-ascii?Q?i4g3la/cLk5uJEPLvCncMwPQuFsyR6wTdwO5Ldc+4Jn8Je6jZVt+cBa4buTB?=
+ =?us-ascii?Q?XBkZed3D55l6Q9b9NNEBRhdIvlELJBOEGx+q6gd2cvjDSyqFDHms1r3KnEB0?=
+ =?us-ascii?Q?Ynq6i1/YKOYmMmNsnt7Cp5vtmwa7XMZwLWltTLXN3QIvNHmz/DeRwU5L9Ja/?=
+ =?us-ascii?Q?Q6pIjezwMcCvHNC0GgbtBcYUwMJVojXJA1cZl0a/sVQwv1V+LCO0BJuvbJ0m?=
+ =?us-ascii?Q?L8jDR3jMzZpWvvOMjZi+ePNFMZPtIy0JytirpK2bPU5wu6DGHL8sZazkH3Bn?=
+ =?us-ascii?Q?PqIVVsTwYxFoTwT0T5ow6XETwDvOPu9hDh48wRNI2fTS/rZ2SEXPfR+xSpb8?=
+ =?us-ascii?Q?mDL8Zx0aAoT1m/gRfAN8oVdU0D1fI1K1JvQddb/lgiqu5LqxTFDWDHvQLKVq?=
+ =?us-ascii?Q?QTVmEFMpM2qjw895h+A4fXgElMFzG3EGtC+8YcydDPJ862Cc7koXxWeZOqpT?=
+ =?us-ascii?Q?NnxKD5MKir80EhDq7pNhPtNo32+egAWlga991YcCEu3xG4FnUhh3UYJP9LRA?=
+ =?us-ascii?Q?w51EPOt2fQOShF9gnQiv89+ytGssXHjfp15DUkiG?=
 X-OriginatorOrg: mt.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7ec10960-99c0-49b9-698b-08daff7e5486
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0df6ba51-1538-4936-6cd6-08daff7e57ba
 X-MS-Exchange-CrossTenant-AuthSource: AS8PR03MB7621.eurprd03.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jan 2023 09:18:47.6184
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jan 2023 09:18:53.0081
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: fb4c0aee-6cd2-482f-a1a5-717e7c02496b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8cnd5BrXogJ4ZLvr1yt93HDg1Qcopfb+LFplTvRIVU37gTSFkBVTQQsBMd/8/sRW09NnFvUuk3nabhzUdVx20Q==
+X-MS-Exchange-CrossTenant-UserPrincipalName: XEwsX7IlK08OcPNUvGVMOX+7JVHs548958vDbACKimT5w1A2F/+hvizLnrBtMaB6zG66Rnn0hbBK83G5La47/w==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS2PR03MB9516
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This implements volume control for the pwm-beeper via sysfs.
+'input: pwm-beeper: add feature to set volume via sysfs' adds device
+attributes without removing them on error or if the module is unloaded.
 
-The first patch changes the devicetree documentation from txt to yaml.
+If the module will be unloaded and loaded again it fails:
+[ 1007.918180] sysfs: cannot create duplicate filename '/devices/platform/buzzer/volume'
 
-The original author of this is Frieder Schrempf.
-I picked them from this [0] LKML thread from 2017. Since it looks like
-his email address changed in the meantime I changed it in the Author
-and Signed-off-by, as well as in the copyright statements.
-I did some minor changes on the patches that they apply and work with
-the current kernel.
+Therefore remove device attributes on module unloading and in case
+registration at the input subsystem fails.
 
-The last patch was added to fix loading/unloading of the driver.
+Signed-off-by: Manuel Traut <manuel.traut@mt.com>
+---
+ drivers/input/misc/pwm-beeper.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-
-checkpatch still reports warnings regarding the changes:
-  * from txt to yaml of the devicetree documentation:
-      WARNING: added, moved or deleted file(s), does MAINTAINERS need updating?
-      WARNING: DT binding docs and includes should be a separate patch.
-  * and the introduction of Documentation/ABI/testing/sysfs-devices-pwm-beeper:
-      WARNING: added, moved or deleted file(s), does MAINTAINERS need updating?
-  I am not sure how to fix these warnings. So any suggestion would be helpful.
-
-
-Changes since v7 [1]:
-
- * yaml devicetree doc:
-    * Use shorter subject
-    * Fix indent
-    * Use units
-    * 'make dt_binding_check' succeeds
-    * 'make dtbs_check' does not report new errors
-
- * Reworded commit messages avoiding 'this patch' phrase
- * Fix wrong indent in [PATCH 5/5 v7] input: pwm-beeper: handle module unloading properly
- * Use current date in Documentation/ABI/testing/sysfs-devices-pwm-beeper
-
- * Hopefully fixed my setup that
-   * mails are CC'ed correctly
-   * patches are sent as replies to the cover letter
-
-Changes since v6 [2]:
-
- * Convert devicetree binding documentation from txt to yaml
- * Use DEVICE_ATTR_[RO|RW] properly
- * Change Frieders Mail address
- * Added Signed-off and Tested-by statements
- * Fix module unloading
-
-
-Frieder Schrempf (2):
-  input: pwm-beeper: add feature to set volume via sysfs
-  input: pwm-beeper: set volume levels by devicetree
-
-Manuel Traut (3):
-  dt-bindings: input: pwm-beeper: Convert txt bindings to yaml
-  dt-bindings: input: pwm-beeper: add volume
-  input: pwm-beeper: handle module unloading properly
-
- .../ABI/testing/sysfs-devices-pwm-beeper      |  17 +++
- .../devicetree/bindings/input/pwm-beeper.txt  |  24 ----
- .../devicetree/bindings/input/pwm-beeper.yaml |  68 ++++++++++
- drivers/input/misc/pwm-beeper.c               | 122 +++++++++++++++++-
- 4 files changed, 205 insertions(+), 26 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-devices-pwm-beeper
- delete mode 100644 Documentation/devicetree/bindings/input/pwm-beeper.txt
- create mode 100644 Documentation/devicetree/bindings/input/pwm-beeper.yaml
-
-
-Regards
-Manuel
-
-[0] https://lore.kernel.org/all/cover.1487323753.git.frieder.schrempf@exceet.de/
-[1] https://lore.kernel.org/all/Y9AIq3cSNzI9T%2FdU@mt.com/
-[2] https://lkml.org/lkml/2023/1/24/379
-
+diff --git a/drivers/input/misc/pwm-beeper.c b/drivers/input/misc/pwm-beeper.c
+index 82b05f7f4c70..736b89bd1b42 100644
+--- a/drivers/input/misc/pwm-beeper.c
++++ b/drivers/input/misc/pwm-beeper.c
+@@ -299,6 +299,7 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 
+ 	error = input_register_device(beeper->input);
+ 	if (error) {
++		sysfs_remove_group(&pdev->dev.kobj, &pwm_beeper_attribute_group);
+ 		dev_err(dev, "Failed to register input device: %d\n", error);
+ 		return error;
+ 	}
+@@ -308,6 +309,17 @@ static int pwm_beeper_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
++static int pwm_beeper_remove(struct platform_device *pdev)
++{
++	struct pwm_beeper *beeper;
++
++	beeper = platform_get_drvdata(pdev);
++	input_unregister_device(beeper->input);
++	sysfs_remove_group(&pdev->dev.kobj, &pwm_beeper_attribute_group);
++
++	return 0;
++}
++
+ static int __maybe_unused pwm_beeper_suspend(struct device *dev)
+ {
+ 	struct pwm_beeper *beeper = dev_get_drvdata(dev);
+@@ -353,6 +365,7 @@ MODULE_DEVICE_TABLE(of, pwm_beeper_match);
+ 
+ static struct platform_driver pwm_beeper_driver = {
+ 	.probe	= pwm_beeper_probe,
++	.remove	= pwm_beeper_remove,
+ 	.driver = {
+ 		.name	= "pwm-beeper",
+ 		.pm	= &pwm_beeper_pm_ops,
 -- 
 2.39.0
 

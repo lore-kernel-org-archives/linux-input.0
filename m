@@ -2,95 +2,127 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E38C7C52D11
-	for <linux-input@archiver.kernel.org>; Thu, 26 Jan 2023 17:54:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4AAFC636BD
+	for <linux-input@archiver.kernel.org>; Fri, 27 Jan 2023 06:40:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232320AbjAZRyI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 26 Jan 2023 12:54:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52530 "EHLO
+        id S231908AbjA0GkX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 27 Jan 2023 01:40:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232026AbjAZRyH (ORCPT
+        with ESMTP id S231837AbjA0GkU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 26 Jan 2023 12:54:07 -0500
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73A86599A5
-        for <linux-input@vger.kernel.org>; Thu, 26 Jan 2023 09:54:04 -0800 (PST)
-Received: by mail-ej1-x636.google.com with SMTP id ud5so7225667ejc.4
-        for <linux-input@vger.kernel.org>; Thu, 26 Jan 2023 09:54:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:content-language
-         :references:cc:to:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tprbwGPjhGXrOs+yXtzbe6lAynkBJ02POiohC8Qq3WQ=;
-        b=X1hFwRsM2lS5WJq8Fiz7fSQwhew91espYjfFsyZepnk9Xgtxt5yhJQaiVTdVeG5jyz
-         D+26hoDFvH1qR311FBK4CfskRzB2+EYB7Bn70+TOnMm9Zgvo2tJWXBJ3EhYTHw3rqo9N
-         dzsSHeatOQP7PiWobEzlkU6eZ+dIUHW25JGtQl2LOutQqzEX5aACZQ3tnH/PUyQ/HVuu
-         dKvE8Ml6UPhXPgAGSJeEd3/BZlg3FUqrja5b4CGIVN/Z48e60X/TL5C3Q74FXxbrxKtt
-         WhjYCX3Akijl81bogGTS3dhkFqnW4wq85043B2LR10w6N0XltvqzBPgyVG6HW6PnpvCF
-         kjEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:subject:from:content-language
-         :references:cc:to:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=tprbwGPjhGXrOs+yXtzbe6lAynkBJ02POiohC8Qq3WQ=;
-        b=40VEQImD36TFl1K0esr1gWMgKpDTJPXofD+y6rCe27i7aRT1czU0FMVqI7McXwQy6f
-         h0gLkeS9CW93YqRJ3vPUGjtDhazknIG9o9qFb4e2nX8dLrKhVYDEWLTiwVURy7JtAJa0
-         vF/2VCuT+F+YpYdHwCoRi5RtITs3THCGQWgC2nnrO2oi+Ulb7RALwvD+wpvPP2jD+3p1
-         PkyJJCwOaIAN/d9TrvzB6bbemCaimgdVjihEoRHtoL3dwNsBLRHYKGeeXJUuK8xCemw/
-         aSimgTYBiT3VWK1OAxoD7TzzHjT5jXcfsjjmGt4cypYtcOBiFTBSnD1W7YZd3hKEmlqe
-         FvAQ==
-X-Gm-Message-State: AFqh2krweaOQvu+N0G9jkDxZkVhEEgOujAtXIKeeiVDuh/pGzDw57NLf
-        vasTxq10UtNPbLrO0XeyF85ldhgMOW8=
-X-Google-Smtp-Source: AMrXdXvDn6Ek2/HCvBcCIZ5TdxZSMPt3pwLqqPqEAgWLtIY1D+rZVoZB7SkgXNjFpByM+XLq2q8E7w==
-X-Received: by 2002:a17:906:8d08:b0:86f:e30c:72c1 with SMTP id rv8-20020a1709068d0800b0086fe30c72c1mr41920288ejc.8.1674755642979;
-        Thu, 26 Jan 2023 09:54:02 -0800 (PST)
-Received: from [100.65.234.5] ([213.55.221.106])
-        by smtp.googlemail.com with ESMTPSA id n5-20020a1709061d0500b0084d420503a3sm903091ejh.178.2023.01.26.09.54.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 26 Jan 2023 09:54:02 -0800 (PST)
-Message-ID: <29dc5667-8e6a-9953-5598-79d39f245f23@gmail.com>
-Date:   Thu, 26 Jan 2023 18:53:50 +0100
+        Fri, 27 Jan 2023 01:40:20 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C2386A71B;
+        Thu, 26 Jan 2023 22:40:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=KcKsJtC6oOKWkifb5+Em1PMtEImD0uDWB79dBqTOMOQ=; b=j6RhCeb0whQCBOOCmTgtyFqBDL
+        9bR8clDs+E1glbxGJmq5uzFTq3vtrweZNUuwgv42OnNoE28sOhe1m0w2GTZ7xcSxLF2SELD+28kal
+        u21vZo7BaOjjZuPkOlw0szbGlkfoLCp8aBguY3lr5KdANLaIPJ9GGEkrt6y3kWRU5iCbIBAvFIiZD
+        1RdBEOfQIozuz0lz6r20kG6H5eC5M0WJoF01iyNNBdx1j0i/g6jxtjuVzhSpUEDK4zCBJ1dJKSnEe
+        JFxwyFjBZysMctLU05fjavEpqee/tTDXy6iFI+Gw8oSgeRxuEX6Bzfgjkrc934B13Iu5m2mKbLu9j
+        U2jC8v7g==;
+Received: from [2601:1c2:d80:3110::9307] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pLIPF-00DM0u-RS; Fri, 27 Jan 2023 06:40:14 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        linux-input@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        linux-doc@vger.kernel.org
+Subject: [PATCH 10/35] Documentation: hid: correct spelling
+Date:   Thu, 26 Jan 2023 22:39:40 -0800
+Message-Id: <20230127064005.1558-11-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230127064005.1558-1-rdunlap@infradead.org>
+References: <20230127064005.1558-1-rdunlap@infradead.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-To:     linux-input@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Bastien Nocera <hadess@hadess.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jeff LaBundy <jeff@labundy.com>
-References: <20230125105416.17406-1-hdegoede@redhat.com>
- <20230125105416.17406-3-hdegoede@redhat.com> <Y9IG6zQtGWWwhyLW@nixie71>
- <1b118a84-5758-0045-509f-322bac5b0375@redhat.com>
-Content-Language: en-US
-From:   Gregor Riepl <onitake@gmail.com>
-Subject: Re: [PATCH resend 2/3] Input: silead - Add a settings
- module-parameter
-In-Reply-To: <1b118a84-5758-0045-509f-322bac5b0375@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-> Having this is actually useful, because users do need to check if
-> they actually have a home-button:
-> 
-> 1. Always setting this may lead to false-positive home button presses
->     on some models (IIRC, this has been around for a long time)
-> 
-> 2. The home button typical is a windows logo printed on the front of
->     cheap windows tablets below the screen. Recently I was adding info
->     for yet another such cheap tablet and I asked the user to test
->     the home-button since the windows logo was clearly there visually.
->     But on this specific model touching the windows logo does not do
->     anything.
+Correct spelling problems for Documentation/hid/ as reported
+by codespell.
 
-I vaguely remember that some users also reported Android-targeted 
-tablets where the surface covering the soft-touch buttons was simply an 
-extension of the whole touch surface, and not send any explicit key 
-press events.
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: linux-input@vger.kernel.org
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-doc@vger.kernel.org
+---
+ Documentation/hid/hid-alps.rst      |    2 +-
+ Documentation/hid/hid-bpf.rst       |    2 +-
+ Documentation/hid/hiddev.rst        |    2 +-
+ Documentation/hid/hidraw.rst        |    2 +-
+ Documentation/hid/intel-ish-hid.rst |    2 +-
+ 5 files changed, 5 insertions(+), 5 deletions(-)
 
-But I may be mistaken, or it was a bug in an older driver version that 
-didn't support touch buttons well.
+diff -- a/Documentation/hid/hid-alps.rst b/Documentation/hid/hid-alps.rst
+--- a/Documentation/hid/hid-alps.rst
++++ b/Documentation/hid/hid-alps.rst
+@@ -9,7 +9,7 @@ Currently ALPS HID driver supports U1 To
+ U1 device basic information.
+ 
+ ==========	======
+-Vender ID	0x044E
++Vendor ID	0x044E
+ Product ID	0x120B
+ Version ID	0x0121
+ ==========	======
+diff -- a/Documentation/hid/hid-bpf.rst b/Documentation/hid/hid-bpf.rst
+--- a/Documentation/hid/hid-bpf.rst
++++ b/Documentation/hid/hid-bpf.rst
+@@ -307,7 +307,7 @@ sysfs path: ``/sys/bus/hid/devices/xxxx:
+ 
+ We can not rely on hidraw to bind a BPF program to a HID device. hidraw is an
+ artefact of the processing of the HID device, and is not stable. Some drivers
+-even disable it, so that removes the tracing capabilies on those devices
++even disable it, so that removes the tracing capabilities on those devices
+ (where it is interesting to get the non-hidraw traces).
+ 
+ On the other hand, the ``hid_id`` is stable for the entire life of the HID device,
+diff -- a/Documentation/hid/hiddev.rst b/Documentation/hid/hiddev.rst
+--- a/Documentation/hid/hiddev.rst
++++ b/Documentation/hid/hiddev.rst
+@@ -8,7 +8,7 @@ Introduction
+ In addition to the normal input type HID devices, USB also uses the
+ human interface device protocols for things that are not really human
+ interfaces, but have similar sorts of communication needs. The two big
+-examples for this are power devices (especially uninterruptable power
++examples for this are power devices (especially uninterruptible power
+ supplies) and monitor control on higher end monitors.
+ 
+ To support these disparate requirements, the Linux USB system provides
+diff -- a/Documentation/hid/hidraw.rst b/Documentation/hid/hidraw.rst
+--- a/Documentation/hid/hidraw.rst
++++ b/Documentation/hid/hidraw.rst
+@@ -163,7 +163,7 @@ HIDIOCGOUTPUT(len):
+ 	Get an Output Report
+ 
+ This ioctl will request an output report from the device using the control
+-endpoint.  Typically, this is used to retrive the initial state of
++endpoint.  Typically, this is used to retrieve the initial state of
+ an output report of a device, before an application updates it as necessary either
+ via a HIDIOCSOUTPUT request, or the regular device write() interface.  The format
+ of the buffer issued with this report is identical to that of HIDIOCGFEATURE.
+diff -- a/Documentation/hid/intel-ish-hid.rst b/Documentation/hid/intel-ish-hid.rst
+--- a/Documentation/hid/intel-ish-hid.rst
++++ b/Documentation/hid/intel-ish-hid.rst
+@@ -199,7 +199,7 @@ the sender that the memory region for th
+ DMA initialization is started with host sending DMA_ALLOC_NOTIFY bus message
+ (that includes RX buffer) and FW responds with DMA_ALLOC_NOTIFY_ACK.
+ Additionally to DMA address communication, this sequence checks capabilities:
+-if thw host doesn't support DMA, then it won't send DMA allocation, so FW can't
++if the host doesn't support DMA, then it won't send DMA allocation, so FW can't
+ send DMA; if FW doesn't support DMA then it won't respond with
+ DMA_ALLOC_NOTIFY_ACK, in which case host will not use DMA transfers.
+ Here ISH acts as busmaster DMA controller. Hence when host sends DMA_XFER,

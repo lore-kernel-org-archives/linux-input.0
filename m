@@ -2,55 +2,86 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AC9FC54EAA
-	for <linux-input@archiver.kernel.org>; Mon, 30 Jan 2023 09:50:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78323C54EED
+	for <linux-input@archiver.kernel.org>; Mon, 30 Jan 2023 10:17:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235273AbjA3JuH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 30 Jan 2023 04:50:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53074 "EHLO
+        id S236139AbjA3KRt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 30 Jan 2023 05:17:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229694AbjA3JuH (ORCPT
+        with ESMTP id S236272AbjA3KRr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 30 Jan 2023 04:50:07 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE5F41A487;
-        Mon, 30 Jan 2023 01:50:05 -0800 (PST)
-Received: from [2a02:8108:963f:de38:4bc7:2566:28bd:b73c]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pMQPS-0000FW-LW; Mon, 30 Jan 2023 10:25:06 +0100
-Message-ID: <33e30bc9-60d2-3cc1-d6ee-870310db9b54@leemhuis.info>
-Date:   Mon, 30 Jan 2023 10:25:06 +0100
+        Mon, 30 Jan 2023 05:17:47 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D3435B6
+        for <linux-input@vger.kernel.org>; Mon, 30 Jan 2023 02:17:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675073820;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UlvqrRsIaGySNIWgyEtFe3L6DCZPEcBZ6mU4ziiJiuQ=;
+        b=XyCUXFOUG+yTe6/yHtXhlQpuRB8epzj0ffIf6D9Qf8V6sLDgngbBn7Qyn7wx+9B1ZR9Osi
+        SM2hlLzIsZu8UDUVh3XpjgAcQRiz1RxXgO13qiUouyBRVaRNlf296XzSBrFygeBWfORcQ2
+        w1Ub5BGlTmOBUSQT1PFf9PjNe723qgw=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-663-A0x_cXKFOUCfKvKUo_k46g-1; Mon, 30 Jan 2023 05:16:59 -0500
+X-MC-Unique: A0x_cXKFOUCfKvKUo_k46g-1
+Received: by mail-ed1-f71.google.com with SMTP id w3-20020a056402268300b00487e0d9b53fso7913212edd.10
+        for <linux-input@vger.kernel.org>; Mon, 30 Jan 2023 02:16:58 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=UlvqrRsIaGySNIWgyEtFe3L6DCZPEcBZ6mU4ziiJiuQ=;
+        b=m5gj5duEogVodUzC3wg+vEJUNGYLHZ+MeAYBGIww6VpUwKKFuWcV2V94/znJ26wptn
+         UA/oHKFPZxLLRQNqf7ESBqNYRxkWzOHHktbgLEjADa8QkBDNQNTPWkn9ZNFNuA8/VQyR
+         rcodIrSWr7f1fWnrdSQwd3Pqk2d8jTx/w4+kuiTV7vA77l5WL3iyYhoQhUk8f/FpqyrS
+         Fl/pprBkchTFDv+JPsmDMjwkC7mniSR3QMEVOgad2QQ16YGE+nVuOuFviATkEwYjAHDA
+         O+ldeV8+s8A0Cl0//d0xcax1wG27h+l3v03oTJFNFMFeW8/hLPzM1bh5RYnJwBa6GRPA
+         dghg==
+X-Gm-Message-State: AFqh2krS5/dbNspKzaHkfrjo1E6OLFmBaomLisFiItc/3LJrBTXv3QgN
+        06AexMNkSbQFJ3jGngjm/R069xi79k5ynziokJvdyC3fRT36o7s2U5K0MHGrh5lJFOfuxfm3WSo
+        IyCdxPMSkACBvQVk2306nOkU=
+X-Received: by 2002:a17:906:8608:b0:86b:9216:2ddb with SMTP id o8-20020a170906860800b0086b92162ddbmr53439643ejx.52.1675073817914;
+        Mon, 30 Jan 2023 02:16:57 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXuNsJWKTnv3uN7vRaSshEY3jYIx5DQ3/vAPthUQAXBa0hLAWrs8TG38BNBGQctubhL/2gLNCg==
+X-Received: by 2002:a17:906:8608:b0:86b:9216:2ddb with SMTP id o8-20020a170906860800b0086b92162ddbmr53439629ejx.52.1675073817696;
+        Mon, 30 Jan 2023 02:16:57 -0800 (PST)
+Received: from [10.40.98.142] ([78.108.130.194])
+        by smtp.gmail.com with ESMTPSA id f19-20020a05640214d300b004a0a915e726sm3390528edx.73.2023.01.30.02.16.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 Jan 2023 02:16:57 -0800 (PST)
+Message-ID: <325be2be-0c58-7414-70e9-9585e35874a2@redhat.com>
+Date:   Mon, 30 Jan 2023 11:16:56 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.6.0
 Subject: Re: [regression] Bug 216977 - asus t100 touchpad registered but not
  working
-Content-Language: en-US, de-DE
-From:   "Linux kernel regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Linux kernel regressions list <regressions@lists.linux.dev>,
-        LKML <linux-kernel@vger.kernel.org>,
+Content-Language: en-US
+To:     Linux regressions mailing list <regressions@lists.linux.dev>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <btissoir@redhat.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
         "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
         jessegodfroy@gmail.com
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>,
-          Linux regressions mailing list 
-          <regressions@lists.linux.dev>
 References: <2f4dc626-5287-6ec7-a31d-335e5dbb9119@leemhuis.info>
+From:   Hans de Goede <hdegoede@redhat.com>
 In-Reply-To: <2f4dc626-5287-6ec7-a31d-335e5dbb9119@leemhuis.info>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1675072205;167cf484;
-X-HE-SMSGID: 1pMQPS-0000FW-LW
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-[resent with Benjamin's proper email address; sorry for the noise]
+Hi All,
 
-On 30.01.23 10:22, Linux kernel regression tracking (Thorsten Leemhuis)
-wrote:
+On 1/30/23 10:22, Linux kernel regression tracking (Thorsten Leemhuis) wrote:
 > Hi, this is your Linux kernel regression tracker.
 > 
 > I noticed a regression report in bugzilla.kernel.org. As many (most?)
@@ -70,34 +101,27 @@ wrote:
 >>
 >> I do not see any changes to hid_asus that should be responsible for the change in performance.
 > See the ticket for more details.
-> 
-> 
-> [TLDR for the rest of this mail: I'm adding this report to the list of
-> tracked Linux kernel regressions; the text you find below is based on a
-> few templates paragraphs you might have encountered already in similar
-> form.]
-> 
-> BTW, let me use this mail to also add the report to the list of tracked
-> regressions to ensure it's doesn't fall through the cracks:
-> 
-> #regzbot introduced: v6.0..v6.1
-> https://bugzilla.kernel.org/show_bug.cgi?id=216977
-> #regzbot title: input: hid: asus t100 touchpad registered but not working
-> #regzbot ignore-activity
-> 
-> This isn't a regression? This issue or a fix for it are already
-> discussed somewhere else? It was fixed already? You want to clarify when
-> the regression started to happen? Or point out I got the title or
-> something else totally wrong? Then just reply and tell me -- ideally
-> while also telling regzbot about it, as explained by the page listed in
-> the footer of this mail.
-> 
-> Developers: When fixing the issue, remember to add 'Link:' tags pointing
-> to the report (e.g. the buzgzilla ticket and maybe this mail as well, if
-> this thread sees some discussion). See page linked in footer for details.
-> 
-> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
-> --
-> Everything you wanna know about Linux kernel regression tracking:
-> https://linux-regtracking.leemhuis.info/about/#tldr
-> If I did something stupid, please tell me, as explained on that page.
+
+This is my bad, I accidentally broke SW_TABLET_MODE reporting on
+the Asus T100* and T101* series and it is now reporting that it
+is in tablet mode while it is actually docked and thus in laptop
+mode.
+
+This is causing libinput to suppress touchpad events, as
+it would for a 360° hinges style 2 in 1 with the keyboard +
+touchpad folded behind the display (so in tablet mode).
+
+A fix for this has already been merged for 6.2-rc6:
+
+"platform/x86: asus-wmi: Fix kbd_dock_devid tablet-switch reporting"
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=fdcc0602d64f22185f61c70747214b630049cc33
+
+And the fix is also queued for the next 6.1.y stable series release:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/log/?h=queue/6.1
+
+I'll also add this info as a comment to the bug.
+
+Regards,
+
+Hans
+

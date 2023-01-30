@@ -2,88 +2,78 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74756C54EAA
-	for <linux-input@archiver.kernel.org>; Mon, 30 Jan 2023 04:00:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA856C54EAA
+	for <linux-input@archiver.kernel.org>; Mon, 30 Jan 2023 04:34:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235704AbjA3EAo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 29 Jan 2023 23:00:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51058 "EHLO
+        id S235372AbjA3EeY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 29 Jan 2023 23:34:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232201AbjA3EA1 (ORCPT
+        with ESMTP id S229578AbjA3EeX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 29 Jan 2023 23:00:27 -0500
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6017F30E0;
-        Sun, 29 Jan 2023 20:00:05 -0800 (PST)
-From:   =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=weissschuh.net;
-        s=mail; t=1675051189;
-        bh=BpfSdgQmWN7q99yWHa1NYztfRxaFIEEu1ai2aAeAuso=;
-        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=QOokcRGe0+cEYV30EE7K9Tnus237x+2wRUdExZ68BeHv4mLeOm3rRO/IKzDmTGzkM
-         N5+cQhRULWGurL58OImk52Z/ioe1QyjTB1ObN8ZL0jiNAOXpPZ35+0hrPD7olM4umo
-         zAPhldvlVvB06EQ+hjis8ev0A3BokINldBcPeM4g=
-Date:   Mon, 30 Jan 2023 03:59:44 +0000
-Subject: [PATCH 8/9] platform/x86: asus-tf103c-dock: Constify toprow keymap
+        Sun, 29 Jan 2023 23:34:23 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C67510A;
+        Sun, 29 Jan 2023 20:34:22 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id z3so6859054pfb.2;
+        Sun, 29 Jan 2023 20:34:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=AjvApUUZfQnnuI/RkgAT/sYUXmootMZoZRsxxLhMUo8=;
+        b=gJdkH4IhC1zF11moSrTif9My4UTpfIxR4xY0wpLNAHml6E6CsoXik5adNHjoNX24la
+         VSx6zBzLNBX9CHm0OIZTm+IICr6ekV3PmeEXZPNWGKYfWEbMYnTmz032/jKe8CB7Sj2m
+         dGwZfjJSsI97imsPxZSq1vzOYnsm3tplDYfDVBwdU19my2nt2At1Zxq2FTr3oTpHaADg
+         mVZY/2TBtDhbMwBRsofq9HfKEJno2M4Hdfx09M9AXyti/2RqLlkqCxgvfOakDXD3NFS/
+         hUGKtPwzqujgAWVhDkCROT04DKowHrTeeN0oIUsNuS4aRpeo5EGGRiY+It07k6x8UPxt
+         4NKQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=AjvApUUZfQnnuI/RkgAT/sYUXmootMZoZRsxxLhMUo8=;
+        b=Hx1QoV3B5ozL3wclAXQ3MBsT3sa3lcVZM5wGnduX8j6uW00R4xk472lsNXHtMANUnq
+         Mk/NpWIg/L8//FYmbNJmOW5BSUcrbW7M8liVn0TAw1HjWzwirFR6TeVAV7qUDmWjsdzw
+         XBq+R4ehhOVMYFjVAi0mIs6GktHYc04TUEMgA4WO0g7WqwVQOH9QW0pZar3e/V1PSgXI
+         uipKoX+i5N6X8D0EuGdysQ+wNdhvnP8u35JeUKpFrf6b+eg9hWzipu/G75qCH7gdhsyx
+         bXliWrf4duXpGZ4jX0/+TTBs65Clyb+IwBHWKTLnUoSUGz3D49LbfJsZAXtAFY4tOuIl
+         PVAQ==
+X-Gm-Message-State: AO0yUKXovWXXL950tFo73hSnrYy0grsLrnrWNnlp1JyQgrnRMBzL/Ncw
+        6U0yIqCWUVjDMTrlQ9WU+jw=
+X-Google-Smtp-Source: AK7set8TLE1JOuuknWEc+oXZqJWJfgDMVxjQyNpNN0aVK0Mu1BQNlxa8T8uR6c3YA8XUdVlvd9uYNg==
+X-Received: by 2002:a05:6a00:be4:b0:593:da8:6f2c with SMTP id x36-20020a056a000be400b005930da86f2cmr7849764pfu.5.1675053261504;
+        Sun, 29 Jan 2023 20:34:21 -0800 (PST)
+Received: from google.com ([2620:15c:9d:2:6882:174b:bc70:101])
+        by smtp.gmail.com with ESMTPSA id m2-20020a056a00164200b00587304cbd3fsm6299961pfc.181.2023.01.29.20.34.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 29 Jan 2023 20:34:20 -0800 (PST)
+Date:   Sun, 29 Jan 2023 20:34:17 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Randy Dunlap <rdunlap@infradead.org>
+Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH] input: keyboard: fix a Kconfig spelling mistake &
+ hyphenation
+Message-ID: <Y9dIydcawFmk2A07@google.com>
+References: <20230124233453.22893-1-rdunlap@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20230130-hid-const-ll-driver-v1-8-3fc282b3b1d0@weissschuh.net>
-References: <20230130-hid-const-ll-driver-v1-0-3fc282b3b1d0@weissschuh.net>
-In-Reply-To: <20230130-hid-const-ll-driver-v1-0-3fc282b3b1d0@weissschuh.net>
-To:     Basavaraj Natikar <basavaraj.natikar@amd.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Corentin Chary <corentin.chary@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Mark Gross <markgross@kernel.org>,
-        Viresh Kumar <vireshk@kernel.org>,
-        Johan Hovold <johan@kernel.org>, Alex Elder <elder@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hyperv@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        acpi4asus-user@lists.sourceforge.net, greybus-dev@lists.linaro.org,
-        linux-staging@lists.linux.dev,
-        =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-X-Mailer: b4 0.12.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1675051185; l=815;
- i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=BpfSdgQmWN7q99yWHa1NYztfRxaFIEEu1ai2aAeAuso=;
- b=S7ImS9NhnHkKy6L+nBosZuDJHdCEwxhmiAtNrw4E79jpSJgNI9SvNJVzb/JDpH6vuWcg5dnPXhMY
- sGhjwhWsBdgV22P2TJw9zNgSknRBpwnGxVZetNJivjYgVfn1yHod
-X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
- pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230124233453.22893-1-rdunlap@infradead.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This structure is never modified, make it const.
+On Tue, Jan 24, 2023 at 03:34:53PM -0800, Randy Dunlap wrote:
+> Correct a spelling mistake (reported by codespell).
+> Also hyphenate "matrix-based".
+> 
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
----
- drivers/platform/x86/asus-tf103c-dock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/platform/x86/asus-tf103c-dock.c b/drivers/platform/x86/asus-tf103c-dock.c
-index 84c45e8f51ad..aeb1138464df 100644
---- a/drivers/platform/x86/asus-tf103c-dock.c
-+++ b/drivers/platform/x86/asus-tf103c-dock.c
-@@ -259,7 +259,7 @@ static const struct hid_ll_driver tf103c_dock_hid_ll_driver = {
- 	.raw_request = tf103c_dock_hid_raw_request,
- };
- 
--static int tf103c_dock_toprow_codes[13][2] = {
-+static const int tf103c_dock_toprow_codes[13][2] = {
- 	/* Normal,            AltGr pressed */
- 	{ KEY_POWER,          KEY_F1 },
- 	{ KEY_RFKILL,         KEY_F2 },
+Applied, thank you.
 
 -- 
-2.39.1
-
+Dmitry

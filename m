@@ -2,86 +2,74 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A29EC05027
-	for <linux-input@archiver.kernel.org>; Thu,  2 Feb 2023 14:47:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36862C636D3
+	for <linux-input@archiver.kernel.org>; Fri,  3 Feb 2023 02:28:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232513AbjBBOrs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 2 Feb 2023 09:47:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54064 "EHLO
+        id S229881AbjBCC2p (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 2 Feb 2023 21:28:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232372AbjBBOrr (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2023 09:47:47 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C687D8D636
-        for <linux-input@vger.kernel.org>; Thu,  2 Feb 2023 06:47:44 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id mi9so2100130pjb.4
-        for <linux-input@vger.kernel.org>; Thu, 02 Feb 2023 06:47:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=qh3NU4Hu/3pryZhrjxzgEDUiKJ+C8ZvPc2LnDmxMk4Y=;
-        b=aKgwKxTr59GRNLgGV7nApQJaqm5e5/XYsfjiW1kjgM6Eo+0ZcCiJfFuku7F0Q5GaBz
-         YPEmWYvLbMnxIOVtdOrrPEEUbacSuk3FQpk/FCLBodovxMcY1lDGIZrS8iYUUfTixqCk
-         M60NjQ1u7u8gsjZnyHj7vCr7tBLrmNOqeJCAA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qh3NU4Hu/3pryZhrjxzgEDUiKJ+C8ZvPc2LnDmxMk4Y=;
-        b=SG2T5XsTJLnFbjFcnMJglIy9bZ8dL6jpl2DiCkssrNUAkpImiFOPW20PHil4iM5qbC
-         xvlC4UsHPYxS+F+saurmdO3ziyvdBfpcZN46Nb/oS4AGXA8p6UDg0ZMXDWWFD7AFO88M
-         1a//+PBaZTmWVKUlpWAVWaGKuZauAWc4OTI1Ojs+DVo2rA/vW/6ROc2fWbZBneXjQz6C
-         Pw+cIqCea8E2gQ+Wl6bj6VhzLvix+1tpF6ibikC8/d1orKVVcEMXKMfzs4HQB55wDseK
-         tj8NLI27MYZR/Lgirysac7F+cNO+NBf5Ap+gLb2UdyNqy48bSdrWl0KfBevJzRuLsB/R
-         7vGw==
-X-Gm-Message-State: AO0yUKVgM9IX7/S9C6offdEF1fw3P//1I8TNI+Er+HCr7S/Z3A8BI6N1
-        jtZBh9iMu4BkQ3hHsUOMsJZc23shtyE0rBMH
-X-Google-Smtp-Source: AK7set8QMGiNU8p73FTyVidLdZka5kdITOynMVS7Lq9LKK9RCEAnB6wUoECUWV7uwL/4jur9LZawSg==
-X-Received: by 2002:a17:90a:1a5e:b0:22c:7e2a:efc8 with SMTP id 30-20020a17090a1a5e00b0022c7e2aefc8mr6722668pjl.47.1675349264087;
-        Thu, 02 Feb 2023 06:47:44 -0800 (PST)
-Received: from ballway1.c.googlers.com.com (97.173.125.34.bc.googleusercontent.com. [34.125.173.97])
-        by smtp.gmail.com with ESMTPSA id gc5-20020a17090b310500b0022c52a0c202sm3359508pjb.18.2023.02.02.06.47.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Feb 2023 06:47:43 -0800 (PST)
-From:   Allen Ballway <ballway@chromium.org>
-To:     benjamin.tissoires@redhat.com
-Cc:     jikos@kernel.org, lukas.bulwahn@gmail.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Allen Ballway <ballway@chromium.org>
-Subject: [PATCH] HID: multitouch: Fix typo in config check
-Date:   Thu,  2 Feb 2023 14:47:28 +0000
-Message-Id: <20230202144149.1.I7f213388b358718068c63acb698dc4937716cf35@changeid>
-X-Mailer: git-send-email 2.39.1.456.gfc5497dd1b-goog
+        with ESMTP id S230233AbjBCC2o (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 2 Feb 2023 21:28:44 -0500
+Received: from endrift.com (endrift.com [173.255.198.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B1686EAFD
+        for <linux-input@vger.kernel.org>; Thu,  2 Feb 2023 18:28:43 -0800 (PST)
+Received: from nebulosa.vulpes.eutheria.net (unknown [50.47.218.115])
+        by endrift.com (Postfix) with ESMTPSA id 417CBA26C;
+        Thu,  2 Feb 2023 18:28:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=endrift.com; s=2020;
+        t=1675391322; bh=/OAQPnjD+4hInMiKM1lNb4m4uuGicNrtQj9U+A7PyFc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QowG1kC/RmrDmoffyAffqarBTLkmL7uWH7SAgQFvd3qcVT5IcXMRSfhUronZACrVq
+         S+Inm071hSkT2zHkO0Fiw3MsGkkaiWaomyCyidt5wOfTvEUWYq33Opb9dA0q8aLTmd
+         J7XuT7fYF+2F2wPO3FavXp/LT2PTOrM+tAFdCaaCck3sdDVapca2T+EZwb+I47Fg/B
+         TMhXdFfl/gjZKFh1lakYLI5RgCy1hlzFtbmr9Zb9j66Zcdlt3vx63jCCh8jaod7GLu
+         2XFISCCCIv8SfJYCbkMnMvMDc0LkOMcUlVe9YIEINeeQ9THmSIKEq0mzWLu4JAFh1A
+         Iio0x+wCh5Tcw==
+From:   Vicki Pfau <vi@endrift.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org
+Cc:     Vicki Pfau <vi@endrift.com>
+Subject: [PATCH 2/3] Input: xpad - fix PowerA EnWired Controller guide button
+Date:   Thu,  2 Feb 2023 18:27:57 -0800
+Message-Id: <20230203022758.3982393-2-vi@endrift.com>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230203022758.3982393-1-vi@endrift.com>
+References: <20230203022758.3982393-1-vi@endrift.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Fixes a typo causing a config check to look for a nonexistent config,
-leaving the affected code unusable.
+This commit explicitly disables the audio interface the same way the official
+driver does. This is needed for some controllers, such as the PowerA Enhanced
+Wired Controller for Series X|S (0x20d6:0x200e) to report the guide button.
 
-Signed-off-by: Allen Ballway <ballway@chromium.org>
+Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
+ drivers/input/joystick/xpad.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
- drivers/hid/hid-quirks.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 78452faf3c9b4..8417066b5ff72 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -1300,7 +1300,7 @@ unsigned long hid_lookup_quirk(const struct hid_device *hdev)
- 	mutex_unlock(&dquirks_lock);
-
- 	/* Get quirks specific to I2C devices */
--	if (IS_ENABLED(CONFIG_I2C_DMI_CORE) && IS_ENABLED(CONFIG_DMI) &&
-+	if (IS_ENABLED(CONFIG_I2C_HID_CORE) && IS_ENABLED(CONFIG_DMI) &&
- 	    hdev->bus == BUS_I2C)
- 		quirks |= i2c_hid_get_dmi_quirks(hdev->vendor, hdev->product);
-
---
-2.39.1.456.gfc5497dd1b-goog
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index bb65c8268963..16bc3cd4c2b7 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -1390,6 +1390,13 @@ static int xpad_start_xbox_one(struct usb_xpad *xpad)
+ 	unsigned long flags;
+ 	int retval;
+ 
++	/* Explicitly disable the audio interface. This is needed for some
++	 * controllers, such as the PowerA Enhanced Wired Controller
++	 * for Series X|S (0x20d6:0x200e) to report the guide button */
++	retval = usb_set_interface(xpad->udev, 1, 0);
++	if (retval)
++		return retval;
++
+ 	spin_lock_irqsave(&xpad->odata_lock, flags);
+ 
+ 	/*
+-- 
+2.39.1
 

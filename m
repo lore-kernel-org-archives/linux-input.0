@@ -2,61 +2,61 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 71366C63797
-	for <linux-input@archiver.kernel.org>; Sat,  4 Feb 2023 04:43:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AE57BC636D3
+	for <linux-input@archiver.kernel.org>; Sat,  4 Feb 2023 04:43:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232165AbjBDEnT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 3 Feb 2023 23:43:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36516 "EHLO
+        id S231375AbjBDEnU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 3 Feb 2023 23:43:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjBDEnS (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Feb 2023 23:43:18 -0500
-Received: from mail-qt1-x82a.google.com (mail-qt1-x82a.google.com [IPv6:2607:f8b0:4864:20::82a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B7861E5F6;
-        Fri,  3 Feb 2023 20:43:16 -0800 (PST)
-Received: by mail-qt1-x82a.google.com with SMTP id h24so7790066qta.12;
-        Fri, 03 Feb 2023 20:43:16 -0800 (PST)
+        with ESMTP id S232470AbjBDEnT (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 3 Feb 2023 23:43:19 -0500
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5152C2278D;
+        Fri,  3 Feb 2023 20:43:18 -0800 (PST)
+Received: by mail-qt1-x835.google.com with SMTP id w3so7817419qts.7;
+        Fri, 03 Feb 2023 20:43:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Hq7S589pClfngh7atm5SDuJU0tnsjL6477RHSbC1eCc=;
-        b=lSUCzyVjxohX6Vu2Zf9hV9RtosSVY89T1IjM93Fw46PDasvbpRkNo4v3ZlheULgBFz
-         Q0PLRWuYrYoXj8gqtBeAHmYBUkfP97c64LnvzGLU4iQl5a+ZiGpW3zgazcga14OzGYNr
-         vU2/do49nN7AdFLKlGoN9NabjTZBwuIYrZhLFoyU9WuhEl6xYZ1ryuyU5aPsVdOy3ZT4
-         QM34LxOBlhhDcavvXvcP2lDQkam50vr8kr4k47YITwRvVF+Af+dCGjxZtVlftqH5NSZZ
-         SmFOofH32isc4BzW8SQauABd/Fv/OLzNh9tlDsuWDOLBjDxK2VwI9+k1WVrF5MLFuHrj
-         flWg==
+        bh=oAYdJzzeTeXOhvH5ct62NBOgopLWCsTH7OnUSEt6qQ0=;
+        b=dgTSqwI7ELB8gfVEaC+P6eJ0ZIz6imZEbNjBgCyLuj83MUXFRVEbOQ445d72d6mo5C
+         /yEVOUuYW9qQDxf9kMYMftUD0jfjB2EG04ZW6T0+25TDspXhWKBO0XfUPgFdl+Od+VcJ
+         7DGO6OLPZm1qF1eOgdPVHeids8MrmdopV7Q+/90tVQItviL1x2zJoFEjYlblGHHN43UN
+         7Sq0OzJI/AgKNyoSngBt3P5ojygS6+lJJIJSIrjNuKzw+pLGNQpxUzK+FNMk6gVa44g3
+         lCjbypgtRoNPOiaKJ5inZHBOnB9jIMIJGUrJt4wmmlK/Uj03ixfzdlNqsTS7nfWAMc5n
+         XeRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Hq7S589pClfngh7atm5SDuJU0tnsjL6477RHSbC1eCc=;
-        b=QmI6F/9aysCSq2P+PSjHhNiUvVglh5Mk/5OVMeHF/ljpElV+M5/o99QDXgbYmBoSBc
-         F1FkwFVQqTa73+8bGcRmATVOBjvOAB5MzIw7TAPhC7UXULOiVvYm49DJ9bEjgJqH+VhR
-         gkIAMyOu4DzhJIu9K9dRcoous2NTvNhbFju+rvMBzjZs0ER85Wm5y2qjpgjzVF9FYcdh
-         fSCp2Y/FHlSh51daSAIdjoVUw2/PBDoy3rWUabhTzRKLKe7qaRhJyVMrEd5fdxj8zehi
-         4QanduLLtAhnSG+Fdr9NLhmXHKnl6W+EV9yxRRDyiqxfsBIlw8emTPgjZh8g7rQg3UQ5
-         Ceww==
-X-Gm-Message-State: AO0yUKXdAnFBtjXTmwHScdhUo7emrQjYviFa2RjGpnLlS61yELvAJP/m
-        72ZIan5u8THg5s1W6uwU1talrGy9AMvffQ==
-X-Google-Smtp-Source: AK7set/W6rwpWoRzmpmnmMD2oQlPjWNT+rbZPA6g2ongw0rqRFDDJO64ykkraORYlTd6YJMOnmOL+Q==
-X-Received: by 2002:a05:622a:148b:b0:3b9:c153:f169 with SMTP id t11-20020a05622a148b00b003b9c153f169mr18739750qtx.0.1675485795400;
-        Fri, 03 Feb 2023 20:43:15 -0800 (PST)
+        bh=oAYdJzzeTeXOhvH5ct62NBOgopLWCsTH7OnUSEt6qQ0=;
+        b=n44/FOUKc037fyikn+QcnrVLxFxKzh2iOirIYllCvVUkLw8w5vJ51C/rE84cGtSqI1
+         6mdChf593HGFuXVyfLSKvWuIzp5NHNQGWuON9ABqZlmjxUXPn8517sA2Z+DsBqNthLMo
+         9XWdKjKBJMotqfq8shmIui2qf9AymYKeHEq0DWkF+9JDhs3X9pv/oFGCbgafP0XbaAee
+         M/rCdAN66D3MYZWtSIbwxlLcS6Ri0nuzzV42VrD78OfH85oqj+SHV0G2SSItxB0CJ80Q
+         wBMLQKmK/cebKtrLQhieWyI1G0UbsIdxeATX/Fqn1DPhs5YPEb2Hjvw1zONZh1zoTZiH
+         eCYQ==
+X-Gm-Message-State: AO0yUKXGGuAq6SYB4mWQ1WaL7qfddPK8E0Z6RY/blwui7QRUmczoV52X
+        Md2LkaS1uAPNZ2h24ctwNtYdw8J3bL+Ckw==
+X-Google-Smtp-Source: AK7set+WDPnHolfBXnmrawiwv3l5sfJGC7AbMRGX8Hr4TzhELzVsWIH5W6sGLc9JDRYw++MHLOrpRA==
+X-Received: by 2002:a05:622a:2d5:b0:3b9:ed95:6ab9 with SMTP id a21-20020a05622a02d500b003b9ed956ab9mr12864016qtx.51.1675485797306;
+        Fri, 03 Feb 2023 20:43:17 -0800 (PST)
 Received: from DANNY-DESKTOP.localdomain (071-013-243-092.res.spectrum.com. [71.13.243.92])
-        by smtp.gmail.com with ESMTPSA id l23-20020ac84597000000b003b85ed59fa2sm2882135qtn.50.2023.02.03.20.43.14
+        by smtp.gmail.com with ESMTPSA id l23-20020ac84597000000b003b85ed59fa2sm2882135qtn.50.2023.02.03.20.43.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Feb 2023 20:43:15 -0800 (PST)
+        Fri, 03 Feb 2023 20:43:17 -0800 (PST)
 From:   Danny Kaehn <kaehndan@gmail.com>
 To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
         jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc:     devicetree@vger.kernel.org, linux-input@vger.kernel.org,
         ethan.twardy@plexus.com
-Subject: [PATCH v2 1/4] dt-bindings: input: Add CP2112 HID USB to SMBus Bridge
-Date:   Fri,  3 Feb 2023 22:43:10 -0600
-Message-Id: <20230204044313.364-2-kaehndan@gmail.com>
+Subject: [PATCH v2 3/4] HID: cp2112: Fix driver not registering GPIO IRQ chip as threaded
+Date:   Fri,  3 Feb 2023 22:43:12 -0600
+Message-Id: <20230204044313.364-4-kaehndan@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230204044313.364-1-kaehndan@gmail.com>
 References: <20230204044313.364-1-kaehndan@gmail.com>
@@ -66,139 +66,28 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is a USB HID device which includes an I2C controller and 8 GPIO pins.
-
-The binding allows describing the chip's gpio and i2c controller in DT
-using the subnodes named "gpio" and "i2c", respectively. This is
-intended to be used in configurations where the CP2112 is permanently
-connected in hardware.
+The CP2112 generates interrupts from a polling routine on a thread,
+and can only support threaded interrupts. This patch configures the
+gpiochip irq chip with this flag, disallowing consumers to request
+a hard IRQ from this driver, which resulted in a segfault previously.
 
 Signed-off-by: Danny Kaehn <kaehndan@gmail.com>
 ---
- .../bindings/input/silabs,cp2112.yaml         | 114 ++++++++++++++++++
- 1 file changed, 114 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/silabs,cp2112.yaml
+ drivers/hid/hid-cp2112.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/input/silabs,cp2112.yaml b/Documentation/devicetree/bindings/input/silabs,cp2112.yaml
-new file mode 100644
-index 000000000000..a8d7f8aea6c2
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/silabs,cp2112.yaml
-@@ -0,0 +1,114 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/silabs,cp2112.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: CP2112 HID USB to SMBus/I2C Bridge
-+
-+maintainers:
-+  - Danny Kaehn <kaehndan@gmail.com>
-+
-+description:
-+  The CP2112 is a USB HID device which includes an integrated I2C controller
-+  and 8 GPIO pins. Its GPIO pins can each be configured as inputs, open-drain
-+  outputs, or push-pull outputs.
-+
-+properties:
-+  compatible:
-+    const: usb10c4,ea90
-+
-+  reg:
-+    maxItems: 1
-+    description: The USB port number on the host controller
-+
-+  i2c:
-+    description: The SMBus/I2C controller node for the CP2112
-+    $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+    properties:
-+      clock-frequency:
-+        minimum: 10000
-+        default: 100000
-+        maximum: 400000
-+
-+  gpio:
-+    description: The GPIO controller node for the CP2112
-+    $ref: /schemas/gpio/gpio.yaml#
-+
-+    properties:
-+      interrupt-controller: true
-+      '#interrupt-cells':
-+        const: 2
-+
-+      gpio-controller: true
-+      "#gpio-cells":
-+        const: 2
-+
-+      ngpios:
-+        const: 8
-+
-+    patternProperties:
-+      "^(hog-[0-9]+|.+-hog(-[0-9]+)?)$":
-+        type: object
-+        properties:
-+          gpio-hog: true
-+          gpios: true
-+          input: true
-+          output-high: true
-+          output-low: true
-+          line-name: true
-+
-+        required:
-+          - gpio-hog
-+          - gpios
-+
-+        additionalProperties: false
-+
-+    unevaluatedProperties: false
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    usb {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      device@1 {
-+        compatible = "usb10c4,ea90";
-+        reg = <1>;
-+
-+        i2c {
-+          #address-cells = <1>;
-+          #size-cells = <0>;
-+
-+          temp@48 {
-+            compatible = "national,lm75";
-+            reg = <0x48>;
-+          };
-+        };
-+
-+        gpio {
-+          gpio-controller;
-+          interrupt-controller;
-+          #gpio-cells = <2>;
-+          gpio-line-names =
-+            "TEST0",
-+            "TEST1",
-+            "TEST2",
-+            "TEST3",
-+            "TEST4",
-+            "TEST5",
-+            "TEST6",
-+            "TEST7";
-+        };
-+      };
-+    };
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 1e16b0fa310d..27cadadda7c9 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1354,6 +1354,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	girq->parents = NULL;
+ 	girq->default_type = IRQ_TYPE_NONE;
+ 	girq->handler = handle_simple_irq;
++	girq->threaded = true;
+ 
+ 	ret = gpiochip_add_data(&dev->gc, dev);
+ 	if (ret < 0) {
 -- 
 2.25.1
 

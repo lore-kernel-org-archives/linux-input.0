@@ -2,74 +2,83 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 199C5C05027
-	for <linux-input@archiver.kernel.org>; Mon,  6 Feb 2023 13:58:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B3B5C05027
+	for <linux-input@archiver.kernel.org>; Mon,  6 Feb 2023 13:59:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230098AbjBFN6s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Feb 2023 08:58:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38306 "EHLO
+        id S229748AbjBFN7N (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Feb 2023 08:59:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229976AbjBFN6g (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2023 08:58:36 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43744298F2
-        for <linux-input@vger.kernel.org>; Mon,  6 Feb 2023 05:56:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1675691740;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=udRiWBPGyuwXAzVSmPHabP6GB21GNdoa0SYF1UWmHNI=;
-        b=SqUFKFtHCEBnZxVBueGD50gY9apYDVKi3InS9r/wwEcXw6J92yAXS+u6IjzUI7TgGDR4UE
-        f9jW6txMlj514xHWw/rq3Orp8ON5NaM40OvrG5195CqC43zeH7i36AfnqFYCaS4N9VV4Za
-        2Fs7JlLcaNi6jkZ4BqanNsG5/VWAoxU=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-126-nmDdOM1oM96xkZ5ftwB09g-1; Mon, 06 Feb 2023 08:55:37 -0500
-X-MC-Unique: nmDdOM1oM96xkZ5ftwB09g-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.rdu2.redhat.com [10.11.54.4])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BC19B811E6E;
-        Mon,  6 Feb 2023 13:55:36 +0000 (UTC)
-Received: from plouf.local (ovpn-192-160.brq.redhat.com [10.40.192.160])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 92E9B2026D37;
-        Mon,  6 Feb 2023 13:55:35 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+        with ESMTP id S229763AbjBFN67 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2023 08:58:59 -0500
+Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2395C279BA;
+        Mon,  6 Feb 2023 05:58:15 -0800 (PST)
+Received: (Authenticated sender: hadess@hadess.net)
+        by mail.gandi.net (Postfix) with ESMTPSA id D532A60003;
+        Mon,  6 Feb 2023 13:58:09 +0000 (UTC)
+From:   Bastien Nocera <hadess@hadess.net>
+To:     linux-input@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
-        =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
+        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
         Nestor Lopez Casado <nlopezcasad@logitech.com>
-In-Reply-To: <20221207100033.64095-1-hadess@hadess.net>
-References: <20221207100033.64095-1-hadess@hadess.net>
-Subject: Re: [PATCH] HID: logitech-hidpp: Add constants for HID++ 2.0 error
- codes
-Message-Id: <167569173522.2840310.5991743706116877068.b4-ty@redhat.com>
-Date:   Mon, 06 Feb 2023 14:55:35 +0100
+Subject: [PATCH 1/3] HID: logitech-hidpp: Add more debug statements
+Date:   Mon,  6 Feb 2023 14:58:06 +0100
+Message-Id: <20230206135808.8840-1-hadess@hadess.net>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.4
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 07 Dec 2022 11:00:33 +0100, Bastien Nocera wrote:
-> Add constants for HID++ 2.0 error codes listed in "Protocol HID++2.0
-> essential features" chapter, page 3, in
-> logitech_hidpp_2.0_specification_draft_2012-06-04.pdf
-> 
-> 
+This should help us figure out some hairy problems with some devices.
 
-Applied to hid/hid.git (for-6.3/logitech), thanks!
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+---
+ drivers/hid/hid-logitech-hidpp.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-[1/1] HID: logitech-hidpp: Add constants for HID++ 2.0 error codes
-      https://git.kernel.org/hid/hid/c/76823bf3d650
-
-Cheers,
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index f44ba7be3cc5..6386d3f023ca 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -338,8 +338,12 @@ static int hidpp_send_fap_command_sync(struct hidpp_device *hidpp,
+ 	struct hidpp_report *message;
+ 	int ret;
+ 
+-	if (param_count > sizeof(message->fap.params))
++	if (param_count > sizeof(message->fap.params)) {
++		hid_dbg(hidpp->hid_dev,
++			"Invalid number of parameters passed to command (%d != %ld)\n",
++			param_count, sizeof(message->fap.params));
+ 		return -EINVAL;
++	}
+ 
+ 	message = kzalloc(sizeof(struct hidpp_report), GFP_KERNEL);
+ 	if (!message)
+@@ -3440,11 +3444,17 @@ static int hi_res_scroll_enable(struct hidpp_device *hidpp)
+ 		ret = hidpp10_enable_scrolling_acceleration(hidpp);
+ 		multiplier = 8;
+ 	}
+-	if (ret)
++	if (ret) {
++		hid_dbg(hidpp->hid_dev,
++			"Could not enable hi-res scrolling: %d\n", ret);
+ 		return ret;
++	}
+ 
+-	if (multiplier == 0)
++	if (multiplier == 0) {
++		hid_dbg(hidpp->hid_dev,
++			"Invalid multiplier 0 from device, setting it to 1\n");
+ 		multiplier = 1;
++	}
+ 
+ 	hidpp->vertical_wheel_counter.wheel_multiplier = multiplier;
+ 	hid_dbg(hidpp->hid_dev, "wheel multiplier = %d\n", multiplier);
 -- 
-Benjamin Tissoires <benjamin.tissoires@redhat.com>
+2.39.1
 

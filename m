@@ -2,74 +2,80 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57E78C636D3
-	for <linux-input@archiver.kernel.org>; Mon,  6 Feb 2023 17:48:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1418EC05027
+	for <linux-input@archiver.kernel.org>; Mon,  6 Feb 2023 22:13:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229990AbjBFRr6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Feb 2023 12:47:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46816 "EHLO
+        id S229738AbjBFWNF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Feb 2023 17:13:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229994AbjBFRr4 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2023 12:47:56 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CE092A16F
-        for <linux-input@vger.kernel.org>; Mon,  6 Feb 2023 09:47:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1675705625;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=8kU/0Xl/lLioSQe+1DD5y93hh4p9Kul9hBcSRrRm2WM=;
-        b=cT2b3I7e+R5ytZN8lkAt15oiXVvrs8bCrgioFDV+nMovMtkCaxvYFqa6rzLXdUbTFSPpK+
-        x8HQUX2L+XwKcU8i2uQQyL5/t4GQ7aMPKgM3t3zM4FppbWy2GuYnolTivacrQGRW4K20xI
-        lX3Dq/QzbouKJoT1WGwVlwJhOpYk/W4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-81-wNvbI6y2Niq_8PudbmjNCA-1; Mon, 06 Feb 2023 12:47:04 -0500
-X-MC-Unique: wNvbI6y2Niq_8PudbmjNCA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id C8352183B3C7;
-        Mon,  6 Feb 2023 17:47:03 +0000 (UTC)
-Received: from plouf.local (ovpn-192-160.brq.redhat.com [10.40.192.160])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 137241121315;
-        Mon,  6 Feb 2023 17:47:02 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     Jiri Kosina <jikos@kernel.org>, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org,
-        Philippe Valembois <lephilousophe@gmail.com>
-In-Reply-To: <20230125211511.12266-1-lephilousophe@gmail.com>
-References: <20230123211843.10028-1-lephilousophe@gmail.com>
- <20230125211511.12266-1-lephilousophe@gmail.com>
-Subject: Re: [PATCH v3 1/1] HID: evision: Add preliminary support for
- EVision keyboards
-Message-Id: <167570562271.2904739.17104170264756053608.b4-ty@redhat.com>
-Date:   Mon, 06 Feb 2023 18:47:02 +0100
+        with ESMTP id S229519AbjBFWNE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Feb 2023 17:13:04 -0500
+Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD8C211E8A;
+        Mon,  6 Feb 2023 14:13:02 -0800 (PST)
+Received: (Authenticated sender: hadess@hadess.net)
+        by mail.gandi.net (Postfix) with ESMTPSA id DF99560003;
+        Mon,  6 Feb 2023 22:12:59 +0000 (UTC)
+From:   Bastien Nocera <hadess@hadess.net>
+To:     linux-input@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
+        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+        Nestor Lopez Casado <nlopezcasad@logitech.com>
+Subject: [PATCH v2 2/3] HID: logitech-hidpp: Retry commands when device is busy
+Date:   Mon,  6 Feb 2023 23:12:55 +0100
+Message-Id: <20230206221256.129198-2-hadess@hadess.net>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230206221256.129198-1-hadess@hadess.net>
+References: <20230206221256.129198-1-hadess@hadess.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 25 Jan 2023 22:15:10 +0100, Philippe Valembois wrote:
-> For now only supports one model and only filters out bogus reports sent
-> when the keyboard has been configured through hidraw.
-> Without this, as events are not released, soft repeat floods userspace
-> with unknown key events.
-> 
-> 
+Handle the busy error coming from the device or receiver. The
+documentation says a busy error can be returned when:
+"
+Device (or receiver) cannot answer immediately to this request
+for any reason i.e:
+- already processing a request from the same or another SW
+- pipe full
+"
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-6.3/evision), thanks!
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+---
 
-[1/1] HID: evision: Add preliminary support for EVision keyboards
-      https://git.kernel.org/hid/hid/c/f5cd71cfdb5c
+Same as v1
 
-Cheers,
+ drivers/hid/hid-logitech-hidpp.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 1952d8d3b6b2..9e94026de437 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -295,6 +295,7 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+ 	 */
+ 	*response = *message;
+ 
++retry:
+ 	ret = __hidpp_send_report(hidpp->hid_dev, message);
+ 
+ 	if (ret) {
+@@ -321,6 +322,10 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+ 			response->report_id == REPORT_ID_HIDPP_VERY_LONG) &&
+ 			response->fap.feature_index == HIDPP20_ERROR) {
+ 		ret = response->fap.params[1];
++		if (ret == HIDPP20_ERROR_BUSY) {
++			dbg_hid("%s:got busy hidpp 2.0 error %02X, retrying\n", __func__, ret);
++			goto retry;
++		}
+ 		dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
+ 		goto exit;
+ 	}
 -- 
-Benjamin Tissoires <benjamin.tissoires@redhat.com>
+2.39.1
 

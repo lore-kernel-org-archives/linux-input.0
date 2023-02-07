@@ -2,48 +2,58 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1531FC64ED6
-	for <linux-input@archiver.kernel.org>; Tue,  7 Feb 2023 14:35:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 435BAC636CC
+	for <linux-input@archiver.kernel.org>; Tue,  7 Feb 2023 14:55:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232726AbjBGOfZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Feb 2023 09:35:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44934 "EHLO
+        id S232108AbjBGOzq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Feb 2023 09:55:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233118AbjBGOev (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2023 09:34:51 -0500
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C32343F2AC;
-        Tue,  7 Feb 2023 06:31:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675780277; x=1707316277;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=89Ua2SwK+9eoP7ii20ihjA/BcfunvekbP9EUK6guMxA=;
-  b=RnYYcrVx86PmQlmsR+8T80sUUcgfh+wkmV0cdbOIoXsqy6nlqkhXq64i
-   8rKLXM2UV4jA7HMX1XzzQShcjIkywnGV/UTpkT1Oly+8GKhnvmxDPm9W/
-   jRJEH2+NA/QirVUEQyW56rU85o3ZF2u4yZ2vPsoicw2sAt5ptsD2nzn9e
-   Nm24BiScbZieJgJkEhzAIXpMyRdXab7H/RsNekyYzTapjnasTpJFTEyS5
-   HDVsT/yGjUIbmmMgMk0IBYvLABXHTR8N80g3XIlMOH2rP0tlfC4ZCxpJP
-   4VuQlZWNYT2uOhDWHWtAXjFExYOg3QxJvjJYc+CR1/0I/XzvFxDlD43gQ
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10614"; a="329537417"
-X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
-   d="scan'208";a="329537417"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2023 06:29:42 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10614"; a="790811327"
-X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
-   d="scan'208";a="790811327"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga004.jf.intel.com with ESMTP; 07 Feb 2023 06:29:38 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id B1B80413; Tue,  7 Feb 2023 16:30:02 +0200 (EET)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>,
+        with ESMTP id S232053AbjBGOzk (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Feb 2023 09:55:40 -0500
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8764610A91
+        for <linux-input@vger.kernel.org>; Tue,  7 Feb 2023 06:55:36 -0800 (PST)
+Received: by mail-yb1-xb2c.google.com with SMTP id g2so18863980ybk.8
+        for <linux-input@vger.kernel.org>; Tue, 07 Feb 2023 06:55:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=kpS3HgKPmEogc2Gw9AlFJQlCzGdEEgzV3gaAp0/AV2s=;
+        b=waPM8nbRluE35gGhrnOOlYCVoqMbSzXI/bIeppE9bSuFFI+RZAzc6Kl5AasZ9otGI4
+         OBcaMb89VmJlQA1BqQM9ko3ab0J+4Uob3evLCOBCdMRAvfPWqBlGowOBUJ6rCj1/Vw5l
+         XsdeMKH6QAcOLrAjl8BW/dfg2o5OtyicTpibLycC02L1REZwkd+Y7rbkJkOqOlSQv3La
+         cTVllcV5wizPEPJZkmwzpovhOVse1MS8EUFEA5YXboPA/Yu4/bznLdms8azWGLg7n+wf
+         jmU54a3NqzhTvcksWe8Tw1hVTpGGhzzkCQdkP6PiJjo5P+u9SwIiWyDKskkWkkK6MrhL
+         sNOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=kpS3HgKPmEogc2Gw9AlFJQlCzGdEEgzV3gaAp0/AV2s=;
+        b=R10a/rUhSU7MFYSdX+UFILJZ3A9W4CvFc/MN4ZP9QVrE9HKWmb3LSh5aw+dB8DQhAJ
+         erHXk2tHyf+Tyv5nfj7r0D4gHKfaurGPHpivCV23IfCZFWy/rwMgACBqc9YGf4u7AZvh
+         WkRAF+qx5l2zIUR91jiMGtw03aLVVehFpYrtGezXtpWIVC1Nhgst7qzTqBBhCPtO5qf8
+         70++veaNWmMhJJmbKaBCPCZkOnaYa3cn2WjKDno3fJ0i1ENcF2fQ69kPpFJP6CT9j92D
+         w6MsV2Nmx9xdOyYXbvBhIZxVpGY48K48EKSFfYD1YukoyTZkinyQkQ62AHnitVhHnquj
+         kCVA==
+X-Gm-Message-State: AO0yUKVAFSlGw4HWqsq41lVOJ3DADqKbg+sEeQGAJ49Ng+dkI6JG1Taf
+        EznD4BYJ2RhG9PHo5phGOKPaQDSqHyOIuGjeHqcevA==
+X-Google-Smtp-Source: AK7set+FPiZG8Q0bqmAM+3oI4VA9/UkIXmLGvn2kwzKpYMs61nqxRIkPG0TtYZXh9iAdflkTtIBPO8Shde99ziPoa9c=
+X-Received: by 2002:a5b:150:0:b0:88f:92ec:4292 with SMTP id
+ c16-20020a5b0150000000b0088f92ec4292mr401234ybp.460.1675781735294; Tue, 07
+ Feb 2023 06:55:35 -0800 (PST)
+MIME-Version: 1.0
+References: <20230207142952.51844-1-andriy.shevchenko@linux.intel.com> <20230207142952.51844-7-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20230207142952.51844-7-andriy.shevchenko@linux.intel.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 7 Feb 2023 15:55:23 +0100
+Message-ID: <CACRpkdaPgjDijPjCdinWy5_Rd8g3idv-8K=YPTv5iTfJKFuJfw@mail.gmail.com>
+Subject: Re: [PATCH v3 06/12] gpiolib: split linux/gpio/driver.h out of linux/gpio.h
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
         Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Tony Lindgren <tony@atomide.com>,
         Thomas Gleixner <tglx@linutronix.de>,
@@ -66,8 +76,7 @@ To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         netdev@vger.kernel.org, linux-wireless@vger.kernel.org,
         brcm80211-dev-list.pdl@broadcom.com,
         SHA-cyfmac-dev-list@infineon.com, linux-arch@vger.kernel.org,
-        devicetree@vger.kernel.org
-Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
+        devicetree@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>,
         Jonathan Corbet <corbet@lwn.net>, Alex Shi <alexs@kernel.org>,
         Yanteng Si <siyanteng@loongson.cn>,
         Hu Haowen <src.res@email.cn>,
@@ -97,38 +106,62 @@ Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
         Li Yang <leoyang.li@nxp.com>, Lee Jones <lee@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
         Frank Rowand <frowand.list@gmail.com>
-Subject: [PATCH v3 09/12] gpiolib: Drop unused forward declaration from driver.h
-Date:   Tue,  7 Feb 2023 16:29:49 +0200
-Message-Id: <20230207142952.51844-10-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207142952.51844-1-andriy.shevchenko@linux.intel.com>
-References: <20230207142952.51844-1-andriy.shevchenko@linux.intel.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-There is no struct device_node pointers anywhere in the header,
-drop unused forward declaration.
+On Tue, Feb 7, 2023 at 3:29 PM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- include/linux/gpio/driver.h | 1 -
- 1 file changed, 1 deletion(-)
+> From: Arnd Bergmann <arnd@arndb.de>
+>
+> Almost all gpio drivers include linux/gpio/driver.h, and other
+> files should not rely on includes from this header.
+>
+> Remove the indirect include from here and include the correct
+> headers directly from where they are used.
+>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-diff --git a/include/linux/gpio/driver.h b/include/linux/gpio/driver.h
-index ccd8a512d854..262a84ce9bcb 100644
---- a/include/linux/gpio/driver.h
-+++ b/include/linux/gpio/driver.h
-@@ -16,7 +16,6 @@
- 
- struct gpio_desc;
- struct of_phandle_args;
--struct device_node;
- struct seq_file;
- struct gpio_device;
- struct module;
--- 
-2.39.1
+Make sure you push this to the kernel.org build servers (zeroday builds),
+I think this patch needs to hit some more files, in my tests with a similar
+patch at least these:
 
+diff --git a/drivers/hte/hte-tegra194-test.c b/drivers/hte/hte-tegra194-test.c
+index 5d776a185bd6..79eb866558d3 100644
+--- a/drivers/hte/hte-tegra194-test.c
++++ b/drivers/hte/hte-tegra194-test.c
+@@ -6,10 +6,11 @@
+  */
+
+ #include <linux/err.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/interrupt.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/timer.h>
+ #include <linux/platform_device.h>
+ #include <linux/workqueue.h>
+
+
+diff --git a/arch/arm/mach-pxa/viper-pcmcia.c b/arch/arm/mach-pxa/viper-pcmcia.c
+index 26599dcc49b3..2c7af4ed57d5 100644
+--- a/arch/arm/mach-pxa/viper-pcmcia.c
++++ b/arch/arm/mach-pxa/viper-pcmcia.c
+@@ -19,6 +19,7 @@
+ #include <linux/errno.h>
+ #include <linux/interrupt.h>
+ #include <linux/platform_device.h>
++#include <linux/mod_devicetable.h>
+ #include <linux/gpio.h>
+
+ #include <pcmcia/ss.h>
+
+Yours,
+Linus Walleij

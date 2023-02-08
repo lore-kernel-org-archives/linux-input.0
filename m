@@ -2,44 +2,44 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C5FAC678D5
-	for <linux-input@archiver.kernel.org>; Wed,  8 Feb 2023 17:34:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F250C76186
+	for <linux-input@archiver.kernel.org>; Wed,  8 Feb 2023 17:34:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231951AbjBHReI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Feb 2023 12:34:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39706 "EHLO
+        id S231964AbjBHReK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Feb 2023 12:34:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231875AbjBHReD (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Feb 2023 12:34:03 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 759F24390F;
-        Wed,  8 Feb 2023 09:33:59 -0800 (PST)
+        with ESMTP id S231913AbjBHReF (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Feb 2023 12:34:05 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96ADF3251B;
+        Wed,  8 Feb 2023 09:34:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675877640; x=1707413640;
+  t=1675877641; x=1707413641;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=YtyTSKv3igoWzjKzirfnsuSbOV1zJhPUEQxw+fpoykQ=;
-  b=HcHdtHAkD7WCj8eQy/VW/Ke/F2a37B7t3bwc6m4fdR6abo7QVBUCdDBi
-   AScQ/paiga1eP1Uf4il4g4usjc6Qh8JP1bOWAIB4GTPMx8SCPdQ17qqCF
-   FQ+fPPL5KE3J3n4Jn24C/9+R4F40PQtkpGsHTsxwV8dIEj8tGLkHx3bCO
-   xXLyfBFfWeNa5vkatuivEutt5MFt5pa3DnbQ5XYz6GV46uw/2ORttJ9Po
-   eLW2v11AzRk4shNsYLosOxbSfsvv8c3OxFmL+JsybMIovZ6HDDaI/lylA
-   5G0SL5PgW1RL+oBRB2aGiHK2FZpBEvdEIVEA9sfZ2OSkG7nRNM9ufPhSF
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10615"; a="331153853"
+  bh=bloKEk7wdB/KAamzH2f498CjQ4BYd7MQyp/8x7HupR0=;
+  b=ndMqj0wLWnynraZ4MaSqQjmWUqDE9EKatFTzXOej52AbdsLmzrSeNx20
+   aUbcIyl9ImbCOVXwlKr2v9maSlZ95f1685hEjERnKz90rTozgd7IZ3LA2
+   VBdx6PMyPjpmzMtZNJW4hoZRsmMt2iJg888nMlvb/M6Q2Le50JGJpTduM
+   ejGAQTgVythJgG/WxpPKsY6CDVUXa6EluO/z36jEVP5qZBhgMoIpZjisu
+   zhQQOt0Z7AnpH9csGO6juefQ0XASW7A0/OMx6p3ENt4OhxoDwmqBOeJd2
+   hmf/tQW0BlcBluExU+R79G9TnunPJrvN06XyRrkA6Fg0HHj6RRcU4dXgf
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10615"; a="310225283"
 X-IronPort-AV: E=Sophos;i="5.97,281,1669104000"; 
-   d="scan'208";a="331153853"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2023 09:33:39 -0800
+   d="scan'208";a="310225283"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2023 09:33:21 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10615"; a="669265907"
+X-IronPort-AV: E=McAfee;i="6500,9779,10615"; a="697722976"
 X-IronPort-AV: E=Sophos;i="5.97,281,1669104000"; 
-   d="scan'208";a="669265907"
+   d="scan'208";a="697722976"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga007.fm.intel.com with ESMTP; 08 Feb 2023 09:33:33 -0800
+  by orsmga008.jf.intel.com with ESMTP; 08 Feb 2023 09:33:15 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 78A38591; Wed,  8 Feb 2023 19:33:48 +0200 (EET)
+        id 8B16F1F8; Wed,  8 Feb 2023 19:33:47 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Arnd Bergmann <arnd@arndb.de>,
@@ -103,9 +103,9 @@ Cc:     Bartosz Golaszewski <brgl@bgdev.pl>,
         Kalle Valo <kvalo@kernel.org>, Qiang Zhao <qiang.zhao@nxp.com>,
         Li Yang <leoyang.li@nxp.com>, Rob Herring <robh+dt@kernel.org>,
         Frank Rowand <frowand.list@gmail.com>
-Subject: [PATCH v4 16/18] gpiolib: Deduplicate forward declarations in consumer.h
-Date:   Wed,  8 Feb 2023 19:33:41 +0200
-Message-Id: <20230208173343.37582-17-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 02/18] ARM: s3c24xx: Use the right include
+Date:   Wed,  8 Feb 2023 19:33:27 +0200
+Message-Id: <20230208173343.37582-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230208173343.37582-1-andriy.shevchenko@linux.intel.com>
 References: <20230208173343.37582-1-andriy.shevchenko@linux.intel.com>
@@ -115,46 +115,37 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The struct fwnode_handle pointer is used in both branches of ifdeffery,
-no need to have a copy of the same in each of them, just make it global.
+From: Linus Walleij <linus.walleij@linaro.org>
 
+The file s3c64xx.c is including <linux/gpio.h> despite using no
+symbols from the file, however it needs it to implicitly bring in
+of_have_populated_dt() so include <linux/of.h> explicitly instead.
+
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- include/linux/gpio/consumer.h | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ arch/arm/mach-s3c/s3c64xx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
-index 59cb20cfac3d..a7eb8aa1e54c 100644
---- a/include/linux/gpio/consumer.h
-+++ b/include/linux/gpio/consumer.h
-@@ -8,6 +8,7 @@
- #include <linux/err.h>
+diff --git a/arch/arm/mach-s3c/s3c64xx.c b/arch/arm/mach-s3c/s3c64xx.c
+index e97bd59083a8..9f9717874d67 100644
+--- a/arch/arm/mach-s3c/s3c64xx.c
++++ b/arch/arm/mach-s3c/s3c64xx.c
+@@ -21,13 +21,13 @@
+ #include <linux/ioport.h>
+ #include <linux/serial_core.h>
+ #include <linux/serial_s3c.h>
++#include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <linux/reboot.h>
+ #include <linux/io.h>
+ #include <linux/clk/samsung.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/irq.h>
+-#include <linux/gpio.h>
+ #include <linux/irqchip/arm-vic.h>
+ #include <clocksource/samsung_pwm.h>
  
- struct device;
-+struct fwnode_handle;
- struct gpio_desc;
- struct gpio_array;
- 
-@@ -171,9 +172,6 @@ int gpiod_set_consumer_name(struct gpio_desc *desc, const char *name);
- struct gpio_desc *gpio_to_desc(unsigned gpio);
- int desc_to_gpio(const struct gpio_desc *desc);
- 
--/* Child properties interface */
--struct fwnode_handle;
--
- struct gpio_desc *fwnode_gpiod_get_index(struct fwnode_handle *fwnode,
- 					 const char *con_id, int index,
- 					 enum gpiod_flags flags,
-@@ -546,9 +544,6 @@ static inline int desc_to_gpio(const struct gpio_desc *desc)
- 	return -EINVAL;
- }
- 
--/* Child properties interface */
--struct fwnode_handle;
--
- static inline
- struct gpio_desc *fwnode_gpiod_get_index(struct fwnode_handle *fwnode,
- 					 const char *con_id, int index,
 -- 
 2.39.1
 

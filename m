@@ -2,24 +2,25 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1011C61DA4
-	for <linux-input@archiver.kernel.org>; Thu,  9 Feb 2023 15:50:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA63C61DA4
+	for <linux-input@archiver.kernel.org>; Thu,  9 Feb 2023 15:50:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231536AbjBIPue convert rfc822-to-8bit (ORCPT
+        id S230446AbjBIPus convert rfc822-to-8bit (ORCPT
         <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Feb 2023 10:50:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37778 "EHLO
+        Thu, 9 Feb 2023 10:50:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38222 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231463AbjBIPuc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2023 10:50:32 -0500
-Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [217.70.178.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BEB66312E;
-        Thu,  9 Feb 2023 07:50:26 -0800 (PST)
+        with ESMTP id S231621AbjBIPup (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2023 10:50:45 -0500
+Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [IPv6:2001:4b98:dc4:8::231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF09F6A4D;
+        Thu,  9 Feb 2023 07:50:31 -0800 (PST)
 Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id AA5CB100002;
-        Thu,  9 Feb 2023 15:50:22 +0000 (UTC)
-Message-ID: <dc6e254dfd35505e0404755523b0f5c4906f83d9.camel@hadess.net>
-Subject: Re: [PATCH v2 3/3] HID: logitech-hidpp: Add myself to authors
+        by mail.gandi.net (Postfix) with ESMTPSA id 67AD0100005;
+        Thu,  9 Feb 2023 15:50:28 +0000 (UTC)
+Message-ID: <8b5b5954dac10226b243df931ff7ce75df1e21e6.camel@hadess.net>
+Subject: Re: [PATCH v2 2/3] HID: logitech-hidpp: Retry commands when device
+ is busy
 From:   Bastien Nocera <hadess@hadess.net>
 To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
@@ -27,11 +28,11 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
         Filipe =?ISO-8859-1?Q?La=EDns?= <lains@riseup.net>,
         Nestor Lopez Casado <nlopezcasad@logitech.com>
-Date:   Thu, 09 Feb 2023 16:50:21 +0100
-In-Reply-To: <20230209145331.qqryivtatswdxvlf@mail.corp.redhat.com>
+Date:   Thu, 09 Feb 2023 16:50:27 +0100
+In-Reply-To: <20230209145050.54ewn3zhjneium2h@mail.corp.redhat.com>
 References: <20230206221256.129198-1-hadess@hadess.net>
-         <20230206221256.129198-3-hadess@hadess.net>
-         <20230209145331.qqryivtatswdxvlf@mail.corp.redhat.com>
+         <20230206221256.129198-2-hadess@hadess.net>
+         <20230209145050.54ewn3zhjneium2h@mail.corp.redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8BIT
 User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
@@ -40,36 +41,63 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 2023-02-09 at 15:53 +0100, Benjamin Tissoires wrote:
+On Thu, 2023-02-09 at 15:50 +0100, Benjamin Tissoires wrote:
 > On Feb 06 2023, Bastien Nocera wrote:
+> > Handle the busy error coming from the device or receiver. The
+> > documentation says a busy error can be returned when:
+> > "
+> > Device (or receiver) cannot answer immediately to this request
+> > for any reason i.e:
+> > - already processing a request from the same or another SW
+> > - pipe full
+> > "
+> > 
 > > Signed-off-by: Bastien Nocera <hadess@hadess.net>
 > > ---
 > > 
 > > Same as v1
 > > 
-> >  drivers/hid/hid-logitech-hidpp.c | 1 +
-> >  1 file changed, 1 insertion(+)
+> >  drivers/hid/hid-logitech-hidpp.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
 > > 
 > > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
 > > logitech-hidpp.c
-> > index 9e94026de437..03b77ca03081 100644
+> > index 1952d8d3b6b2..9e94026de437 100644
 > > --- a/drivers/hid/hid-logitech-hidpp.c
 > > +++ b/drivers/hid/hid-logitech-hidpp.c
-> > @@ -30,6 +30,7 @@
-> >  MODULE_LICENSE("GPL");
-> >  MODULE_AUTHOR("Benjamin Tissoires
-> > <benjamin.tissoires@gmail.com>");
-> >  MODULE_AUTHOR("Nestor Lopez Casado <nlopezcasad@logitech.com>");
-> > +MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
+> > @@ -295,6 +295,7 @@ static int hidpp_send_message_sync(struct
+> > hidpp_device *hidpp,
+> >          */
+> >         *response = *message;
+> >  
+> > +retry:
+> >         ret = __hidpp_send_report(hidpp->hid_dev, message);
+> >  
+> >         if (ret) {
+> > @@ -321,6 +322,10 @@ static int hidpp_send_message_sync(struct
+> > hidpp_device *hidpp,
+> >                         response->report_id ==
+> > REPORT_ID_HIDPP_VERY_LONG) &&
+> >                         response->fap.feature_index ==
+> > HIDPP20_ERROR) {
+> >                 ret = response->fap.params[1];
+> > +               if (ret == HIDPP20_ERROR_BUSY) {
+> > +                       dbg_hid("%s:got busy hidpp 2.0 error %02X,
+> > retrying\n", __func__, ret);
+> > +                       goto retry;
 > 
-> Just FTR, I have asked Bastien to set himself as an author given all
-> of
-> the work he has been doing on this and to have one more person to be
+> I must confess, I blocked a little bit there to decide whether or not
+> using goto here was OK.
+> 
+> But then I reliazed that there is no way to leave that function if
 > the
-> go-to person from folks having an issue.
+> device is buggy and constantly sends back ERROR_BUSY. So I am not
+> very
+> found of the idea of having that got after all.
 > 
-> And Bastien, would you mind adding yourself to the MAINTAINERS file
-> too?
-> This way you'll get Cc-ed when people submit patches.
+> Would you mind respinning that patch with a bounded loop for the
+> retries
+> instead of using a goto? I'd like the driver to give up after a few
+> retries if the device is not fair.
 
-Done in v3 specifically for the hidpp file.
+Done in v3.

@@ -2,81 +2,85 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 534F3C636D7
-	for <linux-input@archiver.kernel.org>; Thu,  9 Feb 2023 04:25:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DF13AC61DA4
+	for <linux-input@archiver.kernel.org>; Thu,  9 Feb 2023 07:14:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbjBIEZt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Feb 2023 23:25:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39630 "EHLO
+        id S229819AbjBIHOS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Feb 2023 02:14:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229784AbjBIEZp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Feb 2023 23:25:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10E4C19F0E;
-        Wed,  8 Feb 2023 20:25:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C06E361899;
-        Thu,  9 Feb 2023 04:21:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5FDCC4339E;
-        Thu,  9 Feb 2023 04:21:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675916488;
-        bh=YuuzCC59t3tYMRoZvdCdBZVWh2Jbp1bxOpP2zNXe4tw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fSLys7WWUw1TODm3pzupYwm1Fg1F0s7+wkONRJQLDaxErI92cawKIA7f5uD54dMh8
-         2MCjK5evPJFzsTw3eACHItLpRQM7HzQJqbVfKqmtRkG5TRD3DhrvhGkV8XO5l2x5sS
-         C/YXNdh55ZsDpQRx89OUi73wSZO0AGyzPK5faFfTqRoPtPcTJbO/M42FOGIs8ZF6w7
-         96YoKQSFUt07nUi4Pq0E5iaIp0EWsvvt1oYPt++nD9iFqVHt//nFcdfqMEU0Hcr4qj
-         6U6jp7l4l9keWjNoQ2OmhjTQtcg5Jrx+jOdyqqRIQA6qGrR+0ScpTCZrEpq4wCKkGt
-         wq8Fn+c253yow==
-From:   Bjorn Andersson <andersson@kernel.org>
-To:     Douglas Anderson <dianders@chromium.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Cc:     Andy Gross <agross@kernel.org>, Stephen Kitt <steve@sk2.org>,
+        with ESMTP id S229766AbjBIHOL (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2023 02:14:11 -0500
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA5283C28;
+        Wed,  8 Feb 2023 23:14:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender
+        :Reply-To:Content-Type:Content-ID:Content-Description;
+        bh=UtsHETgm9NdBjm7zsfWKEYsqPPKnOaDFPcTAJNtRmaw=; b=YAx/Dbsfg5N7XldJBq++JeNUyi
+        CyTRbziiwzQzn+7Dw4TlAixoqnEKxGT0U885GsnWMl+MFydbkyBQ3GAE6lzRXLpyos51tvGrg51xq
+        a8QDhEdKBcmDIGxJ/vaFNKpjXE+Lzu8eQVB9mjfi6PAwx+U4/QfYLtF7sg2PumtPLdMBrCvkwNIRs
+        1XSoyWu0b2xLsuPRuNSQH/a7p6DcfSYwevw5qEiXH3F0mfmfVZzcT4ipO0CnrRzxKm5Pd0YHtjQaQ
+        gVtidF7DUKw0vy0PcnL/8PAhvv9q00EkYIDbhf4gsp9ZuKEea0S7HSblNw5eE9Hgzb9pbJFZm6LVz
+        TZqQD/tw==;
+Received: from [2601:1c2:980:9ec0::df2f] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pQ18B-000LPt-Ls; Thu, 09 Feb 2023 07:14:07 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-Subject: Re: (subset) [PATCH 0/7] arm: qcom: Fix touchscreen voltage for sc7280-herobrine boards
-Date:   Wed,  8 Feb 2023 20:22:46 -0800
-Message-Id: <167591660372.1230100.9738507558526610892.b4-ty@kernel.org>
+        Henrik Rydberg <rydberg@bitmath.org>,
+        linux-input@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
+        linux-doc@vger.kernel.org
+Subject: [PATCH 07/24] Documentation: input: correct spelling
+Date:   Wed,  8 Feb 2023 23:13:43 -0800
+Message-Id: <20230209071400.31476-8-rdunlap@infradead.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207024816.525938-1-dianders@chromium.org>
-References: <20230207024816.525938-1-dianders@chromium.org>
+In-Reply-To: <20230209071400.31476-1-rdunlap@infradead.org>
+References: <20230209071400.31476-1-rdunlap@infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 6 Feb 2023 18:48:09 -0800, Douglas Anderson wrote:
-> Trying to figure out how to talk to the touchscreen properly on
-> sc7280-herobrine boards was a long and difficult process. Many
-> Engineering hours were spent deciding how exactly one should talk over
-> i2c to a peripheral. In the end, a solution has been found and this
-> patch series attempts to implement it in a way that will work for all
-> herobrine-based boards.
-> 
-> [...]
+Correct spelling problems for Documentation/input/ as reported
+by codespell.
 
-Applied, thanks!
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Henrik Rydberg <rydberg@bitmath.org>
+Cc: linux-input@vger.kernel.org
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-doc@vger.kernel.org
+---
+ Documentation/input/devices/iforce-protocol.rst |    2 +-
+ Documentation/input/multi-touch-protocol.rst    |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-[1/7] arm64: dts: qcom: sc7280: On QCard, regulator L3C should be 1.8V
-      commit: 428df177013bad1a0a062878e3d5224122b7a5fe
-[2/7] arm64: dts: qcom: sc7280: Add 3ms ramp to herobrine's pp3300_left_in_mlb
-      commit: 4261cea17a2f5e0ec78eb3ceebb68dddb918aee9
-[3/7] arm64: dts: qcom: sc7280: Hook up the touchscreen IO rail on villager
-      commit: d90b98f5702dccc41a5885b65361573654fcaabf
-[7/7] arm64: dts: qcom: sc7280: Hook up the touchscreen IO rail on evoker
-      commit: ef29188fe0b4de5c04b833378db92d3a3e0709e8
-
-Best regards,
--- 
-Bjorn Andersson <andersson@kernel.org>
+diff -- a/Documentation/input/devices/iforce-protocol.rst b/Documentation/input/devices/iforce-protocol.rst
+--- a/Documentation/input/devices/iforce-protocol.rst
++++ b/Documentation/input/devices/iforce-protocol.rst
+@@ -49,7 +49,7 @@ OP DATA
+ == ====
+ 
+ The 2B, LEN and CS fields have disappeared, probably because USB handles
+-frames and data corruption is handled or unsignificant.
++frames and data corruption is handled or insignificant.
+ 
+ First, I describe effects that are sent by the device to the computer
+ 
+diff -- a/Documentation/input/multi-touch-protocol.rst b/Documentation/input/multi-touch-protocol.rst
+--- a/Documentation/input/multi-touch-protocol.rst
++++ b/Documentation/input/multi-touch-protocol.rst
+@@ -383,7 +383,7 @@ Finger Tracking
+ ---------------
+ 
+ The process of finger tracking, i.e., to assign a unique trackingID to each
+-initiated contact on the surface, is a Euclidian Bipartite Matching
++initiated contact on the surface, is a Euclidean Bipartite Matching
+ problem.  At each event synchronization, the set of actual contacts is
+ matched to the set of contacts from the previous synchronization. A full
+ implementation can be found in [#f3]_.

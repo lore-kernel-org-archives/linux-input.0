@@ -2,72 +2,82 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B6E4FC61DA4
-	for <linux-input@archiver.kernel.org>; Thu,  9 Feb 2023 15:40:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB961C61DA4
+	for <linux-input@archiver.kernel.org>; Thu,  9 Feb 2023 15:49:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230286AbjBIPku (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Feb 2023 10:40:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52560 "EHLO
+        id S231482AbjBIPtt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Feb 2023 10:49:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231428AbjBIPkt (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2023 10:40:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F40014EB8
-        for <linux-input@vger.kernel.org>; Thu,  9 Feb 2023 07:40:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1675957202;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=0hQf86nfARy8f4W7PUmEGo7Q+XTg2P97T/ALpblhSTk=;
-        b=Dfc9md/WbVKXV6Olt8SYvZMSB6cW4nNN+dabh1/U96rm815MhynTSLGHWxkemum6Fuy6Gh
-        wv6yun9np4QYN/wt7s4o0wH8dWiTSi9yB948U5CYC33iAZ2i3b8bdAp4uM7pJxZyKgbZSw
-        IGc/y1kfYzB1cPepFjFEC07Yqc36IU0=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-607-TC_lS1usPTuLB-2OhgiORQ-1; Thu, 09 Feb 2023 10:39:57 -0500
-X-MC-Unique: TC_lS1usPTuLB-2OhgiORQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D8F561C08794;
-        Thu,  9 Feb 2023 15:39:56 +0000 (UTC)
-Received: from plouf.local (ovpn-192-232.brq.redhat.com [10.40.192.232])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id DDA44140EBF6;
-        Thu,  9 Feb 2023 15:39:54 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     linux-input@vger.kernel.org, Bastien Nocera <hadess@hadess.net>
+        with ESMTP id S231524AbjBIPtm (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2023 10:49:42 -0500
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00C96AD24;
+        Thu,  9 Feb 2023 07:49:28 -0800 (PST)
+Received: (Authenticated sender: hadess@hadess.net)
+        by mail.gandi.net (Postfix) with ESMTPSA id E022A240002;
+        Thu,  9 Feb 2023 15:49:24 +0000 (UTC)
+From:   Bastien Nocera <hadess@hadess.net>
+To:     linux-input@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
-        =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
+        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
         Nestor Lopez Casado <nlopezcasad@logitech.com>
-In-Reply-To: <20230206221256.129198-1-hadess@hadess.net>
-References: <20230206221256.129198-1-hadess@hadess.net>
-Subject: Re: (subset) [PATCH v2 1/3] HID: logitech-hidpp: Add more debug
- statements
-Message-Id: <167595719424.371927.3678472760896974183.b4-ty@redhat.com>
-Date:   Thu, 09 Feb 2023 16:39:54 +0100
+Subject: [PATCH v3 2/2] HID: logitech-hidpp: Add myself to authors
+Date:   Thu,  9 Feb 2023 16:49:16 +0100
+Message-Id: <20230209154916.462158-2-hadess@hadess.net>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230209154916.462158-1-hadess@hadess.net>
+References: <20230209154916.462158-1-hadess@hadess.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 06 Feb 2023 23:12:54 +0100, Bastien Nocera wrote:
-> This should help us figure out some hairy problems with some devices.
-> 
-> 
+As discussed with HID maintainer Benjamin Tissoires, add myself to the
+authors list and MAINTAINERS file.
 
-Applied to hid/hid.git (for-6.3/logitech), thanks!
+Signed-off-by: Bastien Nocera <hadess@hadess.net>
+---
+Updated MAINTAINERS file too.
 
-[1/3] HID: logitech-hidpp: Add more debug statements
-      https://git.kernel.org/hid/hid/c/db5167cfaa0a
+ MAINTAINERS                      | 7 +++++++
+ drivers/hid/hid-logitech-hidpp.c | 1 +
+ 2 files changed, 8 insertions(+)
 
-Cheers,
+diff --git a/MAINTAINERS b/MAINTAINERS
+index fb1471cb5ed3..327679567645 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -9217,6 +9217,13 @@ L:	linux-input@vger.kernel.org
+ S:	Maintained
+ F:	drivers/hid/hid-logitech-*
+ 
++HID++ LOGITECH DRIVERS
++R:	Filipe Laíns <lains@riseup.net>
++R:	Bastien Nocera <hadess@hadess.net>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	drivers/hid/hid-logitech-hidpp.c
++
+ HID PLAYSTATION DRIVER
+ M:	Roderick Colenbrander <roderick.colenbrander@sony.com>
+ L:	linux-input@vger.kernel.org
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index ff427d7a0fa0..61bad7a50ec7 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -30,6 +30,7 @@
+ MODULE_LICENSE("GPL");
+ MODULE_AUTHOR("Benjamin Tissoires <benjamin.tissoires@gmail.com>");
+ MODULE_AUTHOR("Nestor Lopez Casado <nlopezcasad@logitech.com>");
++MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
+ 
+ static bool disable_tap_to_click;
+ module_param(disable_tap_to_click, bool, 0644);
 -- 
-Benjamin Tissoires <benjamin.tissoires@redhat.com>
+2.39.1
 

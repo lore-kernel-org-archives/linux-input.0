@@ -2,130 +2,74 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 55EC7C636D6
-	for <linux-input@archiver.kernel.org>; Thu,  9 Feb 2023 15:49:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1011C61DA4
+	for <linux-input@archiver.kernel.org>; Thu,  9 Feb 2023 15:50:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbjBIPts (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 9 Feb 2023 10:49:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36906 "EHLO
+        id S231536AbjBIPue convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 9 Feb 2023 10:50:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231327AbjBIPtk (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2023 10:49:40 -0500
-Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C9F42887C;
-        Thu,  9 Feb 2023 07:49:26 -0800 (PST)
+        with ESMTP id S231463AbjBIPuc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 9 Feb 2023 10:50:32 -0500
+Received: from relay11.mail.gandi.net (relay11.mail.gandi.net [217.70.178.231])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BEB66312E;
+        Thu,  9 Feb 2023 07:50:26 -0800 (PST)
 Received: (Authenticated sender: hadess@hadess.net)
-        by mail.gandi.net (Postfix) with ESMTPSA id 86D76240005;
-        Thu,  9 Feb 2023 15:49:21 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id AA5CB100002;
+        Thu,  9 Feb 2023 15:50:22 +0000 (UTC)
+Message-ID: <dc6e254dfd35505e0404755523b0f5c4906f83d9.camel@hadess.net>
+Subject: Re: [PATCH v2 3/3] HID: logitech-hidpp: Add myself to authors
 From:   Bastien Nocera <hadess@hadess.net>
-To:     linux-input@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Jiri Kosina <jikos@kernel.org>,
         "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
-        =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+        Filipe =?ISO-8859-1?Q?La=EDns?= <lains@riseup.net>,
         Nestor Lopez Casado <nlopezcasad@logitech.com>
-Subject: [PATCH v3 1/2] HID: logitech-hidpp: Retry commands when device is busy
-Date:   Thu,  9 Feb 2023 16:49:15 +0100
-Message-Id: <20230209154916.462158-1-hadess@hadess.net>
-X-Mailer: git-send-email 2.39.1
+Date:   Thu, 09 Feb 2023 16:50:21 +0100
+In-Reply-To: <20230209145331.qqryivtatswdxvlf@mail.corp.redhat.com>
+References: <20230206221256.129198-1-hadess@hadess.net>
+         <20230206221256.129198-3-hadess@hadess.net>
+         <20230209145331.qqryivtatswdxvlf@mail.corp.redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Handle the busy error coming from the device or receiver. The
-documentation says a busy error can be returned when:
-"
-Device (or receiver) cannot answer immediately to this request
-for any reason i.e:
-- already processing a request from the same or another SW
-- pipe full
-"
+On Thu, 2023-02-09 at 15:53 +0100, Benjamin Tissoires wrote:
+> On Feb 06 2023, Bastien Nocera wrote:
+> > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> > ---
+> > 
+> > Same as v1
+> > 
+> >  drivers/hid/hid-logitech-hidpp.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-
+> > logitech-hidpp.c
+> > index 9e94026de437..03b77ca03081 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -30,6 +30,7 @@
+> >  MODULE_LICENSE("GPL");
+> >  MODULE_AUTHOR("Benjamin Tissoires
+> > <benjamin.tissoires@gmail.com>");
+> >  MODULE_AUTHOR("Nestor Lopez Casado <nlopezcasad@logitech.com>");
+> > +MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
+> 
+> Just FTR, I have asked Bastien to set himself as an author given all
+> of
+> the work he has been doing on this and to have one more person to be
+> the
+> go-to person from folks having an issue.
+> 
+> And Bastien, would you mind adding yourself to the MAINTAINERS file
+> too?
+> This way you'll get Cc-ed when people submit patches.
 
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
----
-Use a bounded for loop instead of a goto, to avoid infinite loops.
-
- drivers/hid/hid-logitech-hidpp.c | 54 ++++++++++++++++++--------------
- 1 file changed, 30 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 1952d8d3b6b2..ff427d7a0fa0 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -283,6 +283,7 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
- 	struct hidpp_report *response)
- {
- 	int ret;
-+	int max_retries = 3;
- 
- 	mutex_lock(&hidpp->send_mutex);
- 
-@@ -295,34 +296,39 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
- 	 */
- 	*response = *message;
- 
--	ret = __hidpp_send_report(hidpp->hid_dev, message);
-+	for (; max_retries != 0; max_retries--) {
-+		ret = __hidpp_send_report(hidpp->hid_dev, message);
- 
--	if (ret) {
--		dbg_hid("__hidpp_send_report returned err: %d\n", ret);
--		memset(response, 0, sizeof(struct hidpp_report));
--		goto exit;
--	}
-+		if (ret) {
-+			dbg_hid("__hidpp_send_report returned err: %d\n", ret);
-+			memset(response, 0, sizeof(struct hidpp_report));
-+			goto exit;
-+		}
- 
--	if (!wait_event_timeout(hidpp->wait, hidpp->answer_available,
--				5*HZ)) {
--		dbg_hid("%s:timeout waiting for response\n", __func__);
--		memset(response, 0, sizeof(struct hidpp_report));
--		ret = -ETIMEDOUT;
--	}
-+		if (!wait_event_timeout(hidpp->wait, hidpp->answer_available,
-+					5*HZ)) {
-+			dbg_hid("%s:timeout waiting for response\n", __func__);
-+			memset(response, 0, sizeof(struct hidpp_report));
-+			ret = -ETIMEDOUT;
-+		}
- 
--	if (response->report_id == REPORT_ID_HIDPP_SHORT &&
--	    response->rap.sub_id == HIDPP_ERROR) {
--		ret = response->rap.params[1];
--		dbg_hid("%s:got hidpp error %02X\n", __func__, ret);
--		goto exit;
--	}
-+		if (response->report_id == REPORT_ID_HIDPP_SHORT &&
-+		    response->rap.sub_id == HIDPP_ERROR) {
-+			ret = response->rap.params[1];
-+			dbg_hid("%s:got hidpp error %02X\n", __func__, ret);
-+			goto exit;
-+		}
- 
--	if ((response->report_id == REPORT_ID_HIDPP_LONG ||
--			response->report_id == REPORT_ID_HIDPP_VERY_LONG) &&
--			response->fap.feature_index == HIDPP20_ERROR) {
--		ret = response->fap.params[1];
--		dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
--		goto exit;
-+		if ((response->report_id == REPORT_ID_HIDPP_LONG ||
-+		     response->report_id == REPORT_ID_HIDPP_VERY_LONG) &&
-+		    response->fap.feature_index == HIDPP20_ERROR) {
-+			ret = response->fap.params[1];
-+			if (ret != HIDPP20_ERROR_BUSY) {
-+				dbg_hid("%s:got hidpp 2.0 error %02X\n", __func__, ret);
-+				goto exit;
-+			}
-+			dbg_hid("%s:got busy hidpp 2.0 error %02X, retrying\n", __func__, ret);
-+		}
- 	}
- 
- exit:
--- 
-2.39.1
-
+Done in v3 specifically for the hidpp file.

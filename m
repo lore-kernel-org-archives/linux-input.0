@@ -2,35 +2,34 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64F3EC636D4
-	for <linux-input@archiver.kernel.org>; Sat, 11 Feb 2023 16:31:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB6E7C6379F
+	for <linux-input@archiver.kernel.org>; Sat, 11 Feb 2023 16:40:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229611AbjBKQbA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 11 Feb 2023 11:31:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35378 "EHLO
+        id S229496AbjBKQkT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 11 Feb 2023 11:40:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbjBKQa7 (ORCPT
+        with ESMTP id S229463AbjBKQkS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Feb 2023 11:30:59 -0500
+        Sat, 11 Feb 2023 11:40:18 -0500
 Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 697782365C;
-        Sat, 11 Feb 2023 08:30:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 504D52116;
+        Sat, 11 Feb 2023 08:40:17 -0800 (PST)
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 2BC901C0AB3; Sat, 11 Feb 2023 17:30:57 +0100 (CET)
+        id 270C31C0AB3; Sat, 11 Feb 2023 17:40:16 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ucw.cz; s=gen1;
-        t=1676133057;
+        t=1676133616;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
          in-reply-to:in-reply-to:references:references;
-        bh=Ay7b2vQKX1wm/ZcEtVJzIi54lH+BaC/HQeDiHTWPvWI=;
-        b=sEkb8Kd5bfgM7zuJToquqC/scPRB/km85Ng22OlOgsbPbvPDWpUtw/1HERbec4texOTtbn
-        MDDesFICacUzvIPZyg5ijtNQwIm+ZGQLi3yCGWG/0V9RFLZLIWAM//THHebG1+i3KGF+Wc
-        1TyXKt46fnSkcgN6Fd10P3E+BcYIWMw=
-Date:   Sat, 11 Feb 2023 17:30:53 +0100
+        bh=3h0VX5bASt3ctXi2byYNb7ypoULGRSu0WCTdkOgs5uk=;
+        b=eXUhmpyCBHnZ2ZK6rh74BL1hESFgCe5Bca+vyIaoveiTyFI8Vrkz930LnxtFEXCkvYQTzP
+        Sq7j0w1nZWJdUzmKXl7KAMmO15CTbInQOplCIim0sGTrSa3bHMKvSzmLPbkCIt77Ze4yj1
+        rS3CY0Ks9RRntSDbq0VWmnJ2NmagZt0=
+Date:   Sat, 11 Feb 2023 17:40:14 +0100
 From:   Pavel Machek <pavel@ucw.cz>
 To:     Gergo Koteles <soyer@irl.hu>
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>,
         Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
@@ -41,74 +40,56 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         Caleb Connolly <caleb@connolly.tech>
-Subject: Re: [PATCH v2 2/3] Input: add ABS_SND_PROFILE
-Message-ID: <Y+fCvaGTkddwNGP6@duo.ucw.cz>
-References: <20230209232539.91500-1-soyer@irl.hu>
+Subject: Re: [PATCH v2 3/3] arm64: dts: qcom: sdm845-oneplus: add
+ tri-state-key
+Message-ID: <Y+fE7gIMD4BDCffy@duo.ucw.cz>
+References: <20230209232556.91554-1-soyer@irl.hu>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="g2w79Pe1No+u8GQT"
+        protocol="application/pgp-signature"; boundary="QtnDXKWpFdENi7Om"
 Content-Disposition: inline
-In-Reply-To: <20230209232539.91500-1-soyer@irl.hu>
+In-Reply-To: <20230209232556.91554-1-soyer@irl.hu>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 
---g2w79Pe1No+u8GQT
+--QtnDXKWpFdENi7Om
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> ABS_SND_PROFILE used to describe the state of a multi-value sound profile
-> switch. This will be used for the tri-state key on OnePlus phones or other
-> phones.
+> +++ b/arch/arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi
+> @@ -52,6 +52,43 @@ key-vol-up {
+>  		};
+>  	};
+> =20
+> +	tri-state-key {
+> +		compatible =3D "gpio-keys";
+> +		label =3D "Tri-state key";
+> +		pinctrl-names =3D "default";
+> +		pinctrl-0 =3D <&tri_state_key_default>;
+> +		state-top {
+> +			label =3D "Tri-state key top";
 
-Looks like ABS_PROFILE would be fine to use there, no need to create
-new one, no?
+"top/middle" is not too useful. Do we need the label at all? If so,
+should it say "loud/vibrations only/mute"?
 
-Best regards,
+BR,
 								Pavel
-
-> Signed-off-by: Gergo Koteles <soyer@irl.hu>
-> ---
->  Documentation/input/event-codes.rst    | 6 ++++++
->  drivers/hid/hid-debug.c                | 1 +
->  include/uapi/linux/input-event-codes.h | 1 +
->  3 files changed, 8 insertions(+)
->=20
-> diff --git a/Documentation/input/event-codes.rst b/Documentation/input/ev=
-ent-codes.rst
-> index b4557462edd7..d43336e64d6a 100644
-> --- a/Documentation/input/event-codes.rst
-> +++ b/Documentation/input/event-codes.rst
-> @@ -241,6 +241,12 @@ A few EV_ABS codes have special meanings:
->      emitted only when the selected profile changes, indicating the newly
->      selected profile value.
-> =20
-> +* ABS_SND_PROFILE:
-> +
-> +  - Used to describe the state of a multi-value sound profile switch.
-> +    An event is emitted only when the selected profile changes,
-> +    indicating the newly selected profile value.
-> +
->  * ABS_MT_<name>:
-> =20
->    - Used to describe multitouch input events. Please see
-> diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-
 --=20
 People of Russia, stop Putin before his war on Ukraine escalates.
 
---g2w79Pe1No+u8GQT
+--QtnDXKWpFdENi7Om
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY+fCvQAKCRAw5/Bqldv6
-8sM+AJ0VMGsWfvGF+uNYRZ5LzwdYOOkh4ACePA+D30SLyJMWQB2QAguPec2fUzU=
-=lel6
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCY+fE7gAKCRAw5/Bqldv6
+8qazAJ4tTbEaN/jTDm/HvuDKLvkjqEsbigCgjyR3Jf17uJg1F3quUSWtJIkQgV0=
+=mHMW
 -----END PGP SIGNATURE-----
 
---g2w79Pe1No+u8GQT--
+--QtnDXKWpFdENi7Om--

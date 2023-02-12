@@ -2,59 +2,59 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CD18C05027
-	for <linux-input@archiver.kernel.org>; Sun, 12 Feb 2023 19:01:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28F02C636D4
+	for <linux-input@archiver.kernel.org>; Sun, 12 Feb 2023 19:01:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229712AbjBLTBZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 12 Feb 2023 14:01:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37948 "EHLO
+        id S229647AbjBLTB0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 12 Feb 2023 14:01:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229615AbjBLTBY (ORCPT
+        with ESMTP id S229629AbjBLTBY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Sun, 12 Feb 2023 14:01:24 -0500
-Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB9D111151
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65E9B11145
         for <linux-input@vger.kernel.org>; Sun, 12 Feb 2023 11:01:21 -0800 (PST)
-Received: by mail-ej1-x62e.google.com with SMTP id qw12so27057600ejc.2
+Received: by mail-ej1-x629.google.com with SMTP id n10so84899ejc.4
         for <linux-input@vger.kernel.org>; Sun, 12 Feb 2023 11:01:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=diag.uniroma1.it; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=TyokCJZIa2ZQoXHftGYbkR/Hf/+3N97gcyYGtTAHCbw=;
-        b=bB8tp9fI2j5AWnUdXrllQeMkiT82AF+v/J63cnFKPFKA8Wrga377dFzJEvuhtjeeY+
-         wO+ZVRco/qYOu8i0lzEhVl7LH8worGePd3VAOewZauJJZiCfYqySIp6CJJD4TujKSBeU
-         aTiH+GU2OZERYYF8VI9S86XB1IzxU0GwzwN14=
+        bh=uRPvAiBkeLUL9hlg8+pXXPP3amhZpL1tscetpufbF0M=;
+        b=eYSJq9GNuJsNBNK8O1hPFzBkCeZz6NILexaR/TajgPMMu3EcS2hpUXsTZBZ4pT9Shl
+         pmj0/I7BZvvgFvdU1os1Y+OWDY0XFk0I4GWTLH7f4PouTJrTwFMbM5ZSJMQD1O7L3ng8
+         uR0/JHyy9jOwc9BB2igVFCOqnUSD9L2BwVW5Q=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=TyokCJZIa2ZQoXHftGYbkR/Hf/+3N97gcyYGtTAHCbw=;
-        b=G/Tb9/p1y0kngB30n0I+kJodVFKv1azQkkV9Myje4fRYrhdzLfgaeeFY0GLqWV2DMy
-         dVYcA75IYg8c6A/9lB1CYzSkT+djJfYI7QcFNbLfVnUPj9auLt7L6NxfGbJr9bnqcRM7
-         5rXxj/jyx0Io/LYtHGUVS72/LaRtWR5Jt0qCpy1FwY3l1Bsnxx7WKO/WgroEzGo9A6Q/
-         0hlB8p2WO0YaSJff+ijYyte/AL0vvDrwz9nzwdV5qfeSYxz3QjqelyCobz9CovPXm/QH
-         7MCZ025qS5wfPMmQ5OlKGt4Vw5y3+LsNn3VLXFuPPbLSqos/mfZ3rs/IQRnYvvu88vEB
-         6h0g==
-X-Gm-Message-State: AO0yUKXElDR5QToBppa8+v3uX6je2MME43QdGFuN3wsfu8+GSkPyTCZN
-        ml+upDV2MSbm+lpLf1Rk43l7Yw==
-X-Google-Smtp-Source: AK7set+VpPkn6J5FxG7nhuPjSQssPVHwo5+ewL9BCF15ESp2RGTGW04BS6l5dfVbmbA/pc4Y7drfMw==
-X-Received: by 2002:a17:906:cb92:b0:889:5ca0:146e with SMTP id mf18-20020a170906cb9200b008895ca0146emr21753666ejb.16.1676228480557;
-        Sun, 12 Feb 2023 11:01:20 -0800 (PST)
+        bh=uRPvAiBkeLUL9hlg8+pXXPP3amhZpL1tscetpufbF0M=;
+        b=5lJUOWcSsLdpCx+zVnl1bgNLxCe9ZBdQnG0QLS+ZWkJudnnMWqX+SuLA4fHvLyLy3v
+         E8ahNfhfZZyOsCxxOC+MeRdxico3yvmE8WUmQNfD/yLZaIG1JSapcZxLmKnJJZt6hUOU
+         08lU2W9LjHbSdjI0tavPx7FEtVa2CexRpHLgGf/4PaoOSk63MK1V/1AD3oMDb12wjFyS
+         ClpLmGCDUXCWhhiXK7uvahP6W5JYOBlSEwPhzY/QoO78UQRY8V9cwwMhVpwyG/Rg3kDe
+         du+L0strX8Xa8c57s+XaQ7PkiZyLbTWbYGVFhuJFqz5S+G++XoFkfdzy7McQh2RfK5dD
+         dsYw==
+X-Gm-Message-State: AO0yUKXlFnQIR9NU71Hb8AKY1ialbVWFSRszVBGdzO3V+N+5vBQlRO4X
+        Q63V5ByLb/23FIeG/bCenSQKgw==
+X-Google-Smtp-Source: AK7set96kZND7hdGmA2oJPkYoZNRV8kjhk8xYY52MzofUZ42iuET58D6spngjEQ0zvgiirTer2heug==
+X-Received: by 2002:a17:907:8d17:b0:8af:346a:c186 with SMTP id tc23-20020a1709078d1700b008af346ac186mr15082146ejc.24.1676228479927;
+        Sun, 12 Feb 2023 11:01:19 -0800 (PST)
 Received: from [192.168.17.2] (wolkje-127.labs.vu.nl. [130.37.198.127])
-        by smtp.gmail.com with ESMTPSA id l26-20020a170906079a00b008966488a5f1sm5714368ejc.144.2023.02.12.11.01.20
+        by smtp.gmail.com with ESMTPSA id l26-20020a170906079a00b008966488a5f1sm5714368ejc.144.2023.02.12.11.01.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Feb 2023 11:01:20 -0800 (PST)
+        Sun, 12 Feb 2023 11:01:19 -0800 (PST)
 From:   Pietro Borrello <borrello@diag.uniroma1.it>
-Date:   Sun, 12 Feb 2023 19:00:01 +0000
-Subject: [PATCH v4 3/5] HID: bigben: use spinlock to safely schedule
- workers
+Date:   Sun, 12 Feb 2023 19:00:00 +0000
+Subject: [PATCH v4 2/5] HID: bigben_worker() remove unneeded check on
+ report_field
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230125-hid-unregister-leds-v4-3-7860c5763c38@diag.uniroma1.it>
+Message-Id: <20230125-hid-unregister-leds-v4-2-7860c5763c38@diag.uniroma1.it>
 References: <20230125-hid-unregister-leds-v4-0-7860c5763c38@diag.uniroma1.it>
 In-Reply-To: <20230125-hid-unregister-leds-v4-0-7860c5763c38@diag.uniroma1.it>
 To:     Jiri Kosina <jikos@kernel.org>,
@@ -68,85 +68,46 @@ Cc:     Cristiano Giuffrida <c.giuffrida@vu.nl>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         Pietro Borrello <borrello@diag.uniroma1.it>
 X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1676228478; l=2127;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1676228478; l=1130;
  i=borrello@diag.uniroma1.it; s=20221223; h=from:subject:message-id;
- bh=MYGmtcK5MTdP0vFzx8JLN9Po931xJSB7z7FwhIXyl+U=;
- b=iFVDjOCX3HA+8r29BmEEv0xZGr/hxue/0Bmh0Az/QiCIXbTODweCqO5W7zIHo2HFfkW8neC2m/KO
- EOYkpQwODoIif/BHyDetJ19fzHumaoxcUUuLooAdXWrUN688K35Y
+ bh=erpS3Lwu6lI02igZY1eCc+3rq7i9mxiiO+QpEzGNGZU=;
+ b=zxcicO+6OXIqSiidn0/stqb7E4CL0SQUxJ/RENYMcH8Z8HVV+3rEVBYO/Q9ZkSkBvwK+5Bjiptll
+ 4iHsurZyDhM6xSfL4Mr6BqHuD0QGvQ85HNCPRMyKhhgnrvqC62gx
 X-Developer-Key: i=borrello@diag.uniroma1.it; a=ed25519;
  pk=4xRQbiJKehl7dFvrG33o2HpveMrwQiUPKtIlObzKmdY=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Use spinlocks to deal with workers introducing a wrapper
-bigben_schedule_work(), and several spinlock checks.
-Otherwise, bigben_set_led() may schedule bigben->worker after the
-structure has been freed, causing a use-after-free.
+bigben_worker() checks report_field to be non-NULL.
+The check has been added in commit
+918aa1ef104d ("HID: bigbenff: prevent null pointer dereference")
+to prevent a NULL pointer crash.
+However, the true root cause was a missing check for output
+reports, patched in commit
+c7bf714f8755 ("HID: check empty report_list in bigben_probe()"),
+where the type-confused report list_entry was overlapping with
+a NULL pointer, which was then causing the crash.
 
-Fixes: 4eb1b01de5b9 ("HID: hid-bigbenff: fix race condition for scheduled work during removal")
+Fixes: 918aa1ef104d ("HID: bigbenff: prevent null pointer dereference")
 Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
 ---
- drivers/hid/hid-bigbenff.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/hid/hid-bigbenff.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index b98c5f31c184..9d6560db762b 100644
+index ed3d2d7bc1dd..b98c5f31c184 100644
 --- a/drivers/hid/hid-bigbenff.c
 +++ b/drivers/hid/hid-bigbenff.c
-@@ -185,6 +185,15 @@ struct bigben_device {
- 	struct work_struct worker;
- };
- 
-+static inline void bigben_schedule_work(struct bigben_device *bigben)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&bigben->lock, flags);
-+	if (!bigben->removed)
-+		schedule_work(&bigben->worker);
-+	spin_unlock_irqrestore(&bigben->lock, flags);
-+}
- 
- static void bigben_worker(struct work_struct *work)
- {
-@@ -197,9 +206,6 @@ static void bigben_worker(struct work_struct *work)
+@@ -197,7 +197,7 @@ static void bigben_worker(struct work_struct *work)
  	u32 len;
  	unsigned long flags;
  
--	if (bigben->removed)
--		return;
--
- 	buf = hid_alloc_report_buf(bigben->report, GFP_KERNEL);
- 	if (!buf)
+-	if (bigben->removed || !report_field)
++	if (bigben->removed)
  		return;
-@@ -285,7 +291,7 @@ static int hid_bigben_play_effect(struct input_dev *dev, void *data,
- 		bigben->work_ff = true;
- 		spin_unlock_irqrestore(&bigben->lock, flags);
  
--		schedule_work(&bigben->worker);
-+		bigben_schedule_work(bigben);
- 	}
- 
- 	return 0;
-@@ -320,7 +326,7 @@ static void bigben_set_led(struct led_classdev *led,
- 
- 			if (work) {
- 				bigben->work_led = true;
--				schedule_work(&bigben->worker);
-+				bigben_schedule_work(bigben);
- 			}
- 			return;
- 		}
-@@ -450,7 +456,7 @@ static int bigben_probe(struct hid_device *hid,
- 	bigben->left_motor_force = 0;
- 	bigben->work_led = true;
- 	bigben->work_ff = true;
--	schedule_work(&bigben->worker);
-+	bigben_schedule_work(bigben);
- 
- 	hid_info(hid, "LED and force feedback support for BigBen gamepad\n");
- 
+ 	buf = hid_alloc_report_buf(bigben->report, GFP_KERNEL);
 
 -- 
 2.25.1

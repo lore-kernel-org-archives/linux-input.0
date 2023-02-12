@@ -2,59 +2,59 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D362C636D3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88903C64ED6
 	for <linux-input@archiver.kernel.org>; Sun, 12 Feb 2023 19:01:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229503AbjBLTB0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 12 Feb 2023 14:01:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37960 "EHLO
+        id S229479AbjBLTB2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 12 Feb 2023 14:01:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229653AbjBLTBY (ORCPT
+        with ESMTP id S229703AbjBLTBY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Sun, 12 Feb 2023 14:01:24 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8953411146
-        for <linux-input@vger.kernel.org>; Sun, 12 Feb 2023 11:01:21 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id rp23so26992856ejb.7
-        for <linux-input@vger.kernel.org>; Sun, 12 Feb 2023 11:01:21 -0800 (PST)
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CD8911155
+        for <linux-input@vger.kernel.org>; Sun, 12 Feb 2023 11:01:22 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id jg8so27027296ejc.6
+        for <linux-input@vger.kernel.org>; Sun, 12 Feb 2023 11:01:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=diag.uniroma1.it; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=B88ResL5MKyi+eeaFgmYo0rRmsmI1uZYG2og4OKsozA=;
-        b=WAS4+1vax/pjuTBuGl3DbIy3p6dvxT7L99NbfEeWm1CBRL12bh8TVDsO68DB+d1nZn
-         F8GeVyJKtte/6vyFoF8BwDLFsQ7hhmy5zTX9GdriGouBSxNZ12PUMPPwen9ycWXUIV6a
-         U05xBD7Sh+Uue52xEsuemKC+z6BSoz0YpkPEs=
+        bh=JFcY+bgKoDrC/H0bVLU6it2ZHgkh/f7Ekd9zsWQOEVc=;
+        b=dNK2qmmHCtAzB4KpGYlLCtqr9R7St2AoRSxXm4HFC4HAui/u3fd0DgrzSQvGx4gMTY
+         f2MST7yFwHDr5Nzv3Pjp0aNT81xgWJYOVAG6dr9FwMzEEgQzvhSw/lQdTuXhTkULZ0ej
+         ibUOViY0qUP0lflvXT8J01bXIV/HiRehhQz6o=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=B88ResL5MKyi+eeaFgmYo0rRmsmI1uZYG2og4OKsozA=;
-        b=n8UNyFyYO5yMMU9sZOgwfUWNSyjwot/7ZoOguIcYiQ0Nnn+60cVQcwIWt/QbpFu2H1
-         yk7iIBqInMWcmCpP6XRmQgLHdSChBcS3przt72sqH4vfSHLJWVj0gP4DW0Qa8ZvAR6zd
-         jNlNYqKqRHFa7amifudz/1h28ygScivw7p6+Dg2RR6hL/147noR1jhraLlfV7WcSDiam
-         2oVL+wEXoukrlZVeOAAIbToq9aHnwsTh+dMyh1jyOddqTUyTl0MZ6t18SPmgPiW+Co+l
-         EH/FnrgOE0G2lx9ngiWZ6JNqs7NIFq27AOvoXEgmCoSieLo1i075ongR3lF3YlT40BRh
-         W0Xg==
-X-Gm-Message-State: AO0yUKULODX6QW2L+9Rq4otmQLnO9RhCkp9rJ2sVfNXnYlORyTxcoHrn
-        zuc/AFK6h/ZROhSZydaOFMCd5fUhPGYnuV4RhOlKaw==
-X-Google-Smtp-Source: AK7set9i8cFESlwh12jM8HFp2TGIicjd7Mu0Kma6JgyT/L8YrweE8xeYb9h9I7iYUGuJRN7kVBGjYQ==
-X-Received: by 2002:a17:906:2cc4:b0:878:5372:a34b with SMTP id r4-20020a1709062cc400b008785372a34bmr22015554ejr.45.1676228479445;
-        Sun, 12 Feb 2023 11:01:19 -0800 (PST)
+        bh=JFcY+bgKoDrC/H0bVLU6it2ZHgkh/f7Ekd9zsWQOEVc=;
+        b=umurzH5SAHDWwEo6Zde+gaJZUDyTkB5QXxh4L3JHxcpi0HulXQee8GtR2POGEIFCVV
+         Kn4chcUb0BJ7BpyXOkQA7sd2yiALanamdWJz37ugqNyPNt7EkrWf30/VZyPRULf/CRYJ
+         ZiiSNBgzLmkPPYNSvn76069j6QW+oNI7y1Oivyg9r6ZIGr4QHYRE1u4mrdS5QZKn/np3
+         Y0RwkKtJWey1k2OegtGDlBZBqzBnGoYP/Y5UL68FL3bP3cKMCUTtOWAZG70aDO3ApJe4
+         acNsH0oQ+vUlwC/M3zLXjXSUYO+NUQ2b5l8pkZPmk/6ZKELJjIIH0jRzNRSTgDQBqx/8
+         N6rA==
+X-Gm-Message-State: AO0yUKWd6UXStVxhaR59F09BOlySNHv95a1if3qZ+fJOdvge2OHBJ1/a
+        EQdc+hHuhr/94NVGscayzAgBIg==
+X-Google-Smtp-Source: AK7set8TUPodI0WDiQv04uyLfevxRr6Y899ajMBpnUoSIHzm/tFITh4mMDLIHgAnzXnyxZ4Ho7MO7Q==
+X-Received: by 2002:a17:906:4483:b0:84d:4e4f:1f85 with SMTP id y3-20020a170906448300b0084d4e4f1f85mr22610930ejo.59.1676228481102;
+        Sun, 12 Feb 2023 11:01:21 -0800 (PST)
 Received: from [192.168.17.2] (wolkje-127.labs.vu.nl. [130.37.198.127])
-        by smtp.gmail.com with ESMTPSA id l26-20020a170906079a00b008966488a5f1sm5714368ejc.144.2023.02.12.11.01.18
+        by smtp.gmail.com with ESMTPSA id l26-20020a170906079a00b008966488a5f1sm5714368ejc.144.2023.02.12.11.01.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 12 Feb 2023 11:01:19 -0800 (PST)
+        Sun, 12 Feb 2023 11:01:20 -0800 (PST)
 From:   Pietro Borrello <borrello@diag.uniroma1.it>
-Date:   Sun, 12 Feb 2023 18:59:59 +0000
-Subject: [PATCH v4 1/5] HID: bigben: use spinlock to protect concurrent
+Date:   Sun, 12 Feb 2023 19:00:02 +0000
+Subject: [PATCH v4 4/5] HID: asus: use spinlock to protect concurrent
  accesses
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230125-hid-unregister-leds-v4-1-7860c5763c38@diag.uniroma1.it>
+Message-Id: <20230125-hid-unregister-leds-v4-4-7860c5763c38@diag.uniroma1.it>
 References: <20230125-hid-unregister-leds-v4-0-7860c5763c38@diag.uniroma1.it>
 In-Reply-To: <20230125-hid-unregister-leds-v4-0-7860c5763c38@diag.uniroma1.it>
 To:     Jiri Kosina <jikos@kernel.org>,
@@ -68,175 +68,104 @@ Cc:     Cristiano Giuffrida <c.giuffrida@vu.nl>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         Pietro Borrello <borrello@diag.uniroma1.it>
 X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1676228478; l=5460;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1676228478; l=3021;
  i=borrello@diag.uniroma1.it; s=20221223; h=from:subject:message-id;
- bh=3NArKOjH3xImJ9Rwlp+QDLBUcHoiaaOhmhkn3ROIjHE=;
- b=5px4vRLV1eHL9HPgHtUpqWdWAIbITrvZlNReB8lV8M7fRjdYnermUhmYbbfbMdNKGeqd8AIo0TJ4
- 4fV5N/U4ArgruGb2zOKlTr/MGyYxX0jX8DQH1EOcN8et+elaRkjN
+ bh=ONfjFFZvRr7z1Z/TfoWEdeddjrbTUcDqYbO9jYkZVbc=;
+ b=Dx2+LKtx4jUiOR1CtfLcBqeYzDp7LxXsNtwhbZ5nk0ZMEVNfgjgzvSnTvqrur3DasjLfkd+Gh6yo
+ oMFS4LnSAlEdntvAlTcYXH/YfYHU//dJuxg60fk9exdjq/UOI7MI
 X-Developer-Key: i=borrello@diag.uniroma1.it; a=ed25519;
  pk=4xRQbiJKehl7dFvrG33o2HpveMrwQiUPKtIlObzKmdY=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-bigben driver has a worker that may access data concurrently.
+asus driver has a worker that may access data concurrently.
 Proct the accesses using a spinlock.
 
-Fixes: 256a90ed9e46 ("HID: hid-bigbenff: driver for BigBen Interactive PS3OFMINIPAD gamepad")
+Fixes: af22a610bc38 ("HID: asus: support backlight on USB keyboards")
 Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
 ---
- drivers/hid/hid-bigbenff.c | 52 ++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 50 insertions(+), 2 deletions(-)
+ drivers/hid/hid-asus.c | 22 +++++++++++++++++++++-
+ 1 file changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index e8b16665860d..ed3d2d7bc1dd 100644
---- a/drivers/hid/hid-bigbenff.c
-+++ b/drivers/hid/hid-bigbenff.c
-@@ -174,6 +174,7 @@ static __u8 pid0902_rdesc_fixed[] = {
- struct bigben_device {
- 	struct hid_device *hid;
- 	struct hid_report *report;
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index f99752b998f3..9f767baf39fb 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -98,6 +98,7 @@ struct asus_kbd_leds {
+ 	struct hid_device *hdev;
+ 	struct work_struct work;
+ 	unsigned int brightness;
 +	spinlock_t lock;
  	bool removed;
- 	u8 led_state;         /* LED1 = 1 .. LED4 = 8 */
- 	u8 right_motor_on;    /* right motor off/on 0/1 */
-@@ -190,12 +191,27 @@ static void bigben_worker(struct work_struct *work)
- 	struct bigben_device *bigben = container_of(work,
- 		struct bigben_device, worker);
- 	struct hid_field *report_field = bigben->report->field[0];
-+	bool do_work_led = false;
-+	bool do_work_ff = false;
-+	u8 *buf;
-+	u32 len;
+ };
+ 
+@@ -495,7 +496,12 @@ static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
+ {
+ 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+ 						 cdev);
++	unsigned long flags;
++
++	spin_lock_irqsave(&led->lock, flags);
+ 	led->brightness = brightness;
++	spin_unlock_irqrestore(&led->lock, flags);
++
+ 	schedule_work(&led->work);
+ }
+ 
+@@ -503,8 +509,14 @@ static enum led_brightness asus_kbd_backlight_get(struct led_classdev *led_cdev)
+ {
+ 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+ 						 cdev);
++	enum led_brightness brightness;
 +	unsigned long flags;
  
- 	if (bigben->removed || !report_field)
+-	return led->brightness;
++	spin_lock_irqsave(&led->lock, flags);
++	brightness = led->brightness;
++	spin_unlock_irqrestore(&led->lock, flags);
++
++	return brightness;
+ }
+ 
+ static void asus_kbd_backlight_work(struct work_struct *work)
+@@ -512,11 +524,14 @@ static void asus_kbd_backlight_work(struct work_struct *work)
+ 	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds, work);
+ 	u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
+ 	int ret;
++	unsigned long flags;
+ 
+ 	if (led->removed)
  		return;
  
-+	buf = hid_alloc_report_buf(bigben->report, GFP_KERNEL);
-+	if (!buf)
-+		return;
-+
-+	len = hid_report_len(bigben->report);
-+
-+	/* LED work */
-+	spin_lock_irqsave(&bigben->lock, flags);
-+
- 	if (bigben->work_led) {
- 		bigben->work_led = false;
-+		do_work_led = true;
- 		report_field->value[0] = 0x01; /* 1 = led message */
- 		report_field->value[1] = 0x08; /* reserved value, always 8 */
- 		report_field->value[2] = bigben->led_state;
-@@ -204,11 +220,22 @@ static void bigben_worker(struct work_struct *work)
- 		report_field->value[5] = 0x00; /* padding */
- 		report_field->value[6] = 0x00; /* padding */
- 		report_field->value[7] = 0x00; /* padding */
--		hid_hw_request(bigben->hid, bigben->report, HID_REQ_SET_REPORT);
-+		hid_output_report(bigben->report, buf);
-+	}
-+
-+	spin_unlock_irqrestore(&bigben->lock, flags);
-+
-+	if (do_work_led) {
-+		hid_hw_raw_request(bigben->hid, bigben->report->id, buf, len,
-+				   bigben->report->type, HID_REQ_SET_REPORT);
- 	}
++	spin_lock_irqsave(&led->lock, flags);
+ 	buf[4] = led->brightness;
++	spin_unlock_irqrestore(&led->lock, flags);
  
-+	/* FF work */
-+	spin_lock_irqsave(&bigben->lock, flags);
-+
- 	if (bigben->work_ff) {
- 		bigben->work_ff = false;
-+		do_work_ff = true;
- 		report_field->value[0] = 0x02; /* 2 = rumble effect message */
- 		report_field->value[1] = 0x08; /* reserved value, always 8 */
- 		report_field->value[2] = bigben->right_motor_on;
-@@ -217,8 +244,17 @@ static void bigben_worker(struct work_struct *work)
- 		report_field->value[5] = 0x00; /* padding */
- 		report_field->value[6] = 0x00; /* padding */
- 		report_field->value[7] = 0x00; /* padding */
--		hid_hw_request(bigben->hid, bigben->report, HID_REQ_SET_REPORT);
-+		hid_output_report(bigben->report, buf);
-+	}
-+
-+	spin_unlock_irqrestore(&bigben->lock, flags);
-+
-+	if (do_work_ff) {
-+		hid_hw_raw_request(bigben->hid, bigben->report->id, buf, len,
-+				   bigben->report->type, HID_REQ_SET_REPORT);
- 	}
-+
-+	kfree(buf);
- }
+ 	ret = asus_kbd_set_report(led->hdev, buf, sizeof(buf));
+ 	if (ret < 0)
+@@ -584,6 +599,7 @@ static int asus_kbd_register_leds(struct hid_device *hdev)
+ 	drvdata->kbd_backlight->cdev.brightness_set = asus_kbd_backlight_set;
+ 	drvdata->kbd_backlight->cdev.brightness_get = asus_kbd_backlight_get;
+ 	INIT_WORK(&drvdata->kbd_backlight->work, asus_kbd_backlight_work);
++	spin_lock_init(&drvdata->kbd_backlight->lock);
  
- static int hid_bigben_play_effect(struct input_dev *dev, void *data,
-@@ -228,6 +264,7 @@ static int hid_bigben_play_effect(struct input_dev *dev, void *data,
- 	struct bigben_device *bigben = hid_get_drvdata(hid);
- 	u8 right_motor_on;
- 	u8 left_motor_force;
-+	unsigned long flags;
- 
- 	if (!bigben) {
- 		hid_err(hid, "no device data\n");
-@@ -242,9 +279,12 @@ static int hid_bigben_play_effect(struct input_dev *dev, void *data,
- 
- 	if (right_motor_on != bigben->right_motor_on ||
- 			left_motor_force != bigben->left_motor_force) {
-+		spin_lock_irqsave(&bigben->lock, flags);
- 		bigben->right_motor_on   = right_motor_on;
- 		bigben->left_motor_force = left_motor_force;
- 		bigben->work_ff = true;
-+		spin_unlock_irqrestore(&bigben->lock, flags);
-+
- 		schedule_work(&bigben->worker);
- 	}
- 
-@@ -259,6 +299,7 @@ static void bigben_set_led(struct led_classdev *led,
- 	struct bigben_device *bigben = hid_get_drvdata(hid);
- 	int n;
- 	bool work;
-+	unsigned long flags;
- 
- 	if (!bigben) {
- 		hid_err(hid, "no device data\n");
-@@ -267,6 +308,7 @@ static void bigben_set_led(struct led_classdev *led,
- 
- 	for (n = 0; n < NUM_LEDS; n++) {
- 		if (led == bigben->leds[n]) {
-+			spin_lock_irqsave(&bigben->lock, flags);
- 			if (value == LED_OFF) {
- 				work = (bigben->led_state & BIT(n));
- 				bigben->led_state &= ~BIT(n);
-@@ -274,6 +316,7 @@ static void bigben_set_led(struct led_classdev *led,
- 				work = !(bigben->led_state & BIT(n));
- 				bigben->led_state |= BIT(n);
- 			}
-+			spin_unlock_irqrestore(&bigben->lock, flags);
- 
- 			if (work) {
- 				bigben->work_led = true;
-@@ -307,8 +350,12 @@ static enum led_brightness bigben_get_led(struct led_classdev *led)
- static void bigben_remove(struct hid_device *hid)
+ 	ret = devm_led_classdev_register(&hdev->dev, &drvdata->kbd_backlight->cdev);
+ 	if (ret < 0) {
+@@ -1119,9 +1135,13 @@ static int asus_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ static void asus_remove(struct hid_device *hdev)
  {
- 	struct bigben_device *bigben = hid_get_drvdata(hid);
+ 	struct asus_drvdata *drvdata = hid_get_drvdata(hdev);
 +	unsigned long flags;
  
-+	spin_lock_irqsave(&bigben->lock, flags);
- 	bigben->removed = true;
-+	spin_unlock_irqrestore(&bigben->lock, flags);
+ 	if (drvdata->kbd_backlight) {
++		spin_lock_irqsave(&drvdata->kbd_backlight->lock, flags);
+ 		drvdata->kbd_backlight->removed = true;
++		spin_unlock_irqrestore(&drvdata->kbd_backlight->lock, flags);
 +
- 	cancel_work_sync(&bigben->worker);
- 	hid_hw_stop(hid);
- }
-@@ -362,6 +409,7 @@ static int bigben_probe(struct hid_device *hid,
- 	set_bit(FF_RUMBLE, hidinput->input->ffbit);
+ 		cancel_work_sync(&drvdata->kbd_backlight->work);
+ 	}
  
- 	INIT_WORK(&bigben->worker, bigben_worker);
-+	spin_lock_init(&bigben->lock);
- 
- 	error = input_ff_create_memless(hidinput->input, NULL,
- 		hid_bigben_play_effect);
 
 -- 
 2.25.1

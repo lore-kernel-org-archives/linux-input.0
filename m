@@ -2,122 +2,89 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 61FECC61DA4
-	for <linux-input@archiver.kernel.org>; Tue, 14 Feb 2023 07:58:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 63A01C6379F
+	for <linux-input@archiver.kernel.org>; Tue, 14 Feb 2023 09:09:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231566AbjBNH6s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 14 Feb 2023 02:58:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58078 "EHLO
+        id S231889AbjBNJJM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 14 Feb 2023 04:09:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231716AbjBNH62 (ORCPT
+        with ESMTP id S232274AbjBNJIz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Feb 2023 02:58:28 -0500
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 804ED222ED;
-        Mon, 13 Feb 2023 23:58:08 -0800 (PST)
-Received: by mail-wr1-x435.google.com with SMTP id j23so14738336wra.0;
-        Mon, 13 Feb 2023 23:58:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=jJeol2eNvunQmmGVUes1HrblFwzhntE5hKnDqonygF8=;
-        b=J5nuyajfuT3ZldBj6d+ClBLuVhstXvY5W7g+kXaliIlrTpWkojYbic0hC4PQD0N7em
-         pdI0K3sXYWqBkPeXlk1H2wTi1kZwW3eMODYrAk9BDW0XYmmfsL5Mwt5S39IdunvFZDYa
-         AXE9qUOqrH4ijhFVOHtEfxXMUpbMCg6L5n573Wq9LSzw9aBotxpZEVVGfPW3iHFeKj/V
-         RR9+rxNxsVA0w9Obz8kp1d2TjryTHRPu4bELc+XYZ2aaCSyItvyftWRsHgLk5814xVSs
-         4K+uv3XYwIKrmcf8GdHyu3C6P7y2lknnNeddWJ8Im3usNZoSTq8rAWNVJIypGtyvDm44
-         Rleg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jJeol2eNvunQmmGVUes1HrblFwzhntE5hKnDqonygF8=;
-        b=MJ3B+elXFUepWWP014NFwmceGlDOh2QQdOSYfWAWvLU9YPDv2FddkmxKPtSFlakbBV
-         3eLtwlM3DLU7v9yU5Hau1jBvMuX1muqS5QzI2bSG6+RaK4SZspLohM4R4gWX7bPAcGVq
-         rJq9Oe+pJ5Jpt++F7c8+AH5WuDDdKA986+4l57VPR54BacRyUV98mC+5QodVgWnjxOEu
-         rFA82JzuCkvurbBcfeyLTYHPrbHtC0DpbrUJrmzoEXcw+1oqE2QmExDh0EwPBpjrXgev
-         nCkicqwGj3r2gR6hijilUl6pZZa7SmmUA6IA+QWf9H47u9Cv/grOrvViPDx/Qe6j5CzU
-         yNcg==
-X-Gm-Message-State: AO0yUKX/ffrtvPLaqbf0Sz6KF6+VtTbR3Ft3097Y3fBI9sQ0QEijo5ai
-        RGsaL/4/KlUP2YeffSj4Ypg=
-X-Google-Smtp-Source: AK7set+JwcQI+vO5QHy7CPTkFgxpNyvViFhZkVwGUzelkyHThhU3yIENvt2tzNpyjDGPROYHfJExhA==
-X-Received: by 2002:a5d:538a:0:b0:2c5:58aa:633b with SMTP id d10-20020a5d538a000000b002c558aa633bmr1246932wrv.20.1676361487037;
-        Mon, 13 Feb 2023 23:58:07 -0800 (PST)
-Received: from localhost ([102.36.222.112])
-        by smtp.gmail.com with ESMTPSA id w8-20020a5d6088000000b002c5539171d1sm5786557wrt.41.2023.02.13.23.58.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Feb 2023 23:58:06 -0800 (PST)
-Date:   Tue, 14 Feb 2023 10:58:02 +0300
-From:   Dan Carpenter <error27@gmail.com>
-To:     oe-kbuild@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Hanno Zulla <kontakt@hanno.de>,
-        Carlo Caione <carlo@endlessm.com>
-Cc:     lkp@intel.com, oe-kbuild-all@lists.linux.dev,
-        Cristiano Giuffrida <c.giuffrida@vu.nl>,
-        "Bos, H.J." <h.j.bos@vu.nl>, Jakob Koschel <jkl820.git@gmail.com>,
-        Roderick Colenbrander <roderick@gaikai.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Pietro Borrello <borrello@diag.uniroma1.it>
-Subject: Re: [PATCH v3 2/2] HID: asus: use spinlock to safely schedule workers
-Message-ID: <202302141039.anZLT940-lkp@intel.com>
+        Tue, 14 Feb 2023 04:08:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DE3EC42;
+        Tue, 14 Feb 2023 01:07:48 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FFDA6090C;
+        Tue, 14 Feb 2023 09:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3059C433EF;
+        Tue, 14 Feb 2023 09:07:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1676365653;
+        bh=OlRf+PZkFPcU3LhJ+mP2uxlveALxvDZpPtRYIg9JveY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=IXzoVRY6ObRuAg2XVtKBEwZoU9lEzBnX31Bn1ILATOVyFyWd6Rh1Cudi9iIgYm2NN
+         JVpw9X9fA4IDhh9UcidvFdMbumw2RPTFOxuF4Av/tO9iBGrDS1xQWMeRQZNTMxaRpk
+         zYi/SYI1dXN25QJhnJR9HZD4Eg8SIQKhFNfXu623ngpUzyYelyb7fQq6vZQz3G3Sw1
+         PAIC9jex2oreb02gd8VXACi4BfyRXrOowCXowaeBAtn66w9GBYCYo03rUkIMfW7qze
+         fczOBo4Js4YAZHZVPeIXVli2WagEL7othzzEduM0ism7BkZWXm2ZnF5KlZ4q+zZ+DP
+         lqJicNrgGqfxw==
+From:   Arnd Bergmann <arnd@kernel.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Arnd Bergmann <arnd@arndb.de>
+Cc:     Mark Brown <broonie@kernel.org>, alsa-devel@alsa-project.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] Input: mainstone: fix pxa2xx_ac97 dependency
+Date:   Tue, 14 Feb 2023 10:07:16 +0100
+Message-Id: <20230214090728.1737140-1-arnd@kernel.org>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230125-hid-unregister-leds-v3-2-0a52ac225e00@diag.uniroma1.it>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Pietro,
+From: Arnd Bergmann <arnd@arndb.de>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Pietro-Borrello/HID-bigben-use-spinlock-to-safely-schedule-workers/20230210-080058
-base:   2241ab53cbb5cdb08a6b2d4688feb13971058f65
-patch link:    https://lore.kernel.org/r/20230125-hid-unregister-leds-v3-2-0a52ac225e00%40diag.uniroma1.it
-patch subject: [PATCH v3 2/2] HID: asus: use spinlock to safely schedule workers
-config: riscv-randconfig-m031-20230212 (https://download.01.org/0day-ci/archive/20230214/202302141039.anZLT940-lkp@intel.com/config)
-compiler: riscv32-linux-gcc (GCC) 12.1.0
+The exported PXA AC97 symbols are provided by the snd-pxa2xx-lib module
+if SND_PXA2XX_SOC_AC97 is set, so both symbols have to be enabled for
+the mainstone driver to actually work, and if snd-pxa2xx-lib is a loadable
+module, the touchscreen driver cannot be built-in:
 
-If you fix the issue, kindly add following tag where applicable
-| Reported-by: kernel test robot <lkp@intel.com>
-| Reported-by: Dan Carpenter <error27@gmail.com>
-| Link: https://lore.kernel.org/r/202302141039.anZLT940-lkp@intel.com/
+arm-linux-gnueabi-ld: drivers/input/touchscreen/mainstone-wm97xx.o: in function `wm97xx_acc_pen_up':
+mainstone-wm97xx.c:(.text+0x8c): undefined reference to `pxa2xx_ac97_read_modr'
+arm-linux-gnueabi-ld: drivers/input/touchscreen/mainstone-wm97xx.o: in function `wm97xx_acc_pen_down':
+mainstone-wm97xx.c:(.text+0x2e0): undefined reference to `pxa2xx_ac97_read_modr'
 
-smatch warnings:
-drivers/hid/hid-asus.c:532 asus_kbd_backlight_work() warn: sleeping in atomic context
+The misconfiguration has always been possible but I never hit this after
+my previous incomplete fix in 2019: since there were many options that
+each 'select SND_PXA2XX_SOC_AC97', randconfig builds for PXA would almost
+always have this built-in, not in a loadable module.
 
-vim +532 drivers/hid/hid-asus.c
+Fixes: e217b085a1ac ("Input: touchscreen: use wrapper for pxa2xx ac97 registers")
+Fixes: b401d1fd8053 ("ASoC: pxa: remove unused board support")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+---
+ drivers/input/touchscreen/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-af22a610bc3850 Carlo Caione    2017-04-06  521  static void asus_kbd_backlight_work(struct work_struct *work)
-af22a610bc3850 Carlo Caione    2017-04-06  522  {
-af22a610bc3850 Carlo Caione    2017-04-06  523  	struct asus_kbd_leds *led = container_of(work, struct asus_kbd_leds, work);
-af22a610bc3850 Carlo Caione    2017-04-06  524  	u8 buf[] = { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
-af22a610bc3850 Carlo Caione    2017-04-06  525  	int ret;
-31e578b641b3b3 Pietro Borrello 2023-02-09  526  	unsigned long flags;
-af22a610bc3850 Carlo Caione    2017-04-06  527  
-31e578b641b3b3 Pietro Borrello 2023-02-09  528  	spin_lock_irqsave(&led->lock, flags);
-                                                        ^^^^^^^^^^^^^^^^^
-Holding a spinlock.
-
-af22a610bc3850 Carlo Caione    2017-04-06  529  
-af22a610bc3850 Carlo Caione    2017-04-06  530  	buf[4] = led->brightness;
-af22a610bc3850 Carlo Caione    2017-04-06  531  
-af22a610bc3850 Carlo Caione    2017-04-06 @532  	ret = asus_kbd_set_report(led->hdev, buf, sizeof(buf));
-                                                              ^^^^^^^^^^^^^^^^^^^
-asus_kbd_set_report() does a GFP_KERNEL allocation.
-
-
-af22a610bc3850 Carlo Caione    2017-04-06  533  	if (ret < 0)
-af22a610bc3850 Carlo Caione    2017-04-06  534  		hid_err(led->hdev, "Asus failed to set keyboard backlight: %d\n", ret);
-31e578b641b3b3 Pietro Borrello 2023-02-09  535  
-31e578b641b3b3 Pietro Borrello 2023-02-09  536  	spin_unlock_irqrestore(&led->lock, flags);
-af22a610bc3850 Carlo Caione    2017-04-06  537  }
-
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 61bb8e632413..1601f5bae005 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -903,7 +903,7 @@ config TOUCHSCREEN_WM9713
+ config TOUCHSCREEN_WM97XX_MAINSTONE
+ 	tristate "WM97xx Mainstone/Palm accelerated touch"
+ 	depends on TOUCHSCREEN_WM97XX && ARCH_PXA
+-	depends on SND_PXA2XX_LIB_AC97
++	depends on SND_PXA2XX_LIB && SND_PXA2XX_LIB_AC97
+ 	help
+ 	  Say Y here for support for streaming mode with WM97xx touchscreens
+ 	  on Mainstone, Palm Tungsten T5, TX and LifeDrive systems.
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
+2.39.1
 

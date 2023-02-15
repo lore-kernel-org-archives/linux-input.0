@@ -2,48 +2,47 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18BA3C636CC
-	for <linux-input@archiver.kernel.org>; Wed, 15 Feb 2023 20:47:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5445AC6379F
+	for <linux-input@archiver.kernel.org>; Wed, 15 Feb 2023 20:48:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229866AbjBOUrj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 15 Feb 2023 15:47:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33168 "EHLO
+        id S229686AbjBOUsI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 15 Feb 2023 15:48:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229930AbjBOUrB (ORCPT
+        with ESMTP id S229616AbjBOUrY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Feb 2023 15:47:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 210A243474;
-        Wed, 15 Feb 2023 12:46:34 -0800 (PST)
+        Wed, 15 Feb 2023 15:47:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B69304344C;
+        Wed, 15 Feb 2023 12:46:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6008FB823B7;
-        Wed, 15 Feb 2023 20:46:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCFCCC4339E;
-        Wed, 15 Feb 2023 20:46:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A96461D52;
+        Wed, 15 Feb 2023 20:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E089C433EF;
+        Wed, 15 Feb 2023 20:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676493981;
-        bh=31LUiSWRRqRWPJrcSH165zxbffsBpNzPCUysg4JzK1E=;
+        s=k20201202; t=1676494002;
+        bh=/7LYG/t2un+e+jyUyYoutBm1iPp3dYGtaK/RkiDv1hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FSlwOiWcdXtC1XbAETipbJj8PJb8ajT7sUWckploP/daQXFQIYLYsWdviRuLvrRA8
-         5sWQvChv5kzytbsCTDOIVCcifBmyg5wsRXJMaRatVZ0X5v2YL06TaACPnJDKh3LSws
-         B+yB5LGTPi6yNu3CN1kB5u1JOfUwYb5W0z71JyyXHzIzwSnjV713uZDWc3zyFIibBg
-         /DjbK0WmCS3GuI0LQN4+CUZnSGmSR7NZ10jdeboVO64vy+dg3Plv60qXbCUk24Te5W
-         z9wW4mV8KGWK974KtOKvyivTocaxAUAENJTj0Bddj5bEctBaiwJzW1SDEM3TqwCdhf
-         +vC3XLBp/RRjg==
+        b=VF6fyAHQ2Yf9gHWn/hbQpF7trlrfN99ueiR5o0T3xe+CSkxw0xuDU9nABLy8H7WZx
+         UYGcueUmnY9BiqUFzggLNwHBlwLokoqTEpS7MooiuKanj2Z+kv/LCg28cSLM9yM96P
+         T0B/Qj5bIDAvrUX5v8fE5ykKFPiM6iUC42uQLOeA7Qtt1EFn67m16ljIrbobaxgNQg
+         pbsgMYbtJHnaKXP7PmWaic1HpmUuOLRqVGGa8Y2YqYZF7SCDmtMxGsizXgpLcOnred
+         3h3/16LQTSDK/04OQbSazJSarkgDCIbEXWpeW2js/kIRp/Yh8/pt+ygkww5TfgYEQF
+         SzydJfVrOEamQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xin Zhao <xnzhao@google.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+Cc:     Takahiro Fujii <fujii@xaxxi.net>, Jiri Kosina <jkosina@suse.cz>,
         Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 19/24] HID: core: Fix deadloop in hid_apply_multiplier.
-Date:   Wed, 15 Feb 2023 15:45:42 -0500
-Message-Id: <20230215204547.2760761-19-sashal@kernel.org>
+        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 05/12] HID: elecom: add support for TrackBall 056E:011C
+Date:   Wed, 15 Feb 2023 15:46:27 -0500
+Message-Id: <20230215204637.2761073-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230215204547.2760761-1-sashal@kernel.org>
-References: <20230215204547.2760761-1-sashal@kernel.org>
+In-Reply-To: <20230215204637.2761073-1-sashal@kernel.org>
+References: <20230215204637.2761073-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -52,61 +51,104 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Xin Zhao <xnzhao@google.com>
+From: Takahiro Fujii <fujii@xaxxi.net>
 
-[ Upstream commit ea427a222d8bdf2bc1a8a6da3ebe247f7dced70c ]
+[ Upstream commit 29f316a1d7e0a570be9a47fa283ece53a67cebb7 ]
 
-The initial value of hid->collection[].parent_idx if 0. When
-Report descriptor doesn't contain "HID Collection", the value
-remains as 0.
+Make function buttons on ELECOM M-HT1DRBK trackball mouse work. This model
+has two devices with different device IDs (010D and 011C). Both of
+them misreports the number of buttons as 5 in the report descriptor, even
+though they have 8 buttons. hid-elecom overwrites the report to fix them,
+but supports only on 010D and does not work on 011C. This patch fixes
+011C in the similar way but with specialized position parameters.
+In fact, it is sufficient to rewrite only 17th byte (05 -> 08). However I
+followed the existing way.
 
-In the meanwhile, when the Report descriptor fullfill
-all following conditions, it will trigger hid_apply_multiplier
-function call.
-1. Usage page is Generic Desktop Ctrls (0x01)
-2. Usage is RESOLUTION_MULTIPLIER (0x48)
-3. Contain any FEATURE items
-
-The while loop in hid_apply_multiplier will search the top-most
-collection by searching parent_idx == -1. Because all parent_idx
-is 0. The loop will run forever.
-
-There is a Report Descriptor triggerring the deadloop
-0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
-0x09, 0x48,        // Usage (0x48)
-0x95, 0x01,        // Report Count (1)
-0x75, 0x08,        // Report Size (8)
-0xB1, 0x01,        // Feature
-
-Signed-off-by: Xin Zhao <xnzhao@google.com>
-Link: https://lore.kernel.org/r/20230130212947.1315941-1-xnzhao@google.com
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Takahiro Fujii <fujii@xaxxi.net>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/hid-elecom.c | 16 ++++++++++++++--
+ drivers/hid/hid-ids.h    |  3 ++-
+ drivers/hid/hid-quirks.c |  3 ++-
+ 3 files changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 3e1803592bd4a..5c72aef3d3dd5 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1202,6 +1202,7 @@ int hid_open_report(struct hid_device *device)
- 	__u8 *end;
- 	__u8 *next;
- 	int ret;
-+	int i;
- 	static int (*dispatch_type[])(struct hid_parser *parser,
- 				      struct hid_item *item) = {
- 		hid_parser_main,
-@@ -1252,6 +1253,8 @@ int hid_open_report(struct hid_device *device)
- 		goto err;
- 	}
- 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
-+	for (i = 0; i < HID_DEFAULT_NUM_COLLECTIONS; i++)
-+		device->collection[i].parent_idx = -1;
+diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
+index e59e9911fc370..4fa45ee77503b 100644
+--- a/drivers/hid/hid-elecom.c
++++ b/drivers/hid/hid-elecom.c
+@@ -12,6 +12,7 @@
+  *  Copyright (c) 2017 Alex Manoussakis <amanou@gnu.org>
+  *  Copyright (c) 2017 Tomasz Kramkowski <tk@the-tk.com>
+  *  Copyright (c) 2020 YOSHIOKA Takuma <lo48576@hard-wi.red>
++ *  Copyright (c) 2022 Takahiro Fujii <fujii@xaxxi.net>
+  */
  
- 	ret = -EINVAL;
- 	while ((next = fetch_item(start, end, &item)) != NULL) {
+ /*
+@@ -89,7 +90,7 @@ static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	case USB_DEVICE_ID_ELECOM_M_DT1URBK:
+ 	case USB_DEVICE_ID_ELECOM_M_DT1DRBK:
+ 	case USB_DEVICE_ID_ELECOM_M_HT1URBK:
+-	case USB_DEVICE_ID_ELECOM_M_HT1DRBK:
++	case USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D:
+ 		/*
+ 		 * Report descriptor format:
+ 		 * 12: button bit count
+@@ -99,6 +100,16 @@ static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		 */
+ 		mouse_button_fixup(hdev, rdesc, *rsize, 12, 30, 14, 20, 8);
+ 		break;
++	case USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C:
++		/*
++		 * Report descriptor format:
++		 * 22: button bit count
++		 * 30: padding bit count
++		 * 24: button report size
++		 * 16: button usage maximum
++		 */
++		mouse_button_fixup(hdev, rdesc, *rsize, 22, 30, 24, 16, 8);
++		break;
+ 	}
+ 	return rdesc;
+ }
+@@ -112,7 +123,8 @@ static const struct hid_device_id elecom_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1URBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1DRBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1URBK) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, elecom_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index fa1aa22547ea7..b153ddc3319e8 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -410,7 +410,8 @@
+ #define USB_DEVICE_ID_ELECOM_M_DT1URBK	0x00fe
+ #define USB_DEVICE_ID_ELECOM_M_DT1DRBK	0x00ff
+ #define USB_DEVICE_ID_ELECOM_M_HT1URBK	0x010c
+-#define USB_DEVICE_ID_ELECOM_M_HT1DRBK	0x010d
++#define USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D	0x010d
++#define USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C	0x011c
+ 
+ #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
+ #define USB_DEVICE_ID_DREAM_CHEEKY_WN	0x0004
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 184029cad014f..4a8c32148e58f 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -381,7 +381,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1URBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1DRBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1URBK) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_ELO)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
 -- 
 2.39.0
 

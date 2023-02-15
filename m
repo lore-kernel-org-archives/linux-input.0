@@ -2,48 +2,48 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBB24C64ED6
-	for <linux-input@archiver.kernel.org>; Wed, 15 Feb 2023 20:50:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E518EC6379F
+	for <linux-input@archiver.kernel.org>; Wed, 15 Feb 2023 21:01:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230237AbjBOUt7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 15 Feb 2023 15:49:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34364 "EHLO
+        id S229887AbjBOVBU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 15 Feb 2023 16:01:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230149AbjBOUtO (ORCPT
+        with ESMTP id S229882AbjBOVBE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Feb 2023 15:49:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38F942DE6;
-        Wed, 15 Feb 2023 12:47:22 -0800 (PST)
+        Wed, 15 Feb 2023 16:01:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E4EF4743C;
+        Wed, 15 Feb 2023 12:59:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C579B823B7;
-        Wed, 15 Feb 2023 20:47:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EE60C433A7;
-        Wed, 15 Feb 2023 20:47:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D860B8225F;
+        Wed, 15 Feb 2023 20:46:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF4DC4339B;
+        Wed, 15 Feb 2023 20:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676494028;
-        bh=GmD07JxGdVvvL2XK94q95n4ECoumdI7zUO39+WOxRlM=;
+        s=k20201202; t=1676494008;
+        bh=wOf9TsCuyj5000zw3qgyvwtH59ys6dWVyqhYx7gD7x8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QdCZRWP5ZKR42JP5GZq3Frl+4B/STmwyCF+qkLk5yS+AdQgxmeUymSAvhE+Ziq4wn
-         N8yUbadqSooxJjfoetw9RGm2JFFwJ3qAusxbqdjoC0TqW3xTOuD++IMEsLOe237r+9
-         5pqG4CFeM8TumQ312rjazHGx8i9NDlRkoJNWO3uhtuPbrOfZOPZ7QSCIIbapYh9dgn
-         gpfpElSPJ6kqfgCubC5OcoIrkbfg1W3x5XaiUD59rrt8mklHn/E+jm7dVNq1ogmMb1
-         Ah5XmGrhIKQTFzEwBcbYAcnSbtzEOpWyd8G0+pA+IRYDHq64xC6jhsjYH/0ugMyp0q
-         pELm526jnTcWQ==
+        b=sv28U0bhQGZHMuv8HI2PtAOyib93/Y5J9JpjqBnpP7CrdNM9GxzHBVJPm5nGI+oXD
+         0huFTnSrJqR9A+KL2ikrGR5mSHKZkiGuiXJZ0ad4xH+Vg2jp47kOFIDARHUkj2UBkh
+         5gHuLmeB2Q5i0DsqC0t1pyPN/3/Na4yenIPVktnsAApKGyH/mzi9owjd1hEgKxxIWj
+         qCLARe93+dbBYGP5nqwbzgv5NI84coIxPWfeKniY69rbv9h2gOx/XumLUDM1kfREkD
+         hrB910gVWI2iSCbuKlwN2x4/kSQmNo540Oi/LYxGeAaCb5fM6Dtr7nHr8HME4fC/Pv
+         i82fgoHw3bnBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Xin Zhao <xnzhao@google.com>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 7/7] HID: core: Fix deadloop in hid_apply_multiplier.
-Date:   Wed, 15 Feb 2023 15:46:59 -0500
-Message-Id: <20230215204700.2761331-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 11/12] HID: core: Fix deadloop in hid_apply_multiplier.
+Date:   Wed, 15 Feb 2023 15:46:33 -0500
+Message-Id: <20230215204637.2761073-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230215204700.2761331-1-sashal@kernel.org>
-References: <20230215204700.2761331-1-sashal@kernel.org>
+In-Reply-To: <20230215204637.2761073-1-sashal@kernel.org>
+References: <20230215204637.2761073-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -87,10 +87,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 2888bd5502f3f..0c8075d9717cb 100644
+index 2e475bd426b84..f1ea883db5de1 100644
 --- a/drivers/hid/hid-core.c
 +++ b/drivers/hid/hid-core.c
-@@ -1190,6 +1190,7 @@ int hid_open_report(struct hid_device *device)
+@@ -1197,6 +1197,7 @@ int hid_open_report(struct hid_device *device)
  	__u8 *end;
  	__u8 *next;
  	int ret;
@@ -98,7 +98,7 @@ index 2888bd5502f3f..0c8075d9717cb 100644
  	static int (*dispatch_type[])(struct hid_parser *parser,
  				      struct hid_item *item) = {
  		hid_parser_main,
-@@ -1240,6 +1241,8 @@ int hid_open_report(struct hid_device *device)
+@@ -1247,6 +1248,8 @@ int hid_open_report(struct hid_device *device)
  		goto err;
  	}
  	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;

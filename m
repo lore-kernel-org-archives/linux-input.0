@@ -2,111 +2,148 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E518EC6379F
-	for <linux-input@archiver.kernel.org>; Wed, 15 Feb 2023 21:01:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E3C4C636CC
+	for <linux-input@archiver.kernel.org>; Thu, 16 Feb 2023 01:17:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229887AbjBOVBU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 15 Feb 2023 16:01:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52656 "EHLO
+        id S229688AbjBPBRU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 15 Feb 2023 20:17:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbjBOVBE (ORCPT
+        with ESMTP id S229645AbjBPBRT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 15 Feb 2023 16:01:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E4EF4743C;
-        Wed, 15 Feb 2023 12:59:06 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D860B8225F;
-        Wed, 15 Feb 2023 20:46:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EF4DC4339B;
-        Wed, 15 Feb 2023 20:46:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676494008;
-        bh=wOf9TsCuyj5000zw3qgyvwtH59ys6dWVyqhYx7gD7x8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sv28U0bhQGZHMuv8HI2PtAOyib93/Y5J9JpjqBnpP7CrdNM9GxzHBVJPm5nGI+oXD
-         0huFTnSrJqR9A+KL2ikrGR5mSHKZkiGuiXJZ0ad4xH+Vg2jp47kOFIDARHUkj2UBkh
-         5gHuLmeB2Q5i0DsqC0t1pyPN/3/Na4yenIPVktnsAApKGyH/mzi9owjd1hEgKxxIWj
-         qCLARe93+dbBYGP5nqwbzgv5NI84coIxPWfeKniY69rbv9h2gOx/XumLUDM1kfREkD
-         hrB910gVWI2iSCbuKlwN2x4/kSQmNo540Oi/LYxGeAaCb5fM6Dtr7nHr8HME4fC/Pv
-         i82fgoHw3bnBw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xin Zhao <xnzhao@google.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 11/12] HID: core: Fix deadloop in hid_apply_multiplier.
-Date:   Wed, 15 Feb 2023 15:46:33 -0500
-Message-Id: <20230215204637.2761073-11-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230215204637.2761073-1-sashal@kernel.org>
-References: <20230215204637.2761073-1-sashal@kernel.org>
+        Wed, 15 Feb 2023 20:17:19 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AC7C3C784;
+        Wed, 15 Feb 2023 17:17:18 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id k24so391083pji.2;
+        Wed, 15 Feb 2023 17:17:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wg8TeDWkPF48KtftvDSL6IEhuDjKb+MEbGQmIe+Hmag=;
+        b=Vwqo4dw3E5kLCRVqNv2Xi7yQIV0/M4fnwU0EV0TrBJWkOFSU0yR45EwnAsNoJp0mt+
+         S2wI4Gg7CFOSBqXC/G2E0wckoW4MbVrjwHXWnV/Y7GFpiMorWge0h7jFVIvgTMucVkQw
+         V4zTE4G9EXEKhEwjyim+wHWGvQRM0b/3KrEr20mUXvDuXdxs70PL7ZGoqsXSZWJ0XOYr
+         u1TzBieNBw/bzLJ3a4eBAXgH41uaudk3oGw4tw3y4UWPjNudZqNYiBkskDSB/OqTNxST
+         cz5m+RGs6DQNiqxS3EaZeW6ySXDEMhBTHKANSdJlWS5ABA3SppevdiJeDAyviNmnVoKh
+         9rhg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wg8TeDWkPF48KtftvDSL6IEhuDjKb+MEbGQmIe+Hmag=;
+        b=GpjJoVz9GFGYX3Z151ovyR6xLXLVzLeYObC0xkiZ0m2xF6fLtI7QguLlR5gkxmj9jF
+         6gqsChhx87vsjTWLaiWFec1OkxOfgC2KpB64/8qouhqQob1jAcf9Qk3xtNUMJ4jbAJNE
+         yxd/42SfOv4ZGX0oZIRjdDUrJ0WoEK26LQP91V+8bkEhhM64OxX6Rcgd/JiyO6NaKAKj
+         m+6lQoYfcHodz6vlOC+3Ju/YtNBCejtkXN7kvIZm7eLKzI5h9SGmDy1b6/ol7XC5Scvp
+         T1kT5vz4FC298NNIPE1A4W9MMmAt0Sdw/ydgmJ7lfxhuCaXbosZ2ZIuqR1qj+hSyQ64w
+         L09A==
+X-Gm-Message-State: AO0yUKVwfXu3nSDdoxwWR0g7fsO536jFdYq2WU+9HrZyOk/ivHDngrh7
+        Wk2gLA9B/GIM541Ddr1B+Q0=
+X-Google-Smtp-Source: AK7set8b0IYWS1H7+D9dUU5DUlzDDEMVujA2jGO25CpyonJFJr7RCWYYydafqIVXFo9sMvkxY9BD9Q==
+X-Received: by 2002:a17:90a:5c:b0:231:20a8:6fe1 with SMTP id 28-20020a17090a005c00b0023120a86fe1mr4972482pjb.8.1676510237450;
+        Wed, 15 Feb 2023 17:17:17 -0800 (PST)
+Received: from redecorated-mbp ([202.53.32.211])
+        by smtp.gmail.com with ESMTPSA id k5-20020a17090a3e8500b00233ccd04a15sm2043799pjc.24.2023.02.15.17.17.14
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Feb 2023 17:17:17 -0800 (PST)
+Date:   Thu, 16 Feb 2023 12:17:09 +1100
+From:   Orlando Chamberlain <orlandoch.dev@gmail.com>
+To:     Andy Shevchenko <andy@infradead.org>
+Cc:     Aditya Garg <gargaditya08@live.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        "jkosina@suse.cz" <jkosina@suse.cz>,
+        "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "ronald@innovation.ch" <ronald@innovation.ch>,
+        "kekrby@gmail.com" <kekrby@gmail.com>
+Subject: Re: [PATCH 3/3] HID: apple-magic-backlight: Add driver for keyboard
+ backlight on internal Magic Keyboards
+Message-ID: <20230216121709.04c76b9d@redecorated-mbp>
+In-Reply-To: <Y+jLCebet+aekGRv@smile.fi.intel.com>
+References: <E5D8BEBA-3C5B-460F-BD2C-39470A793CC3@live.com>
+        <40274C3D-4F4F-479C-944C-EEBDC78F959C@live.com>
+        <868AA58D-2399-4E4A-A6C6-73F88DB13992@live.com>
+        <7D70F1FE-7F54-4D0A-8922-5466AA2AD364@live.com>
+        <Y+jLCebet+aekGRv@smile.fi.intel.com>
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.35; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Xin Zhao <xnzhao@google.com>
+On Sun, 12 Feb 2023 13:18:33 +0200
+Andy Shevchenko <andy@infradead.org> wrote:
 
-[ Upstream commit ea427a222d8bdf2bc1a8a6da3ebe247f7dced70c ]
+> On Fri, Feb 10, 2023 at 03:45:15AM +0000, Aditya Garg wrote:
+> > From: Orlando Chamberlain <orlandoch.dev@gmail.com>
+> > 
+> > This driver adds support for the keyboard backlight on Intel T2 Macs
+> > with internal Magic Keyboards (MacBookPro16,x and MacBookAir9,1)  
+> 
+> ...
+> 
+> > +#include <linux/hid.h>
+> > +#include <linux/usb.h>  
+> 
+> Seems lack of some header inclusions, e.g. where struct led_classdev
+> is defined or -ERRNO codes.
+> 
+> > +#include "hid-ids.h"  
+> 
+> ...
+> 
+> > +static void apple_magic_backlight_power_set(struct
+> > apple_magic_backlight *backlight,
+> > +					   char power, char rate)  
+> 
+> char is a beast, can we use u8 here and in similar cases?
+> 
+> ...
+> 
+> > +	/* Ensure this usb endpoint is for the keyboard backlight,
+> > not touchbar
+> > +	 * backlight.
+> > +	 */  
+> 
+> /*
+>  * Multi-line comment style
+>  * goes like this.
+>  */
+> 
+> ...
+> 
+> > +	backlight = devm_kzalloc(&hdev->dev, sizeof(*backlight),
+> > GFP_KERNEL);  
+> 
+> > +  
+> 
+> Redundant blank line.
+> 
+> > +	if (!backlight)
+> > +		return -ENOMEM;  
+> 
+> ...
+> 
+> > +static struct hid_driver apple_magic_backlight_hid_driver = {
+> > +	.name = "apple-magic-backlight",
+> > +	.id_table = apple_magic_backlight_hid_ids,
+> > +	.probe = apple_magic_backlight_probe,
+> > +	.remove = apple_magic_backlight_remove,
+> > +};  
+> 
+> > +  
+> 
+> Redundant blank line.
+> 
+> > +module_hid_driver(apple_magic_backlight_hid_driver);  
+> 
 
-The initial value of hid->collection[].parent_idx if 0. When
-Report descriptor doesn't contain "HID Collection", the value
-remains as 0.
-
-In the meanwhile, when the Report descriptor fullfill
-all following conditions, it will trigger hid_apply_multiplier
-function call.
-1. Usage page is Generic Desktop Ctrls (0x01)
-2. Usage is RESOLUTION_MULTIPLIER (0x48)
-3. Contain any FEATURE items
-
-The while loop in hid_apply_multiplier will search the top-most
-collection by searching parent_idx == -1. Because all parent_idx
-is 0. The loop will run forever.
-
-There is a Report Descriptor triggerring the deadloop
-0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
-0x09, 0x48,        // Usage (0x48)
-0x95, 0x01,        // Report Count (1)
-0x75, 0x08,        // Report Size (8)
-0xB1, 0x01,        // Feature
-
-Signed-off-by: Xin Zhao <xnzhao@google.com>
-Link: https://lore.kernel.org/r/20230130212947.1315941-1-xnzhao@google.com
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-core.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 2e475bd426b84..f1ea883db5de1 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1197,6 +1197,7 @@ int hid_open_report(struct hid_device *device)
- 	__u8 *end;
- 	__u8 *next;
- 	int ret;
-+	int i;
- 	static int (*dispatch_type[])(struct hid_parser *parser,
- 				      struct hid_item *item) = {
- 		hid_parser_main,
-@@ -1247,6 +1248,8 @@ int hid_open_report(struct hid_device *device)
- 		goto err;
- 	}
- 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
-+	for (i = 0; i < HID_DEFAULT_NUM_COLLECTIONS; i++)
-+		device->collection[i].parent_idx = -1;
- 
- 	ret = -EINVAL;
- 	while ((next = fetch_item(start, end, &item)) != NULL) {
--- 
-2.39.0
+Thanks for pointing out all these, I'll make those changes in v2.
 

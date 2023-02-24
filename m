@@ -2,50 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AA7D5C6FA9E
-	for <linux-input@archiver.kernel.org>; Fri, 24 Feb 2023 10:20:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F6B2C6FD1B
+	for <linux-input@archiver.kernel.org>; Fri, 24 Feb 2023 10:20:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230037AbjBXKUS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S229601AbjBXKUS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Fri, 24 Feb 2023 05:20:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41706 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229951AbjBXKUQ (ORCPT
+        with ESMTP id S230002AbjBXKUR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Feb 2023 05:20:16 -0500
+        Fri, 24 Feb 2023 05:20:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87F8018B2E;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2674199F6;
         Fri, 24 Feb 2023 02:20:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3969AB81C15;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80054B81C27;
         Fri, 24 Feb 2023 10:20:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E1E67C433EF;
-        Fri, 24 Feb 2023 10:20:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 16548C433D2;
+        Fri, 24 Feb 2023 10:20:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1677234012;
-        bh=iO9PN0y1qjt6XxSGQL41NucjZnvl8Vrb0aCV9l4Baxw=;
-        h=From:Subject:Date:To:Cc:Reply-To:From;
-        b=OixR4bYwEQE7++QzTrIaH6fU7sSNYsijDXBgaK8GT2QmRNLs9gnHS31+DW6CLiQRt
-         /jkVCvqf0/y7QqLQUj0NeCesSHQMGu12DYOQ36eOsqU4X8qCPlL/yAn95+nHI0n6Vj
-         JpjvM7bWSDNBu85pKTSJud4RMYc9lcZPBzgqsLPCaHt7v7sbDCn827eDtcMeeiphE3
-         K52/peY3d7XWQWw17kuvZVNWy3zTrjJf5uGF8d6qA4+gpDaUXf6swfMPiAOzt8bVvp
-         nLf7zNQcUBfR6fZZ9gNbQBaP9JfczmTHWEBzlekweU2ny/1Q5CSwMNzTncp2X98QiU
-         ERO5kI/B1RKXA==
+        bh=xBlidCGHZUNt5nAF7dXDD2T7thNcl2l1qGkhq0zvEjc=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+        b=swKqWuzU1JiUgiaSapoJDakRf5mPBcakTP0gmqIw6AUbv+9n6ibx2SH79pjUKxNrQ
+         BiZKkQvfyrKnMeK5768FEn7BIvNgrzzJzcNv6A8y20ec33Ngjb5qsYieseOrn/bbOC
+         UKXIijGSw2SYkcFtrxuGt0bYXLa9yGbS0zyBV77FN5kMPrx7kMyP4+B2csQr7FFP4e
+         6BQm+lShfJMZiepDRNRXSJHSlvwxiOdeQxSXcxOkIbcLDo4Sfnsmdzt7WAe0T4JR8Q
+         kIMZfcVbGbhqTTYGMKsnzEOJRX6QWtNyE3jFj9BHQMoriNmYdMiWjUmORUi0U7wvlA
+         Sws/wfwYwbRRg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by smtp.lore.kernel.org (Postfix) with ESMTP id C45FAC61DA3;
+        by smtp.lore.kernel.org (Postfix) with ESMTP id F2565C678DB;
         Fri, 24 Feb 2023 10:20:11 +0000 (UTC)
 From:   Sasha Finkelstein via B4 Relay 
         <devnull+fnkl.kernel.gmail.com@kernel.org>
-Subject: [PATCH RFC 0/4] Driver for Apple Z2 touchscreens.
-Date:   Fri, 24 Feb 2023 11:20:05 +0100
-Message-Id: <20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com>
+Date:   Fri, 24 Feb 2023 11:20:08 +0100
+Subject: [PATCH RFC 3/4] arm64: dts: apple: t8103: Add touchbar bindings
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAFWP+GMC/x2NQQqDQAxFryJZN6DRFum20AO4LS5mbKYG6iiJF
- FG8u2OXj/8+bwNjFTa4Zxso/8RkjAmKSwZd7+KHUd6JgXIqc6ISV8IwKg5fLOrgr1TdQuVrSL5
- 3xujVxa4/H4OzmfUcJuUgyz/ygub5gHbfD/nmbFF5AAAA
+Message-Id: <20230223-z2-for-ml-v1-3-028f2b85dc15@gmail.com>
+References: <20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com>
+In-Reply-To: <20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com>
 To:     Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
         Alyssa Rosenzweig <alyssa@rosenzweig.io>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -56,11 +55,11 @@ Cc:     linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Sasha Finkelstein <fnkl.kernel@gmail.com>
 X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1677234010; l=1467;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1677234010; l=2182;
  i=fnkl.kernel@gmail.com; s=20230213; h=from:subject:message-id;
- bh=iO9PN0y1qjt6XxSGQL41NucjZnvl8Vrb0aCV9l4Baxw=;
- b=dImDJPnm2PjAzixKlaYbuO+xXG0Y6YZ4B4bWEsmaK9XI/9tzCa8+2bLT0yto9OtWiqh83pRqY
- qM6HrTIDAOcArxJFYMyemiDG6YVmwXVJgxx8kVAqt5UfoTFGbwNqHHn
+ bh=n1LEbnJGNHnfsCpIN9s17ImMS20Dap8uFST/5P947LI=;
+ b=Z+MkwSkt7mmaoKRcS+hOzhrNIBUyg7rGRKE1Q6QyT8HRmCd/0mfzlyW5k8sACQITrZ5uyl2/f
+ jbjdkjOq4GqB7VFI+IfxLDh2QXfjOG+yN3qg8/5YwX3qArspaR0+xXE
 X-Developer-Key: i=fnkl.kernel@gmail.com; a=ed25519;
  pk=7LFSAJtxIWAs9LzCIyX0sSvCZy2wQTyEIu1zch6o804=
 X-Endpoint-Received: by B4 Relay for fnkl.kernel@gmail.com/20230213 with auth_id=28
@@ -70,38 +69,78 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi.
+From: Sasha Finkelstein <fnkl.kernel@gmail.com>
 
-This series adds support for Apple touchscreens using the Z2 protocol.
-Those are used as the primary touchscreen on mobile Apple devices, and for the
-touchbar on laptops using the M-series chips. (T1/T2 laptops have a coprocessor
-in charge of speaking Z2 to the touchbar).
-
-Sending this as a RFC for now, since this series requires the SPI controller
-support which is not upstream yet:
-https://lore.kernel.org/all/20211212034726.26306-1-marcan@marcan.st/
+Adds device tree entries for the touchbar digitizer
 
 Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
 ---
-Sasha Finkelstein (4):
-      dt-bindings: input: touchscreen: Add Z2 controller bindings.
-      input: apple_z2: Add a driver for Apple Z2 touchscreens
-      arm64: dts: apple: t8103: Add touchbar bindings
-      MAINTAINERS: Add entries for Apple Z2 touchscreen driver
+ arch/arm64/boot/dts/apple/t8103-j293.dts | 20 ++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t8103.dtsi     | 12 ++++++++++++
+ 2 files changed, 32 insertions(+)
 
- .../input/touchscreen/apple,z2-touchscreen.yaml    |  81 ++++
- MAINTAINERS                                        |   2 +
- arch/arm64/boot/dts/apple/t8103-j293.dts           |  20 +
- arch/arm64/boot/dts/apple/t8103.dtsi               |  12 +
- drivers/input/touchscreen/Kconfig                  |  13 +
- drivers/input/touchscreen/Makefile                 |   1 +
- drivers/input/touchscreen/apple_z2.c               | 465 +++++++++++++++++++++
- 7 files changed, 594 insertions(+)
----
-base-commit: c9c3395d5e3dcc6daee66c6908354d47bf98cb0c
-change-id: 20230223-z2-for-ml-18fb5246f4b8
+diff --git a/arch/arm64/boot/dts/apple/t8103-j293.dts b/arch/arm64/boot/dts/apple/t8103-j293.dts
+index 151074109a11..c369493b1c06 100644
+--- a/arch/arm64/boot/dts/apple/t8103-j293.dts
++++ b/arch/arm64/boot/dts/apple/t8103-j293.dts
+@@ -15,6 +15,9 @@
+ / {
+ 	compatible = "apple,j293", "apple,t8103", "apple,arm-platform";
+ 	model = "Apple MacBook Pro (13-inch, M1, 2020)";
++	aliases {
++		touchbar0 = &touchbar0;
++	};
+ };
+ 
+ &bluetooth0 {
+@@ -25,6 +28,23 @@ &wifi0 {
+ 	brcm,board-type = "apple,honshu";
+ };
+ 
++&spi0 {
++	status = "okay";
++
++	touchbar0: touchbar@0 {
++		compatible = "apple,z2-touchscreen";
++		reg = <0>;
++		spi-max-frequency = <11500000>;
++		reset-gpios = <&pinctrl_ap 139 0>;
++		cs-gpios = <&pinctrl_ap 109 0>;
++		interrupts-extended = <&pinctrl_ap 194 IRQ_TYPE_EDGE_FALLING>;
++		firmware-name = "apple/dfrmtfw-j293.bin";
++		touchscreen-size-x = <23045>;
++		touchscreen-size-y = <640>;
++		apple,z2-device-name = "MacBookPro17,1 Touch Bar";
++	};
++};
++
+ /*
+  * Remove unused PCIe ports and disable the associated DARTs.
+  */
+diff --git a/arch/arm64/boot/dts/apple/t8103.dtsi b/arch/arm64/boot/dts/apple/t8103.dtsi
+index 9859219699f4..70d3183f72bf 100644
+--- a/arch/arm64/boot/dts/apple/t8103.dtsi
++++ b/arch/arm64/boot/dts/apple/t8103.dtsi
+@@ -432,6 +432,18 @@ i2c4: i2c@235020000 {
+ 			status = "disabled"; /* only used in J293 */
+ 		};
+ 
++		spi0: spi@235100000 {
++			compatible = "apple,t8103-spi", "apple,spi";
++			reg = <0x2 0x35100000 0x0 0x4000>;
++			interrupt-parent = <&aic>;
++			interrupts = <AIC_IRQ 614 IRQ_TYPE_LEVEL_HIGH>;
++			clocks = <&clk_200m>;
++			power-domains = <&ps_spi0>;
++			#address-cells = <1>;
++			#size-cells = <0>;
++			status = "disabled"; /* only used in J293 */
++		};
++
+ 		serial0: serial@235200000 {
+ 			compatible = "apple,s5l-uart";
+ 			reg = <0x2 0x35200000 0x0 0x1000>;
 
-Best regards,
 -- 
-Sasha Finkelstein <fnkl.kernel@gmail.com>
+Git-137.1)
 

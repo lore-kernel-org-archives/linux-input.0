@@ -2,83 +2,85 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 524B1C61DA3
-	for <linux-input@archiver.kernel.org>; Fri, 24 Feb 2023 11:07:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9D96C64ED8
+	for <linux-input@archiver.kernel.org>; Fri, 24 Feb 2023 11:10:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229619AbjBXLH1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 24 Feb 2023 06:07:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40210 "EHLO
+        id S229906AbjBXLKF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 24 Feb 2023 06:10:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229964AbjBXLG6 (ORCPT
+        with ESMTP id S229946AbjBXLJo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Feb 2023 06:06:58 -0500
+        Fri, 24 Feb 2023 06:09:44 -0500
 Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F2948E35;
-        Fri, 24 Feb 2023 03:05:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB2EF129;
+        Fri, 24 Feb 2023 03:08:49 -0800 (PST)
 Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id D035D3200934;
-        Fri, 24 Feb 2023 06:04:07 -0500 (EST)
+        by mailout.west.internal (Postfix) with ESMTP id 54AB33200937;
+        Fri, 24 Feb 2023 06:08:48 -0500 (EST)
 Received: from imap47 ([10.202.2.97])
-  by compute5.internal (MEProxy); Fri, 24 Feb 2023 06:04:08 -0500
+  by compute5.internal (MEProxy); Fri, 24 Feb 2023 06:08:49 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=svenpeter.dev;
          h=cc:cc:content-type:date:date:from:from:in-reply-to
         :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm1; t=1677236647; x=1677323047; bh=IG
-        jti/89eaSBQeG7/CdUKqs9RGevFuI+4y4uzM+W77g=; b=YA+4c+VUpFw/eJ/p3d
-        +BYrAL9ijyiKTZVzmR/dW4O6/0M5HgRtTJk3KbRWPltEjx4VJSe11uLvMVdcxLGw
-        ZzmxqQV5y80Mf//+1Lh881tU6Ae8ixBLcfqzN3Zgk54T4rp6wgL4q0ZEgTp14CDW
-        /XS4v22TKokay8kQnrvYgrvOfV6j+3l16ZjWRnPZWJokwLXTQaGd9LYgnqPLoav7
-        9aBQWQR05Wq33+okmg06c/2BKFijN/BIZNOz0AY0i/6NJNWxg6ZAOS5p4Z1T0p5Z
-        6bFkoNfuHupLEDJv7TNETcMrHTvHU7h88vHOw6A8iyNLJwQZq7geEwGpmGWNustu
-        fBuw==
+        :subject:subject:to:to; s=fm1; t=1677236927; x=1677323327; bh=KK
+        c/e3/c+gUAR7YNhfs2iVKf3/8vMlHu6FvoTx1kM0Q=; b=h3dkd95IaDHrMsar4P
+        5ZfIW5JSTdVRQy6z9xoYkUnzJYg7yPofrxkbnJZBMmFpc3ZbT9NQq3++zQJqy8w0
+        +NmBryomuKiXCoJ/UPf6uYvAF1R4nDAsf6PflW27PkGFe56kLQ3wuyfDnH/5y4Y0
+        sk/3fVHzgy2qmtmaH8HJ9u1zFehPVH94gxoIOU7hmB2y11ZbEI3sSjO2JbRmAIyK
+        WH56iCUQVH1Ut2awz8eBSLwtC4/m6/x4hKjXIFGlA7oCbzcxL0cJnufMIV/p7Cvk
+        K4njz/oFFBvHveT5bVuIryzCZr5YrBweGgzF1QhA98/AOCUud7lN+17TEe8buxwv
+        xHrw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
         :feedback-id:from:from:in-reply-to:in-reply-to:message-id
         :mime-version:references:reply-to:sender:subject:subject:to:to
         :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1677236647; x=1677323047; bh=IGjti/89eaSBQeG7/CdUKqs9RGev
-        FuI+4y4uzM+W77g=; b=gQwuR6vByiIvt3FSH/MHek54M5V2v+ItpvV43/F/S8Pw
-        dZNWNEGYt3FxF8RImXuX0CmJynJ4o3UMMnQSSm3Tlu8ONEDx7D55/Bo3Gp3gls5d
-        8wv2aVI4hy2VvEXDB2002u3lY9bBcGUFAhP6snJx777cLfXi/1Auo51Zw3K7M4OQ
-        tfBkP5HKpbfeJ7GLVfk1tlWhAMPgrgdg+kedIxpKAfNZe4tt5PZudoFYUVv7Btza
-        jQTg6UnwzTCzH9ifZRyo1glBUWwss7a5LIClZNYsbSBiOBDQEv4m2r8fvt48q+Tp
-        nKpLJfEf3sqdwa2csmIRih1MM946n8HSAGgpx1P/dA==
-X-ME-Sender: <xms:ppn4Y7ghKHD68D9HYsdHq8TB9vyPNzAeYStolC_PZFOuFCMRzXiajg>
-    <xme:ppn4Y4DH97yJvFggoal3C88y_nm2Jz5z8pLgQCHgSP4u3gdhglwnKz3b1LG-M63xU
-    AfnCSYLEoMJGPaKlPk>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudekfedgudelucetufdoteggodetrfdotf
+        fm1; t=1677236927; x=1677323327; bh=KKc/e3/c+gUAR7YNhfs2iVKf3/8v
+        MlHu6FvoTx1kM0Q=; b=IM3O6FDRpepQ373V6L66WQMSxqTavvHfvd85D74fenGy
+        0LOIFKbStaLCwMTL0bJ3dbx1sgCObgugiOKdPrmduKqFRLrvawsnxXCp+c9npW4B
+        +z8BzzYSEnnZwJrakTBSwRojiAqdgb1lLtcxiSRvAPkMlsKgR+SoMnZYFjt3y52W
+        XsFQKkifcEMjMX/DHnlqEvujTTl9FH5Z9cp/0OUb8e4Sy7X95gzx2AxQHie7IYjd
+        YFDwcz0+ZXdyCNbfmYRJf4qL10Bn0DpJeVGuYHyzYM2sGRgeABjj/O26Il/fxgGC
+        q3LZJknveJzISIGJbDZ52M9FuPTMiUZWtrsqsLF/6g==
+X-ME-Sender: <xms:v5r4Y7eOL4GPuMpw9qjBwM6NpdS0TmMdyG9C5SAKAMp_7WwOGDSPbg>
+    <xme:v5r4YxNKIkZPx7ZbP9s8XBjCCOG0hFsJjnDPKwGLuKaZy5DqdGUbPK4Ztm7YOb4Xz
+    aOGqZTvIve-xX6Og5U>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudekfedgvddtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
     cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpedfufhv
     vghnucfrvghtvghrfdcuoehsvhgvnhesshhvvghnphgvthgvrhdruggvvheqnecuggftrf
-    grthhtvghrnhepfeegudfghfejvdffgffgkeetuddtteeuheduiedtgfdufedvudeitddv
-    leeivdfgnecuffhomhgrihhnpeguvghvihgtvghtrhgvvgdrohhrghenucevlhhushhtvg
-    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehsvhgvnhesshhvvghnphgv
-    thgvrhdruggvvh
-X-ME-Proxy: <xmx:ppn4Y7FJHfRgcX4UhAW5fRBb_6WI8pu4GlgIio60wDLydhhRBNb0xQ>
-    <xmx:ppn4Y4TSvPL3JwmnZWw5r6_pKAzq4PJML_sLNvBPX8Vxyc5OeJ-87w>
-    <xmx:ppn4Y4z-e8UWNF9A-ggLg-pAc1YZoMFI0chraCXGeLEUD1G0VlQqIg>
-    <xmx:p5n4Y0ecexx7F5f_gyjVLJUsZd5JDIn6oL5p2wym_49JegatXOhY9A>
+    grthhtvghrnhepleevgfegffehvedtieevhfekheeftedtjeetudevieehveevieelgffh
+    ieevieeunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epshhvvghnsehsvhgvnhhpvghtvghrrdguvghv
+X-ME-Proxy: <xmx:v5r4Y0j0CmYGUuTkyLHHFix-zpqch2wnoIvDJY3iN0TuMJ7H-tqvYg>
+    <xmx:v5r4Y88eZjEDu9eTUxAMlahRfwC2jPeipa9paQKo-MsfMudyJ1sQMA>
+    <xmx:v5r4Y3vcQO1vOMoprK8i0g0Ec75dcueKuJtBX1vbxzBBBrvZBYoPrg>
+    <xmx:v5r4Y4mDU1dxo7kQTVrYDK-EHuSoh_hfJegkhndP1P_vCFSGVcQE4A>
 Feedback-ID: i51094778:Fastmail
 Received: by mailuser.nyi.internal (Postfix, from userid 501)
-        id 51FDDA60082; Fri, 24 Feb 2023 06:04:06 -0500 (EST)
+        id AD0FCA6007C; Fri, 24 Feb 2023 06:08:47 -0500 (EST)
 X-Mailer: MessagingEngine.com Webmail Interface
 User-Agent: Cyrus-JMAP/3.9.0-alpha0-172-g9a2dae1853-fm-20230213.001-g9a2dae18
 Mime-Version: 1.0
-Message-Id: <e26318db-77b1-4876-8a40-f707d11b5857@app.fastmail.com>
-In-Reply-To: <20230223-z2-for-ml-v1-1-028f2b85dc15@gmail.com>
+Message-Id: <e6c7eb27-1b60-4894-a623-28ca3bccdea5@app.fastmail.com>
+In-Reply-To: <CAMT+MTQOUd0aSDJ3DPBMfkVwaic=nbRPtfGgu2nduSdCdydcgg@mail.gmail.com>
 References: <20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com>
  <20230223-z2-for-ml-v1-1-028f2b85dc15@gmail.com>
-Date:   Fri, 24 Feb 2023 12:03:45 +0100
+ <87r0ufs574.fsf@bloch.sibelius.xs4all.nl>
+ <CAMT+MTQOUd0aSDJ3DPBMfkVwaic=nbRPtfGgu2nduSdCdydcgg@mail.gmail.com>
+Date:   Fri, 24 Feb 2023 12:08:27 +0100
 From:   "Sven Peter" <sven@svenpeter.dev>
 To:     "Sasha Finkelstein" <fnkl.kernel@gmail.com>,
-        "Hector Martin" <marcan@marcan.st>,
+        "Mark Kettenis" <mark.kettenis@xs4all.nl>
+Cc:     "Hector Martin" <marcan@marcan.st>,
         "Alyssa Rosenzweig" <alyssa@rosenzweig.io>,
         "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
         "Rob Herring" <robh+dt@kernel.org>,
         "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>,
-        - <asahi@lists.linux.dev>, "Henrik Rydberg" <rydberg@bitmath.org>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+        asahi@lists.linux.dev, "Henrik Rydberg" <rydberg@bitmath.org>,
+        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH RFC 1/4] dt-bindings: input: touchscreen: Add Z2 controller
  bindings.
@@ -87,78 +89,25 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
+Hi,
 
 
-On Fri, Feb 24, 2023, at 11:20, Sasha Finkelstein via B4 Relay wrote:
-> From: Sasha Finkelstein <fnkl.kernel@gmail.com>
+On Fri, Feb 24, 2023, at 12:04, Sasha Finkelstein wrote:
+> On Fri, 24 Feb 2023 at 11:55, Mark Kettenis <mark.kettenis@xs4all.nl> wrote:
 >
-> Add bindings for touchscreen controllers attached using the Z2 protocol.
-> Those are present in most Apple devices.
->
-> Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
-> ---
->  .../input/touchscreen/apple,z2-touchscreen.yaml    | 81 ++++++++++++++++++++++
->  1 file changed, 81 insertions(+)
->
-> diff --git 
-> a/Documentation/devicetree/bindings/input/touchscreen/apple,z2-touchscreen.yaml 
-> b/Documentation/devicetree/bindings/input/touchscreen/apple,z2-touchscreen.yaml
-> new file mode 100644
-> index 000000000000..695594494b1e
-> --- /dev/null
-> +++ 
-> b/Documentation/devicetree/bindings/input/touchscreen/apple,z2-touchscreen.yaml
-> @@ -0,0 +1,81 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: 
-> http://devicetree.org/schemas/input/touchscreen/apple,z2-touchscreen.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Apple touchscreens attached using the Z2 protocol.
-> +
-> +maintainers:
-> +  - asahi@lists.linux.dev
-> +  - Sasha Finkelstein <fnkl.kernel@gmail.com>
-> +
-> +description: A series of touschscreen controllers used in Apple 
-> products.
-> +
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: apple,z2-touchscreen
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts-extended:
-> +    maxItems: 1
-> +
-> +  reset-gpios:
-> +    maxItems: 1
-> +
-> +  cs-gpios:
-> +    maxItems: 1
-> +
-> +  firmware-name:
-> +    maxItems: 1
-> +
-> +  apple,z2-device-name:
-> +    description: The name to be used for the input device
-> +    $ref: /schemas/types.yaml#/definitions/string
+>> What is the motivation for including the firmware name in the device
+>> tree rather than constructing it in the driver like what is done for
+>> the broadcom wireless?
+> There is no way to identify the device subtype before the firmware is
+> uploaded, and so i need some way of figuring out which firmware to use.
 
-Now that I thought about this again after the brief discussion we already had:
-Do we even need to specify the device name? Is there any reason we can't just
-always use something like "Apple Z2 TouchBar"?
+Some Broadcom bluetooth boards use the compatible of the root node (see
+btbcm_get_board_name in drivers/bluetooth/btbcm.c) which would be "apple,jXXX"
+for Apple Silicon. I believe the Broadcom WiFi driver has similar logic as well
+which marcan had to extend to instead of "brcm,board-type" because different
+WiFi boards can me matched to different Apple Silicon boards. I don't think
+that's the case for this touchscreen though.
 
-
-
-Best,
 
 
 Sven

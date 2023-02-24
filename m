@@ -2,181 +2,75 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EB195C61DA3
-	for <linux-input@archiver.kernel.org>; Fri, 24 Feb 2023 10:57:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 33390C61DA4
+	for <linux-input@archiver.kernel.org>; Fri, 24 Feb 2023 11:06:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229850AbjBXK5w (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 24 Feb 2023 05:57:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56024 "EHLO
+        id S229844AbjBXLGq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 24 Feb 2023 06:06:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229835AbjBXK5R (ORCPT
+        with ESMTP id S229750AbjBXLGV (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Feb 2023 05:57:17 -0500
-X-Greylist: delayed 62 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 24 Feb 2023 02:56:49 PST
-Received: from ewsoutbound.kpnmail.nl (ewsoutbound.kpnmail.nl [195.121.94.170])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B035E58B41
-        for <linux-input@vger.kernel.org>; Fri, 24 Feb 2023 02:56:49 -0800 (PST)
-X-KPN-MessageId: c61093c4-b431-11ed-a286-005056ab378f
-Received: from smtp.kpnmail.nl (unknown [10.31.155.40])
-        by ewsoutbound.so.kpn.org (Halon) with ESMTPS
-        id c61093c4-b431-11ed-a286-005056ab378f;
-        Fri, 24 Feb 2023 11:55:38 +0100 (CET)
+        Fri, 24 Feb 2023 06:06:21 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7522E6A9C2;
+        Fri, 24 Feb 2023 03:04:49 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id x10so52521720edd.13;
+        Fri, 24 Feb 2023 03:04:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=xs4all.nl; s=xs4all01;
-        h=subject:to:from:message-id:date;
-        bh=RJx/5miEEl7ATiBreX1Ka8eC6+Qnya3odTkxawnV0s4=;
-        b=t70F/WwqgOq+6vTGgmhKeGWGGFYzgRpH4PRUMX1Ej6jSZHpgik8vi3ieG9XzNjzqD2WOt3Lmhpu72
-         ALsSEPT9wkgCL+6QFGCsifajUZxjVHfMtek74m7Yh4LM4Z/tcjR2konV/9kiAo16M0UlC213vEOS9n
-         hO42tZTuJkqqL7tUrdm59TukKnmowghqj96F+oEEcOlMw0YbQzBkFRG624b3I/dgyQ/DzBhYh923zW
-         No2rXoXSp5a6qQHzRB7zfCLdCP7qH/UNg43Df6QHm9/OaLTgpZ9oY9eYcIHQsQKtcYms+Tg8b6v+/L
-         mUODz+cWdAEbL+PbpWE/PjgFup3h3dA==
-X-KPN-MID: 33|LW3smREh+fz2rqxMvkiE7yvX7H+U5iog9wzq7EOEoaKpb7VT5qqIEQys+oTKA6s
- jA53IiSf5/zwhYREOYfvUcKKWR+ZuBmGwQUoP7FKZYT4=
-X-KPN-VerifiedSender: Yes
-X-CMASSUN: 33|4amO9HCyQ/rbm7nIi+U7uLe43otuC/mwMMYAGQFuQ2DW9aKnvwQ3Cm3RrfqxOkg
- S7jfvNYA1U9CQ84JFUjZA8w==
-X-Originating-IP: 80.61.163.207
-Received: from bloch.sibelius.xs4all.nl (80-61-163-207.fixed.kpn.net [80.61.163.207])
-        by smtp.xs4all.nl (Halon) with ESMTPSA
-        id c90cb214-b431-11ed-927e-005056ab7584;
-        Fri, 24 Feb 2023 11:55:44 +0100 (CET)
-Date:   Fri, 24 Feb 2023 11:55:43 +0100
-Message-Id: <87r0ufs574.fsf@bloch.sibelius.xs4all.nl>
-From:   Mark Kettenis <mark.kettenis@xs4all.nl>
-To:     fnkl.kernel@gmail.com
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=gdwuEywNYdOYbVwrQQrjrsPur3vIHOPWD3d4XxXbKX0=;
+        b=MSxzV+R1ku+iZcmavQzQwnWy2bxOkcWE8XUdsyKIODORtXEcfVCF4fOVSMRZkPxz4v
+         0bz3EZvLCc1ijoG7YDtTTNdpxoQlB1L4D800QT5A5oZ+D0OLsVCZ1ub27n/XqFmMovnq
+         SZprioKSlochMIlRzGmjukLD8k+x2Dlq4JOjVcBFmMy8aeya6wwmj724nxotIaGxWySO
+         dsAax1prAXEmqO+a01UTHbuPs6m0sy/izKh2WGtxg4JcYdA6rF+MO7Egzn+ndCLlsXtH
+         S/3K6KhM29cuMF62wxyeWl/+ZyhWKhFlaJPSNSun8OjgUNqr+JmZeBI6rxtgfbIgstXP
+         nf9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=gdwuEywNYdOYbVwrQQrjrsPur3vIHOPWD3d4XxXbKX0=;
+        b=i0cjy7LLvk5EDAHLw5fVMeBraban8rfAKIegKtBV0ZY7fKmJIhUBW1wrRxt883r9Al
+         ixPoczk3udTHfeWbsCd+mGr/RSF7VJBE0rFTmxhAO99SHDqHo6dvrjNUkOr4mcKvY6GF
+         Uwt9BjSzCxk1yYDUqFvYZerDNiDeiF02Y6tfr12eO3xgy3Rr9Q6cG/s8k9gPofdxEaRk
+         hKI9owLjAb2XWN5TacCbluHNdorM2JM29iCaegHhx0wBw05BNWjlGlG5DU2UELEYCphf
+         9sT5kElmwf4+DcNOZfhZC/DnfgxHv9JxSHY5dhHQoy2HRAeU7VOTsaRQTw9LyNZciP3v
+         l6Tw==
+X-Gm-Message-State: AO0yUKWVvTuaWASfQzyjkBDB9SUMqFFN879iMFErTIUbOXiWUaVHrQKY
+        fPyV6knymVu0h0RqHudg2LGwuVkgTMpbYfI2yPc=
+X-Google-Smtp-Source: AK7set9Ir/cY7edp/BficUGznr8dJBEy/FQHiI0VNP5F0lqBK32AocTLjQxCKgd+qQmB67y0eof9R8/Ey6CMcCo7af4=
+X-Received: by 2002:a17:906:2a93:b0:8e8:9fb7:5aa9 with SMTP id
+ l19-20020a1709062a9300b008e89fb75aa9mr3890235eje.9.1677236657213; Fri, 24 Feb
+ 2023 03:04:17 -0800 (PST)
+MIME-Version: 1.0
+References: <20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com>
+ <20230223-z2-for-ml-v1-1-028f2b85dc15@gmail.com> <87r0ufs574.fsf@bloch.sibelius.xs4all.nl>
+In-Reply-To: <87r0ufs574.fsf@bloch.sibelius.xs4all.nl>
+From:   Sasha Finkelstein <fnkl.kernel@gmail.com>
+Date:   Fri, 24 Feb 2023 12:04:05 +0100
+Message-ID: <CAMT+MTQOUd0aSDJ3DPBMfkVwaic=nbRPtfGgu2nduSdCdydcgg@mail.gmail.com>
+Subject: Re: [PATCH RFC 1/4] dt-bindings: input: touchscreen: Add Z2
+ controller bindings.
+To:     Mark Kettenis <mark.kettenis@xs4all.nl>
 Cc:     marcan@marcan.st, sven@svenpeter.dev, alyssa@rosenzweig.io,
         dmitry.torokhov@gmail.com, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, asahi@lists.linux.dev,
         rydberg@bitmath.org, linux-arm-kernel@lists.infradead.org,
         linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, fnkl.kernel@gmail.com
-In-Reply-To: <20230223-z2-for-ml-v1-1-028f2b85dc15@gmail.com> (message from
-        Sasha Finkelstein via B4 Relay on Fri, 24 Feb 2023 11:20:06 +0100)
-Subject: Re: [PATCH RFC 1/4] dt-bindings: input: touchscreen: Add Z2 controller
- bindings.
-References: <20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com> <20230223-z2-for-ml-v1-1-028f2b85dc15@gmail.com>
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-> Date: Fri, 24 Feb 2023 11:20:06 +0100
-> From: Sasha Finkelstein <fnkl.kernel@gmail.com>
+On Fri, 24 Feb 2023 at 11:55, Mark Kettenis <mark.kettenis@xs4all.nl> wrote:
 
-Hi Sasha,
-
-> Add bindings for touchscreen controllers attached using the Z2 protocol.
-> Those are present in most Apple devices.
-> 
-> Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
-> ---
->  .../input/touchscreen/apple,z2-touchscreen.yaml    | 81 ++++++++++++++++++++++
->  1 file changed, 81 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/apple,z2-touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/apple,z2-touchscreen.yaml
-> new file mode 100644
-> index 000000000000..695594494b1e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/apple,z2-touchscreen.yaml
-> @@ -0,0 +1,81 @@
-> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/touchscreen/apple,z2-touchscreen.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Apple touchscreens attached using the Z2 protocol.
-> +
-> +maintainers:
-> +  - asahi@lists.linux.dev
-> +  - Sasha Finkelstein <fnkl.kernel@gmail.com>
-> +
-> +description: A series of touschscreen controllers used in Apple products.
-> +
-> +allOf:
-> +  - $ref: touchscreen.yaml#
-> +  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: apple,z2-touchscreen
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts-extended:
-> +    maxItems: 1
-> +
-> +  reset-gpios:
-> +    maxItems: 1
-> +
-> +  cs-gpios:
-> +    maxItems: 1
-> +
-> +  firmware-name:
-> +    maxItems: 1
-
-What is the motivation for including the firmware name in the device
-tree rather than constructing it in the driver like what is done for
-the broadcom wireless?
-
-In your example the firmware name includes the directory name.  I
-think that is a bad idea since it makes assumptions about the
-directory layout used for the firmware files on the OS level.  And in
-particular, forcing the firmware to be in a subdirectory named "apple"
-would be awkward for the way we handle firmware in OpenBSD.
-
-> +
-> +  apple,z2-device-name:
-> +    description: The name to be used for the input device
-> +    $ref: /schemas/types.yaml#/definitions/string
-> +
-> +  touchscreen-size-x: true
-> +  touchscreen-size-y: true
-> +  spi-max-frequency: true
-> +
-> +required:
-> +  - compatible
-> +  - interrupts-extended
-> +  - reset-gpios
-> +  - cs-gpios
-> +  - firmware-name
-> +  - apple,z2-device-name
-> +  - touchscreen-size-x
-> +  - touchscreen-size-y
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/gpio/gpio.h>
-> +    #include <dt-bindings/interrupt-controller/irq.h>
-> +
-> +    spi {
-> +            #address-cells = <1>;
-> +            #size-cells = <0>;
-> +
-> +            touchscreen@0 {
-> +                    compatible = "apple,z2-touchscreen";
-> +                    reg = <0>;
-> +                    spi-max-frequency = <11500000>;
-> +                    reset-gpios = <&pinctrl_ap 139 0>;
-> +                    cs-gpios = <&pinctrl_ap 109 0>;
-> +                    interrupts-extended = <&pinctrl_ap 194 IRQ_TYPE_EDGE_FALLING>;
-> +                    firmware-name = "apple/dfrmtfw-j293.bin";
-> +                    touchscreen-size-x = <23045>;
-> +                    touchscreen-size-y = <640>;
-> +                    apple,z2-device-name = "MacBookPro17,1 Touch Bar";
-> +            };
-> +    };
-> +
-> +...
-> 
-> -- 
-> Git-137.1)
-> 
-> 
-> _______________________________________________
-> linux-arm-kernel mailing list
-> linux-arm-kernel@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-arm-kernel
-> 
+> What is the motivation for including the firmware name in the device
+> tree rather than constructing it in the driver like what is done for
+> the broadcom wireless?
+There is no way to identify the device subtype before the firmware is
+uploaded, and so i need some way of figuring out which firmware to use.

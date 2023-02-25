@@ -2,70 +2,80 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E16F1C6FA8E
-	for <linux-input@archiver.kernel.org>; Sat, 25 Feb 2023 01:22:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C74C0C64EC7
+	for <linux-input@archiver.kernel.org>; Sat, 25 Feb 2023 18:27:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229496AbjBYBWW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 24 Feb 2023 20:22:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52928 "EHLO
+        id S229578AbjBYS1K (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 25 Feb 2023 13:27:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60930 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229527AbjBYBWV (ORCPT
+        with ESMTP id S229569AbjBYS1J (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 24 Feb 2023 20:22:21 -0500
-Received: from endrift.com (endrift.com [173.255.198.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D8A5583
-        for <linux-input@vger.kernel.org>; Fri, 24 Feb 2023 17:22:20 -0800 (PST)
-Received: from nebulosa.vulpes.eutheria.net (unknown [50.47.218.115])
-        by endrift.com (Postfix) with ESMTPSA id E010FA2AC;
-        Fri, 24 Feb 2023 17:22:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=endrift.com; s=2020;
-        t=1677288140; bh=MehVff0Xk6uIWCLJaKhlDyABzpbF7sin7qcyCjdoHhI=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NkTXvKPqPvWO3hj5HayZNbzz/RG7oFCdxs4ioqM0HCjkaIeS739/iCX2nsNFQ2Z1m
-         g7oWRKjn0J+AC1oRBug1UqUTzsZI56sadYmodmH8gdEM/n1xSvOTaxusXSgKcQrBEj
-         yat8Y+LZotSuvS2SWJhFOBjtxmp/cGm0VbQLG1ruzqhNzfSUe9jDap70nWJH4La1s6
-         OY64eti9pE1zpwn5eN8t3r/2bWTdQLxW76Sjb+8wNht0/tyRLV1gAX7kkMYADvk8y8
-         VJEcdUbvDLb54EGC9MZyG4WXzAA02D1EFNuLZqBx48DzMPy+wwFSc3lWMDqS3vB2Cw
-         kxfsvqydKZciQ==
-From:   Vicki Pfau <vi@endrift.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, Pavel Rojtberg <rojtberg@gmail.com>
-Cc:     Vicki Pfau <vi@endrift.com>
-Subject: [PATCH 2/3] Input: xpad - remove unused field in VID/PID table
-Date:   Fri, 24 Feb 2023 17:21:47 -0800
-Message-Id: <20230225012147.276489-3-vi@endrift.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230225012147.276489-1-vi@endrift.com>
-References: <20230225012147.276489-1-vi@endrift.com>
+        Sat, 25 Feb 2023 13:27:09 -0500
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D698E11EA3
+        for <linux-input@vger.kernel.org>; Sat, 25 Feb 2023 10:27:08 -0800 (PST)
+Received: by mail-pl1-x632.google.com with SMTP id i5so1061933pla.2
+        for <linux-input@vger.kernel.org>; Sat, 25 Feb 2023 10:27:08 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=rXeDHFZcVOvss1BIW+kL49MYBMlusP7/QJhQluj9uPA=;
+        b=MaUGn0BC86XxOm/seu/vcrhnypyHJcQDYUVhdG9OqSu7O7apQjWj+QniwlH3xWR8/y
+         TBk/2T7DEwfLTK4Fsb/2Dh8cBnm40Rol1sDK6aiHbR72XaeXdmY1ILMn97EQDHrYFW5O
+         64a56cUmAffh17aypTZ1xgy5aDQagd9OOFCpIbknzWrt82MFZlA1nl3LSjwhndmPyC4Q
+         RLBJ26p23y4hAL6RqGTRk4MEXPk9qvp8slxBQieoeyFSnEo8IfEVCye4NHfMrJ8t5YjZ
+         Aob10F3ggDxkQgyJsDECRRuo6inK2sEVhXzTg1rv/4DYmBCeCM7wE7GhXsguANmyqiam
+         Qivg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rXeDHFZcVOvss1BIW+kL49MYBMlusP7/QJhQluj9uPA=;
+        b=kQ7sKLTpIPs6yin/S9/jVWbZZQtjrY6YrAuGYWRTmqDh9dBhLl8+EYxWH2ohFhjjU6
+         WzmPN6dmN4VLj/kRzl5NM0EpcrUlt02rcU+BxslU16ru0UzW6VBR36gQ5MYZ0c+B3CtQ
+         efVPuXb3HkDYzOvUerNuxu4n0C01FNK+6zD8DHfxgHL4G+RPXczXyNMEYxR8KdeK1yln
+         U9B20rys4KqJFG2E2kXyF2b44Pw527nSrzzbmctHqLo3sWsqzQIXHvatOGpjkQDZP7cb
+         uzW9QPYE1XL1ZTxaHkYcTf/a3Oemlv/2tydPGJGchIhcdmCC30iLqsNy3qUwTuiAkw6F
+         qX0Q==
+X-Gm-Message-State: AO0yUKUN+bSJl8v9dN63dIuHtCbzpyybJvk8k0QD3CXT1n8JJCU7wDd9
+        1QNI0VJ4xIs27jLMSv5P/qg=
+X-Google-Smtp-Source: AK7set/N6f4qFh1NOQBZmIxGH0XSxGCVYIDFRLpn6hIPDZy1hRrsPboL/DAWZfof8YFlORQoMlhFdg==
+X-Received: by 2002:a05:6a21:340a:b0:cc:d386:ec28 with SMTP id yn10-20020a056a21340a00b000ccd386ec28mr1460383pzb.12.1677349628233;
+        Sat, 25 Feb 2023 10:27:08 -0800 (PST)
+Received: from google.com ([2620:15c:9d:2:2c72:3c03:87ac:5b3e])
+        by smtp.gmail.com with ESMTPSA id g11-20020aa7818b000000b005ae02dc5b94sm1477243pfi.219.2023.02.25.10.27.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 25 Feb 2023 10:27:07 -0800 (PST)
+Date:   Sat, 25 Feb 2023 10:27:04 -0800
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     Vicki Pfau <vi@endrift.com>,
+        Michael Cullen <michael@michaelcullen.name>,
+        Marcos Alano <marcoshalano@gmail.com>,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH] Input: xpad - fix PowerA EnWired Controller guide button
+Message-ID: <Y/pS+NAqCwdQNJNQ@google.com>
+References: <20221006221209.2016372-1-vi@endrift.com>
+ <d4b320fcca34c25713836c1ef5a34157c67071f0.camel@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d4b320fcca34c25713836c1ef5a34157c67071f0.camel@redhat.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The list of specific VID/PID combinations for various controllers recently
-added a new field "xtype". However, this field isn't used, nor filled in in the
-table itself, and was likely added by mistake and overlooked during review.
-Since this field isn't used, it's safe to remove.
+Hi Lyude,
 
-Signed-off-by: Vicki Pfau <vi@endrift.com>
----
- drivers/input/joystick/xpad.c | 1 -
- 1 file changed, 1 deletion(-)
+On Sat, Feb 25, 2023 at 02:14:27AM +0100, Lyude Paul wrote:
+> Poke, Dmitry - any chance we could get this pushed?
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 04af2213407f..d244ba22b85e 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -126,7 +126,6 @@ static const struct xpad_device {
- 	char *name;
- 	u8 mapping;
- 	u8 xtype;
--	u8 packet_type;
- } xpad_device[] = {
- 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
- 	{ 0x03eb, 0xff01, "Wooting One (Legacy)", 0, XTYPE_XBOX360 },
+I was waiting for Vicki to respond to Mattijs' comments...
+
+Thanks.
+
 -- 
-2.39.2
-
+Dmitry

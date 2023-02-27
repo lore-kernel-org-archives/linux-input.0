@@ -2,277 +2,68 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2E1BC6FA8E
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 03:13:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF9E0C64ED6
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 05:09:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229900AbjB0DNk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Feb 2023 22:13:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52120 "EHLO
+        id S229545AbjB0FJj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Feb 2023 00:09:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229633AbjB0DNj (ORCPT
+        with ESMTP id S229516AbjB0FJi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Feb 2023 22:13:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46F8EBDDA;
-        Sun, 26 Feb 2023 19:13:38 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5CB4B80CBF;
-        Mon, 27 Feb 2023 02:06:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1082FC433EF;
-        Mon, 27 Feb 2023 02:06:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463596;
-        bh=eEChCoWLvbUWTbU2Y8uTUla8PiuRJh6JULLPRmrW7JE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uo1hYfIa1jQR3JdOrJ1zC3lC0io1b1b/PPV1xWpi3rM8p7euSbZ8CQAH0KsVKwp3+
-         IwpNjfjGLQmx4Z+PgHjX5YS6YzkfwMuZh315xn8DggUIjmugXDIc+snxY8k1P+b5jX
-         F1ltkwXv9lOjOSD4FGG8PKW6CAuHaNWfHSALrarnLPiBDoDBYRtR1Ue3UBvjQxzb5j
-         MWWdZktodFH17pNhc/S1pcRqxj/OvxqIzWMBDuSiy7PSycC9yZfu1jaNQrgSEwMio2
-         Pxpwy0GQn3bC6VQ88OCkzIt8T3z8eeGSdatz0Pv44dxS7U2acEbfq4KhOLC7VzVqMa
-         tfZ6XEvP46QeA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Allen Ballway <ballway@chromium.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        dmitry.torokhov@gmail.com, alistair@alistair23.me,
-        kabel@kernel.org, hverkuil-cisco@xs4all.nl, petrm@nvidia.com,
-        u.kleine-koenig@pengutronix.de, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 23/58] HID: multitouch: Add quirks for flipped axes
-Date:   Sun, 26 Feb 2023 21:04:21 -0500
-Message-Id: <20230227020457.1048737-23-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230227020457.1048737-1-sashal@kernel.org>
-References: <20230227020457.1048737-1-sashal@kernel.org>
+        Mon, 27 Feb 2023 00:09:38 -0500
+Received: from smtpbg151.qq.com (smtpbg151.qq.com [18.169.211.239])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C2C21BADF;
+        Sun, 26 Feb 2023 21:09:34 -0800 (PST)
+X-QQ-mid: bizesmtp91t1677474546tnx1hwml
+Received: from localhost.localdomain ( [58.240.82.166])
+        by bizesmtp.qq.com (ESMTP) with 
+        id ; Mon, 27 Feb 2023 13:09:00 +0800 (CST)
+X-QQ-SSF: 01400000002000I0Z000B00A0000000
+X-QQ-FEAT: CR3LFp2JE4nh9Hz0vOzbBp/DnSzGhy/CrqreMsExWYLq53wGo40uFbRfs1ZR0
+        wckWAS5Yt/bONMZ6MnraJRzqIxHfjfum7GG2XRXPQ+NKlx1ohhGmT0/5z5PziYe2rV7tcuJ
+        t4kbH19x3rBJnSrY3JpPrLNWDdPnKIM+cLLpaoR/h4NohmITWpX1N7KaJP/I7FLpMRVIiFo
+        K63jxe9E+kjjI3r7ygGjXk+5b4MI3Q7ipckrdPY0o1K5xaxM2rKHE4lr1zLI6FgbW9PjgTV
+        /N556S+WtDpQ087UCugYagOE/eUe1FNxEs0KwnE/u7VOdi2MUkzqP+eRkZM4jgT/159SogO
+        r8cconDsU/Vzx5jb7djpS38vRT0bgwpsM7zdyfBykKct8Q3Q7FZz/kL+tKh9NyQNsEe5r1Z
+X-QQ-GoodBg: 2
+From:   Meng Tang <tangmeng@uniontech.com>
+To:     dmitry.torokhov@gmail.com, akpm@linux-foundation.org,
+        glider@google.com
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Meng Tang <tangmeng@uniontech.com>
+Subject: [PATCH] Input: libps2 - add support for lenovo xiaoxin keyboard
+Date:   Mon, 27 Feb 2023 13:08:58 +0800
+Message-Id: <20230227050858.21596-1-tangmeng@uniontech.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtp:uniontech.com:qybglogicsvr:qybglogicsvr7
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Allen Ballway <ballway@chromium.org>
+Modified keyboard_ids in function ps2_is_keyboard_id
+add 0x83 for Lenovo Xiaoxin keyboard
 
-[ Upstream commit a2f416bf062a38bb76cccd526d2d286b8e4db4d9 ]
-
-Certain touchscreen devices, such as the ELAN9034, are oriented
-incorrectly and report touches on opposite points on the X and Y axes.
-For example, a 100x200 screen touched at (10,20) would report (90, 180)
-and vice versa.
-
-This is fixed by adding device quirks to transform the touch points
-into the correct spaces, from X -> MAX(X) - X, and Y -> MAX(Y) - Y.
-
-Signed-off-by: Allen Ballway <ballway@chromium.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Meng Tang <tangmeng@uniontech.com>
 ---
- drivers/hid/hid-multitouch.c             | 39 ++++++++++++++++++---
- drivers/hid/hid-quirks.c                 |  6 ++++
- drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 43 ++++++++++++++++++++++++
- drivers/hid/i2c-hid/i2c-hid.h            |  3 ++
- 4 files changed, 87 insertions(+), 4 deletions(-)
+ drivers/input/serio/libps2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 372cbdd223e09..e31be0cb8b850 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -71,6 +71,7 @@ MODULE_LICENSE("GPL");
- #define MT_QUIRK_SEPARATE_APP_REPORT	BIT(19)
- #define MT_QUIRK_FORCE_MULTI_INPUT	BIT(20)
- #define MT_QUIRK_DISABLE_WAKEUP		BIT(21)
-+#define MT_QUIRK_ORIENTATION_INVERT	BIT(22)
+diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
+index 3e19344eda93..84f366846cf8 100644
+--- a/drivers/input/serio/libps2.c
++++ b/drivers/input/serio/libps2.c
+@@ -156,6 +156,7 @@ bool ps2_is_keyboard_id(u8 id_byte)
+ 		0x5d,	/* Trust keyboard		*/
+ 		0x60,	/* NMB SGI keyboard, translated */
+ 		0x47,	/* NMB SGI keyboard		*/
++		0x83,	/* Lenovo Xiaoxin keyboard	*/
+ 	};
  
- #define MT_INPUTMODE_TOUCHSCREEN	0x02
- #define MT_INPUTMODE_TOUCHPAD		0x03
-@@ -1009,6 +1010,7 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 			    struct mt_usages *slot)
- {
- 	struct input_mt *mt = input->mt;
-+	struct hid_device *hdev = td->hdev;
- 	__s32 quirks = app->quirks;
- 	bool valid = true;
- 	bool confidence_state = true;
-@@ -1086,6 +1088,10 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 		int orientation = wide;
- 		int max_azimuth;
- 		int azimuth;
-+		int x;
-+		int y;
-+		int cx;
-+		int cy;
- 
- 		if (slot->a != DEFAULT_ZERO) {
- 			/*
-@@ -1104,6 +1110,9 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 			if (azimuth > max_azimuth * 2)
- 				azimuth -= max_azimuth * 4;
- 			orientation = -azimuth;
-+			if (quirks & MT_QUIRK_ORIENTATION_INVERT)
-+				orientation = -orientation;
-+
- 		}
- 
- 		if (quirks & MT_QUIRK_TOUCH_SIZE_SCALING) {
-@@ -1115,10 +1124,23 @@ static int mt_process_slot(struct mt_device *td, struct input_dev *input,
- 			minor = minor >> 1;
- 		}
- 
--		input_event(input, EV_ABS, ABS_MT_POSITION_X, *slot->x);
--		input_event(input, EV_ABS, ABS_MT_POSITION_Y, *slot->y);
--		input_event(input, EV_ABS, ABS_MT_TOOL_X, *slot->cx);
--		input_event(input, EV_ABS, ABS_MT_TOOL_Y, *slot->cy);
-+		x = hdev->quirks & HID_QUIRK_X_INVERT ?
-+			input_abs_get_max(input, ABS_MT_POSITION_X) - *slot->x :
-+			*slot->x;
-+		y = hdev->quirks & HID_QUIRK_Y_INVERT ?
-+			input_abs_get_max(input, ABS_MT_POSITION_Y) - *slot->y :
-+			*slot->y;
-+		cx = hdev->quirks & HID_QUIRK_X_INVERT ?
-+			input_abs_get_max(input, ABS_MT_POSITION_X) - *slot->cx :
-+			*slot->cx;
-+		cy = hdev->quirks & HID_QUIRK_Y_INVERT ?
-+			input_abs_get_max(input, ABS_MT_POSITION_Y) - *slot->cy :
-+			*slot->cy;
-+
-+		input_event(input, EV_ABS, ABS_MT_POSITION_X, x);
-+		input_event(input, EV_ABS, ABS_MT_POSITION_Y, y);
-+		input_event(input, EV_ABS, ABS_MT_TOOL_X, cx);
-+		input_event(input, EV_ABS, ABS_MT_TOOL_Y, cy);
- 		input_event(input, EV_ABS, ABS_MT_DISTANCE, !*slot->tip_state);
- 		input_event(input, EV_ABS, ABS_MT_ORIENTATION, orientation);
- 		input_event(input, EV_ABS, ABS_MT_PRESSURE, *slot->p);
-@@ -1735,6 +1757,15 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (id->vendor == HID_ANY_ID && id->product == HID_ANY_ID)
- 		td->serial_maybe = true;
- 
-+
-+	/* Orientation is inverted if the X or Y axes are
-+	 * flipped, but normalized if both are inverted.
-+	 */
-+	if (hdev->quirks & (HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT) &&
-+	    !((hdev->quirks & HID_QUIRK_X_INVERT)
-+	      && (hdev->quirks & HID_QUIRK_Y_INVERT)))
-+		td->mtclass.quirks = MT_QUIRK_ORIENTATION_INVERT;
-+
- 	/* This allows the driver to correctly support devices
- 	 * that emit events over several HID messages.
- 	 */
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index be3ad02573de8..d13f8e6ccee45 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -19,6 +19,7 @@
- #include <linux/input/elan-i2c-ids.h>
- 
- #include "hid-ids.h"
-+#include "i2c-hid/i2c-hid.h"
- 
- /*
-  * Alphabetically sorted by vendor then product.
-@@ -1297,6 +1298,11 @@ unsigned long hid_lookup_quirk(const struct hid_device *hdev)
- 		quirks = hid_gets_squirk(hdev);
- 	mutex_unlock(&dquirks_lock);
- 
-+	/* Get quirks specific to I2C devices */
-+	if (IS_ENABLED(CONFIG_I2C_DMI_CORE) && IS_ENABLED(CONFIG_DMI) &&
-+	    hdev->bus == BUS_I2C)
-+		quirks |= i2c_hid_get_dmi_quirks(hdev->vendor, hdev->product);
-+
- 	return quirks;
- }
- EXPORT_SYMBOL_GPL(hid_lookup_quirk);
-diff --git a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-index 8e0f67455c098..554a7dc285365 100644
---- a/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c
-@@ -10,8 +10,10 @@
- #include <linux/types.h>
- #include <linux/dmi.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/hid.h>
- 
- #include "i2c-hid.h"
-+#include "../hid-ids.h"
- 
- 
- struct i2c_hid_desc_override {
-@@ -416,6 +418,28 @@ static const struct dmi_system_id i2c_hid_dmi_desc_override_table[] = {
- 	{ }	/* Terminate list */
- };
- 
-+static const struct hid_device_id i2c_hid_elan_flipped_quirks = {
-+	HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8, USB_VENDOR_ID_ELAN, 0x2dcd),
-+		HID_QUIRK_X_INVERT | HID_QUIRK_Y_INVERT
-+};
-+
-+/*
-+ * This list contains devices which have specific issues based on the system
-+ * they're on and not just the device itself. The driver_data will have a
-+ * specific hid device to match against.
-+ */
-+static const struct dmi_system_id i2c_hid_dmi_quirk_table[] = {
-+	{
-+		.ident = "DynaBook K50/FR",
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dynabook Inc."),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "dynabook K50/FR"),
-+		},
-+		.driver_data = (void *)&i2c_hid_elan_flipped_quirks,
-+	},
-+	{ }	/* Terminate list */
-+};
-+
- 
- struct i2c_hid_desc *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name)
- {
-@@ -450,3 +474,22 @@ char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
- 	*size = override->hid_report_desc_size;
- 	return override->hid_report_desc;
- }
-+
-+u32 i2c_hid_get_dmi_quirks(const u16 vendor, const u16 product)
-+{
-+	u32 quirks = 0;
-+	const struct dmi_system_id *system_id =
-+			dmi_first_match(i2c_hid_dmi_quirk_table);
-+
-+	if (system_id) {
-+		const struct hid_device_id *device_id =
-+				(struct hid_device_id *)(system_id->driver_data);
-+
-+		if (device_id && device_id->vendor == vendor &&
-+		    device_id->product == product)
-+			quirks = device_id->driver_data;
-+	}
-+
-+	return quirks;
-+}
-+EXPORT_SYMBOL_GPL(i2c_hid_get_dmi_quirks);
-diff --git a/drivers/hid/i2c-hid/i2c-hid.h b/drivers/hid/i2c-hid/i2c-hid.h
-index 96c75510ad3f1..2c7b66d5caa0f 100644
---- a/drivers/hid/i2c-hid/i2c-hid.h
-+++ b/drivers/hid/i2c-hid/i2c-hid.h
-@@ -9,6 +9,7 @@
- struct i2c_hid_desc *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name);
- char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
- 					       unsigned int *size);
-+u32 i2c_hid_get_dmi_quirks(const u16 vendor, const u16 product);
- #else
- static inline struct i2c_hid_desc
- 		   *i2c_hid_get_dmi_i2c_hid_desc_override(uint8_t *i2c_name)
-@@ -16,6 +17,8 @@ static inline struct i2c_hid_desc
- static inline char *i2c_hid_get_dmi_hid_report_desc_override(uint8_t *i2c_name,
- 							     unsigned int *size)
- { return NULL; }
-+static inline u32 i2c_hid_get_dmi_quirks(const u16 vendor, const u16 product)
-+{ return 0; }
- #endif
- 
- /**
+ 	return memchr(keyboard_ids, id_byte, sizeof(keyboard_ids)) != NULL;
 -- 
-2.39.0
+2.20.1
 

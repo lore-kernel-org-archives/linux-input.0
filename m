@@ -2,104 +2,159 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BC6B0C7EE23
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 15:00:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 20B11C64ED8
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 18:59:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbjB0PAN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 27 Feb 2023 10:00:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44132 "EHLO
+        id S229587AbjB0S7W (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Feb 2023 13:59:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229972AbjB0PAM (ORCPT
+        with ESMTP id S229697AbjB0S7T (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Feb 2023 10:00:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFDF9659F;
-        Mon, 27 Feb 2023 06:59:50 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EEE3B80D53;
-        Mon, 27 Feb 2023 14:59:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 064B2C4339E;
-        Mon, 27 Feb 2023 14:59:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677509988;
-        bh=cpGiJHjSdLQyBJPnVBT9lZXyxg6+w4yV3JfgqD66YBg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cnrke0HLcDZeNsJOS+SYEI++TSqQ4QvJH9CrHpftcmK2MlcOhqTdtrJQTKe9frBcC
-         tAf+FU8mm4XeV2lzvP0nI3yT/BkjcNGFtxznn7own2FhWj9Xuf4cQSt98fk7fXFMlY
-         KUvJrbwEOqT9hsca08pJszaPVaQjnHjKri/MV4v3C/46VmkE34n50AsTJmxAxWt4mV
-         zJUGk3bGlPGXFWO186mLthpScPWhVHs7abouNt1ayBwtdT+tpkVZma+oCRq6thDzlJ
-         Vo9lOZKpfz1ohFaJZ4GjxXwVsuzjlUd4F3ZlYy+UPfEnvk+1eNTRNQ/A26iKONNes7
-         W9B5J8WmETHrA==
-Date:   Mon, 27 Feb 2023 09:59:46 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Jean Delvare <jdelvare@suse.de>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Allen Ballway <ballway@chromium.org>,
-        Jiri Kosina <jkosina@suse.cz>, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, groeck@chromium.org,
-        alistair@alistair23.me, dmitry.torokhov@gmail.com,
-        jk@codeconstruct.com.au, Jonathan.Cameron@huawei.com,
-        cmo@melexis.com, u.kleine-koenig@pengutronix.de,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.15 10/25] HID: multitouch: Add quirks for
- flipped axes
-Message-ID: <Y/zFYpxtkBmNmFLf@sashalap>
-References: <20230227020855.1051605-1-sashal@kernel.org>
- <20230227020855.1051605-10-sashal@kernel.org>
- <20230227132300.4a3c3fad@endymion.delvare>
+        Mon, 27 Feb 2023 13:59:19 -0500
+Received: from srv6.fidu.org (srv6.fidu.org [IPv6:2a01:4f8:231:de0::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59C78B75B;
+        Mon, 27 Feb 2023 10:59:17 -0800 (PST)
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by srv6.fidu.org (Postfix) with ESMTP id EB8EEC800A2;
+        Mon, 27 Feb 2023 19:59:13 +0100 (CET)
+Authentication-Results: srv6.fidu.org (amavisd-new); dkim=pass (1024-bit key)
+        reason="pass (just generated, assumed good)"
+        header.d=tuxedocomputers.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        tuxedocomputers.com; h=content-transfer-encoding:mime-version
+        :references:in-reply-to:x-mailer:message-id:date:date:subject
+        :subject:from:from; s=default; t=1677524353; x=1679338754; bh=nv
+        PHU13DiB2jn0kJ1y/JEV9BlTwfA0upugNB7OXnblo=; b=OgMuXssREfliICSyiB
+        prBefGRyr62UtnB0RjgBqDfLWrfIRL5PInwEehlFKG69umjxVIMUqCDP5kW1nQRQ
+        XiAvhJcNKKtJLGLkZd0pnrQTMw2s5BWhNDHkz7wsPI8Aie8yJ5skbCsZMLzVMKxV
+        EmclK4V0J8ySWdcZHximXZEIk=
+X-Virus-Scanned: Debian amavisd-new at srv6.fidu.org
+Received: from srv6.fidu.org ([127.0.0.1])
+        by localhost (srv6.fidu.org [127.0.0.1]) (amavisd-new, port 10026)
+        with LMTP id UNjbz8pMYp71; Mon, 27 Feb 2023 19:59:13 +0100 (CET)
+Received: from wsembach-tuxedo.fritz.box (host-88-217-226-44.customer.m-online.net [88.217.226.44])
+        (Authenticated sender: wse@tuxedocomputers.com)
+        by srv6.fidu.org (Postfix) with ESMTPA id 47DD8C800A1;
+        Mon, 27 Feb 2023 19:59:13 +0100 (CET)
+From:   Werner Sembach <wse@tuxedocomputers.com>
+To:     dmitry.torokhov@gmail.com, wse@tuxedocomputers.com,
+        swboyd@chromium.org, gregkh@linuxfoundation.org,
+        hdegoede@redhat.com, mkorpershoek@baylibre.com,
+        chenhuacai@kernel.org, wsa+renesas@sang-engineering.com,
+        tiwai@suse.de, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v2 2/2] Input: i8042 - add 2 more TUXEDO devices to i8042 and atkbd quirk tables
+Date:   Mon, 27 Feb 2023 19:59:07 +0100
+Message-Id: <20230227185907.569154-3-wse@tuxedocomputers.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230227185907.569154-1-wse@tuxedocomputers.com>
+References: <20230227185907.569154-1-wse@tuxedocomputers.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20230227132300.4a3c3fad@endymion.delvare>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Feb 27, 2023 at 01:23:00PM +0100, Jean Delvare wrote:
->Hi Sasha,
->
->On Sun, 26 Feb 2023 21:08:33 -0500, Sasha Levin wrote:
->> From: Allen Ballway <ballway@chromium.org>
->>
->> [ Upstream commit a2f416bf062a38bb76cccd526d2d286b8e4db4d9 ]
->>
->> Certain touchscreen devices, such as the ELAN9034, are oriented
->> incorrectly and report touches on opposite points on the X and Y axes.
->> For example, a 100x200 screen touched at (10,20) would report (90, 180)
->> and vice versa.
->>
->> This is fixed by adding device quirks to transform the touch points
->> into the correct spaces, from X -> MAX(X) - X, and Y -> MAX(Y) - Y.
->>
->> Signed-off-by: Allen Ballway <ballway@chromium.org>
->> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
->>  drivers/hid/hid-multitouch.c             | 39 ++++++++++++++++++---
->>  drivers/hid/hid-quirks.c                 |  6 ++++
->>  drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 43 ++++++++++++++++++++++++
->>  drivers/hid/i2c-hid/i2c-hid.h            |  3 ++
->>  4 files changed, 87 insertions(+), 4 deletions(-)
->> (...)
->
->Second rule of acceptance for stable patches:
->
-> - It cannot be bigger than 100 lines, with context.
->
->Clearly not met here.
+A lot of modern Clevo barebones have touchpad and/or keyboard issues after
+suspend fixable with nomux + reset + noloop + nopnp. Luckily, none of them
+have an external PS/2 port so this can safely be set for all of them.
 
-About a quarter of stable commits in the last 12 months breat the rule
-above.
+I'm not entirely sure if every device listed really needs all four quirks,
+but after testing and production use. No negative effects could be
+observed when setting all four.
 
->To me, this commit is something distributions may want to backport if
->their users run are likely to run the affected hardware. But it's out
->of scope for stable kernel branches.
+Setting SERIO_QUIRK_NOMUX or SERIO_QUIRK_RESET_ALWAYS makes the keyboard
+very laggy for ~5 seconds after boot and sometimes also after resume. To
+fix this atkbd_reset_fixup is also applied for this device via a quirk,
+which fixes it again.
 
-Why? We explicitly call out new device IDs and quirks in the same doc
-you quoted the 100 line rule from.
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/input/keyboard/atkbd.c        | 24 ++++++++++++++++++++++++
+ drivers/input/serio/i8042-acpipnpio.h | 26 ++++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+)
 
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index ef65c46c4efe..e89918347357 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -1886,6 +1886,30 @@ static const struct dmi_system_id atkbd_dmi_quirk_table[] __initconst = {
+ 		},
+ 		.callback = atkbd_deactivate_fixup,
+ 	},
++	/*
++	 * Some Clevo devices need this reset, otherwise they keyboard may
++	 * be laggy after boot and/or resume for ~5 seconds.
++	 */
++	{
++		/*
++		 * Clevo device, DMI_BOARD_VENDOR and DMI_SYSTEM_VENDOR
++		 * differ between resellers.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "N150CU"),
++		},
++		.callback = atkbd_reset_fixup,
++	},
++	{
++		/*
++		 * Clevo device, DMI_BOARD_VENDOR and DMI_SYSTEM_VENDOR
++		 * differ between resellers.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "NHxxRZQ"),
++		},
++		.callback = atkbd_reset_fixup,
++	},
+ 	{ }
+ };
+ 
+diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
+index efc61736099b..6ed1044b4ba5 100644
+--- a/drivers/input/serio/i8042-acpipnpio.h
++++ b/drivers/input/serio/i8042-acpipnpio.h
+@@ -1116,6 +1116,19 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
+ 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
+ 	},
++	{
++		/*
++		 * Setting SERIO_QUIRK_NOMUX or SERIO_QUIRK_RESET_ALWAYS makes the
++		 * keyboard very laggy for ~5 seconds after boot and sometimes also
++		 * after resume. To fix this atkbd_reset_fixup is also applied for
++		 * this device via a quirk, which fixes it again.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "N150CU"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
+ 	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "NH5xAx"),
+@@ -1123,6 +1136,19 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
+ 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
+ 	},
++	{
++		/*
++		 * Setting SERIO_QUIRK_NOMUX or SERIO_QUIRK_RESET_ALWAYS makes the
++		 * keyboard very laggy for ~5 seconds after boot and sometimes also
++		 * after resume. To fix this atkbd_reset_fixup is also applied for
++		 * this device via a quirk, which fixes it again.
++		 */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "NHxxRZQ"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
+ 	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
 -- 
-Thanks,
-Sasha
+2.34.1
+

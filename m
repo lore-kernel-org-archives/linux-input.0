@@ -2,85 +2,121 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 005D8C64ED8
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 20:53:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A16A0C64ED8
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 22:14:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229720AbjB0Uw7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 27 Feb 2023 15:52:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33854 "EHLO
+        id S229936AbjB0WOa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Feb 2023 17:14:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbjB0Uw6 (ORCPT
+        with ESMTP id S229761AbjB0WO3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Feb 2023 15:52:58 -0500
-Received: from smtprelay04.ispgateway.de (smtprelay04.ispgateway.de [80.67.18.16])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C51B07D94
-        for <linux-input@vger.kernel.org>; Mon, 27 Feb 2023 12:52:53 -0800 (PST)
-Received: from [92.206.161.29] (helo=note-book.lan)
-        by smtprelay04.ispgateway.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <git@apitzsch.eu>)
-        id 1pWkSJ-0006TA-21; Mon, 27 Feb 2023 21:50:43 +0100
-From:   =?UTF-8?q?Andr=C3=A9=20Apitzsch?= <git@apitzsch.eu>
-To:     Nick Dyer <nick@shmanahar.org>,
+        Mon, 27 Feb 2023 17:14:29 -0500
+Received: from mail-oo1-f52.google.com (mail-oo1-f52.google.com [209.85.161.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31FEB25BAF;
+        Mon, 27 Feb 2023 14:14:28 -0800 (PST)
+Received: by mail-oo1-f52.google.com with SMTP id u3-20020a4ad0c3000000b0052541ef0bafso1246311oor.5;
+        Mon, 27 Feb 2023 14:14:28 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZS2bF3+Kst9y6aMOuXBKptVY4beKNpQcXiRFClTf/bI=;
+        b=LN7/I+ZZPE9RfxMCZhRC953nSOruGQdL4dYLlIoLhc1bocwP+CvKROMsoFGMmvWKWw
+         dh86kG5EGd4n1zK4Qq1Hzst4cotF7fDyqfJrQmIojGYoed5RIZovQiwh9ys0Ydl0r+cU
+         lqvBirRAyH2bQ9mgTza16oBPPX+mx0T+QkkbI9mZWno+rKEnQbODBNLnxEUp1inSEp7J
+         4chS3G+cSdQMGGnkXHQzPIfMGY7Zu+3z3CxoneLY4ZS/ZHm2WPBnCqeBZ9FSnMBRmFsI
+         Hzf7E1v0/G4IvJV6EmyVOJxxCJG1pLEaVGbyjngC1Bejrr8kI+BB6Rk8lUjGJ1KT0M4K
+         bgOA==
+X-Gm-Message-State: AO0yUKX1WhZ2P0nC5TWPSjXzwMqmfQQg+gU9zJ1Nyjx98BbXkTwRk4fM
+        B9BugDAz+5vKHjxbXlw16w==
+X-Google-Smtp-Source: AK7set9a9wt8dYLW0+D9GTxaOE63A+at2SMod+AKLVoJqf5EzvyD9tdF199K0X72Q60jeiCDGB6/0A==
+X-Received: by 2002:a4a:6b12:0:b0:4f2:8f8:d2ff with SMTP id g18-20020a4a6b12000000b004f208f8d2ffmr70403ooc.6.1677536067377;
+        Mon, 27 Feb 2023 14:14:27 -0800 (PST)
+Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
+        by smtp.gmail.com with ESMTPSA id k22-20020a056820017600b00517a7ac36c8sm3124614ood.24.2023.02.27.14.14.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Feb 2023 14:14:27 -0800 (PST)
+Received: (nullmailer pid 1193336 invoked by uid 1000);
+        Mon, 27 Feb 2023 22:14:26 -0000
+Date:   Mon, 27 Feb 2023 16:14:26 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Sasha Finkelstein <fnkl.kernel@gmail.com>
+Cc:     Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
+        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-Cc:     ~postmarketos/upstreaming@lists.sr.ht,
-        =?UTF-8?q?Andr=C3=A9=20Apitzsch?= <git@apitzsch.eu>
-Subject: [PATCH 1/2] dt-bindings: input: atmel,maxtouch: add linux,keycodes
-Date:   Mon, 27 Feb 2023 21:50:34 +0100
-Message-Id: <20230227205035.18551-1-git@apitzsch.eu>
-X-Mailer: git-send-email 2.39.2
+        - <asahi@lists.linux.dev>, Henrik Rydberg <rydberg@bitmath.org>,
+        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC 1/4] dt-bindings: input: touchscreen: Add Z2
+ controller bindings.
+Message-ID: <20230227221426.GA1048218-robh@kernel.org>
+References: <20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com>
+ <20230223-z2-for-ml-v1-1-028f2b85dc15@gmail.com>
+ <20230227195139.GA677578-robh@kernel.org>
+ <CAMT+MTRodB_+sMtoPxv-gP_+sJAwNb36XuLOGo=HvuCQq6h+gQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Df-Sender: YW5kcmVAYXBpdHpzY2guZXU=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAMT+MTRodB_+sMtoPxv-gP_+sJAwNb36XuLOGo=HvuCQq6h+gQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-In some configurations the touch controller can support the touch keys.
-Document the linux,keycodes property that enables those keys and
-specifies the keycodes that should be used to report the key events.
+On Mon, Feb 27, 2023 at 09:06:28PM +0100, Sasha Finkelstein wrote:
+> On Mon, 27 Feb 2023 at 20:51, Rob Herring <robh@kernel.org> wrote:
+> >
+> > > +properties:
+> > > +  compatible:
+> > > +    const: apple,z2-touchscreen
+> >
+> > Is 'z2' anything other than a touchscreen? If not, '-touchscreen' is
+> > redundant. If so, then what else is there? You should be describing
+> > physical devices, not just a protocol for touchscreen.
+> >
+> 
+> This is a class of touchscreen controllers that talk the z2 protocol
+> over spi.
 
-Signed-off-by: André Apitzsch <git@apitzsch.eu>
----
- .../devicetree/bindings/input/atmel,maxtouch.yaml          | 7 +++++++
- 1 file changed, 7 insertions(+)
+Yes, you already said that much. So nothing else for this piece of h/w? 
+Then 'apple,z2' is sufficient. Well maybe. You are assuming all h/w in 
+the world speaking 'z2' is the same (to software). Usually that's not a 
+safe assumption, but maybe Apple is better at not changing the h/w...
 
-diff --git a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-index 3ec579d63570..c40799355ed7 100644
---- a/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-+++ b/Documentation/devicetree/bindings/input/atmel,maxtouch.yaml
-@@ -14,6 +14,9 @@ description: |
-   Atmel maXTouch touchscreen or touchpads such as the mXT244
-   and similar devices.
- 
-+allOf:
-+  - $ref: input.yaml#
-+
- properties:
-   compatible:
-     const: atmel,maxtouch
-@@ -60,6 +63,10 @@ properties:
-       or experiment to determine which bit corresponds to which input. Use
-       KEY_RESERVED for unused padding values.
- 
-+  linux,keycodes:
-+    minItems: 1
-+    maxItems: 8
-+
-   atmel,wakeup-method:
-     $ref: /schemas/types.yaml#/definitions/uint32
-     description: |
+Normally, the 'protocol' to talk to a device is only part of it. There's 
+other pieces like how to turn the device on and off which need h/w 
+specific knowledge. If you need any of that, then you need specific 
+compatibles. Adding properties for each variation doesn't end up well.
 
-base-commit: 982818426a0ffaf93b0621826ed39a84be3d7d62
--- 
-2.39.2
+
+> 
+> > > +                    touchscreen-size-y = <640>;
+> > > +                    apple,z2-device-name = "MacBookPro17,1 Touch Bar";
+> >
+> > Why do we need this string? If you want a human consumed label for
+> > some identification, we have a property for that purpose. It's called
+> > 'label'. But when there is only 1 instance, I don't really see the
+> > point.
+> 
+> I want a libinput-consumed label to distinguish between devices
+> using this protocol. 
+
+I know little about libinput, but how would it know about 
+'apple,z2-device-name'?
+
+> It is used both for 'normal' touchscreens, and,
+> as is in this example a 'touchbar', which absolutely should not be
+> treated as a normal touchscreen, and needs special handling in
+> userspace.
+
+Meaning there are both touchscreens and touchbars using this? That 
+sounds like s/w needs this information. From a DT perspective, 
+'compatible' is how DT defines exactly what the h/w is and how to use 
+it. That also doesn't sound like a unique issue. Doesn't the kernel 
+provide a standard way to tell userspace what's a touchscreen vs. 
+touchpad vs. ???
+
+Rob
 

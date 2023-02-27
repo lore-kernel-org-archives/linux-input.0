@@ -2,116 +2,208 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86CE7C64ED6
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 12:23:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BF2FC64ED8
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 14:08:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229560AbjB0MXH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 27 Feb 2023 07:23:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43504 "EHLO
+        id S230029AbjB0OIH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Feb 2023 09:08:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229568AbjB0MXG (ORCPT
+        with ESMTP id S230136AbjB0OIG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Feb 2023 07:23:06 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D090CA2E;
-        Mon, 27 Feb 2023 04:23:04 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id DFFED1FD63;
-        Mon, 27 Feb 2023 12:23:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1677500582; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mnCaGxLM9o5v+srx8eCrRSPyZtndDAvxj3Myw/6GoFE=;
-        b=kSqbc45voUU9N4EwiF4i9ogkNjInIHniJKd0yh7TKyJSCW/hIbKboorkfvFrJddZF7/stG
-        G3nBFqlHdRktKR1Qci5EOg0yp4MBI5ndVd93D+GHXcEyLWp2MYqI/DOC1VW7S4sdOIooKG
-        9y4D/YWil/RnqxtIZc4jzdwBIVhLy8k=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1677500582;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mnCaGxLM9o5v+srx8eCrRSPyZtndDAvxj3Myw/6GoFE=;
-        b=E5KYuE3Z7IQPbA1dtW4HUc4hR1sBmAC7ihHsLMXNw9t9dCMek9YZRATadX9BZFuQL3rd4z
-        hhS5xmc3wtr+VhCQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 69DAA13A43;
-        Mon, 27 Feb 2023 12:23:02 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id ISg+GKag/GMVPgAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Mon, 27 Feb 2023 12:23:02 +0000
-Date:   Mon, 27 Feb 2023 13:23:00 +0100
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Allen Ballway <ballway@chromium.org>,
-        Jiri Kosina <jkosina@suse.cz>, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, groeck@chromium.org,
-        alistair@alistair23.me, dmitry.torokhov@gmail.com,
-        jk@codeconstruct.com.au, Jonathan.Cameron@huawei.com,
-        cmo@melexis.com, u.kleine-koenig@pengutronix.de,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.15 10/25] HID: multitouch: Add quirks for
- flipped axes
-Message-ID: <20230227132300.4a3c3fad@endymion.delvare>
-In-Reply-To: <20230227020855.1051605-10-sashal@kernel.org>
-References: <20230227020855.1051605-1-sashal@kernel.org>
-        <20230227020855.1051605-10-sashal@kernel.org>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.34; x86_64-suse-linux-gnu)
+        Mon, 27 Feb 2023 09:08:06 -0500
+Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98AD06581;
+        Mon, 27 Feb 2023 06:08:02 -0800 (PST)
+Received: by mail-il1-x136.google.com with SMTP id z5so4021004ilq.0;
+        Mon, 27 Feb 2023 06:08:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=9ttf/oycojer2AjXga/cynyrMrsDrjxN9x+nUsxDh+I=;
+        b=F91bpEpe9t9wAE/KAfGoqfnf9wJSYhXJoRsDpCmHMeFwyxOdg2ulEsst++T4+fo/DL
+         E+Y/LrL9p7A2GLD4nSB0lSd1kyoVpnntZDEefIduPE9OZKUOWFzT1IdIyR2F0M+qd0qf
+         2wwKM29uX6xE+KtamSq2qOYXfOo7y02E+IHkBo/G2/l6/ymaip+8HWcKbcnbDJDMNrnH
+         ZkKrIYiMrpeSVGOXg7AyMwhG1CGKP5SfD1T8al8tbgSZjna2azTqIUrq6sRjo9wAASMX
+         dyD8ELbyR05nTaRqLITNHj9mB3Zy81NL2knmwTS2zMqfYw0h4CbcBtTfAQyXE+e3x22I
+         6Miw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9ttf/oycojer2AjXga/cynyrMrsDrjxN9x+nUsxDh+I=;
+        b=70/EG419Y+CmkNxc/HwGDGx1ZG4+yg25IE7C5j6nxh+UTjcSrvYPw8+g335BmOKJHJ
+         A9S901LMmfXBattRNKfsMQzWa75djdqXdsx0e2aWI/oUkhRpw+hwEDGRI28CCyFnebqF
+         e9JinqydjE/JQ5crWietTAzQgJjbnFUes3JgrDHkH6rrrGQJq2WxMpbqyw6npou590U2
+         lZCyKXrrepTQ76wW8R04rmr56zo/+ZLvZiS7FtsuaPESLA8IrsTOpzGeypsV8S2hfge1
+         mQOMFGMB6z3cwBppQLlW7qj9l1cgSj4E+2vAgTaMwqEBWbjrT3KSs9kxIwLxI2qRvikC
+         RkXQ==
+X-Gm-Message-State: AO0yUKVZiItxIe+VE4gjryVDLAayMek3901bYvy4PqFUGYN7hbh3KSUX
+        POeeuKgITq3ThmWMAFtSBBE=
+X-Google-Smtp-Source: AK7set/VqyzFWPzFk29nBxAQTBZFTbD2iqQxGVQbUgZyEnD87tkN4zwYB3AtVKxubkIsBS7f0RRNyg==
+X-Received: by 2002:a05:6e02:16cd:b0:316:acef:e65a with SMTP id 13-20020a056e0216cd00b00316acefe65amr23013277ilx.17.1677506881858;
+        Mon, 27 Feb 2023 06:08:01 -0800 (PST)
+Received: from DANNY-DESKTOP.localdomain (071-013-243-092.res.spectrum.com. [71.13.243.92])
+        by smtp.gmail.com with ESMTPSA id 14-20020a056e020cae00b00316dc3afe57sm1921503ilg.86.2023.02.27.06.08.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Feb 2023 06:08:01 -0800 (PST)
+From:   Danny Kaehn <kaehndan@gmail.com>
+To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc:     bartosz.golaszewski@linaro.org, andriy.shevchenko@linux.intel.com,
+        dmitry.torokhov@gmail.com, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org, ethan.twardy@plexus.com,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH v8 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
+Date:   Mon, 27 Feb 2023 08:07:56 -0600
+Message-Id: <20230227140758.1575-2-kaehndan@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230227140758.1575-1-kaehndan@gmail.com>
+References: <20230227140758.1575-1-kaehndan@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Sasha,
+This is a USB HID device which includes an I2C controller and 8 GPIO pins.
 
-On Sun, 26 Feb 2023 21:08:33 -0500, Sasha Levin wrote:
-> From: Allen Ballway <ballway@chromium.org>
-> 
-> [ Upstream commit a2f416bf062a38bb76cccd526d2d286b8e4db4d9 ]
-> 
-> Certain touchscreen devices, such as the ELAN9034, are oriented
-> incorrectly and report touches on opposite points on the X and Y axes.
-> For example, a 100x200 screen touched at (10,20) would report (90, 180)
-> and vice versa.
-> 
-> This is fixed by adding device quirks to transform the touch points
-> into the correct spaces, from X -> MAX(X) - X, and Y -> MAX(Y) - Y.
-> 
-> Signed-off-by: Allen Ballway <ballway@chromium.org>
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/hid/hid-multitouch.c             | 39 ++++++++++++++++++---
->  drivers/hid/hid-quirks.c                 |  6 ++++
->  drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 43 ++++++++++++++++++++++++
->  drivers/hid/i2c-hid/i2c-hid.h            |  3 ++
->  4 files changed, 87 insertions(+), 4 deletions(-)
-> (...)
+The binding allows describing the chip's gpio and i2c controller in DT
+using the subnodes named "gpio" and "i2c", respectively. This is
+intended to be used in configurations where the CP2112 is permanently
+connected in hardware.
 
-Second rule of acceptance for stable patches:
+Signed-off-by: Danny Kaehn <kaehndan@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+---
+ .../bindings/i2c/silabs,cp2112.yaml           | 113 ++++++++++++++++++
+ 1 file changed, 113 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
 
- - It cannot be bigger than 100 lines, with context.
-
-Clearly not met here.
-
-To me, this commit is something distributions may want to backport if
-their users run are likely to run the affected hardware. But it's out
-of scope for stable kernel branches.
-
-Thanks,
+diff --git a/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml b/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
+new file mode 100644
+index 000000000000..a27509627804
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
+@@ -0,0 +1,113 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/silabs,cp2112.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: CP2112 HID USB to SMBus/I2C Bridge
++
++maintainers:
++  - Danny Kaehn <kaehndan@gmail.com>
++
++description:
++  The CP2112 is a USB HID device which includes an integrated I2C controller
++  and 8 GPIO pins. Its GPIO pins can each be configured as inputs, open-drain
++  outputs, or push-pull outputs.
++
++properties:
++  compatible:
++    const: usb10c4,ea90
++
++  reg:
++    maxItems: 1
++    description: The USB port number on the host controller
++
++  i2c:
++    description: The SMBus/I2C controller node for the CP2112
++    $ref: /schemas/i2c/i2c-controller.yaml#
++    unevaluatedProperties: false
++
++    properties:
++      sda-gpios:
++        maxItems: 1
++
++      scl-gpios:
++        maxItems: 1
++
++      clock-frequency:
++        minimum: 10000
++        default: 100000
++        maximum: 400000
++
++  gpio:
++    description: The GPIO controller node for the CP2112
++    type: object
++    unevaluatedProperties: false
++
++    properties:
++      interrupt-controller: true
++      "#interrupt-cells":
++        const: 2
++
++      gpio-controller: true
++      "#gpio-cells":
++        const: 2
++
++      gpio-line-names:
++        minItems: 1
++        maxItems: 8
++
++    patternProperties:
++      "-hog(-[0-9]+)?$":
++        type: object
++
++        required:
++          - gpio-hog
++
++required:
++  - compatible
++  - reg
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++
++    usb {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      device@1 {
++        compatible = "usb10c4,ea90";
++        reg = <1>;
++
++        i2c {
++          #address-cells = <1>;
++          #size-cells = <0>;
++          sda-gpios = <&cp2112_gpio 0 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++          scl-gpios = <&cp2112_gpio 1 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
++
++          temp@48 {
++            compatible = "national,lm75";
++            reg = <0x48>;
++          };
++        };
++
++        cp2112_gpio: gpio {
++          gpio-controller;
++          interrupt-controller;
++          #gpio-cells = <2>;
++          gpio-line-names = "CP2112_SDA", "CP2112_SCL", "TEST2",
++            "TEST3","TEST4", "TEST5", "TEST6";
++
++          fan-rst-hog {
++              gpio-hog;
++              gpios = <7 GPIO_ACTIVE_HIGH>;
++              output-high;
++              line-name = "FAN_RST";
++          };
++        };
++      };
++    };
 -- 
-Jean Delvare
-SUSE L3 Support
+2.25.1
+

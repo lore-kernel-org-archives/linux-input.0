@@ -2,52 +2,50 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1C9BC7EE23
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:09:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DDF7BC6FA8E
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:10:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230193AbjB0CJI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Feb 2023 21:09:08 -0500
+        id S230320AbjB0CK3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Feb 2023 21:10:29 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230192AbjB0CIw (ORCPT
+        with ESMTP id S230493AbjB0CKI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Feb 2023 21:08:52 -0500
+        Sun, 26 Feb 2023 21:10:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1ADD1A959;
-        Sun, 26 Feb 2023 18:07:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92F551BF3;
+        Sun, 26 Feb 2023 18:09:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E31660D36;
-        Mon, 27 Feb 2023 02:06:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2882C4339C;
-        Mon, 27 Feb 2023 02:06:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96A8360DBE;
+        Mon, 27 Feb 2023 02:09:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A0F9C4339B;
+        Mon, 27 Feb 2023 02:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463587;
-        bh=BE67LLaDq7x7n4LFROr+a358vdVhi1mjHIhSiKHTew8=;
+        s=k20201202; t=1677463750;
+        bh=MDOBzsOmwyycbBJKWHx1C9Ml481JTVaL3IEp0ZgADAA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NtuejFvTU8bt2SR4GsQ9/WscWuhwRr01nB3X3kRAMrY70EuQURpBsAtMWklfHggA7
-         jZVf1sRM0DajuEC2sOhajdG+FvD7cCebh6QlMr4QGu0Oac4qdleAfviE0IbhAweZ2p
-         E+ldCRsh1jL2xUXxTAmep5xkfsK0Hj6m3hkamZDNg+zxaUmC9goNdrxzTBL6CZKtGI
-         z4Ofo6lLsAd8x0PFJZu6e/2DDvk2iWwnv5fK0E5zbC+j27ptp7/zwj2gWO17XLNj3a
-         UnAWHNiwh3U5qK1XlbIGQ1Je8fm7ljNfvZ9MhQLkuDOt6djuawBukAhoGE83O5bdL9
-         1D9y/i+fx8iVQ==
+        b=ndk1QaK/IoJZsJkjGBPttm0z/C96BnlgKXNJnTKEUkZb/elz8ipmI/OjgGpwFKJvE
+         HS0P7iteA2HRBRQunhegE30FjisR+AxtxgC5mdd9eYNZvAEit02aF4xfomSoUz+14M
+         Ksi7tkI4LOZjAlJbThh9/kzt6mspdVg8pFH8oXwoTjSp4j4uWIIoHcxur0OF3ZMqQK
+         +tYoaOlL78WE35bWapry79MeHEujAzkB0PTsAX4xoKzosgnn+7wV+K1BsZfKBZMZrX
+         71SrVS6Ah8eB7avWQwKuLyu7REr/vE4s98t6AyrN7gDkXVDxbDij36MZJdX+BjAjAq
+         wXPBx6dj9VgFA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Mia Kanashi <chad@redpilled.dev>,
-        Andreas Grosse <andig.mail@t-online.de>,
+Cc:     Jingyuan Liang <jingyliang@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 20/58] HID: uclogic: Add battery quirk
-Date:   Sun, 26 Feb 2023 21:04:18 -0500
-Message-Id: <20230227020457.1048737-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 04/25] HID: Add Mapping for System Microphone Mute
+Date:   Sun, 26 Feb 2023 21:08:27 -0500
+Message-Id: <20230227020855.1051605-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230227020457.1048737-1-sashal@kernel.org>
-References: <20230227020457.1048737-1-sashal@kernel.org>
+In-Reply-To: <20230227020855.1051605-1-sashal@kernel.org>
+References: <20230227020855.1051605-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,55 +53,56 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Jingyuan Liang <jingyliang@chromium.org>
 
-[ Upstream commit f60c377f52de37f8705c5fc6d57737fdaf309ff9 ]
+[ Upstream commit 2d60f9f4f26785a00273cb81fe60eff129ebd449 ]
 
-Some UGEE v2 tablets have a wireless version with an internal battery
-and their firmware is able to report their battery level.
+HUTRR110 added a new usage code for a key that is supposed to
+mute/unmute microphone system-wide.
 
-However, there was not found a field on their descriptor indicating
-whether the tablet has battery or not, making it mandatory to classify
-such devices through the UCLOGIC_BATTERY_QUIRK quirk.
+Map the new usage code(0x01 0xa9) to keycode KEY_MICMUTE.
+Additionally hid-debug is adjusted to recognize this keycode as well.
 
-Tested-by: Mia Kanashi <chad@redpilled.dev>
-Tested-by: Andreas Grosse <andig.mail@t-online.de>
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-uclogic-params.c | 5 +++++
- drivers/hid/hid-uclogic-params.h | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/hid/hid-debug.c | 1 +
+ drivers/hid/hid-input.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index e052538a62fb3..23624d5b07b5a 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -1222,6 +1222,11 @@ static int uclogic_params_ugee_v2_init_frame_mouse(struct uclogic_params *p)
-  */
- static bool uclogic_params_ugee_v2_has_battery(struct hid_device *hdev)
- {
-+	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
-+
-+	if (drvdata->quirks & UCLOGIC_BATTERY_QUIRK)
-+		return true;
-+
- 	/* The XP-PEN Deco LW vendor, product and version are identical to the
- 	 * Deco L. The only difference reported by their firmware is the product
- 	 * name. Add a quirk to support battery reporting on the wireless
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index 10a05c7fd9398..b0e7f3807939b 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -20,6 +20,7 @@
- #include <linux/hid.h>
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index f48d3534e0200..03da865e423c7 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -937,6 +937,7 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_KBD_LAYOUT_NEXT] = "KbdLayoutNext",
+ 	[KEY_EMOJI_PICKER] = "EmojiPicker",
+ 	[KEY_DICTATE] = "Dictate",
++	[KEY_MICMUTE] = "MicrophoneMute",
+ 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
+ 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
+ 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index f197aed6444a5..0ae959e54462b 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -709,6 +709,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			break;
+ 		}
  
- #define UCLOGIC_MOUSE_FRAME_QUIRK	BIT(0)
-+#define UCLOGIC_BATTERY_QUIRK		BIT(1)
- 
- /* Types of pen in-range reporting */
- enum uclogic_params_pen_inrange {
++		if ((usage->hid & 0xf0) == 0xa0) {	/* SystemControl */
++			switch (usage->hid & 0xf) {
++			case 0x9: map_key_clear(KEY_MICMUTE); break;
++			default: goto ignore;
++			}
++			break;
++		}
++
+ 		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
+ 			switch (usage->hid & 0xf) {
+ 			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
 -- 
 2.39.0
 

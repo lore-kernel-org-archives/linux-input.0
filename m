@@ -2,103 +2,118 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F1EFC7EE32
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 14:08:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30113C7EE2F
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 14:08:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230136AbjB0OIJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 27 Feb 2023 09:08:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52862 "EHLO
+        id S230159AbjB0OII (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Feb 2023 09:08:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230150AbjB0OIH (ORCPT
+        with ESMTP id S229888AbjB0OIG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Feb 2023 09:08:07 -0500
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA03C4222;
-        Mon, 27 Feb 2023 06:08:03 -0800 (PST)
-Received: by mail-il1-x12d.google.com with SMTP id 4so3970813ilz.6;
-        Mon, 27 Feb 2023 06:08:03 -0800 (PST)
+        Mon, 27 Feb 2023 09:08:06 -0500
+Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0B2D6192;
+        Mon, 27 Feb 2023 06:08:01 -0800 (PST)
+Received: by mail-io1-xd33.google.com with SMTP id b16so2563905iof.11;
+        Mon, 27 Feb 2023 06:08:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9IFtKKERmi0HGnc/lJWv1rhtLxqCIn+aR68TrM9Jz4M=;
-        b=T6xnmXLA+mVgifsMnODihHXXq1ibStuU8u1yloxEHXrFt1TwTmqqn8Zk4udPXnlwFn
-         0N4lm6/Gj92E5GPUrj4LQCGSiGKTsj1b6p/1imHq0YVB73Tx3ZizYcyCsHk1/nhe6A/h
-         sHRL7KsUSBA91oJw9dSIEM4pia+ehC0gRTvy04rQe5+PxvG7y9z+2t5zEktros1rXG/P
-         OvUZAdbB/EFtZ3HamgqXJRkdJh51flBeWzr2TGDfOd2hcePPNJnashS5taq5lUscv/6m
-         HFaDmrMH9z5oPip9Mkqmtr8J8qMxKd2/V8LJ+ffLrpDZhULsOA1nB28qEnUY5E26xqcT
-         ry6w==
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=qGmrflLrMKHCp5mBwrPIGybnzhtwdume4dOCaAVsnbs=;
+        b=jcnEliIg6h/kqWte6NGlcRHH9hcUwP93+aFcBDn4tAal9oPdnnxKYxH0J4TMXOAAft
+         tj5zdIvn+kGwejIrHsA1Lrr03AwZ6IaAeVZwgbLJy1KSLmUFYLjExUj00hna8pXl70p5
+         k95ryuGEJ9lrdoWcNAJkqTBVzio0a+CRXq3hshpz5CY0kXNNmqY5QQgsAv/Fq2kohCUQ
+         yyZr4XekMpiqTtdeOQWuamP/03dRBJzcnbDVCikxK7c2IgdsC416+2YAXshoo2rqXXfN
+         ssoZNl2yIjIMDCRyDlXW4mQ1CWGCJpkZbiFYOSRV8tB9OGNlBRLZoEKYIWzfsvXqva18
+         JL+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9IFtKKERmi0HGnc/lJWv1rhtLxqCIn+aR68TrM9Jz4M=;
-        b=W3AOAJoJHkbNyr4Ed5TkA+qbPRn9v6r4FRG+M51dET/GwDODdx34BmnIBQW4aw6KKx
-         U1iZ2tIfreaqxqMv/SGntjNzGvv+W8NCqfNfU5vnIOP1l9gvtpypISyTH5XIjg1VvT9M
-         nVLTSFTkHdDsXihLHgCGP5hFalu9ELj+Y+M7uh6GLgY3hP9mp3hD81IjuUQ2GIcWs3pB
-         +vndiuaKpAuAKAJLCFNHHDVvR3Zpn/nvtKUovbcAFjcLPSXTjxBUxP0kZWEzmXSu7e3+
-         Ow1R7BOZcGlHYE3vVsvU1Y6veKw8u/Qv944gNfC25MxXQ23UhZCmK1y0fPsi17WHk48z
-         hB1w==
-X-Gm-Message-State: AO0yUKWkL/JUB3GsnttlKg9LY4Lu82uNRZZs0U886JvVWmubYhPjuCn4
-        NcZQy4QW31m3UtYTOcG/R3o=
-X-Google-Smtp-Source: AK7set+XauvThNTMgxM7uAahQtTSOsQTHn1F+i93c9SFTB4w3WpHCAdpb4gcZ9vnIr8z/Rcr9YdZgA==
-X-Received: by 2002:a05:6e02:1d0e:b0:316:e453:5372 with SMTP id i14-20020a056e021d0e00b00316e4535372mr18643907ila.1.1677506882949;
-        Mon, 27 Feb 2023 06:08:02 -0800 (PST)
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qGmrflLrMKHCp5mBwrPIGybnzhtwdume4dOCaAVsnbs=;
+        b=QO0a0JKEJzufPQnTD8iejjeM8DnuvMgXKYoHx1BLq8oenmAp/8PNocCs2HS6rtuUXz
+         0LKRiic/pmZL9CeJBixIJABfeL85D1Aw79GL8AlI8KTVXrs5Yg8o/pl/mYJWYjKTGljO
+         ywItALxLXbOwEUnfg3vZS5ThbZtUOlkE283VP8QkLRV3YG4Ihf6EWcI/9MH8xo7twb8/
+         ojJ7MFarBFGgONUfbo6lR3l6iTzFQWcPwWOyXrShJKrywQ6TzzByH5WGRHB4V9s3kT7R
+         mbzVnEKlV0lI4Z53WQ+qqykbsISu0bTxolkJ3ZTg7JKz+ywqW1nhq+mN4SqcZuIiyR4V
+         7Gww==
+X-Gm-Message-State: AO0yUKU8oLjflj7MNqSS9AzWKqsRaNVo+8Yrdq43fTjvZqled8uhxI8R
+        BQwUZj4OcYBh/IAuSSr8DI4=
+X-Google-Smtp-Source: AK7set/Gt9Xx73ksbAWAbUK1QYnH+5J4wCY3TaWQbFFemDdGlXXE+Ydw2gs4QJ6p0rKToQkVrc5xWg==
+X-Received: by 2002:a5e:9416:0:b0:74c:7db1:7894 with SMTP id q22-20020a5e9416000000b0074c7db17894mr16843399ioj.0.1677506880618;
+        Mon, 27 Feb 2023 06:08:00 -0800 (PST)
 Received: from DANNY-DESKTOP.localdomain (071-013-243-092.res.spectrum.com. [71.13.243.92])
-        by smtp.gmail.com with ESMTPSA id 14-20020a056e020cae00b00316dc3afe57sm1921503ilg.86.2023.02.27.06.08.02
+        by smtp.gmail.com with ESMTPSA id 14-20020a056e020cae00b00316dc3afe57sm1921503ilg.86.2023.02.27.06.07.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Feb 2023 06:08:02 -0800 (PST)
+        Mon, 27 Feb 2023 06:08:00 -0800 (PST)
 From:   Danny Kaehn <kaehndan@gmail.com>
 To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
         jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc:     bartosz.golaszewski@linaro.org, andriy.shevchenko@linux.intel.com,
         dmitry.torokhov@gmail.com, devicetree@vger.kernel.org,
         linux-input@vger.kernel.org, ethan.twardy@plexus.com
-Subject: [PATCH v8 2/3] HID: usbhid: Share USB device firmware node with child HID device
-Date:   Mon, 27 Feb 2023 08:07:57 -0600
-Message-Id: <20230227140758.1575-3-kaehndan@gmail.com>
+Subject: [PATCH v8 0/3] Firmware Support for USB-HID Devices and CP2112
+Date:   Mon, 27 Feb 2023 08:07:55 -0600
+Message-Id: <20230227140758.1575-1-kaehndan@gmail.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230227140758.1575-1-kaehndan@gmail.com>
-References: <20230227140758.1575-1-kaehndan@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-USB HID core now shares its fwnode with its child HID device.
-Since there can only be one HID device on a USB interface, it is redundant
-to specify a hid node under the USB device. This allows usb HID device
-drivers to be described in firmware and make use of device properties.
+This patchset allows USB-HID devices to have DeviceTree bindings through sharing
+the USB fwnode with the HID driver, and adds such a binding and driver
+implementation for the CP2112 USB to SMBus Bridge (which necessitated the
+USB-HID change). This change allows a CP2112 permanently attached in hardware to
+be described in DT and interoperate with other drivers.
 
-Signed-off-by: Danny Kaehn <kaehndan@gmail.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/hid/usbhid/hid-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+Thanks to all for your patience in working with me on these! I'll have
+many lessons learned for future submissions.
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index 257dd73e37bf..090260d99c84 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -19,6 +19,7 @@
- #include <linux/list.h>
- #include <linux/mm.h>
- #include <linux/mutex.h>
-+#include <linux/property.h>
- #include <linux/spinlock.h>
- #include <asm/unaligned.h>
- #include <asm/byteorder.h>
-@@ -1374,6 +1375,7 @@ static int usbhid_probe(struct usb_interface *intf, const struct usb_device_id *
- 	hid->hiddev_report_event = hiddev_report_event;
- #endif
- 	hid->dev.parent = &intf->dev;
-+	device_set_node(&hid->dev, dev_fwnode(&intf->dev));
- 	hid->bus = BUS_USB;
- 	hid->vendor = le16_to_cpu(dev->descriptor.idVendor);
- 	hid->product = le16_to_cpu(dev->descriptor.idProduct);
+Changes in v8:
+- Apply Review tags retroactively to patches previously reviewed
+
+Changes in v7:
+- Use dev_fwnode when calling fwnod_handle_put in i2c_adapter in hid-cp2112.c
+- Capitalize I2C and GPIO in commit message for patch 0003
+
+Changes in v6:
+- Fix fwnode_handle reference leaks in hid-cp21112.c
+- Simplify hog node pattern in silabs,cp2112.yaml
+
+Changes in v5:
+ - Use fwnode API instead of of_node api in hid-core.c and hid-cp2112.c
+ - Include sda-gpios and scl-gpios in silabs,cp2112.yaml
+ - Additional fixups to silabs,cp2112.yaml to address comments
+ - Submit threaded interrupt bugfix separately from this patchset, as requested
+
+Changes in v4:
+ - Moved silabs,cp2112.yaml to /Documentation/devicetree/bindings/i2c
+
+Changes in v3:
+ - Additional fixups to silabs,cp2112.yaml to address comments
+
+Changes in v2:
+ - Added more detail to silabs,cp2112.yaml dt-binding
+ - Moved silabs,cp2112.yaml to /Documentation/devicetree/bindings/input
+ - Added support for setting smbus clock-frequency from DT in hid-cp2112.c
+ - Added freeing of of_nodes on error paths of _probe in hid-cp2112.c
+
+Danny Kaehn (3):
+  dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
+  HID: usbhid: Share USB device firmware node with child HID device
+  HID: cp2112: Fwnode Support
+
+ .../bindings/i2c/silabs,cp2112.yaml           | 113 ++++++++++++++++++
+ drivers/hid/hid-cp2112.c                      |  15 ++-
+ drivers/hid/usbhid/hid-core.c                 |   2 +
+ 3 files changed, 128 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
+
 -- 
 2.25.1
 

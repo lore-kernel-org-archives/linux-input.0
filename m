@@ -2,50 +2,52 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 480B4C7EE32
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:01:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5146CC64ED6
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:03:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229693AbjB0CBq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Feb 2023 21:01:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52338 "EHLO
+        id S229824AbjB0CDA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Feb 2023 21:03:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229688AbjB0CBn (ORCPT
+        with ESMTP id S229829AbjB0CCs (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Feb 2023 21:01:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A9313D58;
-        Sun, 26 Feb 2023 18:01:19 -0800 (PST)
+        Sun, 26 Feb 2023 21:02:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C94D915886;
+        Sun, 26 Feb 2023 18:02:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B72660CA3;
-        Mon, 27 Feb 2023 02:01:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE42C433A0;
-        Mon, 27 Feb 2023 02:01:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8AEA2B80CB3;
+        Mon, 27 Feb 2023 02:02:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45DD2C4339C;
+        Mon, 27 Feb 2023 02:02:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463278;
-        bh=uZogJcvhACYoeJ2xsjDa3mhukEUUJQ+xqVg5+5L+W/8=;
+        s=k20201202; t=1677463338;
+        bh=BE67LLaDq7x7n4LFROr+a358vdVhi1mjHIhSiKHTew8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XIbVXYiY+F8jLSPw3XrRVjVhYR+s1GwwIDCX1SrJQ95zc6EQFW1nwOOi8yfbtxGOw
-         Mm6cQj8qI6k8ow/i3BGFxyjeD9FtGoS6K1Xb+oT1CAUvHEkTEkGDg6MPCSYdhXCMyf
-         uOadKeQFfPYRk5h1Izl7hbNYg2IDNdEXhmQ4M3mnoqxK7GF/v6LF9VJDqHyOzAttWJ
-         nzimnzhS4xAS1sH0XD2D0BLX1eCe+be0AknbpYZSgf9BU2n9OFNXeUl9m174Kq6XXW
-         enDFt622BcOkdmXKT0GUWT/hhWlxcFjXwDaj4MpOTRCEu7VYqy8czMfsak2Nl3CWNd
-         wAooxq/wx8VWA==
+        b=NFjqbEqzgD9xttjw7wa7xqCatulZoJRjQl8Xgc54KMv/LhpFPElQ/TprNI3UJOaFw
+         kNBL9X+lQ4mL7RM2U4jDENzjq/TDLLkb6ZSiBy/1ilCuMwRHgJgBHzA5Qjc6jUx1UA
+         jNoS56vOdj2FWrYFR/Zc5fNPEXlaVZk1UrjUK5RFBBjiDkwYnqy8RbS3kGXibzXL7v
+         JMjZDqsmDisE7UpgPae0/iIisGDnTIRMbhUivzzJGTzqctl343zcQStwN2n8bsQe3K
+         obDxoF/+f45v/XtsV4kA/HaKz0QtrIsKX01pBTVmA3+FOSv+5EWRowXLxz6l//Va/g
+         3283nG47snlLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jingyuan Liang <jingyliang@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Mia Kanashi <chad@redpilled.dev>,
+        Andreas Grosse <andig.mail@t-online.de>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 07/60] HID: Add Mapping for System Microphone Mute
-Date:   Sun, 26 Feb 2023 20:59:52 -0500
-Message-Id: <20230227020045.1045105-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.2 20/60] HID: uclogic: Add battery quirk
+Date:   Sun, 26 Feb 2023 21:00:05 -0500
+Message-Id: <20230227020045.1045105-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020045.1045105-1-sashal@kernel.org>
 References: <20230227020045.1045105-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,56 +55,55 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Jingyuan Liang <jingyliang@chromium.org>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 2d60f9f4f26785a00273cb81fe60eff129ebd449 ]
+[ Upstream commit f60c377f52de37f8705c5fc6d57737fdaf309ff9 ]
 
-HUTRR110 added a new usage code for a key that is supposed to
-mute/unmute microphone system-wide.
+Some UGEE v2 tablets have a wireless version with an internal battery
+and their firmware is able to report their battery level.
 
-Map the new usage code(0x01 0xa9) to keycode KEY_MICMUTE.
-Additionally hid-debug is adjusted to recognize this keycode as well.
+However, there was not found a field on their descriptor indicating
+whether the tablet has battery or not, making it mandatory to classify
+such devices through the UCLOGIC_BATTERY_QUIRK quirk.
 
-Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Tested-by: Mia Kanashi <chad@redpilled.dev>
+Tested-by: Andreas Grosse <andig.mail@t-online.de>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-debug.c | 1 +
- drivers/hid/hid-input.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ drivers/hid/hid-uclogic-params.c | 5 +++++
+ drivers/hid/hid-uclogic-params.h | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index e213bdde543af..e7ef1ea107c9e 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -975,6 +975,7 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_CAMERA_ACCESS_DISABLE] = "CameraAccessDisable",
- 	[KEY_CAMERA_ACCESS_TOGGLE] = "CameraAccessToggle",
- 	[KEY_DICTATE] = "Dictate",
-+	[KEY_MICMUTE] = "MicrophoneMute",
- 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
- 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
- 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 77c8c49852b5c..bd0cfccfb7a25 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -793,6 +793,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			break;
- 		}
- 
-+		if ((usage->hid & 0xf0) == 0xa0) {	/* SystemControl */
-+			switch (usage->hid & 0xf) {
-+			case 0x9: map_key_clear(KEY_MICMUTE); break;
-+			default: goto ignore;
-+			}
-+			break;
-+		}
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index e052538a62fb3..23624d5b07b5a 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -1222,6 +1222,11 @@ static int uclogic_params_ugee_v2_init_frame_mouse(struct uclogic_params *p)
+  */
+ static bool uclogic_params_ugee_v2_has_battery(struct hid_device *hdev)
+ {
++	struct uclogic_drvdata *drvdata = hid_get_drvdata(hdev);
 +
- 		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
- 			switch (usage->hid & 0xf) {
- 			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
++	if (drvdata->quirks & UCLOGIC_BATTERY_QUIRK)
++		return true;
++
+ 	/* The XP-PEN Deco LW vendor, product and version are identical to the
+ 	 * Deco L. The only difference reported by their firmware is the product
+ 	 * name. Add a quirk to support battery reporting on the wireless
+diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
+index 10a05c7fd9398..b0e7f3807939b 100644
+--- a/drivers/hid/hid-uclogic-params.h
++++ b/drivers/hid/hid-uclogic-params.h
+@@ -20,6 +20,7 @@
+ #include <linux/hid.h>
+ 
+ #define UCLOGIC_MOUSE_FRAME_QUIRK	BIT(0)
++#define UCLOGIC_BATTERY_QUIRK		BIT(1)
+ 
+ /* Types of pen in-range reporting */
+ enum uclogic_params_pen_inrange {
 -- 
 2.39.0
 

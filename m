@@ -2,48 +2,48 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1ED3C6FA8E
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:30:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C273FC7EE2F
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:31:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231592AbjB0Cah (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Feb 2023 21:30:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41318 "EHLO
+        id S230458AbjB0Cbl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Feb 2023 21:31:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231591AbjB0CaX (ORCPT
+        with ESMTP id S231620AbjB0Cb0 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Feb 2023 21:30:23 -0500
+        Sun, 26 Feb 2023 21:31:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFF151B547;
-        Sun, 26 Feb 2023 18:28:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5651F90B;
+        Sun, 26 Feb 2023 18:29:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8023460DCB;
-        Mon, 27 Feb 2023 02:10:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20213C4339E;
-        Mon, 27 Feb 2023 02:10:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F13760DBA;
+        Mon, 27 Feb 2023 02:09:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC27CC433EF;
+        Mon, 27 Feb 2023 02:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463829;
-        bh=arOlMWWAgs9nVMPHjnsDtCLZDnuUmtW1xqjE8Q/tm6w=;
+        s=k20201202; t=1677463788;
+        bh=5AsLII2Ke8tJUM7vBCns/QkCtkiZsIEW2BMPlQWBiI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7/p4ybAPsg0Cm5MNOcfidSJvOkWy5nE0QsX3ispO3JNvw2prIyS7uzH0k9lmDBct
-         bR/m+yT6xZD3y2Vbf21nue/W/KS8BZU6I1r9mZMEux0j3SKMKKK79dvLbMZ418wetm
-         dOFjazq0kzDqO3/AvLlhsWiQtp8jZHElGzpQrE+2pgB6bn84AJ+SX1ADOtKQi4svSJ
-         spkskqB2zo7CsNEUzN5xM4iZ4yy0/p38l5dPssgGGAfrvXKczxoBWY2zmmex5/QN6a
-         O0EkrmzucehI48SzM4ATJ3zHVYWXdk0CW0Ja0gQfxwzr8HikdkWLzEjsR127keu3iH
-         6Hvw25WjfWpMg==
+        b=C/SElgwz2+f3079LSjcotf4Ai3hIwEBYPzCwihzhmc40/Azc1Oq0fD5NnDtj3/TL3
+         wdA1/PEpPy8zH0BdnIewgEHN/m2jHqMuWEuB3VigVNfmtO0b5EUMuy7KD4hCTAlrOD
+         vLci9yYH8KUMHen1AQ+XykE6kEJ/uyINCYafkdnRSZCKGi4CiikJDB61hJqfBncn+C
+         l3lwoN8K+hqrQQw97oq7jveO1YYG/iJttOoPy74gal4neAqHHhhz7LqDY8wV4oRGkO
+         JyE9SYrJoipXRn97FTFYvV6H2IwY28iVkgeUh5/3upx2Ayg7b6KGX6Ba16+FSpNVMk
+         7ISeYrxtjV3bA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bastien Nocera <hadess@hadess.net>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 15/19] HID: logitech-hidpp: Don't restart communication if not necessary
-Date:   Sun, 26 Feb 2023 21:09:50 -0500
-Message-Id: <20230227020957.1052252-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 21/25] HID: logitech-hidpp: Don't restart communication if not necessary
+Date:   Sun, 26 Feb 2023 21:08:44 -0500
+Message-Id: <20230227020855.1051605-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230227020957.1052252-1-sashal@kernel.org>
-References: <20230227020957.1052252-1-sashal@kernel.org>
+In-Reply-To: <20230227020855.1051605-1-sashal@kernel.org>
+References: <20230227020855.1051605-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -68,10 +68,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 20 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 66b1051620390..f5ea8e1d84452 100644
+index 81de88ab2ecc7..601ab673727dc 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3763,6 +3763,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -4049,6 +4049,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  	bool connected;
  	unsigned int connect_mask = HID_CONNECT_DEFAULT;
  	struct hidpp_ff_private_data data;
@@ -79,7 +79,7 @@ index 66b1051620390..f5ea8e1d84452 100644
  
  	/* report_fixup needs drvdata to be set before we call hid_parse */
  	hidpp = devm_kzalloc(&hdev->dev, sizeof(*hidpp), GFP_KERNEL);
-@@ -3818,6 +3819,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -4104,6 +4105,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  			return ret;
  	}
  
@@ -90,7 +90,7 @@ index 66b1051620390..f5ea8e1d84452 100644
  	INIT_WORK(&hidpp->work, delayed_work_cb);
  	mutex_init(&hidpp->send_mutex);
  	init_waitqueue_head(&hidpp->wait);
-@@ -3832,7 +3837,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -4118,7 +4123,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  	 * Plain USB connections need to actually call start and open
  	 * on the transport driver to allow incoming data.
  	 */
@@ -99,7 +99,7 @@ index 66b1051620390..f5ea8e1d84452 100644
  	if (ret) {
  		hid_err(hdev, "hw start failed\n");
  		goto hid_hw_start_fail;
-@@ -3869,6 +3874,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -4155,6 +4160,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  			hidpp->wireless_feature_index = 0;
  		else if (ret)
  			goto hid_hw_init_fail;
@@ -107,7 +107,7 @@ index 66b1051620390..f5ea8e1d84452 100644
  	}
  
  	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
-@@ -3883,19 +3889,21 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -4169,19 +4175,21 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  
  	hidpp_connect_event(hidpp);
  

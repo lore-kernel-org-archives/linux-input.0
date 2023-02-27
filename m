@@ -2,96 +2,254 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CF91C64ED8
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 20:07:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5263C64ED6
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 20:52:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229652AbjB0UHZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 27 Feb 2023 15:07:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55162 "EHLO
+        id S229775AbjB0Uw4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 27 Feb 2023 15:52:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230402AbjB0UHX (ORCPT
+        with ESMTP id S229740AbjB0Uw4 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 27 Feb 2023 15:07:23 -0500
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C944D279B6;
-        Mon, 27 Feb 2023 12:06:41 -0800 (PST)
-Received: by mail-ed1-x531.google.com with SMTP id ck15so30936549edb.0;
-        Mon, 27 Feb 2023 12:06:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=8uInxHePMiAlwvbGNwI0Ugw9k3Wci0tWnR38NP9c0+o=;
-        b=MeSmGwQ/HmmBFMFaypLzcQiaH3ObjO8JAEpXdx+4wryYDhZg4v/dgFbvwzQoancUEC
-         re5tVAHMzNYllS4LrS+9f6JkXeWGOWc5y6cHleQ7pw3qnZwjwzvTec56FGUbX0lb96oq
-         764RFnD9qxYmvWsCASLSRoOdcIDEq29HZ0/RQvmPPQpAox1S1R/cz7N+JEkuSP7TtR0n
-         8dqEVWMGjjUaNAVu1VBPKvpVu1CXwvRbL1LRus2ErmwuOnWPK3pbCvY0nvowMu5LBqtX
-         C1Qs3G3Fd/K300A2XjRVbnB/WmwQxdZtKOCqXEoGrilYPZX2D6AlqptEEIjs3HG4nxw0
-         Yxkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=8uInxHePMiAlwvbGNwI0Ugw9k3Wci0tWnR38NP9c0+o=;
-        b=uaPLgbcWfN/B0y/aYEVeqWJnCp3n5WHZC2/bIutHefJbdjcTgghBJNdKkt6NSYupt8
-         lZBb2ZzoxsF9pY33msN+R925VnecuHb7x2+ms5f1+Oig3WaHisqtOgrzxNRXcD589ozw
-         iWruC1VJ3Pk2STygG2VC2fGm9jC+/oUxmR8cOI4Gb1KiyAnUQpcOI/nqoGibE2Rn9kQ5
-         jqR0BGFpaMZtPnJQpHoaw9AcOMHY6ACwbaD5j0FJLS4bOcUIP6VicIJLiUiE0Ig1x+r4
-         My/+3KcRBqLcQ2WGtb8/eVM/spBF6SZ+8qVRVReV11sdrixEif89kjnkqSaChNfLi3BB
-         mBrg==
-X-Gm-Message-State: AO0yUKVujWSdHZXIZOpKHslWqyt5pF9M5BQZbmQElsOShBci2h+i/R2C
-        vFAQwzWKl5avgUqJLWqZZMH95yf4W641UvbNlxg=
-X-Google-Smtp-Source: AK7set+rFRwwuHlNUo6YttoaHQUv1gV4hohZb6nayx6SZjljKZP1HvI16epTaVLppOg3ZaqYoXlGCrsWA0NVSYZEKns=
-X-Received: by 2002:a50:d494:0:b0:4ad:72b2:cf57 with SMTP id
- s20-20020a50d494000000b004ad72b2cf57mr461379edi.0.1677528400166; Mon, 27 Feb
- 2023 12:06:40 -0800 (PST)
-MIME-Version: 1.0
-References: <20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com>
- <20230223-z2-for-ml-v1-1-028f2b85dc15@gmail.com> <20230227195139.GA677578-robh@kernel.org>
-In-Reply-To: <20230227195139.GA677578-robh@kernel.org>
-From:   Sasha Finkelstein <fnkl.kernel@gmail.com>
-Date:   Mon, 27 Feb 2023 21:06:28 +0100
-Message-ID: <CAMT+MTRodB_+sMtoPxv-gP_+sJAwNb36XuLOGo=HvuCQq6h+gQ@mail.gmail.com>
-Subject: Re: [PATCH RFC 1/4] dt-bindings: input: touchscreen: Add Z2
- controller bindings.
-To:     Rob Herring <robh@kernel.org>
-Cc:     Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
-        Alyssa Rosenzweig <alyssa@rosenzweig.io>,
+        Mon, 27 Feb 2023 15:52:56 -0500
+Received: from smtprelay04.ispgateway.de (smtprelay04.ispgateway.de [80.67.18.16])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6958124C81
+        for <linux-input@vger.kernel.org>; Mon, 27 Feb 2023 12:52:47 -0800 (PST)
+Received: from [92.206.161.29] (helo=note-book.lan)
+        by smtprelay04.ispgateway.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <git@apitzsch.eu>)
+        id 1pWkSL-0006TA-3S; Mon, 27 Feb 2023 21:50:45 +0100
+From:   =?UTF-8?q?Andr=C3=A9=20Apitzsch?= <git@apitzsch.eu>
+To:     Nick Dyer <nick@shmanahar.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        - <asahi@lists.linux.dev>, Henrik Rydberg <rydberg@bitmath.org>,
-        linux-arm-kernel@lists.infradead.org, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Cc:     ~postmarketos/upstreaming@lists.sr.ht,
+        =?UTF-8?q?Andr=C3=A9=20Apitzsch?= <git@apitzsch.eu>
+Subject: [PATCH 2/2] Input: atmel_mxt_ts - support capacitive keys
+Date:   Mon, 27 Feb 2023 21:50:35 +0100
+Message-Id: <20230227205035.18551-2-git@apitzsch.eu>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230227205035.18551-1-git@apitzsch.eu>
+References: <20230227205035.18551-1-git@apitzsch.eu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Df-Sender: YW5kcmVAYXBpdHpzY2guZXU=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 27 Feb 2023 at 20:51, Rob Herring <robh@kernel.org> wrote:
->
-> > +properties:
-> > +  compatible:
-> > +    const: apple,z2-touchscreen
->
-> Is 'z2' anything other than a touchscreen? If not, '-touchscreen' is
-> redundant. If so, then what else is there? You should be describing
-> physical devices, not just a protocol for touchscreen.
->
+Add support for touch keys found in some Atmel touch controller
+configurations.
 
-This is a class of touchscreen controllers that talk the z2 protocol
-over spi.
+Signed-off-by: André Apitzsch <git@apitzsch.eu>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 85 ++++++++++++++++++++++++
+ 1 file changed, 85 insertions(+)
 
-> > +                    touchscreen-size-y = <640>;
-> > +                    apple,z2-device-name = "MacBookPro17,1 Touch Bar";
->
-> Why do we need this string? If you want a human consumed label for
-> some identification, we have a property for that purpose. It's called
-> 'label'. But when there is only 1 instance, I don't really see the
-> point.
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 996bf434e1cb..eb368dd1abf0 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -55,6 +55,7 @@
+ #define MXT_TOUCH_KEYARRAY_T15		15
+ #define MXT_TOUCH_PROXIMITY_T23		23
+ #define MXT_TOUCH_PROXKEY_T52		52
++#define MXT_TOUCH_PTC_KEYS_T97		97
+ #define MXT_PROCI_GRIPFACE_T20		20
+ #define MXT_PROCG_NOISE_T22		22
+ #define MXT_PROCI_ONETOUCH_T24		24
+@@ -326,9 +327,13 @@ struct mxt_data {
+ 	u16 T71_address;
+ 	u8 T9_reportid_min;
+ 	u8 T9_reportid_max;
++	u8 T15_reportid_min;
++	u8 T15_reportid_max;
+ 	u16 T18_address;
+ 	u8 T19_reportid;
+ 	u16 T44_address;
++	u8 T97_reportid_min;
++	u8 T97_reportid_max;
+ 	u8 T100_reportid_min;
+ 	u8 T100_reportid_max;
+ 
+@@ -344,6 +349,9 @@ struct mxt_data {
+ 	u32 *t19_keymap;
+ 	unsigned int t19_num_keys;
+ 
++	u32 *t15_keymap;
++	unsigned int t15_num_keys;
++
+ 	enum mxt_suspend_mode suspend_mode;
+ 
+ 	u32 wakeup_method;
+@@ -375,6 +383,7 @@ static bool mxt_object_readable(unsigned int type)
+ 	case MXT_TOUCH_KEYARRAY_T15:
+ 	case MXT_TOUCH_PROXIMITY_T23:
+ 	case MXT_TOUCH_PROXKEY_T52:
++	case MXT_TOUCH_PTC_KEYS_T97:
+ 	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 	case MXT_PROCI_GRIPFACE_T20:
+ 	case MXT_PROCG_NOISE_T22:
+@@ -891,6 +900,25 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 	data->update_input = true;
+ }
+ 
++static void mxt_proc_t15_messages(struct mxt_data *data, u8 *message)
++{
++	struct input_dev *input_dev = data->input_dev;
++	unsigned long keystates = get_unaligned_le32(&message[2]);
++	int key;
++
++	for (key = 0; key < data->t15_num_keys; key++) {
++		input_report_key(input_dev, data->t15_keymap[key],
++			!!(keystates & BIT(key)));
++	}
++
++	data->update_input = true;
++}
++
++static void mxt_proc_t97_messages(struct mxt_data *data, u8 *message)
++{
++	mxt_proc_t15_messages(data, message);
++}
++
+ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+ {
+ 	struct device *dev = &data->client->dev;
+@@ -1017,6 +1045,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id >= data->T9_reportid_min &&
+ 		   report_id <= data->T9_reportid_max) {
+ 		mxt_proc_t9_message(data, message);
++	} else if (report_id >= data->T15_reportid_min &&
++		   report_id <= data->T15_reportid_max) {
++		mxt_proc_t15_messages(data, message);
++	} else if (report_id >= data->T97_reportid_min &&
++		   report_id <= data->T97_reportid_max) {
++		mxt_proc_t97_messages(data, message);
+ 	} else if (report_id >= data->T100_reportid_min &&
+ 		   report_id <= data->T100_reportid_max) {
+ 		mxt_proc_t100_message(data, message);
+@@ -1689,9 +1723,13 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->T71_address = 0;
+ 	data->T9_reportid_min = 0;
+ 	data->T9_reportid_max = 0;
++	data->T15_reportid_min = 0;
++	data->T15_reportid_max = 0;
+ 	data->T18_address = 0;
+ 	data->T19_reportid = 0;
+ 	data->T44_address = 0;
++	data->T97_reportid_min = 0;
++	data->T97_reportid_max = 0;
+ 	data->T100_reportid_min = 0;
+ 	data->T100_reportid_max = 0;
+ 	data->max_reportid = 0;
+@@ -1764,6 +1802,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 						object->num_report_ids - 1;
+ 			data->num_touchids = object->num_report_ids;
+ 			break;
++		case MXT_TOUCH_KEYARRAY_T15:
++			data->T15_reportid_min = min_id;
++			data->T15_reportid_max = max_id;
++			break;
+ 		case MXT_SPT_COMMSCONFIG_T18:
+ 			data->T18_address = object->start_address;
+ 			break;
+@@ -1773,6 +1815,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 		case MXT_SPT_GPIOPWM_T19:
+ 			data->T19_reportid = min_id;
+ 			break;
++		case MXT_TOUCH_PTC_KEYS_T97:
++			data->T97_reportid_min = min_id;
++			data->T97_reportid_max = max_id;
++			break;
+ 		case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 			data->multitouch = MXT_TOUCH_MULTITOUCHSCREEN_T100;
+ 			data->T100_reportid_min = min_id;
+@@ -2050,6 +2096,7 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	int error;
+ 	unsigned int num_mt_slots;
+ 	unsigned int mt_flags = 0;
++	int i;
+ 
+ 	switch (data->multitouch) {
+ 	case MXT_TOUCH_MULTI_T9:
+@@ -2095,6 +2142,10 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	input_dev->open = mxt_input_open;
+ 	input_dev->close = mxt_input_close;
+ 
++	input_dev->keycode = data->t15_keymap;
++	input_dev->keycodemax = data->t15_num_keys;
++	input_dev->keycodesize = sizeof(data->t15_keymap[0]);
++
+ 	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+ 
+ 	/* For single touch */
+@@ -2162,6 +2213,12 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 				     0, 255, 0, 0);
+ 	}
+ 
++	/* For T15 and T97 Key Array */
++	if (data->T15_reportid_min || data->T97_reportid_min) {
++		for (i = 0; i < data->t15_num_keys; i++)
++			input_set_capability(input_dev, EV_KEY, data->t15_keymap[i]);
++	}
++
+ 	input_set_drvdata(input_dev, data);
+ 
+ 	error = input_register_device(input_dev);
+@@ -3080,8 +3137,10 @@ static void mxt_input_close(struct input_dev *dev)
+ static int mxt_parse_device_properties(struct mxt_data *data)
+ {
+ 	static const char keymap_property[] = "linux,gpio-keymap";
++	static const char buttons_property[] = "linux,keycodes";
+ 	struct device *dev = &data->client->dev;
+ 	u32 *keymap;
++	u32 *buttonmap;
+ 	int n_keys;
+ 	int error;
+ 
+@@ -3111,6 +3170,32 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+ 		data->t19_num_keys = n_keys;
+ 	}
+ 
++	if (device_property_present(dev, buttons_property)) {
++		n_keys = device_property_count_u32(dev, buttons_property);
++		if (n_keys <= 0) {
++			error = n_keys < 0 ? n_keys : -EINVAL;
++			dev_err(dev, "invalid/malformed '%s' property: %d\n",
++				buttons_property, error);
++			return error;
++		}
++
++		buttonmap = devm_kmalloc_array(dev, n_keys, sizeof(*buttonmap),
++					       GFP_KERNEL);
++		if (!buttonmap)
++			return -ENOMEM;
++
++		error = device_property_read_u32_array(dev, buttons_property,
++						       buttonmap, n_keys);
++		if (error) {
++			dev_err(dev, "failed to parse '%s' property: %d\n",
++				buttons_property, error);
++			return error;
++		}
++
++		data->t15_keymap = buttonmap;
++		data->t15_num_keys = n_keys;
++	}
++
+ 	return 0;
+ }
+ 
+-- 
+2.39.2
 
-I want a libinput-consumed label to distinguish between devices
-using this protocol. It is used both for 'normal' touchscreens, and,
-as is in this example a 'touchbar', which absolutely should not be
-treated as a normal touchscreen, and needs special handling in
-userspace.

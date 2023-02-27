@@ -2,160 +2,107 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85558C64ED6
-	for <linux-input@archiver.kernel.org>; Sun, 26 Feb 2023 23:02:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 480B4C7EE32
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:01:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbjBZXCU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Feb 2023 18:02:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43640 "EHLO
+        id S229693AbjB0CBq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Feb 2023 21:01:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229598AbjBZXCT (ORCPT
+        with ESMTP id S229688AbjB0CBn (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Feb 2023 18:02:19 -0500
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5462D3C07
-        for <linux-input@vger.kernel.org>; Sun, 26 Feb 2023 15:01:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1677452506; x=1708988506;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=J9Xh3CSLaOh0wPb+8qljSocu9qIOGDzuCRuMHEY8zLA=;
-  b=UzvLuJxChq++RB69I1AK16+iU+r25o9EonzVue3oHcDczXkiJ6RbtZ5Y
-   p+3Yhg+XYoJIREqCqW0E7NwKCGjXs7cmRj/BAP17jCMkAivZC7otrOCkp
-   mdULLa3dn8NPlpr3n97Xe1lviO0od4f5iDbC+9ZY3ZHgn0+FEmVY/GI8U
-   G7nxbmQgUPjD6bOttiBSrIYKnhoCahERj1Mmr+2CCTaoiCocju+cvitb0
-   hKFbbPmFH1HeBPW4feILi/8zF2mEEqR0c5iYDHujqBzxucEWQVzG0uO7U
-   8EMmKBWVcJrijVbByuUVIJsl8PH2iiURSt1ahPV+UBxoI3q/2fnYWcGOI
-   g==;
-X-IronPort-AV: E=Sophos;i="5.97,330,1669046400"; 
-   d="scan'208";a="222554293"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 27 Feb 2023 06:59:15 +0800
-IronPort-SDR: 3iAOSD5s+GQJ4aHsofo16WziIDS5n6+2GlVepX2+bHTSloW90zYpJfusrwVHzlq0L7ud1Z5/4T
- uc+nGFqCJ5til1kD3d7+EgKkEYbP0tD5nzixxiFnGTqQHCrIIjdRvilqptVivoseAm3WWgnB4J
- LzO7q+7oRgYVT/COZAmBasgyUWXILTSHIYjQwUIfNycVP7XE6YqZp3OgA8QKijjvUpW5OfAy5o
- HDLwjRngeEoKsBYeG10jkvfoAs86x7dHpQogtXh0jX+n332F94g1aoVkCbJravooASnwosVIVF
- nts=
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 26 Feb 2023 14:10:24 -0800
-IronPort-SDR: RkCRN09axqIfMm1MuDWW1zfJJ0eBQl64qnUmDph7ppV5R2g1gYUZoLVYVP7H9mIV16pSpC+Leg
- zkjxyd94zWUpfXTLh9gF3/ZxugDVjRJGfmNkG5KMfox/NTUuzkxZ8e714Ei2B1e3XWv1Ala1Qq
- 7inB4MuFIPAgBWq5o8/SSqBNgxw4cGUt2rZB6FeJYth3zofq1R+A82P64xZAEdGM1zCyT4CDQL
- VNdruznPAkx8pfmR1XxHDatdR+apMGlBSDfgADEtk1ItmhzNSjYltbMWsQqm5ETM59Jo1h5Sbz
- Kjg=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 26 Feb 2023 14:59:16 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4PPzb73Wksz1Rwtl
-        for <linux-input@vger.kernel.org>; Sun, 26 Feb 2023 14:59:15 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1677452354; x=1680044355; bh=J9Xh3CSLaOh0wPb+8qljSocu9qIOGDzuCRu
-        MHEY8zLA=; b=iAFv7gkoa1pp+0xeoFxAdTchRJcF7b5UmjXwypMYYaMEb+gXnhh
-        i+xBLhRs7ybC6NKcaFw1srFUizSpMJeDj3DQb3u52D15SERUpb3qogMC05ahSV0Y
-        Rfu9IKYjLO8ZUjHo834CD/sYRhYEslbVwDIEgc2ZmU1mFVQU7vxDbCob9DXmC60R
-        A78dZnTzDMksnw3bnTzp+W8BcBYl0KqZEcYY13QB5+bS3Z0Bt7BmxsEweV82kybH
-        cIMGUln2jO0hFnxaRlIQBZpOOvSZTLpgd3fHkasBzpalSwtP1irBSCNzj1UrwHzU
-        e2IJ7N7AouJmgR9knygZsoS8VFPenj4hDWw==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id WW_OS2z4u0Uw for <linux-input@vger.kernel.org>;
-        Sun, 26 Feb 2023 14:59:14 -0800 (PST)
-Received: from [10.225.163.40] (unknown [10.225.163.40])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4PPzZz6V4Rz1RvLy;
-        Sun, 26 Feb 2023 14:59:07 -0800 (PST)
-Message-ID: <fc0adb2c-8be0-ec89-ba68-032862b700a9@opensource.wdc.com>
-Date:   Mon, 27 Feb 2023 07:59:06 +0900
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH v3 04/20] thermal/core: Use the thermal zone 'devdata'
- accessor in remaining drivers
-Content-Language: en-US
-To:     Daniel Lezcano <daniel.lezcano@linaro.org>, rafael@kernel.org
-Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Mark Brown <broonie@kernel.org>,
-        Ido Schimmel <idosch@nvidia.com>,
-        Gregory Greenman <gregory.greenman@intel.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Zhang Rui <rui.zhang@intel.com>, Len Brown <lenb@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        Chen-Yu Tsai <wens@csie.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Samuel Holland <samuel@sholland.org>,
+        Sun, 26 Feb 2023 21:01:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A9313D58;
+        Sun, 26 Feb 2023 18:01:19 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B72660CA3;
+        Mon, 27 Feb 2023 02:01:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE42C433A0;
+        Mon, 27 Feb 2023 02:01:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677463278;
+        bh=uZogJcvhACYoeJ2xsjDa3mhukEUUJQ+xqVg5+5L+W/8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=XIbVXYiY+F8jLSPw3XrRVjVhYR+s1GwwIDCX1SrJQ95zc6EQFW1nwOOi8yfbtxGOw
+         Mm6cQj8qI6k8ow/i3BGFxyjeD9FtGoS6K1Xb+oT1CAUvHEkTEkGDg6MPCSYdhXCMyf
+         uOadKeQFfPYRk5h1Izl7hbNYg2IDNdEXhmQ4M3mnoqxK7GF/v6LF9VJDqHyOzAttWJ
+         nzimnzhS4xAS1sH0XD2D0BLX1eCe+be0AknbpYZSgf9BU2n9OFNXeUl9m174Kq6XXW
+         enDFt622BcOkdmXKT0GUWT/hhWlxcFjXwDaj4MpOTRCEu7VYqy8czMfsak2Nl3CWNd
+         wAooxq/wx8VWA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Jingyuan Liang <jingyliang@chromium.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Raju Rangoju <rajur@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Petr Machata <petrm@nvidia.com>, Kalle Valo <kvalo@kernel.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        "open list:ACPI THERMAL DRIVER" <linux-acpi@vger.kernel.org>,
-        "open list:LIBATA SUBSYSTEM (Serial and Parallel ATA drivers)" 
-        <linux-ide@vger.kernel.org>,
-        "moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "open list:IIO SUBSYSTEM AND DRIVERS" <linux-iio@vger.kernel.org>,
-        "open list:ARM/Allwinner sunXi SoC support" 
-        <linux-sunxi@lists.linux.dev>,
-        "open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." 
-        <linux-input@vger.kernel.org>,
-        "open list:CXGB4 ETHERNET DRIVER (CXGB4)" <netdev@vger.kernel.org>,
-        "open list:INTEL WIRELESS WIFI LINK (iwlwifi)" 
-        <linux-wireless@vger.kernel.org>
-References: <20230226225406.979703-1-daniel.lezcano@linaro.org>
- <20230226225406.979703-5-daniel.lezcano@linaro.org>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <20230226225406.979703-5-daniel.lezcano@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 07/60] HID: Add Mapping for System Microphone Mute
+Date:   Sun, 26 Feb 2023 20:59:52 -0500
+Message-Id: <20230227020045.1045105-7-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230227020045.1045105-1-sashal@kernel.org>
+References: <20230227020045.1045105-1-sashal@kernel.org>
+MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 2/27/23 07:53, Daniel Lezcano wrote:
-> The thermal zone device structure is exposed to the different drivers
-> and obviously they access the internals while that should be
-> restricted to the core thermal code.
-> 
-> In order to self-encapsulate the thermal core code, we need to prevent
-> the drivers accessing directly the thermal zone structure and provide
-> accessor functions to deal with.
-> 
-> Use the devdata accessor introduced in the previous patch.
-> 
-> No functional changes intended.
-> 
-> Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-> Acked-by: Mark Brown <broonie@kernel.org>
-> Reviewed-by: Ido Schimmel <idosch@nvidia.com> #mlxsw
-> Acked-by: Gregory Greenman <gregory.greenman@intel.com> #iwlwifi
-> Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com> #power_supply
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Jingyuan Liang <jingyliang@chromium.org>
 
-For the ahci change:
+[ Upstream commit 2d60f9f4f26785a00273cb81fe60eff129ebd449 ]
 
-Acked-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+HUTRR110 added a new usage code for a key that is supposed to
+mute/unmute microphone system-wide.
 
+Map the new usage code(0x01 0xa9) to keycode KEY_MICMUTE.
+Additionally hid-debug is adjusted to recognize this keycode as well.
+
+Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-debug.c | 1 +
+ drivers/hid/hid-input.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index e213bdde543af..e7ef1ea107c9e 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -975,6 +975,7 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_CAMERA_ACCESS_DISABLE] = "CameraAccessDisable",
+ 	[KEY_CAMERA_ACCESS_TOGGLE] = "CameraAccessToggle",
+ 	[KEY_DICTATE] = "Dictate",
++	[KEY_MICMUTE] = "MicrophoneMute",
+ 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
+ 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
+ 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 77c8c49852b5c..bd0cfccfb7a25 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -793,6 +793,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			break;
+ 		}
+ 
++		if ((usage->hid & 0xf0) == 0xa0) {	/* SystemControl */
++			switch (usage->hid & 0xf) {
++			case 0x9: map_key_clear(KEY_MICMUTE); break;
++			default: goto ignore;
++			}
++			break;
++		}
++
+ 		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
+ 			switch (usage->hid & 0xf) {
+ 			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
 -- 
-Damien Le Moal
-Western Digital Research
+2.39.0
 

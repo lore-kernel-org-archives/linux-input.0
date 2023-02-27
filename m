@@ -2,47 +2,45 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A24DC7EE2F
-	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:07:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 83566C7EE23
+	for <linux-input@archiver.kernel.org>; Mon, 27 Feb 2023 02:07:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230215AbjB0CHg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 26 Feb 2023 21:07:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58928 "EHLO
+        id S230042AbjB0CHi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 26 Feb 2023 21:07:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59740 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230107AbjB0CG7 (ORCPT
+        with ESMTP id S230043AbjB0CHO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 26 Feb 2023 21:06:59 -0500
+        Sun, 26 Feb 2023 21:07:14 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA7D6CDEE;
-        Sun, 26 Feb 2023 18:06:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A476B1B33A;
+        Sun, 26 Feb 2023 18:06:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C267EB80CBB;
-        Mon, 27 Feb 2023 02:06:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57526C4339B;
-        Mon, 27 Feb 2023 02:06:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8195DB80CBC;
+        Mon, 27 Feb 2023 02:06:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6ECECC4339B;
+        Mon, 27 Feb 2023 02:06:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463586;
-        bh=XPJpeSdRnBnhaLREdf2QTqaEce4WcAfaAXTbHhAWunE=;
+        s=k20201202; t=1677463589;
+        bh=z4ID5pv3Kv/5FamdceTMIR3wrVF20Tcu3EfrEyZtV2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V0ey9l/bSAeLXYQ8QAUM/F79B9cSnqLo6kEt5IasRvOEt0p8aldmy6XvcCva12xQv
-         kURHONkGHCYz3xep5ARkGb/RzdasmkBjvUhbXg4cD0/chAxsJ+aJmHh+csxskJ56bM
-         /oAKCvrNSXwY/8/VR3Y8LR69Q09cHkWUMXMjNV20OrWxTvdqZF2kwesZ5XS4FRGCwP
-         OSM/u2YRUK0U6lNenMKooqoKYI6w4V7JUBIqfOwlu+qT3E/oXFIk5wTgtW34O6fODQ
-         cclGYYmUnKDEpSOvja6/sADisWpO4TzjxMW2/SO90oLcuB/3iEwR0tH2MmpS/C62V2
-         o0H3SfPQJxt2g==
+        b=XEbBhdVnKF3PznGZgCTuhwYR0SggsRGutMp3CRFCUQ7tkORLYiraD5vxSvVvZVFbZ
+         kKfri8dDLnHaBiwPmSwHMGmUA3mwjk8Yhc/vwbwkMUh5zdCQNC5g/o6fJRF8m5SDG+
+         HhePyr6fs/BLBegWvTlDRdvwHCeQVH8/w5IxunNqzPqPYHcMr38TnE17Vgaexmjt5d
+         axdcurmOp1x6Sc0lCdsed3Yt4+loCGzfRX2eMoEZ9McL4H0JOPzsE0qPp+5xizGjf7
+         nNBv76XIcaR1+NQs8ywMTo9RYbDCve8gk0be2/NKPW+nKASgrrIic+pIRG0McRvrnB
+         yR4DeAW3jFl+w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Mia Kanashi <chad@redpilled.dev>,
-        Andreas Grosse <andig.mail@t-online.de>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 19/58] HID: uclogic: Add frame type quirk
-Date:   Sun, 26 Feb 2023 21:04:17 -0500
-Message-Id: <20230227020457.1048737-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 21/58] HID: uclogic: Add support for XP-PEN Deco Pro SW
+Date:   Sun, 26 Feb 2023 21:04:19 -0500
+Message-Id: <20230227020457.1048737-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020457.1048737-1-sashal@kernel.org>
 References: <20230227020457.1048737-1-sashal@kernel.org>
@@ -57,140 +55,82 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 14b71e6ad8ca59dd734c7fa9676f3d60bddee2a9 ]
+[ Upstream commit 7744ca571af55b794595cff2da9d51a26904998f ]
 
-The report descriptor used to get information about UGEE v2 devices is
-incorrect in the XP-PEN Deco Pro SW. It indicates that the device frame
-is of type UCLOGIC_PARAMS_FRAME_BUTTONS but the device has a frame of
-type UCLOGIC_PARAMS_FRAME_MOUSE.
+The XP-PEN Deco Pro SW is a UGEE v2 device with a frame with 8 buttons,
+a bitmap dial and a mouse; however, the UCLOGIC_MOUSE_FRAME_QUIRK is
+required because it reports an incorrect frame type. Its pen has 2
+buttons, supports tilt and pressure.
 
-Here is the original report descriptor:
+It can be connected using a USB cable or, to use it in wireless mode,
+using a USB Bluetooth dongle. When it is connected in wireless mode the
+device battery is used to power it.
 
-  0x0e 0x03 0xc8 0xb3 0x34 0x65 0x08 0x00 0xff 0x1f 0xd8 0x13 0x00 0x00
-                                     ^ This byte should be 2
+All the pieces to support it are already in place. Add its ID and
+quirks in order to support the device.
 
-Add a quirk to be able to fix the reported frame type.
-
-Tested-by: Mia Kanashi <chad@redpilled.dev>
-Tested-by: Andreas Grosse <andig.mail@t-online.de>
 Signed-off-by: José Expósito <jose.exposito89@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-uclogic-core.c   | 20 +-------------------
- drivers/hid/hid-uclogic-params.c |  5 +++++
- drivers/hid/hid-uclogic-params.h | 23 +++++++++++++++++++++++
- 3 files changed, 29 insertions(+), 19 deletions(-)
+ drivers/hid/hid-ids.h            | 1 +
+ drivers/hid/hid-input.c          | 2 ++
+ drivers/hid/hid-uclogic-core.c   | 3 +++
+ drivers/hid/hid-uclogic-params.c | 2 ++
+ 4 files changed, 8 insertions(+)
 
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0f8c11842a3a5..9eca3e0cffae4 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1297,6 +1297,7 @@
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO01_V2	0x0905
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L	0x0935
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S	0x0909
++#define USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW	0x0933
+ #define USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06	0x0078
+ #define USB_DEVICE_ID_UGEE_TABLET_G5		0x0074
+ #define USB_DEVICE_ID_UGEE_TABLET_EX07S		0x0071
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index ee5050306225f..ee07d3e341fc4 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -376,6 +376,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L),
+ 	  HID_BATTERY_QUIRK_AVOID_QUERY },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE, USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW),
++	  HID_BATTERY_QUIRK_AVOID_QUERY },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
 diff --git a/drivers/hid/hid-uclogic-core.c b/drivers/hid/hid-uclogic-core.c
-index cfbbc39807a69..739984b8fa1b8 100644
+index 739984b8fa1b8..7c05d38d3afad 100644
 --- a/drivers/hid/hid-uclogic-core.c
 +++ b/drivers/hid/hid-uclogic-core.c
-@@ -22,25 +22,6 @@
- 
- #include "hid-ids.h"
- 
--/* Driver data */
--struct uclogic_drvdata {
--	/* Interface parameters */
--	struct uclogic_params params;
--	/* Pointer to the replacement report descriptor. NULL if none. */
--	__u8 *desc_ptr;
--	/*
--	 * Size of the replacement report descriptor.
--	 * Only valid if desc_ptr is not NULL
--	 */
--	unsigned int desc_size;
--	/* Pen input device */
--	struct input_dev *pen_input;
--	/* In-range timer */
--	struct timer_list inrange_timer;
--	/* Last rotary encoder state, or U8_MAX for none */
--	u8 re_state;
--};
--
- /**
-  * uclogic_inrange_timeout - handle pen in-range state timeout.
-  * Emulate input events normally generated when pen goes out of range for
-@@ -202,6 +183,7 @@ static int uclogic_probe(struct hid_device *hdev,
- 	}
- 	timer_setup(&drvdata->inrange_timer, uclogic_inrange_timeout, 0);
- 	drvdata->re_state = U8_MAX;
-+	drvdata->quirks = id->driver_data;
- 	hid_set_drvdata(hdev, drvdata);
- 
- 	/* Initialize the device and retrieve interface parameters */
+@@ -513,6 +513,9 @@ static const struct hid_device_id uclogic_devices[] = {
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
++				USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW),
++		.driver_data = UCLOGIC_MOUSE_FRAME_QUIRK | UCLOGIC_BATTERY_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_UGEE,
+ 				USB_DEVICE_ID_UGEE_XPPEN_TABLET_STAR06) },
+ 	{ }
 diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 3c5eea3df3288..e052538a62fb3 100644
+index 23624d5b07b5a..492a30f83575a 100644
 --- a/drivers/hid/hid-uclogic-params.c
 +++ b/drivers/hid/hid-uclogic-params.c
-@@ -1298,6 +1298,7 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
- 				       struct hid_device *hdev)
- {
- 	int rc = 0;
-+	struct uclogic_drvdata *drvdata;
- 	struct usb_interface *iface;
- 	__u8 bInterfaceNumber;
- 	const int str_desc_len = 12;
-@@ -1316,6 +1317,7 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
- 		goto cleanup;
- 	}
- 
-+	drvdata = hid_get_drvdata(hdev);
- 	iface = to_usb_interface(hdev->dev.parent);
- 	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
- 
-@@ -1382,6 +1384,9 @@ static int uclogic_params_ugee_v2_init(struct uclogic_params *params,
- 	p.pen.subreport_list[0].id = UCLOGIC_RDESC_V1_FRAME_ID;
- 
- 	/* Initialize the frame interface */
-+	if (drvdata->quirks & UCLOGIC_MOUSE_FRAME_QUIRK)
-+		frame_type = UCLOGIC_PARAMS_FRAME_MOUSE;
-+
- 	switch (frame_type) {
- 	case UCLOGIC_PARAMS_FRAME_DIAL:
- 	case UCLOGIC_PARAMS_FRAME_MOUSE:
-diff --git a/drivers/hid/hid-uclogic-params.h b/drivers/hid/hid-uclogic-params.h
-index a97477c02ff82..10a05c7fd9398 100644
---- a/drivers/hid/hid-uclogic-params.h
-+++ b/drivers/hid/hid-uclogic-params.h
-@@ -19,6 +19,8 @@
- #include <linux/usb.h>
- #include <linux/hid.h>
- 
-+#define UCLOGIC_MOUSE_FRAME_QUIRK	BIT(0)
-+
- /* Types of pen in-range reporting */
- enum uclogic_params_pen_inrange {
- 	/* Normal reports: zero - out of proximity, one - in proximity */
-@@ -215,6 +217,27 @@ struct uclogic_params {
- 	struct uclogic_params_frame frame_list[3];
- };
- 
-+/* Driver data */
-+struct uclogic_drvdata {
-+	/* Interface parameters */
-+	struct uclogic_params params;
-+	/* Pointer to the replacement report descriptor. NULL if none. */
-+	__u8 *desc_ptr;
-+	/*
-+	 * Size of the replacement report descriptor.
-+	 * Only valid if desc_ptr is not NULL
-+	 */
-+	unsigned int desc_size;
-+	/* Pen input device */
-+	struct input_dev *pen_input;
-+	/* In-range timer */
-+	struct timer_list inrange_timer;
-+	/* Last rotary encoder state, or U8_MAX for none */
-+	u8 re_state;
-+	/* Device quirks */
-+	unsigned long quirks;
-+};
-+
- /* Initialize a tablet interface and discover its parameters */
- extern int uclogic_params_init(struct uclogic_params *params,
- 				struct hid_device *hdev);
+@@ -1671,6 +1671,8 @@ int uclogic_params_init(struct uclogic_params *params,
+ 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_L):
+ 	case VID_PID(USB_VENDOR_ID_UGEE,
+ 		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_S):
++	case VID_PID(USB_VENDOR_ID_UGEE,
++		     USB_DEVICE_ID_UGEE_XPPEN_TABLET_DECO_PRO_SW):
+ 		rc = uclogic_params_ugee_v2_init(&p, hdev);
+ 		if (rc != 0)
+ 			goto cleanup;
 -- 
 2.39.0
 

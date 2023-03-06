@@ -2,71 +2,160 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82B39C678D4
-	for <linux-input@archiver.kernel.org>; Mon,  6 Mar 2023 08:49:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3658C6FD1A
+	for <linux-input@archiver.kernel.org>; Mon,  6 Mar 2023 10:49:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229570AbjCFItp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 6 Mar 2023 03:49:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53464 "EHLO
+        id S229944AbjCFKte (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 6 Mar 2023 05:49:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229557AbjCFItp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Mar 2023 03:49:45 -0500
-X-Greylist: delayed 503 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 06 Mar 2023 00:49:44 PST
-Received: from mail.amblevebiz.com (mail.amblevebiz.com [80.211.239.97])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14B44F96B
-        for <linux-input@vger.kernel.org>; Mon,  6 Mar 2023 00:49:44 -0800 (PST)
-Received: by mail.amblevebiz.com (Postfix, from userid 1002)
-        id 3591F82B5A; Mon,  6 Mar 2023 09:41:09 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=amblevebiz.com;
-        s=mail; t=1678092079;
-        bh=mG5KF9rXIT2hCcIXZaMY449X9Ndwb1czFhgZLlqDg7A=;
-        h=Date:From:To:Subject:From;
-        b=VKI6q6xMS1Pic8dVcqCnLzTdRY71nD5Q7M9QZsZzO+ZFzn8BffszAYz/DFYg7FXiK
-         h7rLwXytTLE4AXzJZPPaFms00r9ks1d2Arr1WVXOphhsh77xi5+AqXmk6Oeft2y6gc
-         mlwu7rKYivQ+rpSWbIDXeuvmJjig5sxVInKdEBHw6koSrvqGQ9O/SJDFBXVO2g2mM7
-         nvK85eSTvzh58uBiDtCdlCJDv8oJRog0Zo+7usgEQo9T+8NazZSZ7JYVZhRegWG+UU
-         Bw3lhSiRgQTcjL8EI5muXHOZMFG0hW97LtQzW4duwCu5uRF9igHDC3UotHkDiYKUdA
-         sdYFQxiZzp79w==
-Received: by mail.amblevebiz.com for <linux-input@vger.kernel.org>; Mon,  6 Mar 2023 08:41:04 GMT
-Message-ID: <20230306084500-0.1.i.xks.0.jxfb9qgd4w@amblevebiz.com>
-Date:   Mon,  6 Mar 2023 08:41:04 GMT
-From:   =?UTF-8?Q? "Luk=C3=A1=C5=A1_Horv=C3=A1th" ?= 
-        <lukas.horvath@amblevebiz.com>
-To:     <linux-input@vger.kernel.org>
-Subject: =?UTF-8?Q?Technick=C3=BD_audit_podlah?=
-X-Mailer: mail.amblevebiz.com
+        with ESMTP id S229717AbjCFKtb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 6 Mar 2023 05:49:31 -0500
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29F0810401;
+        Mon,  6 Mar 2023 02:49:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1678099770; x=1709635770;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=OXqYMXl/hlgYZxIDFM1ZqZhMh7ad081WKSCNnyp9lLk=;
+  b=OctXOis3ZudZWeQN0tx5m78FfBbHOn0ki6njdk/pRu2VgcFqMOwPJqGV
+   uJH9+A+M1i35s2Hu04OSGhTXX9ezaq5ntWB4hvMR5xs/PW0lvY1imqHtd
+   QUCYOATg3ZrfxDgXn+EC20NXXWAGwx+35QnL/EQXJwL7jav1iBMhqkffl
+   aEENim2t3hkkbGG5Wx0P415YaN0LYZk7FRnOVT3Gf4Zv0sNjcAYK6qwuC
+   pk/znIikYGsGqfbT5Dehf4rgUIi0zVBWU9PdO6pFc7H8IhufykbVOxnDV
+   IjAcwauh+/Iz+NamX+FUIoECJxD+YbV/3z+I7PvWgNbcM7jOZ7ddN69lZ
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10640"; a="363139478"
+X-IronPort-AV: E=Sophos;i="5.98,236,1673942400"; 
+   d="scan'208";a="363139478"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Mar 2023 02:49:29 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10640"; a="1005343475"
+X-IronPort-AV: E=Sophos;i="5.98,236,1673942400"; 
+   d="scan'208";a="1005343475"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmsmga005.fm.intel.com with ESMTP; 06 Mar 2023 02:49:27 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1pZ8PF-00GJBT-1A;
+        Mon, 06 Mar 2023 12:49:25 +0200
+Date:   Mon, 6 Mar 2023 12:49:25 +0200
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Daniel Kaehn <kaehndan@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, jikos@kernel.org,
+        bartosz.golaszewski@linaro.org, dmitry.torokhov@gmail.com,
+        devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+        ethan.twardy@plexus.com
+Subject: Re: [PATCH v8 3/3] HID: cp2112: Fwnode Support
+Message-ID: <ZAXFNRuALYpXgL6F@smile.fi.intel.com>
+References: <20230227140758.1575-1-kaehndan@gmail.com>
+ <20230227140758.1575-4-kaehndan@gmail.com>
+ <Y/03to4XFXPwkGH1@smile.fi.intel.com>
+ <CAP+ZCCe=f3AtxvC1Z6zPErMEG9BcnCOjApc26n_9yjq2+U72pw@mail.gmail.com>
+ <Y/9oO1AE6GK6CQmp@smile.fi.intel.com>
+ <20230302170554.q3426ii255735rzw@mail.corp.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230302170554.q3426ii255735rzw@mail.corp.redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dobr=C3=A9 r=C3=A1no,
+On Thu, Mar 02, 2023 at 06:06:06PM +0100, Benjamin Tissoires wrote:
+> On Mar 01 2023, Andy Shevchenko wrote:
+> > On Tue, Feb 28, 2023 at 01:05:54PM -0600, Daniel Kaehn wrote:
 
-uva=C5=BEujete o bezesp=C3=A1rov=C3=A9 podlaze pro v=C3=BDrobn=C3=AD prov=
-oz?
+...
 
-Jako sv=C4=9Btov=C3=BD l=C3=ADdr ve v=C3=BDrob=C4=9B a pokl=C3=A1dce podl=
-ah =C5=99e=C5=A1=C3=ADme probl=C3=A9my vypl=C3=BDvaj=C3=ADc=C3=AD z vlivu=
- chemick=C3=BDch slou=C4=8Denin, ot=C4=9Bru, n=C3=A1raz=C5=AF, vlhkosti n=
-ebo n=C3=A1hl=C3=BDch zm=C4=9Bn teplot - na=C5=A1e podlahov=C3=A9 syst=C3=
-=A9my jsou p=C5=99izp=C5=AFsobeny nejt=C4=9B=C5=BE=C5=A1=C3=ADm podm=C3=AD=
-nk=C3=A1m prost=C5=99ed=C3=AD.
+> > [1]: https://stackoverflow.com/a/60855157/2511795
+> 
+> Thanks Andy for your help here, and thanks for that link.
+> 
+> I am trying to test Danny's patch as I want to use it for my HID CI,
+> being an owner of a CP2112 device myself.
+> 
+> The current setup is using out of the tree patches [2] which are
+> implementing a platform i2c-hid support and some manual addition of a
+> I2C-HID device on top of it. This works fine but gets busted every now
+> and then when the tree sees a change that conflicts with these patches.
+> 
+> So with Danny's series, I thought I could have an SSDT override to
+> declare that very same device instead of patching my kernel before
+> testing it.
+> 
+> Of course, it gets tricky because I need to run that under qemu.
+> 
+> I am currently stuck at the "sharing the firmware_node from usb with
+> HID" step and I'd like to know if you could help me.
+> 
+> On my laptop, if I plug the CP2112 (without using a USB hub), I can get:
+> 
+> $> ls -l /sys/bus/hid/devices/0003:10C4:EA90.*
+>   lrwxrwxrwx. 1 root root 0 Mar  2 17:02 /sys/bus/hid/devices/0003:10C4:EA90.0079 -> ../../../devices/pci0000:00/0000:00:14.0/usb2/2-9/2-9:1.0/0003:10C4:EA90.0079
+> $> ls -l /sys/bus/usb/devices/2-9*/firmware_node
+>   lrwxrwxrwx. 1 root root 0 Mar  2 17:03 /sys/bus/usb/devices/2-9:1.0/firmware_node -> ../../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:15/device:16/device:25
+>   lrwxrwxrwx. 1 root root 0 Mar  2 17:02 /sys/bus/usb/devices/2-9/firmware_node -> ../../../../LNXSYSTM:00/LNXSYBUS:00/PNP0A08:00/device:15/device:16/device:25
+> 
+> So AFAIU the USB device is properly assigned a firmware node. My dsdt
+> also shows the "Device (RHUB)" and I guess everything is fine.
 
-Garantujeme v=C3=A1m =C5=99e=C5=A1en=C3=AD, kter=C3=A1 jsou =C5=A1etrn=C3=
-=A1 k =C5=BEivotn=C3=ADmu prost=C5=99ed=C3=AD, odoln=C3=A1 a snadno se =C4=
-=8Dist=C3=AD, hygienick=C3=A1, protiskluzov=C3=A1 a bezpe=C4=8Dn=C3=A1 pr=
-o zam=C4=9Bstnance.
+Yes, so far so good.
 
-Poskytujeme kr=C3=A1tkou dobu instalace a nep=C5=99etr=C5=BEit=C3=BD prov=
-oz i o v=C3=ADkendech a sv=C3=A1tc=C3=ADch, =C4=8D=C3=ADm=C5=BE eliminuje=
-me riziko prostoj=C5=AF.
+> However, playing with qemu is not so easy.
+> 
+> I am running qemu with the following arguments (well, almost because I
+> have a wrapper script on top of it and I also run the compiled kernel
+> from the current tree):
+> 
+> #> qemu-system-x86_64 -bios /usr/share/edk2/ovmf/OVMF_CODE.fd \
+>                       -netdev user,id=hostnet0 \
+>                       -device virtio-net-pci,netdev=hostnet0 \
+>                       -m 4G \
+>                       -enable-kvm \
+>                       -cpu host \
+>                       -device qemu-xhci -usb \
+>                       -device 'usb-host,vendorid=0x10c4,productid=0xea90' \
+>                       -cdrom ~/Downloads/Fedora-Workstation-Live-x86_64-37-1.7.iso
 
-Mohu V=C3=A1m zdarma nab=C3=ADdnout technick=C3=BD audit podlah s komplex=
-n=C3=ADm rozborem podkladu.
+Side question, where can I get those blobs from (EDKII and Fedora Live CD)?
+I'm using Debian unstable.
 
-M=C5=AF=C5=BEeme pro v=C3=A1s mluvit o =C5=99e=C5=A1en=C3=ADch?
+> And this is what I get:
+> 
+> #> ls -l /sys/bus/hid/devices/0003:10C4:EA90.*
+>   lrwxrwxrwx 1 root root 0 Mar  2 16:10 /sys/bus/hid/devices/0003:10C4:EA90.0001 -> ../../../devices/pci0000:00/0000:00:06.0/usb2/2-1/2-1:1.0/0003:10C4:EA90.0001
+> 
+> #> ls -l /sys/bus/usb/devices/2-1*/firmware_node
+>   ls: cannot access '/sys/bus/usb/devices/2-1*/firmware_node': No such file or directory
+> 
+> Looking at the DSDT, I do not see any reference to the USB hub, so I
+> wonder if the firmware_node needs to be populated first in the DSDT.
+
+So, where QEMU takes DSDT (ACPI tables in general) from? Can you patch that?
+I believe that's the problem in qemu.
+
+> Also note that if I plug the CP2112 over a docking station, I lose the
+> firmware_node sysfs entries on the host too.
+
+This seems like a lack of firmware node propagating in the USB hub code in
+the Linux kernel.
+
+> Do you think it would be achievable to emulate that over qemu and use a
+> mainline kernel without patches?
+
+As long as qemu provides correct DSDT it should work I assume.
+
+> [2] https://gitlab.freedesktop.org/bentiss/gitlab-kernel-ci/-/tree/master/VM
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-Luk=C3=A1=C5=A1 Horv=C3=A1th

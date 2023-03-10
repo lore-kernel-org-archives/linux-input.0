@@ -2,83 +2,80 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 69B87C742A7
-	for <linux-input@archiver.kernel.org>; Fri, 10 Mar 2023 14:50:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE2FAC742A7
+	for <linux-input@archiver.kernel.org>; Fri, 10 Mar 2023 14:56:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233162AbjCJOuK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 10 Mar 2023 09:50:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41028 "EHLO
+        id S233074AbjCJO4Z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 10 Mar 2023 09:56:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233227AbjCJOtL (ORCPT
+        with ESMTP id S233302AbjCJOyX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 10 Mar 2023 09:49:11 -0500
-Received: from mail-ot1-f46.google.com (mail-ot1-f46.google.com [209.85.210.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 088D71241C8;
-        Fri, 10 Mar 2023 06:47:44 -0800 (PST)
-Received: by mail-ot1-f46.google.com with SMTP id e9-20020a056830200900b00694651d19f6so3018291otp.12;
-        Fri, 10 Mar 2023 06:47:44 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1678459663;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=IV8iy1W+HzbM7y1sc4cc2CVnizJ5BO/3Cf1trLEFKYw=;
-        b=HUggcPDvnndBgOC2PHR7gxqRevwSVmFEquvZevOMBDTy/jnQ/wDqSKEQqF3NW3TEv/
-         o+ucbkrMIipWjfWsTOr7Ia5B9qoNq0V09v6kaS3L8WiJ9J1ud5VK8JdrIIb5UCQ9XV/1
-         5ozTflou0WTL36uXXlC8Q7ZqQHsUvS4GnHR7vJ4U2pGXfMkFDqLX0tmEz48tO7qvUaeI
-         6omGfN/awsaLlSUJuTLHRyLAm646+dpFyKmYb0rIpqcJe476fq6NkHZEXd7D8gSYMpPg
-         WXbzCgI3g0O4X1bXqVIdEXUpkjW4S9mJy+jBTZAKSFdcK1KDlEWx3qdcMZh5VXrTk9pL
-         QN/w==
-X-Gm-Message-State: AO0yUKWHKbf8Fv5VPr/nGx1icP61kUP9ToQUseRvbRvbspgitti75zuy
-        CTeB8NqVpuji0PDjpqR35w==
-X-Google-Smtp-Source: AK7set/E91M/DeQ2a1JpWl0X0cQUJeecXU0OnwwVJTHI7R2Y9BdaX8OyAkHZpawpFKpiIsbABzXv0A==
-X-Received: by 2002:a05:6830:44a2:b0:690:e454:fc1e with SMTP id r34-20020a05683044a200b00690e454fc1emr15757037otv.7.1678459663313;
-        Fri, 10 Mar 2023 06:47:43 -0800 (PST)
-Received: from robh_at_kernel.org (66-90-144-107.dyn.grandenetworks.net. [66.90.144.107])
-        by smtp.gmail.com with ESMTPSA id 64-20020a9d06c6000000b006864816ecd9sm106511otx.59.2023.03.10.06.47.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Mar 2023 06:47:42 -0800 (PST)
-Received: (nullmailer pid 1542708 invoked by uid 1000);
-        Fri, 10 Mar 2023 14:47:08 -0000
-From:   Rob Herring <robh@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     devicetree@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: zinitix: Use of_property_present() for testing DT property presence
-Date:   Fri, 10 Mar 2023 08:47:08 -0600
-Message-Id: <20230310144708.1542682-1-robh@kernel.org>
-X-Mailer: git-send-email 2.39.2
+        Fri, 10 Mar 2023 09:54:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D7C1223AB
+        for <linux-input@vger.kernel.org>; Fri, 10 Mar 2023 06:50:04 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C36AD6196E
+        for <linux-input@vger.kernel.org>; Fri, 10 Mar 2023 14:50:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BF9BC4339B;
+        Fri, 10 Mar 2023 14:50:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678459804;
+        bh=QSiGl2YAdAGsmfCWq2WtCLj+0Ez162pQjq7zaxIAl2o=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=Uoo0CZSUNtCSbYK1Ilwk3a7ISmxXlnYty+t84E39HN5QBCti+L4c8DzbXVjFaAkz8
+         kaP4fxD9abhTpIRnZ4TVrrF/bIzFjRmbFASVEIYo1roZRBBPvU7IaQXoxrvwvGCOQR
+         FwTcCI5TyFhZ8mETwU4qFDTyxlY0mz0JqSFRBB7GYw14ihiG5wOEMhnPSwW2ZM7k2P
+         lOrFISOz3yiWBHsn0vMmtRGMv9kihzes7wNu5RVCgbZ8J6v8g4pPPNKo57B0b9VFil
+         Y2elb1nol0X9hi4iYaIibbo2fQXlSG/Db2C6ME5qfEM2JbfjIrW8vcMUKQb1ro9e5m
+         EYv5Su2fkIrKw==
+Date:   Fri, 10 Mar 2023 15:50:07 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Alex Henrie <alexhenrie24@gmail.com>
+cc:     linux-input@vger.kernel.org
+Subject: Re: [PATCH v2] HID: apple: Set the tilde quirk flag on the Geyser
+ 4 and later
+In-Reply-To: <20230227030614.827480-1-alexhenrie24@gmail.com>
+Message-ID: <nycvar.YFH.7.76.2303101549590.1142@cbobk.fhfr.pm>
+References: <20230227030614.827480-1-alexhenrie24@gmail.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-It is preferred to use typed property access functions (i.e.
-of_property_read_<type> functions) rather than low-level
-of_get_property/of_find_property functions for reading properties. As
-part of this, convert of_get_property/of_find_property calls to the
-recently added of_property_present() helper when we just want to test
-for presence of a property and nothing more.
+On Sun, 26 Feb 2023, Alex Henrie wrote:
 
-Signed-off-by: Rob Herring <robh@kernel.org>
----
- drivers/input/touchscreen/zinitix.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> I recently tested several old MacBooks and as far as I can tell, all
+> MacBooks that have an ISO keyboard have the tilde key quirk:
+> 
+> Product    Model  Year  System      CPU    Shape  Labels     Country  Quirky
+> ============================================================================
+> 05ac:021b  A1181  2006  MacBook2,1  T5600  ISO    British    13       Yes
+> 05ac:021b  A1181  2007  MacBook2,1  T7200  ISO    Québécois  13       Yes
+> 05ac:0229  A1181  2007  MacBook4,1  T8300  ANSI   Usonian    33       No
+> 05ac:022a  A1181  2007  MacBook4,1  T8100  ISO    English    13       Yes
+> 05ac:022a  A1181  2007  MacBook5,2  P7350  ISO    Québécois  13       Yes
+> 05ac:0237  A1278  2008  MacBook5,1  P7350  ISO    Dutch      13       Yes
+> 05ac:0237  A1278  2009  MacBook5,5  P7550  ISO    British    13       Yes
+> 
+> The model number and year are from the laptop case. Since Apple printed
+> the same model and year on many different laptops, the system name (as
+> reported in the SMBIOS tables) and CPU form a more precise identifier.
+> 
+> Signed-off-by: Alex Henrie <alexhenrie24@gmail.com>
+> ---
+> v2: Added system names from SMBIOS tables to commit message, no code
+> changes
 
-diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
-index cdf9bcd744db..b6ece47151b8 100644
---- a/drivers/input/touchscreen/zinitix.c
-+++ b/drivers/input/touchscreen/zinitix.c
-@@ -260,7 +260,7 @@ static int zinitix_init_regulators(struct bt541_ts_data *bt541)
- 	 * so check if "vddo" is present and in that case use these names.
- 	 * Else use the proper supply names on the component.
- 	 */
--	if (of_find_property(dev->of_node, "vddo-supply", NULL)) {
-+	if (of_property_present(dev->of_node, "vddo-supply")) {
- 		bt541->supplies[0].supply = "vdd";
- 		bt541->supplies[1].supply = "vddo";
- 	} else {
+Applied, thanks.
+
 -- 
-2.39.2
+Jiri Kosina
+SUSE Labs
 

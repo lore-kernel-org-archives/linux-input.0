@@ -2,90 +2,106 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 29EA4C61DA4
-	for <linux-input@archiver.kernel.org>; Sat, 11 Mar 2023 11:48:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50DFFC6FD1F
+	for <linux-input@archiver.kernel.org>; Sat, 11 Mar 2023 12:31:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229502AbjCKLsV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 11 Mar 2023 06:48:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50268 "EHLO
+        id S229906AbjCKMbx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 11 Mar 2023 07:31:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229455AbjCKLsT (ORCPT
+        with ESMTP id S230365AbjCKMbq (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 11 Mar 2023 06:48:19 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 641EB1091CE
-        for <linux-input@vger.kernel.org>; Sat, 11 Mar 2023 03:47:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1678535251;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=8KsyNw5uTyQNuI+GiYX9DB5i9VOm1B6ZWhWgGJemc6Q=;
-        b=Ij7DqRXne4I7akHUnL4RuKxtTMf+WsewbtIdhKjGrWzM7u4Y9NVObNBD+QRrL9MvaiERF8
-        RCn6/avdmibskrO1QbUBdfXU4FVFhlDfVjhiJnVJISMerD1ntxZdPyYTe9QnbLA/AfRXV7
-        EAzW0YTl54reUjhtVQmWbl43361ofQ8=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-510-hHQUn1_HOBuQUwy3Wph5Tw-1; Sat, 11 Mar 2023 06:47:28 -0500
-X-MC-Unique: hHQUn1_HOBuQUwy3Wph5Tw-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        Sat, 11 Mar 2023 07:31:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4B2C12DDC7;
+        Sat, 11 Mar 2023 04:31:45 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 91FD7185A794;
-        Sat, 11 Mar 2023 11:47:27 +0000 (UTC)
-Received: from shalem.redhat.com (unknown [10.39.192.56])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E5C75C16028;
-        Sat, 11 Mar 2023 11:47:26 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH v5 0/2] Input: hideep - 2 HiDeep touchscreen patches
-Date:   Sat, 11 Mar 2023 12:47:24 +0100
-Message-Id: <20230311114726.182789-1-hdegoede@redhat.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4312760BA0;
+        Sat, 11 Mar 2023 12:31:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C60EC4339B;
+        Sat, 11 Mar 2023 12:31:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678537904;
+        bh=p5iWwHAklWT0bySItEhojZIf18mXXNFhFCDhXndKyK8=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=AamS5nNCIINdQ5gPbG0tS4TRoqFwguJYVQAPQdOqT8UJOgKafXRkL45eh6CrmqzJH
+         3mSVmkZ2tsZvKuorrMmIP+YCyrxb7McFpweGnfNcVXbf9crDhcgeqV+OExB7JCMdNT
+         OqFxDd+l3/imn6lB3eH9suY82ns7sXwGbjCP5El79TRmhR7CyhoLxs43J95oKQAPrg
+         m9gw9o0Il0dzGUxaMgBVCVt7A5KnIcBtq1uC8L4t5HJx2UomOTurm1ghRFSDgPFDJX
+         HQwhgPXRqRKkri7tWvX8xPGncaijbaMKwJ7hmeCZFVW5cCTxKWO/LGsjmX4WxczRt7
+         uIRHR+Mp1vLTA==
+Date:   Sat, 11 Mar 2023 12:31:48 +0000
+From:   Jonathan Cameron <jic23@kernel.org>
+To:     Philipp Jungkamp <p.jungkamp@gmx.net>
+Cc:     Todd Brandt <todd.e.brandt@intel.com>, linux-input@vger.kernel.org,
+        linux-iio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        todd.e.brandt@linux.intel.com, srinivas.pandruvada@linux.intel.com,
+        jikos@kernel.org
+Subject: Re: [PATCH] Fix buffer overrun in HID-SENSOR name.
+Message-ID: <20230311123148.0fbe1091@jic23-huawei>
+In-Reply-To: <b9dab02783e5eeaa74b291d4394150689e7c7b8a.camel@gmx.net>
+References: <20230310235414.12467-1-todd.e.brandt@intel.com>
+        <b9dab02783e5eeaa74b291d4394150689e7c7b8a.camel@gmx.net>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.37; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Dmitry,
+On Sat, 11 Mar 2023 01:53:22 +0100
+Philipp Jungkamp <p.jungkamp@gmx.net> wrote:
 
-Here are 2 patches for the HiDeep touchscreen driver.
+> This is exactly the fix I proposed. Thank you for testing and properly
+> submitting it.
+>=20
+> Regards,
+> Philipp Jungkamp
 
-Changes in v5:
-- Rename the property to "hideep,force-native-protocol"
-- Add a comment to the property checking code that this property
-  should not be used in devicetree without first adding it to
-  the devicetree-bindings.
+Looks good to me as well.
 
-Changes in v4:
-- Rebase on v6.3-rc1
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-Changes in v3:
-- Do not add the x86/acpi only "hideep,reset-work-mode" property to
-  the dt-bindings doc
-
-Changes in v2:
-- Add "Optionally reset controller work mode to native HiDeep protocol"
-  patch
-
-Regards,
-
-Hans
-
-
-Hans de Goede (2):
-  Input: hideep - Silence error in SW_RESET()
-  Input: hideep - Optionally reset controller work mode to native HiDeep
-    protocol
-
- drivers/input/touchscreen/hideep.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
-
--- 
-2.39.1
+>=20
+> On Fri, 2023-03-10 at 15:54 -0800, Todd Brandt wrote:
+> > Philipp Jungkamp created this fix, I'm simply submitting it. I've
+> > verified it fixes bugzilla issue 217169.
+> >=20
+> > Reported-and-tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
+> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D217169
+> > Signed-off-by: Todd Brandt <todd.e.brandt@intel.com>
+> > ---
+> > =C2=A0drivers/hid/hid-sensor-custom.c | 2 +-
+> > =C2=A01 file changed, 1 insertion(+), 1 deletion(-)
+> >=20
+> > diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-
+> > sensor-custom.c
+> > index 3e3f89e01d81..d85398721659 100644
+> > --- a/drivers/hid/hid-sensor-custom.c
+> > +++ b/drivers/hid/hid-sensor-custom.c
+> > @@ -940,7 +940,7 @@ hid_sensor_register_platform_device(struct
+> > platform_device *pdev,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 struct h=
+id_sensor_hub_device
+> > *hsdev,
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=
+=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 const st=
+ruct
+> > hid_sensor_custom_match *match)
+> > =C2=A0{
+> > -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0char real_usage[HID_SENSOR_U=
+SAGE_LENGTH];
+> > +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0char real_usage[HID_SENSOR_U=
+SAGE_LENGTH] =3D { 0 };
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0struct platform_device =
+*custom_pdev;
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0const char *dev_name;
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0char *c; =20
+>=20
 

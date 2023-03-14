@@ -2,72 +2,81 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B2F9C6FD1D
-	for <linux-input@archiver.kernel.org>; Tue, 14 Mar 2023 13:46:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B382EC7618B
+	for <linux-input@archiver.kernel.org>; Tue, 14 Mar 2023 14:05:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231980AbjCNNqU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 14 Mar 2023 09:46:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33710 "EHLO
+        id S232378AbjCNOFC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 14 Mar 2023 10:05:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231243AbjCNNqF (ORCPT
+        with ESMTP id S232644AbjCNOE6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 14 Mar 2023 09:46:05 -0400
-Received: from tretyak2.mcst.ru (tretyak2.mcst.ru [212.5.119.215])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E33A648F;
-        Tue, 14 Mar 2023 06:42:49 -0700 (PDT)
-Received: from tretyak2.mcst.ru (localhost [127.0.0.1])
-        by tretyak2.mcst.ru (Postfix) with ESMTP id 2995E10238F;
-        Tue, 14 Mar 2023 15:44:02 +0300 (MSK)
-Received: from frog.lab.sun.mcst.ru (frog.lab.sun.mcst.ru [172.16.4.50])
-        by tretyak2.mcst.ru (Postfix) with ESMTP id 25F6C10226F;
-        Tue, 14 Mar 2023 15:43:42 +0300 (MSK)
-Received: from artemiev-i.lab.sun.mcst.ru (avior-1 [192.168.53.223])
-        by frog.lab.sun.mcst.ru (8.13.4/8.12.11) with ESMTP id 32EChfKV018729;
-        Tue, 14 Mar 2023 15:43:41 +0300
-From:   Igor Artemiev <Igor.A.Artemiev@mcst.ru>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Igor Artemiev <Igor.A.Artemiev@mcst.ru>,
+        Tue, 14 Mar 2023 10:04:58 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38485359E;
+        Tue, 14 Mar 2023 07:04:56 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D2914B81975;
+        Tue, 14 Mar 2023 14:04:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12379C433D2;
+        Tue, 14 Mar 2023 14:04:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1678802693;
+        bh=B/P5wvnaGsZszKTry543mSnMtq8bm/XaJVjq6FrmLVQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cdrW3swoE3j+NAatgo/UFQ2IwjczHYVqcE0AF9somKo10nuodMPAVynpPv90EF1rc
+         WJZV0/WI0WiXBD7bIO1ILM4nxXHTI9NIxw86J+Nh+6zaR79U9ePY7eFM2m13PAWAd/
+         DOeFGvbJn0DxuaKXiyJcC4KHbyhE06wAkP/R3AzraOsoo7/NjyoNMQxdFQ2s2NA5b7
+         8SV1P+rzlbmdTdearD/WQIfYjfwhgWU1QHGxwOmTkYYFzKbLXPkAadsQGgD9Cd5Kjd
+         aQK71mAQ7oLzgV/9LZpo/suXTfDcRntbYEE2FNNVCSun5k/biFSj25BUi5g2Yo5X9Y
+         Kc3FVwXSJ3Jrg==
+Date:   Tue, 14 Mar 2023 15:04:50 +0100
+From:   Andi Shyti <andi.shyti@kernel.org>
+To:     Igor Artemiev <Igor.A.Artemiev@mcst.ru>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         lvc-project@linuxtesting.org
-Subject: [lvc-project] [PATCH] Input: synaptics - remove unreachable code
-Date:   Tue, 14 Mar 2023 15:43:36 +0300
-Message-Id: <20230314124336.1494716-1-Igor.A.Artemiev@mcst.ru>
-X-Mailer: git-send-email 2.39.0.152.ga5737674b6
+Subject: Re: [lvc-project] [PATCH] Input: synaptics - remove unreachable code
+Message-ID: <20230314140450.2w3nhp7zpdolbngc@intel.intel>
+References: <20230314124336.1494716-1-Igor.A.Artemiev@mcst.ru>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Anti-Virus: Kaspersky Anti-Virus for Linux Mail Server 5.6.39/RELEASE,
-         bases: 20111107 #2745587, check: 20230314 notchecked
-X-AV-Checked: ClamAV using ClamSMTP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230314124336.1494716-1-Igor.A.Artemiev@mcst.ru>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The synaptics_resolution() function always returnd 0.
-And there is no need to check its result.
+Hi Igor,
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+On Tue, Mar 14, 2023 at 03:43:36PM +0300, Igor Artemiev wrote:
+> The synaptics_resolution() function always returnd 0.
+> And there is no need to check its result.
+> 
+> Found by Linux Verification Center (linuxtesting.org) with SVACE.
+> 
+> Fixes: e839ffab0289 ("Input: synaptics - add support for Intertouch devices")
+> Signed-off-by: Igor Artemiev <Igor.A.Artemiev@mcst.ru>
+> ---
+>  drivers/input/mouse/synaptics.c | 4 +---
+>  1 file changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
+> index fa021af8506e..4f1182bf9667 100644
+> --- a/drivers/input/mouse/synaptics.c
+> +++ b/drivers/input/mouse/synaptics.c
+> @@ -444,9 +444,7 @@ static int synaptics_query_hardware(struct psmouse *psmouse,
+>  	if (error)
+>  		return error;
+>  
+> -	error = synaptics_resolution(psmouse, info);
+> -	if (error)
+> -		return error;
+> +	synaptics_resolution(psmouse, info);
 
-Fixes: e839ffab0289 ("Input: synaptics - add support for Intertouch devices")
-Signed-off-by: Igor Artemiev <Igor.A.Artemiev@mcst.ru>
----
- drivers/input/mouse/synaptics.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Again, please make "synaptics_resolution()" void. As it is you
+are just ignoring a return value, even if you are sure it's '0'.
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index fa021af8506e..4f1182bf9667 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -444,9 +444,7 @@ static int synaptics_query_hardware(struct psmouse *psmouse,
- 	if (error)
- 		return error;
- 
--	error = synaptics_resolution(psmouse, info);
--	if (error)
--		return error;
-+	synaptics_resolution(psmouse, info);
- 
- 	return 0;
- }
--- 
-2.30.2
-
+Andi

@@ -2,65 +2,63 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74D42C761A6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2B56C77B60
 	for <linux-input@archiver.kernel.org>; Sun, 19 Mar 2023 20:48:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230096AbjCSUsP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S230078AbjCSUsP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sun, 19 Mar 2023 16:48:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54710 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230093AbjCSUsJ (ORCPT
+        with ESMTP id S229632AbjCSUsK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Mar 2023 16:48:09 -0400
-Received: from mail-qt1-x82e.google.com (mail-qt1-x82e.google.com [IPv6:2607:f8b0:4864:20::82e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD8044B3;
-        Sun, 19 Mar 2023 13:48:06 -0700 (PDT)
-Received: by mail-qt1-x82e.google.com with SMTP id ek9so11111736qtb.10;
-        Sun, 19 Mar 2023 13:48:05 -0700 (PDT)
+        Sun, 19 Mar 2023 16:48:10 -0400
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D65768B;
+        Sun, 19 Mar 2023 13:48:07 -0700 (PDT)
+Received: by mail-qt1-x835.google.com with SMTP id r5so11130017qtp.4;
+        Sun, 19 Mar 2023 13:48:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1679258885;
+        d=gmail.com; s=20210112; t=1679258887;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9ttf/oycojer2AjXga/cynyrMrsDrjxN9x+nUsxDh+I=;
-        b=d/fiXBbaM4kPZXzhr6gXVAEj6UaXsTspmarNLmT3nubpgN0gikONximY813mxnSHJi
-         aTYOUa9mrqWPijLcdupDE5YDeh0W5J0UwAd4z436qr/PrA6jbF5XSSZd7wX9lqHpdrK7
-         GprjqSxLLJrOkXHG2269xjHCfwLUfbvwWoX6JeoAkYPD71yA14keKLmUIVcSZN8FMNUH
-         x5hW0laKJI/MpEpXuOV+QAzT6YyHyX9dpKJjCjRioGEynEerIPsbRzOlhsebdlrP6VJq
-         yg3+1uQwKW14xdm91nX+HWj0e5gYy1HKqtatiBc78UOklgoiC0peQydf3/0p6kwK+Ags
-         xp2Q==
+        bh=HrTr039c+6RN5N35ewTG2eYP720SLlYLqSsBbC6Oub8=;
+        b=DxonOl/8K+dvmpWuo+1YenKfHOlFPr30tw66Jg22opyy3IHXlPpOn7dRUNZOT41Tz8
+         VRPg6q5HnxqAep5WpgHZTHU4/GeovoueOqbCd+GzpGrOVmNx/uWLYZopitxZPPDPl49M
+         sUA1Ol8FDk1CkA5PnpUS4VF81lDITASOygHcbOqP0VfJoLl5ITlfGwokgXy8RbUZwFuU
+         oSB5mI96cXCxeJeozDLEYIrapjy8exR+i2pfCWYNcI9s4S+OIulLm4KQzUFUfEy/EhzG
+         Xzemc8s/PAtDZ23po7mpWP2uWlyFhigw2EDdEygK/OSwwSHiUpt7JLp2yArbpqX39khE
+         kIcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1679258885;
+        d=1e100.net; s=20210112; t=1679258887;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=9ttf/oycojer2AjXga/cynyrMrsDrjxN9x+nUsxDh+I=;
-        b=4gqZnaoV+cICmqFPaa+Cl2pmxHn+1FPHseq/brtYD1+n8nFJa4LcBNlU+SnsWQdP6L
-         x8l7+NP9IsITmbbyBqAgO8Do1OViqRwN/1XGK2DoRaUNY6mNNNzHoE2CFrorR4ovfFWQ
-         tnDpMTzQ+x0Q/9TWvhpTu8y3JB95koZEAoPG5YNDJnaBwifZ8m+cDLAW7jpT3x78S/x8
-         loNcUtvRd6uqkMwsH0NbtF+lrrXn0MwFHOoUHfra6/MgikpmfMi2IikIhjhRMBUsZ+1+
-         1uoEWv//16+xO29+JccFyDMgOmM29hUKsSflaK9oQJ0lvH90xOivNI9CWXJlaqhdV/RZ
-         Z1GQ==
-X-Gm-Message-State: AO0yUKVUmYsghMUZWQcZsqnhOgcVDkTAPagVASRuy1MQbHyQtDZJuNeu
-        ZLbzhqitEuSy16ZmOylb5j4=
-X-Google-Smtp-Source: AK7set8Vg9bg0tcHzT+90i8EgOVq+QBNOt5SEgSnPb2qlHgV0hKOWBArFvUXoCMtdp9Z50Pefjidpw==
-X-Received: by 2002:ac8:5792:0:b0:3e0:d161:29ad with SMTP id v18-20020ac85792000000b003e0d16129admr3010884qta.28.1679258884743;
-        Sun, 19 Mar 2023 13:48:04 -0700 (PDT)
+        bh=HrTr039c+6RN5N35ewTG2eYP720SLlYLqSsBbC6Oub8=;
+        b=ROcwb42Z+TCpw48hy0KeORDZPacDIsoOykHg47dlocgXdTxtrzpXMCEHSX4+LY8k/6
+         PgHS4+13WAhenwr0rTzOCi/XW6M8QSOw+O+6HK5PAYQ/q4behYafJmc/o2+wtsi5tKK6
+         xi8oRpNpojpEc492ILeDYi+ET2dymcv7JLBpFtyRTjQWWPYvFrqweQAOrbms6BB1O82a
+         xjuMuxHhHM/Tm5wEM9wziUhqu56dXoaxWQCDWfBudcSFJTMOZ/KPnqVV5CmqTIihOzza
+         j5B4kWkoR7PQpI6msBP/840q5iAC1ucBKa2C0i1pvlei2yWu7CjTWzAW31TKQ7YEGI9k
+         ZK3w==
+X-Gm-Message-State: AO0yUKVfV7Wo8aNT7X/PRYWkaunil1ROFog1OIjeKz7nWCjTnQOHTIkk
+        B+4rU6elPYnjgCq9QvasP4g=
+X-Google-Smtp-Source: AK7set+q7zCLSBGRHPR1/9WObyNMJyALQo+2AYOd+xNYhamOq9gmtCR4X1wKet5VZSoLbD4joTSPQQ==
+X-Received: by 2002:a05:622a:1a0e:b0:3bf:c371:789e with SMTP id f14-20020a05622a1a0e00b003bfc371789emr24348536qtb.14.1679258886920;
+        Sun, 19 Mar 2023 13:48:06 -0700 (PDT)
 Received: from DANNY-DESKTOP.localdomain (071-013-243-092.res.spectrum.com. [71.13.243.92])
-        by smtp.gmail.com with ESMTPSA id m24-20020ac866d8000000b003b7e8c04d2esm5186021qtp.64.2023.03.19.13.48.03
+        by smtp.gmail.com with ESMTPSA id m24-20020ac866d8000000b003b7e8c04d2esm5186021qtp.64.2023.03.19.13.48.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Mar 2023 13:48:04 -0700 (PDT)
+        Sun, 19 Mar 2023 13:48:06 -0700 (PDT)
 From:   Danny Kaehn <kaehndan@gmail.com>
 To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
         jikos@kernel.org, benjamin.tissoires@redhat.com
 Cc:     bartosz.golaszewski@linaro.org, andriy.shevchenko@linux.intel.com,
         dmitry.torokhov@gmail.com, devicetree@vger.kernel.org,
-        linux-input@vger.kernel.org, ethan.twardy@plexus.com,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH v9 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
-Date:   Sun, 19 Mar 2023 15:48:00 -0500
-Message-Id: <20230319204802.1364-2-kaehndan@gmail.com>
+        linux-input@vger.kernel.org, ethan.twardy@plexus.com
+Subject: [PATCH v9 3/3] HID: cp2112: Fwnode Support
+Date:   Sun, 19 Mar 2023 15:48:02 -0500
+Message-Id: <20230319204802.1364-4-kaehndan@gmail.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230319204802.1364-1-kaehndan@gmail.com>
 References: <20230319204802.1364-1-kaehndan@gmail.com>
@@ -70,140 +68,63 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is a USB HID device which includes an I2C controller and 8 GPIO pins.
+Support describing the CP2112's I2C and GPIO interfaces in firmware.
 
-The binding allows describing the chip's gpio and i2c controller in DT
-using the subnodes named "gpio" and "i2c", respectively. This is
-intended to be used in configurations where the CP2112 is permanently
-connected in hardware.
+I2C and GPIO child nodes can either be children with names "i2c" and
+"gpio", or, for ACPI, device nodes with _ADR Zero and One,
+respectively.
+
+Additionally, support configuring the I2C bus speed from the
+clock-frequency device property.
 
 Signed-off-by: Danny Kaehn <kaehndan@gmail.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- .../bindings/i2c/silabs,cp2112.yaml           | 113 ++++++++++++++++++
- 1 file changed, 113 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
+ drivers/hid/hid-cp2112.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml b/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
-new file mode 100644
-index 000000000000..a27509627804
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
-@@ -0,0 +1,113 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/silabs,cp2112.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 27cadadda7c9..9e327763fd90 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1234,6 +1234,10 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	u8 buf[3];
+ 	struct cp2112_smbus_config_report config;
+ 	struct gpio_irq_chip *girq;
++	struct i2c_timings timings;
++	struct fwnode_handle *child;
++	u32 addr;
++	const char *name;
+ 	int ret;
+ 
+ 	dev = devm_kzalloc(&hdev->dev, sizeof(*dev), GFP_KERNEL);
+@@ -1247,6 +1251,17 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	mutex_init(&dev->lock);
+ 
++	device_for_each_child_node(&hdev->dev, child) {
++		name = fwnode_get_name(child);
++		ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
 +
-+title: CP2112 HID USB to SMBus/I2C Bridge
++		if ((name && strcmp("i2c", name) == 0) || (!ret && addr == 0))
++			device_set_node(&dev->adap.dev, child);
++		else if ((name && strcmp("gpio", name)) == 0 ||
++					(!ret && addr == 1))
++			dev->gc.fwnode = child;
++	}
 +
-+maintainers:
-+  - Danny Kaehn <kaehndan@gmail.com>
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "parse failed\n");
+@@ -1292,6 +1307,9 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err_power_normal;
+ 	}
+ 
++	i2c_parse_fw_timings(&dev->adap.dev, &timings, true);
 +
-+description:
-+  The CP2112 is a USB HID device which includes an integrated I2C controller
-+  and 8 GPIO pins. Its GPIO pins can each be configured as inputs, open-drain
-+  outputs, or push-pull outputs.
-+
-+properties:
-+  compatible:
-+    const: usb10c4,ea90
-+
-+  reg:
-+    maxItems: 1
-+    description: The USB port number on the host controller
-+
-+  i2c:
-+    description: The SMBus/I2C controller node for the CP2112
-+    $ref: /schemas/i2c/i2c-controller.yaml#
-+    unevaluatedProperties: false
-+
-+    properties:
-+      sda-gpios:
-+        maxItems: 1
-+
-+      scl-gpios:
-+        maxItems: 1
-+
-+      clock-frequency:
-+        minimum: 10000
-+        default: 100000
-+        maximum: 400000
-+
-+  gpio:
-+    description: The GPIO controller node for the CP2112
-+    type: object
-+    unevaluatedProperties: false
-+
-+    properties:
-+      interrupt-controller: true
-+      "#interrupt-cells":
-+        const: 2
-+
-+      gpio-controller: true
-+      "#gpio-cells":
-+        const: 2
-+
-+      gpio-line-names:
-+        minItems: 1
-+        maxItems: 8
-+
-+    patternProperties:
-+      "-hog(-[0-9]+)?$":
-+        type: object
-+
-+        required:
-+          - gpio-hog
-+
-+required:
-+  - compatible
-+  - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+    #include <dt-bindings/gpio/gpio.h>
-+
-+    usb {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      device@1 {
-+        compatible = "usb10c4,ea90";
-+        reg = <1>;
-+
-+        i2c {
-+          #address-cells = <1>;
-+          #size-cells = <0>;
-+          sda-gpios = <&cp2112_gpio 0 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+          scl-gpios = <&cp2112_gpio 1 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+
-+          temp@48 {
-+            compatible = "national,lm75";
-+            reg = <0x48>;
-+          };
-+        };
-+
-+        cp2112_gpio: gpio {
-+          gpio-controller;
-+          interrupt-controller;
-+          #gpio-cells = <2>;
-+          gpio-line-names = "CP2112_SDA", "CP2112_SCL", "TEST2",
-+            "TEST3","TEST4", "TEST5", "TEST6";
-+
-+          fan-rst-hog {
-+              gpio-hog;
-+              gpios = <7 GPIO_ACTIVE_HIGH>;
-+              output-high;
-+              line-name = "FAN_RST";
-+          };
-+        };
-+      };
-+    };
++	config.clock_speed = cpu_to_be32(timings.bus_freq_hz);
+ 	config.retry_time = cpu_to_be16(1);
+ 
+ 	ret = cp2112_hid_output(hdev, (u8 *)&config, sizeof(config),
 -- 
 2.25.1
 

@@ -2,46 +2,45 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 23CBCC7618A
-	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 00:57:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 071E5C7618E
+	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 00:58:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230252AbjCTA5D (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 19 Mar 2023 20:57:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34374 "EHLO
+        id S230383AbjCTA6a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 19 Mar 2023 20:58:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230070AbjCTA4D (ORCPT
+        with ESMTP id S230310AbjCTA52 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Mar 2023 20:56:03 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 354A318177;
-        Sun, 19 Mar 2023 17:54:50 -0700 (PDT)
+        Sun, 19 Mar 2023 20:57:28 -0400
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE26420551;
+        Sun, 19 Mar 2023 17:55:24 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ABB23611DF;
-        Mon, 20 Mar 2023 00:54:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3595FC4339B;
-        Mon, 20 Mar 2023 00:54:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6DABCB80D4A;
+        Mon, 20 Mar 2023 00:54:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67B95C4339C;
+        Mon, 20 Mar 2023 00:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273664;
-        bh=Bnhu3uAZwJlCimmYXMQJu4knoTcdvlXJCCfOl0ez2L8=;
+        s=k20201202; t=1679273658;
+        bh=58zc0AzHfesSx+M9pKNJIvOAgE7ILLowXaKun9ELkcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AXCSYTdxJr8Swk6lKddFW5ivHKDDCdCgL6oD7pGFnRjGZe6IXm7nE1Fxvdk6CYwOM
-         q4vWpIHgQLPV1nREX26DmqD7UOEga5+U+LkD0xG01qHgtKzqxJGRG1c2mqGiCO6iuk
-         ZlTlhHUbdSDhcmEINIdwUsxse8ymkIvUcjaXr2P+WwfsPyUnsXHAl+PEE9YIw+nVJv
-         HcT2O0qInsNV6RkDQ0FXagsMQ/p7u+HQwzQHmowRa45KPSrz4/lQPZgwl0VIW0sBzi
-         M1OGmfMGH0UtDkqEJHNyWOEgfVSibQrgdmClDgEenRM4/TkHCXSJqq8YGlkSeNcrxO
-         MN7avV0BDr/EQ==
+        b=D4m/TC/4wWhp4S4p/ZLZlVj/fvQ/PCI0DYZt6NqDVjyH3/LrGF7f5Fndd6R9bxrGi
+         E9Sl9Pf0CHsJxqmqKja9R58IxI83sh1KdQuBMRpyFDpJmJ8VC4fvJY9DrMMgCEZugU
+         kaa93qTs99ou+juVPw8DZgnciU4g0DECsjYDG72Xe4Z2L/1hWpFaV7/PE7gQ+YIho3
+         krOUnzjmfhcl+8MjtrZXKjGBh07Mcwz1CPiDar8oVi6rtkSmN19l5ap6SfOljhcnKr
+         1+jDAzG/68BBGW333J2QGrQk2WUk3gU8mxHPjatTfCZ+Y3TQUk1gP+DiMjQvbsMK2A
+         fNYch7P+TTxfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Reka Norman <rekanorman@chromium.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        liqiong@nfschina.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 05/29] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
-Date:   Sun, 19 Mar 2023 20:53:47 -0400
-Message-Id: <20230320005413.1428452-5-sashal@kernel.org>
+Cc:     Danny Kaehn <kaehndan@gmail.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 02/29] HID: cp2112: Fix driver not registering GPIO IRQ chip as threaded
+Date:   Sun, 19 Mar 2023 20:53:44 -0400
+Message-Id: <20230320005413.1428452-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
 References: <20230320005413.1428452-1-sashal@kernel.org>
@@ -53,67 +52,35 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Reka Norman <rekanorman@chromium.org>
+From: Danny Kaehn <kaehndan@gmail.com>
 
-[ Upstream commit 8ae2f2b0a28416ed2f6d8478ac8b9f7862f36785 ]
+[ Upstream commit 37f5b858a66543b2b67c0288280af623985abc29 ]
 
-When a reset notify IPC message is received, the ISR schedules a work
-function and passes the ISHTP device to it via a global pointer
-ishtp_dev. If ish_probe() fails, the devm-managed device resources
-including ishtp_dev are freed, but the work is not cancelled, causing a
-use-after-free when the work function tries to access ishtp_dev. Use
-devm_work_autocancel() instead, so that the work is automatically
-cancelled if probe fails.
+The CP2112 generates interrupts from a polling routine on a thread,
+and can only support threaded interrupts. This patch configures the
+gpiochip irq chip with this flag, disallowing consumers to request
+a hard IRQ from this driver, which resulted in a segfault previously.
 
-Signed-off-by: Reka Norman <rekanorman@chromium.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Danny Kaehn <kaehndan@gmail.com>
+Link: https://lore.kernel.org/r/20230210170044.11835-1-kaehndan@gmail.com
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/intel-ish-hid/ipc/ipc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/hid/hid-cp2112.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 15e14239af829..a49c6affd7c4c 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2014-2016, Intel Corporation.
-  */
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 1e16b0fa310d1..27cadadda7c9d 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1354,6 +1354,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	girq->parents = NULL;
+ 	girq->default_type = IRQ_TYPE_NONE;
+ 	girq->handler = handle_simple_irq;
++	girq->threaded = true;
  
-+#include <linux/devm-helpers.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- #include <linux/delay.h>
-@@ -621,7 +622,6 @@ static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
- 	case MNG_RESET_NOTIFY:
- 		if (!ishtp_dev) {
- 			ishtp_dev = dev;
--			INIT_WORK(&fw_reset_work, fw_reset_work_fn);
- 		}
- 		schedule_work(&fw_reset_work);
- 		break;
-@@ -940,6 +940,7 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- {
- 	struct ishtp_device *dev;
- 	int	i;
-+	int	ret;
- 
- 	dev = devm_kzalloc(&pdev->dev,
- 			   sizeof(struct ishtp_device) + sizeof(struct ish_hw),
-@@ -975,6 +976,12 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- 		list_add_tail(&tx_buf->link, &dev->wr_free_list);
- 	}
- 
-+	ret = devm_work_autocancel(&pdev->dev, &fw_reset_work, fw_reset_work_fn);
-+	if (ret) {
-+		dev_err(dev->devc, "Failed to initialise FW reset work\n");
-+		return NULL;
-+	}
-+
- 	dev->ops = &ish_hw_ops;
- 	dev->devc = &pdev->dev;
- 	dev->mtu = IPC_PAYLOAD_SIZE - sizeof(struct ishtp_msg_hdr);
+ 	ret = gpiochip_add_data(&dev->gc, dev);
+ 	if (ret < 0) {
 -- 
 2.39.2
 

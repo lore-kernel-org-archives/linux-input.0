@@ -2,47 +2,51 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B5C8C7618A
-	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 01:06:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E52C6FD1F
+	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 01:09:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231168AbjCTBGB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 19 Mar 2023 21:06:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56594 "EHLO
+        id S230472AbjCTBJi (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 19 Mar 2023 21:09:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231705AbjCTBFZ (ORCPT
+        with ESMTP id S231292AbjCTBJH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Mar 2023 21:05:25 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091BDD30F;
-        Sun, 19 Mar 2023 17:58:33 -0700 (PDT)
+        Sun, 19 Mar 2023 21:09:07 -0400
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9B12203E;
+        Sun, 19 Mar 2023 18:00:58 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62AC961203;
-        Mon, 20 Mar 2023 00:57:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6B8BC433EF;
-        Mon, 20 Mar 2023 00:57:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BFA58CE1018;
+        Mon, 20 Mar 2023 00:54:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D51DC433A0;
+        Mon, 20 Mar 2023 00:54:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273829;
-        bh=TuAJZ+k8hTbDsjg6vfN3jftPCZL8GO6/3bwa3bV2Irc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=boXgG+PXabs6fXNQvN+e+ww68zB4dtZGtL/fO/uDum6oo/QvZdE7yjI7pc0E68pqb
-         Sv5hz2UPyL86GAnGYX42Cx9mRNctZx/Lum9+kXvK8orO3d0tpxxZjFar9amouNW8Od
-         q/pv6xi9aGa9uRHCckhhv+Wec8HarcqmkBwoAuNnXntYBz5neN33OkN9JtdzoeuqD6
-         R20Th1V1Q8sMBFKZBMK8YxVmsu6cIncuCCaR90FMmiX9Ho/Fs7AdoxhfQ6zcE5uwFy
-         tI+19lVw0UfAectA7+qm7SY3whuBWJx16GEFuVvW1VoAU1PrN9P7vLVKg8key1jPN/
-         7HX+SiPI79CvQ==
+        s=k20201202; t=1679273661;
+        bh=E7EQYQXRaLRNx1bbv4x7/S3qJQ4eXr3q7YX+k86XXQk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=sqiRRIfJcbWBo0BaRVOdgPyJDz0/HjqcxB/PbS1GWvjj3azZz6Du5AtEQ2QRI1HOp
+         ygcg8eNeU/WymeY1Itox3r3yD3GdWyGWL2haydev7OTENJwp9VjBaZg04y8onQkASY
+         YUBvp/CS9Cgmoa9HEKl7ncHXlvxKbPbhnnkRjRTCim/wI8HP9TjDTy+eGaWJK2SZqW
+         lXmzV6pCPGkzNQViWHN54EE1qpf93q2iFh2mSHlLBx1fc0mG8jIaYb+zB3lRj3aVw3
+         K5V28ZHyRLyZEUkV7/ROPeuhUX1HAIKnyJKbskhU68cFmC9Bk/dEmUYhnVIUHZ4/Cc
+         TqXjAdK9GwN1A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lee Jones <lee@kernel.org>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, david.rheinsberg@gmail.com,
+Cc:     =?UTF-8?q?Rafa=C5=82=20Szalecki?= <perexist7@gmail.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 1/9] HID: uhid: Over-ride the default maximum data buffer value with our own
-Date:   Sun, 19 Mar 2023 20:56:59 -0400
-Message-Id: <20230320005707.1429405-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 04/29] HID: logitech-hidpp: Add support for Logitech MX Master 3S mouse
+Date:   Sun, 19 Mar 2023 20:53:46 -0400
+Message-Id: <20230320005413.1428452-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
+References: <20230320005413.1428452-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,33 +54,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Lee Jones <lee@kernel.org>
+From: Rafał Szalecki <perexist7@gmail.com>
 
-[ Upstream commit 1c5d4221240a233df2440fe75c881465cdf8da07 ]
+[ Upstream commit db50f7a3983f0154e730f1147ef729e0c5c2f90c ]
 
-The default maximum data buffer size for this interface is UHID_DATA_MAX
-(4k).  When data buffers are being processed, ensure this value is used
-when ensuring the sanity, rather than a value between the user provided
-value and HID_MAX_BUFFER_SIZE (16k).
+Add signature for the Logitech MX Master 3S mouse over Bluetooth.
 
-Signed-off-by: Lee Jones <lee@kernel.org>
+Signed-off-by: Rafał Szalecki <perexist7@gmail.com>
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/uhid.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-logitech-hidpp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/uhid.c b/drivers/hid/uhid.c
-index e128b9ce156df..44df81d56d9ca 100644
---- a/drivers/hid/uhid.c
-+++ b/drivers/hid/uhid.c
-@@ -398,6 +398,7 @@ struct hid_ll_driver uhid_hid_driver = {
- 	.parse = uhid_hid_parse,
- 	.raw_request = uhid_hid_raw_request,
- 	.output_report = uhid_hid_output_report,
-+	.max_buffer_size = UHID_DATA_MAX,
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index fdb66dc065822..e906ee375298a 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4378,6 +4378,8 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e) },
+ 	{ /* MX Master 3 mouse over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb023) },
++	{ /* MX Master 3S mouse over Bluetooth */
++	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb034) },
+ 	{}
  };
- EXPORT_SYMBOL_GPL(uhid_hid_driver);
  
 -- 
 2.39.2

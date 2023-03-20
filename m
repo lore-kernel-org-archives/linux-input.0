@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7591EC7619A
-	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 00:53:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 23CBCC7618A
+	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 00:57:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229794AbjCTAxW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 19 Mar 2023 20:53:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60198 "EHLO
+        id S230252AbjCTA5D (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 19 Mar 2023 20:57:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229738AbjCTAxN (ORCPT
+        with ESMTP id S230070AbjCTA4D (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Mar 2023 20:53:13 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D46EC1C58E;
-        Sun, 19 Mar 2023 17:53:11 -0700 (PDT)
+        Sun, 19 Mar 2023 20:56:03 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 354A318177;
+        Sun, 19 Mar 2023 17:54:50 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67E61B80D3D;
-        Mon, 20 Mar 2023 00:53:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22D61C433AC;
-        Mon, 20 Mar 2023 00:53:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ABB23611DF;
+        Mon, 20 Mar 2023 00:54:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3595FC4339B;
+        Mon, 20 Mar 2023 00:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273589;
+        s=k20201202; t=1679273664;
         bh=Bnhu3uAZwJlCimmYXMQJu4knoTcdvlXJCCfOl0ez2L8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=binXoWlhotdZu7glE3BeIuhnodTTVa5H8c2dvK2x0D9xxHjVT7jIwXDGIso+EK16V
-         W4NDCCJRENRqo1x7NVxwLZlW4TW8wwmX6Y7ptfIuaeSa2QIlEu1HYz1YvTrfvLeBvh
-         HMrrQq1WGqTEMh7WJfY8DfVaavTQVp8yf1XPuyQDNodbPOPLWw05OOsDmK1gEudED4
-         T6icVkB38KvS1lZbKovGQ4km5YVPj1OQId2zQad6YzO/6MSU3eGiz0Xq8Y0oIOas7E
-         B88Qbg2VWsXZC+ysM2zlefVBc005RJM4Lo5ZkYYr+csYxvHJqzCCnuZ+CED/7gwZY0
-         U5WlfRqfJh7rw==
+        b=AXCSYTdxJr8Swk6lKddFW5ivHKDDCdCgL6oD7pGFnRjGZe6IXm7nE1Fxvdk6CYwOM
+         q4vWpIHgQLPV1nREX26DmqD7UOEga5+U+LkD0xG01qHgtKzqxJGRG1c2mqGiCO6iuk
+         ZlTlhHUbdSDhcmEINIdwUsxse8ymkIvUcjaXr2P+WwfsPyUnsXHAl+PEE9YIw+nVJv
+         HcT2O0qInsNV6RkDQ0FXagsMQ/p7u+HQwzQHmowRa45KPSrz4/lQPZgwl0VIW0sBzi
+         M1OGmfMGH0UtDkqEJHNyWOEgfVSibQrgdmClDgEenRM4/TkHCXSJqq8YGlkSeNcrxO
+         MN7avV0BDr/EQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Reka Norman <rekanorman@chromium.org>,
@@ -39,12 +39,12 @@ Cc:     Reka Norman <rekanorman@chromium.org>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         liqiong@nfschina.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 05/30] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
-Date:   Sun, 19 Mar 2023 20:52:30 -0400
-Message-Id: <20230320005258.1428043-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 05/29] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
+Date:   Sun, 19 Mar 2023 20:53:47 -0400
+Message-Id: <20230320005413.1428452-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230320005258.1428043-1-sashal@kernel.org>
-References: <20230320005258.1428043-1-sashal@kernel.org>
+In-Reply-To: <20230320005413.1428452-1-sashal@kernel.org>
+References: <20230320005413.1428452-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore

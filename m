@@ -2,36 +2,36 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7138AC7618A
-	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 01:03:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78F4DC7618A
+	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 01:05:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231326AbjCTBDA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 19 Mar 2023 21:03:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45898 "EHLO
+        id S231972AbjCTBF6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 19 Mar 2023 21:05:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230504AbjCTBBA (ORCPT
+        with ESMTP id S229884AbjCTBDR (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Mar 2023 21:01:00 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5AA67234EF;
-        Sun, 19 Mar 2023 17:57:16 -0700 (PDT)
+        Sun, 19 Mar 2023 21:03:17 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D2D923D95;
+        Sun, 19 Mar 2023 17:57:43 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7914B80D49;
-        Mon, 20 Mar 2023 00:57:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD948C433EF;
-        Mon, 20 Mar 2023 00:57:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8AB61611FC;
+        Mon, 20 Mar 2023 00:56:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F217CC433EF;
+        Mon, 20 Mar 2023 00:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273834;
-        bh=HGJeQnoObfbSLZ8AINAJNAeWLiQ6BHi5qwXuZ8RdO8Q=;
+        s=k20201202; t=1679273768;
+        bh=oXcpe/O4c2WbWlDUT2vZedheqmY6RANycE72UAH12Uw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D0zShpSWMpWTCpYHbksuFoqULgYP/n8rr8imPOllG6YD5LakkTakWVyvv2mM8tmYw
-         d3xk1PiFpA4jHYRtcUjRbW1Pfi0EOvEP5SDao4gdeQ3x8G0hprWd0t8xZK/peGwzPU
-         Ssvs47saMF+7fyMNMgXdgtBmXteR7DRBMODhXUvsNuPbCpseDl41d+8CXFIRJx0WrP
-         F0M1IxiOWAm5ud+n3llosKBWRc3E7MbyZWRNtdsefJCKgmC/C1rSjaJtQxCqADvTdM
-         jlEl8417Hmt3CCJsIKB6nUVb/mf3mqLbrJvE75sN2NFLsw+hqXpg1EJAD7W+cR28wF
-         kFezg6BZ0LjtA==
+        b=eNeQX16l4PDie5KODBrpxuTtxXi2659Api4fU1s2O3NJPzutYNPDbuCm9yf6Vz/e8
+         1tqzI5iwhRPIJm5wlDAgaakc1oc/zzqXORdi5pzC6TbZXQ4PScV0yoch9dORGvIiV7
+         v9dNL0KPZBT6lz53WHPwKxW5TRUipvGuMZEa5aDiU/zo+Rv5AzuBsTjUjKmWb8eWQL
+         6h/IfhlMhlMZA2QKKI0/aPRHVRNEV63dfu3p4YtIJJ2vqd1UZepLheCalvb/JBrx8r
+         BcTvLOLdoD1FybdRI6d5k+2PM4X6Snp+24djj51EAMRmgG0OHjKm2A2XXwd3LaJXbP
+         +lRUHcY9dL7Nw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Reka Norman <rekanorman@chromium.org>,
@@ -39,12 +39,12 @@ Cc:     Reka Norman <rekanorman@chromium.org>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         liqiong@nfschina.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 3/9] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
-Date:   Sun, 19 Mar 2023 20:57:01 -0400
-Message-Id: <20230320005707.1429405-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 04/15] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
+Date:   Sun, 19 Mar 2023 20:55:48 -0400
+Message-Id: <20230320005559.1429040-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230320005707.1429405-1-sashal@kernel.org>
-References: <20230320005707.1429405-1-sashal@kernel.org>
+In-Reply-To: <20230320005559.1429040-1-sashal@kernel.org>
+References: <20230320005559.1429040-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -74,18 +74,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index e00b9dbe220f1..abc94235100c6 100644
+index a45ac7fa417b9..b950873c300b3 100644
 --- a/drivers/hid/intel-ish-hid/ipc/ipc.c
 +++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -13,6 +13,7 @@
-  * more details.
+@@ -5,6 +5,7 @@
+  * Copyright (c) 2014-2016, Intel Corporation.
   */
  
 +#include <linux/devm-helpers.h>
  #include <linux/sched.h>
  #include <linux/spinlock.h>
  #include <linux/delay.h>
-@@ -618,7 +619,6 @@ static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
+@@ -594,7 +595,6 @@ static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
  	case MNG_RESET_NOTIFY:
  		if (!ishtp_dev) {
  			ishtp_dev = dev;
@@ -93,7 +93,7 @@ index e00b9dbe220f1..abc94235100c6 100644
  		}
  		schedule_work(&fw_reset_work);
  		break;
-@@ -909,6 +909,7 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+@@ -885,6 +885,7 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
  {
  	struct ishtp_device *dev;
  	int	i;
@@ -101,8 +101,8 @@ index e00b9dbe220f1..abc94235100c6 100644
  
  	dev = devm_kzalloc(&pdev->dev,
  			   sizeof(struct ishtp_device) + sizeof(struct ish_hw),
-@@ -945,6 +946,12 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- 		list_add_tail(&tx_buf->link, &dev->wr_free_list_head.link);
+@@ -920,6 +921,12 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
+ 		list_add_tail(&tx_buf->link, &dev->wr_free_list);
  	}
  
 +	ret = devm_work_autocancel(&pdev->dev, &fw_reset_work, fw_reset_work_fn);

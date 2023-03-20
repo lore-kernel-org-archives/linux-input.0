@@ -2,118 +2,157 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EDB7DC7618E
-	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 01:19:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B79F3C7618A
+	for <linux-input@archiver.kernel.org>; Mon, 20 Mar 2023 01:26:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230384AbjCTBTO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 19 Mar 2023 21:19:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49224 "EHLO
+        id S229650AbjCTB0f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 19 Mar 2023 21:26:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230247AbjCTBSj (ORCPT
+        with ESMTP id S231213AbjCTB0O (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 19 Mar 2023 21:18:39 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7B2420692;
-        Sun, 19 Mar 2023 18:09:17 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2363F611EC;
-        Mon, 20 Mar 2023 00:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9931BC433D2;
-        Mon, 20 Mar 2023 00:56:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1679273803;
-        bh=zxOf/nGpknIPFp7a70Wr/dNwaARtrLnZu7RGXHKLgxc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qjp9qIQ1Y5cJHcJV4gnrfivfiAgpQfj4JzgY9mjg9MzoI7H/VAKr0PrjgmrWjVL1t
-         Vn7aIMWaog3pAhQpjg245e0R0j7DN7WfdIfrSQxyVaomRfq73UQWJPR1IcZGtzlpEj
-         b56boNXhUsb0lbelRIxTjXjzfMnWCxPyBIOW7CgwzzjITifW2YiOqtiD5w+nuN2l1m
-         6Ec2sqmDDJCv+3n1Z/WbVi1O9yyItuBmd/xexCgjB+MtkLOo4es8KbYBOu6tQXg6k6
-         dIkTLqYfmU3Xsq7vlE+7kb6F9Ok8IuseImx5kZ8lCZyO49rWc7CGIyiFvxFnCEiici
-         OqX7W9y7f6iXA==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Reka Norman <rekanorman@chromium.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        liqiong@nfschina.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/12] HID: intel-ish-hid: ipc: Fix potential use-after-free in work function
-Date:   Sun, 19 Mar 2023 20:56:26 -0400
-Message-Id: <20230320005636.1429242-3-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230320005636.1429242-1-sashal@kernel.org>
-References: <20230320005636.1429242-1-sashal@kernel.org>
+        Sun, 19 Mar 2023 21:26:14 -0400
+Received: from emcscan.emc.com.tw (emcscan.emc.com.tw [192.72.220.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 349D42698
+        for <linux-input@vger.kernel.org>; Sun, 19 Mar 2023 18:18:38 -0700 (PDT)
+X-IronPort-AV: E=Sophos;i="5.98,274,1673884800"; 
+   d="scan'208";a="2236619"
+Received: from unknown (HELO webmail.emc.com.tw) ([192.168.10.1])
+  by emcscan.emc.com.tw with ESMTP; 20 Mar 2023 09:15:06 +0800
+Received: from 192.168.10.23
+        by webmail.emc.com.tw with MailAudit ESMTP Server V5.0(80134:0:AUTH_RELAY)
+        (envelope-from <jingle.wu@emc.com.tw>); Mon, 20 Mar 2023 09:15:05 +0800 (CST)
+Received: from 101.10.109.20
+        by webmail.emc.com.tw with Mail2000 ESMTPA Server V7.00(2478:1:AUTH_LOGIN)
+        (envelope-from <jingle.wu@emc.com.tw>); Mon, 20 Mar 2023 09:15:05 +0800 (CST)
+From:   "jingle.wu" <jingle.wu@emc.com.tw>
+To:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        dmitry.torokhov@gmail.com
+Cc:     phoenix@emc.com.tw, josh.chen@emc.com.tw, dave.wang@emc.com.tw,
+        "jingle.wu" <jingle.wu@emc.com.tw>
+Subject: [PATCH] Input: elan_i2c - Implement inhibit/uninhibit functions.
+Date:   Mon, 20 Mar 2023 09:14:56 +0800
+Message-Id: <20230320011456.986321-1-jingle.wu@emc.com.tw>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Reka Norman <rekanorman@chromium.org>
+Add inhibit/uninhibit functions.
 
-[ Upstream commit 8ae2f2b0a28416ed2f6d8478ac8b9f7862f36785 ]
-
-When a reset notify IPC message is received, the ISR schedules a work
-function and passes the ISHTP device to it via a global pointer
-ishtp_dev. If ish_probe() fails, the devm-managed device resources
-including ishtp_dev are freed, but the work is not cancelled, causing a
-use-after-free when the work function tries to access ishtp_dev. Use
-devm_work_autocancel() instead, so that the work is automatically
-cancelled if probe fails.
-
-Signed-off-by: Reka Norman <rekanorman@chromium.org>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jingle.wu <jingle.wu@emc.com.tw>
 ---
- drivers/hid/intel-ish-hid/ipc/ipc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/input/mouse/elan_i2c_core.c | 86 +++++++++++++++++++++++++++++
+ 1 file changed, 86 insertions(+)
 
-diff --git a/drivers/hid/intel-ish-hid/ipc/ipc.c b/drivers/hid/intel-ish-hid/ipc/ipc.c
-index 8f8dfdf64833e..e23766ca9d3e1 100644
---- a/drivers/hid/intel-ish-hid/ipc/ipc.c
-+++ b/drivers/hid/intel-ish-hid/ipc/ipc.c
-@@ -5,6 +5,7 @@
-  * Copyright (c) 2014-2016, Intel Corporation.
-  */
+diff --git a/drivers/input/mouse/elan_i2c_core.c b/drivers/input/mouse/elan_i2c_core.c
+index 5f0d75a45c80..b7100945c9cc 100644
+--- a/drivers/input/mouse/elan_i2c_core.c
++++ b/drivers/input/mouse/elan_i2c_core.c
+@@ -329,6 +329,89 @@ static int elan_initialize(struct elan_tp_data *data, bool skip_reset)
+ 	return error;
+ }
  
-+#include <linux/devm-helpers.h>
- #include <linux/sched.h>
- #include <linux/spinlock.h>
- #include <linux/delay.h>
-@@ -594,7 +595,6 @@ static void	recv_ipc(struct ishtp_device *dev, uint32_t doorbell_val)
- 	case MNG_RESET_NOTIFY:
- 		if (!ishtp_dev) {
- 			ishtp_dev = dev;
--			INIT_WORK(&fw_reset_work, fw_reset_work_fn);
- 		}
- 		schedule_work(&fw_reset_work);
- 		break;
-@@ -885,6 +885,7 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- {
- 	struct ishtp_device *dev;
- 	int	i;
-+	int	ret;
- 
- 	dev = devm_kzalloc(&pdev->dev,
- 			   sizeof(struct ishtp_device) + sizeof(struct ish_hw),
-@@ -920,6 +921,12 @@ struct ishtp_device *ish_dev_init(struct pci_dev *pdev)
- 		list_add_tail(&tx_buf->link, &dev->wr_free_list);
- 	}
- 
-+	ret = devm_work_autocancel(&pdev->dev, &fw_reset_work, fw_reset_work_fn);
++static int elan_reactivate(struct elan_tp_data *data)
++{
++	struct device *dev = &data->client->dev;
++	int ret;
++
++	ret = elan_set_power(data, true);
++	if (ret)
++		dev_err(dev, "failed to restore power: %d\n", ret);
++
++	ret = data->ops->sleep_control(data->client, false);
 +	if (ret) {
-+		dev_err(dev->devc, "Failed to initialise FW reset work\n");
-+		return NULL;
++		dev_err(dev,
++			"failed to wake device up: %d\n", ret);
++		return ret;
 +	}
 +
- 	dev->ops = &ish_hw_ops;
- 	dev->devc = &pdev->dev;
- 	dev->mtu = IPC_PAYLOAD_SIZE - sizeof(struct ishtp_msg_hdr);
++	return ret;
++}
++
++static void elan_inhibit(struct input_dev *input_dev)
++{
++	struct elan_tp_data *data = input_get_drvdata(input_dev);
++	struct i2c_client *client = data->client;
++	int ret;
++
++	if (data->in_fw_update)
++		return;
++
++	dev_dbg(&client->dev, "inhibiting\n");
++	/*
++	 * We are taking the mutex to make sure sysfs operations are
++	 * complete before we attempt to bring the device into low[er]
++	 * power mode.
++	 */
++	ret = mutex_lock_interruptible(&data->sysfs_mutex);
++	if (ret)
++		return;
++
++	disable_irq(client->irq);
++
++	ret = elan_set_power(data, false);
++	if (ret)
++		enable_irq(client->irq);
++
++	mutex_unlock(&data->sysfs_mutex);
++
++}
++
++static void elan_close(struct input_dev *input_dev)
++{
++	if ((input_dev->users) && (!input_dev->inhibited))
++		elan_inhibit(input_dev);
++
++}
++
++static int elan_uninhibit(struct input_dev *input_dev)
++{
++	struct elan_tp_data *data = input_get_drvdata(input_dev);
++	struct i2c_client *client = data->client;
++	int ret;
++
++	dev_dbg(&client->dev, "uninhibiting\n");
++	ret = mutex_lock_interruptible(&data->sysfs_mutex);
++	if (ret)
++		return ret;
++
++	ret = elan_reactivate(data);
++	if (ret == 0)
++		enable_irq(client->irq);
++
++	mutex_unlock(&data->sysfs_mutex);
++
++	return ret;
++}
++
++static int elan_open(struct input_dev *input_dev)
++{
++	if ((input_dev->users) && (input_dev->inhibited))
++		return elan_uninhibit(input_dev);
++
++	return 0;
++}
++
+ static int elan_query_device_info(struct elan_tp_data *data)
+ {
+ 	int error;
+@@ -1175,6 +1258,9 @@ static int elan_setup_input_device(struct elan_tp_data *data)
+ 				     0, ETP_FINGER_WIDTH * min_width, 0, 0);
+ 	}
+ 
++	input->open = elan_open;
++	input->close = elan_close;
++
+ 	data->input = input;
+ 
+ 	return 0;
+
+base-commit: 38e04b3e4240a6d8fb43129ebad41608db64bc6f
 -- 
-2.39.2
+2.34.1
 

@@ -2,22 +2,22 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 22C1FC6FD1C
-	for <linux-input@archiver.kernel.org>; Thu, 23 Mar 2023 13:58:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A05DC6FD1D
+	for <linux-input@archiver.kernel.org>; Thu, 23 Mar 2023 13:58:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231639AbjCWN57 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 23 Mar 2023 09:57:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50826 "EHLO
+        id S231910AbjCWN6B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 23 Mar 2023 09:58:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229461AbjCWN56 (ORCPT
+        with ESMTP id S231459AbjCWN57 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 23 Mar 2023 09:57:58 -0400
-Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.17.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0AE39001;
-        Thu, 23 Mar 2023 06:57:57 -0700 (PDT)
+        Thu, 23 Mar 2023 09:57:59 -0400
+Received: from mout.kundenserver.de (mout.kundenserver.de [217.72.192.73])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5023393E3;
+        Thu, 23 Mar 2023 06:57:58 -0700 (PDT)
 Received: from koko.localdomain ([89.1.213.94]) by mrelayeu.kundenserver.de
  (mreue108 [212.227.15.183]) with ESMTPSA (Nemesis) id
- 1Mlf8e-1qO42W3fCk-00iiuN; Thu, 23 Mar 2023 14:52:46 +0100
+ 1MdNPq-1qEg7Z3cnY-00ZLEr; Thu, 23 Mar 2023 14:52:45 +0100
 From:   Maximilian Weigand <mweigand@mweigand.net>
 To:     Linus Walleij <linus.walleij@linaro.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -25,56 +25,60 @@ To:     Linus Walleij <linus.walleij@linaro.org>,
         devicetree@vger.kernel.org
 Cc:     Maximilian Weigand <mweigand@mweigand.net>,
         Alistair Francis <alistair@alistair23.me>
-Subject: [PATCH 4/6] Input: cyttsp5: properly initialize the device as a pm wakeup device
-Date:   Thu, 23 Mar 2023 14:52:03 +0100
-Message-Id: <20230323135205.1160879-5-mweigand@mweigand.net>
+Subject: [PATCH 0/6] Small fixes to the cyttsp5 touchscreen driver
+Date:   Thu, 23 Mar 2023 14:51:59 +0100
+Message-Id: <20230323135205.1160879-1-mweigand@mweigand.net>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230323135205.1160879-1-mweigand@mweigand.net>
-References: <20230323135205.1160879-1-mweigand@mweigand.net>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:IukSdTMfV9ZkGrQVT2rC0B+Y/Pto+OPq5ITXNsFzFMoMUaCEDL1
- LHmLGD0PnlwCPvPp6BhuEBKAgQ438yVOcZz0TG43belz6St65TbsbPtpmQeZrWtRqOongCN
- 3O8ALtKjxXrm30JqIt5O1CS9gyCRiUMQfGn4SqNsRZvK1Mkn4GWW5qYsX9jadAFjCizveWV
- KE2HZk3Om4rjmvLWj0zEA==
-UI-OutboundReport: notjunk:1;M01:P0:AbOjXQs477k=;CWtsoK34/JP8HKzCFveKNB0Zb+z
- 8h2cWw4QIgwsiqqCrLBA8GtoMYk91276u94KXw514ZjoHf+MJFHz+5VVjxUPFM9zpD0SOOdWg
- mxXYF2caE8zrn22f/JRTL7GdrRaFL2vHjuHiI5xmPH7Tfk0Hq97AJHeB/CoKmd4YbPMB1ftPg
- jP1kq5ViAHwudtOi/uUVtD2Bk9ltCGSFsk3ZGgVFmt0/XMi7WZP6q5u1IAvlhYvwL8OrX0grr
- SQCxB/7GToId9/7rOE1myZnkkckLVYHYqnm+MAaFwCa0ym6eGKkXq9B46nnQow62lleYRDskr
- oeew8eH1wGxWH0/UffJBJcUVO7VQW/BmfzsLV1GweKs5dwA6pjetZT73whRZKl2k8VqZSSi0c
- SWxPvLXu0/kTjkIvyN1iAh+Kz/74ZS+TTw0HRD78ByPA8MvTNGxyxQciVwpiGlK6BMrW/QZ/l
- rJPVFPHgndAMCnOuPShiG+jRRscPM4IRurb0qTp5hlGqxJBQupqPm6xFkxypWCa/NMIWa6sl2
- RYjgvYeUR/yL62TBou84SBWt5oGz2tVwTy5HPgOsRhp8IAJCn1aN2c5tohw9iae5LswK8sq9s
- NooqeAi2N2J/d7WWtnpAPFnry/5UNIrJ0g+T2KuxxYg3iqkyxNpDqKfGoWlpfr0TGKnMW7b4X
- BX3umrEawAFezN31QgEdBm9+NMTUThlscyxjUp8ySA==
+X-Provags-ID: V03:K1:JOAqyRTVG5uDiEIeXH/4dCz/MkWByUALV6oyJfiU5CzPIBn5XK+
+ e9Ux4T5lUNqYnx6Q658/Gu3c1+SlMfdMq1QPyxOxhrpu/ceEqv5Ox9hesRy1cu3Wj3s7zv+
+ MZo9/PnIl/LRf3pzRCwd6vXwQKAG6KXdJJZqPEbhShxD6x5Rz5LSb1CTlAENgLfAcuurgDm
+ YDqx2NSgal95zEB80+Q4w==
+UI-OutboundReport: notjunk:1;M01:P0:bprECCQxY0w=;NgAleBBDWDAR8yoqUSGi3AdAy+E
+ 0p3CINEFazWUNbK//03G5dKunXePXVRnsCaFNMC1eUf/26LJtlUky9XX/lvmXvM3wiYenFkP2
+ 0Ns1gDg6jUYzOLY1JQMrySOBk1sXqM4MSmIvC5X1B9ieLFcFVLbMki1PEMCSgplCVZUQzd+DY
+ QnDUvV6Icbn4sNkjm3F8umGK5SHmhOcp1+EoGZbP92WQlV3tiK7sTOmSgyLB3jy0I0T/dqYPd
+ NS3hIkVj7tfeQo87lFQM8f4fFYyqHg1PBT026inZ8ZdgNLvIsxKx0w1A+7ZpCibATEDP3iVw4
+ cgKoWQYaLWM7NP6g2UY2NMgivRgWaNcm05UpR0flJOi9yO6dl089PBY3Dx72/2LEcuUL8zMCN
+ 3Z7AaQhx2/gKUtHTXzxboFfD8gxu+Sju8P1Jy03E7ufwaCUcy/oRE9dX7i7YXqb54m542rX2B
+ VPWCCA2f4nsnPe+EXrR2qeN/aEkxGoL5DajrGE9++0ImOgg7r2zHgNQ40ue766SCxA+xj7Zw5
+ 2OyG7+Yy6n01r0nyqf9EDKivOGBuvwpfbQnWV63ZOJuaT/NWUkwZtCUQgIx8APxxm12HOVxLY
+ 7vslXpHvHuzSk163FfWQbnzkyE92OgBqr1cLl7O5mOrqMP5z+upgGE70351VrCGhbvPqlvRiC
+ Y7lGHU2etsPjxARQ7pjfSpoo6/ZpMhk36L50MHu7HQ==
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-When used as a wakeup source the driver should be properly registered
-with the pm system using device_init_wakeup.
+While working on some intermittent module-loading problems of the
+cyttsp5 module on the Pine64 PineNote it was found that the device tree
+example of the cypress,tt21000 was in error regarding the interrupt
+type (IRQ_TYPE_EDGE_FALLING should be used instead of IRQ_TYPE_LEVEL_LOW).
 
-Signed-off-by: Maximilian Weigand <mweigand@mweigand.net>
-Reviewed-by: Alistair Francis <alistair@alistair23.me>
----
- drivers/input/touchscreen/cyttsp5.c | 3 +++
- 1 file changed, 3 insertions(+)
+This lead to the proper implementation of device sleep states, which is
+required to ensure proper functioning of the touchscreen after resume
+when the correct interrupt type IRQ_TYPE_FALLING_EDGE is used. Sleep and
+wakeup commands to the touchscreen were derived from the GPL-2 android
+driver by Cypress Semiconductor (copyright note for Cypress
+Semiconductor is already in the current driver).
 
-diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscreen/cyttsp5.c
-index 8b0c6975c6ec..01dd10a596ab 100644
---- a/drivers/input/touchscreen/cyttsp5.c
-+++ b/drivers/input/touchscreen/cyttsp5.c
-@@ -830,6 +830,9 @@ static int cyttsp5_probe(struct device *dev, struct regmap *regmap, int irq,
- 		return error;
- 	}
- 
-+	if (device_property_read_bool(dev, "wakeup-source"))
-+		device_init_wakeup(dev, true);
-+
- 	error = cyttsp5_startup(ts);
- 	if (error) {
- 		dev_err(ts->dev, "Fail initial startup r=%d\n", error);
--- 
+The first two patches fix small issues with the code found during
+development of the suspend functionality.
+
+
+Maximilian Weigand (6):
+  Input: cyttsp5: fix array length
+  Input: cyttsp5: remove unused code
+  devicetree: input: cypress,tt21000: fix interrupt type in dts example
+  Input: cyttsp5: properly initialize the device as a pm wakeup device
+  devicetree: input: cypress,tt21000: add wakeup-source entry to
+    documentation
+  Input: cyttsp5: implement proper sleep and wakeup procedures
+
+ .../input/touchscreen/cypress,tt21000.yaml    |   4 +-
+ drivers/input/touchscreen/cyttsp5.c           | 138 +++++++++++++++++-
+ 2 files changed, 136 insertions(+), 6 deletions(-)
+
+--
 2.39.2
 

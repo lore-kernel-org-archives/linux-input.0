@@ -2,266 +2,157 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B68BC76196
-	for <linux-input@archiver.kernel.org>; Mon,  3 Apr 2023 10:33:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17B4DC761A6
+	for <linux-input@archiver.kernel.org>; Mon,  3 Apr 2023 12:58:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232209AbjDCKdd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 3 Apr 2023 06:33:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51074 "EHLO
+        id S231416AbjDCM6B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 3 Apr 2023 08:58:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231998AbjDCKdb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2023 06:33:31 -0400
-Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A847B2D51
-        for <linux-input@vger.kernel.org>; Mon,  3 Apr 2023 03:33:28 -0700 (PDT)
-Received: by mail-ed1-x52e.google.com with SMTP id w9so115356881edc.3
-        for <linux-input@vger.kernel.org>; Mon, 03 Apr 2023 03:33:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1680518007;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=d6xqpZYXhV455piobVRy73dq/LZEbDPY6mjuuyg4UJs=;
-        b=GjgLL2u8kxferRN00s52HE+jTS/gYDkkxlUyte7eR9feBqp/kT4nRVNYPMOeXlwOWD
-         Y0SIxcwoa0g9YJIIXo/p5jRtGUDO669UV3afYZ8Ggm7iOpOTMTpdQUDLL4/+TCDcxFsu
-         PNgUx4xnv+FlaAOK8aujdxTCxUClbQ2W/tAkk=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1680518007;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=d6xqpZYXhV455piobVRy73dq/LZEbDPY6mjuuyg4UJs=;
-        b=L24IkTLVSrfgh2a6RUCL5y4HbnEW7PR90w+X5Lc11bUQPOJtVfWSBmiipCr3bpZo+9
-         /bHT5qmG0bTxcwgRrPhFOZompigs60TLK+taorCF46THXYFOORtmcOWmH82AIHltRtSY
-         hXRFvB3HxzuF4fmiSrg+iUI3+HtHmoQmnA3ju+N1sWDNRTw2guuo6E+PQxuAkNli4Lmy
-         0YG+IO39WNniS7oLCH3cryxx3JYieYsA1q6bysFLc9oe3gjVzHKHS7FTN6zxUAWukZri
-         OLpI+00gvKPVQFxlzzvnUzbhIphtVAFA/+dO8ORsRCplMyWbLs/jjSAMo3xISyN6Jy2g
-         Ja9A==
-X-Gm-Message-State: AAQBX9d37j5aVWaeTrEXd/gUd9FRVSb5LQaI5fyBHchhBYaT/h0sIra7
-        At5VsvktV3VhLRaJjOcbZYeiDg==
-X-Google-Smtp-Source: AKy350YtZkIvqt0zsxEdZ+jopyH4QT6q/eCCSbkx9Q+/erHuZ34FvsgMSeuvZmCxgjw2rVj1R1LO1A==
-X-Received: by 2002:a17:906:641:b0:8b1:77bf:3bdd with SMTP id t1-20020a170906064100b008b177bf3bddmr35678072ejb.36.1680518006899;
-        Mon, 03 Apr 2023 03:33:26 -0700 (PDT)
-Received: from balto.c.googlers.com.com (64.227.90.34.bc.googleusercontent.com. [34.90.227.64])
-        by smtp.gmail.com with ESMTPSA id x43-20020a50baae000000b0050299cebf6esm2092862ede.54.2023.04.03.03.33.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Apr 2023 03:33:26 -0700 (PDT)
-From:   Fabio Baltieri <fabiobaltieri@chromium.org>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Fabio Baltieri <fabiobaltieri@chromium.org>
-Subject: [PATCH] HID: hid-stadiaff: add support for Stadia force feedback
-Date:   Mon,  3 Apr 2023 10:33:24 +0000
-Message-Id: <20230403103324.1746758-1-fabiobaltieri@chromium.org>
-X-Mailer: git-send-email 2.40.0.348.gf938b09366-goog
-MIME-Version: 1.0
+        with ESMTP id S229670AbjDCM6A (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Apr 2023 08:58:00 -0400
+Received: from EUR05-DB8-obe.outbound.protection.outlook.com (mail-db8eur05on2054.outbound.protection.outlook.com [40.107.20.54])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 543A71702;
+        Mon,  3 Apr 2023 05:57:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=Y7tOcs06LvCcIDiCUzFgm8tK4VOShTSPNObhlz+PQB18fyruObksoFSqK+IS7N1CTy3apG4qJ9vShFQzVIz0cM1C5satOkvEt6lWyDHFqUNu1C0Y/YzLQGpKxy71xqgeHhjm/3on9u9O5qSPa19tWmf23C+iul55d3XMdqTQj+3Du1pX5O9WcV9FruhGf1g5zqQvKPn6kz5X7su4ONXhGSy39jHG/GzCfiPyrSIm/6tzzmj0WrWSdZZy3VXgAAd6r+owYQkk3jqVAiPLkhaUcPZpPWLe4GgqYK9RstfNML4qMmjsTROOt7kai2Oww2WOc0dAjt+exEEL03+BaxuC5A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tsReSqbomdhlSTsl75jCknV5AXC8jBXZHUE6qng3+QE=;
+ b=nIU76KtW7q8kVWmDYBdYlJKND44B3gj9czX6ToCYyEwn/REbEmWdMC79kv0KFel0b+MhS74reBnWqmuHPddBeF+8lBoTlV8Ji3vbRYABoB/aAk5gMjYQ/wwJ3Aqx9rg6WlIb+tw/ZENdGRj8+C/4K+U2kChnbzz5th08PQ68OnsDumMYIEtiYCaCxC9O25CQY1YFBfw1KXZp+VrVrpyq57LWAi9lHnD2so1BPfii6K3lNRD0eqx1OHznXiBmHBeYPa62vLDHtoFwCeYeVT3syxI7Pxlo8GEaJrnQNz06TQ/y486U8y5A0JAyvu3HB/D6P/fREcHngEwfZYDLj9Rffw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wolfvision.net; dmarc=pass action=none
+ header.from=wolfvision.net; dkim=pass header.d=wolfvision.net; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wolfvision.net;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tsReSqbomdhlSTsl75jCknV5AXC8jBXZHUE6qng3+QE=;
+ b=NkUjMo04yzICc5juIkPseCXBhEzU0d+WDiMA3fRh+1y1wcyErY4ApGPdhBGUW6xJvg5N4A6vE3GOOvBuWvy8LxX6vHdPQJQExjes6kw+l62MUZ+y4vx52eMFN/kNIU6UxGy6xKrUQoC91k0cRkM6pR7IR3zhYkuUmrRaDTy9f/c=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wolfvision.net;
+Received: from VE1PR08MB4974.eurprd08.prod.outlook.com (2603:10a6:803:111::15)
+ by DU0PR08MB8787.eurprd08.prod.outlook.com (2603:10a6:10:476::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6254.33; Mon, 3 Apr
+ 2023 12:57:55 +0000
+Received: from VE1PR08MB4974.eurprd08.prod.outlook.com
+ ([fe80::c445:c8e:be5d:d40e]) by VE1PR08MB4974.eurprd08.prod.outlook.com
+ ([fe80::c445:c8e:be5d:d40e%7]) with mapi id 15.20.6254.033; Mon, 3 Apr 2023
+ 12:57:55 +0000
+From:   Javier Carrasco <javier.carrasco@wolfvision.net>
+To:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Uwe Kleine-g <u.kleine-koenig@pengutronix.de>,
+        Michael Riesch <michael.riesch@wolfvision.net>,
+        Javier Carrasco <javier.carrasco@wolfvision.net>
+Subject: [PATCH 1/2] Input: st1232 - remove enable/disable irq in resume/suspend callbacks
+Date:   Mon,  3 Apr 2023 14:47:06 +0200
+Message-Id: <20230403124707.102986-2-javier.carrasco@wolfvision.net>
+X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20230403124707.102986-1-javier.carrasco@wolfvision.net>
+References: <20230403124707.102986-1-javier.carrasco@wolfvision.net>
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: VI1PR09CA0055.eurprd09.prod.outlook.com
+ (2603:10a6:802:28::23) To VE1PR08MB4974.eurprd08.prod.outlook.com
+ (2603:10a6:803:111::15)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: VE1PR08MB4974:EE_|DU0PR08MB8787:EE_
+X-MS-Office365-Filtering-Correlation-Id: adc6e349-9607-4bd7-5eac-08db34430a3a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YlzYqrU0rcv0EJmq47bVVVRJAufhGde1ytCcMriKaCq5uAKk1gHzLOF+oJxnPIIw6irhXx6ZymlHUMdzktfFbYwf7FFafEn6Iqazx0Ydw1mbJJzxilLudeiqJDE7OVvNJdOsVpjEoI/mhT9WyFhTK4kUTF6zPl52mlI1BI2JcwRyE71BJJRHAL9px9thlMk0ODTBC6xMGlMNgx9a4bk8s3JXb3iLe4udERz9dYhKHj4tUp2ZPmz7dTB8mZQpzbryHygefgtiiLSIFC9f3IoBGnXmC0OuqlWZk8nMU/05ugmPQ/y2gy4N70E8prtW74XWQBiBQihpno/K+loqz3NJspJzfgx9VGjEFhg+5zNZGBJO6rDvym4o/n1o81S5Sj9jTYEWpJPWwWrbEwMOEgNlBkPCtc/Euij1ekltW+i9HC5rXN6zPITol2fzEEigaeHv9q0iu6nl8M1hulcdEBpOMKz58KhH2I/iXjm0FYuiro1KJ4jZqgAR4CCqWDw4q8XFD4iP7lWHhweHMq2FDi+l4piaqwLxc/RE0d3xicIXzo32CcS0I74AN7UYlSSOiIQj5BNNHNTvSzVcSYPpoKV1QwJiASCktDePvYlsgCXs0QDFwaaWec3DHOgIl4dDXOLJ
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR08MB4974.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(136003)(346002)(396003)(376002)(366004)(39850400004)(451199021)(2616005)(83380400001)(186003)(52116002)(6486002)(6666004)(478600001)(316002)(107886003)(6512007)(6506007)(2906002)(1076003)(26005)(54906003)(5660300002)(44832011)(15650500001)(36756003)(38100700002)(38350700002)(66556008)(66946007)(66476007)(41300700001)(4326008)(86362001)(8676002)(8936002);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?07GTsrnvQqYA06irfaAfRg/zoKQjoSUbEm1/xFOVveY7z37FSZc9gu+sY0Gs?=
+ =?us-ascii?Q?CgYIVcPSB3g8fk6T2s0S8w0hBYI/h2Eqaskns4lT8aWU/2ITgmOsevvbRUM/?=
+ =?us-ascii?Q?+a+eUBmDXvEvvVbem+bANtNu20G/jpBR49q+8uR+VE7/Azxj+Ao1XYIyeQLd?=
+ =?us-ascii?Q?DJBW27yoEi5SowjE/3JXml8jKXO1jD/qPaO4tLIbMHCI0cZjmN1cjN0AI6v+?=
+ =?us-ascii?Q?KowMVBGxJFkKiZ8TIsq6JH1mz9lhmhN5gKIhS+fgvTm7+lYojwZqApAsSTJ7?=
+ =?us-ascii?Q?xUUejhMNYhnSP/rQ+6bYG0z1/uFirPUIsTDAfPFsyRL2karfsc6BWaFeC4E4?=
+ =?us-ascii?Q?OuXM8Hg967KC3L97mdoEN8N86IoaL1ixSG106ip7xKgGpWeBLI0g3lhXCLhp?=
+ =?us-ascii?Q?Cv32z+YycXZE33ZbTacPlWzGLy2cI8yYQ4T6N983LNGq/ZEpDPINQyhHoSEW?=
+ =?us-ascii?Q?Rr+y9vpIKNxl4bBTcZ5p26tp5aZgEM1BaiO3PviIckBHDL9rzhDdCD3+dWC2?=
+ =?us-ascii?Q?6EO5uwqYLmzg8l3xNYlkeO0lI6x0RfujVpIJGiHH8lpgG4WpMcf0glv5o/j6?=
+ =?us-ascii?Q?P1K5FLKTJXIZyuGXO0vsdyncoQNPVj/81SEHfHx/fdaJWhE3nQn5IPCKowRk?=
+ =?us-ascii?Q?uClBZ7hUkgsiwxzIrZP6ZDK8Idtss1hZ6QUK21BeP9OcmSTUbuc+EyHvYdiR?=
+ =?us-ascii?Q?QGRFiIG5SqdU7cO5tUcUKxYjw15flPytdeY2svQNN/mLJGQZjETPVf4pT8PM?=
+ =?us-ascii?Q?KAtKLQF+zhEOu/PxMtTqWk1EDBOuYOAzT+UXhTFfSp7wtetqIoFYIRA5LYXX?=
+ =?us-ascii?Q?ZT+tLRI45MveSgKGwjvAEB1V/SAGzq82zyHyHv3k7jDYWVuIGnSFGfJ/pcw4?=
+ =?us-ascii?Q?lSbI98AzmLGLrKqPnW/GJmYICZdxH1MrgPgqiHhQ+JlQJi708mRWMKtp0xyr?=
+ =?us-ascii?Q?ZqV86lMlvZDX6cF/9qdnXsaG3PvaEwKDXRNtd9GiZHSTtZy5uravpsnzDoTi?=
+ =?us-ascii?Q?eJNudAFvHlSazxD637HjRC59jsJVOOA4A4ehjyby4ntT5QVPh9CIJGmIzNE/?=
+ =?us-ascii?Q?zJJPjxttAUhecjpYyyanB5rSms+AUhHoQ8FsbbD8av2olI3qF93kVGXaBTBQ?=
+ =?us-ascii?Q?1/lRe34SNUpxgJXPopRt0ITnTrWeyJF5CA1Foua+YhZCMdo9+48gEbUw9fkN?=
+ =?us-ascii?Q?iCS3zX9Xw9zNw3si0Cj4H5rIYDAQzyvM1rXCX6elBd3rjfhKt+NcCmFaCfMQ?=
+ =?us-ascii?Q?YFJSAlvU1kSnEgTGVLXVouWE+OP8r4lQin8oN3ijYZvcHn5tGtQoQDdW7Tal?=
+ =?us-ascii?Q?of8+FAQ9wdZFfi5hDue3t4TunYqaPssuTXX7wT2AbmbwQOX93WIKdnOJ97Wt?=
+ =?us-ascii?Q?oju+l/ishdMfLVjWgqHpAQUeFjuJj7FhYjmuapgbWjODyOom/qVLIlBx/YO9?=
+ =?us-ascii?Q?OoZmfJnQ8dunSPbBJ9nptEQvMidZ/Dh7vwMI2FEU35oD6/Y7hrhemHAamrcB?=
+ =?us-ascii?Q?q4youMj9ROL+inII6qsZoJ4K2lzY54X94eeqP81jCulrHUKQZzqDJMmao4rp?=
+ =?us-ascii?Q?FsUK231VHtq17KP7/VkQqrmtMDyncdCsNTAVkzkMJq9gkGzHZutd02j0jVKz?=
+ =?us-ascii?Q?RpmAJZb1KgVjKBp6dH8oZto=3D?=
+X-OriginatorOrg: wolfvision.net
+X-MS-Exchange-CrossTenant-Network-Message-Id: adc6e349-9607-4bd7-5eac-08db34430a3a
+X-MS-Exchange-CrossTenant-AuthSource: VE1PR08MB4974.eurprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 03 Apr 2023 12:57:54.3303
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e94ec9da-9183-471e-83b3-51baa8eb804f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: nVt1ITvfSgiRBdWy2FjPzC4TXW0KOIrpyRgmzlpuNcTZsEtECj7ZrnwmHGUtw4VWxTo7PQBWw4367gEBicbzw/Sd3SNewcUISgY4r8pzbhQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR08MB8787
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add a hid-stadiaff module to support rumble based force feedback on the
-Google Stadia controller. This works using the HID output endpoint
-exposed on both the USB and BLE interface.
+Disabling the interrupts in the suspend callback leads to a loss of the
+wakeup capability in suspend to idle (freeze) mode.
 
-Signed-off-by: Fabio Baltieri <fabiobaltieri@chromium.org>
+In commit 95dc58a9a02f ("Input: st1232 - rely on I2C core to configure
+wakeup interrupt") redundancy was removed by letting the I2C core manage
+the wake interrupt handling. On the other hand, the irq enabling/disabling
+was generalized to all devices, regardless of their wakeup capabilities.
+
+The interrupt enabling/disabling is carried out by the power subsystem in
+the resume/suspend states and therefore there is no need to manage it
+in the device driver. Remove the irq handling in the driver-specific
+resume/suspend callbacks and rely on the power subsystem.
+
+Fixes: 95dc58a9a02f ("Input: st1232 - rely on I2C core to configure wakeup interrupt")
+Signed-off-by: Javier Carrasco <javier.carrasco@wolfvision.net>
 ---
+ drivers/input/touchscreen/st1232.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-Hi, this adds rumble support to the stadia controller using the input
-interface. Up to now this has only been implemented at application level
-using hidraw:
-
-https://source.chromium.org/chromium/chromium/src/+/main:device/gamepad/hid_haptic_gamepad.cc
-
-Tested with fftest, works both over USB and BLE.
-
- drivers/hid/Kconfig        |   7 ++
- drivers/hid/Makefile       |   1 +
- drivers/hid/hid-ids.h      |   1 +
- drivers/hid/hid-stadiaff.c | 132 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 141 insertions(+)
- create mode 100644 drivers/hid/hid-stadiaff.c
-
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 82f64fb31fda..934f73e9b800 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -1031,6 +1031,13 @@ config HID_SPEEDLINK
- 	help
- 	Support for Speedlink Vicious and Divine Cezanne mouse.
+diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
+index f49566dc96f8..faa0be3993f4 100644
+--- a/drivers/input/touchscreen/st1232.c
++++ b/drivers/input/touchscreen/st1232.c
+@@ -345,8 +345,6 @@ static int st1232_ts_suspend(struct device *dev)
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct st1232_ts_data *ts = i2c_get_clientdata(client);
  
-+config HID_STADIA_FF
-+	tristate "Google Stadia force feedback"
-+	select INPUT_FF_MEMLESS
-+	help
-+	Say Y here if you want to enable force feedback support for the Google
-+	Stadia controller.
-+
- config HID_STEAM
- 	tristate "Steam Controller/Deck support"
- 	select POWER_SUPPLY
-diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
-index 5d37cacbde33..1d900fa55890 100644
---- a/drivers/hid/Makefile
-+++ b/drivers/hid/Makefile
-@@ -120,6 +120,7 @@ obj-$(CONFIG_HID_SIGMAMICRO)	+= hid-sigmamicro.o
- obj-$(CONFIG_HID_SMARTJOYPLUS)	+= hid-sjoy.o
- obj-$(CONFIG_HID_SONY)		+= hid-sony.o
- obj-$(CONFIG_HID_SPEEDLINK)	+= hid-speedlink.o
-+obj-$(CONFIG_HID_STADIA_FF)	+= hid-stadiaff.o
- obj-$(CONFIG_HID_STEAM)		+= hid-steam.o
- obj-$(CONFIG_HID_STEELSERIES)	+= hid-steelseries.o
- obj-$(CONFIG_HID_SUNPLUS)	+= hid-sunplus.o
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 63545cd307e5..cffd4ac609a0 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -525,6 +525,7 @@
- #define USB_DEVICE_ID_GOOGLE_MOONBALL	0x5044
- #define USB_DEVICE_ID_GOOGLE_DON	0x5050
- #define USB_DEVICE_ID_GOOGLE_EEL	0x5057
-+#define USB_DEVICE_ID_GOOGLE_STADIA	0x9400
+-	disable_irq(client->irq);
+-
+ 	if (!device_may_wakeup(&client->dev))
+ 		st1232_ts_power(ts, false);
  
- #define USB_VENDOR_ID_GOTOP		0x08f2
- #define USB_DEVICE_ID_SUPER_Q2		0x007f
-diff --git a/drivers/hid/hid-stadiaff.c b/drivers/hid/hid-stadiaff.c
-new file mode 100644
-index 000000000000..f974b9e24d46
---- /dev/null
-+++ b/drivers/hid/hid-stadiaff.c
-@@ -0,0 +1,132 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Stadia controller rumble support.
-+ *
-+ * Copyright 2023 Google LLC
-+ */
-+
-+#include <linux/hid.h>
-+#include <linux/input.h>
-+#include <linux/slab.h>
-+#include <linux/module.h>
-+
-+#include "hid-ids.h"
-+
-+#define STADIA_FF_REPORT_ID 5
-+
-+struct stadiaff_device {
-+	struct hid_device *hid;
-+	struct hid_report *report;
-+	struct work_struct work;
-+};
-+
-+static void stadiaff_work(struct work_struct *work)
-+{
-+	struct stadiaff_device *stadiaff =
-+		container_of(work, struct stadiaff_device, work);
-+
-+	hid_hw_request(stadiaff->hid, stadiaff->report, HID_REQ_SET_REPORT);
-+}
-+
-+static int stadiaff_play(struct input_dev *dev, void *data,
-+			 struct ff_effect *effect)
-+{
-+	struct hid_device *hid = input_get_drvdata(dev);
-+	struct stadiaff_device *stadiaff = hid_get_drvdata(hid);
-+	struct hid_field *rumble_field = stadiaff->report->field[0];
-+
-+	rumble_field->value[0] = effect->u.rumble.strong_magnitude;
-+	rumble_field->value[1] = effect->u.rumble.weak_magnitude;
-+
-+	schedule_work(&stadiaff->work);
-+
-+	return 0;
-+}
-+
-+static int stadiaff_init(struct hid_device *hid)
-+{
-+	struct stadiaff_device *stadiaff;
-+	struct hid_report *report;
-+	struct hid_input *hidinput;
-+	struct input_dev *dev;
-+	int error;
-+
-+	if (list_empty(&hid->inputs)) {
-+		hid_err(hid, "no inputs found\n");
-+		return -ENODEV;
-+	}
-+	hidinput = list_entry(hid->inputs.next, struct hid_input, list);
-+	dev = hidinput->input;
-+
-+	report = hid_validate_values(hid, HID_OUTPUT_REPORT,
-+				     STADIA_FF_REPORT_ID, 0, 2);
-+	if (!report)
-+		return -ENODEV;
-+
-+	stadiaff = devm_kzalloc(&hid->dev, sizeof(struct stadiaff_device),
-+				GFP_KERNEL);
-+	if (!stadiaff)
-+		return -ENOMEM;
-+
-+	hid_set_drvdata(hid, stadiaff);
-+
-+	input_set_capability(dev, EV_FF, FF_RUMBLE);
-+
-+	error = input_ff_create_memless(dev, NULL, stadiaff_play);
-+	if (error)
-+		return error;
-+
-+	stadiaff->hid = hid;
-+	stadiaff->report = report;
-+	INIT_WORK(&stadiaff->work, stadiaff_work);
-+
-+	hid_info(hid, "Force Feedback for Google Stadia controller\n");
-+
-+	return 0;
-+}
-+
-+static int stadia_probe(struct hid_device *hdev, const struct hid_device_id *id)
-+{
-+	int ret;
-+
-+	ret = hid_parse(hdev);
-+	if (ret) {
-+		hid_err(hdev, "parse failed\n");
-+		return ret;
-+	}
-+
-+	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT & ~HID_CONNECT_FF);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed\n");
-+		return ret;
-+	}
-+
-+	stadiaff_init(hdev);
-+
-+	return 0;
-+}
-+
-+static void stadia_remove(struct hid_device *hid)
-+{
-+	struct stadiaff_device *stadiaff = hid_get_drvdata(hid);
-+
-+	cancel_work_sync(&stadiaff->work);
-+	hid_hw_stop(hid);
-+}
-+
-+static const struct hid_device_id stadia_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STADIA) },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_GOOGLE, USB_DEVICE_ID_GOOGLE_STADIA) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(hid, stadia_devices);
-+
-+static struct hid_driver stadia_driver = {
-+	.name = "stadia",
-+	.id_table = stadia_devices,
-+	.probe = stadia_probe,
-+	.remove = stadia_remove,
-+};
-+module_hid_driver(stadia_driver);
-+
-+MODULE_LICENSE("GPL");
+@@ -361,8 +359,6 @@ static int st1232_ts_resume(struct device *dev)
+ 	if (!device_may_wakeup(&client->dev))
+ 		st1232_ts_power(ts, true);
+ 
+-	enable_irq(client->irq);
+-
+ 	return 0;
+ }
+ 
 -- 
-2.40.0.348.gf938b09366-goog
+2.37.2
 

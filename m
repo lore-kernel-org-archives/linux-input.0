@@ -2,209 +2,255 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 012CBC6FD1D
-	for <linux-input@archiver.kernel.org>; Fri,  7 Apr 2023 09:16:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1EB90C77B61
+	for <linux-input@archiver.kernel.org>; Fri,  7 Apr 2023 12:45:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237539AbjDGJQc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 7 Apr 2023 05:16:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37030 "EHLO
+        id S230082AbjDGMpo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 7 Apr 2023 08:45:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230265AbjDGJQb (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Apr 2023 05:16:31 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1F7372BC;
-        Fri,  7 Apr 2023 02:16:29 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BB3360F1B;
-        Fri,  7 Apr 2023 09:16:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1D83C433EF;
-        Fri,  7 Apr 2023 09:16:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1680858988;
-        bh=GzznED6tySsGDwb5au4VoNSJsg0rXZvn+Uxk9Vxo2kU=;
-        h=Date:Subject:To:References:From:In-Reply-To:From;
-        b=KWOJ/imF23ImDcT3NALRq2ogyUAq2NfiEPKOqIgypHGLoX3M9n81SkRvTPzgEV5sW
-         g9XAB6PLfYQIoi5sBynmsX7GH/Zp8ZWOQ1s0V2bjSO4rsq2ou/cxBBm1RrUdz0k3V2
-         WqC0BezqIJI0dMDX8yeqWuoCKtoVs3pLghYyCrrWgdAYzVwpMPJQwe53saAICmHxq3
-         Q4Q/FuiWn2DIVx1T+A0hanF6c/IzEnVx+tlQpIecu6FVG7f1Cr9etwpZnEdGZt9pu0
-         HngDF0bFYIExmCOpaSKah141DT8pYH7GMpYECE0q61YY0AnUfd3TBhakdPSNeSXqgR
-         yixqrKXyej9uQ==
-Message-ID: <083041fc-d8e9-d5c5-adc1-d6095db22fd7@kernel.org>
-Date:   Fri, 7 Apr 2023 11:16:24 +0200
+        with ESMTP id S229609AbjDGMpn (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 7 Apr 2023 08:45:43 -0400
+Received: from smtprelay04.ispgateway.de (smtprelay04.ispgateway.de [80.67.18.16])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12FED40F6;
+        Fri,  7 Apr 2023 05:45:39 -0700 (PDT)
+Received: from [92.206.161.29] (helo=note-book.lan)
+        by smtprelay04.ispgateway.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <git@apitzsch.eu>)
+        id 1pklTE-0002cY-O8; Fri, 07 Apr 2023 14:45:36 +0200
+From:   =?utf-8?q?Andr=C3=A9_Apitzsch?= <git@apitzsch.eu>
+Date:   Fri, 07 Apr 2023 14:44:25 +0200
+Subject: [PATCH v2 2/2] Input: atmel_mxt_ts - support capacitive keys
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.9.0
-Subject: Re: [PATCH 2/2] dt-bindings: input: cirrus,cs40l26: Add bindings
-Content-Language: en-US
-To:     Fred Treven <fred.treven@cirrus.com>, ben.bright@cirrus.com,
-        james.ogletree@cirrus.com, dmitry.torokhov@gmail.com,
-        robh+dt@kernel.org, krzystztof.kozlowski+dt@linaro.org,
-        patches@opensource.cirrus.com, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <Add devicetree bindings for CS40L26 driver>
- <1680819613-29256-1-git-send-email-fred.treven@cirrus.com>
-From:   Krzysztof Kozlowski <krzk@kernel.org>
-In-Reply-To: <1680819613-29256-1-git-send-email-fred.treven@cirrus.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20230407-atmel_keys-v2-2-92446a4343cb@apitzsch.eu>
+References: <20230407-atmel_keys-v2-0-92446a4343cb@apitzsch.eu>
+In-Reply-To: <20230407-atmel_keys-v2-0-92446a4343cb@apitzsch.eu>
+To:     Nick Dyer <nick@shmanahar.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        =?utf-8?q?Andr=C3=A9_Apitzsch?= <git@apitzsch.eu>
+X-Mailer: b4 0.12.2
+X-Df-Sender: YW5kcmVAYXBpdHpzY2guZXU=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 07/04/2023 00:20, Fred Treven wrote:
-> Add devicetree bindings for CS40L26 driver.
+Add support for touch keys found in some Atmel touch controller
+configurations.
 
-I appreciate the try to write my name manually, but there is no need to
-struggle. :) You will just make a mistake.
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: André Apitzsch <git@apitzsch.eu>
+---
+ drivers/input/touchscreen/atmel_mxt_ts.c | 85 ++++++++++++++++++++++++++++++++
+ 1 file changed, 85 insertions(+)
 
-Just copy-paste or use scripts/get_maintainers.pl.
-You can automate everything with something like:
-https://github.com/krzk/tools/blob/master/linux/.bash_aliases_linux#L91
+diff --git a/drivers/input/touchscreen/atmel_mxt_ts.c b/drivers/input/touchscreen/atmel_mxt_ts.c
+index 996bf434e1cb..eb368dd1abf0 100644
+--- a/drivers/input/touchscreen/atmel_mxt_ts.c
++++ b/drivers/input/touchscreen/atmel_mxt_ts.c
+@@ -55,6 +55,7 @@
+ #define MXT_TOUCH_KEYARRAY_T15		15
+ #define MXT_TOUCH_PROXIMITY_T23		23
+ #define MXT_TOUCH_PROXKEY_T52		52
++#define MXT_TOUCH_PTC_KEYS_T97		97
+ #define MXT_PROCI_GRIPFACE_T20		20
+ #define MXT_PROCG_NOISE_T22		22
+ #define MXT_PROCI_ONETOUCH_T24		24
+@@ -326,9 +327,13 @@ struct mxt_data {
+ 	u16 T71_address;
+ 	u8 T9_reportid_min;
+ 	u8 T9_reportid_max;
++	u8 T15_reportid_min;
++	u8 T15_reportid_max;
+ 	u16 T18_address;
+ 	u8 T19_reportid;
+ 	u16 T44_address;
++	u8 T97_reportid_min;
++	u8 T97_reportid_max;
+ 	u8 T100_reportid_min;
+ 	u8 T100_reportid_max;
+ 
+@@ -344,6 +349,9 @@ struct mxt_data {
+ 	u32 *t19_keymap;
+ 	unsigned int t19_num_keys;
+ 
++	u32 *t15_keymap;
++	unsigned int t15_num_keys;
++
+ 	enum mxt_suspend_mode suspend_mode;
+ 
+ 	u32 wakeup_method;
+@@ -375,6 +383,7 @@ static bool mxt_object_readable(unsigned int type)
+ 	case MXT_TOUCH_KEYARRAY_T15:
+ 	case MXT_TOUCH_PROXIMITY_T23:
+ 	case MXT_TOUCH_PROXKEY_T52:
++	case MXT_TOUCH_PTC_KEYS_T97:
+ 	case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 	case MXT_PROCI_GRIPFACE_T20:
+ 	case MXT_PROCG_NOISE_T22:
+@@ -891,6 +900,25 @@ static void mxt_proc_t9_message(struct mxt_data *data, u8 *message)
+ 	data->update_input = true;
+ }
+ 
++static void mxt_proc_t15_messages(struct mxt_data *data, u8 *message)
++{
++	struct input_dev *input_dev = data->input_dev;
++	unsigned long keystates = get_unaligned_le32(&message[2]);
++	int key;
++
++	for (key = 0; key < data->t15_num_keys; key++) {
++		input_report_key(input_dev, data->t15_keymap[key],
++			!!(keystates & BIT(key)));
++	}
++
++	data->update_input = true;
++}
++
++static void mxt_proc_t97_messages(struct mxt_data *data, u8 *message)
++{
++	mxt_proc_t15_messages(data, message);
++}
++
+ static void mxt_proc_t100_message(struct mxt_data *data, u8 *message)
+ {
+ 	struct device *dev = &data->client->dev;
+@@ -1017,6 +1045,12 @@ static int mxt_proc_message(struct mxt_data *data, u8 *message)
+ 	} else if (report_id >= data->T9_reportid_min &&
+ 		   report_id <= data->T9_reportid_max) {
+ 		mxt_proc_t9_message(data, message);
++	} else if (report_id >= data->T15_reportid_min &&
++		   report_id <= data->T15_reportid_max) {
++		mxt_proc_t15_messages(data, message);
++	} else if (report_id >= data->T97_reportid_min &&
++		   report_id <= data->T97_reportid_max) {
++		mxt_proc_t97_messages(data, message);
+ 	} else if (report_id >= data->T100_reportid_min &&
+ 		   report_id <= data->T100_reportid_max) {
+ 		mxt_proc_t100_message(data, message);
+@@ -1689,9 +1723,13 @@ static void mxt_free_object_table(struct mxt_data *data)
+ 	data->T71_address = 0;
+ 	data->T9_reportid_min = 0;
+ 	data->T9_reportid_max = 0;
++	data->T15_reportid_min = 0;
++	data->T15_reportid_max = 0;
+ 	data->T18_address = 0;
+ 	data->T19_reportid = 0;
+ 	data->T44_address = 0;
++	data->T97_reportid_min = 0;
++	data->T97_reportid_max = 0;
+ 	data->T100_reportid_min = 0;
+ 	data->T100_reportid_max = 0;
+ 	data->max_reportid = 0;
+@@ -1764,6 +1802,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 						object->num_report_ids - 1;
+ 			data->num_touchids = object->num_report_ids;
+ 			break;
++		case MXT_TOUCH_KEYARRAY_T15:
++			data->T15_reportid_min = min_id;
++			data->T15_reportid_max = max_id;
++			break;
+ 		case MXT_SPT_COMMSCONFIG_T18:
+ 			data->T18_address = object->start_address;
+ 			break;
+@@ -1773,6 +1815,10 @@ static int mxt_parse_object_table(struct mxt_data *data,
+ 		case MXT_SPT_GPIOPWM_T19:
+ 			data->T19_reportid = min_id;
+ 			break;
++		case MXT_TOUCH_PTC_KEYS_T97:
++			data->T97_reportid_min = min_id;
++			data->T97_reportid_max = max_id;
++			break;
+ 		case MXT_TOUCH_MULTITOUCHSCREEN_T100:
+ 			data->multitouch = MXT_TOUCH_MULTITOUCHSCREEN_T100;
+ 			data->T100_reportid_min = min_id;
+@@ -2050,6 +2096,7 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	int error;
+ 	unsigned int num_mt_slots;
+ 	unsigned int mt_flags = 0;
++	int i;
+ 
+ 	switch (data->multitouch) {
+ 	case MXT_TOUCH_MULTI_T9:
+@@ -2095,6 +2142,10 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 	input_dev->open = mxt_input_open;
+ 	input_dev->close = mxt_input_close;
+ 
++	input_dev->keycode = data->t15_keymap;
++	input_dev->keycodemax = data->t15_num_keys;
++	input_dev->keycodesize = sizeof(data->t15_keymap[0]);
++
+ 	input_set_capability(input_dev, EV_KEY, BTN_TOUCH);
+ 
+ 	/* For single touch */
+@@ -2162,6 +2213,12 @@ static int mxt_initialize_input_device(struct mxt_data *data)
+ 				     0, 255, 0, 0);
+ 	}
+ 
++	/* For T15 and T97 Key Array */
++	if (data->T15_reportid_min || data->T97_reportid_min) {
++		for (i = 0; i < data->t15_num_keys; i++)
++			input_set_capability(input_dev, EV_KEY, data->t15_keymap[i]);
++	}
++
+ 	input_set_drvdata(input_dev, data);
+ 
+ 	error = input_register_device(input_dev);
+@@ -3080,8 +3137,10 @@ static void mxt_input_close(struct input_dev *dev)
+ static int mxt_parse_device_properties(struct mxt_data *data)
+ {
+ 	static const char keymap_property[] = "linux,gpio-keymap";
++	static const char buttons_property[] = "linux,keycodes";
+ 	struct device *dev = &data->client->dev;
+ 	u32 *keymap;
++	u32 *buttonmap;
+ 	int n_keys;
+ 	int error;
+ 
+@@ -3111,6 +3170,32 @@ static int mxt_parse_device_properties(struct mxt_data *data)
+ 		data->t19_num_keys = n_keys;
+ 	}
+ 
++	if (device_property_present(dev, buttons_property)) {
++		n_keys = device_property_count_u32(dev, buttons_property);
++		if (n_keys <= 0) {
++			error = n_keys < 0 ? n_keys : -EINVAL;
++			dev_err(dev, "invalid/malformed '%s' property: %d\n",
++				buttons_property, error);
++			return error;
++		}
++
++		buttonmap = devm_kmalloc_array(dev, n_keys, sizeof(*buttonmap),
++					       GFP_KERNEL);
++		if (!buttonmap)
++			return -ENOMEM;
++
++		error = device_property_read_u32_array(dev, buttons_property,
++						       buttonmap, n_keys);
++		if (error) {
++			dev_err(dev, "failed to parse '%s' property: %d\n",
++				buttons_property, error);
++			return error;
++		}
++
++		data->t15_keymap = buttonmap;
++		data->t15_num_keys = n_keys;
++	}
++
+ 	return 0;
+ }
+ 
 
-> 
-> Signed-off-by: Fred Treven <fred.treven@cirrus.com>
-> ---
->  .../devicetree/bindings/input/cs40l26.yaml         | 92 ++++++++++++++++++++++
->  MAINTAINERS                                        |  1 +
->  2 files changed, 93 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/cs40l26.yaml
-
-Filename matching compatible, so you need vendor-prefix.
-
-> 
-> diff --git a/Documentation/devicetree/bindings/input/cs40l26.yaml b/Documentation/devicetree/bindings/input/cs40l26.yaml
-> new file mode 100644
-> index 000000000000..1036a374baa0
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/cs40l26.yaml
-> @@ -0,0 +1,92 @@
-> +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/cs40l26.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Cirrus Logic CS40L26 Boosted Haptic Amplifier
-> +
-> +maintainers:
-> +  - Fred Treven <fred.treven@cirrus.com>
-> +
-> +description:
-> +  CS40L26 is a Boosted Haptic Driver with Integrated DSP and Waveform Memory
-> +  with Advanced Closed Loop Algorithms and LRA protection
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - cirrus,cs40l26a
-> +      - cirrus,cs40l26b
-> +      - cirrus,cs40l27a
-> +      - cirrus,cs40l27b
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +    description:
-> +      Property describing the interrupt line the devices /ALERT pin is connected to.
-> +      The device only has one interrupt source.
-
-Drop description - it is almost useless. You could just mention ALERT pin.
-
-> +
-> +  VA-supply:
-> +    description: Regulator for VA analog voltage
-> +
-> +  VP-supply:
-> +    description: Regulator for VP peak voltage
-> +
-> +  cirrus,bst-ipk-microamp:
-> +    description:
-> +      Maximum amount of current that can be drawn by the device's boost
-> +      converter in uA. Accepted values are between 1600000 uA and 4800000 uA in
-> +      50000 uA increments.
-> +    minimum: 1600000
-> +    maximum: 4800000
-> +    default: 4500000
-
-Isn't this property of regulator? Why do you need it here?
-
-> +
-> +  cirrus,bst-ctl-microvolt:
-> +    description:
-> +      Maximum target voltage to which the class H algorithm may increase the
-> +      VBST supply, expressed in uV. Valid values range from 2550000 to 11000000
-> +      (inclusive) in steps of 50000. If this value is specified as zero or VP
-> +      rises above this value, VBST is bypassed to VP. If this value is omitted,
-> +      the maximum target voltage remains at 11 V.
-
-Don't repeat constraints in free form text - drop last sentence.
-
-> +    minimum: 2550000
-> +    maximum: 11000000
-> +    default: 11000000
-> +
-> +  cirrus,bst-exploratory-mode-disable:
-> +    description:
-> +      Disable boost exploratory mode if this boolean is present in the
-> +      devicetree. 
-
-Don't explain how DT works. Explain how hardware works instead.
-
-> Boost exploratory mode allows the device to overshoot
-> +      the set peak current limit. This has potential to damage the boost
-> +      inductor. Disabling this mode will prevent this from happening; it will
-> +      also prevent the device from detecting boost inductor short errors.
-> +      (Default) Enabled
-
-Why this is suitable for DT? Why would anyone need to disable it per board?
-
-> +    type: boolean
-> +
-> +
-
-Just one blank line.
-
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    i2c {
-> +      cs40l26: cs40l26@58 {
-
-Node names should be generic.
-https://devicetree-specification.readthedocs.io/en/latest/chapter2-devicetree-basics.html#generic-names-recommendation
-
-> +        compatible = "cirrus,cs40l26a";
-> +        reg = <0x58>;
-> +        interrupt-parent = <&gpio0>;
-> +        interrupts = <57 8>;
-
-If 8 is interrupt flag, use appropriate define.
-
-> +        reset-gpios = <&gpio0 54 0>;
-
-Same for GPIO flag.
-
-> +        VA-supply = <&dummy_vreg>;
-> +        VP-supply = <&dummy_vreg>;
-> +        cirrus,bst-ctl-microvolt = <2600000>; // Max boost voltage = 2.6V
-> +        cirrus,bst-ipk-microamp = <1650000>; // Max boost current = 1.65A
-> +        cirrus,bst-exploratory-mode-disabled; // Disable exploratory mode
-
-The comments are not useful - they copy the property. Instead you could
-explain WHY. Or just drop the comments.
-
->  
-
-Best regards,
-Krzysztof
+-- 
+2.40.0
 

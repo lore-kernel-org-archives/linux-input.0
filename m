@@ -2,72 +2,79 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1165CC77B6E
-	for <linux-input@archiver.kernel.org>; Thu, 13 Apr 2023 15:06:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E8A86C77B61
+	for <linux-input@archiver.kernel.org>; Thu, 13 Apr 2023 15:07:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230073AbjDMPFs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 13 Apr 2023 11:05:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56160 "EHLO
+        id S229784AbjDMPHX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 13 Apr 2023 11:07:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231477AbjDMPFk (ORCPT
+        with ESMTP id S231614AbjDMPHS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Apr 2023 11:05:40 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3F98A46
-        for <linux-input@vger.kernel.org>; Thu, 13 Apr 2023 08:04:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1681398297;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=yJgyw2CXQSH4cqUvLiXLNVt/tWYZtij7Uerp9ANT68M=;
-        b=EzoU+YZct8KRverQgyu2Xt25xxZL52fXhsGkN/BeHWsmOjQ+B+wQKtSDY5dPLNXDyjSMv+
-        SQTITB89fC6XuYFDNale7TTLdG67OoZUV6HPW1GYHEnMG+QUNbmVrFYnc758YF6Do6FMOo
-        7uA8foSg/WgI2K0oP6B9MLtyVSzngIw=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-589-av4fE8hIO3G5pkYJ8IQJyQ-1; Thu, 13 Apr 2023 11:04:47 -0400
-X-MC-Unique: av4fE8hIO3G5pkYJ8IQJyQ-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.rdu2.redhat.com [10.11.54.7])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        Thu, 13 Apr 2023 11:07:18 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D71EA5DD;
+        Thu, 13 Apr 2023 08:07:05 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id EAD382807D71;
-        Thu, 13 Apr 2023 15:04:22 +0000 (UTC)
-Received: from plouf.local (unknown [10.45.224.142])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 010E61415117;
-        Thu, 13 Apr 2023 15:04:21 +0000 (UTC)
-From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20230215-power_supply-leds-hid-v1-0-35b6f1dcee8a@weissschuh.net>
-References: <20230215-power_supply-leds-hid-v1-0-35b6f1dcee8a@weissschuh.net>
-Subject: Re: (subset) [PATCH 0/4] HID: explicitly include linux/leds.h
-Message-Id: <168139826149.850074.8414740251523173187.b4-ty@redhat.com>
-Date:   Thu, 13 Apr 2023 17:04:21 +0200
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15B7163F74;
+        Thu, 13 Apr 2023 15:07:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78B55C433D2;
+        Thu, 13 Apr 2023 15:07:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681398424;
+        bh=r8BLpDALAAoKFN5NitGFlcbTATfE6nIZcBcaUZE9GKQ=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=f78hTUfOG1Z/S4K79rhzeeCOJAm/938HwYqcG0ca0yasc238F3lMlqdpe71Z6uvVq
+         o02kORb+QeTb2eS1i2U/43Sh6gT9WeSkN6SXRWCovrM/iXFWyMaBavkQ+St7v8G01W
+         jZrC7AZ6n2pYHaOOREZPhtFjAzQ/HqKQyj9FRtBpFiteJOiLy6J+ci18Q5gwf7b6O3
+         vAvTngPCw+0LX+1CNnS5V7mVSEwTAXtJqA/Q9zrwunkBk5kBnYTdweiII9pwaAbhrs
+         8B/NhUFmy4a/S2yKX6aGTWIfcFUDGttJlGM+AdrbkFHqP5NXlHftzJdOB1x95I6IR7
+         T0wNWObAtt2Yw==
+Date:   Thu, 13 Apr 2023 17:07:00 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Rahul Rameshbabu <rrameshbabu@nvidia.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/1] HID: shield: Initial driver implementation with
+ Thunderstrike support
+In-Reply-To: <20230410170840.16119-2-rrameshbabu@nvidia.com>
+Message-ID: <nycvar.YFH.7.76.2304131705350.29760@cbobk.fhfr.pm>
+References: <20230410170840.16119-1-rrameshbabu@nvidia.com> <20230410170840.16119-2-rrameshbabu@nvidia.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.7
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 15 Feb 2023 01:03:33 +0000, Thomas Weißschuh wrote:
-> Instead of relying on an accidental, transitive inclusion of linux/leds.h
-> use it directly.
+On Mon, 10 Apr 2023, Rahul Rameshbabu wrote:
+
+> Supports the Thunderstrike (SHIELD 2017) controller. Implements support for
+> the Thunderstrike HOSTCMD firmware interface. Adds sysfs attributes about a
+> SHIELD device and introduces haptics support for controllers.
 > 
-> 
+> Signed-off-by: Rahul Rameshbabu <rrameshbabu@nvidia.com>
 
-Applied to hid/hid.git (for-6.4/apple), thanks!
+Thanks a lot for submitting the driver. I have one minor question:
 
-[4/4] HID: apple: explicitly include linux/leds.h
-      https://git.kernel.org/hid/hid/c/6c89c1160321
+[ ... snip ... ]
+> +thunderstrike_update_haptics(struct thunderstrike *ts,
+> +			     struct thunderstrike_hostcmd_haptics *motors)
+> +{
+> +	unsigned long flags;
+> +
+> +	spin_lock_irqsave(&ts->haptics_update_lock, flags);
+> +	ts->haptics_val = *motors;
+> +	spin_unlock_irqrestore(&ts->haptics_update_lock, flags);
 
-Cheers,
+Do we really have to disable interrupts when taking haptics_update_lock? 
+Is it ever being taken from interrupt context?
+
+Thanks,
+
 -- 
-Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Jiri Kosina
+SUSE Labs
 

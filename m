@@ -2,108 +2,110 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A7543C77B6C
-	for <linux-input@archiver.kernel.org>; Thu, 13 Apr 2023 08:59:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 098DBC77B6C
+	for <linux-input@archiver.kernel.org>; Thu, 13 Apr 2023 09:37:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230153AbjDMI7U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 13 Apr 2023 04:59:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
+        id S230204AbjDMJhQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 13 Apr 2023 05:37:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229871AbjDMI6s (ORCPT
+        with ESMTP id S229711AbjDMJhO (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Apr 2023 04:58:48 -0400
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC5019776;
-        Thu, 13 Apr 2023 01:56:45 -0700 (PDT)
-X-UUID: cffbef502368419ea3c967b9deffaa25-20230413
-X-CID-O-RULE: Release_Ham
-X-CID-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.22,REQID:a4fa865e-d2cd-46d3-b924-f292f65e27f5,IP:5,U
-        RL:0,TC:0,Content:0,EDM:0,RT:0,SF:-5,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-        :release,TS:0
-X-CID-INFO: VERSION:1.1.22,REQID:a4fa865e-d2cd-46d3-b924-f292f65e27f5,IP:5,URL
-        :0,TC:0,Content:0,EDM:0,RT:0,SF:-5,FILE:0,BULK:0,RULE:Release_Ham,ACTION:r
-        elease,TS:0
-X-CID-META: VersionHash:120426c,CLOUDID:eaf2d5ea-db6f-41fe-8b83-13fe7ed1ef52,B
-        ulkID:230413165640C535AKEK,BulkQuantity:0,Recheck:0,SF:19|44|38|24|17|102,
-        TC:nil,Content:0,EDM:-3,IP:-2,URL:0,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0
-        ,OSI:0,OSA:0,AV:0
-X-CID-BVR: 0,NGT
-X-CID-BAS: 0,NGT,0,_
-X-UUID: cffbef502368419ea3c967b9deffaa25-20230413
-X-User: zhouzongmin@kylinos.cn
-Received: from thinkpadx13gen2i.. [(116.128.244.169)] by mailgw
-        (envelope-from <zhouzongmin@kylinos.cn>)
-        (Generic MTA)
-        with ESMTP id 15698829; Thu, 13 Apr 2023 16:56:38 +0800
-From:   Zongmin Zhou <zhouzongmin@kylinos.cn>
-To:     zackr@vmware.com, linux-graphics-maintainer@vmware.com,
-        pv-drivers@vmware.com, dmitry.torokhov@gmail.com
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Zongmin Zhou <zhouzongmin@kylinos.cn>
-Subject: [PATCH] Input: vmmouse - add macros to enable vmmouse relative mode
-Date:   Thu, 13 Apr 2023 16:56:35 +0800
-Message-Id: <20230413085635.2515647-1-zhouzongmin@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
+        Thu, 13 Apr 2023 05:37:14 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC64E10FC
+        for <linux-input@vger.kernel.org>; Thu, 13 Apr 2023 02:36:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1681378589;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=UFLbyQ/siPdTt/ksUTe6CUAuQDKxUj93BikknIIghx8=;
+        b=UbaS8TanozLmVXpz2gkTGhYT8WSFXoh5pnoNdT/A3Ugo2txQSH6to9Ottj9hfF7bn9XJEI
+        Dcnf0uwgks6lrpOLwgQy+6Tmr8HgX/et6wAjEwN1JYCLc23LcamQiJT2Igs1VlZuwFOQZ+
+        ZsOV07X48fdZ6Yrt34JfS+2/rC7naYA=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-106-zklUxsNpO8KTDd4x4kZ1aQ-1; Thu, 13 Apr 2023 05:36:28 -0400
+X-MC-Unique: zklUxsNpO8KTDd4x4kZ1aQ-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 3E0B81C0879F;
+        Thu, 13 Apr 2023 09:36:28 +0000 (UTC)
+Received: from shalem.redhat.com (unknown [10.39.195.47])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7B0B7C16028;
+        Thu, 13 Apr 2023 09:36:27 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Douglas Anderson <dianders@chromium.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH v2 1/3] HID: i2c-hid-of: Consistenly use dev local variable in probe()
+Date:   Thu, 13 Apr 2023 11:36:23 +0200
+Message-Id: <20230413093625.71146-2-hdegoede@redhat.com>
+In-Reply-To: <20230413093625.71146-1-hdegoede@redhat.com>
+References: <20230413093625.71146-1-hdegoede@redhat.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add macros to enable request relative mode.
+i2c_hid_of_probe() has a dev local variable pointing to &i2c_client->dev,
+consistently use this everywhere in i2c_hid_of_probe().
 
-Change the REL_Y value passed by input_report_rel function,
-to match the direction of mouse movement.
-
-Signed-off-by: Zongmin Zhou<zhouzongmin@kylinos.cn>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/mouse/vmmouse.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-of.c | 13 +++++--------
+ 1 file changed, 5 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/mouse/vmmouse.c b/drivers/input/mouse/vmmouse.c
-index ea9eff7c8099..f39ce21f7af9 100644
---- a/drivers/input/mouse/vmmouse.c
-+++ b/drivers/input/mouse/vmmouse.c
-@@ -21,6 +21,12 @@
- #include "psmouse.h"
- #include "vmmouse.h"
+diff --git a/drivers/hid/i2c-hid/i2c-hid-of.c b/drivers/hid/i2c-hid/i2c-hid-of.c
+index 10176568133a..c82a5a54c3e6 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-of.c
++++ b/drivers/hid/i2c-hid/i2c-hid-of.c
+@@ -75,7 +75,7 @@ static int i2c_hid_of_probe(struct i2c_client *client)
+ 	int ret;
+ 	u32 val;
  
-+/*
-+ * Enable this to request relative mode.
-+ * Defaut to absolute mode.
-+ */
-+//#define VMMOUSE_RELATIVE_MODE
-+
- #define VMMOUSE_PROTO_MAGIC			0x564D5868U
+-	ihid_of = devm_kzalloc(&client->dev, sizeof(*ihid_of), GFP_KERNEL);
++	ihid_of = devm_kzalloc(dev, sizeof(*ihid_of), GFP_KERNEL);
+ 	if (!ihid_of)
+ 		return -ENOMEM;
  
- /*
-@@ -184,7 +190,7 @@ static psmouse_ret_t vmmouse_report_events(struct psmouse *psmouse)
- 		if (status & VMMOUSE_RELATIVE_PACKET) {
- 			pref_dev = rel_dev;
- 			input_report_rel(rel_dev, REL_X, (s32)x);
--			input_report_rel(rel_dev, REL_Y, -(s32)y);
-+			input_report_rel(rel_dev, REL_Y, (s32)y);
- 		} else {
- 			pref_dev = abs_dev;
- 			input_report_abs(abs_dev, ABS_X, x);
-@@ -304,8 +310,13 @@ static int vmmouse_enable(struct psmouse *psmouse)
- 	VMMOUSE_CMD(ABSPOINTER_RESTRICT, VMMOUSE_RESTRICT_CPL0,
- 		    dummy1, dummy2, dummy3, dummy4);
+@@ -84,24 +84,21 @@ static int i2c_hid_of_probe(struct i2c_client *client)
  
-+#ifdef VMMOUSE_RELATIVE_MODE
-+	VMMOUSE_CMD(ABSPOINTER_COMMAND, VMMOUSE_CMD_REQUEST_RELATIVE,
-+		    dummy1, dummy2, dummy3, dummy4);
-+#else
- 	VMMOUSE_CMD(ABSPOINTER_COMMAND, VMMOUSE_CMD_REQUEST_ABSOLUTE,
- 		    dummy1, dummy2, dummy3, dummy4);
-+#endif
+ 	ret = of_property_read_u32(dev->of_node, "hid-descr-addr", &val);
+ 	if (ret) {
+-		dev_err(&client->dev, "HID register address not provided\n");
++		dev_err(dev, "HID register address not provided\n");
+ 		return -ENODEV;
+ 	}
+ 	if (val >> 16) {
+-		dev_err(&client->dev, "Bad HID register address: 0x%08x\n",
+-			val);
++		dev_err(dev, "Bad HID register address: 0x%08x\n", val);
+ 		return -EINVAL;
+ 	}
+ 	hid_descriptor_address = val;
  
- 	return 0;
- }
+-	if (!device_property_read_u32(&client->dev, "post-power-on-delay-ms",
+-				      &val))
++	if (!device_property_read_u32(dev, "post-power-on-delay-ms", &val))
+ 		ihid_of->post_power_delay_ms = val;
+ 
+ 	ihid_of->supplies[0].supply = "vdd";
+ 	ihid_of->supplies[1].supply = "vddl";
+-	ret = devm_regulator_bulk_get(&client->dev,
+-				      ARRAY_SIZE(ihid_of->supplies),
++	ret = devm_regulator_bulk_get(dev, ARRAY_SIZE(ihid_of->supplies),
+ 				      ihid_of->supplies);
+ 	if (ret)
+ 		return ret;
 -- 
-2.34.1
+2.39.1
 
-
-No virus found
-		Checked by Hillstone Network AntiVirus

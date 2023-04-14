@@ -2,109 +2,82 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CACD5C77B72
-	for <linux-input@archiver.kernel.org>; Fri, 14 Apr 2023 13:00:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A0EE7C77B72
+	for <linux-input@archiver.kernel.org>; Fri, 14 Apr 2023 14:12:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229720AbjDNNAo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 14 Apr 2023 09:00:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45438 "EHLO
+        id S230286AbjDNOMj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 14 Apr 2023 10:12:39 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229820AbjDNNAn (ORCPT
+        with ESMTP id S230211AbjDNOMi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Apr 2023 09:00:43 -0400
-Received: from hust.edu.cn (mail.hust.edu.cn [202.114.0.240])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D0FC977C;
-        Fri, 14 Apr 2023 06:00:25 -0700 (PDT)
-Received: from localhost.localdomain ([172.16.0.254])
-        (user=dzm91@hust.edu.cn mech=LOGIN bits=0)
-        by mx1.hust.edu.cn  with ESMTP id 33ECwwkT018300-33ECwwkW018300
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NO);
-        Fri, 14 Apr 2023 20:59:03 +0800
-From:   Dongliang Mu <dzm91@hust.edu.cn>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Pavel Rojtberg <rojtberg@gmail.com>,
-        Vicki Pfau <vi@endrift.com>, Nate Yocom <nate@yocom.org>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        John Butler <radon86dev@gmail.com>,
-        Matthias Benkmann <matthias.benkmann@gmail.com>,
-        Christopher Crockett <chaorace@gmail.com>,
-        Santosh De Massari <s.demassari@gmail.com>
-Cc:     hust-os-kernel-patches@googlegroups.com,
-        Dongliang Mu <dzm91@hust.edu.cn>,
-        syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com,
-        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] Input: xpad - fix GPF in xpad_probe
-Date:   Fri, 14 Apr 2023 20:55:47 +0800
-Message-Id: <20230414125603.686123-1-dzm91@hust.edu.cn>
-X-Mailer: git-send-email 2.39.2
+        Fri, 14 Apr 2023 10:12:38 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E39FCB745
+        for <linux-input@vger.kernel.org>; Fri, 14 Apr 2023 07:12:00 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32F796069B
+        for <linux-input@vger.kernel.org>; Fri, 14 Apr 2023 14:10:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7EFFC433D2;
+        Fri, 14 Apr 2023 14:10:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1681481425;
+        bh=0QKH+Gl8bGfeTGhyG2DwMHe0L+MzSHt154QzG1CeDzw=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=R8hdcODC1e7n2Pte8wYbxM4HJ7kAjp6fUV2lWBHPZvgfKgEHd1hQu6xejcxb7NqSs
+         z/xGC+587D3foohQisXSPR+B9ic8UVzaVXyw1pYxZVygGtaWZ/VhWrKxu/zheH/wFi
+         0TBHQIJiDPkqOpg1ik6AOodNJ2Mfk/fNFOfQvldnla9K9M8aEhq16FIKkiqTpCa0VV
+         Ob48pLdY7e7PSXe70AaB4VCQlz21joUmQ+HVAEO2OWMA5FoG1N0QG5xO5yCkd8cSkI
+         hhT8RK1GWxGQDMClwSUFRfDJDEjZhwLjHAxFWV6KKbzrFLG9NgI7n9zQWn7JUjbxxv
+         8s7g+bWjkVoFg==
+Date:   Fri, 14 Apr 2023 16:10:21 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Jason Gerecke <killertofu@gmail.com>
+cc:     linux-input@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Joshua Dickens <Joshua@Joshua-Dickens.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: Re: [PATCH 1/2] HID: wacom: Lazy-init batteries
+In-Reply-To: <20230413181743.7849-1-jason.gerecke@wacom.com>
+Message-ID: <nycvar.YFH.7.76.2304141610040.29760@cbobk.fhfr.pm>
+References: <20230413181743.7849-1-jason.gerecke@wacom.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-FEAS-AUTH-USER: dzm91@hust.edu.cn
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-In xpad_probe(), it does not allocate xpad->dev with input_dev type.
-Then, when it invokes dev_warn with 1st argument - &xpad->dev->dev, it
-would trigger GPF.
+On Thu, 13 Apr 2023, Jason Gerecke wrote:
 
-Fix this by allocating xpad->dev, its error handling and cleanup
-operations in the remove function.
+> From: Jason Gerecke <killertofu@gmail.com>
+> 
+> Rather than creating batteries as part of the initial device probe, let's
+> make the process lazy. This gives us the opportunity to prevent batteries
+> from being created in situations where they are unnecessary.
+> 
+> There are two cases in particular where batteries are being unnecessarily
+> created at initialization. These are AES sensors (for which we don't know
+> any battery status information until a battery-powered pen actually comes
+> into prox) peripheral tablets which share HID descriptors between the
+> wired-only and wireless-capable SKUs of a family of devices.
+> 
+> This patch will delay battery initialization of the former until a pen
+> actually comes into prox. It will delay battery initialization of the
+> latter until either a pen comes into prox or a "heartbeat" packet is
+> processed.
+> 
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Tested-by: Mario Limonciello <mario.limonciello@amd.com>
 
-Note that this crash does not have any reproducer, so the patch
-only passes compilation testing.
+I have added the Link: tags suggested by Mario and applied, thanks.
 
-Reported-by: syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
----
- drivers/input/joystick/xpad.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 66a92691a047..2e077b52f46a 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -1944,6 +1944,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- {
- 	struct usb_device *udev = interface_to_usbdev(intf);
- 	struct usb_xpad *xpad;
-+	struct input_dev *input_dev;
- 	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
- 	int i, error;
- 
-@@ -1957,9 +1958,13 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- 	}
- 
- 	xpad = kzalloc(sizeof(struct usb_xpad), GFP_KERNEL);
--	if (!xpad)
--		return -ENOMEM;
-+	input_dev = input_allocate_device();
-+	if (!xpad || !input_dev) {
-+		error = -ENOMEM;
-+		goto err_free_mem;
-+	}
- 
-+	xpad->dev = input_dev;
- 	usb_make_path(udev, xpad->phys, sizeof(xpad->phys));
- 	strlcat(xpad->phys, "/input0", sizeof(xpad->phys));
- 
-@@ -2134,6 +2139,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
- err_free_idata:
- 	usb_free_coherent(udev, XPAD_PKT_LEN, xpad->idata, xpad->idata_dma);
- err_free_mem:
-+	input_free_device(input_dev);
- 	kfree(xpad);
- 	return error;
- }
-@@ -2159,6 +2165,7 @@ static void xpad_disconnect(struct usb_interface *intf)
- 	usb_free_coherent(xpad->udev, XPAD_PKT_LEN,
- 			xpad->idata, xpad->idata_dma);
- 
-+	input_free_device(xpad->dev);
- 	kfree(xpad);
- 
- 	usb_set_intfdata(intf, NULL);
 -- 
-2.39.2
+Jiri Kosina
+SUSE Labs
 

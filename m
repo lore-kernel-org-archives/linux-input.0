@@ -2,119 +2,188 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E9D70C77B77
-	for <linux-input@archiver.kernel.org>; Mon, 17 Apr 2023 12:19:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7B0DAC77B72
+	for <linux-input@archiver.kernel.org>; Mon, 17 Apr 2023 12:20:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230089AbjDQMT0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 17 Apr 2023 08:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38578 "EHLO
+        id S229547AbjDQMU0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 17 Apr 2023 08:20:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39756 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230199AbjDQMTZ (ORCPT
+        with ESMTP id S229504AbjDQMUZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Apr 2023 08:19:25 -0400
-Received: from endrift.com (endrift.com [173.255.198.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72DD2E45;
-        Mon, 17 Apr 2023 05:19:17 -0700 (PDT)
-Received: from [192.168.0.22] (unknown [50.47.218.115])
-        by endrift.com (Postfix) with ESMTPSA id 3D337A26F;
-        Mon, 17 Apr 2023 03:24:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=endrift.com; s=2020;
-        t=1681727094; bh=JA43lVo036H4z8mEHt/rfTldAIQx/mTNsK0w6tlee+k=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=kMLiwltEsxE0ltAmCKFbEYO+Vp8RHUvzM/aGQKLVz0EYFHTtGS3WnPNtGdSt+FJ7I
-         r95LLzIpCj9e4P5Ng/uGvqqzw1ggX8yuO8mn3JOIHTdcgDwk65ZrZoZzQK15sk1SAf
-         UEfr/Sn9CYAlHx2cheZfbg6RSOOxyYJr+zOZKyljjw7nF0o9734xNbBNAN08zVzwtF
-         ACexDSPKnMykVph9fEVt9FHZMW0VsjdQCGgVegbY0iUkCzckBHldFyJ7uB4WXHJT6x
-         pB27r5ER6DMWPYm4ku3S4fQnVA8v5Q96dGCv9vNiF2WjCGQWc2/Y9Khtua4oMfszsb
-         CYyCnyyoAeFtA==
-Message-ID: <38279d91-402c-7f8b-273d-0882a0567a0c@endrift.com>
-Date:   Mon, 17 Apr 2023 03:24:52 -0700
+        Mon, 17 Apr 2023 08:20:25 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B98572BA;
+        Mon, 17 Apr 2023 05:19:54 -0700 (PDT)
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1poNRz-0006Cl-1Z; Mon, 17 Apr 2023 13:55:15 +0200
+Message-ID: <993dd537-2f74-3657-1dd3-c3a0a74e37e1@leemhuis.info>
+Date:   Mon, 17 Apr 2023 13:55:14 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.9.1
-Subject: Re: [PATCH] Input: xpad - fix GPF in xpad_probe
-Content-Language: en-US
-To:     Dongliang Mu <dzm91@hust.edu.cn>, Dan Carpenter <error27@gmail.com>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Pavel Rojtberg <rojtberg@gmail.com>,
-        Nate Yocom <nate@yocom.org>,
-        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        John Butler <radon86dev@gmail.com>,
-        Matthias Benkmann <matthias.benkmann@gmail.com>,
-        Christopher Crockett <chaorace@gmail.com>,
-        Santosh De Massari <s.demassari@gmail.com>,
-        hust-os-kernel-patches@googlegroups.com,
-        syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com,
-        "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230414125603.686123-1-dzm91@hust.edu.cn>
- <c3e0823b-2b03-4dab-b7cb-a8bc5151f0b1@kili.mountain>
- <99794af0-7367-acff-357d-1cd4fa7f832e@hust.edu.cn>
-From:   Vicki Pfau <vi@endrift.com>
-In-Reply-To: <99794af0-7367-acff-357d-1cd4fa7f832e@hust.edu.cn>
+Subject: Re: [regression] Bug 216946 - Toshiba satellite click mini l9w-b:
+ touchscreen: no touch events with kernel 6.1.4
+Content-Language: en-US, de-DE
+To:     Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Linux regressions mailing list <regressions@lists.linux.dev>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        =?UTF-8?Q?G=c3=a9_Koerkamp?= <ge.koerkamp@gmail.com>
+References: <32a14a8a-9795-4c8c-7e00-da9012f548f8@leemhuis.info>
+ <abb495f7-f973-4614-846b-d3922dc0fe25@leemhuis.info>
+ <CAO-hwJJ2OMFgpmrXK_Z43z0ddujaS1fNjaAJSWwao4qQN+pJ6w@mail.gmail.com>
+ <13c5e60d-d9ba-f840-f43e-40db957a6617@redhat.com>
+From:   "Linux regression tracking (Thorsten Leemhuis)" 
+        <regressions@leemhuis.info>
+Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+In-Reply-To: <13c5e60d-d9ba-f840-f43e-40db957a6617@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1681733995;2071a30c;
+X-HE-SMSGID: 1poNRz-0006Cl-1Z
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
 
-On 4/17/23 03:01, Dongliang Mu wrote:
-> 
-> On 2023/4/17 17:25, Dan Carpenter wrote:
->> On Fri, Apr 14, 2023 at 08:55:47PM +0800, Dongliang Mu wrote:
->>> In xpad_probe(), it does not allocate xpad->dev with input_dev type.
->>> Then, when it invokes dev_warn with 1st argument - &xpad->dev->dev, it
->>> would trigger GPF.
->> What is a call tree for this?  Actually I found it from the bug report.
->> drivers/input/joystick/xpad.c
->>    2034                  if (error)
->>    2035                          dev_warn(&xpad->dev->dev,
->>    2036                                   "unable to receive magic message: %d\n",
->>    2037                                   error);
->>    2038          }
-> 
 
-Sorry, this appears to be my code, and was merged recently after a few drafts with Dmitry. This code is sensitive to being moved and only affects some controllers, so I'm looking into if I can move it into after creation of the input_dev right now. It's something I'd already thought might be necessary, but I didn't find any evidence for it before. I'll try to get back to you on that soon.
-
-> Hi Dan,
-> 
-> this only occurs in linux-next tree.
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/tree/drivers/input/joystick/xpad.c?n2053#n2053
-> 
->>> Fix this by allocating xpad->dev, its error handling and cleanup
->>> operations in the remove function.
+On 01.03.23 12:41, Hans de Goede wrote:
+> On 2/28/23 14:26, Benjamin Tissoires wrote:
+>> On Tue, Feb 28, 2023 at 12:32 PM Thorsten Leemhuis
+>> <regressions@leemhuis.info> wrote:
 >>>
->>> Note that this crash does not have any reproducer, so the patch
->>> only passes compilation testing.
->> The xpad->dev = input_dev; already happens in xpad_init_input().  We
->> shouldn't allocate it twice.  I think the fix is to just use a different
->> device pointer for the dev_warn().  Why not use &xpad->intf->dev?
-> 
-> Yeah, the allocation and assignment is in the last part that I missed before. We have two choices to fix this issue:
-> 
-> 1. Change to another device pointer;
-> 
-> 2. Move the allocation and assignment to a previous code site;
-> 
-> If there is no other places dereferencing this pointer before the allocation and assignment, it's better to use the 1st one.
-> 
-> Let me craft a v2 patch.
-> 
+>>> On 19.01.23 16:06, Linux kernel regression tracking (Thorsten Leemhuis)
+>>> wrote:
+>>>> Hi, this is your Linux kernel regression tracker.
+>>>>
+>>>> I noticed a regression report in bugzilla.kernel.org. As many (most?)
+>>>> kernel developer don't keep an eye on it, I decided to forward it by
+>>>> mail. Quoting from https://bugzilla.kernel.org/show_bug.cgi?id=216946 :
+>>>
+>>> The reporter recently confirmed in the ticket that the issue still
+>>> happens with 6.2.
+>>>
+>>> There wasn't any reply from any of the input developers here or in
+>>> bugzilla afaics. :-/ Hmmm. Could someone from that camp maybe please
+>>> take a minute and at least briefly look into this as answer something
+>>> like "that might be due to a problem in subsystem 'foo'", "maybe ask bar
+>>> for an option", or "we have no idea what might cause this, this needs to
+>>> be bisected"? That would help a lot.
 >>
->>> Reported-by: syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com
->> Could you use a Link tag to link to the bug report?
->> Link: https://groups.google.com/g/syzkaller-bugs/c/iMhTgpGuIbM
-> Sure, no problem.
+>> The working dmesg shows a line with:
+>> hid-generic 0018:0457:10FB.0002: input,hidraw1: I2C HID v1.00 Device
+>> [SIS0817:00 0457:10FB] on i2c-SIS0817:00
+>> and then
+>> hid-multitouch 0018:0457:10FB.0002: input,hidraw1: I2C HID v1.00
+>> Device [SIS0817:00 0457:10FB] on i2c-SIS0817:00
 >>
->> This needs a Fixes tag.
+>> But these 2 lines do not appear on the 6.1.4 logs.
 >>
->> Fixes: db7220c48d8d ("Input: xpad - fix support for some third-party controllers")
->>
->> regards,
->> dan carpenter
->>
+>> So the device is not properly enumerated by ACPI or I2C. Hans might
+>> have an idea on how to debug/solve that issue.
+> 
+> I actually have a Toshiba satellite click mini l9w-b lying around
+> myself. I already made a note to try and reproduce this
+> 
+> But I'm very much swamped with too much kernel work, so no promises
+> when I will get around to this ...
 
-Vicki
+Has anyone made any progress with this? Doesn't look like it, hence I
+wondered if this fall through the cracks; but maybe I'm just missing
+something.
+
+Gé Koerkamp: with a bit of luck Hans sooner or later will have time to
+look into this, but it might speed things up if you could try to bisect
+this.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+--
+Everything you wanna know about Linux kernel regression tracking:
+https://linux-regtracking.leemhuis.info/about/#tldr
+If I did something stupid, please tell me, as explained on that page.
+
+#regzbot poke
+
+>>> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+>>> --
+>>> Everything you wanna know about Linux kernel regression tracking:
+>>> https://linux-regtracking.leemhuis.info/about/#tldr
+>>> If I did something stupid, please tell me, as explained on that page.
+>>>
+>>> #regzbot poke
+>>>>>  Gé Koerkamp 2023-01-17 20:21:51 UTC
+>>>>>
+>>>>> Created attachment 303619 [details]
+>>>>> Kernel configuration for v6.1.4/ journalctl (dmesg)/ ACPIdump/lsmod
+>>>>>
+>>>>> Overview:
+>>>>> The touchscreen does not react on touch events.
+>>>>> Touchscreen display and touchpad are working.
+>>>>>
+>>>>> Step to reproduce:
+>>>>> Open any UI page
+>>>>> Try to use touch on relevant UI controls (buttons etc.)
+>>>>>
+>>>>> Result:
+>>>>> No reaction on screen touches
+>>>>>
+>>>>> Expected result:
+>>>>> Reaction on touched control, same as when using the touch pad or connected mouse (which do work).
+>>>>>
+>>>>> Build information:
+>>>>> The error happens with kernel version 6.1.4
+>>>>> After rebuilding with different kernel versions, it appears that it first fails with kernel 5.16
+>>>>>
+>>>>> Additional builds:
+>>>>> The click mini l9w-b still works with kernel 5.10.y LTS and 5.15.y LTS.
+>>>>>
+>>>>> Important remark:
+>>>>> Touchscreen still works fine with kernel 6.1.4 using
+>>>>> - an HP x2 detachable 10-p0xx or
+>>>>> - a Lenovo yoga 520-14ikb
+>>>>>
+>>>>> So it could be a hardware dependent issue
+>>>>
+>>>> See the ticket for more details.
+>>>>
+>>>>
+>>>> [TLDR for the rest of this mail: I'm adding this report to the list of
+>>>> tracked Linux kernel regressions; the text you find below is based on a
+>>>> few templates paragraphs you might have encountered already in similar
+>>>> form.]
+>>>>
+>>>> BTW, let me use this mail to also add the report to the list of tracked
+>>>> regressions to ensure it's doesn't fall through the cracks:
+>>>>
+>>>> #regzbot introduced: v5.15..v5.16
+>>>> https://bugzilla.kernel.org/show_bug.cgi?id=216946
+>>>> #regzbot title: hid: touchscreen broken with Toshiba satellite click
+>>>> mini l9w-b
+>>>> #regzbot ignore-activity
+>>>>
+>>>> This isn't a regression? This issue or a fix for it are already
+>>>> discussed somewhere else? It was fixed already? You want to clarify when
+>>>> the regression started to happen? Or point out I got the title or
+>>>> something else totally wrong? Then just reply and tell me -- ideally
+>>>> while also telling regzbot about it, as explained by the page listed in
+>>>> the footer of this mail.
+>>>>
+>>>> Developers: When fixing the issue, remember to add 'Link:' tags pointing
+>>>> to the report (e.g. the buzgzilla ticket and maybe this mail as well, if
+>>>> this thread sees some discussion). See page linked in footer for details.
+>>>>
+>>>> Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+>>>> --
+>>>> Everything you wanna know about Linux kernel regression tracking:
+>>>> https://linux-regtracking.leemhuis.info/about/#tldr
+>>>> If I did something stupid, please tell me, as explained on that page.
+>>>
+>>
+> 
+> 
+> 

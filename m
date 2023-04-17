@@ -2,56 +2,57 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6554AC77B70
-	for <linux-input@archiver.kernel.org>; Mon, 17 Apr 2023 09:25:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1717AC77B76
+	for <linux-input@archiver.kernel.org>; Mon, 17 Apr 2023 10:44:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230048AbjDQJZj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 17 Apr 2023 05:25:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54536 "EHLO
+        id S229719AbjDQKoy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 17 Apr 2023 06:44:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229870AbjDQJZi (ORCPT
+        with ESMTP id S229634AbjDQKox (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Apr 2023 05:25:38 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F3231FE5;
-        Mon, 17 Apr 2023 02:25:26 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-2f7db354092so826979f8f.2;
-        Mon, 17 Apr 2023 02:25:26 -0700 (PDT)
+        Mon, 17 Apr 2023 06:44:53 -0400
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2479B5B9C;
+        Mon, 17 Apr 2023 03:43:50 -0700 (PDT)
+Received: by mail-wm1-x32e.google.com with SMTP id d8-20020a05600c3ac800b003ee6e324b19so12847498wms.1;
+        Mon, 17 Apr 2023 03:43:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1681723525; x=1684315525;
+        d=gmail.com; s=20221208; t=1681728145; x=1684320145;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=5Ni1mp87nimYzLK0CBqJWgwY5rbZXm5kOnIvLQwtSwI=;
-        b=H3fXzv0KaQshT8TnpTyZtf8FLbH/jT+lzC7we60I/atLATOc4t2d9dNZzVQ0vqsQHC
-         owug5T9+JsEhklVUcRhDgPkY0135ATRBdybj7XzDjlTj7el+hffwI8/HK7S23T9+kLdn
-         coDADO84uSTlzIwBtVsXuv4F42/wkYQSCos2HQ+uELYPvKjU787oGsn5JcT17/S9c4zn
-         6g/U5aRyMKEzUHd62ZAznW7r4y4Xk4mwu+7aaoxrDw5UQFHBDoUFBoMQOF/f5BJ5L3/n
-         P42Hne/7UgmxdoxlD9kq3R+hQ+sgsijVzH8Qe4kc5ookjLP3C+OR4exLF5ZFfX/yKlES
-         MDAw==
+        bh=+FSsTNaAxDVrnnWZoYzSsuW1bfOx2KirKh1RVOBinvY=;
+        b=bImlZtJsk9iREVOmEf/RbWim78bXjszsA+dO0JytrrS7kWGgf/T8r2bAZugCyK3Hzu
+         JbjVo8JYuYY//n4ElWQCvFHPRWlWsFgXSgyFR0G7BSYfzyELmgCT5RMU+kTSaVqojf6b
+         +mGH1Ej5yCIoLM5//rhimXdrtyqhZJlSZW7BbsItuvx1XOCYSS3EhnQIdTJjsx2F2DZ+
+         f2rSsW5nMMQu0CcMvCAGc9eRRjST1LPPxhOsqUzzLf7RZeZAGy+TKtbceMbq6Gtspg0+
+         P/l3Bh4dATWSrKGsKUyw/JGU6CTblM+GD0u1lfvT6eidKtUXvDjGAaa81mHlMArX/qXL
+         BH1w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1681723525; x=1684315525;
+        d=1e100.net; s=20221208; t=1681728145; x=1684320145;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=5Ni1mp87nimYzLK0CBqJWgwY5rbZXm5kOnIvLQwtSwI=;
-        b=PwQdCegMfkmMFzhmxrEh92auynUgd2SmkoNPCUce9xryy6Xd/fB8VDYYL7zp3turN1
-         ZkYhEUg5UyslFD3EKgxzJskqvcfklICZAc+WjStvtaT5Ia99fvUEl8TUmGIz9Jt4Qzi6
-         PtIqZmMY9pyrm4y0zsCxPu0fefVy3plxY5pqICfRWjbyK626rrRl7/rYavi8vJuTOmkR
-         8Sj01sOU9v6YLpokLiBOqo6Poe/iSPDIszpYKlnfVTRI8c6SCRxGG998gJcegE/BBvVf
-         WmYBz/QWXJiv0HIkIZXKxx2MPRXw6F2X3F0gw6ArDD0AaSnj5nTcvZiWYRq6tjcy/q/i
-         TVTA==
-X-Gm-Message-State: AAQBX9fZFT9WuuPXdULJxGMe8XARqIL3pbygF5IFn0w1q0AhdjK0o3RD
-        SF5rLgrnooN88+XwZKds7U4=
-X-Google-Smtp-Source: AKy350aztd/txuxoD9co8jX4C9jttt92j871FRkhuKE7yFSjcOhyVaf52A6bg/FfSUWsKdNPcM3xCg==
-X-Received: by 2002:adf:e3d0:0:b0:2f7:825c:9db6 with SMTP id k16-20020adfe3d0000000b002f7825c9db6mr4580455wrm.45.1681723524883;
-        Mon, 17 Apr 2023 02:25:24 -0700 (PDT)
+        bh=+FSsTNaAxDVrnnWZoYzSsuW1bfOx2KirKh1RVOBinvY=;
+        b=BsPN7jrwPXzugNd9H9qI6UZ+sNs7R3wS5nEM2WB5JpJVQb0TosE8aZ/YT+Lg8dhnGL
+         anluikO9oGYVUgPTafUaqNYs5ZUcy+0TWNIm0+1vo2M3aBjI/L196cvsGqQlh3Hw1TW6
+         4/tggKdUJrMyamLiAUrroWt6gyabq/SPkPq8UErR7wl1GrbYZG1iqv3Bi4XFGo7CcgXQ
+         2XAuyeiv/GwmSPpppMyGfp7OhyCVeACirCwc8BoNSnIIiLcZ9JINXSK0ZAzrp4o4LP5K
+         Y6oCBobAwjj29aKPzYcC7qDb96TZAHtZ0E/dYP/R2EUmPMoK5g6nOhGQIgsNrl+BqTio
+         p6dA==
+X-Gm-Message-State: AAQBX9dvw6a1RI61cOZjl8tVScb9h1eotKZ1N7/v84Li0yX6vCfpRpA7
+        aq7M8Etx24fXxEx1gf2Wgmg=
+X-Google-Smtp-Source: AKy350YgtqidShU+Z+BRMWKOzSY0N6RpgZt7pJjc0/NbbrBY/lJjWRKH94XwvA30WZXkQLYokVa9XQ==
+X-Received: by 2002:a1c:7717:0:b0:3f1:75d2:a6a7 with SMTP id t23-20020a1c7717000000b003f175d2a6a7mr760219wmi.36.1681728145521;
+        Mon, 17 Apr 2023 03:42:25 -0700 (PDT)
 Received: from localhost ([102.36.222.112])
-        by smtp.gmail.com with ESMTPSA id h12-20020a5d4fcc000000b002f22c44e974sm10015438wrw.102.2023.04.17.02.25.23
+        by smtp.gmail.com with ESMTPSA id 15-20020a05600c230f00b003f16fdc6233sm5189129wmo.47.2023.04.17.03.42.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Apr 2023 02:25:24 -0700 (PDT)
-Date:   Mon, 17 Apr 2023 12:25:21 +0300
+        Mon, 17 Apr 2023 03:42:25 -0700 (PDT)
+Date:   Mon, 17 Apr 2023 13:42:21 +0300
 From:   Dan Carpenter <error27@gmail.com>
-To:     Dongliang Mu <dzm91@hust.edu.cn>, Vicki Pfau <vi@endrift.com>
+To:     Dongliang Mu <dzm91@hust.edu.cn>, Vicki Pfau <vi@endrift.com>,
+        kernel-janitors@vger.kernel.org
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Pavel Rojtberg <rojtberg@gmail.com>,
         Nate Yocom <nate@yocom.org>,
@@ -65,49 +66,34 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] Input: xpad - fix GPF in xpad_probe
-Message-ID: <c3e0823b-2b03-4dab-b7cb-a8bc5151f0b1@kili.mountain>
+Message-ID: <011c00e7-c351-4331-8be4-1c184d5773e1@kili.mountain>
 References: <20230414125603.686123-1-dzm91@hust.edu.cn>
+ <c3e0823b-2b03-4dab-b7cb-a8bc5151f0b1@kili.mountain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230414125603.686123-1-dzm91@hust.edu.cn>
+In-Reply-To: <c3e0823b-2b03-4dab-b7cb-a8bc5151f0b1@kili.mountain>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, Apr 14, 2023 at 08:55:47PM +0800, Dongliang Mu wrote:
-> In xpad_probe(), it does not allocate xpad->dev with input_dev type.
-> Then, when it invokes dev_warn with 1st argument - &xpad->dev->dev, it
-> would trigger GPF.
+Btw, we should be thinking about how to detect these sorts of issues
+using static analysis.  Unfortunately, it's not as simple as saying
+"We know this variable is NULL so don't dereference it."  The problem
+with that is that many times Smatch sees where a pointer is set to NULL
+but not when it is assigned to a different value.
 
-What is a call tree for this?  Actually I found it from the bug report.
-drivers/input/joystick/xpad.c
-  2034                  if (error)
-  2035                          dev_warn(&xpad->dev->dev,
-  2036                                   "unable to receive magic message: %d\n",
-  2037                                   error);
-  2038          }
+What we could do instead is say:
+1) If a pointer is dereferenced and we know it is NULL then:
+    set_state_expr(my_id, expr, &suspicious);
+2) If we set a pointer to non-NULL and it is marked as suspicious then
+   print a warning.
 
-> 
-> Fix this by allocating xpad->dev, its error handling and cleanup
-> operations in the remove function.
-> 
-> Note that this crash does not have any reproducer, so the patch
-> only passes compilation testing.
+This would generate a warning for cases where we dereference a pointer
+before it has been initialized.
 
-The xpad->dev = input_dev; already happens in xpad_init_input().  We
-shouldn't allocate it twice.  I think the fix is to just use a different
-device pointer for the dev_warn().  Why not use &xpad->intf->dev?
-
-> 
-> Reported-by: syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com
-
-Could you use a Link tag to link to the bug report?
-Link: https://groups.google.com/g/syzkaller-bugs/c/iMhTgpGuIbM
-
-This needs a Fixes tag.
-
-Fixes: db7220c48d8d ("Input: xpad - fix support for some third-party controllers")
+It is not hard to write a Smatch check like this.  The first draft
+approach is only three functions long.
 
 regards,
 dan carpenter

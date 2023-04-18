@@ -2,241 +2,158 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F9A1C77B76
-	for <linux-input@archiver.kernel.org>; Mon, 17 Apr 2023 20:15:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43920C77B71
+	for <linux-input@archiver.kernel.org>; Tue, 18 Apr 2023 04:12:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229655AbjDQUPE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 17 Apr 2023 16:15:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43702 "EHLO
+        id S229604AbjDREMY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 18 Apr 2023 00:12:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229554AbjDQUPD (ORCPT
+        with ESMTP id S229517AbjDREMX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Apr 2023 16:15:03 -0400
-Received: from wout3-smtp.messagingengine.com (wout3-smtp.messagingengine.com [64.147.123.19])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EECE446AC;
-        Mon, 17 Apr 2023 13:15:00 -0700 (PDT)
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id 4CB913200991;
-        Mon, 17 Apr 2023 16:14:56 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Mon, 17 Apr 2023 16:14:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=duggan.us; h=cc
-        :cc:content-transfer-encoding:content-type:content-type:date
-        :date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to; s=fm2; t=
-        1681762495; x=1681848895; bh=puHS/9Gsnu4EihLPDZetwQwvkbohwlsflAA
-        TKAuIYAY=; b=GjgYs5EUwhDq3E2kJ1Dr9Cvj3F2neXvZ0NxHQOHd7AhyOReFHmZ
-        MosDrgKZB6IEn2ghSLtnOvC1VTSk0fGI2kf4w836OcXBvXCvcrhFxR5J7pk2Ifm3
-        J846h18LI139zRgFiyP4dVhfJO4sHQCjlpKWhxLLbTsK+x/cMxv36OctJUhxrH17
-        WwIY5TWDal8bkJYADKtvdKq711QFDf190pWHPLyAwC0MfUMygI5rSud38gW2BJoH
-        Haht5+feVM6OerXrhaT4oLq5gN6MZU5tWWe8nb2LzS9n7RaVYuaZXMDfhmn94zLT
-        OAKlymtsFFSTEVrdze1WNYWtk38fjaky34g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding
-        :content-type:content-type:date:date:feedback-id:feedback-id
-        :from:from:in-reply-to:in-reply-to:message-id:mime-version
-        :references:reply-to:sender:subject:subject:to:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=
-        1681762495; x=1681848895; bh=puHS/9Gsnu4EihLPDZetwQwvkbohwlsflAA
-        TKAuIYAY=; b=iOJDf/IjxQQr0+qwLaqFi8xLiTgXDvlPkUJj750Ei/5bDPKVEZ6
-        M9dTAoTeBnJk4WLaYcjkwUPUSBdC0/LYXzkEiw3ocaqfe+Sykp+dfTK820d7Mq+G
-        2z/Gi9owyFQV7++sunsZFb9nt7byHNjhhAnJoDAgL0owzJxwwVJlbpuKcDDesx8/
-        PSQHDmONtTwWGMrQKDfrniQnI9bU4fr4Dz6C6x8MDd6lAA9ZYPUvU8++OyPsnDDX
-        RCt2evhLJqFTo5uzEZ+3s9c8SSzBStSvWc8egE2XiB2khDIOLys3sMj4CVBIPGku
-        kq8lXdieoQYnMgGT95r2FgSiI3qQkZW6kug==
-X-ME-Sender: <xms:v6g9ZHvAdMFaXs1TFPGMswTX492b-9rIlOPq3zIbvWG2kW6Luw5Zhw>
-    <xme:v6g9ZIeS_qblLLL7y8kafnU_ST4_sNWGV0bVvecwkrrzbX4mrL_fegG-mZvS9rjIG
-    d9hoFmygAh9p4a6Tg>
-X-ME-Received: <xmr:v6g9ZKwF3u-Yk8gY7TR6jb960iNGdd1Y-4Akpo9CpzwLjOJk9_lJiu2rVf-WAHiiKw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrvdeliedgudegjecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpegtggfuhfgjffevgffkfhfvofesthhqmhdthhdtjeenucfhrhhomheptehn
-    ughrvgifucffuhhgghgrnhcuoegrnhgurhgvfiesughughhgrghnrdhusheqnecuggftrf
-    grthhtvghrnhepveehheeuffduteeuhfetfefhleetteekvdehlefgfeekhfekteeujeet
-    teeludetnecuffhomhgrihhnpegsuhhtthhonhhsrdhpshenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrnhgurhgvfiesughughhgrghnrdhu
-    sh
-X-ME-Proxy: <xmx:v6g9ZGNeFEJaYfKdydCsbrzi2azBCQDE-6M0pvMxk401gYecHk_YGw>
-    <xmx:v6g9ZH_mAImqGGpZTpwcmoD9AuGYyuh_kexunzfSsZwOxqBsEZ5d5w>
-    <xmx:v6g9ZGXackSYofpmzc7DVT6jmPtST-l9pcAremJo07_BzWuIp-viGA>
-    <xmx:v6g9ZObd2fFoxkZ4fXaT21wnnib8NboxaSXV5oOXyavdxZGY_smo7g>
-Feedback-ID: i06a0429a:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 17 Apr 2023 16:14:53 -0400 (EDT)
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3731.500.231\))
-Subject: Re: [PATCH v2] Input: synaptics - disable intertouch for Lenovo L440
-From:   Andrew Duggan <andrew@duggan.us>
-In-Reply-To: <CALNJtpV4WsknSSfBBer-MM0y_V=O5Fv2Lc3ei3heEyZwvR2rzQ@mail.gmail.com>
-Date:   Mon, 17 Apr 2023 13:14:42 -0700
-Cc:     Lyude Paul <lyude@redhat.com>,
-        Andrew Duggan <aduggan@synaptics.com>,
-        "amandhoot12@gmail.com" <amandhoot12@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        "jdenose@google.com" <jdenose@google.com>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "markpearson@lenovo.com" <markpearson@lenovo.com>,
-        "wsa+renesas@sang-engineering.com" <wsa+renesas@sang-engineering.com>,
-        benjamin.tissoires@redhat.com
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <65C23A49-5A55-4CF4-9AFD-2DA504DAABF5@duggan.us>
-References: <063c8f77c216ffac463532023009124542d54c19.camel@redhat.com>
- <20230414092353.v2.1.Ieb687047a5b75c7b7ee5dd258207ef5ca9a3b728@changeid>
- <CALNJtpXLHHSV8YshUnk0opLNMUJpT7DgBNRYXoP2Yn-fnA8vPA@mail.gmail.com>
- <CALNJtpV4WsknSSfBBer-MM0y_V=O5Fv2Lc3ei3heEyZwvR2rzQ@mail.gmail.com>
-To:     Jonathan Denose <jdenose@chromium.org>
-X-Mailer: Apple Mail (2.3731.500.231)
+        Tue, 18 Apr 2023 00:12:23 -0400
+Received: from EUR04-HE1-obe.outbound.protection.outlook.com (mail-he1eur04on2070.outbound.protection.outlook.com [40.107.7.70])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CB2D469D;
+        Mon, 17 Apr 2023 21:12:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=jKAXytZKzNqtR0Yi677km+9eZCY+U8Lv15Yk5reL8Lr7qGuJMb5+Yo15OJJcnbOjMZej9p05BvBGIKLwLD/kvCtr4SJP1acaOaWzh0Sri68MBymyST82vhaQDoN3dRhOGqaPFHYkezrrBu5BhhVAZehOmtgFnAqusRptYKFrAfZrBmvUULL7UEzblD2NPLkjZJE4vURzyWsmHJwGCd9ibYUzsJozmpxKNcFqSFU9q+WoaHBCq0DZBTAkq/4IF3yzgPRbyWpN54gmZUpcGFlqxQXe460i/DUubIG6lW0m8X+YH9Bw/Apc6jTcCiDLO3jpK1QPMtfk3GYDSZJr95L6GA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZibWWrxexhLtAilGgxHoDgZF0hqqtJDoE0/5l5zgVAw=;
+ b=D+DJfL/vNUtaPPs4DZnQKvcgEIyb09fSJuUPqCfSr6z4nEgIgtOwTNjxmKIbT8HWCDoP4fcZigbgyMK9AP40LGgY9Rj8BoSHc3zne1BJt9uVh3YgpJ6dQyC9cd8KTmBEzCcm77Kl7B8/+yjKHuMGT+vpBxxVb8RDxPLgRTFWeolPpfaoCPPfgIRngoMlLG+3lUPipA6fflQ2KScKJ/I2OLxGbn83p/L/kXpFbAJJxKBs5lJnQn36BbmRVrIebzGIwvF703FxmQHUHaeYuBUK6uWbkOoGyuvrYjutPKZecentfU1VYu3jTN+k+PDdMdQMETrHiWauIMboeUPMCFm7mg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wolfvision.net; dmarc=pass action=none
+ header.from=wolfvision.net; dkim=pass header.d=wolfvision.net; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wolfvision.net;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZibWWrxexhLtAilGgxHoDgZF0hqqtJDoE0/5l5zgVAw=;
+ b=Zc91iEoRV2k0AbV4YnVQ2ARfZHoyfmuxHQy10w5IDBp1HHZQ6JbiYgcC+Q3sPnGo1TfFJScoiYQHt02CGDJwGor2dFs+t2PhmuTrfsdylHQWgc7jaSpGLVOyp+iLk7rE940ribfHX4jVIgMczMdUiQzizTrT7F34sgQDWNZ0hns=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wolfvision.net;
+Received: from VE1PR08MB4974.eurprd08.prod.outlook.com (2603:10a6:803:111::15)
+ by PA4PR08MB6191.eurprd08.prod.outlook.com (2603:10a6:102:f3::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6298.45; Tue, 18 Apr
+ 2023 04:12:18 +0000
+Received: from VE1PR08MB4974.eurprd08.prod.outlook.com
+ ([fe80::6c5a:c28e:206:453]) by VE1PR08MB4974.eurprd08.prod.outlook.com
+ ([fe80::6c5a:c28e:206:453%6]) with mapi id 15.20.6298.045; Tue, 18 Apr 2023
+ 04:12:18 +0000
+Message-ID: <a440be18-21f1-a0a0-5456-f62aa5332053@wolfvision.net>
+Date:   Tue, 18 Apr 2023 06:12:15 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.9.0
+Subject: Re: [PATCH 0/2] Input: st1232: wakeup in Suspend to idle
+To:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Uwe Kleine-g <u.kleine-koenig@pengutronix.de>,
+        Michael Riesch <michael.riesch@wolfvision.net>
+References: <20230403124707.102986-1-javier.carrasco@wolfvision.net>
+Content-Language: de-DE, en-GB
+From:   Javier Carrasco Cruz <javier.carrasco@wolfvision.net>
+In-Reply-To: <20230403124707.102986-1-javier.carrasco@wolfvision.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: VE1PR08CA0011.eurprd08.prod.outlook.com
+ (2603:10a6:803:104::24) To VE1PR08MB4974.eurprd08.prod.outlook.com
+ (2603:10a6:803:111::15)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: VE1PR08MB4974:EE_|PA4PR08MB6191:EE_
+X-MS-Office365-Filtering-Correlation-Id: 36ccfb67-c3ae-476a-c267-08db3fc3191f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 87QEDaeEXsUUsOGUXHP2nglUAu9JMRFn5/2YVF026IuM1vcXfrbkELD+aOkE22sL3CAVg+ZZY1STfeqV+XK4yqmOv2Jc3CrmAM0geSPZFf4jhKZ2Il0Lyo6Hl18VQhIppQ0dh8bZL9BRO95uukLhlDhiZPO0erRvVTaqUjMPPdGI73XlWepZ8P1gsVkva8hHhj2+6gUKGZ/i6k5JBpPyyLjrCiE82huNljQCMYWx9+27kiFxGByx56mYfg57Qu70tk2puWP0D+YpJ8+n1lqwn6vH5QXDPU+zFBWnH9jA5Ltu2cfz1ui+ryAPGvbVdAdX9PGYXQinp8EKVBprdJzccAKXAvU6/EWne1Dxiy5d6bxJRlTWy5mAFUYMMJv8HAFVv1Z10/0Y395nYo7WvoqB2mJMAz2K17iNX2s3gDUBgggP6FbIDQkGxW3QlmVPIs//cOs/tqutp2QSxnyl/nyZch+/Og7r3Nnvhdt11HXUzO0TWTP5hO6bTqv0NAk4QMhge32f07LZ+YgBfNEvJ3c28M6vnBj98kohVVoa4cV41nTuWvdPS1wnTjFA/mP3COLmYISIWQQeHEEnZc7SiuzWqjEOyJIpyQkPQcE8QzCu0fFsugpSQ8yOwF/Ks3mTenluVvbBJTiP7nkWR6GMefIamg==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR08MB4974.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(376002)(366004)(396003)(39850400004)(136003)(346002)(451199021)(36756003)(4326008)(54906003)(316002)(66946007)(66556008)(66476007)(478600001)(6666004)(41300700001)(5660300002)(6486002)(8676002)(8936002)(15650500001)(2906002)(31696002)(86362001)(38100700002)(2616005)(6506007)(107886003)(26005)(186003)(53546011)(6512007)(83380400001)(31686004)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?a1lyVzdzQnNnTGtiYVo0TG5TUWVodDF4OG9ROFlsejBTb0xhNXUxQUZBbE9v?=
+ =?utf-8?B?bDdISENIVVg1QmRuKzRhS3VvKzZWa2E4L1V4N1Y4eVpCdjY1emNWVXNGN0Y0?=
+ =?utf-8?B?TUhLd1hMODdBSVZVWFhNQVRuMEdRZ1h4bzZNeUtGM3J6S1Z3SHMyN05SdFEw?=
+ =?utf-8?B?UzF6cVB4NkxDR1ZGZlE0WmFSUVhMeUdVNHVXaWZFdUxZeThsV1ZIeWdiakNW?=
+ =?utf-8?B?WWgrblJobXpvMG9MRlBHUnBnVTZETDRvcHpLSW9ZR25YcURCSUpIWGc5RW5s?=
+ =?utf-8?B?MVNnS0pSN3Z2dHNaeWZScFVGOUVvQUpJYU1MOUUwaGd5NEkwYzRNYXZpbmdW?=
+ =?utf-8?B?aGVRdVAwaThKT25WRVJVS2dLR2NoUG56ZnE3T0ZnVk1NOGlrV2V5UUN3RHBX?=
+ =?utf-8?B?Tjh0aWVrOXVySE13cTBZdjNVMEtIVEdFU2NZSG9HQ01NVXFpVklHMURyY1cw?=
+ =?utf-8?B?T0lPRE5jdWFySXg0eVE4SWNrcHIrQ0I1T2Y0MmZvSndWc0Z4MVhqS0VPRjI1?=
+ =?utf-8?B?TFV2MjE5QzR4d2U5ak9oVmI2aDRsZnVBWFpYaWx5SGdlSmRqRGZLUmhMVlNx?=
+ =?utf-8?B?Z0tjZ2ZFM1JRS1Q3ZG5YYmo0NHhOSUQ0cERKOXNZRVZjNmFSdy91NFdlaTMx?=
+ =?utf-8?B?a0EzYkQzeDVxZEtpR09KMVZ5cXhPVzZobTBNbldjNGJFSHZjNG0xa0NtY1Bl?=
+ =?utf-8?B?RmFhaVJiYmpJYTRSUWRnUy8rUEpXQjRyN0NSdzVxSDRIamhaWWxlR2FUOVU5?=
+ =?utf-8?B?aTh0cWxJdy90UnBJV29yb0trY3dMTXhhZmJNamZpN1hidFdqV2JmbXd3MXNH?=
+ =?utf-8?B?SVBKZVlHbExqNnhNSkdjeXJ0MlpUY2t5YWYwclNJenJldDNsUDhMTmorSElz?=
+ =?utf-8?B?RCtQTmdia0Irc3lOQTY4YjRRNGhlN2l2RGRiNXdHS1Nwb3U5QTlLTHM3MWNG?=
+ =?utf-8?B?bGh4VFEzbm0xTksrdHVJTEVVRXJNRUxVV2lncE1zYldaNHBuR1M5a3NuN2h6?=
+ =?utf-8?B?enJpRlpwZ2hsYmtsNVhUdWFmS1A2RHA0V2M1dmFmdkZPU1hDSWFnTGZtcGRN?=
+ =?utf-8?B?TVRQcVo5eTkyTnRub3doQWlkYnhlTjQwYUVzL1hBZUpMWTB4dElteDJJMVMz?=
+ =?utf-8?B?aGpGKzE1NnBGVjY4VmRtRVJHZFR5d05qdVd0UGpHNVVVb2lkYzdMUHBUVUh2?=
+ =?utf-8?B?ZDJUdlBhaTNaRzE1SlhqUnZ2cmoxVFp1Nm9xVzcxNzVtcmtLSjN3bitFVmJa?=
+ =?utf-8?B?LzdLYUtoRi96ZUpBbW4xU2lDN2M1YUZ6RTFrbEl0clQxWlBUZjJYdmlrQ0ln?=
+ =?utf-8?B?Qml0SEVzdjV0OXpyNE8zb1hpSDkzSFZaUTcwWktLandEZG8vVjRtbFdZU2Va?=
+ =?utf-8?B?aGsvc25odys3SVZyQXlRQTdZc08vKzBUckRYUjdMQmIvWlNRNkJSKy9Ua1h6?=
+ =?utf-8?B?ZGprZjJRcXVZcG05UnFMNDN1SHFGVDFweWxlNnY0YU1rZW4rRi9yTnYrazds?=
+ =?utf-8?B?TTBuRWdSQkxkM0FEVUtXS0ROQUNrK2E3T2IrYWlpcDVzOGJUNTFQOUZ3b29C?=
+ =?utf-8?B?eEJYMkJYazdpaG90dlJhckszcTlwZWR2eXhaV09iMzJYV25qWksyYWl0djZa?=
+ =?utf-8?B?ZlRPSkRrWkN3QmE0YWFFQ1RzcEhGZmJNWDhLTnRJTlMxa21QZklLelRoVWhy?=
+ =?utf-8?B?dVFGMWhuS1EvUlBSak45QVFsNEZRd0lrQS9BQmpLRmpYaWFHS2xuQStFdUtK?=
+ =?utf-8?B?S0dhdm1QUHYvMkVuTEF4d1E0QVIzQ1p5eFFOYkFWWmRlL085dTU4TmlhSEZK?=
+ =?utf-8?B?b3NXNkdidnNzSG1SenF3Ri9GbE1vRXBqOHBuaFlmZlA4OGV5bG0zS1g0bTg0?=
+ =?utf-8?B?eENGdXB4cnNzYmV4Q3VrWTRWb2N1WXp2TXJUOUZoNzkyS2lxNm0veVZhVmJM?=
+ =?utf-8?B?T2pMU29xYnY4S3JxSFRiSmlBUjUwWEtFUWhDa0J6NU0wb29xQ3gxZWFpekVv?=
+ =?utf-8?B?MGw0VnlYNW44ZWlZaEFiYUNQS0dHb2p6OGVKbGRNcGFjK1AzUlJkNkwwVTdB?=
+ =?utf-8?B?aTh4LzFXcTVScCtHSjE3WVhjRGdhVFhhc2QzMkc2ZHJjSExjTW9iTkZiT0JX?=
+ =?utf-8?B?WXpOdmFLYXhoS3phTGsweFhqOGlGZ0EraGk5NTNVeUxMckxkWVM3NnYwWitz?=
+ =?utf-8?B?eHc9PQ==?=
+X-OriginatorOrg: wolfvision.net
+X-MS-Exchange-CrossTenant-Network-Message-Id: 36ccfb67-c3ae-476a-c267-08db3fc3191f
+X-MS-Exchange-CrossTenant-AuthSource: VE1PR08MB4974.eurprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Apr 2023 04:12:17.8856
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e94ec9da-9183-471e-83b3-51baa8eb804f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: yN4zRk61TvpNQ6ZQAvNV6V+d18Uyew7kSJlI5LPeHV75Y1yfAJj+M8IsoIsGdjWZdtVLrhBFq++A3rEdYeF3K5Rhf+yVFC+2PKk0Iwyn/bc=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR08MB6191
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Lyude and Jonathan,
 
-I was just about to reply and suggest that we look into this issue a =
-little more since the touchpad in the L440 would benefit from the =
-additional data from the intertouch interface. Especially, since it has =
-a large area and several buttons. PS/2 only reports position data for =
-two fingers so three finger gestures is another example.
+On 03.04.23 14:47, Javier Carrasco wrote:
+> The st1232 touchscreen provides an interrupt line that can be configured
+> as a wakeup source, and currently it is possible to use this mechanism in
+> "Suspend to RAM" and "Hibernate" power states.
+> 
+> Unfortunately, that does not work in "Suspend to idle" (freeze) because
+> the device driver disables the interrupts in its suspend callback.
+> Given that the interrupt handling prior to entering the mentioned power
+> state modes is managed by the power subsystem, the irq enabling/disabling
+> can be removed from the touchscreen driver, allowing the device to work
+> as a wakeup source in "Suspend to idle".
+> 
+> Given that the st1232 device driver does not reflect its wakeup events
+> in sysfs, this series also adds pm_wakeup_event to the interrupt
+> handler.
+> 
+> These changes have been successfully tested with an ST1624-N32C and a
+> Rockchip-based platform.
+> 
+> Javier Carrasco (2):
+>    Input: st1232 - remove enable/disable irq in resume/suspend callbacks
+>    Input: st1232 - add wake up event counting
+> 
+>   drivers/input/touchscreen/st1232.c | 17 +++++++++++++++--
+>   1 file changed, 15 insertions(+), 2 deletions(-)
+> 
 
-Generally, these types of suspend / resume issues are the result of the =
-touchpad resetting and the firmware expecting commands from the PS/2 =
-interface. On resume, the PS/2 driver should send a command over the =
-PS/2 interface to switch the touchpad firmware back into intertouch =
-(SMBus) mode. The logs you provided look like that's what is happening =
-here. The SMBus driver is sending commands, but the touchpad firmware =
-won't respond until it is switch back into intertouch mode. It has been =
-a while since I have worked on these touchpads, but from what I remember =
-I think there is code in the psmouse-smbus driver to handle these =
-situations. I added Benjamin Tissoires to CC since I think he worked on =
-that handling. I thought suspend / resume was tested on with these "top =
-button" touchpads when support for them was added. I don't know if the =
-L440 specifically included in the testing. I'm curious if this is a =
-regression or not.
+Hi, I submitted this series 2 weeks ago and given that I did not get any 
+feedback yet, I would like to make sure that the patches arrived in the 
+right lists and if so, that they are "queued for review" and I just have 
+to wait, which would be indeed alright.
 
-Regarding the patch, I do have one comment below:
-
-> On Apr 17, 2023, at 11:52, Jonathan Denose <jdenose@chromium.org> =
-wrote:
->=20
-> CAUTION: Email originated externally, do not click links or open =
-attachments unless you recognize the sender and know the content is =
-safe.
->=20
->=20
-> Sorry, I thought I sent this as plain text but I think maybe not.
-> Trying once more, the message was:
->=20
-> I think that disabling synaptics_intertouch would resolve the issue
-> mentioned in the commit, but cause a regression in the functionality
-> that intertouch is supposed to bring, like three-finger gestures. I'm
-> attaching some of the logs that I captured when the touchpad was
-> failing on resume. I think the main culprit is
-> i2c_smbus_read_byte_data where the driver is unable to get the SMBus
-> version number. I get the following lines in dmesg:
->=20
-> [ 2869.745860] rmi4_smbus 0-002c: failed to get SMBus version number!
-> [ 2869.746060] rmi4_physical rmi4-00: rmi_driver_reset_handler: Failed
-> to read current IRQ mask.
-> [ 2869.746260] rmi4_f01 rmi4-00.fn01: Failed to restore normal =
-operation: -6.
-> [ 2869.746262] rmi4_f01 rmi4-00.fn01: Resume failed with code -6.
-> [ 2869.746264] rmi4_physical rmi4-00: Failed to suspend functions: -6
-> [ 2869.746265] rmi4_smbus 0-002c: Failed to resume device: -6
-> [ 2869.746268] rmi4_smbus 0-002c: rmi_smb_resume+0x0/0x6b [rmi_smbus]
-> returned 0 after 549 usecs
-> [ 2869.746446] rmi4_physical rmi4-00: Failed to read irqs, code=3D-6
->=20
-> Any ideas on what might be causing this, only on resume from deep =
-sleep?
->=20
->=20
-> On Mon, Apr 17, 2023 at 1:47=E2=80=AFPM Jonathan Denose =
-<jdenose@chromium.org> wrote:
->>=20
->> I think that disabling synaptics_intertouch would resolve the issue =
-mentioned in the commit, but cause a regression in the functionality =
-that intertouch is supposed to bring, like three-finger gestures. I'm =
-attaching some of the logs that I captured when the touchpad was failing =
-on resume. I think the main culprit is i2c_smbus_read_byte_data where =
-the driver is unable to get the SMBus version number. I get the =
-following lines in dmesg:
->>=20
->> [ 2869.745860] rmi4_smbus 0-002c: failed to get SMBus version number!
->> [ 2869.746060] rmi4_physical rmi4-00: rmi_driver_reset_handler: =
-Failed to read current IRQ mask.
->> [ 2869.746260] rmi4_f01 rmi4-00.fn01: Failed to restore normal =
-operation: -6.
->> [ 2869.746262] rmi4_f01 rmi4-00.fn01: Resume failed with code -6.
->> [ 2869.746264] rmi4_physical rmi4-00: Failed to suspend functions: -6
->> [ 2869.746265] rmi4_smbus 0-002c: Failed to resume device: -6
->> [ 2869.746268] rmi4_smbus 0-002c: rmi_smb_resume+0x0/0x6b [rmi_smbus] =
-returned 0 after 549 usecs
->> [ 2869.746446] rmi4_physical rmi4-00: Failed to read irqs, code=3D-6
->>=20
->> Any ideas on what might be causing this, only on resume from deep =
-sleep?
->>=20
->>=20
->> On Fri, Apr 14, 2023 at 11:41=E2=80=AFAM Jonathan Denose =
-<jdenose@chromium.org> wrote:
->>>=20
->>> When intertouch is enabled for the L440 a (deep)sleep/resume
->>> cycle causes the touchpad driver to hang which causes the
->>> touchpad to become unresponsive. Disable intertouch resolves
->>> this issue and the touchpad is fine after resume from sleep.
->>>=20
->>> Additionally, when the PNP id for the L440 is only removed
->>> from the topbuttonpad_pnp_ids list, a message is logged to
->>> enable psmouse.synaptics_intertouch, which would cause the
->>> sleep/resume issue again. By removing the PNP id from
->>> topbutton_pnp_ids and then adding it to the
->>> forcepad_pnp_ids array, intertouch is disabled and the
->>> message is not logged.
->>>=20
->>> Signed-off-by: Jonathan Denose <jdenose@google.com>
->>> ---
->>>=20
->>> Changes in v2:
->>> - remove debug statement
->>>=20
->>> drivers/input/mouse/synaptics.c | 2 +-
->>> 1 file changed, 1 insertion(+), 1 deletion(-)
->>>=20
->>> diff --git a/drivers/input/mouse/synaptics.c =
-b/drivers/input/mouse/synaptics.c
->>> index fa021af8506e4..b7218b7652c20 100644
->>> --- a/drivers/input/mouse/synaptics.c
->>> +++ b/drivers/input/mouse/synaptics.c
->>> @@ -150,7 +150,6 @@ static const char * const topbuttonpad_pnp_ids[] =
-=3D {
->>>        "LEN2001", /* Edge E431 */
->>>        "LEN2002", /* Edge E531 */
->>>        "LEN2003",
->>> -       "LEN2004", /* L440 */
->>>        "LEN2005",
->>>        "LEN2006", /* Edge E440/E540 */
->>>        "LEN2007",
->>> @@ -198,6 +197,7 @@ static const char * const smbus_pnp_ids[] =3D {
->>> static const char * const forcepad_pnp_ids[] =3D {
->>>        "SYN300D",
->>>        "SYN3014",
->>> +       "LEN2004", /* L440 */
-
-While this does seem to elliminate the message, the touchpad in the L440 =
-is not a forcepad. Adding the L440 PnP ID here implies that it is one of =
-these special forcepads which reports "force" data for contacts and that =
-is not the case here.
-
->>>        NULL
->>> };
->>>=20
->>> =E2=80=94
->>> 2.39.2
->>>=20
-
-
-Andrew
-
+Thanks and best regards.

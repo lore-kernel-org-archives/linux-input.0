@@ -2,71 +2,95 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E518C7618E
-	for <linux-input@archiver.kernel.org>; Thu, 20 Apr 2023 22:51:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F20FC77B73
+	for <linux-input@archiver.kernel.org>; Fri, 21 Apr 2023 02:36:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232552AbjDTWvc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 20 Apr 2023 18:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35966 "EHLO
+        id S233370AbjDUCgH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 20 Apr 2023 22:36:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230304AbjDTWvb (ORCPT
+        with ESMTP id S231889AbjDUCgG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Apr 2023 18:51:31 -0400
-Received: from smtprelay06.ispgateway.de (smtprelay06.ispgateway.de [80.67.18.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1AB32705;
-        Thu, 20 Apr 2023 15:51:30 -0700 (PDT)
-Received: from [92.206.161.29] (helo=note-book.lan)
-        by smtprelay06.ispgateway.de with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <git@apitzsch.eu>)
-        id 1ppbRl-0006yb-O2; Thu, 20 Apr 2023 23:04:05 +0200
-From:   =?utf-8?q?Andr=C3=A9_Apitzsch?= <git@apitzsch.eu>
-Subject: [PATCH RESEND v2 0/2] Input: atmel_mxt_ts - support capacitive
- keys
-Date:   Thu, 20 Apr 2023 23:03:49 +0200
-Message-Id: <20230407-atmel_keys-v2-0-e7b016886109@apitzsch.eu>
+        Thu, 20 Apr 2023 22:36:06 -0400
+Received: from endrift.com (endrift.com [173.255.198.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9BE33A92
+        for <linux-input@vger.kernel.org>; Thu, 20 Apr 2023 19:36:02 -0700 (PDT)
+Received: from [192.168.0.22] (unknown [50.47.218.115])
+        by endrift.com (Postfix) with ESMTPSA id 780A6A269;
+        Thu, 20 Apr 2023 19:36:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=endrift.com; s=2020;
+        t=1682044561; bh=a+m0eRsBoFr2HZkm/cBaRCRA2ZGa4lexDy6d9e4s+ec=;
+        h=Date:To:From:Subject:Cc:From;
+        b=ukeZmxJizl98oczwS1FmBdEd6lnpYHxJ1z7CkUw6sGi4SWsrWluK/5ZhfSP0xZtI3
+         U+/n+n7JOdNupU80v306yWW+H9qKU481YTVWjSdxVi/zkMNFM9RhAwzi+lPZRYv3RP
+         oo1X+vWxiL3PPNUzCKonZdpknAm6z+r1o3Z6oqTL5PYgz9KQF/tihcLN8dBykqYMQb
+         8uNINb97ZwWWI9qkTEn0SoXt9WqN0F2t3o8i5eal1mFFchvb5BU1QLbYqilgTh5Lkh
+         RPNwkyZOcsTsqr05C5OG07OnRY0Tqzvzy9cWV1sMS/rk0oExJQ2thbLAlh+C8b1leV
+         tr3KZZXaqZtVw==
+Message-ID: <a3b1f768-27e9-c9d5-ad2c-c56a48522d41@endrift.com>
+Date:   Thu, 20 Apr 2023 19:36:00 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-To:     Nick Dyer <nick@shmanahar.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Linus Walleij <linus.walleij@linaro.org>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        =?utf-8?q?Andr=C3=A9_Apitzsch?= <git@apitzsch.eu>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-X-Mailer: b4 0.12.2
-X-Df-Sender: YW5kcmVAYXBpdHpzY2guZXU=
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.10.0
+Content-Language: en-US
+To:     "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+From:   Vicki Pfau <vi@endrift.com>
+Subject: Proposal: Add a means to disable kernel driver logic when associated
+ hidraw is opened
+Cc:     Pierre-Loup Griffais <pgriffais@valvesoftware.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support for touch keys found in some Atmel touch controller
-configurations.
+Hello,
 
-Signed-off-by: André Apitzsch <git@apitzsch.eu>
----
-Changes in v2:
-  * Added A-b, R-b tags
+Following up on a conversation from last year (cf. https://lore.kernel.or=
+g/linux-input/CAO-hwJLfY+D0NyCUCncrjcXETKwOBqj1CuHtB_mtGhYfKV0Bww@mail.gm=
+ail.com/) about how to approach differing opinions about how drivers shou=
+ld work between userspace and kernel, we're looking for a way to effectiv=
+ely stop the kernel from doing anything "smart" with a a HID device, e.g.=
+ a hid-sony device, when the associated hidraw is opened. At the moment, =
+we have a specialized daemon that will find the mouse evdev associated wi=
+th the controller when it's created and inhibit it, but this is anything =
+but ideal and only handles the mouse itself, not the kernel logic in gene=
+ral. You can also see the hackish way this is implemented in the hid-stea=
+m driver, which uses an intermediary hid ll_driver to intercept the open =
+and close commands and stop passing data if the hidraw gets opened. I con=
+sider this implementation to be very much a hack and an anti-pattern, and=
+ I think other HID implementers would agree, but I'm not sure there's a c=
+leaner way to detect this in the kernel at the moment.
 
----
-André Apitzsch (2):
-      dt-bindings: input: atmel,maxtouch: add linux,keycodes
-      Input: atmel_mxt_ts - support capacitive keys
+I see a bit of a difference of opinion as to what should be happening her=
+e between developers on our end and the kernel end. Our position is "we h=
+ave a userspace driver that does everything we want, we'd like the kernel=
+ to stop trying to be smart when our driver is active", and I expect the =
+kernel developer opinion is "why should you have a userspace driver at al=
+l when our kernel driver is fine, and if it's not you can upstream patche=
+s?", so there's probably some need to find a middle ground if we want thi=
+ngs to work well for users in the end.
 
- .../devicetree/bindings/input/atmel,maxtouch.yaml  |  7 ++
- drivers/input/touchscreen/atmel_mxt_ts.c           | 85 ++++++++++++++++++++++
- 2 files changed, 92 insertions(+)
----
-base-commit: f2afccfefe7be1f7346564fe619277110d341f9b
-change-id: 20230407-atmel_keys-7a49c6b677b2
+We'd previously discussed an ioctl for the hidraw, or perhaps an eBPF app=
+roach, though I think at the time of that discussion, eBPF wasn't mature =
+for the HID subsystem. I don't know the current state of that, or if it's=
+ possible to do this with just write access to the hidraw device (the ide=
+al case for how we want to handle this--root is pretty much out of the qu=
+estion for an "ideal case"). Since we still don't have a good answer for =
+this, as far as I'm aware, I'd like to try to reach an approach that's am=
+icable for both sides.
 
-Best regards,
--- 
-André Apitzsch <git@apitzsch.eu>
+I know that the ioctl approach meant having to introduce logic for progra=
+ms in userspace, but in this specific case, and possibly others, that's a=
+ctually what we're looking for. Further, the reason root is out is becaus=
+e Steam isn't the OS (in most cases), and we want this to only happen whe=
+n Steam is running. Having to run a daemon as root underneath Steam would=
+ require something like a setuid binary or custom sudo/polkit rules, whic=
+h of course need root to set up anyway. So while eBPF may fit some use ca=
+ses, e.g. full control over the system via DE or systemd, etc, it's not w=
+hat we're looking for here.
 
+Does anyone have opinions on how to proceed from here?
+
+Vicki

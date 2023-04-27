@@ -2,35 +2,35 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C7F3C7EE22
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B52DBC7EE25
 	for <linux-input@archiver.kernel.org>; Thu, 27 Apr 2023 20:35:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344283AbjD0Ue6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Apr 2023 16:34:58 -0400
+        id S1344284AbjD0Ue7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Apr 2023 16:34:59 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344266AbjD0Ue4 (ORCPT
+        with ESMTP id S1344257AbjD0Uez (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Apr 2023 16:34:56 -0400
+        Thu, 27 Apr 2023 16:34:55 -0400
 Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7258D3C07;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78FA43C16;
         Thu, 27 Apr 2023 13:34:54 -0700 (PDT)
 Received: from [192.168.178.23] (unknown [62.108.10.64])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 2135FC76A8;
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id C09CDCEC29;
         Thu, 27 Apr 2023 20:34:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1682627692; bh=XjGdRhsmtUEv3bL4pUwAXfQDROOKgUXLSYiUh/MFUrQ=;
+        t=1682627692; bh=u0OfrZ8JQA1K+eu8S043JANNKuvEBNwR1oXhG9a518k=;
         h=From:Date:Subject:References:In-Reply-To:To:Cc;
-        b=ZgHtK0UoWneELUdHO6tFQX/gYw6e0e5yN8l3Oe5UwMDXvg3YUVGb5+SjamFpOrmVV
-         Rh4DRAvt0gt3v1szg3AXT/3FgQIxs5NWpkMp+vCJWxNxqRv3iYe/TIrHx3kEjYcvxV
-         u0/UiMDOE5kf4Yqbo0BpJDw2B1AiK5bU1oYig0oc=
+        b=mV7fmCgl5zkebzcbzU1H4v++iAKjmTa2v7aq56EgSEyyzJ97V5M2XdGoXxdc5bB3l
+         WMkVXNQnlJKGtIew/BwWWRUR8pTxhnKNg8LfpmZ/X8jHlRbB7N4umQsvhsOousVKzV
+         ZpzI6N/ZteBxGLVMjzo5h/e2jfFHDgBAl4EoaV8s=
 From:   Luca Weiss <luca@z3ntu.xyz>
-Date:   Thu, 27 Apr 2023 22:34:26 +0200
-Subject: [PATCH 1/4] dt-bindings: input: pwm-vibrator: Add enable-gpio
+Date:   Thu, 27 Apr 2023 22:34:29 +0200
+Subject: [PATCH 4/4] ARM: dts: qcom: msm8974-hammerhead: Add vibrator
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230427-hammerhead-vibra-v1-1-e87eeb94da51@z3ntu.xyz>
+Message-Id: <20230427-hammerhead-vibra-v1-4-e87eeb94da51@z3ntu.xyz>
 References: <20230427-hammerhead-vibra-v1-0-e87eeb94da51@z3ntu.xyz>
 In-Reply-To: <20230427-hammerhead-vibra-v1-0-e87eeb94da51@z3ntu.xyz>
 To:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
@@ -46,47 +46,90 @@ Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         Luca Weiss <luca@z3ntu.xyz>
 X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=740; i=luca@z3ntu.xyz;
- h=from:subject:message-id; bh=XjGdRhsmtUEv3bL4pUwAXfQDROOKgUXLSYiUh/MFUrQ=;
- b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkStxkdAWfDnqz7TT/GzawAYKxSbg4VfTYvJYj3
- 9mZFU6UGb2JAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZErcZAAKCRBy2EO4nU3X
- VqD+EAC3ymL3raVAm5oHlfbA4tZF+cRBNV+pegJxIBpJoalzqCt7AW5ZK2vLhEe7iPVFp4Lzoi3
- FDTq3G9Eza2r6Nm8k7tgnRwWSAdpkG5yEWMVfFjgKkG3qUbsmxu2QOCkr4Z08OvZTv0LopyeHsy
- OY433yovFjEB21j5KAix4HRHFd1Ce01k4wOceHfWFSd4liia02jE8GBwBuOUYmlmY3FbCHFKn2X
- 9g3X9osAYzeiC2myDQ7+je6C5XaE/y8F40VxZsZx4xgVdI0jiUi9qyZow7//5EEwb2ljJlJagY1
- e2dXBY8czw5UtoKGZ09KUqeRUi3dS9mRRmt7iZhzHqGjXy7YPnffBvWm4oEDFiPFl0W9tFyipHe
- h3y8w+jx3Bhpmob4Fb6USpKxvyF/w0008gIGYPEiewNHhSA2ITsBHmj3jMG7f52cCSDO5VOdY4R
- 11YY2zSpVSClI9jfwvQLlPJT+TRPav+jsEuF2aXl9ahSKpTC37nZnW+rXbskAHP3LoGKZn12FU1
- haK3ztGRJDvCu3xu5pstp0vpI7+WMg7N9nxglV7c+h57Tb7wX0WehgfDZfNqlEs0+ThUNJivytF
- AMIQGcuC9Yhf5b+naYJ2IGkyDAOOpt1fq3ekDBXGpCiOT5SWbWeXzQcVJjyg7rsfl3jQquzEwf6
- yMQKVZPy2sU5GnQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1621; i=luca@z3ntu.xyz;
+ h=from:subject:message-id; bh=u0OfrZ8JQA1K+eu8S043JANNKuvEBNwR1oXhG9a518k=;
+ b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkStxqdiW+kWCefNLPPzqQpnvWWzkWAPLg7kJEW
+ kuWJkM6I++JAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZErcagAKCRBy2EO4nU3X
+ VhquEACXKd8YsE0/iZG3aV/sz4f2rfDYg2ZFsLJSkAmDG8FYnsH7qHaUf0AdidkoLUMrWGntbcJ
+ zzTCUvbyr7fNXKKZhFMW/Y5RQot/4L7zGviNsyVyw7L8apKqyAnskyWbkWxg32feNKHkp924Z3f
+ y0c2saXLto1l7SHskHaTPEohkM//l0gwcou+OcN3il4Iej3HvP5dQW7FOwcrGY4D82INL59x1Hz
+ WYXomaitIzGgwcl1Qgs3rYAopoHwUk/PZzE/DI142JFU0d+3Swb00I9XovXIml/yMWOIfbKB8tq
+ H8hl5Ja+z/v8FosPET5fAa6nZ7xtccXQXD/V1JC/C2puZhHGx3zfGjISuueILHpwyOMqZHo9QOl
+ sA2o+u4Fzb+/mcDEDruM4A/bvDIpryN2HVHLQbjAnt+TIg1/CdM1ApmKQxJ6rdQ/+GLeD/Y+jXZ
+ 2CFthrIKmZ9rxHtuj9Px40dXCRJelef5Hyw21V1XKbEET/lvrkwtTlM8StP5VlRhHpCKHLuAyvS
+ sCm/+3BXQnBoSd7mC+2m+B50OD4NdDErZe2eFW8max6E7GhN2bhtOmwg2EFPHjzPitVWgsX5t7z
+ 2MkVYKxlN20laGSY+Hqa+crLf968IMZr2cKH0I/IJfXOn/IIkungRbwBPIpRuaEUgkhTYaPBfP2
+ KTIbBaABkLs6UqQ==
 X-Developer-Key: i=luca@z3ntu.xyz; a=openpgp;
  fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some pwm vibrators have a dedicated enable GPIO that needs to be set
-high so that the vibrator works. Document that.
+The Nexus 5 has a vibrator connected to the clock output of GP1_CLK
+which we can use with the clk-pwm driver, then we can use that pwm with
+pwm-vibrator to get haptics functionality.
+
+This patch is based on Brian Masney's previous patch with clk-vibrator.
 
 Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
- Documentation/devicetree/bindings/input/pwm-vibrator.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ .../dts/qcom-msm8974-lge-nexus5-hammerhead.dts     | 35 ++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/pwm-vibrator.yaml b/Documentation/devicetree/bindings/input/pwm-vibrator.yaml
-index d32716c604fe..6398534b43c3 100644
---- a/Documentation/devicetree/bindings/input/pwm-vibrator.yaml
-+++ b/Documentation/devicetree/bindings/input/pwm-vibrator.yaml
-@@ -32,6 +32,8 @@ properties:
-     minItems: 1
-     maxItems: 2
+diff --git a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
+index ab35f2d644c0..fea8a6be9021 100644
+--- a/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
++++ b/arch/arm/boot/dts/qcom-msm8974-lge-nexus5-hammerhead.dts
+@@ -41,6 +41,25 @@ key-volume-down {
+ 		};
+ 	};
  
-+  enable-gpios: true
++	clk_pwm: pwm {
++		compatible = "clk-pwm";
++		clocks = <&mmcc CAMSS_GP1_CLK>;
 +
-   vcc-supply: true
++		pinctrl-0 = <&vibrator_pin>;
++		pinctrl-names = "default";
++
++		#pwm-cells = <2>;
++	};
++
++	vibrator {
++		compatible = "pwm-vibrator";
++		pwms = <&clk_pwm 0 100000>;
++		pwm-names = "enable";
++
++		vcc-supply = <&pm8941_l19>;
++		enable-gpios = <&tlmm 60 GPIO_ACTIVE_HIGH>;
++	};
++
+ 	vreg_wlan: wlan-regulator {
+ 		compatible = "regulator-fixed";
  
-   direction-duty-cycle-ns:
+@@ -637,6 +656,22 @@ shutdown-pins {
+ 			function = "gpio";
+ 		};
+ 	};
++
++	vibrator_pin: vibrator-state {
++		core-pins {
++			pins = "gpio27";
++			function = "gp1_clk";
++			drive-strength = <6>;
++			bias-disable;
++		};
++
++		enable-pins {
++			pins = "gpio60";
++			function = "gpio";
++			drive-strength = <2>;
++			bias-disable;
++		};
++	};
+ };
+ 
+ &usb {
 
 -- 
 2.40.0

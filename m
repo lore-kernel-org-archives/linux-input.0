@@ -2,134 +2,123 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 89E6AC7EE25
-	for <linux-input@archiver.kernel.org>; Thu, 27 Apr 2023 20:35:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C6AFC77B73
+	for <linux-input@archiver.kernel.org>; Thu, 27 Apr 2023 22:18:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344257AbjD0Ufr (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Apr 2023 16:35:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35486 "EHLO
+        id S1344150AbjD0WSI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Apr 2023 18:18:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344222AbjD0Ufp (ORCPT
+        with ESMTP id S229783AbjD0WSG (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Apr 2023 16:35:45 -0400
-Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2ED4EE2;
-        Thu, 27 Apr 2023 13:35:24 -0700 (PDT)
-Received: from [192.168.178.23] (unknown [62.108.10.64])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 89EF7CEB9B;
-        Thu, 27 Apr 2023 20:34:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1682627692; bh=6GdnfYGYIClKnqTCFJOePAiIDqCEBDJIJs44RnWeNMI=;
-        h=From:Date:Subject:References:In-Reply-To:To:Cc;
-        b=BM38CsTAC+YX33G+87YR05wbDvYb23JPCjo0lqbtV17DCJDM8X8RZLaIMtxKcs9Rw
-         WRz3Ta2BpFF5xlIpY/fivSlPJsRFxPyvvRMlIaqeZ5Mh0XCI7iApbWZ7JZlvbpicsy
-         /nYoorwoxCBHxFAVGCQVCsuFY/Tz8r3PtF6uX3q4=
-From:   Luca Weiss <luca@z3ntu.xyz>
-Date:   Thu, 27 Apr 2023 22:34:28 +0200
-Subject: [PATCH 3/4] Input: pwm-vibra - add support for enable GPIO
+        Thu, 27 Apr 2023 18:18:06 -0400
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E78FC30EE;
+        Thu, 27 Apr 2023 15:18:01 -0700 (PDT)
+Received: by mail-pg1-x52b.google.com with SMTP id 41be03b00d2f7-517c01edaaaso6686526a12.3;
+        Thu, 27 Apr 2023 15:18:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1682633881; x=1685225881;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wgxbPMJ7xUQDEudjDb2tgUkteEVXo/Z62mLiKg0b33g=;
+        b=Z5eao2yloeRGKjFH79FDobwF4GBZyz/El+hwcAktCg26P3OkFYrJ7nMe5ZQKD3tjVL
+         4NYP58f09Che6fBHQ+jJ3uCI56k+2WJvbSXb1sVp7bJkDb4EobiWttlTHa6zsSRipyol
+         07q/pm0WqBMYJIKszuGd6Cv7qK1/Y/h7ykBatvFSedb+ApiDXlrKZuUtXL4JtH9YbAHH
+         PBbc9iPZIPjyhZGX66vB5MMYF1/da+kQTop1ldLiL9/9U5daQVz6GJI35qEFaiFebxCe
+         XLkuroA89QMqM2vE2pjgSVnSO087ZoAq3jNsT+OY3XCRmXQ0ooaFg0KMQAq8n9bftrX7
+         ELgw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1682633881; x=1685225881;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=wgxbPMJ7xUQDEudjDb2tgUkteEVXo/Z62mLiKg0b33g=;
+        b=ROstWA5TkLtOOP/j03RqMruL9TxmCaysA3RPHPQaZoEv7Mlie3/1pUHVFmsVtx4XeZ
+         yxTBIQWz+SbpiTD2a3AEQKDN9n36YjcT0tFnmr3CUBhjtN9159PxqpJtq3KSsDA7A9w3
+         SoaHWmuHOWfj+BwK78q1PxGYh44eYeQlV6mDjX1etOEIvfsxEGqp9SaATvKY/SJe/a+N
+         Qg8qb09+gF3JYMheSbcBD1eKlDCmzgPX8NfH5lsWii64erxQGoyw+FvgEYp1b4HtjfOL
+         aXgA2xPJcWuXk9xgweKMOLi3jLPcBMzchsN3ecK3KrNwfazu1oRvX6qoCX64LT5GqK8P
+         KpEw==
+X-Gm-Message-State: AC+VfDyMtgDkkDGExL/1Z4S7LkMrEmljOKMg+jjRLOJ8k6pq0NsYuM7J
+        2d2XDKBSxrza9d1LZuA3NCQ=
+X-Google-Smtp-Source: ACHHUZ7eSWrluGbR6ecEaWglSsdJ5YgAKU4czFvJC0nJqJ9oXV0AJgk8++DPGgLfYyUxPo5udaVM/A==
+X-Received: by 2002:a17:902:f20b:b0:19f:3b86:4715 with SMTP id m11-20020a170902f20b00b0019f3b864715mr2916598plc.8.1682633881183;
+        Thu, 27 Apr 2023 15:18:01 -0700 (PDT)
+Received: from stbirv-lnx-1.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id w8-20020a1709027b8800b001a661000398sm12022783pll.103.2023.04.27.15.17.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Apr 2023 15:18:00 -0700 (PDT)
+From:   Doug Berger <opendmb@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Gergo Koteles <soyer@irl.hu>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Kees Cook <keescook@chromium.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Saravana Kannan <saravanak@google.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Doug Berger <opendmb@gmail.com>
+Subject: [RFC PATCH 0/3] input: gpio-keys - fix pm ordering
+Date:   Thu, 27 Apr 2023 15:16:22 -0700
+Message-Id: <20230427221625.116050-1-opendmb@gmail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230427-hammerhead-vibra-v1-3-e87eeb94da51@z3ntu.xyz>
-References: <20230427-hammerhead-vibra-v1-0-e87eeb94da51@z3ntu.xyz>
-In-Reply-To: <20230427-hammerhead-vibra-v1-0-e87eeb94da51@z3ntu.xyz>
-To:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Sebastian Reichel <sre@kernel.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Brian Masney <masneyb@onstation.org>
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        Luca Weiss <luca@z3ntu.xyz>
-X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2007; i=luca@z3ntu.xyz;
- h=from:subject:message-id; bh=6GdnfYGYIClKnqTCFJOePAiIDqCEBDJIJs44RnWeNMI=;
- b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkStxqKLWCk5HSYfAn/q5yapUULHi+KQnW6QcqU
- 51pZNACtoaJAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZErcagAKCRBy2EO4nU3X
- VkdDD/4/kj0m621vJLriUUkQ56LQdegmfkofZe7OHLc+QWGt81G53U5PdRd7p49dS0TDhooBOYM
- tNeg4wWAjcySxYfn7mIAVLLON9JPCdlO6s3SaG1ERe+T6JfmnjLWTnCN+vqP6kHZFM72KJCqjNC
- THlLjjVEC3QqBqiZyU7MDo9EDZ5ci0Dra8daI/7rGfJYhfK4Io3SU6nHpfQgSfGkjtZ2NelrWRQ
- qki789fAy4F7LTfNdGDwPixoaVSto3ILUAZisMl3+FnAhgTYOBbU/kZDc91A5sx1Qs/B4+AKryg
- 7LJJLXhj+qxm/TaQH6Jt8XIG7Ci6u6oRCqZauWJbcF5aNlsbvYdzqUB2LWBS/brzmDAgvB1TyM0
- matK94MSkmy9RMwaTSLBTXwKoRMqF5/hDnAKuJkt/NkfSzcJHcY79sPGB8oP4XVRSAq+NEq6wPx
- AdbIAhQSo9IMtN8IL53gRMhFmez3YJK1dMpaNmWvHNDNQ5gbSQvFqc8MWo0XtaI4sP6/d1qsEzf
- X4Fx047lSEK0vcUQ7I9nrhMLXJNqTwx5XoQ/v83jE+DHhz+bjqZUyNMUEAr4e00KP9SP90G/+sP
- ilXtQZ3xVlSQ+/fpcuuSV8AMERYnuRXsPODnO9xwgy0uMenqby57VD3GOfxx0STzUd6klW8VLFV
- 8zKb7kSFmESLnuA==
-X-Developer-Key: i=luca@z3ntu.xyz; a=openpgp;
- fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Some pwm vibrators have a dedicated enable GPIO that needs to be set
-high so that the vibrator works. Add support for that optionally.
+Commit 52cdbdd49853 ("driver core: correct device's shutdown
+order") allowed for proper sequencing of the gpio-keys device
+shutdown callbacks by moving the device to the end of the
+devices_kset list at probe which was delayed by child
+dependencies.
 
-Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
----
- drivers/input/misc/pwm-vibra.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+However, commit 722e5f2b1eec ("driver core: Partially revert
+"driver core: correct device's shutdown order"") removed this
+portion of that commit causing a reversion in the gpio-keys
+behavior which can prevent waking from shutdown.
 
-diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibra.c
-index c08971c97ad6..2ba035299db8 100644
---- a/drivers/input/misc/pwm-vibra.c
-+++ b/drivers/input/misc/pwm-vibra.c
-@@ -11,6 +11,7 @@
-  *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
-  */
- 
-+#include <linux/gpio/consumer.h>
- #include <linux/input.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
-@@ -23,6 +24,7 @@
- 
- struct pwm_vibrator {
- 	struct input_dev *input;
-+	struct gpio_desc *enable_gpio;
- 	struct pwm_device *pwm;
- 	struct pwm_device *pwm_dir;
- 	struct regulator *vcc;
-@@ -48,6 +50,8 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibrator)
- 		vibrator->vcc_on = true;
- 	}
- 
-+	gpiod_set_value_cansleep(vibrator->enable_gpio, 1);
-+
- 	pwm_get_state(vibrator->pwm, &state);
- 	pwm_set_relative_duty_cycle(&state, vibrator->level, 0xffff);
- 	state.enabled = true;
-@@ -80,6 +84,8 @@ static void pwm_vibrator_stop(struct pwm_vibrator *vibrator)
- 		pwm_disable(vibrator->pwm_dir);
- 	pwm_disable(vibrator->pwm);
- 
-+	gpiod_set_value_cansleep(vibrator->enable_gpio, 0);
-+
- 	if (vibrator->vcc_on) {
- 		regulator_disable(vibrator->vcc);
- 		vibrator->vcc_on = false;
-@@ -142,6 +148,16 @@ static int pwm_vibrator_probe(struct platform_device *pdev)
- 		return err;
- 	}
- 
-+	vibrator->enable_gpio = devm_gpiod_get_optional(&pdev->dev, "enable",
-+							GPIOD_OUT_LOW);
-+	err = PTR_ERR_OR_ZERO(vibrator->enable_gpio);
-+	if (err) {
-+		if (err != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Failed to request enable gpio: %d\n",
-+				err);
-+		return err;
-+	}
-+
- 	vibrator->pwm = devm_pwm_get(&pdev->dev, "enable");
- 	err = PTR_ERR_OR_ZERO(vibrator->pwm);
- 	if (err) {
+This RFC is an attempt to find a better solution for properly
+creating gpio-keys device links to ensure its suspend/resume and
+shutdown services are invoked before those of its suppliers.
+
+The first patch here is pretty brute force but simple and has
+the advantage that it should be easily backportable to the
+versions where the regression first occurred.
+
+The second patch is perhaps better in spirit though still a bit
+inelegant, but it can only be backported to versions of the
+kernel that contain the commit in its 'Fixes:' tag. That isn't
+really a valid 'Fixes:' tag since that commit did not cause the
+regression, but it does represent how far the patch could be
+backported.
+
+Both commits shouldn't really exist in the same kernel so the
+third patch reverts the first in an attempt to make that clear
+(though it may be a source of confusion for some).
+
+Hopefully someone with a better understanding of device links
+will see a less intrusive way to automatically capture these
+dependencies for parent device drivers that implement the
+functions of child node devices.
+
+Doug Berger (3):
+  input: gpio-keys - use device_pm_move_to_tail
+  input: gpio-keys - add device links of children
+  Revert "input: gpio-keys - use device_pm_move_to_tail"
+
+ drivers/input/keyboard/gpio_keys.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 -- 
-2.40.0
+2.34.1
 

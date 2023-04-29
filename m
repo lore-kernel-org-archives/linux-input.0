@@ -2,168 +2,124 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AAB79C7EE24
-	for <linux-input@archiver.kernel.org>; Sat, 29 Apr 2023 19:47:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 602B5C77B60
+	for <linux-input@archiver.kernel.org>; Sat, 29 Apr 2023 23:52:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230228AbjD2Trf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 29 Apr 2023 15:47:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37966 "EHLO
+        id S230149AbjD2XwV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 29 Apr 2023 19:52:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229517AbjD2Tre (ORCPT
+        with ESMTP id S229489AbjD2XwU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 29 Apr 2023 15:47:34 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB1B019A5;
-        Sat, 29 Apr 2023 12:47:33 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5651F60A49;
-        Sat, 29 Apr 2023 19:47:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 760CCC433EF;
-        Sat, 29 Apr 2023 19:47:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1682797652;
-        bh=e8JjaXVFrQ8bjiPlV9g5r1/UXbifNg5RQDzsZ5uNbuQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CLVySDqr+R1Fu/cU/fQEkQZfL2AAor/c6SvU3u0MIuqRAZjZVUvJYoIfHNscHMGbv
-         YvFcLoZUEgMh4fpZQ//sedCcPj9wGxSWLl4kwsE3HqmMlkUcF/S7VfXo5RX97E93w8
-         0lcCbrz7ewl1JZHmz/tVzCBCP02h/zMoFVfOEn3lZYaJJOKoFWiDI25qydcQSzz+lu
-         tWSkbiQR7vdkts+HIozP8vvT5Nq/XM4OkhJPwG7iNYOiFPzkRGrdDPv132ryNdRgCy
-         PwXXGa/OcA0L6KIbO+ZEdqPtADkgiS06YlgjNk0PZ9/j4pHKunCI2QgK+XO7PHtXEr
-         jz+yqTXeg4YmQ==
-Received: by mercury (Postfix, from userid 1000)
-        id 7905D1066F52; Sat, 29 Apr 2023 21:47:29 +0200 (CEST)
-Date:   Sat, 29 Apr 2023 21:47:29 +0200
-From:   Sebastian Reichel <sre@kernel.org>
-To:     Luca Weiss <luca@z3ntu.xyz>
-Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Brian Masney <masneyb@onstation.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org
-Subject: Re: [PATCH 3/4] Input: pwm-vibra - add support for enable GPIO
-Message-ID: <20230429194729.xuw7ircyuyabv32w@mercury.elektranox.org>
-References: <20230427-hammerhead-vibra-v1-0-e87eeb94da51@z3ntu.xyz>
- <20230427-hammerhead-vibra-v1-3-e87eeb94da51@z3ntu.xyz>
+        Sat, 29 Apr 2023 19:52:20 -0400
+Received: from hust.edu.cn (unknown [202.114.0.240])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1311CE77;
+        Sat, 29 Apr 2023 16:52:18 -0700 (PDT)
+Received: from [IPV6:2408:824e:f27:c8d0:b5a0:e060:d1d1:5cf4] ([172.16.0.254])
+        (user=dzm91@hust.edu.cn mech=PLAIN bits=0)
+        by mx1.hust.edu.cn  with ESMTP id 33TNnbMo019011-33TNnbMp019011
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO);
+        Sun, 30 Apr 2023 07:49:37 +0800
+Message-ID: <6e6efe2c-a916-eb5c-88a5-e9b099ca0d0b@hust.edu.cn>
+Date:   Sun, 30 Apr 2023 07:49:37 +0800
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="6dvciwmnygpyquuh"
-Content-Disposition: inline
-In-Reply-To: <20230427-hammerhead-vibra-v1-3-e87eeb94da51@z3ntu.xyz>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:102.0)
+ Gecko/20100101 Thunderbird/102.10.0
+Subject: Re: [syzbot] [usb?] general protection fault in xpad_probe
+To:     Alan Stern <stern@rowland.harvard.edu>,
+        syzbot <syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com>,
+        dmitry.torokhov@gmail.com
+Cc:     chaorace@gmail.com, dan.carpenter@linaro.org, error27@gmail.com,
+        gregkh@linuxfoundation.org,
+        hust-os-kernel-patches@googlegroups.com,
+        kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        matthias.benkmann@gmail.com, mkorpershoek@baylibre.com,
+        mudongliangabcd@gmail.com, nate@yocom.org,
+        pgriffais@valvesoftware.com, radon86dev@gmail.com,
+        rafael@kernel.org, rojtberg@gmail.com, s.demassari@gmail.com,
+        syzkaller-bugs@googlegroups.com, vi@endrift.com
+References: <00000000000083d76d05f909f716@google.com>
+ <0000000000007c3e1f05fa79d594@google.com>
+ <606e7f3a-8ad5-43b3-b3c9-e75aa0180e8a@rowland.harvard.edu>
+From:   Dongliang Mu <dzm91@hust.edu.cn>
+In-Reply-To: <606e7f3a-8ad5-43b3-b3c9-e75aa0180e8a@rowland.harvard.edu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-FEAS-AUTH-USER: dzm91@hust.edu.cn
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 
---6dvciwmnygpyquuh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 2023/4/30 02:09, Alan Stern wrote:
+> Dmitry:
+>
+> On Sat, Apr 29, 2023 at 06:47:43AM -0700, syzbot wrote:
+>> syzbot has found a reproducer for the following issue on:
+>>
+>> HEAD commit:    92e815cf07ed Add linux-next specific files for 20230428
+>> git tree:       linux-next
+>> console output: https://syzkaller.appspot.com/x/log.txt?x=104cb844280000
+>> kernel config:  https://syzkaller.appspot.com/x/.config?x=c8c8ae4d47d23592
+>> dashboard link: https://syzkaller.appspot.com/bug?extid=a3f758b8d8cb7e49afec
+>> compiler:       gcc (Debian 10.2.1-6) 10.2.1 20210110, GNU ld (GNU Binutils for Debian) 2.35.2
+>> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14a5408c280000
+>> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=10d3b0e4280000
+>>
+>> Downloadable assets:
+>> disk image: https://storage.googleapis.com/syzbot-assets/c9e94856e6c9/disk-92e815cf.raw.xz
+>> vmlinux: https://storage.googleapis.com/syzbot-assets/4c1c05a548a7/vmlinux-92e815cf.xz
+>> kernel image: https://storage.googleapis.com/syzbot-assets/2a1bff6a133b/bzImage-92e815cf.xz
+>>
+>> IMPORTANT: if you fix the issue, please add the following tag to the commit:
+>> Reported-by: syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com
+>>
+>> usb 1-1: config 0 has no interface number 0
+>> usb 1-1: New USB device found, idVendor=1949, idProduct=5e70, bcdDevice=d7.a2
+>> usb 1-1: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+>> usb 1-1: config 0 descriptor??
+>> usb 1-1: string descriptor 0 read error: -71
+>> general protection fault, probably for non-canonical address 0xdffffc0000000068: 0000 [#1] PREEMPT SMP KASAN
+>> KASAN: null-ptr-deref in range [0x0000000000000340-0x0000000000000347]
+>> CPU: 0 PID: 9 Comm: kworker/0:1 Not tainted 6.3.0-next-20230428-syzkaller #0
+>> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 04/14/2023
+>> Workqueue: usb_hub_wq hub_event
+>> RIP: 0010:dev_name include/linux/device.h:706 [inline]
+>> RIP: 0010:__dev_printk+0x3b/0x270 drivers/base/core.c:4863
+>> Code: f5 53 e8 c8 c3 6b fc 48 85 ed 0f 84 cb 01 00 00 e8 ba c3 6b fc 48 8d 7d 50 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 0f 85 d7 01 00 00 48 8b 5d 50 48 85 db 0f 84 b5 00 00
+>> RSP: 0018:ffffc900000e6f70 EFLAGS: 00010202
+>> RAX: dffffc0000000000 RBX: fffff5200001cdf5 RCX: 0000000000000000
+>> RDX: 0000000000000068 RSI: ffffffff85188a06 RDI: 0000000000000340
+>> RBP: 00000000000002f0 R08: 0000000000000005 R09: 0000000000000000
+>> R10: 00000000ffffffb9 R11: ffffffff81d6ff05 R12: ffffffff8ace98e0
+>> R13: ffffc900000e6fc8 R14: ffff88801ed25a64 R15: 0000000000000000
+>> FS:  0000000000000000(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+>> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>> CR2: 00007f1361dc1111 CR3: 00000000210fe000 CR4: 00000000003506f0
+>> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>> Call Trace:
+>>   <TASK>
+>>   _dev_warn+0xdc/0x120 drivers/base/core.c:4907
+>>   xpad_probe+0x197e/0x2020 drivers/input/joystick/xpad.c:2053
+>>   usb_probe_interface+0x30f/0x960 drivers/usb/core/driver.c:396
+> It looks like the problem is caused by commit db7220c48d8d ("Input:
+> xpad - fix support for some third-party controllers").  In the line
+>
+> 			dev_warn(&xpad->dev->dev,
 
-Hi,
+Hi Alan,
 
-On Thu, Apr 27, 2023 at 10:34:28PM +0200, Luca Weiss wrote:
-> Some pwm vibrators have a dedicated enable GPIO that needs to be set
-> high so that the vibrator works. Add support for that optionally.
->=20
-> Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
-> ---
+Vicki had prepared and sent a patch to fix this kernel bug. Please take 
+a look at the following threads[1][2].
 
-Reviewed-by: Sebastian Reichel <sre@kernel.org>
 
--- Sebastian
+[1] https://www.spinics.net/lists/linux-input/msg84905.html
 
->  drivers/input/misc/pwm-vibra.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
->=20
-> diff --git a/drivers/input/misc/pwm-vibra.c b/drivers/input/misc/pwm-vibr=
-a.c
-> index c08971c97ad6..2ba035299db8 100644
-> --- a/drivers/input/misc/pwm-vibra.c
-> +++ b/drivers/input/misc/pwm-vibra.c
-> @@ -11,6 +11,7 @@
->   *  Copyright (C) 2010, Lars-Peter Clausen <lars@metafoo.de>
->   */
-> =20
-> +#include <linux/gpio/consumer.h>
->  #include <linux/input.h>
->  #include <linux/kernel.h>
->  #include <linux/module.h>
-> @@ -23,6 +24,7 @@
-> =20
->  struct pwm_vibrator {
->  	struct input_dev *input;
-> +	struct gpio_desc *enable_gpio;
->  	struct pwm_device *pwm;
->  	struct pwm_device *pwm_dir;
->  	struct regulator *vcc;
-> @@ -48,6 +50,8 @@ static int pwm_vibrator_start(struct pwm_vibrator *vibr=
-ator)
->  		vibrator->vcc_on =3D true;
->  	}
-> =20
-> +	gpiod_set_value_cansleep(vibrator->enable_gpio, 1);
-> +
->  	pwm_get_state(vibrator->pwm, &state);
->  	pwm_set_relative_duty_cycle(&state, vibrator->level, 0xffff);
->  	state.enabled =3D true;
-> @@ -80,6 +84,8 @@ static void pwm_vibrator_stop(struct pwm_vibrator *vibr=
-ator)
->  		pwm_disable(vibrator->pwm_dir);
->  	pwm_disable(vibrator->pwm);
-> =20
-> +	gpiod_set_value_cansleep(vibrator->enable_gpio, 0);
-> +
->  	if (vibrator->vcc_on) {
->  		regulator_disable(vibrator->vcc);
->  		vibrator->vcc_on =3D false;
-> @@ -142,6 +148,16 @@ static int pwm_vibrator_probe(struct platform_device=
- *pdev)
->  		return err;
->  	}
-> =20
-> +	vibrator->enable_gpio =3D devm_gpiod_get_optional(&pdev->dev, "enable",
-> +							GPIOD_OUT_LOW);
-> +	err =3D PTR_ERR_OR_ZERO(vibrator->enable_gpio);
-> +	if (err) {
-> +		if (err !=3D -EPROBE_DEFER)
-> +			dev_err(&pdev->dev, "Failed to request enable gpio: %d\n",
-> +				err);
-> +		return err;
-> +	}
-> +
->  	vibrator->pwm =3D devm_pwm_get(&pdev->dev, "enable");
->  	err =3D PTR_ERR_OR_ZERO(vibrator->pwm);
->  	if (err) {
->=20
-> --=20
-> 2.40.0
->=20
+[2] https://groups.google.com/g/hust-os-kernel-patches/c/CQY-rdr4kqE
 
---6dvciwmnygpyquuh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmRNdFEACgkQ2O7X88g7
-+potRRAAg2GUd1xAFi2qWo6q8U06jcAOjWs69jFy3NS8lJ4c0cTmtkhjrC2uW+Fw
-Hl5Y6bFm4eV8XEVvAXqVn5NzvNqx3fLDkdVP2AVmKL4G8AzOG6Xrlf978PxUnvV9
-9aMkrLBlZHarbv0VnoQC7UIMPXeBOzj/Ayb8moUQaiEotC78SUK0vzxm3xXFnU2z
-leE4gLa8BHZIS6YqItpRcDXaHXLlL9qDznnPyKIR5Hc849lJrAKxpctpNZBtk98O
-E6JWdkvAW155Wq2sARC5UkZQj8N1Nuy3z3rGZuYXX+HhDJq2LxDx7s/H0lDwckrD
-EyByTorXCMGkfP+I9aTe8DHmy8OmFrlLJ0BfzMZdmTpbviVhz0bn0wf8H8wt2UQ8
-gSVImZQUi8LoMLKvqyMh92CoVP3jmGhxrFu0aZ2Po8kg8mY/ECGj/tJZeaZE7Tyf
-F6wSBjo0yHAGF5Mwg/We+Rvw4+EC7zCDU73rC3TkEzt7U5zbZbVGGGJTs1SAK8x2
-cHdO6AxPlXait8lWVLfjOxDIOeIPu4OBBKcNfF9Zggp2Zj2v0TiCLS/EbRlpDWLZ
-VKirYUfxf7dgtSgHoBWSGnemWuKtW6iZoFb3umNr6axhM6a0wnAclM/vNu++u0re
-DW1hLtVvmiDeiL/+YHbLUOuWmcwKgGFh6gH6AUlajaTxU0OH4x0=
-=hJCO
------END PGP SIGNATURE-----
-
---6dvciwmnygpyquuh--
+>
+> the xpad->dev ought to be xpad->udev.
+>
+> Alan Stern

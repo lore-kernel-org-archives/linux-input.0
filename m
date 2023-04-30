@@ -2,37 +2,39 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBE6BC7EE2A
-	for <linux-input@archiver.kernel.org>; Sun, 30 Apr 2023 18:21:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 167D5C77B7C
+	for <linux-input@archiver.kernel.org>; Sun, 30 Apr 2023 18:22:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231230AbjD3SVg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 30 Apr 2023 14:21:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36040 "EHLO
+        id S230235AbjD3SWM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 30 Apr 2023 14:22:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229556AbjD3SVf (ORCPT
+        with ESMTP id S230013AbjD3SWL (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 30 Apr 2023 14:21:35 -0400
+        Sun, 30 Apr 2023 14:22:11 -0400
 Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9171735;
-        Sun, 30 Apr 2023 11:21:34 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A72111BCB;
+        Sun, 30 Apr 2023 11:22:03 -0700 (PDT)
 Received: from [192.168.178.23] (unknown [62.108.10.64])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 941D2CEC7B;
-        Sun, 30 Apr 2023 18:21:32 +0000 (UTC)
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 685FECA164;
+        Sun, 30 Apr 2023 18:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1682878892; bh=EZ5Rl1sRU/1EQS0k2DDIMWm8qZwGVK/duzJDHMh9kC0=;
-        h=From:Date:Subject:References:In-Reply-To:To:Cc;
-        b=WADf2dd18dVdmfXoeHoeYASPOfcjoNL2GBf3mbQUfOU6BIZ/kmc/M8kK9eLNy3CLx
-         UrCklO1iH3o8nHiD2xJ3WRG0rbwfsr8ewLdjiEe6ztucoMkjpM6bZx3YAKUn6s4aXN
-         c8ZkDtbsw6q6tAZ3Vw37jitXWwig+OciR7oNxMJk=
+        t=1682878891; bh=EqCQmLnIkfv58mUVxR6jXSasRDJzVQotPjwU6fboKSc=;
+        h=From:Subject:Date:To:Cc;
+        b=GmGMwt3kCCu1el3ssohEaVoPdIB9JWRPPfbPDb5up6LdRM+XQnHANNS5zV6S+nw74
+         DmKJWaW1Ec79/NazLzggj8zLGeo3D83ttpAxFgjIx4vmchPeLKBYBRj92Isg1dHVAA
+         DlROko6TebF+4FnrgOys/195bmPgRARFaYKVKns4=
 From:   Luca Weiss <luca@z3ntu.xyz>
-Date:   Sun, 30 Apr 2023 20:20:56 +0200
-Subject: [PATCH 4/5] Input: drv260x - fix magnitude handling
+Subject: [PATCH 0/5] Improvements for drv260x driver and add to Huawei
+ Watch
+Date:   Sun, 30 Apr 2023 20:20:52 +0200
+Message-Id: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230430-drv260x-improvements-v1-4-1fb28b4cc698@z3ntu.xyz>
-References: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
-In-Reply-To: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
+X-B4-Tracking: v=1; b=H4sIAISxTmQC/x2NQQ6CMBAAv0L27JJSsKl+hXgoZZU9tMWuaTCEv
+ 1s8TjKT2UEoMwncmx0yFRZOsUJ3acAvLr4Iea4MWuleDb3CORdt1IYc1pwKBYofQdKdtbfBKX/
+ 1UNPJCeGUXfTLGb99ChgkWK0NmrZvv6e0Znry9n+Pj+P4AR51czqLAAAA
 To:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Dan Murphy <dmurphy@ti.com>, Andy Gross <agross@kernel.org>,
@@ -46,104 +48,61 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         Luca Weiss <luca@z3ntu.xyz>
 X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3279; i=luca@z3ntu.xyz;
- h=from:subject:message-id; bh=EZ5Rl1sRU/1EQS0k2DDIMWm8qZwGVK/duzJDHMh9kC0=;
- b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkTrGpFTH1r2XTDSQoOggy0k37nDYdgmhMHY8io
- +kbTgYBwjWJAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZE6xqQAKCRBy2EO4nU3X
- Vp7uD/wP8XraDh/XqKDzUTo1JaxFCo/o8Q3S3iSlvep48xHb2HU2/AHSnJNlT/6osYanqta5V4P
- fRJR3QKt2BzYtBPwyBvaJxyrlG0lG5b4Kzpm3TY/PPzVVcWYj+uF1GauyAB2OJOLL/UU9I4/HjF
- g0FCNKtEUL2oQkGazD323lcD9gRwhijP6625vM3Xrqan/MihHkH/k22gt2rRfsk9iTctXTNfxH2
- Q/i9gJwayvQUVD1uIfMw0glbEwjpcxVOpn1w9/rqeE2OstoS96cwkxkQUeOenFRbO1H0wmYRR2m
- ruTlRgNZwViC4fNKPfqJqcI5WounrCo3V5BGJOY3Xdv1FIXuuoZeImdCimK5Hr9uZTNDvcFeK66
- VnNDGzyZ/41cklfT4S8h56w4OTOsPG7sScUwI+WAF9sZbemdigPBtf1/LwArRxgM7l/vbOo5O5f
- fCeKFK8MWlIliML/I/xqiFpAoA6pZ8QZ5cCOpsYHvfrK6gKNsrkAIKC4fyHVlBS+4wjZDBSs6Mz
- DvmWTb+3mYuAmm0Y9WVFUI5vPMXizhJjGgeMlzXAayzxt/c751kTME6seR/0oLc/yeLJAjLGwt0
- uOQwoHptjTivwZX3b/IIylq1MDPzYLS5zJNLygRurNoIZ1Vj5oKPhmPmw6x/r9WovWGKWBe5UNG
- TdilpRwndiil81w==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1683; i=luca@z3ntu.xyz;
+ h=from:subject:message-id; bh=EqCQmLnIkfv58mUVxR6jXSasRDJzVQotPjwU6fboKSc=;
+ b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkTrGdv/cLH2J33SfjK8Myr2s/aw9qaNnCnITdU
+ 65i/sEjS2OJAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZE6xnQAKCRBy2EO4nU3X
+ VuqkEADEOh+K7+K/jc3ONnTXDDtsyQ8jx9efM7Fuu9ZvKd0p2PsIB/vdMJUwBPacQGQzb5u2smv
+ wYHeCAq7d0b4xi+pVvzD8AgCvwmunXAcDKef1tlOENSmbFD1sEYq+PpKPsdhVFvOrhhZo0WQZLb
+ mHkiGegM+U0QGNaNfPVu6qPUBbb6LwzQPY8XEf9RdsPLKRw59NaV6TEkGxBBNlGGOPdL7U0moqo
+ g1yJ2IMY1WVCcUc1Yp5Vm16NeLbtQmMfy4kjZqIAEjWo7REahShk3MXWcSJwsyDQYXjfqJAK2BT
+ TXcqQu9J0R3IFKHhX4SF2RuTH0yymuqNBqNK7VWd/MS+hXbfzWNHjDG0jJQAvy+JTJVNdfeDtUa
+ TaC0zH9CIkZlKmsFOTGaMHro7DzINlBMQe19sby9Wdddf/xoEqRc/DL9h4OGAEkNm+fznKltjKy
+ os3q4zo/FAJY1Ku7HRkUmjODoBnTG+kwqSJb/eeW01hsAIFFavpnrIq39p0rBVPQ5eIgIwVJ5Ql
+ HJDo8HDhmjS4eGpWr/F96gPEndmCDkdOkw6JI6ak60OdwKjXii1OWV6gF4EmxApH+bHRGajklzP
+ YQjtz+OgK0qr9H241AXbxJBd26IS5Jrz4IObUyQn6V/hl/R9WQ8/4rUj2k3uAygejLi7ID4CAkY
+ S+MfT4hjrG4GdSw==
 X-Developer-Key: i=luca@z3ntu.xyz; a=openpgp;
  fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-First of all, previously the 16-bit magnitude was written as-is to the
-device which actually discarded the upper 8 bits since the device has
-8-bit registers only. This meant that a strong_magnitude of 0xFF00 would
-result in 0. To correct this shift the strong_magnitude / weak_magnitude
-input values so we discard the lower 8 bits and keep the upper bits
-instead.
+Clean up some issues with the driver I've noticed while working on it,
+then fix the magnitude handling which previously resulted the driver
+discarding the upper 8 bits of the magnitude value, and finally we can
+add the drv260x to the APQ8026 Huawei Watch.
 
-Secondly the RTP mode that is used by default interprets the values as
-signed (2s complement), so 0x81 = 0%, 0x00 = 50%, 0x7F = 100%. This
-doesn't match the FF_RUMBLE interface at all, so let's tell the device
-to interpret the data as unsigned instead which gets us 0x00 = 0% and
-0xFF = 100%.
+While the "fix magnitude handling" commit technically changes behavior
+and could change behavior of existing user space applications that deal
+with this quirky behavior, it's definitely not correct and results in
+very unexpected behavior if the user space doesn't look out for it
+(meaning only use 0x00-0xFF magnitude, and also know that the magnitude
+was interpreted as signed value, see more details in the commit message
+there).
 
-As last change switch ERM to using "Closed-Loop Mode, Unidirectional"
-instead of "Open-Loop Mode" since it's recommended by the datasheet
-compared to open loop and better matches our use case of 0% - 100%
-vibration.
+There's currently only one other upstream user of the driver,
+qcom/msm8996-xiaomi-gemini where I've added the dts authors to this
+patch series (Raffaele & Yassine) and some tests on that device would be
+nice since it's operating in LRA mode, mine does in ERM mode.
 
 Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
- drivers/input/misc/drv260x.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+Luca Weiss (5):
+      Input: drv260x - fix typo in register value define
+      Input: drv260x - sleep between polling GO bit
+      Input: drv260x - remove unused .reg_defaults
+      Input: drv260x - fix magnitude handling
+      ARM: dts: qcom: apq8026-huawei-sturgeon: Add vibrator
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index a7e3120bdc13..f5e96b36acda 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -186,7 +186,7 @@ struct drv260x_data {
- 	struct work_struct work;
- 	struct gpio_desc *enable_gpio;
- 	struct regulator *regulator;
--	u32 magnitude;
-+	u8 magnitude;
- 	u32 mode;
- 	u32 library;
- 	int rated_voltage;
-@@ -237,10 +237,11 @@ static int drv260x_haptics_play(struct input_dev *input, void *data,
- 
- 	haptics->mode = DRV260X_LRA_NO_CAL_MODE;
- 
-+	/* Scale u16 magnitude into u8 register value */
- 	if (effect->u.rumble.strong_magnitude > 0)
--		haptics->magnitude = effect->u.rumble.strong_magnitude;
-+		haptics->magnitude = effect->u.rumble.strong_magnitude >> 8;
- 	else if (effect->u.rumble.weak_magnitude > 0)
--		haptics->magnitude = effect->u.rumble.weak_magnitude;
-+		haptics->magnitude = effect->u.rumble.weak_magnitude >> 8;
- 	else
- 		haptics->magnitude = 0;
- 
-@@ -266,7 +267,7 @@ static void drv260x_close(struct input_dev *input)
- 
- static const struct reg_sequence drv260x_lra_cal_regs[] = {
- 	{ DRV260X_MODE, DRV260X_AUTO_CAL },
--	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 },
-+	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_RTP_UNSIGNED_DATA },
- 	{ DRV260X_FEEDBACK_CTRL, DRV260X_FB_REG_LRA_MODE |
- 		DRV260X_BRAKE_FACTOR_4X | DRV260X_LOOP_GAIN_HIGH },
- };
-@@ -284,7 +285,7 @@ static const struct reg_sequence drv260x_lra_init_regs[] = {
- 		DRV260X_BEMF_GAIN_3 },
- 	{ DRV260X_CTRL1, DRV260X_STARTUP_BOOST },
- 	{ DRV260X_CTRL2, DRV260X_SAMP_TIME_250 },
--	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_ANALOG_IN },
-+	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_RTP_UNSIGNED_DATA | DRV260X_ANALOG_IN },
- 	{ DRV260X_CTRL4, DRV260X_AUTOCAL_TIME_500MS },
- };
- 
-@@ -299,7 +300,7 @@ static const struct reg_sequence drv260x_erm_cal_regs[] = {
- 	{ DRV260X_CTRL1, DRV260X_STARTUP_BOOST },
- 	{ DRV260X_CTRL2, DRV260X_SAMP_TIME_250 | DRV260X_BLANK_TIME_75 |
- 		DRV260X_IDISS_TIME_75 },
--	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_ERM_OPEN_LOOP },
-+	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_RTP_UNSIGNED_DATA },
- 	{ DRV260X_CTRL4, DRV260X_AUTOCAL_TIME_500MS },
- };
- 
+ arch/arm/boot/dts/qcom-apq8026-huawei-sturgeon.dts | 28 +++++++++++
+ drivers/input/misc/drv260x.c                       | 56 ++++------------------
+ 2 files changed, 37 insertions(+), 47 deletions(-)
+---
+base-commit: fa55d47c433364df7361fd4f9b169b5845b06914
+change-id: 20230430-drv260x-improvements-e218894a0c5c
 
+Best regards,
 -- 
-2.40.1
+Luca Weiss <luca@z3ntu.xyz>
 

@@ -2,203 +2,95 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C6D1C77B73
-	for <linux-input@archiver.kernel.org>; Sun, 30 Apr 2023 09:22:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50625C77B60
+	for <linux-input@archiver.kernel.org>; Sun, 30 Apr 2023 18:21:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbjD3JWa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 30 Apr 2023 05:22:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51996 "EHLO
+        id S230374AbjD3SVg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 30 Apr 2023 14:21:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230013AbjD3JW2 (ORCPT
+        with ESMTP id S229513AbjD3SVf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 30 Apr 2023 05:22:28 -0400
-Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767B12D5D
-        for <linux-input@vger.kernel.org>; Sun, 30 Apr 2023 02:22:24 -0700 (PDT)
-Received: by mail-lf1-x129.google.com with SMTP id 2adb3069b0e04-4efeea05936so1821643e87.2
-        for <linux-input@vger.kernel.org>; Sun, 30 Apr 2023 02:22:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1682846542; x=1685438542;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=9UX6W3UfSa5ZRp8RtlXOP3rbOwpTJRUHBAtacedapPA=;
-        b=K49pIBACcTBJG+8wY+XctIYgz9m7hvVAvkXHtirsNX1ThzYgORxbx9rX9y7bDg627F
-         mMW0TZh+HkrJYpQd/8zq04wIXaEtOWBVeIM4rn3TJpDH2yhr3bdhyiJyEh0qSVHqzi6d
-         2zs4vO4b+FCDUt5qIku+KLEstriZcrdvZc5AbUuu1WV9UdovzGC3PFvs+t3i6seXaqnY
-         p0sQi4CwZkttlYGoa39lFp5VY8koR9AYKxXsRiSE6t8MRXXVPyLT9ALlm51k6z0Bx7ly
-         FwwJ198X1DrVW3P1xrYn15boUZNNeZcFV7xIERKC4JRjleyhnWFOw55+3ygY3FV+5GEw
-         PhtA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1682846542; x=1685438542;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=9UX6W3UfSa5ZRp8RtlXOP3rbOwpTJRUHBAtacedapPA=;
-        b=eO/gD0pdksIXfqfIMfewo464MUK107EX6sk4r/dG8PDMauh6pwZ90EA8xAnxGxrNM9
-         pm602lgxQzfwmrIWCqmUVAlcxVY4VX5Sn1ZgAF5RgDNSDb6D589sKaZa7KKq4QJTRgvZ
-         plVVyNeWriBgiFvDfNnfk6Z7J+Ph3Rph1Dztf7kTycA+sTBuncIJDr3QVuRmy14tzu/z
-         BH/PSDh2mK+ToxCWXyWVAjCK4lFIKVCqI30+U7cQaX9OR6Zfa53LxLLqDKIb9diJcpTy
-         pZwJ9iTuGQoJsaDkp/wMYixQNLsL1Ya+l7qlFK6x9To4tN5r21ea6nXUvobVoeadlzMq
-         TsHw==
-X-Gm-Message-State: AC+VfDx8g7hepZDllVvPIZ8rHa7yf8CJ1B+wTp5aWFMYkaRAtIM1ihSW
-        JuTkqJ5xY1TjxWjqrTG6U5Ml+g==
-X-Google-Smtp-Source: ACHHUZ5i1Hj12zld7832+ke0HKZEkcsm8zXYiACzaklV8NXfluT1ZrnmFfA5iGMDU41OJkgYcqf1fQ==
-X-Received: by 2002:ac2:51ae:0:b0:4ea:fabb:4db1 with SMTP id f14-20020ac251ae000000b004eafabb4db1mr2646875lfk.1.1682846542681;
-        Sun, 30 Apr 2023 02:22:22 -0700 (PDT)
-Received: from [127.0.1.1] ([85.235.12.238])
-        by smtp.gmail.com with ESMTPSA id o2-20020a05651238a200b004ec62d9a7f9sm4077327lft.62.2023.04.30.02.22.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 30 Apr 2023 02:22:22 -0700 (PDT)
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sun, 30 Apr 2023 11:22:19 +0200
-Subject: [PATCH 4/4] ARM: omap1: Fix up the Nokia 770 board device IRQs
+        Sun, 30 Apr 2023 14:21:35 -0400
+Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB6F1728;
+        Sun, 30 Apr 2023 11:21:34 -0700 (PDT)
+Received: from [192.168.178.23] (unknown [62.108.10.64])
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 09A17CEB83;
+        Sun, 30 Apr 2023 18:21:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=z3ntu.xyz; s=z3ntu;
+        t=1682878892; bh=2KDm+MfmQDPFzRhM3HuRPWRDE4x8ieq6b/WlHIl9jK0=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc;
+        b=YfpFwhRy8QJv97qougAH4t8sLJG+/Am0Bumbrt96VeHjGjj/Q/aOmWplSHNW46q+k
+         RmaBlZlNEjjOai+CABQNobYyORT/0tZmBKcizGdcODdARBXmZk1agFmc+CjnLRWQXa
+         JUXlnkHaWY24939X13CqV3E0yCFqbNeb75hq4njI=
+From:   Luca Weiss <luca@z3ntu.xyz>
+Date:   Sun, 30 Apr 2023 20:20:54 +0200
+Subject: [PATCH 2/5] Input: drv260x - sleep between polling GO bit
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230430-nokia770-regression-v1-4-97704e36b094@linaro.org>
-References: <20230430-nokia770-regression-v1-0-97704e36b094@linaro.org>
-In-Reply-To: <20230430-nokia770-regression-v1-0-97704e36b094@linaro.org>
-To:     Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Russell King <linux@armlinux.org.uk>,
-        Daniel Mack <daniel@zonque.org>,
-        Haojian Zhuang <haojian.zhuang@gmail.com>,
-        Robert Jarzmik <robert.jarzmik@free.fr>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+Message-Id: <20230430-drv260x-improvements-v1-2-1fb28b4cc698@z3ntu.xyz>
+References: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
+In-Reply-To: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
+To:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Andreas Kemnade <andreas@kemnade.info>,
-        Helge Deller <deller@gmx.de>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-spi@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-mmc@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
-X-Mailer: b4 0.12.1
+        Dan Murphy <dmurphy@ti.com>, Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Raffaele Tranquillini <raffaele.tranquillini@gmail.com>,
+        Yassine Oudjana <y.oudjana@protonmail.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        Luca Weiss <luca@z3ntu.xyz>
+X-Mailer: b4 0.12.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=830; i=luca@z3ntu.xyz;
+ h=from:subject:message-id; bh=2KDm+MfmQDPFzRhM3HuRPWRDE4x8ieq6b/WlHIl9jK0=;
+ b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkTrGnuoEsRTAkX895HNLQSK31eIpbRae/YptSw
+ 7CkOkDUZH6JAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZE6xpwAKCRBy2EO4nU3X
+ Vp5qEACtdUzv1B33TViLXCnVQagZdBhCzFgGnvNikuW5vMJOjg7aSJA8Aa1S0a5t5B5YOToCbCM
+ QK2Sj28kuCYDnxaiFpfUL9Ip75zq4oM9dUudZ6VCmk0lEHs/ZXQQQYBiR/YcMzJ7yJsOXrMHPBk
+ BmNPiU+SvcJrS69TPRDRmCUalgaiT/vpeynwcoSy4LDKLccTNYplmGrciXXERhQ7BF1inK/fz/w
+ E8a4L4OWYuHpNqxSDAHsvw3jnE+Pk8GpGSJgO8Oivsr3yEUF7Qyt88EH5G8DiFKAScLaqabMDC1
+ HZIHs8pOgzz1mXKBB33DxYvS6j05WSYfKge0kFl0JVNasl4pK+DsnH1E5Q7+mFR6MqR9/+Xyyaf
+ c7YeJwQlHXVAkPLm5A++c1wa5fmrMQEQgRMXY2ulEFvPZtfAaxcEZNOsIoPTjphPSLxJRdCzKrW
+ KKUiem/rSn7IA6JdicfnMaySANKDSw0DL1zx0s8zW9CHt2v7+eQpnU2ErBALMzvvqqEtU0IdusZ
+ FJwBvZAcVxNHWXLiLTsh7mS7i4zgynKjLbeae4u2+bzS2uxulMh9Xbn/Tm6Lx98eTS52wjo6wA+
+ V+7gKdPES8S8Y8zPfUwba7+YUNi1D9d41Ve8On8O9i/8iakZlqzfOh9esI3L0G1ambMAIhr+R4P
+ bPfXMMt7GYldNMg==
+X-Developer-Key: i=luca@z3ntu.xyz; a=openpgp;
+ fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The platform devices on the Nokia 770 is using some
-board-specific IRQs that get statically assigned to platform
-devices in the boardfile.
+When doing the initial startup there's no need to poll without any
+delay and spam the I2C bus.
 
-This does not work with dynamic IRQ chip bases.
+Let's sleep 15ms between each attempt, which is the same time as used
+in the vendor driver.
 
-Utilize the NULL device to define some board-specific
-GPIO lookups and use these to immediately look up the
-same GPIOs, convert to IRQ numbers and pass as resources
-to the devices. This is ugly but should work.
-
-Fixes: 92bf78b33b0b ("gpio: omap: use dynamic allocation of base")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 7132fe4f5687 ("Input: drv260x - add TI drv260x haptics driver")
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
- arch/arm/mach-omap1/board-nokia770.c | 58 +++++++++++++++++++++++++++---------
- 1 file changed, 44 insertions(+), 14 deletions(-)
+ drivers/input/misc/drv260x.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/mach-omap1/board-nokia770.c b/arch/arm/mach-omap1/board-nokia770.c
-index 53a4a44d5f4a..18a63c5a3dee 100644
---- a/arch/arm/mach-omap1/board-nokia770.c
-+++ b/arch/arm/mach-omap1/board-nokia770.c
-@@ -6,8 +6,8 @@
-  */
- #include <linux/clkdev.h>
- #include <linux/irq.h>
--#include <linux/gpio.h>
- #include <linux/gpio/machine.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/kernel.h>
- #include <linux/init.h>
- #include <linux/mutex.h>
-@@ -227,21 +227,28 @@ static struct i2c_board_info nokia770_i2c_board_info_2[] __initdata = {
- 
- static void __init nokia770_cbus_init(void)
- {
--	const int retu_irq_gpio = 62;
--	const int tahvo_irq_gpio = 40;
--
--	if (gpio_request_one(retu_irq_gpio, GPIOF_IN, "Retu IRQ"))
--		return;
--	if (gpio_request_one(tahvo_irq_gpio, GPIOF_IN, "Tahvo IRQ")) {
--		gpio_free(retu_irq_gpio);
--		return;
-+	struct gpio_desc *d;
-+	int irq;
-+
-+	d = gpiod_get(NULL, "retu_irq", GPIOD_IN);
-+	if (IS_ERR(d)) {
-+		pr_err("Unable to get CBUS Retu IRQ GPIO descriptor\n");
-+	} else {
-+		irq = gpiod_to_irq(d);
-+		irq_set_irq_type(irq, IRQ_TYPE_EDGE_RISING);
-+		nokia770_i2c_board_info_2[0].irq = irq;
-+	}
-+	d = gpiod_get(NULL, "tahvo_irq", GPIOD_IN);
-+	if (IS_ERR(d)) {
-+		pr_err("Unable to get CBUS Tahvo IRQ GPIO descriptor\n");
-+	} else {
-+		irq = gpiod_to_irq(d);
-+		irq_set_irq_type(irq, IRQ_TYPE_EDGE_RISING);
-+		nokia770_i2c_board_info_2[1].irq = irq;
+diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
+index e95c4e775b5d..884d43eb4b61 100644
+--- a/drivers/input/misc/drv260x.c
++++ b/drivers/input/misc/drv260x.c
+@@ -435,6 +435,7 @@ static int drv260x_init(struct drv260x_data *haptics)
  	}
--	irq_set_irq_type(gpio_to_irq(retu_irq_gpio), IRQ_TYPE_EDGE_RISING);
--	irq_set_irq_type(gpio_to_irq(tahvo_irq_gpio), IRQ_TYPE_EDGE_RISING);
--	nokia770_i2c_board_info_2[0].irq = gpio_to_irq(retu_irq_gpio);
--	nokia770_i2c_board_info_2[1].irq = gpio_to_irq(tahvo_irq_gpio);
- 	i2c_register_board_info(2, nokia770_i2c_board_info_2,
- 				ARRAY_SIZE(nokia770_i2c_board_info_2));
-+
- 	gpiod_add_lookup_table(&nokia770_cbus_gpio_table);
- 	platform_device_register(&nokia770_cbus_device);
- }
-@@ -251,8 +258,25 @@ static void __init nokia770_cbus_init(void)
- }
- #endif /* CONFIG_I2C_CBUS_GPIO */
  
-+static struct gpiod_lookup_table nokia770_irq_gpio_table = {
-+	.dev_id = NULL,
-+	.table = {
-+		/* GPIO used by SPI device 1 */
-+		GPIO_LOOKUP("gpio-0-15", 15, "ads7846_irq",
-+			    GPIO_ACTIVE_HIGH),
-+		/* GPIO used for retu IRQ */
-+		GPIO_LOOKUP("gpio-48-63", 15, "retu_irq",
-+			    GPIO_ACTIVE_HIGH),
-+		/* GPIO used for tahvo IRQ */
-+		GPIO_LOOKUP("gpio-32-47", 8, "tahvo_irq",
-+			    GPIO_ACTIVE_HIGH),
-+	},
-+};
-+
- static void __init omap_nokia770_init(void)
- {
-+	struct gpio_desc *d;
-+
- 	/* On Nokia 770, the SleepX signal is masked with an
- 	 * MPUIO line by default.  It has to be unmasked for it
- 	 * to become functional */
-@@ -262,9 +286,15 @@ static void __init omap_nokia770_init(void)
- 	/* Unmask SleepX signal */
- 	omap_writew((omap_readw(0xfffb5004) & ~2), 0xfffb5004);
- 
-+	gpiod_add_lookup_table(&nokia770_irq_gpio_table);
- 	platform_add_devices(nokia770_devices, ARRAY_SIZE(nokia770_devices));
- 	gpiod_add_lookup_table(&nokia770_ads7846_gpio_table);
--	nokia770_spi_board_info[1].irq = gpio_to_irq(15);
-+
-+	d = gpiod_get(NULL, "ads7846_irq", GPIOD_IN);
-+	if (IS_ERR(d))
-+		pr_err("Unable to get ADS7846 IRQ GPIO descriptor\n");
-+	else
-+		nokia770_spi_board_info[1].irq = gpiod_to_irq(d);
- 	spi_register_board_info(nokia770_spi_board_info,
- 				ARRAY_SIZE(nokia770_spi_board_info));
- 	omap_serial_init();
+ 	do {
++		usleep_range(15000, 15500);
+ 		error = regmap_read(haptics->regmap, DRV260X_GO, &cal_buf);
+ 		if (error) {
+ 			dev_err(&haptics->client->dev,
 
 -- 
-2.34.1
+2.40.1
 

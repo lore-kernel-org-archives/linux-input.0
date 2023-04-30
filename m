@@ -2,35 +2,35 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50625C77B60
-	for <linux-input@archiver.kernel.org>; Sun, 30 Apr 2023 18:21:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBE6BC7EE2A
+	for <linux-input@archiver.kernel.org>; Sun, 30 Apr 2023 18:21:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230374AbjD3SVg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S231230AbjD3SVg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sun, 30 Apr 2023 14:21:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36038 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229513AbjD3SVf (ORCPT
+        with ESMTP id S229556AbjD3SVf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Sun, 30 Apr 2023 14:21:35 -0400
 Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AB6F1728;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E9171735;
         Sun, 30 Apr 2023 11:21:34 -0700 (PDT)
 Received: from [192.168.178.23] (unknown [62.108.10.64])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 09A17CEB83;
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 941D2CEC7B;
         Sun, 30 Apr 2023 18:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1682878892; bh=2KDm+MfmQDPFzRhM3HuRPWRDE4x8ieq6b/WlHIl9jK0=;
+        t=1682878892; bh=EZ5Rl1sRU/1EQS0k2DDIMWm8qZwGVK/duzJDHMh9kC0=;
         h=From:Date:Subject:References:In-Reply-To:To:Cc;
-        b=YfpFwhRy8QJv97qougAH4t8sLJG+/Am0Bumbrt96VeHjGjj/Q/aOmWplSHNW46q+k
-         RmaBlZlNEjjOai+CABQNobYyORT/0tZmBKcizGdcODdARBXmZk1agFmc+CjnLRWQXa
-         JUXlnkHaWY24939X13CqV3E0yCFqbNeb75hq4njI=
+        b=WADf2dd18dVdmfXoeHoeYASPOfcjoNL2GBf3mbQUfOU6BIZ/kmc/M8kK9eLNy3CLx
+         UrCklO1iH3o8nHiD2xJ3WRG0rbwfsr8ewLdjiEe6ztucoMkjpM6bZx3YAKUn6s4aXN
+         c8ZkDtbsw6q6tAZ3Vw37jitXWwig+OciR7oNxMJk=
 From:   Luca Weiss <luca@z3ntu.xyz>
-Date:   Sun, 30 Apr 2023 20:20:54 +0200
-Subject: [PATCH 2/5] Input: drv260x - sleep between polling GO bit
+Date:   Sun, 30 Apr 2023 20:20:56 +0200
+Subject: [PATCH 4/5] Input: drv260x - fix magnitude handling
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230430-drv260x-improvements-v1-2-1fb28b4cc698@z3ntu.xyz>
+Message-Id: <20230430-drv260x-improvements-v1-4-1fb28b4cc698@z3ntu.xyz>
 References: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
 In-Reply-To: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
 To:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
@@ -46,50 +46,103 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         Luca Weiss <luca@z3ntu.xyz>
 X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=830; i=luca@z3ntu.xyz;
- h=from:subject:message-id; bh=2KDm+MfmQDPFzRhM3HuRPWRDE4x8ieq6b/WlHIl9jK0=;
- b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkTrGnuoEsRTAkX895HNLQSK31eIpbRae/YptSw
- 7CkOkDUZH6JAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZE6xpwAKCRBy2EO4nU3X
- Vp5qEACtdUzv1B33TViLXCnVQagZdBhCzFgGnvNikuW5vMJOjg7aSJA8Aa1S0a5t5B5YOToCbCM
- QK2Sj28kuCYDnxaiFpfUL9Ip75zq4oM9dUudZ6VCmk0lEHs/ZXQQQYBiR/YcMzJ7yJsOXrMHPBk
- BmNPiU+SvcJrS69TPRDRmCUalgaiT/vpeynwcoSy4LDKLccTNYplmGrciXXERhQ7BF1inK/fz/w
- E8a4L4OWYuHpNqxSDAHsvw3jnE+Pk8GpGSJgO8Oivsr3yEUF7Qyt88EH5G8DiFKAScLaqabMDC1
- HZIHs8pOgzz1mXKBB33DxYvS6j05WSYfKge0kFl0JVNasl4pK+DsnH1E5Q7+mFR6MqR9/+Xyyaf
- c7YeJwQlHXVAkPLm5A++c1wa5fmrMQEQgRMXY2ulEFvPZtfAaxcEZNOsIoPTjphPSLxJRdCzKrW
- KKUiem/rSn7IA6JdicfnMaySANKDSw0DL1zx0s8zW9CHt2v7+eQpnU2ErBALMzvvqqEtU0IdusZ
- FJwBvZAcVxNHWXLiLTsh7mS7i4zgynKjLbeae4u2+bzS2uxulMh9Xbn/Tm6Lx98eTS52wjo6wA+
- V+7gKdPES8S8Y8zPfUwba7+YUNi1D9d41Ve8On8O9i/8iakZlqzfOh9esI3L0G1ambMAIhr+R4P
- bPfXMMt7GYldNMg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3279; i=luca@z3ntu.xyz;
+ h=from:subject:message-id; bh=EZ5Rl1sRU/1EQS0k2DDIMWm8qZwGVK/duzJDHMh9kC0=;
+ b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkTrGpFTH1r2XTDSQoOggy0k37nDYdgmhMHY8io
+ +kbTgYBwjWJAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZE6xqQAKCRBy2EO4nU3X
+ Vp7uD/wP8XraDh/XqKDzUTo1JaxFCo/o8Q3S3iSlvep48xHb2HU2/AHSnJNlT/6osYanqta5V4P
+ fRJR3QKt2BzYtBPwyBvaJxyrlG0lG5b4Kzpm3TY/PPzVVcWYj+uF1GauyAB2OJOLL/UU9I4/HjF
+ g0FCNKtEUL2oQkGazD323lcD9gRwhijP6625vM3Xrqan/MihHkH/k22gt2rRfsk9iTctXTNfxH2
+ Q/i9gJwayvQUVD1uIfMw0glbEwjpcxVOpn1w9/rqeE2OstoS96cwkxkQUeOenFRbO1H0wmYRR2m
+ ruTlRgNZwViC4fNKPfqJqcI5WounrCo3V5BGJOY3Xdv1FIXuuoZeImdCimK5Hr9uZTNDvcFeK66
+ VnNDGzyZ/41cklfT4S8h56w4OTOsPG7sScUwI+WAF9sZbemdigPBtf1/LwArRxgM7l/vbOo5O5f
+ fCeKFK8MWlIliML/I/xqiFpAoA6pZ8QZ5cCOpsYHvfrK6gKNsrkAIKC4fyHVlBS+4wjZDBSs6Mz
+ DvmWTb+3mYuAmm0Y9WVFUI5vPMXizhJjGgeMlzXAayzxt/c751kTME6seR/0oLc/yeLJAjLGwt0
+ uOQwoHptjTivwZX3b/IIylq1MDPzYLS5zJNLygRurNoIZ1Vj5oKPhmPmw6x/r9WovWGKWBe5UNG
+ TdilpRwndiil81w==
 X-Developer-Key: i=luca@z3ntu.xyz; a=openpgp;
  fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-When doing the initial startup there's no need to poll without any
-delay and spam the I2C bus.
+First of all, previously the 16-bit magnitude was written as-is to the
+device which actually discarded the upper 8 bits since the device has
+8-bit registers only. This meant that a strong_magnitude of 0xFF00 would
+result in 0. To correct this shift the strong_magnitude / weak_magnitude
+input values so we discard the lower 8 bits and keep the upper bits
+instead.
 
-Let's sleep 15ms between each attempt, which is the same time as used
-in the vendor driver.
+Secondly the RTP mode that is used by default interprets the values as
+signed (2s complement), so 0x81 = 0%, 0x00 = 50%, 0x7F = 100%. This
+doesn't match the FF_RUMBLE interface at all, so let's tell the device
+to interpret the data as unsigned instead which gets us 0x00 = 0% and
+0xFF = 100%.
 
-Fixes: 7132fe4f5687 ("Input: drv260x - add TI drv260x haptics driver")
+As last change switch ERM to using "Closed-Loop Mode, Unidirectional"
+instead of "Open-Loop Mode" since it's recommended by the datasheet
+compared to open loop and better matches our use case of 0% - 100%
+vibration.
+
 Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
- drivers/input/misc/drv260x.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/misc/drv260x.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index e95c4e775b5d..884d43eb4b61 100644
+index a7e3120bdc13..f5e96b36acda 100644
 --- a/drivers/input/misc/drv260x.c
 +++ b/drivers/input/misc/drv260x.c
-@@ -435,6 +435,7 @@ static int drv260x_init(struct drv260x_data *haptics)
- 	}
+@@ -186,7 +186,7 @@ struct drv260x_data {
+ 	struct work_struct work;
+ 	struct gpio_desc *enable_gpio;
+ 	struct regulator *regulator;
+-	u32 magnitude;
++	u8 magnitude;
+ 	u32 mode;
+ 	u32 library;
+ 	int rated_voltage;
+@@ -237,10 +237,11 @@ static int drv260x_haptics_play(struct input_dev *input, void *data,
  
- 	do {
-+		usleep_range(15000, 15500);
- 		error = regmap_read(haptics->regmap, DRV260X_GO, &cal_buf);
- 		if (error) {
- 			dev_err(&haptics->client->dev,
+ 	haptics->mode = DRV260X_LRA_NO_CAL_MODE;
+ 
++	/* Scale u16 magnitude into u8 register value */
+ 	if (effect->u.rumble.strong_magnitude > 0)
+-		haptics->magnitude = effect->u.rumble.strong_magnitude;
++		haptics->magnitude = effect->u.rumble.strong_magnitude >> 8;
+ 	else if (effect->u.rumble.weak_magnitude > 0)
+-		haptics->magnitude = effect->u.rumble.weak_magnitude;
++		haptics->magnitude = effect->u.rumble.weak_magnitude >> 8;
+ 	else
+ 		haptics->magnitude = 0;
+ 
+@@ -266,7 +267,7 @@ static void drv260x_close(struct input_dev *input)
+ 
+ static const struct reg_sequence drv260x_lra_cal_regs[] = {
+ 	{ DRV260X_MODE, DRV260X_AUTO_CAL },
+-	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 },
++	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_RTP_UNSIGNED_DATA },
+ 	{ DRV260X_FEEDBACK_CTRL, DRV260X_FB_REG_LRA_MODE |
+ 		DRV260X_BRAKE_FACTOR_4X | DRV260X_LOOP_GAIN_HIGH },
+ };
+@@ -284,7 +285,7 @@ static const struct reg_sequence drv260x_lra_init_regs[] = {
+ 		DRV260X_BEMF_GAIN_3 },
+ 	{ DRV260X_CTRL1, DRV260X_STARTUP_BOOST },
+ 	{ DRV260X_CTRL2, DRV260X_SAMP_TIME_250 },
+-	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_ANALOG_IN },
++	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_RTP_UNSIGNED_DATA | DRV260X_ANALOG_IN },
+ 	{ DRV260X_CTRL4, DRV260X_AUTOCAL_TIME_500MS },
+ };
+ 
+@@ -299,7 +300,7 @@ static const struct reg_sequence drv260x_erm_cal_regs[] = {
+ 	{ DRV260X_CTRL1, DRV260X_STARTUP_BOOST },
+ 	{ DRV260X_CTRL2, DRV260X_SAMP_TIME_250 | DRV260X_BLANK_TIME_75 |
+ 		DRV260X_IDISS_TIME_75 },
+-	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_ERM_OPEN_LOOP },
++	{ DRV260X_CTRL3, DRV260X_NG_THRESH_2 | DRV260X_RTP_UNSIGNED_DATA },
+ 	{ DRV260X_CTRL4, DRV260X_AUTOCAL_TIME_500MS },
+ };
+ 
 
 -- 
 2.40.1

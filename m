@@ -2,35 +2,35 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 10B50C77B60
-	for <linux-input@archiver.kernel.org>; Sun, 30 Apr 2023 18:22:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77904C77B7F
+	for <linux-input@archiver.kernel.org>; Sun, 30 Apr 2023 18:22:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231375AbjD3SWO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 30 Apr 2023 14:22:14 -0400
+        id S231321AbjD3SWR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 30 Apr 2023 14:22:17 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229596AbjD3SWM (ORCPT
+        with ESMTP id S231339AbjD3SWN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 30 Apr 2023 14:22:12 -0400
+        Sun, 30 Apr 2023 14:22:13 -0400
 Received: from mail.z3ntu.xyz (mail.z3ntu.xyz [128.199.32.197])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 567FA2D54;
-        Sun, 30 Apr 2023 11:22:04 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78DA63A95;
+        Sun, 30 Apr 2023 11:22:06 -0700 (PDT)
 Received: from [192.168.178.23] (unknown [62.108.10.64])
-        by mail.z3ntu.xyz (Postfix) with ESMTPSA id 4CEA1CEC7A;
+        by mail.z3ntu.xyz (Postfix) with ESMTPSA id CB6AFCEC7E;
         Sun, 30 Apr 2023 18:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=z3ntu.xyz; s=z3ntu;
-        t=1682878892; bh=FvMcse6MLsbVxRrJLcTSsgg2rGTfDB1+G4bqmgYng0g=;
+        t=1682878892; bh=6bCrTKda13xPY5f1VJTbxhuiRyrVSBhJ2Q3JkSdwSwU=;
         h=From:Date:Subject:References:In-Reply-To:To:Cc;
-        b=QzdUVnIMzqFjlITKUDtui4tr7rOVdAm0/LxRRS7T6mWAeMkTM2q41hQOVXIkQBlkG
-         iM+FCyX6/PxmUftbS07lNkAbFW0cC49fNKrJ5t9CJPt3x7UyOFOjHP2+hYhzqS3u4d
-         WMKNDCLCE3yRAoRLLtEmlxah6bSleFKONkE7vD4k=
+        b=dpzZ866qVshjzoAdtJ+fwGoSuUs5QhvD5PkvqA3QrW9Ag3VM3jM1AJ8hLhA3XrTW1
+         CDv8Df834l/u8zc13slqwInIDK8ERAkxBAGpHpxjFbQiF2TrXD9Q32BlXfuSji8uRR
+         ViR/XEc7Vz2OOC7PTvDbmIzl+a7DtUeBwXMp58O0=
 From:   Luca Weiss <luca@z3ntu.xyz>
-Date:   Sun, 30 Apr 2023 20:20:55 +0200
-Subject: [PATCH 3/5] Input: drv260x - remove unused .reg_defaults
+Date:   Sun, 30 Apr 2023 20:20:57 +0200
+Subject: [PATCH 5/5] ARM: dts: qcom: apq8026-huawei-sturgeon: Add vibrator
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230430-drv260x-improvements-v1-3-1fb28b4cc698@z3ntu.xyz>
+Message-Id: <20230430-drv260x-improvements-v1-5-1fb28b4cc698@z3ntu.xyz>
 References: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
 In-Reply-To: <20230430-drv260x-improvements-v1-0-1fb28b4cc698@z3ntu.xyz>
 To:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
@@ -46,95 +46,87 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         Luca Weiss <luca@z3ntu.xyz>
 X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2291; i=luca@z3ntu.xyz;
- h=from:subject:message-id; bh=FvMcse6MLsbVxRrJLcTSsgg2rGTfDB1+G4bqmgYng0g=;
- b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkTrGozXcO/sDeRLWK6UMDpNHnsBPS252acBqw+
- nkdYXgTM6CJAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZE6xqAAKCRBy2EO4nU3X
- VmNeEADF84qF6eb0T7D21o0wIMKjLjMAlLI6jz5lemvrRO5uFx+Jt79NueiJ7F4DsCwT2O32QEH
- CGW5+7Ojl6DcCVbYa5JUveusxkYvIzGHzhAHkIZZqX1WC9EVmcEfhTs60YG7ITjJJp/PQUMAkWx
- 68xFx64MRWZPpM6xEqRiU58fzNDrBifxcJ2flHgZNPs5DVL+WTE2GwgmhqjvarmGg0vWG1Y8WX6
- LEuo1k/w/fkckmfH+zbSuFsCEl2F9NeDSl9U6wDqe5f2Ju7Cz+OKe08ZdysLDF9UievUTAv9DCS
- +T/WudTv3LedVxWvsXO/9gT7BOk+lh3belqeresukkaDq6SmsiJHqQ2QzngyXdXdtXvTwpJ82Hl
- 80TwWqltK2kbZBZL1BGzuvRCG/5lV7/1lg6xxIiiRGdi9AnwvAoiiR0yIgvuaEfiW63o42hBzVF
- jLNwpfaZe/Tu6tceY0PuCjsQKLlaXt7jcdL2z8ZhXa8q2V5bOX42UCCdADLCwu7hX5VrcbJS4Cw
- gS71en1xDrBIjt7rmlWIWuOaFFZAN4/ybX/ZquS8rAD8UpcxKO4bhd58w4fI/w+IZiN+FS188xd
- 5gYJ00C81ni4t0V4GAtI8k3ZHV5bWBmiBPCHyps41yveNMSf9Fciya5+9W+OoMxthG5XR7VMEWO
- PxLxfUK8vaPJdQg==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1566; i=luca@z3ntu.xyz;
+ h=from:subject:message-id; bh=6bCrTKda13xPY5f1VJTbxhuiRyrVSBhJ2Q3JkSdwSwU=;
+ b=owEBbQKS/ZANAwAIAXLYQ7idTddWAcsmYgBkTrGqMepVl5GlUtx/9cga8r2gsT8UvbaoHuuDc
+ avyDq94ivuJAjMEAAEIAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCZE6xqgAKCRBy2EO4nU3X
+ VqkBD/9v3tkZcH5QM/3qIv9jjRP3KRJMxw9KYu+KrkT21uShdAZxRoQ/Q4pztT99sxUcHZFtJpQ
+ g6bNcsTKK5TPkiiUL5oJYZpkvFnC04jcQQ2O+r86sy72XmGco/8CN4t49M/1N0LMwaXgo9+IVx/
+ y1tsr9//8aiMPsgt196tXGS8zKYFE5M+lD2j2xi7Z4NJGejCNnDMYvFvofz+icifvMouJde5atu
+ SDUXwrDRsqSy081qvDilRaN1onJVDcnV0N+RQ4azFSI7uzIoLwwgFNh9aMwS14vmgkV43MIVzq0
+ Olj+gjIZtZTBs92jCkN+ji5vku5dTRb2+dbY29SgLkFzQwuGf9PnG+AN2rOZXxG80AGUW3auJsZ
+ iTRF5/ylGgln3q3Ff1gCcv5hHmqJsPJe5TZSKeGehJw9/0pzvcAfdeJDb+MLxqaVClz32Qx2BHL
+ alFOi/mYdwM5+8J9cKIShzoBsNdHaD/UKJXd1NVJG3afV8Kla+Pi+l3blFf/x1J38caTex1w6Mv
+ MKvx8Wri9/ZWp5eAYc8VxlKdgxN8h99kyG/3chOMKqUDWseFrPJ2LjqsVIyRwWTJKTkSwcOkFV8
+ mGZHTPhXga32gABrs6vGeMHCu4VokS/vjffQdWNiJPrpIkcbPrtgWNfFhRMLjekTPoydQyhp+WN
+ zL0N6RvrXN3eFMw==
 X-Developer-Key: i=luca@z3ntu.xyz; a=openpgp;
  fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Since the driver has disabled regmap caching with REGCACHE_NONE, it's
-warning us that we provide defaults that are not used. Remove them.
+The watch has a DRV2605 for haptics. Add a node for it based on the
+values found in the downstream board file.
 
-  [    0.561159] drv260x-haptics 0-005a: No cache used with register defaults set!
-
-Fixes: 7132fe4f5687 ("Input: drv260x - add TI drv260x haptics driver")
 Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
 ---
- drivers/input/misc/drv260x.c | 40 ----------------------------------------
- 1 file changed, 40 deletions(-)
+ arch/arm/boot/dts/qcom-apq8026-huawei-sturgeon.dts | 28 ++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
-diff --git a/drivers/input/misc/drv260x.c b/drivers/input/misc/drv260x.c
-index 884d43eb4b61..a7e3120bdc13 100644
---- a/drivers/input/misc/drv260x.c
-+++ b/drivers/input/misc/drv260x.c
-@@ -193,44 +193,6 @@ struct drv260x_data {
- 	int overdrive_voltage;
+diff --git a/arch/arm/boot/dts/qcom-apq8026-huawei-sturgeon.dts b/arch/arm/boot/dts/qcom-apq8026-huawei-sturgeon.dts
+index d64096028ab1..eb73b992a696 100644
+--- a/arch/arm/boot/dts/qcom-apq8026-huawei-sturgeon.dts
++++ b/arch/arm/boot/dts/qcom-apq8026-huawei-sturgeon.dts
+@@ -7,6 +7,7 @@
+ 
+ #include "qcom-msm8226.dtsi"
+ #include "qcom-pm8226.dtsi"
++#include <dt-bindings/input/ti-drv260x.h>
+ 
+ /delete-node/ &adsp_region;
+ 
+@@ -68,6 +69,26 @@ &adsp {
+ 	status = "okay";
  };
  
--static const struct reg_default drv260x_reg_defs[] = {
--	{ DRV260X_STATUS, 0xe0 },
--	{ DRV260X_MODE, 0x40 },
--	{ DRV260X_RT_PB_IN, 0x00 },
--	{ DRV260X_LIB_SEL, 0x00 },
--	{ DRV260X_WV_SEQ_1, 0x01 },
--	{ DRV260X_WV_SEQ_2, 0x00 },
--	{ DRV260X_WV_SEQ_3, 0x00 },
--	{ DRV260X_WV_SEQ_4, 0x00 },
--	{ DRV260X_WV_SEQ_5, 0x00 },
--	{ DRV260X_WV_SEQ_6, 0x00 },
--	{ DRV260X_WV_SEQ_7, 0x00 },
--	{ DRV260X_WV_SEQ_8, 0x00 },
--	{ DRV260X_GO, 0x00 },
--	{ DRV260X_OVERDRIVE_OFF, 0x00 },
--	{ DRV260X_SUSTAIN_P_OFF, 0x00 },
--	{ DRV260X_SUSTAIN_N_OFF, 0x00 },
--	{ DRV260X_BRAKE_OFF, 0x00 },
--	{ DRV260X_A_TO_V_CTRL, 0x05 },
--	{ DRV260X_A_TO_V_MIN_INPUT, 0x19 },
--	{ DRV260X_A_TO_V_MAX_INPUT, 0xff },
--	{ DRV260X_A_TO_V_MIN_OUT, 0x19 },
--	{ DRV260X_A_TO_V_MAX_OUT, 0xff },
--	{ DRV260X_RATED_VOLT, 0x3e },
--	{ DRV260X_OD_CLAMP_VOLT, 0x8c },
--	{ DRV260X_CAL_COMP, 0x0c },
--	{ DRV260X_CAL_BACK_EMF, 0x6c },
--	{ DRV260X_FEEDBACK_CTRL, 0x36 },
--	{ DRV260X_CTRL1, 0x93 },
--	{ DRV260X_CTRL2, 0xfa },
--	{ DRV260X_CTRL3, 0xa0 },
--	{ DRV260X_CTRL4, 0x20 },
--	{ DRV260X_CTRL5, 0x80 },
--	{ DRV260X_LRA_LOOP_PERIOD, 0x33 },
--	{ DRV260X_VBAT_MON, 0x00 },
--	{ DRV260X_LRA_RES_PERIOD, 0x00 },
--};
--
- #define DRV260X_DEF_RATED_VOLT		0x90
- #define DRV260X_DEF_OD_CLAMP_VOLT	0x90
++&blsp1_i2c2 {
++	clock-frequency = <384000>;
++
++	status = "okay";
++
++	vibrator@5a {
++		compatible = "ti,drv2605";
++		reg = <0x5a>;
++		enable-gpios = <&tlmm 60 GPIO_ACTIVE_HIGH>;
++
++		mode = <DRV260X_ERM_MODE>;
++		library-sel = <DRV260X_ERM_LIB_D>;
++		vib-rated-mv = <2765>;
++		vib-overdrive-mv = <3525>;
++
++		pinctrl-0 = <&vibrator_default_state>;
++		pinctrl-names = "default";
++	};
++};
++
+ &blsp1_i2c5 {
+ 	clock-frequency = <384000>;
  
-@@ -453,8 +415,6 @@ static const struct regmap_config drv260x_regmap_config = {
- 	.val_bits = 8,
+@@ -347,6 +368,13 @@ reset-pins {
+ 		};
+ 	};
  
- 	.max_register = DRV260X_MAX_REG,
--	.reg_defaults = drv260x_reg_defs,
--	.num_reg_defaults = ARRAY_SIZE(drv260x_reg_defs),
- 	.cache_type = REGCACHE_NONE,
- };
- 
++	vibrator_default_state: vibrator-default-state {
++		pins = "gpio59", "gpio60";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-down;
++	};
++
+ 	wlan_hostwake_default_state: wlan-hostwake-default-state {
+ 		pins = "gpio66";
+ 		function = "gpio";
 
 -- 
 2.40.1

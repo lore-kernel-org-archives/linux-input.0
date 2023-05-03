@@ -2,98 +2,148 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 80D53C7EE21
-	for <linux-input@archiver.kernel.org>; Tue,  2 May 2023 20:51:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A7F8C77B78
+	for <linux-input@archiver.kernel.org>; Wed,  3 May 2023 02:19:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229569AbjEBUvy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 2 May 2023 16:51:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37912 "EHLO
+        id S229644AbjECCTe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 2 May 2023 22:19:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229464AbjEBUvx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 2 May 2023 16:51:53 -0400
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A08419BE;
-        Tue,  2 May 2023 13:51:52 -0700 (PDT)
-Received: by mail-pl1-x629.google.com with SMTP id d9443c01a7336-1aae5c2423dso35500655ad.3;
-        Tue, 02 May 2023 13:51:52 -0700 (PDT)
+        with ESMTP id S229441AbjECCTd (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 2 May 2023 22:19:33 -0400
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 541C62D54
+        for <linux-input@vger.kernel.org>; Tue,  2 May 2023 19:19:32 -0700 (PDT)
+Received: by mail-pl1-x635.google.com with SMTP id d9443c01a7336-1a950b982d4so161705ad.0
+        for <linux-input@vger.kernel.org>; Tue, 02 May 2023 19:19:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683060712; x=1685652712;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=y3o1/gGfAuM1GgmlkdkXFFdhfCcUzmKygNLMFJFzDzk=;
-        b=RRgWhWnSHeshZj2YLkMZ0tddZTgKwe+pqjGtIDLYMZrYbNxwQG5Q6ovkEHFTA+3YJs
-         X93v3qf0mQpHSRE7t2X5E9WwSad/4jQNLaI9X834EAg1WRmiJORx35g+9Fi6G5tXl31F
-         PklwEVgm7vHTn+NFR8ndwl8XbNlzbINxOFAwqfOH/EMuP+1/BQtfwdqSLOa5uKSuf7xL
-         xa7gaHO6zBXATWF5DWH+3hkAqitFcVBFQWstTtw/oNFs0zqpTL6A7OBzMcSEo5b2GFVl
-         em5bsTMO93QN9QRgs1bkv4ZQeF0DCGcD5hZv+7FFEJp/1M6wLHpgzJ5o6247/Ba/bqKo
-         cEnA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683060712; x=1685652712;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=google.com; s=20221208; t=1683080372; x=1685672372;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=y3o1/gGfAuM1GgmlkdkXFFdhfCcUzmKygNLMFJFzDzk=;
-        b=FrvhpjPnpLhokNCi+Hs/dL/yZlefx1pD0CSgy3+o5326xwTdqFpOH1fEb6uuie0Fo0
-         eqwseAZcnKT1Xxr/3fsb0zprteeUuYR/bdEyScSdb70IZxNCA+RTxlNtp97E9TECsfN9
-         CBlZE4HeaYZcxq3mlXJUQhNDh0lCeXt0gcs8xjVDffT2maeS8oeFXE3EWY7rIOrsRmj2
-         q9WJaa3fKGU8XFwl1wnAaopZ7Wh9BKNkXNx8AyDV1zFtZ3M1q5G2HRqcQTslya0/EsLs
-         Rl4Bl0g6Or7rmnArHuATWSJdGMwZhCPBCvAi28QcNZvHxBpaMP5141mY5UmDNdcCPiRI
-         UJCQ==
-X-Gm-Message-State: AC+VfDwQmqW4MkakB8Gb6PxIpRqqEYetiibtHFNSJk8tM+OJYs153UlN
-        mDnQ3IuDWaoNhl2SmA/YuWM=
-X-Google-Smtp-Source: ACHHUZ6u7jjyF8dsPzHmxLaowBUYNXThg4DzZuIZQ4+Z1iyATJWzoHLB4mLLHKx+g3SHU5Vlsf1Xnw==
-X-Received: by 2002:a17:903:11cf:b0:1a9:95fa:1fa8 with SMTP id q15-20020a17090311cf00b001a995fa1fa8mr22748295plh.41.1683060711925;
-        Tue, 02 May 2023 13:51:51 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:6edf:1ae0:55be:72db])
-        by smtp.gmail.com with ESMTPSA id u12-20020a17090282cc00b001ab0278a788sm2914973plz.65.2023.05.02.13.51.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 May 2023 13:51:51 -0700 (PDT)
-Date:   Tue, 2 May 2023 13:51:48 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Maximilian Weigand <mweigand2017@gmail.com>
-Cc:     Linus Walleij <linus.walleij@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        devicetree@vger.kernel.org,
-        Alistair Francis <alistair@alistair23.me>
-Subject: Re: [PATCH v2 3/6] dt-bindings: input: cypress,tt21000 - fix
- interrupt type in dts example
-Message-ID: <ZFF35BpA7xf0OBF/@google.com>
-References: <20230501113010.891786-1-mweigand@mweigand.net>
- <20230501113010.891786-4-mweigand@mweigand.net>
- <ZFBYIZc5zKs6dpHF@google.com>
- <5aaba4d1-f7e2-9d30-5f15-0713f9fc6a8c@gmail.com>
+        bh=ctb1R3fy35Ln0l9ZfEUNBbFNpKA3q8wClyqzrQTbJpg=;
+        b=21rXa6BKPsH1Q9DLffrghLCDtdO0rxkfIfXzRBY90U2BKxFSxAilOuBXsbhudPcv3r
+         4QloLZeDs+Yzqgxyb6xfURzZRHYcsF1T3ICzP98bkBVwp8QlqwZqUKot6sfzZrAod4wA
+         RnBM15xsIT31n8nDArb9G1R8SHb2Ll/jnt5P77w86TOmhoT5dbyewEnjwKRrQGO9NJU3
+         5ELCU3L2UB8vAsU3nILJzhTq2BNmgtA8gK4S9Bm7ZQodM1D3jq7jfjBs/4Iq/v/Y/QJW
+         WYMl6Mmuc5HH/xFkh0y8mqVfJjcTDAkSZ1jnM4XSpFf5mfjEv/P4g+23kyw78tFTVqX2
+         hfBA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683080372; x=1685672372;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ctb1R3fy35Ln0l9ZfEUNBbFNpKA3q8wClyqzrQTbJpg=;
+        b=MTpP6WCvyaCMbluoJ+lkpWL69gaua3ErMcwoEdaCwsjOp2g2rNTn3TjEKQVftoOai5
+         ABCLtsgFOPY4pxB5/Tv+vC9bYDVx6SMc/foJ+mWfFlek35OhwZ5kWdr0JezyD1V9IuZ5
+         6F+vE2Q1EIbTMj6z6Lhr4aL+0UIhFRR0ijSufX6wyC+9+7GVCT2LacoE7CRqS7OSt0pY
+         dC0/PMk9LnNUg6A4bpxpqkyGOz2XSdwR4DU5q6vo/Q+BbxXJU0S7Yqrs+hqHY9bBGir/
+         Znd+ShqFlURCb2gjxfStts6VhEwLSvYhQZU/627N1nJG9BmArG0ZoUyPcKZgIvpTh2R4
+         efSw==
+X-Gm-Message-State: AC+VfDxqA+Lji8XZrIORA8cDQy+a+xrtsiV/oPfSoCuuXvorauT7X2YZ
+        VTI33ZIOqqjhDjzT/X+g9Do0KC+lfNXbrTrfqu0FbQ==
+X-Google-Smtp-Source: ACHHUZ4fW/UoAhnH6cLXbSIFupRrZXAhv+Av7tDVYL+xqu26Hu3gvOim8JtCuM7qsSSd3wIitG82hSp9P5pzrQjtto8=
+X-Received: by 2002:a17:902:ce8b:b0:1a6:760c:af3d with SMTP id
+ f11-20020a170902ce8b00b001a6760caf3dmr139870plg.16.1683080371574; Tue, 02 May
+ 2023 19:19:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5aaba4d1-f7e2-9d30-5f15-0713f9fc6a8c@gmail.com>
+References: <20230427221625.116050-1-opendmb@gmail.com> <CAGETcx-gDcqY7-_Ud0_rOtgvk7NbzevSa4UCV=NcqiV9zjAv7w@mail.gmail.com>
+In-Reply-To: <CAGETcx-gDcqY7-_Ud0_rOtgvk7NbzevSa4UCV=NcqiV9zjAv7w@mail.gmail.com>
+From:   Saravana Kannan <saravanak@google.com>
+Date:   Tue, 2 May 2023 19:18:55 -0700
+Message-ID: <CAGETcx_xjNT1Tp0GeqoddFwGFpv3O33hZZpEiThNg1wwWcfEQw@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/3] input: gpio-keys - fix pm ordering
+To:     Doug Berger <opendmb@gmail.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Gergo Koteles <soyer@irl.hu>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Kees Cook <keescook@chromium.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Android Kernel Team <kernel-team@android.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, May 02, 2023 at 04:23:54PM +0200, Maximilian Weigand wrote:
-> Hi,
-> 
-> On 02.05.23 02:24, Dmitry Torokhov wrote:
-> > On Mon, May 01, 2023 at 01:30:07PM +0200, Maximilian Weigand wrote:
-> >> Triggering the interrupt of the IRQ_TYPE_LEVEL_LOW type can lead to
-> >> probing issues with the device for the current driver (encountered on
-> >> the Pine64 PineNote). Basically the interrupt would be triggered before
-> >> certain commands were sent to the device, leading to a race between the
-> >> device responding fast enough and the irq handler fetching a data frame
-> >> from it. Actually all devices currently using the driver already use a
-> >> falling edge trigger.
-> > 
-> > I'd prefer we adjusted the driver to handle level interrupts properly.
-> 
-> Ok, I will have a look at that. Just to be clear: The driver should work
-> only with level interrupts, or should it optimally support both level
-> and falling edge triggers?
+On Mon, May 1, 2023 at 1:40=E2=80=AFPM Saravana Kannan <saravanak@google.co=
+m> wrote:
+>
+> On Thu, Apr 27, 2023 at 3:18=E2=80=AFPM Doug Berger <opendmb@gmail.com> w=
+rote:
+> >
+> > Commit 52cdbdd49853 ("driver core: correct device's shutdown
+> > order") allowed for proper sequencing of the gpio-keys device
+> > shutdown callbacks by moving the device to the end of the
+> > devices_kset list at probe which was delayed by child
+> > dependencies.
+> >
+> > However, commit 722e5f2b1eec ("driver core: Partially revert
+> > "driver core: correct device's shutdown order"") removed this
+> > portion of that commit causing a reversion in the gpio-keys
+> > behavior which can prevent waking from shutdown.
+> >
+> > This RFC is an attempt to find a better solution for properly
+> > creating gpio-keys device links to ensure its suspend/resume and
+> > shutdown services are invoked before those of its suppliers.
+> >
+> > The first patch here is pretty brute force but simple and has
+> > the advantage that it should be easily backportable to the
+> > versions where the regression first occurred.
+>
+> We really shouldn't be calling device_pm_move_to_tail() in drivers
+> because device link uses device_pm_move_to_tail() for ordering too.
+> And it becomes a "race" between device links and when the driver calls
+> device_pm_move_to_tail() and I'm not sure we'll get the same ordering
+> every time.
+>
+> >
+> > The second patch is perhaps better in spirit though still a bit
+> > inelegant, but it can only be backported to versions of the
+> > kernel that contain the commit in its 'Fixes:' tag. That isn't
+> > really a valid 'Fixes:' tag since that commit did not cause the
+> > regression, but it does represent how far the patch could be
+> > backported.
+> >
+> > Both commits shouldn't really exist in the same kernel so the
+> > third patch reverts the first in an attempt to make that clear
+> > (though it may be a source of confusion for some).
+> >
+> > Hopefully someone with a better understanding of device links
+> > will see a less intrusive way to automatically capture these
+> > dependencies for parent device drivers that implement the
+> > functions of child node devices.
+>
+> Can you give a summary of the issue on a real system? I took a look at
+> the two commits you've referenced above and it's not clear what's
+> still broken in the 6.3+
+>
+> But I'd think that just teaching fw_devlink about some property should
+> be sufficient. If you are facing a real issue, have you made sure you
+> have fw_devlink=3Don (this is the default unless you turned it off in
+> the commandline when it had issues in the past).
+>
 
-Optimally a driver would work well with both.
+I took a closer look at how gpio-keys work and I can see why
+fw_devlink doesn't pick up the GPIO dependencies. It's because the
+gpio dependencies are listed under child "key-x" device nodes under
+the main "gpio-keys" device tree node. fw_devlink doesn't consider
+dependencies under child nodes as mandatory dependencies of the parent
+node.
 
-Thanks.
+The main reason for this was because of how fw_devlink used to work.
+But I might be able to change fw_devlink to pick this up
+automatically. I need to think a bit more about this because in some
+cases, ignoring those dependencies is the right thing to do. Give me a
+few weeks to think through and experiment with this on my end.
 
--- 
-Dmitry
+-Saravana

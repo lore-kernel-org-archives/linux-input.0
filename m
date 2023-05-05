@@ -2,207 +2,646 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 345AFC77B7C
-	for <linux-input@archiver.kernel.org>; Thu,  4 May 2023 21:52:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EF307C7EE32
+	for <linux-input@archiver.kernel.org>; Fri,  5 May 2023 08:24:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbjEDVwT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 4 May 2023 17:52:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46762 "EHLO
+        id S231374AbjEEIX7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 5 May 2023 04:23:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229670AbjEDVwS (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 4 May 2023 17:52:18 -0400
-Received: from mx0b-001ae601.pphosted.com (mx0a-001ae601.pphosted.com [67.231.149.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4710812E84;
-        Thu,  4 May 2023 14:52:16 -0700 (PDT)
-Received: from pps.filterd (m0077473.ppops.net [127.0.0.1])
-        by mx0a-001ae601.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 344LlGgr014174;
-        Thu, 4 May 2023 16:51:42 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-id : content-transfer-encoding : mime-version; s=PODMain02222019;
- bh=dfHF+xdV1nw7KZ89isyluo/uDM03pRQhLFgExetX2CQ=;
- b=gWhYQppvJIuDI9PfEN56qoN5vX1mc2qJBgPISKGGmTZ1rG1+PVtlr0zB5SnxAXRd/B8L
- y8EfaHlukUsJTES+ZFqIWEhSTyjlA6okXGu82GdrRmkwtMRcSNdcTORrBvlrqALUZufB
- rzPKnaKKy1BgXGW6F1z10XjANpiDA+7tPnON61gYyya2/j59ay5cqRQ0WUP7BG9laPyJ
- Id17+XC3qRZ/n8onDTCGd+v7itf/Xgk9wzxIK6kgXaZFdiV+YLhQ4VIWqnesrMYhqhll
- ZdF01ALcS5ENwXHPxoYrFljhb7JeqgQ7sm5kiW46FLm/qvskJV0y/1iwrer0klLX/tB7 yw== 
-Received: from nam10-dm6-obe.outbound.protection.outlook.com (mail-dm6nam10lp2104.outbound.protection.outlook.com [104.47.58.104])
-        by mx0a-001ae601.pphosted.com (PPS) with ESMTPS id 3q90n3p70r-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 04 May 2023 16:51:41 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=A0PVmsbS3nIhxKGsm+tfu44wxqiE3ta8ySBqaby2g4RJMcaO8T7wzeSoppCPrwR8w7TkGxE64YOb4bRLR1DMPuAiwFzgIVl09c5TC1OpMkssn+TTyXiU6vtCZlvNmWLiiMlz8m4/WGtxXj4VHVP32/T8RYiIWlgRgUQ7VmIX9k6NtEMkTIaNYAvzPDcJwSQ2M275IRipVfdRjE3GdKAbYBLfOc0/BSRWfyNePkxPEk8beoH4AgXMzoRLwtar3JAPG0EQ7Y68P76+MW4OeN7yUmkeEMa+hEyghA1YId9M4XBFPPHW/JD0sFbkabeWhGpnTtViweN4kBaKpAtj/vMu6w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dfHF+xdV1nw7KZ89isyluo/uDM03pRQhLFgExetX2CQ=;
- b=L744sXykLGWOMxP+4qXW9DRiNn1+bNiXz1euWhZTm7G/pTcj6hyFQSFnHwFx6+jS+uONmSSH0ZT20n8GsD+ICQZM6itjYng8WL/mOPRC8Z3roL/X4endsgt9xDt/zw63oHH1yIm0/MmYDOZQwuyeQ/VCSXmS3Uo+BVNN/DwGeqSnti1n0FmwL8H5wwui7wgbessUigd1+Iz++vzmGxW8o0iyUs5RWiwPKjEErfDBxmJHZlyAqYX3hmVrJzjNsVGps9VCbCxdvmdH7nDNdjQLwB606zKAQPYEMj1sPuQKG5Acrp9n8u5c++W1074amJUH3EWp2ivwBVQjvmdmlqw+vQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=cirrus.com; dmarc=pass action=none header.from=cirrus.com;
- dkim=pass header.d=cirrus.com; arc=none
+        with ESMTP id S231386AbjEEIXb (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 5 May 2023 04:23:31 -0400
+Received: from mail-lj1-x229.google.com (mail-lj1-x229.google.com [IPv6:2a00:1450:4864:20::229])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F21E18DF3
+        for <linux-input@vger.kernel.org>; Fri,  5 May 2023 01:23:07 -0700 (PDT)
+Received: by mail-lj1-x229.google.com with SMTP id 38308e7fff4ca-2ac82b07eb3so11063241fa.1
+        for <linux-input@vger.kernel.org>; Fri, 05 May 2023 01:23:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=cirrus4.onmicrosoft.com; s=selector2-cirrus4-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=dfHF+xdV1nw7KZ89isyluo/uDM03pRQhLFgExetX2CQ=;
- b=XxOO/EeWabMB3OPDx/4PPzd9oIcLZJ/rWqER9JSpvcIVVpkva94Z6BM9Z6wDf8jP+/DNtsDgT0rNhMH47m9XrMDzQzx2JSbavTEM48X7qGlzd92PmnJnA/5zPQrmmfFlRz7or1A8k0jfBKhXfI9lYHZQxzdWnaVggBppAqVyQ9k=
-Received: from DM6PR19MB4344.namprd19.prod.outlook.com (2603:10b6:5:2b7::15)
- by SA0PR19MB4205.namprd19.prod.outlook.com (2603:10b6:806:80::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6363.20; Thu, 4 May
- 2023 21:51:38 +0000
-Received: from DM6PR19MB4344.namprd19.prod.outlook.com
- ([fe80::fca4:a8fe:2382:8ea0]) by DM6PR19MB4344.namprd19.prod.outlook.com
- ([fe80::fca4:a8fe:2382:8ea0%3]) with mapi id 15.20.6363.020; Thu, 4 May 2023
- 21:51:37 +0000
-From:   Fred Treven <Fred.Treven@cirrus.com>
-To:     Jeff LaBundy <jeff@labundy.com>
-CC:     Charles Keepax <ckeepax@opensource.cirrus.com>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        Ben Bright <Ben.Bright@cirrus.com>,
-        James Ogletree <James.Ogletree@cirrus.com>,
-        "lee@kernel.org" <lee@kernel.org>,
-        "jdelvare@suse.de" <jdelvare@suse.de>,
-        "joel@jms.id.au" <joel@jms.id.au>,
-        "cy_huang@richtek.com" <cy_huang@richtek.com>,
-        "rdunlap@infradead.org" <rdunlap@infradead.org>,
-        "eajames@linux.ibm.com" <eajames@linux.ibm.com>,
-        "ping.bai@nxp.com" <ping.bai@nxp.com>,
-        "msp@baylibre.com" <msp@baylibre.com>,
-        "arnd@arndb.de" <arnd@arndb.de>,
-        "bartosz.golaszewski@linaro.org" <bartosz.golaszewski@linaro.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "patches@opensource.cirrus.com" <patches@opensource.cirrus.com>
-Subject: Re: [PATCH 1/2] Input: cs40l26: Support for CS40L26 Boosted Haptic
- Amplifier
-Thread-Topic: [PATCH 1/2] Input: cs40l26: Support for CS40L26 Boosted Haptic
- Amplifier
-Thread-Index: AQHZaNWIKX1yNV3tR0mmPS6rY8pN+a8iWY2AgAHpewCAAQVXAIAAlYgAgAEhQYCABFT8gIABkzmAgB3sHgA=
-Date:   Thu, 4 May 2023 21:51:37 +0000
-Message-ID: <7E101F4B-782A-4B8B-B6AB-3E7E282C9A9C@cirrus.com>
-References: <SupportforCS40L26BoostedHapticAmplifier>
- <1680819415-28806-1-git-send-email-fred.treven@cirrus.com>
- <ZDI0p5Rkp74SzJCv@nixie71> <20230410085634.GV68926@ediswmail.ad.cirrus.com>
- <ZDSqfHemG8pKj1k7@nixie71> <20230411092708.GX68926@ediswmail.ad.cirrus.com>
- <ZDYakQMOPsPTbGe0@nixie71> <6ABC85BA-AF2D-4D2E-8CA8-32E372570DA0@cirrus.com>
- <ZDsPGYJjCNmtizKk@nixie71>
-In-Reply-To: <ZDsPGYJjCNmtizKk@nixie71>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: DM6PR19MB4344:EE_|SA0PR19MB4205:EE_
-x-ms-office365-filtering-correlation-id: c04b6d15-f410-4b6c-1472-08db4ce9bc25
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: A91THFi0surGxpJ207rFh9nUPcfk3CTGHA8m7vCc3lydtiIinSxXXPegx0KwBW2LVQKERjYKHGKQqRkdbbox+48UW8oiv21BLmvH9eJBd7H3ZGBsksJWZBNId3+ePT4uhsJ6RRJbLL0bmBOmfD8YtAJZBu1jPGAM0PpzWAnVYy3gYfr3A2Q7pI0cGESjxgTke4lPZAve9iLTmgEEhLuV4OdmZQ/iZr+EG/ro3zVP/PUV7R/t82S/npkCC4UC8ZlrN24kCFPf6B1IGbu5bVQoIjD5srfWWQx1EpVD8wVnXIwuxrEhjY7wAaegtZCJjezupGTxBYxSw4NI2NVSQUd0PkpYH9QKThZ2bo70VzX7pOQguI6gQfBFM2ZEcxbHaRo09lIbQNn9jkUeKuNY4huJ4Jkuflbo9E5vpfJsF0D46OzmDahYXEL9rhETKQTicP26kciD0AjX6GHVe2j7D9XRlPzTgEIb4gYEOOGl6ZV+yq4ODHnG+LiNYVUBwDnlb2ZLlAUQ1cg+80lkBh4OU4QpxqH5O+v22N1iH/OpTKJRPt/iLwQyM5MJM0Bt8OIFFIN+UTbeW6y0Dd3s6bMgpM67i8U17pY+P7BD6M5jqqAaqiRnjBU1QBijVUyVJdfrgkNQeMyAxpX5u/z9NsGN8VBFHA==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR19MB4344.namprd19.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(396003)(136003)(366004)(376002)(39850400004)(451199021)(6506007)(66556008)(6486002)(76116006)(91956017)(4326008)(478600001)(66446008)(66946007)(6916009)(66476007)(64756008)(26005)(107886003)(6512007)(71200400001)(38070700005)(186003)(122000001)(38100700002)(7416002)(5660300002)(2906002)(83380400001)(41300700001)(8936002)(54906003)(36756003)(2616005)(8676002)(33656002)(86362001)(316002)(45980500001);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?WTQrd2g2cXBFbDcxQXBsbUVmeU8wNnhCc3JHYWhPbUtHN25LazI3L0RLTXRE?=
- =?utf-8?B?MTBpeGZQNzU3RjBORnBucDVKaFdOQmNhcllMYzN0VmszZjFMdUYwTTNEa3RE?=
- =?utf-8?B?WDdDZ2JlT3JFRmQvSG1takRvWFRZN1pvWUExeWpTaWdlZjRrVkV6aFA1YjdR?=
- =?utf-8?B?Z3VSTjRtaW9VOG1Cc1oyVnNzZXJTN3ZPS2RYeVBRR2M1bTZPWWdHUGV4S3ZB?=
- =?utf-8?B?ZnV0R3dPNU5BS0pRRStWK3JMWUpycUNXT05DN0RTU2lFTWdVT1hwMGpTNTlN?=
- =?utf-8?B?WWRMR0w4d2NsUm9WTTVGU0FPekxmNUVRL1pLYTRocmJTTDA3T2FBRmxJcTRX?=
- =?utf-8?B?S1V6TzZWZVRPSkE0c1o0TDlUb0xybXpXQmZOM1RiMGNNRHBhclZGSDlMc3hX?=
- =?utf-8?B?WTdOL2d5ZGlUdTN1S2o2RkFCQ1NlTmcyTnUzdkE5b1o4Tjc4VmdhTWxkNkhs?=
- =?utf-8?B?UmJEK1lRUVJDaGppN2NRVjErSERZRTUwUXdnMW1QTUFJNUo4SFNmeDFRU1Y1?=
- =?utf-8?B?N2xvaHFScTdhb2h0MlFuZ3NkbDBGdU1hRVBMd3pkUlJkbmptYlBrNkdwbXEx?=
- =?utf-8?B?TmVJRW80bGdlREprSVEyNGpnYTU0MStOK1UwZVF0dzRZeTdxU1BnRytsckVM?=
- =?utf-8?B?TmFPQ2ZXR1p0VGtEWUhsdVVOdDVnT2RXWlBLODlxd1Y2bTJKMWw1U3pmY1dy?=
- =?utf-8?B?WGdIdXZjUTdCTlMrYkRlbzZENTJlbllYKzJpTVZkWloxSEV2K1Q5UWF6K3Bi?=
- =?utf-8?B?VGtMRmgwVG12aEg5WktuTFZNWWY0OGJzV3htV0lMUG9MaXRpSmFRV2VzWmtJ?=
- =?utf-8?B?TWo0eU5yWGZLa1IxeEtpNzdrZVhNckhSbWg5MzFaTEQvdVRVYU5VUVNCQ0Ru?=
- =?utf-8?B?eGVIYm4xMExyOW5sN1p5cnNobXZLUkdnSW1mOXc3dmZESDRuWWNkK0hmTTM2?=
- =?utf-8?B?ZTlPQjkyWWxYd3MxeHY1bGQ4N2tJS0IrcU9yN0N5T2lSL0RGOC9tT2dEVTlj?=
- =?utf-8?B?RjViaGdhOWZ1VE9nbGR6RFhTdlVpOUE0Q3kwaU03dU1mUkszSmVpdUoxSHdF?=
- =?utf-8?B?ZE1jL0Zud3hRSmxGb0JnV3RQTjVadTdrMDFxTXR6am4wZnlHRS92YXgxaEk3?=
- =?utf-8?B?U1pDL2xOSTBvb0o1TGo2WFZJU1d0RVIwOTI2a2Z5Y1Bla3RwdURoYmJjdnA0?=
- =?utf-8?B?WGExcWhSWEdLRDlXbXFhK2xDbGQzbGtPM3g1TmRvZ0xOTjFWOEJyeEoraDN5?=
- =?utf-8?B?Vy84V20zbXBPQjJid0N5VWx6TGlzd3JHbVVMcFc0cys4UWovYWd2ZFRwdTVS?=
- =?utf-8?B?MzBMb2d6ZXJiYlpTYmorU0FGby90ZHFqNVc5K2hraHh2bWduSEQ1eUVMdEVZ?=
- =?utf-8?B?Z3krUTBTQ3FyK2RXVE9XRG90VVBZU0FGQVVjMHM3U1MzQ2RmZ2lTbm5vK3Z5?=
- =?utf-8?B?Zlovc0hCS25KR0VJYWNTekg3dS9lNXFjam1tSVhTOU52djBLelpCSFdWUzE1?=
- =?utf-8?B?UjA1bnVSQnQyQ2RzeDFkbTJuWVE0T3dnRFFtY2d5ck03bjZqeHkyeWtDelFT?=
- =?utf-8?B?dmJMem1iRCtMem9JcU5HNDAySlNpbUI0b2hZQ1gydG1mZDI1Z1Ftb212ZDdD?=
- =?utf-8?B?YmQ1ZlhHVjZwcm9pcTlqcGQ4aVlSNmZITnZoMVhnS2RERFQ1d0FuSUcxaFl3?=
- =?utf-8?B?aHVId1dZZDFTcUpVajI0TlJ1azVrS1BUZzU0SVdLTFlKVnFOQXd5ampWVWNJ?=
- =?utf-8?B?aEVyN1NpMXJESVJLZGFRdjZxSjRJbWNzbXhEbndORUNuNXRhSUlEVUxPY3lK?=
- =?utf-8?B?TXlEN3RTSzFYYUNtdXY1Y2psbmFwR2JyWFNPcWNxRmRNcVJIbThud0tsbm1x?=
- =?utf-8?B?eU9rSkFyQTZRclJOeHVCZ3FURjhaZ2IxUE5aSSsrZnhwREdIMm5tRG5CeDla?=
- =?utf-8?B?WmcrSE1wWk9OcGl0ak44VEYyMSt5aDI1QUgxR0VzYy8vNDdvYnloY2g4SHhk?=
- =?utf-8?B?RTdoeTFDc004eGZMTEM2NURXTjI5WEErNllRK1B4Q0RHT3pCZ1JyL0R1YTlE?=
- =?utf-8?B?aVd4VjJPbzZpdXVUL2FEZkVZSEhPRld6dUxTYWN4cFV1YXp5VjhjaVkwZzNs?=
- =?utf-8?Q?uCNMS3cJzk959JaIHA5HsLGBb?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <47B13AE47C8F1840B27B4B4E20E54BC7@namprd19.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        d=linaro.org; s=google; t=1683274985; x=1685866985;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=a2PTkQv92EgPIhccNyvpjzxxoyOKLnSpikDiAq7hXHY=;
+        b=R0L3iE0oZccL2iTHigiWOcNSImvhqaON9aAjHhPqYi0Fu+JXj+cqfkPUnHeOdvuZxz
+         lRDRP4CQfw8bKsBhJIwpUdMdoeuWZRUvu7QIIavQruTIGv1gWTGa97dmxvaZsyyeLJXc
+         4pDVfA/YW6Gg/ml1K9aIxghCP7AO9NoUh85/GwJycgluhegaIAZ0rSGoRyLYToj3A7Nm
+         rrLByLihsKaHHMW6xrfIon4KvpWkBTHwCKEOqcjhHFn6Evzn519LrT4gHau03vCHnSn+
+         hiEkW056xNL7IUxvYZlArucRCrMAVpofY3q+btpVLKXH1Oy7PFX2qUeubUMGwdLj1aW0
+         8WYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1683274985; x=1685866985;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=a2PTkQv92EgPIhccNyvpjzxxoyOKLnSpikDiAq7hXHY=;
+        b=hVO660CyqpuKk/dINoW2XpGR2deMuHJM0Dc5QlkSh2dnwbuK7mbdTZZUIyS0X95Jdf
+         m4b1X/GKWFcwvDM7MdpCU5GVwIzb+fzD8RK2I3W0nnBpF7Cwj5u3WICFlOJle1K/HVGJ
+         p/UF3oCxv2gybSHqakRC5yAPyGUwfE6ojQAWAHea31tdgl4/oYEUN8zKEZXnvUsGPkMu
+         NOi6YoTS7eLEDkCOLDdWJl9KsRnhRbwaZqYODLfFD1tbqPQ1Txt3dj0KgfSdHiqQq9qf
+         2TTemCR2GbDDIzHTsXeysh2u7EJerKafkJzokBi9bV9adEq+rJMvygJZ6WUqqrNoV53A
+         shSQ==
+X-Gm-Message-State: AC+VfDxRWEGpULY9s5nOUZacdxAIK/7/SwZg3/BqJK21/m+PmOgYA1oo
+        q8hWYjWZpZIanDKWg6Nh7Us55Q==
+X-Google-Smtp-Source: ACHHUZ6YGSoop0wwVB7xlPtUsSniYa9wSH22SIwqO7KXcjlC7vp8DBAvg4ZxxX2hm7AkC0IWAgm+kg==
+X-Received: by 2002:a2e:9495:0:b0:2ac:75e4:3c13 with SMTP id c21-20020a2e9495000000b002ac75e43c13mr223814ljh.19.1683274985272;
+        Fri, 05 May 2023 01:23:05 -0700 (PDT)
+Received: from [127.0.1.1] ([85.235.12.238])
+        by smtp.gmail.com with ESMTPSA id h8-20020ac250c8000000b004d023090504sm200647lfm.84.2023.05.05.01.23.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 05 May 2023 01:23:04 -0700 (PDT)
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Fri, 05 May 2023 10:23:00 +0200
+Subject: [PATCH v2 1/3] Input: ads7846 - Convert to use software nodes
 MIME-Version: 1.0
-X-OriginatorOrg: cirrus.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: DM6PR19MB4344.namprd19.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: c04b6d15-f410-4b6c-1472-08db4ce9bc25
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 May 2023 21:51:37.0538
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: bec09025-e5bc-40d1-a355-8e955c307de8
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 1HDX/62EdiH9mhZvy72Q9xmpWVM96gaj3nJTymmDSZGP2oNMtOHwuD6alGw/Kg+9owcQW4FtruA+QTfPd0dEzw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR19MB4205
-X-Proofpoint-ORIG-GUID: z1wQucJeE-BvXwPXpxsGRV_UqGpMilj5
-X-Proofpoint-GUID: z1wQucJeE-BvXwPXpxsGRV_UqGpMilj5
-X-Proofpoint-Spam-Reason: safe
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230430-nokia770-regression-v2-1-984ed3ca5444@linaro.org>
+References: <20230430-nokia770-regression-v2-0-984ed3ca5444@linaro.org>
+In-Reply-To: <20230430-nokia770-regression-v2-0-984ed3ca5444@linaro.org>
+To:     Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Helge Deller <deller@gmx.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-mmc@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+X-Mailer: b4 0.12.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-SGkgSmVmZiwNCg0KSSBoYWQgb25lIGxhc3QgcXVlc3Rpb24gZm9yIHlvdSBiZWZvcmUgSSBzZW5k
-IHRoZSBuZXh0IHZlcnNpb24gb2YgdGhpcyBzdWJtaXNzaW9uLg0KDQo+PiArDQo+PiArIHJldHVy
-biAwOw0KPj4gK30NCj4+ICtFWFBPUlRfU1lNQk9MX0dQTChjczQwbDI2X3JlbW92ZSk7DQo+PiAr
-DQo+PiArc3RhdGljIGludCBjczQwbDI2X3N1c3BlbmQoc3RydWN0IGRldmljZSAqZGV2KQ0KPj4g
-K3sNCj4+ICsgc3RydWN0IGNzNDBsMjZfcHJpdmF0ZSAqY3M0MGwyNiA9IGRldl9nZXRfZHJ2ZGF0
-YShkZXYpOw0KPj4gKyBpbnQgcmV0Ow0KPj4gKw0KPj4gKyBtdXRleF9sb2NrKCZjczQwbDI2LT5s
-b2NrKTsNCj4+ICsgZGV2X2RiZyhkZXYsICIlczogRW5hYmxpbmcgaGliZXJuYXRpb25cbiIsIF9f
-ZnVuY19fKTsNCj4+ICsNCj4+ICsgcmV0ID0gY3M0MGwyNl9hbGxvd19oaWJlcihjczQwbDI2KTsN
-Cj4+ICsNCj4+ICsgbXV0ZXhfdW5sb2NrKCZjczQwbDI2LT5sb2NrKTsNCj4+ICsNCj4+ICsgcmV0
-dXJuIHJldDsNCj4+ICt9DQo+PiArDQo+PiArc3RhdGljIGludCBjczQwbDI2X3N5c19zdXNwZW5k
-KHN0cnVjdCBkZXZpY2UgKmRldikNCj4+ICt7DQo+PiArIHN0cnVjdCBpMmNfY2xpZW50ICppMmNf
-Y2xpZW50ID0gdG9faTJjX2NsaWVudChkZXYpOw0KPj4gKw0KPj4gKyBkZXZfZGJnKGRldiwgIlN5
-c3RlbSBzdXNwZW5kLCBkaXNhYmxpbmcgSVJRXG4iKTsNCj4+ICsNCj4+ICsgZGlzYWJsZV9pcnEo
-aTJjX2NsaWVudC0+aXJxKTsNCj4+ICsNCj4+ICsgcmV0dXJuIDA7DQo+PiArfQ0KPj4gKw0KPj4g
-K3N0YXRpYyBpbnQgY3M0MGwyNl9zeXNfc3VzcGVuZF9ub2lycShzdHJ1Y3QgZGV2aWNlICpkZXYp
-DQo+PiArew0KPj4gKyBzdHJ1Y3QgaTJjX2NsaWVudCAqaTJjX2NsaWVudCA9IHRvX2kyY19jbGll
-bnQoZGV2KTsNCj4+ICsNCj4+ICsgZGV2X2RiZyhkZXYsICJMYXRlIHN5c3RlbSBzdXNwZW5kLCBy
-ZS1lbmFibGluZyBJUlFcbiIpOw0KPj4gKyBlbmFibGVfaXJxKGkyY19jbGllbnQtPmlycSk7DQo+
-PiArDQo+PiArIHJldHVybiAwOw0KPj4gK30NCj4+ICsNCj4+ICtzdGF0aWMgaW50IGNzNDBsMjZf
-cmVzdW1lKHN0cnVjdCBkZXZpY2UgKmRldikNCj4+ICt7DQo+PiArIGRldl9kYmcoZGV2LCAiJXM6
-IERpc2FibGluZyBoaWJlcm5hdGlvblxuIiwgX19mdW5jX18pOw0KPj4gKw0KPj4gKyByZXR1cm4g
-Y3M0MGwyNl9wcmV2ZW50X2hpYmVyKGRldl9nZXRfZHJ2ZGF0YShkZXYpKTsNCj4+ICt9DQo+PiAr
-DQo+PiArc3RhdGljIGludCBjczQwbDI2X3N5c19yZXN1bWUoc3RydWN0IGRldmljZSAqZGV2KQ0K
-Pj4gK3sNCj4+ICsgc3RydWN0IGkyY19jbGllbnQgKmkyY19jbGllbnQgPSB0b19pMmNfY2xpZW50
-KGRldik7DQo+PiArDQo+PiArIGRldl9kYmcoZGV2LCAiU3lzdGVtIHJlc3VtZSwgcmUtZW5hYmxp
-bmcgSVJRXG4iKTsNCj4+ICsNCj4+ICsgZW5hYmxlX2lycShpMmNfY2xpZW50LT5pcnEpOw0KPj4g
-Kw0KPj4gKyByZXR1cm4gMDsNCj4+ICt9DQo+PiArDQo+PiArc3RhdGljIGludCBjczQwbDI2X3N5
-c19yZXN1bWVfbm9pcnEoc3RydWN0IGRldmljZSAqZGV2KQ0KPj4gK3sNCj4+ICsgc3RydWN0IGky
-Y19jbGllbnQgKmkyY19jbGllbnQgPSB0b19pMmNfY2xpZW50KGRldik7DQo+PiArDQo+PiArIGRl
-dl9kYmcoZGV2LCAiRWFybHkgc3lzdGVtIHJlc3VtZSwgZGlzYWJsaW5nIElSUVxuIik7DQo+PiAr
-DQo+PiArIGRpc2FibGVfaXJxKGkyY19jbGllbnQtPmlycSk7DQo+PiArDQo+PiArIHJldHVybiAw
-Ow0KPj4gK30NCj4+ICsNCj4+ICtjb25zdCBzdHJ1Y3QgZGV2X3BtX29wcyBjczQwbDI2X3BtX29w
-cyA9IHsNCj4+ICsgU0VUX1JVTlRJTUVfUE1fT1BTKGNzNDBsMjZfc3VzcGVuZCwgY3M0MGwyNl9y
-ZXN1bWUsIE5VTEwpDQo+PiArIFNFVF9TWVNURU1fU0xFRVBfUE1fT1BTKGNzNDBsMjZfc3lzX3N1
-c3BlbmQsIGNzNDBsMjZfc3lzX3Jlc3VtZSkNCj4+ICsgU0VUX05PSVJRX1NZU1RFTV9TTEVFUF9Q
-TV9PUFMoY3M0MGwyNl9zeXNfc3VzcGVuZF9ub2lycSwgY3M0MGwyNl9zeXNfcmVzdW1lX25vaXJx
-KQ0KPj4gK307DQo+PiArRVhQT1JUX1NZTUJPTF9HUEwoY3M0MGwyNl9wbV9vcHMpOw0KPiANCj4g
-UGxlYXNlIHVzZSBsYXRlc3QgbWFjcm9zIChlLmcuIERFRklORV9TSU1QTEVfREVWX1BNX09QUyku
-DQoNCldoZW4gbG9va2luZyBhdCB0aGVzZSAqX1BNX09QUyogbWFjcm9zIHRoYXQgcmVwbGFjZSB0
-aGUgZGVwcmVjYXRlZCB2ZXJzaW9ucywgaXQgaXMgdW5jbGVhciB0byBtZSBob3cgdG8gbWFpbnRh
-aW4gc3VwcG9ydCBmb3IgKl9zeXNfKiBhbmQNCipfc3lzXypfbm9pcnEqIGZ1bmN0aW9ucy4gV291
-bGQgdGhlc2UgYWxsIG5lZWQgdG8gYmUgc2VwYXJhdGVseSBkZWZpbmVkIHZpYSBERUZJTkVfU0lN
-UExFX0RFVl9QTV9PUFM/DQpXb3VsZCB0aGUgKl9zeXNfKiBkZWZpbml0aW9ucyBzdGlsbCBiZSBk
-ZWZpbmVkIHRocm91Z2ggYSBzdHJ1Y3QgaS5lLg0KY29uc3Qgc3RydWN0IGRldl9wbV9vcHMgY3M0
-MGwyNl9zeXNfcG1fb3BzIHdoaWNoIGlzIHRoZW4gZXhwb3J0ZWQgYXMgaXQgaXMgaW4gbXkgaW5p
-dGlhbCBzdWJtaXNzaW9uPyANCknigJltIHVuc3VyZSBob3cgdG8gaGFuZGxlIHRoZXNlIGNhc2Vz
-IHdpdGggdGhlIGxhdGVzdCBtYWNyb3MuDQoNCkFwcHJlY2lhdGUgYW55IGd1aWRhbmNlIHlvdSBj
-YW4gcHJvdmlkZS4NCg0KQmVzdCByZWdhcmRzLA0KRnJlZA==
+The Nokia 770 is using GPIOs from the global numberspace on the
+CBUS node to pass down to the LCD controller. This regresses when we
+let the OMAP GPIO driver use dynamic GPIO base.
+
+The Nokia 770 now has dynamic allocation of IRQ numbers, so this
+needs to be fixed for it to work.
+
+As this is the only user of LCD MIPID we can easily augment the
+driver to use a GPIO descriptor instead and resolve the issue.
+
+The platform data .shutdown() callback wasn't even used in the
+code, but we encode a shutdown asserting RESET in the remove()
+callback for completeness sake.
+
+The CBUS also has the ADS7846 touchscreen attached.
+
+Populate the devices on the Nokia 770 CBUS I2C using software
+nodes instead of platform data quirks. This includes the LCD
+and the ADS7846 touchscreen so the conversion just brings the LCD
+along with it as software nodes is an all-or-nothing design
+pattern.
+
+The ADS7846 has some limited support for using GPIO descriptors,
+let's convert it over completely to using device properties and then
+fix all remaining boardfile users to provide all platform data using
+software nodes.
+
+Dump the of includes and of_match_ptr() in the ADS7846 driver as part
+of the job.
+
+Since we have to move ADS7846 over to obtaining the GPIOs it is
+using exclusively from descriptors, we provide descriptor tables
+for the two remaining in-kernel boardfiles using ADS7846:
+
+- PXA Spitz
+- MIPS Alchemy DB1000 development board
+
+It was too hard for me to include software node conversion of
+these two remaining users at this time: the spitz is using a
+hscync callback in the platform data that would require further
+GPIO descriptor conversion of the Spitz, and moving the hsync
+callback down into the driver: it will just become too big of
+a job, but it can be done separately.
+
+The MIPS Alchemy DB1000 is simply something I cannot test, so take
+the easier approach of just providing some GPIO descriptors in
+this case as I don't want the patch to grow too intrusive.
+
+Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 92bf78b33b0b ("gpio: omap: use dynamic allocation of base")
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ arch/arm/mach-omap1/board-nokia770.c    |  98 ++++++++++++++++++++-----------
+ arch/arm/mach-pxa/spitz.c               |  11 +++-
+ arch/mips/alchemy/devboards/db1000.c    |  11 +++-
+ drivers/input/touchscreen/ads7846.c     | 101 ++++++++++++--------------------
+ drivers/video/fbdev/omap/lcd_mipid.c    |  10 ++++
+ include/linux/platform_data/lcd-mipid.h |   2 -
+ include/linux/spi/ads7846.h             |   2 -
+ 7 files changed, 133 insertions(+), 102 deletions(-)
+
+diff --git a/arch/arm/mach-omap1/board-nokia770.c b/arch/arm/mach-omap1/board-nokia770.c
+index a501a473ffd6..918e86634bc9 100644
+--- a/arch/arm/mach-omap1/board-nokia770.c
++++ b/arch/arm/mach-omap1/board-nokia770.c
+@@ -8,15 +8,16 @@
+ #include <linux/irq.h>
+ #include <linux/gpio.h>
+ #include <linux/gpio/machine.h>
++#include <linux/gpio/property.h>
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/mutex.h>
+ #include <linux/platform_device.h>
++#include <linux/property.h>
+ #include <linux/input.h>
+ #include <linux/omapfb.h>
+ 
+ #include <linux/spi/spi.h>
+-#include <linux/spi/ads7846.h>
+ #include <linux/workqueue.h>
+ #include <linux/delay.h>
+ 
+@@ -35,6 +36,25 @@
+ #include "clock.h"
+ #include "mmc.h"
+ 
++static const struct software_node nokia770_mpuio_gpiochip_node = {
++	.name = "mpuio",
++};
++
++static const struct software_node nokia770_gpiochip1_node = {
++	.name = "gpio-0-15",
++};
++
++static const struct software_node nokia770_gpiochip2_node = {
++	.name = "gpio-16-31",
++};
++
++static const struct software_node *nokia770_gpiochip_nodes[] = {
++	&nokia770_mpuio_gpiochip_node,
++	&nokia770_gpiochip1_node,
++	&nokia770_gpiochip2_node,
++	NULL,
++};
++
+ #define ADS7846_PENDOWN_GPIO	15
+ 
+ static const unsigned int nokia770_keymap[] = {
+@@ -85,40 +105,46 @@ static struct platform_device *nokia770_devices[] __initdata = {
+ 	&nokia770_kp_device,
+ };
+ 
+-static void mipid_shutdown(struct mipid_platform_data *pdata)
+-{
+-	if (pdata->nreset_gpio != -1) {
+-		printk(KERN_INFO "shutdown LCD\n");
+-		gpio_set_value(pdata->nreset_gpio, 0);
+-		msleep(120);
+-	}
+-}
+-
+-static struct mipid_platform_data nokia770_mipid_platform_data = {
+-	.shutdown = mipid_shutdown,
+-};
++static struct mipid_platform_data nokia770_mipid_platform_data = { };
+ 
+ static const struct omap_lcd_config nokia770_lcd_config __initconst = {
+ 	.ctrl_name	= "hwa742",
+ };
+ 
++static const struct property_entry nokia770_mipid_props[] = {
++	PROPERTY_ENTRY_GPIO("reset-gpios", &nokia770_gpiochip1_node,
++			    13, GPIO_ACTIVE_LOW),
++	{ }
++};
++
++static const struct software_node nokia770_mipid_swnode = {
++	.name = "lcd_mipid",
++	.properties = nokia770_mipid_props,
++};
++
+ static void __init mipid_dev_init(void)
+ {
+-	nokia770_mipid_platform_data.nreset_gpio = 13;
+ 	nokia770_mipid_platform_data.data_lines = 16;
+ 
+ 	omapfb_set_lcd_config(&nokia770_lcd_config);
+ }
+ 
+-static struct ads7846_platform_data nokia770_ads7846_platform_data __initdata = {
+-	.x_max		= 0x0fff,
+-	.y_max		= 0x0fff,
+-	.x_plate_ohms	= 180,
+-	.pressure_max	= 255,
+-	.debounce_max	= 10,
+-	.debounce_tol	= 3,
+-	.debounce_rep	= 1,
+-	.gpio_pendown	= ADS7846_PENDOWN_GPIO,
++static const struct property_entry nokia770_ads7846_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 4096),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 4096),
++	PROPERTY_ENTRY_U32("touchscreen-max-pressure", 256),
++	PROPERTY_ENTRY_U32("touchscreen-average-samples", 10),
++	PROPERTY_ENTRY_U16("ti,x-plate-ohms", 180),
++	PROPERTY_ENTRY_U16("ti,debounce-tol", 3),
++	PROPERTY_ENTRY_U16("ti,debounce-rep", 1),
++	PROPERTY_ENTRY_GPIO("pendown-gpios", &nokia770_gpiochip1_node,
++			    ADS7846_PENDOWN_GPIO, GPIO_ACTIVE_HIGH),
++	{ }
++};
++
++static const struct software_node nokia770_ads7846_swnode = {
++	.name = "ads7846",
++	.properties = nokia770_ads7846_props,
+ };
+ 
+ static struct spi_board_info nokia770_spi_board_info[] __initdata = {
+@@ -128,13 +154,14 @@ static struct spi_board_info nokia770_spi_board_info[] __initdata = {
+ 		.chip_select    = 3,
+ 		.max_speed_hz   = 12000000,
+ 		.platform_data	= &nokia770_mipid_platform_data,
++		.swnode         = &nokia770_mipid_swnode,
+ 	},
+ 	[1] = {
+ 		.modalias       = "ads7846",
+ 		.bus_num        = 2,
+ 		.chip_select    = 0,
+ 		.max_speed_hz   = 2500000,
+-		.platform_data	= &nokia770_ads7846_platform_data,
++		.swnode         = &nokia770_ads7846_swnode,
+ 	},
+ };
+ 
+@@ -212,14 +239,16 @@ static inline void nokia770_mmc_init(void)
+ #endif
+ 
+ #if IS_ENABLED(CONFIG_I2C_CBUS_GPIO)
+-static struct gpiod_lookup_table nokia770_cbus_gpio_table = {
+-	.dev_id = "i2c-cbus-gpio.2",
+-	.table = {
+-		GPIO_LOOKUP_IDX("mpuio", 9, NULL, 0, 0), /* clk */
+-		GPIO_LOOKUP_IDX("mpuio", 10, NULL, 1, 0), /* dat */
+-		GPIO_LOOKUP_IDX("mpuio", 11, NULL, 2, 0), /* sel */
+-		{ },
+-	},
++
++static const struct software_node_ref_args nokia770_cbus_gpio_refs[] = {
++	SOFTWARE_NODE_REFERENCE(&nokia770_mpuio_gpiochip_swnode, 9, 0),
++	SOFTWARE_NODE_REFERENCE(&nokia770_mpuio_gpiochip_swnode, 10, 0),
++	SOFTWARE_NODE_REFERENCE(&nokia770_mpuio_gpiochip_swnode, 11, 0),
++};
++
++static const struct property_entry nokia770_ads7846_props[] = {
++	PROPERTY_ENTRY_REF_ARRAY("gpios", nokia770_cbus_gpio_refs),
++	{ }
+ };
+ 
+ static struct platform_device nokia770_cbus_device = {
+@@ -253,7 +282,8 @@ static void __init nokia770_cbus_init(void)
+ 	nokia770_i2c_board_info_2[1].irq = gpio_to_irq(tahvo_irq_gpio);
+ 	i2c_register_board_info(2, nokia770_i2c_board_info_2,
+ 				ARRAY_SIZE(nokia770_i2c_board_info_2));
+-	gpiod_add_lookup_table(&nokia770_cbus_gpio_table);
++	device_create_managed_software_node(&nokia770_cbus_device.dev,
++					    nokia770_cbus_props, NULL);
+ 	platform_device_register(&nokia770_cbus_device);
+ }
+ #else /* CONFIG_I2C_CBUS_GPIO */
+@@ -273,8 +303,8 @@ static void __init omap_nokia770_init(void)
+ 	/* Unmask SleepX signal */
+ 	omap_writew((omap_readw(0xfffb5004) & ~2), 0xfffb5004);
+ 
++	software_node_register_node_group(nokia770_gpiochip_nodes);
+ 	platform_add_devices(nokia770_devices, ARRAY_SIZE(nokia770_devices));
+-	nokia770_spi_board_info[1].irq = gpio_to_irq(15);
+ 	spi_register_board_info(nokia770_spi_board_info,
+ 				ARRAY_SIZE(nokia770_spi_board_info));
+ 	omap_serial_init();
+diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
+index 4325bdc2b9ff..c473304b4e3d 100644
+--- a/arch/arm/mach-pxa/spitz.c
++++ b/arch/arm/mach-pxa/spitz.c
+@@ -506,10 +506,18 @@ static struct ads7846_platform_data spitz_ads7846_info = {
+ 	.x_plate_ohms		= 419,
+ 	.y_plate_ohms		= 486,
+ 	.pressure_max		= 1024,
+-	.gpio_pendown		= SPITZ_GPIO_TP_INT,
+ 	.wait_for_sync		= spitz_ads7846_wait_for_hsync,
+ };
+ 
++static struct gpiod_lookup_table spitz_ads7846_gpio_table = {
++	.dev_id = "spi2.0",
++	.table = {
++		GPIO_LOOKUP("gpio-pxa", SPITZ_GPIO_TP_INT,
++			    "pendown", GPIO_ACTIVE_HIGH),
++		{ },
++	},
++};
++
+ static void spitz_bl_kick_battery(void)
+ {
+ 	void (*kick_batt)(void);
+@@ -594,6 +602,7 @@ static void __init spitz_spi_init(void)
+ 	else
+ 		gpiod_add_lookup_table(&spitz_lcdcon_gpio_table);
+ 
++	gpiod_add_lookup_table(&spitz_ads7846_gpio_table);
+ 	gpiod_add_lookup_table(&spitz_spi_gpio_table);
+ 	pxa2xx_set_spi_info(2, &spitz_spi_info);
+ 	spi_register_board_info(ARRAY_AND_SIZE(spitz_spi_devices));
+diff --git a/arch/mips/alchemy/devboards/db1000.c b/arch/mips/alchemy/devboards/db1000.c
+index 2c52ee27b4f2..f37644859f89 100644
+--- a/arch/mips/alchemy/devboards/db1000.c
++++ b/arch/mips/alchemy/devboards/db1000.c
+@@ -381,13 +381,21 @@ static struct platform_device db1100_mmc1_dev = {
+ static struct ads7846_platform_data db1100_touch_pd = {
+ 	.model		= 7846,
+ 	.vref_mv	= 3300,
+-	.gpio_pendown	= 21,
+ };
+ 
+ static struct spi_gpio_platform_data db1100_spictl_pd = {
+ 	.num_chipselect = 1,
+ };
+ 
++static struct gpiod_lookup_table db1100_touch_gpio_table = {
++	.dev_id = "spi0.0",
++	.table = {
++		GPIO_LOOKUP("alchemy-gpio2", 21,
++			    "pendown", GPIO_ACTIVE_HIGH),
++		{ },
++	},
++};
++
+ static struct spi_board_info db1100_spi_info[] __initdata = {
+ 	[0] = {
+ 		.modalias	 = "ads7846",
+@@ -474,6 +482,7 @@ int __init db1000_dev_setup(void)
+ 		pfc |= (1 << 0);	/* SSI0 pins as GPIOs */
+ 		alchemy_wrsys(pfc, AU1000_SYS_PINFUNC);
+ 
++		gpiod_add_lookup_table(&db1100_touch_gpio_table);
+ 		spi_register_board_info(db1100_spi_info,
+ 					ARRAY_SIZE(db1100_spi_info));
+ 
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index bb1058b1e7fd..eed6e8e0d680 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -24,11 +24,8 @@
+ #include <linux/interrupt.h>
+ #include <linux/slab.h>
+ #include <linux/pm.h>
+-#include <linux/of.h>
+-#include <linux/of_gpio.h>
+-#include <linux/of_device.h>
++#include <linux/property.h>
+ #include <linux/gpio/consumer.h>
+-#include <linux/gpio.h>
+ #include <linux/spi/spi.h>
+ #include <linux/spi/ads7846.h>
+ #include <linux/regulator/consumer.h>
+@@ -140,7 +137,7 @@ struct ads7846 {
+ 	int			(*filter)(void *data, int data_idx, int *val);
+ 	void			*filter_data;
+ 	int			(*get_pendown_state)(void);
+-	int			gpio_pendown;
++	struct gpio_desc	*gpio_pendown;
+ 
+ 	void			(*wait_for_sync)(void);
+ };
+@@ -223,7 +220,7 @@ static int get_pendown_state(struct ads7846 *ts)
+ 	if (ts->get_pendown_state)
+ 		return ts->get_pendown_state();
+ 
+-	return !gpio_get_value(ts->gpio_pendown);
++	return !gpiod_get_value(ts->gpio_pendown);
+ }
+ 
+ static void ads7846_report_pen_up(struct ads7846 *ts)
+@@ -989,8 +986,6 @@ static int ads7846_setup_pendown(struct spi_device *spi,
+ 				 struct ads7846 *ts,
+ 				 const struct ads7846_platform_data *pdata)
+ {
+-	int err;
+-
+ 	/*
+ 	 * REVISIT when the irq can be triggered active-low, or if for some
+ 	 * reason the touchscreen isn't hooked up, we don't need to access
+@@ -999,25 +994,15 @@ static int ads7846_setup_pendown(struct spi_device *spi,
+ 
+ 	if (pdata->get_pendown_state) {
+ 		ts->get_pendown_state = pdata->get_pendown_state;
+-	} else if (gpio_is_valid(pdata->gpio_pendown)) {
+-
+-		err = devm_gpio_request_one(&spi->dev, pdata->gpio_pendown,
+-					    GPIOF_IN, "ads7846_pendown");
+-		if (err) {
+-			dev_err(&spi->dev,
+-				"failed to request/setup pendown GPIO%d: %d\n",
+-				pdata->gpio_pendown, err);
+-			return err;
++	} else {
++		ts->gpio_pendown = gpiod_get(&spi->dev, "pendown", GPIOD_IN);
++		if (IS_ERR(ts->gpio_pendown)) {
++			dev_err(&spi->dev, "failed to request pendown GPIO\n");
++			return PTR_ERR(ts->gpio_pendown);
+ 		}
+-
+-		ts->gpio_pendown = pdata->gpio_pendown;
+-
+ 		if (pdata->gpio_pendown_debounce)
+-			gpiod_set_debounce(gpio_to_desc(ts->gpio_pendown),
++			gpiod_set_debounce(ts->gpio_pendown,
+ 					   pdata->gpio_pendown_debounce);
+-	} else {
+-		dev_err(&spi->dev, "no get_pendown_state nor gpio_pendown?\n");
+-		return -EINVAL;
+ 	}
+ 
+ 	return 0;
+@@ -1133,17 +1118,11 @@ MODULE_DEVICE_TABLE(of, ads7846_dt_ids);
+ static const struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
+ {
+ 	struct ads7846_platform_data *pdata;
+-	struct device_node *node = dev->of_node;
+-	const struct of_device_id *match;
++	const struct platform_device_id *pdev_id;
+ 	u32 value;
+ 
+-	if (!node) {
+-		dev_err(dev, "Device does not have associated DT data\n");
+-		return ERR_PTR(-EINVAL);
+-	}
+-
+-	match = of_match_device(ads7846_dt_ids, dev);
+-	if (!match) {
++	pdev_id = device_get_match_data(dev);
++	if (!pdev_id) {
+ 		dev_err(dev, "Unknown device model\n");
+ 		return ERR_PTR(-EINVAL);
+ 	}
+@@ -1152,50 +1131,48 @@ static const struct ads7846_platform_data *ads7846_probe_dt(struct device *dev)
+ 	if (!pdata)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	pdata->model = (unsigned long)match->data;
++	pdata->model = (unsigned long)pdev_id->driver_data;
+ 
+-	of_property_read_u16(node, "ti,vref-delay-usecs",
+-			     &pdata->vref_delay_usecs);
+-	of_property_read_u16(node, "ti,vref-mv", &pdata->vref_mv);
+-	pdata->keep_vref_on = of_property_read_bool(node, "ti,keep-vref-on");
++	device_property_read_u16(dev, "ti,vref-delay-usecs",
++				 &pdata->vref_delay_usecs);
++	device_property_read_u16(dev, "ti,vref-mv", &pdata->vref_mv);
++	pdata->keep_vref_on = device_property_read_bool(dev, "ti,keep-vref-on");
+ 
+-	pdata->swap_xy = of_property_read_bool(node, "ti,swap-xy");
++	pdata->swap_xy = device_property_read_bool(dev, "ti,swap-xy");
+ 
+-	of_property_read_u16(node, "ti,settle-delay-usec",
+-			     &pdata->settle_delay_usecs);
+-	of_property_read_u16(node, "ti,penirq-recheck-delay-usecs",
+-			     &pdata->penirq_recheck_delay_usecs);
++	device_property_read_u16(dev, "ti,settle-delay-usec",
++				 &pdata->settle_delay_usecs);
++	device_property_read_u16(dev, "ti,penirq-recheck-delay-usecs",
++				 &pdata->penirq_recheck_delay_usecs);
+ 
+-	of_property_read_u16(node, "ti,x-plate-ohms", &pdata->x_plate_ohms);
+-	of_property_read_u16(node, "ti,y-plate-ohms", &pdata->y_plate_ohms);
++	device_property_read_u16(dev, "ti,x-plate-ohms", &pdata->x_plate_ohms);
++	device_property_read_u16(dev, "ti,y-plate-ohms", &pdata->y_plate_ohms);
+ 
+-	of_property_read_u16(node, "ti,x-min", &pdata->x_min);
+-	of_property_read_u16(node, "ti,y-min", &pdata->y_min);
+-	of_property_read_u16(node, "ti,x-max", &pdata->x_max);
+-	of_property_read_u16(node, "ti,y-max", &pdata->y_max);
++	device_property_read_u16(dev, "ti,x-min", &pdata->x_min);
++	device_property_read_u16(dev, "ti,y-min", &pdata->y_min);
++	device_property_read_u16(dev, "ti,x-max", &pdata->x_max);
++	device_property_read_u16(dev, "ti,y-max", &pdata->y_max);
+ 
+ 	/*
+ 	 * touchscreen-max-pressure gets parsed during
+ 	 * touchscreen_parse_properties()
+ 	 */
+-	of_property_read_u16(node, "ti,pressure-min", &pdata->pressure_min);
+-	if (!of_property_read_u32(node, "touchscreen-min-pressure", &value))
++	device_property_read_u16(dev, "ti,pressure-min", &pdata->pressure_min);
++	if (!device_property_read_u32(dev, "touchscreen-min-pressure", &value))
+ 		pdata->pressure_min = (u16) value;
+-	of_property_read_u16(node, "ti,pressure-max", &pdata->pressure_max);
++	device_property_read_u16(dev, "ti,pressure-max", &pdata->pressure_max);
+ 
+-	of_property_read_u16(node, "ti,debounce-max", &pdata->debounce_max);
+-	if (!of_property_read_u32(node, "touchscreen-average-samples", &value))
++	device_property_read_u16(dev, "ti,debounce-max", &pdata->debounce_max);
++	if (!device_property_read_u32(dev, "touchscreen-average-samples", &value))
+ 		pdata->debounce_max = (u16) value;
+-	of_property_read_u16(node, "ti,debounce-tol", &pdata->debounce_tol);
+-	of_property_read_u16(node, "ti,debounce-rep", &pdata->debounce_rep);
++	device_property_read_u16(dev, "ti,debounce-tol", &pdata->debounce_tol);
++	device_property_read_u16(dev, "ti,debounce-rep", &pdata->debounce_rep);
+ 
+-	of_property_read_u32(node, "ti,pendown-gpio-debounce",
++	device_property_read_u32(dev, "ti,pendown-gpio-debounce",
+ 			     &pdata->gpio_pendown_debounce);
+ 
+-	pdata->wakeup = of_property_read_bool(node, "wakeup-source") ||
+-			of_property_read_bool(node, "linux,wakeup");
+-
+-	pdata->gpio_pendown = of_get_named_gpio(dev->of_node, "pendown-gpio", 0);
++	pdata->wakeup = device_property_read_bool(dev, "wakeup-source") ||
++			device_property_read_bool(dev, "linux,wakeup");
+ 
+ 	return pdata;
+ }
+@@ -1426,7 +1403,7 @@ static struct spi_driver ads7846_driver = {
+ 	.driver = {
+ 		.name	= "ads7846",
+ 		.pm	= pm_sleep_ptr(&ads7846_pm),
+-		.of_match_table = of_match_ptr(ads7846_dt_ids),
++		.of_match_table = ads7846_dt_ids,
+ 	},
+ 	.probe		= ads7846_probe,
+ 	.remove		= ads7846_remove,
+diff --git a/drivers/video/fbdev/omap/lcd_mipid.c b/drivers/video/fbdev/omap/lcd_mipid.c
+index 03cff39d392d..e4a7f0b824ff 100644
+--- a/drivers/video/fbdev/omap/lcd_mipid.c
++++ b/drivers/video/fbdev/omap/lcd_mipid.c
+@@ -7,6 +7,7 @@
+  */
+ #include <linux/device.h>
+ #include <linux/delay.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
+ #include <linux/spi/spi.h>
+@@ -41,6 +42,7 @@ struct mipid_device {
+ 						   when we can issue the
+ 						   next sleep in/out command */
+ 	unsigned long	hw_guard_wait;		/* max guard time in jiffies */
++	struct gpio_desc	*reset;
+ 
+ 	struct omapfb_device	*fbdev;
+ 	struct spi_device	*spi;
+@@ -556,6 +558,12 @@ static int mipid_spi_probe(struct spi_device *spi)
+ 		return -ENOMEM;
+ 	}
+ 
++	/* This will de-assert RESET if active */
++	md->reset = gpiod_get(&spi->dev, "reset", GPIOD_OUT_LOW);
++	if (IS_ERR(md->reset))
++		return dev_err_probe(&spi->dev, PTR_ERR(md->reset),
++				     "no reset GPIO line\n");
++
+ 	spi->mode = SPI_MODE_0;
+ 	md->spi = spi;
+ 	dev_set_drvdata(&spi->dev, md);
+@@ -574,6 +582,8 @@ static void mipid_spi_remove(struct spi_device *spi)
+ {
+ 	struct mipid_device *md = dev_get_drvdata(&spi->dev);
+ 
++	/* Asserts RESET */
++	gpiod_set_value(md->reset, 1);
+ 	mipid_disable(&md->panel);
+ 	kfree(md);
+ }
+diff --git a/include/linux/platform_data/lcd-mipid.h b/include/linux/platform_data/lcd-mipid.h
+index 63f05eb23827..4927cfc5158c 100644
+--- a/include/linux/platform_data/lcd-mipid.h
++++ b/include/linux/platform_data/lcd-mipid.h
+@@ -15,10 +15,8 @@ enum mipid_test_result {
+ #ifdef __KERNEL__
+ 
+ struct mipid_platform_data {
+-	int	nreset_gpio;
+ 	int	data_lines;
+ 
+-	void	(*shutdown)(struct mipid_platform_data *pdata);
+ 	void	(*set_bklight_level)(struct mipid_platform_data *pdata,
+ 				     int level);
+ 	int	(*get_bklight_level)(struct mipid_platform_data *pdata);
+diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
+index d424c1aadf38..a04c1c34c344 100644
+--- a/include/linux/spi/ads7846.h
++++ b/include/linux/spi/ads7846.h
+@@ -35,8 +35,6 @@ struct ads7846_platform_data {
+ 	u16	debounce_tol;		/* tolerance used for filtering */
+ 	u16	debounce_rep;		/* additional consecutive good readings
+ 					 * required after the first two */
+-	int	gpio_pendown;		/* the GPIO used to decide the pendown
+-					 * state if get_pendown_state == NULL */
+ 	int	gpio_pendown_debounce;	/* platform specific debounce time for
+ 					 * the gpio_pendown */
+ 	int	(*get_pendown_state)(void);
+
+-- 
+2.34.1
+

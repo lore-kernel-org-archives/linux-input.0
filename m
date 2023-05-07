@@ -2,47 +2,47 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A70DC77B75
-	for <linux-input@archiver.kernel.org>; Sun,  7 May 2023 00:37:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0317CC7EE22
+	for <linux-input@archiver.kernel.org>; Sun,  7 May 2023 00:37:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232124AbjEGAht (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 6 May 2023 20:37:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58892 "EHLO
+        id S232016AbjEGAh6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 6 May 2023 20:37:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231751AbjEGAhY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 May 2023 20:37:24 -0400
+        with ESMTP id S231991AbjEGAhe (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 May 2023 20:37:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC9BF24501;
-        Sat,  6 May 2023 17:35:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F3AA2269D;
+        Sat,  6 May 2023 17:36:00 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A8B8614E2;
-        Sun,  7 May 2023 00:34:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C297C433D2;
-        Sun,  7 May 2023 00:34:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8912961530;
+        Sun,  7 May 2023 00:35:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27CDDC433D2;
+        Sun,  7 May 2023 00:35:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1683419684;
-        bh=uAYOQ+WUCg3MBPa+hNepJ9efR/5fVWngUCRq0RAmosE=;
+        s=k20201202; t=1683419732;
+        bh=qthCPBfY2wP7lOEL6UkdVpBSLFAuLbFQlXttDAI38ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6rVjk5ohC251+se1BPSnCSp8qC6MxpUmbOa2b1UIAxwMMQ8rX4LjS9uLegSn7fav
-         tC+lAZXoK+Nu57RLskd1zS0Hzf441QdPcj5LsdfMRIrW26HMF9CM3SYp0RP4u+mWFe
-         33LfOo/p7Yq4wHF5aq7sb8umuTHC/jDQU5WHzyQ1B5ALJ3fWKHXkyjU/IQ++LimVTZ
-         CfCZWGDzMmmZZZSFoaUmYo5DnlAbAGq/RZJyAXhNGI8Z+BNJCgbBeZWh9JRVxj9jEw
-         4R+lGH/abhU3ngON0oflQm1UDa5XDRmIzVRm9ZAqAgXIm4GCcuPgYc/S/3ATv+Gs6C
-         XUZ+KZzsP4AGA==
+        b=OsBggR233qDq7X+DSbY1etz82d3+/wQr7cVZ0nJ+LZMj4GrEAzZ3hu+8PjgIKEs9P
+         Mcl0UurodUefCymilvxsBybnaLrk6/BX5IveneX29XkYMH2n+O3H738U335gV8h9O7
+         vDrWhPvWq+kKKljlYCK6FCgty5C0Y5dpL5St2S7iz+i6Uq2x/2AKnCVaj/BayAZXM5
+         YZPzwr85C9PgvJRov1bvga0h0HYJkvWVg7HW1Zu8MZb+jNXK1hR6YaMHmcAVUFyPZS
+         MCQjbVInaHaQOhZdeF5cYUE2tP/exEB88PN8zG3iv0WKXypu60gL9ATyEL5I6pYzEx
+         +pA4Q9EVwlQDg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Bastien Nocera <hadess@hadess.net>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 07/19] HID: logitech-hidpp: Don't use the USB serial for USB devices
-Date:   Sat,  6 May 2023 20:34:05 -0400
-Message-Id: <20230507003417.4077259-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 04/10] HID: logitech-hidpp: Don't use the USB serial for USB devices
+Date:   Sat,  6 May 2023 20:35:10 -0400
+Message-Id: <20230507003517.4078384-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230507003417.4077259-1-sashal@kernel.org>
-References: <20230507003417.4077259-1-sashal@kernel.org>
+In-Reply-To: <20230507003517.4078384-1-sashal@kernel.org>
+References: <20230507003517.4078384-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -76,10 +76,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 51 insertions(+)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index e906ee375298a..c39a4c56678de 100644
+index 601ab673727dc..5eb25812e9479 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -932,6 +932,55 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+@@ -928,6 +928,55 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
  	return 0;
  }
  
@@ -135,7 +135,7 @@ index e906ee375298a..c39a4c56678de 100644
  /* -------------------------------------------------------------------------- */
  /* 0x0005: GetDeviceNameType                                                  */
  /* -------------------------------------------------------------------------- */
-@@ -4194,6 +4243,8 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -4141,6 +4190,8 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  
  	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING)
  		hidpp_unifying_init(hidpp);

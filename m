@@ -2,48 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 884EEC77B75
-	for <linux-input@archiver.kernel.org>; Sun,  7 May 2023 00:36:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3A90C7EE22
+	for <linux-input@archiver.kernel.org>; Sun,  7 May 2023 00:37:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231976AbjEGAgm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 6 May 2023 20:36:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58858 "EHLO
+        id S232069AbjEGAhd (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 6 May 2023 20:37:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231450AbjEGAgI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 6 May 2023 20:36:08 -0400
+        with ESMTP id S231918AbjEGAhM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 6 May 2023 20:37:12 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8786E2D434;
-        Sat,  6 May 2023 17:34:38 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70E052E6AB;
+        Sat,  6 May 2023 17:35:34 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF8AF6148B;
-        Sun,  7 May 2023 00:33:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF33C4339B;
-        Sun,  7 May 2023 00:33:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 337B4614D4;
+        Sun,  7 May 2023 00:34:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D888C4339B;
+        Sun,  7 May 2023 00:34:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1683419589;
-        bh=rRsfa/ezyH41hs1n7WjcxQEYUsfC2BpaHFjZlLJc1iY=;
+        s=k20201202; t=1683419670;
+        bh=OR4wLaTrbIV/TdmtFN5d/6fnAcy9vhCzHuKrbvT5koQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvNGGnPeYyQ1+F+z1YHSM1zOWufZkI0x4EkxxksptvwNJD2yG30RZ+0jp7C+NBc/V
-         DV/ypZJGcJ7tJol/SMz0rAMWsY9fDVNNr0GN0sfTeq1MT4jL24ArdJULVe765hYCoi
-         i0P+2qIUiJujbqirpkj8y0cS6a8jh2NECYv5g3pK6FWnDKQMDSKXGucqqC7JPBb/dr
-         ECiw2QUzfHfcYezwjx66HYbcXgSpduIgRrvn/YobKM3PTM4BFb9kiqVYDovEpsd4pn
-         VfeJG45KoPXxCzRol3cGgBZXmJ75gtG3jmV+Gf1h0NSXJDWZCio1Rsja3/EmpuIyOr
-         RrV6N5w7XlnSQ==
+        b=f1mmf8p3qRJWF7O7L6qJO/jkcOXvpsekLvd5ncSCthFuTKGFm/Cbi/5IzdwCNkCJv
+         8z0utbD+OaLI7cpVJKwx6wRBCsaF4sge1WNSR+QaBd683DgpduOVdnk+l02lbHX9em
+         63cJR5KId9PlzcRzcn6xtMIOr7GQgVudVnv4o2XZshTXRxU5fldB2qeTtJBnEbyR+P
+         POmcmQgwamPdbp7qscmJzCaKLjlY/AFfq4NyjRTjKxGrFGiLaoNFloQ+O8gnYeGf26
+         ibFoWgWrY/UlB9O0Htm3CiWot7WfjxHpQvXZTxNe1Mum7doQYwvq62YJ+ePEHMGCuB
+         G/h5g0+s1VpEg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bastien Nocera <hadess@hadess.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+Cc:     Alex Henrie <alexhenrie24@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 08/20] HID: logitech-hidpp: Don't use the USB serial for USB devices
-Date:   Sat,  6 May 2023 20:32:23 -0400
-Message-Id: <20230507003237.4074305-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 03/19] HID: apple: Set the tilde quirk flag on the Geyser 4 and later
+Date:   Sat,  6 May 2023 20:34:01 -0400
+Message-Id: <20230507003417.4077259-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230507003237.4074305-1-sashal@kernel.org>
-References: <20230507003237.4074305-1-sashal@kernel.org>
+In-Reply-To: <20230507003417.4077259-1-sashal@kernel.org>
+References: <20230507003417.4077259-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,99 +52,95 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Bastien Nocera <hadess@hadess.net>
+From: Alex Henrie <alexhenrie24@gmail.com>
 
-[ Upstream commit 7ad1fe0da0fa91bf920b79ab05ae97bfabecc4f4 ]
+[ Upstream commit c3388ddc74a863466c7c3fa24d3a9cea9c9bca53 ]
 
-For devices that support the 0x0003 feature (Device Information) version 4,
-set the serial based on the output of that feature, rather than relying
-on the usbhid code setting the USB serial.
+I recently tested several old MacBooks and as far as I can tell, all
+MacBooks that have an ISO keyboard have the tilde key quirk:
 
-This should allow the serial when connected through USB to (nearly)
-match the one when connected through a unifying receiver.
+Product    Model  Year  System      CPU    Shape  Labels     Country  Quirky
+============================================================================
+05ac:021b  A1181  2006  MacBook2,1  T5600  ISO    British    13       Yes
+05ac:021b  A1181  2007  MacBook2,1  T7200  ISO    Québécois  13       Yes
+05ac:0229  A1181  2007  MacBook4,1  T8300  ANSI   Usonian    33       No
+05ac:022a  A1181  2007  MacBook4,1  T8100  ISO    English    13       Yes
+05ac:022a  A1181  2007  MacBook5,2  P7350  ISO    Québécois  13       Yes
+05ac:0237  A1278  2008  MacBook5,1  P7350  ISO    Dutch      13       Yes
+05ac:0237  A1278  2009  MacBook5,5  P7550  ISO    British    13       Yes
 
-For example, on the serials on a G903 wired/wireless mouse:
-- Unifying: 4067-e8-ce-cd-45
-- USB before patch: 017C385C3837
-- USB after patch: c086-e8-ce-cd-45
+The model number and year are from the laptop case. Since Apple printed
+the same model and year on many different laptops, the system name (as
+reported in the SMBIOS tables) and CPU form a more precise identifier.
 
-Signed-off-by: Bastien Nocera <hadess@hadess.net>
-Link: https://lore.kernel.org/r/20230302130117.3975-1-hadess@hadess.net
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Alex Henrie <alexhenrie24@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 51 ++++++++++++++++++++++++++++++++
- 1 file changed, 51 insertions(+)
+ drivers/hid/hid-apple.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 3c00e6ac8e76a..1795d5fb2b42b 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -932,6 +932,55 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- 	return 0;
- }
- 
-+/* -------------------------------------------------------------------------- */
-+/* 0x0003: Device Information                                                 */
-+/* -------------------------------------------------------------------------- */
-+
-+#define HIDPP_PAGE_DEVICE_INFORMATION			0x0003
-+
-+#define CMD_GET_DEVICE_INFO				0x00
-+
-+static int hidpp_get_serial(struct hidpp_device *hidpp, u32 *serial)
-+{
-+	struct hidpp_report response;
-+	u8 feature_type;
-+	u8 feature_index;
-+	int ret;
-+
-+	ret = hidpp_root_get_feature(hidpp, HIDPP_PAGE_DEVICE_INFORMATION,
-+				     &feature_index,
-+				     &feature_type);
-+	if (ret)
-+		return ret;
-+
-+	ret = hidpp_send_fap_command_sync(hidpp, feature_index,
-+					  CMD_GET_DEVICE_INFO,
-+					  NULL, 0, &response);
-+	if (ret)
-+		return ret;
-+
-+	/* See hidpp_unifying_get_serial() */
-+	*serial = *((u32 *)&response.rap.params[1]);
-+	return 0;
-+}
-+
-+static int hidpp_serial_init(struct hidpp_device *hidpp)
-+{
-+	struct hid_device *hdev = hidpp->hid_dev;
-+	u32 serial;
-+	int ret;
-+
-+	ret = hidpp_get_serial(hidpp, &serial);
-+	if (ret)
-+		return ret;
-+
-+	snprintf(hdev->uniq, sizeof(hdev->uniq), "%04x-%4phD",
-+		 hdev->product, &serial);
-+	dbg_hid("HID++ DeviceInformation: Got serial: %s\n", hdev->uniq);
-+
-+	return 0;
-+}
-+
- /* -------------------------------------------------------------------------- */
- /* 0x0005: GetDeviceNameType                                                  */
- /* -------------------------------------------------------------------------- */
-@@ -4194,6 +4243,8 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING)
- 		hidpp_unifying_init(hidpp);
-+	else if (hid_is_usb(hidpp->hid_dev))
-+		hidpp_serial_init(hidpp);
- 
- 	connected = hidpp_root_get_protocol_version(hidpp) == 0;
- 	atomic_set(&hidpp->connected, connected);
+diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
+index c671ce94671ca..f21b1c4ca8254 100644
+--- a/drivers/hid/hid-apple.c
++++ b/drivers/hid/hid-apple.c
+@@ -861,7 +861,8 @@ static const struct hid_device_id apple_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ANSI),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_ISO),
+-		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
++			APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_JIS),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
+ 			APPLE_RDESC_JIS },
+@@ -880,7 +881,8 @@ static const struct hid_device_id apple_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ANSI),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_ISO),
+-		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN },
++		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
++			APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_GEYSER4_HF_JIS),
+ 		.driver_data = APPLE_NUMLOCK_EMULATION | APPLE_HAS_FN |
+ 			APPLE_RDESC_JIS },
+@@ -921,31 +923,31 @@ static const struct hid_device_id apple_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ANSI),
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_ISO),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ANSI),
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_ISO),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING2_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ANSI),
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_ISO),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING3_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4_ANSI),
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4_ISO),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4A_ANSI),
+ 		.driver_data = APPLE_HAS_FN },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4A_ISO),
+-		.driver_data = APPLE_HAS_FN },
++		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING4A_JIS),
+ 		.driver_data = APPLE_HAS_FN | APPLE_RDESC_JIS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_WELLSPRING5_ANSI),
 -- 
 2.39.2
 

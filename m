@@ -2,50 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D853C7EE24
-	for <linux-input@archiver.kernel.org>; Tue,  9 May 2023 21:23:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B3ADC7EE24
+	for <linux-input@archiver.kernel.org>; Tue,  9 May 2023 21:24:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235935AbjEIVXN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 9 May 2023 17:23:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39110 "EHLO
+        id S236078AbjEIVYB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 9 May 2023 17:24:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235929AbjEIVV5 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 9 May 2023 17:21:57 -0400
+        with ESMTP id S236097AbjEIVXe (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 9 May 2023 17:23:34 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 338EF86A5;
-        Tue,  9 May 2023 14:20:45 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01E139005;
+        Tue,  9 May 2023 14:21:10 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C2A063748;
-        Tue,  9 May 2023 21:20:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12318C433A4;
-        Tue,  9 May 2023 21:20:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD58163474;
+        Tue,  9 May 2023 21:21:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E71E0C433A7;
+        Tue,  9 May 2023 21:21:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1683667241;
-        bh=kjDmwvX1LRkKsG7MuAuwxv7XIPmKH3HNiJd8gJfyPWE=;
+        s=k20201202; t=1683667270;
+        bh=4knAG3RUm6soJKDwALrqcaCFg+q9W4kn1/iRmmyAGQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JREm2aBBgtbYaiETpOeflgfQu+LddtUl33MHNggFKkyMr/5XmlfpjzQM1gY/a3cmL
-         HqvkcvEkrsMln3Dw7XUYgpMHROZrGwi3EcqKmIMiWZaQ4j4K117vNqdJJgohWY0AF1
-         Rb9YbHY95zNUfkixp3tbl2MYtEy/hUCuKg8RzQxecNJzM/y99tnd1MbplcRERsrO4m
-         Ujb8ViaRi4mkreBsofo+C+AlcukvJw1DMGIjW7DSHwjC3H30FaMY4CtNRbzlk1jX9S
-         cu3RVFirql+20w8q8sC3fqe858XWvwJN7tD3dyRn2w+Lgz3spPyLL37PvJqdrK6niV
-         MuyLVkf+m4lSA==
+        b=Yr4/x71xRRIUooq1+/zlY/AsWBknIgxGkHF/PB85YYx5RzsNy9gkAiVhHVnC5i5Id
+         FAO8pvvQX0BvvPldgtx8z/Q/IP6S3wkZvIImcXt3PWOTf3NYUlmTpjtEmMj3eFr6fO
+         l8Hncbt4w7brmPT0Sk35dvbM3+hgVXnPbK0WitLB2njTUoTHMgA8i/K1Lo9Ugros13
+         FdWR55QhHHHhyRRAG3IYcoI6riCGAiZbSC0zOGYLwIKuevR8rd+LDRy6NZOYdv0bsy
+         JhuN8us0JRsrvHuY31dV1JLzgcgltyIr9WuZSBDV2FW9ZQViMLFofWp0w9nVvVIp9g
+         dummkVrJG+baw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Vicki Pfau <vi@endrift.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, rojtberg@gmail.com,
         nate@yocom.org, mkorpershoek@baylibre.com,
-        pgriffais@valvesoftware.com, aicommander@gmail.com,
-        chaorace@gmail.com, s.demassari@gmail.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 13/13] Input: xpad - add constants for GIP interface numbers
-Date:   Tue,  9 May 2023 17:20:21 -0400
-Message-Id: <20230509212023.22105-13-sashal@kernel.org>
+        pgriffais@valvesoftware.com, chaorace@gmail.com,
+        s.demassari@gmail.com, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 4/4] Input: xpad - add constants for GIP interface numbers
+Date:   Tue,  9 May 2023 17:20:56 -0400
+Message-Id: <20230509212058.22651-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230509212023.22105-1-sashal@kernel.org>
-References: <20230509212023.22105-1-sashal@kernel.org>
+In-Reply-To: <20230509212058.22651-1-sashal@kernel.org>
+References: <20230509212058.22651-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -71,10 +70,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index dbfabd229a7c6..a7af9b56e338f 100644
+index 70dedc0f7827c..0bd55e1fca372 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -493,6 +493,9 @@ struct xboxone_init_packet {
+@@ -489,6 +489,9 @@ struct xboxone_init_packet {
  	}
  
  
@@ -84,7 +83,7 @@ index dbfabd229a7c6..a7af9b56e338f 100644
  /*
   * This packet is required for all Xbox One pads with 2015
   * or later firmware installed (or present from the factory).
-@@ -1821,7 +1824,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+@@ -1813,7 +1816,7 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
  	}
  
  	if (xpad->xtype == XTYPE_XBOXONE &&

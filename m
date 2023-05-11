@@ -2,821 +2,252 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C904AC7EE22
-	for <linux-input@archiver.kernel.org>; Thu, 11 May 2023 18:53:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C6E85C77B7C
+	for <linux-input@archiver.kernel.org>; Thu, 11 May 2023 19:49:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239035AbjEKSxY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 11 May 2023 14:53:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57628 "EHLO
+        id S239324AbjEKTs7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 11 May 2023 15:48:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239034AbjEKSxM (ORCPT
+        with ESMTP id S239337AbjEKTsf (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 11 May 2023 14:53:12 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4EF54C20;
-        Thu, 11 May 2023 11:53:07 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id 41be03b00d2f7-52160f75920so6116440a12.2;
-        Thu, 11 May 2023 11:53:07 -0700 (PDT)
+        Thu, 11 May 2023 15:48:35 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43B0C35AA
+        for <linux-input@vger.kernel.org>; Thu, 11 May 2023 12:48:08 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id d9443c01a7336-1aaebed5bd6so65065635ad.1
+        for <linux-input@vger.kernel.org>; Thu, 11 May 2023 12:48:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1683831186; x=1686423186;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ozDcr45ZL3uhTxX7nQir9HbKe06QNXc1uJkqNoy0VS4=;
-        b=KgVUjZQYjLl/1MCLY3aQnypFe6JFHjcjAurP02168P9jK7OOvrUxM09CtPlSgxfuXq
-         eOQC940ITjc7ww/JMwJwaW4dZv46ESZZTmjc81VHB+y+GCFL67GKK7lyRM+BYYA9qPgf
-         MvISNJDcUr8oQoNvKB5EN/sxJnY7VVl3NyA/1tXamvb7ImN7uHPIm5qy1pTcPatjgwWY
-         yvUVlEjoBP0gjaRKP27plcYCscQtRxwqh+yirNutszrFkEaZkgNV99nWsNEKy5pnONgH
-         yJXCITiqbvSgogORDm2L4cGrwWA/TJMexPE2g4OR01h0PusdaEweyuIRJOqwIuxaHY2I
-         zpIg==
+        d=joshua-dickens-com.20221208.gappssmtp.com; s=20221208; t=1683834485; x=1686426485;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=1vC0rNuPx0IWbkz7Fn9Bis5ExEOwUS4ha7xvVAnEDyM=;
+        b=I1q+KtIplOawBCueb+mem/TAK2t/+um0VWOCqSPNt/WyUHCcuXOtzHf6jAPHVH+XAi
+         5d8dJQRwAhKl0Rv5yMR50ogpHJkt0G26lu/Pwwy4A09oze4Vhv7Mg7wNHjNGR0i4psrS
+         sNUv1+k1ZZi99GOp4OjTOI/USxuOamqb+BqZ6Vi8MOqADhXwkwjlbAGBixxsA7J9Td4D
+         BPTpK9yETIkxdSjgaMwP7vI+HopevevEaPldT3/98Ay7VcViGBVSaCMoexD5tl/Z5DIB
+         HHat+2voV1aPhj+psWi39G/0kQL3c4febkmJdsZyCUbjcWN8xXFljh6sONvuUxsyI53l
+         C9qg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1683831186; x=1686423186;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ozDcr45ZL3uhTxX7nQir9HbKe06QNXc1uJkqNoy0VS4=;
-        b=JxVZ895J0RX51NcQpzetVzHTaNE0J1VKTRH9MhvtwPjcJ0GB8Ztt/Drl3ctOqeJ9yr
-         xbafPHScbbWLRKNPdgNRr5jz38em2giKutTXP1nXsTlOEOdm7ftcDnSHphJcbk7Cj/3e
-         AGBCuYwIvJiq58Pk9VnPJAoFBXL6QQINUTLJCfGJS4YwxLdZ7W5VBPehNL4vA+iZhSHj
-         SlA9Tvtqzz+ObMVA8wph8uqUptS5AIB/R9ZsuGWXvWWP1McsznoT3uxnLBqc2XnoFHgX
-         sD6lEVTyXWOpTZatw0wS98KxuP7FTtW8M0ZizurCIM9gtCtgNBR1fGLMYuEhmtztWc2q
-         D0RA==
-X-Gm-Message-State: AC+VfDwHWzhWCxSlimomQDs356s9kyjCL9ZxMNFAvkLMKN59dqNiO5A5
-        vH8zWvTJH65Fw1wsg3gWKJygZ+zvc+4=
-X-Google-Smtp-Source: ACHHUZ5gJ20+rxrTl6B1DSn1eQYAf1XPUxuCXKGcTn+RqYVhJF5MHbAPiz6/rKDe/m3zmQOpaprwzA==
-X-Received: by 2002:a17:902:c40a:b0:1ab:28ec:bf10 with SMTP id k10-20020a170902c40a00b001ab28ecbf10mr31282200plk.51.1683831185438;
-        Thu, 11 May 2023 11:53:05 -0700 (PDT)
-Received: from dtor-ws.mtv.corp.google.com ([2620:15c:9d:2:84a:ed9c:4024:c347])
-        by smtp.gmail.com with ESMTPSA id q5-20020a170902788500b001a980a23804sm6288995pll.4.2023.05.11.11.53.03
+        d=1e100.net; s=20221208; t=1683834485; x=1686426485;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1vC0rNuPx0IWbkz7Fn9Bis5ExEOwUS4ha7xvVAnEDyM=;
+        b=J9KMFWFjRtDbbhozy0KQ39L8N7gr0kpBbhs284Q2QODtewQR1+iBY17GeHaeW+q6U1
+         dJOSru3iN5AZM9dEtAN8CcGD3IAWsH+NMDcsA3zuF/3Ky31k3VrkbsbxuHqixkb6BXqE
+         kv4jKA/mm5j+UppElMXuo14ehY4wbK3nWQtMT2J/TA1awKZFQlRuRv5UAdiMAuzNye8J
+         ywOVyGUh/iPiJ8slVZ34onTgHgJT6/rJ1FfagP48pj/O1lTbC5+YkL78FUwpT/VwPH7w
+         QeWrOej+Q6DD2tX8MyAnx2Y31GJ37IvBYsy8NgJ+jyg2OUa0buqRYMECz3gAfFCuA3do
+         SqaA==
+X-Gm-Message-State: AC+VfDxtPDS8U1qBEzyrv/eusoUkcKzVnj1oNKthfBRAgbyThjXhcZWU
+        QiAVBgaNuVOgORxPUJWhDQW9XPxtI34/Ci/KAczL7Q==
+X-Google-Smtp-Source: ACHHUZ4+tb0QDGfnO/UIx7po9h291CGcIhAnaLbbS/pmgWKFLBiossUkNC8w/zOhVOLWNTUNG2fqEQ==
+X-Received: by 2002:a17:902:db04:b0:1ac:8dae:d842 with SMTP id m4-20020a170902db0400b001ac8daed842mr16298503plx.46.1683834485356;
+        Thu, 11 May 2023 12:48:05 -0700 (PDT)
+Received: from fedora.. ([50.39.134.154])
+        by smtp.gmail.com with ESMTPSA id b17-20020a170903229100b001ab39cd885esm6288744plh.212.2023.05.11.12.48.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 May 2023 11:53:04 -0700 (PDT)
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     linux-input@vger.kernel.org
-Cc:     Raul E Rangel <rrangel@chromium.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 6/7] Input: libps2 - introduce common interrupt handler
-Date:   Thu, 11 May 2023 11:52:46 -0700
-Message-ID: <20230511185252.386941-7-dmitry.torokhov@gmail.com>
-X-Mailer: git-send-email 2.40.1.606.ga4b1b128d6-goog
-In-Reply-To: <20230511185252.386941-1-dmitry.torokhov@gmail.com>
-References: <20230511185252.386941-1-dmitry.torokhov@gmail.com>
+        Thu, 11 May 2023 12:48:04 -0700 (PDT)
+From:   Joshua Dickens <joshua@joshua-dickens.com>
+X-Google-Original-From: Joshua Dickens <Joshua@Joshua-Dickens.com>
+To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Jason Gerecke <killertofu@gmail.com>,
+        Joshua Dickens <Joshua@Joshua-Dickens.com>,
+        Joshua Dickens <joshua.dickens@wacom.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>
+Subject: [PATCH] selftests: hid: Add touch tests for Wacom devices
+Date:   Thu, 11 May 2023 12:47:54 -0700
+Message-Id: <20230511194754.129571-1-Joshua@Joshua-Dickens.com>
+X-Mailer: git-send-email 2.40.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Instead of exposing inner workings of libps2 to drivers such as atkbd and
-psmouse, have them define pre-receive and receive callbacks, and provide a
-common handler that can be used with underlying serio port.
+Adding a wacom touch device to use the test_multitouch tests.
+Adding a 2 additional tests.
+ - A test to check if a touch event is sent when the contact_id of the even=
+t is 0.
+ - A test to check if a touch event is not sent when confidence is set to 0.
 
-While at this add kerneldoc to the module.
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Joshua Dickens <joshua.dickens@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
 ---
- drivers/input/keyboard/atkbd.c     |  73 +++++-----
- drivers/input/mouse/psmouse-base.c |  53 +++----
- drivers/input/serio/libps2.c       | 226 ++++++++++++++++++++---------
- include/linux/libps2.h             |  61 +++++---
- 4 files changed, 259 insertions(+), 154 deletions(-)
+ .../selftests/hid/tests/test_wacom_generic.py | 84 ++++++++++++++++++-
+ 1 file changed, 81 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index 2fb2ad73e796..8ef663a589b3 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -398,47 +398,49 @@ static unsigned int atkbd_compat_scancode(struct atkbd *atkbd, unsigned int code
- 	return code;
- }
- 
--/*
-- * atkbd_interrupt(). Here takes place processing of data received from
-- * the keyboard into events.
-- */
--
--static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
--				   unsigned int flags)
-+static enum ps2_disposition atkbd_pre_receive_byte(struct ps2dev *ps2dev,
-+						   u8 data, unsigned int flags)
- {
--	struct atkbd *atkbd = atkbd_from_serio(serio);
--	struct input_dev *dev = atkbd->dev;
--	unsigned int code = data;
--	int scroll = 0, hscroll = 0, click = -1;
--	int value;
--	unsigned short keycode;
-+	struct serio *serio = ps2dev->serio;
- 
- 	dev_dbg(&serio->dev, "Received %02x flags %02x\n", data, flags);
- 
- #if !defined(__i386__) && !defined (__x86_64__)
--	if ((flags & (SERIO_FRAME | SERIO_PARITY)) && (~flags & SERIO_TIMEOUT) && !atkbd->resend && atkbd->write) {
--		dev_warn(&serio->dev, "Frame/parity error: %02x\n", flags);
--		serio_write(serio, ATKBD_CMD_RESEND);
--		atkbd->resend = true;
--		goto out;
-+	if ((flags & (SERIO_FRAME | SERIO_PARITY)) &&
-+	    (~flags & SERIO_TIMEOUT)) {
-+		struct atkbd *atkbd = container_of(ps2dev, struct atkbd,
-+						   ps2dev);
+diff --git a/tools/testing/selftests/hid/tests/test_wacom_generic.py b/tool=
+s/testing/selftests/hid/tests/test_wacom_generic.py
+index b1eb2bc787fc..f92fe8e02c1b 100644
+--- a/tools/testing/selftests/hid/tests/test_wacom_generic.py
++++ b/tools/testing/selftests/hid/tests/test_wacom_generic.py
+@@ -31,6 +31,7 @@ from enum import Enum
+ from hidtools.hut import HUT
+ from hidtools.hid import HidUnit
+ from . import base
++from . import test_multitouch
+ import libevdev
+ import pytest
+=20
+@@ -517,7 +518,7 @@ class BaseTest:
+                 for usage in get_report_usages(report):
+                     yield usage
+=20
+-        def assertName(self, uhdev):
++        def assertName(self, uhdev, type):
+             """
+             Assert that the name is as we expect.
+=20
+@@ -526,7 +527,7 @@ class BaseTest:
+             this assertion from the base class to work properly.
+             """
+             evdev =3D uhdev.get_evdev()
+-            expected_name =3D uhdev.name + " Pen"
++            expected_name =3D uhdev.name + type
+             if "wacom" not in expected_name.lower():
+                 expected_name =3D "Wacom " + expected_name
+             assert evdev.name =3D=3D expected_name
+@@ -549,6 +550,12 @@ class BaseTest:
+                 usage_id("Generic Desktop", "Y"): PhysRange(
+                     PhysRange.CENTIMETER, 5, 150
+                 ),
++                usage_id("Digitizers", "Width"): PhysRange(
++                    PhysRange.CENTIMETER, 5, 150
++                ),
++                usage_id("Digitizers", "Height"): PhysRange(
++                    PhysRange.CENTIMETER, 5, 150
++                ),
+                 usage_id("Digitizers", "X Tilt"): PhysRange(PhysRange.DEGR=
+EE, 90, 180),
+                 usage_id("Digitizers", "Y Tilt"): PhysRange(PhysRange.DEGR=
+EE, 90, 180),
+                 usage_id("Digitizers", "Twist"): PhysRange(PhysRange.DEGRE=
+E, 358, 360),
+@@ -603,7 +610,17 @@ class BaseTest:
+             pass
+=20
+=20
+-class TestOpaqueTablet(BaseTest.TestTablet):
++class PenTabletTest(BaseTest.TestTablet):
++    def assertName(self, uhdev):
++        super().assertName(uhdev, " Pen")
 +
-+		if (!atkbd->resend && atkbd->write) {
-+			dev_warn(&serio->dev,
-+				 "Frame/parity error: %02x\n", flags);
-+			serio_write(serio, ATKBD_CMD_RESEND);
-+			atkbd->resend = true;
-+			return PS2_IGNORE;
-+		}
- 	}
- 
- 	if (!flags && data == ATKBD_RET_ACK)
- 		atkbd->resend = false;
- #endif
- 
--	if (unlikely(atkbd->ps2dev.flags & PS2_FLAG_ACK))
--		if  (ps2_handle_ack(&atkbd->ps2dev, data))
--			goto out;
-+	return PS2_PROCESS;
-+}
- 
--	if (unlikely(atkbd->ps2dev.flags & PS2_FLAG_CMD))
--		if  (ps2_handle_response(&atkbd->ps2dev, data))
--			goto out;
-+static void atkbd_receive_byte(struct ps2dev *ps2dev, u8 data)
-+{
-+	struct serio *serio = ps2dev->serio;
-+	struct atkbd *atkbd = container_of(ps2dev, struct atkbd, ps2dev);
-+	struct input_dev *dev = atkbd->dev;
-+	unsigned int code = data;
-+	int scroll = 0, hscroll = 0, click = -1;
-+	int value;
-+	unsigned short keycode;
- 
- 	pm_wakeup_event(&serio->dev, 0);
- 
- 	if (!atkbd->enabled)
--		goto out;
-+		return;
- 
- 	input_event(dev, EV_MSC, MSC_RAW, code);
- 
-@@ -460,16 +462,16 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
- 	case ATKBD_RET_BAT:
- 		atkbd->enabled = false;
- 		serio_reconnect(atkbd->ps2dev.serio);
--		goto out;
-+		return;
- 	case ATKBD_RET_EMUL0:
- 		atkbd->emul = 1;
--		goto out;
-+		return;
- 	case ATKBD_RET_EMUL1:
- 		atkbd->emul = 2;
--		goto out;
-+		return;
- 	case ATKBD_RET_RELEASE:
- 		atkbd->release = true;
--		goto out;
-+		return;
- 	case ATKBD_RET_ACK:
- 	case ATKBD_RET_NAK:
- 		if (printk_ratelimit())
-@@ -477,18 +479,18 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
- 				 "Spurious %s on %s. "
- 				 "Some program might be trying to access hardware directly.\n",
- 				 data == ATKBD_RET_ACK ? "ACK" : "NAK", serio->phys);
--		goto out;
-+		return;
- 	case ATKBD_RET_ERR:
- 		atkbd->err_count++;
- 		dev_dbg(&serio->dev, "Keyboard on %s reports too many keys pressed.\n",
- 			serio->phys);
--		goto out;
-+		return;
- 	}
- 
- 	code = atkbd_compat_scancode(atkbd, code);
- 
- 	if (atkbd->emul && --atkbd->emul)
--		goto out;
-+		return;
- 
- 	keycode = atkbd->keycode[code];
- 
-@@ -564,8 +566,6 @@ static irqreturn_t atkbd_interrupt(struct serio *serio, unsigned char data,
- 	}
- 
- 	atkbd->release = false;
--out:
--	return IRQ_HANDLED;
- }
- 
- static int atkbd_set_repeat_rate(struct atkbd *atkbd)
-@@ -1229,7 +1229,8 @@ static int atkbd_connect(struct serio *serio, struct serio_driver *drv)
- 		goto fail1;
- 
- 	atkbd->dev = dev;
--	ps2_init(&atkbd->ps2dev, serio);
-+	ps2_init(&atkbd->ps2dev, serio,
-+		 atkbd_pre_receive_byte, atkbd_receive_byte);
- 	INIT_DELAYED_WORK(&atkbd->event_work, atkbd_event_work);
- 	mutex_init(&atkbd->mutex);
- 
-@@ -1385,7 +1386,7 @@ static struct serio_driver atkbd_drv = {
- 	},
- 	.description	= DRIVER_DESC,
- 	.id_table	= atkbd_serio_ids,
--	.interrupt	= atkbd_interrupt,
-+	.interrupt	= ps2_interrupt,
- 	.connect	= atkbd_connect,
- 	.reconnect	= atkbd_reconnect,
- 	.disconnect	= atkbd_disconnect,
-diff --git a/drivers/input/mouse/psmouse-base.c b/drivers/input/mouse/psmouse-base.c
-index ed5376099fba..a0aac76b1e41 100644
---- a/drivers/input/mouse/psmouse-base.c
-+++ b/drivers/input/mouse/psmouse-base.c
-@@ -336,17 +336,14 @@ static void psmouse_handle_oob_data(struct psmouse *psmouse, u8 data)
- 	}
- }
- 
--/*
-- * psmouse_interrupt() handles incoming characters, either passing them
-- * for normal processing or gathering them as command response.
-- */
--static irqreturn_t psmouse_interrupt(struct serio *serio,
--				     u8 data, unsigned int flags)
-+static enum ps2_disposition psmouse_pre_receive_byte(struct ps2dev *ps2dev,
-+						     u8 data,
-+						     unsigned int flags)
- {
--	struct psmouse *psmouse = psmouse_from_serio(serio);
-+	struct psmouse *psmouse = container_of(ps2dev, struct psmouse, ps2dev);
- 
- 	if (psmouse->state == PSMOUSE_IGNORE)
--		goto out;
-+		return PS2_IGNORE;
- 
- 	if (unlikely((flags & SERIO_TIMEOUT) ||
- 		     ((flags & SERIO_PARITY) &&
-@@ -357,27 +354,25 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
- 				     "bad data from KBC -%s%s\n",
- 				     flags & SERIO_TIMEOUT ? " timeout" : "",
- 				     flags & SERIO_PARITY ? " bad parity" : "");
--		ps2_cmd_aborted(&psmouse->ps2dev);
--		goto out;
-+		return PS2_ERROR;
- 	}
- 
- 	if (flags & SERIO_OOB_DATA) {
- 		psmouse_handle_oob_data(psmouse, data);
--		goto out;
-+		return PS2_IGNORE;
- 	}
- 
--	if (unlikely(psmouse->ps2dev.flags & PS2_FLAG_ACK))
--		if  (ps2_handle_ack(&psmouse->ps2dev, data))
--			goto out;
-+	return PS2_PROCESS;
-+}
- 
--	if (unlikely(psmouse->ps2dev.flags & PS2_FLAG_CMD))
--		if  (ps2_handle_response(&psmouse->ps2dev, data))
--			goto out;
-+static void psmouse_receive_byte(struct ps2dev *ps2dev, u8 data)
-+{
-+	struct psmouse *psmouse = container_of(ps2dev, struct psmouse, ps2dev);
- 
--	pm_wakeup_event(&serio->dev, 0);
-+	pm_wakeup_event(&ps2dev->serio->dev, 0);
- 
- 	if (psmouse->state <= PSMOUSE_RESYNCING)
--		goto out;
-+		return;
- 
- 	if (psmouse->state == PSMOUSE_ACTIVATED &&
- 	    psmouse->pktcnt && time_after(jiffies, psmouse->last + HZ/2)) {
-@@ -386,7 +381,7 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
- 		psmouse->badbyte = psmouse->packet[0];
- 		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
- 		psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
--		goto out;
-+		return;
- 	}
- 
- 	psmouse->packet[psmouse->pktcnt++] = data;
-@@ -395,21 +390,21 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
- 	if (unlikely(psmouse->packet[0] == PSMOUSE_RET_BAT && psmouse->pktcnt <= 2)) {
- 		if (psmouse->pktcnt == 1) {
- 			psmouse->last = jiffies;
--			goto out;
-+			return;
- 		}
- 
- 		if (psmouse->packet[1] == PSMOUSE_RET_ID ||
- 		    (psmouse->protocol->type == PSMOUSE_HGPK &&
- 		     psmouse->packet[1] == PSMOUSE_RET_BAT)) {
- 			__psmouse_set_state(psmouse, PSMOUSE_IGNORE);
--			serio_reconnect(serio);
--			goto out;
-+			serio_reconnect(ps2dev->serio);
-+			return;
- 		}
- 
- 		/* Not a new device, try processing first byte normally */
- 		psmouse->pktcnt = 1;
- 		if (psmouse_handle_byte(psmouse))
--			goto out;
-+			return;
- 
- 		psmouse->packet[psmouse->pktcnt++] = data;
- 	}
-@@ -424,14 +419,11 @@ static irqreturn_t psmouse_interrupt(struct serio *serio,
- 		psmouse->badbyte = psmouse->packet[0];
- 		__psmouse_set_state(psmouse, PSMOUSE_RESYNCING);
- 		psmouse_queue_work(psmouse, &psmouse->resync_work, 0);
--		goto out;
-+		return;
- 	}
- 
- 	psmouse->last = jiffies;
- 	psmouse_handle_byte(psmouse);
--
-- out:
--	return IRQ_HANDLED;
- }
- 
- /*
-@@ -1604,7 +1596,8 @@ static int psmouse_connect(struct serio *serio, struct serio_driver *drv)
- 	if (!psmouse || !input_dev)
- 		goto err_free;
- 
--	ps2_init(&psmouse->ps2dev, serio);
-+	ps2_init(&psmouse->ps2dev, serio,
-+		 psmouse_pre_receive_byte, psmouse_receive_byte);
- 	INIT_DELAYED_WORK(&psmouse->resync_work, psmouse_resync);
- 	psmouse->dev = input_dev;
- 	snprintf(psmouse->phys, sizeof(psmouse->phys), "%s/input0", serio->phys);
-@@ -1786,7 +1779,7 @@ static struct serio_driver psmouse_drv = {
- 	},
- 	.description	= DRIVER_DESC,
- 	.id_table	= psmouse_serio_ids,
--	.interrupt	= psmouse_interrupt,
-+	.interrupt	= ps2_interrupt,
- 	.connect	= psmouse_connect,
- 	.reconnect	= psmouse_reconnect,
- 	.fast_reconnect	= psmouse_fast_reconnect,
-diff --git a/drivers/input/serio/libps2.c b/drivers/input/serio/libps2.c
-index 09eb605364bb..7c5fc853072a 100644
---- a/drivers/input/serio/libps2.c
-+++ b/drivers/input/serio/libps2.c
-@@ -19,9 +19,22 @@
- 
- #define DRIVER_DESC	"PS/2 driver library"
- 
--MODULE_AUTHOR("Dmitry Torokhov <dtor@mail.ru>");
--MODULE_DESCRIPTION("PS/2 driver library");
--MODULE_LICENSE("GPL");
-+#define PS2_CMD_SETSCALE11	0x00e6
-+#define PS2_CMD_SETRES		0x10e8
-+#define PS2_CMD_GETID		0x02f2
-+#define PS2_CMD_RESET_BAT	0x02ff
 +
-+#define PS2_RET_BAT		0xaa
-+#define PS2_RET_ID		0x00
-+#define PS2_RET_ACK		0xfa
-+#define PS2_RET_NAK		0xfe
-+#define PS2_RET_ERR		0xfc
++class TouchTabletTest(BaseTest.TestTablet):
++    def assertName(self, uhdev):
++        super().assertName(uhdev, " Finger")
 +
-+#define PS2_FLAG_ACK		BIT(0)	/* Waiting for ACK/NAK */
-+#define PS2_FLAG_CMD		BIT(1)	/* Waiting for a command to finish */
-+#define PS2_FLAG_CMD1		BIT(2)	/* Waiting for the first byte of command response */
-+#define PS2_FLAG_WAITID		BIT(3)	/* Command executing is GET ID */
-+#define PS2_FLAG_NAK		BIT(4)	/* Last transmission was NAKed */
- 
- static int ps2_do_sendbyte(struct ps2dev *ps2dev, u8 byte,
- 			   unsigned int timeout, unsigned int max_attempts)
-@@ -76,14 +89,17 @@ static int ps2_do_sendbyte(struct ps2dev *ps2dev, u8 byte,
- 	return error;
- }
- 
--/*
-- * ps2_sendbyte() sends a byte to the device and waits for acknowledge.
-- * It doesn't handle retransmission, the caller is expected to handle
-+/**
-+ * ps2_sendbyte - sends a byte to the device and wait for acknowledgement
-+ * @ps2dev: a PS/2 device to send the data to
-+ * @byte: data to be sent to the device
-+ * @timeout: timeout for sending the data and receiving an acknowledge
-+ *
-+ * The function doesn't handle retransmission, the caller is expected to handle
-  * it when needed.
-  *
-  * ps2_sendbyte() can only be called from a process context.
-  */
--
- int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
- {
- 	int retval;
-@@ -99,6 +115,13 @@ int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout)
- }
- EXPORT_SYMBOL(ps2_sendbyte);
- 
-+/**
-+ * ps2_begin_command - mark beginning of execution of a complex command
-+ * @ps2dev: a PS/2 device executing the command
-+ *
-+ * Serializes a complex/compound command. Once command is finished
-+ * ps2_end_command() should be called.
-+ */
- void ps2_begin_command(struct ps2dev *ps2dev)
- {
- 	struct mutex *m = ps2dev->serio->ps2_cmd_mutex ?: &ps2dev->cmd_mutex;
-@@ -107,6 +130,10 @@ void ps2_begin_command(struct ps2dev *ps2dev)
- }
- EXPORT_SYMBOL(ps2_begin_command);
- 
-+/**
-+ * ps2_end_command - mark end of execution of a complex command
-+ * @ps2dev: a PS/2 device executing the command
-+ */
- void ps2_end_command(struct ps2dev *ps2dev)
- {
- 	struct mutex *m = ps2dev->serio->ps2_cmd_mutex ?: &ps2dev->cmd_mutex;
-@@ -115,11 +142,13 @@ void ps2_end_command(struct ps2dev *ps2dev)
- }
- EXPORT_SYMBOL(ps2_end_command);
- 
--/*
-- * ps2_drain() waits for device to transmit requested number of bytes
-- * and discards them.
-+/**
-+ * ps2_drain - waits for device to transmit requested number of bytes
-+ * and discards them
-+ * @ps2dev: the PS/2 device that should be drained
-+ * @maxbytes: maximum number of bytes to be drained
-+ * @timeout: time to drain the device
-  */
--
- void ps2_drain(struct ps2dev *ps2dev, size_t maxbytes, unsigned int timeout)
- {
- 	if (maxbytes > sizeof(ps2dev->cmdbuf)) {
-@@ -142,11 +171,11 @@ void ps2_drain(struct ps2dev *ps2dev, size_t maxbytes, unsigned int timeout)
- }
- EXPORT_SYMBOL(ps2_drain);
- 
--/*
-- * ps2_is_keyboard_id() checks received ID byte against the list of
-- * known keyboard IDs.
-+/**
-+ * ps2_is_keyboard_id - checks received ID byte against the list of
-+ *   known keyboard IDs
-+ * @id_byte: data byte that should be checked
-  */
--
- bool ps2_is_keyboard_id(u8 id_byte)
- {
- 	static const u8 keyboard_ids[] = {
-@@ -167,7 +196,6 @@ EXPORT_SYMBOL(ps2_is_keyboard_id);
-  * response and tries to reduce remaining timeout to speed up command
-  * completion.
-  */
--
- static int ps2_adjust_timeout(struct ps2dev *ps2dev,
- 			      unsigned int command, unsigned int timeout)
- {
-@@ -217,13 +245,19 @@ static int ps2_adjust_timeout(struct ps2dev *ps2dev,
- 	return timeout;
- }
- 
--/*
-- * ps2_command() sends a command and its parameters to the mouse,
-- * then waits for the response and puts it in the param array.
-+/**
-+ * __ps2_command - send a command to PS/2 device
-+ * @ps2dev: the PS/2 device that should execute the command
-+ * @param: a buffer containing parameters to be sent along with the command,
-+ *   or place where the results of the command execution will be deposited,
-+ *   or both
-+ * @command: command word that encodes the command itself, as well as number of
-+ *   additional parameter bytes that should be sent to the device and expected
-+ *   length of the command response
-  *
-- * ps2_command() can only be called from a process context
-+ * Not serialized. Callers should use ps2_begin_command() and ps2_end_command()
-+ * to ensure proper serialization for complex commands.
-  */
--
- int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- {
- 	unsigned int timeout;
-@@ -327,6 +361,20 @@ int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- }
- EXPORT_SYMBOL(__ps2_command);
- 
-+/**
-+ * ps2_command - send a command to PS/2 device
-+ * @ps2dev: the PS/2 device that should execute the command
-+ * @param: a buffer containing parameters to be sent along with the command,
-+ *   or place where the results of the command execution will be deposited,
-+ *   or both
-+ * @command: command word that encodes the command itself, as well as number of
-+ *   additional parameter bytes that should be sent to the device and expected
-+ *   length of the command response
-+ *
-+ * Note: ps2_command() serializes the command execution so that only one
-+ * command can be executed at a time for either individual port or the entire
-+ * 8042 controller.
-+ */
- int ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- {
- 	int rc;
-@@ -339,14 +387,16 @@ int ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command)
- }
- EXPORT_SYMBOL(ps2_command);
- 
--/*
-- * ps2_sliced_command() sends an extended PS/2 command to the mouse
-- * using sliced syntax, understood by advanced devices, such as Logitech
-- * or Synaptics touchpads. The command is encoded as:
-+/**
-+ * ps2_sliced_command - sends an extended PS/2 command to a mouse
-+ * @ps2dev: the PS/2 device that should execute the command
-+ * @command: command byte
-+ *
-+ * The command is sent using "sliced" syntax understood by advanced devices,
-+ * such as Logitech or Synaptics touchpads. The command is encoded as:
-  * 0xE6 0xE8 rr 0xE8 ss 0xE8 tt 0xE8 uu where (rr*64)+(ss*16)+(tt*4)+uu
-  * is the command.
-  */
--
- int ps2_sliced_command(struct ps2dev *ps2dev, u8 command)
- {
- 	int i;
-@@ -372,12 +422,22 @@ int ps2_sliced_command(struct ps2dev *ps2dev, u8 command)
- }
- EXPORT_SYMBOL(ps2_sliced_command);
- 
--/*
-- * ps2_init() initializes ps2dev structure
-+/**
-+ * ps2_init - initializes ps2dev structure
-+ * @ps2dev: structure to be initialized
-+ * @serio: serio port associated with the PS/2 device
-+ * @pre_receive_handler: validation handler to check basic communication state
-+ * @receive_handler: main protocol handler
-+ *
-+ * Prepares ps2dev structure for use in drivers for PS/2 devices.
-  */
--
--void ps2_init(struct ps2dev *ps2dev, struct serio *serio)
-+void ps2_init(struct ps2dev *ps2dev, struct serio *serio,
-+	      ps2_pre_receive_handler_t pre_receive_handler,
-+	      ps2_receive_handler_t receive_handler)
- {
-+	ps2dev->pre_receive_handler = pre_receive_handler;
-+	ps2dev->receive_handler = receive_handler;
 +
- 	mutex_init(&ps2dev->cmd_mutex);
- 	lockdep_set_subclass(&ps2dev->cmd_mutex, serio->depth);
- 	init_waitqueue_head(&ps2dev->wait);
-@@ -387,11 +447,35 @@ void ps2_init(struct ps2dev *ps2dev, struct serio *serio)
- EXPORT_SYMBOL(ps2_init);
- 
- /*
-- * ps2_handle_ack() is supposed to be used in interrupt handler
-- * to properly process ACK/NAK of a command from a PS/2 device.
-+ * ps2_handle_response() stores device's response to a command and notifies
-+ * the process waiting for completion of the command. Note that there is a
-+ * distinction between waiting for the first byte of the response, and
-+ * waiting for subsequent bytes. It is done so that callers could shorten
-+ * timeouts once first byte of response is received.
-  */
-+static void ps2_handle_response(struct ps2dev *ps2dev, u8 data)
-+{
-+	if (ps2dev->cmdcnt)
-+		ps2dev->cmdbuf[--ps2dev->cmdcnt] = data;
- 
--bool ps2_handle_ack(struct ps2dev *ps2dev, u8 data)
-+	if (ps2dev->flags & PS2_FLAG_CMD1) {
-+		ps2dev->flags &= ~PS2_FLAG_CMD1;
-+		if (ps2dev->cmdcnt)
-+			wake_up(&ps2dev->wait);
-+	}
++class TestOpaqueTablet(PenTabletTest):
+     def create_device(self):
+         return OpaqueTablet()
+=20
+@@ -842,3 +859,64 @@ class TestPTHX60_Pen(TestOpaqueCTLTablet):
+                 libevdev.InputEvent(libevdev.EV_KEY.BTN_0, 0),
+             ],
+         )
 +
-+	if (!ps2dev->cmdcnt) {
-+		ps2dev->flags &= ~PS2_FLAG_CMD;
-+		wake_up(&ps2dev->wait);
-+	}
-+}
 +
-+/*
-+ * ps2_handle_ack() processes ACK/NAK of a command from a PS/2 device,
-+ * possibly applying workarounds for mice not acknowledging the "get ID"
-+ * command.
-+ */
-+static void ps2_handle_ack(struct ps2dev *ps2dev, u8 data)
- {
- 	switch (data) {
- 	case PS2_RET_ACK:
-@@ -436,53 +520,25 @@ bool ps2_handle_ack(struct ps2dev *ps2dev, u8 data)
- 		 */
- 		dev_dbg(&ps2dev->serio->dev, "unexpected %#02x\n", data);
- 		ps2dev->flags &= ~PS2_FLAG_WAITID;
--		return true;
-+		return;
- 	}
- 
- 	if (!ps2dev->nak)
- 		ps2dev->flags &= ~PS2_FLAG_NAK;
- 
- 	ps2dev->flags &= ~PS2_FLAG_ACK;
--	wake_up(&ps2dev->wait);
- 
- 	if (!ps2dev->nak && data != PS2_RET_ACK)
- 		ps2_handle_response(ps2dev, data);
--
--	return true;
--}
--EXPORT_SYMBOL(ps2_handle_ack);
--
--/*
-- * ps2_handle_response() is supposed to be used in interrupt handler
-- * to properly store device's response to a command and notify process
-- * waiting for completion of the command.
-- */
--
--bool ps2_handle_response(struct ps2dev *ps2dev, u8 data)
--{
--	if (ps2dev->cmdcnt)
--		ps2dev->cmdbuf[--ps2dev->cmdcnt] = data;
--
--	if (ps2dev->flags & PS2_FLAG_CMD1) {
--		ps2dev->flags &= ~PS2_FLAG_CMD1;
--		if (ps2dev->cmdcnt)
--			wake_up(&ps2dev->wait);
--	}
--
--	if (!ps2dev->cmdcnt) {
--		ps2dev->flags &= ~PS2_FLAG_CMD;
-+	else
- 		wake_up(&ps2dev->wait);
--	}
--
--	return true;
- }
--EXPORT_SYMBOL(ps2_handle_response);
- 
- /*
-  * Clears state of PS/2 device after communication error by resetting majority
-  * of flags and waking up waiters, if any.
-  */
--void ps2_cmd_aborted(struct ps2dev *ps2dev)
-+static void ps2_cleanup(struct ps2dev *ps2dev)
- {
- 	unsigned long old_flags = ps2dev->flags;
- 
-@@ -494,6 +550,46 @@ void ps2_cmd_aborted(struct ps2dev *ps2dev)
- 
- 	if (old_flags & (PS2_FLAG_ACK | PS2_FLAG_CMD))
- 		wake_up(&ps2dev->wait);
-+}
- 
-+/**
-+ * ps2_interrupt - common interrupt handler for PS/2 devices
-+ * @serio: serio port for the device
-+ * @data: a data byte received from the device
-+ * @flags: flags such as %SERIO_PARITY or %SERIO_TIMEOUT indicating state of
-+ *   the data transfer
-+ *
-+ * ps2_interrupt() invokes pre-receive handler, optionally handles command
-+ * acknowledgement and response from the device, and finally passes the data
-+ * to the main protocol handler for future processing.
-+ */
-+irqreturn_t ps2_interrupt(struct serio *serio, u8 data, unsigned int flags) {
-+	struct ps2dev *ps2dev = serio_get_drvdata(serio);
-+	enum ps2_disposition rc;
++class TestDTH2452Tablet(test_multitouch.BaseTest.TestMultitouch, TouchTabl=
+etTest):
++    def create_device(self):
++        return test_multitouch.Digitizer(
++            "DTH 2452",
++            rdesc=3D"05 0d 09 04 a1 01 85 0c 95 01 75 08 15 00 26 ff 00 81=
+ 03 09 54 81 02 09 22 a1 02 05 0d 95 01 75 01 25 01 09 42 81 02 81 03 09 47=
+ 81 02 95 05 81 03 09 51 26 ff 00 75 10 95 01 81 02 35 00 65 11 55 0e 05 01=
+ 09 30 26 a0 44 46 96 14 81 42 09 31 26 9a 26 46 95 0b 81 42 05 0d 75 08 95=
+ 01 15 00 09 48 26 5f 00 46 7c 14 81 02 09 49 25 35 46 7d 0b 81 02 45 00 65=
+ 00 55 00 c0 05 0d 09 22 a1 02 05 0d 95 01 75 01 25 01 09 42 81 02 81 03 09=
+ 47 81 02 95 05 81 03 09 51 26 ff 00 75 10 95 01 81 02 35 00 65 11 55 0e 05=
+ 01 09 30 26 a0 44 46 96 14 81 42 09 31 26 9a 26 46 95 0b 81 42 05 0d 75 08=
+ 95 01 15 00 09 48 26 5f 00 46 7c 14 81 02 09 49 25 35 46 7d 0b 81 02 45 00=
+ 65 00 55 00 c0 05 0d 09 22 a1 02 05 0d 95 01 75 01 25 01 09 42 81 02 81 03=
+ 09 47 81 02 95 05 81 03 09 51 26 ff 00 75 10 95 01 81 02 35 00 65 11 55 0e=
+ 05 01 09 30 26 a0 44 46 96 14 81 42 09 31 26 9a 26 46 95 0b 81 42 05 0d 75=
+ 08 95 01 15 00 09 48 26 5f 00 46 7c 14 81 02 09 49 25 35 46 7d 0b 81 02 45=
+ 00 65 00 55 00 c0 05 0d 09 22 a1 02 05 0d 95 01 75 01 25 01 09 42 81 02 81=
+ 03 09 47 81 02 95 05 81 03 09 51 26 ff 00 75 10 95 01 81 02 35 00 65 11 55=
+ 0e 05 01 09 30 26 a0 44 46 96 14 81 42 09 31 26 9a 26 46 95 0b 81 42 05 0d=
+ 75 08 95 01 15 00 09 48 26 5f 00 46 7c 14 81 02 09 49 25 35 46 7d 0b 81 02=
+ 45 00 65 00 55 00 c0 05 0d 09 22 a1 02 05 0d 95 01 75 01 25 01 09 42 81 02=
+ 81 03 09 47 81 02 95 05 81 03 09 51 26 ff 00 75 10 95 01 81 02 35 00 65 11=
+ 55 0e 05 01 09 30 26 a0 44 46 96 14 81 42 09 31 26 9a 26 46 95 0b 81 42 05=
+ 0d 75 08 95 01 15 00 09 48 26 5f 00 46 7c 14 81 02 09 49 25 35 46 7d 0b 81=
+ 02 45 00 65 00 55 00 c0 05 0d 27 ff ff 00 00 75 10 95 01 09 56 81 02 75 08=
+ 95 0e 81 03 09 55 26 ff 00 75 08 b1 02 85 0a 06 00 ff 09 c5 96 00 01 b1 02=
+ c0 06 00 ff 09 01 a1 01 09 01 85 13 15 00 26 ff 00 75 08 95 3f 81 02 06 00=
+ ff 09 01 15 00 26 ff 00 75 08 95 3f 91 02 c0",
++            input_info=3D(0x3, 0x056A, 0x0383),
++        )
 +
-+	rc = ps2dev->pre_receive_handler(ps2dev, data, flags);
-+	switch (rc) {
-+	case PS2_ERROR:
-+		ps2_cleanup(ps2dev);
-+		break;
++    def test_contact_id_0(self):
++        """
++        Bring a finger in contact with the tablet, then hold it down and r=
+emove it.
 +
-+	case PS2_IGNORE:
-+		break;
++        Ensure that even with contact ID =3D 0 which is usually given as a=
+n invalid
++        touch event by most tablets with the exception of a few, that give=
+n the
++        confidence bit is set to 1 it should process it as a valid touch t=
+o cover
++        the few tablets using contact ID =3D 0 as a valid touch value.
++        """
++        uhdev =3D self.uhdev
++        evdev =3D uhdev.get_evdev()
 +
-+	case PS2_PROCESS:
-+		if (ps2dev->flags & PS2_FLAG_ACK)
-+			ps2_handle_ack(ps2dev, data);
-+		else if (ps2dev->flags & PS2_FLAG_CMD)
-+			ps2_handle_response(ps2dev, data);
-+		else
-+			ps2dev->receive_handler(ps2dev, data);
-+		break;
-+	}
++        t0 =3D test_multitouch.Touch(0, 50, 100)
++        r =3D uhdev.event([t0])
++        events =3D uhdev.next_sync_events()
++        self.debug_reports(r, uhdev, events)
 +
-+	return IRQ_HANDLED;
- }
--EXPORT_SYMBOL(ps2_cmd_aborted);
-+EXPORT_SYMBOL(ps2_interrupt);
++        slot =3D self.get_slot(uhdev, t0, 0)
 +
-+MODULE_AUTHOR("Dmitry Torokhov <dtor@mail.ru>");
-+MODULE_DESCRIPTION("PS/2 driver library");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/libps2.h b/include/linux/libps2.h
-index 193dd53ad18b..9ca9ce4e6e64 100644
---- a/include/linux/libps2.h
-+++ b/include/linux/libps2.h
-@@ -8,43 +8,59 @@
-  */
- 
- #include <linux/bitops.h>
-+#include <linux/interrupt.h>
- #include <linux/mutex.h>
- #include <linux/types.h>
- #include <linux/wait.h>
- 
--#define PS2_CMD_SETSCALE11	0x00e6
--#define PS2_CMD_SETRES		0x10e8
--#define PS2_CMD_GETID		0x02f2
--#define PS2_CMD_RESET_BAT	0x02ff
-+struct ps2dev;
- 
--#define PS2_RET_BAT		0xaa
--#define PS2_RET_ID		0x00
--#define PS2_RET_ACK		0xfa
--#define PS2_RET_NAK		0xfe
--#define PS2_RET_ERR		0xfc
-+/**
-+ * enum ps2_disposition - indicates how received byte should be handled
-+ * @PS2_PROCESS: pass to the main protocol handler, process normally
-+ * @PS2_IGNORE: skip the byte
-+ * @PS2_ERROR: do not process the byte, abort command in progress
-+ */
-+enum ps2_disposition {
-+	PS2_PROCESS,
-+	PS2_IGNORE,
-+	PS2_ERROR,
-+};
- 
--#define PS2_FLAG_ACK		BIT(0)	/* Waiting for ACK/NAK */
--#define PS2_FLAG_CMD		BIT(1)	/* Waiting for a command to finish */
--#define PS2_FLAG_CMD1		BIT(2)	/* Waiting for the first byte of command response */
--#define PS2_FLAG_WAITID		BIT(3)	/* Command executing is GET ID */
--#define PS2_FLAG_NAK		BIT(4)	/* Last transmission was NAKed */
-+typedef enum ps2_disposition (*ps2_pre_receive_handler_t)(struct ps2dev *, u8,
-+							  unsigned int);
-+typedef void (*ps2_receive_handler_t)(struct ps2dev *, u8);
- 
-+/**
-+ * struct ps2dev - represents a device using PS/2 protocol
-+ * @serio: a serio port used by the PS/2 device
-+ * @cmd_mutex: a mutex ensuring that only one command is executing at a time
-+ * @wait: a waitqueue used to signal completion from the serio interrupt handler
-+ * @flags: various internal flags indicating stages of PS/2 command execution
-+ * @cmdbuf: buffer holding command response
-+ * @cmdcnt: outstanding number of bytes of the command response
-+ * @nak: a byte transmitted by the device when it refuses command
-+ * @pre_receive_handler: checks communication errors and returns disposition
-+ * (&enum ps2_disposition) of the received data byte
-+ * @receive_handler: main handler of particular PS/2 protocol, such as keyboard
-+ *   or mouse protocol
-+ */
- struct ps2dev {
- 	struct serio *serio;
--
--	/* Ensures that only one command is executing at a time */
- 	struct mutex cmd_mutex;
--
--	/* Used to signal completion from interrupt handler */
- 	wait_queue_head_t wait;
--
- 	unsigned long flags;
- 	u8 cmdbuf[8];
- 	u8 cmdcnt;
- 	u8 nak;
++        assert libevdev.InputEvent(libevdev.EV_KEY.BTN_TOUCH, 1) in events
++        assert evdev.slots[slot][libevdev.EV_ABS.ABS_MT_TRACKING_ID] =3D=
+=3D 0
++        assert evdev.slots[slot][libevdev.EV_ABS.ABS_MT_POSITION_X] =3D=3D=
+ 50
++        assert evdev.slots[slot][libevdev.EV_ABS.ABS_MT_POSITION_Y] =3D=3D=
+ 100
 +
-+	ps2_pre_receive_handler_t pre_receive_handler;
-+	ps2_receive_handler_t receive_handler;
- };
- 
--void ps2_init(struct ps2dev *ps2dev, struct serio *serio);
-+void ps2_init(struct ps2dev *ps2dev, struct serio *serio,
-+	      ps2_pre_receive_handler_t pre_receive_handler,
-+	      ps2_receive_handler_t receive_handler);
- int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout);
- void ps2_drain(struct ps2dev *ps2dev, size_t maxbytes, unsigned int timeout);
- void ps2_begin_command(struct ps2dev *ps2dev);
-@@ -52,9 +68,8 @@ void ps2_end_command(struct ps2dev *ps2dev);
- int __ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command);
- int ps2_command(struct ps2dev *ps2dev, u8 *param, unsigned int command);
- int ps2_sliced_command(struct ps2dev *ps2dev, u8 command);
--bool ps2_handle_ack(struct ps2dev *ps2dev, u8 data);
--bool ps2_handle_response(struct ps2dev *ps2dev, u8 data);
--void ps2_cmd_aborted(struct ps2dev *ps2dev);
- bool ps2_is_keyboard_id(u8 id);
- 
-+irqreturn_t ps2_interrupt(struct serio *serio, u8 data, unsigned int flags);
++        t0.tipswitch =3D False
++        if uhdev.quirks is None or "VALID_IS_INRANGE" not in uhdev.quirks:
++            t0.inrange =3D False
++        r =3D uhdev.event([t0])
++        events =3D uhdev.next_sync_events()
++        self.debug_reports(r, uhdev, events)
++        assert libevdev.InputEvent(libevdev.EV_KEY.BTN_TOUCH, 0) in events
++        assert evdev.slots[slot][libevdev.EV_ABS.ABS_MT_TRACKING_ID] =3D=
+=3D -1
 +
- #endif /* _LIBPS2_H */
--- 
-2.40.1.606.ga4b1b128d6-goog
++    def test_confidence_false(self):
++        """
++        Bring a finger in contact with the tablet with confidence set to f=
+alse.
++
++        Ensure that the confidence bit being set to false should not resul=
+t in a touch event.
++        """
++        uhdev =3D self.uhdev
++        evdev =3D uhdev.get_evdev()
++
++        t0 =3D test_multitouch.Touch(1, 50, 100)
++        t0.confidence =3D False
++        r =3D uhdev.event([t0])
++        events =3D uhdev.next_sync_events()
++        self.debug_reports(r, uhdev, events)
++
++        slot =3D self.get_slot(uhdev, t0, 0)
++
++        assert not events
+\ No newline at end of file
+--=20
+2.40.0
 

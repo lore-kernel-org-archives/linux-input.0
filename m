@@ -2,54 +2,55 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 334C2C7EE23
-	for <linux-input@archiver.kernel.org>; Mon, 15 May 2023 15:01:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B202C7EE2D
+	for <linux-input@archiver.kernel.org>; Mon, 15 May 2023 15:01:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240191AbjEOPBM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 15 May 2023 11:01:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46028 "EHLO
+        id S240538AbjEOPBP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 15 May 2023 11:01:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229850AbjEOPBL (ORCPT
+        with ESMTP id S240266AbjEOPBM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 15 May 2023 11:01:11 -0400
+        Mon, 15 May 2023 11:01:12 -0400
 Received: from EUR04-HE1-obe.outbound.protection.outlook.com (mail-he1eur04on2079.outbound.protection.outlook.com [40.107.7.79])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80ADE10C2;
-        Mon, 15 May 2023 08:01:09 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B359E76;
+        Mon, 15 May 2023 08:01:11 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=oJhYjWBw/SxGZ4mV2Ot7i5X7/oa+UaId3qbumUTHnpMVcoW1J8lsHV18pYfw6lO4wYD/irrzVHfVfZf5iKPuUfuvn3iMy8ubA/lPX/S3UTAbmaR45xlgwoRm7oRJCUFDXmiklRFCjH7vpaoEnthZjRvPrkuY8PGrpi/bVPk2G4Pn3EmKVi0qK4Vsiiy40Bfb+XCZEHmqu5u1SuwtX+VdhlGW5U1N7BmzSPHPKQVpH9H0NzLY/PiWhrDl0jKOF4hhGtPvFl62PelQmv6FQbIMtzPuXD5L3sSWVqm6fTytN/2uHzkmnftHBBn9DQ9fGP7fnv6V7EczA7HjVF/mftAJHQ==
+ b=CSCjf+zsD30erHC9ZRS+Ze7B36dc8K3lISyojWeiVyhJRPiENdjuSZqeIyqGj3e+7hukTM61RQgDMMrxPBue92+xkakYES2N6yNzSe3nr+WNaYeBIZzQ18tzZCiq1nK1ZRXkhvH01liHDtLPOB+uTN1jfQOvZ/swu/8cY+ToIhn1MLA153QNw4/lgtLVt63ZBzj1ws+IXkoiGDHyjVnw1w9rJ+OAE5dr6xNeMc0oMDnIpLKXHyoNDKXWp6FMlX/nF4WJWr9Px/IpqTBHYEXtFEzi3h3YwoCrGfyBMmRHjQxStD9kUPUkg2YCB2iL9AsaiAQeHOtGMfyKFVJop4h0JQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=J/w98p7Rv9XfeHIsLTjEjGeRBBY+/4FbzuuN0XWRfwI=;
- b=n9ci8VstWoSt076hQ2rFXYIY/4+jfVq93oqY/1Uj7ECz2cdnzd5MTblsNznyPtSBQujkE2WqRdlOH8y8NVoLRFuIiM94nf61exbnZTARmepWBFak+5TlpJtv1VhOxsktaJ4p09qUhwnVhZsUZ9Im2fyHtMqKgwehz2M5iBJCE3Hu1lAoI2IKlo0RKRrVSvf3Ena7mcMO+Sb1IPQ8c9BumQEpmqgFTpycgiDePsOwD5AWrbT0d+A3O2EJRxh/09Y4PPmXDC1fJ4b9pCivgwW3CNKQzHiW6ki39wOU8l1+0KrR8tnIQrsmHXaUkBbyezSwK5qWYZxnBGcmdj6S7zT1iw==
+ bh=7uXd1f6WLsr4xPGXy95i4lRpgF7jWEYyV9TrkD3/xxE=;
+ b=BT+B769dYCdwLiaJcRyZ3sz2tqT2BUYDv9mIqexHetBQ7ovpmsaOutTaUCzH88oTBOsdvedxpVoyj0MQAqBcDF1lMhqgBJpRgOV0Cou71ibhgT9wbySpzMOktS4cxV1f3XpXJO4LzVftgSKTfg6l7d8jpGxAVge2K+8QxL9gScI81ue/ode42KYZFdmqlGESJV3/D3TObbZVyJu8PBrVzJmbZGptT4+6xMIoXh66sHiNKfaxIwKir2uAO2t/f36DVMXMRxNi2MVu0W4P61TLh1ltD7AbYsjplgTdUBDOVfPZuI2OeYKAg/YBqksm3Jhd7TpInOwFS41z8qcNnyvSpg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wolfvision.net; dmarc=pass action=none
  header.from=wolfvision.net; dkim=pass header.d=wolfvision.net; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wolfvision.net;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=J/w98p7Rv9XfeHIsLTjEjGeRBBY+/4FbzuuN0XWRfwI=;
- b=bdsTSG7+0ALEC3wpmZpJovQT8XTXyHgOdVpwm5DU4pBPVWxM3OYB7IrSUdsqmJVDF/0GerhMji3QsP2WLCdSRG14JwRkqYG4m5ivsAttbh+bfTvKhGD1ZI5FvznRKq8AN+e99tb+xYr58k4WXbkXL3DvLLycRgeehNI/HajhF9A=
+ bh=7uXd1f6WLsr4xPGXy95i4lRpgF7jWEYyV9TrkD3/xxE=;
+ b=GMjx/uBT7W9wepjOIvmfUB0o57TnmNM0tuVI8G/WGbkpi0OmzbcL6uyGTbZt5o6if1nqHdm6sJz53NHnBBcqGIpx9saVOpuuvq6V2GfHbjIqcVkGI1ZTZHSUwbiMmW3RudJsQQSCHY0poA+O/w00ANVvt1ZKiBswzg2ip5fWiMU=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wolfvision.net;
 Received: from VE1PR08MB4974.eurprd08.prod.outlook.com (2603:10a6:803:111::15)
  by VI1PR08MB9982.eurprd08.prod.outlook.com (2603:10a6:800:1c4::16) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6387.29; Mon, 15 May
- 2023 15:01:07 +0000
+ 2023 15:01:05 +0000
 Received: from VE1PR08MB4974.eurprd08.prod.outlook.com
  ([fe80::bd0e:a139:9e67:b86d]) by VE1PR08MB4974.eurprd08.prod.outlook.com
  ([fe80::bd0e:a139:9e67:b86d%4]) with mapi id 15.20.6387.030; Mon, 15 May 2023
- 15:01:07 +0000
+ 15:01:05 +0000
 From:   Javier Carrasco <javier.carrasco@wolfvision.net>
-Date:   Mon, 15 May 2023 17:01:01 +0200
-Subject: [PATCH v2 4/4] dt-bindings: input: touchscreen: st1232: add
- example with ts-virtobj
+Subject: [PATCH v2 0/4] Input: support virtual objects on touchscreens
+Date:   Mon, 15 May 2023 17:00:57 +0200
+Message-Id: <20230510-feature-ts_virtobj_patch-v2-0-f68a6bfe7a0f@wolfvision.net>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230510-feature-ts_virtobj_patch-v2-4-f68a6bfe7a0f@wolfvision.net>
-References: <20230510-feature-ts_virtobj_patch-v2-0-f68a6bfe7a0f@wolfvision.net>
-In-Reply-To: <20230510-feature-ts_virtobj_patch-v2-0-f68a6bfe7a0f@wolfvision.net>
+X-B4-Tracking: v=1; b=H4sIAClJYmQC/42PQQ7CIBBFr2JYSwMIrXHlPUzTAE4FY6AZEDVN7
+ y6tF3D5ZvL/m5lJAvSQyGk3E4Tik4+hgtjviHU63ID6a2UimDgwxRkdQecnAs1pKB5zNPdh0tk
+ 6CqLtlGRaQydJjRudgBrUwbq1oLSNpGj5upoQRv/erJe+svMpR/xsRxS+Tv/wFU4ZVRoUHLmxo
+ pXnV3yMvw+aAJn0y7J8AeIRKI/gAAAA
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
@@ -61,11 +62,11 @@ Cc:     linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         devicetree@vger.kernel.org,
         Javier Carrasco <javier.carrasco@wolfvision.net>
 X-Mailer: b4 0.12.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1684162864; l=2481;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1684162864; l=2419;
  i=javier.carrasco@wolfvision.net; s=20230509; h=from:subject:message-id;
- bh=L1HZGtYon0Lsj8171GCXGrnNhGVlNBwOHdE3pp0WTB4=;
- b=RSy6sQKnTs6FG/8jZef0jKE9dkRm94wCFi/4KxuvfB+Rs8qPhYEA48oMtppQ9JwfqxrNt5msj
- vqFQwsd7XH3DPE8jgcvH4+Vq0+sIUu9FMeAHXyINW2XLW8hyDAhUyRl
+ bh=kDLvW4MNdchFQrzoH6ZWFFnmP+Odi+a9gcFMheCzoMo=;
+ b=Ad5Mnvl83skIQmz0scJ2VyMIB2JRJrqtAY0o5qosDG5Jm5wAZbXQDre8/bVIoK1wZReHHUrl3
+ ZLWcRsvDUwJB2w1ntZTH9IQp2NAeecx0t5h5Y0Ykq/yYMBpuRkcRYqz
 X-Developer-Key: i=javier.carrasco@wolfvision.net; a=ed25519;
  pk=tIGJV7M+tCizagNijF0eGMBGcOsPD+0cWGfKjl4h6K8=
 X-ClientProxiedBy: VI1P195CA0039.EURP195.PROD.OUTLOOK.COM
@@ -74,124 +75,112 @@ X-ClientProxiedBy: VI1P195CA0039.EURP195.PROD.OUTLOOK.COM
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: VE1PR08MB4974:EE_|VI1PR08MB9982:EE_
-X-MS-Office365-Filtering-Correlation-Id: e10db002-eaf2-4670-8c10-08db555535aa
+X-MS-Office365-Filtering-Correlation-Id: 0cf8a861-faeb-42b4-4c6c-08db555534c3
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Bmbw5sfIxWM2Xys/rjbaLGVb5Qes4/kWvLUfijxQTQVPvarI8io9gjEI6/Ho/CEDdGbrYLNEJixwUSikFMdaGEfQXMtZIVI2ukTZn6H2T/i3t1i/7EFpVbL/1qsb4Ua10XcNC+MXXdsNtEpTiFmqLO/XpMSAMLYQ/MY15kFWIQvEW5ySreLr0+XjcHGr3BtUpt6NSgpkz2nLD4WfNeIUkdwwfSGjTjjkZm7PlAwwZZ1o6A9MtjAqKwqC+uzr6KYEjs+91Q0x/hb1L0hL+c7CJ/U89wURXKoJKSS6WfcIiXvnw9tZjgVB0eRSRSCMTAZVYp/7/Q00rdyFSDRzlc+kHRZqvraf/B6g77ZdQcPWVYUoEk0zMH8fqxsHxmsSFnEp4PKDkN2qwqxiv9Q2HfdMvLtIZMc4ZmAGihZHf2/CdmCqL7OXnGIn+H+SwGsV507ybCTvEuQOxScFBVzQCWHERmnRhzeKrkzlb2kUX4iMhJVQGhShSF/kr5Tt3iCtKYP/B3YwgmqvgUxiLscX4ZfymAClK5MByhL2oZPswNz1erI/9e8YUaqXUC1b5+UnKSX/qnnEBvOHv+CRdBIByaiVE1xZfySsC48qD2664V3ECc0=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR08MB4974.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(136003)(376002)(396003)(346002)(366004)(39840400004)(451199021)(478600001)(2616005)(86362001)(6486002)(83380400001)(6512007)(6506007)(26005)(186003)(38100700002)(38350700002)(107886003)(36756003)(52116002)(6666004)(110136005)(2906002)(66946007)(66476007)(66556008)(5660300002)(316002)(6636002)(4326008)(44832011)(8676002)(8936002)(41300700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: 9NL5vBIuE2cdBBX+55gG5zScQ9G1PK6PsJ4LIR4qL1ONz+vGcKhdGFzG7tw5G3lg+whla27JutrgMWXIZTOSLdhu8QE3Xu32xm9kCq6CX5hp2Hz6YYBDtS8taPcY6zY4MQ9gAI84X1C9NiMHC9CmkLlvVaK0Bjkpv0cM1iZALDv0DwUWvYYoge2e242p11Kz/y6jH+hgTxD//skQjnRxrCO65tOvmV4Cl0KmcKfmlqH2CFvczWzUpufsZwdvmi59DXBBMOSti+OFbc2qMeUiqbfDj2ifUQ4Iy9MEkLY3d+xvI4wMt7KyUBLJXe4/+EvgFyKqxomCUbb8ra7ScTPam8P80MFaA+W3sYHethpx62+QM0GqMtS7EekdGfbNfTRDPDa68cw/4bc/xeNqjfvg7mAkGfPJ2UnripRshs7Rs8w0lpoluREpZ4JI0Tss2ZPq8T7ew6/wO+chy29FC/TgAamjBCHuT4Mmj6InNgV5pP6Ow06Up25IDwpNO9nDIJYy0yZevBfv6MKwJtpw68Isme8q/wc8AfpUwmF+UkOOeNPPNbgUCS25idUFIDvkOhTkqGyYYcQ15HEXJGFgT7gtb/A6TqWI19398bl8aEcNUYs=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR08MB4974.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(136003)(376002)(396003)(346002)(366004)(39840400004)(451199021)(478600001)(2616005)(86362001)(6486002)(83380400001)(6512007)(6506007)(26005)(186003)(38100700002)(38350700002)(107886003)(36756003)(52116002)(966005)(6666004)(110136005)(2906002)(66946007)(66476007)(66556008)(5660300002)(316002)(6636002)(4326008)(44832011)(8676002)(8936002)(41300700001)(66899021);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cDR4UG1xY0hLTHZKeS8ySFZITTdtQWhFME9zZHJIZ2pUY05WKzZIaW5sOTJo?=
- =?utf-8?B?aEI5TitZNEdOSkEvUkkvNVB5aEx1OC9LT2hnSDF3bVZVNFltMnhaS05mQ0VK?=
- =?utf-8?B?VXhtSmpScElSL2JxT01kU0lBK3lVOU8yOE9mWVdVYnhhMHhYbjdlSENyVFNv?=
- =?utf-8?B?Rlg5eE0rdVpFNTl0N09NaTQ3YmtYeE1rUnFBdVAxYnphUDFvVUtnU0xSMkc4?=
- =?utf-8?B?d2pkeVFQN0ppOGxKUzBrOENGUnMwNlNoVk56alNlMXFVZVVWTkZ3KzhWdVdQ?=
- =?utf-8?B?T045Qjc4QzczMXVKcndPSjVVQVZkYkZYZ21XNG1YOXV5aS81RmtZR0JjNkhp?=
- =?utf-8?B?emZsbE9LYzNNWEx1QVpEVVRHWVhYQlpYTU41ZUNOd3FMZVUxbThxSE5DV2hF?=
- =?utf-8?B?bVNKZWJQdnpuWWpqZE80VlR2a0wvK1UzblNOVDhZMEdQYVgwZFJEWmVRRkl3?=
- =?utf-8?B?eXNySVcwOTdKN1NUNVg0andRTmxBQnNtQXlvMzA0cHlNVXZRdXBhQTJrL1Bl?=
- =?utf-8?B?dHpQWWFWdWJZZVhGOUJKd3hpaTMxSEhkNG9QOFNSQTlJNnhRRExSL2tLUFJO?=
- =?utf-8?B?anVwRTBCRHlHVkJFNlUwMCsrbE1jQlppOGNRTmFBZm5WZHRNbGIvOUJPWXdl?=
- =?utf-8?B?MGp5RzZRdUZmU0RSSkZ4NHRvMVpiVFB1RXZFNUNTUjVJcks3Z21RMWxzcjJa?=
- =?utf-8?B?cHFCZ0UzS1plOEZ4OXdYWk5LNjVycE1tL0ZFVHd6dlM5Tkw3OGhOdlhaWExY?=
- =?utf-8?B?RllaUVZXSi9iSlByMlJJR1lqSlk5NjFhRDlFMktBa0RMbUNTaXJiZXhJMDFZ?=
- =?utf-8?B?T0RqWmIramVkOU1HRzNkTlE0dk5QdlRlY3dQSDdJWjZhdmJROHNCamdkMVpB?=
- =?utf-8?B?WklRZ2hGcmhPSkFKZzJvcURmNjBSalgzMWwwdzNQdVF3VG5QZy9ZQVhuZ25m?=
- =?utf-8?B?VXE2aGU5SnhsL1VaUlQzWFB6ZjhPYXRRVTQ1K00rb295dlN0WEhFNFM0OVJS?=
- =?utf-8?B?RElvS1djSEdKK2Z6MG5rSVBWdThuRlNYeVZQd09EYXVQQ3R0Mml1S3JTcFZa?=
- =?utf-8?B?QnZCSTBtYUV6eFlYcXRuZGNOcWhQdnc1VHc1QmJaTkZNWVArY2R3UXRsRDVN?=
- =?utf-8?B?UGdzOFA0T0hHNStHODRmdUdVUVZ3NmZKb0ROcXVoUVdscDE5Rk93dGJtS25q?=
- =?utf-8?B?UTkvZEtHeWFLbmsrVy9Ya256YlR0N2FRRGlUNUV1a2dYUWdEb25oMVFNRmZH?=
- =?utf-8?B?bzJRUkplRlJHQ1JEUm5lU0doWmtwY1hwUE50VUdqL25YWjFRVC8vQ1hLaHp0?=
- =?utf-8?B?Tm1SREtEdlV0MW1acjdCeVRDMTJneW03dVZZZHZiaTMvTkxBSUxGaUU2K1JC?=
- =?utf-8?B?QjlwNTZQbCtCMmViZkF2b0FqUzQ1cldoVHNKSWdUdG1ZZS9TdTdZUEtEcDY1?=
- =?utf-8?B?YlV3c0hwbE91b21rRE5uNUpRbFhnazc3WGhBKzJaczFScDlSMmhSZi9rTmo0?=
- =?utf-8?B?WmZHa2Y2eWliUC9US05uWDNBTURuQjdhNk5EUG8xSVJ1QzJXSnRBei8yUWl6?=
- =?utf-8?B?VnVIbm1EQnN6dHNPTGdxODNuVm9NNlE2NmpjMjd6cTA4cnBCZ3plNUMzRU9K?=
- =?utf-8?B?ay83cTE1alJ0WEhJUXdoekwrNFJ0L3VueUxzS0ZUZTZqM1JaM0tnRjJCMmZy?=
- =?utf-8?B?OVg5Tjg1azdOaGJWTExPQkdFOXZPdVVWR0hhU3NJY2hCVXBCRTJub0QrVklC?=
- =?utf-8?B?SnhrcXRydkltRTZqWE9SZC9Vd1hJZjB4L1k4YXFpS3dKeVlZUVNjNG5SY2JM?=
- =?utf-8?B?UldaNTJBNkppcWFOMTQ3MkpPMUxqMkdHcXNtTGs2VkZYNDRXSDlLZGsrMzNZ?=
- =?utf-8?B?ZC9yK0s0dHZaekVzME5JdUNQWk13eVg1UjducW9vaW9mTmNZcUN6ZEQwcGtE?=
- =?utf-8?B?ZXRqOW84a0NZM0JpWXVoT1lkV0lwVG9zMjRPQVRUR3ZQaDZNVGZxeVJjb1o2?=
- =?utf-8?B?YVlidGxOWmRReHBjL0FTSkRDVjZCanRIOVdjNUhzWVNUZGFLelZKZW5yOXlh?=
- =?utf-8?B?ZENBcmF1TkNmZUE3eHRjS21NL20wWGNZT1djME01dnZRN3VBdHorVnUyTkpN?=
- =?utf-8?B?ZDNON2huNzRrazcyNzdPUFo4MENiWlExY1ZSZWIweHpLZ01HY0tRbnBCU29B?=
- =?utf-8?Q?abpHOcwEcKjvmJ2f+m3A3/Q=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?QU1abWl0UmRHMy9Jdkg0ZEtBWGlrM21sY0tvUTJhajF1RHJkUnB5R1BPS0JL?=
+ =?utf-8?B?MmxDaE83am1iWWh5elpTREFEd1JhL0RvRUpRMGI0cTEyaFBUWVAzaU8yOFlP?=
+ =?utf-8?B?djNibCt3djRVNm50eHdmR05EVkhkSTdUZjBzam55Z0RLUFlncGVrUWN2bkh6?=
+ =?utf-8?B?cEQ3VFNrai9KTmE1V2tlTEN6M2F2VXphSHV0ckszbjlWMTF2NjdoYkFqdERl?=
+ =?utf-8?B?M2VncnFTbGh2K2JPR1VrZEt1S2xhTERtaklDUWVkYkVFRmRHUVlqNW04c1o1?=
+ =?utf-8?B?UVVWeUY3MmxEV0cxaGtQTk9MTER6OWhLNGswbExBd0U3dnlhUFh0YklaZDR0?=
+ =?utf-8?B?T2M3cDAyZ21INU1YNDhxL1piRHJycFkzdXFWREFPcHV6SnFWRXhLb09ORElm?=
+ =?utf-8?B?TUlsUDBjdEszcWhZaFA5VFZ1ampxNnpJMXJURG9DZ3UrYVRpTnNiVG9hR0Ex?=
+ =?utf-8?B?bWVFeldESXFQa2gvQzVnd0lUNEUxZCtoSWZlWXZUTXZHN1JtUkxCT0UxTHF6?=
+ =?utf-8?B?RUdHWU85bk84SE1sb242MmxveFRUVGJMU1ZzZU1PWTZaREh2VUZIZmhjV3BC?=
+ =?utf-8?B?djBDdThoUHBLWXRwZ1UrdXhFZmlBRTd3TlU5Ky91WGhrUXVRZEJ6MlpGZXFD?=
+ =?utf-8?B?WnZuZ0Z6S3E3dGtzS2duaE9JYURUeUhYNDVQTEVDN2RjSjhtTTE0ZmtKbzRO?=
+ =?utf-8?B?eGxLYTNYdHdSL1AvLzlETkZzWmVLVFd2RWVnQzIxZmZlcXI3UXhKOEwyaFR5?=
+ =?utf-8?B?Kzh5S0YrQlp5cDAxTXlZY0pCSUhSaUk3bGdMTldFeFpvRCtTMkFKQmUyVWNi?=
+ =?utf-8?B?aTdTeWxCTWFWQ0RtazdKd1FPMUtJQVczMHVBWTRBWkNhM09CbHVpT0U2V2NH?=
+ =?utf-8?B?N2JiWFBrNGFjcVU5S2Z5MEs4aUJhRmNENnAvYjZTaUloVTF2cjZ6YmdIRnNV?=
+ =?utf-8?B?NDVUMWJsSEc2V2dSR0RQRjNQSVBvZDh0ZkFxa1hlUDFLZE9STExBQ21TbU90?=
+ =?utf-8?B?eUY4cVZ0TW4vUDRwekkrVUUyMTVmb0RFVkZ1dFpVdUJWZ2V2eVhSWFN3dlVP?=
+ =?utf-8?B?UTRlVlpJaXVWUGt5UVFROElqUXFqRFRnUVFZVW02S1F6K3RDUWZxRldwQ3cr?=
+ =?utf-8?B?S29qRG9zckJzUjFSZ2FiZy9HM1BES2xoV1gwR1p6aE1TWEJBQytKclA2azJm?=
+ =?utf-8?B?ZzRKSjg0eDVUV25PLzV4MVVHQ25vUW92eEhXbDRKamgzdzI0WDFwajA2VmtC?=
+ =?utf-8?B?UHduL0xCcXMxTGF3UUdKUklMR1N0NmZ0N1FveDJGUnFIWGdmZ1drUDVvcUgv?=
+ =?utf-8?B?TDZPVS9UOFBNNE9GeCtDM1dEb0FTdlVuOS9vblQ0OGt6c2l1aE5UaDVvQVVi?=
+ =?utf-8?B?aXJROTBNOUM4RWhxaEF2OUozN09OSFhtdzQ5N0M4R3piR2JkZDZBcDhxWFcz?=
+ =?utf-8?B?QUxIRy9JY2NNUGF3engyVmE0V1hsdkcrbThRZ0hiV1ZYb3Y5VjZXTTJ6MWJP?=
+ =?utf-8?B?NlljckJsSkYwVzlYNkJvVCs4KzUvVWFyN1NOZTlZeWhERklZVXJuSVVEeXNh?=
+ =?utf-8?B?WnNxWGYvcjVnakRMSnhZd1lhckpFckJudVh5YU9nWjdISUFqOSsvNUFvSnlQ?=
+ =?utf-8?B?KzZTRFdQMVlpM3duQk1aM3YzWDJuQ1M4OG01d0tIV2YxN3ZzNlQ2SlNHQXdX?=
+ =?utf-8?B?VW5NK08rNHA1OUdDck9uMDl6OHFhUGpUeHkyT05NYWFTN2NDWll1eC9sZjFj?=
+ =?utf-8?B?c1hZS0lnU0VyQWV0TDhGcm8rVitxZHc3U0JJTUJJM1pRajBseHo3SVNucUlQ?=
+ =?utf-8?B?K0NjTGZhU1M2ekx4elRzeExiVE40TG80blFKYzdMRDI0RksyRkxJaTdCN0xy?=
+ =?utf-8?B?OUZwdTlQZHVTdHhyeDFnNHJ3eForZk5LWVdoVmR2aGxPdWQzS3M5eTRDYVow?=
+ =?utf-8?B?WlllSEN0ais4U0xZYXFGSmhSQWNnSVB4UWRMOE1lSEd4cDRzY2dKREQ2Qm9X?=
+ =?utf-8?B?RWx5MmZxUkNWV3R6VmdqZFVOZmtzYjh6Z2Y4alRSUXJkbEFrQTFJa3QrZ3pa?=
+ =?utf-8?B?NWVJeittNnFKQ1E4djVGOWwwc2UyS3dWaG1sVWV1d0xNZ2h5V3FTb08wQ1kr?=
+ =?utf-8?B?RkpZRkV1NDBYVHdWTTNNY2U0SXIycEJ5aCtnYWpwcE9xQUJBUUdEUXQ5aTJT?=
+ =?utf-8?Q?aNMRqgZ3CcF6AEQlCSUS4ZY=3D?=
 X-OriginatorOrg: wolfvision.net
-X-MS-Exchange-CrossTenant-Network-Message-Id: e10db002-eaf2-4670-8c10-08db555535aa
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0cf8a861-faeb-42b4-4c6c-08db555534c3
 X-MS-Exchange-CrossTenant-AuthSource: VE1PR08MB4974.eurprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 May 2023 15:01:06.5307
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 May 2023 15:01:05.0394
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: e94ec9da-9183-471e-83b3-51baa8eb804f
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: XXi775TUX85mmcGOgMuxCzHXBEGtHsWp/ED87BAKO3birnhG7whwIXlkcRgybdyaQL5jgXgKNx1XVYzzEZ3p0JKwu5D9mYNTubR4iXvwlZU=
+X-MS-Exchange-CrossTenant-UserPrincipalName: I/+09m+lUo0WfEowSWipv0KEFmnDfBt5TDkov8YFi8aZSBRavzyj0vdwp7lpzm7if4plk26NcHJ6zzub4vBVBew+KPNISWZaAEByp0WujYg=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR08MB9982
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The st1232 driver supports the virtual-touchscreen and virtual-buttons
-objects defined in the generic touchscreen bindings and implemented in
-the ts-virtobj module. Add an example where nodes for a virtual
-touchscreen and virtual buttons are defined.
+Some touchscreens are shipped with a physical layer on top of them where
+a number of buttons and a resized touchscreen surface might be available.
+
+In order to generate proper key events by overlay buttons and adjust the
+touch events to a clipped surface, these patches offer a documented,
+device-tree-based solution by means of helper functions.
+An implementation for a specific touchscreen driver is also included.
+
+The functions in ts-virtobj provide a simple workflow to acquire
+physical objects from the device tree, map them into the device driver
+structures as virtual objects and generate events according to
+the object descriptions.
+
+This feature has been tested with a JT240MHQS-E3 display, which consists
+of an st1624 as the base touchscreen and an overlay with two buttons and
+a frame that clips its effective surface mounted on it.
 
 Signed-off-by: Javier Carrasco <javier.carrasco@wolfvision.net>
 ---
- .../input/touchscreen/sitronix,st1232.yaml         | 40 ++++++++++++++++++++++
- 1 file changed, 40 insertions(+)
+Changes in v2:
+- PATCH 1/4: remove preprocessor directives (the module is selected by
+  the drivers that support the feature). Typo in the commit message.
+- PATCH 2/4: more detailed documentation. Images and examples were added.
+- PATCH 3/4: select ts-virtobj automatically.
+- Link to v1: https://lore.kernel.org/r/20230510-feature-ts_virtobj_patch-v1-0-5ae5e81bc264@wolfvision.net
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-index 1d8ca19fd37a..97a2c063b47c 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/sitronix,st1232.yaml
-@@ -48,3 +48,43 @@ examples:
-                     gpios = <&gpio1 166 0>;
-             };
-     };
-+  - |
-+    #include <dt-bindings/input/linux-event-codes.h>
-+    i2c {
-+            #address-cells = <1>;
-+            #size-cells = <0>;
-+
-+            touchscreen@55 {
-+                    compatible = "sitronix,st1232";
-+                    reg = <0x55>;
-+                    interrupts = <2 0>;
-+                    gpios = <&gpio1 166 0>;
-+
-+                    virtual-touchscreen {
-+                            x-origin = <0>;
-+                            x-size = <240>;
-+                            y-origin = <40>;
-+                            y-size = <280>;
-+                    };
-+
-+                    virtual-buttons {
-+                            button-light {
-+                                    label = "Camera light";
-+                                    linux,code = <KEY_LIGHTS_TOGGLE>;
-+                                    x-origin = <40>;
-+                                    x-size = <40>;
-+                                    y-origin = <0>;
-+                                    y-size = <40>;
-+                            };
-+
-+                            button-suspend {
-+                                    label = "Suspend";
-+                                    linux,code = <KEY_SUSPEND>;
-+                                    x-origin = <160>;
-+                                    x-size = <40>;
-+                                    y-origin = <0>;
-+                                    y-size = <40>;
-+                            };
-+                    };
-+            };
-+    };
+---
+Javier Carrasco (4):
+      Input: ts-virtobj - Add touchscreen virtual object handling
+      dt-bindings: touchscreen: add virtual-touchscreen and virtual-buttons properties
+      Input: st1232 - add virtual touchscreen and buttons handling
+      dt-bindings: input: touchscreen: st1232: add example with ts-virtobj
 
+ .../input/touchscreen/sitronix,st1232.yaml         |  40 +++
+ .../bindings/input/touchscreen/touchscreen.yaml    | 139 ++++++++
+ MAINTAINERS                                        |   7 +
+ drivers/input/touchscreen/Kconfig                  |  10 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/st1232.c                 |  87 +++--
+ drivers/input/touchscreen/ts-virtobj.c             | 356 +++++++++++++++++++++
+ include/linux/input/ts-virtobj.h                   |  43 +++
+ 8 files changed, 665 insertions(+), 18 deletions(-)
+---
+base-commit: ac9a78681b921877518763ba0e89202254349d1b
+change-id: 20230510-feature-ts_virtobj_patch-e267540aae74
+
+Best regards,
 -- 
-2.39.2
+Javier Carrasco <javier.carrasco@wolfvision.net>
 

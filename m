@@ -2,22 +2,22 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85D0DC77B73
-	for <linux-input@archiver.kernel.org>; Sun, 21 May 2023 22:59:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 34F8DC7EE2D
+	for <linux-input@archiver.kernel.org>; Sun, 21 May 2023 22:59:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231556AbjEUW7y (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 21 May 2023 18:59:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50238 "EHLO
+        id S231559AbjEUW7z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 21 May 2023 18:59:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231329AbjEUW7u (ORCPT
+        with ESMTP id S231150AbjEUW7u (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Sun, 21 May 2023 18:59:50 -0400
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::225])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B36CBBE;
-        Sun, 21 May 2023 15:59:48 -0700 (PDT)
+Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C74BF;
+        Sun, 21 May 2023 15:59:46 -0700 (PDT)
 Received: (Authenticated sender: contact@artur-rojek.eu)
-        by mail.gandi.net (Postfix) with ESMTPSA id 6424B1C0003;
-        Sun, 21 May 2023 22:59:45 +0000 (UTC)
+        by mail.gandi.net (Postfix) with ESMTPSA id 86FB91C0002;
+        Sun, 21 May 2023 22:59:43 +0000 (UTC)
 From:   Artur Rojek <contact@artur-rojek.eu>
 To:     Paul Cercueil <paul@crapouillou.net>,
         Jonathan Cameron <jic23@kernel.org>,
@@ -27,75 +27,46 @@ To:     Paul Cercueil <paul@crapouillou.net>,
 Cc:     linux-mips@vger.kernel.org, linux-iio@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
         Artur Rojek <contact@artur-rojek.eu>
-Subject: [PATCH v2 1/2] iio/adc: ingenic: Fix channel offsets in buffer
-Date:   Mon, 22 May 2023 00:59:00 +0200
-Message-Id: <20230521225901.388455-2-contact@artur-rojek.eu>
+Subject: [PATCH v2 0/2] iio/adc-joystick: buffer data parsing fixes
+Date:   Mon, 22 May 2023 00:58:59 +0200
+Message-Id: <20230521225901.388455-1-contact@artur-rojek.eu>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230521225901.388455-1-contact@artur-rojek.eu>
-References: <20230521225901.388455-1-contact@artur-rojek.eu>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Consumers expect the buffer to only contain enabled channels. While
-preparing the buffer, the driver makes two mistakes:
-1) It inserts empty data for disabled channels.
-2) Each ADC readout contains samples for two 16-bit channels. If either
-   of them is active, the whole 32-bit sample is pushed into the buffer
-   as-is.
+Hi all,
 
-Both of those issues cause the active channels to appear at the wrong
-offsets in the buffer. Fix the above by demuxing samples for active
-channels only.
+this is a long overdue v2 for fixes [1] related to adc-joystick channel
+parsing.
 
-This has remained unnoticed, as all the consumers so far were only using
-channels 0 and 1, leaving them unaffected by changes introduced in this
-commit.
+Patch [1/2] now also addresses a case where a readout of ADC data
+containing samples for two channels, where only one channel is active,
+would push the data into a buffer without discarding the disabled
+channel first.
 
-Signed-off-by: Artur Rojek <contact@artur-rojek.eu>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
----
+Patch [2/2] addresses concerns about exposure to channels the clients
+shouldn't know about. The IIO helpers from v1 are gone and the offsets
+are now calculated based only on the channels adc-joystick has access
+to.
 
-v2: - demux active channels from ADC readouts 
-    - clarify in the commit description that this patch doesn't impact
-      existing consumers of this driver
+Tested on GCW Zero (by me) and on Anbernic RG350 (by Paul).
 
- drivers/iio/adc/ingenic-adc.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+[1] https://lore.kernel.org/all/20220817105643.95710-1-contact@artur-rojek.eu/ 
 
-diff --git a/drivers/iio/adc/ingenic-adc.c b/drivers/iio/adc/ingenic-adc.c
-index a7325dbbb99a..093710a7ad4c 100644
---- a/drivers/iio/adc/ingenic-adc.c
-+++ b/drivers/iio/adc/ingenic-adc.c
-@@ -802,13 +802,19 @@ static irqreturn_t ingenic_adc_irq(int irq, void *data)
- 	struct ingenic_adc *adc = iio_priv(iio_dev);
- 	unsigned long mask = iio_dev->active_scan_mask[0];
- 	unsigned int i;
--	u32 tdat[3];
--
--	for (i = 0; i < ARRAY_SIZE(tdat); mask >>= 2, i++) {
--		if (mask & 0x3)
--			tdat[i] = readl(adc->base + JZ_ADC_REG_ADTCH);
--		else
--			tdat[i] = 0;
-+	u16 tdat[6];
-+	u32 val;
-+
-+	memset(tdat, 0, ARRAY_SIZE(tdat));
-+	for (i = 0; mask && i < ARRAY_SIZE(tdat); mask >>= 2) {
-+		if (mask & 0x3) {
-+			val = readl(adc->base + JZ_ADC_REG_ADTCH);
-+			/* Two channels per sample. Demux active. */
-+			if (mask & BIT(0))
-+				tdat[i++] = val & 0xffff;
-+			if (mask & BIT(1))
-+				tdat[i++] = val >> 16;
-+		}
- 	}
- 
- 	iio_push_to_buffers(iio_dev, tdat);
+Cheers,
+Artur
+
+Artur Rojek (2):
+  iio/adc: ingenic: Fix channel offsets in buffer
+  input: joystick: Fix buffer data parsing
+
+ drivers/iio/adc/ingenic-adc.c         |  20 +++--
+ drivers/input/joystick/adc-joystick.c | 102 +++++++++++++++++++++++---
+ 2 files changed, 103 insertions(+), 19 deletions(-)
+
 -- 
 2.40.1
 

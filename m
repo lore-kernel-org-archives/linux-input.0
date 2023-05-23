@@ -2,51 +2,51 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E8BFC7EE26
-	for <linux-input@archiver.kernel.org>; Tue, 23 May 2023 19:32:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BD92C7EE33
+	for <linux-input@archiver.kernel.org>; Tue, 23 May 2023 19:32:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238410AbjEWTcE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 23 May 2023 15:32:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37890 "EHLO
+        id S238434AbjEWTcF (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 23 May 2023 15:32:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238409AbjEWTb7 (ORCPT
+        with ESMTP id S238399AbjEWTb6 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 23 May 2023 15:31:59 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C43C9E4B
-        for <linux-input@vger.kernel.org>; Tue, 23 May 2023 12:31:31 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id d9443c01a7336-1a516fb6523so255605ad.3
-        for <linux-input@vger.kernel.org>; Tue, 23 May 2023 12:31:31 -0700 (PDT)
+        Tue, 23 May 2023 15:31:58 -0400
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D0AF1AE
+        for <linux-input@vger.kernel.org>; Tue, 23 May 2023 12:31:29 -0700 (PDT)
+Received: by mail-pj1-x102c.google.com with SMTP id 98e67ed59e1d1-2533b600d35so81796a91.1
+        for <linux-input@vger.kernel.org>; Tue, 23 May 2023 12:31:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1684870288; x=1687462288;
+        d=chromium.org; s=google; t=1684870283; x=1687462283;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=39PsOXs9zk855s8jQNy2CTlBaJON6A8TZDNhmmH/46Q=;
-        b=GhI0C1TWak8+SbPb8fwi5YtahbPMUZ0q/xInXun3S9DYRbA5Ge3H9tdwPIREn6nwjE
-         P0NSDWJJsCFsCfBimENA7d99Zzn2dZ0qOatCq9UiE4ucZ+9HBcsBrd0zPUL/yqHrtfyh
-         UoSylkf8Zht+WYlD2AUIAy3mU3mfinXBoQVvM=
+        bh=RElRUe6c5U22wJoZKUO9d5F+6/ihbFh+CEUviCApg18=;
+        b=gPO35OoiNWoO7ZysbWi2OUQ4D7TrdGXtwOFaCF4z03gwyCAbErQuja6ebLBdrq5YMZ
+         trWC4RgPiZvyLIRRIoI0qTdQ5sxoQbcnYIUX/gyyxML7n+kFRJ8AIUEJnJEhiIWIR3/K
+         UAl8nRa9bQpsX3bu9TGjp+9r/U7mkUjnFOqFg=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1684870288; x=1687462288;
+        d=1e100.net; s=20221208; t=1684870283; x=1687462283;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=39PsOXs9zk855s8jQNy2CTlBaJON6A8TZDNhmmH/46Q=;
-        b=KxeJmmg6wCzYsLJiXvSl9H/D92227EDi/6FP0uG350lM5r/9YviRxKIfm62Bjn2axb
-         KREMFK/oJlt9S4a9k3hJhpQ2pnY6r4AHXzCEO27l2yHELcTl2JQmpAlJ7eYfApXmvDKg
-         j33oNAhEwoj5rbzVEr3j75uhK+8bs2MsL2PmmM3PwWXdeKjZyvViEq8dvNNZTBsLmP7H
-         XzUpnYumZmB4LF4bU22EgS9LfFKH2RNTWC/2KYHQcBUzg9cZU9u2AUYE0tW3u/yBfidK
-         NopWtXtLFAVlIlpj/6nmyKrI13gfwKZOmeurZ6lp4keDusRa0qifNIcmdDayPx8jqXpL
-         z/qg==
-X-Gm-Message-State: AC+VfDzVw6/lAyDvDzabGYhZ6yURNIQNWSpBu1V7sFSDzX4Fb76taUeJ
-        qpTEeRF7FAJy+uDGTXD/zeYFtw==
-X-Google-Smtp-Source: ACHHUZ4fsf7entq/TqQHyVWqJq0weOB/V/hoJn2umvRJrVqBR2ysA/a7Oxt/kBOm+TCRkfQxrBtHdQ==
-X-Received: by 2002:a17:902:ea08:b0:1af:cbb6:61ff with SMTP id s8-20020a170902ea0800b001afcbb661ffmr3900923plg.64.1684870287842;
-        Tue, 23 May 2023 12:31:27 -0700 (PDT)
+        bh=RElRUe6c5U22wJoZKUO9d5F+6/ihbFh+CEUviCApg18=;
+        b=eQNV3N4LM7Yz08nak/whjPbgMDw+9SIKWP3uOxLIKFYkX6B9vseJoceMCqzaZgXlRO
+         cMAidb9yWbaqlbXyaquoiuYRfOw2/5IyfvH14b9jVstAwkL/G3NNZVCpunhs8r6n1+QL
+         hjZN/AOTD1YMxXnxS4LAyeA50AI0vHvE+6Di44sNC7OEESjrQDZ8H7lowrLUV8Rt37r+
+         JMMFh9ak5IrylmiVVCCd5u59gOKJKNERhDEbVqf8tB8DQg/Juk2ANZqxf3dKoYrqI5bo
+         NqMNjnqTI/OuX4JOTMGGm60O6zhpAd6nrU4qRPP7Z6LFAbCHDGgZcG6i1xouoWWjcmas
+         ZSMw==
+X-Gm-Message-State: AC+VfDw7n4GxI/kAiAkzf3lN9JRTfeS2Y1rTPS87+O53yeKNwQpswegh
+        LeVooSeKU1uGc4fRNoqWelkNGg==
+X-Google-Smtp-Source: ACHHUZ6DprQ5f/5LNGKHojUT8L9gzkN6Sw082zI2G1Ld/p4fFXuiTtQtkCkJyR4W3CxrNr4idrf96Q==
+X-Received: by 2002:a17:90a:6ba1:b0:252:75ed:eff5 with SMTP id w30-20020a17090a6ba100b0025275edeff5mr13464518pjj.30.1684870283271;
+        Tue, 23 May 2023 12:31:23 -0700 (PDT)
 Received: from tictac2.mtv.corp.google.com ([2620:15c:9d:2:af98:af9d:ed15:f8b3])
-        by smtp.gmail.com with ESMTPSA id y18-20020a170902b49200b001aaef9d0102sm7109947plr.197.2023.05.23.12.31.25
+        by smtp.gmail.com with ESMTPSA id y18-20020a170902b49200b001aaef9d0102sm7109947plr.197.2023.05.23.12.31.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 23 May 2023 12:31:27 -0700 (PDT)
+        Tue, 23 May 2023 12:31:22 -0700 (PDT)
 From:   Douglas Anderson <dianders@chromium.org>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
@@ -67,9 +67,9 @@ Cc:     dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
         linux-arm-msm@vger.kernel.org, cros-qcom-dts-watchers@chromium.org,
         Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH 8/9] HID: i2c-hid: Do panel follower work on the system_wq
-Date:   Tue, 23 May 2023 12:28:02 -0700
-Message-ID: <20230523122802.8.I962bb462ede779005341c49320740ed95810021d@changeid>
+Subject: [PATCH 6/9] HID: i2c-hid: Make suspend and resume into helper functions
+Date:   Tue, 23 May 2023 12:28:00 -0700
+Message-ID: <20230523122802.6.I5c9894789b8b02f029bf266ae9b4f43c7907a173@changeid>
 X-Mailer: git-send-email 2.40.1.698.g37aff9b760-goog
 In-Reply-To: <20230523193017.4109557-1-dianders@chromium.org>
 References: <20230523193017.4109557-1-dianders@chromium.org>
@@ -79,102 +79,149 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Turning on an i2c-hid device can be a slow process. This is why
-i2c-hid devices use PROBE_PREFER_ASYNCHRONOUS. Unfortunately, when
-we're a panel follower the i2c-hid power up sequence now blocks the
-power on of the panel. Let's fix that by scheduling the work on the
-system_wq.
+In a future patch we'd like to be able to call the current i2c-hid
+suspend and resume functions from times other than system
+suspend. Move the functions higher up in the file and have them take a
+"struct i2c_hid" to make this simpler. We'll then add tiny wrappers of
+the functions for use with system suspend.
+
+This change is expected to have no functional effect.
 
 Signed-off-by: Douglas Anderson <dianders@chromium.org>
 ---
 
- drivers/hid/i2c-hid/i2c-hid-core.c | 42 +++++++++++++++++++++++++++---
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 98 +++++++++++++++++-------------
+ 1 file changed, 56 insertions(+), 42 deletions(-)
 
 diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index f1bb89377e8d..800f0dc6f6cf 100644
+index fb5ebf3ca739..34c0d98b4976 100644
 --- a/drivers/hid/i2c-hid/i2c-hid-core.c
 +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -110,7 +110,9 @@ struct i2c_hid {
- 
- 	struct i2chid_ops	*ops;
- 	struct drm_panel_follower panel_follower;
-+	struct work_struct	panel_follower_prepare_work;
- 	bool			is_panel_follower;
-+	bool			prepare_work_finished;
- };
- 
- static const struct i2c_hid_quirks {
-@@ -1062,10 +1064,12 @@ int i2c_hid_core_initial_power_up(struct i2c_hid *ihid)
- 	return ret;
+@@ -941,6 +941,57 @@ static void i2c_hid_core_shutdown_tail(struct i2c_hid *ihid)
+ 	ihid->ops->shutdown_tail(ihid->ops);
  }
  
--int i2c_hid_core_panel_prepared(struct drm_panel_follower *follower)
-+void ihid_core_panel_prepare_work(struct work_struct *work)
- {
--	struct i2c_hid *ihid = container_of(follower, struct i2c_hid, panel_follower);
-+	struct i2c_hid *ihid = container_of(work, struct i2c_hid,
-+					    panel_follower_prepare_work);
- 	struct hid_device *hid = ihid->hid;
-+	int ret;
- 
- 	/*
- 	 * hid->version is set on the first power up. If it's still zero then
-@@ -1073,15 +1077,44 @@ int i2c_hid_core_panel_prepared(struct drm_panel_follower *follower)
- 	 * steps.
- 	 */
- 	if (!hid->version)
--		return i2c_hid_core_initial_power_up(ihid);
-+		ret = i2c_hid_core_initial_power_up(ihid);
-+	else
-+		ret = i2c_hid_core_resume(ihid);
- 
--	return i2c_hid_core_resume(ihid);
-+	if (ret)
-+		dev_warn(&ihid->client->dev, "Power on failed: %d\n", ret);
-+	else
-+		WRITE_ONCE(ihid->prepare_work_finished, true);
-+
-+	/* Match with i2c_hid_core_panel_unpreparing() */
-+	smp_wmb();
-+}
-+
-+int i2c_hid_core_panel_prepared(struct drm_panel_follower *follower)
++static int i2c_hid_core_suspend(struct i2c_hid *ihid)
 +{
-+	struct i2c_hid *ihid = container_of(follower, struct i2c_hid, panel_follower);
++	struct i2c_client *client = ihid->client;
++	struct hid_device *hid = ihid->hid;
++	int ret;
 +
-+	/*
-+	 * Powering on a touchscreen can be a slow process. Queue the work to
-+	 * the system workqueue so we don't block the panel's power up.
-+	 */
-+	WRITE_ONCE(ihid->prepare_work_finished, false);
-+	schedule_work(&ihid->panel_follower_prepare_work);
++	ret = hid_driver_suspend(hid, PMSG_SUSPEND);
++	if (ret < 0)
++		return ret;
++
++	/* Save some power */
++	i2c_hid_set_power(ihid, I2C_HID_PWR_SLEEP);
++
++	disable_irq(client->irq);
++
++	if (!device_may_wakeup(&client->dev))
++		i2c_hid_core_power_down(ihid);
 +
 +	return 0;
++}
++
++static int i2c_hid_core_resume(struct i2c_hid *ihid)
++{
++	struct i2c_client *client = ihid->client;
++	struct hid_device *hid = ihid->hid;
++	int ret;
++
++	if (!device_may_wakeup(&client->dev))
++		i2c_hid_core_power_up(ihid);
++
++	enable_irq(client->irq);
++
++	/* Instead of resetting device, simply powers the device on. This
++	 * solves "incomplete reports" on Raydium devices 2386:3118 and
++	 * 2386:4B33 and fixes various SIS touchscreens no longer sending
++	 * data after a suspend/resume.
++	 *
++	 * However some ALPS touchpads generate IRQ storm without reset, so
++	 * let's still reset them here.
++	 */
++	if (ihid->quirks & I2C_HID_QUIRK_RESET_ON_RESUME)
++		ret = i2c_hid_hwreset(ihid);
++	else
++		ret = i2c_hid_set_power(ihid, I2C_HID_PWR_ON);
++
++	if (ret)
++		return ret;
++
++	return hid_driver_reset_resume(hid);
++}
++
+ /**
+  * i2c_hid_core_initial_power_up() - First time power up of the i2c-hid device.
+  * @ihid: The ihid object created during probe.
+@@ -1115,61 +1166,24 @@ void i2c_hid_core_shutdown(struct i2c_client *client)
  }
+ EXPORT_SYMBOL_GPL(i2c_hid_core_shutdown);
  
- int i2c_hid_core_panel_unpreparing(struct drm_panel_follower *follower)
+-static int i2c_hid_core_suspend(struct device *dev)
++static int i2c_hid_core_pm_suspend(struct device *dev)
  {
- 	struct i2c_hid *ihid = container_of(follower, struct i2c_hid, panel_follower);
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+-	struct hid_device *hid = ihid->hid;
+-	int ret;
+-
+-	ret = hid_driver_suspend(hid, PMSG_SUSPEND);
+-	if (ret < 0)
+-		return ret;
  
-+	cancel_work_sync(&ihid->panel_follower_prepare_work);
-+
-+	/* Match with ihid_core_panel_prepare_work() */
-+	smp_rmb();
-+	if (!READ_ONCE(ihid->prepare_work_finished))
-+		return 0;
-+
- 	return i2c_hid_core_suspend(ihid);
+-	/* Save some power */
+-	i2c_hid_set_power(ihid, I2C_HID_PWR_SLEEP);
+-
+-	disable_irq(client->irq);
+-
+-	if (!device_may_wakeup(&client->dev))
+-		i2c_hid_core_power_down(ihid);
+-
+-	return 0;
++	return i2c_hid_core_suspend(ihid);
  }
  
-@@ -1124,6 +1157,7 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+-static int i2c_hid_core_resume(struct device *dev)
++static int i2c_hid_core_pm_resume(struct device *dev)
+ {
+-	int ret;
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct i2c_hid *ihid = i2c_get_clientdata(client);
+-	struct hid_device *hid = ihid->hid;
  
- 	init_waitqueue_head(&ihid->wait);
- 	mutex_init(&ihid->reset_lock);
-+	INIT_WORK(&ihid->panel_follower_prepare_work, ihid_core_panel_prepare_work);
+-	if (!device_may_wakeup(&client->dev))
+-		i2c_hid_core_power_up(ihid);
+-
+-	enable_irq(client->irq);
+-
+-	/* Instead of resetting device, simply powers the device on. This
+-	 * solves "incomplete reports" on Raydium devices 2386:3118 and
+-	 * 2386:4B33 and fixes various SIS touchscreens no longer sending
+-	 * data after a suspend/resume.
+-	 *
+-	 * However some ALPS touchpads generate IRQ storm without reset, so
+-	 * let's still reset them here.
+-	 */
+-	if (ihid->quirks & I2C_HID_QUIRK_RESET_ON_RESUME)
+-		ret = i2c_hid_hwreset(ihid);
+-	else
+-		ret = i2c_hid_set_power(ihid, I2C_HID_PWR_ON);
+-
+-	if (ret)
+-		return ret;
+-
+-	return hid_driver_reset_resume(hid);
++	return i2c_hid_core_resume(ihid);
+ }
  
- 	/* we need to allocate the command buffer without knowing the maximum
- 	 * size of the reports. Let's use HID_MIN_BUFFER_SIZE, then we do the
+ const struct dev_pm_ops i2c_hid_core_pm = {
+-	SYSTEM_SLEEP_PM_OPS(i2c_hid_core_suspend, i2c_hid_core_resume)
++	SYSTEM_SLEEP_PM_OPS(i2c_hid_core_pm_suspend, i2c_hid_core_pm_resume)
+ };
+ EXPORT_SYMBOL_GPL(i2c_hid_core_pm);
+ 
 -- 
 2.40.1.698.g37aff9b760-goog
 

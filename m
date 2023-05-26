@@ -2,41 +2,42 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FC33C77B7E
-	for <linux-input@archiver.kernel.org>; Fri, 26 May 2023 00:04:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2868FC7EE2F
+	for <linux-input@archiver.kernel.org>; Fri, 26 May 2023 00:04:57 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233951AbjEZAEp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 25 May 2023 20:04:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35542 "EHLO
+        id S241821AbjEZAEs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 25 May 2023 20:04:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230099AbjEZAEo (ORCPT
+        with ESMTP id S231691AbjEZAEp (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 25 May 2023 20:04:44 -0400
-Received: from mx0b-001ae601.pphosted.com (mx0b-001ae601.pphosted.com [67.231.152.168])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A40199C;
+        Thu, 25 May 2023 20:04:45 -0400
+Received: from mx0b-001ae601.pphosted.com (mx0a-001ae601.pphosted.com [67.231.149.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9638189;
         Thu, 25 May 2023 17:04:42 -0700 (PDT)
-Received: from pps.filterd (m0077474.ppops.net [127.0.0.1])
-        by mx0b-001ae601.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34PNsGSO016759;
-        Thu, 25 May 2023 19:04:36 -0500
+Received: from pps.filterd (m0077473.ppops.net [127.0.0.1])
+        by mx0a-001ae601.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 34Q022ES008327;
+        Thu, 25 May 2023 19:04:38 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type;
- s=PODMain02222019; bh=jTAjC6w0E17uXA85LdmOi45eFKPWHp+38y4g2iSpRbI=;
- b=AU6Y79geaGg5Yvu+0Jq8EYuHNyypmkff5CSfpRdViBtqIMmrfZTwyybbZnqg6BjtZBpC
- B/o3BgO8yqExeq/l36iNVOjHbjXSabXpcWY5trJ7iNMyhHA50VooPgiPyyL+hbnFWjqj
- VfZMeN1/9oiQCqZ4N7fSZ+iS0YYrtj8O1kNdsfiC/VTt8B9m5/6ZNgluai4zFwl0/6Mp
- FKwl8RM8EzNI0xYZaBMeYD4np2d053FYd3QGDsBTSYX8Hr+v7MYESfIwFonWBFLyoCuT
- L+Hf5PdjYJiCA+qn6UVV6F+bXE1gcy5ijSv8oHbHMaQpiM5RnhS/lwfCQZ7Dkos7n9u/ 2g== 
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-type; s=PODMain02222019;
+ bh=YxsKnTKBrlut2Zf3TicIz3cmx/oQMiseL7SMTQy7c+U=;
+ b=HMZepwgkJEUpBVWr4GwbUx6n5hL9RvcdV3TZgmUFp4SpqvTZvvhXVCloz2/KU53k2KyK
+ p908KWAr0AU5JRHd+4O0yaxQfjquHyEq+i+FJQvt6UmXLfGUBLYCa1IslclVv9MlYjxc
+ lzPxga/n1umPmylXmOVFK9n6+mU0itiyEJ+BNm+zcFhn/r7YBZ6KTC92zUsSZLu13/9W
+ /nEI6sBO19fBLdUcqC/jVkEinTiYk1BRO8QUpzJ5mUDXXTorkfUQHxL9ewyK9xkdrGuZ
+ qUcxCzSoyip8oALALizX9/P1Lx4hWLXHYsLU2RTMV+tWtEQ87PAwzZRQc29oBJHGX06d YA== 
 Received: from ausex01.ad.cirrus.com ([141.131.3.19])
-        by mx0b-001ae601.pphosted.com (PPS) with ESMTPS id 3qptmm7qhn-1
+        by mx0a-001ae601.pphosted.com (PPS) with ESMTPS id 3qsde8jhx5-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 25 May 2023 19:04:36 -0500
+        Thu, 25 May 2023 19:04:37 -0500
 Received: from ausex02.ad.cirrus.com (141.131.37.96) by ausex01.ad.cirrus.com
  (141.131.37.95) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.26; Thu, 25 May
- 2023 19:04:35 -0500
+ 2023 19:04:36 -0500
 Received: from ftrev.crystal.cirrus.com (141.131.38.212) by
  anon-ausex02.ad.cirrus.com (141.131.37.96) with Microsoft SMTP Server id
- 15.2.1118.26 via Frontend Transport; Thu, 25 May 2023 19:04:35 -0500
+ 15.2.1118.26 via Frontend Transport; Thu, 25 May 2023 19:04:36 -0500
 From:   Fred Treven <fred.treven@cirrus.com>
 To:     Fred Treven <fred.treven@cirrus.com>,
         Ben Bright <ben.bright@cirrus.com>,
@@ -50,158 +51,174 @@ To:     Fred Treven <fred.treven@cirrus.com>,
         <patches@opensource.cirrus.com>, <linux-input@vger.kernel.org>,
         <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 CC:     <lee@kernel.org>
-Subject: [PATCH v2 1/5] dt-bindings: input: cirrus,cs40l26: Support for CS40L26
-Date:   Thu, 25 May 2023 19:04:27 -0500
-Message-ID: <1685059471-9598-1-git-send-email-fred.treven@cirrus.com>
+Subject: [PATCH 3/5] firmware: cs_dsp: Add ability to loa multiple coefficient files
+Date:   Thu, 25 May 2023 19:04:29 -0500
+Message-ID: <1685059471-9598-3-git-send-email-fred.treven@cirrus.com>
 X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1685059471-9598-1-git-send-email-fred.treven@cirrus.com>
+References: <1685059471-9598-1-git-send-email-fred.treven@cirrus.com>
 MIME-Version: 1.0
 Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: SfDZn0Lm3-5hMH6U450QRAmUFsbFaJpk
-X-Proofpoint-GUID: SfDZn0Lm3-5hMH6U450QRAmUFsbFaJpk
+X-Proofpoint-ORIG-GUID: JqwquFTYrX7szNWi9ORmnbKkzHeFFWlJ
+X-Proofpoint-GUID: JqwquFTYrX7szNWi9ORmnbKkzHeFFWlJ
 X-Proofpoint-Spam-Reason: orgsafe
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Introduce required basic devicetree parameters for the
-initial commit of CS40L26.
+Add cs_dsp_power_up_multiple() which accepts an array of
+cs_dsp_coeff_desc firmware-filename pairs to load.
+
+This enables the user to load more than one tuning file
+along with the associated firmware.
+
+Change cs_dsp_power_up() to make use of the new function
+with a single coefficient file.
 
 Signed-off-by: Fred Treven <fred.treven@cirrus.com>
 ---
- .../devicetree/bindings/input/cirrus,cs40l26.yaml  | 102 +++++++++++++++++++++
- MAINTAINERS                                        |  10 ++
- 2 files changed, 112 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/input/cirrus,cs40l26.yaml
+ drivers/firmware/cirrus/cs_dsp.c       | 61 ++++++++++++++++++++++++++--------
+ include/linux/firmware/cirrus/cs_dsp.h | 20 +++++++++--
+ 2 files changed, 66 insertions(+), 15 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/cirrus,cs40l26.yaml b/Documentation/devicetree/bindings/input/cirrus,cs40l26.yaml
-new file mode 100644
-index 000000000000..9cbc964ebded
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/cirrus,cs40l26.yaml
-@@ -0,0 +1,102 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/cirrus,cs40l26.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Cirrus Logic CS40L26 Boosted Haptic Amplifier
-+
-+maintainers:
-+  - Fred Treven <fred.treven@cirrus.com>
-+
-+description:
-+  CS40L26 is a Boosted Haptic Driver with Integrated DSP and Waveform Memory
-+  with Advanced Closed Loop Algorithms and LRA protection
-+
-+properties:
-+  compatible:
-+    enum:
-+      - cirrus,cs40l26a
-+      - cirrus,cs40l26b
-+      - cirrus,cs40l27a
-+      - cirrus,cs40l27b
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+  VA-supply:
-+    description: Regulator for VA analog voltage
-+
-+  VP-supply:
-+    description: Regulator for VP peak voltage
-+
-+  cirrus,bst-ipk-microamp:
-+    description:
-+      Maximum amount of current that can be drawn by the device's boost converter.
-+    multipleOf: 50000
-+    minimum: 1600000
-+    maximum: 4800000
-+    default: 4500000
-+
-+  cirrus,bst-ctl-microvolt:
-+    description: Maximum target voltage to which DSP may increase the VBST supply.
-+    multipleOf: 50000
-+    minimum: 2550000
-+    maximum: 11000000
-+    default: 11000000
-+
-+  cirrus,bst-exploratory-mode-disable:
-+    description:
-+      Disable boost exploratory mode.
-+
-+      In exploratory mode the analog maximum peak current limit of 4.5 A
-+      (tolerance of + 160 mA) will be applied. This is required for the
-+      device to successfully detect a boost inductor short.
-+
-+      Boost exploratory mode allows the device to overshoot the set boost peak
-+      current limit (i.e. if current peak limit is set to 2.5 A to protect the
-+      battery inductor, the current limit will be opened up to 4.5 A for
-+      several milliseconds at boost startup).
-+      This has potential to damage the boost inductor.
-+
-+      Disabling this mode will prevent this from happening; it will also
-+      prevent the device from detecting boost inductor short errors.
-+    type: boolean
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      cs40l26@58 {
-+        compatible = "cirrus,cs40l26a";
-+        reg = <0x58>;
-+        interrupt-parent = <&gpio>;
-+        interrupts = <57 IRQ_TYPE_LEVEL_LOW>;
-+        reset-gpios = <&gpio 54 GPIO_ACTIVE_LOW>;
-+        VA-supply = <&dummy_vreg>;
-+        VP-supply = <&dummy_vreg>;
-+        cirrus,bst-ctl-microvolt = <2600000>;
-+        cirrus,bst-ipk-microamp = <1650000>;
-+        cirrus,bst-exploratory-mode-disable;
-+      };
-+    };
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2b073facf399..d72ed4957b0b 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4926,6 +4926,16 @@ L:	netdev@vger.kernel.org
- S:	Maintained
- F:	drivers/net/ethernet/cirrus/ep93xx_eth.c
+diff --git a/drivers/firmware/cirrus/cs_dsp.c b/drivers/firmware/cirrus/cs_dsp.c
+index f558b390fbfe..3242095c1b13 100644
+--- a/drivers/firmware/cirrus/cs_dsp.c
++++ b/drivers/firmware/cirrus/cs_dsp.c
+@@ -2515,28 +2515,30 @@ static void cs_dsp_halo_stop_watchdog(struct cs_dsp *dsp)
+ }
  
-+CIRRUS LOGIC HAPTICS DRIVER
-+M:	Fred Treven <fred.treven@cirrus.com>
-+M:	Ben Bright <ben.bright@cirrus.com>
-+M:	James Ogletree <james.ogletree@cirrus.com>
-+L:	patches@opensource.cirrus.com
-+S:	Supported
-+W:	https://github.com/CirrusLogic/linux-drivers/wiki
-+T:	git https://github.com/CirrusLogic/linux-drivers.git
-+F:	Documentation/devicetree/bindings/input/cirrus,cs40l26.yaml
+ /**
+- * cs_dsp_power_up() - Downloads firmware to the DSP
+- * @dsp: pointer to DSP structure
++ * cs_dsp_power_up_multiple() - Downloads firmware and multiple coefficient files to the DSP
++ * @dsp: pointer to the DSP structure
+  * @wmfw_firmware: the firmware to be sent
+  * @wmfw_filename: file name of firmware to be sent
+- * @coeff_firmware: the coefficient data to be sent
+- * @coeff_filename: file name of coefficient to data be sent
++ * @coeffs: coefficient data and filename pairs to be sent
++ * @num_coeffs: number of coefficient files to be sent
+  * @fw_name: the user-friendly firmware name
+  *
+  * This function is used on ADSP2 and Halo DSP cores, it powers-up the DSP core
+  * and downloads the firmware but does not start the firmware running. The
+  * cs_dsp booted flag will be set once completed and if the core has a low-power
+  * memory retention mode it will be put into this state after the firmware is
+- * downloaded.
++ * downloaded. Differs from cs_dsp_power_up() in that it allows for multiple
++ * coefficient files to be downloaded.
+  *
+  * Return: Zero for success, a negative number on error.
++ *
++ *
+  */
+-int cs_dsp_power_up(struct cs_dsp *dsp,
+-		    const struct firmware *wmfw_firmware, char *wmfw_filename,
+-		    const struct firmware *coeff_firmware, char *coeff_filename,
+-		    const char *fw_name)
++int cs_dsp_power_up_multiple(struct cs_dsp *dsp, const struct firmware *wmfw_firmware,
++		char *wmfw_filename, struct cs_dsp_coeff_desc *coeffs, int num_coeffs,
++		const char *fw_name)
+ {
+-	int ret;
++	int i, ret;
+ 
+ 	mutex_lock(&dsp->pwr_lock);
+ 
+@@ -2562,9 +2564,12 @@ int cs_dsp_power_up(struct cs_dsp *dsp,
+ 	if (ret != 0)
+ 		goto err_ena;
+ 
+-	ret = cs_dsp_load_coeff(dsp, coeff_firmware, coeff_filename);
+-	if (ret != 0)
+-		goto err_ena;
++	for (i = 0; i < num_coeffs; i++) {
++		ret = cs_dsp_load_coeff(dsp, coeffs[i].coeff_firmware,
++					coeffs[i].coeff_filename);
++		if (ret != 0 && !coeffs[i].optional)
++			goto err_ena;
++	}
+ 
+ 	/* Initialize caches for enabled and unset controls */
+ 	ret = cs_dsp_coeff_init_control_caches(dsp);
+@@ -2590,6 +2595,36 @@ int cs_dsp_power_up(struct cs_dsp *dsp,
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_NS_GPL(cs_dsp_power_up_multiple, FW_CS_DSP);
 +
- CIRRUS LOGIC LOCHNAGAR DRIVER
- M:	Charles Keepax <ckeepax@opensource.cirrus.com>
- M:	Richard Fitzgerald <rf@opensource.cirrus.com>
++/**
++ * cs_dsp_power_up() - Downloads firmware to the DSP
++ * @dsp: pointer to DSP structure
++ * @wmfw_firmware: the firmware to be sent
++ * @wmfw_filename: file name of firmware to be sent
++ * @coeff_firmware: the coefficient data to be sent
++ * @coeff_filename: file name of coefficient data to be sent
++ * @fw_name: the user-friendly firmware name
++ *
++ * This function is used on ADSP2 and Halo DSP cores, it powers-up the DSP core
++ * and downloads the firmware but does not start the firmware running. The
++ * cs_dsp booted flag will be set once completed and if the core has a low-power
++ * memory retention mode it will be put into this state after the firmware is
++ * downloaded.
++ *
++ * Return: Zero for success, a negative number on error.
++ */
++int cs_dsp_power_up(struct cs_dsp *dsp, const struct firmware *wmfw_firmware, char *wmfw_filename,
++		const struct firmware *coeff_firmware, char *coeff_filename, const char *fw_name)
++{
++	struct cs_dsp_coeff_desc coeff_desc;
++
++	coeff_desc.coeff_firmware = coeff_firmware;
++	coeff_desc.coeff_filename = coeff_filename;
++	coeff_desc.optional = false;
++
++	return cs_dsp_power_up_multiple(dsp, wmfw_firmware, wmfw_filename, &coeff_desc, 1, fw_name);
++}
+ EXPORT_SYMBOL_NS_GPL(cs_dsp_power_up, FW_CS_DSP);
+ 
+ /**
+diff --git a/include/linux/firmware/cirrus/cs_dsp.h b/include/linux/firmware/cirrus/cs_dsp.h
+index cad828e21c72..1fda4104140c 100644
+--- a/include/linux/firmware/cirrus/cs_dsp.h
++++ b/include/linux/firmware/cirrus/cs_dsp.h
+@@ -43,6 +43,18 @@
+ #define CS_DSP_ACKED_CTL_MAX_VALUE           0xFFFFFF
+ 
+ /**
++ * struct cs_dsp_coeff_desc - Describes a coeff. file + filename pair
++ * @coeff_firmware:	Firmware struct to populate with coeff. data
++ * @coeff_filename:	File from which coeff. data is loaded
++ * @optional:		Designates whether or not to error out if file fails to load
++ */
++struct cs_dsp_coeff_desc {
++	const struct firmware *coeff_firmware;
++	char *coeff_filename;
++	bool optional;
++};
++
++/**
+  * struct cs_dsp_region - Describes a logical memory region in DSP address space
+  * @type:	Memory region type
+  * @base:	Address of region
+@@ -217,10 +229,14 @@ int cs_dsp_adsp1_power_up(struct cs_dsp *dsp,
+ 			  const struct firmware *coeff_firmware, char *coeff_filename,
+ 			  const char *fw_name);
+ void cs_dsp_adsp1_power_down(struct cs_dsp *dsp);
+-int cs_dsp_power_up(struct cs_dsp *dsp,
++int cs_dsp_power_up_multiple(struct cs_dsp *dsp,
+ 		    const struct firmware *wmfw_firmware, char *wmfw_filename,
+-		    const struct firmware *coeff_firmware, char *coeff_filename,
++		    struct cs_dsp_coeff_desc *coeffs, int num_coeffs,
+ 		    const char *fw_name);
++int cs_dsp_power_up(struct cs_dsp *dsp,
++		const struct firmware *wmfw_firmware, char *wmfw_filename,
++		const struct firmware *coeff_firmware, char *coeff_filename,
++		const char *fw_name);
+ void cs_dsp_power_down(struct cs_dsp *dsp);
+ int cs_dsp_run(struct cs_dsp *dsp);
+ void cs_dsp_stop(struct cs_dsp *dsp);
 -- 
 2.7.4
 

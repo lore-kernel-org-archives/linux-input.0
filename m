@@ -2,62 +2,84 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CBC63C77B73
-	for <linux-input@archiver.kernel.org>; Wed, 31 May 2023 08:37:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CBE23C77B7C
+	for <linux-input@archiver.kernel.org>; Wed, 31 May 2023 08:43:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230201AbjEaIho (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 31 May 2023 04:37:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56076 "EHLO
+        id S234371AbjEaInQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 31 May 2023 04:43:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232512AbjEaIhn (ORCPT
+        with ESMTP id S230039AbjEaInP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 May 2023 04:37:43 -0400
-X-Greylist: delayed 854 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 31 May 2023 01:37:39 PDT
-Received: from mail.ettrick.pl (mail.ettrick.pl [141.94.21.111])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 929B410B
-        for <linux-input@vger.kernel.org>; Wed, 31 May 2023 01:37:39 -0700 (PDT)
-Received: by mail.ettrick.pl (Postfix, from userid 1002)
-        id EE640AA9FC; Wed, 31 May 2023 08:16:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ettrick.pl; s=mail;
-        t=1685520965; bh=ZOVeXw1jXE9TbyZP9aLdRwM96AORcRfum8b+rry5JMw=;
-        h=Date:From:To:Subject:From;
-        b=VeLwJpPFCIMnuNfIy+saUODt5xj/raPm6C/ClLQZ13ksMx624CDgdWIlS+s+I/jjc
-         hG4m3JGbr1xhg6/XZeD9kBH3KyR9zirhnZ3NaGMXMYlg0s/bV6+CoWMbGxvfc289mL
-         OTjAOJdi7dfylk2e+C9g3j8D9mls3LrQc8d6WNX9Zxt/Sc7wmblVItUgyN8/leFvaU
-         kVR9aSWsqI3jmi5CxmFbBQ5WYJ2fQ0EyrMeM5JyR9XoJ9hzi8BopqTqjbmDudlbkA3
-         sPBEZA8Hh2nIFILYK937wM+XX2GTUFVObfGhgknn6n2QYrDiozb3KwB811lCKkOIis
-         mZAeUjOz1nYzQ==
-Received: by mail.ettrick.pl for <linux-input@vger.kernel.org>; Wed, 31 May 2023 08:15:40 GMT
-Message-ID: <20230531064500-0.1.ax.4blvm.0.e9ohsprps2@ettrick.pl>
-Date:   Wed, 31 May 2023 08:15:40 GMT
-From:   "Norbert Karecki" <norbert.karecki@ettrick.pl>
-To:     <linux-input@vger.kernel.org>
-Subject: Fotowoltaika- propozycja instalacji
-X-Mailer: mail.ettrick.pl
+        Wed, 31 May 2023 04:43:15 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6678ABE;
+        Wed, 31 May 2023 01:43:14 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01DA363834;
+        Wed, 31 May 2023 08:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 548D3C433EF;
+        Wed, 31 May 2023 08:43:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685522593;
+        bh=s4t+Z4bQTlyFJ05G5k3BJkFvhBy3z6GR9euUFM8vS+8=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=dmKSoM0FNyamDabmjd+4lt6NXDgd8/pkAFJcTaWxSfRgBp9CRN903J+Oqkt7M3ZaT
+         NEBF48UN6cT6A6kMOSnYjUIciotz3JovgCsqv2N8F8cFRmkuhf3MU8A0/DQZ9r1WLB
+         uRy69iYzC2hrGqX6WsQGtOi7kS/He+mo2o7pfEabX7jO7bDElxOnMRTmDicGMl/ZY/
+         twX1TAF7IezoVYDCz2re4IAeFaYJMR+XgP92T6DPOzZwEj8DxixPiYBK7aLtUjZgeX
+         2a5lFEGlUSUAVBnMmxr1/bTuf2XoZhvJ0Mc9txxnRiQ7Pzn9tirpEQvl8dWhlEllx0
+         xnDBNn43qPRZg==
+Date:   Wed, 31 May 2023 10:43:08 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Thorsten Leemhuis <regressions@leemhuis.info>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Linux regressions mailing list <regressions@lists.linux.dev>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>,
+        Bastien Nocera <hadess@hadess.net>,
+        "open list:HID CORE LAYER" <linux-input@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, guy.b@bluewin.ch
+Subject: Re: [regression] Since kernel 6.3.1 logitech unify receiver not
+ working properly
+In-Reply-To: <746720e5-318c-6d9e-2d5a-a6ebf6b4b0c6@leemhuis.info>
+Message-ID: <nycvar.YFH.7.76.2305311042150.29760@cbobk.fhfr.pm>
+References: <9b987585-0834-bb8c-3414-283c29f3f2ab@leemhuis.info> <bec024d5-4088-00ae-f7b5-7188868b1707@leemhuis.info> <b7717c43-74bf-b91d-d3ce-874493df602c@gmail.com> <CAO-hwJ+At1J_yUpX2q_dJekzZ-PoTDAvxmkTk_e4Yu0Z338bEA@mail.gmail.com>
+ <55dda0bb-fe42-6dee-28ea-00121554d092@leemhuis.info> <CAHk-=whvhkSk6m8_AidhofgR9nq0Md+HbNad5r1RE69tZgbv6Q@mail.gmail.com> <nycvar.YFH.7.76.2305231422180.29760@cbobk.fhfr.pm> <CAO-hwJ+MTRu9KxqwQc7UYFBsa0kkrnYfwVB30KsLZnw=wfcOMg@mail.gmail.com>
+ <nycvar.YFH.7.76.2305251308471.29760@cbobk.fhfr.pm> <nycvar.YFH.7.76.2305262040330.29760@cbobk.fhfr.pm> <746720e5-318c-6d9e-2d5a-a6ebf6b4b0c6@leemhuis.info>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dzie=C5=84 dobry,
-=20
-Czy rozwa=C5=BCali Pa=C5=84stwo monta=C5=BC systemu fotowoltaicznego?
-=20
-Instalacja fotowoltaiczna jest najlepszym sposobem na obni=C5=BCenie wyso=
-ko=C5=9Bci rachunk=C3=B3w za pr=C4=85d (pozostaj=C4=85 tylko op=C5=82aty =
-sta=C5=82e) i zabezpieczenie si=C4=99 przed rosn=C4=85cymi cenami energii=
- elektrycznej. Jest to w pe=C5=82ni odnawialne i bezemisyjne =C5=BAr=C3=B3=
-d=C5=82o energii, dzi=C4=99ki czemu przyczyniamy si=C4=99 do ochrony =C5=9B=
-rodowiska naturalnego.
-=20
-Dzia=C5=82amy od wielu lat na rynku energetycznym. Przygotujemy projekt, =
-wycen=C4=99 oraz kompleksowo wykonamy i zg=C5=82osimy realizacj=C4=99 do =
-zak=C5=82adu energetycznego.=20
-=20
-Czy chc=C4=85 Pa=C5=84stwo pozna=C4=87 nasz=C4=85 propozycj=C4=99? =20
+On Sun, 28 May 2023, Thorsten Leemhuis wrote:
 
+> > who is able to reproduce the issue please check whether 
+> > reverting
+> > 
+> > 	586e8fede7953b16 ("HID: logitech-hidpp: Retry commands when device is busy")
+> > 
+> > has any observable effect?
+> 
+> See https://bugzilla.kernel.org/show_bug.cgi?id=217412#c26 and later –
+> it at least solved the problem for one user.
+> 
+> But it's all a mess (at least afaics). Earlier in that ticket some other
+> user said things work with 6.4-rc kernel, while for another confirmed
+> things are still broken. So maybe we deal with more than one problem. Or
+> testing went sideways for some of the users.
 
-Pozdrawiam,
-Norbert Karecki
+The patch that needs to be tested now by the affected users is here:
+
+	https://patchwork.kernel.org/project/linux-input/patch/20230531082428.21763-1-hadess@hadess.net/
+
+-- 
+Jiri Kosina
+SUSE Labs
+

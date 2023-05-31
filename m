@@ -2,146 +2,236 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CDAEFC77B73
-	for <linux-input@archiver.kernel.org>; Wed, 31 May 2023 14:21:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 69544C77B7A
+	for <linux-input@archiver.kernel.org>; Wed, 31 May 2023 16:46:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237582AbjEaOVE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 31 May 2023 10:21:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33104 "EHLO
+        id S229915AbjEaQqp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 31 May 2023 12:46:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235858AbjEaOUg (ORCPT
+        with ESMTP id S229922AbjEaQql (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 31 May 2023 10:20:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D3831A2
-        for <linux-input@vger.kernel.org>; Wed, 31 May 2023 07:18:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1685542635;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iKY4ohXdL6Kppb6cdBaAFMS5w8OYmdrqeHw64hwzbU8=;
-        b=OwZ/VGGhwR02258P7qeqiZM4pNTUDwdoqZ++SdyTkMWse7NH3D0Et+5jAFXTtgXt+YxWj+
-        geCv9+0Dh08eIVD6pD9kblXVhUYPw/AWfbR32kjtkE1DUMscbz0/lGSGQiKuE7BFWKo3/v
-        atgPVSev+yJVHHeDcA9Jk7TEeITk20g=
-Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
- [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-227-K_2DzIq1O1C9bJoiHpuv7w-1; Wed, 31 May 2023 09:52:38 -0400
-X-MC-Unique: K_2DzIq1O1C9bJoiHpuv7w-1
-Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-94a355cf318so597324566b.2
-        for <linux-input@vger.kernel.org>; Wed, 31 May 2023 06:52:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685541157; x=1688133157;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=iKY4ohXdL6Kppb6cdBaAFMS5w8OYmdrqeHw64hwzbU8=;
-        b=AVxn4jxdHACi4oHWiKow5DwaYfUH4bdK83KZfelI5WoScgewNESY+w7FZcvMBAas7a
-         P85Cuc0sC8jGDqezFKoM5J20el3qeR8Mp2w1GqOZwLotvsAnZqRXq54Kv5v65B+Q+GxR
-         wKSt8qEk64qEDP0hmvaynyzlg7jWKcwMJd9hWqcuJ04MdWIFzgu0YK24L32BdKR+jT2E
-         RJ9UEplTCzb21OY2MiN+7L5GZfmhRvcr9wAXWztgH0mFzeFxtKelp+AgVInos4OeJeOB
-         apmYHF5rJmPU0DCgvxKPfKpS9csDqEyaWwxHs2g82Rs6WErdrKaRDxv3fX+qQkGf5BY8
-         aNWQ==
-X-Gm-Message-State: AC+VfDwhWTsp4F3er/iQxJa9BoSDQh2pHPqunokWgoTvdB0rJp2iwMbL
-        WVLMHljE79yIhUHt5UyawYmoway5U2LGUkqh8fjd4eqceiEX+Tgy4D/q2iNH8Xv24zToQ330tDy
-        pXAoViROq3YlPMkmweml002s=
-X-Received: by 2002:a17:907:7e92:b0:96f:f809:1394 with SMTP id qb18-20020a1709077e9200b0096ff8091394mr4565998ejc.53.1685541156465;
-        Wed, 31 May 2023 06:52:36 -0700 (PDT)
-X-Google-Smtp-Source: ACHHUZ7hhjQJzrNRzyGM1wTqzVW8nH8LuS4AWEp9EAl1HWLRdpILKHy/8ekBdMh24NZdi98uCcyc/w==
-X-Received: by 2002:a17:907:7e92:b0:96f:f809:1394 with SMTP id qb18-20020a1709077e9200b0096ff8091394mr4565974ejc.53.1685541156144;
-        Wed, 31 May 2023 06:52:36 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id v15-20020a170906338f00b009663cf5dc3bsm8980369eja.53.2023.05.31.06.52.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 31 May 2023 06:52:35 -0700 (PDT)
-Message-ID: <dba63a7b-6e5d-6145-5eea-0c2da3dc9445@redhat.com>
-Date:   Wed, 31 May 2023 15:52:35 +0200
+        Wed, 31 May 2023 12:46:41 -0400
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A33018C;
+        Wed, 31 May 2023 09:46:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1685551600; x=1717087600;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=OHgj5x9BlTOsr+jbuUC5FRn0FouRgE7wpNKD+K6wmEE=;
+  b=BkvpiWvW1b5fy4WXr/CbxjmDeGjAtSeBgvsm1IPeyWa8MAlRb3q0Y7L7
+   LcVspy0hTzBYjEku8mvMIsxnQST6ajD9+cgP4oaLPewvhe9IfAnjS0ox1
+   KzbQOO1JgHGwCBd6rrd5tHzY7lPzJX2zAyX9Ftge8doYOcOhOhBjbCPIQ
+   9iaDcOzZmhFjAZcrSZR2zJBmIxHNQx5TbDzTgwOP7E77BVw59bOj48Xox
+   Z975FgVOAwmv14wiOzYcnGDrANYGOWdCOuWbiePty/hYdVrRCu607ZCSC
+   e+SzIvBvp30EnEbD4Nn4CDxaVhnWNFK5dfAIElj11AEf4BOBMHP5ND9RW
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10727"; a="354138620"
+X-IronPort-AV: E=Sophos;i="6.00,207,1681196400"; 
+   d="scan'208";a="354138620"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 May 2023 09:46:37 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10727"; a="796775221"
+X-IronPort-AV: E=Sophos;i="6.00,207,1681196400"; 
+   d="scan'208";a="796775221"
+Received: from lkp-server01.sh.intel.com (HELO fb1ced2c09fb) ([10.239.97.150])
+  by FMSMGA003.fm.intel.com with ESMTP; 31 May 2023 09:46:34 -0700
+Received: from kbuild by fb1ced2c09fb with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1q4Oy1-0001Uv-1V;
+        Wed, 31 May 2023 16:46:33 +0000
+Date:   Thu, 1 Jun 2023 00:45:56 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Jeff LaBundy <jeff@labundy.com>, dmitry.torokhov@gmail.com,
+        robh+dt@kernel.org
+Cc:     oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, jeff@labundy.com
+Subject: Re: [PATCH 2/2] Input: iqs7222 - add support for Azoteq IQS7222D
+Message-ID: <202306010012.Dmk3yaas-lkp@intel.com>
+References: <ZHaoFCIpUM6ocPKO@nixie71>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.10.0
-Subject: Re: [PATCH] input: Add new keyboard backlight control keys to match
- modern notebooks
-Content-Language: en-US, nl
-To:     Werner Sembach <wse@tuxedocomputers.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Bastien Nocera <hadess@hadess.net>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230530110550.18289-1-wse@tuxedocomputers.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20230530110550.18289-1-wse@tuxedocomputers.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZHaoFCIpUM6ocPKO@nixie71>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Werner,
+Hi Jeff,
 
-Thank you for your patch.
+kernel test robot noticed the following build warnings:
 
-On 5/30/23 13:05, Werner Sembach wrote:
-> The old three KEY_KBDILLUM* keycodes don't reflect the current situation
-> modern notebooks anymore. Especially the ones with RGB keyboards.
-> 
-> e.g.
-> - Clevo NL50NU has a toggle, an up, a down and a color-cycle key
-> - TongFang PH4ARX1 doesn't have a toggle key, but one that cycles through
->   off, half-brightness, and full-brightness.
-> 
-> Also, on some devices these keys are already implemented in firmware. It
-> would still be nice if there is a way to let userspace know when one of
-> these keys is pressed to display the OSD, but don't advice it to actually
-> do anything. This is the intended purpose of the KEY_KBDILLUMCHANGE define.
-> 
-> Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-> ---
->  include/uapi/linux/input-event-codes.h | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
-> index 022a520e31fc2..05287bf9a77f7 100644
-> --- a/include/uapi/linux/input-event-codes.h
-> +++ b/include/uapi/linux/input-event-codes.h
-> @@ -803,6 +803,10 @@
->  #define BTN_TRIGGER_HAPPY39		0x2e6
->  #define BTN_TRIGGER_HAPPY40		0x2e7
->  
-> +#define KEY_KBDILLUMCYCLE		0x2e8
+[auto build test WARNING on dtor-input/next]
+[also build test WARNING on dtor-input/for-linus robh/for-next hid/for-next linus/master v6.4-rc4 next-20230531]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-I do not really see what the difference is between this and the existing KEY_KBDILLUMTOGGLE, userspace can already choice whether it toggles to a number of states or just toggles on/off.
+url:    https://github.com/intel-lab-lkp/linux/commits/Jeff-LaBundy/Input-iqs7222-add-support-for-Azoteq-IQS7222D/20230531-095226
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+patch link:    https://lore.kernel.org/r/ZHaoFCIpUM6ocPKO%40nixie71
+patch subject: [PATCH 2/2] Input: iqs7222 - add support for Azoteq IQS7222D
+config: i386-allyesconfig (https://download.01.org/0day-ci/archive/20230601/202306010012.Dmk3yaas-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build):
+        # https://github.com/intel-lab-lkp/linux/commit/b8b40762779cc4c0208ff51ef9fbb2d8015ba164
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Jeff-LaBundy/Input-iqs7222-add-support-for-Azoteq-IQS7222D/20230531-095226
+        git checkout b8b40762779cc4c0208ff51ef9fbb2d8015ba164
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        make W=1 O=build_dir ARCH=i386 olddefconfig
+        make W=1 O=build_dir ARCH=i386 SHELL=/bin/bash drivers/input/misc/
 
-So IMHO this one should be dropped.
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202306010012.Dmk3yaas-lkp@intel.com/
 
-> +#define KEY_KBDILLUMCOLORCYCLE		0x2e9
+All warnings (new ones prefixed by >>):
 
-This one is fine.
-
-> +#define KEY_KBDILLUMCHANGE		0x2ea
-
-Keyboard backlight support should be exported to userspace as a LED class device, see e.g. :
-
-drivers/platform/x86/thinkpad_acpi.c    : tpacpi_led_kbdlight
-drivers/platform/x86/dell/dell-laptop.c : kbd_led
-
-And the LED class device sysfs API already has a mechanism for signalling kbd-brightness changes triggered by the hw itself (e.g. by the embedded controller) to userspace. See the use of the 
-LED_BRIGHT_HW_CHANGED flag and the calling of led_classdev_notify_brightness_hw_changed() in the 2 above drivers.
-
-So strong NACK for adding KEY_KBDILLUMCHANGE, this is duplicate with the led_classdev_notify_brightness_hw_changed() functionality which is already supported by userspace. E.g. GNOME will show an OSD notification similar to the sound volume change OSD when changing the keyboard brightness through EC handled hotkeys on ThinkPads and various Dell models.
-
-TL;DR: to me only KEY_KBDILLUMCOLORCYCLE makes sense, assuming that this needs to be handled by userspace, if this is handled in the EC then this too should simply call led_classdev_notify_brightness_hw_changed()
-
-Regards,
-
-Hans
+   drivers/input/misc/iqs7222.c: In function 'iqs7222_parse_tpad':
+>> drivers/input/misc/iqs7222.c:2574:36: warning: unused variable 'val' [-Wunused-variable]
+    2574 |         unsigned int chan_sel[12], val;
+         |                                    ^~~
 
 
+vim +/val +2574 drivers/input/misc/iqs7222.c
 
+  2563	
+  2564	static int iqs7222_parse_tpad(struct iqs7222_private *iqs7222,
+  2565				      struct fwnode_handle *tpad_node, int tpad_index)
+  2566	{
+  2567		const struct iqs7222_dev_desc *dev_desc = iqs7222->dev_desc;
+  2568		struct touchscreen_properties *prop = &iqs7222->prop;
+  2569		struct i2c_client *client = iqs7222->client;
+  2570		int num_chan = dev_desc->reg_grps[IQS7222_REG_GRP_CHAN].num_row;
+  2571		int count, error, i;
+  2572		u16 *event_mask = &iqs7222->sys_setup[dev_desc->event_offset];
+  2573		u16 *tpad_setup = iqs7222->tpad_setup;
+> 2574		unsigned int chan_sel[12], val;
+  2575	
+  2576		error = iqs7222_parse_props(iqs7222, tpad_node, tpad_index,
+  2577					    IQS7222_REG_GRP_TPAD,
+  2578					    IQS7222_REG_KEY_NONE);
+  2579		if (error)
+  2580			return error;
+  2581	
+  2582		count = fwnode_property_count_u32(tpad_node, "azoteq,channel-select");
+  2583		if (count < 0) {
+  2584			dev_err(&client->dev, "Failed to count %s channels: %d\n",
+  2585				fwnode_get_name(tpad_node), count);
+  2586			return count;
+  2587		} else if (!count || count > ARRAY_SIZE(chan_sel)) {
+  2588			dev_err(&client->dev, "Invalid number of %s channels\n",
+  2589				fwnode_get_name(tpad_node));
+  2590			return -EINVAL;
+  2591		}
+  2592	
+  2593		error = fwnode_property_read_u32_array(tpad_node,
+  2594						       "azoteq,channel-select",
+  2595						       chan_sel, count);
+  2596		if (error) {
+  2597			dev_err(&client->dev, "Failed to read %s channels: %d\n",
+  2598				fwnode_get_name(tpad_node), error);
+  2599			return error;
+  2600		}
+  2601	
+  2602		tpad_setup[6] &= ~GENMASK(num_chan - 1, 0);
+  2603	
+  2604		for (i = 0; i < ARRAY_SIZE(chan_sel); i++) {
+  2605			tpad_setup[8 + i] = 0;
+  2606			if (i >= count || chan_sel[i] == U8_MAX)
+  2607				continue;
+  2608	
+  2609			if (chan_sel[i] >= num_chan) {
+  2610				dev_err(&client->dev, "Invalid %s channel: %u\n",
+  2611					fwnode_get_name(tpad_node), chan_sel[i]);
+  2612				return -EINVAL;
+  2613			}
+  2614	
+  2615			/*
+  2616			 * The following fields indicate which channels participate in
+  2617			 * the trackpad, as well as each channel's relative placement.
+  2618			 */
+  2619			tpad_setup[6] |= BIT(chan_sel[i]);
+  2620			tpad_setup[8 + i] = chan_sel[i] * 34 + 1072;
+  2621		}
+  2622	
+  2623		tpad_setup[7] = dev_desc->touch_link;
+  2624		if (fwnode_property_present(tpad_node, "azoteq,use-prox"))
+  2625			tpad_setup[7] -= 2;
+  2626	
+  2627		for (i = 0; i < ARRAY_SIZE(iqs7222_tp_events); i++)
+  2628			tpad_setup[20] &= ~(iqs7222_tp_events[i].strict |
+  2629					    iqs7222_tp_events[i].enable);
+  2630	
+  2631		for (i = 0; i < ARRAY_SIZE(iqs7222_tp_events); i++) {
+  2632			const char *event_name = iqs7222_tp_events[i].name;
+  2633			struct fwnode_handle *event_node;
+  2634	
+  2635			event_node = fwnode_get_named_child_node(tpad_node, event_name);
+  2636			if (!event_node)
+  2637				continue;
+  2638	
+  2639			if (fwnode_property_present(event_node,
+  2640						    "azoteq,gesture-angle-tighten"))
+  2641				tpad_setup[20] |= iqs7222_tp_events[i].strict;
+  2642	
+  2643			tpad_setup[20] |= iqs7222_tp_events[i].enable;
+  2644	
+  2645			error = iqs7222_parse_event(iqs7222, event_node, tpad_index,
+  2646						    IQS7222_REG_GRP_TPAD,
+  2647						    iqs7222_tp_events[i].reg_key,
+  2648						    iqs7222_tp_events[i].link, 1566,
+  2649						    NULL,
+  2650						    &iqs7222->tp_code[i]);
+  2651			fwnode_handle_put(event_node);
+  2652			if (error)
+  2653				return error;
+  2654	
+  2655			if (!dev_desc->event_offset)
+  2656				continue;
+  2657	
+  2658			/*
+  2659			 * The press/release event is determined based on whether the
+  2660			 * coordinate fields report 0xFFFF and solely relies on touch
+  2661			 * or proximity interrupts to be unmasked.
+  2662			 */
+  2663			if (i)
+  2664				*event_mask |= IQS7222_EVENT_MASK_TPAD;
+  2665			else if (tpad_setup[7] == dev_desc->touch_link)
+  2666				*event_mask |= IQS7222_EVENT_MASK_TOUCH;
+  2667			else
+  2668				*event_mask |= IQS7222_EVENT_MASK_PROX;
+  2669		}
+  2670	
+  2671		if (!iqs7222->tp_code[0])
+  2672			return 0;
+  2673	
+  2674		input_set_abs_params(iqs7222->keypad, ABS_X,
+  2675				     0, (tpad_setup[4] ? : 1) - 1, 0, 0);
+  2676	
+  2677		input_set_abs_params(iqs7222->keypad, ABS_Y,
+  2678				     0, (tpad_setup[5] ? : 1) - 1, 0, 0);
+  2679	
+  2680		touchscreen_parse_properties(iqs7222->keypad, false, prop);
+  2681	
+  2682		if (prop->max_x >= U16_MAX || prop->max_y >= U16_MAX) {
+  2683			dev_err(&client->dev, "Invalid trackpad size: %u*%u\n",
+  2684				prop->max_x, prop->max_y);
+  2685			return -EINVAL;
+  2686		}
+  2687	
+  2688		tpad_setup[4] = prop->max_x + 1;
+  2689		tpad_setup[5] = prop->max_y + 1;
+  2690	
+  2691		return 0;
+  2692	}
+  2693	
 
-
-> +
->  /* We avoid low common keys in module aliases so they don't get huge. */
->  #define KEY_MIN_INTERESTING	KEY_MUTE
->  #define KEY_MAX			0x2ff
-
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

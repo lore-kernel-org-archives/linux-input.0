@@ -2,30 +2,30 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9AFC5C7EE3A
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 397DFC7EE29
 	for <linux-input@archiver.kernel.org>; Thu,  1 Jun 2023 10:21:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233529AbjFAKVJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 1 Jun 2023 06:21:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54364 "EHLO
+        id S233543AbjFAKVK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 1 Jun 2023 06:21:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233441AbjFAKTp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Jun 2023 06:19:45 -0400
+        with ESMTP id S233727AbjFAKT6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Jun 2023 06:19:58 -0400
 Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE29E2134
-        for <linux-input@vger.kernel.org>; Thu,  1 Jun 2023 03:16:30 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0602B26A3
+        for <linux-input@vger.kernel.org>; Thu,  1 Jun 2023 03:16:40 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ore@pengutronix.de>)
-        id 1q4fKZ-0004WA-5h; Thu, 01 Jun 2023 12:14:55 +0200
+        id 1q4fKZ-0004WD-5l; Thu, 01 Jun 2023 12:14:55 +0200
 Received: from [2a0a:edc0:0:1101:1d::ac] (helo=dude04.red.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
         (envelope-from <ore@pengutronix.de>)
-        id 1q4fKX-004KWB-JG; Thu, 01 Jun 2023 12:14:53 +0200
+        id 1q4fKX-004KWH-WF; Thu, 01 Jun 2023 12:14:54 +0200
 Received: from ore by dude04.red.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ore@pengutronix.de>)
-        id 1q4fKW-001V3d-J1; Thu, 01 Jun 2023 12:14:52 +0200
+        id 1q4fKW-001V3z-KX; Thu, 01 Jun 2023 12:14:52 +0200
 From:   Oleksij Rempel <o.rempel@pengutronix.de>
 To:     Abel Vesa <abelvesa@kernel.org>,
         Michael Turquette <mturquette@baylibre.com>,
@@ -53,9 +53,9 @@ Cc:     Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de,
         linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-crypto@vger.kernel.org, linux-input@vger.kernel.org,
         linux-mmc@vger.kernel.org
-Subject: [PATCH v1 1/7] dt-bindings: mmc: fsl-imx-esdhc: Add imx6ul support
-Date:   Thu,  1 Jun 2023 12:14:45 +0200
-Message-Id: <20230601101451.357662-2-o.rempel@pengutronix.de>
+Subject: [PATCH v1 3/7] dt-bindings: timer: gpt: Support 3rd clock for i.MX6DL
+Date:   Thu,  1 Jun 2023 12:14:47 +0200
+Message-Id: <20230601101451.357662-4-o.rempel@pengutronix.de>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230601101451.357662-1-o.rempel@pengutronix.de>
 References: <20230601101451.357662-1-o.rempel@pengutronix.de>
@@ -69,44 +69,55 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add the 'fsl,imx6ul-usdhc' value to the compatible properties list in
-the fsl-imx-esdhc.yaml file. This is required to match the compatible
-strings present in the 'mmc@2190000' node of 'imx6ul-prti6g.dtb'. This
-commit addresses the following dtbs_check warning:
-  imx6ul-prti6g.dtb: mmc@2190000: compatible: 'oneOf' conditional failed,
-    one must be fixed: ['fsl,imx6ul-usdhc', 'fsl,imx6sx-usdhc'] is too long
-    'fsl,imx6ul-usdhc' is not one of ['fsl,imx25-esdhc', 'fsl,imx35-esdhc',
-    'fsl,imx51-esdhc', 'fsl,imx53-esdhc', 'fsl,imx6q-usdhc',
-    'fsl,imx6sl-usdhc', 'fsl,imx6sx-usdhc', 'fsl,imx7d-usdhc',
-    'fsl,imx7ulp-usdhc', 'fsl,imx8mm-usdhc', 'fsl,imxrt1050-usdhc',
-    'nxp,s32g2-usdhc']
-  From schema: Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml
+Add support for a 3rd clock, 'osc_per', for i.MX6DL to the 'fsl,imxgpt'
+binding to resolve the following dtbs_check warning:
+  imx6dl-alti6p.dtb: timer@2098000: clocks: [[2, 119], [2, 120], [2, 237]]
+    is too long
+  From schema: Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
+  imx6dl-alti6p.dtb: timer@2098000: clock-names: ['ipg', 'per', 'osc_per']
+    is too long
+  From schema: Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
 
 Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
 ---
- Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+ .../devicetree/bindings/timer/fsl,imxgpt.yaml | 22 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 6 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml b/Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml
-index fbfd822b9270..090e781705d3 100644
---- a/Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml
-+++ b/Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml
-@@ -30,6 +30,7 @@ properties:
-           - fsl,imx6q-usdhc
-           - fsl,imx6sl-usdhc
-           - fsl,imx6sx-usdhc
-+          - fsl,imx6ul-usdhc
-           - fsl,imx7d-usdhc
-           - fsl,imx7ulp-usdhc
-           - fsl,imx8mm-usdhc
-@@ -42,6 +43,7 @@ properties:
-           - enum:
-               - fsl,imx6sll-usdhc
-               - fsl,imx6ull-usdhc
-+              - fsl,imx6ul-usdhc
-           - const: fsl,imx6sx-usdhc
-       - items:
-           - const: fsl,imx7d-usdhc
+diff --git a/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml b/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
+index adf617b8f353..21ff51c3f38f 100644
+--- a/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
++++ b/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
+@@ -46,14 +46,24 @@ properties:
+     maxItems: 1
+ 
+   clocks:
+-    items:
+-      - description: SoC GPT ipg clock
+-      - description: SoC GPT per clock
++    anyOf:
++      - items:
++          - description: SoC GPT ipg clock
++          - description: SoC GPT per clock
++      - items:
++          - description: SoC GPT ipg clock
++          - description: SoC GPT per clock
++          - description: SoC GPT osc_per clock
+ 
+   clock-names:
+-    items:
+-      - const: ipg
+-      - const: per
++    anyOf:
++      - items:
++          - const: ipg
++          - const: per
++      - items:
++          - const: ipg
++          - const: per
++          - const: osc_per
+ 
+ required:
+   - compatible
 -- 
 2.39.2
 

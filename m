@@ -2,100 +2,190 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AF8ADC7EE32
-	for <linux-input@archiver.kernel.org>; Thu,  1 Jun 2023 10:21:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5FFEC77B7A
+	for <linux-input@archiver.kernel.org>; Thu,  1 Jun 2023 15:23:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233565AbjFAKVN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 1 Jun 2023 06:21:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55558 "EHLO
+        id S232357AbjFAPXU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 1 Jun 2023 11:23:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233679AbjFAKTx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Jun 2023 06:19:53 -0400
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0503CE7A
-        for <linux-input@vger.kernel.org>; Thu,  1 Jun 2023 03:16:36 -0700 (PDT)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ore@pengutronix.de>)
-        id 1q4fKZ-0004WB-5m; Thu, 01 Jun 2023 12:14:55 +0200
-Received: from [2a0a:edc0:0:1101:1d::ac] (helo=dude04.red.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ore@pengutronix.de>)
-        id 1q4fKX-004KWE-Qf; Thu, 01 Jun 2023 12:14:53 +0200
-Received: from ore by dude04.red.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ore@pengutronix.de>)
-        id 1q4fKW-001V3p-Js; Thu, 01 Jun 2023 12:14:52 +0200
-From:   Oleksij Rempel <o.rempel@pengutronix.de>
-To:     Abel Vesa <abelvesa@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        with ESMTP id S233018AbjFAPXS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 1 Jun 2023 11:23:18 -0400
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC0EB3;
+        Thu,  1 Jun 2023 08:23:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1685632986; x=1717168986;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=gVvYAmz4hzU58KtAxeCJlCFJgLqSrt6q5V7koKnLAso=;
+  b=SXikThb2cPAiNRfE89gvnNmRBfTw30xAg9U2VsvVayuCSD3MoWUW/MoC
+   w3QmjQMfUUCPYGXJ+FLUtsp7aK6JjKMgpuzEyCpPUrtviWmvAWFQfE9qF
+   kJve0KeZek+Tf4dTlMuvIUZ7plPzPHAgSkhxLJE5rvns88lBo0bWpJf42
+   sxLEiZKMuT1kTlyXPKhR7r7l2pnfygrQDawdzVgqzzOVFg+pB4+pFAho3
+   zrtBhFs/EBBH0gJMmyi5oisSutAouDrF4btiaFG8ZkJWOfv33dSR99FRN
+   DcB5hxsPAUnSBk9pTRM8MtL+XlxeXXZMmkt2Ihi/L6YJgSKpW7ESKlkat
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10728"; a="335941913"
+X-IronPort-AV: E=Sophos;i="6.00,210,1681196400"; 
+   d="scan'208";a="335941913"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2023 08:21:47 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10728"; a="657836521"
+X-IronPort-AV: E=Sophos;i="6.00,210,1681196400"; 
+   d="scan'208";a="657836521"
+Received: from lkp-server01.sh.intel.com (HELO fb1ced2c09fb) ([10.239.97.150])
+  by orsmga003.jf.intel.com with ESMTP; 01 Jun 2023 08:21:27 -0700
+Received: from kbuild by fb1ced2c09fb with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1q4k7C-0002Pe-1w;
+        Thu, 01 Jun 2023 15:21:26 +0000
+Date:   Thu, 1 Jun 2023 23:20:58 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Nikita Shubin <nikita.shubin@maquefel.me>,
+        Alexander Sverdlin <alexander.sverdlin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de,
-        Peng Fan <peng.fan@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Mark Brown <broonie@kernel.org>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Anson Huang <Anson.Huang@nxp.com>, Marek Vasut <marex@denx.de>,
-        linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-mmc@vger.kernel.org
-Subject: [PATCH v1 2/7] dt-bindings: timer: gpt: Add i.MX6UL support
-Date:   Thu,  1 Jun 2023 12:14:46 +0200
-Message-Id: <20230601101451.357662-3-o.rempel@pengutronix.de>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230601101451.357662-1-o.rempel@pengutronix.de>
-References: <20230601101451.357662-1-o.rempel@pengutronix.de>
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc:     oe-kbuild-all@lists.linux.dev,
+        Michael Peters <mpeters@embeddedts.com>,
+        Kris Bahnsen <kris@embeddedts.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 28/43] input: keypad: ep93xx: add DT support for
+ Cirrus EP93xx
+Message-ID: <202306012336.68kZBdn0-lkp@intel.com>
+References: <20230601054549.10843-10-nikita.shubin@maquefel.me>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ore@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230601054549.10843-10-nikita.shubin@maquefel.me>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add 'fsl,imx6ul-gpt' compatible to resolve the following dtbs_check
-warning:
-/arch/arm/boot/dts/imx6ull-jozacp.dtb: timer@20e8000: compatible:
-'oneOf' conditional failed, one must be fixed:
-    'fsl,imx6ul-gpt' is not one of ['fsl,imx25-gpt', 'fsl,imx50-gpt',
-    'fsl,imx51-gpt', 'fsl,imx53-gpt', 'fsl,imx6q-gpt']
+Hi Nikita,
 
-Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
----
- Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml | 4 ++++
- 1 file changed, 4 insertions(+)
+kernel test robot noticed the following build errors:
 
-diff --git a/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml b/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
-index 716c6afcca1f..adf617b8f353 100644
---- a/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
-+++ b/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
-@@ -34,6 +34,10 @@ properties:
-               - fsl,imxrt1050-gpt
-               - fsl,imxrt1170-gpt
-           - const: fsl,imx6dl-gpt
-+      - const: fsl,imx6ul-gpt
-+      - items:
-+          - const: fsl,imx6ul-gpt
-+          - const: fsl,imx6sx-gpt
- 
-   reg:
-     maxItems: 1
+[auto build test ERROR on clk/clk-next]
+[also build test ERROR on linusw-pinctrl/devel linusw-pinctrl/for-next linus/master v6.4-rc4 next-20230601]
+[cannot apply to soc/for-next robh/for-next]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Nikita-Shubin/dt-bindings-soc-Add-Cirrus-EP93xx/20230601-143415
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/clk/linux.git clk-next
+patch link:    https://lore.kernel.org/r/20230601054549.10843-10-nikita.shubin%40maquefel.me
+patch subject: [PATCH v1 28/43] input: keypad: ep93xx: add DT support for Cirrus EP93xx
+config: arm-randconfig-r046-20230531 (https://download.01.org/0day-ci/archive/20230601/202306012336.68kZBdn0-lkp@intel.com/config)
+compiler: arm-linux-gnueabi-gcc (GCC) 12.3.0
+reproduce (this is a W=1 build):
+        mkdir -p ~/bin
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/intel-lab-lkp/linux/commit/79136093fef692a2db3c48c2d30e37310599131f
+        git remote add linux-review https://github.com/intel-lab-lkp/linux
+        git fetch --no-tags linux-review Nikita-Shubin/dt-bindings-soc-Add-Cirrus-EP93xx/20230601-143415
+        git checkout 79136093fef692a2db3c48c2d30e37310599131f
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=arm olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=arm SHELL=/bin/bash drivers/input/keyboard/
+
+If you fix the issue, kindly add following tag where applicable
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202306012336.68kZBdn0-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   drivers/input/keyboard/ep93xx_keypad.c: In function 'ep93xx_keypad_probe':
+>> drivers/input/keyboard/ep93xx_keypad.c:262:9: error: implicit declaration of function 'of_property_read_u32' [-Werror=implicit-function-declaration]
+     262 |         of_property_read_u32(np, "cirrus,debounce-delay-ms", &keypad->debounce);
+         |         ^~~~~~~~~~~~~~~~~~~~
+   cc1: some warnings being treated as errors
+
+
+vim +/of_property_read_u32 +262 drivers/input/keyboard/ep93xx_keypad.c
+
+   233	
+   234	static DEFINE_SIMPLE_DEV_PM_OPS(ep93xx_keypad_pm_ops,
+   235					ep93xx_keypad_suspend, ep93xx_keypad_resume);
+   236	
+   237	static int ep93xx_keypad_probe(struct platform_device *pdev)
+   238	{
+   239		struct device_node *np = pdev->dev.of_node;
+   240		struct ep93xx_keypad *keypad;
+   241		struct input_dev *input_dev;
+   242		int err;
+   243	
+   244		keypad = devm_kzalloc(&pdev->dev, sizeof(*keypad), GFP_KERNEL);
+   245		if (!keypad)
+   246			return -ENOMEM;
+   247	
+   248		keypad->irq = platform_get_irq(pdev, 0);
+   249		if (keypad->irq < 0)
+   250			return keypad->irq;
+   251	
+   252		keypad->mmio_base = devm_platform_ioremap_resource(pdev, 0);
+   253		if (IS_ERR(keypad->mmio_base))
+   254			return PTR_ERR(keypad->mmio_base);
+   255	
+   256		keypad->clk = devm_clk_get(&pdev->dev, NULL);
+   257		if (IS_ERR(keypad->clk))
+   258			return PTR_ERR(keypad->clk);
+   259	
+   260		keypad->flags = ep93xx_keypad_flags;
+   261	
+ > 262		of_property_read_u32(np, "cirrus,debounce-delay-ms", &keypad->debounce);
+   263		of_property_read_u32(np, "cirrus,prescale", &keypad->prescale);
+   264	
+   265		input_dev = devm_input_allocate_device(&pdev->dev);
+   266		if (!input_dev)
+   267			return -ENOMEM;
+   268	
+   269		keypad->input_dev = input_dev;
+   270	
+   271		input_dev->name = pdev->name;
+   272		input_dev->id.bustype = BUS_HOST;
+   273		input_dev->open = ep93xx_keypad_open;
+   274		input_dev->close = ep93xx_keypad_close;
+   275	
+   276		err = matrix_keypad_build_keymap(NULL, NULL,
+   277						 EP93XX_MATRIX_ROWS, EP93XX_MATRIX_COLS,
+   278						 keypad->keycodes, input_dev);
+   279		if (err)
+   280			return err;
+   281	
+   282		if (keypad->flags & EP93XX_KEYPAD_AUTOREPEAT)
+   283			__set_bit(EV_REP, input_dev->evbit);
+   284		input_set_drvdata(input_dev, keypad);
+   285	
+   286		err = devm_request_irq(&pdev->dev, keypad->irq,
+   287				       ep93xx_keypad_irq_handler,
+   288				       0, pdev->name, keypad);
+   289		if (err)
+   290			return err;
+   291	
+   292		err = input_register_device(input_dev);
+   293		if (err)
+   294			return err;
+   295	
+   296		platform_set_drvdata(pdev, keypad);
+   297	
+   298		device_init_wakeup(&pdev->dev, 1);
+   299		err = dev_pm_set_wake_irq(&pdev->dev, keypad->irq);
+   300		if (err)
+   301			dev_warn(&pdev->dev, "failed to set up wakeup irq: %d\n", err);
+   302	
+   303		return 0;
+   304	}
+   305	
+
 -- 
-2.39.2
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

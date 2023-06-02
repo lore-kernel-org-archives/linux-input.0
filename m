@@ -2,96 +2,63 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E5B9C7EE2C
-	for <linux-input@archiver.kernel.org>; Sat,  3 Jun 2023 00:36:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 744C7C7EE24
+	for <linux-input@archiver.kernel.org>; Sat,  3 Jun 2023 10:50:35 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236238AbjFCAf6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 2 Jun 2023 20:35:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33502 "EHLO
+        id S231562AbjFCKue (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 3 Jun 2023 06:50:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229802AbjFCAf5 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Jun 2023 20:35:57 -0400
-Received: from endrift.com (endrift.com [173.255.198.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56AA7E40
-        for <linux-input@vger.kernel.org>; Fri,  2 Jun 2023 17:35:56 -0700 (PDT)
-Received: from [192.168.0.22] (unknown [50.47.218.115])
-        by endrift.com (Postfix) with ESMTPSA id 46124A283;
-        Fri,  2 Jun 2023 17:35:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=endrift.com; s=2020;
-        t=1685752554; bh=ZAZpPwxkoZ7ZPdtOxaDFvfiY16asilkEqtlPOYHzwvU=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=HUnTpOKYAafwyBtJtNQufabkSMb82W/m/tqb4Q9sHqc7vOr/riGtM7K+uQPyH4Jsq
-         X/DFfgelXDKtct+GKDmmI+uBaHbGUMvOL+tK/vk2C2Qudbo8teLIBeaVWoXNbGc/YV
-         xOltiWu0uMN+LwgaTgHTjU2WN2rTlN1I6r6Sx7896Pa8JBP2CU1ws2UYb6rA+Y08JC
-         oCuIEsyTHa9YNdgxcQiQqZfmsDlm3PEpOJZjLBifZ2mGI8IiX89UoxPl8LzdjmiwfD
-         pUHudtWtkgkrmzT1b7YnE4KaB8Vv9dkmzUCYBYvlAC/oWm1IbRFsv7JGMuZ0c8PCFN
-         xj6q0hkAXv+eQ==
-Message-ID: <81e284e7-7d2d-6ccd-8bac-e20616ede754@endrift.com>
-Date:   Fri, 2 Jun 2023 17:35:52 -0700
+        with ESMTP id S231819AbjFCKuc (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Jun 2023 06:50:32 -0400
+X-Greylist: delayed 4206 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 03 Jun 2023 03:49:58 PDT
+Received: from mail.webtopbits.pl (mail.webtopbits.pl [195.231.64.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41CA810D1
+        for <linux-input@vger.kernel.org>; Sat,  3 Jun 2023 03:49:58 -0700 (PDT)
+Received: by mail.webtopbits.pl (Postfix, from userid 1001)
+        id C32C8A39CD; Fri,  2 Jun 2023 10:00:35 +0100 (BST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=webtopbits.pl;
+        s=mail; t=1685696438;
+        bh=Eh8ECMiYd4baGAwPAzhz8mhJACXX7NSRkYjh+plaY18=;
+        h=Date:From:To:Subject:From;
+        b=JZEAzRO0EFgcW1YpZehzIrxEdiD/cP7EznYEpdfq0zW+tgCidsCv+SUntq6l/E/Z9
+         9tajVF+2W4WCXuUp8Vn0bj95VLLHToIHjphyNb3kUDTox+KBGfliEbDRq9TGsQVfh7
+         mZLUrgx6M6FIaSVYL0yi/KpQwYGH3k5EOljNLnjsRGFAFB+4ybIMZs/7oRBMitX4VD
+         PdTXwi1WHWYAvQFUFCw9yBAM6qLg6GuY3v5CmIM0K8BvLr0z760BDI407QyXRHC/kk
+         TWk7lXzCyFU9SAru8TnxPWa0dh4HdIsp7w4E/egI08qS7nWZedEH9A5O7R/YXE9LNh
+         q4NQb86jekz1w==
+Received: by mail.webtopbits.pl for <linux-input@vger.kernel.org>; Fri,  2 Jun 2023 09:00:32 GMT
+Message-ID: <20230602085530-0.1.8w.5l88.0.jwhpvbozoh@webtopbits.pl>
+Date:   Fri,  2 Jun 2023 09:00:32 GMT
+From:   "Kamil Durjasz" <kamil.durjasz@webtopbits.pl>
+To:     <linux-input@vger.kernel.org>
+Subject: =?UTF-8?Q?Wy=C5=BCsza_konwersja_w_e-sklepie_?=
+X-Mailer: mail.webtopbits.pl
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.0
-Subject: Re: [PATCH v2] Input: xpad - Move Xbox 360 magic packet sending
-Content-Language: en-US
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Dongliang Mu <dzm91@hust.edu.cn>, linux-input@vger.kernel.org
-Cc:     Dan Carpenter <error27@gmail.com>,
-        syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com
-References: <20230502031202.1018440-1-vi@endrift.com>
-From:   Vicki Pfau <vi@endrift.com>
-In-Reply-To: <20230502031202.1018440-1-vi@endrift.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 5/1/23 20:12, Vicki Pfau wrote:
-> This moves the sending of the magic packet introduced in db7220c48d8d from
-> xpad_probe to xpad_start_input to ensure that xpad->dev->dev exists in the
-> event that an error occurs. This should also fix issues with suspend that may
-> occur with some controllers.
-> 
-> Fixes: db7220c48d8d ("Input: xpad - fix support for some third-party controllers")
-> Reported-by: syzbot+a3f758b8d8cb7e49afec@syzkaller.appspotmail.com
-> Reported-by: Dongliang Mu <dzm91@hust.edu.cn>
-> Link: https://groups.google.com/g/syzkaller-bugs/c/iMhTgpGuIbM
-> Signed-off-by: Vicki Pfau <vi@endrift.com>
-> ---
->  drivers/input/joystick/xpad.c | 21 +++++++++++++++++++++
->  1 file changed, 21 insertions(+)
-> 
-> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-> index 50ecff681b89..40abea92c393 100644
-> --- a/drivers/input/joystick/xpad.c
-> +++ b/drivers/input/joystick/xpad.c
-> @@ -1720,6 +1720,27 @@ static int xpad_start_input(struct usb_xpad *xpad)
->  			return error;
->  		}
->  	}
-> +	if (xpad->xtype == XTYPE_XBOX360) {
-> +		/*
-> +		 * Some third-party controllers Xbox 360-style controllers
-> +		 * require this message to finish initialization.
-> +		*/
-> +		u8 dummy[20];
-> +
-> +		error = usb_control_msg_recv(xpad->udev, 0,
-> +					     /* bRequest */ 0x01,
-> +					     /* bmRequestType */
-> +					     USB_TYPE_VENDOR | USB_DIR_IN |
-> +						USB_RECIP_INTERFACE,
-> +					     /* wValue */ 0x100,
-> +					     /* wIndex */ 0x00,
-> +					     dummy, sizeof(dummy),
-> +					     25, GFP_KERNEL);
-> +		if (error)
-> +			dev_warn(&xpad->dev->dev,
-> +				 "unable to receive magic message: %d\n",
-> +				 error);
-> +	}
->  
->  	return 0;
->  }
+Dzie=C5=84 dobry,
 
-It's been a month and this fixed version of the patch never got any replies. Did it just get overlooked? Or does the fact that the old version got reverted mean I need to change the description in some capacity?
+w jaki spos=C3=B3b docieraj=C4=85 Pa=C5=84stwo do odbiorc=C3=B3w?
+
+Tworzymy pot=C4=99=C5=BCne narz=C4=99dzia sprzeda=C5=BCy, kt=C3=B3re pozw=
+alaj=C4=85 kompleksowo rozwi=C4=85za=C4=87 problemy potencjalnych klient=C3=
+=B3w i skutecznie wp=C5=82yn=C4=85=C4=87 na ich decyzje zakupowe.=20
+
+Skupiamy si=C4=99 na Pa=C5=84stwa potrzebach zwi=C4=85zanych z obs=C5=82u=
+g=C4=85 sklepu, oczekiwaniach i planach sprzeda=C5=BCowych. Szczeg=C3=B3=C5=
+=82owo dopasowujemy grafik=C4=99, funkcjonalno=C5=9Bci, struktur=C4=99 i =
+mikrointerakcje do Pa=C5=84stwa grupy docelowej, co przek=C5=82ada si=C4=99=
+ na oczekiwane rezultaty.
+
+Ch=C4=99tnie przedstawi=C4=99 dotychczasowe realizacje, aby mogli Pa=C5=84=
+stwo przekona=C4=87 si=C4=99 o naszych mo=C5=BCliwo=C5=9Bciach. Mog=C4=99=
+ si=C4=99 skontaktowa=C4=87?
+
+
+Pozdrawiam
+Kamil Durjasz

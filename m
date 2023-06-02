@@ -2,116 +2,80 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2C61C77B7A
-	for <linux-input@archiver.kernel.org>; Fri,  2 Jun 2023 08:28:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3663C7EE24
+	for <linux-input@archiver.kernel.org>; Fri,  2 Jun 2023 14:10:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234716AbjFBI2s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 2 Jun 2023 04:28:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37824 "EHLO
+        id S235838AbjFBOKv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 2 Jun 2023 10:10:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234251AbjFBI21 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Jun 2023 04:28:27 -0400
-Received: from mail-ed1-x531.google.com (mail-ed1-x531.google.com [IPv6:2a00:1450:4864:20::531])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C60510F9
-        for <linux-input@vger.kernel.org>; Fri,  2 Jun 2023 01:27:40 -0700 (PDT)
-Received: by mail-ed1-x531.google.com with SMTP id 4fb4d7f45d1cf-5149e65c218so2615308a12.2
-        for <linux-input@vger.kernel.org>; Fri, 02 Jun 2023 01:27:40 -0700 (PDT)
+        with ESMTP id S234281AbjFBOKs (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 2 Jun 2023 10:10:48 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 182E9197
+        for <linux-input@vger.kernel.org>; Fri,  2 Jun 2023 07:10:40 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id 41be03b00d2f7-528cdc9576cso1185109a12.0
+        for <linux-input@vger.kernel.org>; Fri, 02 Jun 2023 07:10:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1685694436; x=1688286436;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=rqiBV30sd6pVAOr/JC2i8NEvFQRhidh6InexBKyx7mo=;
-        b=rIl0eivXD4yxDCT/YgMEsx+zB95XosuikN/Qy10i57lfY0bUaZOBftlmQqO+cFMD0D
-         HZAAhd0VW/ieFo5zYGo6vv2v0zUDlZ52siklLw4uV81kybENAfWJX5R3rwrvf1buexm1
-         yEMYUIUSzh/qNzwQBiwrUVRoKsvabnkfIAmeTWvOidfzk0NWYH9cT8KdwNTwXDRoHenP
-         EInC+vD5ibY9evurg3TMnF2a3tcxmfxxjvXFWOSqpjcgLZIxu/CI4Luehlm1nqH4vHwD
-         X0FqymZc2B+ehA1Y5i2CI/W5+vwNvIxBm+FpLQN812zDX0RThsO/Sk+wpIPeOHKFX7Xs
-         uPSg==
+        d=huaqin-corp-partner-google-com.20221208.gappssmtp.com; s=20221208; t=1685715039; x=1688307039;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=KVK6hsAkr2t2TtBLH/UasFkOv83y2FFgyEi4rUpiTPY=;
+        b=5hRIGvKGBI4Q/6isoE6tLWyNH6CT5/+uchB5fWu0dzJu7sanhCiuiixE7XQgIDvNOU
+         RJwlYQKaWkRlFJ6orp1IUrWEpb7ormdJWXnMl2FR37z0PK6MTrcyhr/JGgmn69YAW/66
+         OLZzMhgaAAzP+VC0xrm6DxxZdJkXiedQIgTQBIqG88FyfssIHQIAbsHyly9TnTfbXF/K
+         5n97YjbLgRadx7mWXIupLOLjg3ppLhwUr0raM2BBz94USYeRnU01cKRW17PB+bfzYCLO
+         r0BDobNUJYoYAsw1xvCNSXocybJjYCbF4vsqSheiCIUorrxFIeaZCtXp0Yb1l4IzUoQt
+         Q3lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685694436; x=1688286436;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rqiBV30sd6pVAOr/JC2i8NEvFQRhidh6InexBKyx7mo=;
-        b=LGV4mmqChHgLG3ruSn42lvohOyzBqTuxNCoKIgdzP88ucMKoRbWaw49N6Bx3BAa/QO
-         MX36i//1OvR1IXZsgjW5FlMDhQ57kEN+VhOO4RYIt6D5gxdKt5JXlgf11waFIrF8IiBw
-         riDiKipqVVEXIaEUM+E215Wg1cJNMEgBx5qC57xwKx92Rn2L0g99LIHtpd53bGj/DDZ+
-         zXihtsEpAxcciuJWWWOPqluwSb95xjq1y7dJdo+O9Or3OHD+MQ7ddesDnqFlQybvigYg
-         1tvi5RmlMn5N3QCG9WmBIYmGjECqgQUVwN0O6wJ1bqsrQ3ripfmXYWw3PlCxh5oYUgp/
-         u2Zw==
-X-Gm-Message-State: AC+VfDy/3IWDgwNUjdslIS2tvoEv80V5Qrd62UhXjqQV1mq+7uhfAUVv
-        cA1JWy9VI+aH8fum2dQhtd+Jtg==
-X-Google-Smtp-Source: ACHHUZ7QkKl0T36/hmXWtoKKBK/0HSPptyUZfw8AKnhu87xXvJCANWT/QJH7XR+fLH3RF42PD2as2Q==
-X-Received: by 2002:a05:6402:2cd:b0:506:976e:5242 with SMTP id b13-20020a05640202cd00b00506976e5242mr1511546edx.25.1685694436433;
-        Fri, 02 Jun 2023 01:27:16 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.199.204])
-        by smtp.gmail.com with ESMTPSA id x26-20020aa7cd9a000000b005149461b1e0sm414404edv.25.2023.06.02.01.27.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 02 Jun 2023 01:27:15 -0700 (PDT)
-Message-ID: <1d6f70ab-e971-4a83-a9b3-e049b38c29a0@linaro.org>
-Date:   Fri, 2 Jun 2023 10:27:12 +0200
+        d=1e100.net; s=20221208; t=1685715039; x=1688307039;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=KVK6hsAkr2t2TtBLH/UasFkOv83y2FFgyEi4rUpiTPY=;
+        b=PdYzQI5Uwu2mVw4py7rYezRSWI6tbxi8FZCaCQapBG1LBjagicf+ZVIhwNG0IgHLI/
+         OTQlcPciwuHkPTOQ53a/z0qJOSOXYlPRsTjBd4iVmxi416JAE3BYjCQjIM09vh7QuTCc
+         4geRymLmiZirr/31aZfaCCzzce5YooPQmEHf2+tHOWO4ViuD1PH5B98xu/sSL+wGjAcy
+         qLM9HzCtbOKMxaYE/1RSQVhkM3JyDiE8vGZbNvrUvJxthc4YbOPRBMz50xgHJIrSYFQy
+         Vvupt9eEfPAaWDZQoSU2espCicrP7H61JCyCSLeEu7AM/W2mnO/vgqVl8UKpMWvQsbi6
+         1Eig==
+X-Gm-Message-State: AC+VfDxqO/JEJ7AEow4vzAFzvZ1AvJ9FZ+cKb7yzuJhU1NpsOA4crEvd
+        VioetEjnVKWEICMnbJmZXDsf2YTkvQHFCXZV3ic=
+X-Google-Smtp-Source: ACHHUZ47rMkWSf8RU6yNVYqIGemVMae35FKf2485NhgAFsmoMvUsgA1ZCYUJcV1PB2Z2JJAc/et04w==
+X-Received: by 2002:a17:902:d489:b0:1b0:46af:7f15 with SMTP id c9-20020a170902d48900b001b046af7f15mr23079plg.64.1685715039585;
+        Fri, 02 Jun 2023 07:10:39 -0700 (PDT)
+Received: from yc.huaqin.com ([101.78.151.214])
+        by smtp.gmail.com with ESMTPSA id c11-20020a170902d48b00b0019e60c645b1sm1370878plg.305.2023.06.02.07.10.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 02 Jun 2023 07:10:38 -0700 (PDT)
+From:   Cong Yang <yangcong5@huaqin.corp-partner.google.com>
+To:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        conor+dt@kernel.org, dmitry.torokhov@gmail.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, dianders@chromium.org,
+        hsinyi@google.com
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Cong Yang <yangcong5@huaqin.corp-partner.google.com>
+Subject: [PATCH 0/2] Add ili9882t timing
+Date:   Fri,  2 Jun 2023 22:09:46 +0800
+Message-Id: <20230602140948.2138668-1-yangcong5@huaqin.corp-partner.google.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.2
-Subject: Re: [PATCH v1 1/7] dt-bindings: mmc: fsl-imx-esdhc: Add imx6ul
- support
-To:     Oleksij Rempel <o.rempel@pengutronix.de>,
-        Abel Vesa <abelvesa@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     kernel@pengutronix.de, Peng Fan <peng.fan@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Mark Brown <broonie@kernel.org>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Anson Huang <Anson.Huang@nxp.com>, Marek Vasut <marex@denx.de>,
-        linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-mmc@vger.kernel.org
-References: <20230601101451.357662-1-o.rempel@pengutronix.de>
- <20230601101451.357662-2-o.rempel@pengutronix.de>
-Content-Language: en-US
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230601101451.357662-2-o.rempel@pengutronix.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 01/06/2023 12:14, Oleksij Rempel wrote:
-> Add the 'fsl,imx6ul-usdhc' value to the compatible properties list in
-> the fsl-imx-esdhc.yaml file. This is required to match the compatible
-> strings present in the 'mmc@2190000' node of 'imx6ul-prti6g.dtb'. This
-> commit addresses the following dtbs_check warning:
->   imx6ul-prti6g.dtb: mmc@2190000: compatible: 'oneOf' conditional failed,
->     one must be fixed: ['fsl,imx6ul-usdhc', 'fsl,imx6sx-usdhc'] is too long
->     'fsl,imx6ul-usdhc' is not one of ['fsl,imx25-esdhc', 'fsl,imx35-esdhc',
->     'fsl,imx51-esdhc', 'fsl,imx53-esdhc', 'fsl,imx6q-usdhc',
->     'fsl,imx6sl-usdhc', 'fsl,imx6sx-usdhc', 'fsl,imx7d-usdhc',
->     'fsl,imx7ulp-usdhc', 'fsl,imx8mm-usdhc', 'fsl,imxrt1050-usdhc',
->     'nxp,s32g2-usdhc']
->   From schema: Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml
+Add ili9882t dt-bindings and timing
 
-Except what Conor wrote, please don't wrap that much the error log - it
-is unreadable. Trim it, remove unneeded parts and keep some decent
-one/two lines even if it exceeds the commit msg. This applies to other
-patches as well.
+Cong Yang (2):
+  dt-bindings: input: touchscreen: Add ilitek 9882T touchscreen chip
+  HID: i2c-hid: elan: Add ili9882t timing
 
-Best regards,
-Krzysztof
+ .../bindings/input/elan,ekth6915.yaml         | 36 ++++++++++++++-----
+ drivers/hid/i2c-hid/i2c-hid-of-elan.c         | 20 ++++++++---
+ 2 files changed, 43 insertions(+), 13 deletions(-)
+
+-- 
+2.25.1
 

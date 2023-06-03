@@ -2,63 +2,96 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 744C7C7EE24
-	for <linux-input@archiver.kernel.org>; Sat,  3 Jun 2023 10:50:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C5DD2C77B73
+	for <linux-input@archiver.kernel.org>; Sat,  3 Jun 2023 12:41:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231562AbjFCKue (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 3 Jun 2023 06:50:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55160 "EHLO
+        id S230281AbjFCMlN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 3 Jun 2023 08:41:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231819AbjFCKuc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Jun 2023 06:50:32 -0400
-X-Greylist: delayed 4206 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 03 Jun 2023 03:49:58 PDT
-Received: from mail.webtopbits.pl (mail.webtopbits.pl [195.231.64.176])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41CA810D1
-        for <linux-input@vger.kernel.org>; Sat,  3 Jun 2023 03:49:58 -0700 (PDT)
-Received: by mail.webtopbits.pl (Postfix, from userid 1001)
-        id C32C8A39CD; Fri,  2 Jun 2023 10:00:35 +0100 (BST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=webtopbits.pl;
-        s=mail; t=1685696438;
-        bh=Eh8ECMiYd4baGAwPAzhz8mhJACXX7NSRkYjh+plaY18=;
-        h=Date:From:To:Subject:From;
-        b=JZEAzRO0EFgcW1YpZehzIrxEdiD/cP7EznYEpdfq0zW+tgCidsCv+SUntq6l/E/Z9
-         9tajVF+2W4WCXuUp8Vn0bj95VLLHToIHjphyNb3kUDTox+KBGfliEbDRq9TGsQVfh7
-         mZLUrgx6M6FIaSVYL0yi/KpQwYGH3k5EOljNLnjsRGFAFB+4ybIMZs/7oRBMitX4VD
-         PdTXwi1WHWYAvQFUFCw9yBAM6qLg6GuY3v5CmIM0K8BvLr0z760BDI407QyXRHC/kk
-         TWk7lXzCyFU9SAru8TnxPWa0dh4HdIsp7w4E/egI08qS7nWZedEH9A5O7R/YXE9LNh
-         q4NQb86jekz1w==
-Received: by mail.webtopbits.pl for <linux-input@vger.kernel.org>; Fri,  2 Jun 2023 09:00:32 GMT
-Message-ID: <20230602085530-0.1.8w.5l88.0.jwhpvbozoh@webtopbits.pl>
-Date:   Fri,  2 Jun 2023 09:00:32 GMT
-From:   "Kamil Durjasz" <kamil.durjasz@webtopbits.pl>
-To:     <linux-input@vger.kernel.org>
-Subject: =?UTF-8?Q?Wy=C5=BCsza_konwersja_w_e-sklepie_?=
-X-Mailer: mail.webtopbits.pl
+        with ESMTP id S230185AbjFCMlM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Jun 2023 08:41:12 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94BC0F5;
+        Sat,  3 Jun 2023 05:41:11 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DE1B60AC1;
+        Sat,  3 Jun 2023 12:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE49BC433EF;
+        Sat,  3 Jun 2023 12:41:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1685796070;
+        bh=syWTleteIP/DnA6u1wvwOOdt0s9GcQOyPIaILs8YIpE=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=F6FhRhDqej0X8NRtLC1Sl2jTS20q9zp5CAG13iWboBApH2tb294iljcnsS/CAupa2
+         y3fpTnf4bFOvWF4NU2ltR41xqwuwV+QljF5ZI10SKgEsj3kyAwF9DmWNTZ8UKm/MHm
+         CLZozKSLAUxEKiYmcGPw6RiGwBSlzJ9PrsHTtS8uoY2R1awiokZHU1kQEJxmLBIWWm
+         WwPkOmJMoYSLEUcsv2ZZFRcJt/Df9LBdRMkAArZtLU4NJK0fSYbglED+dylV9Vz5Zn
+         VqOtaDnip2lRNzFpFn5sAySa4imamn+aDtMvPQVJrv1ZIowaDVDvH9CW6DvlPFYgKa
+         fYkOf+qnQhmcw==
+Date:   Sat, 3 Jun 2023 14:41:06 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Bastien Nocera <hadess@hadess.net>
+cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
+        =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>,
+        Nestor Lopez Casado <nlopezcasad@logitech.com>,
+        Mark Lord <mlord@pobox.com>
+Subject: Re: [PATCH] HID: logitech-hidpp: Handle timeout differently from
+ busy
+In-Reply-To: <nycvar.YFH.7.76.2305311606160.29760@cbobk.fhfr.pm>
+Message-ID: <nycvar.YFH.7.76.2306031440380.29760@cbobk.fhfr.pm>
+References: <20230531082428.21763-1-hadess@hadess.net> <nycvar.YFH.7.76.2305311606160.29760@cbobk.fhfr.pm>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Dzie=C5=84 dobry,
+On Wed, 31 May 2023, Jiri Kosina wrote:
 
-w jaki spos=C3=B3b docieraj=C4=85 Pa=C5=84stwo do odbiorc=C3=B3w?
+> > If an attempt at contacting a receiver or a device fails because the
+> > receiver or device never responds, don't restart the communication, only
+> > restart it if the receiver or device answers that it's busy, as originally
+> > intended.
+> > 
+> > This was the behaviour on communication timeout before commit 586e8fede795
+> > ("HID: logitech-hidpp: Retry commands when device is busy").
+> > 
+> > This fixes some overly long waits in a critical path on boot, when
+> > checking whether the device is connected by getting its HID++ version.
+> > 
+> > Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> > Suggested-by: Mark Lord <mlord@pobox.com>
+> > Fixes: 586e8fede795 ("HID: logitech-hidpp: Retry commands when device is busy")
+> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=217412
+> > ---
+> >  drivers/hid/hid-logitech-hidpp.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> > 
+> > diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> > index 0fcfd85fea0f..2246044b1639 100644
+> > --- a/drivers/hid/hid-logitech-hidpp.c
+> > +++ b/drivers/hid/hid-logitech-hidpp.c
+> > @@ -314,6 +314,7 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+> >  			dbg_hid("%s:timeout waiting for response\n", __func__);
+> >  			memset(response, 0, sizeof(struct hidpp_report));
+> >  			ret = -ETIMEDOUT;
+> > +			goto exit;
+> >  		}
+> >  
+> 
+> I have applied this even before getting confirmation from the reporters in 
+> bugzilla, as it's the right thing to do anyway.
 
-Tworzymy pot=C4=99=C5=BCne narz=C4=99dzia sprzeda=C5=BCy, kt=C3=B3re pozw=
-alaj=C4=85 kompleksowo rozwi=C4=85za=C4=87 problemy potencjalnych klient=C3=
-=B3w i skutecznie wp=C5=82yn=C4=85=C4=87 na ich decyzje zakupowe.=20
+Unfortunately it doesn't seem to cure the reported issue (while reverting 
+586e8fede79 does): https://bugzilla.kernel.org/show_bug.cgi?id=217523#c2
 
-Skupiamy si=C4=99 na Pa=C5=84stwa potrzebach zwi=C4=85zanych z obs=C5=82u=
-g=C4=85 sklepu, oczekiwaniach i planach sprzeda=C5=BCowych. Szczeg=C3=B3=C5=
-=82owo dopasowujemy grafik=C4=99, funkcjonalno=C5=9Bci, struktur=C4=99 i =
-mikrointerakcje do Pa=C5=84stwa grupy docelowej, co przek=C5=82ada si=C4=99=
- na oczekiwane rezultaty.
+-- 
+Jiri Kosina
+SUSE Labs
 
-Ch=C4=99tnie przedstawi=C4=99 dotychczasowe realizacje, aby mogli Pa=C5=84=
-stwo przekona=C4=87 si=C4=99 o naszych mo=C5=BCliwo=C5=9Bciach. Mog=C4=99=
- si=C4=99 skontaktowa=C4=87?
-
-
-Pozdrawiam
-Kamil Durjasz

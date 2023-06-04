@@ -2,108 +2,187 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50234C77B7A
-	for <linux-input@archiver.kernel.org>; Sat,  3 Jun 2023 13:22:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35B01C7EE2C
+	for <linux-input@archiver.kernel.org>; Sun,  4 Jun 2023 15:52:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbjFCNWZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 3 Jun 2023 09:22:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47174 "EHLO
+        id S231779AbjFDPwW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 4 Jun 2023 11:52:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbjFCNWY (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 3 Jun 2023 09:22:24 -0400
-X-Greylist: delayed 270 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sat, 03 Jun 2023 06:22:23 PDT
-Received: from sasl.smtp.pobox.com (pb-sasl1.pobox.com [64.147.108.66])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 300C1C2;
-        Sat,  3 Jun 2023 06:22:23 -0700 (PDT)
-Received: from sasl.smtp.pobox.com (unknown [127.0.0.1])
-        by pb-sasl1.pobox.com (Postfix) with ESMTP id 9C58D996A3;
-        Sat,  3 Jun 2023 09:17:50 -0400 (EDT)
-        (envelope-from mlord@pobox.com)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed; d=pobox.com; h=subject:to
-        :cc:references:from:message-id:date:mime-version:in-reply-to
-        :content-type:content-transfer-encoding; s=sasl; bh=OZUDGYxRTwe6
-        bb82E3UXGydn6LlFxW0xP2ntyWrNLkI=; b=Ysv8gOvUXWDhc2szzbDZ6FjR8VWk
-        uiL7x05oQ7ohLe4uuH01lHPcqvGBWC5DwYn/P59IbCNm0JrrmvLErok/kDaldnAl
-        OO5/Lx8zelINeM+KnVx5humJRaXb7WkyQ/7qAHYIp7gDeIFfUTzdoa1vQDBCcXrs
-        3RPbDx8q52Dj8yg=
-Received: from pb-sasl1.nyi.icgroup.com (unknown [127.0.0.1])
-        by pb-sasl1.pobox.com (Postfix) with ESMTP id 89018996A0;
-        Sat,  3 Jun 2023 09:17:50 -0400 (EDT)
-        (envelope-from mlord@pobox.com)
-Received: from [10.0.0.9] (unknown [24.156.181.9])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by pb-sasl1.pobox.com (Postfix) with ESMTPSA id 8DEB69969E;
-        Sat,  3 Jun 2023 09:17:49 -0400 (EDT)
-        (envelope-from mlord@pobox.com)
-Subject: Re: [PATCH] HID: logitech-hidpp: Handle timeout differently from busy
-To:     Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
-        =?UTF-8?Q?Filipe_La=c3=adns?= <lains@riseup.net>,
-        Nestor Lopez Casado <nlopezcasad@logitech.com>
-References: <20230531082428.21763-1-hadess@hadess.net>
- <nycvar.YFH.7.76.2305311606160.29760@cbobk.fhfr.pm>
- <nycvar.YFH.7.76.2306031440380.29760@cbobk.fhfr.pm>
-From:   Mark Lord <mlord@pobox.com>
-Message-ID: <ccae168a-4be0-f085-8d8e-03bfbd71ac8f@pobox.com>
-Date:   Sat, 3 Jun 2023 09:17:48 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
- Thunderbird/52.7.0
+        with ESMTP id S231313AbjFDPwV (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 4 Jun 2023 11:52:21 -0400
+X-Greylist: delayed 451 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 04 Jun 2023 08:52:20 PDT
+Received: from smtp.smtpout.orange.fr (smtp-20.smtpout.orange.fr [80.12.242.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id E3318DC
+        for <linux-input@vger.kernel.org>; Sun,  4 Jun 2023 08:52:20 -0700 (PDT)
+Received: from [192.168.1.18] ([86.243.2.178])
+        by smtp.orange.fr with ESMTPA
+        id 5puJqUJl3xbtx5puJqV5WT; Sun, 04 Jun 2023 17:44:48 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
+        s=t20230301; t=1685893488;
+        bh=4MVPujWGEC2Hbr//Xyamq+0YVn6N8CNGZocur4O5qgA=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To;
+        b=WgnLOsZnQ0uUapvPl9OVnQvD2I/zNbKmRWJ1GXclXg7Alpp8751PpITUE4RtsSJiL
+         InZLFVeCEtJkJbUNxjf1E+WS6aLhATHITZHgD3PAp4frjWOlMqrEO53s6Eef8MUuNC
+         wD+Bjg7O6kI76uiHo5rRAy/4pj8zQfBmwVcCK1Css5Sg5Xd5f7Edq4/Ub1k35j7J6T
+         ph8kLyzqzPL+yOukLEJr/PjtMLLpuxjz4JvgWAbivPVrkyET0WPlot4QKe/4B2W/VN
+         Gmxhe28+9GYJ3BjflsZZdPm/Kr5ZWPcMapN6YNjDGe5+VCHdwdITzd9IJT/wPBl5Qp
+         KmTbuW2T35xIQ==
+X-ME-Helo: [192.168.1.18]
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Sun, 04 Jun 2023 17:44:48 +0200
+X-ME-IP: 86.243.2.178
+Message-ID: <ac6ef7f2-0d7a-ba43-4b63-0a23d899230f@wanadoo.fr>
+Date:   Sun, 4 Jun 2023 17:44:39 +0200
 MIME-Version: 1.0
-In-Reply-To: <nycvar.YFH.7.76.2306031440380.29760@cbobk.fhfr.pm>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Pobox-Relay-ID: 09FCAC5E-0211-11EE-B4CA-8E2B5958DECB-82205200!pb-sasl1.pobox.com
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.11.0
+Subject: Re: [PATCH v4 1/4] Input: ads7846 - Convert to use software nodes
+Content-Language: fr
+To:     Linus Walleij <linus.walleij@linaro.org>,
+        Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Russell King <linux@armlinux.org.uk>,
+        Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Helge Deller <deller@gmx.de>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     linux-omap@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-spi@vger.kernel.org,
+        linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-mmc@vger.kernel.org
+References: <20230430-nokia770-regression-v4-0-9b6dc5536b17@linaro.org>
+ <20230430-nokia770-regression-v4-1-9b6dc5536b17@linaro.org>
+From:   Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+In-Reply-To: <20230430-nokia770-regression-v4-1-9b6dc5536b17@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 2023-06-03 08:41 AM, Jiri Kosina wrote:
-> On Wed, 31 May 2023, Jiri Kosina wrote:
+Le 08/05/2023 à 23:20, Linus Walleij a écrit :
+> The Nokia 770 is using GPIOs from the global numberspace on the
+> CBUS node to pass down to the LCD controller. This regresses when we
+> let the OMAP GPIO driver use dynamic GPIO base.
 > 
->>> If an attempt at contacting a receiver or a device fails because the
->>> receiver or device never responds, don't restart the communication, only
->>> restart it if the receiver or device answers that it's busy, as originally
->>> intended.
->>>
->>> This was the behaviour on communication timeout before commit 586e8fede795
->>> ("HID: logitech-hidpp: Retry commands when device is busy").
->>>
->>> This fixes some overly long waits in a critical path on boot, when
->>> checking whether the device is connected by getting its HID++ version.
->>>
->>> Signed-off-by: Bastien Nocera <hadess@hadess.net>
->>> Suggested-by: Mark Lord <mlord@pobox.com>
->>> Fixes: 586e8fede795 ("HID: logitech-hidpp: Retry commands when device is busy")
->>> Link: https://bugzilla.kernel.org/show_bug.cgi?id=217412
->>> ---
->>>  drivers/hid/hid-logitech-hidpp.c | 1 +
->>>  1 file changed, 1 insertion(+)
->>>
->>> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
->>> index 0fcfd85fea0f..2246044b1639 100644
->>> --- a/drivers/hid/hid-logitech-hidpp.c
->>> +++ b/drivers/hid/hid-logitech-hidpp.c
->>> @@ -314,6 +314,7 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
->>>  			dbg_hid("%s:timeout waiting for response\n", __func__);
->>>  			memset(response, 0, sizeof(struct hidpp_report));
->>>  			ret = -ETIMEDOUT;
->>> +			goto exit;
->>>  		}
->>>  
->>
->> I have applied this even before getting confirmation from the reporters in 
->> bugzilla, as it's the right thing to do anyway.
+> The Nokia 770 now has dynamic allocation of IRQ numbers, so this
+> needs to be fixed for it to work.
 > 
-> Unfortunately it doesn't seem to cure the reported issue (while reverting 
-> 586e8fede79 does): https://bugzilla.kernel.org/show_bug.cgi?id=217523#c2
+> As this is the only user of LCD MIPID we can easily augment the
+> driver to use a GPIO descriptor instead and resolve the issue.
+> 
+> The platform data .shutdown() callback wasn't even used in the
+> code, but we encode a shutdown asserting RESET in the remove()
+> callback for completeness sake.
+> 
+> The CBUS also has the ADS7846 touchscreen attached.
+> 
+> Populate the devices on the Nokia 770 CBUS I2C using software
+> nodes instead of platform data quirks. This includes the LCD
+> and the ADS7846 touchscreen so the conversion just brings the LCD
+> along with it as software nodes is an all-or-nothing design
+> pattern.
+> 
+> The ADS7846 has some limited support for using GPIO descriptors,
+> let's convert it over completely to using device properties and then
+> fix all remaining boardfile users to provide all platform data using
+> software nodes.
+> 
+> Dump the of includes and of_match_ptr() in the ADS7846 driver as part
+> of the job.
+> 
+> Since we have to move ADS7846 over to obtaining the GPIOs it is
+> using exclusively from descriptors, we provide descriptor tables
+> for the two remaining in-kernel boardfiles using ADS7846:
+> 
+> - PXA Spitz
+> - MIPS Alchemy DB1000 development board
+> 
+> It was too hard for me to include software node conversion of
+> these two remaining users at this time: the spitz is using a
+> hscync callback in the platform data that would require further
+> GPIO descriptor conversion of the Spitz, and moving the hsync
+> callback down into the driver: it will just become too big of
+> a job, but it can be done separately.
+> 
+> The MIPS Alchemy DB1000 is simply something I cannot test, so take
+> the easier approach of just providing some GPIO descriptors in
+> this case as I don't want the patch to grow too intrusive.
+> 
+> As we see that several device trees have incorrect polarity flags
+> and just expect to bypass the gpiolib polarity handling, fix up
+> all device trees too, in a separate patch.
+> 
+> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Fixes: 92bf78b33b0b ("gpio: omap: use dynamic allocation of base")
+> Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+> ---
 
-I wonder if this code could be re-worked to not even do this (waiting)
-from the _probe() function?  It ought to be able to throw it on a workqueue
-or something, rather than stalling system boot for a minimum of 5-seconds
-(or much longer as as-is).
--- 
-Mark Lord
+[...]
+
+> diff --git a/drivers/video/fbdev/omap/lcd_mipid.c b/drivers/video/fbdev/omap/lcd_mipid.c
+> index 03cff39d392d..e4a7f0b824ff 100644
+> --- a/drivers/video/fbdev/omap/lcd_mipid.c
+> +++ b/drivers/video/fbdev/omap/lcd_mipid.c
+> @@ -7,6 +7,7 @@
+>    */
+>   #include <linux/device.h>
+>   #include <linux/delay.h>
+> +#include <linux/gpio/consumer.h>
+>   #include <linux/slab.h>
+>   #include <linux/workqueue.h>
+>   #include <linux/spi/spi.h>
+> @@ -41,6 +42,7 @@ struct mipid_device {
+>   						   when we can issue the
+>   						   next sleep in/out command */
+>   	unsigned long	hw_guard_wait;		/* max guard time in jiffies */
+> +	struct gpio_desc	*reset;
+>   
+>   	struct omapfb_device	*fbdev;
+>   	struct spi_device	*spi;
+> @@ -556,6 +558,12 @@ static int mipid_spi_probe(struct spi_device *spi)
+>   		return -ENOMEM;
+>   	}
+>   
+> +	/* This will de-assert RESET if active */
+> +	md->reset = gpiod_get(&spi->dev, "reset", GPIOD_OUT_LOW);
+> +	if (IS_ERR(md->reset))
+> +		return dev_err_probe(&spi->dev, PTR_ERR(md->reset),
+> +				     "no reset GPIO line\n");
+> +
+>   	spi->mode = SPI_MODE_0;
+>   	md->spi = spi;
+>   	dev_set_drvdata(&spi->dev, md);
+> @@ -574,6 +582,8 @@ static void mipid_spi_remove(struct spi_device *spi)
+>   {
+>   	struct mipid_device *md = dev_get_drvdata(&spi->dev);
+>   
+> +	/* Asserts RESET */
+> +	gpiod_set_value(md->reset, 1);
+
+Hi,
+
+should this also be done in the probe if mipid_detect() fails?
+
+If yes, please also look at [1], that I've just sent, which introduces 
+an error handling path in the probe.
+
+CJ
+
+[1]: 
+https://lore.kernel.org/all/8b82e34724755b69f34f15dddb288cd373080390.1620505229.git.christophe.jaillet@wanadoo.fr/
+
+>   	mipid_disable(&md->panel);
+>   	kfree(md);
+>   }
+
+[...]

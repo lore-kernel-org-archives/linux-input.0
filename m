@@ -2,155 +2,103 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 68797C7EE24
-	for <linux-input@archiver.kernel.org>; Mon,  5 Jun 2023 10:35:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BC297C77B73
+	for <linux-input@archiver.kernel.org>; Mon,  5 Jun 2023 11:26:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232237AbjFEKfk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 5 Jun 2023 06:35:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52854 "EHLO
+        id S230212AbjFEL0b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 5 Jun 2023 07:26:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231839AbjFEKfP (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Jun 2023 06:35:15 -0400
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F161E52
-        for <linux-input@vger.kernel.org>; Mon,  5 Jun 2023 03:34:59 -0700 (PDT)
-Received: by mail-ed1-x536.google.com with SMTP id 4fb4d7f45d1cf-5149b63151aso6937629a12.3
-        for <linux-input@vger.kernel.org>; Mon, 05 Jun 2023 03:34:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1685961298; x=1688553298;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=uFq5oGkqVQ3sub4JCKqcWdAZJhLFL2YkYQs99Cty04o=;
-        b=eZ9V+gIQetiODGpzOE/DVwsx5nXiBXaMfrU86OFR0YpPaivq3MAh5SkrE6C2GjhgNL
-         /lOeKCSVH0Y0VbG+T3zyaTPzGd9pdjSwBTyuBw20kIgFSTBrFcfBilo6V84kwfKCQe/1
-         7lr//Ay0N4QwKwdIN2CKcrC3hbQwaJeyn9tiT0EjWbTcp5nbIMYC5NFp+eLSI9ynjNAd
-         6k1sfoZj/qzgtcny0Jq3tjOoQHe/mPmd+YAee1GrUpYui2TM0f7NAoaKO7DkdDsJlTjt
-         sTzmBj9ZcxGJUdDNVJPNiGnyqBKTizHPc8iChG1HbXPpsblGrzb8hIqmOSeFAM2lvSVQ
-         Tp5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1685961298; x=1688553298;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uFq5oGkqVQ3sub4JCKqcWdAZJhLFL2YkYQs99Cty04o=;
-        b=cmrZlbJHbG813PbpGVcvmzUAsR5VeR9KKKo1Z59I1jrHh/gS6ohOT82iVCK1XlFuq7
-         HiNeyVJ+z3HXYAngKLXTcm4T27DDoo/BZIp+tTHFhEfLCVK+yl0I5o/C7YmCuRcr78se
-         XlJ4CcaN2suviTOPKiwIeV8IINMTUFOaolXhddbmWNkrgX/P1CP64U7yCNE04s+ysi2H
-         5S+HXhWLWMtiQIDb8ED4OF/pn9qAwMrLxTTdkSpV9XtqZ9wMubopMa4qZAV09lBjD8zD
-         9OJXs1UixB+bKGuD9xWXXo1uhvfKUZPKTsNt4FBmie/RlBFES2f3HRTtIXQLeFHY6C1S
-         krkg==
-X-Gm-Message-State: AC+VfDygprTgqnZwPDNohIgGr76l0mbClIjkDioNZex1eBqBKN81pmTV
-        AdH8Lmv2dJRhPNyF+v1CH882cA==
-X-Google-Smtp-Source: ACHHUZ5+XtjfkEfVdH+SHr9LWWN02kLyYG3gz7kWxBFVXGEK6U0G8WHiam5TJMMbVl0NoG1DZ9XjbQ==
-X-Received: by 2002:a05:6402:6d4:b0:514:9528:6e6f with SMTP id n20-20020a05640206d400b0051495286e6fmr8643302edy.7.1685961297889;
-        Mon, 05 Jun 2023 03:34:57 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.219.26])
-        by smtp.gmail.com with ESMTPSA id s18-20020a056402165200b00510b5051f95sm3680533edx.90.2023.06.05.03.34.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 05 Jun 2023 03:34:57 -0700 (PDT)
-Message-ID: <6818f4b0-4222-c3bb-c55f-bc0d26d7a681@linaro.org>
-Date:   Mon, 5 Jun 2023 12:34:54 +0200
+        with ESMTP id S229729AbjFEL0b (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Jun 2023 07:26:31 -0400
+Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3297AE6;
+        Mon,  5 Jun 2023 04:26:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1685964388; x=1717500388;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=nwNB4RZ0FUp6zBMrJssU4IpQ7KWD6Nr8beFbi60ZnHw=;
+  b=nP79rtDp5Xo8IHvbUX/inF/7ykEqdXib1qky6sNzcbi/VcRxrTqLGfwe
+   QC4r9RiCGzzGVyaES1WH0q2iPUQdPhL4y41UKv0X7BR1/zIalkj6dSCoX
+   gufw+U9d/i2MYp+imfJcCvWmW0Uj9XuwtuK8SQZrHZ7KUUf9OLJepQwmu
+   ZwIHXCRoxvx4/CdaLe9tEp7ZI4TYQaL23wkICyKhCNQD2Uk3BTP7IHocG
+   cfnrsNb5NhD2uC/dUds4YqmXqEYdQ2KF2YPCWR++Mst0eit79Ds5eZYzJ
+   6vXV5ozQ6BFDU30F1GzgMa+V2WWlV+PzoNuANGmhgb9R6E22wjSz5cF6P
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10731"; a="359657102"
+X-IronPort-AV: E=Sophos;i="6.00,217,1681196400"; 
+   d="scan'208";a="359657102"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jun 2023 04:26:25 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10731"; a="778521796"
+X-IronPort-AV: E=Sophos;i="6.00,217,1681196400"; 
+   d="scan'208";a="778521796"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmsmga004.fm.intel.com with ESMTP; 05 Jun 2023 04:26:21 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.96)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1q68Lr-001MFM-2V;
+        Mon, 05 Jun 2023 14:26:19 +0300
+Date:   Mon, 5 Jun 2023 14:26:19 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Nikita Shubin <nikita.shubin@maquefel.me>
+Cc:     Alexander Sverdlin <alexander.sverdlin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Michael Peters <mpeters@embeddedts.com>,
+        Kris Bahnsen <kris@embeddedts.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 28/43] input: keypad: ep93xx: add DT support for
+ Cirrus EP93xx
+Message-ID: <ZH3GW9Y+id4EelU9@smile.fi.intel.com>
+References: <20230424123522.18302-1-nikita.shubin@maquefel.me>
+ <20230601054549.10843-10-nikita.shubin@maquefel.me>
+ <ZHjNR1n6tZbTAJWS@smile.fi.intel.com>
+ <61b9be215d7eb9908b2dd6750f1598cbb6842f65.camel@maquefel.me>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.11.2
-Subject: Re: [PATCH v2 1/2] dt-bindings: input: touchscreen: Add ilitek 9882T
- touchscreen chip
-Content-Language: en-US
-To:     Cong Yang <yangcong5@huaqin.corp-partner.google.com>,
-        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        conor+dt@kernel.org, dmitry.torokhov@gmail.com, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, dianders@chromium.org,
-        hsinyi@google.com
-Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20230605060524.1178164-1-yangcong5@huaqin.corp-partner.google.com>
- <20230605060524.1178164-2-yangcong5@huaqin.corp-partner.google.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230605060524.1178164-2-yangcong5@huaqin.corp-partner.google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <61b9be215d7eb9908b2dd6750f1598cbb6842f65.camel@maquefel.me>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 05/06/2023 08:05, Cong Yang wrote:
-> Add an ilitek touch screen chip ili9882t.
+On Sun, Jun 04, 2023 at 10:14:52PM +0300, Nikita Shubin wrote:
+> On Thu, 2023-06-01 at 19:54 +0300, Andy Shevchenko wrote:
+> > On Thu, Jun 01, 2023 at 08:45:33AM +0300, Nikita Shubin wrote:
+
+...
+
+> > > +static int ep93xx_keypad_flags;
+> > > +module_param(ep93xx_keypad_flags, int, 0);
+> > > +MODULE_PARM_DESC(ep93xx_keypad_flags, "EP93XX keypad flags.");
+> > 
+> > Why? This pretty much looks like missing DT description.
 > 
-> Signed-off-by: Cong Yang <yangcong5@huaqin.corp-partner.google.com>
-> ---
->  .../bindings/input/elan,ekth6915.yaml         | 23 ++++++++++++++++---
->  1 file changed, 20 insertions(+), 3 deletions(-)
+> From other patches from this series, i learned NOT to add new DT
+> entities, not even with vendor prefix, no way!
 > 
-> diff --git a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-> index 05e6f2df604c..f0e7ffdce605 100644
-> --- a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-> +++ b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-> @@ -15,11 +15,14 @@ description:
->  
->  properties:
->    compatible:
-> -    items:
-> -      - const: elan,ekth6915
-> +    enum:
-> +      - elan,ekth6915
-> +      - ilitek,ili9882t
->  
->    reg:
-> -    const: 0x10
-> +    enum:
-> +      - 0x10
-> +      - 0x41
->  
->    interrupts:
->      maxItems: 1
-> @@ -29,11 +32,13 @@ properties:
->  
->    vcc33-supply:
->      description: The 3.3V supply to the touchscreen.
-> +                 If using ili9882t then this supply will not be needed.
+> May be i missing something of course...
 
-What does it mean "will not be needed"? Describe the hardware, not your
-drivers.
+We do not add module parameters to a new code either. So this will be
+a dead end.
 
-I don't think you tested your DTS. Submit DTS users, because I do not
-believe you are testing your patches. You already got such comment and I
-don't see much of improvements here.
+...
 
->  
->    vccio-supply:
->      description:
->        The IO supply to the touchscreen. Need not be specified if this is the
->        same as the 3.3V supply.
-> +      If using ili9882t, the IO supply is required.
+> Was never used in different ways than initializing all to zeroes
+> including flags since 2.6 (didn't look before through), so i would
+> prefer to drop this completely than moving it into device tree.
 
-Don't repeat constraints in free form text.
->  
->  required:
->    - compatible
-> @@ -41,6 +46,18 @@ required:
->    - interrupts
->    - vcc33-supply
->  
-> +if:
+This sounds the best!
 
-Keep it in allOf. Will save you one indentation later.
+-- 
+With Best Regards,
+Andy Shevchenko
 
-> +  properties:
-> +    compatible:
-> +      contains:
-> +        const: ilitek,ili9882t
-> +then:
-> +  required:
-> +    - compatible
-> +    - reg
-> +    - interrupts
-
-Don't duplicate.
-
-> +    - vccio-supply
-
-
-Best regards,
-Krzysztof
 

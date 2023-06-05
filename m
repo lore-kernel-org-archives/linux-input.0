@@ -2,107 +2,123 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3E8E7C77B73
-	for <linux-input@archiver.kernel.org>; Mon,  5 Jun 2023 11:35:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24B5AC77B73
+	for <linux-input@archiver.kernel.org>; Mon,  5 Jun 2023 14:21:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbjFELfV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 5 Jun 2023 07:35:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52556 "EHLO
+        id S233054AbjFEOVa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 5 Jun 2023 10:21:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232447AbjFELfT (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Jun 2023 07:35:19 -0400
-X-Greylist: delayed 144 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 05 Jun 2023 04:35:08 PDT
-Received: from mailout.blnma.de (mailout.blnma.de [116.203.12.22])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DE31B4;
-        Mon,  5 Jun 2023 04:35:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=starostik.de; s=dkim210803; h=Content-Type:Content-Transfer-Encoding:
-        MIME-Version:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:References:List-Id:List-Help:
-        List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Q9kK4FWpujilN7N4KgicC38GOFmjovQF+Cg7lFXJo9s=; t=1685964909; x=1686828909; 
-        b=mIm3mtKmWcTuJfqW/ecAVt8OkMD/YqueYAo8Y1qURP9nYkpPXhBJFD3ocU0VV8C/wOK9wsVwafR
-        2htn/Diaks36Z4QB0hvtNtGodOpcwSrQRmNB/uklxZJQXSJcWxn6kUrgyqnSvZ1LANNy8TQhFmdc7
-        GjRDYoUNYEGJxqnh0MqsWmYbDd5cjloiwB4V6lQcWqHjJeoRwBOSNSDWu0cX8Jnch3SZZJRtQQ6HO
-        tSGe2FHhS4tPmYsezsaUBU8iBGDXZmbMbMQLT0/9WJAXlk9q2isSPz1NydI2Cp4F1isPPTqfWgbn1
-        50nm/bqb+Cr5HDDaLBCy3zAEmTONXMDyNGHQ==;
-Received: from dovecot-0.dovecot.mail.svc.cluster.local ([10.244.6.208] helo=mail.blnma.de)
-        by mail.blnma.de with esmtp (Exim 4.96)
-        (envelope-from <malte@starostik.de>)
-        id 1q68K2-000D3H-2j;
-        Mon, 05 Jun 2023 11:24:26 +0000
-Received: from zen.localnet ([62.214.179.90])
-        by mail.blnma.de with ESMTPSA
-        id hgEtK+nFfWQPPwAA399c4A
-        (envelope-from <malte@starostik.de>); Mon, 05 Jun 2023 11:24:25 +0000
-From:   Malte Starostik <malte@starostik.de>
-To:     bagasdotme@gmail.com
-Cc:     basavaraj.natikar@amd.com, linux-input@vger.kernel.org,
-        linux@hexchain.org, regressions@lists.linux.dev,
-        stable@vger.kernel.org
-Subject: Re: amd_sfh driver causes kernel oops during boot
-Date:   Mon, 05 Jun 2023 13:24:25 +0200
-Message-ID: <3250319.ancTxkQ2z5@zen>
-In-Reply-To: <ZG3ipauL9FTnQJiC@debian.me>
+        with ESMTP id S233494AbjFEOV2 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 5 Jun 2023 10:21:28 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43D8C9E
+        for <linux-input@vger.kernel.org>; Mon,  5 Jun 2023 07:20:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1685974839;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=gqpkXp8U+cKSUgRdK1ANg0TMjc87TbEFrUC0Wy67524=;
+        b=KgPRFx9EdRK2XOdlYbjrfmU4kt6XxDm1kmGseNd/GVEaQEiYqX/P3B4dCeQZ9vL6uCgfaO
+        sOMjGKg1EbVmeqAFGpV/lg98p8SpQqAPbnwXDQYDveNIFclHg8WvgHllIcsrfjoIDoyqqv
+        gZ84+iQuc159/eMjJSMsXaapzCPvD4U=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-70-6RP4HyK-PuiLqhXNeBlvBQ-1; Mon, 05 Jun 2023 10:20:36 -0400
+X-MC-Unique: 6RP4HyK-PuiLqhXNeBlvBQ-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 832E838025FE;
+        Mon,  5 Jun 2023 14:20:35 +0000 (UTC)
+Received: from mail.corp.redhat.com (unknown [10.45.225.227])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 739E01121315;
+        Mon,  5 Jun 2023 14:20:33 +0000 (UTC)
+Date:   Mon, 5 Jun 2023 16:20:30 +0200
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+To:     Mark Lord <mlord@pobox.com>
+Cc:     Jiri Kosina <jikos@kernel.org>, Bastien Nocera <hadess@hadess.net>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        "Peter F . Patel-Schneider" <pfpschneider@gmail.com>,
+        Filipe =?utf-8?B?TGHDrW5z?= <lains@riseup.net>,
+        Nestor Lopez Casado <nlopezcasad@logitech.com>
+Subject: Re: [PATCH] HID: logitech-hidpp: Handle timeout differently from busy
+Message-ID: <jafrw2wirzegnf7v2pcm52sao5yc4futa7ok4ccmywigj3y2c4@pep4b3ebus7s>
+References: <20230531082428.21763-1-hadess@hadess.net>
+ <nycvar.YFH.7.76.2305311606160.29760@cbobk.fhfr.pm>
+ <nycvar.YFH.7.76.2306031440380.29760@cbobk.fhfr.pm>
+ <ccae168a-4be0-f085-8d8e-03bfbd71ac8f@pobox.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ccae168a-4be0-f085-8d8e-03bfbd71ac8f@pobox.com>
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello,
 
-chiming in here as I'm experiencing what looks like the exact same issue, also 
-on a Lenovo Z13 notebook, also on Arch:
-Oops during startup in task udev-worker followed by udev-worker blocking all 
-attempts to suspend or cleanly shutdown/reboot the machine - in fact I first 
-noticed because the machine surprised with repeatedly running out of battery 
-after it had supposedly been in standby but couldn't. Only then I noticed the 
-error on boot.
-
-bisect result:
-904e28c6de083fa4834cdbd0026470ddc30676fc is the first bad commit
-commit 904e28c6de083fa4834cdbd0026470ddc30676fc
-Merge: a738688177dc 2f7f4efb9411
-Author: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Date:   Wed Feb 22 10:44:31 2023 +0100
-
-    Merge branch 'for-6.3/hid-bpf' into for-linus
-    
-    Initial support of HID-BPF (Benjamin Tissoires)
-    
-    The history is a little long for this series, as it was intended to be
-    sent for v6.2. However some last minute issues forced us to postpone it
-    to v6.3.
-    
-    Conflicts:
-    * drivers/hid/i2c-hid/Kconfig:
-      commit bf7660dab30d ("HID: stop drivers from selecting CONFIG_HID")
-      conflicts with commit 2afac81dd165 ("HID: fix I2C_HID not selected
-      when I2C_HID_OF_ELAN is")
-      the resolution is simple enough: just drop the "default" and "select"
-      lines as the new commit from Arnd is doing
-
-
-BR Malte
-
-> On Wed, May 24, 2023 at 02:10:31PM +0800, Haochen Tong wrote:
-> > > What last kernel version before this regression occurs? Do you mean
-> > > v6.2?
-> > > 
+On Jun 03 2023, Mark Lord wrote:
+> 
+> On 2023-06-03 08:41 AM, Jiri Kosina wrote:
+> > On Wed, 31 May 2023, Jiri Kosina wrote:
 > > 
-> > I was using 6.2.12 (Arch Linux distro kernel) before seeing this 
-regression.
+> >>> If an attempt at contacting a receiver or a device fails because the
+> >>> receiver or device never responds, don't restart the communication, only
+> >>> restart it if the receiver or device answers that it's busy, as originally
+> >>> intended.
+> >>>
+> >>> This was the behaviour on communication timeout before commit 586e8fede795
+> >>> ("HID: logitech-hidpp: Retry commands when device is busy").
+> >>>
+> >>> This fixes some overly long waits in a critical path on boot, when
+> >>> checking whether the device is connected by getting its HID++ version.
+> >>>
+> >>> Signed-off-by: Bastien Nocera <hadess@hadess.net>
+> >>> Suggested-by: Mark Lord <mlord@pobox.com>
+> >>> Fixes: 586e8fede795 ("HID: logitech-hidpp: Retry commands when device is busy")
+> >>> Link: https://bugzilla.kernel.org/show_bug.cgi?id=217412
+> >>> ---
+> >>>  drivers/hid/hid-logitech-hidpp.c | 1 +
+> >>>  1 file changed, 1 insertion(+)
+> >>>
+> >>> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> >>> index 0fcfd85fea0f..2246044b1639 100644
+> >>> --- a/drivers/hid/hid-logitech-hidpp.c
+> >>> +++ b/drivers/hid/hid-logitech-hidpp.c
+> >>> @@ -314,6 +314,7 @@ static int hidpp_send_message_sync(struct hidpp_device *hidpp,
+> >>>  			dbg_hid("%s:timeout waiting for response\n", __func__);
+> >>>  			memset(response, 0, sizeof(struct hidpp_report));
+> >>>  			ret = -ETIMEDOUT;
+> >>> +			goto exit;
+> >>>  		}
+> >>>  
+> >>
+> >> I have applied this even before getting confirmation from the reporters in 
+> >> bugzilla, as it's the right thing to do anyway.
+> > 
+> > Unfortunately it doesn't seem to cure the reported issue (while reverting 
+> > 586e8fede79 does): https://bugzilla.kernel.org/show_bug.cgi?id=217523#c2
 > 
-> Can you perform bisection to find the culprit that introduces the
-> regression? Since you're on Arch Linux, see its wiki article [1] for
-> instructions.
-> 
-> Thanks.
-> 
-> [1]: https://wiki.archlinux.org/title/Bisecting_bugs_with_Git
+> I wonder if this code could be re-worked to not even do this (waiting)
+> from the _probe() function?  It ought to be able to throw it on a workqueue
+> or something, rather than stalling system boot for a minimum of 5-seconds
+> (or much longer as as-is).
 
+That's an option, but the fact that I can not replicate locally with the
+exact same hardware seems to indicate that we would just be papering
+over the issue.
 
+Here, I admittely have the USB receiver running through USB-C ports, and
+the communication never fails and I get immediate bring ups of the
+devices. Which means I am not hitting that path.
+
+The hidpp driver should have everything ready to delay the init in a
+workqueue, but the impacted users would still get a delay when they plug
+in the device (which is better than stalling the boot, I agree).
+
+Cheers,
+Benjamin
 

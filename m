@@ -2,57 +2,68 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 400DFC77B7A
-	for <linux-input@archiver.kernel.org>; Wed,  7 Jun 2023 01:28:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0C453C7EE2F
+	for <linux-input@archiver.kernel.org>; Wed,  7 Jun 2023 01:28:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240418AbjFGB2p (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 6 Jun 2023 21:28:45 -0400
+        id S240280AbjFGB2q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 6 Jun 2023 21:28:46 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234753AbjFGB2o (ORCPT
+        with ESMTP id S240383AbjFGB2o (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Tue, 6 Jun 2023 21:28:44 -0400
 Received: from endrift.com (endrift.com [173.255.198.10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F1DB199D
-        for <linux-input@vger.kernel.org>; Tue,  6 Jun 2023 18:28:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514EB19AB
+        for <linux-input@vger.kernel.org>; Tue,  6 Jun 2023 18:28:44 -0700 (PDT)
 Received: from nebulosa.vulpes.eutheria.net (unknown [50.47.218.115])
-        by endrift.com (Postfix) with ESMTPSA id D4165A27B;
-        Tue,  6 Jun 2023 18:28:41 -0700 (PDT)
+        by endrift.com (Postfix) with ESMTPSA id 27C57A29D;
+        Tue,  6 Jun 2023 18:28:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=endrift.com; s=2020;
-        t=1686101322; bh=z/0xt8yMbbtcsefOTPQDzqHGcx+UQdKy096uNFuxUdE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=fi/C5u0wpNs2Fj+OOxFMKKCfoj+Fqwwza1bnE8Bp1PpqgxS+PooPgeR5t1JcjxWSr
-         oC5ZswNr8tqvKJcYqqsZ6edhrJeNMdJWlIWjytxLiFesdyIL9jLIDaxZOdIn7/e4Vx
-         dr2CTUVISBc258srZE+EHOET7n6StaAzd2OoKm+E4iprbvfahJIDxGUhlBxdxlR43n
-         tKTDDtkLsWzn31kTff/6rPKjz2SqdUXTBoaaJj4ikbpmJ5il27MF/mrCwYvtT9TC8o
-         W1P+/wPV5lQNYlJoEKkJshqmgQ0QGzZucfFuyZxuNUmvp37Bjom1yikTYVbFtnoNJi
-         fTQKo/0m87mSg==
+        t=1686101323; bh=64DKrYCpzykZvpU+00jat8F30txAV21MDf4b9l1LmsI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=HKc4XjaddZ/C5VV6PD//dPzaEUiT9Msa/wiG5/1llkHc98Mw8/aDR1h80SGdwmoMw
+         LPUBcaOvcDpmXfFMhLnnjy+/AwHdxnvTX0yhiZo4sN0bR3rv01p/FVRfF8tbuJJMDJ
+         noxYQeTdBaRWrrtP8TWAyK7DOZGAxYTQiAI08PanMZd4Fwo1pGkld5J+yIb+o8dg6g
+         GCn7CYImCjxUIry3Ocj9VFi/9vXibPXyFx0m2fWWczpf9l6q8gMg9TkVpXSKLTMK8H
+         LAOBhCAu02LBloNvTE+MBT1a0Bd1F38zQj9w5Xmvf/LOBkQmo1pa/shuCMwmjyTAHc
+         jaj47QjeHiB0g==
 From:   Vicki Pfau <vi@endrift.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org
-Cc:     Vicki Pfau <vi@endrift.com>, Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH 0/2] Input: xpad - Additional controller support
-Date:   Tue,  6 Jun 2023 18:28:10 -0700
-Message-Id: <20230607012812.379640-1-vi@endrift.com>
+Cc:     Sam Lantinga <slouken@libsdl.org>,
+        Pavel Rojtberg <rojtberg@gmail.com>,
+        Vicki Pfau <vi@endrift.com>
+Subject: [PATCH 2/2] Input: xpad - Add GameSir VID for Xbox One controllers
+Date:   Tue,  6 Jun 2023 18:28:12 -0700
+Message-Id: <20230607012812.379640-3-vi@endrift.com>
 X-Mailer: git-send-email 2.40.1
+In-Reply-To: <20230607012812.379640-1-vi@endrift.com>
+References: <20230607012812.379640-1-vi@endrift.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series includes two patches: one is a fixed resubmit of a previously
-reverted patch (first applied as db7220c48d8d), and the other is a simple
-addition to the VID table for Xbox One controllers.
+From: Sam Lantinga <slouken@libsdl.org>
 
-Sam Lantinga (1):
-  Input: xpad - Add GameSir VID for Xbox One controllers
+Signed-off-by: Sam Lantinga <slouken@libsdl.org>
+Signed-off-by: Vicki Pfau <vi@endrift.com>
+---
+ drivers/input/joystick/xpad.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Vicki Pfau (1):
-  Input: xpad - fix support for some third-party controllers
-
- drivers/input/joystick/xpad.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
-
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 745047215e42..459b5c507399 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -499,6 +499,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOXONE_VENDOR(0x2dc8),		/* 8BitDo Pro 2 Wired Controller for Xbox */
+ 	XPAD_XBOXONE_VENDOR(0x2e24),		/* Hyperkin Duke Xbox One pad */
+ 	XPAD_XBOX360_VENDOR(0x2f24),		/* GameSir controllers */
++	XPAD_XBOXONE_VENDOR(0x3537),		/* GameSir Controllers */
+ 	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
+ 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
+ 	{ }
 -- 
 2.40.1
 

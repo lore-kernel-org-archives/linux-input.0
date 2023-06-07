@@ -2,183 +2,124 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0F2EC7EE29
-	for <linux-input@archiver.kernel.org>; Wed,  7 Jun 2023 21:54:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D3C3C77B7A
+	for <linux-input@archiver.kernel.org>; Wed,  7 Jun 2023 23:50:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232505AbjFGVyL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 7 Jun 2023 17:54:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54996 "EHLO
+        id S233233AbjFGXuP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 7 Jun 2023 19:50:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232430AbjFGVxp (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2023 17:53:45 -0400
-Received: from mail-pg1-x52c.google.com (mail-pg1-x52c.google.com [IPv6:2607:f8b0:4864:20::52c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1387E26A1
-        for <linux-input@vger.kernel.org>; Wed,  7 Jun 2023 14:53:31 -0700 (PDT)
-Received: by mail-pg1-x52c.google.com with SMTP id 41be03b00d2f7-543cc9541feso1864267a12.2
-        for <linux-input@vger.kernel.org>; Wed, 07 Jun 2023 14:53:31 -0700 (PDT)
+        with ESMTP id S229917AbjFGXuL (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 7 Jun 2023 19:50:11 -0400
+Received: from mail-il1-x131.google.com (mail-il1-x131.google.com [IPv6:2607:f8b0:4864:20::131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B0382115
+        for <linux-input@vger.kernel.org>; Wed,  7 Jun 2023 16:50:10 -0700 (PDT)
+Received: by mail-il1-x131.google.com with SMTP id e9e14a558f8ab-33d0b7114a9so10474365ab.2
+        for <linux-input@vger.kernel.org>; Wed, 07 Jun 2023 16:50:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1686174810; x=1688766810;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=chromium.org; s=google; t=1686181807; x=1688773807;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tXrYtUuCuWvkbV7L1gPu5v5c01AxUbntKP7msewlmBY=;
-        b=VPtavFwrSLAnsChx0O9sOQZYBq1ojrqZEAOSN9K2H5D+oyhkPzKm1AqgA4P47Pf5oh
-         O8BG7TF+uwHJXH1rO/mOL9Oga2y26MvCYhRwbSAF/7bdKs8d+B6F5pZXdFPrDqgi3EQP
-         EzWvrRr+x12vJ7tl4U0Canch7ihXb8a8DBjks=
+        bh=zh1qTh2owhTw6iheqxXCV3Jh42E0lrVswaTb+2hzc4w=;
+        b=LA5jKQInySScvXJZt7de3SoBHewGLlQl8I2Dlp5XsX5fWzbH03w+SBSmZWIUrw6l9C
+         u8HazKhuc6q5WMscROqd9jjrkgq5JohKWGX05MJ0EbhpThT6n9w9bfdT2YXf3hiFrnEu
+         3UgHM/D27JYSChhgASP46qj0/dUjiKZi5Fp0o=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686174810; x=1688766810;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1686181807; x=1688773807;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tXrYtUuCuWvkbV7L1gPu5v5c01AxUbntKP7msewlmBY=;
-        b=ZUw24HOkofff+xVk6F3lHGw3t76jr8AYt0+Ldy8K73znGhqgVcv4QubblzPZe1k8rD
-         nroTp/ed2HvTVdll3iEvWTgZny0zsUzEKKAoG6+plYiNnLmT30uWA3MvAQJHVvox+vex
-         CWbyFw9BkffXknNg9SP2PtFyhc8TJo4Gmzuj6/eZylRsiSS8OEGGknhxkTb4LmRPIoXp
-         JCcOJzTiP62/FxQgRwnbGYXvEJVd+Mlz5tslr+imwNRQ+cnFWQTyrU1dDKkf+XK95IGt
-         QQSQ4XIVZaxRu/44my2J04NF/oQvYbOvWvIZ4UOq5dwo8JDycgIhjlPDc86jWbPzZdLN
-         Z8Ug==
-X-Gm-Message-State: AC+VfDwifK6+Q3OiyYNP+lWfMaZbpexuzQ+EV+nJOORpTwI4Pg8tx5Bi
-        qC4NPvKywwd9iI9JofrmnyrsAQ==
-X-Google-Smtp-Source: ACHHUZ5bFX6isITbSdGTCwRLcU7Gw3ebiIVWNaaFurz8NR3mHaewyosZt0XNEE7p9+xHiFDr1q+2Qg==
-X-Received: by 2002:a05:6a20:9384:b0:111:92ef:314e with SMTP id x4-20020a056a20938400b0011192ef314emr2361644pzh.35.1686174810186;
-        Wed, 07 Jun 2023 14:53:30 -0700 (PDT)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:9d:2:34b2:b638:6b53:f6c2])
-        by smtp.gmail.com with ESMTPSA id j25-20020aa78d19000000b0065dd1e7c2c1sm1376486pfe.63.2023.06.07.14.53.28
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 07 Jun 2023 14:53:29 -0700 (PDT)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     dri-devel@lists.freedesktop.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
-        linux-kernel@vger.kernel.org, hsinyi@google.com,
-        cros-qcom-dts-watchers@chromium.org, devicetree@vger.kernel.org,
-        yangcong5@huaqin.corp-partner.google.com,
-        linux-arm-msm@vger.kernel.org,
-        Chris Morgan <macroalpha82@gmail.com>,
-        Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH v2 10/10] arm64: dts: qcom: sc7180: Link trogdor touchscreens to the panels
-Date:   Wed,  7 Jun 2023 14:49:32 -0700
-Message-ID: <20230607144931.v2.10.Ia06c340e3482563e6bfd3106ecd0d3139f173ca4@changeid>
-X-Mailer: git-send-email 2.41.0.162.gfafddb0af9-goog
-In-Reply-To: <20230607215224.2067679-1-dianders@chromium.org>
-References: <20230607215224.2067679-1-dianders@chromium.org>
+        bh=zh1qTh2owhTw6iheqxXCV3Jh42E0lrVswaTb+2hzc4w=;
+        b=KAvXWdpeFiq0xWnw3eNmCTqwc301CCFhzPEQ4B5fSIh8JbKvZI7IqAPiA9yHg/5OR5
+         KkysxpcoZzWXBu9VyMpgjYP87w4sW8Dzakq4J5htWacZ2kVbhecmR88iBnkuWTG/2shH
+         4OX9gxVrplm9fqMZczNfZVgzk1oLtdrXOVQc7GGDDmK0jyA7U/+nRiaeb1AWbq1bB/dC
+         vFvKfRYEo1fYEsazcJ58aCUYEmLHqE2lzKgvurgEqBfep9In1xN4eSV2SwJ6pN82sSro
+         GDNgKDydq8uUTxCuKMVerJTshyVjMjZPlL85a73AW5ud8qaLlfRvBA/f0sbD40JPeXAK
+         1QtA==
+X-Gm-Message-State: AC+VfDxhQctCTcEGafGqF72zET5X9aIH4RmUCR9vCIugquDN/qH0KPJj
+        k7fbk4zZTRxY5+5waBUB4wRQfT83pkjPCttR598=
+X-Google-Smtp-Source: ACHHUZ6FBYVby6UjJUmk5Y+rZ5XtcKYon/ZQ5eQt2DnJJuBtrprJQzc4NFFtTRKyocEKLtKoAqkg2g==
+X-Received: by 2002:a92:c011:0:b0:33b:1060:aff with SMTP id q17-20020a92c011000000b0033b10600affmr9474603ild.24.1686181806987;
+        Wed, 07 Jun 2023 16:50:06 -0700 (PDT)
+Received: from mail-io1-f41.google.com (mail-io1-f41.google.com. [209.85.166.41])
+        by smtp.gmail.com with ESMTPSA id t7-20020a028787000000b00418a5e0e93esm3705193jai.162.2023.06.07.16.50.02
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 07 Jun 2023 16:50:05 -0700 (PDT)
+Received: by mail-io1-f41.google.com with SMTP id ca18e2360f4ac-777a4c8e8f4so268236139f.3
+        for <linux-input@vger.kernel.org>; Wed, 07 Jun 2023 16:50:02 -0700 (PDT)
+X-Received: by 2002:a5e:8c15:0:b0:763:5a8f:fe6 with SMTP id
+ n21-20020a5e8c15000000b007635a8f0fe6mr9992800ioj.21.1686181802445; Wed, 07
+ Jun 2023 16:50:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230607133458.4075667-1-yangcong5@huaqin.corp-partner.google.com>
+ <20230607133458.4075667-3-yangcong5@huaqin.corp-partner.google.com>
+In-Reply-To: <20230607133458.4075667-3-yangcong5@huaqin.corp-partner.google.com>
+From:   Doug Anderson <dianders@chromium.org>
+Date:   Wed, 7 Jun 2023 16:49:50 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=Uy=UNKDEhqeguhVGn_aTPk5+MppsXChpNOinVc4HJjYg@mail.gmail.com>
+Message-ID: <CAD=FV=Uy=UNKDEhqeguhVGn_aTPk5+MppsXChpNOinVc4HJjYg@mail.gmail.com>
+Subject: Re: [PATCH v3 2/2] HID: i2c-hid: elan: Add ili9882t timing
+To:     Cong Yang <yangcong5@huaqin.corp-partner.google.com>
+Cc:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        conor+dt@kernel.org, dmitry.torokhov@gmail.com, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, hsinyi@google.com,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Let's provide the proper link from the touchscreen to the panel on
-trogdor devices where the touchscreen support it. This allows the OS
-to power sequence the touchscreen more properly.
+Hi,
 
-For the most part, this is just expected to marginally improve power
-consumption while the screen is off. However, in at least one trogdor
-model (wormdingler) it's suspected that this will fix some behavorial
-corner cases when the panel power cycles (like for a modeset) without
-the touchscreen power cycling.
+On Wed, Jun 7, 2023 at 6:35=E2=80=AFAM Cong Yang
+<yangcong5@huaqin.corp-partner.google.com> wrote:
+>
+> The ili9882t is a TDDI IC (Touch with Display Driver). The
+> datasheet specifies there should be 60ms between touch SDA
+> sleep and panel RESX. Doug's series[1] allows panels and
+> touchscreens to power on/off together, so we can add the 65 ms
+> delay in i2c_hid_core_suspend before panel_unprepare.
+>
+> [1]: https: //lore.kernel.org/all/20230523193017.4109557-1-dianders@chrom=
+ium.org/
 
-NOTE: some trogdor variants use touchscreens that don't (yet) support
-linking the touchscreen and the panel. Those variants are left alone.
+FWIW: I posted v2 today:
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
----
+https://lore.kernel.org/r/20230607215224.2067679-1-dianders@chromium.org
 
-(no changes since v1)
 
- arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi        | 1 +
- arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi      | 1 +
- arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi         | 1 +
- arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi        | 1 +
- arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi | 1 +
- arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi   | 1 +
- 6 files changed, 6 insertions(+)
+> Signed-off-by: Cong Yang <yangcong5@huaqin.corp-partner.google.com>
+> ---
+>  drivers/hid/i2c-hid/i2c-hid-of-elan.c | 20 ++++++++++++++++----
+>  1 file changed, 16 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-of-elan.c b/drivers/hid/i2c-hid/=
+i2c-hid-of-elan.c
+> index 76ddc8be1cbb..411d7ea2725d 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-of-elan.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-of-elan.c
+> @@ -18,7 +18,8 @@
+>  #include "i2c-hid.h"
+>
+>  struct elan_i2c_hid_chip_data {
+> -       unsigned int post_gpio_reset_delay_ms;
+> +       unsigned int post_gpio_reset_on_delay_ms;
+> +       unsigned int post_gpio_reset_off_delay_ms;
+>         unsigned int post_power_delay_ms;
+>         u16 hid_descriptor_address;
+>  };
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-index 8b8ea8af165d..b4f328d3e1f6 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
-@@ -104,6 +104,7 @@ ap_ts: touchscreen@5d {
- 		interrupt-parent = <&tlmm>;
- 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
- 
-+		panel = <&panel>;
- 		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
- 
- 		vdd-supply = <&pp3300_ts>;
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi
-index b3ba23a88a0b..88aeb415bd5b 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi
-@@ -116,6 +116,7 @@ ap_ts: touchscreen@14 {
- 		interrupt-parent = <&tlmm>;
- 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
- 
-+		panel = <&panel>;
- 		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
- 
- 		vdd-supply = <&pp3300_touch>;
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
-index 269007d73162..c65f18ea3e5c 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
-@@ -43,6 +43,7 @@ ap_ts: touchscreen@10 {
- 		interrupt-parent = <&tlmm>;
- 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
- 
-+		panel = <&panel>;
- 		post-power-on-delay-ms = <20>;
- 		hid-descr-addr = <0x0001>;
- 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi
-index 6c5287bd27d6..d2aafd1ea672 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi
-@@ -102,6 +102,7 @@ ap_ts: touchscreen@10 {
- 		interrupt-parent = <&tlmm>;
- 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
- 
-+		panel = <&panel>;
- 		post-power-on-delay-ms = <20>;
- 		hid-descr-addr = <0x0001>;
- 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi
-index 8e7b42f843d4..0785873d1345 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi
-@@ -99,6 +99,7 @@ ap_ts: touchscreen@10 {
- 		interrupt-parent = <&tlmm>;
- 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
- 
-+		panel = <&panel>;
- 		post-power-on-delay-ms = <20>;
- 		hid-descr-addr = <0x0001>;
- 
-diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi
-index 262d6691abd9..f70f5b42c845 100644
---- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi
-@@ -154,6 +154,7 @@ ap_ts: touchscreen@1 {
- 		interrupt-parent = <&tlmm>;
- 		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
- 
-+		panel = <&panel>;
- 		post-power-on-delay-ms = <70>;
- 		hid-descr-addr = <0x0001>;
- 
--- 
-2.41.0.162.gfafddb0af9-goog
+I would prefer it if you would add something to the
+"elan_i2c_hid_chip_data" indicating the name of the main supply. Set
+it to "vcc33" for the elan touchscreen and the NULL for your new one.
 
+It's probably worth adding a comment next to where you set it to NULL
+that this touchscreen is tightly integrated with the panel and assumes
+that the relevant power rails (other than the IO rail) have already
+been turned on by the panel driver because we're a panel follower.
+Otherwise someone is going to be super confused about how this could
+work.

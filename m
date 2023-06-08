@@ -2,69 +2,106 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 28430C7EE25
-	for <linux-input@archiver.kernel.org>; Thu,  8 Jun 2023 13:56:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 300ACC7EE25
+	for <linux-input@archiver.kernel.org>; Thu,  8 Jun 2023 14:07:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235521AbjFHN4Z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 8 Jun 2023 09:56:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37830 "EHLO
+        id S236756AbjFHOHQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 8 Jun 2023 10:07:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235100AbjFHN4Y (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2023 09:56:24 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E41069E
-        for <linux-input@vger.kernel.org>; Thu,  8 Jun 2023 06:56:23 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 793A661A21
-        for <linux-input@vger.kernel.org>; Thu,  8 Jun 2023 13:56:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30BAFC433D2;
-        Thu,  8 Jun 2023 13:56:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686232582;
-        bh=bmzEjbDWnF7Q4mncCnAODBCuIyTMl9yMIyoQsVNP2PI=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=Pg/yEuynEWC6EOqkeaRk4HcuoA26rcJREwRkE+LLxi3YxnuufHmtBG3uEZ+tAjf4o
-         jHJxIAjul78BQuwJddrlodXH2+AWPQtlwg9tigoOORW8oAGEM5n/u3cYXnx0Qd0y3z
-         5Fn3PXuWcAuAobKd/IG+fBXPIpRUe5OKTWGatd4HYrB+e66loks6ShE85t9JHpwn0R
-         PI9GRYo2gRaokRyuaPRHkQxLx2naOHReJNNrce9/u7YMnq8LUhP0WSBP2c1I8FVUVz
-         kZBxMhhycoKWlIbVkngDyqdCp6+ug3kPOnt/l/6dJE7u3bB4CxpsOsWWMsAWGDP5wy
-         bG50N4x35yD/g==
-Date:   Thu, 8 Jun 2023 15:56:18 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Joshua Dickens <joshua@joshua-dickens.com>
-cc:     linux-input@vger.kernel.org,
+        with ESMTP id S236859AbjFHOHM (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2023 10:07:12 -0400
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816C830C7;
+        Thu,  8 Jun 2023 07:07:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1686233226; x=1717769226;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Oa6x8KM0eNi6FTDPQxF93G9pAVh+iU8hs4FXo1R4OIU=;
+  b=Zn4Eytj6OY+MIRunDRmQT19ayQ8JAKoSBMyKMnt2JBnH0uQCY6nF3YEF
+   5kk5C1yhnPkCmmNaTSNErekZ5Dflb7xQWo9llM/LEyTvrESn6ANuxk/K+
+   5AnO6dg3uC1H5j3/13nESNmoZjq+Ouk5tkXmfe2d87pAeNVgZukq5Z+2d
+   JABEUrGPHAVCFQaCEWs6OcVwipVYqhsKAmqTohyXe+xQ0erIRqxyzixGB
+   1o9XbJZ7c/bZm/wjuP4Ae0y9flWYGSOs8ZpiCKU90Ky2XEpEFzL5vzz0a
+   5/s6Tw7Wvsq7uS4w0FrH7owA3A9L0Eea5pv2zAnyiZ3GmzY6dMVTmC7vX
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10734"; a="423176152"
+X-IronPort-AV: E=Sophos;i="6.00,226,1681196400"; 
+   d="scan'208";a="423176152"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jun 2023 06:36:16 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10734"; a="660379152"
+X-IronPort-AV: E=Sophos;i="6.00,226,1681196400"; 
+   d="scan'208";a="660379152"
+Received: from lkp-server01.sh.intel.com (HELO 15ab08e44a81) ([10.239.97.150])
+  by orsmga003.jf.intel.com with ESMTP; 08 Jun 2023 06:36:13 -0700
+Received: from kbuild by 15ab08e44a81 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1q7FoD-0007qC-0q;
+        Thu, 08 Jun 2023 13:36:13 +0000
+Date:   Thu, 8 Jun 2023 21:35:16 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Ping Cheng <pinglinux@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>
+Cc:     oe-kbuild-all@lists.linux.dev, Ping Cheng <pinglinux@gmail.com>,
         Aaron Armstrong Skomra <skomra@gmail.com>,
-        Jason Gerecke <killertofu@gmail.com>,
-        Joshua Dickens <joshua.dickens@wacom.com>,
+        Joshua Dickens <Joshua@joshua-dickens.com>,
         Jason Gerecke <jason.gerecke@wacom.com>
-Subject: Re: [PATCH] selftests: hid: Add touch tests for Wacom devices
-In-Reply-To: <20230511194754.129571-1-Joshua@Joshua-Dickens.com>
-Message-ID: <nycvar.YFH.7.76.2306081556040.29760@cbobk.fhfr.pm>
-References: <20230511194754.129571-1-Joshua@Joshua-Dickens.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+Subject: Re: [PATCH] HID: wacom: Use ktime_t rather than int when dealing
+ with timestamps
+Message-ID: <202306082127.6r7qAALi-lkp@intel.com>
+References: <20230607214102.2113-1-jason.gerecke@wacom.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230607214102.2113-1-jason.gerecke@wacom.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 11 May 2023, Joshua Dickens wrote:
+Hi Jason,
 
-> Adding a wacom touch device to use the test_multitouch tests.
-> Adding a 2 additional tests.
->  - A test to check if a touch event is sent when the contact_id of the event is 0.
->  - A test to check if a touch event is not sent when confidence is set to 0.
-> 
-> Signed-off-by: Joshua Dickens <joshua.dickens@wacom.com>
-> Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+kernel test robot noticed the following build errors:
 
-Applied, sorry for the delay.
+[auto build test ERROR on hid/for-next]
+[also build test ERROR on linus/master v6.4-rc5 next-20230608]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Jason-Gerecke/HID-wacom-Use-ktime_t-rather-than-int-when-dealing-with-timestamps/20230608-054255
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+patch link:    https://lore.kernel.org/r/20230607214102.2113-1-jason.gerecke%40wacom.com
+patch subject: [PATCH] HID: wacom: Use ktime_t rather than int when dealing with timestamps
+config: arc-randconfig-c003-20230608 (https://download.01.org/0day-ci/archive/20230608/202306082127.6r7qAALi-lkp@intel.com/config)
+compiler: arc-elf-gcc (GCC) 12.3.0
+reproduce (this is a W=1 build):
+        mkdir -p ~/bin
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        git remote add hid https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git
+        git fetch hid for-next
+        git checkout hid/for-next
+        b4 shazam https://lore.kernel.org/r/20230607214102.2113-1-jason.gerecke@wacom.com
+        # save the config file
+        mkdir build_dir && cp config build_dir/.config
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=arc olddefconfig
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=arc SHELL=/bin/bash
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202306082127.6r7qAALi-lkp@intel.com/
+
+All errors (new ones prefixed by >>, old ones prefixed by <<):
+
+>> ERROR: modpost: "__divdi3" [drivers/hid/wacom.ko] undefined!
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

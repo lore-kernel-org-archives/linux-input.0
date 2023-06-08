@@ -2,116 +2,67 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CF5CC7EE43
-	for <linux-input@archiver.kernel.org>; Fri,  9 Jun 2023 22:03:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB531C87FDD
+	for <linux-input@archiver.kernel.org>; Sat, 10 Jun 2023 00:30:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbjFIWDn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 9 Jun 2023 18:03:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39426 "EHLO
+        id S229890AbjFJAal convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 9 Jun 2023 20:30:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232498AbjFIWDi (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Jun 2023 18:03:38 -0400
-Received: from mail-il1-f181.google.com (mail-il1-f181.google.com [209.85.166.181])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 232DB3A85;
-        Fri,  9 Jun 2023 15:03:37 -0700 (PDT)
-Received: by mail-il1-f181.google.com with SMTP id e9e14a558f8ab-33b00ce51caso9566775ab.2;
-        Fri, 09 Jun 2023 15:03:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686348216; x=1688940216;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=lbWnd1453WWYSB5tZKL9wA4jRIrmIbrZJ2ihOV5eBj0=;
-        b=TBHh6znyAU/BT3zhMBrlohsoeyzuaClSrcP/AF6GXv9EAcBNW5EA7CyMvAmfMi9Vsu
-         zV1gJ1eCucA6gt43nYxhDbYgZIRzMvQXUashjVt7rK776lq5w59K4JUfJz+0J5G3+f5e
-         1xlyznfLszm0GKz3I6AEsjTtJW/eXRc5F9CXf/R64szlHVADbm4mrzP+0rxy4PLagSyK
-         I8BhiMBX38lL5eeqeMISF8Yq6XkeuZd05rSGJFK5HijqbMftgNKuDKMVdO3BGas/Xfeu
-         bAxU+PZLYd4jjEUAJF8l9yNUKoAuYLviVy4oDJVWzWAi9OE97qKlc+qKRYI3pK8qdSQD
-         jHiw==
-X-Gm-Message-State: AC+VfDw3jnL0BMFtXgj02zfIskupu63ZzJSDoSE1MDWN4LQvejJnyWRP
-        7HKEMXqzVZrOFQnWsvPsyw==
-X-Google-Smtp-Source: ACHHUZ5g/3hAO2umBs2VXYQ0I2em+F4t0rg+2lA6/YO5SiWMldXnF+mwfMfvbJytyDA5GLeINIOA/g==
-X-Received: by 2002:a92:dc08:0:b0:33d:1c2b:b558 with SMTP id t8-20020a92dc08000000b0033d1c2bb558mr2366041iln.22.1686348216369;
-        Fri, 09 Jun 2023 15:03:36 -0700 (PDT)
-Received: from robh_at_kernel.org ([64.188.179.250])
-        by smtp.gmail.com with ESMTPSA id g9-20020a926b09000000b0033e4937640esm1310594ilc.80.2023.06.09.15.03.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 09 Jun 2023 15:03:35 -0700 (PDT)
-Received: (nullmailer pid 2542654 invoked by uid 1000);
-        Fri, 09 Jun 2023 22:03:33 -0000
-Date:   Fri, 9 Jun 2023 16:03:33 -0600
-From:   Rob Herring <robh@kernel.org>
-To:     cong yang <yangcong5@huaqin.corp-partner.google.com>
-Cc:     Conor Dooley <conor@kernel.org>, krzysztof.kozlowski+dt@linaro.org,
-        conor+dt@kernel.org, dmitry.torokhov@gmail.com, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, dianders@chromium.org,
-        hsinyi@google.com, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] dt-bindings: input: touchscreen: Add ilitek 9882T
- touchscreen chip
-Message-ID: <20230609220333.GA2535896-robh@kernel.org>
-References: <20230605060524.1178164-1-yangcong5@huaqin.corp-partner.google.com>
- <20230605060524.1178164-2-yangcong5@huaqin.corp-partner.google.com>
- <20230605-anyway-grab-f7a35aa199fb@spud>
- <CAHwB_NK_j1SJ1BBkVqafFM_+fWSyvwjCpMmHQxjLjnz_KHR=KA@mail.gmail.com>
+        with ESMTP id S232487AbjFJAaj (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Jun 2023 20:30:39 -0400
+X-Greylist: delayed 1043 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 09 Jun 2023 17:30:38 PDT
+Received: from es.pcb.gov.my (es.pcb.gov.my [202.75.7.35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A24C73A95
+        for <linux-input@vger.kernel.org>; Fri,  9 Jun 2023 17:30:38 -0700 (PDT)
+X-ASG-Debug-ID: 1686355465-1488a971c006ac0009-vblZzk
+Received: from mail.pcb.gov.my (mail.pcb.gov.my [10.28.173.47]) by es.pcb.gov.my with ESMTP id aAEDT4HeQikHWbJf for <linux-input@vger.kernel.org>; Sat, 10 Jun 2023 08:12:56 +0800 (+08)
+X-Barracuda-Envelope-From: herdayu@pcb.gov.my
+Received: from [193.169.254.61] (193.169.254.61) by EXCHANGE01.BPA.pcb.gov.my
+ (10.28.173.47) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.721.2; Fri, 9 Jun 2023
+ 01:18:54 +0800
+Reply-To: <alicewalt63@gmail.com>
+X-Barracuda-Effective-Source-IP: UNKNOWN[193.169.254.61]
+X-Barracuda-Apparent-Source-IP: 193.169.254.61
+From:   Alice Walton <herdayu@pcb.gov.my>
+To:     <linux-input@vger.kernel.org>
+Subject: =?UTF-8?B?xI1lc3RpdGFt?=
+Date:   Thu, 8 Jun 2023 10:18:47 -0700
+X-ASG-Orig-Subj: =?UTF-8?B?xI1lc3RpdGFt?=
+Message-ID: <20230608101847.12D0EDFABD5EAC7F@pcb.gov.my>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHwB_NK_j1SJ1BBkVqafFM_+fWSyvwjCpMmHQxjLjnz_KHR=KA@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-ClientProxiedBy: EXCHANGE01.BPA.pcb.gov.my (10.28.173.47) To
+ EXCHANGE01.BPA.pcb.gov.my (10.28.173.47)
+X-Barracuda-Connect: mail.pcb.gov.my[10.28.173.47]
+X-Barracuda-Start-Time: 1686355941
+X-Barracuda-URL: https://10.28.173.25:443/cgi-mod/mark.cgi
+X-Barracuda-License: Expired
+X-Barracuda-BRTS-Status: 1
+X-Virus-Scanned: by bsmtpd at pcb.gov.my
+X-Barracuda-Scan-Msg-Size: 570
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Jun 06, 2023 at 10:06:05AM +0800, cong yang wrote:
-> Hi,Conor,
-> 
-> On Mon, Jun 5, 2023 at 6:20 PM Conor Dooley <conor@kernel.org> wrote:
-> >
-> > Hey Cong Yang,
-> >
-> > On Mon, Jun 05, 2023 at 02:05:23PM +0800, Cong Yang wrote:
-> > > Add an ilitek touch screen chip ili9882t.
-> >
-> > Could you add a comment here mentioning the relationship between these
-> > chips?
-> 
-> Okay, I will add in V3 version.
-> 
-> > On Mon, Jun 05, 2023 at 02:05:23PM +0800, Cong Yang wrote:
-> >
-> > > Signed-off-by: Cong Yang <yangcong5@huaqin.corp-partner.google.com>
-> > > ---
-> > >  .../bindings/input/elan,ekth6915.yaml         | 23 ++++++++++++++++---
-> > >  1 file changed, 20 insertions(+), 3 deletions(-)
-> > >
-> > > diff --git a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-> > > index 05e6f2df604c..f0e7ffdce605 100644
-> > > --- a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-> > > +++ b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-> > > @@ -15,11 +15,14 @@ description:
-> > >
-> > >  properties:
-> > >    compatible:
-> > > -    items:
-> > > -      - const: elan,ekth6915
-> > > +    enum:
-> > > +      - elan,ekth6915
-> > > +      - ilitek,ili9882t
-> > >
-> > >    reg:
-> > > -    const: 0x10
-> > > +    enum:
-> > > +      - 0x10
-> > > +      - 0x41
-> >
-> > Is 0x10 only valid for the elan,ekth6915 & 0x41 for the ilitek one?
-> > If so, please add some enforcement of the values based on the
-> > compatible.
-> 
-> I don't think 0x10 is the only address for ekth6915,(nor is 0x41 the
-> only address for ili9882t). It depends on the hardware design.
+čestitam,
 
-I'd just drop the values as we don't typically enforce 'reg' values.
+      Vaša e-pošta osvojila je 5.000.000,00 USD od strane Alice 
+Walton 2023 humanitarnog programa podrške donacijama. 
+Kontaktirajte nas za više pojedinosti o tome kako možete 
+zatražiti svoj donacijski fond.
 
-Rob
+Hvala i Bog blagoslovio
+Zaklada Alice Walton
+=========================================
+Congratulation,
+
+     Your email has won $5,000,000.00 USD by Alice Walton 2023 
+humanitarian donation support program. Contact us for more 
+details on how you can claim your donation fund.
+
+Thanks And God Bless
+Alice Walton Foundation

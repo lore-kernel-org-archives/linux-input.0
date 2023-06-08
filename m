@@ -2,71 +2,65 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A059C7EE23
-	for <linux-input@archiver.kernel.org>; Thu,  8 Jun 2023 14:23:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5783DC7EE23
+	for <linux-input@archiver.kernel.org>; Thu,  8 Jun 2023 14:32:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235462AbjFHOXG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 8 Jun 2023 10:23:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54758 "EHLO
+        id S236172AbjFHOcv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 8 Jun 2023 10:32:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33518 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234608AbjFHOXE (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2023 10:23:04 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 056AA198B
-        for <linux-input@vger.kernel.org>; Thu,  8 Jun 2023 07:23:00 -0700 (PDT)
+        with ESMTP id S233268AbjFHOcu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2023 10:32:50 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F133F2729;
+        Thu,  8 Jun 2023 07:32:49 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9028964E14
-        for <linux-input@vger.kernel.org>; Thu,  8 Jun 2023 14:22:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6139C433EF;
-        Thu,  8 Jun 2023 14:22:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CD0764E17;
+        Thu,  8 Jun 2023 14:32:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C597C433D2;
+        Thu,  8 Jun 2023 14:32:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686234178;
-        bh=CmN11RF3f/lPLGLDXfXDqrKrTZyB7sWxOWxuUhMLjUU=;
+        s=k20201202; t=1686234769;
+        bh=AZXHnB2XK7W9ZtACZYfGecUAbwN9IkRTRN0lekZ5OEI=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=LfHRbv4JegLDIAEEOS3EPSF1PuYegASZQCvP2Jj95Sz8bMWhkWKC5qpuTFF9TLw8p
-         OHFHQn8YlB8V6iK59fYKJjyyzRa1gxTcQkPdSyj5d6Fed7PSEexrEpi+biEI4AHWUN
-         eiNlKxxC9MBXEzqXd6lCJ02yQEYwLcyrmSiT+rqWoprQzRXUwO3Tj0czlDVUdY07Bo
-         qy1cikZPhcUfXbuXyPIo6cUxivvsE7JsP4jVcZD5VsAhPf+az9gdLgwygchhRiPMbF
-         oSUXC2wia+kDgdi3xE70bICW3LdlWBRJqmv8v+r3zLrod1yHOXBXy80Ig/CURh8EQD
-         BG/eI84gua64Q==
-Date:   Thu, 8 Jun 2023 16:22:54 +0200 (CEST)
+        b=pzMFe547k3lUElWZag1QeQWhKS8p7E5k/Q4BgPYKavrJNh3peEEFlyji31cLzdJ9S
+         PhEHozSUq1X64nS30WG6wcrqIHzv999fhveFFSJPSbfIN8SYNq6jukHesWcwr/aM9Q
+         XfOYzzopPSzU3NS8EIENrnQ2C9bkiXNMkbVELM9IRGpguuaSAuKqujIZKIwt9cGeUp
+         k2JiAVXcIWEtiaLArgFYIYeABfgnIEUG+Epvitn4spwcUKGty5Ff3SQqjATtjuCZMZ
+         MyUNlLZw+UXFuuQeURGm8Eg60ImgBQ58mJoF6qRYS+WVCTmyY1570qc606vGjPy75d
+         ltIWRSXS6Z5mA==
+Date:   Thu, 8 Jun 2023 16:32:45 +0200 (CEST)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     =?ISO-8859-15?Q?Uwe_Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>
-cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Stephen Kitt <steve@sk2.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        linux-input@vger.kernel.org, kernel@pengutronix.de
-Subject: Re: [PATCH] HID: i2c-hid: Switch i2c drivers back to use .probe()
-In-Reply-To: <20230525203202.646669-1-u.kleine-koenig@pengutronix.de>
-Message-ID: <nycvar.YFH.7.76.2306081622340.5716@cbobk.fhfr.pm>
-References: <20230525203202.646669-1-u.kleine-koenig@pengutronix.de>
+To:     Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
+cc:     =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v2] HID: logitech-hidpp: Add USB and Bluetooth IDs for
+ the Logitech G915 TKL Keyboard
+In-Reply-To: <20230530144427.24732-1-stuart.a.hayhurst@gmail.com>
+Message-ID: <nycvar.YFH.7.76.2306081632260.5716@cbobk.fhfr.pm>
+References: <20230530144427.24732-1-stuart.a.hayhurst@gmail.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Thu, 25 May 2023, Uwe Kleine-König wrote:
+On Tue, 30 May 2023, Stuart Hayhurst wrote:
 
-> After commit b8a1a4cd5a98 ("i2c: Provide a temporary .probe_new()
-> call-back type"), all drivers being converted to .probe_new() and then
-> 03c835f498b5 ("i2c: Switch .probe() to not take an id parameter") convert
-> back to (the new) .probe() to be able to eventually drop .probe_new() from
-> struct i2c_driver.
+> From: stuarthayhurst <stuart.a.hayhurst@gmail.com>
 > 
-> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+> Adds the USB and Bluetooth IDs for the Logitech G915 TKL keyboard, for device detection
+> For this device, this provides battery reporting on top of hid-generic
+> 
+> Reviewed-by: Bastien Nocera <hadess@hadess.net>
+> Signed-off-by: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
 
-Applied, thanks.
+Applied. thanks.
 
 -- 
 Jiri Kosina

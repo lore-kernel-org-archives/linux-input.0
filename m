@@ -2,235 +2,177 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B082BC7EE29
-	for <linux-input@archiver.kernel.org>; Thu,  8 Jun 2023 16:43:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87207C7EE29
+	for <linux-input@archiver.kernel.org>; Thu,  8 Jun 2023 21:04:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236180AbjFHQny (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 8 Jun 2023 12:43:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52498 "EHLO
+        id S236875AbjFHVEJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 8 Jun 2023 17:04:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235084AbjFHQnx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2023 12:43:53 -0400
-Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A905273A
-        for <linux-input@vger.kernel.org>; Thu,  8 Jun 2023 09:43:33 -0700 (PDT)
-Received: by mail-il1-x12c.google.com with SMTP id e9e14a558f8ab-33aa60f4094so2437045ab.1
-        for <linux-input@vger.kernel.org>; Thu, 08 Jun 2023 09:43:33 -0700 (PDT)
+        with ESMTP id S232401AbjFHVEI (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2023 17:04:08 -0400
+Received: from mail-io1-xd49.google.com (mail-io1-xd49.google.com [IPv6:2607:f8b0:4864:20::d49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A7F2D42
+        for <linux-input@vger.kernel.org>; Thu,  8 Jun 2023 14:04:06 -0700 (PDT)
+Received: by mail-io1-xd49.google.com with SMTP id ca18e2360f4ac-760c58747cdso92201939f.0
+        for <linux-input@vger.kernel.org>; Thu, 08 Jun 2023 14:04:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1686242577; x=1688834577;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lm0NPXeSllB+Ruuyhki9CYskDouHV5Cnz0fcBZ5jUqQ=;
-        b=naw1Ma2viBaJyjtuUwEh22IEpPN+PHLAQBeCRR2WL38fW1lDfDGoQseJHlBSJiJc0m
-         PNFhhqRazE6+UFKEdp6+17kRagdpKQTp+I/AMOaXRzDyZEkhlR4u/ANPvh/rXSe37UPI
-         VsH9JRS9dlC0iJdQUPMXyupl3W5Zb14EVJiAE=
+        d=google.com; s=20221208; t=1686258246; x=1688850246;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=vXxdCwOvLUUiF6F8HOMzi7EV2zdJ4C5gOBnag2vUVGI=;
+        b=MmZXhNVStB0tURf0s1/F6llfQeeyVyu+HDHAVIPO797lBjbb+B/UVmzi2i0ziVPhU1
+         /ijQja1MSl23HtvyT/P8E4s6oAUmIuNilwbp8wK5ZgWZMccRQitljdDyMvygmNj/wi7P
+         3dhdkG+CFEVFeZauyXE07wGGBebSA2iZe6KBAnXmsexJFCvrHXPY1a65XJsZ140patU1
+         RH/tmtgF6qsPBYi4ye3OKl2SCYrV7MrfRhH+vkHIltIMbaG+dr0k7BtM8sAbx7PQzml9
+         yJjjcEnyAUbku52Wh1w4NItH4PL///JJQC20p0sLUVqDN4rwTcUWgAzR9Rq1R+MJszuG
+         C90A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686242577; x=1688834577;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lm0NPXeSllB+Ruuyhki9CYskDouHV5Cnz0fcBZ5jUqQ=;
-        b=eNCCRB/GgSkYb1t9Fomoc0HZmOdIwP0OJHs6YSWUGs/fz3MrH7BFDmW11RwZKfG/GH
-         26X+Gkroy4JYLp2ijqxyKYXDZQDP8pg00tb1ibacGB5BHhbxQSxovlBccag8DmTkfOeD
-         NKkmdaITUdqPndH/q6nW/YPEHQjJ2fx5wQWYraV5UgrNEEzLE2HaSbHijnM9eoBXD+D9
-         BWH7nBErB9Dz3ZHglz8KDXfGkG/vBOSeFd39zP3orX1cxMjtzehsrbPDbveG/LQe37/e
-         qHBIwnLMHN4fzss6wTVq9PmH1zZVHBm/PQ3EVJE++oVH4HUqnu/U1EIeN/elBauVcR0R
-         wCVQ==
-X-Gm-Message-State: AC+VfDwNKRa3crNcyEBfLix2xccfy2+vByEJWc8AbivdZOl9c+gvdGjY
-        D7kkmfxgtyJFGJGGK6ms3hRKeb2QPYMvOty7ai24eg==
-X-Google-Smtp-Source: ACHHUZ6K/6aZtK6oKtHNzs9TK+TayI9fHXFB+ZSjV7SBodMSfAZfwc+LCxcy4zef7hp91eYyrxN8Kw==
-X-Received: by 2002:a92:b05:0:b0:334:de38:d600 with SMTP id b5-20020a920b05000000b00334de38d600mr811300ilf.3.1686242576799;
-        Thu, 08 Jun 2023 09:42:56 -0700 (PDT)
-Received: from mail-il1-f170.google.com (mail-il1-f170.google.com. [209.85.166.170])
-        by smtp.gmail.com with ESMTPSA id p5-20020a92d685000000b00331139b467bsm510879iln.21.2023.06.08.09.42.55
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 08 Jun 2023 09:42:55 -0700 (PDT)
-Received: by mail-il1-f170.google.com with SMTP id e9e14a558f8ab-33d928a268eso143545ab.0
-        for <linux-input@vger.kernel.org>; Thu, 08 Jun 2023 09:42:55 -0700 (PDT)
-X-Received: by 2002:a05:6e02:214a:b0:32a:f2a9:d1b7 with SMTP id
- d10-20020a056e02214a00b0032af2a9d1b7mr139231ilv.10.1686242575095; Thu, 08 Jun
- 2023 09:42:55 -0700 (PDT)
-MIME-Version: 1.0
-References: <20230607215224.2067679-1-dianders@chromium.org>
- <20230607144931.v2.8.Ib1a98309c455cd7e26b931c69993d4fba33bbe15@changeid> <y3l4x3kv7jgog3miexati5wbveaynnryzqvj6sc4ul6625f2if@w7nqgojfavfw>
-In-Reply-To: <y3l4x3kv7jgog3miexati5wbveaynnryzqvj6sc4ul6625f2if@w7nqgojfavfw>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Thu, 8 Jun 2023 09:42:42 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=W-fXpm4JCczrNgAS2M9u2VLd2jAkJvE9XJgQpvoE5rjA@mail.gmail.com>
-Message-ID: <CAD=FV=W-fXpm4JCczrNgAS2M9u2VLd2jAkJvE9XJgQpvoE5rjA@mail.gmail.com>
-Subject: Re: [PATCH v2 08/10] HID: i2c-hid: Support being a panel follower
-To:     Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        dri-devel@lists.freedesktop.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
-        linux-kernel@vger.kernel.org, hsinyi@google.com,
-        cros-qcom-dts-watchers@chromium.org, devicetree@vger.kernel.org,
-        yangcong5@huaqin.corp-partner.google.com,
-        linux-arm-msm@vger.kernel.org,
-        Chris Morgan <macroalpha82@gmail.com>
+        d=1e100.net; s=20221208; t=1686258246; x=1688850246;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=vXxdCwOvLUUiF6F8HOMzi7EV2zdJ4C5gOBnag2vUVGI=;
+        b=lFUerLaY+NAF+w17oY4vIhSlPEZ9IYbEQ41i81AJqpU16zMZ26+YtWz1gN/lCUERAL
+         H64oJTY4a15vij1t9dRJ+a98ePx1ey5h5O+Z/ns3ATnn+PF8sD+FbpyXPGuAYmH2DbrM
+         vv5P2rt15tIPEj/jGSAb72DatRtZNLKBdwUifXMZ8HuWaBObOHETwZT6fQkELKh2aGAJ
+         H0jRvXsBhPcplhHL1D+ngq8zqkjJQSATZh/y2sGPdMbMdz/+mMc6NsGSZVdQV4dqLV2w
+         KgiomHC5NvPRiTkTjHdTReP6B/E7JEKFUoYe54hdHHQV5WQQ6ShU61i2WP20LD2sfjly
+         3Ofg==
+X-Gm-Message-State: AC+VfDw5+DzV0IB2V6j/ruw9+b3Z8szG1woftUI4AAXCEn2KD/kHUt/h
+        G0Obq10xHgpnf6Zc8+stu6KVpeN3EEQdmnNTuKRC
+X-Google-Smtp-Source: ACHHUZ4FIL05PKpg+uVO+IvNPjuz0Ztw5ysDj2LubSnmFKyFJOLkydcGFpSd1kjthVezhfOLSmaH+WgZR+/nw+bgAIfQ
+X-Received: from horchata.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:5b3])
+ (user=jefferymiller job=sendgmr) by 2002:a92:c00e:0:b0:335:908b:8f9 with SMTP
+ id q14-20020a92c00e000000b00335908b08f9mr4461311ild.1.1686258246194; Thu, 08
+ Jun 2023 14:04:06 -0700 (PDT)
+Date:   Thu,  8 Jun 2023 21:04:00 +0000
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.41.0.162.gfafddb0af9-goog
+Message-ID: <20230608210404.722123-1-jefferymiller@google.com>
+Subject: [PATCH v3] Input: synaptics-rmi4 - retry reading SMBus version on resume
+From:   Jeffery Miller <jefferymiller@google.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Jonathan Denose <jdenose@chromium.org>, jdenose@google.com,
+        Lyude Paul <lyude@redhat.com>, benjamin.tissoires@redhat.com,
+        Andrew Duggan <andrew@duggan.us>, loic.poulain@linaro.org,
+        Andrew Duggan <aduggan@synaptics.com>,
+        Jeffery Miller <jefferymiller@google.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        "=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?=" 
+        <u.kleine-koenig@pengutronix.de>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+On resume there can be a period of time after the
+preceding serio_resume -> psmouse_deactivate call
+where calls to rmi_smb_get_version fail with
+-ENXIO.
 
-On Thu, Jun 8, 2023 at 8:37=E2=80=AFAM Benjamin Tissoires
-<benjamin.tissoires@redhat.com> wrote:
->
->
-> On Jun 07 2023, Douglas Anderson wrote:
-> >
-> > As talked about in the patch ("drm/panel: Add a way for other devices
-> > to follow panel state"), we really want to keep the power states of a
-> > touchscreen and the panel it's attached to in sync with each other. In
-> > that spirit, add support to i2c-hid to be a panel follower. This will
-> > let the i2c-hid driver get informed when the panel is powered on and
-> > off. From there we can match the i2c-hid device's power state to that
-> > of the panel.
-> >
-> > NOTE: this patch specifically _doesn't_ use pm_runtime to keep track
-> > of / manage the power state of the i2c-hid device, even though my
-> > first instinct said that would be the way to go. Specific problems
-> > with using pm_runtime():
-> > * The initial power up couldn't happen in a runtime resume function
-> >   since it create sub-devices and, apparently, that's not good to do
-> >   in your resume function.
-> > * Managing our power state with pm_runtime meant fighting to make the
-> >   right thing happen at system suspend to prevent the system from
-> >   trying to resume us only to suspend us again. While this might be
-> >   able to be solved, it added complexity.
-> > Overall the code without pm_runtime() ended up being smaller and
-> > easier to understand.
->
-> Generally speaking, I'm not that happy when we need to coordinate with
-> other subsystems for bringing up resources...
+The call path in rmi_smb_resume is rmi_smb_resume -> rmi_smb_reset ->
+rmi_smb_enable_smbus_mode -> rmi_smb_get_version where
+this failure would occur.
 
-Yeah, I'd agree that it's not amazingly elegant. Unfortunately, I
-couldn't find any existing clean frameworks that would do what was
-needed, which is (presumably) why this problem hasn't been solved
-before. I could try to come up with a grand abstraction / new
-framework, but that doesn't seem like a great choice either unless we
-expect more users...
+Add a 30ms delay and retry in the ENXIO case to ensure the following
+rmi_driver_resume calls in rmi_smbus_resume can succeed.
 
+This behavior was seen on a Lenovo T440p machine that required
+a delay of approximately 7-12ms.
 
-> Anyway, a remark inlined (at least):
->
-> >
-> > Signed-off-by: Douglas Anderson <dianders@chromium.org>
-> > ---
-> >
-> > Changes in v2:
-> > - i2c_hid_core_panel_prepared() and ..._unpreparing() are now static.
-> >
-> >  drivers/hid/i2c-hid/i2c-hid-core.c | 82 +++++++++++++++++++++++++++++-
-> >  1 file changed, 81 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i=
-2c-hid-core.c
-> > index fa8a1ca43d7f..368db3ae612f 100644
-> > --- a/drivers/hid/i2c-hid/i2c-hid-core.c
-> > +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-> > @@ -38,6 +38,8 @@
-> >  #include <linux/mutex.h>
-> >  #include <asm/unaligned.h>
-> >
-> > +#include <drm/drm_panel.h>
-> > +
-> >  #include "../hid-ids.h"
-> >  #include "i2c-hid.h"
-> >
-> > @@ -107,6 +109,8 @@ struct i2c_hid {
-> >       struct mutex            reset_lock;
-> >
-> >       struct i2chid_ops       *ops;
-> > +     struct drm_panel_follower panel_follower;
-> > +     bool                    is_panel_follower;
-> >  };
-> >
-> >  static const struct i2c_hid_quirks {
-> > @@ -1058,6 +1062,34 @@ static int i2c_hid_core_initial_power_up(struct =
-i2c_hid *ihid)
-> >       return ret;
-> >  }
-> >
-> > +static int i2c_hid_core_panel_prepared(struct drm_panel_follower *foll=
-ower)
-> > +{
-> > +     struct i2c_hid *ihid =3D container_of(follower, struct i2c_hid, p=
-anel_follower);
-> > +     struct hid_device *hid =3D ihid->hid;
-> > +
-> > +     /*
-> > +      * hid->version is set on the first power up. If it's still zero =
-then
-> > +      * this is the first power on so we should perform initial power =
-up
-> > +      * steps.
-> > +      */
-> > +     if (!hid->version)
-> > +             return i2c_hid_core_initial_power_up(ihid);
-> > +
-> > +     return i2c_hid_core_resume(ihid);
-> > +}
-> > +
-> > +static int i2c_hid_core_panel_unpreparing(struct drm_panel_follower *f=
-ollower)
-> > +{
-> > +     struct i2c_hid *ihid =3D container_of(follower, struct i2c_hid, p=
-anel_follower);
-> > +
-> > +     return i2c_hid_core_suspend(ihid);
-> > +}
-> > +
-> > +static const struct drm_panel_follower_funcs i2c_hid_core_panel_follow=
-er_funcs =3D {
-> > +     .panel_prepared =3D i2c_hid_core_panel_prepared,
-> > +     .panel_unpreparing =3D i2c_hid_core_panel_unpreparing,
-> > +};
->
-> Can we make that above block at least behind a Kconfig?
->
-> i2c-hid is often used for touchpads, and the notion of drm panel has
-> nothing to do with them. So I'd be more confident if we could disable
-> that code if not required.
+The 30ms delay was chosen based on the linux-input message:
+Link: https://lore.kernel.org/all/BYAPR03MB47572F2C65E52ED673238D41B2439@BYAPR03MB4757.namprd03.prod.outlook.com/
 
-Happy to put it behind a Kconfig. I'll plan on that for v3. I'll stub
-the functions out if there is no Kconfig, but plan to still leave
-structure members just to avoid uglifying the sources too much.
+With this patch the trimmed resume logs look similar to:
+```
+psmouse serio1: PM: calling serio_resume+0x0/0x8c @ 5399, parent: i8042
+[5399] libps2:__ps2_command:316: psmouse serio1: f5 [] - 0/00000000 []
+psmouse serio1: PM: serio_resume+0x0/0x8c returned 0 after 3259 usecs
+...
+rmi4_smbus 0-002c: PM: calling rmi_smb_resume ... @ 5454, parent: i2c-0
+...
+[5454] i2c_i801:i801_check_post:414: i801_smbus 0000:00:1f.3: No response
+smbus_result: i2c-0 a=02c f=0000 c=fd BYTE_DATA rd res=-6
+rmi4_smbus 0-002c: failed to get SMBus version number!
+rmi4_smbus 0-002c: sleeping to retry getting the SMBus version number
+...
+rmi4_smbus 0-002c: PM: rmi_smb_resume ... returned 0 after 41351 usecs
+```
+
+Signed-off-by: Jeffery Miller <jefferymiller@google.com>
+---
+
+Early boot dmesg include:
+```
+rmi4_smbus 0-002c: registering SMbus-connected sensor
+rmi4_f01 rmi4-00.fn01: found RMI device, manufacturer: Synaptics, product: TM2722-001, fw id: 0
+```
+
+The resume order looks correct. The `psmouse serio1` resume returns
+before the rmi_smb_resume is called showing the patch from
+https://lore.kernel.org/all/89456fcd-a113-4c82-4b10-a9bcaefac68f@google.com/
+is applied and working for that ordering.
+
+I attempted to try to rule out some interaction between the concurrent
+input resume calls for other i8042 devices.
+Adding a 7ms delay after psmouse_deactivate which is called in the
+preceding psmouse serio1 serio_resume function also allows
+this version call to succeed.
+
+If the rmi_smb_probe device_disable_async_suspend patch is applied
+it will also avoid this issue. However the time between
+the psmouse_deactivate call for serio_resume and rmi_smb_resume
+was over 60ms on my test machine. This would naturally be long
+enough to avoid this particular delay.
 
 
-> Actually, I'd be even more happier if it were in a different compilation
-> unit. Not necessary a different module, but at least a different file.
+Changes in v3:
+- Tagged mail message Link to resolve checkpatch warning.
 
-I suspect that it's not worth it, but I'll do this if you feel
-strongly about it.
+Changes in v2:
+- Changed to a single retry of 30ms based on previous feedback.
 
-I guess the simplest way I can think of to move this to its own file
-would be to put the whole private data structure (struct i2c_hid) in a
-private header file and then add prototypes for i2c_hid_core_resume()
-and i2c_hid_core_suspend() there. Then I could add something like
-i2c_hid_core_handle_panel_follower() that would have all the
-registration logic. I'd still need special cases in the core
-suspend/resume/remove code unless I add a level of abstraction. While
-the level of abstraction is more "pure", it also would make the code
-harder to follow.
+ drivers/input/rmi4/rmi_smbus.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-Unless I hear a strong opinion (or if this series changes
-significantly), I'll plan to keep things in the same file and just use
-a Kconfig.
+diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
+index 4bf0e1df6a4a..b6d90c92e8a2 100644
+--- a/drivers/input/rmi4/rmi_smbus.c
++++ b/drivers/input/rmi4/rmi_smbus.c
+@@ -45,13 +45,25 @@ static int rmi_smb_get_version(struct rmi_smb_xport *rmi_smb)
+ 	int retval;
+ 
+ 	/* Check if for SMBus new version device by reading version byte. */
+-	retval = i2c_smbus_read_byte_data(client, SMB_PROTOCOL_VERSION_ADDRESS);
+-	if (retval < 0) {
++	for (int i = 0; i < 2; i++) {
++		if (i > 0) {
++			dev_warn(&client->dev, "sleeping to retry getting the SMBus version number\n");
++			fsleep(30000);
++		}
++		retval = i2c_smbus_read_byte_data(client,
++				SMB_PROTOCOL_VERSION_ADDRESS);
++		if (retval >= 0)
++			return retval + 1;
++
+ 		dev_err(&client->dev, "failed to get SMBus version number!\n");
+-		return retval;
++		/* There can be a delay on resume where the read returns
++		 * -ENXIO. Retry to allow additional time for the read
++		 *  to become responsive.
++		 */
++		if (retval != -ENXIO)
++			break;
+ 	}
+-
+-	return retval + 1;
++	return retval;
+ }
+ 
+ /* SMB block write - wrapper over ic2_smb_write_block */
+-- 
+2.41.0.162.gfafddb0af9-goog
+

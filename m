@@ -2,106 +2,100 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 300ACC7EE25
-	for <linux-input@archiver.kernel.org>; Thu,  8 Jun 2023 14:07:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99F86C7EE37
+	for <linux-input@archiver.kernel.org>; Thu,  8 Jun 2023 14:11:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236756AbjFHOHQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 8 Jun 2023 10:07:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45136 "EHLO
+        id S236923AbjFHOLE (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 8 Jun 2023 10:11:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236859AbjFHOHM (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2023 10:07:12 -0400
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 816C830C7;
-        Thu,  8 Jun 2023 07:07:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1686233226; x=1717769226;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Oa6x8KM0eNi6FTDPQxF93G9pAVh+iU8hs4FXo1R4OIU=;
-  b=Zn4Eytj6OY+MIRunDRmQT19ayQ8JAKoSBMyKMnt2JBnH0uQCY6nF3YEF
-   5kk5C1yhnPkCmmNaTSNErekZ5Dflb7xQWo9llM/LEyTvrESn6ANuxk/K+
-   5AnO6dg3uC1H5j3/13nESNmoZjq+Ouk5tkXmfe2d87pAeNVgZukq5Z+2d
-   JABEUrGPHAVCFQaCEWs6OcVwipVYqhsKAmqTohyXe+xQ0erIRqxyzixGB
-   1o9XbJZ7c/bZm/wjuP4Ae0y9flWYGSOs8ZpiCKU90Ky2XEpEFzL5vzz0a
-   5/s6Tw7Wvsq7uS4w0FrH7owA3A9L0Eea5pv2zAnyiZ3GmzY6dMVTmC7vX
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10734"; a="423176152"
-X-IronPort-AV: E=Sophos;i="6.00,226,1681196400"; 
-   d="scan'208";a="423176152"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Jun 2023 06:36:16 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10734"; a="660379152"
-X-IronPort-AV: E=Sophos;i="6.00,226,1681196400"; 
-   d="scan'208";a="660379152"
-Received: from lkp-server01.sh.intel.com (HELO 15ab08e44a81) ([10.239.97.150])
-  by orsmga003.jf.intel.com with ESMTP; 08 Jun 2023 06:36:13 -0700
-Received: from kbuild by 15ab08e44a81 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1q7FoD-0007qC-0q;
-        Thu, 08 Jun 2023 13:36:13 +0000
-Date:   Thu, 8 Jun 2023 21:35:16 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Jason Gerecke <killertofu@gmail.com>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jikos@kernel.org>
-Cc:     oe-kbuild-all@lists.linux.dev, Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Joshua Dickens <Joshua@joshua-dickens.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>
-Subject: Re: [PATCH] HID: wacom: Use ktime_t rather than int when dealing
- with timestamps
-Message-ID: <202306082127.6r7qAALi-lkp@intel.com>
-References: <20230607214102.2113-1-jason.gerecke@wacom.com>
+        with ESMTP id S236926AbjFHOLE (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 8 Jun 2023 10:11:04 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 329212726;
+        Thu,  8 Jun 2023 07:11:03 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD9ED64AAE;
+        Thu,  8 Jun 2023 14:11:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03A54C433D2;
+        Thu,  8 Jun 2023 14:11:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1686233462;
+        bh=0fbVVZxbX+7uBgaaZMvGPxIbYG32eywvC3Mz0AqXISM=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=TigkBz+YRO/u3oLmHQKwkHwj4QrP4ft+JZV3ZXtwhNeFhRm1GaZNDa0B9/f2X0A1/
+         Tw+IlYUnslamhSw5nPXeMWNAeKSQ33lefHzmbLvvJhnGXqydAkf0tZCLMg7COvk/1G
+         pnKJ1JYKToBNfjjZFbewCIVljf9lNDaBt5sWvRrk6YKQ6O720wW48C3JWdMKKk59R5
+         BLd+NiBkVuhOVcm4eJvb5KFgjvK3tL6xixKxzLoUH5f3z6Ujf/7cZC1Jp/wuF8aMl/
+         FkGU4TPM5NWJsds/qAW3bMrlMA5OOeAJDyzFNeY8JKTuatD6Rti8851XZa3mAHOnlk
+         fx9da291xNTpQ==
+Date:   Thu, 8 Jun 2023 16:10:58 +0200 (CEST)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Siarhei Vishniakou <svv@google.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bastien Nocera <hadess@hadess.net>
+Subject: Re: [PATCH v4] Add rumble support to latest xbox controllers
+In-Reply-To: <20230425163844.3711710-1-svv@google.com>
+Message-ID: <nycvar.YFH.7.76.2306081610380.29760@cbobk.fhfr.pm>
+References: <20230425163844.3711710-1-svv@google.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230607214102.2113-1-jason.gerecke@wacom.com>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Jason,
+On Tue, 25 Apr 2023, Siarhei Vishniakou wrote:
 
-kernel test robot noticed the following build errors:
+> Currently, rumble is only supported via bluetooth on a single xbox
+> controller, called 'model 1708'. On the back of the device, it's named
+> 'wireless controller for xbox one'. However, in 2021, Microsoft released
+> a firmware update for this controller. As part of this update, the HID
+> descriptor of the device changed. The product ID was also changed from
+> 0x02fd to 0x0b20. On this controller, rumble was supported via
+> hid-microsoft, which matched against the old product id (0x02fd). As a
+> result, the firmware update broke rumble support on this controller.
+> 
+> See:
+> https://news.xbox.com/en-us/2021/09/08/xbox-controller-firmware-update-rolling-out-to-insiders-starting-today/
+> 
+> The hid-microsoft driver actually supports rumble on the new firmware,
+> as well. So simply adding new product id is sufficient to bring back
+> this support.
+> 
+> After discussing further with the xbox team, it was pointed out that
+> another xbox controller, xbox elite series 2, can be supported in a
+> similar way.
+> 
+> Add rumble support for all of these devices in this patch. Two of the
+> devices have received firmware updates that caused their product id's to
+> change. Both old and new firmware versions of these devices were tested.
+> 
+> The tested controllers are:
+> 
+> 1. 'wireless controller for xbox one', model 1708
+> 2. 'xbox wireless controller', model 1914. This is also sometimes
+>    referred to as 'xbox series S|X'.
+> 3. 'elite series 2', model 1797.
+> 
+> The tested configurations are:
+> 1. model 1708, pid 0x02fd (old firmware)
+> 2. model 1708, pid 0x0b20 (new firmware)
+> 3. model 1914, pid 0x0b13
+> 4. model 1797, pid 0x0b05 (old firmware)
+> 5. model 1797, pid 0x0b22 (new firmware)
+> 
+> I verified rumble support on both bluetooth and usb.
+> 
+> Reviewed-by: Bastien Nocera <hadess@hadess.net>
+> Signed-off-by: Siarhei Vishniakou <svv@google.com>
 
-[auto build test ERROR on hid/for-next]
-[also build test ERROR on linus/master v6.4-rc5 next-20230608]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Jason-Gerecke/HID-wacom-Use-ktime_t-rather-than-int-when-dealing-with-timestamps/20230608-054255
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
-patch link:    https://lore.kernel.org/r/20230607214102.2113-1-jason.gerecke%40wacom.com
-patch subject: [PATCH] HID: wacom: Use ktime_t rather than int when dealing with timestamps
-config: arc-randconfig-c003-20230608 (https://download.01.org/0day-ci/archive/20230608/202306082127.6r7qAALi-lkp@intel.com/config)
-compiler: arc-elf-gcc (GCC) 12.3.0
-reproduce (this is a W=1 build):
-        mkdir -p ~/bin
-        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
-        chmod +x ~/bin/make.cross
-        git remote add hid https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git
-        git fetch hid for-next
-        git checkout hid/for-next
-        b4 shazam https://lore.kernel.org/r/20230607214102.2113-1-jason.gerecke@wacom.com
-        # save the config file
-        mkdir build_dir && cp config build_dir/.config
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=arc olddefconfig
-        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-12.3.0 ~/bin/make.cross W=1 O=build_dir ARCH=arc SHELL=/bin/bash
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202306082127.6r7qAALi-lkp@intel.com/
-
-All errors (new ones prefixed by >>, old ones prefixed by <<):
-
->> ERROR: modpost: "__divdi3" [drivers/hid/wacom.ko] undefined!
+Applied, sorry for the delay.
 
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Jiri Kosina
+SUSE Labs
+

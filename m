@@ -2,67 +2,88 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB531C87FDD
-	for <linux-input@archiver.kernel.org>; Sat, 10 Jun 2023 00:30:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CF55C77B7A
+	for <linux-input@archiver.kernel.org>; Sat, 10 Jun 2023 22:46:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229890AbjFJAal convert rfc822-to-8bit (ORCPT
-        <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 9 Jun 2023 20:30:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49712 "EHLO
+        id S232369AbjFJWqQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 10 Jun 2023 18:46:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232487AbjFJAaj (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 9 Jun 2023 20:30:39 -0400
-X-Greylist: delayed 1043 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 09 Jun 2023 17:30:38 PDT
-Received: from es.pcb.gov.my (es.pcb.gov.my [202.75.7.35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A24C73A95
-        for <linux-input@vger.kernel.org>; Fri,  9 Jun 2023 17:30:38 -0700 (PDT)
-X-ASG-Debug-ID: 1686355465-1488a971c006ac0009-vblZzk
-Received: from mail.pcb.gov.my (mail.pcb.gov.my [10.28.173.47]) by es.pcb.gov.my with ESMTP id aAEDT4HeQikHWbJf for <linux-input@vger.kernel.org>; Sat, 10 Jun 2023 08:12:56 +0800 (+08)
-X-Barracuda-Envelope-From: herdayu@pcb.gov.my
-Received: from [193.169.254.61] (193.169.254.61) by EXCHANGE01.BPA.pcb.gov.my
- (10.28.173.47) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.721.2; Fri, 9 Jun 2023
- 01:18:54 +0800
-Reply-To: <alicewalt63@gmail.com>
-X-Barracuda-Effective-Source-IP: UNKNOWN[193.169.254.61]
-X-Barracuda-Apparent-Source-IP: 193.169.254.61
-From:   Alice Walton <herdayu@pcb.gov.my>
-To:     <linux-input@vger.kernel.org>
-Subject: =?UTF-8?B?xI1lc3RpdGFt?=
-Date:   Thu, 8 Jun 2023 10:18:47 -0700
-X-ASG-Orig-Subj: =?UTF-8?B?xI1lc3RpdGFt?=
-Message-ID: <20230608101847.12D0EDFABD5EAC7F@pcb.gov.my>
+        with ESMTP id S229746AbjFJWqP (ORCPT
+        <rfc822;linux-input@vger.kernel.org>);
+        Sat, 10 Jun 2023 18:46:15 -0400
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42D1335A9;
+        Sat, 10 Jun 2023 15:46:14 -0700 (PDT)
+Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-30e412a852dso2007239f8f.0;
+        Sat, 10 Jun 2023 15:46:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1686437173; x=1689029173;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4QoD2JHmjS+XykjPjXzCexgQPx0u9rmZzOabrfVfkmk=;
+        b=BSqzhVOwihGPnMwm6/Md0ZmgxQ4dngXJu95Al93AGsVJ6F/szHC7orjlza0QR2XsH5
+         +wTb+vYU1MkRGZvyqkootl+QCt3sLm3HHMO7zPs8Zad67wVnDEi+2Wv8dEnNViKBVS9P
+         RF9YXQMm9tTNFvanrHCSLU+ncxEmFpbOBZ2K9Bb9NZBY2soPN1rX92xrVs5Opr1CyLrW
+         /6PKIf6F8KVaQLx6iXlFQ04qsZSIFlzTTt7qL3o27rTdqCwNQrieLmo4dDwo0UCAhJPO
+         yKom1vR7iqjLucQ3x5E04T0Yihx391cn+I6RXgzr88x4J30EfiEXOQB3mqvHPqajmH8Q
+         +FJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1686437173; x=1689029173;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4QoD2JHmjS+XykjPjXzCexgQPx0u9rmZzOabrfVfkmk=;
+        b=ApM378XhWtJoqaVcRbLMjy+Kq/ZgdnjoElRksRapW8p42X8H6ntbfGVBa7hN/e2/06
+         tO30gs4lhcAEYjSIwf+YOPB3yuMvdo3KBuT+lV339BiOFjX1ghZzCCbRbasMbnp1RTGB
+         gzi6oPJwzhtXy4WHEeaq7fgnEgo1gImeOFbqYfNXP0VA09itl8Qg5eI5J+4E3oxQEbS+
+         bUb/V8mlu5nGqUSis/46rofUiYSeiDzhJUj+Zv0OI66mirPyUNiTMYvUlx1OH10Mr34+
+         S+T0iPiNhwY81WWnnjKza6LL3w6PcPV22eko5gdYIrnGQoS5VpNURxuCDNKou4imIu31
+         CKPw==
+X-Gm-Message-State: AC+VfDxhkDV0IbjmDDNGcxiAt70XVYz11vK2tekT/fvJgDSFkf4E80sT
+        9R8dBzWBK75m+84BJ0lmRA==
+X-Google-Smtp-Source: ACHHUZ6eTc2p0XNUM14Lcjh4ro3Kn6xg8mm+gl8p4RFbWuyCsAOTVHWdX9YgIUpbxXH71NfpfjESWw==
+X-Received: by 2002:a5d:4387:0:b0:30e:4265:c903 with SMTP id i7-20020a5d4387000000b0030e4265c903mr1553849wrq.66.1686437172351;
+        Sat, 10 Jun 2023 15:46:12 -0700 (PDT)
+Received: from localhost (112.red-81-44-165.dynamicip.rima-tde.net. [81.44.165.112])
+        by smtp.gmail.com with ESMTPSA id s1-20020a5d4ec1000000b002c70ce264bfsm8096671wrv.76.2023.06.10.15.46.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 10 Jun 2023 15:46:11 -0700 (PDT)
+Message-ID: <5b48af9d-300b-b024-dd44-600562eb7b59@gmail.com>
+Date:   Sun, 11 Jun 2023 00:46:09 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-X-ClientProxiedBy: EXCHANGE01.BPA.pcb.gov.my (10.28.173.47) To
- EXCHANGE01.BPA.pcb.gov.my (10.28.173.47)
-X-Barracuda-Connect: mail.pcb.gov.my[10.28.173.47]
-X-Barracuda-Start-Time: 1686355941
-X-Barracuda-URL: https://10.28.173.25:443/cgi-mod/mark.cgi
-X-Barracuda-License: Expired
-X-Barracuda-BRTS-Status: 1
-X-Virus-Scanned: by bsmtpd at pcb.gov.my
-X-Barracuda-Scan-Msg-Size: 570
+Subject: Re: [BUG: 6.3 kernel] Logitech Trackball M575 misidentified
+To:     Bastien Nocera <hadess@hadess.net>,
+        Linux regressions mailing list <regressions@lists.linux.dev>,
+        linux-input@vger.kernel.org
+Cc:     =?UTF-8?Q?Filipe_La=c3=adns?= <lains@riseup.net>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        LKML <linux-kernel@vger.kernel.org>
+References: <eeb19342-3499-a1fb-388f-d4670472b16c@gmail.com>
+ <8941c5f2-3861-da68-06ca-adc68a37e53b@leemhuis.info>
+ <8308180826ba9a5478bf568396034b8dc7fb6e72.camel@hadess.net>
+Content-Language: en-US
+From:   Xose Vazquez Perez <xose.vazquez@gmail.com>
+In-Reply-To: <8308180826ba9a5478bf568396034b8dc7fb6e72.camel@hadess.net>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-čestitam,
+On 5/31/23 10:50, Bastien Nocera wrote:
 
-      Vaša e-pošta osvojila je 5.000.000,00 USD od strane Alice 
-Walton 2023 humanitarnog programa podrške donacijama. 
-Kontaktirajte nas za više pojedinosti o tome kako možete 
-zatražiti svoj donacijski fond.
+> The device name problem is tracked in 217330, which I filed.
+> 
+> A bisection would definitely help me if you have time, otherwise I'll
+> get to it, but it's probably not going to be before a couple of weeks.
+> 
+> You can also test this patch on top of the latest kernel tree:
+> https://patchwork.kernel.org/project/linux-input/patch/20230531082428.21763-1-hadess@hadess.net/
+> although I don't expect it to make a difference.
 
-Hvala i Bog blagoslovio
-Zaklada Alice Walton
-=========================================
-Congratulation,
+It was fixed in 6.3.7.
 
-     Your email has won $5,000,000.00 USD by Alice Walton 2023 
-humanitarian donation support program. Contact us for more 
-details on how you can claim your donation fund.
-
-Thanks And God Bless
-Alice Walton Foundation
+Thank you.

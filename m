@@ -2,165 +2,181 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EF155EB64DD
-	for <linux-input@archiver.kernel.org>; Wed, 14 Jun 2023 13:30:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F1802EB64D8
+	for <linux-input@archiver.kernel.org>; Wed, 14 Jun 2023 18:51:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245009AbjFNNaN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 14 Jun 2023 09:30:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43922 "EHLO
+        id S234804AbjFNSvS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 14 Jun 2023 14:51:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245002AbjFNNaM (ORCPT
+        with ESMTP id S229529AbjFNSvP (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 14 Jun 2023 09:30:12 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF0C11FDC
-        for <linux-input@vger.kernel.org>; Wed, 14 Jun 2023 06:30:09 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id a640c23a62f3a-9827109c6e9so81336466b.3
-        for <linux-input@vger.kernel.org>; Wed, 14 Jun 2023 06:30:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1686749408; x=1689341408;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=FANL57ecbIxqC2s7WVdfFkY/wb9kISO9tnMy6zPKsiU=;
-        b=txhaf/go51p1KpK+q8iErRvGq64ClFPXTsTwzV/xtf4DM3J/d5VanUzyzEoAhZIxeL
-         BLcZ1uzi2tf5aXjBBEfezBYP70SNdDmOfeCMxaBmLcu6Oga7uNYqrOiZLiXuQu4/IH0g
-         ubyrjSv5YxAPkZ+4LzAsdv4zqgWB6Mcoi5rTDRsF0VaZ9qSmZoQBC8mAXvs/PW5orUAz
-         Wqafo4wCZxiQ8iIO/GCE3UlfhzmDoli6/AHnncISYWtyJxmBbg3JfInTBj+n8vOTs07Y
-         f6yzWrgXw1qKSx4BU9m4B1M7E9OpzgRZZXZbH7NBGbsGUlbn5VlLnkmUqfS99+NN8WOt
-         26BA==
+        Wed, 14 Jun 2023 14:51:15 -0400
+Received: from mail-il1-f176.google.com (mail-il1-f176.google.com [209.85.166.176])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3BEAED;
+        Wed, 14 Jun 2023 11:51:13 -0700 (PDT)
+Received: by mail-il1-f176.google.com with SMTP id e9e14a558f8ab-34078ce751dso7432785ab.0;
+        Wed, 14 Jun 2023 11:51:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1686749408; x=1689341408;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FANL57ecbIxqC2s7WVdfFkY/wb9kISO9tnMy6zPKsiU=;
-        b=jIcJa5jcu4HEboFlPxBM1qU+XUeBa/noqySiwNq3EZiNA/eg8ZaLPqjlCD86pi8ic6
-         ZMR7oLvP7eMZieuhDXDEELTSzLkFcZDNJYMuL6KKOQ+YDSqTJLRi0WFp0GDFRvrcn9ky
-         6I/10iJXTi+2jbAiD88u7PM7DMoqLtALj3zgzZNO1egO1SLYl0njO7mQRXK/ENrwTCNZ
-         fLzA0lb2cFn4fmerytDL2MmzBzNWa9CCwb9KG+juSSSCZV4VtP+H5R4SmPuCMPLS2zYS
-         5K3m+QtptvZc3lk611j1iR9CpHvw/4EjKKSqrV3W+HSB8qm0DRZ8N18u6oE54Gt77l0z
-         tkhQ==
-X-Gm-Message-State: AC+VfDzI7WEsi4bq57oyvyADpGVItKjf3M8QWQ60ljAV0GufxfVTKBpa
-        c/HwK3EKfDee3qddz73euq7NpQ==
-X-Google-Smtp-Source: ACHHUZ6iLbCBVSbhZKUrRJIYPwu+LuxmhaU9ojfe0LqSVK+C4pp2Gte8t2lMU7Bb5ACI02/YTHkJuQ==
-X-Received: by 2002:a17:907:728d:b0:96f:afe9:25c4 with SMTP id dt13-20020a170907728d00b0096fafe925c4mr14390331ejc.50.1686749408420;
-        Wed, 14 Jun 2023 06:30:08 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.219.26])
-        by smtp.gmail.com with ESMTPSA id lv16-20020a170906bc9000b00965a52d2bf6sm8013335ejb.88.2023.06.14.06.30.06
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 14 Jun 2023 06:30:07 -0700 (PDT)
-Message-ID: <45f91d55-7a98-b300-f81c-30f9009519b0@linaro.org>
-Date:   Wed, 14 Jun 2023 15:30:05 +0200
+        d=1e100.net; s=20221208; t=1686768673; x=1689360673;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lVA+IzrsLI7gIWGUpjJR28BuOP2Zxhu8AmoN5ruDpG0=;
+        b=Ebj7//GRd+kdxpPDTiW2UVl5v/7NFMZAZ6C72tLoFdC3n1hD7p6oZgrvO4XcwLQbBo
+         +W9c9JJZqEeQ+ogqOhbPaEmA3+5G4HUllcdy9gIpWPJDtgwyRg4GAdEhceQGX2EgDoCL
+         M8I75+b422YWDQoL/T61NnTCQg7w//aBADmXVZ3v0vCeLWH6nLQmfOzw94wUhdORfrrc
+         HENRURBmPn74X2iNiGl/anF6dq1Ubbyos2auKkFNsnpE3nFZ3Pd8HGInSeCVAzIEpVLG
+         qzy29ek7eJYMqRZS4GzAXAgvU+u8/IqBoq4uhtDxm9jrEvAisHPEJkLJNWtAV66INb5f
+         boLQ==
+X-Gm-Message-State: AC+VfDwtv6NLfwVkzgJkQnOTQOlR+kzAOX6eEZYTf1THeZVBArm01s3t
+        6Esci20jYFMbxfChXgbpuVxVH/+WJA==
+X-Google-Smtp-Source: ACHHUZ4JCkKMdidGG3UVc7bPuwiaUSQkEZChMbMwuidbnU0Zik0qfT3e9jYdXL0+Mny5bzJy/KFxOg==
+X-Received: by 2002:a92:ce48:0:b0:340:67df:56ea with SMTP id a8-20020a92ce48000000b0034067df56eamr5220951ilr.9.1686768672922;
+        Wed, 14 Jun 2023 11:51:12 -0700 (PDT)
+Received: from robh_at_kernel.org ([64.188.179.250])
+        by smtp.gmail.com with ESMTPSA id t10-20020a92c0ca000000b00335c6e914dcsm5546216ilf.78.2023.06.14.11.51.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 14 Jun 2023 11:51:12 -0700 (PDT)
+Received: (nullmailer pid 2540730 invoked by uid 1000);
+        Wed, 14 Jun 2023 18:51:10 -0000
+Date:   Wed, 14 Jun 2023 12:51:10 -0600
+From:   Rob Herring <robh@kernel.org>
+To:     Jeff LaBundy <jeff@labundy.com>
+Cc:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        conor+dt@kernel.org
+Subject: Re: [PATCH v2 1/2] dt-bindings: input: Add bindings for Azoteq
+ IQS7210A/7211A/E
+Message-ID: <20230614185110.GA2530944-robh@kernel.org>
+References: <ZHVD/9OgRTAwBhqx@nixie71>
+ <ZHVEa0yM1LLUJEfO@nixie71>
+ <20230609142538.GA878396-robh@kernel.org>
+ <ZIZvkGqr4a0kOGnR@nixie71>
+ <20230612152925.GA65549-robh@kernel.org>
+ <ZIe/Ti7u+2VHlahA@nixie71>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Subject: Re: [PATCH 05/10] dt-bindings: power: reset: Add bindings for
- twl6030-power
-Content-Language: en-US
-To:     Mithil <bavishimithil@gmail.com>,
-        "robh@kernel.org" <robh@kernel.org>
-Cc:     "contact@paulk.fr" <contact@paulk.fr>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
-        "krzysztof.kozlowski+dt@linaro.org" 
-        <krzysztof.kozlowski+dt@linaro.org>,
-        "lee@kernel.org" <lee@kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>,
-        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
-        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
-        "sre@kernel.org" <sre@kernel.org>,
-        "tony@atomide.com" <tony@atomide.com>
-References: <CAGzNGR=BkOMtw2PhudUs_b4ffk3B+x==9dtWuA-kcqnePaHVYA@mail.gmail.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <CAGzNGR=BkOMtw2PhudUs_b4ffk3B+x==9dtWuA-kcqnePaHVYA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZIe/Ti7u+2VHlahA@nixie71>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 14/06/2023 11:13, Mithil wrote:
-> Subject: Re: [PATCH 05/10] dt-bindings: power: reset: Add bindings for
-> twl6030-power
+On Mon, Jun 12, 2023 at 07:58:54PM -0500, Jeff LaBundy wrote:
+> Hi Rob,
 > 
-> On Tue, Aug 23, 2022 at 12:54 AM Rob Herring <robh@kernel.org> wrote:
->>
->> On Sat, Aug 20, 2022 at 12:46:55PM +0530, Mithil Bavishi wrote:
->>> Adds documentation for the twl6030 power driver.
->>>
->>> Signed-off-by: Paul Kocialkowski <contact@paulk.fr>
->>> Signed-off-by: Mithil Bavishi <bavishimithil@gmail.com>
->>> ---
->>>  .../bindings/power/reset/twl6030-power.txt    | 31 +++++++++++++++++++
->>
->> New bindings must be DT schema format.
->>
->>>  1 file changed, 31 insertions(+)
->>>  create mode 100644 Documentation/devicetree/bindings/power/reset/twl6030-power.txt
->>>
->>> diff --git a/Documentation/devicetree/bindings/power/reset/twl6030-power.txt b/Documentation/devicetree/bindings/power/reset/twl6030-power.txt
->>> new file mode 100644
->>> index 000000000..946bb3d9f
->>> --- /dev/null
->>> +++ b/Documentation/devicetree/bindings/power/reset/twl6030-power.txt
->>> @@ -0,0 +1,31 @@
->>> +Texas Instruments TWL family (twl6030) reset and power management module
->>> +
->>> +For now, the binding only supports the complete shutdown of the system after
->>> +poweroff.
->>> +
->>> +Required properties:
->>> +- compatible : must be
->>> +       "ti,twl6030-power"
->>> +
->>> +Optional properties:
->>> +
->>> +- ti,system-power-controller: This indicates that TWL6030 is the
->>
->> We have a generic property for this.
->>
+> On Mon, Jun 12, 2023 at 09:29:25AM -0600, Rob Herring wrote:
+> > On Sun, Jun 11, 2023 at 08:06:24PM -0500, Jeff LaBundy wrote:
+> > > Hi Rob,
+> > > 
+> > > On Fri, Jun 09, 2023 at 08:25:38AM -0600, Rob Herring wrote:
+> > > > On Mon, May 29, 2023 at 07:33:47PM -0500, Jeff LaBundy wrote:
+> > > > > Add bindings for the Azoteq IQS7210A/7211A/E family of trackpad/
+> > > > > touchscreen controllers.
+> > > > > 
+> > > > > Signed-off-by: Jeff LaBundy <jeff@labundy.com>
+> > > > > ---
+> > > > > Changes in v2:
+> > > > >  - Renamed 'azoteq,default-comms' to 'azoteq,forced-comms-default' and redefined
+> > > > >    0, 1 and 2 as unspecified, 0 and 1, respectively
+> > > > >  - Defined ATI upon its first occurrence
+> > > > >  - Redefined 'azoteq,gesture-angle' in units of degrees
+> > > > >  - Declared 'azoteq,rx-enable' to depend upon 'azoteq,tx-enable' within the
+> > > > >    'trackpad' node
+> > > > > 
+> > > > > Hi Rob,
+> > > > > 
+> > > > > I attempted to reference existing properties from a common binding [1] as per
+> > > > > your feedback in [2], however 'make DT_CHECKER_FLAGS=-m dt_binding_check' fails
+> > > > > with the message 'Vendor specific properties must have a type and description
+> > > > > unless they have a defined, common suffix.'
+> > > > 
+> > > > Is that because you have differing constraints in each case?
+> > > 
+> > > In the failing example [2], I have started with a simple boolean that carries
+> > > nothing but a type and description. From the new azoteq,common.yaml:
+> > > 
+> > > properties:
+> > >   [...]
+> > > 
+> > >   azoteq,use-prox:
+> > >     type: boolean
+> > >     description: foo
+> > > 
+> > > And from the first consumer:
+> > > 
+> > > patternProperties:
+> > >   "^hall-switch-(north|south)$":
+> > >     type: object
+> > >     allOf:
+> > >       - $ref: input.yaml#
+> > >       - $ref: azoteq,common.yaml#
+> > >     description: bar
+> > > 
+> > >     properties:
+> > >       linux,code: true
+> > >       azoteq,use-prox: true
+> > > 
+> > > However, the tooling presents the following:
+> > > 
+> > >   CHKDT   Documentation/devicetree/bindings/processed-schema.json
+> > > /home/jlabundy/work/linux/Documentation/devicetree/bindings/input/iqs62x-keys.yaml: patternProperties:^hall-switch-(north|south)$:properties:azoteq,use-prox: True is not of type 'object'
+> > > 	hint: Vendor specific properties must have a type and description unless they have a defined, common suffix.
+> > > 	from schema $id: http://devicetree.org/meta-schemas/vendor-props.yaml#
+> > > 
+> > > [...]
+> > > 
+> > > I am committed to addressing your feedback; to help me do so, can you help me
+> > > identify what I've done wrong, and/or point me to an example that successfully
+> > > passes dt_binding_check?
+> > 
+> > You're not doing anything wrong. There's 2 options here. The first is we 
+> > could just relax the check to allow boolean schema for vendor 
+> > properties. The main issue with that is we then have to look for that 
+> > improperly used and it doesn't help if you do have additional 
+> > constraints to add on top of the common definition. The former can 
+> > mostly be addressed by checking there is a type associated with the 
+> > property. I'm going to look into adding that.
 > 
-> What is property is that? And how would it get implemented here?
-
-Easy to guess...
-
-git grep system-power-controller
-
-
-
+> Thank you for your feedback. I started with a boolean property at first to
+> simply test the idea before moving too far forward. In reality however, the
+> common binding has many uint32's and uint32-arrays as well, often with
+> different constraints among consumers. For this option to be effective, it
+> would need to be extended to all types IMO.
 > 
->>> +  power supply master of the system. With this flag, the chip will
->>> +  initiate an ACTIVE-to-OFF or SLEEP-to-OFF transition when the
->>> +  system poweroffs.
->>> +
->>> +Example:
->>> +&i2c1 {
->>> +       clock-frequency = <2600000>;
->>> +
->>> +       twl: twl@48 {
->>> +               reg = <0x48>;
->>> +               interrupts = <7>; /* SYS_NIRQ cascaded to intc */
->>> +               interrupt-parent = <&intc>;
->>> +
->>> +               twl_power: power {
->>> +                       compatible = "ti,twl6030-power";
->>> +                       ti,system-power-controller;
->>
->> Why do you need a child node here? There aren't any resources for the
->> sub-block.
->>
+> > 
+> > Alternatively, you could drop listing the properties and 
+> > use 'unevaluatedProperties'. That's not quite equal to what you have. 
+> > Presumably, you have 'additionalProperties' in this case, so listing 
+> > them serves the purpose of defining what subset of properties each node 
+> > uses from the referenced schema. We frequently don't worry if there are 
+> > common properties not used by a specific schema. This also wouldn't work 
+> > if you have additional constraints to add.
 > 
-> Just an example and how it is used on a device as well, is it fine if
-> just the block is as-is?
+> Because of varying constraints among each consumer, I do not believe this
+> option is viable either.
+> 
+> I also think adopting 'unevaluatedProperties' here would be confusing from
+> a customer perspective in this case. The new common binding has dozens of
+> properties for which some are shared between devices A and B but not C, or
+> devices B and C but not A.
+> 
+> Without each device's binding explicitly opting in for supported properties,
+> it's difficult for customers to know what is supported for a given device.
+> These particular devices are highly configurable yet void of nonvolatile
+> memory, so there is simply no way around having so many properties. Most are
+> touched in some way throughout various downstream applications.
+> 
+> Therefore I'd like to propose option (3), which is to move forward with patch
+> [1/2] as-is and decouple the merging of this driver from future enhancements
+> to the tooling. While patch [1/2] is admittedly a big binding with some repeat
+> descriptions, none of the duplicate properties introduce a conflicting type.
+> 
+> If in the future option (1) can support all property types and handle varying
+> constraints among consumers, I would be happy to be one of the first guinea
+> pigs. Does this path seem like a reasonable compromise?
 
-The question is not about example. Question was why do you need child
-node at all. Children without resources are usually useless.
+Yes, that's fine.
 
-Best regards,
-Krzysztof
-
+Rob

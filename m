@@ -2,53 +2,53 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C16B4EB64DC
-	for <linux-input@archiver.kernel.org>; Thu, 15 Jun 2023 11:42:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CC474EB64DB
+	for <linux-input@archiver.kernel.org>; Thu, 15 Jun 2023 11:43:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344234AbjFOLmc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 15 Jun 2023 07:42:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53144 "EHLO
+        id S1344418AbjFOLnL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 15 Jun 2023 07:43:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344297AbjFOLlm (ORCPT
+        with ESMTP id S1344208AbjFOLm3 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jun 2023 07:41:42 -0400
+        Thu, 15 Jun 2023 07:42:29 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F125F358E;
-        Thu, 15 Jun 2023 04:39:29 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B91D42963;
+        Thu, 15 Jun 2023 04:39:47 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA4AF639BA;
-        Thu, 15 Jun 2023 11:39:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21EAFC433C8;
-        Thu, 15 Jun 2023 11:39:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 976E8614D3;
+        Thu, 15 Jun 2023 11:39:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 011B4C433CA;
+        Thu, 15 Jun 2023 11:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686829166;
+        s=k20201202; t=1686829187;
         bh=yWiSuxZDz6Vc0AXizlDt3DGzDcIoBGwE1wbMAGTk158=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6mPUIPlQO6BaTy0Dcx5MchfGDugIq8Y2zBfRs5KCcDlYgCqyi5JXxDDboPcRZrSp
-         N4T6aKgoABa9GYwnPIK/fcAowIjpbJh472D4duKhcq1J0PzJc70tRxUyqmXMyfSqOb
-         QWKmhybQvmfWp8cxtuDcTOBHOWMh1AYRelgNogvEzh47EziO8kerJbaPnzSpyyWZpS
-         RiwXqbBCfQAyli9dui53msN6ATdmprfk8i2U8ji396Igvj2FZqISbNBoyolkEBThOX
-         TQFas1dlg3Ho+ZjZ0AyE1LpkXbRHlNG3wTLse53sB8J8bgssrviuPYVhA21vaAbi4h
-         Fm1MsXK2EGcKw==
+        b=c/shC7L0+41pAm4gtuaRaSy8Hd5ZjIjReN57SkAGJwzWjn2hXRqfHTam44LImQpLR
+         J2Z8U66Jw1EWrlSUGa//0kJok5nOCrCjKw0z2PSl43dUUeqnkFESGTIjnI76272931
+         Xl0gve2Wgzz/tmxKL4axgf3Th/qf/9wy6tPp+UGQgYH1v/qwd8Pgb/w8mGAve0y8Aw
+         C3st6ONyxVwmAngIzoiJvtKPtbtYC5oMLDfXbleVqcKQuZKXZKCZb7HYeeuj4xY4b4
+         B6uBFiWeUrz+IyrWSfDQeko5uLgAh//v6G3EQ01BlIEuIOHI0EAzPfc+5/33dFLimX
+         JU1kK+jEWbrSw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Denis Arefev <arefev@swemel.ru>, Ping Cheng <ping.cheng@wacom.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jason.gerecke@wacom.com, jikos@kernel.org,
         benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 4/9] HID: wacom: Add error check to wacom_parse_and_register()
-Date:   Thu, 15 Jun 2023 07:39:12 -0400
-Message-Id: <20230615113917.649505-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 4/8] HID: wacom: Add error check to wacom_parse_and_register()
+Date:   Thu, 15 Jun 2023 07:39:34 -0400
+Message-Id: <20230615113938.649627-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230615113917.649505-1-sashal@kernel.org>
-References: <20230615113917.649505-1-sashal@kernel.org>
+In-Reply-To: <20230615113938.649627-1-sashal@kernel.org>
+References: <20230615113938.649627-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.184
+X-stable-base: Linux 5.4.247
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>

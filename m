@@ -2,53 +2,53 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 65BE3EB64DC
-	for <linux-input@archiver.kernel.org>; Thu, 15 Jun 2023 11:38:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D4FBEB64DC
+	for <linux-input@archiver.kernel.org>; Thu, 15 Jun 2023 11:40:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343990AbjFOLi3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 15 Jun 2023 07:38:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53148 "EHLO
+        id S1343949AbjFOLkN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 15 Jun 2023 07:40:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343953AbjFOLiA (ORCPT
+        with ESMTP id S1344106AbjFOLjQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 15 Jun 2023 07:38:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE73D2D75;
-        Thu, 15 Jun 2023 04:37:46 -0700 (PDT)
+        Thu, 15 Jun 2023 07:39:16 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D1B2D69;
+        Thu, 15 Jun 2023 04:38:27 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AF5263948;
-        Thu, 15 Jun 2023 11:37:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA5AFC433C0;
-        Thu, 15 Jun 2023 11:37:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 417EE62AD0;
+        Thu, 15 Jun 2023 11:38:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B26B0C433C9;
+        Thu, 15 Jun 2023 11:38:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1686829065;
+        s=k20201202; t=1686829106;
         bh=m5hI0bRa/w5sC9KjMMBOLYi4WpSPEiajo3Mkyvp69WM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oidnGZoue0UewoJiww/U+BTa0KidDFYyL70Xpu4ZhpfGw0KHP3xzocpHZskY8JbCJ
-         MrLziTjBpI0qGAx8bPDgi2xHDMSvOCzMRz8+FpFiC5Gj8z51XQiXtNW8IVyEn9GKqD
-         v8YddXg/opJM/wTMo9ACNXmjFXRlSIq1kgOuAs/jdVw1Q3jMHcifi663MNf3FQ7skO
-         RLyU8glqCPwFdnXwie3aM4/7umzbgMDee+H6KJlBvWgeAYcQ+eGe6yOwqxlB+DlBSs
-         3wv40WRLRL6/c4OIRT0v8dVuKEJUANLMveb99ZWXTueyVcYFzsuirChRIKHSTs7kaY
-         sBxyrHvzqaN9Q==
+        b=cvuVPDyH0gfIxui0KqghjYTiY+iWPp2bzFokKhOVZf/c2hUsV69js5kmefeiRMaVB
+         sEaNuoU9AB0XqAl26pE2/jrKywpHNtz+7WYpbCHMKc0kc0rM+sYsEBJ/lnsRafKcNj
+         3Lg9uglwGHeJf250fLEygdTjn6tfGa3/Eg5qUG1IUKY9df9JEG6RS/McuvadQ4wWnE
+         RGkh0hBqsi7fMVWhW0iALhUVZNnL9F+HJeWSSyEWTQpFaX2ZPNhgz75aAeaA2fQWKH
+         XXgYx907FcpXuOLCHu5KQuJeLPk87ZilBDROuUf93B4cPxsfXFw5gY0cEfDu2fQ4gw
+         6FYMA9GVR4SDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Denis Arefev <arefev@swemel.ru>, Ping Cheng <ping.cheng@wacom.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jason.gerecke@wacom.com, jikos@kernel.org,
         benjamin.tissoires@redhat.com, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.3 07/19] HID: wacom: Add error check to wacom_parse_and_register()
-Date:   Thu, 15 Jun 2023 07:37:07 -0400
-Message-Id: <20230615113719.648862-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 05/16] HID: wacom: Add error check to wacom_parse_and_register()
+Date:   Thu, 15 Jun 2023 07:38:05 -0400
+Message-Id: <20230615113816.649135-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230615113719.648862-1-sashal@kernel.org>
-References: <20230615113719.648862-1-sashal@kernel.org>
+In-Reply-To: <20230615113816.649135-1-sashal@kernel.org>
+References: <20230615113816.649135-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.3.8
+X-stable-base: Linux 6.1.34
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>

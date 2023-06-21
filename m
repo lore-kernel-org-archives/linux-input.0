@@ -2,68 +2,96 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CF692EB64DB
-	for <linux-input@archiver.kernel.org>; Wed, 21 Jun 2023 02:46:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85A41EB64D8
+	for <linux-input@archiver.kernel.org>; Wed, 21 Jun 2023 09:38:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229628AbjFUCqo (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 20 Jun 2023 22:46:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51420 "EHLO
+        id S230507AbjFUJiW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 21 Jun 2023 05:38:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229838AbjFUCqn (ORCPT
+        with ESMTP id S230460AbjFUJiE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 20 Jun 2023 22:46:43 -0400
-Received: from rs225.mailgun.us (rs225.mailgun.us [209.61.151.225])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8BD10F1
-        for <linux-input@vger.kernel.org>; Tue, 20 Jun 2023 19:46:42 -0700 (PDT)
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=hexchain.org;
- q=dns/txt; s=smtp; t=1687315601; x=1687322801; h=Content-Transfer-Encoding:
- Content-Type: In-Reply-To: From: From: References: Cc: To: To: Subject:
- Subject: MIME-Version: Date: Message-ID: Sender: Sender;
- bh=5stQnICSelnzp1yyIPPD1WlmY4XcWQOBfdxQvv1XFbw=;
- b=FFaVNFSZw4a9h0FWJ422Z1MD4yS/Z0mPKWy5NO4DU3aNWsf4YVdBUEHXlHnGBL7JSRt55QhnbJxzZzypMRIH/ScLh03E4Tj9kf1FfHFN0wi2Ygnjj0sWRZi8Pfg+v07xGpjktW2Gwy+L97o5Y5nowDEe0oir/1tod1aErwakCNu6UIfuz+0ZfQgZQBDThpeAmJ/rjgq3qYxewOs8yU9l7P3L23xLbslyo6p5lqxU+zq1LDc5i25W4QbeMGchlh2m4nxcG5gYQuiiXNDgfs3d0zAQbzoS6Ze68w53n9Nvg9MMcM9N0BYijpBfaiIm+Tj5mg+fdN7J1UD/lEQthb9U/w==
-X-Mailgun-Sending-Ip: 209.61.151.225
-X-Mailgun-Sid: WyI5NzJmZCIsImxpbnV4LWlucHV0QHZnZXIua2VybmVsLm9yZyIsIjE5MjUxOCJd
-Received: from [10.22.69.180] (122.11.166-8.unknown.starhub.net.sg [122.11.166.8]) by
- 0b3e52753156 with SMTP id 6492649145220fab9318d1bb; Wed, 21 Jun 2023 02:46:41
- GMT
-Sender: linux@hexchain.org
-Message-ID: <653274b4-7b69-8f3f-4214-e0be36f7102e@hexchain.org>
-Date:   Wed, 21 Jun 2023 10:46:37 +0800
+        Wed, 21 Jun 2023 05:38:04 -0400
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13EC030F8
+        for <linux-input@vger.kernel.org>; Wed, 21 Jun 2023 02:36:13 -0700 (PDT)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ore@pengutronix.de>)
+        id 1qBuCp-0006Qc-Sp; Wed, 21 Jun 2023 11:32:52 +0200
+Received: from [2a0a:edc0:0:1101:1d::ac] (helo=dude04.red.stw.pengutronix.de)
+        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
+        (envelope-from <ore@pengutronix.de>)
+        id 1qBuCl-00906R-Ox; Wed, 21 Jun 2023 11:32:47 +0200
+Received: from ore by dude04.red.stw.pengutronix.de with local (Exim 4.94.2)
+        (envelope-from <ore@pengutronix.de>)
+        id 1qBuCk-000KL9-QY; Wed, 21 Jun 2023 11:32:46 +0200
+From:   Oleksij Rempel <o.rempel@pengutronix.de>
+To:     Abel Vesa <abelvesa@kernel.org>,
+        Michael Turquette <mturquette@baylibre.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Cc:     Oleksij Rempel <o.rempel@pengutronix.de>, kernel@pengutronix.de,
+        Peng Fan <peng.fan@nxp.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Michael Trimarchi <michael@amarulasolutions.com>,
+        Mark Brown <broonie@kernel.org>,
+        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
+        Marek Vasut <marex@denx.de>, linux-clk@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-mmc@vger.kernel.org
+Subject: [PATCH v2 2/5] dt-bindings: timer: gpt: Add i.MX6UL support
+Date:   Wed, 21 Jun 2023 11:32:42 +0200
+Message-Id: <20230621093245.78130-3-o.rempel@pengutronix.de>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230621093245.78130-1-o.rempel@pengutronix.de>
+References: <20230621093245.78130-1-o.rempel@pengutronix.de>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.12.0
-Subject: Re: amd_sfh driver causes kernel oops during boot
-To:     Linux regressions mailing list <regressions@lists.linux.dev>,
-        Malte Starostik <malte@starostik.de>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        "Limonciello, Mario" <mario.limonciello@amd.com>
-Cc:     Bagas Sanjaya <bagasdotme@gmail.com>, basavaraj.natikar@amd.com,
-        linux-input@vger.kernel.org, linux@hexchain.org,
-        stable@vger.kernel.org
-References: <ZG3ipauL9FTnQJiC@debian.me>
- <aci7a4jnosozypn6sffsdoaezg4p42zgjy5dwnjyvnbav7chdm@wettfjwb4enw>
- <79bd270e-4a0d-b4be-992b-73c65d085624@amd.com> <5980752.YW5z2jdOID@zen>
- <1b3fd148-44d7-d476-e9e6-f9d8c8ec0ee6@leemhuis.info>
-Content-Language: en-US
-From:   Haochen Tong <linux@hexchain.org>
-In-Reply-To: <1b3fd148-44d7-d476-e9e6-f9d8c8ec0ee6@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ore@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 6/20/23 21:20, Linux regression tracking (Thorsten Leemhuis) wrote:
-> Hi, Thorsten here, the Linux kernel's regression tracker. Top-posting
-> for once, to make this easily accessible to everyone.
-> 
-> What happens to this? From here it looks like there was no progress to
-> resolve the regression in the past two weeks, but maybe I just missed
-> something.
+Add 'fsl,imx6ul-gpt' compatible to resolve the following dtbs_check
+warning:
+imx6ull-jozacp.dtb:0:0: /soc/bus@2000000/timer@2098000: failed to match any schema with compatible: ['fsl,imx6ul-gpt', 'fsl,imx6sx-gpt']
 
-Hi,
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+---
+ Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
 
-I just looked at the journal again and this problem seemed to go away 
-after upgrading from 6.3.3 to 6.3.5. At that time the BIOS version was 
-still 1.27. Now, on 1.57, the device 1022:164a is indeed no longer 
-present anymore.
+diff --git a/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml b/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
+index 716c6afcca1fa..685137338ac99 100644
+--- a/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
++++ b/Documentation/devicetree/bindings/timer/fsl,imxgpt.yaml
+@@ -34,6 +34,9 @@ properties:
+               - fsl,imxrt1050-gpt
+               - fsl,imxrt1170-gpt
+           - const: fsl,imx6dl-gpt
++      - items:
++          - const: fsl,imx6ul-gpt
++          - const: fsl,imx6sx-gpt
+ 
+   reg:
+     maxItems: 1
+-- 
+2.39.2
+

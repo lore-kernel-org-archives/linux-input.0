@@ -2,118 +2,208 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F9B7EB64DA
-	for <linux-input@archiver.kernel.org>; Thu, 22 Jun 2023 09:22:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EB68FEB64DD
+	for <linux-input@archiver.kernel.org>; Thu, 22 Jun 2023 14:29:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232109AbjFVJWN (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Jun 2023 05:22:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60856 "EHLO
+        id S231178AbjFVO3J (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Jun 2023 10:29:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232089AbjFVJVl (ORCPT
+        with ESMTP id S229628AbjFVO3I (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Jun 2023 05:21:41 -0400
-Received: from mail-vk1-xa2c.google.com (mail-vk1-xa2c.google.com [IPv6:2607:f8b0:4864:20::a2c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98C9665AF
-        for <linux-input@vger.kernel.org>; Thu, 22 Jun 2023 02:12:11 -0700 (PDT)
-Received: by mail-vk1-xa2c.google.com with SMTP id 71dfb90a1353d-471632450d1so1976481e0c.0
-        for <linux-input@vger.kernel.org>; Thu, 22 Jun 2023 02:12:11 -0700 (PDT)
+        Thu, 22 Jun 2023 10:29:08 -0400
+Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7123B1BCA
+        for <linux-input@vger.kernel.org>; Thu, 22 Jun 2023 07:29:06 -0700 (PDT)
+Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-3f9b258f3a2so48482545e9.0
+        for <linux-input@vger.kernel.org>; Thu, 22 Jun 2023 07:29:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1687425130; x=1690017130;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=LAUOQODzdCeUTcrDvoPMBORZt9+ufR2Q6MlQ8V9HqcA=;
-        b=mXPKXfCQ5AqfGGN7eLis7zio/LUO4dolZMn9tGoBWo9lQ/0YSYOantIpV+5Aknn1uh
-         3J4AAW5FwrtrCjPqExngKvRZGdsEMMnXiWLjxSlxcZ4Z4hrIKAqnf3JGXGjDgW9P3bL1
-         pFNgcMjEIcXauA2TF31JXquLUpbL+xqhM2fQ9hmTnukCcFG1Mle2eakMHU8X4YmkO6LO
-         bAhMo5m/gWYLFCsmeuIdoTLd4aVKzBQXkX6znVpbHzzsNtQEyUyVQaAV7jfwZ4Hpde4C
-         pcPlmHg9x/K3XVnBI0Byou5ihxHLvg+InoKTxxb2YQ/iI8WDHTP84M7mjcSJauXDobPV
-         PPNA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687425130; x=1690017130;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=linaro.org; s=google; t=1687444145; x=1690036145;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=LAUOQODzdCeUTcrDvoPMBORZt9+ufR2Q6MlQ8V9HqcA=;
-        b=PqFygVbrqlPJ4CmM/KEb0H1eq99mVh2wkVAElbxRtYxWHoHMnhZLa7GTj42saFCcyy
-         QfZD1tZO4wapLs+0N6VupZx34m2nRg/YWrsUwE0H91fbMWMEwuGdI2qJWnTKcSjmp8DA
-         Cgw/MMzrAdGrmMJ+tdVANzjgMMj4o1t9iVyFd8+LeIfB1AnP8N01W7sGThMTTv+44Ct1
-         tUUPai1pRIcXYHoZmmEgJb3iiWZL8nj7M+oQf5FD3Axl73Mi+285ikaFNhqAkzBaqtU0
-         1s3U/+JMVas8KFgvDLmo85AQVkcwyFJ4EABZqBQcmQQS9NKvTjVFIQqGRLCNk2VEkroj
-         SnMQ==
-X-Gm-Message-State: AC+VfDx099eAhebLMN0S7u6QRANLG2eLQJJHcVDf4IEJxtKHfr3ujN7l
-        KW6jeMqx1OHegnQERRP7KyxlRmpZqnisbwDJHNzX9g==
-X-Google-Smtp-Source: ACHHUZ7Jjoae1j3de5QaDkn+NVntLKV6op75KhbpCaUpXW852Raha07Xg8nXWZ9iLhTkIRdAW16BPNsvDSHUyHVrFYM=
-X-Received: by 2002:a1f:4801:0:b0:471:cfa1:5065 with SMTP id
- v1-20020a1f4801000000b00471cfa15065mr4808788vka.3.1687425130628; Thu, 22 Jun
- 2023 02:12:10 -0700 (PDT)
+        bh=31dDSPmTEwAk2xBEYscYsgGP3NvqtS1pbeFP7C1NdB4=;
+        b=ZfBxKr/K0XhiCys9ocI6g4skVBpIoKmlEntkhuD+e9zbWmVGt+D9va4WTqbjneCw7Y
+         C8q7r5rPDJslox7JIo9vOl1PnzN96vCT+yFx0EXvGjuUUxnr9gUTWPNjxLSVdwo6fNoC
+         6iEkopWUtuyhvIeHj5JWJDoZz3k+qLkiXO32GDb//m5gNv56ZOoW09Qwhhr3pqd0FsPD
+         c4PVKAk//A0X6kSs1dPpNu2XqnT27aXnV9LlOY59Jr9bJxM5AJbtgmEZzUSQkgooTJiy
+         YAzs22wXJy9+vsIlLP/LjEcxpyJvbjHQz+XWBe0leePnsYQCz8wS2zZfhufzP+QGYq6V
+         mqFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1687444145; x=1690036145;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=31dDSPmTEwAk2xBEYscYsgGP3NvqtS1pbeFP7C1NdB4=;
+        b=I477OKMwbSRAFg+7/2qPpjxKfCmmO92U4cpVcFz5eZSfhH5hUq1fthNyfrP9Xc5TR0
+         02Ba9MwxTgjK7q1o0190TFxaululocZq2WnYfTk5sYqox5JIDMMFbwjJOq+KBeS1z3iJ
+         t1RBnKprHbzS0f4ruS3ddgFnzHl7eBmWtpM+nucY+CVvzxePRznnwI6+NehsTUM/oEo/
+         bxvnlo6FWCaeCokIr7IN5E8iP6ehPyiEyEq28wopwLcDyze/c/OR6AJemS9PtmssFHNw
+         Uh1mGU8evWO4Xq7LhfxX14RN8bER8OJZjazLTyNUYAYPooD7eXpyKL+M0WUkaT9D8/8O
+         Ygug==
+X-Gm-Message-State: AC+VfDzps3UbjZkyodh2Gt8KF2CfpVGfHf4skwL4S1fovADINsTxZxm0
+        uEYch5rp9g1aDvMAIQGWPXdn7A==
+X-Google-Smtp-Source: ACHHUZ78m2M5tE5jpv+rwYG3SAlrmdD+zDGd/jaO1XR7cT0JZ0zTL6vv1jqQmba7Zz/VDSb2F5e/nA==
+X-Received: by 2002:adf:e40f:0:b0:30f:fec1:ac0a with SMTP id g15-20020adfe40f000000b0030ffec1ac0amr18644032wrm.39.1687444144884;
+        Thu, 22 Jun 2023 07:29:04 -0700 (PDT)
+Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
+        by smtp.gmail.com with ESMTPSA id w18-20020a5d6812000000b0030ae69920c9sm7168361wru.53.2023.06.22.07.29.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 22 Jun 2023 07:29:04 -0700 (PDT)
+From:   Neil Armstrong <neil.armstrong@linaro.org>
+Date:   Thu, 22 Jun 2023 16:28:59 +0200
+Subject: [PATCH v3 1/4] dt-bindings: input: document Goodix Berlin
+ Touchscreen IC
 MIME-Version: 1.0
-References: <20230621093245.78130-1-o.rempel@pengutronix.de> <20230621093245.78130-2-o.rempel@pengutronix.de>
-In-Reply-To: <20230621093245.78130-2-o.rempel@pengutronix.de>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Thu, 22 Jun 2023 11:11:33 +0200
-Message-ID: <CAPDyKFqYfuQNCTPiEM56jrzUBe2jevY+MuTOj6K-7OkpO0_daA@mail.gmail.com>
-Subject: Re: [PATCH v2 1/5] dt-bindings: mmc: fsl-imx-esdhc: Add imx6ul support
-To:     Oleksij Rempel <o.rempel@pengutronix.de>
-Cc:     Abel Vesa <abelvesa@kernel.org>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230606-topic-goodix-berlin-upstream-initial-v3-1-f0577cead709@linaro.org>
+References: <20230606-topic-goodix-berlin-upstream-initial-v3-0-f0577cead709@linaro.org>
+In-Reply-To: <20230606-topic-goodix-berlin-upstream-initial-v3-0-f0577cead709@linaro.org>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        kernel@pengutronix.de, Peng Fan <peng.fan@nxp.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Michael Trimarchi <michael@amarulasolutions.com>,
-        Mark Brown <broonie@kernel.org>,
-        Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-        Marek Vasut <marex@denx.de>, linux-clk@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-        linux-input@vger.kernel.org, linux-mmc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+        Bastien Nocera <hadess@hadess.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Jeff LaBundy <jeff@labundy.com>
+Cc:     linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Rob Herring <robh@kernel.org>
+X-Mailer: b4 0.12.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3093;
+ i=neil.armstrong@linaro.org; h=from:subject:message-id;
+ bh=sfk9uxvNPIwk9f8d5iBn9m2N4nTZgMQFpRmAil1gnVU=;
+ b=owEBbQKS/ZANAwAKAXfc29rIyEnRAcsmYgBklFqtTUjH9+wzYqPrZYY1Vs3xhhH0RphBGNEZnQI0
+ /05NwSeJAjMEAAEKAB0WIQQ9U8YmyFYF/h30LIt33NvayMhJ0QUCZJRarQAKCRB33NvayMhJ0ROcD/
+ 0Y88hwPf9TpHRCrZ/XEZLaK9rGrB9dyzx/mI/DyQmjsjCk9jeC2BTZGmHEWhhmJIAvKEmr54l3dKWG
+ GvZWT0mx3xpdvDFB4+yXVaPO1hX8pc38/pan8ipWgUoYaVqaUqu3DbGEdGjmfSBBBwyG+3Zq1Am1M6
+ g6qRV6JjhdJMNyYaTc4MLqljqVKCwJUsAmssWATW9hWZmLz+mHueqPvPoGYbT6h2xJXhsqSFv0Ux2m
+ VCPLyxYMCHS+XgS3jz/4B8MlCahRPpKTyLWNuohEncNDfXPl9ix4CrYRpOHjMLNO3kfWOyU20Ezjuo
+ Ki6GLe1IDdg9PVdBjQb5mE7K+umxfwUsXKzuuSKBkUcB2DPOqplnOL9yF9Ku+glG2uyUaYaG8JZnLu
+ VNI9WxQubHFqJ5RTwvgrYxjtfvcp9x2Aqywc4Fk83ogeQZn6kb+uhi6Sb1W7KfMHs0f9YEPbop0B/T
+ nTSV2tQEoqVyDz/ACM2ASTWILiMkwpkn/geNDM7AkvL5dYcNKns8nu66cYXOlp+iq4gowrjgG1XnwO
+ 2tPLcoXNjLKDKOyhRuhQdIetwnQwnJOnJFR/8CZ8nKeygVSwiRCR0FFKptKphcH7naTKvjolh2m6WA
+ /KU11rULHywEHf5jgl/7QQH/ljEkrYG24LHVKoZkDDd8rSskZZQcCzH0eAcA==
+X-Developer-Key: i=neil.armstrong@linaro.org; a=openpgp;
+ fpr=89EC3D058446217450F22848169AB7B1A4CFF8AE
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 21 Jun 2023 at 11:32, Oleksij Rempel <o.rempel@pengutronix.de> wrote:
->
-> Add the 'fsl,imx6ul-usdhc' value to the compatible properties list in
-> the fsl-imx-esdhc.yaml file. This is required to match the compatible
-> strings present in the 'mmc@2190000' node of 'imx6ul-prti6g.dtb'. This
-> commit addresses the following dtbs_check warning:
-> imx6ul-prti6g.dtb:0:0: /soc/bus@2100000/mmc@2190000: failed to match any schema with compatible: ['fsl,imx6ul-usdhc', 'fsl,imx6sx-usdhc']
->
-> Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Document the Goodix GT9916 wich is part of the "Berlin" serie
+of Touchscreen controllers IC from Goodix.
 
-Applied for next, thanks!
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+---
+ .../bindings/input/touchscreen/goodix,gt9916.yaml  | 95 ++++++++++++++++++++++
+ 1 file changed, 95 insertions(+)
 
-Kind regards
-Uffe
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9916.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9916.yaml
+new file mode 100644
+index 000000000000..d90f045ac06c
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9916.yaml
+@@ -0,0 +1,95 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/goodix,gt9916.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Goodix Berlin series touchscreen controller
++
++description: The Goodix Berlin series of touchscreen controllers
++  be connected to either I2C or SPI buses.
++
++maintainers:
++  - Neil Armstrong <neil.armstrong@linaro.org>
++
++allOf:
++  - $ref: touchscreen.yaml#
++  - $ref: /schemas/spi/spi-peripheral-props.yaml#
++
++properties:
++  compatible:
++    enum:
++      - goodix,gt9916
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  avdd-supply:
++    description: Analog power supply regulator on AVDD pin
++
++  vddio-supply:
++    description: power supply regulator on VDDIO pin
++
++  spi-max-frequency: true
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-swapped-x-y: true
++
++additionalProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - avdd-supply
++  - touchscreen-size-x
++  - touchscreen-size-y
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      touchscreen@5d {
++        compatible = "goodix,gt9916";
++        reg = <0x5d>;
++        interrupt-parent = <&gpio>;
++        interrupts = <25 IRQ_TYPE_LEVEL_LOW>;
++        reset-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
++        avdd-supply = <&ts_avdd>;
++        touchscreen-size-x = <1024>;
++        touchscreen-size-y = <768>;
++      };
++    };
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++    spi {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      num-cs = <1>;
++      cs-gpios = <&gpio 2 GPIO_ACTIVE_HIGH>;
++      touchscreen@0 {
++        compatible = "goodix,gt9916";
++        reg = <0>;
++        interrupt-parent = <&gpio>;
++        interrupts = <25 IRQ_TYPE_LEVEL_LOW>;
++        reset-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
++        avdd-supply = <&ts_avdd>;
++        spi-max-frequency = <1000000>;
++        touchscreen-size-x = <1024>;
++        touchscreen-size-y = <768>;
++      };
++    };
++
++...
 
+-- 
+2.34.1
 
-> ---
->  Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml b/Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml
-> index fbfd822b92707..82eb7a24c8578 100644
-> --- a/Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml
-> +++ b/Documentation/devicetree/bindings/mmc/fsl-imx-esdhc.yaml
-> @@ -42,6 +42,7 @@ properties:
->            - enum:
->                - fsl,imx6sll-usdhc
->                - fsl,imx6ull-usdhc
-> +              - fsl,imx6ul-usdhc
->            - const: fsl,imx6sx-usdhc
->        - items:
->            - const: fsl,imx7d-usdhc
-> --
-> 2.39.2
->

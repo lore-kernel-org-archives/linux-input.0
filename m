@@ -2,62 +2,62 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90569C001DD
-	for <linux-input@archiver.kernel.org>; Thu, 22 Jun 2023 14:29:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3B62EB64DA
+	for <linux-input@archiver.kernel.org>; Thu, 22 Jun 2023 14:29:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231285AbjFVO3M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 22 Jun 2023 10:29:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38714 "EHLO
+        id S231617AbjFVO3T (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 22 Jun 2023 10:29:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231236AbjFVO3L (ORCPT
+        with ESMTP id S231366AbjFVO3M (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 22 Jun 2023 10:29:11 -0400
-Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53031BD4
-        for <linux-input@vger.kernel.org>; Thu, 22 Jun 2023 07:29:07 -0700 (PDT)
-Received: by mail-wr1-x436.google.com with SMTP id ffacd0b85a97d-3110a5f2832so739631f8f.1
-        for <linux-input@vger.kernel.org>; Thu, 22 Jun 2023 07:29:07 -0700 (PDT)
+        Thu, 22 Jun 2023 10:29:12 -0400
+Received: from mail-wm1-x329.google.com (mail-wm1-x329.google.com [IPv6:2a00:1450:4864:20::329])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83C1C1BC5
+        for <linux-input@vger.kernel.org>; Thu, 22 Jun 2023 07:29:09 -0700 (PDT)
+Received: by mail-wm1-x329.google.com with SMTP id 5b1f17b1804b1-3f9c88ac077so17897055e9.1
+        for <linux-input@vger.kernel.org>; Thu, 22 Jun 2023 07:29:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1687444146; x=1690036146;
+        d=linaro.org; s=google; t=1687444148; x=1690036148;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=CfqHmQNu0Ht5PgRd1QSDEKSBj7V06Xi2hE5JuIL9ylQ=;
-        b=a2BULHGOQgq7ClfwemRxaw7KV5toFto+ewxyLXzdYcmsfvH9Ft/FNWmd1eGVBOgi8P
-         efItNDdXviEoCc3pqVpegMK6qPfi6rQ7pZLr5qiTSYEHaZ9Vl4kOem+f5pFpXvwTWuTs
-         1MF9XEMHSxk16uglY2Uy8zohFCYhjn2hDkAvaV+BnVo1YVd+jLYN5PRuNPIFR8YH1bgZ
-         eO5JDtaLDafFmudQfQj8S6S22u8ARJiRZ4VucDDrb/WG+hPZDhQSEsKE1BewApY3mZyH
-         aY393hF/Wr7P0cLrwpqcaez+H4fmi2OjQj2cFjSQ3gVIS3VrB3UJsuj0xX9yN8aYhYxp
-         wOtg==
+        bh=8ybjd+QrBvVu0zDRNg4Z7l4eXFNbVwdU/ccLoGQD+UU=;
+        b=zRJ1qwcVn3ztbIPDeEsb4lMJvpAOSPLFJyfNerTrP0KV/1vVyt8Xe2pQJcqDY0puNk
+         ktg0UyGg9iuE80CcksBWjdFXrD0rtzer+PRbKZXqENlKureUpHx/rApRqUoBCjOhoTTg
+         ux5NPRk8jNTL1mIbT1NM7iN9gTfaaF62J9kvTNMB39dUmklRRAluSOvMKVrRwsLvj7N1
+         Wt5r7+UvrEc7drWOCpNg8r+MCZpaMDh4bdCMqOgbalQbf89iz9Z+PQr4WBpaCY1zG1p2
+         wO74vXY6yMoIGMRoSO3ZIF9T6/nNQOu/9ojW8DL+lsesf+yXFtypI+HPEKoezSrvNrEN
+         KvEA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687444146; x=1690036146;
+        d=1e100.net; s=20221208; t=1687444148; x=1690036148;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=CfqHmQNu0Ht5PgRd1QSDEKSBj7V06Xi2hE5JuIL9ylQ=;
-        b=TT8nb6Szibu3qjATkYRAQ5g7HRCQusiZCwPeSTVM0jtHKco2MkZLAlFFAjEFTnhgD+
-         eO+DfN93OuSugXhbggmBs0QfUV//H01NLkCFXGwvlqL9jtvIbwFILHFF2F29yEo1bmLb
-         sojM8MPGE3qP9i44imx2FNoF1CRr2zJB0VTVx50Sv27NtA3y7+Oxi2/m6++0u99yVue8
-         rT4/63Cc4wpqwCDsdGo4Q5ZMaIMmAe6zWxfOuY05449FYyWmqv7EQDELZu+0ttrYADH2
-         BEGjxefolXSLO/Qi+dmOsJaiXiGOGi5gkdjwieUIideNjR+uSMLmJmSMJeYf8+xT2qkI
-         iIeA==
-X-Gm-Message-State: AC+VfDw2uNEhn/FV5vqV9p5uD2SGilxx5YtcEqXRk4mN8CNmzeXkyObu
-        R6wXA/WQUr0AlzYffehgpSTVZQ==
-X-Google-Smtp-Source: ACHHUZ4SM5eJTVuBNM0qU53mu+xkuxC0NVmJC57COOE0jQQKcOE57jM0IG0dcpPuWX12RqTPlH+6dg==
-X-Received: by 2002:adf:dcc1:0:b0:30a:a193:3987 with SMTP id x1-20020adfdcc1000000b0030aa1933987mr22064808wrm.30.1687444145994;
-        Thu, 22 Jun 2023 07:29:05 -0700 (PDT)
+        bh=8ybjd+QrBvVu0zDRNg4Z7l4eXFNbVwdU/ccLoGQD+UU=;
+        b=C/vxnx2PL6NQwe/7Cd8gjZ4qS6i6fpPHexC1S2P+gmyUyOoj8cLobonTv/5NMDNE5g
+         JrMGWL7dMlTEjsz/1Gpuk56Jqf91d88lC41QAwCOa53AY4JWjAnqeb3Q4eYhcp826qPe
+         m06OW+faXw1xx5lWo42d+w27+gt1ApwauYV9LqG0PKUBFUojqZ07tYjI2OdmXM16TAUG
+         WGoYMFfSH1f3A5C3KsLeJ43QIwJOBUJQ6QN6nFK1DM9EfHOef1YTz0Bb98H0x7BiiMJU
+         fCitNiWDn1xy7Ri9qON7xZ/y2xRk0XDJn6OFNsa6SVZ+terI+tM0ZnvtCSrEn6B0+v08
+         pPEA==
+X-Gm-Message-State: AC+VfDzOqJhiOBjBpvf15kJIECfWreIBO9CqI1qb8s3+ikuazLdk10tg
+        uAXmua77A7k1P6GJAUuG67U81/HpWDBAk7rMf+aAjg==
+X-Google-Smtp-Source: ACHHUZ7qOkQjjlEP6dMiAo75kdjrlCF1m1CVJYn5YbDPxDSh8sygEb8PM2nMBpa5xD9rko4AQD2sRg==
+X-Received: by 2002:a5d:5346:0:b0:30f:cb74:35f9 with SMTP id t6-20020a5d5346000000b0030fcb7435f9mr14954445wrv.66.1687444148012;
+        Thu, 22 Jun 2023 07:29:08 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id w18-20020a5d6812000000b0030ae69920c9sm7168361wru.53.2023.06.22.07.29.04
+        by smtp.gmail.com with ESMTPSA id w18-20020a5d6812000000b0030ae69920c9sm7168361wru.53.2023.06.22.07.29.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jun 2023 07:29:05 -0700 (PDT)
+        Thu, 22 Jun 2023 07:29:07 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Thu, 22 Jun 2023 16:29:00 +0200
-Subject: [PATCH v3 2/4] input: touchscreen: add core support for Goodix
+Date:   Thu, 22 Jun 2023 16:29:02 +0200
+Subject: [PATCH v3 4/4] input: touchscreen: add SPI support for Goodix
  Berlin Touchscreen IC
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230606-topic-goodix-berlin-upstream-initial-v3-2-f0577cead709@linaro.org>
+Message-Id: <20230606-topic-goodix-berlin-upstream-initial-v3-4-f0577cead709@linaro.org>
 References: <20230606-topic-goodix-berlin-upstream-initial-v3-0-f0577cead709@linaro.org>
 In-Reply-To: <20230606-topic-goodix-berlin-upstream-initial-v3-0-f0577cead709@linaro.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -72,30 +72,31 @@ Cc:     linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         Neil Armstrong <neil.armstrong@linaro.org>
 X-Mailer: b4 0.12.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=23029;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=7579;
  i=neil.armstrong@linaro.org; h=from:subject:message-id;
- bh=BZr+GFW/2+OhZThRudz1d0U3eEQEqHJ9KwSnDZp2Fc0=;
- b=owEBbQKS/ZANAwAKAXfc29rIyEnRAcsmYgBklFqtgUbtDg7qNyz4jgB7QZNarCwX7rhGqAJtq8yP
- 7z8L2feJAjMEAAEKAB0WIQQ9U8YmyFYF/h30LIt33NvayMhJ0QUCZJRarQAKCRB33NvayMhJ0TycD/
- 9TfHcwveKNDkPCtBKL+KLcppKUaMuaoa3usPHjTMkLaJ5URXvKfuBQcTpkd0flCyt775k1eDX3CIst
- pdQqR5uhGiKm9l3K2QG6pHPhfjQJCAzEP5mb61arSMbAbNqOBWUnPCj25VKMGlvUDMEHGLSF6IeFLa
- /U8Q8fYC4PRNdHeTVy9ypIMECgtU7LfVjyxP0AHRPgB/Sl2Z6n5SjjefM/0HtjZ3NSEA6mLEZ3svg1
- 8i/oan069Qs4YE5yeQNvV7Z/TK+u9Q9nUy5V6CCs8uj7w5G9zxu2uG415D1MWlrKKNgCSaE4FkkXpy
- ourtUTCHlx6PAlB0pVauaMtq+7h94J1JIJZpt26o/8UxmqmAVerNdaizeVZ66xmNKOLV95Jy8Wzbvh
- iCOr2V2fQSxu6tFekMR2qpSzO01iyO+ocY+6oxn6mFoCXzrFE+RfIeDP4enMCrzE3/w4eO2RNp//Kc
- CZUZxLg7pgsGuyhXaG1yozzMHSrayiFXvIh55057Nx7O6WVfu/WbJN71/XIML2DGLVGn6VUzaj+0iJ
- 225W+P3oArszxSyfzYCJcL4cnoCBD1Z/a/1q3QQZiRWLt5BE2SdF//Q71wtUQUTbRHYTg6dpGVQ92Y
- Z7ATxVKcHqi5YNiBngJ57V8WKbDYk5v5gor0ZL9X87iTdFXeqsb0R1YlSG+A==
+ bh=M9Fcb2iZK373bguA+9fk5ubbR87iAMaN2qDGauqltKw=;
+ b=owEBbQKS/ZANAwAKAXfc29rIyEnRAcsmYgBklFquIFj8I8Rz3YXa55zo9Uxk5Q2EVWaKYWuq59dt
+ 1KMCxc6JAjMEAAEKAB0WIQQ9U8YmyFYF/h30LIt33NvayMhJ0QUCZJRargAKCRB33NvayMhJ0UOBD/
+ 0SvXrV7M0v4joSSH/rEopz9+VmzuD5/kQJDJLMBhqyHXyd/S7XmFcujD/moyPGlY/IzW2mWILRTals
+ FlQzSwIbntt8HO9oyPUDcgFR8JkN7SYZj5TenIZ5YSA9WqVRi4lxX2whDpfa5s93CqeLXqafl1hySc
+ y4fd0ojIMq1q9GS5jcMLgKNDeTu7SepWSDMhrN6xundRvF17/KmKo8vAXKC0NBvEJ116yzGa+z1YQm
+ 7jLAogXEJhu/av4WNyD70T5hemMarvteRp5UnX3tWZ7hDjnVd0O/VChfesLOawxEFRVZT4QXtPanvc
+ FpXdni7CWLJAZs0jM/W1k2Wog+n3YOaGQgRSjLBx36GunJQo2OlNt/kGqaMp3sus1X3wtit0IxyxHM
+ EOy1W/i/XJUIcPGTyvXQVSAmqefXiBA4wbwN0BvMwhPrylq9YpuK7TNwLW+AWspWguqylClX6eUFIA
+ nU8V8+6vf7fRFlzrJJCX108PsnA8tYgj09it26zBNVGFJth17Fp9HfCmlH6BqH9Gbiwnf+gMqDG43Y
+ YcgOKgpshiw6LqDm3Z1zEhfkHslz01Jw+l2PXkmYI73V8yEf/I+75Q5DEmNzeoQItKpKN83vWjN9qi
+ 95j7l95LPgLsMJIlRgcsWMFeZQEM+uD1y46AwBDIC4WHanVtABtF3Pew3idg==
 X-Developer-Key: i=neil.armstrong@linaro.org; a=openpgp;
  fpr=89EC3D058446217450F22848169AB7B1A4CFF8AE
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add initial support for the new Goodix "Berlin" touchscreen ICs.
+Add initial support for the new Goodix "Berlin" touchscreen ICs
+over the SPI interface.
 
-These touchscreen ICs support SPI, I2C and I3C interface, up to
-10 finger touch, stylus and gestures events.
+The driver doesn't use the regmap_spi code since the SPI messages
+needs to be prefixed, thus this custom regmap code.
 
 This initial driver is derived from the Goodix goodix_ts_berlin
 available at [1] and [2] and only supports the GT9916 IC
@@ -103,809 +104,229 @@ present on the Qualcomm SM8550 MTP & QRD touch panel.
 
 The current implementation only supports BerlinD, aka GT9916.
 
-Support for advanced features like:
-- Firmware & config update
-- Stylus events
-- Gestures events
-- Previous revisions support (BerlinA or BerlinB)
-is not included in current version.
-
-The current support will work with currently flashed firmware
-and config, and bail out if firmware or config aren't flashed yet.
-
 [1] https://github.com/goodix/goodix_ts_berlin
 [2] https://git.codelinaro.org/clo/la/platform/vendor/opensource/touch-drivers
 
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- drivers/input/touchscreen/Kconfig              |   5 +
- drivers/input/touchscreen/Makefile             |   1 +
- drivers/input/touchscreen/goodix_berlin.h      | 159 +++++++
- drivers/input/touchscreen/goodix_berlin_core.c | 584 +++++++++++++++++++++++++
- 4 files changed, 749 insertions(+)
+ drivers/input/touchscreen/Kconfig             |  13 ++
+ drivers/input/touchscreen/Makefile            |   1 +
+ drivers/input/touchscreen/goodix_berlin_spi.c | 172 ++++++++++++++++++++++++++
+ 3 files changed, 186 insertions(+)
 
 diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index c2cbd332af1d..1a6f6f6da991 100644
+index 5e21cca6025d..2d86615e5090 100644
 --- a/drivers/input/touchscreen/Kconfig
 +++ b/drivers/input/touchscreen/Kconfig
-@@ -416,6 +416,11 @@ config TOUCHSCREEN_GOODIX
+@@ -435,6 +435,19 @@ config TOUCHSCREEN_GOODIX_BERLIN_I2C
  	  To compile this driver as a module, choose M here: the
- 	  module will be called goodix.
+ 	  module will be called goodix_berlin_i2c.
  
-+config TOUCHSCREEN_GOODIX_BERLIN_CORE
-+	depends on GPIOLIB || COMPILE_TEST
-+	depends on REGMAP
-+	tristate
++config TOUCHSCREEN_GOODIX_BERLIN_SPI
++	tristate "Goodix Berlin SPI touchscreen"
++	depends on SPI_MASTER
++	select TOUCHSCREEN_GOODIX_BERLIN_CORE
++	help
++	  Say Y here if you have a Goodix Berlin IC connected to
++	  your system via SPI.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called goodix_berlin_spi.
 +
  config TOUCHSCREEN_HIDEEP
  	tristate "HiDeep Touch IC"
  	depends on I2C
 diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 159cd5136fdb..29cdb042e104 100644
+index 921a2da0c2be..29524e8a83db 100644
 --- a/drivers/input/touchscreen/Makefile
 +++ b/drivers/input/touchscreen/Makefile
-@@ -47,6 +47,7 @@ obj-$(CONFIG_TOUCHSCREEN_EGALAX_SERIAL)	+= egalax_ts_serial.o
- obj-$(CONFIG_TOUCHSCREEN_EXC3000)	+= exc3000.o
- obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
+@@ -49,6 +49,7 @@ obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
  obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix_ts.o
-+obj-$(CONFIG_TOUCHSCREEN_GOODIX_BERLIN_CORE)	+= goodix_berlin_core.o
+ obj-$(CONFIG_TOUCHSCREEN_GOODIX_BERLIN_CORE)	+= goodix_berlin_core.o
+ obj-$(CONFIG_TOUCHSCREEN_GOODIX_BERLIN_I2C)	+= goodix_berlin_i2c.o
++obj-$(CONFIG_TOUCHSCREEN_GOODIX_BERLIN_SPI)	+= goodix_berlin_spi.o
  obj-$(CONFIG_TOUCHSCREEN_HIDEEP)	+= hideep.o
  obj-$(CONFIG_TOUCHSCREEN_HYNITRON_CSTXXX)	+= hynitron_cstxxx.o
  obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
-diff --git a/drivers/input/touchscreen/goodix_berlin.h b/drivers/input/touchscreen/goodix_berlin.h
+diff --git a/drivers/input/touchscreen/goodix_berlin_spi.c b/drivers/input/touchscreen/goodix_berlin_spi.c
 new file mode 100644
-index 000000000000..235f44947a28
+index 000000000000..3a1bc251b32d
 --- /dev/null
-+++ b/drivers/input/touchscreen/goodix_berlin.h
-@@ -0,0 +1,159 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
-+/*
-+ * Goodix Touchscreen Driver
-+ * Copyright (C) 2020 - 2021 Goodix, Inc.
-+ * Copyright (C) 2023 Linaro Ltd.
-+ *
-+ * Based on goodix_berlin_berlin driver.
-+ */
-+
-+#ifndef __GOODIX_BERLIN_H_
-+#define __GOODIX_BERLIN_H_
-+
-+#include <linux/gpio/consumer.h>
-+#include <linux/input.h>
-+#include <linux/input/touchscreen.h>
-+#include <linux/regulator/consumer.h>
-+#include <linux/sizes.h>
-+
-+#define GOODIX_BERLIN_MAX_TOUCH			10
-+
-+#define GOODIX_BERLIN_NORMAL_RESET_DELAY_MS	100
-+
-+#define GOODIX_BERLIN_IRQ_EVENT_HEAD_LEN	8
-+#define GOODIX_BERLIN_STATUS_OFFSET		0
-+#define GOODIX_BERLIN_REQUEST_TYPE_OFFSET	2
-+
-+#define GOODIX_BERLIN_BYTES_PER_POINT		8
-+#define GOODIX_BERLIN_COOR_DATA_CHECKSUM_SIZE	2
-+#define GOODIX_BERLIN_COOR_DATA_CHECKSUM_MASK	GENMASK(15, 0)
-+
-+/* Read n finger events */
-+#define GOODIX_BERLIN_IRQ_READ_LEN(n)		(GOODIX_BERLIN_IRQ_EVENT_HEAD_LEN + \
-+						 (GOODIX_BERLIN_BYTES_PER_POINT * (n)) + \
-+						 GOODIX_BERLIN_COOR_DATA_CHECKSUM_SIZE)
-+
-+#define GOODIX_BERLIN_TOUCH_EVENT		BIT(7)
-+#define GOODIX_BERLIN_REQUEST_EVENT		BIT(6)
-+#define GOODIX_BERLIN_TOUCH_COUNT_MASK		GENMASK(3, 0)
-+
-+#define GOODIX_BERLIN_REQUEST_CODE_RESET	3
-+
-+#define GOODIX_BERLIN_POINT_TYPE_MASK		GENMASK(3, 0)
-+#define GOODIX_BERLIN_POINT_TYPE_STYLUS_HOVER	1
-+#define GOODIX_BERLIN_POINT_TYPE_STYLUS		3
-+
-+#define GOODIX_BERLIN_TOUCH_ID_MASK		GENMASK(7, 4)
-+
-+#define GOODIX_BERLIN_DEV_CONFIRM_VAL		0xAA
-+#define GOODIX_BERLIN_BOOTOPTION_ADDR		0x10000
-+#define GOODIX_BERLIN_FW_VERSION_INFO_ADDR	0x10014
-+
-+#define GOODIX_BERLIN_IC_INFO_MAX_LEN		SZ_1K
-+#define GOODIX_BERLIN_IC_INFO_ADDR		0x10070
-+
-+struct goodix_berlin_fw_version {
-+	u8 rom_pid[6];
-+	u8 rom_vid[3];
-+	u8 rom_vid_reserved;
-+	u8 patch_pid[8];
-+	u8 patch_vid[4];
-+	u8 patch_vid_reserved;
-+	u8 sensor_id;
-+	u8 reserved[2];
-+	__le16 checksum;
-+} __packed;
-+
-+struct goodix_berlin_ic_info_version {
-+	u8 info_customer_id;
-+	u8 info_version_id;
-+	u8 ic_die_id;
-+	u8 ic_version_id;
-+	__le32 config_id;
-+	u8 config_version;
-+	u8 frame_data_customer_id;
-+	u8 frame_data_version_id;
-+	u8 touch_data_customer_id;
-+	u8 touch_data_version_id;
-+	u8 reserved[3];
-+} __packed;
-+
-+struct goodix_berlin_ic_info_feature {
-+	__le16 freqhop_feature;
-+	__le16 calibration_feature;
-+	__le16 gesture_feature;
-+	__le16 side_touch_feature;
-+	__le16 stylus_feature;
-+} __packed;
-+
-+struct goodix_berlin_ic_info_misc {
-+	__le32 cmd_addr;
-+	__le16 cmd_max_len;
-+	__le32 cmd_reply_addr;
-+	__le16 cmd_reply_len;
-+	__le32 fw_state_addr;
-+	__le16 fw_state_len;
-+	__le32 fw_buffer_addr;
-+	__le16 fw_buffer_max_len;
-+	__le32 frame_data_addr;
-+	__le16 frame_data_head_len;
-+	__le16 fw_attr_len;
-+	__le16 fw_log_len;
-+	u8 pack_max_num;
-+	u8 pack_compress_version;
-+	__le16 stylus_struct_len;
-+	__le16 mutual_struct_len;
-+	__le16 self_struct_len;
-+	__le16 noise_struct_len;
-+	__le32 touch_data_addr;
-+	__le16 touch_data_head_len;
-+	__le16 point_struct_len;
-+	__le16 reserved1;
-+	__le16 reserved2;
-+	__le32 mutual_rawdata_addr;
-+	__le32 mutual_diffdata_addr;
-+	__le32 mutual_refdata_addr;
-+	__le32 self_rawdata_addr;
-+	__le32 self_diffdata_addr;
-+	__le32 self_refdata_addr;
-+	__le32 iq_rawdata_addr;
-+	__le32 iq_refdata_addr;
-+	__le32 im_rawdata_addr;
-+	__le16 im_readata_len;
-+	__le32 noise_rawdata_addr;
-+	__le16 noise_rawdata_len;
-+	__le32 stylus_rawdata_addr;
-+	__le16 stylus_rawdata_len;
-+	__le32 noise_data_addr;
-+	__le32 esd_addr;
-+} __packed;
-+
-+struct goodix_berlin_touch_data {
-+	u8 id;
-+	u8 unused;
-+	__le16 x;
-+	__le16 y;
-+	__le16 w;
-+} __packed;
-+
-+struct goodix_berlin_core {
-+	struct device *dev;
-+	struct regmap *regmap;
-+	struct regulator *avdd;
-+	struct regulator *iovdd;
-+	struct gpio_desc *reset_gpio;
-+	struct touchscreen_properties props;
-+	struct goodix_berlin_fw_version fw_version;
-+	struct input_dev *input_dev;
-+	int irq;
-+
-+	/* Runtime parameters extracted from IC_INFO buffer  */
-+	u32 touch_data_addr;
-+};
-+
-+int goodix_berlin_probe(struct device *dev, int irq, const struct input_id *id,
-+			struct regmap *regmap);
-+
-+extern const struct dev_pm_ops goodix_berlin_pm_ops;
-+
-+#endif
-diff --git a/drivers/input/touchscreen/goodix_berlin_core.c b/drivers/input/touchscreen/goodix_berlin_core.c
-new file mode 100644
-index 000000000000..af3e73bbb3ec
---- /dev/null
-+++ b/drivers/input/touchscreen/goodix_berlin_core.c
-@@ -0,0 +1,584 @@
++++ b/drivers/input/touchscreen/goodix_berlin_spi.c
+@@ -0,0 +1,172 @@
 +// SPDX-License-Identifier: GPL-2.0-or-later
 +/*
-+ * Goodix Touchscreen Driver
++ * Goodix Berlin Touchscreen Driver
++ *
 + * Copyright (C) 2020 - 2021 Goodix, Inc.
 + * Copyright (C) 2023 Linaro Ltd.
 + *
 + * Based on goodix_ts_berlin driver.
 + */
 +#include <asm/unaligned.h>
-+#include <linux/input/mt.h>
-+#include <linux/input/touchscreen.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
 +#include <linux/regmap.h>
++#include <linux/spi/spi.h>
 +
 +#include "goodix_berlin.h"
 +
-+/*
-+ * Goodix "Berlin" Touchscreen ID driver
-+ *
-+ * This driver is distinct from goodix.c since hardware interface
-+ * is different enough to require a new driver.
-+ * None of the register address or data structure are close enough
-+ * to the previous generations.
-+ *
-+ * Currently only handles Multitouch events with already
-+ * programmed firmware and "config" for "Revision D" Berlin IC.
-+ *
-+ * Support is missing for:
-+ * - ESD Management
-+ * - Firmware update/flashing
-+ * - "Config" update/flashing
-+ * - Stylus Events
-+ * - Gesture Events
-+ * - Support for older revisions (A & B)
-+ */
++#define SPI_TRANS_PREFIX_LEN	1
++#define REGISTER_WIDTH		4
++#define SPI_READ_DUMMY_LEN	3
++#define SPI_READ_PREFIX_LEN	(SPI_TRANS_PREFIX_LEN + REGISTER_WIDTH + SPI_READ_DUMMY_LEN)
++#define SPI_WRITE_PREFIX_LEN	(SPI_TRANS_PREFIX_LEN + REGISTER_WIDTH)
 +
-+static bool goodix_berlin_checksum_valid(const u8 *data, int size)
++#define SPI_WRITE_FLAG		0xF0
++#define SPI_READ_FLAG		0xF1
++
++static int goodix_berlin_spi_read(void *context, const void *reg_buf,
++				  size_t reg_size, void *val_buf,
++				  size_t val_size)
 +{
-+	u32 cal_checksum = 0;
-+	u16 r_checksum;
-+	u32 i;
++	struct spi_device *spi = context;
++	struct spi_transfer xfers;
++	struct spi_message spi_msg;
++	const u32 *reg = reg_buf; /* reg is stored as native u32 at start of buffer */
++	u8 *buf;
++	int ret;
 +
-+	if (size < GOODIX_BERLIN_COOR_DATA_CHECKSUM_SIZE)
-+		return false;
-+
-+	for (i = 0; i < size - GOODIX_BERLIN_COOR_DATA_CHECKSUM_SIZE; i++)
-+		cal_checksum += data[i];
-+
-+	r_checksum = get_unaligned_le16(&data[i]);
-+
-+	return FIELD_GET(GOODIX_BERLIN_COOR_DATA_CHECKSUM_MASK, cal_checksum) == r_checksum;
-+}
-+
-+static bool goodix_berlin_is_dummy_data(struct goodix_berlin_core *cd,
-+					const u8 *data, int size)
-+{
-+	int i;
-+
-+	/*
-+	 * If the device is missing or doesn't respond the buffer
-+	 * could be filled with bus default line state, 0x00 or 0xff,
-+	 * so declare success the first time we encounter neither.
-+	 */
-+	for (i = 0; i < size; i++)
-+		if (data[i] > 0 && data[i] < 0xff)
-+			return false;
-+
-+	return true;
-+}
-+
-+static int goodix_berlin_dev_confirm(struct goodix_berlin_core *cd)
-+{
-+	u8 tx_buf[8], rx_buf[8];
-+	int retry = 3;
-+	int error;
-+
-+	memset(tx_buf, GOODIX_BERLIN_DEV_CONFIRM_VAL, sizeof(tx_buf));
-+	while (retry--) {
-+		error = regmap_raw_write(cd->regmap, GOODIX_BERLIN_BOOTOPTION_ADDR, tx_buf,
-+					 sizeof(tx_buf));
-+		if (error)
-+			return error;
-+
-+		error = regmap_raw_read(cd->regmap, GOODIX_BERLIN_BOOTOPTION_ADDR, rx_buf,
-+					sizeof(rx_buf));
-+		if (error)
-+			return error;
-+
-+		if (!memcmp(tx_buf, rx_buf, sizeof(tx_buf)))
-+			return 0;
-+
-+		usleep_range(5000, 5100);
-+	}
-+
-+	dev_err(cd->dev, "device confirm failed, rx_buf: %*ph\n", 8, rx_buf);
-+
-+	return -EINVAL;
-+}
-+
-+static int goodix_berlin_power_on(struct goodix_berlin_core *cd, bool on)
-+{
-+	int error = 0;
-+
-+	if (on) {
-+		error = regulator_enable(cd->iovdd);
-+		if (error) {
-+			dev_err(cd->dev, "Failed to enable iovdd: %d\n", error);
-+			return error;
-+		}
-+
-+		/* Vendor waits 3ms for IOVDD to settle */
-+		usleep_range(3000, 3100);
-+
-+		error = regulator_enable(cd->avdd);
-+		if (error) {
-+			dev_err(cd->dev, "Failed to enable avdd: %d\n", error);
-+			goto error_avdd_regulator;
-+		}
-+
-+		/* Vendor waits 15ms for IOVDD to settle */
-+		usleep_range(15000, 15100);
-+
-+		gpiod_set_value(cd->reset_gpio, 0);
-+
-+		/* Vendor waits 4ms for Firmware to initialize */
-+		usleep_range(4000, 4100);
-+
-+		error = goodix_berlin_dev_confirm(cd);
-+		if (error)
-+			goto error_dev_confirm;
-+
-+		/* Vendor waits 100ms for Firmware to fully boot */
-+		msleep(GOODIX_BERLIN_NORMAL_RESET_DELAY_MS);
-+
-+		return 0;
-+	}
-+
-+error_dev_confirm:
-+	gpiod_set_value(cd->reset_gpio, 1);
-+
-+	regulator_disable(cd->avdd);
-+
-+error_avdd_regulator:
-+	regulator_disable(cd->iovdd);
-+
-+	return error;
-+}
-+
-+static int goodix_berlin_read_version(struct goodix_berlin_core *cd)
-+{
-+	u8 buf[sizeof(struct goodix_berlin_fw_version)];
-+	int error;
-+
-+	error = regmap_raw_read(cd->regmap, GOODIX_BERLIN_FW_VERSION_INFO_ADDR, buf, sizeof(buf));
-+	if (error) {
-+		dev_err(cd->dev, "error reading fw version\n");
-+		return error;
-+	}
-+
-+	if (!goodix_berlin_checksum_valid(buf, sizeof(buf))) {
-+		dev_err(cd->dev, "invalid fw version: checksum error\n");
++	if (reg_size != REGISTER_WIDTH)
 +		return -EINVAL;
-+	}
 +
-+	memcpy(&cd->fw_version, buf, sizeof(cd->fw_version));
-+
-+	return 0;
-+}
-+
-+/* Only extract necessary data for runtime */
-+static int goodix_berlin_convert_ic_info(struct goodix_berlin_core *cd,
-+					 const u8 *data, u16 length)
-+{
-+	struct goodix_berlin_ic_info_misc misc;
-+	unsigned int offset = 0;
-+	u8 param_num;
-+
-+	offset += sizeof(__le16); /* length */
-+	offset += sizeof(struct goodix_berlin_ic_info_version);
-+	offset += sizeof(struct goodix_berlin_ic_info_feature);
-+
-+	/* IC_INFO Parameters, variable width structure */
-+	offset += 4 * sizeof(u8); /* drv_num, sen_num, button_num, force_num */
-+
-+	if (offset >= length)
-+		goto invalid_offset;
-+
-+	param_num = data[offset++]; /* active_scan_rate_num */
-+
-+	offset += param_num * sizeof(__le16);
-+
-+	if (offset >= length)
-+		goto invalid_offset;
-+
-+	param_num = data[offset++]; /* mutual_freq_num*/
-+
-+	offset += param_num * sizeof(__le16);
-+
-+	if (offset >= length)
-+		goto invalid_offset;
-+
-+	param_num = data[offset++]; /* self_tx_freq_num */
-+
-+	offset += param_num * sizeof(__le16);
-+
-+	if (offset >= length)
-+		goto invalid_offset;
-+
-+	param_num = data[offset++]; /* self_rx_freq_num */
-+
-+	offset += param_num * sizeof(__le16);
-+
-+	if (offset >= length)
-+		goto invalid_offset;
-+
-+	param_num = data[offset++]; /* stylus_freq_num */
-+
-+	offset += param_num * sizeof(__le16);
-+
-+	if (offset + sizeof(misc) > length)
-+		goto invalid_offset;
-+
-+	/* goodix_berlin_ic_info_misc */
-+	memcpy(&misc, &data[offset], sizeof(misc));
-+
-+	cd->touch_data_addr = le32_to_cpu(misc.touch_data_addr);
-+
-+	return 0;
-+
-+invalid_offset:
-+	dev_err(cd->dev, "ic_info length is invalid (offset %d length %d)\n",
-+		offset, length);
-+	return -EINVAL;
-+}
-+
-+static int goodix_berlin_get_ic_info(struct goodix_berlin_core *cd)
-+{
-+	u8 afe_data[GOODIX_BERLIN_IC_INFO_MAX_LEN];
-+	__le16 length_raw;
-+	u16 length;
-+	int error;
-+
-+	error = regmap_raw_read(cd->regmap, GOODIX_BERLIN_IC_INFO_ADDR,
-+				&length_raw, sizeof(length_raw));
-+	if (error) {
-+		dev_info(cd->dev, "failed get ic info length, %d\n", error);
-+		return error;
-+	}
-+
-+	length = le16_to_cpu(length_raw);
-+	if (length >= GOODIX_BERLIN_IC_INFO_MAX_LEN) {
-+		dev_info(cd->dev, "invalid ic info length %d\n", length);
-+		return -EINVAL;
-+	}
-+
-+	error = regmap_raw_read(cd->regmap, GOODIX_BERLIN_IC_INFO_ADDR,
-+				afe_data, length);
-+	if (error) {
-+		dev_info(cd->dev, "failed get ic info data, %d\n", error);
-+		return error;
-+	}
-+
-+	/* check whether the data is valid (ex. bus default values) */
-+	if (goodix_berlin_is_dummy_data(cd, (const uint8_t *)afe_data, length)) {
-+		dev_err(cd->dev, "fw info data invalid\n");
-+		return -EINVAL;
-+	}
-+
-+	if (!goodix_berlin_checksum_valid((const uint8_t *)afe_data, length)) {
-+		dev_info(cd->dev, "fw info checksum error\n");
-+		return -EINVAL;
-+	}
-+
-+	error = goodix_berlin_convert_ic_info(cd, afe_data, length);
-+	if (error) {
-+		dev_err(cd->dev, "error converting ic info\n");
-+		return error;
-+	}
-+
-+	/* check some key info */
-+	if (!cd->touch_data_addr) {
-+		dev_err(cd->dev, "touch_data_addr is null\n");
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static void goodix_berlin_parse_finger(struct goodix_berlin_core *cd,
-+				       const void *buf, int touch_num)
-+{
-+	const struct goodix_berlin_touch_data *touch_data = buf;
-+	int i;
-+
-+	/* Check for data validity */
-+	for (i = 0; i < touch_num; i++) {
-+		unsigned int id;
-+
-+		id = FIELD_GET(GOODIX_BERLIN_TOUCH_ID_MASK, touch_data[i].id);
-+
-+		if (id >= GOODIX_BERLIN_MAX_TOUCH) {
-+			dev_warn(cd->dev, "invalid finger id %d\n", id);
-+			return;
-+		}
-+	}
-+
-+	/* Report finger touches */
-+	for (i = 0; i < touch_num; i++) {
-+		input_mt_slot(cd->input_dev,
-+			      FIELD_GET(GOODIX_BERLIN_TOUCH_ID_MASK,
-+					touch_data[i].id));
-+		input_mt_report_slot_state(cd->input_dev, MT_TOOL_FINGER, true);
-+
-+		touchscreen_report_pos(cd->input_dev, &cd->props,
-+				       __le16_to_cpu(touch_data[i].x),
-+				       __le16_to_cpu(touch_data[i].y),
-+				       true);
-+		input_report_abs(cd->input_dev, ABS_MT_TOUCH_MAJOR,
-+				 __le16_to_cpu(touch_data[i].w));
-+	}
-+
-+	input_mt_sync_frame(cd->input_dev);
-+	input_sync(cd->input_dev);
-+}
-+
-+static void goodix_berlin_touch_handler(struct goodix_berlin_core *cd,
-+					const void *pre_buf, u32 pre_buf_len)
-+{
-+	static u8 buffer[GOODIX_BERLIN_IRQ_READ_LEN(GOODIX_BERLIN_MAX_TOUCH)];
-+	u8 point_type = 0;
-+	u8 touch_num = 0;
-+	int error = 0;
-+
-+	/* copy pre-data to buffer */
-+	memcpy(buffer, pre_buf, pre_buf_len);
-+
-+	touch_num = FIELD_GET(GOODIX_BERLIN_TOUCH_COUNT_MASK,
-+			      buffer[GOODIX_BERLIN_REQUEST_TYPE_OFFSET]);
-+
-+	if (touch_num > GOODIX_BERLIN_MAX_TOUCH) {
-+		dev_warn(cd->dev, "invalid touch num %d\n", touch_num);
-+		return;
-+	}
-+
-+	if (touch_num) {
-+		/* read more data if more than 2 touch events */
-+		if (unlikely(touch_num > 2)) {
-+			error = regmap_raw_read(cd->regmap,
-+						cd->touch_data_addr + pre_buf_len,
-+						&buffer[pre_buf_len],
-+						(touch_num - 2) * GOODIX_BERLIN_BYTES_PER_POINT);
-+			if (error) {
-+				dev_err_ratelimited(cd->dev, "failed get touch data\n");
-+				return;
-+			}
-+		}
-+
-+		point_type = FIELD_GET(GOODIX_BERLIN_POINT_TYPE_MASK,
-+				       buffer[GOODIX_BERLIN_IRQ_EVENT_HEAD_LEN]);
-+
-+		if (point_type == GOODIX_BERLIN_POINT_TYPE_STYLUS ||
-+		    point_type == GOODIX_BERLIN_POINT_TYPE_STYLUS_HOVER) {
-+			dev_warn_once(cd->dev, "Stylus event type not handled\n");
-+			return;
-+		}
-+
-+		if (!goodix_berlin_checksum_valid(&buffer[GOODIX_BERLIN_IRQ_EVENT_HEAD_LEN],
-+						  touch_num * GOODIX_BERLIN_BYTES_PER_POINT + 2)) {
-+			dev_dbg(cd->dev, "touch data checksum error\n");
-+			dev_dbg(cd->dev, "data: %*ph\n",
-+				touch_num * GOODIX_BERLIN_BYTES_PER_POINT + 2,
-+				&buffer[GOODIX_BERLIN_IRQ_EVENT_HEAD_LEN]);
-+			return;
-+		}
-+	}
-+
-+	goodix_berlin_parse_finger(cd, &buffer[GOODIX_BERLIN_IRQ_EVENT_HEAD_LEN],
-+				   touch_num);
-+}
-+
-+static int goodix_berlin_request_handle_reset(struct goodix_berlin_core *cd)
-+{
-+	gpiod_set_value(cd->reset_gpio, 1);
-+	usleep_range(2000, 2100);
-+	gpiod_set_value(cd->reset_gpio, 0);
-+
-+	msleep(GOODIX_BERLIN_NORMAL_RESET_DELAY_MS);
-+
-+	return 0;
-+}
-+
-+static irqreturn_t goodix_berlin_threadirq_func(int irq, void *data)
-+{
-+	struct goodix_berlin_core *cd = data;
-+	u8 buf[GOODIX_BERLIN_IRQ_READ_LEN(2)];
-+	u8 event_status;
-+	int error;
-+
-+	/* First, read buffer with space for 2 touch events */
-+	error = regmap_raw_read(cd->regmap, cd->touch_data_addr, buf,
-+				GOODIX_BERLIN_IRQ_READ_LEN(2));
-+	if (error) {
-+		dev_err_ratelimited(cd->dev, "failed get event head data\n");
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (buf[GOODIX_BERLIN_STATUS_OFFSET] == 0)
-+		return IRQ_HANDLED;
-+
-+	if (!goodix_berlin_checksum_valid(buf, GOODIX_BERLIN_IRQ_EVENT_HEAD_LEN)) {
-+		dev_warn_ratelimited(cd->dev, "touch head checksum err : %*ph\n",
-+				     GOODIX_BERLIN_IRQ_EVENT_HEAD_LEN, buf);
-+		return IRQ_HANDLED;
-+	}
-+
-+	event_status = buf[GOODIX_BERLIN_STATUS_OFFSET];
-+
-+	if (event_status & GOODIX_BERLIN_TOUCH_EVENT)
-+		goodix_berlin_touch_handler(cd, buf, GOODIX_BERLIN_IRQ_READ_LEN(2));
-+
-+	if (event_status & GOODIX_BERLIN_REQUEST_EVENT) {
-+		switch (buf[GOODIX_BERLIN_REQUEST_TYPE_OFFSET]) {
-+		case GOODIX_BERLIN_REQUEST_CODE_RESET:
-+			goodix_berlin_request_handle_reset(cd);
-+			break;
-+
-+		default:
-+			dev_warn(cd->dev, "unsupported request code 0x%x\n",
-+				 buf[GOODIX_BERLIN_REQUEST_TYPE_OFFSET]);
-+		}
-+	}
-+
-+	/* Clear up status field */
-+	regmap_write(cd->regmap, cd->touch_data_addr, 0);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int goodix_berlin_input_dev_config(struct goodix_berlin_core *cd,
-+					  const struct input_id *id)
-+{
-+	struct input_dev *input_dev;
-+	int error;
-+
-+	input_dev = devm_input_allocate_device(cd->dev);
-+	if (!input_dev)
++	buf = kzalloc(SPI_READ_PREFIX_LEN + val_size, GFP_KERNEL);
++	if (!buf)
 +		return -ENOMEM;
 +
-+	cd->input_dev = input_dev;
-+	input_set_drvdata(input_dev, cd);
++	spi_message_init(&spi_msg);
++	memset(&xfers, 0, sizeof(xfers));
 +
-+	input_dev->name = "Goodix Berlin Capacitive TouchScreen";
-+	input_dev->phys = "input/ts";
++	/* buffer format: 0xF1 + addr(4bytes) + dummy(3bytes) + data */
++	buf[0] = SPI_READ_FLAG;
++	put_unaligned_be32(*reg, buf + SPI_TRANS_PREFIX_LEN);
++	memset(buf + SPI_TRANS_PREFIX_LEN + REGISTER_WIDTH, 0xff,
++	       SPI_READ_DUMMY_LEN);
 +
-+	input_dev->id = *id;
++	xfers.tx_buf = buf;
++	xfers.rx_buf = buf;
++	xfers.len = SPI_READ_PREFIX_LEN + val_size;
++	xfers.cs_change = 0;
++	spi_message_add_tail(&xfers, &spi_msg);
 +
-+	input_set_abs_params(cd->input_dev, ABS_MT_POSITION_X, 0, SZ_64K - 1, 0, 0);
-+	input_set_abs_params(cd->input_dev, ABS_MT_POSITION_Y, 0, SZ_64K - 1, 0, 0);
-+	input_set_abs_params(cd->input_dev, ABS_MT_TOUCH_MAJOR, 0, 255, 0, 0);
++	ret = spi_sync(spi, &spi_msg);
++	if (ret < 0)
++		dev_err(&spi->dev, "transfer error:%d", ret);
++	else
++		memcpy(val_buf, buf + SPI_READ_PREFIX_LEN, val_size);
 +
-+	touchscreen_parse_properties(cd->input_dev, true, &cd->props);
-+
-+	error = input_mt_init_slots(cd->input_dev, GOODIX_BERLIN_MAX_TOUCH,
-+				    INPUT_MT_DIRECT | INPUT_MT_DROP_UNUSED);
-+	if (error)
-+		return error;
-+
-+	return input_register_device(cd->input_dev);
++	kfree(buf);
++	return ret;
 +}
 +
-+static int goodix_berlin_pm_suspend(struct device *dev)
++static int goodix_berlin_spi_write(void *context, const void *data,
++				   size_t count)
 +{
-+	struct goodix_berlin_core *cd = dev_get_drvdata(dev);
++	unsigned int len = count - REGISTER_WIDTH;
++	struct spi_device *spi = context;
++	struct spi_transfer xfers;
++	struct spi_message spi_msg;
++	const u32 *reg = data; /* reg is stored as native u32 at start of buffer */
++	u8 *buf;
++	int ret;
 +
-+	disable_irq(cd->irq);
-+
-+	return goodix_berlin_power_on(cd, false);
-+}
-+
-+static int goodix_berlin_pm_resume(struct device *dev)
-+{
-+	struct goodix_berlin_core *cd = dev_get_drvdata(dev);
-+	int error;
-+
-+	error = goodix_berlin_power_on(cd, true);
-+	if (error)
-+		return error;
-+
-+	enable_irq(cd->irq);
-+
-+	return 0;
-+}
-+
-+EXPORT_GPL_SIMPLE_DEV_PM_OPS(goodix_berlin_pm_ops,
-+			     goodix_berlin_pm_suspend,
-+			     goodix_berlin_pm_resume);
-+
-+static void goodix_berlin_power_off(void *data)
-+{
-+	struct goodix_berlin_core *cd = data;
-+
-+	goodix_berlin_power_on(cd, false);
-+}
-+
-+int goodix_berlin_probe(struct device *dev, int irq, const struct input_id *id,
-+			struct regmap *regmap)
-+{
-+	struct goodix_berlin_core *cd;
-+	int error;
-+
-+	if (irq <= 0) {
-+		dev_err(dev, "Missing interrupt number\n");
-+		return -EINVAL;
-+	}
-+
-+	cd = devm_kzalloc(dev, sizeof(*cd), GFP_KERNEL);
-+	if (!cd)
++	buf = kzalloc(SPI_WRITE_PREFIX_LEN + len, GFP_KERNEL);
++	if (!buf)
 +		return -ENOMEM;
 +
-+	cd->dev = dev;
-+	cd->regmap = regmap;
-+	cd->irq = irq;
++	spi_message_init(&spi_msg);
++	memset(&xfers, 0, sizeof(xfers));
 +
-+	cd->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
-+	if (IS_ERR(cd->reset_gpio))
-+		return dev_err_probe(dev, PTR_ERR(cd->reset_gpio),
-+				     "Failed to request reset gpio\n");
++	buf[0] = SPI_WRITE_FLAG;
++	put_unaligned_be32(*reg, buf + SPI_TRANS_PREFIX_LEN);
++	memcpy(buf + SPI_WRITE_PREFIX_LEN, data + REGISTER_WIDTH, len);
 +
-+	cd->avdd = devm_regulator_get(dev, "avdd");
-+	if (IS_ERR(cd->avdd))
-+		return dev_err_probe(dev, PTR_ERR(cd->avdd),
-+				     "Failed to request avdd regulator\n");
++	xfers.tx_buf = buf;
++	xfers.len = SPI_WRITE_PREFIX_LEN + len;
++	xfers.cs_change = 0;
++	spi_message_add_tail(&xfers, &spi_msg);
 +
-+	cd->iovdd = devm_regulator_get(dev, "iovdd");
-+	if (IS_ERR(cd->iovdd))
-+		return dev_err_probe(dev, PTR_ERR(cd->iovdd),
-+				     "Failed to request iovdd regulator\n");
++	ret = spi_sync(spi, &spi_msg);
++	if (ret < 0)
++		dev_err(&spi->dev, "transfer error:%d", ret);
 +
-+	error = goodix_berlin_power_on(cd, true);
-+	if (error) {
-+		dev_err(dev, "failed power on");
-+		return error;
-+	}
++	kfree(buf);
++	return ret;
++}
 +
-+	error = devm_add_action_or_reset(dev, goodix_berlin_power_off, cd);
++static const struct regmap_config goodix_berlin_spi_regmap_conf = {
++	.reg_bits = 32,
++	.val_bits = 8,
++	.read = goodix_berlin_spi_read,
++	.write = goodix_berlin_spi_write,
++};
++
++/* vendor & product left unassigned here, should probably be updated from fw info */
++static const struct input_id goodix_berlin_spi_input_id = {
++	.bustype = BUS_SPI,
++};
++
++static int goodix_berlin_spi_probe(struct spi_device *spi)
++{
++	struct regmap_config *regmap_config;
++	struct regmap *regmap;
++	size_t max_size;
++	int error = 0;
++
++	regmap_config = devm_kmemdup(&spi->dev, &goodix_berlin_spi_regmap_conf,
++				     sizeof(*regmap_config), GFP_KERNEL);
++	if (!regmap_config)
++		return -ENOMEM;
++
++	spi->mode = SPI_MODE_0;
++	spi->bits_per_word = 8;
++	error = spi_setup(spi);
 +	if (error)
 +		return error;
 +
-+	error = goodix_berlin_read_version(cd);
-+	if (error) {
-+		dev_err(dev, "failed to get version info");
-+		return error;
-+	}
++	max_size = spi_max_transfer_size(spi);
++	regmap_config->max_raw_read = max_size - SPI_READ_PREFIX_LEN;
++	regmap_config->max_raw_write = max_size - SPI_WRITE_PREFIX_LEN;
 +
-+	error = goodix_berlin_get_ic_info(cd);
-+	if (error) {
-+		dev_err(dev, "invalid ic info, abort");
-+		return error;
-+	}
++	regmap = devm_regmap_init(&spi->dev, NULL, spi, regmap_config);
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
 +
-+	error = goodix_berlin_input_dev_config(cd, id);
-+	if (error) {
-+		dev_err(dev, "failed set input device");
-+		return error;
-+	}
-+
-+	error = devm_request_threaded_irq(dev, irq, NULL,
-+					  goodix_berlin_threadirq_func,
-+					  IRQF_ONESHOT, "goodix-berlin", cd);
-+	if (error) {
-+		dev_err(dev, "request threaded irq failed: %d\n", error);
-+		return error;
-+	}
-+
-+	dev_set_drvdata(dev, cd);
-+
-+	dev_dbg(dev, "Goodix Berlin %s Touchscreen Controller", cd->fw_version.patch_pid);
-+
-+	return 0;
++	return goodix_berlin_probe(&spi->dev, spi->irq,
++				   &goodix_berlin_spi_input_id, regmap);
 +}
-+EXPORT_SYMBOL_GPL(goodix_berlin_probe);
++
++static const struct spi_device_id goodix_berlin_spi_ids[] = {
++	{ "gt9916" },
++	{ },
++};
++MODULE_DEVICE_TABLE(spi, goodix_berlin_spi_ids);
++
++static const struct of_device_id goodix_berlin_spi_of_match[] = {
++	{ .compatible = "goodix,gt9916", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, goodix_berlin_spi_of_match);
++
++static struct spi_driver goodix_berlin_spi_driver = {
++	.driver = {
++		.name = "goodix-berlin-spi",
++		.of_match_table = goodix_berlin_spi_of_match,
++		.pm = pm_sleep_ptr(&goodix_berlin_pm_ops),
++	},
++	.probe = goodix_berlin_spi_probe,
++	.id_table = goodix_berlin_spi_ids,
++};
++module_spi_driver(goodix_berlin_spi_driver);
 +
 +MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Goodix Berlin Core Touchscreen driver");
++MODULE_DESCRIPTION("Goodix Berlin SPI Touchscreen driver");
 +MODULE_AUTHOR("Neil Armstrong <neil.armstrong@linaro.org>");
 
 -- 

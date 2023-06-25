@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2836C001B0
-	for <linux-input@archiver.kernel.org>; Sun, 25 Jun 2023 16:29:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E88DEB64DC
+	for <linux-input@archiver.kernel.org>; Sun, 25 Jun 2023 16:29:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231522AbjFYQ3p (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 25 Jun 2023 12:29:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58452 "EHLO
+        id S229673AbjFYQ3q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 25 Jun 2023 12:29:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231506AbjFYQ3f (ORCPT
+        with ESMTP id S229555AbjFYQ3j (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 25 Jun 2023 12:29:35 -0400
+        Sun, 25 Jun 2023 12:29:39 -0400
 Received: from mail-ej1-x62e.google.com (mail-ej1-x62e.google.com [IPv6:2a00:1450:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3092D2
-        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2023 09:29:11 -0700 (PDT)
-Received: by mail-ej1-x62e.google.com with SMTP id a640c23a62f3a-98746d7f35dso372793466b.2
-        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2023 09:29:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC1B1A5
+        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2023 09:29:16 -0700 (PDT)
+Received: by mail-ej1-x62e.google.com with SMTP id a640c23a62f3a-9741caaf9d4so194409366b.0
+        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2023 09:29:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1687710528; x=1690302528;
+        d=linaro.org; s=google; t=1687710532; x=1690302532;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=wzpB2JeeP/+5LJQoX+DM+hKB46MUVJk8x7crRJkVgqQ=;
-        b=trHNOk0opvYLVYmVhzWT2Po6oKItnmcPPNCDu1Fx2rMr8oCf1DH/9UCFefDEAKU+Ky
-         AKS4L4xB1IOig9scwrJH7yctsWIPoE4nIkf6I8UrGBlOx9Iu9SN/Xw7lJBRa6K4GH/OH
-         ai8TkQzbEqsHroNbB1V3M9DD9yNwvK3tXiw/uXgT+Ogo5sbVW6g+oCYn2c453Nqd3zVB
-         v9ShFIjp2rqleT3Iv8/HCuNFcvPIlU11NtGmdz5Et7PSZcxIfrcLU+ftp0EO3e6T6r+N
-         6WSwG4pSp1v6Ve2gQL00M0XoZYf8+XE4FrWVhQJI0OHJqc+qYe8tu769sjRaZVsuSYxe
-         Kb9w==
+        bh=HxreeCUsKJctxClqKw334DOez932+KTIErInSPtTaVw=;
+        b=Pp8yU/zBVYnTMMwOHEiumkUJwl8bUqlFFz1uk6Dfxyx294USOCkvzgAQsJlReLPAc9
+         99GkJWzMhJf4GX2WkoSLyeXcFg01SnkQkcc1XU/NZCS0wO6yvUSmDuCvKJiRM2e/1PxH
+         1fVn/kVsNZPsEXyle6ijoWdOHPo3AAdUgTiWv/Qdlc/WsGOvNXzdpODp4SUxFjFThmb3
+         m5wRSZZ8LVPW5R76tvysT/4nUeracMSQ3/aR4THtDfaO+1olvVMeDOgNGBORXEthJdU5
+         7isF7QGeuO3ST1gp9lqFsyapaIS1UIoDIkoTCAja5ASrvQCjeUBamfYtXaLhVMdNEV3U
+         gbjA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687710528; x=1690302528;
+        d=1e100.net; s=20221208; t=1687710532; x=1690302532;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wzpB2JeeP/+5LJQoX+DM+hKB46MUVJk8x7crRJkVgqQ=;
-        b=NLO8hscLdFKXeW/RYA+v/6+Hv3yaCMflZmyb8DO9xJp8mKbJw2dL+hfOyQIwyHrLw5
-         KmS3rHXnHlDCwH56QWUnVEHu662VX6Cp/32abSyeSqt0mKvZ8IucMlLZh8165YoEBAGP
-         nTvAYXAJixFlYjcLtNZvqYtaQVahZnydu5U2DF7xwDE+T57zNTWSFxg4uBeCsK4w7ts4
-         PhGDfnSdwof7yYxrQqoPR4lfgUk+mgRqeaRm/32dIbVp+8L8w4qFZ/016A/dg2CoWWO0
-         iEzexrZ2sDjrAHHzL4OnR12BdKqVPJH5Q+2B5CtVZ3LmIsXnDzXP+KXaClRmToD/idUm
-         sVkw==
-X-Gm-Message-State: AC+VfDyIy69rZYPpMR2cuE5Jc7B/fFBcYe9vUY6gpDAtW/o9/wKYLQN8
-        zDgqL+qX5ssVRWRrP2Mnwv7Tew==
-X-Google-Smtp-Source: ACHHUZ4KBfW7Fea7Y3FrHDdHbT5K0EUE07fzP91vtVhy9/tp4/vXfwQsSojK+LMA4y8QpGfb34uEiA==
-X-Received: by 2002:a17:907:7256:b0:988:56d1:10d8 with SMTP id ds22-20020a170907725600b0098856d110d8mr19292632ejc.53.1687710528697;
-        Sun, 25 Jun 2023 09:28:48 -0700 (PDT)
+        bh=HxreeCUsKJctxClqKw334DOez932+KTIErInSPtTaVw=;
+        b=IU6f5diOhLUjoDekm/bqMXW0oGl2gPLl+mP+KOHb94+7N0Ia7g/frpSVH09/f61E5q
+         bpJ+I74Juq1QJ+IxXUo3SxK729JphAMjB3o+FMnKxWhDNESH9qRkKMa33Wvt2yI+1KBQ
+         uKHsKO+SGo6Jw7lIYSwBdfiXJfhebuJeF/GbwtfmI2lNVkd111x+718ACjn6pZ2d61rO
+         9IHMdHYS2Q6aFnO0FdaSSi4WJg6kw9oczFdLCGFHTIOOoWQ3m4PICl+Z96Mjktnu6/N1
+         SVcwqv2Tt2DV3dCzNdQpu9gtCVCq9AxkhrZm1VlLRMaOgZvAHUfkaAclGM7oBcg5TqHH
+         yjiw==
+X-Gm-Message-State: AC+VfDy7gnFVo28wFZgD2elp+HjLYDCqTp7VhjORFsjpVCGPWiOZVI/m
+        exdzOHKpupZubMI2udeTIF2zRw==
+X-Google-Smtp-Source: ACHHUZ54nGtBAMtD5A4/SW79a5y2ixsRKqYjqAOBnJSC2bwhdzniIMKmttm6MbTvAQykre2mPU6owg==
+X-Received: by 2002:a17:907:5ca:b0:97b:6c24:8d2b with SMTP id wg10-20020a17090705ca00b0097b6c248d2bmr24694857ejb.55.1687710532198;
+        Sun, 25 Jun 2023 09:28:52 -0700 (PDT)
 Received: from krzk-bin.. ([178.197.219.26])
-        by smtp.gmail.com with ESMTPSA id ec10-20020a170906b6ca00b00982be08a9besm2277731ejb.172.2023.06.25.09.28.47
+        by smtp.gmail.com with ESMTPSA id ec10-20020a170906b6ca00b00982be08a9besm2277731ejb.172.2023.06.25.09.28.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Jun 2023 09:28:48 -0700 (PDT)
+        Sun, 25 Jun 2023 09:28:51 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
@@ -64,9 +64,9 @@ Cc:     Andi Shyti <andi.shyti@kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v4 14/24] Input: melfas_mip4 - Simplify with dev_err_probe()
-Date:   Sun, 25 Jun 2023 18:28:07 +0200
-Message-Id: <20230625162817.100397-15-krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v4 16/24] Input: raydium_i2c_ts - Simplify with dev_err_probe()
+Date:   Sun, 25 Jun 2023 18:28:09 +0200
+Message-Id: <20230625162817.100397-17-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230625162817.100397-1-krzysztof.kozlowski@linaro.org>
 References: <20230625162817.100397-1-krzysztof.kozlowski@linaro.org>
@@ -83,28 +83,54 @@ Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/input/touchscreen/melfas_mip4.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/input/touchscreen/raydium_i2c_ts.c | 30 +++++++---------------
+ 1 file changed, 9 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/input/touchscreen/melfas_mip4.c b/drivers/input/touchscreen/melfas_mip4.c
-index 32896e5085bd..2ac4483fbc25 100644
---- a/drivers/input/touchscreen/melfas_mip4.c
-+++ b/drivers/input/touchscreen/melfas_mip4.c
-@@ -1451,13 +1451,8 @@ static int mip4_probe(struct i2c_client *client)
+diff --git a/drivers/input/touchscreen/raydium_i2c_ts.c b/drivers/input/touchscreen/raydium_i2c_ts.c
+index 76e7d62d5870..78dd3059d585 100644
+--- a/drivers/input/touchscreen/raydium_i2c_ts.c
++++ b/drivers/input/touchscreen/raydium_i2c_ts.c
+@@ -1087,32 +1087,20 @@ static int raydium_i2c_probe(struct i2c_client *client)
+ 	i2c_set_clientdata(client, ts);
  
- 	ts->gpio_ce = devm_gpiod_get_optional(&client->dev,
- 					      "ce", GPIOD_OUT_LOW);
--	if (IS_ERR(ts->gpio_ce)) {
--		error = PTR_ERR(ts->gpio_ce);
+ 	ts->avdd = devm_regulator_get(&client->dev, "avdd");
+-	if (IS_ERR(ts->avdd)) {
+-		error = PTR_ERR(ts->avdd);
 -		if (error != -EPROBE_DEFER)
 -			dev_err(&client->dev,
--				"Failed to get gpio: %d\n", error);
+-				"Failed to get 'avdd' regulator: %d\n", error);
 -		return error;
 -	}
-+	if (IS_ERR(ts->gpio_ce))
-+		return dev_err_probe(&client->dev, PTR_ERR(ts->gpio_ce), "Failed to get gpio\n");
++	if (IS_ERR(ts->avdd))
++		return dev_err_probe(&client->dev, PTR_ERR(ts->avdd),
++				     "Failed to get 'avdd' regulator\n");
  
- 	error = mip4_power_on(ts);
+ 	ts->vccio = devm_regulator_get(&client->dev, "vccio");
+-	if (IS_ERR(ts->vccio)) {
+-		error = PTR_ERR(ts->vccio);
+-		if (error != -EPROBE_DEFER)
+-			dev_err(&client->dev,
+-				"Failed to get 'vccio' regulator: %d\n", error);
+-		return error;
+-	}
++	if (IS_ERR(ts->vccio))
++		return dev_err_probe(&client->dev, PTR_ERR(ts->vccio),
++				     "Failed to get 'vccio' regulator\n");
+ 
+ 	ts->reset_gpio = devm_gpiod_get_optional(&client->dev, "reset",
+ 						 GPIOD_OUT_LOW);
+-	if (IS_ERR(ts->reset_gpio)) {
+-		error = PTR_ERR(ts->reset_gpio);
+-		if (error != -EPROBE_DEFER)
+-			dev_err(&client->dev,
+-				"failed to get reset gpio: %d\n", error);
+-		return error;
+-	}
++	if (IS_ERR(ts->reset_gpio))
++		return dev_err_probe(&client->dev, PTR_ERR(ts->reset_gpio),
++				     "Failed to get reset gpio\n");
+ 
+ 	error = raydium_i2c_power_on(ts);
  	if (error)
 -- 
 2.34.1

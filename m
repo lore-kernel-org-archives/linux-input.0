@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C652C001DE
-	for <linux-input@archiver.kernel.org>; Sun, 25 Jun 2023 16:30:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 15AA0C00528
+	for <linux-input@archiver.kernel.org>; Sun, 25 Jun 2023 16:30:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231214AbjFYQaG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 25 Jun 2023 12:30:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57306 "EHLO
+        id S231438AbjFYQaH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 25 Jun 2023 12:30:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229555AbjFYQ3r (ORCPT
+        with ESMTP id S231514AbjFYQ3o (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 25 Jun 2023 12:29:47 -0400
-Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A2A019A0
-        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2023 09:29:31 -0700 (PDT)
-Received: by mail-ej1-x636.google.com with SMTP id a640c23a62f3a-987accb4349so387470366b.0
-        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2023 09:29:31 -0700 (PDT)
+        Sun, 25 Jun 2023 12:29:44 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EFB11725
+        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2023 09:29:27 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-9786fc23505so193135466b.2
+        for <linux-input@vger.kernel.org>; Sun, 25 Jun 2023 09:29:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1687710543; x=1690302543;
+        d=linaro.org; s=google; t=1687710540; x=1690302540;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=hrK9BhmeRbtcXzgi7rTTXpnSu/d5rWV1MCplOE4+PiY=;
-        b=qr9LMO/Q+uU19l25OB/u4TWDpd9xHm9oJH3Foo76AbbHQctIYRf5ZUFkY8L9AiHLl4
-         IOGoE/YwDvYjQ7Z/RoI8LAsyAb0Oou9jV/eNjnv0tRqSdclfwqq5uy94d6B0rnmCPUUR
-         iSLOq5KkZanLgOR/nRBhyLxHONuPzS/nAZpnltsISPxUbmC0LUfNyXpYLU0YpLs1vWve
-         AC96ifIl+9PInt0WomEwgqB0VL3ODDiMvq9dIQEL7Sq3bYrqAHuOVxVLoe7A0CTRvKCZ
-         mcw9tPNo76ttBFw4192eFXvpbfamJYHlQPGZpjvPhBEBJagw7rmSeUJ7CKA6ktmCZMlI
-         AgRw==
+        bh=dFNLWz5nb9xBhB40IBJoDah+KxzePJk8q7QGRODucW0=;
+        b=ob0lMxAwJrExIVf3oDeXjQ+jA6kXqRF/1aB785MgbNcpsFJMzGAFqFqFU3QJ0Wx437
+         lf0QxL+6yym9EKpnkTrjiXQrQVauNv88Ex2a2QmeV3DI9cHL9R6z2laDzsULdZ38iXPk
+         bENqFNUI9+CT3IE4JUaecgT+iPnkQ6zSGhSYOQN7KALHcjUy/hTk8Wq9vhfkkkiYlb3X
+         fjA5Tyu406KjZ5NozbmI1U710BcMxDQVNB0rrCFGYpRjGlmqry/P4F2XRtX4wxy3OF8i
+         HLe+1P+BO9bOe9oMJ3TanB7IJemcN4HveJ7rSuASMevLNsP9iMKp3mFoRTBVK89M4PYQ
+         9FVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1687710543; x=1690302543;
+        d=1e100.net; s=20221208; t=1687710540; x=1690302540;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=hrK9BhmeRbtcXzgi7rTTXpnSu/d5rWV1MCplOE4+PiY=;
-        b=aM66cqeGWEr4M3Zczkv5HehSZse9mNDFrbjYRXEDX9S6oW3VMafgqrQMiG8JLmLiUT
-         uqUXSQFOqvoShwT3IelCZbGSCWgnvnMCcR1HBcJ5Yk/OAKNk0PsKMs5awiZ/MBgLnQYC
-         dl5jTnlXx99WYpE4HGd66Y+8YZEQtcoOb43RJaUJFuVn8NKFWq2vFFg++VxXaabaMTUb
-         VhlRXbmHpBZuji2AQeORl8Xsb+6/rNR9X9+tab4cjYajvqT4p8xuBRB97F4lBK6X0mvZ
-         yp6Wydu/Jp/CHGut3mGFEcL127FrpUaNs5Vxh7IVCCQ0ojUG+3szMOR1wY9DWYlRxxtk
-         cijA==
-X-Gm-Message-State: AC+VfDz1ic6/dwGBBy9K3+Ub2mcZJ2/jW9FF7eYSKQT39StD8VSoXi50
-        Zj5fKvYEsb92tIrOZ2yQANuqVQ==
-X-Google-Smtp-Source: ACHHUZ4pmUNrCMXBMGQAiWrlzAcQbXivm8kcH4HsBYA2BwE5vUWcO7yFRLSprd8nU0O23IiOEHcsJg==
-X-Received: by 2002:a17:906:58c5:b0:988:891b:28c6 with SMTP id e5-20020a17090658c500b00988891b28c6mr20998191ejs.15.1687710543723;
-        Sun, 25 Jun 2023 09:29:03 -0700 (PDT)
+        bh=dFNLWz5nb9xBhB40IBJoDah+KxzePJk8q7QGRODucW0=;
+        b=ShWMyDagPP8f4ucHdfiyquGtU9DEi5tyWKincgCm0mRx2dZ2+dZWlUytRxEmU9lnJN
+         JNj7KbTmp6YIb9FCp/46GWFuN39D5K+HYghfJafQQMNpklFiu1QFyr4DtaBynPRNbRxY
+         WZG2r9qThci891ZLd03aKw1PivslE/AfgCzAh5eRd9Y6oarruhHPgp7UFaApHrqNsL7p
+         2yeoOeefMJbHhoNKRlw2AzTNbIB/axJWr4d7TCmbWfFN2AYkxiC+TC50JOJMPC1rGHkP
+         VesEvdKzb/h500uQZdQEzz/PzbO2fzhNR62WWbpK21Ymh4FLBIXDuvZ8uGaPCu+p84tr
+         cIHQ==
+X-Gm-Message-State: AC+VfDwJpI3L4Uf6twIYjVasC83YC5JvsYxRGO1o9qcNSnnighGD1i+9
+        cCi/8jsaV8OpmeWl/WDRb8uztQ==
+X-Google-Smtp-Source: ACHHUZ4IWpx7MtY7/2SvrmNwqXJvzmNUubEvlOsfgGHZlYizAAyyYC36b0mZ7/57mBFvOsRQ+jyjaw==
+X-Received: by 2002:a17:907:96a5:b0:988:76ed:e55e with SMTP id hd37-20020a17090796a500b0098876ede55emr21352012ejc.13.1687710539927;
+        Sun, 25 Jun 2023 09:28:59 -0700 (PDT)
 Received: from krzk-bin.. ([178.197.219.26])
-        by smtp.gmail.com with ESMTPSA id ec10-20020a170906b6ca00b00982be08a9besm2277731ejb.172.2023.06.25.09.29.02
+        by smtp.gmail.com with ESMTPSA id ec10-20020a170906b6ca00b00982be08a9besm2277731ejb.172.2023.06.25.09.28.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 25 Jun 2023 09:29:03 -0700 (PDT)
+        Sun, 25 Jun 2023 09:28:59 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Hans de Goede <hdegoede@redhat.com>,
@@ -64,9 +64,9 @@ Cc:     Andi Shyti <andi.shyti@kernel.org>,
         Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v4 22/24] Input: bcm-keypad - Simplify with dev_err_probe()
-Date:   Sun, 25 Jun 2023 18:28:15 +0200
-Message-Id: <20230625162817.100397-23-krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v4 20/24] Input: surface3_spi - Simplify with dev_err_probe()
+Date:   Sun, 25 Jun 2023 18:28:13 +0200
+Message-Id: <20230625162817.100397-21-krzysztof.kozlowski@linaro.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230625162817.100397-1-krzysztof.kozlowski@linaro.org>
 References: <20230625162817.100397-1-krzysztof.kozlowski@linaro.org>
@@ -77,47 +77,46 @@ List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 Common pattern of handling deferred probe can be simplified with
-dev_err_probe() and devm_clk_get_optional().  Less code and the error
-value gets printed.
+dev_err_probe().  Less code and also it prints the error value.
 
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-
 ---
+ drivers/input/touchscreen/surface3_spi.c | 13 +++----------
+ 1 file changed, 3 insertions(+), 10 deletions(-)
 
-Changes since v1:
-1. Use also devm_clk_get_optional()
----
- drivers/input/keyboard/bcm-keypad.c | 14 ++++----------
- 1 file changed, 4 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/input/keyboard/bcm-keypad.c b/drivers/input/keyboard/bcm-keypad.c
-index 56a919ec23b5..05b09066df84 100644
---- a/drivers/input/keyboard/bcm-keypad.c
-+++ b/drivers/input/keyboard/bcm-keypad.c
-@@ -365,17 +365,11 @@ static int bcm_kp_probe(struct platform_device *pdev)
- 		return PTR_ERR(kp->base);
- 
- 	/* Enable clock */
--	kp->clk = devm_clk_get(&pdev->dev, "peri_clk");
-+	kp->clk = devm_clk_get_optional(&pdev->dev, "peri_clk");
- 	if (IS_ERR(kp->clk)) {
--		error = PTR_ERR(kp->clk);
--		if (error != -ENOENT) {
+diff --git a/drivers/input/touchscreen/surface3_spi.c b/drivers/input/touchscreen/surface3_spi.c
+index 31d140248f2e..7efbcd0fde4f 100644
+--- a/drivers/input/touchscreen/surface3_spi.c
++++ b/drivers/input/touchscreen/surface3_spi.c
+@@ -221,7 +221,6 @@ static void surface3_spi_power(struct surface3_ts_data *data, bool on)
+  */
+ static int surface3_spi_get_gpio_config(struct surface3_ts_data *data)
+ {
+-	int error;
+ 	struct device *dev;
+ 	struct gpio_desc *gpiod;
+ 	int i;
+@@ -231,15 +230,9 @@ static int surface3_spi_get_gpio_config(struct surface3_ts_data *data)
+ 	/* Get the reset lines GPIO pin number */
+ 	for (i = 0; i < 2; i++) {
+ 		gpiod = devm_gpiod_get_index(dev, NULL, i, GPIOD_OUT_LOW);
+-		if (IS_ERR(gpiod)) {
+-			error = PTR_ERR(gpiod);
 -			if (error != -EPROBE_DEFER)
--				dev_err(&pdev->dev, "Failed to get clock\n");
+-				dev_err(dev,
+-					"Failed to get power GPIO %d: %d\n",
+-					i,
+-					error);
 -			return error;
 -		}
--		dev_dbg(&pdev->dev,
--			"No clock specified. Assuming it's enabled\n");
--		kp->clk = NULL;
-+		return dev_err_probe(&pdev->dev, error, "Failed to get clock\n");
-+	} else if (!kp->clk) {
-+		dev_dbg(&pdev->dev, "No clock specified. Assuming it's enabled\n");
- 	} else {
- 		unsigned int desired_rate;
- 		long actual_rate;
++		if (IS_ERR(gpiod))
++			return dev_err_probe(dev, PTR_ERR(gpiod),
++					     "Failed to get power GPIO %d\n", i);
+ 
+ 		data->gpiod_rst[i] = gpiod;
+ 	}
 -- 
 2.34.1
 

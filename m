@@ -2,90 +2,102 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A534C001DD
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85BC2C30657
 	for <linux-input@archiver.kernel.org>; Mon,  3 Jul 2023 18:52:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231197AbjGCSw3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S231221AbjGCSw3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 3 Jul 2023 14:52:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33386 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230395AbjGCSw2 (ORCPT
+        with ESMTP id S230391AbjGCSw2 (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Mon, 3 Jul 2023 14:52:28 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00B41E6B;
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B4EAF;
         Mon,  3 Jul 2023 11:52:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1688410347; x=1719946347;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=25ZLJW7OGmWWE2qbCthjIIhoB9XkL05rh/6oTpbhx6s=;
-  b=BkLmlfC/Q0ssauCV4m26xLTNsJ7Jdij63hq19sPtFTnqu7JKC8f7gUno
-   noozTR5LDCzNag7v57wnOgUxsnarRif4MNE6MbNP+ilUWSO21ay+GvqCe
-   7MREKf5FJgL2JPSqvwp4hfku0050AgxlU5howDxdp5MEGBHf4OUHv+NmC
-   VC0Fl0uOV9p4PZ4pRW7PLJd5P5X4HarqOHYopqxY94Mf1h4YSra83GfKo
-   Pkp1w+moIpv/W+sy+Fsp6Z8dolj7W+JFXxs3j0uKufhqKMfn54bqUn4/g
-   ZHRW/qv0iY1m7R8Gmdi3nqraSAEtvrWh2BiVCxkz2sj8EHJyFNCGs3zlg
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="347736197"
+  t=1688410346; x=1719946346;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=vglDNwRcSKOGrj0IrUTDI9q4BegirR6oTWfUcwYB95I=;
+  b=hvhHGQ6pBcLzrfrojWdTfuTNXb3IE4OaRkARPiR4eTLUftqkbUUqF2ZO
+   dNOe1qg4X5L1RXZxIJjIBxX92fp+02hcGJWWhULRyHsNwCwY92oxiVrEx
+   ZCLKr24w9MwPUAKyhvm1OrkNZpKUx8vpS5wLDNjMY/ZxOmXD/OkSILUWC
+   hSI1QyDGa9znvuS98TkFwt99bwsN72McFNSz2QrKNlnvI+CNwrA6SQyGN
+   bjH1B3DcOSAfM5s114qJSX3y7fYK46CpyhjQ057Pk0FRUCUFxIWe37BRS
+   3nU56ZGlym+NtnfzMFWrqClm0f7G69RFfku+VkezB93WkflteSFvk7gWc
+   A==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="362986960"
 X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="347736197"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2023 11:52:26 -0700
+   d="scan'208";a="362986960"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2023 11:52:25 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="842743322"
+X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="721860811"
 X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="842743322"
+   d="scan'208";a="721860811"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga004.jf.intel.com with ESMTP; 03 Jul 2023 11:52:24 -0700
+  by fmsmga007.fm.intel.com with ESMTP; 03 Jul 2023 11:52:24 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 1B021170; Mon,  3 Jul 2023 21:52:26 +0300 (EEST)
+        id 4B284178; Mon,  3 Jul 2023 21:52:27 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Andy Shevchenko <andy@kernel.org>
-Subject: [PATCH v1 00/12] HID: cp2112: Cleanups and refactorings
-Date:   Mon,  3 Jul 2023 21:52:10 +0300
-Message-Id: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 04/12] HID: cp2112: Switch to for_each_set_bit() to simplify the code
+Date:   Mon,  3 Jul 2023 21:52:14 +0300
+Message-Id: <20230703185222.50554-5-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
+In-Reply-To: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
+References: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-After I updated GPIO library for the case Benjamin has with CP2112,
-I have a brief look into the CP2112 driver itself.
+It's cleaner to use for_each_set_bit() than open coding it.
 
-From GPIO perspective it has two main (maitenance) issues:
-- usage of ->to_irq() with IRQ chip present;
-- having IRQ chip not immutable.
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/hid/hid-cp2112.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-Besides that there are plenty small cleanups here and there.
-Hence this series.
-
-Compile tested only.
-
-Andy Shevchenko (12):
-  lib/string_choices: Add str_write_read() helper
-  HID: cp2112: Use str_write_read() and str_read_write()
-  HID: cp2112: Make irq_chip immutable
-  HID: cp2112: Switch to for_each_set_bit() to simplify the code
-  HID: cp2112: Don't call ->to_irq() explicitly
-  HID: cp2112: Remove dead code
-  HID: cp2112: Define maximum GPIO constant and use it
-  HID: cp2112: Define all GPIO mask and use it
-  HID: cp2112: Use BIT() in GPIO setter and getter
-  HID: cp2112: Use sysfs_emit() to instead of scnprintf()
-  HID: cp2112: Convert to DEVICE_ATTR_RW()
-  HID: cp2112: Use octal permissions
-
- drivers/hid/hid-cp2112.c       | 169 +++++++++++----------------------
- include/linux/string_choices.h |   1 +
- 2 files changed, 58 insertions(+), 112 deletions(-)
-
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 51399b231d36..fb4548feb0c8 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -16,6 +16,7 @@
+  *   https://www.silabs.com/documents/public/application-notes/an495-cp2112-interface-specification.pdf
+  */
+ 
++#include <linux/bitops.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/gpio/machine.h>
+ #include <linux/gpio/driver.h>
+@@ -1100,7 +1101,6 @@ static void cp2112_gpio_poll_callback(struct work_struct *work)
+ 						 gpio_poll_worker.work);
+ 	struct irq_data *d;
+ 	u8 gpio_mask;
+-	u8 virqs = (u8)dev->irq_mask;
+ 	u32 irq_type;
+ 	int irq, virq, ret;
+ 
+@@ -1111,11 +1111,7 @@ static void cp2112_gpio_poll_callback(struct work_struct *work)
+ 		goto exit;
+ 
+ 	gpio_mask = ret;
+-
+-	while (virqs) {
+-		virq = ffs(virqs) - 1;
+-		virqs &= ~BIT(virq);
+-
++	for_each_set_bit(virq, &dev->irq_mask, 8) {
+ 		if (!dev->gc.to_irq)
+ 			break;
+ 
 -- 
 2.40.0.1.gaa8946217a0b
 

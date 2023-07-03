@@ -2,53 +2,53 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD560C001DD
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D15E6C30658
 	for <linux-input@archiver.kernel.org>; Mon,  3 Jul 2023 18:52:44 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231359AbjGCSwn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S231403AbjGCSwn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 3 Jul 2023 14:52:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33506 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33510 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231341AbjGCSwf (ORCPT
+        with ESMTP id S231349AbjGCSwf (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Mon, 3 Jul 2023 14:52:35 -0400
 Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAA2FE7C;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F18C2E7D;
         Mon,  3 Jul 2023 11:52:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1688410353; x=1719946353;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=LCgdVKzpcSaOUGJnyo5Kogm8rdwSx8t88vdpkdS1kM4=;
-  b=dtjfJBOBx6zqL1e/DIRNxWjFlJpFgl/Gi4Hsfi0WysZWokYHGqTZuo2o
-   4zohCAAYJbPzldziHBB8VUVece5TMCaOHSBSvFuRfVPbrfcEdDP5g6+14
-   wv1WbdyK8ltBJIKAUW93d+HFJWgcLiLqp9fKAeTRNeYoHz6xCeMUgyTSj
-   qikZ4+0jLOcKzuoVGBL3xZiBpgZeG+qsp9yg3oIS3RCe86AQuMzAflVx4
-   AvuUUZxqsaUH+yxnbYu+dkOUQnEidyjmgQYfG8kcgCQ+g2X4GYnhA//AQ
-   EwOCJx+9nHp2zBp1XVz21zwlH0HzCOSFphrqoaTiX7YT9Vj6PLXI8mRhe
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="449322731"
+  bh=Mym6i/tgEoTAGg7H2qslE07ns2in3+2GRLlg1GCRN9A=;
+  b=RlT90CFGm+HhAHm8GG5kZuGftH0fuX7HV5Vcv9faqtw2ufVBQhSKcJfZ
+   x1QJdUCLGXhhX0TbCmGtuhnh5tJ0tZ+Px3Ea2CvT31mcDP25mXDjxZZFU
+   UI4/nyIxgLMf19iUQfpZ1bZNRyo+AqwUVPeE0+YwpofxLf5S9EHB1HzWH
+   IB+i9w5YCKpssXKqq9jkkJFlqtguZgsqMCrHcjl+8Il5cvGGd3NG9GNI6
+   3ziJ4se32uzzZZJ04jQQmtfow1TTSOYo5LJxNmSeoC3c5lxEh38q1iTR8
+   OKDa2DDrytnrBQw0uhzSG1EwZY45s+Wn30pa/Cx+lIWOzHIUUsmx/eUEf
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="449322739"
 X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="449322731"
+   d="scan'208";a="449322739"
 Received: from fmsmga002.fm.intel.com ([10.253.24.26])
   by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2023 11:52:28 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="831912485"
+X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="831912490"
 X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="831912485"
+   d="scan'208";a="831912490"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga002.fm.intel.com with ESMTP; 03 Jul 2023 11:52:26 -0700
+  by fmsmga002.fm.intel.com with ESMTP; 03 Jul 2023 11:52:27 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 8007D22B; Mon,  3 Jul 2023 21:52:27 +0300 (EEST)
+        id BF7C2718; Mon,  3 Jul 2023 21:52:27 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Andy Shevchenko <andy@kernel.org>
-Subject: [PATCH v1 08/12] HID: cp2112: Define all GPIO mask and use it
-Date:   Mon,  3 Jul 2023 21:52:18 +0300
-Message-Id: <20230703185222.50554-9-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 12/12] HID: cp2112: Use octal permissions
+Date:   Mon,  3 Jul 2023 21:52:22 +0300
+Message-Id: <20230703185222.50554-13-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
 In-Reply-To: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
 References: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
@@ -58,43 +58,37 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Define all GPIO mask and use it in the driver.
+Octal permissions are preferred as stated in
+Documentation/dev-tools/checkpatch.rst. Replace symbolic permissions
+with octal permissions when creating the files.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/hid/hid-cp2112.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hid/hid-cp2112.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index c8c59d70500e..37ed7fc54770 100644
+index 3c6a3be8fc02..adbe8a47cf67 100644
 --- a/drivers/hid/hid-cp2112.c
 +++ b/drivers/hid/hid-cp2112.c
-@@ -32,6 +32,7 @@
- #define CP2112_GPIO_GET_LENGTH			2
- #define CP2112_GPIO_SET_LENGTH			3
- #define CP2112_GPIO_MAX_GPIO			8
-+#define CP2112_GPIO_ALL_GPIO_MASK		GENMASK(7, 0)
- 
- enum {
- 	CP2112_GPIO_CONFIG		= 0x02,
-@@ -173,7 +174,7 @@ struct cp2112_device {
- 	u8 gpio_prev_state;
+@@ -175,7 +175,7 @@ struct cp2112_device {
  };
  
--static int gpio_push_pull = 0xFF;
-+static int gpio_push_pull = CP2112_GPIO_ALL_GPIO_MASK;
- module_param(gpio_push_pull, int, S_IRUGO | S_IWUSR);
+ static int gpio_push_pull = CP2112_GPIO_ALL_GPIO_MASK;
+-module_param(gpio_push_pull, int, S_IRUGO | S_IWUSR);
++module_param(gpio_push_pull, int, 0644);
  MODULE_PARM_DESC(gpio_push_pull, "GPIO push-pull configuration bitmask");
  
-@@ -226,7 +227,7 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
- 	mutex_lock(&dev->lock);
+ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
+@@ -1057,7 +1057,7 @@ static void chmod_sysfs_attrs(struct hid_device *hdev)
+ 	}
  
- 	buf[0] = CP2112_GPIO_SET;
--	buf[1] = value ? 0xff : 0;
-+	buf[1] = value ? CP2112_GPIO_ALL_GPIO_MASK : 0;
- 	buf[2] = 1 << offset;
- 
- 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_SET, buf,
+ 	for (attr = cp2112_attr_group.attrs; *attr; ++attr) {
+-		umode_t mode = (buf[1] & 1) ? S_IWUSR | S_IRUGO : S_IRUGO;
++		umode_t mode = (buf[1] & 1) ? 0644: 0444;
+ 		ret = sysfs_chmod_file(&hdev->dev.kobj, *attr, mode);
+ 		if (ret < 0)
+ 			hid_err(hdev, "error chmoding sysfs file %s\n",
 -- 
 2.40.0.1.gaa8946217a0b
 

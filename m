@@ -2,158 +2,68 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCD9DC30657
-	for <linux-input@archiver.kernel.org>; Mon,  3 Jul 2023 18:52:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56E77EB64DC
+	for <linux-input@archiver.kernel.org>; Mon,  3 Jul 2023 23:00:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231446AbjGCSwm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 3 Jul 2023 14:52:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33512 "EHLO
+        id S229591AbjGCXAM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 3 Jul 2023 19:00:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231348AbjGCSwf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Jul 2023 14:52:35 -0400
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57407E7B;
-        Mon,  3 Jul 2023 11:52:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1688410353; x=1719946353;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=lYPz1zqR2x3WBQCDulQo4Jbi7YfCgb1sAO+AUE8NaYA=;
-  b=C48jagK3r8s+dfHvMr47nC+VdKWjvtdvWECCkl7yh4E/XJYG+31WGmq2
-   OWCpgcNwoK119LRc8oYQ40IRKCd9PK0VeszTN6f5Fs9YeUk/ALwirSI2Q
-   o4I6ZQHDPi1Y4dqoN6pZhJkaLlWn7Nh3JrBMwGQRMvnNIyP2izpelCc8v
-   R51KKRGqVhrnRek4vn6L9g52Wr2kv4ckZ4fP4OYkc0+uVIHwtR68yPAum
-   MOoeNllmcqiPKBSbrF8Csnv+5+lTDsnQdjtplxaGsUlgebXosJrLK1cW2
-   c6IgrgZrbHw5larhIR8WOGjFdI7nyIDJDY8uq1zdzRaGe+gk1ZNsYNKPr
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="449322743"
-X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="449322743"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2023 11:52:28 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="831912489"
-X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="831912489"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmsmga002.fm.intel.com with ESMTP; 03 Jul 2023 11:52:27 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id A2FA869A; Mon,  3 Jul 2023 21:52:27 +0300 (EEST)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Andy Shevchenko <andy@kernel.org>
-Subject: [PATCH v1 11/12] HID: cp2112: Convert to DEVICE_ATTR_RW()
-Date:   Mon,  3 Jul 2023 21:52:21 +0300
-Message-Id: <20230703185222.50554-12-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
-In-Reply-To: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
-References: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
+        with ESMTP id S230259AbjGCXAL (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Jul 2023 19:00:11 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1896510C1;
+        Mon,  3 Jul 2023 16:00:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        MIME-Version:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+        Content-ID:Content-Description:In-Reply-To:References;
+        bh=bxqKt58hvR1yu9IqldV+R5b5cGD0Xza3I0u2tbjL9Vw=; b=I96+baD6s7h7h0ghpfeUope7Bb
+        S1fK9QrqbLZTVyD1BZBOhA5EVwMY9RhRrHClHr94wiGyKJhXTZae7Z6/qdeMOUT9+OpHy+PaSX161
+        4Ld+mLzWBj13TH4wcBRleTPPCQsf6//Yuso10xD4b8UDMJywyZNnhoNfBQvDFApSogQUAcKpaOvss
+        aGe9mTkeXHHDFxa9ZhM8dm69L70PnCRKnNXN8R+kjo+TTC/kHr45xYscXP2yFaZheOGWOctEgMNce
+        guE8+Jq8Nabg48En20hYWyyNNLggYMfejkSSZ+7/ugT9j12Z6dAiaAstmvrumR/Gpx7tWAHLw2i23
+        BP0kij3A==;
+Received: from [2601:1c2:980:9ec0::2764] (helo=bombadil.infradead.org)
+        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qGSWc-00BbO7-2A;
+        Mon, 03 Jul 2023 23:00:06 +0000
+From:   Randy Dunlap <rdunlap@infradead.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Sebastian Reichel <sre@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org
+Subject: [PATCH RESEND] input: cpcap-pwrbutton: remove initial kernel-doc notation
+Date:   Mon,  3 Jul 2023 16:00:05 -0700
+Message-ID: <20230703230005.14877-1-rdunlap@infradead.org>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Instead of custom wrapper, use DEVICE_tATTR_RW() directly.
+Change the beginning "/**" in the file to "/*" since it is not a
+kernel-doc comment. This prevents a kernel-doc warning:
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+drivers/input/misc/cpcap-pwrbutton.c:2: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+ * CPCAP Power Button Input Driver
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
 ---
- drivers/hid/hid-cp2112.c | 42 ++++++++++++++++++----------------------
- 1 file changed, 19 insertions(+), 23 deletions(-)
+ drivers/input/misc/cpcap-pwrbutton.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 1e45f5407d09..3c6a3be8fc02 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -944,18 +944,10 @@ CP2112_CONFIG_ATTR(release_version, ({
- 
- #undef CP2112_CONFIG_ATTR
- 
--struct cp2112_pstring_attribute {
--	struct device_attribute attr;
--	unsigned char report;
--};
--
--static ssize_t pstr_store(struct device *kdev,
--			  struct device_attribute *kattr, const char *buf,
--			  size_t count)
-+static ssize_t pstr_store(struct device *kdev, struct device_attribute *kattr,
-+			  const char *buf, size_t count, int number)
- {
- 	struct hid_device *hdev = to_hid_device(kdev);
--	struct cp2112_pstring_attribute *attr =
--		container_of(kattr, struct cp2112_pstring_attribute, attr);
- 	struct cp2112_string_report report;
- 	int ret;
- 
-@@ -963,7 +955,7 @@ static ssize_t pstr_store(struct device *kdev,
- 
- 	ret = utf8s_to_utf16s(buf, count, UTF16_LITTLE_ENDIAN,
- 			      report.string, ARRAY_SIZE(report.string));
--	report.report = attr->report;
-+	report.report = number;
- 	report.length = ret * sizeof(report.string[0]) + 2;
- 	report.type = USB_DT_STRING;
- 
-@@ -981,17 +973,15 @@ static ssize_t pstr_store(struct device *kdev,
- 	return count;
- }
- 
--static ssize_t pstr_show(struct device *kdev,
--			 struct device_attribute *kattr, char *buf)
-+static ssize_t pstr_show(struct device *kdev, struct device_attribute *kattr,
-+			 char *buf, int number)
- {
- 	struct hid_device *hdev = to_hid_device(kdev);
--	struct cp2112_pstring_attribute *attr =
--		container_of(kattr, struct cp2112_pstring_attribute, attr);
- 	struct cp2112_string_report report;
- 	u8 length;
- 	int ret;
- 
--	ret = cp2112_hid_get(hdev, attr->report, (u8 *)&report.contents,
-+	ret = cp2112_hid_get(hdev, number, (u8 *)&report.contents,
- 			     sizeof(report.contents), HID_FEATURE_REPORT);
- 	if (ret < 3) {
- 		hid_err(hdev, "error reading %s string: %d\n", kattr->attr.name,
-@@ -1016,10 +1006,16 @@ static ssize_t pstr_show(struct device *kdev,
- }
- 
- #define CP2112_PSTR_ATTR(name, _report) \
--static struct cp2112_pstring_attribute dev_attr_##name = { \
--	.attr = __ATTR(name, (S_IWUSR | S_IRUGO), pstr_show, pstr_store), \
--	.report = _report, \
--};
-+static ssize_t name##_store(struct device *kdev, struct device_attribute *kattr, \
-+			    const char *buf, size_t count) \
-+{ \
-+	return pstr_store(kdev, kattr, buf, count, _report); \
-+} \
-+static ssize_t name##_show(struct device *kdev, struct device_attribute *kattr, char *buf) \
-+{ \
-+	return pstr_show(kdev, kattr, buf, _report); \
-+} \
-+static DEVICE_ATTR_RW(name);
- 
- CP2112_PSTR_ATTR(manufacturer,	CP2112_MANUFACTURER_STRING);
- CP2112_PSTR_ATTR(product,	CP2112_PRODUCT_STRING);
-@@ -1034,9 +1030,9 @@ static const struct attribute_group cp2112_attr_group = {
- 		&dev_attr_max_power.attr,
- 		&dev_attr_power_mode.attr,
- 		&dev_attr_release_version.attr,
--		&dev_attr_manufacturer.attr.attr,
--		&dev_attr_product.attr.attr,
--		&dev_attr_serial.attr.attr,
-+		&dev_attr_manufacturer.attr,
-+		&dev_attr_product.attr,
-+		&dev_attr_serial.attr,
- 		NULL
- 	}
- };
--- 
-2.40.0.1.gaa8946217a0b
-
+diff -- a/drivers/input/misc/cpcap-pwrbutton.c b/drivers/input/misc/cpcap-pwrbutton.c
+--- a/drivers/input/misc/cpcap-pwrbutton.c
++++ b/drivers/input/misc/cpcap-pwrbutton.c
+@@ -1,4 +1,4 @@
+-/**
++/*
+  * CPCAP Power Button Input Driver
+  *
+  * Copyright (C) 2017 Sebastian Reichel <sre@kernel.org>

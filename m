@@ -2,53 +2,53 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEA81C001DD
-	for <linux-input@archiver.kernel.org>; Mon,  3 Jul 2023 18:52:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97290C30654
+	for <linux-input@archiver.kernel.org>; Mon,  3 Jul 2023 18:52:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231298AbjGCSwg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 3 Jul 2023 14:52:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33470 "EHLO
+        id S231433AbjGCSwm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 3 Jul 2023 14:52:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231319AbjGCSwd (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Jul 2023 14:52:33 -0400
+        with ESMTP id S231331AbjGCSwf (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Jul 2023 14:52:35 -0400
 Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81C11E71;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D962FE73;
         Mon,  3 Jul 2023 11:52:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1688410352; x=1719946352;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=6yEDgvxJlryYWI7k71QyO6QRP75T9Vue+ghIMACgdzE=;
-  b=LZJRBeTgQ0RkPPIRnxdS/0G7zd2amHq7GfSWGahuitTFSRdLJat6C6T2
-   1piknSPBttTqIhs1tncusrYQF9ntGQmMlQtZla99XDvjxWEmOdyrq71FM
-   cphn99f9NvOiZSx0GJ8xkGJ/97gFxNN9eqzfJaFce1ruSJCJxFqI5JkC6
-   tLlIT1/px54QS7llzstL+iqt5j6abcNrWHhxpY5ai4HOq6nIV+m9vxpUm
-   6xgb1mSrPyt9+eOlPT8e5cdpS/m5l7wnZDmgTOOP+aitUL+8bGn6LaNiv
-   4rj6AFR+f+7ZU6HEIe/98SkTgV+iubZm/WoZ8/upa3WigZnqoNitULpKq
+  bh=v4C8UxsVUCeBkxMXFBixS/NWejTXhA8uVL1LjjkP2gU=;
+  b=T4rsQjEyrI1fkl9P/+HgQU5+dpKBBEVcpZUVY1QEReSSDHiu6NEq2R4w
+   i46jl0CPhAjLHIhnibDZgq+mCz9YI6cvoLdivPXUhTZ1vdkYAV1IHR3wG
+   Rb6STXV9m+lxFnIvW9I0SXtw2vFkwv+U+FQS5QoAtLhsYgRuwA8gkiO6x
+   +rOBBuR9tWbWO2qyaPHMrnXK/V/kc/ZgMyQnhVQX45Ie5lMOpCPUrH2Q2
+   x25NXANe3ytRw74+bjexel2/FPUfmvl+gVyK/JCO/T1V/SSl7m6qng/TS
+   BxXdbF0O4Bch7kRncsZMExUFCtTWWZM2KMCD/bJuCGvtfXxUGp8q/OiMl
    g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="449322737"
+X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="449322727"
 X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="449322737"
+   d="scan'208";a="449322727"
 Received: from fmsmga002.fm.intel.com ([10.253.24.26])
   by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2023 11:52:28 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="831912486"
+X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="831912484"
 X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="831912486"
+   d="scan'208";a="831912484"
 Received: from black.fi.intel.com ([10.237.72.28])
   by fmsmga002.fm.intel.com with ESMTP; 03 Jul 2023 11:52:26 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 7902C5FC; Mon,  3 Jul 2023 21:52:27 +0300 (EEST)
+        id 8B0B5604; Mon,  3 Jul 2023 21:52:27 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Andy Shevchenko <andy@kernel.org>
-Subject: [PATCH v1 07/12] HID: cp2112: Define maximum GPIO constant and use it
-Date:   Mon,  3 Jul 2023 21:52:17 +0300
-Message-Id: <20230703185222.50554-8-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 09/12] HID: cp2112: Use BIT() in GPIO setter and getter
+Date:   Mon,  3 Jul 2023 21:52:19 +0300
+Message-Id: <20230703185222.50554-10-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
 In-Reply-To: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
 References: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
@@ -58,43 +58,36 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Define maximum GPIO constant and use it in the driver.
+Use BIT() in GPIO setter and getter for the sake of consistency
+with GENMASK() usage elsewhere in the driver.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/hid/hid-cp2112.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/hid/hid-cp2112.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 45cd0d2fd3fd..c8c59d70500e 100644
+index 37ed7fc54770..2eebb2b19501 100644
 --- a/drivers/hid/hid-cp2112.c
 +++ b/drivers/hid/hid-cp2112.c
-@@ -31,6 +31,7 @@
- #define CP2112_GPIO_CONFIG_LENGTH		5
- #define CP2112_GPIO_GET_LENGTH			2
- #define CP2112_GPIO_SET_LENGTH			3
-+#define CP2112_GPIO_MAX_GPIO			8
- 
- enum {
- 	CP2112_GPIO_CONFIG		= 0x02,
-@@ -1108,7 +1109,7 @@ static void cp2112_gpio_poll_callback(struct work_struct *work)
+@@ -197,7 +197,7 @@ static int cp2112_gpio_direction_input(struct gpio_chip *chip, unsigned offset)
  		goto exit;
+ 	}
  
- 	gpio_mask = ret;
--	for_each_set_bit(virq, &dev->irq_mask, 8) {
-+	for_each_set_bit(virq, &dev->irq_mask, CP2112_GPIO_MAX_GPIO) {
- 		irq = irq_find_mapping(dev->gc.irq.domain, virq);
- 		if (!irq)
- 			continue;
-@@ -1295,7 +1296,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	dev->gc.set			= cp2112_gpio_set;
- 	dev->gc.get			= cp2112_gpio_get;
- 	dev->gc.base			= -1;
--	dev->gc.ngpio			= 8;
-+	dev->gc.ngpio			= CP2112_GPIO_MAX_GPIO;
- 	dev->gc.can_sleep		= 1;
- 	dev->gc.parent			= &hdev->dev;
+-	buf[1] &= ~(1 << offset);
++	buf[1] &= ~BIT(offset);
+ 	buf[2] = gpio_push_pull;
  
+ 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_CONFIG, buf,
+@@ -228,7 +228,7 @@ static void cp2112_gpio_set(struct gpio_chip *chip, unsigned offset, int value)
+ 
+ 	buf[0] = CP2112_GPIO_SET;
+ 	buf[1] = value ? CP2112_GPIO_ALL_GPIO_MASK : 0;
+-	buf[2] = 1 << offset;
++	buf[2] = BIT(offset);
+ 
+ 	ret = hid_hw_raw_request(hdev, CP2112_GPIO_SET, buf,
+ 				 CP2112_GPIO_SET_LENGTH, HID_FEATURE_REPORT,
 -- 
 2.40.0.1.gaa8946217a0b
 

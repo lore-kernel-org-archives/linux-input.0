@@ -2,53 +2,53 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E409FC001B3
-	for <linux-input@archiver.kernel.org>; Mon,  3 Jul 2023 18:52:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C18AC3065A
+	for <linux-input@archiver.kernel.org>; Mon,  3 Jul 2023 18:52:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231289AbjGCSwa (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 3 Jul 2023 14:52:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33412 "EHLO
+        id S231296AbjGCSwb (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 3 Jul 2023 14:52:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230200AbjGCSw2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Jul 2023 14:52:28 -0400
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1CABE73;
-        Mon,  3 Jul 2023 11:52:27 -0700 (PDT)
+        with ESMTP id S231228AbjGCSw3 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 3 Jul 2023 14:52:29 -0400
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A01BAF;
+        Mon,  3 Jul 2023 11:52:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1688410347; x=1719946347;
+  t=1688410349; x=1719946349;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=z7YG+rldaGnIVAOwR04bpca61wVV/LIPBDGMSpPP1uE=;
-  b=kQdjEqQORu9F5FZGwszkvMck9/fJHKZYaJcwb9dKq+bTWEPkTWr8SMHj
-   SWs2N5jxGj0FlYMLBiDq8oHDabcrhNFNWptcBkit6LfObBfYST+rspO5n
-   LCqckO75JTZJrbYoFrEpykW+albNmeQHWFTXohY29WPxmxAZwL9x4hh4p
-   e5IdLLyAFzpfzQuD1BkWdYrSyIdibU/KW0KjudECHDcx/cDaFb+Up8Bjo
-   WXxjPTdtBn2F25bLKT115oxuwpHYexbBWg2NylULbokzqjldwZwqGTCyg
-   +Lb7KBZf3S3akd9xw3iVBmvUmgjXhWdNhwhLBL2b7mOFi3Uu8sdE6M3ZE
+  bh=afc07R7Fx+NGuUmDJNCCGkFgs3O6oULmTGVDhDPMWbQ=;
+  b=bzzqVpwjjiTMD1+uxU2LXoO3DKd/VKT1zqAUTOFvlP2RGYJegndjPZ+0
+   8ShCRDnfDFWK63OxPC66DDE0gNP2U9Lh9oSMOosfM/vhSPSooDotmPetn
+   t93qMZtSyzj4swrUbxTrcWcuCHLOnRK+n37UhYS4nHgRxqknCe8UPhPcu
+   0v2TzWn4utaD7uEteRRDPVnqQPAASeujm9FWEoUGwgKgKBZcvE8MHktJU
+   pm0qUMjU2sYgrPAN5tZ+p3GnkVpATrBfwEUAFOTSD1QQztccAF+0G83v9
+   oO4XaJBTGpwVYkwEcziM+5yXqqxXAKOMbish9IjR58VOjAtQYc6EE6A+B
    w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="347736200"
+X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="362986966"
 X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="347736200"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2023 11:52:26 -0700
+   d="scan'208";a="362986966"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jul 2023 11:52:28 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="842743323"
+X-IronPort-AV: E=McAfee;i="6600,9927,10760"; a="721860813"
 X-IronPort-AV: E=Sophos;i="6.01,178,1684825200"; 
-   d="scan'208";a="842743323"
+   d="scan'208";a="721860813"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga004.jf.intel.com with ESMTP; 03 Jul 2023 11:52:24 -0700
+  by fmsmga007.fm.intel.com with ESMTP; 03 Jul 2023 11:52:26 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 337E0177; Mon,  3 Jul 2023 21:52:27 +0300 (EEST)
+        id 631041D9; Mon,  3 Jul 2023 21:52:27 +0300 (EEST)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Andy Shevchenko <andy@kernel.org>
-Subject: [PATCH v1 02/12] HID: cp2112: Use str_write_read() and str_read_write()
-Date:   Mon,  3 Jul 2023 21:52:12 +0300
-Message-Id: <20230703185222.50554-3-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 05/12] HID: cp2112: Don't call ->to_irq() explicitly
+Date:   Mon,  3 Jul 2023 21:52:15 +0300
+Message-Id: <20230703185222.50554-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.40.0.1.gaa8946217a0b
 In-Reply-To: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
 References: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com>
@@ -58,52 +58,34 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Use str_write_read() and str_read_write() from string_choices.h.
+GPIO library guarantees that ->to_irq() is always exists.
+Moreover, it tending to become a nische thingy and has to
+not be used in ordinary drivers. Hence, replace that by
+irq_find_mapping().
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/hid/hid-cp2112.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/hid/hid-cp2112.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 27cadadda7c9..37ccf4714ad1 100644
+index fb4548feb0c8..15b626359281 100644
 --- a/drivers/hid/hid-cp2112.c
 +++ b/drivers/hid/hid-cp2112.c
-@@ -24,6 +24,7 @@
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/nls.h>
-+#include <linux/string_choices.h>
- #include <linux/usb/ch9.h>
- #include "hid-ids.h"
+@@ -1112,10 +1112,9 @@ static void cp2112_gpio_poll_callback(struct work_struct *work)
  
-@@ -532,15 +533,13 @@ static int cp2112_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	hid_dbg(hdev, "I2C %d messages\n", num);
+ 	gpio_mask = ret;
+ 	for_each_set_bit(virq, &dev->irq_mask, 8) {
+-		if (!dev->gc.to_irq)
+-			break;
+-
+-		irq = dev->gc.to_irq(&dev->gc, virq);
++		irq = irq_find_mapping(dev->gc.irq.domain, virq);
++		if (!irq)
++			continue;
  
- 	if (num == 1) {
-+		hid_dbg(hdev, "I2C %s %#04x len %d\n",
-+			str_read_write(msgs->flags & I2C_M_RD), msgs->addr, msgs->len);
- 		if (msgs->flags & I2C_M_RD) {
--			hid_dbg(hdev, "I2C read %#04x len %d\n",
--				msgs->addr, msgs->len);
- 			read_length = msgs->len;
- 			read_buf = msgs->buf;
- 			count = cp2112_read_req(buf, msgs->addr, msgs->len);
- 		} else {
--			hid_dbg(hdev, "I2C write %#04x len %d\n",
--				msgs->addr, msgs->len);
- 			count = cp2112_i2c_write_req(buf, msgs->addr,
- 						     msgs->buf, msgs->len);
- 		}
-@@ -648,7 +647,7 @@ static int cp2112_xfer(struct i2c_adapter *adap, u16 addr,
- 	int ret;
- 
- 	hid_dbg(hdev, "%s addr 0x%x flags 0x%x cmd 0x%x size %d\n",
--		read_write == I2C_SMBUS_WRITE ? "write" : "read",
-+		str_write_read(read_write == I2C_SMBUS_WRITE),
- 		addr, flags, command, size);
- 
- 	switch (size) {
+ 		d = irq_get_irq_data(irq);
+ 		if (!d)
 -- 
 2.40.0.1.gaa8946217a0b
 

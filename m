@@ -2,44 +2,59 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19477EB64DA
-	for <linux-input@archiver.kernel.org>; Tue,  4 Jul 2023 08:18:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A8CCEB64DD
+	for <linux-input@archiver.kernel.org>; Tue,  4 Jul 2023 10:50:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231626AbjGDISW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 4 Jul 2023 04:18:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45996 "EHLO
+        id S229793AbjGDKum (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 4 Jul 2023 06:50:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231637AbjGDISU (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Jul 2023 04:18:20 -0400
-Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89314E76;
-        Tue,  4 Jul 2023 01:18:17 -0700 (PDT)
-Received: from localhost.localdomain (unknown [10.101.196.174])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id A11B93FDAB;
-        Tue,  4 Jul 2023 08:18:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1688458696;
-        bh=yrFpnLmW5SCE801zkgLbNLwEeYgM8w4TAiD7q1vlzYY=;
-        h=From:To:Cc:Subject:Date:Message-Id:MIME-Version;
-        b=kPwZVwKjbPBcuSNskJOYFk4UuTZ8pe6x8WLocwcOVr+LKAhJTl39pQ/mDsChJifB7
-         7Ru4wlq1TTy/u0kK3HySZzUAz670l+wAvU9deMcz74YJD3tLlELnZOmkYbeSY7fhIx
-         LXi/2gQlQOTGiXQ/ywD7dbnKnKEHb5y0105WtB20ChWsjlAvFoGaVSXGOJo2jctcpI
-         Fh7BAyoINv0oc1jklxBV8ay+BubzHxDA5huyeQZ2tSn7Ffm7J8AR8yHB64PnEzEtaz
-         Od1d+aSCf8ZodGc05k/D0dLRi3432/j184TukIreCKo56BNWS6hpw7/uZhu+24Qq+G
-         s+7a0z/Xzc3Cg==
-From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
-To:     basavaraj.natikar@amd.com
-Cc:     mario.limonciello@amd.com,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        with ESMTP id S229441AbjGDKul (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 4 Jul 2023 06:50:41 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2331EE5F;
+        Tue,  4 Jul 2023 03:50:40 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id 5b1f17b1804b1-3fbc54caad5so49688575e9.2;
+        Tue, 04 Jul 2023 03:50:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1688467838; x=1691059838;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Z/Vv88KHXlPANE205TDrfh0iF/o9LJIXB5/cB9oUZBs=;
+        b=VJMcfzXE3WsRYyleYwyyc1j0Ml/0ZQXtGB65RtsegFzdTDiYDGF1VW8Cl8l//ejFBw
+         QD2+6TxLkNk3wlxDqZ2cMVD5+4HLulFDszkztimGTyyc9N2dD+TPNzUt04dexHxeknLt
+         TUV3Bmb7H9f1odNS7alN3ivpxEvk8DNO8FkNrdLj1fDb01EyYLxSwilCmMuCwibloEVf
+         6LtLtqDeGaI9Glmt5PRDKPfEFbg3d+N9ey9zY9N9o+jSujDN3rnKNhkKT1su8jhnO6Ef
+         TkKrE6ljIla3rDqHsPj6KH9DTv3LWwqPKPyU7IcSP8HQK/IGTrsJRfUM83GGZekj/3bQ
+         Z5mA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688467838; x=1691059838;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Z/Vv88KHXlPANE205TDrfh0iF/o9LJIXB5/cB9oUZBs=;
+        b=DXFdT3U7LMWoTd1w8DftUYx4rf78/9MLPxYYV9wJGw+VNvcs6/cKZFnZX539Ti3nrv
+         AFeKYP5PHyXcbV8MIE7DcjslEFyrloW/gJ7HihXOLElXvoLH9HwPk5vXrris8Po/s9jR
+         fC7M4CvOl4FFDyz9sMv8S7aaqDk2VugKSrbIuPFK8PNG7Za9ccNjRtHkroL9F5ilgp9N
+         hvU9PjQBKK8McoHzVTCiVRIZ1wcHxCWGcoM8q3atT/M3FO4nLPYJuTRJgLWBz1wENWhv
+         rEmGa8mA0HJEsdxeE2jB9YvMOOkw4zbNnN6RgJy45/ehM7VhiNbwIsQI3x3tEtUapkXX
+         eIgw==
+X-Gm-Message-State: AC+VfDz9MdsLq5amRArKISY+CcSbjhNSyxDZ8SEwb7HcOwAWkZeLHzDu
+        dTywFCHapFg4CsSDRSpblbaVJ/mNqDU=
+X-Google-Smtp-Source: ACHHUZ5yQPfVFHpG018p2/oMDOOJtVWRgOURtobhuC2twH+8XfcoTMCEAKKbrn50fM1kO3yjQCY1EA==
+X-Received: by 2002:a05:600c:218f:b0:3fa:a6ce:54ad with SMTP id e15-20020a05600c218f00b003faa6ce54admr10306500wme.6.1688467838185;
+        Tue, 04 Jul 2023 03:50:38 -0700 (PDT)
+Received: from localhost.localdomain ([77.243.43.130])
+        by smtp.gmail.com with ESMTPSA id s24-20020a7bc398000000b003fb9ebb6b88sm21409237wmj.39.2023.07.04.03.50.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 04 Jul 2023 03:50:37 -0700 (PDT)
+From:   Andreas Helbech Kleist <andreaskleist@gmail.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Andreas Helbech Kleist <andreaskleist@gmail.com>,
         linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: amd_sfh: Increase bitwidth to avoid shift-out-of-bounds
-Date:   Tue,  4 Jul 2023 16:17:21 +0800
-Message-Id: <20230704081724.2308195-1-kai.heng.feng@canonical.com>
+Subject: [PATCH] Input: exc3000 - add ACPI support for EXC80H60
+Date:   Tue,  4 Jul 2023 12:50:20 +0200
+Message-Id: <20230704105021.898555-1-andreaskleist@gmail.com>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -47,59 +62,56 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-UBSAN complains shift-out-of-bounds on amd_sfh:
-[    7.593412] input: SYNA3105:00 06CB:CEA3 Mouse as /devices/platform/AMDI0010:00/i2c-0/i2c-SYNA3105:00/0018:06CB:CEA3.0001/input/input11
-[    7.593541] input: SYNA3105:00 06CB:CEA3 Touchpad as /devices/platform/AMDI0010:00/i2c-0/i2c-SYNA3105:00/0018:06CB:CEA3.0001/input/input12
-[    7.593625] hid-multitouch 0018:06CB:CEA3.0001: input,hidraw0: I2C HID v1.00 Mouse [SYNA3105:00 06CB:CEA3] on i2c-SYNA3105:00
-[    7.664537] ================================================================================
-[    7.664540] UBSAN: shift-out-of-bounds in drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c:149:50
-[    7.664544] shift exponent 103 is too large for 64-bit type 'long unsigned int'
-[    7.664547] CPU: 5 PID: 124 Comm: kworker/5:1 Tainted: G        W          6.4.0-next-20230703 #1
-[    7.664549] Hardware name: HP HP EliteBook 835 13 inch G10 Notebook PC/8C10, BIOS V83 Ver. 01.01.09 06/05/2023
-[    7.664551] Workqueue: events amd_sfh_work_buffer [amd_sfh]
-[    7.664562] Call Trace:
-[    7.664564]  <TASK>
-[    7.664567]  dump_stack_lvl+0x48/0x70
-[    7.664576]  dump_stack+0x10/0x20
-[    7.664578]  __ubsan_handle_shift_out_of_bounds+0x156/0x310
-[    7.664584]  ? sched_clock_noinstr+0x9/0x10
-[    7.664589]  ? sched_clock_cpu+0x12/0x1d0
-[    7.664594]  ? raw_spin_rq_lock_nested+0x1e/0xa0
-[    7.664597]  ? psi_group_change+0x237/0x520
-[    7.664600]  float_to_int.cold+0x18/0xcf [amd_sfh]
-[    7.664606]  ? __pfx_get_input_rep+0x10/0x10 [amd_sfh]
-[    7.664611]  get_input_rep+0x241/0x340 [amd_sfh]
-[    7.664617]  amd_sfh_work_buffer+0x91/0x190 [amd_sfh]
-[    7.664622]  process_one_work+0x229/0x450
-[    7.664627]  worker_thread+0x50/0x3f0
-[    7.664629]  ? __pfx_worker_thread+0x10/0x10
-[    7.664632]  kthread+0xf4/0x130
-[    7.664635]  ? __pfx_kthread+0x10/0x10
-[    7.664638]  ret_from_fork+0x29/0x50
-[    7.664644]  </TASK>
-[    7.664652] ================================================================================
+EXC80H60 is used in Ambu aBox2 with ACPI _HID "EGA00001".
 
-So increase the variable bitwidth to solve the issue.
+Snippet of from "apcidump -b; iasl ssdt2.dat" on target:
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+        Device (TPL2)
+        {
+            Name (HID2, Zero)
+            Name (_HID, "EGA00001")  // _HID: Hardware ID
+            Name (_CID, "PNP0C50" /* HID Protocol Device (I2C bus) */)
+		// _CID: Compatible ID
+            Name (_S0W, 0x04)  // _S0W: S0 Device Wake State
+            Name (SBFB, ResourceTemplate ()
+
+Signed-off-by: Andreas Helbech Kleist <andreaskleist@gmail.com>
 ---
- drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/input/touchscreen/exc3000.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c
-index 6f0d332ccf51..550639ef8bfe 100644
---- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c
-+++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_desc.c
-@@ -134,7 +134,8 @@ static void get_common_inputs(struct common_input_property *common, int report_i
+diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
+index 69eae79e2087..f3a90155fb04 100644
+--- a/drivers/input/touchscreen/exc3000.c
++++ b/drivers/input/touchscreen/exc3000.c
+@@ -7,6 +7,7 @@
+  * minimal implementation based on egalax_ts.c and egalax_i2c.c
+  */
  
- static int float_to_int(u32 float32)
- {
--	int fraction, shift, mantissa, sign, exp, zeropre;
-+	int fraction, shift, sign, exp, zeropre;
-+	s128 mantissa;
++#include <linux/acpi.h>
+ #include <linux/bitops.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
+@@ -454,10 +455,19 @@ static const struct of_device_id exc3000_of_match[] = {
+ MODULE_DEVICE_TABLE(of, exc3000_of_match);
+ #endif
  
- 	mantissa = float32 & GENMASK(22, 0);
- 	sign = (float32 & BIT(31)) ? -1 : 1;
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id exc3000_acpi_match[] = {
++	{ "EGA00001", .driver_data = &exc3000_info[EETI_EXC80H60] },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, exc3000_acpi_match);
++#endif
++
+ static struct i2c_driver exc3000_driver = {
+ 	.driver = {
+ 		.name	= "exc3000",
+ 		.of_match_table = of_match_ptr(exc3000_of_match),
++		.acpi_match_table = ACPI_PTR(exc3000_acpi_match),
+ 	},
+ 	.id_table	= exc3000_id,
+ 	.probe_new	= exc3000_probe,
 -- 
 2.34.1
 

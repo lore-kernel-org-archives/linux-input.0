@@ -2,111 +2,95 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3B299EB64DA
-	for <linux-input@archiver.kernel.org>; Wed,  5 Jul 2023 14:02:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFF97EB64DA
+	for <linux-input@archiver.kernel.org>; Wed,  5 Jul 2023 19:28:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232125AbjGEOCx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 5 Jul 2023 10:02:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58598 "EHLO
+        id S231176AbjGET2y (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 5 Jul 2023 15:28:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231865AbjGEOCv (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2023 10:02:51 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB6211B;
-        Wed,  5 Jul 2023 07:02:50 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC71A61568;
-        Wed,  5 Jul 2023 14:02:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE4E5C433C7;
-        Wed,  5 Jul 2023 14:02:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1688565769;
-        bh=8Pv519rVX2nyzfcP+WWJAfxHrjLTPQrVejjsds7b0e8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=bTRx9QYeOOUu652xyFmZdnhpFBlT1LXlf0Ecjj9AqPmaZ+k4P5cbVpk6enhALEj+4
-         a++Be9rRcL1yiFdllRaQpJkGq+/dACPEV0zCo8uGcqIMkwlkcT4Ast+4B3zEqtA1my
-         1yBNwB/rHhuV7+nPSGNDHyjhl1Y31bpbXvZr1mlYn5elxSVYB5RM2nn4wn9qN5bmxL
-         FhXk8K0TM+LeSS3LrDieZiEoszeAJyznP28Jfz7n7JlnTk3REgjOePQES9Lrc3TQHq
-         SlhmZXawVNCyXfrzkOfyjPxviE83s/157jrxJcl8wZPOP79iNgmJs7hVoxKps5UvLW
-         XTlf78IsOIZ2w==
-From:   Arnd Bergmann <arnd@kernel.org>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        "K. Y. Srinivasan" <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>,
-        Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-        Paulo Miguel Almeida <paulo.miguel.almeida.rodenas@gmail.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Dawei Li <set_pte_at@outlook.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        linux-hyperv@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH] HID: hyperv: avoid struct memcpy overrun warning
-Date:   Wed,  5 Jul 2023 16:02:24 +0200
-Message-Id: <20230705140242.844167-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S229929AbjGET2y (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 5 Jul 2023 15:28:54 -0400
+Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D4A10F;
+        Wed,  5 Jul 2023 12:28:53 -0700 (PDT)
+Received: by mail-pf1-x42e.google.com with SMTP id d2e1a72fcca58-666e97fcc60so23884b3a.3;
+        Wed, 05 Jul 2023 12:28:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1688585333; x=1691177333;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=5TBB3lA3219LHYvO7O8r0trL8ZFv8X/mAnxkxOqj7IU=;
+        b=D4HgX8p1dsAjSTSuUpPw7eJzRpQlgXgDnNzA+16nqrjL0N8EAm35oPzpWOlXhKnc98
+         3y7MTGth2VRvMXujfnC6+U6Uv/7jUGGKOSrQMCOVraZ9xsSOOH3qyMpWOzumV5INHeMo
+         qfSMh1RelkiplWKsSHQOWoIv3hJvwc1Ow1tWMKJb1kpMxDGp39Nsrp9k4Zfp0mINbnGv
+         kwktloYdBkGs9HKMX3t5XEL91vkHuhkBf13z5mrU7hc9cs6NIyToiH89xJ8EB2PdglhK
+         Nlg2LZnyIp9WxPAR+M6RV9kHR3cYuJIC+7iEEfJh1Mtb1OJRKUE977SdM5nmWFxiytrc
+         MmgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688585333; x=1691177333;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=5TBB3lA3219LHYvO7O8r0trL8ZFv8X/mAnxkxOqj7IU=;
+        b=gi4m/zYNtep8kefrv8hYebjsCViazAQLhphN9ptiWxJcwZcp4TI8Lo974y3zofsTzI
+         4tUZoOkX/3l+v+kbSLl/ni5eKV309luZLVacp3741KMJiqFVO0yhpQ/gSkoA00m1QV4+
+         5yflBG9iwe3puw0peVppUMnRBVQDbyTViakFp4ZOLGYPHdvWYLdFYw3u7cv52374r1ZI
+         cnXFAgzrJlhfBUA1NeyCdkOYnHC0i4yWYt1JbqyVojqAv/60nhGm9Ci/uuLCxHy3QfyZ
+         5ndfUQb20pm/Xz70+k4du98KMDhQLUEwERXBVr6dZBGBiMcmBGgsfJwvPqOhAQPwC8lN
+         ECZA==
+X-Gm-Message-State: AC+VfDx+Ns48vb3HojSRm5ESTXBsRCNPXrtu4s1CzyjIfOemxmCgOyFx
+        llmGP1QT5C+SsmG6E7rrs6tAuRnJYrU=
+X-Google-Smtp-Source: ACHHUZ4AIOheQA4xlTJnOr83/5E/dTQaqiCrhFN98TmyBgMB+ONKUzbrg7FpEsnizg+x6GZMv2g66A==
+X-Received: by 2002:a05:6a20:3ca1:b0:123:b57:a3de with SMTP id b33-20020a056a203ca100b001230b57a3demr12810543pzj.46.1688585332898;
+        Wed, 05 Jul 2023 12:28:52 -0700 (PDT)
+Received: from google.com ([2620:15c:9d:2:9fac:a99f:7f0a:397])
+        by smtp.gmail.com with ESMTPSA id u23-20020aa78497000000b0067aa2a70179sm14310213pfn.46.2023.07.05.12.28.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 05 Jul 2023 12:28:52 -0700 (PDT)
+Date:   Wed, 5 Jul 2023 12:28:50 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Sebastian Reichel <sebastian.reichel@collabora.com>
+Cc:     Randy Dunlap <rdunlap@infradead.org>, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org
+Subject: Re: [PATCH RESEND] input: cpcap-pwrbutton: remove initial kernel-doc
+ notation
+Message-ID: <ZKXEcr+43Qkj8Y4m@google.com>
+References: <20230703230005.14877-1-rdunlap@infradead.org>
+ <20230704000821.z3tx4chw7x6pn6nq@mercury.elektranox.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230704000821.z3tx4chw7x6pn6nq@mercury.elektranox.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Tue, Jul 04, 2023 at 02:08:21AM +0200, Sebastian Reichel wrote:
+> Hi,
+> 
+> On Mon, Jul 03, 2023 at 04:00:05PM -0700, Randy Dunlap wrote:
+> > Change the beginning "/**" in the file to "/*" since it is not a
+> > kernel-doc comment. This prevents a kernel-doc warning:
+> > 
+> > drivers/input/misc/cpcap-pwrbutton.c:2: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+> >  * CPCAP Power Button Input Driver
+> > 
+> > Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+> > Cc: Sebastian Reichel <sre@kernel.org>
+> > Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> > Cc: linux-input@vger.kernel.org
+> > ---
+> 
+> Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 
-A previous patch addressed the fortified memcpy warning for most
-builds, but I still see this one with gcc-9:
+Applied, thank you.
 
-In file included from include/linux/string.h:254,
-                 from drivers/hid/hid-hyperv.c:8:
-In function 'fortify_memcpy_chk',
-    inlined from 'mousevsc_on_receive' at drivers/hid/hid-hyperv.c:272:3:
-include/linux/fortify-string.h:583:4: error: call to '__write_overflow_field' declared with attribute warning: detected write beyond size of field (1st parameter); maybe use struct_group()? [-Werror=attribute-warning]
-  583 |    __write_overflow_field(p_size_field, size);
-      |    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+BTW, the driver is missing SPDX annotation, Sebastian I wonder if you
+could send a patch addressing this (given you are the author it is
+better coming from you).
 
-My guess is that the WARN_ON() itself is what confuses gcc, so it no
-longer sees that there is a correct range check. Rework the code in a
-way that helps readability and avoids the warning.
+Thanks!
 
-Fixes: 542f25a944715 ("HID: hyperv: Replace one-element array with flexible-array member")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
- drivers/hid/hid-hyperv.c | 10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/hid/hid-hyperv.c b/drivers/hid/hid-hyperv.c
-index 49d4a26895e76..f33485d83d24f 100644
---- a/drivers/hid/hid-hyperv.c
-+++ b/drivers/hid/hid-hyperv.c
-@@ -258,19 +258,17 @@ static void mousevsc_on_receive(struct hv_device *device,
- 
- 	switch (hid_msg_hdr->type) {
- 	case SYNTH_HID_PROTOCOL_RESPONSE:
-+		len = struct_size(pipe_msg, data, pipe_msg->size);
-+
- 		/*
- 		 * While it will be impossible for us to protect against
- 		 * malicious/buggy hypervisor/host, add a check here to
- 		 * ensure we don't corrupt memory.
- 		 */
--		if (struct_size(pipe_msg, data, pipe_msg->size)
--			> sizeof(struct mousevsc_prt_msg)) {
--			WARN_ON(1);
-+		if (WARN_ON(len > sizeof(struct mousevsc_prt_msg)))
- 			break;
--		}
- 
--		memcpy(&input_dev->protocol_resp, pipe_msg,
--				struct_size(pipe_msg, data, pipe_msg->size));
-+		memcpy(&input_dev->protocol_resp, pipe_msg, len);
- 		complete(&input_dev->wait_event);
- 		break;
- 
 -- 
-2.39.2
-
+Dmitry

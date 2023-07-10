@@ -2,110 +2,168 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74588EB64DC
-	for <linux-input@archiver.kernel.org>; Mon, 10 Jul 2023 12:37:33 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8938FC001B0
+	for <linux-input@archiver.kernel.org>; Mon, 10 Jul 2023 13:01:25 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229744AbjGJMhc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 Jul 2023 08:37:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38792 "EHLO
+        id S231435AbjGJNBY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 Jul 2023 09:01:24 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbjGJMhc (ORCPT
+        with ESMTP id S231631AbjGJNBV (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Jul 2023 08:37:32 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDEADD
-        for <linux-input@vger.kernel.org>; Mon, 10 Jul 2023 05:36:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1688992600;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
+        Mon, 10 Jul 2023 09:01:21 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A768118;
+        Mon, 10 Jul 2023 06:01:17 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id C15CE221BA;
+        Mon, 10 Jul 2023 13:01:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1688994075; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=4EunXTFPWohHEqIFyvUhfjkaDbMaDEO8C0ZO2BvgWDE=;
-        b=L+geeiz/BgHKKM5xjqWG551u9qmFwrk4/Yc+LHtgfwn+5mKN2GkUuG7Jff1W3agWaHJl88
-        Mjp3j/M9k/zyThD8/pBa9BplUVAOAeS4fmaCZLSm6VZAGgqUcIvVQudSDpN35xcMvWgm7u
-        1Wzd5kDCEz7WN4zOGEb+vyqzTU3pu9A=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-626-OhA7XoFkP5iB7vZ3DIxJeA-1; Mon, 10 Jul 2023 08:36:37 -0400
-X-MC-Unique: OhA7XoFkP5iB7vZ3DIxJeA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        bh=88rPmDGaS5gKniv3Edf9SKUMMSNGLxAYotJPEpDKSY0=;
+        b=iI+YdRNDj5roFr+qOpBW4pQiEAaBopdRUiHG5zuIRb1y0+ybtz/NnVxVBMa5EIJRu6ltWS
+        +fc/WnmvzwBboWzDqmOj5Qob383Is/QvSeg41r5d75Sr0CU8Qf8Gzrsq/+f7Ssni6U/Qea
+        O5hM6rasaSVFgFepwU9E2Sc7GM1WzHM=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1688994075;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=88rPmDGaS5gKniv3Edf9SKUMMSNGLxAYotJPEpDKSY0=;
+        b=UtgwnR9WK2m89ypILgWLnJMM0a9zUC2f0u22B30PTkORSB9Ev+brG4x1VLnbIsxRmb0NOA
+        jcaYZmAYjwgIieBg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id AF248104458D;
-        Mon, 10 Jul 2023 12:36:36 +0000 (UTC)
-Received: from x1.localdomain.com (unknown [10.39.195.29])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D77FAF66B5;
-        Mon, 10 Jul 2023 12:36:35 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH resend 2/2] Input: novatek-nvt-ts - add touchscreen model number to description
-Date:   Mon, 10 Jul 2023 14:36:33 +0200
-Message-ID: <20230710123633.323937-2-hdegoede@redhat.com>
-In-Reply-To: <20230710123633.323937-1-hdegoede@redhat.com>
-References: <20230710123633.323937-1-hdegoede@redhat.com>
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 70DE313A05;
+        Mon, 10 Jul 2023 13:01:15 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id mIWQGhsBrGTTFAAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Mon, 10 Jul 2023 13:01:15 +0000
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     deller@gmx.de, javierm@redhat.com
+Cc:     linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        linux-geode@lists.infradead.org, linux-nvidia@lists.surfsouth.com,
+        linux-hyperv@vger.kernel.org, linux-omap@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 02/17] fbdev: Remove flag FBINFO_DEFAULT from fbdev drivers
+Date:   Mon, 10 Jul 2023 14:50:06 +0200
+Message-ID: <20230710130113.14563-3-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20230710130113.14563-1-tzimmermann@suse.de>
+References: <20230710130113.14563-1-tzimmermann@suse.de>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-A phoronix forum member actual found documentation on what the model
-number for the touchscreen controller on the Acer Iconia One 7 B1-750 is.
+The flag FBINFO_DEFAULT is 0 and has no effect, as struct fbinfo.flags
+has been allocated to zero by a static declaration. So do not set it.
 
-Update the driver's description to include this.
+Flags should signal differences from the default values. After cleaning
+up all occurences of FBINFO_DEFAULT, the token can be removed.
 
-Link: https://www.phoronix.com/forums/forum/hardware/general-hardware/1382535-10-years-later-linux-getting-a-touchscreen-driver-for-a-once-popular-tablet?p=1384707#post1384707
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Helge Deller <deller@gmx.de>
 ---
- drivers/input/touchscreen/Kconfig          | 4 ++--
- drivers/input/touchscreen/novatek-nvt-ts.c | 8 +++-----
- 2 files changed, 5 insertions(+), 7 deletions(-)
+ drivers/video/fbdev/68328fb.c  | 2 +-
+ drivers/video/fbdev/acornfb.c  | 2 +-
+ drivers/video/fbdev/g364fb.c   | 2 +-
+ drivers/video/fbdev/hpfb.c     | 1 -
+ drivers/video/fbdev/macfb.c    | 1 -
+ drivers/video/fbdev/maxinefb.c | 1 -
+ 6 files changed, 3 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index c2cbd332af1d..fb4c23917b69 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -655,10 +655,10 @@ config TOUCHSCREEN_MTOUCH
- 	  module will be called mtouch.
+diff --git a/drivers/video/fbdev/68328fb.c b/drivers/video/fbdev/68328fb.c
+index 07d6e8dc686b..956dd2399cc0 100644
+--- a/drivers/video/fbdev/68328fb.c
++++ b/drivers/video/fbdev/68328fb.c
+@@ -448,7 +448,7 @@ static int __init mc68x328fb_init(void)
+ 		fb_info.var.red.offset = fb_info.var.green.offset = fb_info.var.blue.offset = 0;
+ 	}
+ 	fb_info.pseudo_palette = &mc68x328fb_pseudo_palette;
+-	fb_info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
++	fb_info.flags = FBINFO_HWACCEL_YPAN;
  
- config TOUCHSCREEN_NOVATEK_NVT_TS
--	tristate "Novatek NVT-ts touchscreen support"
-+	tristate "Novatek NT11205 touchscreen support"
- 	depends on I2C
- 	help
--	  Say Y here if you have a Novatek NVT-ts touchscreen.
-+	  Say Y here if you have a Novatek NT11205 touchscreen.
- 	  If unsure, say N.
+ 	if (fb_alloc_cmap(&fb_info.cmap, 256, 0))
+ 		return -ENOMEM;
+diff --git a/drivers/video/fbdev/acornfb.c b/drivers/video/fbdev/acornfb.c
+index 1b72edc01cfb..8fec21dfca09 100644
+--- a/drivers/video/fbdev/acornfb.c
++++ b/drivers/video/fbdev/acornfb.c
+@@ -694,7 +694,7 @@ static void acornfb_init_fbinfo(void)
+ 	first = 0;
  
- 	  To compile this driver as a module, choose M here: the
-diff --git a/drivers/input/touchscreen/novatek-nvt-ts.c b/drivers/input/touchscreen/novatek-nvt-ts.c
-index 047e371448ce..1a797e410a3f 100644
---- a/drivers/input/touchscreen/novatek-nvt-ts.c
-+++ b/drivers/input/touchscreen/novatek-nvt-ts.c
-@@ -1,9 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0-or-later
- /*
-- * Driver for Novatek i2c touchscreen controller as found on
-- * the Acer Iconia One 7 B1-750 tablet. The Touchscreen controller
-- * model-number is unknown. Android calls this a "NVT-ts" touchscreen,
-- * but that may apply to other Novatek controller models too.
-+ * Driver for Novatek NT11205 i2c touchscreen controller as found
-+ * on the Acer Iconia One 7 B1-750 tablet.
-  *
-  * Copyright (c) 2023 Hans de Goede <hdegoede@redhat.com>
-  */
-@@ -296,6 +294,6 @@ static struct i2c_driver nvt_ts_driver = {
+ 	fb_info.fbops		= &acornfb_ops;
+-	fb_info.flags		= FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
++	fb_info.flags		= FBINFO_HWACCEL_YPAN;
+ 	fb_info.pseudo_palette	= current_par.pseudo_palette;
  
- module_i2c_driver(nvt_ts_driver);
+ 	strcpy(fb_info.fix.id, "Acorn");
+diff --git a/drivers/video/fbdev/g364fb.c b/drivers/video/fbdev/g364fb.c
+index c5b7673ddc6c..0825cbde116e 100644
+--- a/drivers/video/fbdev/g364fb.c
++++ b/drivers/video/fbdev/g364fb.c
+@@ -219,7 +219,7 @@ int __init g364fb_init(void)
+ 	fb_info.screen_base = (char *) G364_MEM_BASE;	/* virtual kernel address */
+ 	fb_info.var = fb_var;
+ 	fb_info.fix = fb_fix;
+-	fb_info.flags = FBINFO_DEFAULT | FBINFO_HWACCEL_YPAN;
++	fb_info.flags = FBINFO_HWACCEL_YPAN;
  
--MODULE_DESCRIPTION("Novatek NVT-ts touchscreen driver");
-+MODULE_DESCRIPTION("Novatek NT11205 touchscreen driver");
- MODULE_AUTHOR("Hans de Goede <hdegoede@redhat.com>");
- MODULE_LICENSE("GPL");
+ 	fb_alloc_cmap(&fb_info.cmap, 255, 0);
+ 
+diff --git a/drivers/video/fbdev/hpfb.c b/drivers/video/fbdev/hpfb.c
+index 77fbff47b1a8..406c1383cbda 100644
+--- a/drivers/video/fbdev/hpfb.c
++++ b/drivers/video/fbdev/hpfb.c
+@@ -287,7 +287,6 @@ static int hpfb_init_one(unsigned long phys_base, unsigned long virt_base)
+ 	else
+ 		strcat(fb_info.fix.id, "Catseye");
+ 	fb_info.fbops = &hpfb_ops;
+-	fb_info.flags = FBINFO_DEFAULT;
+ 	fb_info.var   = hpfb_defined;
+ 	fb_info.screen_base = (char *)fb_start;
+ 
+diff --git a/drivers/video/fbdev/macfb.c b/drivers/video/fbdev/macfb.c
+index 44ff860a3f37..5ca208d992cc 100644
+--- a/drivers/video/fbdev/macfb.c
++++ b/drivers/video/fbdev/macfb.c
+@@ -876,7 +876,6 @@ static int __init macfb_init(void)
+ 	fb_info.var		= macfb_defined;
+ 	fb_info.fix		= macfb_fix;
+ 	fb_info.pseudo_palette	= pseudo_palette;
+-	fb_info.flags		= FBINFO_DEFAULT;
+ 
+ 	err = fb_alloc_cmap(&fb_info.cmap, video_cmap_len, 0);
+ 	if (err)
+diff --git a/drivers/video/fbdev/maxinefb.c b/drivers/video/fbdev/maxinefb.c
+index 4e6b05232ae2..0ac1873b2acb 100644
+--- a/drivers/video/fbdev/maxinefb.c
++++ b/drivers/video/fbdev/maxinefb.c
+@@ -155,7 +155,6 @@ int __init maxinefb_init(void)
+ 	fb_info.screen_base = (char *)maxinefb_fix.smem_start;
+ 	fb_info.var = maxinefb_defined;
+ 	fb_info.fix = maxinefb_fix;
+-	fb_info.flags = FBINFO_DEFAULT;
+ 
+ 	fb_alloc_cmap(&fb_info.cmap, 256, 0);
+ 
 -- 
 2.41.0
 

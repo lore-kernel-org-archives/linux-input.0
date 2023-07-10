@@ -2,46 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C8C81EB64D9
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C404C001DD
 	for <linux-input@archiver.kernel.org>; Mon, 10 Jul 2023 08:33:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232979AbjGJIdZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S231435AbjGJIdZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 10 Jul 2023 04:33:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48464 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233141AbjGJIdF (ORCPT
+        with ESMTP id S233056AbjGJIc5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Jul 2023 04:33:05 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01BED18B
-        for <linux-input@vger.kernel.org>; Mon, 10 Jul 2023 01:32:51 -0700 (PDT)
+        Mon, 10 Jul 2023 04:32:57 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB07E1AB;
+        Mon, 10 Jul 2023 01:32:46 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 121CD60F18
-        for <linux-input@vger.kernel.org>; Mon, 10 Jul 2023 08:32:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76554C433C7;
-        Mon, 10 Jul 2023 08:32:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4131060F25;
+        Mon, 10 Jul 2023 08:32:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 792B0C433C8;
+        Mon, 10 Jul 2023 08:32:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1688977970;
-        bh=Kvu5XFGd8gq+TRVOI6KeyS8ob2+NrTWdPj78OB8xYOw=;
-        h=From:To:In-Reply-To:References:Subject:Date:From;
-        b=FZ6CBVPnlbxH37/1Xzjjo6JeKssryDw9nO5D9k5g7s+8y579liZzNLkivIlaUj9wu
-         17PX2NCyzLaSW5MubpGwQ9cAFUHgrl+BgmIAVfGSvZJqM3GYzdhj1RRtT9i+yvsaQm
-         xBr64y7QyiejWb1uEO1KDNZnUwnTAVBngfEZ3/WXtqrGPEyt9yCdiBHypFx5VDyS/V
-         o44gcdxlg1E5jp/mULa+VagP5/C9x5kevjfEXEo8VQfb13WLzBHnAQVTqWMm1pgojv
-         JouZ68+jIBOhCXVCQ/1gwyHnggxBdkujagjQaEE71Ipzs65NO6yvNgDiS9iXg5Xgiq
-         MuxdywBJlQf0A==
+        s=k20201202; t=1688977965;
+        bh=7wEZ8cWn6iI3q53NlwvvK5ANVSOjH92itswEk6JWwto=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=Q6JrexAQ5+1gqpXYkCMu0Kg+5RJk31m2NwecZi8r4CZYqmB82WjnbmCmrSvIFJoW0
+         VU7OV1by9ErcW1AoDO9Ou9EV8tmKA3MRaKgngzY4vocsJyASqZqCAdTmy2ymzd1JhW
+         rvJS7kvYU8z5T06TyDgIn3umNgmbRJqa0YGJydDVbIu6lK3viB8zB+SO+Atb+4DFsY
+         QpGV/IET7rIJJm+t3uMJO2cwIc8/DETZ3J4N181ceq1Guh3wJIWTDiSvD05d+fArFC
+         RWyThyC1lczoyBW1CEe3b6z3z3Bv9SCUomigLxKLs6Rng0xxsX55ThnJRwbeg2lp8o
+         yMvG9ns/mPuVg==
 From:   Benjamin Tissoires <bentiss@kernel.org>
-To:     jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org, akshata.mukundshetty@amd.com,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-In-Reply-To: <20230707065722.9036-1-Basavaraj.Natikar@amd.com>
-References: <20230707065722.9036-1-Basavaraj.Natikar@amd.com>
-Subject: Re: [PATCH 0/2] Updates to amd_sfh
-Message-Id: <168897796922.315593.8416774627477199569.b4-ty@kernel.org>
-Date:   Mon, 10 Jul 2023 10:32:49 +0200
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Rahul Rameshbabu <rrameshbabu@nvidia.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel test robot <lkp@intel.com>
+In-Reply-To: <20230705060414.581468-1-rrameshbabu@nvidia.com>
+References: <20230705060414.581468-1-rrameshbabu@nvidia.com>
+Subject: Re: [PATCH HID v1] HID: nvidia-shield: Pack inner/related
+ declarations in HOSTCMD reports
+Message-Id: <168897796423.315593.17705252764263719274.b4-ty@kernel.org>
+Date:   Mon, 10 Jul 2023 10:32:44 +0200
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
@@ -50,22 +53,22 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 07 Jul 2023 12:27:20 +0530, Basavaraj Natikar wrote:
-> This patch series include changes for renaming the float32 variable
-> including the fix for shift-out-of-bounds issue.
-> 
-> Basavaraj Natikar (2):
->   HID: amd_sfh: Rename the float32 variable
->   HID: amd_sfh: Fix for shift-out-of-bounds
+On Tue, 04 Jul 2023 23:04:14 -0700, Rahul Rameshbabu wrote:
+> Match alignment information in composite type declarations used by packed
+> HOSTCMD report structures. Compiler packing attribute is not recursive for
+> inner declarations. Mismatched alignment information can cause undefined
+> behavior in code generated for accessing composite type members. struct
+> pointers passed to thunderstrike_parse_board_info_payload and
+> thunderstrike_parse_haptics_payload are an example of this being
+> potentially problematic since alignment information from the packed HOSTCMD
+> report is lost.
 > 
 > [...]
 
 Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-6.5/upstream-fixes), thanks!
 
-[1/2] HID: amd_sfh: Rename the float32 variable
-      https://git.kernel.org/hid/hid/c/c1685a862a4b
-[2/2] HID: amd_sfh: Fix for shift-out-of-bounds
-      https://git.kernel.org/hid/hid/c/878543661764
+[1/1] HID: nvidia-shield: Pack inner/related declarations in HOSTCMD reports
+      https://git.kernel.org/hid/hid/c/8bcf314b92ed
 
 Cheers,
 -- 

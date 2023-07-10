@@ -2,75 +2,88 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2C404C001DD
-	for <linux-input@archiver.kernel.org>; Mon, 10 Jul 2023 08:33:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D112C0015E
+	for <linux-input@archiver.kernel.org>; Mon, 10 Jul 2023 08:46:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231435AbjGJIdZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 10 Jul 2023 04:33:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47792 "EHLO
+        id S231894AbjGJIqc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 10 Jul 2023 04:46:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233056AbjGJIc5 (ORCPT
+        with ESMTP id S232037AbjGJIqK (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 10 Jul 2023 04:32:57 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB07E1AB;
-        Mon, 10 Jul 2023 01:32:46 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4131060F25;
-        Mon, 10 Jul 2023 08:32:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 792B0C433C8;
-        Mon, 10 Jul 2023 08:32:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1688977965;
-        bh=7wEZ8cWn6iI3q53NlwvvK5ANVSOjH92itswEk6JWwto=;
-        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-        b=Q6JrexAQ5+1gqpXYkCMu0Kg+5RJk31m2NwecZi8r4CZYqmB82WjnbmCmrSvIFJoW0
-         VU7OV1by9ErcW1AoDO9Ou9EV8tmKA3MRaKgngzY4vocsJyASqZqCAdTmy2ymzd1JhW
-         rvJS7kvYU8z5T06TyDgIn3umNgmbRJqa0YGJydDVbIu6lK3viB8zB+SO+Atb+4DFsY
-         QpGV/IET7rIJJm+t3uMJO2cwIc8/DETZ3J4N181ceq1Guh3wJIWTDiSvD05d+fArFC
-         RWyThyC1lczoyBW1CEe3b6z3z3Bv9SCUomigLxKLs6Rng0xxsX55ThnJRwbeg2lp8o
-         yMvG9ns/mPuVg==
-From:   Benjamin Tissoires <bentiss@kernel.org>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Rahul Rameshbabu <rrameshbabu@nvidia.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel test robot <lkp@intel.com>
-In-Reply-To: <20230705060414.581468-1-rrameshbabu@nvidia.com>
-References: <20230705060414.581468-1-rrameshbabu@nvidia.com>
-Subject: Re: [PATCH HID v1] HID: nvidia-shield: Pack inner/related
- declarations in HOSTCMD reports
-Message-Id: <168897796423.315593.17705252764263719274.b4-ty@kernel.org>
-Date:   Mon, 10 Jul 2023 10:32:44 +0200
+        Mon, 10 Jul 2023 04:46:10 -0400
+Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54D7F173A
+        for <linux-input@vger.kernel.org>; Mon, 10 Jul 2023 01:45:23 -0700 (PDT)
+Received: by mail-ej1-x62c.google.com with SMTP id a640c23a62f3a-9928abc11deso540746366b.1
+        for <linux-input@vger.kernel.org>; Mon, 10 Jul 2023 01:45:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1688978722; x=1691570722;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=J1kpkmX0sgE6nFdKUaA4dAqhfduRWU6fjDfbf+EuPWc=;
+        b=phx5kx0qEkacp0UDLoCo0Drikd63crzZ4r+03TyajRfMLouu/oBHo/fspWLY8AVzn2
+         MQ2XelLwCq1VMWsJxeNbeFW6zgscT3sXsQGVCUyv+6QgE06oH0l+UR6aOpof1T8QcjMj
+         cZ2Z2ebpjIlFRjF+Kn06mM0/6ursQbsnzJ2b2HBXFWwtWf6SNoiITCQR2d0DhsSMDLUs
+         9/hwhkum6Apo0ZOSdfqLYjaUiUc8qrDgKF1e3+h/XuK4WbgOR0GxZf5Dn8dVoCqIhVQj
+         cymwwCh3ri14snQP5rVDkNBpsjc/MeFAoHLYVIAwHbR29IBxtVjJh3//0lsHNTG0HpoS
+         gLBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1688978722; x=1691570722;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=J1kpkmX0sgE6nFdKUaA4dAqhfduRWU6fjDfbf+EuPWc=;
+        b=CoYM4VituZV68hLB9z0lZQqZU3MuV3NG7cNsq89WC/cKaiN8BCHdoqRzMeci1j+BFD
+         jIjEIFTubW6OnQ5fAYX1KFk96ibj5faCA3m+PJLF3Zu+I8fqvamzkvAAk6mVhodElT6o
+         oGHISriLlW/QIVNTm7YP4AVkRbhS9Scy3QBeo1tOn9QDXUcFYLXeXH6OYcJWkP4HMHJb
+         3U7UyRyQ05v8JeEMYQHSQoHUJIC5Ftw0husuekhl8sicl3ZLOm6RRki5ITU2/gafLNwn
+         P02ZGysu3FA4Jv2jxugX5NUjjpt1NOtQ6Zk8gbO5TqILIeX6LTO+eOK3ZeyJrnWJx0JQ
+         x6Eg==
+X-Gm-Message-State: ABy/qLYcxCT+LSrccSds+iKnWj8oYC2M7XseYuEu5VbzxZshd8HCn85p
+        oTR7aR6pnhTJbCWaYTVB5uv96Q==
+X-Google-Smtp-Source: APBJJlEQa5HQMECel3uzVaxsDwQDsueU6mAxaUxGsraPRC8Bd51Gf8ISI7ENvBW5vO032jU1MO5uYA==
+X-Received: by 2002:a17:907:3112:b0:94a:9f9a:b3c4 with SMTP id wl18-20020a170907311200b0094a9f9ab3c4mr10887457ejb.49.1688978721886;
+        Mon, 10 Jul 2023 01:45:21 -0700 (PDT)
+Received: from [192.168.1.20] ([178.197.223.104])
+        by smtp.gmail.com with ESMTPSA id rh16-20020a17090720f000b00988be3c1d87sm5797766ejb.116.2023.07.10.01.45.20
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 10 Jul 2023 01:45:21 -0700 (PDT)
+Message-ID: <a77cdc48-632e-3d32-2f83-45f996757f06@linaro.org>
+Date:   Mon, 10 Jul 2023 10:45:19 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.12.0
+Subject: Re: [PATCH v2 3/4] dt-bindings: input: iqs7222: Add properties for
+ Azoteq IQS7222D
+Content-Language: en-US
+To:     Jeff LaBundy <jeff@labundy.com>, dmitry.torokhov@gmail.com,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        conor+dt@kernel.org
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org
+References: <ZKrotyhz7eueujys@nixie71> <ZKrpOdp+rM8gDekw@nixie71>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <ZKrpOdp+rM8gDekw@nixie71>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.12.1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, 04 Jul 2023 23:04:14 -0700, Rahul Rameshbabu wrote:
-> Match alignment information in composite type declarations used by packed
-> HOSTCMD report structures. Compiler packing attribute is not recursive for
-> inner declarations. Mismatched alignment information can cause undefined
-> behavior in code generated for accessing composite type members. struct
-> pointers passed to thunderstrike_parse_board_info_payload and
-> thunderstrike_parse_haptics_payload are an example of this being
-> potentially problematic since alignment information from the packed HOSTCMD
-> report is lost.
+On 09/07/2023 19:07, Jeff LaBundy wrote:
+> Extend the common binding to include a new variant of the silicon,
+> which effectively replaces a pair of slider nodes with a trackpad
+> node comprising the same or similar properties.
 > 
-> [...]
+> As part of this change, the if/then/else schema have been updated
+> to identify properties that are not supported by the new device.
+> 
+> Signed-off-by: Jeff LaBundy <jeff@labundy.com>
 
-Applied to https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git (for-6.5/upstream-fixes), thanks!
 
-[1/1] HID: nvidia-shield: Pack inner/related declarations in HOSTCMD reports
-      https://git.kernel.org/hid/hid/c/8bcf314b92ed
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-Cheers,
--- 
-Benjamin Tissoires <bentiss@kernel.org>
+Best regards,
+Krzysztof
 

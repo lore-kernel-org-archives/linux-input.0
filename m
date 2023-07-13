@@ -2,53 +2,53 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB802C25B5C
-	for <linux-input@archiver.kernel.org>; Thu, 13 Jul 2023 13:04:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F00CC04A94
+	for <linux-input@archiver.kernel.org>; Thu, 13 Jul 2023 13:04:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235020AbjGMNEJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 13 Jul 2023 09:04:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40552 "EHLO
+        id S234775AbjGMNEs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 13 Jul 2023 09:04:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234761AbjGMNDv (ORCPT
+        with ESMTP id S234887AbjGMNDy (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Jul 2023 09:03:51 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59BFB26B0;
-        Thu, 13 Jul 2023 06:03:50 -0700 (PDT)
+        Thu, 13 Jul 2023 09:03:54 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C6E3173B;
+        Thu, 13 Jul 2023 06:03:51 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 045801FDF0;
+        by smtp-out1.suse.de (Postfix) with ESMTPS id AED3122195;
         Thu, 13 Jul 2023 13:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
         t=1689253429; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=85l2ukO3ODIPQ6vFxAUAj342VQosexDKbJyC6X6EE14=;
-        b=0IK9TnUEpskqaKwZeh1pvP4pAKAC8X7Tywu1Bkirku89cBCyjIV2o8ydHtFtKXBoYb6BcI
-        bTczBLnuDR+geSwWv85O6hqT8UY5fU6nMvJ/kLbHDZmkdNHxfSteQbjRjWXv54svsXJYeh
-        rVkA2Eg22IcEbQV65LDqv1SKkChTVUA=
+        bh=BhF3dZeu/sRgLYS001c8kRsipcWJq/VtROn6MCXX9YY=;
+        b=daj/vSUVGOXQMsWsXdc+Ezaimt8K1JNrFAhTxGzWNIIlcyltS1JZ7L9HTmbYfpLfKmah39
+        ++SGiAxPCteVilbBx7ZxMORu+6/fY818F5BRt6I4Xec64Sdh80+NuEnIVW0hnVJcU/dZGr
+        Zs1E7FQuffTtJHR//mnA7HbWjGqT5JY=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
         s=susede2_ed25519; t=1689253429;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=85l2ukO3ODIPQ6vFxAUAj342VQosexDKbJyC6X6EE14=;
-        b=uM0phW8ltWElCOt/XnllnXgL27+VCOMaHS0H7HW5xyXSxgAsD9bwfKYKM30HDj9lVbMaRN
-        Ia2GVAkJmFLv8/CA==
+        bh=BhF3dZeu/sRgLYS001c8kRsipcWJq/VtROn6MCXX9YY=;
+        b=o0c2teiwOf7OFQ0r9afxe1lhotl2L0LZtSF0FaKNAs7JMdD6urEtIcw/0oan/UIGoPysnY
+        EiveJuQ4bX1ndICA==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 8A36013489;
-        Thu, 13 Jul 2023 13:03:48 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5A42913489;
+        Thu, 13 Jul 2023 13:03:49 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id 2Du8IDT2r2TVPgAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Thu, 13 Jul 2023 13:03:48 +0000
+        id 6M7yFDX2r2TVPgAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Thu, 13 Jul 2023 13:03:49 +0000
 From:   Thomas Zimmermann <tzimmermann@suse.de>
 To:     deller@gmx.de, javierm@redhat.com
 Cc:     linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
@@ -60,10 +60,10 @@ Cc:     linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
         linux-hyperv@vger.kernel.org, linux-omap@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
         Thomas Zimmermann <tzimmermann@suse.de>,
-        Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH v2 16/18] fbdev/pxafb: Remove flag FBINFO_FLAG_DEFAULT
-Date:   Thu, 13 Jul 2023 14:58:36 +0200
-Message-ID: <20230713130338.31086-17-tzimmermann@suse.de>
+        Miguel Ojeda <ojeda@kernel.org>
+Subject: [PATCH v2 18/18] fbdev: Document that framebuffer_alloc() returns zero'ed data
+Date:   Thu, 13 Jul 2023 14:58:38 +0200
+Message-ID: <20230713130338.31086-19-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230713130338.31086-1-tzimmermann@suse.de>
 References: <20230713130338.31086-1-tzimmermann@suse.de>
@@ -73,35 +73,30 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The flag FBINFO_FLAG_DEFAULT is 0 and has no effect, as struct
-fbinfo.flags has been allocated to zero by devm_kzalloc(). So do not
-set it.
+Most fbdev drivers depend on framebuffer_alloc() to initialize the
+allocated memory to 0. Document this guarantee.
 
-Flags should signal differences from the default values. After cleaning
-up all occurrences of FBINFO_DEFAULT, the token will be removed.
-
-v2:
-	* fix commit message (Miguel)
-
+Suggested-by: Miguel Ojeda <ojeda@kernel.org>
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
 Cc: Helge Deller <deller@gmx.de>
 ---
- drivers/video/fbdev/pxafb.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/video/fbdev/core/fb_info.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/pxafb.c b/drivers/video/fbdev/pxafb.c
-index c8c4677d06b4..beffb0602a2c 100644
---- a/drivers/video/fbdev/pxafb.c
-+++ b/drivers/video/fbdev/pxafb.c
-@@ -888,7 +888,6 @@ static void init_pxafb_overlay(struct pxafb_info *fbi, struct pxafb_layer *ofb,
- 	ofb->fb.var.vmode		= FB_VMODE_NONINTERLACED;
- 
- 	ofb->fb.fbops			= &overlay_fb_ops;
--	ofb->fb.flags			= FBINFO_FLAG_DEFAULT;
- 	ofb->fb.node			= -1;
- 	ofb->fb.pseudo_palette		= NULL;
- 
+diff --git a/drivers/video/fbdev/core/fb_info.c b/drivers/video/fbdev/core/fb_info.c
+index 8bdbefdd4b70..1b7615fc393d 100644
+--- a/drivers/video/fbdev/core/fb_info.c
++++ b/drivers/video/fbdev/core/fb_info.c
+@@ -13,7 +13,8 @@
+  *
+  * Creates a new frame buffer info structure. Also reserves @size bytes
+  * for driver private data (info->par). info->par (if any) will be
+- * aligned to sizeof(long).
++ * aligned to sizeof(long). Both, the instance of struct fb_info and
++ * the driver private data, are cleared to zero.
+  *
+  * Returns the new structure, or NULL if an error occurred.
+  *
 -- 
 2.41.0
 

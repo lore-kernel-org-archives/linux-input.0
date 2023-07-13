@@ -2,53 +2,53 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 37C4AC05052
-	for <linux-input@archiver.kernel.org>; Thu, 13 Jul 2023 13:04:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 43935EB64DD
+	for <linux-input@archiver.kernel.org>; Thu, 13 Jul 2023 13:04:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235007AbjGMNEH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 13 Jul 2023 09:04:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40552 "EHLO
+        id S235029AbjGMNEJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 13 Jul 2023 09:04:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234642AbjGMNDt (ORCPT
+        with ESMTP id S234720AbjGMNDu (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 13 Jul 2023 09:03:49 -0400
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C22D1BEB;
-        Thu, 13 Jul 2023 06:03:48 -0700 (PDT)
+        Thu, 13 Jul 2023 09:03:50 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D873F173F;
+        Thu, 13 Jul 2023 06:03:49 -0700 (PDT)
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id A339622191;
-        Thu, 13 Jul 2023 13:03:46 +0000 (UTC)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 866B32218D;
+        Thu, 13 Jul 2023 13:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1689253426; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+        t=1689253428; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=q7Mpa+i5zVgwFyEUu/qFO3pmfeFq7myykbLWTHzzTXc=;
-        b=1THwFTc/9iD7TtKappmpdblWeq6ANXEWp23PWgASMzzM8359LbjfsYo+2qkOA+dHcfZ0xp
-        dDLlUEH5Yws3wcRcu6xKVHLCRdL+BGGTdnZqd2AlauEAsZnZK4UOkgOw8TZssNU5xW8Rch
-        FwhWQXKIFmPvPrY/kH4w/b7N9ETnz7c=
+        bh=ucmT+1GLTDoqupQ1pU8mLni2ss8QN6gSt8DgqXn9pcI=;
+        b=xDMQnaXrC0sbzn5vN86LIOql2HUYTjH6Rn2gk6GiGaPIgMn1wM9t8fyeFtlGeVLBKVRych
+        jZEQAhl9Cz+rXv2Xmv90zXqwpGPaTq3oQTLgj7bQsU93Ut1zQKNiVkAPZOvZ8Xw/7HLAvF
+        hfe8hTWSEW/ctYN/9cd4yTlUaNeyD7A=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1689253426;
+        s=susede2_ed25519; t=1689253428;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=q7Mpa+i5zVgwFyEUu/qFO3pmfeFq7myykbLWTHzzTXc=;
-        b=zsZSCGs6cFK5m8joeJv4LdiR3EDIy5rPNTZB41VrDBTIKU7DRQ6DotcvCrGdYL2WAiL8Ej
-        WDhWNIzmEpf5obDg==
+        bh=ucmT+1GLTDoqupQ1pU8mLni2ss8QN6gSt8DgqXn9pcI=;
+        b=PyQUJ+mjDGZPkhAsdSpBipeSRqA8G+lVO8ZMG+DvIZIx7osV1ZLdagMlZnxORWjReOpSlc
+        CGnqY7btTuRhblDQ==
 Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 3B2C713A94;
-        Thu, 13 Jul 2023 13:03:46 +0000 (UTC)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 2CAAD13A94;
+        Thu, 13 Jul 2023 13:03:48 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([192.168.254.65])
         by imap2.suse-dmz.suse.de with ESMTPSA
-        id eLl1DTL2r2TVPgAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Thu, 13 Jul 2023 13:03:46 +0000
+        id eLT2CTT2r2TVPgAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Thu, 13 Jul 2023 13:03:48 +0000
 From:   Thomas Zimmermann <tzimmermann@suse.de>
 To:     deller@gmx.de, javierm@redhat.com
 Cc:     linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
@@ -60,13 +60,10 @@ Cc:     linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
         linux-hyperv@vger.kernel.org, linux-omap@vger.kernel.org,
         linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
         Thomas Zimmermann <tzimmermann@suse.de>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Andy Walls <awalls@md.metrocast.net>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Hans Verkuil <hverkuil@xs4all.nl>
-Subject: [PATCH v2 11/18] media: Remove flag FBINFO_FLAG_DEFAULT from fbdev drivers
-Date:   Thu, 13 Jul 2023 14:58:31 +0200
-Message-ID: <20230713130338.31086-12-tzimmermann@suse.de>
+        Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH v2 15/18] fbdev/atafb: Remove flag FBINFO_FLAG_DEFAULT
+Date:   Thu, 13 Jul 2023 14:58:35 +0200
+Message-ID: <20230713130338.31086-16-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.41.0
 In-Reply-To: <20230713130338.31086-1-tzimmermann@suse.de>
 References: <20230713130338.31086-1-tzimmermann@suse.de>
@@ -77,8 +74,8 @@ List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
 The flag FBINFO_FLAG_DEFAULT is 0 and has no effect, as struct
-fbinfo.flags has been allocated to zero by kzalloc(). So do not
-set it.
+fbinfo.flags has been allocated to zero by a static declaration. So do
+not set it.
 
 Flags should signal differences from the default values. After cleaning
 up all occurrences of FBINFO_DEFAULT, the token will be removed.
@@ -88,38 +85,23 @@ v2:
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Andy Walls <awalls@md.metrocast.net>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Hans Verkuil <hverkuil@xs4all.nl>
+Cc: Helge Deller <deller@gmx.de>
 ---
- drivers/media/pci/ivtv/ivtvfb.c              | 1 -
- drivers/media/test-drivers/vivid/vivid-osd.c | 1 -
- 2 files changed, 2 deletions(-)
+ drivers/video/fbdev/atafb.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/media/pci/ivtv/ivtvfb.c b/drivers/media/pci/ivtv/ivtvfb.c
-index 0aeb9daaee4c..23c8c094e791 100644
---- a/drivers/media/pci/ivtv/ivtvfb.c
-+++ b/drivers/media/pci/ivtv/ivtvfb.c
-@@ -1048,7 +1048,6 @@ static int ivtvfb_init_vidmode(struct ivtv *itv)
- 	/* Generate valid fb_info */
+diff --git a/drivers/video/fbdev/atafb.c b/drivers/video/fbdev/atafb.c
+index 2bc4089865e6..c4a420b791b9 100644
+--- a/drivers/video/fbdev/atafb.c
++++ b/drivers/video/fbdev/atafb.c
+@@ -3112,7 +3112,6 @@ static int __init atafb_probe(struct platform_device *pdev)
+ #ifdef ATAFB_FALCON
+ 	fb_info.pseudo_palette = current_par.hw.falcon.pseudo_palette;
+ #endif
+-	fb_info.flags = FBINFO_FLAG_DEFAULT;
  
- 	oi->ivtvfb_info.node = -1;
--	oi->ivtvfb_info.flags = FBINFO_FLAG_DEFAULT;
- 	oi->ivtvfb_info.par = itv;
- 	oi->ivtvfb_info.var = oi->ivtvfb_defined;
- 	oi->ivtvfb_info.fix = oi->ivtvfb_fix;
-diff --git a/drivers/media/test-drivers/vivid/vivid-osd.c b/drivers/media/test-drivers/vivid/vivid-osd.c
-index ec25edc679b3..051f1805a16d 100644
---- a/drivers/media/test-drivers/vivid/vivid-osd.c
-+++ b/drivers/media/test-drivers/vivid/vivid-osd.c
-@@ -310,7 +310,6 @@ static int vivid_fb_init_vidmode(struct vivid_dev *dev)
- 	/* Generate valid fb_info */
- 
- 	dev->fb_info.node = -1;
--	dev->fb_info.flags = FBINFO_FLAG_DEFAULT;
- 	dev->fb_info.par = dev;
- 	dev->fb_info.var = dev->fb_defined;
- 	dev->fb_info.fix = dev->fb_fix;
+ 	if (!fb_find_mode(&fb_info.var, &fb_info, mode_option, atafb_modedb,
+ 			  NUM_TOTAL_MODES, &atafb_modedb[defmode],
 -- 
 2.41.0
 

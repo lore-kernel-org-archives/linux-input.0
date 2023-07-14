@@ -2,51 +2,51 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 02B04C001B0
-	for <linux-input@archiver.kernel.org>; Fri, 14 Jul 2023 08:09:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E5E7C00528
+	for <linux-input@archiver.kernel.org>; Fri, 14 Jul 2023 08:09:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234942AbjGNIJP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S235024AbjGNIJP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Fri, 14 Jul 2023 04:09:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59480 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234994AbjGNIIs (ORCPT
+        with ESMTP id S235005AbjGNIIu (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Jul 2023 04:08:48 -0400
-Received: from APC01-PSA-obe.outbound.protection.outlook.com (mail-psaapc01on2127.outbound.protection.outlook.com [40.107.255.127])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8FCE46B4;
-        Fri, 14 Jul 2023 01:06:28 -0700 (PDT)
+        Fri, 14 Jul 2023 04:08:50 -0400
+Received: from APC01-PSA-obe.outbound.protection.outlook.com (mail-psaapc01on2128.outbound.protection.outlook.com [40.107.255.128])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3175046B0;
+        Fri, 14 Jul 2023 01:06:29 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=gnoPn7XB5ZzM4b9vk+C/NAd5NnFbKiLEVPmpT1h+P2GXQHhrIabqQQ4N88JiVYPkdiaJFHvvnVxRVeMA8SgrhluOkNPDy8h5tXT/RbeCwns1rtjDR1le9xEmH8qNB4hdYOvnLd42NYMK79lhWKVpivVx7gwNYMj6CkMQw1G8i7YdFTzqOpEXFFDESmu0wMXXUyIzRR3NSjeZhBzKFtiR7mBpvJVuJB8VJ4pK+jLYsv2tBMwn8xFxUKb8A75EZaRcc7oQnNM6knET8P0IZQH7pyMFNQt55ixzFtbED3mSnh4M5MqopP4CFfC3nJJjwQfzb1jCYKPOteVzavVaw0+7FQ==
+ b=dcLozNJRARfQR5s+De9nRIKIfPlCI1en4EYIXL6OsYYOcx2S9C2YSyuviSScGr7KuJlkeswNHuVuvpz5kD/OO/60mZGvWedExFUijEVtULOQK9ySlhDd2MZ5Fr4xAYIwTz60EUC8ecLTUpo6B6lrSGtumY9bVjMb3E+KvP40KcyyMF8nzKGWRyx076T6+I/59Sv43NWTJtgqWnWFti8fiPu4vRryRVfK245eLQrijt4phODj6JCJAnJdSVWUSjoCjXKCkygDYiyD7g7iAwnJG90YaaiomYyq1YEBT1xD1AyOUIjpmJgtnr0pI1mc7JlIuPASuJaFmAk6D2nsjfbFPQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=nhXtyfFNn2c13mX+gMTcuJZa02qAz3DW/hl8K+j7UXw=;
- b=eQWlBvfXGtsz0gNd9gyFCP5nXW0nQiciLvaO0KhHW+1dxhUzYfRv0X+k0thS7H3emOOhp5vNXMsRAsfyhlYyB/3fXbuD1NZH77Gl++ungsEfzgRQHNnVhN9+/nG3+n4V4fJpgAVkaJd7XtzQ9UwqqbXH6s8o/kLa/RgTH2IzUxC8AjhY11ETiGz1Dm1L4eSehV6UjpFfMIzKGC4bbox+KLvXdJyAZ0qeAaL2Oajjf+bX3epCxawo44E/IhElvvUFUysobo5vrZunZ7WWLH5xVasq/ze7AA+uxENodueTD0LFHeqI9llD86JX1zGLQU8xxDq77JSYhy19UZbb+y7vTA==
+ bh=CeJurPe7ItKE7RXvcYGKs7Z4OLyB1jbsfYIGHzoI8J4=;
+ b=eGm2W8sDtaR3Jbs51vJDt2aAApzv2Hjq2kIXAECa+9sfAMn1OyHEdIufoWMrVqMQ2u3KC5Jqs1FXvhTlm4yiUPH1wASDmZK/jEsJhK8b/EVrIC9QCpkooqPZN9PoufuPEIH3zogbrk8GMKTdLDFzWFr+hWsJBRwgm04GqjrmdiSJt6bUbXJw7/CKHCC9d/bRyXb7UwpHPqIFTFv6w20AKYYQw3f7mLcr8t57G/gTP+pTMGlE68JtMGpKRTjf/aeg4NyEuXdG6vD8XdP82qUPKoRYfvEewlo38Y9iniYioY7rOoarXJC5EvWCFTyb5ChBaf/kLxFjyj/Fgt6E+SFItg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
  dkim=pass header.d=vivo.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=nhXtyfFNn2c13mX+gMTcuJZa02qAz3DW/hl8K+j7UXw=;
- b=RiSsbu6xmW8exSp1N+NJj1SjU/7asAoq+5FRcmUqnpJaNfixZj8SWIzs5xik8PNUCql2fpqKkATTjby3/YzZxDT0uL4LDELeF46eS1YM11D8iOiYqZZDZjtnOSjRu3LOAB9iClU006QF/g15kwjIzFSxXlVPhnHRBAweX0sUUlpBso3heqvw3dk4uaj46IOZIofZtmR4YNLC9HET222S2klr1lngU6mZdeUV+bZa4+c/g0q3g2E5fowqo6Odt+Us5XNYi2GDWO0obC1PUgGmS9AHfjonF3Smlu7WoDB5RNXrfX59LrPQmED6xy1otp6D982ig1ri3R4gHp6e1QVMJQ==
+ bh=CeJurPe7ItKE7RXvcYGKs7Z4OLyB1jbsfYIGHzoI8J4=;
+ b=P+aVzCsMjXydpFPQAwH/ig5ad/WzFTLAg+dPHtWjTZVBWHTudLunvC4HjKkhZnEY6ES4V/Go4ERvYrBbV4aGY2vmrzEDZxoCY/C2X2VbYy6DY7t1VEci4+/du7loOT1643qdxUbTnJ0YeWRAVcpzGJ4ph2qw1IiSoxSMl3NFhD0y1JFSzwsLuDp4avqobVBZ/uu14lRIorj9pwxomhQceLEqDoO6ZyyfLpl59PtD6yv2SBZ4EY8Lr+uVFRh1qZ7IuBWzdL1OB2Au6R5kvt5/pUgV+6LoqY0dsLMspbMvYZOWXDUSNC5SujK7bfOcVSNTTKPo9REiPR5J/TIxK+fDUQ==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=vivo.com;
 Received: from SEZPR06MB5269.apcprd06.prod.outlook.com (2603:1096:101:78::6)
- by TYZPR06MB4510.apcprd06.prod.outlook.com (2603:1096:400:65::9) with
+ by SEZPR06MB6058.apcprd06.prod.outlook.com (2603:1096:101:e3::9) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6588.27; Fri, 14 Jul
- 2023 08:06:25 +0000
+ 2023 08:06:23 +0000
 Received: from SEZPR06MB5269.apcprd06.prod.outlook.com
  ([fe80::fa0e:6c06:7474:285c]) by SEZPR06MB5269.apcprd06.prod.outlook.com
  ([fe80::fa0e:6c06:7474:285c%5]) with mapi id 15.20.6565.028; Fri, 14 Jul 2023
- 08:06:25 +0000
+ 08:06:23 +0000
 From:   Yangtao Li <frank.li@vivo.com>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc:     Yangtao Li <frank.li@vivo.com>, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH 4/8] Input: tca6416-keypad - convert to use devm_* api
-Date:   Fri, 14 Jul 2023 16:06:07 +0800
-Message-Id: <20230714080611.81302-4-frank.li@vivo.com>
+Subject: [PATCH 2/8] Input: amikbd - convert to use devm_* api
+Date:   Fri, 14 Jul 2023 16:06:05 +0800
+Message-Id: <20230714080611.81302-2-frank.li@vivo.com>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230714080611.81302-1-frank.li@vivo.com>
 References: <20230714080611.81302-1-frank.li@vivo.com>
@@ -57,52 +57,52 @@ X-ClientProxiedBy: TYCPR01CA0108.jpnprd01.prod.outlook.com
  (2603:1096:101:78::6)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SEZPR06MB5269:EE_|TYZPR06MB4510:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3cb56a8b-27a4-43e0-1f13-08db84413850
+X-MS-TrafficTypeDiagnostic: SEZPR06MB5269:EE_|SEZPR06MB6058:EE_
+X-MS-Office365-Filtering-Correlation-Id: b0c8d827-20cd-43fc-0baa-08db844136c2
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: IQuGBCIzbh0xWl7KxSxebmaOEsVeSg7AbCFR7k8SzyXlNrBIiBnXVYks5TLI/i64XISiSHU8zeUA+js0VNH+zEi0GGs1N8W1mf+qzGSVeAXoUpAPdmjpmny/fVRTW+fTcaK3lLC21JXhwHkuoNTZyCMXBnnHo+kolHywmE55XtiPyMZfsf/9gYElZQBkpl7GdUavEulgOYsBUbqp5l2q+Q4UDc16GE0AmC8qP9ffZLMhaYlZGhGT1XgpB5iamEu7ezo4vbQHrxc2aJzKYrnIv9oUzL8fH/m1ars5r2ePKuxePs88TBCV0sk+71QlIeAcYcxGqLEix49KIvkSMkLrMkJrhCXWFCXiCZNuMzdjjKFQwjkGJRuQsCaxUu8RiAMzSterY41LRr0V8eEvneol1/NXyBxZdwIcjwDSXAU15P34pdFirm3KwkGc7fdqkeas6z4w99bm0kmXk569CFkptEzo+jkQUQDIk8pBSqTXcH6WvtL77/m/hPJujpfulGeJduCsEjmVJ+zxuqBA3wXL/AY/W7FQRHht/CfaxKU9mi93GVP10vw9wKK+GZ/kHtzP2zubMpwD1MJkufKRrIvo4ajljtk1kSstF/3hvu2bK6oKcgiww/Gmx1Zxvt7tZ9CF
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB5269.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(366004)(396003)(346002)(376002)(136003)(39860400002)(451199021)(66946007)(4326008)(66556008)(66476007)(6916009)(41300700001)(2906002)(316002)(478600001)(5660300002)(8936002)(8676002)(6666004)(6486002)(52116002)(6512007)(26005)(186003)(36756003)(6506007)(83380400001)(38100700002)(1076003)(2616005)(86362001)(38350700002);DIR:OUT;SFP:1102;
+X-Microsoft-Antispam-Message-Info: i9ZB3SpGg1un/I/BIBWka77MFL5PeSxOj84DtlEnxA6zJwxX9o6lwTA39R9mNYTrA822Y0kklm0tOrz7rJMnu/1bT99AkxeABqslu5P61WYvRjlXzihjToGUQ95mCxbYnhFEdPd6CZ+hZRlfL3zMllmyaiMdHqzQgv5C/q402S9YHIyeksUiWxmoEKXTjwjem2J+uQTuj+IYVC2MMdKmlPHADDNfkK6CZ2GnyoJfxrCzlGPQFj6dSS8kkLFJA/yU99PBuCbqgmf+j5acXKu8zbW/k0RnV9OaL7rnrgEpNPC+hcPUtkDh5rTBe2qnla3n9MGYqxeo3/ebo7Htrk/sojQ+ut0RT3+xf5y1EpBTWZovE9J/7/bjesmZOON8jq9QdW8UUdHw0YAIJADLHH90Ff/6Tb50CFEDjIVGxhDFNeqdR08ZPkn3TYHnY9U0AHAXxYT5Y32zayIW3/PYx0p3cYp6zA2+Tplib0IYVWdNTAU8wCN4pbKp4zpwHfdSiW4rU1HNuQmvF9WNdsabAbpkeVL2hOm8fUyZp1Stet0VAnIyOfW4O6uCxvq0a3iXr5L7fTP7dYa46JBMJdFrjyai03ep7N06AywpHw86mjf+rGrYnhd4X01qA1vCXZYS8aSt
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB5269.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230028)(4636009)(346002)(366004)(396003)(136003)(39860400002)(376002)(451199021)(4326008)(6916009)(66556008)(66946007)(66476007)(41300700001)(316002)(2906002)(478600001)(5660300002)(8676002)(8936002)(6666004)(6486002)(52116002)(6512007)(26005)(2616005)(186003)(36756003)(83380400001)(6506007)(38100700002)(1076003)(38350700002)(86362001);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?erTubDaqHu+OorCIoVzC2QwD7/pSKpDrG74+YWeMu2k/Mg/jkhMj+NsjPZPr?=
- =?us-ascii?Q?Bb0hg4FyivOmxrLRC32PWD9m3RH0xo7ZSWhRYajWnQJVuvR5mF9/F5GtrOAg?=
- =?us-ascii?Q?t5g3WgEgonKRTIuQP/UiV8i0SJ04bSi//AiXK9MZdjM4BG6xvDvbDImFuJz8?=
- =?us-ascii?Q?hpwmHibqV0cJW2p5tH+N7XPgPe/K3QHu4kUhBtgoFQY5h0rxZQjlp33y6RnE?=
- =?us-ascii?Q?W3+ecJHqyWlwyvPbSZKoxvSEC8jdecmYDoyR6KQ9wACHznnhJD6CpyRL45c8?=
- =?us-ascii?Q?lbwF/qm3XarLydn4oEcnjB3VUUpEqKNpuyHyOHF9q5YS+FcfJutzR1cLkKtr?=
- =?us-ascii?Q?yfDSQQ7qciatgoLCetU3cOo3u4mIp51SqW6VEAG0gEy1ELMbdidg+hwXfoXm?=
- =?us-ascii?Q?kxqqTShJw1UNoud2TSPI7A9WBhkPgDR55nYZo5gSJYWOq4f3LX7aH8up2isC?=
- =?us-ascii?Q?EP3B5828zps3W+1qepaqeHCrviqVU9l5yLwz+MSuNz4g4PGYYJj1t1eDk954?=
- =?us-ascii?Q?RXpNY1pWNUXifTBlg9sIj9uh25etLOnZALOyzNbQEroYhn5UQ3aHSxw0SzUF?=
- =?us-ascii?Q?vnJ/hCP67+q/fG8mNNJMGMq8XYW3mt3eD9vuqryK88n5ObYylaCV6SAKJ7C3?=
- =?us-ascii?Q?eLfzWiPkRYdFYFyUQ2FVG1Dqn9N5YRl+LJ1BJQaLsnANgapJukQZcdFqRzLD?=
- =?us-ascii?Q?xJmrLRVlWYdOscW6rokVIfdzaCHKh31Z16xIRWTdBkFzpEv1DcUpDs/4SCNQ?=
- =?us-ascii?Q?3Dn16Bn7SuyQ/3gL6Mu65DbjwGYTC1BIkXWPIeggZq7Kvsl6WP2Y08ATOpKR?=
- =?us-ascii?Q?6osQhdJHOneF2nXKEEbIwUUl9Oyu/BjeEPUA9yUhB6Wx+HO9oR+0NkfKcxDB?=
- =?us-ascii?Q?t53kQPFG8qVD1MRdiXUnEKA+aDpd+4LiDctMhte//V4Tjzp9PXJ54pgokOIH?=
- =?us-ascii?Q?OPOWxDwv7mHPUL733YdSXAv3G0bwyk+AftqQRakVemMKsLFWoqDggvH2T8Y8?=
- =?us-ascii?Q?SSmUGhmSxjp3qE32RvVnti13gA2sQFIEEVH0O6mLZb9DBOkuUUxLYp7mskRK?=
- =?us-ascii?Q?ppvXwKV2JpcW0rLESG60tUge+8AQF4N9ywCOOezXGk9H6EotNJuMrj4xQI5P?=
- =?us-ascii?Q?HNGI+gM6JDkH8RCtVyPZg+17mg2o0C0qnP2QyIopdOEC4gE1sYvcdxsY59HC?=
- =?us-ascii?Q?vKoxIisqnBoQs2RsvPJ5X69cArEKRcylq8M3edfuzegy+uvFJfHHdmWaTjS1?=
- =?us-ascii?Q?+aqJrpKSmJ6UDSyZSN7zvRHopFE87n0Z9o0vR2xoR3Vfxt94bCn97GYdogXC?=
- =?us-ascii?Q?CAYqDKTnF5i75RTQtSL3h79VC9De6fGMdlpeDPUniDnTUTy94psECZmS3TXW?=
- =?us-ascii?Q?e4LwF5J8s0rIf5c86trm9A9gzEkw+W1xWVQ91cA0TsJavjI2S5hMYijS+WPx?=
- =?us-ascii?Q?RE4SJAqJhbjx3AC8ZP46p74r5msOJOTY661uNlwwXN1AQCmkAi9WsS5kNEai?=
- =?us-ascii?Q?PgPBC15QFVOOK9WE/dLyd0EeE5QMC0emS5XErXzZlyZzYK64S959W54PVD37?=
- =?us-ascii?Q?KRUrLUB3IeYcF37Y8NeYaRB1BKoW1u9E4zhAY+j/?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?LG0lOUObEqqCCbaiDyV2wUzV46gO2O7YsbsZ6repDziWQt9s+sMMQNin0P1e?=
+ =?us-ascii?Q?6YsDxMKrFIWT21WzJBVf9JU/o+qWDWA7qpxkB32PfTmD5yMbyonwI6JTK9jo?=
+ =?us-ascii?Q?y/k10dwtGniWB9+XYGL6S171UdJ++pz+IH9o05fMtYfhVGm4HmHbKw1eT3eb?=
+ =?us-ascii?Q?4lGUQweHhXJR1JPY9tPxzz1TrCrwk4IZHXe5Qs8xrb6sSlwnKj8FbIsxb0yi?=
+ =?us-ascii?Q?kcQQa+HtPSNnmbx7ztXukDCqvuE+HkxUa8oKoA1TuZ0k962dk/NhmcpWhXqp?=
+ =?us-ascii?Q?6/TrRY2ZcppFfXLZfB+Ig2DQCbWuOkSSrCJa3cRRrhhiDs6jvZ+9loLaJI0Y?=
+ =?us-ascii?Q?ldjRx4JarZUqODmL7s9YW5Pe7oeB/+k1JYpGr0dQOdlKDVSXGDY3QNGR4JCW?=
+ =?us-ascii?Q?f9ImgDbNxfye3Xlb+DCmb3P6GgDE7/FsdUTbVh/6l0qLLzFe8otLuB459v7k?=
+ =?us-ascii?Q?jJhb1uSdn1DaoGh+ob3flhocL0tJdYGQiRjzentf5kOAgaoCsvsnSjwndeNK?=
+ =?us-ascii?Q?EdfXT8MCv7VyYd5BkSgxYEf2xGB67AO95qOu2VPELXWlp9W3/65gxQreVuh6?=
+ =?us-ascii?Q?AO7B5Du3RJ/u8AuiQxbH8SZKUbiFCwVLiwOGXUbXQ1WAQpIKSBKedRN1C+aC?=
+ =?us-ascii?Q?1wyb6UH9FGJB+PsKfM0vSM8u9kDkUP1Iz2RCB07l/PafzjbgNDPJTLNS+dJr?=
+ =?us-ascii?Q?E/lHf3L4ESeqs8iE0ssaD6uQk1owiJ7VWihAxftVkVZOwthOwNb16ClL2aCO?=
+ =?us-ascii?Q?PcJ7rgc7EBtgwED3c8DQ+E1UEnDGPwTJwNLGyiIeataq3RxaD0/79eolvul/?=
+ =?us-ascii?Q?q3fw5W9zber8XCflUtr/wj7cUKfHRZRIlk3/sJ7tcQ6qhNKdnTcEkQArZVdI?=
+ =?us-ascii?Q?odXS2W7buw7W/onb0N7CDs/09pJHlZVJOXr2/BGkb9Z+IFTDXEcGISm4h6TO?=
+ =?us-ascii?Q?+ZU9lxp9PkWZLNDOhszeMds3YWGGjuXTbAh0vZzTyzhDZwJkeIgEa6RUiqM4?=
+ =?us-ascii?Q?b+Kja7W9Xp8J8ySbh8d5/HYqCyPz9PAsSHLXZdD/0J6orgCRc7OhQVNZ3e0m?=
+ =?us-ascii?Q?z4RRHr/QYvz74shtMK1YEEVweK4L18Zwg4HO6lqNb84JF2nePVvEw0Mb4BTy?=
+ =?us-ascii?Q?VxS5nKyS5E6Pem1cy/oq/1D9dLJTIbAI4BtpXdBcm9xao2i2nHc9xk5lU0Fe?=
+ =?us-ascii?Q?KKOwdJBbzgK0iVc3NauopqB8K4WpbHHmffarD8UFXxKeCQrFUe7gSOj8U1K2?=
+ =?us-ascii?Q?2rYpP7hJne13GuT2AGd10HRx+uK7Gp/415MqQu1Cg4zvtczAgJNhibdoJFfl?=
+ =?us-ascii?Q?c8VNAukEwrteSERtb2IpiylSuHyYOXOTxFjgPmSHP0/Xle9V7DkPsC0/S/kg?=
+ =?us-ascii?Q?5s+MqVQ2fyEVykItNvJIuKSQCAoxe3I7nZvPp3B77UTG0YtWhSYsDYJtSCDL?=
+ =?us-ascii?Q?4aSCa5EYvp2agvJcS23g8L9L3qhw7Xh/l4uwpF4mVyA9o3ebBBIOj1RJosfn?=
+ =?us-ascii?Q?FZXeUCUaPeQa0BKYbaPQAMS/sFgZc8c+2ReJLoyKeR5+fmGX8OiOLImrpJjs?=
+ =?us-ascii?Q?QZA0a25nyJTJs5OyaC3AoB93UC+CLlvyJeW3KcTg?=
 X-OriginatorOrg: vivo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3cb56a8b-27a4-43e0-1f13-08db84413850
+X-MS-Exchange-CrossTenant-Network-Message-Id: b0c8d827-20cd-43fc-0baa-08db844136c2
 X-MS-Exchange-CrossTenant-AuthSource: SEZPR06MB5269.apcprd06.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jul 2023 08:06:25.7267
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jul 2023 08:06:23.1144
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: e+GqWfqo/xXGzaQYSsRh43R70FMUZ7z4gxXcSxVSibi7phw6yX65mGuR6O3oZ/BwwWEnv8LfuCY7QYzmA8Qx/g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYZPR06MB4510
+X-MS-Exchange-CrossTenant-UserPrincipalName: lhCSSl42C1vjAJwMYssLwLBWAlUveXqoKvApjp52M1d06zalQMyFmSZghHCb6vOpVuK7mxzWSRx7USGGu0Vl6Q==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEZPR06MB6058
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
@@ -112,91 +112,66 @@ release resources.
 
 Signed-off-by: Yangtao Li <frank.li@vivo.com>
 ---
- drivers/input/keyboard/tca6416-keypad.c | 25 +++++++++----------------
- 1 file changed, 9 insertions(+), 16 deletions(-)
+ drivers/input/keyboard/amikbd.c | 25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
-index 2f745cabf4f2..8db204696191 100644
---- a/drivers/input/keyboard/tca6416-keypad.c
-+++ b/drivers/input/keyboard/tca6416-keypad.c
-@@ -198,6 +198,7 @@ static int tca6416_keypad_probe(struct i2c_client *client)
+diff --git a/drivers/input/keyboard/amikbd.c b/drivers/input/keyboard/amikbd.c
+index a20a4e186639..4cbac79f5a4b 100644
+--- a/drivers/input/keyboard/amikbd.c
++++ b/drivers/input/keyboard/amikbd.c
+@@ -193,10 +193,11 @@ static irqreturn_t amikbd_interrupt(int irq, void *data)
+ 
+ static int __init amikbd_probe(struct platform_device *pdev)
  {
- 	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct tca6416_keys_platform_data *pdata;
-+	struct device *dev = &client->dev;
- 	struct tca6416_keypad_chip *chip;
- 	struct input_dev *input;
- 	int error;
-@@ -216,12 +217,10 @@ static int tca6416_keypad_probe(struct i2c_client *client)
- 		return -EINVAL;
- 	}
++	struct device *device = &pdev->dev;
+ 	struct input_dev *dev;
+ 	int i, err;
  
--	chip = kzalloc(struct_size(chip, buttons, pdata->nbuttons), GFP_KERNEL);
--	input = input_allocate_device();
--	if (!chip || !input) {
--		error = -ENOMEM;
--		goto fail1;
--	}
-+	chip = devm_kzalloc(dev, struct_size(chip, buttons, pdata->nbuttons), GFP_KERNEL);
-+	input = devm_input_allocate_device(dev);
-+	if (!chip || !input)
-+		return -ENOMEM;
+-	dev = input_allocate_device();
++	dev = devm_input_allocate_device(device);
+ 	if (!dev) {
+ 		dev_err(&pdev->dev, "Not enough memory for input device\n");
+ 		return -ENOMEM;
+@@ -218,35 +219,21 @@ static int __init amikbd_probe(struct platform_device *pdev)
+ 	amikbd_init_console_keymaps();
  
- 	chip->client = client;
- 	chip->input = input;
-@@ -263,7 +262,7 @@ static int tca6416_keypad_probe(struct i2c_client *client)
- 	 */
- 	error = tca6416_setup_registers(chip);
- 	if (error)
--		goto fail1;
-+		return error;
- 
- 	if (!chip->use_polling) {
- 		if (pdata->irq_is_gpio)
-@@ -280,7 +279,7 @@ static int tca6416_keypad_probe(struct i2c_client *client)
- 			dev_dbg(&client->dev,
- 				"Unable to claim irq %d; error %d\n",
- 				chip->irqnum, error);
--			goto fail1;
-+			return error;
- 		}
- 	}
- 
-@@ -288,7 +287,7 @@ static int tca6416_keypad_probe(struct i2c_client *client)
- 	if (error) {
- 		dev_dbg(&client->dev,
- 			"Unable to register input device, error: %d\n", error);
+ 	ciaa.cra &= ~0x41;	 /* serial data in, turn off TA */
+-	err = request_irq(IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd",
+-			  dev);
++	err = devm_request_irq(device, IRQ_AMIGA_CIAA_SP, amikbd_interrupt, 0, "amikbd",
++			       dev);
+ 	if (err)
 -		goto fail2;
-+		goto fail;
- 	}
++		return err;
  
- 	i2c_set_clientdata(client, chip);
-@@ -296,14 +295,11 @@ static int tca6416_keypad_probe(struct i2c_client *client)
+ 	err = input_register_device(dev);
+ 	if (err)
+-		goto fail3;
++		return err;
+ 
+ 	platform_set_drvdata(pdev, dev);
  
  	return 0;
- 
--fail2:
-+fail:
- 	if (!chip->use_polling) {
- 		free_irq(chip->irqnum, chip);
- 		enable_irq(chip->irqnum);
- 	}
--fail1:
--	input_free_device(input);
--	kfree(chip);
- 	return error;
- }
- 
-@@ -315,9 +311,6 @@ static void tca6416_keypad_remove(struct i2c_client *client)
- 		free_irq(chip->irqnum, chip);
- 		enable_irq(chip->irqnum);
- 	}
 -
--	input_unregister_device(chip->input);
--	kfree(chip);
+- fail3:	free_irq(IRQ_AMIGA_CIAA_SP, dev);
+- fail2:	input_free_device(dev);
+-	return err;
+-}
+-
+-static int __exit amikbd_remove(struct platform_device *pdev)
+-{
+-	struct input_dev *dev = platform_get_drvdata(pdev);
+-
+-	free_irq(IRQ_AMIGA_CIAA_SP, dev);
+-	input_unregister_device(dev);
+-	return 0;
  }
  
- static int tca6416_keypad_suspend(struct device *dev)
+ static struct platform_driver amikbd_driver = {
+-	.remove = __exit_p(amikbd_remove),
+ 	.driver   = {
+ 		.name	= "amiga-keyboard",
+ 	},
 -- 
 2.39.0
 

@@ -2,108 +2,213 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D36AEC001E0
-	for <linux-input@archiver.kernel.org>; Fri, 14 Jul 2023 07:54:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F38B6EB64DC
+	for <linux-input@archiver.kernel.org>; Fri, 14 Jul 2023 07:57:04 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235556AbjGNHy4 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 14 Jul 2023 03:54:56 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45784 "EHLO
+        id S235636AbjGNH5D (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 14 Jul 2023 03:57:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235505AbjGNHwC (ORCPT
+        with ESMTP id S235572AbjGNH4j (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Jul 2023 03:52:02 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46CAA30ED;
-        Fri, 14 Jul 2023 00:52:01 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id BB7BC1FD6E;
-        Fri, 14 Jul 2023 07:51:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1689321119; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fHWIv3bHRzrRKcyf/zVidbDkljZLPdxvWwq51ebKJX8=;
-        b=Bfhup+SoqqGm/Pr8MMxWjewkwxH2agGKumPN9ufOQY+lQ89+34aYGx4g7+jlzwSYk2JlDp
-        oEoMKzD4EF0nI6HnNp6zvVH49mFRwokARnLhgd358jfv9g+Wx1O8gHJuHbXaGePOhAo7Yh
-        wQZiCrxXt3VWyqRDZ+XTmvLIbLWVTE8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1689321119;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=fHWIv3bHRzrRKcyf/zVidbDkljZLPdxvWwq51ebKJX8=;
-        b=gjwnxcj+hE+7D1XdYMgmTJwalQL+sD6c9lOwxVHiERT/k/VMQ3HV9mhzr5dIm/CdSUAWmW
-        eRCbJYrIOeoW4IBg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 616F813A92;
-        Fri, 14 Jul 2023 07:51:59 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id kF/0Fp/+sGQCQwAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Fri, 14 Jul 2023 07:51:59 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     deller@gmx.de, javierm@redhat.com
-Cc:     linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-geode@lists.infradead.org, linux-nvidia@lists.surfsouth.com,
-        linux-hyperv@vger.kernel.org, linux-omap@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, kvm@vger.kernel.org,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Sam Ravnborg <sam@ravnborg.org>, Timur Tabi <timur@kernel.org>
-Subject: [PATCH v3 06/18] fbdev/fsl-diu-fb: Remove flag FBINFO_DEFAULT
-Date:   Fri, 14 Jul 2023 09:49:32 +0200
-Message-ID: <20230714075155.5686-7-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230714075155.5686-1-tzimmermann@suse.de>
-References: <20230714075155.5686-1-tzimmermann@suse.de>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Fri, 14 Jul 2023 03:56:39 -0400
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C23C44A5
+        for <linux-input@vger.kernel.org>; Fri, 14 Jul 2023 00:54:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1689321290; x=1720857290;
+  h=date:from:to:cc:subject:message-id;
+  bh=BSwWGfy6xOxPpynA9d6NZ40+0qrb/AofXEJvbNh8SOQ=;
+  b=babJQC8YI5HlDptBkbFx+i16Y4GfRrGBqIu5OfpGL4Zs/sc6L9Tk4uvw
+   eJSXNQuPu9TGUxjleM3Op6szSfBcOOr1YRASsWVBr5wtvG68GInCig1Ga
+   TRZSVtAqgEAJbBiw26BUspO/HkBZxi0vlT7Jzq1bnNuj5dW6k8+B7ra4l
+   tN3RydSY0fa3BoBM9c0DzpfnmEHzl0lsB2Dq6vSiaf7NOPv9wuH2srqoZ
+   YgzQebLy/tvgnwdFWk/p7IthnXwpUEEwaVgutpdrb9HcKhWTZYF95axQb
+   D9bENdG5fD5MhhRJz5LUkGiyyOm2GfnRQBBXwchtpkvP17CD5aEZWtY67
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10770"; a="368056068"
+X-IronPort-AV: E=Sophos;i="6.01,204,1684825200"; 
+   d="scan'208";a="368056068"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jul 2023 00:52:27 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10770"; a="751953081"
+X-IronPort-AV: E=Sophos;i="6.01,204,1684825200"; 
+   d="scan'208";a="751953081"
+Received: from lkp-server01.sh.intel.com (HELO c544d7fc5005) ([10.239.97.150])
+  by orsmga008.jf.intel.com with ESMTP; 14 Jul 2023 00:52:26 -0700
+Received: from kbuild by c544d7fc5005 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1qKDbG-0007IB-0k;
+        Fri, 14 Jul 2023 07:52:26 +0000
+Date:   Fri, 14 Jul 2023 15:51:35 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org
+Subject: [dtor-input:next] BUILD SUCCESS
+ 677232f879f2464007c511a73048ff5996b479fc
+Message-ID: <202307141533.1W2XdyjR-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The flag FBINFO_DEFAULT is 0 and has no effect, as struct fbinfo.flags
-has been allocated to zero by dmam_alloc_coherent(__GFP_ZERO). So do not
-set it.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+branch HEAD: 677232f879f2464007c511a73048ff5996b479fc  Input: iqs7211 - point to match data directly
 
-Flags should signal differences from the default values. After cleaning
-up all occurrences of FBINFO_DEFAULT, the token will be removed.
+elapsed time: 725m
 
-v2:
-	* fix commit message (Miguel)
+configs tested: 142
+configs skipped: 6
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Timur Tabi <timur@kernel.org>
-Cc: Helge Deller <deller@gmx.de>
----
- drivers/video/fbdev/fsl-diu-fb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-diff --git a/drivers/video/fbdev/fsl-diu-fb.c b/drivers/video/fbdev/fsl-diu-fb.c
-index 785eb8a06943..c62b48f27ba9 100644
---- a/drivers/video/fbdev/fsl-diu-fb.c
-+++ b/drivers/video/fbdev/fsl-diu-fb.c
-@@ -1476,7 +1476,7 @@ static int install_fb(struct fb_info *info)
- 
- 	info->var.activate = FB_ACTIVATE_NOW;
- 	info->fbops = &fsl_diu_ops;
--	info->flags = FBINFO_DEFAULT | FBINFO_VIRTFB | FBINFO_PARTIAL_PAN_OK |
-+	info->flags = FBINFO_VIRTFB | FBINFO_PARTIAL_PAN_OK |
- 		FBINFO_READS_FAST;
- 	info->pseudo_palette = mfbi->pseudo_palette;
- 
+tested configs:
+alpha                            allyesconfig   gcc  
+alpha                               defconfig   gcc  
+alpha                randconfig-r036-20230713   gcc  
+arc                              allyesconfig   gcc  
+arc                          axs101_defconfig   gcc  
+arc                                 defconfig   gcc  
+arc                  randconfig-r006-20230713   gcc  
+arc                  randconfig-r013-20230713   gcc  
+arc                  randconfig-r015-20230713   gcc  
+arc                  randconfig-r043-20230713   gcc  
+arc                        vdk_hs38_defconfig   gcc  
+arm                              allmodconfig   gcc  
+arm                              allyesconfig   gcc  
+arm                       aspeed_g5_defconfig   gcc  
+arm                        clps711x_defconfig   gcc  
+arm                                 defconfig   gcc  
+arm                            mmp2_defconfig   clang
+arm                  randconfig-r003-20230713   gcc  
+arm                  randconfig-r033-20230713   gcc  
+arm                  randconfig-r046-20230713   clang
+arm64                            allyesconfig   gcc  
+arm64                               defconfig   gcc  
+arm64                randconfig-r022-20230713   gcc  
+csky                                defconfig   gcc  
+csky                 randconfig-r031-20230713   gcc  
+csky                 randconfig-r032-20230713   gcc  
+hexagon              randconfig-r002-20230713   clang
+hexagon              randconfig-r011-20230713   clang
+hexagon              randconfig-r022-20230713   clang
+hexagon              randconfig-r032-20230713   clang
+hexagon              randconfig-r033-20230713   clang
+hexagon              randconfig-r041-20230713   clang
+hexagon              randconfig-r045-20230713   clang
+i386                             allyesconfig   gcc  
+i386         buildonly-randconfig-r004-20230713   clang
+i386         buildonly-randconfig-r005-20230713   clang
+i386         buildonly-randconfig-r006-20230713   clang
+i386                              debian-10.3   gcc  
+i386                                defconfig   gcc  
+i386                 randconfig-i001-20230713   clang
+i386                 randconfig-i002-20230713   clang
+i386                 randconfig-i003-20230713   clang
+i386                 randconfig-i004-20230713   clang
+i386                 randconfig-i005-20230713   clang
+i386                 randconfig-i006-20230713   clang
+i386                 randconfig-i011-20230713   gcc  
+i386                 randconfig-i012-20230713   gcc  
+i386                 randconfig-i013-20230713   gcc  
+i386                 randconfig-i014-20230713   gcc  
+i386                 randconfig-i015-20230713   gcc  
+i386                 randconfig-i016-20230713   gcc  
+i386                 randconfig-r031-20230713   clang
+loongarch                        allmodconfig   gcc  
+loongarch                         allnoconfig   gcc  
+loongarch                           defconfig   gcc  
+loongarch            randconfig-r012-20230713   gcc  
+m68k                             allmodconfig   gcc  
+m68k                             allyesconfig   gcc  
+m68k                                defconfig   gcc  
+m68k                 randconfig-r014-20230713   gcc  
+m68k                 randconfig-r016-20230713   gcc  
+microblaze           randconfig-r001-20230713   gcc  
+microblaze           randconfig-r034-20230713   gcc  
+mips                             allmodconfig   gcc  
+mips                             allyesconfig   gcc  
+mips                     loongson1b_defconfig   gcc  
+nios2                               defconfig   gcc  
+nios2                randconfig-r001-20230713   gcc  
+nios2                randconfig-r002-20230713   gcc  
+nios2                randconfig-r011-20230713   gcc  
+nios2                randconfig-r016-20230713   gcc  
+nios2                randconfig-r023-20230713   gcc  
+openrisc             randconfig-r004-20230713   gcc  
+openrisc             randconfig-r024-20230713   gcc  
+parisc                           allyesconfig   gcc  
+parisc                              defconfig   gcc  
+parisc               randconfig-r021-20230713   gcc  
+parisc               randconfig-r036-20230713   gcc  
+parisc64                            defconfig   gcc  
+powerpc                          allmodconfig   gcc  
+powerpc                           allnoconfig   gcc  
+powerpc              randconfig-r014-20230713   gcc  
+powerpc              randconfig-r023-20230713   gcc  
+powerpc              randconfig-r035-20230713   clang
+riscv                            allmodconfig   gcc  
+riscv                             allnoconfig   gcc  
+riscv                            allyesconfig   gcc  
+riscv                               defconfig   gcc  
+riscv                randconfig-r012-20230713   gcc  
+riscv                randconfig-r042-20230713   gcc  
+riscv                          rv32_defconfig   gcc  
+s390                             allmodconfig   gcc  
+s390                             allyesconfig   gcc  
+s390                                defconfig   gcc  
+s390                 randconfig-r004-20230713   clang
+s390                 randconfig-r034-20230713   clang
+s390                 randconfig-r044-20230713   gcc  
+sh                               allmodconfig   gcc  
+sh                 kfr2r09-romimage_defconfig   gcc  
+sh                          landisk_defconfig   gcc  
+sh                   randconfig-r003-20230713   gcc  
+sh                   randconfig-r013-20230713   gcc  
+sh                          rsk7269_defconfig   gcc  
+sh                           se7705_defconfig   gcc  
+sh                        sh7785lcr_defconfig   gcc  
+sh                            shmin_defconfig   gcc  
+sparc                            allyesconfig   gcc  
+sparc                               defconfig   gcc  
+sparc                randconfig-r024-20230713   gcc  
+sparc64              randconfig-r021-20230713   gcc  
+sparc64              randconfig-r025-20230713   gcc  
+sparc64              randconfig-r035-20230713   gcc  
+um                               allmodconfig   clang
+um                                allnoconfig   clang
+um                               allyesconfig   clang
+um                                  defconfig   gcc  
+um                             i386_defconfig   gcc  
+um                           x86_64_defconfig   gcc  
+x86_64                           allyesconfig   gcc  
+x86_64       buildonly-randconfig-r001-20230713   clang
+x86_64       buildonly-randconfig-r002-20230713   clang
+x86_64       buildonly-randconfig-r003-20230713   clang
+x86_64                              defconfig   gcc  
+x86_64                                  kexec   gcc  
+x86_64               randconfig-r006-20230713   clang
+x86_64               randconfig-x001-20230713   gcc  
+x86_64               randconfig-x002-20230713   gcc  
+x86_64               randconfig-x003-20230713   gcc  
+x86_64               randconfig-x004-20230713   gcc  
+x86_64               randconfig-x005-20230713   gcc  
+x86_64               randconfig-x006-20230713   gcc  
+x86_64               randconfig-x011-20230713   clang
+x86_64               randconfig-x012-20230713   clang
+x86_64               randconfig-x013-20230713   clang
+x86_64               randconfig-x014-20230713   clang
+x86_64               randconfig-x015-20230713   clang
+x86_64               randconfig-x016-20230713   clang
+x86_64                          rhel-8.3-rust   clang
+x86_64                               rhel-8.3   gcc  
+xtensa               randconfig-r025-20230713   gcc  
+xtensa               randconfig-r026-20230713   gcc  
+xtensa                         virt_defconfig   gcc  
+
 -- 
-2.41.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

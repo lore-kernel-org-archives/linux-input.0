@@ -2,88 +2,96 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DAA66C001E0
-	for <linux-input@archiver.kernel.org>; Fri, 14 Jul 2023 10:27:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 251DDC0015E
+	for <linux-input@archiver.kernel.org>; Fri, 14 Jul 2023 10:29:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235991AbjGNK1n (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 14 Jul 2023 06:27:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39250 "EHLO
+        id S236221AbjGNK34 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 14 Jul 2023 06:29:56 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236024AbjGNK1l (ORCPT
+        with ESMTP id S235751AbjGNK3z (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 14 Jul 2023 06:27:41 -0400
-X-Greylist: delayed 555 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 14 Jul 2023 03:27:32 PDT
-Received: from out-38.mta0.migadu.com (out-38.mta0.migadu.com [IPv6:2001:41d0:1004:224b::26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5747230D8
-        for <linux-input@vger.kernel.org>; Fri, 14 Jul 2023 03:27:31 -0700 (PDT)
-Message-ID: <809f8391-c9e2-4432-12ec-9921360e3c8e@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-        t=1689329891;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=vDi5jHcc6JX2dM3REdw3Ft0fz55Drq20U6og3UsNXvQ=;
-        b=xALtXC8/ROHasKXZMaOLj0zsiUq3d6orGjz1eoTZ1jYoIfLxy+er+4aCKpcbd9XxK/72Fv
-        KRVRN8cp4ei0ETtfaMci8s/7BCxay4Kgtrw1eY/mHz/QrTn8JRVj36+RIQUzGxVU6fdQ+Q
-        u1T/iNhdJHA2X2uvCVp0eGoYlglhYfM=
-Date:   Fri, 14 Jul 2023 18:17:59 +0800
-MIME-Version: 1.0
-Subject: Re: [v3,18/18] fbdev: Document that framebuffer_alloc() returns
- zero'ed data
-To:     Thomas Zimmermann <tzimmermann@suse.de>, deller@gmx.de,
-        javierm@redhat.com
-Cc:     linux-fbdev@vger.kernel.org, kvm@vger.kernel.org,
+        Fri, 14 Jul 2023 06:29:55 -0400
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED5DE273B
+        for <linux-input@vger.kernel.org>; Fri, 14 Jul 2023 03:29:53 -0700 (PDT)
+Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-3fbdfda88f4so16067335e9.1
+        for <linux-input@vger.kernel.org>; Fri, 14 Jul 2023 03:29:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1689330592; x=1691922592;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Mh5IM3hcbkTlsZ0QohBnPm9+/WljTdptQDAe3KRHGao=;
+        b=O5ufoN9bQiWKXDmCStIX+Io10WRu2B69Deqb5KVzrXV2sqgY9JCnNvyATagBuE+ark
+         IS32r2PfYWd5XlLUlJoSJAAAXm5+hxTEjMb0ZCe5fK3NGofpUv7OKY9G8Xf6nBs65XhV
+         mN24wwtq2SFoDgOh1XzRQP48JVgtE3qQg6DtMC8WgMhj9t2D3law3WPvQE1ujYDEF2HF
+         HQ2Wfv1wVIeu2S+ZqWDReHbCASDvhIqXVdLZ+6qiMuNgb/mQI71489JITRwjOarUlIKd
+         T4bv/caHqvEm2PmjsCWaoXFBLjd4pTJ0r4FnJChubfG5R2bSvz1FrPJ8nXiDNobJSVlf
+         ylLQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689330592; x=1691922592;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Mh5IM3hcbkTlsZ0QohBnPm9+/WljTdptQDAe3KRHGao=;
+        b=OFINNP9IWB0hzvYd2CHWCKQEpmtwEzUunCznJF9UcwRf12z0R1dlkSs+4Ogow+r0Mz
+         mlnICVab4tgKnhtQZxRDgvr8FnEnG2+yfaqOeFRESSPyO/wlPQbM7nWtlsrGnbQW5JmC
+         jMjHelRaykfHbnb9YVw+gJBYegV6c0q0xqDyy9azvi9W0GW/H5OdBqkb2Pq8+qA98ulw
+         CyWyV7clbWmNIO0osgG+/2otMkqPw4/fsyX+crmDtzZ0O/DY3WHYoFgLGiHPbzLfexbA
+         vit9Rab423KbDKXY/ut+MQS0kIHzMEuh+f3R2JmVgJQ7BmnB9POV43e+NiGuaZSMpiTB
+         wecw==
+X-Gm-Message-State: ABy/qLZLOA/Q8KkW5sGPbLMcV1CdOoF0eK9cdb6pE3SYSdNUlf0I/HHZ
+        MBKiwF2pUdG/teEAmNu0pkk3mA==
+X-Google-Smtp-Source: APBJJlFnsQ9uvLjsHZQ9SREHQ216HPPGjASy9AiZYJZlWwyGhQieiRuOjHKJ7s1mAu1WpSfMQoCtmw==
+X-Received: by 2002:a05:600c:2254:b0:3fa:984d:7e9f with SMTP id a20-20020a05600c225400b003fa984d7e9fmr3534844wmm.6.1689330592448;
+        Fri, 14 Jul 2023 03:29:52 -0700 (PDT)
+Received: from localhost ([102.36.222.112])
+        by smtp.gmail.com with ESMTPSA id p26-20020a7bcc9a000000b003fbb5506e54sm1094832wma.29.2023.07.14.03.29.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Jul 2023 03:29:50 -0700 (PDT)
+Date:   Fri, 14 Jul 2023 13:29:47 +0300
+From:   Dan Carpenter <dan.carpenter@linaro.org>
+To:     Thomas Zimmermann <tzimmermann@suse.de>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-fbdev@vger.kernel.org, kvm@vger.kernel.org,
         linux-hyperv@vger.kernel.org, linux-sh@vger.kernel.org,
-        linux-staging@lists.linux.dev, linux-kernel@vger.kernel.org,
-        amd-gfx@lists.freedesktop.org, linux-geode@lists.infradead.org,
-        dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org,
-        Miguel Ojeda <ojeda@kernel.org>,
-        linux-nvidia@lists.surfsouth.com, linux-omap@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org,
+        deller@gmx.de, linux-staging@lists.linux.dev,
+        linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
+        javierm@redhat.com, dri-devel@lists.freedesktop.org,
+        linux-input@vger.kernel.org, linux-nvidia@lists.surfsouth.com,
+        linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+        linux-geode@lists.infradead.org,
         linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
-References: <20230714075155.5686-19-tzimmermann@suse.de>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From:   Sui JIngfeng <sui.jingfeng@linux.dev>
-In-Reply-To: <20230714075155.5686-19-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Subject: Re: [PATCH v3 00/18] fbdev: Remove FBINFO_DEFAULT and
+ FBINFO_FLAG_DEFAULT flags
+Message-ID: <b3c23ea3-f46c-43b9-b12a-9f55de2294c6@kadam.mountain>
+References: <20230714075155.5686-1-tzimmermann@suse.de>
+ <CAMuHMdWoeyJPAgPgFi545SJFcaVCgZi1-zW2N5cBeU9BnHgo1w@mail.gmail.com>
+ <47a3ab8d-5e8c-db2c-fcde-5c2b1bac32aa@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <47a3ab8d-5e8c-db2c-fcde-5c2b1bac32aa@suse.de>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-
-On 2023/7/14 15:49, Thomas Zimmermann wrote:
-> Most fbdev drivers depend on framebuffer_alloc() to initialize the
-> allocated memory to 0. Document this guarantee.
+On Fri, Jul 14, 2023 at 12:24:05PM +0200, Thomas Zimmermann wrote:
+> > 
+> > >    fbdev: Remove flag FBINFO_DEFAULT from fbdev drivers
+> > >    fbdev: Remove flag FBINFO_DEFAULT from fbdev drivers
+> > >    fbdev: Remove flag FBINFO_DEFAULT from fbdev drivers
+> > >    fbdev: Remove flag FBINFO_DEFAULT from fbdev drivers
 >
-> v3:
-> 	* slightly reword the sentence (Miguel)
 >
-> Suggested-by: Miguel Ojeda <ojeda@kernel.org>
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+> I wasn't happy about this either. But I could not come up with a description
+> that fits into the 74-char limit for each commit. They only differ in the
+> method of memory allocation. Do you have any ideas?
 
-Reviewed-by: Sui Jingfeng <suijingfeng@loongson.cn>
+fbdev: Remove FBINFO_DEFAULT from static structs
+fbdev: Remove FBINFO_DEFAULT from kzalloc() structs
+fbdev: Remove FBINFO_DEFAULT from devm_kzalloc() structs
 
-> Cc: Helge Deller <deller@gmx.de>
-> ---
->   drivers/video/fbdev/core/fb_info.c | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/video/fbdev/core/fb_info.c b/drivers/video/fbdev/core/fb_info.c
-> index 8bdbefdd4b70..4847ebe50d7d 100644
-> --- a/drivers/video/fbdev/core/fb_info.c
-> +++ b/drivers/video/fbdev/core/fb_info.c
-> @@ -13,7 +13,8 @@
->    *
->    * Creates a new frame buffer info structure. Also reserves @size bytes
->    * for driver private data (info->par). info->par (if any) will be
-> - * aligned to sizeof(long).
-> + * aligned to sizeof(long). The new instances of struct fb_info and
-> + * the driver private data are both cleared to zero.
->    *
->    * Returns the new structure, or NULL if an error occurred.
->    *
+regards,
+dan carpenter
+

@@ -2,77 +2,78 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0BA4C001DE
-	for <linux-input@archiver.kernel.org>; Sun, 16 Jul 2023 05:40:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 539EFC0015E
+	for <linux-input@archiver.kernel.org>; Sun, 16 Jul 2023 18:24:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229865AbjGPFkA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 16 Jul 2023 01:40:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36446 "EHLO
+        id S229936AbjGPSYC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 16 Jul 2023 14:24:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbjGPFkA (ORCPT
+        with ESMTP id S229450AbjGPSYB (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 16 Jul 2023 01:40:00 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B081BF3;
-        Sat, 15 Jul 2023 22:39:59 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E82D60BA7;
-        Sun, 16 Jul 2023 05:39:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 122FEC433C7;
-        Sun, 16 Jul 2023 05:39:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1689485998;
-        bh=xzcG60dh739GetSZoGv/B7pts9l8fNioZtl7+wrSna8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jOMJX9PqBMeLqwwRc0XBgozzSKaFYhws5b33GLPRkWefkeyT1O8mEP4gjFZ+C96ES
-         WCqfp286R5Fp/sL23oSajHdBGRRbH9Xm0Mh05zF+hSchMoCx6RjeYs26t7iG+4gszi
-         R55ORu7FrjK9XNLYni5UGyrUP+NDjGk7b+ESqleA=
-Date:   Sun, 16 Jul 2023 07:39:55 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     deller@gmx.de, javierm@redhat.com, geert@linux-m68k.org,
-        dan.carpenter@linaro.org, linux-sh@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        amd-gfx@lists.freedesktop.org, linux-input@vger.kernel.org,
-        linux-media@vger.kernel.org, linux-fbdev@vger.kernel.org,
-        linux-staging@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-geode@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Teddy Wang <teddy.wang@siliconmotion.com>
-Subject: Re: [PATCH v4 12/18] staging: Remove flag FBINFO_FLAG_DEFAULT from
- fbdev drivers
-Message-ID: <2023071644-celery-name-af50@gregkh>
-References: <20230715185343.7193-1-tzimmermann@suse.de>
- <20230715185343.7193-13-tzimmermann@suse.de>
+        Sun, 16 Jul 2023 14:24:01 -0400
+Received: from mail-0201.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDF01B1
+        for <linux-input@vger.kernel.org>; Sun, 16 Jul 2023 11:24:00 -0700 (PDT)
+Date:   Sun, 16 Jul 2023 18:23:52 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
+        s=protonmail3; t=1689531836; x=1689791036;
+        bh=YbnC/ao1sJ0SEeVgWN8yzejyjpAjHfef0xMigHZll8E=;
+        h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+         Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+         Message-ID:BIMI-Selector;
+        b=SdkNl7U3qSH0PC2n4vrQ4WLKxqJMCvMNJmrukNXhcgXr4bXPYBqxc++vbNCs0pOhJ
+         ax0mtrM4+bQqDKFttmzx27Jnf6CHWxyLBmI/2ExSuLnJfwTEFE8O3ZjIh/wekQhux8
+         MPTqdQL4QvToHcB7l9/XPbhW8cpTqYdsAGYP2PbF853a06lGHI1RKBcK2gF89FFW0L
+         bsrlBfDQKrLyax6C/wncBrQx+8e6MihanPL4UxHrS9k+2C4ONWD+wuTrnY8UjMocBr
+         UMvhFrhjLT7gb5GjBIh6DYtwg1w0NWSvzlCxO70/kxIhg09hAF5FgWu+OcAnxvuVKX
+         U6iqsLzpmYgxA==
+To:     jikos@kernel.org
+From:   Mavroudis Chatzilazaridis <mavchatz@protonmail.com>
+Cc:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com,
+        lains@riseup.net, hadess@hadess.net,
+        Mavroudis Chatzilazaridis <mavchatz@protonmail.com>
+Subject: [PATCH v2 2/2] HID: logitech-hidpp: Add support for the Pro X Superlight
+Message-ID: <20230716182320.85483-2-mavchatz@protonmail.com>
+In-Reply-To: <20230716182320.85483-1-mavchatz@protonmail.com>
+References: <20230716182320.85483-1-mavchatz@protonmail.com>
+Feedback-ID: 20039310:user:proton
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230715185343.7193-13-tzimmermann@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sat, Jul 15, 2023 at 08:51:54PM +0200, Thomas Zimmermann wrote:
-> The flag FBINFO_FLAG_DEFAULT is 0 and has no effect, as struct
-> fbinfo.flags has been allocated to zero by framebuffer_alloc(). So do
-> not set it.
-> 
-> Flags should signal differences from the default values. After cleaning
-> up all occurrences of FBINFO_DEFAULT, the token will be removed.
-> 
-> v2:
-> 	* fix commit message (Miguel)
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Acked-by: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-> Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+This patch adds support for the Pro X Superlight over wired USB.
+The device now reports the status of its battery.
 
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Co-developed-by: Filipe La=C3=ADns <lains@riseup.net>
+Signed-off-by: Filipe La=C3=ADns <lains@riseup.net>
+Signed-off-by: Mavroudis Chatzilazaridis <mavchatz@protonmail.com>
+---
+V1 -> V2: Addressed review comment for commit message
+
+ drivers/hid/hid-logitech-hidpp.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hi=
+dpp.c
+index 129b01be488d..34fc4f7b254a 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4620,6 +4620,8 @@ static const struct hid_device_id hidpp_devices[] =3D=
+ {
+ =09=09.driver_data =3D HIDPP_QUIRK_CLASS_G920 | HIDPP_QUIRK_FORCE_OUTPUT_R=
+EPORTS },
+ =09{ /* Logitech G Pro Gaming Mouse over USB */
+ =09  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC088) },
++=09{ /* Logitech G Pro X Superlight Gaming Mouse over USB */
++=09  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC094) },
+
+ =09{ /* G935 Gaming Headset */
+ =09  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0x0a87),
+--
+2.34.1
+
+

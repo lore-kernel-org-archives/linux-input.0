@@ -2,123 +2,82 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0927C10F1A
-	for <linux-input@archiver.kernel.org>; Sat, 15 Jul 2023 18:54:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FA82EB64DA
+	for <linux-input@archiver.kernel.org>; Sun, 16 Jul 2023 04:11:24 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231279AbjGOSyv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 15 Jul 2023 14:54:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50166 "EHLO
+        id S229499AbjGPELV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 16 Jul 2023 00:11:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230444AbjGOSyB (ORCPT
+        with ESMTP id S229379AbjGPELU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 15 Jul 2023 14:54:01 -0400
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00B122729;
-        Sat, 15 Jul 2023 11:53:53 -0700 (PDT)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id B5EFA1FD64;
-        Sat, 15 Jul 2023 18:53:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1689447229; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YWl4r3MXDzIpXc1GMxrVHAXu9+tdMITd+1eR5phnaTY=;
-        b=2XBhveaF0EXWqyWpcuViIof7w1bKRLiFpK2QeNwSktWI9KGVDuHwKl6T7Yq59n7ebakCQn
-        BKpF+nD9USZMe4GKbZq543HXeB49/W85H8q5rrJsAkZ5hsi9h3ggn0Vx5GXXDCDSeSB/uG
-        iK9o7ZwdmD/+ZAKiwz+MLtbIgrWhz2U=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1689447229;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=YWl4r3MXDzIpXc1GMxrVHAXu9+tdMITd+1eR5phnaTY=;
-        b=pXOOzKCnKbgy9j9RxOZ+6JxWEIR/bHFAzMOK/A9i596gWdBo/d8KdlCofgVWwT+Q4C8CHY
-        xrSQAJ9b5b/CinDA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 52109133F7;
-        Sat, 15 Jul 2023 18:53:49 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id IMz2Ej3rsmQCBwAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Sat, 15 Jul 2023 18:53:49 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     deller@gmx.de, javierm@redhat.com, geert@linux-m68k.org,
-        dan.carpenter@linaro.org
-Cc:     linux-sh@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org,
-        linux-input@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-fbdev@vger.kernel.org, linux-staging@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        linux-geode@lists.infradead.org, linux-hyperv@vger.kernel.org,
-        linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        kvm@vger.kernel.org, Thomas Zimmermann <tzimmermann@suse.de>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Miguel Ojeda <ojeda@kernel.org>,
-        Robin van der Gracht <robin@protonic.nl>
-Subject: [PATCH v4 09/18] auxdisplay: Remove flag FBINFO_FLAG_DEFAULT from fbdev drivers
-Date:   Sat, 15 Jul 2023 20:51:51 +0200
-Message-ID: <20230715185343.7193-10-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20230715185343.7193-1-tzimmermann@suse.de>
-References: <20230715185343.7193-1-tzimmermann@suse.de>
+        Sun, 16 Jul 2023 00:11:20 -0400
+Received: from mail.208.org (unknown [183.242.55.162])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC8201BFA
+        for <linux-input@vger.kernel.org>; Sat, 15 Jul 2023 21:11:17 -0700 (PDT)
+Received: from mail.208.org (email.208.org [127.0.0.1])
+        by mail.208.org (Postfix) with ESMTP id 4R3Www4h2PzBHXhG
+        for <linux-input@vger.kernel.org>; Sun, 16 Jul 2023 12:11:12 +0800 (CST)
+Authentication-Results: mail.208.org (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)" header.d=208.org
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=208.org; h=
+        content-transfer-encoding:content-type:message-id:user-agent
+        :references:in-reply-to:subject:to:from:date:mime-version; s=
+        dkim; t=1689480672; x=1692072673; bh=CTsBTIbqlmVhMmez/i4F5aY/S0M
+        mIqeeOyo3GPyqXvE=; b=yNMsw7veH00TsIuaSCzXFFTM5aScBa4csay0FbWMpKw
+        IlsrTW3POpoX6A01zS1jB4gCcfgqvhPg2V6UYtCLYdlD85+BqUA8GVb0WDQIDOy1
+        IG1ZPlvlHsex2xRNgLvVV2EqW9sDSxU3sogrVIWNz5N0vPk/jFqm/xYVSrZn8Pvk
+        2SaDFe7gUbMUoI06er3XSvUv4QPGaMAsYv788JMaV6OaPQvde/YmyT8z0aYEYdCk
+        AELc18GkSpsniIfkQO62uYarXMTgekpV9Szx8A+mt7f5W97Ee6GwRjADsK/GQyZ/
+        OpHbVufCk3Yn/ONjt07Xgsu1d8nOvhEdO0s9DWHhf3A==
+X-Virus-Scanned: amavisd-new at mail.208.org
+Received: from mail.208.org ([127.0.0.1])
+        by mail.208.org (mail.208.org [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id aJ2tusHyjK_h for <linux-input@vger.kernel.org>;
+        Sun, 16 Jul 2023 12:11:12 +0800 (CST)
+Received: from localhost (email.208.org [127.0.0.1])
+        by mail.208.org (Postfix) with ESMTPSA id 4R3Www0JPTzBHXgf;
+        Sun, 16 Jul 2023 12:11:11 +0800 (CST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date:   Sun, 16 Jul 2023 12:11:11 +0800
+From:   wuyonggang001@208suo.com
+To:     jikos@kernel.org, benjamin.tissoires@redhat.com
+Cc:     linux-usb@vger.kernel.org, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] HID: hiddev: Modify Format
+In-Reply-To: <20230716040716.25980-1-zhanglibing@cdjrlc.com>
+References: <20230716040716.25980-1-zhanglibing@cdjrlc.com>
+User-Agent: Roundcube Webmail
+Message-ID: <755134062a3e4f74ef781cb8593b0f1e@208suo.com>
+X-Sender: wuyonggang001@208suo.com
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The flag FBINFO_FLAG_DEFAULT is 0 and has no effect, as struct
-fbinfo.flags has been allocated to zero by framebuffer_alloc(). So do
-not set it.
+Fix the following checkpatch error(s):
 
-Flags should signal differences from the default values. After cleaning
-up all occurrences of FBINFO_DEFAULT, the token will be removed.
+ERROR: "inode * inode" should be "inode *inode"
+ERROR: "file * file" should be "file *file"
 
-v2:
-	* fix commit message (Miguel)
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Acked-by: Miguel Ojeda <ojeda@kernel.org>
-Cc: Miguel Ojeda <ojeda@kernel.org>
-Cc: Robin van der Gracht <robin@protonic.nl>
+Signed-off-by: Libing Zhang <zhanglibing@cdjrlc.com>
 ---
- drivers/auxdisplay/cfag12864bfb.c | 1 -
- drivers/auxdisplay/ht16k33.c      | 1 -
- 2 files changed, 2 deletions(-)
+  drivers/hid/usbhid/hiddev.c | 2 +-
+  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/auxdisplay/cfag12864bfb.c b/drivers/auxdisplay/cfag12864bfb.c
-index c2cab7e2b126..729845bcc803 100644
---- a/drivers/auxdisplay/cfag12864bfb.c
-+++ b/drivers/auxdisplay/cfag12864bfb.c
-@@ -79,7 +79,6 @@ static int cfag12864bfb_probe(struct platform_device *device)
- 	info->var = cfag12864bfb_var;
- 	info->pseudo_palette = NULL;
- 	info->par = NULL;
--	info->flags = FBINFO_FLAG_DEFAULT;
- 
- 	if (register_framebuffer(info) < 0)
- 		goto fballoced;
-diff --git a/drivers/auxdisplay/ht16k33.c b/drivers/auxdisplay/ht16k33.c
-index edaf92b7ea77..df3f37651e45 100644
---- a/drivers/auxdisplay/ht16k33.c
-+++ b/drivers/auxdisplay/ht16k33.c
-@@ -646,7 +646,6 @@ static int ht16k33_fbdev_probe(struct device *dev, struct ht16k33_priv *priv,
- 	fbdev->info->var = ht16k33_fb_var;
- 	fbdev->info->bl_dev = bl;
- 	fbdev->info->pseudo_palette = NULL;
--	fbdev->info->flags = FBINFO_FLAG_DEFAULT;
- 	fbdev->info->par = priv;
- 
- 	err = register_framebuffer(fbdev->info);
--- 
-2.41.0
-
+diff --git a/drivers/hid/usbhid/hiddev.c b/drivers/hid/usbhid/hiddev.c
+index 59cf3ddfdf78..581dc33197d0 100644
+--- a/drivers/hid/usbhid/hiddev.c
++++ b/drivers/hid/usbhid/hiddev.c
+@@ -213,7 +213,7 @@ static int hiddev_fasync(int fd, struct file *file, 
+int on)
+  /*
+   * release file op
+   */
+-static int hiddev_release(struct inode * inode, struct file * file)
++static int hiddev_release(struct inode *inode, struct file *file)
+  {
+      struct hiddev_list *list = file->private_data;
+      unsigned long flags;

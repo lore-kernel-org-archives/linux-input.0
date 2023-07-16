@@ -2,112 +2,103 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 75D88EB64DD
-	for <linux-input@archiver.kernel.org>; Sun, 16 Jul 2023 18:24:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8DA3EB64DD
+	for <linux-input@archiver.kernel.org>; Sun, 16 Jul 2023 18:25:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229450AbjGPSYC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 16 Jul 2023 14:24:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37020 "EHLO
+        id S229576AbjGPSZD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 16 Jul 2023 14:25:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229809AbjGPSYB (ORCPT
+        with ESMTP id S230051AbjGPSZC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 16 Jul 2023 14:24:01 -0400
-Received: from mail-0201.mail-europe.com (mail-0201.mail-europe.com [51.77.79.158])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BD791B0
-        for <linux-input@vger.kernel.org>; Sun, 16 Jul 2023 11:24:00 -0700 (PDT)
-Date:   Sun, 16 Jul 2023 18:23:44 +0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-        s=protonmail3; t=1689531836; x=1689791036;
-        bh=2/H7GUqQOZURBw6r0JeR2r323PWubTkyeLECF5ZS6VE=;
-        h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-         Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-        b=mxjTqOTWdyhd6MEWT/pyyLxiu38o/0/bAVyaT1ZeXACVJC4rvTHJN5niF+1pODUfh
-         ohi0YYR03CMjy018QjlmTsWoGjxbHLvLyL0tE1gMQZP6kLzAtHeYsx2m+MoWo0mkyz
-         dGeTlramjzfmXy/j5JMbjr4CinKB0v1WP+u/53LK5J3H7SAIoweTpAUKofTKEVNiaD
-         mHItOzMrIEpymTEiqekQFCVW9mhugdv2+Gpl4REC8zQbee0vHApeyT5E82gki9QdPt
-         mmiCgCwK+UoYha9pnCDp8EDdQa100Bnq4rPJvPb4DNtNosNOs85mz4jPjp+FpZxTTq
-         qGDFvol7cKVJQ==
-To:     jikos@kernel.org
-From:   Mavroudis Chatzilazaridis <mavchatz@protonmail.com>
-Cc:     linux-input@vger.kernel.org, benjamin.tissoires@redhat.com,
-        lains@riseup.net, hadess@hadess.net,
-        Mavroudis Chatzilazaridis <mavchatz@protonmail.com>
-Subject: [PATCH v2 1/2] HID: logitech-dj: Add support for a new lightspeed receiver iteration
-Message-ID: <20230716182320.85483-1-mavchatz@protonmail.com>
-Feedback-ID: 20039310:user:proton
+        Sun, 16 Jul 2023 14:25:02 -0400
+Received: from relmlie5.idc.renesas.com (relmlor1.renesas.com [210.160.252.171])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 23FA31B0;
+        Sun, 16 Jul 2023 11:25:01 -0700 (PDT)
+X-IronPort-AV: E=Sophos;i="6.01,211,1684767600"; 
+   d="scan'208";a="169306155"
+Received: from unknown (HELO relmlir6.idc.renesas.com) ([10.200.68.152])
+  by relmlie5.idc.renesas.com with ESMTP; 17 Jul 2023 03:25:00 +0900
+Received: from localhost.localdomain (unknown [10.226.92.32])
+        by relmlir6.idc.renesas.com (Postfix) with ESMTP id A7473406DAD5;
+        Mon, 17 Jul 2023 03:24:57 +0900 (JST)
+From:   Biju Das <biju.das.jz@bp.renesas.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     Biju Das <biju.das.jz@bp.renesas.com>,
+        Andreas Helbech Kleist <andreaskleist@gmail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Mike Looijmans <mike.looijmans@topic.nl>,
+        linux-input@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH] Input: exc3000 - Simplify probe()
+Date:   Sun, 16 Jul 2023 19:24:55 +0100
+Message-Id: <20230716182455.216335-1-biju.das.jz@bp.renesas.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The lightspeed receiver for the Pro X Superlight uses 13 byte mouse reports
-without a report id. The workaround for such cases has been adjusted to
-handle these larger packets.
+The exc3000_id.driver_data could store a pointer to the info,
+like for ACPI/DT-based matching, making I2C, ACPI and DT-based
+matching more similar.
 
-The device now reports the status of its battery in wireless mode and
-libratbag now recognizes the device and it can be configured with Piper.
+After that, we can simplify the probe() by replacing of_device_get_
+match_data() and i2c_match_id() by i2c_get_match_data() as we have
+similar I2C, ACPI and DT-based matching table.
 
-https://github.com/libratbag/libratbag/pull/1122
-
-Co-developed-by: Filipe La=C3=ADns <lains@riseup.net>
-Signed-off-by: Filipe La=C3=ADns <lains@riseup.net>
-Signed-off-by: Mavroudis Chatzilazaridis <mavchatz@protonmail.com>
+Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 ---
-V1 -> V2: Addressed review comment for commit message
+ drivers/input/touchscreen/exc3000.c | 18 +++++++-----------
+ 1 file changed, 7 insertions(+), 11 deletions(-)
 
- drivers/hid/hid-ids.h         |  1 +
- drivers/hid/hid-logitech-dj.c | 11 ++++++++---
- 2 files changed, 9 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 8a310f8ff20f..7ac7debe98f1 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -866,6 +866,7 @@
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_2=09=090xc534
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1=090xc539
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_1=090xc53f
-+#define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_2=090xc547
- #define USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_POWERPLAY=090xc53a
- #define USB_DEVICE_ID_SPACETRAVELLER=090xc623
- #define USB_DEVICE_ID_SPACENAVIGATOR=090xc626
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 62180414efcc..fef67da0de53 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -1692,11 +1692,12 @@ static int logi_dj_raw_event(struct hid_device *hde=
-v,
- =09=09}
- =09=09/*
- =09=09 * Mouse-only receivers send unnumbered mouse data. The 27 MHz
--=09=09 * receiver uses 6 byte packets, the nano receiver 8 bytes.
-+=09=09 * receiver uses 6 byte packets, the nano receiver 8 bytes,
-+=09=09 * the lightspeed receiver (Pro X Superlight) 13 bytes.
- =09=09 */
- =09=09if (djrcv_dev->unnumbered_application =3D=3D HID_GD_MOUSE &&
--=09=09    size <=3D 8) {
--=09=09=09u8 mouse_report[9];
-+=09=09    size <=3D 13){
-+=09=09=09u8 mouse_report[14];
-
- =09=09=09/* Prepend report id */
- =09=09=09mouse_report[0] =3D REPORT_TYPE_MOUSE;
-@@ -1980,6 +1981,10 @@ static const struct hid_device_id logi_dj_receivers[=
-] =3D {
- =09  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
- =09=09USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_1),
- =09 .driver_data =3D recvr_type_gaming_hidpp},
-+=09{ /* Logitech lightspeed receiver (0xc547) */
-+=09  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH,
-+=09=09USB_DEVICE_ID_LOGITECH_NANO_RECEIVER_LIGHTSPEED_1_2),
-+=09 .driver_data =3D recvr_type_gaming_hidpp},
-
- =09{ /* Logitech 27 MHz HID++ 1.0 receiver (0xc513) */
- =09  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_MX3000_RECEIVER)=
-,
---
-2.34.1
-
+diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
+index 4c0d99aae9e0..8b65b4e2aa50 100644
+--- a/drivers/input/touchscreen/exc3000.c
++++ b/drivers/input/touchscreen/exc3000.c
+@@ -42,8 +42,6 @@
+ #define EXC3000_RESET_MS		10
+ #define EXC3000_READY_MS		100
+ 
+-static const struct i2c_device_id exc3000_id[];
+-
+ struct eeti_dev_info {
+ 	const char *name;
+ 	int max_xy;
+@@ -347,12 +345,10 @@ static int exc3000_probe(struct i2c_client *client)
+ 		return -ENOMEM;
+ 
+ 	data->client = client;
+-	data->info = device_get_match_data(&client->dev);
+-	if (!data->info) {
+-		enum eeti_dev_id eeti_dev_id =
+-			i2c_match_id(exc3000_id, client)->driver_data;
+-		data->info = &exc3000_info[eeti_dev_id];
+-	}
++	data->info = i2c_get_match_data(client);
++	if (!data->info)
++		return -ENODEV;
++
+ 	timer_setup(&data->timer, exc3000_timer, 0);
+ 	init_completion(&data->wait_event);
+ 	mutex_init(&data->query_lock);
+@@ -445,9 +441,9 @@ static int exc3000_probe(struct i2c_client *client)
+ }
+ 
+ static const struct i2c_device_id exc3000_id[] = {
+-	{ "exc3000", EETI_EXC3000 },
+-	{ "exc80h60", EETI_EXC80H60 },
+-	{ "exc80h84", EETI_EXC80H84 },
++	{ "exc3000", .driver_data = (kernel_ulong_t)&exc3000_info[EETI_EXC3000] },
++	{ "exc80h60", .driver_data = (kernel_ulong_t)&exc3000_info[EETI_EXC80H60] },
++	{ "exc80h84", .driver_data = (kernel_ulong_t)&exc3000_info[EETI_EXC80H84] },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, exc3000_id);
+-- 
+2.25.1
 

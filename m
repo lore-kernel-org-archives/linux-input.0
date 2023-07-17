@@ -2,106 +2,127 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB4E3C001B0
-	for <linux-input@archiver.kernel.org>; Mon, 17 Jul 2023 06:37:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE928EB64DC
+	for <linux-input@archiver.kernel.org>; Mon, 17 Jul 2023 09:13:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229687AbjGQGhM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 17 Jul 2023 02:37:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38498 "EHLO
+        id S229967AbjGQJNb convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 17 Jul 2023 05:13:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229648AbjGQGhJ (ORCPT
+        with ESMTP id S230117AbjGQJNa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 17 Jul 2023 02:37:09 -0400
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7783393;
-        Sun, 16 Jul 2023 23:37:08 -0700 (PDT)
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36H5TnJQ015101;
-        Mon, 17 Jul 2023 06:26:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding : content-type; s=qcppdkim1;
- bh=r3fML3pK532WUxA07U/gAYgpG1jCYzJPxPWmPFF4inw=;
- b=Cbn74wtt+kOiiHQaQP1baaBfpDvH0VFfXY+RA66yBCDFmEL3Kt8wM6I8XO7kPgaKQy1Y
- QRGiYlWY+ot80SEYcy9u4hvo/gzT+zWeBA/tsRGYzsGuRWV+VMV34Qmgw3hTBsH/ot/A
- O93cHRh45IUBG3JVwia1kCL/2H1WjxHdpEY1s1OAOMj54Dw1yzQZQfKWcCQqb64tuKoX
- cHUSczb1/3z0DBOQFff9dznaquKu87S5cWEaLXvj4tFeRFnAFaJv74zRkXywYsVtEsx9
- c12EXw2c0vHGtvJ6Rriv7cGf9+sP5muQ4KRyKbo5D+vvtVxXlOY1eViEM1mXMURisaSM 7A== 
-Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3run0etk9g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jul 2023 06:26:39 +0000
-Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
-        by NALASPPMTA02.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 36H6QcSB010348
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jul 2023 06:26:38 GMT
-Received: from fenglinw2-gv.qualcomm.com (10.80.80.8) by
- nalasex01c.na.qualcomm.com (10.47.97.35) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.30; Sun, 16 Jul 2023 23:26:34 -0700
-From:   Fenglin Wu <quic_fenglinw@quicinc.com>
-To:     <linux-arm-msm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        "Andy Gross" <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        "Konrad Dybcio" <konrad.dybcio@linaro.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>,
-        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>
-CC:     <quic_collinsd@quicinc.com>, <quic_subbaram@quicinc.com>,
-        <quic_fenglinw@quicinc.com>, <quic_kamalw@quicinc.com>,
-        <jestar@qti.qualcomm.com>
-Subject: [PATCH v1 1/2] dt-bindings: input: qcom,pm8xxx-vib: add more PMIC support
-Date:   Mon, 17 Jul 2023 14:25:46 +0800
-Message-ID: <20230717062547.2086869-2-quic_fenglinw@quicinc.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230717062547.2086869-1-quic_fenglinw@quicinc.com>
-References: <20230717062547.2086869-1-quic_fenglinw@quicinc.com>
+        Mon, 17 Jul 2023 05:13:30 -0400
+Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9461A10DC;
+        Mon, 17 Jul 2023 02:13:29 -0700 (PDT)
+Received: by mail-oi1-f175.google.com with SMTP id 5614622812f47-3a44cccbd96so892964b6e.3;
+        Mon, 17 Jul 2023 02:13:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1689585209; x=1692177209;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=TdrN/ZJ0pC+C/CLOxTgcuvVVnl/hzHk0xaoKGe34MfY=;
+        b=YmuuiZnNyeE4iEm7VIi+wmwVW0dOUhJDD2kH8hWDx+E7IELUd+L4a/GvbVzjZYN4dI
+         e1c+E1i7K1OJLJcM+aSau1FoLnyfpJupOLjqQ9Y5cILbz9OFtHL3F/u2Mt9TNb+kTelV
+         QfgUzx1REK3/uf4xNWgvPjt2bUZhJZSZNxQ5IGo8MVjGdTz6MVxg/TpOftIa+WNIbdV6
+         HyacrkevFAE73gVCw3jKQ0H3P+xRZpLuAHtSKiiDp48yfLBKqt8o+HCCixqpWM+0h+MS
+         2xev/qWSeKYzIEFfbpvKqGpyz7puTFqwbmXVo+Oa8EooxOhE/6WpHu45+KEL4kAFCLzI
+         Kq/A==
+X-Gm-Message-State: ABy/qLaE7wf5yriI7FssHqWl2E7Q6EiYxrf5u9+khM9vDoblw7NYMSCW
+        m45dhqfNLCMB9wtAzSLoMaWDPIECk7Y/GQ==
+X-Google-Smtp-Source: APBJJlGBqS8Km2Ka0fM4r9XIHn21dUt6mvAhBVwoRsTu2i4maxm4gX93iemdMmGz5NRwb2qUqKYSOg==
+X-Received: by 2002:a05:6358:9211:b0:134:c584:5585 with SMTP id d17-20020a056358921100b00134c5845585mr6286134rwb.3.1689585208571;
+        Mon, 17 Jul 2023 02:13:28 -0700 (PDT)
+Received: from mail-yb1-f169.google.com (mail-yb1-f169.google.com. [209.85.219.169])
+        by smtp.gmail.com with ESMTPSA id r186-20020a8181c3000000b00577357201e2sm3753414ywf.14.2023.07.17.02.13.28
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 Jul 2023 02:13:28 -0700 (PDT)
+Received: by mail-yb1-f169.google.com with SMTP id 3f1490d57ef6-c15a5ed884dso4342065276.2;
+        Mon, 17 Jul 2023 02:13:28 -0700 (PDT)
+X-Received: by 2002:a25:8290:0:b0:c16:ba32:1b1c with SMTP id
+ r16-20020a258290000000b00c16ba321b1cmr10758324ybk.58.1689585208148; Mon, 17
+ Jul 2023 02:13:28 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01c.na.qualcomm.com (10.47.97.35)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: nS5jJjDx4VK7sD5gmIqoBV8gL-jL_g-W
-X-Proofpoint-ORIG-GUID: nS5jJjDx4VK7sD5gmIqoBV8gL-jL_g-W
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
- definitions=2023-07-17_05,2023-07-13_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
- priorityscore=1501 mlxscore=0 impostorscore=0 adultscore=0 spamscore=0
- bulkscore=0 phishscore=0 lowpriorityscore=0 malwarescore=0 mlxlogscore=858
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2306200000 definitions=main-2307170058
+References: <20230716182455.216335-1-biju.das.jz@bp.renesas.com>
+In-Reply-To: <20230716182455.216335-1-biju.das.jz@bp.renesas.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 17 Jul 2023 11:13:17 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUSxVxuiwtbHR8OP35Hjsq34=FPfjBccVVoYQUzO6FK9Q@mail.gmail.com>
+Message-ID: <CAMuHMdUSxVxuiwtbHR8OP35Hjsq34=FPfjBccVVoYQUzO6FK9Q@mail.gmail.com>
+Subject: Re: [PATCH] Input: exc3000 - Simplify probe()
+To:     Biju Das <biju.das.jz@bp.renesas.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Andreas Helbech Kleist <andreaskleist@gmail.com>,
+        =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Mike Looijmans <mike.looijmans@topic.nl>,
+        linux-input@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        linux-renesas-soc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support for vibrator module inside Qualcomm PMI632, PM7250B, PM7325B
-and PM7550BA PMICs.
+Hi Biju,
 
-Signed-off-by: Fenglin Wu <quic_fenglinw@quicinc.com>
----
- Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml | 4 ++++
- 1 file changed, 4 insertions(+)
+On Sun, Jul 16, 2023 at 8:25 PM Biju Das <biju.das.jz@bp.renesas.com> wrote:
+> The exc3000_id.driver_data could store a pointer to the info,
+> like for ACPI/DT-based matching, making I2C, ACPI and DT-based
+> matching more similar.
+>
+> After that, we can simplify the probe() by replacing of_device_get_
+> match_data() and i2c_match_id() by i2c_get_match_data() as we have
+> similar I2C, ACPI and DT-based matching table.
+>
+> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
-index c8832cd0d7da..642408e2b35f 100644
---- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
-@@ -15,6 +15,10 @@ properties:
-       - qcom,pm8058-vib
-       - qcom,pm8916-vib
-       - qcom,pm8921-vib
-+      - qcom,pmi632-vib
-+      - qcom,pm7250b-vib
-+      - qcom,pm7325b-vib
-+      - qcom,pm7550ba-vib
- 
-   reg:
-     maxItems: 1
+Thanks for your patch!
+
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+A suggestion for improvement (which can be a separate patch, as it would
+touch exc3000_of_match[]) below.
+
+> ---
+>  drivers/input/touchscreen/exc3000.c | 18 +++++++-----------
+>  1 file changed, 7 insertions(+), 11 deletions(-)
+>
+> diff --git a/drivers/input/touchscreen/exc3000.c b/drivers/input/touchscreen/exc3000.c
+> index 4c0d99aae9e0..8b65b4e2aa50 100644
+> --- a/drivers/input/touchscreen/exc3000.c
+> +++ b/drivers/input/touchscreen/exc3000.c
+> @@ -445,9 +441,9 @@ static int exc3000_probe(struct i2c_client *client)
+>  }
+>
+>  static const struct i2c_device_id exc3000_id[] = {
+> -       { "exc3000", EETI_EXC3000 },
+> -       { "exc80h60", EETI_EXC80H60 },
+> -       { "exc80h84", EETI_EXC80H84 },
+> +       { "exc3000", .driver_data = (kernel_ulong_t)&exc3000_info[EETI_EXC3000] },
+> +       { "exc80h60", .driver_data = (kernel_ulong_t)&exc3000_info[EETI_EXC80H60] },
+> +       { "exc80h84", .driver_data = (kernel_ulong_t)&exc3000_info[EETI_EXC80H84] },
+
+As after this the eeti_dev_id values are used only for hardcoded
+indexing inside the exc3000_info array, you can get rid of them by
+splitting the array in individual variables, shortening the lines above
+(and in exc3000_of_match[] below) in the process.
+
+>         { }
+>  };
+>  MODULE_DEVICE_TABLE(i2c, exc3000_id);
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.25.1
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

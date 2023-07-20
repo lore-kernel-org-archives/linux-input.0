@@ -2,62 +2,25 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D0248EB64DD
-	for <linux-input@archiver.kernel.org>; Thu, 20 Jul 2023 08:58:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C841AC04A94
+	for <linux-input@archiver.kernel.org>; Thu, 20 Jul 2023 09:44:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230522AbjGTI6m (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 20 Jul 2023 04:58:42 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38340 "EHLO
+        id S231205AbjGTJoR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 20 Jul 2023 05:44:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231421AbjGTIyX (ORCPT
+        with ESMTP id S230062AbjGTJnz (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 20 Jul 2023 04:54:23 -0400
-Received: from mail-lf1-x135.google.com (mail-lf1-x135.google.com [IPv6:2a00:1450:4864:20::135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF1F26A5
-        for <linux-input@vger.kernel.org>; Thu, 20 Jul 2023 01:54:20 -0700 (PDT)
-Received: by mail-lf1-x135.google.com with SMTP id 2adb3069b0e04-4fb96e2b573so775184e87.3
-        for <linux-input@vger.kernel.org>; Thu, 20 Jul 2023 01:54:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1689843258; x=1692435258;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hr3GYuI4RGrQA8MLYXyJLt2ld5PTqpatMnFPkHbCrNI=;
-        b=Shpu1expb9UmeNTzkrqLpZgKTTgNTFnWaaLHFYEs8X9t52qsEc2qqYzhSS1wKDUyy1
-         n4EpvR8sgcpL9FLYrJpRYmBpPkbJYzeu10lN6wdKe7Ba3JMVPmK04th61cyw1jW0vioh
-         2k3CoD0TVIieY7nwHyzHbt5z0gDLKPnvLw6UMDKlMyXki3gNfYPvuUq+SrKIZ7RFQuBd
-         Px9Xf/3N008B/kEnqXS6fqGuDaol6sbJt4f/XDWyLT7f7F4gTOg0Y1UdNeEYpRgxFEy7
-         DaXKvwDjYnKA9he3hNDcHOhrri5jmEMFtNNli0s0ezLRD1kzQDFHIjgsiSo66GqPF4gC
-         ZR0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1689843258; x=1692435258;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=hr3GYuI4RGrQA8MLYXyJLt2ld5PTqpatMnFPkHbCrNI=;
-        b=esaZOfDCnHZjJHdmwZpzqashInzckURcJ4Nok+Z2jpoGKaRfuajOPxJxv3637GDKZE
-         xpUPe94suD8US7jk7IHLm8jY+QJ+eXPkb7oA3V8cOVX/3P2ObJqzmxo2q5zK4XXCt8fr
-         ZCKlkN4V+/k+H6lZvhqHLGF0SaDD1cMn8zU/QLU4YZ6Q+NoaONj3/XF1knQSwvMaIP8O
-         PRnYTDH6Gde5V491i0Aejc8PmJgPFt7OL5FkD0eerO5TAIyvLXa0OByljfq8LcgUyN+G
-         ZM77Niq1gX5b+LcoDXhZ8vmnLMzDSBhEG29wsDYp6g4Tia9/Gl04fATtexEBqDRb/Iyr
-         vC9Q==
-X-Gm-Message-State: ABy/qLaVOBk/VfcMHbhD3EquummaUJPp4rEVBCkhBU/VZ4MEMy4X2yba
-        4ABJvDgZgCrCidzNZf7xJ7qCRQ==
-X-Google-Smtp-Source: APBJJlEh3NvNHBbbxheUFFyvpgKd2C0hcz7XJqCW4yZ6/zAz5ujRsINO2b569mPpxzPaezD6Arr+tg==
-X-Received: by 2002:a19:ca4a:0:b0:4fb:8dcc:59e5 with SMTP id h10-20020a19ca4a000000b004fb8dcc59e5mr1681346lfj.39.1689843258307;
-        Thu, 20 Jul 2023 01:54:18 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.223.104])
-        by smtp.gmail.com with ESMTPSA id a12-20020a5d53cc000000b00313f9a0c521sm657889wrw.107.2023.07.20.01.54.13
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 Jul 2023 01:54:17 -0700 (PDT)
-Message-ID: <a6006558-5eca-a8a0-ed61-dfa746f223ae@linaro.org>
-Date:   Thu, 20 Jul 2023 10:54:12 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v3 00/42] ep93xx device tree conversion
-Content-Language: en-US
-To:     nikita.shubin@maquefel.me,
+        Thu, 20 Jul 2023 05:43:55 -0400
+Received: from mx01.omp.ru (mx01.omp.ru [90.154.21.10])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66A12D68;
+        Thu, 20 Jul 2023 02:40:21 -0700 (PDT)
+Received: from [192.168.1.103] (178.176.74.113) by msexch01.omp.ru
+ (10.188.4.12) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id 15.2.986.14; Thu, 20 Jul
+ 2023 12:40:10 +0300
+Subject: Re: [PATCH v3 38/42] ata: pata_ep93xx: remove legacy pinctrl use
+To:     <nikita.shubin@maquefel.me>,
         Hartley Sweeten <hsweeten@visionengravers.com>,
         Lennert Buytenhek <kernel@wantstofly.org>,
         Alexander Sverdlin <alexander.sverdlin@gmail.com>,
@@ -88,46 +51,91 @@ To:     nikita.shubin@maquefel.me,
         Richard Weinberger <richard@nod.at>,
         Vignesh Raghavendra <vigneshr@ti.com>,
         Damien Le Moal <dlemoal@kernel.org>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>,
-        soc@kernel.org, Liam Girdwood <lgirdwood@gmail.com>,
+        <soc@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
         Jaroslav Kysela <perex@perex.cz>,
         Takashi Iwai <tiwai@suse.com>,
         Andy Shevchenko <andy@kernel.org>,
         Michael Peters <mpeters@embeddedTS.com>,
         Kris Bahnsen <kris@embeddedTS.com>
-Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-gpio@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-clk@vger.kernel.org, linux-rtc@vger.kernel.org,
-        linux-watchdog@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-pwm@vger.kernel.org, linux-spi@vger.kernel.org,
-        netdev@vger.kernel.org, dmaengine@vger.kernel.org,
-        linux-mtd@lists.infradead.org, linux-ide@vger.kernel.org,
-        linux-input@vger.kernel.org, alsa-devel@alsa-project.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>
+CC:     <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-clk@vger.kernel.org>,
+        <linux-rtc@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+        <linux-pm@vger.kernel.org>, <linux-pwm@vger.kernel.org>,
+        <linux-spi@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <dmaengine@vger.kernel.org>, <linux-mtd@lists.infradead.org>,
+        <linux-ide@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <alsa-devel@alsa-project.org>
 References: <20230605-ep93xx-v3-0-3d63a5f1103e@maquefel.me>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20230605-ep93xx-v3-0-3d63a5f1103e@maquefel.me>
-Content-Type: text/plain; charset=UTF-8
+ <20230605-ep93xx-v3-38-3d63a5f1103e@maquefel.me>
+From:   Sergey Shtylyov <s.shtylyov@omp.ru>
+Organization: Open Mobile Platform
+Message-ID: <6316072a-f055-166d-df27-5e3ceb0e68a1@omp.ru>
+Date:   Thu, 20 Jul 2023 12:40:06 +0300
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
+MIME-Version: 1.0
+In-Reply-To: <20230605-ep93xx-v3-38-3d63a5f1103e@maquefel.me>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [178.176.74.113]
+X-ClientProxiedBy: msexch01.omp.ru (10.188.4.12) To msexch01.omp.ru
+ (10.188.4.12)
+X-KSE-ServerInfo: msexch01.omp.ru, 9
+X-KSE-AntiSpam-Interceptor-Info: scan successful
+X-KSE-AntiSpam-Version: 5.9.59, Database issued on: 07/20/2023 09:02:28
+X-KSE-AntiSpam-Status: KAS_STATUS_NOT_DETECTED
+X-KSE-AntiSpam-Method: none
+X-KSE-AntiSpam-Rate: 59
+X-KSE-AntiSpam-Info: Lua profiles 178740 [Jul 20 2023]
+X-KSE-AntiSpam-Info: Version: 5.9.59.0
+X-KSE-AntiSpam-Info: Envelope from: s.shtylyov@omp.ru
+X-KSE-AntiSpam-Info: LuaCore: 524 524 9753033d6953787301affc41bead8ed49c47b39d
+X-KSE-AntiSpam-Info: {rep_avail}
+X-KSE-AntiSpam-Info: {Tracking_from_domain_doesnt_match_to}
+X-KSE-AntiSpam-Info: {relay has no DNS name}
+X-KSE-AntiSpam-Info: {SMTP from is not routable}
+X-KSE-AntiSpam-Info: {Found in DNSBL: 178.176.74.113 in (user)
+ b.barracudacentral.org}
+X-KSE-AntiSpam-Info: 127.0.0.199:7.1.2;omp.ru:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;178.176.74.113:7.4.1,7.7.3
+X-KSE-AntiSpam-Info: {iprep_blacklist}
+X-KSE-AntiSpam-Info: ApMailHostAddress: 178.176.74.113
+X-KSE-AntiSpam-Info: {DNS response errors}
+X-KSE-AntiSpam-Info: Rate: 59
+X-KSE-AntiSpam-Info: Status: not_detected
+X-KSE-AntiSpam-Info: Method: none
+X-KSE-AntiSpam-Info: Auth:dmarc=temperror header.from=omp.ru;spf=temperror
+ smtp.mailfrom=omp.ru;dkim=none
+X-KSE-Antiphishing-Info: Clean
+X-KSE-Antiphishing-ScanningType: Heuristic
+X-KSE-Antiphishing-Method: None
+X-KSE-Antiphishing-Bases: 07/20/2023 09:10:00
+X-KSE-Antivirus-Interceptor-Info: scan successful
+X-KSE-Antivirus-Info: Clean, bases: 7/20/2023 4:32:00 AM
+X-KSE-Attachment-Filter-Triggered-Rules: Clean
+X-KSE-Attachment-Filter-Triggered-Filters: Clean
+X-KSE-BulkMessagesFiltering-Scan-Result: InTheLimit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 20/07/2023 13:29, Nikita Shubin via B4 Relay wrote:
-> This series aims to convert ep93xx from platform to full device tree support.
+Hello!
+
+On 7/20/23 2:29 PM, Nikita Shubin via B4 Relay wrote:
+
+> From: Nikita Shubin <nikita.shubin@maquefel.me>
 > 
-> The main goal is to receive ACK's to take it via Arnd's arm-soc branch.
+> Drop legacy acquire/release since we are using pinctrl for this now.
 > 
-> I've moved to b4, tricking it to consider v0 as v1, so it consider's
-> this version to be v3, this exactly the third version.
+> Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
 
-Fix your clock/timezone, so your patches are not sent in the future.
-Unfortunately this will stay at top of my queue, which is unfair, so I
-will just ignore for now.
+   I think I've already given you my:
 
-Best regards,
-Krzysztof
+Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
 
+[...]
+
+MBR, Sergey

@@ -2,97 +2,96 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2A05C001E0
-	for <linux-input@archiver.kernel.org>; Sun, 23 Jul 2023 20:07:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98C2BC001DC
+	for <linux-input@archiver.kernel.org>; Mon, 24 Jul 2023 01:19:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230010AbjGWUHK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 23 Jul 2023 16:07:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59140 "EHLO
+        id S229959AbjGXBTQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 23 Jul 2023 21:19:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229964AbjGWUHE (ORCPT
+        with ESMTP id S230041AbjGXBTN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 23 Jul 2023 16:07:04 -0400
-Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FAEAE5B;
-        Sun, 23 Jul 2023 13:07:02 -0700 (PDT)
-Received: by mail-pl1-x632.google.com with SMTP id d9443c01a7336-1b8b4749013so29570105ad.2;
-        Sun, 23 Jul 2023 13:07:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690142822; x=1690747622;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=2O/oL2BEJ2VfQn4coTyhVQ/Czd2OJD9YBEHICa4/BqA=;
-        b=MiWFMKL5bPiLbeh2ukKjKgjIn+PJFkPVbu437q2YnP+DOosmVji53AtZjekwjRMm48
-         F6cGou2Wq0gCXhG2RBtDjBtVotftoiAMIRqyfmv0PqjQK9v54ymoon/LRfWZn+SVhSGj
-         y7LZ9bZkpphbjRIpSrthAtz2UBVzZybSgGED5tmyFaX17eDy4+kD4uRRSW7Gn/0dRhy7
-         014Hy50VDhYKA4soO2+OVElplpSNfejYag4zOnV69VCU61No0rgWdVWCj0CwYpG39keq
-         nPYw7URgb7HnF3napxVbeIbjofWqfKhew7WhSH29s32fYNNhZtsIKVbLthZv+2BCk/3s
-         EKfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690142822; x=1690747622;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2O/oL2BEJ2VfQn4coTyhVQ/Czd2OJD9YBEHICa4/BqA=;
-        b=GeYSs0M/QQLmRC1Wz09ABnv+Jg5ZHaoTxxZKwqeGyu6ACUJP6sb3xhLaqg/WiREFXn
-         Ppt4gUSrwJQhASVNqXqet+xRDwXYMZicrgWvq2ptWYcNQXHiX7Lcxg1H/73DHp/YTgIe
-         9yDRqEj2oT+beb0/CEwkEl+Mwud/JaCoPClK1QyZCY7Tl3VRw7yRrV0s2ytwQI4Gp7bf
-         y8LLJqgIHGbpB8LNGrzwWcL80Vd+GrNma5p4GQsH3CJ+ahMq8yUbSiGjRxDY53S5XuqK
-         1OMBisNzWBTbpjvtsb/QRbZweE8qDHkaYWfuhpRTQFX+gdO0SO5TNXDMwMUqQ50saXgX
-         ToHg==
-X-Gm-Message-State: ABy/qLZVtopJr5duqoseZ+2QsoUz0BJox6+rCqHW4hJWNMAIi0QgpdX4
-        Uw010W/A5+Q7ZJOld213bQk=
-X-Google-Smtp-Source: APBJJlFgVpcLCsu/vAetSPzqAjzsWOwiBL0k/NX4Js061IYVBIA7wFyDSzk35Wk5lxfPMgUxU7ZX/w==
-X-Received: by 2002:a17:902:bb88:b0:1bb:97d0:c628 with SMTP id m8-20020a170902bb8800b001bb97d0c628mr2607854pls.31.1690142821587;
-        Sun, 23 Jul 2023 13:07:01 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:b8db:3c3:1ff4:2ae3])
-        by smtp.gmail.com with ESMTPSA id d4-20020a170902c18400b001b9cf522c0esm7241159pld.97.2023.07.23.13.07.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Jul 2023 13:07:01 -0700 (PDT)
-Date:   Sun, 23 Jul 2023 13:06:58 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Biju Das <biju.das.jz@bp.renesas.com>
-Cc:     Mark Brown <broonie@kernel.org>,
-        Mike Looijmans <mike.looijmans@topic.nl>,
-        Andreas Helbech Kleist <andreaskleist@gmail.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        "linux-renesas-soc@vger.kernel.org" 
-        <linux-renesas-soc@vger.kernel.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] Input: exc3000 - Simplify probe()
-Message-ID: <ZL2IYrswlWiUXUDW@google.com>
-References: <66228ad3-c087-418c-925f-b9fd4a60fb16@sirena.org.uk>
- <ZLWIPPAfeR1+KbeH@google.com>
- <OS0PR01MB59225D8CF3E96808DD776A8E863BA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
- <ZLbbslBiIQXFWpmN@google.com>
- <TYCPR01MB593346FBBA320260A290EAFD8639A@TYCPR01MB5933.jpnprd01.prod.outlook.com>
- <ZLsCOj1t4JvG3SEp@google.com>
- <TYCPR01MB5933D4252360AAE57D90FE1C863CA@TYCPR01MB5933.jpnprd01.prod.outlook.com>
- <CAKdAkRT9tMnLnDLgWAevE_4HQ0wYMPehvsYaAeYrXdGGiyjXRA@mail.gmail.com>
- <OS0PR01MB59222E6CE0EEED3A5FE843C1863DA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
- <OS0PR01MB5922328753110C5C35101357863DA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+        Sun, 23 Jul 2023 21:19:13 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48D0510D9;
+        Sun, 23 Jul 2023 18:18:50 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A12C60F16;
+        Mon, 24 Jul 2023 01:18:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8891FC433CB;
+        Mon, 24 Jul 2023 01:18:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1690161529;
+        bh=wT5LXQcaPdS5EzfH1G3Vg7Kd20V/Qjfwk7d+JX9qFYI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=TaegvJU4s7NQU0fipQduenIgVTRgxKXOFIk7Ak+qWTpVKTd86rvQYdqqQngsm2IZ2
+         V8w9nmgX7bqUkdD8aNAFd4NfH6Ty0CXocpw7mmMd2uCfSw/w1iasUZu5oPTCdNxSD/
+         1N2XIV95CJOiQ6m2G9XpVu7OrBJ3qgPvL+xbADujl6JKJMwJg+O66Bry7VcQEZxvDT
+         RHRm3Q6na8OYTcdF+dJ/oH6HrX6DmNLSnYxjiaNysprTesMMLK/zKZsTZhIRKu6OJ2
+         L7b6Z+PH3Go7C9jV461es14nWYM6rDFGQrnp1bsbOko2NH6ruQ9bHR8jySc5k05tjS
+         vwDfQjyPMl3EA==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     stuarthayhurst <stuart.a.hayhurst@gmail.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.4 36/58] HID: logitech-hidpp: Add USB and Bluetooth IDs for the Logitech G915 TKL Keyboard
+Date:   Sun, 23 Jul 2023 21:13:04 -0400
+Message-Id: <20230724011338.2298062-36-sashal@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230724011338.2298062-1-sashal@kernel.org>
+References: <20230724011338.2298062-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OS0PR01MB5922328753110C5C35101357863DA@OS0PR01MB5922.jpnprd01.prod.outlook.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 6.4.5
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, Jul 23, 2023 at 06:50:29AM +0000, Biju Das wrote:
-> 
-> Can you please post a patch based on this?
+From: stuarthayhurst <stuart.a.hayhurst@gmail.com>
 
-It looks like you are already taking care of this so I'll let you
-finish.
+[ Upstream commit 48aea8b445c422a372cf15915101035a47105421 ]
 
-Thanks.
+Adds the USB and Bluetooth IDs for the Logitech G915 TKL keyboard, for device detection
+For this device, this provides battery reporting on top of hid-generic
 
+Reviewed-by: Bastien Nocera <hadess@hadess.net>
+Signed-off-by: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/hid/hid-logitech-hidpp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 5e1a412fd28fa..2ff007244d5e1 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4608,6 +4608,8 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC086) },
+ 	{ /* Logitech G903 Hero Gaming Mouse over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC091) },
++	{ /* Logitech G915 TKL Keyboard over USB */
++	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, 0xC343) },
+ 	{ /* Logitech G920 Wheel over USB */
+ 	  HID_USB_DEVICE(USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_G920_WHEEL),
+ 		.driver_data = HIDPP_QUIRK_CLASS_G920 | HIDPP_QUIRK_FORCE_OUTPUT_REPORTS},
+@@ -4630,6 +4632,8 @@ static const struct hid_device_id hidpp_devices[] = {
+ 	{ /* MX5500 keyboard over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb30b),
+ 	  .driver_data = HIDPP_QUIRK_HIDPP_CONSUMER_VENDOR_KEYS },
++	{ /* Logitech G915 TKL keyboard over Bluetooth */
++	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb35f) },
+ 	{ /* M-RCQ142 V470 Cordless Laser Mouse over Bluetooth */
+ 	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb008) },
+ 	{ /* MX Master mouse over Bluetooth */
 -- 
-Dmitry
+2.39.2
+

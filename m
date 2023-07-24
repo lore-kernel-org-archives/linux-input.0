@@ -2,63 +2,63 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 25850C41513
-	for <linux-input@archiver.kernel.org>; Mon, 24 Jul 2023 05:29:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78D36EB64DD
+	for <linux-input@archiver.kernel.org>; Mon, 24 Jul 2023 05:30:34 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229691AbjGXF3T (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 24 Jul 2023 01:29:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34110 "EHLO
+        id S229504AbjGXFad (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 24 Jul 2023 01:30:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229899AbjGXF3R (ORCPT
+        with ESMTP id S229441AbjGXFac (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 24 Jul 2023 01:29:17 -0400
-Received: from mail-pf1-x433.google.com (mail-pf1-x433.google.com [IPv6:2607:f8b0:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9C0E56;
-        Sun, 23 Jul 2023 22:29:06 -0700 (PDT)
-Received: by mail-pf1-x433.google.com with SMTP id d2e1a72fcca58-668711086f4so2476945b3a.1;
-        Sun, 23 Jul 2023 22:29:06 -0700 (PDT)
+        Mon, 24 Jul 2023 01:30:32 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107B7E40;
+        Sun, 23 Jul 2023 22:30:30 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id 41be03b00d2f7-55c85b4b06bso1837910a12.2;
+        Sun, 23 Jul 2023 22:30:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690176545; x=1690781345;
+        d=gmail.com; s=20221208; t=1690176629; x=1690781429;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0ep0nbubW/pYZF9n+Ovt3HV6C5tiiM1xsOGhla+jSTk=;
-        b=LpV/+m6TSa0jr873MZzvUA2YCn38wWRmZxpdjNQ773EaokynMwUShycjGnGchb4W0y
-         C6uw7BfDe1AGtJtT8SX+K3k/nDrlw4SevPPtst1TSWiJ0MlKojSO4LPZbTMiIYVs8K6t
-         RI5QQXmUrIP/XpTRFofSHPHRufpfGaAB5sXlsR++wm+3iPG5mAL6+8//T66gxBNR06Wk
-         nau2hGBuulniQBykM+dk3BodNZW1+omkbVNnKQ682ZjcbTHk7Dyz6PqltCDhxOKVBEmC
-         RdioQYmqsV4mMQqynYP73Mrid0YJV0CajNkLbtkcT6jXPIOHQRQZDXlrQR6AmYU3tX3z
-         oWyw==
+        bh=rGoE1fntbnB7lNqsw0Y5id7dATDTKpa2h3lFuJESfyY=;
+        b=CFRQYSKhzjIomrTxQg+sRqUBUBs16XaKWFyxW9nMutG+2Zojcc189NkDW+q7WOQxnD
+         S3HWeERTKvY7N9I4rhPHEAep28x/6/89ItIsYdmwvAEXf/rplqWIxrDXfQdRzHr+RAbd
+         Xl+pvzC/g+kge9wXQruKktoutaSrp8ueBA6sMIJhaami4AWh2bk3e6OrArdLcefUVYYU
+         piKBB7rqk1wG3b7dfJjqDwsPkDiptC6c+q4z5wyoZrVO/QgSjYOS3e/2pwIjHrjsb0r0
+         qkYalMOYSGS1/ptPMmlSpr2k79B7+KGUXt9Hz+YOEjV6RDCHVM7CaAppdPDqazcDPHZf
+         l8Fg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690176545; x=1690781345;
+        d=1e100.net; s=20221208; t=1690176629; x=1690781429;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=0ep0nbubW/pYZF9n+Ovt3HV6C5tiiM1xsOGhla+jSTk=;
-        b=l1iLDF+/gyk2Ufjm+4J7JOjZGrUsKUlyZWk/76PoDZCM7LoWbww/hUdtU31UwuapRW
-         Oca37bMvHq1JwBE0pqFGjrBW3niaHY2Q5BrRr1gRfOw4YMfZGZYKlmtm+m78e7/nFwwE
-         yOeD+P9Sk11zJf5tZrQJ7N59e1V1xE9gdfo7BYohpqVTD1M9+DNH0DW7L4ecuu+UD3oQ
-         cbpxDitl2RQuH7ORse51iDjo+wbgJ1XD94vdPPE+BpYchNT6TfoweDM3FZuyqV5/qXge
-         QUlMyfouWpb6hUnQm4YuzCTlusfANg6O0l1O/Wrz9EBdacw0ENZ14IFfqZM4Ep/fdEfb
-         +z/A==
-X-Gm-Message-State: ABy/qLbkqbVrHcpQdaNipGVdIF6eTu60zOjERjaPqTMZpllXI2F1GTWC
-        8XG/V9hzfctxqP8R4ZRSKwE8QnK8wjQ=
-X-Google-Smtp-Source: APBJJlHySbRKnbtZ45tZNhTXLVwUjG+9DrrRZD1CzQ01sKzPcjwZxT1HZ05eFbHLpOEoL85qg9Q+DA==
-X-Received: by 2002:a05:6a00:1885:b0:678:7744:31fd with SMTP id x5-20020a056a00188500b00678774431fdmr10162211pfh.0.1690176545515;
-        Sun, 23 Jul 2023 22:29:05 -0700 (PDT)
+        bh=rGoE1fntbnB7lNqsw0Y5id7dATDTKpa2h3lFuJESfyY=;
+        b=Kez2m4eRmntfee8bkcADLb7ZTeNyNnoF3dqdHZNNM/y3qz37Yu+AuJ7H4uVkWgGX+Y
+         +ORsSTyaPWrxzgtkHe002RYuQfUICJ0gtilu1xdpy1xX0U+pjp8l6QCblON0f2s+4+Sy
+         C0QMN9GgvUWDDE6r7J8JQ1wJ8yMXt/smW2uvmhbxh2SV4P0IP5v8E7pYohFP6LQnhoSU
+         V7JdVnP3yCUN/T1+VvE0VxUyhNIETUd3yLCbk/lV47PWlgOE8QhBpam9FU8w/7FIBM1A
+         jZqtQEs8pmz/pkiaagDV/S3xSJGw0RpcAJqFX8SFcf9GQcaLb9aRdgr7f80OXBhaF7xI
+         bi/g==
+X-Gm-Message-State: ABy/qLb5x+LZAu0Bv26BsfowbfqWfXlsd+Wp3Dn1wluEjuA0yxfid823
+        I4AJQQNMKWe3nC8HRmE1UYksc4eubZk=
+X-Google-Smtp-Source: APBJJlGppRyh3Fj1sqKunNqzpGatEQ1A/yZ8yUc/G5w2gKOOGT0Jq+IvNbNpiY8/cxvTphOajGkUHQ==
+X-Received: by 2002:a05:6a21:9988:b0:106:25b3:2f92 with SMTP id ve8-20020a056a21998800b0010625b32f92mr8233714pzb.52.1690176629281;
+        Sun, 23 Jul 2023 22:30:29 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:9d:2:b8db:3c3:1ff4:2ae3])
-        by smtp.gmail.com with ESMTPSA id fk18-20020a056a003a9200b0064d3a9def35sm6721286pfb.188.2023.07.23.22.29.04
+        by smtp.gmail.com with ESMTPSA id j14-20020a170902758e00b001b81a97860asm7801937pll.27.2023.07.23.22.30.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 23 Jul 2023 22:29:05 -0700 (PDT)
+        Sun, 23 Jul 2023 22:30:28 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
 Cc:     Yangtao Li <frank.li@vivo.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] Input: lm8323 - convert to use devm_* api
-Date:   Sun, 23 Jul 2023 22:29:00 -0700
-Message-ID: <20230724052901.350240-2-dmitry.torokhov@gmail.com>
+Subject: [PATCH 4/5] Input: tca6416-keypad - convert to use devm_* api
+Date:   Sun, 23 Jul 2023 22:30:21 -0700
+Message-ID: <20230724053024.352054-4-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.41.0.487.g6d72f3e995-goog
-In-Reply-To: <20230724052901.350240-1-dmitry.torokhov@gmail.com>
-References: <20230724052901.350240-1-dmitry.torokhov@gmail.com>
+In-Reply-To: <20230724053024.352054-1-dmitry.torokhov@gmail.com>
+References: <20230724053024.352054-1-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -73,162 +73,112 @@ release resources.
 Signed-off-by: Yangtao Li <frank.li@vivo.com>
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/lm8323.c | 77 +++++++++++----------------------
- 1 file changed, 26 insertions(+), 51 deletions(-)
+ drivers/input/keyboard/tca6416-keypad.c | 53 +++++++++----------------
+ 1 file changed, 18 insertions(+), 35 deletions(-)
 
-diff --git a/drivers/input/keyboard/lm8323.c b/drivers/input/keyboard/lm8323.c
-index d5195415533a..7bee93e9b0f5 100644
---- a/drivers/input/keyboard/lm8323.c
-+++ b/drivers/input/keyboard/lm8323.c
-@@ -556,6 +556,7 @@ static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
- 		    const char *name)
- {
- 	struct lm8323_pwm *pwm;
-+	int err;
- 
- 	BUG_ON(id > 3);
- 
-@@ -575,9 +576,11 @@ static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
- 		pwm->cdev.name = name;
- 		pwm->cdev.brightness_set = lm8323_pwm_set_brightness;
- 		pwm->cdev.groups = lm8323_pwm_groups;
--		if (led_classdev_register(dev, &pwm->cdev) < 0) {
--			dev_err(dev, "couldn't register PWM %d\n", id);
--			return -1;
-+
-+		err = devm_led_classdev_register(dev, &pwm->cdev);
-+		if (err) {
-+			dev_err(dev, "couldn't register PWM %d: %d\n", id, err);
-+			return err;
- 		}
- 		pwm->enabled = true;
- 	}
-@@ -585,8 +588,6 @@ static int init_pwm(struct lm8323_chip *lm, int id, struct device *dev,
- 	return 0;
- }
- 
--static struct i2c_driver lm8323_i2c_driver;
--
- static ssize_t lm8323_show_disable(struct device *dev,
- 				   struct device_attribute *attr, char *buf)
- {
-@@ -648,12 +649,13 @@ static int lm8323_probe(struct i2c_client *client)
+diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
+index 21a2f2de4345..ff665319791e 100644
+--- a/drivers/input/keyboard/tca6416-keypad.c
++++ b/drivers/input/keyboard/tca6416-keypad.c
+@@ -216,12 +216,15 @@ static int tca6416_keypad_probe(struct i2c_client *client)
  		return -EINVAL;
  	}
  
--	lm = kzalloc(sizeof *lm, GFP_KERNEL);
--	idev = input_allocate_device();
--	if (!lm || !idev) {
--		err = -ENOMEM;
+-	chip = kzalloc(struct_size(chip, buttons, pdata->nbuttons), GFP_KERNEL);
+-	input = input_allocate_device();
+-	if (!chip || !input) {
+-		error = -ENOMEM;
 -		goto fail1;
 -	}
-+	lm = devm_kzalloc(&client->dev, sizeof(*lm), GFP_KERNEL);
-+	if (!lm)
++	chip = devm_kzalloc(&client->dev,
++			    struct_size(chip, buttons, pdata->nbuttons),
++			    GFP_KERNEL);
++	if (!chip)
 +		return -ENOMEM;
 +
-+	idev = devm_input_allocate_device(&client->dev);
-+	if (!idev)
++	input = devm_input_allocate_device(&client->dev);
++	if (!input)
 +		return -ENOMEM;
  
- 	lm->client = client;
- 	lm->idev = idev;
-@@ -669,8 +671,10 @@ static int lm8323_probe(struct i2c_client *client)
+ 	chip->client = client;
+ 	chip->input = input;
+@@ -233,7 +236,6 @@ static int tca6416_keypad_probe(struct i2c_client *client)
  
- 	lm8323_reset(lm);
+ 	input->phys = "tca6416-keys/input0";
+ 	input->name = client->name;
+-	input->dev.parent = &client->dev;
  
--	/* Nothing's set up to service the IRQ yet, so just spin for max.
--	 * 100ms until we can configure. */
-+	/*
-+	 * Nothing's set up to service the IRQ yet, so just spin for max.
-+	 * 100ms until we can configure.
-+	 */
- 	tmo = jiffies + msecs_to_jiffies(100);
- 	while (lm8323_read(lm, LM8323_CMD_READ_INT, data, 1) == 1) {
- 		if (data[0] & INT_NOINIT)
-@@ -690,15 +694,14 @@ static int lm8323_probe(struct i2c_client *client)
- 	/* If a true probe check the device */
- 	if (lm8323_read_id(lm, data) != 0) {
- 		dev_err(&client->dev, "device not found\n");
--		err = -ENODEV;
+ 	input->open = tca6416_keys_open;
+ 	input->close = tca6416_keys_close;
+@@ -263,19 +265,20 @@ static int tca6416_keypad_probe(struct i2c_client *client)
+ 	 */
+ 	error = tca6416_setup_registers(chip);
+ 	if (error)
 -		goto fail1;
-+		return -ENODEV;
++		return error;
+ 
+ 	if (!chip->use_polling) {
+-		error = request_threaded_irq(client->irq, NULL,
+-					     tca6416_keys_isr,
+-					     IRQF_TRIGGER_FALLING |
+-					     IRQF_ONESHOT | IRQF_NO_AUTOEN,
+-					     "tca6416-keypad", chip);
++		error = devm_request_threaded_irq(&client->dev, client->irq,
++						  NULL, tca6416_keys_isr,
++						  IRQF_TRIGGER_FALLING |
++							IRQF_ONESHOT |
++							IRQF_NO_AUTOEN,
++						  "tca6416-keypad", chip);
+ 		if (error) {
+ 			dev_dbg(&client->dev,
+ 				"Unable to claim irq %d; error %d\n",
+ 				client->irq, error);
+-			goto fail1;
++			return error;
+ 		}
  	}
  
- 	for (pwm = 0; pwm < LM8323_NUM_PWMS; pwm++) {
- 		err = init_pwm(lm, pwm + 1, &client->dev,
- 			       pdata->pwm_names[pwm]);
--		if (err < 0)
--			goto fail2;
-+		if (err)
-+			return err;
- 	}
- 
- 	lm->kp_enabled = true;
-@@ -722,14 +725,16 @@ static int lm8323_probe(struct i2c_client *client)
- 	err = input_register_device(idev);
- 	if (err) {
- 		dev_dbg(&client->dev, "error registering input device\n");
+@@ -283,31 +286,12 @@ static int tca6416_keypad_probe(struct i2c_client *client)
+ 	if (error) {
+ 		dev_dbg(&client->dev,
+ 			"Unable to register input device, error: %d\n", error);
 -		goto fail2;
-+		return err;
++		return error;
  	}
  
--	err = request_threaded_irq(client->irq, NULL, lm8323_irq,
--			  IRQF_TRIGGER_LOW|IRQF_ONESHOT, "lm8323", lm);
-+	err = devm_request_threaded_irq(&client->dev, client->irq,
-+					NULL, lm8323_irq,
-+					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
-+					"lm8323", lm);
- 	if (err) {
- 		dev_err(&client->dev, "could not get IRQ %d\n", client->irq);
--		goto fail3;
-+		return err;
- 	}
- 
- 	i2c_set_clientdata(client, lm);
-@@ -738,35 +743,6 @@ static int lm8323_probe(struct i2c_client *client)
- 	enable_irq_wake(client->irq);
+ 	i2c_set_clientdata(client, chip);
  
  	return 0;
 -
--fail3:
--	input_unregister_device(idev);
--	idev = NULL;
 -fail2:
--	while (--pwm >= 0)
--		if (lm->pwm[pwm].enabled)
--			led_classdev_unregister(&lm->pwm[pwm].cdev);
+-	if (!chip->use_polling)
+-		free_irq(client->irq, chip);
 -fail1:
--	input_free_device(idev);
--	kfree(lm);
--	return err;
+-	input_free_device(input);
+-	kfree(chip);
+-	return error;
 -}
 -
--static void lm8323_remove(struct i2c_client *client)
+-static void tca6416_keypad_remove(struct i2c_client *client)
 -{
--	struct lm8323_chip *lm = i2c_get_clientdata(client);
--	int i;
+-	struct tca6416_keypad_chip *chip = i2c_get_clientdata(client);
 -
--	disable_irq_wake(client->irq);
--	free_irq(client->irq, lm);
+-	if (!chip->use_polling)
+-		free_irq(client->irq, chip);
 -
--	input_unregister_device(lm->idev);
--
--	for (i = 0; i < 3; i++)
--		if (lm->pwm[i].enabled)
--			led_classdev_unregister(&lm->pwm[i].cdev);
--
--	kfree(lm);
+-	input_unregister_device(chip->input);
+-	kfree(chip);
  }
  
- /*
-@@ -827,7 +803,6 @@ static struct i2c_driver lm8323_i2c_driver = {
- 		.dev_groups	= lm8323_groups,
+ static struct i2c_driver tca6416_keypad_driver = {
+@@ -315,7 +299,6 @@ static struct i2c_driver tca6416_keypad_driver = {
+ 		.name	= "tca6416-keypad",
  	},
- 	.probe		= lm8323_probe,
--	.remove		= lm8323_remove,
- 	.id_table	= lm8323_id,
+ 	.probe		= tca6416_keypad_probe,
+-	.remove		= tca6416_keypad_remove,
+ 	.id_table	= tca6416_id,
  };
- MODULE_DEVICE_TABLE(i2c, lm8323_id);
+ 
 -- 
 2.41.0.487.g6d72f3e995-goog
 

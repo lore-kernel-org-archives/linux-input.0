@@ -2,46 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D6FBC001DE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2D68CC001E0
 	for <linux-input@archiver.kernel.org>; Mon, 24 Jul 2023 01:20:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230108AbjGXBUY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S230120AbjGXBUY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sun, 23 Jul 2023 21:20:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51030 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229926AbjGXBUX (ORCPT
+        with ESMTP id S230078AbjGXBUY (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 23 Jul 2023 21:20:23 -0400
+        Sun, 23 Jul 2023 21:20:24 -0400
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70F8B10C4;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D36C1703;
         Sun, 23 Jul 2023 18:19:59 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FA9660EF4;
-        Mon, 24 Jul 2023 01:19:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2BB0C433C9;
-        Mon, 24 Jul 2023 01:19:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F3C160F08;
+        Mon, 24 Jul 2023 01:18:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A39B7C433C7;
+        Mon, 24 Jul 2023 01:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1690161598;
-        bh=2JmZ1adc8SnsKCQELB+ZdTcfuHCBzOuDwjGwZoZTvsA=;
+        s=k20201202; t=1690161528;
+        bh=/HUaV8jvyhggHB2Iz56Ki3ecMS85G8zYByBVRW+ajFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rJo38p7mdY0hkhkHPCc+tws1SvivWvI1UIhldhKjLCZ7pwIigS4LtoMZhBQhTKh8B
-         GTz7rpMCkzFeEEvD9xRhiGmLZUlobdfH2RTacR1T7JxgEEyw3/Y0nDcbbeVWN+zhzG
-         QosQSqLSgIduvHCqOzAhjG7Q9+qbwVb0dVMXbGtSJOOmjbbtHF4MD2MshzQtLmi2hZ
-         ++ESwleszVniGN2dl2XscqQ9BSZv4m2C4nI0phSCV3Pdb4bS4B89cdffuuCEx19XVx
-         4/tFIP3Mu+yDSS0kt628RXwlokRyebpMB768KLlH9/qvbt82G2vg6Rr4ykztPH2v9R
-         FxZSeS/GyDb1g==
+        b=LQyBpkm1kTtwsbP/JCn5sANSP7QKHEiW724ibAHjM+F4Kg8fbsrQlX/4J+f6u0n+T
+         Q27vD/upp7SgzUGiv9d7zGeNjqJDHpSDW2DuVlJ+n73nu9tXuAH8hBKgdDWqEibf0I
+         jPiHPI7cKJVafI3ljOGnT7SM9XX8J6Gv5/hwy3e7eWk+rfYMekPsQl1Jerkwxdl/Uz
+         Yfqp2MTgAI+wh0SRXbekhwnQL2L4cFX1GFlbvRUuMepK9jAfZsUhsWjJQStFv9jcCD
+         3Yvf1HwDs0zgDAfj6mJGaddfs3PAM6nxrszgweAHARKSG0XRAG5pN0mhfdMTQMKWhk
+         qkjDJ07sV0hBQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marco Morandini <marco.morandini@polimi.it>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
+Cc:     Fei Shao <fshao@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Jeff LaBundy <jeff@labundy.com>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        benjamin.tissoires@redhat.com, dmitry.torokhov@gmail.com,
+        mka@chromium.org, steve@sk2.org, u.kleine-koenig@pengutronix.de,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.4 43/58] HID: add quirk for 03f0:464a HP Elite Presenter Mouse
-Date:   Sun, 23 Jul 2023 21:13:11 -0400
-Message-Id: <20230724011338.2298062-43-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.4 35/58] HID: i2c-hid: goodix: Add support for "goodix,no-reset-during-suspend" property
+Date:   Sun, 23 Jul 2023 21:13:03 -0400
+Message-Id: <20230724011338.2298062-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230724011338.2298062-1-sashal@kernel.org>
 References: <20230724011338.2298062-1-sashal@kernel.org>
@@ -54,52 +57,94 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Marco Morandini <marco.morandini@polimi.it>
+From: Fei Shao <fshao@chromium.org>
 
-[ Upstream commit 0db117359e47750d8bd310d19f13e1c4ef7fc26a ]
+[ Upstream commit 7607f12ba735f04e0ef8718dabadf3a765c9a477 ]
 
-HP Elite Presenter Mouse HID Record Descriptor shows
-two mouses (Repord ID 0x1 and 0x2), one keypad (Report ID 0x5),
-two Consumer Controls (Report IDs 0x6 and 0x3).
-Previous to this commit it registers one mouse, one keypad
-and one Consumer Control, and it was usable only as a
-digitl laser pointer (one of the two mouses). This patch defines
-the 464a USB device ID and enables the HID_QUIRK_MULTI_INPUT
-quirk for it, allowing to use the device both as a mouse
-and a digital laser pointer.
+In the beginning, commit 18eeef46d359 ("HID: i2c-hid: goodix: Tie the
+reset line to true state of the regulator") introduced a change to tie
+the reset line of the Goodix touchscreen to the state of the regulator
+to fix a power leakage issue in suspend.
 
-Signed-off-by: Marco Morandini <marco.morandini@polimi.it>
+After some time, the change was deemed unnecessary and was reverted in
+commit 557e05fa9fdd ("HID: i2c-hid: goodix: Stop tying the reset line to
+the regulator") due to difficulties in managing regulator notifiers for
+designs like Evoker, which provides a second power rail to touchscreen.
+
+However, the revert caused a power regression on another Chromebook
+device Steelix in the field, which has a dedicated always-on regulator
+for touchscreen and was covered by the workaround in the first commit.
+
+To address both cases, this patch adds the support for the new
+"goodix,no-reset-during-suspend" property in the driver:
+- When set to true, the driver does not assert the reset GPIO during
+  power-down.
+  Instead, the GPIO will be asserted during power-up to ensure the
+  touchscreen always has a clean start and consistent behavior after
+  resuming.
+  This is for designs with a dedicated always-on regulator.
+- When set to false or unset, the driver uses the original control flow
+  and asserts GPIO and disables regulators normally.
+  This is for the two-regulator and shared-regulator designs.
+
+Signed-off-by: Fei Shao <fshao@chromium.org>
+Suggested-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Jeff LaBundy <jeff@labundy.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/hid/i2c-hid/i2c-hid-of-goodix.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 5d29abac2300e..55a436a6dde98 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -620,6 +620,7 @@
- #define USB_DEVICE_ID_UGCI_FIGHTING	0x0030
+diff --git a/drivers/hid/i2c-hid/i2c-hid-of-goodix.c b/drivers/hid/i2c-hid/i2c-hid-of-goodix.c
+index 0060e3dcd775d..db4639db98407 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-of-goodix.c
++++ b/drivers/hid/i2c-hid/i2c-hid-of-goodix.c
+@@ -28,6 +28,7 @@ struct i2c_hid_of_goodix {
+ 	struct regulator *vdd;
+ 	struct regulator *vddio;
+ 	struct gpio_desc *reset_gpio;
++	bool no_reset_during_suspend;
+ 	const struct goodix_i2c_hid_timing_data *timings;
+ };
  
- #define USB_VENDOR_ID_HP		0x03f0
-+#define USB_PRODUCT_ID_HP_ELITE_PRESENTER_MOUSE_464A		0x464a
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A	0x0a4a
- #define USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A	0x0b4a
- #define USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE		0x134a
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 804fc03600cc9..3983b4f282f8f 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -96,6 +96,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A096), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HOLTEK_ALT, USB_DEVICE_ID_HOLTEK_ALT_KEYBOARD_A293), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0A4A), HID_QUIRK_ALWAYS_POLL },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_ELITE_PRESENTER_MOUSE_464A), HID_QUIRK_MULTI_INPUT },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_LOGITECH_OEM_USB_OPTICAL_MOUSE_0B4A), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_HP, USB_PRODUCT_ID_HP_PIXART_OEM_USB_OPTICAL_MOUSE_094A), HID_QUIRK_ALWAYS_POLL },
+@@ -37,6 +38,14 @@ static int goodix_i2c_hid_power_up(struct i2chid_ops *ops)
+ 		container_of(ops, struct i2c_hid_of_goodix, ops);
+ 	int ret;
+ 
++	/*
++	 * We assert reset GPIO here (instead of during power-down) to ensure
++	 * the device will have a clean state after powering up, just like the
++	 * normal scenarios will have.
++	 */
++	if (ihid_goodix->no_reset_during_suspend)
++		gpiod_set_value_cansleep(ihid_goodix->reset_gpio, 1);
++
+ 	ret = regulator_enable(ihid_goodix->vdd);
+ 	if (ret)
+ 		return ret;
+@@ -60,7 +69,9 @@ static void goodix_i2c_hid_power_down(struct i2chid_ops *ops)
+ 	struct i2c_hid_of_goodix *ihid_goodix =
+ 		container_of(ops, struct i2c_hid_of_goodix, ops);
+ 
+-	gpiod_set_value_cansleep(ihid_goodix->reset_gpio, 1);
++	if (!ihid_goodix->no_reset_during_suspend)
++		gpiod_set_value_cansleep(ihid_goodix->reset_gpio, 1);
++
+ 	regulator_disable(ihid_goodix->vddio);
+ 	regulator_disable(ihid_goodix->vdd);
+ }
+@@ -91,6 +102,9 @@ static int i2c_hid_of_goodix_probe(struct i2c_client *client)
+ 	if (IS_ERR(ihid_goodix->vddio))
+ 		return PTR_ERR(ihid_goodix->vddio);
+ 
++	ihid_goodix->no_reset_during_suspend =
++		of_property_read_bool(client->dev.of_node, "goodix,no-reset-during-suspend");
++
+ 	ihid_goodix->timings = device_get_match_data(&client->dev);
+ 
+ 	return i2c_hid_core_probe(client, &ihid_goodix->ops, 0x0001, 0);
 -- 
 2.39.2
 

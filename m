@@ -2,61 +2,62 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A94CEB64DD
-	for <linux-input@archiver.kernel.org>; Tue, 25 Jul 2023 22:37:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C115EB64DD
+	for <linux-input@archiver.kernel.org>; Tue, 25 Jul 2023 22:38:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231669AbjGYWhk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 25 Jul 2023 18:37:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56060 "EHLO
+        id S229522AbjGYWiZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 25 Jul 2023 18:38:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232768AbjGYWhV (ORCPT
+        with ESMTP id S230396AbjGYWhk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Jul 2023 18:37:21 -0400
-Received: from mail-oa1-x35.google.com (mail-oa1-x35.google.com [IPv6:2001:4860:4864:20::35])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905A24ED8;
-        Tue, 25 Jul 2023 15:30:02 -0700 (PDT)
-Received: by mail-oa1-x35.google.com with SMTP id 586e51a60fabf-1bba254a7d4so664408fac.2;
-        Tue, 25 Jul 2023 15:30:02 -0700 (PDT)
+        Tue, 25 Jul 2023 18:37:40 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0B1D5259;
+        Tue, 25 Jul 2023 15:30:17 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id d2e1a72fcca58-666e5f0d60bso3575436b3a.3;
+        Tue, 25 Jul 2023 15:30:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690324129; x=1690928929;
+        d=gmail.com; s=20221208; t=1690324137; x=1690928937;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wIlzTzrN9fphTucPdXNiodkKVngUbgF/op8qk9BeIR0=;
-        b=pOucNzm9wPLIrHoD1+pOT5ieiQdLrE2nmjzeLGrmtO+DZPvXXznyIVbA9otHUD3LTR
-         ahkxhGiCUDfgF8U1rIdbYL70VB9W6XbHUq00G4zDGSIX6ZbLCmbejH8V2OYw0myUpRGD
-         mAcZ2+e5n15LWfc2dDIcyyyjjksfgLzSV5hjP5IO6dQQuBswrcc02/GI2fw1+SDswxJb
-         EnZfpb0dko0qDQlVJSUPNij6FNsqAIEQu8YzDoOadHLQDT7YrE+wIjnPUYYOmgunR6xk
-         pXcKEFZPAlFiC8TUKrnFzvxexKTC9jBcFdNuCVD/JRI9NRCbejzV/z2drPpYboSxT8eZ
-         8mpg==
+        bh=zVQovqgIjSqRTIt+DkdpoM6DyIIcDIA/J+K4Pjg9mHw=;
+        b=lOnSIyATWC3N5DkAU9sAKOAtb+XfM4LyUKyCprRmujjHG9wmXSqx0A7k329g88GMsg
+         Jc/J8rDihf4haYHl1xe0QL4CdM7QgdCEsoi0JUHRBxgxDOb770zjsy8/4IElDpaIwlZF
+         EebVeQdm0/+tVBn6i6cMm6HuORR277kflpTz1eFuz2gvP+ioEj4CGrGd8W6Pl2mFFsyx
+         2u5/a6hZx2GZ2fSzzX0GgtyP8ui2VXZAcIw+qWyV6t6Lzk8BRR8FsEdxlSAB6HmB2i1F
+         yoRKtQ1mkumK6rvmaP+TbP9wT6rjJjNakr8pbmtYlRkxrMyucjbdOesVKl3yel8mM/sI
+         h5eA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690324129; x=1690928929;
+        d=1e100.net; s=20221208; t=1690324137; x=1690928937;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=wIlzTzrN9fphTucPdXNiodkKVngUbgF/op8qk9BeIR0=;
-        b=aUN65jL+F84B5yUgkoB5JCEv1Lmb0hQC87XPnKiZICdIgiA4E76gD3Yem/IkwM3z8U
-         p9b8pGovmtS4Q7mL5Oq+bTDjqXScwC8z4XiVlOpDG1oCjw39Ga6igrKL5yyL2Uq1u11g
-         55ZPEHGbqVp2xSzZ7BISg32k8qiDqLcj3oxmTmflf2GS3jTKJLTgXAjPEKRTGqdw67vW
-         iRRjYYJkwXQb78PzCIoob9CZYTIcbYgaAJwp+YaqAPbtL8zVTTKQl9ihCFIuKWkCg+Ym
-         wrrRzKOcjaDBtlDNk19u1y8hd+CHLj5y3fxav4WHaKIgs7x3dil9FgeZ4cVbe5r9Sq13
-         s4kQ==
-X-Gm-Message-State: ABy/qLZiM0qApUYMXBGbjiqRcz/RD2Wv2SVCAgIQzwKAmyrrSp0vO+Xv
-        xez+sev9RYR0UGh2TYizbYFkN/sQ4FSf3w==
-X-Google-Smtp-Source: APBJJlG/fMOoVXiXYWBDu9X13cXiELqNonLaC+X3BL+mKsve3XbXr7JpQlRP4vAmJc2HRFKqpZOWbA==
-X-Received: by 2002:a9d:5f07:0:b0:6bb:2945:b180 with SMTP id f7-20020a9d5f07000000b006bb2945b180mr350882oti.11.1690323608460;
-        Tue, 25 Jul 2023 15:20:08 -0700 (PDT)
+        bh=zVQovqgIjSqRTIt+DkdpoM6DyIIcDIA/J+K4Pjg9mHw=;
+        b=DkmM6CHXTYhYmxs581i/e+Fhu8goCMj6Pgl99tQV9+B4Ke5T87vIea1Wv/KrFZwjTt
+         ZwXzoz4v2huV58rclzFrO2xamzyCCJKjW1tLStk+w8/SMPql1VBYra/dsL9Zc+bEurAJ
+         YHm/R4Nwsc5KnmN9Zi2+F5niPWLx9HuC6B3RLsUnAuwLhHDFX+xNU7YGFBsDPHjAsJAY
+         i4p0RLssy5w3SDMey1sDRtIIPQ0VXAIxufu+l73IErDOdwoEe3yLcVEBenB9ua02x81B
+         DveClue5M9UEmkoWWbLBGJZ+vcn4UkBrVV+UR7v+vsNfAYvUGJ4CjqzQKqtUllNjUpON
+         LPdQ==
+X-Gm-Message-State: ABy/qLYWdr/Y5yjZa54NDdWiMIrwk8PLpkXq1RaGKJl9Fg75ridFtLKH
+        axMfJ9m+c35yyY3oRAvYdk3v07CjZJsBlQ==
+X-Google-Smtp-Source: APBJJlH7PxV/ysCWK+hECO2DUlRQqagQe6lTLATCOxltuIerbOy5nVg0V8BsKj7ig3kT9/zvdLTuTQ==
+X-Received: by 2002:a05:6870:4411:b0:1b3:9e41:de07 with SMTP id u17-20020a056870441100b001b39e41de07mr518746oah.36.1690323663698;
+        Tue, 25 Jul 2023 15:21:03 -0700 (PDT)
 Received: from localhost.localdomain ([97.115.139.81])
-        by smtp.gmail.com with ESMTPSA id c1-20020a9d75c1000000b006b884bbb4f3sm4258127otl.26.2023.07.25.15.20.07
+        by smtp.gmail.com with ESMTPSA id zh27-20020a0568716b9b00b001b02fa3097dsm5851622oab.42.2023.07.25.15.21.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jul 2023 15:20:08 -0700 (PDT)
+        Tue, 25 Jul 2023 15:21:03 -0700 (PDT)
 From:   Aaron Armstrong Skomra <skomra@gmail.com>
 To:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         benjamin.tissoires@redhat.com, jikos@kernel.org
 Cc:     pinglinux@gmail.com, skomra@gmail.com, Joshua@Joshua-Dickens.com,
-        jason.gerecke@wacom.com, stable@vger.kernel.org
-Subject: [PATCH Wacom EKR Battery Fixes 0/3] 
-Date:   Tue, 25 Jul 2023 15:19:36 -0700
-Message-Id: <20230725221936.123775-1-skomra@gmail.com>
+        jason.gerecke@wacom.com,
+        Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Subject: [PATCH Wacom EKR Battery Fixes 2/3] HID: wacom: remove unnecessary 'connected' variable from EKR
+Date:   Tue, 25 Jul 2023 15:20:57 -0700
+Message-Id: <20230725222057.123863-1-skomra@gmail.com>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -64,26 +65,61 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Currently the ExpressKey Remote battery will persist indefinitely in
-/sys/class/power_supply. Remove the battery when we stop getting
-reports from the device.
+From: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
 
-Also remove some unneccessary code and make an EKR struct name more
-descriptive.
+The 'connected' variable was poorly named, and this has led to some
+confusion. We can get the same information by checking if a serial number
+exists in the specified EKR slot.
 
-Only the bugfix in the first patch will be sent to stable.
+Signed-off-by: Aaron Skomra <skomra@gmail.com>
+Signed-off-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Reviewed-by: Jason Gerecke <jason.gerecke@wacom.com>
+---
+ drivers/hid/wacom_sys.c | 2 +-
+ drivers/hid/wacom_wac.c | 2 --
+ drivers/hid/wacom_wac.h | 1 -
+ 3 files changed, 1 insertion(+), 4 deletions(-)
 
-Aaron Armstrong Skomra (3):
-  HID: wacom: remove the battery when the EKR is off
-  HID: wacom: remove unnecessary 'connected' variable from EKR
-  HID: wacom: struct name cleanup
-
- drivers/hid/wacom.h     |  1 +
- drivers/hid/wacom_sys.c | 44 +++++++++++++++++++++++++++++------------
- drivers/hid/wacom_wac.c |  7 +++----
- drivers/hid/wacom_wac.h |  4 ++--
- 4 files changed, 37 insertions(+), 19 deletions(-)
-
+diff --git a/drivers/hid/wacom_sys.c b/drivers/hid/wacom_sys.c
+index eb833455abd5..16862f97c46c 100644
+--- a/drivers/hid/wacom_sys.c
++++ b/drivers/hid/wacom_sys.c
+@@ -2684,7 +2684,7 @@ static void wacom_remote_work(struct work_struct *work)
+ 
+ 	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+ 		serial = data.remote[i].serial;
+-		if (data.remote[i].connected) {
++		if (serial) {
+ 
+ 			if (kt - remote->remotes[i].active_time > WACOM_REMOTE_BATTERY_TIMEOUT
+ 			    && remote->remotes[i].active_time != 0)
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 6c056f8844e7..c922c1c4c78f 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1209,10 +1209,8 @@ static void wacom_remote_status_irq(struct wacom_wac *wacom_wac, size_t len)
+ 	for (i = 0; i < WACOM_MAX_REMOTES; i++) {
+ 		int j = i * 6;
+ 		int serial = (data[j+6] << 16) + (data[j+5] << 8) + data[j+4];
+-		bool connected = data[j+2];
+ 
+ 		remote_data.remote[i].serial = serial;
+-		remote_data.remote[i].connected = connected;
+ 	}
+ 
+ 	spin_lock_irqsave(&remote->remote_lock, flags);
+diff --git a/drivers/hid/wacom_wac.h b/drivers/hid/wacom_wac.h
+index 2e7cc5e7a0cb..a10b19669947 100644
+--- a/drivers/hid/wacom_wac.h
++++ b/drivers/hid/wacom_wac.h
+@@ -331,7 +331,6 @@ struct hid_data {
+ struct wacom_remote_data {
+ 	struct {
+ 		u32 serial;
+-		bool connected;
+ 	} remote[WACOM_MAX_REMOTES];
+ };
+ 
 -- 
 2.34.1
 

@@ -2,51 +2,51 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D5D2C41513
-	for <linux-input@archiver.kernel.org>; Tue, 25 Jul 2023 20:37:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 281F3C001DF
+	for <linux-input@archiver.kernel.org>; Tue, 25 Jul 2023 20:38:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231230AbjGYUht (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 25 Jul 2023 16:37:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35184 "EHLO
+        id S230307AbjGYUh6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 25 Jul 2023 16:37:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231462AbjGYUhb (ORCPT
+        with ESMTP id S231195AbjGYUhi (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 25 Jul 2023 16:37:31 -0400
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB0182704
-        for <linux-input@vger.kernel.org>; Tue, 25 Jul 2023 13:37:15 -0700 (PDT)
-Received: by mail-pg1-x529.google.com with SMTP id 41be03b00d2f7-53482b44007so3064443a12.2
-        for <linux-input@vger.kernel.org>; Tue, 25 Jul 2023 13:37:15 -0700 (PDT)
+        Tue, 25 Jul 2023 16:37:38 -0400
+Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D380A2D49
+        for <linux-input@vger.kernel.org>; Tue, 25 Jul 2023 13:37:20 -0700 (PDT)
+Received: by mail-pf1-x42a.google.com with SMTP id d2e1a72fcca58-686be3cbea0so156913b3a.0
+        for <linux-input@vger.kernel.org>; Tue, 25 Jul 2023 13:37:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1690317434; x=1690922234;
+        d=chromium.org; s=google; t=1690317440; x=1690922240;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=pLU4GaCp6ltBfg0ajT8nW3f7rOZfzJGhG7FU81YHMIc=;
-        b=StVSDcWMfA7TJ+Wp3D7IahafFoAoSFplzVN3xvyQE3lKGASTqWpuH7liiDVdA661//
-         WuvraSDsXCp7t3Br6Kq5LtSw/2aZc6JKry7bt58S2lBkYmUsVT/WKJ8Mb07wK+vzu5w/
-         vsG0HJJ0OrAU9h8RTO+aWvKhNSPxWSxcQrrdU=
+        bh=kZ7YK7+MOq9X+RTweOdEeLPvYNyqsXxq2qSFOs1mT3s=;
+        b=BuN5tKldtTLx2sEHuuuAagR2QfiguR7+L5jScpcBlZCtNRwzluFw4euj+TZAsdvP26
+         EDACAv0XTZF3vF/p2//utmh8C9vbXaUnVYNuAmPvGVxAktKJPkiFXYmd2itCZRx075gV
+         Jy580G+wiVMstRe0Eq3zIfvwRU2mZmMau5NKA=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690317434; x=1690922234;
+        d=1e100.net; s=20221208; t=1690317440; x=1690922240;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=pLU4GaCp6ltBfg0ajT8nW3f7rOZfzJGhG7FU81YHMIc=;
-        b=U/r+h4rPL/mo2+JdE/It2r8PRuhVA4xqtrF/smxGh59LqU1rJBfC/5CKBbcF/gl1AA
-         Drr6sUuGa/Xu0X7MGs00qAOWjVR1mLWTnkVC/LUzs4EAqwGm4K2BLhp7CCSNxuLhVJ1l
-         LpY9js2IOvGBuBM1ghcSEfRuUngYoV1r9QNpi+uV0fiS3HGzfAUn6t8nHjnU7EUHPR6e
-         wAb5CiCyHJW14nyr3bSBnyv5WXc5mpJe4mU34vcUEj9dwjLBa1TBP/0TSpzB9xfy5AJ0
-         ToENoE4SF3Z4qqBwRGnRymFvjzvl2Jf8jBqvv9uOj5HgPf0x5NSwtqH7/ycqq/FqIV98
-         sLaQ==
-X-Gm-Message-State: ABy/qLbb99EzcTNopmgBJWIUsoU625MZKufdp2FnE/MMOlqOiceVSIgB
-        NTEslFfQ2bc7BNhkyMsnCBlYsQ==
-X-Google-Smtp-Source: APBJJlEfktDwpmXEzqrjjxC7Zx3JDhTxoTfUhGnVB/nI7JJ8QBFQehaWlH32omPSIBQuWifk0WXkYg==
-X-Received: by 2002:a17:90a:c08:b0:267:6ea5:61dd with SMTP id 8-20020a17090a0c0800b002676ea561ddmr222775pjs.15.1690317434661;
-        Tue, 25 Jul 2023 13:37:14 -0700 (PDT)
+        bh=kZ7YK7+MOq9X+RTweOdEeLPvYNyqsXxq2qSFOs1mT3s=;
+        b=YHApVDAz26ZqBIOrsz60zy4L7nzmq/rwSe0+AwQeOKzUPru2Y1cOaN7l+UBooMAyXy
+         Zvl4UX4QzxfdEaHlDc0EcUmHEmtriTu/nxdRDrlFGf7Tu11thaJXIJM3Du2FziEAP5ek
+         6pGtoxc1pX8gB3VoGqlDfbKEtDwHquvaBG8O+fkN2DS99gFsLy0NwHGcPFNUka+L/qpw
+         p9nVdJSEI5g4u51QNi6etNpGJzwNV9tUlOYk99lKzmp9mU/NdSA0wH9geEPTYn9uAoDB
+         cHICsGOqZ1uhMZy2x8ND8LxHKl5QpFErQEVpNIBVKcESpGvSU7+nXAqGUuxU0MCkfGOj
+         4BaA==
+X-Gm-Message-State: ABy/qLbSr7PzjLvVq90cSg+/5S86JxpGNfN88Xm5naWFolylxaRzHLOt
+        SsPY185/5WWjmnABhi+sArtYhw==
+X-Google-Smtp-Source: APBJJlEgCBbPkr5YZubPWhaNBGqUI6g2VhIUIc6BoH6rzAKhCVoah7Aeybahr/mZ0cE03NvH+GwQSA==
+X-Received: by 2002:a17:90b:1d90:b0:268:3ca4:6152 with SMTP id pf16-20020a17090b1d9000b002683ca46152mr180277pjb.15.1690317439920;
+        Tue, 25 Jul 2023 13:37:19 -0700 (PDT)
 Received: from tictac2.mtv.corp.google.com ([2620:15c:9d:2:c363:4681:f5b8:301])
-        by smtp.gmail.com with ESMTPSA id bg1-20020a17090b0d8100b002676e961261sm1396951pjb.1.2023.07.25.13.37.12
+        by smtp.gmail.com with ESMTPSA id bg1-20020a17090b0d8100b002676e961261sm1396951pjb.1.2023.07.25.13.37.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jul 2023 13:37:14 -0700 (PDT)
+        Tue, 25 Jul 2023 13:37:18 -0700 (PDT)
 From:   Douglas Anderson <dianders@chromium.org>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
@@ -70,9 +70,9 @@ Cc:     cros-qcom-dts-watchers@chromium.org,
         devicetree@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
         yangcong5@huaqin.corp-partner.google.com,
         Douglas Anderson <dianders@chromium.org>
-Subject: [PATCH v3 08/10] HID: i2c-hid: Support being a panel follower
-Date:   Tue, 25 Jul 2023 13:34:43 -0700
-Message-ID: <20230725133443.v3.8.Ib1a98309c455cd7e26b931c69993d4fba33bbe15@changeid>
+Subject: [PATCH v3 10/10] arm64: dts: qcom: sc7180: Link trogdor touchscreens to the panels
+Date:   Tue, 25 Jul 2023 13:34:45 -0700
+Message-ID: <20230725133443.v3.10.Ia06c340e3482563e6bfd3106ecd0d3139f173ca4@changeid>
 X-Mailer: git-send-email 2.41.0.487.g6d72f3e995-goog
 In-Reply-To: <20230725203545.2260506-1-dianders@chromium.org>
 References: <20230725203545.2260506-1-dianders@chromium.org>
@@ -82,188 +82,103 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-As talked about in the patch ("drm/panel: Add a way for other devices
-to follow panel state"), we really want to keep the power states of a
-touchscreen and the panel it's attached to in sync with each other. In
-that spirit, add support to i2c-hid to be a panel follower. This will
-let the i2c-hid driver get informed when the panel is powered on and
-off. From there we can match the i2c-hid device's power state to that
-of the panel.
+Let's provide the proper link from the touchscreen to the panel on
+trogdor devices where the touchscreen support it. This allows the OS
+to power sequence the touchscreen more properly.
 
-NOTE: this patch specifically _doesn't_ use pm_runtime to keep track
-of / manage the power state of the i2c-hid device, even though my
-first instinct said that would be the way to go. Specific problems
-with using pm_runtime():
-* The initial power up couldn't happen in a runtime resume function
-  since it create sub-devices and, apparently, that's not good to do
-  in your resume function.
-* Managing our power state with pm_runtime meant fighting to make the
-  right thing happen at system suspend to prevent the system from
-  trying to resume us only to suspend us again. While this might be
-  able to be solved, it added complexity.
-Overall the code without pm_runtime() ended up being smaller and
-easier to understand.
+For the most part, this is just expected to marginally improve power
+consumption while the screen is off. However, in at least one trogdor
+model (wormdingler) it's suspected that this will fix some behavorial
+corner cases when the panel power cycles (like for a modeset) without
+the touchscreen power cycling.
+
+NOTE: some trogdor variants use touchscreens that don't (yet) support
+linking the touchscreen and the panel. Those variants are left alone.
 
 Signed-off-by: Douglas Anderson <dianders@chromium.org>
 ---
 
-Changes in v3:
-- Add "depends on DRM || !DRM" to Kconfig to avoid randconfig error.
-- Split more of the panel follower code out of the core.
+(no changes since v1)
 
-Changes in v2:
-- i2c_hid_core_panel_prepared() and ..._unpreparing() are now static.
+ arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi        | 1 +
+ arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi      | 1 +
+ arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi         | 1 +
+ arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi        | 1 +
+ arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi | 1 +
+ arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi   | 1 +
+ 6 files changed, 6 insertions(+)
 
- drivers/hid/i2c-hid/Kconfig        |  2 +
- drivers/hid/i2c-hid/i2c-hid-core.c | 82 +++++++++++++++++++++++++++++-
- 2 files changed, 82 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/i2c-hid/Kconfig b/drivers/hid/i2c-hid/Kconfig
-index 3be17109301a..2bdb55203104 100644
---- a/drivers/hid/i2c-hid/Kconfig
-+++ b/drivers/hid/i2c-hid/Kconfig
-@@ -70,5 +70,7 @@ config I2C_HID_OF_GOODIX
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
+index 8b8ea8af165d..b4f328d3e1f6 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-coachz.dtsi
+@@ -104,6 +104,7 @@ ap_ts: touchscreen@5d {
+ 		interrupt-parent = <&tlmm>;
+ 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
  
- config I2C_HID_CORE
- 	tristate
-+	# We need to call into panel code so if DRM=m, this can't be 'y'
-+	depends on DRM || !DRM
- endif
++		panel = <&panel>;
+ 		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
  
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index fa8a1ca43d7f..fa6d1f624342 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -38,6 +38,8 @@
- #include <linux/mutex.h>
- #include <asm/unaligned.h>
+ 		vdd-supply = <&pp3300_ts>;
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi
+index b3ba23a88a0b..88aeb415bd5b 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-homestar.dtsi
+@@ -116,6 +116,7 @@ ap_ts: touchscreen@14 {
+ 		interrupt-parent = <&tlmm>;
+ 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
  
-+#include <drm/drm_panel.h>
-+
- #include "../hid-ids.h"
- #include "i2c-hid.h"
++		panel = <&panel>;
+ 		reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
  
-@@ -107,6 +109,8 @@ struct i2c_hid {
- 	struct mutex		reset_lock;
+ 		vdd-supply = <&pp3300_touch>;
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
+index 269007d73162..c65f18ea3e5c 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-lazor.dtsi
+@@ -43,6 +43,7 @@ ap_ts: touchscreen@10 {
+ 		interrupt-parent = <&tlmm>;
+ 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
  
- 	struct i2chid_ops	*ops;
-+	struct drm_panel_follower panel_follower;
-+	bool			is_panel_follower;
- };
++		panel = <&panel>;
+ 		post-power-on-delay-ms = <20>;
+ 		hid-descr-addr = <0x0001>;
  
- static const struct i2c_hid_quirks {
-@@ -1058,6 +1062,59 @@ static int i2c_hid_core_initial_power_up(struct i2c_hid *ihid)
- 	return ret;
- }
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi
+index 6c5287bd27d6..d2aafd1ea672 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-pompom.dtsi
+@@ -102,6 +102,7 @@ ap_ts: touchscreen@10 {
+ 		interrupt-parent = <&tlmm>;
+ 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
  
-+static int i2c_hid_core_panel_prepared(struct drm_panel_follower *follower)
-+{
-+	struct i2c_hid *ihid = container_of(follower, struct i2c_hid, panel_follower);
-+	struct hid_device *hid = ihid->hid;
-+
-+	/*
-+	 * hid->version is set on the first power up. If it's still zero then
-+	 * this is the first power on so we should perform initial power up
-+	 * steps.
-+	 */
-+	if (!hid->version)
-+		return i2c_hid_core_initial_power_up(ihid);
-+
-+	return i2c_hid_core_resume(ihid);
-+}
-+
-+static int i2c_hid_core_panel_unpreparing(struct drm_panel_follower *follower)
-+{
-+	struct i2c_hid *ihid = container_of(follower, struct i2c_hid, panel_follower);
-+
-+	return i2c_hid_core_suspend(ihid);
-+}
-+
-+static const struct drm_panel_follower_funcs i2c_hid_core_panel_follower_funcs = {
-+	.panel_prepared = i2c_hid_core_panel_prepared,
-+	.panel_unpreparing = i2c_hid_core_panel_unpreparing,
-+};
-+
-+static int i2c_hid_core_register_panel_follower(struct i2c_hid *ihid)
-+{
-+	struct device *dev = &ihid->client->dev;
-+	int ret;
-+
-+	ihid->is_panel_follower = true;
-+	ihid->panel_follower.funcs = &i2c_hid_core_panel_follower_funcs;
-+
-+	/*
-+	 * If we're not in control of our own power up/power down then we can't
-+	 * do the logic to manage wakeups. Give a warning if a user thought
-+	 * that was possible then force the capability off.
-+	 */
-+	if (device_can_wakeup(dev)) {
-+		dev_warn(dev, "Can't wakeup if following panel\n");
-+		device_set_wakeup_capable(dev, false);
-+	}
-+
-+	ret = drm_panel_add_follower(dev, &ihid->panel_follower);
-+	if (ret)
-+		return ret;
-+
-+	return 0;
-+}
-+
- int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
- 		       u16 hid_descriptor_address, u32 quirks)
- {
-@@ -1119,7 +1176,15 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
- 	hid->bus = BUS_I2C;
- 	hid->initial_quirks = quirks;
++		panel = <&panel>;
+ 		post-power-on-delay-ms = <20>;
+ 		hid-descr-addr = <0x0001>;
  
--	ret = i2c_hid_core_initial_power_up(ihid);
-+	/*
-+	 * If we're a panel follower, we'll register and do our initial power
-+	 * up when the panel turns on; otherwise we do it right away.
-+	 */
-+	if (drm_is_panel_follower(&client->dev))
-+		ret = i2c_hid_core_register_panel_follower(ihid);
-+	else
-+		ret = i2c_hid_core_initial_power_up(ihid);
-+
- 	if (ret)
- 		goto err_mem_free;
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi
+index 62ab6427dd65..e5d6a7898f8c 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-quackingstick.dtsi
+@@ -69,6 +69,7 @@ ap_ts: touchscreen@10 {
+ 		interrupt-parent = <&tlmm>;
+ 		interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
  
-@@ -1143,7 +1208,14 @@ void i2c_hid_core_remove(struct i2c_client *client)
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	struct hid_device *hid;
++		panel = <&panel>;
+ 		post-power-on-delay-ms = <20>;
+ 		hid-descr-addr = <0x0001>;
  
--	i2c_hid_core_power_down(ihid);
-+	/*
-+	 * If we're a follower, the act of unfollowing will cause us to be
-+	 * powered down. Otherwise we need to manually do it.
-+	 */
-+	if (ihid->is_panel_follower)
-+		drm_panel_remove_follower(&ihid->panel_follower);
-+	else
-+		i2c_hid_core_power_down(ihid);
+diff --git a/arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi b/arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi
+index 2efa8a4bcda6..0e2b4d06b490 100644
+--- a/arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7180-trogdor-wormdingler.dtsi
+@@ -123,6 +123,7 @@ ap_ts: touchscreen@1 {
+ 		interrupt-parent = <&tlmm>;
+ 		interrupts = <9 IRQ_TYPE_EDGE_FALLING>;
  
- 	hid = ihid->hid;
- 	hid_destroy_device(hid);
-@@ -1171,6 +1243,9 @@ static int i2c_hid_core_pm_suspend(struct device *dev)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 
-+	if (ihid->is_panel_follower)
-+		return 0;
-+
- 	return i2c_hid_core_suspend(ihid);
- }
- 
-@@ -1179,6 +1254,9 @@ static int i2c_hid_core_pm_resume(struct device *dev)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 
-+	if (ihid->is_panel_follower)
-+		return 0;
-+
- 	return i2c_hid_core_resume(ihid);
- }
++		panel = <&panel>;
+ 		post-power-on-delay-ms = <70>;
+ 		hid-descr-addr = <0x0001>;
  
 -- 
 2.41.0.487.g6d72f3e995-goog

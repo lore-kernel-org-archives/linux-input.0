@@ -2,118 +2,143 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1C83C41513
-	for <linux-input@archiver.kernel.org>; Thu, 27 Jul 2023 07:32:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1AA1C00528
+	for <linux-input@archiver.kernel.org>; Thu, 27 Jul 2023 07:51:37 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233233AbjG0HcC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 27 Jul 2023 03:32:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44484 "EHLO
+        id S233470AbjG0Hvg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 27 Jul 2023 03:51:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233264AbjG0Hbl (ORCPT
+        with ESMTP id S233530AbjG0HvT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 27 Jul 2023 03:31:41 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 699132D4E
-        for <linux-input@vger.kernel.org>; Thu, 27 Jul 2023 00:20:17 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-98dfb3f9af6so78826466b.2
-        for <linux-input@vger.kernel.org>; Thu, 27 Jul 2023 00:20:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1690442416; x=1691047216;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=fqOQsXekD6sFK6WYy17hOsZp5/7SJav2yrMJmcsMwVY=;
-        b=JbzkFfQAD8bjHEJm+E5tZ41EFIRGnfKm5wY5f53MQBhQpdGM3vTr4dgnLV5WMYeHZE
-         p9VxvyhmYqBwz/UqTpvS3Upu1osycLOtZRdYp3NQekWQWxbr3uQvnsqTsxOys9Fo49gv
-         RzxCuINTx8tCki9+lzj8I88augJUCHoyHy5HMNr4fNG8m9rfBQRBQaG1mWw3gCrkZd0B
-         XUgx3Hc1zscMcd+f8gZax0bXbSXSwnF71yv4JjnK7U67y0/pOYd5UpxuMP0WxjgEHhh/
-         9KBS1Hdx77FGd/AI5605KcQPleT4M9ds2vpek/7VaOHVpyaKFN7v/7dIxtDn+8PLPgFp
-         oAIg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690442416; x=1691047216;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fqOQsXekD6sFK6WYy17hOsZp5/7SJav2yrMJmcsMwVY=;
-        b=NsmQSyNK3VpiVkquPPkwmSrEkWSim3vhFhslxKwulv4ZPv/QfekOibnLIe8yvIKara
-         Jf0xJfg1hRt1WHGvlB3EnACHRPc3u5y/69KGzoF+KIaaJJAb60FdVtEtJiwKrEG3348O
-         NTu9rPjgqBYt1Sq1TUHUpMFndFPK4gwedSQT+psBLcYT8c0IVKnd6sEzeBIRaY56iCcP
-         aONLWC/jOQqXfQ2qPSWr/OazzHCV+9YwGLOG8zSBXkeDaMMhlTQIPRMAr/6fuyNK3kiR
-         owvdVsIktW6yBh54SeNphOKcNEZMQBdPlBAveUJmIo/m/3yNti3zW/kmkCiUpvJHtdM+
-         zIwA==
-X-Gm-Message-State: ABy/qLb+Y0oFCoFtS1zqHeI8nLMweA6DyZpEuZpiEjBtjTG7lXdXkyyq
-        sPO9Et30RcvsGEBMLcN+bu/S+jJZ4Ljtobzk6sc=
-X-Google-Smtp-Source: APBJJlH0jrNgLEoeZag63NmlA+d74+LDSnMgmUsHAoDTB3LniXqupxvPa61maXNWsNZ+1q5a7JpmTA==
-X-Received: by 2002:aa7:c490:0:b0:522:5855:ee78 with SMTP id m16-20020aa7c490000000b005225855ee78mr953040edq.32.1690441670722;
-        Thu, 27 Jul 2023 00:07:50 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.223.104])
-        by smtp.gmail.com with ESMTPSA id b21-20020a056402139500b005227e53cec2sm296242edv.50.2023.07.27.00.07.49
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Jul 2023 00:07:50 -0700 (PDT)
-Message-ID: <5bb55bec-6a38-3a88-3fc1-79b12cfe7e02@linaro.org>
-Date:   Thu, 27 Jul 2023 09:07:48 +0200
+        Thu, 27 Jul 2023 03:51:19 -0400
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DF7A7EE1;
+        Thu, 27 Jul 2023 00:44:43 -0700 (PDT)
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 36R6wa5s012197;
+        Thu, 27 Jul 2023 07:44:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=message-id : date :
+ mime-version : subject : to : cc : references : from : in-reply-to :
+ content-type : content-transfer-encoding; s=qcppdkim1;
+ bh=Xnt+gWLCxydIPZC35sjTQgVmjkbNuT8ja0kADJQto6c=;
+ b=D+XCfaZJDGtyjWIik9PmcxXmIX8zDuKorEsPHitV0hu6gXO3NDI9dyva3Hz6Yk6jmUIA
+ /95243mE7GZk18sntE2sGbOmowRkWDqJjSv8sfUoVlfxLZIbwdsSjMx6/v8n1ngJz+bC
+ nD+E4Oe4bBmzjoVOLP/RV/01DJoPCJyzkn/6SSpQoaGMQSV1GhDibDu04UQmA4bOrphk
+ QYPqkdOUXyQN5uV+IfA73lVPyg2kJYiD0l4pW2aoYLMerrsziyExFatvmrYO3r73zVJ5
+ CZH20etx/31YW5fzw8/yvS3OQ7jcYZ74n0LoppTlW61wf+W2deTPfFPd//E0xK7LibLM 8w== 
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3s3krn82vn-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 07:44:25 +0000
+Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
+        by NALASPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 36R7huZi014489
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Thu, 27 Jul 2023 07:43:56 GMT
+Received: from [10.253.74.152] (10.80.80.8) by nalasex01c.na.qualcomm.com
+ (10.47.97.35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.30; Thu, 27 Jul
+ 2023 00:43:53 -0700
+Message-ID: <4e416602-8dea-fa6d-d083-f93b730552c3@quicinc.com>
+Date:   Thu, 27 Jul 2023 15:43:51 +0800
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
  Thunderbird/102.13.0
 Subject: Re: [PATCH v3 1/3] input: pm8xxx-vib: refactor to easily support new
  SPMI vibrator
 Content-Language: en-US
-To:     kernel test robot <lkp@intel.com>,
-        Fenglin Wu <quic_fenglinw@quicinc.com>,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, robh+dt@kernel.org,
-        agross@kernel.org, andersson@kernel.org,
-        dmitry.baryshkov@linaro.org,
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        <linux-arm-msm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>, <robh+dt@kernel.org>,
+        <agross@kernel.org>, <andersson@kernel.org>,
+        <dmitry.baryshkov@linaro.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org
-Cc:     llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-        quic_collinsd@quicinc.com, quic_subbaram@quicinc.com,
-        quic_kamalw@quicinc.com, jestar@qti.qualcomm.com
-References: <20230725054138.129497-2-quic_fenglinw@quicinc.com>
- <202307251741.PMtlVAgD-lkp@intel.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <202307251741.PMtlVAgD-lkp@intel.com>
-Content-Type: text/plain; charset=UTF-8
+        <linux-input@vger.kernel.org>
+CC:     <quic_collinsd@quicinc.com>, <quic_subbaram@quicinc.com>,
+        <quic_kamalw@quicinc.com>, <jestar@qti.qualcomm.com>
+References: <20230725054138.129497-1-quic_fenglinw@quicinc.com>
+ <20230725054138.129497-2-quic_fenglinw@quicinc.com>
+ <5dd56c31-7ca3-dd39-0623-e4fd18ac6f68@linaro.org>
+ <053c9571-d709-2826-fced-a00dd7255b8b@quicinc.com>
+ <2a09e743-7423-65b0-c70d-87ae8105182a@linaro.org>
+From:   Fenglin Wu <quic_fenglinw@quicinc.com>
+In-Reply-To: <2a09e743-7423-65b0-c70d-87ae8105182a@linaro.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01c.na.qualcomm.com (10.47.97.35)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: HRHdaZi7NqJx5rq5TCcy1XXts40NqS6q
+X-Proofpoint-GUID: HRHdaZi7NqJx5rq5TCcy1XXts40NqS6q
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.254,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-07-26_08,2023-07-26_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ adultscore=0 suspectscore=0 mlxlogscore=478 priorityscore=1501 bulkscore=0
+ phishscore=0 lowpriorityscore=0 malwarescore=0 mlxscore=0 spamscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2306200000
+ definitions=main-2307270067
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 25/07/2023 12:01, kernel test robot wrote:
-> Hi Fenglin,
-> 
-> kernel test robot noticed the following build warnings:
-> 
-> [auto build test WARNING on dtor-input/next]
-> [also build test WARNING on dtor-input/for-linus linus/master v6.5-rc3 next-20230725]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch#_base_tree_information]
-> 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Fenglin-Wu/input-pm8xxx-vib-refactor-to-easily-support-new-SPMI-vibrator/20230725-134504
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-> patch link:    https://lore.kernel.org/r/20230725054138.129497-2-quic_fenglinw%40quicinc.com
-> patch subject: [PATCH v3 1/3] input: pm8xxx-vib: refactor to easily support new SPMI vibrator
-> config: x86_64-buildonly-randconfig-r002-20230725 (https://download.01.org/0day-ci/archive/20230725/202307251741.PMtlVAgD-lkp@intel.com/config)
-> compiler: clang version 15.0.7 (https://github.com/llvm/llvm-project.git 8dfdcc7b7bf66834a761bd8de445840ef68e4d1a)
-> reproduce: (https://download.01.org/0day-ci/archive/20230725/202307251741.PMtlVAgD-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202307251741.PMtlVAgD-lkp@intel.com/
-> 
-> All warnings (new ones prefixed by >>):
-> 
->>> drivers/input/misc/pm8xxx-vibrator.c:190:17: warning: cast to smaller integer type 'enum pm8xxx_vib_type' from 'const void *' [-Wvoid-pointer-to-enum-cast]
->            vib->hw_type = (enum pm8xxx_vib_type)of_device_get_match_data(dev);
->                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
->    1 warning generated.
-> 
 
-Remember to fix all the warnings.
 
-Best regards,
-Krzysztof
+On 7/27/2023 3:07 PM, Krzysztof Kozlowski wrote:
+> On 25/07/2023 08:16, Fenglin Wu wrote:
+>>>>    
+>>>> -static const struct pm8xxx_regs pm8058_regs = {
+>>>> -	.drv_addr = 0x4A,
+>>>> -	.drv_mask = 0xf8,
+>>>> -	.drv_shift = 3,
+>>>> -	.drv_en_manual_mask = 0xfc,
+>>>> +static struct reg_field ssbi_vib_regs[VIB_MAX_REG] = {
+>>>
+>>> Change from const to non-const is wrong. How do you support multiple
+>>> devices? No, this is way too fragile now.
+>>>
+>>
+>> The register definition is no longer used as the match data, hw_type is
+>> used.
+>>
+>> The last suggestion was getting the register base address from the DT
+>> and it has to be added into the offset of SPMI vibrator registers
+>> (either in the previous hard-coded format or the later the reg_filed
+>> data structure), so it's not appropriated to make it constant.
+>>
+>> I don't understand this question: "How do you support multiple devices?"
+>> For SSBI vibrator, since all the registers are fixed, and I would assume
+>> that there is no chance to support multiple vibrator devices on the same
+>> SSBI bus. If they are not on the same bus, the regmap device will be
+>> different while the registers definition is the same, and we are still
+>> able to support multiple devices, right?
+> 
+> No, you have static memory. One device probes and changes static memory
+> to reg+=base1. Second device probes and changes the same to reg+=base2.
 
+Thanks, got it.  I can update it with following 2 options:
+
+1) keep the register definition in 'reg_filed' data structure and make 
+it constant, copy it to a dynamically allocated memory before adding the 
+'reg_base' to the '.reg' variable.
+
+2) Define the register offsets as constant data and add the 'reg_base' 
+to the 'reg' while using 'regmap_read()'/'regmap_write()' functions.
+
+which one is the preferred way?
+
+> 
+>> The similar story for SPMI vibrators and it can support multiple devices
+>> if they are located on different SPMI bus, or even if they are on the
+>> same SPMI bus but just having different SID or PID.
+> 
+> Sorry, such code cannot go in. These must stay const and you must write
+> driver without any static allocations or singleton-like patterns.
+> 
+> 
+> Best regards,
+> Krzysztof
+> 

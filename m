@@ -2,170 +2,166 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEDF8C001E0
-	for <linux-input@archiver.kernel.org>; Fri, 28 Jul 2023 17:24:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00C92EB64DD
+	for <linux-input@archiver.kernel.org>; Sat, 29 Jul 2023 00:53:06 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231773AbjG1RY7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 28 Jul 2023 13:24:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52508 "EHLO
+        id S229619AbjG2AxG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 28 Jul 2023 20:53:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230229AbjG1RY6 (ORCPT
+        with ESMTP id S230137AbjG2AxF (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Jul 2023 13:24:58 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24243A97
-        for <linux-input@vger.kernel.org>; Fri, 28 Jul 2023 10:24:53 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-9936b3d0286so339857966b.0
-        for <linux-input@vger.kernel.org>; Fri, 28 Jul 2023 10:24:53 -0700 (PDT)
+        Fri, 28 Jul 2023 20:53:05 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 066D449FE;
+        Fri, 28 Jul 2023 17:52:39 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-1bbc06f830aso17411795ad.0;
+        Fri, 28 Jul 2023 17:52:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1690565092; x=1691169892;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
+        d=gmail.com; s=20221208; t=1690591901; x=1691196701;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=OksjTSbasaKDlLBRiSbrJQqC1q20sr1fdGQKMyKb9RQ=;
-        b=ioM7av1YzBaFvfjIOPF/f2zM1OSDbDtHwJBng+JaV3GrX8NcGb39/dabdNWrq1XyrR
-         Y4Ex/6wFZL21InBLOLzmmb6ATsrs5s1cfyqmE4MY8MAdNypLB0nDvVs7DRepi9KvJc61
-         mod6RIUS8zYoTctpxzT2aoNAVqUm409uFPR/8=
+        bh=6UTNSsrWWKR414OaN79464JHIccJK6ZuB40p7bHAcZ8=;
+        b=hW51BN/P4IpHkVxw8Wi6tqtee6bd7dz3hngx4W5l++mdPiioUYXOqQUqQk1TLTBuaE
+         DNw8QIShKcYJ6BQH9Gvi+RXAzAAv0jq+O+UUF3PP5Vyf6n3u1HX5D547I/dEbi0TKbfs
+         D47ScINacoknwCdBf2z2EkY8zBMj5q6vIT11AWjDWT883RdwkybMgoFG6DzrZB4tUQWe
+         wtFWasZMl0wlnzW5z+8tD6wdlo9g8MqYaUDl6gDVSIMgTt6c8U868TVSlA02nc3XfES/
+         Q2ZjXRo69KxnPdvNfnYfLhtfw4dfa9QfteH+9XnqTBOm7aK6UzkOWiHJk2CXpQQGhPIC
+         m0RA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690565092; x=1691169892;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+        d=1e100.net; s=20221208; t=1690591901; x=1691196701;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=OksjTSbasaKDlLBRiSbrJQqC1q20sr1fdGQKMyKb9RQ=;
-        b=YIDJr+D6vNfTg1mUu77t0bLGzwxlo4aw7xm8tE8f4XV6wCDE+UU5hMPv27dcG6uHo/
-         dg7ywzgq0CIiae/dF02/lXH8h9U09b221gmSmo7N1oRdZBee9Ere4JL2O4FUKl4iyLL0
-         d6VwnSuA5veGI3jo62Wj1R2BDMDTYJYSWMywSaonQE45VgtXWnxl6uCBGhWyf3tJ3K53
-         rGtSXyi6Mk6TastL5gO2mNVQ5CP/1UoULr3fnvLDaeCnv9vOBOvhWAA6VnoErYIB7YwY
-         Mstzz1w3TvC+lhrhflPbQrMiwU7kR/iOXhHDSz0N+g297EaoGScle62oQj95QhbauITK
-         wDtQ==
-X-Gm-Message-State: ABy/qLYVA7coUG0x0YC/9Xvkua4e5LBT5jUBiFx5/2EiPZUWbeLjZtq7
-        H56CApXRO6/tum6Jhfj5Z2FNG6UClwyAivjQGwq7Bg==
-X-Google-Smtp-Source: APBJJlE58akUFCBNBS4u4aCs1/bw7zgsSPOvirsFWZ8MAo04XnASpJGZxkfu93g7tFsz/r40sOzFxw==
-X-Received: by 2002:a17:906:5dc1:b0:99b:65fa:fc2b with SMTP id p1-20020a1709065dc100b0099b65fafc2bmr21818ejv.35.1690565091988;
-        Fri, 28 Jul 2023 10:24:51 -0700 (PDT)
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com. [209.85.128.42])
-        by smtp.gmail.com with ESMTPSA id q24-20020a17090622d800b0098d2f703408sm2244004eja.118.2023.07.28.10.24.51
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 28 Jul 2023 10:24:51 -0700 (PDT)
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-3fe0e132352so5335e9.0
-        for <linux-input@vger.kernel.org>; Fri, 28 Jul 2023 10:24:51 -0700 (PDT)
-X-Received: by 2002:a05:600c:690f:b0:3fd:e15:41e3 with SMTP id
- fo15-20020a05600c690f00b003fd0e1541e3mr5980wmb.2.1690565071086; Fri, 28 Jul
- 2023 10:24:31 -0700 (PDT)
+        bh=6UTNSsrWWKR414OaN79464JHIccJK6ZuB40p7bHAcZ8=;
+        b=TAjHCdgx77EXd3LCZxibucwrBmXb0x0Kps5s8qe4dGCljio6uVMvFzIcxwMTXvLdnt
+         +gCU29bds8lIFW09oJn8r/yv6QFW5wmk4Ds08y8dtqJLiFuWiXpnJypti1zTRLBuMIYh
+         VnQbYFRlrl8Nl+/Nyt9+0j0sJPVAOZrL12qQDCOWYKSSNVJuTBdyIEqC6vZkQL3YhrjM
+         76nAt+7R6GhWEXZYgmyiHt3bT77A9SxDp2x78/uysjsg4e6Gk3LMSY4J0BwAaDGIpLOI
+         CKtQpEILC+TMDYWShGOiPMZ8hWFIDG0iwxWOPFobGBwHTOltWEXd9yCz6xtIr020YalC
+         uHAQ==
+X-Gm-Message-State: ABy/qLZVy6VH0uGQtHJaXGcqSLe3AiOtQDfM1U8d+7L60ko8tpMxH3gn
+        iPTDhKcbkgs41Fr7coHMYw8gm97gNv4=
+X-Google-Smtp-Source: APBJJlGDfrW38jnbORBCtKu41B/I3PZ5cujziWau8w95X6AvhUUV1TCWHR8ilPc2QEiIeUyGDTeoZw==
+X-Received: by 2002:a17:903:2281:b0:1b8:c63:4b79 with SMTP id b1-20020a170903228100b001b80c634b79mr4572402plh.19.1690591901385;
+        Fri, 28 Jul 2023 17:51:41 -0700 (PDT)
+Received: from dtor-ws.mtv.corp.google.com ([2620:15c:9d:2:bc93:3749:59cc:1d5c])
+        by smtp.gmail.com with ESMTPSA id h12-20020a170902704c00b001bb97e51ab4sm4149524plt.98.2023.07.28.17.51.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 Jul 2023 17:51:41 -0700 (PDT)
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     linux-input@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Michael Hennerich <michael.hennerich@analog.com>
+Subject: [PATCH 06/22] Input: ad7879 - use device core to create driver-specific device attributes
+Date:   Fri, 28 Jul 2023 17:51:15 -0700
+Message-ID: <20230729005133.1095051-6-dmitry.torokhov@gmail.com>
+X-Mailer: git-send-email 2.41.0.487.g6d72f3e995-goog
+In-Reply-To: <20230729005133.1095051-1-dmitry.torokhov@gmail.com>
+References: <20230729005133.1095051-1-dmitry.torokhov@gmail.com>
 MIME-Version: 1.0
-References: <20230727171750.633410-1-dianders@chromium.org> <nn6cs4zvf27cxmtd3qcficyoyalcxi2iry6kgszb5oraplgaxy@sryeyseucdb3>
-In-Reply-To: <nn6cs4zvf27cxmtd3qcficyoyalcxi2iry6kgszb5oraplgaxy@sryeyseucdb3>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Fri, 28 Jul 2023 10:24:18 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=Wo5H-XohCz_sLnV=oT5cRm2tFrSAG9kpCGzK7pjSW_Xg@mail.gmail.com>
-Message-ID: <CAD=FV=Wo5H-XohCz_sLnV=oT5cRm2tFrSAG9kpCGzK7pjSW_Xg@mail.gmail.com>
-Subject: Re: [PATCH v4 00/11] drm/panel and i2c-hid: Allow panels and
- touchscreens to power sequence together
-To:     Benjamin Tissoires <bentiss@kernel.org>
-Cc:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        linux-arm-msm@vger.kernel.org,
-        yangcong5@huaqin.corp-partner.google.com,
-        devicetree@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
-        hsinyi@google.com, Chris Morgan <macroalpha82@gmail.com>,
-        linux-input@vger.kernel.org, cros-qcom-dts-watchers@chromium.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+Instead of creating driver-specific device attributes with
+devm_device_add_group() have device core do this by setting up dev_groups
+pointer in the driver structure.
 
-On Fri, Jul 28, 2023 at 8:31=E2=80=AFAM Benjamin Tissoires <bentiss@kernel.=
-org> wrote:
->
-> On Jul 27 2023, Douglas Anderson wrote:
-> >
-> > The big motivation for this patch series is mostly described in the pat=
-ch
-> > ("drm/panel: Add a way for other devices to follow panel state"), but t=
-o
-> > quickly summarize here: for touchscreens that are connected to a panel =
-we
-> > need the ability to power sequence the two device together. This is not=
- a
-> > new need, but so far we've managed to get by through a combination of
-> > inefficiency, added costs, or perhaps just a little bit of brokenness.
-> > It's time to do better. This patch series allows us to do better.
-> >
-> > Assuming that people think this patch series looks OK, we'll have to
-> > figure out the right way to land it. The panel patches and i2c-hid
-> > patches will go through very different trees and so either we'll need
-> > an Ack from one side or the other or someone to create a tag for the
-> > other tree to pull in. This will _probably_ require the true drm-misc
-> > maintainers to get involved, not a lowly committer. ;-)
-> >
-> > Version 4 of this series adds a new patch that suspends i2c-hid
-> > devices at remove time even for non panel-followers to make things
-> > consistent. It also attempts to isolate the panel follower code a bit
-> > more as per Benjamin's feedback on v3 and adds an item to the DRM todo
-> > list as per Maxime's request. As per Maxime's response to my v3 cover
-> > letter, I added his Reviewed-by tag to all 10 patches that were part
-> > of v3 (but left it off of the new i2c-hid patch in v4).
-> >
-> > Version 3 of this series was a long time coming after v2. Maxime and I
-> > had a very long discussion trying to figure out if there was a beter
-> > way and in the end we didn't find one so he was OK with the series in
-> > general [1]. After that got resolved, I tried to resolve Benjamin's
-> > feedback but got stuck [2]. Eventually I made my best guess. The end
-> > result was a v3 that wasn't that different from v2 but that had a tiny
-> > bit more code split out.
-> >
-> > Version 2 of this patch series didn't change too much. At a high level:
-> > * I added all the forgotten "static" to functions.
-> > * I've hopefully made the bindings better.
-> > * I've integrated into fw_devlink.
-> > * I cleaned up a few descriptions / comments.
-> >
-> > As far as I can tell, as of v4 everyone is on the same page that this
-> > patch series looks like a reasonable solution to the problem and we
-> > just need to get all the nits fixed and figure out how to land it.
->
-> Thanks a lot for the new version. I like it much more on the HID side:
->
-> for the HID part:
-> Reviewed-by: Benjamin Tissoires <bentiss@kernel.org>
->
-> I wouldn't mind having this series taken from the drm tree if that is
-> easier. i2c-hid is a low patch rate driver, so having it updated through
-> DRM should not be an issue.
->
-> In that case:
-> Acked-by: Benjamin Tissoires <bentiss@kernel.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+---
+ drivers/input/touchscreen/ad7879-i2c.c |  7 ++++---
+ drivers/input/touchscreen/ad7879-spi.c |  7 ++++---
+ drivers/input/touchscreen/ad7879.c     | 10 ++++++----
+ drivers/input/touchscreen/ad7879.h     |  3 +++
+ 4 files changed, 17 insertions(+), 10 deletions(-)
 
-Thanks for your reviews and your help getting this whipped into shape.
+diff --git a/drivers/input/touchscreen/ad7879-i2c.c b/drivers/input/touchscreen/ad7879-i2c.c
+index feaa6f8b01ed..5c094ab74698 100644
+--- a/drivers/input/touchscreen/ad7879-i2c.c
++++ b/drivers/input/touchscreen/ad7879-i2c.c
+@@ -58,9 +58,10 @@ MODULE_DEVICE_TABLE(of, ad7879_i2c_dt_ids);
+ 
+ static struct i2c_driver ad7879_i2c_driver = {
+ 	.driver = {
+-		.name	= "ad7879",
+-		.pm	= &ad7879_pm_ops,
+-		.of_match_table = of_match_ptr(ad7879_i2c_dt_ids),
++		.name		= "ad7879",
++		.dev_groups	= ad7879_groups,
++		.pm		= &ad7879_pm_ops,
++		.of_match_table	= of_match_ptr(ad7879_i2c_dt_ids),
+ 	},
+ 	.probe		= ad7879_i2c_probe,
+ 	.id_table	= ad7879_id,
+diff --git a/drivers/input/touchscreen/ad7879-spi.c b/drivers/input/touchscreen/ad7879-spi.c
+index 50e889846800..064968fe57cf 100644
+--- a/drivers/input/touchscreen/ad7879-spi.c
++++ b/drivers/input/touchscreen/ad7879-spi.c
+@@ -56,9 +56,10 @@ MODULE_DEVICE_TABLE(of, ad7879_spi_dt_ids);
+ 
+ static struct spi_driver ad7879_spi_driver = {
+ 	.driver = {
+-		.name	= "ad7879",
+-		.pm	= &ad7879_pm_ops,
+-		.of_match_table = of_match_ptr(ad7879_spi_dt_ids),
++		.name		= "ad7879",
++		.dev_groups	= ad7879_groups,
++		.pm		= &ad7879_pm_ops,
++		.of_match_table	= of_match_ptr(ad7879_spi_dt_ids),
+ 	},
+ 	.probe		= ad7879_spi_probe,
+ };
+diff --git a/drivers/input/touchscreen/ad7879.c b/drivers/input/touchscreen/ad7879.c
+index e850853328f1..e5d69bf2276e 100644
+--- a/drivers/input/touchscreen/ad7879.c
++++ b/drivers/input/touchscreen/ad7879.c
+@@ -391,6 +391,12 @@ static const struct attribute_group ad7879_attr_group = {
+ 	.attrs = ad7879_attributes,
+ };
+ 
++const struct attribute_group *ad7879_groups[] = {
++	&ad7879_attr_group,
++	NULL
++};
++EXPORT_SYMBOL_GPL(ad7879_groups);
++
+ #ifdef CONFIG_GPIOLIB
+ static int ad7879_gpio_direction_input(struct gpio_chip *chip,
+ 					unsigned gpio)
+@@ -612,10 +618,6 @@ int ad7879_probe(struct device *dev, struct regmap *regmap,
+ 
+ 	__ad7879_disable(ts);
+ 
+-	err = devm_device_add_group(dev, &ad7879_attr_group);
+-	if (err)
+-		return err;
+-
+ 	err = ad7879_gpio_add(ts);
+ 	if (err)
+ 		return err;
+diff --git a/drivers/input/touchscreen/ad7879.h b/drivers/input/touchscreen/ad7879.h
+index ae8aa1428e56..d71a8e787290 100644
+--- a/drivers/input/touchscreen/ad7879.h
++++ b/drivers/input/touchscreen/ad7879.h
+@@ -8,11 +8,14 @@
+ #ifndef _AD7879_H_
+ #define _AD7879_H_
+ 
++#include <linux/pm.h>
+ #include <linux/types.h>
+ 
++struct attribute_group;
+ struct device;
+ struct regmap;
+ 
++extern const struct attribute_group *ad7879_groups[];
+ extern const struct dev_pm_ops ad7879_pm_ops;
+ 
+ int ad7879_probe(struct device *dev, struct regmap *regmap,
+-- 
+2.41.0.487.g6d72f3e995-goog
 
-Lading through drm makes sense to me. I'm a drm committer, so with
-your Ack I believe it should be fine for me to land the series (minus
-the dts) in drm-misc-next. This series has been around for a while,
-has been reviewed by relevant folks, and the last few changes haven't
-fundamentally changed anything about the design, so I'm not going to
-twiddle my thumbs too long. That being said, I'll still plan to wait
-until early next week (Tuesday?) before landing to allow for any last
-minute shouts.
-
-Given how drm-misc works [1] and the fact that mainline is currently
-at v6.5-rc3 (it will be -rc4 when I land it), I'd expect that these
-commits will find their way into v6.6.
-
-[1] https://drm.pages.freedesktop.org/maintainer-tools/drm-misc.html

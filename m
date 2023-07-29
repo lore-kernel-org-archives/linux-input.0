@@ -2,62 +2,61 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DED40C001DF
-	for <linux-input@archiver.kernel.org>; Sat, 29 Jul 2023 00:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DAF1C001DE
+	for <linux-input@archiver.kernel.org>; Sat, 29 Jul 2023 00:55:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230484AbjG2AyJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 28 Jul 2023 20:54:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45960 "EHLO
+        id S237042AbjG2AzJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 28 Jul 2023 20:55:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233739AbjG2Ax0 (ORCPT
+        with ESMTP id S237041AbjG2Ayp (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 28 Jul 2023 20:53:26 -0400
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 464B049D8;
-        Fri, 28 Jul 2023 17:53:03 -0700 (PDT)
-Received: by mail-pl1-x62a.google.com with SMTP id d9443c01a7336-1bb8e45185bso17379605ad.1;
-        Fri, 28 Jul 2023 17:53:03 -0700 (PDT)
+        Fri, 28 Jul 2023 20:54:45 -0400
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E36EE559A;
+        Fri, 28 Jul 2023 17:53:39 -0700 (PDT)
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-26854159c05so1584645a91.2;
+        Fri, 28 Jul 2023 17:53:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690591907; x=1691196707;
+        d=gmail.com; s=20221208; t=1690591898; x=1691196698;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=qh239bx9Q1ammpCNJ5dKdqtd7HeLRoc7XKTXlpa6yXw=;
-        b=psXW/SFetN1vx8Gdl0lLaxC3tlWzZe7SSBV4JnyDhjqn2A5jFZLilEypT6NlgC/epJ
-         Kw9NIdWGYzfIrRxq5R32FmjNwWqMJOrW2IpDxj0IWfqVMsSvjy/Us8sTjS8VujCEvia+
-         XozD0pFOIg6j2qUah21ytpAd6qUAFMNiKX2x7i0EaYtu+mjxHWycRBNrWRC23ctN4tnm
-         yMEk32ZadqU4OVPBoVyWOAzJ+KvtIVe/OcJC4OZC5sFG11vGMWJdZQ9cu4PwEo1RIFOH
-         WXx0CNxVDGaqbSNYVHk1KyyGaxKkzZeQETxm9ZUQBTe3YfIi2HTV8fyybHHkTr0p0d8Y
-         o26A==
+        bh=z1OytN0ue9ni3jtAUdTpAVvFgRrAknSTdRSvg9LBsxw=;
+        b=ZV6kF4ZQaKSSXPRpulLU3lw0CkuKf3x4WNqUSfPx2mZo8SjYvygXxOjd5i32YXgGau
+         xdM2fUf9PunPg3VUit6/1r6bfxLsfdIPVya/89C3e2N/duEynrq74T0qjJKQsGUsu1oj
+         9fD9sVZLrBNiA48zmx++v78VS7gfKxhmin5fsitdrqHI9+aK9lULKcsPpKXArnrehhdu
+         llCng2cjU7EuWsiZmGr7/4PJs7f7SGlhesHXV/OfWfXbwsX/ZIakIAAIK1iH5tGqhXjh
+         xIef2J84J6MTkOzP4lelYmME/Vx4q1/RwtB6gdjol3EsHCjJzy65md7VowQXMF/xpAbQ
+         hgyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690591907; x=1691196707;
+        d=1e100.net; s=20221208; t=1690591898; x=1691196698;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qh239bx9Q1ammpCNJ5dKdqtd7HeLRoc7XKTXlpa6yXw=;
-        b=CWxx3DFipgQWzzi1O076ru5R/U1RPp2zS8ZqaNMo3TmpCzU3gNBhhtsE58RM8rQT0Q
-         j8I7yKM20AHfjuGe8OwD0+F1qdNLUkBZBrTsbcoia19MVbBUAJ78JI5tmMNTJSoKQWOr
-         DeDj8x/Vgct4Am1r6Yqrteu8PHrVyZJR5WdpLzJvZkwcYICfuhG7LC6v2/0czeS4e9xt
-         9yxhDY5xuZ9twwZur05RTaKCf7PtX9ieoLsSNyXS4Qslm6KYoVZRZeOs3OK36dRwlawS
-         lH3TXGD9s93+vCa55fQkyP7EKR82T29tZgdy423/Mov54xtJ4BWx/4eS1Uuef/NToasO
-         EF+A==
-X-Gm-Message-State: ABy/qLYb1LEctRzd8xgZfURjbc3247CrbUryWF9l7IPFYbqg48lquAC1
-        mDkD+Kj5/HcB3Mha5DnohBtaMnffzh4=
-X-Google-Smtp-Source: APBJJlG7LFWHXY0VwiN0sVb2S9Y2FQ1zum1GGXBOdgVi9FNpT+KaxmzUi57QOjo0mti3qnvtEwAJeQ==
-X-Received: by 2002:a17:902:f547:b0:1ba:fe63:6616 with SMTP id h7-20020a170902f54700b001bafe636616mr3311407plf.6.1690591906665;
-        Fri, 28 Jul 2023 17:51:46 -0700 (PDT)
+        bh=z1OytN0ue9ni3jtAUdTpAVvFgRrAknSTdRSvg9LBsxw=;
+        b=K39VE5/+YeZetkFxBzcjtfQ8Pq4Q8cr1VEgQE0kHh4uOaRKYR/9ou/zrq/J3PopT3d
+         7CSh47VBRj13+DVlefzwgkLIM1tsByim9A/7E19OQYRWdSZqxWfHEpz8IYe3X970UuoS
+         Uj6yAioqKjqN8fP8OynLHL3gwvSomZLHfCKDKZsjxKjbTE4xP3ImAQUVCvMlVDJ9Sv/W
+         JUNRIgqKp4Deomu8uNTP6fXjyDwmWU1gFYNji0Xf+oLCeu13vozyrvBC/o6gSPLF4zcl
+         FSIqvS6usEK87BnHzjg50J0nHsYsQMz8M088VsJpvod9tKCfVZIyZn7mvdSbGoh4mpNI
+         SLjQ==
+X-Gm-Message-State: ABy/qLbP6ZGj2KvmRhQ7jVsmlNj/LIZbNes37vzfTpUX7Na+HgZsy483
+        gafJyZEebhhSvtXWAK76Ggj7kR/UbjI=
+X-Google-Smtp-Source: APBJJlFay8COHXJLtUVNgH0E/pRyc9mXF6LuA/OWWh+px5PfExVnxKJLqcbArJCPe1ZALCjj7Mmbpg==
+X-Received: by 2002:a17:90b:e07:b0:268:2543:723 with SMTP id ge7-20020a17090b0e0700b0026825430723mr2957906pjb.5.1690591897994;
+        Fri, 28 Jul 2023 17:51:37 -0700 (PDT)
 Received: from dtor-ws.mtv.corp.google.com ([2620:15c:9d:2:bc93:3749:59cc:1d5c])
-        by smtp.gmail.com with ESMTPSA id h12-20020a170902704c00b001bb97e51ab4sm4149524plt.98.2023.07.28.17.51.46
+        by smtp.gmail.com with ESMTPSA id h12-20020a170902704c00b001bb97e51ab4sm4149524plt.98.2023.07.28.17.51.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Jul 2023 17:51:46 -0700 (PDT)
+        Fri, 28 Jul 2023 17:51:37 -0700 (PDT)
 From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To:     linux-input@vger.kernel.org
 Cc:     linux-kernel@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Marek Vasut <marex@denx.de>
-Subject: [PATCH 13/22] Input: ili210x - use device core to create driver-specific device attributes
-Date:   Fri, 28 Jul 2023 17:51:22 -0700
-Message-ID: <20230729005133.1095051-13-dmitry.torokhov@gmail.com>
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 02/22] Input: cyapa - use device core to create driver-specific device attributes
+Date:   Fri, 28 Jul 2023 17:51:11 -0700
+Message-ID: <20230729005133.1095051-2-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.41.0.487.g6d72f3e995-goog
 In-Reply-To: <20230729005133.1095051-1-dmitry.torokhov@gmail.com>
 References: <20230729005133.1095051-1-dmitry.torokhov@gmail.com>
@@ -73,58 +72,55 @@ pointer in the driver structure.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/touchscreen/ili210x.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/input/mouse/cyapa.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/input/touchscreen/ili210x.c b/drivers/input/touchscreen/ili210x.c
-index ad6828e4f2e2..31ffdc2a93f3 100644
---- a/drivers/input/touchscreen/ili210x.c
-+++ b/drivers/input/touchscreen/ili210x.c
-@@ -876,7 +876,7 @@ static ssize_t ili210x_firmware_update_store(struct device *dev,
+diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+index 6a876ba617ef..f9b4a7458b4e 100644
+--- a/drivers/input/mouse/cyapa.c
++++ b/drivers/input/mouse/cyapa.c
+@@ -1225,7 +1225,7 @@ static DEVICE_ATTR(baseline, S_IRUGO, cyapa_show_baseline, NULL);
+ static DEVICE_ATTR(calibrate, S_IWUSR, NULL, cyapa_calibrate_store);
+ static DEVICE_ATTR(mode, S_IRUGO, cyapa_show_mode, NULL);
  
- static DEVICE_ATTR(firmware_update, 0200, NULL, ili210x_firmware_update_store);
- 
--static struct attribute *ili210x_attributes[] = {
-+static struct attribute *ili210x_attrs[] = {
- 	&dev_attr_calibrate.attr,
- 	&dev_attr_firmware_update.attr,
+-static struct attribute *cyapa_sysfs_entries[] = {
++static struct attribute *cyapa_attrs[] = {
  	&dev_attr_firmware_version.attr,
-@@ -904,10 +904,11 @@ static umode_t ili210x_attributes_visible(struct kobject *kobj,
- 	return attr->mode;
- }
- 
--static const struct attribute_group ili210x_attr_group = {
--	.attrs = ili210x_attributes,
-+static const struct attribute_group ili210x_group = {
-+	.attrs = ili210x_attrs,
- 	.is_visible = ili210x_attributes_visible,
+ 	&dev_attr_product_id.attr,
+ 	&dev_attr_update_fw.attr,
+@@ -1234,10 +1234,7 @@ static struct attribute *cyapa_sysfs_entries[] = {
+ 	&dev_attr_mode.attr,
+ 	NULL,
  };
-+__ATTRIBUTE_GROUPS(ili210x);
+-
+-static const struct attribute_group cyapa_sysfs_group = {
+-	.attrs = cyapa_sysfs_entries,
+-};
++ATTRIBUTE_GROUPS(cyapa);
  
- static void ili210x_power_down(void *data)
+ static void cyapa_disable_regulator(void *data)
  {
-@@ -1013,13 +1014,6 @@ static int ili210x_i2c_probe(struct i2c_client *client)
- 	if (error)
+@@ -1304,12 +1301,6 @@ static int cyapa_probe(struct i2c_client *client)
  		return error;
+ 	}
  
--	error = devm_device_add_group(dev, &ili210x_attr_group);
+-	error = devm_device_add_group(dev, &cyapa_sysfs_group);
 -	if (error) {
--		dev_err(dev, "Unable to create sysfs attributes, err: %d\n",
--			error);
+-		dev_err(dev, "failed to create sysfs entries: %d\n", error);
 -		return error;
 -	}
 -
- 	error = input_register_device(priv->input);
+ 	error = cyapa_prepare_wakeup_controls(cyapa);
  	if (error) {
- 		dev_err(dev, "Cannot register input device, err: %d\n", error);
-@@ -1050,6 +1044,7 @@ MODULE_DEVICE_TABLE(of, ili210x_dt_ids);
- static struct i2c_driver ili210x_ts_driver = {
+ 		dev_err(dev, "failed to prepare wakeup controls: %d\n", error);
+@@ -1486,6 +1477,7 @@ MODULE_DEVICE_TABLE(of, cyapa_of_match);
+ static struct i2c_driver cyapa_driver = {
  	.driver = {
- 		.name = "ili210x_i2c",
-+		.dev_groups = ili210x_groups,
- 		.of_match_table = ili210x_dt_ids,
- 	},
- 	.id_table = ili210x_i2c_id,
+ 		.name = "cyapa",
++		.dev_groups = cyapa_groups,
+ 		.pm = pm_ptr(&cyapa_pm_ops),
+ 		.acpi_match_table = ACPI_PTR(cyapa_acpi_id),
+ 		.of_match_table = of_match_ptr(cyapa_of_match),
 -- 
 2.41.0.487.g6d72f3e995-goog
 

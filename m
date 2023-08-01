@@ -2,247 +2,222 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D8B1EB64DD
-	for <linux-input@archiver.kernel.org>; Tue,  1 Aug 2023 07:28:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD23DC04E69
+	for <linux-input@archiver.kernel.org>; Tue,  1 Aug 2023 09:24:43 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230086AbjHAH2f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 1 Aug 2023 03:28:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43904 "EHLO
+        id S232903AbjHAJYm (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 1 Aug 2023 05:24:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229999AbjHAH2e (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Aug 2023 03:28:34 -0400
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A56610C7;
-        Tue,  1 Aug 2023 00:28:33 -0700 (PDT)
-Received: by mail-pf1-x434.google.com with SMTP id d2e1a72fcca58-6873a30d02eso1286527b3a.3;
-        Tue, 01 Aug 2023 00:28:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1690874913; x=1691479713;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=19fkat+AwmoIDmk7TMp4T2FCh4hY7EdvW+uqAE+YRjE=;
-        b=juO4Yk9afn0VTy18or87R1uPLi1F1tC+NR2Qr5M5jo5aZ+aCxMXkQJMnZ/o74rIlPR
-         NAHNgt0stjKMMIj5s4xUTTv6by2qrUVH1OwFt2sh3LGXDpS2UAXkBM7CAFku9e+AfbWA
-         pbkH/+RagAjQzESjKt7Ea94GAcmrfrS3HUaiIYusletQCtsOzJ2VxDOzYPQuhtMuc5YI
-         maQ4AuwovU2HXb52vntQc1ulFPEpEl+50sKDdS8eV8BBVooQwNptiN5+qxbzsD1CLOKD
-         1Rc6r4BCDsEo8XD/UqxAvCu0d6pDooqkm5tBldp5+XlfWqOBUv+90jRlAzmiVHe1VXn3
-         jZxw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1690874913; x=1691479713;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=19fkat+AwmoIDmk7TMp4T2FCh4hY7EdvW+uqAE+YRjE=;
-        b=GLmnw6WMyn59XlHNEWI5IfDMoDty+dYH+0WtgKMTqsOekMmCiJaXU6QULDO6M07IY9
-         VdcZCGwH1pNqDOT9NK8eLliAqQVNt+XcGQjDY2K+DPlvKPTMn+Lb5i+Hfn/Q0mllF05l
-         XsD7BolPoOhrYseFVTWIVGL3NvPuliq+vx4F1ojy046UY3tqpIQunnGg1jGvXH9jztsr
-         h3/hNmLutFhMfN9iBMAlBi3bTLfCUc4L3EASEdAZSG/QQicxhD2LzNCK0fgmWlSY5JLi
-         w8kzuxYM5mYdb//gVjt/2yJVP955DigsF8DsP0XwviHXyEtzoRe3eWMuOZz10pRSHEHM
-         Rx9w==
-X-Gm-Message-State: ABy/qLZBQ8rBqESC9t9xMXDSqtlAd+0XyN+5+jRyhMcRFUTDzbetB64a
-        XdvI2+b6ELyfMn3vRHW+Aqk=
-X-Google-Smtp-Source: APBJJlELLqDFM+PStFjKGXZPFUWsqqqPnh+1/CHn6w1eOq56smmbSNaPHOrgV6k3Z94uAO6TsZLjqA==
-X-Received: by 2002:a05:6a00:1782:b0:687:38aa:9461 with SMTP id s2-20020a056a00178200b0068738aa9461mr5899107pfg.26.1690874912454;
-        Tue, 01 Aug 2023 00:28:32 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:e9c5:ca03:62a0:85ae])
-        by smtp.gmail.com with ESMTPSA id e18-20020a62aa12000000b006875493da1fsm530162pff.10.2023.08.01.00.28.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Aug 2023 00:28:32 -0700 (PDT)
-Date:   Tue, 1 Aug 2023 00:28:29 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Jeff LaBundy <jeff@labundy.com>
-Cc:     Marek Vasut <marex@denx.de>, Takashi Iwai <tiwai@suse.de>,
-        linux-input@vger.kernel.org,
-        Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Manuel Traut <manuel.traut@mt.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
-        linux-pwm@vger.kernel.org, alsa-devel@alsa-project.org,
-        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>
-Subject: Re: [PATCH] Input: pwm-beeper - Support volume setting via sysfs
-Message-ID: <ZMi0HT/yaTo9uTyi@google.com>
-References: <ZMdIZiC453onyeHh@google.com>
- <873514d2ju.wl-tiwai@suse.de>
- <63adce9a-df65-b462-9055-0ece5216d680@denx.de>
- <87tttkjmyu.wl-tiwai@suse.de>
- <0cffe366-75af-d8a8-8920-6fb94c321a89@denx.de>
- <87h6pkjh7q.wl-tiwai@suse.de>
- <618add56-3675-4efe-5b20-665c10040e03@denx.de>
- <ZMfgJ3o00nApkXGp@google.com>
- <f4612dc5-a7d4-74ba-2ed8-ea70314625b6@denx.de>
- <ZMh0Sa9s25JHhWw5@nixie71>
+        with ESMTP id S231862AbjHAJYS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 1 Aug 2023 05:24:18 -0400
+X-Greylist: delayed 762 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 01 Aug 2023 02:23:23 PDT
+Received: from box.trvn.ru (box.trvn.ru [194.87.146.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC3EE103;
+        Tue,  1 Aug 2023 02:23:23 -0700 (PDT)
+Received: from authenticated-user (box.trvn.ru [194.87.146.52])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by box.trvn.ru (Postfix) with ESMTPSA id 7836342404;
+        Tue,  1 Aug 2023 14:09:33 +0500 (+05)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=trvn.ru; s=mail;
+        t=1690880973; bh=yNGffE2xORf7vTs2Y1W53hQMQRyrUgd9ZhG7sX37y4A=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+        b=hX1plOZNoNSYJ5Tes9r9w+Q/U6cB5DeuWOBj6NBaonWMsBKdPxBjBPNnspPmNgs+x
+         e5UtyXZClheTyYeO+gdrQX5tYyArOesq4lX2fw6Inc6GvneEMAisUuwylNh1C0ckNt
+         fwZPIiN2bBe5WjN1MnWpJgpOIwGxyjSpUmJGAsKF+Y/uNXXIgDROE3nrQYDlAeoHtm
+         yDEaaA2Fmj7ogEpEsdLrtukiaXgImjv08QDZCv9Jmk1RgfmBkUJJbm82s9mmVWI32x
+         7FN0e+Bk+D0SoZNCH4cCQKh7odpO8jBIPM8qm2RGN9pm0bpjAd+En3a2DjC5cBIHNk
+         P9zisnV7Z9uvA==
+From:   Nikita Travkin <nikita@trvn.ru>
+Date:   Tue, 01 Aug 2023 14:09:26 +0500
+Subject: [PATCH v4 2/2] input: zinitix: Add touchkey support
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZMh0Sa9s25JHhWw5@nixie71>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20230801-zinitix-tkey-v4-2-b85526c5a474@trvn.ru>
+References: <20230801-zinitix-tkey-v4-0-b85526c5a474@trvn.ru>
+In-Reply-To: <20230801-zinitix-tkey-v4-0-b85526c5a474@trvn.ru>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Michael Srba <Michael.Srba@seznam.cz>,
+        Linus Walleij <linus.walleij@linaro.org>
+Cc:     linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Nikita Travkin <nikita@trvn.ru>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=5056; i=nikita@trvn.ru;
+ h=from:subject:message-id; bh=yNGffE2xORf7vTs2Y1W53hQMQRyrUgd9ZhG7sX37y4A=;
+ b=owEBbQKS/ZANAwAIAUMc7O4oGb91AcsmYgBkyMvLM2Nf8SA/czU3HoTxrDPUJ/IPRby80sAm+
+ rJumybz3nSJAjMEAAEIAB0WIQTAhK9UUj+qg34uxUdDHOzuKBm/dQUCZMjLywAKCRBDHOzuKBm/
+ den8D/4khojf1r+/C8XgSbDvRhAGeqR63FHudPA1/rFI9dJOFGxCHsRRwOUn/E5a0WsltefurHX
+ nZ7+wZ01WHndrfUZSHF2WiogfRhvupwPK+8IfQl6igrmOeKovmtVNFQRmd0ZAnzCPYVSdwHmiqD
+ 6KfOaDngQte2j4mOG0/JvE5BwxWMA4oUPyAge5X6+CQ2NunhjgtcsNFjgClgRxZYdcNbJZxRMS4
+ rUkybAPiiteX1VY2D6qtn9j20azMKI9rJhnIag0qlGs32szer8+Smd4FV+AW47u3Ac00cWcp29u
+ s75Ctqf/8sf1C8zja9KsY4RcGDP6Pzx02dR+binCR2LY1Lg0uNQ46n1Mtsn+EnD1XhoGF7b8Ves
+ VHk18/uJA1mwrVsfOu/9PqIiNOyeoizoRlSSVCeRsWh1fV+A6uXpDJliQNTx+bD6YJvEk3KbUFT
+ 7EH5ky/dbcZrLt9uZGSA9KBE5ONIxdvej9bGigt2IpCgd8ifZMcIrhewnL+cknT0QUMmXfmIXhX
+ T2Trqsil4o9IDJDESMNh4bV+UlrWfslFtU3iKOoUDRDKp4Wx/JtlDLxdPjxOkIbULOguvoHp0r+
+ gEP4P3290bb0mGMmMFxd28ZrbEm9QB8cz0Ixu7Kuuwh6/Yvh5OKzW+zhsFesRCkF1jMvdcOqn+z
+ dNH/XLZEht3ZWrA==
+X-Developer-Key: i=nikita@trvn.ru; a=openpgp;
+ fpr=C084AF54523FAA837E2EC547431CECEE2819BF75
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Jul 31, 2023 at 09:56:09PM -0500, Jeff LaBundy wrote:
-> Hi all,
-> 
-> On Mon, Jul 31, 2023 at 07:49:50PM +0200, Marek Vasut wrote:
-> > On 7/31/23 18:24, Dmitry Torokhov wrote:
-> > > On Mon, Jul 31, 2023 at 04:36:01PM +0200, Marek Vasut wrote:
-> > > > On 7/31/23 16:20, Takashi Iwai wrote:
-> > > > 
-> > > > [...]
-> > > > 
-> > > > > > > > Uh, I don't need a full sound device to emit beeps, that's not even
-> > > > > > > > possible with this hardware.
-> > > > > > > 
-> > > > > > > Heh, I also don't recommend that route, either :)
-> > > > > > > (Though, it must be possible to create a sound device with that beep
-> > > > > > > control in theory)
-> > > > > > 
-> > > > > > I mean, I can imagine one could possibly use PCM DMA to cook samples
-> > > > > > to feed some of the PWM devices so they could possibly be used to
-> > > > > > generate low quality audio, as a weird limited DAC, but ... that's not
-> > > > > > really generic, and not what I want.
-> > > > > 
-> > > > > Oh I see how the misunderstanding came; I didn't mean the PCM
-> > > > > implementation like pcsp driver.  The pcsp driver is a real hack and
-> > > > > it's there just for fun, not for any real practical use.
-> > > > 
-> > > > Ah :)
-> > > > 
-> > > > > What I meant was rather that you can create a sound device containing
-> > > > > a mixer volume control that serves exactly like the sysfs or whatever
-> > > > > other interface, without any PCM stream or other interface.
-> > > > 
-> > > > Ahhh, hum, I still feel like this might be a bit overkill here.
-> > > > 
-> > > > > > > > I only need to control loudness of the
-> > > > > > > > beeper that is controlled by PWM output. That's why I am trying to
-> > > > > > > > extend the pwm-beeper driver, which seems the best fit for such a
-> > > > > > > > device, it is only missing this one feature (loudness control).
-> > > > > > > 
-> > > > > > > So the question is what's expected from user-space POV.  If a more
-> > > > > > > generic control of beep volume is required, e.g. for desktop-like
-> > > > > > > usages, an implementation of sound driver wouldn't be too bad.
-> > > > > > > OTOH, for other specific use-cases, it doesn't matter much in which
-> > > > > > > interface it's implemented, and sysfs could be an easy choice.
-> > > > > > 
-> > > > > > The whole discussion above has been exactly about this. Basically the
-> > > > > > thing is, we can either have:
-> > > > > > - SND_TONE (via some /dev/input/eventX) + sysfs volume control
-> > > > > >     -> This is simple, but sounds racy between input and sysfs accesses
-> > > > > 
-> > > > > Hmm, how can it be racy if you do proper locking?
-> > > > 
-> > > > I can imagine two applications can each grab one of the controls and that
-> > > > makes the interface a bit not nice. That would require extra synchronization
-> > > > in userspace and so on.
-> > > > 
-> > > > > > - SND_TONE + SND_TONE_SET_VOLUME
-> > > > > >     -> User needs to do two ioctls, hum
-> > > > > > - some new SND_TONE_WITH_VOLUME
-> > > > > >     -> Probably the best option, user sets both tone frequency and volume
-> > > > > >        in one go, and it also only extends the IOCTL interface, so older
-> > > > > >        userspace won't have issues
-> > > > > 
-> > > > > Those are "extensions" I have mentioned, and I'm not a big fan for
-> > > > > that, honestly speaking.
-> > > > > 
-> > > > > The fact that the beep *output* stuff is provided by the *input*
-> > > > > device is already confusing
-> > > > 
-> > > > I agree, this confused me as well.
-> > > 
-> > > This comes from the times when keyboards themselves were capable of
-> > > emitting bells (SUN, DEC, etc). In hindsight it was not the best way of
-> > > structuring things, same with the keyboard LEDs (that are now plugged
-> > > into the LED subsystem, but still allow be driven through input).
-> > > 
-> > > And in the same vein I wonder if we should bite the bullet and pay with
-> > > a bit of complexity but move sound-related things to sound subsystem.
-> > 
-> > I am not sure that's the right approach here, since the device cannot do PCM
-> > playback, just bleeps.
-> > 
-> > > > > (it was so just because of historical
-> > > > > reason), and yet you start implementing more full-featured mixer
-> > > > > control.  I'd rather keep fingers away.
-> > > > > 
-> > > > > Again, if user-space requires the compatible behavior like the
-> > > > > existing desktop usages
-> > > > 
-> > > > It does not. These pwm-beeper devices keep showing up in various embedded
-> > > > devices these days.
-> > > > 
-> > > > > , it can be implemented in a similar way like
-> > > > > the existing ones; i.e. provide a mixer control with a proper sound
-> > > > > device.  The sound device doesn't need to provide a PCM interface but
-> > > > > just with a mixer interface.
-> > > > > 
-> > > > > Or, if the purpose of your target device is a special usage, you don't
-> > > > > need to consider too much about the existing interface, and try to
-> > > > > keep the change as minimal as possible without too intrusive API
-> > > > > changes.
-> > > > 
-> > > > My use case is almost perfectly matched by the current input pwm-beeper
-> > > > driver, the only missing bit is the ability to control the loudness at
-> > > > runtime. I think adding the SND_TONE_WITH_VOLUME parameter would cover it,
-> > > > with least intrusive API changes.
-> > > > 
-> > > > The SND_TONE already supports configuring tone frequency in Hz as its
-> > > > parameter. Since anything above 64 kHz is certainly not hearable by humans,
-> > > > I would say the SND_TONE_WITH_VOLUME could use 16 LSbits for frequency (so
-> > > > up to 65535 Hz , 0 is OFF), and 16 MSbits for volume .
-> > > > 
-> > > > I'm hesitant to overcomplicate something which can currently be controlled
-> > > > via single ioctl by pulling in sound subsystem into the picture.
-> > > 
-> > > Can you tell a bit more about your use case? What needs to control the
-> > > volume of beeps? Is this the only source of sounds on the system?
-> > 
-> > Custom user space application. The entire userspace is custom built in this
-> > case.
-> > 
-> > In this case, it is a single-use device (think e.g. the kind of thermometer
-> > you stick in your ear when you're ill, to find out how warm you are).
-> > 
-> > The beeper there is used to do just that, bleep (with different frequencies
-> > to indicate different stuff), and that works. What I need in addition to
-> > that is control the volume of the bleeps from the application, so it isn't
-> > too noisy. And that needs to be user-controllable at runtime, so not
-> > something that goes in DT.
-> > 
-> > Right now there is just the bleeper , yes.
-> 
-> It sounds like we essentially need an option within pcsp to drive PWM
-> instead of PCM, but input already has pwm-beeper; it seems harmless to
-> gently extend the latter for this use-case as opposed to reworking the
-> former.
-> 
-> I agree that we should not invest too heavily in a legacy ABI, however
-> something like SND_BELL_VOL seems like a low-cost addition that doesn't
-> work against extending pcsp in the future. In fact, input already has
-> precedent for this exact same thing by way of FF rumble effects, which
-> are often PWM-based themselves.
-> 
-> If SND_BELL_VOL or similar is not acceptable, then the original sysfs
-> approach seems like the next-best compromise. My only issue with it was
-> that I felt the range was not abstracted enough.
+Zinitix touch controllers can use some of the sense lines for virtual
+keys (like those found on many phones). Add support for those keys.
 
-If we want to extend the API we will need to define exactly how it will
-all work. I.e. what happens if userspace mixes the old SND_TONE and
-SND_BELL with the new SND_BELL_VOL or whatever. Does it play with
-previously set volume? The default one? How to set the default one? How
-to figure out what the current volume is if we decide to make volume
-"sticky"?
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Nikita Travkin <nikita@trvn.ru>
+---
+ drivers/input/touchscreen/zinitix.c | 61 +++++++++++++++++++++++++++++++++++--
+ 1 file changed, 58 insertions(+), 3 deletions(-)
 
-As far as userspace I expect it is more common to have one program (or
-component of a program) to set volume and then something else requests
-sound, so having one-shot API is of dubious value to me.
-
-I hope we can go with Takashi's proposal downthread, but if not I wonder
-if the sysfs approach is not the simplest one. Do we expect more beepers
-that can control volume besides pwm-beeper?
-
-Thanks.
+diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
+index 1b4807ba4624..75390d67689e 100644
+--- a/drivers/input/touchscreen/zinitix.c
++++ b/drivers/input/touchscreen/zinitix.c
+@@ -119,6 +119,7 @@
+ 
+ #define DEFAULT_TOUCH_POINT_MODE		2
+ #define MAX_SUPPORTED_FINGER_NUM		5
++#define MAX_SUPPORTED_BUTTON_NUM		8
+ 
+ #define CHIP_ON_DELAY				15 // ms
+ #define FIRMWARE_ON_DELAY			40 // ms
+@@ -146,6 +147,8 @@ struct bt541_ts_data {
+ 	struct touchscreen_properties prop;
+ 	struct regulator_bulk_data supplies[2];
+ 	u32 zinitix_mode;
++	u32 keycodes[MAX_SUPPORTED_BUTTON_NUM];
++	int num_keycodes;
+ };
+ 
+ static int zinitix_read_data(struct i2c_client *client,
+@@ -195,6 +198,7 @@ static int zinitix_init_touch(struct bt541_ts_data *bt541)
+ 	struct i2c_client *client = bt541->client;
+ 	int i;
+ 	int error;
++	u16 int_flags = 0;
+ 
+ 	error = zinitix_write_cmd(client, ZINITIX_SWRESET_CMD);
+ 	if (error) {
+@@ -225,6 +229,11 @@ static int zinitix_init_touch(struct bt541_ts_data *bt541)
+ 	if (error)
+ 		return error;
+ 
++	error = zinitix_write_u16(client, ZINITIX_BUTTON_SUPPORTED_NUM,
++				  bt541->num_keycodes);
++	if (error)
++		return error;
++
+ 	error = zinitix_write_u16(client, ZINITIX_INITIAL_TOUCH_MODE,
+ 				  bt541->zinitix_mode);
+ 	if (error)
+@@ -235,9 +244,12 @@ static int zinitix_init_touch(struct bt541_ts_data *bt541)
+ 	if (error)
+ 		return error;
+ 
+-	error = zinitix_write_u16(client, ZINITIX_INT_ENABLE_FLAG,
+-				  BIT_PT_CNT_CHANGE | BIT_DOWN | BIT_MOVE |
+-					BIT_UP);
++	int_flags = BIT_PT_CNT_CHANGE | BIT_DOWN | BIT_MOVE | BIT_UP;
++
++	if (bt541->num_keycodes)
++		int_flags |= BIT_ICON_EVENT;
++
++	error = zinitix_write_u16(client, ZINITIX_INT_ENABLE_FLAG, int_flags);
+ 	if (error)
+ 		return error;
+ 
+@@ -350,6 +362,15 @@ static void zinitix_report_finger(struct bt541_ts_data *bt541, int slot,
+ 	}
+ }
+ 
++static void zinitix_report_keys(struct bt541_ts_data *bt541, u16 icon_events)
++{
++	int i;
++
++	for (i = 0; i < bt541->num_keycodes; i++)
++		input_report_key(bt541->input_dev,
++				 bt541->keycodes[i], !!(icon_events & BIT(i)));
++}
++
+ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+ {
+ 	struct bt541_ts_data *bt541 = bt541_handler;
+@@ -358,6 +379,7 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+ 	unsigned long finger_mask;
+ 	int error;
+ 	int i;
++	__le16 icon_events = 0;
+ 
+ 	memset(&touch_event, 0, sizeof(struct touch_event));
+ 
+@@ -368,6 +390,17 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+ 		goto out;
+ 	}
+ 
++	if (le16_to_cpu(touch_event.status) & BIT_ICON_EVENT) {
++		error = zinitix_read_data(bt541->client, ZINITIX_ICON_STATUS_REG,
++					  &icon_events, sizeof(icon_events));
++		if (error) {
++			dev_err(&client->dev, "Failed to read icon events\n");
++			goto out;
++		}
++
++		zinitix_report_keys(bt541, le16_to_cpu(icon_events));
++	}
++
+ 	finger_mask = touch_event.finger_mask;
+ 	for_each_set_bit(i, &finger_mask, MAX_SUPPORTED_FINGER_NUM) {
+ 		const struct point_coord *p = &touch_event.point_coord[i];
+@@ -453,6 +486,7 @@ static int zinitix_init_input_dev(struct bt541_ts_data *bt541)
+ {
+ 	struct input_dev *input_dev;
+ 	int error;
++	int i;
+ 
+ 	input_dev = devm_input_allocate_device(&bt541->client->dev);
+ 	if (!input_dev) {
+@@ -470,6 +504,14 @@ static int zinitix_init_input_dev(struct bt541_ts_data *bt541)
+ 	input_dev->open = zinitix_input_open;
+ 	input_dev->close = zinitix_input_close;
+ 
++	if (bt541->num_keycodes) {
++		input_dev->keycode = bt541->keycodes;
++		input_dev->keycodemax = bt541->num_keycodes;
++		input_dev->keycodesize = sizeof(bt541->keycodes[0]);
++		for (i = 0; i < bt541->num_keycodes; i++)
++			input_set_capability(input_dev, EV_KEY, bt541->keycodes[i]);
++	}
++
+ 	input_set_capability(input_dev, EV_ABS, ABS_MT_POSITION_X);
+ 	input_set_capability(input_dev, EV_ABS, ABS_MT_POSITION_Y);
+ 	input_set_abs_params(input_dev, ABS_MT_WIDTH_MAJOR, 0, 255, 0, 0);
+@@ -534,6 +576,19 @@ static int zinitix_ts_probe(struct i2c_client *client)
+ 		return error;
+ 	}
+ 
++	bt541->num_keycodes = of_property_read_variable_u32_array(
++					client->dev.of_node, "linux,keycodes",
++					bt541->keycodes, 0,
++					ARRAY_SIZE(bt541->keycodes));
++	if (bt541->num_keycodes == -EINVAL) {
++		bt541->num_keycodes = 0;
++	} else if (bt541->num_keycodes < 0) {
++		dev_err(&client->dev,
++			"Unable to parse \"linux,keycodes\" property: %d\n",
++			bt541->num_keycodes);
++		return bt541->num_keycodes;
++	}
++
+ 	error = zinitix_init_input_dev(bt541);
+ 	if (error) {
+ 		dev_err(&client->dev,
 
 -- 
-Dmitry
+2.41.0
+

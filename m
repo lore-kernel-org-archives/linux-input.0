@@ -2,79 +2,89 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BA225EB64DD
-	for <linux-input@archiver.kernel.org>; Mon,  7 Aug 2023 11:34:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71005C001B0
+	for <linux-input@archiver.kernel.org>; Mon,  7 Aug 2023 12:54:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232858AbjHGLeL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 7 Aug 2023 07:34:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41114 "EHLO
+        id S231463AbjHGMya (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 7 Aug 2023 08:54:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233286AbjHGLdc (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Aug 2023 07:33:32 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6EFE4EF4;
-        Mon,  7 Aug 2023 04:31:07 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED7146187F;
-        Mon,  7 Aug 2023 11:20:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50EBCC433CA;
-        Mon,  7 Aug 2023 11:20:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1691407207;
-        bh=lfov+GI9PtgjRx7EN6YfaLKl9aVqTtIrT6Szi7Q5Aw0=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=VGjJjiA/AR6RZlEx3M6eiKSYq97WMJhhiBtOLOFsPk7larBUKSpY6orDIQ37W40Eg
-         CkqBNC7jUKQk0V7TvLsE15J9VZMBiVdm2pb4oVHqqPLXKq0rQ47jG9DaKHQV6dyqG/
-         /GElL6HneXvTVdRJvuU42r2DcJFAZGFYI3ojxZHDPpka14OaeWtZCw0XsncjjBmT+v
-         nKwIMBRphNY4JzOev79uLBmc0lUCwdAAKQn7j++7OPIqCq1rD1K4CqPDdZdNCV+2Im
-         GCDuyHXYd66NvsEt1UDm+2LKH/KEV7mefNkOlXl1Ijm14BPzcDnTFoEXJCfqcQQuoQ
-         IK0t/UdJU9E/w==
-Date:   Mon, 7 Aug 2023 13:19:54 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: Re: [PATCH v1 00/12] HID: cp2112: Cleanups and refactorings
-In-Reply-To: <ZMydcGv8Dvu3Hje1@smile.fi.intel.com>
-Message-ID: <nycvar.YFH.7.76.2308071319140.14207@cbobk.fhfr.pm>
-References: <20230703185222.50554-1-andriy.shevchenko@linux.intel.com> <ZMK60UphgVuj4Z+L@smile.fi.intel.com> <ZMydcGv8Dvu3Hje1@smile.fi.intel.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        with ESMTP id S230357AbjHGMya (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 7 Aug 2023 08:54:30 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE3AC1BC
+        for <linux-input@vger.kernel.org>; Mon,  7 Aug 2023 05:54:28 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-4fe655796faso2192592e87.2
+        for <linux-input@vger.kernel.org>; Mon, 07 Aug 2023 05:54:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=eidu.com; s=google; t=1691412867; x=1692017667;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2DfdvCxJfYM4Q/0857W5zzq1ylp3XZu5ufiHO0W7npE=;
+        b=NfKlzMirniZlL4MK+W0oWS+PMjewSnQUH7dv/mYhOCMkkCCSbkmIbjHqVyq9gY0jOE
+         CDQTYhjlEqxs68SNlXERbj++vtZKG7VQDlYFEUyHcRoW1MV/psHuKC7qTJ2Yb43b7b7c
+         M68ulnBpStBpM3LngpFr/yoxOeTYQcJZOE+YM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1691412867; x=1692017667;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2DfdvCxJfYM4Q/0857W5zzq1ylp3XZu5ufiHO0W7npE=;
+        b=XabSA1iXRWo41aY3vKUPW9bZUhi94KkQEO+Hl49/p3xS8cv1YvzsRiopy6OlaN/n2T
+         k4GXUmuBtq2Z//3a5eKvQw9qw400iBGE1IVU3a87zhvUJkV7UVrRuzLdNrNm6DYNhP+A
+         kK3D9ipVu5qmJBFkOrxAr4oFCkG52nVEE/G511d+EaO65Wl4iTd1PAkXwgpaBbexIxtH
+         43zMIr8EcbGSBt0H3enxfLwMSe15Tu/kXxvamC7l7sc8mdk0ZdCy1VWcaV1LXOyubfcy
+         0IgdQRrEbdrInkW3eD3Q3vLUjPCYRpETVlUkxQbzUrZWgV+K+I/RQKUatEyJwEPI2WgJ
+         wObg==
+X-Gm-Message-State: AOJu0YzbWTO6XQMWk726JyuZ2XMmrO6tiKKJMkiBVB7Y85rj78oRfZuv
+        FF7a+KXgtQOn2lN/TVqedEHDrQ==
+X-Google-Smtp-Source: AGHT+IGc65e+QiIXdQqkXYK9WSXJtZnOWJJu+WEt8uVCjMUPob4MxUGNsEhI5KC+wBKXBJTQ0iXiRg==
+X-Received: by 2002:a05:6512:472:b0:4fd:fadc:f1e with SMTP id x18-20020a056512047200b004fdfadc0f1emr5574797lfd.44.1691412867057;
+        Mon, 07 Aug 2023 05:54:27 -0700 (PDT)
+Received: from felix.. (ip5f5aeb7e.dynamic.kabel-deutschland.de. [95.90.235.126])
+        by smtp.googlemail.com with ESMTPSA id b3-20020aa7cd03000000b0052229d203a4sm5180707edw.36.2023.08.07.05.54.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Aug 2023 05:54:26 -0700 (PDT)
+From:   Felix Engelhardt <felix.engelhardt@eidu.com>
+Cc:     Felix Engelhardt <felix.engelhardt@eidu.com>,
+        Bastien Nocera <hadess@hadess.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] drivers/input/touchscreen/goodix.c: Add support for ACPI ID GDX9110
+Date:   Mon,  7 Aug 2023 14:47:23 +0200
+Message-Id: <20230807124723.382899-1-felix.engelhardt@eidu.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Fri, 4 Aug 2023, Andy Shevchenko wrote:
+The Goodix touchscreen controller with ACPI ID GDX9110 was not recognized
+by the goodix driver. This patch adds this ID to the list of supported IDs,
+allowing the driver to be used with this device. The change will allow
+Linux to be used on ~1 million tablet devices used in Kenyan primary
+schools.
 
-> On Thu, Jul 27, 2023 at 09:43:29PM +0300, Andy Shevchenko wrote:
-> > On Mon, Jul 03, 2023 at 09:52:10PM +0300, Andy Shevchenko wrote:
-> > > After I updated GPIO library for the case Benjamin has with CP2112,
-> > > I have a brief look into the CP2112 driver itself.
-> > > 
-> > > From GPIO perspective it has two main (maitenance) issues:
-> > > - usage of ->to_irq() with IRQ chip present;
-> > > - having IRQ chip not immutable.
-> > > 
-> > > Besides that there are plenty small cleanups here and there.
-> > > Hence this series.
-> > 
-> > Any comments on this?
-> 
-> Gentle ping^2 for this...
-> 
-> Anything should I do to improve it or is it okay to go as is?
+Signed-off-by: Felix Engelhardt <felix.engelhardt@eidu.com>
+---
+ drivers/input/touchscreen/goodix.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-I have been off pretty much the whole July. I am now back and slowly 
-making my way through everything that accumulated, I will eventually get 
-to this.
-
-Thanks for the patience,
-
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index 4f53d3c57e69..9cdc01eb00c9 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -1379,6 +1379,7 @@ MODULE_DEVICE_TABLE(i2c, goodix_ts_id);
+ static const struct acpi_device_id goodix_acpi_match[] = {
+ 	{ "GDIX1001", 0 },
+ 	{ "GDIX1002", 0 },
++	{ "GDX9110", 0 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
 -- 
-Jiri Kosina
-SUSE Labs
+2.39.2
 

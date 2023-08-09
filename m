@@ -2,105 +2,198 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DD94FC0015E
-	for <linux-input@archiver.kernel.org>; Wed,  9 Aug 2023 11:56:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D579C04A6A
+	for <linux-input@archiver.kernel.org>; Wed,  9 Aug 2023 13:54:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231287AbjHIL4M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 9 Aug 2023 07:56:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50750 "EHLO
+        id S232509AbjHINyt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 9 Aug 2023 09:54:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjHIL4K (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Aug 2023 07:56:10 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A33D10F5
-        for <linux-input@vger.kernel.org>; Wed,  9 Aug 2023 04:55:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1691582119;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=Zt7LqWIunD9uLiutnGg/r/aysylTVw0JM0XLVqjNXY0=;
-        b=WaVAesjaMn0vYFBRyd/4cMxmU8onKb13yo7OL5Ygpdg8k4dPniQDj9zghP57B16BdSCT5Y
-        1ixcisOMEmLDMuOOjex1oR6tV6uxb6Y2HE1pNO3CgLfFpnhTnCIp/2tz/fJEn01REGllWE
-        b0ajT9197eA9DETjnAxqD4VZaFng37A=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-115-Y01Tnt9_Mi-gwVQdsEghLQ-1; Wed, 09 Aug 2023 07:55:18 -0400
-X-MC-Unique: Y01Tnt9_Mi-gwVQdsEghLQ-1
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-30e3ee8a42eso3219842f8f.1
-        for <linux-input@vger.kernel.org>; Wed, 09 Aug 2023 04:55:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1691582117; x=1692186917;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Zt7LqWIunD9uLiutnGg/r/aysylTVw0JM0XLVqjNXY0=;
-        b=LBy/xWRr2GEwpU/ivBqmGbUY8HWWJWaIYKnafzuuGmJb1nSdRmPL1PVtPkroCk3NSP
-         PkgS2++RAamLSBNeeQifA07L6yb/cLhBPDNeDGc4E2O6fl6GSsmQmxnvKGXqUULnOvlL
-         MwUfCgN7sl1kq4jvE63zhXoHnDVyfbv7EALqUNgCKuIE/ZaW4zmyKV07rvh8ejxb+HAM
-         bDvB12pNSnUgKTNLgX2fpj8LYJXn+uxLmeM+5UCLIbRqyF976d06HoM4y0CpQLuVAgoN
-         QuIJI/nixOFO4c+A6G66Aut7AFvWWwP3Ubf/Ap0i/7Qdp2x+8ZcU6Tt2uYWocfHMJeyO
-         2pHA==
-X-Gm-Message-State: AOJu0YzKQuVMtOEvR1O7lalWMq0nWAgBuZZNWkvXtCeHsMzRpqmNgoMW
-        ZCSMef7BkoEsA87JB86BxAh0jBxldecdnYmplbChA+Kcm0smcgps6OP88mXxMjNG9U3029btTLs
-        9hmYcpj7o1mChqbguoMkA7i4o36mpfqNOsg==
-X-Received: by 2002:adf:ea4d:0:b0:314:2ea7:af4a with SMTP id j13-20020adfea4d000000b003142ea7af4amr1808928wrn.13.1691582117236;
-        Wed, 09 Aug 2023 04:55:17 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGr93v0hyLIHcW/k6hETjK36rH1EoKsKnUopp5Llatjqvyl5Un4GPc3urRSOdmONvRVRXAw3g==
-X-Received: by 2002:adf:ea4d:0:b0:314:2ea7:af4a with SMTP id j13-20020adfea4d000000b003142ea7af4amr1808911wrn.13.1691582116897;
-        Wed, 09 Aug 2023 04:55:16 -0700 (PDT)
-Received: from toolbox ([2001:9e8:89b3:0:aff2:5f1a:8020:9f92])
-        by smtp.gmail.com with ESMTPSA id r2-20020a5d4942000000b003063a92bbf5sm16596618wrs.70.2023.08.09.04.55.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 09 Aug 2023 04:55:16 -0700 (PDT)
-Date:   Wed, 9 Aug 2023 13:55:15 +0200
-From:   Sebastian Wick <sebastian.wick@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Lyude Paul <lyude@redhat.com>, Aman Dhoot <amandhoot12@gmail.com>,
-        Mark Pearson <markpearson@lenovo.com>,
-        Raul Rangel <rrangel@chromium.org>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andrew Duggan <aduggan@synaptics.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Revert "Input: synaptics - enable InterTouch for the
- ThinkPad P1 G3"
-Message-ID: <20230809114242.GA24649@toolbox>
-References: <20230808152817.304836-1-sebastian.wick@redhat.com>
- <f13f4ff7d46ecf887ca652b664860c4e07ec8b73.camel@redhat.com>
- <ZNK8aG/y4ol7MXVp@google.com>
+        with ESMTP id S230493AbjHINyt (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 9 Aug 2023 09:54:49 -0400
+Received: from mx0b-001ae601.pphosted.com (mx0b-001ae601.pphosted.com [67.231.152.168])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 638052108;
+        Wed,  9 Aug 2023 06:54:47 -0700 (PDT)
+Received: from pps.filterd (m0077474.ppops.net [127.0.0.1])
+        by mx0b-001ae601.pphosted.com (8.17.1.22/8.17.1.22) with ESMTP id 379C2kWv024607;
+        Wed, 9 Aug 2023 08:54:10 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding:content-type; s=
+        PODMain02222019; bh=JB0AZ/AXR8/rd/bfazMug5AWdtpOlH1XPhUoSyJ8lWA=; b=
+        UjTM4QRFg2nM7SHoJsSIBsO528fO3R0QBeNbGcj/EE6JPM6TqwUDVnoLdtEic99M
+        wLdDgrDL4AZGk6ii28/bOSni5j04UMYEGWqUCbv4z31aQGZobxTx307xFCJ1EM6E
+        6sfS7KMErdcvMtNnhAyRn08weZI4/Q7oY+K9CYmnEegCZXJlvPs3/Gvnr/WhVTeM
+        gsUY94fQdBO788jVU7yYJRXonbUmhErTqLEZMpDT2L4udoAuBW6Hb0GzCFUE7jRd
+        KAjkKAwLOScdAgEey/wKG55PsrYOp0d+k9NoeMGhCASvnaoV8ZLosVtWj5zWKw7R
+        4blUsOSZnx/QNKto5+s0nw==
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001ae601.pphosted.com (PPS) with ESMTPS id 3s9juhur4t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Aug 2023 08:54:10 -0500 (CDT)
+Received: from m0077474.ppops.net (m0077474.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.22/8.17.1.22) with ESMTP id 379DnVJH001955;
+        Wed, 9 Aug 2023 08:54:09 -0500
+Received: from ediex02.ad.cirrus.com ([84.19.233.68])
+        by mx0b-001ae601.pphosted.com (PPS) with ESMTPS id 3s9juhur4q-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 09 Aug 2023 08:54:09 -0500 (CDT)
+Received: from ediex01.ad.cirrus.com (198.61.84.80) by ediex02.ad.cirrus.com
+ (198.61.84.81) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.30; Wed, 9 Aug
+ 2023 14:54:08 +0100
+Received: from aus-sw-rshr002.ad.cirrus.com (141.131.215.158) by
+ ediex01.ad.cirrus.com (198.61.84.80) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.30 via Frontend Transport; Wed, 9 Aug 2023 14:54:08 +0100
+Received: by aus-sw-rshr002.ad.cirrus.com (Postfix, from userid 46936)
+        id 3A2594C0CD1; Wed,  9 Aug 2023 13:54:07 +0000 (UTC)
+From:   James Ogletree <james.ogletree@cirrus.com>
+To:     <dmitry.torokhov@gmail.com>
+CC:     James Ogletree <james.ogletree@cirrus.com>,
+        Fred Treven <fred.treven@cirrus.com>,
+        Ben Bright <ben.bright@cirrus.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        "Lee Jones" <lee@kernel.org>, Eddie James <eajames@linux.ibm.com>,
+        Jacky Bai <ping.bai@nxp.com>, Arnd Bergmann <arnd@arndb.de>,
+        Jeff LaBundy <jeff@labundy.com>,
+        Markus Schneider-Pargmann <msp@baylibre.com>,
+        "Randy Dunlap" <rdunlap@infradead.org>,
+        ChiYuan Huang <cy_huang@richtek.com>,
+        "Jean Delvare" <jdelvare@suse.de>, Joel Stanley <joel@jms.id.au>,
+        <patches@cirrus.com>, <linux-input@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH v2 1/2] dt-bindings: input: cirrus,cs40l50: Support for CS40L50
+Date:   Wed, 9 Aug 2023 13:53:09 +0000
+Message-ID: <20230809135313.731706-2-james.ogletree@cirrus.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230809135313.731706-1-james.ogletree@cirrus.com>
+References: <20230809135313.731706-1-james.ogletree@cirrus.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZNK8aG/y4ol7MXVp@google.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: beVh5qQetXHHil0yygJ6wSwAODfQ_9CY
+X-Proofpoint-ORIG-GUID: bDajHZhNjbklE4dPlNtzoXg51lZi0k5R
+X-Proofpoint-Spam-Reason: safe
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Aug 08, 2023 at 03:06:32PM -0700, Dmitry Torokhov wrote:
-> On Tue, Aug 08, 2023 at 05:49:23PM -0400, Lyude Paul wrote:
-> > Hm, This looks fine to me (if not as a final fix, certainly as a workaround)
-> > 
-> > Reviewed-by: Lyude Paul <lyude@redhat.com>
-> > 
-> > However, this is definitely something we probably should try to fix at some
-> > point - as I imagine this must be happening because something regarding how
-> > clicks are reported must have changed again. Andrew, do you have any idea?
-> 
-> I would like to understand more about this. Is this with newer/older
-> BIOS, or another hardware revision of the product, or something else?
+Introduce device tree bindings for the initial commit
+of the CS40L50 driver.
 
-All I can say is that the touchpad worked fine before and at some point
-it stopped working. I remember updating the system and some firmware
-components shortly before this happened but I don't know anymore what
-those updates contained.
+Signed-off-by: James Ogletree <james.ogletree@cirrus.com>
+---
+ .../bindings/input/cirrus,cs40l50.yaml        | 77 +++++++++++++++++++
+ MAINTAINERS                                   |  9 +++
+ 2 files changed, 86 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
 
-> Lyude, do you still have access to the unit you originally developed
-> the original change for? Is the behavior broken there as well?
-> 
-> Thanks.
-> 
-> -- 
-> Dmitry
-> 
+diff --git a/Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml b/Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
+new file mode 100644
+index 000000000000..5437c6beb1b3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
+@@ -0,0 +1,77 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/cirrus,cs40l50.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Cirrus Logic CS40L50 Advanced Haptic Driver
++
++maintainers:
++  - James Ogletree <james.ogletree@cirrus.com>
++
++description:
++  CS40L50 is a Haptic Driver with Waveform Memory DSP
++  and Closed-Loop Algorithms
++
++properties:
++  compatible:
++    enum:
++      - cirrus,cs40l50
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  VA-supply:
++    description: Regulator for analog voltage
++
++  VP-supply:
++    description: Regulator for peak voltage
++
++  VIO-supply:
++    description: Regulator for digital IO voltage
++
++  cirrus,external-boost:
++    description:
++      Bypass the CS40L50 boost converter.
++
++      The amplifier on CS40L50 can be powered internally through the boost
++      converter, or else can be powered using an external supply. If an
++      external VA supply is used, the boost converter must be bypassed.
++    type: boolean
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - reset-gpios
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/input/input.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      cs40l50@34 {
++        compatible = "cirrus,cs40l50";
++        reg = <0x34>;
++        interrupt-parent = <&gpio>;
++        interrupts = <113 IRQ_TYPE_LEVEL_LOW>;
++        reset-gpios = <&gpio 112 GPIO_ACTIVE_LOW>;
++        VA-supply = <&dummy_vreg>;
++        VP-supply = <&dummy_vreg>;
++        VIO-supply = <&dummy_vreg>;
++        cirrus,external-boost;
++      };
++    };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 54ef320bb689..016e5ff3b831 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2081,6 +2081,15 @@ F:	arch/arm/boot/compressed/misc-ep93xx.h
+ F:	arch/arm/mach-ep93xx/
+ F:	drivers/iio/adc/ep93xx_adc.c
+ 
++CIRRUS LOGIC HAPTICS DRIVER
++M:	James Ogletree <james.ogletree@cirrus.com>
++M:	Fred Treven <fred.treven@cirrus.com>
++M:	Ben Bright <ben.bright@cirrus.com>
++L:	patches@Qopensource.cirrus.com
++S:	Supported
++T:	git https://github.com/CirrusLogic/linux-drivers.git
++F:	Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
++
+ ARM/CLKDEV SUPPORT
+ M:	Russell King <linux@armlinux.org.uk>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+-- 
+2.25.1
 

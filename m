@@ -2,28 +2,28 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9C26BC0015E
-	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 18:58:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30ED5C04E69
+	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 18:58:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239310AbjHOS56 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S239523AbjHOS56 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Tue, 15 Aug 2023 14:57:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59036 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239633AbjHOS5z (ORCPT
+        with ESMTP id S239534AbjHOS5a (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2023 14:57:55 -0400
+        Tue, 15 Aug 2023 14:57:30 -0400
 Received: from mail.andi.de1.cc (mail.andi.de1.cc [IPv6:2a02:c205:3004:2154::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D211BEB;
-        Tue, 15 Aug 2023 11:57:32 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1769210E;
+        Tue, 15 Aug 2023 11:56:57 -0700 (PDT)
 Received: from p200300ccff31d1001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:cc:ff31:d100:1a3d:a2ff:febf:d33a] helo=aktux)
         by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <andreas@kemnade.info>)
-        id 1qVynp-002fC5-0r; Tue, 15 Aug 2023 20:30:01 +0200
+        id 1qVyno-002fC1-4Z; Tue, 15 Aug 2023 20:30:00 +0200
 Received: from andi by aktux with local (Exim 4.96)
         (envelope-from <andreas@kemnade.info>)
-        id 1qVyno-000tJ7-25;
-        Tue, 15 Aug 2023 20:30:00 +0200
+        id 1qVynn-000tIy-0u;
+        Tue, 15 Aug 2023 20:29:59 +0200
 From:   Andreas Kemnade <andreas@kemnade.info>
 To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
@@ -34,74 +34,33 @@ To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
 Cc:     Andreas Kemnade <andreas@kemnade.info>
-Subject: [PATCH 2/4] dt-bindings: touchscreen: neonode,zforce: Use standard properties
-Date:   Tue, 15 Aug 2023 20:29:46 +0200
-Message-Id: <20230815182948.212575-3-andreas@kemnade.info>
+Subject: [PATCH 0/4] Input: zforce_ts: standard properties
+Date:   Tue, 15 Aug 2023 20:29:44 +0200
+Message-Id: <20230815182948.212575-1-andreas@kemnade.info>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230815182948.212575-1-andreas@kemnade.info>
-References: <20230815182948.212575-1-andreas@kemnade.info>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Enable touchscreen orientation to be specified by using standard
-properties.
+Accept standard touchscreen properties to also enable specification
+of touchscreen orientation. 
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
----
- .../bindings/input/touchscreen/neonode,zforce.yaml  | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+Andreas Kemnade (4):
+  dt-bindings: touchscreen: convert neonode,zforce to json-schema
+  dt-bindings: touchscreen: neonode,zforce: Use standard properties
+  Input: zforce_ts: Accept standard touchscreen properties
+  ARM: dts: imx6sl-tolino-shine2hd: fix touchscreen rotation
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml b/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
-index 1c45adb2407a..03513f38c9cc 100644
---- a/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
-+++ b/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
-@@ -9,6 +9,9 @@ title: Neonode infrared touchscreen controller
- maintainers:
-   - Heiko Stuebner <heiko.stuebner@bqreaders.com>
- 
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
- properties:
-   compatible:
-     const: neonode,zforce
-@@ -26,9 +29,11 @@ properties:
-     maxItems: 1
- 
-   x-size:
-+    deprecated: true
-     $ref: /schemas/types.yaml#/definitions/uint32
- 
-   y-size:
-+    deprecated: true
-     $ref: /schemas/types.yaml#/definitions/uint32
- 
-   vdd-supply: true
-@@ -38,8 +43,6 @@ required:
-   - reg
-   - interrupts
-   - reset-gpios
--  - x-size
--  - y-size
- 
- unevaluatedProperties: false
- 
-@@ -60,8 +63,10 @@ examples:
-             reset-gpios = <&gpio5 9 0>; /* RST */
-             irq-gpios = <&gpio5 6 0>; /* IRQ, optional */
- 
--            x-size = <800>;
--            y-size = <600>;
-+            touchscreen-min-x = <0>;
-+            touchscreen-size-x = <800>;
-+            touchscreen-min-y = <0>;
-+            touchscreen-size-y = <600>;
-         };
-     };
- ...
+ .../input/touchscreen/neonode,zforce.yaml     | 72 +++++++++++++++++++
+ .../bindings/input/touchscreen/zforce_ts.txt  | 34 ---------
+ .../dts/nxp/imx/imx6sl-tolino-shine2hd.dts    |  6 +-
+ drivers/input/touchscreen/zforce_ts.c         | 36 +++++-----
+ 4 files changed, 94 insertions(+), 54 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
+ delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+
 -- 
 2.39.2
 

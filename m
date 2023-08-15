@@ -2,155 +2,213 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A8CE9C41513
-	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 05:12:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5F640C04A6A
+	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 06:04:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234593AbjHOFLv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 15 Aug 2023 01:11:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59748 "EHLO
+        id S234803AbjHOGEQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 15 Aug 2023 02:04:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234682AbjHOFLI (ORCPT
+        with ESMTP id S234799AbjHOGDs (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2023 01:11:08 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 644551BDF
-        for <linux-input@vger.kernel.org>; Mon, 14 Aug 2023 22:10:19 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id a640c23a62f3a-99bdcade7fbso654291366b.1
-        for <linux-input@vger.kernel.org>; Mon, 14 Aug 2023 22:10:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1692076218; x=1692681018;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=bF28iUeNk56JK9TsikccLm4WltEZTE19xKJs8jn9uAQ=;
-        b=mct1vZmLVqpwNiftHjdz7sR0wwQM52RIrTCtLvKnBc2sulf7CmZZyCra3ey1Z/4bjF
-         q4kUgcJw32Vs/LONAis+TdSogerfcdo8Bxm1w/USc1PBdt9Dgu0LSJr53rXp3wjxOP3V
-         7+KEGCJW1Zda2YQoU3E6NWn8gXrqVD93UzAPgpQbP1AqAw2wrnxdyDtlncPHJaknhwHv
-         6kzV4bMU738my/CRVd1OqkR2vZBCvxBuBU7cHm1uqr+ZJVucJccb+LqgcfBmeCR7Iacl
-         9IWQJ2AyAhcDpkEGgVY68QsnIhWwUpOFOYTkWdU+LR5v/i1+SSluK/dvGHsRv6Pwde/o
-         NPTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692076218; x=1692681018;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bF28iUeNk56JK9TsikccLm4WltEZTE19xKJs8jn9uAQ=;
-        b=PAcPL79tRMOrsLp3LIgs5xArcHc0DZLzH1TBO9wUTWHZcqtgnzOKtbQYwuYPuo+4X8
-         nAXUMtfKZuDjCWRBThr3JINzzBvHbZ0pqcqZApW6YlymWokKx85sDqEgdx4rP6EvusEE
-         G+7gnNgPFSL+ITlTXy3ryOxEStszqrBgypn0yL47IQAVuSzqWIZtAd8vVZ43rE0Jw16X
-         m15OasIJkPMsxN5F1DW0lEN7Xe92xEpmI9rAfNASXFasFtH4eqwjsAag5DgI9tgjJ6FO
-         49gp1bn+ZyEcNImIT3dIX9WxpIYpUY13DWPa3DbHXggpZKFM4zvMgkuuQoOgDEceHBKK
-         KZ4Q==
-X-Gm-Message-State: AOJu0YzfKjnSrob/9ncTROt90ZqZJzivpUWOlG2fNLMygkYWeu8l2Pzq
-        xaGc53iaSejqC7jqTFhUXjIYOQ==
-X-Google-Smtp-Source: AGHT+IGBkZ4LMf+dzSXpi05VjH8TZyFkhr+fyibIr+D55iwAeA/gaFr4uFToJqM8dsAEqZpeG1xURQ==
-X-Received: by 2002:a17:907:7606:b0:991:e458:d14 with SMTP id jx6-20020a170907760600b00991e4580d14mr8196881ejc.34.1692076217690;
-        Mon, 14 Aug 2023 22:10:17 -0700 (PDT)
-Received: from [192.168.1.20] ([178.197.214.188])
-        by smtp.gmail.com with ESMTPSA id d2-20020a170906640200b0099d0c0bb92bsm6461343ejm.80.2023.08.14.22.10.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 14 Aug 2023 22:10:17 -0700 (PDT)
-Message-ID: <2d8669f1-bab0-d02c-ece5-a6cd87b51e8e@linaro.org>
-Date:   Tue, 15 Aug 2023 07:10:15 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Subject: Re: [PATCH v4 2/3] dt-bindings: input: qcom,pm8xxx-vib: add new SPMI
- vibrator module
-Content-Language: en-US
-To:     Fenglin Wu <quic_fenglinw@quicinc.com>,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, robh+dt@kernel.org,
-        agross@kernel.org, andersson@kernel.org,
-        dmitry.baryshkov@linaro.org,
+        Tue, 15 Aug 2023 02:03:48 -0400
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C34793;
+        Mon, 14 Aug 2023 23:03:46 -0700 (PDT)
+Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
+        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 37F5UEwA014462;
+        Tue, 15 Aug 2023 06:03:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
+ subject : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding : content-type; s=qcppdkim1;
+ bh=W1ZndHb06o1CqBfEMHAQs0xKzsPqR8W26l51gDxt9tE=;
+ b=l0QYp/a/ndOuDYURMdVL31uaACkI+Ktakb5YS5BbvRH6uQR++Y5rPsMNEYaiLoxv1gQ/
+ rZUQQewRxqmlcGfWOLwuWC7MicIqBIyJxSgXttoDu4Zylfr6EiFOPevCckaEhPCgzzjW
+ tXfU8AthMWOyCEtxyyL/R85g2IfVHzlzrCyWcjBcpP8Cy42HEGug89yn+OW5pmP9s1QH
+ 9IcnyxY/YKHZrtg3YuQnl9kpM9qm1n36OAsaZRm35XTz0ZCc+8EnJa8VcCiHy+VYAkzT
+ YHoq4jyZmtaH2Iz2w3SuCVH57YOJ6EMCEiaxL/NoZvlYAH8ZHw4HoWmXP0TecBwtXh/6 Qw== 
+Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3sfxqrrdan-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Aug 2023 06:03:41 +0000
+Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
+        by NALASPPMTA03.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 37F63eWb006637
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 15 Aug 2023 06:03:40 GMT
+Received: from fenglinw2-gv.qualcomm.com (10.80.80.8) by
+ nalasex01c.na.qualcomm.com (10.47.97.35) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.30; Mon, 14 Aug 2023 23:03:37 -0700
+From:   Fenglin Wu <quic_fenglinw@quicinc.com>
+To:     <linux-arm-msm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>, <robh+dt@kernel.org>,
+        <agross@kernel.org>, <andersson@kernel.org>,
+        <dmitry.baryshkov@linaro.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org
-Cc:     quic_collinsd@quicinc.com, quic_subbaram@quicinc.com,
-        quic_kamalw@quicinc.com, jestar@qti.qualcomm.com
-References: <20230731053712.2220898-1-quic_fenglinw@quicinc.com>
- <20230731053712.2220898-3-quic_fenglinw@quicinc.com>
- <a1b1cead-17e4-2016-91a1-9ad9949ff9e3@linaro.org>
- <19e45248-5fff-d806-81f2-feea56d7778d@quicinc.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <19e45248-5fff-d806-81f2-feea56d7778d@quicinc.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+        <linux-input@vger.kernel.org>
+CC:     <quic_collinsd@quicinc.com>, <quic_subbaram@quicinc.com>,
+        <quic_fenglinw@quicinc.com>, <quic_kamalw@quicinc.com>,
+        <jestar@qti.qualcomm.com>, Luca Weiss <luca.weiss@fairphone.com>
+Subject: [PATCH v5 3/3] input: pm8xxx-vibrator: add new SPMI vibrator support
+Date:   Tue, 15 Aug 2023 14:03:14 +0800
+Message-ID: <20230815060314.352103-4-quic_fenglinw@quicinc.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230815060314.352103-1-quic_fenglinw@quicinc.com>
+References: <20230815060314.352103-1-quic_fenglinw@quicinc.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.80.80.8]
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01c.na.qualcomm.com (10.47.97.35)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: B0d9tHDdxCSuJ7Al-Kj539hUcdJjHuz7
+X-Proofpoint-ORIG-GUID: B0d9tHDdxCSuJ7Al-Kj539hUcdJjHuz7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.957,Hydra:6.0.591,FMLib:17.11.176.26
+ definitions=2023-08-15_04,2023-08-10_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 adultscore=0
+ clxscore=1011 impostorscore=0 mlxscore=0 phishscore=0 bulkscore=0
+ spamscore=0 malwarescore=0 priorityscore=1501 suspectscore=0
+ lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2306200000 definitions=main-2308150055
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 15/08/2023 04:20, Fenglin Wu wrote:
-> 
-> 
-> On 8/14/2023 6:06 PM, Krzysztof Kozlowski wrote:
->> On 31/07/2023 07:37, Fenglin Wu wrote:
->>> Add compatible string 'qcom,spmi-vib-gen2' to support vibrator module
->>> inside PMI632, PMI7250B, PM7325B, PM7550BA.
->>>
->>> Signed-off-by: Fenglin Wu <quic_fenglinw@quicinc.com>
->>> ---
->>>   .../bindings/input/qcom,pm8xxx-vib.yaml          | 16 ++++++++++++----
->>>   1 file changed, 12 insertions(+), 4 deletions(-)
->>>
->>> diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
->>> index c8832cd0d7da..4a2319fc1e3f 100644
->>> --- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
->>> +++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
->>> @@ -11,10 +11,18 @@ maintainers:
->>>   
->>>   properties:
->>>     compatible:
->>> -    enum:
->>> -      - qcom,pm8058-vib
->>> -      - qcom,pm8916-vib
->>> -      - qcom,pm8921-vib
->>> +    oneOf:
->>> +      - enum:
->>> +          - qcom,pm8058-vib
->>> +          - qcom,pm8916-vib
->>> +          - qcom,pm8921-vib
->>> +      - items:
->>> +          - enum:
->>> +              - qcom,pmi632-vib
->>> +              - qcom,pm7250b-vib
->>> +              - qcom,pm7325b-vib
->>> +              - qcom,pm7550b-vib
->>> +          - const: qcom,spmi-vib-gen2
->>
->> This does not seem to implement my comment:
->>
->> "Entirely remove qcom,spmi-vib-gen2 and
->> qcom,spmi-vib-gen1.
->>
->> Use device specific compatibles names only. As fallback and as first
->> compatible."
->>
->> It's nice to respond that you disagree with it. Therefore, I am not
->> going to Ack it.
-> 
-> I saw your comments and I replied your later comments in v2: 
-> https://lore.kernel.org/linux-arm-msm/b5e58172-beb5-0be3-834f-3f1db3e8b3b3@quicinc.com/. 
-> It might not be a good place to follow the discussion though, I am 
-> pasting my last reply below:
-> 
-> 'Sorry, I forgot to mention, in v3, I added the 'reg' value to the
-> register offset and no longer hard code the 16-bit register address,
-> that makes the vibrators inside PMI632/PM7250B/PM7325B/PM7550BA all
-> compatible, and that was another motivation of adding a generic
-> compatible string and make the others as the fallback.
-> 
-> This will be still the case in v4, I might keep it similar in v3 but
-> just drop "qcom,spmi-vib-gen1" '
-> 
-> Anyway, if this is still not a good reason to add a generic compatible 
-> string, I can revert it back to use device specific compatible string 
-> only in next patch.
+Add new SPMI vibrator module which is very similar to the SPMI vibrator
+module inside PM8916 but just has a finer drive voltage step (1mV vs
+100mV) hence its drive level control is expanded to across 2 registers.
+The vibrator module can be found in Qualcomm PMIC PMI632, then following
+PM7250B, PM7325B, PM7550BA PMICs.
 
-I just don't see how this argument is anyhow related to what I said. I
-did not comment on removing the fallback. I said use specific compatible
-as fallback.
+Signed-off-by: Fenglin Wu <quic_fenglinw@quicinc.com>
+Tested-by: Luca Weiss <luca.weiss@fairphone.com> # sdm632-fairphone-fp3 (pmi632)
+---
+ drivers/input/misc/pm8xxx-vibrator.c | 55 +++++++++++++++++++++++++---
+ 1 file changed, 50 insertions(+), 5 deletions(-)
 
-Best regards,
-Krzysztof
+diff --git a/drivers/input/misc/pm8xxx-vibrator.c b/drivers/input/misc/pm8xxx-vibrator.c
+index d6b468324c77..990e8a9ac018 100644
+--- a/drivers/input/misc/pm8xxx-vibrator.c
++++ b/drivers/input/misc/pm8xxx-vibrator.c
+@@ -21,6 +21,13 @@
+ #define SPMI_VIB_DRV_LEVEL_MASK		GENMASK(4, 0)
+ #define SPMI_VIB_DRV_SHIFT		0
+ 
++#define SPMI_VIB_GEN2_DRV_REG		0x40
++#define SPMI_VIB_GEN2_DRV_MASK		GENMASK(7, 0)
++#define SPMI_VIB_GEN2_DRV_SHIFT		0
++#define SPMI_VIB_GEN2_DRV2_REG		0x41
++#define SPMI_VIB_GEN2_DRV2_MASK		GENMASK(3, 0)
++#define SPMI_VIB_GEN2_DRV2_SHIFT	8
++
+ #define SPMI_VIB_EN_REG			0x46
+ #define SPMI_VIB_EN_BIT			BIT(7)
+ 
+@@ -33,12 +40,14 @@
+ enum vib_hw_type {
+ 	SSBI_VIB,
+ 	SPMI_VIB,
++	SPMI_VIB_GEN2
+ };
+ 
+ struct pm8xxx_vib_data {
+ 	enum vib_hw_type	hw_type;
+ 	unsigned int		enable_addr;
+ 	unsigned int		drv_addr;
++	unsigned int		drv2_addr;
+ };
+ 
+ static const struct pm8xxx_vib_data ssbi_vib_data = {
+@@ -52,6 +61,13 @@ static const struct pm8xxx_vib_data spmi_vib_data = {
+ 	.drv_addr	= SPMI_VIB_DRV_REG,
+ };
+ 
++static const struct pm8xxx_vib_data spmi_vib_gen2_data = {
++	.hw_type	= SPMI_VIB_GEN2,
++	.enable_addr	= SPMI_VIB_EN_REG,
++	.drv_addr	= SPMI_VIB_GEN2_DRV_REG,
++	.drv2_addr	= SPMI_VIB_GEN2_DRV2_REG,
++};
++
+ /**
+  * struct pm8xxx_vib - structure to hold vibrator data
+  * @vib_input_dev: input device supporting force feedback
+@@ -85,12 +101,24 @@ static int pm8xxx_vib_set(struct pm8xxx_vib *vib, bool on)
+ {
+ 	int rc;
+ 	unsigned int val = vib->reg_vib_drv;
+-	u32 mask = SPMI_VIB_DRV_LEVEL_MASK;
+-	u32 shift = SPMI_VIB_DRV_SHIFT;
++	u32 mask, shift;
+ 
+-	if (vib->data->hw_type == SSBI_VIB) {
++
++	switch (vib->data->hw_type) {
++	case SSBI_VIB:
+ 		mask = SSBI_VIB_DRV_LEVEL_MASK;
+ 		shift = SSBI_VIB_DRV_SHIFT;
++		break;
++	case SPMI_VIB:
++		mask = SPMI_VIB_DRV_LEVEL_MASK;
++		shift = SPMI_VIB_DRV_SHIFT;
++		break;
++	case SPMI_VIB_GEN2:
++		mask = SPMI_VIB_GEN2_DRV_MASK;
++		shift = SPMI_VIB_GEN2_DRV_SHIFT;
++		break;
++	default:
++		return -EINVAL;
+ 	}
+ 
+ 	if (on)
+@@ -104,6 +132,19 @@ static int pm8xxx_vib_set(struct pm8xxx_vib *vib, bool on)
+ 
+ 	vib->reg_vib_drv = val;
+ 
++	if (vib->data->hw_type == SPMI_VIB_GEN2) {
++		mask = SPMI_VIB_GEN2_DRV2_MASK;
++		shift = SPMI_VIB_GEN2_DRV2_SHIFT;
++		if (on)
++			val = (vib->level >> shift) & mask;
++		else
++			val = 0;
++		rc = regmap_update_bits(vib->regmap,
++				vib->reg_base + vib->data->drv2_addr, mask, val);
++		if (rc < 0)
++			return rc;
++	}
++
+ 	if (vib->data->hw_type == SSBI_VIB)
+ 		return 0;
+ 
+@@ -128,10 +169,13 @@ static void pm8xxx_work_handler(struct work_struct *work)
+ 		vib->active = true;
+ 		vib->level = ((VIB_MAX_LEVELS * vib->speed) / MAX_FF_SPEED) +
+ 						VIB_MIN_LEVEL_mV;
+-		vib->level /= 100;
++		if (vib->data->hw_type != SPMI_VIB_GEN2)
++			vib->level /= 100;
+ 	} else {
+ 		vib->active = false;
+-		vib->level = VIB_MIN_LEVEL_mV / 100;
++		vib->level = VIB_MIN_LEVEL_mV;
++		if (vib->data->hw_type != SPMI_VIB_GEN2)
++			vib->level /= 100;
+ 	}
+ 
+ 	pm8xxx_vib_set(vib, vib->active);
+@@ -266,6 +310,7 @@ static const struct of_device_id pm8xxx_vib_id_table[] = {
+ 	{ .compatible = "qcom,pm8058-vib", .data = &ssbi_vib_data },
+ 	{ .compatible = "qcom,pm8921-vib", .data = &ssbi_vib_data },
+ 	{ .compatible = "qcom,pm8916-vib", .data = &spmi_vib_data },
++	{ .compatible = "qcom,pmi632-vib", .data = &spmi_vib_gen2_data },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, pm8xxx_vib_id_table);
+-- 
+2.25.1
 

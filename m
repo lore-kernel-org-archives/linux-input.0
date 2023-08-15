@@ -2,81 +2,162 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F1FCAC001B0
-	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 18:40:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3575AC001E0
+	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 18:57:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239178AbjHOSjk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 15 Aug 2023 14:39:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44792 "EHLO
+        id S239234AbjHOS50 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 15 Aug 2023 14:57:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239247AbjHOSjV (ORCPT
+        with ESMTP id S239298AbjHOS44 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2023 14:39:21 -0400
-Received: from mail-pl1-x634.google.com (mail-pl1-x634.google.com [IPv6:2607:f8b0:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC8F183;
-        Tue, 15 Aug 2023 11:39:17 -0700 (PDT)
-Received: by mail-pl1-x634.google.com with SMTP id d9443c01a7336-1bc83a96067so35392635ad.0;
-        Tue, 15 Aug 2023 11:39:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20221208; t=1692124757; x=1692729557;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UY0hcbqXkGu4hQCXduSf+UdTZqnAteMXNS0OUvIID4s=;
-        b=ZW6VNxPUeqoIZbeoqBqk0wvZbAGTgOBhXM6+1JuGOJglarFKtoFMqlxsN090Qx3LM5
-         vjLVoB9rfAFsHWKFSFDh9p2c5mKkY6pwufZbkdM/NL1wTpFMczI+Z75wTSREixHlmEJp
-         rAx49jbXeaDftfhbEdS2RYKaoN67x789Ci830p1pgRxdu/UcspSDvVPw1l6FF60TB4Qn
-         BJDAb2g5nVuxx89T9TDAhrDFUZSVJV8Pk3UxVtUFL06RCuKh+wg8CH09ESKjbGJPo4qL
-         /EM+YqXzvIHea/ciZEI14RFtKWJjygTAx+PfzBspfCx0FcvUpgvmHbT5oKl8MqRvdP2b
-         TAyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692124757; x=1692729557;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=UY0hcbqXkGu4hQCXduSf+UdTZqnAteMXNS0OUvIID4s=;
-        b=NyBc77BRDflqcE8PI2P4PmraDM3RZx8ycqGTZfSai+5yJC8lM8EYZV1VzUv6UNiy8k
-         +Qj5/8LvW4uw/7MHo4OjScCReeBSccrg+8zC90dmK/5RHqvZW5YcCqJCM/f54hc8vq1B
-         R8xEyuR6nwmylJJrHL6qZ1RzaLiSDTtygkUr17rMcapJ3tXIXi/72LaAPWc3bo9moW5H
-         Lw3krLJIc2HwFHe88T0B4C0MW5HdZShNGXik4kp/6Di7SKnO4yvMhcRCj8kTTiV6K6sM
-         YrFu8bSwKLBtrudIyYu85Z74vTspclF8dkAElIrh4hLhsMHesMxpaB6iVK5pbXgDiAi1
-         1h8g==
-X-Gm-Message-State: AOJu0Yz+Y9wzh3aZzCFj0uVy1G0fySvVS/IMubE6HGL5AwlyhCkLwg7a
-        LOl2SpHXnolnXUEnBzICAFE=
-X-Google-Smtp-Source: AGHT+IHbmeLEyPYNBRfP+z3Wig5BBPHQX/1nvhkQOBJwzEvXlIankVnjcK4YDvXeTnHZGQMStVY8tg==
-X-Received: by 2002:a17:903:22c7:b0:1b8:9552:ca with SMTP id y7-20020a17090322c700b001b8955200camr14039440plg.45.1692124757148;
-        Tue, 15 Aug 2023 11:39:17 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:e30b:29e0:bebc:3d56])
-        by smtp.gmail.com with ESMTPSA id u3-20020a17090282c300b001a183ade911sm4938894plz.56.2023.08.15.11.39.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 15 Aug 2023 11:39:16 -0700 (PDT)
-Date:   Tue, 15 Aug 2023 11:39:12 -0700
-From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To:     Felix Engelhardt <felix.engelhardt@eidu.com>
-Cc:     Bastien Nocera <hadess@hadess.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drivers/input/touchscreen/goodix.c: Add support for ACPI
- ID GDX9110
-Message-ID: <ZNvGULYiPb3nqiu7@google.com>
-References: <20230807124723.382899-1-felix.engelhardt@eidu.com>
+        Tue, 15 Aug 2023 14:56:56 -0400
+X-Greylist: delayed 1563 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 15 Aug 2023 11:56:26 PDT
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [IPv6:2a02:c205:3004:2154::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFDB92127;
+        Tue, 15 Aug 2023 11:56:26 -0700 (PDT)
+Received: from p200300ccff31d1001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:cc:ff31:d100:1a3d:a2ff:febf:d33a] helo=aktux)
+        by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <andreas@kemnade.info>)
+        id 1qVynp-002fC7-AB; Tue, 15 Aug 2023 20:30:01 +0200
+Received: from andi by aktux with local (Exim 4.96)
+        (envelope-from <andreas@kemnade.info>)
+        id 1qVyno-000tJC-2x;
+        Tue, 15 Aug 2023 20:30:00 +0200
+From:   Andreas Kemnade <andreas@kemnade.info>
+To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
+        shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
+        festevam@gmail.com, linux-imx@nxp.com, rydberg@bitmath.org,
+        u.kleine-koenig@pengutronix.de, linus.walleij@linaro.org,
+        Jonathan.Cameron@huawei.com, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Cc:     Andreas Kemnade <andreas@kemnade.info>
+Subject: [PATCH 3/4] Input: zforce_ts: Accept standard touchscreen properties
+Date:   Tue, 15 Aug 2023 20:29:47 +0200
+Message-Id: <20230815182948.212575-4-andreas@kemnade.info>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230815182948.212575-1-andreas@kemnade.info>
+References: <20230815182948.212575-1-andreas@kemnade.info>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230807124723.382899-1-felix.engelhardt@eidu.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Aug 07, 2023 at 02:47:23PM +0200, Felix Engelhardt wrote:
-> The Goodix touchscreen controller with ACPI ID GDX9110 was not recognized
-> by the goodix driver. This patch adds this ID to the list of supported IDs,
-> allowing the driver to be used with this device. The change will allow
-> Linux to be used on ~1 million tablet devices used in Kenyan primary
-> schools.
-> 
-> Signed-off-by: Felix Engelhardt <felix.engelhardt@eidu.com>
+Only driver-specific properties were accepted, change it
+to use the now-available standard properties.
 
-Applied, thank you.
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+ drivers/input/touchscreen/zforce_ts.c | 36 +++++++++++++--------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
+diff --git a/drivers/input/touchscreen/zforce_ts.c b/drivers/input/touchscreen/zforce_ts.c
+index 5be5112845e1..f4397497bbe9 100644
+--- a/drivers/input/touchscreen/zforce_ts.c
++++ b/drivers/input/touchscreen/zforce_ts.c
+@@ -20,6 +20,7 @@
+ #include <linux/device.h>
+ #include <linux/sysfs.h>
+ #include <linux/input/mt.h>
++#include <linux/input/touchscreen.h>
+ #include <linux/platform_data/zforce_ts.h>
+ #include <linux/regulator/consumer.h>
+ #include <linux/of.h>
+@@ -106,6 +107,7 @@ struct zforce_point {
+ struct zforce_ts {
+ 	struct i2c_client	*client;
+ 	struct input_dev	*input;
++	struct touchscreen_properties prop;
+ 	const struct zforce_ts_platdata *pdata;
+ 	char			phys[32];
+ 
+@@ -266,7 +268,6 @@ static int zforce_setconfig(struct zforce_ts *ts, char b1)
+ static int zforce_start(struct zforce_ts *ts)
+ {
+ 	struct i2c_client *client = ts->client;
+-	const struct zforce_ts_platdata *pdata = ts->pdata;
+ 	int ret;
+ 
+ 	dev_dbg(&client->dev, "starting device\n");
+@@ -277,7 +278,7 @@ static int zforce_start(struct zforce_ts *ts)
+ 		return ret;
+ 	}
+ 
+-	ret = zforce_resolution(ts, pdata->x_max, pdata->y_max);
++	ret = zforce_resolution(ts, ts->prop.max_x, ts->prop.max_y);
+ 	if (ret) {
+ 		dev_err(&client->dev, "Unable to set resolution, %d\n", ret);
+ 		goto error;
+@@ -337,7 +338,6 @@ static int zforce_stop(struct zforce_ts *ts)
+ static int zforce_touch_event(struct zforce_ts *ts, u8 *payload)
+ {
+ 	struct i2c_client *client = ts->client;
+-	const struct zforce_ts_platdata *pdata = ts->pdata;
+ 	struct zforce_point point;
+ 	int count, i, num = 0;
+ 
+@@ -355,8 +355,8 @@ static int zforce_touch_event(struct zforce_ts *ts, u8 *payload)
+ 		point.coord_y =
+ 			payload[9 * i + 4] << 8 | payload[9 * i + 3];
+ 
+-		if (point.coord_x > pdata->x_max ||
+-		    point.coord_y > pdata->y_max) {
++		if (point.coord_x > ts->prop.max_x ||
++		    point.coord_y > ts->prop.max_y) {
+ 			dev_warn(&client->dev, "coordinates (%d,%d) invalid\n",
+ 				point.coord_x, point.coord_y);
+ 			point.coord_x = point.coord_y = 0;
+@@ -390,10 +390,11 @@ static int zforce_touch_event(struct zforce_ts *ts, u8 *payload)
+ 						point.state != STATE_UP);
+ 
+ 		if (point.state != STATE_UP) {
+-			input_report_abs(ts->input, ABS_MT_POSITION_X,
+-					 point.coord_x);
+-			input_report_abs(ts->input, ABS_MT_POSITION_Y,
+-					 point.coord_y);
++			touchscreen_report_pos(ts->input,
++					       &ts->prop,
++					       point.coord_x,
++					       point.coord_y,
++					       true);
+ 			input_report_abs(ts->input, ABS_MT_TOUCH_MAJOR,
+ 					 point.area_major);
+ 			input_report_abs(ts->input, ABS_MT_TOUCH_MINOR,
+@@ -719,15 +720,8 @@ static struct zforce_ts_platdata *zforce_parse_dt(struct device *dev)
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+-	if (of_property_read_u32(np, "x-size", &pdata->x_max)) {
+-		dev_err(dev, "failed to get x-size property\n");
+-		return ERR_PTR(-EINVAL);
+-	}
+-
+-	if (of_property_read_u32(np, "y-size", &pdata->y_max)) {
+-		dev_err(dev, "failed to get y-size property\n");
+-		return ERR_PTR(-EINVAL);
+-	}
++	of_property_read_u32(np, "x-size", &pdata->x_max);
++	of_property_read_u32(np, "y-size", &pdata->y_max);
+ 
+ 	return pdata;
+ }
+@@ -856,6 +850,12 @@ static int zforce_probe(struct i2c_client *client)
+ 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y, 0,
+ 			     pdata->y_max, 0, 0);
+ 
++	touchscreen_parse_properties(input_dev, true, &ts->prop);
++	if (ts->prop.max_x == 0 || ts->prop.max_y == 0) {
++		dev_err(&client->dev, "no size specified\n");
++		return -EINVAL;
++	}
++
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
+ 			     ZFORCE_MAX_AREA, 0, 0);
+ 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MINOR, 0,
 -- 
-Dmitry
+2.39.2
+

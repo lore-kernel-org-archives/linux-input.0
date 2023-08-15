@@ -2,173 +2,150 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AD636C04E69
-	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 18:59:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35FBFC04A6A
+	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 19:25:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239471AbjHOS6a (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 15 Aug 2023 14:58:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40868 "EHLO
+        id S239422AbjHOTYy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 15 Aug 2023 15:24:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239616AbjHOS6F (ORCPT
+        with ESMTP id S239881AbjHOTYc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2023 14:58:05 -0400
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [IPv6:2a02:c205:3004:2154::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 487251FEA;
-        Tue, 15 Aug 2023 11:57:56 -0700 (PDT)
-Received: from p200300ccff31d1001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:cc:ff31:d100:1a3d:a2ff:febf:d33a] helo=aktux)
-        by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <andreas@kemnade.info>)
-        id 1qVyno-002fC2-Hd; Tue, 15 Aug 2023 20:30:00 +0200
-Received: from andi by aktux with local (Exim 4.96)
-        (envelope-from <andreas@kemnade.info>)
-        id 1qVyno-000tJ2-0a;
-        Tue, 15 Aug 2023 20:30:00 +0200
-From:   Andreas Kemnade <andreas@kemnade.info>
-To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
-        shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
-        festevam@gmail.com, linux-imx@nxp.com, rydberg@bitmath.org,
-        u.kleine-koenig@pengutronix.de, linus.walleij@linaro.org,
-        Jonathan.Cameron@huawei.com, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Cc:     Andreas Kemnade <andreas@kemnade.info>
-Subject: [PATCH 1/4] dt-bindings: touchscreen: convert neonode,zforce to json-schema
-Date:   Tue, 15 Aug 2023 20:29:45 +0200
-Message-Id: <20230815182948.212575-2-andreas@kemnade.info>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230815182948.212575-1-andreas@kemnade.info>
-References: <20230815182948.212575-1-andreas@kemnade.info>
+        Tue, 15 Aug 2023 15:24:32 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E831A10D1
+        for <linux-input@vger.kernel.org>; Tue, 15 Aug 2023 12:24:06 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id 5b1f17b1804b1-3fe8a158fcbso38944485e9.2
+        for <linux-input@vger.kernel.org>; Tue, 15 Aug 2023 12:24:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1692127443; x=1692732243;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=eB2YdeaffFvKapTeu97tKDXHKtW8rfmRdezXiy0N6zs=;
+        b=SAY2gmIGNEAiGgInuM1nDGvc/w31ckngzwPdU5Nqy5hC0Nh2Va91zmvCGoJguwvcGY
+         20kRSVSGJXKP6DVme+avP+mwcYdlzcSUDrzWwPvB5dQFqt0dp/w9V4ASPFPW4ogmj4vh
+         x3pE5ECuJREptlRY/PQ5DolWgEM1gYN8/r5QPaIgZwBnj4bC4q+KfKIrLK8qNd9mcvZ7
+         ZHWQkA/8tCoe9HfDv6JqLPFLWGUJrKapW+0lccWL7ASniljFJpcv72pKauVvxCdq9bue
+         afDATz3M4QhchabaBBQ5x0iaP7I28TZfZHV1IuvfYkJmJDCW0E5Xl2crAyvz1ETAjo0I
+         B1eg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1692127443; x=1692732243;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=eB2YdeaffFvKapTeu97tKDXHKtW8rfmRdezXiy0N6zs=;
+        b=Ss/IMSd3A7AeEze/9XKHIg4toWoI6OPUv5blNxtnTjmV2Ahym/sEPNRH7+Bv0e6U2h
+         gnksPvnOc7tJIhrXfd8mBWtEP5/QeCq4+At5OSL38dwWP/Ob5bWntXJbUMg9xjDR0ynx
+         67f+uZW9en+BQlrvxiSrFtaAvyK7Ba4WbCBfPb/8kov68E/8e0YXLSVQOF5QE7wLbnZm
+         jGshaJ5VRe/VPIZE15eq7/swFnA/1bSekLrrt5R2CLWsMVudNafkJs2H7XE0H6nReUyX
+         dR+k5pv2jGPVSH7VNuyF6KFxJsnO8CPYyt2BWdnOa4MW1SV2K8/wkDniPVJXb0Un19TK
+         /3sQ==
+X-Gm-Message-State: AOJu0Yz4bOd+eOFdQ95UFAp0K8TAFWfP7p3rSDFMDV7pB4ew14Mnhba/
+        HvmbQ7tlebiBhTTcmKK+pThgEw==
+X-Google-Smtp-Source: AGHT+IHnCElvhjrz7ZJrHjNtJ31GOUgLq29EzBpHyKL8Ir+AdcbNQiYstFhuJeVysB7QpeLgwYuM6Q==
+X-Received: by 2002:adf:ed41:0:b0:317:cdc4:762e with SMTP id u1-20020adfed41000000b00317cdc4762emr11427959wro.63.1692127443408;
+        Tue, 15 Aug 2023 12:24:03 -0700 (PDT)
+Received: from [192.168.1.20] ([178.197.214.188])
+        by smtp.gmail.com with ESMTPSA id c13-20020a5d528d000000b003142c85fbcdsm18681305wrv.11.2023.08.15.12.24.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 15 Aug 2023 12:24:02 -0700 (PDT)
+Message-ID: <afefa654-4f9a-121e-7d1b-76d9dcd778f7@linaro.org>
+Date:   Tue, 15 Aug 2023 21:23:59 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH v3 2/2] Input: cs40l50 - Initial support for Cirrus Logic
+ CS40L50
+Content-Language: en-US
+To:     James Ogletree <James.Ogletree@cirrus.com>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Fred Treven <Fred.Treven@cirrus.com>,
+        Ben Bright <Ben.Bright@cirrus.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+        Jeff LaBundy <jeff@labundy.com>, Joel Stanley <joel@jms.id.au>,
+        Arnd Bergmann <arnd@arndb.de>, Jacky Bai <ping.bai@nxp.com>,
+        Jean Delvare <jdelvare@suse.de>,
+        Eddie James <eajames@linux.ibm.com>,
+        Markus Schneider-Pargmann <msp@baylibre.com>,
+        ChiYuan Huang <cy_huang@richtek.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        "patches@cirrus.com" <patches@cirrus.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+References: <20230809191032.820271-1-james.ogletree@cirrus.com>
+ <20230809191032.820271-3-james.ogletree@cirrus.com>
+ <d1b9e063-54df-2dae-1487-c7c932fda145@linaro.org>
+ <D4B53566-9F7D-46DA-8BAE-0572B9A8AA7A@cirrus.com>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <D4B53566-9F7D-46DA-8BAE-0572B9A8AA7A@cirrus.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Convert Neonode infrared touchscreen controller binding to DT schema.
+On 15/08/2023 17:56, James Ogletree wrote:
+> 
+> 
+>> On Aug 10, 2023, at 1:17 AM, Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org> wrote:
+>>
+>> On 09/08/2023 21:10, James Ogletree wrote:
+>>
+>>> +
+>>> +static int cs40l50_cs_dsp_init(struct cs40l50_private *cs40l50)
+>>> +{
+>>> + cs40l50->dsp.num = 1;
+>>> + cs40l50->dsp.type = WMFW_HALO;
+>>> + cs40l50->dsp.dev = cs40l50->dev;
+>>> + cs40l50->dsp.regmap = cs40l50->regmap;
+>>> + cs40l50->dsp.base = CS40L50_DSP1_CORE_BASE;
+>>> + cs40l50->dsp.base_sysinfo = CS40L50_DSP1_SYS_INFO_ID;
+>>> + cs40l50->dsp.mem = cs40l50_dsp_regions;
+>>> + cs40l50->dsp.num_mems = ARRAY_SIZE(cs40l50_dsp_regions);
+>>> + cs40l50->dsp.lock_regions = 0xFFFFFFFF;
+>>> + cs40l50->dsp.no_core_startstop = true;
+>>> + cs40l50->dsp.client_ops = &cs40l50_cs_dsp_client_ops;
+>>> +
+>>> + return cs_dsp_halo_init(&cs40l50->dsp);
+>>> +}
+>>> +
+>>> +int cs40l50_probe(struct cs40l50_private *cs40l50)
+>>> +{
+>>> + int error, i, irq;
+>>> + u32 val;
+>>> +
+>>> + mutex_init(&cs40l50->lock);
+>>> +
+>>> + error = devm_regulator_bulk_get(cs40l50->dev, ARRAY_SIZE(cs40l50_supplies),
+>>> + cs40l50_supplies);
+>>> + if (error)
+>>> + return dev_err_probe(cs40l50->dev, error, "Failed to request supplies\n");
+>>> +
+>>> + error = regulator_bulk_enable(ARRAY_SIZE(cs40l50_supplies), cs40l50_supplies);
+>>> + if (error)
+>>> + return dev_err_probe(cs40l50->dev, error, "Failed to enable supplies\n");
+>>> +
+>>> + cs40l50->reset_gpio = devm_gpiod_get_optional(cs40l50->dev, "reset", GPIOD_OUT_HIGH);
+>>
+>> None of the lines above or below seem to be wrapped according to Linux
+>> coding style (80).
+> 
+> This patch abides by the 100-column line length limit which checkpatch.pl enforces.
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
----
- .../input/touchscreen/neonode,zforce.yaml     | 67 +++++++++++++++++++
- .../bindings/input/touchscreen/zforce_ts.txt  | 34 ----------
- 2 files changed, 67 insertions(+), 34 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
- delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
+Checkpatch does not enforce 100, because it accepts also 80. It
+complains if something is longer than 100, but coding style is still the
+same. Format everything according to coding style and use 100 only if it
+increases readability.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml b/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
-new file mode 100644
-index 000000000000..1c45adb2407a
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
-@@ -0,0 +1,67 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/neonode,zforce.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Neonode infrared touchscreen controller
-+
-+maintainers:
-+  - Heiko Stuebner <heiko.stuebner@bqreaders.com>
-+
-+properties:
-+  compatible:
-+    const: neonode,zforce
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+  irq-gpios:
-+    maxItems: 1
-+
-+  x-size:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+
-+  y-size:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+
-+  vdd-supply: true
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+  - x-size
-+  - y-size
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        touchscreen@50 {
-+            compatible = "neonode,zforce";
-+            reg = <0x50>;
-+            interrupts = <2 0>;
-+            vdd-supply = <&reg_zforce_vdd>;
-+
-+            reset-gpios = <&gpio5 9 0>; /* RST */
-+            irq-gpios = <&gpio5 6 0>; /* IRQ, optional */
-+
-+            x-size = <800>;
-+            y-size = <600>;
-+        };
-+    };
-+...
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt b/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-deleted file mode 100644
-index e3c27c4fd9c8..000000000000
---- a/Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-+++ /dev/null
-@@ -1,34 +0,0 @@
--* Neonode infrared touchscreen controller
--
--Required properties:
--- compatible: must be "neonode,zforce"
--- reg: I2C address of the chip
--- interrupts: interrupt to which the chip is connected
--- reset-gpios: reset gpio the chip is connected to
--- x-size: horizontal resolution of touchscreen
--- y-size: vertical resolution of touchscreen
--
--Optional properties:
--- irq-gpios : interrupt gpio the chip is connected to
--- vdd-supply: Regulator controlling the controller supply
--
--Example:
--
--	i2c@00000000 {
--		/* ... */
--
--		zforce_ts@50 {
--			compatible = "neonode,zforce";
--			reg = <0x50>;
--			interrupts = <2 0>;
--			vdd-supply = <&reg_zforce_vdd>;
--
--			reset-gpios = <&gpio5 9 0>; /* RST */
--			irq-gpios = <&gpio5 6 0>; /* IRQ, optional */
--
--			x-size = <800>;
--			y-size = <600>;
--		};
--
--		/* ... */
--	};
--- 
-2.39.2
+> However, I can see how some of the lines might be less jarring to the eyes if wrapped.
+> That will be addressed in V4.
+> 
+
+Best regards,
+Krzysztof
 

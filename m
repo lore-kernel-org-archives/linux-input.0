@@ -2,28 +2,28 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30ED5C04E69
-	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 18:58:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8DD8AC41513
+	for <linux-input@archiver.kernel.org>; Tue, 15 Aug 2023 18:59:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239523AbjHOS56 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 15 Aug 2023 14:57:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35898 "EHLO
+        id S239534AbjHOS6b (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 15 Aug 2023 14:58:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239534AbjHOS5a (ORCPT
+        with ESMTP id S239695AbjHOS6U (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 15 Aug 2023 14:57:30 -0400
+        Tue, 15 Aug 2023 14:58:20 -0400
 Received: from mail.andi.de1.cc (mail.andi.de1.cc [IPv6:2a02:c205:3004:2154::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1769210E;
-        Tue, 15 Aug 2023 11:56:57 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB2081FE6;
+        Tue, 15 Aug 2023 11:58:06 -0700 (PDT)
 Received: from p200300ccff31d1001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:cc:ff31:d100:1a3d:a2ff:febf:d33a] helo=aktux)
         by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <andreas@kemnade.info>)
-        id 1qVyno-002fC1-4Z; Tue, 15 Aug 2023 20:30:00 +0200
+        id 1qVynp-002fC8-Iy; Tue, 15 Aug 2023 20:30:01 +0200
 Received: from andi by aktux with local (Exim 4.96)
         (envelope-from <andreas@kemnade.info>)
-        id 1qVynn-000tIy-0u;
-        Tue, 15 Aug 2023 20:29:59 +0200
+        id 1qVynp-000tJJ-0e;
+        Tue, 15 Aug 2023 20:30:01 +0200
 From:   Andreas Kemnade <andreas@kemnade.info>
 To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
@@ -34,33 +34,43 @@ To:     dmitry.torokhov@gmail.com, robh+dt@kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-arm-kernel@lists.infradead.org
 Cc:     Andreas Kemnade <andreas@kemnade.info>
-Subject: [PATCH 0/4] Input: zforce_ts: standard properties
-Date:   Tue, 15 Aug 2023 20:29:44 +0200
-Message-Id: <20230815182948.212575-1-andreas@kemnade.info>
+Subject: [PATCH 4/4] ARM: dts: imx6sl-tolino-shine2hd: fix touchscreen rotation
+Date:   Tue, 15 Aug 2023 20:29:48 +0200
+Message-Id: <20230815182948.212575-5-andreas@kemnade.info>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230815182948.212575-1-andreas@kemnade.info>
+References: <20230815182948.212575-1-andreas@kemnade.info>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Accept standard touchscreen properties to also enable specification
-of touchscreen orientation. 
+The display is in landscape orientation, but the touchscreen is in portrait
+orientation. Specify that properly in the devicetree.
 
-Andreas Kemnade (4):
-  dt-bindings: touchscreen: convert neonode,zforce to json-schema
-  dt-bindings: touchscreen: neonode,zforce: Use standard properties
-  Input: zforce_ts: Accept standard touchscreen properties
-  ARM: dts: imx6sl-tolino-shine2hd: fix touchscreen rotation
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+ arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
- .../input/touchscreen/neonode,zforce.yaml     | 72 +++++++++++++++++++
- .../bindings/input/touchscreen/zforce_ts.txt  | 34 ---------
- .../dts/nxp/imx/imx6sl-tolino-shine2hd.dts    |  6 +-
- drivers/input/touchscreen/zforce_ts.c         | 36 +++++-----
- 4 files changed, 94 insertions(+), 54 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
- delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/zforce_ts.txt
-
+diff --git a/arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts b/arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts
+index 815119c12bd4..5636fb3661e8 100644
+--- a/arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts
++++ b/arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts
+@@ -141,8 +141,10 @@ zforce: touchscreen@50 {
+ 		interrupts = <6 IRQ_TYPE_EDGE_FALLING>;
+ 		vdd-supply = <&ldo1_reg>;
+ 		reset-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
+-		x-size = <1072>;
+-		y-size = <1448>;
++		touchscreen-size-x = <1072>;
++		touchscreen-size-y = <1448>;
++		touchscreen-swapped-x-y;
++		touchscreen-inverted-x;
+ 	};
+ 
+ 	/* TODO: TPS65185 PMIC for E Ink at 0x68 */
 -- 
 2.39.2
 

@@ -2,78 +2,100 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 38989C2FC2F
-	for <linux-input@archiver.kernel.org>; Thu, 17 Aug 2023 13:52:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 481F7C30624
+	for <linux-input@archiver.kernel.org>; Thu, 17 Aug 2023 14:44:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351546AbjHQNvn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 17 Aug 2023 09:51:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38714 "EHLO
+        id S1352063AbjHQOna (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 17 Aug 2023 10:43:30 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237519AbjHQNvT (ORCPT
+        with ESMTP id S1352172AbjHQOnI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 17 Aug 2023 09:51:19 -0400
-Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FCA8210D
-        for <linux-input@vger.kernel.org>; Thu, 17 Aug 2023 06:51:18 -0700 (PDT)
-Received: from canpemm500007.china.huawei.com (unknown [172.30.72.55])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4RRRFs0d9dzkWtc;
-        Thu, 17 Aug 2023 21:49:53 +0800 (CST)
-Received: from localhost (10.174.179.215) by canpemm500007.china.huawei.com
- (7.192.104.62) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.31; Thu, 17 Aug
- 2023 21:51:15 +0800
-From:   Yue Haibing <yuehaibing@huawei.com>
-To:     <srinivas.pandruvada@linux.intel.com>, <jikos@kernel.org>,
-        <benjamin.tissoires@redhat.com>, <yuehaibing@huawei.com>
-CC:     <linux-input@vger.kernel.org>
-Subject: [PATCH -next] HID: intel-ish-hid: Remove unused declarations
-Date:   Thu, 17 Aug 2023 21:50:53 +0800
-Message-ID: <20230817135053.51964-1-yuehaibing@huawei.com>
-X-Mailer: git-send-email 2.10.2.windows.1
+        Thu, 17 Aug 2023 10:43:08 -0400
+Received: from bombadil.infradead.org (bombadil.infradead.org [IPv6:2607:7c80:54:3::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E099235AE;
+        Thu, 17 Aug 2023 07:42:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20210309; h=Content-Transfer-Encoding:
+        Content-Type:In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:
+        Message-ID:Sender:Reply-To:Content-ID:Content-Description;
+        bh=OMiKI4jtk8FwBYZzbzFjDcviyDfvdzucEUBtGpJRLB4=; b=qAMyom96AiG8ofa8Ebw1mhwCqm
+        P17CRDTepnjeUt7spFbn10pkXOniSXLiu9Tq8RjiswKShLCZWbV6bNaGxTvq00C1GHe/EuTrv2lSk
+        NLwdyx4ERt/hpp/wwtwLck4NSMfhJ2hET2l9dCs3HQxo5heE2rPYYFN2oL9IastoAvDHpdu+AfysD
+        Dnxol59HyWKE+QwvQMSSahpBfWp4JWZtecml7C1jE6DM+k75YOeev6+l2aDo9zQ+mHqjgBcaxU9g3
+        Lr/SNkUfOxJyC3FbayP0P8DDiYhvXLR82Hzggv9LaT5e49x6s2YtZSndI37QKmYtRSwnp6to1Ax5a
+        Ip+u00FQ==;
+Received: from [2601:1c2:980:9ec0::2764]
+        by bombadil.infradead.org with esmtpsa (Exim 4.96 #2 (Red Hat Linux))
+        id 1qWeCO-006ZJL-0T;
+        Thu, 17 Aug 2023 14:42:08 +0000
+Message-ID: <a04507b2-f732-65cb-d69a-9da0400d3a4d@infradead.org>
+Date:   Thu, 17 Aug 2023 07:42:05 -0700
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.174.179.215]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- canpemm500007.china.huawei.com (7.192.104.62)
-X-CFilter-Loop: Reflected
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH v4] hid-mcp2200: added driver for GPIOs of MCP2200
+Content-Language: en-US
+To:     johannes@gnu-linux.rocks, jikos@kernel.org
+Cc:     benjamin.tissoires@redhat.com, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org, andi.shyti@kernel.org,
+        christophe.jaillet@wanadoo.fr, ak@it-klinger.de
+References: <20230817091505.213318-1-johannes@gnu-linux.rocks>
+From:   Randy Dunlap <rdunlap@infradead.org>
+In-Reply-To: <20230817091505.213318-1-johannes@gnu-linux.rocks>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Commit 3703f53b99e4 ("HID: intel_ish-hid: ISH Transport layer")
-declared ishtp_remove_all_clients()/ishtp_can_client_connect()
-but never implemented them.
+Hi--
 
-Signed-off-by: Yue Haibing <yuehaibing@huawei.com>
----
- drivers/hid/intel-ish-hid/ishtp/bus.h    | 1 -
- drivers/hid/intel-ish-hid/ishtp/client.h | 1 -
- 2 files changed, 2 deletions(-)
+On 8/17/23 02:15, johannes@gnu-linux.rocks wrote:
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index e11c1c803676..791cc5c8fa0d 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -1301,6 +1301,16 @@ config HID_MCP2221
+>  	To compile this driver as a module, choose M here: the module
+>  	will be called hid-mcp2221.ko.
+>  
+> +config HID_MCP2200
+> +   tristate "Microchip MCP2200 HID USB-to-GPIO bridge"
+> +   depends on USB_HID
+> +   imply GPIOLIB
+> +   help
+> +   Provides GPIO functionality over USB-HID through MCP2200 device.
+> +
+> +   To compile this driver as a module, choose M here: the module
+> +   will be called hid-mcp2200.ko.
+> +
 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.h b/drivers/hid/intel-ish-hid/ishtp/bus.h
-index 5bb85c932e4c..53645ac89ee8 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.h
-@@ -46,7 +46,6 @@ struct ishtp_cl_device {
- };
- 
- int	ishtp_bus_new_client(struct ishtp_device *dev);
--void	ishtp_remove_all_clients(struct ishtp_device *dev);
- int	ishtp_cl_device_bind(struct ishtp_cl *cl);
- void	ishtp_cl_bus_rx_event(struct ishtp_cl_device *device);
- 
-diff --git a/drivers/hid/intel-ish-hid/ishtp/client.h b/drivers/hid/intel-ish-hid/ishtp/client.h
-index fc62dd1495da..d9d398fadcf7 100644
---- a/drivers/hid/intel-ish-hid/ishtp/client.h
-+++ b/drivers/hid/intel-ish-hid/ishtp/client.h
-@@ -109,7 +109,6 @@ struct ishtp_cl {
- };
- 
- /* Client connection managenment internal functions */
--int ishtp_can_client_connect(struct ishtp_device *ishtp_dev, guid_t *uuid);
- int ishtp_fw_cl_by_id(struct ishtp_device *dev, uint8_t client_id);
- void ishtp_cl_send_msg(struct ishtp_device *dev, struct ishtp_cl *cl);
- void recv_ishtp_cl_msg(struct ishtp_device *dev,
+Please follow coding-style.rst for Kconfig files, copied here with
+an example:
+
+10) Kconfig configuration files
+-------------------------------
+
+For all of the Kconfig* configuration files throughout the source tree,
+the indentation is somewhat different.  Lines under a ``config`` definition
+are indented with one tab, while help text is indented an additional two
+spaces.  Example::
+
+  config AUDIT
+	bool "Auditing support"
+	depends on NET
+	help
+	  Enable auditing infrastructure that can be used with another
+	  kernel subsystem, such as SELinux (which requires this for
+	  logging of avc messages output).  Does not do system-call
+	  auditing without CONFIG_AUDITSYSCALL.
+
+
+>  config HID_KUNIT_TEST
+>  	tristate "KUnit tests for HID" if !KUNIT_ALL_TESTS
+>  	depends on KUNIT
+
+thanks.
 -- 
-2.34.1
-
+~Randy

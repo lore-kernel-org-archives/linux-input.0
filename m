@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E03EEE49A0
-	for <linux-input@archiver.kernel.org>; Tue, 22 Aug 2023 00:15:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3455EE49A6
+	for <linux-input@archiver.kernel.org>; Tue, 22 Aug 2023 00:15:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231695AbjHVAPR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Aug 2023 20:15:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45376 "EHLO
+        id S231871AbjHVAPV (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 21 Aug 2023 20:15:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231827AbjHVAOD (ORCPT
+        with ESMTP id S231820AbjHVAOD (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Mon, 21 Aug 2023 20:14:03 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB011A8
-        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:13:57 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id 2adb3069b0e04-4ff09632194so5396414e87.2
-        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:13:57 -0700 (PDT)
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA1B198
+        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:13:55 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-4ff09632194so5396387e87.2
+        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:13:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1692663235; x=1693268035;
+        d=linaro.org; s=google; t=1692663234; x=1693268034;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ii+ERiIP/+rN5/93TQF2YXZBm9/0F6AmtInKGYg6uG8=;
-        b=X4vHwIj3OWCgBneAbXzCeie+I6fy8btM/pKM43CfnX5RCd84+Qpo+l27ESmO+yy361
-         fkDmCnCEPK48a7338v36s1llDT6lBQBPsVlBCbcWNYJqX7Ug9TWSW13PxD6IXHnxkVxC
-         TeOxvmWIf7jNhzoHkXG756AHEVhKmFPs68fJKl7VqLXA7fKBEY1ZpjmchtJIhzJoF6zc
-         47bytSNidu6zJWxWKfxVAGIk3Y/VWgZoj1LuZJoXvBR22yzk2FDk5B+ihiqHDy67qAjE
-         E+KJDdyc5ItUFd0qE1kQLGEZ8JU1GS/uCfH51ALIghrb5l6y4+7H9tYsZGoPmta6bLuM
-         2Riw==
+        bh=rbwE6BM/RqXOv2hUW/K9A2gh+jFrRI+7NWOB1e8J6uo=;
+        b=n6n9qAfTvpj1dsPl5jt9RHOPLPgMbjTLNrn2+bOQR6tWehKdlKNbpn+ZbDifHKf+mF
+         bZw2PS03GDM010cpuiAXRWe9uAG/mAav53EzzdizHAgNVKTqeq7eaIy3dpEJop/aTn+e
+         mHeZ01NKu4B2hvJjGD8V1wsi9WYBrqPfXSBKuETmJrm+9I6LMqiNjWzDp5y9azdWNbse
+         rcdMqbXPmmaft2mgt2/TUo4jUc24bjvuSk+P4ej1bAjZLk5xYXGP6GwxTpok6QQWc2Zt
+         +irl+c0rwl7NyjGNQuA9oFIgjwSXgJjwK1GFRLaJt33jWb5iYS2CR+eVda68cmGXY4TK
+         dc8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692663236; x=1693268036;
+        d=1e100.net; s=20221208; t=1692663234; x=1693268034;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ii+ERiIP/+rN5/93TQF2YXZBm9/0F6AmtInKGYg6uG8=;
-        b=gxkNd/92I8vE5JSTv8KlGn/tVa1o5Ljv3pfdR5o8OZ6mXmc90sQ5ayr/nB3Kvyifzy
-         n2BteMSWoDd9rtuNL0jsbb+JLnXmhSEEG5LGtuSkl5AYwMixkJO/IgwKLmD2qVKnUId2
-         xKNV3n9XZmM7dPvS2rLyufrdc9vJ7cHd0lbmLTdQhXivRek3R0W2YACLdqc3FgrFEbK+
-         My4JD7zl3XIJJz5QJKEu7t3CxXJCsvVboUN+ttGj6kSikBY/FpWJZxJkxmGTBzwdx80B
-         0Tz1TZUdZ49ZI9wXR6uaW7I2TaWXJmtq+UDCLMH5ftYB6LJuJNIVduBvm5gqrBp2CmqN
-         /4kQ==
-X-Gm-Message-State: AOJu0Yz7tUBhnDBTikBVopLsYTZ4wV9BV1RYQYME+dyWsTYHqOPdbdXJ
-        3/v5qLRIXN7Ulhs3PBHGusGU+w==
-X-Google-Smtp-Source: AGHT+IEQB66ExTcrHYnGsEpRPJGoRv0XObQZt73ANLO9TENxuzX0KDWaLDo4ov/+MRkwY00vEV3Uig==
-X-Received: by 2002:a05:6512:1587:b0:4fd:d470:203b with SMTP id bp7-20020a056512158700b004fdd470203bmr7025196lfb.69.1692663235798;
-        Mon, 21 Aug 2023 17:13:55 -0700 (PDT)
+        bh=rbwE6BM/RqXOv2hUW/K9A2gh+jFrRI+7NWOB1e8J6uo=;
+        b=hac25qnhKm1ZYs/tLdYu9JgpaCIW5FFtK4QCHbIalndoq6UIEnCYOQYV5ibFpCPbsz
+         bqk0i9IqWqIQVbnDRJmkpOUyPAU2iyvfbAygZSGGjsbuI5w/Ih6q8tTivy4F5Ydg7qdC
+         wCd/FVAkHa/cj58zb8BqHaVvpfIWNS99OmMXfWopK2ue0QB4s3pSjTME00Ziw+BGreqX
+         Ndf1EGj0qv0w/NEBRe9Am/c31nHRX8dYFKTsukhdp+i+1IXVEZay3Z7sDhW9rtCr8O6a
+         9FP85baHpVnA8m03BmLgb4A65fG58RGGmDrzl0VDNENwkaBcxPO0SLVfjencG9B0nTnP
+         Uo+w==
+X-Gm-Message-State: AOJu0Ywi9+fl0Ut8O4vPLzp5VHl4yF4aldrJBfNzn0Rar97AriBNOnk6
+        sf7HqVeOLYRRppzPQ2eUZR1vgJLJ8L8DQHFDKl8=
+X-Google-Smtp-Source: AGHT+IEX8+ph3oMhMRzqKtPStBH4/mFquOjS8DteqzB0VwrUZ3BrWCMOt/JnQx4qqm6cAEXRGFqPWw==
+X-Received: by 2002:a05:6512:615:b0:4fb:829b:196e with SMTP id b21-20020a056512061500b004fb829b196emr5390018lfe.2.1692663234161;
+        Mon, 21 Aug 2023 17:13:54 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id er23-20020a05651248d700b004fe36e673b8sm912024lfb.178.2023.08.21.17.13.54
+        by smtp.gmail.com with ESMTPSA id er23-20020a05651248d700b004fe36e673b8sm912024lfb.178.2023.08.21.17.13.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Aug 2023 17:13:55 -0700 (PDT)
+        Mon, 21 Aug 2023 17:13:53 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
@@ -58,9 +58,9 @@ To:     Andy Gross <agross@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
 Cc:     linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH v3 05/32] ARM: dts: qcom: msm8960: introduce label for PMIC keypad
-Date:   Tue, 22 Aug 2023 03:13:22 +0300
-Message-Id: <20230822001349.899298-6-dmitry.baryshkov@linaro.org>
+Subject: [PATCH v3 03/32] dt-bindings: bus: convert qcom,ssbi schema to YAML format
+Date:   Tue, 22 Aug 2023 03:13:20 +0300
+Message-Id: <20230822001349.899298-4-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230822001349.899298-1-dmitry.baryshkov@linaro.org>
 References: <20230822001349.899298-1-dmitry.baryshkov@linaro.org>
@@ -70,59 +70,110 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-To simplify MSM8960 CDP board file, add label to PMIC keypad node.
+Convert arm/msm/ssbi.txt yo YAML, moving it to the directory with bus
+bindings.
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- arch/arm/boot/dts/qcom/qcom-msm8960-cdp.dts | 20 +++++++++-----------
- arch/arm/boot/dts/qcom/qcom-msm8960.dtsi    |  2 +-
- 2 files changed, 10 insertions(+), 12 deletions(-)
+ .../devicetree/bindings/arm/msm/ssbi.txt      | 18 ------
+ .../devicetree/bindings/bus/qcom,ssbi.yaml    | 63 +++++++++++++++++++
+ 2 files changed, 63 insertions(+), 18 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/arm/msm/ssbi.txt
+ create mode 100644 Documentation/devicetree/bindings/bus/qcom,ssbi.yaml
 
-diff --git a/arch/arm/boot/dts/qcom/qcom-msm8960-cdp.dts b/arch/arm/boot/dts/qcom/qcom-msm8960-cdp.dts
-index 6c1bc3818883..4641b4f2195d 100644
---- a/arch/arm/boot/dts/qcom/qcom-msm8960-cdp.dts
-+++ b/arch/arm/boot/dts/qcom/qcom-msm8960-cdp.dts
-@@ -88,17 +88,15 @@ clk-pins {
- 	};
- };
- 
--&pmicintc {
--	keypad@148 {
--		linux,keymap = <
--			MATRIX_KEY(0, 0, KEY_VOLUMEUP)
--			MATRIX_KEY(0, 1, KEY_VOLUMEDOWN)
--			MATRIX_KEY(0, 2, KEY_CAMERA_FOCUS)
--			MATRIX_KEY(0, 3, KEY_CAMERA)
--			>;
--		keypad,num-rows = <1>;
--		keypad,num-columns = <5>;
--	};
-+&pm8921_keypad {
-+	linux,keymap = <
-+		MATRIX_KEY(0, 0, KEY_VOLUMEUP)
-+		MATRIX_KEY(0, 1, KEY_VOLUMEDOWN)
-+		MATRIX_KEY(0, 2, KEY_CAMERA_FOCUS)
-+		MATRIX_KEY(0, 3, KEY_CAMERA)
-+		>;
-+	keypad,num-rows = <1>;
-+	keypad,num-columns = <5>;
- };
- 
- &rpm {
-diff --git a/arch/arm/boot/dts/qcom/qcom-msm8960.dtsi b/arch/arm/boot/dts/qcom/qcom-msm8960.dtsi
-index d13080fcbeea..a34fda93d6a4 100644
---- a/arch/arm/boot/dts/qcom/qcom-msm8960.dtsi
-+++ b/arch/arm/boot/dts/qcom/qcom-msm8960.dtsi
-@@ -283,7 +283,7 @@ pwrkey@1c {
- 					pull-up;
- 				};
- 
--				keypad@148 {
-+				pm8921_keypad: keypad@148 {
- 					compatible = "qcom,pm8921-keypad";
- 					reg = <0x148>;
- 					interrupt-parent = <&pmicintc>;
+diff --git a/Documentation/devicetree/bindings/arm/msm/ssbi.txt b/Documentation/devicetree/bindings/arm/msm/ssbi.txt
+deleted file mode 100644
+index 54fd5ced3401..000000000000
+--- a/Documentation/devicetree/bindings/arm/msm/ssbi.txt
++++ /dev/null
+@@ -1,18 +0,0 @@
+-* Qualcomm SSBI
+-
+-Some Qualcomm MSM devices contain a point-to-point serial bus used to
+-communicate with a limited range of devices (mostly power management
+-chips).
+-
+-These require the following properties:
+-
+-- compatible: "qcom,ssbi"
+-
+-- qcom,controller-type
+-  indicates the SSBI bus variant the controller should use to talk
+-  with the slave device.  This should be one of "ssbi", "ssbi2", or
+-  "pmic-arbiter".  The type chosen is determined by the attached
+-  slave.
+-
+-The slave device should be the single child node of the ssbi device
+-with a compatible field.
+diff --git a/Documentation/devicetree/bindings/bus/qcom,ssbi.yaml b/Documentation/devicetree/bindings/bus/qcom,ssbi.yaml
+new file mode 100644
+index 000000000000..693cfa9696b5
+--- /dev/null
++++ b/Documentation/devicetree/bindings/bus/qcom,ssbi.yaml
+@@ -0,0 +1,63 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/bus/qcom,ssbi.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Qualcomm Single-wire Serial Bus Interface (SSBI)
++
++description:
++  Some Qualcomm MSM devices contain a point-to-point serial bus used to
++  communicate with a limited range of devices (mostly power management
++  chips).
++
++maintainers:
++  - Andy Gross <agross@kernel.org>
++  - Bjorn Andersson <andersson@kernel.org>
++
++properties:
++  compatible:
++    const: qcom,ssbi
++
++  reg:
++    maxItems: 1
++
++  qcom,controller-type:
++    description:
++      Indicates the SSBI bus variant the controller should use to talk
++      with the slave device. The type chosen is determined by the attached
++      slave.
++    enum:
++      - ssbi
++      - ssbi2
++      - pmic-arbiter
++
++  pmic:
++    $ref: /schemas/mfd/qcom-pm8xxx.yaml#
++
++required:
++  - compatible
++  - reg
++  - qcom,controller-type
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    ssbi@c00000 {
++        compatible = "qcom,ssbi";
++        reg = <0x00c00000 0x1000>;
++        qcom,controller-type = "pmic-arbiter";
++
++        pmic {
++            compatible = "qcom,pm8821";
++            interrupt-parent = <&msmgpio>;
++            interrupts = <76 IRQ_TYPE_LEVEL_LOW>;
++            #interrupt-cells = <2>;
++            interrupt-controller;
++            #address-cells = <1>;
++            #size-cells = <0>;
++        };
++    };
++...
 -- 
 2.39.2
 

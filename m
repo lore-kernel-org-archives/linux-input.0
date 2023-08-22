@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A5DC7EE49BA
-	for <linux-input@archiver.kernel.org>; Tue, 22 Aug 2023 00:14:17 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94C25EE49B0
+	for <linux-input@archiver.kernel.org>; Tue, 22 Aug 2023 00:14:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231791AbjHVAOR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S231845AbjHVAOR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Mon, 21 Aug 2023 20:14:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41234 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231845AbjHVAOE (ORCPT
+        with ESMTP id S231631AbjHVAOM (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Aug 2023 20:14:04 -0400
-Received: from mail-lj1-x233.google.com (mail-lj1-x233.google.com [IPv6:2a00:1450:4864:20::233])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DF9F186
-        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:13:59 -0700 (PDT)
-Received: by mail-lj1-x233.google.com with SMTP id 38308e7fff4ca-2b9338e4695so61524371fa.2
-        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:13:59 -0700 (PDT)
+        Mon, 21 Aug 2023 20:14:12 -0400
+Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DD60CDB
+        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:14:02 -0700 (PDT)
+Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-4fe15bfb1adso5816744e87.0
+        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:14:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1692663238; x=1693268038;
+        d=linaro.org; s=google; t=1692663240; x=1693268040;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=FS4tS46Wt2bF/A6aYMT37LuXJaPlC2jK1TxmIfbaIXc=;
-        b=w6ZfMP4xggvlDWKBqYPlrU8hExJYAcdJMtSBUBm8VdNlU98/DaTw1eLtIGnR1U4peB
-         VXUef7HxxIWn2NDwjWY1aoYC05gYqaldwHb6uiqPP8jDB3oQAhaKlOtXRItFIq1icF0q
-         tbcjQuu4eAWJcgaZtzO2+uGatzPb3hYCBn5ACB+JCTaS1aC3Z28VlmQW5JZvrYp9co8r
-         IGFEkvFkdv3pJna17gaUkfOAVTW1qBRFywfIcL/PPg247GWyjapXC9ojToTQLLUsyitB
-         2lUujN/L10siZ5364tmX0XlWZb3un4HnNoMGhlumhmboSDNohkRyDpipVKj+CMNeNDNY
-         esFw==
+        bh=wblF4wah6BmHW/8HH3+se0OjDANdbSlRJHajeFa81aM=;
+        b=mpdZSgYFAqAulCxsPyZ6IY+RIfCbF8ofyvLWWgCnM3m0vjFatzPTwVNuNFO74rxMID
+         yju+KCa/d0xQgWx1chFa7hGijt1ESlpXoR3nGaZHpQZScqoHcJPKLdLsouGq3deCcBFS
+         K+LPk/a7Iq+zD/S6ftkL/+grQn+ksZm4lA2UH1WYxBTQjC/cGe1vc7dFktRMdgL2KQsC
+         JZXDxzszSffJ2i15aQj5PEEkdXC0GCqCCclCXIPV72ExTUNwsH0aN+yWpnYM7F7YUOdh
+         sG2eAh3bvvfousJzol4PTQsfe07vfXQD+Z7rzD6R2I1ZN2yzDdLXhOR+2ZZQ/0dmXSUc
+         Nr0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692663238; x=1693268038;
+        d=1e100.net; s=20221208; t=1692663240; x=1693268040;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FS4tS46Wt2bF/A6aYMT37LuXJaPlC2jK1TxmIfbaIXc=;
-        b=ZdZTkKUN9WwwbJugzcPd6jo2XuyhXUNdfRMscB+nMeUQQc5dkBh9iqSmj6+bbNAsQA
-         BMw0tXie8OuG3lLjSKY8YGMdxdAb+DsCopJkmwv8JYxZFfBZedsi6gLAT0V0ygIJIh9V
-         5v+4K22FCovB0XdXgB+ot/cxElRWn4SN9RuP3BfcctRIxQykBpmz9ZnqulOis9jGNKak
-         PD4ADdaev0pJ43ndCuw7aJG/Lx/prXeuTW8ncLyhAA01Q8PEKhd5sSdub8XBTFFbDel+
-         9Ut7RG2x16XMkZVGHIch8dPgiMJ4OZSAI4CJJpL9CHWrMwCagnc9Sxmp5rWkg7ZIBhNj
-         Carw==
-X-Gm-Message-State: AOJu0Yyxu9naFoFfgT5neNQgWK0wdmzwXnX6HR7fhgqXM13tCtd79Cz0
-        4grGtTL0ZR0zAQfpmTe8EnVahC5n8HkWZm+Rd8w=
-X-Google-Smtp-Source: AGHT+IGR+iWAhaMpzYEi1DjOI6TMf1ksgxP9CV6GrZQi3gb3RbDXiZs5cHGSNMeyFa85/EP43jc+4A==
-X-Received: by 2002:a05:6512:a8f:b0:4fe:8c01:32ac with SMTP id m15-20020a0565120a8f00b004fe8c0132acmr7613795lfu.41.1692663237999;
-        Mon, 21 Aug 2023 17:13:57 -0700 (PDT)
+        bh=wblF4wah6BmHW/8HH3+se0OjDANdbSlRJHajeFa81aM=;
+        b=bSDxMkBwO2mETgpzRxQHmezAYtwqUIYRFrq5JVTwWTcjwIduomqf6n3uVKi/57RHXR
+         ugnmZICJg0uduyasX/2PhjOq+NisXj59a0uYUeEpzd0DzO+VLD18UQC9Mw6DmTU52cdU
+         tRyDirhiCuXI8h0CQ0r+BX4IGKDP4Aw3rQLjvmtbmMV6JmVUD7oJIuadEmwtcondNjC0
+         S9hLR9ClB81UPWe5iaUZ3WbiEQrD66qT72F3VFmBqIVG5tBbn4MPLSnDh3iBsske3qUE
+         x62C4AnopiVYhs+ajgiTy1KO6D1J45yCU06Pn8VdVARlZhHLr/CyGqattI36oERM3u+w
+         EbGQ==
+X-Gm-Message-State: AOJu0YxdQhTI76IhFJPKbKo0oDxMtLWUj8g7YYimUK2GAQARq/u6NBuQ
+        pQUTlkG/IefR/cYIYLNdip1DiQ==
+X-Google-Smtp-Source: AGHT+IHOnjQ/qAV0mbst1+opYz/aW8F9xWViiguO0PN+DJzSCgrdjBwsQ2N/e9lbNUnLWnV4OH0QPw==
+X-Received: by 2002:a05:6512:10d6:b0:4fd:c715:5667 with SMTP id k22-20020a05651210d600b004fdc7155667mr6017126lfg.20.1692663240819;
+        Mon, 21 Aug 2023 17:14:00 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id er23-20020a05651248d700b004fe36e673b8sm912024lfb.178.2023.08.21.17.13.57
+        by smtp.gmail.com with ESMTPSA id er23-20020a05651248d700b004fe36e673b8sm912024lfb.178.2023.08.21.17.14.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Aug 2023 17:13:57 -0700 (PDT)
+        Mon, 21 Aug 2023 17:14:00 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
@@ -58,9 +58,9 @@ To:     Andy Gross <agross@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
 Cc:     linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH v3 08/32] ARM: dts: qcom: mdm9615-wp8548-mangoh-green: group include clauses
-Date:   Tue, 22 Aug 2023 03:13:25 +0300
-Message-Id: <20230822001349.899298-9-dmitry.baryshkov@linaro.org>
+Subject: [PATCH v3 12/32] ARM: dts: qcom: msm8660: fix PMIC node labels
+Date:   Tue, 22 Aug 2023 03:13:29 +0300
+Message-Id: <20230822001349.899298-13-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230822001349.899298-1-dmitry.baryshkov@linaro.org>
 References: <20230822001349.899298-1-dmitry.baryshkov@linaro.org>
@@ -70,32 +70,72 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Group file inclusion to follow contemporary practice.
+Change PM8058 node labels to start with pm8058_ prefix, following other
+Qualcomm PMIC device nodes.
 
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../boot/dts/qcom/qcom-apq8060-dragonboard.dts   |  4 ++--
+ arch/arm/boot/dts/qcom/qcom-msm8660.dtsi         | 16 ++++++++--------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts b/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts
-index b269fdca1460..e3b4b93c3d38 100644
---- a/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts
-+++ b/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts
-@@ -6,11 +6,11 @@
-  * Author : Neil Armstrong <narmstrong@baylibre.com>
-  */
+diff --git a/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts b/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
+index db4c791b2e2f..48fd1a1feea3 100644
+--- a/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
++++ b/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
+@@ -72,7 +72,7 @@ cm3605 {
+ 		/* Trig on both edges - getting close or far away */
+ 		interrupts-extended = <&pm8058_gpio 34 IRQ_TYPE_EDGE_BOTH>;
+ 		/* MPP05 analog input to the XOADC */
+-		io-channels = <&xoadc 0x00 0x05>;
++		io-channels = <&pm8058_xoadc 0x00 0x05>;
+ 		io-channel-names = "aout";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&dragon_cm3605_gpios>, <&dragon_cm3605_mpps>;
+@@ -945,7 +945,7 @@ irq-pins {
+ 	};
+ };
  
-+#include <dt-bindings/gpio/gpio.h>
- #include <dt-bindings/input/input.h>
-+#include <dt-bindings/interrupt-controller/irq.h>
+-&xoadc {
++&pm8058_xoadc {
+ 	/* Reference voltage 2.2 V */
+ 	xoadc-ref-supply = <&pm8058_l18>;
  
- #include "qcom-mdm9615-wp8548.dtsi"
--#include <dt-bindings/interrupt-controller/irq.h>
--#include <dt-bindings/gpio/gpio.h>
+diff --git a/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi b/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
+index 78023ed2fdf7..9217ced108c4 100644
+--- a/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
++++ b/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
+@@ -80,13 +80,13 @@ sleep-clk {
+ 	 */
+ 	iio-hwmon {
+ 		compatible = "iio-hwmon";
+-		io-channels = <&xoadc 0x00 0x01>, /* Battery */
+-			    <&xoadc 0x00 0x02>, /* DC in (charger) */
+-			    <&xoadc 0x00 0x04>, /* VPH the main system voltage */
+-			    <&xoadc 0x00 0x0b>, /* Die temperature */
+-			    <&xoadc 0x00 0x0c>, /* Reference voltage 1.25V */
+-			    <&xoadc 0x00 0x0d>, /* Reference voltage 0.625V */
+-			    <&xoadc 0x00 0x0e>; /* Reference voltage 0.325V */
++		io-channels = <&pm8058_xoadc 0x00 0x01>, /* Battery */
++			      <&pm8058_xoadc 0x00 0x02>, /* DC in (charger) */
++			      <&pm8058_xoadc 0x00 0x04>, /* VPH the main system voltage */
++			      <&pm8058_xoadc 0x00 0x0b>, /* Die temperature */
++			      <&pm8058_xoadc 0x00 0x0c>, /* Reference voltage 1.25V */
++			      <&pm8058_xoadc 0x00 0x0d>, /* Reference voltage 0.625V */
++			      <&pm8058_xoadc 0x00 0x0e>; /* Reference voltage 0.325V */
+ 	};
  
- / {
- 	model = "MangOH Green with WP8548 Module";
+ 	soc: soc {
+@@ -390,7 +390,7 @@ pm8058_keypad: keypad@148 {
+ 					row-hold = <91500>;
+ 				};
+ 
+-				xoadc: xoadc@197 {
++				pm8058_xoadc: xoadc@197 {
+ 					compatible = "qcom,pm8058-adc";
+ 					reg = <0x197>;
+ 					interrupts-extended = <&pm8058 76 IRQ_TYPE_EDGE_RISING>;
 -- 
 2.39.2
 

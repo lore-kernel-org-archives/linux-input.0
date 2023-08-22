@@ -2,128 +2,89 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7AC6DEE49B4
-	for <linux-input@archiver.kernel.org>; Tue, 22 Aug 2023 00:15:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A0F1EE49A5
+	for <linux-input@archiver.kernel.org>; Tue, 22 Aug 2023 05:53:32 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231883AbjHVAPW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 21 Aug 2023 20:15:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41274 "EHLO
+        id S232851AbjHVFxc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 22 Aug 2023 01:53:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231803AbjHVAN7 (ORCPT
+        with ESMTP id S232566AbjHVFxc (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 21 Aug 2023 20:13:59 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 509C3184
-        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:13:55 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id 2adb3069b0e04-4ff8f2630e3so6142800e87.1
-        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 17:13:55 -0700 (PDT)
+        Tue, 22 Aug 2023 01:53:32 -0400
+Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B4CAD7
+        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 22:53:30 -0700 (PDT)
+Received: by mail-lj1-x22d.google.com with SMTP id 38308e7fff4ca-2bccda76fb1so8359131fa.2
+        for <linux-input@vger.kernel.org>; Mon, 21 Aug 2023 22:53:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1692663233; x=1693268033;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5gLmuDteVfflRRaO74B8eb5+m9ZmGqFUyBbM9139n1w=;
-        b=m0jEvxgOrTbiX4Q6waohk0ZmFbZl3nt7LpxsFfreEVSeHjVm+xJqtpHqs7br4jEP8X
-         a+zDwI/Oe0lDIfhyLI8F4P6IeVugTHBWIDzkZL9FiGtVtm0bMrTyuW8nXMUXTXNxzEjy
-         AVIMbJSZP9UWB0F20oTH6UCsfD2JwPtTulXTiWMQbxyxIA42OA2F+R3mt11a+c8N9mjV
-         hR7pLRkSrXzYyd7t1YGtHTkLdAbEgProP9+e3SYKWYaO/zT9BNhhq7/dX3E8azFADU+b
-         /kTzc+b6XrbB4dtsXYfuKJMMkThrGDY+2md7CW67QTPJIExvZ8/vTCCHvbxRLNwzhbV3
-         QhyA==
+        d=linaro.org; s=google; t=1692683608; x=1693288408;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=YclWG5r8FOwzKxdmQ7yoGnwhJn4JvlTIe9J5LgNQq7U=;
+        b=WSS+g6A6q+xua6xPjBLSyt5939/WFW5rR6kW4ACicPv26Jj3S5ME7qad2B+/QdO4tl
+         XWA3vrX/hNzoC+jdWjBBqvv2PcvKIZYGzCRgB0iGWm7Q5Xd6NxAXmO5SjYnQSXG3sMtm
+         EHQCWYmcnvUc6Das+KODUiDYCxg/LcYb3mO6lQFJgKCuwKrY+bTs8YgQ72R3rbMX+uij
+         JXTd9eL/cvgAkTweKjawQECBsFvymVn8oactmFssC2O+frFYBAAfvQxiWDpQlCcHNOy9
+         skoBzIk36tJwJJ+tE3yaa8WHJWzPnGCq7TfMGXwN7VVk1fJpiLhKYiC0qp7gcQs8M7QO
+         y6EQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1692663233; x=1693268033;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=5gLmuDteVfflRRaO74B8eb5+m9ZmGqFUyBbM9139n1w=;
-        b=Tfkhgrp6hY8n4fDTuFbHdXzjJxeeY4YAb2jYord0IHJF+KLFfEvtuVo2+wv/EGz5fb
-         68fqjiqnySiuetr83ttnuqkD984hlq6Vm6vtsBYxA98EKBNmN3QxxTLzH9hE2wlYFs3A
-         DlVSSNtVt2ZA3f9gUwyl4HMPw7t9vZ1yhgZEC5VvyIhCMnJdUhrHRY1yqczoTngrQ7X+
-         ZkwcCQnlVCj7mZbCeDerBq4JE2SDriey7Ejmx21L/MWITyFpXpVMh3yK6VHDEhui6MEv
-         sEqcKwI7LE4mIAk7daFvvtllSjos8918gHGPjIaTVYcYk4Hy4Fpioi/+tLy5ambs6BGE
-         Gxpw==
-X-Gm-Message-State: AOJu0Yz7tG3wMFBbcZ54jZSw71IoLs4olxQdXJllHt+9l5GLg7Fa851v
-        RO+CzgeLffdvbxgYkcsedKcmqQ==
-X-Google-Smtp-Source: AGHT+IFBeCMMID8+k0vxg+34KSUBolFjB9cU8EWF/Q4xgcATW4hwIcQ3ZiJMe1SLZ3FdMLtEnB3pUA==
-X-Received: by 2002:a05:6512:3b9a:b0:500:7fc7:852f with SMTP id g26-20020a0565123b9a00b005007fc7852fmr4352283lfv.39.1692663233450;
-        Mon, 21 Aug 2023 17:13:53 -0700 (PDT)
-Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id er23-20020a05651248d700b004fe36e673b8sm912024lfb.178.2023.08.21.17.13.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Aug 2023 17:13:52 -0700 (PDT)
-From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-To:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
-Cc:     linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-input@vger.kernel.org, Lee Jones <lee@kernel.org>,
-        Satya Priya <quic_c_skakit@quicinc.com>
-Subject: [PATCH v3 02/32] dt-bindings: mfd: qcom-pm8xxx: add missing child nodes
-Date:   Tue, 22 Aug 2023 03:13:19 +0300
-Message-Id: <20230822001349.899298-3-dmitry.baryshkov@linaro.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230822001349.899298-1-dmitry.baryshkov@linaro.org>
-References: <20230822001349.899298-1-dmitry.baryshkov@linaro.org>
+        d=1e100.net; s=20221208; t=1692683608; x=1693288408;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=YclWG5r8FOwzKxdmQ7yoGnwhJn4JvlTIe9J5LgNQq7U=;
+        b=YSdUIhQdrNbJ9uD32NT/rj/kvRbh8AkY7reRrlkIGVPoU0qt84nviWhn4heMUidCOx
+         rStJYBz23sbAQmRSFtdj9km5ZNpQw5jA/tKZqaseRC8slyu9SIr2B2SvzlRS2tj0hf/p
+         7c0REuF/jWMkq3WON0c0CugFzQjucWfxPZ07oOyfi57SQQZ1PGBuwIpGxfLOS02GoitE
+         aho9fFZ/h1lJlzsm0uFQXNOamLTqXd41St89PlkokDB6+1bczSYEOHuGgu2Rb2cTDV5Q
+         JrFV/REGPC0AzJPPa1B6/qU7f13gv8/d1jPwI3zVjcczPGN0os6JbjFz95/nf89MjYOJ
+         GHeQ==
+X-Gm-Message-State: AOJu0Yyhzz9WQtjtyC6G/S2n4wK/ArbEWp70Vw06slqjrvEUbKn/lN2Z
+        9nt2EiDFRxflyloen110A96ruw==
+X-Google-Smtp-Source: AGHT+IGwzUrCGIQEn6gDwZlnstlzuErkxJ9bkfS7lUv6kaL8GC3cD1kuDouQOUNIiEhJ+s8ddkA1ug==
+X-Received: by 2002:a2e:8283:0:b0:2bb:94e4:49f with SMTP id y3-20020a2e8283000000b002bb94e4049fmr5399822ljg.32.1692683608683;
+        Mon, 21 Aug 2023 22:53:28 -0700 (PDT)
+Received: from [192.168.0.22] ([77.252.47.198])
+        by smtp.gmail.com with ESMTPSA id n23-20020a170906841700b0099ce23c57e6sm7545498ejx.224.2023.08.21.22.53.27
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 21 Aug 2023 22:53:28 -0700 (PDT)
+Message-ID: <da281686-a187-4363-ad97-015ae93ca5ac@linaro.org>
+Date:   Tue, 22 Aug 2023 07:53:26 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.14.0
+Subject: Re: [PATCH v2 1/4] dt-bindings: touchscreen: convert neonode,zforce
+ to json-schema
+Content-Language: en-US
+To:     Andreas Kemnade <andreas@kemnade.info>, dmitry.torokhov@gmail.com,
+        robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
+        conor+dt@kernel.org, shawnguo@kernel.org, s.hauer@pengutronix.de,
+        kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com,
+        rydberg@bitmath.org, u.kleine-koenig@pengutronix.de,
+        Jonathan.Cameron@huawei.com, linus.walleij@linaro.org,
+        heiko@sntech.de, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+References: <20230821171151.555091-1-andreas@kemnade.info>
+ <20230821171151.555091-2-andreas@kemnade.info>
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20230821171151.555091-2-andreas@kemnade.info>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add gpio, keypad, led, mpps, pwrkey, vibrator and xoadc as possible
-child nodes of qcom,pm8xxx, referencing existint schema files.
+On 21/08/2023 19:11, Andreas Kemnade wrote:
+> Convert Neonode infrared touchscreen controller binding to DT schema.
+> 
+> Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+> ---
 
-Cc: Lee Jones <lee@kernel.org>
-Cc: Satya Priya <quic_c_skakit@quicinc.com>
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
----
- .../devicetree/bindings/mfd/qcom-pm8xxx.yaml  | 26 ++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
-index 9c51c1b19067..7fe3875a5996 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
-+++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
-@@ -43,13 +43,37 @@ properties:
-   interrupt-controller: true
- 
- patternProperties:
-+  "gpio@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/pinctrl/qcom,pmic-gpio.yaml#
-+
-+  "keypad@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/input/qcom,pm8921-keypad.yaml#
-+
-   "led@[0-9a-f]+$":
-     type: object
-     $ref: /schemas/leds/qcom,pm8058-led.yaml#
- 
-+  "mpps@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/pinctrl/qcom,pmic-mpp.yaml#
-+
-+  "pwrkey@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/input/qcom,pm8921-pwrkey.yaml#
-+
-   "rtc@[0-9a-f]+$":
-     type: object
--    $ref: ../rtc/qcom-pm8xxx-rtc.yaml
-+    $ref: /schemas/rtc/qcom-pm8xxx-rtc.yaml#
-+
-+  "vibrator@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/input/qcom,pm8xxx-vib.yaml#
-+
-+  "xoadc@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/iio/adc/qcom,pm8018-adc.yaml#
- 
- required:
-   - compatible
--- 
-2.39.2
+Best regards,
+Krzysztof
 

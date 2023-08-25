@@ -2,115 +2,73 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4D24EE49AB
-	for <linux-input@archiver.kernel.org>; Fri, 25 Aug 2023 08:37:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6F1F1C7EE2C
+	for <linux-input@archiver.kernel.org>; Fri, 25 Aug 2023 09:44:59 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242044AbjHYIhW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 25 Aug 2023 04:37:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34942 "EHLO
+        id S231835AbjHYJo1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 25 Aug 2023 05:44:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239709AbjHYIgr (ORCPT
+        with ESMTP id S235628AbjHYJoX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 25 Aug 2023 04:36:47 -0400
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85C6019AC;
-        Fri, 25 Aug 2023 01:36:45 -0700 (PDT)
+        Fri, 25 Aug 2023 05:44:23 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D403F19A1;
+        Fri, 25 Aug 2023 02:44:20 -0700 (PDT)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
          key-exchange X25519 server-signature RSA-PSS (2048 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 230A365A22;
-        Fri, 25 Aug 2023 08:36:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E58CC433C7;
-        Fri, 25 Aug 2023 08:36:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68F3360D3D;
+        Fri, 25 Aug 2023 09:44:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 375CAC433C8;
+        Fri, 25 Aug 2023 09:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1692952604;
-        bh=SoOIZhPy+BH1lhh+PkibmCi/a28e+9FwfvE7RWdGdTc=;
-        h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=l8zFt9TnpPicBKDMUvdOLhXOmD0jypML3YAdrq07kg9QizPhjHluajOQkrOCuj9jg
-         8a8xpdCd+ywjdbeVd8bu5PLwcRLwypSQ3IhZ2wsgwlaBnSoT/xadaXFoXZJfBlxxbi
-         OkEeTAAp5uw+xKuqWYmvNnfJm/RUlr/wC49kcl1kKc1cmv/OJx58+Z08Cq+OpoYdAd
-         fHHCB2elSPTEf9YKOXbVV2Ouic9MUfF3XK5Ktyxh75rTJl2UrUiDN8PKZrJD3o5UkF
-         dImrZjg8bCp2P8MlX54lOUvF/MjTU6TYsMpNQ1oVCaiYGLnYq3af36hn++tq6vZawL
-         VC6dDlqTRx1Dg==
+        s=k20201202; t=1692956659;
+        bh=me1uoWKkEzgLUsTWeqOu/DWILOAbSgEJUKQu/4VvDZw=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=dH2yzUTTY2b7oQyz+3nAkP0NdHuO5NqCTKuIyrMg/wfm97eKhPl6/siE2zzCkOnOG
+         yDfHIqWBruqfsIhG2Wwy7FjalnyqTz0IdavmkM8I2dugiG+6B32m7IHzuZySerCt7d
+         yNUYQT0H8MPJb4rpEYS1u5dLVs9YPuUaXaAjS1UnG/7RuAMe+i+4KXN0aUeRy7lWbO
+         +SdRy1FfN+e5s8D3AuJRmQpFdEBc0YZzOif5QLCSARhZqaJpugoq3xd358ef3C8fS2
+         u87UmbBvQ6K3vTH+vE9Hw5gdn1sCsdrvF9V9ahZjoA9vtdBlCiA+RWaVNupUymfww7
+         FUwnH/OOTIqqw==
 From:   Benjamin Tissoires <bentiss@kernel.org>
-Date:   Fri, 25 Aug 2023 10:36:32 +0200
-Subject: [PATCH 2/3] selftests/hid: do not manually call headers_install
+To:     =?utf-8?q?Filipe_La=C3=ADns?= <lains@riseup.net>,
+        Bastien Nocera <hadess@hadess.net>,
+        Jiri Kosina <jikos@kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>, bentiss@kernel.org
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        stable@vger.kernel.org
+In-Reply-To: <20230621-logitech-fixes-v2-1-3635f7f9c8af@kernel.org>
+References: <20230621-logitech-fixes-v2-1-3635f7f9c8af@kernel.org>
+Subject: Re: [PATCH v2] HID: logitech-hidpp: rework one more time the
+ retries attempts
+Message-Id: <169295665797.600550.12347431863419633471.b4-ty@kernel.org>
+Date:   Fri, 25 Aug 2023 11:44:17 +0200
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230825-wip-selftests-v1-2-c862769020a8@kernel.org>
-References: <20230825-wip-selftests-v1-0-c862769020a8@kernel.org>
-In-Reply-To: <20230825-wip-selftests-v1-0-c862769020a8@kernel.org>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Shuah Khan <shuah@kernel.org>,
-        Justin Stitt <justinstitt@google.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Cc:     linux-input@vger.kernel.org, linux-kselftest@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
-        Benjamin Tissoires <bentiss@kernel.org>
 X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1692952596; l=1935;
- i=bentiss@kernel.org; s=20230215; h=from:subject:message-id;
- bh=SoOIZhPy+BH1lhh+PkibmCi/a28e+9FwfvE7RWdGdTc=;
- b=R9Znvk2sGB/OjwoSxK6aPdlfboNJEpepCTlCc1wBNAygDf9Fbz1fE3Gv4qJ5OQpVYiwWg35tY
- WeEjnIWm+7sAYt+lui27uQf+gzDSerrE+pvsqGmnHb3ypUwo/+3XkCU
-X-Developer-Key: i=bentiss@kernel.org; a=ed25519;
- pk=7D1DyAVh6ajCkuUTudt/chMuXWIJHlv2qCsRkIizvFw=
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-"make headers" is a requirement before calling make on the selftests
-dir, so we should not have to manually install those headers
+On Wed, 12 Jul 2023 17:02:34 +0200, bentiss@kernel.org wrote:
+> Extract the internal code inside a helper function, fix the
+> initialization of the parameters used in the helper function
+> (`hidpp->answer_available` was not reset and `*response` wasn't either),
+> and use a `do {...} while();` loop.
+> 
+> 
 
-Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
----
- tools/testing/selftests/hid/Makefile | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+Applied to hid/hid.git (for-6.6/logitech), thanks!
 
-diff --git a/tools/testing/selftests/hid/Makefile b/tools/testing/selftests/hid/Makefile
-index 01c0491d64da..c5522088ece4 100644
---- a/tools/testing/selftests/hid/Makefile
-+++ b/tools/testing/selftests/hid/Makefile
-@@ -21,7 +21,7 @@ CXX ?= $(CROSS_COMPILE)g++
- 
- HOSTPKG_CONFIG := pkg-config
- 
--CFLAGS += -g -O0 -rdynamic -Wall -Werror -I$(KHDR_INCLUDES) -I$(OUTPUT)
-+CFLAGS += -g -O0 -rdynamic -Wall -Werror -I$(OUTPUT)
- LDLIBS += -lelf -lz -lrt -lpthread
- 
- # Silence some warnings when compiled with clang
-@@ -65,7 +65,6 @@ BPFTOOLDIR := $(TOOLSDIR)/bpf/bpftool
- SCRATCH_DIR := $(OUTPUT)/tools
- BUILD_DIR := $(SCRATCH_DIR)/build
- INCLUDE_DIR := $(SCRATCH_DIR)/include
--KHDR_INCLUDES := $(SCRATCH_DIR)/uapi/include
- BPFOBJ := $(BUILD_DIR)/libbpf/libbpf.a
- ifneq ($(CROSS_COMPILE),)
- HOST_BUILD_DIR		:= $(BUILD_DIR)/host
-@@ -151,9 +150,6 @@ else
- 	$(Q)cp "$(VMLINUX_H)" $@
- endif
- 
--$(KHDR_INCLUDES)/linux/hid.h: $(top_srcdir)/include/uapi/linux/hid.h
--	$(MAKE) -C $(top_srcdir) INSTALL_HDR_PATH=$(SCRATCH_DIR)/uapi headers_install
--
- $(RESOLVE_BTFIDS): $(HOST_BPFOBJ) | $(HOST_BUILD_DIR)/resolve_btfids	\
- 		       $(TOOLSDIR)/bpf/resolve_btfids/main.c	\
- 		       $(TOOLSDIR)/lib/rbtree.c			\
-@@ -231,7 +227,7 @@ $(BPF_SKELS): %.skel.h: %.bpf.o $(BPFTOOL) | $(OUTPUT)
- 	$(Q)$(BPFTOOL) gen object $(<:.o=.linked1.o) $<
- 	$(Q)$(BPFTOOL) gen skeleton $(<:.o=.linked1.o) name $(notdir $(<:.bpf.o=)) > $@
- 
--$(OUTPUT)/%.o: %.c $(BPF_SKELS) $(KHDR_INCLUDES)/linux/hid.h
-+$(OUTPUT)/%.o: %.c $(BPF_SKELS)
- 	$(call msg,CC,,$@)
- 	$(Q)$(CC) $(CFLAGS) -c $(filter %.c,$^) $(LDLIBS) -o $@
- 
+[1/1] HID: logitech-hidpp: rework one more time the retries attempts
+      https://git.kernel.org/hid/hid/c/60165ab774cb
 
+Cheers,
 -- 
-2.39.1
+Benjamin Tissoires <bentiss@kernel.org>
 

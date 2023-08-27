@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 77029C83F2A
-	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 01:00:38 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E4A40C83F13
+	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 01:00:39 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229704AbjH0BAC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 26 Aug 2023 21:00:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42802 "EHLO
+        id S229877AbjH0BAD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 26 Aug 2023 21:00:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229843AbjH0A7b (ORCPT
+        with ESMTP id S229935AbjH0A7d (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 26 Aug 2023 20:59:31 -0400
-Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CC519A
-        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:27 -0700 (PDT)
-Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-4ffa248263cso3382031e87.2
-        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:27 -0700 (PDT)
+        Sat, 26 Aug 2023 20:59:33 -0400
+Received: from mail-lf1-x132.google.com (mail-lf1-x132.google.com [IPv6:2a00:1450:4864:20::132])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B771BE
+        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:30 -0700 (PDT)
+Received: by mail-lf1-x132.google.com with SMTP id 2adb3069b0e04-50079d148aeso3189836e87.3
+        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1693097966; x=1693702766;
+        d=linaro.org; s=google; t=1693097968; x=1693702768;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=A7ewwDA5rK2znaB44N+h4kM3uTy6kez9qLlohwFRQDU=;
-        b=dr+xGfPeYe7Wa2DSNVZV/hj9UAPQ38c1g0yJEofbEloBWIr1C3nlyAvN0XLN5ZIE8R
-         vPE7dc7lBbQTQjDAkbzvDAGGQknMkvPAfLHw+56eiGXgownMfZNCWL7QhB1DnR8fJvsK
-         tyubDUAkii2h2hCpEDAEdZVibyZr3GZ1mjbj/pWq/dAFQvml5ZJ4S/bEVukF3UQXLt4G
-         w2t6VnAgMuPsIXLtSwpcTYsIDjifzLmck2LgWL/Sc+qMPoNOJrNfidamDEhAbij4RX3G
-         eqS+i3kiGqxA18emCJU7b61VMN39U9VQucVvlZIAyNGujQDP/2IrmmjJhJ+aTC6CXiUS
-         izMQ==
+        bh=YcbEnFCtTA9UEjtUWN7yvDCOIDS8kBLNF+kymOo1R3w=;
+        b=UShHV9j76+b2UGFB5EC7mePQoUg/FeJkI8Odj0XEg9yl6Y/6tzP1o1HYOMLoYGrsY/
+         bPr07/vlfUQXGFhlwyLSh99G/BFYRZljHiqFe8YrdYD4W+9RD/tCbnFbIBInYDgaRcNK
+         MRMo9F7XH+AimDgB48tvcZgOHpsKzwMfFC09QMwGITB17xd7VeKKXA3ODUcpeRLCEoVa
+         W8xBM43KxlHJXSQr/53nWHi71y5z6LXfI6Di3jlB2r6HZpMkHpyequGDsgo85cjX+rLV
+         vlw/oefl7qj+O/cflOnK0YVzgYKe3Pbt0DgrnS7cahy3zXfL9qKzDZ7GXnlFXvZdp+YL
+         Y9lg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693097966; x=1693702766;
+        d=1e100.net; s=20221208; t=1693097968; x=1693702768;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=A7ewwDA5rK2znaB44N+h4kM3uTy6kez9qLlohwFRQDU=;
-        b=fz0uA/HVSFFV8bO/pfEVWqceDl2wUroWK5y3ywsk+3YTayRaqOlM1FeLEMe+P8SIha
-         +ZVyeNrtThTN73iXhOIMCgIkQ33tVA+9RjImcfIYAPV6du+qUWMUethN6Z4NIqC/texJ
-         SLu7zJUAhx9LplNPLVGmgP766w7g0X1npW9ZQiJVYgajSNrBef07xUN7xpdx7DLnMpZY
-         WKVAwBHkO/YoiFa+y8emtouU0hCGOcE5ho9sBTxHuWNML5QsYKhtJjqsilttduBQrQCk
-         LAjfzav2HDvOk9tYUbSu995ZZP19oTn5lxRCAwZGf6wO0b3QvDlSvfWlu7AC5TEz7+Fw
-         vUDA==
-X-Gm-Message-State: AOJu0YyCRj77di/J+SGUN+feFfgH/FBAcVmK+Z6+bsfZqOoNE1b96vB7
-        wOIpxRYtAtrPTanqgLs4cG2Hzw==
-X-Google-Smtp-Source: AGHT+IGkdIIbysyoBRj0pXlTSsbuUyxPi/2jfcF4IkJZNSjqZkhLnZGgbQJK/uyzvu1TAIbijBXsZw==
-X-Received: by 2002:a05:6512:33c5:b0:4f9:cd02:4af1 with SMTP id d5-20020a05651233c500b004f9cd024af1mr17790616lfg.34.1693097966249;
-        Sat, 26 Aug 2023 17:59:26 -0700 (PDT)
+        bh=YcbEnFCtTA9UEjtUWN7yvDCOIDS8kBLNF+kymOo1R3w=;
+        b=LZmX6xkIvvgEsCEajpr6qqXHO81aH1Pxi966Wdyyo4UileOv7rbbwUi5Bpv640NTgg
+         C2IFR929gQ3B7LiSeFwAbFIGsN8CEZLNVzb9Su0q7P310hykSjGEBtUOH10l/u3rH0rc
+         EzEsg0lVLc1X47Hm4F0uYafr873/bqA7MLkpNGjYQodsAuIbAlqMIfxrlO7HiD2DcSMq
+         cx7gRT4TACamSI5NBSLDo+EeA4DXDN7KxzigCzxv+cSZ61V8H6u28vLslC+9UAepselt
+         ka9GCNalVj/9eijjKSj3ZsmA4LOyfxCdWph3TfF0EBe9ZIMVoD1MHJlRWrBNdUrtFxQv
+         kJuw==
+X-Gm-Message-State: AOJu0YwUspDUacwulelxo0HqFiWVTyCCMmGPjsGKp4364hnpIeFnqb2k
+        0EVLcg1uvF0DLvZa53RwSQPlFA==
+X-Google-Smtp-Source: AGHT+IG71KDyuArP16wER/MBvZejk6g5ArMnhWS8q/w1v/qvxBf3oYq1dqBHZ7VVSpJT4nHsqqMdCg==
+X-Received: by 2002:a05:6512:5d0:b0:500:9bbf:da17 with SMTP id o16-20020a05651205d000b005009bbfda17mr5923510lfo.51.1693097968651;
+        Sat, 26 Aug 2023 17:59:28 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id p18-20020ac246d2000000b00500a08e42e7sm917729lfo.124.2023.08.26.17.59.25
+        by smtp.gmail.com with ESMTPSA id p18-20020ac246d2000000b00500a08e42e7sm917729lfo.124.2023.08.26.17.59.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Aug 2023 17:59:25 -0700 (PDT)
+        Sat, 26 Aug 2023 17:59:28 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     devicetree@vger.kernel.org, Lee Jones <lee@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -62,11 +62,10 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-iio@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-        linux-leds@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v4 04/38] ARM: dts: qcom: apq8064: correct XOADC register address
-Date:   Sun, 27 Aug 2023 03:58:46 +0300
-Message-Id: <20230827005920.898719-5-dmitry.baryshkov@linaro.org>
+        linux-leds@vger.kernel.org
+Subject: [PATCH v4 07/38] ARM: dts: qcom: apq8064-nexus7: move sdcc1 node to proper place
+Date:   Sun, 27 Aug 2023 03:58:49 +0300
+Message-Id: <20230827005920.898719-8-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
 References: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
@@ -76,31 +75,46 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The XOADC is present at the address 0x197 rather than just 197. It
-doesn't change a lot (since the driver hardcodes all register
-addresses), but the DT should present correct address anyway.
+Move sdcc1 device node to follow the alphanumberic sorting order.
 
-Fixes: c4b70883ee33 ("ARM: dts: add XOADC and IIO HWMON to APQ8064")
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- arch/arm/boot/dts/qcom/qcom-apq8064.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
-index 516f0d2495e2..950adb63af70 100644
---- a/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
-+++ b/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
-@@ -738,7 +738,7 @@ pwrkey@1c {
+diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts b/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
+index c57c27cd8a20..0e80a5a8e3c6 100644
+--- a/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
++++ b/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
+@@ -181,13 +181,6 @@ &mdp {
+ 	status = "okay";
+ };
  
- 				xoadc: xoadc@197 {
- 					compatible = "qcom,pm8921-adc";
--					reg = <197>;
-+					reg = <0x197>;
- 					interrupts-extended = <&pmicintc 78 IRQ_TYPE_EDGE_RISING>;
- 					#address-cells = <2>;
- 					#size-cells = <0>;
+-/* eMMC */
+-&sdcc1 {
+-	vmmc-supply = <&pm8921_l5>;
+-	vqmmc-supply = <&pm8921_s4>;
+-	status = "okay";
+-};
+-
+ &mdp_dsi1_out {
+ 	remote-endpoint = <&dsi0_in>;
+ };
+@@ -336,6 +329,13 @@ lvs7 {
+ 	};
+ };
+ 
++/* eMMC */
++&sdcc1 {
++	vmmc-supply = <&pm8921_l5>;
++	vqmmc-supply = <&pm8921_s4>;
++	status = "okay";
++};
++
+ &usb_hs1_phy {
+ 	v3p3-supply = <&pm8921_l3>;
+ 	v1p8-supply = <&pm8921_l4>;
 -- 
 2.39.2
 

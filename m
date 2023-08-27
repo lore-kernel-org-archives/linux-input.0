@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A85DEC83F2B
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77029C83F2A
 	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 01:00:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229672AbjH0BAC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S229704AbjH0BAC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sat, 26 Aug 2023 21:00:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56974 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229730AbjH0A7a (ORCPT
+        with ESMTP id S229843AbjH0A7b (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 26 Aug 2023 20:59:30 -0400
-Received: from mail-lj1-x22b.google.com (mail-lj1-x22b.google.com [IPv6:2a00:1450:4864:20::22b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65ED8CF1
-        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:26 -0700 (PDT)
-Received: by mail-lj1-x22b.google.com with SMTP id 38308e7fff4ca-2bcc187e0b5so31876221fa.1
-        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:26 -0700 (PDT)
+        Sat, 26 Aug 2023 20:59:31 -0400
+Received: from mail-lf1-x12f.google.com (mail-lf1-x12f.google.com [IPv6:2a00:1450:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2CC519A
+        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:27 -0700 (PDT)
+Received: by mail-lf1-x12f.google.com with SMTP id 2adb3069b0e04-4ffa248263cso3382031e87.2
+        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1693097964; x=1693702764;
+        d=linaro.org; s=google; t=1693097966; x=1693702766;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vjW4ylzO3JtTT7kFnJy7UM1EVNTfgYpip/fK2M89nnA=;
-        b=Qwcn4viHz9TYTNSV6wVszVXF6e9BQPpP+eaN4Z+zvgoiIwRrRXPSNvkJJIyQPL758p
-         mEywqFU+vdNhV97gcnuWKbd0kZerfnY1tvmVVW8JYTMS0KvIT0JfBTFYg7/pALl+nsKl
-         BmhuygRif/1VdHqs6gIyQCHVWh6UUcvwfUG/G7u7Hx01rRXxlVAcW4Wzfme3TBdlhpCn
-         QLWpX5lBRzD5scuB1wT5IwoZETJel96zDbKNngkYwsqqKemB/HMdwC9UFt1oQPOJoHDE
-         26DeQODGorZjqR66jZkU2U3aVjElF4TMGCiSmbFNNQ0farmD6xumr6C6UdwSwbGRQ0Nu
-         qHYg==
+        bh=A7ewwDA5rK2znaB44N+h4kM3uTy6kez9qLlohwFRQDU=;
+        b=dr+xGfPeYe7Wa2DSNVZV/hj9UAPQ38c1g0yJEofbEloBWIr1C3nlyAvN0XLN5ZIE8R
+         vPE7dc7lBbQTQjDAkbzvDAGGQknMkvPAfLHw+56eiGXgownMfZNCWL7QhB1DnR8fJvsK
+         tyubDUAkii2h2hCpEDAEdZVibyZr3GZ1mjbj/pWq/dAFQvml5ZJ4S/bEVukF3UQXLt4G
+         w2t6VnAgMuPsIXLtSwpcTYsIDjifzLmck2LgWL/Sc+qMPoNOJrNfidamDEhAbij4RX3G
+         eqS+i3kiGqxA18emCJU7b61VMN39U9VQucVvlZIAyNGujQDP/2IrmmjJhJ+aTC6CXiUS
+         izMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693097964; x=1693702764;
+        d=1e100.net; s=20221208; t=1693097966; x=1693702766;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=vjW4ylzO3JtTT7kFnJy7UM1EVNTfgYpip/fK2M89nnA=;
-        b=eU54DABXdAH0YVkw79FvHfu9Jbue6wnh/19DzN4ijwBtjUK5nRDiEswmL3aP8UbaSx
-         zOyuR8cBw/WVHQ6FQs2h0xsqt6hmMn1Ly48PAnYfoHAdOZWHk6dD6clwr6Fczv1mVxhU
-         ztbBBnUAc8rx7TiENtylf902QMMsEPBOFDQcE1FElHQWtw2e+8aNICujn15+ckWDTr3O
-         93+xNV/yl68SYUnZoHc0vhn6Aux+/UOma9KyWSM9hlC+gaInvbKAt8NNf5Ph2I2ptlIz
-         9xY3vamTMAPk7UHy3/oEfP0d7E3KvqW7uw9lK8Y3VEXiTX9XVhoaaa4Jj/0OiVu0hF3n
-         FlXA==
-X-Gm-Message-State: AOJu0YzxcbU+yCj/9gO3VXFBivFoGQZl1C0VIL1vf4VpB6RP5UnCLO21
-        Fl89VbLFKe1N5Sap7SJX7ej62w==
-X-Google-Smtp-Source: AGHT+IFwRYPvmJ8NJfWHi6Muugz6fnx7Fjay7imp78oq8M35zIaI6+K3KpFztiCZXhRUVVWgFmNF1A==
-X-Received: by 2002:a19:381d:0:b0:500:96fc:129d with SMTP id f29-20020a19381d000000b0050096fc129dmr6990081lfa.14.1693097964681;
-        Sat, 26 Aug 2023 17:59:24 -0700 (PDT)
+        bh=A7ewwDA5rK2znaB44N+h4kM3uTy6kez9qLlohwFRQDU=;
+        b=fz0uA/HVSFFV8bO/pfEVWqceDl2wUroWK5y3ywsk+3YTayRaqOlM1FeLEMe+P8SIha
+         +ZVyeNrtThTN73iXhOIMCgIkQ33tVA+9RjImcfIYAPV6du+qUWMUethN6Z4NIqC/texJ
+         SLu7zJUAhx9LplNPLVGmgP766w7g0X1npW9ZQiJVYgajSNrBef07xUN7xpdx7DLnMpZY
+         WKVAwBHkO/YoiFa+y8emtouU0hCGOcE5ho9sBTxHuWNML5QsYKhtJjqsilttduBQrQCk
+         LAjfzav2HDvOk9tYUbSu995ZZP19oTn5lxRCAwZGf6wO0b3QvDlSvfWlu7AC5TEz7+Fw
+         vUDA==
+X-Gm-Message-State: AOJu0YyCRj77di/J+SGUN+feFfgH/FBAcVmK+Z6+bsfZqOoNE1b96vB7
+        wOIpxRYtAtrPTanqgLs4cG2Hzw==
+X-Google-Smtp-Source: AGHT+IGkdIIbysyoBRj0pXlTSsbuUyxPi/2jfcF4IkJZNSjqZkhLnZGgbQJK/uyzvu1TAIbijBXsZw==
+X-Received: by 2002:a05:6512:33c5:b0:4f9:cd02:4af1 with SMTP id d5-20020a05651233c500b004f9cd024af1mr17790616lfg.34.1693097966249;
+        Sat, 26 Aug 2023 17:59:26 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id p18-20020ac246d2000000b00500a08e42e7sm917729lfo.124.2023.08.26.17.59.23
+        by smtp.gmail.com with ESMTPSA id p18-20020ac246d2000000b00500a08e42e7sm917729lfo.124.2023.08.26.17.59.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Aug 2023 17:59:24 -0700 (PDT)
+        Sat, 26 Aug 2023 17:59:25 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     devicetree@vger.kernel.org, Lee Jones <lee@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -63,11 +63,10 @@ Cc:     Andy Gross <agross@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
         linux-leds@vger.kernel.org,
-        Satya Priya <quic_c_skakit@quicinc.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v4 02/38] dt-bindings: mfd: qcom-pm8xxx: add missing child nodes
-Date:   Sun, 27 Aug 2023 03:58:44 +0300
-Message-Id: <20230827005920.898719-3-dmitry.baryshkov@linaro.org>
+Subject: [PATCH v4 04/38] ARM: dts: qcom: apq8064: correct XOADC register address
+Date:   Sun, 27 Aug 2023 03:58:46 +0300
+Message-Id: <20230827005920.898719-5-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
 References: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
@@ -77,60 +76,31 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add gpio, keypad, led, mpps, pwrkey, vibrator and xoadc as possible
-child nodes of qcom,pm8xxx, referencing existint schema files.
+The XOADC is present at the address 0x197 rather than just 197. It
+doesn't change a lot (since the driver hardcodes all register
+addresses), but the DT should present correct address anyway.
 
-Cc: Lee Jones <lee@kernel.org>
-Cc: Satya Priya <quic_c_skakit@quicinc.com>
+Fixes: c4b70883ee33 ("ARM: dts: add XOADC and IIO HWMON to APQ8064")
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- .../devicetree/bindings/mfd/qcom-pm8xxx.yaml  | 26 ++++++++++++++++++-
- 1 file changed, 25 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom/qcom-apq8064.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
-index 9c51c1b19067..7fe3875a5996 100644
---- a/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
-+++ b/Documentation/devicetree/bindings/mfd/qcom-pm8xxx.yaml
-@@ -43,13 +43,37 @@ properties:
-   interrupt-controller: true
+diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
+index 516f0d2495e2..950adb63af70 100644
+--- a/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
++++ b/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
+@@ -738,7 +738,7 @@ pwrkey@1c {
  
- patternProperties:
-+  "gpio@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/pinctrl/qcom,pmic-gpio.yaml#
-+
-+  "keypad@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/input/qcom,pm8921-keypad.yaml#
-+
-   "led@[0-9a-f]+$":
-     type: object
-     $ref: /schemas/leds/qcom,pm8058-led.yaml#
- 
-+  "mpps@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/pinctrl/qcom,pmic-mpp.yaml#
-+
-+  "pwrkey@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/input/qcom,pm8921-pwrkey.yaml#
-+
-   "rtc@[0-9a-f]+$":
-     type: object
--    $ref: ../rtc/qcom-pm8xxx-rtc.yaml
-+    $ref: /schemas/rtc/qcom-pm8xxx-rtc.yaml#
-+
-+  "vibrator@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/input/qcom,pm8xxx-vib.yaml#
-+
-+  "xoadc@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/iio/adc/qcom,pm8018-adc.yaml#
- 
- required:
-   - compatible
+ 				xoadc: xoadc@197 {
+ 					compatible = "qcom,pm8921-adc";
+-					reg = <197>;
++					reg = <0x197>;
+ 					interrupts-extended = <&pmicintc 78 IRQ_TYPE_EDGE_RISING>;
+ 					#address-cells = <2>;
+ 					#size-cells = <0>;
 -- 
 2.39.2
 

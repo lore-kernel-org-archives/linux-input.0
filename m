@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 30B77CA105C
-	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 13:27:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54976CA1062
+	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 13:27:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229740AbjH0N0e (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 27 Aug 2023 09:26:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34504 "EHLO
+        id S230173AbjH0N0f (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 27 Aug 2023 09:26:35 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230142AbjH0NZz (ORCPT
+        with ESMTP id S230175AbjH0N0A (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 27 Aug 2023 09:25:55 -0400
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 484C619A
-        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 06:25:50 -0700 (PDT)
-Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-5007c8308c3so3693108e87.0
-        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 06:25:50 -0700 (PDT)
+        Sun, 27 Aug 2023 09:26:00 -0400
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FABE18F
+        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 06:25:53 -0700 (PDT)
+Received: by mail-lf1-x130.google.com with SMTP id 2adb3069b0e04-4fe15bfb1adso3624174e87.0
+        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 06:25:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1693142748; x=1693747548;
+        d=linaro.org; s=google; t=1693142751; x=1693747551;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=OFX9JomlQAWrg2wVtXgvkj8bMtfCZmpZ79ww1DHQiqs=;
-        b=O6SBeyNyl2Y2KY7TtNVcGggkWGoQFcQiQLCCIb/nYc/zY5e5i5GFzWc2creJJp66J5
-         RGeiTtCkVpqVehN6l24POWnFCDZstQ/I4vW5Bi6Mau0C3DJIpzwdDG1EkFgensWWG4ck
-         yc4Rd/tGmVmYPqeIPdvqeckUTg1fy7Eq7GNSVQ6RsMi6Ozw/vlQNi01gu5M4iKtpzjJ1
-         Bcc1F8TR4bQVBXr6XQi9zsOOx5TvrObUY9oNsj0+o0V4kD16G9U/yPhTsZ+AcQjFSdj7
-         mnooa0aMSTt6vsg86brqXmU3rRjgp/kGhxjcgyQE4OxjeV7qOSml1eVIf9n04VwmSO0/
-         OKew==
+        bh=qq3BxAnxew6Dft2P4UeUZDsOAM3fd799SyMWmIu1TH8=;
+        b=tcf4/N+U7OfMIqQsXoAB94+ahYsqsnBb4AHSeHtkAAymO74IXCoZC/pd9sTltDqeN1
+         kTmArmUjFbVUk9rYVpLtRFiLC/TT2TYzE3waz1l6vX1uSmdGDYPSs23p7oMm5qdqHx1Q
+         1IKJEdZIJKnbbs4Ljp4pUKjEIVb3vMsZgKgXnxWEA6qxv9lXbqUW0nw7oBG4W1jreBpf
+         GJjEdurlbrPRyIq6n9Ce8p5L9gTADTZ1g3Wp1sLvMO68kcCBGE4W0lzdl9wogWJm0Msq
+         FOlR5WanPCA9gxBowSnOdW9boy82TYTjsXvIGnIEdyrYQ6Ms0AI3QRaZPPD68wNc16AX
+         UMKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693142748; x=1693747548;
+        d=1e100.net; s=20221208; t=1693142751; x=1693747551;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=OFX9JomlQAWrg2wVtXgvkj8bMtfCZmpZ79ww1DHQiqs=;
-        b=J8KjGEjvx6YICj07xq+hPCqd22ZVY+iVX04O8QbzaoVQ8ZBlNXFnW5DLpH414nCRv9
-         UJOJ5z0J66X2FeKNogqydhltxlDHvOjTQi3mwElG2nWHCgn4d3ePlhPd1jY/qmW7+/qS
-         hCRoGEZS1vpD6ZvVt3/hFAxrobYGqIY4zsRunaBRtjdR2WucwGZCK+hZhNfMP1vOcdbM
-         Ga2HBo8k2dRCJJsoP90wN8WoCzjnmJQ88NSYErS9O1VuC5Bx/PDzMgSXAmHX1CFu6Icw
-         QgGXT9Qr2AIk2LCoP9CkgzGsIIuyX3zrkZhZME9XVfEdjg0UL10MRT6YHn1sRtjdaM/w
-         0NwA==
-X-Gm-Message-State: AOJu0Yz4rrgjQn7/J9V29pdinbKbEiZLNQMgL6wu+s0cyDqDMBL9Sbn9
-        LrN2x3unp2Izjbc5qL099oF8pg==
-X-Google-Smtp-Source: AGHT+IHjfwt1dEUkbeEli+5qs9ZJG+9CIU9y+ic++AuCIyt5zzcd8QRW/Kl9vpzy/kxEkPXtzWVCIw==
-X-Received: by 2002:ac2:562f:0:b0:4f8:4512:c844 with SMTP id b15-20020ac2562f000000b004f84512c844mr15483497lff.48.1693142748561;
-        Sun, 27 Aug 2023 06:25:48 -0700 (PDT)
+        bh=qq3BxAnxew6Dft2P4UeUZDsOAM3fd799SyMWmIu1TH8=;
+        b=W4tGWFVhl/bvLgX2mfemCCKEaRhtBgRTuOHI6im2qP2EzgXnoLqJXygJpAznwls5fp
+         O1mYzSUS7MN/wF+7yzu/R2wnbF+im7p2vV7yvPXmeH5K+l1s5vyZnufJOJPFP/ar+y4e
+         OUUJVKDZ9YxS1FNmIUGTrygnRoJT7g6iaI5d/nM8YO3F7qTOTiNZTgBxLqtq2SWYqGtn
+         YJF/gp+aboqBD4JCSInKIITIYVh4kGTtsGj3Qh7oDX0HEzSx2FsGW1WuB1YP67ZDsslf
+         Kah2gb9JSRh31R2OAQqWpcp3+R8KL7U7qMfYibKbTwy7Cok0Z53heJXBmFcS6f5JV1Pb
+         CmMA==
+X-Gm-Message-State: AOJu0YzkqFjAqqH/NSfCnWJtdkogQ0jY5Ww9GHG8bMuiSdt780hyjHtu
+        Of8c668pn08z3Z8ACozWg7vujA==
+X-Google-Smtp-Source: AGHT+IE9y3UytJ/mudrDtl6dRfsXiuo6S4/Dz0F4nFElhCHrBvnyCnUR6Tg/ndq+I/sfGEG4+9Y7nA==
+X-Received: by 2002:a05:6512:4026:b0:4ff:80d4:e132 with SMTP id br38-20020a056512402600b004ff80d4e132mr19689019lfb.29.1693142751647;
+        Sun, 27 Aug 2023 06:25:51 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id t9-20020ac243a9000000b004faa2de9877sm1142040lfl.286.2023.08.27.06.25.47
+        by smtp.gmail.com with ESMTPSA id t9-20020ac243a9000000b004faa2de9877sm1142040lfl.286.2023.08.27.06.25.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Aug 2023 06:25:47 -0700 (PDT)
+        Sun, 27 Aug 2023 06:25:51 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     devicetree@vger.kernel.org, Lee Jones <lee@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -63,9 +63,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
         linux-leds@vger.kernel.org
-Subject: [PATCH v5 26/37] ARM: dts: qcom: pm8921: switch to interrupts-extended
-Date:   Sun, 27 Aug 2023 16:25:14 +0300
-Message-Id: <20230827132525.951475-27-dmitry.baryshkov@linaro.org>
+Subject: [PATCH v5 30/37] ARM: dts: qcom: mdm9615: move RPM regulators to board files
+Date:   Sun, 27 Aug 2023 16:25:18 +0300
+Message-Id: <20230827132525.951475-31-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230827132525.951475-1-dmitry.baryshkov@linaro.org>
 References: <20230827132525.951475-1-dmitry.baryshkov@linaro.org>
@@ -75,53 +75,308 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Merge interrups and interrupt-parent properties into a single
-interrupts-extended property.
+The set of regulators available over the RPM requests is not a property
+of the SoC. Move them to board files.
 
-Suggested-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Konrad DYbcio <konrad.dybcio@linaro.org>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- arch/arm/boot/dts/qcom/pm8921.dtsi | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ .../boot/dts/qcom/qcom-mdm9615-wp8548.dtsi    | 136 ++++++++++++++++++
+ arch/arm/boot/dts/qcom/qcom-mdm9615.dtsi      | 134 -----------------
+ 2 files changed, 136 insertions(+), 134 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom/pm8921.dtsi b/arch/arm/boot/dts/qcom/pm8921.dtsi
-index fa00b57e28b9..360a179670c5 100644
---- a/arch/arm/boot/dts/qcom/pm8921.dtsi
-+++ b/arch/arm/boot/dts/qcom/pm8921.dtsi
-@@ -11,9 +11,8 @@ pm8921: pmic {
- 		pwrkey@1c {
- 			compatible = "qcom,pm8921-pwrkey";
- 			reg = <0x1c>;
--			interrupt-parent = <&pm8921>;
--			interrupts = <50 IRQ_TYPE_EDGE_RISING>,
--				     <51 IRQ_TYPE_EDGE_RISING>;
-+			interrupts-extended = <&pm8921 50 IRQ_TYPE_EDGE_RISING>,
-+					      <&pm8921 51 IRQ_TYPE_EDGE_RISING>;
- 			debounce = <15625>;
- 			pull-up;
- 		};
-@@ -32,17 +31,15 @@ pm8921_mpps: mpps@50 {
- 		rtc@11d {
- 			compatible = "qcom,pm8921-rtc";
- 			reg = <0x11d>;
--			interrupt-parent = <&pm8921>;
--			interrupts = <39 IRQ_TYPE_EDGE_RISING>;
-+			interrupts-extended = <&pm8921 39 IRQ_TYPE_EDGE_RISING>;
- 			allow-set-time;
- 		};
+diff --git a/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548.dtsi b/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548.dtsi
+index 27c3d92d9452..0dd52cac0e2e 100644
+--- a/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548.dtsi
++++ b/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548.dtsi
+@@ -134,6 +134,142 @@ &gsbi5_serial {
+ 	pinctrl-names = "default";
+ };
  
- 		pm8921_keypad: keypad@148 {
- 			compatible = "qcom,pm8921-keypad";
- 			reg = <0x148>;
--			interrupt-parent = <&pm8921>;
--			interrupts = <74 IRQ_TYPE_EDGE_RISING>,
--				     <75 IRQ_TYPE_EDGE_RISING>;
-+			interrupts-extended = <&pm8921 74 IRQ_TYPE_EDGE_RISING>,
-+					      <&pm8921 75 IRQ_TYPE_EDGE_RISING>;
- 			debounce = <15>;
- 			scan-delay = <32>;
- 			row-hold = <91500>;
++&rpm {
++	regulators {
++		compatible = "qcom,rpm-pm8018-regulators";
++
++		vin_lvs1-supply = <&pm8018_s3>;
++
++		vdd_l7-supply = <&pm8018_s4>;
++		vdd_l8-supply = <&pm8018_s3>;
++		vdd_l9_l10_l11_l12-supply = <&pm8018_s5>;
++
++		/* Buck SMPS */
++		pm8018_s1: s1 {
++			regulator-min-microvolt = <500000>;
++			regulator-max-microvolt = <1150000>;
++			qcom,switch-mode-frequency = <1600000>;
++			bias-pull-down;
++		};
++
++		pm8018_s2: s2 {
++			regulator-min-microvolt = <1225000>;
++			regulator-max-microvolt = <1300000>;
++			qcom,switch-mode-frequency = <1600000>;
++			bias-pull-down;
++		};
++
++		pm8018_s3: s3 {
++			regulator-always-on;
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			qcom,switch-mode-frequency = <1600000>;
++			bias-pull-down;
++		};
++
++		pm8018_s4: s4 {
++			regulator-min-microvolt = <2100000>;
++			regulator-max-microvolt = <2200000>;
++			qcom,switch-mode-frequency = <1600000>;
++			bias-pull-down;
++		};
++
++		pm8018_s5: s5 {
++			regulator-always-on;
++			regulator-min-microvolt = <1350000>;
++			regulator-max-microvolt = <1350000>;
++			qcom,switch-mode-frequency = <1600000>;
++			bias-pull-down;
++		};
++
++		/* PMOS LDO */
++		pm8018_l2: l2 {
++			regulator-always-on;
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			bias-pull-down;
++		};
++
++		pm8018_l3: l3 {
++			regulator-always-on;
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <1800000>;
++			bias-pull-down;
++		};
++
++		pm8018_l4: l4 {
++			regulator-min-microvolt = <3300000>;
++			regulator-max-microvolt = <3300000>;
++			bias-pull-down;
++		};
++
++		pm8018_l5: l5 {
++			regulator-min-microvolt = <2850000>;
++			regulator-max-microvolt = <2850000>;
++			bias-pull-down;
++		};
++
++		pm8018_l6: l6 {
++			regulator-min-microvolt = <1800000>;
++			regulator-max-microvolt = <2850000>;
++			bias-pull-down;
++		};
++
++		pm8018_l7: l7 {
++			regulator-min-microvolt = <1850000>;
++			regulator-max-microvolt = <1900000>;
++			bias-pull-down;
++		};
++
++		pm8018_l8: l8 {
++			regulator-min-microvolt = <1200000>;
++			regulator-max-microvolt = <1200000>;
++			bias-pull-down;
++		};
++
++		pm8018_l9: l9 {
++			regulator-min-microvolt = <750000>;
++			regulator-max-microvolt = <1150000>;
++			bias-pull-down;
++		};
++
++		pm8018_l10: l10 {
++			regulator-min-microvolt = <1050000>;
++			regulator-max-microvolt = <1050000>;
++			bias-pull-down;
++		};
++
++		pm8018_l11: l11 {
++			regulator-min-microvolt = <1050000>;
++			regulator-max-microvolt = <1050000>;
++			bias-pull-down;
++		};
++
++		pm8018_l12: l12 {
++			regulator-min-microvolt = <1050000>;
++			regulator-max-microvolt = <1050000>;
++			bias-pull-down;
++		};
++
++		pm8018_l13: l13 {
++			regulator-min-microvolt = <1850000>;
++			regulator-max-microvolt = <2950000>;
++			bias-pull-down;
++		};
++
++		pm8018_l14: l14 {
++			regulator-min-microvolt = <2850000>;
++			regulator-max-microvolt = <2850000>;
++			bias-pull-down;
++		};
++
++		/* Low Voltage Switch */
++		pm8018_lvs1: lvs1 {
++			bias-pull-down;
++		};
++	};
++};
++
+ &sdcc1 {
+ 	status = "okay";
+ };
+diff --git a/arch/arm/boot/dts/qcom/qcom-mdm9615.dtsi b/arch/arm/boot/dts/qcom/qcom-mdm9615.dtsi
+index e23ca6c42683..07e712e890f6 100644
+--- a/arch/arm/boot/dts/qcom/qcom-mdm9615.dtsi
++++ b/arch/arm/boot/dts/qcom/qcom-mdm9615.dtsi
+@@ -338,140 +338,6 @@ rpm: rpm@108000 {
+ 				     <GIC_SPI 21 IRQ_TYPE_EDGE_RISING>,
+ 				     <GIC_SPI 22 IRQ_TYPE_EDGE_RISING>;
+ 			interrupt-names = "ack", "err", "wakeup";
+-
+-			regulators {
+-				compatible = "qcom,rpm-pm8018-regulators";
+-
+-				vin_lvs1-supply = <&pm8018_s3>;
+-
+-				vdd_l7-supply = <&pm8018_s4>;
+-				vdd_l8-supply = <&pm8018_s3>;
+-				vdd_l9_l10_l11_l12-supply = <&pm8018_s5>;
+-
+-				/* Buck SMPS */
+-				pm8018_s1: s1 {
+-					regulator-min-microvolt = <500000>;
+-					regulator-max-microvolt = <1150000>;
+-					qcom,switch-mode-frequency = <1600000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_s2: s2 {
+-					regulator-min-microvolt = <1225000>;
+-					regulator-max-microvolt = <1300000>;
+-					qcom,switch-mode-frequency = <1600000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_s3: s3 {
+-					regulator-always-on;
+-					regulator-min-microvolt = <1800000>;
+-					regulator-max-microvolt = <1800000>;
+-					qcom,switch-mode-frequency = <1600000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_s4: s4 {
+-					regulator-min-microvolt = <2100000>;
+-					regulator-max-microvolt = <2200000>;
+-					qcom,switch-mode-frequency = <1600000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_s5: s5 {
+-					regulator-always-on;
+-					regulator-min-microvolt = <1350000>;
+-					regulator-max-microvolt = <1350000>;
+-					qcom,switch-mode-frequency = <1600000>;
+-					bias-pull-down;
+-				};
+-
+-				/* PMOS LDO */
+-				pm8018_l2: l2 {
+-					regulator-always-on;
+-					regulator-min-microvolt = <1800000>;
+-					regulator-max-microvolt = <1800000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l3: l3 {
+-					regulator-always-on;
+-					regulator-min-microvolt = <1800000>;
+-					regulator-max-microvolt = <1800000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l4: l4 {
+-					regulator-min-microvolt = <3300000>;
+-					regulator-max-microvolt = <3300000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l5: l5 {
+-					regulator-min-microvolt = <2850000>;
+-					regulator-max-microvolt = <2850000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l6: l6 {
+-					regulator-min-microvolt = <1800000>;
+-					regulator-max-microvolt = <2850000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l7: l7 {
+-					regulator-min-microvolt = <1850000>;
+-					regulator-max-microvolt = <1900000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l8: l8 {
+-					regulator-min-microvolt = <1200000>;
+-					regulator-max-microvolt = <1200000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l9: l9 {
+-					regulator-min-microvolt = <750000>;
+-					regulator-max-microvolt = <1150000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l10: l10 {
+-					regulator-min-microvolt = <1050000>;
+-					regulator-max-microvolt = <1050000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l11: l11 {
+-					regulator-min-microvolt = <1050000>;
+-					regulator-max-microvolt = <1050000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l12: l12 {
+-					regulator-min-microvolt = <1050000>;
+-					regulator-max-microvolt = <1050000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l13: l13 {
+-					regulator-min-microvolt = <1850000>;
+-					regulator-max-microvolt = <2950000>;
+-					bias-pull-down;
+-				};
+-
+-				pm8018_l14: l14 {
+-					regulator-min-microvolt = <2850000>;
+-					regulator-max-microvolt = <2850000>;
+-					bias-pull-down;
+-				};
+-
+-				/* Low Voltage Switch */
+-				pm8018_lvs1: lvs1 {
+-					bias-pull-down;
+-				};
+-			};
+ 		};
+ 	};
+ };
 -- 
 2.39.2
 

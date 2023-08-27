@@ -2,118 +2,157 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 32F61C83F10
-	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 18:07:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24B6CC83F13
+	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 19:42:30 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbjH0SGh (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 27 Aug 2023 14:06:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60568 "EHLO
+        id S230056AbjH0Tlw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 27 Aug 2023 15:41:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230375AbjH0SGN (ORCPT
+        with ESMTP id S230046AbjH0Tlm (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 27 Aug 2023 14:06:13 -0400
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144EA13E
-        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 11:05:57 -0700 (PDT)
-Received: by mail-lj1-x230.google.com with SMTP id 38308e7fff4ca-2bb97f2c99cso37875191fa.0
-        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 11:05:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1693159555; x=1693764355;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=rCvDnqW2L7Ij8+HnjKPfzqCAmR4DqEsTCL9vNoCu5/w=;
-        b=E/QbAPkdZRfFqTIkB8kVpr1Zm++z9EveIMU7CZbQ+0/BMN1O38Ax+fgMQg517VcEQg
-         Nr/j/aijQMb6xtOVlfSytjiV6hy99hYbOc8poTe/L3PniNvqeSwl+FXEwU90EqGwGQ+7
-         FdZCfvn3OcdiB5yKS3edRSlQ/rSfC5mjO63+dAUxDuO+alccyv20Gu9R2HtjdrF82d+e
-         FjLsqazl5rtRgzjvzHRUwXzHfVA3WM5CjMvICsAakN2C0V125DpOqi0n/6GSCjWC9f5j
-         IV3gfded2s7c13wFG3MUIBQUhkQfZVCW2JvK5RI5a7le7zl5F7eusj3ICdI4LtkwMZe8
-         mIVw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693159555; x=1693764355;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rCvDnqW2L7Ij8+HnjKPfzqCAmR4DqEsTCL9vNoCu5/w=;
-        b=GuuEaB0+8kDHudKVK1eND1Vi9lPwEmVkmDktC0J3lbjpMmvrXvXQdWaFMk5pU0HzhA
-         sp2qnN97TRDKGUo0hJxT30wuW7O3wlnS+bSzLp4qye31trcfI3v70Xz+rIQPssPo1qTx
-         eU45Oa2fEGs31ZSry3N833Mlet2gevisYDmwiL0kRnJBGCQVudQywRhmASm/i0OoayIa
-         ar+gJIjakhT6Zx36YVKLbKQs3VOGu1/4PePs63eXPyv30a8RyiC9FvXFl4+wo+MU0Fzl
-         2qUn43s8dBGoyw0dQ+pnJRi7xYsIbm4oN35w6IOZ9tSmqPCcayB6NRUAHmHKQ6rBCsL2
-         HMNg==
-X-Gm-Message-State: AOJu0YyTjg80VBtHAnqeRQrd59vegIc94XJIqklOWGDO5tGMbQpN8SB8
-        BhaZe9TmnT8cQIIvWUyCq3fRgw==
-X-Google-Smtp-Source: AGHT+IELaR5h2o8X/ZZEhdmsgOUt4QqD9H2QGql9YX+tqSUrcyKhdRnm7c/Zhwfbk5KyhBM/azIuLg==
-X-Received: by 2002:ac2:4e0d:0:b0:4f8:77db:1d9e with SMTP id e13-20020ac24e0d000000b004f877db1d9emr20230809lfr.12.1693159555164;
-        Sun, 27 Aug 2023 11:05:55 -0700 (PDT)
-Received: from [192.168.0.22] ([77.252.47.225])
-        by smtp.gmail.com with ESMTPSA id da25-20020a056402177900b0052a626daf4csm1195821edb.47.2023.08.27.11.05.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 27 Aug 2023 11:05:54 -0700 (PDT)
-Message-ID: <f54feed5-4dc6-b22f-b72e-faecf322bfa5@linaro.org>
-Date:   Sun, 27 Aug 2023 20:05:53 +0200
+        Sun, 27 Aug 2023 15:41:42 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2073.outbound.protection.outlook.com [40.107.220.73])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E81312F;
+        Sun, 27 Aug 2023 12:41:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=fy3U+ypUoPR45z16bJsFEpTDNrdS4XQhr4VLASQbjY6JyAgTA7qfdah1x0JTDb4muoTsP3xr/LZo0vIxFOduLaly0Fi2WBh7nTQPfwmX/dXSanAud3Cue+sRHvwzQeRZb6H5y5Ji8SlOyUFgbbmqMsW0iBTouyOceosrZpN3TvvA4aHg4la8TCmkCwgYZYJ/T3nlzKTUWifrXBdSptawTfizJZJL97qjrAldvTnWd6eU2B3dDoZPSSDJSAaM+UJEhDRu2Ti3ZM46JecKu+Hlgt3X62GRuW0G1wXyHurg+OGor197ShKR5fQTVEU5cZV1yug2oMZqvt0XfSQe9l0VyA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=xUnzvYJYWlCqM52IlkE6DHQ8OX26/rGZsrQ9nIAaIgg=;
+ b=O6T4gR7WifBm6iY7IKpvbw0HQhf/89KlHzP//Ht8ym/bezPubpZ9ZG4Ba9Mho+UqrWc0LUDrI83rQDtR26eRSyJFrfHvjOhFUX4h2S6D6AHqKsXEKGA4bBYU7b3EY8Nd0ICMB7FrUFk+/Z5AB0sGCnf1jcNdu+4aKa1pp8eQUzvbaTtDUqctfrx/Sc9bl2S5uADam3w1fVxH3N/t5VvDh3sdM52bvtWz65Uc/+VcfFqyqOeuWIJ1qNbgwnizBfp9gZyRyIx4Qew88cM2Lxd9KPaxhSis9S33fopkkWWm04HH9M+3lxsSt2GaNAaBMZW1CXAWKCXvku3IXPF/+YEgKQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=xUnzvYJYWlCqM52IlkE6DHQ8OX26/rGZsrQ9nIAaIgg=;
+ b=lJfEegVO3+WpPC5iGl0CrCCGFRK5crzEOPAt//tQW2H8BvybLK3uWOk5tTlgrsxNDjwppiH5y5dr7nupOWvtrlq+32YsHnOMTxNwFAeHBoZmczdI7SslRgrkFk42AKrzLguDDfrquti+WLW2wAdQwjzbhXPqmztD6uOhJ9GnWZ81JA40tt3s1trUWWpLPQf0LIIqN+mjPaQ2HhRItWcbZy0m7iXTNNS3xeCkS55RAGFCEJxzKZEdFQrO2OhJs5WQKAv26oVtkDmiklWhEUmphqF88ojc1q6+ME/fky+lrX5M4eYwa8hZ3eS/YGC+TGp5pTa+bkQG1UAD4yQ1NVJjVw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from BYAPR12MB2743.namprd12.prod.outlook.com (2603:10b6:a03:61::28)
+ by BN9PR12MB5050.namprd12.prod.outlook.com (2603:10b6:408:133::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6699.34; Sun, 27 Aug
+ 2023 19:41:38 +0000
+Received: from BYAPR12MB2743.namprd12.prod.outlook.com
+ ([fe80::900c:af3b:6dbd:505f]) by BYAPR12MB2743.namprd12.prod.outlook.com
+ ([fe80::900c:af3b:6dbd:505f%5]) with mapi id 15.20.6699.034; Sun, 27 Aug 2023
+ 19:41:37 +0000
+From:   Rahul Rameshbabu <rrameshbabu@nvidia.com>
+To:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc:     jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH 0/3] HID: nvidia-shield: Fix the error handling path of
+ shield_probe()
+References: <cover.1693070958.git.christophe.jaillet@wanadoo.fr>
+Date:   Sun, 27 Aug 2023 12:41:28 -0700
+In-Reply-To: <cover.1693070958.git.christophe.jaillet@wanadoo.fr> (Christophe
+        JAILLET's message of "Sat, 26 Aug 2023 19:42:16 +0200")
+Message-ID: <874jkkqnmf.fsf@nvidia.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/28.2 (gnu/linux)
+Content-Type: text/plain
+X-ClientProxiedBy: BY5PR03CA0023.namprd03.prod.outlook.com
+ (2603:10b6:a03:1e0::33) To BYAPR12MB2743.namprd12.prod.outlook.com
+ (2603:10b6:a03:61::28)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.14.0
-Subject: Re: [PATCH v4 03/38] dt-bindings: mfd: qcom-pm8xxx: allow using
- interrupts-extended
-Content-Language: en-US
-To:     Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc:     devicetree@vger.kernel.org, Lee Jones <lee@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        linux-arm-msm@vger.kernel.org, Jonathan Cameron <jic23@kernel.org>,
-        Lars-Peter Clausen <lars@metafoo.de>,
-        linux-iio@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        linux-input@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-        linux-leds@vger.kernel.org
-References: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
- <20230827005920.898719-4-dmitry.baryshkov@linaro.org>
- <39af3ab5-4fa5-5b3c-395a-e86e70bbe803@linaro.org>
- <CAA8EJppw0Kxo3W560ucWey959368M1c8BFnvF4Ggi5XKCOfesw@mail.gmail.com>
- <74dcc5b4-dda2-5de7-9e58-4191a0fb7972@linaro.org>
- <CAA8EJpoWvoNfomMg34cL=h+qBLHQq3bZO2X-02Pcz6oLiKRxWA@mail.gmail.com>
- <e6340d20-40f3-be5c-b4fc-33da59799d91@linaro.org>
- <CAA8EJpoWEABv6RrZn9FE+5N79Kz=24BhmpdnGbnO+vzX3A8v_Q@mail.gmail.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <CAA8EJpoWEABv6RrZn9FE+5N79Kz=24BhmpdnGbnO+vzX3A8v_Q@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BYAPR12MB2743:EE_|BN9PR12MB5050:EE_
+X-MS-Office365-Filtering-Correlation-Id: c9e9da60-41bb-48e1-67dd-08dba735a0d4
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Ivn+vlj5oj/u+enn9DjbjDz8hV/rcdInI8m7zc2SQnbbKS+N/B3Qq2Jcfw2jh1QRZTLW5QsZs47mNdIv1RLPS/TQ9OjAJPei+lEJ/bDdrwk3w8iRggUy8AVdhyavNiWT/5bm7CWP6/1UrX78qpbLY0sAhgtMsRmGG8/ki0AKOyBka1zXxVkNwFfyzEQ7bjdiNWv6vHMHcqfi7v5PYU0lcHpYUAfaJB7/AxzcAOGKQrhVTPNpVBPflzK+WDKaiu3FB9kqh8YJNerugkjIUrhJXNHKaxPrjVJUE/w9ilH7Aao3k8SPinvZQJsxOo7dmxnqPped7TsgB3onxSPx+CagHloozVr7jBVqFheGVv0pMY1Ab1GmVHbOwzwrtD0oEEQUs3Wo2UcGi180OHNLt1DAYlZh0dhopji1ORcXA5a/RPwSJ9bOUxZG0i7f3xDMGIoIiRjOZQ/is+/nzWeafgtYOEWUzaWNMbc3/J6ZVTgBseDi+mXPWLtnlu5zDooImOFkN9R/HVNzEXC+bTBOKyttwhNV52DTiShkXPJUPdygcxnH5MTlD3GzEWbAGHAbj/PR
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB2743.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(39860400002)(136003)(366004)(346002)(376002)(396003)(186009)(1800799009)(451199024)(6666004)(6512007)(6506007)(6486002)(2616005)(2906002)(5660300002)(86362001)(4326008)(8936002)(8676002)(66556008)(66946007)(36756003)(66476007)(41300700001)(316002)(38100700002)(6916009)(478600001)(83380400001)(26005);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?AHyiGnomR+9Yz51deJ4IlBjfxgJweLUmeiWE1TtyLnGQ9/1QgWfo8UuLhP41?=
+ =?us-ascii?Q?K+ua5FIrIp51y7VsGZuc3CGfXcU0EJxwC6S7WE7usOw6qn7G2/5E85QK7XF4?=
+ =?us-ascii?Q?O5VSZt+WIul5ZdSG15jbow+lEohPtazeL/rsxnXv/VEpOES8BSS/AOXAUkUT?=
+ =?us-ascii?Q?49DAxva+mPvi+pbVY1C6svgCJYpzat7xJRiEXPhEZx6KEUQ8AQAQxa3tpLHz?=
+ =?us-ascii?Q?v45O2+Lm9VnbkvAQZXJJfMHiTXyHSKCkWVQvo2MMshqHFVb4EUSFMeQgir13?=
+ =?us-ascii?Q?WsTf3CPPogJ51V1mts48l9tXoTYEe+TkVhsQDt4Ji+HpYx6x3/ukP0vv0Q1j?=
+ =?us-ascii?Q?4Xir5j25LbHMhokF1tcYxyrr/JFTomno92uX+vaR3+/Nzp7hPe+cxQeKOmy2?=
+ =?us-ascii?Q?jAfwpO8c8eomSkI9/G+7qe0vn057tJiBoQCjMMH+cZOQAgqe0cvkSyrDChHe?=
+ =?us-ascii?Q?8itQOCE6qK5rc8Qr0LygMzyJ663Kizo45jxj3SzD9X44L6IG14aRps8BwHAy?=
+ =?us-ascii?Q?te9KdNZLe/8JYk1atMmHzYn/VaGlQTdSuXUeUudl2uYyTxVd6XSB+1sydRHo?=
+ =?us-ascii?Q?NXREdg0MigCgC4uqRkKnlzETDWxed29ey3YX/dMvdQ23TREeH1/AuGknORC2?=
+ =?us-ascii?Q?A+gJbFqloz6cm+nxOXNiEdsCs//tL2SxTDKu9A2El5Rtp3PigJ5D7YY9zy1b?=
+ =?us-ascii?Q?rfh+Vr+qEVcPb3Hf0yRP5bUp+f0KjadzqGz8aWy0741OKdDOPy8VoprxL9PM?=
+ =?us-ascii?Q?3+xrMWRzGUwf1ejwVDCOVseF/KKtPPJXfoIE5vGA96LLhxLsh4uDvu956xG5?=
+ =?us-ascii?Q?f4rr23sd0q83JQOVswY3XfCX8Tk2ErxieeWs4YCzg52YKNgjy16bPr+22Bju?=
+ =?us-ascii?Q?dsKeu62HF1yk+oGYGrHkYHPUIZDD9RdBF/o5NOWfJYrHPdXEdv+/I/iWBcfU?=
+ =?us-ascii?Q?pD/v3clCFFH/hh8yNu9/rkJr0sIMq6Ar6MfbIXBk/pEJctj2SpyCxjsIrZfw?=
+ =?us-ascii?Q?h6gIDxncdG0X+/cTr5kclt1qxPezZDT8tvOGjXT4hx5PK9AjDKa7wQfdAIn+?=
+ =?us-ascii?Q?BBsdFQrWyrqHRIwBnx5TfLo+0b6YTf6bbvqqzfKzSAPxSsgXlhJ30iBEJ/2X?=
+ =?us-ascii?Q?euV8hH4rOoe3voMiFsgHvYPPnBbho9daK0q9S3Hz6I2hR3tr3t0dFzunT2ng?=
+ =?us-ascii?Q?Krp6VFO4k0kzFw4sw2V4BYxKjs3prM8LNKm6zVlAkdyCfbfJcruCVmAyeQrB?=
+ =?us-ascii?Q?UUBl/CeMHr9U3VnirXrmR8C/i89UyJpHOyYQhdvaGcnQ7E73jji47QxFeSIa?=
+ =?us-ascii?Q?Dbg5mDFVrnHD45I5AJBW+jlPPMAtgU/PKkAuTmY4WWowGNgfU8MJlv/0oI2i?=
+ =?us-ascii?Q?RD4bTvKDZ6S6kxtMhWpiSVmrNhgmyVpw4om7D2D6DYc0tFGxmRpH1iHPJVNn?=
+ =?us-ascii?Q?FCJBSB1mx0pMCOIK1tEJpJolRd3t2F4Z/1jNlnNNJCkoBISnqY4QktmFwcjf?=
+ =?us-ascii?Q?TtAAPq2HbnJN/phWuNk+CittR4pGP2pllgV8l1nPdT0v49cQTYxDZABqWVFp?=
+ =?us-ascii?Q?+EGYX570ERjfD5WyFGLHXjKXiZv8zLnC94tgzVvI?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c9e9da60-41bb-48e1-67dd-08dba735a0d4
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB2743.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Aug 2023 19:41:37.8041
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: eyGqUs5MxUvfKYU2ViTCMMbNahNbIW/exjbhvW++4sbsxqHTsgmLH3EhvIhwUGscBEEYGXjlTqEaXf3yFZ239g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN9PR12MB5050
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 27/08/2023 14:57, Dmitry Baryshkov wrote:
+On Sat, 26 Aug, 2023 19:42:16 +0200 Christophe JAILLET <christophe.jaillet@wanadoo.fr> wrote:
+> This serie fixes some missing clean-up function calls in the error handling of
+> the probe.
+>
+> Patch 1 and 2 fix some similar issues introduced in 2 different commits (hence 2
+> patches)
+>
+> Patch 3 is a proposal to be more future proof.
+>
 
->>>>>>
->>>>>> The entire patch is not needed. At least should not be needed. What
->>>>>> problem are you trying to solve here?
->>>>>
->>>>> The main problem is the next chunk, which (currently) explicitly
->>>>> requires `interrupts' property. My goal is to allow
->>>>> `interrupts-extended' in addition to `interrupts'.
->>>>
->>>> They are allowed. Why do you think they aren't? That's why I don't
->>>> understand what real problem is here.
->>>
->>> qcom-pm8xxx.yaml lists `interrupts' property under the `required'
->>> clause. So I can not simply replace it with `interrupts-extended'
->>
->> Since when? So again: The entire patch is not needed.
-> 
-> Hmm, interesting. I'm pretty sure that I saw the issue, but now I can
-> no longer reproduce it. Maybe I misinterpreted some other warning
-> which I saw while this was WIP.
-> I see that it is handled by the `fixup_interrupts` in dtschema itself.
+I really appreciate the contribution.
 
-If interrupts were brought by some other schema and that one did not
-evaluate, then you could see errors about interrupt-extended. But that's
-not the case here.
+>
+> *Note*: I'm not 100% sure that the order of the functions is the best one in
+> thunderstrike_destroy(), but it is the way it was.
+>
+> My personal preference would be to undo things in reverse order they are
+> allocated, such as:
+> 	led_classdev_unregister(&ts->led_dev);
+> 	power_supply_unregister(ts->base.battery_dev.psy);
+> 	if (ts->haptics_dev)
+> 		input_unregister_device(ts->haptics_dev);
+> 	ida_free(&thunderstrike_ida, ts->id);
+> This order was explicitly chnaged by 3ab196f88237, so, as I can't test the
+> changes on a real harware, I've left it as-is.
 
-Best regards,
-Krzysztof
+I agree with this proposal. Let's clean this up in the patch that
+implements thunderstrike_destroy. The order change in 3ab196f88237 is
+more a matter of sloppiness rather than due to handling some functional
+side effect that requires the order change.
 
+>
+> Christophe JAILLET (3):
+>   HID: nvidia-shield: Fix a missing led_classdev_unregister() in the
+>     probe error handling path
+>   HID: nvidia-shield: Fix some missing function calls() in the probe
+>     error handling path
+>   HID: nvidia-shield: Introduce thunderstrike_destroy()
+>
+>  drivers/hid/hid-nvidia-shield.c | 23 ++++++++++++++++-------
+>  1 file changed, 16 insertions(+), 7 deletions(-)
+
+--
+Thanks,
+
+Rahul Rameshbabu

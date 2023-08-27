@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE70DC83F1C
-	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 01:01:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 058F1C83F21
+	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 01:01:22 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230237AbjH0BAn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 26 Aug 2023 21:00:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49800 "EHLO
+        id S230263AbjH0BAp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 26 Aug 2023 21:00:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230049AbjH0BAI (ORCPT
+        with ESMTP id S230219AbjH0BAN (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 26 Aug 2023 21:00:08 -0400
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 420F3CF1
-        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 18:00:03 -0700 (PDT)
-Received: by mail-lf1-x12b.google.com with SMTP id 2adb3069b0e04-500760b296aso2534358e87.0
-        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 18:00:03 -0700 (PDT)
+        Sat, 26 Aug 2023 21:00:13 -0400
+Received: from mail-lj1-x235.google.com (mail-lj1-x235.google.com [IPv6:2a00:1450:4864:20::235])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B60E4B
+        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 18:00:08 -0700 (PDT)
+Received: by mail-lj1-x235.google.com with SMTP id 38308e7fff4ca-2bccda76fb1so31772391fa.2
+        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 18:00:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1693098001; x=1693702801;
+        d=linaro.org; s=google; t=1693098006; x=1693702806;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=VxQdYkyWAirjpetKU3hEnd9sbSo7DDZ8krxceFVfwx0=;
-        b=K4Se+bDt/LmlvULo3wfaRXGRGSOstT/3H6Auj+K/1X/iJ68to2Knpi/d+0Md4HgvTN
-         KM2fNCRYzCZoalzIBqYf69ApM7Cz1x3R9g0frnle/Ce0i3vBcX+qm+g5zU6TC+cHW0w5
-         LimVdxWdpm7l1kbn9t6ySrSe706p5iR0/E1LwFzKj/yJ/mU1jbPsFkO3ZMgFcaERhAC1
-         zQgq31XrHMaHTMW5E3UQeGIkZvWtaM34y9WuRO7WfaT5v2XPJO44sJsaKflLPAFMRFKv
-         D8uNh4rZQSImaPpfmUflRFJjuFB4hfBSguUnTvzbvDGMCehy83BY8SX+qGSeYQEPii8C
-         LeEw==
+        bh=zPGHh0Yc1od2zbTrwc+6JwXrsuE73ZiTR95u6Arvrgw=;
+        b=I8MDGVMh+zj5dAmNy/aSDYaBTgcVRv6bA/klu1RGKSPjBAyS4+G0lqY9ELt+LYNsSd
+         iGazQzjL2HyCSyO/S7rA9LBygcK5Zx4AR4SrPGG/eZoHGM57FKEpOaq4tX2Gum0eUpN8
+         MacLDFi+qcAE2b9gR5SNc0WSxepDy3Je5gGcUSjd6RjZ+V78mlZpubfpTlgDTSiHivxu
+         9ec4RrsMpgHDB4HUwvYwyotpsKBcKjKNOoaUVKhIdR8kpuMSrFitgthUDAyNHzN8tqsW
+         yehh3WAG88bjqs3682OgAIBnsEO1aVtnDY1se6fcGR2MPJX+Fqz06LmGI1mObJbfyVdV
+         JcDQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693098001; x=1693702801;
+        d=1e100.net; s=20221208; t=1693098006; x=1693702806;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=VxQdYkyWAirjpetKU3hEnd9sbSo7DDZ8krxceFVfwx0=;
-        b=FloqDkx7O+ggArUpz3dN4mk+dquGYTkowmlcAAMhcFh4KnTdOCfcjEzKZXqDCC9apE
-         8sNIw3RAkKRgCM38mQJNvBpXnmsczkvPvEj340/rW8HZOBC/7VwR6LuR9SnbifYjT8pg
-         suyXzhaRoMqS6QK5PNdXOjkaIxQKDcJbtgPOkexRzPe6CCmVd516h3suOJiJwqI5exJK
-         Vvb4i2vzsRR3wtZ/u9dSFQGJvM2kU5HslhwY4BTcZkNsND/dKjMCgH3S5bTr2o4BACP9
-         Gooj9pYYa5R76fYgL0G0/cIQxSss2xfdL3BaCxecf6qsI+ngLtj+4FF01qa3BpR+sHQM
-         DNIQ==
-X-Gm-Message-State: AOJu0YwnNbQfVXU9hqGVm17RdqO4jiZSJKMlEzlXGhOn8h8ld+v8zKPP
-        /14cbmevV8h8PRNfSL7L8sCMLA==
-X-Google-Smtp-Source: AGHT+IH1HKOnjg2It12WIqkKb7k1IW8ln7YR2kueifKsRLqraFmfDCX/dnSNet6VZQsR4XHx74uhXw==
-X-Received: by 2002:a05:6512:282c:b0:4fb:8ff3:1f74 with SMTP id cf44-20020a056512282c00b004fb8ff31f74mr8716559lfb.20.1693098001602;
-        Sat, 26 Aug 2023 18:00:01 -0700 (PDT)
+        bh=zPGHh0Yc1od2zbTrwc+6JwXrsuE73ZiTR95u6Arvrgw=;
+        b=SfSlYx9TROVd1/hKWLVfTWyqf29cGSS+PopTlSoJkgAzkS6czpiXGAq5RgAAHVq3wH
+         xHIBQZyZ+ykPvhgf5kvqwsOo+Cd48k1lB7V1eki2+AJlJ2WaUDSkUVHNJZRtHjh4sDoe
+         Jv/ZSRHL6r+2dxfkfTR0TeIaacSBsBuL3ck6A7OvYtDVjrdaTEYoX/1LrdyJRt+q05v5
+         Uzjq8NB3pB4EWZucJT5LrVpcGGspDvYdnmJ3AyqVVN1d0qvRTgN2XqmNjW70/+dTbStv
+         vJS/YlmH0PvbTQBf8Ddfk+olRvkl12JH5/ZMfqYYDz7UpisXiV2mYJY9g1HzOxFejf3v
+         2BsQ==
+X-Gm-Message-State: AOJu0YwoZ0iJ+aQJehzu22zdM4r+g5nz+zagLW2TiGfdxiKb7AYJ0mND
+        prCIzxIj6I0pWfdhpy8E8F1aHQ==
+X-Google-Smtp-Source: AGHT+IHHy3dYU8bdVmLSeHBW4nkX2UZ3uasIMy53KRd+M3cg93eG8oeAEKfFfZ27unNObXvYBd+i8w==
+X-Received: by 2002:a05:6512:b90:b0:500:7f91:fe2e with SMTP id b16-20020a0565120b9000b005007f91fe2emr18988379lfv.34.1693098006568;
+        Sat, 26 Aug 2023 18:00:06 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id p18-20020ac246d2000000b00500a08e42e7sm917729lfo.124.2023.08.26.18.00.00
+        by smtp.gmail.com with ESMTPSA id p18-20020ac246d2000000b00500a08e42e7sm917729lfo.124.2023.08.26.18.00.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Aug 2023 18:00:00 -0700 (PDT)
+        Sat, 26 Aug 2023 18:00:06 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     devicetree@vger.kernel.org, Lee Jones <lee@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -63,9 +63,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
         linux-leds@vger.kernel.org
-Subject: [PATCH v4 32/38] ARM: dts: qcom: msm8660: move RPM regulators to board files
-Date:   Sun, 27 Aug 2023 03:59:14 +0300
-Message-Id: <20230827005920.898719-33-dmitry.baryshkov@linaro.org>
+Subject: [PATCH v4 37/38] ARM: dts: qcom: ipq8064: drop qcom, prefix from SSBI node name
+Date:   Sun, 27 Aug 2023 03:59:19 +0300
+Message-Id: <20230827005920.898719-38-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
 References: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
@@ -75,484 +75,24 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The set of regulators available over the RPM requests is not a property
-of the SoC. Move them to board files.
-
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- .../dts/qcom/qcom-apq8060-dragonboard.dts     | 141 ++++++++++++------
- arch/arm/boot/dts/qcom/qcom-msm8660-surf.dts  |  10 ++
- arch/arm/boot/dts/qcom/qcom-msm8660.dtsi      |  66 --------
- 3 files changed, 102 insertions(+), 115 deletions(-)
+ arch/arm/boot/dts/qcom/qcom-ipq8064.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts b/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
-index 10b8f529c337..8b70d4a59c7b 100644
---- a/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
-+++ b/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
-@@ -453,6 +453,8 @@ &rpm {
- 	 * that means
- 	 */
- 	regulators-0 {
-+		compatible = "qcom,rpm-pm8901-regulators";
-+
- 		vdd_l0-supply = <&pm8901_s4>;
- 		vdd_l1-supply = <&vph>;
- 		vdd_l2-supply = <&vph>;
-@@ -470,57 +472,63 @@ regulators-0 {
- 		lvs3_in-supply = <&pm8058_s2>;
- 		mvs_in-supply = <&pm8058_s3>;
- 
--		l0 {
-+		pm8901_l0: l0 {
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1200000>;
- 			bias-pull-down;
- 		};
--		l1 {
-+
-+		pm8901_l1: l1 {
- 			regulator-min-microvolt = <3300000>;
- 			regulator-max-microvolt = <3300000>;
- 			bias-pull-down;
- 		};
--		l2 {
-+
-+		pm8901_l2: l2 {
- 			/* TMA340 requires strictly 3.3V */
- 			regulator-min-microvolt = <3300000>;
- 			regulator-max-microvolt = <3300000>;
- 			bias-pull-down;
- 		};
--		l3 {
-+
-+		pm8901_l3: l3 {
- 			regulator-min-microvolt = <3300000>;
- 			regulator-max-microvolt = <3300000>;
- 			bias-pull-down;
- 		};
--		l4 {
-+
-+		pm8901_l4: l4 {
- 			regulator-min-microvolt = <2600000>;
- 			regulator-max-microvolt = <2600000>;
- 			bias-pull-down;
- 		};
--		l5 {
-+
-+		pm8901_l5: l5 {
- 			regulator-min-microvolt = <2850000>;
- 			regulator-max-microvolt = <2850000>;
- 			bias-pull-down;
- 		};
--		l6 {
-+
-+		pm8901_l6: l6 {
- 			regulator-min-microvolt = <2200000>;
- 			regulator-max-microvolt = <2200000>;
- 			bias-pull-down;
- 		};
- 
- 		/* s0 and s1 are SAW regulators controlled over SPM */
--		s2 {
-+		pm8901_s2: s2 {
- 			regulator-min-microvolt = <1300000>;
- 			regulator-max-microvolt = <1300000>;
- 			qcom,switch-mode-frequency = <1600000>;
- 			bias-pull-down;
- 		};
--		s3 {
-+		pm8901_s3: s3 {
- 			regulator-min-microvolt = <1100000>;
- 			regulator-max-microvolt = <1100000>;
- 			qcom,switch-mode-frequency = <1600000>;
- 			bias-pull-down;
- 		};
--		s4 {
-+		pm8901_s4: s4 {
- 			regulator-min-microvolt = <1225000>;
- 			regulator-max-microvolt = <1225000>;
- 			qcom,switch-mode-frequency = <1600000>;
-@@ -528,17 +536,22 @@ s4 {
- 		};
- 
- 		/* LVS0 thru 3 and mvs are just switches */
--		lvs0 {
-+		pm8901_lvs0: lvs0 {
- 			regulator-always-on;
- 		};
--		lvs1 { };
--		lvs2 { };
--		lvs3 { };
--		mvs { };
- 
-+		pm8901_lvs1: lvs1 { };
-+
-+		pm8901_lvs2: lvs2 { };
-+
-+		pm8901_lvs3: lvs3 { };
-+
-+		pm8901_mvs: mvs { };
- 	};
- 
- 	regulators-1 {
-+		compatible = "qcom,rpm-pm8058-regulators";
-+
- 		vdd_l0_l1_lvs-supply = <&pm8058_s3>;
- 		vdd_l2_l11_l12-supply = <&vph>;
- 		vdd_l3_l4_l5-supply = <&vph>;
-@@ -560,144 +573,169 @@ regulators-1 {
- 		vdd_s4-supply = <&vph>;
- 		vdd_ncp-supply = <&vph>;
- 
--		l0 {
-+		pm8058_l0: l0 {
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1200000>;
- 			bias-pull-down;
- 		};
--		l1 {
-+
-+		pm8058_l1: l1 {
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1200000>;
- 			bias-pull-down;
- 		};
--		l2 {
-+
-+		pm8058_l2: l2 {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <2600000>;
- 			bias-pull-down;
- 		};
--		l3 {
-+
-+		pm8058_l3: l3 {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <1800000>;
- 			bias-pull-down;
- 		};
--		l4 {
-+
-+		pm8058_l4: l4 {
- 			regulator-min-microvolt = <2850000>;
- 			regulator-max-microvolt = <2850000>;
- 			bias-pull-down;
- 		};
--		l5 {
-+
-+		pm8058_l5: l5 {
- 			regulator-min-microvolt = <2850000>;
- 			regulator-max-microvolt = <2850000>;
- 			bias-pull-down;
- 		};
--		l6 {
-+
-+		pm8058_l6: l6 {
- 			regulator-min-microvolt = <3000000>;
- 			regulator-max-microvolt = <3600000>;
- 			bias-pull-down;
- 		};
--		l7 {
-+
-+		pm8058_l7: l7 {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <1800000>;
- 			bias-pull-down;
- 		};
--		l8 {
-+
-+		pm8058_l8: l8 {
- 			regulator-min-microvolt = <2900000>;
- 			regulator-max-microvolt = <3050000>;
- 			bias-pull-down;
- 		};
--		l9 {
-+
-+		pm8058_l9: l9 {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <1800000>;
- 			bias-pull-down;
- 		};
--		l10 {
-+
-+		pm8058_l10: l10 {
- 			regulator-min-microvolt = <2600000>;
- 			regulator-max-microvolt = <2600000>;
- 			bias-pull-down;
- 		};
--		l11 {
-+
-+		pm8058_l11: l11 {
- 			regulator-min-microvolt = <1500000>;
- 			regulator-max-microvolt = <1500000>;
- 			bias-pull-down;
- 		};
--		l12 {
-+
-+		pm8058_l12: l12 {
- 			regulator-min-microvolt = <2900000>;
- 			regulator-max-microvolt = <2900000>;
- 			bias-pull-down;
- 		};
--		l13 {
-+
-+		pm8058_l13: l13 {
- 			regulator-min-microvolt = <2050000>;
- 			regulator-max-microvolt = <2050000>;
- 			bias-pull-down;
- 		};
--		l14 {
-+
-+		pm8058_l14: l14 {
- 			regulator-min-microvolt = <2850000>;
- 			regulator-max-microvolt = <2850000>;
- 		};
--		l15 {
-+
-+		pm8058_l15: l15 {
- 			regulator-min-microvolt = <2850000>;
- 			regulator-max-microvolt = <2850000>;
- 			bias-pull-down;
- 		};
--		l16 {
-+
-+		pm8058_l16: l16 {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <1800000>;
- 			bias-pull-down;
- 			regulator-always-on;
- 		};
--		l17 {
-+
-+		pm8058_l17: l17 {
- 			// 1.5V according to schematic
- 			regulator-min-microvolt = <2600000>;
- 			regulator-max-microvolt = <2600000>;
- 			bias-pull-down;
- 		};
--		l18 {
-+
-+		pm8058_l18: l18 {
- 			regulator-min-microvolt = <2200000>;
- 			regulator-max-microvolt = <2200000>;
- 			bias-pull-down;
- 		};
--		l19 {
-+
-+		pm8058_l19: l19 {
- 			regulator-min-microvolt = <2500000>;
- 			regulator-max-microvolt = <2500000>;
- 			bias-pull-down;
- 		};
--		l20 {
-+
-+		pm8058_l20: l20 {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <1800000>;
- 			bias-pull-down;
- 		};
--		l21 {
-+
-+		pm8058_l21: l21 {
- 			// 1.1 V according to schematic
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1200000>;
- 			bias-pull-down;
- 			regulator-always-on;
- 		};
--		l22 {
-+
-+		pm8058_l22: l22 {
- 			// 1.2 V according to schematic
- 			regulator-min-microvolt = <1150000>;
- 			regulator-max-microvolt = <1150000>;
- 			bias-pull-down;
- 		};
--		l23 {
-+
-+		pm8058_l23: l23 {
- 			// Unused
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1200000>;
- 			bias-pull-down;
- 		};
--		l24 {
-+
-+		pm8058_l24: l24 {
- 			// Unused
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1200000>;
- 			bias-pull-down;
- 		};
--		l25 {
-+
-+		pm8058_l25: l25 {
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1200000>;
- 			bias-pull-down;
- 		};
- 
--		s0 {
-+		pm8058_s0: s0 {
- 			// regulator-min-microvolt = <500000>;
- 			// regulator-max-microvolt = <1325000>;
- 			regulator-min-microvolt = <1100000>;
-@@ -705,7 +743,8 @@ s0 {
- 			qcom,switch-mode-frequency = <1600000>;
- 			bias-pull-down;
- 		};
--		s1 {
-+
-+		pm8058_s1: s1 {
- 			// regulator-min-microvolt = <500000>;
- 			// regulator-max-microvolt = <1250000>;
- 			regulator-min-microvolt = <1100000>;
-@@ -713,21 +752,24 @@ s1 {
- 			qcom,switch-mode-frequency = <1600000>;
- 			bias-pull-down;
- 		};
--		s2 {
-+
-+		pm8058_s2: s2 {
- 			// 1.3 V according to schematic
- 			regulator-min-microvolt = <1200000>;
- 			regulator-max-microvolt = <1400000>;
- 			qcom,switch-mode-frequency = <1600000>;
- 			bias-pull-down;
- 		};
--		s3 {
-+
-+		pm8058_s3: s3 {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <1800000>;
- 			qcom,switch-mode-frequency = <1600000>;
- 			regulator-always-on;
- 			bias-pull-down;
- 		};
--		s4 {
-+
-+		pm8058_s4: s4 {
- 			regulator-min-microvolt = <2200000>;
- 			regulator-max-microvolt = <2200000>;
- 			qcom,switch-mode-frequency = <1600000>;
-@@ -736,14 +778,15 @@ s4 {
- 		};
- 
- 		/* LVS0 and LVS1 are just switches */
--		lvs0 {
-+		pm8058_lvs0: lvs0 {
- 			bias-pull-down;
- 		};
--		lvs1 {
-+
-+		pm8058_lvs1: lvs1 {
- 			bias-pull-down;
- 		};
- 
--		ncp {
-+		pm8058_ncp: ncp {
- 			regulator-min-microvolt = <1800000>;
- 			regulator-max-microvolt = <1800000>;
- 			qcom,switch-mode-frequency = <1600000>;
-diff --git a/arch/arm/boot/dts/qcom/qcom-msm8660-surf.dts b/arch/arm/boot/dts/qcom/qcom-msm8660-surf.dts
-index be2fbc1e0950..69fe651f564d 100644
---- a/arch/arm/boot/dts/qcom/qcom-msm8660-surf.dts
-+++ b/arch/arm/boot/dts/qcom/qcom-msm8660-surf.dts
-@@ -65,6 +65,16 @@ MATRIX_KEY(5, 4, KEY_MENU)
- 	keypad,num-columns = <5>;
- };
- 
-+&rpm {
-+	regulators-0 {
-+		compatible = "qcom,rpm-pm8901-regulators";
-+	};
-+
-+	regulators-1 {
-+		compatible = "qcom,rpm-pm8058-regulators";
-+	};
-+};
-+
- /* eMMC */
- &sdcc1 {
- 	vmmc-supply = <&vsdcc_fixed>;
-diff --git a/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi b/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
-index eef4712bbcc4..a7c245b9c8f9 100644
---- a/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
-+++ b/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
-@@ -347,72 +347,6 @@ rpmcc: clock-controller {
- 				clocks = <&pxo_board>;
- 				clock-names = "pxo";
+diff --git a/arch/arm/boot/dts/qcom/qcom-ipq8064.dtsi b/arch/arm/boot/dts/qcom/qcom-ipq8064.dtsi
+index 6198f42f6a9c..c3677440b786 100644
+--- a/arch/arm/boot/dts/qcom/qcom-ipq8064.dtsi
++++ b/arch/arm/boot/dts/qcom/qcom-ipq8064.dtsi
+@@ -366,7 +366,7 @@ rpmcc: clock-controller {
  			};
--
--			regulators-0 {
--				compatible = "qcom,rpm-pm8901-regulators";
--
--				pm8901_l0: l0 {};
--				pm8901_l1: l1 {};
--				pm8901_l2: l2 {};
--				pm8901_l3: l3 {};
--				pm8901_l4: l4 {};
--				pm8901_l5: l5 {};
--				pm8901_l6: l6 {};
--
--				/* S0 and S1 Handled as SAW regulators by SPM */
--				pm8901_s2: s2 {};
--				pm8901_s3: s3 {};
--				pm8901_s4: s4 {};
--
--				pm8901_lvs0: lvs0 {};
--				pm8901_lvs1: lvs1 {};
--				pm8901_lvs2: lvs2 {};
--				pm8901_lvs3: lvs3 {};
--
--				pm8901_mvs: mvs {};
--			};
--
--			regulators-1 {
--				compatible = "qcom,rpm-pm8058-regulators";
--
--				pm8058_l0: l0 {};
--				pm8058_l1: l1 {};
--				pm8058_l2: l2 {};
--				pm8058_l3: l3 {};
--				pm8058_l4: l4 {};
--				pm8058_l5: l5 {};
--				pm8058_l6: l6 {};
--				pm8058_l7: l7 {};
--				pm8058_l8: l8 {};
--				pm8058_l9: l9 {};
--				pm8058_l10: l10 {};
--				pm8058_l11: l11 {};
--				pm8058_l12: l12 {};
--				pm8058_l13: l13 {};
--				pm8058_l14: l14 {};
--				pm8058_l15: l15 {};
--				pm8058_l16: l16 {};
--				pm8058_l17: l17 {};
--				pm8058_l18: l18 {};
--				pm8058_l19: l19 {};
--				pm8058_l20: l20 {};
--				pm8058_l21: l21 {};
--				pm8058_l22: l22 {};
--				pm8058_l23: l23 {};
--				pm8058_l24: l24 {};
--				pm8058_l25: l25 {};
--
--				pm8058_s0: s0 {};
--				pm8058_s1: s1 {};
--				pm8058_s2: s2 {};
--				pm8058_s3: s3 {};
--				pm8058_s4: s4 {};
--
--				pm8058_lvs0: lvs0 {};
--				pm8058_lvs1: lvs1 {};
--
--				pm8058_ncp: ncp {};
--			};
  		};
  
- 		amba {
+-		qcom,ssbi@500000 {
++		ssbi@500000 {
+ 			compatible = "qcom,ssbi";
+ 			reg = <0x00500000 0x1000>;
+ 			qcom,controller-type = "pmic-arbiter";
 -- 
 2.39.2
 

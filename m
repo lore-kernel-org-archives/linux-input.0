@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0C7CC83F21
-	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 13:26:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CBDCC83F14
+	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 13:26:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229932AbjH0N0O (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 27 Aug 2023 09:26:14 -0400
+        id S229982AbjH0N0Q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 27 Aug 2023 09:26:16 -0400
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229906AbjH0NZi (ORCPT
+        with ESMTP id S229956AbjH0NZk (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 27 Aug 2023 09:25:38 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530D51A2
-        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 06:25:31 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-4ffae5bdc9aso3733496e87.1
-        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 06:25:31 -0700 (PDT)
+        Sun, 27 Aug 2023 09:25:40 -0400
+Received: from mail-lf1-x130.google.com (mail-lf1-x130.google.com [IPv6:2a00:1450:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F24121BB
+        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 06:25:34 -0700 (PDT)
+Received: by mail-lf1-x130.google.com with SMTP id 2adb3069b0e04-4ff8f2630e3so3621641e87.1
+        for <linux-input@vger.kernel.org>; Sun, 27 Aug 2023 06:25:34 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1693142729; x=1693747529;
+        d=linaro.org; s=google; t=1693142732; x=1693747532;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=A7ewwDA5rK2znaB44N+h4kM3uTy6kez9qLlohwFRQDU=;
-        b=PhRITrkCHy9xXeC4xMUovqjUW0kGvDzAFWEOUQ+fpLStqRAe/VmjOokuUEDCQd6nTU
-         HRqWTOzIara7zgKN2sEQbubjF08zHvNADSyoW1tjA6xDp7gQhfr6Wc/gZEiCc9nLoABK
-         yxpah5rmzqjxI5ITK5I4LWpw8dZkcaUHYWlZXdOf9FGnDzpssV/7HgteanA07+Zkkd5m
-         UdvEzXFaJizIz8UOqL0aA+qGniTtt4Nwkfahi/TGho6PMCWVhnZWdzbGuUA6wgPxwP+/
-         f6Db+nx/rF2d8FmHufmFnkfH6DmuxrYevR4BWPY4c2h8zzJX5lnHBRbifV0SWTz4fv6O
-         ilqA==
+        bh=FS4tS46Wt2bF/A6aYMT37LuXJaPlC2jK1TxmIfbaIXc=;
+        b=cCVsb3K3wTfdGYKkLNh1/LCiVvILBc2XhlLJIjiafrrG3xEUf+oUfFd0FAqb9TPZqI
+         MC5gFOtdGOkhHDCIrrawqoN6KSb8RbmKgo/Od0rhkufLjTeENV0j8pKtKSphj+jAMjus
+         FJnysUy5d0dG4K18vfUa42rYIQUvFiunnslZ8S5lv5g26Q2P9SXhWmbnTBZC0XA6vabC
+         zksrLDya3z9Eoe2ea353xcMQZBnuM+t6NmWGGTeqER2egO6dlO3Gnj0r0epa22vPKorn
+         k9z/BJ6ZijRtYsb9U7qE4juFZ/eFQ2L0JbG1Y9/iV0G/zespBnMUtZVthSeWZPeL2CdT
+         VYng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693142729; x=1693747529;
+        d=1e100.net; s=20221208; t=1693142732; x=1693747532;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=A7ewwDA5rK2znaB44N+h4kM3uTy6kez9qLlohwFRQDU=;
-        b=dDwzEXKmX+mVDoJ8KKx8UTfs8S+kYCS3cZ5oCNRrQwM2nWRas0nuRctyxSgsijE090
-         gvunqx1Gd/ORlJWVT+rYHpP0TSI7DWSVS5/96ZGvq7E7axYNIb7tWCrcbyM8r63+R1iI
-         J406Olt9RdqWaTjQN+rf5aSmES1luEKt1gitqfdMfRwSxz2h1bbIPavctl+Kc80s7l1J
-         kzG4C5Cis1ryUpWDSyPbf5Im68k9B6lZubCKK0o4VDT2ErLOvey87jgtu6YnvP1H1wWB
-         fbQZhpsAP/3xjf5ky9kHDYHioQLCMlGxOPJ3BKXT6+RFmSadi/6fvnp2y6a/sGHnPQYw
-         fewA==
-X-Gm-Message-State: AOJu0YxQxe5gX766U1ayBqqAw0Tc0zKdmBiiyvgQ+0YuaMxeCgeTeGkq
-        kOxaUBdEPaM/NNg9NsaDxh6K+A==
-X-Google-Smtp-Source: AGHT+IGfyRNdx7XScmxKKNYPtWH7EVnunOlJNWZM3AapeV+8RTTrAAj8dlVnpCn4asSwcF/pfnyPxA==
-X-Received: by 2002:ac2:4bd4:0:b0:4fd:c84f:30d4 with SMTP id o20-20020ac24bd4000000b004fdc84f30d4mr18752550lfq.36.1693142729486;
-        Sun, 27 Aug 2023 06:25:29 -0700 (PDT)
+        bh=FS4tS46Wt2bF/A6aYMT37LuXJaPlC2jK1TxmIfbaIXc=;
+        b=MnHFWuQq8FhE+UaZgiIlmgeeejt2UuDYswugD78eeO33EwX0yfHCFYsX9MfGZ3jnX+
+         FJ8uL8raWhnB+4zpE/06NoG1Zk3icb9F89hByLZ+k4ewJ0jeV0QEUGAFvQP5D0MQ2NxH
+         x7Zl2DDt3+/XV/Wv2Ww6eJk/2qsCjem9vQ0+Byv98mr63US5CoDSPw5OBMnTMXeNZDrD
+         fcK4ib1V+QV7w2d9E/5xTp7KTmvc6Jq7lSWiqR5fkNWspovCbw81rWLXbahRZK06w2Py
+         dg9E6/RgM51FWun+TD9+RE/aKv/7COwwM4d4VugqIkRA6mfxnm4s2s4AAgCaUSsvern3
+         PCiA==
+X-Gm-Message-State: AOJu0Yxv6+p6qBNXZ2+cZTjhp6lrxBhGEcOkhWiKZ5awTbfOIz3P4D05
+        0F3SXKmC7h7oh8eFxV6FyNOeDw==
+X-Google-Smtp-Source: AGHT+IFZK+tUrJtz99p54EBnoNcVP69Kr8EdF+9LS0F7pvu+9j+DO77rmoZZV5syR2tVbCjoleJlDQ==
+X-Received: by 2002:a05:6512:3da7:b0:4fb:7cea:882a with SMTP id k39-20020a0565123da700b004fb7cea882amr20200319lfv.3.1693142732738;
+        Sun, 27 Aug 2023 06:25:32 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id t9-20020ac243a9000000b004faa2de9877sm1142040lfl.286.2023.08.27.06.25.28
+        by smtp.gmail.com with ESMTPSA id t9-20020ac243a9000000b004faa2de9877sm1142040lfl.286.2023.08.27.06.25.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 27 Aug 2023 06:25:29 -0700 (PDT)
+        Sun, 27 Aug 2023 06:25:32 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     devicetree@vger.kernel.org, Lee Jones <lee@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -62,11 +62,10 @@ Cc:     Andy Gross <agross@kernel.org>,
         linux-iio@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
-        linux-leds@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v5 03/37] ARM: dts: qcom: apq8064: correct XOADC register address
-Date:   Sun, 27 Aug 2023 16:24:51 +0300
-Message-Id: <20230827132525.951475-4-dmitry.baryshkov@linaro.org>
+        linux-leds@vger.kernel.org
+Subject: [PATCH v5 07/37] ARM: dts: qcom: mdm9615-wp8548-mangoh-green: group include clauses
+Date:   Sun, 27 Aug 2023 16:24:55 +0300
+Message-Id: <20230827132525.951475-8-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230827132525.951475-1-dmitry.baryshkov@linaro.org>
 References: <20230827132525.951475-1-dmitry.baryshkov@linaro.org>
@@ -76,31 +75,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The XOADC is present at the address 0x197 rather than just 197. It
-doesn't change a lot (since the driver hardcodes all register
-addresses), but the DT should present correct address anyway.
+Group file inclusion to follow contemporary practice.
 
-Fixes: c4b70883ee33 ("ARM: dts: add XOADC and IIO HWMON to APQ8064")
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- arch/arm/boot/dts/qcom/qcom-apq8064.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
-index 516f0d2495e2..950adb63af70 100644
---- a/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
-+++ b/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
-@@ -738,7 +738,7 @@ pwrkey@1c {
+diff --git a/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts b/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts
+index b269fdca1460..e3b4b93c3d38 100644
+--- a/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts
++++ b/arch/arm/boot/dts/qcom/qcom-mdm9615-wp8548-mangoh-green.dts
+@@ -6,11 +6,11 @@
+  * Author : Neil Armstrong <narmstrong@baylibre.com>
+  */
  
- 				xoadc: xoadc@197 {
- 					compatible = "qcom,pm8921-adc";
--					reg = <197>;
-+					reg = <0x197>;
- 					interrupts-extended = <&pmicintc 78 IRQ_TYPE_EDGE_RISING>;
- 					#address-cells = <2>;
- 					#size-cells = <0>;
++#include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/input.h>
++#include <dt-bindings/interrupt-controller/irq.h>
+ 
+ #include "qcom-mdm9615-wp8548.dtsi"
+-#include <dt-bindings/interrupt-controller/irq.h>
+-#include <dt-bindings/gpio/gpio.h>
+ 
+ / {
+ 	model = "MangOH Green with WP8548 Module";
 -- 
 2.39.2
 

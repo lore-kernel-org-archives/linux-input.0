@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1621EE49BF
-	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 01:00:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8210CA0FC0
+	for <linux-input@archiver.kernel.org>; Sun, 27 Aug 2023 01:00:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230013AbjH0BAG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 26 Aug 2023 21:00:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43306 "EHLO
+        id S230182AbjH0BAI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 26 Aug 2023 21:00:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230031AbjH0A7j (ORCPT
+        with ESMTP id S230082AbjH0A7p (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 26 Aug 2023 20:59:39 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF4F6F7
-        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:36 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id 2adb3069b0e04-50091b91a83so3186525e87.3
-        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:36 -0700 (PDT)
+        Sat, 26 Aug 2023 20:59:45 -0400
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE942CD1
+        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:41 -0700 (PDT)
+Received: by mail-lf1-x12a.google.com with SMTP id 2adb3069b0e04-50091b91a83so3186571e87.3
+        for <linux-input@vger.kernel.org>; Sat, 26 Aug 2023 17:59:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1693097975; x=1693702775;
+        d=linaro.org; s=google; t=1693097980; x=1693702780;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Q/uFYzKBfDqxN7TN/A9wLoMgNTaV3aT+WyYPs1U/WFk=;
-        b=ZJDQggftIaHpnjRJ99L0XiXXXtFK07GRcwhbH7MDqnanOsd+RAfwO1lHh9+Y2+cOOP
-         tEgp4tVYatoxkCvb+3pR8EC6bhK7BnMTGyK+QDOBjAQFqAXf6eTX+Vo9Jcs8Mr9/E5aV
-         V8PZqJd5jc/TobLs/4uQbFiS680RqblXrFfk7TX+X3WcVpKhtNUOcdr5CyRTIM+SbeKs
-         RGc/LAdVBfuguyxXlgCAqPSnDWqWbspOLbYKhT3IwEDVe+Yd+7rXxNlmIbSgG/ODxPFL
-         J2pzQuG9hVKW++B8aQtBCUl6bU6frSaPXA4Uc1B879phFw4fwdgJrdHO+x8M9DaI57sp
-         OMBw==
+        bh=f71IcvptqSg5g7AuIhvK++aaEOWi79M2v+yqgEz0APA=;
+        b=NbHCnveiSvFFT2KT6vea1FmRtqmRxG6NpjIObUNsZY0vN+fJ0o+qVDWLXwstt5VYQV
+         krhCBoXFllJqkgQdIhmmtOwMWp+WUwsuo+z2A7o+vw+xL49cYuFPtjVxPh/yxaBK+1tz
+         R01aL+whQL881MXLs0bGXUqp/JmE9iGsDGBRtMCTXtNqTGmGlcJodyAFhZ7QEnwJwMXq
+         qW3WtY8dUSdPboEyD48ygiGIdHtteiWrDsObnQWIhQcrPD49IM+HHJvM6NNorpgtdPJu
+         cO/+UI0QqxJ2keLlp/CIYfR8D1INjy7C8So1IahE9UtOh2c7+TsWI9aNjdm62my3WPo4
+         o0HA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20221208; t=1693097975; x=1693702775;
+        d=1e100.net; s=20221208; t=1693097980; x=1693702780;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Q/uFYzKBfDqxN7TN/A9wLoMgNTaV3aT+WyYPs1U/WFk=;
-        b=RHDdHAqssQYCZS5Zat4q+O+XH7HeuNSDNghEL/AheKocwh2JtBOnt00DrkQSI4+gIq
-         HQ/pVDWlmEzGiBsdBBy+5si+L8B9aFUtPSjk3k7+KsecS+bte9ulY6WXrJiU9rvLMs+R
-         ROaiBwgpV4dgdkzkW7zSMWEe2H/WubwVyHTM3SGFWsOgtQvzbtsmpuXmOqtP+eriFCk7
-         bmis5SCnNu32B1+FgKDnZ1AZY6P8x73/IBPKaJHxYcr5rZZ2g+YjoYCaydZL/owdiNGM
-         /9XgQKIcrYKKRFGtoZIpIyY8qehqKzoB4jMwWUa9kxLh//E9eG/gPdmVeU6Kuz6I2I4r
-         SJLg==
-X-Gm-Message-State: AOJu0YyRMGzoB0TnjzGlz9hVrXmsyLSl0hujQBC6N6xNLlBylOR+T30M
-        esya+Af1rDHj6eBvZhpGowew5A==
-X-Google-Smtp-Source: AGHT+IFXq4EzfFRO/m2zlqJdxRYL+kGlY9I0hSQSAqhn/n5IfcnvB1SBvCicq76KguJR5LXZCHg+Sg==
-X-Received: by 2002:a05:6512:33c1:b0:4f8:4512:c846 with SMTP id d1-20020a05651233c100b004f84512c846mr20095528lfg.49.1693097975151;
-        Sat, 26 Aug 2023 17:59:35 -0700 (PDT)
+        bh=f71IcvptqSg5g7AuIhvK++aaEOWi79M2v+yqgEz0APA=;
+        b=f7W73PVMAvgTqMlH5n0dFKQUHkGo2llJ7IVoVqYcMghnYFftetVfguxiidShGASQd5
+         O7tlU88co98WxJV4Ksng0eVKzmnMEzjvZTMrLA//GE/oBEs8EcK76g6jTCiK2fwVGQFi
+         T41LtqjwjBv3iZLuyjkvZdOOBPBgwSOZucPyp+pnvxLLKA1I88lr01CeLMpY9ZJW0Hg2
+         BgGTzeGWZqsQEsisNH1GAzsrK1jP3Xr7yRuvXarNVIoC7gQTRpTJOaLdcZ9MSJN7JQ3P
+         RLozPZQIJTaRvWuJKGZv49kGS6tIpHzOAdmERfo/F2ISPyfCB2xd/WBLNNxKvP0tqoIx
+         /Avg==
+X-Gm-Message-State: AOJu0YyRN/fRlDeT6daRZ5Eqy5ydHTczy2JwiA9eXkA4+y46TEfDQWmi
+        xkMPZQcoAj+upYXHm8TdiN3vng==
+X-Google-Smtp-Source: AGHT+IEgw3aHYf/G1PAQofG6hEkq5bwPjfcy3E3P5YIAFMh624Q7SAY6Zb1DasqgLDqznZG4br4mmA==
+X-Received: by 2002:a05:6512:ad1:b0:4fb:52a3:e809 with SMTP id n17-20020a0565120ad100b004fb52a3e809mr16627363lfu.28.1693097980329;
+        Sat, 26 Aug 2023 17:59:40 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id p18-20020ac246d2000000b00500a08e42e7sm917729lfo.124.2023.08.26.17.59.34
+        by smtp.gmail.com with ESMTPSA id p18-20020ac246d2000000b00500a08e42e7sm917729lfo.124.2023.08.26.17.59.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 26 Aug 2023 17:59:34 -0700 (PDT)
+        Sat, 26 Aug 2023 17:59:39 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     devicetree@vger.kernel.org, Lee Jones <lee@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
@@ -63,9 +63,9 @@ Cc:     Andy Gross <agross@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         linux-input@vger.kernel.org, Pavel Machek <pavel@ucw.cz>,
         linux-leds@vger.kernel.org
-Subject: [PATCH v4 14/38] ARM: dts: qcom: apq8064: move PMIC interrupts to the board files
-Date:   Sun, 27 Aug 2023 03:58:56 +0300
-Message-Id: <20230827005920.898719-15-dmitry.baryshkov@linaro.org>
+Subject: [PATCH v4 19/38] ARM: dts: qcom: apq8064: split PMICs to separate dtsi files
+Date:   Sun, 27 Aug 2023 03:59:01 +0300
+Message-Id: <20230827005920.898719-20-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
 References: <20230827005920.898719-1-dmitry.baryshkov@linaro.org>
@@ -75,118 +75,398 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The interrupt of SSBI PMICs is routed to the SoCs GPIO. As such, it is
-not a property of the SoC, it is a property of the particular board
-(even if it is standard and unified between all devices). Move these
-interrupt specifications to the board files.
+The PMICs are not a part of the SoC, so move PMICs to separate files and
+include them from the board files.
 
+Suggested-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts   | 8 ++++++++
- arch/arm/boot/dts/qcom/qcom-apq8064-cm-qs600.dts          | 8 ++++++++
- arch/arm/boot/dts/qcom/qcom-apq8064-ifc6410.dts           | 8 ++++++++
- .../boot/dts/qcom/qcom-apq8064-sony-xperia-lagan-yuga.dts | 8 ++++++++
- arch/arm/boot/dts/qcom/qcom-apq8064.dtsi                  | 4 ----
- 5 files changed, 32 insertions(+), 4 deletions(-)
+ arch/arm/boot/dts/qcom/pm8821.dtsi            |  22 +++
+ arch/arm/boot/dts/qcom/pm8921.dtsi            |  99 +++++++++++++
+ .../dts/qcom/qcom-apq8064-asus-nexus7-flo.dts |   6 +-
+ .../boot/dts/qcom/qcom-apq8064-cm-qs600.dts   |   5 +-
+ .../boot/dts/qcom/qcom-apq8064-ifc6410.dts    |   5 +-
+ .../qcom-apq8064-sony-xperia-lagan-yuga.dts   |   5 +-
+ arch/arm/boot/dts/qcom/qcom-apq8064.dtsi      | 134 +-----------------
+ 7 files changed, 140 insertions(+), 136 deletions(-)
+ create mode 100644 arch/arm/boot/dts/qcom/pm8821.dtsi
 
+diff --git a/arch/arm/boot/dts/qcom/pm8821.dtsi b/arch/arm/boot/dts/qcom/pm8821.dtsi
+new file mode 100644
+index 000000000000..064e3ba54e18
+--- /dev/null
++++ b/arch/arm/boot/dts/qcom/pm8821.dtsi
+@@ -0,0 +1,22 @@
++// SPDX-License-Identifier: GPL-2.0
++
++/* This PMIC is used on a secondary SSBI bus */
++&ssbi2 {
++	pm8821: pmic {
++		compatible = "qcom,pm8821";
++		interrupt-controller;
++		#interrupt-cells = <2>;
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		pm8821_mpps: mpps@50 {
++			compatible = "qcom,pm8821-mpp", "qcom,ssbi-mpp";
++			reg = <0x50>;
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-ranges = <&pm8821_mpps 0 0 4>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
++		};
++	};
++};
+diff --git a/arch/arm/boot/dts/qcom/pm8921.dtsi b/arch/arm/boot/dts/qcom/pm8921.dtsi
+index 414941f7a42f..ad41d99ab265 100644
+--- a/arch/arm/boot/dts/qcom/pm8921.dtsi
++++ b/arch/arm/boot/dts/qcom/pm8921.dtsi
+@@ -8,6 +8,30 @@ pm8921: pmic {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
+ 
++		pm8921_gpio: gpio@150 {
++
++			compatible = "qcom,pm8921-gpio",
++				     "qcom,ssbi-gpio";
++			reg = <0x150>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
++			gpio-controller;
++			gpio-ranges = <&pm8921_gpio 0 0 44>;
++			#gpio-cells = <2>;
++
++		};
++
++		pm8921_mpps: mpps@50 {
++			compatible = "qcom,pm8921-mpp",
++				     "qcom,ssbi-mpp";
++			reg = <0x50>;
++			gpio-controller;
++			#gpio-cells = <2>;
++			gpio-ranges = <&pm8921_mpps 0 0 12>;
++			interrupt-controller;
++			#interrupt-cells = <2>;
++		};
++
+ 		pwrkey@1c {
+ 			compatible = "qcom,pm8921-pwrkey";
+ 			reg = <0x1c>;
+@@ -36,5 +60,80 @@ rtc@11d {
+ 			reg = <0x11d>;
+ 			allow-set-time;
+ 		};
++
++		pm8921_xoadc: xoadc@197 {
++			compatible = "qcom,pm8921-adc";
++			reg = <0x197>;
++			interrupts-extended = <&pm8921 78 IRQ_TYPE_EDGE_RISING>;
++			#address-cells = <2>;
++			#size-cells = <0>;
++			#io-channel-cells = <2>;
++
++			vcoin: adc-channel@0 {
++				reg = <0x00 0x00>;
++			};
++
++			vbat: adc-channel@1 {
++				reg = <0x00 0x01>;
++			};
++
++			dcin: adc-channel@2 {
++				reg = <0x00 0x02>;
++			};
++
++			vph_pwr: adc-channel@4 {
++				reg = <0x00 0x04>;
++			};
++
++			batt_therm: adc-channel@8 {
++				reg = <0x00 0x08>;
++			};
++
++			batt_id: adc-channel@9 {
++				reg = <0x00 0x09>;
++			};
++
++			usb_vbus: adc-channel@a {
++				reg = <0x00 0x0a>;
++			};
++
++			die_temp: adc-channel@b {
++				reg = <0x00 0x0b>;
++			};
++
++			ref_625mv: adc-channel@c {
++				reg = <0x00 0x0c>;
++			};
++
++			ref_1250mv: adc-channel@d {
++				reg = <0x00 0x0d>;
++			};
++
++			chg_temp: adc-channel@e {
++				reg = <0x00 0x0e>;
++			};
++
++			ref_muxoff: adc-channel@f {
++				reg = <0x00 0x0f>;
++			};
++		};
++	};
++};
++
++/ {
++	/*
++	 * These channels from the ADC are simply hardware monitors.
++	 * That is why the ADC is referred to as "HKADC" - HouseKeeping
++	 * ADC.
++	 */
++	iio-hwmon {
++		compatible = "iio-hwmon";
++		io-channels = <&pm8921_xoadc 0x00 0x01>, /* Battery */
++			      <&pm8921_xoadc 0x00 0x02>, /* DC in (charger) */
++			      <&pm8921_xoadc 0x00 0x04>, /* VPH the main system voltage */
++			      <&pm8921_xoadc 0x00 0x0b>, /* Die temperature */
++			      <&pm8921_xoadc 0x00 0x0c>, /* Reference voltage 1.25V */
++			      <&pm8921_xoadc 0x00 0x0d>, /* Reference voltage 0.625V */
++			      <&pm8921_xoadc 0x00 0x0e>; /* Charger temperature */
+ 	};
+ };
 diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts b/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
-index 0e80a5a8e3c6..b820f3255c16 100644
+index b820f3255c16..d709d6e840ec 100644
 --- a/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
 +++ b/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
-@@ -185,6 +185,14 @@ &mdp_dsi1_out {
- 	remote-endpoint = <&dsi0_in>;
- };
- 
-+&pm8821 {
-+	interrupts-extended = <&tlmm_pinmux 76 IRQ_TYPE_LEVEL_LOW>;
-+};
+@@ -1,8 +1,12 @@
+ // SPDX-License-Identifier: GPL-2.0
+-#include "qcom-apq8064-v2.0.dtsi"
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/input.h>
+ #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
 +
-+&pm8921 {
-+	interrupts-extended = <&tlmm_pinmux 74 IRQ_TYPE_LEVEL_LOW>;
-+};
++#include "qcom-apq8064-v2.0.dtsi"
++#include "pm8821.dtsi"
++#include "pm8921.dtsi"
 +
- &rpm {
- 	regulators {
- 		vdd_l1_l2_l12_l18-supply = <&pm8921_s4>;
+ / {
+ 	model = "Asus Nexus7(flo)";
+ 	compatible = "asus,nexus7-flo", "qcom,apq8064";
 diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064-cm-qs600.dts b/arch/arm/boot/dts/qcom/qcom-apq8064-cm-qs600.dts
-index d6ecfd8addb7..c01254b1a3a7 100644
+index c01254b1a3a7..d4db84e9fcf3 100644
 --- a/arch/arm/boot/dts/qcom/qcom-apq8064-cm-qs600.dts
 +++ b/arch/arm/boot/dts/qcom/qcom-apq8064-cm-qs600.dts
-@@ -69,6 +69,14 @@ &pcie {
- 	status = "okay";
- };
+@@ -1,8 +1,11 @@
+ // SPDX-License-Identifier: GPL-2.0
+-#include "qcom-apq8064-v2.0.dtsi"
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
  
-+&pm8821 {
-+	interrupts-extended = <&tlmm_pinmux 76 IRQ_TYPE_LEVEL_LOW>;
-+};
++#include "qcom-apq8064-v2.0.dtsi"
++#include "pm8821.dtsi"
++#include "pm8921.dtsi"
 +
-+&pm8921 {
-+	interrupts-extended = <&tlmm_pinmux 74 IRQ_TYPE_LEVEL_LOW>;
-+};
-+
- &pm8921_gpio {
- 	wlan_default_gpios: wlan-gpios-state {
- 		pinconf {
+ / {
+ 	model = "CompuLab CM-QS600";
+ 	compatible = "qcom,apq8064-cm-qs600", "qcom,apq8064";
 diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064-ifc6410.dts b/arch/arm/boot/dts/qcom/qcom-apq8064-ifc6410.dts
-index 96307550523a..f1bd29333c9b 100644
+index f1bd29333c9b..5fd84319254e 100644
 --- a/arch/arm/boot/dts/qcom/qcom-apq8064-ifc6410.dts
 +++ b/arch/arm/boot/dts/qcom/qcom-apq8064-ifc6410.dts
-@@ -171,6 +171,14 @@ &pcie {
- 	perst-gpios = <&tlmm_pinmux 27 GPIO_ACTIVE_LOW>;
- };
+@@ -1,9 +1,12 @@
+ // SPDX-License-Identifier: GPL-2.0
+-#include "qcom-apq8064-v2.0.dtsi"
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/leds/common.h>
+ #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
  
-+&pm8821 {
-+	interrupts-extended = <&tlmm_pinmux 76 IRQ_TYPE_LEVEL_LOW>;
-+};
++#include "qcom-apq8064-v2.0.dtsi"
++#include "pm8821.dtsi"
++#include "pm8921.dtsi"
 +
-+&pm8921 {
-+	interrupts-extended = <&tlmm_pinmux 74 IRQ_TYPE_LEVEL_LOW>;
-+};
-+
- &pm8921_gpio {
- 	wlan_default_gpios: wlan-gpios-state {
- 		pinconf {
+ / {
+ 	model = "Qualcomm APQ8064/IFC6410";
+ 	compatible = "qcom,apq8064-ifc6410", "qcom,apq8064";
 diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064-sony-xperia-lagan-yuga.dts b/arch/arm/boot/dts/qcom/qcom-apq8064-sony-xperia-lagan-yuga.dts
-index 9244512b74d1..7917f1657025 100644
+index 7917f1657025..ba18a02b1c57 100644
 --- a/arch/arm/boot/dts/qcom/qcom-apq8064-sony-xperia-lagan-yuga.dts
 +++ b/arch/arm/boot/dts/qcom/qcom-apq8064-sony-xperia-lagan-yuga.dts
-@@ -65,6 +65,14 @@ &gsbi5_serial {
- 	status = "okay";
- };
+@@ -1,10 +1,13 @@
+ // SPDX-License-Identifier: GPL-2.0
+-#include "qcom-apq8064-v2.0.dtsi"
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/input.h>
+ #include <dt-bindings/mfd/qcom-rpm.h>
+ #include <dt-bindings/pinctrl/qcom,pmic-gpio.h>
  
-+&pm8821 {
-+	interrupts-extended = <&tlmm_pinmux 76 IRQ_TYPE_LEVEL_LOW>;
-+};
++#include "qcom-apq8064-v2.0.dtsi"
++#include "pm8821.dtsi"
++#include "pm8921.dtsi"
 +
-+&pm8921 {
-+	interrupts-extended = <&tlmm_pinmux 74 IRQ_TYPE_LEVEL_LOW>;
-+};
-+
- &pm8921_gpio {
- 	gpio_keys_pin_a: gpio-keys-active-state {
- 		pins = "gpio3", "gpio4", "gpio29", "gpio35";
+ / {
+ 	model = "Sony Xperia Z";
+ 	compatible = "sony,xperia-yuga", "qcom,apq8064";
 diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi b/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
-index 6514d728b1ec..76796002bda6 100644
+index 76796002bda6..5704d0598b96 100644
 --- a/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
 +++ b/arch/arm/boot/dts/qcom/qcom-apq8064.dtsi
-@@ -662,8 +662,6 @@ ssbi@c00000 {
+@@ -284,23 +284,6 @@ scm {
+ 		};
+ 	};
  
- 			pm8821: pmic {
- 				compatible = "qcom,pm8821";
--				interrupt-parent = <&tlmm_pinmux>;
--				interrupts = <76 IRQ_TYPE_LEVEL_LOW>;
- 				#interrupt-cells = <2>;
- 				interrupt-controller;
- 				#address-cells = <1>;
-@@ -688,8 +686,6 @@ ssbi@500000 {
+-
+-	/*
+-	 * These channels from the ADC are simply hardware monitors.
+-	 * That is why the ADC is referred to as "HKADC" - HouseKeeping
+-	 * ADC.
+-	 */
+-	iio-hwmon {
+-		compatible = "iio-hwmon";
+-		io-channels = <&pm8921_xoadc 0x00 0x01>, /* Battery */
+-			      <&pm8921_xoadc 0x00 0x02>, /* DC in (charger) */
+-			      <&pm8921_xoadc 0x00 0x04>, /* VPH the main system voltage */
+-			      <&pm8921_xoadc 0x00 0x0b>, /* Die temperature */
+-			      <&pm8921_xoadc 0x00 0x0c>, /* Reference voltage 1.25V */
+-			      <&pm8921_xoadc 0x00 0x0d>, /* Reference voltage 0.625V */
+-			      <&pm8921_xoadc 0x00 0x0e>; /* Charger temperature */
+-	};
+-
+ 	soc: soc {
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+@@ -655,129 +638,16 @@ rng@1a500000 {
+ 			clock-names = "core";
+ 		};
  
- 			pm8921: pmic {
- 				compatible = "qcom,pm8921";
--				interrupt-parent = <&tlmm_pinmux>;
--				interrupts = <74 8>;
- 				#interrupt-cells = <2>;
- 				interrupt-controller;
- 				#address-cells = <1>;
+-		ssbi@c00000 {
++		ssbi2: ssbi@c00000 {
+ 			compatible = "qcom,ssbi";
+ 			reg = <0x00c00000 0x1000>;
+ 			qcom,controller-type = "pmic-arbiter";
+-
+-			pm8821: pmic {
+-				compatible = "qcom,pm8821";
+-				#interrupt-cells = <2>;
+-				interrupt-controller;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				pm8821_mpps: mpps@50 {
+-					compatible = "qcom,pm8821-mpp", "qcom,ssbi-mpp";
+-					reg = <0x50>;
+-					interrupt-controller;
+-					#interrupt-cells = <2>;
+-					gpio-controller;
+-					#gpio-cells = <2>;
+-					gpio-ranges = <&pm8821_mpps 0 0 4>;
+-				};
+-			};
+ 		};
+ 
+-		ssbi@500000 {
++		ssbi: ssbi@500000 {
+ 			compatible = "qcom,ssbi";
+ 			reg = <0x00500000 0x1000>;
+ 			qcom,controller-type = "pmic-arbiter";
+-
+-			pm8921: pmic {
+-				compatible = "qcom,pm8921";
+-				#interrupt-cells = <2>;
+-				interrupt-controller;
+-				#address-cells = <1>;
+-				#size-cells = <0>;
+-
+-				pm8921_gpio: gpio@150 {
+-
+-					compatible = "qcom,pm8921-gpio",
+-						     "qcom,ssbi-gpio";
+-					reg = <0x150>;
+-					interrupt-controller;
+-					#interrupt-cells = <2>;
+-					gpio-controller;
+-					gpio-ranges = <&pm8921_gpio 0 0 44>;
+-					#gpio-cells = <2>;
+-
+-				};
+-
+-				pm8921_mpps: mpps@50 {
+-					compatible = "qcom,pm8921-mpp",
+-						     "qcom,ssbi-mpp";
+-					reg = <0x50>;
+-					gpio-controller;
+-					#gpio-cells = <2>;
+-					gpio-ranges = <&pm8921_mpps 0 0 12>;
+-					interrupt-controller;
+-					#interrupt-cells = <2>;
+-				};
+-
+-				rtc@11d {
+-					compatible = "qcom,pm8921-rtc";
+-					interrupt-parent = <&pm8921>;
+-					interrupts = <39 1>;
+-					reg = <0x11d>;
+-					allow-set-time;
+-				};
+-
+-				pwrkey@1c {
+-					compatible = "qcom,pm8921-pwrkey";
+-					reg = <0x1c>;
+-					interrupt-parent = <&pm8921>;
+-					interrupts = <50 1>, <51 1>;
+-					debounce = <15625>;
+-					pull-up;
+-				};
+-
+-				pm8921_xoadc: xoadc@197 {
+-					compatible = "qcom,pm8921-adc";
+-					reg = <0x197>;
+-					interrupts-extended = <&pm8921 78 IRQ_TYPE_EDGE_RISING>;
+-					#address-cells = <2>;
+-					#size-cells = <0>;
+-					#io-channel-cells = <2>;
+-
+-					vcoin: adc-channel@0 {
+-						reg = <0x00 0x00>;
+-					};
+-					vbat: adc-channel@1 {
+-						reg = <0x00 0x01>;
+-					};
+-					dcin: adc-channel@2 {
+-						reg = <0x00 0x02>;
+-					};
+-					vph_pwr: adc-channel@4 {
+-						reg = <0x00 0x04>;
+-					};
+-					batt_therm: adc-channel@8 {
+-						reg = <0x00 0x08>;
+-					};
+-					batt_id: adc-channel@9 {
+-						reg = <0x00 0x09>;
+-					};
+-					usb_vbus: adc-channel@a {
+-						reg = <0x00 0x0a>;
+-					};
+-					die_temp: adc-channel@b {
+-						reg = <0x00 0x0b>;
+-					};
+-					ref_625mv: adc-channel@c {
+-						reg = <0x00 0x0c>;
+-					};
+-					ref_1250mv: adc-channel@d {
+-						reg = <0x00 0x0d>;
+-					};
+-					chg_temp: adc-channel@e {
+-						reg = <0x00 0x0e>;
+-					};
+-					ref_muxoff: adc-channel@f {
+-						reg = <0x00 0x0f>;
+-					};
+-				};
+-			};
+ 		};
+ 
+ 		qfprom: qfprom@700000 {
 -- 
 2.39.2
 

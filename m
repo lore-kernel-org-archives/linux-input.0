@@ -2,112 +2,264 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 41A5FC83F23
-	for <linux-input@archiver.kernel.org>; Wed, 30 Aug 2023 18:47:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB26CC83F32
+	for <linux-input@archiver.kernel.org>; Thu, 31 Aug 2023 11:48:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236262AbjH3Sqf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 30 Aug 2023 14:46:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58154 "EHLO
+        id S244384AbjHaLse (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 31 Aug 2023 07:48:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243465AbjH3LGN (ORCPT
+        with ESMTP id S231241AbjHaLsd (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 30 Aug 2023 07:06:13 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 592A71BF
-        for <linux-input@vger.kernel.org>; Wed, 30 Aug 2023 04:06:10 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1qbJ1U-00089x-JT; Wed, 30 Aug 2023 13:06:08 +0200
-Message-ID: <a0b8cbf4-a3db-5b05-14ba-297fe24efd52@leemhuis.info>
-Date:   Wed, 30 Aug 2023 13:06:08 +0200
+        Thu, 31 Aug 2023 07:48:33 -0400
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB163C5;
+        Thu, 31 Aug 2023 04:48:30 -0700 (PDT)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 423316146C;
+        Thu, 31 Aug 2023 11:48:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0F35C433C8;
+        Thu, 31 Aug 2023 11:48:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1693482509;
+        bh=lt6Dfc0PcUO4CkQPKYP4ayUpOMx8UlAuNXxheoPljfM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=f6ueSnFewdHLh/k/xGULrXbf+/onOyOO68DI/jTtTT8cBdkteTuDGSReu1qUqBkGR
+         VPEi0a6V34fyiytWfzOj+bmDUdkcFhcYZHcpz7Gh1ZcYrvfN9/SyIxR/9KLyFIlH6+
+         zlottUp6b4VQb+eb0PWes1UTj/dVRaOfwycRMaTwI/3irRCUoTOEZyoaReFhjEbe6d
+         2F9Cla0RwXylhNpsyg71p5y7wCp8n8WRbwUsbsI6+40At5wpw0eg3s4rg9LlPJQccg
+         FiksDXiE2mIWOjP40mV/MHCMPRXseDsDW35Rz75O3gwejpDQtYQv119+euBfd1Cf8G
+         QUaDYz/UvS1uA==
+Received: (nullmailer pid 1959264 invoked by uid 1000);
+        Thu, 31 Aug 2023 11:48:27 -0000
+Date:   Thu, 31 Aug 2023 06:48:27 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Javier Carrasco <javier.carrasco@wolfvision.net>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Henrik Rydberg <rydberg@bitmath.org>,
+        Bastian Hecht <hechtb@gmail.com>,
+        Michael Riesch <michael.riesch@wolfvision.net>,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: Re: [PATCH v4 2/4] dt-bindings: touchscreen: add overlay-touchscreen
+ and overlay-buttons properties
+Message-ID: <20230831114827.GA1941458-robh@kernel.org>
+References: <20230510-feature-ts_virtobj_patch-v4-0-5c6c0fc1eed6@wolfvision.net>
+ <20230510-feature-ts_virtobj_patch-v4-2-5c6c0fc1eed6@wolfvision.net>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: atkbd input regression
-Content-Language: en-US, de-DE
-To:     =?UTF-8?B?Sm9zw6kgUmFtw7NuIE11w7FveiBQZWtrYXJpbmVu?= 
-        <koalinux@gmail.com>, linux-input@vger.kernel.org
-Cc:     dmitry.torokhov@gmail.com, gregkh@linuxfoundation.org,
-        Linux Regressions <regressions@lists.linux.dev>
-References: <CANWZPgK2+9SCavsbSZv1DfJyhy0XUpJZ6+ebatM9ZGJPpAN1yA@mail.gmail.com>
- <ZNGdYCXOHRqWnoeT@debian.me>
- <CANWZPgKAtbNRUy0pyL7Zf-S-zLeMkJZ7fSWpFO8__YG0_e2Zgw@mail.gmail.com>
- <CAHQZ30AhngEgVR-Hcjcze2HyZOG=4fbfp_S2=Or7JUJUUxm4mQ@mail.gmail.com>
- <CANWZPgLcHa2x-Rdy6Hma39p-6E6_5UGUamjPZkKYqz_q0yKJ2g@mail.gmail.com>
- <CANWZPg+C4=U1khLJbvUb0nuDQq+ETULZdQyWDBhFhYN_3Wa=3g@mail.gmail.com>
- <CANWZPgKe6GRUBVyi9Ua0Ns=eQDHT2riSsUZ7gr2nGfXT+jM00w@mail.gmail.com>
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-In-Reply-To: <CANWZPgKe6GRUBVyi9Ua0Ns=eQDHT2riSsUZ7gr2nGfXT+jM00w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1693393570;9f16f6e4;
-X-HE-SMSGID: 1qbJ1U-00089x-JT
+In-Reply-To: <20230510-feature-ts_virtobj_patch-v4-2-5c6c0fc1eed6@wolfvision.net>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 28.08.23 10:53, José Ramón Muñoz Pekkarinen wrote:
-> On Sun, 27 Aug 2023 at 18:59, José Ramón Muñoz Pekkarinen
-> <koalinux@gmail.com> wrote:
->>>
->>>     Excuse the long wait, I've been investigating with the kde community
->>> and reading the code of libinput, systemd and the like, and I managed to
->>> find a difference that I'm not quite sure it is relevant to narrow the issue.
->>> While the keyboard is populated in the udev database as this:
->>>
->>> $ udevadm info -e
->>> P: /devices/platform/i8042/serio0/input/input0
->>> M: input0
->>> R: 0
->>> U: input
->>> E: DEVPATH=/devices/platform/i8042/serio0/input/input0
->>> E: SUBSYSTEM=input
->>> E: PRODUCT=11/1/1/ab54
->>> E: NAME="AT Translated Set 2 keyboard"
->>> E: PHYS="isa0060/serio0/input0"
->>> E: PROP=0
->>> E: EV=120013
->>> E: KEY=402000000 3803078f800d001 feffffdfffefffff fffffffffffffffe
->>> E: MSC=10
->>> E: LED=7
->>> E: MODALIAS=input:b0011v0001p0001eAB54-e0,1,4,11,14,k71,72,73,74,75,76,77,79,7A,7B,7C,7D,7E,7F,80,8C,8E,8F,9B,9C,9D,9E,9F,A3,A4,A5,A6,AC,AD,B7,B8,B9,D9,E2,ram4,l0,1,2,sfw
->>>
->>>     There is no longer a corresponding entry under /run/udev/data,
->>> the following is the output of the ls -la /run/udev/data on 6.4.12:
->>>
->>> total 116
->>> [...]
->>>
->>>     To what I read, having it in the db either populated
->>> by the file under /run/udev/data, or populated from sysfs
->>> should be enough, but for some reason, it seems systemd
->>> and libudev expects the file under this folder.
->
->     I found that according to some early output on udev, the problem
-> maybe that Gentoo is triggering the device discovery before the
-> kernel is having multiple uevent files available. Retriggering the
-> device discovery on a later stage makes the discovery of the
-> devices work correctly and I can use the devices as in former
-> kernels. The command to do so is:
+On Thu, Aug 24, 2023 at 03:17:10PM +0200, Javier Carrasco wrote:
+> The overlay-touchscreen object defines an area within the touchscreen
+> where touch events are reported and their coordinates get converted to
+> the overlay origin. This object avoids getting events from areas that
+> are physically hidden by overlay frames.
 > 
-> # udevadm trigger --type=devices --action=add
+> For touchscreens where overlay buttons on the touchscreen surface are
+> provided, the overlay-buttons object contains a node for every button
+> and the key event that should be reported when pressed.
 > 
->     Is this something that can be improved from kernel end or should
-> I just look for some solution on Gentoo side to delay that trigger and
-> be done with it?
+> Signed-off-by: Javier Carrasco <javier.carrasco@wolfvision.net>
+> ---
+>  .../bindings/input/touchscreen/touchscreen.yaml    | 152 +++++++++++++++++++++
+>  1 file changed, 152 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> index 895592da9626..d90cbb4932b5 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+> @@ -80,6 +80,158 @@ properties:
+>    touchscreen-y-plate-ohms:
+>      description: Resistance of the Y-plate in Ohms
+>  
+> +  overlay-touchscreen:
+> +    description: Clipped touchscreen area
+> +
+> +      This object can be used to describe a frame that restricts the area
+> +      within touch events are reported, ignoring the events that occur outside
+> +      this area. This is of special interest if the touchscreen is shipped
+> +      with a physical overlay on top of it with a frame that hides some part
+> +      of the original touchscreen area.
+> +
+> +      The x-origin and y-origin properties of this object define the offset of
+> +      a new origin from where the touchscreen events are referenced.
+> +      This offset is applied to the events accordingly. The x-size and y-size
+> +      properties define the size of the overlay-touchscreen (effective area).
+> +
+> +      The following example shows the new touchscreen area and the new origin
+> +      (0',0') for the touch events generated by the device.
+> +
+> +                   Touchscreen (full area)
+> +         ┌────────────────────────────────────────┐
+> +         │    ┌───────────────────────────────┐   │
+> +         │    │                               │   │
+> +         │    ├ y-size                        │   │
+> +         │    │                               │   │
+> +         │    │      overlay-touchscreen      │   │
+> +         │    │                               │   │
+> +         │    │                               │   │
+> +         │    │            x-size             │   │
+> +         │   ┌└──────────────┴────────────────┘   │
+> +         │(0',0')                                 │
+> +        ┌└────────────────────────────────────────┘
+> +      (0,0)
+> +
+> +     where (0',0') = (0+x-origin,0+y-origin)
 
-So strictly speaking all this sounds a lot like this is caused by kernel
-regression that thus should be fixed in the kernel once this was
-bisected (which iirc hasn't happened yet).
+What happens if touchscreen-inverted-x/y are set?
 
-OTOH this afaics (please correct me if I'm wrong!) is the first such
-report, so the problem is likely pretty specific or might only occur on
-your system. In that case just looking for some solution for your system
-might be fine.
+Though the existing binding never defines what the non-inverted 
+orientation is.
 
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-If I did something stupid, please tell me, as explained on that page.
+> +
+> +    type: object
+> +
+> +    properties:
+> +      x-origin:
+> +        description: horizontal origin of the clipped area
+> +        $ref: /schemas/types.yaml#/definitions/uint32
+> +
+> +      y-origin:
+> +        description: vertical origin of the clipped area
+> +        $ref: /schemas/types.yaml#/definitions/uint32
+> +
+> +      x-size:
+> +        description: horizontal resolution of the clipped area
+> +        $ref: /schemas/types.yaml#/definitions/uint32
+> +
+> +      y-size:
+> +        description: vertical resolution of the clipped area
+> +        $ref: /schemas/types.yaml#/definitions/uint32
+> +
+> +        required:
+> +          - x-origin
+> +          - y-origin
+> +          - x-size
+> +          - y-size
+> +
+> +  overlay-buttons:
+> +    description: list of nodes defining the buttons on the touchscreen
+> +
+> +      This object can be used to describe buttons on the touchscreen area,
+> +      reporting the touch events on their surface as key events instead of
+> +      the original touch events.
+> +
+> +      This is of special interest if the touchscreen is shipped with a
+> +      physical overlay on top of it where a number of buttons with some
+> +      predefined functionality are printed. In that case a specific behavior
+> +      is expected from those buttons instead of raw touch events.
+> +
+> +      The overlay-buttons properties define a per-button area as well as an
+> +      origin relative to the real touchscreen origin. Touch events within the
+> +      button area are reported as the key event defined in the linux,code
+> +      property. Given that the key events do not provide coordinates, the
+> +      button origin is only used to place the button area on the touchscreen
+> +      surface. Any event outside the overlay-buttons object is reported as a
+> +      touch event with no coordinate transformation.
+> +
+> +      The following example shows a touchscreen with a single button on it
+> +
+> +              Touchscreen (full area)
+> +        ┌───────────────────────────────────┐
+> +        │                                   │
+> +        │                                   │
+> +        │   ┌─────────┐                     │
+> +        │   │button 0 │                     │
+> +        │   │KEY_POWER│                     │
+> +        │   └─────────┘                     │
+> +        │                                   │
+> +        │                                   │
+> +       ┌└───────────────────────────────────┘
+> +     (0,0)
+> +
+> +      The overlay-buttons object can  be combined with the overlay-touchscreen
+> +      object as shown in the following example. In that case only the events
+> +      within the overlay-touchscreen object are reported as touch events.
+> +
+> +                  Touchscreen (full area)
+> +        ┌─────────┬──────────────────────────────┐
+> +        │         │                              │
+> +        │         │    ┌───────────────────────┐ │
+> +        │ button 0│    │                       │ │
+> +        │KEY_POWER│    │                       │ │
+> +        │         │    │                       │ │
+> +        ├─────────┤    │  overlay-touchscreen  │ │
+> +        │         │    │                       │ │
+> +        │         │    │                       │ │
+> +        │ button 1│    │                       │ │
+> +        │ KEY_INFO│   ┌└───────────────────────┘ │
+> +        │         │(0',0')                       │
+> +       ┌└─────────┴──────────────────────────────┘
+> +     (0,0)
+> +
+> +    type: object
+> +
+> +    patternProperties:
+> +      '^button-':
+> +        type: object
+> +        description:
+> +          Each button (key) is represented as a sub-node.
+> +
+> +        properties:
+> +          label:
+> +            $ref: /schemas/types.yaml#/definitions/string
+> +            description: descriptive name of the button
+> +
+> +          linux,code: true
+> +
+> +          x-origin:
+> +            description: horizontal origin of the button area
+> +            $ref: /schemas/types.yaml#/definitions/uint32
+> +
+> +          y-origin:
+> +            description: vertical origin of the button area
+> +            $ref: /schemas/types.yaml#/definitions/uint32
+> +
+> +          x-size:
+> +            description: horizontal resolution of the button area
+> +            $ref: /schemas/types.yaml#/definitions/uint32
+> +
+> +          y-size:
+> +            description: vertical resolution of the button area
+> +            $ref: /schemas/types.yaml#/definitions/uint32
+> +
+> +        required:
+> +          - linux,code
+> +          - x-origin
+> +          - y-origin
+> +          - x-size
+> +          - y-size
+
+We have the same properties defined twice. Move all the common ones to a 
+$def entry and then reference it here and in overlay-touchscreen.
+
+$defs:
+  overlay-node:
+    type: object
+    properties:
+      x-origin:
+      ...
+
+And then here:
+
+'^button-':
+  $ref: '#/$defs/overlay-node
+  unevaluatedProperties: false
+
+  properties:
+    label:
+      ...
+
+
+Rob

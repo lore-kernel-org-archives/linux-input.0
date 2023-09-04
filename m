@@ -2,83 +2,112 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC9DFC83F2C
-	for <linux-input@archiver.kernel.org>; Sun,  3 Sep 2023 16:20:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F8A8C83F33
+	for <linux-input@archiver.kernel.org>; Mon,  4 Sep 2023 07:46:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244630AbjICQUI (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 3 Sep 2023 12:20:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53490 "EHLO
+        id S240465AbjIDHqn convert rfc822-to-8bit (ORCPT
+        <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 4 Sep 2023 03:46:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237525AbjICQUI (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 3 Sep 2023 12:20:08 -0400
-Received: from m12.mail.163.com (m12.mail.163.com [220.181.12.216])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id C7145FE;
-        Sun,  3 Sep 2023 09:20:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-        s=s110527; h=From:Subject:Date:Message-Id:MIME-Version; bh=h9ofA
-        HbdA820d7O9E53lRZ8L9GoG8FbHPVW3A/JR4Bc=; b=He7TosPKInF15QNsb7/u0
-        SsyFqjcaj52HqYxshubnH3WBiihXHuOrUBe6XcFHnMeL/1w03xhCrIn1V4pQQePY
-        wQZRUz3BxkFOriXyJXE/osDCr3uZ0lZSnzc8gpC3PVpBXKD0W32id/kHyJzMsWsY
-        HByQK39liVylusAAKFO9/g=
-Received: from localhost.localdomain (unknown [112.22.168.243])
-        by zwqz-smtp-mta-g3-1 (Coremail) with SMTP id _____wDXHstorvRkiRZSBA--.7483S4;
-        Mon, 04 Sep 2023 00:04:27 +0800 (CST)
-From:   Lizhe <sensor1010@163.com>
-To:     dmitry.torokhov@gmail.com, geert+renesas@glider.be,
-        Jonathan.Cameron@huawei.com, soyer@irl.hu
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Lizhe <sensor1010@163.com>
-Subject: [PATCH] input: gpio-keys - use spin_lock()
-Date:   Sun,  3 Sep 2023 09:03:49 -0700
-Message-Id: <20230903160349.3919-1-sensor1010@163.com>
-X-Mailer: git-send-email 2.25.1
+        with ESMTP id S1348138AbjIDHql (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Mon, 4 Sep 2023 03:46:41 -0400
+Received: from mail-yb1-f178.google.com (mail-yb1-f178.google.com [209.85.219.178])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80272F0;
+        Mon,  4 Sep 2023 00:46:37 -0700 (PDT)
+Received: by mail-yb1-f178.google.com with SMTP id 3f1490d57ef6-d7e6d9665bcso1021252276.1;
+        Mon, 04 Sep 2023 00:46:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1693813596; x=1694418396;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=9C+8Z665O4fvCEaAa7Pbx2XZtf5Iax3NtZdPGFPP7KY=;
+        b=lFEa/m5s4MQghmXDcQKYzaI0xjMngVW4oJtR+dvosIOBFHA2CkcyYNZao7VZa+kXzj
+         /it8TuIBl1GwMaGTNkt1cID5zj9VobsZWucEXEW6xN2o/vlsQx638HzjoaonVW80Y3Nl
+         NxRYCDbDaE+GyG/TFfoA5qLQO+fitVrTmzvMzw78AMKFQwhAxCRw8O//GYhWzz7ClZSm
+         JJfs9u7geQQYOGSlwwT9rVFdWI6Jr308v3VWUL8FHdJSjdAzCXz2xChx6vlJo9x8aJVJ
+         fYRU6ObCwDhoNvjxJGr+sGs+sA8JzIlUEpIDVxOU7an5CWEU43DtRgwevS0iMiHIqlVB
+         fb4w==
+X-Gm-Message-State: AOJu0YxsVTiBT05UN1ir1jr14rOL+OSJN74X51AxwHZyxWw4E3ImeVwL
+        hpxlVI7C7eHypt9anriU2Q03p94TwbA4Fw==
+X-Google-Smtp-Source: AGHT+IE+ZLx+8RIWWK4oxbp5N6Vc4rXHG/Oy1WybUloYxCpNFsXhbH17f0eP7RjmUX0Jo6+v1mMdeQ==
+X-Received: by 2002:a25:d04b:0:b0:d15:454e:8ecd with SMTP id h72-20020a25d04b000000b00d15454e8ecdmr9898334ybg.13.1693813596562;
+        Mon, 04 Sep 2023 00:46:36 -0700 (PDT)
+Received: from mail-yb1-f172.google.com (mail-yb1-f172.google.com. [209.85.219.172])
+        by smtp.gmail.com with ESMTPSA id c198-20020a25c0cf000000b00d71855984b5sm2226168ybf.18.2023.09.04.00.46.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 04 Sep 2023 00:46:36 -0700 (PDT)
+Received: by mail-yb1-f172.google.com with SMTP id 3f1490d57ef6-d77a4e30e97so1021193276.2;
+        Mon, 04 Sep 2023 00:46:36 -0700 (PDT)
+X-Received: by 2002:a25:b191:0:b0:d7e:44de:1c1 with SMTP id
+ h17-20020a25b191000000b00d7e44de01c1mr9569214ybj.14.1693813595936; Mon, 04
+ Sep 2023 00:46:35 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: _____wDXHstorvRkiRZSBA--.7483S4
-X-Coremail-Antispam: 1Uf129KBjvdXoWrtFy8GF1kZw1rZrW5Wr15Jwb_yoWkWFb_uF
-        yDWr97Cr4Utw15Krn3Gr1fAF9rKF1YvF10kw1Dtay5Kr98Zw4DC397ZrZ3Jr4Dur4xA3Z8
-        Gr4UW343Cw42kjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRWHq7JUUUUU==
-X-Originating-IP: [112.22.168.243]
-X-CM-SenderInfo: 5vhq20jurqiii6rwjhhfrp/xtbBbA7fq1c7QRNYIwAAsT
+References: <20230903160349.3919-1-sensor1010@163.com>
+In-Reply-To: <20230903160349.3919-1-sensor1010@163.com>
+From:   Geert Uytterhoeven <geert@linux-m68k.org>
+Date:   Mon, 4 Sep 2023 09:46:24 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdWdxveto0Vfv5jswk+PrkcvFgh2tA1xjDpd7i3Cds_FhQ@mail.gmail.com>
+Message-ID: <CAMuHMdWdxveto0Vfv5jswk+PrkcvFgh2tA1xjDpd7i3Cds_FhQ@mail.gmail.com>
+Subject: Re: [PATCH] input: gpio-keys - use spin_lock()
+To:     Lizhe <sensor1010@163.com>
+Cc:     dmitry.torokhov@gmail.com, Jonathan.Cameron@huawei.com,
+        soyer@irl.hu, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Use the spin_lock() and spin_unlock() instead of spin_lock_irqsave()
-and spin_unlock_restore()
+Hi Lizhe,
 
-Signed-off-by: Lizhe <sensor1010@163.com>
----
- drivers/input/keyboard/gpio_keys.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Thanks for your patch!
 
-diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
-index c928829a8b0c..a55d62e1ff6d 100644
---- a/drivers/input/keyboard/gpio_keys.c
-+++ b/drivers/input/keyboard/gpio_keys.c
-@@ -468,11 +468,10 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
- {
- 	struct gpio_button_data *bdata = dev_id;
- 	struct input_dev *input = bdata->input;
--	unsigned long flags;
- 
- 	BUG_ON(irq != bdata->irq);
- 
--	spin_lock_irqsave(&bdata->lock, flags);
-+	spin_lock(&bdata->lock);
- 
- 	if (!bdata->key_pressed) {
- 		if (bdata->button->wakeup)
-@@ -495,7 +494,7 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
- 			      ms_to_ktime(bdata->release_delay),
- 			      HRTIMER_MODE_REL_HARD);
- out:
--	spin_unlock_irqrestore(&bdata->lock, flags);
-+	spin_unlock(&bdata->lock);
- 	return IRQ_HANDLED;
- }
- 
+On Sun, Sep 3, 2023 at 6:04 PM Lizhe <sensor1010@163.com> wrote:
+> Use the spin_lock() and spin_unlock() instead of spin_lock_irqsave()
+> and spin_unlock_restore()
+
+Please explain why...
+
+> Signed-off-by: Lizhe <sensor1010@163.com>
+
+> --- a/drivers/input/keyboard/gpio_keys.c
+> +++ b/drivers/input/keyboard/gpio_keys.c
+> @@ -468,11 +468,10 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+>  {
+>         struct gpio_button_data *bdata = dev_id;
+>         struct input_dev *input = bdata->input;
+> -       unsigned long flags;
+>
+>         BUG_ON(irq != bdata->irq);
+>
+> -       spin_lock_irqsave(&bdata->lock, flags);
+> +       spin_lock(&bdata->lock);
+>
+>         if (!bdata->key_pressed) {
+>                 if (bdata->button->wakeup)
+> @@ -495,7 +494,7 @@ static irqreturn_t gpio_keys_irq_isr(int irq, void *dev_id)
+>                               ms_to_ktime(bdata->release_delay),
+>                               HRTIMER_MODE_REL_HARD);
+>  out:
+> -       spin_unlock_irqrestore(&bdata->lock, flags);
+> +       spin_unlock(&bdata->lock);
+>         return IRQ_HANDLED;
+>  }
+
+Are you sure this is safe, given the interrupt is requested with
+devm_request_any_context_irq(), and thus the handler may be registered
+using either request_irq() or request_threaded_irq()?
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
 -- 
-2.25.1
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds

@@ -2,70 +2,68 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D5BBEEB571
-	for <linux-input@archiver.kernel.org>; Fri,  8 Sep 2023 22:22:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CEF3CEEB570
+	for <linux-input@archiver.kernel.org>; Fri,  8 Sep 2023 22:22:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245627AbjIHWWt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 8 Sep 2023 18:22:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59546 "EHLO
+        id S245757AbjIHWWw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 8 Sep 2023 18:22:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239755AbjIHWWs (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Sep 2023 18:22:48 -0400
-Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866201FE1
-        for <linux-input@vger.kernel.org>; Fri,  8 Sep 2023 15:22:43 -0700 (PDT)
-Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-58cb845f2f2so28768857b3.1
-        for <linux-input@vger.kernel.org>; Fri, 08 Sep 2023 15:22:43 -0700 (PDT)
+        with ESMTP id S245707AbjIHWWu (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 8 Sep 2023 18:22:50 -0400
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3B721FCA
+        for <linux-input@vger.kernel.org>; Fri,  8 Sep 2023 15:22:45 -0700 (PDT)
+Received: by mail-yb1-xb49.google.com with SMTP id 3f1490d57ef6-c8f360a07a2so2638672276.2
+        for <linux-input@vger.kernel.org>; Fri, 08 Sep 2023 15:22:45 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20221208; t=1694211762; x=1694816562; darn=vger.kernel.org;
+        d=google.com; s=20221208; t=1694211765; x=1694816565; darn=vger.kernel.org;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=C+XsVL+cfbctslxXvk7LS6u0UZeiKqg6dlFRPCcpa5Q=;
-        b=cYgimaAonFtIAE2JPYenda9hHfJ6NxqzYDRmmXS5WMVZTIRwoSQiI6jFEZI48hGVoC
-         ZgmQOk0uXz2myx0aoGaw31iksN1d2ibIzxgrnWRC035dYWlkUIM+c7R+BTxo7S5395xO
-         gy2oBX0b7wvFDHqMQXZVxYFaGObiSWBfh7g9BfkTCdLiOSCzUU7XNoN3wYtBY7gwTE2P
-         oEpsF9Ms3F2jiANbgjNKcEgU1JEQ8oGo1EEJY/PX5u59Bkv3GDebesNZXtPUAb8VNQj+
-         iJIJPuK1446tNAR5yaa34z7zcGk/p739nHfJ2AF46tUKgeTxm4Lmlm1TSG5FdL1dDwbJ
-         u9GQ==
+        bh=v5Cp90T0HlHlM0qC1hGQ5/U223gFFo3yll8YGs+M5Ps=;
+        b=wTH73xfC5sR0hHLUTvDc2/m2mxqoHxkQey+iy4hqKadwoQ8TxF+KO054e3OWfypwky
+         ruG2ueEh4Kg654e5MUSHGtaeaYZbKmW2rT20+yF8tUjSI+9zIZd9l7j7yIP47T9AlI/W
+         lCWikjAu1OI3jkedQTfyNrEvRXN+pvHxAg1JLPhswppt5maG8gOjDyo31Nh2RZ8u3KED
+         KpWtKXPcDuNBZAJVH5F9FTQo3KriqTwndFBHkOsAbxKjhX9yrvLCr7s37r7CYKPEL0Pz
+         mgEDxyeD9vdFltGdIUN5qwBy5WJmXmF05ya6K4Xtc0LUOIcPkBE7zRLKLolOyIPJSk0n
+         7Ixg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694211762; x=1694816562;
+        d=1e100.net; s=20230601; t=1694211765; x=1694816565;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=C+XsVL+cfbctslxXvk7LS6u0UZeiKqg6dlFRPCcpa5Q=;
-        b=vgUHo6BXkFpl2LnuhNjCaS7tkwsB3nVw1W3WlRzwvZF3Xi++GBVTecNuaK2v5YJaLt
-         9JErM1Fk1dc6fSVz5N1U6uccC7TXLyok7P8Ebi3c77Uzgtu1uksNmliA3+4f8cGsWsoB
-         jVvhiEx/3CWIgGgvUvqr4VKyAaTmipmoTj1tB3Obvf6oJfFV6Gn45DxEH41svZBaXRM+
-         t9zRr2O5YJxLdac//OsVkxpc9Rqx0Ue3Z3ccFJy44Jp6ou4D66NbcvKqX9LQ1H9iLpd+
-         h2Mmxm3nz22VsGspLkSmD3mSSTG3r/MZyY/GfOnkmJqESoLAHBkrWn+XGmH4K+xDBoOF
-         OY2Q==
-X-Gm-Message-State: AOJu0YyEXh4z64b3joYLOQfyn4T62o8F0yrNaKozdghj68Sk0Rfx/Y6N
-        4QsBzuiMSqPeZWMeCpK02lfIHsASNBfK6vfiEg==
-X-Google-Smtp-Source: AGHT+IGlV+Bui1NhfsZcgAuQyYigiF5ebLDLzQkJw9NJtHLbI7T+ogXsvWSe1DFxu6mDYwpFXo/UCbASGCw+2oWhug==
+        bh=v5Cp90T0HlHlM0qC1hGQ5/U223gFFo3yll8YGs+M5Ps=;
+        b=I07UAOjcvyilhd3rOH8+ZuRN4xs3Zdo1X35N+iwzB2etdMhVVRC18rmtTQZLuw6npP
+         y87JjfuYfdHGiV/5KDx3UBi5nCIV4ksERiKyamsUNKr61qzDi0aQMvy7M5HBPUc81KVb
+         zkqP3MsnQ8HdIegXg09vFwnQcBhkQcUZRuXMACCWGGazHczOyG4ova71wGsvxbjof8Ld
+         25nkGYSmB5V5vnkMDyWMDm9JVeGSU6KNWK4s6MSGs05xq/eAprsFHvIQblUM4QOjx7Id
+         TcmIeelTdwG7wZpklWZiT1Fy7ZSTg6bnfQIcPdaYW61rcHXdC1Copf2aImMwC9/F+J8Q
+         IQ7w==
+X-Gm-Message-State: AOJu0Yxjjo61HMHUMfq9LxZ/1IEMgzlZO6cLhpszDE+qxwVxEStZeN2p
+        E0yKiHrePk0TSfPXsy69aTPgwhfJzo5gSkAMrA==
+X-Google-Smtp-Source: AGHT+IFPFnTyGsFoc2ZSx47UoKkXlKTd1lUGjg7l0A9M/UItmxbV7iwmacXunuMpKmXV7s1YWdzHQiesT5QQCTmmtQ==
 X-Received: from jstitt-linux1.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:23b5])
- (user=justinstitt job=sendgmr) by 2002:a05:6902:1682:b0:d7b:8d0c:43f1 with
- SMTP id bx2-20020a056902168200b00d7b8d0c43f1mr90192ybb.9.1694211762818; Fri,
- 08 Sep 2023 15:22:42 -0700 (PDT)
-Date:   Fri, 08 Sep 2023 22:22:38 +0000
+ (user=justinstitt job=sendgmr) by 2002:a25:b29a:0:b0:d7e:91ce:4619 with SMTP
+ id k26-20020a25b29a000000b00d7e91ce4619mr72493ybj.2.1694211764994; Fri, 08
+ Sep 2023 15:22:44 -0700 (PDT)
+Date:   Fri, 08 Sep 2023 22:22:40 +0000
 In-Reply-To: <20230908-kselftest-09-08-v2-0-0def978a4c1b@google.com>
 Mime-Version: 1.0
 References: <20230908-kselftest-09-08-v2-0-0def978a4c1b@google.com>
 X-Developer-Key: i=justinstitt@google.com; a=ed25519; pk=tC3hNkJQTpNX/gLKxTNQKDmiQl6QjBNCGKJINqAdJsE=
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1694211760; l=3339;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1694211760; l=819;
  i=justinstitt@google.com; s=20230717; h=from:subject:message-id;
- bh=N4AQQf1s6GS4HMDxm7EJ3Mrjm49lo4/602kAGPRlBLI=; b=NJcm/MUhsVHBnIDjTMJ/p/eLC/yv0wVVnD2ZMioXy3Orh4E/bG/xqpYwiDjhVedUGQMZKqSZp
- IsloYcGhvJ0B4HbCUH1dKzV7c/Vu9fU8k+DlskVemHnZNtfeswgFEPk
+ bh=Fpue+BQes/IsmvChTzta8giCoFG0nhFAwjMFha0XbBk=; b=FPcBxS7/Tinifrs92XiVf0HUjlKN++LkVXDHzYy0yvRwYAtxE2iVOoZp9QZgBtlGeGYK7eftL
+ gV450GrArSzCjcFyglvip5hagZgozWtKZAOu4zZvAOoQH8odEMQi2tg
 X-Mailer: b4 0.12.3
-Message-ID: <20230908-kselftest-09-08-v2-1-0def978a4c1b@google.com>
-Subject: [PATCH v2 1/3] selftests/hid: ensure we can compile the tests on
- kernels pre-6.3
+Message-ID: <20230908-kselftest-09-08-v2-3-0def978a4c1b@google.com>
+Subject: [PATCH v2 3/3] selftests/hid: force using our compiled libbpf headers
 From:   Justin Stitt <justinstitt@google.com>
 To:     Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Shuah Khan <shuah@kernel.org>
 Cc:     Eduard Zingerman <eddyz87@gmail.com>, linux-input@vger.kernel.org,
         linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org,
-        bpf@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>,
-        Justin Stitt <justinstitt@google.com>
+        bpf@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>
 Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -73,101 +71,28 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: Benjamin Tissoires <bentiss@kernel.org>
 
-For the hid-bpf tests to compile, we need to have the definition of
-struct hid_bpf_ctx. This definition is an internal one from the kernel
-and it is supposed to be defined in the generated vmlinux.h.
+Turns out that we were relying on the globally installed headers, not
+the ones we freshly compiled.
+Add a manual include in CFLAGS to sort this out.
 
-This vmlinux.h header is generated based on the currently running kernel
-or if the kernel was already compiled in the tree. If you just compile
-the selftests without compiling the kernel beforehand and you are running
-on a 6.2 kernel, you'll end up with a vmlinux.h without the hid_bpf_ctx
-definition.
-
-Use the clever trick from tools/testing/selftests/bpf/progs/bpf_iter.h
-to force the definition of that symbol in case we don't find it in the
-BTF and also add __attribute__((preserve_access_index)) to further
-support CO-RE functionality for these tests.
-
-Signed-off-by: Justin Stitt <justinstitt@google.com>
 Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 ---
- tools/testing/selftests/hid/progs/hid.c            |  3 --
- .../testing/selftests/hid/progs/hid_bpf_helpers.h  | 49 ++++++++++++++++++++++
- 2 files changed, 49 insertions(+), 3 deletions(-)
+ tools/testing/selftests/hid/Makefile | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/hid/progs/hid.c b/tools/testing/selftests/hid/progs/hid.c
-index 88c593f753b5..1e558826b809 100644
---- a/tools/testing/selftests/hid/progs/hid.c
-+++ b/tools/testing/selftests/hid/progs/hid.c
-@@ -1,8 +1,5 @@
- // SPDX-License-Identifier: GPL-2.0
- /* Copyright (c) 2022 Red hat */
--#include "vmlinux.h"
--#include <bpf/bpf_helpers.h>
--#include <bpf/bpf_tracing.h>
- #include "hid_bpf_helpers.h"
+diff --git a/tools/testing/selftests/hid/Makefile b/tools/testing/selftests/hid/Makefile
+index c5522088ece4..b01c14077c5d 100644
+--- a/tools/testing/selftests/hid/Makefile
++++ b/tools/testing/selftests/hid/Makefile
+@@ -22,6 +22,8 @@ CXX ?= $(CROSS_COMPILE)g++
+ HOSTPKG_CONFIG := pkg-config
  
- char _license[] SEC("license") = "GPL";
-diff --git a/tools/testing/selftests/hid/progs/hid_bpf_helpers.h b/tools/testing/selftests/hid/progs/hid_bpf_helpers.h
-index 4fff31dbe0e7..ab3b18ba48c4 100644
---- a/tools/testing/selftests/hid/progs/hid_bpf_helpers.h
-+++ b/tools/testing/selftests/hid/progs/hid_bpf_helpers.h
-@@ -5,6 +5,55 @@
- #ifndef __HID_BPF_HELPERS_H
- #define __HID_BPF_HELPERS_H
+ CFLAGS += -g -O0 -rdynamic -Wall -Werror -I$(OUTPUT)
++CFLAGS += -I$(OUTPUT)/tools/include
++
+ LDLIBS += -lelf -lz -lrt -lpthread
  
-+/* "undefine" structs in vmlinux.h, because we "override" them below */
-+#define hid_bpf_ctx hid_bpf_ctx___not_used
-+#define hid_report_type hid_report_type___not_used
-+#define hid_class_request hid_class_request___not_used
-+#define hid_bpf_attach_flags hid_bpf_attach_flags___not_used
-+#include "vmlinux.h"
-+#undef hid_bpf_ctx
-+#undef hid_report_type
-+#undef hid_class_request
-+#undef hid_bpf_attach_flags
-+
-+#include <bpf/bpf_helpers.h>
-+#include <bpf/bpf_tracing.h>
-+#include <linux/const.h>
-+
-+enum hid_report_type {
-+	HID_INPUT_REPORT		= 0,
-+	HID_OUTPUT_REPORT		= 1,
-+	HID_FEATURE_REPORT		= 2,
-+
-+	HID_REPORT_TYPES,
-+};
-+
-+struct hid_bpf_ctx {
-+	__u32 index;
-+	const struct hid_device *hid;
-+	__u32 allocated_size;
-+	enum hid_report_type report_type;
-+	union {
-+		__s32 retval;
-+		__s32 size;
-+	};
-+} __attribute__((preserve_access_index));
-+
-+enum hid_class_request {
-+	HID_REQ_GET_REPORT		= 0x01,
-+	HID_REQ_GET_IDLE		= 0x02,
-+	HID_REQ_GET_PROTOCOL		= 0x03,
-+	HID_REQ_SET_REPORT		= 0x09,
-+	HID_REQ_SET_IDLE		= 0x0A,
-+	HID_REQ_SET_PROTOCOL		= 0x0B,
-+};
-+
-+enum hid_bpf_attach_flags {
-+	HID_BPF_FLAG_NONE = 0,
-+	HID_BPF_FLAG_INSERT_HEAD = _BITUL(0),
-+	HID_BPF_FLAG_MAX,
-+};
-+
- /* following are kfuncs exported by HID for HID-BPF */
- extern __u8 *hid_bpf_get_data(struct hid_bpf_ctx *ctx,
- 			      unsigned int offset,
+ # Silence some warnings when compiled with clang
 
 -- 
 2.42.0.283.g2d96d420d3-goog

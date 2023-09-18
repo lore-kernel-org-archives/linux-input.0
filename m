@@ -2,42 +2,44 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 88513CD37B0
-	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 15:17:03 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 04BC9CD13D2
+	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 15:27:46 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231207AbjIRPRH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 18 Sep 2023 11:17:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57498 "EHLO
+        id S229595AbjIRP1U (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Sep 2023 11:27:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231714AbjIRPRE (ORCPT
+        with ESMTP id S230517AbjIRP1D (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 18 Sep 2023 11:17:04 -0400
+        Mon, 18 Sep 2023 11:27:03 -0400
 Received: from mail.gnu-linux.rocks (unknown [82.165.184.165])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B12A106;
-        Mon, 18 Sep 2023 08:16:53 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A17CD4;
+        Mon, 18 Sep 2023 08:24:15 -0700 (PDT)
 Received: from localhost.localdomain (ip5f5bfa5d.dynamic.kabel-deutschland.de [95.91.250.93])
-        by mail.gnu-linux.rocks (Postfix) with ESMTPSA id 848663FFC5;
-        Mon, 18 Sep 2023 15:16:51 +0000 (UTC)
+        by mail.gnu-linux.rocks (Postfix) with ESMTPSA id B72653FF05;
+        Mon, 18 Sep 2023 15:14:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnu-linux.rocks;
-        s=mail; t=1695050211;
+        s=mail; t=1695050091;
         bh=v/1AcFnoXcxol0S7Cx2Jzc3hL5yzSNtKaoXf6GM39Ms=;
-        h=From:To:Cc:Subject:Date:From;
-        b=q9SVnMf4u6XrPhn2/7kuOn1OeN/fxi98QSqf/MzeX1vMNrEZQbY9Kr1RhvdVdTXD8
-         EXJR9p8iPRepw9+8D/RB76ppjXqQs54yEHsIKhZjxIM5WqnL5+fyZ0QNdyhryhmOuO
-         xsTzev+r9LgbW1OkDPYtC2UPXYOoTbWDFuZ5cHCTBdS0EsvcN1aZItretXj1bGWKUH
-         IAVFtP8GIYaIz0LL6JnDXPKQEw6UpySWNg0/K65wmtBqhW9SCcB1nTQDZZxZsWpMkl
-         um+jLxC5VT1HfBO+zLLz1Faao4MVjmh1h1NEIGj7uA0OM14AEzniJiLEVM3RQ0wjJB
-         a0jZ+dulPvofw==
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JA+wOHSZhOzo3mFh8kJBU4nfeKMwr76hmJgmDzUGHpZNQlUFPwrriAEN6REqtcFjL
+         +U/skQXHD1D/6JSGzR2VPS53tUBO2k//APrOjpFMa43hZcQ4fKN7w0nA6hlWQJbpoR
+         EQbeGcdasROTk9Onk+UUO3gbopBOad1gMDiEVykuCNJSDb5A1lqvMNkopevUhphk6m
+         BVaifdALLJpEoEUnB03ljZAT2knzCUVlsoQUbeFfZS2PtMKb74RifAb98npv6QIBFN
+         wlI7COmTv8l9gJaqpPWluq7nQukQoqYsaDtTUy280kqT76H14PykSPAvKr8p2d7TT3
+         9hJXOldWtcQug==
 From:   Johannes Roith <johannes@gnu-linux.rocks>
-To:     jikos@kernel.org
-Cc:     sergeantsagara@protonmail.com, andi.shyti@kernel.org,
-        benjamin.tissoires@redhat.com, christophe.jaillet@wanadoo.fr,
+To:     sergeantsagara@protonmail.com
+Cc:     andi.shyti@kernel.org, benjamin.tissoires@redhat.com,
+        christophe.jaillet@wanadoo.fr, jikos@kernel.org,
         johannes@gnu-linux.rocks, linux-input@vger.kernel.org,
         linux-kernel@vger.kernel.org, rdunlap@infradead.org
 Subject: [PATCH v6] HID: mcp2200: added driver for GPIOs of MCP2200
-Date:   Mon, 18 Sep 2023 17:16:44 +0200
-Message-ID: <20230918151644.568998-1-johannes@gnu-linux.rocks>
+Date:   Mon, 18 Sep 2023 17:14:38 +0200
+Message-ID: <20230918151438.562284-1-johannes@gnu-linux.rocks>
 X-Mailer: git-send-email 2.42.0
+In-Reply-To: <87ledpvhgm.fsf@protonmail.com>
+References: <87ledpvhgm.fsf@protonmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk

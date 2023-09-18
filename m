@@ -2,43 +2,40 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6A5F3CD13D8
-	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 16:26:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26D7FCD37B0
+	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 16:26:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229518AbjIRQ03 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 18 Sep 2023 12:26:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46492 "EHLO
+        id S230042AbjIRQ06 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Sep 2023 12:26:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229937AbjIRQJQ (ORCPT
+        with ESMTP id S230124AbjIRQ0Z (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 18 Sep 2023 12:09:16 -0400
+        Mon, 18 Sep 2023 12:26:25 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A63D43C2A
-        for <linux-input@vger.kernel.org>; Mon, 18 Sep 2023 09:08:01 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CA2C3278E;
-        Mon, 18 Sep 2023 14:48:44 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1DAB282B6
+        for <linux-input@vger.kernel.org>; Mon, 18 Sep 2023 09:23:24 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0F21C32790;
+        Mon, 18 Sep 2023 14:56:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695048525;
-        bh=kxIm2dAp6sXu35y7g3gIJiifSayTM3RyGs7vGLhesX4=;
+        s=k20201202; t=1695049012;
+        bh=WKGWHb1Vh96ODXTNy0Zl5+bJzD4Fzpb2K5ivYA5ViKQ=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=crgNw+5KMKjPtCq5ynownhEdXUKOP57AB9Z58m8Hekcx+KLzP8e/FKzW38NC7DwpZ
-         E3TyjhlPhiI/nPiP7CF7TrqYJ2V9056P7dzJ1oFd4HorYz/TOBVnjoR/SpUw9xKRuH
-         PGsqjlNKJrTaZLd9q5FOeeieO2cvigt5msLOj5fPwv+AjB82yTuaLOu2fJuEMheWwU
-         XyDrJXyFb8qOLZapimpU4z591YxN0/ynfV4FJRYnH1DQFaPYPWrAPLv/JAphin6xty
-         OMUCsHRKfs83bb6s8KkNoP5tekKc4v1mH2TbBykB7wH6t++AOIefpCY6FC6mCZGxzQ
-         jJ0ObCQIoHmWw==
-Date:   Mon, 18 Sep 2023 16:48:42 +0200 (CEST)
+        b=J6N7XqZNGcFcpAkSFHUpQX3vc/UzjR7ijmMA27YL53wHpdavY9H0e/LTPORSYQ2e7
+         qSc/S1yFFoRYUdm5bv/egDVBH/E97pPNtCfjNZRJmh0P7GpgTNggeDIq6ncM1g3hcT
+         smR1HQr1zWFIlhGIP0bS9FEzjwC4IcuL1R8SPZdE+h6GYAwIlcvUSxF2Htx5/8kZ0p
+         vRxShHiUfeRRKTMVGSeSqaNC/2xwIWLKavIdwCoBqp+ekXiEDDFLKbjgEJpaN93CAZ
+         0UnDe/xms5Kvxb2Q6imiwbnYc76iWkklRE3Jrxpyq1mSzMnslxbSNaR9Ohs5BkV2/s
+         lhc9NJYtMXWHA==
+Date:   Mon, 18 Sep 2023 16:56:49 +0200 (CEST)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Hans de Goede <hdegoede@redhat.com>
-cc:     =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>,
-        Bastien Nocera <hadess@hadess.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+To:     Rahul Rameshbabu <rrameshbabu@nvidia.com>
+cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
-Subject: Re: [PATCH] HID: logitech-hidpp: Add Bluetooth ID for the Logitech
- M720 Triathlon mouse
-In-Reply-To: <20230827222438.43717-1-hdegoede@redhat.com>
-Message-ID: <nycvar.YFH.7.76.2309181648370.14216@cbobk.fhfr.pm>
-References: <20230827222438.43717-1-hdegoede@redhat.com>
+Subject: Re: [PATCH] HID: nvidia-shield: Select POWER_SUPPLY Kconfig option
+In-Reply-To: <20230917151850.62505-1-rrameshbabu@nvidia.com>
+Message-ID: <nycvar.YFH.7.76.2309181656130.14216@cbobk.fhfr.pm>
+References: <20230917151850.62505-1-rrameshbabu@nvidia.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -46,31 +43,32 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 28 Aug 2023, Hans de Goede wrote:
+On Sun, 17 Sep 2023, Rahul Rameshbabu wrote:
 
-> Using hidpp for the M720 adds battery info reporting and hires
-> scrolling support.
+> Battery information reported by the driver depends on the power supply 
+> subsystem. Select the required subsystem when the HID_NVIDIA_SHIELD 
+> Kconfig option is enabled.
 > 
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> Fixes: 3ab196f88237 ("HID: nvidia-shield: Add battery support for Thunderstrike")
+> Signed-off-by: Rahul Rameshbabu <rrameshbabu@nvidia.com>
 > ---
->  drivers/hid/hid-logitech-hidpp.c | 2 ++
->  1 file changed, 2 insertions(+)
+>  drivers/hid/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
 > 
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 129b01be488d..3786fcc93da0 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -4640,6 +4640,8 @@ static const struct hid_device_id hidpp_devices[] = {
->  	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb008) },
->  	{ /* MX Master mouse over Bluetooth */
->  	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb012) },
-> +	{ /* M720 Triathlon mouse over Bluetooth */
-> +	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb015) },
->  	{ /* MX Ergo trackball over Bluetooth */
->  	  HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01d) },
->  	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH, 0xb01e) },
+> diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+> index e11c1c803676..dc227f477601 100644
+> --- a/drivers/hid/Kconfig
+> +++ b/drivers/hid/Kconfig
+> @@ -792,6 +792,7 @@ config HID_NVIDIA_SHIELD
+>  	tristate "NVIDIA SHIELD devices"
+>  	depends on USB_HID
+>  	depends on BT_HIDP
+> +	select POWER_SUPPLY
 
-Applied, thanks.
+Is there a reason not to do it the standard way using 'depends on', and 
+not vice versa?
+
+Thanks,
 
 -- 
 Jiri Kosina

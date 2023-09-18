@@ -2,707 +2,511 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 17D8DCD37B0
-	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 12:47:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 88513CD37B0
+	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 15:17:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240552AbjIRMrS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 18 Sep 2023 08:47:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44186 "EHLO
+        id S231207AbjIRPRH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Sep 2023 11:17:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241493AbjIRMqv (ORCPT
+        with ESMTP id S231714AbjIRPRE (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 18 Sep 2023 08:46:51 -0400
-Received: from mail-oo1-f79.google.com (mail-oo1-f79.google.com [209.85.161.79])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9BF318D
-        for <linux-input@vger.kernel.org>; Mon, 18 Sep 2023 05:45:10 -0700 (PDT)
-Received: by mail-oo1-f79.google.com with SMTP id 006d021491bc7-572b583c7d3so6396494eaf.3
-        for <linux-input@vger.kernel.org>; Mon, 18 Sep 2023 05:45:10 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695041110; x=1695645910;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Hyzj3FkxBbOiRHmAOVfINvVoKVwl9VBEYfs9pGw5B/Q=;
-        b=rFs2uDcm19JWlpQZ3zyCEhHyhsEhrTbI9EiH5Zh7OUCoKnKfoCfiIzfrAlQq7QgNDV
-         kWJVyJoSH9zWo7DoEp0iwvT6w27nO67lKVi6hgUhAbg2lhBkF3kIUAij43I/awlQ+q6t
-         y4ky4BbE33l6jzNZO2tbQCrg6cEmJtgEZnCQQQYT0zu006QPrxraDhtykWxu0cIhvfPs
-         09fUX00EGAt6SmqsVJr/dVkG9g8xTode0tLSf34eVYfQ0YyzYWRoEeNSI5/iKBA4Jo48
-         aUe2ovp+2Rw6Uo11JwiMvlizUZqsMoTIgSZYTvwMJVO5L1IjHTsSkwzumaJQmynVrUm3
-         xDBQ==
-X-Gm-Message-State: AOJu0YwNxRGC2zh7aS9UAhDRHkCuR6glwgk44R6m9m79jT8yYDc0clOY
-        b3UkppT9kG0Uj1P5ztxUAi7s4G0tqZgrtKEOyBdX9WI0rpMs
-X-Google-Smtp-Source: AGHT+IGYjjxJh9ClSXuBeLaKnpHYN/mxQQHtqswV/ryuqOMN33TRH8+qOLUlo64/Wi0t0LlMCpCKZOM3Fi/azghJ02trgQE6+VCS
+        Mon, 18 Sep 2023 11:17:04 -0400
+Received: from mail.gnu-linux.rocks (unknown [82.165.184.165])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B12A106;
+        Mon, 18 Sep 2023 08:16:53 -0700 (PDT)
+Received: from localhost.localdomain (ip5f5bfa5d.dynamic.kabel-deutschland.de [95.91.250.93])
+        by mail.gnu-linux.rocks (Postfix) with ESMTPSA id 848663FFC5;
+        Mon, 18 Sep 2023 15:16:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gnu-linux.rocks;
+        s=mail; t=1695050211;
+        bh=v/1AcFnoXcxol0S7Cx2Jzc3hL5yzSNtKaoXf6GM39Ms=;
+        h=From:To:Cc:Subject:Date:From;
+        b=q9SVnMf4u6XrPhn2/7kuOn1OeN/fxi98QSqf/MzeX1vMNrEZQbY9Kr1RhvdVdTXD8
+         EXJR9p8iPRepw9+8D/RB76ppjXqQs54yEHsIKhZjxIM5WqnL5+fyZ0QNdyhryhmOuO
+         xsTzev+r9LgbW1OkDPYtC2UPXYOoTbWDFuZ5cHCTBdS0EsvcN1aZItretXj1bGWKUH
+         IAVFtP8GIYaIz0LL6JnDXPKQEw6UpySWNg0/K65wmtBqhW9SCcB1nTQDZZxZsWpMkl
+         um+jLxC5VT1HfBO+zLLz1Faao4MVjmh1h1NEIGj7uA0OM14AEzniJiLEVM3RQ0wjJB
+         a0jZ+dulPvofw==
+From:   Johannes Roith <johannes@gnu-linux.rocks>
+To:     jikos@kernel.org
+Cc:     sergeantsagara@protonmail.com, andi.shyti@kernel.org,
+        benjamin.tissoires@redhat.com, christophe.jaillet@wanadoo.fr,
+        johannes@gnu-linux.rocks, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, rdunlap@infradead.org
+Subject: [PATCH v6] HID: mcp2200: added driver for GPIOs of MCP2200
+Date:   Mon, 18 Sep 2023 17:16:44 +0200
+Message-ID: <20230918151644.568998-1-johannes@gnu-linux.rocks>
+X-Mailer: git-send-email 2.42.0
 MIME-Version: 1.0
-X-Received: by 2002:a05:6870:98ac:b0:1d6:cf21:44c1 with SMTP id
- eg44-20020a05687098ac00b001d6cf2144c1mr1896501oab.9.1695041109974; Mon, 18
- Sep 2023 05:45:09 -0700 (PDT)
-Date:   Mon, 18 Sep 2023 05:45:09 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <0000000000003d63410605a18363@google.com>
-Subject: [syzbot] [input?] INFO: task hung in __input_unregister_device (5)
-From:   syzbot <syzbot+78e2288f58b881ed3c45@syzkaller.appspotmail.com>
-To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        rydberg@bitmath.org, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello,
+Added a gpiochip compatible driver to control the 8 GPIOs of
+the MCP2200 by using the HID interface.
 
-syzbot found the following issue on:
+Using GPIOs with alternative functions (GP0<->SSPND, GP1<->USBCFG,
+GP6<->RXLED, GP7<->TXLED) will reset the functions, if set (unset by
+default).
 
-HEAD commit:    0bb80ecc33a8 Linux 6.6-rc1
-git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
-console output: https://syzkaller.appspot.com/x/log.txt?x=146fd272680000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=13b8d0222a8e5a19
-dashboard link: https://syzkaller.appspot.com/bug?extid=78e2288f58b881ed3c45
-compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=151e9d62680000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=17971b44680000
+The driver was tested while also using the UART of the chip. Setting
+and reading the GPIOs has no effect on the UART communication. However,
+a reset is triggered after the CONFIGURE command. If the GPIO Direction
+is constantly changed, this will affect the communication at low baud
+rates. This is a hardware problem of the MCP2200 and is not caused by
+the driver.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/a5fdb25d37ac/disk-0bb80ecc.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/dc964206a779/vmlinux-0bb80ecc.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/541dfc8b614c/bzImage-0bb80ecc.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+78e2288f58b881ed3c45@syzkaller.appspotmail.com
-
-INFO: task kworker/1:0:22 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:kworker/1:0     state:D
- stack:22752 pid:22    ppid:2      flags:0x00004000
-Workqueue: usb_hub_wq hub_event
-
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
- __mutex_lock_common kernel/locking/mutex.c:679 [inline]
- __mutex_lock+0x967/0x1340 kernel/locking/mutex.c:747
- __input_unregister_device+0x136/0x450 drivers/input/input.c:2219
- input_unregister_device+0xb9/0x100 drivers/input/input.c:2440
- hidinput_disconnect+0x160/0x3e0 drivers/hid/hid-input.c:2386
- hid_disconnect+0x143/0x1b0 drivers/hid/hid-core.c:2273
- hid_hw_stop drivers/hid/hid-core.c:2322 [inline]
- hid_device_remove+0x1a5/0x250 drivers/hid/hid-core.c:2684
- device_remove+0xc8/0x170 drivers/base/dd.c:567
- __device_release_driver drivers/base/dd.c:1272 [inline]
- device_release_driver_internal+0x44a/0x610 drivers/base/dd.c:1295
- bus_remove_device+0x22c/0x420 drivers/base/bus.c:574
- device_del+0x39a/0xa50 drivers/base/core.c:3811
- hid_remove_device drivers/hid/hid-core.c:2859 [inline]
- hid_destroy_device+0xe5/0x150 drivers/hid/hid-core.c:2879
- usbhid_disconnect+0xa0/0xe0 drivers/hid/usbhid/hid-core.c:1456
- usb_unbind_interface+0x1dd/0x8d0 drivers/usb/core/driver.c:458
- device_remove drivers/base/dd.c:569 [inline]
- device_remove+0x11f/0x170 drivers/base/dd.c:561
- __device_release_driver drivers/base/dd.c:1272 [inline]
- device_release_driver_internal+0x44a/0x610 drivers/base/dd.c:1295
- bus_remove_device+0x22c/0x420 drivers/base/bus.c:574
- device_del+0x39a/0xa50 drivers/base/core.c:3811
- usb_disable_device+0x36c/0x7f0 drivers/usb/core/message.c:1416
- usb_disconnect+0x2e1/0x890 drivers/usb/core/hub.c:2252
- hub_port_connect drivers/usb/core/hub.c:5280 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5580 [inline]
- port_event drivers/usb/core/hub.c:5740 [inline]
- hub_event+0x1be0/0x4f30 drivers/usb/core/hub.c:5822
- process_one_work+0x887/0x15d0 kernel/workqueue.c:2630
- process_scheduled_works kernel/workqueue.c:2703 [inline]
- worker_thread+0x8bb/0x1290 kernel/workqueue.c:2784
- kthread+0x33a/0x430 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
- </TASK>
-INFO: task jbd2/sda1-8:2348 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:jbd2/sda1-8     state:D stack:26656 pid:2348  ppid:2      flags:0x00004000
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- io_schedule+0xbe/0x130 kernel/sched/core.c:9026
- bit_wait_io+0x16/0xe0 kernel/sched/wait_bit.c:209
- __wait_on_bit+0x62/0x170 kernel/sched/wait_bit.c:49
- out_of_line_wait_on_bit+0xdb/0x110 kernel/sched/wait_bit.c:64
- wait_on_bit_io include/linux/wait_bit.h:101 [inline]
- __wait_on_buffer+0x64/0x70 fs/buffer.c:123
- wait_on_buffer include/linux/buffer_head.h:370 [inline]
- journal_wait_on_commit_record fs/jbd2/commit.c:171 [inline]
- jbd2_journal_commit_transaction+0x4885/0x63d0 fs/jbd2/commit.c:890
- kjournald2+0x1fb/0x900 fs/jbd2/journal.c:201
- kthread+0x33a/0x430 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
- </TASK>
-INFO: task udevd:2385 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:udevd           state:D
- stack:26672 pid:2385  ppid:1      flags:0x00004002
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
- rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
- __down_read_common kernel/locking/rwsem.c:1250 [inline]
- __down_read kernel/locking/rwsem.c:1263 [inline]
- down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
- kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
- d_revalidate fs/namei.c:861 [inline]
- d_revalidate fs/namei.c:858 [inline]
- lookup_fast+0x232/0x520 fs/namei.c:1654
- walk_component+0x5b/0x5a0 fs/namei.c:1997
- link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
- link_path_walk fs/namei.c:2253 [inline]
- path_openat+0x231/0x29c0 fs/namei.c:3792
- do_filp_open+0x1de/0x430 fs/namei.c:3823
- do_sys_openat2+0x176/0x1e0 fs/open.c:1422
- do_sys_open fs/open.c:1437 [inline]
- __do_sys_openat fs/open.c:1453 [inline]
- __se_sys_openat fs/open.c:1448 [inline]
- __x64_sys_openat+0x175/0x210 fs/open.c:1448
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ff1d282a9a4
-RSP: 002b:00007ffc58f5b980 EFLAGS: 00000246 ORIG_RAX: 0000000000000101
-RAX: ffffffffffffffda RBX: 0000000000000008 RCX: 00007ff1d282a9a4
-RDX: 0000000000080000 RSI: 00007ffc58f5bab8 RDI: 00000000ffffff9c
-RBP: 00007ffc58f5bab8 R08: 0000000000000008 R09: 0000000000000001
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000080000
-R13: 000055dec8f90b42 R14: 0000000000000001 R15: 0000000000000000
- </TASK>
-INFO: task udevd:2500 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:udevd           state:D
- stack:27568 pid:2500  ppid:2385   flags:0x00004002
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
- rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
- __down_read_common kernel/locking/rwsem.c:1250 [inline]
- __down_read kernel/locking/rwsem.c:1263 [inline]
- down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
- kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
- d_revalidate fs/namei.c:861 [inline]
- d_revalidate fs/namei.c:858 [inline]
- lookup_fast+0x232/0x520 fs/namei.c:1654
- walk_component+0x5b/0x5a0 fs/namei.c:1997
- link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
- link_path_walk fs/namei.c:2252 [inline]
- path_lookupat+0x93/0x770 fs/namei.c:2481
- filename_lookup+0x1e7/0x5b0 fs/namei.c:2511
- vfs_statx+0x160/0x430 fs/stat.c:277
- vfs_fstatat+0xb3/0x140 fs/stat.c:332
- __do_sys_newfstatat+0x98/0x110 fs/stat.c:502
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ff1d282a5f4
-RSP: 002b:00007ffc58f59b38 EFLAGS: 00000206
- ORIG_RAX: 0000000000000106
-RAX: ffffffffffffffda RBX: 000055decac27a40 RCX: 00007ff1d282a5f4
-RDX: 00007ffc58f59b48 RSI: 00007ffc58f59bd8 RDI: 00000000ffffff9c
-RBP: 000055decac3d3df R08: 000055decac3d3df R09: 0000000000000000
-R10: 0000000000000100 R11: 0000000000000206 R12: 0000000000000000
-R13: 000055decac27b30 R14: 00007ffc58f59bd8 R15: 000055dec8f91a04
- </TASK>
-INFO: task kworker/1:3:2503 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:kworker/1:3     state:D stack:22416 pid:2503  ppid:2      flags:0x00004000
-Workqueue: events console_callback
-
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_timeout+0x27a/0x2c0 kernel/time/timer.c:2143
- ___down_common kernel/locking/semaphore.c:225 [inline]
- __down_common+0x328/0x6c0 kernel/locking/semaphore.c:246
- down+0x74/0xa0 kernel/locking/semaphore.c:63
- console_lock+0x96/0x150 kernel/printk/printk.c:2652
- console_callback+0x63/0x4c0 drivers/tty/vt/vt.c:2933
- process_one_work+0x887/0x15d0 kernel/workqueue.c:2630
- process_scheduled_works kernel/workqueue.c:2703 [inline]
- worker_thread+0x8bb/0x1290 kernel/workqueue.c:2784
- kthread+0x33a/0x430 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
- </TASK>
-INFO: task udevd:2507 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:udevd           state:D
- stack:27712 pid:2507  ppid:2385   flags:0x00000002
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
- rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
- __down_read_common kernel/locking/rwsem.c:1250 [inline]
- __down_read kernel/locking/rwsem.c:1263 [inline]
- down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
- kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
- d_revalidate fs/namei.c:861 [inline]
- d_revalidate fs/namei.c:858 [inline]
- lookup_fast+0x232/0x520 fs/namei.c:1654
- walk_component+0x5b/0x5a0 fs/namei.c:1997
- link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
- link_path_walk fs/namei.c:2252 [inline]
- path_lookupat+0x93/0x770 fs/namei.c:2481
- filename_lookup+0x1e7/0x5b0 fs/namei.c:2511
- vfs_statx+0x160/0x430 fs/stat.c:277
- vfs_fstatat+0xb3/0x140 fs/stat.c:332
- __do_sys_newfstatat+0x98/0x110 fs/stat.c:502
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ff1d282a5f4
-RSP: 002b:00007ffc58f58e98 EFLAGS: 00000206
- ORIG_RAX: 0000000000000106
-RAX: ffffffffffffffda RBX: 000055decac14d40 RCX: 00007ff1d282a5f4
-RDX: 00007ffc58f58ea8 RSI: 00007ffc58f58f38 RDI: 00000000ffffff9c
-RBP: 00007ffc58f5a390 R08: 00007ffc58f5a390 R09: 0000000000000000
-R10: 0000000000000100 R11: 0000000000000206 R12: 0000000000000000
-R13: 000055decac14e30 R14: 00007ffc58f58f38 R15: 0000000000000001
- </TASK>
-INFO: task udevd:2508 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:udevd           state:D stack:26768 pid:2508  ppid:2385   flags:0x00004002
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
- rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
- __down_read_common kernel/locking/rwsem.c:1250 [inline]
- __down_read kernel/locking/rwsem.c:1263 [inline]
- down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
- kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
- d_revalidate fs/namei.c:861 [inline]
- d_revalidate fs/namei.c:858 [inline]
- lookup_fast+0x232/0x520 fs/namei.c:1654
- walk_component+0x5b/0x5a0 fs/namei.c:1997
- link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
- link_path_walk fs/namei.c:2252 [inline]
- path_lookupat+0x93/0x770 fs/namei.c:2481
- filename_lookup+0x1e7/0x5b0 fs/namei.c:2511
- vfs_statx+0x160/0x430 fs/stat.c:277
- vfs_fstatat+0xb3/0x140 fs/stat.c:332
- __do_sys_newfstatat+0x98/0x110 fs/stat.c:502
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ff1d282a5f4
-RSP: 002b:00007ffc58f59b38 EFLAGS: 00000206
- ORIG_RAX: 0000000000000106
-RAX: ffffffffffffffda RBX: 000055decac33730 RCX: 00007ff1d282a5f4
-RDX: 00007ffc58f59b48 RSI: 00007ffc58f59bd8 RDI: 00000000ffffff9c
-RBP: 000055decac3dcbb R08: 000055decac3dcbb R09: 0000000000000000
-R10: 0000000000000100 R11: 0000000000000206 R12: 0000000000000000
-R13: 000055decac33820 R14: 00007ffc58f59bd8 R15: 000055dec8f91a04
- </TASK>
-INFO: task kworker/0:6:2525 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:kworker/0:6     state:D
- stack:22912 pid:2525  ppid:2      flags:0x00004000
-Workqueue: usb_hub_wq hub_event
-
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
- rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
- __down_read_common kernel/locking/rwsem.c:1250 [inline]
- __down_read kernel/locking/rwsem.c:1263 [inline]
- down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
- kernfs_find_and_get_ns+0x71/0xc0 fs/kernfs/dir.c:897
- kernfs_find_and_get include/linux/kernfs.h:601 [inline]
- sysfs_unmerge_group+0x61/0x170 fs/sysfs/group.c:369
- dpm_sysfs_remove+0x68/0xb0 drivers/base/power/sysfs.c:833
- device_del+0x1a8/0xa50 drivers/base/core.c:3786
- device_unregister+0x1d/0xc0 drivers/base/core.c:3852
- usb_remove_ep_devs+0x42/0x80 drivers/usb/core/endpoint.c:188
- remove_intf_ep_devs drivers/usb/core/message.c:1264 [inline]
- usb_disable_device+0x322/0x7f0 drivers/usb/core/message.c:1415
- usb_disconnect+0x2e1/0x890 drivers/usb/core/hub.c:2252
- hub_port_connect drivers/usb/core/hub.c:5280 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5580 [inline]
- port_event drivers/usb/core/hub.c:5740 [inline]
- hub_event+0x1be0/0x4f30 drivers/usb/core/hub.c:5822
- process_one_work+0x887/0x15d0 kernel/workqueue.c:2630
- process_scheduled_works kernel/workqueue.c:2703 [inline]
- worker_thread+0x8bb/0x1290 kernel/workqueue.c:2784
- kthread+0x33a/0x430 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
- </TASK>
-INFO: task udevd:2537 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:udevd           state:D
- stack:27712 pid:2537  ppid:2385   flags:0x00004002
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
- rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
- __down_read_common kernel/locking/rwsem.c:1250 [inline]
- __down_read kernel/locking/rwsem.c:1263 [inline]
- down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
- kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
- d_revalidate fs/namei.c:861 [inline]
- d_revalidate fs/namei.c:858 [inline]
- lookup_fast+0x232/0x520 fs/namei.c:1654
- walk_component+0x5b/0x5a0 fs/namei.c:1997
- link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
- link_path_walk fs/namei.c:2252 [inline]
- path_lookupat+0x93/0x770 fs/namei.c:2481
- filename_lookup+0x1e7/0x5b0 fs/namei.c:2511
- user_path_at_empty+0x42/0x60 fs/namei.c:2910
- do_readlinkat+0xdd/0x2f0 fs/stat.c:533
- __do_sys_readlink fs/stat.c:566 [inline]
- __se_sys_readlink fs/stat.c:563 [inline]
- __x64_sys_readlink+0x78/0xb0 fs/stat.c:563
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ff1d282bd47
-RSP: 002b:00007ffc58f59a48 EFLAGS: 00000246
- ORIG_RAX: 0000000000000059
-RAX: ffffffffffffffda RBX: 00007ffc58f59a58 RCX: 00007ff1d282bd47
-RDX: 0000000000000400 RSI: 00007ffc58f59a58 RDI: 00007ffc58f59f38
-RBP: 0000000000000400 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000010 R11: 0000000000000246 R12: 00007ffc58f59f38
-R13: 00007ffc58f59ea8 R14: 000055decac14910 R15: 00007ffc58f5b049
- </TASK>
-INFO: task syz-executor212:2596 blocked for more than 143 seconds.
-      Not tainted 6.6.0-rc1-syzkaller #0
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:syz-executor212 state:D stack:28864 pid:2596  ppid:2487   flags:0x00004006
-Call Trace:
- <TASK>
- context_switch kernel/sched/core.c:5382 [inline]
- __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
- schedule+0xe7/0x1b0 kernel/sched/core.c:6771
- schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
- rwsem_down_write_slowpath+0x53e/0x1290 kernel/locking/rwsem.c:1178
- __down_write_common kernel/locking/rwsem.c:1306 [inline]
- __down_write kernel/locking/rwsem.c:1315 [inline]
- down_write+0x1d3/0x200 kernel/locking/rwsem.c:1574
- kernfs_add_one+0xb1/0x510 fs/kernfs/dir.c:757
- kernfs_create_dir_ns+0x181/0x210 fs/kernfs/dir.c:1050
- sysfs_create_dir_ns+0x13b/0x2a0 fs/sysfs/dir.c:59
- create_dir lib/kobject.c:73 [inline]
- kobject_add_internal+0x2c8/0x960 lib/kobject.c:238
- kobject_add_varg lib/kobject.c:372 [inline]
- kobject_init_and_add+0x11c/0x190 lib/kobject.c:455
- bus_add_driver+0x186/0x630 drivers/base/bus.c:666
- driver_register+0x15c/0x4a0 drivers/base/driver.c:246
- usb_gadget_register_driver_owner+0xfd/0x2d0 drivers/usb/gadget/udc/core.c:1674
- raw_ioctl_run drivers/usb/gadget/legacy/raw_gadget.c:548 [inline]
- raw_ioctl+0x172f/0x2b80 drivers/usb/gadget/legacy/raw_gadget.c:1255
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:871 [inline]
- __se_sys_ioctl fs/ioctl.c:857 [inline]
- __x64_sys_ioctl+0x18f/0x210 fs/ioctl.c:857
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7ff0f81f082b
-RSP: 002b:00007ffdd1f948b0 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007ff0f81f082b
-RDX: 0000000000000000 RSI: 0000000000005501 RDI: 0000000000000003
-RBP: 00007ffdd1f95970 R08: 0000000000000010 R09: 00312e6364755f79
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffdd1f94940 R14: 00007ffdd1f969e0 R15: 00007ff0f82693c0
- </TASK>
-Future hung task reports are suppressed, see sysctl kernel.hung_task_warnings
-
-Showing all locks held in the system:
-7 locks held by kworker/0:0/8:
- #0: ffff88810aa6dd38 ((wq_completion)usb_hub_wq
-){+.+.}-{0:0}, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
- #1: ffffc9000008fd88 ((work_completion)(&hub->events)){+.+.}-{0:0}
-, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
- #2: ffff888106335190 (
-&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: hub_event+0x1be/0x4f30 drivers/usb/core/hub.c:5768
- #3: ffff88811bed8190 (&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
- #4: ffff88811bfbd160 (&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
- #5: 
-ffff88811d4b1a20 (&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
- #6: ffffffff88aa3328
- (input_mutex
-){+.+.}-{3:3}
-, at: input_register_device+0xa27/0x1130 drivers/input/input.c:2389
-7 locks held by kworker/1:0/22:
- #0: 
-ffff88810aa6dd38 ((wq_completion)usb_hub_wq
-){+.+.}-{0:0}
-, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
- #1: ffffc9000017fd88 ((work_completion)(&hub->events)
-){+.+.}-{0:0}, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
- #2: ffff888105bf5190 (
-&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: hub_event+0x1be/0x4f30 drivers/usb/core/hub.c:5768
- #3: ffff8881158c8190
- (&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: usb_disconnect+0x10a/0x890 drivers/usb/core/hub.c:2243
- #4: 
-ffff88811beda160 (&dev->mutex
-){....}-{3:3}, at: device_lock include/linux/device.h:992 [inline]
-){....}-{3:3}, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
-){....}-{3:3}, at: device_release_driver_internal+0xa4/0x610 drivers/base/dd.c:1292
- #5: ffff888109fc1a20 (
-&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
-, at: device_release_driver_internal+0xa4/0x610 drivers/base/dd.c:1292
- #6: ffffffff88aa3328 (input_mutex){+.+.}-{3:3}
-, at: __input_unregister_device+0x136/0x450 drivers/input/input.c:2219
-1 lock held by khungtaskd/29:
- #0: ffffffff87eac820 (rcu_read_lock
-){....}-{1:2}, at: debug_show_all_locks+0x55/0x340 kernel/locking/lockdep.c:6607
-7 locks held by kworker/1:2/1781:
- #0: 
-ffff88810aa6dd38 ((wq_completion)usb_hub_wq){+.+.}-{0:0}
-, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
- #1: ffffc900035bfd88
- ((work_completion)(&hub->events)){+.+.}-{0:0}
-, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
- #2: 
-ffff888105fe5190 (&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: hub_event+0x1be/0x4f30 drivers/usb/core/hub.c:5768
- #3: ffff88811b744190
- (&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
- #4: 
-ffff88811b84e160 (&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
- #5: 
-ffff8881123fda20 (&dev->mutex){....}-{3:3}
-, at: device_lock include/linux/device.h:992 [inline]
-, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
- #6: 
-ffffffff88aa3328 (
-input_mutex
-){+.+.}-{3:3}
-, at: input_register_device+0xa27/0x1130 drivers/input/input.c:2389
-1 lock held by udevd/2385:
- #0: 
-ffff88810165f948 (&root->kernfs_rwsem
-){++++}-{3:3}
-, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
-2 locks held by getty/2443:
- #0: 
-ffff88810bb160a0 (&tty->ldisc_sem
-){++++}-{0:0}, at: tty_ldisc_ref_wait+0x24/0x80 drivers/tty/tty_ldisc.c:243
- #1: ffffc900000432f0 (
-&ldata->atomic_read_lock){+.+.}-{3:3}
-, at: n_tty_read+0xfc5/0x1480 drivers/tty/n_tty.c:2206
-1 lock held by udevd/2500:
- #0: ffff88810165f948 (&root->kernfs_rwsem
-){++++}-{3:3}, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
-2 locks held by kworker/1:3/2503:
- #0: ffff888100070d38 ((wq_completion)events
-){+.+.}-{0:0}, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
- #1: ffffc9000156fd88
- (console_work){+.+.}-{0:0}
-, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
-1 lock held by udevd/2507:
- #0: ffff88810165f948 (&root->kernfs_rwsem
-){++++}-{3:3}, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
-1 lock held by udevd/2508:
- #0: 
-ffff88810165f948 (&root->kernfs_rwsem){++++}-{3:3}
-, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
-9 locks held by kworker/1:4/2514:
-10 locks held by kworker/1:6/2517:
-5 locks held by kworker/0:6/2525:
- #0: 
-ffff88810aa6dd38 ((wq_completion)usb_hub_wq){+.+.}-{0:0}
-, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
- #1: ffffc9000148fd88 (
-(work_completion)(&hub->events)){+.+.}-{0:0}
-, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
- #2: ffff888105fbd190 (
-&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:992 [inline]
-&dev->mutex){....}-{3:3}, at: hub_event+0x1be/0x4f30 drivers/usb/core/hub.c:5768
- #3: ffff88811b743190 (
-&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:992 [inline]
-&dev->mutex){....}-{3:3}, at: usb_disconnect+0x10a/0x890 drivers/usb/core/hub.c:2243
- #4: ffff88810165f948 (
-&root->kernfs_rwsem){++++}-{3:3}, at: kernfs_find_and_get_ns+0x71/0xc0 fs/kernfs/dir.c:897
-1 lock held by udevd/2537:
- #0: ffff88810165f948
- (&root->kernfs_rwsem){++++}-{3:3}
-, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
-1 lock held by syz-executor212/2596:
- #0: ffff88810165f948 (
-&root->kernfs_rwsem
-){++++}-{3:3}
-, at: kernfs_add_one+0xb1/0x510 fs/kernfs/dir.c:757
-
-=============================================
-
-NMI backtrace for cpu 0
-CPU: 0 PID: 29 Comm: khungtaskd Not tainted 6.6.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/04/2023
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xd9/0x1b0 lib/dump_stack.c:106
- nmi_cpu_backtrace+0x277/0x380 lib/nmi_backtrace.c:113
- nmi_trigger_cpumask_backtrace+0x26c/0x2d0 lib/nmi_backtrace.c:62
- trigger_all_cpu_backtrace include/linux/nmi.h:160 [inline]
- check_hung_uninterruptible_tasks kernel/hung_task.c:222 [inline]
- watchdog+0xfac/0x1230 kernel/hung_task.c:379
- kthread+0x33a/0x430 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
- </TASK>
-Sending NMI from CPU 0 to CPUs 1:
-NMI backtrace for cpu 1
-CPU: 1 PID: 2517 Comm: kworker/1:6 Not tainted 6.6.0-rc1-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/04/2023
-Workqueue: usb_hub_wq hub_event
-RIP: 0010:__sanitizer_cov_trace_const_cmp2+0x8/0x20 kernel/kcov.c:297
-Code: 00 00 f3 0f 1e fa 48 8b 0c 24 40 0f b6 d6 40 0f b6 f7 bf 01 00 00 00 e9 d6 fe ff ff 66 0f 1f 44 00 00 f3 0f 1e fa 48 8b 0c 24 <0f> b7 d6 0f b7 f7 bf 03 00 00 00 e9 b8 fe ff ff 0f 1f 84 00 00 00
-RSP: 0018:ffffc90000198510 EFLAGS: 00000046
-RAX: 0000000000000002 RBX: 0000000000000002 RCX: ffffffff813144a0
-RDX: ffff88810fff3a00 RSI: 0000000000000002 RDI: 0000000000000000
-RBP: ffffffff8bfc2610 R08: 0000000000000001 R09: 0000000000000001
-R10: 0000000000000020 R11: 000000000bf26868 R12: 0000000000000000
-R13: 000000000000001a R14: ffffc900001985b0 R15: 000000000000000a
-FS:  0000000000000000(0000) GS:ffff8881f6700000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000555557349ca8 CR3: 000000010a34a000 CR4: 00000000003506e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <NMI>
- </NMI>
- <IRQ>
- printk_sprint+0x220/0x2f0 kernel/printk/printk.c:2141
- vprintk_store+0x4d8/0xb80 kernel/printk/printk.c:2242
- vprintk_emit+0x154/0x630 kernel/printk/printk.c:2288
- vprintk+0x7b/0x90 kernel/printk/printk_safe.c:45
- _printk+0xc8/0x100 kernel/printk/printk.c:2332
- printk_stack_address arch/x86/kernel/dumpstack.c:72 [inline]
- show_trace_log_lvl+0x2ac/0x4f0 arch/x86/kernel/dumpstack.c:285
- sched_show_task kernel/sched/core.c:9182 [inline]
- sched_show_task+0x3f4/0x600 kernel/sched/core.c:9156
- show_state_filter+0xeb/0x310 kernel/sched/core.c:9227
- k_spec drivers/tty/vt/keyboard.c:667 [inline]
- k_spec+0xea/0x140 drivers/tty/vt/keyboard.c:656
- kbd_keycode drivers/tty/vt/keyboard.c:1524 [inline]
- kbd_event+0xcc8/0x17c0 drivers/tty/vt/keyboard.c:1543
- input_to_handler+0x382/0x4c0 drivers/input/input.c:132
- input_pass_values.part.0+0x536/0x7a0 drivers/input/input.c:161
- input_pass_values drivers/input/input.c:148 [inline]
- input_event_dispose+0x5ee/0x770 drivers/input/input.c:378
- input_handle_event+0x11c/0xd80 drivers/input/input.c:406
- input_repeat_key+0x251/0x340 drivers/input/input.c:2263
- call_timer_fn+0x1a0/0x580 kernel/time/timer.c:1700
- expire_timers kernel/time/timer.c:1751 [inline]
- __run_timers+0x764/0xb10 kernel/time/timer.c:2022
- run_timer_softirq+0x58/0xd0 kernel/time/timer.c:2035
- __do_softirq+0x20b/0x94e kernel/softirq.c:553
- invoke_softirq kernel/softirq.c:427 [inline]
- __irq_exit_rcu kernel/softirq.c:632 [inline]
- irq_exit_rcu+0xa7/0x110 kernel/softirq.c:644
- sysvec_apic_timer_interrupt+0x8e/0xb0 arch/x86/kernel/apic/apic.c:1074
- </IRQ>
- <TASK>
- asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:645
-RIP: 0010:console_flush_all+0x9d2/0xf70 kernel/printk/printk.c:2972
-Code: b4 0f 23 00 9c 5b 81 e3 00 02 00 00 31 ff 48 89 de e8 42 64 1c 00 48 85 db 0f 85 95 03 00 00 e8 a4 68 1c 00 fb 48 8b 44 24 08 <48> 8b 14 24 0f b6 00 83 e2 07 38 d0 7f 08 84 c0 0f 85 9e 04 00 00
-RSP: 0018:ffffc900016bf5a0 EFLAGS: 00000293
-RAX: fffff520002d7edf RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff88810fff3a00 RSI: ffffffff813107bc RDI: 0000000000000007
-RBP: ffffffff88353b80 R08: 0000000000000007 R09: 0000000000000000
-R10: 0000000000000000 R11: 205d314320202020 R12: 0000000000000000
-R13: dffffc0000000000 R14: ffffffff88353bd8 R15: 0000000000000001
- console_unlock+0x10c/0x260 kernel/printk/printk.c:3035
- vprintk_emit+0x189/0x630 kernel/printk/printk.c:2307
- dev_vprintk_emit drivers/base/core.c:4847 [inline]
- dev_printk_emit+0xfb/0x140 drivers/base/core.c:4858
- __dev_printk+0xf5/0x270 drivers/base/core.c:4870
- _dev_info+0xe5/0x120 drivers/base/core.c:4916
- usb_disconnect+0xec/0x890 drivers/usb/core/hub.c:2234
- hub_port_connect drivers/usb/core/hub.c:5280 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5580 [inline]
- port_event drivers/usb/core/hub.c:5740 [inline]
- hub_event+0x1be0/0x4f30 drivers/usb/core/hub.c:5822
- process_one_work+0x887/0x15d0 kernel/workqueue.c:2630
- process_scheduled_works kernel/workqueue.c:2703 [inline]
- worker_thread+0x8bb/0x1290 kernel/workqueue.c:2784
- kthread+0x33a/0x430 kernel/kthread.c:388
- ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
- ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
- </TASK>
-INFO: NMI handler (nmi_cpu_backtrace_handler) took too long to run: 3.678 msecs
-
-
+Signed-off-by: Johannes Roith <johannes@gnu-linux.rocks>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ drivers/hid/Kconfig       |   9 +
+ drivers/hid/Makefile      |   1 +
+ drivers/hid/hid-ids.h     |   1 +
+ drivers/hid/hid-mcp2200.c | 390 ++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 401 insertions(+)
+ create mode 100644 drivers/hid/hid-mcp2200.c
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 0cea301cc9a9..3c14644b593d 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1298,6 +1298,15 @@ config HID_ALPS
+ 	Say Y here if you have a Alps touchpads over i2c-hid or usbhid
+ 	and want support for its special functionalities.
+ 
++config HID_MCP2200
++	tristate "Microchip MCP2200 HID USB-to-GPIO bridge"
++	depends on USB_HID && GPIOLIB
++	help
++	  Provides GPIO functionality over USB-HID through MCP2200 device.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called hid-mcp2200.ko.
++
+ config HID_MCP2221
+ 	tristate "Microchip MCP2221 HID USB-to-I2C/SMbus host support"
+ 	depends on USB_HID && I2C
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 8a06d0f840bc..082a728eac60 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -79,6 +79,7 @@ obj-$(CONFIG_HID_LOGITECH_HIDPP)	+= hid-logitech-hidpp.o
+ obj-$(CONFIG_HID_MACALLY)	+= hid-macally.o
+ obj-$(CONFIG_HID_MAGICMOUSE)	+= hid-magicmouse.o
+ obj-$(CONFIG_HID_MALTRON)	+= hid-maltron.o
++obj-$(CONFIG_HID_MCP2200)	+= hid-mcp2200.o
+ obj-$(CONFIG_HID_MCP2221)	+= hid-mcp2221.o
+ obj-$(CONFIG_HID_MAYFLASH)	+= hid-mf.o
+ obj-$(CONFIG_HID_MEGAWORLD_FF)	+= hid-megaworld.o
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 7e499992a793..bb87ad4eb2aa 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -915,6 +915,7 @@
+ #define USB_DEVICE_ID_PICK16F1454	0x0042
+ #define USB_DEVICE_ID_PICK16F1454_V2	0xf2f7
+ #define USB_DEVICE_ID_LUXAFOR		0xf372
++#define USB_DEVICE_ID_MCP2200		0x00df
+ #define USB_DEVICE_ID_MCP2221		0x00dd
+ 
+ #define USB_VENDOR_ID_MICROSOFT		0x045e
+diff --git a/drivers/hid/hid-mcp2200.c b/drivers/hid/hid-mcp2200.c
+new file mode 100644
+index 000000000000..477a3915d2f0
+--- /dev/null
++++ b/drivers/hid/hid-mcp2200.c
+@@ -0,0 +1,390 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * MCP2200 - Microchip USB to GPIO bridge
++ *
++ * Copyright (c) 2023, Johannes Roith <johannes@gnu-linux.rocks>
++ *
++ * Datasheet: https://ww1.microchip.com/downloads/en/DeviceDoc/22228A.pdf
++ * App Note for HID: https://ww1.microchip.com/downloads/en/DeviceDoc/93066A.pdf
++ */
++#include <linux/completion.h>
++#include <linux/delay.h>
++#include <linux/err.h>
++#include <linux/gpio/driver.h>
++#include <linux/hid.h>
++#include <linux/hidraw.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++#include "hid-ids.h"
++
++/* Commands codes in a raw output report */
++#define SET_CLEAR_OUTPUTS	0x08
++#define CONFIGURE		0x10
++#define READ_EE			0x20
++#define WRITE_EE		0x40
++#define READ_ALL		0x80
++
++/* MCP GPIO direction encoding */
++enum MCP_IO_DIR {
++	MCP2200_DIR_OUT = 0x00,
++	MCP2200_DIR_IN  = 0x01,
++};
++
++/* Altternative pin assignments */
++#define TXLED		2
++#define RXLED		3
++#define USBCFG		6
++#define SSPND		7
++#define MCP_NGPIO	8
++
++/* CMD to set or clear a GPIO output */
++struct mcp_set_clear_outputs {
++	u8 cmd;
++	u8 dummys1[10];
++	u8 set_bmap;
++	u8 clear_bmap;
++	u8 dummys2[3];
++} __packed;
++
++/* CMD to configure the IOs */
++struct mcp_configure {
++	u8 cmd;
++	u8 dummys1[3];
++	u8 io_bmap;
++	u8 config_alt_pins;
++	u8 io_default_val_bmap;
++	u8 config_alt_options;
++	u8 baud_h;
++	u8 baud_l;
++	u8 dummys2[6];
++} __packed;
++
++/* CMD to read all parameters */
++struct mcp_read_all {
++	u8 cmd;
++	u8 dummys[15];
++} __packed;
++
++/* Response to the read all cmd */
++struct mcp_read_all_resp {
++	u8 cmd;
++	u8 eep_addr;
++	u8 dummy;
++	u8 eep_val;
++	u8 io_bmap;
++	u8 config_alt_pins;
++	u8 io_default_val_bmap;
++	u8 config_alt_options;
++	u8 baud_h;
++	u8 baud_l;
++	u8 io_port_val_bmap;
++	u8 dummys[5];
++} __packed;
++
++struct mcp2200 {
++	struct hid_device *hdev;
++	struct mutex lock;
++	struct completion wait_in_report;
++	u8 gpio_dir;
++	u8 gpio_val;
++	u8 gpio_inval;
++	u8 baud_h;
++	u8 baud_l;
++	u8 config_alt_pins;
++	u8 gpio_reset_val;
++	u8 config_alt_options;
++	int status;
++	struct gpio_chip gc;
++	u8 hid_report[16];
++};
++
++/* this executes the READ_ALL cmd */
++static int mcp_cmd_read_all(struct mcp2200 *mcp)
++{
++	struct mcp_read_all *read_all;
++	int len, t;
++
++	reinit_completion(&mcp->wait_in_report);
++
++	mutex_lock(&mcp->lock);
++
++	read_all = (struct mcp_read_all *) mcp->hid_report;
++	read_all->cmd = READ_ALL;
++	len = hid_hw_output_report(mcp->hdev, (u8 *) read_all,
++				   sizeof(struct mcp_read_all));
++
++	mutex_unlock(&mcp->lock);
++
++	if (len != sizeof(struct mcp_read_all))
++		return -EINVAL;
++
++	t = wait_for_completion_timeout(&mcp->wait_in_report,
++					msecs_to_jiffies(4000));
++	if (!t)
++		return -ETIMEDOUT;
++
++	/* return status, negative value if wrong response was received */
++	return mcp->status;
++}
++
++static void mcp_set_multiple(struct gpio_chip *gc, unsigned long *mask,
++			     unsigned long *bits)
++{
++	struct mcp2200 *mcp = gpiochip_get_data(gc);
++	u8 value;
++	int status;
++	struct mcp_set_clear_outputs *cmd;
++
++	mutex_lock(&mcp->lock);
++	cmd = (struct mcp_set_clear_outputs *) mcp->hid_report;
++
++	value = mcp->gpio_val & ~*mask;
++	value |= (*mask & *bits);
++
++	cmd->cmd = SET_CLEAR_OUTPUTS;
++	cmd->set_bmap = value;
++	cmd->clear_bmap = ~(value);
++
++	status = hid_hw_output_report(mcp->hdev, (u8 *) cmd,
++		       sizeof(struct mcp_set_clear_outputs));
++
++	if (status == sizeof(struct mcp_set_clear_outputs))
++		mcp->gpio_val = value;
++
++	mutex_unlock(&mcp->lock);
++}
++
++static void mcp_set(struct gpio_chip *gc, unsigned int gpio_nr, int value)
++{
++	unsigned long mask = 1 << gpio_nr;
++	unsigned long bmap_value = value << gpio_nr;
++
++	mcp_set_multiple(gc, &mask, &bmap_value);
++}
++
++static int mcp_get_multiple(struct gpio_chip *gc, unsigned long *mask,
++		unsigned long *bits)
++{
++	u32 val;
++	struct mcp2200 *mcp = gpiochip_get_data(gc);
++	int status;
++
++	status = mcp_cmd_read_all(mcp);
++	if (status)
++		return status;
++
++	val = mcp->gpio_inval;
++	*bits = (val & *mask);
++	return 0;
++}
++
++static int mcp_get(struct gpio_chip *gc, unsigned int gpio_nr)
++{
++	unsigned long mask = 0, bits = 0;
++
++	mask = (1 << gpio_nr);
++	mcp_get_multiple(gc, &mask, &bits);
++	return bits > 0;
++}
++
++static int mcp_get_direction(struct gpio_chip *gc, unsigned int gpio_nr)
++{
++	struct mcp2200 *mcp = gpiochip_get_data(gc);
++
++	return (mcp->gpio_dir & (MCP2200_DIR_IN << gpio_nr))
++		? GPIO_LINE_DIRECTION_IN : GPIO_LINE_DIRECTION_OUT;
++}
++
++static int mcp_set_direction(struct gpio_chip *gc, unsigned int gpio_nr,
++			     enum MCP_IO_DIR io_direction)
++{
++	struct mcp2200 *mcp = gpiochip_get_data(gc);
++	struct mcp_configure *conf;
++	int status;
++	/* after the configure cmd we will need to set the outputs again */
++	unsigned long mask = ~(mcp->gpio_dir); /* only set outputs */
++	unsigned long bits = mcp->gpio_val;
++	/* Offsets of alternative pins in config_alt_pins, 0 is not used */
++	u8 alt_pin_conf[8] = {SSPND, USBCFG, 0, 0, 0, 0, RXLED, TXLED};
++	u8 config_alt_pins = mcp->config_alt_pins;
++
++	/* Read in the reset baudrate first, we need it later */
++	status = mcp_cmd_read_all(mcp);
++	if (status != 0)
++		return status;
++
++	mutex_lock(&mcp->lock);
++	conf = (struct mcp_configure  *) mcp->hid_report;
++
++	/* configure will reset the chip! */
++	conf->cmd = CONFIGURE;
++	conf->io_bmap = (mcp->gpio_dir & ~(1 << gpio_nr))
++		| (io_direction << gpio_nr);
++	/* Don't overwrite the reset parameters */
++	conf->baud_h = mcp->baud_h;
++	conf->baud_l = mcp->baud_l;
++	conf->config_alt_options = mcp->config_alt_options;
++	conf->io_default_val_bmap = mcp->gpio_reset_val;
++	/* Adjust alt. func if necessary */
++	if (alt_pin_conf[gpio_nr])
++		config_alt_pins &= ~(1 << alt_pin_conf[gpio_nr]);
++	conf->config_alt_pins = config_alt_pins;
++
++	status = hid_hw_output_report(mcp->hdev, (u8 *) conf,
++				      sizeof(struct mcp_set_clear_outputs));
++
++	if (status == sizeof(struct mcp_set_clear_outputs)) {
++		mcp->gpio_dir = conf->io_bmap;
++		mcp->config_alt_pins = config_alt_pins;
++	} else {
++		mutex_unlock(&mcp->lock);
++		return -EIO;
++	}
++
++	mutex_unlock(&mcp->lock);
++
++	/* Configure CMD will clear all IOs -> rewrite them */
++	mcp_set_multiple(gc, &mask, &bits);
++	return 0;
++}
++
++static int mcp_direction_input(struct gpio_chip *gc, unsigned int gpio_nr)
++{
++	return mcp_set_direction(gc, gpio_nr, MCP2200_DIR_IN);
++}
++
++static int mcp_direction_output(struct gpio_chip *gc, unsigned int gpio_nr,
++				int value)
++{
++	int ret;
++	unsigned long mask, bmap_value;
++
++	mask = 1 << gpio_nr;
++	bmap_value = value << gpio_nr;
++
++	ret = mcp_set_direction(gc, gpio_nr, MCP2200_DIR_OUT);
++	if (!ret)
++		mcp_set_multiple(gc, &mask, &bmap_value);
++	return ret;
++}
++
++static const struct gpio_chip template_chip = {
++	.label			= "mcp2200",
++	.owner			= THIS_MODULE,
++	.get_direction		= mcp_get_direction,
++	.direction_input	= mcp_direction_input,
++	.direction_output	= mcp_direction_output,
++	.set			= mcp_set,
++	.set_multiple		= mcp_set_multiple,
++	.get			= mcp_get,
++	.get_multiple		= mcp_get_multiple,
++	.base			= -1,
++	.ngpio			= MCP_NGPIO,
++	.can_sleep		= true,
++};
++
++/*
++ * MCP2200 uses interrupt endpoint for input reports. This function
++ * is called by HID layer when it receives i/p report from mcp2200,
++ * which is actually a response to the previously sent command.
++ */
++static int mcp2200_raw_event(struct hid_device *hdev, struct hid_report *report,
++		u8 *data, int size)
++{
++	struct mcp2200 *mcp = hid_get_drvdata(hdev);
++	struct mcp_read_all_resp *all_resp;
++
++	switch (data[0]) {
++	case READ_ALL:
++		all_resp = (struct mcp_read_all_resp *) data;
++		mcp->status = 0;
++		mcp->gpio_inval = all_resp->io_port_val_bmap;
++		mcp->baud_h = all_resp->baud_h;
++		mcp->baud_l = all_resp->baud_l;
++		mcp->gpio_reset_val = all_resp->io_default_val_bmap;
++		mcp->config_alt_pins = all_resp->config_alt_pins;
++		mcp->config_alt_options = all_resp->config_alt_options;
++		break;
++	default:
++		mcp->status = -EIO;
++		break;
++	}
++
++	complete(&mcp->wait_in_report);
++	return 0;
++}
++
++static int mcp2200_probe(struct hid_device *hdev, const struct hid_device_id *id)
++{
++	int ret;
++	struct mcp2200 *mcp;
++
++	mcp = devm_kzalloc(&hdev->dev, sizeof(*mcp), GFP_KERNEL);
++	if (!mcp)
++		return -ENOMEM;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "can't parse reports\n");
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, 0);
++	if (ret) {
++		hid_err(hdev, "can't start hardware\n");
++		return ret;
++	}
++
++	hid_info(hdev, "USB HID v%x.%02x Device [%s] on %s\n", hdev->version >> 8,
++			hdev->version & 0xff, hdev->name, hdev->phys);
++
++	ret = hid_hw_open(hdev);
++	if (ret) {
++		hid_err(hdev, "can't open device\n");
++		hid_hw_stop(hdev);
++		return ret;
++	}
++
++	mutex_init(&mcp->lock);
++	init_completion(&mcp->wait_in_report);
++	hid_set_drvdata(hdev, mcp);
++	mcp->hdev = hdev;
++
++	mcp->gc = template_chip;
++	mcp->gc.parent = &hdev->dev;
++
++	ret = devm_gpiochip_add_data(&hdev->dev, &mcp->gc, mcp);
++	if (ret < 0) {
++		hid_err(hdev, "Unable to register gpiochip\n");
++		return ret;
++	}
++
++	return 0;
++}
++
++static void mcp2200_remove(struct hid_device *hdev)
++{
++	hid_hw_close(hdev);
++	hid_hw_stop(hdev);
++}
++
++static const struct hid_device_id mcp2200_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_MICROCHIP, USB_DEVICE_ID_MCP2200) },
++	{ }
++};
++MODULE_DEVICE_TABLE(hid, mcp2200_devices);
++
++static struct hid_driver mcp2200_driver = {
++	.name		= "mcp2200",
++	.id_table	= mcp2200_devices,
++	.probe		= mcp2200_probe,
++	.remove		= mcp2200_remove,
++	.raw_event	= mcp2200_raw_event,
++};
++
++/* Register with HID core */
++module_hid_driver(mcp2200_driver);
++
++MODULE_AUTHOR("Johannes Roith <johannes@gnu-linux.rocks>");
++MODULE_DESCRIPTION("MCP2200 Microchip HID USB to GPIO bridge");
++MODULE_LICENSE("GPL");
+-- 
+2.42.0
 
-If the bug is already fixed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite bug's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the bug is a duplicate of another bug, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup

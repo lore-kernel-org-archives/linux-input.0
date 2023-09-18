@@ -2,79 +2,85 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D184DC46CA1
-	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 15:33:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 850C2CD13DE
+	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 15:34:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229732AbjIRPdL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 18 Sep 2023 11:33:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59138 "EHLO
+        id S229542AbjIRPeQ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Sep 2023 11:34:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229686AbjIRPci (ORCPT
+        with ESMTP id S229669AbjIRPdp (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 18 Sep 2023 11:32:38 -0400
+        Mon, 18 Sep 2023 11:33:45 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A409199
-        for <linux-input@vger.kernel.org>; Mon, 18 Sep 2023 08:30:35 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C661C3278D;
-        Mon, 18 Sep 2023 14:46:14 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92DA41B5;
+        Mon, 18 Sep 2023 08:30:46 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C757C3278C;
+        Mon, 18 Sep 2023 14:44:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695048375;
-        bh=efpxiNTLvuKpAD898vNDjY2BIUtuPdKc9cMxxACPosA=;
+        s=k20201202; t=1695048299;
+        bh=HnWHofl56uMOWkel1GBsK33pMrtP9vXMM6pW1ImAREc=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=jqjY7B/uFo3qZOM7QvPpvrEoV+SUAH1i3Rct+1qvv71HNp2VtXRFGuHK2xk6Eltn3
-         wAq6tUACF43wzcSvyArjHUqxowoM3hyCDZGSYByX+oKK3t095bVvjv2gSfbh+wrA47
-         QjaegQpxd9TNAOf9ODPdv/r+yw/tbWAPfCj8r9fGTgz1D/4MYzOaGoxh7U8O8I9yN7
-         l5ckmgMItAL++FSff8VxDrhiM3EQore2PMWl2ZdzBhVWCYv4j+apvdPnqNzpSBxM+T
-         QJ3GKE35RGK60ax4b6Jk/4YkjES7HUqr2AV3QMKxoD4/GQUFVrTaOgQTqj+hTyoLkp
-         xr7wVxsFioAog==
-Date:   Mon, 18 Sep 2023 16:46:12 +0200 (CEST)
+        b=pImtC92CDoUQZx4XteeJzi39c01SzUmEPiJIWPm0wWPJCQ23Grx8EafuPOc0AdTXO
+         a2tvornwy2jB/XusJpS0MaP6EmSNkU8dyBwSz2PtPMJrmqx53c/MB3C4FcE7hwqHuk
+         rozga6cy1vfQ+5wsHzK2IYW6P+Ljv3Ch6nFP6uoBdGKt57wbW9epFPuIWtCCyt+Drd
+         Sb0mHH8/lRjJGp7OUTiimLp0c8hfGl6vJv5RwkFreSpdHNR+QEr6gVG+jFIRmrTDdX
+         b2/4Im3nQ/HNuGnLKaGeFVlWAOOcKveueUHbox7vJbsVob4AQnfGytJv30n61cIpdE
+         F5D0tacd770vw==
+Date:   Mon, 18 Sep 2023 16:44:56 +0200 (CEST)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Even Xu <even.xu@intel.com>
-cc:     linux-input@vger.kernel.org, srinivas.pandruvada@linux.intel.com,
-        benjamin.tissoires@redhat.com
-Subject: Re: [PATCH] HID: intel-ish-hid: ipc: Add Arrow Lake PCI device ID
-In-Reply-To: <1694572419-10981-1-git-send-email-even.xu@intel.com>
-Message-ID: <nycvar.YFH.7.76.2309181646040.14216@cbobk.fhfr.pm>
-References: <1694572419-10981-1-git-send-email-even.xu@intel.com>
+To:     Dan Carpenter <dan.carpenter@linaro.org>
+cc:     Bastien Nocera <hadess@hadess.net>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH v2] HID: steelseries: Fix signedness bug in
+ steelseries_headset_arctis_1_fetch_battery()
+In-Reply-To: <6e0a33e3-1564-419a-9946-b2d0afa0f98d@moroto.mountain>
+Message-ID: <nycvar.YFH.7.76.2309181644500.14216@cbobk.fhfr.pm>
+References: <6e0a33e3-1564-419a-9946-b2d0afa0f98d@moroto.mountain>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Wed, 13 Sep 2023, Even Xu wrote:
+On Fri, 15 Sep 2023, Dan Carpenter wrote:
 
-> Add device ID of Arrow Lake-S into ishtp support list.
+> The hid_hw_raw_request() function returns negative error codes or the
+> number bytes transferred.  The problem is that when it returns negative
+> error codes and we check if "ret < sizeof(arctis_1_battery_request)",
+> then the negative values are type promoted from int to high unsigned long
+> values and treated as success.
 > 
-> Signed-off-by: Even Xu <even.xu@intel.com>
+> This was detected using Smatch:
+> 
+>     drivers/hid/hid-steelseries.c:393 steelseries_headset_arctis_1_fetch_battery()
+>     warn: error code type promoted to positive: 'ret'
+> 
+> Fixes: a0c76896c3fb ("HID: steelseries: Add support for Arctis 1 XBox")
+> Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
 > ---
->  drivers/hid/intel-ish-hid/ipc/hw-ish.h  | 1 +
->  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 1 +
->  2 files changed, 2 insertions(+)
+> v2: Re-word the commit message.  Add the Smatch warning.  Use a cast
+> instead of an explicit check for negatives.
 > 
-> diff --git a/drivers/hid/intel-ish-hid/ipc/hw-ish.h b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> index e99f3a3..f89b300 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> +++ b/drivers/hid/intel-ish-hid/ipc/hw-ish.h
-> @@ -34,6 +34,7 @@
->  #define RPL_S_DEVICE_ID		0x7A78
->  #define MTL_P_DEVICE_ID		0x7E45
->  #define ARL_H_DEVICE_ID		0x7745
-> +#define ARL_S_DEVICE_ID		0x7F78
->  
->  #define	REVISION_ID_CHT_A0	0x6
->  #define	REVISION_ID_CHT_Ax_SI	0x0
-> diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> index 55cb250..ae3c6c1 100644
-> --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
-> @@ -45,6 +45,7 @@ static const struct pci_device_id ish_pci_tbl[] = {
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, RPL_S_DEVICE_ID)},
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, MTL_P_DEVICE_ID)},
->  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ARL_H_DEVICE_ID)},
-> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, ARL_S_DEVICE_ID)},
->  	{0, }
+>  drivers/hid/hid-steelseries.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
+> index 43d2cf7153d7..b3edadf42d6d 100644
+> --- a/drivers/hid/hid-steelseries.c
+> +++ b/drivers/hid/hid-steelseries.c
+> @@ -390,7 +390,7 @@ static int steelseries_headset_arctis_1_fetch_battery(struct hid_device *hdev)
+>  	ret = hid_hw_raw_request(hdev, arctis_1_battery_request[0],
+>  				 write_buf, sizeof(arctis_1_battery_request),
+>  				 HID_OUTPUT_REPORT, HID_REQ_SET_REPORT);
+> -	if (ret < sizeof(arctis_1_battery_request)) {
+> +	if (ret < (int)sizeof(arctis_1_battery_request)) {
+>  		hid_err(hdev, "hid_hw_raw_request() failed with %d\n", ret);
+>  		ret = -ENODATA;
+>  	}
 
 Applied, thanks.
 

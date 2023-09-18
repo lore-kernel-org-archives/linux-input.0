@@ -2,169 +2,707 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24612C46CA1
-	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 11:59:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 17D8DCD37B0
+	for <linux-input@archiver.kernel.org>; Mon, 18 Sep 2023 12:47:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241794AbjIRL7C (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 18 Sep 2023 07:59:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40256 "EHLO
+        id S240552AbjIRMrS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 18 Sep 2023 08:47:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241883AbjIRL6q (ORCPT
+        with ESMTP id S241493AbjIRMqv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 18 Sep 2023 07:58:46 -0400
-Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2057.outbound.protection.outlook.com [40.107.220.57])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5F7E172A;
-        Mon, 18 Sep 2023 04:55:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QJmio5g+/675efPyfwqRx7G1Xco5WarcTBrZdrEijqQKPGV6Zq6E52TtT4r/6zaCqShAEFGgTWG0RlOMjFQsMsafrtvcaJP5zVybSTVRf5zAA07ZKJLaUO3KrM/F463qIioFtKU/ALV2OZ8j2sW68MT0XQB/9PL/SCJAonbQjGNnk1v93+Zdlo5ugvEig3OoIAEXvnngUBcIKjxQzmHZUHZf8Fqk4P1gfdoXGXoSvPe2Yz3r6tpmRc5TlEhBdZ3bTsn9NTJKqh2ta9Ov3Bl6qOJb8oX+6FwPToj1QJZozvM2c7pWdva1ZaoRrJmTy+DRUE2mRuwkFJzpPsXEkalMoA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=W1FIBDQHRoSpuV6r0BPeSdALbquX/AvwUSU51/p7reo=;
- b=QKgsEEiRJbFq6OXN7/4mh+B9NyvfzuFtYXw5hKGGyQrq/o9pvAzVOA/OeRpA0+nrhYDldA3ZGRaVL+FdP5NUxzl6yPOidKTrgn1o/XEbq7P3iW76mmc3DKT3w0eb+EiMvVpK3Q5i/vffdydGsyy5YpeRxD5EXOI0l+eBKBowq5pkBx33GioGVCd4OjlFRb2n5gpDh3gwRTtfyjoQ1/fU6OF5zUcO4YuaqO7Xq4W7ev+7YGiJPurOQCo2vBZK8eAPbRMxg9lZ4jbRcYLF2zc/tfbemkg7cnHJKXcKMJDWOlWUjihRpHuTc2bojg9jqa2Va6W5IVO2iincjB0psAdgrQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=W1FIBDQHRoSpuV6r0BPeSdALbquX/AvwUSU51/p7reo=;
- b=XfJiihrSZ9Q6zqLhp9u+qCLQkX60xvUlA669aw0DF67AL4/MahhiKSdO+elVqBsmTeW/xlnh53jf9ty7eyUs+RLaxlMO3HJVGSRel4qvT31nXDJyc9+y1qY5jxYYeMWgx+IRIfVGV+WA7euS+k09VJWg74Az1keMYrTOZNyThiS0/9xfyJFm+CVRRliW1oEJRsGZPp7RDmWCF60MGm2WEDO1SjqwJ7+G342KqdTthad/R2CjJNeWNUpi9u7umYG3XuKd2FKMcWtpxBVaxZNqoSnhB1sJwONun+Rhz9c8I+tZsSGYZvMSzHIrlQOfE4uMxjwBSm/BH3ybFS1/ecszVA==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from BYAPR12MB2743.namprd12.prod.outlook.com (2603:10b6:a03:61::28)
- by PH7PR12MB7872.namprd12.prod.outlook.com (2603:10b6:510:27c::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6792.26; Mon, 18 Sep
- 2023 11:54:48 +0000
-Received: from BYAPR12MB2743.namprd12.prod.outlook.com
- ([fe80::5cc1:1ea3:4ec5:72af]) by BYAPR12MB2743.namprd12.prod.outlook.com
- ([fe80::5cc1:1ea3:4ec5:72af%5]) with mapi id 15.20.6792.026; Mon, 18 Sep 2023
- 11:54:48 +0000
-From:   Rahul Rameshbabu <rrameshbabu@nvidia.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Rahul Rameshbabu <rrameshbabu@nvidia.com>
-Subject: [PATCH v3 2/3] HID: nvidia-shield: Fix some missing function calls() in the probe error handling path
-Date:   Mon, 18 Sep 2023 04:54:31 -0700
-Message-Id: <20230918115432.30076-3-rrameshbabu@nvidia.com>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20230918115432.30076-1-rrameshbabu@nvidia.com>
-References: <20230918115432.30076-1-rrameshbabu@nvidia.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BYAPR06CA0010.namprd06.prod.outlook.com
- (2603:10b6:a03:d4::23) To BYAPR12MB2743.namprd12.prod.outlook.com
- (2603:10b6:a03:61::28)
+        Mon, 18 Sep 2023 08:46:51 -0400
+Received: from mail-oo1-f79.google.com (mail-oo1-f79.google.com [209.85.161.79])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9BF318D
+        for <linux-input@vger.kernel.org>; Mon, 18 Sep 2023 05:45:10 -0700 (PDT)
+Received: by mail-oo1-f79.google.com with SMTP id 006d021491bc7-572b583c7d3so6396494eaf.3
+        for <linux-input@vger.kernel.org>; Mon, 18 Sep 2023 05:45:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695041110; x=1695645910;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Hyzj3FkxBbOiRHmAOVfINvVoKVwl9VBEYfs9pGw5B/Q=;
+        b=rFs2uDcm19JWlpQZ3zyCEhHyhsEhrTbI9EiH5Zh7OUCoKnKfoCfiIzfrAlQq7QgNDV
+         kWJVyJoSH9zWo7DoEp0iwvT6w27nO67lKVi6hgUhAbg2lhBkF3kIUAij43I/awlQ+q6t
+         y4ky4BbE33l6jzNZO2tbQCrg6cEmJtgEZnCQQQYT0zu006QPrxraDhtykWxu0cIhvfPs
+         09fUX00EGAt6SmqsVJr/dVkG9g8xTode0tLSf34eVYfQ0YyzYWRoEeNSI5/iKBA4Jo48
+         aUe2ovp+2Rw6Uo11JwiMvlizUZqsMoTIgSZYTvwMJVO5L1IjHTsSkwzumaJQmynVrUm3
+         xDBQ==
+X-Gm-Message-State: AOJu0YwNxRGC2zh7aS9UAhDRHkCuR6glwgk44R6m9m79jT8yYDc0clOY
+        b3UkppT9kG0Uj1P5ztxUAi7s4G0tqZgrtKEOyBdX9WI0rpMs
+X-Google-Smtp-Source: AGHT+IGYjjxJh9ClSXuBeLaKnpHYN/mxQQHtqswV/ryuqOMN33TRH8+qOLUlo64/Wi0t0LlMCpCKZOM3Fi/azghJ02trgQE6+VCS
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BYAPR12MB2743:EE_|PH7PR12MB7872:EE_
-X-MS-Office365-Filtering-Correlation-Id: b7f7b288-a7fb-4a71-5902-08dbb83e0f4a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: OFOp9re/m2sPvJlxuAomrgU/9lIKv2mDwo3exW5MzFXelKtwrRTlKblvVi+EP8mfrQIXuuwSx4wcoE6Rkrx7kux0sR2fnlKuJ4zPqVrceCJbNLXzm+D+PdVEA925Z1A5XqSHjPDo7oezqcGfspy/4tUkTZcScWsnugDRETy66jWkKLn6405XUMpge/7ztkYltrfs4bXcaYDyH5/JR/LcJRCxaacy9+jOZYw59SF7QDFwYnj4XcqZyVew1MYAS7tOEc/kH/YlCe3BSUHQI0mNgXHKKzGiKAJ0dFZho6EX6QAzluxSF5aFEOhv6TScbkca+/PPTJmofuBxl4EOq2ELlvr+WzQGqyu5g4rx6aqWTm927r4SBBm55aiUdFeUzWxa4JcOR5bP0xjynbPeLDAHm8tvRKpiphA+/VuBP5qpnLgRpx+JeJpkCRDaak7w6B0JM6QLaFVdnngTIj7jvWQBwv1T023r0UnsAm6/mjINkweb2JKk+R2pRGa1F9QNJH/ZywK8aoTO7/Q17OwvHiQcLb/b1h5yF5F3vPmGx3TnDx1rw96sPRNnQIMFlF1HOGFi
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR12MB2743.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(396003)(366004)(136003)(376002)(39860400002)(346002)(1800799009)(186009)(451199024)(26005)(2616005)(8936002)(8676002)(1076003)(4326008)(107886003)(83380400001)(2906002)(36756003)(5660300002)(86362001)(6506007)(6486002)(478600001)(6666004)(316002)(54906003)(6512007)(110136005)(66946007)(66476007)(41300700001)(66556008)(38100700002);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?eDs26dqn7doqk0toQLfXaZ2E9t6weLsN9Ar4CD11PZ4esAt249Uk/8lnm8CJ?=
- =?us-ascii?Q?03JOYAMTAtAXiiGzA4gZfbePWaRuFhx4z7ST+zQqhg9yAagE6D+Tz1/zCtct?=
- =?us-ascii?Q?m/b4/gm4y1vMiACIoKN7Unedcb/2sm+o2MUGRE5/JSNMnqcT50kZPQi4I2c+?=
- =?us-ascii?Q?4jUkoFecl7aali/s1Y4GyCIarChXeZfAKiMFKjsP0gLtaSXxWP4ISoq8ZHGY?=
- =?us-ascii?Q?RIQa9flx09KpAa6wXcdpEazzVsmJDimGOr/8IcTCIPSJWtZ44MIUBeD4u6xo?=
- =?us-ascii?Q?zNoKjVGfHV0GuFdG9dDQUzyf0sLng8IRMXmDyEPdbahHDL6cXwRd0djZc8cg?=
- =?us-ascii?Q?gZak651G88fBPQ3K1wwMdBibt4R1VZdAI6FDl07Fa5BK4Qij2q3MtyuQMghg?=
- =?us-ascii?Q?uwSD/QTucp54wVnqIOQ5Agp4DFP9uG5Sy9+WGm+jmbEop3ZIhUiDkDTd+3tG?=
- =?us-ascii?Q?UnGNR4CNp7HFSqxbiRblJ6TJbCFDZTBuKD9PA1dbLHDZzefqVLIRxyxzXBBY?=
- =?us-ascii?Q?pVNyN1MN3GpvjDhqYjL5EKRYmuNjOTYYkft1lvwiLUuPsvzCuusaa8xjpDGE?=
- =?us-ascii?Q?rJGu4iXOvblScKTfrtwaZN3Cbd6l5wdinuyT8RLgGftpWyXCtIa7Of2M8RCK?=
- =?us-ascii?Q?Z1PbPL1JkkaV8aih5oTwIQi6Ws3lT7dr728RrHLOzrGBaLb7spYbMGhuIfq+?=
- =?us-ascii?Q?I83kkqdg8VyitXxd57jdRVbG38LRX+9VqkXrJ9muA6sG0eE8Eu33eY8pZq2v?=
- =?us-ascii?Q?EjGwo+4/bD40sIRYC0fIuks0dp6dWM1yVCtq/VPYxn5suhwaJ5K0MmMBfdBg?=
- =?us-ascii?Q?Nl2N17TEIUrnYX/T0XK4X9fyMvcw6wBLyS2DtmKktTm3SJ6CxiS2IC9vRc6u?=
- =?us-ascii?Q?PAoHmGoO7KBuNLB327zjtM5xNh3YOeXp3MQOAYlsMlscQO3gizj1zw73FQss?=
- =?us-ascii?Q?bMXjvlPFCJf346Bj2IpGv8kwyR/GdgkmwJnAnYB3RuJX29gCSHOAVFDteEmI?=
- =?us-ascii?Q?PGE88jNFyE+Cf4GGUSNQvC/22ZFLfsNtcmO4KZ7ZMel4EuhOpse4UzrkYooC?=
- =?us-ascii?Q?ZFGNagI1XRFipXuC8QZ4Wb0UqkMsBMAm6OARIFWWgUAvoPaU16MNaerdg4pL?=
- =?us-ascii?Q?+PV7sGh4iA7FQVYZtgvl1g+346D9fn4b6Ff4KJtxV3Ny0s8nlQhTNbtCyuhb?=
- =?us-ascii?Q?IrD07Rlpwoi1xX9OuT4AZKSN2dUK2bcsnRih510/FsKEfU1QVPFTigGMd8wR?=
- =?us-ascii?Q?0QmW+7eZAOvhJuHNFAEaY+fBqbuPbrdjeB6h5KhN+r1mSHsOE4hHYF/Kwmf2?=
- =?us-ascii?Q?Sa99SDIvpaasDZcyyOXdkYj7jrAjL8Ep7AsmmX6p8oE5mozQwIyJcEelQIQx?=
- =?us-ascii?Q?6cjdBGxpdSmsODIU6vtCmAMVCarTgg+oDtaIAZ1oq8BpYpiYTEisAiCeVhYs?=
- =?us-ascii?Q?JvVdFA4DETTQgWXp6T3V5zUxQg6eLAtB9s+574ffrKO1kAWEKBSlkcs8+tlm?=
- =?us-ascii?Q?9loAo8HhYNEHuXSKjk2+2A2Nyd8xF4fCKG4FGNKrBijh/HRsyNG10fi6z5Z4?=
- =?us-ascii?Q?sbf4eFEZijVdicKA7CRaUlwrbobtFQc6q8Cd6FgjgHUpkQ2CoQH6gCXwAsJC?=
- =?us-ascii?Q?Rg=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b7f7b288-a7fb-4a71-5902-08dbb83e0f4a
-X-MS-Exchange-CrossTenant-AuthSource: BYAPR12MB2743.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Sep 2023 11:54:48.8007
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5Q0xgGsITfuATYXjlSMmJcziB5WFxKCu0y3+isQ8yW9p9fjwo9jZlpHVhr52o2ap8jc6YTAFL0nsx9yQpif6Qg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB7872
+X-Received: by 2002:a05:6870:98ac:b0:1d6:cf21:44c1 with SMTP id
+ eg44-20020a05687098ac00b001d6cf2144c1mr1896501oab.9.1695041109974; Mon, 18
+ Sep 2023 05:45:09 -0700 (PDT)
+Date:   Mon, 18 Sep 2023 05:45:09 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000003d63410605a18363@google.com>
+Subject: [syzbot] [input?] INFO: task hung in __input_unregister_device (5)
+From:   syzbot <syzbot+78e2288f58b881ed3c45@syzkaller.appspotmail.com>
+To:     dmitry.torokhov@gmail.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        rydberg@bitmath.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Hello,
 
-The commit in Fixes updated the error handling path of
-thunderstrike_create() and the remove function but not the error handling
-path of shield_probe(), should an error occur after a successful
-thunderstrike_create() call.
+syzbot found the following issue on:
 
-Add the missing calls.
+HEAD commit:    0bb80ecc33a8 Linux 6.6-rc1
+git tree:       https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git usb-testing
+console output: https://syzkaller.appspot.com/x/log.txt?x=146fd272680000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=13b8d0222a8e5a19
+dashboard link: https://syzkaller.appspot.com/bug?extid=78e2288f58b881ed3c45
+compiler:       gcc (Debian 12.2.0-14) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=151e9d62680000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=17971b44680000
 
-Fixes: 3ab196f88237 ("HID: nvidia-shield: Add battery support for Thunderstrike")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Rahul Rameshbabu <rrameshbabu@nvidia.com>
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/a5fdb25d37ac/disk-0bb80ecc.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/dc964206a779/vmlinux-0bb80ecc.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/541dfc8b614c/bzImage-0bb80ecc.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+78e2288f58b881ed3c45@syzkaller.appspotmail.com
+
+INFO: task kworker/1:0:22 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/1:0     state:D
+ stack:22752 pid:22    ppid:2      flags:0x00004000
+Workqueue: usb_hub_wq hub_event
+
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
+ __mutex_lock_common kernel/locking/mutex.c:679 [inline]
+ __mutex_lock+0x967/0x1340 kernel/locking/mutex.c:747
+ __input_unregister_device+0x136/0x450 drivers/input/input.c:2219
+ input_unregister_device+0xb9/0x100 drivers/input/input.c:2440
+ hidinput_disconnect+0x160/0x3e0 drivers/hid/hid-input.c:2386
+ hid_disconnect+0x143/0x1b0 drivers/hid/hid-core.c:2273
+ hid_hw_stop drivers/hid/hid-core.c:2322 [inline]
+ hid_device_remove+0x1a5/0x250 drivers/hid/hid-core.c:2684
+ device_remove+0xc8/0x170 drivers/base/dd.c:567
+ __device_release_driver drivers/base/dd.c:1272 [inline]
+ device_release_driver_internal+0x44a/0x610 drivers/base/dd.c:1295
+ bus_remove_device+0x22c/0x420 drivers/base/bus.c:574
+ device_del+0x39a/0xa50 drivers/base/core.c:3811
+ hid_remove_device drivers/hid/hid-core.c:2859 [inline]
+ hid_destroy_device+0xe5/0x150 drivers/hid/hid-core.c:2879
+ usbhid_disconnect+0xa0/0xe0 drivers/hid/usbhid/hid-core.c:1456
+ usb_unbind_interface+0x1dd/0x8d0 drivers/usb/core/driver.c:458
+ device_remove drivers/base/dd.c:569 [inline]
+ device_remove+0x11f/0x170 drivers/base/dd.c:561
+ __device_release_driver drivers/base/dd.c:1272 [inline]
+ device_release_driver_internal+0x44a/0x610 drivers/base/dd.c:1295
+ bus_remove_device+0x22c/0x420 drivers/base/bus.c:574
+ device_del+0x39a/0xa50 drivers/base/core.c:3811
+ usb_disable_device+0x36c/0x7f0 drivers/usb/core/message.c:1416
+ usb_disconnect+0x2e1/0x890 drivers/usb/core/hub.c:2252
+ hub_port_connect drivers/usb/core/hub.c:5280 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5580 [inline]
+ port_event drivers/usb/core/hub.c:5740 [inline]
+ hub_event+0x1be0/0x4f30 drivers/usb/core/hub.c:5822
+ process_one_work+0x887/0x15d0 kernel/workqueue.c:2630
+ process_scheduled_works kernel/workqueue.c:2703 [inline]
+ worker_thread+0x8bb/0x1290 kernel/workqueue.c:2784
+ kthread+0x33a/0x430 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
+ </TASK>
+INFO: task jbd2/sda1-8:2348 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:jbd2/sda1-8     state:D stack:26656 pid:2348  ppid:2      flags:0x00004000
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ io_schedule+0xbe/0x130 kernel/sched/core.c:9026
+ bit_wait_io+0x16/0xe0 kernel/sched/wait_bit.c:209
+ __wait_on_bit+0x62/0x170 kernel/sched/wait_bit.c:49
+ out_of_line_wait_on_bit+0xdb/0x110 kernel/sched/wait_bit.c:64
+ wait_on_bit_io include/linux/wait_bit.h:101 [inline]
+ __wait_on_buffer+0x64/0x70 fs/buffer.c:123
+ wait_on_buffer include/linux/buffer_head.h:370 [inline]
+ journal_wait_on_commit_record fs/jbd2/commit.c:171 [inline]
+ jbd2_journal_commit_transaction+0x4885/0x63d0 fs/jbd2/commit.c:890
+ kjournald2+0x1fb/0x900 fs/jbd2/journal.c:201
+ kthread+0x33a/0x430 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
+ </TASK>
+INFO: task udevd:2385 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:udevd           state:D
+ stack:26672 pid:2385  ppid:1      flags:0x00004002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
+ rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
+ __down_read_common kernel/locking/rwsem.c:1250 [inline]
+ __down_read kernel/locking/rwsem.c:1263 [inline]
+ down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
+ kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+ d_revalidate fs/namei.c:861 [inline]
+ d_revalidate fs/namei.c:858 [inline]
+ lookup_fast+0x232/0x520 fs/namei.c:1654
+ walk_component+0x5b/0x5a0 fs/namei.c:1997
+ link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
+ link_path_walk fs/namei.c:2253 [inline]
+ path_openat+0x231/0x29c0 fs/namei.c:3792
+ do_filp_open+0x1de/0x430 fs/namei.c:3823
+ do_sys_openat2+0x176/0x1e0 fs/open.c:1422
+ do_sys_open fs/open.c:1437 [inline]
+ __do_sys_openat fs/open.c:1453 [inline]
+ __se_sys_openat fs/open.c:1448 [inline]
+ __x64_sys_openat+0x175/0x210 fs/open.c:1448
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7ff1d282a9a4
+RSP: 002b:00007ffc58f5b980 EFLAGS: 00000246 ORIG_RAX: 0000000000000101
+RAX: ffffffffffffffda RBX: 0000000000000008 RCX: 00007ff1d282a9a4
+RDX: 0000000000080000 RSI: 00007ffc58f5bab8 RDI: 00000000ffffff9c
+RBP: 00007ffc58f5bab8 R08: 0000000000000008 R09: 0000000000000001
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000080000
+R13: 000055dec8f90b42 R14: 0000000000000001 R15: 0000000000000000
+ </TASK>
+INFO: task udevd:2500 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:udevd           state:D
+ stack:27568 pid:2500  ppid:2385   flags:0x00004002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
+ rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
+ __down_read_common kernel/locking/rwsem.c:1250 [inline]
+ __down_read kernel/locking/rwsem.c:1263 [inline]
+ down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
+ kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+ d_revalidate fs/namei.c:861 [inline]
+ d_revalidate fs/namei.c:858 [inline]
+ lookup_fast+0x232/0x520 fs/namei.c:1654
+ walk_component+0x5b/0x5a0 fs/namei.c:1997
+ link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
+ link_path_walk fs/namei.c:2252 [inline]
+ path_lookupat+0x93/0x770 fs/namei.c:2481
+ filename_lookup+0x1e7/0x5b0 fs/namei.c:2511
+ vfs_statx+0x160/0x430 fs/stat.c:277
+ vfs_fstatat+0xb3/0x140 fs/stat.c:332
+ __do_sys_newfstatat+0x98/0x110 fs/stat.c:502
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7ff1d282a5f4
+RSP: 002b:00007ffc58f59b38 EFLAGS: 00000206
+ ORIG_RAX: 0000000000000106
+RAX: ffffffffffffffda RBX: 000055decac27a40 RCX: 00007ff1d282a5f4
+RDX: 00007ffc58f59b48 RSI: 00007ffc58f59bd8 RDI: 00000000ffffff9c
+RBP: 000055decac3d3df R08: 000055decac3d3df R09: 0000000000000000
+R10: 0000000000000100 R11: 0000000000000206 R12: 0000000000000000
+R13: 000055decac27b30 R14: 00007ffc58f59bd8 R15: 000055dec8f91a04
+ </TASK>
+INFO: task kworker/1:3:2503 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/1:3     state:D stack:22416 pid:2503  ppid:2      flags:0x00004000
+Workqueue: events console_callback
+
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_timeout+0x27a/0x2c0 kernel/time/timer.c:2143
+ ___down_common kernel/locking/semaphore.c:225 [inline]
+ __down_common+0x328/0x6c0 kernel/locking/semaphore.c:246
+ down+0x74/0xa0 kernel/locking/semaphore.c:63
+ console_lock+0x96/0x150 kernel/printk/printk.c:2652
+ console_callback+0x63/0x4c0 drivers/tty/vt/vt.c:2933
+ process_one_work+0x887/0x15d0 kernel/workqueue.c:2630
+ process_scheduled_works kernel/workqueue.c:2703 [inline]
+ worker_thread+0x8bb/0x1290 kernel/workqueue.c:2784
+ kthread+0x33a/0x430 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
+ </TASK>
+INFO: task udevd:2507 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:udevd           state:D
+ stack:27712 pid:2507  ppid:2385   flags:0x00000002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
+ rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
+ __down_read_common kernel/locking/rwsem.c:1250 [inline]
+ __down_read kernel/locking/rwsem.c:1263 [inline]
+ down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
+ kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+ d_revalidate fs/namei.c:861 [inline]
+ d_revalidate fs/namei.c:858 [inline]
+ lookup_fast+0x232/0x520 fs/namei.c:1654
+ walk_component+0x5b/0x5a0 fs/namei.c:1997
+ link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
+ link_path_walk fs/namei.c:2252 [inline]
+ path_lookupat+0x93/0x770 fs/namei.c:2481
+ filename_lookup+0x1e7/0x5b0 fs/namei.c:2511
+ vfs_statx+0x160/0x430 fs/stat.c:277
+ vfs_fstatat+0xb3/0x140 fs/stat.c:332
+ __do_sys_newfstatat+0x98/0x110 fs/stat.c:502
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7ff1d282a5f4
+RSP: 002b:00007ffc58f58e98 EFLAGS: 00000206
+ ORIG_RAX: 0000000000000106
+RAX: ffffffffffffffda RBX: 000055decac14d40 RCX: 00007ff1d282a5f4
+RDX: 00007ffc58f58ea8 RSI: 00007ffc58f58f38 RDI: 00000000ffffff9c
+RBP: 00007ffc58f5a390 R08: 00007ffc58f5a390 R09: 0000000000000000
+R10: 0000000000000100 R11: 0000000000000206 R12: 0000000000000000
+R13: 000055decac14e30 R14: 00007ffc58f58f38 R15: 0000000000000001
+ </TASK>
+INFO: task udevd:2508 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:udevd           state:D stack:26768 pid:2508  ppid:2385   flags:0x00004002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
+ rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
+ __down_read_common kernel/locking/rwsem.c:1250 [inline]
+ __down_read kernel/locking/rwsem.c:1263 [inline]
+ down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
+ kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+ d_revalidate fs/namei.c:861 [inline]
+ d_revalidate fs/namei.c:858 [inline]
+ lookup_fast+0x232/0x520 fs/namei.c:1654
+ walk_component+0x5b/0x5a0 fs/namei.c:1997
+ link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
+ link_path_walk fs/namei.c:2252 [inline]
+ path_lookupat+0x93/0x770 fs/namei.c:2481
+ filename_lookup+0x1e7/0x5b0 fs/namei.c:2511
+ vfs_statx+0x160/0x430 fs/stat.c:277
+ vfs_fstatat+0xb3/0x140 fs/stat.c:332
+ __do_sys_newfstatat+0x98/0x110 fs/stat.c:502
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7ff1d282a5f4
+RSP: 002b:00007ffc58f59b38 EFLAGS: 00000206
+ ORIG_RAX: 0000000000000106
+RAX: ffffffffffffffda RBX: 000055decac33730 RCX: 00007ff1d282a5f4
+RDX: 00007ffc58f59b48 RSI: 00007ffc58f59bd8 RDI: 00000000ffffff9c
+RBP: 000055decac3dcbb R08: 000055decac3dcbb R09: 0000000000000000
+R10: 0000000000000100 R11: 0000000000000206 R12: 0000000000000000
+R13: 000055decac33820 R14: 00007ffc58f59bd8 R15: 000055dec8f91a04
+ </TASK>
+INFO: task kworker/0:6:2525 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:kworker/0:6     state:D
+ stack:22912 pid:2525  ppid:2      flags:0x00004000
+Workqueue: usb_hub_wq hub_event
+
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
+ rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
+ __down_read_common kernel/locking/rwsem.c:1250 [inline]
+ __down_read kernel/locking/rwsem.c:1263 [inline]
+ down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
+ kernfs_find_and_get_ns+0x71/0xc0 fs/kernfs/dir.c:897
+ kernfs_find_and_get include/linux/kernfs.h:601 [inline]
+ sysfs_unmerge_group+0x61/0x170 fs/sysfs/group.c:369
+ dpm_sysfs_remove+0x68/0xb0 drivers/base/power/sysfs.c:833
+ device_del+0x1a8/0xa50 drivers/base/core.c:3786
+ device_unregister+0x1d/0xc0 drivers/base/core.c:3852
+ usb_remove_ep_devs+0x42/0x80 drivers/usb/core/endpoint.c:188
+ remove_intf_ep_devs drivers/usb/core/message.c:1264 [inline]
+ usb_disable_device+0x322/0x7f0 drivers/usb/core/message.c:1415
+ usb_disconnect+0x2e1/0x890 drivers/usb/core/hub.c:2252
+ hub_port_connect drivers/usb/core/hub.c:5280 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5580 [inline]
+ port_event drivers/usb/core/hub.c:5740 [inline]
+ hub_event+0x1be0/0x4f30 drivers/usb/core/hub.c:5822
+ process_one_work+0x887/0x15d0 kernel/workqueue.c:2630
+ process_scheduled_works kernel/workqueue.c:2703 [inline]
+ worker_thread+0x8bb/0x1290 kernel/workqueue.c:2784
+ kthread+0x33a/0x430 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
+ </TASK>
+INFO: task udevd:2537 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:udevd           state:D
+ stack:27712 pid:2537  ppid:2385   flags:0x00004002
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
+ rwsem_down_read_slowpath+0x625/0xb20 kernel/locking/rwsem.c:1086
+ __down_read_common kernel/locking/rwsem.c:1250 [inline]
+ __down_read kernel/locking/rwsem.c:1263 [inline]
+ down_read+0xf0/0x470 kernel/locking/rwsem.c:1522
+ kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+ d_revalidate fs/namei.c:861 [inline]
+ d_revalidate fs/namei.c:858 [inline]
+ lookup_fast+0x232/0x520 fs/namei.c:1654
+ walk_component+0x5b/0x5a0 fs/namei.c:1997
+ link_path_walk.part.0.constprop.0+0x71f/0xce0 fs/namei.c:2328
+ link_path_walk fs/namei.c:2252 [inline]
+ path_lookupat+0x93/0x770 fs/namei.c:2481
+ filename_lookup+0x1e7/0x5b0 fs/namei.c:2511
+ user_path_at_empty+0x42/0x60 fs/namei.c:2910
+ do_readlinkat+0xdd/0x2f0 fs/stat.c:533
+ __do_sys_readlink fs/stat.c:566 [inline]
+ __se_sys_readlink fs/stat.c:563 [inline]
+ __x64_sys_readlink+0x78/0xb0 fs/stat.c:563
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7ff1d282bd47
+RSP: 002b:00007ffc58f59a48 EFLAGS: 00000246
+ ORIG_RAX: 0000000000000059
+RAX: ffffffffffffffda RBX: 00007ffc58f59a58 RCX: 00007ff1d282bd47
+RDX: 0000000000000400 RSI: 00007ffc58f59a58 RDI: 00007ffc58f59f38
+RBP: 0000000000000400 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000010 R11: 0000000000000246 R12: 00007ffc58f59f38
+R13: 00007ffc58f59ea8 R14: 000055decac14910 R15: 00007ffc58f5b049
+ </TASK>
+INFO: task syz-executor212:2596 blocked for more than 143 seconds.
+      Not tainted 6.6.0-rc1-syzkaller #0
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:syz-executor212 state:D stack:28864 pid:2596  ppid:2487   flags:0x00004006
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5382 [inline]
+ __schedule+0xc79/0x30a0 kernel/sched/core.c:6695
+ schedule+0xe7/0x1b0 kernel/sched/core.c:6771
+ schedule_preempt_disabled+0x13/0x20 kernel/sched/core.c:6830
+ rwsem_down_write_slowpath+0x53e/0x1290 kernel/locking/rwsem.c:1178
+ __down_write_common kernel/locking/rwsem.c:1306 [inline]
+ __down_write kernel/locking/rwsem.c:1315 [inline]
+ down_write+0x1d3/0x200 kernel/locking/rwsem.c:1574
+ kernfs_add_one+0xb1/0x510 fs/kernfs/dir.c:757
+ kernfs_create_dir_ns+0x181/0x210 fs/kernfs/dir.c:1050
+ sysfs_create_dir_ns+0x13b/0x2a0 fs/sysfs/dir.c:59
+ create_dir lib/kobject.c:73 [inline]
+ kobject_add_internal+0x2c8/0x960 lib/kobject.c:238
+ kobject_add_varg lib/kobject.c:372 [inline]
+ kobject_init_and_add+0x11c/0x190 lib/kobject.c:455
+ bus_add_driver+0x186/0x630 drivers/base/bus.c:666
+ driver_register+0x15c/0x4a0 drivers/base/driver.c:246
+ usb_gadget_register_driver_owner+0xfd/0x2d0 drivers/usb/gadget/udc/core.c:1674
+ raw_ioctl_run drivers/usb/gadget/legacy/raw_gadget.c:548 [inline]
+ raw_ioctl+0x172f/0x2b80 drivers/usb/gadget/legacy/raw_gadget.c:1255
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:871 [inline]
+ __se_sys_ioctl fs/ioctl.c:857 [inline]
+ __x64_sys_ioctl+0x18f/0x210 fs/ioctl.c:857
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x38/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7ff0f81f082b
+RSP: 002b:00007ffdd1f948b0 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 0000000000000003 RCX: 00007ff0f81f082b
+RDX: 0000000000000000 RSI: 0000000000005501 RDI: 0000000000000003
+RBP: 00007ffdd1f95970 R08: 0000000000000010 R09: 00312e6364755f79
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007ffdd1f94940 R14: 00007ffdd1f969e0 R15: 00007ff0f82693c0
+ </TASK>
+Future hung task reports are suppressed, see sysctl kernel.hung_task_warnings
+
+Showing all locks held in the system:
+7 locks held by kworker/0:0/8:
+ #0: ffff88810aa6dd38 ((wq_completion)usb_hub_wq
+){+.+.}-{0:0}, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
+ #1: ffffc9000008fd88 ((work_completion)(&hub->events)){+.+.}-{0:0}
+, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
+ #2: ffff888106335190 (
+&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: hub_event+0x1be/0x4f30 drivers/usb/core/hub.c:5768
+ #3: ffff88811bed8190 (&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
+ #4: ffff88811bfbd160 (&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
+ #5: 
+ffff88811d4b1a20 (&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
+ #6: ffffffff88aa3328
+ (input_mutex
+){+.+.}-{3:3}
+, at: input_register_device+0xa27/0x1130 drivers/input/input.c:2389
+7 locks held by kworker/1:0/22:
+ #0: 
+ffff88810aa6dd38 ((wq_completion)usb_hub_wq
+){+.+.}-{0:0}
+, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
+ #1: ffffc9000017fd88 ((work_completion)(&hub->events)
+){+.+.}-{0:0}, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
+ #2: ffff888105bf5190 (
+&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: hub_event+0x1be/0x4f30 drivers/usb/core/hub.c:5768
+ #3: ffff8881158c8190
+ (&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: usb_disconnect+0x10a/0x890 drivers/usb/core/hub.c:2243
+ #4: 
+ffff88811beda160 (&dev->mutex
+){....}-{3:3}, at: device_lock include/linux/device.h:992 [inline]
+){....}-{3:3}, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
+){....}-{3:3}, at: device_release_driver_internal+0xa4/0x610 drivers/base/dd.c:1292
+ #5: ffff888109fc1a20 (
+&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: __device_driver_lock drivers/base/dd.c:1095 [inline]
+, at: device_release_driver_internal+0xa4/0x610 drivers/base/dd.c:1292
+ #6: ffffffff88aa3328 (input_mutex){+.+.}-{3:3}
+, at: __input_unregister_device+0x136/0x450 drivers/input/input.c:2219
+1 lock held by khungtaskd/29:
+ #0: ffffffff87eac820 (rcu_read_lock
+){....}-{1:2}, at: debug_show_all_locks+0x55/0x340 kernel/locking/lockdep.c:6607
+7 locks held by kworker/1:2/1781:
+ #0: 
+ffff88810aa6dd38 ((wq_completion)usb_hub_wq){+.+.}-{0:0}
+, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
+ #1: ffffc900035bfd88
+ ((work_completion)(&hub->events)){+.+.}-{0:0}
+, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
+ #2: 
+ffff888105fe5190 (&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: hub_event+0x1be/0x4f30 drivers/usb/core/hub.c:5768
+ #3: ffff88811b744190
+ (&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
+ #4: 
+ffff88811b84e160 (&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
+ #5: 
+ffff8881123fda20 (&dev->mutex){....}-{3:3}
+, at: device_lock include/linux/device.h:992 [inline]
+, at: __device_attach+0x7f/0x4b0 drivers/base/dd.c:1005
+ #6: 
+ffffffff88aa3328 (
+input_mutex
+){+.+.}-{3:3}
+, at: input_register_device+0xa27/0x1130 drivers/input/input.c:2389
+1 lock held by udevd/2385:
+ #0: 
+ffff88810165f948 (&root->kernfs_rwsem
+){++++}-{3:3}
+, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+2 locks held by getty/2443:
+ #0: 
+ffff88810bb160a0 (&tty->ldisc_sem
+){++++}-{0:0}, at: tty_ldisc_ref_wait+0x24/0x80 drivers/tty/tty_ldisc.c:243
+ #1: ffffc900000432f0 (
+&ldata->atomic_read_lock){+.+.}-{3:3}
+, at: n_tty_read+0xfc5/0x1480 drivers/tty/n_tty.c:2206
+1 lock held by udevd/2500:
+ #0: ffff88810165f948 (&root->kernfs_rwsem
+){++++}-{3:3}, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+2 locks held by kworker/1:3/2503:
+ #0: ffff888100070d38 ((wq_completion)events
+){+.+.}-{0:0}, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
+ #1: ffffc9000156fd88
+ (console_work){+.+.}-{0:0}
+, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
+1 lock held by udevd/2507:
+ #0: ffff88810165f948 (&root->kernfs_rwsem
+){++++}-{3:3}, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+1 lock held by udevd/2508:
+ #0: 
+ffff88810165f948 (&root->kernfs_rwsem){++++}-{3:3}
+, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+9 locks held by kworker/1:4/2514:
+10 locks held by kworker/1:6/2517:
+5 locks held by kworker/0:6/2525:
+ #0: 
+ffff88810aa6dd38 ((wq_completion)usb_hub_wq){+.+.}-{0:0}
+, at: process_one_work+0x774/0x15d0 kernel/workqueue.c:2602
+ #1: ffffc9000148fd88 (
+(work_completion)(&hub->events)){+.+.}-{0:0}
+, at: process_one_work+0x7a7/0x15d0 kernel/workqueue.c:2605
+ #2: ffff888105fbd190 (
+&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:992 [inline]
+&dev->mutex){....}-{3:3}, at: hub_event+0x1be/0x4f30 drivers/usb/core/hub.c:5768
+ #3: ffff88811b743190 (
+&dev->mutex){....}-{3:3}, at: device_lock include/linux/device.h:992 [inline]
+&dev->mutex){....}-{3:3}, at: usb_disconnect+0x10a/0x890 drivers/usb/core/hub.c:2243
+ #4: ffff88810165f948 (
+&root->kernfs_rwsem){++++}-{3:3}, at: kernfs_find_and_get_ns+0x71/0xc0 fs/kernfs/dir.c:897
+1 lock held by udevd/2537:
+ #0: ffff88810165f948
+ (&root->kernfs_rwsem){++++}-{3:3}
+, at: kernfs_dop_revalidate+0xf0/0x5a0 fs/kernfs/dir.c:1138
+1 lock held by syz-executor212/2596:
+ #0: ffff88810165f948 (
+&root->kernfs_rwsem
+){++++}-{3:3}
+, at: kernfs_add_one+0xb1/0x510 fs/kernfs/dir.c:757
+
+=============================================
+
+NMI backtrace for cpu 0
+CPU: 0 PID: 29 Comm: khungtaskd Not tainted 6.6.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/04/2023
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xd9/0x1b0 lib/dump_stack.c:106
+ nmi_cpu_backtrace+0x277/0x380 lib/nmi_backtrace.c:113
+ nmi_trigger_cpumask_backtrace+0x26c/0x2d0 lib/nmi_backtrace.c:62
+ trigger_all_cpu_backtrace include/linux/nmi.h:160 [inline]
+ check_hung_uninterruptible_tasks kernel/hung_task.c:222 [inline]
+ watchdog+0xfac/0x1230 kernel/hung_task.c:379
+ kthread+0x33a/0x430 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
+ </TASK>
+Sending NMI from CPU 0 to CPUs 1:
+NMI backtrace for cpu 1
+CPU: 1 PID: 2517 Comm: kworker/1:6 Not tainted 6.6.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/04/2023
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:__sanitizer_cov_trace_const_cmp2+0x8/0x20 kernel/kcov.c:297
+Code: 00 00 f3 0f 1e fa 48 8b 0c 24 40 0f b6 d6 40 0f b6 f7 bf 01 00 00 00 e9 d6 fe ff ff 66 0f 1f 44 00 00 f3 0f 1e fa 48 8b 0c 24 <0f> b7 d6 0f b7 f7 bf 03 00 00 00 e9 b8 fe ff ff 0f 1f 84 00 00 00
+RSP: 0018:ffffc90000198510 EFLAGS: 00000046
+RAX: 0000000000000002 RBX: 0000000000000002 RCX: ffffffff813144a0
+RDX: ffff88810fff3a00 RSI: 0000000000000002 RDI: 0000000000000000
+RBP: ffffffff8bfc2610 R08: 0000000000000001 R09: 0000000000000001
+R10: 0000000000000020 R11: 000000000bf26868 R12: 0000000000000000
+R13: 000000000000001a R14: ffffc900001985b0 R15: 000000000000000a
+FS:  0000000000000000(0000) GS:ffff8881f6700000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000555557349ca8 CR3: 000000010a34a000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <NMI>
+ </NMI>
+ <IRQ>
+ printk_sprint+0x220/0x2f0 kernel/printk/printk.c:2141
+ vprintk_store+0x4d8/0xb80 kernel/printk/printk.c:2242
+ vprintk_emit+0x154/0x630 kernel/printk/printk.c:2288
+ vprintk+0x7b/0x90 kernel/printk/printk_safe.c:45
+ _printk+0xc8/0x100 kernel/printk/printk.c:2332
+ printk_stack_address arch/x86/kernel/dumpstack.c:72 [inline]
+ show_trace_log_lvl+0x2ac/0x4f0 arch/x86/kernel/dumpstack.c:285
+ sched_show_task kernel/sched/core.c:9182 [inline]
+ sched_show_task+0x3f4/0x600 kernel/sched/core.c:9156
+ show_state_filter+0xeb/0x310 kernel/sched/core.c:9227
+ k_spec drivers/tty/vt/keyboard.c:667 [inline]
+ k_spec+0xea/0x140 drivers/tty/vt/keyboard.c:656
+ kbd_keycode drivers/tty/vt/keyboard.c:1524 [inline]
+ kbd_event+0xcc8/0x17c0 drivers/tty/vt/keyboard.c:1543
+ input_to_handler+0x382/0x4c0 drivers/input/input.c:132
+ input_pass_values.part.0+0x536/0x7a0 drivers/input/input.c:161
+ input_pass_values drivers/input/input.c:148 [inline]
+ input_event_dispose+0x5ee/0x770 drivers/input/input.c:378
+ input_handle_event+0x11c/0xd80 drivers/input/input.c:406
+ input_repeat_key+0x251/0x340 drivers/input/input.c:2263
+ call_timer_fn+0x1a0/0x580 kernel/time/timer.c:1700
+ expire_timers kernel/time/timer.c:1751 [inline]
+ __run_timers+0x764/0xb10 kernel/time/timer.c:2022
+ run_timer_softirq+0x58/0xd0 kernel/time/timer.c:2035
+ __do_softirq+0x20b/0x94e kernel/softirq.c:553
+ invoke_softirq kernel/softirq.c:427 [inline]
+ __irq_exit_rcu kernel/softirq.c:632 [inline]
+ irq_exit_rcu+0xa7/0x110 kernel/softirq.c:644
+ sysvec_apic_timer_interrupt+0x8e/0xb0 arch/x86/kernel/apic/apic.c:1074
+ </IRQ>
+ <TASK>
+ asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:645
+RIP: 0010:console_flush_all+0x9d2/0xf70 kernel/printk/printk.c:2972
+Code: b4 0f 23 00 9c 5b 81 e3 00 02 00 00 31 ff 48 89 de e8 42 64 1c 00 48 85 db 0f 85 95 03 00 00 e8 a4 68 1c 00 fb 48 8b 44 24 08 <48> 8b 14 24 0f b6 00 83 e2 07 38 d0 7f 08 84 c0 0f 85 9e 04 00 00
+RSP: 0018:ffffc900016bf5a0 EFLAGS: 00000293
+RAX: fffff520002d7edf RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff88810fff3a00 RSI: ffffffff813107bc RDI: 0000000000000007
+RBP: ffffffff88353b80 R08: 0000000000000007 R09: 0000000000000000
+R10: 0000000000000000 R11: 205d314320202020 R12: 0000000000000000
+R13: dffffc0000000000 R14: ffffffff88353bd8 R15: 0000000000000001
+ console_unlock+0x10c/0x260 kernel/printk/printk.c:3035
+ vprintk_emit+0x189/0x630 kernel/printk/printk.c:2307
+ dev_vprintk_emit drivers/base/core.c:4847 [inline]
+ dev_printk_emit+0xfb/0x140 drivers/base/core.c:4858
+ __dev_printk+0xf5/0x270 drivers/base/core.c:4870
+ _dev_info+0xe5/0x120 drivers/base/core.c:4916
+ usb_disconnect+0xec/0x890 drivers/usb/core/hub.c:2234
+ hub_port_connect drivers/usb/core/hub.c:5280 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5580 [inline]
+ port_event drivers/usb/core/hub.c:5740 [inline]
+ hub_event+0x1be0/0x4f30 drivers/usb/core/hub.c:5822
+ process_one_work+0x887/0x15d0 kernel/workqueue.c:2630
+ process_scheduled_works kernel/workqueue.c:2703 [inline]
+ worker_thread+0x8bb/0x1290 kernel/workqueue.c:2784
+ kthread+0x33a/0x430 kernel/kthread.c:388
+ ret_from_fork+0x45/0x80 arch/x86/kernel/process.c:147
+ ret_from_fork_asm+0x11/0x20 arch/x86/entry/entry_64.S:304
+ </TASK>
+INFO: NMI handler (nmi_cpu_backtrace_handler) took too long to run: 3.678 msecs
+
+
 ---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-Notes:
-    Changes:
-    
-      v1->v2:
-        - Rename err_haptics label to err_ts_create to make the label name more
-          accurate.
-      v2->v3:
-        - No changes.
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
 
- drivers/hid/hid-nvidia-shield.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+If the bug is already fixed, let syzbot know by replying with:
+#syz fix: exact-commit-title
 
-diff --git a/drivers/hid/hid-nvidia-shield.c b/drivers/hid/hid-nvidia-shield.c
-index c144641452d3..a566f9cdc97d 100644
---- a/drivers/hid/hid-nvidia-shield.c
-+++ b/drivers/hid/hid-nvidia-shield.c
-@@ -1058,7 +1058,7 @@ static int shield_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	ret = hid_hw_start(hdev, HID_CONNECT_HIDINPUT);
- 	if (ret) {
- 		hid_err(hdev, "Failed to start HID device\n");
--		goto err_haptics;
-+		goto err_ts_create;
- 	}
- 
- 	ret = hid_hw_open(hdev);
-@@ -1073,10 +1073,12 @@ static int shield_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- err_stop:
- 	hid_hw_stop(hdev);
--err_haptics:
-+err_ts_create:
-+	power_supply_unregister(ts->base.battery_dev.psy);
- 	if (ts->haptics_dev)
- 		input_unregister_device(ts->haptics_dev);
- 	led_classdev_unregister(&ts->led_dev);
-+	ida_free(&thunderstrike_ida, ts->id);
- 	return ret;
- }
- 
--- 
-2.40.1
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
 
+If you want to overwrite bug's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the bug is a duplicate of another bug, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup

@@ -2,172 +2,106 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6B382CE79A8
-	for <linux-input@archiver.kernel.org>; Tue, 19 Sep 2023 18:17:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EFDE7CE79A9
+	for <linux-input@archiver.kernel.org>; Tue, 19 Sep 2023 21:28:56 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbjISSRc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Sep 2023 14:17:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38804 "EHLO
+        id S232649AbjISV3B (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Sep 2023 17:29:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229853AbjISSRb (ORCPT
+        with ESMTP id S229690AbjISV3A (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Sep 2023 14:17:31 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D58E290;
-        Tue, 19 Sep 2023 11:17:25 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57882C433C7;
-        Tue, 19 Sep 2023 18:17:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695147445;
-        bh=9FOIOMjuXWZZMZl0MaBnALuWtI8U/oLy+w1/i6LR79s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=TIpPVkzEHywAfBLYCt1PKj0q8enbxL0kMbj10QyKj2tMi9bogm3khvdZX1vZHx6t1
-         nEZb7tURdTFnlk+CTvq3XEq+qsftzViqW5GDj4zhZ+rMVhF1/hNhyMfr3rg0lE46Y6
-         TmGWEX+BNOKHI8frwBDXeZmRsQha3QdBsn5mpi2FCf1x9X1V6efeFhp9SHghAvxd+y
-         kWEVCfsX78aUMmf3yxul90xnL1T9Bs8IcE6DitOL5hlLR9ESmt9HIkwwbhgOgU9DZ0
-         zPlQRX3anZ3Vzvpr9aL8pQfz+MRQGqMDzEkWijpX+B40XA9YK4Gakda+ugS+CcT6yg
-         +FjRtB40HNJlg==
-Received: (nullmailer pid 4178543 invoked by uid 1000);
-        Tue, 19 Sep 2023 18:17:23 -0000
-Date:   Tue, 19 Sep 2023 13:17:23 -0500
-From:   Rob Herring <robh@kernel.org>
-To:     Tylor Yang <tylor_yang@himax.corp-partner.google.com>
-Cc:     dmitry.torokhov@gmail.com, krzysztof.kozlowski+dt@linaro.org,
-        conor+dt@kernel.org, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        poyuan_chang@himax.corp-partner.google.com, jingliang@chromium.org,
-        hbarnor@chromium.org
-Subject: Re: [PATCH V2 1/2] dt-bindings: input: Introduce Himax HID-over-SPI
- device
-Message-ID: <20230919181723.GA4169859-robh@kernel.org>
-References: <20230919024943.3088916-1-tylor_yang@himax.corp-partner.google.com>
- <20230919024943.3088916-2-tylor_yang@himax.corp-partner.google.com>
+        Tue, 19 Sep 2023 17:29:00 -0400
+X-Greylist: delayed 82 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 19 Sep 2023 14:28:55 PDT
+Received: from gcc-spam-ims-003.plexus.com (gcc-spam-ims-003.plexus.com [206.209.244.63])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D3DDB3
+        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2023 14:28:55 -0700 (PDT)
+Received: from gcc-spam-ims-003.plexus.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 18569E0091;
+        Tue, 19 Sep 2023 16:28:54 -0500 (CDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=plexus.com; s=us;
+        t=1695158934; bh=4eSM2i0Kmt7HdstefMHIBAFZDCVUuRvQXFUDwfewmQc=;
+        h=From:To:Date;
+        b=b22Cm+ZTOLsv8+grHRG/8Qo+BrWw/Hc9fbvt2+qH9S5Y941tLqd8JA1SOL57lpD1N
+         vMI56m3Vfq4D7YyoxMZ1GQzdpRvd+8FmuqrI1iq0rwNswn2GnQQ4t4ZiiZgoh75x0e
+         QrY3fErU8/C+SnmBpUgsHu93SvVC0G6KsyNtwhw67nFt3tharHtpGKtxt2tvismi0y
+         Mb3PWGMmSR4CuoUMaEEbQZfdJhzA0mltx6b999KkQUjjHhmxfj1Pg+V3XiOgX3Ijw3
+         UdULdrYip/6fSxK1fkmgOVJv4oscru+Xew8CxLfIHQseoIKWAyLBwwEyH8BVaXC+5H
+         qSkRMT5T0++og==
+Received: from gcc-spam-ims-003.plexus.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 092AFE0083;
+        Tue, 19 Sep 2023 16:28:54 -0500 (CDT)
+Received: from Dcc-mail-mx-001.na.plexus.com (unknown [10.249.48.15])
+        by gcc-spam-ims-003.plexus.com (Postfix) with ESMTPS;
+        Tue, 19 Sep 2023 16:28:53 -0500 (CDT)
+Received: from dcc-mail-mx-001.na.plexus.com (10.249.48.15) by
+ Dcc-mail-mx-001.na.plexus.com (10.249.48.15) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.32; Tue, 19 Sep 2023 21:28:53 +0000
+Received: from LNDCL34533.neenah.na.plexus.com (10.255.48.203) by
+ dcc-mail-mx-001.na.plexus.com (10.249.48.15) with Microsoft SMTP Server id
+ 15.1.2507.32 via Frontend Transport; Tue, 19 Sep 2023 21:28:53 +0000
+From:   Danny Kaehn <danny.kaehn@plexus.com>
+To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
+        <andriy.shevchenko@linux.intel.com>
+CC:     <linux-input@vger.kernel.org>, <ethan.twardy@plexus.com>,
+        Danny Kaehn <danny.kaehn@plexus.com>
+Subject: [PATCH] hid: cp2112: Fix IRQ shutdown stopping polling for all IRQs on chip
+Date:   Tue, 19 Sep 2023 16:24:26 -0500
+Message-ID: <20230919212426.489637-1-danny.kaehn@plexus.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230919024943.3088916-2-tylor_yang@himax.corp-partner.google.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TM-SNTS-SMTP: 1274B52C3778239AD30BA1657C347D1AB67E634E35DD3B5F816C7D83BECB3EAA2000:8
+X-TM-AS-GCONF: 00
+X-TM-AS-Product-Ver: IMSVA-9.1.0.2164-9.0.0.1002-27886.002
+X-TM-AS-Result: No--13.953-3.0-31-10
+X-imss-scan-details: No--13.953-3.0-31-10
+X-TMASE-Version: IMSVA-9.1.0.2164-9.0.1002-27886.002
+X-TMASE-Result: 10--13.953300-10.000000
+X-TMASE-MatchedRID: MWbpXFXsFA6jcB5AGOhX7jY9eRDvjeTZUBOomz25VdESEYfcJF0pRfX7
+        1s7cIJuTLtU3Flh33sdrFmVfWDAwWyL637QCIVpi8vc3EUpCmrVD7uP4VuVvNxmCYUYerLHrW9D
+        GjPU7rM96mVK0rVE3R6DmkLztB9AW4vM1YF6AJbbieYV7J8ae4wtuKBGekqUpI/NGWt0UYPCWpt
+        zvEHzFH7bkKK8C+PgBhgukVoEv050WYpNPSY8F4BGmlq2wtT5V
+X-TMASE-SNAP-Result: 1.821001.0001-0-2-1:0,12:0,22:0,33:0,34:0-0
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Tue, Sep 19, 2023 at 10:49:42AM +0800, Tylor Yang wrote:
-> The Himax HID-over-SPI framework support for Himax touchscreen ICs
-> that report HID packet through SPI bus. The driver core need reset
->  pin to meet reset timing spec. of IC. An interrupt pin to disable
-> and enable interrupt when suspend/resume. An optional power control
-> pin if target board needed. Panel id pins for identify panel is also
-> an option.
-> 
-> Additional optional arguments:
-> ic-det-delay-ms and ic-resume-delay-ms are using to solve runtime
-> conditions.
-> 
-> This patch also add maintainer of this driver.
-> 
-> Signed-off-by: Tylor Yang <tylor_yang@himax.corp-partner.google.com>
-> ---
->  .../bindings/input/himax,hid-over-spi.yaml    | 109 ++++++++++++++++++
->  MAINTAINERS                                   |   6 +
->  2 files changed, 115 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/input/himax,hid-over-spi.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/input/himax,hid-over-spi.yaml b/Documentation/devicetree/bindings/input/himax,hid-over-spi.yaml
-> new file mode 100644
-> index 000000000000..3ee3a89842ac
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/input/himax,hid-over-spi.yaml
-> @@ -0,0 +1,109 @@
-> +# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/input/himax,hid-over-spi.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Himax TDDI devices using SPI to send HID packets
-> +
-> +maintainers:
-> +  - Tylor Yang <tylor_yang@himax.corp-partner.google.com>
-> +
-> +description: |
-> +  Support the Himax TDDI devices which using SPI interface to acquire
-> +  HID packets from the device. The device needs to be initialized using
-> +  Himax protocol before it start sending HID packets.
-> +
-> +properties:
-> +  compatible:
-> +    const: himax,hid-over-spi
+Previously cp2112_gpio_irq_shutdown always cancelled the
+gpio_poll_worker, even if other IRQs were still active, and did not set
+the gpio_poll flag to false. This resulted in any call to _shutdown()
+resulting in interrupts no longer functioning on the chip until a
+_remove occurred (a.e. the cp2112 is unplugged or system rebooted).
 
-Doesn't look like a specific device. Compatibles are generally based on 
-part numbers.
+Only cancel polling if all IRQs are disabled/masked, and correctly set
+the gpio_poll flag, allowing polling to restart when an interrupt is
+next enabled.
 
-'over-spi' is redundant as the parent would be a spi controller.
+Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
+---
+ drivers/hid/hid-cp2112.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-> +
-> +  reg:
-> +    maxItems: 1
-> +
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 36f76c6dfa20..d589214834b9 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -1166,7 +1166,12 @@ static void cp2112_gpio_irq_shutdown(struct irq_data *d)
+ 	struct cp2112_device *dev = gpiochip_get_data(gc);
+ 
+ 	cp2112_gpio_irq_mask(d);
+-	cancel_delayed_work_sync(&dev->gpio_poll_worker);
++
++	if (!dev->irq_mask)
++	{
++		dev->gpio_poll = false;
++		cancel_delayed_work_sync(&dev->gpio_poll_worker);
++	}
+ }
+ 
+ static int cp2112_gpio_irq_type(struct irq_data *d, unsigned int type)
+-- 
+2.25.1
 
-> +  '#address-cells':
-> +    const: 1
-> +
-> +  '#size-cells':
-> +    const: 0
-
-These are for child nodes, but you don't have any.
-
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  himax,rst-gpio:
-> +    maxItems: 1
-> +    description: Reset device, active low signal.
-
-Use standard reset-gpios.
-
-(-gpio is deprecated)
-
-> +
-> +  himax,irq-gpio:
-> +    maxItems: 1
-> +    description: Interrupt request, active low signal.
-
-You have the interrupt already, why do you need this?
-
-> +
-> +  himax,3v3-gpio:
-> +    maxItems: 1
-> +    description: GPIO to control 3.3V power supply.
-
-This should be a regulator supply. Then use gpio-regulator if it happens 
-to be GPIO controlled.
-
-> +
-> +  himax,id-gpios:
-> +    maxItems: 8
-> +    description: GPIOs to read physical Panel ID. Optional.
-> +
-> +  spi-cpha: true
-> +  spi-cpol: true
-> +
-> +  himax,ic-det-delay-ms:
-> +    description:
-> +      Due to TDDI properties, the TPIC detection timing must after the
-> +      display panel initialized. This property is used to specify the
-> +      delay time when TPIC detection and display panel initialization
-> +      timing are overlapped. How much milliseconds to delay before TPIC
-> +      detection start.
-> +
-> +  himax,ic-resume-delay-ms:
-> +    description:
-> +      Due to TDDI properties, the TPIC resume timing must after the
-> +      display panel resumed. This property is used to specify the
-> +      delay time when TPIC resume and display panel resume
-> +      timing are overlapped. How much milliseconds to delay before TPIC
-> +      resume start.
-
-These should be implied by the compatible. Unless they are board 
-specific and not device specific.
-
-Rob

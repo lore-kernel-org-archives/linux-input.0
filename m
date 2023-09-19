@@ -2,32 +2,32 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 057C4CE79AD
-	for <linux-input@archiver.kernel.org>; Tue, 19 Sep 2023 17:50:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E0F3ACE79B1
+	for <linux-input@archiver.kernel.org>; Tue, 19 Sep 2023 17:50:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232585AbjISRuP (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Sep 2023 13:50:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45194 "EHLO
+        id S232752AbjISRuR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Sep 2023 13:50:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232748AbjISRuO (ORCPT
+        with ESMTP id S232832AbjISRuQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Sep 2023 13:50:14 -0400
+        Tue, 19 Sep 2023 13:50:16 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 083BAC6
-        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2023 10:50:08 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB095D7
+        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2023 10:50:09 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qierF-0006qJ-6I; Tue, 19 Sep 2023 19:49:57 +0200
+        id 1qierH-00072h-CS; Tue, 19 Sep 2023 19:49:59 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qierD-007VXd-P6; Tue, 19 Sep 2023 19:49:55 +0200
+        id 1qierG-007VYU-OK; Tue, 19 Sep 2023 19:49:58 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qierD-0034Yl-Fu; Tue, 19 Sep 2023 19:49:55 +0200
+        id 1qierG-0034ZX-F5; Tue, 19 Sep 2023 19:49:58 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Jonathan Cameron <jic23@kernel.org>
@@ -36,15 +36,15 @@ Cc:     Jiri Kosina <jikos@kernel.org>,
         Lars-Peter Clausen <lars@metafoo.de>,
         linux-input@vger.kernel.org, linux-iio@vger.kernel.org,
         kernel@pengutronix.de
-Subject: [PATCH 35/49] iio: humidity: hid-sensor-humidity: Convert to platform remove callback returning void
-Date:   Tue, 19 Sep 2023 19:49:17 +0200
-Message-Id: <20230919174931.1417681-36-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 47/49] iio: temperature: hid-sensor: Convert to platform remove callback returning void
+Date:   Tue, 19 Sep 2023 19:49:29 +0200
+Message-Id: <20230919174931.1417681-48-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230919174931.1417681-1-u.kleine-koenig@pengutronix.de>
 References: <20230919174931.1417681-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2154; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=f6SnRHi4QXOG5VVuNxA/zoxyAcyQnHWl7QhOls1+tbU=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCd8WZHPm/jhhG2JSXhQiv7Sv7SqTfydYRGlhR yD2rahbH+iJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQnfFgAKCRCPgPtYfRL+ Tox9B/4gdoH+pg1SdoruDhgn1NAC2FaRBikwaS/fUVfOBd/eaf4e/cEXvINjZZkbemmnv7Vhg6T DPuU4R3+UAkUiX3scymaHzL19POOeRkv0vOL5z73CG2tY2LWRjgt8F//MKNXxV7q9YCIevH5RgL xj7n3SajccEc4YRhAy63oEasJZSc3KZtUBVfsO9RKw7Lver51tucP8f0/5Ute0pM71CjehS5/Ht H65dYH0/r3v3tYSt2ozrnJk+WccPjfi6hgWTlxrqHxvOGhg6VYh56DsBxzFHIvLprL9u//qDYf1 Kuk+CpaYtfwkpvxjhkbEsRrQV+Z26Qi2yk85ADsiPYB1rNpd
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2182; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=aX4Pfti1v1qagUJAO/Ih4/eifvGcgHks4RixWzcD/PA=; b=owGbwMvMwMXY3/A7olbonx/jabUkhlTO+ypH1N7OfT/NaoFYQz9HcNf85mhGp7cvYxQ6v2561 as03+lZJ6MxCwMjF4OsmCKLfeOaTKsqucjOtf8uwwxiZQKZwsDFKQAT8bdk/2dwT6huNs9hhpNy bjkutV356saNbbnXQxdPk5zvmPPvnOVNk7zDk9LeMP1ezhb2+Q5v2COGmrc7VXvvWzunF23zuSh 5ksslfJ5l2tkzZ4TP9grPmVHFJnnkTuXqnJKpKowxHuXG0rc2l3Kq7M2yPdbeNPHuW5PNmmnnTZ +orzPUUOJJLHn+7Jx3QYLwDp4XjW22s56Gxt1av0Z1kUXgg00Ctvb9qdseGwUcVIm9fJ7f2+7Ta ceCfT9jFOUvret6uGthZt7e+DsmT751pPUeqPpiNls9sneFl0qagYfhMfU5Fxd76jD3zRL3XiMb N9XXiumXU7NYW9VTwfqZ0y6YWrxsXqqRuT7caq1fmlk9AA==
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -69,39 +69,39 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/iio/humidity/hid-sensor-humidity.c | 6 ++----
+ drivers/iio/temperature/hid-sensor-temperature.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/iio/humidity/hid-sensor-humidity.c b/drivers/iio/humidity/hid-sensor-humidity.c
-index fa0fe404a70a..bf6d2636a85e 100644
---- a/drivers/iio/humidity/hid-sensor-humidity.c
-+++ b/drivers/iio/humidity/hid-sensor-humidity.c
-@@ -260,7 +260,7 @@ static int hid_humidity_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/temperature/hid-sensor-temperature.c b/drivers/iio/temperature/hid-sensor-temperature.c
+index d40f235af1d4..0143fd478933 100644
+--- a/drivers/iio/temperature/hid-sensor-temperature.c
++++ b/drivers/iio/temperature/hid-sensor-temperature.c
+@@ -257,7 +257,7 @@ static int hid_temperature_probe(struct platform_device *pdev)
  }
  
  /* Function to deinitialize the processing for usage id */
--static int hid_humidity_remove(struct platform_device *pdev)
-+static void hid_humidity_remove(struct platform_device *pdev)
+-static int hid_temperature_remove(struct platform_device *pdev)
++static void hid_temperature_remove(struct platform_device *pdev)
  {
  	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
  	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
-@@ -269,8 +269,6 @@ static int hid_humidity_remove(struct platform_device *pdev)
- 	iio_device_unregister(indio_dev);
- 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_HUMIDITY);
- 	hid_sensor_remove_trigger(indio_dev, &humid_st->common_attributes);
+@@ -265,8 +265,6 @@ static int hid_temperature_remove(struct platform_device *pdev)
+ 
+ 	sensor_hub_remove_callback(hsdev, HID_USAGE_SENSOR_TEMPERATURE);
+ 	hid_sensor_remove_trigger(indio_dev, &temp_st->common_attributes);
 -
 -	return 0;
  }
  
- static const struct platform_device_id hid_humidity_ids[] = {
-@@ -289,7 +287,7 @@ static struct platform_driver hid_humidity_platform_driver = {
+ static const struct platform_device_id hid_temperature_ids[] = {
+@@ -285,7 +283,7 @@ static struct platform_driver hid_temperature_platform_driver = {
  		.pm	= &hid_sensor_pm_ops,
  	},
- 	.probe		= hid_humidity_probe,
--	.remove		= hid_humidity_remove,
-+	.remove_new	= hid_humidity_remove,
+ 	.probe		= hid_temperature_probe,
+-	.remove		= hid_temperature_remove,
++	.remove_new	= hid_temperature_remove,
  };
- module_platform_driver(hid_humidity_platform_driver);
+ module_platform_driver(hid_temperature_platform_driver);
  
 -- 
 2.40.1

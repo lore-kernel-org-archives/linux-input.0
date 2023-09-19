@@ -2,213 +2,363 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 53899CD3447
-	for <linux-input@archiver.kernel.org>; Tue, 19 Sep 2023 07:07:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 36AC3CD5488
+	for <linux-input@archiver.kernel.org>; Tue, 19 Sep 2023 07:36:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231635AbjISHHf (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Sep 2023 03:07:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53416 "EHLO
+        id S231742AbjISHgy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Sep 2023 03:36:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231612AbjISHHf (ORCPT
+        with ESMTP id S231776AbjISHgx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Sep 2023 03:07:35 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53FD1116;
-        Tue, 19 Sep 2023 00:07:29 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5A10C433C8;
-        Tue, 19 Sep 2023 07:07:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695107249;
-        bh=hk6MTSg2w6vRJMTSQbUVxxO4PouQtMWRgz7EPaXFfhY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tByPkdImFal9VUGiAJG0v4DB3+eTkbIARCBO22fNE8S1MiU529opNX4DXDb0heUly
-         Yh1TS4hWzdTuvqhECYgg9KWuDdZg+l6JwaPE9oYe6wknLybJS4VhG89ACI8ueE7bWP
-         tTpsUX0+ur4zhpcRkBeO1IIZ9AuQ+cYfTi64h1qVX+2vFEeaWck178Fp1+9SX9Q/cZ
-         jFVeyxw3/qlWxeP14c/iejtQwFFL8tahguPeaAwwjBvGc3WkDXhYSXJ/YWORlYrkwW
-         8h0EHIbU7MBl0fKmRh2c44YF4o/xnuxOHhhdHweIRtiv659jM/Z+RbDNjWvfdoADgL
-         jiI5H94H1WASQ==
-Received: from johan by xi.lan with local (Exim 4.96)
-        (envelope-from <johan@kernel.org>)
-        id 1qiUph-0006Wl-3B;
-        Tue, 19 Sep 2023 09:07:42 +0200
-Date:   Tue, 19 Sep 2023 09:07:41 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Doug Anderson <dianders@chromium.org>
-Cc:     Johan Hovold <johan+linaro@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Maxime Ripard <mripard@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        LinusW <linus.walleij@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
-        <devicetree@vger.kernel.org>,
-        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>
-Subject: Re: [PATCH] HID: i2c-hid: fix handling of unpopulated devices
-Message-ID: <ZQlIveJVdvyV2Ygy@hovoldconsulting.com>
-References: <20230918125851.310-1-johan+linaro@kernel.org>
- <CAD=FV=Wfwvp-SbGrdO5VJcjG42njkApJPB7wnY-YYa1_-O0JWQ@mail.gmail.com>
+        Tue, 19 Sep 2023 03:36:53 -0400
+Received: from smtp-relay-internal-0.canonical.com (smtp-relay-internal-0.canonical.com [185.125.188.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 718D3115
+        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2023 00:36:46 -0700 (PDT)
+Received: from mail-io1-f70.google.com (mail-io1-f70.google.com [209.85.166.70])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id D5E963F683
+        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2023 07:36:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1695109004;
+        bh=MLRLAry2NlpMQaxof2G7yyxkoAcAjcPTZ7UlFboZNJM=;
+        h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+         To:Cc:Content-Type;
+        b=eU3TpnioN1vR3V6Y625+/s++9Pn+VdRhrjKlipT7II+gy3EqqJ8T3yAVN4q52MRlw
+         OcXhTljSsSZ0rQdK5cr7MpUjV9m3kZztWAfjM0Vdylc7rLdtho/tGI2DfQ8iyWuHoP
+         oqeXOfbZJ1RbFee54kW5Ibx2qNmvKwn53SxOAD0EzQRQs0Fs5r6yw7fwu9BrabT3C5
+         vKoPk+x6E+H5DnOB/Mtts2QVJxO2E+2guxy75RL31opC58QY+fuwhMffo3BqUaj506
+         uo9TLO171KWJjJWikeZ2glOwOTfd4BAl/XVt7TE9ilDVmLtAliILtyNrrFee0A/pMB
+         9Rb2EjP/1ET6A==
+Received: by mail-io1-f70.google.com with SMTP id ca18e2360f4ac-778d823038bso468915139f.3
+        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2023 00:36:44 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695109000; x=1695713800;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=MLRLAry2NlpMQaxof2G7yyxkoAcAjcPTZ7UlFboZNJM=;
+        b=e5SDp4+gIOLYG/M4HkW+AC4vLUlqhBSL3L+j6vBjPXiid5Mk3ZIapNT/XIHgErlbRl
+         1QWgs6gX4tfZOCEFMf7lvJ1xTiFN3BH+ji3VLeDFqeVMu3+daYNj1gExsUxuiq6uAstT
+         IB0eeS7fmVAfqSLLP52l+DqiVVKTCvqFQPbJ20e5oLQESACSag/mqxb2bv1wKJLdTjXk
+         T3//VoAkZ8dqHx18ZGZ7F+nKiyCITHypLYSXQuBVCi+PGzSCEB2YUIRu4z5GM1NGjX2b
+         mqAwNCyAp6usYPCwjN3MIxfqcBlU5O+Ui+LR475v7xmy54E8/LGGzPii7Y2ww0EJcpfq
+         GBbg==
+X-Gm-Message-State: AOJu0Yz3cqsqoNwtHeKtZNlIQ64qO1kr/fXi26HoFf0AOp8UKFn3YxPh
+        Bn8LV6dpNF2VbjNtPbLAWeNFv+UxdotE00/fBOlPR0HRh+QSz0eVwR8eQqjQ0RDDrAQB0HfUiZE
+        Nmkb/5nvKJss75FvX84abaaXJgaLtLQW2C0/MdSRyCx9zZQXd8brLQvwL
+X-Received: by 2002:a92:a309:0:b0:34d:f0b9:97fd with SMTP id a9-20020a92a309000000b0034df0b997fdmr12317191ili.8.1695109000342;
+        Tue, 19 Sep 2023 00:36:40 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFtri+KycX7M4hWznMCNNys0wX8zYEKHaKuDUTL0tUNv3osCz1Z8lf8TJIPjKOLFz9JEBYy31Md7d0wA4KM3eY=
+X-Received: by 2002:a92:a309:0:b0:34d:f0b9:97fd with SMTP id
+ a9-20020a92a309000000b0034df0b997fdmr12317179ili.8.1695109000063; Tue, 19 Sep
+ 2023 00:36:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAD=FV=Wfwvp-SbGrdO5VJcjG42njkApJPB7wnY-YYa1_-O0JWQ@mail.gmail.com>
+References: <20230914041806.816741-1-kai.heng.feng@canonical.com>
+ <7b45ac2ed091497b4e21a6a5c19956161175ba16.camel@linux.intel.com>
+ <SN6PR11MB26245C44E84C37C1B551260EF4F6A@SN6PR11MB2624.namprd11.prod.outlook.com>
+ <CAAd53p5ywMVKWzhn0nYzvBnW_Bc=sntgBttJdcVUuf_a4AnX5w@mail.gmail.com>
+ <SN6PR11MB262473E2BF4057F4D285A613F4F6A@SN6PR11MB2624.namprd11.prod.outlook.com>
+ <DM6PR11MB26184A8A3F955589F5FC6836F4FBA@DM6PR11MB2618.namprd11.prod.outlook.com>
+ <CAAd53p4o1pB-yzpvUCYsvuYEvQQK0my=u-ogrByRCx_Lvns=hw@mail.gmail.com> <bbbf36724d63f7532696a960a9d56d7ccd5a5bee.camel@linux.intel.com>
+In-Reply-To: <bbbf36724d63f7532696a960a9d56d7ccd5a5bee.camel@linux.intel.com>
+From:   Kai-Heng Feng <kai.heng.feng@canonical.com>
+Date:   Tue, 19 Sep 2023 15:36:26 +0800
+Message-ID: <CAAd53p6MA9YLbcXxpC8=YEtbO6frFJk1LQ1BNUgPk=r1_uR8iw@mail.gmail.com>
+Subject: Re: [PATCH] HID: intel-ish-hid: ipc: Rework EHL OOB wakeup
+To:     srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc:     "Xu, Even" <even.xu@intel.com>,
+        "jikos@kernel.org" <jikos@kernel.org>,
+        "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>,
+        "linux-pm@vger.kernel.org" <linux-pm@vger.kernel.org>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        "Lee, Jian Hui" <jianhui.lee@canonical.com>,
+        "Zhang, Lixu" <lixu.zhang@intel.com>,
+        "Ba, Najumon" <najumon.ba@intel.com>,
+        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, Sep 18, 2023 at 08:00:15AM -0700, Doug Anderson wrote:
-> On Mon, Sep 18, 2023 at 6:00 AM Johan Hovold <johan+linaro@kernel.org> wrote:
-> > A recent commit reordered probe so that the interrupt line is now
-> > requested before making sure that the device exists.
+On Mon, Sep 18, 2023 at 11:57=E2=80=AFPM srinivas pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+>
+> Hi Kai-Heng,
+> On Mon, 2023-09-18 at 09:17 +0800, Kai-Heng Feng wrote:
+> > Hi Even,
 > >
-> > This breaks machines like the Lenovo ThinkPad X13s which rely on the
-> > HID driver to probe second-source devices and only register the variant
-> > that is actually populated. Specifically, the interrupt line may now
-> > already be (temporarily) claimed when doing asynchronous probing of the
-> > touchpad:
+> > On Mon, Sep 18, 2023 at 8:33=E2=80=AFAM Xu, Even <even.xu@intel.com> wr=
+ote:
+> > >
+> > > Hi, Kai-Heng,
+> > >
+> > > I just got feedback, for testing EHL S5 wakeup feature, you need
+> > > several steps to setup and access
+> > > "https://portal.devicewise.com/things/browse" to trigger wake.
+> > > But currently, our test account of this website are all out of
+> > > data.
+> > > So maybe you need double check with the team who required you
+> > > preparing the patch for the verification.
 > >
-> >         genirq: Flags mismatch irq 191. 00082008 (hid-over-i2c) vs. 00082008 (hid-over-i2c)
-> >         i2c_hid_of 21-0015: Could not register for hid-over-i2c interrupt, irq = 191, ret = -16
-> >         i2c_hid_of: probe of 21-0015 failed with error -16
+> > The patch is to solve the GPE refcount overflow, while maintaining S5
+> > wakeup. I don't have any mean to test S5 wake.
 > >
-> > Fix this by restoring the old behaviour of first making sure the device
-> > exists before requesting the interrupt line.
+> The issue is not calling acpi_disable_gpe(). To reduce the scope of
+> change can we just add that instead of a adding new callbacks. This way
+> scope is reduced.
 
-> Ugh, sorry for the regression. :( It actually turns out that I've been
-> digging into this same issue on a different device (see
-> mt8173-elm-hana). I hadn't realized that it was a regression caused by
-> my recent change, though.
-> 
-> I haven't yet reviewed your change in detail, but to me it seems like
-> at most a short term fix. Specifically, I think the way that this has
-> been working has been partially via hacks and partially via luck. Let
-> me explain...
-> 
-> Currently, to make this work the `sc8280xp-lenovo-thinkpad-x13s.dts`
-> file has a hack in it. You can see that the `tpad_default` pinctrl
-> entry has been moved up to the i2c bus level even though it doesn't
-> belong there (it should be in each trackpad). This is because,
-> otherwise, you would have run into similar type problems as the device
-> core would have failed to claim the pin for one of the devices.
+This patch does exactly the same thing by letting PCI and ACPI handle
+the PME and GPE.
+Though the change seems to be bigger, it actually reduces the duped
+code, while keep the S5 wakeup ability intact.
 
-Ḯ'm well aware of that and it was mentioned in the commit message for
-4367d763698c ("arm64: dts: qcom: sc8280xp-x13s: enable alternate
-touchpad") as well as discussed briefly with Rob here:
+Kai-Heng
 
-	https://lore.kernel.org/all/Y3teH14YduOQQkNn@hovoldconsulting.com/
-
-> Currently, we're getting a bit lucky with
-> `sc8280xp-lenovo-thinkpad-x13s.dts` that there are no other shared
-> resources between the two devices besides the interrupt. Specifically
-> a number of trackpads / touchscreens also have a "reset" GPIO that
-> needs to be power sequenced properly in order to talk to the
-> touchscreen. In this case we'll be stuck again because both instances
-> would need to grab the "reset" GPIO before being able to confirm if
-> the device is there.
-
-Right, this will only work for fairly simple cases, but we do have a few
-of those in tree since some years back.
-
-> This is an old problem. The first I remember running into it was back
-> in 2015 on rk3288-veryron-minnie. We had a downstream hack to make
-> this work with -EPROBE_DEFER. https://crrev.com/c/266224. By the time
-> we shipped, though, we decided not to do the 2nd sourcing. After that
-> I always NAKed HW designs like this, but I guess that didn't help with
-> Mediatek hardware I wasn't involved with. :( ...and, of course, it
-> didn't help with devices that aren't Chromebooks like the Thinkpad
-> X13S.
-> 
-> FWIW: as a short term solution, we ended up forcing synchronous probe
-> in <https://crrev.com/c/4857566>. This has some pretty serious boot
-> time implications, but it's also very simple.
-> 
-> 
-> I'm actively working on coming up with a better solution here. My
-> current thought is that that maybe we want to do:
-> 
-> 1. Undo the hack in the device tree and have each "2nd source" have
-> its own pinctrl entry.
-> 
-> 2. In core pinctrl / device probing code detect the pinctrl conflict
-> and only probe one of the devices at a time.
-> 
-> ...that sounds like a nice/elegant solution and I'm trying to make it
-> work, though it does have some downsides. Namely:
-> 
-> a) It requires "dts" changes to work. Namely we've got to undo the
-> hack that pushed the pinctrl up to the controller level (or, in the
-> case of mt8173-elm-hana, that just totally skipped the "pinctrl" entry
-> altogether). Unfortunately those same "dts" changes will actually make
-> things _worse_ if you don't have the code change. :(
-
-Right, a proper solution will likely require an updated DT.
-
-> b) It only handles the case where the resources shared by 2nd sourcing
-> are expressed by pinctrl. In a practical sense this seems to be most
-> cases, but conceivably you could imagine running into this situation
-> with a non-pin-related shared resource.
-
-Indeed.
-
-> c) To solve this in the core, we have to make sure we properly handle
-> (without hanging/failing) multiple partially-conflicting devices and
-> devices that might acquire resources in arbitrary orders.
-> 
-> Though the above solution detecting the pinctrl conflicts sounds
-> appealing and I'm currently working on prototyping it, I'm still not
-> 100% convinced. I'm worried about the above downsides.
-
-Yes, I agree that we'd need to take a broader look at this and not just
-focus on the immediate pinctrl issue.
- 
-> Personally, I feel like we could add information to the device tree
-> that would help us out. The question is: is this an abuse of device
-> tree for something that Linux ought to be able to figure out on its
-> own, or is it OK? To make it concrete, I was thinking about something
-> like this:
-> 
-> / {
->   tp_ex_group: trackpad-exclusion-group {
->     members = <&tp1>, <&tp2>, <&tp3>;
->   };
-> };
-> 
-> &i2c_bus {
->   tp1: trackpad@10 {
->     ...
->     mutual-exclusion-group = <&tp_ex_group>;
->   };
->   tp2: trackpad@20 {
->     ...
->     mutual-exclusion-group = <&tp_ex_group>;
->   };
->   tp3: trackpad@30 {
->     ...
->     mutual-exclusion-group = <&tp_ex_group>;
->   };
-> };
-> 
-> Then the device core would know not to probe devices in the same
-> "mutual-exclusion-group" at the same time.
-> 
-> If DT folks are OK with the "mutual-exclusion-group" idea then I'll
-> probably backburner my attempt to make this work on the pinctrl level
-> and go with that.
-
-I expressed something along these lines in the thread above:
-
-	It seems we'd need some way to describe the devices as mutually
-	exclusive...
-
-but given that we had prior art for handling simple cases and due to
-lack of time, I left it on the ever-growing todo list.
-
-But regardless of what a long-term proper solution to this may look
-like, we need to fix the regression in 6.6-rc1 by restoring the old
-behaviour.
-
-Johan
+>
+> Something like the attached
+>
+> Thanks,
+> Srinivas
+>
+>
+>
+>
+>
+>
+> > So if you also don't have ways to verify S5 wake functionality, maybe
+> > we can simply revert 2e23a70edabe  ("HID: intel-ish-hid: ipc: finish
+> > power flow for EHL OOB") as alternative?
+> >
+> > Kai-Heng
+> >
+> > > Thanks!
+> > >
+> > > Best Regards,
+> > > Even Xu
+> > >
+> > > -----Original Message-----
+> > > From: Xu, Even
+> > > Sent: Friday, September 15, 2023 3:27 PM
+> > > To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> > > Cc: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>;
+> > > jikos@kernel.org; benjamin.tissoires@redhat.com;
+> > > linux-pm@vger.kernel.org; linux-pci@vger.kernel.org; Lee, Jian Hui
+> > > <jianhui.lee@canonical.com>; Zhang, Lixu <Lixu.Zhang@intel.com>;
+> > > Ba, Najumon <najumon.ba@intel.com>; linux-input@vger.kernel.org;
+> > > linux-kernel@vger.kernel.org
+> > > Subject: RE: [PATCH] HID: intel-ish-hid: ipc: Rework EHL OOB wakeup
+> > >
+> > > Hi, Kai-Heng,
+> > >
+> > > I am also not familiar with this S5 wakeup test case.
+> > > I already sent out mails to ask for help on it.
+> > > Will come back to you once I get feedback.
+> > > Thanks!
+> > >
+> > > Best Regards,
+> > > Even Xu
+> > >
+> > > -----Original Message-----
+> > > From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> > > Sent: Friday, September 15, 2023 2:01 PM
+> > > To: Xu, Even <even.xu@intel.com>
+> > > Cc: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>;
+> > > jikos@kernel.org; benjamin.tissoires@redhat.com;
+> > > linux-pm@vger.kernel.org; linux-pci@vger.kernel.org; Lee, Jian Hui
+> > > <jianhui.lee@canonical.com>; Zhang, Lixu <lixu.zhang@intel.com>;
+> > > Ba, Najumon <najumon.ba@intel.com>; linux-input@vger.kernel.org;
+> > > linux-kernel@vger.kernel.org
+> > > Subject: Re: [PATCH] HID: intel-ish-hid: ipc: Rework EHL OOB wakeup
+> > >
+> > > Hi Even,
+> > >
+> > > On Fri, Sep 15, 2023 at 1:31=E2=80=AFPM Xu, Even <even.xu@intel.com> =
+wrote:
+> > > >
+> > > > Hi, Srinivas,
+> > > >
+> > > > Sure, I will test it.
+> > > > As long term not working on EHL, I doesn't have EHL board on hand
+> > > > right now, I can test this patch on other ISH related platforms.
+> > > > From the patch, it's focus on EHL platform, I assume Kai-Heng
+> > > > already verified the function on EHL board.
+> > >
+> > > I only made sure the GPE overflow issue is fixed by the patch, but
+> > > I didn't test the S5 wakeup.
+> > > That's because I don't know how to test it on the EHL system I
+> > > have.
+> > > I'll test it if you can let me know how to test the S5 wakeup.
+> > >
+> > > Kai-Heng
+> > >
+> > > > I don't think it will take effect on other platforms, anyway, I
+> > > > will test it on the platforms I have to provide cross platform
+> > > > verification.
+> > > >
+> > > > Thanks!
+> > > >
+> > > > Best Regards,
+> > > > Even Xu
+> > > >
+> > > > -----Original Message-----
+> > > > From: srinivas pandruvada <srinivas.pandruvada@linux.intel.com>
+> > > > Sent: Friday, September 15, 2023 12:11 AM
+> > > > To: Kai-Heng Feng <kai.heng.feng@canonical.com>;
+> > > > jikos@kernel.org;
+> > > > benjamin.tissoires@redhat.com
+> > > > Cc: linux-pm@vger.kernel.org; linux-pci@vger.kernel.org; Lee,
+> > > > Jian Hui
+> > > > <jianhui.lee@canonical.com>; Xu, Even <even.xu@intel.com>; Zhang,
+> > > > Lixu
+> > > > <lixu.zhang@intel.com>; Ba, Najumon <najumon.ba@intel.com>;
+> > > > linux-input@vger.kernel.org; linux-kernel@vger.kernel.org
+> > > > Subject: Re: [PATCH] HID: intel-ish-hid: ipc: Rework EHL OOB
+> > > > wakeup
+> > > >
+> > > > Hi Even,
+> > > >
+> > > > On Thu, 2023-09-14 at 12:18 +0800, Kai-Heng Feng wrote:
+> > > > > System cannot suspend more than 255 times because the driver
+> > > > > doesn't
+> > > > > have corresponding acpi_disable_gpe() for acpi_enable_gpe(), so
+> > > > > the
+> > > > > GPE refcount overflows.
+> > > > >
+> > > > > Since PCI core and ACPI core already handles PCI PME wake and
+> > > > > GPE
+> > > > > wake when the device has wakeup capability, use
+> > > > > device_init_wakeup()
+> > > > > to let them do the wakeup setting work.
+> > > > >
+> > > > > Also add a shutdown callback which uses pci_prepare_to_sleep()
+> > > > > to
+> > > > > let PCI and ACPI set OOB wakeup for S5.
+> > > > >
+> > > > Please test this change.
+> > > >
+> > > > Thanks,
+> > > > Srinivas
+> > > >
+> > > > > Fixes: 2e23a70edabe ("HID: intel-ish-hid: ipc: finish power
+> > > > > flow for
+> > > > > EHL OOB")
+> > > > > Cc: Jian Hui Lee <jianhui.lee@canonical.com>
+> > > > > Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> > > > > ---
+> > > > >  drivers/hid/intel-ish-hid/ipc/pci-ish.c | 59
+> > > > > +++++++----------------
+> > > > > --
+> > > > >  1 file changed, 15 insertions(+), 44 deletions(-)
+> > > > >
+> > > > > diff --git a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> > > > > b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> > > > > index 55cb25038e63..65e7eeb2fa64 100644
+> > > > > --- a/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> > > > > +++ b/drivers/hid/intel-ish-hid/ipc/pci-ish.c
+> > > > > @@ -119,42 +119,6 @@ static inline bool
+> > > > > ish_should_leave_d0i3(struct
+> > > > > pci_dev *pdev)
+> > > > >         return !pm_resume_via_firmware() || pdev->device =3D=3D
+> > > > > CHV_DEVICE_ID;  }
+> > > > >
+> > > > > -static int enable_gpe(struct device *dev) -{ -#ifdef
+> > > > > CONFIG_ACPI
+> > > > > -       acpi_status acpi_sts;
+> > > > > -       struct acpi_device *adev;
+> > > > > -       struct acpi_device_wakeup *wakeup;
+> > > > > -
+> > > > > -       adev =3D ACPI_COMPANION(dev);
+> > > > > -       if (!adev) {
+> > > > > -               dev_err(dev, "get acpi handle failed\n");
+> > > > > -               return -ENODEV;
+> > > > > -       }
+> > > > > -       wakeup =3D &adev->wakeup;
+> > > > > -
+> > > > > -       acpi_sts =3D acpi_enable_gpe(wakeup->gpe_device, wakeup-
+> > > > > > gpe_number);
+> > > > > -       if (ACPI_FAILURE(acpi_sts)) {
+> > > > > -               dev_err(dev, "enable ose_gpe failed\n");
+> > > > > -               return -EIO;
+> > > > > -       }
+> > > > > -
+> > > > > -       return 0;
+> > > > > -#else
+> > > > > -       return -ENODEV;
+> > > > > -#endif
+> > > > > -}
+> > > > > -
+> > > > > -static void enable_pme_wake(struct pci_dev *pdev) -{
+> > > > > -       if ((pci_pme_capable(pdev, PCI_D0) ||
+> > > > > -            pci_pme_capable(pdev, PCI_D3hot) ||
+> > > > > -            pci_pme_capable(pdev, PCI_D3cold)) &&
+> > > > > !enable_gpe(&pdev-
+> > > > > > dev)) {
+> > > > > -               pci_pme_active(pdev, true);
+> > > > > -               dev_dbg(&pdev->dev, "ish ipc driver pme wake
+> > > > > enabled\n");
+> > > > > -       }
+> > > > > -}
+> > > > > -
+> > > > >  /**
+> > > > >   * ish_probe() - PCI driver probe callback
+> > > > >   * @pdev:      pci device
+> > > > > @@ -225,7 +189,7 @@ static int ish_probe(struct pci_dev *pdev,
+> > > > > const
+> > > > > struct pci_device_id *ent)
+> > > > >
+> > > > >         /* Enable PME for EHL */
+> > > > >         if (pdev->device =3D=3D EHL_Ax_DEVICE_ID)
+> > > > > -               enable_pme_wake(pdev);
+> > > > > +               device_init_wakeup(dev, true);
+> > > > >
+> > > > >         ret =3D ish_init(ishtp);
+> > > > >         if (ret)
+> > > > > @@ -248,6 +212,19 @@ static void ish_remove(struct pci_dev
+> > > > > *pdev)
+> > > > >         ish_device_disable(ishtp_dev);  }
+> > > > >
+> > > > > +
+> > > > > +/**
+> > > > > + * ish_shutdown() - PCI driver shutdown callback
+> > > > > + * @pdev:      pci device
+> > > > > + *
+> > > > > + * This function sets up wakeup for S5  */ static void
+> > > > > +ish_shutdown(struct pci_dev *pdev) {
+> > > > > +       if (pdev->device =3D=3D EHL_Ax_DEVICE_ID)
+> > > > > +               pci_prepare_to_sleep(pdev); }
+> > > > > +
+> > > > >  static struct device __maybe_unused *ish_resume_device;
+> > > > >
+> > > > >  /* 50ms to get resume response */
+> > > > > @@ -370,13 +347,6 @@ static int __maybe_unused
+> > > > > ish_resume(struct
+> > > > > device *device)
+> > > > >         struct pci_dev *pdev =3D to_pci_dev(device);
+> > > > >         struct ishtp_device *dev =3D pci_get_drvdata(pdev);
+> > > > >
+> > > > > -       /* add this to finish power flow for EHL */
+> > > > > -       if (dev->pdev->device =3D=3D EHL_Ax_DEVICE_ID) {
+> > > > > -               pci_set_power_state(pdev, PCI_D0);
+> > > > > -               enable_pme_wake(pdev);
+> > > > > -               dev_dbg(dev->devc, "set power state to D0 for
+> > > > > ehl\n");
+> > > > > -       }
+> > > > > -
+> > > > >         ish_resume_device =3D device;
+> > > > >         dev->resume_flag =3D 1;
+> > > > >
+> > > > > @@ -392,6 +362,7 @@ static struct pci_driver ish_driver =3D {
+> > > > >         .id_table =3D ish_pci_tbl,
+> > > > >         .probe =3D ish_probe,
+> > > > >         .remove =3D ish_remove,
+> > > > > +       .shutdown =3D ish_shutdown,
+> > > > >         .driver.pm =3D &ish_pm_ops,
+> > > > >  };
+> > > > >
+> > > >
+>

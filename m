@@ -2,114 +2,82 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 918D4CE79A9
-	for <linux-input@archiver.kernel.org>; Tue, 19 Sep 2023 21:49:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50D7ACE79AA
+	for <linux-input@archiver.kernel.org>; Tue, 19 Sep 2023 23:03:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229945AbjISVtp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 19 Sep 2023 17:49:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34564 "EHLO
+        id S233294AbjISXDp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 19 Sep 2023 19:03:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233452AbjISVti (ORCPT
+        with ESMTP id S232804AbjISXDo (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 19 Sep 2023 17:49:38 -0400
-Received: from gcc-spam-ims-003.plexus.com (gcc-spam-ims-003.plexus.com [206.209.244.63])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C278FD7
-        for <linux-input@vger.kernel.org>; Tue, 19 Sep 2023 14:49:12 -0700 (PDT)
-Received: from gcc-spam-ims-003.plexus.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 10614E00C7;
-        Tue, 19 Sep 2023 16:27:32 -0500 (CDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=plexus.com; s=us;
-        t=1695158852; bh=GgW5iYe+D4lnJHx7xSJ+eHUitrhvVwLg02sp2f1wTIg=;
-        h=From:To:Date;
-        b=utQXh0ITI7Ap6EdGMzceX3scKH/5OnW1/Pnc1pWR27fRHlYWpStyp6KTsrYmLYFOP
-         rpUfYnqoYiKsmbAGxcywJkiiRaT3vq03B/Lg0g6CnCLeQJ4fGxBQBn6jS26uDPlvK5
-         G8jFWWcAzETkGofb7WOyjG7Rbtd1DYDPWpK6P9T3VcThckCDN9c8o0xJRGw54ZBgIJ
-         9PaCxNhyNHF+ooBfdaGnjjbc4jPzzpyEpgb53gcM6W/av0k2BjYZ/KEUFiHW6ZB5Eq
-         je6jF6bjAGZhD7tClq+5DiVF7KQaisFsbvDiM6tAtFg8+u11WhKXF9b/sJ9LTff4XS
-         tPQmqM6JZeorA==
-Received: from gcc-spam-ims-003.plexus.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 01F4BE0091;
-        Tue, 19 Sep 2023 16:27:32 -0500 (CDT)
-Received: from Dcc-mail-mx-001.na.plexus.com (unknown [10.249.48.15])
-        by gcc-spam-ims-003.plexus.com (Postfix) with ESMTPS;
-        Tue, 19 Sep 2023 16:27:31 -0500 (CDT)
-Received: from dcc-mail-mx-001.na.plexus.com (10.249.48.15) by
- Dcc-mail-mx-001.na.plexus.com (10.249.48.15) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.32; Tue, 19 Sep 2023 21:27:31 +0000
-Received: from LNDCL34533.neenah.na.plexus.com (10.255.48.203) by
- dcc-mail-mx-001.na.plexus.com (10.249.48.15) with Microsoft SMTP Server id
- 15.1.2507.32 via Frontend Transport; Tue, 19 Sep 2023 21:27:31 +0000
-From:   Danny Kaehn <danny.kaehn@plexus.com>
-To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
-        <andriy.shevchenko@linux.intel.com>
-CC:     <linux-input@vger.kernel.org>, <ethan.twardy@plexus.com>,
-        Danny Kaehn <danny.kaehn@plexus.com>
-Subject: [PATCH] hid: cp2112: Fix duplicate workqueue initialization
-Date:   Tue, 19 Sep 2023 16:22:45 -0500
-Message-ID: <20230919212245.483646-1-danny.kaehn@plexus.com>
-X-Mailer: git-send-email 2.25.1
+        Tue, 19 Sep 2023 19:03:44 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F9ACC0;
+        Tue, 19 Sep 2023 16:03:39 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FAF6C433CD;
+        Tue, 19 Sep 2023 23:03:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695164618;
+        bh=AVm/wivqgdaYPeb2TV3gnjnCGczTQW2Knav2WIIU+3o=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pHeNS/agG4PS6WxON62G7QizekGP+u5vmPP2ipBG9P8uwxjXW73vH9UdVrn6WwsUX
+         6vj/DYrQ14u7MCBDHmt/PNYf/5QogI4s9Q2qDAIQ8RjmUqJGtZMa+/HHPdILKcUTqv
+         rKRZ+FtjEEs4ZwWdnVA0nEaS/9sZE8ZHWaoqlI8ODh5wUUZvmQqni6a58P8HUUhy/m
+         A/0zyE9i5u1D34c4aqUkTYtJoSDelOi2ug+TUJ7Ekydhbq0qGuJataqmS+wOvtY+9Q
+         SJrCq78hKb8rM0ph9DeRyYaYa0fbPU9Vm7NbbIdjoUYfBUFW3Z+o2Yzm9O7aftsWMG
+         BdLPieoZMA90g==
+From:   Bjorn Andersson <andersson@kernel.org>
+To:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Maxime Ripard <mripard@kernel.org>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Douglas Anderson <dianders@chromium.org>
+Cc:     linux-arm-msm@vger.kernel.org,
+        yangcong5@huaqin.corp-partner.google.com,
+        devicetree@vger.kernel.org, Daniel Vetter <daniel@ffwll.ch>,
+        hsinyi@google.com, Chris Morgan <macroalpha82@gmail.com>,
+        linux-input@vger.kernel.org, cros-qcom-dts-watchers@chromium.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org
+Subject: Re: (subset) [PATCH v4 00/11] drm/panel and i2c-hid: Allow panels and touchscreens to power sequence together
+Date:   Tue, 19 Sep 2023 16:07:29 -0700
+Message-ID: <169516486001.787935.12322857337806445764.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.42.0
+In-Reply-To: <20230727171750.633410-1-dianders@chromium.org>
+References: <20230727171750.633410-1-dianders@chromium.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-TM-SNTS-SMTP: 8A79A5E8D5A496DE2D836DF393A65635CB81A3854FBD1A4AD6606689BA0781FD2000:8
-X-TM-AS-GCONF: 00
-X-TM-AS-Product-Ver: IMSVA-9.1.0.2164-9.0.0.1002-27886.002
-X-TM-AS-Result: No--17.035-3.0-31-10
-X-imss-scan-details: No--17.035-3.0-31-10
-X-TMASE-Version: IMSVA-9.1.0.2164-9.0.1002-27886.002
-X-TMASE-Result: 10--17.034600-10.000000
-X-TMASE-MatchedRID: TPyKUOUUvtEl3q2mDd7YjuA/bh6avLQ2cgDifvL5MervZFvZsQkL7Rgf
-        f28UuvITFxOIernkp32+EodAtMqKbE7yBNcycurj8zNox86R2ZsKlOLZpoNxyKoXHZz/dXlxTJD
-        l9FKHbrnAuQ0xDMaXkLKoUszL+VmmasOJoXx/wo+1uR5DbjvHlxM07BCTU20/zr16YOzjZ13qtO
-        CMCMzOYZsoi2XrUn/Jn6KdMrRsL14qtq5d3cxkNQP90fJP9eHt
-X-TMASE-SNAP-Result: 1.821001.0001-0-2-1:0,12:0,22:0,33:0,34:0-0
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Previously the cp2112 driver called INIT_DELAYED_WORK within
-cp2112_gpio_irq_startup, resulting in duplicate initilizations of the
-workqueue on subsequent IRQ startups following an initial request. This
-resulted in a warning in set_work_data in workqueue.c, as well as a rare
-NULL dereference within process_one_work in workqueue.c.
 
-Initialize the workqueue within _probe instead.
+On Thu, 27 Jul 2023 10:16:27 -0700, Douglas Anderson wrote:
+> The big motivation for this patch series is mostly described in the patch
+> ("drm/panel: Add a way for other devices to follow panel state"), but to
+> quickly summarize here: for touchscreens that are connected to a panel we
+> need the ability to power sequence the two device together. This is not a
+> new need, but so far we've managed to get by through a combination of
+> inefficiency, added costs, or perhaps just a little bit of brokenness.
+> It's time to do better. This patch series allows us to do better.
+> 
+> [...]
 
-Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
----
+Applied, thanks!
 
-Note -- the warning & NULL dereference that were caused by this were
-completely decoupled from the driver code, making this a fairly tricky
-bug to track down. I wonder if there would be a way to add a WARN into
-__INIT_WORK if an already initialized workqueue is re-initialized
-without a lot of overhead...
+[11/11] arm64: dts: qcom: sc7180: Link trogdor touchscreens to the panels
+        commit: 989aac9dea7fcfc33b5eedc4ae44abbf71460a4d
 
- drivers/hid/hid-cp2112.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 54c33a24f844..36f76c6dfa20 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -1151,8 +1151,6 @@ static unsigned int cp2112_gpio_irq_startup(struct irq_data *d)
- 	struct gpio_chip *gc = irq_data_get_irq_chip_data(d);
- 	struct cp2112_device *dev = gpiochip_get_data(gc);
- 
--	INIT_DELAYED_WORK(&dev->gpio_poll_worker, cp2112_gpio_poll_callback);
--
- 	if (!dev->gpio_poll) {
- 		dev->gpio_poll = true;
- 		schedule_delayed_work(&dev->gpio_poll_worker, 0);
-@@ -1307,6 +1305,8 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	girq->handler = handle_simple_irq;
- 	girq->threaded = true;
- 
-+	INIT_DELAYED_WORK(&dev->gpio_poll_worker, cp2112_gpio_poll_callback);
-+
- 	ret = gpiochip_add_data(&dev->gc, dev);
- 	if (ret < 0) {
- 		hid_err(hdev, "error registering gpio chip\n");
+Best regards,
 -- 
-2.25.1
-
+Bjorn Andersson <andersson@kernel.org>

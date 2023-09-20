@@ -2,47 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C64AFCE79D2
-	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 467A4CE79CE
+	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236153AbjITM7S (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:18 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41562 "EHLO
+        id S236326AbjITM7T (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236180AbjITM7H (ORCPT
+        with ESMTP id S236225AbjITM7H (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 20 Sep 2023 08:59:07 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA571185
-        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:50 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CB6083
+        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:51 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwn0-0005bP-UX; Wed, 20 Sep 2023 14:58:46 +0200
+        id 1qiwmt-00058L-Hp; Wed, 20 Sep 2023 14:58:39 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmz-007h0v-6j; Wed, 20 Sep 2023 14:58:45 +0200
+        id 1qiwmr-007gyd-2a; Wed, 20 Sep 2023 14:58:37 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmy-003IF7-RS; Wed, 20 Sep 2023 14:58:44 +0200
+        id 1qiwmq-003ICl-Pb; Wed, 20 Sep 2023 14:58:36 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Ruan Jinjie <ruanjinjie@huawei.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+Cc:     Rob Herring <robh@kernel.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Siarhei Volkau <lis8215@gmail.com>,
         linux-input@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 41/52] input: rpckbd - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:58:18 +0200
-Message-Id: <20230920125829.1478827-42-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 05/52] input: matrix_keypad - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:57:42 +0200
+Message-Id: <20230920125829.1478827-6-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1614; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=BcJ0AywxOV7G9krecrDeZFJTnE1lKJBvT4EpmtKIkgs=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxiEPdB5NoqEu9duHO90iy0wFeDyR1VzYdHz KK4ZehG0EiJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsYgAKCRCPgPtYfRL+ TuT5B/9BUS0Wno0+5YZoXN0Sb8RTIDfba64Excn8Kzkdhojjd89pmzYq/3dpAZrsCNBttjhAS0w rC4Dkdnx3bNnw49j0UTYqjOd2OTp5Qina7d7aWzzHoXY5ARNukHeDTnTUtHsZrhnkJUnI5RUUUQ vKV/m0wx5o6Ld7I9p+ujeE95CU5wQsjC3L4gAj7OJQVESrakDtJEjeddYv+cV7o+j2pm9gl8KwQ vKIQQw88Hqusv1NVg7f7NH/5fOQbjYOLdtUAKqs/gCnTWHlf29vfn95QrKAiGj4VzbLpa0ZedLF DWlPhpz81zeKp/W915vwdJZFdFd5Zp5ywHPL8oHdWRi/shHO
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1870; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=I1Td0PO2J4ugZd+Am1WSsgRKvn3D9v2mPgdkK5T0Qyg=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuw51XKGlOHBdEL63PXfcbv1k/1WXIP5CYBWg 1uc/VzzChyJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsOQAKCRCPgPtYfRL+ TkN0B/sEpM8MgHqk/0i89k60VqkFgWpj/8S0KLEhZIg52IQ253rXOX8JZnQwnX1dtNNb2CgmZ7g blx4R2Lh87wnBZXCX70Z/21a+n25fmgscYBhjTHBbzygvUO1y5OcBrn9U1sSSqmc5aTee1inOZH DrkWARqbikpCUYYNUM7mS7uWsOvTRjrAqAm+Nre6H5RlqKM7ZfAHpEOR+GgI/QuZNNy9v1vi0gF 7glaK827rrkPxv6/QqlzUPxD7q+/SP3cOSMyYBGn7WynvzfH3HQiXiGYVdUaqpqsSVeVrj1zqqh SU5wO18YTMQcjoy4jLox9eFcB3r3UeXgqKOO53An5gEeUj8U
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -67,36 +69,39 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/serio/rpckbd.c | 6 ++----
+ drivers/input/keyboard/matrix_keypad.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/serio/rpckbd.c b/drivers/input/serio/rpckbd.c
-index e8a9709f32eb..9bbfefd092c0 100644
---- a/drivers/input/serio/rpckbd.c
-+++ b/drivers/input/serio/rpckbd.c
-@@ -133,20 +133,18 @@ static int rpckbd_probe(struct platform_device *dev)
- 	return 0;
+diff --git a/drivers/input/keyboard/matrix_keypad.c b/drivers/input/keyboard/matrix_keypad.c
+index a1b037891af2..50fa764c82d2 100644
+--- a/drivers/input/keyboard/matrix_keypad.c
++++ b/drivers/input/keyboard/matrix_keypad.c
+@@ -549,15 +549,13 @@ static int matrix_keypad_probe(struct platform_device *pdev)
+ 	return err;
  }
  
--static int rpckbd_remove(struct platform_device *dev)
-+static void rpckbd_remove(struct platform_device *dev)
+-static int matrix_keypad_remove(struct platform_device *pdev)
++static void matrix_keypad_remove(struct platform_device *pdev)
  {
- 	struct serio *serio = platform_get_drvdata(dev);
- 	struct rpckbd_data *rpckbd = serio->port_data;
+ 	struct matrix_keypad *keypad = platform_get_drvdata(pdev);
  
- 	serio_unregister_port(serio);
- 	kfree(rpckbd);
+ 	matrix_keypad_free_gpio(keypad);
+ 	input_unregister_device(keypad->input_dev);
+ 	kfree(keypad);
 -
 -	return 0;
  }
  
- static struct platform_driver rpckbd_driver = {
- 	.probe		= rpckbd_probe,
--	.remove		= rpckbd_remove,
-+	.remove_new	= rpckbd_remove,
+ #ifdef CONFIG_OF
+@@ -570,7 +568,7 @@ MODULE_DEVICE_TABLE(of, matrix_keypad_dt_match);
+ 
+ static struct platform_driver matrix_keypad_driver = {
+ 	.probe		= matrix_keypad_probe,
+-	.remove		= matrix_keypad_remove,
++	.remove_new	= matrix_keypad_remove,
  	.driver		= {
- 		.name	= "kart",
- 	},
+ 		.name	= "matrix-keypad",
+ 		.pm	= pm_sleep_ptr(&matrix_keypad_pm_ops),
 -- 
 2.40.1
 

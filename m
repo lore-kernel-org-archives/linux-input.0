@@ -2,46 +2,45 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 456FFCE79CE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D67A3CE79D1
 	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:58:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235304AbjITM66 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S235699AbjITM66 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 20 Sep 2023 08:58:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33948 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235699AbjITM6w (ORCPT
+        with ESMTP id S235709AbjITM6x (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Sep 2023 08:58:52 -0400
+        Wed, 20 Sep 2023 08:58:53 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16837E4
-        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:42 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C446D194
+        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:41 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmt-0005Ax-LT; Wed, 20 Sep 2023 14:58:39 +0200
+        id 1qiwmu-0005Cy-4z; Wed, 20 Sep 2023 14:58:40 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmt-007gz5-1a; Wed, 20 Sep 2023 14:58:39 +0200
+        id 1qiwmt-007gzJ-Ir; Wed, 20 Sep 2023 14:58:39 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwms-003IDL-Nw; Wed, 20 Sep 2023 14:58:38 +0200
+        id 1qiwmt-003IDS-8D; Wed, 20 Sep 2023 14:58:39 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Support Opensource <support.opensource@diasemi.com>,
-        linux-input@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 14/52] input: da9055_onkey - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:57:51 +0200
-Message-Id: <20230920125829.1478827-15-u.kleine-koenig@pengutronix.de>
+Cc:     linux-input@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 16/52] input: m68kspkr - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:57:53 +0200
+Message-Id: <20230920125829.1478827-17-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1840; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=QM9gXtqP0X7OAb2K3GCvSO/WliWvQQ7TO+EL1C0DG2s=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxDJ1rxzXYZ5BoCrXCFYDJYFkmcK8PnyuWFn GsY4+R43TuJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsQwAKCRCPgPtYfRL+ TtY+B/0anPO1fHvi4EkO1GcqFh2sNRKLSdfhuCSr0VLD/K57YAaFLYg+i6E3T0WjHlLb9I6TSBG oVQow6fXUQWHGxju9McjxPpRXPRRSzFn7W2xxANZDXYEWgZpk5b/CrZ85C0J1ODY6OI6nNv9DBa dQYaJLe6HP0/eWgP1XUdicV7gb3YYx2YNlHWUAgiamFt+SvNxy+F9Vvp4hKce0Tqv07joQUUxQW 7he4gP/r5cA1GSdCdjX9ysMgIEbYZahLfTUn+HEUy/VjJgqKMtc9HsGDSxvxo4RrakkNeGXErBd IatfgHsExRfZGaHjLTCSjf76Om0wTeNtHvNJa0WJWJtaIgew
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1770; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=lf4rtaI/w6VSWNjNbo6KGWx/rFWLQqZd+jiz9vpR5yY=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxFJFTl6HDnfGClQihUfudD8ovETAe/9LhRt a058MrKfJiJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsRQAKCRCPgPtYfRL+ TqtKB/sGWsqWY+KTKJkSsm+WI81Do6ekZMb/9OovA2BRvYMQslO+RthPxHilu7Unm9mdx1X+w1j Y4AMkTasUc7viNlpteFzB4gWcn2upb5ED0gr+UC8roQgnGMgyvgZvp9pIjgVX4bzWrcBhP3NqtZ qDihLqmnxS90frR1lP28lLnxlYARLNycNURy1/23y6+WoAkvrHb10HiTo0uTljerGTCfTc89fgm 11VN5nNnNsWr8uQ7y09iPQY8MRe8E3MUBGwWHG/bS5Y4jgpQ2gIQEuCDk+6jbSBIJycyilXPqHQ vtgNRrc+Kevj9uKdhInhm2StBaiM+aQilSAXdGoAagwM/74V
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -66,37 +65,39 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/misc/da9055_onkey.c | 6 ++----
+ drivers/input/misc/m68kspkr.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/da9055_onkey.c b/drivers/input/misc/da9055_onkey.c
-index 7a0d3a1d503c..871812f1b398 100644
---- a/drivers/input/misc/da9055_onkey.c
-+++ b/drivers/input/misc/da9055_onkey.c
-@@ -132,7 +132,7 @@ static int da9055_onkey_probe(struct platform_device *pdev)
- 	return err;
+diff --git a/drivers/input/misc/m68kspkr.c b/drivers/input/misc/m68kspkr.c
+index 25fcf1467151..3fe0a85c45e0 100644
+--- a/drivers/input/misc/m68kspkr.c
++++ b/drivers/input/misc/m68kspkr.c
+@@ -75,15 +75,13 @@ static int m68kspkr_probe(struct platform_device *dev)
+ 	return 0;
  }
  
--static int da9055_onkey_remove(struct platform_device *pdev)
-+static void da9055_onkey_remove(struct platform_device *pdev)
+-static int m68kspkr_remove(struct platform_device *dev)
++static void m68kspkr_remove(struct platform_device *dev)
  {
- 	struct da9055_onkey *onkey = platform_get_drvdata(pdev);
- 	int irq = platform_get_irq_byname(pdev, "ONKEY");
-@@ -141,13 +141,11 @@ static int da9055_onkey_remove(struct platform_device *pdev)
- 	free_irq(irq, onkey);
- 	cancel_delayed_work_sync(&onkey->work);
- 	input_unregister_device(onkey->input);
+ 	struct input_dev *input_dev = platform_get_drvdata(dev);
+ 
+ 	input_unregister_device(input_dev);
+ 	/* turn off the speaker */
+ 	m68kspkr_event(NULL, EV_SND, SND_BELL, 0);
 -
 -	return 0;
  }
  
- static struct platform_driver da9055_onkey_driver = {
- 	.probe	= da9055_onkey_probe,
--	.remove	= da9055_onkey_remove,
-+	.remove_new = da9055_onkey_remove,
- 	.driver = {
- 		.name	= "da9055-onkey",
+ static void m68kspkr_shutdown(struct platform_device *dev)
+@@ -97,7 +95,7 @@ static struct platform_driver m68kspkr_platform_driver = {
+ 		.name	= "m68kspkr",
  	},
+ 	.probe		= m68kspkr_probe,
+-	.remove		= m68kspkr_remove,
++	.remove_new	= m68kspkr_remove,
+ 	.shutdown	= m68kspkr_shutdown,
+ };
+ 
 -- 
 2.40.1
 

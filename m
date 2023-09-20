@@ -2,48 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A58ECE79CE
-	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BCBACE79D1
+	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236234AbjITM7M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41540 "EHLO
+        id S236006AbjITM7O (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236133AbjITM7F (ORCPT
+        with ESMTP id S236160AbjITM7F (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 20 Sep 2023 08:59:05 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96FD1B3
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D1B134
         for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:48 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmt-00058Y-CP; Wed, 20 Sep 2023 14:58:39 +0200
+        id 1qiwmz-0005XM-Cd; Wed, 20 Sep 2023 14:58:45 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmr-007gyj-GQ; Wed, 20 Sep 2023 14:58:37 +0200
+        id 1qiwmy-007h0k-Dt; Wed, 20 Sep 2023 14:58:44 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmr-003ICt-6s; Wed, 20 Sep 2023 14:58:37 +0200
+        id 1qiwmy-003IEu-34; Wed, 20 Sep 2023 14:58:44 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Yangtao Li <frank.li@vivo.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org,
+Cc:     ye xingchen <ye.xingchen@zte.com.cn>, linux-input@vger.kernel.org,
         kernel@pengutronix.de
-Subject: [PATCH 07/52] input: omap4-keypad - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:57:44 +0200
-Message-Id: <20230920125829.1478827-8-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 38/52] input: olpc_apsp - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:58:15 +0200
+Message-Id: <20230920125829.1478827-39-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1764; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=Uz/Y04WZLM79PWiMT26rLD1RyhwSjpu2sAD/2b79i2o=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuw7k2ZOP5UjEEGPagZNYfkqEykY/YNM9VXTA qr07CnY4KyJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsOwAKCRCPgPtYfRL+ TnifB/4/9ZdLr1MGcWVixaHoyGkr1oOA1cGMfsDX2cxIbpBaDdv18X/uJXFn9QthuNOeWsE7CfK DSXBxtTjxnUlHI+L3FjAT5dyCPDCh0XfnB1GL0iVnRDyi+zw+dc7n/5V7x6DD0wUYHIteQGG/zZ k+UpVjszVZLpXT74UMzYc31twnNMIwhy4qxU/aVT+Idh/uX7kMbNszu0z6aRQo67UMfe8q2rAtx WWPnIJuBQK+63NAu8R+SPSGa7N24J571AEsjQ09nJj5k+nku1a7S9Dr9awdo2+qHiDaSze7d5BK rx5MxLFwBj/nFnEwEvtzPw5PUzAcKR9IZQjh3AhFgTZw786D
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1881; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=fReQFlkCfPybI+fyuVzmCak9214FTU6WawvLTrOCDzw=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxfCsHSSy/RXU2oYBRqiSrUfXjeXrftwSAoF NYi20ujKXWJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsXwAKCRCPgPtYfRL+ TtheCACv6m8q9trDDNkxfOwK013rs5SHbTQGT8gUPUQrtJ7+tqa8ylw4NekHNr5FGdslsXNrgYE tl4R59T+PnfrcSbOGfM8bLDl4whSJqF5QsNUp8Oh57D6mevtxeOKq2dOG86JcA5GYL3pmsmCfN9 YQjrDVPh8Ncif+X8JKAP7MuIdK8Ea7ifozoGjfCmyPq3KwglrL0lwZNR45KE7yTdDbwUQZxiDpx b54L5ACTc9rRoArfFArlYqcTdOMG40t/d1/tZGC2euD5ZTLbXiBf1JrHni8yJUCGVTPbWylaLf5 ZUkMsy4gDu0AHwd9L35azlOySHboY+bEv/wFu+AXgoeKVw4u
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -68,35 +66,40 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/keyboard/omap4-keypad.c | 6 ++----
+ drivers/input/serio/olpc_apsp.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
-index 773e55eed88b..d3f8688fdd9c 100644
---- a/drivers/input/keyboard/omap4-keypad.c
-+++ b/drivers/input/keyboard/omap4-keypad.c
-@@ -461,11 +461,9 @@ static int omap4_keypad_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/drivers/input/serio/olpc_apsp.c b/drivers/input/serio/olpc_apsp.c
+index 33a8e5889bd8..240a714f7081 100644
+--- a/drivers/input/serio/olpc_apsp.c
++++ b/drivers/input/serio/olpc_apsp.c
+@@ -238,7 +238,7 @@ static int olpc_apsp_probe(struct platform_device *pdev)
+ 	return error;
  }
  
--static int omap4_keypad_remove(struct platform_device *pdev)
-+static void omap4_keypad_remove(struct platform_device *pdev)
+-static int olpc_apsp_remove(struct platform_device *pdev)
++static void olpc_apsp_remove(struct platform_device *pdev)
  {
- 	dev_pm_clear_wake_irq(&pdev->dev);
+ 	struct olpc_apsp *priv = platform_get_drvdata(pdev);
+ 
+@@ -246,8 +246,6 @@ static int olpc_apsp_remove(struct platform_device *pdev)
+ 
+ 	serio_unregister_port(priv->kbio);
+ 	serio_unregister_port(priv->padio);
 -
 -	return 0;
  }
  
- static const struct of_device_id omap_keypad_dt_match[] = {
-@@ -476,7 +474,7 @@ MODULE_DEVICE_TABLE(of, omap_keypad_dt_match);
+ static const struct of_device_id olpc_apsp_dt_ids[] = {
+@@ -258,7 +256,7 @@ MODULE_DEVICE_TABLE(of, olpc_apsp_dt_ids);
  
- static struct platform_driver omap4_keypad_driver = {
- 	.probe		= omap4_keypad_probe,
--	.remove		= omap4_keypad_remove,
-+	.remove_new	= omap4_keypad_remove,
+ static struct platform_driver olpc_apsp_driver = {
+ 	.probe		= olpc_apsp_probe,
+-	.remove		= olpc_apsp_remove,
++	.remove_new	= olpc_apsp_remove,
  	.driver		= {
- 		.name	= "omap4-keypad",
- 		.of_match_table = omap_keypad_dt_match,
+ 		.name	= "olpc-apsp",
+ 		.of_match_table = olpc_apsp_dt_ids,
 -- 
 2.40.1
 

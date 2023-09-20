@@ -2,45 +2,48 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C40F0CE79CF
-	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A58ECE79CE
+	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235980AbjITM7M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S236234AbjITM7M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 20 Sep 2023 08:59:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41502 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236004AbjITM7F (ORCPT
+        with ESMTP id S236133AbjITM7F (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 20 Sep 2023 08:59:05 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D98111B4
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96FD1B3
         for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:48 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmz-0005W3-Fo; Wed, 20 Sep 2023 14:58:45 +0200
+        id 1qiwmt-00058Y-CP; Wed, 20 Sep 2023 14:58:39 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmy-007h0g-6R; Wed, 20 Sep 2023 14:58:44 +0200
+        id 1qiwmr-007gyj-GQ; Wed, 20 Sep 2023 14:58:37 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmx-003IEr-Rv; Wed, 20 Sep 2023 14:58:43 +0200
+        id 1qiwmr-003ICt-6s; Wed, 20 Sep 2023 14:58:37 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 37/52] input: maceps2 - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:58:14 +0200
-Message-Id: <20230920125829.1478827-38-u.kleine-koenig@pengutronix.de>
+Cc:     Yangtao Li <frank.li@vivo.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Rob Herring <robh@kernel.org>, linux-input@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: [PATCH 07/52] input: omap4-keypad - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:57:44 +0200
+Message-Id: <20230920125829.1478827-8-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1660; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=V5YRacUM0Bi6N1Z2rinocnOXvhtc6fxpBW2BYO3nGi8=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxe+FIiC4zMOIZFUJ46BRfXqxqNkfFvELg8a i0ZjJ7s266JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsXgAKCRCPgPtYfRL+ ThUwB/9ZNyPHCim5uKP63AvAbzod431/C90gU+ak/Ohl9lOgxqMFwwDcrN7f+NtrBgAGP7QW4dR ur2U7dx8Htk4CEmtuhd7vJzEme8IP1Xvv2mB4siDIP4QIYJOfhJxFM8bABEDVqts4ePxnqo8dnq 1JJenV5xzdPzAt8kYSWcFwF8/3znXyZMEuLE8YOXQhT6wqlQ0XafKVotNSSuI9ozGCMHnF3OB3y FqHIZYipF5vHspSy1pQmq/yR34Lz3xmDis4q3y1Or1yL4XXc3eNslTB5jrshHa2PwxZ3MxUF2+g QTfm9/ohk7gTxTm7/U+jNc/o7+xtSSSnfZjjE3Ir8xjPHYPz
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1764; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=Uz/Y04WZLM79PWiMT26rLD1RyhwSjpu2sAD/2b79i2o=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuw7k2ZOP5UjEEGPagZNYfkqEykY/YNM9VXTA qr07CnY4KyJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsOwAKCRCPgPtYfRL+ TnifB/4/9ZdLr1MGcWVixaHoyGkr1oOA1cGMfsDX2cxIbpBaDdv18X/uJXFn9QthuNOeWsE7CfK DSXBxtTjxnUlHI+L3FjAT5dyCPDCh0XfnB1GL0iVnRDyi+zw+dc7n/5V7x6DD0wUYHIteQGG/zZ k+UpVjszVZLpXT74UMzYc31twnNMIwhy4qxU/aVT+Idh/uX7kMbNszu0z6aRQo67UMfe8q2rAtx WWPnIJuBQK+63NAu8R+SPSGa7N24J571AEsjQ09nJj5k+nku1a7S9Dr9awdo2+qHiDaSze7d5BK rx5MxLFwBj/nFnEwEvtzPw5PUzAcKR9IZQjh3AhFgTZw786D
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -65,36 +68,35 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/serio/maceps2.c | 6 ++----
+ drivers/input/keyboard/omap4-keypad.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/serio/maceps2.c b/drivers/input/serio/maceps2.c
-index 629e15089c21..5ccfb82759b3 100644
---- a/drivers/input/serio/maceps2.c
-+++ b/drivers/input/serio/maceps2.c
-@@ -148,12 +148,10 @@ static int maceps2_probe(struct platform_device *dev)
+diff --git a/drivers/input/keyboard/omap4-keypad.c b/drivers/input/keyboard/omap4-keypad.c
+index 773e55eed88b..d3f8688fdd9c 100644
+--- a/drivers/input/keyboard/omap4-keypad.c
++++ b/drivers/input/keyboard/omap4-keypad.c
+@@ -461,11 +461,9 @@ static int omap4_keypad_probe(struct platform_device *pdev)
  	return 0;
  }
  
--static int maceps2_remove(struct platform_device *dev)
-+static void maceps2_remove(struct platform_device *dev)
+-static int omap4_keypad_remove(struct platform_device *pdev)
++static void omap4_keypad_remove(struct platform_device *pdev)
  {
- 	serio_unregister_port(maceps2_port[0]);
- 	serio_unregister_port(maceps2_port[1]);
+ 	dev_pm_clear_wake_irq(&pdev->dev);
 -
 -	return 0;
  }
  
- static struct platform_driver maceps2_driver = {
-@@ -161,7 +159,7 @@ static struct platform_driver maceps2_driver = {
- 		.name	= "maceps2",
- 	},
- 	.probe		= maceps2_probe,
--	.remove		= maceps2_remove,
-+	.remove_new	= maceps2_remove,
- };
+ static const struct of_device_id omap_keypad_dt_match[] = {
+@@ -476,7 +474,7 @@ MODULE_DEVICE_TABLE(of, omap_keypad_dt_match);
  
- static int __init maceps2_init(void)
+ static struct platform_driver omap4_keypad_driver = {
+ 	.probe		= omap4_keypad_probe,
+-	.remove		= omap4_keypad_remove,
++	.remove_new	= omap4_keypad_remove,
+ 	.driver		= {
+ 		.name	= "omap4-keypad",
+ 		.of_match_table = omap_keypad_dt_match,
 -- 
 2.40.1
 

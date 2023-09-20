@@ -2,45 +2,47 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC2CCE79D3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EE2CCCE79D0
 	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236165AbjITM7H (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S235290AbjITM7H (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Wed, 20 Sep 2023 08:59:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33910 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235290AbjITM67 (ORCPT
+        with ESMTP id S235812AbjITM67 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 20 Sep 2023 08:58:59 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0E319D
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9E4122
         for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:46 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmx-0005M9-3v; Wed, 20 Sep 2023 14:58:43 +0200
+        id 1qiwmw-0005JU-CC; Wed, 20 Sep 2023 14:58:42 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmw-007h0H-JM; Wed, 20 Sep 2023 14:58:42 +0200
+        id 1qiwmv-007h08-Ve; Wed, 20 Sep 2023 14:58:41 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmw-003IEM-AB; Wed, 20 Sep 2023 14:58:42 +0200
+        id 1qiwmv-003IEF-MW; Wed, 20 Sep 2023 14:58:41 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 30/52] input: ams_delta_serio - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:58:07 +0200
-Message-Id: <20230920125829.1478827-31-u.kleine-koenig@pengutronix.de>
+Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-input@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 28/52] input: navpoint - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:58:05 +0200
+Message-Id: <20230920125829.1478827-29-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1664; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=k4RLsXMFvCHnBLWmbBjnDnZVO2FI6ukTajpbodF2N5E=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxVCmdSD7izreR5w2xmw2r0Fc8fe3Ih5cUAE pLhBY1n/h2JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsVQAKCRCPgPtYfRL+ ToZ6B/0VDI1VHr5OzdCsZStAZnpDgUnHj9L7Wwv+rYlmt4LGZf3D/WcykI3OmGDEV94B87C6pQL T5XxP5frQE8KGtKhqHpATg/UTK7HgXWyUjyABaRh1WJuPH6xxOBtbiQaedGT+4xWLm1kKuaFakr 0/1BX0tzJm98ETCIfdI0qjFGGnN+MhngsYxxntEzqB5sWGfiDkSlQwpM/zBSYfY7lwZr0CQlhfB ZX0sEhY+AoskBdHob+ftRBBofuHB5C+lLdMUXeSNrRlP60B1c0Z3WaNPQDQ5fj7HoTD/0JTDMaF MI4/YGgVihooX/RLLH9PURUZDCi2qzclnULiECqYNnLFrNd2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1878; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=3AQRc2nNT2SkdX2eRxLRmjZGWiHn4Xb2m6xzSSPLTUE=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxTdKj5BUEJUuCD5Xd/qLKKmU2tB8FKadnx+ HO1zts54guJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsUwAKCRCPgPtYfRL+ Tqq8B/42RX29NdVfQBExb1OqsUN5FY1QfQEkVR7mqxb9QuoDgMZgPxlFlseodfLEGYt68wtaopO vidz2D/uSzRofVG/Hjt/OSm2XK3gSBWWBPvOw57+mjjlrG4ONN52bhiFlXGvxA6Mpy1WaPN7kpD fEng08qL3HuFFD3PajFsFRNkv+WR/Of+L5Dky+7x1t3XjkmrlnLP6tbcoyPMHJdEr6GF4ymjAYX eTbtxnPw2D0Q28wy5IszmS4Du4JUTrIkzH9e7T88E3qWZ/52jmEAvhLnaKSue37ArsjQdOZ4Zsq 8Y52n2J5btNrt7O8oxALHn9QjqcrxpSwWYYXAl/SKrrm4s6e
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -65,34 +67,40 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/serio/ams_delta_serio.c | 6 ++----
+ drivers/input/mouse/navpoint.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/serio/ams_delta_serio.c b/drivers/input/serio/ams_delta_serio.c
-index ec93cb4573c3..0bd6ae106809 100644
---- a/drivers/input/serio/ams_delta_serio.c
-+++ b/drivers/input/serio/ams_delta_serio.c
-@@ -173,18 +173,16 @@ static int ams_delta_serio_init(struct platform_device *pdev)
- 	return 0;
+diff --git a/drivers/input/mouse/navpoint.c b/drivers/input/mouse/navpoint.c
+index 2b7b86eef280..c00dc1275da2 100644
+--- a/drivers/input/mouse/navpoint.c
++++ b/drivers/input/mouse/navpoint.c
+@@ -295,7 +295,7 @@ static int navpoint_probe(struct platform_device *pdev)
+ 	return error;
  }
  
--static int ams_delta_serio_exit(struct platform_device *pdev)
-+static void ams_delta_serio_exit(struct platform_device *pdev)
+-static int navpoint_remove(struct platform_device *pdev)
++static void navpoint_remove(struct platform_device *pdev)
  {
- 	struct ams_delta_serio *priv = platform_get_drvdata(pdev);
+ 	const struct navpoint_platform_data *pdata =
+ 					dev_get_platdata(&pdev->dev);
+@@ -311,8 +311,6 @@ static int navpoint_remove(struct platform_device *pdev)
  
- 	serio_unregister_port(priv->serio);
+ 	if (gpio_is_valid(pdata->gpio))
+ 		gpio_free(pdata->gpio);
 -
 -	return 0;
  }
  
- static struct platform_driver ams_delta_serio_driver = {
- 	.probe	= ams_delta_serio_init,
--	.remove	= ams_delta_serio_exit,
-+	.remove_new = ams_delta_serio_exit,
- 	.driver	= {
- 		.name	= DRIVER_NAME
- 	},
+ static int navpoint_suspend(struct device *dev)
+@@ -348,7 +346,7 @@ static DEFINE_SIMPLE_DEV_PM_OPS(navpoint_pm_ops,
+ 
+ static struct platform_driver navpoint_driver = {
+ 	.probe		= navpoint_probe,
+-	.remove		= navpoint_remove,
++	.remove_new	= navpoint_remove,
+ 	.driver = {
+ 		.name	= "navpoint",
+ 		.pm	= pm_sleep_ptr(&navpoint_pm_ops),
 -- 
 2.40.1
 

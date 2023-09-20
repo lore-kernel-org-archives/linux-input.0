@@ -2,48 +2,48 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D0F1CE79D3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BCB50CE79D1
 	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:07 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235933AbjITM7K (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:10 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41414 "EHLO
+        id S236281AbjITM7L (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235957AbjITM7E (ORCPT
+        with ESMTP id S235980AbjITM7E (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 20 Sep 2023 08:59:04 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91B21ED
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7D85135
         for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:48 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmu-0005EH-C4; Wed, 20 Sep 2023 14:58:40 +0200
+        id 1qiwms-00058M-Ss; Wed, 20 Sep 2023 14:58:38 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmt-007gzQ-SK; Wed, 20 Sep 2023 14:58:39 +0200
+        id 1qiwmr-007gyg-96; Wed, 20 Sep 2023 14:58:37 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmt-003IDX-J9; Wed, 20 Sep 2023 14:58:39 +0200
+        id 1qiwmq-003ICp-Vs; Wed, 20 Sep 2023 14:58:36 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Lee Jones <lee@kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+Cc:     Pavel Machek <pavel@ucw.cz>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Paolo Abeni <pabeni@redhat.com>, Kalle Valo <kvalo@kernel.org>,
         linux-input@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 17/52] input: max8997_haptic - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:57:54 +0200
-Message-Id: <20230920125829.1478827-18-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 06/52] input: omap-keypad - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:57:43 +0200
+Message-Id: <20230920125829.1478827-7-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1920; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=2DtF1NaX75+bn977z+QqWxhsiiwrjYCNN5DXyZUALwk=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxG4/BQPZCszNyocVpkOzUzaV1igCA0JxBPK GoQqJgqC0OJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsRgAKCRCPgPtYfRL+ TumuB/9mwDWL9yH13V7E675PhtsjOT62RNQLxN4FPiSPx3xlPKCZKNETCWJyowQSYnM447rV4Ed ofkGJcSRSx9iDoZ6nzSLMuDBpxAJ7+3gank8xy+tYWp8sJyHFdsroFLGXuNmToocqKHlZshe/Uq TKmPuk2S4K1yuf20UtgsgynTe+9uolKok0TEt5ponKUTZuBCfnDKQ6J2XTiQfJALPSoejrLPcAe cNPT5NEC/mvrsRJVRnw5HFrQanjPV+U8khZWpRrP0DXHNxbJYywF/sOZ9XIK15huZ6hw2yogRdu 3jJ9qnTsHFCCaAqWAJGnIZM+lSlUYx+mf5VjEoHhqhwhEVlF
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1724; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=uxlM5fM0hmcHs7yfBhv3L8aGpaydP5QBqb1hJSrgwIA=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuw6lXG7MS0w0/7gi+4czRm96EBdyJY5PuWth tJTUEtrZt6JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsOgAKCRCPgPtYfRL+ Tmb/B/9NHv7mangivh8p6pAsSMlMsYqV7tmIc9olTin/8g7xHrPR3ChZPt5xx8ZVBNSufdbEx+k a3jvq7ejwglF8R7iAUaw+CLN9tv34DHCcO6xp0KUCI7drNxH9qSVWgzVA6OU9hIOM0vv4UQrsJK ABPSPkJ+0R94J1Ww61CfeDYziPBTz6br3+49OQlFicl9gaoPWKyBJIFvHPmOSHX5zVqCuiYg6ev HVudEm39UGnhOsXtFTJjng1jBJhXX/Gies7IRNswwzwLCMrPjDUOOOugSC2W37iGgkKsfOAB1WG WMV+eFkC7SyRckJ7ZLXCNNGbqKl5PfwU4yK3LXQUYer1wNyJ
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -68,40 +68,37 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/misc/max8997_haptic.c | 6 ++----
+ drivers/input/keyboard/omap-keypad.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/max8997_haptic.c b/drivers/input/misc/max8997_haptic.c
-index c4dff476d479..8861a67be575 100644
---- a/drivers/input/misc/max8997_haptic.c
-+++ b/drivers/input/misc/max8997_haptic.c
-@@ -351,7 +351,7 @@ static int max8997_haptic_probe(struct platform_device *pdev)
- 	return error;
+diff --git a/drivers/input/keyboard/omap-keypad.c b/drivers/input/keyboard/omap-keypad.c
+index 24440b498645..454fb8675657 100644
+--- a/drivers/input/keyboard/omap-keypad.c
++++ b/drivers/input/keyboard/omap-keypad.c
+@@ -287,7 +287,7 @@ static int omap_kp_probe(struct platform_device *pdev)
+ 	return -EINVAL;
  }
  
--static int max8997_haptic_remove(struct platform_device *pdev)
-+static void max8997_haptic_remove(struct platform_device *pdev)
+-static int omap_kp_remove(struct platform_device *pdev)
++static void omap_kp_remove(struct platform_device *pdev)
  {
- 	struct max8997_haptic *chip = platform_get_drvdata(pdev);
+ 	struct omap_kp *omap_kp = platform_get_drvdata(pdev);
  
-@@ -362,8 +362,6 @@ static int max8997_haptic_remove(struct platform_device *pdev)
- 		pwm_put(chip->pwm);
+@@ -303,13 +303,11 @@ static int omap_kp_remove(struct platform_device *pdev)
+ 	input_unregister_device(omap_kp->input);
  
- 	kfree(chip);
+ 	kfree(omap_kp);
 -
 -	return 0;
  }
  
- static int max8997_haptic_suspend(struct device *dev)
-@@ -391,7 +389,7 @@ static struct platform_driver max8997_haptic_driver = {
- 		.pm	= pm_sleep_ptr(&max8997_haptic_pm_ops),
+ static struct platform_driver omap_kp_driver = {
+ 	.probe		= omap_kp_probe,
+-	.remove		= omap_kp_remove,
++	.remove_new	= omap_kp_remove,
+ 	.driver		= {
+ 		.name	= "omap-keypad",
  	},
- 	.probe		= max8997_haptic_probe,
--	.remove		= max8997_haptic_remove,
-+	.remove_new	= max8997_haptic_remove,
- 	.id_table	= max8997_haptic_id,
- };
- module_platform_driver(max8997_haptic_driver);
 -- 
 2.40.1
 

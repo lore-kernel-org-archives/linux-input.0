@@ -2,47 +2,45 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3BF3DCE79CF
-	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:58:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13939CE79CE
+	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:58:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235925AbjITM6x (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:58:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33832 "EHLO
+        id S234633AbjITM6z (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:58:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235957AbjITM6t (ORCPT
+        with ESMTP id S236009AbjITM6v (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Sep 2023 08:58:49 -0400
+        Wed, 20 Sep 2023 08:58:51 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6A3B133
-        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:39 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 910AC185
+        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:40 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmr-00058K-HT; Wed, 20 Sep 2023 14:58:37 +0200
+        id 1qiwms-0005AF-VI; Wed, 20 Sep 2023 14:58:39 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmq-007gyZ-Sg; Wed, 20 Sep 2023 14:58:36 +0200
+        id 1qiwms-007gyz-Gf; Wed, 20 Sep 2023 14:58:38 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmq-003ICh-JH; Wed, 20 Sep 2023 14:58:36 +0200
+        id 1qiwms-003IDC-7F; Wed, 20 Sep 2023 14:58:38 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Mattijs Korpershoek <mkorpershoek@baylibre.com>,
-        Jeff LaBundy <jeff@labundy.com>, linux-input@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: [PATCH 04/52] input: iqs62x-keys - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:57:41 +0200
-Message-Id: <20230920125829.1478827-5-u.kleine-koenig@pengutronix.de>
+Cc:     linux-input@vger.kernel.org, kernel@pengutronix.de
+Subject: [PATCH 12/52] input: 88pm80x_onkey - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:57:49 +0200
+Message-Id: <20230920125829.1478827-13-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1961; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=mFcYl1wn77fniEtgx2E+xFlEporo/edpNsQGpHbkh4I=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuw4z/0x539b7hiWcLC1fP4I5yPm/9gXHUPMp wr3GMBP1AaJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsOAAKCRCPgPtYfRL+ TmOsB/9xUS+E9aa53DGDmNeIzXaoCNxL2jwsMr53CztWh5OUgFI2/jcfrPKvu3NLBgkaemCl0zS MZeQ98R0d4pxj1eDtHNOZ/oUNPQtuFGrrprMVre/rl3PaGeq7zBn1sFvDSSWqYzfinpgm+EH4Gi +/tPMpLGZvXEnml9sZWurGVLl+++90ww18bBHwIpRbvWMGCHHLIqurZUq9OOngPgN5g4WFPFOgL 26+yV4R0cz5LfA/6uQA3LKgEdrF4Kup8xE0y4Ud2YoQGZvQDWJWKD2KV7ySlzQkmBdQ5X8a71PF ZXDYoVoYPcQ1Ci8A8PjVbF2gE8AvEufZz0HNOOjqlmIU9H4m
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1823; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=VdDT6oyta/rpqazxfou5Ka7SdQCrrjXJRR/uFSclTwg=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxBPhIyiqzW1vbSI8fBEyoJy/0r7Wt3A57VL qr1eHkKQ3GJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsQQAKCRCPgPtYfRL+ TlYqCACTMqpj0Fe/86QIxMXQ4Jx0S26hpS+5XmlnbpsBOuUBNaC9+aYjmorFUToegRvUcQAAMCe Y5xlNAx8BDz6Wy/Uki+hPWI/8Y1Ctihx3XbrZmuoclFf9krqQvSdahV0x0bwmVgbtZO0wNUFTiI XTskiLcXMBNN3+pnsduHAlgzZER5dXpVNKO2q5NnhXzxxewaRY9X+BmKXPtvAzthju4rowv6mJZ v1l9e7JGMXD2zzE2lNhA4PO55vUoRzuMaiMEpRe34uRLgU5vpCw4yshDGwfH+ktAZB505CnZhwS 3okjy66ZJbItSyWBp2Ni1WgX/2DrQ265MeL3s7O0gen/7Y7d
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -67,40 +65,38 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/keyboard/iqs62x-keys.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/input/misc/88pm80x_onkey.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/keyboard/iqs62x-keys.c b/drivers/input/keyboard/iqs62x-keys.c
-index 02ceebad7bda..688d61244b5f 100644
---- a/drivers/input/keyboard/iqs62x-keys.c
-+++ b/drivers/input/keyboard/iqs62x-keys.c
-@@ -310,7 +310,7 @@ static int iqs62x_keys_probe(struct platform_device *pdev)
- 	return ret;
+diff --git a/drivers/input/misc/88pm80x_onkey.c b/drivers/input/misc/88pm80x_onkey.c
+index 51c8a326fd06..31f0702c3d01 100644
+--- a/drivers/input/misc/88pm80x_onkey.c
++++ b/drivers/input/misc/88pm80x_onkey.c
+@@ -138,14 +138,13 @@ static int pm80x_onkey_probe(struct platform_device *pdev)
+ 	return err;
  }
  
--static int iqs62x_keys_remove(struct platform_device *pdev)
-+static void iqs62x_keys_remove(struct platform_device *pdev)
+-static int pm80x_onkey_remove(struct platform_device *pdev)
++static void pm80x_onkey_remove(struct platform_device *pdev)
  {
- 	struct iqs62x_keys_private *iqs62x_keys = platform_get_drvdata(pdev);
- 	int ret;
-@@ -319,8 +319,6 @@ static int iqs62x_keys_remove(struct platform_device *pdev)
- 						 &iqs62x_keys->notifier);
- 	if (ret)
- 		dev_err(&pdev->dev, "Failed to unregister notifier: %d\n", ret);
--
+ 	struct pm80x_onkey_info *info = platform_get_drvdata(pdev);
+ 
+ 	pm80x_free_irq(info->pm80x, info->irq, info);
+ 	input_unregister_device(info->idev);
+ 	kfree(info);
 -	return 0;
  }
  
- static struct platform_driver iqs62x_keys_platform_driver = {
-@@ -328,7 +326,7 @@ static struct platform_driver iqs62x_keys_platform_driver = {
- 		.name = "iqs62x-keys",
- 	},
- 	.probe = iqs62x_keys_probe,
--	.remove = iqs62x_keys_remove,
-+	.remove_new = iqs62x_keys_remove,
+ static struct platform_driver pm80x_onkey_driver = {
+@@ -154,7 +153,7 @@ static struct platform_driver pm80x_onkey_driver = {
+ 		   .pm = &pm80x_onkey_pm_ops,
+ 		   },
+ 	.probe = pm80x_onkey_probe,
+-	.remove = pm80x_onkey_remove,
++	.remove_new = pm80x_onkey_remove,
  };
- module_platform_driver(iqs62x_keys_platform_driver);
  
+ module_platform_driver(pm80x_onkey_driver);
 -- 
 2.40.1
 

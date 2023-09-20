@@ -2,47 +2,47 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 358DBCE79CE
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7BF2CE79D1
 	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235913AbjITM7D (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55070 "EHLO
+        id S235831AbjITM7E (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235976AbjITM6z (ORCPT
+        with ESMTP id S235155AbjITM65 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Sep 2023 08:58:55 -0400
+        Wed, 20 Sep 2023 08:58:57 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9FE7F5
-        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:43 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8C9C2
+        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:45 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmu-0005Fz-Md; Wed, 20 Sep 2023 14:58:40 +0200
+        id 1qiwmt-00059E-Ic; Wed, 20 Sep 2023 14:58:39 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmu-007gzX-8b; Wed, 20 Sep 2023 14:58:40 +0200
+        id 1qiwms-007gyt-3c; Wed, 20 Sep 2023 14:58:38 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmt-003IDe-VZ; Wed, 20 Sep 2023 14:58:39 +0200
+        id 1qiwmr-003ID5-Qe; Wed, 20 Sep 2023 14:58:37 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+Cc:     ye xingchen <ye.xingchen@zte.com.cn>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         linux-input@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 19/52] input: palmas-pwrbutton - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:57:56 +0200
-Message-Id: <20230920125829.1478827-20-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 10/52] input: spear-keyboard - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:57:47 +0200
+Message-Id: <20230920125829.1478827-11-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1899; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=NqJTNFOp0K7HQWAnzO99fRjaKvsa4IOFa8o1Oimtf88=; b=owEBbAGT/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxJr88rVmxYDbW5WeN+VAg9cOf7Npf3jOILe 77XgC3lg6mJATIEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsSQAKCRCPgPtYfRL+ TrF2B/irNn/cnw8ow8yjGclg6bqYeJ3xTwp8JG0g5OSOWQD68B/+QfgsfOZTgS/Ij0iQPjX0Cqk SSVRCgjrFJqdEdbdqqrkwL11Jw8chBMYUnch/m9cDCJDTEUr5eZyVotuefac+r64MiZ4XdL3CUf q4S1SS2RaW8CcVh4Wi1/urCRp/6CK1jMI/At1eslJezUuz9nc4QkUTAHr8ML8Z8pUIrnSWQXRwY X9MHdjFGJTGftHxi+6vfNmu1MEnU2uyeiKNUKVpus47Sq/x6MKbEQsuuXbMF8TS8WR06CutECBK CJRQkiNKmxzVJ0Dq8v01OeMnGVGJe27EPMNH5TlcjdJvKyU=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1824; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=c5aWaEYqw3pq0udrEFo1pDErFJD8qOiwYEQQIJqNZZI=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuw+8TOBjEcrmdwXC+/wE23cwDEYfdcknECw6 qiONFvv4U+JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsPgAKCRCPgPtYfRL+ Tm3mB/4lZ/kQzj4yWwGvWdlsNBfDLfkOVd661RznsmHwDo/PneIusInpJrO6bIiboIQ/VHCLRvu apU7O5unMyjPNy3wd916c4tOGjpTJVlL0dY9NMAyvQMrdpEM/lqyoAVfBq5j0dktx+w9BVOtZs1 kiXKv9CrJ2L0bYCyJPy/cdG8/MQ4lGduK7+opKQweGWAxA0klmcIDqj+MWQNkC/pM/NGWcqIw1n UDOuLXojAYdiXbscBoWe8Chhzt9BI/GeQo3iD0E6r+Lzsp1MLRYebCIKs7I4sBI9br1TVzQ1hFq pMrUpiRDnBP5kixjb4TLtGCa48lKYt5PToWUSxggO3XTlQNS
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -67,40 +67,38 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/misc/palmas-pwrbutton.c | 6 ++----
+ drivers/input/keyboard/spear-keyboard.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/palmas-pwrbutton.c b/drivers/input/misc/palmas-pwrbutton.c
-index 7e361727b0d9..06d5972e8e84 100644
---- a/drivers/input/misc/palmas-pwrbutton.c
-+++ b/drivers/input/misc/palmas-pwrbutton.c
-@@ -245,7 +245,7 @@ static int palmas_pwron_probe(struct platform_device *pdev)
-  *
-  * Return: 0
-  */
--static int palmas_pwron_remove(struct platform_device *pdev)
-+static void palmas_pwron_remove(struct platform_device *pdev)
+diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+index a50fa9915381..557d00a667ce 100644
+--- a/drivers/input/keyboard/spear-keyboard.c
++++ b/drivers/input/keyboard/spear-keyboard.c
+@@ -272,14 +272,12 @@ static int spear_kbd_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static int spear_kbd_remove(struct platform_device *pdev)
++static void spear_kbd_remove(struct platform_device *pdev)
  {
- 	struct palmas_pwron *pwron = platform_get_drvdata(pdev);
+ 	struct spear_kbd *kbd = platform_get_drvdata(pdev);
  
-@@ -254,8 +254,6 @@ static int palmas_pwron_remove(struct platform_device *pdev)
- 
- 	input_unregister_device(pwron->input_dev);
- 	kfree(pwron);
+ 	input_unregister_device(kbd->input);
+ 	clk_unprepare(kbd->clk);
 -
 -	return 0;
  }
  
- /**
-@@ -312,7 +310,7 @@ MODULE_DEVICE_TABLE(of, of_palmas_pwr_match);
+ static int spear_kbd_suspend(struct device *dev)
+@@ -375,7 +373,7 @@ MODULE_DEVICE_TABLE(of, spear_kbd_id_table);
  
- static struct platform_driver palmas_pwron_driver = {
- 	.probe	= palmas_pwron_probe,
--	.remove	= palmas_pwron_remove,
-+	.remove_new = palmas_pwron_remove,
- 	.driver	= {
- 		.name	= "palmas_pwrbutton",
- 		.of_match_table = of_match_ptr(of_palmas_pwr_match),
+ static struct platform_driver spear_kbd_driver = {
+ 	.probe		= spear_kbd_probe,
+-	.remove		= spear_kbd_remove,
++	.remove_new	= spear_kbd_remove,
+ 	.driver		= {
+ 		.name	= "keyboard",
+ 		.pm	= pm_sleep_ptr(&spear_kbd_pm_ops),
 -- 
 2.40.1
 

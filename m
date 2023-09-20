@@ -2,46 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBE9DCE79CF
-	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2F37CCE79D2
+	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:02 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235907AbjITM7F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33804 "EHLO
+        id S235972AbjITM7G (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:06 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33782 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235679AbjITM65 (ORCPT
+        with ESMTP id S236009AbjITM65 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 20 Sep 2023 08:58:57 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF301AD
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D56C119
         for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:45 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmv-0005Iv-Vz; Wed, 20 Sep 2023 14:58:42 +0200
+        id 1qiwmw-0005Je-H3; Wed, 20 Sep 2023 14:58:42 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmv-007h00-JA; Wed, 20 Sep 2023 14:58:41 +0200
+        id 1qiwmw-007h0C-4V; Wed, 20 Sep 2023 14:58:42 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmv-003IE6-A9; Wed, 20 Sep 2023 14:58:41 +0200
+        id 1qiwmv-003IEI-RW; Wed, 20 Sep 2023 14:58:41 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Miloslav Trmac <mitr@volny.cz>, linux-input@vger.kernel.org,
+Cc:     ye xingchen <ye.xingchen@zte.com.cn>, linux-input@vger.kernel.org,
         kernel@pengutronix.de
-Subject: [PATCH 26/52] input: wistron_btns - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:58:03 +0200
-Message-Id: <20230920125829.1478827-27-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 29/52] input: altera_ps2 - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:58:06 +0200
+Message-Id: <20230920125829.1478827-30-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1701; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=Y689/ToQbZVEjELE6UCi7Qr7sB3Vy8O7iIGOkfPvpyE=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxRwzCcTc0EGaBurqmX8DYo9lF6U62Q+Mk7b gUM1lQ4BH6JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsUQAKCRCPgPtYfRL+ TtZnB/9rhh9DbqHFmis7tBoFBsHLMJ29Q8bIpP3CuPt6W0HulBjdpQWZgSNgqfOqGxvauP9dRqn yViff7LDiEd7VT9BEUO3rdJZTHXfU4U5oQNEIT3OFQYY9muQb4em+f0iHRFvrQ72/W6t2HTo0mm o1xfplWaXBKP3Rri9TNvfKi48XRMGowpLFP+9+6RwVCt2XuCa4DgMEGg9VvYZxe90PmFPQN7GeS po6VtOQHPuwouoBjE/TuRV2hfHn2YDc8LvgmAoiXXkaDDw66PKRWOlKSYUxhCTJIKuVTNEb6S0+ WGbifQ1TlMAKi6WTr9KMkatbjO92IYX9Sh/zPd/XK/mrkXL6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1772; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=b/cELWNx+24F9jzjVbrLYR4moeHDu3AcRzHmcIjFvR8=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxU2aqAcGE7S0GFklYbztKYBArJiliaOJS1b mPPbHTiqmiJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsVAAKCRCPgPtYfRL+ TlT4CACtJBJPeyuiyyEs3mlsYwLYxL5BDHmy7s0N0t3Mc/ko+7f5RlznhYwISw78Wb04PrjtMxr SDHir511ii4SD9upLz8HZ6nDZI68TcFPnjCyUVYCsDaDGqI1xdnGGdRQUKgymLW9GaxeSQGBdTh 0mXymGOSsvzt7gxpdj+OFkk1HX2GQcJ4i//gX+6Lz5ODJS/N9OhjDQ/Yo3WH955uF/LAFHcz/tR fgOCzT/mZ4m19/cb26HYVK2nFL4uIoknz5N0FHv6ZdYa1GJ5bx9ttPWiCkCaI5fubnDhyEBebOW 3zEJXhT7OmsPqTefe3t56cakabpyD/48L5Bd4EkZEPkfYqxM
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -66,37 +66,37 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/misc/wistron_btns.c | 6 ++----
+ drivers/input/serio/altera_ps2.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/wistron_btns.c b/drivers/input/misc/wistron_btns.c
-index 111cb70cde46..5c4956678cd0 100644
---- a/drivers/input/misc/wistron_btns.c
-+++ b/drivers/input/misc/wistron_btns.c
-@@ -1286,13 +1286,11 @@ static int wistron_probe(struct platform_device *dev)
- 	return 0;
- }
- 
--static int wistron_remove(struct platform_device *dev)
-+static void wistron_remove(struct platform_device *dev)
+diff --git a/drivers/input/serio/altera_ps2.c b/drivers/input/serio/altera_ps2.c
+index 9f8d7b332d1b..c5b634940cfc 100644
+--- a/drivers/input/serio/altera_ps2.c
++++ b/drivers/input/serio/altera_ps2.c
+@@ -125,13 +125,11 @@ static int altera_ps2_probe(struct platform_device *pdev)
+ /*
+  * Remove one device from this driver.
+  */
+-static int altera_ps2_remove(struct platform_device *pdev)
++static void altera_ps2_remove(struct platform_device *pdev)
  {
- 	wistron_led_remove();
- 	input_unregister_device(wistron_idev);
- 	bios_detach();
+ 	struct ps2if *ps2if = platform_get_drvdata(pdev);
+ 
+ 	serio_unregister_port(ps2if->io);
 -
 -	return 0;
  }
  
- static int wistron_suspend(struct device *dev)
-@@ -1336,7 +1334,7 @@ static struct platform_driver wistron_driver = {
- 		.pm	= pm_sleep_ptr(&wistron_pm_ops),
- 	},
- 	.probe		= wistron_probe,
--	.remove		= wistron_remove,
-+	.remove_new	= wistron_remove,
- };
- 
- static int __init wb_module_init(void)
+ #ifdef CONFIG_OF
+@@ -148,7 +146,7 @@ MODULE_DEVICE_TABLE(of, altera_ps2_match);
+  */
+ static struct platform_driver altera_ps2_driver = {
+ 	.probe		= altera_ps2_probe,
+-	.remove		= altera_ps2_remove,
++	.remove_new	= altera_ps2_remove,
+ 	.driver	= {
+ 		.name	= DRV_NAME,
+ 		.of_match_table = of_match_ptr(altera_ps2_match),
 -- 
 2.40.1
 

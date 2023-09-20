@@ -2,47 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E036CE79D0
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30E94CE79D2
 	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235952AbjITM7V (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:21 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41576 "EHLO
+        id S236231AbjITM7W (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:22 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41546 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236278AbjITM7I (ORCPT
+        with ESMTP id S234463AbjITM7J (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Sep 2023 08:59:08 -0400
+        Wed, 20 Sep 2023 08:59:09 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D2699
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 632BAF7
         for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:52 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwn1-0005e3-Dz; Wed, 20 Sep 2023 14:58:47 +0200
+        id 1qiwn3-0005nt-9C; Wed, 20 Sep 2023 14:58:49 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmz-007h14-JX; Wed, 20 Sep 2023 14:58:45 +0200
+        id 1qiwn1-007h1X-BQ; Wed, 20 Sep 2023 14:58:47 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmz-003IFE-9d; Wed, 20 Sep 2023 14:58:45 +0200
+        id 1qiwn1-003IFl-2C; Wed, 20 Sep 2023 14:58:47 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Michal Simek <michal.simek@amd.com>, Rob Herring <robh@kernel.org>,
-        linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+Cc:     patches@opensource.cirrus.com, linux-input@vger.kernel.org,
         kernel@pengutronix.de
-Subject: [PATCH 43/52] input: xilinx_ps2 - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:58:20 +0200
-Message-Id: <20230920125829.1478827-44-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 51/52] input: wm831x-ts - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:58:28 +0200
+Message-Id: <20230920125829.1478827-52-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1959; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=0CeKHSrpFi8VJT5ADH0g2h77fBe/JBdswra8dnYrk4U=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxkKl27fWqZ7qjvYFdjP5eyIHREWS3M4smp5 ZByxIeTfNuJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsZAAKCRCPgPtYfRL+ Tk5uCACmp/3LN8RED0xxGPZTZ0qtkrb61WodRwkMNbTvCaenKZtTlt2JKQmP9Z4fM9oCS8rK7fl EF5NhlV9oivllu6ufOWEctPhM45juochU5xS6gchhlGlwLCWbWkpCG6Mab4ZyeWGJtVGcqviNOu 4tQM5IQ3YZGADO7eWVesyJziOHeDDWZmWJC4G3wfAygQq7qLtvzEHOoyITpqP6eWsFLKa93Twiw Qem0gPv0EyAH56yXsgh24h3Ul87e8nnDFvLKAosoVQg9nxg0E6vQ+jUXYTlyvttPVgX3xb0BO7d t+lb0vatC1hX+a9TN57mNaiFLwvs3xDBhenjGLPE5j0gNk+K
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1797; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=kQlCA2NL+Ej0oQRdTH+atbteL8w2LJMkYJLOiJLucpI=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxuBo7oAUy2Wl7oYbsrsYUF/QBhb/7qjpGis w69RCCohjWJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsbgAKCRCPgPtYfRL+ Tq6yB/0cZoGjUpGgORAmSU+paZYWiflNhECFrbSkBSDG89DiILTi+cCxALNKpsQHxzLQtADkPSk n30l+Q4ot/LLKjNmN35JVWiLFoCLql+DNzRyd2ntycU77sIpaHYodsoSZfiSusCckyZQHgjm2aQ J1tl8mLvaP3qL/F1k46PZKUBO5pxYebNPiW67mJ/oF0uYkILY3G8kK++iZ5deMxfRTlRP/3joj3 /9J3RpBOSNgcwzkKo0qJDUEKWbCJdLxBb15N/VDAB/eU1axW+SXVV0evUzxP8UJ+p/O89IQ5zBa yko6G/p1X7ZcJR4aAhPWIA3TezCI1fR0EURayzZva4jLxTtv
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -67,39 +66,37 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/serio/xilinx_ps2.c | 6 ++----
+ drivers/input/touchscreen/wm831x-ts.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/serio/xilinx_ps2.c b/drivers/input/serio/xilinx_ps2.c
-index f3d28da70b75..d8f9faf2b529 100644
---- a/drivers/input/serio/xilinx_ps2.c
-+++ b/drivers/input/serio/xilinx_ps2.c
-@@ -329,7 +329,7 @@ static int xps2_of_probe(struct platform_device *ofdev)
-  * if the driver module is being unloaded. It frees any resources allocated to
-  * the device.
-  */
--static int xps2_of_remove(struct platform_device *of_dev)
-+static void xps2_of_remove(struct platform_device *of_dev)
- {
- 	struct xps2data *drvdata = platform_get_drvdata(of_dev);
- 	struct resource r_mem; /* IO mem resources */
-@@ -344,8 +344,6 @@ static int xps2_of_remove(struct platform_device *of_dev)
- 		release_mem_region(r_mem.start, resource_size(&r_mem));
+diff --git a/drivers/input/touchscreen/wm831x-ts.c b/drivers/input/touchscreen/wm831x-ts.c
+index 319f57fb9af5..9cee26b63341 100644
+--- a/drivers/input/touchscreen/wm831x-ts.c
++++ b/drivers/input/touchscreen/wm831x-ts.c
+@@ -374,14 +374,12 @@ static int wm831x_ts_probe(struct platform_device *pdev)
+ 	return error;
+ }
  
- 	kfree(drvdata);
+-static int wm831x_ts_remove(struct platform_device *pdev)
++static void wm831x_ts_remove(struct platform_device *pdev)
+ {
+ 	struct wm831x_ts *wm831x_ts = platform_get_drvdata(pdev);
+ 
+ 	free_irq(wm831x_ts->pd_irq, wm831x_ts);
+ 	free_irq(wm831x_ts->data_irq, wm831x_ts);
 -
 -	return 0;
  }
  
- /* Match table for of_platform binding */
-@@ -361,7 +359,7 @@ static struct platform_driver xps2_of_driver = {
- 		.of_match_table = xps2_of_match,
+ static struct platform_driver wm831x_ts_driver = {
+@@ -389,7 +387,7 @@ static struct platform_driver wm831x_ts_driver = {
+ 		.name = "wm831x-touch",
  	},
- 	.probe		= xps2_of_probe,
--	.remove		= xps2_of_remove,
-+	.remove_new	= xps2_of_remove,
+ 	.probe = wm831x_ts_probe,
+-	.remove = wm831x_ts_remove,
++	.remove_new = wm831x_ts_remove,
  };
- module_platform_driver(xps2_of_driver);
+ module_platform_driver(wm831x_ts_driver);
  
 -- 
 2.40.1

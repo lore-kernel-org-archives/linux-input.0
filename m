@@ -2,47 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7BF2CE79D1
-	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 22BB4CE79D0
+	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235831AbjITM7E (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:04 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
+        id S235155AbjITM7F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235155AbjITM65 (ORCPT
+        with ESMTP id S235907AbjITM65 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 20 Sep 2023 08:58:57 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE8C9C2
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A222EB
         for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:45 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmt-00059E-Ic; Wed, 20 Sep 2023 14:58:39 +0200
+        id 1qiwmw-0005J9-5Q; Wed, 20 Sep 2023 14:58:42 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwms-007gyt-3c; Wed, 20 Sep 2023 14:58:38 +0200
+        id 1qiwmv-007h03-P1; Wed, 20 Sep 2023 14:58:41 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmr-003ID5-Qe; Wed, 20 Sep 2023 14:58:37 +0200
+        id 1qiwmv-003IEA-FY; Wed, 20 Sep 2023 14:58:41 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     ye xingchen <ye.xingchen@zte.com.cn>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        linux-input@vger.kernel.org, kernel@pengutronix.de
-Subject: [PATCH 10/52] input: spear-keyboard - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:57:47 +0200
-Message-Id: <20230920125829.1478827-11-u.kleine-koenig@pengutronix.de>
+Cc:     patches@opensource.cirrus.com, linux-input@vger.kernel.org,
+        kernel@pengutronix.de
+Subject: [PATCH 27/52] input: wm831x-on - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:58:04 +0200
+Message-Id: <20230920125829.1478827-28-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1824; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=c5aWaEYqw3pq0udrEFo1pDErFJD8qOiwYEQQIJqNZZI=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuw+8TOBjEcrmdwXC+/wE23cwDEYfdcknECw6 qiONFvv4U+JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsPgAKCRCPgPtYfRL+ Tm3mB/4lZ/kQzj4yWwGvWdlsNBfDLfkOVd661RznsmHwDo/PneIusInpJrO6bIiboIQ/VHCLRvu apU7O5unMyjPNy3wd916c4tOGjpTJVlL0dY9NMAyvQMrdpEM/lqyoAVfBq5j0dktx+w9BVOtZs1 kiXKv9CrJ2L0bYCyJPy/cdG8/MQ4lGduK7+opKQweGWAxA0klmcIDqj+MWQNkC/pM/NGWcqIw1n UDOuLXojAYdiXbscBoWe8Chhzt9BI/GeQo3iD0E6r+Lzsp1MLRYebCIKs7I4sBI9br1TVzQ1hFq pMrUpiRDnBP5kixjb4TLtGCa48lKYt5PToWUSxggO3XTlQNS
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1679; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=gZQXYItcz9dC2SwCMhvQ+Td964wO5CgvcNX1T4i05e4=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxSkPBHquZYF2rov+EcXNFW9bRRsNRVOPfwC NCoKHcG4WyJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsUgAKCRCPgPtYfRL+ TurGB/9aOfQ/UOLvyQyJDt3sjWRAPo8Q+zZUjbDzInm01Wps1ke9iLapVo5OgBr5qkgUlc/gLzF Q0+blFGtj65jkGCw/u+OboiUfPv9uDzr8+CsLcu+25+dMtwb6EqELAwKlDXKo+lfpuwvWVMLwch VktwHwJ+j0KPOD5Qjv0jTI6hi+fXprz2BvX4db0SRxNZcoXTrEbVpYETV1a22FU8naqOqIx4LXL xWinLtBkiNCiV7Y5UK35gNPI6q4RVboYQXLwK9Tcyl6nf6RZGII1eJVpQOFGlEcokQtsOyXg/GW EMB0dHln+rG4a8v1LTDyr8lRUrjWLRJuSnuyBnfb1U2pjeeE
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -67,38 +66,36 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/keyboard/spear-keyboard.c | 6 ++----
+ drivers/input/misc/wm831x-on.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
-index a50fa9915381..557d00a667ce 100644
---- a/drivers/input/keyboard/spear-keyboard.c
-+++ b/drivers/input/keyboard/spear-keyboard.c
-@@ -272,14 +272,12 @@ static int spear_kbd_probe(struct platform_device *pdev)
- 	return 0;
+diff --git a/drivers/input/misc/wm831x-on.c b/drivers/input/misc/wm831x-on.c
+index a42fe041b73c..e4a06c73b72d 100644
+--- a/drivers/input/misc/wm831x-on.c
++++ b/drivers/input/misc/wm831x-on.c
+@@ -123,20 +123,18 @@ static int wm831x_on_probe(struct platform_device *pdev)
+ 	return ret;
  }
  
--static int spear_kbd_remove(struct platform_device *pdev)
-+static void spear_kbd_remove(struct platform_device *pdev)
+-static int wm831x_on_remove(struct platform_device *pdev)
++static void wm831x_on_remove(struct platform_device *pdev)
  {
- 	struct spear_kbd *kbd = platform_get_drvdata(pdev);
+ 	struct wm831x_on *wm831x_on = platform_get_drvdata(pdev);
+ 	int irq = platform_get_irq(pdev, 0);
  
- 	input_unregister_device(kbd->input);
- 	clk_unprepare(kbd->clk);
+ 	free_irq(irq, wm831x_on);
+ 	cancel_delayed_work_sync(&wm831x_on->work);
 -
 -	return 0;
  }
  
- static int spear_kbd_suspend(struct device *dev)
-@@ -375,7 +373,7 @@ MODULE_DEVICE_TABLE(of, spear_kbd_id_table);
- 
- static struct platform_driver spear_kbd_driver = {
- 	.probe		= spear_kbd_probe,
--	.remove		= spear_kbd_remove,
-+	.remove_new	= spear_kbd_remove,
+ static struct platform_driver wm831x_on_driver = {
+ 	.probe		= wm831x_on_probe,
+-	.remove		= wm831x_on_remove,
++	.remove_new	= wm831x_on_remove,
  	.driver		= {
- 		.name	= "keyboard",
- 		.pm	= pm_sleep_ptr(&spear_kbd_pm_ops),
+ 		.name	= "wm831x-on",
+ 	},
 -- 
 2.40.1
 

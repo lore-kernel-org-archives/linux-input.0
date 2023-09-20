@@ -2,49 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5C2F9CE79CF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A65CFCE79CE
 	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235572AbjITM7I (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43950 "EHLO
+        id S235976AbjITM7J (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235869AbjITM7C (ORCPT
+        with ESMTP id S235445AbjITM7C (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 20 Sep 2023 08:59:02 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F36DD7
-        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:48 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F8041AA
+        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:47 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmv-0005Hn-FG; Wed, 20 Sep 2023 14:58:41 +0200
+        id 1qiwmx-0005PD-Qf; Wed, 20 Sep 2023 14:58:43 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmv-007gzo-2G; Wed, 20 Sep 2023 14:58:41 +0200
+        id 1qiwmx-007h0O-0G; Wed, 20 Sep 2023 14:58:43 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmu-003IDv-PI; Wed, 20 Sep 2023 14:58:40 +0200
+        id 1qiwmw-003IEX-NF; Wed, 20 Sep 2023 14:58:42 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
+Cc:     ye xingchen <ye.xingchen@zte.com.cn>, linux-input@vger.kernel.org,
         kernel@pengutronix.de
-Subject: [PATCH 23/52] input: pm8941-pwrkey - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:58:00 +0200
-Message-Id: <20230920125829.1478827-24-u.kleine-koenig@pengutronix.de>
+Subject: [PATCH 32/52] input: arc_ps2 - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:58:09 +0200
+Message-Id: <20230920125829.1478827-33-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1886; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=+Cya8auCZYXraL2ZhN0lNfUtJzINrULP5iO4cvvhxkY=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxNPW40yovhzJcSR0lMk0KO9b+523EEDrzU1 zycL+ecV7qJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsTQAKCRCPgPtYfRL+ TlAiB/wIe4fGfnZLoRrKENZa9wq/NMRaW6bjGEyGeM38qc3zDjAbAcHkyJ76Bz0Zp2I6aju0ixY tBIAowUu+O2sWUsFqdKZF+PnOY6FA7drM7dkyHjHLGFVKpCjXBnKqEQF58sSqfwO6+kQkx5JVUn gwklSLYZgNSOou2TbepnjC9vFvaXeav8LiZ+d4W6SF+OIPcnC8B4TYSK/uA5mU2ldQ++gE/5A23 2G/c0dfSykFFHCNHAaBjpoHAjCpsvrHBbxPFUGJi4yBDesYMbFR9s6LKyXrR61pZ3p5lFYR0Hqt S5lXxMnNIonOQqVJ9nZQdS1eFQeS1iwNtqiLXm1+wKiTuwB/
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1878; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=7X8uCrMOxU8K8IY7e7GStE3Jj6HCWLqRoi2Yd+ba3bk=; b=owEBbAGT/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxY2s4o+BRlx1jHH9//0fAUDYdOSnX4sju+O Vod2sIFPRqJATIEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsWAAKCRCPgPtYfRL+ TpfEB/MG7oNID/tu31FaFDAWzBc9skt9hQuObENvHmRoMxyluviYQptM53V9uei5/YzVYPZUXx4 VpPBG7ClmKUjomR+nbKp/ReKQqdM4ns7QyQaeeW5hnKBFI2Na/NZLuAlsvCKbnBItnMCsvvCcOB VsrwgyIaEY9UqNCI1a2DXepo9Sq4KVGYOJ5HxDJXlVZHXoxlMsSflZ763Nns6ZBhK26ohMmVUFz w/aGc3BN9kvcB50N/sNxe8Bi04R9WiBfZ00eEMe7mGSVgMGrjUAs7DgpQUNEiajaU4SGqL9rAEB o9DRbqmQ6hIvrzRl2VxY6mt5d7hcdPGD7Z8xsqkgyjZhKbU=
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -69,38 +66,40 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/misc/pm8941-pwrkey.c | 6 ++----
+ drivers/input/serio/arc_ps2.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/misc/pm8941-pwrkey.c b/drivers/input/misc/pm8941-pwrkey.c
-index ba747c5b2b5f..bab710023d8f 100644
---- a/drivers/input/misc/pm8941-pwrkey.c
-+++ b/drivers/input/misc/pm8941-pwrkey.c
-@@ -408,14 +408,12 @@ static int pm8941_pwrkey_probe(struct platform_device *pdev)
+diff --git a/drivers/input/serio/arc_ps2.c b/drivers/input/serio/arc_ps2.c
+index a6debb13d527..9d8726830140 100644
+--- a/drivers/input/serio/arc_ps2.c
++++ b/drivers/input/serio/arc_ps2.c
+@@ -232,7 +232,7 @@ static int arc_ps2_probe(struct platform_device *pdev)
  	return 0;
  }
  
--static int pm8941_pwrkey_remove(struct platform_device *pdev)
-+static void pm8941_pwrkey_remove(struct platform_device *pdev)
+-static int arc_ps2_remove(struct platform_device *pdev)
++static void arc_ps2_remove(struct platform_device *pdev)
  {
- 	struct pm8941_pwrkey *pwrkey = platform_get_drvdata(pdev);
- 
- 	if (pwrkey->data->supports_ps_hold_poff_config)
- 		unregister_reboot_notifier(&pwrkey->reboot_notifier);
+ 	struct arc_ps2_data *arc_ps2 = platform_get_drvdata(pdev);
+ 	int i;
+@@ -244,8 +244,6 @@ static int arc_ps2_remove(struct platform_device *pdev)
+ 	dev_dbg(&pdev->dev, "frame error count = %i\n", arc_ps2->frame_error);
+ 	dev_dbg(&pdev->dev, "buffer overflow count = %i\n",
+ 		arc_ps2->buf_overflow);
 -
 -	return 0;
  }
  
- static const struct pm8941_data pwrkey_data = {
-@@ -467,7 +465,7 @@ MODULE_DEVICE_TABLE(of, pm8941_pwr_key_id_table);
+ #ifdef CONFIG_OF
+@@ -262,7 +260,7 @@ static struct platform_driver arc_ps2_driver = {
+ 		.of_match_table	= of_match_ptr(arc_ps2_match),
+ 	},
+ 	.probe	= arc_ps2_probe,
+-	.remove	= arc_ps2_remove,
++	.remove_new = arc_ps2_remove,
+ };
  
- static struct platform_driver pm8941_pwrkey_driver = {
- 	.probe = pm8941_pwrkey_probe,
--	.remove = pm8941_pwrkey_remove,
-+	.remove_new = pm8941_pwrkey_remove,
- 	.driver = {
- 		.name = "pm8941-pwrkey",
- 		.pm = pm_sleep_ptr(&pm8941_pwr_key_pm_ops),
+ module_platform_driver(arc_ps2_driver);
 -- 
 2.40.1
 

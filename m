@@ -2,48 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EC5EBCE79CF
-	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:18 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C8DCE79CE
+	for <linux-input@archiver.kernel.org>; Wed, 20 Sep 2023 12:59:19 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234769AbjITM7W (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 20 Sep 2023 08:59:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41524 "EHLO
+        id S236342AbjITM7X (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 20 Sep 2023 08:59:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236090AbjITM7J (ORCPT
+        with ESMTP id S236310AbjITM7K (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 20 Sep 2023 08:59:09 -0400
+        Wed, 20 Sep 2023 08:59:10 -0400
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [IPv6:2a0a:edc0:2:b01:1d::104])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C668192
-        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:52 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AAA188
+        for <linux-input@vger.kernel.org>; Wed, 20 Sep 2023 05:58:54 -0700 (PDT)
 Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
         by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwn2-0005gW-4t; Wed, 20 Sep 2023 14:58:48 +0200
+        id 1qiwn1-0005cl-5S; Wed, 20 Sep 2023 14:58:47 +0200
 Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
         by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwn0-007h1B-2m; Wed, 20 Sep 2023 14:58:46 +0200
+        id 1qiwmz-007h0y-Cu; Wed, 20 Sep 2023 14:58:45 +0200
 Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
         (envelope-from <ukl@pengutronix.de>)
-        id 1qiwmz-003IFN-Pm; Wed, 20 Sep 2023 14:58:45 +0200
+        id 1qiwmz-003IFB-3I; Wed, 20 Sep 2023 14:58:45 +0200
 From:   =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
         <u.kleine-koenig@pengutronix.de>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Robert Jarzmik <robert.jarzmik@free.fr>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, linux-input@vger.kernel.org,
-        kernel@pengutronix.de
-Subject: [PATCH 45/52] input: mainstone-wm97xx - Convert to platform remove callback returning void
-Date:   Wed, 20 Sep 2023 14:58:22 +0200
-Message-Id: <20230920125829.1478827-46-u.kleine-koenig@pengutronix.de>
+Cc:     Chen-Yu Tsai <wens@csie.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Samuel Holland <samuel@sholland.org>,
+        linux-input@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-sunxi@lists.linux.dev, kernel@pengutronix.de
+Subject: [PATCH 42/52] input: sun4i-ps2 - Convert to platform remove callback returning void
+Date:   Wed, 20 Sep 2023 14:58:19 +0200
+Message-Id: <20230920125829.1478827-43-u.kleine-koenig@pengutronix.de>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1753; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=lC3ygZTUVktuFO26GQrcLcsry+U4nk9RuYbUCLf6jig=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxnDgIBqqxqV70prFlWwfIN8nR0tYbK9+Q6y UQ8USmwLwKJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsZwAKCRCPgPtYfRL+ ThvqCACtnpcu+EAvV6/xEQcqbmzc4vDHBHL8zxtJoQw/K8+YSi2YhgATTq4qitmnVbdT2Pp+pDB QMh2l9+NsEHhRcwxncU3QUwjYYqXxVtndV5q6oVWovQwmxpdqgWqy3QIKotQzCrXYFrA3Qv/obZ xjWDwlOcctcEXNAORSvpBbcbIRWoKJHrLOPdBKzvRllRQLAIKnjdQy35SnFE6QQzF1wtxef9iC2 u85W5M3PUv5XKz/IJRDEQA1nqA5IY9O2DYio/oZ+J0B9lzZWbljQ2yb91AaziwiIIp/yu1gPXd5 xQr77ezdoHCS0dWR9V0qguKhVTaPM00uJVghCJd7hAyws/vD
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1857; i=u.kleine-koenig@pengutronix.de; h=from:subject; bh=9/tzG6hSPC1O7G4VLWSid0fAqDrsjXjJIrKCNtsf9XM=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlCuxjwrC0hABNvV8yIyxtcS5AEkzmBO4C+0b0H yKBlEGkQD6JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZQrsYwAKCRCPgPtYfRL+ TmzUB/sHyzeQmJlM6eoE28qcA8tKM2fHB6nWG7LueBBPhMWfRclE0VxCNVG7Rj15HnnF0jV8M8O RAWM/8orH1/vdA0dfXKLYTjrEndXdxzgj7zoxj0l/gQBBcPPwemuYsHXTs+hSXOoWwNq1N5WETu IajTpWmFGsUYnX76HxJaKmaVmSTcIez1HghHVmxJGc+3uvmZq55z2qBoU3EfcoR99cK5Ee/wazK L0PbyFEJu94SX21v3vbmC6XCNt/1dgdLTTf6Qt8aTJawt/7l1+XHjZAfsVg/7eaGMD8n2sH0m9i KoNmJqYJUyrNO5C/bpgnvi1bB7mSBhLvNPpyJGShJvNq9hHm
 X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
 X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
@@ -68,34 +69,40 @@ callback to the void returning variant.
 
 Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 ---
- drivers/input/touchscreen/mainstone-wm97xx.c | 6 ++----
+ drivers/input/serio/sun4i-ps2.c | 6 ++----
  1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/input/touchscreen/mainstone-wm97xx.c b/drivers/input/touchscreen/mainstone-wm97xx.c
-index 85b95ed461e7..bfbebe245040 100644
---- a/drivers/input/touchscreen/mainstone-wm97xx.c
-+++ b/drivers/input/touchscreen/mainstone-wm97xx.c
-@@ -252,18 +252,16 @@ static int mainstone_wm97xx_probe(struct platform_device *pdev)
- 	return wm97xx_register_mach_ops(wm, &mainstone_mach_ops);
+diff --git a/drivers/input/serio/sun4i-ps2.c b/drivers/input/serio/sun4i-ps2.c
+index eb262640192e..aec66d9f5176 100644
+--- a/drivers/input/serio/sun4i-ps2.c
++++ b/drivers/input/serio/sun4i-ps2.c
+@@ -297,7 +297,7 @@ static int sun4i_ps2_probe(struct platform_device *pdev)
+ 	return error;
  }
  
--static int mainstone_wm97xx_remove(struct platform_device *pdev)
-+static void mainstone_wm97xx_remove(struct platform_device *pdev)
+-static int sun4i_ps2_remove(struct platform_device *pdev)
++static void sun4i_ps2_remove(struct platform_device *pdev)
  {
- 	struct wm97xx *wm = platform_get_drvdata(pdev);
+ 	struct sun4i_ps2data *drvdata = platform_get_drvdata(pdev);
  
- 	wm97xx_unregister_mach_ops(wm);
+@@ -311,8 +311,6 @@ static int sun4i_ps2_remove(struct platform_device *pdev)
+ 	iounmap(drvdata->reg_base);
+ 
+ 	kfree(drvdata);
 -
 -	return 0;
  }
  
- static struct platform_driver mainstone_wm97xx_driver = {
- 	.probe	= mainstone_wm97xx_probe,
--	.remove	= mainstone_wm97xx_remove,
-+	.remove_new = mainstone_wm97xx_remove,
- 	.driver	= {
- 		.name	= "wm97xx-touch",
- 	},
+ static const struct of_device_id sun4i_ps2_match[] = {
+@@ -324,7 +322,7 @@ MODULE_DEVICE_TABLE(of, sun4i_ps2_match);
+ 
+ static struct platform_driver sun4i_ps2_driver = {
+ 	.probe		= sun4i_ps2_probe,
+-	.remove		= sun4i_ps2_remove,
++	.remove_new	= sun4i_ps2_remove,
+ 	.driver = {
+ 		.name = DRIVER_NAME,
+ 		.of_match_table = sun4i_ps2_match,
 -- 
 2.40.1
 

@@ -2,171 +2,137 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0873E7D0A6
-	for <linux-input@archiver.kernel.org>; Thu, 21 Sep 2023 17:31:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24D21E7D0A2
+	for <linux-input@archiver.kernel.org>; Thu, 21 Sep 2023 18:54:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230010AbjIURbj (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 21 Sep 2023 13:31:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42006 "EHLO
+        id S231180AbjIUSys (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 21 Sep 2023 14:54:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230359AbjIURbY (ORCPT
+        with ESMTP id S230453AbjIUSyT (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 21 Sep 2023 13:31:24 -0400
-Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D0753661
-        for <linux-input@vger.kernel.org>; Thu, 21 Sep 2023 10:16:49 -0700 (PDT)
-Received: from kwepemi500008.china.huawei.com (unknown [172.30.72.56])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4RrxJm0VbPz15NS8;
-        Thu, 21 Sep 2023 21:36:56 +0800 (CST)
-Received: from huawei.com (10.90.53.73) by kwepemi500008.china.huawei.com
- (7.221.188.139) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.31; Thu, 21 Sep
- 2023 21:39:03 +0800
-From:   Jinjie Ruan <ruanjinjie@huawei.com>
-To:     <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
-        <jose.exposito89@gmail.com>, <linux-input@vger.kernel.org>
-CC:     <ruanjinjie@huawei.com>
-Subject: [PATCH 1/2] HID: uclogic: Fix user-memory-access bug in uclogic_params_ugee_v2_init_event_hooks()
-Date:   Thu, 21 Sep 2023 21:38:23 +0800
-Message-ID: <20230921133824.605700-2-ruanjinjie@huawei.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230921133824.605700-1-ruanjinjie@huawei.com>
-References: <20230921133824.605700-1-ruanjinjie@huawei.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.90.53.73]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- kwepemi500008.china.huawei.com (7.221.188.139)
-X-CFilter-Loop: Reflected
+        Thu, 21 Sep 2023 14:54:19 -0400
+Received: from mail-pj1-x1049.google.com (mail-pj1-x1049.google.com [IPv6:2607:f8b0:4864:20::1049])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDA6EAE88
+        for <linux-input@vger.kernel.org>; Thu, 21 Sep 2023 11:43:15 -0700 (PDT)
+Received: by mail-pj1-x1049.google.com with SMTP id 98e67ed59e1d1-274d62ab09bso1099293a91.2
+        for <linux-input@vger.kernel.org>; Thu, 21 Sep 2023 11:43:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1695321795; x=1695926595; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=LPoF8K9D4p8OcXev9tyojzk8WlpW/tXHjjMiYBVvNg8=;
+        b=tPURYG6neUx+n0POpl4PslaNA6fPUN3P4cNIqlfsvMMhqfsZKfEMcHR5Y+MpEizUzq
+         FGdbkwL2DZGKBPFGjutNhTBy5S6n+Yq96Qmq01AGXBNU1uQdt5aYxuqZA8uqliRSvC+H
+         vpZ8K+6D1CZDBwRmp80EIfnM1zaypYry3yFj7KTJOS3lrRB4VuOuB5wCK/lYPq6FcRff
+         yMHZwiazw2C+on3IU9V7vWi20tdtJ9rA47u1DJhQ8MPg6mWgNt8VjUIpY3xo1QE/dka6
+         DbhgQlw6lCysNWLn7P0Cfq4LCd2JcJtJBA9Pg8OZ1g0rJlP+UmfkDWvObZVJEfCHNyDA
+         QQOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695321795; x=1695926595;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=LPoF8K9D4p8OcXev9tyojzk8WlpW/tXHjjMiYBVvNg8=;
+        b=aaatxVCwSa+I5/YyyGrk2SEkC8++SVbI659D03FofU01tBOREXzRYwugjmh/oRMkks
+         QbH6w5xjWK1nzh9wb0WTmVzTBUScjTYQ6XdG76KQU28IqK+/2oQZuDih+vjpQue4h/k1
+         BZxVP8qPZs5H65kXeH1ix9nB4qNgip2R/IUyBAi6MPx7mpMCHGcIX1leYCS0tk0UQHIQ
+         Vm0JrqZ1fQ4NLXor2mb0SZfvBRRQW6N1O+YOTn85UzaQdc0yQCZspzQ+BtTiUAunCWXd
+         scNDSr25R1bzyJWr2FRV8UMHaFAX+wFn2nXR6j7Oq0jdNrMhS9b90M/DcXa0ME2DR/C1
+         +JIQ==
+X-Gm-Message-State: AOJu0YyZyvt6v4tpDClgDkAJAOumLvD3WtehheLWmEVjq2H1qRk610aO
+        DwzbgtvJWXk2IOXcCHu8gnBSEZW6VmDTSk5bfA==
+X-Google-Smtp-Source: AGHT+IHT7CJnaySUbMIPKL1jnYALwLZyqTPGkyzcPwgXmRZSchWzDvWM0lRHHGjniwwFkTToRpEGV75RBXft9qAaLg==
+X-Received: from jstitt-linux1.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:23b5])
+ (user=justinstitt job=sendgmr) by 2002:a25:8ca:0:b0:d13:856b:c10a with SMTP
+ id 193-20020a2508ca000000b00d13856bc10amr65938ybi.3.1695287846713; Thu, 21
+ Sep 2023 02:17:26 -0700 (PDT)
+Date:   Thu, 21 Sep 2023 09:17:25 +0000
+Mime-Version: 1.0
+X-B4-Tracking: v=1; b=H4sIACQKDGUC/x3NQQrCQAxA0auUrA1M04LWq4iLdiZqEMeQ1DJSe
+ vcOXb7N/ys4m7DDtVnBeBGXb65oTw3E15ifjJKqgQJ1YaAWfbYc9Y/JZGFzlKy/GT/iEceiFAo qvzFiF/tzuAzUT1OCWlPjh5TjdLtv2w6OsGzyeQAAAA==
+X-Developer-Key: i=justinstitt@google.com; a=ed25519; pk=tC3hNkJQTpNX/gLKxTNQKDmiQl6QjBNCGKJINqAdJsE=
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1695287845; l=2368;
+ i=justinstitt@google.com; s=20230717; h=from:subject:message-id;
+ bh=atTHwoOS3ax7JJoTHqO0Ih64Objj21oOjS1ymiaTpOM=; b=CzS67ZEeOOLd2kKtKJHGJgC5Pd6bB/JpQ7ZFhdM3DO2Y3bTZopyE9hqqeykaMwcB9uPwxcM/Q
+ PEwK3UJgOzGA86AZCv6t/FGU40dAcrqJp4OWV8hS0LdNF4kYJ6BqAQZ
+X-Mailer: b4 0.12.3
+Message-ID: <20230921-strncpy-drivers-input-misc-axp20x-pek-c-v1-1-f7f6f4a5cf81@google.com>
+Subject: [PATCH] Input: axp20x-pek - refactor deprecated strncpy
+From:   Justin Stitt <justinstitt@google.com>
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Chen-Yu Tsai <wens@csie.org>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-hardening@vger.kernel.org,
+        Justin Stitt <justinstitt@google.com>
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-When CONFIG_HID_UCLOGIC=y and CONFIG_KUNIT_ALL_TESTS=y, launch kernel and
-then the below user-memory-access bug occurs.
+`strncpy` is deprecated for use on NUL-terminated destination strings
+[1] and as such we should prefer more robust and less ambiguous string
+interfaces.
 
-In hid_test_uclogic_params_cleanup_event_hooks(),it call
-uclogic_params_ugee_v2_init_event_hooks() with the first arg=NULL, so
-when it calls uclogic_params_ugee_v2_has_battery(), the hid_get_drvdata()
-will access hdev->dev with hdev=NULL, which will cause below
-user-memory-access.
+Ensuring we have a trailing NUL-byte and checking the length of bytes
+copied are both intrinsic behavior of strscpy.
 
-So add a fake_device with quirks member and call hid_set_drvdata()
-to assign hdev->dev->driver_data which avoids the null-ptr-def bug
-for drvdata->quirks in uclogic_params_ugee_v2_has_battery(). After applying
-this patch, the below user-memory-access bug never occurs.
+Therefore, a suitable replacement is `strscpy` [2] due to the fact that
+it guarantees NUL-termination on the destination buffer without
+unnecessarily NUL-padding.
 
- general protection fault, probably for non-canonical address 0xdffffc0000000329: 0000 [#1] PREEMPT SMP KASAN
- KASAN: probably user-memory-access in range [0x0000000000001948-0x000000000000194f]
- CPU: 5 PID: 2189 Comm: kunit_try_catch Tainted: G    B   W        N 6.6.0-rc2+ #30
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1 04/01/2014
- RIP: 0010:uclogic_params_ugee_v2_init_event_hooks+0x87/0x600
- Code: f3 f3 65 48 8b 14 25 28 00 00 00 48 89 54 24 60 31 d2 48 89 fa c7 44 24 30 00 00 00 00 48 c7 44 24 28 02 f8 02 01 48 c1 ea 03 <80> 3c 02 00 0f 85 2c 04 00 00 48 8b 9d 48 19 00 00 48 b8 00 00 00
- RSP: 0000:ffff88810679fc88 EFLAGS: 00010202
- RAX: dffffc0000000000 RBX: 0000000000000004 RCX: 0000000000000000
- RDX: 0000000000000329 RSI: ffff88810679fd88 RDI: 0000000000001948
- RBP: 0000000000000000 R08: 0000000000000000 R09: ffffed1020f639f0
- R10: ffff888107b1cf87 R11: 0000000000000400 R12: 1ffff11020cf3f92
- R13: ffff88810679fd88 R14: ffff888100b97b08 R15: ffff8881030bb080
- FS:  0000000000000000(0000) GS:ffff888119e80000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000000 CR3: 0000000005286001 CR4: 0000000000770ee0
- DR0: ffffffff8fdd6cf4 DR1: ffffffff8fdd6cf5 DR2: ffffffff8fdd6cf6
- DR3: ffffffff8fdd6cf7 DR6: 00000000fffe0ff0 DR7: 0000000000000600
- PKRU: 55555554
- Call Trace:
-  <TASK>
-  ? die_addr+0x3d/0xa0
-  ? exc_general_protection+0x144/0x220
-  ? asm_exc_general_protection+0x22/0x30
-  ? uclogic_params_ugee_v2_init_event_hooks+0x87/0x600
-  ? sched_clock_cpu+0x69/0x550
-  ? uclogic_parse_ugee_v2_desc_gen_params+0x70/0x70
-  ? load_balance+0x2950/0x2950
-  ? rcu_trc_cmpxchg_need_qs+0x67/0xa0
-  hid_test_uclogic_params_cleanup_event_hooks+0x9e/0x1a0
-  ? uclogic_params_ugee_v2_init_event_hooks+0x600/0x600
-  ? __switch_to+0x5cf/0xe60
-  ? migrate_enable+0x260/0x260
-  ? __kthread_parkme+0x83/0x150
-  ? kunit_try_run_case_cleanup+0xe0/0xe0
-  kunit_generic_run_threadfn_adapter+0x4a/0x90
-  ? kunit_try_catch_throw+0x80/0x80
-  kthread+0x2b5/0x380
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x2d/0x70
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork_asm+0x11/0x20
-  </TASK>
- Modules linked in:
- Dumping ftrace buffer:
-    (ftrace buffer empty)
- ---[ end trace 0000000000000000 ]---
- RIP: 0010:uclogic_params_ugee_v2_init_event_hooks+0x87/0x600
- Code: f3 f3 65 48 8b 14 25 28 00 00 00 48 89 54 24 60 31 d2 48 89 fa c7 44 24 30 00 00 00 00 48 c7 44 24 28 02 f8 02 01 48 c1 ea 03 <80> 3c 02 00 0f 85 2c 04 00 00 48 8b 9d 48 19 00 00 48 b8 00 00 00
- RSP: 0000:ffff88810679fc88 EFLAGS: 00010202
- RAX: dffffc0000000000 RBX: 0000000000000004 RCX: 0000000000000000
- RDX: 0000000000000329 RSI: ffff88810679fd88 RDI: 0000000000001948
- RBP: 0000000000000000 R08: 0000000000000000 R09: ffffed1020f639f0
- R10: ffff888107b1cf87 R11: 0000000000000400 R12: 1ffff11020cf3f92
- R13: ffff88810679fd88 R14: ffff888100b97b08 R15: ffff8881030bb080
- FS:  0000000000000000(0000) GS:ffff888119e80000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000000000000000 CR3: 0000000005286001 CR4: 0000000000770ee0
- DR0: ffffffff8fdd6cf4 DR1: ffffffff8fdd6cf5 DR2: ffffffff8fdd6cf6
- DR3: ffffffff8fdd6cf7 DR6: 00000000fffe0ff0 DR7: 0000000000000600
- PKRU: 55555554
- Kernel panic - not syncing: Fatal exception
- Dumping ftrace buffer:
-    (ftrace buffer empty)
- Kernel Offset: disabled
- Rebooting in 1 seconds..
+It should be noted that the original code can silently truncate and so
+can this refactoring. However, a check could be added if truncation
+is an issue:
+| len = strscpy(val_str, buf, sizeof(val_str));
+| if (len < 0) { // add this
+|   return -E2BIG; // or -EINVAL
+| }
 
-Fixes: a251d6576d2a ("HID: uclogic: Handle wireless device reconnection")
-Signed-off-by: Jinjie Ruan <ruanjinjie@huawei.com>
+Also, now check for `len > 0` instead of just a truthy `len` because
+`len` is now a signed type and we could run into problems if strscpy
+returned -E2BIG which would pass the truthy test.
+
+Link: https://www.kernel.org/doc/html/latest/process/deprecated.html#strncpy-on-nul-terminated-strings [1]
+Link: https://manpages.debian.org/testing/linux-manual-4.8/strscpy.9.en.html [2]
+Link: https://github.com/KSPP/linux/issues/90
+Cc: linux-hardening@vger.kernel.org
+Signed-off-by: Justin Stitt <justinstitt@google.com>
 ---
- drivers/hid/hid-uclogic-params-test.c | 15 ++++++++++++++-
- 1 file changed, 14 insertions(+), 1 deletion(-)
+Note: build-tested only.
+---
+ drivers/input/misc/axp20x-pek.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-params-test.c b/drivers/hid/hid-uclogic-params-test.c
-index 678f50cbb160..3938bae25982 100644
---- a/drivers/hid/hid-uclogic-params-test.c
-+++ b/drivers/hid/hid-uclogic-params-test.c
-@@ -174,12 +174,22 @@ static void hid_test_uclogic_parse_ugee_v2_desc(struct kunit *test)
- 	KUNIT_EXPECT_EQ(test, params->frame_type, frame_type);
- }
- 
-+struct fake_device {
-+	unsigned long quirks;
-+};
-+
- static void hid_test_uclogic_params_cleanup_event_hooks(struct kunit *test)
+diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
+index 4581606a28d6..abcf78785b45 100644
+--- a/drivers/input/misc/axp20x-pek.c
++++ b/drivers/input/misc/axp20x-pek.c
+@@ -134,16 +134,14 @@ static ssize_t axp20x_store_attr(struct device *dev,
  {
- 	int res, n;
-+	struct hid_device *hdev;
-+	struct fake_device *fake_dev;
- 	struct uclogic_params p = {0, };
+ 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
+ 	char val_str[20];
+-	size_t len;
++	ssize_t len;
+ 	int ret, i;
+ 	unsigned int val, idx = 0;
+ 	unsigned int best_err = UINT_MAX;
  
--	res = uclogic_params_ugee_v2_init_event_hooks(NULL, &p);
-+	hdev = kzalloc(sizeof(struct hid_device), GFP_KERNEL);
-+	fake_dev = kzalloc(sizeof(struct fake_device), GFP_KERNEL);
-+	hid_set_drvdata(hdev, fake_dev);
-+
-+	res = uclogic_params_ugee_v2_init_event_hooks(hdev, &p);
- 	KUNIT_ASSERT_EQ(test, res, 0);
+-	val_str[sizeof(val_str) - 1] = '\0';
+-	strncpy(val_str, buf, sizeof(val_str) - 1);
+-	len = strlen(val_str);
++	len = strscpy(val_str, buf, sizeof(val_str));
  
- 	/* Check that the function can be called repeatedly */
-@@ -187,6 +197,9 @@ static void hid_test_uclogic_params_cleanup_event_hooks(struct kunit *test)
- 		uclogic_params_cleanup_event_hooks(&p);
- 		KUNIT_EXPECT_PTR_EQ(test, p.event_hooks, NULL);
- 	}
-+
-+	kfree(fake_dev);
-+	kfree(hdev);
- }
+-	if (len && val_str[len - 1] == '\n')
++	if (len > 0 && val_str[len - 1] == '\n')
+ 		val_str[len - 1] = '\0';
  
- static struct kunit_case hid_uclogic_params_test_cases[] = {
--- 
-2.34.1
+ 	ret = kstrtouint(val_str, 10, &val);
+
+---
+base-commit: 2cf0f715623872823a72e451243bbf555d10d032
+change-id: 20230921-strncpy-drivers-input-misc-axp20x-pek-c-3c4708924bbd
+
+Best regards,
+--
+Justin Stitt <justinstitt@google.com>
 

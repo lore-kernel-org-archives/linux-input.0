@@ -2,44 +2,44 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DA036CD484F
-	for <linux-input@archiver.kernel.org>; Fri, 22 Sep 2023 17:53:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 786C6CD484A
+	for <linux-input@archiver.kernel.org>; Fri, 22 Sep 2023 17:53:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233629AbjIVRxe (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 22 Sep 2023 13:53:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48268 "EHLO
+        id S233597AbjIVRxk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 22 Sep 2023 13:53:40 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233568AbjIVRxJ (ORCPT
+        with ESMTP id S233650AbjIVRxU (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 22 Sep 2023 13:53:09 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2041.outbound.protection.outlook.com [40.107.92.41])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BC282101;
-        Fri, 22 Sep 2023 10:52:03 -0700 (PDT)
+        Fri, 22 Sep 2023 13:53:20 -0400
+Received: from NAM04-DM6-obe.outbound.protection.outlook.com (mail-dm6nam04on2051.outbound.protection.outlook.com [40.107.102.51])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2AB8E7D;
+        Fri, 22 Sep 2023 10:52:11 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QAmxYIIP7I9kSj6MiOvU61T9dqQmn+SRXa0oYVipEKiiZJEyzvjd+VKq61V7eHGePNZCNh17/HskD7DmhLwExnrBfoBfi0zUmoW33q36QBa4hu7twvV/6GmSAoymlCkxGDDcFealKLw8VBKydKMBmjyggsEAfACYILBJmzub1hVXnqWgrA6eBQFe6iaDWa/kors0UlRL0r2mE4eQkshYmkthtlxadDYRJ93ddc2VFqk4RSJiwiDFM/hlW7sWb5tJ7ME629lE+zn3yjGOjLt96vAGD870D3nqMsf3p6o7jx60hpL+7mPlk+2PasZmegcPVCpF/UmO8eYO+QaIjyuLWg==
+ b=QUNjpljpI8W6KupdZHePKxeSJ9iMYWwEqieWaI+oDsXDV6U9D6mcPPqtYBbfZYYzzM8fpBraB82fvsLKsXxaDEdsvHNJUUnKAJDYTAIkAQTpFb037PP4KY4AVh/Y10lbH7hkgJPx0bOfjere4QtBOo0PSD3SXhZSgIrQQ7CMGSq4DmKo7zx1w1F6+X+LvRBa1R9czb20gVjyJnywRcPyu7GVUbCVJ2IzrSSX6H5z86uaiTZnYIZTXQpXnLyzEnocgeHaOm6fADf16m9UC4SrEhhvGpFAKgFiQIY6msLkxcujVxBk/ocKOrerqShxU5Pv1v5n51WG03KdvTUFg0QAlQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=aL//3y7UzczxCd1EtG0BGZayUc/qVAf2wxPRQTYYYRg=;
- b=FRFGKBX5vq9H1GOKfyazU8tAyu6Z7o+lJL6BQwbZF0/vryqj4p1Tzlc0r68/nTM3l6dlg6Y89QvO7Ih3de1CUQzNg5AGvnvO5OrcVosQ2vss11vOHbF1WSEmXaEhf7UY05LP7biVan5ioMpuFm9iN5oE+6MPn/v9ciCHjtwlLSGsUi5clf/5X6ZReJZgH+sw3BbLPCUzTFj1SFofETeLUtwccDCLrOlA7BAnnwa7GMHvMo3rdL8BkhHnxE2zGaFw6EEqRREKyrxnO3iGYyjKOs1Bofe60q/F4cg0b7ji74LPjSdgP8Gc+LgdDcQ+niqpwhxnmSrQe/S9oosDdlnwbA==
+ bh=eRqX3Qp/XNorhFJElDFWl8CCho1EgTmSZc20lhsFdUE=;
+ b=Ujj6T4lv8Z63ZbBBgmdpgGD6P4+prVr9EqSxWROYHTvR9EOiNpG/JzhWGds7VsVXF8ACT+K1eXk/sCdyv9oBDlArOsZBSWyLxm35sJlRjXG6c59HmdmXU8bOzPVuoZTL8XL/9CK3ZaWKRHgDO1yINfA7J+6lQt1TVCYNzRvREslnx9F97IvswfhAofo6MoXMtQC7x4Imcr12GWCre1BQgaTt1IhA6xbP5JEo3jV1TBRtAjFdM++sMKylMCK5ThOybMoz752/9Y+uo1tv8RAtkRiC1ARyPz2S1L/q5wbj7SwqoLjT+n8++6N80lhi1DAPhlrQuouY8WGRa3Qp38amSQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=aL//3y7UzczxCd1EtG0BGZayUc/qVAf2wxPRQTYYYRg=;
- b=b5fOItkxGkp28OYI2kmuEEJhGeNIMAoh4kTSglTS2lXWbHEe7mOUpyoWQh7TiNAtGTjAJIIEmZMgwBnEK1IlZeGvfCZjqDYkBVWbfW3oufgk/QPLldFIHln9ASCGlJq52YMTkha9lkC6zt+4CSMBpvwvOYQUAHVktRkAOzTrhaQ=
-Received: from MN2PR11CA0027.namprd11.prod.outlook.com (2603:10b6:208:23b::32)
- by MN0PR12MB6223.namprd12.prod.outlook.com (2603:10b6:208:3c1::12) with
+ bh=eRqX3Qp/XNorhFJElDFWl8CCho1EgTmSZc20lhsFdUE=;
+ b=e8u3WR7r6tEwHHGBaxgCzACFgirJ9QoZNqQIcsuPaiTyhO20FM6lRiYcwJnkby5+5q9eLBP5/JuE1hCvuD26AAeBEra3ui0qKaqsfn2NjXnGFJBMAYpBQ4V0xNe+3MR7PhCrLQrD4qMiSgWh7u2Klu179hcKniXCNXI3sknaM6A=
+Received: from MN2PR17CA0024.namprd17.prod.outlook.com (2603:10b6:208:15e::37)
+ by BY5PR12MB4083.namprd12.prod.outlook.com (2603:10b6:a03:20d::18) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6813.21; Fri, 22 Sep
- 2023 17:51:58 +0000
-Received: from BL02EPF0001A102.namprd05.prod.outlook.com
- (2603:10b6:208:23b:cafe::df) by MN2PR11CA0027.outlook.office365.com
- (2603:10b6:208:23b::32) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6792.32 via Frontend
- Transport; Fri, 22 Sep 2023 17:51:58 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6792.27; Fri, 22 Sep
+ 2023 17:52:08 +0000
+Received: from BL02EPF0001A103.namprd05.prod.outlook.com
+ (2603:10b6:208:15e:cafe::3a) by MN2PR17CA0024.outlook.office365.com
+ (2603:10b6:208:15e::37) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6792.34 via Frontend
+ Transport; Fri, 22 Sep 2023 17:52:07 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -47,13 +47,13 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
  165.204.84.17 as permitted sender) receiver=protection.outlook.com;
  client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BL02EPF0001A102.mail.protection.outlook.com (10.167.241.134) with Microsoft
+ BL02EPF0001A103.mail.protection.outlook.com (10.167.241.133) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6792.20 via Frontend Transport; Fri, 22 Sep 2023 17:51:58 +0000
+ 15.20.6838.14 via Frontend Transport; Fri, 22 Sep 2023 17:52:07 +0000
 Received: from jatayu.amd.com (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Fri, 22 Sep
- 2023 12:51:53 -0500
+ 2023 12:52:03 -0500
 From:   Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 To:     <hdegoede@redhat.com>, <markgross@kernel.org>,
         <basavaraj.natikar@amd.com>, <jikos@kernel.org>,
@@ -65,9 +65,9 @@ CC:     <Patil.Reddy@amd.com>, <mario.limonciello@amd.com>,
         <linux-input@vger.kernel.org>, <amd-gfx@lists.freedesktop.org>,
         <dri-devel@lists.freedesktop.org>,
         "Shyam Sundar S K" <Shyam-sundar.S-k@amd.com>
-Subject: [PATCH 03/15] platform/x86/amd/pmf: Change signature of amd_pmf_set_dram_addr
-Date:   Fri, 22 Sep 2023 23:20:44 +0530
-Message-ID: <20230922175056.244940-4-Shyam-sundar.S-k@amd.com>
+Subject: [PATCH 05/15] platform/x86/amd/pmf: change debugfs init sequence
+Date:   Fri, 22 Sep 2023 23:20:46 +0530
+Message-ID: <20230922175056.244940-6-Shyam-sundar.S-k@amd.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230922175056.244940-1-Shyam-sundar.S-k@amd.com>
 References: <20230922175056.244940-1-Shyam-sundar.S-k@amd.com>
@@ -79,88 +79,51 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF0001A102:EE_|MN0PR12MB6223:EE_
-X-MS-Office365-Filtering-Correlation-Id: bcf655cf-f061-4d6f-e817-08dbbb949e07
+X-MS-TrafficTypeDiagnostic: BL02EPF0001A103:EE_|BY5PR12MB4083:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6b208ac5-5326-4148-6d39-08dbbb94a39a
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: w3J15fObfSHKHI/k98DGH+LAQviLrawaXSB54LL4C+p0kHbV+KQDu/SplRtpAJ+L/TwRteaAy3MIU+gQuRURxxmP9yx5lFofaxtjhvdwHMbcf2k+EyWvobV63Lt8NBGy2yDPafJ5fcTucjit/xUczWkp/IDzf2Dds62rdfRtu+DBJoGC0cG6LCqyaIMm8YO04cLtuXjDn2tmtgCJtjuQeNhzzMAag79Qz5YHjuiMvGNzCrth5iROxerp05wpRhCDiBwC8FDBEXM+WP26kZmPFNC9esg6Yqk/bG8v3SGrn8ekiveJ49+IfvaEa7psN5hUae+cjGeWac5kAGkmQTKjsXw9ZU6s6WwitbpnKeHXgE2VE6F8DMUYhn7dwVvZpQ0g2zRCl5Ke0eDNL9Av9taI0cZVNt2ck7lOUq6GUCPQR0gqYKLeH4KYAt/0+Fy1vdWhzzFPoAjqncnuBMEVq9osWsBkFTPo3ifo8jtH33GNbqjYPtAeqkGmhMTC/1jzgayf7B6aK5HxO6NEx4pFlJzf5Js2DiZ0uiwg652EtgFAdGoS98Q7e0Jb618IuH5O3KOvjkvYhkK7c5eA3pGyhMV6GDtokRVJlIh6CsnmU/Brt7eG8yxcaYYR1uaLAbsrw0X4fIWCMbkRVavVcdSG3pDEvA1+HuELy9hDtv3OLuXG7yBDzHA8j+/XaBIPJarCtyaCuLVcAiHRV09hlKFkoNg+FF2Xd9S05P7eoto7QZFsszYnvilLlxfDTfa2q1FKmDaoY4aym/QDu7WalBqJ4yN02qtyqD3Y5DjU3I1ADQuJxO2NlsD+QsZHMeehmVfMfjYvUQ6Osni67WfB4ZPpiMeXKA==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(376002)(136003)(39860400002)(346002)(396003)(1800799009)(230921699003)(186009)(82310400011)(451199024)(36840700001)(46966006)(40470700004)(8936002)(40460700003)(5660300002)(336012)(83380400001)(16526019)(1076003)(2616005)(26005)(36860700001)(47076005)(70206006)(54906003)(478600001)(110136005)(70586007)(316002)(41300700001)(7416002)(8676002)(7696005)(6666004)(82740400003)(921005)(426003)(4326008)(356005)(2906002)(81166007)(86362001)(36756003)(40480700001)(36900700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: BXPD++gghd6cL2DZVdkNHV+WzMGHnf3XVMnouxmckhlYyldiySAxMwW3f2/f62M+UwvN+cP3qJNC/aSZfkVor+NL1D+4MN0zoc7fF8MUohFkefSoVXhYhN0C9KKfDW3XWt2OJ/dLMkCgh670aD4aTaYvIIv1WdiHY7T2O98m8Yg2QY83jxWluEHHmHzo36hILUmqBdK8uQOx/BSL62sS56yEEBLEOFVyWq4Sccaycra++aYZJq6YWwmHhQ7qYDWkkuoxjFfHlORpItK93k//w5pIMSk2wl09ARaibnX5LfpVTU8Xio7o15TGbfxqEJAEJLfsRDPvHOLm+I8t+cUdH7/kqSEZAFXaGWPXpAdIm9zIhec0VjkoIQi2u9FzpZt8TrO2s2o2fIJDFKM3sf7+cjOLfl5jxcuzDLI4cIXK0MOMzHgO2aWfw5Bjgpy/RWGXmgIbPs2jBv2oeiUdHkWBgG+HBKkdLCrVachKUt/LAJes983YWY/5/JakqOe7pn/a8yugiBLEW1nwQ7x7bxuTgcJMLFmM93VFAe2XSuhVVPl4/X6rzaxdz7S11ooReb6Dn1j86C4WdTxqU+eGpEBobHJLxnnhFnaED54k7X6HZzIlRQ0NrAZuHV++EL1c3hYf95lB2IgPNeTXb0xKl6G/LrRXPC0Y7JYFhBu7F0YKaBwirQasEsloOPEOU2nyM4thXIWyLU+9zTBiPYbHtKzc95o9U7x0Xc3T2rlZcALcoaCo+CIxt7a06RskGLEWmQzB7L9DjjXgYnEK0ftfaBHCCr7TWsjF5hFoeodsZxX2Ji4oMJBjaQQvhi8j/33+pMwJv7wbC/rMCFaWurWnG73/CQ==
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(136003)(396003)(376002)(39860400002)(346002)(82310400011)(1800799009)(451199024)(230921699003)(186009)(46966006)(36840700001)(40470700004)(426003)(1076003)(8936002)(26005)(41300700001)(5660300002)(8676002)(4326008)(921005)(356005)(83380400001)(336012)(36860700001)(2616005)(16526019)(47076005)(7696005)(82740400003)(478600001)(81166007)(316002)(40480700001)(70586007)(110136005)(70206006)(54906003)(86362001)(36756003)(6666004)(4744005)(40460700003)(2906002)(7416002)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Sep 2023 17:51:58.3460
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Sep 2023 17:52:07.7105
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: bcf655cf-f061-4d6f-e817-08dbbb949e07
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6b208ac5-5326-4148-6d39-08dbbb94a39a
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: BL02EPF0001A102.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: BL02EPF0001A103.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN0PR12MB6223
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4083
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Make amd_pmf_set_dram_addr() as non-static so that same function
-can be used across files.
+amd_pmf_dbgfs_register() needs to be called before amd_pmf_init_features().
+Hence change the sequence.
 
 Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 ---
- drivers/platform/x86/amd/pmf/core.c | 14 ++++++++------
- drivers/platform/x86/amd/pmf/pmf.h  |  1 +
- 2 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/platform/x86/amd/pmf/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/platform/x86/amd/pmf/core.c b/drivers/platform/x86/amd/pmf/core.c
-index 68f1389dda3e..5fb03ed614ff 100644
+index 6f36c43e081e..dbfe7c1d6fc4 100644
 --- a/drivers/platform/x86/amd/pmf/core.c
 +++ b/drivers/platform/x86/amd/pmf/core.c
-@@ -251,26 +251,28 @@ static const struct pci_device_id pmf_pci_ids[] = {
- 	{ }
- };
+@@ -427,9 +427,9 @@ static int amd_pmf_probe(struct platform_device *pdev)
  
--static void amd_pmf_set_dram_addr(struct amd_pmf_dev *dev)
-+int amd_pmf_set_dram_addr(struct amd_pmf_dev *dev)
- {
- 	u64 phys_addr;
- 	u32 hi, low;
+ 	apmf_acpi_init(dev);
+ 	platform_set_drvdata(pdev, dev);
++	amd_pmf_dbgfs_register(dev);
+ 	amd_pmf_init_features(dev);
+ 	apmf_install_handler(dev);
+-	amd_pmf_dbgfs_register(dev);
  
-+	/* Get Metrics Table Address */
-+	dev->buf = kzalloc(sizeof(dev->m_table), GFP_KERNEL);
-+	if (!dev->buf)
-+		return -ENOMEM;
-+
- 	phys_addr = virt_to_phys(dev->buf);
- 	hi = phys_addr >> 32;
- 	low = phys_addr & GENMASK(31, 0);
+ 	dev_info(dev->dev, "registered PMF device successfully\n");
  
- 	amd_pmf_send_cmd(dev, SET_DRAM_ADDR_HIGH, 0, hi, NULL);
- 	amd_pmf_send_cmd(dev, SET_DRAM_ADDR_LOW, 0, low, NULL);
-+
-+	return 0;
- }
- 
- int amd_pmf_init_metrics_table(struct amd_pmf_dev *dev)
- {
--	/* Get Metrics Table Address */
--	dev->buf = kzalloc(sizeof(dev->m_table), GFP_KERNEL);
--	if (!dev->buf)
--		return -ENOMEM;
--
- 	INIT_DELAYED_WORK(&dev->work_buffer, amd_pmf_get_metrics);
- 
- 	amd_pmf_set_dram_addr(dev);
-diff --git a/drivers/platform/x86/amd/pmf/pmf.h b/drivers/platform/x86/amd/pmf/pmf.h
-index a9333ff6c0a7..ea15ce547d24 100644
---- a/drivers/platform/x86/amd/pmf/pmf.h
-+++ b/drivers/platform/x86/amd/pmf/pmf.h
-@@ -421,6 +421,7 @@ int amd_pmf_init_metrics_table(struct amd_pmf_dev *dev);
- int amd_pmf_get_power_source(void);
- int apmf_install_handler(struct amd_pmf_dev *pmf_dev);
- int apmf_os_power_slider_update(struct amd_pmf_dev *dev, u8 flag);
-+int amd_pmf_set_dram_addr(struct amd_pmf_dev *dev);
- 
- /* SPS Layer */
- int amd_pmf_get_pprof_modes(struct amd_pmf_dev *pmf);
 -- 
 2.25.1
 

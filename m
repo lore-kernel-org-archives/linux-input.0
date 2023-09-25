@@ -2,139 +2,160 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7CC20CE7A89
-	for <linux-input@archiver.kernel.org>; Mon, 25 Sep 2023 04:31:20 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E53F7CE7A81
+	for <linux-input@archiver.kernel.org>; Mon, 25 Sep 2023 08:41:55 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229504AbjIYEbU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 25 Sep 2023 00:31:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45678 "EHLO
+        id S232975AbjIYIl7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 25 Sep 2023 04:41:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229460AbjIYEbT (ORCPT
+        with ESMTP id S232960AbjIYIl7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 25 Sep 2023 00:31:19 -0400
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1993ADF
-        for <linux-input@vger.kernel.org>; Sun, 24 Sep 2023 21:31:09 -0700 (PDT)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-59ee66806d7so99629897b3.0
-        for <linux-input@vger.kernel.org>; Sun, 24 Sep 2023 21:31:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20230601; t=1695616268; x=1696221068; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=u9uHumzTyf+gjmcuSq47+yVY/ogRXox3AvMpCppjL8A=;
-        b=L/5s9hS+tgCT2x3dMNT6z9FXQPlt6oZJn2ctzmnys3Nubs7O+NOlwJvHa0NqJMz7co
-         QLeQbpZgRyXETyg1V7rJqQLAkqv/g6YJgs0u2g+XY1WGuo7zu1g5U9KHfgeg9kyEoZ7L
-         /O1KPPNFAPH+RUk3mM5VppU1WixW2VRqla5TK1A8F34YyEj8ykzAJtl8A4fRyuln4uCI
-         302kH3kfDLsi9ZNMdR94zUOskb4Bk7kfi5eA95zgoRZpQBO58QVsDHQ8jB09J/qNB+9m
-         bm6jQd/6j6qQ09o8zw1AtmLzxk/1DWpcjbUMhIasHxfzHxfDQmSKyh7okAk7KVIiGOqS
-         5Rnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695616268; x=1696221068;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=u9uHumzTyf+gjmcuSq47+yVY/ogRXox3AvMpCppjL8A=;
-        b=FReSJ/Nt93f/0aI8cB/qxnqdqmgCTE0VCrxTIneH5O0o3mqH39R9OdV4s6nkf3kG7r
-         vrwZnyqr+eg8I5XaVhce1B5cou6KUcLSAmXIzMGqHkSJskD2sMrXG4qk9JRhekInJk2n
-         o2QqWjfiflqYSttB5QCIlldfCIHsQXPh+PFS6BGMrk2tC3YuBOdFlYZ4mYkVi7tuDmiE
-         ypYR19jegdj1wXhe5zt0/MxoN0kO2tzZAwnq+kUN52rcJjmlApPz1TUcKENVUa3eKrjd
-         +IWhmkFmQvOBSNIgLL7hGuY8e72+ItzB5owGbOqpcYaS0qDLoKBehjQGxnis9/ACnqH/
-         sZJg==
-X-Gm-Message-State: AOJu0YxdbRT/YAjr+9YJk3UZa2zG3Tvxb/rKb4MLfnQMQfQhvEkYHPPr
-        97CkxLVqG1WZyZhQ7oOoZirOMuDrK0SiPo+bJg==
-X-Google-Smtp-Source: AGHT+IHPf37TtcAQw/kZ/if+wxjiRYYEoKTZ/EE11hWMdLINb9IuxCcKQ3MtEWuw4p0np8qDJEFrJ0n1xqFOgQcaNA==
-X-Received: from jstitt-linux1.c.googlers.com ([fda3:e722:ac3:cc00:2b:ff92:c0a8:23b5])
- (user=justinstitt job=sendgmr) by 2002:a81:eb0c:0:b0:58c:7cb1:10f with SMTP
- id n12-20020a81eb0c000000b0058c7cb1010fmr64056ywm.9.1695616268339; Sun, 24
- Sep 2023 21:31:08 -0700 (PDT)
-Date:   Mon, 25 Sep 2023 04:31:05 +0000
-Mime-Version: 1.0
-X-B4-Tracking: v=1; b=H4sIAAgNEWUC/5XNSw6DIBSF4a0Yxr0NoK2PUffROFC86E0rELBEY
- 9x7qTvo8D+D8+0soCcMrMl25jFSIGtSyEvG1NSZEYGG1ExymfNaCgiLN8ptMHiK6AOQcZ8FZgo
- KutVJvoLDFyjIVVHyqpZF3w8svTmPmtZTerapJwqL9dsJR/Fb/zeiAAG61HdddDelK/EYrR3fe FV2Zu1xHF9KMXl23wAAAA==
-X-Developer-Key: i=justinstitt@google.com; a=ed25519; pk=tC3hNkJQTpNX/gLKxTNQKDmiQl6QjBNCGKJINqAdJsE=
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1695616267; l=2212;
- i=justinstitt@google.com; s=20230717; h=from:subject:message-id;
- bh=Sw+ZJKnGZ+JwKov1VeH3ACtZRgGvZ2w/x0E7T3CskvA=; b=DqRU49YR3wzheuEpQc3E2ii9tcBqhXWtzvAnZX/mi6knIBj7UivaiZux27mnaODzfuwNsJ4jT
- 6pgb6ayjgqFBTY47ZtK16xtYWzLYXRTlLuAQyXIH0qqWIODFqN7j+W7
-X-Mailer: b4 0.12.3
-Message-ID: <20230925-strncpy-drivers-input-misc-axp20x-pek-c-v2-1-ff7abe8498d6@google.com>
-Subject: [PATCH v2] Input: axp20x-pek - avoid needless newline removal
-From:   Justin Stitt <justinstitt@google.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Chen-Yu Tsai <wens@csie.org>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-hardening@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Justin Stitt <justinstitt@google.com>
-Content-Type: text/plain; charset="utf-8"
+        Mon, 25 Sep 2023 04:41:59 -0400
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F83EBC;
+        Mon, 25 Sep 2023 01:41:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1695631312; x=1727167312;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Ik/VX0jzwD0mpvhQYFDRhT2i5D3eVP3vzyDvpQ2/UoM=;
+  b=mcf2al/GdRMVA524h7PChzU9J6AJIVcz77B3nvQ3cIoBOvG2MynQlcIa
+   MW4Mpeaok8PI8GPVQpZ/p5WWl+WM4GqshdtqnCrdtibykf2cuBN0fhi9t
+   f/anj+/00/clhTjFWggmkrUMGsUsIuTrQIxslnlDfEBC2OOWAEZWHdkEv
+   wwLW7JhPjsd+xseln5FeIeifhBfisM4wyex3RFcilnx12FoN633bzggzS
+   EQ5j5k1pmc2aJzC7CxsNCtiuTHM6a6qZ61tWVJx7b35osNwtV3XwpjIE8
+   gUdrQEPU3w4Eu8pkxqG5AZpNUfs5BkKHmEuhI+MLsgCfBCR/AeV2+ZNYl
+   w==;
+X-CSE-ConnectionGUID: 1TnWewJoSl6L34RRtFQyew==
+X-CSE-MsgGUID: a2jL1wM1TCiKyhjY2IueuA==
+X-ThreatScanner-Verdict: Negative
+X-IronPort-AV: E=Sophos;i="6.03,174,1694761200"; 
+   d="asc'?scan'208";a="173396645"
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa6.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 25 Sep 2023 01:41:51 -0700
+Received: from chn-vm-ex01.mchp-main.com (10.10.85.143) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.21; Mon, 25 Sep 2023 01:41:35 -0700
+Received: from wendy (10.10.85.11) by chn-vm-ex01.mchp-main.com (10.10.85.143)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21 via Frontend
+ Transport; Mon, 25 Sep 2023 01:41:32 -0700
+Date:   Mon, 25 Sep 2023 09:41:14 +0100
+From:   Conor Dooley <conor.dooley@microchip.com>
+To:     yang tylor <tylor_yang@himax.corp-partner.google.com>
+CC:     Conor Dooley <conor@kernel.org>, <dmitry.torokhov@gmail.com>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <conor+dt@kernel.org>, <jikos@kernel.org>,
+        <benjamin.tissoires@redhat.com>, <linux-input@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <poyuan_chang@himax.corp-partner.google.com>,
+        <hbarnor@chromium.org>,
+        "jingyliang@chromium.org" <jingyliang@chromium.org>
+Subject: Re: [PATCH V2 1/2] dt-bindings: input: Introduce Himax HID-over-SPI
+ device
+Message-ID: <20230925-cod-vacancy-08dc8d88f90e@wendy>
+References: <20230919024943.3088916-1-tylor_yang@himax.corp-partner.google.com>
+ <20230919024943.3088916-2-tylor_yang@himax.corp-partner.google.com>
+ <20230919-70b2f1e368a8face73468dfa@fedora>
+ <CAGD2q_anfBP78jck6AbMNtgAggjOgaB3P6dkmq9tONHP45adFA@mail.gmail.com>
+ <20230919-cc4646dbfb953bd34e05658c@fedora>
+ <CAGD2q_bkTpvXiomWb_yerNjQfMVKOctYgBqF_RBSo_jYqyyyxw@mail.gmail.com>
+ <20230922-unclothed-bottom-5531329f9724@spud>
+ <CAGD2q_YsFdDVhE4JCmQSGMWOdpe_yzG8-CdWYPXtjeZsManvgQ@mail.gmail.com>
+ <20230922-removable-footwork-f1d4d96d38dd@spud>
+ <CAGD2q_Y467jJJnwCVH+3F-hh6a-1-OYRugcy0DdjPnTCC77Z8A@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="6yswMwPAh/4Cve9z"
+Content-Disposition: inline
+In-Reply-To: <CAGD2q_Y467jJJnwCVH+3F-hh6a-1-OYRugcy0DdjPnTCC77Z8A@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This code is doing more work than it needs to.
+--6yswMwPAh/4Cve9z
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Before handing off `val_str` to `kstrtouint()` we are eagerly removing
-any trailing newline which requires copying `buf`, validating it's
-length and checking/replacing any potential newlines.
+On Mon, Sep 25, 2023 at 09:44:21AM +0800, yang tylor wrote:
+> On Fri, Sep 22, 2023 at 11:31=E2=80=AFPM Conor Dooley <conor@kernel.org> =
+wrote:
+> >
+> > On Fri, Sep 22, 2023 at 05:43:54PM +0800, yang tylor wrote:
+> > > On Fri, Sep 22, 2023 at 5:22=E2=80=AFPM Conor Dooley <conor@kernel.or=
+g> wrote:
+> > > >
+> > > > On Fri, Sep 22, 2023 at 03:56:25PM +0800, yang tylor wrote:
+> > > > > On Tue, Sep 19, 2023 at 7:09=E2=80=AFPM Conor Dooley <conor@kerne=
+l.org> wrote:
+> > > > > > On Tue, Sep 19, 2023 at 05:31:29PM +0800, yang tylor wrote:
+> > > >
+> > > > > > > The behavior of "himax,boot_time_fw_upgrade" seems not stable=
+ and
+> > > > > > > should be removed. "himax,fw_in_flash", I use the kernel conf=
+ig for
+> > > > > > > user to select.
+> > > > > >
+> > > > > > That seems like a bad idea, we want to be able to build one ker=
+nel that
+> > > > > > works for all hardware at the same time.
+> > > > > >
+> > > > > I see, so I should take that back?
+> > > > > I'll explain more about it.
+> > > >
+> > > > Are there particular ICs where the firmware would always be in flas=
+h and
+> > > > others where it would never be? Or is this a choice made by the boa=
+rd or
+> > > > system designer?
+> > > >
+> > > Most cases it's about the system designer's decision. But some ICs ma=
+y be forced
+> > > to use flash because of its architecture(multiple IC inside, need to
+> > > load firmware to
+> > > multiple IC's sram by master IC). But if there is no limitation on
+> > > this part, most system
+> > > designers will prefer flashless.
+> >
+> > Forgive me if I am not understanding correctly, there are some ICs that
+> > will need to load the firmware from flash and there are some where it
+> > will be a decision made by the designer of the board. Is the flash part
+> > of the IC or is it an external flash chip?
+> >
+>=20
+> Both are possible, it depends on the IC type. For TDDI, the IC is long
+> and thin, placed on panel PCB, flash will be located at the external
+> flash chip. For the OLED TP, IC is usually placed at FPC and its flash
+> is embedded, thus the IC size is large compared to TDDI. But from the
+> driver's perspective either external flash or embedded flash, the IC
+> itself will load firmware from flash automatically when reset pin is
+> released. Only if firmware is loading from the host storage system,
+> the driver needs to operate the IC in detail.
 
-kstrtouint() handles this implicitly:
-kstrtouint ->
-  kstrotoull -> (documentation)
-|   /**
-|    * kstrtoull - convert a string to an unsigned long long
-|    * @s: The start of the string. The string must be null-terminated, and may also
-|    *  include a single newline before its terminating null. The first character
-|    ...
 
-Let's remove the redundant functionality and let kstrtouint handle it.
+Since there are ICs that can use the external flash or have it loaded
+=66rom the host, it sounds like you do need a property to differentiate
+between those cases.
+Is it sufficient to just set the firmware-name property for these cases?
+If the property exists, then you know you need to load firmware & what
+its name is. If it doesn't, then the firmware either isn't needed or
+will be automatically loaded from the external flash.
 
-Link: https://github.com/KSPP/linux/issues/90
-Cc: linux-hardening@vger.kernel.org
-Suggested-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Justin Stitt <justinstitt@google.com>
----
-Changes in v2:
-- remove eager newline removal (thanks Kees)
-- use better subject line (thanks Kees)
-- rebase on 6465e260f4879080
-- Link to v1: https://lore.kernel.org/r/20230921-strncpy-drivers-input-misc-axp20x-pek-c-v1-1-f7f6f4a5cf81@google.com
----
-Note: build-tested only.
----
- drivers/input/misc/axp20x-pek.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+--6yswMwPAh/4Cve9z
+Content-Type: application/pgp-signature; name="signature.asc"
 
-diff --git a/drivers/input/misc/axp20x-pek.c b/drivers/input/misc/axp20x-pek.c
-index 4581606a28d6..24f9e9d893de 100644
---- a/drivers/input/misc/axp20x-pek.c
-+++ b/drivers/input/misc/axp20x-pek.c
-@@ -133,20 +133,11 @@ static ssize_t axp20x_store_attr(struct device *dev,
- 				 size_t count)
- {
- 	struct axp20x_pek *axp20x_pek = dev_get_drvdata(dev);
--	char val_str[20];
--	size_t len;
- 	int ret, i;
- 	unsigned int val, idx = 0;
- 	unsigned int best_err = UINT_MAX;
- 
--	val_str[sizeof(val_str) - 1] = '\0';
--	strncpy(val_str, buf, sizeof(val_str) - 1);
--	len = strlen(val_str);
--
--	if (len && val_str[len - 1] == '\n')
--		val_str[len - 1] = '\0';
--
--	ret = kstrtouint(val_str, 10, &val);
-+	ret = kstrtouint(buf, 10, &val);
- 	if (ret)
- 		return ret;
- 
+-----BEGIN PGP SIGNATURE-----
 
----
-base-commit: 6465e260f48790807eef06b583b38ca9789b6072
-change-id: 20230921-strncpy-drivers-input-misc-axp20x-pek-c-3c4708924bbd
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZRFHmgAKCRB4tDGHoIJi
+0nMVAQD0/+RvD0e0+hNILOkQtK4zp8D2AVRzfWJAv2WJqNTsjAD/byS1txiZNPpM
+fKg2haa7MvIoQWxWAckF+Bk6qkgBkgY=
+=B6aB
+-----END PGP SIGNATURE-----
 
-Best regards,
---
-Justin Stitt <justinstitt@google.com>
-
+--6yswMwPAh/4Cve9z--

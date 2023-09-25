@@ -2,97 +2,78 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2B62DCE7A9D
-	for <linux-input@archiver.kernel.org>; Mon, 25 Sep 2023 16:14:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CA8A1CE7A9F
+	for <linux-input@archiver.kernel.org>; Mon, 25 Sep 2023 16:25:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233218AbjIYQOT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 25 Sep 2023 12:14:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51250 "EHLO
+        id S230049AbjIYQZT (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 25 Sep 2023 12:25:19 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233195AbjIYQOT (ORCPT
+        with ESMTP id S229437AbjIYQZS (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 25 Sep 2023 12:14:19 -0400
-X-Greylist: delayed 516 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 25 Sep 2023 09:14:12 PDT
-Received: from hypatia.ibka.org (hypatia.ibka.org [IPv6:2001:8d8:978:5900::90:ff9d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66B1BC0
-        for <linux-input@vger.kernel.org>; Mon, 25 Sep 2023 09:14:12 -0700 (PDT)
-Received: from fedora.localnet (cgn-89-1-217-222.nc.de [89.1.217.222])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (Client did not present a certificate)
-        by hypatia.ibka.org (Postfix) with ESMTPSA id 1ABA88C0049;
-        Mon, 25 Sep 2023 18:05:32 +0200 (CEST)
-From:   Matthias Berndt <matthias_berndt@gmx.de>
-To:     linux-input@vger.kernel.org,
-        Ismael Ferreras Morezuelas <swyterzone@gmail.com>
-Subject: [PATCH] Input: xpad - add PXN V900 support
-Date:   Mon, 25 Sep 2023 18:05:31 +0200
-Message-ID: <5716243.DvuYhMxLoT@fedora>
+        Mon, 25 Sep 2023 12:25:18 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 046DDBE;
+        Mon, 25 Sep 2023 09:25:12 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0251C433C8;
+        Mon, 25 Sep 2023 16:25:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695659111;
+        bh=k44ZVpNI7Cq7j38SfPe5poWW99evd2e78ncnRvDGIGU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SCG1NXeKouPC7336hAAj5rxp1TD7jepacPz8lMaAcry8WDFMqziGPKh/bUQ28hBp6
+         qNOCEHGkT3HPYNlYR3gTKZeUFUWSUZfxxCgJArLTWYaFhyUh5/RuggBQtmN3MlJ/eO
+         DboMVh5/khCO0nd2dkpHvW3m1Uf71ZhJcK6S9TEqSZaiXjPnsZgs+1yRTKaitbT5R/
+         EH4OZOdE8YPGlR67hxEJRkk5Ka+iECOOncmTo3OG4m9WPPgMFPJvMUUlUgKwPvom7A
+         v845EvVBo4i2h3lPEBvJiCO1bAxGXY54U1cfP3HhbwuXmZ8FMC9xAq1rdzlltRkRuf
+         7uEpdd45B9eDQ==
+Received: (nullmailer pid 1468913 invoked by uid 1000);
+        Mon, 25 Sep 2023 16:25:09 -0000
+Date:   Mon, 25 Sep 2023 11:25:09 -0500
+From:   Rob Herring <robh@kernel.org>
+To:     Luca Ceresoli <luca.ceresoli@bootlin.com>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+        Jeff LaBundy <jeff@labundy.com>, devicetree@vger.kernel.org,
+        Conor Dooley <conor+dt@kernel.org>
+Subject: Re: [PATCH v2] dt-bindings: input: touchscreen: goodix: clarify
+ irq-gpios misleading text
+Message-ID: <169565910910.1468857.379234431707593994.robh@kernel.org>
+References: <20230925032208.11698-1-luca.ceresoli@bootlin.com>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="nextPart5977584.lOV4Wx5bFT"
-Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230925032208.11698-1-luca.ceresoli@bootlin.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
---nextPart5977584.lOV4Wx5bFT
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="us-ascii"
+On Mon, 25 Sep 2023 05:22:08 +0200, Luca Ceresoli wrote:
+> The irq-gpios description misleading, apparently saying that driving the
+> IRQ GPIO resets the device, which is even more puzzling as there is a reset
+> GPIO as well.
+> 
+> In reality the IRQ pin can be driven during the reset sequence to configure
+> the client address, as it becomes clear after checking both the datasheet
+> and the driver code. Improve the text to clarify that.
+> 
+> Also rephrase to remove reference to the driver, which is not appropriate
+> in the bindings.
+> 
+> Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+> 
+> ---
+> 
+> Changed in v2:
+>  - reworded to clarify even further
+> ---
+>  .../devicetree/bindings/input/touchscreen/goodix.yaml        | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
 
-Hi Ismael, Hi linux-input,
-
-I recently got my hands on a used PXN V900 steering wheel which didn't work 
-out of the box on Linux. I've attached a patch that makes it work for me, 
-please consider merging it.
-
-All the best,
-Matthias
-
---nextPart5977584.lOV4Wx5bFT
-Content-Disposition: attachment;
- filename="0001-Input-xpad-add-PXN-V900-support.patch"
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/x-patch; charset="x-UTF_8J";
- name="0001-Input-xpad-add-PXN-V900-support.patch"
-
-From 9b0af40bc3c064be1c7c5ba36d7fb4b8d6535fc7 Mon Sep 17 00:00:00 2001
-From: Matthias Berndt <matthias_berndt@gmx.de>
-Date: Mon, 25 Sep 2023 17:54:13 +0200
-Subject: [PATCH] Input: xpad - add PXN V900 support
-
-Add VID and PID to the xpad_device table to allow driver
-to use the PXN V900 steering wheel, which is
-XTYPE_XBOX360 compatible in xinput mode.
----
- drivers/input/joystick/xpad.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index ede380551e55..478bf657efc2 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -272,6 +272,7 @@ static const struct xpad_device {
- 	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
- 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
- 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
-+	{ 0x11ff, 0x0511, "PXN V900", 0, XTYPE_XBOX360 },
- 	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
- 	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
-@@ -503,6 +504,7 @@ static const struct usb_device_id xpad_table[] = {
- 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
- 	XPAD_XBOX360_VENDOR(0x3537),		/* GameSir Controllers */
- 	XPAD_XBOXONE_VENDOR(0x3537),		/* GameSir Controllers */
-+	XPAD_XBOX360_VENDOR(0x11ff),		/* PXN V900 */
- 	{ }
- };
- 
--- 
-2.41.0
-
-
---nextPart5977584.lOV4Wx5bFT--
-
-
+Acked-by: Rob Herring <robh@kernel.org>
 

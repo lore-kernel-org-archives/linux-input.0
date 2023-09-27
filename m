@@ -2,256 +2,336 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C4CD4E7F157
-	for <linux-input@archiver.kernel.org>; Wed, 27 Sep 2023 03:36:32 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86720E80A90
+	for <linux-input@archiver.kernel.org>; Wed, 27 Sep 2023 05:55:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229502AbjI0Dg3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 26 Sep 2023 23:36:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59934 "EHLO
+        id S229750AbjI0Fy6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 27 Sep 2023 01:54:58 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229663AbjI0D2L (ORCPT
+        with ESMTP id S229527AbjI0Fyv (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Sep 2023 23:28:11 -0400
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2068.outbound.protection.outlook.com [40.107.244.68])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7219EE4;
-        Tue, 26 Sep 2023 18:48:51 -0700 (PDT)
+        Wed, 27 Sep 2023 01:54:51 -0400
+Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2082.outbound.protection.outlook.com [40.107.243.82])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3754165BA;
+        Tue, 26 Sep 2023 19:37:09 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZtximyCZm/tZaH61fE+IEx9C/yAA2GkX7uiN28dIVeQHY+sufxPzHD3gTsjnX1Ps7CrDEchVufPW8sQWx9SkTosXvt6c60jHsYjnP/qP7RumFgu0E6PMLRkhsjZqJWcqEhrOHUwAnVchShNAK8h6kPt3mjxs7iCnAfrnCE03ar+nPiT9/pTYG+wvSWJsbeoHrlEo58z+STgNVO/BcYnlUPya+EsvEHiTwSuYqIdrEmNC8IioivtM7CMmLiGQlhaG4hgLHR29IuwbaTXvlqPBbGQyOmkqSzl9TxgqhGmG0B1zPnnT+yA5IYCHIhfZp0/QD2UB7bT96eA14g82cwCxlw==
+ b=C9ajPAdyvyfvBSng81G0aMNqDplRTRYNlUCGoxOBAZCHIR8IlBZ8XZyI9/oMYl6bUoS3Ire24JeOweKxj2kQ3f6C68L8kg1GyG4rcWuPHF5A1IaRGiLQSzPU2Z56o9t8WefUbefl8GFJk4E1HHBwwUilCwpkbJTILkjmrlKvGPEUp2vK8hN86ucFjmtrmVTK5dQ04wDhmVV/j9knr6GOq395kmr9Kx6fAcT7dt8fxK+yeKMR0u8jrmQ0My8dgD+GGTBJ7Otq7c4nrsfRnMQ/Vo5tSVI5joCyNtg5a+ELSGYMl1KVI+BTKqnkyKg49NfV7scqBN0jbFF/eYyZBM3w/g==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lHLDD+VlKAF0S2/dF6yMN4KB6dwY0STAlqexKO5RmqM=;
- b=Ft7/EkuOWQaEBlkGb1n4z5IzE4zgmj0RwieZG/dZ4c6G1HIOZD3G++wQxE73s3/E7mw9s52OPeYGa51jUUnVvzBxIVSWBs493wrOGa54QCmQm4Wr5gvObSR6tIP8hdGaguuY+t1CfwQr1gmaTmr9GSFbWj0opbRHNBxlB2X1FFJ36DPRV9QZwA754IjUMweu68QW1nlxZpXAByEHPXk2mUE/dWmDLOD5UOqGXCUbo6jGYpIii9DYpTH+9BPZfsmuRV2TKnjEsuAKquMss0dX8XrAJFiae1z71e1ta8ygl17DwhVQCrQRSshNAdA7XMd1RgT6F+29T6fGYIVLTNJc0Q==
+ bh=f3pEpolyj5nY1tLisFCwcfD5NoQpr2b/Reun4Z1M8SU=;
+ b=WAM3yk5ozzbrISSQcklFwVEqRdEofSf7Z8gI/ap13CQYmbwti5YQ4w6PkJU0usCTikDXU/0WsMrOqEGph9S+m8wzKvZCZ8pp5uJSGTaiOzTITX6v/4LB1Z2K5GLcexfRAXOYTOupgZYZbJm8zSscb8Uw8uz2/EGoXsheY1YVWe5+jhJLxbgx2Pu7ovC+djuJISKionsJQVaTuU+uGAYz7K4yDy+guYMxKMF1difJK6gyrVy3NKZ//AK0xKVuEHTHvtspL2fCww8A7K9GRvngCM8EwEJqx3F2K4RFodr2ErBDWKb+39hMG1X9YaMWwBgZ+/NpWlyWFWAaMLrmqKS75w==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
  dkim=pass header.d=labundy.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lHLDD+VlKAF0S2/dF6yMN4KB6dwY0STAlqexKO5RmqM=;
- b=dYVEutwrNBbhrrjEk993RL2+Qdv8hsszc8nYwEx3okbH7AE3uzivBpbyX3+4BQtEQGouV77G9DJA+gopP4LFAWSv8xQPDNp1i770ljK8ZPS21+FM9auRiPCWxyn1LHApckuCu6eSX67//dLRsOqS8R6k26fbMwq26RsfmJzP+So=
+ bh=f3pEpolyj5nY1tLisFCwcfD5NoQpr2b/Reun4Z1M8SU=;
+ b=olVjtQ0X2fzCb2Kqdb+czx1V6IZ5NF6+mLd6pu0zftuJVYomx5ucNEy6fr/YShpkp1RfwLVojli7Lvgety4/1Hu8xPYuTBdPkDQH3Mc0q0VTevSO7SjlmNYLKTLMQesTI23vFzh4iE9VyLS//dyzt/flvtkhnCSgLrUdar/PNvg=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=labundy.com;
 Received: from SN4PR0801MB3774.namprd08.prod.outlook.com
- (2603:10b6:803:43::21) by SN4PR0801MB7998.namprd08.prod.outlook.com
- (2603:10b6:806:219::20) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6768.31; Wed, 27 Sep
- 2023 01:48:48 +0000
+ (2603:10b6:803:43::21) by DS0PR08MB8489.namprd08.prod.outlook.com
+ (2603:10b6:8:125::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6813.28; Wed, 27 Sep
+ 2023 02:37:03 +0000
 Received: from SN4PR0801MB3774.namprd08.prod.outlook.com
  ([fe80::4528:c7c7:de7:aec2]) by SN4PR0801MB3774.namprd08.prod.outlook.com
  ([fe80::4528:c7c7:de7:aec2%6]) with mapi id 15.20.6813.027; Wed, 27 Sep 2023
- 01:48:48 +0000
-Date:   Tue, 26 Sep 2023 20:48:44 -0500
+ 02:37:03 +0000
+Date:   Tue, 26 Sep 2023 21:36:56 -0500
 From:   Jeff LaBundy <jeff@labundy.com>
-To:     Karel Balej <balejk@matfyz.cz>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
+To:     Doug Anderson <dianders@chromium.org>
+Cc:     Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Markuss Broks <markuss.broks@gmail.com>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Duje =?utf-8?Q?Mihanovi=C4=87?= <duje.mihanovic@skole.hr>,
-        ~postmarketos/upstreaming@lists.sr.ht
-Subject: Re: [PATCH 1/2] input: generalize the Imagis touchscreen driver
-Message-ID: <ZROJ/G0hXV/bNIYX@nixie71>
-References: <20230926173531.18715-1-balejk@matfyz.cz>
- <20230926173531.18715-2-balejk@matfyz.cz>
+        Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Chen-Yu Tsai <wenst@chromium.org>, linux-input@vger.kernel.org,
+        Jiri Kosina <jikos@kernel.org>,
+        Hsin-Yi Wang <hsinyi@chromium.org>, linux-gpio@vger.kernel.org,
+        linus.walleij@linaro.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Johan Hovold <johan+linaro@kernel.org>,
+        andriy.shevchenko@linux.intel.com, broonie@kernel.org,
+        frowand.list@gmail.com, gregkh@linuxfoundation.org,
+        hdegoede@redhat.com, james.clark@arm.com, james@equiv.tech,
+        keescook@chromium.org, linux-kernel@vger.kernel.org,
+        rafael@kernel.org, tglx@linutronix.de
+Subject: Re: [RFC PATCH] of: device: Support 2nd sources of probeable but
+ undiscoverable devices
+Message-ID: <ZROVSAoKF9bimnSP@nixie71>
+References: <20230921102420.RFC.1.I9dddd99ccdca175e3ceb1b9fa1827df0928c5101@changeid>
+ <CAL_Jsq+noP32-m5xdUCLFPFBXLxX9Ys1BNFM+9sga6KYTmDzqQ@mail.gmail.com>
+ <CAD=FV=WXxGhX0Fw2nSS7PxYb1O-LUewAhoUVPn=2EpbSD2OeHQ@mail.gmail.com>
+ <CAL_JsqKJyRJmwJzB1yew71Ld7BeMMat+rzhX9XtDtiFE8Dbvcw@mail.gmail.com>
+ <CAD=FV=UgFzT0TW2WEV0Wmk05EXUad2EYhN2DcckAxE_Lw5gV1Q@mail.gmail.com>
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230926173531.18715-2-balejk@matfyz.cz>
-X-ClientProxiedBy: DM6PR06CA0027.namprd06.prod.outlook.com
- (2603:10b6:5:120::40) To SN4PR0801MB3774.namprd08.prod.outlook.com
+In-Reply-To: <CAD=FV=UgFzT0TW2WEV0Wmk05EXUad2EYhN2DcckAxE_Lw5gV1Q@mail.gmail.com>
+X-ClientProxiedBy: SA0PR11CA0151.namprd11.prod.outlook.com
+ (2603:10b6:806:1bb::6) To SN4PR0801MB3774.namprd08.prod.outlook.com
  (2603:10b6:803:43::21)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN4PR0801MB3774:EE_|SN4PR0801MB7998:EE_
-X-MS-Office365-Filtering-Correlation-Id: 388ae0ff-d004-4459-e958-08dbbefbe486
+X-MS-TrafficTypeDiagnostic: SN4PR0801MB3774:EE_|DS0PR08MB8489:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3606e901-ea5c-40d4-9a45-08dbbf02a1d7
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: kxV6WvX3uU5ah7k1C2bCmTamUzmteeypGfd1/N1qY7+NebKXuTcmccC0Hvi5TiNubriRWTgSni1GWensWAbs2QyCrphuFTMxBt4LhX3QNWWLtD6+Id9wREtT1KbwLrr23Gd/xcAYSKv0mwpIEl3N7VNI0cMfke3rA/3LYrTFGLo5WFFjh825AI6A24Vtv4nOnJQhZnOuwTsaZ701m6iThsZKoL950OZXetq+GNzGZPi6JiUQaCQ9eHHPloqblP1eP/yGMCo0xfdSXLCBZ/oOSmL/GuKEFrh0z/7zjp8tlJthDLpNTAxEqqL8ZRwYozmuEzQXyomlTlO8ko3t/bWwFjqa9cwF5HDGaAifR9G6OOB7XJtaIJCiX1QmMkSOzbU9ooY+nZhu9XQekQTkcVeW4HKvlWD5ATJv+XAQoH7RV9HEhMkP4mLX780ocFTa1XUazhIM7n357XTPjeEvVh9asoyPgv36cGdv2gl+yJ8LQ9uyn1oF2Dn/8QCBzlh+thxzutlDzthWp+Fx6GsHPVE8ahnjaBSILSRnxO9Psg2ogI8=
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0801MB3774.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7916004)(376002)(366004)(346002)(39830400003)(396003)(136003)(230922051799003)(186009)(1800799009)(451199024)(966005)(478600001)(9686003)(86362001)(33716001)(41300700001)(8676002)(7416002)(6916009)(38100700002)(26005)(83380400001)(5660300002)(6512007)(6506007)(2906002)(4326008)(66476007)(66946007)(6486002)(66556008)(6666004)(316002)(8936002)(54906003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: Zp8jM8Bb0GFTz9htoZqpcDuc+D78M3c0yL+FL7LHJnMwDdekQu0YzVXIEIuyjMBHliOH0OqEMnYIGcTG5S60UOxqfep4AM55Nuz1D5M6gCvboM2vEVbvxM2uoJZroKCbirb2weV8Go7ukQcpwLFhZ6U0NQCPAM5RkTOUatIEF92YEUdjR31szPX7Gh6g4qh0eT6ZMv59zcRfKiTndEDcpX48PGlHcS0MiHMBylco3xWjLYRunnZrvGmtcIBrcEBWJbNT01oxLcyuRLj+OiRVNBgbrh7Dq1ozhjcigHUYMaDO55b82kIt2jRSCG3xATWl9W0lGKziIjHkT9jqQou6Cx21tmQ3U/KMMDUEs5sFDFPRdeqrnjcoosoCLebJ1Xft3VQaudWhD4vuVu0BXCXBRT5kT2AYKeOSAWFfr2O8KBDz9pRBuv5sJ2f+PDti12rt3l522E8GB+A1aWUYn7VOyLhCsWUtbV2tf7K9re0pxo8aPEZpxmB0ZCIAof200kmGqO42f9fmz3EPQG/zaOdjFcOvgjx9idCSMtmbWHVrb8VI7b/uwvOJWZqUYnBSJM9nZNLIDnsHsq6SxBTLlI055Uyc7wi/s/KAJJRGRgaWrdM=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0801MB3774.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7916004)(346002)(136003)(396003)(39830400003)(366004)(230922051799003)(186009)(451199024)(1800799009)(316002)(5660300002)(8936002)(4326008)(8676002)(41300700001)(54906003)(66476007)(66556008)(6916009)(7416002)(66946007)(66899024)(2906002)(53546011)(9686003)(41320700001)(6512007)(6506007)(33716001)(478600001)(6486002)(26005)(83380400001)(86362001)(38100700002)(6666004)(21314003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?cnVBMy9EZ0ZXbzBSZE9uTDlQUDRmNEhTTFRSYUs5Sm9sOStsaFQyMmhiQnNR?=
- =?utf-8?B?NWZTQlVJeGVrS2hWUG83dXJZTmd3OE02YnBCeGtpaFpWenNPb3FDbTJRSG5D?=
- =?utf-8?B?N1ZLZlN3NHQ1eWJ4L012ajcyWjVtM0MyQzFQUytJYmpQSjFVL0NUV3diTmd1?=
- =?utf-8?B?R0I0T2FnK3dXNFpKQVU1NXphSm1EMW5FamsyeHY5SWxrSDB5cTRiOXVEMjN3?=
- =?utf-8?B?aWhjTWZTa05SaUxDb3hCRVJ3WVFzRUZjalhocG1RS2ZuVFRUMk5ySVRuWVYz?=
- =?utf-8?B?aktISFVMRlc2eXBNQVdZcGtTUXV1T25RUDVJbmVMUnVPMDNHZm0zNE41V1J6?=
- =?utf-8?B?Z0NsTkJwM3F1NXhyUU04Nm01MW1mQlJEdU5yWU9UWTVJUksrdEpPdExGa2NR?=
- =?utf-8?B?SG9DY2tpSzBNUUNabm1DNmV5dkFMeU9vaHZrc3kwaUxpMWFTYVZXYm5VMnc0?=
- =?utf-8?B?cXNYSEdSbHQvajI1L3ozSU1taDBGcHBmVlNMU21BRDBhVGdCY2hCYUFkeWVx?=
- =?utf-8?B?VUFBeCtWWEdzZnIxRzFoVXZqWWxCOWgzWHkzZ0JLeUUvekVISCtSR211c1Bu?=
- =?utf-8?B?Zjkyc2VTY0lWUHRwWnI0NFlvYzZGd3VaVTdtQWpRc2JqeFBHTFlseVg2VlJG?=
- =?utf-8?B?WHlXd09wMFBKTmlDT3h6bEVvVGgwVFBqdWxIZnNTd2xXZFMwSWJUdlRJMFcw?=
- =?utf-8?B?c0w0WE5WZVkwWll6VW1ER2hJeXhpK1BOcEFxTStGeEdPZUJyVVNGaEZqQ3Za?=
- =?utf-8?B?SjlEMi83bUt4RzgvZFBWNlBvek1TMjVLS0FYZTIxellnYlMwU2J3NS8yeW9T?=
- =?utf-8?B?a3ZwUmNoVGIwM05kaU1JY3NDbWkrVldtM3VzTjlKb2gySGZ4WkJpd2RIYmdM?=
- =?utf-8?B?QVZnWUdrSmhGRDZEeWMxZXgxZGFyTjZFUnBPQ0JWV3RTRXREc1E2MHZTVG1s?=
- =?utf-8?B?YndxUERvYndOV3JPODlqczFFOS9ReUdYTlhXcE5IU2JHVnk2c2ZiV003TElN?=
- =?utf-8?B?aTNhMXp6dXNvNjFTZDRpeEg3bEoreGZiWFdRQWhVU0loMmVmN04rS3U4V2FE?=
- =?utf-8?B?Ty9UUTUzOG1lZ1lFSzNVVEFFR0dBTW1ORDRiM24xcEdtS0NMTHRKWis0NW95?=
- =?utf-8?B?MkJHaC8zSExwQUV5NXVFaU5RK2VSeHYrUHk1SFVLOEx0QUxKN1FCYkxYNzk1?=
- =?utf-8?B?eGJ0RzFkWWo0MG9RODlQUW14cG1vMEw5ZnpLTjVhSlA0VUxQTVlOY2tyaDA1?=
- =?utf-8?B?L0tBRm9oWmt1eVRxSXozbVFGN0tWRVpVY1JyREJWSmJmVThqSDZSL1J1YmN3?=
- =?utf-8?B?cGxNNjUzRVU5bm05Q05tS2t6ZGIrTUx5cko2Um14M1BoSE9TdUVEeVJpT05s?=
- =?utf-8?B?SzBNTGhVZnpZczlYdjFHV3VwMXJaSVl1azZsWmV2RXdHdXc0ZG9aRStMbVQr?=
- =?utf-8?B?MzgxaEJDNUV2RG0zRGxNMHBFbTNNeHdZdFlzRGl4MFNkVUN1VTNnTnVJd2tj?=
- =?utf-8?B?WllnUkRkSjY5T2hzbTlnZVo2K0xEM0htT2ZCaVdTbTJ5RmJBeHhLSUJ4cW1i?=
- =?utf-8?B?MmQvcjhPK01ENVM5NVA0WXFsenJRek1GSm56VXp2U1lSOUJnbVZ1Nyt1M01v?=
- =?utf-8?B?NElzdGZERUZZTGJMTDVxekhXYUpWQWZXM3VVelFtL2lwNWxlZmZTd05qV2hK?=
- =?utf-8?B?aTlTR0FrWlNkaWtpWkczWUhINm1tSWJ2dyszQ1h4c3VjQnpobVEyQ0xZc2xZ?=
- =?utf-8?B?UnZMeTBNNTVHb0RGOCsrOHFPNkFISnlXZlJYRm5aS2tTK3FsWjdPSHlBbFFn?=
- =?utf-8?B?Z095YzhCWmI5VTRtQkEzM1RPclp4NjFCYURRR1FFVWNCM3FxNk14RVJZdWFR?=
- =?utf-8?B?L2JaT3d3UkNnaDh2QXJWSVh0SEFhMnZGS0JUWjRXT2NOS21xcmUyWGZCRXdr?=
- =?utf-8?B?Q0UxRnZCMHNTSUVUZkxockVpTGhBNENQeUZtTXprajdMcWVsRzBsb3JYV3c0?=
- =?utf-8?B?SEhaanB2NG5Dc2gzRXpOeGd5Y1JVNEJlQURYelF6eUhUU0pUTDBNbWRCTTZr?=
- =?utf-8?B?UXFYMUk5bnc2RDM1OHF2RVh1S0lXSDY0cjdONVNPejZUdExFVTdxTGg5c21X?=
- =?utf-8?Q?v6omsIdodFex1j0JQm8Txg90z?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?SkNWWWduSUpLRHU4bDJuODEyZCtjSFBBQm9pV2djTzJHaEhxNWhjWTcxU25v?=
+ =?utf-8?B?RHAycFdvdU5rUkpuRzZML3Y0aVpBaDZHOHhpV1Y2VjZNcjFjd1pIenR5bUE2?=
+ =?utf-8?B?ZHB6RGttbi8rZHdUZFJCRENjcW5tTWEvUHc3MDI2TUdFTG9qVnRadW5BSTZl?=
+ =?utf-8?B?OC9MdzV6aFcySUZJZnpqK2x6M3RNK3QzaWhFcWpOQ2gvR0Nsd3hXSXZXdHpa?=
+ =?utf-8?B?K1BYSnRxNWlnL2x1MjNaZWNuUm5jQ0lKMDVOaHJqN0psSVk1TlZvQzVhVFha?=
+ =?utf-8?B?a0todFhQNGdPc2Rqbk9EZ2tldDhFSE00TnN5S0R6MTB5MU9jNTV2NHBWZHpn?=
+ =?utf-8?B?UkIrNWFvckROdy9XcDdjZlpXWVlUOS85VHZkWHJWbTdyMmV1SE9xV2prdGth?=
+ =?utf-8?B?VHo3cHJyVVAyTlNEVzJXeFFnZlZLcmdYVS9qZ2JxQVJ6NGF2SmhmdUhmL2di?=
+ =?utf-8?B?RDhva2lZSEJXY29jLzZzOXdmYWI1UWVUdE1PNXA4NUJqUjUzbHVCZ2FTVWkx?=
+ =?utf-8?B?dzcrcUhzQ2hyVDRoblFlMk9UWDJUZStGNmZvdjdoM2tBUmlHcVcrdzF0VVpv?=
+ =?utf-8?B?RmFGZDBDMVFoT2tkUWJRTWRrTWE3dW1mbzdjUFY4Vlc0bHlYM3hqVmVscTU4?=
+ =?utf-8?B?QlZVM3pBRmlFN1B1MlhGcW8ycEpMU0xXQUxtTzBvaTZRelRxc0FEYXRzT1ZK?=
+ =?utf-8?B?Q2FuNVZLNDV1djdoejA1VlY0RGZNa3UycmpBOTgwVHc3Y3YySzJVSzB3K3py?=
+ =?utf-8?B?czZnSnZnWmRCeXB3dGpTaGdiUDh1TDVTdkRsbUo4YVpzVC9jWHRZSkRSSytD?=
+ =?utf-8?B?WGs5M2VJM1htL1FSYzZ2WFRaVk5Cak9nQS91azdudytMMVowTEhneHFtQXhO?=
+ =?utf-8?B?Ni94WVNhM3pFenJ2RmE4MnhtMi9STHFKeFEzT2sxZkRFbHFvLy9JM3B3Yldq?=
+ =?utf-8?B?QTU2OXRWaEE5QUZ4UDdqbElHNkJ3K1F1UnZOVFVXVmdWTjREenJSQWJldytR?=
+ =?utf-8?B?aDZQODhmZFFKeXlXT3Ryd0VkdGR0VUpQL043czhNOFlKM2RYa2xwNlg3QUhG?=
+ =?utf-8?B?M1dMY0tSdGRtSkFhMHFJMkN1enV6VnQ4ejRBM2ROUVl2a3pkYjJpZCt3RVpL?=
+ =?utf-8?B?UGxqZnZaWEI5OEFPbGJoVkpJcVdjQUM0UkpvMW0zRWJCUjhmNDdScWZIYnNW?=
+ =?utf-8?B?T1pIeGJ4SU9tYnVSdHhwb1dCdm9qcm9uUTQ2QktJdnFQeW4zY3E4N2VQOVVM?=
+ =?utf-8?B?eXFvdjF2K21xQW5tZzJGRTB4S3hnaEd5Nk44V0hHZWxQWVRmWUM2S29NWEtG?=
+ =?utf-8?B?SzI1cnBLRVNXblFsMEQyTEFpTElwQzVxS3Q1UjVpQ0NLQlM5NkxSdlppWkhV?=
+ =?utf-8?B?MzdXSGcxOTlVMFVZdG53Q1g4cnV6bHllWW42VmExZk8vbGx2UVorMGx5ZkNE?=
+ =?utf-8?B?ZzdsaUUzbEw2aGVLOTRjMDdnUDRDZXRjb29sbFBHdWh3QUhVSzVTQ1BWdDBL?=
+ =?utf-8?B?U3UvSUxucEZxcDZ3OWk1U3l3YkV3K2Faa0pGOGZXbFg2NkNUaVRqQ3JXc3Rn?=
+ =?utf-8?B?MWFXaFlaM3BwRnRuVWtUaDFZemhuMGQ5bHk0MC9TVmhnV2wwNVlWbUVUUDh5?=
+ =?utf-8?B?K1U1ejNMaEpaU1RSMWZnNHJUQ1diZEZmSVExRlZjbGtzZGdRbDZLaWNVVFd4?=
+ =?utf-8?B?TzczdFZXc09CZ2lISGk4NXVqSW9kZXpsVHNINndZUmZtQ3dJV05sVVNpL1h4?=
+ =?utf-8?B?YmJCUTFMUVh6TVRob1hYSXVkSFh5WDQyNXQ5WkpJUTZZYld6T0VTT2ZQVmpY?=
+ =?utf-8?B?RG1tSTFkMUlQTUlrWXB2Q1BsZFgweHV4dVB4RDJFTkRrVW9aQzhwNWw0c2U2?=
+ =?utf-8?B?cjlnMkYyWkN2WFFmQzJyVWFtSHdoSDkxUXkyK09aSGxFem5TMG0vKzRkYU80?=
+ =?utf-8?B?SjRSMkNVYktpN2NPbldhcjN2WnpBYXVqSEZPenZOUGZ2NENKTExvZ3NjOERQ?=
+ =?utf-8?B?ZCtDUmRLN1lWY3BYclU2ZTlMNkZ4NEtUVnZWM2VQNnlnT0JmN2VXWEIzRTEx?=
+ =?utf-8?B?QmNnK1R5NFBWay85NE56TmZvZVVOeGc0OWZMQytDbmpSTEpwblRJYmR5SlJq?=
+ =?utf-8?Q?tTYOWlVtCz159UTX6fsJt19Yv?=
 X-OriginatorOrg: labundy.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 388ae0ff-d004-4459-e958-08dbbefbe486
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3606e901-ea5c-40d4-9a45-08dbbf02a1d7
 X-MS-Exchange-CrossTenant-AuthSource: SN4PR0801MB3774.namprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Sep 2023 01:48:48.4142
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Sep 2023 02:37:03.4411
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: DDzcNemV4vKS6DoxlvgJhfnXtRWCfZ8P8e8nmxKvtSzWbK8kbUlxCwKV9OoFZ0iXp3BuSA9AT8Io6SHMh+owhA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN4PR0801MB7998
+X-MS-Exchange-CrossTenant-UserPrincipalName: 6RUEazwv6PFYVmBMmhhfpKxbsG2KLxNMIHeVOA5c/q2OFntUo3AxD47lYL2S+Jt0eDoZfMG6VBjgUSYPUGgaOQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR08MB8489
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Karel,
+Hi Doug,
 
-On Tue, Sep 26, 2023 at 07:35:23PM +0200, Karel Balej wrote:
-> This driver should work with other Imagis ICs of the IST30**C series.
-> Make that more apparent.
+On Fri, Sep 22, 2023 at 05:11:10PM -0700, Doug Anderson wrote:
+> Hi,
 > 
-> Co-developed-by: Duje Mihanović <duje.mihanovic@skole.hr>
-> Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
-> Signed-off-by: Karel Balej <balejk@matfyz.cz>
-> ---
->  ...gis,ist3038c.yaml => imagis,ist30xxc.yaml} |  2 +-
->  MAINTAINERS                                   |  2 +-
->  drivers/input/touchscreen/Kconfig             |  4 +-
->  drivers/input/touchscreen/imagis.c            | 86 +++++++++++--------
->  4 files changed, 52 insertions(+), 42 deletions(-)
->  rename Documentation/devicetree/bindings/input/touchscreen/{imagis,ist3038c.yaml => imagis,ist30xxc.yaml} (99%)
+> On Fri, Sep 22, 2023 at 12:08 PM Rob Herring <robh+dt@kernel.org> wrote:
+> >
+> > > > This seems like overkill to me. Do we really need groups and a mutex
+> > > > for each group? Worst case is what? 2-3 groups of 2-3 devices?
+> > > > Instead, what about extending "status" with another value
+> > > > ("fail-needs-probe"? (fail-xxx is a documented value)). Currently, the
+> > > > kernel would just ignore nodes with that status. Then we can process
+> > > > those nodes separately 1-by-1.
+> > >
+> > > My worry here is that this has the potential to impact boot speed in a
+> > > non-trivial way. While trackpads and touchscreens _are_ probable,
+> > > their probe routines are often quite slow. This is even mentioned in
+> > > Dmitry's initial patches adding async probe to the kernel. See commit
+> > > 765230b5f084 ("driver-core: add asynchronous probing support for
+> > > drivers") where he specifically brings up input devices as examples.
+
+Ideally, all but one driver in a group should bail out of probe quickly if
+the device is not populated. If not, I would consider that to be a bug or at
+least room for improvement in that driver.
+
+The reason input devices can take a while to probe is because they may be
+loading FW over I2C or performing some sort of calibration procedure; only
+one driver in the group should get that far.
+
+> >
+> > Perhaps then this should be solved in userspace where it can learn
+> > which device is actually present and save that information for
+> > subsequent boots.
 > 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml b/Documentation/devicetree/bindings/input/touchscreen/imagis,ist30xxc.yaml
-> similarity index 99%
-> rename from Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml
-> rename to Documentation/devicetree/bindings/input/touchscreen/imagis,ist30xxc.yaml
-> index 0d6b033fd5fb..09bf3a6acc5e 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/imagis,ist30xxc.yaml
-> @@ -1,7 +1,7 @@
->  # SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
->  %YAML 1.2
->  ---
-> -$id: http://devicetree.org/schemas/input/touchscreen/imagis,ist3038c.yaml#
-> +$id: http://devicetree.org/schemas/input/touchscreen/imagis,ist30xxc.yaml#
->  $schema: http://devicetree.org/meta-schemas/core.yaml#
->  
->  title: Imagis IST30XXC family touchscreen controller
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index b19995690904..b23e76418d94 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -10209,7 +10209,7 @@ F:	drivers/usb/atm/ueagle-atm.c
->  IMAGIS TOUCHSCREEN DRIVER
->  M:	Markuss Broks <markuss.broks@gmail.com>
->  S:	Maintained
-> -F:	Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml
-> +F:	Documentation/devicetree/bindings/input/touchscreen/imagis,ist30xxc.yaml
->  F:	drivers/input/touchscreen/imagis.c
->  
->  IMGTEC ASCII LCD DRIVER
-> diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-> index e3e2324547b9..45503aa2653e 100644
-> --- a/drivers/input/touchscreen/Kconfig
-> +++ b/drivers/input/touchscreen/Kconfig
-> @@ -665,10 +665,10 @@ config TOUCHSCREEN_NOVATEK_NVT_TS
->  	  module will be called novatek-nvt-ts.
->  
->  config TOUCHSCREEN_IMAGIS
-> -	tristate "Imagis touchscreen support"
-> +	tristate "Imagis IST30XXC touchscreen support"
->  	depends on I2C
->  	help
-> -	  Say Y here if you have an Imagis IST30xxC touchscreen.
-> +	  Say Y here if you have an Imagis IST30XXC touchscreen.
->  	  If unsure, say N.
->  
->  	  To compile this driver as a module, choose M here: the
-> diff --git a/drivers/input/touchscreen/imagis.c b/drivers/input/touchscreen/imagis.c
-> index 07111ca24455..4456f1b4d527 100644
-> --- a/drivers/input/touchscreen/imagis.c
-> +++ b/drivers/input/touchscreen/imagis.c
-> @@ -11,25 +11,26 @@
->  #include <linux/property.h>
->  #include <linux/regulator/consumer.h>
->  
-> -#define IST3038C_HIB_ACCESS		(0x800B << 16)
-> -#define IST3038C_DIRECT_ACCESS		BIT(31)
-> -#define IST3038C_REG_CHIPID		0x40001000
-> -#define IST3038C_REG_HIB_BASE		0x30000100
-> -#define IST3038C_REG_TOUCH_STATUS	(IST3038C_REG_HIB_BASE | IST3038C_HIB_ACCESS)
-> -#define IST3038C_REG_TOUCH_COORD	(IST3038C_REG_HIB_BASE | IST3038C_HIB_ACCESS | 0x8)
-> -#define IST3038C_REG_INTR_MESSAGE	(IST3038C_REG_HIB_BASE | IST3038C_HIB_ACCESS | 0x4)
-> +#define IST30XXC_HIB_ACCESS		(0x800B << 16)
-> +#define IST30XXC_DIRECT_ACCESS		BIT(31)
-> +#define IST30XXC_REG_CHIPID		0x40001000
-> +#define IST30XXC_REG_HIB_BASE		0x30000100
-> +#define IST30XXC_REG_TOUCH_STATUS	(IST30XXC_REG_HIB_BASE | IST30XXC_HIB_ACCESS)
-> +#define IST30XXC_REG_TOUCH_COORD	(IST30XXC_REG_HIB_BASE | IST30XXC_HIB_ACCESS | 0x8)
-> +#define IST30XXC_REG_INTR_MESSAGE	(IST30XXC_REG_HIB_BASE | IST30XXC_HIB_ACCESS | 0x4)
-> +#define IST30XXC_CHIP_ON_DELAY_MS	60
-> +#define IST30XXC_I2C_RETRY_COUNT	3
-> +#define IST30XXC_MAX_FINGER_NUM		10
-> +#define IST30XXC_X_MASK			GENMASK(23, 12)
-> +#define IST30XXC_X_SHIFT		12
-> +#define IST30XXC_Y_MASK			GENMASK(11, 0)
-> +#define IST30XXC_AREA_MASK		GENMASK(27, 24)
-> +#define IST30XXC_AREA_SHIFT		24
-> +#define IST30XXC_FINGER_COUNT_MASK	GENMASK(15, 12)
-> +#define IST30XXC_FINGER_COUNT_SHIFT	12
-> +#define IST30XXC_FINGER_STATUS_MASK	GENMASK(9, 0)
-> +
->  #define IST3038C_WHOAMI			0x38c
-> -#define IST3038C_CHIP_ON_DELAY_MS	60
-> -#define IST3038C_I2C_RETRY_COUNT	3
-> -#define IST3038C_MAX_FINGER_NUM		10
-> -#define IST3038C_X_MASK			GENMASK(23, 12)
-> -#define IST3038C_X_SHIFT		12
-> -#define IST3038C_Y_MASK			GENMASK(11, 0)
-> -#define IST3038C_AREA_MASK		GENMASK(27, 24)
-> -#define IST3038C_AREA_SHIFT		24
-> -#define IST3038C_FINGER_COUNT_MASK	GENMASK(15, 12)
-> -#define IST3038C_FINGER_COUNT_SHIFT	12
-> -#define IST3038C_FINGER_STATUS_MASK	GENMASK(9, 0)
->  
-
-There is no need to change all of the namespacing from IST3038C to IST30XXC;
-this is purely cosmetic and adds noise to the actual patch.
-
-It is perfectly acceptable for the driver to call itself IST3038C throughout
-while remaining compatible with other devices (e.g. IST3032C), in fact this
-flexibility is the intent of the compatible string in the first place.
-
-[...]
->  
-> -MODULE_DESCRIPTION("Imagis IST3038C Touchscreen Driver");
-> +MODULE_DESCRIPTION("Imagis IST30XXC Touchscreen Driver");
->  MODULE_AUTHOR("Markuss Broks <markuss.broks@gmail.com>");
->  MODULE_LICENSE("GPL");
-> -- 
-> 2.42.0
+> Yeah, the thought occurred to me as well. I think there are a few
+> problems, though:
 > 
+> a) Userspace can't itself probe these devices effectively. While
+> userspace could turn on GPIOs manually and query the i2c bus manually,
+> it can't (I believe) turn on regulators nor can it turn on clocks, if
+> they are needed. About the best userspace could do would be to blindly
+> try binding an existing kernel driver, and in that case why did we
+> need userspace involved anyway?
+> 
+> b) While deferring to userspace can work for solutions like ChromeOS
+> or Android where it's easy to ensure the userspace bits are there,
+> it's less appealing as a general solution. I think in Johan's case
+> he's taking a laptop that initially ran Windows and then is trying to
+> run a generic Linux distro on it. For anyone in a similar situation,
+> they'd either need to pick a Linux distro that has the magic userspace
+> bits that are needed or they need to know that, on their laptop, they
+> need to manually install some software. While requiring special
+> userspace might make sense if you've got a special peripheral, like an
+> LTE modem, it makes less sense to need special userspace just to get
+> the right devices bound...
+
+I recommend against spilling the solution into user space; it's simply not
+practical for many downstream use-cases where platform engineers can tightly
+control their own bootloader and kernel, but have limited maintainership of
+user space which is likely to be shared by many other products.
+
+> 
+> 
+> > > It wouldn't be absurd to have a system that has multiple sources for
+> > > both the trackpad and the touchscreen. If we have to probe each of
+> > > these one at a time then it could be slow. It would be quicker to be
+> > > able to probe the trackpads (one at a time) at the same time we're
+> > > probing the touchscreens (one at a time). Using the "fail-needs-probe"
+> > > doesn't provide information needed to know which devices conflict with
+> > > each other.
+> >
+> > I would guess most of the time that's pretty evident. They are going
+> > to be on the same bus/link. If unrelated devices are on the same bus,
+> > then that's going to get serialized anyways (if bus accesses are what
+> > make things slow).
+
+Agreed with Rob here; in the case of a touchscreen, we're almost always
+dealing with a module that connects to the main board by way of a flex
+connector. Rarely do the bus and GPIO assignments change across alternates.
+
+> >
+> > We could add information on the class of device. touchscreen and
+> > touchpad aliases or something.
+> 
+> Ah, I see. So something like "fail-needs-probe-<class>". The
+> touchscreens could have "fail-needs-probe-touchscreen" and the
+> trackpads could have "fail-needs-probe-trackpad" ? That could work. In
+> theory that could fall back to the same solution of grabbing a mutex
+> based on the group ID...
+> 
+> Also: if having the mutex in the "struct device" is seen as a bad
+> idea, it would also be easy to remove. __driver_probe_device() could
+> just make a call like "of_device_probe_start()" at the beginning that
+> locks the mutex and then "of_device_probe_end()" that unlocks it. Both
+> of those calls could easily lookup the mutex in a list, which would
+> get rid of the need to store it in the "struct device".
+> 
+> 
+> > > That would lead me to suggest this:
+> > >
+> > >   &i2c_bus {
+> > >     trackpad-prober {
+> > >       compatible = "mt8173-elm-hana-trackpad-prober";
+> > >
+> > >       tp1: trackpad@10 {
+> > >         compatible = "hid-over-i2c";
+> > >         reg = <0x10>;
+> > >         ...
+> > >         post-power-on-delay-ms = <200>;
+> > >       };
+> > >       tp2: trackpad@20 {
+> > >         compatible = "hid-over-i2c";
+> > >         reg = <0x20>;
+> > >         ...
+> > >         post-power-on-delay-ms = <200>;
+> > >       };
+> > >     };
+> > >   };
+> > >
+> > > ...but I suspect that would be insta-NAKed because it's creating a
+> > > completely virtual device ("mt8173-elm-hana-trackpad-prober") in the
+> > > device tree. I don't know if there's something that's functionally
+> > > similar that would be OK?
+
+This solution seems a bit confusing to me, and would require more edits
+to the dts each time a second source is added. It also means one would
+have to write a small platform driver for each group of devices, correct?
+I like the idea of a new "status" string; just my $.02.
+
+> >
+> > Why do you need the intermediate node other than a convenient way to
+> > instantiate a driver? You just need a flag in each node which needs
+> > this special handling. Again, "status" could work well here since it
+> > keeps the normal probe from happening. But I'm not saying you can't
+> > have some board specific code. Sometimes you just need code to deal
+> > with this stuff. Don't try to parameterize everything to DT
+> > properties.
+> 
+> I think I'd have an easier time understanding if I knew where you
+> envisioned the board-specific code living. Do you have an example of
+> board specific code running at boot time in the kernel on DT systems?
+> 
+> 
+> > Note that the above only works with "generic" compatibles with
+> > "generic" power sequencing properties (I won't repeat my dislike
+> > again).
+> 
+> I don't think so? I was imagining that we'd have some board specific
+> code that ran that knew all the possible combinations of devices,
+> could probe them, and then could instantiate the correct driver.
+> 
+> Imagine that instead of the hated "hid-over-i2c" compatible we were
+> using two other devices. Imagine that a given board could have a
+> "elan,ekth6915" and a "goodix,gt7375p". Both of these devices have
+> specific timing requirements on how to sequence their supplies and
+> reset GPIOs. For Elan we power on the supplies, wait at least 1 ms,
+> deassert reset, wait at least 300 ms, and then can talk i2c. For
+> Goodix we power on the supply, wait at least 10 ms, deassert reset,
+> wait at least 180 ms, and then can talk i2c. If we had a
+> board-specific probing driver then it would power on the supplies,
+> wait at least 10 ms (the max of the two), deassert reset, wait at
+> least 300 ms (the max of the two), and then see which device talked.
+> Then it would instantiate whichever of the two drivers. This could be
+> done for any two devices that EEs have determined have "compatible"
+> probing sequences.
+> 
+> Ideally in the above situation we'd be able to avoid turning the
+> device off and on again between the board-specific probe code and the
+> normal driver. That optimization might need special code per-driver
+> but it feels doable by passing some sort of hint to the child driver
+> when it's instantiated.
+> 
+> 
+> > If only the driver knows how to handle the device, then you
+> > still just have to have the driver probe. If you *only* wanted to
+> > solve the above case, I'd just make "hid-over-i2c" take a 2nd (and
+> > 3rd) I2C address in reg and have those as fallbacks.
+> 
+> Yeah, it did occur to me that having "hid-over-i2c" take more than one
+> register (and I guess more than one "hid-descr-addr") would work in my
+> earlier example and this might actually be a good solution for Johan.
+> I'm hoping for a better generic solution, though.
+> 
+> 
+> > You could always make the driver probe smarter where if your supply
+> > was already powered on, then don't delay. Then something else could
+> > ensure that the supply is enabled. I'm not sure if regulators have the
+> > same issue as clocks where the clock might be on from the bootloader,
+> > then a failed probe which gets then puts the clock turns it off.
+> 
+> I'm not sure it's that simple. Even if the supply didn't turn off by
+> itself in some cases, we wouldn't know how long the supply was on.
+> 
+> -Doug
+
+Thanks for charting this path; I'm really excited to see a solution to
+this common problem.
 
 Kind regards,
 Jeff LaBundy

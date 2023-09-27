@@ -2,165 +2,219 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86F95E7F14B
-	for <linux-input@archiver.kernel.org>; Wed, 27 Sep 2023 02:30:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2884E7F153
+	for <linux-input@archiver.kernel.org>; Wed, 27 Sep 2023 03:01:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233613AbjI0Cau (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 26 Sep 2023 22:30:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53072 "EHLO
+        id S229868AbjI0DBZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 26 Sep 2023 23:01:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236222AbjI0C12 (ORCPT
+        with ESMTP id S234469AbjI0C7Z (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 26 Sep 2023 22:27:28 -0400
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2075.outbound.protection.outlook.com [40.107.243.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3233D72BC;
-        Tue, 26 Sep 2023 18:56:22 -0700 (PDT)
+        Tue, 26 Sep 2023 22:59:25 -0400
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2061.outbound.protection.outlook.com [40.107.220.61])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F73D12511;
+        Tue, 26 Sep 2023 18:41:04 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VJ7f0t8zCzaxBbgPc55Z0PU1fpRslWcsRMczDioIwQi1ovTIay3ja7c0Akwuzy58C3XU1dlilV7S8yR0vmB5iHZ+eWPNo8YJ1wyw28cn867j3qBnQTyNedCcB39yghGw7eHtg0T0ie7rdQsBHwcewEqdsMAMUcXdg9a0+rloLfl0BggI5gFumNL/8H4yXv3FaDNwaH3t1p86459hy9aRI/gA41dfWJfOlmuJMa+mDS81y9MxtAOrWKwxGqMEuBsirFHmAuBihKzsn+h3TvPEG2/FO//IT+UiHo7UjupxyiTH+gwpX3kNGEF03RmfqPOTEtaPsw1sZgPdbKD0PHtkjA==
+ b=crTHSbee2QyG0LAFxN6TXNbbCYZoT2nAMsYQF8pZ1AW7w1wJDidBaUGhGm4b/g3GTu3UQgAqyFH9qabKaw63xqH8yet9KiARrfA0p7W9faGj/qTSQLp0b7YFRHqYa9mkYzkfdWZSoowIk0mateKoF7V6D+hl6exZa3bg8F7Iyi48bkHVvM+I/RJ5W1i0R7fp8hw5le2sqxvgc/IqYme9m1/MOBMqs7TvM8tCJrvzeQaoDVAHth1klM5Z2CO0soJLSkg8SaJ/SLdwwhY105rR5+kaFyxa+jRhWM+xK5hzKsXR2eKqLi0GAvaTQmkAnWlNatCsCTfkj28kR3fJeJ1LqA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lRa94U36y+BpIjEErem9Q6pJbOEC4mTAbnYtPjctVuQ=;
- b=Q2cQtSGj1WfM4rUjuMOAEznAWtjDidf2ikf95vDgJztjrMJDfOMvzPjln6iN1MCfj9NFwsAHJB8A17R9o/8aW7gZt3g+hjDy1zZACJ2EojQm4z7mh3Y+RJWeWPUFIcywvMxVbgiGwNt832rTRtbp/qVeW9K8tA2oKZmhCvBNvZKMZxu+Pgx8Y6TjDjVzfhgejjkOTuySQOI64H8cE8ov5mNdGBfyZvr5Tm9vfkKwxwI7SXFBjY1kGRp7EtMwd7yEAr0c/r1v4cnMjYoxosFR6xsbAqov0whjnwiBM8WV/6vKQ8CekzynFYu0IgIUr2HeloB0hkzKoXYE3O4spOTvDA==
+ bh=ZyJZwY3ewVTTG2FtX1swWkhWSdTfSqDtMC70tD6Bu2Q=;
+ b=i6Io3eanh8mO1rdHtvpi/aT84twU0C3B2AGUV+vSZ9OZr1qzXdjwVl+75wCjcrEzcKHgeON+In3P0c0XJFsdWxoy2YdmHzLJozNxqpNabe+qGVsABVxje2l9aqZcDJqWSU50geTfbKeAfIAodW93pv+o9JY0ZFLdscDO24bdFw43Sl4ciGStlr25+X2sQ1/zD5WJre9BHvWRj7EAR0J1r819cX0BK+vvsl4mV/i7cwUZKvznx+hYWKWIavuP07zQ6uqRsQ+dDHWstMXjzafeetomY93EyLyQqLywgczFrFEbSlfFimf/C9T2QNYzOd0XsLI9BaG/G/K7h4z1EU+HWQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
  dkim=pass header.d=labundy.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lRa94U36y+BpIjEErem9Q6pJbOEC4mTAbnYtPjctVuQ=;
- b=GWBgHwDz9PK7Lg2YjpA30rO3nlz6XKdYEL9KKadT4Y3ESDpcKZpdzwGA2v8r2EFL1KrgyMdiVNn6oo1chkCVP8yJzHIRnsBBI27mltjsZl7SO0IA6e+7Trsyr90HkKQyaWMDKzQEm9lQ/HbKYDVd+4PyuN1gv5HstRN/p1Z1AZ0=
+ bh=ZyJZwY3ewVTTG2FtX1swWkhWSdTfSqDtMC70tD6Bu2Q=;
+ b=Wuf8fUVsWYUFPI37n7QoV/5zy1Z0tRpGqmORwho5vs6HM2NwlUvDyar4awh4a3PZN4g6FHBy8/pji0C6QxgXCo7v/zR+szXmqKO+r0qdULGJZr4VFgP/GYrT4/LzQuqej9C9E6nzvXZhvFBmP254mXa3iEMbByP4QUqCLPNDcqg=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=labundy.com;
 Received: from SN4PR0801MB3774.namprd08.prod.outlook.com
- (2603:10b6:803:43::21) by SN4PR0801MB7998.namprd08.prod.outlook.com
- (2603:10b6:806:219::20) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6768.31; Wed, 27 Sep
- 2023 01:56:20 +0000
+ (2603:10b6:803:43::21) by SJ2PR08MB8401.namprd08.prod.outlook.com
+ (2603:10b6:a03:4f7::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6792.28; Wed, 27 Sep
+ 2023 01:41:00 +0000
 Received: from SN4PR0801MB3774.namprd08.prod.outlook.com
  ([fe80::4528:c7c7:de7:aec2]) by SN4PR0801MB3774.namprd08.prod.outlook.com
  ([fe80::4528:c7c7:de7:aec2%6]) with mapi id 15.20.6813.027; Wed, 27 Sep 2023
- 01:56:20 +0000
-Date:   Tue, 26 Sep 2023 20:56:17 -0500
+ 01:41:00 +0000
+Date:   Tue, 26 Sep 2023 20:40:57 -0500
 From:   Jeff LaBundy <jeff@labundy.com>
-To:     Luca Ceresoli <luca.ceresoli@bootlin.com>
-Cc:     devicetree@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+To:     Karel Balej <balejk@matfyz.cz>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH v2] dt-bindings: input: touchscreen: goodix: clarify
- irq-gpios misleading text
-Message-ID: <ZROLwcgP3vg9j/pO@nixie71>
-References: <20230925032208.11698-1-luca.ceresoli@bootlin.com>
-Content-Type: text/plain; charset=us-ascii
+        Markuss Broks <markuss.broks@gmail.com>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Duje =?utf-8?Q?Mihanovi=C4=87?= <duje.mihanovic@skole.hr>,
+        ~postmarketos/upstreaming@lists.sr.ht
+Subject: Re: [PATCH 2/2] input: Imagis: add support for the IST3032C
+ touchscreen
+Message-ID: <ZROIKSVCiTI3VB2B@nixie71>
+References: <20230926173531.18715-1-balejk@matfyz.cz>
+ <20230926173531.18715-3-balejk@matfyz.cz>
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20230925032208.11698-1-luca.ceresoli@bootlin.com>
-X-ClientProxiedBy: SA1P222CA0040.NAMP222.PROD.OUTLOOK.COM
- (2603:10b6:806:2d0::8) To SN4PR0801MB3774.namprd08.prod.outlook.com
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230926173531.18715-3-balejk@matfyz.cz>
+X-ClientProxiedBy: SN7PR04CA0092.namprd04.prod.outlook.com
+ (2603:10b6:806:122::7) To SN4PR0801MB3774.namprd08.prod.outlook.com
  (2603:10b6:803:43::21)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN4PR0801MB3774:EE_|SN4PR0801MB7998:EE_
-X-MS-Office365-Filtering-Correlation-Id: a6774353-e752-4785-3261-08dbbefcf1cc
+X-MS-TrafficTypeDiagnostic: SN4PR0801MB3774:EE_|SJ2PR08MB8401:EE_
+X-MS-Office365-Filtering-Correlation-Id: 2363f223-f30e-48cd-0055-08dbbefacd84
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: qu8aiM885M9H/sHuSdd9kcyppYgSqx2cbJ9iIbJ62+7uftj4r4YCJALINkBnfWUwXyJuF7DIVLnlWslLKzWyFntmkzU+KciBu3RDBBffoA0g+07prhqaP3N8bPdESBGYT7cmMMKWE9gWz4usdz3oqApbvPYxlNIWzIcDM3xNGN8Ja9Y+xHfgiSa+JsVmTPdCF6yJ7KIZdv2A6+AymN8vPFIOEQGMCqmDRr6aHbUJJFr1kLPzABiBcUagdGZY+dFW3caml6DK/nvGCg/b2A1M5iI9KhnXXgMozlZ7nZM5/qsfYGae3Q99ejl1smJzpaz4+evwTnoYun6c/ZmLUSTulj91ji9RL3npjCepywuQ1Yc3dptF1g30hHOKSkKa2RGyRDhJm2ZEpiRlyo7P9auGEBro8RC0WROnE9gl7i+Aq+dJn3ihLm/HOzqWJd2V5Cb/9mRkXldVtocerr0HJChuDK4d5xhtzBw3OsP1UM9OCPCMx8VdwX3ftKKHTnMgtQdKaMbxlw1Ygex7y3yv31edth0+Wp5b/tfCl2uDDL40BnX0AaAE9bDuxPSaiIP5JtVn
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0801MB3774.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7916004)(376002)(366004)(346002)(39830400003)(396003)(136003)(230922051799003)(186009)(1800799009)(451199024)(478600001)(9686003)(86362001)(33716001)(41300700001)(8676002)(6916009)(38100700002)(26005)(83380400001)(5660300002)(6512007)(6506007)(2906002)(4326008)(66476007)(66946007)(6486002)(66556008)(6666004)(316002)(8936002)(54906003);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: j9PCJQGka/1R669+xJv/P90iAm2BIZVZG27ZzhoSm3q3GLLK6NBC/ppuzmozHLt/phXb32cE7c53QTOon6fVa8R1+frSMYZeIdxI/fvscfNt+JkNNao5UGLIjk0V5P6mHRofbb7b6V1Zu/K1kAEr1fsMM5Esay3ocHVKb69NI9hixDw5ikRqHtEgxxTNP8wFDPnW+Jzbq5Yu0scbxwtShrdJLDHLmxKzsTf7ZJzaWrRKFw/N9hRixxiDHiXqVxt7kSWX3v60EMSviKBUu+OMuWGLD5s+FKyTmqowkJT78ZFoJrskVwUkx1pwx5I5KSwHHZx+LLJnQRKLdzCqNUVEBD3ltyDcOBDxAU31YtxHvj5q68i5V3XErmg2cYpL3FghD+XbwHdhX1TUwC7B1RDB/nmPk7JTEOAnl6k6ZoHvFFuYxUQVghOux66f9v5fnLlzSa3X+5aWVT7HB7jr4XkvFWONdSHNh2vyIECiT92m5WXVoP3tvnI3aplatChf+nFGddnSQwdphu3XyH6tTUzxLorzJ1Ld6D3YPPTHI/djyEPE+tFFt87w6EzbN6XuzxMK
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0801MB3774.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7916004)(376002)(136003)(396003)(366004)(39830400003)(346002)(230922051799003)(451199024)(1800799009)(186009)(86362001)(38100700002)(33716001)(9686003)(5660300002)(2906002)(6666004)(478600001)(7416002)(6506007)(6486002)(26005)(66476007)(66946007)(54906003)(6916009)(316002)(8936002)(8676002)(4326008)(41300700001)(6512007)(66556008)(83380400001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?VokMMN9O45fpegvGz03FGH0JzpR20CllReTr4XXVbi5X2hRXlylxP00iaATt?=
- =?us-ascii?Q?C91YgI7EbHQWoacXLCnyf8zMFVUoQi1qEQSZHHRLnx27yy/wvCkcSvAnx0Mr?=
- =?us-ascii?Q?T+eKNc30OqAe0mL22fAi6zVgQrXMjCzMxVZN/h7q/bqOuzdBM+0KLgQNh+ee?=
- =?us-ascii?Q?1IIpqG9A/W3P7EyuOIT5PQN2CB3cfcXGyguKEOrP4NOzAXfc4+DTF7f8iAUa?=
- =?us-ascii?Q?B0PzByI0l3uTJnn4J4DxXIWR+TdT76M99cHQVXQJH+jM5pNPz563Ch4PDByl?=
- =?us-ascii?Q?UcA27vXDKDIHuNU2ImSop03Z5NPzqPlmml+HlaGd1RGIEhm7arWhTMEi2h8s?=
- =?us-ascii?Q?glVYTcIQLGaaeFGUk9JWHJuWVDme1qDIe0kPI51jbQz/M+XcZS1iaJagyoO1?=
- =?us-ascii?Q?EfYwG+9/OzG18DrHrYZuRih5qmB3e1QT6hbF856m3zZC9Vjav/X2oRwUd5dO?=
- =?us-ascii?Q?03CsUCO52PbIdcFfoqD6HTGZVPyp3xV/ON/hKTCbHEKYZni8jFSwvQWaUXkO?=
- =?us-ascii?Q?Eyb5PWd60aCy67TTuUdbmtffEVZJuMv9C9/7AMyFEIiRlfewSBBJHvVK00vA?=
- =?us-ascii?Q?sAOmuuyNRPXsp+gGdgd9unyCLodU742aAPcfh9Py644bWb5XsQsj74b/RLiV?=
- =?us-ascii?Q?b5b1623UWfK51fXWQHmudrDCvEw+BO4kKYOTPY0NzkjpUt5pgKRCqbmw0mS5?=
- =?us-ascii?Q?oWrJykc10nCU+X0xSDmIRP83c/3DkaUsa0WHsoWtlPvEt0w4G3srMU4hRfTn?=
- =?us-ascii?Q?ooOUTnZp0nwOOauQBKWELXHqWoVNbbWjP+cvp5P4Kt5UdzRABp2VMAZCya52?=
- =?us-ascii?Q?AVi6oDTaw+9RpPJAYdldUIgLLjrTlEXXCjBPP0ES9D2zVHEzbbzeXLxdN4q+?=
- =?us-ascii?Q?XFnhsvxm2+Hqohp57ESsfU/nYjpB/OrZ9zvRbvmZb3whwMVHygO8H5Td8dl4?=
- =?us-ascii?Q?wWZjb6NM1wxC5urh1fEtjOykdiQopYdxPW+nnsr1tDiCJV1sDLZh1/MeOz/c?=
- =?us-ascii?Q?dIiEvmwcPdB8l7gR+uq1XlAu/V20EoRjIOc6SnmmjJUi13fu1P1lWu0wdGNP?=
- =?us-ascii?Q?2g+Cc9R87q1+LuO90Um/e8L5APsGx1xdnF5T5DW2DRy0LZ2MSJBJJ1RIcs4p?=
- =?us-ascii?Q?5gbsmr2o+oGBOVPu6zq0yr6xWsOZzjeHVNIkGwK1W/SnnKgwnxzB3sr/2ktg?=
- =?us-ascii?Q?A1jdthZe+2iQbRE/QrPmU8cPkLjEmor+UQHvVLoflHWdq/xPImDNyGIRcE8v?=
- =?us-ascii?Q?+vg4P6sLzLSmjPxz3UtQHCQn53gJBYsnQP1Fa2cyWB+QRvVhn6mRNtzZ5R9l?=
- =?us-ascii?Q?Js+xuZKVGt+YKBLC5EKbA81kXRMnCGGWtTPV1dTcukt/MfxTA+2kUj6i1haq?=
- =?us-ascii?Q?fyBzExP1xpn3U4DbNphVZC7arGYAnhPNe6BHUbQhl+Xu/tphiCB8tBiE/GNy?=
- =?us-ascii?Q?3AUcqpdENoMSsoOJkAyxthyU0rJ2VfvzVggZU+Bj43BO+7ogUyshY87pSSvK?=
- =?us-ascii?Q?+/AOWMrtd+zlGqfRyCiZ5ACcw+78uNxSkY4+yxAQmR0prEMty8lKoTI7QJoq?=
- =?us-ascii?Q?lWe+Uiam3NdjU9GnAnRu0lVEZ94j/5TFfTBM21M9?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?R3A5Vm1yS1BDRHpNd0FPTy84RnkrRk5MUVhWbU9maVpJUkdXaXRSN2RHYWNv?=
+ =?utf-8?B?cjZscHRHYkhuNXBDa3VxUUxFTkpmQkxHU3dwUWJxU3F2VU9raFRwb1lkSTM2?=
+ =?utf-8?B?RHpQSDYzNnJMSnFHeUFmTkNYdkhCOC9tTkwxL1A0SlNtZnpWdlYzQU1Vc0hw?=
+ =?utf-8?B?VG0yTjN0SzVhY1JDZEZGR3JoZFVab2RNN29kbzZoZHhsRlhRRjdwU2ZXSzV0?=
+ =?utf-8?B?MUo4cjIvak9zeGlVSWJBMnlvMlZ4WnZyVDZMZlJLYldydU1IMFVZZGpRMzVn?=
+ =?utf-8?B?M0hMOFVuMWdoT2oxcUM5Nk9YQ09GeWRMYjJONXRJY2lrN0JBVno0d1VFc0oy?=
+ =?utf-8?B?OGFEUzE1aWE1T3h5TzBkUjkwQjdXYTRQWmpRelJVN0t4ekhCbUJDeXgrNlBE?=
+ =?utf-8?B?dkZ0eS84TGlJeDVXZEpKbkhyRFRhbXltQmQza2JFYUVwUnB4NjdtVWtrL1Vy?=
+ =?utf-8?B?R2RBRmlPbG51U3hsSHRDcitBMk5VVjQwYy95OG1idWdhVFRFN21rbzVpSTBh?=
+ =?utf-8?B?YXlDZm5HNWlvckRtWThncUVtNDF1am92elEwRWhsOHhCRWI5eFhJREs5LzRu?=
+ =?utf-8?B?R2hBdXZQK2doMlVFZWJFSytDaVZXT1o1S0d5MncxTUZiOVU0aXBhVDFycmRZ?=
+ =?utf-8?B?c05xYlhsbGg0U1BEbTF0cWJQR3JCOU5ZeVUzUndWR21welZSZm1EcHZaTWtY?=
+ =?utf-8?B?SmNCRzFicVRZUVBiN3RIQkhmN2kvYXdUQkl5SlRrRk9nNER3TnJkL0FBUkhB?=
+ =?utf-8?B?TXVTWEZhUGJuUXFBeVRWMS9LMkxabmEvOUovRWxhcmcvOHpRV3BNeDRGYk40?=
+ =?utf-8?B?cFV0K1N1WEhaS0VESVJmbXZvcjJySnFHM1R1N1U4ZUp6c2gyRGd0RFQwa2Nu?=
+ =?utf-8?B?ZFFSM1d4Wlp5R0pWZlh0aE1CbVpTbi9BclNDbzU3Y1g1eW5ONU9kcGJORmdt?=
+ =?utf-8?B?RXY3K1F3VXNMdkdoRE94dGJHdGZGZ01qT0RxTjY5bmwyZWxYZjhzZzRYZGpN?=
+ =?utf-8?B?S3lFM2o0Nm5zeW9PNkc5YmNXQTdDVzRHOFRmRHBoZGgreUJYOTViZllTRWNt?=
+ =?utf-8?B?Q1ZlQnhNWHpKcjJFQkFvZEtSWHRINk9xRGRKeURBcmM0aFhEbXBHcnlHS3pI?=
+ =?utf-8?B?d2VwcThBRWlPVkV3b1N4bXp6UkJNQXNCTmRrenVWLzZhbXBhWThPZHBVRzFU?=
+ =?utf-8?B?dkhOdzZJVktYRURlUlFwSE9aN21LL0x0Z1d4N1kvSzhFMHNMZUM3TlErdXdJ?=
+ =?utf-8?B?NnJSQVE5TnI5VHdFQ3pTTTBLY0I2dGJRTk54KytMNHNweThwZVdTcHRPTWw4?=
+ =?utf-8?B?dzQ5NVFKRGJDaTNmZHFuUFhob2hkTFBXN1hyVUJlSUdTZlNGVDlmTk80NzJY?=
+ =?utf-8?B?aStMR1BvWDdOQmpaNjZyS1R6YzRFQ1RMRkhJazdwd0RvOVJDRDJDY3F4Unl3?=
+ =?utf-8?B?L2R6ZS96Sjg4b25ha1orRWZhajRQVEJZTlhPckd5NDQ0dlNoT0s4T2krejNZ?=
+ =?utf-8?B?Q3UyNy9FVFQ0OXk0RnNlSy9UUTEyZ3dlU1lYalNrVnNCNlpFRGtLRmQ3L3lE?=
+ =?utf-8?B?czcvaDBYTmw1em5OTTV5UXcvN1UvVnNSdjVPLzF0RlR1WHp6cmJQckREVk9r?=
+ =?utf-8?B?bVA1Um9HdzZNSEJMZ3JrUE11ekY1WTJXdkZpVXU3M2ZpZklhdEVVQXhrTHRz?=
+ =?utf-8?B?elVFZVBjaE9ULzNDNHlCMWVQd3M4RGlvWVJXUkhxU3NLNGduNGhiNmVzd1VV?=
+ =?utf-8?B?OG42U0JHcUFJamhNMkZOZVQ5RkZvU3pGcjc5UkI4NW9KSkoxampKbkVyemxP?=
+ =?utf-8?B?SkhRUDVPQXV6T0RsemhWMFVGbmVjYWhCbEwvbHZPNGhIM0Juanp3NjM2eHVx?=
+ =?utf-8?B?T3pMcmRvMkxvZEF3T1prWUQrZWQ1Z1htblVTWDhac3Y3cUtWUm8vdThlRWRj?=
+ =?utf-8?B?ejdGMThpcU9sTU5vaTl4dk5qN3RWUkYxSEl5NlhyRzZ6dkI0aHlUWHB0M3Z3?=
+ =?utf-8?B?V0l6NmZRZndua2YyZTFJbytyVGtEeDA2UnVKa2wzWk4wOU5NUEZHaWRkdjNY?=
+ =?utf-8?B?WjU4SERvYnVPc0xLWlN0SEUwd1hZUzJ3KzY4SklXb1pteXNwQUduWEVvdi9C?=
+ =?utf-8?Q?0a30wi2394IsgcGLbZsbLvjfl?=
 X-OriginatorOrg: labundy.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a6774353-e752-4785-3261-08dbbefcf1cc
+X-MS-Exchange-CrossTenant-Network-Message-Id: 2363f223-f30e-48cd-0055-08dbbefacd84
 X-MS-Exchange-CrossTenant-AuthSource: SN4PR0801MB3774.namprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Sep 2023 01:56:20.2443
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 Sep 2023 01:41:00.6113
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ocQykKUaMSBfrRuSxalLSTdbfpjcJydvKV9ZuszAZ0EW1GXCpAfnfVZskHn85/p6Ns9hJTyfAQ5X+INsKgBCRg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN4PR0801MB7998
+X-MS-Exchange-CrossTenant-UserPrincipalName: DSrzYiViCFwpRI+p5R/m/Zz8DYBM8LAti85R7iudbCwPNq9Xsmu6625hzrMYKomSKFP7UxXHyeM0UY6664ayhA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR08MB8401
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Luca,
+Hi Karel,
 
-On Mon, Sep 25, 2023 at 05:22:08AM +0200, Luca Ceresoli wrote:
-> The irq-gpios description misleading, apparently saying that driving the
-> IRQ GPIO resets the device, which is even more puzzling as there is a reset
-> GPIO as well.
+On Tue, Sep 26, 2023 at 07:35:24PM +0200, Karel Balej wrote:
+> The downstream driver sets the regulator voltage to 3.1 V. Without this,
+> the touchscreen generates random touches even after it is no longer
+> being touched. It is unknown whether the same problem appears with other
+> chips of the IST30**C series.
 > 
-> In reality the IRQ pin can be driven during the reset sequence to configure
-> the client address, as it becomes clear after checking both the datasheet
-> and the driver code. Improve the text to clarify that.
-> 
-> Also rephrase to remove reference to the driver, which is not appropriate
-> in the bindings.
-> 
-> Signed-off-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
-
-Reviewed-by: Jeff LaBundy <jeff@labundy.com>
-
-> 
+> Co-developed-by: Duje Mihanović <duje.mihanovic@skole.hr>
+> Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
+> Signed-off-by: Karel Balej <balejk@matfyz.cz>
 > ---
+>  .../bindings/input/touchscreen/imagis,ist30xxc.yaml |  1 +
+>  drivers/input/touchscreen/imagis.c                  | 13 +++++++++++++
+>  2 files changed, 14 insertions(+)
 > 
-> Changed in v2:
->  - reworded to clarify even further
-> ---
->  .../devicetree/bindings/input/touchscreen/goodix.yaml        | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-> index 3d016b87c8df..2a2d86cfd104 100644
-> --- a/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-> +++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.yaml
-> @@ -37,8 +37,9 @@ properties:
->      maxItems: 1
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/imagis,ist30xxc.yaml b/Documentation/devicetree/bindings/input/touchscreen/imagis,ist30xxc.yaml
+> index 09bf3a6acc5e..d6f75bbfaec3 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/imagis,ist30xxc.yaml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/imagis,ist30xxc.yaml
+> @@ -18,6 +18,7 @@ properties:
 >  
->    irq-gpios:
-> -    description: GPIO pin used for IRQ. The driver uses the interrupt gpio pin
-> -      as output to reset the device.
-> +    description: GPIO pin used for IRQ input. Additionally, this line is
-> +      sampled by the device on reset deassertion to select the I2C client
-> +      address, thus it can be driven by the host during the reset sequence.
->      maxItems: 1
+>    compatible:
+>      enum:
+> +      - imagis,ist3032c
+>        - imagis,ist3038c
 >  
->    reset-gpios:
+>    reg:
+> diff --git a/drivers/input/touchscreen/imagis.c b/drivers/input/touchscreen/imagis.c
+> index 4456f1b4d527..df9a8fbf2c5f 100644
+> --- a/drivers/input/touchscreen/imagis.c
+> +++ b/drivers/input/touchscreen/imagis.c
+> @@ -30,6 +30,7 @@
+>  #define IST30XXC_FINGER_COUNT_SHIFT	12
+>  #define IST30XXC_FINGER_STATUS_MASK	GENMASK(9, 0)
+>  
+> +#define IST3032C_WHOAMI			0x32c
+>  #define IST3038C_WHOAMI			0x38c
+>  
+>  struct imagis_ts {
+> @@ -295,6 +296,16 @@ static int imagis_probe(struct i2c_client *i2c)
+>  		return -EINVAL;
+>  	}
+>  
+> +	if (chip_id == IST3032C_WHOAMI) {
+> +		/*
+> +		 * if the regulator voltage is not set like this, the touchscreen
+> +		 * generates random touches without user interaction
+> +		 */
+> +		error = regulator_set_voltage(ts->supplies[0].consumer, 3100000, 3100000);
+> +		if (error)
+> +			dev_warn(dev, "failed to set regulator voltage\n");
+> +	}
+> +
+
+Opinions may vary, but mine is that this kind of hard-coded board-level policy
+does not belong in the driver. Surely the supply need not be equal to exactly
+3.1 V and this is merely an upper or lower limit? Assuming so, what if the board
+designer opts to share this supply with another consumer that requires a specific
+voltage not equal to 3.1 V, but still within the safe range of IST3032C?
+
+To me, this restriction belongs in dts, specifically within the regulator child
+node referenced by the client which bears the new 'ist3032c' compatible string.
+Maybe a better solution is to simply note this presumed silicon erratum in the
+description of the vdd supply in the binding which, as Conor states, must not be
+clubbed with driver patches.
+
+>  	error = devm_request_threaded_irq(dev, i2c->irq,
+>  					  NULL, imagis_interrupt,
+>  					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
+> @@ -348,6 +359,7 @@ static DEFINE_SIMPLE_DEV_PM_OPS(imagis_pm_ops, imagis_suspend, imagis_resume);
+>  
+>  #ifdef CONFIG_OF
+>  static const struct of_device_id imagis_of_match[] = {
+> +	{ .compatible = "imagis,ist3032c", .data = (void *)IST3032C_WHOAMI, },
+>  	{ .compatible = "imagis,ist3038c", .data = (void *)IST3038C_WHOAMI, },
+>  	{ },
+>  };
+> @@ -355,6 +367,7 @@ MODULE_DEVICE_TABLE(of, imagis_of_match);
+>  #endif
+>  
+>  static const struct i2c_device_id imagis_ts_i2c_id[] = {
+> +	{ "ist3032c", IST3032C_WHOAMI, },
+>  	{ "ist3038c", IST3038C_WHOAMI, },
+>  	{ },
+>  };
 > -- 
-> 2.34.1
+> 2.42.0
 > 
-
-Thanks for considering my feedback; the messaging is clear now.
 
 Kind regards,
 Jeff LaBundy

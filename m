@@ -2,46 +2,45 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F274E80A95
-	for <linux-input@archiver.kernel.org>; Wed, 27 Sep 2023 06:05:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59E88E80A93
+	for <linux-input@archiver.kernel.org>; Wed, 27 Sep 2023 06:05:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229602AbjI0GFJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 27 Sep 2023 02:05:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51900 "EHLO
+        id S229609AbjI0GFK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 27 Sep 2023 02:05:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229536AbjI0GFI (ORCPT
+        with ESMTP id S229531AbjI0GFI (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Wed, 27 Sep 2023 02:05:08 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E32DEDE;
-        Tue, 26 Sep 2023 23:05:06 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 7345EC433C8;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F6F9F5;
+        Tue, 26 Sep 2023 23:05:07 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A6CAEC433CD;
         Wed, 27 Sep 2023 06:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1695794706;
-        bh=SSzKXj4HYgTm7zHPy0rOpxw6Ed5QTb2H+dQfnhkXJKo=;
-        h=From:Subject:Date:To:Cc:Reply-To:From;
-        b=sDNbG2FTTz1Xwkgq8YE69aTXrXokZzgSccWcwU6oWym8qtO3swwnkrMueo8veAfSr
-         IvR4CWpCL91Oe7fObv40sHAOQD57W/Zbxdklk7cSPDZGhHXw3oF0x7bS1s7VIfdLDC
-         U2zUdY5mqIico1/g0FeYRhES9Uyt1TQbn5hFsirBZLIVRP+fh/KJcl1cx0WDov4twr
-         6hU7w00Lek8VAusDELLV9EO6betXUVojlZp6sfcbpSuKXSqvS74SDEddhPsIHfiNvC
-         DPjnnIHbNl45eI/3y7tF/u8+iHYTj4WATVkJKdSlMeOOR+6/jwqISkMsmK78vwgBzo
-         bQRB97mgXu/Yw==
+        bh=2pSJ5RtkTJUIWZtuMClF1MziyBCDcsQTg8O2HQnpmqY=;
+        h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+        b=pmSUeoKyXx9xy2DrOtvyAGQ96W9bxjUyZMkARP9qB0R1dNEABZP/hqoCATgfAO94Q
+         YaoeK2y1/amoCrnlXYeS0onp5uW/wFobSUGvg9Qedibl3/0Gi4XnXp5v42DDcQV/J6
+         qLJ9tOmD8igvG1QDUadfQ6i/MPPdhizOsZ7Vv7VrYVvio/QOL4SyNpTQfe+eeqgJGH
+         bWOkVVmykh4vRODg+2QezRtuJRkxCki2pv/kfuYui+an00XrpIrvHnM0DS7cdjnOAW
+         +GbQpAGFAj/qmNZ6FWe2FgUDR1hTjfaFrCqEpyp6kla7lcR7yotK0yj/jRiANlMcHS
+         Qu+va6R+PFHFA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by smtp.lore.kernel.org (Postfix) with ESMTP id 4C540E80A93;
+        by smtp.lore.kernel.org (Postfix) with ESMTP id 7C57EE80A95;
         Wed, 27 Sep 2023 06:05:06 +0000 (UTC)
 From:   Fenglin Wu via B4 Relay 
         <devnull+quic_fenglinw.quicinc.com@kernel.org>
-Subject: [PATCH v7 0/3] Add support for vibrator in multiple PMICs
-Date:   Wed, 27 Sep 2023 14:05:01 +0800
-Message-Id: <20230927-pm8xxx-vibrator-v7-0-b5d8c92ce818@quicinc.com>
+Date:   Wed, 27 Sep 2023 14:05:03 +0800
+Subject: [PATCH v7 2/3] dt-bindings: input: qcom,pm8xxx-vib: add new SPMI
+ vibrator module
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAA7GE2UC/03MQQ6CMBBA0auQWVtSWijoynsYY2ppYRJpcYrYh
- HB3qyuXb/H/BtES2ginYgOyK0YMPqM9FGBG7QfLsM8GwYXkR9GweepSSmzFO+klEFOid7J3tdL
- KQK5msg7T73i5ZjsKE1tGsvr/I3gnO16VkjeqFTWr2POF5uasHx7o3+ev0JvShAn2/QP1Dh/zp
- gAAAA==
+Message-Id: <20230927-pm8xxx-vibrator-v7-2-b5d8c92ce818@quicinc.com>
+References: <20230927-pm8xxx-vibrator-v7-0-b5d8c92ce818@quicinc.com>
+In-Reply-To: <20230927-pm8xxx-vibrator-v7-0-b5d8c92ce818@quicinc.com>
 To:     linux-arm-msm@vger.kernel.org, Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
@@ -52,14 +51,14 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         devicetree@vger.kernel.org, quic_collinsd@quicinc.com,
         quic_subbaram@quicinc.com, quic_kamalw@quicinc.com,
         jestar@qti.qualcomm.com, Luca Weiss <luca.weiss@fairphone.com>,
-        Fenglin Wu <quic_fenglinw@quicinc.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Fenglin Wu <quic_fenglinw@quicinc.com>
 X-Mailer: b4 0.13-dev-83828
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1695794704; l=2464;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1695794704; l=1205;
  i=quic_fenglinw@quicinc.com; s=20230725; h=from:subject:message-id;
- bh=SSzKXj4HYgTm7zHPy0rOpxw6Ed5QTb2H+dQfnhkXJKo=;
- b=6Muyzsyfz5pbWmOUyhbv59q7ber+evgKZJNgIh10qd6g1XI8CnoglMWN0PPa5z9ZEgf3+pKGS
- 0aKPXnltwXADK9Ppquh0sKfu1Jp06PFMNsW6PJGhGrF3M7hpdxc8BFo
+ bh=SwnogURbBf0S1flEa633BZvpsevy5nBnFae6M+y7bFo=;
+ b=OC3LadE7dcAePnMUq3HehlEJzStc+e2KQjRogRLjcQ50SoEsfrF+YJ6CAWfrOzvLkas3XsiEE
+ jiaN3oFrO/1Atv3vGNPO1IiugT1Ey4pgcQftw3RSya28Canvpih3lZm
 X-Developer-Key: i=quic_fenglinw@quicinc.com; a=ed25519;
  pk=hleIDz3Unk1zeiwwOnZUjoQVMMelRancDFXg927lNjI=
 X-Endpoint-Received: by B4 Relay for quic_fenglinw@quicinc.com/20230725 with auth_id=68
@@ -69,67 +68,45 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add SW support for the vibrator module inside PMI632, PM7250B, PM7325B, PM7550BA.
-It is very similar to the vibrator module inside PM8916 which is supported in
-pm8xxx-vib driver but just the drive amplitude is controlled with 2 registers,
-and the register base offset in each PMIC is different.
+From: Fenglin Wu <quic_fenglinw@quicinc.com>
 
-Changes in v7;
-  1. Fix a typo: SSBL_VIB_DRV_REG --> SSBI_VIB_DRV_REG
-  2. Move the hw_type switch case in pm8xxx_vib_set() to the refactoring
-     change.
+Add compatible strings to support vibrator module inside PMI632,
+PMI7250B, PM7325B, PM7550BA.
 
-Changes in v6:
-  1. Add "qcom,pmi632-vib" as a standalone compatible string.
-
-Changes in v5:
-  1. Drop "qcom,spmi-vib-gen2" generic compatible string as requested
-     and use device specific compatible strings only.
-
-Changes in v4:
-  1. Update to use the combination of the HW type and register offset
-     as the constant match data, the register base address defined in
-     'reg' property will be added when accessing SPMI registers using
-     regmap APIs.
-  2. Remove 'qcom,spmi-vib-gen1' generic compatible string.
-
-Changes in v3:
-  1. Refactor the driver to support different type of the vibrators with
-    better flexibility by introducing the HW type with corresponding
-    register fields definitions.
-  2. Add 'qcom,spmi-vib-gen1' and 'qcom,spmi-vib-gen2' compatible
-    strings, and add PMI632, PM7250B, PM7325B, PM7550BA as compatbile as
-    spmi-vib-gen2.
-
-Changes in v2:
-  Remove the "pm7550ba-vib" compatible string as it's compatible with pm7325b.
-
-Fenglin Wu (3):
-  input: pm8xxx-vib: refactor to easily support new SPMI vibrator
-  dt-bindings: input: qcom,pm8xxx-vib: add new SPMI vibrator module
-  input: pm8xxx-vibrator: add new SPMI vibrator support
-
- .../bindings/input/qcom,pm8xxx-vib.yaml       |  16 +-
- drivers/input/misc/pm8xxx-vibrator.c          | 171 ++++++++++++------
- 2 files changed, 132 insertions(+), 55 deletions(-)
-
---
-2.25.1
-
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Fenglin Wu <quic_fenglinw@quicinc.com>
 ---
-Fenglin Wu (3):
-      input: pm8xxx-vib: refactor to easily support new SPMI vibrator
-      dt-bindings: input: qcom,pm8xxx-vib: add new SPMI vibrator module
-      input: pm8xxx-vibrator: add new SPMI vibrator support
+ .../devicetree/bindings/input/qcom,pm8xxx-vib.yaml       | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
- .../devicetree/bindings/input/qcom,pm8xxx-vib.yaml |  16 +-
- drivers/input/misc/pm8xxx-vibrator.c               | 170 ++++++++++++++-------
- 2 files changed, 131 insertions(+), 55 deletions(-)
----
-base-commit: 650cda2ce25f08e8fae391b3ba6be27e7296c6a5
-change-id: 20230925-pm8xxx-vibrator-62df3df46a6c
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
+index c8832cd0d7da..2025d6a5423e 100644
+--- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
++++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
+@@ -11,10 +11,18 @@ maintainers:
+ 
+ properties:
+   compatible:
+-    enum:
+-      - qcom,pm8058-vib
+-      - qcom,pm8916-vib
+-      - qcom,pm8921-vib
++    oneOf:
++      - enum:
++          - qcom,pm8058-vib
++          - qcom,pm8916-vib
++          - qcom,pm8921-vib
++          - qcom,pmi632-vib
++      - items:
++          - enum:
++              - qcom,pm7250b-vib
++              - qcom,pm7325b-vib
++              - qcom,pm7550ba-vib
++          - const: qcom,pmi632-vib
+ 
+   reg:
+     maxItems: 1
 
-Best regards,
 -- 
-Fenglin Wu <quic_fenglinw@quicinc.com>
+2.25.1
 

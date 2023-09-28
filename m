@@ -2,54 +2,54 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50859CE7B1B
-	for <linux-input@archiver.kernel.org>; Thu, 28 Sep 2023 11:03:21 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC2E2E82CB7
+	for <linux-input@archiver.kernel.org>; Thu, 28 Sep 2023 11:03:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231806AbjI1LDU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Sep 2023 07:03:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35926 "EHLO
+        id S231819AbjI1LD1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Sep 2023 07:03:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231532AbjI1LDR (ORCPT
+        with ESMTP id S231879AbjI1LDX (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Sep 2023 07:03:17 -0400
-Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FA42195
-        for <linux-input@vger.kernel.org>; Thu, 28 Sep 2023 04:03:16 -0700 (PDT)
-Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-50482ba2b20so3118196e87.1
-        for <linux-input@vger.kernel.org>; Thu, 28 Sep 2023 04:03:16 -0700 (PDT)
+        Thu, 28 Sep 2023 07:03:23 -0400
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9999C199
+        for <linux-input@vger.kernel.org>; Thu, 28 Sep 2023 04:03:20 -0700 (PDT)
+Received: by mail-lf1-x12e.google.com with SMTP id 2adb3069b0e04-50308217223so20320178e87.3
+        for <linux-input@vger.kernel.org>; Thu, 28 Sep 2023 04:03:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1695898994; x=1696503794; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1695898999; x=1696503799; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YcbEnFCtTA9UEjtUWN7yvDCOIDS8kBLNF+kymOo1R3w=;
-        b=XGGI+kp0/qXlT5//x7grR2PVzpMd4uf1COX6CiPai0r1M5ScgsilVIGEAWGy654fDe
-         RLgTeO6f5h94hpkEebFstF5/gmlKuf3HdETXc8xmmvvlz7ZM8EA2aEt5CINKMGASZ2ID
-         a/SX4YgWtqg74tC9QSX37P9+MKi86iONdlR6XrhfYSiS4jlMRi9Hwj/S2OR3RZ4bgJJe
-         eV8/UrAyqmlxK0ZRZN3o1aDFnu2UBOMMJLM2sKY9Owjry+JE4SXzmYWwbY3+54y700Wu
-         4eAMQxaYlhrykct/VO5FkTGYtjJI5s6HljmDv6Zdx4rFIZJBnN0wjPe0WH4OcBzg16O4
-         9ePw==
+        bh=wblF4wah6BmHW/8HH3+se0OjDANdbSlRJHajeFa81aM=;
+        b=ZiMK4l5cPFNUHurF/Rqs2Pw1ni/erQHqOf9jEPaRNcOvoy/CpOPyw5+lchom/817cP
+         lJE3+W1rQ61NfJU6soGsp8+q0G3p5P+Pdo7GaEwBcv3puDBvoOYCxhczz8UkI5RhJ/gv
+         q8k3NAUK+p89ot7j2h7IkKq18Bcwmz7/0hKd2yCtwuDUUQxcVYY9zDZ/VBl6dgMnz4qp
+         OxeLLMNpXU6jP/eKTxUacAhiGRKSlT1hvRsRM33lNho0fzkV1SBHYQjV29vI75we/BBr
+         m4mdWEZ4SbT1RlSq0OBzP5RdyTyA8aV1Y4wxvHw3u1UCcOSRc5E74lEzukVp/eANZtgQ
+         QrdQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695898994; x=1696503794;
+        d=1e100.net; s=20230601; t=1695898999; x=1696503799;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=YcbEnFCtTA9UEjtUWN7yvDCOIDS8kBLNF+kymOo1R3w=;
-        b=rtU2/E5Ikr+pxPg+MyyzTYy118mziBcYCyCLIG1CVj6dFS5kESfrbx9sdNSvC9tDgu
-         5l+Nbz5NTaQv/KAdAMg1QZX9sH9Ea+9pqwYIBDGPGzxswx2qf9q+tGpMABlR79ldP/xG
-         +wb3CbJV73Kjshdy94Tj4yz2SodF3JslhvIONqJxkoZSFee881BptvkAyKAe0y3Q7EBO
-         IZyJoIHj6l7+s/GM3aDGLuMY6ZYus7bdr+ir++W2kVGcVHp1555Z7kGd/pwYR47YD0+I
-         wSG3g3Y0IybOxWu3ejsOUIT6MZVdpDRdOQCls4wwdR6zlSpOIRREO31mnvGJTB+1aP3U
-         g7QQ==
-X-Gm-Message-State: AOJu0YyJ/L1nVRR71KUfpve+waAeyoS6YPug7J5fJc+dqjFpHWhp9+78
-        ohkDgDlkBQ6ykO0y8UPHuVb3Uw==
-X-Google-Smtp-Source: AGHT+IGmD3MZcI2IX6oW6M0HolTT4LRlMTF99wjfX9Y+ziiwI6W9E8czU6AVfzukUwF80LQ+rH7uQg==
-X-Received: by 2002:a05:6512:2242:b0:503:1ca2:7673 with SMTP id i2-20020a056512224200b005031ca27673mr688121lfu.14.1695898994693;
-        Thu, 28 Sep 2023 04:03:14 -0700 (PDT)
+        bh=wblF4wah6BmHW/8HH3+se0OjDANdbSlRJHajeFa81aM=;
+        b=tJWdqJCBKUoe3xbq92+cJMGRNAuiA5qmAAPjmlxa0R3txC10yacf6anbCcfF9/KgzB
+         wFfXF2iGUeFXFMu8GvI7W0W+RkOTdr3IjegqnlVpgYnGhfkeS5bdkbbEs8ycZPlAcTg2
+         oDWk8qaVgVLgyrfMq9qLGXkcpyaYxuqC6OgAtGPEFrvmFJsZIOTefSWNrf5xBB0njIVp
+         PxX89QqHZTH31V7YBbQN4aMkGv+Lt84/ScUH6jG3ZfwsSQIXMpVqcMQbPZUL09N7mlIH
+         0MMEbrh0KutKxl1dyOWbc76LfvU/MwBfmcu2Ff53LnvNSvTti7Am/VeKErZn6cA20FOc
+         gkfA==
+X-Gm-Message-State: AOJu0YyqpARtITZsTHHOgLiU+idjcGgcqowj/gvnoxsJmnc/Uv3pQqSW
+        Gq3mR7BdXBo2rYJT7fltd3IU0g==
+X-Google-Smtp-Source: AGHT+IFYEuA4BgRKtuKLrkcZOILNlxP008Q6jptnI9+Y0JAfh3d2YZh6f1vkadtUjwb7Qh0RkPQxMA==
+X-Received: by 2002:a05:6512:1143:b0:503:3756:9ff1 with SMTP id m3-20020a056512114300b0050337569ff1mr601308lfg.49.1695898998831;
+        Thu, 28 Sep 2023 04:03:18 -0700 (PDT)
 Received: from umbar.unikie.fi ([192.130.178.91])
-        by smtp.gmail.com with ESMTPSA id u2-20020a056512040200b005030a35019dsm3052953lfk.178.2023.09.28.04.03.13
+        by smtp.gmail.com with ESMTPSA id u2-20020a056512040200b005030a35019dsm3052953lfk.178.2023.09.28.04.03.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 28 Sep 2023 04:03:14 -0700 (PDT)
+        Thu, 28 Sep 2023 04:03:18 -0700 (PDT)
 From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 To:     Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
@@ -58,9 +58,9 @@ To:     Andy Gross <agross@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
 Cc:     linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH v6 05/36] ARM: dts: qcom: apq8064-nexus7: move sdcc1 node to proper place
-Date:   Thu, 28 Sep 2023 14:02:38 +0300
-Message-Id: <20230928110309.1212221-6-dmitry.baryshkov@linaro.org>
+Subject: [PATCH v6 10/36] ARM: dts: qcom: msm8660: fix PMIC node labels
+Date:   Thu, 28 Sep 2023 14:02:43 +0300
+Message-Id: <20230928110309.1212221-11-dmitry.baryshkov@linaro.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230928110309.1212221-1-dmitry.baryshkov@linaro.org>
 References: <20230928110309.1212221-1-dmitry.baryshkov@linaro.org>
@@ -70,46 +70,72 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Move sdcc1 device node to follow the alphanumberic sorting order.
+Change PM8058 node labels to start with pm8058_ prefix, following other
+Qualcomm PMIC device nodes.
 
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 ---
- .../boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ .../boot/dts/qcom/qcom-apq8060-dragonboard.dts   |  4 ++--
+ arch/arm/boot/dts/qcom/qcom-msm8660.dtsi         | 16 ++++++++--------
+ 2 files changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts b/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
-index c57c27cd8a20..0e80a5a8e3c6 100644
---- a/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
-+++ b/arch/arm/boot/dts/qcom/qcom-apq8064-asus-nexus7-flo.dts
-@@ -181,13 +181,6 @@ &mdp {
- 	status = "okay";
- };
- 
--/* eMMC */
--&sdcc1 {
--	vmmc-supply = <&pm8921_l5>;
--	vqmmc-supply = <&pm8921_s4>;
--	status = "okay";
--};
--
- &mdp_dsi1_out {
- 	remote-endpoint = <&dsi0_in>;
- };
-@@ -336,6 +329,13 @@ lvs7 {
+diff --git a/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts b/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
+index db4c791b2e2f..48fd1a1feea3 100644
+--- a/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
++++ b/arch/arm/boot/dts/qcom/qcom-apq8060-dragonboard.dts
+@@ -72,7 +72,7 @@ cm3605 {
+ 		/* Trig on both edges - getting close or far away */
+ 		interrupts-extended = <&pm8058_gpio 34 IRQ_TYPE_EDGE_BOTH>;
+ 		/* MPP05 analog input to the XOADC */
+-		io-channels = <&xoadc 0x00 0x05>;
++		io-channels = <&pm8058_xoadc 0x00 0x05>;
+ 		io-channel-names = "aout";
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&dragon_cm3605_gpios>, <&dragon_cm3605_mpps>;
+@@ -945,7 +945,7 @@ irq-pins {
  	};
  };
  
-+/* eMMC */
-+&sdcc1 {
-+	vmmc-supply = <&pm8921_l5>;
-+	vqmmc-supply = <&pm8921_s4>;
-+	status = "okay";
-+};
-+
- &usb_hs1_phy {
- 	v3p3-supply = <&pm8921_l3>;
- 	v1p8-supply = <&pm8921_l4>;
+-&xoadc {
++&pm8058_xoadc {
+ 	/* Reference voltage 2.2 V */
+ 	xoadc-ref-supply = <&pm8058_l18>;
+ 
+diff --git a/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi b/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
+index 78023ed2fdf7..9217ced108c4 100644
+--- a/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
++++ b/arch/arm/boot/dts/qcom/qcom-msm8660.dtsi
+@@ -80,13 +80,13 @@ sleep-clk {
+ 	 */
+ 	iio-hwmon {
+ 		compatible = "iio-hwmon";
+-		io-channels = <&xoadc 0x00 0x01>, /* Battery */
+-			    <&xoadc 0x00 0x02>, /* DC in (charger) */
+-			    <&xoadc 0x00 0x04>, /* VPH the main system voltage */
+-			    <&xoadc 0x00 0x0b>, /* Die temperature */
+-			    <&xoadc 0x00 0x0c>, /* Reference voltage 1.25V */
+-			    <&xoadc 0x00 0x0d>, /* Reference voltage 0.625V */
+-			    <&xoadc 0x00 0x0e>; /* Reference voltage 0.325V */
++		io-channels = <&pm8058_xoadc 0x00 0x01>, /* Battery */
++			      <&pm8058_xoadc 0x00 0x02>, /* DC in (charger) */
++			      <&pm8058_xoadc 0x00 0x04>, /* VPH the main system voltage */
++			      <&pm8058_xoadc 0x00 0x0b>, /* Die temperature */
++			      <&pm8058_xoadc 0x00 0x0c>, /* Reference voltage 1.25V */
++			      <&pm8058_xoadc 0x00 0x0d>, /* Reference voltage 0.625V */
++			      <&pm8058_xoadc 0x00 0x0e>; /* Reference voltage 0.325V */
+ 	};
+ 
+ 	soc: soc {
+@@ -390,7 +390,7 @@ pm8058_keypad: keypad@148 {
+ 					row-hold = <91500>;
+ 				};
+ 
+-				xoadc: xoadc@197 {
++				pm8058_xoadc: xoadc@197 {
+ 					compatible = "qcom,pm8058-adc";
+ 					reg = <0x197>;
+ 					interrupts-extended = <&pm8058 76 IRQ_TYPE_EDGE_RISING>;
 -- 
 2.39.2
 

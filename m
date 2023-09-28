@@ -2,184 +2,285 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A2E24CE7B0C
-	for <linux-input@archiver.kernel.org>; Thu, 28 Sep 2023 09:08:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 115BECE7B1D
+	for <linux-input@archiver.kernel.org>; Thu, 28 Sep 2023 11:03:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231474AbjI1JI2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 28 Sep 2023 05:08:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59626 "EHLO
+        id S229903AbjI1LDR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 28 Sep 2023 07:03:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231460AbjI1JI1 (ORCPT
+        with ESMTP id S231532AbjI1LDQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Thu, 28 Sep 2023 05:08:27 -0400
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A062CAC;
-        Thu, 28 Sep 2023 02:08:24 -0700 (PDT)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1qln0P-0003Gj-JJ; Thu, 28 Sep 2023 11:08:21 +0200
-Message-ID: <1b3f8dd2-6364-4f00-a33e-8b15b8911dbf@leemhuis.info>
-Date:   Thu, 28 Sep 2023 11:08:19 +0200
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [regression] Resume broken on T14s Gen1 (AMD) due to "Input:
- psmouse - add delay when deactivating for SMBus mode"
-From:   Thorsten Leemhuis <linux@leemhuis.info>
-To:     Jeffery Miller <jefferymiller@google.com>
-Cc:     Andrew Duggan <aduggan@synaptics.com>,
+        Thu, 28 Sep 2023 07:03:16 -0400
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E4AA195
+        for <linux-input@vger.kernel.org>; Thu, 28 Sep 2023 04:03:12 -0700 (PDT)
+Received: by mail-lf1-x133.google.com with SMTP id 2adb3069b0e04-50308217223so20319996e87.3
+        for <linux-input@vger.kernel.org>; Thu, 28 Sep 2023 04:03:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1695898991; x=1696503791; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=uDJFiJgRqRQBXlrZBTgPGvpZ3gtef6On4wWBMux75So=;
+        b=N/kLnzPuxGXDvHm3fDX+vAF6hkZMXxd8zrFKvQLHAOZWlJT2h1R6IOC9z02RSerBpw
+         CmxNDW1Kt/n0ej1PAhm9HtuzRP4f5gHHOjkuKYGzxl7uNKgoMbKZwqwh0JhWecOj/lWR
+         j/Mvn49IBvn4WNuuyLc/ER6W4fXAFWwpVVc/4HPJrHDo7VxSsJonbMMVb7HFxZjgWSvO
+         0NSRSBj/8R5/CGLyWWVL3bhv64XXF55/6dVd7w3Lru1m7x3bL00ae6DYU/Pu5FMQvjju
+         kXbCQNBqD7oytEphC1m7yn64YZtZ3URcfdxUZRvEA5J8mGaC+qu37XZQlFVz7wEhPNc/
+         ytGA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695898991; x=1696503791;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uDJFiJgRqRQBXlrZBTgPGvpZ3gtef6On4wWBMux75So=;
+        b=NY/Gis3n7b9WeHWUHYu49xscbO00VqDU6sP6C8756cJWX/xmCCTSpczlL0bOInLtNN
+         x7vuJ8d00J5vx1w3EmVjCHxiUgsUlpN0ad3IjHSPDXY1xttI5FJIMD8VbxCL2eMYC+uH
+         QccuEUX/iebLD5sm2l+OLLgv22RJUJt/rsNUaffyX5aiT/CNPtJGiA0F04zUYHYI7gqC
+         VRRcwUR+TIub43yrMCykgnPCBtFG0vSJSnpELPQ9YU/TaUtGyaKeXRuxTdbynY8DFG2t
+         XdkymGhLmyL/H4fbwp+ZZyrzOaTfVf8SyNPul//CCpHkhT5H1L3kF2zT87cakfQMtjW1
+         0Eew==
+X-Gm-Message-State: AOJu0YwOY3ZNfScCkq5qgOCmmdxVdYXJpalHmObTYEGeWMUFD/i4ocWH
+        vHwaKvqVT6usDRBB1X1tQlWezg==
+X-Google-Smtp-Source: AGHT+IEIQdx1X58alEuusgt13lF6u5O/nmqrhimcPF8MioqmrRyP8Ya+rQMIxfyYLlqYsh3YI7TsWw==
+X-Received: by 2002:a19:670f:0:b0:503:653:5711 with SMTP id b15-20020a19670f000000b0050306535711mr783687lfc.9.1695898990866;
+        Thu, 28 Sep 2023 04:03:10 -0700 (PDT)
+Received: from umbar.unikie.fi ([192.130.178.91])
+        by smtp.gmail.com with ESMTPSA id u2-20020a056512040200b005030a35019dsm3052953lfk.178.2023.09.28.04.03.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 28 Sep 2023 04:03:10 -0700 (PDT)
+From:   Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+To:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>
+Cc:     linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Linux kernel regressions list <regressions@lists.linux.dev>
-References: <ca0109fa-c64b-43c1-a651-75b294d750a1@leemhuis.info>
- <CAAzPG9NkoaUz_JRtZt_JomsYj-8ZPn4QH0w0eeR-oxd55-18Qg@mail.gmail.com>
- <CAAzPG9NWp8yPU52o7d2-jLjxjLodFOiE_AjoxmCAZ=MXtV__Aw@mail.gmail.com>
- <cf87d6a5-7ff3-4add-8c48-fd3447b32697@leemhuis.info>
-Content-Language: en-US, de-DE
-Autocrypt: addr=linux@leemhuis.info; keydata=
- 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 n7RI
-In-Reply-To: <cf87d6a5-7ff3-4add-8c48-fd3447b32697@leemhuis.info>
-Content-Type: text/plain; charset=UTF-8
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v6 01/36] dt-bindings: input: qcom,pm8921-keypad: convert to YAML format
+Date:   Thu, 28 Sep 2023 14:02:34 +0300
+Message-Id: <20230928110309.1212221-2-dmitry.baryshkov@linaro.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230928110309.1212221-1-dmitry.baryshkov@linaro.org>
+References: <20230928110309.1212221-1-dmitry.baryshkov@linaro.org>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;linux@leemhuis.info;1695892104;762059f1;
-X-HE-SMSGID: 1qln0P-0003Gj-JJ
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 27.09.23 19:23, Thorsten Leemhuis wrote:
-> On 27.09.23 17:55, Jeffery Miller wrote:
->> On Wed, Sep 27, 2023 at 10:43 AM Jeffery Miller
->> <jefferymiller@google.com> wrote:
->>> On Wed, Sep 27, 2023 at 3:54 AM Thorsten Leemhuis <linux@leemhuis.info> wrote:
->>>>
->>>> My dmesg from a kernel with the revert:
->>>> https://www.leemhuis.info/files/misc/dmesg
-> 
-> Thx for looking into this!
-> 
->>> In this dmesg output it shows that this is an elantech smbus device:
->>> ```
->>> [    4.260415] psmouse serio1: elantech: assuming hardware version 4 (with firmware version 0x7f3001)
->>> [    4.279297] psmouse serio1: elantech: Synaptics capabilities query result 0x90, 0x18, 0x0f.
->>> [    4.292788] psmouse serio1: elantech: Elan sample query result 00, 80, c9
->>> [    4.319184] psmouse serio1: elantech: Elan ic body: 0x10, current fw version: 0x3
->>> ...
->>> [    4.346951] psmouse serio1: elantech: Trying to set up SMBus access
->>> [    4.346986] psmouse serio1: elantech: SMbus companion is not ready yet
->>> [    4.369993] input: ETPS/2 Elantech TrackPoint as /devices/platform/i8042/serio1/input/input7
->>> [    4.376200] systemd[1]: bpf-lsm: LSM BPF program attached
->>> [    4.385192] input: ETPS/2 Elantech Touchpad as /devices/platform/i8042/serio1/input/input5
->>> ```
->>> The change in 92e24e0e57f72e shouldn't affect the elantouch device as  elantech_setup_smbus
->>> initializes `psmouse_smbus_init` with need_deactivate = false.
-> 
-> Hmmm. Wondering if I should warm up the compiler again to recheck my
-> result one more time[1].
+Convert the bindings for the keypad subdevices of Qualcomm PM8921 and
+PM8058 PMICs from text to YAML format.
 
-Just did that. Ran "make clean" and compiled mainline as of now
-(633b47cb009d) and the machine does never resume from s2idle; then I
-reverted 92e24e0e57f7 and compiled again (for completeness: without
-running "make clean" beforehand) and with that kernel s2idle resume
-works perfectly fine.
+While doing the conversion also drop the linux,keypad-no-autorepeat
+The property was never used by DT files. Both input and DT binding
+maintainers consider that bindings should switch to assertive
+(linux,autorepeat) instead of negating (no-autorepeat) property.
 
-Wondering if I or the compiler is doing something stupid here -- or if
-we missed some small but important detail somewhere.
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+---
+ .../bindings/input/qcom,pm8921-keypad.yaml    | 89 ++++++++++++++++++
+ .../bindings/input/qcom,pm8xxx-keypad.txt     | 90 -------------------
+ 2 files changed, 89 insertions(+), 90 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/input/qcom,pm8921-keypad.yaml
+ delete mode 100644 Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
 
-Ciao, Thorsten
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8921-keypad.yaml b/Documentation/devicetree/bindings/input/qcom,pm8921-keypad.yaml
+new file mode 100644
+index 000000000000..88764adcd696
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/qcom,pm8921-keypad.yaml
+@@ -0,0 +1,89 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/qcom,pm8921-keypad.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Qualcomm PM8921 PMIC KeyPad
++
++maintainers:
++  - Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
++
++allOf:
++  - $ref: input.yaml#
++  - $ref: matrix-keymap.yaml#
++
++properties:
++  compatible:
++    enum:
++      - qcom,pm8058-keypad
++      - qcom,pm8921-keypad
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    items:
++      - description: key sense
++      - description: key stuck
++
++  wakeup-source:
++    type: boolean
++    description: use any event on keypad as wakeup event
++
++  linux,keypad-wakeup:
++    type: boolean
++    deprecated: true
++    description: legacy version of the wakeup-source property
++
++  debounce:
++    description:
++      Time in microseconds that key must be pressed or
++      released for state change interrupt to trigger.
++    $ref: /schemas/types.yaml#/definitions/uint32
++
++  scan-delay:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description: time in microseconds to pause between successive scans of the
++      matrix array
++
++  row-hold:
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description: time in nanoseconds to pause between scans of each row in the
++      matrix array.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - linux,keymap
++
++unevaluatedProperties: false
++
++examples:
++  - |
++   #include <dt-bindings/input/input.h>
++   #include <dt-bindings/interrupt-controller/irq.h>
++   pmic {
++       #address-cells = <1>;
++       #size-cells = <0>;
++
++       keypad@148 {
++           compatible = "qcom,pm8921-keypad";
++           reg = <0x148>;
++           interrupt-parent = <&pmicintc>;
++           interrupts = <74 IRQ_TYPE_EDGE_RISING>, <75 IRQ_TYPE_EDGE_RISING>;
++           linux,keymap = <
++               MATRIX_KEY(0, 0, KEY_VOLUMEUP)
++               MATRIX_KEY(0, 1, KEY_VOLUMEDOWN)
++               MATRIX_KEY(0, 2, KEY_CAMERA_FOCUS)
++               MATRIX_KEY(0, 3, KEY_CAMERA)
++           >;
++           keypad,num-rows = <1>;
++           keypad,num-columns = <5>;
++           debounce = <15>;
++           scan-delay = <32>;
++           row-hold = <91500>;
++       };
++   };
++...
+diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt b/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
+deleted file mode 100644
+index 4a9dc6ba96b1..000000000000
+--- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-keypad.txt
++++ /dev/null
+@@ -1,90 +0,0 @@
+-Qualcomm PM8xxx PMIC Keypad
+-
+-PROPERTIES
+-
+-- compatible:
+-	Usage: required
+-	Value type: <string>
+-	Definition: must be one of:
+-		    "qcom,pm8058-keypad"
+-		    "qcom,pm8921-keypad"
+-
+-- reg:
+-	Usage: required
+-	Value type: <prop-encoded-array>
+-	Definition: address of keypad control register
+-
+-- interrupts:
+-	Usage: required
+-	Value type: <prop-encoded-array>
+-	Definition: the first interrupt specifies the key sense interrupt
+-		    and the second interrupt specifies the key stuck interrupt.
+-		    The format of the specifier is defined by the binding
+-		    document describing the node's interrupt parent.
+-
+-- linux,keymap:
+-	Usage: required
+-	Value type: <prop-encoded-array>
+-	Definition: the linux keymap. More information can be found in
+-		    input/matrix-keymap.txt.
+-
+-- linux,keypad-no-autorepeat:
+-	Usage: optional
+-	Value type: <bool>
+-	Definition: don't enable autorepeat feature.
+-
+-- wakeup-source:
+-	Usage: optional
+-	Value type: <bool>
+-	Definition: use any event on keypad as wakeup event.
+-		    (Legacy property supported: "linux,keypad-wakeup")
+-
+-- keypad,num-rows:
+-	Usage: required
+-	Value type: <u32>
+-	Definition: number of rows in the keymap. More information can be found
+-		    in input/matrix-keymap.txt.
+-
+-- keypad,num-columns:
+-	Usage: required
+-	Value type: <u32>
+-	Definition: number of columns in the keymap. More information can be
+-		    found in input/matrix-keymap.txt.
+-
+-- debounce:
+-	Usage: optional
+-	Value type: <u32>
+-	Definition: time in microseconds that key must be pressed or release
+-		    for key sense interrupt to trigger.
+-
+-- scan-delay:
+-	Usage: optional
+-	Value type: <u32>
+-	Definition: time in microseconds to pause between successive scans
+-		    of the matrix array.
+-
+-- row-hold:
+-	Usage: optional
+-	Value type: <u32>
+-	Definition: time in nanoseconds to pause between scans of each row in
+-		    the matrix array.
+-
+-EXAMPLE
+-
+-	keypad@148 {
+-		compatible = "qcom,pm8921-keypad";
+-		reg = <0x148>;
+-		interrupt-parent = <&pmicintc>;
+-		interrupts = <74 1>, <75 1>;
+-		linux,keymap = <
+-			MATRIX_KEY(0, 0, KEY_VOLUMEUP)
+-			MATRIX_KEY(0, 1, KEY_VOLUMEDOWN)
+-			MATRIX_KEY(0, 2, KEY_CAMERA_FOCUS)
+-			MATRIX_KEY(0, 3, KEY_CAMERA)
+-			>;
+-		keypad,num-rows = <1>;
+-		keypad,num-columns = <5>;
+-		debounce = <15>;
+-		scan-delay = <32>;
+-		row-hold = <91500>;
+-	};
+-- 
+2.39.2
 
->>> Did you store dmesg logs from boot without the applied patch?
->> I intended to ask if you have logs from a boot without 92e24e0e57f72e reverted.
-> 
-> https://www.leemhuis.info/files/misc/dmesg-6.6-rc3-vanilla
-> 
->>> If the delay was being applied the timestamps should show the 30ms delay between
->>> `psmouse serio1: elantech: Trying to set up SMBus access`
->>> and
->>> `psmouse serio1: elantech: SMbus companion is not ready yet`
-> 
-> Unless I missed something there is not difference. :-/
-> 
-> Ciao, Thorsten
-> 
-> [1] FWIW, this is my bisect log
-> 
-> """
->> git bisect start
->> # status: waiting for both good and bad commits
->> # bad: [6465e260f48790807eef06b583b38ca9789b6072] Linux 6.6-rc3
->> git bisect bad 6465e260f48790807eef06b583b38ca9789b6072
->> # status: waiting for good commit(s), bad commit known
->> # good: [2dde18cd1d8fac735875f2e4987f11817cc0bc2c] Linux 6.5
->> git bisect good 2dde18cd1d8fac735875f2e4987f11817cc0bc2c
->> # good: [4fb0dacb78c6a041bbd38ddd998df806af5c2c69] Merge tag 'sound-6.6-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/tiwai/sound
->> git bisect good 4fb0dacb78c6a041bbd38ddd998df806af5c2c69
->> # good: [307d59039fb26212a84a9aa6a134a7d2bdea34ca] Merge tag 'media/v6.6-1' of git://git.kernel.org/pub/scm/linux/kernel/git/mchehab/linux-media
->> git bisect good 307d59039fb26212a84a9aa6a134a7d2bdea34ca
->> # bad: [4a0fc73da97efd23a383ca839e6fe86410268f6b] Merge tag 's390-6.6-2' of git://git.kernel.org/pub/scm/linux/kernel/git/s390/linux
->> git bisect bad 4a0fc73da97efd23a383ca839e6fe86410268f6b
->> # good: [e4f1b8202fb59c56a3de7642d50326923670513f] Merge tag 'for_linus' of git://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost
->> git bisect good e4f1b8202fb59c56a3de7642d50326923670513f
->> # good: [5eea5820c7340d39e56e169e1b87199391105f6b] Merge tag 'mm-stable-2023-09-04-14-00' of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
->> git bisect good 5eea5820c7340d39e56e169e1b87199391105f6b
->> # good: [65d6e954e37872fd9afb5ef3fc0481bb3c2f20f4] Merge tag 'gfs2-v6.5-rc5-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/gfs2/linux-gfs2
->> git bisect good 65d6e954e37872fd9afb5ef3fc0481bb3c2f20f4
->> # bad: [744a759492b5c57ff24a6e8aabe47b17ad8ee964] Merge tag 'input-for-v6.6-rc0' of git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input
->> git bisect bad 744a759492b5c57ff24a6e8aabe47b17ad8ee964
->> # good: [dbce1a7d5dce7318d8465b1e0d052ef1d2202237] Input: Explicitly include correct DT includes
->> git bisect good dbce1a7d5dce7318d8465b1e0d052ef1d2202237
->> # good: [29057cc5bddc785ea0a11534d7ad2546fa0872d3] Merge tag 'linux-watchdog-6.6-rc1' of git://www.linux-watchdog.org/linux-watchdog
->> git bisect good 29057cc5bddc785ea0a11534d7ad2546fa0872d3
->> # bad: [3e4bb047b23375a34dbf5885709ac3729d9cfb22] Input: qt2160 - convert to use devm_* api
->> git bisect bad 3e4bb047b23375a34dbf5885709ac3729d9cfb22
->> # good: [e175eae16c1bf92062f1f431a95f476a61a77c48] Input: mcs-touchkey - convert to use devm_* api
->> git bisect good e175eae16c1bf92062f1f431a95f476a61a77c48
->> # bad: [92e24e0e57f72e06c2df87116557331fd2d4dda2] Input: psmouse - add delay when deactivating for SMBus mode
->> git bisect bad 92e24e0e57f72e06c2df87116557331fd2d4dda2
->> # good: [8362bf82fb5441613aac7c6c9dbb6b83def6ad3b] Input: mcs-touchkey - fix uninitialized use of error in mcs_touchkey_probe()
->> git bisect good 8362bf82fb5441613aac7c6c9dbb6b83def6ad3b
->> # first bad commit: [92e24e0e57f72e06c2df87116557331fd2d4dda2] Input: psmouse - add delay when deactivating for SMBus mode
-> """
-> 
-> 

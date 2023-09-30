@@ -2,201 +2,159 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D1809E77363
-	for <linux-input@archiver.kernel.org>; Sat, 30 Sep 2023 15:35:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DCC00E77363
+	for <linux-input@archiver.kernel.org>; Sat, 30 Sep 2023 15:37:54 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234421AbjI3Pff (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 30 Sep 2023 11:35:35 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60674 "EHLO
+        id S234438AbjI3Phy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sat, 30 Sep 2023 11:37:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234438AbjI3Pfe (ORCPT
+        with ESMTP id S234334AbjI3Phx (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sat, 30 Sep 2023 11:35:34 -0400
-Received: from mo4-p02-ob.smtp.rzone.de (mo4-p02-ob.smtp.rzone.de [85.215.255.80])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B18321A5
-        for <linux-input@vger.kernel.org>; Sat, 30 Sep 2023 08:35:30 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1696087943; cv=none;
-    d=strato.com; s=strato-dkim-0002;
-    b=PO+IflfTAql3V+GGvnVr1MW4fk7Y2EOLB+yXPCfXGaKY9llJNy19YW5fwJrMVyqD7B
-    lmNSvHM7a3vyFGy21auCz70rBVOmHfcrV/tJfhPQNGKtcoQu3cYqTLaXBZbaHtIAgSwq
-    cuW/2d8I81hJJhtW8CAukcNuRqRroq2WLsHYLCHXS7TvNFMdhOcUfArpt4K4OgNlm2G2
-    7iQXYgohTgnkgeGq2TLAlyPHyXZMLePG5SYOZCgY/uK4DC2edvqNbxuzTHUcNy5LQhIY
-    4+qXe4C7eossLhmG6KZTSUPzQXb5AUYotL5peFi21MJu7jAoQ99/o6ylTCdu0aMBpsgZ
-    JnOg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1696087943;
-    s=strato-dkim-0002; d=strato.com;
-    h=Cc:To:In-Reply-To:References:Message-Id:Subject:Date:From:Cc:Date:
-    From:Subject:Sender;
-    bh=lUzNzqc8pnjA19u06jBcBi2HrnJlfBUjIE0lrHSoBuU=;
-    b=SZovMR2J3GFg4ZaEGZmVEiIfFsn2wxDD8NUZncXW5L1XKnpbnsPgvP02FhUwaY5PRE
-    1/GplIw4hoRTjWuAaTmtAkMmctx9thT06Q6IgS43VBbRvON+il6zojGUs5yvWU+Xxdtr
-    2gbJ+EP2d2O/IGKzpMejm43kkJM5blQBlwvPIT6JRg6iHqWq5IX29jDy0xamx4GNX7h1
-    J7945RaHJORoXAxuO+95u3P3JGOVFUB/B4uwn7+PFbAu8BVjRsiaDuCayFFBUd3gjmpU
-    DgpNZyQ3sUR5XnA2SfCDU6Fpjbt+W/Mk+I4PazJJ3y15R/LPwrZkYYKSUxuOVVQdFgQ6
-    wDOw==
-ARC-Authentication-Results: i=1; strato.com;
-    arc=none;
-    dkim=none
-X-RZG-CLASS-ID: mo02
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1696087943;
-    s=strato-dkim-0002; d=gerhold.net;
-    h=Cc:To:In-Reply-To:References:Message-Id:Subject:Date:From:Cc:Date:
-    From:Subject:Sender;
-    bh=lUzNzqc8pnjA19u06jBcBi2HrnJlfBUjIE0lrHSoBuU=;
-    b=N8aOspzkomxdBHfCJb2xiJMnBdmQx9U5aTQLhkn1s/VgFNH5h+hTJKS+BzRjeOS5Z4
-    QCbRQH8AHFWPeM6th/UqMLcFUjsOesZvpzrMwvadEw3bYGAbd8kzEy0rWgIogimaB9dg
-    bMUFgBJFCQylwhcsvS8yeRwMfkgcIDvxOchf/MBDRh/bilEHtlOcBsUHwC9Gz1I4GNFV
-    izi+Y24bCY8a6Y8HpGKexwh2WCTPSBQMUE/2MA1e6Rhqm67f40mtx8ojhWkylolR+QrR
-    VXtRIU8a5b4oCPnJHZ5VP64sRsl/fxd6m1Jgq4jbE4RjzzWvJkpZEdAxZCK2jFNWZA+d
-    yuXA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1696087943;
-    s=strato-dkim-0003; d=gerhold.net;
-    h=Cc:To:In-Reply-To:References:Message-Id:Subject:Date:From:Cc:Date:
-    From:Subject:Sender;
-    bh=lUzNzqc8pnjA19u06jBcBi2HrnJlfBUjIE0lrHSoBuU=;
-    b=tODsa4OMuslrCCAI7bwyow0oV2U6K2H4jvO3P9G1ANXSgo9ANz/ITGn/cXWjPbSGoZ
-    5Yb6gPcdfH21Jcwe22CQ==
-X-RZG-AUTH: ":P3gBZUipdd93FF5ZZvYFPugejmSTVR2nRPhVOQjVd4CteZ/7jYgS+mLFY+H0JAn8u4l+/zY="
-Received: from [192.168.244.3]
-    by smtp.strato.de (RZmta 49.8.2 DYNA|AUTH)
-    with ESMTPSA id R04c57z8UFWNtXR
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Sat, 30 Sep 2023 17:32:23 +0200 (CEST)
-From:   Stephan Gerhold <stephan@gerhold.net>
-Date:   Sat, 30 Sep 2023 17:32:00 +0200
-Subject: [PATCH v2 1/2] dt-bindings: input: touchscreen: document Himax
- HX852x(ES)
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230930-hx852x-v2-1-c5821947b225@gerhold.net>
-References: <20230930-hx852x-v2-0-c5821947b225@gerhold.net>
-In-Reply-To: <20230930-hx852x-v2-0-c5821947b225@gerhold.net>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Jeff LaBundy <jeff@labundy.com>,
+        Sat, 30 Sep 2023 11:37:53 -0400
+Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09A38BE;
+        Sat, 30 Sep 2023 08:37:49 -0700 (PDT)
+Received: by mail-pf1-x42c.google.com with SMTP id d2e1a72fcca58-690f7bf73ddso12037330b3a.2;
+        Sat, 30 Sep 2023 08:37:49 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1696088268; x=1696693068; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=SFxpcz2a7H2ZjgJ8ssrmjpRaSpMI8na0366gdvXOP5U=;
+        b=i7RVm02MuUpfkS+adAaXFJXJVc7cJMLxEyheXDLpuhtGxzZh24bwxmCl7Uf9jI68sR
+         vV24fpQuoO8yvNhOV8kP45ZCpvGXpQvlN4Q9OgRIsmVAfKHe9ui4+eUTg1LqdN/e3OL1
+         NnXLOgkxCn3KFBV2h2X/QFKv698jMfwvGgpOkFN194LSczsyT/UUrnIPcsg4Ar17GEgy
+         wr6/i4rjdATb+6/YDTq1uXCSghiQt6W8aYWJos1EvoiO5Lo5Kd9OkLrZL+38Ml5/ymku
+         IZrSVEdFvPr7Z7v7VamyRyeUSCYOqi0mfJP2bPVC2m9oCGipkMsMjyIAu2zgMXlYyxPG
+         cWeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1696088268; x=1696693068;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SFxpcz2a7H2ZjgJ8ssrmjpRaSpMI8na0366gdvXOP5U=;
+        b=i/IXTzK7Nl2JAky6WN0Ui0AtJmwqsKakUi2lxUpMCmwArwgFO+CSkzyzn3PjPi8HMf
+         jdQrsz7DPGUs8midPg8gAlsx3KJHWKcfrayDZHO/nqGi1Qh/yNbMpJKHatQVI4ANluc3
+         wXWwiA1XAZtGLei0OwxRrNdn1APkotUwWEOEdct2EViXz+eDL69Utpk5t7NUBQ4CSOnr
+         4V5niVPs8Qom4qOaUlv/FBQ0ClkzGXtDHzhyekowb2nsVm65m0X7iQzlNGba6+q5EhFA
+         srMrD1bXkhjnyVztX1qMd2F0PB2hM+yiCE9ngiRyg22luUxWvGpq0IIyJAW281yi37To
+         z0+A==
+X-Gm-Message-State: AOJu0YyX4xPapWznjJsp+XwnMG4DtRuHqj0mgjp3uuxY36uPLISRwBXC
+        PWe+kTmoNqxBH4t580tI3Qo=
+X-Google-Smtp-Source: AGHT+IEMqhKSToJyXm3yTD7cSFnLWSycVL5nK0X/hEUjcO1rvPkbJ0hf7ZvRqV9SvIbBhj0xSyFIPg==
+X-Received: by 2002:a05:6a00:16c7:b0:68f:ecb9:5fde with SMTP id l7-20020a056a0016c700b0068fecb95fdemr7078816pfc.34.1696088268304;
+        Sat, 30 Sep 2023 08:37:48 -0700 (PDT)
+Received: from google.com ([2620:15c:9d:2:a90f:2dad:30c1:d923])
+        by smtp.gmail.com with ESMTPSA id a10-20020a62d40a000000b006926506de1csm17137176pfh.28.2023.09.30.08.37.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 30 Sep 2023 08:37:47 -0700 (PDT)
+Date:   Sat, 30 Sep 2023 08:37:43 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= 
+        <u.kleine-koenig@pengutronix.de>
+Cc:     Lee Jones <lee@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Guenter Roeck <groeck@chromium.org>, Liang He <windhl@126.com>,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        chrome-platform@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Samuel Holland <samuel@sholland.org>,
+        Andrey Moiseev <o2g.org.ru@gmail.com>,
+        Michal Simek <michal.simek@amd.com>,
+        Ruan Jinjie <ruanjinjie@huawei.com>,
+        Yangtao Li <frank.li@vivo.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        joewu =?utf-8?B?KOWQs+S7suaMryk=?= <joewu@msi.com>,
+        Miloslav Trmac <mitr@volny.cz>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Chen-Yu Tsai <wens@csie.org>, Andy Gross <agross@kernel.org>,
+        linux-input@vger.kernel.org, Jeff LaBundy <jeff@labundy.com>,
+        linux-sunxi@lists.linux.dev, linux-arm-msm@vger.kernel.org,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Rob Herring <robh@kernel.org>,
+        ye xingchen <ye.xingchen@zte.com.cn>,
+        Kalle Valo <kvalo@kernel.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Siarhei Volkau <lis8215@gmail.com>,
         Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Jonathan Albrieux <jonathan.albrieux@gmail.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-X-Mailer: b4 0.12.3
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Benson Leung <bleung@chromium.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Paolo Abeni <pabeni@redhat.com>,
+        Support Opensource <support.opensource@diasemi.com>,
+        Chen Jun <chenjun102@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        kernel@pengutronix.de, patches@opensource.cirrus.com,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: Re: [PATCH 00/52] input: Convert to platform remove callback
+ returning void
+Message-ID: <ZRhAx5oDFxJJkUIz@google.com>
+References: <20230920125829.1478827-1-u.kleine-koenig@pengutronix.de>
+ <ZQ+jddG+UbuSD7pP@google.com>
+ <20230924155057.e4k4ruv5iggbt6q6@pengutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230924155057.e4k4ruv5iggbt6q6@pengutronix.de>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Himax HX852x(ES) is a touch panel controller with optional support
-for capacitive touch keys.
+Hi Uwe,
 
-Unfortunately, the model naming is quite unclear and confusing. There
-seems to be a distinction between models (e.g. HX8526) and the "series"
-suffix (e.g. -A, -B, -C, -D, -E, -ES). But this doesn't seem to be
-applied very consistently because e.g. HX8527-E(44) actually seems to
-belong to the -ES series.
+Sorry for the spotty responses.
 
-The compatible consists of the actual part number followed by the
-"series" as fallback compatible. Typically only the latter will be
-interesting for drivers as there is no relevant difference on the
-driver side.
+On Sun, Sep 24, 2023 at 05:50:57PM +0200, Uwe Kleine-König wrote:
+> Hello Dmitry,
+> 
+> On Sat, Sep 23, 2023 at 07:48:21PM -0700, Dmitry Torokhov wrote:
+> > On Wed, Sep 20, 2023 at 02:57:37PM +0200, Uwe Kleine-König wrote:
+> > > Hello,
+> > > 
+> > > this series converts all platform drivers below drivers/input to use
+> > > remove_new. The motivation is to get rid of an integer return code
+> > > that is (mostly) ignored by the platform driver core and error prone on
+> > > the driver side.
+> > > 
+> > > See commit 5c5a7680e67b ("platform: Provide a remove callback that
+> > > returns no value") for an extended explanation and the eventual goal.
+> > > 
+> > > There are no interdependencies between the patches. As there are still
+> > > quite a few drivers to convert, I'm happy about every patch that makes
+> > > it in. So even if there is a merge conflict with one patch until you
+> > > apply or a subject prefix is suboptimal, please apply the remainder of
+> > > this series anyhow.
+> > 
+> > Applied the lot (fixing the i8042-sparcio patch subject), thank you!
+> 
+> Thanks. In the meantime I found out why my process failed here: I only
+> fixed *.c, but this driver struct is defined in a header file
+> i8042-sparcio.h.
+> 
+> This file is only included by drivers/input/serio/i8042.h which in turn
+> is only included by drivers/input/serio/i8042.c. So there is only one
+> instance created, but I'd call that unusual anyhow.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
----
- .../bindings/input/touchscreen/himax,hx852es.yaml  | 81 ++++++++++++++++++++++
- 1 file changed, 81 insertions(+)
+Right, i8042 is essentially a singleton, and what you see here is an
+attempt to bolt OF onto a legacy driver that is largely predates the
+current driver model. I wanted to clean it up, but it is still widely
+used and I am hesitant to disturb it too much.
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/himax,hx852es.yaml b/Documentation/devicetree/bindings/input/touchscreen/himax,hx852es.yaml
-new file mode 100644
-index 000000000000..40a60880111d
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/himax,hx852es.yaml
-@@ -0,0 +1,81 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/himax,hx852es.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Himax HX852x(ES) touch panel controller
-+
-+maintainers:
-+  - Stephan Gerhold <stephan@gerhold.net>
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    items:
-+      - enum:
-+          - himax,hx8525e
-+          - himax,hx8526e
-+          - himax,hx8527e
-+      - const: himax,hx852es
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+    description: Touch Screen Interrupt (TSIX), active low
-+
-+  reset-gpios:
-+    maxItems: 1
-+    description: External Reset (XRES), active low
-+
-+  vcca-supply:
-+    description: Analog power supply (VCCA)
-+
-+  vccd-supply:
-+    description: Digital power supply (VCCD)
-+
-+  touchscreen-inverted-x: true
-+  touchscreen-inverted-y: true
-+  touchscreen-size-x: true
-+  touchscreen-size-y: true
-+  touchscreen-swapped-x-y: true
-+
-+  linux,keycodes:
-+    minItems: 1
-+    maxItems: 4
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - reset-gpios
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      touchscreen@48 {
-+        compatible = "himax,hx8527e", "himax,hx852es";
-+        reg = <0x48>;
-+        interrupt-parent = <&tlmm>;
-+        interrupts = <13 IRQ_TYPE_LEVEL_LOW>;
-+        reset-gpios = <&tlmm 12 GPIO_ACTIVE_LOW>;
-+        vcca-supply = <&reg_ts_vcca>;
-+        vccd-supply = <&pm8916_l6>;
-+        linux,keycodes = <KEY_BACK KEY_HOMEPAGE KEY_APPSELECT>;
-+      };
-+    };
-+
-+...
+Thanks.
 
 -- 
-2.42.0
-
+Dmitry

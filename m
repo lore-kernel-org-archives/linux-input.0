@@ -2,32 +2,31 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 295EBE748F9
-	for <linux-input@archiver.kernel.org>; Sun,  1 Oct 2023 14:22:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B84E4E748ED
+	for <linux-input@archiver.kernel.org>; Sun,  1 Oct 2023 14:22:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235087AbjJAOWW (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 1 Oct 2023 10:22:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33594 "EHLO
+        id S235090AbjJAOWu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 1 Oct 2023 10:22:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47240 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235080AbjJAOWV (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 1 Oct 2023 10:22:21 -0400
-Received: from mx.skole.hr (mx1.hosting.skole.hr [161.53.165.185])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C60BAB;
-        Sun,  1 Oct 2023 07:22:18 -0700 (PDT)
-Received: from mx1.hosting.skole.hr (localhost.localdomain [127.0.0.1])
-        by mx.skole.hr (mx.skole.hr) with ESMTP id 3C232836A5;
-        Sun,  1 Oct 2023 16:13:01 +0200 (CEST)
+        with ESMTP id S235088AbjJAOWt (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 1 Oct 2023 10:22:49 -0400
+Received: from mx.skole.hr (mx2.hosting.skole.hr [161.53.165.186])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D9AEAB;
+        Sun,  1 Oct 2023 07:22:47 -0700 (PDT)
+Received: from mx2.hosting.skole.hr (localhost.localdomain [127.0.0.1])
+        by mx.skole.hr (mx.skole.hr) with ESMTP id DC05382D29;
+        Sun,  1 Oct 2023 16:13:03 +0200 (CEST)
 From:   =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
-Subject: [PATCH RFC v4 0/6] ARM: pxa: GPIO descriptor conversions
-Date:   Sun, 01 Oct 2023 16:12:51 +0200
-Message-Id: <20231001-pxa-gpio-v4-0-0f3b975e6ed5@skole.hr>
+Date:   Sun, 01 Oct 2023 16:12:55 +0200
+Subject: [PATCH RFC v4 4/6] ARM: pxa: Convert reset driver to GPIO
+ descriptors
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIAGN+GWUC/13NSw7CIBCA4as0sxbDY2ipKxMTD+DWuKiFWqIpD
- RhS0/TuEjYSl8Pw/bNCMN6aAIdqBW+iDdZNacBdBf3YTQ9DrE4zcMoFVbQh89KRx2wdEb3hUss
- GFUNI32dvBrvk1BUu5xPc0uNow9v5T85Hlle51HL8lSIjlHBF5V01WqkWj+HpXmY/+tyIvHR14
- XhyrUKsUbNaav3nROnawonkukFpaaRmgyjvbdv2BXLmtYoUAQAA
+Message-Id: <20231001-pxa-gpio-v4-4-0f3b975e6ed5@skole.hr>
+References: <20231001-pxa-gpio-v4-0-0f3b975e6ed5@skole.hr>
+In-Reply-To: <20231001-pxa-gpio-v4-0-0f3b975e6ed5@skole.hr>
 To:     Daniel Mack <daniel@zonque.org>,
         Haojian Zhuang <haojian.zhuang@gmail.com>,
         Robert Jarzmik <robert.jarzmik@free.fr>,
@@ -44,86 +43,153 @@ Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-input@vger.kernel.org, linux-spi@vger.kernel.org,
         =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
 X-Mailer: b4 0.12.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2325;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3654;
  i=duje.mihanovic@skole.hr; h=from:subject:message-id;
- bh=m8bKiHpWAVkzZ4rX+3MqXGTQKxlWpvxpDzrmC6PtKks=;
- b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBlGX5nOeDT3j+PeN8XmO9hsa7Y0m/xSrsaviidP
- P5CN29YWYyJAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZRl+ZwAKCRCaEZ6wQi2W
- 4b/FD/0cgXaU50cz0P86RkEXyT6bFJth3AXwlIJKthxeagxMpUY5yEUqu/T8p8LCOUDexyoLiCl
- 6kUUOumwEsISsqpv+i4HXGcxRa5bLHWNAm3gXyr2KpAxUA0xnqT300mUeEqeRQCqJOYEgCMdTFi
- EXCArOgqWkm9INcLP7yGavJ33xgosZeOjnoWaa8uQm4wqohD3wOF4fvCFqiSPFpRvtMmGnvnziu
- o/TQ2MPZORRpb8fH5GIHj07lDkk5Yu40hVEgRy1p74jVxyB9JFyHsQsM14dV8nQ6ITW/596db+v
- ldXimOvDHfUH4z5bc4D6GhvIUxpCwCO8CCYPPwxobz8TDhM1UApBu809kONvOMXdQxq4hIoedcD
- M+hE1KV2BTj7vTvD5XeiNTM0xr0a1iVKOPqcUXRWnjl/Of2zDf5kWWvggXDp/ngD06rBEQbYkAN
- OxpsNpPK1qrMH0/7AqrPt9EvGdtfhWok3aevethRNvzBJP19asFySsuY9zQ9Q1wArwvgAdA8YB8
- uLMTl85cku91uvG88Z6GsnR0qq4/Wv8x6iHZImb77tWbfmpCqyEkj3RsNCdYGMqGJF4i2BDUWMX
- PWqi/v8BGbET6E33UF1dxi3MQtJd3WHpoX+5XoBjgMlbe/nlJ5llpB+iEKSrHbirBoiIlxGitMV
- iwbjBf5fmjzM4Ng==
+ bh=/5RS07oDLTRM3lgyYG7tk3xbGzkj5Cj8vfkuDyb1HJU=;
+ b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBlGX5oQcyjQR6JAF0y/zmQk3Z8t5h4+yoRN+M4i
+ PYHyqTY3eWJAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZRl+aAAKCRCaEZ6wQi2W
+ 4aiyEACQLJHgTkUAExmrwUOYfsqTHZPOmxL50sd8zf5DPeL5KfPskdb+IC3mVz4bfKlqoEppanD
+ 1q3MXyiXNSU3pyquUiOcOoVzn8nIKHfy5iN7fBiq9VA7TePKJRSOmv2pM1bdDmQP+nsD3V2F7RL
+ Dkwk2G1jnlXwgsOmfQeuP1bdR4sgJJtlqDQDpe/be3yClQ5wqvo2A4Pggxsof6NYhDa/K5wheCL
+ vjn36qYxcmU++1prFzEeFMnxaWuAiZPCVM0X9jcgpmuE7sowlaOjkctODIAOLZWB/uFF0ZpCcZr
+ Nml9gKI0cDb6BEjGqczHu4f2Bdn87FmNJhmGtOt1JVzVRDWbquWU2LUWCcbdqY78OffRWjqwgnP
+ 97tdLJwNmovVflsn/z2Tu34q450alWc/x+0U4r9loZctjXMCWwV6SonjfKNNCuGLQJZq5gMXkSN
+ 1zE2Ul9/cf2508SjcDmzhXzd3A2RW/B4TDhdmgJvmioejxnv3c95sq1Qx4OU+vqxL9XbZzd0fVx
+ ciKRY8b4NsKu1MA8gThDJnEtv3/fgDy7SyLw0ADrmDHa3nBEBj4xYy6hZLGGv07vy3BbqEoiReE
+ Lb6InZzJPiaK9FBaLYNXesQ5I7kVc6eg4H4vGkCpK3nk3BoNXpt6qmnUwhCD2NVwvf5ncG48gaf
+ Hgt93S+vaVBsV1w==
 X-Developer-Key: i=duje.mihanovic@skole.hr; a=openpgp;
  fpr=53DF9D4D9C3FE110FB362D789A119EB0422D96E1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hello,
+The PXA reset driver still uses the legacy GPIO interface for
+configuring and asserting the reset pin.
 
-Small series to convert some of the board files in the mach-pxa directory
-to use the new GPIO descriptor interface.
+Convert it to use the GPIO descriptor interface.
 
-Most notably, the am200epd, am300epd and Spitz matrix keypad among
-others are not converted in this series.
-
+Acked-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
 ---
-Changes in v4:
-- Address maintainer comments:
-  - Move wait_for_sync() from spitz.c to driver
-  - Register LED platform device before getting its gpiod-s
-- Add Linus' Reviewed-by
-- Link to v3: https://lore.kernel.org/r/20230929-pxa-gpio-v3-0-af8d5e5d1f34@skole.hr
+ arch/arm/mach-pxa/reset.c | 39 +++++++++++++--------------------------
+ arch/arm/mach-pxa/reset.h |  3 +--
+ arch/arm/mach-pxa/spitz.c |  6 +++++-
+ 3 files changed, 19 insertions(+), 29 deletions(-)
 
-Changes in v3:
-- Address maintainer comments:
-  - Use GPIO_LOOKUP_IDX for LEDs
-  - Drop unnecessary NULL assignments
-  - Don't give up on *all* SPI devices if hsync cannot be set up
-- Add Linus' Acked-by
-- Link to v2: https://lore.kernel.org/r/20230926-pxa-gpio-v2-0-984464d165dd@skole.hr
+diff --git a/arch/arm/mach-pxa/reset.c b/arch/arm/mach-pxa/reset.c
+index 27293549f8ad..2bfa66f99555 100644
+--- a/arch/arm/mach-pxa/reset.c
++++ b/arch/arm/mach-pxa/reset.c
+@@ -2,7 +2,7 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/delay.h>
+-#include <linux/gpio.h>
++#include <linux/gpio/consumer.h>
+ #include <linux/io.h>
+ #include <asm/proc-fns.h>
+ #include <asm/system_misc.h>
+@@ -14,33 +14,20 @@
+ 
+ static void do_hw_reset(void);
+ 
+-static int reset_gpio = -1;
++static struct gpio_desc *reset_gpio;
+ 
+-int init_gpio_reset(int gpio, int output, int level)
++int init_gpio_reset(int output, int level)
+ {
+-	int rc;
+-
+-	rc = gpio_request(gpio, "reset generator");
+-	if (rc) {
+-		printk(KERN_ERR "Can't request reset_gpio\n");
+-		goto out;
++	reset_gpio = gpiod_get(NULL, "reset generator", GPIOD_ASIS);
++	if (IS_ERR(reset_gpio)) {
++		pr_err("Can't request reset_gpio: %pe\n", reset_gpio);
++		return PTR_ERR(reset_gpio);
+ 	}
+ 
+ 	if (output)
+-		rc = gpio_direction_output(gpio, level);
++		return gpiod_direction_output(reset_gpio, level);
+ 	else
+-		rc = gpio_direction_input(gpio);
+-	if (rc) {
+-		printk(KERN_ERR "Can't configure reset_gpio\n");
+-		gpio_free(gpio);
+-		goto out;
+-	}
+-
+-out:
+-	if (!rc)
+-		reset_gpio = gpio;
+-
+-	return rc;
++		return gpiod_direction_input(reset_gpio);
+ }
+ 
+ /*
+@@ -50,16 +37,16 @@ int init_gpio_reset(int gpio, int output, int level)
+  */
+ static void do_gpio_reset(void)
+ {
+-	BUG_ON(reset_gpio == -1);
++	BUG_ON(IS_ERR(reset_gpio));
+ 
+ 	/* drive it low */
+-	gpio_direction_output(reset_gpio, 0);
++	gpiod_direction_output(reset_gpio, 0);
+ 	mdelay(2);
+ 	/* rising edge or drive high */
+-	gpio_set_value(reset_gpio, 1);
++	gpiod_set_value(reset_gpio, 1);
+ 	mdelay(2);
+ 	/* falling edge */
+-	gpio_set_value(reset_gpio, 0);
++	gpiod_set_value(reset_gpio, 0);
+ 
+ 	/* give it some time */
+ 	mdelay(10);
+diff --git a/arch/arm/mach-pxa/reset.h b/arch/arm/mach-pxa/reset.h
+index 963dd190bc13..5864f61a0e94 100644
+--- a/arch/arm/mach-pxa/reset.h
++++ b/arch/arm/mach-pxa/reset.h
+@@ -13,10 +13,9 @@ extern void pxa_register_wdt(unsigned int reset_status);
+ 
+ /**
+  * init_gpio_reset() - register GPIO as reset generator
+- * @gpio: gpio nr
+  * @output: set gpio as output instead of input during normal work
+  * @level: output level
+  */
+-extern int init_gpio_reset(int gpio, int output, int level);
++extern int init_gpio_reset(int output, int level);
+ 
+ #endif /* __ASM_ARCH_RESET_H */
+diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
+index 965354e64c68..701fba130ac4 100644
+--- a/arch/arm/mach-pxa/spitz.c
++++ b/arch/arm/mach-pxa/spitz.c
+@@ -1024,9 +1024,13 @@ static void spitz_restart(enum reboot_mode mode, const char *cmd)
+ 	spitz_poweroff();
+ }
+ 
++GPIO_LOOKUP_SINGLE(spitz_reset_gpio_table, NULL, "pxa-gpio",
++		SPITZ_GPIO_ON_RESET, "reset generator", GPIO_ACTIVE_HIGH);
++
+ static void __init spitz_init(void)
+ {
+-	init_gpio_reset(SPITZ_GPIO_ON_RESET, 1, 0);
++	gpiod_add_lookup_table(&spitz_reset_gpio_table);
++	init_gpio_reset(1, 0);
+ 	pm_power_off = spitz_poweroff;
+ 
+ 	PMCR = 0x00;
 
-Changes in v2:
-- Address maintainer comments:
-  - Change mentions of function to function()
-  - Drop cast in OHCI driver dev_warn() call
-  - Use %pe in OHCI and reset drivers
-  - Use GPIO _optional() API in OHCI driver
-  - Drop unnecessary not-null check in OHCI driver
-  - Use pr_err() instead of printk() in reset driver
-- Rebase on v6.6-rc3
-- Link to v1: https://lore.kernel.org/r/20230924-pxa-gpio-v1-0-2805b87d8894@skole.hr
-
----
-Duje Mihanović (6):
-      ARM: pxa: Convert Spitz OHCI to GPIO descriptors
-      ARM: pxa: Convert Spitz LEDs to GPIO descriptors
-      ARM: pxa: Convert Spitz CF power control to GPIO descriptors
-      ARM: pxa: Convert reset driver to GPIO descriptors
-      ARM: pxa: Convert gumstix Bluetooth to GPIO descriptors
-      input: ads7846: Move wait_for_sync() logic to driver
-
- arch/arm/mach-pxa/gumstix.c         | 24 +++++++------
- arch/arm/mach-pxa/reset.c           | 39 +++++++--------------
- arch/arm/mach-pxa/reset.h           |  3 +-
- arch/arm/mach-pxa/spitz.c           | 69 +++++++++++++++++++++++++------------
- drivers/input/touchscreen/ads7846.c | 22 ++++++++----
- drivers/usb/host/ohci-pxa27x.c      |  7 ++++
- include/linux/spi/ads7846.h         |  1 -
- 7 files changed, 96 insertions(+), 69 deletions(-)
----
-base-commit: 6465e260f48790807eef06b583b38ca9789b6072
-change-id: 20230807-pxa-gpio-3ce25d574814
-
-Best regards,
 -- 
-Duje Mihanović <duje.mihanovic@skole.hr>
+2.42.0
 
 

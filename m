@@ -2,29 +2,29 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B84E4E748ED
-	for <linux-input@archiver.kernel.org>; Sun,  1 Oct 2023 14:22:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 188ACE748F6
+	for <linux-input@archiver.kernel.org>; Sun,  1 Oct 2023 14:22:50 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235090AbjJAOWu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S235094AbjJAOWu (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sun, 1 Oct 2023 10:22:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47240 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235088AbjJAOWt (ORCPT
+        with ESMTP id S235080AbjJAOWt (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Sun, 1 Oct 2023 10:22:49 -0400
 Received: from mx.skole.hr (mx2.hosting.skole.hr [161.53.165.186])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D9AEAB;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B9BB3;
         Sun,  1 Oct 2023 07:22:47 -0700 (PDT)
 Received: from mx2.hosting.skole.hr (localhost.localdomain [127.0.0.1])
-        by mx.skole.hr (mx.skole.hr) with ESMTP id DC05382D29;
-        Sun,  1 Oct 2023 16:13:03 +0200 (CEST)
+        by mx.skole.hr (mx.skole.hr) with ESMTP id D0F71849BE;
+        Sun,  1 Oct 2023 16:13:05 +0200 (CEST)
 From:   =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
-Date:   Sun, 01 Oct 2023 16:12:55 +0200
-Subject: [PATCH RFC v4 4/6] ARM: pxa: Convert reset driver to GPIO
- descriptors
+Date:   Sun, 01 Oct 2023 16:12:57 +0200
+Subject: [PATCH RFC v4 6/6] input: ads7846: Move wait_for_sync() logic to
+ driver
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20231001-pxa-gpio-v4-4-0f3b975e6ed5@skole.hr>
+Message-Id: <20231001-pxa-gpio-v4-6-0f3b975e6ed5@skole.hr>
 References: <20231001-pxa-gpio-v4-0-0f3b975e6ed5@skole.hr>
 In-Reply-To: <20231001-pxa-gpio-v4-0-0f3b975e6ed5@skole.hr>
 To:     Daniel Mack <daniel@zonque.org>,
@@ -43,151 +43,151 @@ Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
         linux-input@vger.kernel.org, linux-spi@vger.kernel.org,
         =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
 X-Mailer: b4 0.12.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3654;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=4116;
  i=duje.mihanovic@skole.hr; h=from:subject:message-id;
- bh=/5RS07oDLTRM3lgyYG7tk3xbGzkj5Cj8vfkuDyb1HJU=;
- b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBlGX5oQcyjQR6JAF0y/zmQk3Z8t5h4+yoRN+M4i
- PYHyqTY3eWJAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZRl+aAAKCRCaEZ6wQi2W
- 4aiyEACQLJHgTkUAExmrwUOYfsqTHZPOmxL50sd8zf5DPeL5KfPskdb+IC3mVz4bfKlqoEppanD
- 1q3MXyiXNSU3pyquUiOcOoVzn8nIKHfy5iN7fBiq9VA7TePKJRSOmv2pM1bdDmQP+nsD3V2F7RL
- Dkwk2G1jnlXwgsOmfQeuP1bdR4sgJJtlqDQDpe/be3yClQ5wqvo2A4Pggxsof6NYhDa/K5wheCL
- vjn36qYxcmU++1prFzEeFMnxaWuAiZPCVM0X9jcgpmuE7sowlaOjkctODIAOLZWB/uFF0ZpCcZr
- Nml9gKI0cDb6BEjGqczHu4f2Bdn87FmNJhmGtOt1JVzVRDWbquWU2LUWCcbdqY78OffRWjqwgnP
- 97tdLJwNmovVflsn/z2Tu34q450alWc/x+0U4r9loZctjXMCWwV6SonjfKNNCuGLQJZq5gMXkSN
- 1zE2Ul9/cf2508SjcDmzhXzd3A2RW/B4TDhdmgJvmioejxnv3c95sq1Qx4OU+vqxL9XbZzd0fVx
- ciKRY8b4NsKu1MA8gThDJnEtv3/fgDy7SyLw0ADrmDHa3nBEBj4xYy6hZLGGv07vy3BbqEoiReE
- Lb6InZzJPiaK9FBaLYNXesQ5I7kVc6eg4H4vGkCpK3nk3BoNXpt6qmnUwhCD2NVwvf5ncG48gaf
- Hgt93S+vaVBsV1w==
+ bh=vDxjARPpIkB52+0U6yxYfBgdugyxZKs36TcEKwzrmIE=;
+ b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBlGX5oeO7RLXrgpT84soQS3RW8AL4f+9KqS2biH
+ w8i7dlZgViJAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZRl+aAAKCRCaEZ6wQi2W
+ 4YO+D/9DQqpYETk638UYYXIIbSeoFZF/ozW1wcqL+jDyIxrota8mS/axOJe4lCC7bUBB8pRi/t3
+ VoTKgmjv+wK8Vnt9E6xtyTF0S1JoMkv28l8i5/c97MdGWb9wEd7DLEQ9b/sFNIhUt/FhwRFPEDZ
+ Evq1LZFBbGAYr4uN3xIKjgd+zX+pElQiMU/uDqMov92Ac/CeX0pQNVkpgTeRR+YcBA2JNRKWCyF
+ Ypnf2qUh+MBfkMNryG5Eh8oO2/T+9gBLFUtgg6yWDgO9seRO48EJjpuHTGpv3o0eJr/tBLblcYr
+ dcWFEvjIc2tFC+kAfcIfJ2lpCnDO+GT/hiN75clChJQgUYiaWH0aoeGZb2eXlZ3AaJIw4n30n9a
+ 8l+1yP2L9IOt/QsNHc6YRPfWqJkFIvn+UPyI7cvub9udcl0NwmOkbScnHdQZyQyffhjhA4g3d5O
+ FX04w8F52TuCWG3yyPRy6zJuxXYJtT3v1BjGw94zcOEs/XG1i0p5JX7hiqVei9jkocYoePUahu0
+ bUxD6RxK/Lx58IqSK8IW9X19+kcBWqNdOXdopqk9SwXneXTfJw8I2s7X9nUKeilV4/P3GPh+FSV
+ taulT/VVCaH9q79o0TVydh1177M5vLOWyOrMO6xInQt0camzl6DZrsj8SQdZz0Y0finkO03uatj
+ U3OUdZsr6rWtqZw==
 X-Developer-Key: i=duje.mihanovic@skole.hr; a=openpgp;
  fpr=53DF9D4D9C3FE110FB362D789A119EB0422D96E1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The PXA reset driver still uses the legacy GPIO interface for
-configuring and asserting the reset pin.
+If this code is left in the board file, the sync GPIO would have to be
+separated into another lookup table during conversion to the GPIO
+descriptor API (which is also done in this patch).
 
-Convert it to use the GPIO descriptor interface.
+The only user of this code (Sharp Spitz) is also converted in this
+patch.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
 ---
- arch/arm/mach-pxa/reset.c | 39 +++++++++++++--------------------------
- arch/arm/mach-pxa/reset.h |  3 +--
- arch/arm/mach-pxa/spitz.c |  6 +++++-
- 3 files changed, 19 insertions(+), 29 deletions(-)
+ arch/arm/mach-pxa/spitz.c           | 12 ++----------
+ drivers/input/touchscreen/ads7846.c | 22 +++++++++++++++-------
+ include/linux/spi/ads7846.h         |  1 -
+ 3 files changed, 17 insertions(+), 18 deletions(-)
 
-diff --git a/arch/arm/mach-pxa/reset.c b/arch/arm/mach-pxa/reset.c
-index 27293549f8ad..2bfa66f99555 100644
---- a/arch/arm/mach-pxa/reset.c
-+++ b/arch/arm/mach-pxa/reset.c
-@@ -2,7 +2,7 @@
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/delay.h>
--#include <linux/gpio.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/io.h>
- #include <asm/proc-fns.h>
- #include <asm/system_misc.h>
-@@ -14,33 +14,20 @@
- 
- static void do_hw_reset(void);
- 
--static int reset_gpio = -1;
-+static struct gpio_desc *reset_gpio;
- 
--int init_gpio_reset(int gpio, int output, int level)
-+int init_gpio_reset(int output, int level)
- {
--	int rc;
--
--	rc = gpio_request(gpio, "reset generator");
--	if (rc) {
--		printk(KERN_ERR "Can't request reset_gpio\n");
--		goto out;
-+	reset_gpio = gpiod_get(NULL, "reset generator", GPIOD_ASIS);
-+	if (IS_ERR(reset_gpio)) {
-+		pr_err("Can't request reset_gpio: %pe\n", reset_gpio);
-+		return PTR_ERR(reset_gpio);
- 	}
- 
- 	if (output)
--		rc = gpio_direction_output(gpio, level);
-+		return gpiod_direction_output(reset_gpio, level);
- 	else
--		rc = gpio_direction_input(gpio);
--	if (rc) {
--		printk(KERN_ERR "Can't configure reset_gpio\n");
--		gpio_free(gpio);
--		goto out;
--	}
--
--out:
--	if (!rc)
--		reset_gpio = gpio;
--
--	return rc;
-+		return gpiod_direction_input(reset_gpio);
- }
- 
- /*
-@@ -50,16 +37,16 @@ int init_gpio_reset(int gpio, int output, int level)
-  */
- static void do_gpio_reset(void)
- {
--	BUG_ON(reset_gpio == -1);
-+	BUG_ON(IS_ERR(reset_gpio));
- 
- 	/* drive it low */
--	gpio_direction_output(reset_gpio, 0);
-+	gpiod_direction_output(reset_gpio, 0);
- 	mdelay(2);
- 	/* rising edge or drive high */
--	gpio_set_value(reset_gpio, 1);
-+	gpiod_set_value(reset_gpio, 1);
- 	mdelay(2);
- 	/* falling edge */
--	gpio_set_value(reset_gpio, 0);
-+	gpiod_set_value(reset_gpio, 0);
- 
- 	/* give it some time */
- 	mdelay(10);
-diff --git a/arch/arm/mach-pxa/reset.h b/arch/arm/mach-pxa/reset.h
-index 963dd190bc13..5864f61a0e94 100644
---- a/arch/arm/mach-pxa/reset.h
-+++ b/arch/arm/mach-pxa/reset.h
-@@ -13,10 +13,9 @@ extern void pxa_register_wdt(unsigned int reset_status);
- 
- /**
-  * init_gpio_reset() - register GPIO as reset generator
-- * @gpio: gpio nr
-  * @output: set gpio as output instead of input during normal work
-  * @level: output level
-  */
--extern int init_gpio_reset(int gpio, int output, int level);
-+extern int init_gpio_reset(int output, int level);
- 
- #endif /* __ASM_ARCH_RESET_H */
 diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
-index 965354e64c68..701fba130ac4 100644
+index 701fba130ac4..22d5c5645b8f 100644
 --- a/arch/arm/mach-pxa/spitz.c
 +++ b/arch/arm/mach-pxa/spitz.c
-@@ -1024,9 +1024,13 @@ static void spitz_restart(enum reboot_mode mode, const char *cmd)
- 	spitz_poweroff();
+@@ -520,22 +520,12 @@ static inline void spitz_leds_init(void) {}
+  * SSP Devices
+  ******************************************************************************/
+ #if defined(CONFIG_SPI_PXA2XX) || defined(CONFIG_SPI_PXA2XX_MODULE)
+-static void spitz_ads7846_wait_for_hsync(void)
+-{
+-	while (gpio_get_value(SPITZ_GPIO_HSYNC))
+-		cpu_relax();
+-
+-	while (!gpio_get_value(SPITZ_GPIO_HSYNC))
+-		cpu_relax();
+-}
+-
+ static struct ads7846_platform_data spitz_ads7846_info = {
+ 	.model			= 7846,
+ 	.vref_delay_usecs	= 100,
+ 	.x_plate_ohms		= 419,
+ 	.y_plate_ohms		= 486,
+ 	.pressure_max		= 1024,
+-	.wait_for_sync		= spitz_ads7846_wait_for_hsync,
+ };
+ 
+ static struct gpiod_lookup_table spitz_ads7846_gpio_table = {
+@@ -543,6 +533,8 @@ static struct gpiod_lookup_table spitz_ads7846_gpio_table = {
+ 	.table = {
+ 		GPIO_LOOKUP("gpio-pxa", SPITZ_GPIO_TP_INT,
+ 			    "pendown", GPIO_ACTIVE_LOW),
++		GPIO_LOOKUP("gpio-pxa", SPITZ_GPIO_HSYNC,
++			    "sync", GPIO_ACTIVE_LOW),
+ 		{ }
+ 	},
+ };
+diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+index faea40dd66d0..894f179bfa8d 100644
+--- a/drivers/input/touchscreen/ads7846.c
++++ b/drivers/input/touchscreen/ads7846.c
+@@ -138,8 +138,7 @@ struct ads7846 {
+ 	void			*filter_data;
+ 	int			(*get_pendown_state)(void);
+ 	struct gpio_desc	*gpio_pendown;
+-
+-	void			(*wait_for_sync)(void);
++	struct gpio_desc	*sync;
+ };
+ 
+ enum ads7846_filter {
+@@ -636,9 +635,14 @@ static const struct attribute_group ads784x_attr_group = {
+ };
+ 
+ /*--------------------------------------------------------------------------*/
+-
+-static void null_wait_for_sync(void)
++static void ads7846_wait_for_sync(struct ads7846 *ts)
+ {
++	if (!ts->sync) return;
++	while (!gpiod_get_value(ts->sync))
++		cpu_relax();
++
++	while (gpiod_get_value(ts->sync))
++		cpu_relax();
  }
  
-+GPIO_LOOKUP_SINGLE(spitz_reset_gpio_table, NULL, "pxa-gpio",
-+		SPITZ_GPIO_ON_RESET, "reset generator", GPIO_ACTIVE_HIGH);
-+
- static void __init spitz_init(void)
- {
--	init_gpio_reset(SPITZ_GPIO_ON_RESET, 1, 0);
-+	gpiod_add_lookup_table(&spitz_reset_gpio_table);
-+	init_gpio_reset(1, 0);
- 	pm_power_off = spitz_poweroff;
+ static int ads7846_debounce_filter(void *ads, int data_idx, int *val)
+@@ -803,7 +807,7 @@ static void ads7846_read_state(struct ads7846 *ts)
+ 	packet->last_cmd_idx = 0;
  
- 	PMCR = 0x00;
+ 	while (true) {
+-		ts->wait_for_sync();
++		ads7846_wait_for_sync(ts);
+ 
+ 		m = &ts->msg[msg_idx];
+ 		error = spi_sync(ts->spi, m);
+@@ -1261,8 +1265,6 @@ static int ads7846_probe(struct spi_device *spi)
+ 		ts->penirq_recheck_delay_usecs =
+ 				pdata->penirq_recheck_delay_usecs;
+ 
+-	ts->wait_for_sync = pdata->wait_for_sync ? : null_wait_for_sync;
+-
+ 	snprintf(ts->phys, sizeof(ts->phys), "%s/input0", dev_name(dev));
+ 	snprintf(ts->name, sizeof(ts->name), "ADS%d Touchscreen", ts->model);
+ 
+@@ -1361,6 +1363,12 @@ static int ads7846_probe(struct spi_device *spi)
+ 	if (err)
+ 		return err;
+ 
++	ts->sync = devm_gpiod_get_optional(dev, "sync", GPIOD_IN);
++	if (IS_ERR(ts->sync)) {
++		dev_err(dev, "Failed to get sync GPIO: %pe\n", ts->sync);
++		return PTR_ERR(ts->sync);
++	}
++
+ 	err = input_register_device(input_dev);
+ 	if (err)
+ 		return err;
+diff --git a/include/linux/spi/ads7846.h b/include/linux/spi/ads7846.h
+index a04c1c34c344..fa7c4f119023 100644
+--- a/include/linux/spi/ads7846.h
++++ b/include/linux/spi/ads7846.h
+@@ -38,7 +38,6 @@ struct ads7846_platform_data {
+ 	int	gpio_pendown_debounce;	/* platform specific debounce time for
+ 					 * the gpio_pendown */
+ 	int	(*get_pendown_state)(void);
+-	void	(*wait_for_sync)(void);
+ 	bool	wakeup;
+ 	unsigned long irq_flags;
+ };
 
 -- 
 2.42.0

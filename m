@@ -2,124 +2,118 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 470ACE8FDC3
-	for <linux-input@archiver.kernel.org>; Wed,  4 Oct 2023 02:50:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28FC4E8FDC7
+	for <linux-input@archiver.kernel.org>; Wed,  4 Oct 2023 05:07:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232462AbjJDCuc (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 3 Oct 2023 22:50:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42858 "EHLO
+        id S235448AbjJDFHt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Oct 2023 01:07:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230447AbjJDCub (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 3 Oct 2023 22:50:31 -0400
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D419B0;
-        Tue,  3 Oct 2023 19:50:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1696387823; x=1727923823;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ClnmhsCaFZlRhEZGTnrJ+4K60cvJZGFBAonbTN8b/Ns=;
-  b=mYP9kx4jJ/V7ONPjZkpE4i0P7e+gO9awOPVpM7cX3QLVTXvXxIUd7POt
-   zimNXAxb8t2v/8dqBlg84Ly4M8fqdzJALw9s6Nqq2aTPVLREfD2M3nFr3
-   uMDZ7Hmhy22efEmUNgRldOP3HDQtv2LdNzrOMR5vwnbnFjc94eLBJJydR
-   s993rvZZpsp0ttHPmEEgZVViznpH/OKiN5J4Onw4P/rfUZvpgJmNAT1Jf
-   A951ZqfxLLUWmwWrfbZ4Ol2MLh4aF0Rpi+YLdqS9CWxI90Uip9JFJFl4T
-   t01+aRgdA2+FpQvrZgQuo3ZokcdEQRgOYdEvWTEBxjm+4qfel5hba5P2z
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10852"; a="413955805"
-X-IronPort-AV: E=Sophos;i="6.03,199,1694761200"; 
-   d="scan'208";a="413955805"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Oct 2023 19:50:23 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10852"; a="867135637"
-X-IronPort-AV: E=Sophos;i="6.03,199,1694761200"; 
-   d="scan'208";a="867135637"
-Received: from lkp-server02.sh.intel.com (HELO c3b01524d57c) ([10.239.97.151])
-  by fmsmga002.fm.intel.com with ESMTP; 03 Oct 2023 19:50:19 -0700
-Received: from kbuild by c3b01524d57c with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1qnrxp-000AOs-0N;
-        Wed, 04 Oct 2023 02:50:17 +0000
-Date:   Wed, 4 Oct 2023 10:50:17 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     karelb@gimli.ms.mff.cuni.cz,
-        Markuss Broks <markuss.broks@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Henrik Rydberg <rydberg@bitmath.org>,
-        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht
-Cc:     oe-kbuild-all@lists.linux.dev,
-        Duje =?utf-8?Q?Mihanovi=C4=87?= <duje.mihanovic@skole.hr>,
-        Karel Balej <karelb@gimli.ms.mff.cuni.cz>
-Subject: Re: [PATCH v2 3/5] input/touchscreen: imagis: Add support for Imagis
- IST3038B
-Message-ID: <202310041036.tddy1jGm-lkp@intel.com>
-References: <20231003133440.4696-4-karelb@gimli.ms.mff.cuni.cz>
+        with ESMTP id S231154AbjJDFHt (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Oct 2023 01:07:49 -0400
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF92490;
+        Tue,  3 Oct 2023 22:07:45 -0700 (PDT)
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1qnu6l-0002RL-L6; Wed, 04 Oct 2023 07:07:39 +0200
+Message-ID: <f8ce2911-e6f2-4423-9ace-262432ec19ad@leemhuis.info>
+Date:   Wed, 4 Oct 2023 07:07:38 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20231003133440.4696-4-karelb@gimli.ms.mff.cuni.cz>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: elantech - fix fast_reconnect callback in ps2 mode
+To:     Jeffery Miller <jefferymiller@google.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     regressions@lists.linux.dev, benjamin.tissoires@redhat.com,
+        Andrew Duggan <aduggan@synaptics.com>,
+        Andrew Duggan <andrew@duggan.us>, loic.poulain@linaro.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20231004005729.3943515-1-jefferymiller@google.com>
+Content-Language: en-US, de-DE
+From:   Thorsten Leemhuis <linux@leemhuis.info>
+Autocrypt: addr=linux@leemhuis.info; keydata=
+ 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 n7RI
+In-Reply-To: <20231004005729.3943515-1-jefferymiller@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;linux@leemhuis.info;1696396066;c155bc40;
+X-HE-SMSGID: 1qnu6l-0002RL-L6
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+On 04.10.23 02:57, Jeffery Miller wrote:
+> Make `elantech_setup_ps2` set a compatible fast_reconnect pointer
+> when its ps2 mode is used.
+> 
+> When an SMBus connection is attempted and fails `psmouse_smbus_init`
+> sets fast_reconnect to `psmouse_smbus_reconnect`.
+> `psmouse_smbus_reconnect` expects `psmouse->private` to be
+> `struct psmouse_smbus_dev` but `elantech_setup_ps2` replaces
+> it with its private data. This was causing an issue on resume
+> since psmouse_smbus_reconnect was being called while in ps2, not SMBus
+> mode.
+> 
+> This was uncovered by commit 92e24e0e57f7 ("Input: psmouse - add delay when
+> deactivating for SMBus mode")
 
-kernel test robot noticed the following build warnings:
+Ahh, thx for investigating. This fixes things for me. Feel free to add:
 
-[auto build test WARNING on dtor-input/next]
-[also build test WARNING on dtor-input/for-linus robh/for-next linus/master v6.6-rc4 next-20231003]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Tested-by: Thorsten Leemhuis <linux@leemhuis.info>
 
-url:    https://github.com/intel-lab-lkp/linux/commits/karelb-gimli-ms-mff-cuni-cz/input-touchscreen-imagis-Correct-the-maximum-touch-area-value/20231003-213739
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
-patch link:    https://lore.kernel.org/r/20231003133440.4696-4-karelb%40gimli.ms.mff.cuni.cz
-patch subject: [PATCH v2 3/5] input/touchscreen: imagis: Add support for Imagis IST3038B
-config: x86_64-randconfig-004-20231004 (https://download.01.org/0day-ci/archive/20231004/202310041036.tddy1jGm-lkp@intel.com/config)
-compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231004/202310041036.tddy1jGm-lkp@intel.com/reproduce)
+> Closes:
+> Link:https://lore.kernel.org/all/ca0109fa-c64b-43c1-a651-75b294d750a1@leemhuis.info/
+> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202310041036.tddy1jGm-lkp@intel.com/
+Side note: something went sideways here, it afaics should look something
+like this:
 
-All warnings (new ones prefixed by >>):
+"""
+> Reported-by: Thorsten Leemhuis <linux@leemhuis.info>
+> Closes:
+https://lore.kernel.org/all/ca0109fa-c64b-43c1-a651-75b294d750a1@leemhuis.info/
+"""
 
->> drivers/input/touchscreen/imagis.c:374:39: warning: 'imagis_3038c_data' defined but not used [-Wunused-const-variable=]
-     374 | static const struct imagis_properties imagis_3038c_data = {
-         |                                       ^~~~~~~~~~~~~~~~~
->> drivers/input/touchscreen/imagis.c:366:39: warning: 'imagis_3038b_data' defined but not used [-Wunused-const-variable=]
-     366 | static const struct imagis_properties imagis_3038b_data = {
-         |                                       ^~~~~~~~~~~~~~~~~
-
-
-vim +/imagis_3038c_data +374 drivers/input/touchscreen/imagis.c
-
-   365	
- > 366	static const struct imagis_properties imagis_3038b_data = {
-   367		.interrupt_msg_cmd = IST3038B_REG_STATUS,
-   368		.touch_coord_cmd = IST3038B_REG_STATUS,
-   369		.whoami_cmd = IST3038B_REG_CHIPID,
-   370		.whoami_val = IST3038B_WHOAMI,
-   371		.protocol_b = true,
-   372	};
-   373	
- > 374	static const struct imagis_properties imagis_3038c_data = {
-   375		.interrupt_msg_cmd = IST3038C_REG_INTR_MESSAGE,
-   376		.touch_coord_cmd = IST3038C_REG_TOUCH_COORD,
-   377		.whoami_cmd = IST3038C_REG_CHIPID,
-   378		.whoami_val = IST3038C_WHOAMI,
-   379	};
-   380	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Thx again. Ciao, Thorsten

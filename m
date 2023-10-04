@@ -2,108 +2,132 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD874E7C4E9
-	for <linux-input@archiver.kernel.org>; Wed,  4 Oct 2023 19:09:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A874E7C4E9
+	for <linux-input@archiver.kernel.org>; Wed,  4 Oct 2023 19:12:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244985AbjJDTJ7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Oct 2023 15:09:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49732 "EHLO
+        id S244826AbjJDTM7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Oct 2023 15:12:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245619AbjJDTJh (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Oct 2023 15:09:37 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 608A21BF5;
-        Wed,  4 Oct 2023 12:08:14 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA56FC433C8;
-        Wed,  4 Oct 2023 19:08:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1696446494;
-        bh=QNnMLUld3EP0hN/OdAh3qa/KhWWaME+HBFlqQYT6ChM=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=rj3z/u3RnB7WfWljEWfz5tRqCuA4C7ZsQ/PuBNhU7cXWNX2QONvdVNdg4NHIrGP/9
-         99T5wGqyKjblSKmWNjgA1MUAAcmXxHQR9CBoh68MwyGPjPfQL7gbQ39hODtze55Bet
-         DVtiDvVEBm/Ug107suxPCo+bTxjkLZOO7bzn2H5zElaXxmJiqIWq2hDJlsfnJOsRwp
-         qebDykGKEdzdNSkL/92pM9VIbblpE0nMTUSuiv685jwfFqg1dr0GHqcPbZ4yRDT4Hp
-         fZzB8aIXJ9AXUfQ0Rvd76o+YeLREEF1/ptZzCofhgpmaeHST0/hIZkD4nvbVrFRTIr
-         yleN8q0FN7J0w==
-Date:   Wed, 4 Oct 2023 21:08:10 +0200 (CEST)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Martino Fontana <tinozzo123@gmail.com>
-cc:     djogorchock@gmail.com, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 RESEND] HID: nintendo: cleanup LED code
-In-Reply-To: <20230924141547.11597-1-tinozzo123@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2310042107570.3534@cbobk.fhfr.pm>
-References: <20230924141547.11597-1-tinozzo123@gmail.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        with ESMTP id S1343544AbjJDTG7 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Oct 2023 15:06:59 -0400
+Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B751726A6;
+        Wed,  4 Oct 2023 12:01:52 -0700 (PDT)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailout.west.internal (Postfix) with ESMTP id B34F73200A66;
+        Wed,  4 Oct 2023 15:01:49 -0400 (EDT)
+Received: from imap49 ([10.202.2.99])
+  by compute6.internal (MEProxy); Wed, 04 Oct 2023 15:01:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sunshowers.io;
+         h=cc:cc:content-type:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm3; t=1696446108; x=
+        1696532508; bh=j4BkRX3dHCjU+8qjgW830kXHGywOWcvQEGez1bheQQQ=; b=V
+        jreFZabblm+nW/BtsLzRyRIVXzNa6vOE8tGcffuklWy6pchFVS9Inj0ILuSZAAUR
+        sFT3H9MLKlwqA00f/kjR+ifWjR5l1R/9sqtCPjM+QWjLushOiH1s0BjGwqV2LPXC
+        Hvk59kg7fQCRafB8WEhHWRuV0QhB30fOr+d7ZNxPSwRikhlSy8cLGNxT1iVT4M73
+        jnq2AKMKHumcg2/lOb7xYDd7ikKv2oGS9l0vwBCu3aGBWknZzjEP9Q15ld/wzB4C
+        0pCjULT0RD4RAyz4zl1L/rmWxymWDq6lK08TdLLwj3pU538F+AGSamSmj4GVYPOy
+        L6HhoCkI7b/fgfgTygpMA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:content-type:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; t=1696446108; x=1696532508; bh=j4BkRX3dHCjU+
+        8qjgW830kXHGywOWcvQEGez1bheQQQ=; b=XnCAxX6Zmm0GU2KCT3hB+66+FMhyE
+        3mXSh8eYwyxG+puw9+vhXtAT4bP7fnkkX/ClfNo4T/r5uxB2nueOFDPVPm/6VKHZ
+        8XVNyMrn7rdIjrLdFmdxqZ9eNM9jl2TJ6Lb22RASadGiA4Z2Exeu2GTHeybDPFLw
+        SK42S4ZsDSGoaW4Bh6UTpN55aJ1iIU2eSf8hkoAHBf7bSHTO5Ydu1oYy8SY8PLj0
+        CmjRwIIGkrmb/g+cmv6C/GnNpwAWTwqAhwCqhWwaz61xcaRYQX/uluCHkjgnWYy6
+        D/cXPTY/Ow5aPdF2UWAUaZiHJ+YvACMg8Np8BaiR9JCvFsl32DFkPfgvg==
+X-ME-Sender: <xms:nLYdZXY6KcIIR-u-IE3sr1P526Si7dmDg3FGCu1RCFKNUTtYefkH1A>
+    <xme:nLYdZWYE0jZrwefY8C1Li4KFVsmNLMuoaHbx0k1_zM2H866O0snlDjmKyzB0LKdaP
+    WqGcQ3CAL4HvRNoM1A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrgedvgddufedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepofgfggfkjghffffhvfevufgtsehttdertderredtnecuhfhrohhmpeftrghi
+    nhcuoehrrghinhesshhunhhshhhofigvrhhsrdhioheqnecuggftrfgrthhtvghrnhepue
+    eguefhieejgeffteffkeehjeeijefhudeifedtieevveeghfekgedvgfektefgnecuffho
+    mhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrh
+    grmhepmhgrihhlfhhrohhmpehrrghinhesshhunhhshhhofigvrhhsrdhioh
+X-ME-Proxy: <xmx:nLYdZZ_bx4CLT2P-eWCvoj2WOA25WcD2ILaXyaCP_Ewfb1MwrqAmnQ>
+    <xmx:nLYdZdrI4AEwbKxrr8dN6V-MxF1lYmomBnDpofPsS_rTbu4XvNMJMg>
+    <xmx:nLYdZSolZTLZLw-QO5CzAlZ33VzoT46kOSe6aDvxWyrArcsWAwDnSw>
+    <xmx:nLYdZVVDel5eywCGbphSl1qQyO4pxx_bf3zfslLXHYW-NTS0SXyS9w>
+Feedback-ID: iaa1146ff:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id ECFAC15A0092; Wed,  4 Oct 2023 15:01:47 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.9.0-alpha0-958-g1b1b911df8-fm-20230927.002-g1b1b911d
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Message-Id: <e0f33dd3-1a35-4c76-889f-a80e42da2ded@app.fastmail.com>
+In-Reply-To: <20230917161802.39716-1-sergeantsagara@protonmail.com>
+References: <20230917161802.39716-1-sergeantsagara@protonmail.com>
+Date:   Wed, 04 Oct 2023 12:01:27 -0700
+From:   Rain <rain@sunshowers.io>
+To:     "Rahul Rameshbabu" <sergeantsagara@protonmail.com>,
+        "Jiri Kosina" <jikos@kernel.org>,
+        "Benjamin Tissoires" <benjamin.tissoires@redhat.com>,
+        "Henrik Rydberg" <rydberg@bitmath.org>
+Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: multitouch: Add required quirk for Synaptics 0xcd7e device
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Sun, 24 Sep 2023, Martino Fontana wrote:
-
-> - Support player LED patterns up to 8 players.
->   (Note that the behavior still consinsts in increasing the player number
->   every time a controller is connected, never decreasing it. It should be
->   as is described in https://bugzilla.kernel.org/show_bug.cgi?id=216225.
->   However, any implementation here would stop making sense as soon as a
->   non-Nintendo controller is connected, which is why I'm not bothering.)
-> 
-> - Split part of `joycon_home_led_brightness_set` (which is called by hid)
->   into `joycon_set_home_led` (which is what actually sets the LEDs), for
->   consistency with player LEDs.
-> 
-> - `joycon_player_led_brightness_set` won't try it to "determine which
->   player led this is" anymore: it's already looking at every LED
->   brightness value.
-> 
-> - Instead of first registering the `led_classdev`, then attempting to set
->   the LED and unregistering the `led_classdev` if it fails, first attempt
->   to set the LED, then register the `led_classdev` only if it succeeds
->   (the class is still filled up in either case).
-> 
-> - If setting the player LEDs fails, still attempt setting the home LED.
->   (I don't know there's a third party controller where this may actually
->   happen, but who knows...)
-> 
-> - Use `JC_NUM_LEDS` where appropriate instead of 4.
-> 
-> - Print return codes in more places.
-> 
-> - Use spinlock instead of mutex for `input_num`. Copy its value to a local
->   variable, so that it can be unlocked immediately.
-> 
-> - `input_num` starts counting from 0
-> 
-> - Less holding of mutexes in general.
-> 
-> Signed-off-by: Martino Fontana <tinozzo123@gmail.com>
+On Sun, Sep 17, 2023, at 09:18, Rahul Rameshbabu wrote:
+> Register the Synaptics device as a special multitouch device with certain
+> quirks that may improve usability of the touchpad device.
+>
+> Reported-by: Rain <rain@sunshowers.io>
+> Closes: 
+> https://lore.kernel.org/linux-input/2bbb8e1d-1793-4df1-810f-cb0137341ff4@app.fastmail.com/
+> Signed-off-by: Rahul Rameshbabu <sergeantsagara@protonmail.com>
 > ---
-> Changes for v2:
+>
+> Notes:
+>     Theory:
+>    
+>       I think the Synaptics device in the related email to the linux-input
+>       mailing list requires certain quirks like MT_QUIRK_HOVERING to correctly
+>       reconfigure the distance configuration for multitouch events. This might
+>       explain why light touches were not registered originally when
+>       MT_CLS_DEFAULT was used by default for the device. Would like to have
+>       this patch tested before being merged. A Tested-by: git trailer can then
+>       be appended.
+>
+>  drivers/hid/hid-multitouch.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 521b2ffb4244..8db4ae05febc 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -2144,6 +2144,10 @@ static const struct hid_device_id mt_devices[] = {
+>  			USB_DEVICE_ID_MTP_STM)},
 > 
-> Applied suggestions, commit message explains more stuff, restored `return ret`
-> when `devm_led_classdev_register` fails (since all other hid drivers do this).
-> If setting LED fails, `hid_warn` now explicitly says "skipping registration".
-> 
-> Changes for v3 and v4:
-> 
-> Fixed errors and warnings from test robot.
-> 
-> Changes for v5:
-> 
-> I thought that when connecting the controller on an actual Nintendo Switch,
-> only the nth player LED would turn on, which is true... on Wii and Wii U.
-> So I reverted that, and to compensate, now this supports the LED patterns
-> up to 8 players.
-> 
->  drivers/hid/hid-nintendo.c | 133 +++++++++++++++++++++----------------
->  1 file changed, 76 insertions(+), 57 deletions(-)
+>  	/* Synaptics devices */
+> +	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+> +		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+> +			USB_VENDOR_ID_SYNAPTICS, 0xcd7e) },
 
-Applied, thank you.
+Thanks for the patch! I haven't tested it yet but it looks promising.
+
+The vendor ID isn't USB_VENDOR_ID_SYNAPTICS (0x06cb),
+however -- it's SYNA7DB5 (0x7db5) which I guess is an alternative vendor
+ID for Synaptics. Would be worth fixing that.
+
+> +
+>  	{ .driver_data = MT_CLS_WIN_8_FORCE_MULTI_INPUT,
+>  		HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+>  			USB_VENDOR_ID_SYNAPTICS, 0xce08) },
+> -- 
+> 2.40.1
 
 -- 
-Jiri Kosina
-SUSE Labs
-
+Rain
+(they/she)

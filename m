@@ -2,124 +2,86 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33458E7C4D0
-	for <linux-input@archiver.kernel.org>; Wed,  4 Oct 2023 15:26:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5168FE7C4ED
+	for <linux-input@archiver.kernel.org>; Wed,  4 Oct 2023 18:47:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbjJDP02 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Oct 2023 11:26:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54176 "EHLO
+        id S244593AbjJDSrw (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Oct 2023 14:47:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233156AbjJDOg2 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Oct 2023 10:36:28 -0400
-Received: from mail-ej1-x641.google.com (mail-ej1-x641.google.com [IPv6:2a00:1450:4864:20::641])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A666EFC;
-        Wed,  4 Oct 2023 07:36:22 -0700 (PDT)
-Received: by mail-ej1-x641.google.com with SMTP id a640c23a62f3a-9adb9fa7200so229440266b.0;
-        Wed, 04 Oct 2023 07:36:22 -0700 (PDT)
+        with ESMTP id S244601AbjJDSrw (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Oct 2023 14:47:52 -0400
+Received: from mail-pf1-x444.google.com (mail-pf1-x444.google.com [IPv6:2607:f8b0:4864:20::444])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0A8F0
+        for <linux-input@vger.kernel.org>; Wed,  4 Oct 2023 11:47:46 -0700 (PDT)
+Received: by mail-pf1-x444.google.com with SMTP id d2e1a72fcca58-690bd59322dso91872b3a.3
+        for <linux-input@vger.kernel.org>; Wed, 04 Oct 2023 11:47:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1696430181; x=1697034981; darn=vger.kernel.org;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=J2xO8oSkiTINirvXxwWkAua5IlzQF1Y8ARzBIAy73jk=;
-        b=DDZtja2xBasFS6hx3Hkt4NkupZGUX2h2PXoqwBYGfwhqvZBt6mQjzF77E44ym8COBj
-         ZVRiL/iJVKz2VLXFQoKIejeLszAp3WqTqg2tj/inubtrxnHIKR/S1tPuT0ZqNAHFRNwD
-         Ft8oGS8oJTvppsame8RL1GZQovX9bYgxvrr5KVjktHO5ITTBBJHo096Ttu/DiyhIp9oh
-         dd4RGd4YR4/z0pC3KADMsM/N8tyLwdY0A+KsF+jvlASsAnzCdCyI2MKPDE4cOEfIWp9e
-         LAMDYWuMsm1V97nMTpBAFdUs/6UV85ONw92Wj4Wcas2OvcMzbSFoQXa9c1JFR9ty9NJI
-         ypkQ==
+        d=gmail.com; s=20230601; t=1696445265; x=1697050065; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=ekpvseGuK4E7ASaMOZteciHUpOShVKJfJMNnl7vdPIA=;
+        b=CKMcsrtNBdZkuna89iNDvS7CWXhFkkQlCJzRO5RF+QGzVJ4HW/QJLYrVKTAczpI+dB
+         PR7mgIsfmtpApv075k2sQ7MDHin8De8NBi/FXRYDNnztWz0xVCEtjyfq9STfnVHS7SCL
+         OL3eCwUFHoLwBRI+A+1fEGnRI6yhMJBeo1QyTpO6aPKuNgJHizlhBYpB/qcfjX6EzigC
+         7kxJVfgsTl9d2Y7mpTysT/iYA7WjFI1OdYbTCJEXpGvCeFdrvNeDHT9y+Tu/pjxt1QOf
+         xe0Ky9qwudcy1JCG/tBesMhFUAoJ4Oc0i9qWWCwiuBZcqrmZgE2t5S5dulZnNCBb5HQg
+         cENA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696430181; x=1697034981;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=J2xO8oSkiTINirvXxwWkAua5IlzQF1Y8ARzBIAy73jk=;
-        b=Ycd2MwrsoXWEOJ6Gm/Hbc27oA8k9h3uRgV7l1WNb/66NEwByaqodPFW/ZZGi8C//Ay
-         UMMzUOULjpMhhI1lK1fNymy/xFFa8H02glGM08g3LO9kgp6SYUdw3FVQ8KFD9aRn16DZ
-         XErxk5+ncwVzJHeHDbyAVSBD8YrF+VfyAlbz8z3JhBNhjkX2mg5BFD4DCu5SozsRtGVQ
-         ZhT1WBiyKlzhB0QdG/0IoMuwqPdlPDp/FmAvxPFiGhOQVX3mTRs7Q+CR6MermqK54ztJ
-         bntruhfewnwvuDAFXEmB0TuzaeAJ97SyT/+ORit4OJgoWRaonkqrEEF5FltAaMKEk5RI
-         G8pQ==
-X-Gm-Message-State: AOJu0YzMPIOrdi3a7S5CH7wa9lRb/MIZIo35qAOUF+kYB1myis9ZZKMt
-        ETYCbBv9i1YtE9d5dpiz2tz6qIRcsxpuj85A
-X-Google-Smtp-Source: AGHT+IFvbDrbLp4CccTj4zkPFLxswJqCwgPJN52auTS/VhhLVZqfvNN7GTEECUg8Tg6luR7GN3diKg==
-X-Received: by 2002:a17:907:7614:b0:9b8:9217:73f5 with SMTP id jx20-20020a170907761400b009b8921773f5mr1798052ejc.32.1696430181067;
-        Wed, 04 Oct 2023 07:36:21 -0700 (PDT)
-Received: from [127.0.1.1] (91-118-163-37.static.upcbusiness.at. [91.118.163.37])
-        by smtp.gmail.com with ESMTPSA id i12-20020a1709063c4c00b0099275c59bc9sm2953457ejg.33.2023.10.04.07.36.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 04 Oct 2023 07:36:20 -0700 (PDT)
-From:   Javier Carrasco <javier.carrasco.cruz@gmail.com>
-Date:   Wed, 04 Oct 2023 16:36:13 +0200
-Subject: [PATCH v3] Input: powermate - fix use-after-free in
- powermate_config_complete
+        d=1e100.net; s=20230601; t=1696445265; x=1697050065;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ekpvseGuK4E7ASaMOZteciHUpOShVKJfJMNnl7vdPIA=;
+        b=NOB3jY6EO2cxrf3RX1iRtmaUIWFn10y4KLbqUcYR3OFz10zdZD7Gp53o3hsbRlq8we
+         08aetC1HEKpL8VAxZIMwMD96NX202rt+yUApXPZcQ1JYsCxL//lw1fFxx4dMq0+Udw1i
+         +u/E8KXJyKHCesi4ZKTQOMWvKXIe/mYZhRJDrsO/wp0gINxnzU9zJUB+VtilieCL/wIp
+         RVSpKTvcT73TOYj0r4+IemDczOGFCO5dg5h3JjCcpyKcMt/YWDWFsQhtUNdA9boz50i9
+         iUss++AHOpGlsQqTVspCQrEybwEqEEqKaj6j5evrI72cLpFYRz9/Dmx9FgVzNyCBH8Dq
+         uQFw==
+X-Gm-Message-State: AOJu0Yy0fpaytm9LBZOMM8f2hiH6KMUmA7mQgsjT18+dRJRAXb2awP5A
+        iUGWOV9yi8TlXDuhEYyQYhw=
+X-Google-Smtp-Source: AGHT+IFONmtbV9D+qu4SdYXIN5B2KECt8psHxBelfzCWHHRWSRVoB5X1MRK3a9yIgdc1UtEUHEMtUA==
+X-Received: by 2002:a05:6a20:5490:b0:13d:8876:4c97 with SMTP id i16-20020a056a20549000b0013d88764c97mr3692843pzk.16.1696445265576;
+        Wed, 04 Oct 2023 11:47:45 -0700 (PDT)
+Received: from [10.10.13.50] ([104.129.198.116])
+        by smtp.gmail.com with ESMTPSA id j8-20020a170902da8800b001bb9bc8d232sm4055052plx.61.2023.10.04.11.47.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 04 Oct 2023 11:47:44 -0700 (PDT)
+Message-ID: <0d4936cf-578b-4cbb-aaf7-f8ff00695000@gmail.com>
+Date:   Wed, 4 Oct 2023 11:47:43 -0700
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20230916-topic-powermate_use_after_free-v3-1-64412b81a7a2@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAFx4HWUC/5XOQQ+CIBwF8K/SOEcDVIxOfY/WHNIfZVNwgFRzf
- vfQU8c6vnf4vbegAN5AQJfDgjwkE4yzORTHA1K9tB1g88gZMcIKIijH0U1G4ck9wY8yQjMHaKS
- O4BvtAbCqSaFqwYUSFGWklQFw66VVfWbsPAy5nDxo89pXb/ecexOi8+/9RKJb+/NeophiprUsO
- a/YmYtrN0oznJQb0UYn9h/HMleRSpeCUKGZ/ubWdf0AVzaLrDABAAA=
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RESEND] Input: xpad - Add HyperX Clutch Gladiate Support
+Content-Language: en-US
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Javier Carrasco <javier.carrasco.cruz@gmail.com>,
-        syzbot+0434ac83f907a1dbdd1e@syzkaller.appspotmail.com
-X-Mailer: b4 0.12.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1696430180; l=1827;
- i=javier.carrasco.cruz@gmail.com; s=20230509; h=from:subject:message-id;
- bh=KPYYPZGtfceRNSYjVeOZBv0bkIvjfUqnR91rZxcVaTk=;
- b=+L2yMUuZpEXC7YMXYT0MpTphou8mVyRdYec1yWPYQ2jUCy+XMpkPM5bV1EEsXlkxCyJthhH0F
- mBz5w8UDHhCCXHyB59lTA1QNjdLzMiEnQ87HTWLyu3UrOfiQsRRXjOw
-X-Developer-Key: i=javier.carrasco.cruz@gmail.com; a=ed25519;
- pk=tIGJV7M+tCizagNijF0eGMBGcOsPD+0cWGfKjl4h6K8=
+Cc:     maxwell.nguyen@hp.com, chris.toledanes@hp.com, carl.ng@hp.com,
+        linux-input@vger.kernel.org
+References: <ZQTEZEdd7xwHz9CN@google.com>
+ <20230916014452.5241-1-hphyperxdev@gmail.com> <ZQfgV76yld8XGtG9@google.com>
+From:   "Nguyen, Max" <hphyperxdev@gmail.com>
+In-Reply-To: <ZQfgV76yld8XGtG9@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-syzbot has found a use-after-free bug [1] in the powermate driver. This
-happens when the device is disconnected, which leads to a memory free
-from the powermate_device struct.
-When an asynchronous control message completes after the kfree and its
-callback is invoked, the lock does not exist anymore and hence the bug.
 
-Use usb_kill_urb() on pm->config to cancel any in-progress requests upon
-device disconnection.
+On 9/17/2023 10:29 PM, Dmitry Torokhov wrote:
+> On Fri, Sep 15, 2023 at 06:44:52PM -0700, HP Dev wrote:
+>> Hi Dmitry,
+>> That should be ok.  Thanks again for your support.
+> Great, applied, thank you.
 
-[1] https://syzkaller.appspot.com/bug?extid=0434ac83f907a1dbdd1e
+Hi Dmitry,
 
-Signed-off-by: Javier Carrasco <javier.carrasco.cruz@gmail.com>
-Reported-by: syzbot+0434ac83f907a1dbdd1e@syzkaller.appspotmail.com
----
-Changes in v3:
-- Let usb_kill_urb on pm->irq where it is i.e. before unregistering the
-  device.
-- Link to v2: https://lore.kernel.org/r/20230916-topic-powermate_use_after_free-v2-1-505f49019f2f@gmail.com
+What's the typical process for the patch to merge to the main branch 
+once it is applied?  Just curious for future reference.
 
-Changes in v2:
-- Use usb_kill_urb() on pm->config upon device disconnection.
-- Link to v1: https://lore.kernel.org/r/20230916-topic-powermate_use_after_free-v1-1-2ffa46652869@gmail.com
----
- drivers/input/misc/powermate.c | 1 +
- 1 file changed, 1 insertion(+)
+Also, should I reference this link for the latest?
+https://github.com/torvalds/linux/blob/master/drivers/input/joystick/xpad.c
 
-diff --git a/drivers/input/misc/powermate.c b/drivers/input/misc/powermate.c
-index c1c733a9cb89..db2ba89adaef 100644
---- a/drivers/input/misc/powermate.c
-+++ b/drivers/input/misc/powermate.c
-@@ -425,6 +425,7 @@ static void powermate_disconnect(struct usb_interface *intf)
- 		pm->requires_update = 0;
- 		usb_kill_urb(pm->irq);
- 		input_unregister_device(pm->input);
-+		usb_kill_urb(pm->config);
- 		usb_free_urb(pm->irq);
- 		usb_free_urb(pm->config);
- 		powermate_free_buffers(interface_to_usbdev(intf), pm);
-
----
-base-commit: cefc06e4de1477dbdc3cb2a91d4b1873b7797a5c
-change-id: 20230916-topic-powermate_use_after_free-c703c7969c91
-
-Best regards,
--- 
-Javier Carrasco <javier.carrasco.cruz@gmail.com>
+Regards, Max
 

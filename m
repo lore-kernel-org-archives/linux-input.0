@@ -2,42 +2,40 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D597E7B61F
-	for <linux-input@archiver.kernel.org>; Wed,  4 Oct 2023 19:04:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 615BAE7C4EE
+	for <linux-input@archiver.kernel.org>; Wed,  4 Oct 2023 19:07:27 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245459AbjJDTEx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 4 Oct 2023 15:04:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57986 "EHLO
+        id S244871AbjJDTH2 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 4 Oct 2023 15:07:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38944 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344652AbjJDTD3 (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Oct 2023 15:03:29 -0400
+        with ESMTP id S1343799AbjJDTHS (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 4 Oct 2023 15:07:18 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E78618D;
-        Wed,  4 Oct 2023 11:58:36 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1C37C433C9;
-        Wed,  4 Oct 2023 18:58:33 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E698B1B2;
+        Wed,  4 Oct 2023 12:02:37 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB17C433C7;
+        Wed,  4 Oct 2023 19:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1696445915;
-        bh=tq7NZFlnZHqJn3BR7loczaVqdjig92RJVIObjwVIOys=;
+        s=k20201202; t=1696446157;
+        bh=SGlKk9UgYFkMAL2XGFGQZBKyDXatYdRojMg8660XkVw=;
         h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=jHIH1Tyn86fi7HJ9R68SYq3FokwFMukaSVyE6JHrGJt/2Zw6AbBcl/kvKVEkjwIUz
-         PhPPGd/6diC/Z1PZuK89LdT8P4Q5P8X7zfUGxGUs5bRKwgkjpLFh/MxdrVBZETgnaW
-         IYjoeBHoulD3NmJQhnRMnyiPVC/F8Tufgn1BC07yrpFR830JiC4mG4TH4qxM8abQAr
-         MZ9/0NDyuvF0N+qSDtgqtg6I6Ec+cLaf+pIYcO55Zw0077wbLXWsLfvS6hMQ6mFMLa
-         Ov6l5L7uj2JQbNMF7kBWdqteIAJh+f9uinwmPhzsekZyN0esobhjjMC52ZuKr4rCRC
-         3kYcDXI+coQGg==
-Date:   Wed, 4 Oct 2023 20:58:31 +0200 (CEST)
+        b=RoO0msv7Cl4OooIbjOp9gY6UHJ6fLJFofFzue0hzOk5mjKoA5/URCl8q81n0H9yLl
+         KNhNkCc5judi7ra62zD/aYZQxprHx7Nu9IZ34Z7yNQLUjYUW2A9Hwu86Kbv8vlreQf
+         Ii2kJve2qk6a2YmP5Qraoj2mzdQQwEyzs/jzN8si/OqqOKZ7Mbi0N2tVIfYYRMy2lf
+         UNhVCDvAyeSy1jcRuDNTscFgCLueRO8khJC1plKWIpS+pab9vFT4Iziij7PoK5De6m
+         7JMElqGYAoTmAuWdpUfA3ucmgxiLA2V3RGltsg1GIfu+EZ6IOVG9A/SrtfDXcaYH0P
+         kb/DOQ96kwSgQ==
+Date:   Wed, 4 Oct 2023 21:02:34 +0200 (CEST)
 From:   Jiri Kosina <jikos@kernel.org>
-To:     Rahul Rameshbabu <rrameshbabu@nvidia.com>
+To:     Mikhail Khvainitski <me@khvoinitsky.org>
 cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        kernel-janitors@vger.kernel.org, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 0/3] HID: nvidia-shield: Fix the error handling path
- of shield_probe()
-In-Reply-To: <20230918115432.30076-1-rrameshbabu@nvidia.com>
-Message-ID: <nycvar.YFH.7.76.2310042058000.3534@cbobk.fhfr.pm>
-References: <20230918115432.30076-1-rrameshbabu@nvidia.com>
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: lenovo: Detect quirk-free fw on cptkbd and stop
+ applying workaround
+In-Reply-To: <20230923231522.94060-2-me@khvoinitsky.org>
+Message-ID: <nycvar.YFH.7.76.2310042102170.3534@cbobk.fhfr.pm>
+References: <20230918145042.37368-1-me@khvoinitsky.org> <20230923231522.94060-1-me@khvoinitsky.org> <20230923231522.94060-2-me@khvoinitsky.org>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -45,51 +43,29 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On Mon, 18 Sep 2023, Rahul Rameshbabu wrote:
+On Sun, 24 Sep 2023, Mikhail Khvainitski wrote:
 
-> This series fixes some missing clean-up function calls in the error handling of
-> the probe.
+> Built-in firmware of cptkbd handles scrolling by itself (when middle
+> button is pressed) but with issues: it does not support horizontal and
+> hi-res scrolling and upon middle button release it sends middle button
+> click even if there was a scrolling event. Commit 3cb5ff0220e3 ("HID:
+> lenovo: Hide middle-button press until release") workarounds last
+> issue but it's impossible to workaround scrolling-related issues
+> without firmware modification.
 > 
-> Patch 1 and 2 fix some similar issues introduced in 2 different commits (hence 2
-> patches)
+> Likely, Dennis Schneider has reverse engineered the firmware and
+> provided an instruction on how to patch it [1]. However,
+> aforementioned workaround prevents userspace (libinput) from knowing
+> exact moment when middle button has been pressed down and performing
+> "On-Button scrolling". This commit detects correctly-behaving patched
+> firmware if cursor movement events has been received during middle
+> button being pressed and stops applying workaround for this device.
 > 
-> Patch 3 is an enhancement that creates a common function for cleaning up
-> thunderstrike instances.
+> Link: https://hohlerde.org/rauch/en/elektronik/projekte/tpkbd-fix/ [1]
 > 
-> Changes:
-> 
->   v1->v2:
->     - Add the LED_RETAIN_AT_SHUTDOWN flag to prevent
->       led_classdev_unregister from trying to set the LED to off before a
->       successful call to hid_hw_start.
->     - Rename err_haptics label to err_ts_create to make the label name more
->       accurate.
->     - Re-order operations in thunderstrike_destroy to be in LIFO order with
->       regards to the operations in thunderstrike_create.
->   v2->v3:
->     - Refactor thunderstrike_destroy to take a thunderstrike instance
->       pointer as a parameter and prevent a variable from being unused
->       in shield_probe.
-> 
-> Link: https://lore.kernel.org/linux-input/cover.1693070958.git.christophe.jaillet@wanadoo.fr/
-> Link: https://lore.kernel.org/linux-input/20230918041345.59859-1-rrameshbabu@nvidia.com/
-> 
-> Notes from Rahul:
->   - Thank you so much Christophe for these patches.
->   - Sent v2 without accounting for the fact that thunderstrike_destroy in v1
->     makes the thunderstrike instance in shield_probe unused. Tested v3 with W=1.
-> 
-> Christophe JAILLET (3):
->   HID: nvidia-shield: Fix a missing led_classdev_unregister() in the
->     probe error handling path
->   HID: nvidia-shield: Fix some missing function calls() in the probe
->     error handling path
->   HID: nvidia-shield: Introduce thunderstrike_destroy()
+> Signed-off-by: Mikhail Khvainitski <me@khvoinitsky.org>
 
-I have applied 1/3 and 2/3 to for-6.6/upstream-fixes and 3/3 to 
-for-6.7/nvidia-shield.
-
-Thanks,
+Applied to for-6.7/lenovo, thanks.
 
 -- 
 Jiri Kosina

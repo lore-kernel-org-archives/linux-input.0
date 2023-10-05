@@ -2,208 +2,349 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D7A7EE93713
-	for <linux-input@archiver.kernel.org>; Thu,  5 Oct 2023 20:16:55 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F7BCE92FC9
+	for <linux-input@archiver.kernel.org>; Thu,  5 Oct 2023 22:07:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229526AbjJEUQy (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Oct 2023 16:16:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40514 "EHLO
+        id S231626AbjJEWHJ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Oct 2023 18:07:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229932AbjJEUQx (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2023 16:16:53 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A8FA9F
-        for <linux-input@vger.kernel.org>; Thu,  5 Oct 2023 13:16:08 -0700 (PDT)
+        with ESMTP id S229537AbjJEWHJ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2023 18:07:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DB059E
+        for <linux-input@vger.kernel.org>; Thu,  5 Oct 2023 15:06:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1696536967;
+        s=mimecast20190719; t=1696543588;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=FUVIX0bsP1YwJPBNVrMFSZ2cSUsDszFrIwqlzblMOxE=;
-        b=UJBqk+QbZD34d1FRl6DM4RCrm/95uGXa9vcz2FYnPUba77urkuZWQ7L9SBDM6cSAepZO7Q
-        q+WQjmuoli39BZxW1jBj4ckXc0FeovnYzceAXJmUwOC0Fz5ow9z/BQkY9esXr9i57ouQlo
-        Vm7wb9v8YO9Ox+6VHE1F+qFbVyLhbm8=
-Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
- by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-342-T43GsHaBPoWGoxAULZYRDA-1; Thu, 05 Oct 2023 16:15:55 -0400
-X-MC-Unique: T43GsHaBPoWGoxAULZYRDA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
+        bh=YFAc4fbpMxT9SHujp9gHEywvtAqRJma/UINhUK/rY9k=;
+        b=Pxax5zOVmgQyU3CvHWAnjrvk7fLvgue9xzt4/GEY1HERYPa7IcPD0C3yOu8NMEzzlaDN/J
+        bIS08GBjL2cLSXBaRrS0dbNQyR9uMm+CkfaJ6ps1tGM9XiiyRdk6xvBdl2YB/wtD04S1m3
+        NQvtMCPNlNPsAefZ7EeFHWIt0CXdmV0=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-9-odtuLoXEMbWSaENR1qSZJA-1; Thu, 05 Oct 2023 18:06:23 -0400
+X-MC-Unique: odtuLoXEMbWSaENR1qSZJA-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.rdu2.redhat.com [10.11.54.6])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 940993801BC3;
-        Thu,  5 Oct 2023 20:15:54 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.39.192.10])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 0E176111CD23;
-        Thu,  5 Oct 2023 20:15:53 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH 1/3] Input: atkbd - add skip_commands module parameter
-Date:   Thu,  5 Oct 2023 22:15:42 +0200
-Message-ID: <20231005201544.26983-2-hdegoede@redhat.com>
-In-Reply-To: <20231005201544.26983-1-hdegoede@redhat.com>
-References: <20231005201544.26983-1-hdegoede@redhat.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BA1FA101A53B;
+        Thu,  5 Oct 2023 22:06:22 +0000 (UTC)
+Received: from ryac.ausil.us.com (unknown [10.22.10.60])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 5C548215670B;
+        Thu,  5 Oct 2023 22:06:22 +0000 (UTC)
+From:   Dennis Gilmore <dgilmore@redhat.com>
+To:     johan+linaro@kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     dianders@chromium.org, jikos@kernel.org,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        mripard@kernel.org, Dennis Gilmore <dgilmore@redhat.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: fix handling of unpopulated devices
+Date:   Thu,  5 Oct 2023 17:06:18 -0500
+Message-ID: <20231005220618.3108462-1-dgilmore@redhat.com>
+In-Reply-To: <20231002155857.24584-1-johan+linaro@kernel.org>
+References: <20231002155857.24584-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.6
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-While debugging a keyboard issue on some HP laptops (see link)
-adding i8042.dumbkbd helped to avoid the issue. So one of the commands
-send by atkbd.c seemed to be the culprit.
+> A recent commit reordered probe so that the interrupt line is now
+> requested before making sure that the device exists.
+> 
+> This breaks machines like the Lenovo ThinkPad X13s which rely on the
+> HID driver to probe second-source devices and only register the variant
+> that is actually populated. Specifically, the interrupt line may now
+> already be (temporarily) claimed when doing asynchronous probing of the
+> touchpad:
+> 
+> 	genirq: Flags mismatch irq 191. 00082008 (hid-over-i2c) vs. 00082008 (hid-over-i2c)
+> 	i2c_hid_of 21-0015: Could not register for hid-over-i2c interrupt, irq = 191, ret = -16
+> 	i2c_hid_of: probe of 21-0015 failed with error -16
+> 
+> Fix this by restoring the old behaviour of first making sure the device
+> exists before requesting the interrupt line.
+> 
+> Note that something like this should probably be implemented also for
+> "panel followers", whose actual probe is currently effectively deferred
+> until the DRM panel is probed (e.g. by powering down the device after
+> making sure it exists and only then register it as a follower).
+> 
+> Fixes: 675cd877c952 ("HID: i2c-hid: Rearrange probe() to power things up later")
+> Cc: Douglas Anderson <dianders@chromium.org>
+> Cc: Maxime Ripard <mripard@kernel.org>
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 
-Add a skip_commands option to help debug cases like this by adding
-a bit-field which allows disabling a subset of the ps2_command()
-calls the atkbd driver makes.
+Tested-by: Dennis Gilmore <dgilmore@redhat.com>
 
-This also avoids the need to add special flags for each command
-which atkbd needs to skip on certain models, like e.g. the existing
-atkbd_skip_deactivate flag.
-
-Link: https://bugzilla.redhat.com/show_bug.cgi?id=2086156
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-The next patch in this series replaces the atkbd_skip_deactivate flag
-with using atbkd_skip_commands to avoid having 2 deactivate skip checks.
----
- drivers/input/keyboard/atkbd.c | 52 ++++++++++++++++++++++++++++------
- 1 file changed, 44 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
-index c92e544c792d..7c16f9cc1e40 100644
---- a/drivers/input/keyboard/atkbd.c
-+++ b/drivers/input/keyboard/atkbd.c
-@@ -65,6 +65,10 @@ static bool atkbd_terminal;
- module_param_named(terminal, atkbd_terminal, bool, 0);
- MODULE_PARM_DESC(terminal, "Enable break codes on an IBM Terminal keyboard connected via AT/PS2");
- 
-+static int atkbd_skip_commands;
-+module_param_named(skip_commands, atkbd_skip_commands, int, 0444);
-+MODULE_PARM_DESC(skip_commands, "Bitfield where each bits skips a specific keyboard cmd (0 - 0x3f)");
-+
- #define SCANCODE(keymap)	((keymap >> 16) & 0xFFFF)
- #define KEYCODE(keymap)		(keymap & 0xFFFF)
- 
-@@ -182,6 +186,13 @@ static const unsigned short atkbd_unxlate_table[128] = {
- #define ATKBD_XL_HANGEUL	0x10
- #define ATKBD_XL_HANJA		0x20
- 
-+#define ATKBD_SKIP_GETID	0x01l
-+#define ATKBD_SKIP_ACTIVATE	0x02l
-+#define ATKBD_SKIP_DEACTIVATE	0x04l
-+#define ATKBD_SKIP_SETREP	0x08l
-+#define ATKBD_SKIP_SETLEDS	0x10l
-+#define ATKBD_SKIP_RESET_DEF	0x20l
-+
- static const struct {
- 	unsigned short keycode;
- 	unsigned char set2;
-@@ -592,6 +603,9 @@ static int atkbd_set_repeat_rate(struct atkbd *atkbd)
- 	unsigned char param;
- 	int i = 0, j = 0;
- 
-+	if (atkbd_skip_commands & ATKBD_SKIP_SETREP)
-+		return 0;
-+
- 	while (i < ARRAY_SIZE(period) - 1 && period[i] < dev->rep[REP_PERIOD])
- 		i++;
- 	dev->rep[REP_PERIOD] = period[i];
-@@ -609,6 +623,9 @@ static int atkbd_set_leds(struct atkbd *atkbd)
- 	struct input_dev *dev = atkbd->dev;
- 	unsigned char param[2];
- 
-+	if (atkbd_skip_commands & ATKBD_SKIP_SETLEDS)
-+		return 0;
-+
- 	param[0] = (test_bit(LED_SCROLLL, dev->led) ? 1 : 0)
- 		 | (test_bit(LED_NUML,    dev->led) ? 2 : 0)
- 		 | (test_bit(LED_CAPSL,   dev->led) ? 4 : 0);
-@@ -736,6 +753,9 @@ static int atkbd_activate(struct atkbd *atkbd)
- {
- 	struct ps2dev *ps2dev = &atkbd->ps2dev;
- 
-+	if (atkbd_skip_commands & ATKBD_SKIP_ACTIVATE)
-+		return 0;
-+
- /*
-  * Enable the keyboard to receive keystrokes.
-  */
-@@ -759,6 +779,9 @@ static void atkbd_deactivate(struct atkbd *atkbd)
- {
- 	struct ps2dev *ps2dev = &atkbd->ps2dev;
- 
-+	if (atkbd_skip_commands & ATKBD_SKIP_DEACTIVATE)
-+		return;
-+
- 	if (ps2_command(ps2dev, NULL, ATKBD_CMD_RESET_DIS))
- 		dev_err(&ps2dev->serio->dev,
- 			"Failed to deactivate keyboard on %s\n",
-@@ -786,6 +809,13 @@ static int atkbd_probe(struct atkbd *atkbd)
- 				 "keyboard reset failed on %s\n",
- 				 ps2dev->serio->phys);
- 
-+/* Only skip probe for translated keyboards to avoid mis-identifying mice */
-+	if (atkbd->translated && (atkbd_skip_commands & ATKBD_SKIP_GETID)) {
-+		atkbd->id = 0xab00;
-+		atkbd_deactivate(atkbd);
-+		return 0;
-+	}
-+
- /*
-  * Then we check the keyboard ID. We should get 0xab83 under normal conditions.
-  * Some keyboards report different values, but the first byte is always 0xab or
-@@ -802,7 +832,8 @@ static int atkbd_probe(struct atkbd *atkbd)
-  * the LEDs off, which we want anyway.
-  */
- 		param[0] = 0;
--		if (ps2_command(ps2dev, param, ATKBD_CMD_SETLEDS))
-+		if (!(atkbd_skip_commands & ATKBD_SKIP_SETLEDS) &&
-+		    ps2_command(ps2dev, param, ATKBD_CMD_SETLEDS))
- 			return -1;
- 		atkbd->id = 0xabba;
- 		return 0;
-@@ -906,17 +937,21 @@ static int atkbd_reset_state(struct atkbd *atkbd)
-  * Set the LEDs to a predefined state (all off).
-  */
- 
--	param[0] = 0;
--	if (ps2_command(ps2dev, param, ATKBD_CMD_SETLEDS))
--		return -1;
-+	if (!(atkbd_skip_commands & ATKBD_SKIP_SETLEDS)) {
-+		param[0] = 0;
-+		if (ps2_command(ps2dev, param, ATKBD_CMD_SETLEDS))
-+			return -1;
-+	}
- 
- /*
-  * Set autorepeat to fastest possible.
-  */
- 
--	param[0] = 0;
--	if (ps2_command(ps2dev, param, ATKBD_CMD_SETREP))
--		return -1;
-+	if (!(atkbd_skip_commands & ATKBD_SKIP_SETREP)) {
-+		param[0] = 0;
-+		if (ps2_command(ps2dev, param, ATKBD_CMD_SETREP))
-+			return -1;
-+	}
- 
- 	return 0;
- }
-@@ -931,7 +966,8 @@ static void atkbd_cleanup(struct serio *serio)
- 	struct atkbd *atkbd = atkbd_from_serio(serio);
- 
- 	atkbd_disable(atkbd);
--	ps2_command(&atkbd->ps2dev, NULL, ATKBD_CMD_RESET_DEF);
-+	if (!(atkbd_skip_commands & ATKBD_SKIP_RESET_DEF))
-+		ps2_command(&atkbd->ps2dev, NULL, ATKBD_CMD_RESET_DEF);
- }
- 
- 
--- 
-2.41.0
+> ---
+> 
+> Changes in v2
+>  - initialise ihid->is_panel_follower sooner to avoid repeated property
+>    lookups and so that it can be used consistently throughout the driver
+>    for code that differs for "panel followers"
+> 
+> Link to v1: https://lore.kernel.org/lkml/20230918125851.310-1-johan+linaro@kernel.org/
+> 
+> 
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 144 ++++++++++++++++-------------
+>  1 file changed, 81 insertions(+), 63 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 9601c0605fd9..2735cd585af0 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -998,45 +998,29 @@ static int i2c_hid_core_resume(struct i2c_hid *ihid)
+>  	return hid_driver_reset_resume(hid);
+>  }
+>  
+> -/**
+> - * __do_i2c_hid_core_initial_power_up() - First time power up of the i2c-hid device.
+> - * @ihid: The ihid object created during probe.
+> - *
+> - * This function is called at probe time.
+> - *
+> - * The initial power on is where we do some basic validation that the device
+> - * exists, where we fetch the HID descriptor, and where we create the actual
+> - * HID devices.
+> - *
+> - * Return: 0 or error code.
+> +/*
+> + * Check that the device exists and parse the HID descriptor.
+>   */
+> -static int __do_i2c_hid_core_initial_power_up(struct i2c_hid *ihid)
+> +static int __i2c_hid_core_probe(struct i2c_hid *ihid)
+>  {
+>  	struct i2c_client *client = ihid->client;
+>  	struct hid_device *hid = ihid->hid;
+>  	int ret;
+>  
+> -	ret = i2c_hid_core_power_up(ihid);
+> -	if (ret)
+> -		return ret;
+> -
+>  	/* Make sure there is something at this address */
+>  	ret = i2c_smbus_read_byte(client);
+>  	if (ret < 0) {
+>  		i2c_hid_dbg(ihid, "nothing at this address: %d\n", ret);
+> -		ret = -ENXIO;
+> -		goto err;
+> +		return -ENXIO;
+>  	}
+>  
+>  	ret = i2c_hid_fetch_hid_descriptor(ihid);
+>  	if (ret < 0) {
+>  		dev_err(&client->dev,
+>  			"Failed to fetch the HID Descriptor\n");
+> -		goto err;
+> +		return ret;
+>  	}
+>  
+> -	enable_irq(client->irq);
+> -
+>  	hid->version = le16_to_cpu(ihid->hdesc.bcdVersion);
+>  	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+>  	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+> @@ -1050,17 +1034,49 @@ static int __do_i2c_hid_core_initial_power_up(struct i2c_hid *ihid)
+>  
+>  	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
+>  
+> +	return 0;
+> +}
+> +
+> +static int i2c_hid_core_register_hid(struct i2c_hid *ihid)
+> +{
+> +	struct i2c_client *client = ihid->client;
+> +	struct hid_device *hid = ihid->hid;
+> +	int ret;
+> +
+> +	enable_irq(client->irq);
+> +
+>  	ret = hid_add_device(hid);
+>  	if (ret) {
+>  		if (ret != -ENODEV)
+>  			hid_err(client, "can't add hid device: %d\n", ret);
+> -		goto err;
+> +		disable_irq(client->irq);
+> +		return ret;
+>  	}
+>  
+>  	return 0;
+> +}
+> +
+> +static int i2c_hid_core_probe_panel_follower(struct i2c_hid *ihid)
+> +{
+> +	int ret;
+> +
+> +	ret = i2c_hid_core_power_up(ihid);
+> +	if (ret)
+> +		return ret;
+>  
+> -err:
+> +	ret = __i2c_hid_core_probe(ihid);
+> +	if (ret)
+> +		goto err_power_down;
+> +
+> +	ret = i2c_hid_core_register_hid(ihid);
+> +	if (ret)
+> +		goto err_power_down;
+> +
+> +	return 0;
+> +
+> +err_power_down:
+>  	i2c_hid_core_power_down(ihid);
+> +
+>  	return ret;
+>  }
+>  
+> @@ -1077,7 +1093,7 @@ static void ihid_core_panel_prepare_work(struct work_struct *work)
+>  	 * steps.
+>  	 */
+>  	if (!hid->version)
+> -		ret = __do_i2c_hid_core_initial_power_up(ihid);
+> +		ret = i2c_hid_core_probe_panel_follower(ihid);
+>  	else
+>  		ret = i2c_hid_core_resume(ihid);
+>  
+> @@ -1136,7 +1152,6 @@ static int i2c_hid_core_register_panel_follower(struct i2c_hid *ihid)
+>  	struct device *dev = &ihid->client->dev;
+>  	int ret;
+>  
+> -	ihid->is_panel_follower = true;
+>  	ihid->panel_follower.funcs = &i2c_hid_core_panel_follower_funcs;
+>  
+>  	/*
+> @@ -1156,30 +1171,6 @@ static int i2c_hid_core_register_panel_follower(struct i2c_hid *ihid)
+>  	return 0;
+>  }
+>  
+> -static int i2c_hid_core_initial_power_up(struct i2c_hid *ihid)
+> -{
+> -	/*
+> -	 * If we're a panel follower, we'll register and do our initial power
+> -	 * up when the panel turns on; otherwise we do it right away.
+> -	 */
+> -	if (drm_is_panel_follower(&ihid->client->dev))
+> -		return i2c_hid_core_register_panel_follower(ihid);
+> -	else
+> -		return __do_i2c_hid_core_initial_power_up(ihid);
+> -}
+> -
+> -static void i2c_hid_core_final_power_down(struct i2c_hid *ihid)
+> -{
+> -	/*
+> -	 * If we're a follower, the act of unfollowing will cause us to be
+> -	 * powered down. Otherwise we need to manually do it.
+> -	 */
+> -	if (ihid->is_panel_follower)
+> -		drm_panel_remove_follower(&ihid->panel_follower);
+> -	else
+> -		i2c_hid_core_suspend(ihid, true);
+> -}
+> -
+>  int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+>  		       u16 hid_descriptor_address, u32 quirks)
+>  {
+> @@ -1211,6 +1202,7 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+>  	ihid->ops = ops;
+>  	ihid->client = client;
+>  	ihid->wHIDDescRegister = cpu_to_le16(hid_descriptor_address);
+> +	ihid->is_panel_follower = drm_is_panel_follower(&client->dev);
+>  
+>  	init_waitqueue_head(&ihid->wait);
+>  	mutex_init(&ihid->reset_lock);
+> @@ -1224,14 +1216,10 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+>  		return ret;
+>  	device_enable_async_suspend(&client->dev);
+>  
+> -	ret = i2c_hid_init_irq(client);
+> -	if (ret < 0)
+> -		goto err_buffers_allocated;
+> -
+>  	hid = hid_allocate_device();
+>  	if (IS_ERR(hid)) {
+>  		ret = PTR_ERR(hid);
+> -		goto err_irq;
+> +		goto err_free_buffers;
+>  	}
+>  
+>  	ihid->hid = hid;
+> @@ -1242,19 +1230,42 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+>  	hid->bus = BUS_I2C;
+>  	hid->initial_quirks = quirks;
+>  
+> -	ret = i2c_hid_core_initial_power_up(ihid);
+> +	/* Power on and probe unless device is a panel follower. */
+> +	if (!ihid->is_panel_follower) {
+> +		ret = i2c_hid_core_power_up(ihid);
+> +		if (ret < 0)
+> +			goto err_destroy_device;
+> +
+> +		ret = __i2c_hid_core_probe(ihid);
+> +		if (ret < 0)
+> +			goto err_power_down;
+> +	}
+> +
+> +	ret = i2c_hid_init_irq(client);
+> +	if (ret < 0)
+> +		goto err_power_down;
+> +
+> +	/*
+> +	 * If we're a panel follower, we'll register when the panel turns on;
+> +	 * otherwise we do it right away.
+> +	 */
+> +	if (ihid->is_panel_follower)
+> +		ret = i2c_hid_core_register_panel_follower(ihid);
+> +	else
+> +		ret = i2c_hid_core_register_hid(ihid);
+>  	if (ret)
+> -		goto err_mem_free;
+> +		goto err_free_irq;
+>  
+>  	return 0;
+>  
+> -err_mem_free:
+> -	hid_destroy_device(hid);
+> -
+> -err_irq:
+> +err_free_irq:
+>  	free_irq(client->irq, ihid);
+> -
+> -err_buffers_allocated:
+> +err_power_down:
+> +	if (!ihid->is_panel_follower)
+> +		i2c_hid_core_power_down(ihid);
+> +err_destroy_device:
+> +	hid_destroy_device(hid);
+> +err_free_buffers:
+>  	i2c_hid_free_buffers(ihid);
+>  
+>  	return ret;
+> @@ -1266,7 +1277,14 @@ void i2c_hid_core_remove(struct i2c_client *client)
+>  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  	struct hid_device *hid;
+>  
+> -	i2c_hid_core_final_power_down(ihid);
+> +	/*
+> +	 * If we're a follower, the act of unfollowing will cause us to be
+> +	 * powered down. Otherwise we need to manually do it.
+> +	 */
+> +	if (ihid->is_panel_follower)
+> +		drm_panel_remove_follower(&ihid->panel_follower);
+> +	else
+> +		i2c_hid_core_suspend(ihid, true);
+>  
+>  	hid = ihid->hid;
+>  	hid_destroy_device(hid);
+> -- 
+> 2.41.0
+> 
+> 
+> 
 

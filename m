@@ -2,133 +2,343 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF90BE92706
-	for <linux-input@archiver.kernel.org>; Thu,  5 Oct 2023 14:43:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D681DE92705
+	for <linux-input@archiver.kernel.org>; Thu,  5 Oct 2023 14:46:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234176AbjJEOnp (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Thu, 5 Oct 2023 10:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45054 "EHLO
+        id S232039AbjJEOp3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Thu, 5 Oct 2023 10:45:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238893AbjJEOlR (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2023 10:41:17 -0400
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB24522E38
-        for <linux-input@vger.kernel.org>; Thu,  5 Oct 2023 07:15:47 -0700 (PDT)
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20231005114824euoutp016dc03b43c5450b2891fb19080b348990~LM61TVx9u1491214912euoutp01M
-        for <linux-input@vger.kernel.org>; Thu,  5 Oct 2023 11:48:24 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20231005114824euoutp016dc03b43c5450b2891fb19080b348990~LM61TVx9u1491214912euoutp01M
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1696506504;
-        bh=K0V3kKyiwioyVGjMGi18lGgN46kvGuxop3Lkg0la2P4=;
-        h=From:To:Cc:Subject:Date:References:From;
-        b=tZSQZwrmlYxbn7pM3sAZiPs3fBMJj246a/8U313T1Oie8s2uDGQdc7nS2famFYMfA
-         5JjjQJrhoj4E0IEJwvBo6Bf4CyL+KB2v3rK/dQ7/LK/7n5DG9tHS2CIipG/GiwnFVU
-         bi7vHgqg0z1yMXzYqdDgzdJCiN6GyAK2X84liCoA=
-Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20231005114823eucas1p1debb8a190c079839ebdd65f135cd07e3~LM61ICxH32689026890eucas1p1G;
-        Thu,  5 Oct 2023 11:48:23 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-        eusmges1new.samsung.com (EUCPMTA) with SMTP id 47.85.42423.782AE156; Thu,  5
-        Oct 2023 12:48:23 +0100 (BST)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-        eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-        20231005114823eucas1p2db2015fae87787ca776ad987f2fe6f5d~LM60zr3c02300223002eucas1p24;
-        Thu,  5 Oct 2023 11:48:23 +0000 (GMT)
-Received: from eusmgms1.samsung.com (unknown [182.198.249.179]) by
-        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20231005114823eusmtrp10da3f848dd26e1c58cf13060472f7755~LM60zCfMo2664026640eusmtrp1C;
-        Thu,  5 Oct 2023 11:48:23 +0000 (GMT)
-X-AuditID: cbfec7f2-a3bff7000002a5b7-ab-651ea2873832
-Received: from eusmtip1.samsung.com ( [203.254.199.221]) by
-        eusmgms1.samsung.com (EUCPMTA) with SMTP id 3C.CC.10549.782AE156; Thu,  5
-        Oct 2023 12:48:23 +0100 (BST)
-Received: from AMDC4653.digital.local (unknown [106.120.51.32]) by
-        eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-        20231005114823eusmtip13660e942bc309057656955b195d06761~LM60c6aVi1331813318eusmtip17;
-        Thu,  5 Oct 2023 11:48:23 +0000 (GMT)
-From:   Marek Szyprowski <m.szyprowski@samsung.com>
-To:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH] Input: max77693-haptic - add device-tree compatible strings
-Date:   Thu,  5 Oct 2023 13:48:16 +0200
-Message-Id: <20231005114816.1101953-1-m.szyprowski@samsung.com>
-X-Mailer: git-send-email 2.34.1
+        with ESMTP id S239258AbjJEOmG (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Thu, 5 Oct 2023 10:42:06 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFB7687407;
+        Thu,  5 Oct 2023 07:17:37 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DB1EC433B8;
+        Thu,  5 Oct 2023 07:10:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1696489850;
+        bh=4Cea+AQlqVlvzP0f0/MWGhbo/vqvAJn2RycUTruhyG4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FhNHaN+F1gbpSF0jOZwD6aFEEifwVVGOTaY3n1LTPTJidCroXM183dtuLeqia92jc
+         7LCru0QYBIrRAlBq5TbDd02SoeEYNw4rvlVlLAReKVReQYdl8wchcb++N0+w2lHQUE
+         4bYiz36Dgq2ymusSQXqYgsPH/lAkeplbUPktguGH05jFamvh4Sug8N2Lkhj3m5qHET
+         unG0zJ/vYcrqZLQJ1S4nqUEAMkQ4TuREdhiFaQgXMCE8tQmAbLqbg5/7aMRII/48Wm
+         xgKiAQ3n5vLUDM2anZHGzxB1UHr5IjgVVKbJ9vmJDWJdCqxpkL+RbsC4Z+TW3L2Cmk
+         zqSoVwfU0lSnw==
+Date:   Thu, 5 Oct 2023 09:10:45 +0200
+From:   Benjamin Tissoires <bentiss@kernel.org>
+To:     Johan Hovold <johan+linaro@kernel.org>
+Cc:     Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Douglas Anderson <dianders@chromium.org>,
+        Maxime Ripard <mripard@kernel.org>
+Subject: Re: [PATCH v2] HID: i2c-hid: fix handling of unpopulated devices
+Message-ID: <cnnjghxj4od6fniotztlgorc7myzya2bsvixkf2cpk4metcipa@r2w2ouob5ths>
+References: <20231002155857.24584-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFmplleLIzCtJLcpLzFFi42LZduzned32RXKpBgf+mVscXvSC0WLv663s
-        Fjc/fWO1uLxrDpvF2iN32R1YPXbOusvucefaHjaPvi2rGD0+b5ILYInisklJzcksSy3St0vg
-        yrg+oY+94A1Hxez1y1gaGI+xdzFyckgImEgsv/WDuYuRi0NIYAWjxOkZjxghnC+MEuvaz7BC
-        OJ8ZJf4ffwLXMnHlSSaIxHJGia4ZX5jgWjr/LQarYhMwlOh628UGYosI2ErsWDEdrIhZYBqj
-        xOLXJ8GKhAV8JL5Ov8QEYrMIqErc7brBCmLzCthL/D1+gw1inbzE/oNnmSHighInZz5hAbGZ
-        geLNW2eDXS4h0Mkh8ebgDqgGF4nOJScZIWxhiVfHt0DdLSNxenIPC0RDO6PEgt/3mSCcCYwS
-        Dc9vQXVYS9w59wtoEgfQCk2J9bv0IcKOEoeefGMECUsI8EnceCsIcQSfxKRt05khwrwSHW1C
-        ENVqErOOr4Nbe/DCJWYI20Oi8/EEsDOFBGIllp2fwzaBUWEWktdmIXltFsINCxiZVzGKp5YW
-        56anFhvmpZbrFSfmFpfmpesl5+duYgSmlNP/jn/awTj31Ue9Q4xMHIyHGCU4mJVEeNMbZFKF
-        eFMSK6tSi/Lji0pzUosPMUpzsCiJ82rbnkwWEkhPLEnNTk0tSC2CyTJxcEo1MAUkPJs6u/8r
-        s5bhJA7T5oUWSpI6+3N4/1jObqqa2pHQ9oun5WPU94XaB69ysfq/fsa1+6AaH+9Xz7yFaxgW
-        lHtM2PN86Y+D/9hf2J2qamiKnvMjTDt0j1O1mvwt9SLtl+F5ft7Cf7SZ5gsv4ljXl+F+SpqB
-        rbFi8e/Ogr/KGtVrcg5YrJ/wnLc16wnX2r8efsLXFwpJFQikJaa+mPlKOdw9zM2R2Zx9+i/m
-        tvsrvXNNVEsYrmUfZN854y7HnRk5or4nfvMeYN80xdnyu6HYHdmjHm3B4e+jTn0R/Gpy+Xjf
-        ua45TRZO7uKLmV+vPpbPGf4o9rJEyttslZL4x6Vnppn8q02vunJGMq312rUnSizFGYmGWsxF
-        xYkAUHKrCZgDAAA=
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFrrFLMWRmVeSWpSXmKPExsVy+t/xu7rti+RSDc5uVLI4vOgFo8Xe11vZ
-        LW5++sZqcXnXHDaLtUfusjuweuycdZfd4861PWwefVtWMXp83iQXwBKlZ1OUX1qSqpCRX1xi
-        qxRtaGGkZ2hpoWdkYqlnaGwea2VkqqRvZ5OSmpNZllqkb5egl3F9Qh97wRuOitnrl7E0MB5j
-        72Lk5JAQMJGYuPIkUxcjF4eQwFJGiQWP90IlZCROTmtghbCFJf5c62KDKPrEKPHh3GGwBJuA
-        oUTXW5AEJ4eIgL3E4TdrWECKmAWmMUrMXfGPCSQhLOAj8XX6JTCbRUBV4m7XDbBmXqCGv8dv
-        sEFskJfYf/AsM0RcUOLkzCcsIDYzULx562zmCYx8s5CkZiFJLWBkWsUoklpanJueW2yoV5yY
-        W1yal66XnJ+7iREYyNuO/dy8g3Heq496hxiZOBgPMUpwMCuJ8KY3yKQK8aYkVlalFuXHF5Xm
-        pBYfYjQFum8is5Rocj4wlvJK4g3NDEwNTcwsDUwtzYyVxHk9CzoShQTSE0tSs1NTC1KLYPqY
-        ODilGpg6jdWMcwsOpVVY5fzZYH5gypHFuz8e0OPw37hcV7iTN/2q82R2VZ1l0RPm593ru7Zk
-        /QfGvZs3778unVa5b/uqhaYRkc3x67W7p0+76L51b5HlQs55M571tEmcm6ZomLzwrlnJlA8+
-        QnX/XO7Pb1mmtCaj7uvqlVdiF9Z0uE1uTxdaxyv+Y3btgXmhAZU+xg1mrZqWDZLm4p2LzzdN
-        eXv+nBE/W1MSW+4Kg2W2mxlnHZvMU71kYXrv6uonL/ZkaSzzsWHVcD1gMEfOWu/tudevoh4+
-        rGQ/tC14dWyupmTl1sNW8Szzig+8TffIMzH1Pzr324TwO080vjuueOCrvihmFZ/R/AKLnADL
-        nqnpTw4qsRRnJBpqMRcVJwIAJYNP+u0CAAA=
-X-CMS-MailID: 20231005114823eucas1p2db2015fae87787ca776ad987f2fe6f5d
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20231005114823eucas1p2db2015fae87787ca776ad987f2fe6f5d
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20231005114823eucas1p2db2015fae87787ca776ad987f2fe6f5d
-References: <CGME20231005114823eucas1p2db2015fae87787ca776ad987f2fe6f5d@eucas1p2.samsung.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231002155857.24584-1-johan+linaro@kernel.org>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add the needed device-tree compatible strings to the MAX77693 haptic
-driver, so it can be automatically loaded when compiled as a kernel
-module and given device-tree contains separate (i.e. 'motor-driver')
-node under the main PMIC node.
+On Oct 02 2023, Johan Hovold wrote:
+> A recent commit reordered probe so that the interrupt line is now
+> requested before making sure that the device exists.
+> 
+> This breaks machines like the Lenovo ThinkPad X13s which rely on the
+> HID driver to probe second-source devices and only register the variant
+> that is actually populated. Specifically, the interrupt line may now
+> already be (temporarily) claimed when doing asynchronous probing of the
+> touchpad:
+> 
+> 	genirq: Flags mismatch irq 191. 00082008 (hid-over-i2c) vs. 00082008 (hid-over-i2c)
+> 	i2c_hid_of 21-0015: Could not register for hid-over-i2c interrupt, irq = 191, ret = -16
+> 	i2c_hid_of: probe of 21-0015 failed with error -16
+> 
+> Fix this by restoring the old behaviour of first making sure the device
+> exists before requesting the interrupt line.
+> 
+> Note that something like this should probably be implemented also for
+> "panel followers", whose actual probe is currently effectively deferred
+> until the DRM panel is probed (e.g. by powering down the device after
+> making sure it exists and only then register it as a follower).
+> 
+> Fixes: 675cd877c952 ("HID: i2c-hid: Rearrange probe() to power things up later")
+> Cc: Douglas Anderson <dianders@chromium.org>
+> Cc: Maxime Ripard <mripard@kernel.org>
+> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> ---
+> 
+> Changes in v2
+>  - initialise ihid->is_panel_follower sooner to avoid repeated property
+>    lookups and so that it can be used consistently throughout the driver
+>    for code that differs for "panel followers"
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
----
- drivers/input/misc/max77693-haptic.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+Patches looks good to me, but I can not test it unfortunately.
 
-diff --git a/drivers/input/misc/max77693-haptic.c b/drivers/input/misc/max77693-haptic.c
-index 80f4416ffe2f..2a6e713b32f4 100644
---- a/drivers/input/misc/max77693-haptic.c
-+++ b/drivers/input/misc/max77693-haptic.c
-@@ -412,6 +412,13 @@ static const struct platform_device_id max77693_haptic_id[] = {
- };
- MODULE_DEVICE_TABLE(platform, max77693_haptic_id);
- 
-+static const struct of_device_id of_max77693_haptic_dt_match[] = {
-+	{ .compatible = "maxim,max77693-haptic", },
-+	{ .compatible = "maxim,max77843-haptic", },
-+	{ /* sentinel */ },
-+};
-+MODULE_DEVICE_TABLE(of, of_max77693_haptic_dt_match);
-+
- static struct platform_driver max77693_haptic_driver = {
- 	.driver		= {
- 		.name	= "max77693-haptic",
--- 
-2.34.1
+Doug, would you mind sending us your Ack or tested-by?
 
+Cheers,
+Benjamin
+
+
+> 
+> Link to v1: https://lore.kernel.org/lkml/20230918125851.310-1-johan+linaro@kernel.org/
+> 
+> 
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 144 ++++++++++++++++-------------
+>  1 file changed, 81 insertions(+), 63 deletions(-)
+> 
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 9601c0605fd9..2735cd585af0 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -998,45 +998,29 @@ static int i2c_hid_core_resume(struct i2c_hid *ihid)
+>  	return hid_driver_reset_resume(hid);
+>  }
+>  
+> -/**
+> - * __do_i2c_hid_core_initial_power_up() - First time power up of the i2c-hid device.
+> - * @ihid: The ihid object created during probe.
+> - *
+> - * This function is called at probe time.
+> - *
+> - * The initial power on is where we do some basic validation that the device
+> - * exists, where we fetch the HID descriptor, and where we create the actual
+> - * HID devices.
+> - *
+> - * Return: 0 or error code.
+> +/*
+> + * Check that the device exists and parse the HID descriptor.
+>   */
+> -static int __do_i2c_hid_core_initial_power_up(struct i2c_hid *ihid)
+> +static int __i2c_hid_core_probe(struct i2c_hid *ihid)
+>  {
+>  	struct i2c_client *client = ihid->client;
+>  	struct hid_device *hid = ihid->hid;
+>  	int ret;
+>  
+> -	ret = i2c_hid_core_power_up(ihid);
+> -	if (ret)
+> -		return ret;
+> -
+>  	/* Make sure there is something at this address */
+>  	ret = i2c_smbus_read_byte(client);
+>  	if (ret < 0) {
+>  		i2c_hid_dbg(ihid, "nothing at this address: %d\n", ret);
+> -		ret = -ENXIO;
+> -		goto err;
+> +		return -ENXIO;
+>  	}
+>  
+>  	ret = i2c_hid_fetch_hid_descriptor(ihid);
+>  	if (ret < 0) {
+>  		dev_err(&client->dev,
+>  			"Failed to fetch the HID Descriptor\n");
+> -		goto err;
+> +		return ret;
+>  	}
+>  
+> -	enable_irq(client->irq);
+> -
+>  	hid->version = le16_to_cpu(ihid->hdesc.bcdVersion);
+>  	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+>  	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+> @@ -1050,17 +1034,49 @@ static int __do_i2c_hid_core_initial_power_up(struct i2c_hid *ihid)
+>  
+>  	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
+>  
+> +	return 0;
+> +}
+> +
+> +static int i2c_hid_core_register_hid(struct i2c_hid *ihid)
+> +{
+> +	struct i2c_client *client = ihid->client;
+> +	struct hid_device *hid = ihid->hid;
+> +	int ret;
+> +
+> +	enable_irq(client->irq);
+> +
+>  	ret = hid_add_device(hid);
+>  	if (ret) {
+>  		if (ret != -ENODEV)
+>  			hid_err(client, "can't add hid device: %d\n", ret);
+> -		goto err;
+> +		disable_irq(client->irq);
+> +		return ret;
+>  	}
+>  
+>  	return 0;
+> +}
+> +
+> +static int i2c_hid_core_probe_panel_follower(struct i2c_hid *ihid)
+> +{
+> +	int ret;
+> +
+> +	ret = i2c_hid_core_power_up(ihid);
+> +	if (ret)
+> +		return ret;
+>  
+> -err:
+> +	ret = __i2c_hid_core_probe(ihid);
+> +	if (ret)
+> +		goto err_power_down;
+> +
+> +	ret = i2c_hid_core_register_hid(ihid);
+> +	if (ret)
+> +		goto err_power_down;
+> +
+> +	return 0;
+> +
+> +err_power_down:
+>  	i2c_hid_core_power_down(ihid);
+> +
+>  	return ret;
+>  }
+>  
+> @@ -1077,7 +1093,7 @@ static void ihid_core_panel_prepare_work(struct work_struct *work)
+>  	 * steps.
+>  	 */
+>  	if (!hid->version)
+> -		ret = __do_i2c_hid_core_initial_power_up(ihid);
+> +		ret = i2c_hid_core_probe_panel_follower(ihid);
+>  	else
+>  		ret = i2c_hid_core_resume(ihid);
+>  
+> @@ -1136,7 +1152,6 @@ static int i2c_hid_core_register_panel_follower(struct i2c_hid *ihid)
+>  	struct device *dev = &ihid->client->dev;
+>  	int ret;
+>  
+> -	ihid->is_panel_follower = true;
+>  	ihid->panel_follower.funcs = &i2c_hid_core_panel_follower_funcs;
+>  
+>  	/*
+> @@ -1156,30 +1171,6 @@ static int i2c_hid_core_register_panel_follower(struct i2c_hid *ihid)
+>  	return 0;
+>  }
+>  
+> -static int i2c_hid_core_initial_power_up(struct i2c_hid *ihid)
+> -{
+> -	/*
+> -	 * If we're a panel follower, we'll register and do our initial power
+> -	 * up when the panel turns on; otherwise we do it right away.
+> -	 */
+> -	if (drm_is_panel_follower(&ihid->client->dev))
+> -		return i2c_hid_core_register_panel_follower(ihid);
+> -	else
+> -		return __do_i2c_hid_core_initial_power_up(ihid);
+> -}
+> -
+> -static void i2c_hid_core_final_power_down(struct i2c_hid *ihid)
+> -{
+> -	/*
+> -	 * If we're a follower, the act of unfollowing will cause us to be
+> -	 * powered down. Otherwise we need to manually do it.
+> -	 */
+> -	if (ihid->is_panel_follower)
+> -		drm_panel_remove_follower(&ihid->panel_follower);
+> -	else
+> -		i2c_hid_core_suspend(ihid, true);
+> -}
+> -
+>  int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+>  		       u16 hid_descriptor_address, u32 quirks)
+>  {
+> @@ -1211,6 +1202,7 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+>  	ihid->ops = ops;
+>  	ihid->client = client;
+>  	ihid->wHIDDescRegister = cpu_to_le16(hid_descriptor_address);
+> +	ihid->is_panel_follower = drm_is_panel_follower(&client->dev);
+>  
+>  	init_waitqueue_head(&ihid->wait);
+>  	mutex_init(&ihid->reset_lock);
+> @@ -1224,14 +1216,10 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+>  		return ret;
+>  	device_enable_async_suspend(&client->dev);
+>  
+> -	ret = i2c_hid_init_irq(client);
+> -	if (ret < 0)
+> -		goto err_buffers_allocated;
+> -
+>  	hid = hid_allocate_device();
+>  	if (IS_ERR(hid)) {
+>  		ret = PTR_ERR(hid);
+> -		goto err_irq;
+> +		goto err_free_buffers;
+>  	}
+>  
+>  	ihid->hid = hid;
+> @@ -1242,19 +1230,42 @@ int i2c_hid_core_probe(struct i2c_client *client, struct i2chid_ops *ops,
+>  	hid->bus = BUS_I2C;
+>  	hid->initial_quirks = quirks;
+>  
+> -	ret = i2c_hid_core_initial_power_up(ihid);
+> +	/* Power on and probe unless device is a panel follower. */
+> +	if (!ihid->is_panel_follower) {
+> +		ret = i2c_hid_core_power_up(ihid);
+> +		if (ret < 0)
+> +			goto err_destroy_device;
+> +
+> +		ret = __i2c_hid_core_probe(ihid);
+> +		if (ret < 0)
+> +			goto err_power_down;
+> +	}
+> +
+> +	ret = i2c_hid_init_irq(client);
+> +	if (ret < 0)
+> +		goto err_power_down;
+> +
+> +	/*
+> +	 * If we're a panel follower, we'll register when the panel turns on;
+> +	 * otherwise we do it right away.
+> +	 */
+> +	if (ihid->is_panel_follower)
+> +		ret = i2c_hid_core_register_panel_follower(ihid);
+> +	else
+> +		ret = i2c_hid_core_register_hid(ihid);
+>  	if (ret)
+> -		goto err_mem_free;
+> +		goto err_free_irq;
+>  
+>  	return 0;
+>  
+> -err_mem_free:
+> -	hid_destroy_device(hid);
+> -
+> -err_irq:
+> +err_free_irq:
+>  	free_irq(client->irq, ihid);
+> -
+> -err_buffers_allocated:
+> +err_power_down:
+> +	if (!ihid->is_panel_follower)
+> +		i2c_hid_core_power_down(ihid);
+> +err_destroy_device:
+> +	hid_destroy_device(hid);
+> +err_free_buffers:
+>  	i2c_hid_free_buffers(ihid);
+>  
+>  	return ret;
+> @@ -1266,7 +1277,14 @@ void i2c_hid_core_remove(struct i2c_client *client)
+>  	struct i2c_hid *ihid = i2c_get_clientdata(client);
+>  	struct hid_device *hid;
+>  
+> -	i2c_hid_core_final_power_down(ihid);
+> +	/*
+> +	 * If we're a follower, the act of unfollowing will cause us to be
+> +	 * powered down. Otherwise we need to manually do it.
+> +	 */
+> +	if (ihid->is_panel_follower)
+> +		drm_panel_remove_follower(&ihid->panel_follower);
+> +	else
+> +		i2c_hid_core_suspend(ihid, true);
+>  
+>  	hid = ihid->hid;
+>  	hid_destroy_device(hid);
+> -- 
+> 2.41.0
+> 

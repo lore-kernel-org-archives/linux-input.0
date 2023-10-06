@@ -2,133 +2,128 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9FAACE92FFA
-	for <linux-input@archiver.kernel.org>; Fri,  6 Oct 2023 10:04:37 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C168DE81DFF
+	for <linux-input@archiver.kernel.org>; Fri,  6 Oct 2023 13:45:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231590AbjJFKEg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 6 Oct 2023 06:04:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54256 "EHLO
+        id S232389AbjJFNpO (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 6 Oct 2023 09:45:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231535AbjJFKEf (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Oct 2023 06:04:35 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92A499F
-        for <linux-input@vger.kernel.org>; Fri,  6 Oct 2023 03:04:34 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id a640c23a62f3a-9b98a699f45so333095166b.3
-        for <linux-input@vger.kernel.org>; Fri, 06 Oct 2023 03:04:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1696586673; x=1697191473; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=LVIjAchu4k1/zLUf7QjWWCMC0v+GTyXQ9uFRFk3QTgI=;
-        b=QNbkNRY1Ww0DYNeVuaw03LyOsWezNC+nZkYx7mCky1iTRdXSThuOGn8MhST6ERcWwA
-         DueJVQYX6HQy5kqFx6JhlvKuhMAh/D2qH/wtJOeAmZ0HYxymHqLwFGo5vY1wiuVJck6d
-         Gw9gInyq4jwBy6LZFV7XEr+0aAiVRVKtnaj8/wxZD0vTunkma3Txdx1XIoClOEQlYUY1
-         7/GvSOz1Vpk4DJfPFKjP+6GtetBXi2oS3zrbjE5B7i212W0qMwxLTDBZQToQe0uG0VHX
-         jIKiqQZHUmoVWjOH6MXwJZHaigmjREbKXb2wE4MvO/Qk8ReQ4GdlFSjaPDSU5+HX/wYj
-         Pu2w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1696586673; x=1697191473;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LVIjAchu4k1/zLUf7QjWWCMC0v+GTyXQ9uFRFk3QTgI=;
-        b=HvuP+Str0epmSlCZhczLfmYNax35zmbo4GRQZFvKtiEL6ChXA7VQNIYS0GxvOhY2AD
-         5k9iP5QLAk0tLa2jeiaJtd8dJvkbSXRveNCasB3XLFPku4Z50FzNLC7ZTzSgxQIE42rf
-         BpARp0W10RRR4UnSb6BXC0sLVIJI18zGXxIXN3jwUxdHhSC7qLsby2NgvIdJFBvyViMT
-         3n/cmgOAZxHSXTqJjuftza4oo0VArQl/M1lNQfitOzVF9f4mqmbctkZe5NzRk5QSo6NR
-         adSYk3yi3jNxwP3kzX6bCbg4ITS+uZqYbIzMYybTUit28Vx8+N2cERqRImA556T+OdgM
-         ysyA==
-X-Gm-Message-State: AOJu0Ywz1eOoPlMUyadiYg4EZW+Ud3e/feCo20DoxHQS7hbfSK4T74G0
-        2XnV4Xx50bXjyZLccKsASujHaQPjYkzL5tGHt34=
-X-Google-Smtp-Source: AGHT+IEb3a7MID3dcoJxIO6TI8tZrhRZpBC5lb9TiaXd+qr/qq4SfkeLa+U52oSxaXlBxRMPwaZRMQ==
-X-Received: by 2002:a17:907:7632:b0:9aa:16c4:be16 with SMTP id jy18-20020a170907763200b009aa16c4be16mr6616452ejc.57.1696586673002;
-        Fri, 06 Oct 2023 03:04:33 -0700 (PDT)
-Received: from [192.168.1.197] (5-157-101-10.dyn.eolo.it. [5.157.101.10])
-        by smtp.gmail.com with ESMTPSA id e27-20020a170906045b00b009b655c43710sm2621313eja.24.2023.10.06.03.04.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 06 Oct 2023 03:04:32 -0700 (PDT)
-Message-ID: <729ca85a-1e93-4013-b92b-e8e8d2b0aa18@linaro.org>
-Date:   Fri, 6 Oct 2023 12:04:31 +0200
+        with ESMTP id S232340AbjJFNpO (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Fri, 6 Oct 2023 09:45:14 -0400
+Received: from mx.skole.hr (mx2.hosting.skole.hr [161.53.165.186])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D5E95;
+        Fri,  6 Oct 2023 06:45:13 -0700 (PDT)
+Received: from mx2.hosting.skole.hr (localhost.localdomain [127.0.0.1])
+        by mx.skole.hr (mx.skole.hr) with ESMTP id B304383F67;
+        Fri,  6 Oct 2023 15:45:11 +0200 (CEST)
+From:   =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
+Date:   Fri, 06 Oct 2023 15:44:26 +0200
+Subject: [PATCH RFT v6 2/6] ARM: pxa: Convert Spitz LEDs to GPIO
+ descriptors
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] Input: max77693-haptic - add device-tree compatible
- strings
-Content-Language: en-US
-To:     Marek Szyprowski <m.szyprowski@samsung.com>,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-References: <CGME20231006100330eucas1p2c874f582336ed1de4dc1cd759c452ce2@eucas1p2.samsung.com>
- <20231006100320.2908210-1-m.szyprowski@samsung.com>
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
- 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
- D2GYIS41Kv4Isx2dEFh+/Q==
-In-Reply-To: <20231006100320.2908210-1-m.szyprowski@samsung.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20231006-pxa-gpio-v6-2-981b4910d599@skole.hr>
+References: <20231006-pxa-gpio-v6-0-981b4910d599@skole.hr>
+In-Reply-To: <20231006-pxa-gpio-v6-0-981b4910d599@skole.hr>
+To:     Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Russell King <linux@armlinux.org.uk>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Andy Shevchenko <andy@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-spi@vger.kernel.org,
+        =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
+X-Mailer: b4 0.12.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1884;
+ i=duje.mihanovic@skole.hr; h=from:subject:message-id;
+ bh=c8SAwr7yUIDYfzBg54shArsrK1UPy+9oOW4+fo5KjpU=;
+ b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBlIA9dUqdcLA8NnEHUdf4WtT55qUDp3bAYkuWDY
+ OJlpoomz8+JAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZSAPXQAKCRCaEZ6wQi2W
+ 4fuyD/91ZkszojargU21+2IAfmhklB/mbaaCM63yK7Bd6T4E0vyzsDQOj3618sH7IKQI5lcNOP5
+ lVBS0BnGpVqawos5mG27ZzdBRWmalDs7HGlCnE0unzjuRiTzXJmHrUsgn0JnXqIbX8BJw4vsAJu
+ yi7A5WXOabjeOmU9SxkQ5LJY4c9nwdae2X7CJ6UKK1rfx6DKYSct2Cj+rUxAM8c21Vsu9xUUg+h
+ 8jInzpAy0N9qTbviAJ01dQHF/U0qHsjrNHyJDK9XNslY4o5DiNXq4ZpClvf7yBqddHjarYzH3vN
+ cROX55E2Qhi//b1TzPI1rmLCxMdxiem4cIE78m/vMbc2mv2wmABEZqoIYxyTTocEKG+e4MquKuk
+ kTb2rhhh5rVkTAjozzsVib/46/Iw0Vll+D0Zs/ebl1q4p3+ZV7X8+adGJIOJMQMFmRPVWyiqsqs
+ N9X0IW9mCLyUUnbxWBj2hjIO7Gc4MG8BEGqMz0/C03wLciP49ICXexkEYy9+LWUdOBU9ebhhRB0
+ KZlbk1dQ7r13nzSCyThkJ203sLewu+ajIn/q4p7sBmipBLyyNSnqvnt4rf9x3+DEbenjigWYUIZ
+ qp9lYwna9PzrfRIEHdRivj8CfQF3iUgE+EA1HI/Qec6J5/JoZmCS9atkoNNkIuRp+jpDlXb3YkW
+ ypPAJO70pXTd77A==
+X-Developer-Key: i=duje.mihanovic@skole.hr; a=openpgp;
+ fpr=53DF9D4D9C3FE110FB362D789A119EB0422D96E1
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 06/10/2023 12:03, Marek Szyprowski wrote:
-> Add the needed device-tree compatible strings to the MAX77693 haptic
-> driver, so it can be automatically loaded when compiled as a kernel
-> module and given device-tree contains separate (i.e. 'motor-driver') node
-> under the main PMIC node. When device is instantiated from device-tree,
-> the driver data cannot be read via platform_get_device_id(), so get
-> device type from the parent MFD device instead, what works for both
-> cases.
-> 
-> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-> ---
->  drivers/input/misc/max77693-haptic.c | 14 +++++++++++---
->  1 file changed, 11 insertions(+), 3 deletions(-)
+Sharp's Spitz board still uses the legacy GPIO interface for configuring
+its two onboard LEDs.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Convert them to use the GPIO descriptor interface.
 
-Best regards,
-Krzysztof
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
+---
+ arch/arm/mach-pxa/spitz.c | 20 ++++++++++++++++++--
+ 1 file changed, 18 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
+index 535e2b2e997b..1fb4102ea39e 100644
+--- a/arch/arm/mach-pxa/spitz.c
++++ b/arch/arm/mach-pxa/spitz.c
+@@ -452,16 +452,25 @@ static inline void spitz_keys_init(void) {}
+  * LEDs
+  ******************************************************************************/
+ #if defined(CONFIG_LEDS_GPIO) || defined(CONFIG_LEDS_GPIO_MODULE)
++static struct gpiod_lookup_table spitz_led_gpio_table = {
++	.dev_id = "leds-gpio",
++	.table = {
++		GPIO_LOOKUP_IDX("pxa-gpio", SPITZ_GPIO_LED_ORANGE, NULL, 0,
++				GPIO_ACTIVE_HIGH),
++		GPIO_LOOKUP_IDX("pxa-gpio", SPITZ_GPIO_LED_GREEN, NULL, 1,
++				GPIO_ACTIVE_HIGH),
++		{ }
++	}
++};
++
+ static struct gpio_led spitz_gpio_leds[] = {
+ 	{
+ 		.name			= "spitz:amber:charge",
+ 		.default_trigger	= "sharpsl-charge",
+-		.gpio			= SPITZ_GPIO_LED_ORANGE,
+ 	},
+ 	{
+ 		.name			= "spitz:green:hddactivity",
+ 		.default_trigger	= "disk-activity",
+-		.gpio			= SPITZ_GPIO_LED_GREEN,
+ 	},
+ };
+ 
+@@ -480,7 +489,14 @@ static struct platform_device spitz_led_device = {
+ 
+ static void __init spitz_leds_init(void)
+ {
++	struct gpio_descs *leds;
++
++	gpiod_add_lookup_table(&spitz_led_gpio_table);
+ 	platform_device_register(&spitz_led_device);
++	leds = gpiod_get_array_optional(&spitz_led_device.dev,
++			NULL, GPIOD_ASIS);
++	spitz_gpio_leds[0].gpiod = leds->desc[0];
++	spitz_gpio_leds[1].gpiod = leds->desc[1];
+ }
+ #else
+ static inline void spitz_leds_init(void) {}
+
+-- 
+2.42.0
+
 

@@ -2,95 +2,137 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9CD3E95A82
-	for <linux-input@archiver.kernel.org>; Sun,  8 Oct 2023 08:05:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5EA73E95A67
+	for <linux-input@archiver.kernel.org>; Sun,  8 Oct 2023 09:55:52 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229988AbjJHIFX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 8 Oct 2023 04:05:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42042 "EHLO
+        id S1343601AbjJHJzv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 8 Oct 2023 05:55:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229945AbjJHIFX (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 8 Oct 2023 04:05:23 -0400
-X-Greylist: delayed 316 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 08 Oct 2023 01:05:20 PDT
-Received: from 19.mo561.mail-out.ovh.net (19.mo561.mail-out.ovh.net [178.32.98.231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 650EDB9
-        for <linux-input@vger.kernel.org>; Sun,  8 Oct 2023 01:05:20 -0700 (PDT)
-Received: from director4.ghost.mail-out.ovh.net (unknown [10.108.16.251])
-        by mo561.mail-out.ovh.net (Postfix) with ESMTP id DC08527865
-        for <linux-input@vger.kernel.org>; Sun,  8 Oct 2023 08:00:01 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-9mdf6 (unknown [10.110.171.163])
-        by director4.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 5E1A01FE55;
-        Sun,  8 Oct 2023 08:00:00 +0000 (UTC)
-Received: from foxhound.fi ([37.59.142.106])
-        by ghost-submission-6684bf9d7b-9mdf6 with ESMTPSA
-        id SGIwEoBhImXIvwAA5rXBkA
-        (envelope-from <jose.pekkarinen@foxhound.fi>); Sun, 08 Oct 2023 08:00:00 +0000
-Authentication-Results: garm.ovh; auth=pass (GARM-106R006c7d3698b-c1da-41f1-860f-13c89ef29aab,
-                    F6EE83B07292679BC443460DC7C66060252C3E74) smtp.auth=jose.pekkarinen@foxhound.fi
-X-OVh-ClientIp: 83.100.45.21
-From:   =?UTF-8?q?Jos=C3=A9=20Pekkarinen?= <jose.pekkarinen@foxhound.fi>
-To:     dmitry.torokhov@gmail.com, rydberg@bitmath.org,
-        skhan@linuxfoundation.org
-Cc:     =?UTF-8?q?Jos=C3=A9=20Pekkarinen?= <jose.pekkarinen@foxhound.fi>,
-        amandhoot12@gmail.com, rrangel@chromium.org,
-        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kernel-mentees@lists.linuxfoundation.org
-Subject: [PATCH] Input: synaptics: enable InterTouch for ThinkPad L14 G1
-Date:   Sun,  8 Oct 2023 11:01:28 +0300
-Message-ID: <20231008080129.17931-1-jose.pekkarinen@foxhound.fi>
-X-Mailer: git-send-email 2.41.0
+        with ESMTP id S1343527AbjJHJzv (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 8 Oct 2023 05:55:51 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BBE8B6
+        for <linux-input@vger.kernel.org>; Sun,  8 Oct 2023 02:55:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1696758904;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pLEh9LlSm/GpY5t9FQz8qXk8MjAt4GSngbLRwAGPRpo=;
+        b=fKa5jEn4mUOWEYGwZ8CQQ/KXtv0IcrmYY2jWLUZrAOVcUv9sGucJP01jh95lFOjooYPNrE
+        /CMaNrMf40iW+x3IdNzHTgCyl1WowFM0/WkPIFR2IfjDtY98kRatXdh+Jq2ROPMNhAMLxp
+        eP5kBUCbknqs4ZZom9BoBXHhZa/lGoc=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-613-JxMOvfGvM4u0-OsgGxj3Kg-1; Sun, 08 Oct 2023 05:55:02 -0400
+X-MC-Unique: JxMOvfGvM4u0-OsgGxj3Kg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0A7CE8007A4;
+        Sun,  8 Oct 2023 09:55:02 +0000 (UTC)
+Received: from shalem.redhat.com (unknown [10.39.192.74])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 23C00C15BB8;
+        Sun,  8 Oct 2023 09:55:01 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+        Bastien Nocera <hadess@hadess.net>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
+Subject: [PATCH v2 02/14] HID: logitech-hidpp: Move hidpp_overwrite_name() to before connect check
+Date:   Sun,  8 Oct 2023 11:54:45 +0200
+Message-ID: <20231008095458.8926-3-hdegoede@redhat.com>
+In-Reply-To: <20231008095458.8926-1-hdegoede@redhat.com>
+References: <20231008095458.8926-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 7025896895597160102
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvkedrhedtgdduvdeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefhvfevufffkffogggtgfesthekredtredtjeenucfhrhhomheplfhoshorucfrvghkkhgrrhhinhgvnhcuoehjohhsvgdrphgvkhhkrghrihhnvghnsehfohighhhouhhnugdrfhhiqeenucggtffrrghtthgvrhhnpeeftdelueetieetvdettdetueeivedujeefffdvteefkeelhefhleelfeetteejjeenucfkphepuddvjedrtddrtddruddpkeefrddutddtrdeghedrvddupdefjedrheelrddugedvrddutdeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeojhhoshgvrdhpvghkkhgrrhhinhgvnhesfhhogihhohhunhgurdhfiheqpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihhnphhuthesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheeiuddpmhhouggvpehsmhhtphhouhht
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Observed on dmesg of my laptop I see the following
-output:
+Move the hidpp_overwrite_name() call to before the connect check, this
+puts it at the same place in the probe() order as hidpp_serial_init()
+which seems more logical. This should not make a difference since this
+is in the non-unifying path and only unifying devices can be probed
+in non-connected state.
 
-[   19.898700] psmouse serio1: synaptics: queried max coordinates: x [..5678], y [..4694]
-[   19.936057] psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1162..]
-[   19.936076] psmouse serio1: synaptics: Your touchpad (PNP: LEN0411 PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi are not used, you might want to try setting psmouse.synaptics_intertouch to 1 and report this to linux-input@vger.kernel.org.
-[   20.008901] psmouse serio1: synaptics: Touchpad model: 1, fw: 10.32, id: 0x1e2a1, caps: 0xf014a3/0x940300/0x12e800/0x500000, board id: 3471, fw id: 2909640
-[   20.008925] psmouse serio1: synaptics: serio: Synaptics pass-through port at isa0060/serio1/input0
-[   20.053344] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input7
-[   20.397608] mousedev: PS/2 mouse device common for all mice
+This is a preparation patch for moving the connect check to after
+restarting IO, in case we miss a connect packet coming in while IO
+is disabled during the restart.
 
-This patch will add its pnp id to the smbus list to
-produce the setup of intertouch for the device. After
-applying, the ouput will look like:
+Doing this before the connect check requires dropping the protocol
+version check since protocol_major is not set yet now. Instead
+this relies on hidpp_root_get_feature(HIDPP_PAGE_GET_DEVICE_NAME_TYPE)
+failing on older devices, just like how hidpp_get_serial() relies on
+hidpp_root_get_feature(HIDPP_PAGE_DEVICE_INFORMATION) failing on older
+devices. So this again makes the code more consistent.
 
-[   19.168664] psmouse serio1: synaptics: queried max coordinates: x [..5678], y [..4694]
-[   19.206311] psmouse serio1: synaptics: queried min coordinates: x [1266..], y [1162..]
-[   19.206325] psmouse serio1: synaptics: Trying to set up SMBus access
-[   19.209545] psmouse serio1: synaptics: SMbus companion is not ready yet
-[   19.283845] psmouse serio1: synaptics: Touchpad model: 1, fw: 10.32, id: 0x1e2a1, caps: 0xf014a3/0x940300/0x12e800/0x500000, board id: 3471, fw id: 2909640
-[   19.283863] psmouse serio1: synaptics: serio: Synaptics pass-through port at isa0060/serio1/input0
-[   19.328959] input: SynPS/2 Synaptics TouchPad as /devices/platform/i8042/serio1/input/input8
-[   19.706164] mousedev: PS/2 mouse device common for all mice
+Also stop printing an error on failure now, since with the proto
+version check gone failures are expected to happen on older devices.
 
-Signed-off-by: José Pekkarinen <jose.pekkarinen@foxhound.fi>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/input/mouse/synaptics.c | 1 +
- 1 file changed, 1 insertion(+)
+Note: The weird unbalanced curly braces in the "else { ... }" go away
+in the next patch in the series.
+---
+ drivers/hid/hid-logitech-hidpp.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index ada299ec5bba..376a041c80b2 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -183,6 +183,7 @@ static const char * const smbus_pnp_ids[] = {
- 	"LEN009b", /* T580 */
- 	"LEN0402", /* X1 Extreme Gen 2 / P1 Gen 2 */
- 	"LEN040f", /* P1 Gen 3 */
-+	"LEN0411", /* L14 Gen 1 */
- 	"LEN200f", /* T450s */
- 	"LEN2044", /* L470  */
- 	"LEN2054", /* E480 */
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 09f7723eaabe..b1965b91c5bb 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -4136,19 +4136,12 @@ static void hidpp_overwrite_name(struct hid_device *hdev)
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+ 	char *name;
+ 
+-	if (hidpp->protocol_major < 2)
+-		return;
+-
+ 	name = hidpp_get_device_name(hidpp);
+-
+-	if (!name) {
+-		hid_err(hdev, "unable to retrieve the name of the device");
+-	} else {
++	if (name) {
+ 		dbg_hid("HID++: Got name: %s\n", name);
+ 		snprintf(hdev->name, sizeof(hdev->name), "%s", name);
++		kfree(name);
+ 	}
+-
+-	kfree(name);
+ }
+ 
+ static int hidpp_input_open(struct input_dev *dev)
+@@ -4476,8 +4469,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING)
+ 		hidpp_unifying_init(hidpp);
+-	else if (hid_is_usb(hidpp->hid_dev))
+-		hidpp_serial_init(hidpp);
++	else {
++		if (hid_is_usb(hidpp->hid_dev))
++			hidpp_serial_init(hidpp);
++
++		hidpp_overwrite_name(hdev);
++	}
+ 
+ 	connected = hidpp_root_get_protocol_version(hidpp) == 0;
+ 	atomic_set(&hidpp->connected, connected);
+@@ -4487,8 +4484,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			hid_err(hdev, "Device not connected");
+ 			goto hid_hw_init_fail;
+ 		}
+-
+-		hidpp_overwrite_name(hdev);
+ 	}
+ 
+ 	if (connected && hidpp->protocol_major >= 2) {
 -- 
 2.41.0
 

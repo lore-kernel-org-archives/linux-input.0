@@ -2,50 +2,50 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A323E95A82
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 97D77E95A67
 	for <linux-input@archiver.kernel.org>; Sun,  8 Oct 2023 09:56:40 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344608AbjJHJ4j (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1344559AbjJHJ4j (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Sun, 8 Oct 2023 05:56:39 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35648 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344594AbjJHJ4i (ORCPT
+        with ESMTP id S1344587AbjJHJ4i (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Sun, 8 Oct 2023 05:56:38 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 966ACE9
-        for <linux-input@vger.kernel.org>; Sun,  8 Oct 2023 02:55:20 -0700 (PDT)
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4147BDE
+        for <linux-input@vger.kernel.org>; Sun,  8 Oct 2023 02:55:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1696758919;
+        s=mimecast20190719; t=1696758915;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=E1kj2POh2TKKg4arWVtWEwTpR1rPeel0wPR3HdautPE=;
-        b=RJwaEiJ9Rwf/0KUKzfZGEgB2K1H3QHvttwMrU1wWonoIqyAsBwbn8cdkh8VlWxIg+J6JbI
-        gtdMhawJjRKjbdE2/hLVAfBXBdNUUZ38tupdKTrnflmE6PMD6p69ahWxgS6NPbLuV/MCnc
-        u5mfa3ZZGaZ+syvl2p/ltJjkGoXrQU4=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-554-yn3WIBqTNkSN1NPe_usLZg-1; Sun, 08 Oct 2023 05:55:12 -0400
-X-MC-Unique: yn3WIBqTNkSN1NPe_usLZg-1
+        bh=kjt1ZM5ZIEDUJZJunDTsgtms04Zn5kENYo6Vh2F0W6U=;
+        b=GZP4YouE7BT6FuyhHOdBHGO5OY4GdVB1i4yV9QjEWiqr16uKdyv6Hc4TLjrZ4cFYF/uzw+
+        ZIrLw4qdytYQyv+oGRIaqDlUb1UW9qGmmH4uC8uke9giM/c4z+xIaXz4UEcrhQRd+b2whm
+        UCCQY01+oizPTlbXAvvMEOkI6Dp99Qw=
+Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
+ by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-145-Yc1Qru95NySj6akQNb1REg-1; Sun, 08 Oct 2023 05:55:09 -0400
+X-MC-Unique: Yc1Qru95NySj6akQNb1REg-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 17DB1185A790;
-        Sun,  8 Oct 2023 09:55:12 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A59361C0634C;
+        Sun,  8 Oct 2023 09:55:08 +0000 (UTC)
 Received: from shalem.redhat.com (unknown [10.39.192.74])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 317EEC15BB8;
-        Sun,  8 Oct 2023 09:55:11 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BF245C15BB8;
+        Sun,  8 Oct 2023 09:55:07 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
         Bastien Nocera <hadess@hadess.net>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH v2 11/14] HID: logitech-hidpp: Remove unused connected param from *_connect()
-Date:   Sun,  8 Oct 2023 11:54:54 +0200
-Message-ID: <20231008095458.8926-12-hdegoede@redhat.com>
+Subject: [PATCH v2 08/14] HID: logitech-hidpp: Add a hidpp_connect_and_start() helper
+Date:   Sun,  8 Oct 2023 11:54:51 +0200
+Message-ID: <20231008095458.8926-9-hdegoede@redhat.com>
 In-Reply-To: <20231008095458.8926-1-hdegoede@redhat.com>
 References: <20231008095458.8926-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -55,64 +55,85 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Remove the unused connected function parameter from wtp_connect(),
-m560_send_config_command() and k400_connect().
+Add a helper to take the 3 hid_hw_start() + hid_hw_open() +
+hid_device_io_start() steps which are necessary to be able to
+talk to the hw.
+
+This is a preparation patch for moving the connect check to after
+restarting IO, in case we miss a connect packet coming in while IO
+is disabled during the restart.
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 40 ++++++++++++++++++++------------
+ 1 file changed, 25 insertions(+), 15 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index b278e2b8924a..2b0a2ea5da22 100644
+index bbb1c6d8ccc9..45b371e7b9ee 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -3141,7 +3141,7 @@ static int wtp_allocate(struct hid_device *hdev, const struct hid_device_id *id)
- 	return 0;
- };
+@@ -4391,6 +4391,29 @@ static bool hidpp_application_equals(struct hid_device *hdev,
+ 	return report && report->application == application;
+ }
  
--static int wtp_connect(struct hid_device *hdev, bool connected)
-+static int wtp_connect(struct hid_device *hdev)
++static int hidpp_connect_and_start(struct hidpp_device *hidpp, unsigned int connect_mask)
++{
++	struct hid_device *hdev = hidpp->hid_dev;
++	int ret;
++
++	ret = hid_hw_start(hdev, connect_mask);
++	if (ret) {
++		hid_err(hdev, "hw start failed: %d\n", ret);
++		return ret;
++	}
++
++	ret = hid_hw_open(hdev);
++	if (ret) {
++		hid_err(hdev, "hw open failed: %d\n", ret);
++		hid_hw_stop(hdev);
++		return ret;
++	}
++
++	/* Allow incoming packets */
++	hid_device_io_start(hdev);
++	return 0;
++}
++
+ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  {
- 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
- 	struct wtp_data *wd = hidpp->private_data;
-@@ -3203,7 +3203,7 @@ static const u8 m560_config_parameter[] = {0x00, 0xaf, 0x03};
- #define M560_SUB_ID			0x0a
- #define M560_BUTTON_MODE_REGISTER	0x35
+ 	struct hidpp_device *hidpp;
+@@ -4462,21 +4485,9 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	 * Plain USB connections need to actually call start and open
+ 	 * on the transport driver to allow incoming data.
+ 	 */
+-	ret = hid_hw_start(hdev, 0);
+-	if (ret) {
+-		hid_err(hdev, "hw start failed\n");
++	ret = hidpp_connect_and_start(hidpp, 0);
++	if (ret)
+ 		goto hid_hw_start_fail;
+-	}
+-
+-	ret = hid_hw_open(hdev);
+-	if (ret < 0) {
+-		dev_err(&hdev->dev, "%s:hid_hw_open returned error:%d\n",
+-			__func__, ret);
+-		goto hid_hw_open_fail;
+-	}
+-
+-	/* Allow incoming packets */
+-	hid_device_io_start(hdev);
  
--static int m560_send_config_command(struct hid_device *hdev, bool connected)
-+static int m560_send_config_command(struct hid_device *hdev)
- {
- 	struct hidpp_report response;
- 	struct hidpp_device *hidpp_dev;
-@@ -3398,7 +3398,7 @@ static int k400_allocate(struct hid_device *hdev)
- 	return 0;
- };
+ 	/* Get name + serial, store in hdev->name + hdev->uniq */
+ 	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING)
+@@ -4523,7 +4534,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
  
--static int k400_connect(struct hid_device *hdev, bool connected)
-+static int k400_connect(struct hid_device *hdev)
- {
- 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
- 
-@@ -4205,15 +4205,15 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
- 	}
- 
- 	if (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP) {
--		ret = wtp_connect(hdev, connected);
-+		ret = wtp_connect(hdev);
- 		if (ret)
- 			return;
- 	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_M560) {
--		ret = m560_send_config_command(hdev, connected);
-+		ret = m560_send_config_command(hdev);
- 		if (ret)
- 			return;
- 	} else if (hidpp->quirks & HIDPP_QUIRK_CLASS_K400) {
--		ret = k400_connect(hdev, connected);
-+		ret = k400_connect(hdev);
- 		if (ret)
- 			return;
- 	}
+ hid_hw_init_fail:
+ 	hid_hw_close(hdev);
+-hid_hw_open_fail:
+ 	hid_hw_stop(hdev);
+ hid_hw_start_fail:
+ 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
 -- 
 2.41.0
 

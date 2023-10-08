@@ -2,119 +2,144 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0DCCE95A67
-	for <linux-input@archiver.kernel.org>; Sun,  8 Oct 2023 09:56:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E58DE95A82
+	for <linux-input@archiver.kernel.org>; Sun,  8 Oct 2023 10:26:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344603AbjJHJ4s (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 8 Oct 2023 05:56:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48788 "EHLO
+        id S234305AbjJHK0A (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 8 Oct 2023 06:26:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344612AbjJHJ4r (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 8 Oct 2023 05:56:47 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90DACF1
-        for <linux-input@vger.kernel.org>; Sun,  8 Oct 2023 02:55:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1696758932;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=b5rJrslAnv1U9s2DPDPrRtntfVCJmFEfnHd6BuXiqxU=;
-        b=TI8qoUOIFGP42orL9Y0KMQIUjPosTu0zbSJ8900TBbwgak9n54nPy/yLv3LiLe9AkIGXWx
-        fah19qvdJ/WMZqPmK0tD4NiW5CfB4nV/hTjfu+vlv2GY3g7maBEjxiauph8WkOpPAbsLth
-        ugZ/KIz9jDOWQ8M0pik0AN+YHUH9NPI=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-530-CVyg9Dh2NsefyL_4Hrjy_w-1; Sun, 08 Oct 2023 05:55:14 -0400
-X-MC-Unique: CVyg9Dh2NsefyL_4Hrjy_w-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 4B9CA101A550;
-        Sun,  8 Oct 2023 09:55:14 +0000 (UTC)
-Received: from shalem.redhat.com (unknown [10.39.192.74])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 64103C15BB8;
-        Sun,  8 Oct 2023 09:55:13 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-        Bastien Nocera <hadess@hadess.net>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH v2 13/14] HID: logitech-hidpp: Avoid hidpp_connect_event() running while probe() restarts IO
-Date:   Sun,  8 Oct 2023 11:54:56 +0200
-Message-ID: <20231008095458.8926-14-hdegoede@redhat.com>
-In-Reply-To: <20231008095458.8926-1-hdegoede@redhat.com>
-References: <20231008095458.8926-1-hdegoede@redhat.com>
+        with ESMTP id S230412AbjJHKZ6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 8 Oct 2023 06:25:58 -0400
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4187CC5
+        for <linux-input@vger.kernel.org>; Sun,  8 Oct 2023 03:25:56 -0700 (PDT)
+Received: by mail-lf1-x12a.google.com with SMTP id 2adb3069b0e04-503f39d3236so4350675e87.0
+        for <linux-input@vger.kernel.org>; Sun, 08 Oct 2023 03:25:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1696760754; x=1697365554; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=KHbvS0iPxvV8ElF+BY1ncYhQOuuRGi0yZrsHEzBEzZM=;
+        b=bhtS5OQx1Ro6eiFhKnpyC+YpqfmtdryAYty6uZRMi/9gCSJhYb/Lebld9D5VIc5Uun
+         AFHY/Em5QYLVry3xlDcU8NQljq03XVZcSiQqDwAbcUM4R76Zycz4HPMzUC+SgoNs5lGX
+         D+hqd8YNyGP9RPoE5muhWr0u63J0zHxmiGSINC0/zqrl77m7/oVL8HdG34mxR5FN6mAM
+         ajGz+38DG9trMpSS2y6qlxIDO8+Tb/WP6FWNd+pyhqJDx2xbx1r3CVIxMpJVLROGEqLt
+         cZEZNkmK5wTNJZj4zkuB3swMfV2HypihKej9LsbCwFvs2bWkrXaCthoJO/e52PhOfQUA
+         qgoA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1696760754; x=1697365554;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KHbvS0iPxvV8ElF+BY1ncYhQOuuRGi0yZrsHEzBEzZM=;
+        b=TjhwpuzR9OtrkI3KDKoexvTvRKqjQY8u5iXlqq/mj/BMwqAWIdbc9bLXmH/LlBQD4r
+         zSlaPYu3aZYbgmzvzYgf33KQPett8l58ywA38IPem/jtHy6Lo+DLxx59w28+VvU/eL4L
+         hTcZAFEZmN6eroFEBUIjBLDUaxyXTEMoLyt3euINnhU5XIxGN5e9eW+xG858QfCHSrYx
+         zCiFqSt19BzFj6+tI4Pw/CUeJGjVyUpGJLEAi77WtcUlPzYoTLlKjIWpPTp73mub61k9
+         o0FlNv/VDx8v0PP109j2OuWvYwqey4sfszz+hUxn2MFjC279oNLLHFToHY/NEJPUQjLH
+         1KfQ==
+X-Gm-Message-State: AOJu0YxsTuqQmCrmuVe6wyroEO4ayV9QDEVgCiANdKQLFx31W6ZX5PNp
+        YLgJia30hUBBADdcOG6p+Hrs7g==
+X-Google-Smtp-Source: AGHT+IHyyZR30VhfYWCNM1lo0/NDjP0WqMRn9jzVNmUfsFvwlpYiA6j9mTgQbBDfUicHgGRjKZfy8w==
+X-Received: by 2002:ac2:4e91:0:b0:500:b828:7a04 with SMTP id o17-20020ac24e91000000b00500b8287a04mr10279092lfr.18.1696760754319;
+        Sun, 08 Oct 2023 03:25:54 -0700 (PDT)
+Received: from [192.168.1.197] (5-157-101-10.dyn.eolo.it. [5.157.101.10])
+        by smtp.gmail.com with ESMTPSA id c19-20020a7bc853000000b004064288597bsm8205859wml.30.2023.10.08.03.25.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 08 Oct 2023 03:25:53 -0700 (PDT)
+Message-ID: <30a3c937-f73f-479d-ba62-4963f6ba8eaa@linaro.org>
+Date:   Sun, 8 Oct 2023 12:25:52 +0200
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] input: add Adafruit Seesaw Gamepad driver
+To:     Anshul Dalal <anshulusr@gmail.com>, linux-input@vger.kernel.org,
+        devicetree@vger.kernel.org
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        linux-kernel-mentees@lists.linuxfoundation.org
+References: <20231007144052.1535417-1-anshulusr@gmail.com>
+ <20231007144052.1535417-2-anshulusr@gmail.com>
+ <a49deeb6-728c-4527-8399-57c52214e1d3@linaro.org>
+ <2281f924-30d1-41c5-b105-d8d28aada5b2@gmail.com>
+Content-Language: en-US
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
+ 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
+ D2GYIS41Kv4Isx2dEFh+/Q==
+In-Reply-To: <2281f924-30d1-41c5-b105-d8d28aada5b2@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-hidpp_probe() restarts IO after setting things up, if we get a connect
-event just before hidpp_probe() stops all IO then hidpp_connect_event()
-will be running from the workqueue and it will see IO errors.
+On 07/10/2023 18:13, Anshul Dalal wrote:
+>>> +	err = i2c_master_send(client, register_reset, sizeof(register_reset));
+>>> +	if (err < 0)
+>>> +		return err;
+>>> +	if (err != sizeof(register_reset))
+>>> +		return -EIO;
+>>> +	mdelay(10);
+>>
+>> Why 10? This should be explained somehow in the code.
+> 
+> The reason for the delay is to ensure the register reset process is
+> finished before going further. The reference Arduino driver from the
+> manufacturer also had a delay for the same amount though my hardware
+> unit worked fine till 5ms delay. Is there some kernel abstraction I
+> could use to indicate a short delay or will the previous explanation in
+> a comment above the line do?
+> 
 
-To avoid this add an enable_connect_event flag and only set that
-after the IO restart is done.
+Just explain it briefly as a comment.
 
-Since an hidpp_connect_event() run is queued after restarting IO
-anyways, connect events before that run can safely be ignored.
-
-Note this also means that hidpp_connect_event() is now guaranteed to
-not get queued on hidpp_connect_and_start() failures so the work
-for this no longer needs to be cancelled on failure.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
-Changes in v2:
-- Use an enable_connect_event flag instead of a mutex
----
- drivers/hid/hid-logitech-hidpp.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 37213dcc9d9c..9e34a29619a0 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -192,6 +192,7 @@ struct hidpp_device {
- 
- 	void *private_data;
- 
-+	atomic_t enable_connect_event;
- 	struct work_struct work;
- 	struct kfifo delayed_work_fifo;
- 	struct input_dev *delayed_input;
-@@ -3892,6 +3893,9 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
- 	}
- 
- 	if (unlikely(hidpp_report_is_connect_event(hidpp, report))) {
-+		if (!atomic_read(&hidpp->enable_connect_event))
-+			return 1;
-+
- 		if (schedule_work(&hidpp->work) == 0)
- 			dbg_hid("%s: connect event already queued\n", __func__);
- 		return 1;
-@@ -4501,6 +4505,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	 * again (which may cause missing packets) queue hidpp_connect_event()
- 	 * to check the connected state of the device.
- 	 */
-+	atomic_set(&hidpp->enable_connect_event, 1);
- 	schedule_work(&hidpp->work);
- 	flush_work(&hidpp->work);
- 
-@@ -4526,7 +4531,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 
- hid_hw_start_fail:
- 	sysfs_remove_group(&hdev->dev.kobj, &ps_attribute_group);
--	cancel_work_sync(&hidpp->work);
- 	mutex_destroy(&hidpp->send_mutex);
- 	return ret;
- }
--- 
-2.41.0
+Best regards,
+Krzysztof
 

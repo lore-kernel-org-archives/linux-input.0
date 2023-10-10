@@ -2,51 +2,51 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5DF9AE95A9F
-	for <linux-input@archiver.kernel.org>; Tue, 10 Oct 2023 10:21:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BF5CCD80A1
+	for <linux-input@archiver.kernel.org>; Tue, 10 Oct 2023 10:21:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230506AbjJJKVs (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Oct 2023 06:21:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54764 "EHLO
+        id S230511AbjJJKVt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Oct 2023 06:21:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230481AbjJJKVp (ORCPT
+        with ESMTP id S230503AbjJJKVr (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Oct 2023 06:21:45 -0400
+        Tue, 10 Oct 2023 06:21:47 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3796B0
-        for <linux-input@vger.kernel.org>; Tue, 10 Oct 2023 03:20:54 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30AE3A7
+        for <linux-input@vger.kernel.org>; Tue, 10 Oct 2023 03:20:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1696933254;
+        s=mimecast20190719; t=1696933255;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=WaBa9w3v2ZxwaOOKHAJqRj5HEWvizpoJQbX7JXPLVqQ=;
-        b=R6I40DZyKPrM9QWYlxWBv6bMcWLZKsqX5aUePM3+4GAu7RhfDq1z16/Iijoyw5HZpQKyeo
-        17F8VwQpysEJoL4vmpOGz2ITgy15DMsZAtzcRhJuL0oZmaQwQqEqC8EdXhdogHiB4q5Ds7
-        7bcTAgD4G+fsDczXg7DfUPYAllFkpoE=
+        bh=xE1ccqqTffNgSfv/UK92EiUp8YPGkUSRbzfuN3YASPY=;
+        b=LIeCCBWyg3zrN9Te0aHw6LkFn0VLHMARLTmsJUD/7Em+bUlf2idr4qxivAaXAZZRd1SLra
+        bA8OdobjZsI9G9D+vRYPtgSFCbf/byczRz04GmBPZS4itEDcl8SUWozmCGbKyM9Wo+EW27
+        r1wlmtAx6aosR02Bbrfo0cgJXgt3nGk=
 Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
  by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-593-nddQhyNWNDWJIb48aRmwWQ-1; Tue, 10 Oct 2023 06:20:41 -0400
-X-MC-Unique: nddQhyNWNDWJIb48aRmwWQ-1
+ us-mta-685-B48yPnurOrKgK2Opx2ghKQ-1; Tue, 10 Oct 2023 06:20:49 -0400
+X-MC-Unique: B48yPnurOrKgK2Opx2ghKQ-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B14551C01712;
-        Tue, 10 Oct 2023 10:20:40 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id BB43F2999B34;
+        Tue, 10 Oct 2023 10:20:48 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.39.194.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CB7CE40D1A6;
-        Tue, 10 Oct 2023 10:20:39 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D6230492B16;
+        Tue, 10 Oct 2023 10:20:47 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
         Bastien Nocera <hadess@hadess.net>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH v3 04/12] HID: logitech-hidpp: Remove wtp_get_config() call from probe()
-Date:   Tue, 10 Oct 2023 12:20:21 +0200
-Message-ID: <20231010102029.111003-5-hdegoede@redhat.com>
+Subject: [PATCH v3 11/12] HID: logitech-hidpp: Drop delayed_work_cb()
+Date:   Tue, 10 Oct 2023 12:20:28 +0200
+Message-ID: <20231010102029.111003-12-hdegoede@redhat.com>
 In-Reply-To: <20231010102029.111003-1-hdegoede@redhat.com>
 References: <20231010102029.111003-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -56,15 +56,12 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-For WTP devices which start disconnected (paired with the unifying
-receiver, but not connected atm) hidpp_connect_event() takes care
-of calling wtp_get_config() when the device later connects.
+Drop delayed_work_cb() instead make hidpp_connect_event() the workqueue
+function itself.
 
-There is no need to have a separate code path for WTP devices which
-are connected at probe() time, these can use the same code-path since
-probe() will queue hidpp_connect_event() for those at probe time.
-
-Drop the unnecessary wtp_get_config() call from probe().
+Besides resulting in a small cleanup this will hopefully also make
+it clearer that going forward hidpp_connect_event() should only
+be run from a workqueue and not be directly invoked.
 
 This series has been tested on the following devices:
 Logitech Bluetooth Laser Travel Mouse (bluetooth, HID++ 1.0)
@@ -78,26 +75,56 @@ Logitech M-RAZ105 mouse (27 Mhz, HID++ extra mouse buttons, HID++ 1.0)
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 7bf12ca0eb4a..707fb9616fc5 100644
+index 4793a3236f17..e75cf4300c59 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4499,11 +4499,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		hidpp_overwrite_name(hdev);
+@@ -234,8 +234,6 @@ struct hidpp_device {
+ #define HIDPP20_ERROR_UNSUPPORTED		0x09
+ #define HIDPP20_ERROR				0xff
+ 
+-static void hidpp_connect_event(struct hidpp_device *hidpp_dev);
+-
+ static int __hidpp_send_report(struct hid_device *hdev,
+ 				struct hidpp_report *hidpp_report)
+ {
+@@ -449,13 +447,6 @@ static int hidpp_send_rap_command_sync(struct hidpp_device *hidpp_dev,
+ 	return ret;
+ }
+ 
+-static void delayed_work_cb(struct work_struct *work)
+-{
+-	struct hidpp_device *hidpp = container_of(work, struct hidpp_device,
+-							work);
+-	hidpp_connect_event(hidpp);
+-}
+-
+ static inline bool hidpp_match_answer(struct hidpp_report *question,
+ 		struct hidpp_report *answer)
+ {
+@@ -4183,8 +4174,9 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
+ 	return input_dev;
+ }
+ 
+-static void hidpp_connect_event(struct hidpp_device *hidpp)
++static void hidpp_connect_event(struct work_struct *work)
+ {
++	struct hidpp_device *hidpp = container_of(work, struct hidpp_device, work);
+ 	struct hid_device *hdev = hidpp->hid_dev;
+ 	struct input_dev *input;
+ 	char *name, *devm_name;
+@@ -4435,7 +4427,7 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			return ret;
  	}
  
--	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_WTP)) {
--		ret = wtp_get_config(hidpp);
--		if (ret)
--			goto hid_hw_init_fail;
--	} else if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)) {
-+	if (connected && (hidpp->quirks & HIDPP_QUIRK_CLASS_G920)) {
- 		ret = g920_get_config(hidpp, &data);
- 		if (ret)
- 			goto hid_hw_init_fail;
+-	INIT_WORK(&hidpp->work, delayed_work_cb);
++	INIT_WORK(&hidpp->work, hidpp_connect_event);
+ 	mutex_init(&hidpp->send_mutex);
+ 	init_waitqueue_head(&hidpp->wait);
+ 
 -- 
 2.41.0
 

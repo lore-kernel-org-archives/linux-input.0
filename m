@@ -2,174 +2,162 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B770CD80A1
-	for <linux-input@archiver.kernel.org>; Tue, 10 Oct 2023 10:22:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BE9B1CD80A6
+	for <linux-input@archiver.kernel.org>; Tue, 10 Oct 2023 11:10:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbjJJKV7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Oct 2023 06:21:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58136 "EHLO
+        id S229958AbjJJLKD (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Oct 2023 07:10:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45556 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230483AbjJJKV6 (ORCPT
+        with ESMTP id S231273AbjJJLKC (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Oct 2023 06:21:58 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE25DAF
-        for <linux-input@vger.kernel.org>; Tue, 10 Oct 2023 03:21:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1696933267;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=/tVr/izul10Iw2LV2X+wvtXF+u95KNN6Rzd+SQqZxB0=;
-        b=GbWUMxCMZntCCs7e+vmnHZGDq2AvlS2RGhYuIXMimI9aD3UWaXAYPiOfWtyAnLFrE5QusL
-        ErMOf01RCwiKRRStWZnsOonmL6V7eZ+bTLH+kCRL72Bv30QY2XjUZax/ai664zXeQ7kaqa
-        IkTn4l6ddFfC5zxzgu34+R7KVLw/y58=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-628-ocDEz45SPH6YqvhdGQfelg-1; Tue, 10 Oct 2023 06:20:48 -0400
-X-MC-Unique: ocDEz45SPH6YqvhdGQfelg-1
-Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id A3E2F80CDA1;
-        Tue, 10 Oct 2023 10:20:47 +0000 (UTC)
-Received: from localhost.localdomain (unknown [10.39.194.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id BAB9640BAED;
-        Tue, 10 Oct 2023 10:20:46 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
-        Bastien Nocera <hadess@hadess.net>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH v3 10/12] HID: logitech-hidpp: Fix connect event race
-Date:   Tue, 10 Oct 2023 12:20:27 +0200
-Message-ID: <20231010102029.111003-11-hdegoede@redhat.com>
-In-Reply-To: <20231010102029.111003-1-hdegoede@redhat.com>
-References: <20231010102029.111003-1-hdegoede@redhat.com>
+        Tue, 10 Oct 2023 07:10:02 -0400
+Received: from mail-vk1-xa2c.google.com (mail-vk1-xa2c.google.com [IPv6:2607:f8b0:4864:20::a2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC31EA9
+        for <linux-input@vger.kernel.org>; Tue, 10 Oct 2023 04:10:00 -0700 (PDT)
+Received: by mail-vk1-xa2c.google.com with SMTP id 71dfb90a1353d-495d687b138so1826617e0c.3
+        for <linux-input@vger.kernel.org>; Tue, 10 Oct 2023 04:10:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1696936200; x=1697541000; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PCYF5qT9Gs8IkTnnIfRUFKntaORMi6z87ONR0oJTVDQ=;
+        b=C5u5QACxDqFmgS22h975qnPRhVJRK0lqoBbCBcPuMAuI9javRqL+IJfPQ3T7DO2nbM
+         dIm6Lyq4E8+J0uFZXy/DlTUkBKcSJB3o+1KtJOELKtsX0ZShVJJkguQoVtGds8Dz1yMY
+         B4JDSn771MggeNzu/Bcxnqj+jTf2QpdGqTIyYncQOVdXKBYOLfepiKncbPRRo/H7aRsR
+         gvac1+HMy8GmQM19Vrvpx0lRB9MzLt+IsK4Y/EYQ1GV7TbKiywxY8q7GCKRZawiw/+a4
+         a0QHV6Dz3YU7AF6tpwhONklWChnl42CB8nc4msmAHJf7ZLiXp4wsG4TwPRJTRBoJmq/n
+         /xMA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1696936200; x=1697541000;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PCYF5qT9Gs8IkTnnIfRUFKntaORMi6z87ONR0oJTVDQ=;
+        b=hQhFlNl6wVdaMWPct5eDi1+7Le5VMCwmvr3qLJDF7fTqDN1tb7Wr2uiSt/MikXwrtD
+         7qeMxSLKOeNqjE1NVPsL0QmAc7PNKxmRYTSvH/bR0nCtz4Zfp7jlf2Y/vm45RbdnExHz
+         ULlIwazp97pZtZn14spaLfGpaMoz3S/cNIJmdTSvj5i/LjA0mRr9r3pl0snZX79URONQ
+         ZIxs/GaABzn7HspSXD2LymURC7NyXFr/SqnYIbHJhO5cGGHwUEVdbhIt0S45TT+RFCxA
+         D/p1hhiiTHDA03ZKT1r44AO/vlri6KHClmNqcTFYFxdVsTmvOfUWP4WmD4tUO78l7mKU
+         4akQ==
+X-Gm-Message-State: AOJu0Yx+eXXBOjpFmNF0IYx5SxKHZKDydeL921Wi6cJseIDcYw34bJtA
+        d7NUrdShctjlWDmg7bEFHHgRfFLlacH/AMP93YPDuA==
+X-Google-Smtp-Source: AGHT+IG8EjKGLHcnRs66KBlvSVDW7XewFvqtnC+gvRCdLGJTRcz5KkRFMmp9YsubRZ0+HFgXMzlZdGl+PFDx9vN6yg8=
+X-Received: by 2002:a05:6122:2641:b0:496:a6cc:7ffe with SMTP id
+ dr1-20020a056122264100b00496a6cc7ffemr11008131vkb.13.1696936199801; Tue, 10
+ Oct 2023 04:09:59 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+References: <20231009-pxa-gpio-v7-0-c8f5f403e856@skole.hr> <20231009-pxa-gpio-v7-1-c8f5f403e856@skole.hr>
+In-Reply-To: <20231009-pxa-gpio-v7-1-c8f5f403e856@skole.hr>
+From:   Bartosz Golaszewski <brgl@bgdev.pl>
+Date:   Tue, 10 Oct 2023 13:09:48 +0200
+Message-ID: <CAMRc=Mcb5WpTyGyb20Kd_ycOGKPywhuGc9wFoxCcjtZ_oHC46A@mail.gmail.com>
+Subject: Re: [PATCH RFT v7 1/6] ARM: pxa: Convert Spitz OHCI to GPIO descriptors
+To:     =?UTF-8?Q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
+Cc:     Daniel Mack <daniel@zonque.org>,
+        Haojian Zhuang <haojian.zhuang@gmail.com>,
+        Robert Jarzmik <robert.jarzmik@free.fr>,
+        Russell King <linux@armlinux.org.uk>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Andy Shevchenko <andy@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-gpio@vger.kernel.org,
+        linux-input@vger.kernel.org, linux-spi@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-There is a connect event race in hidpp_probe() in these 2 lines:
+On Mon, Oct 9, 2023 at 8:34=E2=80=AFPM Duje Mihanovi=C4=87 <duje.mihanovic@=
+skole.hr> wrote:
+>
+> Sharp's Spitz board still uses the legacy GPIO interface for controlling
+> a GPIO pin related to the USB host controller.
+>
+> Convert this function to use the new GPIO descriptor interface.
+>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Duje Mihanovi=C4=87 <duje.mihanovic@skole.hr>
+> ---
+>  arch/arm/mach-pxa/spitz.c      | 13 ++++++-------
+>  drivers/usb/host/ohci-pxa27x.c |  5 +++++
+>  2 files changed, 11 insertions(+), 7 deletions(-)
+>
+> diff --git a/arch/arm/mach-pxa/spitz.c b/arch/arm/mach-pxa/spitz.c
+> index cc691b199429..535e2b2e997b 100644
+> --- a/arch/arm/mach-pxa/spitz.c
+> +++ b/arch/arm/mach-pxa/spitz.c
+> @@ -649,23 +649,22 @@ static inline void spitz_mmc_init(void) {}
+>   * USB Host
+>   ***********************************************************************=
+*******/
+>  #if defined(CONFIG_USB_OHCI_HCD) || defined(CONFIG_USB_OHCI_HCD_MODULE)
+> +GPIO_LOOKUP_SINGLE(spitz_usb_host_gpio_table, "pxa27x-ohci", "gpio-pxa",
+> +               SPITZ_GPIO_USB_HOST, "usb-host", GPIO_ACTIVE_LOW);
+> +
+>  static int spitz_ohci_init(struct device *dev)
+>  {
+> -       int err;
+> -
+> -       err =3D gpio_request(SPITZ_GPIO_USB_HOST, "USB_HOST");
+> -       if (err)
+> -               return err;
+> +       gpiod_add_lookup_table(&spitz_usb_host_gpio_table);
+>
+>         /* Only Port 2 is connected, setup USB Port 2 Output Control Regi=
+ster */
+>         UP2OCR =3D UP2OCR_HXS | UP2OCR_HXOE | UP2OCR_DPPDE | UP2OCR_DMPDE=
+;
+>
+> -       return gpio_direction_output(SPITZ_GPIO_USB_HOST, 1);
+> +       return 0;
+>  }
+>
+>  static void spitz_ohci_exit(struct device *dev)
+>  {
+> -       gpio_free(SPITZ_GPIO_USB_HOST);
+> +       gpiod_remove_lookup_table(&spitz_usb_host_gpio_table);
+>  }
+>
+>  static struct pxaohci_platform_data spitz_ohci_platform_data =3D {
+> diff --git a/drivers/usb/host/ohci-pxa27x.c b/drivers/usb/host/ohci-pxa27=
+x.c
+> index 357d9aee38a3..a809ba0bb25e 100644
+> --- a/drivers/usb/host/ohci-pxa27x.c
+> +++ b/drivers/usb/host/ohci-pxa27x.c
+> @@ -121,6 +121,7 @@ struct pxa27x_ohci {
+>         void __iomem    *mmio_base;
+>         struct regulator *vbus[3];
+>         bool            vbus_enabled[3];
+> +       struct gpio_desc *usb_host;
+>  };
+>
+>  #define to_pxa27x_ohci(hcd)    (struct pxa27x_ohci *)(hcd_to_ohci(hcd)->=
+priv)
+> @@ -447,6 +448,10 @@ static int ohci_hcd_pxa27x_probe(struct platform_dev=
+ice *pdev)
+>         pxa_ohci =3D to_pxa27x_ohci(hcd);
+>         pxa_ohci->clk =3D usb_clk;
+>         pxa_ohci->mmio_base =3D (void __iomem *)hcd->regs;
+> +       pxa_ohci->usb_host =3D devm_gpiod_get_optional(&pdev->dev, "usb-h=
+ost", GPIOD_OUT_LOW);
+> +       if (IS_ERR(pxa_ohci->usb_host))
+> +               return dev_err_probe(&pdev->dev, PTR_ERR(pxa_ohci->usb_ho=
+st),
+> +                               "failed to get USB host GPIO\n");
+>
+>         for (i =3D 0; i < 3; ++i) {
+>                 char name[6];
+>
+> --
+> 2.42.0
+>
+>
 
-	connected = hidpp_root_get_protocol_version(hidpp) == 0;
-	atomic_set(&hidpp->connected, connected);
-
-Specifically the following can happen:
-
-1. This line from hidpp_probe() is executed:
-	connected = hidpp_root_get_protocol_version(hidpp) == 0;
-   and sets connected to false;
-
-2. A connect-event packet is received and does:
-	atomic_set(&hidpp->connected, true);
-
-3. The next line from hidpp_probe() is executed:
-	atomic_set(&hidpp->connected, connected);
-   and sets the atomic_t back to 0 again.
-
-4. hidpp_connect_event() runs and sees the connected device
-   as disconnected because of this.
-
-To fix this make hidpp_connect_event() query the connection status
-of the device itself instead of having it rely on possibly stale
-data cached in struct hidpp_device.
-
-This series has been tested on the following devices:
-Logitech Bluetooth Laser Travel Mouse (bluetooth, HID++ 1.0)
-Logitech M720 Triathlon (bluetooth, HID++ 4.5)
-Logitech M720 Triathlon (unifying, HID++ 4.5)
-Logitech K400 Pro (unifying, HID++ 4.1)
-Logitech K270 (eQUAD nano Lite, HID++ 2.0)
-Logitech M185 (eQUAD nano Lite, HID++ 4.5)
-Logitech LX501 keyboard (27 Mhz, HID++ builtin scroll-wheel, HID++ 1.0)
-Logitech M-RAZ105 mouse (27 Mhz, HID++ extra mouse buttons, HID++ 1.0)
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/hid-logitech-hidpp.c | 25 +++++--------------------
- 1 file changed, 5 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index e945e4e8180f..4793a3236f17 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -194,7 +194,6 @@ struct hidpp_device {
- 
- 	struct work_struct work;
- 	struct kfifo delayed_work_fifo;
--	atomic_t connected;
- 	struct input_dev *delayed_input;
- 
- 	unsigned long quirks;
-@@ -3893,8 +3892,6 @@ static int hidpp_raw_hidpp_event(struct hidpp_device *hidpp, u8 *data,
- 	}
- 
- 	if (unlikely(hidpp_report_is_connect_event(hidpp, report))) {
--		atomic_set(&hidpp->connected,
--				!(report->rap.params[0] & (1 << 6)));
- 		if (schedule_work(&hidpp->work) == 0)
- 			dbg_hid("%s: connect event already queued\n", __func__);
- 		return 1;
-@@ -4189,12 +4186,14 @@ static struct input_dev *hidpp_allocate_input(struct hid_device *hdev)
- static void hidpp_connect_event(struct hidpp_device *hidpp)
- {
- 	struct hid_device *hdev = hidpp->hid_dev;
--	int ret = 0;
--	bool connected = atomic_read(&hidpp->connected);
- 	struct input_dev *input;
- 	char *name, *devm_name;
-+	int ret;
- 
--	if (!connected) {
-+	/* Get device version to check if it is connected */
-+	ret = hidpp_root_get_protocol_version(hidpp);
-+	if (ret) {
-+		hid_info(hidpp->hid_dev, "Disconnected\n");
- 		if (hidpp->battery.ps) {
- 			hidpp->battery.online = false;
- 			hidpp->battery.status = POWER_SUPPLY_STATUS_UNKNOWN;
-@@ -4236,16 +4235,6 @@ static void hidpp_connect_event(struct hidpp_device *hidpp)
- 			return;
- 	}
- 
--	/* the device is already connected, we can ask for its name and
--	 * protocol */
--	if (!hidpp->protocol_major) {
--		ret = hidpp_root_get_protocol_version(hidpp);
--		if (ret) {
--			hid_err(hdev, "Can not get the protocol version.\n");
--			return;
--		}
--	}
--
- 	if (hidpp->protocol_major >= 2) {
- 		u8 feature_index;
- 
-@@ -4395,7 +4384,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct hidpp_device *hidpp;
- 	int ret;
--	bool connected;
- 	unsigned int connect_mask = HID_CONNECT_DEFAULT;
- 
- 	/* report_fixup needs drvdata to be set before we call hid_parse */
-@@ -4485,9 +4473,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	else
- 		hidpp_non_unifying_init(hidpp);
- 
--	connected = hidpp_root_get_protocol_version(hidpp) == 0;
--	atomic_set(&hidpp->connected, connected);
--
- 	schedule_work(&hidpp->work);
- 	flush_work(&hidpp->work);
- 
--- 
-2.41.0
-
+Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>

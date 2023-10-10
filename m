@@ -2,51 +2,51 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04C4AE95A97
-	for <linux-input@archiver.kernel.org>; Tue, 10 Oct 2023 10:21:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D4A1CD691F
+	for <linux-input@archiver.kernel.org>; Tue, 10 Oct 2023 10:21:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230470AbjJJKVn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Oct 2023 06:21:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54810 "EHLO
+        id S230478AbjJJKVq (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Oct 2023 06:21:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60454 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230447AbjJJKVm (ORCPT
+        with ESMTP id S230438AbjJJKVp (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Oct 2023 06:21:42 -0400
+        Tue, 10 Oct 2023 06:21:45 -0400
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D45AB7
-        for <linux-input@vger.kernel.org>; Tue, 10 Oct 2023 03:20:49 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2780694
+        for <linux-input@vger.kernel.org>; Tue, 10 Oct 2023 03:20:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1696933248;
+        s=mimecast20190719; t=1696933256;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=SPTHomIqCz1WPDkADQoeMwzXe7TQYF1XBzs3+YFEivQ=;
-        b=i0aeDXdSv7GVMIXxwME2nUfl4Tucg9qU1wQinndJpCPIgizq7o311pO3jbXHamD5tqmkak
-        opL4zSynNgMRuacn3tb4QuwKMMHc3U3kQxbaFSQ9tFfvoQkpNqnYTpPxtrjEHtIt8aWM/5
-        NPSwSogzHLzEK8vlxGEVIkrpkbLiIPs=
+        bh=Hr8b9UdRX/e9NOqeyZt7s7MC031+VH1EB3UMxauKTdg=;
+        b=MmieonOUsSh3lclPUwdGVjzgKjRTFjJ0hphgnPhHGe25pkWLIH4iicjM1n/3QHqIJvvr14
+        sfGGZKyy1vrwx/RUk+0h0ZGoF9dACL7jZX7XCp099tljvn7fCZEsudAcBYvS7YVdIbF8yr
+        JtEM0C3M/CNpe2sC08iZxtSRfRMYUlA=
 Received: from mimecast-mx02.redhat.com (mx-ext.redhat.com [66.187.233.73])
  by relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-600-SA0wyUehMemzrrXcEQ2oBw-1; Tue, 10 Oct 2023 06:20:45 -0400
-X-MC-Unique: SA0wyUehMemzrrXcEQ2oBw-1
+ us-mta-266-nkrwff9mMZC6Mg8F60jhnw-1; Tue, 10 Oct 2023 06:20:43 -0400
+X-MC-Unique: nkrwff9mMZC6Mg8F60jhnw-1
 Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 23A5B38116E9;
-        Tue, 10 Oct 2023 10:20:45 +0000 (UTC)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id E3F973C1CC28;
+        Tue, 10 Oct 2023 10:20:42 +0000 (UTC)
 Received: from localhost.localdomain (unknown [10.39.194.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3B1FA492B16;
-        Tue, 10 Oct 2023 10:20:44 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0889A492B16;
+        Tue, 10 Oct 2023 10:20:41 +0000 (UTC)
 From:   Hans de Goede <hdegoede@redhat.com>
 To:     =?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
         Bastien Nocera <hadess@hadess.net>,
         Jiri Kosina <jikos@kernel.org>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Cc:     Hans de Goede <hdegoede@redhat.com>, linux-input@vger.kernel.org
-Subject: [PATCH v3 08/12] HID: logitech-hidpp: Remove connected check for non-unifying devices
-Date:   Tue, 10 Oct 2023 12:20:25 +0200
-Message-ID: <20231010102029.111003-9-hdegoede@redhat.com>
+Subject: [PATCH v3 06/12] HID: logitech-hidpp: Move hidpp_overwrite_name() to before connect check
+Date:   Tue, 10 Oct 2023 12:20:23 +0200
+Message-ID: <20231010102029.111003-7-hdegoede@redhat.com>
 In-Reply-To: <20231010102029.111003-1-hdegoede@redhat.com>
 References: <20231010102029.111003-1-hdegoede@redhat.com>
 MIME-Version: 1.0
@@ -56,11 +56,24 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Non-unifying devices (USB, Bluetooth) are always connected during
-probe(), remove the unnecessary connected check.
+Move the hidpp_overwrite_name() call to before the connect check, this
+puts it at the same place in the probe() order as hidpp_serial_init()
+which seems more logical. This should not make a difference since this
+is in the non-unifying path and only unifying devices can be probed
+in non-connected state.
 
 This is a preparation patch for moving all connected state handling
 to hidpp_connect_event().
+
+Doing this before the connect check requires dropping the protocol
+version check since protocol_major is not set yet now. Instead
+this relies on hidpp_root_get_feature(HIDPP_PAGE_GET_DEVICE_NAME_TYPE)
+failing on older devices, just like how hidpp_get_serial() relies on
+hidpp_root_get_feature(HIDPP_PAGE_DEVICE_INFORMATION) failing on older
+devices. So this again makes the code more consistent.
+
+Also stop printing an error on failure now, since with the proto
+version check gone failures are expected to happen on older devices.
 
 This series has been tested on the following devices:
 Logitech Bluetooth Laser Travel Mouse (bluetooth, HID++ 1.0)
@@ -74,27 +87,62 @@ Logitech M-RAZ105 mouse (27 Mhz, HID++ extra mouse buttons, HID++ 1.0)
 
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
- drivers/hid/hid-logitech-hidpp.c | 7 -------
- 1 file changed, 7 deletions(-)
+Note: The weird unbalanced curly braces in the "else { ... }" go away
+in the next patch in the series.
+---
+ drivers/hid/hid-logitech-hidpp.c | 21 ++++++++-------------
+ 1 file changed, 8 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 55fc80f3be05..21f41c147f9b 100644
+index dd67749301a8..799d1a429d81 100644
 --- a/drivers/hid/hid-logitech-hidpp.c
 +++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -4487,13 +4487,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+@@ -4135,19 +4135,12 @@ static void hidpp_overwrite_name(struct hid_device *hdev)
+ 	struct hidpp_device *hidpp = hid_get_drvdata(hdev);
+ 	char *name;
+ 
+-	if (hidpp->protocol_major < 2)
+-		return;
+-
+ 	name = hidpp_get_device_name(hidpp);
+-
+-	if (!name) {
+-		hid_err(hdev, "unable to retrieve the name of the device");
+-	} else {
++	if (name) {
+ 		dbg_hid("HID++: Got name: %s\n", name);
+ 		snprintf(hdev->name, sizeof(hdev->name), "%s", name);
++		kfree(name);
+ 	}
+-
+-	kfree(name);
+ }
+ 
+ static int hidpp_input_open(struct input_dev *dev)
+@@ -4483,8 +4476,12 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 
+ 	if (hidpp->quirks & HIDPP_QUIRK_UNIFYING)
+ 		hidpp_unifying_init(hidpp);
+-	else if (hid_is_usb(hidpp->hid_dev))
+-		hidpp_serial_init(hidpp);
++	else {
++		if (hid_is_usb(hidpp->hid_dev))
++			hidpp_serial_init(hidpp);
++
++		hidpp_overwrite_name(hdev);
++	}
  
  	connected = hidpp_root_get_protocol_version(hidpp) == 0;
  	atomic_set(&hidpp->connected, connected);
--	if (!(hidpp->quirks & HIDPP_QUIRK_UNIFYING)) {
--		if (!connected) {
--			ret = -ENODEV;
--			hid_err(hdev, "Device not connected");
--			goto hid_hw_init_fail;
--		}
--	}
+@@ -4494,8 +4491,6 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 			hid_err(hdev, "Device not connected");
+ 			goto hid_hw_init_fail;
+ 		}
+-
+-		hidpp_overwrite_name(hdev);
+ 	}
  
  	schedule_work(&hidpp->work);
- 	flush_work(&hidpp->work);
 -- 
 2.41.0
 

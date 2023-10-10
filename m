@@ -2,44 +2,43 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ACA8DCD80C1
-	for <linux-input@archiver.kernel.org>; Tue, 10 Oct 2023 13:00:50 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECE5ACD80D1
+	for <linux-input@archiver.kernel.org>; Tue, 10 Oct 2023 13:01:31 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232221AbjJJNAt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 10 Oct 2023 09:00:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41698 "EHLO
+        id S232072AbjJJNB3 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 10 Oct 2023 09:01:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232312AbjJJNAh (ORCPT
+        with ESMTP id S232137AbjJJNA5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Tue, 10 Oct 2023 09:00:37 -0400
-Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2048.outbound.protection.outlook.com [40.107.212.48])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69CF512B;
-        Tue, 10 Oct 2023 06:00:31 -0700 (PDT)
+        Tue, 10 Oct 2023 09:00:57 -0400
+Received: from NAM02-BN1-obe.outbound.protection.outlook.com (mail-bn1nam02on2081.outbound.protection.outlook.com [40.107.212.81])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D473F191;
+        Tue, 10 Oct 2023 06:00:41 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ANiozpusKLgYa3vmMY8ERnOnvhzdvdHLiPIJ4ILPRQ07VXUe0dWpjutbeZroEbFJCRNlwkWxxE5dau2vDWQt91mgIwkmbk/Hi7EOdl0ikraQmJsI/CPMWsTgKSzAbfn2pOk24o8AAQAw2Up3P13k8BymMZ1tosdTpDamfdUtjrzotUqrQG28FgvKPtoM4aQIOHPbAFRn/ldCYjtvJo3qWaXRdfD+Zwm4Zz7jxwhDiF8sHD6rzQJgC5y/bmghER70nCrD1rRvUVDnIsltBlUPp5XzeNL336AjAsfRbSMPJUyvlCgaAFN1gtz46FWCYnicZpqv8J7TrOCuM45+q0iJXw==
+ b=ndYx1q4LrFcW4vQTo5bXnbmaIsUFlwGBpUTPqHURiD9zY/jcxVV9QOS06yk8GLP7E20/XpenMo7tlfIIPg3FPlW2Y7Mxlw1b8rDUv2I36iPkgyoOtUWmijHWTjdSgG0Oj8WH0LIn9X8f3i+A7LAoPOrZcVNmVawkG/ZRP9etrRQ0GG6hDZIv/bYyMS7c+JZg5BI22/d6zu6Zoys231BOC9gutpD88TNNOQw0t3NXJDB8bJmrG7QNl5+zFFaQUQ8bbQAUYxHsUOM+w09EZkL9hl2NomHQcsTjQoDO+akIbtgPGNalMjviX26w9uoIEcwO7va3d1zDQ/30YnjDzOKWDw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=q/MN46odpG1U34heSZ7L6T5YxiJE8wmcHaRHXePh92g=;
- b=bKpQjvQR0fAI29YKSySJkLdUDahSxrDHGZ4TVM9m2PJ5wfc6DBx0O6/NbK2ZOAu9L0vLRNIfruQd20/8lnFlADMaPBMz3BPNnqI6SmoP4aLOxwGJE++AcxRkF5LsRPd+YtQ1ltx+w+8+iSydpjF4fJ+umqqVCDHUBUZoY7et+kDFTohwruUc32qN7mHe6GscuITGHzvoAebALgBZ/wm89F5CS/oZxbMhM0K8SU/McqD+XH3YATzAkXm7aImUsPk2hhlwoCKw4carbIW+d5Jgd3ZDQB9y7ajqSDOS6FuszvfSDp8zI0ZCNatagx593AsVGN/s3nohh/zm3ajZrSvuUg==
+ bh=EVlGmf58q+ROJ9lsVAiILMM/1+LGjCsaimzOXOdAreE=;
+ b=Dy0+MXvwuVaGoGm/dyZEFRDfKNUIRXFCfNmDIMuqs7k8oEIaOchLozAd7MMgOxHXOHiRZIbTnvJuFeZcrtvNxrj8Xu70+rJJFUdDg/HBRp87+TseG9zDIuvxwpnALpXf3v09h7125zkgtC7GDmOfyy0H+Q3kn77T3o2LA30UsRgv/4bRfLcuQF0u5PaMbFLw9/q/+1ObkJuldEAas30+Cg+0faAd9f/x1LI1B+7PyspFJEa3B7n1Nq1poAqvhBKfsqJV4mkUJKGDNO7iU0UWB8MrIB5FnEHazTAhvkWnCITseNkXXZPWVBuRo4yFLkkZU5tjdRGYPjX/WPf6M1413A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=q/MN46odpG1U34heSZ7L6T5YxiJE8wmcHaRHXePh92g=;
- b=s/G+LOv1wxKff7E6wFfzzMaeUaCfBWG5yqasPhvwS037EQyBeCMhAHI8ltUVAdzy68kodDz65uq5uRyAOnILfa2nug2vQ3zUR1JXVezUm8as4YGC1AjTpoM1JBqcUVLcxCwLCuyxVW4H4XxQme2VekflkPwjmSHkht0Jq6PpQJY=
-Received: from DM6PR04CA0010.namprd04.prod.outlook.com (2603:10b6:5:334::15)
- by CO6PR12MB5491.namprd12.prod.outlook.com (2603:10b6:303:13b::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6863.38; Tue, 10 Oct
- 2023 13:00:28 +0000
+ bh=EVlGmf58q+ROJ9lsVAiILMM/1+LGjCsaimzOXOdAreE=;
+ b=WuZ5XeBcA6QpFrIcUPBh7s1/2sbMcRQBc5Rmox+xK8ySgdtrNaShy0Yi/bq8qJGdoyGp/1jh0CJanzc1rhxiB91mnRepnQRdXZJCwRvcRTuHGW9BQEt0PvTZtkcVBL3UZ1KOFq+0hknwb2xwhC5eb9CmQDFrKSLe/GOcmTNCoYw=
+Received: from DM6PR04CA0003.namprd04.prod.outlook.com (2603:10b6:5:334::8) by
+ PH7PR12MB5998.namprd12.prod.outlook.com (2603:10b6:510:1da::6) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6863.37; Tue, 10 Oct 2023 13:00:37 +0000
 Received: from DS2PEPF0000343E.namprd02.prod.outlook.com
- (2603:10b6:5:334:cafe::a) by DM6PR04CA0010.outlook.office365.com
- (2603:10b6:5:334::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6838.30 via Frontend
- Transport; Tue, 10 Oct 2023 13:00:27 +0000
+ (2603:10b6:5:334:cafe::73) by DM6PR04CA0003.outlook.office365.com
+ (2603:10b6:5:334::8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6863.25 via Frontend
+ Transport; Tue, 10 Oct 2023 13:00:37 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -49,11 +48,11 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
  DS2PEPF0000343E.mail.protection.outlook.com (10.167.18.41) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6838.22 via Frontend Transport; Tue, 10 Oct 2023 13:00:27 +0000
+ 15.20.6838.22 via Frontend Transport; Tue, 10 Oct 2023 13:00:37 +0000
 Received: from jatayu.amd.com (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Tue, 10 Oct
- 2023 08:00:22 -0500
+ 2023 08:00:32 -0500
 From:   Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 To:     <hdegoede@redhat.com>, <markgross@kernel.org>,
         <ilpo.jarvinen@linux.intel.com>, <basavaraj.natikar@amd.com>,
@@ -65,9 +64,9 @@ CC:     <Patil.Reddy@amd.com>, <mario.limonciello@amd.com>,
         <linux-input@vger.kernel.org>, <amd-gfx@lists.freedesktop.org>,
         <dri-devel@lists.freedesktop.org>,
         "Shyam Sundar S K" <Shyam-sundar.S-k@amd.com>
-Subject: [PATCH v3 07/16] platform/x86/amd/pmf: Add support update p3t limit
-Date:   Tue, 10 Oct 2023 18:29:08 +0530
-Message-ID: <20231010125917.138225-8-Shyam-sundar.S-k@amd.com>
+Subject: [PATCH v3 09/16] platform/x86/amd/pmf: Add facility to dump TA inputs
+Date:   Tue, 10 Oct 2023 18:29:10 +0530
+Message-ID: <20231010125917.138225-10-Shyam-sundar.S-k@amd.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20231010125917.138225-1-Shyam-sundar.S-k@amd.com>
 References: <20231010125917.138225-1-Shyam-sundar.S-k@amd.com>
@@ -79,85 +78,136 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS2PEPF0000343E:EE_|CO6PR12MB5491:EE_
-X-MS-Office365-Filtering-Correlation-Id: 264650c0-7474-4c57-f179-08dbc990e027
+X-MS-TrafficTypeDiagnostic: DS2PEPF0000343E:EE_|PH7PR12MB5998:EE_
+X-MS-Office365-Filtering-Correlation-Id: 02c1be4a-93d6-4858-fdbb-08dbc990e624
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: cvFiXbKQl2/sTvtBMIFI3+91L92VyAZBurOBY3i1HQWkCzYngtnT6N7Rph6OBdxkD8L+rW2fWRmJsYTLgxGHPBGhfSnKi92V9wIKLmoe8Uqebu7O4dWJpTQc98essCjRWs/Ez5ZCTv4GwFzgQOcSjlYRZyt9OkqwsENq5wSmaiJMCyaPgEvJaK8+mi/9Ic3i3AaoZLBQV+vRwgaVyVQbfPTDW0kJAH5ySfdJgD3pUXy6KtjRp3S5r7KxT+gPjkXqPEXYskDtmy1pIe4RFmRnFasIPQx/6IwAMmG6R6ah7nvEsjiftuNODjgPYudPWm1EO+hAZDoA7hqVJfahjqES9qUzz2QYWySlTed5AHIQ4HSBKYpL/+UyDQtodcVcxlH72+30WiA5cSW+OcwMEtPvD1N4b/YLj9aWE1QDOLXW9Ym6IgkntqqCDMdKT3HdEpmnySRmqlT4tNzfrJrqoyoiCRNJxx9JSy7OxiN8igi3y6ZMIKscxB4Qtb+4pg5PzNfjklog4FT+jsPtb6OLJNaIeTBy54SBiMn6W4rznqvcyy2u694tEbES05n+KD8/UNljOubWDjfBOSClAtv0U2rUmYP2UXun2ktxHs1n2fPi358Q/gwzyOfghBolCjmY7NQooZy6UAzZigKeLP67wK5pQtUjKAMBY20h14TzCK8poqoYFNsmIiwKypFHedlHb+jKll5WNu5q6AOCmOS17foHFdpc1RlcD7UKEW0cFmGYvOc0dkSSR3WeZmqMxLa6CYh4iMIKCtkuRaSt+CGGWDCz/SPQFv+btXIUab4miT1m7oK50mAw4a5HyfpPHQhdl43t
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(376002)(396003)(136003)(346002)(39860400002)(230922051799003)(451199024)(82310400011)(1800799009)(64100799003)(186009)(36840700001)(46966006)(40470700004)(40460700003)(7416002)(86362001)(15650500001)(47076005)(2906002)(36860700001)(921005)(81166007)(356005)(82740400003)(40480700001)(70206006)(70586007)(54906003)(110136005)(7696005)(316002)(26005)(1076003)(2616005)(478600001)(16526019)(36756003)(6666004)(41300700001)(83380400001)(5660300002)(8936002)(8676002)(4326008)(336012)(426003)(42413004)(36900700001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: I1N8Q+9Q+ienC2Mva2VW2+AhCdwbsSw0zHuRd7+orBviDDrQCq2vvCsbUYJuIrPtykkT9a2YpIwVNShrgxT9aGtw1izxbzZ8OZqh/Mgv/0+sbv2fS0EBwrABelqB4AAvR8flcuQjxMXBJKStDqlkWiXq9j9OGDCDeg66XgkHcAcT31i6SFMqrE0fwqhJS3U9EOYPjWZgmI0GQtQuePeMGNFAEA9l1sqAiekWbrFjgz9btpLA2WD7PlZjTPkRsULbaB37bluNaCrdolcvrP/8FV4HKGbqiTZmckN82okoo2uX5xjdTlOif8K7tgl4mBrMRlEN8sQ2sL25C25TzdrX59ICNR6vG66nBRS2+bYBPsdwPqQvKPPdX8QNLeKzq/K/By6RaQPfa0pJnyJeKBd1uGW080WkBK0oOu+V0mYUkMZfPAZvPouzTtFg+31BVHhDYSS5EW1Fyn2DVKayH//ZwdgWxTbM8K/t7hOSgRhGcv0lbfNcMoSjKszFg39bgzVabULTmt5ZhGwVXvX4QNtgQVnvi9iSSnBMJeVh05WgaaNKeumkoT97S3RPt19F9+4Wupn0a/ITfnMT3uzohqW2MpC6wpx0czrSluDzpIKgZ4MhXiTaCl00pBsEh/Y4tM3Fa111bDOeXTJif7j7d9k1QPvFe0+xjbp7ONYUP6M1Pk1byd3O0kEAvgehiyIUTVBiX7Vgi3ks2a657Gd8PXoIMInXmo0XuOqCEHu44twBJkLnPcYRkUtGSwnrwkzGQoVAyo0RqKRBKLgIQ5T2VYKjy33Df3FRN2tMyOp0ifJrA0k=
+X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(396003)(136003)(346002)(376002)(230922051799003)(451199024)(82310400011)(186009)(1800799009)(64100799003)(36840700001)(40470700004)(46966006)(82740400003)(2616005)(7696005)(1076003)(478600001)(316002)(41300700001)(336012)(83380400001)(47076005)(426003)(7416002)(2906002)(70586007)(110136005)(5660300002)(54906003)(8936002)(70206006)(8676002)(4326008)(16526019)(26005)(40460700003)(921005)(36860700001)(356005)(36756003)(40480700001)(81166007)(86362001)(6666004)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Oct 2023 13:00:27.5463
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Oct 2023 13:00:37.5933
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 264650c0-7474-4c57-f179-08dbc990e027
+X-MS-Exchange-CrossTenant-Network-Message-Id: 02c1be4a-93d6-4858-fdbb-08dbc990e624
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource: DS2PEPF0000343E.namprd02.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR12MB5491
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB5998
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-P3T (Peak Package Power Limit) is a metric within the SMU controller
-that can influence the power limits. Add support from the driver
-to update P3T limits accordingly.
+PMF driver sends constant inputs to TA which its gets via the other
+subsystems in the kernel. To debug certain TA issues knowing what inputs
+being sent to TA becomes critical. Add debug facility to the driver which
+can isolate Smart PC and TA related issues.
+
+Also, make source_as_str() as non-static function as this helper is
+required outside of sps.c file.
 
 Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 ---
- drivers/platform/x86/amd/pmf/pmf.h    | 3 +++
- drivers/platform/x86/amd/pmf/tee-if.c | 8 ++++++++
- 2 files changed, 11 insertions(+)
+ drivers/platform/x86/amd/pmf/pmf.h    |  3 +++
+ drivers/platform/x86/amd/pmf/spc.c    | 37 +++++++++++++++++++++++++++
+ drivers/platform/x86/amd/pmf/sps.c    |  2 +-
+ drivers/platform/x86/amd/pmf/tee-if.c |  1 +
+ 4 files changed, 42 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/platform/x86/amd/pmf/pmf.h b/drivers/platform/x86/amd/pmf/pmf.h
-index 88ee3c705913..20f3e16b0a32 100644
+index 67f11113d5a7..3d98d9bea96b 100644
 --- a/drivers/platform/x86/amd/pmf/pmf.h
 +++ b/drivers/platform/x86/amd/pmf/pmf.h
-@@ -49,6 +49,7 @@
- #define GET_STT_MIN_LIMIT	0x1F
- #define GET_STT_LIMIT_APU	0x20
- #define GET_STT_LIMIT_HS2	0x21
-+#define SET_P3T				0x23 /* P3T: Peak Package Power Limit */
+@@ -596,6 +596,7 @@ int apmf_get_static_slider_granular(struct amd_pmf_dev *pdev,
+ bool is_pprof_balanced(struct amd_pmf_dev *pmf);
+ int amd_pmf_power_slider_update_event(struct amd_pmf_dev *dev);
  
- /* OS slider update notification */
- #define DC_BEST_PERF		0
-@@ -72,6 +73,7 @@
- #define PMF_POLICY_STT_MIN					6
- #define PMF_POLICY_STT_SKINTEMP_APU				7
- #define PMF_POLICY_STT_SKINTEMP_HS2				8
-+#define PMF_POLICY_P3T						38
++const char *amd_pmf_source_as_str(unsigned int state);
  
- /* TA macros */
- #define PMF_TA_IF_VERSION_MAJOR				1
-@@ -476,6 +478,7 @@ struct pmf_action_table {
- 	u32 stt_minlimit;	/* in mW */
- 	u32 stt_skintemp_apu;	/* in C */
- 	u32 stt_skintemp_hs2;	/* in C */
-+	u32 p3t_limit;		/* in mW */
- };
+ int apmf_update_fan_idx(struct amd_pmf_dev *pdev, bool manual, u32 idx);
+ int amd_pmf_set_sps_power_limits(struct amd_pmf_dev *pmf);
+@@ -626,4 +627,6 @@ int apmf_check_smart_pc(struct amd_pmf_dev *pmf_dev);
  
- /* Input conditions */
-diff --git a/drivers/platform/x86/amd/pmf/tee-if.c b/drivers/platform/x86/amd/pmf/tee-if.c
-index 277103e4346d..92879ae4f8f0 100644
---- a/drivers/platform/x86/amd/pmf/tee-if.c
-+++ b/drivers/platform/x86/amd/pmf/tee-if.c
-@@ -105,6 +105,14 @@ static void amd_pmf_apply_policies(struct amd_pmf_dev *dev, struct ta_pmf_enact_
- 				dev->prev_data->stt_skintemp_hs2 = val;
- 			}
- 			break;
+ /* Smart PC - TA interfaces */
+ void amd_pmf_populate_ta_inputs(struct amd_pmf_dev *dev, struct ta_pmf_enact_table *in);
++void amd_pmf_dump_ta_inputs(struct amd_pmf_dev *dev, struct ta_pmf_enact_table *in);
 +
-+		case PMF_POLICY_P3T:
-+			if (dev->prev_data->p3t_limit != val) {
-+				amd_pmf_send_cmd(dev, SET_P3T, false, val, NULL);
-+				dev_dbg(dev->dev, "update P3T : %u\n", val);
-+				dev->prev_data->p3t_limit = val;
-+			}
-+			break;
- 		}
+ #endif /* PMF_H */
+diff --git a/drivers/platform/x86/amd/pmf/spc.c b/drivers/platform/x86/amd/pmf/spc.c
+index 91a7f1da911c..5cb70f183825 100644
+--- a/drivers/platform/x86/amd/pmf/spc.c
++++ b/drivers/platform/x86/amd/pmf/spc.c
+@@ -14,6 +14,43 @@
+ #include <linux/units.h>
+ #include "pmf.h"
+ 
++#ifdef CONFIG_AMD_PMF_DEBUG
++static const char *ta_slider_as_str(unsigned int state)
++{
++	switch (state) {
++	case TA_BEST_PERFORMANCE:
++		return "PERFORMANCE";
++	case TA_BETTER_PERFORMANCE:
++		return "BALANCED";
++	case TA_BEST_BATTERY:
++		return "POWER_SAVER";
++	default:
++		return "Unknown TA Slider State";
++	}
++}
++
++void amd_pmf_dump_ta_inputs(struct amd_pmf_dev *dev, struct ta_pmf_enact_table *in)
++{
++	dev_dbg(dev->dev, "==== TA inputs START ====\n");
++	dev_dbg(dev->dev, "Slider State : %s\n", ta_slider_as_str(in->ev_info.power_slider));
++	dev_dbg(dev->dev, "Power Source : %s\n", amd_pmf_source_as_str(in->ev_info.power_source));
++	dev_dbg(dev->dev, "Battery Percentage : %u\n", in->ev_info.bat_percentage);
++	dev_dbg(dev->dev, "Designed Battery Capacity : %u\n", in->ev_info.bat_design);
++	dev_dbg(dev->dev, "Fully Charged Capacity : %u\n", in->ev_info.full_charge_capacity);
++	dev_dbg(dev->dev, "Drain Rate : %d\n", in->ev_info.drain_rate);
++	dev_dbg(dev->dev, "Socket Power : %u\n", in->ev_info.socket_power);
++	dev_dbg(dev->dev, "Skin Temperature : %u\n", in->ev_info.skin_temperature);
++	dev_dbg(dev->dev, "Avg C0 Residency : %u\n", in->ev_info.avg_c0residency);
++	dev_dbg(dev->dev, "Max C0 Residency : %u\n", in->ev_info.max_c0residency);
++	dev_dbg(dev->dev, "GFX Busy : %u\n", in->ev_info.gfx_busy);
++	dev_dbg(dev->dev, "Connected Display Count : %u\n", in->ev_info.monitor_count);
++	dev_dbg(dev->dev, "LID State : %s\n", in->ev_info.lid_state ? "Close" : "Open");
++	dev_dbg(dev->dev, "==== TA inputs END ====\n");
++}
++#else
++void amd_pmf_dump_ta_inputs(struct amd_pmf_dev *dev, struct ta_pmf_enact_table *in) {}
++#endif
++
+ static void amd_pmf_get_smu_info(struct amd_pmf_dev *dev, struct ta_pmf_enact_table *in)
+ {
+ 	u16 max, avg = 0;
+diff --git a/drivers/platform/x86/amd/pmf/sps.c b/drivers/platform/x86/amd/pmf/sps.c
+index a70e67749be3..781fde00e0e7 100644
+--- a/drivers/platform/x86/amd/pmf/sps.c
++++ b/drivers/platform/x86/amd/pmf/sps.c
+@@ -27,7 +27,7 @@ static const char *slider_as_str(unsigned int state)
  	}
  }
+ 
+-static const char *source_as_str(unsigned int state)
++const char *amd_pmf_source_as_str(unsigned int state)
+ {
+ 	switch (state) {
+ 	case POWER_SOURCE_AC:
+diff --git a/drivers/platform/x86/amd/pmf/tee-if.c b/drivers/platform/x86/amd/pmf/tee-if.c
+index c08ef13a1494..80252309575b 100644
+--- a/drivers/platform/x86/amd/pmf/tee-if.c
++++ b/drivers/platform/x86/amd/pmf/tee-if.c
+@@ -182,6 +182,7 @@ static int amd_pmf_invoke_cmd_enact(struct amd_pmf_dev *dev)
+ 	}
+ 
+ 	if (ta_sm->pmf_result == TA_PMF_TYPE_SUCCESS && out->actions_count) {
++		amd_pmf_dump_ta_inputs(dev, in);
+ 		dev_dbg(dev->dev, "action count:%u result:%x\n", out->actions_count,
+ 			ta_sm->pmf_result);
+ 		amd_pmf_apply_policies(dev, out);
 -- 
 2.25.1
 

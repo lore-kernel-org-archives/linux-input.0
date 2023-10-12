@@ -2,33 +2,33 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB049C46CA1
-	for <linux-input@archiver.kernel.org>; Thu, 12 Oct 2023 10:24:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6D09ACDB46E
+	for <linux-input@archiver.kernel.org>; Thu, 12 Oct 2023 10:24:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347129AbjJLKX7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        id S1347111AbjJLKX7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
         Thu, 12 Oct 2023 06:23:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44500 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347133AbjJLKXw (ORCPT
+        with ESMTP id S1347126AbjJLKXw (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
         Thu, 12 Oct 2023 06:23:52 -0400
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC586D8;
+Received: from todd.t-8ch.de (todd.t-8ch.de [IPv6:2a01:4f8:c010:41de::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7E18D6;
         Thu, 12 Oct 2023 03:23:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
         s=mail; t=1697106227;
-        bh=5SDzzt7XMUNLkvBvYEQuCiuGLibIrAFTowagRCe9Ajs=;
+        bh=YveTPkYULLlyEsdLlGA46f1LzhfC/wP+L0Bg43PHoWM=;
         h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-        b=oWroPJNTMC8gtNsmULdL/9mutmcnqCq14qB3jD6uP8AeUqfk55rqGzOP+tshfTy+G
-         UoacmJ39q0qb5cpMrvr+HqrDDuJmqA0DV3JpdrwnoVCNNqnoSW5eK3gBAzmirhKuZv
-         qm3W1ENvyB5QtWZ4EppYfkq64C8rRifigulx8JR0=
+        b=WSw3ac5i301zeAp93+JgG8P+/dbjE6iJwrFUgvgDOcmbL+ihwU1NJW6dnRY5bSNAT
+         K1XArJ0hoKRw49I+WWAvIFZQzDyvTos6aP7M77giF2PMcLFGCPSKQqtTzga9I7/Jb/
+         xaSOHAmGmSbCIal7m6S7U9LRsCpXENQoDnQu1+8w=
 From:   =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date:   Thu, 12 Oct 2023 12:23:41 +0200
-Subject: [PATCH 4/4] HID: rmi: remove #ifdef CONFIG_PM
+Date:   Thu, 12 Oct 2023 12:23:40 +0200
+Subject: [PATCH 3/4] HID: multitouch: remove #ifdef CONFIG_PM
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20231012-hid-pm_ptr-v1-4-0a71531ca93b@weissschuh.net>
+Message-Id: <20231012-hid-pm_ptr-v1-3-0a71531ca93b@weissschuh.net>
 References: <20231012-hid-pm_ptr-v1-0-0a71531ca93b@weissschuh.net>
 In-Reply-To: <20231012-hid-pm_ptr-v1-0-0a71531ca93b@weissschuh.net>
 To:     Jiri Kosina <jikos@kernel.org>,
@@ -37,11 +37,11 @@ Cc:     linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-usb@vger.kernel.org,
         =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.12.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1697106227; l=1495;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1697106227; l=1381;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=5SDzzt7XMUNLkvBvYEQuCiuGLibIrAFTowagRCe9Ajs=;
- b=M2Rn5UBq5P/gACg74ZfSclny/wCeyqbwxYn0CkHIk8fyb5HNmVZAcKUVOI7MrfDzNO2ubN77k
- UYptybFID/7BMvOT6sF2m4865QwQnEePXz3yrgm89ADgYFLSrkHFqGq
+ bh=YveTPkYULLlyEsdLlGA46f1LzhfC/wP+L0Bg43PHoWM=;
+ b=i7mP2224uBTGN/Zh76uFUX2dWrxHLRZqal53sVh/xAs7qvfoXcmHUigUcyaoqKjkusVT48IFQ
+ KzCQUgxJJTbAyUUO8Ltk+LzVUb/rArUYbqPhCDY+vtmLPSRnwwmZG4r
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 Precedence: bulk
@@ -54,44 +54,43 @@ The linker will then garbage-collect the unused function avoiding any overhead.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- drivers/hid/hid-rmi.c | 10 +++-------
+ drivers/hid/hid-multitouch.c | 10 +++-------
  1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hid/hid-rmi.c b/drivers/hid/hid-rmi.c
-index 84e7ba5314d3..d4af17fdba46 100644
---- a/drivers/hid/hid-rmi.c
-+++ b/drivers/hid/hid-rmi.c
-@@ -436,7 +436,6 @@ static void rmi_report(struct hid_device *hid, struct hid_report *report)
- 		input_sync(field->hidinput->input);
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 521b2ffb4244..2cdfc2a70a83 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1802,7 +1802,6 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	return 0;
  }
  
 -#ifdef CONFIG_PM
- static int rmi_suspend(struct hid_device *hdev, pm_message_t message)
+ static int mt_suspend(struct hid_device *hdev, pm_message_t state)
  {
- 	struct rmi_data *data = hid_get_drvdata(hdev);
-@@ -483,7 +482,6 @@ static int rmi_post_resume(struct hid_device *hdev)
- 	hid_hw_close(hdev);
- 	return ret;
- }
--#endif /* CONFIG_PM */
+ 	struct mt_device *td = hid_get_drvdata(hdev);
+@@ -1836,7 +1835,6 @@ static int mt_resume(struct hid_device *hdev)
  
- static int rmi_hid_reset(struct rmi_transport_dev *xport, u16 reset_addr)
- {
-@@ -774,11 +772,9 @@ static struct hid_driver rmi_driver = {
- 	.report			= rmi_report,
- 	.input_mapping		= rmi_input_mapping,
- 	.input_configured	= rmi_input_configured,
--#ifdef CONFIG_PM
--	.suspend		= rmi_suspend,
--	.resume			= rmi_post_resume,
--	.reset_resume		= rmi_post_resume,
+ 	return 0;
+ }
 -#endif
-+	.suspend		= pm_ptr(rmi_suspend),
-+	.resume			= pm_ptr(rmi_post_resume),
-+	.reset_resume		= pm_ptr(rmi_post_resume),
- };
  
- module_hid_driver(rmi_driver);
+ static void mt_remove(struct hid_device *hdev)
+ {
+@@ -2255,10 +2253,8 @@ static struct hid_driver mt_driver = {
+ 	.usage_table = mt_grabbed_usages,
+ 	.event = mt_event,
+ 	.report = mt_report,
+-#ifdef CONFIG_PM
+-	.suspend = mt_suspend,
+-	.reset_resume = mt_reset_resume,
+-	.resume = mt_resume,
+-#endif
++	.suspend = pm_ptr(mt_suspend),
++	.reset_resume = pm_ptr(mt_reset_resume),
++	.resume = pm_ptr(mt_resume),
+ };
+ module_hid_driver(mt_driver);
 
 -- 
 2.42.0

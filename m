@@ -2,62 +2,62 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AD2DCDB47E
-	for <linux-input@archiver.kernel.org>; Sun, 15 Oct 2023 21:12:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10132CDB483
+	for <linux-input@archiver.kernel.org>; Sun, 15 Oct 2023 21:12:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230394AbjJOVMG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 15 Oct 2023 17:12:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58518 "EHLO
+        id S230417AbjJOVMH (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 15 Oct 2023 17:12:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49122 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230339AbjJOVME (ORCPT
+        with ESMTP id S230378AbjJOVMH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Sun, 15 Oct 2023 17:12:04 -0400
-Received: from mail-wr1-x433.google.com (mail-wr1-x433.google.com [IPv6:2a00:1450:4864:20::433])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23CE8DF
-        for <linux-input@vger.kernel.org>; Sun, 15 Oct 2023 14:12:03 -0700 (PDT)
-Received: by mail-wr1-x433.google.com with SMTP id ffacd0b85a97d-3296b49c546so3184052f8f.3
-        for <linux-input@vger.kernel.org>; Sun, 15 Oct 2023 14:12:03 -0700 (PDT)
+        Sun, 15 Oct 2023 17:12:07 -0400
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F188C1
+        for <linux-input@vger.kernel.org>; Sun, 15 Oct 2023 14:12:05 -0700 (PDT)
+Received: by mail-wr1-x42c.google.com with SMTP id ffacd0b85a97d-3296b3f03e5so3388833f8f.2
+        for <linux-input@vger.kernel.org>; Sun, 15 Oct 2023 14:12:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1697404321; x=1698009121; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1697404324; x=1698009124; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=3J8RLHlqMUHOOwu0JAX+LHiZvvV4F3X/qYQjfJIsE2Q=;
-        b=XDfpOewYfV2TrpTAOAnhUe0FqSl3rA5ql2d0CD9p3X9CTJYfp9xdmlZU/UdDdWu/20
-         CLMdg1SeGprGiVS8YyeiMvOMKOUwgKVGUB1y+LVDRFMdiDzQevOfO7L94invzzIViHZo
-         tDLYo/p5sioJh23i4agOOyB7sEH8nuGZH1F0w6n7ViCt4tQ98prMCQfpt5iCLxYok1pX
-         SlQv1uQd7huZ4vthTdEYyEhy3lUyrifzLPzCrwpztsnkvK7dBpNMquWzsoeYpZQ3ZMGE
-         5OlIRjj0RgAbD78/2frVw1DU51qgYdtyxRsoBK9no/gg2ltkcBJ7jujZGkKfeJ0tCAZI
-         Eu0g==
+        bh=q1Huhh/OlwpXkMpXKcwHwnmwV8YpnbusYc64GlhC06k=;
+        b=DRf658wDkUo/Cq3RXKfR4B3lt8c95B7YfnB3NEWGf/S0audpENPlvJqHwK7ZACJeOX
+         UN+QixYdjK85RDnRmTeBcejdT1lDkINEikr6t+1hlRzHkvf3qUeiPdKKVfW/JCWhzNOj
+         vmrBECazML6dGWjNxQpuwfB7yBh16I3IsU9zJWoCpqaSTdE9W+wD8jLmChSdUOqiyDyT
+         lKVS5HicDrEYAukl9mfqn5WOMRW1WAyYyxGQ8jk4cZYAyaKHlNxDKzyamynBbSiA16FC
+         hM2U3uXPzyePbjNMRdUmkVGLMfhoscwRcnyXDgvtwTvM4N3Wd6lqfKZny/LfkVamqoga
+         atuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697404321; x=1698009121;
+        d=1e100.net; s=20230601; t=1697404324; x=1698009124;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=3J8RLHlqMUHOOwu0JAX+LHiZvvV4F3X/qYQjfJIsE2Q=;
-        b=GcQA1ZvGGNT3Nj7yz+e9WQ7qScvgVscRY8vhN8XnVyAEZsxDbnqm0i7whEKqXRpuyV
-         jUTwt71MHHIp6jKo/f/gHzFJwEopMMJA9t7LJHdtQs3Vlf/La69Ne/1DUGaDCGswqkXq
-         uPo+UlpUPdQc7Q5rmjaJ8SHmhDLQ7cmEIDONvq+A+BJhElNgGCq4NujrqSQCvjhx3UTo
-         ZxiFaqKc6hjlwVgCCLRt8Y8g0g6DFxXlfRnTGZA2+RUiyzVyy2vFhdvuaV5OQJR7frIG
-         6uFvCyuTb8zOA8efC5R16fqvEDFMv9nzhjf5VV+TJHnqNtM0Z0uae91PQgC3na8lu0nt
-         C6Dg==
-X-Gm-Message-State: AOJu0YzFpJ+RnQmjF0EjzUaXCsPB7f01QQu4y+jKsOEkyIqNrhglsU4u
-        F/xovgEtKU1BUg40GEwKiBK06w==
-X-Google-Smtp-Source: AGHT+IE6OynCsb4GHRDPLUzWypJ6Y6PqyEO+HiftdXR6aDbCJR+OpGtqg4RrpAo0iMhD+ntyvB9yXA==
-X-Received: by 2002:a5d:5b0d:0:b0:32d:8401:4057 with SMTP id bx13-20020a5d5b0d000000b0032d84014057mr13258167wrb.15.1697404321568;
-        Sun, 15 Oct 2023 14:12:01 -0700 (PDT)
+        bh=q1Huhh/OlwpXkMpXKcwHwnmwV8YpnbusYc64GlhC06k=;
+        b=V7LOeqBXEWn9Tq3vzN79kUyqbUMO9TOzAgsYnjllVOMgEGSkf5jP6xbxXOFcsHD+BX
+         DxXJ6dHWKUzHz7NFiwy1qGdl0MD/kooqpk9fPufOkJj5p+do6XglryCA4plUoH1w4+Ps
+         WzDKTXGK5tGA3rZj23EcuxdL+AuH/SWltszhGTc923hP8HrIukdP38ZO3TwArh7sUnil
+         5uhL92Xap8AbrNyXDn6S/g4nQrKlHXLxXXuRxwHFlvqF3gXfuwIB6UOfD5z/lBXE7Ic3
+         K6NWoaKCshxUDrQXDSL+2rzMRKX5J52E1U6MDWmkteLGjdllSYmh9Q7rFMDbuEdgwrNv
+         AjsA==
+X-Gm-Message-State: AOJu0YzaIa3mlds+fPxp7WcXOZhc7x4mPioo6vkW3KxlDsXmbcFLBEX+
+        WwWHZ2z/iVWm/YmuOZ+xXvVABQ==
+X-Google-Smtp-Source: AGHT+IFd5LFspYZaIAwsfZI36kiOt4XmrUk4/kAFw3O4e0aQmvqumoqek4alpFIfgO52WOmTe1xs3g==
+X-Received: by 2002:a5d:4534:0:b0:32d:a3a0:e927 with SMTP id j20-20020a5d4534000000b0032da3a0e927mr3677866wra.58.1697404323892;
+        Sun, 15 Oct 2023 14:12:03 -0700 (PDT)
 Received: from lion.localdomain (host-2-99-112-229.as13285.net. [2.99.112.229])
-        by smtp.gmail.com with ESMTPSA id z17-20020a5d4d11000000b0032d9548240fsm8456734wrt.82.2023.10.15.14.12.00
+        by smtp.gmail.com with ESMTPSA id z17-20020a5d4d11000000b0032d9548240fsm8456734wrt.82.2023.10.15.14.12.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Oct 2023 14:12:01 -0700 (PDT)
+        Sun, 15 Oct 2023 14:12:03 -0700 (PDT)
 From:   Caleb Connolly <caleb.connolly@linaro.org>
-Date:   Sun, 15 Oct 2023 22:11:51 +0100
-Subject: [PATCH v2 3/7] Input: synaptics-rmi4 - f12: use hardcoded values
- for aftermarket touch ICs
+Date:   Sun, 15 Oct 2023 22:11:54 +0100
+Subject: [PATCH v2 6/7] Input: synaptics-rmi4 - read product ID on
+ aftermarket touch ICs
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230929-caleb-rmi4-quirks-v2-3-b227ac498d88@linaro.org>
+Message-Id: <20230929-caleb-rmi4-quirks-v2-6-b227ac498d88@linaro.org>
 References: <20230929-caleb-rmi4-quirks-v2-0-b227ac498d88@linaro.org>
 In-Reply-To: <20230929-caleb-rmi4-quirks-v2-0-b227ac498d88@linaro.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -67,13 +67,13 @@ Cc:     methanal <baclofen@tuta.io>, linux-input@vger.kernel.org,
         ~postmarketos/upstreaming@lists.sr.ht,
         Caleb Connolly <caleb.connolly@linaro.org>
 X-Mailer: b4 0.13-dev-46309
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6118;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1134;
  i=caleb.connolly@linaro.org; h=from:subject:message-id;
- bh=eWdxGMEpVfu6L9JxVtKHUtCsmiQeYQ0ms+XbRoDfZPY=;
- b=owGbwMvMwCFYaeA6f6eBkTjjabUkhlSd0LnXrsVnxMb4KZgG8t1xkTKZpmmW/qJ3koXbtqQrk
- 3+tWre5o5SFQZCDQVZMkUX8xDLLprWX7TW2L7gAM4eVCWQIAxenAEwkNJ6RYePX6IerdGZHdoUm
- coTuDrz911CnVeCUhH7CadMNKs8uJTD8LxY9ePHGP4e5pyxDYs4ILz8+NeSB5HFOu7Wb391jVJS
- 0WgMA
+ bh=pgIIB7OL7EFg+Qrqe6fqxDg+RErXXrlo3Ql+ExoD2SI=;
+ b=owGbwMvMwCFYaeA6f6eBkTjjabUkhlSd0Lk//jQ0Xbyaa3CypEZL7anF1UdBe6VEuVdE3KhV8
+ hZvidbqKGVhEORgkBVTZBE/scyyae1le43tCy7AzGFlAhnCwMUpABOZ1MDwT/ns7u3z5vvXcLwR
+ m/XI/XzZGh5Hvm/lVduMb8sa/xbs2MjI0Pd8GevCNU7HPP5pd6bOiteqEUgW1K1++kp1gtpFg/V
+ l0wA=
 X-Developer-Key: i=caleb.connolly@linaro.org; a=openpgp;
  fpr=83B24DA7FE145076BC38BB250CD904EB673A7C47
 Precedence: bulk
@@ -82,198 +82,41 @@ X-Mailing-List: linux-input@vger.kernel.org
 
 From: methanal <baclofen@tuta.io>
 
-Some replacement displays include third-party touch ICs which are
-devoid of register descriptors. Create a fake data register descriptor
-for such ICs and provide hardcoded default values.
-
-It isn't possible to reliably determine if the touch IC is original or
-not, so these fallback values are offered as an alternative to the error
-path when register descriptors aren't available.
+Some replacement displays include third-party touch ICs which do not
+report the product ID correctly unless we read directly from the
+product ID register. Add a check and a fallback read to handle this.
 
 Signed-off-by: methanal <baclofen@tuta.io>
-[changes for readability / codeflow, checkpatch fixes]
 Signed-off-by: Caleb Connolly <caleb.connolly@linaro.org>
 ---
- drivers/input/rmi4/rmi_f12.c | 117 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 91 insertions(+), 26 deletions(-)
+ drivers/input/rmi4/rmi_f01.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/input/rmi4/rmi_f12.c b/drivers/input/rmi4/rmi_f12.c
-index 7e97944f7616..719ee3b42550 100644
---- a/drivers/input/rmi4/rmi_f12.c
-+++ b/drivers/input/rmi4/rmi_f12.c
-@@ -195,6 +195,41 @@ static void rmi_f12_process_objects(struct f12_data *f12, u8 *data1, int size)
- 		rmi_2d_sensor_abs_report(sensor, &sensor->objs[i], i);
- }
+diff --git a/drivers/input/rmi4/rmi_f01.c b/drivers/input/rmi4/rmi_f01.c
+index d7603c50f864..4aee30d2dcde 100644
+--- a/drivers/input/rmi4/rmi_f01.c
++++ b/drivers/input/rmi4/rmi_f01.c
+@@ -250,6 +250,20 @@ static int rmi_f01_read_properties(struct rmi_device *rmi_dev,
+ 		}
+ 	}
  
-+static void rmi_f12_set_hardcoded_desc(struct rmi_function *fn, struct f12_data *f12)
-+{
-+	struct rmi_2d_sensor *sensor = &f12->sensor;
-+	struct rmi_register_desc_item *reg_desc;
-+
-+	/* We have no f12->data_reg_desc, so the pkt_size is 0, override it with
-+	 * a somewhat sensible default (this corresponds to 10 fingers).
-+	 */
-+	sensor->pkt_size = 88;
-+
 +	/*
-+	 * There are no register descriptors to get these values from.
-+	 * We set them to high values to either be overwritten by the clip
-+	 * properties from devicetree, or to just not get in the way.
++	 * Some aftermarket ICs put garbage into the product id field unless
++	 * we read directly from the product id register.
 +	 */
-+	sensor->max_x = 65535;
-+	sensor->max_y = 65535;
++	if (props->product_id[0] < 0x20) {
++		ret = rmi_read_block(rmi_dev, query_base_addr + 11,
++				       props->product_id, RMI_PRODUCT_ID_LENGTH);
++		if (ret) {
++			dev_err(&rmi_dev->dev,
++				"Failed to read product id: %d\n", ret);
++			return ret;
++		}
++	}
 +
-+	/*
-+	 * Create the Data1 register descriptor so that touch events
-+	 * can work properly.
-+	 */
-+	reg_desc = devm_kcalloc(&fn->dev, 1,
-+			sizeof(struct rmi_register_desc_item), GFP_KERNEL);
-+	reg_desc->reg = 1;
-+	reg_desc->reg_size = 80;
-+	reg_desc->num_subpackets = 10;
-+
-+	f12->data1 = reg_desc;
-+	f12->data1_offset = 0;
-+	sensor->nbr_fingers = reg_desc->num_subpackets;
-+	sensor->report_abs = 1;
-+	sensor->attn_size += reg_desc->reg_size;
-+}
-+
- static irqreturn_t rmi_f12_attention(int irq, void *ctx)
- {
- 	int retval;
-@@ -315,6 +350,40 @@ static int rmi_f12_config(struct rmi_function *fn)
  	return 0;
  }
  
-+static int rmi_f12_sensor_init(struct rmi_function *fn, struct f12_data *f12)
-+{
-+	struct rmi_2d_sensor *sensor = &f12->sensor;
-+
-+	sensor->fn = fn;
-+	f12->data_addr = fn->fd.data_base_addr;
-+
-+	/* On quirky devices that don't have a data_reg_desc we hardcode the packet
-+	 * in rmi_f12_set_hardcoded_desc(). Make sure not to set it to 0 here.
-+	 */
-+	if (!sensor->pkt_size)
-+		sensor->pkt_size = rmi_register_desc_calc_size(&f12->data_reg_desc);
-+
-+	sensor->axis_align =
-+		f12->sensor_pdata.axis_align;
-+
-+	sensor->x_mm = f12->sensor_pdata.x_mm;
-+	sensor->y_mm = f12->sensor_pdata.y_mm;
-+	sensor->dribble = f12->sensor_pdata.dribble;
-+
-+	if (sensor->sensor_type == rmi_sensor_default)
-+		sensor->sensor_type =
-+			f12->sensor_pdata.sensor_type;
-+
-+	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: data packet size: %d\n", __func__,
-+		sensor->pkt_size);
-+
-+	sensor->data_pkt = devm_kzalloc(&fn->dev, sensor->pkt_size, GFP_KERNEL);
-+	if (!sensor->data_pkt)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
- static int rmi_f12_probe(struct rmi_function *fn)
- {
- 	struct f12_data *f12;
-@@ -328,6 +397,7 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 	struct rmi_driver_data *drvdata = dev_get_drvdata(&rmi_dev->dev);
- 	u16 data_offset = 0;
- 	int mask_size;
-+	bool hardcoded_desc_quirk = false;
- 
- 	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s\n", __func__);
- 
-@@ -342,9 +412,9 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 	++query_addr;
- 
- 	if (!(buf & BIT(0))) {
--		dev_err(&fn->dev,
--			"Behavior of F12 without register descriptors is undefined.\n");
--		return -ENODEV;
-+		rmi_dbg(RMI_DEBUG_FN, &fn->dev,
-+			"No register descriptors defined for F12, using fallback\n");
-+		hardcoded_desc_quirk = true;
- 	}
- 
- 	f12 = devm_kzalloc(&fn->dev, sizeof(struct f12_data) + mask_size * 2,
-@@ -352,6 +422,8 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 	if (!f12)
- 		return -ENOMEM;
- 
-+	dev_set_drvdata(&fn->dev, f12);
-+
- 	f12->abs_mask = (unsigned long *)((char *)f12
- 			+ sizeof(struct f12_data));
- 	f12->rel_mask = (unsigned long *)((char *)f12
-@@ -370,6 +442,18 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 		f12->sensor_pdata = pdata->sensor_pdata;
- 	}
- 
-+	sensor = &f12->sensor;
-+
-+	if (hardcoded_desc_quirk) {
-+		rmi_f12_set_hardcoded_desc(fn, f12);
-+
-+		ret = rmi_f12_sensor_init(fn, f12);
-+		if (ret)
-+			return ret;
-+
-+		goto skip_register_desc;
-+	}
-+
- 	ret = rmi_read_register_desc(rmi_dev, query_addr,
- 					&f12->query_reg_desc);
- 	if (ret) {
-@@ -400,29 +484,9 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 	}
- 	query_addr += 3;
- 
--	sensor = &f12->sensor;
--	sensor->fn = fn;
--	f12->data_addr = fn->fd.data_base_addr;
--	sensor->pkt_size = rmi_register_desc_calc_size(&f12->data_reg_desc);
--
--	sensor->axis_align =
--		f12->sensor_pdata.axis_align;
--
--	sensor->x_mm = f12->sensor_pdata.x_mm;
--	sensor->y_mm = f12->sensor_pdata.y_mm;
--	sensor->dribble = f12->sensor_pdata.dribble;
--
--	if (sensor->sensor_type == rmi_sensor_default)
--		sensor->sensor_type =
--			f12->sensor_pdata.sensor_type;
--
--	rmi_dbg(RMI_DEBUG_FN, &fn->dev, "%s: data packet size: %d\n", __func__,
--		sensor->pkt_size);
--	sensor->data_pkt = devm_kzalloc(&fn->dev, sensor->pkt_size, GFP_KERNEL);
--	if (!sensor->data_pkt)
--		return -ENOMEM;
--
--	dev_set_drvdata(&fn->dev, f12);
-+	ret = rmi_f12_sensor_init(fn, f12);
-+	if (ret)
-+		return ret;
- 
- 	ret = rmi_f12_read_sensor_tuning(f12);
- 	if (ret)
-@@ -520,6 +584,7 @@ static int rmi_f12_probe(struct rmi_function *fn)
- 		data_offset += item->reg_size;
- 	}
- 
-+skip_register_desc:
- 	/* allocate the in-kernel tracking buffers */
- 	sensor->tracking_pos = devm_kcalloc(&fn->dev,
- 			sensor->nbr_fingers, sizeof(struct input_mt_pos),
 
 -- 
 2.42.0

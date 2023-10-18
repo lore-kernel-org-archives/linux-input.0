@@ -2,137 +2,192 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72FE7CDB483
-	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:36:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C483BCDB483
+	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 15:17:18 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235291AbjJROgG (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Oct 2023 10:36:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47194 "EHLO
+        id S232334AbjJRPRS (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Oct 2023 11:17:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345460AbjJROfl (ORCPT
+        with ESMTP id S235349AbjJRPRQ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2023 10:35:41 -0400
+        Wed, 18 Oct 2023 11:17:16 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 340C23C30;
-        Wed, 18 Oct 2023 07:15:00 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF05BC433D9;
-        Wed, 18 Oct 2023 14:14:58 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF231139
+        for <linux-input@vger.kernel.org>; Wed, 18 Oct 2023 08:17:12 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F29F7C433C7;
+        Wed, 18 Oct 2023 15:17:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697638499;
-        bh=vCqRkI/QpXi9YjALHs1vE1Bu5/qQaJB2eIfCFOfVg7M=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KOg3AhgXNrsJS53XTu+pfVtILVwUCf7YX/O4PsNC64MJJMTUl4K1bGoRoWnKIF9ex
-         r7G2qyNux9CxOGS1f1PbptYNbn3zWErVGomCSdGpqhEdOjWB5gkvlYw0EGMM5llDtS
-         LcAwOSgyiJ5QJEiSCbYuwNYEe7hx5jRW2Fpj0ZdPjj50sXYLugCkG+5x3y3BekcjTp
-         jnOd4BIBg+MKR/X+tHxDjT9hkf8BwDS7wvvdxgI++D1SKeANUkmW/Lu54Ukov42k5q
-         L0pdkYMy93gdDLKs8CVQn8JgoaTfinwi1n+Qzt/YQXxCBSRhxL7w0nO4Gjyhna1aFP
-         l+5PaU/WREcJw==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Michael Smith <1973.mjsmith@gmail.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, hadess@hadess.net,
+        s=k20201202; t=1697642232;
+        bh=Y3tABglE4dX7g1Ma8NDjRRxdQdTS8qdtGR0RU8rygnI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=N6Qx72JGgUoMhQpe6jDD/X9/VcgL34fC44DlM7bqXJG52GM2LVnv40q7mgNhEs+KA
+         DA8GfPPjbWpi6aAc63RyxJPU2PaE8N2offZsgX4qTEbK/8MHdXF1M7sD8c6vHItyWk
+         HRcYb4YTri6XvLOgQe9uLKw6HB/12FoQ1Qq3p7UWPxou4ELqjvgQaCKM/7ctj9LO5R
+         j1l+NfMP4c3BmGA79aE/+0nTQy7xPLhoR+wWUENXwQGj9mji9BmnmNWOrOEq9+xNU0
+         0hmc4XJb0vTUm86Lkgvu+giYxuzMPQymD3uFI3tv0CeNNP6dmsuCydKgNQXfjM3GV9
+         sKPEPzUHfQzOA==
+Date:   Wed, 18 Oct 2023 17:17:08 +0200
+From:   Benjamin Tissoires <bentiss@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Filipe =?utf-8?B?TGHDrW5z?= <lains@riseup.net>,
+        Bastien Nocera <hadess@hadess.net>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/11] Input: goodix - ensure int GPIO is in input for gpio_count == 1 && gpio_int_idx == 0 case
-Date:   Wed, 18 Oct 2023 10:14:44 -0400
-Message-Id: <20231018141455.1335353-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231018141455.1335353-1-sashal@kernel.org>
-References: <20231018141455.1335353-1-sashal@kernel.org>
+Subject: Re: [PATCH v3 01/12] HID: logitech-hidpp: Don't restart IO, instead
+ defer hid_connect() only
+Message-ID: <ha4irm6pz34zepdfpvs3vuo6ffvalkvfp4ase3githdtn4qlrz@tgl4lwzcpdee>
+References: <20231010102029.111003-1-hdegoede@redhat.com>
+ <20231010102029.111003-2-hdegoede@redhat.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.10.198
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231010102029.111003-2-hdegoede@redhat.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+Hi Hans,
 
-[ Upstream commit 423622a90abb243944d1517b9f57db53729e45c4 ]
+FWIW, your series looks good, but I came accross a small nitpick here:
 
-Add a special case for gpio_count == 1 && gpio_int_idx == 0 to
-goodix_add_acpi_gpio_mappings().
+On Oct 10 2023, Hans de Goede wrote:
+> Restarting IO causes 2 problems:
+> 
+> 1. Some devices do not like IO being restarted this was addressed in
+>    commit 498ba2069035 ("HID: logitech-hidpp: Don't restart communication
+>    if not necessary"), but that change has issues of its own and needs to
+>    be reverted.
+> 
+> 2. Restarting IO and specifically calling hid_device_io_stop() causes
+>    received packets to be missed, which may cause connect-events to
+>    get missed.
+> 
+> Restarting IO was introduced in commit 91cf9a98ae41 ("HID: logitech-hidpp:
+> make .probe usbhid capable") to allow to retrieve the device's name and
+> serial number and store these in hdev->name and hdev->uniq before
+> connecting any hid subdrivers (hid-input, hidraw) exporting this info
+> to userspace.
+> 
+> But this does not require restarting IO, this merely requires deferring
+> calling hid_connect(). Calling hid_hw_start() with a connect-mask of
+> 0 makes it skip calling hid_connect(), so hidpp_probe() can simply call
+> hid_connect() later without needing to restart IO.
+> 
+> Remove the stop + restart of IO and instead just call hid_connect() later
+> to avoid the issues caused by restarting IO.
+> 
+> Now that IO is no longer stopped, hid_hw_close() must be called at the end
+> of probe() to balance the hid_hw_open() done at the beginning probe().
+> 
+> This series has been tested on the following devices:
+> Logitech Bluetooth Laser Travel Mouse (bluetooth, HID++ 1.0)
+> Logitech M720 Triathlon (bluetooth, HID++ 4.5)
+> Logitech M720 Triathlon (unifying, HID++ 4.5)
+> Logitech K400 Pro (unifying, HID++ 4.1)
+> Logitech K270 (eQUAD nano Lite, HID++ 2.0)
+> Logitech M185 (eQUAD nano Lite, HID++ 4.5)
+> Logitech LX501 keyboard (27 Mhz, HID++ builtin scroll-wheel, HID++ 1.0)
+> Logitech M-RAZ105 mouse (27 Mhz, HID++ extra mouse buttons, HID++ 1.0)
+> 
+> Fixes: 498ba2069035 ("HID: logitech-hidpp: Don't restart communication if not necessary")
+> Suggested-by: Benjamin Tissoires <bentiss@kernel.org>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> ---
+>  drivers/hid/hid-logitech-hidpp.c | 22 ++++++++++++----------
+>  1 file changed, 12 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+> index a209d51bd247..aa4f232c4518 100644
+> --- a/drivers/hid/hid-logitech-hidpp.c
+> +++ b/drivers/hid/hid-logitech-hidpp.c
+> @@ -4460,8 +4460,10 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  			 hdev->name);
+>  
+>  	/*
+> -	 * Plain USB connections need to actually call start and open
+> -	 * on the transport driver to allow incoming data.
+> +	 * First call hid_hw_start(hdev, 0) to allow IO without connecting any
+> +	 * hid subdrivers (hid-input, hidraw). This allows retrieving the dev's
+> +	 * name and serial number and store these in hdev->name and hdev->uniq,
+> +	 * before the hid-input and hidraw drivers expose these to userspace.
+>  	 */
+>  	ret = hid_hw_start(hdev, will_restart ? 0 : connect_mask);
+>  	if (ret) {
+> @@ -4519,19 +4521,14 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  	flush_work(&hidpp->work);
+>  
+>  	if (will_restart) {
+> -		/* Reset the HID node state */
+> -		hid_device_io_stop(hdev);
+> -		hid_hw_close(hdev);
+> -		hid_hw_stop(hdev);
+> -
+>  		if (hidpp->quirks & HIDPP_QUIRK_DELAYED_INIT)
+>  			connect_mask &= ~HID_CONNECT_HIDINPUT;
+>  
+>  		/* Now export the actual inputs and hidraw nodes to the world */
+> -		ret = hid_hw_start(hdev, connect_mask);
+> +		ret = hid_connect(hdev, connect_mask);
 
-It seems that on newer x86/ACPI devices the reset and irq GPIOs are no
-longer listed as GPIO resources instead there is only 1 GpioInt resource
-and _PS0 does the whole reset sequence for us.
+On plain USB devices, we get a new warning here "io already started".
 
-This means that we must call acpi_device_fix_up_power() on these devices
-to ensure that the chip is reset before we try to use it.
+This is because hid_connect() will call hid_pidff_init() from
+drivers/hid/usbhid/hid-pidff.c if connect_mask has the `HID_CONNECT_FF`
+bit set.
 
-This part was already fixed in commit 3de93e6ed2df ("Input: goodix - call
-acpi_device_fix_up_power() in some cases") by adding a call to
-acpi_device_fix_up_power() to the generic "Unexpected ACPI resources"
-catch all.
+And hid_pidff_init() blindly calls hid_device_io_start() then
+hid_device_io_stop().
 
-But it turns out that this case on some hw needs some more special
-handling. Specifically the firmware may bootup with the IRQ pin in
-output mode. The reset sequence from ACPI _PS0 (executed by
-acpi_device_fix_up_power()) should put the pin in input mode,
-but the GPIO subsystem has cached the direction at bootup, causing
-request_irq() to fail due to gpiochip_lock_as_irq() failure:
+It's not a big issue, but still it's a new warning we have to tackly on.
 
-[    9.119864] Goodix-TS i2c-GDIX1002:00: Unexpected ACPI resources: gpio_count 1, gpio_int_idx 0
-[    9.317443] Goodix-TS i2c-GDIX1002:00: ID 911, version: 1060
-[    9.321902] input: Goodix Capacitive TouchScreen as /devices/pci0000:00/0000:00:17.0/i2c_designware.4/i2c-5/i2c-GDIX1002:00/input/input8
-[    9.327840] gpio gpiochip0: (INT3453:00): gpiochip_lock_as_irq: tried to flag a GPIO set as output for IRQ
-[    9.327856] gpio gpiochip0: (INT3453:00): unable to lock HW IRQ 26 for IRQ
-[    9.327861] genirq: Failed to request resources for GDIX1002:00 (irq 131) on irqchip intel-gpio
-[    9.327912] Goodix-TS i2c-GDIX1002:00: request IRQ failed: -5
+I see 3 possible solutions:
+- teach hid_pidff_init() to only start/stop the IOs if it's not already
+  done so
+- if a device is actually connected through USB, call
+  hid_device_io_stop() before hid_connect()
+- unconditionally call hid_device_io_stop() before hid_connect()
 
-Fix this by adding a special case for gpio_count == 1 && gpio_int_idx == 0
-which adds an ACPI GPIO lookup table for the int GPIO even though we cannot
-use it for reset purposes (as there is no reset GPIO).
+The latter has my current preference as we won't get biten in the future
+if something else decides to change the io state.
 
-Adding the lookup will make the gpiod_int = gpiod_get(..., GPIOD_IN) call
-succeed, which will explicitly set the direction to input fixing the issue.
+However, do you thing it'll be an issue to disable IOs there?
+And maybe we should re-enable them after?
 
-Note this re-uses the acpi_goodix_int_first_gpios[] lookup table, since
-there is only 1 GPIO in the ACPI resources the reset entry in that
-lookup table will amount to a no-op.
+If it's fine to simply disable the IOs, we can add an extra patch on top
+of this series to fix that warning in the USB case.
 
-Reported-and-tested-by: Michael Smith <1973.mjsmith@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20231003215144.69527-1-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/input/touchscreen/goodix.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+As mentioned above, I have tested with the T650, T651 that were likely to
+be a problem, and they are working just fine :)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 098115eb80841..53792a1b6ac39 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -820,6 +820,25 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
- 		dev_info(dev, "No ACPI GpioInt resource, assuming that the GPIO order is reset, int\n");
- 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
- 		gpio_mapping = acpi_goodix_int_last_gpios;
-+	} else if (ts->gpio_count == 1 && ts->gpio_int_idx == 0) {
-+		/*
-+		 * On newer devices there is only 1 GpioInt resource and _PS0
-+		 * does the whole reset sequence for us.
-+		 */
-+		acpi_device_fix_up_power(ACPI_COMPANION(dev));
-+
-+		/*
-+		 * Before the _PS0 call the int GPIO may have been in output
-+		 * mode and the call should have put the int GPIO in input mode,
-+		 * but the GPIO subsys cached state may still think it is
-+		 * in output mode, causing gpiochip_lock_as_irq() failure.
-+		 *
-+		 * Add a mapping for the int GPIO to make the
-+		 * gpiod_int = gpiod_get(..., GPIOD_IN) call succeed,
-+		 * which will explicitly set the direction to input.
-+		 */
-+		ts->irq_pin_access_method = IRQ_PIN_ACCESS_NONE;
-+		gpio_mapping = acpi_goodix_int_first_gpios;
- 	} else {
- 		dev_warn(dev, "Unexpected ACPI resources: gpio_count %d, gpio_int_idx %d\n",
- 			 ts->gpio_count, ts->gpio_int_idx);
--- 
-2.40.1
+So with that minor fix, we should be able to stage this series.
 
+Thanks again for your hard work
+
+Cheers,
+Benjamin
+
+>  		if (ret) {
+> -			hid_err(hdev, "%s:hid_hw_start returned error\n", __func__);
+> -			goto hid_hw_start_fail;
+> +			hid_err(hdev, "%s:hid_connect returned error %d\n", __func__, ret);
+> +			goto hid_hw_init_fail;
+>  		}
+>  	}
+>  
+> @@ -4543,6 +4540,11 @@ static int hidpp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+>  				 ret);
+>  	}
+>  
+> +	/*
+> +	 * This relies on logi_dj_ll_close() being a no-op so that DJ connection
+> +	 * events will still be received.
+> +	 */
+> +	hid_hw_close(hdev);
+>  	return ret;
+>  
+>  hid_hw_init_fail:
+> -- 
+> 2.41.0
+> 

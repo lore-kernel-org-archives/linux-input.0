@@ -2,31 +2,31 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFFA8CDB483
-	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:19:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C605ACDB47E
+	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:19:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345206AbjJROSv (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Oct 2023 10:18:51 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42520 "EHLO
+        id S1345078AbjJROT0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Oct 2023 10:19:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345292AbjJROS1 (ORCPT
+        with ESMTP id S1345258AbjJROSa (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2023 10:18:27 -0400
+        Wed, 18 Oct 2023 10:18:30 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8A5C478D;
-        Wed, 18 Oct 2023 07:16:04 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14645C433CD;
-        Wed, 18 Oct 2023 14:16:02 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04DC5170F;
+        Wed, 18 Oct 2023 07:14:47 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E909C433C7;
+        Wed, 18 Oct 2023 14:14:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697638564;
-        bh=ZBOqYTiXkcJzSz+u57KsvsALv0M/Ij2IZ5n+f8FR60o=;
+        s=k20201202; t=1697638485;
+        bh=FlJQatXeW5Pb9RGYFdMynoKnZl/By0Yt2rD4+jVNyuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rWB+DfRMPlTjzezfSvVFUgVYmCZSi4Fr2SrqSQv65T+t5DpV2VxO2j/HH7zbF6VRX
-         N9WShxAjhYQygU2NwLCEt4ZQoZPHWoAjrNnCiifNBvRRTqHg43axnC0hKg35mdojOl
-         6Yn7AXBiD6MTO1nLbyskkulOu+wX19lmFTRqHrKg9leiEhaoV/PZZiNIGDDGTsCKTQ
-         WieEmfqDMxSAb+OuprW6sTbmcjB5hZv++h26h+ttNdKxCkvtFnYy6c7h4cVg5d/igK
-         NUqT805vGrsodzKqoKmgokyj/2OjGLNK0/6WScmu7jA7aWek8ErBrssUgAZ8INRMZe
-         hu+jN/hr0/auQ==
+        b=bJnHcI5n3CHoUwAxncnSKarGU/KP0RKVPiO7GfDO5y/rbPh0Nvjuv00sHh+OhKkIF
+         czT0Q/O5PddCRR1tLq2DCNusENcnVr2Cw1uJ6llI8JsOaW0vwlc12JFi08sDBGS439
+         NdOevxhmKVb90zQdpoOtemMoQvVP9RZAbaCgWdh3AKm0kN6NtTqWdrZCf58g1+hxN4
+         mtQGQqhXfn3iHlitkbb1uSbPZ1qUMpL6aZRhUepQ8ZABP4uiFZH4GYcbJGA4aHA42L
+         bLiyoWOPtwz8JkFX7d+ROsXYXcPQzNscG+11DKzWbWyZ/04TLaPcUo7q8QrcaxPwy1
+         KdkPlwP/WbR0g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -34,16 +34,16 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, rrangel@chromium.org,
         u.kleine-koenig@pengutronix.de, Jonathan.Cameron@huawei.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 5/7] Input: synaptics-rmi4 - handle reset delay when using SMBus trsnsport
-Date:   Wed, 18 Oct 2023 10:15:44 -0400
-Message-Id: <20231018141548.1335665-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 12/14] Input: synaptics-rmi4 - handle reset delay when using SMBus trsnsport
+Date:   Wed, 18 Oct 2023 10:14:12 -0400
+Message-Id: <20231018141416.1335165-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231018141548.1335665-1-sashal@kernel.org>
-References: <20231018141548.1335665-1-sashal@kernel.org>
+In-Reply-To: <20231018141416.1335165-1-sashal@kernel.org>
+References: <20231018141416.1335165-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 4.19.296
+X-stable-base: Linux 5.15.135
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -81,10 +81,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 29 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index c6d393114502d..2075f9b99910e 100644
+index ffad142801b39..9513500ca7c00 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -1749,6 +1749,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
+@@ -1751,6 +1751,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
  		psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
  		!SYN_CAP_EXT_BUTTONS_STICK(info->ext_cap_10);
  	const struct rmi_device_platform_data pdata = {
@@ -93,10 +93,10 @@ index c6d393114502d..2075f9b99910e 100644
  			.sensor_type = rmi_sensor_touchpad,
  			.axis_align.flip_y = true,
 diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index b6ccf39c6a7bb..e5b0109a4d155 100644
+index 2407ea43de59b..f38bf9a5f599d 100644
 --- a/drivers/input/rmi4/rmi_smbus.c
 +++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -238,12 +238,29 @@ static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
+@@ -235,12 +235,29 @@ static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
  
  static int rmi_smb_enable_smbus_mode(struct rmi_smb_xport *rmi_smb)
  {
@@ -130,7 +130,7 @@ index b6ccf39c6a7bb..e5b0109a4d155 100644
  
  	return 0;
  }
-@@ -256,11 +273,10 @@ static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
+@@ -253,11 +270,10 @@ static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
  	rmi_smb_clear_state(rmi_smb);
  
  	/*
@@ -146,7 +146,7 @@ index b6ccf39c6a7bb..e5b0109a4d155 100644
  	 */
  	return rmi_smb_enable_smbus_mode(rmi_smb);
  }
-@@ -276,7 +292,6 @@ static int rmi_smb_probe(struct i2c_client *client,
+@@ -273,7 +289,6 @@ static int rmi_smb_probe(struct i2c_client *client,
  {
  	struct rmi_device_platform_data *pdata = dev_get_platdata(&client->dev);
  	struct rmi_smb_xport *rmi_smb;
@@ -154,7 +154,7 @@ index b6ccf39c6a7bb..e5b0109a4d155 100644
  	int error;
  
  	if (!pdata) {
-@@ -315,18 +330,9 @@ static int rmi_smb_probe(struct i2c_client *client,
+@@ -312,18 +327,9 @@ static int rmi_smb_probe(struct i2c_client *client,
  	rmi_smb->xport.proto_name = "smb";
  	rmi_smb->xport.ops = &rmi_smb_ops;
  

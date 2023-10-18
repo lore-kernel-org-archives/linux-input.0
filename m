@@ -2,48 +2,49 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D867CDB488
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CB23CCDB483
 	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:19:28 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345094AbjJROT0 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Oct 2023 10:19:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42414 "EHLO
+        id S1345105AbjJROT1 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Oct 2023 10:19:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345234AbjJROSn (ORCPT
+        with ESMTP id S1345207AbjJROSh (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2023 10:18:43 -0400
+        Wed, 18 Oct 2023 10:18:37 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EED31733;
-        Wed, 18 Oct 2023 07:14:48 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2D5FC433AD;
-        Wed, 18 Oct 2023 14:14:47 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A05531BD5;
+        Wed, 18 Oct 2023 07:15:19 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEAE0C433CC;
+        Wed, 18 Oct 2023 14:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697638488;
-        bh=KrRNsT6IWS/mMY04ZlKthu5swCevLdH4TQW0KiozzNM=;
+        s=k20201202; t=1697638519;
+        bh=K0HcF1PjkRDSG4i8xj9GWY/dwJPZ7X5wrwuuJXTHF98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DBEZuTmqQc5KY8UtXcu+9jsp1a3lsVIBpNnchbCcXJVEiXDoaRblTCSusERiQYnAx
-         L7LFijZr5SvOHsL8Q1GUqmQSZlGbaR8aQ9+YPrstSVWtUMKPzaouavwpuTG07N0d+L
-         MxdQU/Go86bdAfQGvIc28O3IiAdDyBs6KbKmX/OeP62y274NeqoaR4gkS/IHk+WYcB
-         b0QWIK9l8J+ckYuRsIfQ4WJuuZe9TcTAH2x+lKT3ui/PE470r/5Icx3qxHfmrcZE6+
-         XAjyNg3wN3mmZsJ2DnS247cPGSpQpBRiB9D9jMA7NGYrGeQ9fqjLdeP169lsqL/v7x
-         aZU626kZ4drBQ==
+        b=EpxeSiaqLuQtjz+UdkaSn5yIR347j82mo6n9pT29a/3cfyf3vyB4slstbg4JBJ91m
+         Ht9LfyC7nUSaCelg1GKLQ/kXvPVvGkkqg2rYA7gvISrhgo1SdhBeS6rrYedfAeHJRS
+         sPTj0zpIGYN3p8bdU9e71easxQ3y2IPYH4VX3cJgrEpm2n9vlLTzqlIyCNUMlu/VOW
+         a9HJqdXKQ6/VqAPisio3Rsv5IPE27oc0KCzp8CAEsItTUZMgg7NK700nObgC/k6wtq
+         gRxOqIHm4pJBiiGdoxIG891HP6CborQwuoJQOkx3GWmVYWJk9qAhrw39YT2mOLib9n
+         l4j5GKsfvc0tg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Matthias Berndt <matthias_berndt@gmx.de>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, vi@endrift.com,
-        swyterzone@gmail.com, doublej472@gmail.com, aicommander@gmail.com,
-        slouken@libsdl.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 13/14] Input: xpad - add PXN V900 support
-Date:   Wed, 18 Oct 2023 10:14:13 -0400
-Message-Id: <20231018141416.1335165-13-sashal@kernel.org>
+        swyterzone@gmail.com, radon86dev@gmail.com, lyude@redhat.com,
+        slouken@libsdl.org, maxwell.nguyen@hp.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 10/11] Input: xpad - add PXN V900 support
+Date:   Wed, 18 Oct 2023 10:14:52 -0400
+Message-Id: <20231018141455.1335353-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231018141416.1335165-1-sashal@kernel.org>
-References: <20231018141416.1335165-1-sashal@kernel.org>
+In-Reply-To: <20231018141455.1335353-1-sashal@kernel.org>
+References: <20231018141455.1335353-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.135
+X-stable-base: Linux 5.10.198
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -65,10 +66,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 57947874f26f3..8341ea7c4eb61 100644
+index b99318fb58dc6..762c502391464 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -254,6 +254,7 @@ static const struct xpad_device {
+@@ -252,6 +252,7 @@ static const struct xpad_device {
  	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
  	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
  	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
@@ -76,7 +77,7 @@ index 57947874f26f3..8341ea7c4eb61 100644
  	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
  	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
  	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
-@@ -449,6 +450,7 @@ static const struct usb_device_id xpad_table[] = {
+@@ -446,6 +447,7 @@ static const struct usb_device_id xpad_table[] = {
  	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
  	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries Controllers */
  	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */

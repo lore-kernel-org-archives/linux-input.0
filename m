@@ -2,31 +2,31 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4372BCDB47E
-	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:18:41 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BB07CDB482
+	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:18:42 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344898AbjJROSk (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Oct 2023 10:18:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59858 "EHLO
+        id S1345263AbjJROSl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Oct 2023 10:18:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345272AbjJROST (ORCPT
+        with ESMTP id S1345095AbjJROSW (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2023 10:18:19 -0400
+        Wed, 18 Oct 2023 10:18:22 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17D17449D;
-        Wed, 18 Oct 2023 07:15:38 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0837C433C9;
-        Wed, 18 Oct 2023 14:15:36 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730292D79;
+        Wed, 18 Oct 2023 07:14:07 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D1CC433C8;
+        Wed, 18 Oct 2023 14:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697638537;
-        bh=AY9/hwknwbrYTCXtIQpLMx35zhtGUbn2NXGAEOdb6vA=;
+        s=k20201202; t=1697638446;
+        bh=QRMomMXYSvpma+M+YAXkwauCJgg3K3DpiRvMbuoyInA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d3P9Udcpj7xz+0Gbcz6oGbM0tyzT+FuTDrE8356Hp3QeE4ekCM5hbg/l9R1zTin4N
-         SxOoIHux8oTYfT1fAwuk/jnCI0lXOlAPEqGHEdJymuzxdjnf8e2RfME3YfdiDI5D3S
-         SEu4p6YTQZns4Ypq4wGlpH/HbDYaAAwaD2UeA1i/aRON6TJunmS04bxUkauvpOUwpR
-         0uTcu522Hen/yk0kd/64r7bvo4aWW82g9uYLzzy5ToctC1GTSNL4NDmUhmNYgHxb4/
-         9w8zPuB+9Se4GlfEDxjyofW/hk7d7V0vN22WTA59Wt51EqYInKFwJKoX5DRWxqw7ms
-         JD68DL+BacNww==
+        b=eupfZaJ78lC655JIQM9NPEiwTHS/AwzHZs5kaAlrlXFHnIyZwceaV9y4EYPWp1rpv
+         8gRFIsy0G47A69RIapkqwnA0bad9qrN3gZnGRcs6efVArbB03dLwo4CHSYfwN/PsTs
+         B25UXpFkUQdgniFcETCJMeN+LQ78+JJAmA/KlvfbvEVEG/wPK09RE14uU9uhVWWtYB
+         E6t+BkGTS9XanzRa6xfeHSjC1FscLGoU2AEOOZr2hnhFI1gT5L9tlfejl6QxspTNz0
+         c5bXDZEMYhbRUnWnNezmCryGe1QPnm5JYtFjblDyx/hKl0XMG5bVC3u/X9RcpJ6cfc
+         J9IERFLVRsx5A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -34,16 +34,16 @@ Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>, rrangel@chromium.org,
         u.kleine-koenig@pengutronix.de, Jonathan.Cameron@huawei.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 5/7] Input: synaptics-rmi4 - handle reset delay when using SMBus trsnsport
-Date:   Wed, 18 Oct 2023 10:15:21 -0400
-Message-Id: <20231018141525.1335533-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 17/19] Input: synaptics-rmi4 - handle reset delay when using SMBus trsnsport
+Date:   Wed, 18 Oct 2023 10:13:19 -0400
+Message-Id: <20231018141323.1334898-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231018141525.1335533-1-sashal@kernel.org>
-References: <20231018141525.1335533-1-sashal@kernel.org>
+In-Reply-To: <20231018141323.1334898-1-sashal@kernel.org>
+References: <20231018141323.1334898-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.4.258
+X-stable-base: Linux 6.1.58
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -81,10 +81,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 29 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index 4b81b2d0fe067..c07e46d1540f3 100644
+index fa021af8506e4..b38359b8c4b58 100644
 --- a/drivers/input/mouse/synaptics.c
 +++ b/drivers/input/mouse/synaptics.c
-@@ -1746,6 +1746,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
+@@ -1752,6 +1752,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
  		psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
  		!SYN_CAP_EXT_BUTTONS_STICK(info->ext_cap_10);
  	const struct rmi_device_platform_data pdata = {
@@ -93,7 +93,7 @@ index 4b81b2d0fe067..c07e46d1540f3 100644
  			.sensor_type = rmi_sensor_touchpad,
  			.axis_align.flip_y = true,
 diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index 2407ea43de59b..f38bf9a5f599d 100644
+index c130468541b7d..7080c2ddbaf2b 100644
 --- a/drivers/input/rmi4/rmi_smbus.c
 +++ b/drivers/input/rmi4/rmi_smbus.c
 @@ -235,12 +235,29 @@ static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)

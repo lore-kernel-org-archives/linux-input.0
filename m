@@ -2,137 +2,88 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BB026CDB482
-	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:29:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AA943CDB47E
+	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:31:21 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345721AbjJRO3F (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Oct 2023 10:29:05 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38038 "EHLO
+        id S1345556AbjJRObU (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Oct 2023 10:31:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345780AbjJRO25 (ORCPT
+        with ESMTP id S1345738AbjJRObH (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2023 10:28:57 -0400
+        Wed, 18 Oct 2023 10:31:07 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13E513581;
-        Wed, 18 Oct 2023 07:14:25 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A82AC433AB;
-        Wed, 18 Oct 2023 14:14:24 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D2B24B1D;
+        Wed, 18 Oct 2023 07:22:34 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DA6FC433C8;
+        Wed, 18 Oct 2023 14:16:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697638465;
-        bh=d+GRiXcIWcqlDFWcG1og6NKzdOSNKARngRfXogZikis=;
+        s=k20201202; t=1697638570;
+        bh=8ApVyFM3ieRgIXR30RUL7sm2tVCE9iYbitpYpVOU1V4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erdKC7o5WSHlUhk6ugaGNJ4oMcMZ26KAp6a1VLJhUpl9We1hrTrSi5i7xyzjXX0pK
-         ikLH0IDVtasmOsZCUMvPBArAmJkDGibygZN0sN/0L+gZ6kGGQrUSvETDvErlkX/aTP
-         9j3qGv6V8nyQYkanrtcxVMzE837VYD+ZXdo9Pl35xUaLe+6HBIECIRsVIEARiun4u0
-         BGqF7MC+WZbRLUXnYLxshUn/5yhrce6uOOzSDS8nJYtvnbQ2A7DfbM9vpsbGrEOR0v
-         3zf7EXwLVnHCRlXBNVrKqcsyatjSD/tluw1ptX5kpZtw7pZtXbdsw2scfI0jAA/boa
-         AcHN+LI85AvLg==
+        b=NIbm3Z1CNp3Qq3vJHvZqU+mJRnhjJOBRtvXKDnFRfx6aBg7A6sZOlBY4rvHY/ltAs
+         twjThZQ5rfhaOjrpY28qBZ2OAiexxx4PdNIWgDjQwWYpcQLd7AaqjejAE27MJXMxAk
+         EMy9YKNuwaZ6xE/qMNGGvk172z8xo/8AZa+htYymSreJ7a8DkuC06Pao5VnbxyGsw1
+         3rxt3X6go70nppPXC6A+kdg0NoDaaRPm8USKzVPRFKMprsHG9qgJL1OZteOhzF3VrB
+         EdS1JpFP74Bhl2EyQOSZxiIzQD2tml8wqOfjEDwwe4tAALgiUqs22mbW+lFtK+5gVX
+         16+GIByYl1fIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Michael Smith <1973.mjsmith@gmail.com>,
+Cc:     Javier Carrasco <javier.carrasco.cruz@gmail.com>,
+        syzbot+0434ac83f907a1dbdd1e@syzkaller.appspotmail.com,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, hadess@hadess.net,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 03/14] Input: goodix - ensure int GPIO is in input for gpio_count == 1 && gpio_int_idx == 0 case
-Date:   Wed, 18 Oct 2023 10:14:03 -0400
-Message-Id: <20231018141416.1335165-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 7/7] Input: powermate - fix use-after-free in powermate_config_complete
+Date:   Wed, 18 Oct 2023 10:15:46 -0400
+Message-Id: <20231018141548.1335665-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231018141416.1335165-1-sashal@kernel.org>
-References: <20231018141416.1335165-1-sashal@kernel.org>
+In-Reply-To: <20231018141548.1335665-1-sashal@kernel.org>
+References: <20231018141548.1335665-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.15.135
+X-stable-base: Linux 4.19.296
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Javier Carrasco <javier.carrasco.cruz@gmail.com>
 
-[ Upstream commit 423622a90abb243944d1517b9f57db53729e45c4 ]
+[ Upstream commit 5c15c60e7be615f05a45cd905093a54b11f461bc ]
 
-Add a special case for gpio_count == 1 && gpio_int_idx == 0 to
-goodix_add_acpi_gpio_mappings().
+syzbot has found a use-after-free bug [1] in the powermate driver. This
+happens when the device is disconnected, which leads to a memory free from
+the powermate_device struct.  When an asynchronous control message
+completes after the kfree and its callback is invoked, the lock does not
+exist anymore and hence the bug.
 
-It seems that on newer x86/ACPI devices the reset and irq GPIOs are no
-longer listed as GPIO resources instead there is only 1 GpioInt resource
-and _PS0 does the whole reset sequence for us.
+Use usb_kill_urb() on pm->config to cancel any in-progress requests upon
+device disconnection.
 
-This means that we must call acpi_device_fix_up_power() on these devices
-to ensure that the chip is reset before we try to use it.
+[1] https://syzkaller.appspot.com/bug?extid=0434ac83f907a1dbdd1e
 
-This part was already fixed in commit 3de93e6ed2df ("Input: goodix - call
-acpi_device_fix_up_power() in some cases") by adding a call to
-acpi_device_fix_up_power() to the generic "Unexpected ACPI resources"
-catch all.
-
-But it turns out that this case on some hw needs some more special
-handling. Specifically the firmware may bootup with the IRQ pin in
-output mode. The reset sequence from ACPI _PS0 (executed by
-acpi_device_fix_up_power()) should put the pin in input mode,
-but the GPIO subsystem has cached the direction at bootup, causing
-request_irq() to fail due to gpiochip_lock_as_irq() failure:
-
-[    9.119864] Goodix-TS i2c-GDIX1002:00: Unexpected ACPI resources: gpio_count 1, gpio_int_idx 0
-[    9.317443] Goodix-TS i2c-GDIX1002:00: ID 911, version: 1060
-[    9.321902] input: Goodix Capacitive TouchScreen as /devices/pci0000:00/0000:00:17.0/i2c_designware.4/i2c-5/i2c-GDIX1002:00/input/input8
-[    9.327840] gpio gpiochip0: (INT3453:00): gpiochip_lock_as_irq: tried to flag a GPIO set as output for IRQ
-[    9.327856] gpio gpiochip0: (INT3453:00): unable to lock HW IRQ 26 for IRQ
-[    9.327861] genirq: Failed to request resources for GDIX1002:00 (irq 131) on irqchip intel-gpio
-[    9.327912] Goodix-TS i2c-GDIX1002:00: request IRQ failed: -5
-
-Fix this by adding a special case for gpio_count == 1 && gpio_int_idx == 0
-which adds an ACPI GPIO lookup table for the int GPIO even though we cannot
-use it for reset purposes (as there is no reset GPIO).
-
-Adding the lookup will make the gpiod_int = gpiod_get(..., GPIOD_IN) call
-succeed, which will explicitly set the direction to input fixing the issue.
-
-Note this re-uses the acpi_goodix_int_first_gpios[] lookup table, since
-there is only 1 GPIO in the ACPI resources the reset entry in that
-lookup table will amount to a no-op.
-
-Reported-and-tested-by: Michael Smith <1973.mjsmith@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20231003215144.69527-1-hdegoede@redhat.com
+Signed-off-by: Javier Carrasco <javier.carrasco.cruz@gmail.com>
+Reported-by: syzbot+0434ac83f907a1dbdd1e@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20230916-topic-powermate_use_after_free-v3-1-64412b81a7a2@gmail.com
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/goodix.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/input/misc/powermate.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
-index 166d36b2626e9..1492f051331ac 100644
---- a/drivers/input/touchscreen/goodix.c
-+++ b/drivers/input/touchscreen/goodix.c
-@@ -786,6 +786,25 @@ static int goodix_add_acpi_gpio_mappings(struct goodix_ts_data *ts)
- 		dev_info(dev, "No ACPI GpioInt resource, assuming that the GPIO order is reset, int\n");
- 		ts->irq_pin_access_method = IRQ_PIN_ACCESS_ACPI_GPIO;
- 		gpio_mapping = acpi_goodix_int_last_gpios;
-+	} else if (ts->gpio_count == 1 && ts->gpio_int_idx == 0) {
-+		/*
-+		 * On newer devices there is only 1 GpioInt resource and _PS0
-+		 * does the whole reset sequence for us.
-+		 */
-+		acpi_device_fix_up_power(ACPI_COMPANION(dev));
-+
-+		/*
-+		 * Before the _PS0 call the int GPIO may have been in output
-+		 * mode and the call should have put the int GPIO in input mode,
-+		 * but the GPIO subsys cached state may still think it is
-+		 * in output mode, causing gpiochip_lock_as_irq() failure.
-+		 *
-+		 * Add a mapping for the int GPIO to make the
-+		 * gpiod_int = gpiod_get(..., GPIOD_IN) call succeed,
-+		 * which will explicitly set the direction to input.
-+		 */
-+		ts->irq_pin_access_method = IRQ_PIN_ACCESS_NONE;
-+		gpio_mapping = acpi_goodix_int_first_gpios;
- 	} else {
- 		dev_warn(dev, "Unexpected ACPI resources: gpio_count %d, gpio_int_idx %d\n",
- 			 ts->gpio_count, ts->gpio_int_idx);
+diff --git a/drivers/input/misc/powermate.c b/drivers/input/misc/powermate.c
+index e8de3aaf9f633..14f48e10f589e 100644
+--- a/drivers/input/misc/powermate.c
++++ b/drivers/input/misc/powermate.c
+@@ -424,6 +424,7 @@ static void powermate_disconnect(struct usb_interface *intf)
+ 		pm->requires_update = 0;
+ 		usb_kill_urb(pm->irq);
+ 		input_unregister_device(pm->input);
++		usb_kill_urb(pm->config);
+ 		usb_free_urb(pm->irq);
+ 		usb_free_urb(pm->config);
+ 		powermate_free_buffers(interface_to_usbdev(intf), pm);
 -- 
 2.40.1
 

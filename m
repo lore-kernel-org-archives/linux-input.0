@@ -2,88 +2,89 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 46193CDB482
-	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 15:45:59 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 830A4C46CA1
+	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 15:46:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231741AbjJRPp6 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Oct 2023 11:45:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53902 "EHLO
+        id S231767AbjJRPp7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Oct 2023 11:45:59 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345451AbjJROX4 (ORCPT
+        with ESMTP id S1345641AbjJROYJ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2023 10:23:56 -0400
+        Wed, 18 Oct 2023 10:24:09 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A08ED48;
-        Wed, 18 Oct 2023 07:15:45 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BA83C433CC;
-        Wed, 18 Oct 2023 14:15:43 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 901E74EF9;
+        Wed, 18 Oct 2023 07:16:32 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98611C433CA;
+        Wed, 18 Oct 2023 14:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697638545;
-        bh=vGpK+Pi7RyLYmOTT0dOXU/PSvCQL3AhVx2ZeABK+HqQ=;
+        s=k20201202; t=1697638591;
+        bh=WUYQ/WTkvAq4qgNfJHerqnwcH1dHHxTT21MXs/5QBLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXFTUqeqojWESFUaRCPjS0tmlvsfbLqnnPmV3cOXbYVUIkkTCde9zX2pHFTsknXJ4
-         tokmlCk5mYl2DngmJSIXr5+6UH/qiJ9jo4hayyvyz/ViN3wWQau/mgNq1Puf7OcY8A
-         netbWi4Omhn5oCjFfjrxrChWfqo0fvwGSIVWcPV9+q5HjTmhfsfjSHPITDz8AKNtgh
-         VsxkKgE1dnB3IN82FOx1XLtRj/iAx9VJfU73weS5XY8thQO6pxnZOIbjLMtnT5t/cb
-         afrgf1Ww/TuaedpWMNL7Pkz9m0ttoenRipDmJ/Tz5zX9z4kbIbgm8XswbyT50ZJ/tg
-         y+Vurr8iKRuwQ==
+        b=SVsCt1ssZDdireh4Uf5FaIoRMX2LnOaLSLPEJNSnunLA64jLkhDrE86rQj45xnqtD
+         EnA6iwQxIAf+emPKJ8pR5p9p8I42L3mpWkYHskdiTEbAtq/TzthFd/7jxeBWD588C4
+         c1IXVSeNbLiiM1jIjxQ+a0BhFa5fYiDSG+LaYtxSjc88oEV4c65Te6s8A7Z4EKLZPU
+         XxeenZ3EcwtFnrEPXdDpuxvLwTp0l54qIBbKL7vYGd5KctimbzRYgwngjgedEF4Qm6
+         AC5O4AG1cX5EIr/oD3ZvG2pixCnrg1FyK6iipZjYEIy/LjL55ci39hUi1q55ap5VuI
+         qFLK4p6z2s84A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Javier Carrasco <javier.carrasco.cruz@gmail.com>,
-        syzbot+0434ac83f907a1dbdd1e@syzkaller.appspotmail.com,
+Cc:     Matthias Berndt <matthias_berndt@gmx.de>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 7/7] Input: powermate - fix use-after-free in powermate_config_complete
-Date:   Wed, 18 Oct 2023 10:15:23 -0400
-Message-Id: <20231018141525.1335533-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, vi@endrift.com,
+        swyterzone@gmail.com, lyude@redhat.com, radon86dev@gmail.com,
+        maxwell.nguyen@hp.com, matthias.benkmann@gmail.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 6/7] Input: xpad - add PXN V900 support
+Date:   Wed, 18 Oct 2023 10:16:11 -0400
+Message-Id: <20231018141613.1335848-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231018141525.1335533-1-sashal@kernel.org>
-References: <20231018141525.1335533-1-sashal@kernel.org>
+In-Reply-To: <20231018141613.1335848-1-sashal@kernel.org>
+References: <20231018141613.1335848-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 5.4.258
+X-stable-base: Linux 4.14.327
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Javier Carrasco <javier.carrasco.cruz@gmail.com>
+From: Matthias Berndt <matthias_berndt@gmx.de>
 
-[ Upstream commit 5c15c60e7be615f05a45cd905093a54b11f461bc ]
+[ Upstream commit a65cd7ef5a864bdbbe037267c327786b7759d4c6 ]
 
-syzbot has found a use-after-free bug [1] in the powermate driver. This
-happens when the device is disconnected, which leads to a memory free from
-the powermate_device struct.  When an asynchronous control message
-completes after the kfree and its callback is invoked, the lock does not
-exist anymore and hence the bug.
+Add VID and PID to the xpad_device table to allow driver to use the PXN
+V900 steering wheel, which is XTYPE_XBOX360 compatible in xinput mode.
 
-Use usb_kill_urb() on pm->config to cancel any in-progress requests upon
-device disconnection.
-
-[1] https://syzkaller.appspot.com/bug?extid=0434ac83f907a1dbdd1e
-
-Signed-off-by: Javier Carrasco <javier.carrasco.cruz@gmail.com>
-Reported-by: syzbot+0434ac83f907a1dbdd1e@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20230916-topic-powermate_use_after_free-v3-1-64412b81a7a2@gmail.com
+Signed-off-by: Matthias Berndt <matthias_berndt@gmx.de>
+Link: https://lore.kernel.org/r/4932699.31r3eYUQgx@fedora
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/misc/powermate.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/joystick/xpad.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/input/misc/powermate.c b/drivers/input/misc/powermate.c
-index c4e0e1886061f..6b1b95d58e6b5 100644
---- a/drivers/input/misc/powermate.c
-+++ b/drivers/input/misc/powermate.c
-@@ -425,6 +425,7 @@ static void powermate_disconnect(struct usb_interface *intf)
- 		pm->requires_update = 0;
- 		usb_kill_urb(pm->irq);
- 		input_unregister_device(pm->input);
-+		usb_kill_urb(pm->config);
- 		usb_free_urb(pm->irq);
- 		usb_free_urb(pm->config);
- 		powermate_free_buffers(interface_to_usbdev(intf), pm);
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index 9f503c1e74b42..1dbe303354589 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -269,6 +269,7 @@ static const struct xpad_device {
+ 	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+ 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
++	{ 0x11ff, 0x0511, "PXN V900", 0, XTYPE_XBOX360 },
+ 	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
+@@ -463,6 +464,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
+ 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries Controllers */
+ 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
++	XPAD_XBOX360_VENDOR(0x11ff),		/* PXN V900 */
+ 	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
+ 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
+ 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
 -- 
 2.40.1
 

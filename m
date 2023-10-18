@@ -2,180 +2,88 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5BB07CDB482
-	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:18:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B38F2CDB482
+	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 14:18:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345263AbjJROSl (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Oct 2023 10:18:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47996 "EHLO
+        id S1345181AbjJROSt (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Oct 2023 10:18:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345095AbjJROSW (ORCPT
+        with ESMTP id S1345282AbjJROSZ (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2023 10:18:22 -0400
+        Wed, 18 Oct 2023 10:18:25 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730292D79;
-        Wed, 18 Oct 2023 07:14:07 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40D1CC433C8;
-        Wed, 18 Oct 2023 14:14:05 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27ABC1BFF;
+        Wed, 18 Oct 2023 07:15:22 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B3AC433AB;
+        Wed, 18 Oct 2023 14:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697638446;
-        bh=QRMomMXYSvpma+M+YAXkwauCJgg3K3DpiRvMbuoyInA=;
+        s=k20201202; t=1697638522;
+        bh=vGpK+Pi7RyLYmOTT0dOXU/PSvCQL3AhVx2ZeABK+HqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eupfZaJ78lC655JIQM9NPEiwTHS/AwzHZs5kaAlrlXFHnIyZwceaV9y4EYPWp1rpv
-         8gRFIsy0G47A69RIapkqwnA0bad9qrN3gZnGRcs6efVArbB03dLwo4CHSYfwN/PsTs
-         B25UXpFkUQdgniFcETCJMeN+LQ78+JJAmA/KlvfbvEVEG/wPK09RE14uU9uhVWWtYB
-         E6t+BkGTS9XanzRa6xfeHSjC1FscLGoU2AEOOZr2hnhFI1gT5L9tlfejl6QxspTNz0
-         c5bXDZEMYhbRUnWnNezmCryGe1QPnm5JYtFjblDyx/hKl0XMG5bVC3u/X9RcpJ6cfc
-         J9IERFLVRsx5A==
+        b=lBRJyh5ggVZy+mjLiB3NyWBJbrvA3Di+LbBd9k+pKr589slUklFKTNHljLdcaBa5h
+         xbbFgH5HLLYrrkNpMahfyfu3+acEkUMYSpB3X8NOoNfnIkm65HvT9vOaIWUcoBQLBR
+         J2Aybrn8dvF2SXwK1idhNv1SToe0GolqdPsfA/1muQXPDDyPNXASCp5Ys/Xa2uZKxL
+         PYbJLc5mZvv3t2DAW9OO5yhCaQQmJtgrMELZrdaQzuESuNl0Yl8UBcTgP2YvqfF/Q5
+         NR1RdNHPOkAyFQTGRFdyLoRxqe40hzywNgkYu3QHd/xpfU286eRm+WZrumnJPk37AA
+         4bKaiToDy9HOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jeffery Miller <jefferymiller@google.com>,
-        Sasha Levin <sashal@kernel.org>, rrangel@chromium.org,
-        u.kleine-koenig@pengutronix.de, Jonathan.Cameron@huawei.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 17/19] Input: synaptics-rmi4 - handle reset delay when using SMBus trsnsport
-Date:   Wed, 18 Oct 2023 10:13:19 -0400
-Message-Id: <20231018141323.1334898-17-sashal@kernel.org>
+Cc:     Javier Carrasco <javier.carrasco.cruz@gmail.com>,
+        syzbot+0434ac83f907a1dbdd1e@syzkaller.appspotmail.com,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 11/11] Input: powermate - fix use-after-free in powermate_config_complete
+Date:   Wed, 18 Oct 2023 10:14:53 -0400
+Message-Id: <20231018141455.1335353-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231018141323.1334898-1-sashal@kernel.org>
-References: <20231018141323.1334898-1-sashal@kernel.org>
+In-Reply-To: <20231018141455.1335353-1-sashal@kernel.org>
+References: <20231018141455.1335353-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.1.58
+X-stable-base: Linux 5.10.198
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Javier Carrasco <javier.carrasco.cruz@gmail.com>
 
-[ Upstream commit 5030b2fe6aab37fe42d14f31842ea38be7c55c57 ]
+[ Upstream commit 5c15c60e7be615f05a45cd905093a54b11f461bc ]
 
-Touch controllers need some time after receiving reset command for the
-firmware to finish re-initializing and be ready to respond to commands
-from the host. The driver already had handling for the post-reset delay
-for I2C and SPI transports, this change adds the handling to
-SMBus-connected devices.
+syzbot has found a use-after-free bug [1] in the powermate driver. This
+happens when the device is disconnected, which leads to a memory free from
+the powermate_device struct.  When an asynchronous control message
+completes after the kfree and its callback is invoked, the lock does not
+exist anymore and hence the bug.
 
-SMBus devices are peculiar because they implement legacy PS/2
-compatibility mode, so reset is actually issued by psmouse driver on the
-associated serio port, after which the control is passed to the RMI4
-driver with SMBus companion device.
+Use usb_kill_urb() on pm->config to cancel any in-progress requests upon
+device disconnection.
 
-Note that originally the delay was added to psmouse driver in
-92e24e0e57f7 ("Input: psmouse - add delay when deactivating for SMBus
-mode"), but that resulted in an unwanted delay in "fast" reconnect
-handler for the serio port, so it was decided to revert the patch and
-have the delay being handled in the RMI4 driver, similar to the other
-transports.
+[1] https://syzkaller.appspot.com/bug?extid=0434ac83f907a1dbdd1e
 
-Tested-by: Jeffery Miller <jefferymiller@google.com>
-Link: https://lore.kernel.org/r/ZR1yUFJ8a9Zt606N@penguin
+Signed-off-by: Javier Carrasco <javier.carrasco.cruz@gmail.com>
+Reported-by: syzbot+0434ac83f907a1dbdd1e@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20230916-topic-powermate_use_after_free-v3-1-64412b81a7a2@gmail.com
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/mouse/synaptics.c |  1 +
- drivers/input/rmi4/rmi_smbus.c  | 50 ++++++++++++++++++---------------
- 2 files changed, 29 insertions(+), 22 deletions(-)
+ drivers/input/misc/powermate.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/mouse/synaptics.c b/drivers/input/mouse/synaptics.c
-index fa021af8506e4..b38359b8c4b58 100644
---- a/drivers/input/mouse/synaptics.c
-+++ b/drivers/input/mouse/synaptics.c
-@@ -1752,6 +1752,7 @@ static int synaptics_create_intertouch(struct psmouse *psmouse,
- 		psmouse_matches_pnp_id(psmouse, topbuttonpad_pnp_ids) &&
- 		!SYN_CAP_EXT_BUTTONS_STICK(info->ext_cap_10);
- 	const struct rmi_device_platform_data pdata = {
-+		.reset_delay_ms = 30,
- 		.sensor_pdata = {
- 			.sensor_type = rmi_sensor_touchpad,
- 			.axis_align.flip_y = true,
-diff --git a/drivers/input/rmi4/rmi_smbus.c b/drivers/input/rmi4/rmi_smbus.c
-index c130468541b7d..7080c2ddbaf2b 100644
---- a/drivers/input/rmi4/rmi_smbus.c
-+++ b/drivers/input/rmi4/rmi_smbus.c
-@@ -235,12 +235,29 @@ static void rmi_smb_clear_state(struct rmi_smb_xport *rmi_smb)
- 
- static int rmi_smb_enable_smbus_mode(struct rmi_smb_xport *rmi_smb)
- {
--	int retval;
-+	struct i2c_client *client = rmi_smb->client;
-+	int smbus_version;
-+
-+	/*
-+	 * psmouse driver resets the controller, we only need to wait
-+	 * to give the firmware chance to fully reinitialize.
-+	 */
-+	if (rmi_smb->xport.pdata.reset_delay_ms)
-+		msleep(rmi_smb->xport.pdata.reset_delay_ms);
- 
- 	/* we need to get the smbus version to activate the touchpad */
--	retval = rmi_smb_get_version(rmi_smb);
--	if (retval < 0)
--		return retval;
-+	smbus_version = rmi_smb_get_version(rmi_smb);
-+	if (smbus_version < 0)
-+		return smbus_version;
-+
-+	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
-+		smbus_version);
-+
-+	if (smbus_version != 2 && smbus_version != 3) {
-+		dev_err(&client->dev, "Unrecognized SMB version %d\n",
-+				smbus_version);
-+		return -ENODEV;
-+	}
- 
- 	return 0;
- }
-@@ -253,11 +270,10 @@ static int rmi_smb_reset(struct rmi_transport_dev *xport, u16 reset_addr)
- 	rmi_smb_clear_state(rmi_smb);
- 
- 	/*
--	 * we do not call the actual reset command, it has to be handled in
--	 * PS/2 or there will be races between PS/2 and SMBus.
--	 * PS/2 should ensure that a psmouse_reset is called before
--	 * intializing the device and after it has been removed to be in a known
--	 * state.
-+	 * We do not call the actual reset command, it has to be handled in
-+	 * PS/2 or there will be races between PS/2 and SMBus. PS/2 should
-+	 * ensure that a psmouse_reset is called before initializing the
-+	 * device and after it has been removed to be in a known state.
- 	 */
- 	return rmi_smb_enable_smbus_mode(rmi_smb);
- }
-@@ -273,7 +289,6 @@ static int rmi_smb_probe(struct i2c_client *client,
- {
- 	struct rmi_device_platform_data *pdata = dev_get_platdata(&client->dev);
- 	struct rmi_smb_xport *rmi_smb;
--	int smbus_version;
- 	int error;
- 
- 	if (!pdata) {
-@@ -312,18 +327,9 @@ static int rmi_smb_probe(struct i2c_client *client,
- 	rmi_smb->xport.proto_name = "smb";
- 	rmi_smb->xport.ops = &rmi_smb_ops;
- 
--	smbus_version = rmi_smb_get_version(rmi_smb);
--	if (smbus_version < 0)
--		return smbus_version;
--
--	rmi_dbg(RMI_DEBUG_XPORT, &client->dev, "Smbus version is %d",
--		smbus_version);
--
--	if (smbus_version != 2 && smbus_version != 3) {
--		dev_err(&client->dev, "Unrecognized SMB version %d\n",
--				smbus_version);
--		return -ENODEV;
--	}
-+	error = rmi_smb_enable_smbus_mode(rmi_smb);
-+	if (error)
-+		return error;
- 
- 	i2c_set_clientdata(client, rmi_smb);
- 
+diff --git a/drivers/input/misc/powermate.c b/drivers/input/misc/powermate.c
+index c4e0e1886061f..6b1b95d58e6b5 100644
+--- a/drivers/input/misc/powermate.c
++++ b/drivers/input/misc/powermate.c
+@@ -425,6 +425,7 @@ static void powermate_disconnect(struct usb_interface *intf)
+ 		pm->requires_update = 0;
+ 		usb_kill_urb(pm->irq);
+ 		input_unregister_device(pm->input);
++		usb_kill_urb(pm->config);
+ 		usb_free_urb(pm->irq);
+ 		usb_free_urb(pm->config);
+ 		powermate_free_buffers(interface_to_usbdev(intf), pm);
 -- 
 2.40.1
 

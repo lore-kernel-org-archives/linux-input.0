@@ -2,42 +2,39 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 830A4C46CA1
-	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 15:46:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 890CACDB483
+	for <linux-input@archiver.kernel.org>; Wed, 18 Oct 2023 15:46:01 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231767AbjJRPp7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 18 Oct 2023 11:45:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54004 "EHLO
+        id S235105AbjJRPqA (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 18 Oct 2023 11:46:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345641AbjJROYJ (ORCPT
+        with ESMTP id S1345491AbjJROX7 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Wed, 18 Oct 2023 10:24:09 -0400
+        Wed, 18 Oct 2023 10:23:59 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 901E74EF9;
-        Wed, 18 Oct 2023 07:16:32 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98611C433CA;
-        Wed, 18 Oct 2023 14:16:30 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9E149E5;
+        Wed, 18 Oct 2023 07:16:20 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C49EC433AB;
+        Wed, 18 Oct 2023 14:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1697638591;
-        bh=WUYQ/WTkvAq4qgNfJHerqnwcH1dHHxTT21MXs/5QBLk=;
+        s=k20201202; t=1697638580;
+        bh=Dk1+LQnP+E06Ck6myLrdz4ZsGhgHAwmXGphr63baUqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SVsCt1ssZDdireh4Uf5FaIoRMX2LnOaLSLPEJNSnunLA64jLkhDrE86rQj45xnqtD
-         EnA6iwQxIAf+emPKJ8pR5p9p8I42L3mpWkYHskdiTEbAtq/TzthFd/7jxeBWD588C4
-         c1IXVSeNbLiiM1jIjxQ+a0BhFa5fYiDSG+LaYtxSjc88oEV4c65Te6s8A7Z4EKLZPU
-         XxeenZ3EcwtFnrEPXdDpuxvLwTp0l54qIBbKL7vYGd5KctimbzRYgwngjgedEF4Qm6
-         AC5O4AG1cX5EIr/oD3ZvG2pixCnrg1FyK6iipZjYEIy/LjL55ci39hUi1q55ap5VuI
-         qFLK4p6z2s84A==
+        b=p0bDhypb8kGD3GPug6mUG3PUz7OmAv85JUM6dQciNQ3FnICY80jvRmfvrmIUN5tfX
+         VxHtMA4x3N8kplvL5ShKFoGfXydxTE7f5PW2Xf5414f6XzSpYzSGOd7skUvGIXekAW
+         hWNlav7BWBVrtmY6KlRHbf1Sv8pbIK9aqTj2yqHu1G74nYfltIb3O1z/Aok7H730pL
+         yDHNCeJu6ghfCOIIwrhkWOF0X1zaf/1+izQoj7bcbu+np0HAj+M1JnanghyJjuCMPf
+         U2nTYNbHmoSiJfv2NM7Qt7f7uZKthPHRTagZE3N3DTEjOiUS5yoorGq9Ssxjf4r8bK
+         P9+OO3EtE26OQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matthias Berndt <matthias_berndt@gmx.de>,
+Cc:     Szilard Fabian <szfabian@bluemarch.art>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, vi@endrift.com,
-        swyterzone@gmail.com, lyude@redhat.com, radon86dev@gmail.com,
-        maxwell.nguyen@hp.com, matthias.benkmann@gmail.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 6/7] Input: xpad - add PXN V900 support
-Date:   Wed, 18 Oct 2023 10:16:11 -0400
-Message-Id: <20231018141613.1335848-6-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 2/7] Input: i8042 - add Fujitsu Lifebook E5411 to i8042 quirk table
+Date:   Wed, 18 Oct 2023 10:16:07 -0400
+Message-Id: <20231018141613.1335848-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
 In-Reply-To: <20231018141613.1335848-1-sashal@kernel.org>
 References: <20231018141613.1335848-1-sashal@kernel.org>
@@ -50,41 +47,50 @@ Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-From: Matthias Berndt <matthias_berndt@gmx.de>
+From: Szilard Fabian <szfabian@bluemarch.art>
 
-[ Upstream commit a65cd7ef5a864bdbbe037267c327786b7759d4c6 ]
+[ Upstream commit 80f39e1c27ba9e5a1ea7e68e21c569c9d8e46062 ]
 
-Add VID and PID to the xpad_device table to allow driver to use the PXN
-V900 steering wheel, which is XTYPE_XBOX360 compatible in xinput mode.
+In the initial boot stage the integrated keyboard of Fujitsu Lifebook E5411
+refuses to work and it's not possible to type for example a dm-crypt
+passphrase without the help of an external keyboard.
 
-Signed-off-by: Matthias Berndt <matthias_berndt@gmx.de>
-Link: https://lore.kernel.org/r/4932699.31r3eYUQgx@fedora
+i8042.nomux kernel parameter resolves this issue but using that a PS/2
+mouse is detected. This input device is unused even when the i2c-hid-acpi
+kernel module is blacklisted making the integrated ELAN touchpad
+(04F3:308A) not working at all.
+
+Since the integrated touchpad is managed by the i2c_designware input
+driver in the Linux kernel and you can't find a PS/2 mouse port on the
+computer I think it's safe to not use the PS/2 mouse port at all.
+
+Signed-off-by: Szilard Fabian <szfabian@bluemarch.art>
+Link: https://lore.kernel.org/r/20231004011749.101789-1-szfabian@bluemarch.art
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/joystick/xpad.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 9f503c1e74b42..1dbe303354589 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -269,6 +269,7 @@ static const struct xpad_device {
- 	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
- 	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
- 	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
-+	{ 0x11ff, 0x0511, "PXN V900", 0, XTYPE_XBOX360 },
- 	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
- 	{ 0x12ab, 0x0004, "Honey Bee Xbox360 dancepad", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
- 	{ 0x12ab, 0x0301, "PDP AFTERGLOW AX.1", 0, XTYPE_XBOX360 },
-@@ -463,6 +464,7 @@ static const struct usb_device_id xpad_table[] = {
- 	XPAD_XBOXONE_VENDOR(0x0f0d),		/* Hori Controllers */
- 	XPAD_XBOX360_VENDOR(0x1038),		/* SteelSeries Controllers */
- 	XPAD_XBOX360_VENDOR(0x11c9),		/* Nacon GC100XF */
-+	XPAD_XBOX360_VENDOR(0x11ff),		/* PXN V900 */
- 	XPAD_XBOX360_VENDOR(0x1209),		/* Ardwiino Controllers */
- 	XPAD_XBOX360_VENDOR(0x12ab),		/* X-Box 360 dance pads */
- 	XPAD_XBOX360_VENDOR(0x1430),		/* RedOctane X-Box 360 controllers */
+diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
+index c218e107c0c8f..064b20c914e45 100644
+--- a/drivers/input/serio/i8042-x86ia64io.h
++++ b/drivers/input/serio/i8042-x86ia64io.h
+@@ -174,6 +174,14 @@ static const struct dmi_system_id __initconst i8042_dmi_noloop_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "M606"),
+ 		},
+ 	},
++	{
++		/* Fujitsu Lifebook E5411 */
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "FUJITSU CLIENT COMPUTING LIMITED"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "LIFEBOOK E5411"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOAUX)
++	},
+ 	{
+ 		/* Gigabyte M912 */
+ 		.matches = {
 -- 
 2.40.1
 

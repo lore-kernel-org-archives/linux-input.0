@@ -2,62 +2,62 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D16BAC004C0
-	for <linux-input@archiver.kernel.org>; Mon, 23 Oct 2023 15:04:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CB2AC00A8F
+	for <linux-input@archiver.kernel.org>; Mon, 23 Oct 2023 15:04:03 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229498AbjJWPEB (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 23 Oct 2023 11:04:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44876 "EHLO
+        id S229833AbjJWPEC (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 23 Oct 2023 11:04:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231628AbjJWPD6 (ORCPT
+        with ESMTP id S231530AbjJWPD5 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 23 Oct 2023 11:03:58 -0400
-Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCBD2D79
-        for <linux-input@vger.kernel.org>; Mon, 23 Oct 2023 08:03:55 -0700 (PDT)
-Received: by mail-lj1-x230.google.com with SMTP id 38308e7fff4ca-2c50d1b9f22so45219981fa.0
-        for <linux-input@vger.kernel.org>; Mon, 23 Oct 2023 08:03:55 -0700 (PDT)
+        Mon, 23 Oct 2023 11:03:57 -0400
+Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FCC910E
+        for <linux-input@vger.kernel.org>; Mon, 23 Oct 2023 08:03:53 -0700 (PDT)
+Received: by mail-wm1-x336.google.com with SMTP id 5b1f17b1804b1-40790b0a224so26706765e9.0
+        for <linux-input@vger.kernel.org>; Mon, 23 Oct 2023 08:03:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1698073434; x=1698678234; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1698073432; x=1698678232; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=tid5p5CbwnFew1OoFmZZ3rTS9lA993ke+t72lpp1p7Y=;
-        b=Oyd9zGSJxa3DBMR/PFVU17TdcOyvbb+zHHRoVl4/an8vufXPinmAwR7mL9ej3V04kG
-         GAY0IDAahGSlrxO03ohrH0o+TerydIfhrW8hgefyizH/EExSx48Wh3YFQOH0DGnwBj3l
-         FWDHILzqBru678YNsdlJBMfW2zNGrdXx/KeCxt2BhRGuk/GBNONL2Y9d1d7iTlJY1EZw
-         nIZ38V+Hb0WN4UoDHgmSM9Z/3vxf7ID7z+9BeGAQX7EG4qppkMkH/hIo9dj/eEWOqO75
-         avC2Ev9O2f3gXNvBYQ/RU7l2I9JnedktnBw7kSg11NhODnGu1KkJFcIQaze8HLc2THE5
-         KMvA==
+        bh=31dDSPmTEwAk2xBEYscYsgGP3NvqtS1pbeFP7C1NdB4=;
+        b=ZOJLyB5IS+CDkk0RRTIsKXfEYMN0TUbjiPEmiIEZ0quOcfuzVDbOcZIJyXQWFi7lZg
+         4WAJsIFPeh+OHNzRwTbpFYusSPeG6NsDUbWhTpQ3MnVWR7kRT0uM1zN4QPz0suO8bnxK
+         TKTUMpiHd6UOThpTQ6hSwwtlEbqSjdyBtVEXIzRgzlQYOzZ2wzW6fUlDWmuiHtoN2zO1
+         KYsDblXuLGUV/mDeS1IxOU+pHTfu2Uaud75SJRuq4jh3y6GWZtE1kI3+/4u6cL4mbrfw
+         G9KyhfhEArNgW6vFBINZJgMLKzRCcb80EGSpOFsaQDZ8RTPIYx+2B7MqTT4iKiYp4Tli
+         S1GA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698073434; x=1698678234;
+        d=1e100.net; s=20230601; t=1698073432; x=1698678232;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tid5p5CbwnFew1OoFmZZ3rTS9lA993ke+t72lpp1p7Y=;
-        b=MK4ushVCG4C/Cx+fAIxK+j1zvTpgJ/5I1b84nJtuC26mnoHTkxeXu4MAq034uAMhVS
-         AuBLOH4VcjdBRjFxcVdr07gwQm2YgeItiMAZW7FstTocI1gGFJiG/qWZ9vmLJIgQki+U
-         RAX8CJihBHcxsUd040HhVIjvT3zJFVaZKVgygm662caGDy2UqjU5GFmFvIFJWTTQ4yjz
-         jZW6gFJOMCDYFFk5QBTiB2DUPMq37lmTfU/z5Spo98EBDc7/+eU3gDCIgYTSMPEBFvkj
-         BoXngDF11xRirjvkZphUoHPW2nRvhURGikG34fHbE9lvM8s3zv3wGMfmUJPdLeQN5yo8
-         YUcg==
-X-Gm-Message-State: AOJu0Yw4dqBSIgVsSJqU9oIdn2//AAdsKFf+5DIZDW4hhVLGBPfgXSKO
-        Oc8h6Zmyv2xYmGiSBZC31Q0J4Q==
-X-Google-Smtp-Source: AGHT+IFYipqnYVMc+dXRB8284ojY/kaYRgOeUGtLVaMAT6s3DVLfJpJqcGgWssNKNCISPjnH3WIt9A==
-X-Received: by 2002:a2e:8698:0:b0:2c4:feef:852 with SMTP id l24-20020a2e8698000000b002c4feef0852mr6337269lji.32.1698073433779;
-        Mon, 23 Oct 2023 08:03:53 -0700 (PDT)
+        bh=31dDSPmTEwAk2xBEYscYsgGP3NvqtS1pbeFP7C1NdB4=;
+        b=AFdDvw2ZbEcKbNm7KiuMhfVt3OkQuaB+Eak60QHoFqcS1F8ZgKWQLiDxfiPUJG3k9c
+         kK+bA8YdgPnzEoEb2Sjv3s0oOBeokwy2x6nyRdYg/bA+Lz+epU7lAyR+HOqomVGEZe+S
+         0XM/FCH3eneiIXhQB+EMUFyXG+LgiW5eJOkiLfUCxbIOWhcNCCN1tjgZXspMPxlI5HeR
+         ixQa7O12xz0fsodrs4gySDmZU/s1LU2t72sp+k5AVO6pJEXAsjOx2CrzwHTwPNthtAMg
+         sFpWEMjt8gLpzEsW3lLE1wRmLcGsCe7BxvmK32D6ppZTJH2n0Pt5vEQBPVKQd+HSeMsg
+         rHWA==
+X-Gm-Message-State: AOJu0YwYIxR7X/+0AfNKokx5/bRTmK6e2UMb2tS9upt9raNleG8fSZMD
+        GOhFvuSgxZi+Kl+wm4iePBVxqA==
+X-Google-Smtp-Source: AGHT+IFoKTeYTjY5gQs8xHa9uIZQTN2qXidov/tizbs1eJiwrNooEEHXMfyNYJ7mC/YTwNoghy6Umw==
+X-Received: by 2002:a05:600c:3147:b0:407:8e85:89ad with SMTP id h7-20020a05600c314700b004078e8589admr7109954wmo.14.1698073431528;
+        Mon, 23 Oct 2023 08:03:51 -0700 (PDT)
 Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:8261:5fff:fe11:bdda])
-        by smtp.gmail.com with ESMTPSA id b12-20020a05600c150c00b0040586360a36sm14235016wmg.17.2023.10.23.08.03.52
+        by smtp.gmail.com with ESMTPSA id b12-20020a05600c150c00b0040586360a36sm14235016wmg.17.2023.10.23.08.03.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Oct 2023 08:03:53 -0700 (PDT)
+        Mon, 23 Oct 2023 08:03:51 -0700 (PDT)
 From:   Neil Armstrong <neil.armstrong@linaro.org>
-Date:   Mon, 23 Oct 2023 17:03:47 +0200
-Subject: [PATCH v10 3/4] Input: goodix-berlin - add I2C support for Goodix
- Berlin Touchscreen IC
+Date:   Mon, 23 Oct 2023 17:03:45 +0200
+Subject: [PATCH v10 1/4] dt-bindings: input: document Goodix Berlin
+ Touchscreen IC
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20231023-topic-goodix-berlin-upstream-initial-v10-3-88eec2e51c0b@linaro.org>
+Message-Id: <20231023-topic-goodix-berlin-upstream-initial-v10-1-88eec2e51c0b@linaro.org>
 References: <20231023-topic-goodix-berlin-upstream-initial-v10-0-88eec2e51c0b@linaro.org>
 In-Reply-To: <20231023-topic-goodix-berlin-upstream-initial-v10-0-88eec2e51c0b@linaro.org>
 To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -70,165 +70,139 @@ Cc:     Rob Herring <robh+dt@kernel.org>,
         Henrik Rydberg <rydberg@bitmath.org>,
         Jeff LaBundy <jeff@labundy.com>, linux-arm-msm@vger.kernel.org,
         devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Neil Armstrong <neil.armstrong@linaro.org>
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Rob Herring <robh@kernel.org>
 X-Mailer: b4 0.12.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=4539;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3093;
  i=neil.armstrong@linaro.org; h=from:subject:message-id;
- bh=/29OxaflwzQer1E/gOu8Bz3LG+5phtsz3jcz094am9k=;
- b=owEBbQKS/ZANAwAKAXfc29rIyEnRAcsmYgBlNotUh6GD6N/wKjhsph9KLWVx8cc0ILFqr5Zo3VPL
- lrQ9ZaiJAjMEAAEKAB0WIQQ9U8YmyFYF/h30LIt33NvayMhJ0QUCZTaLVAAKCRB33NvayMhJ0bKxD/
- 92wk8POiJlNWDBc1WFHN4z3shorDsqvZEEp1vCUpq6yN3K8bTaTDGBSv/jfc6Kcvg1c5AJ18bV505S
- ZncYaU9P+fKH2dyhs1oGHJ6AwnHYDPpoNOpcxyZYlGsAZxdF9py+fcur6aR1E7/m19TjMSQGMeP1+4
- PXRuPoGXNbO3fpEnc65DAd9FHowXnOuaS1sXz3td0N7CTrbFJzf4uefaVVd3RvrUyQMsf12HZlnRAh
- vI17MOLDT39W5TT1y/WScHVC8x8p+wVvAxL8YeJHdrCDPStH1XS0TQ2M45WqhjydiPNkU/Q/BmoG2I
- s5Pv4UXkO5cg/QysmH2zKvR4pgU4CTvUE70jbn5143eSjiNziHioqsni1i15R8JChwjMJDyqasDKh2
- T1Z0Al8HN9bsiX2RKPT61gskhUPRpoCgHVFdCVgYXe2V8NBs5ULTpYaiiwkI7RPupQmfaLIpNDlswd
- cRIe63ciRRw7yEzmvYqY6FdoGEVZ9FevOYgzOBz7yXAIr0kl+s/SmcsxzayOezj+pwzA5EfV61mYsS
- IYJwXQbKnVhmrNPPblL/WYqmLDVGEK+cyhfqMQX4uJe1UjpoYVCehkR9ZFOy5BAzHe7qajPGZSOs9x
- JWb+Om6EqC+6CmLgqfrPVmlCH6ETRnEQ+kJnUSZftkrLCfxRkQUlijFSQFhw==
+ bh=sfk9uxvNPIwk9f8d5iBn9m2N4nTZgMQFpRmAil1gnVU=;
+ b=owEBbQKS/ZANAwAKAXfc29rIyEnRAcsmYgBlNotTUfBxk6lYA8BHRxiS2R3DFWaOLDk5tgLtPni1
+ V+n9kCWJAjMEAAEKAB0WIQQ9U8YmyFYF/h30LIt33NvayMhJ0QUCZTaLUwAKCRB33NvayMhJ0QiJD/
+ 9q0UhD+HwBx45nBCMA9kvAaDudYxnH0OJZfd5jGihfK6Thgu8vFo81ohHkfJZhCo8ylBGVvceQKhhc
+ KfvSiG+3x9UBjn3pOutB0VCn+VV/dpzwQmJDka1Sk4QR616lD3N+bOneZHSBnQ4hMAm6o83mS6L+k0
+ AJKz43CPRqLS026t9uUbjCjFitmMKagm/t2YgaMd2UgcDSyM0IbTaES3TkbMP5BdgUmMt5fZ+q6N/e
+ 7mrhap7gWmQU4m/gV9BvsWr7wLftIuX5dO+1YzkOx4dQp4XuyO/U1yHGXjhHmV0nvEkq+hGPZYDIMc
+ PZjNUdasWnbI/ZwRkT3HKPGiYDh9g6JxfnOis9855pLhNB8QocMbOUAxoefNsek1HUBOpQEY8p2X8y
+ zQIh3iY3prZD13jmwtyQKohAD6r6fy3GgRQ/0IP73F7+L7P89nEdDmgDGYSZsMyWcK27U7+1oOW5KB
+ uL/5bDb2Z4o/AP8biV2uYT3vEreWSsIndZ8jDiZPzyST+T9PCczH9bUjoxUWVjhaNLCamTxGDAgIvM
+ BNan21uduuzRLQq4T8AlWIOoiEJTERk5yYGfjNWivgTNYLnEZdQocBoiDiSv58kNxOl6opdz6ZYnCE
+ K2BIWEtt3fIYtjlCEyDLPcl/FcWHGMQLngG88Ej0ruiXcy/7/gCPoeu4DWQg==
 X-Developer-Key: i=neil.armstrong@linaro.org; a=openpgp;
  fpr=89EC3D058446217450F22848169AB7B1A4CFF8AE
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add initial support for the new Goodix "Berlin" touchscreen ICs
-over the I2C interface.
+Document the Goodix GT9916 wich is part of the "Berlin" serie
+of Touchscreen controllers IC from Goodix.
 
-This initial driver is derived from the Goodix goodix_ts_berlin
-available at [1] and [2] and only supports the GT9916 IC
-present on the Qualcomm SM8550 MTP & QRD touch panel.
-
-The current implementation only supports BerlinD, aka GT9916.
-
-[1] https://github.com/goodix/goodix_ts_berlin
-[2] https://git.codelinaro.org/clo/la/platform/vendor/opensource/touch-drivers
-
-Reviewed-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
 ---
- drivers/input/touchscreen/Kconfig             | 14 +++++
- drivers/input/touchscreen/Makefile            |  1 +
- drivers/input/touchscreen/goodix_berlin_i2c.c | 74 +++++++++++++++++++++++++++
- 3 files changed, 89 insertions(+)
+ .../bindings/input/touchscreen/goodix,gt9916.yaml  | 95 ++++++++++++++++++++++
+ 1 file changed, 95 insertions(+)
 
-diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
-index 950da599ae1a..cc7b88118158 100644
---- a/drivers/input/touchscreen/Kconfig
-+++ b/drivers/input/touchscreen/Kconfig
-@@ -419,6 +419,20 @@ config TOUCHSCREEN_GOODIX
- config TOUCHSCREEN_GOODIX_BERLIN_CORE
- 	tristate
- 
-+config TOUCHSCREEN_GOODIX_BERLIN_I2C
-+	tristate "Goodix Berlin I2C touchscreen"
-+	depends on I2C
-+	select REGMAP_I2C
-+	select TOUCHSCREEN_GOODIX_BERLIN_CORE
-+	help
-+	  Say Y here if you have a Goodix Berlin IC connected to
-+	  your system via I2C.
-+
-+	  If unsure, say N.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called goodix_berlin_i2c.
-+
- config TOUCHSCREEN_HIDEEP
- 	tristate "HiDeep Touch IC"
- 	depends on I2C
-diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
-index 2e2f3e70cd2c..7ef677cf7a10 100644
---- a/drivers/input/touchscreen/Makefile
-+++ b/drivers/input/touchscreen/Makefile
-@@ -48,6 +48,7 @@ obj-$(CONFIG_TOUCHSCREEN_EXC3000)	+= exc3000.o
- obj-$(CONFIG_TOUCHSCREEN_FUJITSU)	+= fujitsu_ts.o
- obj-$(CONFIG_TOUCHSCREEN_GOODIX)	+= goodix_ts.o
- obj-$(CONFIG_TOUCHSCREEN_GOODIX_BERLIN_CORE)	+= goodix_berlin_core.o
-+obj-$(CONFIG_TOUCHSCREEN_GOODIX_BERLIN_I2C)	+= goodix_berlin_i2c.o
- obj-$(CONFIG_TOUCHSCREEN_HIDEEP)	+= hideep.o
- obj-$(CONFIG_TOUCHSCREEN_HYNITRON_CSTXXX)	+= hynitron_cstxxx.o
- obj-$(CONFIG_TOUCHSCREEN_ILI210X)	+= ili210x.o
-diff --git a/drivers/input/touchscreen/goodix_berlin_i2c.c b/drivers/input/touchscreen/goodix_berlin_i2c.c
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9916.yaml b/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9916.yaml
 new file mode 100644
-index 000000000000..4d5bcc101569
+index 000000000000..d90f045ac06c
 --- /dev/null
-+++ b/drivers/input/touchscreen/goodix_berlin_i2c.c
-@@ -0,0 +1,74 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Goodix Berlin Touchscreen Driver
-+ *
-+ * Copyright (C) 2020 - 2021 Goodix, Inc.
-+ * Copyright (C) 2023 Linaro Ltd.
-+ *
-+ * Based on goodix_ts_berlin driver.
-+ */
-+#include <linux/i2c.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/regmap.h>
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix,gt9916.yaml
+@@ -0,0 +1,95 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/goodix,gt9916.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+#include "goodix_berlin.h"
++title: Goodix Berlin series touchscreen controller
 +
-+#define I2C_MAX_TRANSFER_SIZE		256
++description: The Goodix Berlin series of touchscreen controllers
++  be connected to either I2C or SPI buses.
 +
-+static const struct regmap_config goodix_berlin_i2c_regmap_conf = {
-+	.reg_bits = 32,
-+	.val_bits = 8,
-+	.max_raw_read = I2C_MAX_TRANSFER_SIZE,
-+	.max_raw_write = I2C_MAX_TRANSFER_SIZE,
-+};
++maintainers:
++  - Neil Armstrong <neil.armstrong@linaro.org>
 +
-+/* vendor & product left unassigned here, should probably be updated from fw info */
-+static const struct input_id goodix_berlin_i2c_input_id = {
-+	.bustype = BUS_I2C,
-+};
++allOf:
++  - $ref: touchscreen.yaml#
++  - $ref: /schemas/spi/spi-peripheral-props.yaml#
 +
-+static int goodix_berlin_i2c_probe(struct i2c_client *client)
-+{
-+	struct regmap *regmap;
-+	int error;
++properties:
++  compatible:
++    enum:
++      - goodix,gt9916
 +
-+	regmap = devm_regmap_init_i2c(client, &goodix_berlin_i2c_regmap_conf);
-+	if (IS_ERR(regmap))
-+		return PTR_ERR(regmap);
++  reg:
++    maxItems: 1
 +
-+	error = goodix_berlin_probe(&client->dev, client->irq,
-+				    &goodix_berlin_i2c_input_id, regmap);
-+	if (error)
-+		return error;
++  interrupts:
++    maxItems: 1
 +
-+	return 0;
-+}
++  reset-gpios:
++    maxItems: 1
 +
-+static const struct i2c_device_id goodix_berlin_i2c_id[] = {
-+	{ "gt9916", 0 },
-+	{ }
-+};
++  avdd-supply:
++    description: Analog power supply regulator on AVDD pin
 +
-+MODULE_DEVICE_TABLE(i2c, goodix_berlin_i2c_id);
++  vddio-supply:
++    description: power supply regulator on VDDIO pin
 +
-+static const struct of_device_id goodix_berlin_i2c_of_match[] = {
-+	{ .compatible = "goodix,gt9916", },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(of, goodix_berlin_i2c_of_match);
++  spi-max-frequency: true
++  touchscreen-inverted-x: true
++  touchscreen-inverted-y: true
++  touchscreen-size-x: true
++  touchscreen-size-y: true
++  touchscreen-swapped-x-y: true
 +
-+static struct i2c_driver goodix_berlin_i2c_driver = {
-+	.driver = {
-+		.name = "goodix-berlin-i2c",
-+		.of_match_table = goodix_berlin_i2c_of_match,
-+		.pm = pm_sleep_ptr(&goodix_berlin_pm_ops),
-+	},
-+	.probe = goodix_berlin_i2c_probe,
-+	.id_table = goodix_berlin_i2c_id,
-+};
-+module_i2c_driver(goodix_berlin_i2c_driver);
++additionalProperties: false
 +
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("Goodix Berlin I2C Touchscreen driver");
-+MODULE_AUTHOR("Neil Armstrong <neil.armstrong@linaro.org>");
++required:
++  - compatible
++  - reg
++  - interrupts
++  - avdd-supply
++  - touchscreen-size-x
++  - touchscreen-size-y
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      touchscreen@5d {
++        compatible = "goodix,gt9916";
++        reg = <0x5d>;
++        interrupt-parent = <&gpio>;
++        interrupts = <25 IRQ_TYPE_LEVEL_LOW>;
++        reset-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
++        avdd-supply = <&ts_avdd>;
++        touchscreen-size-x = <1024>;
++        touchscreen-size-y = <768>;
++      };
++    };
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/gpio/gpio.h>
++    spi {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      num-cs = <1>;
++      cs-gpios = <&gpio 2 GPIO_ACTIVE_HIGH>;
++      touchscreen@0 {
++        compatible = "goodix,gt9916";
++        reg = <0>;
++        interrupt-parent = <&gpio>;
++        interrupts = <25 IRQ_TYPE_LEVEL_LOW>;
++        reset-gpios = <&gpio1 1 GPIO_ACTIVE_LOW>;
++        avdd-supply = <&ts_avdd>;
++        spi-max-frequency = <1000000>;
++        touchscreen-size-x = <1024>;
++        touchscreen-size-y = <768>;
++      };
++    };
++
++...
 
 -- 
 2.34.1

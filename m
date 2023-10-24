@@ -2,151 +2,253 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B81DAC25B45
-	for <linux-input@archiver.kernel.org>; Mon, 23 Oct 2023 21:24:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9271C00A8F
+	for <linux-input@archiver.kernel.org>; Tue, 24 Oct 2023 00:29:08 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230374AbjJWVYx (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Mon, 23 Oct 2023 17:24:53 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53296 "EHLO
+        id S231656AbjJXA3I (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Mon, 23 Oct 2023 20:29:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229845AbjJWVYw (ORCPT
+        with ESMTP id S230284AbjJXA3H (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Mon, 23 Oct 2023 17:24:52 -0400
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2064.outbound.protection.outlook.com [40.107.92.64])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E95E8;
-        Mon, 23 Oct 2023 14:24:49 -0700 (PDT)
+        Mon, 23 Oct 2023 20:29:07 -0400
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2071.outbound.protection.outlook.com [40.107.95.71])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FCD52133;
+        Mon, 23 Oct 2023 17:28:40 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=DROzQqXfXKtJvmi9ScTdgSoqAZUvmfiKhgeAKZli2WkIQKLSHGq6neBfpkW/CMJmipYo7/dQy6z2fTegrWoZ7lIQci480PJPECFsGhN66PaQyAOhCZbFap/fQBFF8IzPBZNSMgN6KxrsIVr+EuDB8fKz4Xd4uif0BF9NXhaaIqQMnKYKT/FmWkg9NcDA6Vi2m7/DRvRzlHnwv8poR7JCbdyaONG8/61j2pXCPhzVnBFf+8IZhx0LyhPTiFeww5lATeFcFN4exSk9JzMdCRCXRZ26cJi6nYSZh8tjiSwdkpsOJ0BAP/5wDqVg6v4vej65M3LPke4yG6lO6/uvYVe/gg==
+ b=I9OoPHBeSxIvloEDjeyCiUeAS1xjm3uucRG2daQ5AW3yEKFmRZokl/1za0cp5GeJYhESCtfpTA1kMLsQlwV6MlmE2Zf3GjWc1GLolweIJ7YwU5lCWrVift+ySB8A9Tmc1I1rcokHydGqgquU5OUR7igxfEUZPinOevpXC5alLWF2i3rEtP2+1wezICdxqrLP6Y6p8hDQ3OgQXznutCZ5HSnncEC9s2yVMZUmj2uoKJoJR4F/dPrNUVmppT+MyGo+waJ8nxIJ1tXf4vna6nGqoJPBWR2dbYWpijWamac5jPppSVyuXq2NPzsydZ9Xkut8HDQcVag3Tm42WBccJb4lIw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=xjo69AYbvgkMUv/7Z7u3J7b2W9jtJHSbzu1Tsi9/774=;
- b=UbpqCmXtpvVtxqNFf53MsEJdoeUFcWdv8HmYe1mI4Mz00ZboUGndgCBYpb6oNvYxDg5xc4izqsKzPtVUmhvdaFl02VJMeM6AmKuHD3hxxWDdB3D+CthFpBOtJURBK3qpqcjO8VVcL9vSqRQlPImF+nB8A5fOVviGPa3cUUZ5N50RTvsdGHD5XhkgcFPlomBpACX2DC2rDt4gJrJ9yp7A8OkyjXumHIxR6OkD7Outs8ioWLynvdPM8D+0xXvS21F3e7w2+nsqHk+K2ihO7zSatmZRDwklCnf2CeKnW4FulRi11GxgDpvzjugTYTf9XD8CTumw19MN8Y9GGGtj78cyxQ==
+ bh=DhEryupyE4ELeYFogn8vypDD8D0FlP7jTxmfxLEq6Rc=;
+ b=YG5QJ6kKk4OJXwAGf/Gi3E7QKn/qc78awdDSqLYFa3grte4YuEUEdqYArBbCUyZj8LX8F58W3O2pvTjQdhy7DQFGsTc/uB/92nYB/njoCJYb2fPxyaVYczft9ANKzhFhi8FlXtMqqdyZWtaf6V7T4QfaFczY2kwDBmdml5xlXKouI+iTLRlBRMOJ03MQtxPnkJhz9KzsGXod5OuN2mRNyDXjBfLPrGTsoduIOFMpvFRrK+nylGcm0rHyittGZBMYv9LjMXM/+nexZtCla7eVtzikZ90RJhqQEWFt9Qa3YZ0O+8dXhkk2iXA62J5VKPKonJaAkHGR9aq3QyhPhbE96A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=labundy.com; dmarc=pass action=none header.from=labundy.com;
  dkim=pass header.d=labundy.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=NETORG5796793.onmicrosoft.com; s=selector1-NETORG5796793-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xjo69AYbvgkMUv/7Z7u3J7b2W9jtJHSbzu1Tsi9/774=;
- b=GONCJMSNYkuZ9UW+F6H1WrUJaVF1gvWfgTQjCHqbpl3rpXpL1JNIT9HVyN0gxGfBYjHWNdAIN0tpfhxZ3QMVIesq8RxU17ma0DE9uyHj/AnyMfxDKMFwPxkJxVg4/a5cbzBJqtXX69zssyapXzPWWyYorb2pBnTBj9Odyzsv3k8=
+ bh=DhEryupyE4ELeYFogn8vypDD8D0FlP7jTxmfxLEq6Rc=;
+ b=DodGk3iiL/YCdUpIIDjFVq0Y70wAoJyXopSnTpwprUrNarh4QOSOAcy1w7v3WCbRV5WV2oBn8AIvLExXNCKLsJDGxN8UBFjHIBn3ZDk9Gxlv3K840iYUxwovAUZLuNxmuqJJAHginaWalCDQ93/RS22O3pcSKicQlo1zq/OqNHI=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=labundy.com;
 Received: from SN4PR0801MB3774.namprd08.prod.outlook.com
- (2603:10b6:803:43::21) by SA2PR08MB6825.namprd08.prod.outlook.com
- (2603:10b6:806:fb::13) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6886.34; Mon, 23 Oct
- 2023 21:24:46 +0000
+ (2603:10b6:803:43::21) by LV8PR08MB9556.namprd08.prod.outlook.com
+ (2603:10b6:408:1fb::6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6907.26; Tue, 24 Oct
+ 2023 00:28:35 +0000
 Received: from SN4PR0801MB3774.namprd08.prod.outlook.com
  ([fe80::e73c:270b:75f7:5302]) by SN4PR0801MB3774.namprd08.prod.outlook.com
- ([fe80::e73c:270b:75f7:5302%4]) with mapi id 15.20.6907.032; Mon, 23 Oct 2023
- 21:24:46 +0000
-Date:   Mon, 23 Oct 2023 16:24:38 -0500
+ ([fe80::e73c:270b:75f7:5302%4]) with mapi id 15.20.6907.032; Tue, 24 Oct 2023
+ 00:28:34 +0000
+Date:   Mon, 23 Oct 2023 19:28:28 -0500
 From:   Jeff LaBundy <jeff@labundy.com>
-To:     Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas@t-8ch.de>
-Cc:     Anshul Dalal <anshulusr@gmail.com>, linux-input@vger.kernel.org,
-        devicetree@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+To:     Stephan Gerhold <stephan@gerhold.net>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>,
-        Thomas =?iso-8859-1?Q?Wei=DFschuh?= <linux@weissschuh.net>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        linux-kernel-mentees@lists.linuxfoundation.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 2/2] input: joystick: driver for Adafruit Seesaw
- Gamepad
-Message-ID: <ZTbklpRhpMIPey2j@nixie71>
-References: <20231017034356.1436677-1-anshulusr@gmail.com>
- <20231017034356.1436677-2-anshulusr@gmail.com>
- <ZTWza+S+t+UZKlwu@nixie71>
- <00d2fcbc-3fd8-477d-8df1-afec20b458b6@t-8ch.de>
-Content-Type: text/plain; charset=iso-8859-1
+        Henrik Rydberg <rydberg@bitmath.org>,
+        linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Jonathan Albrieux <jonathan.albrieux@gmail.com>
+Subject: Re: [PATCH v2 2/2] Input: add Himax HX852x(ES) touchscreen driver
+Message-ID: <ZTcPrC+0K1unNPIv@nixie71>
+References: <20230930-hx852x-v2-0-c5821947b225@gerhold.net>
+ <20230930-hx852x-v2-2-c5821947b225@gerhold.net>
+ <ZTVoiklUJaDn5576@nixie71>
+ <ZTVuqW7oU5BmPzTS@gerhold.net>
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <00d2fcbc-3fd8-477d-8df1-afec20b458b6@t-8ch.de>
-X-ClientProxiedBy: DS7PR03CA0252.namprd03.prod.outlook.com
- (2603:10b6:5:3b3::17) To SN4PR0801MB3774.namprd08.prod.outlook.com
+In-Reply-To: <ZTVuqW7oU5BmPzTS@gerhold.net>
+X-ClientProxiedBy: DS7PR05CA0063.namprd05.prod.outlook.com
+ (2603:10b6:8:57::19) To SN4PR0801MB3774.namprd08.prod.outlook.com
  (2603:10b6:803:43::21)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN4PR0801MB3774:EE_|SA2PR08MB6825:EE_
-X-MS-Office365-Filtering-Correlation-Id: bb0d83dd-d803-4d23-598f-08dbd40e7af6
+X-MS-TrafficTypeDiagnostic: SN4PR0801MB3774:EE_|LV8PR08MB9556:EE_
+X-MS-Office365-Filtering-Correlation-Id: ddaac6c0-948c-4e48-3d1c-08dbd4282868
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: dV0d5w/QmzhrnvJsbv8x6/uoQOyg0BNul+2OBdCXCu0jpVENqzhEs+Lh3mu0HyRSXqf6nGmTr404/Kveb0GcXsl7Mddk/cDbUP2+QMiwfHLM7qDIMFcp83047/wwjTSmpf+LPbYMPsL5ZaX67QrNwHg6N9byxWTTh/z38Wdf4ACF7XaWG+Iw2LllH0k8ozK8FRlifd6U5BHv3b7CvpdThO9OldkqYHZ9DBd0zc8RrzchKvivvWsz25Y8+yxcKW1rzxiwAVlwUp9obl4p6X2hGtxeiOBqwYLyq694CXSep1uDzxNMuF19VrNOhch1lzfJrXgQeAxlJuI1M9ok/GNZagff0BPTXZKKpPDLo7Gj+TKuFYVKuIoPGgNAK2VdBELqZgRZSS5trd6c/sE5KoaZ+YhVSyQTe3xGeiQTTX/NFx6gsutTtjwScMTsOwa1oAkDv38s4SjSfiITtvQNYa5sOWJtVMrjm214bbX3Xyxwn5j1sHxyuLtfGbMcjBKenkqzsyn1SVs5VF2HWVNfKQQ1VaK9nZPP3waTgk3EZK59ZFkBgBl6I6/jPsixzN5hVAZP
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0801MB3774.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7916004)(39830400003)(346002)(396003)(366004)(376002)(136003)(230922051799003)(186009)(1800799009)(64100799003)(451199024)(9686003)(83380400001)(26005)(4744005)(316002)(6486002)(7416002)(6916009)(8936002)(478600001)(8676002)(41300700001)(66946007)(2906002)(4326008)(38100700002)(66476007)(5660300002)(6512007)(66574015)(54906003)(6666004)(6506007)(66556008)(33716001)(86362001);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: lBE48UP9z+D1LMqmBXII0/CWtAphGv/tVlkJkNmCYp691Tdpy9ul8arajxnROuGhsghUt5DnkAPpPyezFyBnXj8Ah26WzDWavWRdNAQJTzQIiV38fVAfSeA/EOo3D7Zejl55U0vcREJFKVxeXcVPttJ10lMQAJNYBpP5/O0I9xamotFX4UbDlkkCxUblUM8zKoeu3sFBFfPxLBJ8y7XSrlr3jBmewgAwn1r+y5ceLiyLSIAPorlGvCDQuqLVmuotvVw7oPf2JWbNWOsagpNnVEPEsQNzm0ATnvMGrFw32E37XAvcTLaay7mIrBC2Tsd2AagpUROsTZSC8d56q20BK0w0ZwIEE+3J2Z031v78X9krR5PfMtDLx6BESIDnQEQOhmYVr+aQ9v+ubkPnDzabBBFHzeSQ0PELF+GbxQgWmzdNnlzxnFQA3k5fFvDrJC5Vy8Nlq/dxEMz7g8ANtx7u4JYmTrjG+CUwUCu+lj2w0rwDU1XM61ONao2YOUocJnd++3Txk/psjrWzg8yT//t3V4p7qnFqICvZ3WDC+jqTZnBPO+rtqHQXKns2lSkkj4SBzS3CQva21Xing2la2yO4XtcYxg5sBNV8hQCw+jHJQH0=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SN4PR0801MB3774.namprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(7916004)(136003)(396003)(346002)(39830400003)(366004)(376002)(230922051799003)(451199024)(64100799003)(1800799009)(186009)(6916009)(2906002)(5660300002)(7416002)(8936002)(4326008)(8676002)(66476007)(66556008)(41300700001)(66946007)(86362001)(54906003)(33716001)(6506007)(6486002)(478600001)(6512007)(6666004)(9686003)(26005)(316002)(38100700002)(83380400001)(67856001);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?iso-8859-1?Q?B1w05ouDFUd5ChwCGM+lU/3nfSguebna4esxvJp7A4VIROsrzPxI4Z+9j2?=
- =?iso-8859-1?Q?ciyFTVtzz2/kb3uU+smvdiIOEp3NGL5VMEpWXPhrwyZdkGsnu6Ieh2wspt?=
- =?iso-8859-1?Q?q3v32R3TvT7Z3SIuHA/E6aHu94HPEzdStJYLlKOfg1pna35ybZY+hOoUMm?=
- =?iso-8859-1?Q?9d0drEhsiwGP66SjQ5VF1b02k4kBGhYawWdVE78W1uDISOFh3azPKs9241?=
- =?iso-8859-1?Q?9qJVXBBLV4gsmzrN2TzzkPtVUIs6Wgd5i49qpYOER4RYBdC+JKJHFCRG33?=
- =?iso-8859-1?Q?hBF8zd5SOant6djaN3JjhPk50GdPxvQ07O8jVFYE9d5Upfl/dBcXs4HnD5?=
- =?iso-8859-1?Q?nQl3wKbKcxI/lJIR2jLywXDLBbQmIcEiV+eg+WeL98V4p6Ftzm/YGI+nHC?=
- =?iso-8859-1?Q?TRfqImsG8NrHiEtTHgMX40sVAg4UwNrsD9yXu44ZdhcdDlmlResSSp9Pk2?=
- =?iso-8859-1?Q?L7iQ0+V+2Uy5zQc0hi7IwfnxdU19nw1kPdeTmFB3oCNdEEf/MJoVr1jWZa?=
- =?iso-8859-1?Q?2CilQagPxp9S2D5tko7g494Qzl3E7iS95Saelc9Hhb7HV7kIzWCTydzhq6?=
- =?iso-8859-1?Q?lFU08wJMs/swDz02KPzsIoj0k00Bf01f3HlnLCTnvhZUr0muSMLLCD7EL9?=
- =?iso-8859-1?Q?JCrvgsi8eVzpyHSXqIEAWskL4Mg8inyVNgXb+TpMq7jHqfqdI57CwTwMzo?=
- =?iso-8859-1?Q?Xcb1b0w1GL2x67ZgkkNJ6KB/fyxWAOz8tdAYjWH/onfg27RcuArZMXKQPk?=
- =?iso-8859-1?Q?IwkWDRdLfMX4Wb2Gd5t/FJcTPpMBcJxo3JUyGp8KuQMOR/QJ5OkpcSdqan?=
- =?iso-8859-1?Q?P7z693EoxAzVMMEVKJmrQn7xpbcZ9ro+tymm8hCx/7N9JMP0EkZruL/ncr?=
- =?iso-8859-1?Q?5cdGONwFWqZXi1892xNSkYh67NpXZHTYgFM1piKid+x5AWsEahkWgSKovE?=
- =?iso-8859-1?Q?sWSKNiRhdKYbC/VB1uYQ4JvuaFlwigQq7+p6/mGmScRr1+U9K5baDWRNVa?=
- =?iso-8859-1?Q?8ogYe1y33WbUNDkOrH48lC8OL6Z1K3ianSFQWRlJ7/Nl/vGxjrdS1Ycx/k?=
- =?iso-8859-1?Q?OujMqnNE3jmXWhbdc5WK4tLhMAYVNgOkmsRNXzDge95BEsC2xm9UAKiugW?=
- =?iso-8859-1?Q?5D/f6s2kyFD/4nTYt3i98waeNck8MTKsIzISdP3Yih4QT1WY4QZhagmD4G?=
- =?iso-8859-1?Q?Fbh7Y15lVRoZyGfe1lRP5TcnvwiVz3+QvASPihRxuQB4Du541eSgVNwJeS?=
- =?iso-8859-1?Q?tewXg9hzUYfd979QvUYLs2ZDXsh3YIgM2TIdwDjfVlc1FPCEGen7SS1K/K?=
- =?iso-8859-1?Q?zqo8zqvRbpp8i4bGYUFttxedGi6bTODfSqvLLuG/xx5fKlQF2/glW7MXMu?=
- =?iso-8859-1?Q?zm2bUM7AFq451C6I4CqFYlYkxatzLxXSt/8eNuWqMbl7fmpr994oNucgLO?=
- =?iso-8859-1?Q?LQN5/FLBFE3kLKbstFu84Pyo/nQqtKbGrp0vN5IknxHU+jdZUvtXRM7bW1?=
- =?iso-8859-1?Q?cTFTt+4uAuL1RSNIGHU2eBPxsGH+7lQz1sAU/dAk8yTKJB0gOwIzoVmUoa?=
- =?iso-8859-1?Q?iNq27v5PH9vyE/1d90pV/FWISB0my4yDbepng1N5ZRF0dwGBG68EK+PovO?=
- =?iso-8859-1?Q?0BUAL09NZ6NXY+KsAhXEv2C03T0Iy3QDE2?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?dGUu2+nAphGCY0TliGciEeNwergSZHvZZIHBHD1lUYBb9c2EzkiPbh8hPfu/?=
+ =?us-ascii?Q?U5i5jog6TKkDg/8Xzzu86MpIsLOwsY7vzGOtx0UYlic81vEQtCKyQLtX3aoz?=
+ =?us-ascii?Q?JbXCO5vn7rZIvYrZGQnTuK5Xm7mGtgvzl1gQ0FBsye4dja1iQsZt1Ty1Owfh?=
+ =?us-ascii?Q?q04YE4qcDVodaCTw7Fl9QTZvMUc6ggJT7+Tt9Y/HICXKHvD+wWyenzT3ibXs?=
+ =?us-ascii?Q?0lEnS4NNaS+6lwt5kdXMRi2XRT8oiGGKhDxOQg3nF8RMdpPzdcY3D1sXRG25?=
+ =?us-ascii?Q?d5l/TNPpcG25U4iQuTWWKyg4L/aj7wCfAHyd1AL++Y1CyUkUHIY6YmvDw2ii?=
+ =?us-ascii?Q?MO2JM4QehIx+yJwdsROyWRQKxwzN4nDmO5/gnal9s3hSFPXczzBxTePfkrUp?=
+ =?us-ascii?Q?CyJWxGL+/br3UgVCbD8AcUq8QVwz9J9KaYGvo5jemO6R+LxcG6oIJoKths2x?=
+ =?us-ascii?Q?94W9Rr38zo5jazkcBoqK2YA9K6/lkdXH3DITk1FPGJi7X7q4r5kpfP60fi2Y?=
+ =?us-ascii?Q?lTZGosrvEKBuwvjHSCHjzE3hQpDNfq52GN9/EV2c/xdNPXlZb2B9DRBiRcZV?=
+ =?us-ascii?Q?jtdI9DnHpyZ6ibVmeXR/x0xjZn9Pk2Z4zyFRBvc3KBeJ6ymzZ4wyNz5MY1XM?=
+ =?us-ascii?Q?MOpK7UaCRZyJ55hsDj09Ma0UG02iwdoMk4H2G+eHrY/JL9Wc8da8W03C+v3T?=
+ =?us-ascii?Q?0Goz168gkZM5dcnc9ZDoPK8fH37ARmihBtALUKNVci7Klq1Pf7aDVcNllqmp?=
+ =?us-ascii?Q?nnjlV6wk5zjrgbiSZeJ8x3qAuxrq5ETdSMzTENtfi7ocVPdGPORLHtvnJ/SA?=
+ =?us-ascii?Q?Fc8ZUxK1dtiWl8hyPQlZ6yXph/249eKdYDDjBJLbNmNymzGYVXb6ZjeDHi0u?=
+ =?us-ascii?Q?EorJptL/6OvtUbCY5XYg416GyZx2kiQSkiEUSLLJjIwXkp3KuXHWIPEdAnUn?=
+ =?us-ascii?Q?B0dxSr+KiVbs23KU/r9ZnQChhX1LWy1zRnkaL9PRgscy/7fWnVmd65WErPAU?=
+ =?us-ascii?Q?n7ckdwQM9/s31F4haDzcGo+mP/Hl4iJLPtft3NY0Q1LeQM1yIylGOU/0ym0Q?=
+ =?us-ascii?Q?A86Z8VMJ/hA9enFbErKd1qpHQk+3PVY2FJlXubxNKaUFFXNEtfdRfUnneuc8?=
+ =?us-ascii?Q?x6GPZMIvVTqcOTWfieknPgNxx27C3Enge8Q9AgQAmAcAREx2w5//ZVTHDW56?=
+ =?us-ascii?Q?K5f8D8O/aGZYs6bj5VXhERQIdcK4KZmtWRVFgrtqPwxXyiCoTg6xJBhAZMvT?=
+ =?us-ascii?Q?00TLuGtNHztAj/5YWCaGu04MK9IZ4ws2lnOYe/ThE33cM0GSu5V3UeiQUlIA?=
+ =?us-ascii?Q?Sg9C3zcf9YiYkTMRVH7aBLJDC+7ezo5YKUczpK4MsALWCD2GidYo8aGNMpkG?=
+ =?us-ascii?Q?/hkhI2TR3N6WzchQJCmbpYMCJNxn74biaCoCWXKArscSUg+IpgIEWfzO/7wa?=
+ =?us-ascii?Q?DuC9xrMMO5yEyf5ANkJpSEUfOg3AqU+5nKGDwOQ9uxw4EcRlE66rx/xIa4SL?=
+ =?us-ascii?Q?cgIEwOly4y396z+SaFHOx5QOgVTojoizhQW4cnLDiLTcyimWxeGBL/4VghRc?=
+ =?us-ascii?Q?fStvtdgdTvfeaGGXcPWjwpdGaLxlYbv6mbGeK1o5?=
 X-OriginatorOrg: labundy.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bb0d83dd-d803-4d23-598f-08dbd40e7af6
+X-MS-Exchange-CrossTenant-Network-Message-Id: ddaac6c0-948c-4e48-3d1c-08dbd4282868
 X-MS-Exchange-CrossTenant-AuthSource: SN4PR0801MB3774.namprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Oct 2023 21:24:46.2777
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Oct 2023 00:28:34.7482
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 00b69d09-acab-4585-aca7-8fb7c6323e6f
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ln+7meh0rOgDU9it9j0RiqYcmgH6Zzc7TKw9jvBvCd7ZEDyrsU3QSw+9ATvUFkbZgglIrWhQFcrIjBoVn1IDvg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA2PR08MB6825
+X-MS-Exchange-CrossTenant-UserPrincipalName: XwKI6NOPfZGkpk1Av4oWR0meiKf3UMXtwD/K3zGRGbBs8IP5gV52t1ETOTpM7yZ/XD1l2ibGl77aF+nJhc/HZw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR08MB9556
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi Thomas,
+Hi Stephan,
 
-On Mon, Oct 23, 2023 at 07:55:52AM +0200, Thomas Weißschuh  wrote:
-
-[...]
-
-> >> +   err = i2c_master_send(client, write_buf, sizeof(write_buf));
-> >> +   if (err < 0)
-> >> +       return err;
-> >
-> > You correctly return err (or rather, ret) for negative values, but you should also
-> > check that ret matches the size of the data sent. For 0 <= ret < sizeof(writebuf),
-> > return -EIO.
+On Sun, Oct 22, 2023 at 08:49:13PM +0200, Stephan Gerhold wrote:
+> > > +static int hx852x_read_config(struct hx852x *hx)
+> > > +{
+> > > +	struct device *dev = &hx->client->dev;
+> > > +	struct hx852x_config conf;
+> > > +	int x_res, y_res;
+> > > +	int error;
+> > > +
+> > > +	error = hx852x_power_on(hx);
+> > > +	if (error)
+> > > +		return error;
+> > > +
+> > > +	/* Sensing must be turned on briefly to load the config */
+> > > +	error = hx852x_start(hx);
+> > > +	if (error)
+> > > +		goto err_power_off;
+> > > +
+> > > +	error = hx852x_stop(hx);
+> > > +	if (error)
+> > > +		goto err_power_off;
+> > > +
+> > > +	error = i2c_smbus_write_byte_data(hx->client, HX852X_REG_SRAM_SWITCH,
+> > > +					  HX852X_SRAM_SWITCH_TEST_MODE);
+> > > +	if (error)
+> > > +		goto err_power_off;
+> > > +
+> > > +	error = i2c_smbus_write_word_data(hx->client, HX852X_REG_SRAM_ADDR,
+> > > +					  HX852X_SRAM_ADDR_CONFIG);
+> > > +	if (error)
+> > > +		goto err_test_mode;
+> > > +
+> > > +	error = hx852x_i2c_read(hx, HX852X_REG_FLASH_RPLACE, &conf, sizeof(conf));
+> > > +	if (error)
+> > > +		goto err_test_mode;
+> > > +
+> > > +	x_res = be16_to_cpu(conf.x_res);
+> > > +	y_res = be16_to_cpu(conf.y_res);
+> > > +	hx->max_fingers = (conf.max_pt & 0xf0) >> 4;
+> > > +	dev_dbg(dev, "x res: %u, y res: %u, max fingers: %u\n",
+> > > +		x_res, y_res, hx->max_fingers);
+> > > +
+> > > +	if (hx->max_fingers > HX852X_MAX_FINGERS) {
+> > > +		dev_err(dev, "max supported fingers: %u, found: %u\n",
+> > > +			HX852X_MAX_FINGERS, hx->max_fingers);
+> > > +		error = -EINVAL;
+> > > +		goto err_test_mode;
+> > > +	}
+> > > +
+> > > +	if (x_res && y_res) {
+> > > +		input_set_abs_params(hx->input_dev, ABS_MT_POSITION_X, 0, x_res - 1, 0, 0);
+> > > +		input_set_abs_params(hx->input_dev, ABS_MT_POSITION_Y, 0, y_res - 1, 0, 0);
+> > > +	}
+> > > +
+> > > +	error = i2c_smbus_write_byte_data(hx->client, HX852X_REG_SRAM_SWITCH, 0);
+> > > +	if (error)
+> > > +		goto err_power_off;
+> > > +
+> > > +	return hx852x_power_off(hx);
+> > > +
+> > > +err_test_mode:
+> > > +	i2c_smbus_write_byte_data(hx->client, HX852X_REG_SRAM_SWITCH, 0);
+> > > +err_power_off:
+> > > +	hx852x_power_off(hx);
+> > > +	return error;
+> > 
+> > Your new version is an improvement, but maybe we can remove duplicate
+> > code by introducing some helper variables:
+> > 
+> > 	int error, error2 = 0, error3;
+> > 
+> > 	/* ... */
+> > 
+> > err_test_mode:
+> > 	error2 = i2c_smbus_write_byte_data(...);
+> > 
+> > err_power_off:
+> > 	error3 = hx852x_power_off(...);
+> > 
+> > 	if (error)
+> > 		return error;
+> > 
+> > 	return error2 ? : error3;
+> > 
+> > In this case we achieve our goal of attempting to return the device to a
+> > safe state in both passing and failing cases. In the event of multiple
+> > errors, we return the first to occur.
+> > 
 > 
-> The driver did this originally.
-> I then requested it to be removed as this case
-> can never happen.
-> i2c_master_send will either return size of(writebuf) or an error.
+> Right, this would work as well. Personally I think my solution is
+> slightly easier to read though. In your version my eyes somewhat
+> "stumble" over the multiple "error" variables and then about the purpose
+> of the "? : " construction. This is probably highly subjective. :-)
 
-Great catch; indeed you are correct. Apologies for having missed this
-in the change log; this is good to know in the future.
+Agreed, my suggestion is a bit unwieldy, and prone to uninitialized
+variable bugs. However, I feel that duplicate code, especially side
+by side like this, is also confusing and prone to bugs in case the
+sequence must be updated in the future. As a compromise, how about
+something closer to my first idea:
 
-That being said, it's a moot point IMO; this driver seems like a good
-candidate for regmap. If regmap cannot be made to work here for some
-reason, then I'd like to at least see some wrapper functions to avoid
-duplicate code and manual assignments to a buffer.
+err_test_mode:
+	error = i2c_smbus_write_byte_data(...) ? : error;
+
+err_power_off:
+	return hx852x_power_off(...) ? : error;
+
+This is nice and compact, and ensures that errors returned by the two
+functions are reported no matter the flow. The only functional change
+is that the _last_ error takes priority; but in practice this does not
+really matter. Normally if one I2C write fails, all subsequent writes
+will fail with the same return code until the hardware is recovered
+somehow.
+
+For the corner case where the code jumps to exit_test_mode with error
+equal to -EINVAL, and i2c_smbus_write_byte_data() then fails and changes
+error to something like -EIO, I don't think we care. After the HW issue
+is fixed and all I2C writes succeed, the developer will then see that
+the number of contacts reported by the FW is invalid anyway :)
+
+Side note: the '? :' syntax is just a shortcut that sets error equal
+to the return value of i2c_smbus_write_byte_data() if true (failure)
+without having to declare a temporary variable. If false (no failure),
+error is assigned to itself. It is perfectly legal.
+
+> Do you mind if keep this as-is? I don't have a strong opinion about
+> this, but a slight preference for my current solution.
+
+I think any of these three solutions gets the job done; please choose
+the one you feel is easiest to read and maintain.
+
+> > > +}
 
 Kind regards,
 Jeff LaBundy

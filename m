@@ -2,97 +2,97 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8289DC25B6E
-	for <linux-input@archiver.kernel.org>; Fri, 27 Oct 2023 12:18:36 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0ED1C25B48
+	for <linux-input@archiver.kernel.org>; Fri, 27 Oct 2023 19:59:26 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345599AbjJ0MSg (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Fri, 27 Oct 2023 08:18:36 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54140 "EHLO
+        id S232516AbjJ0T71 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Fri, 27 Oct 2023 15:59:27 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345818AbjJ0MSf (ORCPT
+        with ESMTP id S230451AbjJ0T70 (ORCPT
         <rfc822;linux-input@vger.kernel.org>);
-        Fri, 27 Oct 2023 08:18:35 -0400
-Received: from mail-lj1-x236.google.com (mail-lj1-x236.google.com [IPv6:2a00:1450:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C6441A1
-        for <linux-input@vger.kernel.org>; Fri, 27 Oct 2023 05:18:33 -0700 (PDT)
-Received: by mail-lj1-x236.google.com with SMTP id 38308e7fff4ca-2c50906f941so30097741fa.2
-        for <linux-input@vger.kernel.org>; Fri, 27 Oct 2023 05:18:33 -0700 (PDT)
+        Fri, 27 Oct 2023 15:59:26 -0400
+Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CECE128;
+        Fri, 27 Oct 2023 12:59:24 -0700 (PDT)
+Received: by mail-pl1-x62c.google.com with SMTP id d9443c01a7336-1cc20df5187so7285835ad.0;
+        Fri, 27 Oct 2023 12:59:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1698409112; x=1699013912; darn=vger.kernel.org;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=QpUWJTFpNjZIZmlXASTkiTbyMnR1l2jQNO9OKE0q/GM=;
-        b=pE6+grLQaaewtp632izCFvBX+dXcwDo7OtL2ItcZZjGSGNb7RvQGXf6/e3wMOHLMVK
-         po5ElzvZshbpk9gZJAmOFowWHMSi2s28Txvp4W4kC/zBQsA5SsPSdTC4eUOJDr01yXUA
-         qWUO2dWVXSAZEOLL5jp82weY094cv0HgYO3itkcBHt0SapryzPlzaYNG0rx97qwA7o4U
-         Pi+E1xR/1m6ZtXLCb0NqsN805AZ7UjXP64CULje2+KJhArmL5qH4/v4rR6+b7yZ4EiOD
-         VbS2HMi55rGnSjpWmv9i208mF7lbJJIwwDJfjIzqTb9GlpTWxINRuHxl8P35Qr0T2oM4
-         zw4A==
+        d=gmail.com; s=20230601; t=1698436764; x=1699041564; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=KneZwXZt1ATJDMlMDwMn/YFujpabk3NR7EB4uunod74=;
+        b=B+NgXBE/UmFtoz4OvrDZss41bcj2WoCGNmlgSOgxP6Q+z4pH8azQChIewagNTE/aZ4
+         mOkK3hVkLTs/LbaqX3TrKFkg6NW1KgYgu9za2Ea01Bb8U2+5PdWswptzlp+YnkwK8Zhb
+         AriB6la7TcDcyiVUZe3hietzugL/Zl1oaGOfqEZS1+eYd1PWDovJ9ZqOwYlloeEcb51C
+         KmpcXPvp15EWUKUW6mVQh2Vzpri2VaoegA7CrFFz4ByMm6PpJ6LBHk89K4t+AU5rOzIP
+         iN/1eg7rxhb37K//Rv/DyGOS3g+8RdRFiEnc62W1rBkwSgkCQP8MPx5yuQyJX2auVqTK
+         gz4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1698409112; x=1699013912;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QpUWJTFpNjZIZmlXASTkiTbyMnR1l2jQNO9OKE0q/GM=;
-        b=Ui/FsjtFaRSUexFQb2rNxRukEhfL/yp3Nh7F3Knzx9SrWl2OnuNmenczsd94jBTo4h
-         PibX5urzYsMx0C0R0/rkT9oI70rwzY329UyttMeO3bvywtfuhuis2Xzw5ylfGo/bz3NO
-         GK9Pm5i1XxFJPErk+VYpACyxmy+SehWAtFshp6kHxrj0qphJr6PNgmKKzPKHggnPu+W5
-         EcBgY3tgP/nk1SeOyQDWT0+gOy2TYvUbH2Rz0G9afMFXEzHs+prEF79LJyjFpP1XD3xJ
-         9awZqazkT0RZGeQfp/sKXB4EV1QOLmE+2ut/eo7rtyfvfAZ+3sBNMRfhcR8lP5AD7R9+
-         SCUA==
-X-Gm-Message-State: AOJu0YzIvQuouIkDg8faS9tK2t7/01d1aW0F1oLhty7cRUGKd9nTPVDF
-        xS7xjUQyEUHv9zDvOVaUsFgdERwzeYYof5r7GVQ=
-X-Google-Smtp-Source: AGHT+IHImjFD7lLH1TbPG7jI/g8XfCWe653u0TtNhH0Hv6ccJVrEwmTebgogehWeNAQTLInLhq/J5w==
-X-Received: by 2002:a2e:8e67:0:b0:2bd:d34:d98a with SMTP id t7-20020a2e8e67000000b002bd0d34d98amr1702848ljk.44.1698409111745;
-        Fri, 27 Oct 2023 05:18:31 -0700 (PDT)
-Received: from localhost ([102.36.222.112])
-        by smtp.gmail.com with ESMTPSA id y20-20020a1c4b14000000b0040588d85b3asm4867476wma.15.2023.10.27.05.18.30
+        d=1e100.net; s=20230601; t=1698436764; x=1699041564;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KneZwXZt1ATJDMlMDwMn/YFujpabk3NR7EB4uunod74=;
+        b=QylHKgwzF+ZD50fEYIhJoWePHg2f7GYzBhO//1m3R3MCbjji7fdj7Sz0bDxE++hS99
+         Xxwnl9105XKNxmpP1qEkZb3qp59yqJtR4T/8fhxxFr3HFyp4QcjZ4mZfxd/tepsvePZO
+         0l55hFiu/4WKr2kmeme86NROmW0SjDh8IKH/KG3aJQ2dmb4cJO8ULuBfmzXbYPzTekYZ
+         ngUO0IS86iERm5LnHjtLwtlXHpS9bquy40kLbceKTUI2LAmranHTVVrZFYWZ/Nk1C4sU
+         Dml1OWOYCvWdhYmsTg6cLtaoHOIKIqE+7JrR6zE+NwVAmWFxS4MAcgHC/8RY4qPuPTMa
+         3C6A==
+X-Gm-Message-State: AOJu0Yw/AD1Idv5Y82Bzbygb9l5kAL48+EpltCEuGVpd3DoxOh9DsLgh
+        Sti2Wx7y+YbzpQR/bcjn6UZkkZ2fkv8=
+X-Google-Smtp-Source: AGHT+IFo0y5Al+JDNfDqCXxuxLhLKJ6V+7P4wfn6c2nvaewvIYzr5MS4TlaLXVEwyscLe93hrMccdg==
+X-Received: by 2002:a17:902:ce82:b0:1ca:c490:8548 with SMTP id f2-20020a170902ce8200b001cac4908548mr8575592plg.19.1698436763851;
+        Fri, 27 Oct 2023 12:59:23 -0700 (PDT)
+Received: from google.com ([2620:15c:9d:2:449:1f46:6e0d:893])
+        by smtp.gmail.com with ESMTPSA id z13-20020a1709027e8d00b001c5f77e23a8sm1995430pla.73.2023.10.27.12.59.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Oct 2023 05:18:31 -0700 (PDT)
-Date:   Fri, 27 Oct 2023 15:18:28 +0300
-From:   Dan Carpenter <dan.carpenter@linaro.org>
-To:     Nick Dyer <nick@shmanahar.org>
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Christopher Heiny <cheiny@synaptics.com>,
-        linux-input@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: [PATCH] Input: synaptics-rmi4 - fix use after free in
- rmi_unregister_function()
-Message-ID: <706efd36-7561-42f3-adfa-dd1d0bd4f5a1@moroto.mountain>
+        Fri, 27 Oct 2023 12:59:23 -0700 (PDT)
+Date:   Fri, 27 Oct 2023 12:59:20 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     James Hilliard <james.hilliard1@gmail.com>
+Cc:     linux-input@vger.kernel.org,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] Input: cyttsp5 - improve error handling and remove
+ regmap
+Message-ID: <ZTwWmHC7Wcd5iwqS@google.com>
+References: <20231025013939.353553-1-james.hilliard1@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Mailer: git-send-email haha only kidding
+In-Reply-To: <20231025013939.353553-1-james.hilliard1@gmail.com>
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-The put_device() calls rmi_release_function() which frees "fn" so the
-dereference on the next line "fn->num_of_irqs" is a use after free.
-Move the put_device() to the end to fix this.
+Hi James,
 
-Fixes: 24d28e4f1271 ("Input: synaptics-rmi4 - convert irq distribution to irq_domain")
-Signed-off-by: Dan Carpenter <dan.carpenter@linaro.org>
----
- drivers/input/rmi4/rmi_bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Tue, Oct 24, 2023 at 07:39:38PM -0600, James Hilliard wrote:
+> The vendor cyttsp5 driver does not use regmap for i2c support, it
+> would appear this is due to regmap not providing sufficient levels
+> of control to handle various error conditions that may be present
+> under some configuration/firmware variants.
+> 
+> To improve reliability lets refactor the cyttsp5 i2c interface to
+> function more like the vendor driver and implement some of the error
+> handling retry/recovery techniques present there.
 
-diff --git a/drivers/input/rmi4/rmi_bus.c b/drivers/input/rmi4/rmi_bus.c
-index f2e093b0b998..1b45b1d3077d 100644
---- a/drivers/input/rmi4/rmi_bus.c
-+++ b/drivers/input/rmi4/rmi_bus.c
-@@ -277,11 +277,11 @@ void rmi_unregister_function(struct rmi_function *fn)
- 
- 	device_del(&fn->dev);
- 	of_node_put(fn->dev.of_node);
--	put_device(&fn->dev);
- 
- 	for (i = 0; i < fn->num_of_irqs; i++)
- 		irq_dispose_mapping(fn->irq[i]);
- 
-+	put_device(&fn->dev);
- }
- 
- /**
+Sorry but you need to elaborate more on what is missing in regmap and
+how vendor code is better. In my experience vendors rarely follow kernel
+development and either are not aware of the latest kernel APIs, or they
+simply have the driver written to what we had in 3.x kernels and have
+not really updated it since then.
+
+> 
+> As part of this rather than assuming the device is in bootloader mode
+> we should first check that the device is in bootloader and only
+> attempt to launch the app if it actually is in the bootloader.
+
+I would prefer if this was split into a separate patch.
+
+Thanks.
+
 -- 
-2.42.0
-
+Dmitry

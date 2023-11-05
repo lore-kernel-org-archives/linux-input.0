@@ -2,121 +2,116 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CB46C4167B
-	for <linux-input@archiver.kernel.org>; Sun,  5 Nov 2023 13:38:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 94534C4167D
+	for <linux-input@archiver.kernel.org>; Sun,  5 Nov 2023 20:48:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229779AbjKENiR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 5 Nov 2023 08:38:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51886 "EHLO
+        id S229478AbjKEUsL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 5 Nov 2023 15:48:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229486AbjKENiQ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Nov 2023 08:38:16 -0500
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C14CC;
-        Sun,  5 Nov 2023 05:38:13 -0800 (PST)
-Received: by mail-pg1-x52a.google.com with SMTP id 41be03b00d2f7-5bd33abbb90so1886197a12.2;
-        Sun, 05 Nov 2023 05:38:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1699191493; x=1699796293; darn=vger.kernel.org;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+e1/WOaxhHOYumCJGHxW4yo1K4Axe3NoWi7Y58Yuot4=;
-        b=IDYS+8ughgTgTtSLiGREtvyW2/AU/ZCJ/zZYll1K4onq5/WbkPIWjPZBuWyV8hQGuW
-         G5+0eFaSXcLaN4p4Payni0QIRpV2qLobto7xVjVi98fRF+AKlzG0mzLR10VvcmmzUJ/b
-         hXkTsNY4asTDWVkovhcpdrNm8YBdkW7ybKzbKjBI0tUwakyLVQ6BDtzy67FIZcUH5zyD
-         iWGTNJ/8LKQV7iMAcBmKB5Dg27tLX0pYsQL6RhgLUDOKOVtsK0WNCmcLg3oB3VGjfM/j
-         7EsmPvqWfD9zAyWlLOnIZH4oWDZeKEaVLfhIT9UcmzzTN3T9EHqNU0IroxC3lXnwEP2C
-         BjsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699191493; x=1699796293;
-        h=content-transfer-encoding:subject:from:cc:to:content-language
-         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=+e1/WOaxhHOYumCJGHxW4yo1K4Axe3NoWi7Y58Yuot4=;
-        b=hj/JEgCH/Ha3Gj/Pe1N/s0u+3opQoc38tyKOXlB5TqdC0cX82yNqk9gQ/1xvXYz7CE
-         Fq5N0P2BUfnEt5j3OmVCnbPVyAAo9injzPtaisCNGXzfaiGUvI4dzQySbVdp0RDjzj4H
-         +VbIAVpHuvbF6Sl2m0A8fwI6jU0QLVomfBKPSq71Vi6mpEyXrvp9AQF6ODxlNSd0SSki
-         5kZtSXCEcUr2xY1gcFu/S9N1dwGzzcJHM5RlCKLtSbIgO7Tjn1vAYuxfy9ehw8j9JsvF
-         pxLT7InEOHquZdnBTi2EoXJnQMD6r3Xgc2S6U59WkF/lFtkHxuIy+xhfqWWYwdQJTOZv
-         U04w==
-X-Gm-Message-State: AOJu0YyJjzdb38RwFT81WGS5LlVJ2JjzbDgv7GZmnZSLMDm8+0Rt17im
-        nlTYr9yvQd+U5jYkSJNzTUCRbpYs28I=
-X-Google-Smtp-Source: AGHT+IGnOY6SoMqJljQH1E5l1ttLw6XBsY2utpcSB80AvJ/n5Hb02ZhuAlejb948Pgt1LIqsyv0Xkg==
-X-Received: by 2002:a17:903:244b:b0:1cc:60ca:8f24 with SMTP id l11-20020a170903244b00b001cc60ca8f24mr19126894pls.45.1699191493169;
-        Sun, 05 Nov 2023 05:38:13 -0800 (PST)
-Received: from [192.168.0.106] ([103.131.18.64])
-        by smtp.gmail.com with ESMTPSA id j13-20020a170902c3cd00b001c9cc44eb60sm4216389plj.201.2023.11.05.05.38.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 05 Nov 2023 05:38:12 -0800 (PST)
-Message-ID: <14e3c405-5f80-4b73-b291-e84bdd6b240f@gmail.com>
-Date:   Sun, 5 Nov 2023 20:38:07 +0700
+        with ESMTP id S229447AbjKEUsK (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Nov 2023 15:48:10 -0500
+Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BABDE0;
+        Sun,  5 Nov 2023 12:48:07 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.nyi.internal (Postfix) with ESMTP id DBE625C00B6;
+        Sun,  5 Nov 2023 15:48:03 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Sun, 05 Nov 2023 15:48:03 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mai.rs; h=cc
+        :content-transfer-encoding:content-type:date:date:from:from
+        :in-reply-to:message-id:mime-version:reply-to:sender:subject
+        :subject:to:to; s=fm2; t=1699217283; x=1699303683; bh=LH7JzfygI0
+        EwtrIvLxipiI4ySOERzGKcjLsvZgPGDvI=; b=YQF51czcOS+ltydDtZLwFWnaem
+        5QQVRcbYWyS4/Roe6UQ6SLaq5on3Kc2VFN49SpYnUanXepVmleql5ji0nVn7UF1p
+        m7mSh977y2v+Fg94bKy+baTvEqqs8+B93MM3Fn8FNpM61DpTGJ62e4oTzoeFlU2z
+        NU0X5EC9AIlSFkJIsj9Wx39mgcMGbBLoUWPLXP/u1usYYixCacIqr1AmAD/kq0zS
+        yX6K0bPv2zSOd2rhDJBuVdounrXPwkY2arxchkHC3ei+7+FJKG0h+7Ar9ywjwYGy
+        jIQ61hkrf/lxl/By24SH4J8snxcA+vhVfOm5dWEhm538vhI+a1RHaTbHj6pw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:date:feedback-id:feedback-id:from:from:in-reply-to
+        :message-id:mime-version:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm3; t=1699217283; x=1699303683; bh=LH7JzfygI0EwtrIvLxipiI4ySOER
+        zGKcjLsvZgPGDvI=; b=rZBBJNHYA5xPvU+KIJIztrZjHKT+ccDl/rluspSmq91s
+        2Z2HJPjLeAfjrfwUu7Y2VOEF7ryyC+4NiLOu3X+1EI2XXqANBwVKw8wLfhM2F+ZW
+        bOniVkS6KosIM0ATSJy9Hurk1FE8mnAsUo4Pm3r2wIboKeJT+TMkqqfW3Op7qyT2
+        2QZrYjQ9SW0l2T/qDwKSYmB+IY4M3WA1DmJXAeT1ZIhWPTHH0SEhfcHlVYJHZ6rJ
+        kEum97kZQDrpIzej3R7iuTYQEI4ffxNIWNrei/JNVkKNnmNGrY0JEvHOsvvx1iyN
+        3c2mTPK0/ES6zIKcPwdWH+Z94+5vHmt2OfZ5xTRygw==
+X-ME-Sender: <xms:g_9HZR813FW-FwBuSDOo5TsLpch1t7QqrnzhAQPsYogx476MrdaTKA>
+    <xme:g_9HZVuUBolwYoYrUeEQGSTWhpgt1c9E_Os9kPAbVlc_aq96FWcGJ0OvQjrZFBVaq
+    iY2T46J6KzLhUNZJg>
+X-ME-Received: <xmr:g_9HZfBEW-afr3SC_3cm08SDFsKZ_GjvEM9fXBF3RhHmeNSuOJ7fqm9OecpznRg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrudduvddgudegudcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepuehrhigrnhht
+    ucforghirhhsuceosghrhigrnhhtsehmrghirdhrsheqnecuggftrfgrthhtvghrnhepje
+    ffiefgiedvteetuddtfeeiheegveeuhffgjefgfeffveegjeejvefgffevveffnecuvehl
+    uhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepsghrhigrnhhtse
+    hmrghirdhrsh
+X-ME-Proxy: <xmx:g_9HZVdm7wYpNdeWQnkIijJtD81q5R03vEgVRmmCA-DJagnMOno5fQ>
+    <xmx:g_9HZWOBWBBnGjGSBqKDPieqA6iTWn83xl3dwHw6eudbFMC2CtmJvA>
+    <xmx:g_9HZXmlGBxDEUpcUZoRQ_WqHUG6pkj3nJ3esw9GG7sLyTSM9CAyMg>
+    <xmx:g_9HZXEyvijJAeATkx8NPXrNZKr803uLFFIs0USuK9i9pkyvK8Kqhg>
+Feedback-ID: i891b436e:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 5 Nov 2023 15:48:01 -0500 (EST)
+From:   Bryant Mairs <bryant@mai.rs>
+To:     Andy Gross <agross@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH 0/7] Add samsung-milletwifi
+Date:   Sun,  5 Nov 2023 21:46:15 +0100
+Message-ID: <20231105204759.37107-1-bryant@mai.rs>
+X-Mailer: git-send-email 2.41.0
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Content-Language: en-US
-To:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Regressions <regressions@lists.linux.dev>,
-        Linux Input Devices <linux-input@vger.kernel.org>
-Cc:     Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Mauricio Collares <mauricio@collares.org>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-Subject: Fwd: [amd-sfh] Interrupt disabling (b300667b) disables working HP
- ProBook x360 435 G7 accelerometer
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Hi,
+This series adds support for samsung-milletwifi, the smaller cousin
+to samsung-matisselte. I've used the manufacturer's naming convention
+for consistency.
 
-I notice a regression report on Bugzilla [1]. Quoting from it:
+Bryant Mairs (6):
+  dt-bindings: arm: qcom: Document samsung,milletwifi device
+  ARM: dts: qcom: Add support for Samsung Galaxy Tab 4 8.0 Wi-Fi
+  ARM: dts: qcom: Disable pm8941 & pm8226 smbb charger by default
+  ARM: dts: qcom: apq8026-samsung-milletwifi: Enable charger
+  ARM: dts: qcom: apq8026-samsung-milletwifi: Enable Wi-Fi and Bluetooth
+  ARM: dts: qcom: apq8026-samsung-milletwifi: Enable modem
 
-> I have a HP ProBook x360 435 G7 (Ryzen 4700U). On GNOME Wayland with
-> the Screen Autorotate extension
-> (https://extensions.gnome.org/extension/4191/screen-autorotate/), I
-> confirmed by bisection that b300667b33b2b5a2c8e5f8f22826befb3d7f4f2b
-> caused autorotation to stop working.
-> 
-> More specifically, before this commit (on aa0b724a2bf041036e56cbb3b4b3afde7c5e7c9e):
-> 
-> * `sudo iio-sensor-proxy -v -r` stays running (doesn't exit immediately) and prints nothing
-> * `monitor-sensor` starts up by saying "=== Has accelerometer (orientation: normal)" and prints "    Accelerometer orientation changed: bottom-up" when I physically rotate the screen.
-> * `udevadm info --export-db` contains the accelerometer/gyroscope sensor info I've pasted in the attachment.
-> 
-> After b300667b33b2b5a2c8e5f8f22826befb3d7f4f2b:
-> 
-> * `sudo iio-sensor-proxy -v -r` exits immediately.
-> * `monitor-sensor` prints "    Waiting for iio-sensor-proxy to appear" on startup and does nothing when I rotate the screen.
-> * The sensors in the attachment are no longer listed in `udevadm info --export-db`.
-> * The `hid_sensor_gyro_3d` and `hid_sensor_accel_3d` kernel modules are no longer loaded automatically, and loading them does nothing.
-> 
-> Reverting b300667b33b2b5a2c8e5f8f22826befb3d7f4f2b on top of 6.6 also makes screen autorotation work again. Whenever screen autorotation works, `iio_generic_buffer --device-num 2 -A -c 100` reports good accelerometer values.
-> 
-> (The following is essentially the contents of bug #212625 comment #46)
-> 
->> If you revert that commit on top of 6.6 does it start working?  Also; can
->> you still get into the deepest s2idle sleep state in 6.6 with it reverted? 
->> You can check with /sys/power/suspend_stats/last_hw_sleep.
-> 
-> I don't have a /sys/power/suspend_stats/last_hw_sleep file (tested on stock 6.6, as well as on 6.6 + revert of b300667b33b2b5a2c8e5f8f22826befb3d7f4f2b), but if I leave my computer idle for a while it enters standby and I see
-> 
-> Nov 03 08:47:29 hp kernel: PM: suspend entry (deep)
-> 
-> in journalctl, and the computer enters deep sleep (need to press power button to wake it up). Also, the content of /sys/power/mem_sleep is "s2idle [deep]". In bug ug #212615 I also attached the report produced by amd_s2idle.py run on stock 6.6 in case it is relevant (I can also attach it for 6.6 + revert if desired).
-> 
+Luca Weiss (1):
+  dt-bindings: input: melfas,mms114: add MMS252 compatible
 
-See Bugzilla for the full thread and attached udevadm output.
-
-Anyway, I'm adding this regression to regzbot:
-
-#regzbot introduced: b300667b33b2b5 https://bugzilla.kernel.org/show_bug.cgi?id=218104
-
-Thanks.
-
-[1]: https://bugzilla.kernel.org/show_bug.cgi?id=218104
+ .../devicetree/bindings/arm/qcom.yaml         |   1 +
+ .../input/touchscreen/melfas,mms114.yaml      |   6 +-
+ arch/arm/boot/dts/qcom/Makefile               |   1 +
+ .../dts/qcom/qcom-apq8026-asus-sparrow.dts    |   2 +
+ .../dts/qcom/qcom-apq8026-huawei-sturgeon.dts |   2 +
+ .../boot/dts/qcom/qcom-apq8026-lg-lenok.dts   |   2 +
+ .../qcom/qcom-apq8026-samsung-milletwifi.dts  | 607 ++++++++++++++++++
+ .../dts/qcom/qcom-apq8074-dragonboard.dts     |   4 +
+ .../qcom/qcom-msm8974pro-fairphone-fp2.dts    |   2 +
+ .../qcom/qcom-msm8974pro-oneplus-bacon.dts    |   4 +
+ ...-msm8974pro-sony-xperia-shinano-castor.dts |   2 +
+ arch/arm/boot/dts/qcom/qcom-pm8226.dtsi       |   2 +
+ arch/arm/boot/dts/qcom/qcom-pm8941.dtsi       |   2 +
+ 13 files changed, 636 insertions(+), 1 deletion(-)
+ create mode 100644 arch/arm/boot/dts/qcom/qcom-apq8026-samsung-milletwifi.dts
 
 -- 
-An old man doll... just what I always wanted! - Clara
+2.41.0
+

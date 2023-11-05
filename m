@@ -2,64 +2,66 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 94534C4167D
-	for <linux-input@archiver.kernel.org>; Sun,  5 Nov 2023 20:48:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DA84BC4167B
+	for <linux-input@archiver.kernel.org>; Sun,  5 Nov 2023 20:48:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229478AbjKEUsL (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 5 Nov 2023 15:48:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48026 "EHLO
+        id S229638AbjKEUsM (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 5 Nov 2023 15:48:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbjKEUsK (ORCPT
+        with ESMTP id S229448AbjKEUsK (ORCPT
         <rfc822;linux-input@vger.kernel.org>); Sun, 5 Nov 2023 15:48:10 -0500
 Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BABDE0;
-        Sun,  5 Nov 2023 12:48:07 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.nyi.internal (Postfix) with ESMTP id DBE625C00B6;
-        Sun,  5 Nov 2023 15:48:03 -0500 (EST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 628D6E1;
+        Sun,  5 Nov 2023 12:48:08 -0800 (PST)
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id CF8405C00F5;
+        Sun,  5 Nov 2023 15:48:07 -0500 (EST)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 05 Nov 2023 15:48:03 -0500
+  by compute2.internal (MEProxy); Sun, 05 Nov 2023 15:48:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mai.rs; h=cc
         :content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:message-id:mime-version:reply-to:sender:subject
-        :subject:to:to; s=fm2; t=1699217283; x=1699303683; bh=LH7JzfygI0
-        EwtrIvLxipiI4ySOERzGKcjLsvZgPGDvI=; b=YQF51czcOS+ltydDtZLwFWnaem
-        5QQVRcbYWyS4/Roe6UQ6SLaq5on3Kc2VFN49SpYnUanXepVmleql5ji0nVn7UF1p
-        m7mSh977y2v+Fg94bKy+baTvEqqs8+B93MM3Fn8FNpM61DpTGJ62e4oTzoeFlU2z
-        NU0X5EC9AIlSFkJIsj9Wx39mgcMGbBLoUWPLXP/u1usYYixCacIqr1AmAD/kq0zS
-        yX6K0bPv2zSOd2rhDJBuVdounrXPwkY2arxchkHC3ei+7+FJKG0h+7Ar9ywjwYGy
-        jIQ61hkrf/lxl/By24SH4J8snxcA+vhVfOm5dWEhm538vhI+a1RHaTbHj6pw==
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm2; t=1699217287; x=
+        1699303687; bh=kVEZlrszrjh9a3ZxV7/Ffc4AxMfllhy0++OOArIA+04=; b=n
+        O/U4K+f4htAk4dJFQAgjWLq7W5oWbmytOCm+aDo89nHpHuAtukCFtiH1PY7YtKvn
+        D62W30/vK47cUZC+Dy4f88cY8e5HTvDh8C6gfjpGVKgXH/fuJhf2tl3sY3ICRrq3
+        6hQwBAk5r96o0m8LmT38PW0pqqv45Wf9FmNskns5KwPGx3fmx6L82HYsGHutYFVl
+        6vih7QnLT3W50Cc92tcAPCu957KMxhDDsb3pH3Mc8Glyo/QfI5DyUhB9KyBgm+1d
+        ZVCAiS00Y7gOtdXtPgFq4RnrEqpoXpT2/pl7CzoHLT5AzPOiqmghBgfq0SE/I3qX
+        +YPWOO1AFB/u+yP/3YPSA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:date:feedback-id:feedback-id:from:from:in-reply-to
-        :message-id:mime-version:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm3; t=1699217283; x=1699303683; bh=LH7JzfygI0EwtrIvLxipiI4ySOER
-        zGKcjLsvZgPGDvI=; b=rZBBJNHYA5xPvU+KIJIztrZjHKT+ccDl/rluspSmq91s
-        2Z2HJPjLeAfjrfwUu7Y2VOEF7ryyC+4NiLOu3X+1EI2XXqANBwVKw8wLfhM2F+ZW
-        bOniVkS6KosIM0ATSJy9Hurk1FE8mnAsUo4Pm3r2wIboKeJT+TMkqqfW3Op7qyT2
-        2QZrYjQ9SW0l2T/qDwKSYmB+IY4M3WA1DmJXAeT1ZIhWPTHH0SEhfcHlVYJHZ6rJ
-        kEum97kZQDrpIzej3R7iuTYQEI4ffxNIWNrei/JNVkKNnmNGrY0JEvHOsvvx1iyN
-        3c2mTPK0/ES6zIKcPwdWH+Z94+5vHmt2OfZ5xTRygw==
-X-ME-Sender: <xms:g_9HZR813FW-FwBuSDOo5TsLpch1t7QqrnzhAQPsYogx476MrdaTKA>
-    <xme:g_9HZVuUBolwYoYrUeEQGSTWhpgt1c9E_Os9kPAbVlc_aq96FWcGJ0OvQjrZFBVaq
-    iY2T46J6KzLhUNZJg>
-X-ME-Received: <xmr:g_9HZfBEW-afr3SC_3cm08SDFsKZ_GjvEM9fXBF3RhHmeNSuOJ7fqm9OecpznRg>
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender
+        :x-me-sender:x-sasl-enc; s=fm3; t=1699217287; x=1699303687; bh=k
+        VEZlrszrjh9a3ZxV7/Ffc4AxMfllhy0++OOArIA+04=; b=ZnoTPDg0WJqQwPS+L
+        xP4QmJjVbuqw9l3wCncV5W5BvmZMiZ1r62emE9TDvTRcUig6aYxASO5bnS4b9RNf
+        7vVXFtAd6EunMrm0SAfuiuPUpgBur3D8jzmpVVZar/widc1lqioDDfJGpp7hQB+i
+        P5P13ANU/GJn2V50xJcZ9IbJrGnr94y+nOtuswZKfVMpvBF1v/whFBrx4h8W46WA
+        IeVac9OnIC5O+WpFnNw57GynXytXjBxT6wgQtUGyI3/rFHeEjz2Pz1uGr3LjyQQw
+        lDAMGfnbM5XFE5Nq0VT7o1IbAvV4OtFaBMZhm3CcfTn564zHl8c9RO8kzJ2YqBj2
+        AtZrA==
+X-ME-Sender: <xms:h_9HZevuYT-AFYabl0-DEZtivbonEc4VC8BnMdyM5yuKXGT1PgCuGQ>
+    <xme:h_9HZTf480vhZT-w9lha4lCEeZEF7eGGxmBJ9LQnYRhQFMxSbeNX1PTbulgV328fe
+    3KNqH7uhgvL7DyVEA>
+X-ME-Received: <xmr:h_9HZZxx9gNohtR_5KFu3pWHXqfJwHWyLNjqsUamwb67qYFVV_9rRJkmsUDiIPo>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrudduvddgudegudcutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefhvffufffkofgggfestdekredtredttdenucfhrhhomhepuehrhigrnhht
-    ucforghirhhsuceosghrhigrnhhtsehmrghirdhrsheqnecuggftrfgrthhtvghrnhepje
-    ffiefgiedvteetuddtfeeiheegveeuhffgjefgfeffveegjeejvefgffevveffnecuvehl
-    uhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepsghrhigrnhhtse
-    hmrghirdhrsh
-X-ME-Proxy: <xmx:g_9HZVdm7wYpNdeWQnkIijJtD81q5R03vEgVRmmCA-DJagnMOno5fQ>
-    <xmx:g_9HZWOBWBBnGjGSBqKDPieqA6iTWn83xl3dwHw6eudbFMC2CtmJvA>
-    <xmx:g_9HZXmlGBxDEUpcUZoRQ_WqHUG6pkj3nJ3esw9GG7sLyTSM9CAyMg>
-    <xmx:g_9HZXEyvijJAeATkx8NPXrNZKr803uLFFIs0USuK9i9pkyvK8Kqhg>
+    enucfjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepuehrhigr
+    nhhtucforghirhhsuceosghrhigrnhhtsehmrghirdhrsheqnecuggftrfgrthhtvghrnh
+    epvdegkeekkeehffehveeltdekvdfhffejuefgjeelfeefgffgleekheeffefggeefnecu
+    vehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepsghrhigrnh
+    htsehmrghirdhrsh
+X-ME-Proxy: <xmx:h_9HZZPzs2JK3yJ82Ur29H7jN52s9fHaS53-OQ3yKOGuZLANOVwE0w>
+    <xmx:h_9HZe-LPPWUis9TW4VJ-qPbVaGDOWyYX53qXrDj5pEnP0MXp7eflA>
+    <xmx:h_9HZRXrupNLt8NPVymSZHqB82yCrJDC9gawMC7RVfORedZwPPwfgg>
+    <xmx:h_9HZf33KVauxl1602M7rq3-Kc6VPI07KtEQgfiE90dYDSooXpOtTQ>
 Feedback-ID: i891b436e:Fastmail
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 5 Nov 2023 15:48:01 -0500 (EST)
+ 5 Nov 2023 15:48:06 -0500 (EST)
 From:   Bryant Mairs <bryant@mai.rs>
 To:     Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
@@ -71,47 +73,38 @@ To:     Andy Gross <agross@kernel.org>,
         Linus Walleij <linus.walleij@linaro.org>,
         linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH 0/7] Add samsung-milletwifi
-Date:   Sun,  5 Nov 2023 21:46:15 +0100
-Message-ID: <20231105204759.37107-1-bryant@mai.rs>
+Subject: [PATCH 2/7] dt-bindings: arm: qcom: Document samsung,milletwifi device
+Date:   Sun,  5 Nov 2023 21:46:17 +0100
+Message-ID: <20231105204759.37107-3-bryant@mai.rs>
 X-Mailer: git-send-email 2.41.0
+In-Reply-To: <20231105204759.37107-1-bryant@mai.rs>
+References: <20231105204759.37107-1-bryant@mai.rs>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-This series adds support for samsung-milletwifi, the smaller cousin
-to samsung-matisselte. I've used the manufacturer's naming convention
-for consistency.
+Add binding documentation for Samsung Galaxy Tab 4 8.0 Wi-Fi
+tablet which is based on Snapdragon 400 (apq8026) SoC.
 
-Bryant Mairs (6):
-  dt-bindings: arm: qcom: Document samsung,milletwifi device
-  ARM: dts: qcom: Add support for Samsung Galaxy Tab 4 8.0 Wi-Fi
-  ARM: dts: qcom: Disable pm8941 & pm8226 smbb charger by default
-  ARM: dts: qcom: apq8026-samsung-milletwifi: Enable charger
-  ARM: dts: qcom: apq8026-samsung-milletwifi: Enable Wi-Fi and Bluetooth
-  ARM: dts: qcom: apq8026-samsung-milletwifi: Enable modem
+Signed-off-by: Bryant Mairs <bryant@mai.rs>
+---
+ Documentation/devicetree/bindings/arm/qcom.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-Luca Weiss (1):
-  dt-bindings: input: melfas,mms114: add MMS252 compatible
-
- .../devicetree/bindings/arm/qcom.yaml         |   1 +
- .../input/touchscreen/melfas,mms114.yaml      |   6 +-
- arch/arm/boot/dts/qcom/Makefile               |   1 +
- .../dts/qcom/qcom-apq8026-asus-sparrow.dts    |   2 +
- .../dts/qcom/qcom-apq8026-huawei-sturgeon.dts |   2 +
- .../boot/dts/qcom/qcom-apq8026-lg-lenok.dts   |   2 +
- .../qcom/qcom-apq8026-samsung-milletwifi.dts  | 607 ++++++++++++++++++
- .../dts/qcom/qcom-apq8074-dragonboard.dts     |   4 +
- .../qcom/qcom-msm8974pro-fairphone-fp2.dts    |   2 +
- .../qcom/qcom-msm8974pro-oneplus-bacon.dts    |   4 +
- ...-msm8974pro-sony-xperia-shinano-castor.dts |   2 +
- arch/arm/boot/dts/qcom/qcom-pm8226.dtsi       |   2 +
- arch/arm/boot/dts/qcom/qcom-pm8941.dtsi       |   2 +
- 13 files changed, 636 insertions(+), 1 deletion(-)
- create mode 100644 arch/arm/boot/dts/qcom/qcom-apq8026-samsung-milletwifi.dts
-
+diff --git a/Documentation/devicetree/bindings/arm/qcom.yaml b/Documentation/devicetree/bindings/arm/qcom.yaml
+index 88b84035e7b1..c66980b79f59 100644
+--- a/Documentation/devicetree/bindings/arm/qcom.yaml
++++ b/Documentation/devicetree/bindings/arm/qcom.yaml
+@@ -156,6 +156,7 @@ properties:
+               - huawei,sturgeon
+               - lg,lenok
+               - samsung,matisse-wifi
++              - samsung,milletwifi
+           - const: qcom,apq8026
+ 
+       - items:
 -- 
 2.41.0
 

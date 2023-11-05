@@ -2,145 +2,86 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CAF52C4332F
-	for <linux-input@archiver.kernel.org>; Sun,  5 Nov 2023 20:49:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80FDFC4332F
+	for <linux-input@archiver.kernel.org>; Sun,  5 Nov 2023 21:09:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229592AbjKEUtz (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sun, 5 Nov 2023 15:49:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35946 "EHLO
+        id S229478AbjKEVI7 (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 5 Nov 2023 16:08:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229750AbjKEUsS (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Nov 2023 15:48:18 -0500
-Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2C57E0;
-        Sun,  5 Nov 2023 12:48:15 -0800 (PST)
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 2AA585C00B6;
-        Sun,  5 Nov 2023 15:48:15 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 05 Nov 2023 15:48:15 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mai.rs; h=cc
-        :content-transfer-encoding:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to; s=fm2; t=1699217295; x=
-        1699303695; bh=D+GTzLQFmpfIZebnBHKmLneCEhVlPIP7ZLa4jOj3Qhk=; b=F
-        cgbn1EgO+ZN/Ku5AhJwVNvrRBZMAE2GVgtjAo5dWFmBoF2SK7OGspGM/IG9yTVBr
-        dyTAUQduSv7nRR0E+LhCm+SvGcFF4y9EWvigCgX8Ipou/bmIEW9+OGc9XKCcQVtl
-        TJ/0QXN0uSFVWYloHCrTnSN3QXcV7K8vlaoihxTcyE9VNntzOrc91ofBA9vJS+1q
-        WwkeiRetH/fJ2jyvh/xftE4Z5Y9UaAlZTCnMQ36mcy13e1Q9ZhBIzXlFITGnk24a
-        M+TP4d+Ub9ofYQ8zCSnMTe9vUQv3ieavgafceG70DxSbeLsLDjOoEKBXHcQlcM+O
-        OjOPbAr891frLjRq0e77w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:date:feedback-id:feedback-id:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to:x-me-proxy:x-me-proxy:x-me-sender
-        :x-me-sender:x-sasl-enc; s=fm3; t=1699217295; x=1699303695; bh=D
-        +GTzLQFmpfIZebnBHKmLneCEhVlPIP7ZLa4jOj3Qhk=; b=Yi2kMvP44eqkWUEsb
-        pk/wBH9onTmESYr3nUT4MQNlvp3L3lcLl7Qs7o9wa7WJLKDhFLjZQEyfBLsjWcOd
-        DQqPodZSXkCh2VBTM/V5hchDFauiyj3GOiy4KSfkkc+4EbLVoihV/YRPoAozWqCu
-        xY1ak03vNOfI52UtYvFBQsyaIAiOlzF25msYgwZok76n5WpZg2i7yl8w43xIoghw
-        Dhhd0mGAdqBQ+Nw3ux0SMYCBtkTf+O8CKZgd7WpehVZjSSogIEiQYpZslKEjFUGM
-        cqoYFJxJoVyAkvh5ENva00Z7rdDuipue5NL7iHTN+SWN/2Q7MF+4xcVegxw0INZS
-        wA/tg==
-X-ME-Sender: <xms:jv9HZeJeO4iqRLHTk5ElgHXPVh_fHO-YmGkOJmJ596P2xXWFPojhJA>
-    <xme:jv9HZWKO1BQzH5XV2tRCZzpaEvHdciaxHzJB-d1z4JQJgDAXXAwMOSmPqW9Sag8Mj
-    GVf0rfDBpRi6IqKvg>
-X-ME-Received: <xmr:jv9HZesDJQz_MZggRgYZZa_ywcP6_onOqzHcYb8ZOEKU0AqRHM7CFpXLPYDrknc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvkedrudduvddgudegudcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefhvffufffkofgjfhgggfestdekredtredttdenucfhrhhomhepuehrhigr
-    nhhtucforghirhhsuceosghrhigrnhhtsehmrghirdhrsheqnecuggftrfgrthhtvghrnh
-    epvdegkeekkeehffehveeltdekvdfhffejuefgjeelfeefgffgleekheeffefggeefnecu
-    vehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepsghrhigrnh
-    htsehmrghirdhrsh
-X-ME-Proxy: <xmx:j_9HZTY5zxjMPCpYG6ru11WhEF0ZarcplAjO_MZNerEpppWM4CvUaw>
-    <xmx:j_9HZVakrYtfiPszQtvl19j_xbXP8ElTRoIV-mg1vI-0yIhBRinbVA>
-    <xmx:j_9HZfDYwg5LfGzhLAxDs4NeB7E4W7xq441NXbOOpeFV8Xwvih6ozg>
-    <xmx:j_9HZST4vRnt-OqF1RqWOlA0wuPtTDjGO-Kys9B7ekwBBrSGcuUzpg>
-Feedback-ID: i891b436e:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
- 5 Nov 2023 15:48:13 -0500 (EST)
-From:   Bryant Mairs <bryant@mai.rs>
-To:     Andy Gross <agross@kernel.org>,
+        with ESMTP id S229801AbjKEVI6 (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Nov 2023 16:08:58 -0500
+Received: from mail-yw1-x112c.google.com (mail-yw1-x112c.google.com [IPv6:2607:f8b0:4864:20::112c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A42CDE
+        for <linux-input@vger.kernel.org>; Sun,  5 Nov 2023 13:08:56 -0800 (PST)
+Received: by mail-yw1-x112c.google.com with SMTP id 00721157ae682-5ae143e08b1so44424437b3.1
+        for <linux-input@vger.kernel.org>; Sun, 05 Nov 2023 13:08:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1699218535; x=1699823335; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+0zXtrcqAa/SL+O0N/SakZQ4wpvBiPy922c2Sz5wrLU=;
+        b=dvlPzyJumI9Dycy0PWlF8GCps3YDfCwEx3g2OlNS4WzIEC3LpYgzTFarLNkOqNvFwm
+         YMZ5ZWkdN7RYDhu+Dc5GJLpuTW3IZsGKZOhVTz3BTACNtPRUjUCBhPAkuNSVELiz+yH5
+         MKohNwfbB56LJQGHvudr4qFz9/ozVT7Eq8tk7csKCDZ586Ft6NN6SAOMW2kxu47rU9qW
+         DpBrK6XfDWugupkjHJ/bWnpn8+aoLCOsxbOVgp48sY37uXtPJamYlpXaMEAZsveyrcGG
+         8AMUYDGqQXQvYRV3UDtYfsRaA8J04LcfoLb8M8EGvg6Ymau9qNPjObnhXs6zESjZ689M
+         gAzQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699218535; x=1699823335;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+0zXtrcqAa/SL+O0N/SakZQ4wpvBiPy922c2Sz5wrLU=;
+        b=J7BFPFssDMXTi8I81QhxwYBYw0ue1qJyeelWb21kbmEhqYA2Ug07DUKpE5bXSZHIv6
+         QBxSU8zhtB0p2yiAEF7f1anlGjYN3G7QpmSFxnddttjWU44DAX1Fe7fbzS0HJGIdn1K6
+         AUd7DJoHoTHouebgaRSI7GncALwa1ffD5DEr2t69JRQ7SkqKMDyeXsfTy8ZJ5l1EMVPw
+         bRla0Qn6tMhBcA9mK8Jp4UmJx2Nk8MOEJMkO5TAQJt4AiZTdVT6r0dowyFvOSK+saGPD
+         abyQZcocdA2XAD0uay/lkjxsvsYsYMeVHezoeTgUs6GRT9xHNneP+xCl5XjvqP94uoKi
+         Oi+g==
+X-Gm-Message-State: AOJu0YyZpHpHArV/TmThrVTDSjN2XM5XwfCmD0EGJ09Ehvj3wORCf31Z
+        4gplXpsGvzuLfYwFg67iC7XzANQPUcMCqGai9a/gHg==
+X-Google-Smtp-Source: AGHT+IEEZy2W9vu4C1dVy/URpJcNjc6x40y+K42qvhhGfEz/dRPXDQ7B8b3lnlZoV7Hetr7t+cWm5mvTXbsynGi3xT8=
+X-Received: by 2002:a05:690c:f8e:b0:589:c065:b419 with SMTP id
+ df14-20020a05690c0f8e00b00589c065b419mr11425447ywb.34.1699218535408; Sun, 05
+ Nov 2023 13:08:55 -0800 (PST)
+MIME-Version: 1.0
+References: <20231105204759.37107-1-bryant@mai.rs> <20231105204759.37107-2-bryant@mai.rs>
+In-Reply-To: <20231105204759.37107-2-bryant@mai.rs>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Sun, 5 Nov 2023 22:08:44 +0100
+Message-ID: <CACRpkdZxF=_5ejxmPB84MmrbJ+Tv4S+OKqfc3sou4HWmZCw8Ng@mail.gmail.com>
+Subject: Re: [PATCH 1/7] dt-bindings: input: melfas,mms114: add MMS252 compatible
+To:     Bryant Mairs <bryant@mai.rs>
+Cc:     Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
         linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH 6/7] ARM: dts: qcom: apq8026-samsung-milletwifi: Enable Wi-Fi and Bluetooth
-Date:   Sun,  5 Nov 2023 21:46:21 +0100
-Message-ID: <20231105204759.37107-7-bryant@mai.rs>
-X-Mailer: git-send-email 2.41.0
-In-Reply-To: <20231105204759.37107-1-bryant@mai.rs>
-References: <20231105204759.37107-1-bryant@mai.rs>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+        Luca Weiss <luca@z3ntu.xyz>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Enable Wi-Fi and Bluetooth support for milletwifi. This device
-uses the WCN3660A that is already supported, so it only needs to be
-enabled in the DTS.
+On Sun, Nov 5, 2023 at 9:48=E2=80=AFPM Bryant Mairs <bryant@mai.rs> wrote:
 
-Signed-off-by: Bryant Mairs <bryant@mai.rs>
----
- .../qcom/qcom-apq8026-samsung-milletwifi.dts  | 29 +++++++++++++++++++
- 1 file changed, 29 insertions(+)
+> From: Luca Weiss <luca@z3ntu.xyz>
+>
+> Add a compatible for MMS252 touchscreen which appears to work fine with
+> the MMS114 driver.
+>
+> Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+> Signed-off-by: Bryant Mairs <bryant@mai.rs>
 
-diff --git a/arch/arm/boot/dts/qcom/qcom-apq8026-samsung-milletwifi.dts b/arch/arm/boot/dts/qcom/qcom-apq8026-samsung-milletwifi.dts
-index 910e8d2f69b0..57f50af487c1 100644
---- a/arch/arm/boot/dts/qcom/qcom-apq8026-samsung-milletwifi.dts
-+++ b/arch/arm/boot/dts/qcom/qcom-apq8026-samsung-milletwifi.dts
-@@ -310,6 +310,28 @@ touchscreen@48 {
- 	};
- };
- 
-+&pronto {
-+	vddmx-supply = <&pm8226_l3>;
-+	vddpx-supply = <&pm8226_l6>;
-+
-+	pinctrl-0 = <&wcnss_pin_a>;
-+	pinctrl-names = "default";
-+
-+	status = "okay";
-+
-+	iris {
-+		vddxo-supply = <&pm8226_l10>;
-+		vddrfa-supply = <&pm8226_l24>;
-+		vddpa-supply = <&pm8226_l16>;
-+		vdddig-supply = <&pm8226_l24>;
-+	};
-+
-+	smd-edge {
-+		wcnss {
-+			status = "okay";
-+		};
-+	};
-+};
- 
- &rpm_requests {
- 	regulators {
-@@ -557,6 +579,13 @@ tsp_int_rst_default_state: tsp-int-rst-default-state {
- 		drive-strength = <10>;
- 		bias-pull-up;
- 	};
-+
-+	wcnss_pin_a: wcnss-pin-active-state {
-+		pins =  "gpio40", "gpio41", "gpio42", "gpio43", "gpio44";
-+		function = "wlan";
-+		drive-strength = <6>;
-+		bias-pull-down;
-+	};
- };
- 
- &usb {
--- 
-2.41.0
+LGTM:
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
+Yours,
+Linus Walleij

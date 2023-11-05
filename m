@@ -2,186 +2,121 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FA4AC4167B
-	for <linux-input@archiver.kernel.org>; Sat,  4 Nov 2023 11:19:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8CB46C4167B
+	for <linux-input@archiver.kernel.org>; Sun,  5 Nov 2023 13:38:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232114AbjKDLTY (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Sat, 4 Nov 2023 07:19:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33232 "EHLO
+        id S229779AbjKENiR (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Sun, 5 Nov 2023 08:38:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232103AbjKDLTW (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Sat, 4 Nov 2023 07:19:22 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B07DD4C
-        for <linux-input@vger.kernel.org>; Sat,  4 Nov 2023 04:18:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1699096679;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=dCVmEEuGjfAF1XTZdx2/tPYjyNhamBr2VQfPb0Ey7xE=;
-        b=DDQnZy/PfR50sXYy0BKL/tu4xeegu4IHlRbw/wLFGbziS8qUY62wxvcpYpfrdFsqMslLxG
-        +UNgZCx/I0SvFhzxXs/OepRAz+RjrcJRaM8G27wXaAhPHuMVCjY7645Ep8fU/y/q+Akyp3
-        ovxo64E7bs9NszC8cl8oA1xOJCouC9Q=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-528-LbH2XY3hMuWz1qSdAIhn9w-1; Sat, 04 Nov 2023 07:17:56 -0400
-X-MC-Unique: LbH2XY3hMuWz1qSdAIhn9w-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 8C33580F92B;
-        Sat,  4 Nov 2023 11:17:55 +0000 (UTC)
-Received: from shalem.redhat.com (unknown [10.39.192.2])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id E0816502E;
-        Sat,  4 Nov 2023 11:17:53 +0000 (UTC)
-From:   Hans de Goede <hdegoede@redhat.com>
-To:     Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Douglas Anderson <dianders@chromium.org>,
-        Julian Sax <jsbc@gmx.de>, ahormann@gmx.net,
-        Bruno Jesus <bruno.fl.jesus@gmail.com>,
-        Dietrich <enaut.w@googlemail.com>, kloxdami@yahoo.com,
-        Tim Aldridge <taldridge@mac.com>,
-        Rene Wagner <redhatbugzilla@callerid.de>,
-        Federico Ricchiuto <fed.ricchiuto@gmail.com>,
-        linux-input@vger.kernel.org
-Subject: [PATCH 5/7] HID: i2c-hid: Remove I2C_HID_QUIRK_NO_IRQ_AFTER_RESET quirks
-Date:   Sat,  4 Nov 2023 12:17:41 +0100
-Message-ID: <20231104111743.14668-6-hdegoede@redhat.com>
-In-Reply-To: <20231104111743.14668-1-hdegoede@redhat.com>
-References: <20231104111743.14668-1-hdegoede@redhat.com>
+        with ESMTP id S229486AbjKENiQ (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Sun, 5 Nov 2023 08:38:16 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8C14CC;
+        Sun,  5 Nov 2023 05:38:13 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id 41be03b00d2f7-5bd33abbb90so1886197a12.2;
+        Sun, 05 Nov 2023 05:38:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1699191493; x=1699796293; darn=vger.kernel.org;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+e1/WOaxhHOYumCJGHxW4yo1K4Axe3NoWi7Y58Yuot4=;
+        b=IDYS+8ughgTgTtSLiGREtvyW2/AU/ZCJ/zZYll1K4onq5/WbkPIWjPZBuWyV8hQGuW
+         G5+0eFaSXcLaN4p4Payni0QIRpV2qLobto7xVjVi98fRF+AKlzG0mzLR10VvcmmzUJ/b
+         hXkTsNY4asTDWVkovhcpdrNm8YBdkW7ybKzbKjBI0tUwakyLVQ6BDtzy67FIZcUH5zyD
+         iWGTNJ/8LKQV7iMAcBmKB5Dg27tLX0pYsQL6RhgLUDOKOVtsK0WNCmcLg3oB3VGjfM/j
+         7EsmPvqWfD9zAyWlLOnIZH4oWDZeKEaVLfhIT9UcmzzTN3T9EHqNU0IroxC3lXnwEP2C
+         BjsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699191493; x=1699796293;
+        h=content-transfer-encoding:subject:from:cc:to:content-language
+         :user-agent:mime-version:date:message-id:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=+e1/WOaxhHOYumCJGHxW4yo1K4Axe3NoWi7Y58Yuot4=;
+        b=hj/JEgCH/Ha3Gj/Pe1N/s0u+3opQoc38tyKOXlB5TqdC0cX82yNqk9gQ/1xvXYz7CE
+         Fq5N0P2BUfnEt5j3OmVCnbPVyAAo9injzPtaisCNGXzfaiGUvI4dzQySbVdp0RDjzj4H
+         +VbIAVpHuvbF6Sl2m0A8fwI6jU0QLVomfBKPSq71Vi6mpEyXrvp9AQF6ODxlNSd0SSki
+         5kZtSXCEcUr2xY1gcFu/S9N1dwGzzcJHM5RlCKLtSbIgO7Tjn1vAYuxfy9ehw8j9JsvF
+         pxLT7InEOHquZdnBTi2EoXJnQMD6r3Xgc2S6U59WkF/lFtkHxuIy+xhfqWWYwdQJTOZv
+         U04w==
+X-Gm-Message-State: AOJu0YyJjzdb38RwFT81WGS5LlVJ2JjzbDgv7GZmnZSLMDm8+0Rt17im
+        nlTYr9yvQd+U5jYkSJNzTUCRbpYs28I=
+X-Google-Smtp-Source: AGHT+IGnOY6SoMqJljQH1E5l1ttLw6XBsY2utpcSB80AvJ/n5Hb02ZhuAlejb948Pgt1LIqsyv0Xkg==
+X-Received: by 2002:a17:903:244b:b0:1cc:60ca:8f24 with SMTP id l11-20020a170903244b00b001cc60ca8f24mr19126894pls.45.1699191493169;
+        Sun, 05 Nov 2023 05:38:13 -0800 (PST)
+Received: from [192.168.0.106] ([103.131.18.64])
+        by smtp.gmail.com with ESMTPSA id j13-20020a170902c3cd00b001c9cc44eb60sm4216389plj.201.2023.11.05.05.38.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 05 Nov 2023 05:38:12 -0800 (PST)
+Message-ID: <14e3c405-5f80-4b73-b291-e84bdd6b240f@gmail.com>
+Date:   Sun, 5 Nov 2023 20:38:07 +0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.4.1 on 10.11.54.5
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux Regressions <regressions@lists.linux.dev>,
+        Linux Input Devices <linux-input@vger.kernel.org>
+Cc:     Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Mauricio Collares <mauricio@collares.org>
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+Subject: Fwd: [amd-sfh] Interrupt disabling (b300667b) disables working HP
+ ProBook x360 435 G7 accelerometer
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Now that i2c-hid-core waits for the reset after reading the HID report
-descriptor, the I2C_HID_QUIRK_NO_IRQ_AFTER_RESET quirks appear to
-no longer be necessary (confirmed on one of the quirked models).
+Hi,
 
-Except on laptops where the HID report descriptor is missing and is
-provided by a DMI quirk instead. On these models the HID report descriptor
-is not read at all, so moving the wait for reset is a no-op. These laptops
-have 0911:5288 touchpads for which I2C_HID_QUIRK_NO_IRQ_AFTER_RESET was
-set, keep the existing behavior there.
+I notice a regression report on Bugzilla [1]. Quoting from it:
 
-There might still be devices which really do not ack the reset
-at all, so to avoid this causing regressions also:
+> I have a HP ProBook x360 435 G7 (Ryzen 4700U). On GNOME Wayland with
+> the Screen Autorotate extension
+> (https://extensions.gnome.org/extension/4191/screen-autorotate/), I
+> confirmed by bisection that b300667b33b2b5a2c8e5f8f22826befb3d7f4f2b
+> caused autorotation to stop working.
+> 
+> More specifically, before this commit (on aa0b724a2bf041036e56cbb3b4b3afde7c5e7c9e):
+> 
+> * `sudo iio-sensor-proxy -v -r` stays running (doesn't exit immediately) and prints nothing
+> * `monitor-sensor` starts up by saying "=== Has accelerometer (orientation: normal)" and prints "    Accelerometer orientation changed: bottom-up" when I physically rotate the screen.
+> * `udevadm info --export-db` contains the accelerometer/gyroscope sensor info I've pasted in the attachment.
+> 
+> After b300667b33b2b5a2c8e5f8f22826befb3d7f4f2b:
+> 
+> * `sudo iio-sensor-proxy -v -r` exits immediately.
+> * `monitor-sensor` prints "    Waiting for iio-sensor-proxy to appear" on startup and does nothing when I rotate the screen.
+> * The sensors in the attachment are no longer listed in `udevadm info --export-db`.
+> * The `hid_sensor_gyro_3d` and `hid_sensor_accel_3d` kernel modules are no longer loaded automatically, and loading them does nothing.
+> 
+> Reverting b300667b33b2b5a2c8e5f8f22826befb3d7f4f2b on top of 6.6 also makes screen autorotation work again. Whenever screen autorotation works, `iio_generic_buffer --device-num 2 -A -c 100` reports good accelerometer values.
+> 
+> (The following is essentially the contents of bug #212625 comment #46)
+> 
+>> If you revert that commit on top of 6.6 does it start working?  Also; can
+>> you still get into the deepest s2idle sleep state in 6.6 with it reverted? 
+>> You can check with /sys/power/suspend_stats/last_hw_sleep.
+> 
+> I don't have a /sys/power/suspend_stats/last_hw_sleep file (tested on stock 6.6, as well as on 6.6 + revert of b300667b33b2b5a2c8e5f8f22826befb3d7f4f2b), but if I leave my computer idle for a while it enters standby and I see
+> 
+> Nov 03 08:47:29 hp kernel: PM: suspend entry (deep)
+> 
+> in journalctl, and the computer enters deep sleep (need to press power button to wake it up). Also, the content of /sys/power/mem_sleep is "s2idle [deep]". In bug ug #212615 I also attached the report produced by amd_s2idle.py run on stock 6.6 in case it is relevant (I can also attach it for 6.6 + revert if desired).
+> 
 
-1. Change the wait for ack timeout from an error into a warning; and
-2. Lower reset timeout from the very long 5s to 1s which should be plenty
+See Bugzilla for the full thread and attached udevadm output.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
----
- drivers/hid/i2c-hid/i2c-hid-core.c | 29 +++++++++--------------------
- 1 file changed, 9 insertions(+), 20 deletions(-)
+Anyway, I'm adding this regression to regzbot:
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 3bd0c3d77d99..df5577fc73c5 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -45,7 +45,6 @@
- 
- /* quirks to control the device */
- #define I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV	BIT(0)
--#define I2C_HID_QUIRK_NO_IRQ_AFTER_RESET	BIT(1)
- #define I2C_HID_QUIRK_BOGUS_IRQ			BIT(4)
- #define I2C_HID_QUIRK_RESET_ON_RESUME		BIT(5)
- #define I2C_HID_QUIRK_BAD_INPUT_SIZE		BIT(6)
-@@ -122,12 +121,6 @@ static const struct i2c_hid_quirks {
- } i2c_hid_quirks[] = {
- 	{ USB_VENDOR_ID_WEIDA, HID_ANY_ID,
- 		I2C_HID_QUIRK_SET_PWR_WAKEUP_DEV },
--	{ I2C_VENDOR_ID_HANTICK, I2C_PRODUCT_ID_HANTICK_5288,
--		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
--	{ I2C_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_VOYO_WINPAD_A15,
--		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
--	{ I2C_VENDOR_ID_RAYDIUM, I2C_PRODUCT_ID_RAYDIUM_3118,
--		I2C_HID_QUIRK_NO_IRQ_AFTER_RESET },
- 	{ USB_VENDOR_ID_ALPS_JP, HID_ANY_ID,
- 		 I2C_HID_QUIRK_RESET_ON_RESUME },
- 	{ I2C_VENDOR_ID_SYNAPTICS, I2C_PRODUCT_ID_SYNAPTICS_SYNA2393,
-@@ -470,11 +463,11 @@ static int i2c_hid_start_hwreset(struct i2c_hid *ihid)
- 	return ret;
- }
- 
--static int i2c_hid_finish_hwreset(struct i2c_hid *ihid)
-+static int i2c_hid_finish_hwreset(struct i2c_hid *ihid, bool no_irq_after_reset)
- {
- 	int ret = 0;
- 
--	if (ihid->quirks & I2C_HID_QUIRK_NO_IRQ_AFTER_RESET) {
-+	if (no_irq_after_reset) {
- 		msleep(100);
- 		clear_bit(I2C_HID_RESET_PENDING, &ihid->flags);
- 	}
-@@ -482,9 +475,9 @@ static int i2c_hid_finish_hwreset(struct i2c_hid *ihid)
- 	i2c_hid_dbg(ihid, "%s: waiting...\n", __func__);
- 	if (!wait_event_timeout(ihid->wait,
- 				!test_bit(I2C_HID_RESET_PENDING, &ihid->flags),
--				msecs_to_jiffies(5000))) {
--		ret = -ENODATA;
--		goto err_clear_reset;
-+				msecs_to_jiffies(1000))) {
-+		dev_warn(&ihid->client->dev, "device did not ack reset within 1000 ms\n");
-+		clear_bit(I2C_HID_RESET_PENDING, &ihid->flags);
- 	}
- 	i2c_hid_dbg(ihid, "%s: finished.\n", __func__);
- 
-@@ -494,12 +487,6 @@ static int i2c_hid_finish_hwreset(struct i2c_hid *ihid)
- 
- 	mutex_unlock(&ihid->reset_lock);
- 	return ret;
--
--err_clear_reset:
--	clear_bit(I2C_HID_RESET_PENDING, &ihid->flags);
--	i2c_hid_set_power(ihid, I2C_HID_PWR_SLEEP);
--	mutex_unlock(&ihid->reset_lock);
--	return ret;
- }
- 
- static void i2c_hid_abort_hwreset(struct i2c_hid *ihid)
-@@ -736,6 +723,7 @@ static int i2c_hid_parse(struct hid_device *hid)
- 	struct i2c_client *client = hid->driver_data;
- 	struct i2c_hid *ihid = i2c_get_clientdata(client);
- 	struct i2c_hid_desc *hdesc = &ihid->hdesc;
-+	bool no_irq_after_reset = false;
- 	unsigned int rsize;
- 	char *rdesc;
- 	int ret;
-@@ -764,6 +752,7 @@ static int i2c_hid_parse(struct hid_device *hid)
- 
- 	if (use_override) {
- 		rdesc = use_override;
-+		no_irq_after_reset = true;
- 		i2c_hid_dbg(ihid, "Using a HID report descriptor override\n");
- 	} else {
- 		rdesc = kzalloc(rsize, GFP_KERNEL);
-@@ -790,7 +779,7 @@ static int i2c_hid_parse(struct hid_device *hid)
- 	 * actually wait for the report-descriptor to be read before signalling
- 	 * reset completion.
- 	 */
--	ret = i2c_hid_finish_hwreset(ihid);
-+	ret = i2c_hid_finish_hwreset(ihid, no_irq_after_reset);
- 	if (ret)
- 		goto out;
- 
-@@ -1005,7 +994,7 @@ static int i2c_hid_core_resume(struct i2c_hid *ihid)
- 	if (ihid->quirks & I2C_HID_QUIRK_RESET_ON_RESUME) {
- 		ret = i2c_hid_start_hwreset(ihid);
- 		if (ret == 0)
--			ret = i2c_hid_finish_hwreset(ihid);
-+			ret = i2c_hid_finish_hwreset(ihid, false);
- 	} else {
- 		ret = i2c_hid_set_power(ihid, I2C_HID_PWR_ON);
- 	}
+#regzbot introduced: b300667b33b2b5 https://bugzilla.kernel.org/show_bug.cgi?id=218104
+
+Thanks.
+
+[1]: https://bugzilla.kernel.org/show_bug.cgi?id=218104
+
 -- 
-2.41.0
-
+An old man doll... just what I always wanted! - Clara

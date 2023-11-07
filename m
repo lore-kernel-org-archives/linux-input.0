@@ -2,46 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D4576C4167D
-	for <linux-input@archiver.kernel.org>; Tue,  7 Nov 2023 15:52:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D760C4167B
+	for <linux-input@archiver.kernel.org>; Tue,  7 Nov 2023 15:57:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343941AbjKGPwn (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Nov 2023 10:52:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60966 "EHLO
+        id S235478AbjKGP5L (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Nov 2023 10:57:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343641AbjKGPvg (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Nov 2023 10:51:36 -0500
+        with ESMTP id S1343976AbjKGP4t (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Nov 2023 10:56:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F39268C;
-        Tue,  7 Nov 2023 07:49:23 -0800 (PST)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3506EC433C7;
-        Tue,  7 Nov 2023 15:49:22 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00B4B59C5;
+        Tue,  7 Nov 2023 07:50:57 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CEA6C433CC;
+        Tue,  7 Nov 2023 15:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1699372163;
+        s=k20201202; t=1699372257;
         bh=lgL1ycahHdkaTEuuWzq3a0UW7p+eaU+2mKq6BDh9aYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=shhQteyDof8BlZggksy72iki6alzjtn6N0xOy9pgF9z1Sa0VCeFZax21CkZmULmKV
-         1cPnvBZPlfj4sMlBPX5Qs6XnDRtcMh/t2BRvlJdXrai44sMORkcWRJjRkHRV77680B
-         CtKVe8y8XLF2Vxl7rk1QrqvZm6Ui1O28Cznnhez+KMbWkGsnjUhFjRQPkky1KIpyxj
-         MF7EjR8KSDz0dsLAXCV3Wo4Mh/70C+gWTkxzdjxrTuZ9AlHyHUMfI2mrOLJMYE+vNk
-         thSGoNpkqQQcOaDKHOPp5+S/t99PTfYEqbZTSQ5Q7jFc5yX1q+z58Cx2/EaFxUPbCa
-         eB9Dw1n5I/ZCg==
+        b=FVdnUV1+kHCpTDfDkgT+iHv6Cs/N1NGkLEIOykdSTcYBAKcYUtmY6RKK1mKE36PDC
+         X0zdzGHnBmCMIKQ/dk1m0ldf4P6cigVCB5+DjgRcfUFQzoeSrnS/KtrOKlSHPcQFB/
+         XkEmzZPG+NOreZ9VQqSNf6gFT01rntalSRsppyKOE/pllEttRFSkzzGB8acguhqExl
+         oLNHteTZFkzH76dlBgDyDx6Oo8mr5n/ul54scTbq9D97UTuqw2WyrXAegVU0kgMBuc
+         EOvCSSpdLHYjBFyih41fuMSS5hQiN0maakqnGFI9aXsRPVzZeSSMjy9AY4XU0JLZN0
+         9ZnquzSW3JSiQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mikhail Khvainitski <me@khvoinitsky.org>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.5 14/34] HID: lenovo: Detect quirk-free fw on cptkbd and stop applying workaround
-Date:   Tue,  7 Nov 2023 10:47:54 -0500
-Message-ID: <20231107154846.3766119-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 13/30] HID: lenovo: Detect quirk-free fw on cptkbd and stop applying workaround
+Date:   Tue,  7 Nov 2023 10:49:47 -0500
+Message-ID: <20231107155024.3766950-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231107154846.3766119-1-sashal@kernel.org>
-References: <20231107154846.3766119-1-sashal@kernel.org>
+In-Reply-To: <20231107155024.3766950-1-sashal@kernel.org>
+References: <20231107155024.3766950-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.5.10
+X-stable-base: Linux 6.1.61
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>

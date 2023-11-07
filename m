@@ -2,46 +2,46 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9D760C4167B
-	for <linux-input@archiver.kernel.org>; Tue,  7 Nov 2023 15:57:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B710C04A68
+	for <linux-input@archiver.kernel.org>; Tue,  7 Nov 2023 16:00:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235478AbjKGP5L (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Tue, 7 Nov 2023 10:57:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36170 "EHLO
+        id S1344317AbjKGQAX (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Tue, 7 Nov 2023 11:00:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343976AbjKGP4t (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Nov 2023 10:56:49 -0500
+        with ESMTP id S1344599AbjKGP7U (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Tue, 7 Nov 2023 10:59:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00B4B59C5;
-        Tue,  7 Nov 2023 07:50:57 -0800 (PST)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CEA6C433CC;
-        Tue,  7 Nov 2023 15:50:56 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 24CC77A83;
+        Tue,  7 Nov 2023 07:52:11 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3555C433C9;
+        Tue,  7 Nov 2023 15:52:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1699372257;
-        bh=lgL1ycahHdkaTEuuWzq3a0UW7p+eaU+2mKq6BDh9aYI=;
+        s=k20201202; t=1699372331;
+        bh=vyefD/3zIztutmESLIgo+iS24PgXOvk/d6ea8CtU5pE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FVdnUV1+kHCpTDfDkgT+iHv6Cs/N1NGkLEIOykdSTcYBAKcYUtmY6RKK1mKE36PDC
-         X0zdzGHnBmCMIKQ/dk1m0ldf4P6cigVCB5+DjgRcfUFQzoeSrnS/KtrOKlSHPcQFB/
-         XkEmzZPG+NOreZ9VQqSNf6gFT01rntalSRsppyKOE/pllEttRFSkzzGB8acguhqExl
-         oLNHteTZFkzH76dlBgDyDx6Oo8mr5n/ul54scTbq9D97UTuqw2WyrXAegVU0kgMBuc
-         EOvCSSpdLHYjBFyih41fuMSS5hQiN0maakqnGFI9aXsRPVzZeSSMjy9AY4XU0JLZN0
-         9ZnquzSW3JSiQ==
+        b=fYgw1QPspEpGOBxLUPBAkkiB9C+jC6QktnB238xBEHQviUJtCXPyvqZkT+wnX8lF/
+         My4VFT2U4S22dLqmZunmO00e2iKMnmRI3qxFCHl70ltTEfM857SsOQDZwE+JgvWxT4
+         sZnsgHb9erjMQ8zvm1fKxHyRq8TrdfBxx85AhIxknPk9UYa8QnDAzkWQYNslPCT4O/
+         W/YOMXE+G8hrIXekLmVm2ofnv2M74i9bD71w5+QxpMz6OLzZ9/dE/PETbuaj9/I92x
+         vL8VsGVshtoHz0L7hnAFH1dqavOt7F8hYrPFwbcBIloUxuWkxfZXvZmGM581+T4VK7
+         Vk9wOCNB6Gi7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mikhail Khvainitski <me@khvoinitsky.org>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         jikos@kernel.org, benjamin.tissoires@redhat.com,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 13/30] HID: lenovo: Detect quirk-free fw on cptkbd and stop applying workaround
-Date:   Tue,  7 Nov 2023 10:49:47 -0500
-Message-ID: <20231107155024.3766950-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 10/22] HID: lenovo: Detect quirk-free fw on cptkbd and stop applying workaround
+Date:   Tue,  7 Nov 2023 10:51:19 -0500
+Message-ID: <20231107155146.3767610-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231107155024.3766950-1-sashal@kernel.org>
-References: <20231107155024.3766950-1-sashal@kernel.org>
+In-Reply-To: <20231107155146.3767610-1-sashal@kernel.org>
+References: <20231107155146.3767610-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.1.61
+X-stable-base: Linux 5.15.137
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
@@ -77,10 +77,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 45 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
-index 44763c0da4441..9c1181313e44d 100644
+index 93b1f935e526e..901c1959efed4 100644
 --- a/drivers/hid/hid-lenovo.c
 +++ b/drivers/hid/hid-lenovo.c
-@@ -51,7 +51,12 @@ struct lenovo_drvdata {
+@@ -50,7 +50,12 @@ struct lenovo_drvdata {
  	int select_right;
  	int sensitivity;
  	int press_speed;
@@ -94,7 +94,7 @@ index 44763c0da4441..9c1181313e44d 100644
  	bool fn_lock;
  };
  
-@@ -668,31 +673,48 @@ static int lenovo_event_cptkbd(struct hid_device *hdev,
+@@ -529,31 +534,48 @@ static int lenovo_event_cptkbd(struct hid_device *hdev,
  {
  	struct lenovo_drvdata *cptkbd_data = hid_get_drvdata(hdev);
  
@@ -164,7 +164,7 @@ index 44763c0da4441..9c1181313e44d 100644
 -		return 1;
  	}
  
- 	if (usage->type == EV_KEY && usage->code == KEY_FN_ESC && value == 1) {
+ 	return 0;
 -- 
 2.42.0
 

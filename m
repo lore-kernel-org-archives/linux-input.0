@@ -2,440 +2,175 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F44EC04A95
-	for <linux-input@archiver.kernel.org>; Wed,  8 Nov 2023 15:57:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D76C6C4167B
+	for <linux-input@archiver.kernel.org>; Wed,  8 Nov 2023 18:22:23 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233459AbjKHP5Q (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Nov 2023 10:57:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36806 "EHLO
+        id S229583AbjKHSWZ (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Nov 2023 13:22:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232749AbjKHP5N (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Nov 2023 10:57:13 -0500
-Received: from EUR02-AM0-obe.outbound.protection.outlook.com (mail-am0eur02on2088.outbound.protection.outlook.com [40.107.247.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347E2172E;
-        Wed,  8 Nov 2023 07:57:11 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=mBkiSZxpgrlKwvkwmpz9EM5OKLRzA+p2ffAprcrKhaAqhRtpSqEG41RDewQxNB1j+wFlNUNDGrt5fTyVTio7DbV3GdUVdnaD95OVOFu5KVZIU1a8kzFbbi6151gAr0uCviLdUqNT/o3dAVN478L080ExwLgtl3KQGZQDk2v+D3MSrIn/A3cMx0LqRexOHMQQ5+xHb07PUeNvPhUtieMn2mwWjqp9aszEh73bbjtk2kxmVClUWF9VfbzcHTiOx7y1WUBg6nA3gu47DE3PnuOYDrO5evCogPbSoIJWqQiLwiRW07lWX6e/uWypvIVsk6yh5C4cHo6meMT0l2H7PedSpA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PfeqEQQMUyX063aD7bQtdefaNe3lhR9MsuX+3sapWZc=;
- b=lAECoFmsylrm6lB7jOT4AU3La3UJaX5hiXH9w7qqo5s3hhsuXzU1WVkc6/6hz7MQ19r4Wd1J2VuBm7+eCGo+Lg3seSGA/3hhAHzW8XwdE30AFWxEe3/Q7QowizaS4o14pObTj9OXuxDc5zqrlYbI6BNk9ry6YkKgU+X9JwphVZMfzX1q6ou6C/fwXf22sXiQ8oewyGLqEeYPmuIYRq9yF8xayB+Q04UVCp36dw6aPNoS+lAnNenNwpjiSgCZj6MQMwxDS0Xvu8Yn463UzdwscuJA8z/fUwrqDbb+6dv4+qBQj9EeT2QbtNhkseRH0HyqUm0oYu6eZGpnhkcnESLTYw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
- 195.60.68.100) smtp.rcpttodomain=linaro.org smtp.mailfrom=2n.com; dmarc=fail
- (p=none sp=none pct=100) action=none header.from=axis.com; dkim=none (message
- not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axis.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PfeqEQQMUyX063aD7bQtdefaNe3lhR9MsuX+3sapWZc=;
- b=BnFJ8Avg6m9SvF1pqnyQpcuf9lBF4EIFSkHtRf7AygYwwiTiPi/rLUsXIDDwR8L7WYAN08ssjHEnlOBLYUSGPlL8vyAabUG4v+kZblCUO+OCeD4DAtywtnXsuD4KpLwQWXin8mTczw+BXUokk8uMXmiiuFXflaDurov43S2NYAM=
-Received: from AS9PR01CA0004.eurprd01.prod.exchangelabs.com
- (2603:10a6:20b:540::13) by DU0PR02MB9444.eurprd02.prod.outlook.com
- (2603:10a6:10:41c::6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6954.28; Wed, 8 Nov
- 2023 15:57:08 +0000
-Received: from AM2PEPF0001C714.eurprd05.prod.outlook.com
- (2603:10a6:20b:540:cafe::13) by AS9PR01CA0004.outlook.office365.com
- (2603:10a6:20b:540::13) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6977.18 via Frontend
- Transport; Wed, 8 Nov 2023 15:57:08 +0000
-X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 195.60.68.100)
- smtp.mailfrom=2n.com; dkim=none (message not signed) header.d=none;dmarc=fail
- action=none header.from=axis.com;
-Received-SPF: Fail (protection.outlook.com: domain of 2n.com does not
- designate 195.60.68.100 as permitted sender) receiver=protection.outlook.com;
- client-ip=195.60.68.100; helo=mail.axis.com;
-Received: from mail.axis.com (195.60.68.100) by
- AM2PEPF0001C714.mail.protection.outlook.com (10.167.16.184) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.6977.17 via Frontend Transport; Wed, 8 Nov 2023 15:57:08 +0000
-Received: from lap5cg227217h.axis.com (10.0.5.60) by se-mail01w.axis.com
- (10.20.40.7) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 8 Nov
- 2023 16:57:06 +0100
-From:   Jiri Valek - 2N <jiriv@axis.com>
-To:     <krzysztof.kozlowski+dt@linaro.org>, <dmitry.torokhov@gmail.com>
-CC:     <jiriv@axis.com>, <devicetree@vger.kernel.org>,
-        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <robh+dt@kernel.org>, <u.kleine-koenig@pengutronix.de>
-Subject: [PATCH v5 2/3] Input: cap11xx - add advanced sensitivity settings
-Date:   Wed, 8 Nov 2023 16:56:46 +0100
-Message-ID: <20231108155647.1812835-3-jiriv@axis.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20231108155647.1812835-1-jiriv@axis.com>
-References: <20231108155647.1812835-1-jiriv@axis.com>
+        with ESMTP id S229521AbjKHSWY (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Nov 2023 13:22:24 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B65A172E
+        for <linux-input@vger.kernel.org>; Wed,  8 Nov 2023 10:21:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1699467701;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nM25pz9FDJ2xEFXEWA0rCb20z2Slt1QqjiMFrxf2tbc=;
+        b=gB8hBnTJWciF4RuzKN0xB+JyS4+cXiQYK7j1P4UIMTrAqaOhRooJtyixe0fZ5d/w3xjOHT
+        DQoijqMCFtAUY0+ijX1EIawBo17F0BFNe/uWxm+qzmkuX9iBNVXRO4uA/+XfqgD+0YjwWp
+        PTKPLalZO9xRwRJSxW4IEou/82XZNrU=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-637-LXobSW0BMQmMsTmcJy_dig-1; Wed, 08 Nov 2023 13:21:39 -0500
+X-MC-Unique: LXobSW0BMQmMsTmcJy_dig-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-99bca0b9234so1001866b.2
+        for <linux-input@vger.kernel.org>; Wed, 08 Nov 2023 10:21:39 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699467698; x=1700072498;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nM25pz9FDJ2xEFXEWA0rCb20z2Slt1QqjiMFrxf2tbc=;
+        b=RB7BIXyLan9+hLTmLU5jhx6wjoGAX1Ixf44/X8Yf74dsoIV8ONkooMC9APrzYJQi7D
+         zSvweB4n738PAYNf6tPWD2mnF79ZITINIa+IDPSUagY/zHyJ/YRbD2u2WkOAKxGjO29P
+         VxUPu3utC+pKarZwLos98tW79B36Mh6aEuQb0mouPuovoVP04t87h+9KtPPMR4pjKKoL
+         bnWYzfEouhtvOVkTGs60hK8FX5qq5T8afXfStTn2WXqmb3X4nFAw4k3xsAkafj/wysR5
+         ibfum/lfVVL+pbrEWtSC/M0lOk3HzHxUtlOvnJ4+MrJx2u7V1PGy7xkjVU1l25uJXYNE
+         MlfQ==
+X-Gm-Message-State: AOJu0YxJDVTQ9ZVvGHJIVJ0yMDrQbIJdPrLHtHmjG70t983wf9WSiOtK
+        4kwpuFWghB8nEcn4WBaxN0Uc9VWgRqSE5/zDinwGjaM+013F0kf5rNX+aPb6QGQFLanUxfofIwt
+        dnRFbICOxcpCEFU2N2tIz3b946vQvKeJiE0U7Drs=
+X-Received: by 2002:a17:906:dc92:b0:9ae:420e:739b with SMTP id cs18-20020a170906dc9200b009ae420e739bmr1666254ejc.46.1699467698292;
+        Wed, 08 Nov 2023 10:21:38 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IEJlPNVhDtklUG03CTF6jBxy5u25hWVE1q1Iuj+GVBqlz7cdAhD+ekN0tD/nC9WkOEIuafaTQ8CTj9itlB+8OI=
+X-Received: by 2002:a17:906:dc92:b0:9ae:420e:739b with SMTP id
+ cs18-20020a170906dc9200b009ae420e739bmr1666238ejc.46.1699467698013; Wed, 08
+ Nov 2023 10:21:38 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.0.5.60]
-X-ClientProxiedBy: se-mail02w.axis.com (10.20.40.8) To se-mail01w.axis.com
- (10.20.40.7)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM2PEPF0001C714:EE_|DU0PR02MB9444:EE_
-X-MS-Office365-Filtering-Correlation-Id: 60e1ff79-49bf-408e-dbda-08dbe0735c85
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: IGfYoVI1hFAJsY6tx5a7sHDhBTK4p6ykuPsUzMHF9mgeYdxOWSLJWqPKq9yAN77y81pRU40wOnhLsf/o3XaIL/BWE+LN80Q5auBEQqymdckEcfh6a4SgX2K5Fc2AO7NNY59cHmbpz+WGcn/CYWvGLkOl8Y/zbNSN4mmVPwXOedtkOaxys7rU5ojd4ujV1/8XIxmDzkzIwdEYWNFFqaS/Xsxoe21kRDB0Qy+ekTfq4FFJI+CMIDGhsZqhAE0VBaM1j5Ie3iEztWVIVfFGOC1WhtordYV0EgzWa+PWkbkLbPzr/k+Mxvoxw85RZvR9h0no3gpAT1RXyQl0mj2Bqss2ZSeLYpdiE+IhGnwTTogtHZqsg6nm0G2c1vyXPGZLx9SXeIdxAv02ZyszawQtJHS6uV/+yPxinozePBjHKKC7Oup4EGUrRKwq2y2R+XOWj7MB8p9sAikDXQQOXexlUor7SkTZJSsBEC2ZVrFc/3bXYMJdBOcOsSQBovQF+hfkJT+SMzbdO6vEP1oHsck9MvegvQo2ll+3OgWUJt94h5ZSDwO4Q/x4SSjbgMRxgIg9e6IGYi2EdJoAkwN50MEwyzAAE++KB3qsJgwcAAAvWCRxNwG2xJv6kjWc6mg7VoEeu9o6j7aUNPyIhKpTk3m1nR55/3l+RgM6QvyRJhjUguy+LcD/7paF61e5rzwSIvMeFHFTkooSZ9rkhvbpNzfNf9Y99tC0T1OVPE8el++o7IbstknlB7iMhLWbNBU/PaUqzGQXuKsfV/2wMLTYTVn0LAB0XA==
-X-Forefront-Antispam-Report: CIP:195.60.68.100;CTRY:SE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.axis.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(39860400002)(136003)(376002)(396003)(346002)(230922051799003)(451199024)(64100799003)(82310400011)(1800799009)(186009)(40470700004)(46966006)(36840700001)(2906002)(40460700003)(40480700001)(16526019)(426003)(7696005)(336012)(26005)(41300700001)(47076005)(42882007)(2616005)(1076003)(6666004)(36860700001)(81166007)(83170400001)(356005)(36756003)(82740400003)(478600001)(5660300002)(8676002)(8936002)(4326008)(70586007)(83380400001)(70206006)(316002)(54906003)(110136005)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: axis.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Nov 2023 15:57:08.0881
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 60e1ff79-49bf-408e-dbda-08dbe0735c85
-X-MS-Exchange-CrossTenant-Id: 78703d3c-b907-432f-b066-88f7af9ca3af
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=78703d3c-b907-432f-b066-88f7af9ca3af;Ip=[195.60.68.100];Helo=[mail.axis.com]
-X-MS-Exchange-CrossTenant-AuthSource: AM2PEPF0001C714.eurprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR02MB9444
+References: <nycvar.YFH.7.76.2311012033290.29220@cbobk.fhfr.pm>
+ <20231103200524.53930-1-ostapyshyn@sra.uni-hannover.de> <bokQB3BK040-4fGy8tNfZrdM2mNmWxZud9O-KMmYqOkfa1JTC1ocUjoAzCEpPsbsAvY5qb5TcSP6XsQLaja2XO0gapOcsZyeVdCvq6T31qA=@protonmail.com>
+ <CAO-hwJLpKTb9yxvxaPDLZkF9kDF8u2VRJUf9yiQd+neOyxPeug@mail.gmail.com>
+ <eb8e22f3-77dc-4923-a7ba-e237ee226edb@sra.uni-hannover.de>
+ <CAO-hwJKVwZK00yZFjuyyR9Xt4Y2-r8eLJNZfnyeopHxoZQ0eGA@mail.gmail.com>
+ <20231108062306.33f5dcd0@dryade> <CAO-hwJK_xp1A=dEOV-2v3KJAf0bRLDWNcrFQeBpgEuxT-qSBnw@mail.gmail.com>
+ <ZUtTpKyP0oxWhnn8@fedora> <CAO-hwJLjtjdr2gtrOWJFPZ-38YzKB8XfhDKWf_2jUPeiaP3EcA@mail.gmail.com>
+In-Reply-To: <CAO-hwJLjtjdr2gtrOWJFPZ-38YzKB8XfhDKWf_2jUPeiaP3EcA@mail.gmail.com>
+From:   Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Date:   Wed, 8 Nov 2023 19:21:25 +0100
+Message-ID: <CAO-hwJKNcwcDGEh33NZq4kSYtoxZzg9M2nzE_hVDYNFgA4g_dg@mail.gmail.com>
+Subject: Re: Requesting your attention and expertise regarding a Tablet/Kernel issue
+To:     =?UTF-8?B?Sm9zw6kgRXhww7NzaXRv?= <jose.exposito89@gmail.com>
+Cc:     Eric GOUYER <folays@gmail.com>,
+        Illia Ostapyshyn <ostapyshyn@sra.uni-hannover.de>,
+        David Revoy <davidrevoy@protonmail.com>, jkosina@suse.cz,
+        jason.gerecke@wacom.com, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-Add support for advanced sensitivity settings that allows more precise
-tunig of touch buttons. Input-treshold allows to set the sensitivity for
-each channel separately. Also add signal guard feature for CAP129x chips.
+On Wed, Nov 8, 2023 at 10:34=E2=80=AFAM Benjamin Tissoires
+<benjamin.tissoires@redhat.com> wrote:
+>
+> On Wed, Nov 8, 2023 at 10:23=E2=80=AFAM Jos=C3=A9 Exp=C3=B3sito <jose.exp=
+osito89@gmail.com> wrote:
+> >
+> > Hi Benjamin,
+> >
+> > On Wed, Nov 08, 2023 at 10:04:30AM +0100, Benjamin Tissoires wrote:
+> [...]
+> > >
+> > > >
+> > > > So, the behavior probably breaks the specs, but sincerely I'm happy=
+ to
+> > > > have the "eraser" button independent of the "rubber eraser", which
+> > > > makes the stylus a somewhat 4-buttons stylus (tip, button1, button2=
+,
+> > > > rubber), and I would like to keep this.
+> > >
+> > > Yes, and I'd like to keep it that way, even if 6.6 and 6.5.8
+> > > apparently broke it.
+> > >
+> > > So, to me:
+> > > - 276e14e6c3993317257e1787e93b7166fbc30905 is wrong: this is a
+> > > firmware bug (reporting invert through eraser) and should not be
+> > > tackled at the generic level, thus it should be reverted
+> > > - both of these tablets are forwarding the useful information, but no=
+t
+> > > correctly, which confuses the kernel
+> > > - I should now be able to write regression tests
+> > > - I should be able to provide HID-BPF fixes for those tablets so that
+> > > we can keep them working with or without
+> > > 276e14e6c3993317257e1787e93b7166fbc30905
+> > > reverted (hopefully)
+> > > - problem is I still don't have the mechanics to integrate the HID-BP=
+F
+> > > fixes directly in the kernel tree, so maybe I'll have to write a
+> > > driver for XP-Pen while these internals are set (it shouldn't
+> > > interfere with the HID-BPF out of the tree).
+> >
+> > I already added support for a few XP-Pen devices on the UCLogic driver
+> > and I was planning to start working on this one during the weekend in
+> > my DIGImend fork (to simplify testing).
+> >
+> > Let me know if you prefer to add it yourself or if you want me to ping
+> > you in the DIGImend discussion.
+> >
+>
+> So far, I really have to work on this now. It's a good use case for
+> HID-BPF and it's a regression that I'd like to be fixed ASAP.
+> I'd appreciate any reviews :)
 
-Signed-off-by: Jiri Valek - 2N <jiriv@axis.com>
----
- drivers/input/keyboard/cap11xx.c | 242 +++++++++++++++++++++++++------
- 1 file changed, 196 insertions(+), 46 deletions(-)
+Alright, I made quite some progress so far:
+- regressions tests have been written (branch wip/xp-pen of my fork on
+freedesktop[0])
+  that branch can not go in directly as it just adds the tests, and
+thus is failing
+- I made the fixes through HID-BPF[1]
 
-diff --git a/drivers/input/keyboard/cap11xx.c b/drivers/input/keyboard/cap11xx.c
-index 1b4937dce672..4711ea985627 100644
---- a/drivers/input/keyboard/cap11xx.c
-+++ b/drivers/input/keyboard/cap11xx.c
-@@ -14,6 +14,7 @@
- #include <linux/regmap.h>
- #include <linux/i2c.h>
- #include <linux/gpio/consumer.h>
-+#include <linux/bitfield.h>
- 
- #define CAP11XX_REG_MAIN_CONTROL	0x00
- #define CAP11XX_REG_MAIN_CONTROL_GAIN_SHIFT	(6)
-@@ -24,6 +25,7 @@
- #define CAP11XX_REG_NOISE_FLAG_STATUS	0x0a
- #define CAP11XX_REG_SENOR_DELTA(X)	(0x10 + (X))
- #define CAP11XX_REG_SENSITIVITY_CONTROL	0x1f
-+#define CAP11XX_REG_SENSITIVITY_CONTROL_DELTA_SENSE_MASK	0x70
- #define CAP11XX_REG_CONFIG		0x20
- #define CAP11XX_REG_SENSOR_ENABLE	0x21
- #define CAP11XX_REG_SENSOR_CONFIG	0x22
-@@ -32,6 +34,7 @@
- #define CAP11XX_REG_CALIBRATION		0x26
- #define CAP11XX_REG_INT_ENABLE		0x27
- #define CAP11XX_REG_REPEAT_RATE		0x28
-+#define CAP11XX_REG_SIGNAL_GUARD_ENABLE	0x29
- #define CAP11XX_REG_MT_CONFIG		0x2a
- #define CAP11XX_REG_MT_PATTERN_CONFIG	0x2b
- #define CAP11XX_REG_MT_PATTERN		0x2d
-@@ -47,6 +50,8 @@
- #define CAP11XX_REG_SENSOR_BASE_CNT(X)	(0x50 + (X))
- #define CAP11XX_REG_LED_POLARITY	0x73
- #define CAP11XX_REG_LED_OUTPUT_CONTROL	0x74
-+#define CAP11XX_REG_CALIB_SENSITIVITY_CONFIG	0x80
-+#define CAP11XX_REG_CALIB_SENSITIVITY_CONFIG2	0x81
- 
- #define CAP11XX_REG_LED_DUTY_CYCLE_1	0x90
- #define CAP11XX_REG_LED_DUTY_CYCLE_2	0x91
-@@ -78,12 +83,20 @@ struct cap11xx_led {
- 
- struct cap11xx_priv {
- 	struct regmap *regmap;
-+	struct device *dev;
- 	struct input_dev *idev;
-+	const struct cap11xx_hw_model *model;
-+	u8 id;
- 
- 	struct cap11xx_led *leds;
- 	int num_leds;
- 
- 	/* config */
-+	u8 analog_gain;
-+	u8 sensitivity_delta_sense;
-+	u8 signal_guard_inputs_mask;
-+	u32 thresholds[8];
-+	u32 calib_sensitivities[8];
- 	u32 keycodes[];
- };
- 
-@@ -181,6 +194,178 @@ static const struct regmap_config cap11xx_regmap_config = {
- 	.volatile_reg = cap11xx_volatile_reg,
- };
- 
-+static int
-+cap11xx_write_calib_sens_config_1(struct cap11xx_priv *priv)
-+{
-+	return regmap_write(priv->regmap,
-+			CAP11XX_REG_CALIB_SENSITIVITY_CONFIG,
-+			(priv->calib_sensitivities[3] << 6) |
-+			(priv->calib_sensitivities[2] << 4) |
-+			(priv->calib_sensitivities[1] << 2) |
-+			priv->calib_sensitivities[0]);
-+}
-+
-+static int
-+cap11xx_write_calib_sens_config_2(struct cap11xx_priv *priv)
-+{
-+	return regmap_write(priv->regmap,
-+			CAP11XX_REG_CALIB_SENSITIVITY_CONFIG2,
-+			(priv->calib_sensitivities[7] << 6) |
-+			(priv->calib_sensitivities[6] << 4) |
-+			(priv->calib_sensitivities[5] << 2) |
-+			priv->calib_sensitivities[4]);
-+}
-+
-+static int
-+cap11xx_init_keys(struct cap11xx_priv *priv)
-+{
-+	struct device_node *node = priv->dev->of_node;
-+	struct device *dev = priv->dev;
-+	int i, error;
-+	u32 u32_val;
-+
-+	if (!node) {
-+		dev_err(dev, "Corresponding DT entry is not available\n");
-+		return -ENODEV;
-+	}
-+
-+	if (!of_property_read_u32(node, "microchip,sensor-gain", &u32_val)) {
-+		if (priv->model->no_gain) {
-+			dev_warn(dev,
-+				 "This model doesn't support 'sensor-gain'\n");
-+		} else if (is_power_of_2(u32_val) && u32_val <= 8) {
-+			priv->analog_gain = (u8)ilog2(u32_val);
-+
-+			error = regmap_update_bits(priv->regmap,
-+				CAP11XX_REG_MAIN_CONTROL,
-+				CAP11XX_REG_MAIN_CONTROL_GAIN_MASK,
-+				priv->analog_gain << CAP11XX_REG_MAIN_CONTROL_GAIN_SHIFT);
-+			if (error)
-+				return error;
-+		} else {
-+			dev_err(dev, "Invalid sensor-gain value %u\n", u32_val);
-+			return -EINVAL;
-+		}
-+	}
-+
-+	if (of_property_read_bool(node, "microchip,irq-active-high")) {
-+		if (priv->id == CAP1106 ||
-+		    priv->id == CAP1126 ||
-+		    priv->id == CAP1188) {
-+			error = regmap_update_bits(priv->regmap,
-+						   CAP11XX_REG_CONFIG2,
-+						   CAP11XX_REG_CONFIG2_ALT_POL,
-+						   0);
-+			if (error)
-+				return error;
-+		} else {
-+			dev_warn(dev,
-+				 "This model doesn't support 'irq-active-high'\n");
-+		}
-+	}
-+
-+	if (!of_property_read_u32(node,
-+				  "microchip,sensitivity-delta-sense", &u32_val)) {
-+		if (!is_power_of_2(u32_val) || u32_val > 128) {
-+			dev_err(dev, "Invalid sensitivity-delta-sense value %u\n", u32_val);
-+			return -EINVAL;
-+		}
-+
-+		priv->sensitivity_delta_sense = (u8)ilog2(u32_val);
-+		u32_val = ~(FIELD_PREP(CAP11XX_REG_SENSITIVITY_CONTROL_DELTA_SENSE_MASK,
-+					priv->sensitivity_delta_sense));
-+
-+		error = regmap_update_bits(priv->regmap,
-+					   CAP11XX_REG_SENSITIVITY_CONTROL,
-+					   CAP11XX_REG_SENSITIVITY_CONTROL_DELTA_SENSE_MASK,
-+					   u32_val);
-+		if (error)
-+			return error;
-+	}
-+
-+	if (!of_property_read_u32_array(node, "microchip,input-treshold",
-+					priv->thresholds, priv->model->num_channels)) {
-+		for (i = 0; i < priv->model->num_channels; i++) {
-+			if (priv->thresholds[i] > 127) {
-+				dev_err(dev, "Invalid input-treshold value %u\n",
-+					priv->thresholds[i]);
-+				return -EINVAL;
-+			}
-+
-+			error = regmap_write(priv->regmap,
-+					     CAP11XX_REG_SENSOR_THRESH(i),
-+					     priv->thresholds[i]);
-+			if (error)
-+				return error;
-+		}
-+	}
-+
-+	if (!of_property_read_u32_array(node, "microchip,calib-sensitivity",
-+					priv->calib_sensitivities, priv->model->num_channels)) {
-+		if (priv->id == CAP1293 || priv->id == CAP1298) {
-+			for (i = 0; i < priv->model->num_channels; i++) {
-+				if (!is_power_of_2(priv->calib_sensitivities[i]) ||
-+				    priv->calib_sensitivities[i] > 4) {
-+					dev_err(dev, "Invalid calib-sensitivity value %u\n",
-+						priv->calib_sensitivities[i]);
-+					return -EINVAL;
-+				}
-+				priv->calib_sensitivities[i] = ilog2(priv->calib_sensitivities[i]);
-+			}
-+
-+			error = cap11xx_write_calib_sens_config_1(priv);
-+			if (error)
-+				return error;
-+
-+			if (priv->id == CAP1298) {
-+				error = cap11xx_write_calib_sens_config_2(priv);
-+				if (error)
-+					return error;
-+			}
-+		} else {
-+			dev_warn(dev,
-+				 "This model doesn't support 'calib-sensitivity'\n");
-+		}
-+	}
-+
-+	for (i = 0; i < priv->model->num_channels; i++) {
-+		if (!of_property_read_u32_index(node, "microchip,signal-guard",
-+						i, &u32_val)) {
-+			if (u32_val > 1)
-+				return -EINVAL;
-+			if (u32_val)
-+				priv->signal_guard_inputs_mask |= 0x01 << i;
-+		}
-+	}
-+
-+	if (priv->signal_guard_inputs_mask) {
-+		if (priv->id == CAP1293 || priv->id == CAP1298) {
-+			error = regmap_write(priv->regmap,
-+					     CAP11XX_REG_SIGNAL_GUARD_ENABLE,
-+					     priv->signal_guard_inputs_mask);
-+			if (error)
-+				return error;
-+		} else {
-+			dev_warn(dev,
-+				 "This model doesn't support 'signal-guard'\n");
-+		}
-+	}
-+
-+	/* Provide some useful defaults */
-+	for (i = 0; i < priv->model->num_channels; i++)
-+		priv->keycodes[i] = KEY_A + i;
-+
-+	of_property_read_u32_array(node, "linux,keycodes",
-+				   priv->keycodes, priv->model->num_channels);
-+
-+	/* Disable autorepeat. The Linux input system has its own handling. */
-+	error = regmap_write(priv->regmap, CAP11XX_REG_REPEAT_RATE, 0);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
- static irqreturn_t cap11xx_thread_func(int irq_num, void *data)
- {
- 	struct cap11xx_priv *priv = data;
-@@ -332,11 +517,9 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client)
- 	const struct i2c_device_id *id = i2c_client_get_device_id(i2c_client);
- 	struct device *dev = &i2c_client->dev;
- 	struct cap11xx_priv *priv;
--	struct device_node *node;
- 	const struct cap11xx_hw_model *cap;
--	int i, error, irq, gain = 0;
-+	int i, error, irq;
- 	unsigned int val, rev;
--	u32 gain32;
- 
- 	if (id->driver_data >= ARRAY_SIZE(cap11xx_devices)) {
- 		dev_err(dev, "Invalid device ID %lu\n", id->driver_data);
-@@ -355,6 +538,8 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client)
- 	if (!priv)
- 		return -ENOMEM;
- 
-+	priv->dev = dev;
-+
- 	priv->regmap = devm_regmap_init_i2c(i2c_client, &cap11xx_regmap_config);
- 	if (IS_ERR(priv->regmap))
- 		return PTR_ERR(priv->regmap);
-@@ -384,50 +569,15 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client)
- 		return error;
- 
- 	dev_info(dev, "CAP11XX detected, model %s, revision 0x%02x\n",
--		 id->name, rev);
--	node = dev->of_node;
--
--	if (!of_property_read_u32(node, "microchip,sensor-gain", &gain32)) {
--		if (cap->no_gain)
--			dev_warn(dev,
--				 "This version doesn't support sensor gain\n");
--		else if (is_power_of_2(gain32) && gain32 <= 8)
--			gain = ilog2(gain32);
--		else
--			dev_err(dev, "Invalid sensor-gain value %d\n", gain32);
--	}
-+			 id->name, rev);
- 
--	if (id->driver_data == CAP1106 ||
--	    id->driver_data == CAP1126 ||
--	    id->driver_data == CAP1188) {
--		if (of_property_read_bool(node, "microchip,irq-active-high")) {
--			error = regmap_update_bits(priv->regmap,
--						   CAP11XX_REG_CONFIG2,
--						   CAP11XX_REG_CONFIG2_ALT_POL,
--						   0);
--			if (error)
--				return error;
--		}
--	}
-+	priv->model = cap;
-+	priv->id = id->driver_data;
- 
--	/* Provide some useful defaults */
--	for (i = 0; i < cap->num_channels; i++)
--		priv->keycodes[i] = KEY_A + i;
--
--	of_property_read_u32_array(node, "linux,keycodes",
--				   priv->keycodes, cap->num_channels);
--
--	if (!cap->no_gain) {
--		error = regmap_update_bits(priv->regmap,
--				CAP11XX_REG_MAIN_CONTROL,
--				CAP11XX_REG_MAIN_CONTROL_GAIN_MASK,
--				gain << CAP11XX_REG_MAIN_CONTROL_GAIN_SHIFT);
--		if (error)
--			return error;
--	}
-+	dev_info(dev, "CAP11XX device detected, model %s, revision 0x%02x\n",
-+		 id->name, rev);
- 
--	/* Disable autorepeat. The Linux input system has its own handling. */
--	error = regmap_write(priv->regmap, CAP11XX_REG_REPEAT_RATE, 0);
-+	error = cap11xx_init_keys(priv);
- 	if (error)
- 		return error;
- 
-@@ -439,7 +589,7 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client)
- 	priv->idev->id.bustype = BUS_I2C;
- 	priv->idev->evbit[0] = BIT_MASK(EV_KEY);
- 
--	if (of_property_read_bool(node, "autorepeat"))
-+	if (of_property_read_bool(dev->of_node, "autorepeat"))
- 		__set_bit(EV_REP, priv->idev->evbit);
- 
- 	for (i = 0; i < cap->num_channels; i++)
-@@ -474,7 +624,7 @@ static int cap11xx_i2c_probe(struct i2c_client *i2c_client)
- 	if (error)
- 		return error;
- 
--	irq = irq_of_parse_and_map(node, 0);
-+	irq = irq_of_parse_and_map(dev->of_node, 0);
- 	if (!irq) {
- 		dev_err(dev, "Unable to parse or map IRQ\n");
- 		return -ENXIO;
--- 
-2.25.1
+Anyone using those 2 tablets and using Fedora should be able to just
+grab the artifact at [2], uncompress it and run `sudo ./install.sh
+--verbose`.
+This will install the bpf programs in /lib/firmware/hid/bpf/ and will
+automatically load them when the device is connected.
+
+For those not using Fedora, the binary might work (or not, not sure),
+but you can always decompress it, and check if running
+`udev-hid-bpf_0.1.0/bin/udev-hid-bpf --version` returns the correct
+version or just fails. If you get "udev-hid-bpf 0.1.0", then running
+`sudo ./install.sh --verbose` should work, as long as the kernel has
+CONFIG_HID_BPF set to 'Y'.
+
+>
+> Also, good to know that I can probably piggyback on hid-uclogic for
+> fixing those 2 devices in the kernel.
+>
+
+Next step will be to fix them using a kernel driver, but it seems that
+the uclogic driver is doing more than just report descriptor fixups,
+so maybe I'll have to use a different driver.
+But the point is, in theory, if you are affected by those bugs, using
+the udev-hid-bpf should fix the issue, and this should also be
+resilient to further kernel updates.
+
+I'd appreciate testing when I got the full kernel series up and ready,
+of course.
+
+Cheers,
+Benjamin
+
+[0] https://gitlab.freedesktop.org/bentiss/hid/-/tree/wip/xp-pen?ref_type=
+=3Dheads
+[1] https://gitlab.freedesktop.org/libevdev/udev-hid-bpf/-/merge_requests/2=
+7
+[2] https://gitlab.freedesktop.org/bentiss/udev-hid-bpf/-/jobs/51350589/art=
+ifacts/raw/udev-hid-bpf_0.1.0.tar.xz
 

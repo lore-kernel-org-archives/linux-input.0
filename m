@@ -2,142 +2,124 @@ Return-Path: <linux-input-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7C29CC4332F
-	for <linux-input@archiver.kernel.org>; Wed,  8 Nov 2023 13:19:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0A0F5C4332F
+	for <linux-input@archiver.kernel.org>; Wed,  8 Nov 2023 15:57:11 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233967AbjKHNTK (ORCPT <rfc822;linux-input@archiver.kernel.org>);
-        Wed, 8 Nov 2023 08:19:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39990 "EHLO
+        id S232016AbjKHP5M (ORCPT <rfc822;linux-input@archiver.kernel.org>);
+        Wed, 8 Nov 2023 10:57:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229675AbjKHNTJ (ORCPT
-        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Nov 2023 08:19:09 -0500
-X-Greylist: delayed 20399 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 08 Nov 2023 05:19:06 PST
-Received: from 6.mo584.mail-out.ovh.net (6.mo584.mail-out.ovh.net [188.165.36.253])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC6E31BE3
-        for <linux-input@vger.kernel.org>; Wed,  8 Nov 2023 05:19:06 -0800 (PST)
-Received: from director6.ghost.mail-out.ovh.net (unknown [10.109.143.208])
-        by mo584.mail-out.ovh.net (Postfix) with ESMTP id 2A41828981
-        for <linux-input@vger.kernel.org>; Wed,  8 Nov 2023 07:22:59 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-lrw8n (unknown [10.110.171.1])
-        by director6.ghost.mail-out.ovh.net (Postfix) with ESMTPS id C53E21FD49;
-        Wed,  8 Nov 2023 07:22:58 +0000 (UTC)
-Received: from RCM-web9.webmail.mail.ovh.net ([151.80.29.21])
-        by ghost-submission-6684bf9d7b-lrw8n with ESMTPSA
-        id kPniLlI3S2WLCwAAu1LDAQ
-        (envelope-from <jose.pekkarinen@foxhound.fi>); Wed, 08 Nov 2023 07:22:58 +0000
+        with ESMTP id S232692AbjKHP5L (ORCPT
+        <rfc822;linux-input@vger.kernel.org>); Wed, 8 Nov 2023 10:57:11 -0500
+Received: from EUR01-VE1-obe.outbound.protection.outlook.com (mail-ve1eur01on2075.outbound.protection.outlook.com [40.107.14.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02E361BC3;
+        Wed,  8 Nov 2023 07:57:09 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JrtChNqOIZcmcgpWRYnZ+13Q0gimyFEkf5Cd9E8Q4z8vyJBFjzJqzYmAVKkhLGzKZOesP4A8BmQw7KTG7d6yNkNjIHfsA9noVPfJRDH1Lc6zk4xHWouT6y4t7OI4WVVD+otV3WH5CU4sP+UZGWKsFx/oGMTZHV0Xoh2Rj6ysrNVbF2lp+KmOxc01Sk/aQZBh1iAQMYDmcqGkSMdt1Ky3j2VNh9NdjdAR58zmCiiA2CfET8Uk/ULJ2i+ferLfPn0nELIjRlk8AqkTtNmfXdDqOUGAnw3cb7C+PRFGJVRCFBHwv3HofkyNrvkRrOZdFfHkuSyspuvWBOPFnlNmDCVHWg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=5xQe0ZSfxo8hZWt5rpcjHQRYKCgdfUclVsr9eP8/VuU=;
+ b=LLSSe/7BKcNNZsVO3xA7pQmQffyf2oPSJeqgHp1GnXcbA7DVZmZr0VaHfH3bmt3VL4tMjGRWNBAWNe1wsXlC7rmi5grabvP4N6q82/8xAb8q4//oGxI86hviaj2742ZLe5yZEUFxPV2CZNXD8R74vl3WEK0LpdTJRa4RkyeNfzQy4On+HU39uLkEnZRj/FhqbT2Dd9uD7MRKRVdYjRs7TYU0QW+ktqoOdQ2ZP0Wpw63+GlemqLrR/5PKjLoIzQ9DQos1cdhHmCpNUrkO5PZ5/erSbSo7fjzgMX9/n1pVWiTqIPkCftthFwk67J+tBydgHKOl6ujPxpFGTEOmQdqUTA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
+ 195.60.68.100) smtp.rcpttodomain=linaro.org smtp.mailfrom=2n.com; dmarc=fail
+ (p=none sp=none pct=100) action=none header.from=axis.com; dkim=none (message
+ not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axis.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=5xQe0ZSfxo8hZWt5rpcjHQRYKCgdfUclVsr9eP8/VuU=;
+ b=Km/EBo3fIs+q3Z+DCg7KcHqo4mGEiwxP2x4e19At5fm9Kl833r0aqkyVO73iprVcxPtbcD3Jjs20SByct0RLwru2PAxb4OMRCoQziaXqbZ7+Mg1J4mAfroujgNOC+lgYBahDSjomvDYky5296OfOWKYg7ivfAmq2P7Zqy+lWrMw=
+Received: from AS9PR01CA0001.eurprd01.prod.exchangelabs.com
+ (2603:10a6:20b:540::6) by AM9PR02MB6835.eurprd02.prod.outlook.com
+ (2603:10a6:20b:2c4::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6954.29; Wed, 8 Nov
+ 2023 15:57:06 +0000
+Received: from AM2PEPF0001C714.eurprd05.prod.outlook.com
+ (2603:10a6:20b:540:cafe::8) by AS9PR01CA0001.outlook.office365.com
+ (2603:10a6:20b:540::6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6977.18 via Frontend
+ Transport; Wed, 8 Nov 2023 15:57:06 +0000
+X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 195.60.68.100)
+ smtp.mailfrom=2n.com; dkim=none (message not signed) header.d=none;dmarc=fail
+ action=none header.from=axis.com;
+Received-SPF: Fail (protection.outlook.com: domain of 2n.com does not
+ designate 195.60.68.100 as permitted sender) receiver=protection.outlook.com;
+ client-ip=195.60.68.100; helo=mail.axis.com;
+Received: from mail.axis.com (195.60.68.100) by
+ AM2PEPF0001C714.mail.protection.outlook.com (10.167.16.184) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.20.6977.17 via Frontend Transport; Wed, 8 Nov 2023 15:57:05 +0000
+Received: from lap5cg227217h.axis.com (10.0.5.60) by se-mail01w.axis.com
+ (10.20.40.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Wed, 8 Nov
+ 2023 16:57:04 +0100
+From:   Jiri Valek - 2N <jiriv@axis.com>
+To:     <krzysztof.kozlowski+dt@linaro.org>, <dmitry.torokhov@gmail.com>
+CC:     <jiriv@axis.com>, <devicetree@vger.kernel.org>,
+        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <robh+dt@kernel.org>, <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH v5 0/3] Input: cap11xx add advanced sensitivity settings
+Date:   Wed, 8 Nov 2023 16:56:44 +0100
+Message-ID: <20231108155647.1812835-1-jiriv@axis.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Date:   Wed, 08 Nov 2023 09:22:58 +0200
-From:   =?UTF-8?Q?Jos=C3=A9_Pekkarinen?= <jose.pekkarinen@foxhound.fi>
-To:     dmitry.torokhov@gmail.com, rydberg@bitmath.org,
-        skhan@linuxfoundation.org
-Cc:     rrangel@chromium.org, linux-input@vger.kernel.org,
-        amandhoot12@gmail.com, linux-kernel@vger.kernel.org,
-        linux-kernel-mentees@lists.linuxfoundation.org
-Subject: Re: [PATCH] Input: synaptics: enable InterTouch for ThinkPad L14 G1
-In-Reply-To: <77a53e59cc4151c95942f37c88db8c75@foxhound.fi>
-References: <20231008080129.17931-1-jose.pekkarinen@foxhound.fi>
- <5d857ff972e9203ef65ae2396c7285c0@foxhound.fi>
- <77a53e59cc4151c95942f37c88db8c75@foxhound.fi>
-User-Agent: Roundcube Webmail/1.4.15
-Message-ID: <15a2424c602616e659ff3a4f1ea731d3@foxhound.fi>
-X-Sender: jose.pekkarinen@foxhound.fi
-Organization: Foxhound Ltd.
-X-Originating-IP: 192.42.116.186
-X-Webmail-UserID: jose.pekkarinen@foxhound.fi
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 3986530096636274342
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvkedruddukedguddthecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecunecujfgurhepggffhffvvefujghffgfkgihoihgtgfesthekjhdttderjeenucfhrhhomheplfhoshorucfrvghkkhgrrhhinhgvnhcuoehjohhsvgdrphgvkhhkrghrihhnvghnsehfohighhhouhhnugdrfhhiqeenucggtffrrghtthgvrhhnpeejudehhfevffeuveefjeeuleejgeevtdfghfehleffkeejueetffektefhkeetjeenucffohhmrghinheplhhinhhugihfohhunhgurghtihhonhdrohhrghenucfkphepuddvjedrtddrtddruddpudelvddrgedvrdduudeirddukeeipdduhedurdektddrvdelrddvudenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomhepoehjohhsvgdrphgvkhhkrghrihhnvghnsehfohighhhouhhnugdrfhhiqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhinhhpuhhtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkeegpdhmohguvgepshhmthhpohhuth
+Content-Type: text/plain
+X-Originating-IP: [10.0.5.60]
+X-ClientProxiedBy: se-mail02w.axis.com (10.20.40.8) To se-mail01w.axis.com
+ (10.20.40.7)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM2PEPF0001C714:EE_|AM9PR02MB6835:EE_
+X-MS-Office365-Filtering-Correlation-Id: b41ccd38-05a8-4f4b-62b4-08dbe0735b08
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: R3i79IkxFN5TXq5jjGcoRlNnOCl0de4kc5aA3VLjaaj8OdzrEOYu3rjBQM44nEj9G2J1HPP+LXyk/gHO4KRJyKz1KUb1K7XGCjPcJej51m0qsu86mUkxLScvvUd3s3QpEdHkIpjofpMg0W8PI9cPwSf/LfPQ5z6PjuLg/cNczlGvdwYWcKT2ObZlhatY//XCjKd+l90jfKSz53+K6NhLM4TylUIMlpAY0SE41NkwoiE0W4fVvx/7en22laRnil7gqQBJYbeSTy9pE+X7HmZuz06cCyuGcZrtFRlJDSpxRfZX3evHJsMzLcLD89Uw4xe1MaIHO78Spa+2N32gs4Unsy1k4zJTpl3i/9eT1GtJM4xWZayvHrhTeg7oTTZ3t6dxQI04KLG4NntwNwT6vdx3u6CoRoalqMPttK8FT0YP/63btZSkqUAPRZ6EjJ3RyRUDdifsK8NWe0lI+ICHPywKXNEwaATfxL1penrXxiE//cVrTFF0O5rBZH2nooor1YYcFSr9hEMa0zT0lPzjIeKrWrpGFU4jU/6AW5y05d8HHeKHUJK7P7KHbVWgxiT8ziixjcLauttq/y1j0YdLTs59JuzRbOLLg/LHoL4FDWqXVSk53+OssdTH9Lm+4GdRpEgX8x1KZx/gqQKHJg98IhZorsGkGpx8WeFLCwQzX9fGjSnXTYeBBxa2+Y/Y1LpraLF1uhREpkLkVOHGTR/Wz7oiB2pYoLCqULatCZBZ3YBZpuzwwgjqNY4PeNj0Z+NinuR8CFivKq+HGGU2dO0ugdIlXQ==
+X-Forefront-Antispam-Report: CIP:195.60.68.100;CTRY:SE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.axis.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(136003)(396003)(346002)(39860400002)(376002)(230922051799003)(451199024)(82310400011)(64100799003)(186009)(1800799009)(46966006)(36840700001)(40470700004)(40460700003)(40480700001)(2616005)(478600001)(26005)(36860700001)(47076005)(36756003)(16526019)(356005)(82740400003)(83170400001)(83380400001)(81166007)(70206006)(42882007)(426003)(336012)(316002)(7696005)(54906003)(70586007)(1076003)(6666004)(2906002)(5660300002)(4744005)(110136005)(41300700001)(8936002)(8676002)(4326008)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: axis.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Nov 2023 15:57:05.5881
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: b41ccd38-05a8-4f4b-62b4-08dbe0735b08
+X-MS-Exchange-CrossTenant-Id: 78703d3c-b907-432f-b066-88f7af9ca3af
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=78703d3c-b907-432f-b066-88f7af9ca3af;Ip=[195.60.68.100];Helo=[mail.axis.com]
+X-MS-Exchange-CrossTenant-AuthSource: AM2PEPF0001C714.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR02MB6835
 Precedence: bulk
 List-ID: <linux-input.vger.kernel.org>
 X-Mailing-List: linux-input@vger.kernel.org
 
-On 2023-10-31 14:39, José Pekkarinen wrote:
-> On 2023-10-16 18:51, José Pekkarinen wrote:
->> On 2023-10-08 11:01, José Pekkarinen wrote:
->>> Observed on dmesg of my laptop I see the following
->>> output:
->>> 
->>> [   19.898700] psmouse serio1: synaptics: queried max coordinates: x
->>> [..5678], y [..4694]
->>> [   19.936057] psmouse serio1: synaptics: queried min coordinates: x
->>> [1266..], y [1162..]
->>> [   19.936076] psmouse serio1: synaptics: Your touchpad (PNP: LEN0411
->>> PNP0f13) says it can support a different bus. If i2c-hid and hid-rmi
->>> are not used, you might want to try setting
->>> psmouse.synaptics_intertouch to 1 and report this to
->>> linux-input@vger.kernel.org.
->>> [   20.008901] psmouse serio1: synaptics: Touchpad model: 1, fw:
->>> 10.32, id: 0x1e2a1, caps: 0xf014a3/0x940300/0x12e800/0x500000, board
->>> id: 3471, fw id: 2909640
->>> [   20.008925] psmouse serio1: synaptics: serio: Synaptics
->>> pass-through port at isa0060/serio1/input0
->>> [   20.053344] input: SynPS/2 Synaptics TouchPad as
->>> /devices/platform/i8042/serio1/input/input7
->>> [   20.397608] mousedev: PS/2 mouse device common for all mice
->>> 
->>> This patch will add its pnp id to the smbus list to
->>> produce the setup of intertouch for the device. After
->>> applying, the ouput will look like:
->>> 
->>> [   19.168664] psmouse serio1: synaptics: queried max coordinates: x
->>> [..5678], y [..4694]
->>> [   19.206311] psmouse serio1: synaptics: queried min coordinates: x
->>> [1266..], y [1162..]
->>> [   19.206325] psmouse serio1: synaptics: Trying to set up SMBus 
->>> access
->>> [   19.209545] psmouse serio1: synaptics: SMbus companion is not 
->>> ready yet
->>> [   19.283845] psmouse serio1: synaptics: Touchpad model: 1, fw:
->>> 10.32, id: 0x1e2a1, caps: 0xf014a3/0x940300/0x12e800/0x500000, board
->>> id: 3471, fw id: 2909640
->>> [   19.283863] psmouse serio1: synaptics: serio: Synaptics
->>> pass-through port at isa0060/serio1/input0
->>> [   19.328959] input: SynPS/2 Synaptics TouchPad as
->>> /devices/platform/i8042/serio1/input/input8
->>> [   19.706164] mousedev: PS/2 mouse device common for all mice
->>> 
->>> Signed-off-by: José Pekkarinen <jose.pekkarinen@foxhound.fi>
->>> ---
->>>  drivers/input/mouse/synaptics.c | 1 +
->>>  1 file changed, 1 insertion(+)
->>> 
->>> diff --git a/drivers/input/mouse/synaptics.c 
->>> b/drivers/input/mouse/synaptics.c
->>> index ada299ec5bba..376a041c80b2 100644
->>> --- a/drivers/input/mouse/synaptics.c
->>> +++ b/drivers/input/mouse/synaptics.c
->>> @@ -183,6 +183,7 @@ static const char * const smbus_pnp_ids[] = {
->>>  	"LEN009b", /* T580 */
->>>  	"LEN0402", /* X1 Extreme Gen 2 / P1 Gen 2 */
->>>  	"LEN040f", /* P1 Gen 3 */
->>> +	"LEN0411", /* L14 Gen 1 */
->>>  	"LEN200f", /* T450s */
->>>  	"LEN2044", /* L470  */
->>>  	"LEN2054", /* E480 */
->> 
->>     Any comments here?
->> 
->>     Thanks!
->> 
->>     José.
->> _______________________________________________
->> Linux-kernel-mentees mailing list
->> Linux-kernel-mentees@lists.linuxfoundation.org
->> https://lists.linuxfoundation.org/mailman/listinfo/linux-kernel-mentees
-> 
->     Ping.
-> 
->     José.
-> _______________________________________________
-> Linux-kernel-mentees mailing list
-> Linux-kernel-mentees@lists.linuxfoundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/linux-kernel-mentees
+PATCH 1 - add documentation for new options
+PATCH 2 - add support for advanced settings into driver
+PATCH 3 - remove unnecessary IRQ parsing
 
-     Sorry to bother again, I didn't hear anything from this. Can
-you please take a look?
+Changes in v2:
+  - Removed "sensitivity-base-shift" parameter (not HW propertie) in PATCH 2.
+  - Used IRQ from I2C subsystem instead of parsing it again.
+  - Fixed some documentation issues in PATCH 1
+  
+Changes in v3:
+  - Remove incorrectly used "Reviewed-by" tag in PATCH 1 and 2
 
-     José.
+Changes in v4:
+  - Remove unused variable in PATCH 2
+
+Changes in v5:
+  - Revert IRQ parsing in PATCH 2 and move to separate PATCH 3
+  - Fix 'if' condition for properties in PATCH 1
+
+Jiri Valek - 2N (3):
+  dt-bindings: input: microchip,cap11xx: add advanced sensitivity
+    settings
+  Input: cap11xx - add advanced sensitivity settings
+  Input: cap11xx - remove unnecessary IRQ parsing
+
+ .../bindings/input/microchip,cap11xx.yaml     |  76 +++++-
+ drivers/input/keyboard/cap11xx.c              | 248 ++++++++++++++----
+ 2 files changed, 269 insertions(+), 55 deletions(-)
+
+-- 
+2.25.1
+

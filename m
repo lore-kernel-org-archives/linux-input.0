@@ -1,33 +1,33 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="MCZ7ZaFg"
-Received: from NAM11-DM6-obe.outbound.protection.outlook.com (mail-dm6nam11on2042.outbound.protection.outlook.com [40.107.223.42])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99067C4;
-	Fri, 17 Nov 2023 00:11:01 -0800 (PST)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="nYaU1ULw"
+Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2072.outbound.protection.outlook.com [40.107.92.72])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97EAA131;
+	Fri, 17 Nov 2023 00:11:07 -0800 (PST)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Z1yDjS16zraheRqHaSZZvWrsF4MO8Y/pCtxnRCKwgYPMXeYNliHStD2yXtCNat2qTkcB1Jsd4IErZNsxo5sW38xDeXJIhapwlgVB8N5aPwtOKtQg+TCnzRiwN/2VD2YvLNTwvzOEGwPouceScBR1PaobGSoIVTf+08yELt5MVn7oh5qdVPX1Hb5O47ure19/dfrL6Mfjiz4O0t58V8TinLsCT7NVov4iIK9zG0Zk8CWm2HQIGnO+QnBNBG/+FQozSqYnOJHiixR0ASR3q6/AED8mQ1eL6qaoryU3vqZvLZ/q1rfmJMtGiQ0zUAnEzRtyOQhwE7Go5kkOu48PGBsX3Q==
+ b=aCcBihFiMgD9B8KjObugms6UZee/nFNIi+h35lYCxoRAeOn993OVw1+pun0M95iU/c4+ApZBjxEP13kld2F/euqiDJxWmH5Df8t86RWTeKzmvNt94mvsVwRxV9zPmRatMlFs7ZgYb9/hEI23SrM47clzf6ZnvYxnmjdBS+2ThoTmsuWDe1/cLIjI1YrcS5SNYPRV/gsMXkqv9bQ7j7TzzvpGZLGK/YU/YPKh6qFcdUAgSrb1ZWm8NKU5lt1wat2OmiKG/JXs3GpLQZPOjeLZCsYeWuaVxbmjSrHsWXSKsyXj77MBq2WkHOQu+GvZ1I2FOGh9/6r69dO58s3JPCJUXQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=c/YbupjGoS/lgXiknOa+geJjoTcviN3AVo7Z56beCcE=;
- b=ABXS2V6sFOLfnzSknhZ0TFOoVZhE52fYlh4FVdpdC7HTxIrG/lgjR+vcIpjax1TiQ+iGU+UqO3e/ZaBPIeaARJsyJ1+ClszdfruPl8vyq1npIjmoibIGIrs2+NtrGrxQ5+DR2mu64jWpAy+rYOPyWa4qvS0Q4ZAQND/fcJYsu+CCFbxtTDprz4BV5i1lI34yi8jIroIsUuG5Gw0cVxs8pvzVJQIvMJneU+Gh7ZUrdRk17uRQLE0O0c5x6gs1Tz07tuvx1/0xxZS1TkZn1PjGY1Fj0XRvh0AMBZckvxwChTXfffuwYWDR5Uqisg3NjhFA2mNApv/Cvw48OnxFzLAxmQ==
+ bh=SRyjTJT8za0x3q3C/gUcZw7VOzDOvEEwWCzGQCYMafk=;
+ b=a1em5xbOf30UmuJ2NZg91hg+QmXrA2vwowNuStfGO7avpwE+r6jfjMLQnAiTC5aNjLP7UzfV8pAsMUDaGPVoCzEIkIvC3tOItBTPU0cF8R/EezgYQhD4Dtr2uFxwnYXP5TrBTNwShWwhoa59/9bYihT1UYZ9xmvFxZAC7Po750BoWFc36rFTzLbNNd/CouTg2OmAySkhM3eJKSD0yZ6e/LG5JECzZsfhNJsNlut+q7phzv4d90aVISMaQjUgu6fvumLHz1w6S7bV83M2tKxmOp0apWbWsL6xkLp0zGknyqqY7NRSisotO6kSR7VMBK0qIVl474uVR93ACk1kdWkQcQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=c/YbupjGoS/lgXiknOa+geJjoTcviN3AVo7Z56beCcE=;
- b=MCZ7ZaFgpxO2H93DtgTaOXyMPmLDMHn8ndj+Fa6AVBQjJdk2qtxx7XRjuxdCSgMvx+A87IoC9rZPr8Tria5KBPk6TZcWlGBNaOsQ5ZWxMMfpsMbfK5JrWvIRESSi3bPINrzlvYLw7sVcdrbqZvROFPG5MjLIWS8bFmotFXnfen4=
-Received: from BN0PR04CA0165.namprd04.prod.outlook.com (2603:10b6:408:eb::20)
- by PH7PR12MB8153.namprd12.prod.outlook.com (2603:10b6:510:2b0::17) with
+ bh=SRyjTJT8za0x3q3C/gUcZw7VOzDOvEEwWCzGQCYMafk=;
+ b=nYaU1ULwwq8JdbtlZ7pquhEMaQyuq7hFwC13Cx4eY7MmpfDe+agfRcr+YGuKXC6l1XK4wUn6EOgSQ6viav614ciqUn/odIuixNQxRj2iiNNEpHU8pA/nKmGq07XKPY0kzBhbttMfOqJnyEed/JQ+VOyUyyhMc/uPDw3xV2JCmYA=
+Received: from BN0PR04CA0157.namprd04.prod.outlook.com (2603:10b6:408:eb::12)
+ by BL0PR12MB4852.namprd12.prod.outlook.com (2603:10b6:208:1ce::16) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7002.17; Fri, 17 Nov
- 2023 08:10:59 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7002.23; Fri, 17 Nov
+ 2023 08:11:05 +0000
 Received: from SN1PEPF000252A0.namprd05.prod.outlook.com
- (2603:10b6:408:eb:cafe::56) by BN0PR04CA0165.outlook.office365.com
- (2603:10b6:408:eb::20) with Microsoft SMTP Server (version=TLS1_2,
+ (2603:10b6:408:eb:cafe::36) by BN0PR04CA0157.outlook.office365.com
+ (2603:10b6:408:eb::12) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7002.23 via Frontend
- Transport; Fri, 17 Nov 2023 08:10:58 +0000
+ Transport; Fri, 17 Nov 2023 08:11:05 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -37,11 +37,11 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
  SN1PEPF000252A0.mail.protection.outlook.com (10.167.242.7) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.7025.12 via Frontend Transport; Fri, 17 Nov 2023 08:10:58 +0000
+ 15.20.7025.12 via Frontend Transport; Fri, 17 Nov 2023 08:11:05 +0000
 Received: from jatayu.amd.com (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.32; Fri, 17 Nov
- 2023 02:10:19 -0600
+ 2023 02:11:01 -0600
 From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 To: <hdegoede@redhat.com>, <markgross@kernel.org>,
 	<ilpo.jarvinen@linux.intel.com>, <basavaraj.natikar@amd.com>,
@@ -49,9 +49,9 @@ To: <hdegoede@redhat.com>, <markgross@kernel.org>,
 CC: <Patil.Reddy@amd.com>, <mario.limonciello@amd.com>,
 	<platform-driver-x86@vger.kernel.org>, <linux-input@vger.kernel.org>, "Shyam
  Sundar S K" <Shyam-sundar.S-k@amd.com>
-Subject: [PATCH v5 05/17] platform/x86/amd/pmf: change amd_pmf_init_features() call sequence
-Date: Fri, 17 Nov 2023 13:37:35 +0530
-Message-ID: <20231117080747.3643990-6-Shyam-sundar.S-k@amd.com>
+Subject: [PATCH v5 07/17] platform/x86/amd/pmf: Add support update p3t limit
+Date: Fri, 17 Nov 2023 13:37:37 +0530
+Message-ID: <20231117080747.3643990-8-Shyam-sundar.S-k@amd.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20231117080747.3643990-1-Shyam-sundar.S-k@amd.com>
 References: <20231117080747.3643990-1-Shyam-sundar.S-k@amd.com>
@@ -68,61 +68,85 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SN1PEPF000252A0:EE_|PH7PR12MB8153:EE_
-X-MS-Office365-Filtering-Correlation-Id: bfc60d09-83dd-4f60-c839-08dbe744bb27
+X-MS-TrafficTypeDiagnostic: SN1PEPF000252A0:EE_|BL0PR12MB4852:EE_
+X-MS-Office365-Filtering-Correlation-Id: 72152348-b287-489e-8513-08dbe744bf13
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
 X-Microsoft-Antispam-Message-Info:
-	2rsvrdhjBJLBiJbo8u4m33580d+eECPSTLbQWLM97e2gl7r2heOukAEbJ3xFkPPasV0a1hw3RCir4Qahiieg8N+aHxjWAA/L+E99WO+2VI3TE+/tj/3ou7avveb9M7Sks6WCbZPyU4sR7PVdblXhG5ELUBNxKkggG4X0eze2MjI2omtkOjJaqZKJEggoX+hRRNLDu8ORr6gSLwo/cD6wrD1ZwVppyfkNNVgUeuHLPwpuKetRXgKC/hTTavl87ffQnpnRTvzwCaXhjXBv6cT2IlreOzYYLVvqOdzwDIKcS3jTEHpGw29fMaZZhkTZwVQ9+2gIhe2jpu+LCYETgjSnw7RbR+7KRO0SLJBCgkuZBoGWZejrec1CqC8v7SgDSPA1A4dmo5Ygf8B3jNfTvQA+puDgPIgpg04HWJSdL8qfZH9KQN/McZW9zJiJbNZ/zBNOZZfYMdVLwJJdes8mygrA4+AksiQx8h6rFKCYdB7S2yvReo8y1A70quN2JlDih8Z6fcuiApZB2XX9FecCFHTtoH9keID/aaHQknJ6o1nh8IkX/hiG5FyRUuztCdoEzGzL16Iw5V7bjG6xmzai8hs0OSnAZN6QntppZXWesL9qKhRQyiu55+10rE5gXCKUpkSRgh/cme1gXsviRIYotShgCmmep4u2DL1j29M+nI3V0D6mdKFWwNBGlcDv+hPc96QKJ21Am9kT6GUtqeTqPVhWDiYScHGp6kED/vUDfkSYNRK2nu4Vn0SSOThPw7C+aw16QpaQKfsCmz2u9UqwxiUjtg==
+	4sVYgGD2OoqHc4zT8j12Cc0xm26xfSOqdAOUxU4gbVyKt5nGmCthGP751pr/WiyXScVLZToKAgzpGG7gJiHjns1zRi9zMG7cDYHMLX8XDuxVd90VytcwHidqgLmCyPpdge8msW4CYoVKvIU5Hhyas2MwrX7PMuE5gZ9kcSwL/wLPNZULD60WlhOvvaPr5z7Myg+YEJnFKQADy09eTr+4tbT6JA0gALhHGBoYzGQV15rEoYcGaYROekWpAsuWqFmNbDnFneHPQ8kikgJev0cYAj/avC2vqVBDc0GjulqhlvmzGHmTYK3NftD1rkIsx0SxKfqavlFZq7UuqKBTzflYlsY32JtwrUBa8pztCknsf4lx+lCOJWJn5cxbYkgYcNQZ6yqP3ZtzotAacBv9gR8flCjzRCI8RmaFQYHnDuvIWKv2P6hlxgKSFY9BVGU/xqKYjKspAMYTCyyFEQDnVqbHQnkJkOiyN3bXwZUnR0brlUowuzdevu3Ar9IteDppedvxdff4f30+sAQjow9YxNac9rq9/0pj0KkdOh0mbgg33cw6Wul12IxoSI9vOtRlVCyTqKN+dlomrf7jtxQjYV6+mqS2iLvWadnOIjn4oWQyq9bDwOxvaLEtRQaZKoCwPPDshsHDRnppAPfQUY+qB8nAh60wM1EHI7Lrz53rMTSrFndWftXEipHGyS78ttmEMJJ71bjM8oCYXfPYR4rtzmmzRbVchEQ6NFXz0QUPvffxYZlF/Gquytbm3o9xuB082gf2Ew/MeiSOff5PeKLGFMpVUKBuINjXzvzMb8PKRKwRFE4=
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(376002)(136003)(39860400002)(396003)(346002)(230922051799003)(451199024)(64100799003)(1800799009)(82310400011)(186009)(36840700001)(40470700004)(46966006)(40460700003)(70586007)(86362001)(70206006)(54906003)(316002)(110136005)(36756003)(8676002)(83380400001)(4326008)(16526019)(1076003)(8936002)(6666004)(336012)(426003)(2906002)(26005)(47076005)(41300700001)(2616005)(36860700001)(7696005)(5660300002)(82740400003)(478600001)(356005)(40480700001)(81166007)(36900700001);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(396003)(136003)(376002)(346002)(39860400002)(230922051799003)(82310400011)(1800799009)(64100799003)(186009)(451199024)(46966006)(40470700004)(36840700001)(47076005)(83380400001)(15650500001)(41300700001)(7696005)(478600001)(36860700001)(6666004)(5660300002)(16526019)(86362001)(2906002)(26005)(1076003)(54906003)(40480700001)(70206006)(36756003)(70586007)(82740400003)(316002)(40460700003)(110136005)(336012)(2616005)(8936002)(426003)(4326008)(356005)(8676002)(81166007)(42413004)(36900700001);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Nov 2023 08:10:58.6171
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Nov 2023 08:11:05.1952
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: bfc60d09-83dd-4f60-c839-08dbe744bb27
+X-MS-Exchange-CrossTenant-Network-Message-Id: 72152348-b287-489e-8513-08dbe744bf13
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
 	SN1PEPF000252A0.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH7PR12MB8153
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB4852
 
-To sideload pmf policy binaries, the Smart PC Solution Builder provides a
-debugfs file called "update_policy"; that gets created under a new debugfs
-directory called "pb" and this new directory has to be associated with
-existing parent directory for PMF driver called "amd_pmf".
-
-In the current code structure, amd_pmf_dbgfs_register() is called after
-amd_pmf_init_features(). This will not help when the Smart PC builder
-feature has to be assoicated to the parent directory.
-
-Hence change the order of amd_pmf_dbgfs_register() and call it before
-amd_pmf_init_features() so that when the Smart PC init happens, it has the
-parent debugfs directory to get itself hooked.
+P3T (Peak Package Power Limit) is a metric within the SMU controller
+that can influence the power limits. Add support from the driver
+to update P3T limits accordingly.
 
 Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 ---
- drivers/platform/x86/amd/pmf/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/amd/pmf/pmf.h    | 3 +++
+ drivers/platform/x86/amd/pmf/tee-if.c | 8 ++++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/platform/x86/amd/pmf/core.c b/drivers/platform/x86/amd/pmf/core.c
-index c8f6ec4c2e2c..4b8156033fa6 100644
---- a/drivers/platform/x86/amd/pmf/core.c
-+++ b/drivers/platform/x86/amd/pmf/core.c
-@@ -442,9 +442,9 @@ static int amd_pmf_probe(struct platform_device *pdev)
+diff --git a/drivers/platform/x86/amd/pmf/pmf.h b/drivers/platform/x86/amd/pmf/pmf.h
+index a4a73b845c09..781989c7dddd 100644
+--- a/drivers/platform/x86/amd/pmf/pmf.h
++++ b/drivers/platform/x86/amd/pmf/pmf.h
+@@ -49,6 +49,7 @@
+ #define GET_STT_MIN_LIMIT	0x1F
+ #define GET_STT_LIMIT_APU	0x20
+ #define GET_STT_LIMIT_HS2	0x21
++#define SET_P3T				0x23 /* P3T: Peak Package Power Limit */
  
- 	apmf_acpi_init(dev);
- 	platform_set_drvdata(pdev, dev);
-+	amd_pmf_dbgfs_register(dev);
- 	amd_pmf_init_features(dev);
- 	apmf_install_handler(dev);
--	amd_pmf_dbgfs_register(dev);
+ /* OS slider update notification */
+ #define DC_BEST_PERF		0
+@@ -72,6 +73,7 @@
+ #define PMF_POLICY_STT_MIN					6
+ #define PMF_POLICY_STT_SKINTEMP_APU				7
+ #define PMF_POLICY_STT_SKINTEMP_HS2				8
++#define PMF_POLICY_P3T						38
  
- 	dev_info(dev->dev, "registered PMF device successfully\n");
+ /* TA macros */
+ #define PMF_TA_IF_VERSION_MAJOR				1
+@@ -481,6 +483,7 @@ struct pmf_action_table {
+ 	u32 stt_minlimit;	/* in mW */
+ 	u32 stt_skintemp_apu;	/* in C */
+ 	u32 stt_skintemp_hs2;	/* in C */
++	u32 p3t_limit;		/* in mW */
+ };
  
+ /* Input conditions */
+diff --git a/drivers/platform/x86/amd/pmf/tee-if.c b/drivers/platform/x86/amd/pmf/tee-if.c
+index e3f17852d532..9861c2702251 100644
+--- a/drivers/platform/x86/amd/pmf/tee-if.c
++++ b/drivers/platform/x86/amd/pmf/tee-if.c
+@@ -105,6 +105,14 @@ static void amd_pmf_apply_policies(struct amd_pmf_dev *dev, struct ta_pmf_enact_
+ 				dev->prev_data->stt_skintemp_hs2 = val;
+ 			}
+ 			break;
++
++		case PMF_POLICY_P3T:
++			if (dev->prev_data->p3t_limit != val) {
++				amd_pmf_send_cmd(dev, SET_P3T, false, val, NULL);
++				dev_dbg(dev->dev, "update P3T: %u\n", val);
++				dev->prev_data->p3t_limit = val;
++			}
++			break;
+ 		}
+ 	}
+ }
 -- 
 2.25.1
 

@@ -1,130 +1,104 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="thbtr9T8"
-X-Greylist: delayed 476 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 21 Nov 2023 03:41:13 PST
-Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D28CA9C;
-	Tue, 21 Nov 2023 03:41:13 -0800 (PST)
-Received: from [192.168.42.20] (p5b164862.dip0.t-ipconnect.de [91.22.72.98])
-	(Authenticated sender: wse@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id 10D352FC01F8;
-	Tue, 21 Nov 2023 12:33:14 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1700566395;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=bE/DZ6jSuHVY0GZUKmeiKrvkfUErx6XZ/rLhfW6+yWE=;
-	b=thbtr9T8Yuz+G62q4lI97f1h/EewjqDXX3f+f386nsC9W23YpT9QO1b1CmGW1avIKk10yr
-	LgJU9QZ5xf26OisbyPn4UmNLt2Z5KKKtMWgIGoP8MPCoaIXc8tabtrq8knuJKvq1vET/yD
-	G1Ssnz+cJoo5/oSznGQ/eBl7Oc2uqb4=
-Authentication-Results: mail.tuxedocomputers.com;
-	auth=pass smtp.auth=wse@tuxedocomputers.com smtp.mailfrom=wse@tuxedocomputers.com
-Message-ID: <f4137e34-c7fb-4f21-bc93-1496cbf61fdf@tuxedocomputers.com>
-Date: Tue, 21 Nov 2023 12:33:13 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UOXeWSF3"
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58807122;
+	Tue, 21 Nov 2023 04:02:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1700568180; x=1732104180;
+  h=date:from:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=qB2VK/LgbHjxH/7OIGkKCnelQVjm7bxsSfMewaJJDuI=;
+  b=UOXeWSF33Anbze3YR8lW7kWRBqU/UoL7RWrkK2UELal4KNqVpnDsZOjj
+   vXfYPIEfPJzY8hV+TrHt+MRFJMTkZWuweFS0634OU/v8Ftl6sf5MhfRr6
+   PtZJHGoiXIGMEymUWAOpIooSueClevbCi/c9JGzHRGxpCvpIJqmJRp+T6
+   GkjOPkLrut0ii9YEDEeUtAUCIj6hkiqeD0RtzXJh3u/682ogcmhJZigIZ
+   7CmqfQIOYQEmSRPxl268VNM+5dIqVZzMFna7/pB4nUzzxKpGoa2fXwkzp
+   xMejoReoNWylJPmg2+G/XqlsriS3435L8QdImr6wjM1dokn4XX3uNuLnQ
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="422921936"
+X-IronPort-AV: E=Sophos;i="6.04,215,1695711600"; 
+   d="scan'208";a="422921936"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Nov 2023 04:02:59 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="716514204"
+X-IronPort-AV: E=Sophos;i="6.04,215,1695711600"; 
+   d="scan'208";a="716514204"
+Received: from sbouradx-mobl.ger.corp.intel.com ([10.252.58.80])
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Nov 2023 04:02:56 -0800
+Date: Tue, 21 Nov 2023 14:02:53 +0200 (EET)
+From: =?ISO-8859-15?Q?Ilpo_J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
+To: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+cc: Hans de Goede <hdegoede@redhat.com>, markgross@kernel.org, 
+    basavaraj.natikar@amd.com, jikos@kernel.org, benjamin.tissoires@redhat.com, 
+    Patil.Reddy@amd.com, mario.limonciello@amd.com, 
+    platform-driver-x86@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH v5 06/17] platform/x86/amd/pmf: Add support to get inputs
+ from other subsystems
+In-Reply-To: <20231117080747.3643990-7-Shyam-sundar.S-k@amd.com>
+Message-ID: <ae5cec34-ca52-ad32-4f90-bed2ad15dd4@linux.intel.com>
+References: <20231117080747.3643990-1-Shyam-sundar.S-k@amd.com> <20231117080747.3643990-7-Shyam-sundar.S-k@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Implement per-key keyboard backlight as auxdisplay?
-To: Pavel Machek <pavel@ucw.cz>, Jani Nikula <jani.nikula@linux.intel.com>,
- hdegoede@redhat.com, jikos@kernel.org
-Cc: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Lee Jones
- <lee@kernel.org>, linux-kernel@vger.kernel.org,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- linux-input@vger.kernel.org, ojeda@kernel.org, linux-leds@vger.kernel.org
-References: <20231011190017.1230898-1-wse@tuxedocomputers.com>
- <ZSe1GYLplZo5fsAe@duo.ucw.cz>
- <0440ed38-c53b-4aa1-8899-969e5193cfef@tuxedocomputers.com>
- <ZSf9QneKO/8IzWhd@duo.ucw.cz>
- <a244a00d-6be4-44bc-9d41-6f9df14de8ee@tuxedocomputers.com>
- <ZSk16iTBmZ2fLHZ0@duo.ucw.cz>
- <aac81702-df1e-43a2-bfe9-28e9cb8d2282@tuxedocomputers.com>
- <ZSmg4tqXiYiX18K/@duo.ucw.cz>
- <CANiq72mfP+dOLFR352O0UNVF8m8yTi_VmOY1zzQdTBjPWCRowg@mail.gmail.com>
- <87sf61bm8t.fsf@intel.com> <ZVvHG/Q+V6kCnfKZ@duo.ucw.cz>
-Content-Language: en-US
-From: Werner Sembach <wse@tuxedocomputers.com>
-In-Reply-To: <ZVvHG/Q+V6kCnfKZ@duo.ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="8323329-471844286-1700568178=:1688"
 
-Hi,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-Am 20.11.23 um 21:52 schrieb Pavel Machek:
-> Hi!
->
->>>> So... a bit of rationale. The keyboard does not really fit into the
->>>> LED subsystem; LEDs are expected to be independent ("hdd led") and not
->>>> a matrix of them.
->>> Makes sense.
->>>
->>>> We do see various strange displays these days -- they commonly have
->>>> rounded corners and holes in them. I'm not sure how that's currently
->>>> supported, but I believe it is reasonable to view keyboard as a
->>>> display with slightly weird placing of pixels.
->>>>
->>>> Plus, I'd really like to play tetris on one of those :-).
->>>>
->>>> So, would presenting them as auxdisplay be acceptable? Or are there
->>>> better options?
->>> It sounds like a fair use case -- auxdisplay are typically simple
->>> character-based or small graphical displays, e.g. 128x64, that may not
->>> be a "main" / usual screen as typically understood, but the concept is
->>> a bit fuzzy and we are a bit of a catch-all.
->>>
->>> And "keyboard backlight display with a pixel/color per-key" does not
->>> sound like a "main" screen, and having some cute effects displayed
->>> there are the kind of thing that one could do in the usual small
->>> graphical ones too. :)
->>>
->>> But if somebody prefers to create new categories (or subcategories
->>> within auxdisplay) to hold these, that could be nice too (in the
->>> latter case, I would perhaps suggest reorganizing all of the existing
->>> ones while at it).
->> One could also reasonably make the argument that controlling the
->> individual keyboard key backlights should be part of the input
->> subsystem. It's not a display per se. (Unless you actually have small
->> displays on the keycaps, and I think that's a thing too.)
-> While it would not be completely crazy to do that... I believe the
-> backlight is more of a display and less of a keyboard. Plus input
-> subystem is very far away from supporting this, and we had no input
-> from input people here.
->
-> I don't think LED subsystem is right place for this, and I believe
-> auxdisplay makes slightly more sense than input.
->
-> Unless someone steps up, I'd suggest Werner tries to implement this as
-> an auxdisplay. [And yes, this will not be simple task. RGB on LED is
-> different from RGB on display. But there are other LED displays, so
-> auxdisplay should handle this. Plus pixels are really funnily
-> shaped. But displays with missing pixels -- aka holes for camera --
-> are common in phones, and I believe we'll get variable pixel densities
-> -- less dense over camera -- too. So displays will have to deal with
-> these in the end.]
+--8323329-471844286-1700568178=:1688
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
 
-Another idea I want to throw in the mix:
+On Fri, 17 Nov 2023, Shyam Sundar S K wrote:
 
-Maybe the kernel is not the right place to implement this at all. RGB stuff is 
-not at all standardized and every vendor is doing completely different 
-interfaces, which does not fit the kernel userpsace apis desire to be uniformal 
-and fixed. e.g. Auxdisplay might fit static setting of RGB values, but it does 
-not fit the snake-effect mode, or the raindrops mode, or the 
-4-different-colors-in-the-edges-breathing-and-color-cycling mode.
+> PMF driver sends changing inputs from each subystem to TA for evaluating
+> the conditions in the policy binary.
+> 
+> Add initial support of plumbing in the PMF driver for Smart PC to get
+> information from other subsystems in the kernel.
+> 
+> Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+> ---
 
-So my current idea: Implement these keyboards as a single zone RGB kbd_backlight 
-in the leds interface to have something functional out of the box, but make it 
-runtime disable-able if something like 
-https://gitlab.com/CalcProgrammer1/OpenRGB wants to take over more fine granular 
-control from userspace via hidraw.
+> +static int amd_pmf_get_battery_info(struct amd_pmf_dev *dev, struct ta_pmf_enact_table *in)
+> +{
+> +	int val;
+> +
+> +	val = amd_pmf_get_battery_prop(POWER_SUPPLY_PROP_PRESENT);
+> +	if (val >= 0 && val != 1)
+> +		return -ENODEV;
 
-Kind regards,
+This no longer handles errors and was not what I suggested. With 
+splitting the check into two I meant this:
 
-Werner
+	val = amd_pmf_get_battery_prop(POWER_SUPPLY_PROP_PRESENT);
+	if (val < 0)
+		return val;
+	if (val != 1)
+		return -NODEV;
 
->
-> Best regards,
-> 								Pavel
+After fixing this, please add:
+
+Reviewed-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+
+> +	in->ev_info.bat_percentage = amd_pmf_get_battery_prop(POWER_SUPPLY_PROP_CAPACITY);
+> +	/* all values in mWh metrics */
+> +	in->ev_info.bat_design = amd_pmf_get_battery_prop(POWER_SUPPLY_PROP_ENERGY_FULL_DESIGN) /
+> +		MILLIWATT_PER_WATT;
+> +	in->ev_info.full_charge_capacity = amd_pmf_get_battery_prop(POWER_SUPPLY_PROP_ENERGY_FULL) /
+> +		MILLIWATT_PER_WATT;
+> +	in->ev_info.drain_rate = amd_pmf_get_battery_prop(POWER_SUPPLY_PROP_POWER_NOW) /
+> +		MILLIWATT_PER_WATT;
+> +
+> +	return 0;
+> +}
+
+-- 
+ i.
+
+--8323329-471844286-1700568178=:1688--

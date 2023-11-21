@@ -1,136 +1,148 @@
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tq-group.com header.i=@tq-group.com header.b="P5YNhls8"
-Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C2BCD78;
-	Tue, 21 Nov 2023 02:36:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
-  t=1700563010; x=1732099010;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=/BuOSICs5te6V9ljUk+eVtExi5LOcGJYUpjHjgNW5Hk=;
-  b=P5YNhls8Xyip+vIaTNvc+NyTtzaN6Kk9jptDDv79bgNaYvxE44aP+vNq
-   Ji34xcxI6aYx99SfUrgGUnrTdoeTjysZkImo4HAIFAYtYdvRiuJIOxBf2
-   L/ikUu1KL/xXXgtWXf0QaI5FZVmuV74iWAMe7iGGSHhnn2yy2HOs/2w92
-   HfNJUuDbmW7Yl8zAJq0y+TMH/dlpgLADLmPlHF9gG4QaWjsYHYWKvsxKM
-   N1k0PQU9iavk3f3dcoVkew5fDrvvJOI41KSmTCYYwRTlmO/TcScC/NIsH
-   vPHLyd8AvDm62jjk7e0H7NMLh+frzmXX3ibiRT06TXYJh2e+HFxB5hhcy
-   w==;
-X-IronPort-AV: E=Sophos;i="6.04,215,1695679200"; 
-   d="scan'208";a="34092750"
-Received: from vtuxmail01.tq-net.de ([10.115.0.20])
-  by mx1.tq-group.com with ESMTP; 21 Nov 2023 11:36:47 +0100
-Received: from localhost.localdomain (SCHIFFERM-M2.tq-net.de [10.121.49.20])
-	by vtuxmail01.tq-net.de (Postfix) with ESMTPA id 2F03A280075;
-	Tue, 21 Nov 2023 11:36:47 +0100 (CET)
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux@ew.tq-group.com,
-	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Subject: [PATCH] Input: synaptics-rmi4 - remove no-op reset handler
-Date: Tue, 21 Nov 2023 11:36:33 +0100
-Message-ID: <20231121103633.42978-1-matthias.schiffer@ew.tq-group.com>
-X-Mailer: git-send-email 2.42.0
+Authentication-Results: smtp.subspace.kernel.org; dkim=none
+Received: from mail-io1-f42.google.com (mail-io1-f42.google.com [209.85.166.42])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 637D39C;
+	Tue, 21 Nov 2023 03:37:32 -0800 (PST)
+Received: by mail-io1-f42.google.com with SMTP id ca18e2360f4ac-7a66aa8ebb7so215205939f.3;
+        Tue, 21 Nov 2023 03:37:32 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1700566651; x=1701171451;
+        h=date:subject:message-id:references:in-reply-to:cc:to:from
+         :mime-version:content-transfer-encoding:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=jxdRsb+4u+iDRHXDxaazTznHq5QV0/4kpZbydWlBH4k=;
+        b=B7LwIxmXoXapblGwGTwfKaq3ox7s6TQSs9Khn8pCGc0uoUqO2h3r8oN4QnvE5rgWVr
+         /GzAKjg4tvQvKy07MzsxnURM3u4wijK/CL22iGZNHT2mVhO7ofUkV5kIHQDEAkbcPmj0
+         FwyHmqBT5s66K8M9oVrW3I6OgckaLd+9iW8TlUVVHm1ZOnodJPqFWPWkLEuZ1BdAkzjK
+         WSqMN0s+SBUyzK0MrvaoBTNht4BzQsTmmsxY1jCygJf38qw1YJtm4Ammy1H/qVuWkBBw
+         akLtEAUnuW377nKfQwwFpAnR9ofeeJwwfpmIg3ikS4RN6wNDdjji7+YoW1aOLm7D7tcj
+         FclQ==
+X-Gm-Message-State: AOJu0YzQHv66Be+t1UWtvJpmL6LE6qjaEHfKGx193ST5DVVok0Eklh89
+	3hx75d0EDvfUeh+QAuuUdfioYDodZg==
+X-Google-Smtp-Source: AGHT+IF9RwR/tdwpnUsKSCPwqO9C9QV8Z9hofoZuMU2wzV56JcTooNqaq/juo/EIVhFfdZm0D55nKQ==
+X-Received: by 2002:a6b:d316:0:b0:794:eaef:f43e with SMTP id s22-20020a6bd316000000b00794eaeff43emr10576258iob.1.1700566651419;
+        Tue, 21 Nov 2023 03:37:31 -0800 (PST)
+Received: from herring.priv ([64.188.179.252])
+        by smtp.gmail.com with ESMTPSA id s8-20020a056602240800b0079ab2787139sm2853899ioa.7.2023.11.21.03.37.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Nov 2023 03:37:30 -0800 (PST)
+Received: (nullmailer pid 1352673 invoked by uid 1000);
+	Tue, 21 Nov 2023 11:37:28 -0000
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From: Rob Herring <robh@kernel.org>
+To: Anshul Dalal <anshulusr@gmail.com>
+Cc: Conor Dooley <conor+dt@kernel.org>, linux-kernel@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel-mentees@lists.linuxfoundation.org, Conor Dooley <conor.dooley@microchip.com>, Rob Herring <robh+dt@kernel.org>, Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, Jeff LaBundy <jeff@labundy.com>, devicetree@vger.kernel.org, linux-input@vger.kernel.org, =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>, Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+In-Reply-To: <20231121101751.2189965-1-anshulusr@gmail.com>
+References: <20231121101751.2189965-1-anshulusr@gmail.com>
+Message-Id: <170056664884.1352637.4950371378934551272.robh@kernel.org>
+Subject: Re: [PATCH v9 1/2] dt-bindings: input: bindings for Adafruit
+ Seesaw Gamepad
+Date: Tue, 21 Nov 2023 04:37:28 -0700
 
-None of the individual function drivers have ever implemented a reset()
-operation, meaning that reset_one_function() and in turn
-rmi_driver_process_reset_requests() have always been no-ops. Get rid of
-them.
 
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
----
- drivers/input/rmi4/rmi_bus.h    |  1 -
- drivers/input/rmi4/rmi_driver.c | 38 ---------------------------------
- 2 files changed, 39 deletions(-)
+On Tue, 21 Nov 2023 15:47:48 +0530, Anshul Dalal wrote:
+> Adds bindings for the Adafruit Seesaw Gamepad.
+> 
+> The gamepad functions as an i2c device with the default address of 0x50
+> and has an IRQ pin that can be enabled in the driver to allow for a rising
+> edge trigger on each button press or joystick movement.
+> 
+> Product page:
+>   https://www.adafruit.com/product/5743
+> Arduino driver:
+>   https://github.com/adafruit/Adafruit_Seesaw
+> 
+> Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> Signed-off-by: Anshul Dalal <anshulusr@gmail.com>
+> 
+> ---
+> 
+> Changes for v9:
+> - Added interrupt in example
+> 
+> v8: https://lore.kernel.org/lkml/20231108005337.45069-1-anshulusr@gmail.com/
+> 
+> Changes for v8:
+> - no updates
+> 
+> v7: https://lore.kernel.org/lkml/20231106164134.114668-1-anshulusr@gmail.com/
+> 
+> Changes for v7:
+> - no updates
+> 
+> v6: https://lore.kernel.org/lkml/20231027051819.81333-1-anshulusr@gmail.com/
+> 
+> Changes for v6:
+> - no updates
+> 
+> v5: https://lore.kernel.org/lkml/20231017034356.1436677-1-anshulusr@gmail.com/
+> 
+> Changes for v5:
+> - Added link to the datasheet
+> 
+> v4: https://lore.kernel.org/lkml/20231010184827.1213507-1-anshulusr@gmail.com/
+> 
+> Changes for v4:
+> - Fixed the URI for the id field
+> - Added `interrupts` property
+> 
+> v3: https://lore.kernel.org/linux-input/20231008185709.2448423-1-anshulusr@gmail.com/
+> 
+> Changes for v3:
+> - Updated id field to reflect updated file name from previous version
+> - Added `reg` property
+> 
+> v2: https://lore.kernel.org/linux-input/20231008172435.2391009-1-anshulusr@gmail.com/
+> 
+> Changes for v2:
+> - Renamed file to `adafruit,seesaw-gamepad.yaml`
+> - Removed quotes for `$id` and `$schema`
+> - Removed "Bindings for" from the description
+> - Changed node name to the generic name "joystick"
+> - Changed compatible to 'adafruit,seesaw-gamepad' instead of
+>   'adafruit,seesaw_gamepad'
+> 
+> v1: https://lore.kernel.org/linux-input/20231007144052.1535417-1-anshulusr@gmail.com/
+> ---
+>  .../input/adafruit,seesaw-gamepad.yaml        | 61 +++++++++++++++++++
+>  1 file changed, 61 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/input/adafruit,seesaw-gamepad.yaml
+> 
 
-diff --git a/drivers/input/rmi4/rmi_bus.h b/drivers/input/rmi4/rmi_bus.h
-index 25df6320f9f1d..9b0860a8b06f9 100644
---- a/drivers/input/rmi4/rmi_bus.h
-+++ b/drivers/input/rmi4/rmi_bus.h
-@@ -80,7 +80,6 @@ struct rmi_function_handler {
- 	int (*probe)(struct rmi_function *fn);
- 	void (*remove)(struct rmi_function *fn);
- 	int (*config)(struct rmi_function *fn);
--	int (*reset)(struct rmi_function *fn);
- 	irqreturn_t (*attention)(int irq, void *ctx);
- 	int (*suspend)(struct rmi_function *fn);
- 	int (*resume)(struct rmi_function *fn);
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 258d5fe3d395c..131add4b9affd 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -57,25 +57,6 @@ void rmi_free_function_list(struct rmi_device *rmi_dev)
- 	data->f34_container = NULL;
- }
- 
--static int reset_one_function(struct rmi_function *fn)
--{
--	struct rmi_function_handler *fh;
--	int retval = 0;
--
--	if (!fn || !fn->dev.driver)
--		return 0;
--
--	fh = to_rmi_function_handler(fn->dev.driver);
--	if (fh->reset) {
--		retval = fh->reset(fn);
--		if (retval < 0)
--			dev_err(&fn->dev, "Reset failed with code %d.\n",
--				retval);
--	}
--
--	return retval;
--}
--
- static int configure_one_function(struct rmi_function *fn)
- {
- 	struct rmi_function_handler *fh;
-@@ -95,21 +76,6 @@ static int configure_one_function(struct rmi_function *fn)
- 	return retval;
- }
- 
--static int rmi_driver_process_reset_requests(struct rmi_device *rmi_dev)
--{
--	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
--	struct rmi_function *entry;
--	int retval;
--
--	list_for_each_entry(entry, &data->function_list, node) {
--		retval = reset_one_function(entry);
--		if (retval < 0)
--			return retval;
--	}
--
--	return 0;
--}
--
- static int rmi_driver_process_config_requests(struct rmi_device *rmi_dev)
- {
- 	struct rmi_driver_data *data = dev_get_drvdata(&rmi_dev->dev);
-@@ -445,10 +411,6 @@ static int rmi_driver_reset_handler(struct rmi_device *rmi_dev)
- 		return error;
- 	}
- 
--	error = rmi_driver_process_reset_requests(rmi_dev);
--	if (error < 0)
--		return error;
--
- 	error = rmi_driver_process_config_requests(rmi_dev);
- 	if (error < 0)
- 		return error;
--- 
-TQ-Systems GmbH | Mühlstraße 2, Gut Delling | 82229 Seefeld, Germany
-Amtsgericht München, HRB 105018
-Geschäftsführer: Detlef Schneider, Rüdiger Stahl, Stefan Schneider
-https://www.tq-group.com/
+My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+on your patch (DT_CHECKER_FLAGS is new in v5.13):
+
+yamllint warnings/errors:
+
+dtschema/dtc warnings/errors:
+Error: Documentation/devicetree/bindings/input/adafruit,seesaw-gamepad.example.dts:30.34-35 syntax error
+FATAL ERROR: Unable to parse input tree
+make[2]: *** [scripts/Makefile.lib:419: Documentation/devicetree/bindings/input/adafruit,seesaw-gamepad.example.dtb] Error 1
+make[2]: *** Waiting for unfinished jobs....
+make[1]: *** [/builds/robherring/dt-review-ci/linux/Makefile:1424: dt_binding_check] Error 2
+make: *** [Makefile:234: __sub-make] Error 2
+
+doc reference errors (make refcheckdocs):
+
+See https://patchwork.ozlabs.org/project/devicetree-bindings/patch/20231121101751.2189965-1-anshulusr@gmail.com
+
+The base for the series is generally the latest rc1. A different dependency
+should be noted in *this* patch.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit after running the above command yourself. Note
+that DT_SCHEMA_FILES can be set to your schema file to speed up checking
+your schema. However, it must be unset to test all examples with your schema.
 

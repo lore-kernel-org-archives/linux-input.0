@@ -1,88 +1,226 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="Mctgan7g"
-Received: from mail-40131.protonmail.ch (mail-40131.protonmail.ch [185.70.40.131])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA2AA10C9
-	for <linux-input@vger.kernel.org>; Thu, 23 Nov 2023 14:12:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-	s=protonmail3; t=1700777546; x=1701036746;
-	bh=B0nDUCCc/9uAjOJNodziQT/GZceyc0SBQRRLgxTUQNA=;
-	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
-	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
-	 Message-ID:BIMI-Selector;
-	b=Mctgan7gGzEAOcJ8zOaWABlAzkJTBr8DVYCzOCRktmanjkuT7EG1WXo9V6lvAGAcH
-	 Uok0mzUwR56aVFBu2rdu2Gx09z+0PzMsRrrssmDiYiIwyMijEmxpvQQ6PJADRl3+zj
-	 M2DB7Oh9NTy4DvuL4VbsZd598pR+NmBeoiY45QeXnKcfkX4c3b7x8BNJYU6ajAKtdz
-	 bU7Gjh/E0303HazIJ7kBGNNy2McPUkKxxkP1lYffQsS2EL727gdJrSDM9PJQq1I++1
-	 ed97fDxrZ6totSRyN+qeoCpeBNDIUmhe/xdQSKNM0obwpn6sy9OxJ8wwmHimL4dYCB
-	 FAyDWMmmVP8/g==
-Date: Thu, 23 Nov 2023 22:12:22 +0000
-To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-From: David Revoy <davidrevoy@protonmail.com>
-Cc: =?utf-8?Q?Jos=C3=A9_Exp=C3=B3sito?= <jose.exposito89@gmail.com>, Eric GOUYER <folays@gmail.com>, Illia Ostapyshyn <ostapyshyn@sra.uni-hannover.de>, jkosina@suse.cz, jason.gerecke@wacom.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Requesting your attention and expertise regarding a Tablet/Kernel issue
-Message-ID: <evHI05gyKuWwynY1WdyVvXqKPUaPE8W34cc3tFfp9FWh94TWfA9FWfHun7AAscF9lqfbiYsLKGC7kTSZ9xWNZg88-PTpbGTLcFMc9D3P2HE=@protonmail.com>
-In-Reply-To: <CAO-hwJJoCp0_kxf_HHN9n9EWy9YDSY4rP8ysYNrNg2xTUYtKEQ@mail.gmail.com>
-References: <nycvar.YFH.7.76.2311012033290.29220@cbobk.fhfr.pm> <_DEF7tHL1p_ExY7GJlJvT5gRA7ZvNnVMJuURb8_WCV-0fbYXkLN2p5zHloi6wiJPNzGEjFAkq2sjbCU633_eNF_cGm0rAbmCOOIOfwe1jWo=@protonmail.com> <CAO-hwJ+zm=R7NwrALaLVmfPDtMNXpj0eoQgLkiS1wa6wd+hu+A@mail.gmail.com> <CAO-hwJKJW5jGDdaaS8eB7kcLQUvWO_1XkOzJG4HAcaRzw1cGnQ@mail.gmail.com> <7wmtNlKuYResf5cFQ7M2QTalzIUtw0I6ohvPcz69Jo1c8flezyIlnJu1IwAgXhJ-u0NlRL3IV7HnL0Kza6fVBqd7X7jhc-Z6QCi3oqHEvpY=@protonmail.com> <CAO-hwJJ+nx72_TPfxcWRPBDZdDaPrO5yMNH4Y_mj6ej651Mesw@mail.gmail.com> <nFHw6XePiH5p60JsbQSbssRkiuABiTiR_n5fIYFZjPgkV3ObjjZuwTC84BJ_1vXYVufPbG3UvZ1L7ODSrrGlq9CrI7BTKhsV5QeAQoakV18=@protonmail.com> <CAO-hwJ+jwmTE-v7FsPi3f70mB8SqUha7Ek9DtptZ0auiFpGM7w@mail.gmail.com> <CAO-hwJJoCp0_kxf_HHN9n9EWy9YDSY4rP8ysYNrNg2xTUYtKEQ@mail.gmail.com>
-Feedback-ID: 5460171:user:proton
+	dkim=pass (2048-bit key) header.d=atomide.com header.i=@atomide.com header.b="deq8gQJo"
+X-Greylist: delayed 368 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 24 Nov 2023 00:39:14 PST
+Received: from mail5.25mail.st (mail5.25mail.st [74.50.62.9])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A45E1AD;
+	Fri, 24 Nov 2023 00:39:13 -0800 (PST)
+Received: from localhost (91-158-86-216.elisa-laajakaista.fi [91.158.86.216])
+	by mail5.25mail.st (Postfix) with ESMTPSA id 5A57C60B1C;
+	Fri, 24 Nov 2023 08:33:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=atomide.com;
+	s=25mailst; t=1700814812;
+	bh=X9UAYrEpltlL4BFSrotnsyJ28JU1NDy+XhYUgWFsj3c=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=deq8gQJoV8AuDJyfkujArZSATCptJGPR0oRvGeUQHKRlosVOvT+oW0d7diQ6tztdi
+	 PgqjHJn6mqxEpebsOYh9vNXzAf0cgcnySdleHpY5arlQOCEKe68YzB+y9u+dMD2vJR
+	 WhuxWudhbeaeCkdg/URqXQwtJ8w2In3hd7zSx5onHwfszgAcA6F5B62DF2M5pLZsgv
+	 deaEPLf1R0VOS3sCQwk3FIGCTXhQvZrBdi7FMPyyst07aPjGnh5+uZTPQG1islIacA
+	 riYzbWoxf8TfsNjPEqKHvN/RYuSmSiixjV9Z5KajH8QWWa+L41EHiA/nty5hFChEC4
+	 75L2s+1h3F4eA==
+From: Tony Lindgren <tony@atomide.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Rob Herring <robh@kernel.org>,
+	Dhruva Gole <d-gole@ti.com>
+Subject: [PATCH v4 2/2] Input: gpio-keys - Add system suspend support for dedicated wakeirqs
+Date: Fri, 24 Nov 2023 10:32:41 +0200
+Message-ID: <20231124083241.40780-2-tony@atomide.com>
+X-Mailer: git-send-email 2.42.1
+In-Reply-To: <20231124083241.40780-1-tony@atomide.com>
+References: <20231124083241.40780-1-tony@atomide.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Benjamin,
+Some SoCs have a separate dedicated wake-up interrupt controller that can
+be used to wake up the system from deeper idle states. We already support
+configuring a separate interrupt for a gpio-keys button to be used with a
+gpio line. However, we are lacking support system suspend for cases where
+a separate interrupt needs to be used in deeper sleep modes.
 
-Sorry for late reply.
+Because of it's nature, gpio-keys does not know about the runtime PM state
+of the button gpios, and may have several gpio buttons configured for each
+gpio-keys device instance. Implementing runtime PM support for gpio-keys
+does not help, and we cannot use drivers/base/power/wakeirq.c support. We
+need to implement custom wakeirq support for gpio-keys.
 
-> So it would be nice if you could try the artifacts of job 51600738[4].
-> Again, download them (udev-hid-bpf_0.1.0-4-g5ab02ec.tar.xz), unpack,
-> sudo ./install --verbose, then unplug/replug the artist Pro 24.
+For handling a dedicated wakeirq for system suspend, we enable and disable
+it with gpio_keys_enable_wakeup() and gpio_keys_disable_wakeup() that we
+already use based on device_may_wakeup().
 
-Ok, the main change I experienced after installing is xsetwacom=20
-listing the ID name of the device with twice the name Stylus on=20
-"UGTABLET 24 inch PenDisplay Stylus stylus". Before it was only=20
-"UGTABLET 24 inch PenDisplay stylus".
+Some systems may have a dedicated wakeirq that can also be used as the
+main interrupt, this is already working for gpio-keys. Let's add some
+wakeirq related comments while at it as the usage with a gpio line and
+separate interrupt line may not be obvious.
 
-$ xsetwacom --list
-UGTABLET 24 inch PenDisplay Stylus stylus       id: 10  type: STYLUS=20
+Tested-by: Dhruva Gole <d-gole@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+---
 
-Not a big deal, but I thought it was worth to mention it.
+No changes from v1
 
-> Then, I'll need the following sequence (ideally repeated twice or
-> three times, given that your last record show a slight difference in
-> the first and second attempt):
->=20
-> - outside of the proximity of the sensor, press the upper button
-> - approach the stylus to the surface keeping the upper button pressed
-> - touch the surface with the tip while holding the upper button pressed
-> - release the upper button while keeping the tip pressed (like previously=
-)
-> - press once again the upper button while keeping the tip touching the
-> surface (like previously)
-> - lift of the pen, keeping the upper button pressed, and still in
-> range of the sensor
-> - remove the pen from the proximity of the sensor entirely (move away
-> 20 cm or so), while still keeping the upper button pressed
->=20
-> It's actually longer to describe than to execute :)
->=20
+---
+ drivers/input/keyboard/gpio_keys.c | 69 ++++++++++++++++++++++++++++--
+ include/linux/gpio_keys.h          |  2 +
+ 2 files changed, 67 insertions(+), 4 deletions(-)
 
-Thank you for the detailed steps. True, it makes sens once=20
-practising it. I made the gesture three time on:=20
-
-https://www.peppercarrot.com/extras/mailing-list/hid-records/XPPEN-Artist-2=
-4-Pro/2023-11-23_XPPEN-Artist-24-Pro_pen_tip-contact-and-press-release-uppe=
-r-stylus-button-while-pressed-x3.txt
-
-> But I would also totally understand that you had enough debugging and
-> you would rather focus on using the tablets, instead of debugging
-> them. In which case, someone else from the community might help me.
-
-No problem for continue testing, I'm around! Thank you again=20
-for improving the behavior of the tablets.
-
-Cheers,
-David
+diff --git a/drivers/input/keyboard/gpio_keys.c b/drivers/input/keyboard/gpio_keys.c
+--- a/drivers/input/keyboard/gpio_keys.c
++++ b/drivers/input/keyboard/gpio_keys.c
+@@ -45,7 +45,9 @@ struct gpio_button_data {
+ 	unsigned int software_debounce;	/* in msecs, for GPIO-driven buttons */
+ 
+ 	unsigned int irq;
++	unsigned int wakeirq;
+ 	unsigned int wakeup_trigger_type;
++
+ 	spinlock_t lock;
+ 	bool disabled;
+ 	bool key_pressed;
+@@ -511,6 +513,7 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 	struct gpio_button_data *bdata = &ddata->data[idx];
+ 	irq_handler_t isr;
+ 	unsigned long irqflags;
++	const char *wakedesc;
+ 	int irq;
+ 	int error;
+ 
+@@ -575,6 +578,14 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 					!gpiod_cansleep(bdata->gpiod);
+ 		}
+ 
++		/*
++		 * If an interrupt was specified, use it instead of the gpio
++		 * interrupt and use the gpio for reading the state. A separate
++		 * interrupt may be used as the main button interrupt for
++		 * runtime PM to detect events also in deeper idle states. If a
++		 * dedicated wakeirq is used for system suspend only, see below
++		 * for bdata->wakeirq setup.
++		 */
+ 		if (button->irq) {
+ 			bdata->irq = button->irq;
+ 		} else {
+@@ -672,6 +683,36 @@ static int gpio_keys_setup_key(struct platform_device *pdev,
+ 		return error;
+ 	}
+ 
++	if (!button->wakeirq)
++		return 0;
++
++	/* Use :wakeup suffix like drivers/base/power/wakeirq.c does */
++	wakedesc = devm_kasprintf(dev, GFP_KERNEL, "%s:wakeup", desc);
++	if (!wakedesc)
++		return -ENOMEM;
++
++	bdata->wakeirq = button->wakeirq;
++	irqflags |= IRQF_NO_SUSPEND;
++
++	/*
++	 * Wakeirq shares the handler with the main interrupt, it's only
++	 * active during system suspend. See gpio_keys_button_enable_wakeup()
++	 * and gpio_keys_button_disable_wakeup().
++	 */
++	error = devm_request_any_context_irq(dev, bdata->wakeirq, isr,
++					     irqflags, wakedesc, bdata);
++	if (error < 0) {
++		dev_err(dev, "Unable to claim wakeirq %d; error %d\n",
++			bdata->irq, error);
++		return error;
++	}
++
++	/*
++	 * Disable wakeirq until suspend. IRQF_NO_AUTOEN won't work if
++	 * IRQF_SHARED was set based on !button->can_disable.
++	 */
++	disable_irq_nosync(bdata->wakeirq);
++
+ 	return 0;
+ }
+ 
+@@ -728,7 +769,7 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 	struct gpio_keys_platform_data *pdata;
+ 	struct gpio_keys_button *button;
+ 	struct fwnode_handle *child;
+-	int nbuttons;
++	int nbuttons, irq;
+ 
+ 	nbuttons = device_get_child_node_count(dev);
+ 	if (nbuttons == 0)
+@@ -750,9 +791,19 @@ gpio_keys_get_devtree_pdata(struct device *dev)
+ 	device_property_read_string(dev, "label", &pdata->name);
+ 
+ 	device_for_each_child_node(dev, child) {
+-		if (is_of_node(child))
+-			button->irq =
+-				irq_of_parse_and_map(to_of_node(child), 0);
++		if (is_of_node(child)) {
++			irq = of_irq_get_byname(to_of_node(child), "irq");
++			if (irq > 0)
++				button->irq = irq;
++
++			irq = of_irq_get_byname(to_of_node(child), "wakeup");
++			if (irq > 0)
++				button->wakeirq = irq;
++
++			if (!button->irq && !button->wakeirq)
++				button->irq =
++					irq_of_parse_and_map(to_of_node(child), 0);
++		}
+ 
+ 		if (fwnode_property_read_u32(child, "linux,code",
+ 					     &button->code)) {
+@@ -921,6 +972,11 @@ gpio_keys_button_enable_wakeup(struct gpio_button_data *bdata)
+ 		}
+ 	}
+ 
++	if (bdata->wakeirq) {
++		enable_irq(bdata->wakeirq);
++		disable_irq_nosync(bdata->irq);
++	}
++
+ 	return 0;
+ }
+ 
+@@ -929,6 +985,11 @@ gpio_keys_button_disable_wakeup(struct gpio_button_data *bdata)
+ {
+ 	int error;
+ 
++	if (bdata->wakeirq) {
++		enable_irq(bdata->irq);
++		disable_irq_nosync(bdata->wakeirq);
++	}
++
+ 	/*
+ 	 * The trigger type is always both edges for gpio-based keys and we do
+ 	 * not support changing wakeup trigger for interrupt-based keys.
+diff --git a/include/linux/gpio_keys.h b/include/linux/gpio_keys.h
+--- a/include/linux/gpio_keys.h
++++ b/include/linux/gpio_keys.h
+@@ -21,6 +21,7 @@ struct device;
+  *			disable button via sysfs
+  * @value:		axis value for %EV_ABS
+  * @irq:		Irq number in case of interrupt keys
++ * @wakeirq:		Optional dedicated wake-up interrupt
+  */
+ struct gpio_keys_button {
+ 	unsigned int code;
+@@ -34,6 +35,7 @@ struct gpio_keys_button {
+ 	bool can_disable;
+ 	int value;
+ 	unsigned int irq;
++	unsigned int wakeirq;
+ };
+ 
+ /**
+-- 
+2.42.1

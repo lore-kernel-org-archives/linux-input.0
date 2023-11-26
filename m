@@ -1,149 +1,72 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.net header.i=p.jungkamp@gmx.net header.b="k0T3WcDb"
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.18])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED7AADE;
-	Sun, 26 Nov 2023 02:59:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-	s=s31663417; t=1700996352; x=1701601152; i=p.jungkamp@gmx.net;
-	bh=KOgWecDxYY3g2cM8BZQE6G+u1bTa0v3+bYLlKnXNiM0=;
-	h=X-UI-Sender-Class:Subject:From:To:Cc:Date:In-Reply-To:
-	 References;
-	b=k0T3WcDbBY0WHIpu6Tr6Vd5kigXuS2Wk7RUnM3CO73oCAAlP2gvCZnKvTNhOd5TZ
-	 V5Td5vqOfBh1k3cjH28YYzLR+PKz/PvSLpx3+wAbC/af9vCRbXbY6HxHmcmuor+nv
-	 OJXuQXE52C2gC8N8aDDnx5NvwuuVCI8QAnyEp/nNWnXfIyYDPfCvYt4/amh6XG3fx
-	 M120+7c2j/X+5Jf6NTAcFynFQpb28CA0smUhlfi4C+VtBf49UBRSti8ZNw6nU/qzm
-	 9OkTDMynBqHusuWPyFSM5HwIiqxqFZPOK4/x7Pv/uGzci7a3xILSgj6HKI4zov1r2
-	 WBnj7G1SWiI0hkZQqg==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from yoga9.fritz.box ([149.50.180.176]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1M5wLZ-1rD0YN1KeZ-007WMJ; Sun, 26
- Nov 2023 11:59:12 +0100
-Message-ID: <94eafe4dfe176d0ca01ddbd0ec599e3c5fb2e0a3.camel@gmx.net>
-Subject: Re: supporting binary (near-far) proximity sensors over gpio
-From: Philipp Jungkamp <p.jungkamp@gmx.net>
-To: Jeff LaBundy <jeff@labundy.com>, David Lechner <dlechner@baylibre.com>
-Cc: Sicelo <absicsz@gmail.com>, linux-iio@vger.kernel.org, 
-	maemo-leste@lists.dyne.org, Ivaylo Dimitrov <ivo.g.dimitrov.75@gmail.com>, 
-	linux-input@vger.kernel.org
-Date: Sun, 26 Nov 2023 11:59:05 +0100
-In-Reply-To: <ZWLKsVu/v8m9nA0U@nixie71>
-References: <ZVevR_ajeB1jfDS9@tp440p.steeds.sam>
-	 <CAMknhBE5A3w7ntdWC9cFDYSrPQNPoH7sQ5PVXKEy6MAJmZ93SA@mail.gmail.com>
-	 <ZWLKsVu/v8m9nA0U@nixie71>
-Autocrypt: addr=p.jungkamp@gmx.net; prefer-encrypt=mutual;
- keydata=mDMEZKA9JBYJKwYBBAHaRw8BAQdAKwP+0RjhVSZAbfCZU5BxzUCipG/upiZwEhd0dJ0U//e0JVBoaWxpcHAgSnVuZ2thbXAgPHAuanVuZ2thbXBAZ214Lm5ldD6IlwQTFgoAPwIbAwUJAeEzgAIXgBYhBIvrh1FNoSXo9EcYWLGJCFcFRbXEBQJkpDk/BQsJCAcCBhUKCQgLAgUWAgMBAAIeBQAKCRCxiQhXBUW1xMMdAP91HOdFUZGolehv9RtGA4nXc0TO+na7g6MiX3Uct/55zgD/RCpd0Nif/TVMnzblQ1w6zQAUNuKgeHEyFqSkzxr84gK4OARkoD0kEgorBgEEAZdVAQUBAQdAEvFkDBEYCk0fpiigqdy0Dpy1AHvRhyGI6PIoELG+MCwDAQgHiH4EGBYKACYWIQSL64dRTaEl6PRHGFixiQhXBUW1xAUCZKA9JAIbDAUJAeEzgAAKCRCxiQhXBUW1xAA+AQCwrnCmsBxgpqpBPRwqGUY20YHzGsDfkTIsgnyEjq6t2QD/S0ny+FaJAEXOFU/HTZ84iT2wXoXdeE3jtjycLO+akww=
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.50.1 
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ZeWVBZ2b"
+Received: from mail-yb1-xb30.google.com (mail-yb1-xb30.google.com [IPv6:2607:f8b0:4864:20::b30])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84FDDD
+	for <linux-input@vger.kernel.org>; Sun, 26 Nov 2023 12:08:16 -0800 (PST)
+Received: by mail-yb1-xb30.google.com with SMTP id 3f1490d57ef6-db40849f2d5so3116904276.0
+        for <linux-input@vger.kernel.org>; Sun, 26 Nov 2023 12:08:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1701029296; x=1701634096; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oY/+6Vdf/DK4Vduwgn3n01nTcjhDvzNRLJfMJ/HHsLw=;
+        b=ZeWVBZ2bsTOBYFlv/CEqfALy72G1JJXdcBFze91qgJoacKJ+7Ob2czV9Cz52qGL2Bt
+         n71OwK364yWaBqvI6TUZZfW4ooHS2igd+LeUBZ5MWvE/xstwbo0u1Yocq/lXW4p6Jb9N
+         qKLUpAo/Jv4gOijX1nsCOLLA04s9eXgATcw0H0R/msRKIgDNOEQhw45a3Et3wwtx2FVR
+         pE6n+SsH3Ki+ICROzykztMeUFOp+q41eO3uVFaqX9cWKRbUgLCjV6W37qt0ZXCMsVn01
+         KbEM7hEjmBGhRmzdMOjL3mwk2wXFslcjYx1A2LX5Hmur8HElGHi6ztj/GDdrQlkjojk4
+         Vr+g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1701029296; x=1701634096;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=oY/+6Vdf/DK4Vduwgn3n01nTcjhDvzNRLJfMJ/HHsLw=;
+        b=fl9uShvSORKevzg3SZna228I+tL8A3RYwp1A/jpBwskaFEZbgDBY1t1eoJNw3U5dvB
+         bV+1yntAOhyuzd6n4fG2ceUDiirOO5XLFkz/PR3druZ42AMaMQRWmD8WgS8iyJXi0ENz
+         r1AJWRlp7rKXY7yUE3mofIVdmXMBHz03aJImNhaRrHJlCs+EvZkM12LU6ZE7yMxDAImd
+         X6NmUCYoh3TWjg4lZoi59UVOERvizIR0v6GosGqSCdZLc+OAw3qsryic+QaJlJxH3Hc9
+         5QoMZ21gtqt8jdloryN23MwscyVz03+g9hTk2qnqo8AJat3Z8HKGoA/UrqryYKZwhnIr
+         Xixw==
+X-Gm-Message-State: AOJu0YzTG86WaiddaHcWcTWX75n2N4cZM0WqVPpwl0Ztg1y7FgmGTYpP
+	9r8Rodqr/KTmNzdS5Qi4+CEhypp2kM2rH3qjpmGw4g==
+X-Google-Smtp-Source: AGHT+IFFBCc7DEmI9LRDuJXBegkzaw0XRK2lD9elEp31ICkd9wVkz9h0c066lGIr5re94D7Av79NdJLG0iWp7EOCIMM=
+X-Received: by 2002:a05:690c:2b0b:b0:5ce:2148:d4bd with SMTP id
+ em11-20020a05690c2b0b00b005ce2148d4bdmr5935726ywb.4.1701029296078; Sun, 26
+ Nov 2023 12:08:16 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Provags-ID: V03:K1:ARqkbLjknU3g+EOr1EzR3p3uW+JEW80BrdIiOwn/qMTYIWOdWs2
- g2vYGhjjzn1kxtA/SkkkfzQENnURb+XbI4189DAwEmo6Syj4x30DT0ANZ74XDhiEyIWig2k
- l4W5lGdV+pGZzPsatsq4A4KaSEFTxbie+bY6iIrYjeo9Tdk6eUVxG34DFRJjfX53DVzmKYx
- shlg1oU05CCgRhWrCPjWg==
-UI-OutboundReport: notjunk:1;M01:P0:zYnSjV9BL6k=;AWQhsNzsDJW34ZQFl4t8WYlLWZF
- NkhAIY6WT4rMAeKZe70O8uw2gGfq0GotimN3SxDF9uR+DSmqAm2wyIQkKt1eAzHFnpo9+RFWR
- uiIJ6WHFYVF3d4XLwzbjttIeNUpYZZj4KN6WDDz+aBEiXJMS9Be0SOvW1COY9QRCkmrAdHcEs
- /eYM7fZPZXyqehO910cZMwlaixyHxE5dLOlFMYIobcnPhjT74lr8zeuPeWCtKvCsxV3tF9n1M
- L+XPAkt3bu6H2VMPpXIIGN/gc8PUWmAf5LQSMnUbeIXyF8W6SQuUEqEYCTcbNO50iwaBnz7E5
- lXD/lzoGPEDlK7OOxAWbf9USXFzAYyKWhDXDYwqKFFJw35q7jPWDi2LtfGxzE5Nue//DPqbjl
- smsbfHD6wgq5O7xsh5Hmq9VwLvKdrVDHVr+71hfNhULM/V/hvC/XtZ2T8bhuYpoNuO3C97ETw
- rE0ysoyNRl1Zkpo4lRBHw+VXHRJ5qNq+GhLIElu/I8x8GYPwG8nyvF/ScMkq6Pu6msIk3dpis
- vp2x0wV5hUstO2lR9kcuSbTdUHrVac3wkowbZwgpPqk4cFSpodlm1WxOnDlmc8rASK0CsbKE6
- QQP25vNHWTM3OnodohTHs2sKx3wUqvC0s8HOGOM55Av+ns4s/7HATGZLPWmWkN1BfMW8fdt59
- YE/Lt43LZhyd/wSzGkrZnYpSFw7K+OpqnQNiBXsUUwV+RQ7fWYYPV39liZL9mrxbNjnxAghDp
- cA2lWrxAsskPx2RfjMuMRXydlkgALbi3z/hQvAw3yWZzlPfUPVYbIYKNsyIW9pBuC4jmmOwQw
- RuWgpKoDmLmVoJghnKnEjkXGZjwdAWuTK6Eq2pbsExNKuFDzmCHKnQcdRzrtdKTztP231fiui
- 1mWUAvWifnceA2gzwhqS5lRohHDEkWI4EuKUuW6uZxruYKe/ZKXASEspuuefpAzWl/vdN40ls
- wpKRAXDMJO3huISwbzX3xDq5O8U=
+References: <20231126103029.851742-1-anshulusr@gmail.com>
+In-Reply-To: <20231126103029.851742-1-anshulusr@gmail.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Sun, 26 Nov 2023 21:08:03 +0100
+Message-ID: <CACRpkdayV=KUv4j+af_HSEtz05kmg+g-UTOjENsGuS4xtsdTNQ@mail.gmail.com>
+Subject: Re: [PATCH v1] dt-bindings: input: convert gpio-mouse to json-schema
+To: Anshul Dalal <anshulusr@gmail.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh+dt@kernel.org>, 
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, Conor Dooley <conor+dt@kernel.org>, 
+	linux-kernel@vger.kernel.org, linux-kernel-mentees@lists.linuxfoundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Sun, Nov 26, 2023 at 11:32=E2=80=AFAM Anshul Dalal <anshulusr@gmail.com>=
+ wrote:
 
-would it make sense to move the HID human presence driver at
-drivers/iio/light/hid-sensor-prox.c to the input system then? This
-driver only checks for the "Biometric" (0x2004b0) and "Biometric: Human
-Presence" (0x2004b1) HID usages. The former has a vendor defined value
-range, the latter is defined as a boolean switch. See the HID Usage
-Tables, section 21.1 and 21.6.
+> Convert device tree binding documentation for GPIO attached mouse to
+> json-schema.
+>
+> Signed-off-by: Anshul Dalal <anshulusr@gmail.com>
 
-I take from this discussion that the input subsystem would make more
-sense for the "Biometric: Human Presence" usage.
+Nice work! It looks flawless, making good use of default typing suffixes
+-ms -gpios.
 
-I just wanted to chime in as there seems to be some older precedent for
-a binary sensor in the iio subsystem. I tried to get that sensor
-working for the proximity sensor on my laptop last year.
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 
-Regards,
-Philipp Jungkamp
-
-On Sat, 2023-11-25 at 22:33 -0600, Jeff LaBundy wrote:
-> Hi Sicelo and David,
->=20
-> On Sat, Nov 18, 2023 at 06:09:18PM -0600, David Lechner wrote:
-> > On Fri, Nov 17, 2023 at 12:22=E2=80=AFPM Sicelo <absicsz@gmail.com> wro=
-te:
-> > >=20
-> > > Hi
-> > >=20
-> > > Some phones have 1-bit proximity sensors, which simply toggle a
-> > > GPIO
-> > > line to indicate that an object is near or far. Thresholds are
-> > > set at
-> > > hardware level. One such sensor is OSRAM SFH 7741 [1], which is
-> > > used on
-> > > the Nokia N900.
-> > >=20
-> > > It is currently exported over evdev, emitting the
-> > > SW_FRONT_PROXIMITY key
-> > > code [2].
-> > >=20
-> > > So the question is: should a new, general purpose iio-gpio driver
-> > > be
-> > > written, that would switch such a proximity sensor to the iio
-> > > framework?
-> > > Or evdev is really the best place to support it?
-> > >=20
-> > > There are a couple of people who are willing to write such an iio
-> > > driver, if iio is the way to go.
-> > >=20
-> > > Regards,
-> > > Sicelo
-> > >=20
-> > > [1]
-> > > https://media.digikey.com/pdf/Data%20Sheets/Osram%20PDFs/SFH_7741.pdf
-> > > [2]
-> > > https://elixir.bootlin.com/linux/v6.6.1/source/arch/arm/boot/dts/ti/o=
-map/omap3-n900.dts#L111
-> > >=20
-> > Since this is really a proximity switch (it is either on or off)
-> > rather than measuring a proximity value over a continuous range, it
-> > doesn't seem like a good fit for the iio subsystem. If the sensor
-> > is
-> > on a phone, then it is likely to detect human presence so the input
-> > subsystem does seem like the right one for that application.
-> >=20
-> > More at
-> > https://www.kernel.org/doc/html/latest/driver-api/iio/intro.html
-> >=20
->=20
-> I tend to agree; if there are only two discrete states as is the case
-> for a
-> GPIO, then this is technically a switch and not a sensor. Therefore,
-> input
-> seems like a better fit; that is just my $.02.
->=20
-> FWIW, a similar discussion came up a few years ago in [1] and again
-> the key
-> differentiator was whether the output is discrete or continuous.
->=20
-> Kind regards,
-> Jeff LaBundy
->=20
-> [1]
-> https://lore.kernel.org/linux-iio/9f9b0ff6-3bf1-63c4-eb36-901cecd7c4d9@re=
-dhat.com/
->=20
+Yours,
+Linus Walleij

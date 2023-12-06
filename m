@@ -1,45 +1,45 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="MbzJjMBz"
-Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B765D7D
-	for <linux-input@vger.kernel.org>; Wed,  6 Dec 2023 03:00:45 -0800 (PST)
-Received: by mail-wr1-x42e.google.com with SMTP id ffacd0b85a97d-3334d9b57adso471707f8f.1
-        for <linux-input@vger.kernel.org>; Wed, 06 Dec 2023 03:00:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="INDI4F6G"
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89C551BD0
+	for <linux-input@vger.kernel.org>; Wed,  6 Dec 2023 03:01:39 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id ffacd0b85a97d-332fd78fa9dso567226f8f.3
+        for <linux-input@vger.kernel.org>; Wed, 06 Dec 2023 03:01:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1701860443; x=1702465243; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1701860466; x=1702465266; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=FPhhus+h0/OzMDouB3uZsxOuBY91lWyEIx8Tfql5Hyc=;
-        b=MbzJjMBz3L/FGNXw7G3jkQarF1qb5NVPJjqe8Tg4mkam11PAsCvJPUrPXGQbeGWtYa
-         V3RWRSsv6qJx7apze40s1RngbOWR7PEz1vWzPW+jDPpc/ZsonG8FhJKgZrgGfrPUkjEv
-         AXYeKr1WJdBleovDVAHfWhHKnqLANs3BukOL0upgjZVN4P14XUYKQoednckUgqLxtFJK
-         5VQbSFPEpiSj8o6yLGVPG7uJHxgstDhffjsw846GmxUE78aHCPf3ORhZzVaw/MiQQ0Kx
-         CVyAg9vKZO3OZklzQ7P4PrTDVz+56aAPmDlYiqwnvJUYwIRubiVv4q4bQ+28QxF5mi/s
-         ubRg==
+        bh=u7VWu46RJcWVBaO3VsBmAuO5ZqODdSZUgUmBKc59vt4=;
+        b=INDI4F6GdRe3tYpNBWJAU40DCIrJAKidpfeGK68r35Ix38QvjXpKfYVN0LOuTOX/Xm
+         8FoGNfZnPAPL/HBD3Eoh4V6I3+2i4noynBzb6mqCYVn/LBEHiDwYWOMVxoWtzNVe8XnM
+         A/97HdcAy60IZCaBD6STYevm8HS8aQ29QW+Jy1zRH4HwR25Q7mufduVwnwdEc6NFPSLq
+         paKc/ea4TAJP5WkfBmXW6R5CE52BdNOSTsLf46wPlrFFApaJ4Rnly08jN1t9qmCE41NW
+         3rkk6mmV+DBrZcXI4zQgH9ZqVsbgmMgL3X7B3yjpNyehLs/X9fmXRE0jh2gBZcWTqcV3
+         Ap0Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701860443; x=1702465243;
+        d=1e100.net; s=20230601; t=1701860466; x=1702465266;
         h=content-transfer-encoding:in-reply-to:autocrypt:from:references:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=FPhhus+h0/OzMDouB3uZsxOuBY91lWyEIx8Tfql5Hyc=;
-        b=l0ao6YihbYAB3m3wHD28uc0IfLas2fN5TjbE66FPCZ4/UsP3sHPGX3L168GN6gp2VV
-         k1ltYiUENYytfzB3GftADC1jCzGw7s4DzG5eRmjy3czs1XutRv4+CPQjZqZ/NLJ1FxlU
-         B+n+fr1/n8u+NRvdLgeZrDZYNX5BXv2dbkyJjxCWFNUsjYtnTt+pYiCxfn6uWEy+31eR
-         CoNyaw+8TMd+hVJVMIICwSMgKg8OzD5ZAZtvv4fGT0EN7zuBj+wNYqB4/fO4VN8m+YgX
-         LaZTK33NWia36P3ZBv1bqoVuRYTx6zV7L4iZ2JElzCf1q8nNXSSzY123YpB7Dg0Dfgyq
-         w/LA==
-X-Gm-Message-State: AOJu0Yz3egLPMU2wJ7cfVunw2orh7UhVEmmImPSw8ckZN7Wb+qzVHTKq
-	kkLfmXEejQLJ0B4bjJpBsAeNfw==
-X-Google-Smtp-Source: AGHT+IHfEopXvXDSksmAEce2ljkG1NRPB3ktJTr1iC+1KloGFhh7QVeN1gGj+Bt1BjsIoM9uDoRtNA==
-X-Received: by 2002:a5d:4cc1:0:b0:333:2fd2:8166 with SMTP id c1-20020a5d4cc1000000b003332fd28166mr481150wrt.131.1701860443266;
-        Wed, 06 Dec 2023 03:00:43 -0800 (PST)
+        bh=u7VWu46RJcWVBaO3VsBmAuO5ZqODdSZUgUmBKc59vt4=;
+        b=OLxb60JnJvYKW3Xq8xs8HJCT/1I7wDAoSknqLymROf2/3kDQLcTcdciNUyIG3zXebG
+         MmRC0fgOY7fYEg2qrFUbKDdJMloILE3vYhNhB6kaZdXb0bhuMhLEuv0iKlwIe436zLos
+         bFEhjOl4uOELo0NkZKsQQouLWaL+ihCGrc8W8QKm7M6Dodgjd0LOWoNGCAfmAov5SdZq
+         aPKYBA9Bcz9kVIvR49ykd61gB6AH5jeeMcGFh2ywWS/Ms2oGNvM04Ld0bg09WieR+2HJ
+         vIvX7Vke4I10pT69Tn9U3OA6Lu8gBAsKclrozqwKh8XUu9/uVIBrVNNeQf+pcs5A2vpD
+         bKBQ==
+X-Gm-Message-State: AOJu0YwjALdO9lBfy6HKg/IGmcibMM2+GPwMeuuG91VvRtpK/3Zmnh/R
+	Umv9dhbY56Zp+RdKtSPIPzmK8g==
+X-Google-Smtp-Source: AGHT+IFJ4h7uhrpbkcPJAPfSbR2scO6garrpGpd5o2EOhJAO81DWTuGxrkeMgAyRPEqm5mww8jQCpg==
+X-Received: by 2002:a5d:65c5:0:b0:333:3b0d:457f with SMTP id e5-20020a5d65c5000000b003333b0d457fmr185038wrw.218.1701860466400;
+        Wed, 06 Dec 2023 03:01:06 -0800 (PST)
 Received: from [192.168.1.20] ([178.197.218.27])
-        by smtp.gmail.com with ESMTPSA id ba18-20020a0560001c1200b00333479734a7sm8669148wrb.99.2023.12.06.03.00.42
+        by smtp.gmail.com with ESMTPSA id ba18-20020a0560001c1200b00333479734a7sm8669148wrb.99.2023.12.06.03.01.05
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 Dec 2023 03:00:42 -0800 (PST)
-Message-ID: <17ce60f7-81aa-452f-84cc-8b09b7cb1b7e@linaro.org>
-Date: Wed, 6 Dec 2023 12:00:41 +0100
+        Wed, 06 Dec 2023 03:01:05 -0800 (PST)
+Message-ID: <f7e1b02a-f8fe-45d4-8bed-2773b68335f9@linaro.org>
+Date: Wed, 6 Dec 2023 12:01:05 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,14 +47,15 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 0/2] Add HX83102j driver for HIMAX HID touchscreen
+Subject: Re: [PATCH v2 2/2] Input: Add Himax HX83102J touchscreen driver
 Content-Language: en-US
 To: Allen_Lin <allencl_lin@hotmail.com>, dmitry.torokhov@gmail.com,
  robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org,
  jikos@kernel.org, benjamin.tissoires@redhat.com,
  linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org
-References: <TY0PR06MB5611F2CBE520DB21F15DF9B99E84A@TY0PR06MB5611.apcprd06.prod.outlook.com>
+References: <20231206103546.808680-1-allencl_lin@hotmail.com>
+ <TY0PR06MB56119F0D60142F4C1435767C9E84A@TY0PR06MB5611.apcprd06.prod.outlook.com>
 From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
  xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
@@ -100,27 +101,32 @@ Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
  KQ06ztUMRrj8eVtpImjsWCd0bDWRaaR4vqhCHvAG9iWXZu4qh3ipie2Y0oSJygcZT7H3UZxq
  fyYKiqEmRuqsvv6dcbblD8ZLkz1EVZL6djImH5zc5x8qpVxlA0A0i23v5QvN00m6G9NFF0Le
  D2GYIS41Kv4Isx2dEFh+/Q==
-In-Reply-To: <TY0PR06MB5611F2CBE520DB21F15DF9B99E84A@TY0PR06MB5611.apcprd06.prod.outlook.com>
+In-Reply-To: <TY0PR06MB56119F0D60142F4C1435767C9E84A@TY0PR06MB5611.apcprd06.prod.outlook.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 06/12/2023 11:35, Allen_Lin wrote:
-> Hi,
-> This driver implements for HIMAX HID touchscreen HX8310XX series. 
+> Add a new driver for Himax  touchscreen series touchscreen controllers.
+> This driver supports Himax IC using the SPI interface to
+> acquire HID packets.
 > 
-> Using SPI interface to acquire HID packets from driver. 
-> 
-> Patchs notes as below 
-> 1. Add the Maintainer and devicetree bindings document for driver
-> 2. Add the driver code and modify Kconfig/Makefiles to support the driver
-> 
-> change in v2 :
-> - Fix kernel test robot build warnings.
+> Signed-off-by: Allen_Lin <allencl_lin@hotmail.com>
+> ---
+> v1 -> v2: Fix kernel test robot build warnings
+> Signed-off-by: Allen_Lin <allencl_lin@hotmail.com>
+> ---
+>  MAINTAINERS                    |    2 +
+>  drivers/hid/Kconfig            |    9 +-
+>  drivers/hid/Makefile           |    2 +-
+>  drivers/hid/hid-himax-83102j.c | 3175 ++++++++++++++++++++++++++++++++
+>  drivers/hid/hid-himax-83102j.h |  923 ++++++++++
+>  5 files changed, 4109 insertions(+), 2 deletions(-)
+>  create mode 100644 drivers/hid/hid-himax-83102j.c
+>  create mode 100644 drivers/hid/hid-himax-83102j.h
 
-I reviewed v1, so you must fix everything I pointed out. This code is in
-absolutely terrible shape. It way over complicated, with way too many
-structures, way too many abstractions (you must have exactly 0
-abstractions). It was not written in Linux style.
+Implement review from v1.
+
+NAK
 
 Best regards,
 Krzysztof

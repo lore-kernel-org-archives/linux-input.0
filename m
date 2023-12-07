@@ -1,30 +1,28 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="QdMVj81P"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="ECM8Lje4"
 Received: from endrift.com (endrift.com [173.255.198.10])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FB0010C4
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FD6910C6
 	for <linux-input@vger.kernel.org>; Wed,  6 Dec 2023 22:44:01 -0800 (PST)
 Received: from nebulosa.vulpes.eutheria.net (71-212-26-68.tukw.qwest.net [71.212.26.68])
-	by endrift.com (Postfix) with ESMTPSA id EC957A2AC;
+	by endrift.com (Postfix) with ESMTPSA id 3D895A25D;
 	Wed,  6 Dec 2023 22:34:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1701930869; bh=lmiCqfNSVoqjQzNW2pRae5gjNIsS0E0cWUeYhrGPa/4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=QdMVj81PZxhe1NTKXS3aogktGYlDc32DCMr47FLD7a75ZrvtF1DXGaX1cGIwwd3zp
-	 RiKfJVblGphvIU5VAPKPAIeEkDvoB6nNZ/z9KYrsNLp8666gYyCRmmdWTzLzFu62N/
-	 uWKZcaSfYodHtgKCnMsrvJKPTOKSX3BkyxHHThYDKG0St9W/aTKuID46fHQ3J0zxpo
-	 XFxlASScFIci1OQ7tdhU5hufjQgL8+eEqRtPX5L+rzUqLOQBJQp1F9LfXB0bDgV4mD
-	 hEBXdZkcvDHT0Uo/lI9nhW4CegadQLQLa1tfN5XqQYX0V78nB/tzcilSwBTACiB7jY
-	 Sz1w6ZcuzPS3w==
+	t=1701930868; bh=ru1OeP4vywI9h+Km5a8LlXCQiUJtpJ54xOkg5MWtqkM=;
+	h=From:To:Cc:Subject:Date:From;
+	b=ECM8Lje4c0Tt3bP/kbqmv7X4RcErqOEJkDr/T6QUljxotxyaOFA/RIRP4BDMW+jPf
+	 k1cwUw4AiJ2nTlJ7fZcZxNIWbLhlTgrfYzkvN+2d99r+LwDA3AG4LOr5ldo7+/MiOc
+	 tMXsq0Ta5sZ0U7xOmK/pT+hF6HJgBTJs4ebF9uVW+J6MW1eTS++mjb9imunrFE7T5r
+	 mMjEH1TtIIBJFPBlIYRzwTfxQoFu7/YsPrskqCnAixdjOYoyA8J4F0CGUtx9FD4ncL
+	 meKHtfGfP4ugBptvm8B8XK+EtydAJzGFOT06+v6KVnPwfF9HBX3fDAwBOP3XvDZ4/f
+	 6HCX9Fd4KVwfA==
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH 2/2] Input: uinput - Release mutex while unregistering input device
-Date: Wed,  6 Dec 2023 22:34:06 -0800
-Message-ID: <20231207063406.556770-3-vi@endrift.com>
+Subject: [PATCH 0/2] Input: uinput - Multiple concurrency fixes in ff request handling
+Date: Wed,  6 Dec 2023 22:34:04 -0800
+Message-ID: <20231207063406.556770-1-vi@endrift.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231207063406.556770-1-vi@endrift.com>
-References: <20231207063406.556770-1-vi@endrift.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -33,75 +31,53 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Any pending requests may be holding a mutex from its own subsystem, e.g.
-evdev, while waiting to be able to claim the uinput device mutex.
-However, unregistering the device may try to claim that mutex, leading
-to a deadlock. To prevent this from happening, we need to temporarily
-give up the lock before calling input_unregister_device.
+While investigating a report of a process hanging on submitting ff data to a
+uinput-derived evdev handle I uncovered several issues regarding cross-thread
+concurrency.
 
-Fixes: e8b95728f724 ("Input: uinput - avoid FF flush when destroying device")
-Signed-off-by: Vicki Pfau <vi@endrift.com>
----
- drivers/input/misc/uinput.c | 28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+The first fix is simply making waiting on the completion object interruptible.
+Without this, the submitting process cannot be interrupted, meaning it has to
+either wait for the uinput-controlling process to read the data, or the timeout
+being reached. While this is the usual flow, it being uninterruptible means
+that if the uinput-controlling process is misbehaving, the submitting process
+cannot be killed, suspended, or otherwise interrupted until the timeout is
+reached, which could take an annoyingly long time for users.
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index 0330e72798db..ac6e5baa2093 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -296,17 +296,34 @@ static void uinput_destroy_device(struct uinput_device *udev)
- 	udev->state = UIST_NEW_DEVICE;
- 
- 	if (dev) {
-+		udev->dev = NULL;
- 		name = dev->name;
- 		phys = dev->phys;
- 		if (old_state == UIST_CREATED) {
- 			uinput_flush_requests(udev);
-+
-+			/*
-+			 * Any pending requests may be holding a mutex from its
-+			 * own subsystem, e.g. evdev, while waiting to be able
-+			 * to claim the uinput device mutex. However,
-+			 * unregistering the device may try to claim that
-+			 * mutex, leading to a deadlock. To prevent this from
-+			 * happening, we need to temporarily give up the lock.
-+			 *
-+			 * Since this function is only called immediately
-+			 * before the caller exits the critical section without
-+			 * doing any further operations on the device, this
-+			 * is safe and we can immediately reclaim the mutex
-+			 * when done so the unlock is still balanced.
-+			 */
-+			mutex_unlock(&udev->mutex);
- 			input_unregister_device(dev);
-+			mutex_lock(&udev->mutex);
- 		} else {
- 			input_free_device(dev);
- 		}
- 		kfree(name);
- 		kfree(phys);
--		udev->dev = NULL;
- 	}
- }
- 
-@@ -745,7 +762,16 @@ static int uinput_release(struct inode *inode, struct file *file)
- {
- 	struct uinput_device *udev = file->private_data;
- 
-+	int retval;
-+
-+	retval = mutex_lock_interruptible(&udev->mutex);
-+	if (retval)
-+		return retval;
-+
- 	uinput_destroy_device(udev);
-+
-+	mutex_unlock(&udev->mutex);
-+
- 	kfree(udev);
- 
- 	return 0;
+The second fix is probably more controversial, and I'm unsure if it's really
+the best way to solve this issue. Namely, there exists a small, but
+reproducible window where closing a uinput device on the uinput side and
+uploading ff data via an evdev handle in a separate process will lead to a
+deadlock: the uinput ioctl will claim the mutex, flush requests, then try to
+close the input device, which then tries to claim the evdev mutex. However,
+when uploading the ff data, the evdev mutex will be claimed, try to claim the
+uinput mutex, and hang indefinitely, leading to a deadlock. Since it can never
+claim the uinput mutex, it doesn't notice that it should exit early, but since
+it can't get the mutex at all, it can't release the evdev mutex.
+
+My approach to solving this involves temporarily releasing the mutex after
+flushing requests, allowing the upload to claim the mutex, then closing the
+input device without the mutex being held, and finally reclaim the mutex to
+rebalance the mutex_unlock later on.
+
+I spent quite a while investigating other approaches while trying to come up
+with the least hacky and simplest way to fix this. However, a proper fix might
+be more involved and have to touch other subsystems, namely evdev, in which
+case I would defer to Dmitry for a better fix, as he's a lot more familiar with
+these subsystems.
+
+I also suspect that there's a race condition with uinput_dev_event, as most
+call sites are protected by the uinput device mutex, but not all of them.
+Namely, it can be called via the input device's event function pointer, which
+has no idea that the uinput mutex exists.  However, I haven't demonstrated that
+there is actually an issue here, so I haven't attempted to fix it.
+
+Vicki Pfau (2):
+  Input: uinput - Allow uinput_request_submit wait interrupting
+  Input: uinput - Release mutex while unregistering input device
+
+ drivers/input/misc/uinput.c | 34 ++++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
+
 -- 
 2.43.0
 

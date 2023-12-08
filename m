@@ -1,182 +1,57 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WLt7FeaC"
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2DB810EB;
-	Fri,  8 Dec 2023 07:43:09 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id 98e67ed59e1d1-2851a2b30a2so1840592a91.3;
-        Fri, 08 Dec 2023 07:43:09 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Oc8qMAJI"
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772BB1FC9
+	for <linux-input@vger.kernel.org>; Fri,  8 Dec 2023 08:18:21 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id 98e67ed59e1d1-2866b15b013so489847a91.0
+        for <linux-input@vger.kernel.org>; Fri, 08 Dec 2023 08:18:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702050189; x=1702654989; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :sender:from:to:cc:subject:date:message-id:reply-to;
-        bh=WdZ6XGEPzhT5jj/IPHXYwoO9J2EgJOhsZV1HjQOLiWk=;
-        b=WLt7FeaCRmjoXsyorS5u05JlruCGkrn4NaWJ5a1wUihAXZixxWrq2dkzo8gcdxUsgb
-         kIDQ8j6zN3snZkumYCym3j8Un86bpCiPqLT+vsPorhPSeI1tjJPfSiIRLCcMFsGFcRO9
-         2E4oiyeo7jpMfOGXrfw3WOH7kc+loF2YEpHwC8FrpS0P2RAa6lVENgjObXWjY3c9fJf5
-         l4BkitoLorCRHrn2GqVDVAo23bv9EkA2cAdpijFvRN7DvYS887p/BC9z8MVxAkBpozbO
-         NBx1cwtq13fWSGy8nU3/LT1ueEd0GNZ0rhqPO+63fyv66p1RLjqKmuB5X8IlMSHZJNLc
-         AaJQ==
+        d=gmail.com; s=20230601; t=1702052300; x=1702657100; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=jCQaj1kJQx2qrYKp0DDSquY141tZqx5YIEXZv20s37E=;
+        b=Oc8qMAJIeJhsbUEabB+LEnOfprmtXoi6bfA/OSH8IifSRNHQQe1B+TAtwb+AGjSwlM
+         2H+RR21PRzzckmurx4GEd5ILhPFmSUElXq37g/4xUjm69wSFLEbkOQ86HnQxXP/xoJR1
+         YwfS5/V0oI4q39LIZqXf6belSQw24PJfEFz4u8/113lpgBa0QqoHb9QXEGhF6YJAI3Bs
+         /G1h2SqISK64tDVPGk4/gPBNpKfx1DDrqe/VPjtf3tur4fzmYcVgKy+Omw+ihWImeUnc
+         S7gCZ0sJLTfGEoPMDfMTN1oq+aCyrw405JUVArbm69cHp4Q1VAHhk67x9bDc08423nUQ
+         vaHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702050189; x=1702654989;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :sender:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WdZ6XGEPzhT5jj/IPHXYwoO9J2EgJOhsZV1HjQOLiWk=;
-        b=LhduWvQfvtQic8q1mGbqKK/Ih6wlBian4fEUtbCChyg4Gc0EpkrEAgbb2lbO2UEh/p
-         RM1kawAgzN+yEmEYk9C0rknUWAuD0ohSd/gOcd10M0vwStuJQAhXDT1cSwnplL4rq7cG
-         tqhSEgbTLJnur7S+zMsQMlaTXPOg1iRE8f0+v4tZrKonrjRN6J3ds30GHnpDMzsbd1rL
-         JF1OAse82vUJPO0/dC7ArQqstNoyDbN3U8GQeEhHvAreo6cmb6ZTWVpKPjvL0P8aV0mL
-         RjxJfq14BWWJBoyZIDCxlY7tIP3Dt9k35h6S6Co15/37Fh7QXaQ0Orm65odawNdcNvXV
-         h5wQ==
-X-Gm-Message-State: AOJu0Yw9gg0o3m6b6gwwVSGbPg81HDLJD0Wsh7ZOYqdeBfb318piJMeI
-	4YlRQ1+adrBTdO6edYc4GXg=
-X-Google-Smtp-Source: AGHT+IEaWnrXi2VV5U/tdIVeucRXBn67c4mmL/hC75+j2aQXn32dkoik18nHKehgUuf3+s1NWHZ8WQ==
-X-Received: by 2002:a17:90a:df86:b0:28a:464d:5ecb with SMTP id p6-20020a17090adf8600b0028a464d5ecbmr268789pjv.36.1702050189043;
-        Fri, 08 Dec 2023 07:43:09 -0800 (PST)
-Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id 26-20020a17090a191a00b00286e69c8fb1sm2122269pjg.52.2023.12.08.07.43.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 08 Dec 2023 07:43:08 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Message-ID: <b2b3f17d-0f86-4d40-a471-f44153efd6fe@roeck-us.net>
-Date: Fri, 8 Dec 2023 07:43:07 -0800
+        d=1e100.net; s=20230601; t=1702052300; x=1702657100;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=jCQaj1kJQx2qrYKp0DDSquY141tZqx5YIEXZv20s37E=;
+        b=NbwVa9usdTBgXJ6ylXWdqqosQOPMKqvVZzd4BURL2mmXBvzWx4tkVGZDX67fVX2x4Y
+         EDBqJq8Cimv9S/KrKYAVZRaX0s7yrGgjYcOrVNAb+S7Ct3xJttpiexoYbsm0wRjAoIJT
+         MuZl3w/2eM32e7WFQw7avMOHOz1dxHEYL6HZIr1qurNoADLLpuOVDVyA07jHTnMWHtLy
+         WdELZlFmWcvgif6heIn/JjqasnaO3rsMxpciri/ocLpY3lJmIPCH5TnqtK8Lhwbr21GP
+         HS9UoQQzJ3Sqto8TXkZUkODqelEzqa2aEI5iwOlFnXd4qXXEjH4oJ+p5jNTIPoAd7KDI
+         2yMQ==
+X-Gm-Message-State: AOJu0YwuSZpPpFU+M2RGIuzV915I1BXC4gTmGzdCiqMIbNsf9qS5fvca
+	lEP/lSl6kqrgP1diKApBpn3NYPywpnjEjCvwIRtzdi90P/4=
+X-Google-Smtp-Source: AGHT+IGN26YhuiKaNsR5VdJnY14U+7IK8oE4qHrsw/bgCrhQiUJQSBOP5GbrSJKqXPhYBPTgIFX3BVTRRSTWmpwYhsU=
+X-Received: by 2002:a17:90a:6345:b0:286:4055:63e0 with SMTP id
+ v5-20020a17090a634500b00286405563e0mr654115pjs.0.1702052300608; Fri, 08 Dec
+ 2023 08:18:20 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] hwmon: (corsair-psu) Fix failure to load when built-in to
- kernel
-Content-Language: en-US
-To: Wilken Gottwalt <wilken.gottwalt@posteo.net>,
- Aleksa Savic <savicaleksa83@gmail.com>
-Cc: linux-hwmon@vger.kernel.org, Jean Delvare <jdelvare@suse.com>,
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
- Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <benjamin.tissoires@redhat.com>
-References: <20231208130710.191420-1-savicaleksa83@gmail.com>
- <d91d4bf1-3e8d-4b63-baa9-479a91d04eb7@gmail.com>
- <20231208145742.6def047a@posteo.net>
-From: Guenter Roeck <linux@roeck-us.net>
-Autocrypt: addr=linux@roeck-us.net; keydata=
- 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
- mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
-In-Reply-To: <20231208145742.6def047a@posteo.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: Martino Fontana <tinozzo123@gmail.com>
+Date: Fri, 8 Dec 2023 17:18:09 +0100
+Message-ID: <CAKst+mA+ROeY34G8E_hA4q35H1MWcJJqEtvdHWnXebav1dJdLA@mail.gmail.com>
+Subject: Re: [PATCH] HID: nintendo: use slots for led patterns
+To: rymcclel@gmail.com
+Cc: Benjamin Tissoires <benjamin.tissoires@redhat.com>, 
+	"Daniel J. Ogorchock" <djogorchock@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
+	linux-input <linux-input@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On 12/8/23 05:57, Wilken Gottwalt wrote:
-> On Fri, 8 Dec 2023 14:11:44 +0100
-> Aleksa Savic <savicaleksa83@gmail.com> wrote:
-> 
->> On 2023-12-08 14:07:10 GMT+01:00, Aleksa Savic wrote:
->>> When built-in to the kernel, the corsair-psu driver fails to register with
->>> the following message:
->>>
->>> "Driver 'corsair-psu' was unable to register with bus_type 'hid'
->>> because the bus was not initialized."
->>>
->>> Fix this by initializing the driver after the HID bus using
->>> late_initcall(), as hwmon is built before HID.
->>>
->>> Fixes: d115b51e0e56 ("hwmon: add Corsair PSU HID controller driver")
->>> Signed-off-by: Aleksa Savic <savicaleksa83@gmail.com>
->>> ---
->>>   drivers/hwmon/corsair-psu.c | 15 ++++++++++++++-
->>>   1 file changed, 14 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/hwmon/corsair-psu.c b/drivers/hwmon/corsair-psu.c
->>> index 904890598c11..48831a528965 100644
->>> --- a/drivers/hwmon/corsair-psu.c
->>> +++ b/drivers/hwmon/corsair-psu.c
->>> @@ -899,7 +899,20 @@ static struct hid_driver corsairpsu_driver = {
->>>   	.reset_resume	= corsairpsu_resume,
->>>   #endif
->>>   };
->>> -module_hid_driver(corsairpsu_driver);
->>> +
->>> +static int __init corsairpsu_hid_init(void)
->>> +{
->>> +	return hid_register_driver(&corsairpsu_driver);
->>> +}
->>> +
->>> +static void __exit corsairpsu_hid_exit(void)
->>> +{
->>> +	hid_unregister_driver(&corsairpsu_driver);
->>> +}
->>> +
->>> +/* When compiled into the kernel, initialize after the hid bus */
->>> +late_initcall(corsairpsu_hid_init);
->>> +module_exit(corsairpsu_hid_exit);
->>>   
->>>   MODULE_LICENSE("GPL");
->>>   MODULE_AUTHOR("Wilken Gottwalt <wilken.gottwalt@posteo.net>");
->>
->>
->> Woops! Just saw that the same fix was sent yesterday. Please disregard, sorry!
->>
->> Aleksa
-> 
-> It is fine. I just start to wonder if there was a change in the subsystem. I
-> used the driver as built-in in the past for several months and never had that
-> issue. And now it is a real flood of reports.
-> 
-
-Maybe there was a change in the build order, or some subtle change
-in driver registration code. Question though is _when_ this changed.
-It would be great if someone could bisect it. For example, bus registration
-code has been changed significantly in v6.3. I am copying linux-input
-and the hid maintainers for feedback.
-
-Either case, I now have two patches and at least the first one was actually
-tested, but no Reviewed-by: or Tested-by: for either of them. While that is
-of course a formality, it would still be useful to show that it is not just
-a random change.
-
-Thanks,
-Guenter
-
+Funny timing, I was working on a patch for the same thing too.
+Instead of using a bitmask, I used ida_alloc (just like hid-playstation does).
+I'll leave my version of the patch here, for comparison's sake.
+(It has no description, and it wraps on the 8th player)
+I can't properly test either of them, since I have only one controller (though
+every time I connect it, only the first LED light up, as expected).

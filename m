@@ -1,151 +1,153 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LlOjFO/q"
-Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3830E171C
-	for <linux-input@vger.kernel.org>; Fri,  8 Dec 2023 08:18:38 -0800 (PST)
-Received: by mail-ed1-x52d.google.com with SMTP id 4fb4d7f45d1cf-54cbabf4bceso591991a12.0
-        for <linux-input@vger.kernel.org>; Fri, 08 Dec 2023 08:18:38 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mNSR0n2+"
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0032C1989;
+	Fri,  8 Dec 2023 08:52:50 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id a640c23a62f3a-9e1021dbd28so303528766b.3;
+        Fri, 08 Dec 2023 08:52:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702052316; x=1702657116; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=I6+LkPH66gOhphotxMNoCChEKQE36aIMtQNHFW8fx5U=;
-        b=LlOjFO/qJjj3+eSQvLkWUO733/EjCaogQYo5v1hn1O8tUXo/P6ojMZtozwnJSEb7j1
-         Pp/NAqlZ36FtnBXcKLxvTdhfc1ByaDKb/LJFl7VjUY4wzEwfZgRARzFTH2yglRe3kk8R
-         34e2023U5pZ9CcI2oB+lVeRk5QxUhIZKx++AbdvMRrGQvTv1spzkEYDez7sowBCZblm2
-         ecL6HzHxCR7Uy8N6yaffJGH2hikfCXjFWffSdf8V1bnG19bNM07wYFvrTlfVM9imJ9Hy
-         h74DcFfqLomgPNvDQqpgdsUq4+qoZEPnVfTOsRMcGZ3pT/OkyGo820sMJuHGvDVmlIcN
-         oTkw==
+        d=gmail.com; s=20230601; t=1702054369; x=1702659169; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:cc:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=pM2CjZf7UrGYa8UE0QDmZ86QP59hzyqT7w0nEzPHVe0=;
+        b=mNSR0n2+/Jj3hgnskWJERLbUUPfuO26eTjTv3xDcp5GIsRNvqGw9g4JJ2PaqYAGGsX
+         yOUjLDaxucz7TbnE1HFmf+PNpsCbpbppP/+xh6gfcTd5myPZObvSYj8rhBwICPCGaQR1
+         651N+Y6WV4a4zgBAfdg217cfbHGp1tpkojaxCLNQq3RFKR25eA384uobNRyNBQQRa2T+
+         yTBaL1Ah6F895bHB1A37q/fstpUBb6t1KNSRFsRLS6Z1ifJJ5ERRZVdIYJkrVUNsgGDw
+         Q5gY2nXb0Q972IgqKiaLkbRbuygXskSxgWVC9Q/UeJpc8BIDC+b12+6D7PZezxrZEA7d
+         Wurw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702052316; x=1702657116;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=I6+LkPH66gOhphotxMNoCChEKQE36aIMtQNHFW8fx5U=;
-        b=SlOLqZFpAlNBFduZPVuCRsWy8Mhn37fwvzIwA4j68wRXlAiG08mC2fyL50uQ4rEQKn
-         o3A/2eQcOeOH/kZUS0wF3yCLq3QH30OAzZctf2mrM9Tg9gF4CubdwWLBJDaK9eN3dslw
-         qSn8v5/K3pMUBr0+qrZ4LXcXZRUsnNLS/Bxg11+bt8RMlFdL71Q/WphsEawUIbpI8Q+X
-         VedFhETo4/6n6uGNL9wTTSVJER1c5MMcHHHdQpkdJ1zWAUwkqShpWe1TKLS4GP1EX8qC
-         ig5p0MAX8wVPmg25HxK/ec+OxkvkgAPst3OkkWkAcJCtBrZnYSY/2awifR0vSWrBSKms
-         t+TA==
-X-Gm-Message-State: AOJu0YyUR13PnOHJp/H43wVS3315i9ausHWBKZoxAVZaMadkNANlSktN
-	pnrdkSC4NPCIwrklrSjQVH0=
-X-Google-Smtp-Source: AGHT+IGtPjhnbd4VNG1aCWe5yAJh+BAYv1pVwGIS+gCnXAX8GTpjhEobJRpN9XThWd3v5GzzG8VUww==
-X-Received: by 2002:a17:907:c317:b0:a1d:5c72:3be2 with SMTP id tl23-20020a170907c31700b00a1d5c723be2mr264936ejc.7.1702052316418;
-        Fri, 08 Dec 2023 08:18:36 -0800 (PST)
-Received: from desktop-nixos-martino.. ([2a01:e11:5004:180::bd5a:12c2])
-        by smtp.gmail.com with ESMTPSA id tg3-20020a1709078dc300b00a195a52cd0fsm1175833ejc.111.2023.12.08.08.18.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 Dec 2023 08:18:35 -0800 (PST)
-From: Martino Fontana <tinozzo123@gmail.com>
-To: rymcclel@gmail.com
-Cc: benjamin.tissoires@redhat.com,
-	djogorchock@gmail.com,
-	jikos@kernel.org,
-	linux-input@vger.kernel.org,
-	Martino Fontana <tinozzo123@gmail.com>
-Subject: [PATCH] HID: nintendo: use ida for LED player id
-Date: Fri,  8 Dec 2023 17:15:02 +0100
-Message-ID: <20231208161501.15818-2-tinozzo123@gmail.com>
-X-Mailer: git-send-email 2.42.0
-In-Reply-To: <20231208075928.4293-1-rymcclel@gmail.com>
-References: <20231208075928.4293-1-rymcclel@gmail.com>
+        d=1e100.net; s=20230601; t=1702054369; x=1702659169;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:cc:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=pM2CjZf7UrGYa8UE0QDmZ86QP59hzyqT7w0nEzPHVe0=;
+        b=iodnFM70XLQQZTWU1GqKuZF3UxnJFSggRTMoKJQGVmyVJ6x8X+2D9aDpqU2t1T20uy
+         hj6PnVi5Q4tvTLuY/C4orvwaxLioAiE6O0wm17hGzYpkiFhj7nJAffRcxLGgVLmAiNev
+         Dd5go5UnuxS1LJSZPv+PPsD7+H45a3buIMBUL61md9TcrnXVMoDM4nZ3IGrTiPNGmUIJ
+         aBpvWo9EioPnhLQAXSgodgYkgT3Kuk9oWOMY7ey6KGa/FOxlwFoNM3TtbP6qA5DV9Xun
+         63XXMAZiSx7yCYUrKQVQRmd6gOPAscuevifYWpY2/eHpYGhplceQ1Od3RN/6oMkDfdDw
+         g6/g==
+X-Gm-Message-State: AOJu0YxcyTivWn+RYVfx9qpgtkb+cnjQEcjUfS1+cmo/Gql9/ZGXXfNm
+	woBnh8I4nMjwd8P2dBWMWGk=
+X-Google-Smtp-Source: AGHT+IER6TE8y87k38ly2BUvKu6HdJTda3ueRxAJuKYFxylZpEH18RMfe8AYx/l4uaK4ZqkGj1WIWQ==
+X-Received: by 2002:a17:906:b793:b0:a1c:be13:f0bc with SMTP id dt19-20020a170906b79300b00a1cbe13f0bcmr149736ejb.109.1702054369084;
+        Fri, 08 Dec 2023 08:52:49 -0800 (PST)
+Received: from [192.168.0.28] (cable-178-148-234-71.dynamic.sbb.rs. [178.148.234.71])
+        by smtp.gmail.com with ESMTPSA id bi2-20020a170906a24200b00a1e04f24df1sm1198842ejb.223.2023.12.08.08.52.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 08 Dec 2023 08:52:48 -0800 (PST)
+Message-ID: <fe16b501-759a-492b-9835-83ebf8761ae8@gmail.com>
+Date: Fri, 8 Dec 2023 17:52:47 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Cc: savicaleksa83@gmail.com, linux-hwmon@vger.kernel.org,
+ Jean Delvare <jdelvare@suse.com>, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] hwmon: (corsair-psu) Fix failure to load when built-in to
+ kernel
+Content-Language: en-US
+To: Guenter Roeck <linux@roeck-us.net>,
+ Wilken Gottwalt <wilken.gottwalt@posteo.net>
+References: <20231208130710.191420-1-savicaleksa83@gmail.com>
+ <d91d4bf1-3e8d-4b63-baa9-479a91d04eb7@gmail.com>
+ <20231208145742.6def047a@posteo.net>
+ <b2b3f17d-0f86-4d40-a471-f44153efd6fe@roeck-us.net>
+From: Aleksa Savic <savicaleksa83@gmail.com>
+In-Reply-To: <b2b3f17d-0f86-4d40-a471-f44153efd6fe@roeck-us.net>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Signed-off-by: Martino Fontana <tinozzo123@gmail.com>
----
- drivers/hid/hid-nintendo.c | 29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+On 2023-12-08 16:43:07 GMT+01:00, Guenter Roeck wrote:
+> On 12/8/23 05:57, Wilken Gottwalt wrote:
+>> On Fri, 8 Dec 2023 14:11:44 +0100
+>> Aleksa Savic <savicaleksa83@gmail.com> wrote:
+>>
+>>> On 2023-12-08 14:07:10 GMT+01:00, Aleksa Savic wrote:
+>>>> When built-in to the kernel, the corsair-psu driver fails to register with
+>>>> the following message:
+>>>>
+>>>> "Driver 'corsair-psu' was unable to register with bus_type 'hid'
+>>>> because the bus was not initialized."
+>>>>
+>>>> Fix this by initializing the driver after the HID bus using
+>>>> late_initcall(), as hwmon is built before HID.
+>>>>
+>>>> Fixes: d115b51e0e56 ("hwmon: add Corsair PSU HID controller driver")
+>>>> Signed-off-by: Aleksa Savic <savicaleksa83@gmail.com>
+>>>> ---
+>>>>   drivers/hwmon/corsair-psu.c | 15 ++++++++++++++-
+>>>>   1 file changed, 14 insertions(+), 1 deletion(-)
+>>>>
+>>>> diff --git a/drivers/hwmon/corsair-psu.c b/drivers/hwmon/corsair-psu.c
+>>>> index 904890598c11..48831a528965 100644
+>>>> --- a/drivers/hwmon/corsair-psu.c
+>>>> +++ b/drivers/hwmon/corsair-psu.c
+>>>> @@ -899,7 +899,20 @@ static struct hid_driver corsairpsu_driver = {
+>>>>       .reset_resume    = corsairpsu_resume,
+>>>>   #endif
+>>>>   };
+>>>> -module_hid_driver(corsairpsu_driver);
+>>>> +
+>>>> +static int __init corsairpsu_hid_init(void)
+>>>> +{
+>>>> +    return hid_register_driver(&corsairpsu_driver);
+>>>> +}
+>>>> +
+>>>> +static void __exit corsairpsu_hid_exit(void)
+>>>> +{
+>>>> +    hid_unregister_driver(&corsairpsu_driver);
+>>>> +}
+>>>> +
+>>>> +/* When compiled into the kernel, initialize after the hid bus */
+>>>> +late_initcall(corsairpsu_hid_init);
+>>>> +module_exit(corsairpsu_hid_exit);
+>>>>     MODULE_LICENSE("GPL");
+>>>>   MODULE_AUTHOR("Wilken Gottwalt <wilken.gottwalt@posteo.net>");
+>>>
+>>>
+>>> Woops! Just saw that the same fix was sent yesterday. Please disregard, sorry!
+>>>
+>>> Aleksa
+>>
+>> It is fine. I just start to wonder if there was a change in the subsystem. I
+>> used the driver as built-in in the past for several months and never had that
+>> issue. And now it is a real flood of reports.
+>>
+> 
+> Maybe there was a change in the build order, or some subtle change
+> in driver registration code. Question though is _when_ this changed.
+> It would be great if someone could bisect it. For example, bus registration
+> code has been changed significantly in v6.3. I am copying linux-input
+> and the hid maintainers for feedback.
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 138f154fe..22a3c97a0 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -28,6 +28,7 @@
- #include <linux/device.h>
- #include <linux/kernel.h>
- #include <linux/hid.h>
-+#include <linux/idr.h>
- #include <linux/input.h>
- #include <linux/jiffies.h>
- #include <linux/leds.h>
-@@ -427,6 +428,7 @@ static const enum led_brightness joycon_player_led_patterns[JC_NUM_LED_PATTERNS]
- struct joycon_ctlr {
- 	struct hid_device *hdev;
- 	struct input_dev *input;
-+	u32 player_id;
- 	struct led_classdev leds[JC_NUM_LEDS]; /* player leds */
- 	struct led_classdev home_led;
- 	enum joycon_ctlr_state ctlr_state;
-@@ -1917,7 +1919,8 @@ static int joycon_home_led_brightness_set(struct led_classdev *led,
- 	return ret;
- }
- 
--static DEFINE_SPINLOCK(joycon_input_num_spinlock);
-+static DEFINE_IDA(nintendo_player_id_allocator);
-+
- static int joycon_leds_create(struct joycon_ctlr *ctlr)
- {
- 	struct hid_device *hdev = ctlr->hdev;
-@@ -1928,20 +1931,15 @@ static int joycon_leds_create(struct joycon_ctlr *ctlr)
- 	char *name;
- 	int ret;
- 	int i;
--	unsigned long flags;
--	int player_led_pattern;
--	static int input_num;
--
--	/*
--	 * Set the player leds based on controller number
--	 * Because there is no standard concept of "player number", the pattern
--	 * number will simply increase by 1 every time a controller is connected.
--	 */
--	spin_lock_irqsave(&joycon_input_num_spinlock, flags);
--	player_led_pattern = input_num++ % JC_NUM_LED_PATTERNS;
--	spin_unlock_irqrestore(&joycon_input_num_spinlock, flags);
- 
- 	/* configure the player LEDs */
-+	ret = ida_alloc(&nintendo_player_id_allocator, GFP_KERNEL);
-+	if (ret < 0) {
-+		hid_warn(hdev, "Failed to allocate player ID, skipping; ret=%d\n", ret);
-+		goto home_led;
-+	}
-+	ctlr->player_id = ret % JC_NUM_LED_PATTERNS;
-+
- 	for (i = 0; i < JC_NUM_LEDS; i++) {
- 		name = devm_kasprintf(dev, GFP_KERNEL, "%s:%s:%s",
- 				      d_name,
-@@ -1952,13 +1950,13 @@ static int joycon_leds_create(struct joycon_ctlr *ctlr)
- 
- 		led = &ctlr->leds[i];
- 		led->name = name;
--		led->brightness = joycon_player_led_patterns[player_led_pattern][i];
-+		led->brightness = joycon_player_led_patterns[ctlr->player_id][i];
- 		led->max_brightness = 1;
- 		led->brightness_set_blocking =
- 					joycon_player_led_brightness_set;
- 		led->flags = LED_CORE_SUSPENDRESUME | LED_HW_PLUGGABLE;
- 
--		led_val |= joycon_player_led_patterns[player_led_pattern][i] << i;
-+		led_val |= joycon_player_led_patterns[ctlr->player_id][i] << i;
- 	}
- 	mutex_lock(&ctlr->output_mutex);
- 	ret = joycon_set_player_leds(ctlr, 0, led_val);
-@@ -2410,6 +2408,7 @@ static void nintendo_hid_remove(struct hid_device *hdev)
- 	spin_unlock_irqrestore(&ctlr->lock, flags);
- 
- 	destroy_workqueue(ctlr->rumble_queue);
-+	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
- 
- 	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
--- 
-2.42.0
+The late_initcall() was also needed in 2020. when corsair-cpro was added in
+40c3a4454225 ("hwmon: add Corsair Commander Pro driver").
+
+There was also discussion on the list about it:
+
+https://lore.kernel.org/all/3864498.z6qT3ff8q6@marius/
+
+nzxt-smart2 (from the tail of 2021.) also has a comment about the message.
+
+(Just providing references.)
+
+Aleksa
+
+> 
+> Either case, I now have two patches and at least the first one was actually
+> tested, but no Reviewed-by: or Tested-by: for either of them. While that is
+> of course a formality, it would still be useful to show that it is not just
+> a random change.
+> 
+> Thanks,
+> Guenter
+> 
 

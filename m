@@ -1,106 +1,151 @@
-Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A47B24B23;
-	Fri, 15 Dec 2023 11:19:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=artur-rojek.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=artur-rojek.eu
-Received: by mail.gandi.net (Postfix) with ESMTPA id 60F8D60005;
-	Fri, 15 Dec 2023 11:19:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E95F36AE0;
+	Fri, 15 Dec 2023 16:02:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EkTbs8Sv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1702656142; x=1734192142;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=T9RSzfQqw97u35cP02echEw6kn4/I1wBERkazpCYse0=;
+  b=EkTbs8SvvR7AaB51QsNZO88wzFpbWK5raXEw/acUXUV3+d3DjA1jgrk+
+   rmgNV49L3O87SFWyKtzk4qdGELRTCc//CjlAMp3aHWOv0AObN3OWqfaPJ
+   uJF5lsNU7AmFdAxnYdh5PZciJyOhH3EwPSlieYLRCxBYRBeKvCEidN7wO
+   o48T3FvxoqVgxp+8W/clSVr4nNd0oJ7iyWos+NldW8PcK0rPdTkL8ebZR
+   88b0gEpP72/eOOWXCtA91DzGst29IB0DgtnkBO0YjwvhX6VaKRks8KakH
+   tmxmneJ2X4zKUb4nHMu7aaxOF6UkwBjeWmRzm5FRkzCwVCrVvVSjEUJrK
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10924"; a="13973685"
+X-IronPort-AV: E=Sophos;i="6.04,279,1695711600"; 
+   d="scan'208";a="13973685"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Dec 2023 08:02:21 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10924"; a="948010121"
+X-IronPort-AV: E=Sophos;i="6.04,279,1695711600"; 
+   d="scan'208";a="948010121"
+Received: from spandruv-desk.jf.intel.com ([10.54.75.14])
+  by orsmga005.jf.intel.com with ESMTP; 15 Dec 2023 08:02:20 -0800
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: jikos@kernel.org,
+	jic23@kernel.org,
+	lars@metafoo.de,
+	Basavaraj.Natikar@amd.com
+Cc: linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	=?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <thomas@t-8ch.de>,
+	stable@vger.kernel.org
+Subject: [PATCH] iio: light: hid-sensor-als: Avoid failure for chromaticity support
+Date: Fri, 15 Dec 2023 08:01:59 -0800
+Message-Id: <20231215160159.648963-1-srinivas.pandruvada@linux.intel.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Fri, 15 Dec 2023 12:19:51 +0100
-From: Artur Rojek <contact@artur-rojek.eu>
-To: Chris Morgan <macroalpha82@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- conor+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org, robh+dt@kernel.org,
- dmitry.torokhov@gmail.com, Chris Morgan <macromorgan@hotmail.com>, Paul
- Cercueil <paul@crapouillou.net>
-Subject: Re: [RFC] dt-bindings: input: Clarify that abs_min must be less than
- abs_max
-In-Reply-To: <20231215024022.122022-1-macroalpha82@gmail.com>
-References: <20231215024022.122022-1-macroalpha82@gmail.com>
-Message-ID: <03a9a56362b0559234d4a21a4de3e32e@artur-rojek.eu>
-X-Sender: contact@artur-rojek.eu
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-X-GND-Sasl: contact@artur-rojek.eu
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On 2023-12-15 03:40, Chris Morgan wrote:
-> From: Chris Morgan <macromorgan@hotmail.com>
-> 
-> uinput refuses to work with abs devices where the min value is greater
-> than the max value. uinput_validate_absinfo() returns -EINVAL if this
-> is the case and prevents using uinput on such a device. Since uinput
-> has worked this way since at least kernel 2.6 (or prior) I presume that
-> this is the correct way of doing things, and that this documentation
-> needs to be clarified that min must always be less than max.
-> 
-> uinput is used in my use case to bind together adc-joystick devices
-> with gpio-keys devices to create a single unified gamepad for
-> userspace.
-> 
-> Note that there are several boards that will need to be corrected,
-> all but a few of them I maintain. Submitting as an RFC for now to get
-> comments from the input team and the original author in case there is
-> something I am missing.
-> 
-> Fixes: 7956b0d4694f ("dt-bindings: input: Add docs for ADC driven 
-> joystick")
-> 
-> Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
-> ---
->  Documentation/devicetree/bindings/input/adc-joystick.yaml | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/input/adc-joystick.yaml
-> b/Documentation/devicetree/bindings/input/adc-joystick.yaml
-> index 6c244d66f8ce..8f5cdd5ef190 100644
-> --- a/Documentation/devicetree/bindings/input/adc-joystick.yaml
-> +++ b/Documentation/devicetree/bindings/input/adc-joystick.yaml
-> @@ -73,8 +73,9 @@ patternProperties:
->          description: >
->            Minimum and maximum values produced by the axis.
->            For an ABS_X axis this will be the left-most and right-most
-> -          inclination of the joystick. If min > max, it is left to 
-> userspace to
-> -          treat the axis as inverted.
-> +          inclination of the joystick. The axis must always be 
-> expressed as
-> +          min < max, if the axis is inverted it is left to userspace 
-> to handle
-> +          the inversion.
+With the commit ee3710f39f9d ("iio: hid-sensor-als: Add light chromaticity
+support"), there is an assumption that the every HID ALS descriptor has
+support of usage ids for chromaticity support. If they are not present,
+probe fails for the driver . This breaks ALS functionality on majority of
+platforms.
 
-Hi Chris,
+It is possible that chromaticity usage ids are not present. When not
+present, restrict number of IIO channels to not include support for
+chromaticity and continue.
 
-Device Tree is supposed to depict the actual state of the hardware.
-I worded the adc-joytick's adc-range property specifically, so that it
-covers a case of GCW Zero hardware [1], which has a joystick,  where the
-ABS_X axis reports increasing values for the left-wards inclination of
-the joystick, and decreasing values for the right-wards inclination. You
-are saying that there are even more boards that need to be corrected -
-those are all situations, where DT depicts the actual behavior of the
-hardware.
-What you are trying to do is change hardware description, because of how
-a driver in an OS works. You should instead fix behavior of said driver,
-even if nobody stumbled upon that issue since 2.6 :) We fixed libSDL [2]
-for the same reason.
+Fixes: ee3710f39f9d ("iio: hid-sensor-als: Add light chromaticity support")
+Reported-by: Thomas Weißschuh <thomas@t-8ch.de>
+Closes: https://bugzilla.kernel.org/show_bug.cgi?id=218223
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/iio/light/hid-sensor-als.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-Cheers,
-Artur
-
-PS. cc'd Paul to the conversation.
-
-[1] 
-https://github.com/OpenDingux/linux/blob/jz-6.1/arch/mips/boot/dts/ingenic/gcw0.dts#L273C12-L273C12
-[2] https://github.com/libsdl-org/SDL-1.2/commit/46806790ad043
-
->            This property is interpreted as two signed 32 bit values.
-> 
->        abs-fuzz:
+diff --git a/drivers/iio/light/hid-sensor-als.c b/drivers/iio/light/hid-sensor-als.c
+index f17304b54468..9941b0b927c7 100644
+--- a/drivers/iio/light/hid-sensor-als.c
++++ b/drivers/iio/light/hid-sensor-als.c
+@@ -303,11 +303,14 @@ static int als_parse_report(struct platform_device *pdev,
+ 				struct hid_sensor_hub_device *hsdev,
+ 				struct iio_chan_spec *channels,
+ 				unsigned usage_id,
+-				struct als_state *st)
++				struct als_state *st,
++				int *max_channels)
+ {
+ 	int ret;
+ 	int i;
+ 
++	*max_channels = CHANNEL_SCAN_INDEX_MAX;
++
+ 	for (i = 0; i <= CHANNEL_SCAN_INDEX_ILLUM; ++i) {
+ 		ret = sensor_hub_input_get_attribute_info(hsdev,
+ 						HID_INPUT_REPORT,
+@@ -326,8 +329,12 @@ static int als_parse_report(struct platform_device *pdev,
+ 				usage_id,
+ 				HID_USAGE_SENSOR_LIGHT_COLOR_TEMPERATURE,
+ 				&st->als[CHANNEL_SCAN_INDEX_COLOR_TEMP]);
+-	if (ret < 0)
+-		return ret;
++	if (ret < 0) {
++		*max_channels = CHANNEL_SCAN_INDEX_ILLUM;
++		ret = 0;
++		goto skip_color_chromaticity;
++	}
++
+ 	als_adjust_channel_bit_mask(channels, CHANNEL_SCAN_INDEX_COLOR_TEMP,
+ 				st->als[CHANNEL_SCAN_INDEX_COLOR_TEMP].size);
+ 
+@@ -354,6 +361,7 @@ static int als_parse_report(struct platform_device *pdev,
+ 			st->als[next_scan_index].report_id);
+ 	}
+ 
++skip_color_chromaticity:
+ 	st->scale_precision = hid_sensor_format_scale(usage_id,
+ 				&st->als[CHANNEL_SCAN_INDEX_INTENSITY],
+ 				&st->scale_pre_decml, &st->scale_post_decml);
+@@ -364,7 +372,7 @@ static int als_parse_report(struct platform_device *pdev,
+ /* Function to initialize the processing for usage id */
+ static int hid_als_probe(struct platform_device *pdev)
+ {
+-	int ret = 0;
++	int ret = 0, max_channels;
+ 	static const char *name = "als";
+ 	struct iio_dev *indio_dev;
+ 	struct als_state *als_state;
+@@ -398,15 +406,15 @@ static int hid_als_probe(struct platform_device *pdev)
+ 
+ 	ret = als_parse_report(pdev, hsdev,
+ 			       (struct iio_chan_spec *)indio_dev->channels,
+-			       hsdev->usage,
+-			       als_state);
++			       hsdev->usage, als_state, &max_channels);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to setup attributes\n");
+ 		return ret;
+ 	}
+ 
+-	indio_dev->num_channels =
+-				ARRAY_SIZE(als_channels);
++	/* +1 to include time stamp */
++	indio_dev->num_channels = max_channels + 1;
++
+ 	indio_dev->info = &als_info;
+ 	indio_dev->name = name;
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
+-- 
+2.25.1
 

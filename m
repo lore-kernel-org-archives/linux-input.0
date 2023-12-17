@@ -1,81 +1,136 @@
-Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from nikam.ms.mff.cuni.cz (nikam.ms.mff.cuni.cz [195.113.20.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B08D236B03
-	for <linux-input@vger.kernel.org>; Sat, 16 Dec 2023 23:58:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-7b7a9f90f04so298796739f.0
-        for <linux-input@vger.kernel.org>; Sat, 16 Dec 2023 15:58:22 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702771102; x=1703375902;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=CU1fCdRSKLUYFxXvXY/GaJOQx9UoYbtAgRwpZ31wxfI=;
-        b=Vi+2mxtfRJs4mWh8I6tuOSs5FuAXcQmKWqCdHjzC71f3zQ5juT2pTeOm4LEk2z+EuL
-         HNN5qf267HzaQqoiFrJBRxTUPuhIKxcvR+arUC8me5oiAmaN8g+qSEq7clNgDWIAlj0H
-         4el5hsiPQ1Ycov+msPBanlkaevacQ/nhCH0M9+3/SS1v9tGTdWN2jXbL68CmOnvSq8zc
-         VMDQekFKshvk1KOunuIsE2Xsa4zMi9MTAAY14tXjO7d/VdJNDxBi5icUT5SNNqSDIR5N
-         cBmnFbGtCaZ1bsLI6eEJXRbLzyFB9C+kDWh/vAQ6Cti7cX3CTDAJUs59dfDsFyIGWHQr
-         3QHQ==
-X-Gm-Message-State: AOJu0Yzp7W+24QTySTnm7Syg8+Y1JTq0E72jSVU6QS1eI8bnABPxuo5c
-	N8RyXDbOHwuVwT/yP7qs6xZUeD2TqDzRp5bWb63QNPEd4EZz+4o=
-X-Google-Smtp-Source: AGHT+IHcC0En6nacMUficHFOKTR82apdlEfzqmwf3wVqLox3BcwrH7ZsFv+cm5infKCHM6YUcmVJ8hUqfsgEiOJF9AKcmhyN0SXg
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B7C844361;
+	Sun, 17 Dec 2023 13:20:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gimli.ms.mff.cuni.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gimli.ms.mff.cuni.cz
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=gimli.ms.mff.cuni.cz header.i=@gimli.ms.mff.cuni.cz header.b="Q/BNtnt+"
+Received: from gimli.ms.mff.cuni.cz (gimli.ms.mff.cuni.cz [195.113.20.176])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	(No client certificate requested)
+	by nikam.ms.mff.cuni.cz (Postfix) with ESMTPS id 07D3228C344;
+	Sun, 17 Dec 2023 14:20:13 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gimli.ms.mff.cuni.cz;
+	s=gen1; t=1702819213;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qP+2SKh6YVsuO7Mi8pHKLqQ7+a6eIrefH/tNra/ANO8=;
+	b=Q/BNtnt+Znw9AyDvAGAHx+qfoEuC4HEKUyKtH1yc4tXABKmi4fu6lU92YBsHhAa9mUJbNa
+	E+Xk81MuQUuWvQPtPLdNWsAYtNVHc/8Vrg8Vag5B4cWhXDyf8yJ7xAc1TVTAO8Mc4J86aw
+	mkr7k0zpZcLKVCDU9FQ1sua/a80g4jw=
+Received: from localhost (internet5.mraknet.com [185.200.108.250])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	(Authenticated sender: karelb)
+	by gimli.ms.mff.cuni.cz (Postfix) with ESMTPSA id DA5F844AF99;
+	Sun, 17 Dec 2023 14:20:12 +0100 (CET)
+From: Karel Balej <karelb@gimli.ms.mff.cuni.cz>
+To: Karel Balej <balejk@matfyz.cz>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Lee Jones <lee@kernel.org>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: =?UTF-8?q?Duje=20Mihanovi=C4=87?= <duje.mihanovic@skole.hr>,
+	~postmarketos/upstreaming@lists.sr.ht,
+	phone-devel@vger.kernel.org
+Subject: [RFC PATCH 1/5] dt-bindings: mfd: add entry for the Marvell 88PM88X PMICs
+Date: Sun, 17 Dec 2023 14:16:59 +0100
+Message-ID: <20231217131838.7569-2-karelb@gimli.ms.mff.cuni.cz>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20231217131838.7569-1-karelb@gimli.ms.mff.cuni.cz>
+References: <20231217131838.7569-1-karelb@gimli.ms.mff.cuni.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6638:411c:b0:468:fc2b:d008 with SMTP id
- ay28-20020a056638411c00b00468fc2bd008mr775933jab.1.1702771101976; Sat, 16 Dec
- 2023 15:58:21 -0800 (PST)
-Date: Sat, 16 Dec 2023 15:58:21 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <000000000000aad375060ca94afe@google.com>
-Subject: [syzbot] Monthly input report (Dec 2023)
-From: syzbot <syzbot+list4a3f2b317d71e1c2ae57@syzkaller.appspotmail.com>
-To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello input maintainers/developers,
+From: Karel Balej <balejk@matfyz.cz>
 
-This is a 31-day syzbot report for the input subsystem.
-All related reports/information can be found at:
-https://syzkaller.appspot.com/upstream/s/input
+Marvell 88PM880 and 88PM886 are two similar PMICs with mostly matching
+register mapping and subdevices such as onkey, regulators or battery and
+charger. Both seem to come in two revisions which seem to be handled
+slightly differently in some subdevice drivers.
 
-During the period, 0 new issues were detected and 0 were fixed.
-In total, 12 issues are still open and 51 have been fixed so far.
-
-Some of the still happening issues:
-
-Ref Crashes Repro Title
-<1> 3953    Yes   WARNING in input_mt_init_slots
-                  https://syzkaller.appspot.com/bug?extid=0122fa359a69694395d5
-<2> 944     Yes   WARNING in implement
-                  https://syzkaller.appspot.com/bug?extid=38e7237add3712479d65
-<3> 322     No    possible deadlock in evdev_pass_values (2)
-                  https://syzkaller.appspot.com/bug?extid=13d3cb2a3dc61e6092f5
-<4> 138     Yes   WARNING in cm109_urb_irq_callback/usb_submit_urb
-                  https://syzkaller.appspot.com/bug?extid=2d6d691af5ab4b7e66df
-<5> 67      Yes   INFO: task hung in uhid_char_release
-                  https://syzkaller.appspot.com/bug?extid=8fe2d362af0e1cba8735
-<6> 38      Yes   WARNING in bcm5974_start_traffic/usb_submit_urb
-                  https://syzkaller.appspot.com/bug?extid=348331f63b034f89b622
-<7> 2       No    WARNING in cm109_input_open/usb_submit_urb (2)
-                  https://syzkaller.appspot.com/bug?extid=2e305789579d76b5c253
-
+Signed-off-by: Karel Balej <balejk@matfyz.cz>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ .../bindings/mfd/marvell,88pm88x.yaml         | 55 +++++++++++++++++++
+ 1 file changed, 55 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/marvell,88pm88x.yaml
 
-To disable reminders for individual bugs, reply with the following command:
-#syz set <Ref> no-reminders
+diff --git a/Documentation/devicetree/bindings/mfd/marvell,88pm88x.yaml b/Documentation/devicetree/bindings/mfd/marvell,88pm88x.yaml
+new file mode 100644
+index 000000000000..e075729c360f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/marvell,88pm88x.yaml
+@@ -0,0 +1,55 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/marvell,88pm88x.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Marvell 88PM88X PMIC core MFD
++
++maintainers:
++  - Karel Balej <balejk@matfyz.cz>
++
++description: |
++  Marvell 88PM880 and 88PM886 are two similar PMICs providing
++  several functions such as onkey, regulators or battery and
++  charger. Both seem to come in two revisions -- A0 and A1.
++
++properties:
++  compatible:
++    const: marvell,88pm886-a1
++
++  reg:
++    description: I2C device address
++    maxItems: 1
++
++  interrupt-controller: true
++
++  interrupts:
++    maxItems: 1
++
++  "#interrupt-cells":
++    const: 2
++
++required:
++  - compatible
++  - reg
++  - interrupt-controller
++  - interrupts
++
++additionalProperties: false
++
++examples:
++  - |
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      pmic0: 88pm886@30 {
++        compatible = "marvell,88pm886-a1";
++        reg = <0x30>;
++        interrupts = <0 4 IRQ_TYPE_LEVEL_HIGH>;
++        interrupt-parent = <&gic>;
++        interrupt-controller;
++        #interrupt-cells = <1>;
++      };
++    };
++...
+-- 
+2.43.0
 
-To change bug's subsystems, reply with:
-#syz set <Ref> subsystems: new-subsystem
-
-You may send multiple commands in a single email message.

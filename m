@@ -1,35 +1,34 @@
 Received: from nikam.ms.mff.cuni.cz (nikam.ms.mff.cuni.cz [195.113.20.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAA4644361;
-	Sun, 17 Dec 2023 13:20:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10C3544379;
+	Sun, 17 Dec 2023 13:30:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gimli.ms.mff.cuni.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gimli.ms.mff.cuni.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=gimli.ms.mff.cuni.cz header.i=@gimli.ms.mff.cuni.cz header.b="qA0PjjFm"
+	dkim=pass (1024-bit key) header.d=gimli.ms.mff.cuni.cz header.i=@gimli.ms.mff.cuni.cz header.b="D1/q7tLg"
 Received: from gimli.ms.mff.cuni.cz (gimli.ms.mff.cuni.cz [195.113.20.176])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by nikam.ms.mff.cuni.cz (Postfix) with ESMTPS id E674728C344;
-	Sun, 17 Dec 2023 14:20:47 +0100 (CET)
+	by nikam.ms.mff.cuni.cz (Postfix) with ESMTPS id 63C3028C341;
+	Sun, 17 Dec 2023 14:19:59 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gimli.ms.mff.cuni.cz;
-	s=gen1; t=1702819247;
+	s=gen1; t=1702819199;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2SD3taSO+f1UM86Cr/JcCY5HUjl3SAc3qWRqT3ByZoE=;
-	b=qA0PjjFm1+I4j5Z919u1bq1xSAoukywGOAIiT9do2HZ/NAxyetmEZzTcKiYk5lWLu/97lM
-	TAOX6Zr22H+Uh5EmDipRGGqJtVhujiuXyRhNbUz1vQIn9rQlCUkFTzQP0rqgUDhx8bTF2j
-	IUFYES9HVURnzJt46w2vlllL+ATH8OE=
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=mcphuoLJD5YV2j+1XZvlO20/5rV+jn37j0Ofr9Ge1UA=;
+	b=D1/q7tLg4K1YnC/lDT8haKfDphMurp5pRh6ZlLYOOTukl/xGHTyxCyvlil5E5dbzMT8EHt
+	up0LLf03CXEkb6sAp19Oa+S9mT+AbVlqHVjpI8+tnxS+TYlWTmEbLt4hu9ZGPf3g4gZeT5
+	dRRGQAuFz2GqxTk7N2ZSyvuzjpasmqQ=
 Received: from localhost (internet5.mraknet.com [185.200.108.250])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(Client did not present a certificate)
 	(Authenticated sender: karelb)
-	by gimli.ms.mff.cuni.cz (Postfix) with ESMTPSA id C5A7B44AF99;
-	Sun, 17 Dec 2023 14:20:47 +0100 (CET)
+	by gimli.ms.mff.cuni.cz (Postfix) with ESMTPSA id 3A39B44AF99;
+	Sun, 17 Dec 2023 14:19:59 +0100 (CET)
 From: Karel Balej <karelb@gimli.ms.mff.cuni.cz>
 To: Karel Balej <balejk@matfyz.cz>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -43,12 +42,10 @@ To: Karel Balej <balejk@matfyz.cz>,
 Cc: =?UTF-8?q?Duje=20Mihanovi=C4=87?= <duje.mihanovic@skole.hr>,
 	~postmarketos/upstreaming@lists.sr.ht,
 	phone-devel@vger.kernel.org
-Subject: [RFC PATCH 5/5] MAINTAINERS: add myself for Marvell 88PM88X PMICs
-Date: Sun, 17 Dec 2023 14:17:03 +0100
-Message-ID: <20231217131838.7569-6-karelb@gimli.ms.mff.cuni.cz>
+Subject: [RFC PATCH 0/5] support for Marvell 88PM886 PMIC
+Date: Sun, 17 Dec 2023 14:16:58 +0100
+Message-ID: <20231217131838.7569-1-karelb@gimli.ms.mff.cuni.cz>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20231217131838.7569-1-karelb@gimli.ms.mff.cuni.cz>
-References: <20231217131838.7569-1-karelb@gimli.ms.mff.cuni.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -59,34 +56,51 @@ Content-Transfer-Encoding: 8bit
 
 From: Karel Balej <balejk@matfyz.cz>
 
-Add an entry to MAINTAINERS for the Marvell 88PM88X PMICs MFD and onkey
-drivers.
+Hello,
 
-Signed-off-by: Karel Balej <balejk@matfyz.cz>
----
- MAINTAINERS | 9 +++++++++
- 1 file changed, 9 insertions(+)
+the following implements basic support for Marvell's 88PM886 PMIC which
+is found for instance as a component of the samsung,coreprimevelte
+smartphone which inspired this and also serves as a testing platform.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e2c6187a3ac8..eb0171cd2323 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -12737,6 +12737,15 @@ F:	drivers/net/dsa/mv88e6xxx/
- F:	include/linux/dsa/mv88e6xxx.h
- F:	include/linux/platform_data/mv88e6xxx.h
- 
-+MARVELL 88PM88X PMIC MFD DRIVER
-+M:	Karel Balej <balejk@matfyz.cz>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/input/marvell,88pm88x-onkey.yaml
-+F:	Documentation/devicetree/bindings/mfd/marvell,88pm88x.yaml
-+F:	drivers/input/misc/88pm88x-onkey.c
-+F:	drivers/mfd/88pm88x.c
-+F:	include/linux/mfd/88pm88x.h
-+
- MARVELL ARMADA 3700 PHY DRIVERS
- M:	Miquel Raynal <miquel.raynal@bootlin.com>
- S:	Maintained
+The code for the MFD is based primarily on this old series [1] with the
+addition of poweroff based on the smartphone's downstream kernel tree
+[2]. The onkey driver is based on the latter. I am not in possesion of
+the datasheet.
+
+The vendor version of this driver includes support for a similar chip:
+88PM880. While that is not included here it was written with it in mind
+and it should be quite straighforward to add it.
+
+[1] https://lore.kernel.org/all/1434098601-3498-1-git-send-email-yizhang@marvell.com/
+[2] https://github.com/CoderCharmander/g361f-kernel
+
+Thank you and kind regards,
+K. B.
+
+Karel Balej (5):
+  dt-bindings: mfd: add entry for the Marvell 88PM88X PMICs
+  mfd: add 88pm88x driver
+  dt-bindings: input: add entry for 88pm88x-onkey
+  input: add onkey driver for Marvell 88PM88X PMICs
+  MAINTAINERS: add myself for Marvell 88PM88X PMICs
+
+ .../bindings/input/marvell,88pm88x-onkey.yaml |  30 +++
+ .../bindings/mfd/marvell,88pm88x.yaml         |  59 ++++++
+ MAINTAINERS                                   |   9 +
+ drivers/input/misc/88pm88x-onkey.c            | 103 +++++++++
+ drivers/input/misc/Kconfig                    |  10 +
+ drivers/input/misc/Makefile                   |   1 +
+ drivers/mfd/88pm88x.c                         | 199 ++++++++++++++++++
+ drivers/mfd/Kconfig                           |  11 +
+ drivers/mfd/Makefile                          |   1 +
+ include/linux/mfd/88pm88x.h                   |  60 ++++++
+ 10 files changed, 483 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/marvell,88pm88x-onkey.yaml
+ create mode 100644 Documentation/devicetree/bindings/mfd/marvell,88pm88x.yaml
+ create mode 100644 drivers/input/misc/88pm88x-onkey.c
+ create mode 100644 drivers/mfd/88pm88x.c
+ create mode 100644 include/linux/mfd/88pm88x.h
+
 -- 
 2.43.0
 

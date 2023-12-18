@@ -1,100 +1,73 @@
-Received: from mail-oi1-f181.google.com (mail-oi1-f181.google.com [209.85.167.181])
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B43C4878F
-	for <linux-input@vger.kernel.org>; Mon, 18 Dec 2023 17:17:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9D6274E20
+	for <linux-input@vger.kernel.org>; Mon, 18 Dec 2023 19:47:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RGP1nzPD"
-Received: by mail-oi1-f181.google.com with SMTP id 5614622812f47-3ba04b9b103so2825924b6e.0
-        for <linux-input@vger.kernel.org>; Mon, 18 Dec 2023 09:17:01 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="ZPWiKe8I"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-40c6a71e88cso45656185e9.0
+        for <linux-input@vger.kernel.org>; Mon, 18 Dec 2023 11:47:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1702919820; x=1703524620; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=kcoFvkRRAMHorB5qgARlfIQdf2kHl0ZFg7YERePi0LY=;
-        b=RGP1nzPDyxhKh/MOXSecU9jP6GzwwIkx6sJY6rP/oygp+MhHh+73ibUoq7MKUNNr/f
-         Qoprvhz+jBnUI/8XUXA9KLYQR6q3PUVHDsy7OAWlPW7/cW1Bht1TCB8cwCteSV/s6xS3
-         KkebI6woLkSamcDTLvIJulNXVcndV5fTMdJYLigjX8NMhBTS1HNP2rjmTWb78l/1Up0P
-         5YYeTCzN2mu1Q/OlwLatr0NHlCZl9R5zBvHOe3UUcZeUyycF0wvK7FSJImSNbmKT+yB6
-         L/PfXbQTgk0yn/1s13VaoukwD0AxrLrQnMtwruivUn5t3ku44q1Xzuf9ZXNSsL0z/ZwY
-         WmFQ==
+        d=suse.com; s=google; t=1702928821; x=1703533621; darn=vger.kernel.org;
+        h=mime-version:user-agent:references:message-id:in-reply-to:subject
+         :cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=LPtVKu5gwYBjOXrK3/V43LEUFm0g88J5kfDd+XYj2VI=;
+        b=ZPWiKe8IU3qoxVQbpY4lBSBfijNU0BZwv+Y2nVpazbZcYsdwcMHy7WvX26mGdciI5U
+         tyVVcLlthjaLjvObJSumsfC+QtChbc1FyCXqZBTAhsm6INGCRYWDLI7W4bjWt8fksUeD
+         hASrlV9taz/mlm+gR9eY2jP9LkdZ3aPeBO1SLSvotYHM7DoEH085NJFTCVWwZTzltvKH
+         v/2D4xuD5uzg3jfXDu2xms3HwSWLZYxsq9fhQXAQtk7rlj1YwBeX+K8K21rXGIBhCa6O
+         6hGfQuB1hGbd6UFrm0f+5QnF5jS0i/kkK19BPVLq197Cd1VosUSIMhr47Bo1mwDAT59f
+         NYwA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702919820; x=1703524620;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=kcoFvkRRAMHorB5qgARlfIQdf2kHl0ZFg7YERePi0LY=;
-        b=NtFt9cKAlGgB0SKCgusa9gp4RUQYa/+z0dge7UdqtnuSWLgKxQ1xv6KLSqCi55d5/i
-         VczpWwTeydwO3qeynSoda5KoNzbgZHby7wRYKeBQufbzIEkS5LkobETrU4fUg426+G5g
-         jBAotWY7BPXe9jRfZ0/9np278gp2VwLjHHRluLYb41Ehdabh6NyMd9RvYoc20TFpEqFl
-         b983p4ruMlL4srb1z15A1TXzlkROMfN3aEpUmAwLlgkObwatWZFx0gN36RXRNnzG//EG
-         wVRgZowEsGI322D6pif8oa7XsN4pzGj7JSnO0fc82cV+dzAQtatkVbWGOE5rV/qmSzQM
-         kMbQ==
-X-Gm-Message-State: AOJu0Yzp2l7hhiYhvdweQPKukxM087kknIS4fAKxP3UElDuy32ffXE5T
-	OtuTa2ja+jXUQKSHGOKQYFp906CV+bA=
-X-Google-Smtp-Source: AGHT+IFMncVQ2aIMD2VNGDYnSvhrYmtuqXxT/iEi6KFSesLwXRSpokGM2kKK4kFF9OBUgB/AMBLUGQ==
-X-Received: by 2002:a05:6808:6493:b0:3ba:d81:8408 with SMTP id fh19-20020a056808649300b003ba0d818408mr17758313oib.41.1702919820187;
-        Mon, 18 Dec 2023 09:17:00 -0800 (PST)
-Received: from localhost.localdomain ([75.28.21.198])
-        by smtp.gmail.com with ESMTPSA id c6-20020a056808138600b003a40b3fce01sm4844773oiw.10.2023.12.18.09.16.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Dec 2023 09:16:59 -0800 (PST)
-From: Chris Morgan <macroalpha82@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	svv@google.com,
-	biswarupp@google.com,
-	peter.hutterer@who-t.net,
-	paul@crapouillou.net,
-	contact@artur-rojek.eu,
-	Chris Morgan <macromorgan@hotmail.com>
-Subject: [PATCH] input: uinput: Drop checks for abs_min > abs_max
-Date: Mon, 18 Dec 2023 11:16:53 -0600
-Message-Id: <20231218171653.141941-1-macroalpha82@gmail.com>
-X-Mailer: git-send-email 2.34.1
+        d=1e100.net; s=20230601; t=1702928821; x=1703533621;
+        h=mime-version:user-agent:references:message-id:in-reply-to:subject
+         :cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LPtVKu5gwYBjOXrK3/V43LEUFm0g88J5kfDd+XYj2VI=;
+        b=csQgjwCRkyexj6UF6T8vClhG9EycciDZj0LNy1GuhiOs8Tzl2TXFzvcfXoqiKZnJ9v
+         6I+ibfqOAzRnvUEA5ibHbfEt9aOBWMW9dtPotNERp0L7V1UTnEYsutydiJQOoCfEsdoS
+         bs0g4ezUuM/OZZj1xMjzNzo37DdF9TWI65dC4KssgrovJ9PSYoVDUvH+XQMu/b5RqHBd
+         zPsoZ9oVDZwYuy0+9NEXXOGeCQRfpxVjUhbiXZageo2Do2ozfSNVqisfzR9KbVXzrtMf
+         N1976nqf3r7GQj1R1qiL9Pk+DNiJd+cRGNQYsT+vvAsFbOQq1Dw7HIotKFrxKWPhC/IT
+         4+MA==
+X-Gm-Message-State: AOJu0YykvHfzPhvt5OapZD098LCYwZWNHrRmTWUHhupYpK3Y3bgx2tnb
+	j+S57U7ZoMqL6kZQ1j/mpDte1Q==
+X-Google-Smtp-Source: AGHT+IFxJNVDbbFEpZ9qYAtAvapO7qmIyFzoXNzyDMmmavZ2SvLRmZ4My8fsvVSwEH8aV0Tekmx0nA==
+X-Received: by 2002:a05:600c:6997:b0:40c:361e:a288 with SMTP id fp23-20020a05600c699700b0040c361ea288mr9537054wmb.149.1702928820764;
+        Mon, 18 Dec 2023 11:47:00 -0800 (PST)
+Received: from localhost (nat2.prg.suse.com. [195.250.132.146])
+        by smtp.gmail.com with ESMTPSA id tk7-20020a170907c28700b00a1d1ebc2206sm14486786ejc.72.2023.12.18.11.47.00
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 18 Dec 2023 11:47:00 -0800 (PST)
+From: Jiri Kosina <jkosina@suse.com>
+X-Google-Original-From: Jiri Kosina <jikos@kernel.org>
+Date: Mon, 18 Dec 2023 20:47:01 +0100 (CET)
+To: Sam Lantinga <slouken@libsdl.org>
+cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>, djogorchock@gmail.com, 
+    linux-input@vger.kernel.org, benjamin.tissoires@redhat.com, 
+    kernel@gpiccoli.net, kernel-dev@igalia.com
+Subject: Re: [PATCH] HID: nintendo: Prevent divide-by-zero on code
+In-Reply-To: <CACC3sbFGHHONh=orX2+VuRu1SdGXu-jhhFVE-xZe1wOBodUzpQ@mail.gmail.com>
+Message-ID: <nycvar.YFH.7.76.2312182046480.24250@cbobk.fhfr.pm>
+References: <20231205211628.993129-1-gpiccoli@igalia.com> <nycvar.YFH.7.76.2312181649360.24250@cbobk.fhfr.pm> <52f54cad-0c0c-f683-f562-4c656b2bdc51@igalia.com> <CACC3sbFGHHONh=orX2+VuRu1SdGXu-jhhFVE-xZe1wOBodUzpQ@mail.gmail.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 
-From: Chris Morgan <macromorgan@hotmail.com>
+On Mon, 18 Dec 2023, Sam Lantinga wrote:
 
-Stop checking if the minimum abs value is greater than the maximum abs
-value. When the axis is inverted this condition is allowed. Without
-relaxing this check, it is not possible to use uinput on devices in
-userspace with an inverted axis, such as the adc-joystick found on
-many handheld gaming devices.
+> Tested-by: Sam Lantinga <slouken@libsdl.org>
 
-Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
----
- drivers/input/misc/uinput.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+Thanks. Applied to hid.git#for-6.7/upstream-fixes
 
-diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
-index d98212d55108..e90dbf2c0b34 100644
---- a/drivers/input/misc/uinput.c
-+++ b/drivers/input/misc/uinput.c
-@@ -403,14 +403,7 @@ static int uinput_validate_absinfo(struct input_dev *dev, unsigned int code,
- 	min = abs->minimum;
- 	max = abs->maximum;
- 
--	if ((min != 0 || max != 0) && max < min) {
--		printk(KERN_DEBUG
--		       "%s: invalid abs[%02x] min:%d max:%d\n",
--		       UINPUT_NAME, code, min, max);
--		return -EINVAL;
--	}
--
--	if (!check_sub_overflow(max, min, &range) && abs->flat > range) {
-+	if (!check_sub_overflow(max, min, &range) && abs->flat > abs(range)) {
- 		printk(KERN_DEBUG
- 		       "%s: abs_flat #%02x out of range: %d (min:%d/max:%d)\n",
- 		       UINPUT_NAME, code, abs->flat, min, max);
 -- 
-2.34.1
+Jiri Kosina
+SUSE Labs
 

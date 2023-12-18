@@ -1,65 +1,80 @@
-Received: from fanzine2.igalia.com (fanzine.igalia.com [178.60.130.6])
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15EF83A1A2
-	for <linux-input@vger.kernel.org>; Mon, 18 Dec 2023 20:00:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=igalia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=igalia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDC561E507;
+	Mon, 18 Dec 2023 20:30:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=igalia.com header.i=@igalia.com header.b="se4WG6Gg"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
-	s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
-	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=FqUhZvUCJN7qn/GdwVFivCYHDy3TIGGn9Oo+yxbKSfw=; b=se4WG6GgVX8SzF51BcAa8l8beP
-	/tfM1weGZVDv/egD0Ji66h2gg+IhipbVYiIN/wyDpGYbNdo5mBKC8Fqy6rqTFrJ4Zqp7d93X3m26r
-	EQzHIwTWW1YuzrleuE2MY9I1IWvhTgCsBrt4Yh5SLUW+KtuS8SujoKb1IbYaopcFeyf5gwxGa0Krk
-	G/g0L6sNtRxUhJvXfHSuCpTIJ5T2TZwuShg3NFYlzyiXsqXJtBWpHTj6ml9p8BHKZeGurNCtQo/G1
-	hfXykpt0ROfwe3K52oQH+7apIJ9TmZn3sNu4FKJ0RjZJsLqIQ9ahLqLgxFc1N+FHX1AP3Y3xyObOI
-	HxBRYhlA==;
-Received: from [177.68.247.242] (helo=[192.168.1.60])
-	by fanzine2.igalia.com with esmtpsa 
-	(Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
-	id 1rFJCE-00FKY6-Lq; Mon, 18 Dec 2023 20:22:34 +0100
-Message-ID: <52f54cad-0c0c-f683-f562-4c656b2bdc51@igalia.com>
-Date: Mon, 18 Dec 2023 16:22:30 -0300
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WpuLTnA0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1702931438; x=1734467438;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=vBRy/F1FlRt2LyVGjkP66CWb8YxWMvP6DoXKEcG+sAQ=;
+  b=WpuLTnA03LP8K0SIbfcJs/Le1byjQn0vnjMhOmipC3UkPaBfyZ9+6urP
+   wbT2f8VezLHhhphbUrRc2sbfob0gXetdL0hoiFqzlFsT8MwDB1iSJHqSb
+   BfUBMSNGCBh0VBsuR5NKhbugqP6YMzL2In1HudWPyidNt6lXgc8tZkdJV
+   Pgi1KwOpJuNzhAPY95PcsDhClRdwvBGqvHm5Iqv1fB3meyEJqsa8wyLGJ
+   abWifgIO9RoTw2R4ZUvq+h9Q5suJ8tzAtsu0Xt7xTLlW3JeAMkDZWMdFz
+   m+xDxg6YQr47Y/mrhq9BYWaPOz/4f1KyBPImcrwCU5I+lpDWcE80SB3nM
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10928"; a="395289742"
+X-IronPort-AV: E=Sophos;i="6.04,286,1695711600"; 
+   d="scan'208";a="395289742"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Dec 2023 12:30:37 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10928"; a="751879650"
+X-IronPort-AV: E=Sophos;i="6.04,286,1695711600"; 
+   d="scan'208";a="751879650"
+Received: from spandruv-desk.jf.intel.com ([10.54.75.14])
+  by orsmga006.jf.intel.com with ESMTP; 18 Dec 2023 12:30:36 -0800
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To: jikos@kernel.org,
+	jic23@kernel.org,
+	lars@metafoo.de,
+	Basavaraj.Natikar@amd.com
+Cc: linux-input@vger.kernel.org,
+	linux-iio@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Subject: [PATCH v2 0/3] Add support of color temperature and chromaticity
+Date: Mon, 18 Dec 2023 12:30:23 -0800
+Message-Id: <20231218203026.1156375-1-srinivas.pandruvada@linux.intel.com>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.15.0
-Subject: Re: [PATCH] HID: nintendo: Prevent divide-by-zero on code
-Content-Language: en-US
-To: Jiri Kosina <jkosina@suse.com>, slouken@libsdl.org
-Cc: djogorchock@gmail.com, linux-input@vger.kernel.org,
- benjamin.tissoires@redhat.com, kernel@gpiccoli.net, kernel-dev@igalia.com
-References: <20231205211628.993129-1-gpiccoli@igalia.com>
- <nycvar.YFH.7.76.2312181649360.24250@cbobk.fhfr.pm>
-From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-In-Reply-To: <nycvar.YFH.7.76.2312181649360.24250@cbobk.fhfr.pm>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 18/12/2023 12:50, Jiri Kosina wrote:
-> [...]
-> 
-> Thanks a lot for the fix. Is it confirmed to fix the issue by either of 
-> the reporters? (that's not clear to me from the github issue).
-> 
-> Thanks,
-> 
+The original series submitted to 6.7 (before revert) is modified to
+solve regression issues on several platforms. There is one change
+introduced before adding support for new features to allow dynamic
+addition of channels.
 
-Hi Jiri, thanks for the message!
+This series is for the kernel version 6.8+.
 
-Yes, not only in github but internally - Slouken got the same issue, and
-this is fixed to him, so I'm CCing his email so we can have a Tested tag.
+v2:
+New change to add channels dynamically
+Modified color temperature and chromaticity to skip in case
+of failures
 
-Cheers,
+Basavaraj Natikar (2):
+  iio: hid-sensor-als: Add light color temperature support
+  iio: hid-sensor-als: Add light chromaticity support
 
+Srinivas Pandruvada (1):
+  iio: hid-sensor-als: Allocate channels dynamically
 
-Guilherme
+ drivers/iio/light/hid-sensor-als.c | 164 ++++++++++++++++++++++++-----
+ include/linux/hid-sensor-ids.h     |   4 +
+ 2 files changed, 144 insertions(+), 24 deletions(-)
+
+-- 
+2.43.0
+

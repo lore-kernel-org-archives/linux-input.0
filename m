@@ -1,30 +1,30 @@
 Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7CB63FB0B;
-	Wed, 20 Dec 2023 15:38:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3A3540C00;
+	Wed, 20 Dec 2023 15:45:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="bJIMUG2S"
+	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="i0GRllJj"
 Received: from [192.168.42.20] (p5de453e7.dip0.t-ipconnect.de [93.228.83.231])
 	(Authenticated sender: wse@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id 7A0142FC005D;
-	Wed, 20 Dec 2023 16:38:26 +0100 (CET)
+	by mail.tuxedocomputers.com (Postfix) with ESMTPSA id 346C72FC005B;
+	Wed, 20 Dec 2023 16:45:07 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1703086706;
+	s=default; t=1703087107;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=kh4BwqGQX+3KQNJkHIAuHIku7RX7fc7Y+ZvFl8sSnH8=;
-	b=bJIMUG2SIBwrDr+t8Sayz+kIotVPgRQ1OHTU3BIZA/MP2KkkzIeG52wrk75xomqKJ3qj2d
-	T+DRddnE/Pi3hEHVwpi+GuHnS2H7qMLfjzj9Wp0adKWvTT28AoZEEJKt0efB7fhpF5lxgZ
-	1XaARp6dliLRwVID2wPDWT2dFOZcoEA=
+	bh=9y6w55BO7PzW02dZyQHJ7ZBdTcla0tuEHAw9eNIuwFQ=;
+	b=i0GRllJjKv+sjjOwMDvNa5AWbKSh2mhl3lK1bbOp0eZIAjmv1jymTu38S+cDeM/wZVX9ZT
+	BsQ43hntlo4U6ksHUNKJzi5lXeFJhGaSfHClAdkAoX7MMnsKkcyxrRk4gPQclFPdZPU3t4
+	pZbO0kR8F3nN0pi2WJq+E1matfdu7dg=
 Authentication-Results: mail.tuxedocomputers.com;
 	auth=pass smtp.auth=wse@tuxedocomputers.com smtp.mailfrom=wse@tuxedocomputers.com
-Message-ID: <1d67eff0-c0f4-4b9b-8fea-1b48eecb54e5@tuxedocomputers.com>
-Date: Wed, 20 Dec 2023 16:38:25 +0100
+Message-ID: <c9fad90d-a1d8-422f-beff-50ecb58e5f5a@tuxedocomputers.com>
+Date: Wed, 20 Dec 2023 16:45:07 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -58,9 +58,7 @@ Am 15.12.23 um 18:17 schrieb Werner Sembach:
 >
 > Signed-off-by: Christoffer Sandberg <cs@tuxedo.de>
 > Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-
-Cc: stable@vger.kernel.org
-
+For reference: https://bugzilla.kernel.org/show_bug.cgi?id=214259
 > ---
 >   drivers/input/misc/soc_button_array.c | 5 +++++
 >   1 file changed, 5 insertions(+)

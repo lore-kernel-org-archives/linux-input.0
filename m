@@ -1,66 +1,75 @@
-Received: from mail11.truemail.it (mail11.truemail.it [217.194.8.81])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 685EFBA30;
-	Fri, 22 Dec 2023 18:31:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dolcini.it
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dolcini.it
-Received: from francesco-nb.pivistrello.it (93-49-2-63.ip317.fastwebnet.it [93.49.2.63])
-	by mail11.truemail.it (Postfix) with ESMTPA id 43E5E21EB5;
-	Fri, 22 Dec 2023 19:31:18 +0100 (CET)
-From: Francesco Dolcini <francesco@dolcini.it>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Francesco Dolcini <francesco.dolcini@toradex.com>
-Subject: [PATCH v3 1/2] Input: ilitek_ts_i2c - avoid wrong input subsystem sync
-Date: Fri, 22 Dec 2023 19:31:13 +0100
-Message-Id: <20231222183114.30775-2-francesco@dolcini.it>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20231222183114.30775-1-francesco@dolcini.it>
-References: <20231222183114.30775-1-francesco@dolcini.it>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC9C59441;
+	Sat, 23 Dec 2023 07:24:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fOtDNDJy"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-1d3ed1ca402so20323785ad.2;
+        Fri, 22 Dec 2023 23:24:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1703316282; x=1703921082; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=jORh9fw7nr/hSfxeUA6D1R76ciFhMQw7mZ7t5scr0gE=;
+        b=fOtDNDJyIFNKf2xxoraZpruZfSW4uRonpaDTpIM+uv5PNPf63r51gKX5ummrua0g5m
+         fmqDk036TC37USb/RawOdGl3CgZeu+yyy5IectZYbvDw+n6wF+50gCTG1W8rnD2EtR1c
+         w5NCYp7635xnNQFOboaufIPGcSNtby/nCwytUPAwF+Xr2VAcevicEQf/+3aJcg2GtQAM
+         rQhi+PVh7lAmQcC78wd2W3XOQUYakBg1pO1i8swXh2d5gxcF47ojedp4RVXGKdPhZe5Q
+         0pcI+vI5J3WjJGGhDq+vvTEGwh77GDQO6OQR/N4Hzzj4F5qvbH6CzXQcJJmuNzr73mDH
+         UMDA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1703316282; x=1703921082;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=jORh9fw7nr/hSfxeUA6D1R76ciFhMQw7mZ7t5scr0gE=;
+        b=f+wNrH3xHORW9700supCYvS3wmyo6PbyKW3TKguxL2cayYgOZEEHRvrCF30NeukkfE
+         WDaIJ/fVs5yPZ2YcXBs/m6RoD3IgsV1OlMz1wuuAZn/mb/3vBc5bTaLqlJQMK4GdACc/
+         8/pHvnXoEZftxWGdZaaxbDvgXAPmqD4vngwBrPx1p2XoYuuo9AseA6iZ3zAHZ0HH+OWh
+         CrQ/rcJ9cqSAyADXazsXIPPD+oo7GLzpkkLBr00kHQDFr691jLBGe4YNg6eQ1RAAvYCZ
+         Z8Y8d6de8Fb4pl0i0cuTnMlCbbJVTaTE0Ecqk/Yj0TxO7gf8fgSPBVZLO0NTW3AZSTjL
+         6KFA==
+X-Gm-Message-State: AOJu0YxrJmJXV1duNa1aNJL2v+whakeOpKswvTx7UZA61oqoduYseuHk
+	OVJUKo/nRpUKLrK9idTIo6o=
+X-Google-Smtp-Source: AGHT+IHDROTw+qUqQ5s2W41ci3hSL+ozkJgbTmX4v4D4Q+t8ankXeHjijUG90Hp1ejTPeq/3YR7fqg==
+X-Received: by 2002:a17:902:e88f:b0:1c9:c6f4:e0c3 with SMTP id w15-20020a170902e88f00b001c9c6f4e0c3mr3346030plg.62.1703316281854;
+        Fri, 22 Dec 2023 23:24:41 -0800 (PST)
+Received: from google.com ([2620:15c:9d:2:6810:f806:ab04:8efd])
+        by smtp.gmail.com with ESMTPSA id q17-20020a170902dad100b001d3f42edb4dsm4483746plx.294.2023.12.22.23.24.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 22 Dec 2023 23:24:41 -0800 (PST)
+Date: Fri, 22 Dec 2023 23:24:38 -0800
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Anshul Dalal <anshulusr@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-kernel-mentees@lists.linuxfoundation.org
+Subject: Re: [PATCH v1] dt-bindings: input: convert drv266x to json-schema
+Message-ID: <ZYaLNkYRt_WHzvCD@google.com>
+References: <20231221183109.684325-1-anshulusr@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231221183109.684325-1-anshulusr@gmail.com>
 
-From: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
+On Fri, Dec 22, 2023 at 12:01:08AM +0530, Anshul Dalal wrote:
+> Convert devicetree binding documentation for ti drv2665 and drv2667
+> haptics driver to json-schema. The previously two separate bindings have
+> been merged into a single drv266x.yaml.
+> 
+> Signed-off-by: Anshul Dalal <anshulusr@gmail.com>
 
-For different reasons i2c transaction may fail or
-report id message content may be wrong.
-Avoid sync the input subsystem if message cannot be parsed.
-An input subsystem sync without points is interpreted as
-"nothing is touching the screen" while normally this is not the case.
+Applied, thank you.
 
-Fixes: 42370681bd46 ("Input: Add support for ILITEK Lego Series")
-Reviewed-by: Francesco Dolcini <francesco.dolcini@toradex.com>
-Signed-off-by: Emanuele Ghidoli <emanuele.ghidoli@toradex.com>
-Signed-off-by: Francesco Dolcini <francesco.dolcini@toradex.com>
----
-v3: added reviewed by
----
- drivers/input/touchscreen/ilitek_ts_i2c.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/input/touchscreen/ilitek_ts_i2c.c b/drivers/input/touchscreen/ilitek_ts_i2c.c
-index fc4e39b6651a..250133f0d68f 100644
---- a/drivers/input/touchscreen/ilitek_ts_i2c.c
-+++ b/drivers/input/touchscreen/ilitek_ts_i2c.c
-@@ -203,9 +203,9 @@ static int ilitek_process_and_report_v6(struct ilitek_ts_data *ts)
- 		ilitek_touch_down(ts, id, x, y);
- 	}
- 
--err_sync_frame:
- 	input_mt_sync_frame(input);
- 	input_sync(input);
-+err_sync_frame:
- 	return error;
- }
- 
 -- 
-2.25.1
-
+Dmitry

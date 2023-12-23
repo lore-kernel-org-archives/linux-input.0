@@ -1,33 +1,33 @@
 Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 891B118053;
-	Sat, 23 Dec 2023 22:12:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B44818B1B;
+	Sat, 23 Dec 2023 22:44:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="9VLlq4HG"
+	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="bDwJYrI4"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=kemnade.info; s=20220719; h=Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-Id:Date:Subject:To:From:Sender:Reply-To:Cc:
+	References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
 	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
 	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
 	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=b1HMz+ohMNl8A5LPDegcPK2gw7uCgp/vFwsqaqz/imM=; b=9VLlq4HGCfbmZy4/v3pcoPm62r
-	3S/m3nXnPC7Rnd9mF2GaAKPmFZS9SXBa4FDrLzxwoWKibvw+BEkYdvjqrwZAk3IyhsXbRpcqgULWg
-	xnnvZzGQlUDEZ9ByXJa3Hk9/LHabwdJGzEhFJYGFXXctzQ3Y0rQrAtnHYMAZQcDaviz814EGIb49C
-	NYOYCuGxOG6QfmYcxzqIXfQPf4a3Lnm7s4yfJ/KGeBd14L558JkdX4O/vz6161ML4zuNdp7Mzg8dr
-	2DOxgVk01ZSb66MHawHK3SJlsHttSbEqucaxnmvbz/JTo071Swd001FIt7uzFUufYuEkNhARVdG3l
-	hS2JwNBw==;
+	bh=wNnMpPSuWfDBc3iHywduR+Ih2mlWoXSvgD9/nDYl3K0=; b=bDwJYrI4eAUzGR4S7S/zojT8+7
+	64BMJ+nQq+hoz4+tr5lmrmMEfP4k7idGp2zCzLMJ4kegGKmw4cLxMZW97SOwO82gCCkrm90oKIdBy
+	VpGRCSqHtlnKqyERFHnrBt3rjl9MPXhyBV8ZQCBBlOfvv57Thdth1CXN8KrVTDau9c8AUxHuIVJKp
+	eQm08vbj7mIxSCz59yDW0ojGk37SzHiUdWy2S6IPqX4Hu2jzT4Lxh9DCLvTL9dhrqLH/Idn7ElrTV
+	k69Bc+R7MKj4UHCOhYrhW6/94RDMgo2eQ9to3yEi8iSxc6jDXRyVuVqOfjfbdDZtYAQgZsGsQbx1j
+	iEOh+yGg==;
 Received: from p200301077700c3001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:107:7700:c300:1a3d:a2ff:febf:d33a] helo=aktux)
 	by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.94.2)
 	(envelope-from <andreas@kemnade.info>)
-	id 1rHAEL-007f7e-CM; Sat, 23 Dec 2023 23:12:25 +0100
+	id 1rHAEK-007f7a-4q; Sat, 23 Dec 2023 23:12:24 +0100
 Received: from andi by aktux with local (Exim 4.96)
 	(envelope-from <andreas@kemnade.info>)
-	id 1rHAEK-003FaM-2N;
-	Sat, 23 Dec 2023 23:12:24 +0100
+	id 1rHAEJ-003FaC-20;
+	Sat, 23 Dec 2023 23:12:23 +0100
 From: Andreas Kemnade <andreas@kemnade.info>
 To: dmitry.torokhov@gmail.com,
 	robh+dt@kernel.org,
@@ -48,9 +48,10 @@ To: dmitry.torokhov@gmail.com,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-arm-kernel@lists.infradead.org
-Subject: [PATCH v3 4/4] ARM: dts: imx6sl-tolino-shine2hd: fix touchscreen rotation
-Date: Sat, 23 Dec 2023 23:12:13 +0100
-Message-Id: <20231223221213.774868-5-andreas@kemnade.info>
+Cc: Rob Herring <robh@kernel.org>
+Subject: [PATCH v3 2/4] dt-bindings: touchscreen: neonode,zforce: Use standard properties
+Date: Sat, 23 Dec 2023 23:12:11 +0100
+Message-Id: <20231223221213.774868-3-andreas@kemnade.info>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20231223221213.774868-1-andreas@kemnade.info>
 References: <20231223221213.774868-1-andreas@kemnade.info>
@@ -62,31 +63,63 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The display is in landscape orientation, but the touchscreen is in portrait
-orientation. Specify that properly in the devicetree.
+Enable touchscreen orientation to be specified by using standard
+properties.
 
 Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Reviewed-by: Rob Herring <robh@kernel.org>
 ---
- arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../bindings/input/touchscreen/neonode,zforce.yaml  | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts b/arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts
-index 815119c12bd48..5636fb3661e8a 100644
---- a/arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts
-+++ b/arch/arm/boot/dts/nxp/imx/imx6sl-tolino-shine2hd.dts
-@@ -141,8 +141,10 @@ zforce: touchscreen@50 {
- 		interrupts = <6 IRQ_TYPE_EDGE_FALLING>;
- 		vdd-supply = <&ldo1_reg>;
- 		reset-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
--		x-size = <1072>;
--		y-size = <1448>;
-+		touchscreen-size-x = <1072>;
-+		touchscreen-size-y = <1448>;
-+		touchscreen-swapped-x-y;
-+		touchscreen-inverted-x;
- 	};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml b/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
+index c39662815a6c5..c2ee89b76ea13 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/neonode,zforce.yaml
+@@ -9,6 +9,9 @@ title: Neonode infrared touchscreen controller
+ maintainers:
+   - Heiko Stuebner <heiko@sntech.de>
  
- 	/* TODO: TPS65185 PMIC for E Ink at 0x68 */
++allOf:
++  - $ref: touchscreen.yaml#
++
+ properties:
+   compatible:
+     const: neonode,zforce
+@@ -26,9 +29,11 @@ properties:
+     maxItems: 1
+ 
+   x-size:
++    deprecated: true
+     $ref: /schemas/types.yaml#/definitions/uint32
+ 
+   y-size:
++    deprecated: true
+     $ref: /schemas/types.yaml#/definitions/uint32
+ 
+   vdd-supply: true
+@@ -38,8 +43,6 @@ required:
+   - reg
+   - interrupts
+   - reset-gpios
+-  - x-size
+-  - y-size
+ 
+ unevaluatedProperties: false
+ 
+@@ -60,8 +63,10 @@ examples:
+             reset-gpios = <&gpio5 9 0>; /* RST */
+             irq-gpios = <&gpio5 6 0>; /* IRQ, optional */
+ 
+-            x-size = <800>;
+-            y-size = <600>;
++            touchscreen-min-x = <0>;
++            touchscreen-size-x = <800>;
++            touchscreen-min-y = <0>;
++            touchscreen-size-y = <600>;
+         };
+     };
+ ...
 -- 
 2.39.2
 

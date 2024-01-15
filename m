@@ -1,60 +1,39 @@
-Received: from mail-oa1-f51.google.com (mail-oa1-f51.google.com [209.85.160.51])
+Received: from smtp.smtpout.orange.fr (smtp-13.smtpout.orange.fr [80.12.242.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E56D18B06
-	for <linux-input@vger.kernel.org>; Mon, 15 Jan 2024 19:27:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60B5919471
+	for <linux-input@vger.kernel.org>; Mon, 15 Jan 2024 20:19:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=wanadoo.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hLj0GxhO"
-Received: by mail-oa1-f51.google.com with SMTP id 586e51a60fabf-204235d0913so5702481fac.1
-        for <linux-input@vger.kernel.org>; Mon, 15 Jan 2024 11:27:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1705346877; x=1705951677; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=1G7YsSZz0CN9krRgvjglwqVS0MSdhGltg2BK+fTJckU=;
-        b=hLj0GxhO/z/CDWUm1F+eO/hw+7h8mdpuBnmPCL7uUWTV59Z30RsBfIctRDhUxTqeLq
-         +6qUg9ximM6pnFDqzpvOj0/C4s28g6vwhx0FOIq5c0X9rPdikdJ8WPyNoin84TDIMHPb
-         +fRk3xsCEROm9hiATdEYM+2ArbBDyrI0+bBVbqSsow1Edg0tAsEEgi0st0v0unb8XKFG
-         63lgg49rR+ml+2y3MHCIKJ6DQ5EdQEAk5yi1ff2fqd4EiAmXHW8Zw8yrNl1/ihRmO5Wv
-         Aj7YkStY2GURW+bFtNfnI5bXY4UyLWQyMZ/1G2ApVo6tv+pmeBpnWpxZ8L4qL/PFqzEU
-         gylA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705346877; x=1705951677;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1G7YsSZz0CN9krRgvjglwqVS0MSdhGltg2BK+fTJckU=;
-        b=VFqx96A0LNTdMCQV9dKVVFMVDT/aGlxYbw4VQVa56bE9hFjipNqss8tS6338m9CJMh
-         KxT6mam2K13TSy+kJn0elch7DkHnse816TeWbeR96MaEu0IEetGkGmtK19kCppUiEQBG
-         mfr6ZgrG4SQ+MkuxAgnms3VM4aJ600HjuJRM2Rgoumco/NNdCoO9FTcX3GuZdBMcLHse
-         CL+dumz+QDI0iBKZVSNJ/EXtgDk6UCWbiS8kpKfyCgawzYb1/7m+2GYrcCZn/I5+y7Nu
-         aVyD3gBJrux4YdLLYd5pIysbnlrVSlB2juX5O/02y9V+EvDoZAeziNIxcX3MM9KhQOJM
-         56ug==
-X-Gm-Message-State: AOJu0Yx24pm98Z15APwQu5ywAzd/NfUDZVI4KE0bg8CLw6yLiJdYh83T
-	N5eXlvNHYgIujouKOilbjX6aqI/7wpExwQ==
-X-Google-Smtp-Source: AGHT+IFfFg1zPYzdqgTt7Nw9QOPw8AtWuKm4y4o7JHVZjjelPxUT4pkF+JbKk+QhPMeNZ5qwzvNpYw==
-X-Received: by 2002:a05:6871:5cd:b0:204:4112:feda with SMTP id v13-20020a05687105cd00b002044112fedamr8097054oan.17.1705346877190;
-        Mon, 15 Jan 2024 11:27:57 -0800 (PST)
-Received: from localhost.localdomain ([75.28.21.198])
-        by smtp.gmail.com with ESMTPSA id d7-20020a9d5e07000000b006dbf5ca14b9sm1645305oti.47.2024.01.15.11.27.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jan 2024 11:27:56 -0800 (PST)
-From: Chris Morgan <macroalpha82@gmail.com>
-To: linux-input@vger.kernel.org
-Cc: contact@artur-rojek.eu,
-	dmitry.torokhov@gmail.com,
-	hdegoede@redhat.com,
-	paul@crapouillou.net,
-	peter.hutterer@who-t.net,
-	svv@google.com,
-	biswarupp@google.com,
-	Chris Morgan <macromorgan@hotmail.com>
-Subject: [PATCH v3] Input: adc-joystick: Handle inverted axes
-Date: Mon, 15 Jan 2024 13:27:52 -0600
-Message-Id: <20240115192752.266367-1-macroalpha82@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="rvju9V8n"
+Received: from fedora.home ([92.140.202.140])
+	by smtp.orange.fr with ESMTPA
+	id PTQNrgwv8ZHPAPTQNrErBY; Mon, 15 Jan 2024 21:19:12 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
+	s=t20230301; t=1705349952;
+	bh=Nd4xsK13KUVRINMeDES9iWKoGtfPahNcjU6sjTGV0U4=;
+	h=From:To:Cc:Subject:Date;
+	b=rvju9V8nVQQCGIp2vv2cWzL991buAagC5aU7ROOXh64pAksfHuPeD0XCWauy49vzQ
+	 fp3B7xbnlcpbJ/9B/i3MnzRiWpmrC3lraAigKZP4cyY2//CsKelSU90LnFGxcoZuHi
+	 9rBv0o+9KgfWfFuhxim4Nls1FBDWlXl3XpnXk77g7fOMwqJ+zx5qmmt8m7P7TBZWwr
+	 CfH57WK5vojg4fF+Bp8A6RtuOaKD/apiQc8SdoJZM00Vb3oEGgOnwHPBM3rEUlr6gj
+	 nAOCrF8rOYBpRfd+WFf2hoN//f+8R/A4XUumgJlgphbkZ+mm/ItNz1DyFtKGIBe5Ht
+	 5Cckss9s3kYtA==
+X-ME-Helo: fedora.home
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Mon, 15 Jan 2024 21:19:12 +0100
+X-ME-IP: 92.140.202.140
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	kernel-janitors@vger.kernel.org,
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+	linux-input@vger.kernel.org
+Subject: [PATCH] Input: Remove usage of the deprecated ida_simple_xx() API
+Date: Mon, 15 Jan 2024 21:19:04 +0100
+Message-ID: <a885de14beead2cc3c1c946f192b8b178dac696a.1705349930.git.christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -63,95 +42,53 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Chris Morgan <macromorgan@hotmail.com>
+ida_alloc() and ida_free() should be preferred to the deprecated
+ida_simple_get() and ida_simple_remove().
 
-When one or more axes are inverted, (where min > max), normalize the
-data so that min < max and invert the values reported to the input
-stack.
+Note that the upper limit of ida_simple_get() is exclusive, but the one of
+ida_alloc_range() is inclusive. So a -1 has been added when needed.
 
-This ensures we can continue defining the device correctly in the
-device tree while not breaking downstream assumptions that min is
-always less than max.
-
-Signed-off-by: Chris Morgan <macromorgan@hotmail.com>
-Acked-by: Artur Rojek <contact@artur-rojek.eu>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 ---
-Changes since V2:
- - Explicitly set bool value to "true" instead of "1".
- - Split adc_joystick_invert() function definition to 2 lines.
- - Corrected changes message location.
-Changes since V1:
- - Moved proposed helper for inversion from input stack to adc-joystick
-   driver.
+ drivers/input/input.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
- drivers/input/joystick/adc-joystick.c | 22 +++++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/input/joystick/adc-joystick.c b/drivers/input/joystick/adc-joystick.c
-index c0deff5d4282..6b155e614b5a 100644
---- a/drivers/input/joystick/adc-joystick.c
-+++ b/drivers/input/joystick/adc-joystick.c
-@@ -18,6 +18,7 @@ struct adc_joystick_axis {
- 	s32 range[2];
- 	s32 fuzz;
- 	s32 flat;
-+	bool inverted;
- };
+diff --git a/drivers/input/input.c b/drivers/input/input.c
+index f71ea4fb173f..de7884a5be39 100644
+--- a/drivers/input/input.c
++++ b/drivers/input/input.c
+@@ -2629,17 +2629,15 @@ int input_get_new_minor(int legacy_base, unsigned int legacy_num,
+ 	 * locking is needed here.
+ 	 */
+ 	if (legacy_base >= 0) {
+-		int minor = ida_simple_get(&input_ida,
+-					   legacy_base,
+-					   legacy_base + legacy_num,
+-					   GFP_KERNEL);
++		int minor = ida_alloc_range(&input_ida, legacy_base,
++					    legacy_base + legacy_num - 1,
++					    GFP_KERNEL);
+ 		if (minor >= 0 || !allow_dynamic)
+ 			return minor;
+ 	}
  
- struct adc_joystick {
-@@ -29,6 +30,15 @@ struct adc_joystick {
- 	bool polled;
- };
+-	return ida_simple_get(&input_ida,
+-			      INPUT_FIRST_DYNAMIC_DEV, INPUT_MAX_CHAR_DEVICES,
+-			      GFP_KERNEL);
++	return ida_alloc_range(&input_ida, INPUT_FIRST_DYNAMIC_DEV,
++			       INPUT_MAX_CHAR_DEVICES - 1, GFP_KERNEL);
+ }
+ EXPORT_SYMBOL(input_get_new_minor);
  
-+static int adc_joystick_invert(struct input_dev *dev,
-+			       unsigned int axis, int val)
-+{
-+	int min = dev->absinfo[axis].minimum;
-+	int max = dev->absinfo[axis].maximum;
-+
-+	return (max + min) - val;
-+}
-+
- static void adc_joystick_poll(struct input_dev *input)
+@@ -2652,7 +2650,7 @@ EXPORT_SYMBOL(input_get_new_minor);
+  */
+ void input_free_minor(unsigned int minor)
  {
- 	struct adc_joystick *joy = input_get_drvdata(input);
-@@ -38,6 +48,8 @@ static void adc_joystick_poll(struct input_dev *input)
- 		ret = iio_read_channel_raw(&joy->chans[i], &val);
- 		if (ret < 0)
- 			return;
-+		if (joy->axes[i].inverted)
-+			val = adc_joystick_invert(input, i, val);
- 		input_report_abs(input, joy->axes[i].code, val);
- 	}
- 	input_sync(input);
-@@ -86,6 +98,8 @@ static int adc_joystick_handle(const void *data, void *private)
- 			val = sign_extend32(val, msb);
- 		else
- 			val &= GENMASK(msb, 0);
-+		if (joy->axes[i].inverted)
-+			val = adc_joystick_invert(joy->input, i, val);
- 		input_report_abs(joy->input, joy->axes[i].code, val);
- 	}
+-	ida_simple_remove(&input_ida, minor);
++	ida_free(&input_ida, minor);
+ }
+ EXPORT_SYMBOL(input_free_minor);
  
-@@ -168,11 +182,17 @@ static int adc_joystick_set_axes(struct device *dev, struct adc_joystick *joy)
- 			goto err_fwnode_put;
- 		}
- 
-+		if (axes[i].range[0] > axes[i].range[1]) {
-+			dev_dbg(dev, "abs-axis %d inverted\n", i);
-+			axes[i].inverted = true;
-+		}
-+
- 		fwnode_property_read_u32(child, "abs-fuzz", &axes[i].fuzz);
- 		fwnode_property_read_u32(child, "abs-flat", &axes[i].flat);
- 
- 		input_set_abs_params(joy->input, axes[i].code,
--				     axes[i].range[0], axes[i].range[1],
-+				     min_array(axes[i].range, 2),
-+				     max_array(axes[i].range, 2),
- 				     axes[i].fuzz, axes[i].flat);
- 		input_set_capability(joy->input, EV_ABS, axes[i].code);
- 	}
 -- 
-2.34.1
+2.43.0
 

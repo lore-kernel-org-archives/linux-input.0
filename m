@@ -1,13 +1,13 @@
 Received: from mail.enpas.org (zhong.enpas.org [46.38.239.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7FAB175B5;
-	Mon, 15 Jan 2024 14:48:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BFF7175B2;
+	Mon, 15 Jan 2024 14:48:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enpas.org
 Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by mail.enpas.org (Postfix) with ESMTPSA id 9F44D101601;
-	Mon, 15 Jan 2024 14:48:44 +0000 (UTC)
+	by mail.enpas.org (Postfix) with ESMTPSA id 7859A10164D;
+	Mon, 15 Jan 2024 14:48:52 +0000 (UTC)
 From: Max Staudt <max@enpas.org>
 To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 	Jiri Kosina <jikos@kernel.org>,
@@ -15,9 +15,9 @@ To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	max@enpas.org
-Subject: [PATCH v1 1/7] HID: playstation: DS4: Fix LED blinking
-Date: Mon, 15 Jan 2024 23:45:32 +0900
-Message-Id: <20240115144538.12018-2-max@enpas.org>
+Subject: [PATCH v1 4/7] HID: playstation: DS4: Don't fail on calibration data request
+Date: Mon, 15 Jan 2024 23:45:35 +0900
+Message-Id: <20240115144538.12018-5-max@enpas.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240115144538.12018-1-max@enpas.org>
 References: <20240115144538.12018-1-max@enpas.org>
@@ -29,48 +29,95 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-There was no way to disable blinking once enabled.
-Disable it on brightness = 0, as per the Linux LED spec.
+Some third-party controllers can't report calibration data for the
+gyro/accelerometer.
 
-The driver reports back the values it sends to the controller, but they
-need to be scaled back to milliseconds. Setting the LED blinking via
-sysfs works as expected now.
+We can still use the gamepad as-is, so let's do that.
 
 Signed-off-by: Max Staudt <max@enpas.org>
 ---
- drivers/hid/hid-playstation.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/hid/hid-playstation.c | 28 +++++++++++++++++-----------
+ 1 file changed, 17 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 8ac8f7b8e317..7f50e13601f0 100644
+index 12321cae4416..2bf44bd3cc8a 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -2037,8 +2037,9 @@ static int dualshock4_led_set_blink(struct led_classdev *led, unsigned long *del
+@@ -1778,8 +1778,10 @@ static int dualshock4_get_calibration_data(struct dualshock4 *ds4)
+ 		int retries;
  
- 	dualshock4_schedule_work(ds4);
- 
--	*delay_on = ds4->lightbar_blink_on;
--	*delay_off = ds4->lightbar_blink_off;
-+	/* Report scaled values back to LED subsystem */
-+	*delay_on = ds4->lightbar_blink_on * 10;
-+	*delay_off = ds4->lightbar_blink_off * 10;
- 
- 	return 0;
- }
-@@ -2065,6 +2066,13 @@ static int dualshock4_led_set_brightness(struct led_classdev *led, enum led_brig
- 		break;
- 	case 3:
- 		ds4->lightbar_enabled = !!value;
-+
-+		/* brightness = 0 also cancels blinking in Linux. */
-+		if (!ds4->lightbar_enabled) {
-+			ds4->lightbar_blink_off = 0;
-+			ds4->lightbar_blink_on = 0;
-+			ds4->update_lightbar_blink = true;
+ 		buf = kzalloc(DS4_FEATURE_REPORT_CALIBRATION_SIZE, GFP_KERNEL);
+-		if (!buf)
+-			return -ENOMEM;
++		if (!buf) {
++			ret = -ENOMEM;
++			goto no_buffer_tail_check;
 +		}
+ 
+ 		/* We should normally receive the feature report data we asked
+ 		 * for, but hidraw applications such as Steam can issue feature
+@@ -1798,24 +1800,25 @@ static int dualshock4_get_calibration_data(struct dualshock4 *ds4)
+ 
+ 				hid_err(hdev, "Failed to retrieve DualShock4 calibration info: %d\n", ret);
+ 				ret = -EILSEQ;
+-				goto err_free;
+ 			} else {
+ 				break;
+ 			}
+ 		}
+ 	} else { /* Bluetooth */
+ 		buf = kzalloc(DS4_FEATURE_REPORT_CALIBRATION_BT_SIZE, GFP_KERNEL);
+-		if (!buf)
+-			return -ENOMEM;
++		if (!buf) {
++			ret = -ENOMEM;
++			goto no_buffer_tail_check;
++		}
+ 
+ 		ret = ps_get_report(hdev, DS4_FEATURE_REPORT_CALIBRATION_BT, buf,
+ 				DS4_FEATURE_REPORT_CALIBRATION_BT_SIZE, true);
+-		if (ret) {
++
++		if (ret)
+ 			hid_err(hdev, "Failed to retrieve DualShock4 calibration info: %d\n", ret);
+-			goto err_free;
+-		}
  	}
  
- 	ds4->update_lightbar = true;
++	/* Parse buffer. If the transfer failed, this safely copies zeroes. */
+ 	gyro_pitch_bias  = get_unaligned_le16(&buf[1]);
+ 	gyro_yaw_bias    = get_unaligned_le16(&buf[3]);
+ 	gyro_roll_bias   = get_unaligned_le16(&buf[5]);
+@@ -1867,6 +1870,11 @@ static int dualshock4_get_calibration_data(struct dualshock4 *ds4)
+ 	ds4->gyro_calib_data[2].sens_denom = abs(gyro_roll_plus - gyro_roll_bias) +
+ 			abs(gyro_roll_minus - gyro_roll_bias);
+ 
++	/* Done parsing the buffer, so let's free it. */
++	kfree(buf);
++
++no_buffer_tail_check:
++
+ 	/*
+ 	 * Sanity check gyro calibration data. This is needed to prevent crashes
+ 	 * during report handling of virtual, clone or broken devices not implementing
+@@ -1919,8 +1927,6 @@ static int dualshock4_get_calibration_data(struct dualshock4 *ds4)
+ 		}
+ 	}
+ 
+-err_free:
+-	kfree(buf);
+ 	return ret;
+ }
+ 
+@@ -2571,7 +2577,7 @@ static struct ps_device *dualshock4_create(struct hid_device *hdev)
+ 	ret = dualshock4_get_calibration_data(ds4);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to get calibration data from DualShock4\n");
+-		goto err;
++		hid_err(hdev, "Gyroscope and accelerometer will be inaccurate.\n");
+ 	}
+ 
+ 	ds4->gamepad = ps_gamepad_create(hdev, dualshock4_play_effect);
 -- 
 2.39.2
 

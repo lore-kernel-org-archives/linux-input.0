@@ -1,81 +1,84 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx.skole.hr (mx1.hosting.skole.hr [161.53.165.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AD951CD07;
-	Tue, 16 Jan 2024 17:27:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E756F1CFA8;
+	Tue, 16 Jan 2024 18:18:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=skole.hr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=skole.hr
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.53.165.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705426062; cv=none; b=DKaGQkYPBJQVcTxtKzBEdiMlcbtYv3vci0aIYNPVLp1wcvQoSoACY76CDHiOPeUHbCnIqKKCgfMhpwJbRMvsW1vhDgllct/2NMPVaNk9+V3oMOly+ovq8AZq/KzB6fymiE8doiNh9QgmKmdiGHEgpBVX4tq+esfmI6lY7yyP/qI=
+	t=1705429123; cv=none; b=CPDFdZO/wLiJwxWitzjdA38XwIISmGENVCTShPD4aIK1TX4LoiPQs+vV0BQ3vdHUqGSQZ9+m9PfSeRkz6wDtL5z3f9yCp3pFKxk91N8/UeHM7U0R0JX7+tjPFgzWDK8oZZOFO4wwUILKA85WunYPobBOzoSWP23HfvZqpyGSnMw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705426062; c=relaxed/simple;
-	bh=F0m7WszRnbOFEV/7dKFI1v5hbATkstlQoZ5sZXa7SMc=;
-	h=Received:DKIM-Signature:Date:From:To:Cc:Subject:Message-ID:
-	 References:MIME-Version:Content-Type:Content-Disposition:
-	 In-Reply-To; b=GfwUecewwgY483Ioi2iTyh3L4XMHxlNtAF/71uMasV16gLqCsZjvWEFrcTwPLE3remUetRNG/JoUfeDm50V2+3p+DrFgfMYr7fPc8UOKkz1dgiWaWD50PRHMEq5+fpPLm/oXDsgw/2FAghwpchTIluA5hev5bqvKdo+oqVKxdDc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W7xXYZef; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W7xXYZef"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 358DEC433C7;
-	Tue, 16 Jan 2024 17:27:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705426061;
-	bh=F0m7WszRnbOFEV/7dKFI1v5hbATkstlQoZ5sZXa7SMc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=W7xXYZefE6IgF6jGnqnIdZp1qM5fs7BesIzbnVR17aW7yD6v95+52ch4u+oMeUNtw
-	 i+jSELjufOLBN0KEPgTCxfJIXCA+eLbd/VmHN7vby9cxH8Gq8iJgLn62+KJv8v2QqQ
-	 ozctigwLcoGXaBujyAeeOAemgqAYmIPxGYpPwP8LkAq84D+fLHDu9DAErapa35XBvL
-	 79Tr3pW+Ap2mxkL02lwHv60yI/+zloMv2roPZh/YXpUbKRSSvJyyQ8gOdrPsj+FQRB
-	 OQQnbgrGXIsOL85XlNdryy2Tst3fwjaq85UxoHN66LI316SOkbpjoleaddpP8jQkAH
-	 PuYucQzc1jWlQ==
-Date: Tue, 16 Jan 2024 17:27:37 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: input: silead,gsl1680: do not override
- firmware-name $ref
-Message-ID: <20240116-culminate-music-1ce4ada58edf@spud>
-References: <20240115182057.1610195-1-krzysztof.kozlowski@linaro.org>
+	s=arc-20240116; t=1705429123; c=relaxed/simple;
+	bh=QHO9UQMEs5KY0cgVzuXHyTQ8hJjnYblKkQRGc4wBjq8=;
+	h=Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key; b=As20v6jmlLwmmVxK7iB7f9Dq+ewTgSnGC0wmpwUcdtKmACk7M+SmTduPe5DTJ2FqFr3PdcQCArSu78SLVxYkJ2ZG32iijaGTvtjQv8A87RN4WI+wIrkXnp+HYXZyhRTM+ReIAEZICC8ECzzaDQrMX17wB2LlDe9uiJ48ObHjFZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=161.53.165.185
+Received: from mx1.hosting.skole.hr (localhost.localdomain [127.0.0.1])
+	by mx.skole.hr (mx.skole.hr) with ESMTP id 8A2258AA33;
+	Tue, 16 Jan 2024 19:18:33 +0100 (CET)
+From: =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
+Date: Tue, 16 Jan 2024 19:17:47 +0100
+Subject: [PATCH 1/2] ARM: pxa: drop MOUSE_NAVPOINT_PXA27x from defconfig
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="jPUmpLPVy6cMKpxP"
-Content-Disposition: inline
-In-Reply-To: <20240115182057.1610195-1-krzysztof.kozlowski@linaro.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Message-Id: <20240116-navpoint-removal-v1-1-593ae4954a83@skole.hr>
+References: <20240116-navpoint-removal-v1-0-593ae4954a83@skole.hr>
+In-Reply-To: <20240116-navpoint-removal-v1-0-593ae4954a83@skole.hr>
+To: Russell King <linux@armlinux.org.uk>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, 
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ linux-input@vger.kernel.org, 
+ =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
+X-Mailer: b4 0.12.4
+X-Developer-Signature: v=1; a=openpgp-sha256; l=696;
+ i=duje.mihanovic@skole.hr; h=from:subject:message-id;
+ bh=QHO9UQMEs5KY0cgVzuXHyTQ8hJjnYblKkQRGc4wBjq8=;
+ b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBlpshZphHiIKgo91Jkvc5Qul/7GDtz+ZKyshc41
+ v4yNNyf5eCJAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZabIWQAKCRCaEZ6wQi2W
+ 4YwMD/0bfbz2aIxE1NkfuZihRIZj+XOgBCaXr57qwMpS39lzlKENq5m1tU9Gx/tgIToVY7/eEWa
+ 2eHSB3IUj1C/l6bRdstbN1U/fcPJO4Cm4LAdHcvzMw4nIdvJHvzjS0onisfQrTg6ybWQaVWJNZH
+ BsjIfvhvWR3gQ87VtbFiUQI2p9Q57WJU5yR8by57+GK5pEZUkozGTHXSFFbp9Rn/oDcBuVTpYEu
+ KLDcfQSW3L+74VnwQeYIyAVfOWKYKti5Oprhd0Vj9GahMeD0hYh2oHMJY/mwkbRxbFiLuS1mnD7
+ NluAbmA8hhW4hJAlogDtFfwccrCXAmPUR0qKxI0tGDQ7XJqLex+tI0t/0wLS7ehZS/HxXfsRc4x
+ XFu7FEKgw4IxO0YBYRZLGQu7N4ZBERWdw9iC+wq3treJIbxrxgg000qb4ytstdwJpKNB+5TLpsm
+ eRdqqjSPFr5ItfVAWKD9/O4FQk3uwA85rRy1/ody9Y3otcCVJhQ6dFY91PxlRgPaHhyG90rJqx6
+ GLip7qgljT/nhnLe8L7GPP8/J0AZZLeQqsWAHGPaYNgVAqGiee3AbkaERFv+kkeG19Gdqqcq38U
+ u60yjjM/3xU9JWopCHErRitqOXNI0WpN8kSdxvtMn1bvhIyP7grvxA5Xtaz1jxktvfZqnAqqC7K
+ SKlRZPCg+VsK0vA==
+X-Developer-Key: i=duje.mihanovic@skole.hr; a=openpgp;
+ fpr=53DF9D4D9C3FE110FB362D789A119EB0422D96E1
+
+Drop the Synaptics NavPoint touchpad from pxa_defconfig in preparation
+for removal of the driver.
+
+Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
+---
+ arch/arm/configs/pxa_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/arch/arm/configs/pxa_defconfig b/arch/arm/configs/pxa_defconfig
+index 9e81b1849e4c..960a7f3efc3a 100644
+--- a/arch/arm/configs/pxa_defconfig
++++ b/arch/arm/configs/pxa_defconfig
+@@ -244,7 +244,6 @@ CONFIG_MOUSE_PS2_ELANTECH=y
+ CONFIG_MOUSE_SERIAL=m
+ CONFIG_MOUSE_CYAPA=m
+ CONFIG_MOUSE_ELAN_I2C=m
+-CONFIG_MOUSE_NAVPOINT_PXA27x=m
+ CONFIG_INPUT_TOUCHSCREEN=y
+ CONFIG_TOUCHSCREEN_ADS7846=m
+ CONFIG_TOUCHSCREEN_ATMEL_MXT=m
+
+-- 
+2.43.0
 
 
---jPUmpLPVy6cMKpxP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jan 15, 2024 at 07:20:57PM +0100, Krzysztof Kozlowski wrote:
-> dtschema package defines firmware-name as string-array, so individual
-> bindings should not make it a string but instead just narrow the number
-> of expected firmware file names.
->=20
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-
-
-
---jPUmpLPVy6cMKpxP
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZaa8iQAKCRB4tDGHoIJi
-0huuAPoCx3g9gsIcadCaO0TIoyycQarpVU6FxILXNR2aXwfQfgEAh75nxTEKsu6O
-ajDVtX4dCdYKECHfSG+6DkTV4ucowwY=
-=wK0V
------END PGP SIGNATURE-----
-
---jPUmpLPVy6cMKpxP--

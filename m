@@ -1,104 +1,84 @@
-Received: from mail-pg1-f170.google.com (mail-pg1-f170.google.com [209.85.215.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx.skole.hr (mx1.hosting.skole.hr [161.53.165.185])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0C11383AC;
-	Tue, 16 Jan 2024 19:47:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3A168506A;
+	Tue, 16 Jan 2024 19:48:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.53.165.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705434461; cv=none; b=Cm4xysANkgJ0ga1k/TC7tUB47LAjLAIiDicK90ecguZD2ECAz5vjFJAtoWg5fFYnOva2EYkw7hnCNhWo0jFER/SxE0gwtNigRNTiIkDkLOHj0RcmFp/sraTM8rd9n/1w9fGZ30mBPM7TUTblyXWAaNd6+pLOlBuvxur3+Msy7Ew=
+	t=1705434533; cv=none; b=rQJnRS/UcxJqBAwpKbMFZ71ulq9zVvT7PDzs9gX/DFMq69yzlXBJH0wtD7dYA7ugCZmz/UcBcD043hufGiQpVH8TbSDWhDwHwubJQ2OTrNSO+Ol5ZS5Yt0JFDC6nD0D4DYBrocpK9pqN+wSZhPGvLYKICTPgRQ5pxL5SdnRRjCY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705434461; c=relaxed/simple;
-	bh=xDOnRslm8NpOghkEKFADYeC4y8yRZ9tjFgiXnzzxmZc=;
-	h=Received:DKIM-Signature:X-Google-DKIM-Signature:
-	 X-Gm-Message-State:X-Google-Smtp-Source:X-Received:Received:Date:
-	 From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:
-	 Content-Disposition:Content-Transfer-Encoding:In-Reply-To; b=aTHmTMFJ7s27LwmeA2ej15SmbOjtkwOddrk1NsDFKu9Oe0uwucdpBwjRsRln3xRtfZ4VOabXoAbMAVErWM5/B32/SVaLgY32r3A9xu9CMXVZXMOxrHO2/Kuvqi7EdkxKaP+1tZ6zFKNjY6wTF+8lE+PrfClWbF8rDmgtqEm5b6A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HtfMdCak; arc=none smtp.client-ip=209.85.215.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HtfMdCak"
-Received: by mail-pg1-f170.google.com with SMTP id 41be03b00d2f7-53fa455cd94so3940519a12.2;
-        Tue, 16 Jan 2024 11:47:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1705434460; x=1706039260; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=yBRl+AOWeJy2GX0abNdKEQWVu+3zjK0hUonu45aV5s4=;
-        b=HtfMdCakdYXn1Ut/WHmaNoMNEvjZsO2WxD7mf0vHjJ2ATVge9ccUuvcmCuYDMgCKU7
-         HNyi77cic2n1SljCTb2dYpKNBXvzbT+OnNYmYmfsTFaSbAujJwe1JFrzDS3F1W8WYX2z
-         RA57cETJSq3Mntw4tQkTmz/79H+QcRqh3X4+y/RYNDa5696WpzGL21y9qknnA6RnhPvA
-         zQXwqn/2w3zK5MV9LhtV0MRq4CHWHsGOEMwpewUBJ7Sh1gA9i1eViT9/To3I17o3O1TA
-         0CEc/yQbu5+eeURIE80sK2uh4YUgJ67RABgc8jGAfeyf4gonOEGUdRC8YQ0JYRWHCwjG
-         RTSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705434460; x=1706039260;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=yBRl+AOWeJy2GX0abNdKEQWVu+3zjK0hUonu45aV5s4=;
-        b=e0BskcByqg0yIYKZD7oF1kt8q8II/ygAzlBhSRulqGJasD09U5s3oM+b+tG7znq46J
-         NpJ3rrq3+1MuVtrQaeYefQNvF0TmtiyOw3gWEZWmc54Iq5lCH+JL3JAjZg//gu/m/OQK
-         6Qon+0WkQTQyAvP83dIbdYTFLZILLn5q25pbfGn2Rd4tCx2tnyzjcQ5h9jEM4oZYzD4m
-         +VBX1SV2j9EOq8H0s21KkrYp3z3rZ/2Pey9M8HNYMNbyFciYOn0GiE4AWLsKUDX0uQSa
-         A73xr3+NZmtCVqizHp3INc7X3sYI3r+KRJ4oAjsj6YpG6YLBFrDOqrWkJEcS8460hJgp
-         JZ9g==
-X-Gm-Message-State: AOJu0YwLZaixsXOxIW9tg08V8aRHlA2CBx7INC9Di8bZ4rtRkXorrLxP
-	AUY60HOlKCjdGHezEx91wiI=
-X-Google-Smtp-Source: AGHT+IGpguyzzSo/Uf4Wj8VoJUmfEa3izp0PhtpVxW5xbxMtTZQZwsDj6eUKKBeczO2lPA2tmTsn7Q==
-X-Received: by 2002:a17:90b:46cf:b0:28c:fb86:23da with SMTP id jx15-20020a17090b46cf00b0028cfb8623damr4483069pjb.72.1705434459893;
-        Tue, 16 Jan 2024 11:47:39 -0800 (PST)
-Received: from google.com ([2620:15c:9d:2:5c15:9a6:f612:d37a])
-        by smtp.gmail.com with ESMTPSA id q8-20020a17090311c800b001d54c4184ccsm9610717plh.182.2024.01.16.11.47.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jan 2024 11:47:39 -0800 (PST)
-Date: Tue, 16 Jan 2024 11:47:36 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Duje =?utf-8?Q?Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
-Cc: Russell King <linux@armlinux.org.uk>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <u.kleine-koenig@pengutronix.de>,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH 2/2] input/navpoint: remove driver
-Message-ID: <ZabdWMa7PyQhuPfa@google.com>
-References: <20240116-navpoint-removal-v1-0-593ae4954a83@skole.hr>
- <20240116-navpoint-removal-v1-2-593ae4954a83@skole.hr>
- <ZabS88WnVz9avRv2@google.com>
- <12362783.O9o76ZdvQC@radijator>
+	s=arc-20240116; t=1705434533; c=relaxed/simple;
+	bh=rSJ5ZhtyrJrAkeuu/AG6XH4FyTv+B4s4Tai8QIXErKY=;
+	h=Received:From:Date:Subject:MIME-Version:Content-Type:
+	 Content-Transfer-Encoding:Message-Id:References:In-Reply-To:To:Cc:
+	 X-Mailer:X-Developer-Signature:X-Developer-Key; b=X90ctj1FRLZF1LW5CiCKD7VNgVluBEE628fribDZsWyYKRU7NLSgXsmE+qiTBO8c1hIVdeD2ecoX+OSBo67V9s651/V2xtogymwnKFVTmBSoyBspd+haTudFIXE+6BCdXXOEJWCC071ud+UhlkT08g+4zNflu7sHCxNijvUX1i8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=skole.hr; spf=pass smtp.mailfrom=skole.hr; arc=none smtp.client-ip=161.53.165.185
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=skole.hr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=skole.hr
+Received: from mx1.hosting.skole.hr (localhost.localdomain [127.0.0.1])
+	by mx.skole.hr (mx.skole.hr) with ESMTP id 4B9B98B006;
+	Tue, 16 Jan 2024 20:48:48 +0100 (CET)
+From: =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
+Date: Tue, 16 Jan 2024 20:48:06 +0100
+Subject: [PATCH v2 1/2] ARM: pxa: drop MOUSE_NAVPOINT_PXA27x from defconfig
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <12362783.O9o76ZdvQC@radijator>
+Message-Id: <20240116-navpoint-removal-v2-1-e566806f1009@skole.hr>
+References: <20240116-navpoint-removal-v2-0-e566806f1009@skole.hr>
+In-Reply-To: <20240116-navpoint-removal-v2-0-e566806f1009@skole.hr>
+To: Russell King <linux@armlinux.org.uk>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>, 
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ linux-input@vger.kernel.org, 
+ =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
+X-Mailer: b4 0.12.4
+X-Developer-Signature: v=1; a=openpgp-sha256; l=696;
+ i=duje.mihanovic@skole.hr; h=from:subject:message-id;
+ bh=rSJ5ZhtyrJrAkeuu/AG6XH4FyTv+B4s4Tai8QIXErKY=;
+ b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBlpt1/piXcwVNdLPedExKPOclXewqSVOSsDemwP
+ KQA1P7ip3qJAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZabdfwAKCRCaEZ6wQi2W
+ 4XV6D/sGWlXuAIhlwdgcIo2OH2x2u1nqr2YLJV6Tvw+pag6dxbNgFyag+MC2C9lvK7Xn/2uhbNQ
+ GrHpw7VOYwSC6HjNF35ulD8vH+cBXgrPq3VlKaD8JGSUiiOwT3LW57QSrAwYAm29pmaTOs8IGAs
+ v6tz4EGBmiacKwa0f4DKPZUgQC39Es7n3xDknZH793Ez2SW9KSx5FGoB0qvbuT+Begmgo2jEBNB
+ AkJEPclfXrA46TszchyBcropWKEpbHBztClOVJV9P7VmNXhmHt8/l/hugiiyURPamjbwnPtAV/p
+ OtOzjUdu6J3qB8/UlRwy2eaj+7gsxzdWp6A19GFdyvAB+Ippp54Xub3MlFCmUaZODQsUmMqZiGP
+ 7IFoUysc9hz18vuc2kC0iUoTVHgGloSvg1YFy2omyQhWaTGZle7+CuGefQf8ESzhx7yIgfw08YS
+ hYxqLFrCqYsk2QATZ2JVR+14lT/3UllRBVuczPQbTCjxpSxZMsoM6OCQJwN86MOoiknJ5dbiIuz
+ z0rb2xaURuvWW0qgCfknGV+jdIfOf8ZrqUeXoC96sE6pU2B3to5LD0RX7oaCDlF3tdNpGKNLExX
+ PQiZyVl+JA4xalbrH9mHR+Vhj6hbW8KenQX1VWRqJEKBTIqaGNAAFlgGg6u7PmwXeGPZmkoT0NB
+ noKe8uQtPoR1SGA==
+X-Developer-Key: i=duje.mihanovic@skole.hr; a=openpgp;
+ fpr=53DF9D4D9C3FE110FB362D789A119EB0422D96E1
 
-On Tue, Jan 16, 2024 at 08:45:43PM +0100, Duje Mihanović wrote:
-> Hello Dmitry,
-> 
-> On Tuesday, January 16, 2024 8:03:15 PM CET Dmitry Torokhov wrote:
-> > On Tue, Jan 16, 2024 at 07:17:48PM +0100, Duje Mihanović wrote:
-> > > This driver does not use the SPI core as it should, instead tampering
-> > > with the SSP registers manually. Besides this, it relies on the global
-> > > GPIO namespace. Refactoring the driver is almost certainly not worth it
-> > > as it was seemingly only implemented in the HP iPAQ hx4700 removed more
-> > > than a year ago in d6df7df7ae5a ("ARM: pxa: remove unused board files"),
-> > > so let's remove it.
-> > 
-> > I think this clashed with some recent cleanups to the navpoint driver.
-> > Could you please re-generate the patch against linux-next or my "next"
-> > branch please?
-> 
-> I have done it. Should I wait a bit (how much?) before resending or is it okay 
-> to send v2 right away in this case?
+Drop the Synaptics NavPoint touchpad from pxa_defconfig in preparation
+for removal of the driver.
 
-Please send it, there is no reason to wait.
+Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
+---
+ arch/arm/configs/pxa_defconfig | 1 -
+ 1 file changed, 1 deletion(-)
 
-Thanks.
+diff --git a/arch/arm/configs/pxa_defconfig b/arch/arm/configs/pxa_defconfig
+index b0c3355e2599..7d6d0551a870 100644
+--- a/arch/arm/configs/pxa_defconfig
++++ b/arch/arm/configs/pxa_defconfig
+@@ -245,7 +245,6 @@ CONFIG_MOUSE_PS2_ELANTECH=y
+ CONFIG_MOUSE_SERIAL=m
+ CONFIG_MOUSE_CYAPA=m
+ CONFIG_MOUSE_ELAN_I2C=m
+-CONFIG_MOUSE_NAVPOINT_PXA27x=m
+ CONFIG_INPUT_TOUCHSCREEN=y
+ CONFIG_TOUCHSCREEN_ADS7846=m
+ CONFIG_TOUCHSCREEN_ATMEL_MXT=m
 
 -- 
-Dmitry
+2.43.0
+
+

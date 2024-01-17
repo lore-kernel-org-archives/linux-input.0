@@ -1,233 +1,126 @@
-Received: from mx0a-0046e701.pphosted.com (mx0a-0046e701.pphosted.com [67.231.149.93])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6B9724205;
-	Wed, 17 Jan 2024 19:13:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD08E250E8
+	for <linux-input@vger.kernel.org>; Wed, 17 Jan 2024 20:35:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705518800; cv=none; b=o7NXSso1ii/Gzjr1DM3u74FmRWVskyRhi7pguVXuVRGhZOQgb+sonNEf3NP1fXnIuE4pJkfxv9XmCv7mbzpAL7BnQynbxQlYXimRqR3VXmRy6MoedAd6oUT2BBMKSneD+Wfz54dbBGRcvblraeNTLgpLfu68Hxy6VQqSidpswsw=
+	t=1705523745; cv=none; b=uGcOMPQDHRZW4/KL6h6M5yrkfBgK3/rMTm3r8orFOs1yiPWeezNmDUUlbX3YSeZGihBzPka2Iig2o9FP/SCg4QqOcvS3yqb8Z55zwxeMmnsOQWD16Kr8DsBwgexS7XucYKPJA0ZixyQhPOIBQWLIbKwUYGAsB7yCSp+FDpAKVZ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705518800; c=relaxed/simple;
-	bh=jKRss196qeLVlfcnne75UPlPmKcND3FARQ5NtdNiHqU=;
-	h=Received:DKIM-Signature:Received:Received:Received:From:To:CC:
-	 Subject:Thread-Topic:Thread-Index:Date:Message-ID:In-Reply-To:
-	 Accept-Language:Content-Language:X-MS-Has-Attach:
-	 X-MS-TNEF-Correlator:x-originating-ip:Content-Type:Content-ID:
-	 Content-Transfer-Encoding:MIME-Version:X-Proofpoint-ORIG-GUID:
-	 X-Proofpoint-GUID:X-Proofpoint-Virus-Version:
-	 X-Proofpoint-Spam-Details; b=mqkxcy6UzBY1Gc4/EVhdIGg5N6r1V9OhzEw3bZDXUVU2FgergU5+kQlJiF0R+P8okJvEUx/f7HTwk+Le416K4OMe2aPJd4e0Iqq4slZr9v8F6QbYwjFQCn9PnUOYfBxALhf/b5GuZnsuZ3eaZ+IrTke4UOV0/gVfbPU1eD9RVAk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=aadc6FlH; arc=none smtp.client-ip=67.231.149.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=plexus.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
+	s=arc-20240116; t=1705523745; c=relaxed/simple;
+	bh=y80k3jEI2jUrrgv1S97EjSMTB/Tm8rDIE+8TZZV8vDk=;
+	h=Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Google-Smtp-Source:X-Received:Received:
+	 Received:X-Received:MIME-Version:References:In-Reply-To:From:Date:
+	 X-Gmail-Original-Message-ID:Message-ID:Subject:To:Cc:Content-Type:
+	 Content-Transfer-Encoding; b=ngEM813WOxNlk+58BE/w+S//W+hhzDuiwTdLCIMErIFfkAJLR5QuWuSWnTrxwgbFFSjKd8zX/mzXdAB9vpkLA95S5Bm+PxuDFFgjkCZ5/vTYDz0S75nCs0jX6azvK/0aih8hPwrXaZJS888wP9vsRDguk5GCPcYAn+5+0i1cuZU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=j+XBGsN2; arc=none smtp.client-ip=209.85.167.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="aadc6FlH"
-Received: from pps.filterd (m0341554.ppops.net [127.0.0.1])
-	by mx0a-0046e701.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 40HC8IG6019691;
-	Wed, 17 Jan 2024 12:48:25 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=
-	from:to:cc:subject:date:message-id:in-reply-to:content-type
-	:content-id:content-transfer-encoding:mime-version; s=pps1; bh=j
-	KRss196qeLVlfcnne75UPlPmKcND3FARQ5NtdNiHqU=; b=aadc6FlHIkKg2QkpW
-	zA5iZcyDQeRy2Rzb8qR2oo1MCK6lKRNIs+u1IZ2lavL9l1svUFG4nPxWPDh5fBWN
-	tSNi9vKAG1Ezpazhb/CBtql4NkHJz3pvWThx8NpOEWCkmpRe+ASXIin6Etgz8ThN
-	+AG/bsRcF6/aLaZ5EdlLHO1oQhxW3v2qwUwcKRocMgHLIpU9A5mfDOlMsJtsrR1X
-	YHoqpngCNrEvM449HGFWg81nI+hlDs9xcWa2jqb3+P0zSVU9Mc/p1g5Nr1hlHIlC
-	p7qmTFDB+03ldmLUAm77hPgIoseJpPNVZVJuq7QQiKpTBrJ6N0zPWH1sDXIBH7n8
-	grunw==
-Received: from gcc-mail-mx-001.na.plexus.com (outbound.plexus.com [64.215.193.254])
-	by mx0a-0046e701.pphosted.com (PPS) with ESMTPS id 3vpc62ht8s-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 17 Jan 2024 12:48:25 -0600 (CST)
-Received: from gcc-mail-mx-003.Na.Plexus.com (10.255.51.222) by
- gcc-mail-mx-001.na.plexus.com (10.255.51.220) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Wed, 17 Jan 2024 18:48:23 +0000
-Received: from gcc-mail-mx-003.Na.Plexus.com ([10.255.51.222]) by
- gcc-mail-mx-003.na.plexus.com ([10.255.51.222]) with mapi id 15.01.2507.035;
- Wed, 17 Jan 2024 18:48:23 +0000
-From: Danny Kaehn <Danny.Kaehn@plexus.com>
-To: "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>
-CC: "kaehndan@gmail.com" <kaehndan@gmail.com>,
-        "bartosz.golaszewski@linaro.org" <bartosz.golaszewski@linaro.org>,
-        "benjamin.tissoires@redhat.com" <benjamin.tissoires@redhat.com>,
-        Ethan Twardy
-	<Ethan.Twardy@plexus.com>,
-        "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>,
-        "dmitry.torokhov@gmail.com"
-	<dmitry.torokhov@gmail.com>,
-        "jikos@kernel.org" <jikos@kernel.org>,
-        "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-        "niyas.sait@linaro.org" <niyas.sait@linaro.org>,
-        "krzysztof.kozlowski+dt@linaro.org" <krzysztof.kozlowski+dt@linaro.org>,
-        "robh+dt@kernel.org" <robh+dt@kernel.org>
-Subject: Re: [PATCH v9 3/3] HID: cp2112: Fwnode Support
-Thread-Topic: [PATCH v9 3/3] HID: cp2112: Fwnode Support
-Thread-Index: AQHaSXW/3n6OZGvLFUWJikeLL2pJPQ==
-Date: Wed, 17 Jan 2024 18:48:23 +0000
-Message-ID: <3e0fc6fa95f19d39711ca66808a2cff344652985.camel@plexus.com>
-In-Reply-To: <ZKKpknBH3Pa9mLS1@smile.fi.intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <048D5E748166D84184FB49083C976C3D@plexus.com>
-Content-Transfer-Encoding: base64
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="j+XBGsN2"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-50ea98440a7so12345014e87.1
+        for <linux-input@vger.kernel.org>; Wed, 17 Jan 2024 12:35:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1705523741; x=1706128541; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0H34ysvL6GHeCyXKHhC6fgd3ArjBS9lz3Dbeq0+BNUM=;
+        b=j+XBGsN2ozDi9opI2LCqn2H3otCiNO7rrLVSgcyy27kKO4N5R2U+jqIHFUHT9V5QGz
+         Zw4qzt8vXK2Jcb2eh/UMW7QG9lhssCJwgqbhCwGvG346Ao9VWPch4iMeEWLyBpxHfJ5Y
+         PaP5WGKCJv+OdMHGRyGUG3iiJFVkmyHS9GKic=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1705523741; x=1706128541;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0H34ysvL6GHeCyXKHhC6fgd3ArjBS9lz3Dbeq0+BNUM=;
+        b=S9NQRuMW5GKm/XHEclpkexK0qqkXDMDYQ0/13qm2Kj4oxhmhvaS5DiVJxee2NfDf1G
+         MJ40CJFrkiB+vM/H/ML6aIAKtmINRaBdjFiOi3WYzfq4KZaoXZ2XI/9u8qGwVbd8KeNA
+         3Uu28Lbxs+xqSw/YFwdUwClgGECzyTPrxX6T9mPV1WdHg8317mu/lIa0DqyDgz4AMdnM
+         2hGZthiYpmO3OOyyN5uXcvC5e1uEQ0IWXJ0qEQdFokKXNEHJ7NgsfT6UHf6qxCvjoF4n
+         JAIShPWrHJr+fXJK8GMMsTS+M7taJzPmD/j6gCFwMNUGeA355025fIS9uqg92Gwi41uo
+         9Lew==
+X-Gm-Message-State: AOJu0Yw2kNbyg+BGW2Ig/cblCQFGOzTsqFryfvDJ54SupPO/NXvtkL0B
+	WFjJ6j9abeBj4/oDmwbYM/kSk/cPpyMZzUDomPrKOM1mW6R+v7w=
+X-Google-Smtp-Source: AGHT+IGWVu2b3TsLg7hnIR1FFIhgjvgRogQ4tzz1TiJzGWPt03qQnCCtjREPumBurmQT1dmVGncWAw==
+X-Received: by 2002:a05:6512:6d0:b0:50e:8e75:3eb7 with SMTP id u16-20020a05651206d000b0050e8e753eb7mr3398152lff.51.1705523741049;
+        Wed, 17 Jan 2024 12:35:41 -0800 (PST)
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com. [209.85.167.47])
+        by smtp.gmail.com with ESMTPSA id o11-20020ac24c4b000000b0050e8223688fsm362211lfk.30.2024.01.17.12.35.40
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 17 Jan 2024 12:35:40 -0800 (PST)
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-50edf4f4aa4so4581e87.0
+        for <linux-input@vger.kernel.org>; Wed, 17 Jan 2024 12:35:40 -0800 (PST)
+X-Received: by 2002:a05:6512:4008:b0:50e:a70c:d0da with SMTP id
+ br8-20020a056512400800b0050ea70cd0damr143487lfb.0.1705523739612; Wed, 17 Jan
+ 2024 12:35:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-ORIG-GUID: HbbQEF2pgxdzG59UVGP_L8jik9KPpEV5
-X-Proofpoint-GUID: HbbQEF2pgxdzG59UVGP_L8jik9KPpEV5
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-01-17_12,2024-01-17_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- mlxlogscore=999 adultscore=0 clxscore=1011 impostorscore=0 mlxscore=0
- spamscore=0 bulkscore=0 priorityscore=1501 phishscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2311290000
- definitions=main-2401170136
+References: <20240115045054.1170294-1-kai.heng.feng@canonical.com>
+In-Reply-To: <20240115045054.1170294-1-kai.heng.feng@canonical.com>
+From: Doug Anderson <dianders@chromium.org>
+Date: Wed, 17 Jan 2024 12:35:23 -0800
+X-Gmail-Original-Message-ID: <CAD=FV=VCoB_uBontRk3WVn-nqzZnutSMCHBpdBqNOFwrYv=8xw@mail.gmail.com>
+Message-ID: <CAD=FV=VCoB_uBontRk3WVn-nqzZnutSMCHBpdBqNOFwrYv=8xw@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: i2c-hid: Skip SET_POWER SLEEP for Cirque touchpad
+ on system suspend
+To: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: jikos@kernel.org, benjamin.tissoires@redhat.com, 
+	Hans de Goede <hdegoede@redhat.com>, Maxime Ripard <mripard@kernel.org>, 
+	=?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>, 
+	Johan Hovold <johan+linaro@kernel.org>, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-SGVsbG8gZm9sa3MsIHdhbnRlZCB0byBnaXZlIG9uZSBtb3JlIGZvbGxvdyB1cCBvbiB0aGlzDQpw
-YXRjaC9kaXNjdXNzaW9uLiBXb3VsZCBhIHJlYXNvbmFibGUgbmV4dCBzdGVwIGZvciBtZQ0KdG8g
-aGVscCBudWRnZSB0aGlzIGZvcndhcmQgYmUgdG8gc3VibWl0IGEgdjEwIGFkZHJlc3NpbmcNCkFu
-ZHkncyBtb3N0IHJlY2VudCBjb2RlIGNvbW1lbnRzPyBBZ2FpbiBob3BpbmcgSSdtIG5vdCBiZWlu
-Zw0KcnVkZSBvciBzdGVwcGluZyBvbiB0b2VzOyBqdXN0IHdhbnQgdG8gbWFrZSBzdXJlIEknbSBk
-b2luZyBteQ0KZGlsbGlnZW5jZSB0byBtb3ZlIHRoaW5ncyBmb3J3YXJkLiBJJ2xsIGFzc3VtZSB0
-aGF0IGdvaW5nIGFoZWFkDQphbmQgc3VibWl0dGluZyBhIHYxMCB3aXRoIHVucmVzb2x2ZWQgZGlz
-Y3Vzc2lvbiBoZXJlIGlzbid0IGENCnRlcnJpYmxlIG9mZmVuc2UgaWYgSSBkb24ndCBlbmQgdXAg
-Z2V0dGluZyBhIHJlc3BvbnNlIGhlcmUgaW4gDQp0aGUgbmV4dCB3ZWVrIG9yIHNvLg0KDQpMZWF2
-aW5nIHNvbWUgbGlua3MgdG8gc29tZSBvZiB0aGUgbW9yZSBrZXkgcG9pbnRzIG9mIHRoZSBkaXNj
-dXNzaW9uDQphY3Jvc3MgdGhlIHZlcnNpb25zIG9mIHRoaXMgcGF0Y2gsIHNpbmNlIGl0J3MgYmVl
-biB+NSBtb250aHMgc2luY2UNCnRoZSBsYXN0IGFjdGl2aXR5IGhlcmUuDQoNCkRpc2N1c3Npb24g
-YmVnYW4gd2l0aCBkaXNjdXNzaW9uIG9mIHVzaW5nIGNoaWxkIG5vZGVzIGJ5IG5hbWUNCmFjcm9z
-cyBEVCB3aXRoIEFDUEksIGZvciBiaW5kaW5nIGZ3bm9kZXMgZm9yIHRoZSBDUDIxMTIncyBJMkMN
-CmFuZCBHUElPIGNvbnRyb2xsZXJzOyBzaW5jZSAgQUNQSSByZXF1aXJlcyB1cHBlcmNhc2UgbmFt
-ZXMgKGFuZA0KbmFtZXMgc2hvdWxkIHNwZWNpZmljYWxseSBub3QgYmUgbWVhbmluZ2Z1bCBpbiBB
-Q1BJKQ0KaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvYWxsL1klMkY5b08xQUU2R0s2Q1FtcEBzbWls
-ZS5maS5pbnRlbC5jb20vDQoNCkFuZHkgc3VnZ2VzdGVkIEkgdXNlIF9BRFIgdG8gaWRlbnRpZnkg
-dGhlIGNoaWxkIG5vZGUgYnkgaW5kZXgNCmZvciBBQ1BJDQpodHRwczovL2xvcmUua2VybmVsLm9y
-Zy9hbGwvWkFpNE5qcVhUYkxwVmhQb0BzbWlsZS5maS5pbnRlbC5jb20vDQoNCnY5IGltcGxlbWVu
-dGVkIG1hdGNoaW5nIGJ5IGNoaWxkIG5vZGUgbmFtZSBPUiBieSBhZGRyZXNzIGRlcG5kaW5nDQpv
-biB0aGUgdHlwZSBvZiBmaXJtd2FyZSB1c2VkDQpodHRwczovL2xvcmUua2VybmVsLm9yZy9hbGwv
-MjAyMzAzMTkyMDQ4MDIuMTM2NC00LWthZWhuZGFuQGdtYWlsLmNvbS8NCg0KU29tZSBhZGRpdGlv
-bmFsIGRpc2N1c3Npb24gb24gd2hldGhlciBtYXRjaGluZyBjaGlsZCBub2RlcyBieSBuYW1lDQpp
-cyB0aGUgYmVzdCBhcHByb2FjaCBldmVuIGZvciB0aGUgRFQgc2lkZQ0KKGFsc28gd2l0aGluIHRo
-ZSBpbi1saW5lIGJvZHkgb2YgdGhpcyBlbWFpbCkNCmh0dHBzOi8vbG9yZS5rZXJuZWwub3JnL2Fs
-bC9aQmhvSHpUcjVsMzh1JTJGa1hAc21pbGUuZmkuaW50ZWwuY29tLw0KDQoNClRoZSBEVCBiaW5k
-aW5nIHBhdGNoIGluIHF1ZXN0aW9uDQpodHRwczovL2xvcmUua2VybmVsLm9yZy9hbGwvMjAyMzAz
-MTkyMDQ4MDIuMTM2NC0yLWthZWhuZGFuQGdtYWlsLmNvbS8NCg0KVGhhbmtzLA0KDQpEYW5ueSBL
-YWVobg0KDQoNCg0KDQpPbiBNb24sIEp1bCAzIDIwMjMgYXQgMTM6NTc6MjIgKzAzMDAgQW5keSBT
-aGV2Y2hlbmtvIHdyaXRlOg0KPiBPbiBNb24sIE1heSAwMSwgMjAyMyBhdCAwNjozNTo0NFBNIC0w
-NTAwLCBEYW5pZWwgS2FlaG4gd3JvdGU6DQo+ID4gT24gTW9uLCBNYXIgMjAsIDIwMjMgYXQgOTox
-MOKAr0FNIEFuZHkgU2hldmNoZW5rbw0KPiA+IDxhbmRyaXkuc2hldmNoZW5rb0BsaW51eC5pbnRl
-bC5jb20+IHdyb3RlOg0KPiA+ID4gT24gTW9uLCBNYXIgMjAsIDIwMjMgYXQgMDg6NDA6MDdBTSAt
-MDUwMCwgRGFuaWVsIEthZWhuIHdyb3RlOg0KPiA+ID4gPiBPbiBNb24sIE1hciAyMCwgMjAyMyBh
-dCA4OjAw4oCvQU0gQW5keSBTaGV2Y2hlbmtvDQo+ID4gPiA+IDxhbmRyaXkuc2hldmNoZW5rb0Bs
-aW51eC5pbnRlbC5jb20+IHdyb3RlOg0KPiA+ID4gPiA+IE9uIE1vbiwgTWFyIDIwLCAyMDIzIGF0
-IDAyOjU4OjA3UE0gKzAyMDAsIEFuZHkgU2hldmNoZW5rbw0KV3JvdGU6DQo+ID4gPiA+ID4gPiBP
-biBTdW4sIE1hciAxOSwgMjAyMyBhdCAwMzo0ODowMlBNIC0wNTAwLCBEYW5ueSBLYWVobg0Kd3Jv
-dGU6DQo+ICtDYzogTml5YXMsIHdobyBpcyB3b3JraW5nIGEgbG90IG9uIGZpbGxpbmcgdGhlIGdh
-cHMgaW4gQUNQSSBpbg0KY29tcGFyaXNvbg0KPiAgICAgIHRvIERUIGluIHRoZSBMaW51eCBrZXJu
-ZWwuIFBlcmhhcHMgaGUgaGFzIHNvbWUgaWRlYXMgb3IgZXZlbg0KYmV0dGVyDQo+ICAgICAgc29s
-dXRpb25zLg0KPiANCj4gDQo+IC4uLg0KPiANCj4gPiA+ID4gPiA+ID4gKyAgIGRldmljZV9mb3Jf
-ZWFjaF9jaGlsZF9ub2RlKCZoZGV2LT5kZXYsIGNoaWxkKSB7DQo+ID4gPiA+ID4gPiA+ICsgICAg
-ICAgICAgIG5hbWUgPSBmd25vZGVfZ2V0X25hbWUoY2hpbGQpOw0KPiA+ID4gPiA+ID4gPiArICAg
-ICAgICAgICByZXQgPQ0KYWNwaV9nZXRfbG9jYWxfYWRkcmVzcyhBQ1BJX0hBTkRMRV9GV05PREUo
-Y2hpbGQpLCAmYWRkcik7DQo+ID4gPiA+ID4gPiA+ICsNCj4gPiA+ID4gPiA+ID4gKyAgICAgICAg
-ICAgaWYgKChuYW1lICYmIHN0cmNtcCgiaTJjIiwgbmFtZSkgPT0gMCkgfHwNCighcmV0ICYmIGFk
-ZHIgPT0gMCkpDQo+ID4gPiA+ID4gPiA+ICsgICAgICAgICAgICAgICAgICAgZGV2aWNlX3NldF9u
-b2RlKCZkZXYtPmFkYXAuZGV2LA0KY2hpbGQpOw0KPiA+ID4gPiA+ID4gPiArICAgICAgICAgICBl
-bHNlIGlmICgobmFtZSAmJiBzdHJjbXAoImdwaW8iLCBuYW1lKSkgPT0gMA0KfHwNCj4gPiA+ID4g
-PiA+ID4gKyAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgKCFyZXQgJiYgYWRkciA9
-PSAxKSkNCj4gPiA+ID4gPiA+ID4gKyAgICAgICAgICAgICAgICAgICBkZXYtPmdjLmZ3bm9kZSA9
-IGNoaWxkOw0KPiA+ID4gPiA+ID4gPiArICAgfQ0KPiA+ID4gPiA+ID4NCj4gPiA+ID4gPiA+IFBs
-ZWFzZSwgbWFrZSBhZGRyZXNzZXMgZGVmaW5lZCBleHBsaWNpdGx5LiBZb3UgbWF5IGFsc28gZG8N
-Cml0IHdpdGggbm9kZSBuYW1pbmcNCj4gPiA+ID4gPiA+IHNjaGVtYToNCj4gPiA+ID4gPiA+DQo+
-ID4gPiA+ID4gPiAjZGVmaW5lIENQMjExMl9JMkNfQURSICAgICAgICAgICAgICAgIDANCj4gPiA+
-ID4gPiA+ICNkZWZpbmUgQ1AyMTEyX0dQSU9fQURSICAgICAgICAgICAgICAgMQ0KPiA+ID4gPiA+
-ID4NCj4gPiA+ID4gPiA+IHN0YXRpYyBjb25zdCBjaGFyICogY29uc3QgY3AyMTEyX2NlbGxfbmFt
-ZXNbXSA9IHsNCj4gPiA+ID4gPiA+ICAgICAgIFtDUDIxMTJfSTJDX0FEUl0gICAgICAgID0gImky
-YyIsDQo+ID4gPiA+ID4gPiAgICAgICBbQ1AyMTEyX0dQSU9fQURSXSAgICAgICA9ICJncGlvIiwN
-Cj4gPiA+ID4gPiA+IH07DQo+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gICAgICAgZGV2aWNlX2Zv
-cl9lYWNoX2NoaWxkX25vZGUoJmhkZXYtPmRldiwgY2hpbGQpIHsNCj4gPiA+ID4gPiA+ICAgICAg
-ICAgICAgICAgbmFtZSA9IGZ3bm9kZV9nZXRfbmFtZShjaGlsZCk7DQo+ID4gPiA+ID4gPiAgICAg
-ICAgICAgICAgIGlmIChuYW1lKSB7DQo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAg
-cmV0ID0gbWF0Y2hfc3RyaW5nKGNwMjExMl9jZWxsX25hbWVzLA0KQVJSQVlfU0laRShjcDIxMTJf
-Y2VsbF9uYW1lcyksIG5hbWUpOw0KPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgIGlm
-IChyZXQgPj0gMCkNCj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIGFk
-ZHIgPSByZXQ7DQo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgIH0gZWxzZQ0KPiA+ID4gPiA+ID4g
-ICAgICAgICAgICAgICAgICAgICAgIHJldCA9DQphY3BpX2dldF9sb2NhbF9hZGRyZXNzKEFDUElf
-SEFORExFX0ZXTk9ERShjaGlsZCksICZhZGRyKTsNCj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAg
-aWYgKHJldCA8IDApDQo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgLi4uZXJyb3Ig
-aGFuZGxpbmcgaWYgbmVlZGVkLi4uDQo+ID4gPiA+ID4gPg0KPiA+ID4gPiA+ID4gICAgICAgICAg
-ICAgICBzd2l0Y2ggKGFkZHIpIHsNCj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgY2FzZSBDUDIx
-MTJfSTJDX0FEUjoNCj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAgICAgICAgICBkZXZpY2Vfc2V0
-X25vZGUoJmRldi0+YWRhcC5kZXYsDQpjaGlsZCk7DQo+ID4gPiA+ID4gPiAgICAgICAgICAgICAg
-ICAgICAgICAgYnJlYWs7DQo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgIGNhc2UgQ1AyMTEyX0dQ
-SU9fQURSOg0KPiA+ID4gPiA+ID4gICAgICAgICAgICAgICAgICAgICAgIGRldi0+Z2MuZndub2Rl
-ID0gY2hpbGQ7DQo+ID4gPiA+ID4gPiAgICAgICAgICAgICAgICAgICAgICAgYnJlYWs7DQo+ID4g
-PiA+ID4gPiAgICAgICAgICAgICAgIGRlZmF1bHQ6DQo+ID4gPiA+ID4gPiAgICAgICAgICAgICAg
-ICAgICAgICAgLi4uZXJyb3IgaGFuZGxpbmcuLi4NCj4gPiA+ID4gPiA+ICAgICAgICAgICAgICAg
-fQ0KPiA+ID4gPiA+ID4gICAgICAgfQ0KPiA+ID4gPiA+DQo+ID4gPiA+ID4gQnR3LCBkb24ndCB5
-b3UgdXNlICJyZWciIHByb3BlcnR5IGZvciB0aGUgY2hpbGQgbm9kZXM/IEl0DQp3b3VsZCBiZSBi
-ZXR0ZXIgZnJvbQ0KPiA+ID4gPiA+IGRlIGZhY3RvIHVzZWQgcGF0dGVybnMgKHdlIGhhdmUgYSBj
-b3VwbGUgb2YgbW9kZSBkcml2ZXJzIHRoYXQNCmhhdmUgYSBjb21tb24NCj4gPiA+ID4gPiBjb2Rl
-IHRvIHJlYWQgInJlZyIgb3IgX0FEUigpIGFuZCB0aGF0IGNvZGUgY2FuIGJlIHNwbGl0IGludG8N
-CmEgaGVscGVyIGFuZCB1c2VkDQo+ID4gPiA+ID4gaGVyZSkuDQo+ID4gPiA+DQo+ID4gPiA+IE5h
-bWVkIG5vZGVzIF9zZWVtXyB0byBiZSBwcmVmZXJyZWQgaW4gRFQgZm9yIHdoZW4gdGhlcmUgaXNu
-J3QgYQ0KbG9naWNhbCAvDQo+ID4gPiA+IG5hdHVyYWwgbnVtYmVyaW5nIHRvIHRoZSBjaGlsZCBu
-b2Rlcy4gQS5lLiBmb3IgVVNCLCByZWcgaXMgdXNlZA0KdG8gc3BlY2lmeQ0KPiA+ID4gPiB3aGlj
-aCBwb3J0LCBmb3IgSTJDLCB3aGljaCBhZGRyZXNzIG9uIHRoZSBidXMsIGJ1dCBmb3IgdHdvDQpw
-YXJhbGxlbCBhbmQNCj4gPiA+ID4gaW5kZXBlbmRlbnQgZnVuY3Rpb25zIG9uIHRoZSBzYW1lIGRl
-dmljZSwgaXQgc2VlbXMgbmFtZWQgbm9kZXMNCndvdWxkIG1ha2UNCj4gPiA+ID4gbW9yZSBzZW5z
-ZSBpbiBEVC4gTWFueSBleGFtcGxlcyBleGlzdCBpbiBtYWlubGluZSB3aGVyZSBuYW1lZA0Kbm9k
-ZXMgYXJlIHVzZWQNCj4gPiA+ID4gaW4gRFQgaW4gdGhpcyB3YXkuDQo+ID4gPg0KPiA+ID4gT2th
-eSwgSSdtIG5vdCBhbiBleHBlcnQgaW4gdGhlIERUIHByZWZlcmFibGUgc2NoZW1hcywgc28gSQ0K
-YmVsaWV2ZSBEVCBwZW9wbGUNCj4gPiA+IHNob3VsZCBhbnN3ZXIgb24gdGhpcy4NCj4gPiANCj4g
-PiBIZWxsbywNCj4gPiANCj4gPiBUaGFua3MgZm9yIGFsbCB0aGUgdGltZSBzcGVudCByZXZpZXdp
-bmcgdGhpcyB0aHVzIGZhci4gRm9sbG93aW5nIHVwDQp0bw0KPiA+IHNlZSB3aGF0IG15IG5leHQg
-c3RlcHMgbWlnaHQgYmUuDQo+ID4gDQo+ID4gSXQgc291bmRzIGxpa2Ugd2UgbWlnaHQgd2FudCBz
-b21lIERUIGZvbGtzIHRvIHdlaWdoIGluIG9uIHRoZQ0Kc3RyYXRlZ3kNCj4gPiB1c2VkIGZvciBp
-ZGVudGlmeWluZyB0aGUgY2hpbGQgSTJDIGFuZCBHUElPIG5vZGVzIGZvciB0aGUgQ1AyMTEyDQo+
-ID4gZGV2aWNlIGJlZm9yZSBtb3ZpbmcgZnVydGhlciB0b3dhcmQgYXBwbHlpbmcgdGhpcy4NCj4g
-PiANCj4gPiBTaW5jZSB0aGUgRFQgbGlzdCBpcyBvbiB0aGlzIHRocmVhZCAoYXMgd2VsbCBhcyBS
-b2IrS3J6eXN0b2YpLCBhbmQNCj4gPiB0aGlzIGhhcyBzYXQgZm9yIGEgbGl0dGxlIHdoaWxlLCBJ
-J20gYXNzdW1pbmcgdGhhdCB0aGUgYmFsbCBpcyBpbg0KbXkNCj4gPiBjb3VydCB0byBzZWVrIG91
-dCBhbiBhbnN3ZXIvb3BpbmlvbiBoZXJlLiAoSSBrbm93IGZvbGtzIGdldCBhIGxvdA0Kb2YNCj4g
-PiBlbWFpbCwgc28gYXBvbG9naWVzIGlmIHRoZSBjb3JyZWN0IG1vdmUgd291bGQgaGF2ZSBiZWVu
-IHRvIHdhaXQgYQ0KYml0DQo+ID4gbG9uZ2VyIGJlZm9yZSBmb2xsb3dpbmcgdXAhIE5vdCBpbnRl
-bmRpbmcgdG8gYmUgcnVkZS4pDQo+ID4gDQo+ID4gV291bGQgaXQgYmUgYXBwcm9wcmlhdGUgLyBl
-eHBlY3RlZCB0aGF0IEkgc2VuZCBhIHNlcGFyYXRlIGVtYWlsDQp0aHJlYWQNCj4gPiB0byB0aGUg
-RFQgbWFpbGluZyBsaXN0IG9uIHRoZWlyIG9waW5pb24gaGVyZT8gT3Igd291bGQgdGhhdCBjcmVh
-dGUNCj4gPiBtb3JlIGNvbmZ1c2lvbi9jb21wbGV4aXR5IGluIGFkZGluZyB5ZXQgYW5vdGhlciB0
-aHJlYWQ/IEkgZGlkDQpjcmVhdGUgYQ0KPiA+IHNlcGFyYXRlIGVtYWlsIHRocmVhZCBmb3IgdGhl
-IGluaXRpYWwgRFQgdnMuIEFDUEkgY29udmVyc2F0aW9uIHdlDQpoYWQNCj4gPiBhYm91dCBhY2Nl
-c3NpbmcgY2hpbGRyZW4gYnkgbmFtZSBvciBpbmRleCBpbiBhIHVuaWZpZWQgd2F5IGR1ZSB0bw0K
-dGhlDQo+ID4gZGlmZmVyZW5jZXMgaW4gdXBwZXIvbG93ZXIgY2FzZSBhbmQgdXNlLWNhc2VzLCBi
-dXQgdGhhdA0KPiA+ICh1bmRlcnN0YW5kYWJseSkgZGlkbid0IHNlZW0gdG8gZ2FpbiBhbnkgdHJh
-Y3Rpb24uDQo+ID4gDQo+ID4gVGhhbmtzIGZvciBhbnkgaW5zaWdodHMhDQo+ID4gDQo+ID4gVGhh
-bmtzLA0KPiA+IERhbm55IEthZWhuDQo+ID4gDQo+ID4gPiA+IE9uZSBleGFtcGxlIGlzIG5ldHdv
-cmsgY2FyZHMgd2hpY2ggcHJvdmlkZSBhbiBtZGlvIGJ1cw0KPiA+ID4gPiBiaW5kIHRocm91Z2gg
-dGhlIGNoaWxkICJtZGlvIi4gT25lIGV4YW1wbGUgb2YgYSBzcGVjaWZpY2FsbHkgYQ0KPiA+ID4g
-PiBjaGlsZCBpMmMgY29udHJvbGxlciBiZWluZyBib3VuZCB0byAiaTJjIiBjYW4gYmUgZm91bmQg
-aW4NCj4gPiA+ID4gcGluZTY0LHBpbmVwaG9uZS1rZXlib2FyZC55YW1sLg0KPiA+ID4gPiBCdXQg
-aXQncyBjZXJ0YWlubHkgcG9zc2libGUgdGhpcyBpc24ndCB0aGUgZGVzaXJlZCBkaXJlY3Rpb24N
-Cm1vdmluZyBmb3J3YXJkDQo+ID4gPiA+IGluIERUIC0tIG15IG9waW5pb24gc2hvdWxkIGRlZmlu
-aXRlbHkgYmUgdGFrZW4gd2l0aCBhIGdyYWluIG9mDQpzYWx0LiBNYXliZQ0KPiA+ID4gPiB0aGlz
-IGlzIHNvbWV0aGluZyBJIHNob3VsZCBmb2xsb3cgdXAgb24gd2l0aCBEVCBmb2xrcyBvbiB0aGF0
-DQpEVCB2cy4gQUNQSQ0KPiA+ID4gPiB0aHJlYWQgbWFkZSBlYXJsaWVyLg0KPiA+ID4gPg0KPiA+
-ID4gPiBPbmUgdGhpbmcgSSBkaWQgbm90aWNlIHdoZW4gbG9va2luZyBhdCB0aGUgbWZkIHN1YnN5
-c3RlbSBpcw0KdGhhdCBtb3N0IERUDQo+ID4gPiA+IGRyaXZlcnMgYWN0dWFsbHkgbWF0Y2ggb24g
-dGhlIGNvbXBhdGlibGUgc3RyaW5nIG9mIHRoZSBjaGlsZA0Kbm9kZXMsIGEuZS4NCj4gPiA+ID4g
-InNpbGFicyxjcDIxMTIiLCAic2lsYWJzLGNwMjExMi1ncGlvIi4gICJzaWxhYnMsY3AyMTEyLWky
-YyIuIFdlDQpjb3VsZA0KPiA+ID4gPiBpbXBsZW1lbnQgdGhhdCBoZXJlLCBidXQgSSB0aGluayB0
-aGF0IHdvdWxkIG1ha2UgbW9yZSBzZW5zZSBpZg0Kd2Ugd2VyZSB0bw0KPiA+ID4gPiBhY3R1YWxs
-eSBzcGxpdCB0aGUgY3AyMTEyIGludG8gbWZkICYgcGxhdGZvcm0gZHJpdmVycywgYW5kDQphZGRp
-dGlvbmFsbHkgc3BsaXQNCj4gPiA+ID4gdGhlIERUIGJpbmRpbmcgYnkgZnVuY3Rpb24uDQo+ID4g
-Pg0KPiA+ID4gSUlSQyAoYnV0IG1pZ2h0IGJlIHZlcnkgd2VsbCBtaXN0YWtlbikgdGhlIGNvbXBh
-dGlibGUgc3RyaW5ncyBmb3INCmNoaWxkcmVuDQo+ID4gPiBhcmUgZGlzY291cmFnZWQuDQo+IA0K
-DQo=
+Hi,
+
+On Sun, Jan 14, 2024 at 8:51=E2=80=AFPM Kai-Heng Feng
+<kai.heng.feng@canonical.com> wrote:
+>
+> There's a Cirque touchpad that wakes system up without anything touched
+> the touchpad. The input report is empty when this happens.
+> The reason is stated in HID over I2C spec, 7.2.8.2:
+> "If the DEVICE wishes to wake the HOST from its low power state, it can
+> issue a wake by asserting the interrupt."
+>
+> This is fine if OS can put system back to suspend by identifying input
+> wakeup count stays the same on resume, like Chrome OS Dark Resume [0].
+> But for regular distro such policy is lacking.
+>
+> Though the change doesn't bring any impact on power consumption for
+> touchpad is minimal, other i2c-hid device may depends on SLEEP control
+> power. So use a quirk to limit the change scope.
+>
+> [0] https://chromium.googlesource.com/chromiumos/platform2/+/HEAD/power_m=
+anager/docs/dark_resume.md
+>
+> Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> ---
+> v2:
+>  - Use quirk instead of applying the change universally.
+>
+>  drivers/hid/hid-ids.h              | 3 +++
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 6 +++++-
+>  2 files changed, 8 insertions(+), 1 deletion(-)
+
+This seems OK to me. As per my repy to v1, it doesn't feel fully
+explained what's going on. Why does it only wake the system without
+touches if you put it to sleep first? Is it truly a hardware quirk
+with the Cirque touchpad or is it a bug on the board you have it
+hooked up to? In any case, perhaps it doesn't matter since you said
+you measured power here and, on this touchpad it doesn't seem to save
+significant extra power to go into sleep mode. ...so I guess I'd be OK
+w/
+
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+
+[1] https://lore.kernel.org/r/20240115045054.1170294-1-kai.heng.feng@canoni=
+cal.com

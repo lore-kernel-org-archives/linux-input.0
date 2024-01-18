@@ -1,176 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA1051D53B;
-	Thu, 18 Jan 2024 08:22:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75F541173D
+	for <linux-input@vger.kernel.org>; Thu, 18 Jan 2024 08:54:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705566180; cv=none; b=irG1SKnxDGVsg5fbnngRd/2DMbKPF+v0p4a3EubzcNSIw/3wUP+7uUxc8PryYCUUCs/F8P3vKsEeEBDIJA2fydY8tBmKE0zhfW0VzYbpLNWIQzSbXdN6ISX3JfymwBHTZpM7W0Gy89tCUiDAJ3vEYPb/v0gHYjOCTJpjg6aMRk4=
+	t=1705568090; cv=none; b=gyI+93REmOllWdsdJug59rnBVKK2PFVW4+JqKdVpwqx07bQj94qe+cNUv5RkVhSiPO3ABkBkz+wuKF83IWIoI7x2GKjvUKZBaLt9SDc2MYfcavbKoRP+EnLun6+SOZkAsgG3G/Dsdqg35Rc2ljN+Beb1ML0oFFuDBPTBEG4x5d8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705566180; c=relaxed/simple;
-	bh=z8ZWhs/5zvx3G6R8b4jbvSH/4gHgw6KY8ml450z0UoI=;
-	h=Received:DKIM-Signature:Received:From:Date:Subject:MIME-Version:
-	 Content-Type:Content-Transfer-Encoding:Message-Id:References:
-	 In-Reply-To:To:Cc:X-Mailer:X-Developer-Signature:X-Developer-Key:
-	 X-Endpoint-Received:X-Original-From:Reply-To; b=ok1srWmVEUf7Qmjcqq8gxvB+LlDk/CcUi4E5VxbKFvspY0ayWzJ9aO3IzEvkZS38zYsjuCid4dzgm1m89xS2NQQNTb6eyt1Rn0KklvIB7N3J9YuGqNs4z2KlYC8ad/RGHP6YNRvcU1MlC84nVru9vcOUDFV2gZp9xgG1uSV+MgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZXc38j1v; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1705568090; c=relaxed/simple;
+	bh=MCxZ8z07WUK2BsrAfJ6Bu00FMqAk5lxvFXxpvD9oRSk=;
+	h=Received:DKIM-Signature:X-Google-DKIM-Signature:
+	 X-Gm-Message-State:X-Google-Smtp-Source:X-Received:Received:From:
+	 X-Google-Original-From:To:Cc:Subject:Date:Message-ID:X-Mailer:
+	 MIME-Version:Content-Transfer-Encoding; b=PRWvZsVEEoUux8zOn2Bkprpi0gmjmwh2k37eokT1fCPJYsavup3ao8JzHd1BQsC8ELqLWWuXKv8KxfRhGqRg0uqZt4pid4RoM1NyNjaHaM0hSr6SxJhisvU1nwvrpGxQvq7CEppts4WZEYQg1ef1KzVn+iWJUVGYoO4Y1bWunvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=eoaQ1rq7; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZXc38j1v"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C532FC4AF69;
-	Thu, 18 Jan 2024 08:22:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1705566179;
-	bh=z8ZWhs/5zvx3G6R8b4jbvSH/4gHgw6KY8ml450z0UoI=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=ZXc38j1vrJJgeg/2Z50HDuv7OfUkCYRnOx91SzVe00S423JHJtIoRbXQ2fgYKT2lB
-	 /JR67prOkaZcXN/jBzD9zVT3571LxAhbb86tBPYfVYlhhLyUt1Sg1/f90OiDHPNolb
-	 OC2Fl4PCC7CaUA/2OPMwVaJK0u08tz3h0Tl13TRFfDzwZ61bkN9aSRYkm4Pi+vGKp4
-	 5wIIW/+1c7w+GqeHdoKk69NsW9LLPHbbQOzCHfH/sGkP1q52BWnVetcjAlWVa/ZEv8
-	 DBHFAMewvPTiiRE722j2vYCeJ0DG0nfzpPYfe81A8fjAcXbvVqoz4OBbrbXERx1I8R
-	 BkSfFmUMueyhw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B61DDC47DB3;
-	Thu, 18 Jan 2024 08:22:59 +0000 (UTC)
-From:
- Nikita Shubin via B4 Relay <devnull+nikita.shubin.maquefel.me@kernel.org>
-Date: Thu, 18 Jan 2024 11:21:06 +0300
-Subject: [PATCH v7 23/39] dt-bindings: input: Add Cirrus EP93xx keypad
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="eoaQ1rq7"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-1d5e004f592so14484485ad.3
+        for <linux-input@vger.kernel.org>; Thu, 18 Jan 2024 00:54:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1705568088; x=1706172888; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=oz9mVOu+ad9eAvvgLiXYxdC8+oSkbRkyUjyWQjx33yM=;
+        b=eoaQ1rq78eTtzh0wFOS9Tz2aySgv13PGt+7LqbFZ58CqGGbyLnBm/JLNfMTa+fnqaj
+         UkoqWg0ZR5VQdEGutJsZNYQMt2hKnQgbYSo//p5u0QIhXYnGv4hHZIxnH5r5Vw8BFaFM
+         b4FV9RVa5L7OM8934MXFkCgDfeN9Wakj4eduM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1705568088; x=1706172888;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=oz9mVOu+ad9eAvvgLiXYxdC8+oSkbRkyUjyWQjx33yM=;
+        b=xLvHTojJ/jdmJ3LGSjLujH80wTQmiUkBVvLHAJ/oLrbbUaWEwmRVWcFsTDlsIa8enA
+         S+LLNuimdy99uiATDWTPA2O981P9aVA2lDNszOfJAQXfK+6U8IYx6iiytd0uk0OKMQen
+         OOw4CvzyBBn3dgVbP2NNX4K4rGpuUafuNPlt/sCd1Oem+dM3cAEO3l6+sbZ23eA4YcBl
+         PtMnylW0pffftQVGlRyKGSHZZbdgA1z5EFy8dNPLFv4hKSE5yUJYSGkmmsAecNm8Tn+7
+         zZAmQ6t6ZqiOFFAH04Vl45dpisW2Ttu65zh13vXAFEGI8tqpBHYt7qypFFx1oQeBOipj
+         nF8Q==
+X-Gm-Message-State: AOJu0YwS667MyGRXoA+/gPJ4kGEoylnERVJehOr4u+f/0uzxvpnSGKT+
+	GBVreDYaeBvnYEAQoqKUTFMC1a7kyOUcsk6kFbjrLcKVWCPzB+JMA/PN7ukGrg==
+X-Google-Smtp-Source: AGHT+IHLBlmDFJj4oPMADbmRUKL9nH9CY9T4nkMaGF60d4eQZV9wC6gpHKuBd5hsyMwfFMYc1IoExw==
+X-Received: by 2002:a17:902:8606:b0:1d5:845:da16 with SMTP id f6-20020a170902860600b001d50845da16mr467559plo.126.1705568087823;
+        Thu, 18 Jan 2024 00:54:47 -0800 (PST)
+Received: from localhost ([2401:fa00:1:10:6a83:9579:c455:9664])
+        by smtp.gmail.com with UTF8SMTPSA id kf13-20020a17090305cd00b001d0ca40158dsm912379plb.280.2024.01.18.00.54.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 18 Jan 2024 00:54:47 -0800 (PST)
+From: Ting Shen <phoenixshen@chromium.org>
+X-Google-Original-From: Ting Shen <phoenixshen@google.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: fshao@chromium.org,
+	Ting Shen <phoenixshen@google.com>,
+	Benson Leung <bleung@chromium.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Guenter Roeck <groeck@chromium.org>,
+	Tzung-Bi Shih <tzungbi@kernel.org>,
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
+	chrome-platform@lists.linux.dev,
+	=?UTF-8?q?joewu=20=28=E5=90=B3=E4=BB=B2=E6=8C=AF=29?= <joewu@msi.com>,
+	linux-input@vger.kernel.org
+Subject: [PATCH] Input: cros_ec_keyb: add support for base attached event
+Date: Thu, 18 Jan 2024 16:52:43 +0800
+Message-ID: <20240118085310.1139545-1-phoenixshen@google.com>
+X-Mailer: git-send-email 2.43.0.381.gb435a96ce8-goog
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240118-ep93xx-v7-23-d953846ae771@maquefel.me>
-References: <20240118-ep93xx-v7-0-d953846ae771@maquefel.me>
-In-Reply-To: <20240118-ep93xx-v7-0-d953846ae771@maquefel.me>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh+dt@kernel.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Alexander Sverdlin <alexander.sverdlin@gmail.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>, 
- Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-X-Mailer: b4 0.13-dev-e3e53
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1705566176; l=3131;
- i=nikita.shubin@maquefel.me; s=20230718; h=from:subject:message-id;
- bh=BmV75DVRygMtC4JmBqsWTX4r3uOQf/4IH1RLZhibCAg=; =?utf-8?q?b=3DOBawJ32qPb0E?=
- =?utf-8?q?pmaY5WJpsBDFeavQvwN3PHyH+NIqjt/H1+PnPgIJ/GBO3Bb5/hICNfBlEkSZyFqi?=
- xZdjr1jjCselO2y/Rqr1RLoqITzCOf24ZseR7VbjkoS2DE9XPipk
-X-Developer-Key: i=nikita.shubin@maquefel.me; a=ed25519;
- pk=vqf5YIUJ7BJv3EJFaNNxWZgGuMgDH6rwufTLflwU9ac=
-X-Endpoint-Received:
- by B4 Relay for nikita.shubin@maquefel.me/20230718 with auth_id=65
-X-Original-From: Nikita Shubin <nikita.shubin@maquefel.me>
-Reply-To: <nikita.shubin@maquefel.me>
+Content-Transfer-Encoding: 8bit
 
-From: Nikita Shubin <nikita.shubin@maquefel.me>
+This CL maps ChromeOS EC's BASE_ATTACHED event to SW_DOCK,
+to allow userspace detect that a keyboard is attached to the
+detachable device.
 
-Add YAML bindings for ep93xx SoC keypad.
-
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Nikita Shubin <nikita.shubin@maquefel.me>
+Signed-off-by: Ting Shen <phoenixshen@google.com>
 ---
- .../bindings/input/cirrus,ep9307-keypad.yaml       | 87 ++++++++++++++++++++++
- 1 file changed, 87 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/cirrus,ep9307-keypad.yaml b/Documentation/devicetree/bindings/input/cirrus,ep9307-keypad.yaml
-new file mode 100644
-index 000000000000..a0d2460c55ab
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/cirrus,ep9307-keypad.yaml
-@@ -0,0 +1,87 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/cirrus,ep9307-keypad.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Cirrus ep93xx keypad
-+
-+maintainers:
-+  - Alexander Sverdlin <alexander.sverdlin@gmail.com>
-+
-+allOf:
-+  - $ref: /schemas/input/matrix-keymap.yaml#
-+
-+description:
-+  The KPP is designed to interface with a keypad matrix with 2-point contact
-+  or 3-point contact keys. The KPP is designed to simplify the software task
-+  of scanning a keypad matrix. The KPP is capable of detecting, debouncing,
-+  and decoding one or multiple keys pressed simultaneously on a keypad.
-+
-+properties:
-+  compatible:
-+    oneOf:
-+      - const: cirrus,ep9307-keypad
-+      - items:
-+          - enum:
-+              - cirrus,ep9312-keypad
-+              - cirrus,ep9315-keypad
-+          - const: cirrus,ep9307-keypad
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  debounce-delay-ms:
-+    description: |
-+          Time in microseconds that key must be pressed or
-+          released for state change interrupt to trigger.
-+
-+  cirrus,prescale:
-+    description: row/column counter pre-scaler load value
-+    $ref: /schemas/types.yaml#/definitions/uint16
-+    maximum: 1023
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+  - linux,keymap
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/input/input.h>
-+    #include <dt-bindings/clock/cirrus,ep9301-syscon.h>
-+    keypad@800f0000 {
-+        compatible = "cirrus,ep9307-keypad";
-+        reg = <0x800f0000 0x0c>;
-+        interrupt-parent = <&vic0>;
-+        interrupts = <29>;
-+        clocks = <&eclk EP93XX_CLK_KEYPAD>;
-+        pinctrl-names = "default";
-+        pinctrl-0 = <&keypad_default_pins>;
-+        linux,keymap = <KEY_UP>,
-+                       <KEY_DOWN>,
-+                       <KEY_VOLUMEDOWN>,
-+                       <KEY_HOME>,
-+                       <KEY_RIGHT>,
-+                       <KEY_LEFT>,
-+                       <KEY_ENTER>,
-+                       <KEY_VOLUMEUP>,
-+                       <KEY_F6>,
-+                       <KEY_F8>,
-+                       <KEY_F9>,
-+                       <KEY_F10>,
-+                       <KEY_F1>,
-+                       <KEY_F2>,
-+                       <KEY_F3>,
-+                       <KEY_POWER>;
-+    };
+ drivers/input/keyboard/cros_ec_keyb.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
+diff --git a/drivers/input/keyboard/cros_ec_keyb.c b/drivers/input/keyboard/cros_ec_keyb.c
+index 30678a34cf647..d2e0d89d4ffdf 100644
+--- a/drivers/input/keyboard/cros_ec_keyb.c
++++ b/drivers/input/keyboard/cros_ec_keyb.c
+@@ -128,6 +128,11 @@ static const struct cros_ec_bs_map cros_ec_keyb_bs[] = {
+ 		.code		= SW_TABLET_MODE,
+ 		.bit		= EC_MKBP_TABLET_MODE,
+ 	},
++	{
++		.ev_type	= EV_SW,
++		.code		= SW_DOCK,
++		.bit		= EC_MKBP_BASE_ATTACHED,
++	},
+ };
+ 
+ /*
 -- 
-2.41.0
+2.43.0.381.gb435a96ce8-goog
 

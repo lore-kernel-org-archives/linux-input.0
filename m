@@ -1,135 +1,346 @@
-Received: from mx.skole.hr (mx1.hosting.skole.hr [161.53.165.185])
+Received: from hognose1.porkbun.com (hognose1.porkbun.com [35.82.102.206])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C1B512E69;
-	Sat, 20 Jan 2024 21:17:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.53.165.185
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25AE610FD;
+	Sun, 21 Jan 2024 02:27:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=35.82.102.206
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705785450; cv=none; b=PEe0V6bymT4H6jJ56NfWdt0vdDWzQ4j42mbjFRbbTXfAed4GrlQ2czpEdjKP25ii3XrVwrxd+xVjC0IHuB7QWJvGoCP3tqPMpnqdU/Axi/uMuvGW+roTLdwnn39/qIrwjA8lIkQkvp/pCduv+yUkUS0xLR1nysbBUAIuJbLFLdU=
+	t=1705804037; cv=none; b=OGyXm6pT9W1tPkVBXh/E1fJshn15t5OqyRojxOGqcLgj254V78BbXOLz5MC6I+rmy0hNYL8gaoUUPL88L7Yfm+z5M2tRaVIKBbF79QZ9E1KUtq22XM420qaUvoz+yl0a3BXGdo9kFGC88E7MZRlQttD478EuAJKauy6Kf+yQNHM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705785450; c=relaxed/simple;
-	bh=HkH+vQVtnzp58TbYVvbF+AErNiS1VapFH1SJiTr4Ntc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=HJmPaUfcczQHKgKcCwsUHKeWLGy6EQlEO690+1BI37DRGA910mWgNPoxRZEDzhjUK85xluafPF0s5Xs8zPw/EXF0bNc9wQ/y6uiT4VodcYUbM7RYdwLaiLRq/8t6ltIDQkZPryfuUVwdA7nfzM3VYB+5sWM8sUqM0KGSSdvQ0LQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=skole.hr; spf=pass smtp.mailfrom=skole.hr; arc=none smtp.client-ip=161.53.165.185
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=skole.hr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=skole.hr
-Received: from mx1.hosting.skole.hr (localhost.localdomain [127.0.0.1])
-	by mx.skole.hr (mx.skole.hr) with ESMTP id DB471858ED;
-	Sat, 20 Jan 2024 22:17:18 +0100 (CET)
-From: =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
-Date: Sat, 20 Jan 2024 22:16:12 +0100
-Subject: [PATCH v2 1/3] input: touchscreen: imagis: use FIELD_GET where
- applicable
+	s=arc-20240116; t=1705804037; c=relaxed/simple;
+	bh=GlLSfdg6SEM8pbbwe0a19ta9m1tlZBaNcMRvmih8Yz8=;
+	h=MIME-Version:Date:From:To:Cc:Subject:Message-ID:Content-Type; b=oaBclqxF1rZjJAtH2EYOz8/oGQkxdBSJ+6/TmZcYhACD5mxOsNWDo/OiafkFQXGKvMbMJfthk7STFGYVnS5/LDmlzKi2DCRZJcpgvcGTBXKJdbxUyVWLbUhP9lTvuOiHQ1ZBP6ZBU93xffTkeru0wLmSi7gDBw+suFLa4AsPvTU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info; spf=pass smtp.mailfrom=altimeter.info; dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b=kfSADskk; arc=none smtp.client-ip=35.82.102.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=altimeter.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altimeter.info
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=altimeter.info header.i=@altimeter.info header.b="kfSADskk"
+Received: from webmail.porkbun.com (unknown [35.86.129.66])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client did not present a certificate)
+	(Authenticated sender: linux-kernel@altimeter.info)
+	by hognose1.porkbun.com (Postfix) with ESMTPSA id AD70E448AA;
+	Sun, 21 Jan 2024 02:27:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=altimeter.info;
+	s=default; t=1705804028;
+	bh=cPQpBSAUojnCOOh/lXp01TE9KjsI7ZgJIVqD39TL5JY=;
+	h=Date:From:To:Cc:Subject;
+	b=kfSADskkllm6oFs1Z1y0dbsfUs0UJQ1oehgXe3YJ5mIerUvjSyQC66Tn5xkfKkwRr
+	 mCv3gjC8PifSwU04S6Dwhfk1X31eSYqU6oeMebL8TFak13FkxuO12bBZE0+rklInZQ
+	 yf5dXqILeO/0qAQQ4BM0ny0UYQk+EkPsfvJag6no=
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20240120-b4-imagis-keys-v2-1-d7fc16f2e106@skole.hr>
-References: <20240120-b4-imagis-keys-v2-0-d7fc16f2e106@skole.hr>
-In-Reply-To: <20240120-b4-imagis-keys-v2-0-d7fc16f2e106@skole.hr>
-To: Markuss Broks <markuss.broks@gmail.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh+dt@kernel.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: Karel Balej <balejk@matfyz.cz>, ~postmarketos/upstreaming@lists.sr.ht, 
- phone-devel@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
-X-Mailer: b4 0.12.4
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2661;
- i=duje.mihanovic@skole.hr; h=from:subject:message-id;
- bh=HkH+vQVtnzp58TbYVvbF+AErNiS1VapFH1SJiTr4Ntc=;
- b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBlrDg6E9hQFx+YWa5pOqRF78NBCoveP29c0sQXz
- AD+pSsBfHiJAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZaw4OgAKCRCaEZ6wQi2W
- 4SXAD/9cfdf0mVQstfUebgEAeyh511rtJcGRK0O/bVvRpVy1POWrgwRo0eh4JfGY0OpPY6yoTAG
- EA59O9DsMoSdO65Lxx8GIMkBsfrVn5Ra+1Eqm3FD9EBs1Ox9PwEBCzMyENRzBdf0QuftotFIUCs
- Qs7bXsQNx/lk/tG8rDVhI3JRrXZri5hpuFSrCPAdCj6e32Bs5aBqHWIbDE3TOzPGJTjQN2q+iiX
- J145ao0eGXhnqoQW/vWiazqU3G25vkuHOFVt2TFmnl1xQRknlZHvdyKRmp8HJJ+eLMBbvMmp1rB
- I9htluIZf2SNa9yBO4c43KUy4b2IC1TEjB/W2SSiqcmxTvJ/qs85oD3g8fER4byoqSENUNJjUCH
- 6Chmj3jkHwA3lgyVN7Iw4Srcsxbb1ZbCP6no8jsVePJ1Iw042DfJ/NTsYx0AlvSd3rGTDt6w4zj
- E3TN7+W707BEsWvonMjALY5ZZFL9Q5CFW7z5Abbp4pBE7XA/Vq+M29wRgfp/xL68ZBvweUnqZIZ
- YOELf+ZZOgsOiGDTHzmXlz+LMxLoeSgARFG/ad77AHI3O/yLl+wRl7GoguUv++o8KgI6ukY6rgy
- bnrLJ/7Y4K2k7GFQGAgT1ri6Pge/8GiDR+nbIDHrO3HWwqE3yBfexd8s5VEWUffkwr3zpvX41q0
- kwEeI8PE7eB0Skw==
-X-Developer-Key: i=duje.mihanovic@skole.hr; a=openpgp;
- fpr=53DF9D4D9C3FE110FB362D789A119EB0422D96E1
+Date: Sat, 20 Jan 2024 18:27:06 -0800
+From: Ivan Gorinov <linux-kernel@altimeter.info>
+To: jikos@kernel.org
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2] Input: hid-winwing module
+User-Agent: Roundcube Webmail/1.4.13
+Message-ID: <e028ff107ed533627499abde6d197159@altimeter.info>
+X-Sender: linux-kernel@altimeter.info
+Content-Type: text/plain; charset=US-ASCII;
+ format=flowed
+Content-Transfer-Encoding: 7bit
 
-Instead of manually extracting certain bits from registers with binary
-ANDs and shifts, the FIELD_GET macro can be used. With this in mind, the
-*_SHIFT macros can be dropped.
+Support for WinWing Orion2 throttle.
 
-Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
+On the Orion 2 throttle, buttons 0 .. 63 are reserved for throttle grip;
+the throttle base buttons have numbers 64 .. 110.
+
+Linux kernel HID subsystem only supports up to 80 buttons.
+
+This kernel module remaps throttle base buttons to numbers 32 .. 78,
+reserving only numbers 0 .. 31 for buttons on the throttle grip.
+
+Changes since v1:
+   - Fixed formatting of descriptor byte array;
+   - Using product codes of Winwing grips in config.
+
+Signed-off-by: Ivan Gorinov <linux-kernel@altimeter.info>
 ---
- drivers/input/touchscreen/imagis.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+  drivers/hid/Kconfig       |  16 +++
+  drivers/hid/Makefile      |   1 +
+  drivers/hid/hid-winwing.c | 227 ++++++++++++++++++++++++++++++++++++++
+  3 files changed, 244 insertions(+)
+  create mode 100644 drivers/hid/hid-winwing.c
 
-diff --git a/drivers/input/touchscreen/imagis.c b/drivers/input/touchscreen/imagis.c
-index e1fafa561ee3..4eae98771bd2 100644
---- a/drivers/input/touchscreen/imagis.c
-+++ b/drivers/input/touchscreen/imagis.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- 
-+#include <linux/bitfield.h>
- #include <linux/bits.h>
- #include <linux/delay.h>
- #include <linux/i2c.h>
-@@ -29,12 +30,9 @@
- #define IST3038C_I2C_RETRY_COUNT	3
- #define IST3038C_MAX_FINGER_NUM		10
- #define IST3038C_X_MASK			GENMASK(23, 12)
--#define IST3038C_X_SHIFT		12
- #define IST3038C_Y_MASK			GENMASK(11, 0)
- #define IST3038C_AREA_MASK		GENMASK(27, 24)
--#define IST3038C_AREA_SHIFT		24
- #define IST3038C_FINGER_COUNT_MASK	GENMASK(15, 12)
--#define IST3038C_FINGER_COUNT_SHIFT	12
- #define IST3038C_FINGER_STATUS_MASK	GENMASK(9, 0)
- 
- struct imagis_properties {
-@@ -106,8 +104,7 @@ static irqreturn_t imagis_interrupt(int irq, void *dev_id)
- 		goto out;
- 	}
- 
--	finger_count = (intr_message & IST3038C_FINGER_COUNT_MASK) >>
--				IST3038C_FINGER_COUNT_SHIFT;
-+	finger_count = FIELD_GET(IST3038C_FINGER_COUNT_MASK, intr_message);
- 	if (finger_count > IST3038C_MAX_FINGER_NUM) {
- 		dev_err(&ts->client->dev,
- 			"finger count %d is more than maximum supported\n",
-@@ -115,7 +112,7 @@ static irqreturn_t imagis_interrupt(int irq, void *dev_id)
- 		goto out;
- 	}
- 
--	finger_pressed = intr_message & IST3038C_FINGER_STATUS_MASK;
-+	finger_pressed = FIELD_GET(IST3038C_FINGER_STATUS_MASK, intr_message);
- 
- 	for (i = 0; i < finger_count; i++) {
- 		if (ts->tdata->protocol_b)
-@@ -136,12 +133,10 @@ static irqreturn_t imagis_interrupt(int irq, void *dev_id)
- 		input_mt_report_slot_state(ts->input_dev, MT_TOOL_FINGER,
- 					   finger_pressed & BIT(i));
- 		touchscreen_report_pos(ts->input_dev, &ts->prop,
--				       (finger_status & IST3038C_X_MASK) >>
--						IST3038C_X_SHIFT,
--				       finger_status & IST3038C_Y_MASK, 1);
-+				       FIELD_GET(IST3038C_X_MASK, finger_status),
-+				       FIELD_GET(IST3038C_Y_MASK, finger_status), 1);
- 		input_report_abs(ts->input_dev, ABS_MT_TOUCH_MAJOR,
--				 (finger_status & IST3038C_AREA_MASK) >>
--					IST3038C_AREA_SHIFT);
-+				       FIELD_GET(IST3038C_AREA_MASK, finger_status));
- 	}
- 
- 	input_mt_sync_frame(ts->input_dev);
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 4c682c650704..9c8fea72b05d 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -1236,6 +1236,22 @@ config HID_WIIMOTE
+  	To compile this driver as a module, choose M here: the
+  	module will be called hid-wiimote.
 
++config HID_WINWING
++	tristate "WinWing Orion2 throttle support"
++	depends on USB_HID
++	depends on NEW_LEDS
++	depends on LEDS_CLASS
++	help
++	  Support for WinWing Orion2 throttle base with the following grips:
++
++	    * TGRIP-16EX
++	    * TGRIP-18
++
++	  This driver enables all buttons and switches on the throttle base.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called hid-winwing.
++
+  config HID_XINMO
+  	tristate "Xin-Mo non-fully compliant devices"
+  	help
+diff --git a/drivers/hid/Makefile b/drivers/hid/Makefile
+index 082a728eac60..ce71b53ea6c5 100644
+--- a/drivers/hid/Makefile
++++ b/drivers/hid/Makefile
+@@ -150,6 +150,7 @@ wacom-objs			:= wacom_wac.o wacom_sys.o
+  obj-$(CONFIG_HID_WACOM)		+= wacom.o
+  obj-$(CONFIG_HID_WALTOP)	+= hid-waltop.o
+  obj-$(CONFIG_HID_WIIMOTE)	+= hid-wiimote.o
++obj-$(CONFIG_HID_WINWING)	+= hid-winwing.o
+  obj-$(CONFIG_HID_SENSOR_HUB)	+= hid-sensor-hub.o
+  obj-$(CONFIG_HID_SENSOR_CUSTOM_SENSOR)	+= hid-sensor-custom.o
+
+diff --git a/drivers/hid/hid-winwing.c b/drivers/hid/hid-winwing.c
+new file mode 100644
+index 000000000000..f2badd78c194
+--- /dev/null
++++ b/drivers/hid/hid-winwing.c
+@@ -0,0 +1,227 @@
++// SPDX-License-Identifier: GPL-2.0
++
++/*
++ * HID driver for WinWing Orion 2 throttle
++ *
++ * Copyright (c) 2023 Ivan Gorinov
++ */
++
++#include <linux/device.h>
++#include <linux/hid.h>
++#include <linux/hidraw.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/mutex.h>
++
++#define MAX_REPORT 16
++
++struct winwing_led {
++	struct led_classdev cdev;
++	struct hid_device *hdev;
++	int number;
++};
++
++struct winwing_led_info {
++	int number;
++	int max_brightness;
++	const char *led_name;
++};
++
++static struct winwing_led_info led_info[3] = {
++	{ 0, 255, "backlight" },
++	{ 1, 1, "a-a" },
++	{ 2, 1, "a-g" },
++};
++
++struct winwing_drv_data {
++	struct hid_device *hdev;
++	__u8 *report_buf;
++	struct mutex lock;
++	unsigned int num_leds;
++	struct winwing_led leds[];
++};
++
++static int winwing_led_write(struct led_classdev *cdev, enum 
+led_brightness br)
++{
++	struct winwing_led *led = (struct winwing_led *) cdev;
++	struct winwing_drv_data *data = hid_get_drvdata(led->hdev);
++	__u8 *buf = data->report_buf;
++	int ret;
++
++	mutex_lock(&data->lock);
++
++	buf[0] = 0x02;
++	buf[1] = 0x60;
++	buf[2] = 0xbe;
++	buf[3] = 0x00;
++	buf[4] = 0x00;
++	buf[5] = 0x03;
++	buf[6] = 0x49;
++	buf[7] = led->number;
++	buf[8] = br;
++	buf[9] = 0x00;
++	buf[10] = 0;
++	buf[11] = 0;
++	buf[12] = 0;
++	buf[13] = 0;
++
++	ret = hid_hw_output_report(led->hdev, buf, 14);
++
++	mutex_unlock(&data->lock);
++
++	return ret;
++}
++
++static int winwing_init_led(struct hid_device *hdev, struct input_dev 
+*input)
++{
++	struct winwing_drv_data *data;
++	struct winwing_led *led;
++	int ret;
++	int i;
++
++	size_t data_size = struct_size(data, leds, 3);
++
++	data = devm_kzalloc(&hdev->dev, data_size, GFP_KERNEL);
++
++	if (!data)
++		return -ENOMEM;
++
++	data->report_buf = devm_kmalloc(&hdev->dev, MAX_REPORT, GFP_KERNEL);
++
++	if (!data->report_buf)
++		return -ENOMEM;
++
++	for (i = 0; i < 3; i += 1) {
++		struct winwing_led_info *info = &led_info[i];
++
++		led = &data->leds[i];
++		led->hdev = hdev;
++		led->number = info->number;
++		led->cdev.max_brightness = info->max_brightness;
++		led->cdev.brightness_set_blocking = winwing_led_write;
++		led->cdev.flags = LED_HW_PLUGGABLE;
++		led->cdev.name = devm_kasprintf(&hdev->dev, GFP_KERNEL,
++						"%s::%s",
++						dev_name(&input->dev),
++						info->led_name);
++
++		ret = devm_led_classdev_register(&hdev->dev, &led->cdev);
++		if (ret)
++			return ret;
++	}
++
++	hid_set_drvdata(hdev, data);
++
++	return ret;
++}
++
++static int winwing_probe(struct hid_device *hdev,
++			const struct hid_device_id *id)
++{
++	unsigned int minor;
++	int ret;
++
++	ret = hid_parse(hdev);
++	if (ret) {
++		hid_err(hdev, "parse failed\n");
++		return ret;
++	}
++
++	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
++	if (ret) {
++		hid_err(hdev, "hw start failed\n");
++		return ret;
++	}
++
++	minor = ((struct hidraw *) hdev->hidraw)->minor;
++
++	return 0;
++}
++
++static int winwing_input_configured(struct hid_device *hdev,
++			struct hid_input *hidinput)
++{
++	int ret;
++
++	ret = winwing_init_led(hdev, hidinput->input);
++
++	if (ret)
++		hid_err(hdev, "led init failed\n");
++
++	return ret;
++}
++
++static __u8 original_rdesc_buttons[] = {
++	0x05, 0x09, 0x19, 0x01, 0x29, 0x6F,
++	0x15, 0x00, 0x25, 0x01, 0x35, 0x00,
++	0x45, 0x01, 0x75, 0x01, 0x95, 0x6F,
++	0x81, 0x02, 0x75, 0x01, 0x95, 0x01,
++	0x81, 0x01
++};
++
++/*
++ * HID report descriptor shows 111 buttons, which exceeds maximum
++ * number of buttons (80) supported by Linux kernel HID subsystem.
++ *
++ * This module skips numbers 32-63, unused on some throttle grips.
++ */
++
++static __u8 *winwing_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++		unsigned int *rsize)
++{
++	int sig_length = sizeof(original_rdesc_buttons);
++	int unused_button_numbers = 32;
++
++	if (*rsize < 34)
++		return rdesc;
++
++	if (memcmp(rdesc + 8, original_rdesc_buttons, sig_length) == 0) {
++
++		/* Usage Maximum */
++		rdesc[13] -= unused_button_numbers;
++
++		/*  Report Count for buttons */
++		rdesc[25] -= unused_button_numbers;
++
++		/*  Report Count for padding [HID1_11, 6.2.2.9] */
++		rdesc[31] += unused_button_numbers;
++
++		hid_info(hdev, "winwing descriptor fixed\n");
++	}
++
++	return rdesc;
++}
++
++static int winwing_raw_event(struct hid_device *hdev,
++		struct hid_report *report, u8 *raw_data, int size)
++{
++	if (size >= 15) {
++		/* Skip buttons 32 .. 63 */
++		memmove(raw_data + 5, raw_data + 9, 6);
++
++		/* Clear the padding */
++		memset(raw_data + 11, 0, 4);
++	}
++
++	return 0;
++}
++
++static const struct hid_device_id winwing_devices[] = {
++	{ HID_USB_DEVICE(0x4098, 0xbe62) },  /* TGRIP-18 */
++	{ HID_USB_DEVICE(0x4098, 0xbe68) },  /* TGRIP-16EX */
++	{}
++};
++
++MODULE_DEVICE_TABLE(hid, winwing_devices);
++
++static struct hid_driver winwing_driver = {
++	.name = "winwing",
++	.id_table = winwing_devices,
++	.probe = winwing_probe,
++	.input_configured = winwing_input_configured,
++	.report_fixup = winwing_report_fixup,
++	.raw_event = winwing_raw_event,
++};
++module_hid_driver(winwing_driver);
++
++MODULE_LICENSE("GPL");
 -- 
-2.43.0
-
-
+2.25.1

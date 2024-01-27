@@ -1,24 +1,24 @@
 Received: from mail.enpas.org (zhong.enpas.org [46.38.239.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C5F97F;
-	Sat, 27 Jan 2024 09:01:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D44E520305;
+	Sat, 27 Jan 2024 11:16:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.239.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706346118; cv=none; b=NkWtoXll/EsIQ291G3OKVstc/44Jr1w0d47fnJHHlx4VXMLjU8i7LMRJYCiFPr633DxiJOn/SrUdOyihU1/VQem9zFyLh5ME+31LK/MAMDN0gJ3jyX+oBda1mAEIP6A1TokGk3PmOLHia+MWfed0k/XjMHi1kdTBp5xryOGCHZM=
+	t=1706354185; cv=none; b=qP1i0MHib2m5kPB5oFYsNN94DuWJRvDpAThGKIYEfkzGZHCtKde2DfKPN2nzIeRTQZ8BVRz59xGjBAbYIO6ISNSjLa5rLFCgJFqfgdMXIiFPAEjEXIFXzszXnfM+j2Jqlnh0NsRT/SiGopCuRfqOl7RtIkhpIPbw4FKdjGqff6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706346118; c=relaxed/simple;
-	bh=7zh25NjrrTGISYXWS4V8Gymd69LdGTaLzymVs7qpKNc=;
+	s=arc-20240116; t=1706354185; c=relaxed/simple;
+	bh=DVhH52aCcGgD5ZDUeD+yoQaqfWfEL7GSjbITGNZd2AQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hjU7tukYRWlgUit8TuOZ751ryAw2J9jGkrlYcDjtcNijyEeONMm1JaHs+JRQ//zCfT9JdY3TMujup7ib6g/U5RfdMhWIPS1fN1aOY56PuOQHNrYMVcuS6EWdTnlDVEgz31Smoa2gPdn4xj+yuMHKAXoMBKCwiCS05SxJChnpSO0=
+	 In-Reply-To:Content-Type; b=CKnT+PCCRmYT+Ytbj8f7pQ2CVNLBe9mwwfeehmEwWLPSZehJlw5qy+mqMMiIHkEWwqLXhfuE35TnPLRDsSgh7QgMp+tZ08TB3Mlk1yhtXvMoiwBMN2tRVpsw8L9e47g5VKTv1OA3qOChFluWSCjn20fj69paS3c+rNZgIamVeb0=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org; spf=pass smtp.mailfrom=enpas.org; arc=none smtp.client-ip=46.38.239.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enpas.org
 Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by mail.enpas.org (Postfix) with ESMTPSA id 0F2C810142D;
-	Sat, 27 Jan 2024 08:51:51 +0000 (UTC)
-Message-ID: <cb8290a0-1937-4937-ace5-e2a22a1f6e41@enpas.org>
-Date: Sat, 27 Jan 2024 17:51:41 +0900
+	by mail.enpas.org (Postfix) with ESMTPSA id A402F1015FD;
+	Sat, 27 Jan 2024 11:16:17 +0000 (UTC)
+Message-ID: <e107b202-5843-41a7-b61e-68dd92128176@enpas.org>
+Date: Sat, 27 Jan 2024 20:16:14 +0900
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -26,17 +26,17 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/7] HID: playstation: DS4: Don't fail on MAC address
- request
+Subject: Re: [PATCH v1 7/7] HID: playstation: DS4: Add VID/PID for SZ-MYPOWER
+ controllers
+Content-Language: en-US
 To: Roderick Colenbrander <thunderbird2k@gmail.com>
 Cc: Roderick Colenbrander <roderick.colenbrander@sony.com>,
  Jiri Kosina <jikos@kernel.org>,
  Benjamin Tissoires <benjamin.tissoires@redhat.com>,
  linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20240115144538.12018-1-max@enpas.org>
- <20240115144538.12018-3-max@enpas.org>
- <CAEc3jaD9qXp=F6Xfg8bdeC1Hv5pHiKA16SBd=-ac74ibE1ELyw@mail.gmail.com>
-Content-Language: en-US
+ <20240115144538.12018-8-max@enpas.org>
+ <CAEc3jaBU3M0Zce2pdFvdBSG50a7Ky=GY4gLO3dkYdDrkYtiO0Q@mail.gmail.com>
 From: Max Staudt <max@enpas.org>
 Autocrypt: addr=max@enpas.org; keydata=
  xsNNBFWfXgEBIADcbJMG2xuJBIVNlhj5AFBwKLZ6GPo3tGxHye+Bk3R3W5uIws3Sxbuj++7R
@@ -109,23 +109,54 @@ Autocrypt: addr=max@enpas.org; keydata=
  d3HIwZEKLNW9hUEqwXueZqQSNQ0Lvjx/oWYlrQQpz4kFJJb9LYpKpY5k3nBf9AGtJP+c1+PN
  eOjt3GvAJlnOzLtT36UIgcXSQuQFgLpY6FKT0verMP35mV2JXfm/qHIC+mnHAe4HRiZ54aML
  PsRBqTJGs7jw5gOWMMchFaemEnEJtg==
-In-Reply-To: <CAEc3jaD9qXp=F6Xfg8bdeC1Hv5pHiKA16SBd=-ac74ibE1ELyw@mail.gmail.com>
+In-Reply-To: <CAEc3jaBU3M0Zce2pdFvdBSG50a7Ky=GY4gLO3dkYdDrkYtiO0Q@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 1/25/24 09:39, Roderick Colenbrander wrote:
-> On Mon, Jan 15, 2024 at 6:58 AM Max Staudt <max@enpas.org> wrote:
->>
->> Some third-party controllers can't report their MAC address.
->>
-> For what type of devices is this not working? This one example of this
-> request which is very foundational for a controller working on even
-> the game console. Are this perhaps USB-only devices? If the case maybe
-> some kind of error is only needed for USB connections.
+On 1/25/24 10:03, Roderick Colenbrander wrote:
+> I'm not familiar with this device, but if it indeed works. Then I'm
+> okay with it.
 
-IIRC I've only seen this quirk with the oddball VID/PID 7545:0104 that my patch 7/7 adds. It is indeed a USB-only controller. I have not tried this device (or any, really) with an actual console, my focus is just on Linux. Admittedly, I'd also like to know what happens on a real PS4 :)
+Thanks!
 
-My intention was to keep the error message and the solution as universal as possible, in case a controller comes along that has both this quirk *and* Bluetooth. It's a bit of an ugly workaround though - if you (or anyone else) have an idea for a nicer solution, I'd be really glad.
+
+I've just tried this patch on real hardware again, and there's a tradeoff here - it improves the situation for one 7545:0104 controller, and worsens it for another.
+
+Up to you, and if you don't want to think about it, then let's shelve this patch :)
+
+
+
+Details follow, if you're curious.
+
+
+I have two controllers with VID/PID 7545:0104, and they're both very quirky multi-emulation devices. One is shaped like a PS4 controller, the other like a hybrid between a PS4 and a Switch controller. Since these controllers exhibit all of the USB related quirks in this series, I've kept them as reproducers. Other controllers that passed through my hands only had a subset of the quirks.
+
+Up until now, both controllers worked with hid-sony as PS3 controllers. With this patch, the PS4 controller gains LED support and fine-grained control of the weak rumble motor. The "Switch (?) controller" on the other hand errors out, becomes 0079:181c, and loses the Home key and the accelerometer. This is a user facing change, and the question is how much we really care about these controllers.
+
+
+
+More details, if you're still reading:
+
+
+Both are "multi-purpose" controllers, appearing as PS4/PS3/Switch/other controllers in sequence. They advertise themselves as one USB device, and if there is no driver sending whatever init sequence they expect, they disconnect and try emulating a different controller.
+
+The PS4 controller has rumble and an RGB LED, and this patch series improves its functionality. It cannot emulate a Switch controller.
+
+The Switch (?) controller has no rumble and four multicolour player LEDs, but it adds Switch compatibility including accelerometer and gyro.
+
+
+For the PS4 mode, which is the first that they try, and which would unify most functions, they use 7545:0104 instead of cloning a DS4 VID/PID. So I took a guess and found that it works fine with hid-playstation if I add the VID/PID and the init quirks in patches 2/3/4. Well, to be precise, I've only made the DS4 shaped one work in PS4 mode, the Switch controller isn't happy and errors out, see below.
+
+
+On the PS4 controller, this makes the RGB LED work, rumble works, but the gyro and touchpad don't send HID updates. The touchpad can click though, so maybe the controller I have has a hardware defect.
+
+The Switch (?) controller is where things get weird. It disconnects, even though it is initialised by hid-playstation, and transitions into a generic controller with VID/PID 0079:181c. This mode is *not* on the list of emulations it usually tries. It's as if the "unfinished" PS4 initialisation transitions it into a hidden fifth emulation mode. In this mode, the home key does not send any HID event, and there are no accelerometer updates that hid-sony would receive in PS3 mode.
+
+
+So, with this patch, the PS4 controller works better on Linux, while the Switch controller works worse. Both were seen as PS3 controllers up until now. I see no way to discern them at driver probe time.
+
+Any preference on what to do...?
+
 
 
 Max

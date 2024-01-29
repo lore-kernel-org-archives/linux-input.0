@@ -1,227 +1,136 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CDD815A4AD
-	for <linux-input@vger.kernel.org>; Mon, 29 Jan 2024 16:32:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B58A154BF0;
+	Mon, 29 Jan 2024 16:48:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706545922; cv=none; b=EG17R4Gn9YButCwoyru9H5ev5+e3XNEOao7fPsZ1+xUBMQh9vQ3vq6XkJm1zKtKWYlDrgWWCsCa9q7LXfnr57fIf2RwrW04jNue9Efs0CqEuwY3EnvdssxpSNvllcWttpFYNRmApK6QAB7M3JZNN+92zHXfKF7/Id7dyiIzBqes=
+	t=1706546882; cv=none; b=uPQBNBLiD3y4e0IClu1VLenX9mdB8q0JIS5JKpU37uVY+ZGUASs7MJWemjX9JlHzGxpXYbXt7GAJ4zP84L/Gomeq4clQYt5eEn17upAOKHuxyU8zxVo7S0zpw3b+0Ocsan2w/0YRSsHjJTJMn0ve6kqk4SbSUvgokMa2gsKN0OM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706545922; c=relaxed/simple;
-	bh=k4/BNjbTTqjP49J8n1Pv3LvMOl+KNbRGTBoLdiaiFNM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JcF/wPgcn1+Dwe/OBzU2quWor+1tZcXHYpaaaDYYyt4chV9ytYtULho9fi44awzQo9PnRNLXs8p4ScsvYXmjI1DvYnlX6og5ATVJbN85TQHFzysExZ+lDlc5uC3thHkK6lgxgY5atkmXXeWUJB8sKSaBCDssSQNfgzFm+yZ/hh4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=heGG28np; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1706546882; c=relaxed/simple;
+	bh=wRxyeE1FYChaTRbmRTHXVTWt4fK4t6i35GhQJNVbcDo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
+	 In-Reply-To:To:CC; b=qQy+CqF8wiG12NaAhh4wCOvJZLZJseksxQ1WdFrRq9EUdgH3wKjui2B+BGJgJkbK2CUM1/5SFP3J/bUf+r+Cyr9BwutYoHMmZMGzuWCrKUEHljvZFV7LxxQwXDRb8Y3+/r9lc7XfDIiZX0O1Yc3nk7jxpknPxDm9nasGpRdkK2I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=NBGccvIq; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="heGG28np"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1706545919;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6/L/3+aj4kshl/a2QQJi71HdU9Hie8YBQwAh5a5RCoI=;
-	b=heGG28npeEaYyZP1suMeswaL0aka3ldxy21pLYIdYiElDkP+8O1u2oZ18VLc/tXU2ljb5B
-	Ms1MrSaDepd947fPRT5tDBcCLkQfc2hHPdKfaT3P18JjZ3F5SuNL5wjJhe8jiQYWZH8jP2
-	wZKJRNGCU1cKrEK9XakCJeSSBoHykig=
-Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
- [209.85.218.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-56-6NQtpRK6M8uJjiUIqVR8vQ-1; Mon, 29 Jan 2024 11:31:57 -0500
-X-MC-Unique: 6NQtpRK6M8uJjiUIqVR8vQ-1
-Received: by mail-ej1-f69.google.com with SMTP id a640c23a62f3a-a358c652e42so67761066b.3
-        for <linux-input@vger.kernel.org>; Mon, 29 Jan 2024 08:31:57 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706545916; x=1707150716;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6/L/3+aj4kshl/a2QQJi71HdU9Hie8YBQwAh5a5RCoI=;
-        b=C2aS1KaMMQ/xkqQZu19wbUOP8wKWeJQWX5qMR+rqzz0gU6xYOeTjQAs02F9FbWuB7Y
-         +XI8VSPKEMxMOFHgOgs0F/PGhC6YbwhuUgnZn025WlZcSg/5dvWZI1A+njWw9Mh2aaZj
-         fPzAxDMqsTQYMw8h0ZB8hYWqjhs9BJTWFAvCHERLk7dj5//sVzXdPZEih27ocu2U+7fZ
-         Oan59HcGZTKt/uemFwnFDcIxkMNLwg250cZxtOXGb9b38ZuuY+qA5p0PdPNAiv7yog1y
-         1KIGYoVGeoMRcqNlbHVQdduu8zmM4ppgszb37QWr4XeVCGlgrYs70hkO7jTZZ7QqSLJ/
-         7rKQ==
-X-Gm-Message-State: AOJu0YzfK/duOmVXK3elZZRZHegaSqjFyzoVrMkT1ee9ckgX+XHMqo2K
-	lsWL6lQhQdeCxkD/BtKBmoSpsb0qRsAzIxuMw7rvRLkj4hRmbYktJN+JFJ2SZHEpjSb7MGKUr/y
-	9ckElxezHDzFl3qUY6rT31cYSnyMqbuZk0PRiuLZmbZQ8h6DTOXaK1aDF59Sw
-X-Received: by 2002:a17:906:a415:b0:a35:becf:4320 with SMTP id l21-20020a170906a41500b00a35becf4320mr1957160ejz.29.1706545916224;
-        Mon, 29 Jan 2024 08:31:56 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IG41dzZkEn7luj4mU81wo0+h4odyPle7e5h7j96uGkVWaE6nOrcUuTyWM6BIIjQN653dEmHuw==
-X-Received: by 2002:a17:906:a415:b0:a35:becf:4320 with SMTP id l21-20020a170906a41500b00a35becf4320mr1957140ejz.29.1706545915782;
-        Mon, 29 Jan 2024 08:31:55 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id tl10-20020a170907c30a00b00a3554bb5d22sm2691654ejc.69.2024.01.29.08.31.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Jan 2024 08:31:55 -0800 (PST)
-Message-ID: <6ba16249-a4d7-400d-a18a-96753367c722@redhat.com>
-Date: Mon, 29 Jan 2024 17:31:54 +0100
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="NBGccvIq"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 40TFelt5022360;
+	Mon, 29 Jan 2024 16:47:50 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	from:date:subject:mime-version:content-type
+	:content-transfer-encoding:message-id:references:in-reply-to:to
+	:cc; s=qcppdkim1; bh=yWcwasbMTli/mA5DcycGXWMtS/vMlr7FR2DA8r+wqoQ
+	=; b=NBGccvIqHa1D2CPJ9nLbDCk6HuQQ5Or3I/y1+VlcFHhYXNuFvceS5gYfls3
+	6EsV/aAaMAALMq5ZfsaCJXnU3sGU6nEtDYtmqZN3fyUZt4pS/2wlXmnnQRnps/W2
+	qhyuDpB9rhm6BWyqV/yczW+mRm97TV+yLFZijwKEGcbNlXP6gpKw9aHn+DFOr3CO
+	Jl7ktzOzPERCNl7xD9PXCyqMSuJ01oKuHRxZvE0llrZukMXWmAG+ngjijtVZjak+
+	UKx0LW68jgEO/wmwa4Cctk3XUAKMmI7Obm/uHiAN49dxPtvSIQ/+qvvdMAcQQZv8
+	SV2aIjUXbYeWjXjrD1Jg3b4G0vw==
+Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3vxevdr69f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jan 2024 16:47:49 +0000 (GMT)
+Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
+	by NALASPPMTA05.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 40TGlmhU016566
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jan 2024 16:47:48 GMT
+Received: from [169.254.0.1] (10.49.16.6) by nalasex01c.na.qualcomm.com
+ (10.47.97.35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.40; Mon, 29 Jan
+ 2024 08:47:47 -0800
+From: Bjorn Andersson <quic_bjorande@quicinc.com>
+Date: Mon, 29 Jan 2024 08:47:47 -0800
+Subject: [PATCH v3 1/2] dt-bindings: HID: i2c-hid: Document reset-related
+ properties
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Flood of logitech-hidpp-device messages in v6.7
-Content-Language: en-US, nl
-To: Oleksandr Natalenko <oleksandr@natalenko.name>,
- linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org, =?UTF-8?Q?Filipe_La=C3=ADns?=
- <lains@riseup.net>, Bastien Nocera <hadess@hadess.net>,
- Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <benjamin.tissoires@redhat.com>
-References: <3277085.44csPzL39Z@natalenko.name>
- <12371430.O9o76ZdvQC@natalenko.name>
- <489d6c71-73eb-4605-8293-5cfea385cf08@redhat.com>
- <4894984.31r3eYUQgx@natalenko.name>
-From: Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <4894984.31r3eYUQgx@natalenko.name>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20240129-x13s-touchscreen-v3-1-c4a933034145@quicinc.com>
+References: <20240129-x13s-touchscreen-v3-0-c4a933034145@quicinc.com>
+In-Reply-To: <20240129-x13s-touchscreen-v3-0-c4a933034145@quicinc.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring
+	<robh+dt@kernel.org>,
+        Krzysztof Kozlowski
+	<krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina
+	<jikos@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio
+	<konrad.dybcio@linaro.org>,
+        Johan Hovold <johan+linaro@kernel.org>
+CC: <linux-arm-msm@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Konrad Dybcio
+	<konrad.dybcio@somainline.org>,
+        Krzysztof Kozlowski
+	<krzysztof.kozlowski@linaro.org>,
+        Bjorn Andersson <quic_bjorande@quicinc.com>
+X-Mailer: b4 0.12.4
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1706546867; l=1308;
+ i=quic_bjorande@quicinc.com; s=20230915; h=from:subject:message-id;
+ bh=wRxyeE1FYChaTRbmRTHXVTWt4fK4t6i35GhQJNVbcDo=;
+ b=svdO0R1HjoxjFsLgFyZvHI+eiAS+FHqdn1ByUv5P6pbSbvlyV5YCR4JGXySsupsN43If2dM3C
+ /d614pvcSTXDWsfaMLC35Yo+rOeaEA8VpktxXRVnEku5n4pGOw/tav2
+X-Developer-Key: i=quic_bjorande@quicinc.com; a=ed25519;
+ pk=VkhObtljigy9k0ZUIE1Mvr0Y+E1dgBEH9WoLQnUtbIM=
+X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
+ nalasex01c.na.qualcomm.com (10.47.97.35)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: szsRmFwLl5YV6uMV-5PMqidy9Y8EVTuj
+X-Proofpoint-ORIG-GUID: szsRmFwLl5YV6uMV-5PMqidy9Y8EVTuj
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-01-29_10,2024-01-29_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 suspectscore=0
+ clxscore=1015 mlxscore=0 malwarescore=0 mlxlogscore=999 lowpriorityscore=0
+ priorityscore=1501 adultscore=0 impostorscore=0 phishscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2401190000
+ definitions=main-2401290124
 
-Hi Oleksandr,
+Some I2C HID devices has a reset pin and requires that some specified
+time elapses after this reset pin is deasserted, before communication
+with the device is attempted.
 
-On 1/29/24 17:19, Oleksandr Natalenko wrote:
-> On pondělí 29. ledna 2024 17:08:56 CET Hans de Goede wrote:
->> Hi,
->>
->> On 1/29/24 16:58, Oleksandr Natalenko wrote:
->>> Hello.
->>>
->>> On úterý 9. ledna 2024 12:58:10 CET Hans de Goede wrote:
->>>> Hi Oleksandr,
->>>>
->>>> On 1/9/24 12:45, Oleksandr Natalenko wrote:
->>>>> Hello Hans et al.
->>>>>
->>>>> Starting from v6.7 release I get the following messages repeating in `dmesg` regularly:
->>>>>
->>>>> ```
->>>>> Jan 09 10:05:06 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: Disconnected
->>>>> Jan 09 10:07:15 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: Disconnected
->>>>> Jan 09 10:16:51 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: HID++ 4.5 device connected.
->>>>> Jan 09 10:16:55 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: HID++ 4.5 device connected.
->>>>> Jan 09 10:16:55 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: HID++ 4.5 device connected.
->>>>> Jan 09 10:36:31 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: Disconnected
->>>>> Jan 09 10:37:07 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: HID++ 4.5 device connected.
->>>>> Jan 09 10:46:21 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: Disconnected
->>>>> Jan 09 10:48:23 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: Disconnected
->>>>> Jan 09 11:12:27 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: HID++ 4.5 device connected.
->>>>> Jan 09 11:12:47 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: HID++ 4.5 device connected.
->>>>> Jan 09 11:12:47 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: HID++ 4.5 device connected.
->>>>> Jan 09 11:38:32 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: Disconnected
->>>>> Jan 09 11:43:32 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: Disconnected
->>>>> Jan 09 11:45:10 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: HID++ 4.5 device connected.
->>>>> Jan 09 11:45:11 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: HID++ 4.5 device connected.
->>>>> Jan 09 11:45:11 spock kernel: logitech-hidpp-device 0003:046D:408A.0005: HID++ 4.5 device connected.
->>>>> Jan 09 12:31:48 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: Disconnected
->>>>> Jan 09 12:33:21 spock kernel: logitech-hidpp-device 0003:046D:4051.0006: HID++ 4.5 device connected.
->>>>> ```
->>>>>
->>>>> I've got the following hardware:
->>>>>
->>>>> * Bus 006 Device 004: ID 046d:c52b Logitech, Inc. Unifying Receiver
->>>>> * Logitech MX Keys
->>>>> * Logitech M510v2
->>>>>
->>>>> With v6.6 I do not get those messages.
->>>>>
->>>>> I think this is related to 680ee411a98e ("HID: logitech-hidpp: Fix connect event race").
->>>>>
->>>>> My speculation is that some of the devices enter powersaving state after being idle for some time (5 mins?), and then wake up and reconnect once I touch either keyboard or mouse. I should highlight that everything works just fine, it is the flood of messages that worries me.
->>>>>
->>>>> Is it expected?
->>>>
->>>> Yes this is expected, looking at your logs I see about 10 messages per
->>>> hour which IMHO is not that bad.
->>>>
->>>> I guess we could change things to track we have logged the connect
->>>> message once and if yes then log future connect messages (and all
->>>> disconnect messages) at debug level.
->>>
->>> How granular such a tracking should be? Per-`struct hidpp_device`?
->>
->> Yes per struct hidpp_device we want to log the connect message once
->> per device since it gives info which might be useful for troubleshooting.
->>
->>> Should there be something like `hid_info_once_then_dbg()` macro, or open-code it in each place instead?
->>
->> Since we want something like e.g. a "first_connect" (initialized
->> to true if you use that name) flag per struct hidpp_device this needs
->> to be open coded.
-> 
-> OK, would something like this make sense (not tested)?
+The Linux implementation is looking for these in the "reset-gpios" and
+"post-reset-deassert-delay-ms" properties already, so use these property
+names.
 
-Yes, thank you. I would call once_connected connected_once and
-you can drop the disconnected flag and just always log
-disconnect messages at the dbg level.
+Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Bjorn Andersson <quic_bjorande@quicinc.com>
+---
+ Documentation/devicetree/bindings/input/hid-over-i2c.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Regards,
+diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.yaml b/Documentation/devicetree/bindings/input/hid-over-i2c.yaml
+index 138caad96a29..f07ff4cb3d26 100644
+--- a/Documentation/devicetree/bindings/input/hid-over-i2c.yaml
++++ b/Documentation/devicetree/bindings/input/hid-over-i2c.yaml
+@@ -50,6 +50,12 @@ properties:
+     description: Time required by the device after enabling its regulators
+       or powering it on, before it is ready for communication.
+ 
++  post-reset-deassert-delay-ms:
++    description: Time required by the device after reset has been deasserted,
++      before it is ready for communication.
++
++  reset-gpios: true
++
+   touchscreen-inverted-x: true
+ 
+   touchscreen-inverted-y: true
 
-Hans
-
-
-
-> 
-> ```
-> diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-> index 6ef0c88e3e60a..a9899709d6b74 100644
-> --- a/drivers/hid/hid-logitech-hidpp.c
-> +++ b/drivers/hid/hid-logitech-hidpp.c
-> @@ -203,6 +203,9 @@ struct hidpp_device {
->  	struct hidpp_scroll_counter vertical_wheel_counter;
->  
->  	u8 wireless_feature_index;
-> +
-> +	bool once_connected;
-> +	bool once_disconnected;
->  };
->  
->  /* HID++ 1.0 error codes */
-> @@ -988,8 +991,13 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
->  	hidpp->protocol_minor = response.rap.params[1];
->  
->  print_version:
-> -	hid_info(hidpp->hid_dev, "HID++ %u.%u device connected.\n",
-> -		 hidpp->protocol_major, hidpp->protocol_minor);
-> +	if (!hidpp->once_connected) {
-> +		hid_info(hidpp->hid_dev, "HID++ %u.%u device connected.\n",
-> +			 hidpp->protocol_major, hidpp->protocol_minor);
-> +		hidpp->once_connected = true;
-> +	} else
-> +		hid_dbg(hidpp->hid_dev, "HID++ %u.%u device connected.\n",
-> +			 hidpp->protocol_major, hidpp->protocol_minor);
->  	return 0;
->  }
->  
-> @@ -4184,7 +4192,11 @@ static void hidpp_connect_event(struct work_struct *work)
->  	/* Get device version to check if it is connected */
->  	ret = hidpp_root_get_protocol_version(hidpp);
->  	if (ret) {
-> -		hid_info(hidpp->hid_dev, "Disconnected\n");
-> +		if (!hidpp->once_disconnected) {
-> +			hid_info(hidpp->hid_dev, "Disconnected\n");
-> +			hidpp->once_disconnected = true;
-> +		} else
-> +			hid_dbg(hidpp->hid_dev, "Disconnected\n");
->  		if (hidpp->battery.ps) {
->  			hidpp->battery.online = false;
->  			hidpp->battery.status = POWER_SUPPLY_STATUS_UNKNOWN;
-> ```
-> 
->>
->> Regards,
->>
->> Hans
->>
->>
->>
->>
->>
-> 
-> 
+-- 
+2.25.1
 

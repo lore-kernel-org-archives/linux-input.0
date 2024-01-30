@@ -1,110 +1,100 @@
-Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA3862AD16;
-	Tue, 30 Jan 2024 00:03:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 058EA664A2;
+	Tue, 30 Jan 2024 11:17:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706573009; cv=none; b=CWpK9P7AmKBTPlVGY0ysy/UI5PRfrkZ9E/ztOfSPhSeD0BaZSDBYLm1dsPB3ykHNzhAf+/dPEt9IjRau7RdYHK3tIBz1sWGzh+FvmX5saqS3RFhC6N4RzzvvTzou+K38+DmSdbc21WlH2PKNa/5Ah4bgHOnrSCloKJHn/VqhbPg=
+	t=1706613439; cv=none; b=mAIbIKbQwZkuA0hk8/Q6SVpcDmS/RzkMMkCHghm+swjOfCE/b9mDK0X9R02AdHqb36sE8kWw9y9JtVHAUqja0XBkUran3QDe4WswM+3SVH/o4vo+wXZtjOqD9mmWezpUF+kyGJP7LxRr49Cy4yiwpE+vAyN7BM9HRyrw/NAtzX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706573009; c=relaxed/simple;
-	bh=aKmREnzFzgaG1OovRPdN20/tIbKem5GExczkraauNtg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=noBWqZlIaR1M7PpiIZj7XpAxk7treqiTVNddQK9G/q2ubMiHDiWWiMrN6G8inrl2KRzKqvGU6tTxaEdZ2igdVdxNLrXVTR/gqhJ5Ml9/G2GIRghy3Zsq9cGmnSAso+ECLyfsaXPj8bUCG7BmKfBfGw5Y9/Ni9l1MuA+sQmY69aY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PpF3aWz1; arc=none smtp.client-ip=209.85.210.169
+	s=arc-20240116; t=1706613439; c=relaxed/simple;
+	bh=hok62KdyZlUwWp+vCS6X/XQdwd32WCp3cJQev+HQ4/U=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=CCKKdDZbopcD9YADgk4wnsG1WhwHsUcG2pKsHY7qcvCmr6F2QuetODYPUosYwA4rQDxqxuYnHr8AqzgWBscqrrSFt6KD9vGde5yT1Eqzb61MjB2kJISowg5lbrNzSSN1SN0en7Fb0jti6Ndme1zk0JtxsqPmq9ZlZ/fO2yFkcwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=M16zKUra; arc=none smtp.client-ip=209.85.167.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PpF3aWz1"
-Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-6ddcfbc569dso1487448b3a.3;
-        Mon, 29 Jan 2024 16:03:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="M16zKUra"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-51030ce36fbso3895222e87.3;
+        Tue, 30 Jan 2024 03:17:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1706573007; x=1707177807; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=x6AX2tmKlQJuH5vaoUXClrVktpvQ77kaUr8lCS+lqF8=;
-        b=PpF3aWz1Xw2L/YZRUzh/wtreNZMgeTCw+O/RTnKE2JZJCJhs1yLSF0UvGgxaCrHnmY
-         mWPYGPTw1nXv9ZM6mVfb5R1vbtPYOq2xEgXlLXPcGlzbpj6uKoRVCXDerUyR9ZSYDI4b
-         nIq63A9e0F3zv4S2xmVktNfsAfmI9LOzcMllKRV0GGkJhaboFKPXxX574J9oHgDT3spt
-         TvpM5a6fBJDMwhrEXEH7i0RwVP8xA+ZKS2BF0qAXCnv1XBdAtKk1i52/mpPv37tDCxbQ
-         AOLzW8TS3z8kdNkg2GVoJSHTK4OdoiTX6zkEDqdyn1BZM0cktr41hzwbarlFCaHGiWFg
-         dMNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1706573007; x=1707177807;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20230601; t=1706613436; x=1707218236; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=x6AX2tmKlQJuH5vaoUXClrVktpvQ77kaUr8lCS+lqF8=;
-        b=A4rdz5syOz6AfOq+bvXpZCTm7GZGkmDnshyEEYq34rZnpe7jNJwDvLv3j8TmFo4irZ
-         RnDUKdfQkMjiBxgG8i0jMvY3TSiGD99dXsi6y0zLFPaR/7fBKFO4cddu+ttRL/Uruidm
-         ce7mY7hHdqh1XDz9rOj5/5FwRdN4YuW7ZQQXgPitpuy8+Qo6zrHT7yqAtTSdRr2oAts2
-         bKaw2chE5zCNQR942VlUPgtAg8dw9LGQrFuuFNert0i3oupiBGP0ZCXpE8u3j5rfF5Fb
-         feULLbKHfWlfq/pIc26onvpsPbHTr+9tZ1gVRwKYA1WXddoG6W55tUz+UZDTYMZ/HEn2
-         EtIg==
-X-Gm-Message-State: AOJu0YzcPoxGr7BF1yxSKt2y8M0l2e+0QCCtxe900AWjGTtSTh+v0k4D
-	i53s0HhCx/wfQ3jRYEzhCmrenAxs8gozLvu1hEOtvzA4UqBtnT2TG0NHzvyl
-X-Google-Smtp-Source: AGHT+IExGftfV1j0UJC6kyaBYy7ZOgbGgH97rcjMAGxmtr9pN9htLL/UJWJQ2w/csFcwubQKRKCLNw==
-X-Received: by 2002:aa7:9823:0:b0:6db:be80:cad5 with SMTP id q3-20020aa79823000000b006dbbe80cad5mr3516819pfl.20.1706573006984;
-        Mon, 29 Jan 2024 16:03:26 -0800 (PST)
-Received: from google.com ([2620:15c:9d:2:d8dd:9292:9e40:5ce5])
-        by smtp.gmail.com with ESMTPSA id lo1-20020a056a003d0100b006d9b2694b0csm6310115pfb.200.2024.01.29.16.03.25
+        bh=wazdN7gWecYYIgnQB0kZi/Sg4s0sKcCnfJoTIpjsRfg=;
+        b=M16zKUraYiLKTDBqvGW/39Rwaru78TstltSv8LSMDdHiDMTh6jAq19WGJZKKUzEXLS
+         5/bZt981SgAjiToDD3rg/04L1KQOMgr0Bk0LEY3b5+w2q+fuKde6mhBL3KwAWWWgJIjt
+         I0fHeMuFlMy0BBIrPw6KOC25ozU4bg6ZC486r9eTmjEWyCNdJSKbnwr7Dlh7VRk67TEX
+         HTmeP3Wk4gAGw9ng+2536D8cb0eD32co5dAP5M+vHPlyFk/80jN7vxvd3Kc9JVu5YqFM
+         X+9xjNt2c+r2MFztvOkhlLSFS+XscSq/n1wsMK4XHfFqnTSQLSvN6/P79aj2xvUOh/ms
+         ZLVA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1706613436; x=1707218236;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=wazdN7gWecYYIgnQB0kZi/Sg4s0sKcCnfJoTIpjsRfg=;
+        b=PA5zpQOVyTg9hV8MPC4oYUG3RXaNNtUBm6HTvurVLI18Cu4YcaTtkS30RbujU6xunD
+         KAo/rMzKKb4l8uv997j68bDtL1GsR7dgR+1EsvDd5C7g64l9mdXZKqAph7sIk5NkYTYC
+         kTP1i+YhbB04KllQwJ/+dsQrvlfMGeiA1EBw38vbZWWgyifNpd0/squfjMCx4Hr/2jXw
+         U3F9t7qt7XQCIrwb2SpHXchRjqxOg3YH12UnNr4ZnX8uGY4fJ09BDi6SXkNwSpjat3m9
+         vlhRgSvj5KhgbW542HFJWq0tuRzWL7laj9jPZ4n/f2IL00Srt2jdvUKplDulgzRU4S34
+         eR3g==
+X-Gm-Message-State: AOJu0Yy6i0tr1D+0STQIcWPhOaDfMVDBTB+nM1TjtS65lOyjUvrdq8gN
+	RxL94V3ZKCZGUj0aEoxX2lH1WTToDatdNj/Z33BFmbKKFxq8FDEgWb07pDsoBnp2lTHU
+X-Google-Smtp-Source: AGHT+IGxlMPKnSMbUoMbnQFyGvSDa0I2zkMTc4ETQ9XXe5Y58aHJgIMcmgPrdwIcZWV2QkCqSCigSA==
+X-Received: by 2002:ac2:538d:0:b0:510:e05:435a with SMTP id g13-20020ac2538d000000b005100e05435amr5587908lfh.26.1706613435618;
+        Tue, 30 Jan 2024 03:17:15 -0800 (PST)
+Received: from localhost.localdomain ([84.32.202.14])
+        by smtp.gmail.com with ESMTPSA id se27-20020a170906ce5b00b00a349318ea10sm4995202ejb.199.2024.01.30.03.17.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jan 2024 16:03:26 -0800 (PST)
-Date: Mon, 29 Jan 2024 16:03:23 -0800
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: "Gerecke, Jason" <killertofu@gmail.com>
-Cc: linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-	Ping Cheng <pinglinux@gmail.com>,
-	Joshua Dickens <Joshua@joshua-dickens.com>,
-	Aaron Armstrong Skomra <skomra@gmail.com>,
-	"Tobita, Tatsunosuke" <tatsunosuke.tobita@wacom.com>,
-	stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>
-Subject: Re: [PATCH] HID: wacom: Do not register input devices until after
- hid_hw_start
-Message-ID: <Zbg8yxO91S9_DZl9@google.com>
-References: <20240129223545.219878-1-jason.gerecke@wacom.com>
+        Tue, 30 Jan 2024 03:17:15 -0800 (PST)
+From: Yaraslau Furman <yaro330@gmail.com>
+To: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Yaraslau Furman <yaro330@gmail.com>,
+	=?UTF-8?q?Filipe=20La=C3=ADns?= <lains@riseup.net>,
+	Jiri Kosina <jikos@kernel.org>,
+	linux-input@vger.kernel.org (open list:HID LOGITECH DRIVERS),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH v2] HID: logitech-dj: allow mice to report multimedia keycodes
+Date: Tue, 30 Jan 2024 13:17:00 +0200
+Message-ID: <20240130111700.11666-1-yaro330@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240128214906.60606-1-yaro330@gmail.com>
+References: <20240128214906.60606-1-yaro330@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240129223545.219878-1-jason.gerecke@wacom.com>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Jan 29, 2024 at 02:35:45PM -0800, Gerecke, Jason wrote:
-> From: Jason Gerecke <killertofu@gmail.com>
-> 
-> If a input device is opened before hid_hw_start is called, events may
-> not be received from the hardware. In the case of USB-backed devices,
-> for example, the hid_hw_start function is responsible for filling in
-> the URB which is submitted when the input device is opened. If a device
-> is opened prematurely, polling will never start because the device will
-> not have been in the correct state to send the URB.
-> 
-> Because the wacom driver registers its input devices before calling
-> hid_hw_start, there is a window of time where a device can be opened
-> and end up in an inoperable state. Some ARM-based Chromebooks in particular
-> reliably trigger this bug.
-> 
-> This commit splits the wacom_register_inputs function into two pieces.
-> One which is responsible for setting up the allocated inputs (and runs
-> prior to hid_hw_start so that devices are ready for any input events
-> they may end up receiving) and another which only registers the devices
-> (and runs after hid_hw_start to ensure devices can be immediately opened
-> without issue). Note that the functions to initialize the LEDs and remotes
-> are also moved after hid_hw_start to maintain their own dependency chains.
-> 
-> Fixes: 7704ac937345 ("HID: wacom: implement generic HID handling for pen generic devices")
-> Cc: stable@vger.kernel.org # v3.18+
-> Suggested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Multimedia buttons can be bound to the mouse's extra keys in Windows application.
+Let Linux receive those keycodes.
 
-Tested-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Yaraslau Furman <yaro330@gmail.com>
+---
+ drivers/hid/hid-logitech-dj.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Thanks.
-
+diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
+index e6a8b6d8eab7..3c3c497b6b91 100644
+--- a/drivers/hid/hid-logitech-dj.c
++++ b/drivers/hid/hid-logitech-dj.c
+@@ -965,9 +965,7 @@ static void logi_hidpp_dev_conn_notif_equad(struct hid_device *hdev,
+ 		}
+ 		break;
+ 	case REPORT_TYPE_MOUSE:
+-		workitem->reports_supported |= STD_MOUSE | HIDPP;
+-		if (djrcv_dev->type == recvr_type_mouse_only)
+-			workitem->reports_supported |= MULTIMEDIA;
++		workitem->reports_supported |= STD_MOUSE | HIDPP | MULTIMEDIA;
+ 		break;
+ 	}
+ }
 -- 
-Dmitry
+2.43.0
+

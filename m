@@ -1,132 +1,59 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from relay.hostedemail.com (smtprelay0012.hostedemail.com [216.40.44.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 483EE405DD;
-	Wed, 31 Jan 2024 20:25:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFAF613D4FB;
+	Wed, 31 Jan 2024 20:30:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706732722; cv=none; b=NkajXRj5ajXV4dJeGW5pJsFM7m+nUQwz0Qeeu+mERMOHDxIgOW88AUZ0OmDfH4UlKAdpgIJRVV16sd6ad1OuzMuB5G31oDZAos3+SqPHlpRiRwTsXIHQtD5O6skgFVHHUPNAqR1GZ+0q91HAjUKF+7BfxfjxizH0BB9DX32QPfc=
+	t=1706733002; cv=none; b=aorUtI2IWEwfAadK4eQLJqkU1MnHOGy+VVp1CAkanOTJ8pyCBNv1p6otjQwtkGwHS9h4lO24ndDKDfv7uyn0qn0DPEXgJaCsOCw+9p71dajraZIKeG5ukta0uAWOT/YHXO7gB506A1QNOj7gI8l9thg6yXo1HVPD7eE2DpGuy0I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706732722; c=relaxed/simple;
-	bh=adwQTBsELG6IcUpc/2BvWJPBMElyuZywwj6CtPi8rAw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uN0yyrj6fagJCstC9tMSPJlEedOIGkss4S0xGPpjQ/rgYaiSYUdIXzTxEQ/L4PRTcDijrKkPUDJks41ZYRLa6hMccbFnIW1i0KN82j48YijJL2n87Dfh3huWXM67JOxdqa+7H5+76iUEFYIix6epunG+9o0Ih2o06q8oGzRUqv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CfQ3PWl6; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CfQ3PWl6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 685C4C433F1;
-	Wed, 31 Jan 2024 20:25:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706732721;
-	bh=adwQTBsELG6IcUpc/2BvWJPBMElyuZywwj6CtPi8rAw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CfQ3PWl67yoCo7KBDU/gpnSRg48r2ztxAib2ticidVXNkTX0QOn6nRWIMGFQpJryV
-	 BJo3GhznvsCSL5W27wseLcQnxPQnDN3pEjAMbiet33G07CQ47RJfe+OsR/jy+EkF3T
-	 fjhF+Xwoi4cw2N49fHybqIDs8x0Hi4dI82VlKu/jnr7y8r60OGSnuCqbdRvNH6XYMG
-	 XwUBCXZ/qWHbrXlU6JyEJYSIIhgUGJ6aFU7hQLAIG9K7lkqLUB5pOzCT3ujnupP8QC
-	 QHB/794IdABRfiZrDNy+/cnOLc5YZns+Hb4LLVN2Xcgt23Zi9xwE13ipjm6HTC5SA5
-	 A7L5paB5NtLxA==
-Date: Wed, 31 Jan 2024 14:25:19 -0600
-From: Rob Herring <robh@kernel.org>
-To: Bjorn Andersson <quic_bjorande@quicinc.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+	s=arc-20240116; t=1706733002; c=relaxed/simple;
+	bh=4GtRh7WJods/5nRPcNIU9DIYmVO3KiovibqAa0Mp2Rw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=M56TTePju7QzWhvnhDIoK5bK87XolbbKS/xeu5Y13KJkpLOD9xjysXYhgDt+rQVHX+iTVOqgG1ABHTTBMcFjcT8h2oHXCh+cmnxTYa9RBV8/AIKAF3vYnVjHAU/6QeUVtDjqCqv4UdEGTltTFbusEFyCWDlxguM4FLQVd0fYLtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perches.com; spf=pass smtp.mailfrom=perches.com; arc=none smtp.client-ip=216.40.44.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=perches.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=perches.com
+Received: from omf01.hostedemail.com (a10.router.float.18 [10.200.18.1])
+	by unirelay03.hostedemail.com (Postfix) with ESMTP id A1EE3A06B0;
+	Wed, 31 Jan 2024 20:22:13 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: joe@perches.com) by omf01.hostedemail.com (Postfix) with ESMTPA id AAC116000C;
+	Wed, 31 Jan 2024 20:21:55 +0000 (UTC)
+From: Joe Perches <joe@perches.com>
+To: linux-input@vger.kernel.org
+Cc: Sandeep C S <sandeep.cs@samsung.com>,
+	Junwan Cho <junwan.cho@samsung.com>,
+	Jitender Sajwan <jitender.s21@samsung.com>,
 	Jiri Kosina <jikos@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Johan Hovold <johan+linaro@kernel.org>,
-	linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Konrad Dybcio <konrad.dybcio@somainline.org>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-	Daniel Thompson <daniel.thompson@linaro.org>
-Subject: Re: [PATCH v3 2/2] arm64: dts: qcom: sc8280xp-x13s: Fix/enable
- touchscreen
-Message-ID: <20240131202519.GB2222869-robh@kernel.org>
-References: <20240129-x13s-touchscreen-v3-0-c4a933034145@quicinc.com>
- <20240129-x13s-touchscreen-v3-2-c4a933034145@quicinc.com>
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 0/2] HID: samsung: Object code size reduction and neatening
+Date: Wed, 31 Jan 2024 12:21:35 -0800
+Message-ID: <cover.1706732238.git.joe@perches.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240129-x13s-touchscreen-v3-2-c4a933034145@quicinc.com>
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Queue-Id: AAC116000C
+X-Stat-Signature: idn3j8kwcz5oiy3p75yr3871yf98u3xp
+X-Rspamd-Server: rspamout04
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-Session-ID: U2FsdGVkX1/wBRyWJqoR/km88mI/HUD17tBDCUtzVAg=
+X-HE-Tag: 1706732515-608211
+X-HE-Meta: U2FsdGVkX18oyJN/QLZ3rVHRUr9xW74gldjYie8Xz3gqd9xBRywKAhztgv+9cUg5J72ra18ugOoD9ZZ4UCU+Dy6q6eCB3jfczoZqMx4ZGesQb1SRABxpL/1fpW/Q8guXDJlSw8xlYaprgf4PTjGWE9IDwhqkOQA+lFHc0mlTaT/7ToqFwX6aUEm/YkBha4czT0LVzIxNr0N7LXMtNZnnzdm23B9Vjo/LUDSVTj0+WP1kSpZduJR8h7j8iJ2MuvbWqCILX0C/cEYQJULjrs4OoA==
 
-On Mon, Jan 29, 2024 at 08:47:48AM -0800, Bjorn Andersson wrote:
-> The touchscreen present on some SKUs of Lenovo Thinkpad X13s is never
-> detected by Linux. Power is applied and the device is brought out of
-> reset using the pinconfig in DeviceTree, but the read-test in
-> __i2c_hid_core_probe() fails to access the device, which result in probe
-> being aborted.
-> 
-> Some users have reported success after rebinding the device.
-> 
-> Looking to the ACPI tables, there's a 5ms after-power and a 200ms
-> after-reset delay. The power-supply is shared with other components, so
-> this is active all the way through boot. The reset GPIO, on the other
-> hand, is low (reset asserted) at boot, so this is first deasserted by
-> the implicit application of the pinconf state.
-> 
-> This means the time between reset deassert and __i2c_hid_core_probe() is
-> significantly below the value documented in the ACPI tables.
-> 
-> As the I2C HID binding and driver support specifying a reset gpio,
-> replace the pinconf-based scheme to pull the device out of reset. Then
-> specify the after-reset time.
-> 
-> The shared power rail is currently always on, but in case this ever
-> change, the after-power delay is added as well, to not violate the
-> power-on to reset-deassert timing requirement.
-> 
-> Fixes: 32c231385ed4 ("arm64: dts: qcom: sc8280xp: add Lenovo Thinkpad X13s devicetree")
-> Tested-by: Daniel Thompson <daniel.thompson@linaro.org>
-> Signed-off-by: Bjorn Andersson <quic_bjorande@quicinc.com>
-> ---
->  arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-> index def3976bd5bb..33731b95ad51 100644
-> --- a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-> +++ b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-> @@ -620,7 +620,6 @@ &i2c4 {
->  
->  	status = "okay";
->  
-> -	/* FIXME: verify */
->  	touchscreen@10 {
->  		compatible = "hid-over-i2c";
+Reduce object size and neatening
 
-Please add a real device compatible before you need the next power 
-sequencing property I'll reject.
+Joe Perches (2):
+  HID: samsung: Reduce code size
+  HID: samsung: Object size reduction and neatening
 
->  		reg = <0x10>;
-> @@ -630,6 +629,11 @@ touchscreen@10 {
->  		vdd-supply = <&vreg_misc_3p3>;
->  		vddl-supply = <&vreg_s10b>;
->  
-> +		reset-gpios = <&tlmm 99 GPIO_ACTIVE_LOW>;
-> +
-> +		post-power-on-delay-ms = <5>;
-> +		post-reset-deassert-delay-ms = <200>;
-> +
->  		pinctrl-names = "default";
->  		pinctrl-0 = <&ts0_default>;
->  	};
-> @@ -1450,7 +1454,6 @@ int-n-pins {
->  		reset-n-pins {
->  			pins = "gpio99";
->  			function = "gpio";
-> -			output-high;
->  			drive-strength = <16>;
->  		};
->  	};
-> 
-> -- 
-> 2.25.1
-> 
+ drivers/hid/hid-samsung.c | 652 +++++++++++++++++---------------------
+ 1 file changed, 283 insertions(+), 369 deletions(-)
+
+-- 
+2.43.0
+

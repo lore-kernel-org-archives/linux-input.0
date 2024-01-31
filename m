@@ -1,87 +1,96 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 900B73FB1E;
-	Wed, 31 Jan 2024 20:20:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05A733FB39;
+	Wed, 31 Jan 2024 20:22:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706732429; cv=none; b=kxmt7KKeMn0gxIgfhcXzC9wmyQ1+V/Vcjx2z19LcoRJ/RkQTrD7rGWxTTfrhwhjieI1DeuS6Zvso8vInLFe5AgPR/dR91vL+wDuiHgEY39fp3/G9el7KZ49dNN2tl9fTz4NX6cZ195R3nuGnojHAyce2VTt+gqkaFIrNVV894qM=
+	t=1706732562; cv=none; b=WFDnkWc6ttFN3ZH78qQZ2uPdbB0xSCQpA6w6m6NPJc4X7D/43uV84W1T93G1hHBOfO2rnXQJx6lYCZ9zgrAgpn9YDUkGsZLT6OJymdd3qqbCBUwW+lGPU5M3tUHlYsUUqj9RfWrOpiep47uDjhnXengD9pC58C4/z1yYhnZweeM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706732429; c=relaxed/simple;
-	bh=5n2GPaqqGywO7Qry4eYZWTM4oFGQUDmGZmFT4fN7rrA=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=V5tk5twx4UxIbCwcBA7Dtjb6dijhsYCcR6BOXxpBk74eKp1vPXTq55COUdt2Vv3sQJ29/ijPYfm/d/4EnZ/XZHyob+wsuSGj6GtEHq82HCpGz/L/uQ5G4tUQhq3XdOj4lB4SN+YNpsJWMzFqBwP+yVnKr0ZUlfZFNipfpvn9flY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j2uVbYHm; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1706732562; c=relaxed/simple;
+	bh=qd/w5Bcuf2svgiEaBng8uEFP+/hQ9TBMaFzh70vee4c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bE8yRuXDbY9LH46wHXExqWSItrARwazGCgo8N6UwOemZaFaSzvpGjPI/wSuy3vulUL5IMVHPuoqOPbWzEhNrXb8BcjxZaPGLjMPyNTS+29dopY32Y7S/jKInlMs0MIiReM60N0K1F0zP7hD7oxM05DE2ENXFrFdVP7N5krkDykA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=haYT871A; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j2uVbYHm"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 1644BC43399;
-	Wed, 31 Jan 2024 20:20:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="haYT871A"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50FABC433F1;
+	Wed, 31 Jan 2024 20:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706732429;
-	bh=5n2GPaqqGywO7Qry4eYZWTM4oFGQUDmGZmFT4fN7rrA=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=j2uVbYHmJ0BNlBHTdgUBgToOHPf+Qp4+Unj1DhM4x0CdZn1Tp36nyKi13zJ4NsBIr
-	 //0kQJg6fwsnmWQYfnR2CZSUXvSIpo3/iGgYh/XaFnVL1jU0DTgM8QBNto5qWBWVDS
-	 vcqbDp7/vd0zLOGyh5KfD4vVhxPymWXNSaVHEQnaHcADHr+VtdaF38ZzDPzu6o8zPU
-	 fWEGnzHYcE7+2/JhZaS3ZIov8rGKSfUD63SwZdSAHH3lFpglQsA/0G3nIPMWrFeXm3
-	 9frtgxX17A8LyAlpcuY9DlRurZmEwHMKebMLzPTzZHfIKjiacmWjriWBzUTbkx54sG
-	 53m66RsqvuGaQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id F2F56DC99E4;
-	Wed, 31 Jan 2024 20:20:28 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1706732561;
+	bh=qd/w5Bcuf2svgiEaBng8uEFP+/hQ9TBMaFzh70vee4c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=haYT871AjlVRcMjGMJ5jr8i6K3lktJn5RibSXPsjUf+1fm+UTvAmvdLV7GIPk+i7z
+	 p1UXFNdz/xYWIwO5FaL60DFz56gNy0yYD2jHq6aDAiuh1RJPILXSHEwz0AjbpgURxK
+	 nbzeLCsifWDlIJ2UM6G0LSSQvI3wLMU6L3dp69Y0ZyXM9HAXAHWeM2+wJKOUs1fkor
+	 TbN0keNBgCc2jRipyt0wwM+5H4og0RqwNIGz10eH+i55CaWgFv5tO0JH6CW08iBZeA
+	 U74JjuOwK6M3YwdKrOT5hscZuOWwrfKYWPPIDVs0FmMlbcW4KKLXcDyKMd0O+QmnSy
+	 RjtfPZ3G+GfhA==
+Date: Wed, 31 Jan 2024 14:22:39 -0600
+From: Rob Herring <robh@kernel.org>
+To: Johan Hovold <johan@kernel.org>
+Cc: Bjorn Andersson <quic_bjorande@quicinc.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@linaro.org>,
+	Johan Hovold <johan+linaro@kernel.org>,
+	linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Konrad Dybcio <konrad.dybcio@somainline.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: Re: [PATCH v3 1/2] dt-bindings: HID: i2c-hid: Document reset-related
+ properties
+Message-ID: <20240131202239.GA2222869-robh@kernel.org>
+References: <20240129-x13s-touchscreen-v3-0-c4a933034145@quicinc.com>
+ <20240129-x13s-touchscreen-v3-1-c4a933034145@quicinc.com>
+ <ZbfYzyHaNmjJyNpY@hovoldconsulting.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH bpf-next v4 0/3] Annotate kfuncs in .BTF_ids section
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <170673242899.4502.6917209613478941432.git-patchwork-notify@kernel.org>
-Date: Wed, 31 Jan 2024 20:20:28 +0000
-References: <cover.1706491398.git.dxu@dxuuu.xyz>
-In-Reply-To: <cover.1706491398.git.dxu@dxuuu.xyz>
-To: Daniel Xu <dxu@dxuuu.xyz>
-Cc: linux-trace-kernel@vger.kernel.org, coreteam@netfilter.org,
- bpf@vger.kernel.org, linux-input@vger.kernel.org, cgroups@vger.kernel.org,
- netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
- linux-kselftest@vger.kernel.org, linux-doc@vger.kernel.org,
- fsverity@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, netfilter-devel@vger.kernel.org,
- alexei.starovoitov@gmail.com, olsajiri@gmail.com, quentin@isovalent.com,
- alan.maguire@oracle.com, memxor@gmail.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZbfYzyHaNmjJyNpY@hovoldconsulting.com>
 
-Hello:
-
-This series was applied to bpf/bpf-next.git (master)
-by Alexei Starovoitov <ast@kernel.org>:
-
-On Sun, 28 Jan 2024 18:24:05 -0700 you wrote:
-> === Description ===
+On Mon, Jan 29, 2024 at 05:56:47PM +0100, Johan Hovold wrote:
+> On Mon, Jan 29, 2024 at 08:47:47AM -0800, Bjorn Andersson wrote:
+> > Some I2C HID devices has a reset pin and requires that some specified
+> > time elapses after this reset pin is deasserted, before communication
+> > with the device is attempted.
+> > 
+> > The Linux implementation is looking for these in the "reset-gpios" and
+> > "post-reset-deassert-delay-ms" properties already, so use these property
+> > names.
 > 
-> This is a bpf-treewide change that annotates all kfuncs as such inside
-> .BTF_ids. This annotation eventually allows us to automatically generate
-> kfunc prototypes from bpftool.
+> > +  post-reset-deassert-delay-ms:
+> > +    description: Time required by the device after reset has been deasserted,
+> > +      before it is ready for communication.
+> > +
+> > +  reset-gpios: true
 > 
-> We store this metadata inside a yet-unused flags field inside struct
-> btf_id_set8 (thanks Kumar!). pahole will be taught where to look.
+> Hmm, for the third time, it seems you ignored my comment that you need
+> to remove the comment about these properties from the driver as part of
+> this series.
 > 
-> [...]
+> 	/*
+> 	 * Note this is a kernel internal device-property set by x86 platform code,
+> 	 * this MUST not be used in devicetree files without first adding it to
+> 	 * the DT bindings.
+> 	 */
+> 	if (!device_property_read_u32(dev, "post-reset-deassert-delay-ms", &val))
+> 		ihid_of->post_reset_delay_ms = val;
 
-Here is the summary with links:
-  - [bpf-next,v4,1/3] bpf: btf: Support flags for BTF_SET8 sets
-    https://git.kernel.org/bpf/bpf-next/c/79b47344bbc5
-  - [bpf-next,v4,2/3] bpf: btf: Add BTF_KFUNCS_START/END macro pair
-    https://git.kernel.org/bpf/bpf-next/c/2747e0ee57c2
-  - [bpf-next,v4,3/3] bpf: treewide: Annotate BPF kfuncs in BTF
-    https://git.kernel.org/bpf/bpf-next/c/6e7769e6419f
+DT devices should have a specific compatible that gives enough detail to 
+handle this delay or *any* other power sequencing requirement.
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+OTOH, we've already got one other delay property, what's one more. Sigh.
 
+Acked-by: Rob Herring <robh@kernel.org>
 
+Rob

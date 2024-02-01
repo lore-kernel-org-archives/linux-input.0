@@ -1,50 +1,50 @@
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94BC139AFE;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94BFF39FD8;
 	Thu,  1 Feb 2024 03:07:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706756869; cv=none; b=CHphaFqQMWo2CqbM41t0ymagfTGIA3rZIOWHsmJkvfq4O7lcx4cM9vtp2X2ofyB6HhXqsfjbWTwqd06ucCb4kvknHvpNz/phR7RknBNnfbquzsC6shEPuZn86SiB2eVxvpLs0tqpASLPz0UpJYbCRyr8PsqaynCjmNgQBo6b8ok=
+	t=1706756870; cv=none; b=TIfQFSzds1QgbC7Rky3Xeu2pkyelTI2iReWje9jAaN9ircpmUMSXM1+VKg1rGsHu4MHuFerT9x+eVXKH9gEOt6SfFxWLxnfT0u/ybp2mCmNRqBnSv7UTPN/bfptltkr0fUgKLVgTy7tDU08XwszzgB0KQOU1bHqd76w+2A+aOxM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706756869; c=relaxed/simple;
-	bh=PcB0AJ8B1lqY+iSkXfjih3Kz6E+Pdd+y+kEDjRJEORM=;
+	s=arc-20240116; t=1706756870; c=relaxed/simple;
+	bh=sRNwMVnqiPST18DQ+4Nf5qjr6s72kIiHbnqk/kOu/nw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
-	 In-Reply-To:To:CC; b=Wv4/ITq+ZKjzG03p+8tzGzLeQyeedRDQDLgRdPg5nJ7nHh2lzQh8wrY6Edhnz7OFMVUtq7WxWCXE/aM+QOtqcGMYDlxlhePJqODdePYGw6tWyukEnsQYNh7aTeGv9SQDZofey5gUa1GU+Ry8dGFejwqWl9Sw+Gksd4Ej+UwhSNw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=eYbzX9Cp; arc=none smtp.client-ip=205.220.180.131
+	 In-Reply-To:To:CC; b=GSMMBrP96bjnfikoicBcElmFHCDJ+iexLiy1v+Qigp200Kna35wA/VYREBqJ8wIwDMZW+7eqhtgK8TTCVXKVtZa+Bve7hNXBx9s84M0Sl3BEYFVAC3wYrrcVxX3D9a5ntk4FWtVUrCv5BzE1rmUuEmP52RliekLc+EpwJYzxMcE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=pnoNZ5E5; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="eYbzX9Cp"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 4111qXmH025477;
-	Thu, 1 Feb 2024 03:07:39 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="pnoNZ5E5"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 4111spBD019439;
+	Thu, 1 Feb 2024 03:07:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	from:date:subject:mime-version:content-type
 	:content-transfer-encoding:message-id:references:in-reply-to:to
-	:cc; s=qcppdkim1; bh=Eo/8t/2I40bS5oouVKnNf8nmQwYcSuOfwyKZt2xv6S8
-	=; b=eYbzX9CpFf+bpGNUXbettrsHO/NbddouZmTk+xGZDM0mRybVoqn9zP+Dp2l
-	E/h6yzfAu4cMXJ13nzTYalA4rxqtkHDDRTtC6M+mBbL7ls95vCA3KflwM2lLXFpw
-	lWjMNWN+QNg1QBh4jIO9lb3GKdcLWxUBiIDDd7hpm6Ga+lnr1BvqyHXaV6Ly13H+
-	Haufmo+jVp87wdm452j1dIy08kPJ1yyP8GrzpYEoC9whf1dTliu+fkmokuPe/pbF
-	VzD4xQCVyEhxVMzyOresEKt5dguCtOK+uDdhTZARxS48CS6NejB+JIlVy10gzAQj
-	7yLsImbXRsv9Hv8FRYbp9JyxBMA==
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3vyqvehrqk-1
+	:cc; s=qcppdkim1; bh=ApiIP2dVAKuSXIV6ecbV5vVRcAz+r4l+ETQRV6c+EUI
+	=; b=pnoNZ5E5+UPm+B+NQILcHcihKnXY5JqPP82nq0R6tu8oCv7uby6trKGQ4Vp
+	bDsrs06krr+7tg4TpAUG+80jGZ4iGG+EgtgZ8CdVkLKP5lteZEmovNTdZYaCFqkv
+	kWkAJOAyKE2H4fVXtELKE31+argCLCvzyey26MB5J3UcSxIaPpWZyesENY0HSW3E
+	Vy/DrMaLqaND7d67vyo9nDon1UeVCMZWPem7Xm+ajXf+sKvcH6hey0wQtiXzkFeA
+	bWjFRmwufvIvnYLfyHUhfDrhezWNIwz7UHfOZxXURHxJQgv5B7xAUd9Ige/k0x6H
+	TixbE752qtTgiudGomjOch38V9Q==
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3vyq0dsv9k-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 01 Feb 2024 03:07:39 +0000 (GMT)
+	Thu, 01 Feb 2024 03:07:38 +0000 (GMT)
 Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
-	by NALASPPMTA05.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 41137cR8009842
+	by NALASPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 41137bT5013918
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 1 Feb 2024 03:07:38 GMT
+	Thu, 1 Feb 2024 03:07:37 GMT
 Received: from [169.254.0.1] (10.49.16.6) by nalasex01c.na.qualcomm.com
  (10.47.97.35) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.40; Wed, 31 Jan
  2024 19:07:37 -0800
 From: Bjorn Andersson <quic_bjorande@quicinc.com>
-Date: Wed, 31 Jan 2024 19:07:28 -0800
-Subject: [PATCH v4 3/3] arm64: dts: qcom: sc8280xp-x13s: Fix/enable
- touchscreen
+Date: Wed, 31 Jan 2024 19:07:26 -0800
+Subject: [PATCH v4 1/3] dt-bindings: HID: i2c-hid: Document reset-related
+ properties
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -53,7 +53,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <20240131-x13s-touchscreen-v4-3-39c0f9925d3c@quicinc.com>
+Message-ID: <20240131-x13s-touchscreen-v4-1-39c0f9925d3c@quicinc.com>
 References: <20240131-x13s-touchscreen-v4-0-39c0f9925d3c@quicinc.com>
 In-Reply-To: <20240131-x13s-touchscreen-v4-0-39c0f9925d3c@quicinc.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -77,96 +77,62 @@ CC: <linux-arm-msm@vger.kernel.org>, <linux-input@vger.kernel.org>,
 	<krzysztof.kozlowski@linaro.org>,
         Bjorn Andersson
 	<quic_bjorande@quicinc.com>,
-        Daniel Thompson <daniel.thompson@linaro.org>
+        Rob Herring <robh@kernel.org>
 X-Mailer: b4 0.12.4
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1706756856; l=2516;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1706756856; l=1349;
  i=quic_bjorande@quicinc.com; s=20230915; h=from:subject:message-id;
- bh=PcB0AJ8B1lqY+iSkXfjih3Kz6E+Pdd+y+kEDjRJEORM=;
- b=B27rcr52LWCc4knuPSnQkUSJpdro31QedccioOAwSXpXPKrfSY2EFguKMflfXqhkPU4DxGlT3
- d/lFMVFwxZsCjC6IlWKSBjBZe+oI1hS/UsX/yNwJ6L6plbuMTRFa4Px
+ bh=sRNwMVnqiPST18DQ+4Nf5qjr6s72kIiHbnqk/kOu/nw=;
+ b=CcBTReLiI2/FG9b2iwv2WsiymZ/p7Fx0kja24y+LakWmXEILz9d0CZqwYmsAk6W6BSz2QZjFL
+ CI4pyuGjl+mBN/iNpsVfOe7X2ZWUakiOvj8PQz0u4OSXW2KdR18z4fV
 X-Developer-Key: i=quic_bjorande@quicinc.com; a=ed25519;
  pk=VkhObtljigy9k0ZUIE1Mvr0Y+E1dgBEH9WoLQnUtbIM=
 X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
  nalasex01c.na.qualcomm.com (10.47.97.35)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: hOn1CmDDBFH-Mnys9FYYBfTgBwD_V4DH
-X-Proofpoint-GUID: hOn1CmDDBFH-Mnys9FYYBfTgBwD_V4DH
+X-Proofpoint-GUID: eTKa0U78fPLNcBaqxtgGIc_IBIx_JYQN
+X-Proofpoint-ORIG-GUID: eTKa0U78fPLNcBaqxtgGIc_IBIx_JYQN
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-01-31_10,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
- priorityscore=1501 clxscore=1015 phishscore=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 suspectscore=0 mlxscore=0
- mlxlogscore=999 bulkscore=0 spamscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.19.0-2401190000
- definitions=main-2402010023
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 impostorscore=0
+ suspectscore=0 spamscore=0 lowpriorityscore=0 mlxscore=0
+ priorityscore=1501 clxscore=1015 bulkscore=0 mlxlogscore=999
+ malwarescore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2401190000 definitions=main-2402010023
 
-The touchscreen present on some SKUs of Lenovo Thinkpad X13s is never
-detected by Linux. Power is applied and the device is brought out of
-reset using the pinconfig in DeviceTree, but the read-test in
-__i2c_hid_core_probe() fails to access the device, which result in probe
-being aborted.
+Some I2C HID devices has a reset pin and requires that some specified
+time elapses after this reset pin is deasserted, before communication
+with the device is attempted.
 
-Some users have reported success after rebinding the device.
+The Linux implementation is looking for these in the "reset-gpios" and
+"post-reset-deassert-delay-ms" properties already, so use these property
+names.
 
-Looking to the ACPI tables, there's a 5ms after-power and a 200ms
-after-reset delay. The power-supply is shared with other components, so
-this is active all the way through boot. The reset GPIO, on the other
-hand, is low (reset asserted) at boot, so this is first deasserted by
-the implicit application of the pinconf state.
-
-This means the time between reset deassert and __i2c_hid_core_probe() is
-significantly below the value documented in the ACPI tables.
-
-As the I2C HID binding and driver support specifying a reset gpio,
-replace the pinconf-based scheme to pull the device out of reset. Then
-specify the after-reset time.
-
-The shared power rail is currently always on, but in case this ever
-change, the after-power delay is added as well, to not violate the
-power-on to reset-deassert timing requirement.
-
-Fixes: 32c231385ed4 ("arm64: dts: qcom: sc8280xp: add Lenovo Thinkpad X13s devicetree")
-Tested-by: Daniel Thompson <daniel.thompson@linaro.org>
 Reviewed-by: Johan Hovold <johan+linaro@kernel.org>
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Bjorn Andersson <quic_bjorande@quicinc.com>
 ---
- arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/input/hid-over-i2c.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-index def3976bd5bb..33731b95ad51 100644
---- a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
-@@ -620,7 +620,6 @@ &i2c4 {
+diff --git a/Documentation/devicetree/bindings/input/hid-over-i2c.yaml b/Documentation/devicetree/bindings/input/hid-over-i2c.yaml
+index 138caad96a29..f07ff4cb3d26 100644
+--- a/Documentation/devicetree/bindings/input/hid-over-i2c.yaml
++++ b/Documentation/devicetree/bindings/input/hid-over-i2c.yaml
+@@ -50,6 +50,12 @@ properties:
+     description: Time required by the device after enabling its regulators
+       or powering it on, before it is ready for communication.
  
- 	status = "okay";
- 
--	/* FIXME: verify */
- 	touchscreen@10 {
- 		compatible = "hid-over-i2c";
- 		reg = <0x10>;
-@@ -630,6 +629,11 @@ touchscreen@10 {
- 		vdd-supply = <&vreg_misc_3p3>;
- 		vddl-supply = <&vreg_s10b>;
- 
-+		reset-gpios = <&tlmm 99 GPIO_ACTIVE_LOW>;
++  post-reset-deassert-delay-ms:
++    description: Time required by the device after reset has been deasserted,
++      before it is ready for communication.
 +
-+		post-power-on-delay-ms = <5>;
-+		post-reset-deassert-delay-ms = <200>;
++  reset-gpios: true
 +
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&ts0_default>;
- 	};
-@@ -1450,7 +1454,6 @@ int-n-pins {
- 		reset-n-pins {
- 			pins = "gpio99";
- 			function = "gpio";
--			output-high;
- 			drive-strength = <16>;
- 		};
- 	};
+   touchscreen-inverted-x: true
+ 
+   touchscreen-inverted-y: true
 
 -- 
 2.25.1

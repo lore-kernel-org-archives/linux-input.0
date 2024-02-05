@@ -1,131 +1,207 @@
-Received: from mx0a-0046e701.pphosted.com (mx0a-0046e701.pphosted.com [67.231.149.93])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77485482C3;
-	Mon,  5 Feb 2024 17:57:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E51BC43AB6
+	for <linux-input@vger.kernel.org>; Mon,  5 Feb 2024 18:43:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707155851; cv=none; b=aPiGlb9TBpJEKBD+FlIqQwi5cdr3KlgpEKj4ryynXGJZyqke3i/xBZ/FKgdaNXl5JJB/QpwAx3Wyzj95YXpJ/y/2LxiKZ9a9tTpzL0dcjaz69wyu1LMsasdDF149rKPBiblBZvdepUNGEcHL5WusjYZt4UfcWdj50sN8scsSEpc=
+	t=1707158589; cv=none; b=oQO2bT0PAEWofk/Mp/U7YLAqx+FPVxKZmLvklMb59FhXsmKrxsx+elm6JHLPoYXjA8a4zQk+pF8FEQIR0HKMugFX9ICR1EcKlQoesuV/R3wUGBSppHK9Pk08+jKedkGEjalZYc5weJ7ZA2CcS5OnNZWQ+vFWc5seCw6OchgIHOo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707155851; c=relaxed/simple;
-	bh=imH4gYnAeMK1Yjh2ihzpdSRRMUxWWueAyn1ZFYNsAhA=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=nwqUcbh7U5xWGc9BUe3kupInaJtyZ41zXQnpNnDN7gZL3LBPFJZvpy0KdhlzIjREVJBP3V4KKkFCSsoMmOrCttAonAsl0I3BfOgoeh0YsTKY3ZIWJwi5W0Gceiq3htgrqkhdJb1dpAyD87yXUi+CT23lAKzv+OJlf85M4KmRaLc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=o5c22UZ4; arc=none smtp.client-ip=67.231.149.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=plexus.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
+	s=arc-20240116; t=1707158589; c=relaxed/simple;
+	bh=lxH2UkoXhtlULl/zvh0je1dal/ztpt8QeP0kl4G+Vbs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EVUcBe9LeB9ivdMPA0Dghvd0j/GeD9F2xPJkFcW6QYPC6iNtPneB67v91frBDJXIQYWBqNObVrNuXdjejS1bNaZmXAn6TmTLa/lVpa4uZ1KNLkAW1wukPsZoGI//q9NQKka07BP1d8XkJ0RHlPAOc5ncSGN+aoQavUtkhGpp77k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LDCODIf9; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="o5c22UZ4"
-Received: from pps.filterd (m0341554.ppops.net [127.0.0.1])
-	by mx0a-0046e701.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 415944Wd006615;
-	Mon, 5 Feb 2024 11:10:21 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=
-	from:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding:content-type; s=pps1; bh=kxg/JI3LBB7n
-	lMekCqB37I8Pr+OqZyMo4i1cvdPIf8A=; b=o5c22UZ4WnYppFSHaW50QXI5XKvN
-	fqxHFlfepGugSNQ6COxpkfR3KnZvMgidpSBSy4kHj8IpVWSBh5OQVDRb6MxYpxmv
-	roK1MnogyS6bYm3yvin9YAdU2ieg9DAU1h8cIwuL44+OsD/BLRMduGCNWVTkCw8M
-	Xmgd2XFO1MIaDg0N0qNq33DHbSqL0TMGSKnSDXSrbzR3h+DpnTyW0rT5N2Y4HG8o
-	R/BszRgjVzbeG0uwa9jd5NvXvKHRxJIesQHcOSWJfJkdiNKtf1IeVj7x9FA9WOKD
-	yoO+bHIq0SxaoNkr7ivLjTMh3B6z+t1vBmbNQvZt5Bh+XAroqLa6z6zmRA==
-Received: from dcc-mail-mx-002.na.plexus.com (outbound.plexus.com [64.215.193.254])
-	by mx0a-0046e701.pphosted.com (PPS) with ESMTPS id 3w2vqg1480-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Mon, 05 Feb 2024 11:10:21 -0600 (CST)
-Received: from dcc-mail-mx-001.na.plexus.com (10.249.48.15) by
- Dcc-mail-mx-002.na.plexus.com (10.249.48.16) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Mon, 5 Feb 2024 17:10:19 +0000
-Received: from LNDCL34533.neenah.na.plexus.com (10.255.48.203) by
- dcc-mail-mx-001.na.plexus.com (10.249.48.15) with Microsoft SMTP Server id
- 15.1.2507.35 via Frontend Transport; Mon, 5 Feb 2024 17:10:19 +0000
-From: Danny Kaehn <danny.kaehn@plexus.com>
-To: <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
-        <andriy.shevchenko@linux.intel.com>, <bentiss@kernel.org>
-CC: <jikos@kernel.org>, <bartosz.golaszewski@linaro.org>,
-        <niyas.sait@linaro.org>, <dmitry.torokhov@gmail.com>,
-        <devicetree@vger.kernel.org>, <linux-input@vger.kernel.org>,
-        <ethan.twardy@plexus.com>, Danny Kaehn <danny.kaehn@plexus.com>
-Subject: [PATCH v10 0/3] Firmware Support for USB-HID Devices and CP2112
-Date: Mon, 5 Feb 2024 11:09:18 -0600
-Message-ID: <20240205170920.93499-1-danny.kaehn@plexus.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LDCODIf9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1707158586;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=LNq6oubwXmqe6ItjQ33y0Ud8zzbj1+GnKVYTNf0QWt4=;
+	b=LDCODIf9ltZ3tRdTQPs5OvjJ9JL43He9NN9YqsGnbJtT6u/qL5S3ZMpQ0HD79pWk4AbMSW
+	OJIZG+zxzO71W5CApXODc7rJ61/FGwjhpExp16DjTzBUH8aJmqcLEIWZoBgufcogbkxFii
+	oo/awuUIvYCHYJXvOPUT3QjGUufmV4A=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-504-dgyxbqd5ONWweWUhK9EdFw-1; Mon, 05 Feb 2024 13:43:05 -0500
+X-MC-Unique: dgyxbqd5ONWweWUhK9EdFw-1
+Received: by mail-ej1-f70.google.com with SMTP id a640c23a62f3a-a2f71c9f5d2so286744166b.2
+        for <linux-input@vger.kernel.org>; Mon, 05 Feb 2024 10:43:05 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707158584; x=1707763384;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LNq6oubwXmqe6ItjQ33y0Ud8zzbj1+GnKVYTNf0QWt4=;
+        b=RW8Q6/H0Hp6gEJHIpJH2klsUAVdsChnLWuY0np+tpqTt0zkenG2VoYeQSUHh3tpUd1
+         DUwPjFIdY0B+VjxlqIHqMfs8zxkmqwdObg+JbjDgAZmtSQi3EOe/gj8K5pZAYkiNQgQm
+         x9vBhIuBi3mdgPB2wrUyl/jEZ4rM++9oLz80r4fJvfAX6T7j905dftfLrkuBxWRLQ3NJ
+         d6ws2SVHkvsUVF6NtZhQY+GhyXpGJfxH1gtjZK7E/9Fy7vAGwwdNZd+0nlwLmLqjN3Vm
+         PfUzZuyeSoZ1ZdkWgd3rrSUVoDiZYPpRq4m/kMpv/RLHOjDU9jV/8bOPkuk43QRyTJDw
+         39QA==
+X-Gm-Message-State: AOJu0YwV8+WMN59uHuGVGShKeN+jeKwSmU5mEZhIqTG/MtkdQTj7y2wq
+	2Y9EPGDsNdVop9f3VmhXlwLT5KoL+84TX5ots8LrGWNt0Mk7RtlHTBqTwHy1mrBYZ6Lmg5hv9NF
+	d5h2h9+ainW775FpCPvp03recLBhmmQI8qTCOGU762eD8iMgBoNP87pj8zrU=
+X-Received: by 2002:a17:906:c291:b0:a32:b376:489d with SMTP id r17-20020a170906c29100b00a32b376489dmr228573ejz.21.1707158584054;
+        Mon, 05 Feb 2024 10:43:04 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHBJJqi+E8gTHS8rAQpA+gl5qKoCPXD/0rXi7vARpqh0DWv7P2ivFSjS3co7lz7OUOuk2D9Nw==
+X-Received: by 2002:a17:906:c291:b0:a32:b376:489d with SMTP id r17-20020a170906c29100b00a32b376489dmr228552ejz.21.1707158583686;
+        Mon, 05 Feb 2024 10:43:03 -0800 (PST)
+X-Forwarded-Encrypted: i=0; AJvYcCW/539QzZ3CsCBd/dh6u4+Lu0RJ/lNp9RpJ+QdlVC2XRNNKX6VqeLJj50ZJA+N90OsJClBVsg5JNJx2ats/acge24t52SP1Khtr1Zb4g78xgsfghwaFLj1f6AJtfVo6O317uL1HzzNqXxmpy7ECqBJEptEIkKBxTFpYeMwuFd+BML/Xrojv2jMMXM9fitkLsKBmdYff02rTHIy1/9RYeW9KdA+vBiMMFajtXpJ9V3LInGlCjYjlUDdXOvBtO5I7hA45drv3aKenosx8u4UyB41Mz1PLz7aLENeuLx+D1O2uqJitQ5WY2/MWQsxC4hRsJLrtQSEiVEO//auoefGKYicIZXYmMBpZyobmMO+U5/AI7JRZNB4SrfhxFR3pafp6m1NPrmYlSeKc08AuIyTHk9ANC0tpyeniQJ3jCv+QnMgmLtM/kn+0P+/bRaYeDZ6d8IRlYLtr+o3sXelQ5sLfNPgIJKCnYmIVFOljcVjx7+ZUhFi0fAaUSSYmOH5KO46artcSjNhj82irK/HCSLEyg8UvWscGqbKXPwX22XgIsaFBiaZQJE98IoKW/FK5HPxvcKxRAW/5/iKxgZhKCM8KtX0dQCkHll57HIUiJSjrmPsVcn0ucLRS3jgg9lsPvnuDItmph5A4CJHwTnHeAe/8NIIZ8VBicJlP78Sc2dSEOj28GuudM2rMQLEK9T4bEzynKCV2zDJ0K6FcH+gAF302k7BBiiWiEivB
+Received: from [192.168.0.159] (185-219-167-205-static.vivo.cz. [185.219.167.205])
+        by smtp.gmail.com with ESMTPSA id t26-20020a1709066bda00b00a353d1a19a9sm121768ejs.191.2024.02.05.10.43.02
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 05 Feb 2024 10:43:03 -0800 (PST)
+Message-ID: <afb2fc66-abb4-4010-8120-ada7a6881f89@redhat.com>
+Date: Mon, 5 Feb 2024 19:43:02 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-GUID: npgnNRS1n2h7rjzNpBt4-bpymVydc1GZ
-X-Proofpoint-ORIG-GUID: npgnNRS1n2h7rjzNpBt4-bpymVydc1GZ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-05_11,2024-01-31_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 bulkscore=0
- mlxlogscore=734 adultscore=0 mlxscore=0 suspectscore=0 lowpriorityscore=0
- clxscore=1011 priorityscore=1501 spamscore=0 malwarescore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2401310000 definitions=main-2402050130
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH bpf-next v4 0/3] Annotate kfuncs in .BTF_ids section
+Content-Language: en-US
+To: Manu Bretelle <chantr4@gmail.com>, Jiri Olsa <olsajiri@gmail.com>
+Cc: Daniel Xu <dxu@dxuuu.xyz>, linux-trace-kernel@vger.kernel.org,
+ coreteam@netfilter.org, bpf@vger.kernel.org, linux-input@vger.kernel.org,
+ cgroups@vger.kernel.org, netdev@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com, linux-kselftest@vger.kernel.org,
+ linux-doc@vger.kernel.org, fsverity@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ netfilter-devel@vger.kernel.org, alexei.starovoitov@gmail.com,
+ quentin@isovalent.com, alan.maguire@oracle.com, memxor@gmail.com
+References: <cover.1706491398.git.dxu@dxuuu.xyz> <Zb12EZt0BAKOPBk/@surya>
+ <Zb5QWCw3Tg26_MDa@krava> <Zb6Jt30bNcNhM6zR@surya>
+From: Viktor Malik <vmalik@redhat.com>
+In-Reply-To: <Zb6Jt30bNcNhM6zR@surya>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-This patchset allows USB-HID devices to have Firmware bindings through sharing
-the USB fwnode with the HID driver, and adds such a binding and driver
-implementation for the CP2112 USB to SMBus Bridge (which necessitated the
-USB-HID change). This change allows a CP2112 permanently attached in hardware to
-be described in DT and ACPI and interoperate with other drivers.
+On 2/3/24 19:45, Manu Bretelle wrote:
+> On Sat, Feb 03, 2024 at 03:40:24PM +0100, Jiri Olsa wrote:
+>> On Fri, Feb 02, 2024 at 03:09:05PM -0800, Manu Bretelle wrote:
+>>> On Sun, Jan 28, 2024 at 06:24:05PM -0700, Daniel Xu wrote:
+>>>> === Description ===
+>>>>
+>>>> This is a bpf-treewide change that annotates all kfuncs as such inside
+>>>> .BTF_ids. This annotation eventually allows us to automatically generate
+>>>> kfunc prototypes from bpftool.
+>>>>
+>>>> We store this metadata inside a yet-unused flags field inside struct
+>>>> btf_id_set8 (thanks Kumar!). pahole will be taught where to look.
+>>>>
+>>>> More details about the full chain of events are available in commit 3's
+>>>> description.
+>>>>
+>>>> The accompanying pahole and bpftool changes can be viewed
+>>>> here on these "frozen" branches [0][1].
+>>>>
+>>>> [0]: https://github.com/danobi/pahole/tree/kfunc_btf-v3-mailed
+>>>> [1]: https://github.com/danobi/linux/tree/kfunc_bpftool-mailed
+>>>
+>>>
+>>> I hit a similar issue to [0] on master
+>>> 943b043aeecc ("selftests/bpf: Fix bench runner SIGSEGV")
+>>>  when cross-compiling on x86_64 (LE) to s390x (BE).
+>>> I do have CONFIG_DEBUG_INFO_BTF enable and the issue would not trigger if
+>>> I disabled CONFIG_DEBUG_INFO_BTF (and with the fix mentioned in [0]).
+>>>
+>>> What seems to happen is that `tools/resolve_btfids` is ran in the context of the
+>>> host endianess and if I printk before the WARN_ON:
+>>> diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+>>> index ef380e546952..a9ed7a1a4936 100644
+>>>   --- a/kernel/bpf/btf.c
+>>>   +++ b/kernel/bpf/btf.c
+>>>   @@ -8128,6 +8128,7 @@ int register_btf_kfunc_id_set(enum bpf_prog_type prog_type,
+>>>            * WARN() for initcall registrations that do not check errors.
+>>>            */
+>>>           if (!(kset->set->flags & BTF_SET8_KFUNCS)) {
+>>>   +        printk("Flag 0x%08X, expected 0x%08X\n", kset->set->flags, BTF_SET8_KFUNCS);
+>>>                   WARN_ON(!kset->owner);
+>>>                   return -EINVAL;
+>>>           }
+>>>
+>>> the boot logs would show:
+>>>   Flag 0x01000000, expected 0x00000001
+>>>
+>>> The issue did not happen prior to
+>>> 6f3189f38a3e ("bpf: treewide: Annotate BPF kfuncs in BTF")
+>>> has only 0 was written before.
+>>>
+>>> It seems [1] will be addressing cross-compilation, but it did not fix it as is
+>>> by just applying on top of master, so probably some of the changes will also need
+>>> to be ported to `tools/include/linux/btf_ids.h`?
+>>
+>> the fix in [1] is fixing flags in set8's pairs, but not the global flags
+>>
+>> it looks like Viktor's fix should now also swap that as well? like in the
+>> change below on top of Viktor's changes (untested)
+>>
+>> jirka
+>>
+>>
+>> ---
+>> diff --git a/tools/bpf/resolve_btfids/main.c b/tools/bpf/resolve_btfids/main.c
+>> index d01603ef6283..c44d57fec390 100644
+>> --- a/tools/bpf/resolve_btfids/main.c
+>> +++ b/tools/bpf/resolve_btfids/main.c
+>> @@ -706,6 +706,8 @@ static int sets_patch(struct object *obj)
+>>  			 * correctly translate everything.
+>>  			 */
+>>  			if (need_bswap) {
+>> +				set8->flags = bswap_32(set8->flags);
+>> +
+>>  				for (i = 0; i < cnt; i++) {
+>>  					set8->pairs[i].flags =
+>>  						bswap_32(set8->pairs[i].flags);
+>>
+> 
+> That should work. Here are a few tests I ran:
+> 
+> $ md5sum /tmp/kbuild-s390x/vmlinux.*
+> eb658e51e089f3c5b2c8909a29dc9997  /tmp/kbuild-s390x/vmlinux.a
+> # plain vmlinux before running resolv_btfids (all 0s)
+> ea907cd46a1a73b8276b5f2a82af00ca  /tmp/kbuild-s390x/vmlinux.before_resolv
+> # x86_64 resolv_btfids on master without Viktor's patch
+> 980a40c3a3ff563d1c2d1ebdd5071a23  /tmp/kbuild-s390x/vmlinux.resolv_native
+> # x86_64 resolv_btfids on master with Viktor's patch
+> b986d19e242719ebea41c578235da662  /tmp/kbuild-s390x/vmlinux.resolv_native_patch_viktor
+> # x86_64 resolv_btfids on master with Viktor's patch and your suggested patch
+> 4edd8752ff01129945bd442689b1927b  /tmp/kbuild-s390x/vmlinux.resolv_native_patch_viktor_patched
+> # s390x resolv_btfids run with qemu-s390x-static
+> 4edd8752ff01129945bd442689b1927b  /tmp/kbuild-s390x/vmlinux.resolv_s390x
+> 
+> 
+> and some hexdiff of those binaries:
+> 
+> 
+> # difference between master's native build and s390x build.... has byte swapping for set8 and others
+> diff -ruN <(xxd /tmp/kbuild-s390x/vmlinux.resolv_s390x) <(xxd /tmp/kbuild-s390x/vmlinux.resolv_native) > diff_s390x_native.diff
+> https://gist.github.com/chantra/c3d58637a08a6f7340953dc155bb18cc
+> 
+> # difference betwee Viktor's version and  s390x build.... squinting my eyes I only see the global set8 is missing
+> diff -ruN <(xxd /tmp/kbuild-s390x/vmlinux.resolv_s390x) <(xxd /tmp/kbuild-s390x/vmlinux.resolv_native_patch_viktor) > diff_s390x_native_viktor.diff
+> https://gist.github.com/chantra/61cfff02b456ae72d3c0161ce1897097
 
-Changes in v10:
-- Define an enumeration and mapping for CP2112 ACPI _ADRs and devicetree
-    child node names, and use these in the scanning of child nodes
-- Address other miscellaneous 
+Thanks for the testing Manu!
 
-Changes in v9:
-- Add _ADR-based ACPI binding of child nodes (I2C is _ADR Zero, GPIO is _ADR One)
-- Use a loop-based approach for assigning child nodes within probe().
-    As a consequence, hid-cp2112.c no longer maintains references to the
-    child fwnodes during the lifetime of the device. (plese correct if this
-    is actually needed for this use-case)
+Jiri's suggested fix is now a part of [1].
 
-Changes in v8:
-- Apply Review tags retroactively to patches previously reviewed
+Viktor
 
-Changes in v7:
-- Use dev_fwnode when calling fwnod_handle_put in i2c_adapter in hid-cp2112.c
-- Capitalize I2C and GPIO in commit message for patch 0003
+[1] https://lore.kernel.org/bpf/cover.1707157553.git.vmalik@redhat.com/
 
-Changes in v6:
-- Fix fwnode_handle reference leaks in hid-cp21112.c
-- Simplify hog node pattern in silabs,cp2112.yaml
-
-Changes in v5:
- - Use fwnode API instead of of_node api in hid-core.c and hid-cp2112.c
- - Include sda-gpios and scl-gpios in silabs,cp2112.yaml
- - Additional fixups to silabs,cp2112.yaml to address comments
- - Submit threaded interrupt bugfix separately from this patchset, as requested
-
-Changes in v4:
- - Moved silabs,cp2112.yaml to /Documentation/devicetree/bindings/i2c
-
-Changes in v3:
- - Additional fixups to silabs,cp2112.yaml to address comments
-
-Changes in v2:
- - Added more detail to silabs,cp2112.yaml dt-binding
- - Moved silabs,cp2112.yaml to /Documentation/devicetree/bindings/input
- - Added support for setting smbus clock-frequency from DT in hid-cp2112.c
- - Added freeing of of_nodes on error paths of _probe in hid-cp2112.c
-
-Danny Kaehn (3):
-  dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
-  HID: usbhid: Share USB device firmware node with child HID device
-  HID: cp2112: Fwnode Support
-
- .../bindings/i2c/silabs,cp2112.yaml           | 113 ++++++++++++++++++
- drivers/hid/hid-cp2112.c                      |  50 ++++++++
- drivers/hid/usbhid/hid-core.c                 |   2 +
- 3 files changed, 165 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
-
--- 
-2.25.1
+> 
+> Have a good weekend all!
+> 
+> Manu
+> 
 

@@ -1,122 +1,76 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECE3C130E5A;
-	Tue,  6 Feb 2024 14:05:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B11A4137C32;
+	Tue,  6 Feb 2024 15:11:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707228351; cv=none; b=TKql/9cjfJWFfLPO/FS2TFlVANbqnoU9Zxsj279/sp2UfLwGYQg60L6n9iwJkJ+QqFsB7gmYql67m/fQz+AF2IY1D70CTbMhXrBWBV6Ue8gGVnCA6p/gN08qoW5L2dyyJIlbHA8kMmEPv6N9Rat/f3XVICI3kSaaLN8ND1NgADk=
+	t=1707232274; cv=none; b=lcNLILbgjZblUXF53eItLWUOOWPKOihFvT0zwLx9rvyTjE2J2CT/6QBnUIOD5Bb7m6+dt2vRh48YGO7Otqr/xLLEt6w5JByGz1+LEP8KSsFPmQ+SZshScGg4YxIZTT9tocTwUcqNsgAozlN+M1RncYWtCdjXu/TjjyhV8fc856o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707228351; c=relaxed/simple;
-	bh=U5rLmH/I8wY2einPi8coHOLWjotImOSQ9fflqCRK/fc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gA7Pv9iKHPAY3HIJjZBBz2TMJWN/cSJE1Yg1dB7EoDF+K6FUq/yZRXILAcA4NX9anD5Mww7FM/LIbqOPFfHYEzwToKJEjMIPtoVv3MkYlA8KO6gibmSZGi/brS7WL/3uKFH+kDD57Biv27EaafQO/lPiWZKXRNdeEw859mLK+jY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=fbsbcM+E; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1707232274; c=relaxed/simple;
+	bh=OCse2MRBed0kmHIi9Fj9QuVp66gLc62VHDjtWvqcog8=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=SUokyKH0R7U348ZT6R5KwSvHNhu3se51ZRXZE9QY0mzaM1sQIzgKWLe07NE/VGAojm/tXQ2tx1fqoq9RAc69xMm7cYRzu8ikuRBdNXVcol5kwdfSFOFGiNQOQtGHZ+paaacs7paCA7Pm5E830TOPz58uteo0EsAOkq14UvL/0Uw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cQphKxI/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="fbsbcM+E"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1707228350; x=1738764350;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=U5rLmH/I8wY2einPi8coHOLWjotImOSQ9fflqCRK/fc=;
-  b=fbsbcM+ExcgtIpukKR4UfezZSnH8NIptNEJxdreMpi4rmKoW8B/VF+Eu
-   hyyALzTW8OhbOSn1XfHOqKvjjQbyNifE+E2u1ul1xjPOIMz3mSTqv7Pa0
-   PbSUAN5pOqJ1ETcXRT2odaIMZWn7x9kwc6Rqaqgi1kFIuCpYGQiTcsrBM
-   l2RXFy/fUpCFBJw6yp7aYWdLasFxWa1+0N9oYrw+mu28hKiyaZGvdWL1S
-   XqAA7awbBqb/x0vgYqq6wzPUmuvqRF8cBngeVi6vRKGuBAoG90sL9NX4L
-   UGSyDNQ5dDV4IHvtQMwJ+4Xdqd476TVBuWfQo5e652y1P14FFby3fLAmi
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10975"; a="4630937"
-X-IronPort-AV: E=Sophos;i="6.05,247,1701158400"; 
-   d="scan'208";a="4630937"
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2024 06:05:50 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10975"; a="909644969"
-X-IronPort-AV: E=Sophos;i="6.05,247,1701158400"; 
-   d="scan'208";a="909644969"
-Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga002.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2024 06:05:45 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.97)
-	(envelope-from <andriy.shevchenko@linux.intel.com>)
-	id 1rXM51-00000002MBm-0pQ4;
-	Tue, 06 Feb 2024 16:05:43 +0200
-Date: Tue, 6 Feb 2024 16:05:42 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Danny Kaehn <danny.kaehn@plexus.com>
-Cc: robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-	bentiss@kernel.org, jikos@kernel.org,
-	bartosz.golaszewski@linaro.org, niyas.sait@linaro.org,
-	dmitry.torokhov@gmail.com, devicetree@vger.kernel.org,
-	linux-input@vger.kernel.org, ethan.twardy@plexus.com
-Subject: Re: [PATCH v10 3/3] HID: cp2112: Fwnode Support
-Message-ID: <ZcI8trjgj6k_OY6I@smile.fi.intel.com>
-References: <20240205170920.93499-1-danny.kaehn@plexus.com>
- <20240205170920.93499-4-danny.kaehn@plexus.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cQphKxI/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBE5BC433C7;
+	Tue,  6 Feb 2024 15:11:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1707232274;
+	bh=OCse2MRBed0kmHIi9Fj9QuVp66gLc62VHDjtWvqcog8=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=cQphKxI/Zb79rQA7qfIMj2ubiNnH39Tarcl1h2pU1/U8fa9aV2cok95p50kdGo43+
+	 WBeI5i/yO9xhQKfweVQznR8/zuF3/DqO5+pcI+Sp8DsZspIX9uALLpZ86t5VqEAkH7
+	 N0BidLnGUZqa7PxHFs4Jty9zqz2VKPdghWmniblfKzu4N833E9G/yy7xULAqo9+C/T
+	 K8YWEWy03ve+Z41lxtk7LPqYGqr3QpYSZYtbSruSwUnJLnOFJoXdKRnO7B/4OHakNq
+	 ssIki+nMjfhWwg2tlGkk1dtPlINZx1B/jXVpOaJHh4Bra03FrT61tKoxa55kCaBUzk
+	 JXqqmW9o8Bg4Q==
+Date: Tue, 6 Feb 2024 16:11:14 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>
+cc: Oleksandr Natalenko <oleksandr@natalenko.name>, 
+    linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
+    =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
+    Bastien Nocera <hadess@hadess.net>, 
+    Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: Re: [PATCH] HID: logitech-hidpp: Do not flood kernel log
+In-Reply-To: <4bd022b8-e4a9-4269-a261-65fddc791ec5@redhat.com>
+Message-ID: <nycvar.YFH.7.76.2402061611020.21798@cbobk.fhfr.pm>
+References: <20240129164931.38477-1-oleksandr@natalenko.name> <4bd022b8-e4a9-4269-a261-65fddc791ec5@redhat.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240205170920.93499-4-danny.kaehn@plexus.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Type: text/plain; charset=US-ASCII
 
-On Mon, Feb 05, 2024 at 11:09:22AM -0600, Danny Kaehn wrote:
-> Support describing the CP2112's I2C and GPIO interfaces in firmware.
+On Mon, 29 Jan 2024, Hans de Goede wrote:
+
+> > Since commit 680ee411a98e ("HID: logitech-hidpp: Fix connect event race")
+> > the following messages appear in the kernel log from time to time:
+> > 
+> > logitech-hidpp-device 0003:046D:408A.0005: HID++ 4.5 device connected.
+> > logitech-hidpp-device 0003:046D:408A.0005: HID++ 4.5 device connected.
+> > logitech-hidpp-device 0003:046D:4051.0006: Disconnected
+> > logitech-hidpp-device 0003:046D:408A.0005: Disconnected
+> > 
+> > As discussed, print the first per-device "device connected" message
+> > at info level, demoting subsequent messages to debug level. Also,
+> > demote the "Disconnected message" to debug level unconditionally.
+> > 
+> > Link: https://lore.kernel.org/lkml/3277085.44csPzL39Z@natalenko.name/
+> > Signed-off-by: Oleksandr Natalenko <oleksandr@natalenko.name>
 > 
-> I2C and GPIO child nodes can either be children with names "i2c" and
-> "gpio", or, for ACPI, device nodes with _ADR Zero and One,
-> respectively.
+> Thanks, patch looks good to me:
+> 
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
 
-> Additionally, support configuring the I2C bus speed from the
-> clock-frequency device property.
-
-This has to be in a separate patch, which may predecess this one.
-
-...
-
-> +		name = fwnode_get_name(child);
-> +		if (name) {
-> +			ret = match_string(cp2112_cell_names,
-> +							ARRAY_SIZE(cp2112_cell_names), name);
-> +			if (ret >= 0)
-> +				addr = ret;
-> +		}
-> +		if (!name || ret < 0)
-> +			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
-> +
-> +		if (ret < 0)
-> +			continue;
-
-I don't like this piece (esp. due to possible matching with node name which
-may not be so reliable), but I have no better solution right now.
-
-Maybe this way (this doesn't particularly solve the issue but seems better
-to me)?
-
-		ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
-		if (ret) {
-			/* If no ACPI given or compiled, fallback to matching names */
-			name = fwnode_get_name(child);
-			if (!name)
-				continue;
-
-			ret = match_string(cp2112_cell_names, ARRAY_SIZE(cp2112_cell_names), name);
-			if (ret < 0)
-				continue;
-
-			addr = ret;
-		}
-
+Applied to hid.git#for-6.8/upstream-fixes. Thanks,
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+Jiri Kosina
+SUSE Labs
 

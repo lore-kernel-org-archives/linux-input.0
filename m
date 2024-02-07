@@ -1,22 +1,22 @@
 Received: from mail.enpas.org (zhong.enpas.org [46.38.239.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E045823BF;
-	Wed,  7 Feb 2024 16:37:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42AD982D6C;
+	Wed,  7 Feb 2024 16:37:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.239.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707323863; cv=none; b=iZ6IJItjKGV+Xkema5l8n5dq/GfxxZ/4JKY55dO5/bjdaXDD3DxWP2hwKuXHsb0brkRUPKFyCPA3Re+Hbkp5TeOzEl3WBOHNkM/dzA1DIUVp5m2zUzmz7iBkdCNlSFiNry7KT6CXR+XcW8X3zy5EqsXVzXzpaOZ40k/FKmrEDBs=
+	t=1707323864; cv=none; b=rB+YTvR+82XREK8CPXpm1N9RRJ580uKL6YIEkb998tMcl0A1l88LCqeS29SP+xEw4QIG7Mjkzj7CUF++BmK4vA8AWVlra4R9V/LpVkMLmbQwEZAYxS0of5FlZDO/asKHw4gFK+PtOtmZP9H6KIbWKYypcHT6hZzXwIXBrKq+Xc8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707323863; c=relaxed/simple;
-	bh=lOHItdgJbiCuF+QTQQRRcLdSwBfpIamrEpzDEwqonUA=;
+	s=arc-20240116; t=1707323864; c=relaxed/simple;
+	bh=ht0PP+NQoSopSGNlDo9KrMKWZ0EUv1IshXzKGdpnxi0=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=fuqZhe5xJt33j/2XwLLNQbN3yP+jCMIv2PXs1jAPoe3/CR8vVGtHVuKZHdjGqYiWwiB1fwOUe7w3fx69qRWTJhvfpmODtRShQyUCICOp3ofvkZxiEwAETPBMgdqSdAcawhb8pz7JSM5uz3QvpgRztXAbmD4ExkkA5YdVsLLt8+0=
+	 MIME-Version; b=Pt7Ti4GW2G5xD7fGJ34i3jPIswU9581RQEI2QhiJaGFCCN9skFDiiZOUsDhG7TgdhekBiIARr9741D3Vi9fYRr8hkXotjUem69cZQZ5ed8YZ3lZ+Z824hOe8mNvCFLJ8rehj9H2IJAWrOi5AO1RENBGM0fE0ZuQqjdfDx3l45UM=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org; spf=pass smtp.mailfrom=enpas.org; arc=none smtp.client-ip=46.38.239.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enpas.org
 Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by mail.enpas.org (Postfix) with ESMTPSA id C04F7100BB9;
-	Wed,  7 Feb 2024 16:37:31 +0000 (UTC)
+	by mail.enpas.org (Postfix) with ESMTPSA id 84677100072;
+	Wed,  7 Feb 2024 16:37:39 +0000 (UTC)
 From: Max Staudt <max@enpas.org>
 To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 	Jiri Kosina <jikos@kernel.org>,
@@ -24,9 +24,9 @@ To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	max@enpas.org
-Subject: [PATCH v2 2/5] HID: playstation: DS4: Don't fail on FW/HW version request
-Date: Thu,  8 Feb 2024 01:36:44 +0900
-Message-Id: <20240207163647.15792-3-max@enpas.org>
+Subject: [PATCH v2 5/5] HID: playstation: Simplify device type ID
+Date: Thu,  8 Feb 2024 01:36:47 +0900
+Message-Id: <20240207163647.15792-6-max@enpas.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240207163647.15792-1-max@enpas.org>
 References: <20240207163647.15792-1-max@enpas.org>
@@ -38,32 +38,88 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Some third-party controllers can't report firmware/hardware version.
+Distinguish PS4/PS5 type controllers using .driver_data in
+MODULE_DEVICE_TABLE rather than by VID/PID.
 
-Unlike for the DualSense, the driver does not use these values for
-anything in the DualShock 4 case, but merely exposes them via sysfs.
-They will simply be 0x0.
+This allows adding compatible controllers with different VID/PID.
 
 Signed-off-by: Max Staudt <max@enpas.org>
 ---
- drivers/hid/hid-playstation.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-playstation.c | 40 +++++++++++++++++++++++------------
+ 1 file changed, 26 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 7f50e13601f0..df50ca4dab90 100644
+index 6b0f25688657..edc46fc02e9a 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -2558,8 +2558,8 @@ static struct ps_device *dualshock4_create(struct hid_device *hdev)
+@@ -27,6 +27,11 @@ static DEFINE_IDA(ps_player_id_allocator);
  
- 	ret = dualshock4_get_firmware_info(ds4);
- 	if (ret) {
--		hid_err(hdev, "Failed to get firmware info from DualShock4\n");
--		return ERR_PTR(ret);
-+		hid_warn(hdev, "Failed to get firmware info from DualShock4\n");
-+		hid_warn(hdev, "HW/FW version data in sysfs will be invalid.\n");
+ #define HID_PLAYSTATION_VERSION_PATCH 0x8000
+ 
++enum PS_TYPE {
++	PS_TYPE_PS4_DUALSHOCK4,
++	PS_TYPE_PS5_DUALSENSE,
++};
++
+ /* Base class for playstation devices. */
+ struct ps_device {
+ 	struct list_head list;
+@@ -2687,17 +2692,14 @@ static int ps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		goto err_stop;
  	}
  
- 	ret = ps_devices_list_add(ps_dev);
+-	if (hdev->product == USB_DEVICE_ID_SONY_PS4_CONTROLLER ||
+-		hdev->product == USB_DEVICE_ID_SONY_PS4_CONTROLLER_2 ||
+-		hdev->product == USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE) {
++	if (id->driver_data == PS_TYPE_PS4_DUALSHOCK4) {
+ 		dev = dualshock4_create(hdev);
+ 		if (IS_ERR(dev)) {
+ 			hid_err(hdev, "Failed to create dualshock4.\n");
+ 			ret = PTR_ERR(dev);
+ 			goto err_close;
+ 		}
+-	} else if (hdev->product == USB_DEVICE_ID_SONY_PS5_CONTROLLER ||
+-		hdev->product == USB_DEVICE_ID_SONY_PS5_CONTROLLER_2) {
++	} else if (id->driver_data == PS_TYPE_PS5_DUALSENSE) {
+ 		dev = dualsense_create(hdev);
+ 		if (IS_ERR(dev)) {
+ 			hid_err(hdev, "Failed to create dualsense.\n");
+@@ -2731,16 +2733,26 @@ static void ps_remove(struct hid_device *hdev)
+ 
+ static const struct hid_device_id ps_devices[] = {
+ 	/* Sony DualShock 4 controllers for PS4 */
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER) },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
++		.driver_data = PS_TYPE_PS4_DUALSHOCK4 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
++		.driver_data = PS_TYPE_PS4_DUALSHOCK4 },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
++		.driver_data = PS_TYPE_PS4_DUALSHOCK4 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
++		.driver_data = PS_TYPE_PS4_DUALSHOCK4 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
++		.driver_data = PS_TYPE_PS4_DUALSHOCK4 },
++
+ 	/* Sony DualSense controllers for PS5 */
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER) },
+-	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER_2) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER_2) },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER),
++		.driver_data = PS_TYPE_PS5_DUALSENSE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER),
++		.driver_data = PS_TYPE_PS5_DUALSENSE },
++	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER_2),
++		.driver_data = PS_TYPE_PS5_DUALSENSE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER_2),
++		.driver_data = PS_TYPE_PS5_DUALSENSE },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, ps_devices);
 -- 
 2.39.2
 

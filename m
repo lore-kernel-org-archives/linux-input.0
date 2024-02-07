@@ -1,22 +1,22 @@
 Received: from mail.enpas.org (zhong.enpas.org [46.38.239.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B1881AD4;
-	Wed,  7 Feb 2024 16:37:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E045823BF;
+	Wed,  7 Feb 2024 16:37:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.239.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707323862; cv=none; b=lsgA6ji51vbOQ41K0RLVnTFCnC/MCqQGnlCdPhUCcghMof2nTpPgUBgCfYHfl7tgwptbagEfEXjJKj7L0HizGySCxVVrJdC2Jmrr6Cj+k3SyVwhFM34uL70IprlkPYe5lbQUY0jcd+Zo6EN+NPbZDY/IAVm0nrOR6A0LnNEMQHA=
+	t=1707323863; cv=none; b=iZ6IJItjKGV+Xkema5l8n5dq/GfxxZ/4JKY55dO5/bjdaXDD3DxWP2hwKuXHsb0brkRUPKFyCPA3Re+Hbkp5TeOzEl3WBOHNkM/dzA1DIUVp5m2zUzmz7iBkdCNlSFiNry7KT6CXR+XcW8X3zy5EqsXVzXzpaOZ40k/FKmrEDBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707323862; c=relaxed/simple;
-	bh=6ibKIqdKNK6p4jvhKmJBITPzh/ZNI0jwLkDjKmkAYQ8=;
+	s=arc-20240116; t=1707323863; c=relaxed/simple;
+	bh=lOHItdgJbiCuF+QTQQRRcLdSwBfpIamrEpzDEwqonUA=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=JD718r7I+pwTZ1I6RaIEJZnoSzRwRDFGKCvR5OXDBBq+7kG4f34zACfNRGYvLTy3Xwy6FriKxN0ME+MGF3rHZ91gkP5HDTcJqfOYkWt8FF0hsYw8FXHBSWRgDBt1Ia+BWczYXclB0gD+ijmtCzWfPksvF2e1AbB55yY6lOzedhY=
+	 MIME-Version; b=fuqZhe5xJt33j/2XwLLNQbN3yP+jCMIv2PXs1jAPoe3/CR8vVGtHVuKZHdjGqYiWwiB1fwOUe7w3fx69qRWTJhvfpmODtRShQyUCICOp3ofvkZxiEwAETPBMgdqSdAcawhb8pz7JSM5uz3QvpgRztXAbmD4ExkkA5YdVsLLt8+0=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org; spf=pass smtp.mailfrom=enpas.org; arc=none smtp.client-ip=46.38.239.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enpas.org
 Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by mail.enpas.org (Postfix) with ESMTPSA id EC8F2100BC6;
-	Wed,  7 Feb 2024 16:37:36 +0000 (UTC)
+	by mail.enpas.org (Postfix) with ESMTPSA id C04F7100BB9;
+	Wed,  7 Feb 2024 16:37:31 +0000 (UTC)
 From: Max Staudt <max@enpas.org>
 To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 	Jiri Kosina <jikos@kernel.org>,
@@ -24,9 +24,9 @@ To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	max@enpas.org
-Subject: [PATCH v2 4/5] HID: playstation: DS4: Parse minimal report 0x01
-Date: Thu,  8 Feb 2024 01:36:46 +0900
-Message-Id: <20240207163647.15792-5-max@enpas.org>
+Subject: [PATCH v2 2/5] HID: playstation: DS4: Don't fail on FW/HW version request
+Date: Thu,  8 Feb 2024 01:36:44 +0900
+Message-Id: <20240207163647.15792-3-max@enpas.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240207163647.15792-1-max@enpas.org>
 References: <20240207163647.15792-1-max@enpas.org>
@@ -38,65 +38,32 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Some third-party controllers never switch to the full 0x11 report.
+Some third-party controllers can't report firmware/hardware version.
 
-They keep sending the short 0x01 report, so let's parse that instead.
+Unlike for the DualSense, the driver does not use these values for
+anything in the DualShock 4 case, but merely exposes them via sysfs.
+They will simply be 0x0.
 
 Signed-off-by: Max Staudt <max@enpas.org>
 ---
- drivers/hid/hid-playstation.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/hid/hid-playstation.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 53bfc2828a61..6b0f25688657 100644
+index 7f50e13601f0..df50ca4dab90 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -287,6 +287,8 @@ struct dualsense_output_report {
+@@ -2558,8 +2558,8 @@ static struct ps_device *dualshock4_create(struct hid_device *hdev)
  
- #define DS4_INPUT_REPORT_USB			0x01
- #define DS4_INPUT_REPORT_USB_SIZE		64
-+#define DS4_INPUT_REPORT_BT_MINIMAL		0x01
-+#define DS4_INPUT_REPORT_BT_MINIMAL_SIZE	10
- #define DS4_INPUT_REPORT_BT			0x11
- #define DS4_INPUT_REPORT_BT_SIZE		78
- #define DS4_OUTPUT_REPORT_USB			0x05
-@@ -2196,6 +2198,7 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
- 	int battery_status, i, j;
- 	uint16_t sensor_timestamp;
- 	unsigned long flags;
-+	bool is_minimal = false;
+ 	ret = dualshock4_get_firmware_info(ds4);
+ 	if (ret) {
+-		hid_err(hdev, "Failed to get firmware info from DualShock4\n");
+-		return ERR_PTR(ret);
++		hid_warn(hdev, "Failed to get firmware info from DualShock4\n");
++		hid_warn(hdev, "HW/FW version data in sysfs will be invalid.\n");
+ 	}
  
- 	/*
- 	 * DualShock4 in USB uses the full HID report for reportID 1, but
-@@ -2223,6 +2226,18 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
- 		ds4_report = &bt->common;
- 		num_touch_reports = bt->num_touch_reports;
- 		touch_reports = bt->touch_reports;
-+	} else if (hdev->bus == BUS_BLUETOOTH &&
-+		   report->id == DS4_INPUT_REPORT_BT_MINIMAL &&
-+			 size == DS4_INPUT_REPORT_BT_MINIMAL_SIZE) {
-+		/* Some third-party pads never switch to the full 0x11 report.
-+		 * The short 0x01 report is 10 bytes long:
-+		 *   u8 report_id == 0x01
-+		 *   u8 first_bytes_of_full_report[9]
-+		 * So let's reuse the full report parser, and stop it after
-+		 * parsing the buttons.
-+		 */
-+		ds4_report = (struct dualshock4_input_report_common *)&data[1];
-+		is_minimal = true;
- 	} else {
- 		hid_err(hdev, "Unhandled reportID=%d\n", report->id);
- 		return -1;
-@@ -2256,6 +2271,9 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
- 	input_report_key(ds4->gamepad, BTN_MODE,   ds4_report->buttons[2] & DS_BUTTONS2_PS_HOME);
- 	input_sync(ds4->gamepad);
- 
-+	if (is_minimal)
-+		return 0;
-+
- 	/* Parse and calibrate gyroscope data. */
- 	for (i = 0; i < ARRAY_SIZE(ds4_report->gyro); i++) {
- 		int raw_data = (short)le16_to_cpu(ds4_report->gyro[i]);
+ 	ret = ps_devices_list_add(ps_dev);
 -- 
 2.39.2
 

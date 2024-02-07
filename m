@@ -1,239 +1,178 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f198.google.com (mail-il1-f198.google.com [209.85.166.198])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6A2985278
-	for <linux-input@vger.kernel.org>; Wed,  7 Feb 2024 18:44:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70A4A86AE2
+	for <linux-input@vger.kernel.org>; Wed,  7 Feb 2024 19:54:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707331499; cv=none; b=IKMWyqycZgfYlJxAT+3DqapZ73rflEUb6p+KbJN8c8SNPr+FBdxuI4AZQt/3TRb+jj/NQB9oMb4VcOO8Rx8G9PDTzHofRZeaBQdOWytPI8CQ1T/JetEm5aRqSYGv+8nFCeR0ARv6a0PSTUtN0OZekJ6rNoWUU8jWnR+pHgnWtTg=
+	t=1707335675; cv=none; b=EZnQ486lPvOepWgUeG2NFYdsORUZIccbK9rPk9BTcZNKWEZ3Ra6cg7c/iWLnLOdIZxI7auEoOkctoDlZZWNFywix4czwBtk52p0Y07dwpfp9vooI2QOjhrEYjfPuWQoTMgjKyx0jo9PcahSVrB28IwGOaj6y3fVNNo9kwPGu+4g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707331499; c=relaxed/simple;
-	bh=s51zDtEtzddF+fOLbQ8v2gtuX5PVGr2PxCfCP0eStY0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pUxeGgE+I4fpG+0PHSjuf8m5eG1Q42dfWzIvqfpPDcCzV91trCIlKmrxMDfnT8EUw4MlGl9CGZJoh5cZwQEof1TDjJlEqJcl7hFwNYrPkRVY1HmPRThQw6QCNv+ObiooMl5vcEk1qfbVqxr70LiWwTZmjfutsPk3ToOM05eAHms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rXmtA-0007PF-WC; Wed, 07 Feb 2024 19:43:17 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rXmt1-0054Wo-Fo; Wed, 07 Feb 2024 19:43:07 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.96)
-	(envelope-from <ukl@pengutronix.de>)
-	id 1rXmt1-00HRrh-0y;
-	Wed, 07 Feb 2024 19:43:07 +0100
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: Mark Brown <broonie@kernel.org>
-Cc: kernel@pengutronix.de,
-	Moritz Fischer <mdf@kernel.org>,
-	Wu Hao <hao.wu@intel.com>,
-	Xu Yilun <yilun.xu@intel.com>,
-	Tom Rix <trix@redhat.com>,
-	linux-fpga@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Alexander Aring <alex.aring@gmail.com>,
-	Stefan Schmidt <stefan@datenfreihafen.org>,
-	Miquel Raynal <miquel.raynal@bootlin.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	linux-wpan@vger.kernel.org,
-	netdev@vger.kernel.org,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Michael Hennerich <Michael.Hennerich@analog.com>,
-	Jonathan Cameron <jic23@kernel.org>,
-	linux-iio@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-	linux-input@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Martin Tuma <martin.tuma@digiteqautomotive.com>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	linux-media@vger.kernel.org,
-	Sergey Kozlov <serjk@netup.ru>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Yang Yingliang <yangyingliang@huawei.com>,
-	linux-mmc@vger.kernel.org,
-	Richard Weinberger <richard@nod.at>,
-	Vignesh Raghavendra <vigneshr@ti.com>,
-	Rob Herring <robh@kernel.org>,
-	Amit Kumar Mahapatra <amit.kumar-mahapatra@amd.com>,
-	Amit Kumar Mahapatra via Alsa-devel <alsa-devel@alsa-project.org>,
-	linux-mtd@lists.infradead.org,
-	Simon Horman <horms@kernel.org>,
-	Ronald Wahl <ronald.wahl@raritan.com>,
-	Benson Leung <bleung@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Guenter Roeck <groeck@chromium.org>,
-	chrome-platform@lists.linux.dev,
-	Michal Simek <michal.simek@amd.com>,
-	Max Filippov <jcmvbkbc@gmail.com>,
-	linux-spi@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	linux-arm-msm@vger.kernel.org,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	linux-mediatek@lists.infradead.org,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Javier Martinez Canillas <javierm@redhat.com>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	dri-devel@lists.freedesktop.org,
-	linux-fbdev@vger.kernel.org,
-	linux-staging@lists.linux.dev,
-	Viresh Kumar <vireshk@kernel.org>,
-	Rui Miguel Silva <rmfrfs@gmail.com>,
-	Johan Hovold <johan@kernel.org>,
-	Alex Elder <elder@kernel.org>,
-	greybus-dev@lists.linaro.org,
-	Peter Huewe <peterhuewe@gmx.de>,
-	Jarkko Sakkinen <jarkko@kernel.org>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	linux-integrity@vger.kernel.org,
-	Herve Codina <herve.codina@bootlin.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-	linux-usb@vger.kernel.org,
-	Helge Deller <deller@gmx.de>,
-	Dario Binacchi <dario.binacchi@amarulasolutions.com>,
-	Kalle Valo <kvalo@kernel.org>,
-	Dmitry Antipov <dmantipov@yandex.ru>,
-	libertas-dev@lists.infradead.org,
-	linux-wireless@vger.kernel.org,
-	Jonathan Corbet <corbet@lwn.net>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	James Clark <james.clark@arm.com>,
-	linux-doc@vger.kernel.org
-Subject: [PATCH v3 00/32] spi: get rid of some legacy macros
-Date: Wed,  7 Feb 2024 19:40:14 +0100
-Message-ID: <cover.1707324793.git.u.kleine-koenig@pengutronix.de>
-X-Mailer: git-send-email 2.43.0
+	s=arc-20240116; t=1707335675; c=relaxed/simple;
+	bh=hYThMK1Xf4I8228RVeu4sPoLLzyiRmJ6EGR1xxc8cw8=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=QnRkObLo0eD6eHL4ahi191iiozHrFatSy9f/bQpfOozAVBiHJ5aBouT2Bt14uqxZhWNN/c+lm//uW6ND1gWh5UGp/hDr+KmozFGrz6+d5idcy292eEqA6T9TbCh1YzowNYWV79OV3kWnVBfCcF6nModKOjAeBHV06Tzf9aPP+GM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f198.google.com with SMTP id e9e14a558f8ab-363c6714987so9051035ab.3
+        for <linux-input@vger.kernel.org>; Wed, 07 Feb 2024 11:54:33 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1707335672; x=1707940472;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=yXijhnJSqfNwRwrMz0wxJxUultHKEFeKw9S9BLLYx9E=;
+        b=elBknii//wTH+1OBcRlmN2fwlbjSOgJZu/Q/xLsMZ2LMryFhINEKmwvTQyNZKapjfl
+         UqITZfmjGspYuB7Ef3oPhbR4cuYeawhvQlK20zyzUx39eersBN4tDLo9vhDdx/Kcsorv
+         Au5Qa9RB6j/q4tBP/NeXtSIWQ0Fhq0vUE05nnV48aI950CDbOUOTVRQ6EvIoyThhMNHv
+         0PdarbwjDPtpbdhBqW3WVkQfMVr74+ZgrRxMZNZ3BTcOTbqd5lU2y9P9vM7tQXiGK6kH
+         msH3j0JYSvruLrAlkWz3ivxdcqHiAuTsQkIXKnzEYNxSVtF4Htd1zNt7MXVkz6A+AiKv
+         WG9Q==
+X-Forwarded-Encrypted: i=1; AJvYcCWEsFer0mi8skBCbXq3az1kUDZhqp/rmDwaktGdXaCEHahghSx3j6IuHU1+rdOWzMRrMSmKUMzMVvrNFfCTgo94oeBJo8vDO2CDg98=
+X-Gm-Message-State: AOJu0YwZ1BHPRHT1U9y5pPaYOTUNSXfb1daP2lliCZ+8UKcsBPrG10Vc
+	VMnaLQRSSfSiRZtLnLzeX84Aa6Vkw+MZE+cY2F/KI4qt+VlULsceIXz1G4iZqrwn6d5dZqDFFAc
+	WKxuRWv+Bzwycks/IMBDZXXz3PPzZYlfdeZlFQE49/3FJK73l8giab24=
+X-Google-Smtp-Source: AGHT+IH/XqaXynFOhnl6JjLdwgwpGFSyoyWSeUneNpuf0CWOlEs7ALO3CLjyu77yoB49oO++8shLP8/OkYyfLkMxHAQMBT2LYHVY
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=5860; i=u.kleine-koenig@pengutronix.de; h=from:subject:message-id; bh=s51zDtEtzddF+fOLbQ8v2gtuX5PVGr2PxCfCP0eStY0=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlw86QixivRCd8jxsnKPB8Ssu0rmVV57zjiJehV Ejr/jxfufWJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZcPOkAAKCRCPgPtYfRL+ TqoZB/9v16XZw2mKXG2KBm/qLQpqoIFtAvhj1rhNwGsvXv87uFIurzYxaSWRcHnoydLYAUjcWin wLRECa33v1gti0Be6oV9BMfvx+Pvhq4lk4RnaSn96oPtZRpq+OTzE2mMSgz0Rgm3Al2XVM+wtll cMJhm+DE3KYghNi+61ohTBgmqcQSwjofaml1oAIf8F12/QJkYPMbKHLFo3eYUENR8f8KW6xfzcA Auq9djKc8DcVzUnZlQ8jFBRc78e3H4Wwojwi6fhxTf6BorMOWK2zEE8p+1QpcaPMCBrTOJnRdaw ZunuM2tkWRUATbyKWfDc9YAdTKZGkKDoDmegK95iBOzv5EQf
-X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-input@vger.kernel.org
+X-Received: by 2002:a05:6e02:1bc4:b0:363:cc27:74c with SMTP id
+ x4-20020a056e021bc400b00363cc27074cmr540192ilv.4.1707335672617; Wed, 07 Feb
+ 2024 11:54:32 -0800 (PST)
+Date: Wed, 07 Feb 2024 11:54:32 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <00000000000047631d0610d010c1@google.com>
+Subject: [syzbot] [input?] [usb?] WARNING in input_register_device (2)
+From: syzbot <syzbot+8e41bb0c055b209ebbf4@syzkaller.appspotmail.com>
+To: gregkh@linuxfoundation.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org, rafael@kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Changes since v2
-(https://lore.kernel.org/linux-spi/cover.1705944943.git.u.kleine-koenig@pengutronix.de):
+Hello,
 
- - Drop patch "mtd: rawnand: fsl_elbc: Let .probe retry if local bus is
-   missing" which doesn't belong into this series.
- - Fix a build failure noticed by the kernel build bot in
-   drivers/spi/spi-au1550.c. (I failed to catch this because this driver
-   is mips only, but not enabled in a mips allmodconfig. That's a bit
-   unfortunate, but not easily fixable.)
- - Add the Reviewed-by: and Acked-by: tags I received for v2.
+syzbot found the following issue on:
 
-Mark already announced for v2 that he is willing to apply the whole
-series to his spi tree. Assuming no other show stoper are found in this
-v3, I assume that's the plan still for this series now.
+HEAD commit:    6613476e225e Linux 6.8-rc1
+git tree:       git://git.kernel.org/pub/scm/linux/kernel/git/riscv/linux.git fixes
+console output: https://syzkaller.appspot.com/x/log.txt?x=15ca9224180000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=877e61347079aad5
+dashboard link: https://syzkaller.appspot.com/bug?extid=8e41bb0c055b209ebbf4
+compiler:       riscv64-linux-gnu-gcc (Debian 12.2.0-13) 12.2.0, GNU ld (GNU Binutils for Debian) 2.40
+userspace arch: riscv64
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10b32118180000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=17dab048180000
 
-Thanks
-Uwe
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/a741b348759c/non_bootable_disk-6613476e.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/33ea806d02dd/vmlinux-6613476e.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/33195f72f823/Image-6613476e.xz
 
-Uwe Kleine-König (32):
-  fpga: ice40-spi: Follow renaming of SPI "master" to "controller"
-  ieee802154: ca8210: Follow renaming of SPI "master" to "controller"
-  iio: adc: ad_sigma_delta: Follow renaming of SPI "master" to "controller"
-  Input: pxspad - follow renaming of SPI "master" to "controller"
-  Input: synaptics-rmi4 - follow renaming of SPI "master" to "controller"
-  media: mgb4: Follow renaming of SPI "master" to "controller"
-  media: netup_unidvb: Follow renaming of SPI "master" to "controller"
-  media: usb/msi2500: Follow renaming of SPI "master" to "controller"
-  media: v4l2-subdev: Follow renaming of SPI "master" to "controller"
-  misc: gehc-achc: Follow renaming of SPI "master" to "controller"
-  mmc: mmc_spi: Follow renaming of SPI "master" to "controller"
-  mtd: dataflash: Follow renaming of SPI "master" to "controller"
-  net: ks8851: Follow renaming of SPI "master" to "controller"
-  net: vertexcom: mse102x: Follow renaming of SPI "master" to "controller"
-  platform/chrome: cros_ec_spi: Follow renaming of SPI "master" to "controller"
-  spi: bitbang: Follow renaming of SPI "master" to "controller"
-  spi: cadence-quadspi: Don't emit error message on allocation error
-  spi: cadence-quadspi: Follow renaming of SPI "master" to "controller"
-  spi: cavium: Follow renaming of SPI "master" to "controller"
-  spi: geni-qcom: Follow renaming of SPI "master" to "controller"
-  spi: loopback-test: Follow renaming of SPI "master" to "controller"
-  spi: slave-mt27xx: Follow renaming of SPI "master" to "controller"
-  spi: spidev: Follow renaming of SPI "master" to "controller"
-  staging: fbtft: Follow renaming of SPI "master" to "controller"
-  staging: greybus: spi: Follow renaming of SPI "master" to "controller"
-  tpm_tis_spi: Follow renaming of SPI "master" to "controller"
-  usb: gadget: max3420_udc: Follow renaming of SPI "master" to "controller"
-  video: fbdev: mmp: Follow renaming of SPI "master" to "controller"
-  wifi: libertas: Follow renaming of SPI "master" to "controller"
-  spi: fsl-lib: Follow renaming of SPI "master" to "controller"
-  spi: Drop compat layer from renaming "master" to "controller"
-  Documentation: spi: Update documentation for renaming "master" to "controller"
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+8e41bb0c055b209ebbf4@syzkaller.appspotmail.com
 
- .../driver-api/driver-model/devres.rst        |  2 +-
- Documentation/spi/spi-summary.rst             | 74 +++++++++----------
- drivers/char/tpm/tpm_tis_spi_main.c           |  4 +-
- drivers/fpga/ice40-spi.c                      |  4 +-
- drivers/iio/adc/ad_sigma_delta.c              | 14 ++--
- drivers/input/joystick/psxpad-spi.c           |  4 +-
- drivers/input/rmi4/rmi_spi.c                  |  2 +-
- drivers/media/pci/mgb4/mgb4_core.c            | 14 ++--
- .../media/pci/netup_unidvb/netup_unidvb_spi.c | 48 ++++++------
- drivers/media/usb/msi2500/msi2500.c           | 38 +++++-----
- drivers/media/v4l2-core/v4l2-spi.c            |  4 +-
- drivers/misc/gehc-achc.c                      |  8 +-
- drivers/mmc/host/mmc_spi.c                    |  6 +-
- drivers/mtd/devices/mtd_dataflash.c           |  2 +-
- drivers/net/ethernet/micrel/ks8851_spi.c      |  4 +-
- drivers/net/ethernet/vertexcom/mse102x.c      |  2 +-
- drivers/net/ieee802154/ca8210.c               |  2 +-
- .../net/wireless/marvell/libertas/if_spi.c    |  2 +-
- drivers/platform/chrome/cros_ec_spi.c         |  8 +-
- drivers/spi/spi-ath79.c                       |  4 +-
- drivers/spi/spi-au1550.c                      |  2 +-
- drivers/spi/spi-bitbang.c                     | 64 ++++++++--------
- drivers/spi/spi-butterfly.c                   |  6 +-
- drivers/spi/spi-cadence-quadspi.c             |  7 +-
- drivers/spi/spi-cavium.c                      |  6 +-
- drivers/spi/spi-cavium.h                      |  2 +-
- drivers/spi/spi-davinci.c                     |  6 +-
- drivers/spi/spi-fsl-lib.c                     | 14 ++--
- drivers/spi/spi-geni-qcom.c                   |  2 +-
- drivers/spi/spi-gpio.c                        |  2 +-
- drivers/spi/spi-lm70llp.c                     |  6 +-
- drivers/spi/spi-loopback-test.c               |  4 +-
- drivers/spi/spi-oc-tiny.c                     |  6 +-
- drivers/spi/spi-omap-uwire.c                  |  4 +-
- drivers/spi/spi-sh-sci.c                      | 10 +--
- drivers/spi/spi-slave-mt27xx.c                |  2 +-
- drivers/spi/spi-xilinx.c                      |  4 +-
- drivers/spi/spi-xtensa-xtfpga.c               |  2 +-
- drivers/spi/spi.c                             |  2 +-
- drivers/spi/spidev.c                          |  2 +-
- drivers/staging/fbtft/fbtft-core.c            |  4 +-
- drivers/staging/greybus/spilib.c              | 66 ++++++++---------
- drivers/usb/gadget/udc/max3420_udc.c          |  2 +-
- drivers/video/fbdev/mmp/hw/mmp_spi.c          | 26 +++----
- include/linux/spi/spi.h                       | 20 +----
- include/linux/spi/spi_bitbang.h               |  2 +-
- include/media/v4l2-common.h                   |  6 +-
- 47 files changed, 253 insertions(+), 272 deletions(-)
+WARNING: CPU: 0 PID: 8 at lib/kobject_uevent.c:671 add_uevent_var+0x282/0x296 lib/kobject_uevent.c:671
+Modules linked in:
+CPU: 0 PID: 8 Comm: kworker/0:0 Not tainted 6.8.0-rc1-syzkaller #0
+Hardware name: riscv-virtio,qemu (DT)
+Workqueue: usb_hub_wq hub_event
+epc : add_uevent_var+0x282/0x296 lib/kobject_uevent.c:671
+ ra : add_uevent_var+0x282/0x296 lib/kobject_uevent.c:671
+epc : ffffffff858325ec ra : ffffffff858325ec sp : ff20000000049b20
+ gp : ffffffff8863e320 tp : ff6000000c29ce00 t0 : ccb0ea972aeb292d
+ t1 : ffe3ffff000092d8 t2 : ff6000000c29d8f8 s0 : ff20000000049c00
+ s1 : ff60000016d76000 a0 : 0000000000000001 a1 : 0000000000000000
+ a2 : 0000000000000002 a3 : ffffffff800b66fa a4 : 0000000000000000
+ a5 : 0000000000000000 a6 : 0000000000000003 a7 : ff200000000496c7
+ s2 : 0000000000000004 s3 : 1fe4000000009368 s4 : 1fec000002daec43
+ s5 : ff60000016d76218 s6 : 0000000000000006 s7 : 00000000000007fc
+ s8 : ff60000016d76a1c s9 : 1fec000002daed43 s10: ffffffff885377c0
+ s11: ffffffff86b9c560 t3 : 0000000000000004 t4 : ffe3ffff000092d8
+ t5 : ffe3ffff000092d9 t6 : ff200000000496d8
+status: 0000000200000120 badaddr: 0000000000000000 cause: 0000000000000003
+[<ffffffff858325ec>] add_uevent_var+0x282/0x296 lib/kobject_uevent.c:671
+[<ffffffff85833cdc>] kobject_uevent_env+0xb0c/0x1378 lib/kobject_uevent.c:602
+[<ffffffff8583456a>] kobject_uevent+0x22/0x2e lib/kobject_uevent.c:642
+[<ffffffff82542b12>] device_add+0x10d2/0x186e drivers/base/core.c:3606
+[<ffffffff837032c4>] input_register_device+0x606/0xe9a drivers/input/input.c:2379
+[<ffffffff83faba00>] hidinput_connect+0x4c72/0x88a4 drivers/hid/hid-input.c:2355
+[<ffffffff83f9d330>] hid_connect+0x11e0/0x15e0 drivers/hid/hid-core.c:2194
+[<ffffffff83f9d7e6>] hid_hw_start drivers/hid/hid-core.c:2309 [inline]
+[<ffffffff83f9d7e6>] hid_hw_start+0xb6/0x13c drivers/hid/hid-core.c:2300
+[<ffffffff840255a0>] ms_probe+0x15e/0x4f0 drivers/hid/hid-microsoft.c:391
+[<ffffffff83f9de94>] __hid_device_probe drivers/hid/hid-core.c:2633 [inline]
+[<ffffffff83f9de94>] hid_device_probe+0x2a4/0x3f2 drivers/hid/hid-core.c:2670
+[<ffffffff8254cd2e>] call_driver_probe drivers/base/dd.c:579 [inline]
+[<ffffffff8254cd2e>] really_probe+0x234/0xbbc drivers/base/dd.c:658
+[<ffffffff8254d88a>] __driver_probe_device+0x1d4/0x458 drivers/base/dd.c:800
+[<ffffffff8254db6e>] driver_probe_device+0x60/0x1ce drivers/base/dd.c:830
+[<ffffffff8254dec0>] __device_attach_driver+0x1e4/0x2fe drivers/base/dd.c:958
+[<ffffffff82547562>] bus_for_each_drv+0x142/0x1da drivers/base/bus.c:457
+[<ffffffff8254eae2>] __device_attach+0x1c4/0x462 drivers/base/dd.c:1030
+[<ffffffff8254f108>] device_initial_probe+0x1c/0x26 drivers/base/dd.c:1079
+[<ffffffff82549fe4>] bus_probe_device+0x15c/0x192 drivers/base/bus.c:532
+[<ffffffff82542b6c>] device_add+0x112c/0x186e drivers/base/core.c:3625
+[<ffffffff83f96c5c>] hid_add_device+0x374/0x9b2 drivers/hid/hid-core.c:2816
+[<ffffffff840dc3f2>] usbhid_probe+0xa50/0xf84 drivers/hid/usbhid/hid-core.c:1429
+[<ffffffff830a18c0>] usb_probe_interface+0x2d4/0x8a2 drivers/usb/core/driver.c:399
+[<ffffffff8254cd2e>] call_driver_probe drivers/base/dd.c:579 [inline]
+[<ffffffff8254cd2e>] really_probe+0x234/0xbbc drivers/base/dd.c:658
+[<ffffffff8254d88a>] __driver_probe_device+0x1d4/0x458 drivers/base/dd.c:800
+[<ffffffff8254db6e>] driver_probe_device+0x60/0x1ce drivers/base/dd.c:830
+[<ffffffff8254dec0>] __device_attach_driver+0x1e4/0x2fe drivers/base/dd.c:958
+[<ffffffff82547562>] bus_for_each_drv+0x142/0x1da drivers/base/bus.c:457
+[<ffffffff8254eae2>] __device_attach+0x1c4/0x462 drivers/base/dd.c:1030
+[<ffffffff8254f108>] device_initial_probe+0x1c/0x26 drivers/base/dd.c:1079
+[<ffffffff82549fe4>] bus_probe_device+0x15c/0x192 drivers/base/bus.c:532
+[<ffffffff82542b6c>] device_add+0x112c/0x186e drivers/base/core.c:3625
+[<ffffffff8309b2b4>] usb_set_configuration+0xfe0/0x1b10 drivers/usb/core/message.c:2207
+[<ffffffff830c3d56>] usb_generic_driver_probe+0xae/0x128 drivers/usb/core/generic.c:254
+[<ffffffff830a0606>] usb_probe_device+0xd6/0x340 drivers/usb/core/driver.c:294
+[<ffffffff8254cd2e>] call_driver_probe drivers/base/dd.c:579 [inline]
+[<ffffffff8254cd2e>] really_probe+0x234/0xbbc drivers/base/dd.c:658
+[<ffffffff8254d88a>] __driver_probe_device+0x1d4/0x458 drivers/base/dd.c:800
+[<ffffffff8254db6e>] driver_probe_device+0x60/0x1ce drivers/base/dd.c:830
+[<ffffffff8254dec0>] __device_attach_driver+0x1e4/0x2fe drivers/base/dd.c:958
+[<ffffffff82547562>] bus_for_each_drv+0x142/0x1da drivers/base/bus.c:457
+[<ffffffff8254eae2>] __device_attach+0x1c4/0x462 drivers/base/dd.c:1030
+[<ffffffff8254f108>] device_initial_probe+0x1c/0x26 drivers/base/dd.c:1079
+[<ffffffff82549fe4>] bus_probe_device+0x15c/0x192 drivers/base/bus.c:532
+[<ffffffff82542b6c>] device_add+0x112c/0x186e drivers/base/core.c:3625
+[<ffffffff830777fe>] usb_new_device+0x960/0x1648 drivers/usb/core/hub.c:2596
+[<ffffffff8307dc48>] hub_port_connect drivers/usb/core/hub.c:5465 [inline]
+[<ffffffff8307dc48>] hub_port_connect_change drivers/usb/core/hub.c:5605 [inline]
+[<ffffffff8307dc48>] port_event drivers/usb/core/hub.c:5765 [inline]
+[<ffffffff8307dc48>] hub_event+0x2954/0x4756 drivers/usb/core/hub.c:5847
+[<ffffffff801231ea>] process_one_work+0x7ce/0x179c kernel/workqueue.c:2633
+[<ffffffff80124c94>] process_scheduled_works kernel/workqueue.c:2706 [inline]
+[<ffffffff80124c94>] worker_thread+0xadc/0x10f8 kernel/workqueue.c:2787
+[<ffffffff80144154>] kthread+0x28c/0x3a6 kernel/kthread.c:388
+[<ffffffff85928722>] ret_from_fork+0xe/0x1c arch/riscv/kernel/entry.S:229
 
 
-base-commit: b9b98f594b6f4c0b0fb2da4493453aef183bca4b
--- 
-2.43.0
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup

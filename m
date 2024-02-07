@@ -1,22 +1,22 @@
 Received: from mail.enpas.org (zhong.enpas.org [46.38.239.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D182383BE;
-	Wed,  7 Feb 2024 16:37:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B1881AD4;
+	Wed,  7 Feb 2024 16:37:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.239.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707323860; cv=none; b=iqz84/QzPKbN+Xp8jls0n/4Z2TxCaIcHNT+Z8MoVgQNjvjeFVj0FYK6s8Tc36QtmvBfs88LxkAJQ74bRGppFfGgQiAq6nvt05fF4zE44tWdfQsP54IEf+UHXAtSSVNl6fnSHntYKuOYIYqcmqNyUhnMigQnbOgiEpO0676BvDSo=
+	t=1707323862; cv=none; b=lsgA6ji51vbOQ41K0RLVnTFCnC/MCqQGnlCdPhUCcghMof2nTpPgUBgCfYHfl7tgwptbagEfEXjJKj7L0HizGySCxVVrJdC2Jmrr6Cj+k3SyVwhFM34uL70IprlkPYe5lbQUY0jcd+Zo6EN+NPbZDY/IAVm0nrOR6A0LnNEMQHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707323860; c=relaxed/simple;
-	bh=fWmHp9qGndSO8LmViime1duZ9oQo6Xowt2wrijb+7as=;
+	s=arc-20240116; t=1707323862; c=relaxed/simple;
+	bh=6ibKIqdKNK6p4jvhKmJBITPzh/ZNI0jwLkDjKmkAYQ8=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=XVear25+G38j5DiG+vlM0PK8lXLRAqDeqyeIM5eDxlebm+AqXeO9Cep9rPU0y9ofCfR+1kS67zkG4EQpwfKayUGJK47N7OJfRLiGLy7dmlrSBDV3Ds8jzc78KPnGQ5QvGpvY+YbarZm3KQHra0PNbJPr1zUHRxq0jfAkABZNk8E=
+	 MIME-Version; b=JD718r7I+pwTZ1I6RaIEJZnoSzRwRDFGKCvR5OXDBBq+7kG4f34zACfNRGYvLTy3Xwy6FriKxN0ME+MGF3rHZ91gkP5HDTcJqfOYkWt8FF0hsYw8FXHBSWRgDBt1Ia+BWczYXclB0gD+ijmtCzWfPksvF2e1AbB55yY6lOzedhY=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org; spf=pass smtp.mailfrom=enpas.org; arc=none smtp.client-ip=46.38.239.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enpas.org
 Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by mail.enpas.org (Postfix) with ESMTPSA id 2442E100BBA;
-	Wed,  7 Feb 2024 16:37:28 +0000 (UTC)
+	by mail.enpas.org (Postfix) with ESMTPSA id EC8F2100BC6;
+	Wed,  7 Feb 2024 16:37:36 +0000 (UTC)
 From: Max Staudt <max@enpas.org>
 To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 	Jiri Kosina <jikos@kernel.org>,
@@ -24,9 +24,9 @@ To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	max@enpas.org
-Subject: [PATCH v2 1/5] HID: playstation: DS4: Fix LED blinking
-Date: Thu,  8 Feb 2024 01:36:43 +0900
-Message-Id: <20240207163647.15792-2-max@enpas.org>
+Subject: [PATCH v2 4/5] HID: playstation: DS4: Parse minimal report 0x01
+Date: Thu,  8 Feb 2024 01:36:46 +0900
+Message-Id: <20240207163647.15792-5-max@enpas.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240207163647.15792-1-max@enpas.org>
 References: <20240207163647.15792-1-max@enpas.org>
@@ -38,48 +38,65 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-There was no way to disable blinking once enabled.
-Disable it on brightness = 0, as per the Linux LED spec.
+Some third-party controllers never switch to the full 0x11 report.
 
-The driver reports back the values it sends to the controller, but they
-need to be scaled back to milliseconds. Setting the LED blinking via
-sysfs works as expected now.
+They keep sending the short 0x01 report, so let's parse that instead.
 
 Signed-off-by: Max Staudt <max@enpas.org>
 ---
- drivers/hid/hid-playstation.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/hid/hid-playstation.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
 diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 8ac8f7b8e317..7f50e13601f0 100644
+index 53bfc2828a61..6b0f25688657 100644
 --- a/drivers/hid/hid-playstation.c
 +++ b/drivers/hid/hid-playstation.c
-@@ -2037,8 +2037,9 @@ static int dualshock4_led_set_blink(struct led_classdev *led, unsigned long *del
+@@ -287,6 +287,8 @@ struct dualsense_output_report {
  
- 	dualshock4_schedule_work(ds4);
+ #define DS4_INPUT_REPORT_USB			0x01
+ #define DS4_INPUT_REPORT_USB_SIZE		64
++#define DS4_INPUT_REPORT_BT_MINIMAL		0x01
++#define DS4_INPUT_REPORT_BT_MINIMAL_SIZE	10
+ #define DS4_INPUT_REPORT_BT			0x11
+ #define DS4_INPUT_REPORT_BT_SIZE		78
+ #define DS4_OUTPUT_REPORT_USB			0x05
+@@ -2196,6 +2198,7 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
+ 	int battery_status, i, j;
+ 	uint16_t sensor_timestamp;
+ 	unsigned long flags;
++	bool is_minimal = false;
  
--	*delay_on = ds4->lightbar_blink_on;
--	*delay_off = ds4->lightbar_blink_off;
-+	/* Report scaled values back to LED subsystem */
-+	*delay_on = ds4->lightbar_blink_on * 10;
-+	*delay_off = ds4->lightbar_blink_off * 10;
+ 	/*
+ 	 * DualShock4 in USB uses the full HID report for reportID 1, but
+@@ -2223,6 +2226,18 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
+ 		ds4_report = &bt->common;
+ 		num_touch_reports = bt->num_touch_reports;
+ 		touch_reports = bt->touch_reports;
++	} else if (hdev->bus == BUS_BLUETOOTH &&
++		   report->id == DS4_INPUT_REPORT_BT_MINIMAL &&
++			 size == DS4_INPUT_REPORT_BT_MINIMAL_SIZE) {
++		/* Some third-party pads never switch to the full 0x11 report.
++		 * The short 0x01 report is 10 bytes long:
++		 *   u8 report_id == 0x01
++		 *   u8 first_bytes_of_full_report[9]
++		 * So let's reuse the full report parser, and stop it after
++		 * parsing the buttons.
++		 */
++		ds4_report = (struct dualshock4_input_report_common *)&data[1];
++		is_minimal = true;
+ 	} else {
+ 		hid_err(hdev, "Unhandled reportID=%d\n", report->id);
+ 		return -1;
+@@ -2256,6 +2271,9 @@ static int dualshock4_parse_report(struct ps_device *ps_dev, struct hid_report *
+ 	input_report_key(ds4->gamepad, BTN_MODE,   ds4_report->buttons[2] & DS_BUTTONS2_PS_HOME);
+ 	input_sync(ds4->gamepad);
  
- 	return 0;
- }
-@@ -2065,6 +2066,13 @@ static int dualshock4_led_set_brightness(struct led_classdev *led, enum led_brig
- 		break;
- 	case 3:
- 		ds4->lightbar_enabled = !!value;
++	if (is_minimal)
++		return 0;
 +
-+		/* brightness = 0 also cancels blinking in Linux. */
-+		if (!ds4->lightbar_enabled) {
-+			ds4->lightbar_blink_off = 0;
-+			ds4->lightbar_blink_on = 0;
-+			ds4->update_lightbar_blink = true;
-+		}
- 	}
- 
- 	ds4->update_lightbar = true;
+ 	/* Parse and calibrate gyroscope data. */
+ 	for (i = 0; i < ARRAY_SIZE(ds4_report->gyro); i++) {
+ 		int raw_data = (short)le16_to_cpu(ds4_report->gyro[i]);
 -- 
 2.39.2
 

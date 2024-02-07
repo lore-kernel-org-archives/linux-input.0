@@ -1,21 +1,22 @@
 Received: from mail.enpas.org (zhong.enpas.org [46.38.239.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6A42446C8;
-	Wed,  7 Feb 2024 16:37:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5595033CA;
+	Wed,  7 Feb 2024 16:37:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.239.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707323859; cv=none; b=Ir3V5S7BtxV5cEBfxOnCqvtNPGpAHtxQlNaJkNHVCzd7I6+WiZiL084ybBJbKrOwGWs3S34ji8hzFA6A9E/E4fGct3g+IaSDMjSilqtnv8176bguJpqb8IsP8kJkP5bYBGQTp4CrCT3Va6wEI7GHFPpWj6zKppq6AC4rsDNWnoc=
+	t=1707323860; cv=none; b=NowLc3Y4tzVEpgtAQSBrsT4En2O4335C0r9FDHV0SwhsciZXElnI8L2YItR35Lao3RIsWy4eHLaZ8mpuc7SmaS0Dz3+31DOcBdT+GWvYdQkXiNTkj9KgpPe8F1lbVbOAS0fqa/bkpHUcyl1iXol+9+Is1zKYytsdk3UW6YyBmkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707323859; c=relaxed/simple;
-	bh=XTPLse/pxfLkpk4yC3Bfz0Q5NTTh2ZLPQ8tOGCr2Onc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=LwsarsAUpkFMuF8uvR/dLCPFJDq1FVonJFNt4I+0JFPBDUbuJAgTzqeFYUEmf6/piIaWphB6plF+VNnY8D/ykC/OSrRLe03BiPdOfxqJ1FLDe2wQ27i0swODfXUxjkt6U6+MumHwOu+W6Jrjt90K5LR6TuOh8KBDBKmKnzYCoAU=
+	s=arc-20240116; t=1707323860; c=relaxed/simple;
+	bh=vqtUsSo5ghicGhv7xGcTyQ2ci1iQwKusQkLqNXAcFzo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=sJDOYtwd/VghDpaals8pnlZZZy3oeZ5A60WmdRG1X7NrkAtcSbJ2hT8VTlX595Cx+OVdvv1OblU/6aScnp/vLIyPligyOZj3EQivCr6ablmKw1ejuy9R+egbSZpfXA34vlHnjDQqcAYu10gtjEfldVspPAM7VnkijrV5+NnChiI=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org; spf=pass smtp.mailfrom=enpas.org; arc=none smtp.client-ip=46.38.239.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enpas.org
 Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by mail.enpas.org (Postfix) with ESMTPSA id 86550100072;
-	Wed,  7 Feb 2024 16:37:26 +0000 (UTC)
+	by mail.enpas.org (Postfix) with ESMTPSA id 5B9A4100BC4;
+	Wed,  7 Feb 2024 16:37:34 +0000 (UTC)
 From: Max Staudt <max@enpas.org>
 To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 	Jiri Kosina <jikos@kernel.org>,
@@ -23,10 +24,12 @@ To: Roderick Colenbrander <roderick.colenbrander@sony.com>,
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	max@enpas.org
-Subject: [PATCH v2 0/5] HID: playstation: DS4: LED bugfix, third-party gamepad support
-Date: Thu,  8 Feb 2024 01:36:42 +0900
-Message-Id: <20240207163647.15792-1-max@enpas.org>
+Subject: [PATCH v2 3/5] HID: playstation: DS4: Don't fail on calibration data request
+Date: Thu,  8 Feb 2024 01:36:45 +0900
+Message-Id: <20240207163647.15792-4-max@enpas.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240207163647.15792-1-max@enpas.org>
+References: <20240207163647.15792-1-max@enpas.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -35,33 +38,101 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Dear hid-playstation maintainers,
+Some third-party controllers can't report calibration data for the
+gyro/accelerometer.
 
-Here is v2 of my patch series, with the discussed changes.
+We can still use the gamepad as-is, so let's do that.
 
+Signed-off-by: Max Staudt <max@enpas.org>
+---
+ drivers/hid/hid-playstation.c | 34 ++++++++++++++++++++--------------
+ 1 file changed, 20 insertions(+), 14 deletions(-)
 
-Differences since v1:
- - Dropped patch for 7545:0104 (SZ-MYPOWER controllers)
- - Dropped patch for DS4 clones without a MAC address on USB
- - Changed hid_err() to hid_warn() where things are no longer fatal
- - Simplified goto as return in minimal report parsing
-
-
-I've included the patch to simplify the PID/VID mapping to controller
-types, since the previous discussion made it sound useful for future
-support of second-party controllers. Please feel free to drop it if you
-don't think it's relevant now.
-
-
-Thanks for your feedback!
-
-Max
-
-
-Patches in this series:
-  [PATCH v2 1/5] HID: playstation: DS4: Fix LED blinking
-  [PATCH v2 2/5] HID: playstation: DS4: Don't fail on FW/HW version
-  [PATCH v2 3/5] HID: playstation: DS4: Don't fail on calibration data
-  [PATCH v2 4/5] HID: playstation: DS4: Parse minimal report 0x01
-  [PATCH v2 5/5] HID: playstation: Simplify device type ID
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index df50ca4dab90..53bfc2828a61 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -1778,8 +1778,10 @@ static int dualshock4_get_calibration_data(struct dualshock4 *ds4)
+ 		int retries;
+ 
+ 		buf = kzalloc(DS4_FEATURE_REPORT_CALIBRATION_SIZE, GFP_KERNEL);
+-		if (!buf)
+-			return -ENOMEM;
++		if (!buf) {
++			ret = -ENOMEM;
++			goto no_buffer_tail_check;
++		}
+ 
+ 		/* We should normally receive the feature report data we asked
+ 		 * for, but hidraw applications such as Steam can issue feature
+@@ -1796,26 +1798,27 @@ static int dualshock4_get_calibration_data(struct dualshock4 *ds4)
+ 					continue;
+ 				}
+ 
+-				hid_err(hdev, "Failed to retrieve DualShock4 calibration info: %d\n", ret);
++				hid_warn(hdev, "Failed to retrieve DualShock4 calibration info: %d\n", ret);
+ 				ret = -EILSEQ;
+-				goto err_free;
+ 			} else {
+ 				break;
+ 			}
+ 		}
+ 	} else { /* Bluetooth */
+ 		buf = kzalloc(DS4_FEATURE_REPORT_CALIBRATION_BT_SIZE, GFP_KERNEL);
+-		if (!buf)
+-			return -ENOMEM;
++		if (!buf) {
++			ret = -ENOMEM;
++			goto no_buffer_tail_check;
++		}
+ 
+ 		ret = ps_get_report(hdev, DS4_FEATURE_REPORT_CALIBRATION_BT, buf,
+ 				DS4_FEATURE_REPORT_CALIBRATION_BT_SIZE, true);
+-		if (ret) {
+-			hid_err(hdev, "Failed to retrieve DualShock4 calibration info: %d\n", ret);
+-			goto err_free;
+-		}
++
++		if (ret)
++			hid_warn(hdev, "Failed to retrieve DualShock4 calibration info: %d\n", ret);
+ 	}
+ 
++	/* Parse buffer. If the transfer failed, this safely copies zeroes. */
+ 	gyro_pitch_bias  = get_unaligned_le16(&buf[1]);
+ 	gyro_yaw_bias    = get_unaligned_le16(&buf[3]);
+ 	gyro_roll_bias   = get_unaligned_le16(&buf[5]);
+@@ -1867,6 +1870,11 @@ static int dualshock4_get_calibration_data(struct dualshock4 *ds4)
+ 	ds4->gyro_calib_data[2].sens_denom = abs(gyro_roll_plus - gyro_roll_bias) +
+ 			abs(gyro_roll_minus - gyro_roll_bias);
+ 
++	/* Done parsing the buffer, so let's free it. */
++	kfree(buf);
++
++no_buffer_tail_check:
++
+ 	/*
+ 	 * Sanity check gyro calibration data. This is needed to prevent crashes
+ 	 * during report handling of virtual, clone or broken devices not implementing
+@@ -1919,8 +1927,6 @@ static int dualshock4_get_calibration_data(struct dualshock4 *ds4)
+ 		}
+ 	}
+ 
+-err_free:
+-	kfree(buf);
+ 	return ret;
+ }
+ 
+@@ -2568,8 +2574,8 @@ static struct ps_device *dualshock4_create(struct hid_device *hdev)
+ 
+ 	ret = dualshock4_get_calibration_data(ds4);
+ 	if (ret) {
+-		hid_err(hdev, "Failed to get calibration data from DualShock4\n");
+-		goto err;
++		hid_warn(hdev, "Failed to get calibration data from DualShock4\n");
++		hid_warn(hdev, "Gyroscope and accelerometer will be inaccurate.\n");
+ 	}
+ 
+ 	ds4->gamepad = ps_gamepad_create(hdev, dualshock4_play_effect);
+-- 
+2.39.2
 

@@ -1,108 +1,91 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658847E775
-	for <linux-input@vger.kernel.org>; Wed,  7 Feb 2024 16:39:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5588484A3A
+	for <linux-input@vger.kernel.org>; Wed,  7 Feb 2024 18:43:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707323959; cv=none; b=Q0QlaV2tbr2ydCPmmEwjtDGbd/2wb7qmOpbSnaZlnHHraXM2ZFmKZ+jmJGZiets5yL1i8aQHPhJVG4sh1yzAg74YIw76KeoLFjxg4yiog6tXSM1ULOirybns1v5vZppUxRII18cI0rjxcrkrgq9FFLl0cXJWmFBZi4TESYmLCGk=
+	t=1707331401; cv=none; b=aiVu6jFTzJ8Y/5rp6zoBmk9wk5REooURAFO4OvpV1VkwI11z9D/tnk3tHVvuNt2IAtrudyD/KfX46CVNbpOku8Zw+G+2el0RyBDTyyqZbf2gFRbfrdow8ReFT6HYan/0Erd1/8FW+B1RNe4goksSkZV6SbhLotO5ZX0CScI0FYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707323959; c=relaxed/simple;
-	bh=VClLQfkmwNHlgWpWvEFolbCHf6+5KVH8rjR03BidlJw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=fVzt+udQU0SvrSzVNG8GVLgetqfz0w7IoQHIHPNNnPTn0QCBCk605Ndmfa7syg2zZ1IWOkrNQrTwrb1GqefhdSohbvXAnbab7+RWRayoArXdppXXGs3wj4KxjVSCGWuMnRrschn2JpfziBmmG2axQFqRGuwQTm8HadFb99da81U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=dOkQYHM6; arc=none smtp.client-ip=209.85.167.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="dOkQYHM6"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-511570b2f49so1815414e87.1
-        for <linux-input@vger.kernel.org>; Wed, 07 Feb 2024 08:39:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1707323955; x=1707928755; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=VClLQfkmwNHlgWpWvEFolbCHf6+5KVH8rjR03BidlJw=;
-        b=dOkQYHM6yWvVqSdfm0kpojoGFK4ojGQxCju/JDTrg63lbA3l/n1fJZV3pF/G/qptdQ
-         2a0RtJHU4zuQu03Pl84YLUgweRB8RBKh34kg361P1jrF56Fjb1o5uwja2Ob/n/pIOd8g
-         CQRmKw8dFW32lbX4fkUYhwd792q3njyT597Zs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1707323955; x=1707928755;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=VClLQfkmwNHlgWpWvEFolbCHf6+5KVH8rjR03BidlJw=;
-        b=e+yPAvPn4y9RBGz1wwKenVmU50zapiIWSJYiClT8G/xtO1OUhkszMz3kWuof/5lx1g
-         y4JrFdCePXOmaTQczODLPwvcy2FcQPLDPPajmJspX3urxXG7N2bl443dYJ7eREJJKxwr
-         ojwe/4Bl3Q10UynFb5FJ4yrMswL9gUi3nVUrtOVsXoJ6/kIn2Id+PcF1zltGIeKMfCa+
-         iVP1256Mnr5OOk/oaoVMRKyjzc97TylGglYWOknuAATWC4xNzLuJffMI0vxQseC96e8X
-         GapCFt9fDAJWmeTdL/n1hhfLVofFAiPROeKxMNnv4vxUV36kkIeoZX+4ngAbxM05/S2Q
-         Zx/A==
-X-Gm-Message-State: AOJu0YwM1gBPXN27Bpr0cGqPRXm9ZtqQTHeMvv5aLJl5E4C5uZkOULfq
-	p97QH1CM1Mt902T4utjVw13VrVGgn9ogDBhn/YM/RptexfWRaJlkIOpMMu3c/fSZRGXEoMlavqT
-	NHb0owYp7xwMUShBTH9ycslMuIQWg9/bcpQQ6
-X-Google-Smtp-Source: AGHT+IFHgq21oXoCxOiWIBFBqj4JaHe2YOSpxCURnMqhZTe1YstQ+GevJDe+Y6FxdER8sqwVvicQlyOyYmsylrqnVlU=
-X-Received: by 2002:a19:e056:0:b0:511:6922:18ee with SMTP id
- g22-20020a19e056000000b00511692218eemr12432lfj.9.1707323954929; Wed, 07 Feb
- 2024 08:39:14 -0800 (PST)
+	s=arc-20240116; t=1707331401; c=relaxed/simple;
+	bh=ilkLmZbJFb+/vAwyD9IAoZLec6Zu+zWHyeLngMmfIFQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=KLjPE/RCZb4rNT8DWjDwk9q1I8tMH1Vg6ntkPEImqrl/TAGVVvL7ZVDjhUy9DzhGAeYy8Kl++97IQMiCi12yUKUAAjBshcCGHaK9t0I3d34tjciAazVBaECS14voZf+zpxe+whE8vVYlvexjb/+B+5lA764EGYqSjJVPtxx9Bf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <ukl@pengutronix.de>)
+	id 1rXmt4-0007PK-4K; Wed, 07 Feb 2024 19:43:10 +0100
+Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <ukl@pengutronix.de>)
+	id 1rXmt2-0054X3-Nn; Wed, 07 Feb 2024 19:43:08 +0100
+Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.96)
+	(envelope-from <ukl@pengutronix.de>)
+	id 1rXmt2-00HRs1-25;
+	Wed, 07 Feb 2024 19:43:08 +0100
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+To: Mark Brown <broonie@kernel.org>
+Cc: kernel@pengutronix.de,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Ulf Hansson <ulf.hansson@linaro.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH v3 05/32] Input: synaptics-rmi4 - follow renaming of SPI "master" to "controller"
+Date: Wed,  7 Feb 2024 19:40:19 +0100
+Message-ID:  <b88413456c970a97319fa7e505768bf82966541b.1707324794.git.u.kleine-koenig@pengutronix.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <cover.1707324793.git.u.kleine-koenig@pengutronix.de>
+References: <cover.1707324793.git.u.kleine-koenig@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231102075243.1.Idb37ff8043a29f607beab6440c32b9ae52525825@changeid>
- <ZcKs589qYxviC1J4@google.com>
-In-Reply-To: <ZcKs589qYxviC1J4@google.com>
-From: Jonathan Denose <jdenose@chromium.org>
-Date: Wed, 7 Feb 2024 10:39:03 -0600
-Message-ID: <CALNJtpV0KsOusPQeGv8bQ3jKy2sUj+k=mPHc172f+vMaTDYPfg@mail.gmail.com>
-Subject: Re: [PATCH] Input: psmouse - add resync_on_resume dmi check
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, jefferymiller@google.com, 
-	Jonathan Denose <jdenose@google.com>, Raul Rangel <rrangel@chromium.org>, linux-input@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1112; i=u.kleine-koenig@pengutronix.de; h=from:subject:message-id; bh=ilkLmZbJFb+/vAwyD9IAoZLec6Zu+zWHyeLngMmfIFQ=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBlw86b5uqZYly+euxtkXa5tiGRisTdifEuh1Ixy mC277T9rpOJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCZcPOmwAKCRCPgPtYfRL+ TjEoCAC0nEJ9m1CYYfN8CT2VU987E9pfcisamQB6slHvQYnnkIKDQ7cDsZNuhYqqB9wNG0+GXCe TjkpSkoUhRbcNKtesSG8lYCH2IwfVRo5qXpoOQ3QrsVMwf3LX1Vttey0H7ktM6HjNuXaAV9il7D FFVN4HK+ktpdAbdxAjtz7PnH4Mmr5odBWM8D1ApH6Hc5aEVc/gdMwN55cPSSSQLhmD1xcBsA4UM kfJgrghTBPids2dkXNIhnXBc2b4yzr4JkqCswoWrD2ag3POBuwbNO7OULQGqM4JoYwYOfP0ZmkW tiSoFjptqTdpseeXaMHymOMtanZV3W+pzFOdjHfdLHxDT523
+X-Developer-Key: i=u.kleine-koenig@pengutronix.de; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: ukl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 
-Hi Dmitry,
+In commit 8caab75fd2c2 ("spi: Generalize SPI "master" to "controller"")
+some functions and struct members were renamed. To not break all drivers
+compatibility macros were provided.
 
-Thanks for your reply.
+To be able to remove these compatibility macros push the renaming into
+this driver.
 
-On Tue, Feb 6, 2024 at 4:04=E2=80=AFPM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Jonathan,
->
-> On Thu, Nov 02, 2023 at 07:52:47AM -0500, Jonathan Denose wrote:
-> > Some elantech touchpads consistently fail after resuming from
-> > suspend at sanity_check in elantech_packet_check_v4. This means
-> > the touchpad is completely unusable after suspend resume.
-> >
-> > With different permutations of i8042 nomux, nopnp, reset, and noloop
-> > kernel options enabled, and with crc_enabled the touchpad fails in
-> > the same way.
-> >
-> > Resyncing the touchpad after receiving the
-> > PACKET_UNKNOWN/PSMOUSE_BAD_DATA return code allows the touchpad to
-> > function correctly on resume. The touchpad fails to reconnect with
-> > the serio reconnect no matter how many times it retries, so this
-> > change skips over that retry sequence and goes directly to resync.
->
-> Why can't we do this in elantech_reconnect()? I am sure we can make it
-> simpler and more robust than what the generic handler is trying to do
-> with polling and everything.
->
-> Thanks.
->
-> --
-> Dmitry
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+---
+ drivers/input/rmi4/rmi_spi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I am fine with anything that would be simpler and more robust, though
-I'm not sure how to implement what you are describing.
+diff --git a/drivers/input/rmi4/rmi_spi.c b/drivers/input/rmi4/rmi_spi.c
+index 07c866f42296..9d92129aa432 100644
+--- a/drivers/input/rmi4/rmi_spi.c
++++ b/drivers/input/rmi4/rmi_spi.c
+@@ -375,7 +375,7 @@ static int rmi_spi_probe(struct spi_device *spi)
+ 	struct rmi_device_platform_data *spi_pdata = spi->dev.platform_data;
+ 	int error;
+ 
+-	if (spi->master->flags & SPI_CONTROLLER_HALF_DUPLEX)
++	if (spi->controller->flags & SPI_CONTROLLER_HALF_DUPLEX)
+ 		return -EINVAL;
+ 
+ 	rmi_spi = devm_kzalloc(&spi->dev, sizeof(struct rmi_spi_xport),
+-- 
+2.43.0
 
-Are you suggesting that in this PSMOUSE_BAD_DATA case, instead of
-using psmouse_set_state and psmouse_queue_work to call
-psmouse->reconnect (which calls elantech_reconnect)?
-
-Jonathan

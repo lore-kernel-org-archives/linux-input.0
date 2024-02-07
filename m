@@ -1,47 +1,48 @@
 Received: from mx0b-001ae601.pphosted.com (mx0b-001ae601.pphosted.com [67.231.152.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0306B944C;
-	Wed,  7 Feb 2024 00:36:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D976F7F9;
+	Wed,  7 Feb 2024 00:36:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.152.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707266199; cv=none; b=j3TBt2dQUqwju6wiKKBdBxIWnC9BEh5gxbiki0Pds31exmWLAkuPSr7n8Vd3+jPqG/Fso2wq5OtBwKumlSQ07xDlQpSh0ivzD31PfVtQBBQ3fLbf89ADvAe097UbKU4OXF/G1loCYWmFsIObVZwRyr3bGJ68AhrSHv8ikp3vhQU=
+	t=1707266217; cv=none; b=YU1xIpz9QF3KhlAg+Ot6r/ETFe/75spSK+wpsmUD3XMUb/mqxRphi6Cwn6/c0sgKbHr/xMNVGlbpP00xiVYI45VbpsPMFspazqHWPnGl91R4OMmTxjCKpTQaGUC8t2mVczkIJs9WlbQJDckssyNmAIrvEdKIgQJ4x2WpRPhhRto=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707266199; c=relaxed/simple;
-	bh=E/KXvKs17RMszKKy8h68JhIY0W35oIaAzf8OItcXVMw=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=aAjQJ8HXuSfQ75CP8+8aylbFAM09rGW2ixpaiMpwfy7EnTacIRwRkTIXAFrTnt8FV8hkfEq8LD6qmBp3SKRl+Zxpgmr643IA6EJTw6G37oJWLEgknnQ9ezmbuvORwbFOnUIY92YsLAdG3cLCXXh7ts0q+qq1+OKOydfTQxEeFr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com; spf=pass smtp.mailfrom=opensource.cirrus.com; dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b=T3Q2RRa3; arc=none smtp.client-ip=67.231.152.168
+	s=arc-20240116; t=1707266217; c=relaxed/simple;
+	bh=wTxDmVzfPdXcHQSwlW4KF2mssI4Lscw01gT+paiaLMk=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bWcV0oaP8AkTWRBjGEyJhZZdFIov+0Uh+YabRGgXdhuDaISHHAsYKr5WInXGsFmIWef5cgyLB7Sg4+xdsja8jsT4wjYlDDFyxovlI+S5x9EpNAi014u414R3s3a0VClyt3KahMovSuM3EPBaPiqempG1nRUJjgyUTCAkpoLUQFU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com; spf=pass smtp.mailfrom=opensource.cirrus.com; dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b=fgQShG/3; arc=none smtp.client-ip=67.231.152.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensource.cirrus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b="T3Q2RRa3"
+	dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b="fgQShG/3"
 Received: from pps.filterd (m0077474.ppops.net [127.0.0.1])
-	by mx0b-001ae601.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 416Ng0Ru017380;
-	Tue, 6 Feb 2024 18:36:31 -0600
+	by mx0b-001ae601.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 416Ng0Rw017380;
+	Tue, 6 Feb 2024 18:36:49 -0600
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=
-	from:to:cc:subject:date:message-id:mime-version
-	:content-transfer-encoding:content-type; s=PODMain02222019; bh=n
-	rb6jZGI34DDqdie3BbjCzdZ1JZvBSYVfJIXZOy3cIU=; b=T3Q2RRa3ECJOFRmdF
-	KkwoVjkFg4AnTCiAjvwpWSH158mbaq2qyMQWMfXqOA2JvbsAMcvah4mZj6R69jUi
-	BpZZSMBcKv+O13TjFYYVpLGSrw1AtY/8NBCoPkIxetCRtejgTJiZ+E8XrTleeZ4x
-	RZd3+rMPFIMz8pMMalK60NL/52zTVWpcKud6jcAam7iin6xZNYgZjFoiW0qBw/ow
-	f6O2gVh4xaOHQYzF3DPgwONjFl+Ac0K7zZov2j73s9ooaOah2kRJh12pzD9AkQ26
-	uKWxcdp2mMTdrIFRtxqJ59SpGYkZrjgkN5NR//AqVZZxZvo39P7Y4D7M0YQkieJi
-	nK2lg==
-Received: from ediex01.ad.cirrus.com ([84.19.233.68])
-	by mx0b-001ae601.pphosted.com (PPS) with ESMTPS id 3w1jsnm8xy-1
+	from:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding:content-type; s=
+	PODMain02222019; bh=47IHhsRme6l9Ja8GxBg5XecVkHApII8gwWqYXN4mq3Y=; b=
+	fgQShG/3qdDIGN4vMt12CJcCzoEgmuGuWG8LcrGuDPYM4oZp1vgDmuAb3aTa4+v7
+	KInrsHFjfkuC6phiiTYWd67O9Y6PcKSU8IVR601tZOuA9/kjaPXeke6WQ0TsFCyh
+	7UUK12zPSXxbwL1jsa0yiV1qD07iv9sR+uVdCPRDSmJrK3CX6pYy3GOloiK/ZO5q
+	HUW3q7qpXoLCBEqCqJqrk0Nk07RoWcNnArJF43C3vUlQraa3hcv309OnQAYVZEB/
+	sUwNqtcdrSreLuVQi/Jk2W9fiKrkbxhyTzs0Aya8e7NhbgHS6ioJJSiMnaD3i/Pm
+	G9tqfEQHgv94hHHg6XAj1w==
+Received: from ediex02.ad.cirrus.com ([84.19.233.68])
+	by mx0b-001ae601.pphosted.com (PPS) with ESMTPS id 3w1jsnm8yr-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 06 Feb 2024 18:36:30 -0600 (CST)
-Received: from ediex02.ad.cirrus.com (198.61.84.81) by ediex01.ad.cirrus.com
- (198.61.84.80) with Microsoft SMTP Server (version=TLS1_2,
+	Tue, 06 Feb 2024 18:36:49 -0600 (CST)
+Received: from ediex02.ad.cirrus.com (198.61.84.81) by ediex02.ad.cirrus.com
+ (198.61.84.81) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.40; Wed, 7 Feb
- 2024 00:36:28 +0000
+ 2024 00:36:48 +0000
 Received: from ediswmail9.ad.cirrus.com (198.61.86.93) by
  anon-ediex02.ad.cirrus.com (198.61.84.81) with Microsoft SMTP Server id
- 15.2.1118.40 via Frontend Transport; Wed, 7 Feb 2024 00:36:28 +0000
+ 15.2.1118.40 via Frontend Transport; Wed, 7 Feb 2024 00:36:48 +0000
 Received: from aus-sw-rshr002.ad.cirrus.com (aus-sw-rshr002.ad.cirrus.com [141.131.145.53])
-	by ediswmail9.ad.cirrus.com (Postfix) with ESMTP id E2352820246;
-	Wed,  7 Feb 2024 00:36:26 +0000 (UTC)
+	by ediswmail9.ad.cirrus.com (Postfix) with ESMTP id 3FC9F820246;
+	Wed,  7 Feb 2024 00:36:46 +0000 (UTC)
 From: James Ogletree <jogletre@opensource.cirrus.com>
 To: <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
         <krzysztof.kozlowski+dt@linaro.org>, <conor+dt@kernel.org>,
@@ -49,11 +50,15 @@ To: <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
 CC: <patches@opensource.cirrus.com>, <linux-sound@vger.kernel.org>,
         <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
         James Ogletree
-	<jogletre@opensource.cirrus.com>
-Subject: [PATCH v6 0/5] Add support for CS40L50
-Date: Wed, 7 Feb 2024 00:36:07 +0000
-Message-ID: <20240207003612.4187370-1-jogletre@opensource.cirrus.com>
+	<jogletre@opensource.cirrus.com>,
+        Krzysztof Kozlowski
+	<krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v6 2/5] dt-bindings: input: cirrus,cs40l50: Add initial DT binding
+Date: Wed, 7 Feb 2024 00:36:09 +0000
+Message-ID: <20240207003612.4187370-3-jogletre@opensource.cirrus.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20240207003612.4187370-1-jogletre@opensource.cirrus.com>
+References: <20240207003612.4187370-1-jogletre@opensource.cirrus.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -62,72 +67,118 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Proofpoint-GUID: C0D4-tTfa3EQLkH7k5wwTz0xVMcazUlk
-X-Proofpoint-ORIG-GUID: C0D4-tTfa3EQLkH7k5wwTz0xVMcazUlk
+X-Proofpoint-GUID: qMtWqgrcxIqeOypNsYUQ9ZqehdVNfRjQ
+X-Proofpoint-ORIG-GUID: qMtWqgrcxIqeOypNsYUQ9ZqehdVNfRjQ
 X-Proofpoint-Spam-Reason: safe
 
-Changes in v6:
-- Updated write sequencer interface to be control-name based
-- Fix 1. a race condition and 2. non-handling of repeats in playback callback
-- Stylistic and logical improvements all around
+The CS40L50 is a haptic driver with waveform memory,
+integrated DSP, and closed-loop algorithms.
 
-Changes in v5:
-- Added a codec sub-device to support I2S streaming
-- Moved write sequencer code from cirrus_haptics to cs_dsp
-- Reverted cirrus_haptics library; future Cirrus input
-  drivers will export and utilize cs40l50_vibra functions
-- Added more comments
-- Many small stylistic and logical improvements
+Add a YAML DT binding document for this device.
 
-Changes in v4:
-- Moved from Input to MFD
-- Moved common Cirrus haptic functions to a library
-- Incorporated runtime PM framework
-- Many style improvements
-
-Changes in v3:
-- YAML formatting corrections
-- Fixed typo in MAINTAINERS
-- Used generic node name "haptic-driver"
-- Fixed probe error code paths
-- Switched to "sizeof(*)"
-- Removed tree reference in MAINTAINERS
-
-Changes in v2:
-- Fixed checkpatch warnings
-
-James Ogletree (5):
-  firmware: cs_dsp: Add write sequencer interface
-  dt-bindings: input: cirrus,cs40l50: Add initial DT binding
-  mfd: cs40l50: Add support for CS40L50 core driver
-  Input: cs40l50 - Add support for the CS40L50 haptic driver
-  ASoC: cs40l50: Support I2S streaming to CS40L50
-
- .../bindings/input/cirrus,cs40l50.yaml        |  70 +++
- MAINTAINERS                                   |  12 +
- drivers/firmware/cirrus/cs_dsp.c              | 263 ++++++++
- drivers/input/misc/Kconfig                    |  10 +
- drivers/input/misc/Makefile                   |   1 +
- drivers/input/misc/cs40l50-vibra.c            | 571 ++++++++++++++++++
- drivers/mfd/Kconfig                           |  30 +
- drivers/mfd/Makefile                          |   3 +
- drivers/mfd/cs40l50-core.c                    | 537 ++++++++++++++++
- drivers/mfd/cs40l50-i2c.c                     |  69 +++
- drivers/mfd/cs40l50-spi.c                     |  69 +++
- include/linux/firmware/cirrus/cs_dsp.h        |  29 +
- include/linux/mfd/cs40l50.h                   | 134 ++++
- sound/soc/codecs/Kconfig                      |  11 +
- sound/soc/codecs/Makefile                     |   2 +
- sound/soc/codecs/cs40l50-codec.c              | 311 ++++++++++
- 16 files changed, 2122 insertions(+)
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: James Ogletree <jogletre@opensource.cirrus.com>
+---
+ .../bindings/input/cirrus,cs40l50.yaml        | 70 +++++++++++++++++++
+ MAINTAINERS                                   |  8 +++
+ 2 files changed, 78 insertions(+)
  create mode 100644 Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
- create mode 100644 drivers/input/misc/cs40l50-vibra.c
- create mode 100644 drivers/mfd/cs40l50-core.c
- create mode 100644 drivers/mfd/cs40l50-i2c.c
- create mode 100644 drivers/mfd/cs40l50-spi.c
- create mode 100644 include/linux/mfd/cs40l50.h
- create mode 100644 sound/soc/codecs/cs40l50-codec.c
 
+diff --git a/Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml b/Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
+new file mode 100644
+index 000000000000..6a5bdafed56b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
+@@ -0,0 +1,70 @@
++# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/cirrus,cs40l50.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Cirrus Logic CS40L50 Advanced Haptic Driver
++
++maintainers:
++  - James Ogletree <james.ogletree@cirrus.com>
++
++description:
++  CS40L50 is a haptic driver with waveform memory,
++  integrated DSP, and closed-loop algorithms.
++
++properties:
++  compatible:
++    enum:
++      - cirrus,cs40l50
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  va-supply:
++    description: Power supply for internal analog circuits.
++
++  vp-supply:
++    description: Power supply for always-on circuits.
++
++  vio-supply:
++    description: Power supply for digital input/output.
++
++  vamp-supply:
++    description: Power supply for the Class D amplifier.
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - reset-gpios
++  - vp-supply
++  - vio-supply
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      haptic-driver@34 {
++        compatible = "cirrus,cs40l50";
++        reg = <0x34>;
++        interrupt-parent = <&gpio>;
++        interrupts = <113 IRQ_TYPE_LEVEL_LOW>;
++        reset-gpios = <&gpio 112 GPIO_ACTIVE_LOW>;
++        vp-supply = <&vreg>;
++        vio-supply = <&vreg>;
++      };
++    };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index dd5de540ec0b..b71017a187f8 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -4933,6 +4933,14 @@ F:	sound/pci/hda/cs*
+ F:	sound/pci/hda/hda_cs_dsp_ctl.*
+ F:	sound/soc/codecs/cs*
+ 
++CIRRUS LOGIC HAPTIC DRIVERS
++M:	James Ogletree <james.ogletree@cirrus.com>
++M:	Fred Treven <fred.treven@cirrus.com>
++M:	Ben Bright <ben.bright@cirrus.com>
++L:	patches@opensource.cirrus.com
++S:	Supported
++F:	Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
++
+ CIRRUS LOGIC DSP FIRMWARE DRIVER
+ M:	Simon Trimmer <simont@opensource.cirrus.com>
+ M:	Charles Keepax <ckeepax@opensource.cirrus.com>
 -- 
 2.25.1
 

@@ -1,44 +1,44 @@
 Received: from nikam.ms.mff.cuni.cz (nikam.ms.mff.cuni.cz [195.113.20.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E30851292D3;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E312D1292D5;
 	Fri,  9 Feb 2024 16:49:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.113.20.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707497344; cv=none; b=a8NsM786HwBpfmfUujODnkpKb9FDFukkc/ApRlKjySVV7pwR+fZtb4unlIHtW4CmKLVZTL/U36ybU/2vvf5pXJP9qgzPfw8x1+lC52VIVb6/ObWZMDAsRWgXRg1qFbui0Q7JJXqPiQhZbIfn/aiQoskutTCg8HjifmShARnVyOQ=
+	t=1707497344; cv=none; b=p9MVV6teCZWPjhdx3qSBN1wziZYQensEyVPOJMte1/j7QbT4TINUMVhb3/WnH0LsXx2OeKsESju8Gak+V0hDSQfiE1Dj4KHP/FD+R5a1FhRMAu6qFUgwycqi+ugI8f7muv/9+ZPzPDEbdqWkcTlUKyPDFmHXuZvyyCpnTvciE+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1707497344; c=relaxed/simple;
-	bh=v1KSwid17+YZwnEM/2QMXL0rKb4tz5sf2ADmZFvSaR0=;
+	bh=HEaAf1XGgy9fl8nIJh5MfpAqgcXCyXG9JZBAOI6E+tg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=P0xL5DohDwqIbaRjvyNOJQc4B0JFr7BXZwkZvniREQSwQIsFxqPDhMa3cSf/k1jP6ksFFOFB5XynrymipSbl4gOV9juD9MYMJXy8BQRP+1Gx3OsFVJfP4GR6wXlMlCNYyFaQ6wVf7mZsasqP7v/xnTijCZmCdoZfnwC7gzcLElk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gimli.ms.mff.cuni.cz; spf=pass smtp.mailfrom=gimli.ms.mff.cuni.cz; dkim=pass (1024-bit key) header.d=gimli.ms.mff.cuni.cz header.i=@gimli.ms.mff.cuni.cz header.b=EaqgnBpC; arc=none smtp.client-ip=195.113.20.16
+	 MIME-Version; b=VCFhNqkDeB9ZNRmWMT7oWywZ5nuuCR8F0styPLE4+nKQbx3pX996y2I1zjyd1qrGrAjDFLHryUpYssimj0JxYY7FJ6E2QJ6Qe4xFI1dAOX2K4ub9zswXUTsbjMK1DokwYPX4X5xI5hxzJW5tBvkBZcYuRkhylZ0/C9l3FsngY54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gimli.ms.mff.cuni.cz; spf=pass smtp.mailfrom=gimli.ms.mff.cuni.cz; dkim=pass (1024-bit key) header.d=gimli.ms.mff.cuni.cz header.i=@gimli.ms.mff.cuni.cz header.b=WXGoVKBr; arc=none smtp.client-ip=195.113.20.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gimli.ms.mff.cuni.cz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gimli.ms.mff.cuni.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=gimli.ms.mff.cuni.cz header.i=@gimli.ms.mff.cuni.cz header.b="EaqgnBpC"
+	dkim=pass (1024-bit key) header.d=gimli.ms.mff.cuni.cz header.i=@gimli.ms.mff.cuni.cz header.b="WXGoVKBr"
 Received: from gimli.ms.mff.cuni.cz (gimli.ms.mff.cuni.cz [195.113.20.176])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
 	(No client certificate requested)
-	by nikam.ms.mff.cuni.cz (Postfix) with ESMTPS id 3AF09283DF0;
-	Fri,  9 Feb 2024 17:42:40 +0100 (CET)
+	by nikam.ms.mff.cuni.cz (Postfix) with ESMTPS id 80920283DEC;
+	Fri,  9 Feb 2024 17:42:42 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gimli.ms.mff.cuni.cz;
-	s=gen1; t=1707496960;
+	s=gen1; t=1707496962;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/dID/rk5TxJzyZNl6L5pM/cORYDEDnsW7lNaq9RdHVg=;
-	b=EaqgnBpCI8NHPSF50WGRpw9QKD70/s3PPPDSCaAQ8zLSDGsUxpzlCWEqI+mlY4PmoVJ8O5
-	GGqc8SiYGriG87KjQrV/6TEWPiGYU6Qjqcs5PdayrBXGvetFdvxssGZcaK/Y8ik52TG5A1
-	xtW0qzo1nNQnlZ0K7EWVa/7sMmOrtCQ=
+	bh=9+X8NQUi2jiCyiGcDvFXoE4L/61FfsMj7jWccnE5jeM=;
+	b=WXGoVKBrEbISJonBA15RC99h9Az85ZlwXxxtaMeoqa+PjLqDQ9n71bv1mXfjuOV5FxlMOr
+	ocyfbxbVjOuMJuPedkKGNP+IThtxGZ5LaxMJs4E5e9yiGBYV1NHLs0glGICpV38CGOUhU+
+	17MFTVi3vZRMqtr6/Ly0S9ng3MOCILI=
 Received: from localhost (internet5.mraknet.com [185.200.108.250])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(Client did not present a certificate)
 	(Authenticated sender: karelb)
-	by gimli.ms.mff.cuni.cz (Postfix) with ESMTPSA id 1982F4590CD;
-	Fri,  9 Feb 2024 17:42:40 +0100 (CET)
+	by gimli.ms.mff.cuni.cz (Postfix) with ESMTPSA id 5D5214590CD;
+	Fri,  9 Feb 2024 17:42:42 +0100 (CET)
 From: Karel Balej <karelb@gimli.ms.mff.cuni.cz>
 To: Markuss Broks <markuss.broks@gmail.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -52,9 +52,9 @@ To: Markuss Broks <markuss.broks@gmail.com>,
 Cc: =?UTF-8?q?Duje=20Mihanovi=C4=87?= <duje.mihanovic@skole.hr>,
 	~postmarketos/upstreaming@lists.sr.ht,
 	phone-devel@vger.kernel.org
-Subject: [PATCH v5 2/5] dt-bindings: input/touchscreen: Add compatible for IST3038B
-Date: Fri,  9 Feb 2024 17:34:19 +0100
-Message-ID: <20240209164217.9008-3-karelb@gimli.ms.mff.cuni.cz>
+Subject: [PATCH v5 4/5] dt-bindings: input/touchscreen: imagis: add compatible for IST3032C
+Date: Fri,  9 Feb 2024 17:34:21 +0100
+Message-ID: <20240209164217.9008-5-karelb@gimli.ms.mff.cuni.cz>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240209164217.9008-1-karelb@gimli.ms.mff.cuni.cz>
 References: <20240209164217.9008-1-karelb@gimli.ms.mff.cuni.cz>
@@ -66,39 +66,37 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Markuss Broks <markuss.broks@gmail.com>
+From: Karel Balej <balejk@matfyz.cz>
 
-Imagis IST3038B is a variant (firmware?) of Imagis IST3038 IC
-differing from IST3038C in its register interface. Add the
-compatible for it to the IST3038C bindings.
+IST3032C is a touchscreen IC which seems mostly compatible with IST3038C
+except that it reports a different chip ID value.
 
-Signed-off-by: Markuss Broks <markuss.broks@gmail.com>
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-[balejk@matfyz.cz: elaborate chip differences in the commit message]
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Karel Balej <balejk@matfyz.cz>
 ---
 
 Notes:
+    v5:
+    - Add Rob's trailer.
     v4:
-    * Mention how the chip is different in terms of the programming model in
-      the commit message.
-    * Add Conor's trailer.
+    - Reword commit description to mention how this IC differs from the
+      already supported.
 
  .../devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml   | 1 +
  1 file changed, 1 insertion(+)
 
 diff --git a/Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml b/Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml
-index 0d6b033fd5fb..b5372c4eae56 100644
+index b5372c4eae56..2af71cbcc97d 100644
 --- a/Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml
 +++ b/Documentation/devicetree/bindings/input/touchscreen/imagis,ist3038c.yaml
 @@ -18,6 +18,7 @@ properties:
  
    compatible:
      enum:
-+      - imagis,ist3038b
++      - imagis,ist3032c
+       - imagis,ist3038b
        - imagis,ist3038c
  
-   reg:
 -- 
 2.43.0
 

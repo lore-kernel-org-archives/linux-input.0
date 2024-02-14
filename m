@@ -1,71 +1,59 @@
-Received: from NAM10-DM6-obe.outbound.protection.outlook.com (mail-dm6nam10on2063.outbound.protection.outlook.com [40.107.93.63])
+Received: from mx0a-0046e701.pphosted.com (mx0a-0046e701.pphosted.com [67.231.149.93])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53DC85A0FB
-	for <linux-input@vger.kernel.org>; Wed, 14 Feb 2024 14:42:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.93.63
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1707921738; cv=fail; b=QfCMt4yxWTKIBOswwmr9MIBkRSIopbQArLBFg95cGUymMiJwVg6TlDPRndKpcZ+lK7N6pomVqQaVpDDzq6DeZ4ys00GBgpnH6c+YUkm7IZgzIpz7kDqubR9razOZDNduwrdwoZka3KPpK1iLH1bv4uQl5UGDQfFy+SQXzIUtvTw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1707921738; c=relaxed/simple;
-	bh=6c9/j+dVSJS7WrUB0jP52vOtVLrxe3l60wN8WNYFNWo=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B64F560867;
+	Wed, 14 Feb 2024 17:05:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.93
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1707930354; cv=none; b=QEDQr1nCwlSin9Wv4WvHeg5v99VSbOD2Rz6cIeN1s7Mzo3SrzujQ0NZPHJlF3Pnio1tl/97+qnVsWYSjUqcPkS855GO4PhQI0i3Y9EtNUSE6TBqsdj7pfHz/KhjjoPSNuMbQcy1PSV0l051aTFqEAiZqRxcmZbt/2xVI0Dj1x7o=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1707930354; c=relaxed/simple;
+	bh=rx3M+Duu0YsPRFId7MG8RbxYqjR1u0OvnRcZx0ekX40=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=uOwZuWC4mCPd1L7CfT6KU9iW8s2u79QaUokQxsgw7e1QgyxLd030duRkoDJlcAgELcKDZWDjK6/6JJnYFmEch5D66aGgoZ7jg9rYvmN0u+V1+zkcuAfylImz1+HYhyXTtBDwBA9FnTc/0GB/bn+H0kjlhsKzapthyNlKMLwuEJs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=r6e5JHMj; arc=fail smtp.client-ip=40.107.93.63
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	 MIME-Version:Content-Type; b=GaMmOwrO1BojaUmn9x5QjAWqRCuVpWOz17FIREYJdSQxeUkw6qQuAmDnQ0VEXXOsl/CCA3EtdrEQIhikvQeuKUcZTLohIKT+7Wrtl6H731sVW+lJDu2aPFS4rme36T3xPn38rTtYy2ypMGeFbGB4X/R1b++L+ENDdJCaGDJW//U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=MPHVT4xD; arc=none smtp.client-ip=67.231.149.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=plexus.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="r6e5JHMj"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RnwWccm0/3zFb0+LjfMKbtHgF8To35COa2RoTT8DZCsqTGgMaZ1kuQZ12M6oQWEstQHYQ+KI2ToQGSMDx4KKVTTR18fea9QLMylMg/qh4cG/FTP+SumSnvk7VS2TTy34brW0FmXaUexa90m5Pj78YtMQ+vO7AyhHu9qD54btKsCYjzx2llt2n8zraHcjwRCKA/T7PzLIjJWlw326vRVZ+KaucR5IADFFoBYbD5aqYaMuhOjZhhR0/wLyWqEnzwyXNxQxloQyPNMPRSYPQuhX6BMUp7UxJehCZ9yfgVJOYEnV8bSjfSrHo8e6aViQotiVBRSaJaoh7OiAk6TZpiXtDQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tMLvjp2WrhCSYcOk4M1xKgO4/dPL49xMXmCmpbe6luo=;
- b=Zw7H9Gk3tIZc7YverqoejT5HSdaq3DoOPDHySJy2tRTr7mf1kj6N8Av5QWJQNk9wyYd+OoEXC391QaiROprRJv5VJ/8ilheuXU2UiQ/TjsLfircZRNhafU/kP1bW//Nefy95pjY1JkqaQv8KEqB8ZyiUiA5dBtQZnUM2d9R9dGNqmP8PfVObj4bQZOavegHjFxzF4U/FlsjXQxJvNDfZaE7nZOjkFApL9p+7IGuUk895AZ0wgrUMQ8p0MGbUJkAVXJckv2/BQQSym/0nlfaFvbp61d84qS0GplT4xTHu4w0j3958baj3aJjE0z1gs1Thx/vp8+nM1sQZJeSVxiyU/g==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tMLvjp2WrhCSYcOk4M1xKgO4/dPL49xMXmCmpbe6luo=;
- b=r6e5JHMjUVV1r67JQLoOTNZyb48BajE5ttp9u9Nj2rjus+dXDGk1ONvJwvFkXvTk4o7kQo+eZVo80HMazSTle9ZRv+XjLlJ/adM0kMGZsqr6ptCR21GuOHh7RBIugIH+8RNCTt30VCDeUSUJ+lRNi7p8vW3IRUYcknUYWgYrwwM=
-Received: from MW4PR03CA0162.namprd03.prod.outlook.com (2603:10b6:303:8d::17)
- by CH3PR12MB8330.namprd12.prod.outlook.com (2603:10b6:610:12c::22) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.27; Wed, 14 Feb
- 2024 14:42:11 +0000
-Received: from MWH0EPF000989E6.namprd02.prod.outlook.com
- (2603:10b6:303:8d:cafe::a3) by MW4PR03CA0162.outlook.office365.com
- (2603:10b6:303:8d::17) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7292.26 via Frontend
- Transport; Wed, 14 Feb 2024 14:42:11 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- MWH0EPF000989E6.mail.protection.outlook.com (10.167.241.133) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.7292.25 via Frontend Transport; Wed, 14 Feb 2024 14:42:11 +0000
-Received: from jatayu.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Wed, 14 Feb
- 2024 08:42:05 -0600
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-To: <jikos@kernel.org>, <benjamin.tissoires@redhat.com>,
-	<linux-input@vger.kernel.org>
-CC: <akshata.mukundshetty@amd.com>, Basavaraj Natikar
-	<Basavaraj.Natikar@amd.com>
-Subject: [PATCH 4/5] HID: amd_sfh: Improve boot time when SFH is available
-Date: Wed, 14 Feb 2024 20:11:43 +0530
-Message-ID: <20240214144144.682750-5-Basavaraj.Natikar@amd.com>
+	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="MPHVT4xD"
+Received: from pps.filterd (m0341554.ppops.net [127.0.0.1])
+	by mx0a-0046e701.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 41EAorNh015120;
+	Wed, 14 Feb 2024 10:07:30 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=
+	from:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding:content-type; s=pps1;
+	 bh=xnq1AQLHK2MU8DiOuNCgG/K29mjeX+zve6mmPdGlY68=; b=MPHVT4xDLQoN
+	/1zvNof2zQICOz6Tlx8rfOZRqPP4Bp4AW/+H89TQeHo89LS6VKE+lHOIuU5OHmuf
+	zibJAbYemgpH5st1nIwhmwGBitwO16mOzoRfmtastl+2LE/W0ceBbmT+EUv85DJy
+	DcmeyTgA1E64PO/kqp0o36nL/foYjeBAr3wvuDWCiiZSkKeTpNodNTwqhA/1hqcH
+	y8Xcnhn3QHw2vtp45LOwPiEXKHnj3c6QtxZU4znfQfromZIOJrMRmIaIikIdhR8D
+	MlPSAoNfzqgZ8OWG6nqDnlCicOOTSNS6jemSQUhgF8CwHntWHO1FaSvRjXxA3YDo
+	NJHHjVooMA==
+Received: from gcc-mail-mx-004.na.plexus.com (outbound.plexus.com [64.215.193.254])
+	by mx0a-0046e701.pphosted.com (PPS) with ESMTPS id 3w8v4ggvyr-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Wed, 14 Feb 2024 10:07:29 -0600 (CST)
+Received: from gcc-mail-mx-002.Na.Plexus.com (10.255.51.221) by
+ gcc-mail-mx-004.na.plexus.com (10.255.51.224) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Wed, 14 Feb 2024 16:07:28 +0000
+Received: from LNDCL34533.neenah.na.plexus.com (10.255.48.203) by
+ gcc-mail-mx-002.Na.Plexus.com (10.255.51.221) with Microsoft SMTP Server id
+ 15.1.2507.35 via Frontend Transport; Wed, 14 Feb 2024 16:07:28 +0000
+From: Danny Kaehn <danny.kaehn@plexus.com>
+To: <robh@kernel.org>
+CC: <andriy.shevchenko@linux.intel.com>, <bartosz.golaszewski@linaro.org>,
+        <bentiss@kernel.org>, <danny.kaehn@plexus.com>,
+        <devicetree@vger.kernel.org>, <dmitry.torokhov@gmail.com>,
+        <ethan.twardy@plexus.com>, <jikos@kernel.org>,
+        <krzysztof.kozlowski+dt@linaro.org>, <linux-input@vger.kernel.org>,
+        <niyas.sait@linaro.org>
+Subject: Re: [PATCH v10 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
+Date: Wed, 14 Feb 2024 10:06:16 -0600
+Message-ID: <20240214160616.2377733-1-danny.kaehn@plexus.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20240214144144.682750-1-Basavaraj.Natikar@amd.com>
-References: <20240214144144.682750-1-Basavaraj.Natikar@amd.com>
+In-Reply-To: <20240213152825.GA1223720-robh@kernel.org>
+References: <20240213152825.GA1223720-robh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,194 +62,223 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MWH0EPF000989E6:EE_|CH3PR12MB8330:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7671bc7b-8226-46cb-223f-08dc2d6b20ba
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info:
-	HZnNGx54gyHcoBl+3h12k9/xR9mAaO+5duU5X9Wgfn65sOxtKTKklLhHJ6c9uVcZfEBCbxI31+YG75NXTYo+vxgYTqdN7Yff2PrAeX57UayIVWwy5U4r3DI1sRLAz6w5jnBxtrmfTv3bYpY3vo1iWgTcuqvsGfmbS9EZU6PwB4244D/5UELRV9vnXnGiSFooFMf0r6SDNbEz45KyLJE71L4wKWu3X+/lpMDU1BfZb0mK8seNHYT9we167+83Jsk7cDq9QIA4c5WoFVknAj82/gM5un20SwKFRrim3SBO3Ofp4eLkO3D3e3CLFETySg/vxwvp7qFGZpquH7pFgb0P7Hhyl64xMKYQxGOwfRabsTCKiqvcdERYZBnLXekYWzzv0cCclj4veWsNpcvA7ydKgdg65n3sICq6jPWzX/5jpifRrm8BPZm9tQFUAbC1qgDpsEPepVe+X0IsPKzv/fyxqM5Pudn49B5cAXvfOcy8oEGqZPEs6uyN9IJz6+0bktdqtkw7zGfmpvhm5+uEs0B/kkd7QjaSYstXjUdL43zHsC7rP3zsZUamsPpGc9RGg6F5WaedZBYewOX390cL2nCOl6EYdhCXIrhfXAUN6IxmuWw=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230031)(4636009)(136003)(376002)(396003)(39860400002)(346002)(230922051799003)(1800799012)(64100799003)(186009)(82310400011)(451199024)(36840700001)(40470700004)(46966006)(36756003)(86362001)(356005)(70206006)(70586007)(5660300002)(2906002)(4326008)(8676002)(8936002)(82740400003)(83380400001)(81166007)(110136005)(7696005)(478600001)(54906003)(6666004)(316002)(26005)(1076003)(41300700001)(16526019)(2616005)(336012)(426003);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Feb 2024 14:42:11.2025
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7671bc7b-8226-46cb-223f-08dc2d6b20ba
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	MWH0EPF000989E6.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB8330
+X-Proofpoint-GUID: -MsJYhM0Ofpt2r8PTgUYC-bAc6z3Pnc7
+X-Proofpoint-ORIG-GUID: -MsJYhM0Ofpt2r8PTgUYC-bAc6z3Pnc7
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-14_08,2024-02-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 lowpriorityscore=0 adultscore=0 spamscore=0 suspectscore=0
+ clxscore=1011 phishscore=0 impostorscore=0 mlxscore=0 bulkscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2401310000 definitions=main-2402140125
 
-AMD SFH load takes longer time in initialization. Hence split and defer
-initialization code to improve SFH module load time and boot time of the
-system when SFH is available.
+Thanks for taking a look Rob.
 
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
----
- drivers/hid/amd-sfh-hid/amd_sfh_common.h |  2 +
- drivers/hid/amd-sfh-hid/amd_sfh_pcie.c   | 75 ++++++++++++++++++++----
- 2 files changed, 64 insertions(+), 13 deletions(-)
+On Tue, 2024-02-13 at 09:28 -0600, Rob Herring wrote:
+> On Mon, Feb 05, 2024 at 11:09:20AM -0600, Danny Kaehn wrote:
+> > This is a USB HID device which includes an I2C controller and 8 GPIO pins.
+...
+> > 2. There has been some contention between using named child nodes to
+> > identify i2c and gpio nodes, and also making the driver implementing this
+> > binding compatible with ACPI, since names aren't significant for ACPI
+> > nodes, and ACPI names are always automatically uppercased. It has been
+> > suggested that perhaps the DT binding should use child nodes with
+> > addressable `reg` properties to identify the child nodes, instead of by
+> > name [1].
+> 
+> 'reg' only makes sense if there are values which relate to the h/w. If 
+> your addresses are indices, that will be suspect.
+> 
+> There's documented nodenames for specific device classes in DT. You have 
+> to use those whether there's 'reg' and a unit-address or not. I'm not 
+> really clear what the problem is.
+> 
+Ack. Mostly just forwarding on Andy Shevchenko's suggestion for making a more
+consistent interface across ACPI and DT since ACPI doesn't support identifying
+children by named nodes.
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_common.h b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
-index a1950bc6e6ce..ef5551c1eec5 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_common.h
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_common.h
-@@ -53,6 +53,8 @@ struct amd_mp2_dev {
- 	/* mp2 active control status */
- 	u32 mp2_acs;
- 	struct sfh_dev_status dev_en;
-+	struct work_struct work;
-+	u8 init_done;
- };
- 
- struct amd_mp2_ops {
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-index 8c1809c7d1f7..495ec1179ee5 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_pcie.c
-@@ -10,6 +10,7 @@
- 
- #include <linux/bitops.h>
- #include <linux/delay.h>
-+#include <linux/devm-helpers.h>
- #include <linux/dma-mapping.h>
- #include <linux/dmi.h>
- #include <linux/interrupt.h>
-@@ -329,6 +330,48 @@ static const struct dmi_system_id dmi_nodevs[] = {
- 	{ }
- };
- 
-+static void sfh1_1_init_work(struct work_struct *work)
-+{
-+	struct amd_mp2_dev *mp2 = container_of(work, struct amd_mp2_dev, work);
-+	struct pci_dev *pdev = mp2->pdev;
-+	int rc;
-+
-+	rc = mp2->sfh1_1_ops->init(mp2);
-+	if (rc) {
-+		dev_err(&pdev->dev, "sfh1_1_init failed err %d\n", rc);
-+		return;
-+	}
-+
-+	amd_sfh_clear_intr(mp2);
-+	mp2->init_done = 1;
-+}
-+
-+static void sfh_init_work(struct work_struct *work)
-+{
-+	struct amd_mp2_dev *mp2 = container_of(work, struct amd_mp2_dev, work);
-+	struct pci_dev *pdev = mp2->pdev;
-+	int rc;
-+
-+	rc = amd_sfh_hid_client_init(mp2);
-+	if (rc) {
-+		amd_sfh_clear_intr(mp2);
-+		dev_err(&pdev->dev, "amd_sfh_hid_client_init failed err %d\n", rc);
-+		return;
-+	}
-+
-+	amd_sfh_clear_intr(mp2);
-+	mp2->init_done = 1;
-+}
-+
-+static void amd_sfh_remove(struct pci_dev *pdev)
-+{
-+	struct amd_mp2_dev *mp2 = pci_get_drvdata(pdev);
-+
-+	flush_work(&mp2->work);
-+	if (mp2->init_done)
-+		mp2->mp2_ops->remove(mp2);
-+}
-+
- static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- {
- 	struct amd_mp2_dev *privdata;
-@@ -367,10 +410,12 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
- 
- 	privdata->sfh1_1_ops = (const struct amd_sfh1_1_ops *)id->driver_data;
- 	if (privdata->sfh1_1_ops) {
--		rc = privdata->sfh1_1_ops->init(privdata);
-+		rc = devm_work_autocancel(&pdev->dev, &privdata->work, sfh1_1_init_work);
- 		if (rc)
- 			return rc;
--		goto init_done;
-+
-+		schedule_work(&privdata->work);
-+		return 0;
- 	}
- 
- 	mp2_select_ops(privdata);
-@@ -381,33 +426,34 @@ static int amd_mp2_pci_probe(struct pci_dev *pdev, const struct pci_device_id *i
- 		return rc;
- 	}
- 
--	rc = amd_sfh_hid_client_init(privdata);
-+	rc = devm_work_autocancel(&pdev->dev, &privdata->work, sfh_init_work);
- 	if (rc) {
- 		amd_sfh_clear_intr(privdata);
--		if (rc != -EOPNOTSUPP)
--			dev_err(&pdev->dev, "amd_sfh_hid_client_init failed\n");
- 		return rc;
- 	}
- 
--init_done:
--	amd_sfh_clear_intr(privdata);
--
--	return devm_add_action_or_reset(&pdev->dev, privdata->mp2_ops->remove, privdata);
-+	schedule_work(&privdata->work);
-+	return 0;
- }
- 
- static void amd_sfh_shutdown(struct pci_dev *pdev)
- {
- 	struct amd_mp2_dev *mp2 = pci_get_drvdata(pdev);
- 
--	if (mp2 && mp2->mp2_ops)
--		mp2->mp2_ops->stop_all(mp2);
-+	if (mp2) {
-+		flush_work(&mp2->work);
-+		if (mp2->init_done)
-+			mp2->mp2_ops->stop_all(mp2);
-+	}
- }
- 
- static int __maybe_unused amd_mp2_pci_resume(struct device *dev)
- {
- 	struct amd_mp2_dev *mp2 = dev_get_drvdata(dev);
- 
--	mp2->mp2_ops->resume(mp2);
-+	flush_work(&mp2->work);
-+	if (mp2->init_done)
-+		mp2->mp2_ops->resume(mp2);
- 
- 	return 0;
- }
-@@ -416,7 +462,9 @@ static int __maybe_unused amd_mp2_pci_suspend(struct device *dev)
- {
- 	struct amd_mp2_dev *mp2 = dev_get_drvdata(dev);
- 
--	mp2->mp2_ops->suspend(mp2);
-+	flush_work(&mp2->work);
-+	if (mp2->init_done)
-+		mp2->mp2_ops->suspend(mp2);
- 
- 	return 0;
- }
-@@ -438,6 +486,7 @@ static struct pci_driver amd_mp2_pci_driver = {
- 	.probe		= amd_mp2_pci_probe,
- 	.driver.pm	= &amd_mp2_pm_ops,
- 	.shutdown	= amd_sfh_shutdown,
-+	.remove		= amd_sfh_remove,
- };
- module_pci_driver(amd_mp2_pci_driver);
- 
--- 
-2.25.1
+> > 
+> > Of course, I acknowledge that other firmware languages and kernel details
+> > shouldn't impact DT bindings, but it also seems that there should
+> > be some consistent way to specify sub-functions like this accross DT
+> > and ACPI. Some additional commentary / requests for comment about the
+> > seemingly missing glue here can be found in [2].
+> 
+> I have little interest in worrying about ACPI as I have limited 
+> knowledge in ACPI requirements, what I do know is the model for bindings 
+> are fundamentally differ, and no one has stepped up to maintain bindings 
+> from an ACPI perspective.
+> 
 
+Fair enough.
+
+> > Any comments from Rob/Krzysztof/other DT folks would be greatly appreciated
+> > 
+> > [1] https://lore.kernel.org/all/ZBhoHzTr5l38u%2FkX@smile.fi.intel.com/
+> > [2] https://lore.kernel.org/all/CAP+ZCCd0cD+q7=ngyEzScAte2VT9R00mqCQxB3K2TMbeg8UAfA@mail.gmail.com/
+> > 
+> >  .../bindings/i2c/silabs,cp2112.yaml           | 113 ++++++++++++++++++
+> >  1 file changed, 113 insertions(+)
+> >  create mode 100644 Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
+> > 
+> > diff --git a/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml b/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
+> > new file mode 100644
+> > index 000000000000..a27509627804
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
+> > @@ -0,0 +1,113 @@
+> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> > +%YAML 1.2
+> > +---
+> > +$id: http://devicetree.org/schemas/i2c/silabs,cp2112.yaml#
+> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > +
+> > +title: CP2112 HID USB to SMBus/I2C Bridge
+> > +
+> > +maintainers:
+> > +  - Danny Kaehn <kaehndan@gmail.com>
+> > +
+> > +description:
+> > +  The CP2112 is a USB HID device which includes an integrated I2C controller
+> > +  and 8 GPIO pins. Its GPIO pins can each be configured as inputs, open-drain
+> > +  outputs, or push-pull outputs.
+> > +
+> > +properties:
+> > +  compatible:
+> > +    const: usb10c4,ea90
+> > +
+> > +  reg:
+> > +    maxItems: 1
+> > +    description: The USB port number on the host controller
+> > +
+> > +  i2c:
+> > +    description: The SMBus/I2C controller node for the CP2112
+> > +    $ref: /schemas/i2c/i2c-controller.yaml#
+> > +    unevaluatedProperties: false
+> > +
+> > +    properties:
+> > +      sda-gpios:
+> > +        maxItems: 1
+> > +
+> > +      scl-gpios:
+> > +        maxItems: 1
+> 
+> Why do you have GPIOs if this is a proper controller?
+
+This is exclusively for bus recovery (not implemented in the driver patch
+sent here). I believe there's precedent for this in bindings like i2c-imx.yaml?
+
+(skip if the above was all you needed):
+
+Hopefully without going into more details than you're interested in, the
+CP2112 hardware doesn't implement any runtime bus recovery algorithms.
+Even just by bridging two of the CP2112's GPIOs with SCL and SDA,
+I was able to use the generic GPIO bus recovery routine to recover a stuck bus.
+This was especially important since v2 of the CP2112 hardware has an errata
+which can cause uncompleted I2C transactions on a semi-regular basis.
+
+> 
+> > +
+> > +      clock-frequency:
+> > +        minimum: 10000
+> > +        default: 100000
+> > +        maximum: 400000
+> > +
+> > +  gpio:
+> > +    description: The GPIO controller node for the CP2112
+> 
+> There's no need for a child node here. All these properties can be part 
+> of the parent.
+
+I had gone back and forth on this for quite some time. Would you suggest this
+just because it _can_ be combined, due to the naming constraint on the "hog"
+nodes? (as opposed to the i2c not being able to be combined, due to
+unconstrained names of child nodes?).
+
+I had initially thought this approach would scale better -- say there was a
+similar chip with I2C, GPIO, SPI, and UART interfaces -- would GPIO still
+share a node with the parent? And is there a reason that gpio is
+special, or just it _can_ be combined due to the naming restrictions? Looking
+at some of the bindings under mfd/ I see the GPIO controller broken into a
+named child node, although I see they also have their own compatible strings...
+
+> 
+> 
+> > +    type: object
+> > +    unevaluatedProperties: false
+> > +
+> > +    properties:
+> > +      interrupt-controller: true
+> > +      "#interrupt-cells":
+> > +        const: 2
+> > +
+> > +      gpio-controller: true
+> > +      "#gpio-cells":
+> > +        const: 2
+> > +
+> > +      gpio-line-names:
+> > +        minItems: 1
+> > +        maxItems: 8
+> > +
+> > +    patternProperties:
+> > +      "-hog(-[0-9]+)?$":
+> > +        type: object
+> > +
+> > +        required:
+> > +          - gpio-hog
+> > +
+> > +required:
+> > +  - compatible
+> > +  - reg
+> > +
+> > +additionalProperties: false
+> > +
+> > +examples:
+> > +  - |
+> > +    #include <dt-bindings/interrupt-controller/irq.h>
+> > +    #include <dt-bindings/gpio/gpio.h>
+> > +
+> > +    usb {
+> > +      #address-cells = <1>;
+> > +      #size-cells = <0>;
+> > +
+> > +      device@1 {
+> > +        compatible = "usb10c4,ea90";
+> > +        reg = <1>;
+> > +
+> > +        i2c {
+> > +          #address-cells = <1>;
+> > +          #size-cells = <0>;
+> > +          sda-gpios = <&cp2112_gpio 0 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+> > +          scl-gpios = <&cp2112_gpio 1 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+> > +
+> > +          temp@48 {
+> > +            compatible = "national,lm75";
+> > +            reg = <0x48>;
+> > +          };
+> > +        };
+> > +
+> > +        cp2112_gpio: gpio {
+> > +          gpio-controller;
+> > +          interrupt-controller;
+> > +          #gpio-cells = <2>;
+> > +          gpio-line-names = "CP2112_SDA", "CP2112_SCL", "TEST2",
+> > +            "TEST3","TEST4", "TEST5", "TEST6";
+> > +
+> > +          fan-rst-hog {
+> > +              gpio-hog;
+> > +              gpios = <7 GPIO_ACTIVE_HIGH>;
+> > +              output-high;
+> > +              line-name = "FAN_RST";
+> > +          };
+> > +        };
+> > +      };
+> > +    };
+> > -- 
+> > 2.25.1
+> > 
+
+Thanks,
+
+Danny Kaehn

@@ -1,76 +1,76 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6216D3DB8B;
-	Wed, 21 Feb 2024 09:43:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28C243D995;
+	Wed, 21 Feb 2024 09:43:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708508614; cv=none; b=LyuLZ4nE1PSl3pEAwoNQWtvC+VpiZ57irpYata1TBw/UR1itD9XEZ2Qd6ZFLFFouoZItcNDnGLxG2Sgy7LneTFfThBB8tN5hT0rRpHTWH+H/HS/3N8U3TdFjrKh5/O9K3x6zjVujnRRBDlT+RoyDpaF2CHRfMe7uUH/iTVoo6xU=
+	t=1708508614; cv=none; b=WEPs4H8xfH9CPNcbyhEwWe+we29kEzR5yoTPIotUKGKTzefrN2571C6UiYkJvOyISwgJNyM7EyIwo+0/KYhymhvmwKFRCpMXEr6Vfuxsl3H4xYbZdI1BmfQIAojFi2xULgXk4dmQltzcvpRFM/tpzcXmI9q3xWomAjVeZZxMzWA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1708508614; c=relaxed/simple;
-	bh=CZDge2NPbk+kofPGQYd5KOfRxWljJqpA0AJTrTX1pm8=;
+	bh=pYORUPjgZxymnXgGDfpgr1hnPbabxhGJFr2Ri2emk+E=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dGxc9HGRRKA3GwF5sQUvlfMpMCz4QnvoVI95LC/Op+byIYmTxVt+hdzN4JMp7ul1Xs4/QHAMVNB0XJVVOdA26uD3Sbg8M4oYACYDkJ1+ix/AaVEV2XPgGj4DMvtF80spFG5DWM0NR/v+ihA3qydR9L9OUeu0O4VomvkXFBlbjU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=yUWafFyY; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZOKPxJWJ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=yUWafFyY; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZOKPxJWJ; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version:Content-Type; b=ruQHvIs4afxS4IPZD8jxct65D35bulvBEC7/KUFPYwuoBJTekWaECTIgbRsCihzkUb85Rg81X5v2tEsZHnVm0PHal5GZZyUGdx4Zp8d4KJOVnuPIBLo6SHwAjADBH8N5/7cuxuStvzfdESfkvWktnQLOZvA42JUPQCJ/f6cOEbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Vg3LEfB2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=798d/gMQ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Vg3LEfB2; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=798d/gMQ; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="yUWafFyY";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZOKPxJWJ";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="yUWafFyY";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZOKPxJWJ"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Vg3LEfB2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="798d/gMQ";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Vg3LEfB2";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="798d/gMQ"
 Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [10.150.64.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 27EE121ED8;
-	Wed, 21 Feb 2024 09:43:29 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 5138B1FB4F;
+	Wed, 21 Feb 2024 09:43:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1708508609; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	t=1708508608; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HmHOaf1sO3yn0g8TKvW7sjLNXGxLzPU0y2+ebOZCwiE=;
-	b=yUWafFyYe/zHZJPfVa1zDU87NchQjeUff6/3bsnjWULTULIyoeTb3ckyw3P/Fk9ShTE6KE
-	GnXXrkzoQmB3AbJg8kBv45RtsWUH2z1kuhTIvKaAhJEQiN5cghb2sr4o9dIYexzu1PrLmT
-	cCUSM5iZ4lhwKSDV5oE31sHo1iJpyKA=
+	bh=PtixQVizv1gFoo8SvQU9nQzVSWG+j9t0ClPmcGl6r30=;
+	b=Vg3LEfB2SM9vQPy5SBDpBgBa49OM5RS9m8enUUt0zqXTU8SX0bFFR4U7UmMHuFThO4nZpO
+	seVR2Udleqj/mJoHYH2p2wPbMWe0o/2885SmDaGwiXDMxLU+zLtPcGKtWe3v0+XeB844N0
+	5suGiPy0y/TOKcAskSylnJjxE4byZ18=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1708508609;
+	s=susede2_ed25519; t=1708508608;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HmHOaf1sO3yn0g8TKvW7sjLNXGxLzPU0y2+ebOZCwiE=;
-	b=ZOKPxJWJpkV96seqFu1H4WhnunY4KtcFMzc6shwRzYOoIQMpm+ErTNFswMgoZSEjB9DcEG
-	H5uDo3OpytT/c7AQ==
+	bh=PtixQVizv1gFoo8SvQU9nQzVSWG+j9t0ClPmcGl6r30=;
+	b=798d/gMQ2O7fG9jQLjXoGsPMSF06B+q29MMkRw3s2kJpL2WdflbNCnlr1pGPGQiXjGPWez
+	QK4SjX7zRIQDfyCQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1708508609; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	t=1708508608; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HmHOaf1sO3yn0g8TKvW7sjLNXGxLzPU0y2+ebOZCwiE=;
-	b=yUWafFyYe/zHZJPfVa1zDU87NchQjeUff6/3bsnjWULTULIyoeTb3ckyw3P/Fk9ShTE6KE
-	GnXXrkzoQmB3AbJg8kBv45RtsWUH2z1kuhTIvKaAhJEQiN5cghb2sr4o9dIYexzu1PrLmT
-	cCUSM5iZ4lhwKSDV5oE31sHo1iJpyKA=
+	bh=PtixQVizv1gFoo8SvQU9nQzVSWG+j9t0ClPmcGl6r30=;
+	b=Vg3LEfB2SM9vQPy5SBDpBgBa49OM5RS9m8enUUt0zqXTU8SX0bFFR4U7UmMHuFThO4nZpO
+	seVR2Udleqj/mJoHYH2p2wPbMWe0o/2885SmDaGwiXDMxLU+zLtPcGKtWe3v0+XeB844N0
+	5suGiPy0y/TOKcAskSylnJjxE4byZ18=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1708508609;
+	s=susede2_ed25519; t=1708508608;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=HmHOaf1sO3yn0g8TKvW7sjLNXGxLzPU0y2+ebOZCwiE=;
-	b=ZOKPxJWJpkV96seqFu1H4WhnunY4KtcFMzc6shwRzYOoIQMpm+ErTNFswMgoZSEjB9DcEG
-	H5uDo3OpytT/c7AQ==
+	bh=PtixQVizv1gFoo8SvQU9nQzVSWG+j9t0ClPmcGl6r30=;
+	b=798d/gMQ2O7fG9jQLjXoGsPMSF06B+q29MMkRw3s2kJpL2WdflbNCnlr1pGPGQiXjGPWez
+	QK4SjX7zRIQDfyCQ==
 Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id C24B213A6D;
-	Wed, 21 Feb 2024 09:43:28 +0000 (UTC)
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id DF2F613A6D;
+	Wed, 21 Feb 2024 09:43:27 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([10.150.64.162])
 	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id SAoMLsDF1WUpCwAAn2gu4w
-	(envelope-from <tzimmermann@suse.de>); Wed, 21 Feb 2024 09:43:28 +0000
+	id IOD3NL/F1WUpCwAAn2gu4w
+	(envelope-from <tzimmermann@suse.de>); Wed, 21 Feb 2024 09:43:27 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: lee@kernel.org,
 	daniel.thompson@linaro.org,
@@ -83,10 +83,11 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-fbdev@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-pwm@vger.kernel.org,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 05/10] backlight/aat2870-backlight: Remove struct backlight.check_fb
-Date: Wed, 21 Feb 2024 10:41:32 +0100
-Message-ID: <20240221094324.27436-6-tzimmermann@suse.de>
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	=?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@linux-vserver.org>
+Subject: [PATCH v2 03/10] hid/hid-picolcd: Fix initialization order
+Date: Wed, 21 Feb 2024 10:41:30 +0100
+Message-ID: <20240221094324.27436-4-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240221094324.27436-1-tzimmermann@suse.de>
 References: <20240221094324.27436-1-tzimmermann@suse.de>
@@ -96,75 +97,94 @@ List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Authentication-Results: smtp-out1.suse.de;
+Authentication-Results: smtp-out2.suse.de;
 	none
-X-Spamd-Result: default: False [0.80 / 50.00];
+X-Spamd-Result: default: False [-3.19 / 50.00];
 	 ARC_NA(0.00)[];
 	 RCVD_VIA_SMTP_AUTH(0.00)[];
 	 FROM_HAS_DN(0.00)[];
 	 TO_DN_SOME(0.00)[];
 	 FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
-	 R_MISSING_CHARSET(2.50)[];
-	 MIME_GOOD(-0.10)[text/plain];
 	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 MIME_GOOD(-0.10)[text/plain];
 	 REPLY(-4.00)[];
-	 BROKEN_CONTENT_TYPE(1.50)[];
-	 R_RATELIMIT(0.00)[to_ip_from(RLbrmj4aennmrpd7btm9n9zy3k)];
 	 RCVD_COUNT_THREE(0.00)[3];
 	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 RCPT_COUNT_TWELVE(0.00)[12];
+	 RCPT_COUNT_TWELVE(0.00)[13];
 	 MID_CONTAINS_FROM(1.00)[];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,linaro.org:email];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email];
 	 FREEMAIL_TO(0.00)[kernel.org,linaro.org,gmail.com,gmx.de,protonic.nl,redhat.com];
 	 FUZZY_BLOCKED(0.00)[rspamd.com];
 	 FROM_EQ_ENVFROM(0.00)[];
 	 MIME_TRACE(0.00)[0:+];
 	 RCVD_TLS_ALL(0.00)[];
-	 BAYES_HAM(-0.10)[65.56%]
+	 BAYES_HAM(-0.09)[64.52%]
 X-Spam-Level: 
 X-Spam-Flag: NO
-X-Spam-Score: 0.80
+X-Spam-Score: -3.19
 
-The driver's implementation of check_fb always returns true, which
-is the default if no implementation has been set. So remove the code
-from the driver.
+For drivers that support backlight, LCD and fbdev devices, fbdev has
+to be initialized last. See documentation for struct fbinfo.bl_dev.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: "Bruno Prémont" <bonbons@linux-vserver.org>
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/video/backlight/aat2870_bl.c | 7 -------
- 1 file changed, 7 deletions(-)
+ drivers/hid/hid-picolcd_core.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/video/backlight/aat2870_bl.c b/drivers/video/backlight/aat2870_bl.c
-index 81fde3abb92c4..b4c3354a1a8a6 100644
---- a/drivers/video/backlight/aat2870_bl.c
-+++ b/drivers/video/backlight/aat2870_bl.c
-@@ -12,7 +12,6 @@
- #include <linux/platform_device.h>
- #include <linux/mutex.h>
- #include <linux/delay.h>
--#include <linux/fb.h>
- #include <linux/backlight.h>
- #include <linux/mfd/aat2870.h>
+diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
+index bbda231a7ce30..5ddebe25eb91f 100644
+--- a/drivers/hid/hid-picolcd_core.c
++++ b/drivers/hid/hid-picolcd_core.c
+@@ -474,11 +474,6 @@ static int picolcd_probe_lcd(struct hid_device *hdev, struct picolcd_data *data)
+ 	if (error)
+ 		goto err;
  
-@@ -90,15 +89,9 @@ static int aat2870_bl_update_status(struct backlight_device *bd)
- 	return 0;
- }
- 
--static int aat2870_bl_check_fb(struct backlight_device *bd, struct fb_info *fi)
--{
--	return 1;
--}
+-	/* Set up the framebuffer device */
+-	error = picolcd_init_framebuffer(data);
+-	if (error)
+-		goto err;
 -
- static const struct backlight_ops aat2870_bl_ops = {
- 	.options = BL_CORE_SUSPENDRESUME,
- 	.update_status = aat2870_bl_update_status,
--	.check_fb = aat2870_bl_check_fb,
- };
+ 	/* Setup lcd class device */
+ 	error = picolcd_init_lcd(data, picolcd_out_report(REPORT_CONTRAST, hdev));
+ 	if (error)
+@@ -489,6 +484,11 @@ static int picolcd_probe_lcd(struct hid_device *hdev, struct picolcd_data *data)
+ 	if (error)
+ 		goto err;
  
- static int aat2870_bl_probe(struct platform_device *pdev)
++	/* Set up the framebuffer device */
++	error = picolcd_init_framebuffer(data);
++	if (error)
++		goto err;
++
+ 	/* Setup the LED class devices */
+ 	error = picolcd_init_leds(data, picolcd_out_report(REPORT_LED_STATE, hdev));
+ 	if (error)
+@@ -502,9 +502,9 @@ static int picolcd_probe_lcd(struct hid_device *hdev, struct picolcd_data *data)
+ 	return 0;
+ err:
+ 	picolcd_exit_leds(data);
++	picolcd_exit_framebuffer(data);
+ 	picolcd_exit_backlight(data);
+ 	picolcd_exit_lcd(data);
+-	picolcd_exit_framebuffer(data);
+ 	picolcd_exit_cir(data);
+ 	picolcd_exit_keys(data);
+ 	return error;
+@@ -623,9 +623,9 @@ static void picolcd_remove(struct hid_device *hdev)
+ 	/* Cleanup LED */
+ 	picolcd_exit_leds(data);
+ 	/* Clean up the framebuffer */
++	picolcd_exit_framebuffer(data);
+ 	picolcd_exit_backlight(data);
+ 	picolcd_exit_lcd(data);
+-	picolcd_exit_framebuffer(data);
+ 	/* Cleanup input */
+ 	picolcd_exit_cir(data);
+ 	picolcd_exit_keys(data);
 -- 
 2.43.0
 

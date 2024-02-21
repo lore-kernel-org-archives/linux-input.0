@@ -1,35 +1,76 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04DB63DBA1;
-	Wed, 21 Feb 2024 09:43:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6216D3DB8B;
+	Wed, 21 Feb 2024 09:43:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708508613; cv=none; b=cipfyoY8j0wap9tuKTohVyRig+om5uvYa5ydf0Ur4ubIfN2L6o94n/q4f1vo/zhctkNTwgp6YxTfn2pjyk4eKgGQdLkVyy+0sUOgfkTGQHqKMmlaZNkgLXZud2aUU7DIWezWEnu1BMenFVbXUC2cUu5RbaL79FCXTjIMzmVvsCA=
+	t=1708508614; cv=none; b=LyuLZ4nE1PSl3pEAwoNQWtvC+VpiZ57irpYata1TBw/UR1itD9XEZ2Qd6ZFLFFouoZItcNDnGLxG2Sgy7LneTFfThBB8tN5hT0rRpHTWH+H/HS/3N8U3TdFjrKh5/O9K3x6zjVujnRRBDlT+RoyDpaF2CHRfMe7uUH/iTVoo6xU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708508613; c=relaxed/simple;
-	bh=N0nPYyTU6ZW0Z2iwEnOgeVAYh4ux/fuS07RWleI4p1o=;
+	s=arc-20240116; t=1708508614; c=relaxed/simple;
+	bh=CZDge2NPbk+kofPGQYd5KOfRxWljJqpA0AJTrTX1pm8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dkU7hIMUfN/dzuRNv73WaYTEcQi8JTZ4hn+0rBQJbggQqShFfTH/d6/qNi1+Mo9VyGpuNst21MDsi7k9nrDi4FJE5Z9WeVl8Ya8Pq1zilk241VIP0aLUKPPG4pTE60a8mvDevffQ9OWms0VubOc1Wvsur9VCUqOj0ZkfaM6PSpw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=dGxc9HGRRKA3GwF5sQUvlfMpMCz4QnvoVI95LC/Op+byIYmTxVt+hdzN4JMp7ul1Xs4/QHAMVNB0XJVVOdA26uD3Sbg8M4oYACYDkJ1+ix/AaVEV2XPgGj4DMvtF80spFG5DWM0NR/v+ihA3qydR9L9OUeu0O4VomvkXFBlbjU0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=yUWafFyY; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZOKPxJWJ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=yUWafFyY; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=ZOKPxJWJ; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="yUWafFyY";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZOKPxJWJ";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="yUWafFyY";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="ZOKPxJWJ"
+Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [10.150.64.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 60FA61FB4A;
-	Wed, 21 Feb 2024 09:43:30 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 27EE121ED8;
+	Wed, 21 Feb 2024 09:43:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1708508609; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HmHOaf1sO3yn0g8TKvW7sjLNXGxLzPU0y2+ebOZCwiE=;
+	b=yUWafFyYe/zHZJPfVa1zDU87NchQjeUff6/3bsnjWULTULIyoeTb3ckyw3P/Fk9ShTE6KE
+	GnXXrkzoQmB3AbJg8kBv45RtsWUH2z1kuhTIvKaAhJEQiN5cghb2sr4o9dIYexzu1PrLmT
+	cCUSM5iZ4lhwKSDV5oE31sHo1iJpyKA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1708508609;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HmHOaf1sO3yn0g8TKvW7sjLNXGxLzPU0y2+ebOZCwiE=;
+	b=ZOKPxJWJpkV96seqFu1H4WhnunY4KtcFMzc6shwRzYOoIQMpm+ErTNFswMgoZSEjB9DcEG
+	H5uDo3OpytT/c7AQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1708508609; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HmHOaf1sO3yn0g8TKvW7sjLNXGxLzPU0y2+ebOZCwiE=;
+	b=yUWafFyYe/zHZJPfVa1zDU87NchQjeUff6/3bsnjWULTULIyoeTb3ckyw3P/Fk9ShTE6KE
+	GnXXrkzoQmB3AbJg8kBv45RtsWUH2z1kuhTIvKaAhJEQiN5cghb2sr4o9dIYexzu1PrLmT
+	cCUSM5iZ4lhwKSDV5oE31sHo1iJpyKA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1708508609;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HmHOaf1sO3yn0g8TKvW7sjLNXGxLzPU0y2+ebOZCwiE=;
+	b=ZOKPxJWJpkV96seqFu1H4WhnunY4KtcFMzc6shwRzYOoIQMpm+ErTNFswMgoZSEjB9DcEG
+	H5uDo3OpytT/c7AQ==
 Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 07FFF13A25;
-	Wed, 21 Feb 2024 09:43:29 +0000 (UTC)
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id C24B213A6D;
+	Wed, 21 Feb 2024 09:43:28 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([10.150.64.162])
 	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id IEtUO8HF1WUpCwAAn2gu4w
-	(envelope-from <tzimmermann@suse.de>); Wed, 21 Feb 2024 09:43:29 +0000
+	id SAoMLsDF1WUpCwAAn2gu4w
+	(envelope-from <tzimmermann@suse.de>); Wed, 21 Feb 2024 09:43:28 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: lee@kernel.org,
 	daniel.thompson@linaro.org,
@@ -43,9 +84,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-input@vger.kernel.org,
 	linux-pwm@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 08/10] fbdev/ssd1307fb: Init backlight before registering framebuffer
-Date: Wed, 21 Feb 2024 10:41:35 +0100
-Message-ID: <20240221094324.27436-9-tzimmermann@suse.de>
+Subject: [PATCH v2 05/10] backlight/aat2870-backlight: Remove struct backlight.check_fb
+Date: Wed, 21 Feb 2024 10:41:32 +0100
+Message-ID: <20240221094324.27436-6-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240221094324.27436-1-tzimmermann@suse.de>
 References: <20240221094324.27436-1-tzimmermann@suse.de>
@@ -56,85 +97,74 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-Authentication-Results: smtp-out2.suse.de;
+Authentication-Results: smtp-out1.suse.de;
 	none
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	 REPLY(-4.00)[]
-X-Spam-Score: -4.00
-X-Rspamd-Queue-Id: 60FA61FB4A
+X-Spamd-Result: default: False [0.80 / 50.00];
+	 ARC_NA(0.00)[];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 FROM_HAS_DN(0.00)[];
+	 TO_DN_SOME(0.00)[];
+	 FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
+	 R_MISSING_CHARSET(2.50)[];
+	 MIME_GOOD(-0.10)[text/plain];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 REPLY(-4.00)[];
+	 BROKEN_CONTENT_TYPE(1.50)[];
+	 R_RATELIMIT(0.00)[to_ip_from(RLbrmj4aennmrpd7btm9n9zy3k)];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 RCPT_COUNT_TWELVE(0.00)[12];
+	 MID_CONTAINS_FROM(1.00)[];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,linaro.org:email];
+	 FREEMAIL_TO(0.00)[kernel.org,linaro.org,gmail.com,gmx.de,protonic.nl,redhat.com];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 RCVD_TLS_ALL(0.00)[];
+	 BAYES_HAM(-0.10)[65.56%]
+X-Spam-Level: 
 X-Spam-Flag: NO
+X-Spam-Score: 0.80
 
-For drivers that support backlight, LCD and fbdev devices, fbdev has
-to be initialized last. See documentation for struct fbinfo.bl_dev.
-
-The backlight name's index number comes from register_framebuffer(),
-which now happens after initializing the backlight device. So like
-in all other backlight drivers, we now give the backlight device a
-generic name without the fbdev index.
+The driver's implementation of check_fb always returns true, which
+is the default if no implementation has been set. So remove the code
+from the driver.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/video/fbdev/ssd1307fb.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ drivers/video/backlight/aat2870_bl.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
-index 1a4f90ea7d5a8..0d1590c61eb06 100644
---- a/drivers/video/fbdev/ssd1307fb.c
-+++ b/drivers/video/fbdev/ssd1307fb.c
-@@ -594,7 +594,6 @@ static int ssd1307fb_probe(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
- 	struct backlight_device *bl;
--	char bl_name[12];
- 	struct fb_info *info;
- 	struct fb_deferred_io *ssd1307fb_defio;
- 	u32 vmem_size;
-@@ -733,31 +732,30 @@ static int ssd1307fb_probe(struct i2c_client *client)
- 	if (ret)
- 		goto regulator_enable_error;
+diff --git a/drivers/video/backlight/aat2870_bl.c b/drivers/video/backlight/aat2870_bl.c
+index 81fde3abb92c4..b4c3354a1a8a6 100644
+--- a/drivers/video/backlight/aat2870_bl.c
++++ b/drivers/video/backlight/aat2870_bl.c
+@@ -12,7 +12,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/mutex.h>
+ #include <linux/delay.h>
+-#include <linux/fb.h>
+ #include <linux/backlight.h>
+ #include <linux/mfd/aat2870.h>
  
--	ret = register_framebuffer(info);
--	if (ret) {
--		dev_err(dev, "Couldn't register the framebuffer\n");
--		goto panel_init_error;
--	}
--
--	snprintf(bl_name, sizeof(bl_name), "ssd1307fb%d", info->node);
--	bl = backlight_device_register(bl_name, dev, par, &ssd1307fb_bl_ops,
-+	bl = backlight_device_register("ssd1307fb-bl", dev, par, &ssd1307fb_bl_ops,
- 				       NULL);
- 	if (IS_ERR(bl)) {
- 		ret = PTR_ERR(bl);
- 		dev_err(dev, "unable to register backlight device: %d\n", ret);
--		goto bl_init_error;
-+		goto panel_init_error;
-+	}
-+	info->bl_dev = bl;
-+
-+	ret = register_framebuffer(info);
-+	if (ret) {
-+		dev_err(dev, "Couldn't register the framebuffer\n");
-+		goto fb_init_error;
- 	}
- 
- 	bl->props.brightness = par->contrast;
- 	bl->props.max_brightness = MAX_CONTRAST;
--	info->bl_dev = bl;
- 
- 	dev_info(dev, "fb%d: %s framebuffer device registered, using %d bytes of video memory\n", info->node, info->fix.id, vmem_size);
- 
+@@ -90,15 +89,9 @@ static int aat2870_bl_update_status(struct backlight_device *bd)
  	return 0;
+ }
  
--bl_init_error:
--	unregister_framebuffer(info);
-+fb_init_error:
-+	backlight_device_unregister(bl);
- panel_init_error:
- 	pwm_disable(par->pwm);
- 	pwm_put(par->pwm);
+-static int aat2870_bl_check_fb(struct backlight_device *bd, struct fb_info *fi)
+-{
+-	return 1;
+-}
+-
+ static const struct backlight_ops aat2870_bl_ops = {
+ 	.options = BL_CORE_SUSPENDRESUME,
+ 	.update_status = aat2870_bl_update_status,
+-	.check_fb = aat2870_bl_check_fb,
+ };
+ 
+ static int aat2870_bl_probe(struct platform_device *pdev)
 -- 
 2.43.0
 

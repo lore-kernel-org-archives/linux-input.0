@@ -1,35 +1,76 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE401495F0;
-	Mon,  4 Mar 2024 16:32:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77C1E3C485;
+	Mon,  4 Mar 2024 16:32:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709569951; cv=none; b=ZWI7rcv+nXwC8IunjNrFwEeT51VIrjz+gIYreUKuVRXK6EYKwafoL2QFwCF3GTflWLgYZ4SqUucyrdOW6RlDXb4lHJNsDfJHjN/NI6fZffdGap1kfofCAWIZI655+ez4ew4cYnc1EBw17jjj1Xl7a02Vh0BfWt1H3/ELbImX7SE=
+	t=1709569951; cv=none; b=VyaQO+ABLO8ZCV6AYPL/PpNj9jH847PGt6x9Bb3gBbAO2GeV25+8D/E6QGAzG8oaT8REtHNgih8h/o+bq+8lYhmdNd/KxBatEeyIC8LASrl0Xu2mPYFYd98mV+EWujRmOug28ABeflMyKlAf3U/egVX+qtrDAZtcsGFpDBHx+GA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1709569951; c=relaxed/simple;
-	bh=a1s9luZvW5cpl3Ufm72oNJSlqXu75z3ENOkW6TQaklE=;
+	bh=yB9U8pxB5LZw6YezPCdGXhKlJEofyPuV184w3Vd2mr4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ovCbtb4LfMeQIiAWGTx+bBPZ6VERkPnSTznSHQXlbX0Hz7/Ta0MyhTXr5pIE7Dhi4oXppfgnYc4DyA+zBsZ6ZvkYKpdNFJDobdNSRTf8qAgXmQZ482HxskA5vlCzuu0KnSxsacQhUo4oAgQ5jPKff/j5Cz1qRQzEBWpuobDQuHw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=P8B/zLH8RqceXFcpegO3ekBqqso5fM0TEeMwTE7Osrzv1dm4IY+FsFbBJEbJVN8lwGec0O1pEOBeQiAXRZd1uSNrzfsG9Qrx78VXUDNky0uXQ1vyvBC78kGfYTR7j+I27G5EVfwkpxm41sBbWxuapE94HtD+HWsmQoTHb9MdzDE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=m+MvHV+w; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=wZ9UjeBp; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=m+MvHV+w; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=wZ9UjeBp; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="m+MvHV+w";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="wZ9UjeBp";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="m+MvHV+w";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="wZ9UjeBp"
+Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [10.150.64.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 871301FF57;
-	Mon,  4 Mar 2024 16:32:24 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 74512337D8;
+	Mon,  4 Mar 2024 16:32:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1709569947; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zHZBh32ao496BlueMq4KcqWuXhq9l/azWpYIHeOrlrM=;
+	b=m+MvHV+wnJ7oMAbir5ISpR/W5I8BQ5HfVXKaUU7nWIA0ZfqvU+6z4d31p6hORO7CCR3H1i
+	n5sOpUylAaXOElHXkgLToYMcYRzjKVbNzMmme4l3jQCfLvM7vblpbW8sNzfGqF8OwrIW6G
+	Om95akoYSTG1H0EaHRZryRIsB4gPCXg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1709569947;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zHZBh32ao496BlueMq4KcqWuXhq9l/azWpYIHeOrlrM=;
+	b=wZ9UjeBpvz96OlkubIXF+PmRj73Otl4pVAGL1q4fiK4T4SXPodqu/8A5x2bM6gvFuyXZZE
+	dCbfyZKt4euuSfBQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1709569947; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zHZBh32ao496BlueMq4KcqWuXhq9l/azWpYIHeOrlrM=;
+	b=m+MvHV+wnJ7oMAbir5ISpR/W5I8BQ5HfVXKaUU7nWIA0ZfqvU+6z4d31p6hORO7CCR3H1i
+	n5sOpUylAaXOElHXkgLToYMcYRzjKVbNzMmme4l3jQCfLvM7vblpbW8sNzfGqF8OwrIW6G
+	Om95akoYSTG1H0EaHRZryRIsB4gPCXg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1709569947;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=zHZBh32ao496BlueMq4KcqWuXhq9l/azWpYIHeOrlrM=;
+	b=wZ9UjeBpvz96OlkubIXF+PmRj73Otl4pVAGL1q4fiK4T4SXPodqu/8A5x2bM6gvFuyXZZE
+	dCbfyZKt4euuSfBQ==
 Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 2F04713A92;
-	Mon,  4 Mar 2024 16:32:24 +0000 (UTC)
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 2230613A92;
+	Mon,  4 Mar 2024 16:32:27 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([10.150.64.162])
 	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id aOolCpj35WVLAQAAn2gu4w
-	(envelope-from <tzimmermann@suse.de>); Mon, 04 Mar 2024 16:32:24 +0000
+	id eFbuBpv35WVLAQAAn2gu4w
+	(envelope-from <tzimmermann@suse.de>); Mon, 04 Mar 2024 16:32:27 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: lee@kernel.org,
 	andy@kernel.org,
@@ -43,9 +84,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-input@vger.kernel.org,
 	linux-pwm@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v3 01/10] backlight: Match backlight device against struct fb_info.bl_dev
-Date: Mon,  4 Mar 2024 17:29:46 +0100
-Message-ID: <20240304163220.19144-2-tzimmermann@suse.de>
+Subject: [PATCH v3 09/10] fbdev/ssd1307fb: Remove struct backlight_ops.check_fb
+Date: Mon,  4 Mar 2024 17:29:54 +0100
+Message-ID: <20240304163220.19144-10-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240304163220.19144-1-tzimmermann@suse.de>
 References: <20240304163220.19144-1-tzimmermann@suse.de>
@@ -56,102 +97,67 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-Authentication-Results: smtp-out2.suse.de;
+Authentication-Results: smtp-out1.suse.de;
 	none
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	 REPLY(-4.00)[]
-X-Spam-Score: -4.00
-X-Rspamd-Queue-Id: 871301FF57
+X-Spamd-Result: default: False [-0.25 / 50.00];
+	 ARC_NA(0.00)[];
+	 RCVD_VIA_SMTP_AUTH(0.00)[];
+	 FROM_HAS_DN(0.00)[];
+	 TO_DN_SOME(0.00)[];
+	 FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
+	 R_MISSING_CHARSET(2.50)[];
+	 MIME_GOOD(-0.10)[text/plain];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 REPLY(-4.00)[];
+	 BROKEN_CONTENT_TYPE(1.50)[];
+	 R_RATELIMIT(0.00)[to_ip_from(RLbrmj4aennmrpd7btm9n9zy3k)];
+	 RCVD_COUNT_THREE(0.00)[3];
+	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	 RCPT_COUNT_TWELVE(0.00)[12];
+	 MID_CONTAINS_FROM(1.00)[];
+	 FREEMAIL_TO(0.00)[kernel.org,linaro.org,gmail.com,gmx.de,protonic.nl,redhat.com];
+	 FUZZY_BLOCKED(0.00)[rspamd.com];
+	 FROM_EQ_ENVFROM(0.00)[];
+	 MIME_TRACE(0.00)[0:+];
+	 RCVD_TLS_ALL(0.00)[];
+	 BAYES_HAM(-1.15)[88.73%]
+X-Spam-Level: 
 X-Spam-Flag: NO
+X-Spam-Score: -0.25
 
-Framebuffer drivers for devices with dedicated backlight are supposed
-to set struct fb_info.bl_dev to the backlight's respective device. Use
-the value to match backlight and framebuffer in the backlight core code.
-
-The code first tests against struct backlight_ops.check_ops. If this
-test succeeds, it performs the test against fbdev. So backlight drivers
-can override the later test as before.
-
-Fbdev's backlight support depends on CONFIG_FB_BACKLIGHT. To avoid
-ifdef in the code, the new helper fb_bl_device() returns the backlight
-device, or NULL if the config option has been disabled. The test in
-the backlight code will then do nothing.
-
-v3:
-	* hide ifdef in fb_bl_device() (Lee)
-	* no if-else blocks (Andy)
+The driver sets struct fb_info.bl_dev to the correct backlight
+device. Thus rely on the backlight core code to match backlight
+and framebuffer devices, and remove the extra check_fb function
+from struct backlight_ops.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/video/backlight/backlight.c     | 8 ++++++--
- drivers/video/fbdev/core/fb_backlight.c | 5 +++++
- include/linux/fb.h                      | 9 +++++++++
- 3 files changed, 20 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/ssd1307fb.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
-index 86e1cdc8e3697..4f7973c6fcc79 100644
---- a/drivers/video/backlight/backlight.c
-+++ b/drivers/video/backlight/backlight.c
-@@ -98,7 +98,9 @@ static int fb_notifier_callback(struct notifier_block *self,
- {
- 	struct backlight_device *bd;
- 	struct fb_event *evdata = data;
--	int node = evdata->info->node;
-+	struct fb_info *info = evdata->info;
-+	struct backlight_device *fb_bd = fb_bl_device(info);
-+	int node = info->node;
- 	int fb_blank = 0;
- 
- 	/* If we aren't interested in this event, skip it immediately ... */
-@@ -110,7 +112,9 @@ static int fb_notifier_callback(struct notifier_block *self,
- 
- 	if (!bd->ops)
- 		goto out;
--	if (bd->ops->check_fb && !bd->ops->check_fb(bd, evdata->info))
-+	if (bd->ops->check_fb && !bd->ops->check_fb(bd, info))
-+		goto out;
-+	if (fb_bd && fb_bd != bd)
- 		goto out;
- 
- 	fb_blank = *(int *)evdata->data;
-diff --git a/drivers/video/fbdev/core/fb_backlight.c b/drivers/video/fbdev/core/fb_backlight.c
-index e2d3b3adc870f..d3470a90042ea 100644
---- a/drivers/video/fbdev/core/fb_backlight.c
-+++ b/drivers/video/fbdev/core/fb_backlight.c
-@@ -30,4 +30,9 @@ void fb_bl_default_curve(struct fb_info *fb_info, u8 off, u8 min, u8 max)
- 	mutex_unlock(&fb_info->bl_curve_mutex);
+diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
+index 0d1590c61eb06..3f30af3c059e0 100644
+--- a/drivers/video/fbdev/ssd1307fb.c
++++ b/drivers/video/fbdev/ssd1307fb.c
+@@ -530,17 +530,10 @@ static int ssd1307fb_get_brightness(struct backlight_device *bdev)
+ 	return par->contrast;
  }
- EXPORT_SYMBOL_GPL(fb_bl_default_curve);
-+
-+struct backlight_device *fb_bl_device(struct fb_info *info)
-+{
-+	return info->bl_dev;
-+}
- #endif
-diff --git a/include/linux/fb.h b/include/linux/fb.h
-index 708e6a177b1be..1dce640308b5e 100644
---- a/include/linux/fb.h
-+++ b/include/linux/fb.h
-@@ -732,6 +732,15 @@ extern struct fb_info *framebuffer_alloc(size_t size, struct device *dev);
- extern void framebuffer_release(struct fb_info *info);
- extern void fb_bl_default_curve(struct fb_info *fb_info, u8 off, u8 min, u8 max);
  
-+#if IS_ENABLED(CONFIG_FB_BACKLIGHT)
-+struct backlight_device *fb_bl_device(struct fb_info *info);
-+#else
-+struct backlight_device *fb_bl_device(struct fb_info *info)
-+{
-+	return NULL;
-+}
-+#endif
-+
- /* fbmon.c */
- #define FB_MAXTIMINGS		0
- #define FB_VSYNCTIMINGS		1
+-static int ssd1307fb_check_fb(struct backlight_device *bdev,
+-				   struct fb_info *info)
+-{
+-	return (info->bl_dev == bdev);
+-}
+-
+ static const struct backlight_ops ssd1307fb_bl_ops = {
+ 	.options	= BL_CORE_SUSPENDRESUME,
+ 	.update_status	= ssd1307fb_update_bl,
+ 	.get_brightness	= ssd1307fb_get_brightness,
+-	.check_fb	= ssd1307fb_check_fb,
+ };
+ 
+ static struct ssd1307fb_deviceinfo ssd1307fb_ssd1305_deviceinfo = {
 -- 
 2.44.0
 

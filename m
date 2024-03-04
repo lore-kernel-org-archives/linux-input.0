@@ -1,71 +1,76 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE3A3482F3;
-	Mon,  4 Mar 2024 16:32:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F6244CB54;
+	Mon,  4 Mar 2024 16:32:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709569950; cv=none; b=F7+fDFpyPLg7LXn8mUN4ctLTc/e8AWzc2Zc0eYkhvorY2OTEeqXfjc0NNhaxp9PrAVAZwAv8iXMDjD0P+LAfmyNzO8WK1O1qSnYwABNvs9ieWNUvb2vEzMKmOsOpR0yFT671KAfR6Nx1NXFO3XVLYcjtdxHs14uOBxRTHLZnVtI=
+	t=1709569950; cv=none; b=aRMFAZvAleXIxNM7FR7w4QCYU5eU26ot4QNlEsZHtrjYnlVvuILWxV1rDivYrWjDYKBS+goVqUIdl1EIkI8nbnrz3V3jvdVa9DuaD03d5aBia02FGDnRZWb+jSGDivI3zBvufnBRK2sSNoG3p5dQ9Zl4ctwcGyfTxmLTqGvgxMc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1709569950; c=relaxed/simple;
-	bh=cwcfVoEuJYCD7YFcV/k8yX7XLPBTaFPBt5teq1u8jp8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=OoarxbOYhHmNrzQ9crD/LepgMIorHoslyv7ztacVr7qhq8dNgua10Tm+VHlPxzMHJOLCmZSkrA0+8wuhiw4sBGYgySJELGOmMocTuyVz5niV3R/2ixfJSdoYm6sT2t0/KiHzp7LdiLBUzUjtQM0aHQXYqRGk9rxjiiOvNtz4l88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FON9Hzor; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4YvKJRIw; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FON9Hzor; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4YvKJRIw; arc=none smtp.client-ip=195.135.223.131
+	bh=anHyUTDav91fJJwn4bR1XECLfTyS41goqV45hx+UkNQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hlKRrsC1+rv5km/WTRuy5InhTk1G2XVIpwKMNQKOQvIiOXl3qB8ug4c8+uB6nZPw6ErWVUku/i2nsopUkZFa/fBU8B7qURUvlruw3/U8lhM07M8MvV5M3GLr8JJcCn7rvPSXOg4I25G+caHpair/8ePN87BdhasQuD6nj6wbSRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=EfZUTCdd; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=lPktMrpl; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=EfZUTCdd; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=lPktMrpl; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FON9Hzor";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4YvKJRIw";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FON9Hzor";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4YvKJRIw"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="EfZUTCdd";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="lPktMrpl";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="EfZUTCdd";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="lPktMrpl"
 Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [10.150.64.98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 278A01FE24;
-	Mon,  4 Mar 2024 16:32:24 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id B652E337D4;
+	Mon,  4 Mar 2024 16:32:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709569944; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=dRnMrLF+OEWl73CjxNgaSUmbiASWREFcyTi8/I+dH/0=;
-	b=FON9HzorjogV9BnGtNplI5qa/c9Wz5dREnvYZg0bcpwHFTnM3xz2gxtUfIHbAy4kSPlL1f
-	OVl3EMJRK4c6Yztgf3iir0b1M4xI1/n7WBge4Cw30+Lf6abiaROe8m55G2s2/jL1Ige0jC
-	jTKQLNH8LHrFN+CBVkJ10JKyPPxPlto=
+	t=1709569946; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3VYLDIGgRwJLPzdzx4kSlZKwRuQwMEIA4/2EDJniS6s=;
+	b=EfZUTCdd5FtW+0iCQr9K4MhNqiaxzQOUSZDjhnwzhjr6nRRRn117k1m7vMaDxTnKLOcKff
+	GtDzp71c2j8YPIh/oxoEjLLOKOOOkIvotdTeYAkYhLlEe56cmSnpFOESYHSM4VeEF3fDce
+	PLcwzJfkNvgNvaELf+TQjCXf4bu3320=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709569944;
+	s=susede2_ed25519; t=1709569946;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=dRnMrLF+OEWl73CjxNgaSUmbiASWREFcyTi8/I+dH/0=;
-	b=4YvKJRIwJsqhqj/YEOcxSwTNZhkKe5FaJelzYMkZsnVmfSovuy/pjtBbM/bOLKHOADC3px
-	e+b7hgYb0GBdjADQ==
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3VYLDIGgRwJLPzdzx4kSlZKwRuQwMEIA4/2EDJniS6s=;
+	b=lPktMrpl2tRVlXhcQdf8+bLhTdO2S5q433GDXdaNVbZBC3+PQWKnLFGmmnvk4FrDYCZlrF
+	9IQmR5dA9ttQrGBw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709569944; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=dRnMrLF+OEWl73CjxNgaSUmbiASWREFcyTi8/I+dH/0=;
-	b=FON9HzorjogV9BnGtNplI5qa/c9Wz5dREnvYZg0bcpwHFTnM3xz2gxtUfIHbAy4kSPlL1f
-	OVl3EMJRK4c6Yztgf3iir0b1M4xI1/n7WBge4Cw30+Lf6abiaROe8m55G2s2/jL1Ige0jC
-	jTKQLNH8LHrFN+CBVkJ10JKyPPxPlto=
+	t=1709569946; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3VYLDIGgRwJLPzdzx4kSlZKwRuQwMEIA4/2EDJniS6s=;
+	b=EfZUTCdd5FtW+0iCQr9K4MhNqiaxzQOUSZDjhnwzhjr6nRRRn117k1m7vMaDxTnKLOcKff
+	GtDzp71c2j8YPIh/oxoEjLLOKOOOkIvotdTeYAkYhLlEe56cmSnpFOESYHSM4VeEF3fDce
+	PLcwzJfkNvgNvaELf+TQjCXf4bu3320=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709569944;
+	s=susede2_ed25519; t=1709569946;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=dRnMrLF+OEWl73CjxNgaSUmbiASWREFcyTi8/I+dH/0=;
-	b=4YvKJRIwJsqhqj/YEOcxSwTNZhkKe5FaJelzYMkZsnVmfSovuy/pjtBbM/bOLKHOADC3px
-	e+b7hgYb0GBdjADQ==
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3VYLDIGgRwJLPzdzx4kSlZKwRuQwMEIA4/2EDJniS6s=;
+	b=lPktMrpl2tRVlXhcQdf8+bLhTdO2S5q433GDXdaNVbZBC3+PQWKnLFGmmnvk4FrDYCZlrF
+	9IQmR5dA9ttQrGBw==
 Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id CA965139C6;
-	Mon,  4 Mar 2024 16:32:23 +0000 (UTC)
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 6881313A92;
+	Mon,  4 Mar 2024 16:32:26 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([10.150.64.162])
 	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id 3gUvMJf35WVLAQAAn2gu4w
-	(envelope-from <tzimmermann@suse.de>); Mon, 04 Mar 2024 16:32:23 +0000
+	id 2BUiGJr35WVLAQAAn2gu4w
+	(envelope-from <tzimmermann@suse.de>); Mon, 04 Mar 2024 16:32:26 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: lee@kernel.org,
 	andy@kernel.org,
@@ -79,28 +84,33 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-input@vger.kernel.org,
 	linux-pwm@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v3 00/10] backlight: Replace struct fb_info in interfaces
-Date: Mon,  4 Mar 2024 17:29:45 +0100
-Message-ID: <20240304163220.19144-1-tzimmermann@suse.de>
+Subject: [PATCH v3 07/10] fbdev/sh_mobile_lcdc_fb: Remove struct backlight_ops.check_fb
+Date: Mon,  4 Mar 2024 17:29:52 +0100
+Message-ID: <20240304163220.19144-8-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.44.0
+In-Reply-To: <20240304163220.19144-1-tzimmermann@suse.de>
+References: <20240304163220.19144-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Authentication-Results: smtp-out2.suse.de;
+Authentication-Results: smtp-out1.suse.de;
 	none
-X-Spamd-Result: default: False [-2.10 / 50.00];
+X-Spamd-Result: default: False [-2.09 / 50.00];
 	 ARC_NA(0.00)[];
 	 RCVD_VIA_SMTP_AUTH(0.00)[];
 	 FROM_HAS_DN(0.00)[];
 	 TO_DN_SOME(0.00)[];
 	 FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 R_MISSING_CHARSET(2.50)[];
 	 MIME_GOOD(-0.10)[text/plain];
+	 TO_MATCH_ENVRCPT_ALL(0.00)[];
+	 REPLY(-4.00)[];
+	 BROKEN_CONTENT_TYPE(1.50)[];
+	 R_RATELIMIT(0.00)[to_ip_from(RLbrmj4aennmrpd7btm9n9zy3k)];
 	 RCVD_COUNT_THREE(0.00)[3];
 	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	 RCPT_COUNT_TWELVE(0.00)[12];
@@ -110,67 +120,44 @@ X-Spamd-Result: default: False [-2.10 / 50.00];
 	 FROM_EQ_ENVFROM(0.00)[];
 	 MIME_TRACE(0.00)[0:+];
 	 RCVD_TLS_ALL(0.00)[];
-	 BAYES_HAM(-3.00)[100.00%]
+	 BAYES_HAM(-2.99)[99.97%]
 X-Spam-Level: 
 X-Spam-Flag: NO
-X-Spam-Score: -2.10
+X-Spam-Score: -2.09
 
-Backlight drivers implement struct backlight_ops.check_fb, which
-uses struct fb_info in its interface. Replace the callback with one
-that does not use fb_info.
+The driver sets struct fb_info.bl_dev to the correct backlight
+device. Thus rely on the backlight core code to match backlight
+and framebuffer devices, and remove the extra check_fb function
+from struct backlight_ops.
 
-In DRM, we have several drivers that implement backlight support. By
-including <linux/backlight.h> these drivers depend on <linux/fb.h>.
-At the same time, fbdev is deprecated for new drivers and likely to
-be replaced on many systems.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+---
+ drivers/video/fbdev/sh_mobile_lcdcfb.c | 7 -------
+ 1 file changed, 7 deletions(-)
 
-This patchset is part of a larger effort to implement the backlight
-code without depending on fbdev.
-
-Patch 1 makes the backlight core match backlight and framebuffer
-devices via struct fb_info.bl_dev. Patches 2 to 9 then go through
-drivers and remove unnecessary implementations of check_fb. Finally,
-patch 10 replaces the check_fb hook with controls_device, which
-uses the framebuffer's Linux device instead of the framebuffer.
-
-v3:
-	* hide CONFIG_FB_BACKLIGHT behind fb_bl_device() (Lee)
-	* if-else cleanups (Andy)
-	* fix commit message of patch 2 (Andy)
-v2:
-	* fix hid-picolcd for CONFIG_FB_BACKLIGHT=n
-	* fixes to commit messages
-
-Thomas Zimmermann (10):
-  backlight: Match backlight device against struct fb_info.bl_dev
-  auxdisplay/ht16k33: Remove struct backlight_ops.check_fb
-  hid/hid-picolcd: Fix initialization order
-  hid/hid-picolcd: Remove struct backlight_ops.check_fb
-  backlight/aat2870-backlight: Remove struct backlight.check_fb
-  backlight/pwm-backlight: Remove struct backlight_ops.check_fb
-  fbdev/sh_mobile_lcdc_fb: Remove struct backlight_ops.check_fb
-  fbdev/ssd1307fb: Init backlight before registering framebuffer
-  fbdev/ssd1307fb: Remove struct backlight_ops.check_fb
-  backlight: Add controls_device callback to struct backlight_ops
-
- drivers/auxdisplay/ht16k33.c             |  8 ------
- drivers/hid/hid-picolcd_backlight.c      |  7 ------
- drivers/hid/hid-picolcd_core.c           | 14 +++++------
- drivers/hid/hid-picolcd_fb.c             |  6 +++++
- drivers/video/backlight/aat2870_bl.c     |  7 ------
- drivers/video/backlight/backlight.c      |  8 ++++--
- drivers/video/backlight/bd6107.c         | 12 ++++-----
- drivers/video/backlight/gpio_backlight.c | 12 ++++-----
- drivers/video/backlight/lv5207lp.c       | 12 ++++-----
- drivers/video/backlight/pwm_bl.c         | 12 ---------
- drivers/video/fbdev/core/fb_backlight.c  |  5 ++++
- drivers/video/fbdev/sh_mobile_lcdcfb.c   |  7 ------
- drivers/video/fbdev/ssd1307fb.c          | 31 +++++++++---------------
- include/linux/backlight.h                | 16 ++++++------
- include/linux/fb.h                       |  9 +++++++
- include/linux/pwm_backlight.h            |  1 -
- 16 files changed, 70 insertions(+), 97 deletions(-)
-
+diff --git a/drivers/video/fbdev/sh_mobile_lcdcfb.c b/drivers/video/fbdev/sh_mobile_lcdcfb.c
+index eb2297b37504c..bf34c8ec1a26c 100644
+--- a/drivers/video/fbdev/sh_mobile_lcdcfb.c
++++ b/drivers/video/fbdev/sh_mobile_lcdcfb.c
+@@ -2140,17 +2140,10 @@ static int sh_mobile_lcdc_get_brightness(struct backlight_device *bdev)
+ 	return ch->bl_brightness;
+ }
+ 
+-static int sh_mobile_lcdc_check_fb(struct backlight_device *bdev,
+-				   struct fb_info *info)
+-{
+-	return (info->bl_dev == bdev);
+-}
+-
+ static const struct backlight_ops sh_mobile_lcdc_bl_ops = {
+ 	.options	= BL_CORE_SUSPENDRESUME,
+ 	.update_status	= sh_mobile_lcdc_update_bl,
+ 	.get_brightness	= sh_mobile_lcdc_get_brightness,
+-	.check_fb	= sh_mobile_lcdc_check_fb,
+ };
+ 
+ static struct backlight_device *sh_mobile_lcdc_bl_probe(struct device *parent,
 -- 
 2.44.0
 

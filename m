@@ -1,16 +1,16 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6C1B4CE11;
-	Mon,  4 Mar 2024 16:32:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE401495F0;
+	Mon,  4 Mar 2024 16:32:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709569951; cv=none; b=Vrbpy1n7h7qZSeFaxMzQhoK5lfvEUjm8mh64PYwmi2s4yb66vfVNh1AtZfcRHH4UeBjssWmtZrh/VW/EuslZEoM/sZoFFg+IlXm5SiMtnxdszOXdviNAAlTT0COplwk94BBLGbGFCnWrY2cSarIIGlzujDFjHWYANAecG+kSh7I=
+	t=1709569951; cv=none; b=ZWI7rcv+nXwC8IunjNrFwEeT51VIrjz+gIYreUKuVRXK6EYKwafoL2QFwCF3GTflWLgYZ4SqUucyrdOW6RlDXb4lHJNsDfJHjN/NI6fZffdGap1kfofCAWIZI655+ez4ew4cYnc1EBw17jjj1Xl7a02Vh0BfWt1H3/ELbImX7SE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1709569951; c=relaxed/simple;
-	bh=uOwFMt+83EsKNNhkY2N+wi4oavD08Okoo2gbXz7O1jY=;
+	bh=a1s9luZvW5cpl3Ufm72oNJSlqXu75z3ENOkW6TQaklE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FWS+GV4xCkRD2eukjVj5n4sFFVtZOFy0+XsuLWJE5MHBWVe1g1jbg2J8TfxZhQwkmzJRvfN/7JQBICVtrr6VblusSJ+AAGhLbU/SIeqSJKjNSwCFO/xnWBTXule5cnSgtf9Skbcpk9r06RSMbae6L2J3Ks5fX8izcxe8uuvKeOM=
+	 MIME-Version; b=ovCbtb4LfMeQIiAWGTx+bBPZ6VERkPnSTznSHQXlbX0Hz7/Ta0MyhTXr5pIE7Dhi4oXppfgnYc4DyA+zBsZ6ZvkYKpdNFJDobdNSRTf8qAgXmQZ482HxskA5vlCzuu0KnSxsacQhUo4oAgQ5jPKff/j5Cz1qRQzEBWpuobDQuHw=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
@@ -18,18 +18,18 @@ Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 26DD31FF5D;
-	Mon,  4 Mar 2024 16:32:27 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 871301FF57;
+	Mon,  4 Mar 2024 16:32:24 +0000 (UTC)
 Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id BE682139C6;
-	Mon,  4 Mar 2024 16:32:26 +0000 (UTC)
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 2F04713A92;
+	Mon,  4 Mar 2024 16:32:24 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([10.150.64.162])
 	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id GKU4LZr35WVLAQAAn2gu4w
-	(envelope-from <tzimmermann@suse.de>); Mon, 04 Mar 2024 16:32:26 +0000
+	id aOolCpj35WVLAQAAn2gu4w
+	(envelope-from <tzimmermann@suse.de>); Mon, 04 Mar 2024 16:32:24 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: lee@kernel.org,
 	andy@kernel.org,
@@ -43,9 +43,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-input@vger.kernel.org,
 	linux-pwm@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v3 08/10] fbdev/ssd1307fb: Init backlight before registering framebuffer
-Date: Mon,  4 Mar 2024 17:29:53 +0100
-Message-ID: <20240304163220.19144-9-tzimmermann@suse.de>
+Subject: [PATCH v3 01/10] backlight: Match backlight device against struct fb_info.bl_dev
+Date: Mon,  4 Mar 2024 17:29:46 +0100
+Message-ID: <20240304163220.19144-2-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240304163220.19144-1-tzimmermann@suse.de>
 References: <20240304163220.19144-1-tzimmermann@suse.de>
@@ -63,78 +63,95 @@ X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 X-Spamd-Result: default: False [-4.00 / 50.00];
 	 REPLY(-4.00)[]
 X-Spam-Score: -4.00
-X-Rspamd-Queue-Id: 26DD31FF5D
+X-Rspamd-Queue-Id: 871301FF57
 X-Spam-Flag: NO
 
-For drivers that support backlight, LCD and fbdev devices, fbdev has
-to be initialized last. See documentation for struct fbinfo.bl_dev.
+Framebuffer drivers for devices with dedicated backlight are supposed
+to set struct fb_info.bl_dev to the backlight's respective device. Use
+the value to match backlight and framebuffer in the backlight core code.
 
-The backlight name's index number comes from register_framebuffer(),
-which now happens after initializing the backlight device. So like
-in all other backlight drivers, we now give the backlight device a
-generic name without the fbdev index.
+The code first tests against struct backlight_ops.check_ops. If this
+test succeeds, it performs the test against fbdev. So backlight drivers
+can override the later test as before.
+
+Fbdev's backlight support depends on CONFIG_FB_BACKLIGHT. To avoid
+ifdef in the code, the new helper fb_bl_device() returns the backlight
+device, or NULL if the config option has been disabled. The test in
+the backlight code will then do nothing.
+
+v3:
+	* hide ifdef in fb_bl_device() (Lee)
+	* no if-else blocks (Andy)
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/video/fbdev/ssd1307fb.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+ drivers/video/backlight/backlight.c     | 8 ++++++--
+ drivers/video/fbdev/core/fb_backlight.c | 5 +++++
+ include/linux/fb.h                      | 9 +++++++++
+ 3 files changed, 20 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
-index 1a4f90ea7d5a8..0d1590c61eb06 100644
---- a/drivers/video/fbdev/ssd1307fb.c
-+++ b/drivers/video/fbdev/ssd1307fb.c
-@@ -594,7 +594,6 @@ static int ssd1307fb_probe(struct i2c_client *client)
+diff --git a/drivers/video/backlight/backlight.c b/drivers/video/backlight/backlight.c
+index 86e1cdc8e3697..4f7973c6fcc79 100644
+--- a/drivers/video/backlight/backlight.c
++++ b/drivers/video/backlight/backlight.c
+@@ -98,7 +98,9 @@ static int fb_notifier_callback(struct notifier_block *self,
  {
- 	struct device *dev = &client->dev;
- 	struct backlight_device *bl;
--	char bl_name[12];
- 	struct fb_info *info;
- 	struct fb_deferred_io *ssd1307fb_defio;
- 	u32 vmem_size;
-@@ -733,31 +732,30 @@ static int ssd1307fb_probe(struct i2c_client *client)
- 	if (ret)
- 		goto regulator_enable_error;
+ 	struct backlight_device *bd;
+ 	struct fb_event *evdata = data;
+-	int node = evdata->info->node;
++	struct fb_info *info = evdata->info;
++	struct backlight_device *fb_bd = fb_bl_device(info);
++	int node = info->node;
+ 	int fb_blank = 0;
  
--	ret = register_framebuffer(info);
--	if (ret) {
--		dev_err(dev, "Couldn't register the framebuffer\n");
--		goto panel_init_error;
--	}
--
--	snprintf(bl_name, sizeof(bl_name), "ssd1307fb%d", info->node);
--	bl = backlight_device_register(bl_name, dev, par, &ssd1307fb_bl_ops,
-+	bl = backlight_device_register("ssd1307fb-bl", dev, par, &ssd1307fb_bl_ops,
- 				       NULL);
- 	if (IS_ERR(bl)) {
- 		ret = PTR_ERR(bl);
- 		dev_err(dev, "unable to register backlight device: %d\n", ret);
--		goto bl_init_error;
-+		goto panel_init_error;
-+	}
-+	info->bl_dev = bl;
+ 	/* If we aren't interested in this event, skip it immediately ... */
+@@ -110,7 +112,9 @@ static int fb_notifier_callback(struct notifier_block *self,
+ 
+ 	if (!bd->ops)
+ 		goto out;
+-	if (bd->ops->check_fb && !bd->ops->check_fb(bd, evdata->info))
++	if (bd->ops->check_fb && !bd->ops->check_fb(bd, info))
++		goto out;
++	if (fb_bd && fb_bd != bd)
+ 		goto out;
+ 
+ 	fb_blank = *(int *)evdata->data;
+diff --git a/drivers/video/fbdev/core/fb_backlight.c b/drivers/video/fbdev/core/fb_backlight.c
+index e2d3b3adc870f..d3470a90042ea 100644
+--- a/drivers/video/fbdev/core/fb_backlight.c
++++ b/drivers/video/fbdev/core/fb_backlight.c
+@@ -30,4 +30,9 @@ void fb_bl_default_curve(struct fb_info *fb_info, u8 off, u8 min, u8 max)
+ 	mutex_unlock(&fb_info->bl_curve_mutex);
+ }
+ EXPORT_SYMBOL_GPL(fb_bl_default_curve);
 +
-+	ret = register_framebuffer(info);
-+	if (ret) {
-+		dev_err(dev, "Couldn't register the framebuffer\n");
-+		goto fb_init_error;
- 	}
++struct backlight_device *fb_bl_device(struct fb_info *info)
++{
++	return info->bl_dev;
++}
+ #endif
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 708e6a177b1be..1dce640308b5e 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -732,6 +732,15 @@ extern struct fb_info *framebuffer_alloc(size_t size, struct device *dev);
+ extern void framebuffer_release(struct fb_info *info);
+ extern void fb_bl_default_curve(struct fb_info *fb_info, u8 off, u8 min, u8 max);
  
- 	bl->props.brightness = par->contrast;
- 	bl->props.max_brightness = MAX_CONTRAST;
--	info->bl_dev = bl;
- 
- 	dev_info(dev, "fb%d: %s framebuffer device registered, using %d bytes of video memory\n", info->node, info->fix.id, vmem_size);
- 
- 	return 0;
- 
--bl_init_error:
--	unregister_framebuffer(info);
-+fb_init_error:
-+	backlight_device_unregister(bl);
- panel_init_error:
- 	pwm_disable(par->pwm);
- 	pwm_put(par->pwm);
++#if IS_ENABLED(CONFIG_FB_BACKLIGHT)
++struct backlight_device *fb_bl_device(struct fb_info *info);
++#else
++struct backlight_device *fb_bl_device(struct fb_info *info)
++{
++	return NULL;
++}
++#endif
++
+ /* fbmon.c */
+ #define FB_MAXTIMINGS		0
+ #define FB_VSYNCTIMINGS		1
 -- 
 2.44.0
 

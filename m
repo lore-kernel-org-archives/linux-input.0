@@ -1,212 +1,87 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A268128830;
-	Tue,  5 Mar 2024 16:24:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10E7F13FF9
+	for <linux-input@vger.kernel.org>; Tue,  5 Mar 2024 17:01:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709655895; cv=none; b=WXwEJg/WPz0dmM06K2FBqjy5VGoeGBDmBsoVP8NoZTN14jphCDIVFzXih+8R6Pmv2bHD2EBuGIIC/iGM7TkcPYtbACD1nGIRo1JKtGSRAD3BY1p45VxtH73dO1gNelqQ9ipAV+JQa6DxRaUvi3IeED0i4MRZC9RXmNzVXXubvAU=
+	t=1709658102; cv=none; b=B8Z8XK337mZ0MjQZaa6kbo+McRlDh/idI/BHXvysxENDM4KDjObsgESq9ASKv7eX7wnQjIbTF6GvA7wU1jhRuaAwgfC58PeBPE7SxDldSY0CX0mriAs6Q08IyFyYbQw57i+RFL8lSXQi0QFzyd9vB8Z4aGmBkpkQJJekxZah1uk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709655895; c=relaxed/simple;
-	bh=uOwFMt+83EsKNNhkY2N+wi4oavD08Okoo2gbXz7O1jY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KiaZA8sqVT5o+YqhVYCpHg37Ymv/RZDpVNMgDNygFyUSm6gtDMzba77uYdXcAmmdhdH7hlVVndoD+UdT/fdze0U2nG6NUuhI0GCxLrT+lWnKR+Da8M7S1ut4h2hu/nhxiz2U81pIQgRNTCO0HXN0g+dMdJ/upIARotyHdlTJmkU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KKaAQYgN; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=bYeOyE+Y; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KKaAQYgN; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=bYeOyE+Y; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1709658102; c=relaxed/simple;
+	bh=yMG+CD4vfDVlWPCULhaVi6TPoGDMGnIK4zcuB98eric=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=aCwJ1JVUrdj1Cdl08Qk7fXdRmIwexaJEoVFzvN650hmpJXMdhbrQDX1F8jTzrEkY4E31KiYIPPLx/0Qj9TdBmRd30Q5N7EwIXhhqBB6P3tE2hOaM6KUww9tFRgfiIeOOf76IKjdY8VP7J+75P7ErHqOUzdWL1+WNK4bc6918zDM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N3PFWUZd; arc=none smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KKaAQYgN";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="bYeOyE+Y";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KKaAQYgN";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="bYeOyE+Y"
-Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 1402F6B96C;
-	Tue,  5 Mar 2024 16:24:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709655873; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tiW8oMxRirFfgXm1wCsY/SJh6175DL+59YAwCG6IkK4=;
-	b=KKaAQYgNert5uKY+9h5Cn0u97seXJ0D67DcxnT9vQ5lou/tg3kdRw6qoLlOrmZtEtrueoK
-	e0+vmcR6vRoUg4gNsOth4gCnOIjFStqBsUyV4tRpK5MqZKKI8VTFhBzhjKcljmUe8pI/3M
-	VWXXl/z2me4sQOB4Io0Rbml3eEBVWt8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709655873;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tiW8oMxRirFfgXm1wCsY/SJh6175DL+59YAwCG6IkK4=;
-	b=bYeOyE+YUoawS1yySKcNQ5AbZwa5rxaZ7F2e5Ggt8UZ3LV9+9FCcgsX+9XRf6bsQz2iHBf
-	fsV9ImWBO1cGN+BA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709655873; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tiW8oMxRirFfgXm1wCsY/SJh6175DL+59YAwCG6IkK4=;
-	b=KKaAQYgNert5uKY+9h5Cn0u97seXJ0D67DcxnT9vQ5lou/tg3kdRw6qoLlOrmZtEtrueoK
-	e0+vmcR6vRoUg4gNsOth4gCnOIjFStqBsUyV4tRpK5MqZKKI8VTFhBzhjKcljmUe8pI/3M
-	VWXXl/z2me4sQOB4Io0Rbml3eEBVWt8=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709655873;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tiW8oMxRirFfgXm1wCsY/SJh6175DL+59YAwCG6IkK4=;
-	b=bYeOyE+YUoawS1yySKcNQ5AbZwa5rxaZ7F2e5Ggt8UZ3LV9+9FCcgsX+9XRf6bsQz2iHBf
-	fsV9ImWBO1cGN+BA==
-Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id B7D9A13A5D;
-	Tue,  5 Mar 2024 16:24:32 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([10.150.64.162])
-	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id 6O+hK0BH52WwYwAAn2gu4w
-	(envelope-from <tzimmermann@suse.de>); Tue, 05 Mar 2024 16:24:32 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: lee@kernel.org,
-	andy@kernel.org,
-	daniel.thompson@linaro.org,
-	jingoohan1@gmail.com,
-	deller@gmx.de,
-	robin@protonic.nl,
-	javierm@redhat.com
-Cc: dri-devel@lists.freedesktop.org,
-	linux-fbdev@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-pwm@vger.kernel.org,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 08/10] fbdev/ssd1307fb: Init backlight before registering framebuffer
-Date: Tue,  5 Mar 2024 17:22:41 +0100
-Message-ID: <20240305162425.23845-9-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.44.0
-In-Reply-To: <20240305162425.23845-1-tzimmermann@suse.de>
-References: <20240305162425.23845-1-tzimmermann@suse.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N3PFWUZd"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-564fd9eea75so1246821a12.3
+        for <linux-input@vger.kernel.org>; Tue, 05 Mar 2024 09:01:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1709658099; x=1710262899; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yMG+CD4vfDVlWPCULhaVi6TPoGDMGnIK4zcuB98eric=;
+        b=N3PFWUZdWYQFGGlelHgz4FGi6t2tp0YK5DyEgHP/KaXb0IuATkJwq8Ln05GA0YucoH
+         zbMX+6y2lXSRXHMRQbj2SNLFQt/UwL4bh25guYXVxWu0CMYtpG4PGnfTlNDdVMMvJhtI
+         zWLs9/NdPkE48TABy4n8sGIjhoiP9Ru66u6QXuLSu/nifqhFtlf8NE1STFQ+dEBRfyk2
+         MJk/8Dyd1p34IDlxHMm7uR8PTuhIL0nYmeh0e1Mg3lLfExHoYFraB2+/8ypogFIvUFAR
+         aEeEuLYo8bnpUlRcpb6ecAKGsYiMAcieT/S63nh7iXsfd7MVmJCt59DNhi7DSvymBzb5
+         pdmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1709658099; x=1710262899;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yMG+CD4vfDVlWPCULhaVi6TPoGDMGnIK4zcuB98eric=;
+        b=K0UZVQhYBHaOyZUHgiCco4l8Z5gsEONtouAOCPgxn9346GFbCUNGSodHQ2s1ZFhQeD
+         a2O2dDMAm03S3onE1rNgo+Lg4Yo480tEt1anzX93t0XKEKGmbZx90ICjm6eqXZVZ4J8K
+         l4TAauapi84lvt6VFozvwHxvK1vwuEPd/EBx+aSvAHmHRDLVkJSX6NK0GQAI9yirsNY3
+         mshEwQ3PYhkcHnZCQm0So837Evdvth6IhLrkrO3DsyjAwD/MnKKg5z2HuR3Vvoqgoufo
+         Xowu5DxG7D3lHO0ztQ4DIaOeQ7yzYCXKliTzoQ0uBs7KQEDpWlfI7kBghQNWAng+kWbg
+         sj8Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUKcX2iRPnP04eogq0PC5SL30OURgRnuz3fAGOjtSsOY8GHmkFi7Okk1We3S1i9q7B5ktQF4Uf5CbuRJkQgaDhVZLoCPVMZSWaPCsI=
+X-Gm-Message-State: AOJu0YzjCoBLIleVi6VNqijSN624/UI2B9zLk16Ix/Yt/NG8iaU34ShI
+	vRQFbQ6TN/dX1RLsxgm9PJyiLV5yfpAfQNuiV0qA+yj9Z/HD74lhR6SB6NEbn3Lh6yuF6bkB1WI
+	X7wx785i2in7HCxkCe6TH8IxUesc=
+X-Google-Smtp-Source: AGHT+IH8pSZywbsjFX28/4uEBsDASwYHkuDNnNtu+MKPm0yZB+t7CM9SfYfvRe+RLFbGiVzwj8JrH2eivCvxvzidl6c=
+X-Received: by 2002:a17:906:1114:b0:a44:46a:e904 with SMTP id
+ h20-20020a170906111400b00a44046ae904mr9076363eja.50.1709658099132; Tue, 05
+ Mar 2024 09:01:39 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Level: 
-X-Spamd-Bar: /
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=KKaAQYgN;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=bYeOyE+Y
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [0.99 / 50.00];
-	 RCVD_VIA_SMTP_AUTH(0.00)[];
-	 SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:98:from];
-	 TO_DN_SOME(0.00)[];
-	 R_MISSING_CHARSET(2.50)[];
-	 BROKEN_CONTENT_TYPE(1.50)[];
-	 R_RATELIMIT(0.00)[to_ip_from(RLmbat3p9xsccqh5oowmzmthut)];
-	 RCVD_COUNT_THREE(0.00)[3];
-	 DKIM_TRACE(0.00)[suse.de:+];
-	 MX_GOOD(-0.01)[];
-	 NEURAL_HAM_SHORT(-0.20)[-1.000];
-	 FREEMAIL_TO(0.00)[kernel.org,linaro.org,gmail.com,gmx.de,protonic.nl,redhat.com];
-	 FROM_EQ_ENVFROM(0.00)[];
-	 MIME_TRACE(0.00)[0:+];
-	 BAYES_HAM(-0.00)[21.65%];
-	 ARC_NA(0.00)[];
-	 R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 RCVD_DKIM_ARC_DNSWL_HI(-1.00)[];
-	 FROM_HAS_DN(0.00)[];
-	 FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
-	 TO_MATCH_ENVRCPT_ALL(0.00)[];
-	 MIME_GOOD(-0.10)[text/plain];
-	 NEURAL_HAM_LONG(-1.00)[-1.000];
-	 DWL_DNSWL_LOW(-1.00)[suse.de:dkim];
-	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	 RCPT_COUNT_TWELVE(0.00)[12];
-	 MID_CONTAINS_FROM(1.00)[];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:email];
-	 FUZZY_BLOCKED(0.00)[rspamd.com];
-	 RCVD_IN_DNSWL_HI(-0.50)[2a07:de40:b281:104:10:150:64:98:from];
-	 RCVD_TLS_ALL(0.00)[]
-X-Spam-Score: 0.99
-X-Rspamd-Queue-Id: 1402F6B96C
-X-Spam-Flag: NO
+References: <20240305101042.10953-2-u.kleine-koenig@pengutronix.de>
+In-Reply-To: <20240305101042.10953-2-u.kleine-koenig@pengutronix.de>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Tue, 5 Mar 2024 19:01:02 +0200
+Message-ID: <CAHp75Vc2CePCjwvgwNNkccS6fYV1dZam25Rq__6wW1BUr5CFSQ@mail.gmail.com>
+Subject: Re: [PATCH] Input: gpio_keys_polled - Suppress deferred probe error
+ for gpio
+To: =?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Linus Walleij <linus.walleij@linaro.org>, 
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>, linux-input@vger.kernel.org, 
+	kernel@pengutronix.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-For drivers that support backlight, LCD and fbdev devices, fbdev has
-to be initialized last. See documentation for struct fbinfo.bl_dev.
+On Tue, Mar 5, 2024 at 12:10=E2=80=AFPM Uwe Kleine-K=C3=B6nig
+<u.kleine-koenig@pengutronix.de> wrote:
 
-The backlight name's index number comes from register_framebuffer(),
-which now happens after initializing the backlight device. So like
-in all other backlight drivers, we now give the backlight device a
-generic name without the fbdev index.
+...
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
----
- drivers/video/fbdev/ssd1307fb.c | 24 +++++++++++-------------
- 1 file changed, 11 insertions(+), 13 deletions(-)
+> there are a few other exit paths that could use dev_err_probe(), but IIRC
+> Dmitry isn't a fan of using dev_err_probe() where the return value cannot=
+ be
+> EPROBE_DEFER, so I'm only changing this one error path.
 
-diff --git a/drivers/video/fbdev/ssd1307fb.c b/drivers/video/fbdev/ssd1307fb.c
-index 1a4f90ea7d5a8..0d1590c61eb06 100644
---- a/drivers/video/fbdev/ssd1307fb.c
-+++ b/drivers/video/fbdev/ssd1307fb.c
-@@ -594,7 +594,6 @@ static int ssd1307fb_probe(struct i2c_client *client)
- {
- 	struct device *dev = &client->dev;
- 	struct backlight_device *bl;
--	char bl_name[12];
- 	struct fb_info *info;
- 	struct fb_deferred_io *ssd1307fb_defio;
- 	u32 vmem_size;
-@@ -733,31 +732,30 @@ static int ssd1307fb_probe(struct i2c_client *client)
- 	if (ret)
- 		goto regulator_enable_error;
- 
--	ret = register_framebuffer(info);
--	if (ret) {
--		dev_err(dev, "Couldn't register the framebuffer\n");
--		goto panel_init_error;
--	}
--
--	snprintf(bl_name, sizeof(bl_name), "ssd1307fb%d", info->node);
--	bl = backlight_device_register(bl_name, dev, par, &ssd1307fb_bl_ops,
-+	bl = backlight_device_register("ssd1307fb-bl", dev, par, &ssd1307fb_bl_ops,
- 				       NULL);
- 	if (IS_ERR(bl)) {
- 		ret = PTR_ERR(bl);
- 		dev_err(dev, "unable to register backlight device: %d\n", ret);
--		goto bl_init_error;
-+		goto panel_init_error;
-+	}
-+	info->bl_dev = bl;
-+
-+	ret = register_framebuffer(info);
-+	if (ret) {
-+		dev_err(dev, "Couldn't register the framebuffer\n");
-+		goto fb_init_error;
- 	}
- 
- 	bl->props.brightness = par->contrast;
- 	bl->props.max_brightness = MAX_CONTRAST;
--	info->bl_dev = bl;
- 
- 	dev_info(dev, "fb%d: %s framebuffer device registered, using %d bytes of video memory\n", info->node, info->fix.id, vmem_size);
- 
- 	return 0;
- 
--bl_init_error:
--	unregister_framebuffer(info);
-+fb_init_error:
-+	backlight_device_unregister(bl);
- panel_init_error:
- 	pwm_disable(par->pwm);
- 	pwm_put(par->pwm);
--- 
-2.44.0
+It's not true anymore. He is fine with that API, and please use it.
 
+--=20
+With Best Regards,
+Andy Shevchenko

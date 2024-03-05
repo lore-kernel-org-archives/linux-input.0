@@ -1,75 +1,75 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 765FA1292E4;
-	Tue,  5 Mar 2024 16:24:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40E0312DD91;
+	Tue,  5 Mar 2024 16:24:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709655882; cv=none; b=IX1N0JVOX80rOiqALdbzJOkAHeF3+rwPasiudsjwnjF4wLMR1Cy0qgLmRmecx3iy508jZ9IrV8ChEHqtaDrAncaS2ZPxWbBcqnSCCWKsi7w7BkIVIzqPAN6rETsaTKqMM0z7U0+jipyUdjXiyRwYyt88XdbEMwKiwnTZh1LE4dU=
+	t=1709655878; cv=none; b=An+QEdFrSWdIgaHg+gx/aWDHrrpjwjRUmmjIdNqrebKZB5n9fuc+sjuXaASqWt24kKQPxLGBivGFV96DOxa45PREWd064v3eiJVav9GD/nlk1XJ7bEX1mjxpo5wvk4W6gRrzDE5KKCWM4OCnyNbQUmRD1T7iraUM2tTgp6SRM20=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709655882; c=relaxed/simple;
-	bh=vKr5mElKlCE9ez3QEO/1NXFNqefBHLhR/ArilKitksI=;
+	s=arc-20240116; t=1709655878; c=relaxed/simple;
+	bh=xRj4kKc6f2k5uLI8oGBFudAYfK6dEXKOpLVGByVO3tw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hIfUAQoOJVRQRCaKpehfj5Lk0NWaUmLhTaTUYdYeEoZIs7UlwtgskeJTDa58l8CLi87fGT/wraDjxBeRJjRfh3fv2/bAFzAXpIaF8IO8DTjblN6JVI/lthjBmPVPDUglxPafuUx3z78bz0vzmHaj3lwSr0jQJfUp/VJqkzfd9vY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ow/ICrkB; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=NLvI49J5; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ow/ICrkB; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=NLvI49J5; arc=none smtp.client-ip=195.135.223.130
+	 MIME-Version:Content-Type; b=IeFdt53aiqnD8wwC64ZCr/sgmPTuOjs2xxCxZUET+M7cb3ZOLk61j/WxYxbaY+vea/drfZv9JPzTAu41YUdwopJa26tuVyTE9J+XBvFvkqMbnRkO3z+88jDG5Q043W1aoPOYjb0Hr/RHy54Pl96c7TPM9Xfih5PUAGV10p9ydkA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=W0PNgio3; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=KsUTLYv2; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=W0PNgio3; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=KsUTLYv2; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ow/ICrkB";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="NLvI49J5";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ow/ICrkB";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="NLvI49J5"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="W0PNgio3";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="KsUTLYv2";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="W0PNgio3";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="KsUTLYv2"
 Received: from imap2.dmz-prg2.suse.org (imap2.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:98])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 991FF6B967;
-	Tue,  5 Mar 2024 16:24:31 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 596536B96B;
+	Tue,  5 Mar 2024 16:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709655871; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1709655872; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Qfhcy/hEHxfuNqfhSlDlbxTKM4p4+a+utzcPfxG9fCY=;
-	b=ow/ICrkB5snCc6Q8wnVuQnKFjkSEsO9IihW7FJb44T2OHgmOnEOXUmJD5NHWprJx+OSd4o
-	7zh82zVmHcYlyFoVuZ3/jPZyTUVhlYEHK7VFnVlFOCmviItfJLnzvEjmH6dJE8kc+GPAeQ
-	6pBY6aJEujDHaupuVSndMpulCeQb8Vo=
+	bh=5EM1dsMS8ciY5XroJVXglx2pw68rH+KuHUZfHYNIwP4=;
+	b=W0PNgio3QStK2Q0QP7XeJ4L7jA+7PQWWpPPNM3aibL76omc+KrS59bNzVX63GIz4K9/xvV
+	pSI9s/eL+NbhcX6M+AvwVIzmoRofPY991r0bZyjAWmlZv4Z6rY4XywzEreBtfK7pvUUhQ4
+	MNd1ifdFb5QG1Tl1q2O9oD2sLpbN2jQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709655871;
+	s=susede2_ed25519; t=1709655872;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Qfhcy/hEHxfuNqfhSlDlbxTKM4p4+a+utzcPfxG9fCY=;
-	b=NLvI49J5lywvRQh78g+2O+QCdlGSOZyqsXjlrnb1OaNhywTsFApm+g8q0lIS5PW+GfVof9
-	4YfdLv6rISoUeYCw==
+	bh=5EM1dsMS8ciY5XroJVXglx2pw68rH+KuHUZfHYNIwP4=;
+	b=KsUTLYv2L4HqFmnFgxR9mGQ9HyydBYaKXbaF1OMTDQse0QUTiabUZxPsBap8v7ORuW78Pa
+	bXFsWC6SAiuBHbBw==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1709655871; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1709655872; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Qfhcy/hEHxfuNqfhSlDlbxTKM4p4+a+utzcPfxG9fCY=;
-	b=ow/ICrkB5snCc6Q8wnVuQnKFjkSEsO9IihW7FJb44T2OHgmOnEOXUmJD5NHWprJx+OSd4o
-	7zh82zVmHcYlyFoVuZ3/jPZyTUVhlYEHK7VFnVlFOCmviItfJLnzvEjmH6dJE8kc+GPAeQ
-	6pBY6aJEujDHaupuVSndMpulCeQb8Vo=
+	bh=5EM1dsMS8ciY5XroJVXglx2pw68rH+KuHUZfHYNIwP4=;
+	b=W0PNgio3QStK2Q0QP7XeJ4L7jA+7PQWWpPPNM3aibL76omc+KrS59bNzVX63GIz4K9/xvV
+	pSI9s/eL+NbhcX6M+AvwVIzmoRofPY991r0bZyjAWmlZv4Z6rY4XywzEreBtfK7pvUUhQ4
+	MNd1ifdFb5QG1Tl1q2O9oD2sLpbN2jQ=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1709655871;
+	s=susede2_ed25519; t=1709655872;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Qfhcy/hEHxfuNqfhSlDlbxTKM4p4+a+utzcPfxG9fCY=;
-	b=NLvI49J5lywvRQh78g+2O+QCdlGSOZyqsXjlrnb1OaNhywTsFApm+g8q0lIS5PW+GfVof9
-	4YfdLv6rISoUeYCw==
+	bh=5EM1dsMS8ciY5XroJVXglx2pw68rH+KuHUZfHYNIwP4=;
+	b=KsUTLYv2L4HqFmnFgxR9mGQ9HyydBYaKXbaF1OMTDQse0QUTiabUZxPsBap8v7ORuW78Pa
+	bXFsWC6SAiuBHbBw==
 Received: from imap2.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 42D3913A5D;
+	by imap2.dmz-prg2.suse.org (Postfix) with ESMTPS id 03FCA13A5D;
 	Tue,  5 Mar 2024 16:24:31 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([10.150.64.162])
 	by imap2.dmz-prg2.suse.org with ESMTPSA
-	id 4EELDz9H52WwYwAAn2gu4w
+	id AFgwOz9H52WwYwAAn2gu4w
 	(envelope-from <tzimmermann@suse.de>); Tue, 05 Mar 2024 16:24:31 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: lee@kernel.org,
@@ -84,10 +84,10 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-input@vger.kernel.org,
 	linux-pwm@vger.kernel.org,
 	Thomas Zimmermann <tzimmermann@suse.de>,
-	=?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@linux-vserver.org>
-Subject: [PATCH v4 04/10] hid/hid-picolcd: Remove struct backlight_ops.check_fb
-Date: Tue,  5 Mar 2024 17:22:37 +0100
-Message-ID: <20240305162425.23845-5-tzimmermann@suse.de>
+	=?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
+Subject: [PATCH v4 06/10] backlight/pwm-backlight: Remove struct backlight_ops.check_fb
+Date: Tue,  5 Mar 2024 17:22:39 +0100
+Message-ID: <20240305162425.23845-7-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240305162425.23845-1-tzimmermann@suse.de>
 References: <20240305162425.23845-1-tzimmermann@suse.de>
@@ -99,10 +99,12 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
 Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b="ow/ICrkB";
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=NLvI49J5
-X-Spamd-Result: default: False [-4.81 / 50.00];
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=W0PNgio3;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=KsUTLYv2
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.06 / 50.00];
 	 RCVD_VIA_SMTP_AUTH(0.00)[];
 	 SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:98:from];
 	 TO_DN_SOME(0.00)[];
@@ -110,10 +112,11 @@ X-Spamd-Result: default: False [-4.81 / 50.00];
 	 RCVD_COUNT_THREE(0.00)[3];
 	 DKIM_TRACE(0.00)[suse.de:+];
 	 MX_GOOD(-0.01)[];
+	 NEURAL_HAM_SHORT(-0.20)[-1.000];
 	 FREEMAIL_TO(0.00)[kernel.org,linaro.org,gmail.com,gmx.de,protonic.nl,redhat.com];
 	 FROM_EQ_ENVFROM(0.00)[];
 	 MIME_TRACE(0.00)[0:+];
-	 BAYES_HAM(-3.00)[100.00%];
+	 BAYES_HAM(-0.05)[59.53%];
 	 ARC_NA(0.00)[];
 	 R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	 RCVD_DKIM_ARC_DNSWL_HI(-1.00)[];
@@ -121,82 +124,95 @@ X-Spamd-Result: default: False [-4.81 / 50.00];
 	 FREEMAIL_ENVRCPT(0.00)[gmail.com,gmx.de];
 	 TO_MATCH_ENVRCPT_ALL(0.00)[];
 	 MIME_GOOD(-0.10)[text/plain];
+	 NEURAL_HAM_LONG(-1.00)[-1.000];
 	 DWL_DNSWL_LOW(-1.00)[suse.de:dkim];
 	 DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	 RCPT_COUNT_TWELVE(0.00)[13];
 	 MID_CONTAINS_FROM(1.00)[];
-	 DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:email];
+	 DBL_BLOCKED_OPENRESOLVER(0.00)[linaro.org:email,suse.de:dkim,suse.de:email];
 	 FUZZY_BLOCKED(0.00)[rspamd.com];
 	 RCVD_IN_DNSWL_HI(-0.50)[2a07:de40:b281:104:10:150:64:98:from];
 	 RCVD_TLS_ALL(0.00)[]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 991FF6B967
-X-Spam-Level: 
-X-Spam-Score: -4.81
+X-Spam-Score: -3.06
+X-Rspamd-Queue-Id: 596536B96B
 X-Spam-Flag: NO
 
-Update the driver to initialize struct fb_info.bl_dev to its backlight
-device, if any. Thus rely on the backlight core code to match backlight
-and framebuffer devices, and remove the extra check_fb function from
-struct backlight_ops.
+The internal check_fb callback from struct pwm_bl_data is never
+implemented. The driver's implementation of check_fb always
+returns true, which is the backlight core's default if no
+implementation has been set. So remove the code from the driver.
 
 v2:
-	* protect against CONFIG_FB_BACKLIGHT (Javier, kernel test robot)
-	* reword commit message (Daniel)
+	* reword commit message
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: "Bruno Prémont" <bonbons@linux-vserver.org>
+Cc: "Uwe Kleine-König" <u.kleine-koenig@pengutronix.de>
+Acked-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 ---
- drivers/hid/hid-picolcd_backlight.c | 7 -------
- drivers/hid/hid-picolcd_fb.c        | 6 ++++++
- 2 files changed, 6 insertions(+), 7 deletions(-)
+ drivers/video/backlight/pwm_bl.c | 12 ------------
+ include/linux/pwm_backlight.h    |  1 -
+ 2 files changed, 13 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd_backlight.c b/drivers/hid/hid-picolcd_backlight.c
-index 5bd2a8c4bbd66..08d16917eb60b 100644
---- a/drivers/hid/hid-picolcd_backlight.c
-+++ b/drivers/hid/hid-picolcd_backlight.c
-@@ -9,7 +9,6 @@
- 
- #include <linux/hid.h>
- 
+diff --git a/drivers/video/backlight/pwm_bl.c b/drivers/video/backlight/pwm_bl.c
+index ffcebf6aa76a9..61d30bc98eea5 100644
+--- a/drivers/video/backlight/pwm_bl.c
++++ b/drivers/video/backlight/pwm_bl.c
+@@ -11,7 +11,6 @@
+ #include <linux/kernel.h>
+ #include <linux/init.h>
+ #include <linux/platform_device.h>
 -#include <linux/fb.h>
  #include <linux/backlight.h>
+ #include <linux/err.h>
+ #include <linux/pwm.h>
+@@ -34,7 +33,6 @@ struct pwm_bl_data {
+ 					  int brightness);
+ 	void			(*notify_after)(struct device *,
+ 					int brightness);
+-	int			(*check_fb)(struct device *, struct fb_info *);
+ 	void			(*exit)(struct device *);
+ };
  
- #include "hid-picolcd.h"
-@@ -39,15 +38,9 @@ static int picolcd_set_brightness(struct backlight_device *bdev)
+@@ -129,17 +127,8 @@ static int pwm_backlight_update_status(struct backlight_device *bl)
  	return 0;
  }
  
--static int picolcd_check_bl_fb(struct backlight_device *bdev, struct fb_info *fb)
+-static int pwm_backlight_check_fb(struct backlight_device *bl,
+-				  struct fb_info *info)
 -{
--	return fb && fb == picolcd_fbinfo((struct picolcd_data *)bl_get_data(bdev));
+-	struct pwm_bl_data *pb = bl_get_data(bl);
+-
+-	return !pb->check_fb || pb->check_fb(pb->dev, info);
 -}
 -
- static const struct backlight_ops picolcd_blops = {
- 	.update_status  = picolcd_set_brightness,
- 	.get_brightness = picolcd_get_brightness,
--	.check_fb       = picolcd_check_bl_fb,
+ static const struct backlight_ops pwm_backlight_ops = {
+ 	.update_status	= pwm_backlight_update_status,
+-	.check_fb	= pwm_backlight_check_fb,
  };
  
- int picolcd_init_backlight(struct picolcd_data *data, struct hid_report *report)
-diff --git a/drivers/hid/hid-picolcd_fb.c b/drivers/hid/hid-picolcd_fb.c
-index d7dddd99d325e..750206f5fc674 100644
---- a/drivers/hid/hid-picolcd_fb.c
-+++ b/drivers/hid/hid-picolcd_fb.c
-@@ -493,6 +493,12 @@ int picolcd_init_framebuffer(struct picolcd_data *data)
- 	info->fix = picolcdfb_fix;
- 	info->fix.smem_len   = PICOLCDFB_SIZE*8;
+ #ifdef CONFIG_OF
+@@ -482,7 +471,6 @@ static int pwm_backlight_probe(struct platform_device *pdev)
  
-+#ifdef CONFIG_FB_BACKLIGHT
-+#ifdef CONFIG_HID_PICOLCD_BACKLIGHT
-+	info->bl_dev = data->backlight;
-+#endif
-+#endif
-+
- 	fbdata = info->par;
- 	spin_lock_init(&fbdata->lock);
- 	fbdata->picolcd = data;
+ 	pb->notify = data->notify;
+ 	pb->notify_after = data->notify_after;
+-	pb->check_fb = data->check_fb;
+ 	pb->exit = data->exit;
+ 	pb->dev = &pdev->dev;
+ 	pb->enabled = false;
+diff --git a/include/linux/pwm_backlight.h b/include/linux/pwm_backlight.h
+index cdd2ac366bc72..0bf80e98d5b40 100644
+--- a/include/linux/pwm_backlight.h
++++ b/include/linux/pwm_backlight.h
+@@ -19,7 +19,6 @@ struct platform_pwm_backlight_data {
+ 	int (*notify)(struct device *dev, int brightness);
+ 	void (*notify_after)(struct device *dev, int brightness);
+ 	void (*exit)(struct device *dev);
+-	int (*check_fb)(struct device *dev, struct fb_info *info);
+ };
+ 
+ #endif
 -- 
 2.44.0
 

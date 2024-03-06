@@ -1,25 +1,25 @@
-Received: from mx.skole.hr (mx1.hosting.skole.hr [161.53.165.185])
+Received: from mx.skole.hr (mx2.hosting.skole.hr [161.53.165.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47FF0130E3F;
-	Wed,  6 Mar 2024 14:48:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.53.165.185
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 057C91350CF;
+	Wed,  6 Mar 2024 14:48:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.53.165.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709736507; cv=none; b=PV2yt2IJs0zPsL7Gd9yW3/xTAKebIqrIlA5sviADqouA7FCCfLrOnya61rIkawHH14bEWwkBV+dO4X91QJyZe+WYXJpoVCtqg4zicQW+4Lk3L8S3Y//fPBlz7uQKdu42Z3WM6shzj7H3RXTSTmfjzzJYD6Xg9mwBh6J+6sPfhxs=
+	t=1709736509; cv=none; b=PMFsBBcPvwtHGbdZJeHFNT5HiwwRbB1Q8rYL8/XilpGusxLkAhnBVHu/tRihD9nSWrzQHP4CegwCgMyK8DtjGbwHusLA3yYSCHyQSTekBiPs+C1nPAAte4EEkme14XlQGKHPd4I+HQqJLHkBXiURDLgNBAaaaw5bawCIogtdxek=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709736507; c=relaxed/simple;
-	bh=Nolmyvj6Bpjp+71zbiQVcuCZkPXBALrPAzjCQpL9brk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=R/5fZl+7psfr/M6aOJfDZF38b8fURHiQWIdL1AT3dAhf2+WBYvwN8mnphZ3w5U5NoyWHha9fcvaJwBmP3YepR8bgZE/XBt+XI7muUODKiEHVvL9uj8/0epFFto6aBp4i1snttaVAgWMM2EUOppAV5Ry42le9qOnXrTUV0pYJdJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=skole.hr; spf=pass smtp.mailfrom=skole.hr; arc=none smtp.client-ip=161.53.165.185
+	s=arc-20240116; t=1709736509; c=relaxed/simple;
+	bh=ZLIrWSqEXHYmOYdkocwfkmctpEs2Bp0z62za8bv5iG0=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=fxtEbz16OGI0eDu7bQmXxf0Zk2Tdpg0CG7TBRYPG4sqo/B1/VmArh2Dqa0hsTCgdiKH1NCPLmmj3r05wvLFXKt70n1//2f1XGnc7Xh8sUa+Ty28fxwiVeTJHfEQLLdWHXeskh9IfL5LO9TBGNhbvA8JIIe7RN2+eaEG9/3U99/Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=skole.hr; spf=pass smtp.mailfrom=skole.hr; arc=none smtp.client-ip=161.53.165.186
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=skole.hr
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=skole.hr
-Received: from mx1.hosting.skole.hr (localhost.localdomain [127.0.0.1])
-	by mx.skole.hr (mx.skole.hr) with ESMTP id 8388D8452B;
-	Wed,  6 Mar 2024 15:40:23 +0100 (CET)
+Received: from mx2.hosting.skole.hr (localhost.localdomain [127.0.0.1])
+	by mx.skole.hr (mx.skole.hr) with ESMTP id 4F9878599B;
+	Wed,  6 Mar 2024 15:40:22 +0100 (CET)
 From: =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
-Date: Wed, 06 Mar 2024 15:40:08 +0100
-Subject: [PATCH v3 3/3] input: touchscreen: imagis: Add touch key support
+Subject: [PATCH v3 0/3] Imagis touch keys and FIELD_GET cleanup
+Date: Wed, 06 Mar 2024 15:40:05 +0100
+Message-Id: <20240306-b4-imagis-keys-v3-0-2c429afa8420@skole.hr>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -28,9 +28,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240306-b4-imagis-keys-v3-3-2c429afa8420@skole.hr>
-References: <20240306-b4-imagis-keys-v3-0-2c429afa8420@skole.hr>
-In-Reply-To: <20240306-b4-imagis-keys-v3-0-2c429afa8420@skole.hr>
+X-B4-Tracking: v=1; b=H4sIAEWA6GUC/3XMQQ6CQAyF4auQrq3pFALRlfcwLAboQIOCmRoiI
+ dzdkb3L/yXv28Akqhhcsw2iLGo6TynyUwbt4KdeULvUwMQFOSZsCtSn79VwlNXQk78EbnJXFQT
+ p9IoS9HOA9zr1oPae43r4C//Wv9TCSNhVoXVlYHFU3mycH3IeItT7vn8BJSgzoasAAAA=
 To: Markuss Broks <markuss.broks@gmail.com>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Rob Herring <robh+dt@kernel.org>, 
@@ -41,116 +41,59 @@ Cc: Karel Balej <balejk@matfyz.cz>, ~postmarketos/upstreaming@lists.sr.ht,
  linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  =?utf-8?q?Duje_Mihanovi=C4=87?= <duje.mihanovic@skole.hr>
 X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3227;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1352;
  i=duje.mihanovic@skole.hr; h=from:subject:message-id;
- bh=Nolmyvj6Bpjp+71zbiQVcuCZkPXBALrPAzjCQpL9brk=;
- b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBl6IBO9ermR6in0dAPtYRcYTLrUNymtUAkTsnsy
- 5NwQXVPn7iJAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZeiATgAKCRCaEZ6wQi2W
- 4Wv2D/4pQuqDgpZI3pAixeniIp8yNCve+TOi6Be2rHj5VnvnI8EUNUiG2tdU5SW1+RqgEDkBlV2
- /gY8oFL/mJldmnTUfApP6PHp7M9jhodPZp0wVbkUyOpF64apurUrlOEjgg1E7RRbCBEuAjSL3gO
- txbW9EgWnwRUuPmHfbGiggdBcnJbCjotMUyh6lVIDtQ+6+VitP+hlb/pEchzG+9PT4s3iYq5QH7
- Qng40r0wjkZo72M4Hsh6r36GTwur/qWYZVLXTthNw+ZE/tUDwdZ7kb7gOtzBFU4psZ1uBRYzmhV
- fbsziJjpRpWtrl9JZm4P732kvfHT8obh+4fPynsdrHzTKvdZqmDZFEeZaw40ATRaKF4+6Qzk/ki
- qGQYb27qLQ9nijosWDY38aqbiAX+mngY4NpPqXIZDxd3/6M7Lu5/XUNzj+6DYYxsK7TEFENNEkN
- BFflWCXLlGxW1L2w/1Nqrwk5jEitXmPYPjfo7x/do22iN1z9IqrKRbG2aoDNYBIQ/7y26wY2p8i
- 6WP/KfdBGlaIgrHT13mbrSbbZgcLUAJRLVLwMg77wzsmg0sQTGWjIdQcBZr/fra334Jgkuj5sZO
- iMI0/5L1AUGXiI42Xc0vLDG7COi+Dx275LvHhvxjF8ND7gGTGzPHLelnaDE2M86oL0xOSdWYQW4
- WdNhyuwsYTYJL+Q==
+ bh=ZLIrWSqEXHYmOYdkocwfkmctpEs2Bp0z62za8bv5iG0=;
+ b=owEBbQKS/ZANAwAIAZoRnrBCLZbhAcsmYgBl6IBOA8pYvWBd6TxKPBPS9Jo/htCHJ15FkBRiP
+ NNWJ1fGRN6JAjMEAAEIAB0WIQRT351NnD/hEPs2LXiaEZ6wQi2W4QUCZeiATgAKCRCaEZ6wQi2W
+ 4TKBD/9yycbRdRR4C8NOOzvq1cQl8hdTemeI/6Ki+1H7RCX+Mn2gMui1chIP6nfGOPffsBjJ7dg
+ 3cJXjDrd7qkaoB5SckuM/FuaiNOdnABT/q+eyzeYAY7m9yQLQaw7zVPkfubJyQikFU/xfAXrC1Q
+ hM5jzIiFu8Q+RX1+mizoc/b0BU0a6b/edDGukiWVLTvPDO68xMoUrZi4/F5JaBUUIOBeDPmb+P3
+ CcPCR+DEfnpOraSyVY8J/smsPK55Mo8Jy8rsM8u7vWHylbI0zqk2XkFG9XFeqw/v6QJsk6vR5Ue
+ VK8N8jjiT9NrHjbt8EKpp8nNXcl/3ia6lEEX2Nd+AXDdwPjtCVuuiIFt/G3woeVU5PennkFmou+
+ AZRK7vlOAPTRyQPt7I5xqYMaW2zdOH+lT8UOpg787pskcy6TJCogabhMMOrGrpaj+Xy0IHh7daV
+ 46oPe992nY565aZOD7vc9KnpVYIXAg3EdVUs+LuamDaW6x/iQXtvrPkXgv0Dqf/XYz8JsaO3p7x
+ 7JbmgeoovbJopsdkR6+oQRcA6VseTa7WG5fsg/egw0ekPiBd2Vya21F1Cl23emQimXEqw75q8dj
+ zHc40XRaNYIbYe9NC6//8AgO2TBLlk/9ZNNe4pGM7UgciGCo2LMTB17/TOLSjcIUD45xlYiuSbU
+ ddmIZAPkkpJ8fAw==
 X-Developer-Key: i=duje.mihanovic@skole.hr; a=openpgp;
  fpr=53DF9D4D9C3FE110FB362D789A119EB0422D96E1
 
-IST3032C (and possibly some other models) has touch keys. Add support
-for them to the imagis driver.
+Tiny series to clean up the field extraction and add touch key support.
+This version is based on the next branch of Dmitry's input tree.
 
 Signed-off-by: Duje Mihanović <duje.mihanovic@skole.hr>
 ---
- drivers/input/touchscreen/imagis.c | 29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+Changes in v3:
+- Rebase on input/next
+- Add changelog to binding patch
+- Fix binding constraint
+- Allow changing keycodes in userspace as in 872e57abd171 ("Input:
+  tm2-touchkey - allow changing keycodes from userspace")
+- Allow up to 5 keycodes (the key status field has 5 bits)
+- Link to v2: https://lore.kernel.org/r/20240120-b4-imagis-keys-v2-0-d7fc16f2e106@skole.hr
 
-diff --git a/drivers/input/touchscreen/imagis.c b/drivers/input/touchscreen/imagis.c
-index 4eae98771bd2..625d9287eabe 100644
---- a/drivers/input/touchscreen/imagis.c
-+++ b/drivers/input/touchscreen/imagis.c
-@@ -34,6 +34,7 @@
- #define IST3038C_AREA_MASK		GENMASK(27, 24)
- #define IST3038C_FINGER_COUNT_MASK	GENMASK(15, 12)
- #define IST3038C_FINGER_STATUS_MASK	GENMASK(9, 0)
-+#define IST3032C_KEY_STATUS_MASK	GENMASK(20, 16)
- 
- struct imagis_properties {
- 	unsigned int interrupt_msg_cmd;
-@@ -41,6 +42,7 @@ struct imagis_properties {
- 	unsigned int whoami_cmd;
- 	unsigned int whoami_val;
- 	bool protocol_b;
-+	bool touch_keys_supported;
- };
- 
- struct imagis_ts {
-@@ -49,6 +51,8 @@ struct imagis_ts {
- 	struct input_dev *input_dev;
- 	struct touchscreen_properties prop;
- 	struct regulator_bulk_data supplies[2];
-+	u32 keycodes[5];
-+	int num_keycodes;
- };
- 
- static int imagis_i2c_read_reg(struct imagis_ts *ts,
-@@ -93,7 +97,7 @@ static irqreturn_t imagis_interrupt(int irq, void *dev_id)
- {
- 	struct imagis_ts *ts = dev_id;
- 	u32 intr_message, finger_status;
--	unsigned int finger_count, finger_pressed;
-+	unsigned int finger_count, finger_pressed, key_pressed;
- 	int i;
- 	int error;
- 
-@@ -139,6 +143,11 @@ static irqreturn_t imagis_interrupt(int irq, void *dev_id)
- 				       FIELD_GET(IST3038C_AREA_MASK, finger_status));
- 	}
- 
-+	key_pressed = FIELD_GET(IST3032C_KEY_STATUS_MASK, intr_message);
-+
-+	for (int i = 0; i < ts->num_keycodes; i++)
-+		input_report_key(ts->input_dev, ts->keycodes[i], (key_pressed & BIT(i)));
-+
- 	input_mt_sync_frame(ts->input_dev);
- 	input_sync(ts->input_dev);
- 
-@@ -224,6 +233,23 @@ static int imagis_init_input_dev(struct imagis_ts *ts)
- 	input_set_capability(input_dev, EV_ABS, ABS_MT_POSITION_X);
- 	input_set_capability(input_dev, EV_ABS, ABS_MT_POSITION_Y);
- 	input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0, 16, 0, 0);
-+	if (ts->tdata->touch_keys_supported) {
-+		ts->num_keycodes = of_property_read_variable_u32_array(
-+				ts->client->dev.of_node, "linux,keycodes",
-+				ts->keycodes, 0, ARRAY_SIZE(ts->keycodes));
-+		if (ts->num_keycodes <= 0) {
-+			ts->keycodes[0] = KEY_APPSELECT;
-+			ts->keycodes[1] = KEY_BACK;
-+			ts->num_keycodes = 2;
-+		}
-+
-+		input_dev->keycodemax = ts->num_keycodes;
-+		input_dev->keycodesize = sizeof(ts->keycodes[0]);
-+		input_dev->keycode = ts->keycodes;
-+	}
-+
-+	for (int i = 0; i < ts->num_keycodes; i++)
-+		input_set_capability(input_dev, EV_KEY, ts->keycodes[i]);
- 
- 	touchscreen_parse_properties(input_dev, true, &ts->prop);
- 	if (!ts->prop.max_x || !ts->prop.max_y) {
-@@ -365,6 +391,7 @@ static const struct imagis_properties imagis_3032c_data = {
- 	.touch_coord_cmd = IST3038C_REG_TOUCH_COORD,
- 	.whoami_cmd = IST3038C_REG_CHIPID,
- 	.whoami_val = IST3032C_WHOAMI,
-+	.touch_keys_supported = true,
- };
- 
- static const struct imagis_properties imagis_3038b_data = {
+Changes in v2:
+- Fix compile error
+- Add FIELD_GET patch
+- Allow specifying custom keycodes
+- Link to v1: https://lore.kernel.org/20231112194124.24916-1-duje.mihanovic@skole.hr
 
+---
+Duje Mihanović (3):
+      input: touchscreen: imagis: use FIELD_GET where applicable
+      dt-bindings: input: imagis: Document touch keys
+      input: touchscreen: imagis: Add touch key support
+
+ .../input/touchscreen/imagis,ist3038c.yaml         | 19 +++++++--
+ drivers/input/touchscreen/imagis.c                 | 46 ++++++++++++++++------
+ 2 files changed, 50 insertions(+), 15 deletions(-)
+---
+base-commit: b0f3f9ab419c243389da6c0dd6a9db0eea560146
+change-id: 20240120-b4-imagis-keys-a0a9f2b31740
+
+Best regards,
 -- 
-2.44.0
+Duje Mihanović <duje.mihanovic@skole.hr>
 
 

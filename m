@@ -1,154 +1,138 @@
-Received: from esa12.hc1455-7.c3s2.iphmx.com (esa12.hc1455-7.c3s2.iphmx.com [139.138.37.100])
+Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [217.70.183.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB56620315;
-	Mon, 18 Mar 2024 01:28:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=139.138.37.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D9D4249F5;
+	Mon, 18 Mar 2024 08:05:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710725344; cv=none; b=svyO/6Fve8TdebYadUzBFVZWDWlvkFx+cyC8JHDg3xJqv82WvttLqsOZMBoPDUgrLG5w30MKppxwFLmMKPuiKon84K54P4ZToSsIIJSoGu/T1qNg1Ko1wckk6fEb6lJ10+49D3WL6nxBxQdL/MGCP4d3TUpUl2owL/DV+kOEEjQ=
+	t=1710749146; cv=none; b=uU+ZIw/NvidJDwE5Mpo6m3tIl0dLFo4h3guXiK6h3iauy51YilEvESElzVOS5cFQ+bx122TpeEFmf68dt/makSLfy5xxs5/sNTjJ5cXfu/og0/tjQuHppHticvYCmeI+EM/rr4dJZZx/AkBKGdBzFtnojEe7ZpqZdWbHGg0ryGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710725344; c=relaxed/simple;
-	bh=sWMzTX+WKIOYjsKJ3pC9JRzU1Tnb4gFE0gGTkrrStlM=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=jFYBUhLGRaYHqMQQ4qcfqoTicIY6gOujb+SZqum6Cm/y2lARe07guYLvVCeWwcu6WalgeqQHUXO7X77nlxcwoTrZuEDbJzKqORcwwGk8N74mF4if20vGFar2oc+ZrS6zOPAlO5RbvbgSwLOWbnAWCbcT0Fz7/3lzbW+ZZzDtV4U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fujitsu.com; spf=pass smtp.mailfrom=fujitsu.com; dkim=pass (2048-bit key) header.d=fujitsu.com header.i=@fujitsu.com header.b=iJNKrvXy; arc=none smtp.client-ip=139.138.37.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fujitsu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fujitsu.com
+	s=arc-20240116; t=1710749146; c=relaxed/simple;
+	bh=wZOl8ELhCbgPbYlLMs3nOwcsGw2fIVkfUTh0HFVFIK4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ameo9g/TUXXwfPu8zkqBLmbFnGV9XPe84Kh8wgWOyEhOMu2xEmqBuy9kpWsTCy1bXm4u4E9m9BUuOtPqtndiQFjgQrvQvgYzZtPcnN0kjc7C6CKx8ZSdE1B4eqCycdcV2+xqNTbUxycNwwmh6iRWSPGfpKh9QwVUDWAfJsOhExU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Lrp4hW5H; arc=none smtp.client-ip=217.70.183.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=fujitsu.com header.i=@fujitsu.com header.b="iJNKrvXy"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=fujitsu.com; i=@fujitsu.com; q=dns/txt; s=fj2;
-  t=1710725338; x=1742261338;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=sWMzTX+WKIOYjsKJ3pC9JRzU1Tnb4gFE0gGTkrrStlM=;
-  b=iJNKrvXyWxc5HrdViQBEdVB0XfgBsFumeqRIvw4KckYyKf44thupKyJY
-   HzoWbzWQb+VI0wPMMd/JyXn/xWdhsHroprf5JOZz5bP2aD/7S9eyR/pEv
-   XoBT5hEnNeWVp4ydfPKLNyXWskArJ/rzintOWS9LpGqqJQ0qlOEbfCsnI
-   ToC0cZ7n4a1AWS8kVG8x9DR532+3q1tMCRYh1gmL2TbvPTJaiQfrT+zpB
-   8pX6h5vnf8OVBN2Puec+5aoevodo2biJ626+IJneXmhOhkS9ePPISrh0S
-   Rynwr/W5s+EBIDNoBGXaToT4wAAR8rwukd7Ed4N90nx78kSiy/mkfsUHO
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,11016"; a="131848935"
-X-IronPort-AV: E=Sophos;i="6.07,133,1708354800"; 
-   d="scan'208";a="131848935"
-Received: from unknown (HELO yto-r1.gw.nic.fujitsu.com) ([218.44.52.217])
-  by esa12.hc1455-7.c3s2.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2024 10:28:49 +0900
-Received: from yto-m4.gw.nic.fujitsu.com (yto-nat-yto-m4.gw.nic.fujitsu.com [192.168.83.67])
-	by yto-r1.gw.nic.fujitsu.com (Postfix) with ESMTP id CEBBF8CAB7;
-	Mon, 18 Mar 2024 10:28:48 +0900 (JST)
-Received: from kws-ab3.gw.nic.fujitsu.com (kws-ab3.gw.nic.fujitsu.com [192.51.206.21])
-	by yto-m4.gw.nic.fujitsu.com (Postfix) with ESMTP id 11E8DD7B62;
-	Mon, 18 Mar 2024 10:28:48 +0900 (JST)
-Received: from edo.cn.fujitsu.com (edo.cn.fujitsu.com [10.167.33.5])
-	by kws-ab3.gw.nic.fujitsu.com (Postfix) with ESMTP id 993C820099077;
-	Mon, 18 Mar 2024 10:28:47 +0900 (JST)
-Received: from localhost.localdomain (unknown [10.167.226.45])
-	by edo.cn.fujitsu.com (Postfix) with ESMTP id D25FC1A006A;
-	Mon, 18 Mar 2024 09:28:46 +0800 (CST)
-From: Li Zhijian <lizhijian@fujitsu.com>
-To: linux-kernel@vger.kernel.org
-Cc: Li Zhijian <lizhijian@fujitsu.com>,
-	=?UTF-8?q?Bruno=20Pr=C3=A9mont?= <bonbons@linux-vserver.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-	linux-input@vger.kernel.org
-Subject: [PATCH v3 1/4] HID: hid-picolcd*: Convert sprintf/scnprintf to sysfs_emit/sysfs_emit_at
-Date: Mon, 18 Mar 2024 09:28:16 +0800
-Message-Id: <20240318012819.1405003-1-lizhijian@fujitsu.com>
-X-Mailer: git-send-email 2.31.1
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Lrp4hW5H"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id EC05D1BF20C;
+	Mon, 18 Mar 2024 08:05:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1710749135;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2tvbx1H5YEg+d5PC7Bdp5vKt6Is6Yx4h64tavZFQbdA=;
+	b=Lrp4hW5HLkJgc12dpKpTUR2ZSa1dX/CXpruvtOVyLLO4Cpxw+/bC1xw8wzkrtQOuzpDktc
+	nRJUbWfxBPJmJZZ9Lc89/x2+s5SaLWAF6stTbb8DBlfNNc27Dq6oon7LVE0lSLnkDmVb7m
+	3Qbilc1INqqEuPKtbx4J4GXhJOvr51VT1MJERYdmozzieVg3IeqW1VGTt0+/UwBRq5mQgS
+	I62r4P0ROzY5A450VeIhEIwiYEYIW5Elyw4oV9hj2Krkizrtn+IYFmmOSx26dPe3iiGouF
+	RtF9mjnGYXSKacCkxE9jiiuBT83LOzlCv2NTjWYaVJ8AnwsHIFbegJy/xdNKiQ==
+Date: Mon, 18 Mar 2024 09:05:33 +0100
+From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+To: Marco Felsch <m.felsch@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Henrik Rydberg <rydberg@bitmath.org>, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+	Jeff LaBundy <jeff@labundy.com>,
+	catalin.popescu@leica-geosystems.com,
+	mark.satterthwaite@touchnetix.com,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	bsp-development.geo@leica-geosystems.com
+Subject: Re: [PATCH v9 3/3] Input: Add TouchNetix axiom i2c touchscreen driver
+Message-ID: <20240318080533.GA35033@tpx1.home>
+References: <20240301103909.167923-1-kamel.bouhara@bootlin.com>
+ <20240301103909.167923-4-kamel.bouhara@bootlin.com>
+ <20240313202135.2lwgtu2z67ksh2tz@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-TM-AS-Product-Ver: IMSS-9.1.0.1417-9.0.0.1002-28258.003
-X-TM-AS-User-Approved-Sender: Yes
-X-TMASE-Version: IMSS-9.1.0.1417-9.0.1002-28258.003
-X-TMASE-Result: 10--6.761100-10.000000
-X-TMASE-MatchedRID: LFhZ4D3QpawbO59FK9BdmJiHtCNYjckMjkDrBOJwwnQ8JmmJxjOaQXVX
-	Q3/qdw5yDiqGKKMcNgRhoUIS5GGeEs1HQN/TlJ3ZOIQ9GP2P2u/0swHSFcVJ6C99T+uJIleRfDo
-	fTpsyCK+KztDhRgoFQW4suX2uLJTkj56IjTnLR+m5x7uAXGEprcE5XPQnBzGXq8KsbROd9VSArq
-	oIZrVn15fzUkBpc072g7QwQAwSFa5jAM4vu3dHIRVqL8+WwS7mrzl8sNiWClKbKItl61J/yZkw8
-	KdMzN86KrauXd3MZDXMVsUCOz7QOSWi+yl7sqIrr8WvsDVNzOZOREIpxgAYfEmK2G5nwn4k
-X-TMASE-SNAP-Result: 1.821001.0001-0-1-22:0,33:0,34:0-0
+In-Reply-To: <20240313202135.2lwgtu2z67ksh2tz@pengutronix.de>
+X-GND-Sasl: kamel.bouhara@bootlin.com
 
-Per filesystems/sysfs.rst, show() should only use sysfs_emit()
-or sysfs_emit_at() when formatting the value to be returned to user space.
+Le Wed, Mar 13, 2024 at 09:21:35PM +0100, Marco Felsch a Ècrit :
+> Hi Kamel,
+>
 
-coccinelle complains that there are still a couple of functions that use
-snprintf(). Convert them to sysfs_emit().
+Hello Marco,
 
-scnprintf() will be converted as weel if they have.
+[...]
 
-Generally, this patch is generated by
-make coccicheck M=<path/to/file> MODE=patch \
-COCCI=scripts/coccinelle/api/device_attr_show.cocci
+> > +static int axiom_i2c_probe(struct i2c_client *client)
+> > +{
+> > +	struct device *dev = &client->dev;
+> > +	struct input_dev *input_dev;
+> > +	struct axiom_data *ts;
+> > +	u32 poll_interval;
+> > +	int target;
+> > +	int error;
+> > +
+> > +	ts = devm_kzalloc(dev, sizeof(*ts), GFP_KERNEL);
+> > +	if (!ts)
+> > +		return -ENOMEM;
+> > +
+> > +	i2c_set_clientdata(client, ts);
+> > +	ts->client = client;
+> > +	ts->dev = dev;
+> > +
+> > +	ts->regmap = devm_regmap_init_i2c(client, &axiom_i2c_regmap_config);
+> > +	error = PTR_ERR_OR_ZERO(ts->regmap);
+> > +	if (error) {
+> > +		dev_err(dev, "Failed to initialize regmap: %d\n", error);
+> > +		return error;
+> > +	}
+> > +
+> > +	ts->reset_gpio = devm_gpiod_get_optional(dev, "reset", GPIOD_OUT_HIGH);
+> > +	if (IS_ERR(ts->reset_gpio))
+> > +		return dev_err_probe(dev, PTR_ERR(ts->reset_gpio), "failed to get reset GPIO\n");
+> > +
+> > +	if (ts->reset_gpio)
+> > +		axiom_reset(ts->reset_gpio);
+>
+> This seems useless, since you doing an reset without enabling the power
+> supply (below). I know there are systems which do have the supply always
+> connected or for ACPI the supply is managed via firmware, but the driver
+> should implement the correct logic and for DT/OF case this is not
+> correct.
+>
+> > +
+> > +	ts->vddi = devm_regulator_get_optional(dev, "vddi");
+> > +	if (!IS_ERR(ts->vddi)) {
+> > +		error = devm_regulator_get_enable(dev, "vddi");
+>
+> Regulators are ref counted and now you request the regulator twice. Also
+> the regulator is not optional, it is required for the device to work.
+> Same applies to the vdda below.
+>
 
-No functional change intended
+While it is true most of the time, it occurs that for x86 based boards,
+adding a regulator entirely is not always possible.
 
-CC: "Bruno Pr√©mont" <bonbons@linux-vserver.org>
-CC: Jiri Kosina <jikos@kernel.org>
-CC: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-CC: linux-input@vger.kernel.org
-Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
----
-V3:
-   Covert more file(drivers/hid/hid-picolcd_fb.c) as suggested by Bruno
+In our particular case, the I2C controller for this touchscreen is
+behind a CPLD (aka embedded controller) so I have no direct access to
+the I2C controller and it isn't described in the ACPI table.
 
-This is a part of the work "Fix coccicheck device_attr_show warnings"[1]
-Split them per subsystem so that the maintainer can review it easily
-[1] https://lore.kernel.org/lkml/20240116041129.3937800-1-lizhijian@fujitsu.com/
-Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
----
- drivers/hid/hid-picolcd_core.c | 6 +++---
- drivers/hid/hid-picolcd_fb.c   | 4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+In a normal case, I would use ACPI override to pass regulator
+properties, but here it's not possible.
 
-diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
-index bbda231a7ce3..fa46fb6eab3f 100644
---- a/drivers/hid/hid-picolcd_core.c
-+++ b/drivers/hid/hid-picolcd_core.c
-@@ -256,9 +256,9 @@ static ssize_t picolcd_operation_mode_show(struct device *dev,
- 	struct picolcd_data *data = dev_get_drvdata(dev);
- 
- 	if (data->status & PICOLCD_BOOTLOADER)
--		return snprintf(buf, PAGE_SIZE, "[bootloader] lcd\n");
-+		return sysfs_emit(buf, "[bootloader] lcd\n");
- 	else
--		return snprintf(buf, PAGE_SIZE, "bootloader [lcd]\n");
-+		return sysfs_emit(buf, "bootloader [lcd]\n");
- }
- 
- static ssize_t picolcd_operation_mode_store(struct device *dev,
-@@ -301,7 +301,7 @@ static ssize_t picolcd_operation_mode_delay_show(struct device *dev,
- {
- 	struct picolcd_data *data = dev_get_drvdata(dev);
- 
--	return snprintf(buf, PAGE_SIZE, "%hu\n", data->opmode_delay);
-+	return sysfs_emit(buf, "%hu\n", data->opmode_delay);
- }
- 
- static ssize_t picolcd_operation_mode_delay_store(struct device *dev,
-diff --git a/drivers/hid/hid-picolcd_fb.c b/drivers/hid/hid-picolcd_fb.c
-index d7dddd99d325..369c78d70e66 100644
---- a/drivers/hid/hid-picolcd_fb.c
-+++ b/drivers/hid/hid-picolcd_fb.c
-@@ -424,9 +424,9 @@ static ssize_t picolcd_fb_update_rate_show(struct device *dev,
- 		if (ret >= PAGE_SIZE)
- 			break;
- 		else if (i == fb_update_rate)
--			ret += scnprintf(buf+ret, PAGE_SIZE-ret, "[%u] ", i);
-+			ret += sysfs_emit_at(buf, ret, "[%u] ", i);
- 		else
--			ret += scnprintf(buf+ret, PAGE_SIZE-ret, "%u ", i);
-+			ret += sysfs_emit_at(buf, ret, "%u ", i);
- 	if (ret > 0)
- 		buf[min(ret, (size_t)PAGE_SIZE)-1] = '\n';
- 	return ret;
--- 
-2.29.2
+Having a CPLD exposing this kind of controller is quite common on x86
+based boards. So, we need a way to support the case when a regulator
+can't be described. The optional regulator looked like a good option,
+but if you have a better alternative, I am open to considering it.
 
+--
+Kamel Bouhara, Bootlin
+Embedded Linux and kernel engineering
+https://bootlin.com

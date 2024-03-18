@@ -1,146 +1,210 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from esa3.hc1455-7.c3s2.iphmx.com (esa3.hc1455-7.c3s2.iphmx.com [207.54.90.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B7EE20B0E;
-	Sun, 17 Mar 2024 21:27:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD6E620313;
+	Mon, 18 Mar 2024 01:29:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.54.90.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710710850; cv=none; b=oGvhg9gnzni1/RWcCOGfRvnZ65+lL/ZNOJYi+hvM0uDKUpPna6YAk6WgjIn8lWfZ2MBx/3FbOzx5vbwqyEzlR/CcnXrApiAfcI9f+2I5+pEBQ8P03vWmeEofRaiqJII/gg5T7Fpp2LaJwHP3vdErvNBKrEyYM3ijmu6VhA2L7tU=
+	t=1710725343; cv=none; b=YqsoLxL+Kw22wZzpiyA4bBsWHgKG2P6eWl7kKMMHm3UK6bQ0lsInrexIKd58k5GlfN3PeWhPQLp4VgI1u+iYwo7cmUkvJ5Gtz671QOIdLtT6vsrrBKiPYqFzHSglgv2cixyrAmaeG4Hk+mIqfu3l8x5KU9TMaOwVIpRvDNAQBv8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710710850; c=relaxed/simple;
-	bh=r1A5i7RbsqOv08lAHnRoEkHu4xFVjK0PL6GJ6TPUP4g=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ezoyAcm4esyaqlUMM8uEtkeGlXvspVsECHXWU8dF6CCkYrOgt5sc2LQlHs+y1xAJuwDcFX4n7V6WBG+71TVcynUM6Oi1Qw14MaABYiWd8sqlnQYF5jS9JeyQ4l5M7q6ldAetx/vhVZvHfifQZpmXbDuWYoeKFYD/uBNMwDS8bPY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=1fNVmtkO; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=SylwjTSs; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1710725343; c=relaxed/simple;
+	bh=axSHbg87TpVBgvQGqfA/l1DEUWF2dVNkTjgunp/03F8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=XYi4C6LKTcUjWY2hgB0pbv0yMWvdlhEOfDkTYj9B+8wfX8M+RhxrVlr0CEjBrGOfI7ye9OmY4ji/bV4G91YvKQDPVuRhIBhgue9R/0ARJ+IbuWJ3fD43vWgjUVxhHBAl+iiqqL3IxeyStOvWhRj+fQOzKAm82/TiDW6SOi/Y7bc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fujitsu.com; spf=pass smtp.mailfrom=fujitsu.com; dkim=pass (2048-bit key) header.d=fujitsu.com header.i=@fujitsu.com header.b=ohFu9YDM; arc=none smtp.client-ip=207.54.90.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fujitsu.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fujitsu.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="1fNVmtkO";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="SylwjTSs"
-Date: Sun, 17 Mar 2024 22:27:18 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1710710841;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3srrq43UiauzyNmV0S4k/pQ0+n44cbViGcHlmEyhFec=;
-	b=1fNVmtkODQCyt/lLuw8N+h0zm9GlRxTrwdCdxVYqb0U61pUF+sSwuEpypKO9P5v6SxPboT
-	F/UM87VVCz4tp1gxAH+xHT9mxvwzX/bw1BiLnk1tX+fl6FQ8UGe1hH3YJaR2vZIEBAuj2h
-	ej6eAmtwLZr31q/Aq7Nz7rJDI5EdONmSNSdVXhZnQDbvXa4r+5/TIh5A1F0yo+aNX1+7xe
-	HWqK59rrfupWFrxBGbVA3mUhrks5kaGIEpEAdTqoAzofwv5NbVQFuS4tejEyTTKkDn3Nqq
-	ilemSoMXJBAPOsCMWEj3CN+0sPjuWnkv+5PbUet5upLzYFVXbN+JORTcIyi8QQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1710710841;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3srrq43UiauzyNmV0S4k/pQ0+n44cbViGcHlmEyhFec=;
-	b=SylwjTSsGZaa+c23HhGRyB4sQnKHpj5LUrtHGIBxrFtqZWnK0ugZz2u31upBqdXswNlDOi
-	Z9nDIgvsqHsLJmCg==
-From: Nam Cao <namcao@linutronix.de>
-To: Eva Kurchatova <nyandarknessgirl@gmail.com>
-Cc: linux-riscv <linux-riscv@lists.infradead.org>, bugs@lists.linux.dev,
- linux-i2c@vger.kernel.org, jikos@kernel.org, benjamin.tissoires@redhat.com,
- dianders@chromium.org, mripard@kernel.org, johan+linaro@kernel.org,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Boot hang with SiFive PLIC when routing I2C-HID level-triggered
- interrupts
-Message-ID: <20240317222718.3e03edb1@namcao>
-In-Reply-To: <CA+eeCSPUDpUg76ZO8dszSbAGn+UHjcyv8F1J-CUPVARAzEtW9w@mail.gmail.com>
-References: <CA+eeCSPUDpUg76ZO8dszSbAGn+UHjcyv8F1J-CUPVARAzEtW9w@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=fujitsu.com header.i=@fujitsu.com header.b="ohFu9YDM"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=fujitsu.com; i=@fujitsu.com; q=dns/txt; s=fj2;
+  t=1710725342; x=1742261342;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=axSHbg87TpVBgvQGqfA/l1DEUWF2dVNkTjgunp/03F8=;
+  b=ohFu9YDM2qPU7twaRJOURjPj2JY2peFDSnQpbiFO3fpTe/1szi6jcasq
+   7CP4P/qK98+ko8g+Q0Ihel58IW8dOKyEcmGpY7S6xLf3Mgua86YZBHNz1
+   lO31N0HfOlNSiKANJ/7ifZ7L809qWzoGlf/GjbfRnb4z3vjVr8Ow8WHcT
+   LqHOpYLsao/nxz+Ni3ByRmDsPrspurBQ4KHRx2yoKLwtrJ7xEVTXgpdg0
+   zNJb81pR3wajR9TJnTfXzDgmWIIaXoHSmp8MQQSRsAzZegoej1yc/ToD5
+   Mg1eXSu2yiS1zBSTetbQU2ocuKPcIQvcq0UNUUn8OiBM7d2gqdb1nZC9c
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,11016"; a="152522413"
+X-IronPort-AV: E=Sophos;i="6.07,133,1708354800"; 
+   d="scan'208";a="152522413"
+Received: from unknown (HELO yto-r2.gw.nic.fujitsu.com) ([218.44.52.218])
+  by esa3.hc1455-7.c3s2.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Mar 2024 10:28:53 +0900
+Received: from yto-m2.gw.nic.fujitsu.com (yto-nat-yto-m2.gw.nic.fujitsu.com [192.168.83.65])
+	by yto-r2.gw.nic.fujitsu.com (Postfix) with ESMTP id 0939E2A0DFC;
+	Mon, 18 Mar 2024 10:28:50 +0900 (JST)
+Received: from kws-ab3.gw.nic.fujitsu.com (kws-ab3.gw.nic.fujitsu.com [192.51.206.21])
+	by yto-m2.gw.nic.fujitsu.com (Postfix) with ESMTP id 38D18D5621;
+	Mon, 18 Mar 2024 10:28:49 +0900 (JST)
+Received: from edo.cn.fujitsu.com (edo.cn.fujitsu.com [10.167.33.5])
+	by kws-ab3.gw.nic.fujitsu.com (Postfix) with ESMTP id C1619200A7D73;
+	Mon, 18 Mar 2024 10:28:48 +0900 (JST)
+Received: from localhost.localdomain (unknown [10.167.226.45])
+	by edo.cn.fujitsu.com (Postfix) with ESMTP id 508CF1A006D;
+	Mon, 18 Mar 2024 09:28:48 +0800 (CST)
+From: Li Zhijian <lizhijian@fujitsu.com>
+To: linux-kernel@vger.kernel.org
+Cc: Li Zhijian <lizhijian@fujitsu.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+	linux-input@vger.kernel.org
+Subject: [PATCH v3 4/4] HID: corsair,lenovo: Convert sprintf/snprintf to sysfs_emit
+Date: Mon, 18 Mar 2024 09:28:19 +0800
+Message-Id: <20240318012819.1405003-4-lizhijian@fujitsu.com>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20240318012819.1405003-1-lizhijian@fujitsu.com>
+References: <20240318012819.1405003-1-lizhijian@fujitsu.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-TM-AS-Product-Ver: IMSS-9.1.0.1417-9.0.0.1002-28258.003
+X-TM-AS-User-Approved-Sender: Yes
+X-TMASE-Version: IMSS-9.1.0.1417-9.0.1002-28258.003
+X-TMASE-Result: 10--5.330400-10.000000
+X-TMASE-MatchedRID: e6WPXQD7Ri84ibokZ3+Q0CoiRKlBVkYIBXngI6jFvpfDqO6/8R69QE8U
+	roFNOGp7a6aAZTOwtJmRloiW1Kgftd2ZdKe8BPbSrMZ+BqQt2NpBHuVYxc8DW3hh5KUdlgWiKqF
+	q1hn3Eb3d+/nM3Koh0iaTw03n/wYORY1tl9vG/AZO5y1KmK5bJRSLgSFq3Tnj31GU/N5W5BDIvl
+	CZY6Ax8PdcQ4/ZOO0Rnagtny7ZPcQfE8yM4pjsDwtuKBGekqUpI/NGWt0UYPCNwL0MYcerLrxyx
+	sl0d3Y1X9HywC7qCyBBVu9NPAEIl2E+EuvoWQnY
+X-TMASE-SNAP-Result: 1.821001.0001-0-1-22:0,33:0,34:0-0
 
-Cc: HID folks
+Per filesystems/sysfs.rst, show() should only use sysfs_emit()
+or sysfs_emit_at() when formatting the value to be returned to user space.
 
-On 14/Mar/2024 Eva Kurchatova wrote:
-> If an I2C-HID controller level-triggered IRQ line is routed directly as
-> a PLIC IRQ, and we spam input early enough in kernel boot process
-> (Somewhere between initializing NET, ALSA subsystems and before
-> i2c-hid driver init), then there is a chance of kernel locking up
-> completely and not going any further.
-> 
-> There are no kernel messages printed with all the IRQ, task hang
-> debugging enabled - other than (sometimes) it reports sched RT
-> throttling after a few seconds. Basic timer interrupt handling is
-> intact - fbdev tty cursor is still blinking.
-> 
-> It appears that in such a case the I2C-HID IRQ line is raised; PLIC
-> notifies the (single) boot system hart, kernel claims the IRQ and
-> immediately completes it by writing to CLAIM/COMPLETE register.
-> No access to the I2C controller (OpenCores) or I2C-HID registers
-> is made, so the HID report is never consumed and IRQ line stays
-> raised forever. The kernel endlessly claims & completes IRQs
-> without doing any work with the device. It doesn't always end up this
-> way; sometimes boot process completes and there are no signs of
-> interrupt storm or stuck IRQ processing afterwards.
+coccinelle complains that there are still a couple of functions that use
+snprintf(). Convert them to sysfs_emit().
 
-It seems I2C HID's interrupt handler (i2c_hid_irq) returns immediately if
-I2C_HID_READ_PENDING is set. This flag is supposed to be cleared in
-i2c_hid_xfer(), but since the (threaded) interrupt handler runs at higher
-priority, the flag is never cleared. So we have a lock-up: interrupt
-handler won't do anything unless the flag is cleared, but the clearing of
-this flag is done in a lower priority task which never gets scheduled while
-the interrupt handler is active.
+sprintf() will be converted as weel if they have.
 
-There is RT throttling to prevent RT tasks from locking up the system like
-this. I don't know much about scheduling stuffs, so I am not really sure
-why RT throttling does not work. I think because RT throttling triggers
-when RT tasks take too much CPU time, but in this case hard interrupt
-handlers take lots of CPU time too (~50% according to my measurement), so
-RT throttling doesn't trigger often enough (in this case, it triggers once
-and never again). Again, I don't know much about scheduler so I may be
-talking nonsense here.
+Generally, this patch is generated by
+make coccicheck M=<path/to/file> MODE=patch \
+COCCI=scripts/coccinelle/api/device_attr_show.cocci
 
-The flag I2C_HID_READ_PENDING seems to be used to make sure that only 1
-I2C operation can happen at a time. But this seems pointless, because I2C
-subsystem already takes care of this. So I think we can just remove it.
+No functional change intended
 
-Can you give the below patch a try?
+CC: Jiri Kosina <jikos@kernel.org>
+CC: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+CC: linux-input@vger.kernel.org
+Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
+---
+This is a part of the work "Fix coccicheck device_attr_show warnings"[1]
+Split them per subsystem so that the maintainer can review it easily
+[1] https://lore.kernel.org/lkml/20240116041129.3937800-1-lizhijian@fujitsu.com/
+---
+ drivers/hid/hid-corsair.c |  4 ++--
+ drivers/hid/hid-lenovo.c  | 19 ++++++++-----------
+ 2 files changed, 10 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 2735cd585af0..799ad0ef9c4a 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -64,7 +64,6 @@
- /* flags */
- #define I2C_HID_STARTED		0
- #define I2C_HID_RESET_PENDING	1
--#define I2C_HID_READ_PENDING	2
- 
- #define I2C_HID_PWR_ON		0x00
- #define I2C_HID_PWR_SLEEP	0x01
-@@ -190,15 +189,10 @@ static int i2c_hid_xfer(struct i2c_hid *ihid,
- 		msgs[n].len = recv_len;
- 		msgs[n].buf = recv_buf;
- 		n++;
--
--		set_bit(I2C_HID_READ_PENDING, &ihid->flags);
+diff --git a/drivers/hid/hid-corsair.c b/drivers/hid/hid-corsair.c
+index 8c895c820b67..702f50e9841d 100644
+--- a/drivers/hid/hid-corsair.c
++++ b/drivers/hid/hid-corsair.c
+@@ -298,7 +298,7 @@ static ssize_t k90_show_macro_mode(struct device *dev,
+ 		goto out;
  	}
  
- 	ret = i2c_transfer(client->adapter, msgs, n);
+-	ret = snprintf(buf, PAGE_SIZE, "%s\n", macro_mode);
++	ret = sysfs_emit(buf, "%s\n", macro_mode);
+ out:
+ 	kfree(data);
  
--	if (recv_len)
--		clear_bit(I2C_HID_READ_PENDING, &ihid->flags);
--
- 	if (ret != n)
- 		return ret < 0 ? ret : -EIO;
+@@ -367,7 +367,7 @@ static ssize_t k90_show_current_profile(struct device *dev,
+ 		goto out;
+ 	}
  
-@@ -566,9 +560,6 @@ static irqreturn_t i2c_hid_irq(int irq, void *dev_id)
- {
- 	struct i2c_hid *ihid = dev_id;
+-	ret = snprintf(buf, PAGE_SIZE, "%d\n", current_profile);
++	ret = sysfs_emit(buf, "%d\n", current_profile);
+ out:
+ 	kfree(data);
  
--	if (test_bit(I2C_HID_READ_PENDING, &ihid->flags))
--		return IRQ_HANDLED;
--
- 	i2c_hid_get_input(ihid);
+diff --git a/drivers/hid/hid-lenovo.c b/drivers/hid/hid-lenovo.c
+index 149a3c74346b..26768c319361 100644
+--- a/drivers/hid/hid-lenovo.c
++++ b/drivers/hid/hid-lenovo.c
+@@ -555,7 +555,7 @@ static ssize_t attr_fn_lock_show(struct device *dev,
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct lenovo_drvdata *data = hid_get_drvdata(hdev);
  
- 	return IRQ_HANDLED;
+-	return snprintf(buf, PAGE_SIZE, "%u\n", data->fn_lock);
++	return sysfs_emit(buf, "%u\n", data->fn_lock);
+ }
+ 
+ static ssize_t attr_fn_lock_store(struct device *dev,
+@@ -599,8 +599,7 @@ static ssize_t attr_sensitivity_show_cptkbd(struct device *dev,
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct lenovo_drvdata *cptkbd_data = hid_get_drvdata(hdev);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n",
+-		cptkbd_data->sensitivity);
++	return sysfs_emit(buf, "%u\n", cptkbd_data->sensitivity);
+ }
+ 
+ static ssize_t attr_sensitivity_store_cptkbd(struct device *dev,
+@@ -789,7 +788,7 @@ static ssize_t attr_press_to_select_show_tpkbd(struct device *dev,
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct lenovo_drvdata *data_pointer = hid_get_drvdata(hdev);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n", data_pointer->press_to_select);
++	return sysfs_emit(buf, "%u\n", data_pointer->press_to_select);
+ }
+ 
+ static ssize_t attr_press_to_select_store_tpkbd(struct device *dev,
+@@ -819,7 +818,7 @@ static ssize_t attr_dragging_show_tpkbd(struct device *dev,
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct lenovo_drvdata *data_pointer = hid_get_drvdata(hdev);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n", data_pointer->dragging);
++	return sysfs_emit(buf, "%u\n", data_pointer->dragging);
+ }
+ 
+ static ssize_t attr_dragging_store_tpkbd(struct device *dev,
+@@ -849,7 +848,7 @@ static ssize_t attr_release_to_select_show_tpkbd(struct device *dev,
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct lenovo_drvdata *data_pointer = hid_get_drvdata(hdev);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n", data_pointer->release_to_select);
++	return sysfs_emit(buf, "%u\n", data_pointer->release_to_select);
+ }
+ 
+ static ssize_t attr_release_to_select_store_tpkbd(struct device *dev,
+@@ -879,7 +878,7 @@ static ssize_t attr_select_right_show_tpkbd(struct device *dev,
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct lenovo_drvdata *data_pointer = hid_get_drvdata(hdev);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n", data_pointer->select_right);
++	return sysfs_emit(buf, "%u\n", data_pointer->select_right);
+ }
+ 
+ static ssize_t attr_select_right_store_tpkbd(struct device *dev,
+@@ -909,8 +908,7 @@ static ssize_t attr_sensitivity_show_tpkbd(struct device *dev,
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct lenovo_drvdata *data_pointer = hid_get_drvdata(hdev);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n",
+-		data_pointer->sensitivity);
++	return sysfs_emit(buf, "%u\n", data_pointer->sensitivity);
+ }
+ 
+ static ssize_t attr_sensitivity_store_tpkbd(struct device *dev,
+@@ -938,8 +936,7 @@ static ssize_t attr_press_speed_show_tpkbd(struct device *dev,
+ 	struct hid_device *hdev = to_hid_device(dev);
+ 	struct lenovo_drvdata *data_pointer = hid_get_drvdata(hdev);
+ 
+-	return snprintf(buf, PAGE_SIZE, "%u\n",
+-		data_pointer->press_speed);
++	return sysfs_emit(buf, "%u\n", data_pointer->press_speed);
+ }
+ 
+ static ssize_t attr_press_speed_store_tpkbd(struct device *dev,
+-- 
+2.29.2
+

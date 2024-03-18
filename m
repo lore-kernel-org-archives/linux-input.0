@@ -1,187 +1,177 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 328CC2E84B;
-	Mon, 18 Mar 2024 11:03:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A63E1374CB
+	for <linux-input@vger.kernel.org>; Mon, 18 Mar 2024 11:11:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710759806; cv=none; b=g6tf4puioRl6ySe3c3bikvzR21Os8zwwl31g4NtAwyILjUQpB8qsPPQSkSA5PnHkeWTva5IxGhBDYwJhH/DnnWlyCN5iLz5OAvaa43EJ1P4nSqfStkYeP6aEnpJ2o0RVPdbwZNjVObUU3n2u/d89k3BtotwW/Fx4pkq5jUnHl7I=
+	t=1710760306; cv=none; b=AvLnguN3gT9EXkyXYH0g/cDXAtWWVVGi8Uqq9vmhRVb44H2xtl2OJTVps3l8ogbfSBZjJL3J5No1qXrI9lXlMyQO2wGP4fGzqzv1PNt0/CWVl67xhUWJ6k9wAKvikNXJkQxesAMhjMzQcalPMIc63L0GJMuAXYTpImXQC1u4GoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710759806; c=relaxed/simple;
-	bh=kM+CNVkGXDtpGZK2lVylyRb5qhDaMi0B6iIAxHjBCOM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jLzKgkP7ZGc5qQmr7u9fsIJEG1KybldvAbhZKgphbmskb2oDzouKU+MiB/ZVIEa9Jc32LJ73NIQJmg8Ka1vVp5DC898SqlrPCfZVBKh2BXeX+CXB0dGHw2hmqRvNn0Iam8wice9jBbNeaiErr+naWPfVs13Qxkxd8FPRBOKqgrw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i4b5QrH7; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1710760306; c=relaxed/simple;
+	bh=vpxP2TC2qbkVtFFP21jKsCrf2Cm91PVj9H+H8hFENmI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=dAzdHtgxZvP8G6cX8wgmYVIz41264oka7kjOKJ+QXvPUcLcGBMWo2xMHX/f22ERVUvJRJIWxwP1HuaziNYypHmY/jdpy691nqsbDTxPUC3chED7s3c5g3DI09VCZ12CevHqq+jRGKmaJccouwkg3QztIbrWkLTTorhnjeoTcfjw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hlmdLOVi; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i4b5QrH7"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4132f3761dfso864965e9.1;
-        Mon, 18 Mar 2024 04:03:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710759803; x=1711364603; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=KRiu++OW/pfYXV9rtjA1QRBTLstgMLbJFLbS17mJSMI=;
-        b=i4b5QrH76duHde4Os0n9b9dTEkf4EOc5HYuh7StGL2TuY1uEm9j9CHnbziGXRhMFZg
-         YbUTIZNw7lgkRU2ujGiXX4cfKS3muDmUw8dDOs8eztd1VHDUM+IzZptsem5YPSQ3+b10
-         vE692ewgrGZFalAS0KLdBPp+y03XX+w+kKGAU9CeKPXVfX5/X8hwvzKm8WIpgjVcZyNU
-         dfov0vuRD4R/HIo6XhOgZ3+mlfDHkTCpKypaVRYFSOoDQqmoLzCRpUXcBSvAOhuCtgZJ
-         BPxO2RYUuBLsXV2hCSJw6XZLzYlBSCLSTaa7Lh3wbw4mclDCjnUGGf6JIlpd5/WGi9Ec
-         mpJQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hlmdLOVi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1710760303;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=KCRrLRgzcFtsj04jmn2kcF48w7FCWYzPNjCCNXWwhN8=;
+	b=hlmdLOViuolPGWd/IsZNI5nzakY4Fi3Y2G+b6SaUceH75tR5wurCCV+choVAGk2kY3q4Vy
+	PYljugOfsrMBbfrj6S6+/s6S90tOIZ4x2vWFqRtPAytyMQJ+yRQc8ldSyK6wG9BVFw+uCP
+	GnhGj0REFXbI/bxvFiRj7zJZFj16Vqo=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-528-lnVwOz-hN5KBlQ8svCwttw-1; Mon, 18 Mar 2024 07:11:42 -0400
+X-MC-Unique: lnVwOz-hN5KBlQ8svCwttw-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-a46cedd9689so23376666b.3
+        for <linux-input@vger.kernel.org>; Mon, 18 Mar 2024 04:11:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710759803; x=1711364603;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=KRiu++OW/pfYXV9rtjA1QRBTLstgMLbJFLbS17mJSMI=;
-        b=TuUoTIGDq90B6hF3IVYVQX6VmqSWnAb5WHKN18KKoQynuIzqQ6mxcQ4s0p8UrQYM1n
-         rkqpx9IapF1qEWStCbWTw02DYNyLtY97s9i2Pb2b/8/p3a3JEm+++uBzYauS+R5H/8lc
-         6nwYOtSQh3jrVAA4gZNW4ME0X0CFmYo+0TCkzbJnLfaokH+hJf1T2FqRnn6BLIfC3E43
-         y21tH2fMIXkGlDcHXfQVa3oB8TPJDRwuiNB1UPj4iCKW+9sy3kQ+hz9hwMstxNC/zRFP
-         yE5fU/6ZVznAcPpNR5/sLoXHpjmz5oezJqAHO7ENrYLNiaoTgCDp4auv8o83GNYhcjbk
-         S6bw==
-X-Forwarded-Encrypted: i=1; AJvYcCUuYBpTj5wNOQFNAXEd6nnEdue7/0bUXWy6S73d8QrmmaMAqjGiplCZEjbkAPRIfRcDSkenz0pAcGdTaB0EInbhi37SuDrWcNVyw7Xa9jmtIgKGo0CTE6ri0ZTDfAJxDKcKmk4IpdaZOE4=
-X-Gm-Message-State: AOJu0Ywj78Bdw9CRGI0ri1tHgn8/CeOtNZ1oiSvj4vowlNVcNzOYrFng
-	TJ4a7twAAqcF18Z3hstw/BxIoS7MmKYHJBxEAl5y1uxEc9wjuH/Y
-X-Google-Smtp-Source: AGHT+IEHxvoFz3ku714UQQV7bTYOuY+Y6bHIimclggcF1vxf+8kI2fHoDpkvdJeLCJWYeMRjSCcCsg==
-X-Received: by 2002:a05:600c:1c17:b0:414:225:3699 with SMTP id j23-20020a05600c1c1700b0041402253699mr6627293wms.1.1710759803197;
-        Mon, 18 Mar 2024 04:03:23 -0700 (PDT)
-Received: from desktop-nixos-martino.. ([2a01:e11:5004:180::bd5a:12c2])
-        by smtp.gmail.com with ESMTPSA id je20-20020a05600c1f9400b00413e6af1bd5sm14346860wmb.47.2024.03.18.04.03.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 Mar 2024 04:03:22 -0700 (PDT)
-From: Martino Fontana <tinozzo123@gmail.com>
-To: djogorchock@gmail.com,
-	jikos@kernel.org,
-	benjamin.tissoires@redhat.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Martino Fontana <tinozzo123@gmail.com>,
-	Ryan McClelland <rymcclel@gmail.com>
-Subject: [PATCH v3 RESEND] HID: nintendo: use ida for LED player id
-Date: Mon, 18 Mar 2024 11:36:28 +0100
-Message-ID: <20240318110145.18490-1-tinozzo123@gmail.com>
-X-Mailer: git-send-email 2.43.2
+        d=1e100.net; s=20230601; t=1710760301; x=1711365101;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=KCRrLRgzcFtsj04jmn2kcF48w7FCWYzPNjCCNXWwhN8=;
+        b=JKkDBk4Dp4NlyLi/uB2DYUjwCk+guXdXNOWKKYDbDa+M/k4UBL9NmvW2Ef8udtbtW/
+         YMDQ2cS3V1kiVIFegt2XTHDY9gq8PuHUwcyNDedIgaoxyPf5gCP45ERgcYj1B3Eo0Fxa
+         dcexMuIvmk6m1VYZd6Q/HMirscm9faIN2sukZ8y4sveANovPMt01SDksKS1wxFk7vpdm
+         PVpyp6pTlwaUAtPvnPQclJRfOs92c+5c7tgY+WZevPimGZHFhtzSRXGSEqakGhZP8hI/
+         qIGpaJmZYRH4Kn8hy0ngx60jZY5yfy4GinG04Z13pWy5UHq6ffhlbpMAjh9a9BU463W2
+         qRow==
+X-Forwarded-Encrypted: i=1; AJvYcCVUoI7cQyUrjWXVgeM+ba0dNZ/gXX797tZIvux8AOoqxo2shS0hSljYKzMxImyx/kDdTGOjTpYLcXjI8p+oU+sHH9SadIzArbRHlig=
+X-Gm-Message-State: AOJu0Yy6qhHqUAsnE9Dk5Sy1j5k4vuFo35wFnaUmMOmWhJx9GI7mjvg7
+	R7Y6IOb8yAAnsoD9dDm2DQ6QMeWyIhGd2h1vNX0HYt0XH0xcqMsFkUjz4rXAuuNl2NUC5KzmzKA
+	MPXbkofofhHZviZo108oWCfE3eGqi36HJCMbH3tfjUQZHxk0Pv4fB3bf6lYjf
+X-Received: by 2002:a17:906:ddb:b0:a46:a1f7:156d with SMTP id p27-20020a1709060ddb00b00a46a1f7156dmr4019172eji.2.1710760301096;
+        Mon, 18 Mar 2024 04:11:41 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IEknhYpk/UoBbIXiSyWkooZJA3/ywR9QXOka5TQQi9XFr2kwrDhiLCZltxYyDrNnVlq8/TlEA==
+X-Received: by 2002:a17:906:ddb:b0:a46:a1f7:156d with SMTP id p27-20020a1709060ddb00b00a46a1f7156dmr4019152eji.2.1710760300703;
+        Mon, 18 Mar 2024 04:11:40 -0700 (PDT)
+Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
+        by smtp.gmail.com with ESMTPSA id sd9-20020a170906ce2900b00a4628cacad4sm4722437ejb.195.2024.03.18.04.11.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 Mar 2024 04:11:40 -0700 (PDT)
+Message-ID: <281f9b71-a565-4ff3-8343-ca36d604584d@redhat.com>
+Date: Mon, 18 Mar 2024 12:11:39 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: Future handling of complex RGB devices on Linux v3
+To: Werner Sembach <wse@tuxedocomputers.com>
+Cc: Lee Jones <lee@kernel.org>, jikos@kernel.org,
+ linux-kernel@vger.kernel.org, Jelle van der Waa <jelle@vdwaa.nl>,
+ Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ linux-input@vger.kernel.org, ojeda@kernel.org, linux-leds@vger.kernel.org,
+ Pavel Machek <pavel@ucw.cz>, Gregor Riepl <onitake@gmail.com>
+References: <0cdb78b1-7763-4bb6-9582-d70577781e61@tuxedocomputers.com>
+ <7228f2c6-fbdd-4e19-b703-103b8535d77d@redhat.com>
+ <730bead8-6e1d-4d21-90d2-4ee73155887a@tuxedocomputers.com>
+ <952409e1-2f0e-4d7a-a7a9-3b78f2eafec7@redhat.com>
+ <9851a06d-956e-4b57-be63-e10ff1fce8b4@tuxedocomputers.com>
+ <1bc6d6f0-a13d-4148-80cb-9c13dec7ed32@redhat.com>
+ <b70b2ea8-abfd-4d41-b336-3e34e5bdb8c6@tuxedocomputers.com>
+ <477d30ee-247e-47e6-bc74-515fd87fdc13@redhat.com>
+ <e21a7d87-3059-4a51-af04-1062dac977d2@tuxedocomputers.com>
+ <247b5dcd-fda8-45a7-9896-eabc46568281@tuxedocomputers.com>
+ <ZdZ2kMASawJ9wdZj@duo.ucw.cz>
+ <b6d79727-ae94-44b1-aa88-069416435c14@redhat.com>
+ <a21f6c49-2c05-4496-965c-a7524ed38634@gmail.com>
+ <825129ea-d389-4c6c-8a23-39f05572e4b4@redhat.com>
+ <adbfdf6c-fb59-4fae-a472-17b04dd8a3f6@tuxedocomputers.com>
+Content-Language: en-US, nl
+From: Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <adbfdf6c-fb59-4fae-a472-17b04dd8a3f6@tuxedocomputers.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Previously, the leds pattern would just increment with every controller
-connected. This wouldn't take into consideration when controllers are
-disconnected. The same controller could be connected and disconnected
-with the pattern increasing player count each time.
+Hi Werner,
 
-This patch changes it by using an ID allocator in order to assign the
-player id, the same way hid-playstation does.
+Sorry for the late reply.
 
-Signed-off-by: Martino Fontana <tinozzo123@gmail.com>
-Signed-off-by: Ryan McClelland <rymcclel@gmail.com>
----
-Changes for v2:
+On 2/22/24 2:14 PM, Werner Sembach wrote:
+> Hi,
+> 
+> Thanks everyone for the exhaustive feedback. And at least this thread is a good comprehesive reference for the future ^^.
+> 
+> To recap the hopefully final UAPI for complex RGB lighting devices:
+> 
+> - By default there is a singular /sys/class/leds/* entry that treats the device as if it was a single zone RGB keyboard backlight with no special effects.
 
-ida_free now frees the correct id, instead of an id that got moduloed.
+Ack this sounds good.
 
-Changes for v3:
+> 
+> - There is an accompanying misc device with the sysfs attributes "name", "device_type",  "firmware_version_string", "serial_number" for device identification and "use_leds_uapi" that defaults to 1.
 
-Destroy allocator when removing driver.
+You don't need a char misc device here, you can just make this sysfs attributes on the LED class device's parent device by using device_driver.dev_groups. Please don't use a char misc device just to attach sysfs attributes to it.
 
- drivers/hid/hid-nintendo.c | 41 ++++++++++++++++++++++++++------------
- 1 file changed, 28 insertions(+), 13 deletions(-)
+Also I'm a bit unsure about most of these attributes, "use_leds_uapi" was discussed before
+and makes sense. But at least for HID devices the rest of this info is already available
+in sysfs attributes on the HID devices (things like vendor and product id) and since the
+userspace code needs per device code to drive the kbd anyways it can also have device
+specific code to retrieve all this info, so the other sysfs attributes just feel like
+duplicating information. Also there already are a ton of existing hidraw userspace rgbkbd
+drivers which already get this info from other places.
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 997c3a1adaca..8a8ae7881469 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -28,6 +28,7 @@
- #include <linux/device.h>
- #include <linux/kernel.h>
- #include <linux/hid.h>
-+#include <linux/idr.h>
- #include <linux/input.h>
- #include <linux/jiffies.h>
- #include <linux/leds.h>
-@@ -427,6 +428,7 @@ static const enum led_brightness joycon_player_led_patterns[JC_NUM_LED_PATTERNS]
- struct joycon_ctlr {
- 	struct hid_device *hdev;
- 	struct input_dev *input;
-+	u32 player_id;
- 	struct led_classdev leds[JC_NUM_LEDS]; /* player leds */
- 	struct led_classdev home_led;
- 	enum joycon_ctlr_state ctlr_state;
-@@ -1930,7 +1932,8 @@ static int joycon_home_led_brightness_set(struct led_classdev *led,
- 	return ret;
- }
- 
--static DEFINE_SPINLOCK(joycon_input_num_spinlock);
-+static DEFINE_IDA(nintendo_player_id_allocator);
-+
- static int joycon_leds_create(struct joycon_ctlr *ctlr)
- {
- 	struct hid_device *hdev = ctlr->hdev;
-@@ -1941,20 +1944,19 @@ static int joycon_leds_create(struct joycon_ctlr *ctlr)
- 	char *name;
- 	int ret;
- 	int i;
--	unsigned long flags;
- 	int player_led_pattern;
--	static int input_num;
--
--	/*
--	 * Set the player leds based on controller number
--	 * Because there is no standard concept of "player number", the pattern
--	 * number will simply increase by 1 every time a controller is connected.
--	 */
--	spin_lock_irqsave(&joycon_input_num_spinlock, flags);
--	player_led_pattern = input_num++ % JC_NUM_LED_PATTERNS;
--	spin_unlock_irqrestore(&joycon_input_num_spinlock, flags);
- 
- 	/* configure the player LEDs */
-+	ctlr->player_id = U32_MAX;
-+	ret = ida_alloc(&nintendo_player_id_allocator, GFP_KERNEL);
-+	if (ret < 0) {
-+		hid_warn(hdev, "Failed to allocate player ID, skipping; ret=%d\n", ret);
-+		goto home_led;
-+	}
-+	ctlr->player_id = ret;
-+	player_led_pattern = ret % JC_NUM_LED_PATTERNS;
-+	hid_info(ctlr->hdev, "assigned player %d led pattern", player_led_pattern + 1);
-+
- 	for (i = 0; i < JC_NUM_LEDS; i++) {
- 		name = devm_kasprintf(dev, GFP_KERNEL, "%s:%s:%s",
- 				      d_name,
-@@ -2423,6 +2425,7 @@ static void nintendo_hid_remove(struct hid_device *hdev)
- 	spin_unlock_irqrestore(&ctlr->lock, flags);
- 
- 	destroy_workqueue(ctlr->rumble_queue);
-+	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
- 
- 	hid_hw_close(hdev);
- 	hid_hw_stop(hdev);
-@@ -2468,7 +2471,19 @@ static struct hid_driver nintendo_hid_driver = {
- 	.resume		= nintendo_hid_resume,
- #endif
- };
--module_hid_driver(nintendo_hid_driver);
-+static int __init nintendo_init(void)
-+{
-+	return hid_register_driver(&nintendo_hid_driver);
-+}
-+
-+static void __exit nintendo_exit(void)
-+{
-+	hid_unregister_driver(&nintendo_hid_driver);
-+	ida_destroy(&nintendo_player_id_allocator);
-+}
-+
-+module_init(nintendo_init);
-+module_exit(nintendo_exit);
- 
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Daniel J. Ogorchock <djogorchock@gmail.com>");
--- 
-2.43.2
+>     - If set to 0 the /sys/class/leds/* entry disappears. The driver should keep the last state the backlight was in active if possible.
+> 
+>     - If set 1 it appears again. The driver should bring it back to a static 1 zone setting while avoiding flicker if possible.
+
+Ack, if this finds it way into some documentation (which it should) please make it
+clear that this is about the "use_leds_uapi" sysfs attribute.
+
+> - If the device is not controllable by for example hidraw, the misc device might also implement additional ioctls or sysfs attributes to allow a more complex low level control for the keyboard backlight. This is will be a highly vendor specific UAPI.
+
+IMHO this is the only case where actually using a misc device makes sense, so that
+you have a chardev to do the ioctls on. misc-device-s should really only be used
+when you need a chardev under /dev . Since you don't need the chardev for the e.g.
+hidraw case you should not use a miscdev there IMHO.
+
+> 
+>     - The actual logic interacting with this low level UAPI is implemented by a userspace driver
+> 
+> Implementation wise: For the creation of the misc device with the use_leds_uapi switch a helper function/macro might be useful? Wonder if it should go into leds.h, led-class-multicolor.h, or a new header file?
+
+See above, I don't think we want the misc device for the hidraw case, at which
+point I think the helper becomes unnecessary since just a single sysfs write
+callback is necessary.
+
+Also for adding new sysfs attributes it is strongly encouraged to use
+device_driver.dev_groups so that the device core handled registering /
+unregistering the sysfs attributes which fixes a bunch of races; and
+using device_driver.dev_groups does not mix well with a helper as you've
+suggested.
+
+> 
+> - Out of my head it would look something like this:
+> 
+> led_classdev_add_optional_misc_control(
+>     struct led_classdev *led_cdev,
+>     char* name,
+>     char* device_type,
+>     char* firmware_version_string,
+>     char* serial_number,
+>     void (*deregister_led)(struct led_classdev *led_cdev),
+>     void (*reregister_led)(struct led_classdev *led_cdev))
+> 
+> Let me know your thoughts and hopefully I can start implementing it soon for one of our devices.
+
+I think overall the plan sounds good, with my main suggested change
+being to not use an unnecessary misc device for the hid-raw case.
+
+Regards,
+
+Hans
+
 

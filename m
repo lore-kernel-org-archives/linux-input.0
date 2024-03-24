@@ -1,130 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh5-smtp.messagingengine.com (fhigh5-smtp.messagingengine.com [103.168.172.156])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BAF317736;
-	Sun, 24 Mar 2024 12:16:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E108D53F;
+	Sun, 24 Mar 2024 21:08:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.156
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711282583; cv=none; b=sxJjnqvzht+EhMCxf8AlsZqOjkr9afx/alwQ2taRaxDhAWQwIlZL52oToxQScz8OYB1KPTDWv+EjaJx58Eu2Eqrp9V3YC1oiI+3W2RcdRKRs/wM9PRZY2d2ddXeRYT1VqpW0iJ2V+w3deZJxGWfZIY+C6qJnY32266pQHl1IBRA=
+	t=1711314519; cv=none; b=eKWLwop6CfklKfptP53m3hBibjTVfck7vgyXoGLhsq7mZ98sXSHTrqpMauOKLbyLC7wPcZUzE7WqTIlEWWoKmih7rFxmkBLRSu5fcjQoZbAmkwSTPACfbNgMU5A+P/rSPJWEg5QsrRhvK4dcTs+9LYoEb1HF4HX17awHg75CxVc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711282583; c=relaxed/simple;
-	bh=PXRDCrEc+u0PcMCf601WouC7laGk8s3Xs3CLxtUdZV8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=WV0wIzW3YzFzTw1W3pxlXFGoM5RCnvZL0D7kS0kSjJ+aeDtq2xYRJVOIU9Bwt8u2YBLdl0RCOJiG9cjV2UdObQ7o/sml8N7h+DCbiCNDEpHxiFtEgOeQCJhm0qPFXXSUqrlQEIcfyrqHz/1Ac5rZ28kHiw2ACt61yQq5lJsTJgM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W2IbvpxJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1711314519; c=relaxed/simple;
+	bh=hpk6Wi6xibmLu2eA9kJTYleFHcU39R9mM9+aJN+WP8g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=iLdqW5iXYpqtZtIk45yZVlYHcDyswyiERNWX556qNiyWPmoV1R2W7UvfMwz/sh8XhVszEpTBp0nz17YtehwxAWBh2qBg0baiHa03ZIL56IQMJAoZE6SDIaohu4bhlQ6wXrZMmhQ69Gnzbz9RFpUtS+bw3HqyHNxVDPVxsjF9oJQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=T/NM5Y/x; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=lX/aY3JH; arc=none smtp.client-ip=103.168.172.156
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W2IbvpxJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF9ABC433F1;
-	Sun, 24 Mar 2024 12:16:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1711282583;
-	bh=PXRDCrEc+u0PcMCf601WouC7laGk8s3Xs3CLxtUdZV8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=W2IbvpxJguEvyynQn3fQMmrclzMYGYbmKLk7n4wJSDydWgpdywkTh+AAKPWM5ye1o
-	 9A2VvfuhQSU5DKJvfFksMKWi/lU5r6UEPJYvc8f5RCDMQUIvHw0GGOPuILFrGoAhfe
-	 KarfpwLVN1J0oflthQ21t0kb2QTCRK4xZbTgXhFiD7cNWTdbM4nynxp1wmqOaHBENc
-	 6pWqkarUElQRuAIZDBMASCe/R/GYQTygjl24O7sGU4BV15egclY5HVq514VahafcDF
-	 dII1OZzGBkzI88iKqRlDoyGqHMvQ5kkvDj6xLjEb5HeCE02AOk5ZNRLhvsFUhnfJzy
-	 sxRI+wF7FrXBA==
-Date: Sun, 24 Mar 2024 12:16:08 +0000
-From: Jonathan Cameron <jic23@kernel.org>
-To: Li Zhijian <lizhijian@fujitsu.com>
-Cc: linux-kernel@vger.kernel.org, Jiri Kosina <jikos@kernel.org>, Srinivas
- Pandruvada <srinivas.pandruvada@linux.intel.com>, Benjamin Tissoires
- <benjamin.tissoires@redhat.com>, linux-input@vger.kernel.org,
- linux-iio@vger.kernel.org, Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH v4 2/4] HID: hid-sensor-custom: Convert sprintf() family
- to sysfs_emit() family
-Message-ID: <20240324121608.30b2217b@jic23-huawei>
-In-Reply-To: <20240319054527.1581299-2-lizhijian@fujitsu.com>
-References: <20240319054527.1581299-1-lizhijian@fujitsu.com>
-	<20240319054527.1581299-2-lizhijian@fujitsu.com>
-X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="T/NM5Y/x";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="lX/aY3JH"
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+	by mailfhigh.nyi.internal (Postfix) with ESMTP id 01C4611400BD;
+	Sun, 24 Mar 2024 17:08:35 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sun, 24 Mar 2024 17:08:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
+	:cc:content-transfer-encoding:content-type:date:date:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to; s=fm3; t=1711314514; x=
+	1711400914; bh=h31yFYMuvD8W4+jwFqiAM6h7FP1FGnBAkqLSOrHU3Lw=; b=T
+	/NM5Y/xMwutq0VrqeHwqRc2r8ppPk9dY1B2IZL8uT9NpuLsalDAujHe0vKOxWN7D
+	kDcR/gLhDd3GPsmlLdfo4AIe/6IdiX6V48z3zZtYtJBE4koHbE5Ykh6M9bnyaTU0
+	xdNCFs9USPfsZL8AFFr1M09w5hBvCUlHaPV/LP/w37Ok86m+3iDg+DLdt8PtOmgu
+	49EBR2KuMVi2c9d1MdofmkjFmvVDoDz/WWY/J8DzIyJFdQ427puh7bmIvNn6by3q
+	J0/Std9DHJaKlaE28IgSAB6RlwaP/aTAUp6HdJeKfkWMYNsd01KbJxKh9sXWrXzN
+	QZbxJaiZbdPsXsStBMFbA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:date:date:feedback-id:feedback-id:from:from
+	:in-reply-to:in-reply-to:message-id:mime-version:references
+	:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1711314514; x=
+	1711400914; bh=h31yFYMuvD8W4+jwFqiAM6h7FP1FGnBAkqLSOrHU3Lw=; b=l
+	X/aY3JHbBgmpQojhGhfXeLCwqqnVCMFCSqjoavW14X6VPeYjSpLSLditBG3khcVo
+	Wh4h+IgGHvptPU2/iCZj1S3I+344KNuPSLvOB6xAHUQfSDaua9F9kCJG7486xNPE
+	Xuhv7WSucI+mCrPYwPa8Sq12Vq4S7yBvOvub0cF/Vz2chdvtiNi9LsSYdmlefgm/
+	RYny9wAKEU+2Aw3NXsOcBFR2MitoimbyIyCf/UER+GjA6zYET0zlwzV0Ipd964HX
+	fSUJ+TcAgWdso35kKxAEo+f8d69EBSL4oCDdb9adLIpJKeE0agR52MDErxcM2JNR
+	JzAbE7kKPpt/cLkfkMjyw==
+X-ME-Sender: <xms:UpYAZmi0k0huX4N1N70jkM2iLw3_yK4A05HIypRnLfoK83ZoqnIRhg>
+    <xme:UpYAZnBcz2K8DLpkbYU-TO6rwx-zYoFSrA7rN4TpPezzEC8TgYyLZJzyayi9TOHY1
+    p3asiCyIZ4HI6mGd-c>
+X-ME-Received: <xmr:UpYAZuFT963srjrqy1__Ujkdiitn9JbOru9My5xUw_h1Gjo1US945jCWkb17>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledruddtjedgudeglecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecuogetfedtuddqtdduucdludehmdenucfjughrpe
+    fhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeforghrkhcurfgvrghr
+    shhonhcuoehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtggrqeenucggtf
+    frrghtthgvrhhnpeeftddvjeefleffvefhgfejjeehudetteeigeeugfekhffhgeejudeu
+    teehgfdvffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhroh
+    hmpehmphgvrghrshhonhdqlhgvnhhovhhosehsqhhuvggssgdrtggr
+X-ME-Proxy: <xmx:UpYAZvRI-v2pPnEQrqdStZ75-P448KxQavA-owbAUmMKEWUAwo2XoA>
+    <xmx:UpYAZjwMUBZYv_m5Tz0zlrnbGOMReOToiZYPOIKm9Sa1B-Wz088CiA>
+    <xmx:UpYAZt65STtAo-7V_NOXk7myip5IwXwktp3sxTXhhJzIvV8enaHn_A>
+    <xmx:UpYAZgwpp8p0UAXfuqDD43W4wxsRlvE4_J5rpyBxTNcUHp5NV4TC1w>
+    <xmx:UpYAZrgYPPLgGFH8f9mXXrHSzlAvXWNHfy1kPOMmqWohzzAVp8Qj9w>
+Feedback-ID: ibe194615:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sun,
+ 24 Mar 2024 17:08:33 -0400 (EDT)
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
+To: mpearson-lenovo@squebb.ca
+Cc: hdegoede@redhat.com,
+	ilpo.jarvinen@linux.intel.com,
+	hmh@hmh.eng.br,
+	dmitry.torokhov@gmail.com,
+	ibm-acpi-devel@lists.sourceforge.net,
+	platform-driver-x86@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	njoshi1@lenovo.com,
+	vsankar@lenovo.com,
+	peter.hutterer@redhat.com
+Subject: [PATCH 0/4] platform/x86,input: Support for new events on
+Date: Sun, 24 Mar 2024 17:07:57 -0400
+Message-ID: <20240324210817.192033-1-mpearson-lenovo@squebb.ca>
+X-Mailer: git-send-email 2.44.0
+In-Reply-To: <mpearson-lenovo@squebb.ca>
+References: <mpearson-lenovo@squebb.ca>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, 19 Mar 2024 13:45:25 +0800
-Li Zhijian <lizhijian@fujitsu.com> wrote:
+Hi,
 
-> Per filesystems/sysfs.rst, show() should only use sysfs_emit()
-> or sysfs_emit_at() when formatting the value to be returned to user space.
-> 
-> coccinelle complains that there are still a couple of functions that use
-> snprintf(). Convert them to sysfs_emit().
-> 
-> sprintf() and scnprintf() will be converted as well if they have.
-> 
-> Generally, this patch is generated by
-> make coccicheck M=<path/to/file> MODE=patch \
-> COCCI=scripts/coccinelle/api/device_attr_show.cocci
-> 
-> No functional change intended
-> 
-> CC: Jiri Kosina <jikos@kernel.org>
-> CC: Jonathan Cameron <jic23@kernel.org>
-> CC: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-> CC: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-> CC: linux-input@vger.kernel.org
-> CC: linux-iio@vger.kernel.org
+This series adds support trackpoint doubletap and some new hotkey
+functionality which is being added on Lenovo laptops.
+ - FN+N - display system debug info. Used by customer support with
+   Windows users.
+ - FN+G - disable/enable trackpoint doubletap.
 
-As a general rule, don't have cc's of lists up here. It makes
-a mess of the logs. Also once you have another tag drop CC of
-same person (even if it's a different email address).
+We combined these into a series because there was commonality between
+what the different features were doing.
+Please let us know if you would prefer to have them as separate commits.
 
-We don't want to fill the git log with useless information.
+Many thanks to Peter Hutterer and Benjamin Tissoires for the guidance on
+what would be best for exporting the events from trackpoint doubletap to
+userspace. Any mistakes are ours :)
 
-I think git is fine picking up CC's from below the --- so you
-can add them there if it simplifies how you send your patch
-sets out.
+Features have been tested on Z13 G2 (doubletap & FN+G) and X1 Carbon 
+G12 (FN+N)
 
+Mark Pearson (4):
+  Input: Add trackpoint doubletap and system debug info keycodes
+  platform/x86: thinkpad_acpi: Support for trackpoint doubletap
+  platform/x86: thinkpad_acpi: Support for system debug info hotkey
+  platform/x86: thinkpad_acpi: Support hotkey to disable trackpoint
+    doubletap
 
-> Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> Signed-off-by: Li Zhijian <lizhijian@fujitsu.com>
-> ---
-> V3:
->    rewrap the line as will be under 80 chars and add Reviewed-by # Jonathan
-> This is a part of the work "Fix coccicheck device_attr_show warnings"[1]
-> Split them per subsystem so that the maintainer can review it easily
-> [1] https://lore.kernel.org/lkml/20240116041129.3937800-1-lizhijian@fujitsu.com/
-> ---
->  drivers/hid/hid-sensor-custom.c | 9 ++++-----
->  1 file changed, 4 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/hid/hid-sensor-custom.c b/drivers/hid/hid-sensor-custom.c
-> index d85398721659..ac214777d7d9 100644
-> --- a/drivers/hid/hid-sensor-custom.c
-> +++ b/drivers/hid/hid-sensor-custom.c
-> @@ -155,7 +155,7 @@ static ssize_t enable_sensor_show(struct device *dev,
->  {
->  	struct hid_sensor_custom *sensor_inst = dev_get_drvdata(dev);
->  
-> -	return sprintf(buf, "%d\n", sensor_inst->enable);
-> +	return sysfs_emit(buf, "%d\n", sensor_inst->enable);
->  }
->  
->  static int set_power_report_state(struct hid_sensor_custom *sensor_inst,
-> @@ -372,14 +372,13 @@ static ssize_t show_value(struct device *dev, struct device_attribute *attr,
->  				     sizeof(struct hid_custom_usage_desc),
->  				     usage_id_cmp);
->  		if (usage_desc)
-> -			return snprintf(buf, PAGE_SIZE, "%s\n",
-> -					usage_desc->desc);
-> +			return sysfs_emit(buf, "%s\n", usage_desc->desc);
->  		else
-> -			return sprintf(buf, "not-specified\n");
-> +			return sysfs_emit(buf, "not-specified\n");
->  	 } else
->  		return -EINVAL;
->  
-> -	return sprintf(buf, "%d\n", value);
-> +	return sysfs_emit(buf, "%d\n", value);
->  }
->  
->  static ssize_t store_value(struct device *dev, struct device_attribute *attr,
+ drivers/platform/x86/thinkpad_acpi.c   | 31 ++++++++++++++++++++++++++
+ include/uapi/linux/input-event-codes.h |  2 ++
+ 2 files changed, 33 insertions(+)
+
+-- 
+2.44.0
 

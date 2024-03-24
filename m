@@ -1,148 +1,97 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mail2.andi.de1.cc (vmd64148.contaboserver.net [161.97.139.27])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B32FC15886C
-	for <linux-input@vger.kernel.org>; Mon, 25 Mar 2024 14:25:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95981146D56;
+	Mon, 25 Mar 2024 15:08:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.97.139.27
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711376726; cv=none; b=piex7kF2TYPcRkj6G48GfU+tPN+fPXilreblmbLb3p7bdY+EewOC5e/wXz19hqU/OJOO6jYoOxkNTYMyMhLITMzghVRkMENTsoEKizZbFy3R4oIHXKOXj0f+zkU5hoH2bIiBigv9+k3M75J5msOm+MbGAVE8dl+dH+sm0G/H5wY=
+	t=1711379327; cv=none; b=Hfj2RZeYHnnZuCwIeeN5l3T6RieoGwudUIzbdrJjwoRfl/x/P0YRFnoDC6ZSu6IhpM5qdviBjggSrXTFToOARCMVYPqgtoFIGLWDnzDNVzTct2GjYQPy5UiZlFHLFLQOK+IWLDys7bzXpUV8Rjw6jw9FTuuzPFF3VodC6BBVQpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711376726; c=relaxed/simple;
-	bh=rzde9nZg0OvrJTww7H+/t1tWyrqe4/ueC3Y0WR6wWm8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NXhtJ6p7sUaQI3HutdfBwyf7lumqsAymMNvtThCWjYCn1ABJS8OolkXB2h8zSKJSaVbO/bjzuaATTzh1aL7A5cKxBjmO0WMfaVoEyV2KOWmgNj93kjnmxiIFZB9lyIZ0cfxw0/5cjhQ5d7UrAm4Nr6lKQ18Pwo1Z9Z8hFYRcL8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LKwF+omr; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1711379327; c=relaxed/simple;
+	bh=cOB5ofcragOsxUPDcRYrRuGwwiFEh7d8O8+uK+5YN54=;
+	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=QhwnJld7OLugBcTCgqFo7XlEbozusP+TOOQmDWVPj1B1Fb6U0Rvq2xU4LCjLLxAXYsS00RVUMrilC4/hb9LfHKwF0nPgLj3dsxhDaAEy4qZ05SUtp/tNIKJJWpDGZa138RbGIGfS+9ZgrjdZf7UklN9sQmkLz8GGLeFR/zuq0AY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=UzfQA2qL; arc=none smtp.client-ip=161.97.139.27
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LKwF+omr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1711376723;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=P7f00HUXp3zd1m3YJGt//Yz1Nl22MNuXdWxqtATqspc=;
-	b=LKwF+omr2KsmeTYhFiN36I0IRRDNySfflkZFeayDb1rmcGP31yiYHN726bDA4NIzwNBqGm
-	vCRBou2DaN6XVXOy/MwDp98X7TlpArUUAJw9bUwYX+8hpeTRVMVMClmItncchSvWyqeo8b
-	pUBsqhryVsfS/rf9qpYrLNMlA7ohlXQ=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-639-42k9pfs-Pr-qch9W1D8UCg-1; Mon, 25 Mar 2024 10:25:22 -0400
-X-MC-Unique: 42k9pfs-Pr-qch9W1D8UCg-1
-Received: by mail-ed1-f69.google.com with SMTP id 4fb4d7f45d1cf-56bf76d4282so2215507a12.1
-        for <linux-input@vger.kernel.org>; Mon, 25 Mar 2024 07:25:22 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1711376721; x=1711981521;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=P7f00HUXp3zd1m3YJGt//Yz1Nl22MNuXdWxqtATqspc=;
-        b=uWEMMnFQ9UiR5lbJg4GFZG7d33KeWc+89yPHlD1Nzf9i9fQ4LU3oLD4t7qhREyTDQY
-         n5PZdxHHaFDiDorvz935vAhKDk/UuuKLdf+Iu0POVNNP6JXxxeQZ8sPKZtuGLq/wMIAi
-         b17Z1FhQI13Hg/JzeE1mSOR0WSM3pVTdnRMZHR9scZv9D5Oy70CmntKOnjEutqYGHvKp
-         wFMZFEPBwZgO7dvKkvEMd65M0ECmki/ncny9FfOfQ3qDTeauyg8CcdKma7Tz9aekW8VN
-         KTtw90gtfl3HBhkL6bsjuQW+HxTeke2cLdFKtKNnOJ2dCemViv2cZOd/v8/QR5q9ydWS
-         327w==
-X-Forwarded-Encrypted: i=1; AJvYcCV+T70QmeO5eXoW79UKLXf3oXOYtKAviHflTy4AeC82iA+AxfkS41Bs1krCHGuHNtWPGMmUuwP+VjuupaeqHhxoPw/8lM4/mVmWeyU=
-X-Gm-Message-State: AOJu0YzEO3AuKH9nyaD267wf1DlhF3iHjS5KRkoproCiMXW6q3RAbJOk
-	C8LKJ12ckZCTmYS7sWm0aBVrKUEby75rKIrqacj+odZjO9TSCJbch8JMgLCOwelzR5KvLDFIlpP
-	MpX5KK86ttFAQk8oLFhHzqZ3cpRDMaRJdA0R4QWEusZreZ2jfECG03gcY0QnW
-X-Received: by 2002:a50:9f46:0:b0:568:9f77:9c0 with SMTP id b64-20020a509f46000000b005689f7709c0mr5343901edf.4.1711376720798;
-        Mon, 25 Mar 2024 07:25:20 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IExhsFatz36wq0gHQ23Z8oZAyiiQ9qppOFaIfR20MLP2ncbc0znQUTkcsy/vu+vh23j886d9A==
-X-Received: by 2002:a50:9f46:0:b0:568:9f77:9c0 with SMTP id b64-20020a509f46000000b005689f7709c0mr5343885edf.4.1711376720363;
-        Mon, 25 Mar 2024 07:25:20 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id w14-20020aa7cb4e000000b0056729e902f7sm3013149edt.56.2024.03.25.07.25.19
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 Mar 2024 07:25:19 -0700 (PDT)
-Message-ID: <aec1d22d-9e59-4dfc-b108-5ba339b0e76a@redhat.com>
-Date: Mon, 25 Mar 2024 15:25:19 +0100
+	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="UzfQA2qL"
+Received: from mail.andi.de1.cc ([2a02:c205:3004:2154::1])
+	by mail2.andi.de1.cc with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <andreas@kemnade.info>)
+	id 1rolwE-003KEg-1E;
+	Mon, 25 Mar 2024 16:08:38 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=Content-Transfer-Encoding:MIME-Version:
+	References:In-Reply-To:Message-Id:Date:Subject:To:From:Sender:Reply-To:Cc:
+	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=TkWL+DHrht+nOfgyUNGNUf3KP01IjzuevLkBJPg3TiI=; b=UzfQA2qL+bndZw6lsmdoDeELjW
+	uuMpHqJV3OOnQ9XErtmLJOy8b775fseCT6uPNyDf4d1N1tAXwO+MJ0ULPrEKXyjQyi8YLURYw2v5y
+	KfkjM3J2swbh6A8ItMFOFROS6dpDMSnWtBsEbxtuHw8ncnSZthPG/ot12FcTz1NBqd/lR6vhn1QtI
+	M2/IcyOWSSQ2b5riYCQjyVq8M2NaPXS0zWswkIjSKqdSXXeo1/xCxfcuDTZ1VpmbtSZrJGKrENIO1
+	zXhQX6yY8FkiiRJiDSwb6y9jgAXyrL93P/2TXu8W57oql31y/aTZOE4wvAiskqSLBF/N2EHpH0Eea
+	vw72pM9Q==;
+Received: from p2003010777026a001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:107:7702:6a00:1a3d:a2ff:febf:d33a] helo=aktux)
+	by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <andreas@kemnade.info>)
+	id 1roSqO-000Y2F-Df; Sun, 24 Mar 2024 19:45:19 +0100
+Received: from andi by aktux with local (Exim 4.96)
+	(envelope-from <andreas@kemnade.info>)
+	id 1roSqN-000rkQ-0s;
+	Sun, 24 Mar 2024 19:45:19 +0100
+From: Andreas Kemnade <andreas@kemnade.info>
+To: dmitry.torokhov@gmail.com,
+	robh+dt@kernel.org,
+	krzysztof.kozlowski+dt@linaro.org,
+	conor+dt@kernel.org,
+	andreas@kemnade.info,
+	o.rempel@pengutronix.de,
+	dario.binacchi@amarulasolutions.com,
+	u.kleine-koenig@pengutronix.de,
+	hdegoede@redhat.com,
+	p.puschmann@pironex.com,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	caleb.connolly@linaro.org
+Subject: [PATCH 2/2] Input: edt-ft5x06 - add ft5426
+Date: Sun, 24 Mar 2024 19:44:15 +0100
+Message-Id: <20240324184415.206587-3-andreas@kemnade.info>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240324184415.206587-1-andreas@kemnade.info>
+References: <20240324184415.206587-1-andreas@kemnade.info>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: In kernel virtual HID devices (was Future handling of complex RGB
- devices on Linux v3)
-Content-Language: en-US, nl
-To: Werner Sembach <wse@tuxedocomputers.com>
-Cc: Lee Jones <lee@kernel.org>, jikos@kernel.org,
- linux-kernel@vger.kernel.org, Jelle van der Waa <jelle@vdwaa.nl>,
- Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
- "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
- linux-input@vger.kernel.org, ojeda@kernel.org, linux-leds@vger.kernel.org,
- Pavel Machek <pavel@ucw.cz>, Gregor Riepl <onitake@gmail.com>,
- Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>
-References: <0cdb78b1-7763-4bb6-9582-d70577781e61@tuxedocomputers.com>
- <7228f2c6-fbdd-4e19-b703-103b8535d77d@redhat.com>
- <730bead8-6e1d-4d21-90d2-4ee73155887a@tuxedocomputers.com>
- <952409e1-2f0e-4d7a-a7a9-3b78f2eafec7@redhat.com>
- <9851a06d-956e-4b57-be63-e10ff1fce8b4@tuxedocomputers.com>
- <1bc6d6f0-a13d-4148-80cb-9c13dec7ed32@redhat.com>
- <b70b2ea8-abfd-4d41-b336-3e34e5bdb8c6@tuxedocomputers.com>
- <477d30ee-247e-47e6-bc74-515fd87fdc13@redhat.com>
- <e21a7d87-3059-4a51-af04-1062dac977d2@tuxedocomputers.com>
- <247b5dcd-fda8-45a7-9896-eabc46568281@tuxedocomputers.com>
- <ZdZ2kMASawJ9wdZj@duo.ucw.cz>
- <b6d79727-ae94-44b1-aa88-069416435c14@redhat.com>
- <a21f6c49-2c05-4496-965c-a7524ed38634@gmail.com>
- <825129ea-d389-4c6c-8a23-39f05572e4b4@redhat.com>
- <adbfdf6c-fb59-4fae-a472-17b04dd8a3f6@tuxedocomputers.com>
- <1fb08a74-62c7-4d0c-ba5d-648e23082dcb@tuxedocomputers.com>
-From: Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <1fb08a74-62c7-4d0c-ba5d-648e23082dcb@tuxedocomputers.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-+Cc: Bentiss, Jiri
+As ft5426 seems to be compatible with this driver, add it.
+Debug output during identification: Model "generic ft5x06 (79)", Rev. "
 
-Hi Werner,
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+ drivers/input/touchscreen/edt-ft5x06.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-On 3/20/24 12:16 PM, Werner Sembach wrote:
-> Hi Hans and the others,
-> 
-> Am 22.02.24 um 14:14 schrieb Werner Sembach:
->> Hi,
->>
->> Thanks everyone for the exhaustive feedback. And at least this thread is a good comprehesive reference for the future ^^.
->>
->> To recap the hopefully final UAPI for complex RGB lighting devices:
->>
->> - By default there is a singular /sys/class/leds/* entry that treats the device as if it was a single zone RGB keyboard backlight with no special effects.
->>
->> - There is an accompanying misc device with the sysfs attributes "name", "device_type",  "firmware_version_string", "serial_number" for device identification and "use_leds_uapi" that defaults to 1.
->>
->>     - If set to 0 the /sys/class/leds/* entry disappears. The driver should keep the last state the backlight was in active if possible.
->>
->>     - If set 1 it appears again. The driver should bring it back to a static 1 zone setting while avoiding flicker if possible.
->>
->> - If the device is not controllable by for example hidraw, the misc device might also implement additional ioctls or sysfs attributes to allow a more complex low level control for the keyboard backlight. This is will be a highly vendor specific UAPI.
-> So in the OpenRGB issue thread https://learn.microsoft.com/en-us/windows-hardware/design/component-guidelines/dynamic-lighting-devices aka HID LampArray was mentioned. I did dismiss it because I thought that is only relevant for firmware, but I now stumbled upon the Virtual HID Framework (VHF) https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/virtual-hid-framework--vhf- and now I wonder if an equivalent exists for Linux? A quick search did not yield any results for me.
-
-Oh, interesting. I did not know about the HID LampArray API.
-
-About your question about virtual HID devices, there is uHID,
-but as the name suggests this allows userspace to emulate a HID
-device.
-
-In your case you want to do the emulation in kernel so that you
-can translate the proprietary WMI calls to something HID LampArray
-compatible.
-
-I guess you could do this by defining your own HID transport driver,
-like how e.g. the i2c-hid code defines 1 i2c-hid parent + 1 HID
-"client" for each device which talks HID over i2c in the machine.
-
-Bentiss, Jiri, do you have any input on this. Would something like
-that be acceptable to you (just based on the concept at least) ?
-
-Regards,
-
-Hans
-
+diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
+index 2a1db11344766..4e7621a801756 100644
+--- a/drivers/input/touchscreen/edt-ft5x06.c
++++ b/drivers/input/touchscreen/edt-ft5x06.c
+@@ -1484,6 +1484,7 @@ static const struct of_device_id edt_ft5x06_of_match[] = {
+ 	{ .compatible = "edt,edt-ft5206", .data = &edt_ft5x06_data },
+ 	{ .compatible = "edt,edt-ft5306", .data = &edt_ft5x06_data },
+ 	{ .compatible = "edt,edt-ft5406", .data = &edt_ft5x06_data },
++	{ .compatible = "focaltech,ft5426", .data = &edt_ft5506_data },
+ 	{ .compatible = "edt,edt-ft5506", .data = &edt_ft5506_data },
+ 	{ .compatible = "evervision,ev-ft5726", .data = &edt_ft5506_data },
+ 	/* Note focaltech vendor prefix for compatibility with ft6236.c */
+-- 
+2.39.2
 

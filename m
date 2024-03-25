@@ -1,84 +1,139 @@
-Received: from mail2.andi.de1.cc (vmd64148.contaboserver.net [161.97.139.27])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F13246FE09;
-	Mon, 25 Mar 2024 15:28:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.97.139.27
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 350F410A39;
+	Mon, 25 Mar 2024 15:56:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711380490; cv=none; b=BGce2VNMx37AcQL4SwFqIxNejZ1UdfAeFhHx6YlR4Ncl/RGRLAYwd54wxPdKojmahE/dXeLvgSI587TlGn3xC4eWjR+D+L1e5ftVNLS46Q7Xe0/kvWgX51eYu/xV3u5ZX76tyjsI3MI7sSdC6K92HLubk0pMfEWdHeIQ7ltxbYY=
+	t=1711382215; cv=none; b=GEkFybPFAN7z8NzgKwc0TjknBtg1/S46b384KysaXyxgCgU7IM2TESLNFCTakrFvZYvpk0nsZt03tPoCcTHy07V3i6eBQo3w/dgrEpus0JFHPAV03paOtcwO3a1yoK1hMqDopH2dQE7pgcLqmnZMuv4yDwmGmokFd+5pWyg9dCE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711380490; c=relaxed/simple;
-	bh=5TNZ/0vXqU8T1qc7INc6viVA07FvS1UZfC3Iz40p8us=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version; b=DYWCaDCC04VcHnW/QGQR9hoG6q/LvQmOYoWFtAzVERJLDAIZuzCt+pNu//uIPycGpu2ga/odkcwyg0zleG/PJjMG9jOX88m7+i8BVcKsaVN8vlS2zAnDssIW6xIYrLswNtTcIR5I3KlYTPYaa2r7DakEhi0dYxUyFSI1o2tWQw8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=0IJ02dZJ; arc=none smtp.client-ip=161.97.139.27
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	s=arc-20240116; t=1711382215; c=relaxed/simple;
+	bh=ENDQ/e0q9PX0Cu5M/o6hx0CVqmsSUPAKQYjWkmXdgyw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Xtgxd6rn0QqJJ1PeEZUGHhmqZhpeLJ4BFmQ/CcXdegMYu+RLKawrC/EBdl6SdEvH9+QwkZb4Os63rp9LeOcAoG+zac8gxHAY7gYYXpwaq2ZK8wyB6VugkLbqrOM/VcGbfM74lE6C0hv7ewBdbNNqEXiMKNaAwEvY5J5lsdXvLXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qcMSEvh6; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="0IJ02dZJ"
-Received: from mail.andi.de1.cc ([2a02:c205:3004:2154::1])
-	by mail2.andi.de1.cc with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <andreas@kemnade.info>)
-	id 1roltB-003KE7-37;
-	Mon, 25 Mar 2024 16:05:29 +0100
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=Content-Transfer-Encoding:MIME-Version:
-	Message-Id:Date:Subject:To:From:Sender:Reply-To:Cc:Content-Type:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=8+IJOcRrnTEfFitmECGtcWpIAwCHu/9+63TuWIfjEw0=; b=0IJ02dZJXALWDHAreLDC72TRan
-	zLZRv2pU3/co53GzKa4ET1I3s5NLiZQUzpeEkeglKiAAlfUfN1RtoNRUoqhKEGmBUKLUp5sx2yCrE
-	v1ANbUr7xuOqpNUdfjkwWUSqT/l1PzBOi727qxOd/7IYcKmgVnP1ACzJDdl3tzWXLsEXQ58fTOKB4
-	c5CC8hQbuJ13Im+AShvlNsBM3MyYJJWRFdI+BrwavQXdGq27PPMd1I36TmQPCxkixzxMOS3wC7hru
-	j2F4k+Csbovvx3sgmVv/7NFZR+sPphp5KnFtLNo0H9/lMdogwsDTHSq9IVChEz/wk3X37gSOD1XjN
-	4sTx6kBw==;
-Received: from p2003010777026a001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:107:7702:6a00:1a3d:a2ff:febf:d33a] helo=aktux)
-	by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <andreas@kemnade.info>)
-	id 1roSqL-000Y1x-Oi; Sun, 24 Mar 2024 19:45:17 +0100
-Received: from andi by aktux with local (Exim 4.96)
-	(envelope-from <andreas@kemnade.info>)
-	id 1roSqK-000rkG-2I;
-	Sun, 24 Mar 2024 19:45:16 +0100
-From: Andreas Kemnade <andreas@kemnade.info>
-To: dmitry.torokhov@gmail.com,
-	robh+dt@kernel.org,
-	krzysztof.kozlowski+dt@linaro.org,
-	conor+dt@kernel.org,
-	andreas@kemnade.info,
-	o.rempel@pengutronix.de,
-	dario.binacchi@amarulasolutions.com,
-	u.kleine-koenig@pengutronix.de,
-	hdegoede@redhat.com,
-	p.puschmann@pironex.com,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	caleb.connolly@linaro.org
-Subject: [PATCH 0/2] Input: add ft5426
-Date: Sun, 24 Mar 2024 19:44:13 +0100
-Message-Id: <20240324184415.206587-1-andreas@kemnade.info>
-X-Mailer: git-send-email 2.39.2
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qcMSEvh6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA093C433F1;
+	Mon, 25 Mar 2024 15:56:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711382214;
+	bh=ENDQ/e0q9PX0Cu5M/o6hx0CVqmsSUPAKQYjWkmXdgyw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=qcMSEvh6wLv5drqay/oxDcZ+vzz+1GCw0Q3n4gWaHMwTKnsG0cUZ7/bI90q2vE/av
+	 p6cyw0zqXIV8fzMYtCHudpFRcopl/3WeDp8449JCw0LyP4DDpUy+/6dKmmzjI5e5jU
+	 Rdb3Wfo4NUf2VlmA9ciXYrRiHD+XlGaO9gLIpmV1FHo1gjva2Mz9fgF9KlyJZldN2f
+	 bSeq6FJVHYQKzuzDjpdtwb5qpAz+3zk/FhfnE3aZfGtXEhXA6IhBs0mZeaReyf9tHN
+	 6Ah7u0ksUVa+bzjSh5W6J3JO+LgU5innpV3/nBvqhIleCJjNxWroSNsMZISKuD8g//
+	 aFDT4lVjwF9BQ==
+Date: Mon, 25 Mar 2024 16:56:49 +0100
+From: Benjamin Tissoires <bentiss@kernel.org>
+To: Hans de Goede <hdegoede@redhat.com>
+Cc: Werner Sembach <wse@tuxedocomputers.com>, Lee Jones <lee@kernel.org>, 
+	jikos@kernel.org, linux-kernel@vger.kernel.org, Jelle van der Waa <jelle@vdwaa.nl>, 
+	Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, 
+	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>, linux-input@vger.kernel.org, ojeda@kernel.org, 
+	linux-leds@vger.kernel.org, Pavel Machek <pavel@ucw.cz>, Gregor Riepl <onitake@gmail.com>
+Subject: Re: In kernel virtual HID devices (was Future handling of complex
+ RGB devices on Linux v3)
+Message-ID: <siebkhaauocqkuox73q2e5p2mbsyc7j4gvpzfvt4c3gvncdpap@oxh5pp4gxpuo>
+References: <477d30ee-247e-47e6-bc74-515fd87fdc13@redhat.com>
+ <e21a7d87-3059-4a51-af04-1062dac977d2@tuxedocomputers.com>
+ <247b5dcd-fda8-45a7-9896-eabc46568281@tuxedocomputers.com>
+ <ZdZ2kMASawJ9wdZj@duo.ucw.cz>
+ <b6d79727-ae94-44b1-aa88-069416435c14@redhat.com>
+ <a21f6c49-2c05-4496-965c-a7524ed38634@gmail.com>
+ <825129ea-d389-4c6c-8a23-39f05572e4b4@redhat.com>
+ <adbfdf6c-fb59-4fae-a472-17b04dd8a3f6@tuxedocomputers.com>
+ <1fb08a74-62c7-4d0c-ba5d-648e23082dcb@tuxedocomputers.com>
+ <aec1d22d-9e59-4dfc-b108-5ba339b0e76a@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <aec1d22d-9e59-4dfc-b108-5ba339b0e76a@redhat.com>
 
-Add ft5426 touchscreen controller and the corresponding compatible.
+On Mar 25 2024, Hans de Goede wrote:
+> +Cc: Bentiss, Jiri
+> 
+> Hi Werner,
+> 
+> On 3/20/24 12:16 PM, Werner Sembach wrote:
+> > Hi Hans and the others,
+> > 
+> > Am 22.02.24 um 14:14 schrieb Werner Sembach:
+> >> Hi,
+> >>
+> >> Thanks everyone for the exhaustive feedback. And at least this thread is a good comprehesive reference for the future ^^.
+> >>
+> >> To recap the hopefully final UAPI for complex RGB lighting devices:
+> >>
+> >> - By default there is a singular /sys/class/leds/* entry that treats the device as if it was a single zone RGB keyboard backlight with no special effects.
+> >>
+> >> - There is an accompanying misc device with the sysfs attributes "name", "device_type",  "firmware_version_string", "serial_number" for device identification and "use_leds_uapi" that defaults to 1.
+> >>
+> >>     - If set to 0 the /sys/class/leds/* entry disappears. The driver should keep the last state the backlight was in active if possible.
+> >>
+> >>     - If set 1 it appears again. The driver should bring it back to a static 1 zone setting while avoiding flicker if possible.
+> >>
+> >> - If the device is not controllable by for example hidraw, the misc device might also implement additional ioctls or sysfs attributes to allow a more complex low level control for the keyboard backlight. This is will be a highly vendor specific UAPI.
+> > So in the OpenRGB issue thread https://learn.microsoft.com/en-us/windows-hardware/design/component-guidelines/dynamic-lighting-devices aka HID LampArray was mentioned. I did dismiss it because I thought that is only relevant for firmware, but I now stumbled upon the Virtual HID Framework (VHF) https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/virtual-hid-framework--vhf- and now I wonder if an equivalent exists for Linux? A quick search did not yield any results for me.
+> 
+> Oh, interesting. I did not know about the HID LampArray API.
+> 
+> About your question about virtual HID devices, there is uHID,
+> but as the name suggests this allows userspace to emulate a HID
+> device.
+> 
+> In your case you want to do the emulation in kernel so that you
+> can translate the proprietary WMI calls to something HID LampArray
+> compatible.
+> 
+> I guess you could do this by defining your own HID transport driver,
+> like how e.g. the i2c-hid code defines 1 i2c-hid parent + 1 HID
+> "client" for each device which talks HID over i2c in the machine.
+> 
+> Bentiss, Jiri, do you have any input on this. Would something like
+> that be acceptable to you (just based on the concept at least) ?
 
-Andreas Kemnade (2):
-  dt-bindings: input: touchscreen: edt-ft5x06: Add ft5426
-  Input: edt-ft5x06 - add ft5426
+I just read the thread, and I think I now understand a little bit what
+this request is :)
 
- .../devicetree/bindings/input/touchscreen/edt-ft5x06.yaml        | 1 +
- drivers/input/touchscreen/edt-ft5x06.c                           | 1 +
- 2 files changed, 2 insertions(+)
+IMO working with the HID LampArray is the way forward. So I would
+suggest to convert any non-HID RGB "LED display" that we are talking
+about as a HID LampArray device through `hid_allocate_device()` in the
+kernel. Basically what you are suggesting Hans. It's just that you don't
+need a formal transport layer, just a child device that happens to be
+HID.
 
--- 
-2.39.2
+The next question IMO is: do we want the kernel to handle such
+machinery? Wouldn't it be simpler to just export the HID device and let
+userspace talk to it through hidraw, like what OpenRGB does?
 
+If the kernel already handles the custom protocol into generic HID, the
+work for userspace is not too hard because they can deal with a known
+protocol and can be cross-platform in their implementation.
+
+I'm mentioning that cross-platform because SDL used to rely on the
+input, LEDs, and other Linux peculiarities and eventually fell back on
+using hidraw only because it's way more easier that way.
+
+The other advantage of LampArray is that according to Microsoft's
+document, new devices are going to support it out of the box, so they'll
+be supported out of the box directly.
+
+Most of the time my stance is "do not add new kernel API, you'll regret
+it later". So in that case, given that we have a formally approved
+standard, I would suggest to use it, and consider it your API.
+
+Side note to self: I really need to resurrect the hidraw revoke series
+so we could export those hidraw node to userspace with uaccess through
+logind...
+
+Cheers,
+Benjamin

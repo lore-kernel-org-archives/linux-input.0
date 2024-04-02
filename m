@@ -1,143 +1,206 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out5-smtp.messagingengine.com (out5-smtp.messagingengine.com [66.111.4.29])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FD5112DD96
-	for <linux-input@vger.kernel.org>; Tue,  2 Apr 2024 15:21:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EBEC15AAC4;
+	Tue,  2 Apr 2024 18:09:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=66.111.4.29
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712071294; cv=none; b=Fs0OODxJyY+G+i9Kp/5ldJ8VDiZvnYg1SP7OApx+kvjzjcWR1T/fnK/bf0hNKUuNrCczEleSmSsgqheFE59Guw2nBBbuE+6MTLqMqbYMfF0EzNvSJfSemIokcfcIZcklZLOiksqbQgYYdpGbTjQXo3KgVojpIScxyoMy02T1XxA=
+	t=1712081364; cv=none; b=udPV8xG+J5D4jL4eNsjTiMgS1lcGu7mKRtW84Gid0j8PHipAZdmCPnXGTkX/JpINi0KL23n2CP+54YbPLf5wYX3Jx03PQt6Hyd5xIqv+Zytza+nZDijTXENZ4vYF/v1SDRXA4n2PDmjLOvgx4SAmCiuROFwczv3dBS5FHJceJR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712071294; c=relaxed/simple;
-	bh=t4Rytc9yyhGJnDzIG0fj0CFOC5rwPpFe3xdrheCzLGA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Y/Zi5yT1OqLrq93ejI0Dk0MqQnmiA8WIKWXa9VI+Tfyqt2wmh8otfh/x9IPpmD8IfwqIit37ud+FyIKurwABXbZZLiP4bwrnP2hIqMiBOhfCUIgJ1QmviVW7PxUXd4XXrQFtqxfFdwzkEMmiJdxX8+GVV3L2t+ASaTY/Yj/LmP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=rPKCyS9K; arc=none smtp.client-ip=209.85.167.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1712081364; c=relaxed/simple;
+	bh=eSF486bhbpd75a/BWfmuqOapsioPFBXp/oMUvs4USyM=;
+	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
+	 Subject:Content-Type; b=uuKxSRzp2km2KAY/FBn64b07V7B9vi+GXQFW60F2GxJWPKjk9EZOXcoobMW0V7Y6cp6UZ7qxUOaAoPuWvKIZZEylMogDtKk6ar3yqk4Klcf9wy2GFSFdUuAyCCP2WFvZIEu4+1d1nTJCZrUDuK05TbtDPTCt0Ivy7looZ2u1gNc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=pE7oSw9m; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=Yk7NveVb; arc=none smtp.client-ip=66.111.4.29
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=squebb.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="rPKCyS9K"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-515c3eeea5dso6216105e87.1
-        for <linux-input@vger.kernel.org>; Tue, 02 Apr 2024 08:21:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1712071290; x=1712676090; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=fdpXSEOMW5sDeABud6LY4+ygs1jkKgACgBrXVzT1mys=;
-        b=rPKCyS9KQkN442b0wwY7oRwtXNEATnFsCZYYro8OqWsRQtCWD+eN/f8IFnuJ7HSS0i
-         +5ryjGqgMK/oQo/eTksKh2xupcQBfa0mJ2OHrd6OVNXiOjnW6efLgFd98hsbmHNE/E2Z
-         jyupo1J7k5jhpE23h2uVi9oQWS6KMZDe47o+HPRP93OFQLZgAZ2m8Uiu7FE1+iTwRVKK
-         ny3vyG7M+H4Z1ieJwx3JOR4T3QArVfVuQTbqVJMuQba47+YQxNWG0zgx6l+8E50RrtCj
-         U6Vn3TbrFoVWzm3Ofgbz+nubaKwlDXZUdJsHc3yzpEmYUixXr0gVy2PQ+Y2OUwpf9wwT
-         yrXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712071290; x=1712676090;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fdpXSEOMW5sDeABud6LY4+ygs1jkKgACgBrXVzT1mys=;
-        b=RyPCLiysDym5VCSyLYkKe1H55d50yW7bMsw7G+uFiYSo0+FNq9LvNoY9d3gp9x3jAL
-         FmVQ89MOTI8xDKhpIeLi+KHYj2tPHbHh7Bgojnd4Io69rtU9gJzBCD8BPw2Gh0IiabKB
-         ba57F3QRy/FOcTZ348rDXwObuJj6HaItTcsVg5tmzZow1XnEK35vyW2xpcZMAfrR8/jP
-         tlATY0Gg8rN/KEX2dvJJ4py5GHATJV5kJgAepjxAaWSSnNGWxB7XEzOiePdoVTPqtswl
-         5F7Ph2yrDt5bYfdUBpmW0VbyX7p+sXEx6RfEagKb5gZzD4B7iPXHuDiyDTxKbI6VXnu1
-         LekA==
-X-Forwarded-Encrypted: i=1; AJvYcCW2Ucvykfm8DsFikGf/08b2LGFIjRos0WfpqtqMQ4m8jwO665rp0ApFN8I0QeeHBjMjgmYga+gxqjf3LKbxhTIy2X5fLdGj8XXJP9o=
-X-Gm-Message-State: AOJu0YwRuaV0/955wuhyG0/j+wltzVl8DD/xBLcQwXeEUQNkI15krzD7
-	bNgAdpZlV/xv7e2hQR8ZbZpBPZrAcdIDyXxL4hapxsVPU+yCfnNhElWGnCxJusY=
-X-Google-Smtp-Source: AGHT+IEnaASTdH9ozN9AmQUMgJ/N4NNp4A/EEmC9SNJjFf89H/Yz72c629rX/rGyrX0ey4KoqRteug==
-X-Received: by 2002:a05:6512:4010:b0:515:acdc:fcd5 with SMTP id br16-20020a056512401000b00515acdcfcd5mr10041553lfb.69.1712071290361;
-        Tue, 02 Apr 2024 08:21:30 -0700 (PDT)
-Received: from [192.168.92.47] (078088045141.garwolin.vectranet.pl. [78.88.45.141])
-        by smtp.gmail.com with ESMTPSA id 22-20020a170906311600b00a4e8acaccb1sm880171ejx.132.2024.04.02.08.21.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 02 Apr 2024 08:21:29 -0700 (PDT)
-Message-ID: <21641459-d7c0-412d-8244-6f2f2c458551@linaro.org>
-Date: Tue, 2 Apr 2024 17:21:28 +0200
+	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="pE7oSw9m";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="Yk7NveVb"
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+	by mailout.nyi.internal (Postfix) with ESMTP id C95E55C00A5;
+	Tue,  2 Apr 2024 14:09:20 -0400 (EDT)
+Received: from imap52 ([10.202.2.102])
+  by compute3.internal (MEProxy); Tue, 02 Apr 2024 14:09:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm3; t=1712081360; x=1712167760; bh=HabFGBn5xo
+	ej8VapqUlPZ+A61A4Kk7VPro0ZHdOSHkc=; b=pE7oSw9mhFlmf6L/KPPzI95g/k
+	empRXXg7iLP0+rQk4lMg6xReZSFygYHC2DqcrRW8DNCxmFXtsnxu15XEeR/D45Y3
+	tCIR+Xns+uT9y2+RkFouaq5MID7fyCNc1a3yKr8UnG54aTcMmVb0fgKI1/mrjDhu
+	hzIzUhVKf0BdUvhbA7R8v7On9eRE5OYYcMFTaB0e7NvyKDLTFRj/ko16jCWgB9HL
+	ez6Ki7KDNP+WU6aauY9lGp63ynX4E+TtBOx4ULRkucamjFoELQH3eLJ9448CC/+h
+	pQG34k0Ph/KwVb+poICIvZR7WEMU+uvUPHmQEULpwujvCb+1xZU5Di9Ab2EA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+	fm2; t=1712081360; x=1712167760; bh=HabFGBn5xoej8VapqUlPZ+A61A4K
+	k7VPro0ZHdOSHkc=; b=Yk7NveVb2BNjUyC2U2akg9LF/2XIpMuQi78sIRwBLTUb
+	h6wU8xkDqnCB9p0JDN4qdSwosRIDk1GJpEV8Lzapf1H3nr2GPQfKqbSZn/DOCU5c
+	RD1HSceqUA4yS+sCFfG8ysiNNO6aGdPjaBBUMLOiXtcjVxYR0qvRyAAUKs31mAe/
+	uKYpFef1T1CL0eiOWnjKfLl3oVxJFjIdfO6Tohw2XrUg9qVeP97XKlvArMvoBUXN
+	dPtVIce4APBmYbWfcMG5zQT6om1tNzDvBq7EHW7yomRiaQJQ5qld/Vn5l0QmIneD
+	bZ6aJkhacuO4Qml5Y0gdMwpZwxbq5Et7BWwJa13g6Q==
+X-ME-Sender: <xms:z0kMZnzWbEChQt7X6W8a4B44PFxThYGb8jJHDKcYFit_p8IRocje-g>
+    <xme:z0kMZvTWUMHtNsl-em80VRghsPIo6wPkHSSpHQHkh6OHS5K7AG4VVRxxTZfo8vsQv
+    YaUgpYOIJ-y5H4FQQY>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrudefvddguddvvdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdfo
+    rghrkhcurfgvrghrshhonhdfuceomhhpvggrrhhsohhnsehsqhhuvggssgdrtggrqeenuc
+    ggtffrrghtthgvrhhnpedtieethfdvudffhedvhfduveeluddukeduffehgeduieehtdeh
+    gedvueelhfetgeenucffohhmrghinhepmhhitghrohhsohhfthdrtghomhdprhgvughhrg
+    htrdgtohhmpdhkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgr
+    rhgrmhepmhgrihhlfhhrohhmpehmphgvrghrshhonhesshhquhgvsggsrdgtrg
+X-ME-Proxy: <xmx:z0kMZhUW26ilRsf2byQwgWu-_n1qiKwG0CogwsUsNHyXF2T12_60fw>
+    <xmx:z0kMZhixXpEG707aLN51M9wrHb1rLCIKO7BhC7ukWlqYhan5T16nhg>
+    <xmx:z0kMZpC70EasxqEBF0WkznTjYf3WP-pv84xvVxFSK-8LV1i2rtk4_w>
+    <xmx:z0kMZqLYCflC36jaFNBIpJsGmm8lHe92pQx6WrdQ_qJzrb9aRFjikw>
+    <xmx:0EkMZrwWiSH7_eOukuO52w9SIMhihZwgfR2LJOOQ80QgL16HDqj4z4lmusgn>
+Feedback-ID: ic2b14614:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id 8D54AC60097; Tue,  2 Apr 2024 14:09:19 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.11.0-alpha0-333-gbfea15422e-fm-20240327.001-gbfea1542
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 1/3] input: pm8xxx-vibrator: refactor to support new
- SPMI vibrator
-To: quic_fenglinw@quicinc.com, kernel@quicinc.com,
- Andy Gross <agross@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
- <robh+dt@kernel.org>, Krzysztof Kozlowski
- <krzysztof.kozlowski+dt@linaro.org>,
- Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-References: <20240401-pm8xxx-vibrator-new-design-v8-0-6f2b8b03b4c7@quicinc.com>
- <20240401-pm8xxx-vibrator-new-design-v8-1-6f2b8b03b4c7@quicinc.com>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@linaro.org>
-Autocrypt: addr=konrad.dybcio@linaro.org; keydata=
- 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
- izWDgYvmBE8=
-In-Reply-To: <20240401-pm8xxx-vibrator-new-design-v8-1-6f2b8b03b4c7@quicinc.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Message-Id: <e941980b-5efb-4ba7-aaf9-f0ed694fb39d@app.fastmail.com>
+In-Reply-To: <20240402111004.161434-1-hdegoede@redhat.com>
+References: <20240402111004.161434-1-hdegoede@redhat.com>
+Date: Tue, 02 Apr 2024 14:09:32 -0400
+From: "Mark Pearson" <mpearson@squebb.ca>
+To: "Hans de Goede" <hdegoede@redhat.com>, "Jiri Kosina" <jikos@kernel.org>,
+ "Benjamin Tissoires" <benjamin.tissoires@redhat.com>,
+ "Kenny Levinsen" <kl@kl.wtf>
+Cc: =?UTF-8?Q?Philip_M=C3=BCller?= <philm@manjaro.org>,
+ "Douglas Anderson" <dianders@chromium.org>, "Julian Sax" <jsbc@gmx.de>,
+ ahormann@gmx.net, "Bruno Jesus" <bruno.fl.jesus@gmail.com>,
+ Dietrich <enaut.w@googlemail.com>, kloxdami@yahoo.com,
+ "Tim Aldridge" <taldridge@mac.com>,
+ "Rene Wagner" <redhatbugzilla@callerid.de>,
+ "Federico Ricchiuto" <fed.ricchiuto@gmail.com>, linux-input@vger.kernel.org,
+ stable@vger.kernel.org
+Subject: Re: [PATCH v3] HID: i2c-hid: Revert to await reset ACK before reading report
+ descriptor
+Content-Type: text/plain
 
-On 1.04.2024 10:38 AM, Fenglin Wu via B4 Relay wrote:
-> From: Fenglin Wu <quic_fenglinw@quicinc.com>
-> 
-> Currently, vibrator control register addresses are hard coded,
-> including the base address and offsets, it's not flexible to
-> support new SPMI vibrator module which is usually included in
-> different PMICs with different base address. Refactor it by using
-> the base address defined in devicetree.
-> 
-> Signed-off-by: Fenglin Wu <quic_fenglinw@quicinc.com>
+On Tue, Apr 2, 2024, at 7:10 AM, Hans de Goede wrote:
+> From: Kenny Levinsen <kl@kl.wtf>
+>
+> In af93a167eda9, i2c_hid_parse was changed to continue with reading the
+> report descriptor before waiting for reset to be acknowledged.
+>
+> This has lead to two regressions:
+>
+> 1. We fail to handle reset acknowledgment if it happens while reading
+>    the report descriptor. The transfer sets I2C_HID_READ_PENDING, which
+>    causes the IRQ handler to return without doing anything.
+>
+>    This affects both a Wacom touchscreen and a Sensel touchpad.
+>
+> 2. On a Sensel touchpad, reading the report descriptor this quickly
+>    after reset results in all zeroes or partial zeroes.
+>
+> The issues were observed on the Lenovo Thinkpad Z16 Gen 2.
+>
+> The change in question was made based on a Microsoft article[0] stating
+> that Windows 8 *may* read the report descriptor in parallel with
+> awaiting reset acknowledgment, intended as a slight reset performance
+> optimization. Perhaps they only do this if reset is not completing
+> quickly enough for their tastes?
+>
+> As the code is not currently ready to read registers in parallel with a
+> pending reset acknowledgment, and as reading quickly breaks the report
+> descriptor on the Sensel touchpad, revert to waiting for reset
+> acknowledgment before proceeding to read the report descriptor.
+>
+> [0]: 
+> https://learn.microsoft.com/en-us/windows-hardware/drivers/hid/plug-and-play-support-and-power-management
+>
+> Fixes: af93a167eda9 ("HID: i2c-hid: Move i2c_hid_finish_hwreset() to 
+> after reading the report-descriptor")
+> Closes: https://bugzilla.redhat.com/show_bug.cgi?id=2271136
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Kenny Levinsen <kl@kl.wtf>
+> Link: https://lore.kernel.org/r/20240331182440.14477-1-kl@kl.wtf
+> [hdegoede@redhat.com Drop no longer necessary abort_reset error exit 
+> path]
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 > ---
+>  drivers/hid/i2c-hid/i2c-hid-core.c | 29 ++++++++---------------------
+>  1 file changed, 8 insertions(+), 21 deletions(-)
+>
+> diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c 
+> b/drivers/hid/i2c-hid/i2c-hid-core.c
+> index 2df1ab3c31cc..13d67d7c67b4 100644
+> --- a/drivers/hid/i2c-hid/i2c-hid-core.c
+> +++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+> @@ -735,12 +735,15 @@ static int i2c_hid_parse(struct hid_device *hid)
+>  	mutex_lock(&ihid->reset_lock);
+>  	do {
+>  		ret = i2c_hid_start_hwreset(ihid);
+> -		if (ret)
+> +		if (ret == 0)
+> +			ret = i2c_hid_finish_hwreset(ihid);
+> +		else
+>  			msleep(1000);
+>  	} while (tries-- > 0 && ret);
+> +	mutex_unlock(&ihid->reset_lock);
+> 
+>  	if (ret)
+> -		goto abort_reset;
+> +		return ret;
+> 
+>  	use_override = i2c_hid_get_dmi_hid_report_desc_override(client->name,
+>  								&rsize);
+> @@ -750,11 +753,8 @@ static int i2c_hid_parse(struct hid_device *hid)
+>  		i2c_hid_dbg(ihid, "Using a HID report descriptor override\n");
+>  	} else {
+>  		rdesc = kzalloc(rsize, GFP_KERNEL);
+> -
+> -		if (!rdesc) {
+> -			ret = -ENOMEM;
+> -			goto abort_reset;
+> -		}
+> +		if (!rdesc)
+> +			return -ENOMEM;
+> 
+>  		i2c_hid_dbg(ihid, "asking HID report descriptor\n");
+> 
+> @@ -763,23 +763,10 @@ static int i2c_hid_parse(struct hid_device *hid)
+>  					    rdesc, rsize);
+>  		if (ret) {
+>  			hid_err(hid, "reading report descriptor failed\n");
+> -			goto abort_reset;
+> +			goto out;
+>  		}
+>  	}
+> 
+> -	/*
+> -	 * Windows directly reads the report-descriptor after sending reset
+> -	 * and then waits for resets completion afterwards. Some touchpads
+> -	 * actually wait for the report-descriptor to be read before signalling
+> -	 * reset completion.
+> -	 */
+> -	ret = i2c_hid_finish_hwreset(ihid);
+> -abort_reset:
+> -	clear_bit(I2C_HID_RESET_PENDING, &ihid->flags);
+> -	mutex_unlock(&ihid->reset_lock);
+> -	if (ret)
+> -		goto out;
+> -
+>  	i2c_hid_dbg(ihid, "Report Descriptor: %*ph\n", rsize, rdesc);
+> 
+>  	ret = hid_parse_report(hid, rdesc, rsize);
 
-[...]
+Tested on my Z13 G2 system and confirmed this fixes the issue.
 
->  	if (regs->enable_mask)
-> -		rc = regmap_update_bits(vib->regmap, regs->enable_addr,
-> +		rc = regmap_update_bits(vib->regmap, vib->enable_addr,
->  					regs->enable_mask, on ? ~0 : 0);
-
-The idiomatic way across the kernel seems to be writing the mask value
-instead of ~0 (which also saves like 2 cpu instructions)
-
-
-Not sure about how ssbi addressing works, but except for that lgtm
-
-Konrad
+Tested-by: Mark Pearson <mpearson-lenovo@squebb.ca>

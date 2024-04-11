@@ -1,113 +1,71 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85751146A8C;
-	Thu, 11 Apr 2024 08:32:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B925B5CBD;
+	Thu, 11 Apr 2024 09:08:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712824327; cv=none; b=B15EfP+EVwq5ATgkUiQk5w7EgoPiY07NS+EFTr/FcqS2BjUobGpJVrB200UEtlpaiHgD8Ifq1DQ0vbLBI4tFTCqJF6jrTLmWFsAi1667Zb7dMGlqMKtgupovcYcaqVoKFUbJUDd6c9/H3u3YRP008+L+4K0ki0z8veXbVWVBqd0=
+	t=1712826499; cv=none; b=hEJAxpSfx9u/Ohhl8sLGIcFzOfTu+8Zv66bHSlPqZjpwtYbJzS3R1YUalI6o/aoQ8KB0DNXsZR0nad6TyBG7VR5Cg8rsow5A+d24xiGN416i6mbgagilUvlnR6c2tsSJ0g0PBiaj4eM2+pWoX44VWDXRBz6rr3yeRCqlWrLWimg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712824327; c=relaxed/simple;
-	bh=2pSJ5RtkTJUIWZtuMClF1MziyBCDcsQTg8O2HQnpmqY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=CLNAf0XdTokiSDTujS6ROgM9bzUbJYHFTNTxN4F24JBZFlWzR5+99wweW1ekwd3bpu3nu2t/qbvsLzxmxHL1BT4FZ6geJM9IX990UVn60temrYE+he17JV3jd29xUQ3SRBriI5Og3xlwp06sDjBpmg02r/D+k+K0SRZDvwUh7sk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A1TxZ7Hj; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1712826499; c=relaxed/simple;
+	bh=CjcEJ0njrZnjfmJLychiyJIve3HrhAs1E1Yd0lbqPX8=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=h1elkL4WYWT/J5Bd0ziKs3XVvmzVHsrrMjUTSjNPU7mQsz0mRNxmjj3CzaJ6kXA7ss9x4LqUou9kIoaJ7Pqsh5JjpRQ/EPjZi4ZDGbVYs83lgPmcRwfBMU34FXYqo1oqAe3JivhAkSK8r7P0u67nYOPlk4XluLfyZ+Vw0EbXMjg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jglRRx3v; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A1TxZ7Hj"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 07894C433B1;
-	Thu, 11 Apr 2024 08:32:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jglRRx3v"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4758C433F1;
+	Thu, 11 Apr 2024 09:08:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1712824327;
-	bh=2pSJ5RtkTJUIWZtuMClF1MziyBCDcsQTg8O2HQnpmqY=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=A1TxZ7Hj6II42OysevajMY6o3hNAwyYleYDBdZEJReniV5AypzzOQ6MqUcBOAztKF
-	 +qjckBplSIC2GlQeLqHX0CqnEb9S1JjeW8jblQeahn82NWoQtaH4TGQIbYNLff9PK2
-	 l/D/S+++UbRvRWEYxkK27aPgdSSePgwqhVD0RIIgz0gwBun+km6ulnWKR/4RuxygaJ
-	 fLzrAb7GLWc8jNidp+Hm5rX62dvtKUkduKjRr2+X9wsCqYxALfChIVntyFyJ6KxMtC
-	 b0ZaxEjGnqufpLpHd7+rFkNTUOJGLHkOhJWviQyZ2RKOxS/xCj2t3U9QtPRvoUYdXs
-	 sVhtsgvcGVszA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED88ACD128A;
-	Thu, 11 Apr 2024 08:32:06 +0000 (UTC)
-From: Fenglin Wu via B4 Relay <devnull+quic_fenglinw.quicinc.com@kernel.org>
-Date: Thu, 11 Apr 2024 16:30:59 +0800
-Subject: [PATCH v9 3/4] dt-bindings: input: qcom,pm8xxx-vib: add new SPMI
- vibrator module
+	s=k20201202; t=1712826499;
+	bh=CjcEJ0njrZnjfmJLychiyJIve3HrhAs1E1Yd0lbqPX8=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=jglRRx3vOSXQJb0OkdxmIXoAuCtyWLgOOfcfIa95LLpPJA33iWAItDeq1L7t78b6c
+	 /AHcP7LNCyKxiK0JxoJZ5uJ953br2VKRU8nKF+aWF1wJDfBbIW9QnFnoE4B7+kEO5l
+	 G2RB4bhL4SpBBJyy1rPSOVjSaLKHp9fJzvP2OtVOl3x0EKk0S/AAtd0dZamiQCPuxR
+	 gU0jnQRhDAaoBM0ztx5tBm5FuemoJPT3LCUMriBrCn48rrvcV0auKTXK5rFx0RG5U4
+	 8OynzgcfKs89uvd5iElRC2AyYtAKfF+W6p48eetDeu9QyrqjrM53lRvBSxJEKHU0op
+	 G0vGlMXmvv1NQ==
+Date: Thu, 11 Apr 2024 11:08:16 +0200 (CEST)
+From: Jiri Kosina <jikos@kernel.org>
+To: Benjamin Tissoires <bentiss@kernel.org>
+cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] HID: bpf: fix hid_bpf_input_report() when hid-core is
+ not ready
+In-Reply-To: <20240411-fix-hid-bpf-v1-1-4ae913031a8c@kernel.org>
+Message-ID: <nycvar.YFH.7.76.2404111107370.5680@cbobk.fhfr.pm>
+References: <20240411-fix-hid-bpf-v1-1-4ae913031a8c@kernel.org>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240411-pm8xxx-vibrator-new-design-v9-3-7bf56cb92b28@quicinc.com>
-References: <20240411-pm8xxx-vibrator-new-design-v9-0-7bf56cb92b28@quicinc.com>
-In-Reply-To: <20240411-pm8xxx-vibrator-new-design-v9-0-7bf56cb92b28@quicinc.com>
-To: kernel@quicinc.com, Andy Gross <agross@kernel.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konrad.dybcio@linaro.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh+dt@kernel.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, 
- Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Cc: linux-arm-msm@vger.kernel.org, linux-input@vger.kernel.org, 
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
- Fenglin Wu <quic_fenglinw@quicinc.com>, 
- Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-X-Mailer: b4 0.13-dev-83828
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1712824325; l=1205;
- i=quic_fenglinw@quicinc.com; s=20240327; h=from:subject:message-id;
- bh=SwnogURbBf0S1flEa633BZvpsevy5nBnFae6M+y7bFo=;
- b=2lEkdbrPEw81OD95Z9DZiCTOC2ragbnwcYnsSVGs1egINyGATNjqy2mHHE0QtSL+ecbEecMkS
- y89PApfOMQZBPW+RwXtdMVhKLa9oUfFCOlvrJ8h/v5ifPQ+w12GtZPz
-X-Developer-Key: i=quic_fenglinw@quicinc.com; a=ed25519;
- pk=BF8SA4IVDk8/EBCwlBehKtn2hp6kipuuAuDAHh9s+K4=
-X-Endpoint-Received: by B4 Relay for quic_fenglinw@quicinc.com/20240327
- with auth_id=146
-X-Original-From: Fenglin Wu <quic_fenglinw@quicinc.com>
-Reply-To: quic_fenglinw@quicinc.com
+Content-Type: text/plain; charset=US-ASCII
 
-From: Fenglin Wu <quic_fenglinw@quicinc.com>
+On Thu, 11 Apr 2024, Benjamin Tissoires wrote:
 
-Add compatible strings to support vibrator module inside PMI632,
-PMI7250B, PM7325B, PM7550BA.
+> Reported by linux-next:
+> After merging the hid tree, today's linux-next build (x86_64 allmodconfig)
+> failed like this:
+> 
+> x86_64-linux-gnu-ld: vmlinux.o: in function `hid_bpf_input_report':
+> (.text+0x1c75181): undefined reference to `hid_input_report'
+> 
+> Caused by commit 9be50ac30a83 ("HID: bpf: allow to inject HID event
+> from BPF")
+> 
+> I just forgot to put the indirection in place.
+> 
+> Link: https://lore.kernel.org/linux-kernel/20240411105131.7830f966@canb.auug.org.au/
+> Signed-off-by: Benjamin Tissoires <bentiss@kernel.org>
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Fenglin Wu <quic_fenglinw@quicinc.com>
----
- .../devicetree/bindings/input/qcom,pm8xxx-vib.yaml       | 16 ++++++++++++----
- 1 file changed, 12 insertions(+), 4 deletions(-)
+Please also include Fixes: tag.
 
-diff --git a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
-index c8832cd0d7da..2025d6a5423e 100644
---- a/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
-+++ b/Documentation/devicetree/bindings/input/qcom,pm8xxx-vib.yaml
-@@ -11,10 +11,18 @@ maintainers:
- 
- properties:
-   compatible:
--    enum:
--      - qcom,pm8058-vib
--      - qcom,pm8916-vib
--      - qcom,pm8921-vib
-+    oneOf:
-+      - enum:
-+          - qcom,pm8058-vib
-+          - qcom,pm8916-vib
-+          - qcom,pm8921-vib
-+          - qcom,pmi632-vib
-+      - items:
-+          - enum:
-+              - qcom,pm7250b-vib
-+              - qcom,pm7325b-vib
-+              - qcom,pm7550ba-vib
-+          - const: qcom,pmi632-vib
- 
-   reg:
-     maxItems: 1
+Thanks,
 
 -- 
-2.25.1
-
+Jiri Kosina
+SUSE Labs
 

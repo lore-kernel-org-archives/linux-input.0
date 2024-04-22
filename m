@@ -1,36 +1,36 @@
 Received: from fritzc.com (mail.fritzc.com [213.160.72.247])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35C16487BE;
-	Mon, 22 Apr 2024 07:12:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 693CE48CE0;
+	Mon, 22 Apr 2024 07:12:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.72.247
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713769946; cv=none; b=CFobBtJ+GZpH5+CYzWqX3lD9kIgcYVC4ceYG0O4i0LGXxeaDfbj/8YpxcYZVKEisz7LEx2f6KpbwW/FCSDU9J/w8DdsLmoEuh26BapcFakAELWCCAhfRv7fLZ+5eo3WKgfjFqf7Jqt5C4SAwb1QPKEPs86PzG556CYOYEdJw3a4=
+	t=1713769951; cv=none; b=mOSHujPR2+1zJS4H35R7Q53S1du2eEFBqpyyuEA1YpuSLqCH4nZ2wYWnGBYC/IehHw90NC/Jff6WSBXsJbICS4xZ4wFFqlVoY6klTV7iwlpnzr1zouSMYEbCh3weGiT7oJbErn2IElNDqHywPd4+/k+KHczmer2WsOAXKbLB0MQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713769946; c=relaxed/simple;
-	bh=CTIrEa2rmGwqVNpfbry2rBHxc3B2ib4sFmkFx9XDrAQ=;
+	s=arc-20240116; t=1713769951; c=relaxed/simple;
+	bh=isr1JPW2xnItXxe3lTO8yPFq3SZLlfun2YSQgB1Fq5s=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=G2opxCggaug5qkvZWjMwoJ3zCDyCJXdCev0ksJVQzYtFxTTBKSA+v2ecUZ4qKxh5eoLBVsb8nhLWRp5Uit+r9IGz0xqvOBnb+BiIOyHbEHjlw+lklWxm9mH+5H7WP+KpJwcoRi4p7CjBIJztTIcWYIm3WElMppaW8Hsy62P85eU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=bJi0uusC; arc=none smtp.client-ip=213.160.72.247
+	 MIME-Version; b=tp3QJdZnWJ1NR3JbkzT+eeXGgai1ZpMtbHbZoU3rKboSFm3h2aVjialqqIHeIrmA6DP9LmPHfKKE5seaE7755j1mntr35lETnjEH25KRykKtDxxzWD4LPCBygbKuhTW/uoQpzQfDZKIAEvdGDmHQw4KOEeCwhu3BJzEzZQYrA7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=Dogtz1uk; arc=none smtp.client-ip=213.160.72.247
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="bJi0uusC"
+	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="Dogtz1uk"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fritzc.com;
 	s=dkim; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=8clKTwDXSLEjCrNz3ZWsEXXoYtAWWeGjOsCM1EwODUc=; b=bJi0uusC3FaLSBrscCWDlzp6QG
-	M0KRp3Xuid92xasazyJJdhDazfsFBZceEYxXSAbPNBR15SEalGj0DHPY1xv63mEUdKdBmlztBDoVo
-	AjKzqs6VhZZ9wtsioyH5OltS1hbavvvrvVCJ4bb1s/8UWdvdmpEqRZlcK6maVFPH12zY=;
+	bh=je8idoEl2Aq23Plr6/3Ik3IMq1PPiabZ49izB6tK9ZA=; b=Dogtz1ukfCiSr/aWS2o5J7a9en
+	wwm8tOufqbnYTgECO/nyNe5lhLtnTLul2YeTtlyvAYIGBO4u1Ak0wl6Twtji2mMVWCLxZJnRcSNrv
+	yl1rFKjPGaPswR1qyo6a7XPCARqkw9gTpqlkA8terQPhSX7Va0YCfdS1cfMlZfvi3r5w=;
 Received: from 127.0.0.1
 	by fritzc.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim latest)
 	(envelope-from <christoph.fritz@hexdev.de>)
-	id 1rynWp-001JRH-1M;
-	Mon, 22 Apr 2024 08:51:51 +0200
+	id 1rynWr-001JRH-1i;
+	Mon, 22 Apr 2024 08:51:53 +0200
 From: Christoph Fritz <christoph.fritz@hexdev.de>
 To: Oliver Hartkopp <socketcan@hartkopp.net>,
 	Marc Kleine-Budde <mkl@pengutronix.de>,
@@ -53,9 +53,9 @@ Cc: Andreas Lauser <andreas.lauser@mercedes-benz.com>,
 	devicetree@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-serial@vger.kernel.org
-Subject: [PATCH 09/11] can: lin: Handle rx offload config frames
-Date: Mon, 22 Apr 2024 08:51:12 +0200
-Message-Id: <20240422065114.3185505-10-christoph.fritz@hexdev.de>
+Subject: [PATCH 11/11] HID: hexLIN: Implement ability to update lin mode
+Date: Mon, 22 Apr 2024 08:51:14 +0200
+Message-Id: <20240422065114.3185505-12-christoph.fritz@hexdev.de>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240422065114.3185505-1-christoph.fritz@hexdev.de>
 References: <20240422065114.3185505-1-christoph.fritz@hexdev.de>
@@ -67,77 +67,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The CAN Broadcast Manager now has the capability to dispatch CANFD
-frames marked with the id LINBUS_RXOFFLOAD_ID. This patch introduces
-functionality to interpret these specific frames, enabling the
-configuration of RX offloading within the LIN driver.
+This patch enhances the hexLIN driver by implementing the newly
+introduced update_lin_mode() callback.  So that either commander or
+responder mode can be configured on this hardware.
 
 Signed-off-by: Christoph Fritz <christoph.fritz@hexdev.de>
 ---
- drivers/net/can/lin.c | 32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ drivers/hid/hid-hexlin.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/can/lin.c b/drivers/net/can/lin.c
-index a9b5d76708879..56492952c8588 100644
---- a/drivers/net/can/lin.c
-+++ b/drivers/net/can/lin.c
-@@ -177,6 +177,27 @@ static void lin_remove_sysfs_id_files(struct net_device *ndev)
+diff --git a/drivers/hid/hid-hexlin.c b/drivers/hid/hid-hexlin.c
+index e1a16d79e3259..4c523e4cdefab 100644
+--- a/drivers/hid/hid-hexlin.c
++++ b/drivers/hid/hid-hexlin.c
+@@ -171,6 +171,8 @@ HEXLIN_GET_CMD(get_baudrate, HEXLIN_GET_BAUDRATE)
  	}
+ 
+ HEXLIN_VAL_CMD(send_break, HEXLIN_SEND_BREAK, hexlin_val8_req, u8)
++HEXLIN_VAL_CMD(set_mode_controller, HEXLIN_SET_MODE_CONTROLLER, hexlin_val8_req,
++	       bool)
+ 
+ static int hexlin_queue_frames_insert(struct hexlin_priv_data *priv,
+ 				      const u8 *raw_data, int sz)
+@@ -312,6 +314,14 @@ static int hexlin_ldo_tx(struct lin_device *ldev,
+ 	return ret;
  }
  
-+static int lin_setup_rxoffload(struct lin_device *ldev,
-+			       struct canfd_frame *cfd)
++static int  hexlin_update_lin_mode(struct lin_device *ldev, enum lin_mode lm)
 +{
-+	struct lin_responder_answer answ;
++	struct hid_device *hdev = to_hid_device(ldev->dev);
++	struct hexlin_priv_data *priv = hid_get_drvdata(hdev);
 +
-+	if (!(cfd->flags & CANFD_FDF))
-+		return -EMSGSIZE;
-+
-+	BUILD_BUG_ON(sizeof(struct lin_responder_answer) > sizeof(cfd->data));
-+	memcpy(&answ, cfd->data, sizeof(struct lin_responder_answer));
-+
-+	answ.lf.checksum_mode = (cfd->can_id & LIN_ENHANCED_CKSUM_FLAG) ?
-+			LINBUS_ENHANCED : LINBUS_CLASSIC;
-+
-+	if (answ.lf.lin_id > LIN_ID_MASK ||
-+	    answ.event_associated_id > LIN_ID_MASK)
-+		return -EINVAL;
-+
-+	return ldev->ldev_ops->update_responder_answer(ldev, &answ);
++	return hexlin_set_mode_controller(priv, lm == LINBUS_COMMANDER);
 +}
 +
- static void lin_tx_work_handler(struct work_struct *ws)
+ static int hexlin_update_bitrate(struct lin_device *ldev, u16 bitrate)
  {
- 	struct lin_device *ldev = container_of(ws, struct lin_device,
-@@ -184,10 +205,19 @@ static void lin_tx_work_handler(struct work_struct *ws)
- 	struct net_device *ndev = ldev->ndev;
- 	struct canfd_frame *cfd;
- 	struct lin_frame lf;
-+	int ret;
+ 	struct hid_device *hdev = to_hid_device(ldev->dev);
+@@ -377,6 +387,7 @@ static int hexlin_update_resp_answer(struct lin_device *ldev,
  
- 	ldev->tx_busy = true;
- 
- 	cfd = (struct canfd_frame *)ldev->tx_skb->data;
-+
-+	if (cfd->can_id & LIN_RXOFFLOAD_DATA_FLAG) {
-+		ret = lin_setup_rxoffload(ldev, cfd);
-+		if (ret < 0)
-+			netdev_err(ndev, "setting up rx failed %d\n", ret);
-+		goto lin_tx_out;
-+	}
-+
- 	lf.checksum_mode = (cfd->can_id & LIN_ENHANCED_CKSUM_FLAG) ?
- 			   LINBUS_ENHANCED : LINBUS_CLASSIC;
- 	lf.lin_id = (u8)(cfd->can_id & LIN_ID_MASK);
-@@ -203,6 +233,8 @@ static void lin_tx_work_handler(struct work_struct *ws)
- 
- 	DEV_STATS_INC(ndev, tx_packets);
- 	DEV_STATS_ADD(ndev, tx_bytes, lf.len);
-+
-+lin_tx_out:
- 	ldev->tx_busy = false;
- 	netif_wake_queue(ndev);
- }
+ static const struct lin_device_ops hexlin_ldo = {
+ 	.ldo_tx = hexlin_ldo_tx,
++	.update_lin_mode = hexlin_update_lin_mode,
+ 	.update_bitrate = hexlin_update_bitrate,
+ 	.get_responder_answer = hexlin_get_responder_answer,
+ 	.update_responder_answer = hexlin_update_resp_answer,
 -- 
 2.39.2
 

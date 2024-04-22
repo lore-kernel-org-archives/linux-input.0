@@ -1,36 +1,36 @@
 Received: from fritzc.com (mail.fritzc.com [213.160.72.247])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A4A54A99C;
-	Mon, 22 Apr 2024 07:12:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD4A4AEC3;
+	Mon, 22 Apr 2024 07:12:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.72.247
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713769936; cv=none; b=rCqnQmzwAaIRV48/CkV6GYZCHcw38NeY1npcvXeYoybT5oJoaKGRIl6GETG9VypJJ9YvTu3lUjdO7/ykZVWqpbg5exMUfcC1PBYNeRRKLAhWWeloIo4IgC7F5Pm5OHQGqTCDUUY77cvcasKrVeh7LNrtXwTE5JA+FF1n0uPo5Mo=
+	t=1713769942; cv=none; b=AoUHxFQO5/+M2OqJi3kfSIBLdtz6NjEU6d8TX+5/kzEnSv8ftKhNrL6wi4EB4s6JyYdhGl3OoVgFP5uGUUV/5N4SX9h3kLWfJt2MZKuk/7yqkeHBi3dMGhh6EkzSUothW6XiLLuLH3yCxUqLbpBo7uWyJsdcVdqaSP4mhsuQSBQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713769936; c=relaxed/simple;
-	bh=q9T1A6DKZWu+cEV4Ja19PHnmKkDeTZKLtPYNFzWJaPI=;
+	s=arc-20240116; t=1713769942; c=relaxed/simple;
+	bh=lj6dAZHU9zdIKsshCr+sylTI6S5hi23UoYkblVikrEM=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=mWSN8apbZrmUT/5k0uo2Ki9dWA7hpozn3YtPNYKLmJoBDZQ+C6bsfK/pv3d5ADXOZw2vQLOqAAbzNRgszxp5iAdl/p9v+BTpgdJhvTtJH03srAZ/4L2hI71s3LHCcU8vm8vfHBhp6TPlag6vgTznntBMGJsncyjJC6HTVm8HO+k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=i4Gumx5G; arc=none smtp.client-ip=213.160.72.247
+	 MIME-Version; b=lwSk27fsusx9C42VnqCcwDG9gEoFGszqSnC7peVqQcRutS9vVQ+Js75E0FbWsb17+1gmGN/8FalOWFJZue+hT96rJTzl0KAHp63nf23B03Tobhi16zmvjMpZiasyRGheYUctds0IzMV9PTtJta5FUTvQjXxNydHysDnDTjqwduw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=u/FzPVWU; arc=none smtp.client-ip=213.160.72.247
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="i4Gumx5G"
+	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="u/FzPVWU"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fritzc.com;
 	s=dkim; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=2eb78AFe5PYDmdbUW5Vdqx7jRBou5taMNU0tTn49tb4=; b=i4Gumx5G5Dp1JbdyRKxtGMbFYV
-	fJmeCpfc1pjT4vtPRRDonfbM5kWUPJVci8qlZbXlWRju1/LupUFudRzzXRa7ic/pGGCj7iFl3v+87
-	u32m4NnBRd9STH5IeEcHUHS3XwYpJinYd/oRcH5YEvkubWwGJp2oHSuXVNuhcI5lj/pU=;
+	bh=w7g7mLr0/TZ347EWR5Oi1PWvGCnThvGAGijuq88Ht74=; b=u/FzPVWU0hPZCHImq5MkUgs9+L
+	KKB0ypztvnd/2P574yUhOS59Bk0e5uwKYz3/oGeLqObQdrGQmV7jiGUb8aWNuaC6Gkj0lY9IYUu0f
+	68YdA4HSn3eFG06cxuciYT6+C+68cnt5P+2Z6KqauSkrqa7Ypx6NajEfYiM4bV2uVSzs=;
 Received: from 127.0.0.1
 	by fritzc.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim latest)
 	(envelope-from <christoph.fritz@hexdev.de>)
-	id 1rynWl-001JRH-0F;
-	Mon, 22 Apr 2024 08:51:47 +0200
+	id 1rynWn-001JRH-1G;
+	Mon, 22 Apr 2024 08:51:49 +0200
 From: Christoph Fritz <christoph.fritz@hexdev.de>
 To: Oliver Hartkopp <socketcan@hartkopp.net>,
 	Marc Kleine-Budde <mkl@pengutronix.de>,
@@ -53,9 +53,9 @@ Cc: Andreas Lauser <andreas.lauser@mercedes-benz.com>,
 	devicetree@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-serial@vger.kernel.org
-Subject: [PATCH 05/11] dt-bindings: net: can: Add serdev LIN bus dt bindings
-Date: Mon, 22 Apr 2024 08:51:08 +0200
-Message-Id: <20240422065114.3185505-6-christoph.fritz@hexdev.de>
+Subject: [PATCH 07/11] can: lin: Add special frame id for rx offload config
+Date: Mon, 22 Apr 2024 08:51:10 +0200
+Message-Id: <20240422065114.3185505-8-christoph.fritz@hexdev.de>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240422065114.3185505-1-christoph.fritz@hexdev.de>
 References: <20240422065114.3185505-1-christoph.fritz@hexdev.de>
@@ -67,50 +67,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add documentation of device tree bindings for serdev UART LIN-Bus
-devices equipped with LIN transceivers.
+A LIN bus supports up to 64 identifiers in one byte. This commit adds a
+special frame ID, beyond the actual LIN identifiers, for signaling RX
+offload configuration requests. This ID will be utilized in future LIN
+enhancements to the CAN broadcast manager.
 
 Signed-off-by: Christoph Fritz <christoph.fritz@hexdev.de>
 ---
- .../bindings/net/can/linux,lin-serdev.yaml    | 29 +++++++++++++++++++
- 1 file changed, 29 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/net/can/linux,lin-serdev.yaml
+ include/net/lin.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/Documentation/devicetree/bindings/net/can/linux,lin-serdev.yaml b/Documentation/devicetree/bindings/net/can/linux,lin-serdev.yaml
-new file mode 100644
-index 0000000000000..cb4e932ff249c
---- /dev/null
-+++ b/Documentation/devicetree/bindings/net/can/linux,lin-serdev.yaml
-@@ -0,0 +1,29 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/net/can/linux,lin-serdev.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Linux serdev LIN-Bus Support
-+
-+description: |
-+  LIN-Bus support for UART devices equipped with LIN transceivers,
-+  utilizing the Serial Device Bus (serdev) interface.
-+
-+  For more details on an adapter, visit: https://hexdev.de/hexlin#tty
-+
-+properties:
-+  compatible:
-+    const: linux,lin-serdev
-+
-+required:
-+  - compatible
-+
-+examples:
-+  - |
-+    &uart2 {
-+      status = "okay";
-+      linbus {
-+        compatible = "linux,lin-serdev";
-+      };
-+    };
+diff --git a/include/net/lin.h b/include/net/lin.h
+index 2fe16e142db96..3f78cfda9c657 100644
+--- a/include/net/lin.h
++++ b/include/net/lin.h
+@@ -18,6 +18,7 @@
+ 
+ #define LIN_ID_MASK		0x0000003FU
+ /* special ID descriptions for LIN */
++#define LIN_RXOFFLOAD_DATA_FLAG	0x00000200U
+ #define LIN_ENHANCED_CKSUM_FLAG	0x00000100U
+ 
+ static const unsigned char lin_id_parity_tbl[] = {
 -- 
 2.39.2
 

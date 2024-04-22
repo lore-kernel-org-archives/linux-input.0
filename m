@@ -1,36 +1,35 @@
 Received: from fritzc.com (mail.fritzc.com [213.160.72.247])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 380B44EB31;
-	Mon, 22 Apr 2024 07:12:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A68F75029E;
+	Mon, 22 Apr 2024 07:12:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.72.247
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713769927; cv=none; b=eXq8cZmZUu7z4gZP/b1+ZNTzi+AIxYrH9Rusm2AICcj0JmBNqfakrQUKHoyl7+u6VQT3XBidE0Cssd5CjtANe60M1anGzro7azOqiIlK4o9lK/E+ulHoHOXsRQlMWGwNXs+k11oP8b6yIGXaSavMEZBPX6FdvmoufVH6tt/gUkw=
+	t=1713769931; cv=none; b=J1y9sRpKRhWe24nOYAB91PkJJfDxrErBeXdicDyzz26KxFL/Xfo0p+haJAmLBYyAVmt+fLADu0oTFFDG+IT5pg4qFzDChghIQs/uIs7Z08Uf4t5Zb4+P8Lfe9S04uWtfrUAYCoAlATcIs435siIqCpBoLneNQIPh43CYqCW9akM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713769927; c=relaxed/simple;
-	bh=krD0iz5yDHjwModWFOjp3v1zoAQ+Ig0NhtFaxrrUM8Y=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=dmd7XaSblxTNxz1jdR+KXdFCghAvU79/iPpO2VW4H0dEOVJBzcx5fPG/yduO8Zf+xZPUo7GTKBm8FmGbj3e7zqmESuBaEUG0y/GeCJI23mVcqR18S+rcDioI+VLJ7DY9mu2f0VjJcNLJ12WtW+Ib0JqJDB0CoEChOJv/9vLWffM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=wp2AVsGi; arc=none smtp.client-ip=213.160.72.247
+	s=arc-20240116; t=1713769931; c=relaxed/simple;
+	bh=hpSwpq8t85oJgWzBAb0sGwMKMZLQnDwXbtThMElaBjk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=KJSE4fa7U4IuxTdBT9dZ1f17AKl9xWvfY70ObiVzWAr1EvUEj+EVnH7R4IBuorov1dGocUH76F7TLJuSjBqoGy0hLlHYgyVOrJVZVtFtzabZl2+bFEA6rr+YjfbA+O7s/r9hPW9zdQ7S39we8M0wPTgMvkR/pIq9NeMWcTRseEE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=DdZz0iIY; arc=none smtp.client-ip=213.160.72.247
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="wp2AVsGi"
+	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="DdZz0iIY"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fritzc.com;
-	s=dkim; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-	Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	s=dkim; h=Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:Cc:
+	To:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=BY62nQijxUeNJybs25WudsjQVAhkq/ZVnshjoAuu+z4=; b=wp2AVsGi7Y2vg1sBOEtnlD2vl5
-	ZkSiu7z7IUIn7QD5sbicduLdKdxHtUBxaGlUCN+i8KucVXXh9K6c56jOfaTZCryY8Golg5swemur2
-	Nh6aNopFpyNC4nOOKDqdNjv8JHnGPdRYh7AizxWtMMc+X0Y5XLiWg+okO1SpGbrpHgOc=;
+	bh=SF2ECz2nkc3iAx/gW3lWEA5oZJYY9ghIYAkmZKvVY/E=; b=DdZz0iIY61cgM89iG8hhc4U/c4
+	mhqwc4EVqseuKe+ULiMA6LSl6sb1C4prfUGYE7zdiZTN1VsrpLMQVjJi+N8vWXVxTcYdDfyk8APay
+	s+OkZDqeIWSkmnmvFaQJZte4EAu6BvupRWS3Uc2DcWyCOcaa1/0TKsVr0hOILvdm4SIM=;
 Received: from 127.0.0.1
 	by fritzc.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim latest)
 	(envelope-from <christoph.fritz@hexdev.de>)
-	id 1rynWq-001JRH-1W;
-	Mon, 22 Apr 2024 08:51:53 +0200
+	id 1rynWe-001JRH-2R;
+	Mon, 22 Apr 2024 08:51:41 +0200
 From: Christoph Fritz <christoph.fritz@hexdev.de>
 To: Oliver Hartkopp <socketcan@hartkopp.net>,
 	Marc Kleine-Budde <mkl@pengutronix.de>,
@@ -53,12 +52,10 @@ Cc: Andreas Lauser <andreas.lauser@mercedes-benz.com>,
 	devicetree@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-serial@vger.kernel.org
-Subject: [PATCH 10/11] can: lin: Support setting LIN mode
-Date: Mon, 22 Apr 2024 08:51:13 +0200
-Message-Id: <20240422065114.3185505-11-christoph.fritz@hexdev.de>
+Subject: [PATCH 00/11] LIN Bus support for Linux
+Date: Mon, 22 Apr 2024 08:51:03 +0200
+Message-Id: <20240422065114.3185505-1-christoph.fritz@hexdev.de>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240422065114.3185505-1-christoph.fritz@hexdev.de>
-References: <20240422065114.3185505-1-christoph.fritz@hexdev.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -67,132 +64,114 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A LIN node can work as commander or responder. This patch is introducing
-a new control mode (CAN_CTRLMODE_LIN_COMMANDER), so that e.g. the ip
-tool from iproute2 can turn on commander mode when the device is being
-brought up.
+This series is introducing basic Local Interconnect Network (LIN) (ISO
+17987) [0] support to the Linux kernel, along with two drivers that make
+use of it: An advanced USB adapter and a lightweight serdev driver (for
+UARTs equipped with a LIN transceiver).
 
-Signed-off-by: Christoph Fritz <christoph.fritz@hexdev.de>
----
- drivers/net/can/lin.c            | 40 +++++++++++++++++++++++++++++++-
- include/net/lin.h                |  7 ++++++
- include/uapi/linux/can/netlink.h |  1 +
- 3 files changed, 47 insertions(+), 1 deletion(-)
+The LIN bus is common in the automotive industry for connecting
+low-level devices like side mirrors, seats, ambient lights, etc.
 
-diff --git a/drivers/net/can/lin.c b/drivers/net/can/lin.c
-index 56492952c8588..472cadc87ad86 100644
---- a/drivers/net/can/lin.c
-+++ b/drivers/net/can/lin.c
-@@ -254,11 +254,40 @@ static netdev_tx_t lin_start_xmit(struct sk_buff *skb,
- 	return NETDEV_TX_OK;
- }
- 
-+static int lin_update_mode(struct net_device *ndev)
-+{
-+	struct lin_device *ldev = netdev_priv(ndev);
-+	u32 ctrlmode = ldev->can.ctrlmode;
-+	enum lin_mode lm;
-+	int ret = 0;
-+
-+	lm = (ctrlmode & CAN_CTRLMODE_LIN_COMMANDER) ? LINBUS_COMMANDER :
-+						       LINBUS_RESPONDER;
-+	if (ldev->lmode != lm) {
-+		if (!ldev->ldev_ops->update_lin_mode) {
-+			netdev_err(ndev, "setting lin mode unsupported\n");
-+			return -EINVAL;
-+		}
-+		ret = ldev->ldev_ops->update_lin_mode(ldev, lm);
-+		if (ret) {
-+			netdev_err(ndev, "Failed to set lin mode: %d\n", ret);
-+			return ret;
-+		}
-+		ldev->lmode = lm;
-+	}
-+
-+	return ret;
-+}
-+
- static int lin_open(struct net_device *ndev)
- {
- 	struct lin_device *ldev = netdev_priv(ndev);
- 	int ret;
- 
-+	ret = lin_update_mode(ndev);
-+	if (ret)
-+		return ret;
-+
- 	ldev->tx_busy = false;
- 
- 	ret = open_candev(ndev);
-@@ -437,7 +466,7 @@ struct lin_device *register_lin(struct device *dev,
- 	ndev->mtu = CANFD_MTU;
- 	ldev->can.bittiming.bitrate = LIN_DEFAULT_BAUDRATE;
- 	ldev->can.ctrlmode = CAN_CTRLMODE_LIN;
--	ldev->can.ctrlmode_supported = 0;
-+	ldev->can.ctrlmode_supported = CAN_CTRLMODE_LIN_COMMANDER;
- 	ldev->can.bitrate_const = lin_bitrate;
- 	ldev->can.bitrate_const_cnt = ARRAY_SIZE(lin_bitrate);
- 	ldev->can.do_set_bittiming = lin_set_bittiming;
-@@ -452,6 +481,15 @@ struct lin_device *register_lin(struct device *dev,
- 		goto exit_candev;
- 	}
- 
-+	ldev->lmode = LINBUS_RESPONDER;
-+	if (ldev->ldev_ops->update_lin_mode) {
-+		ret = ldev->ldev_ops->update_lin_mode(ldev, ldev->lmode);
-+		if (ret) {
-+			netdev_err(ndev, "updating lin mode failed\n");
-+			goto exit_candev;
-+		}
-+	}
-+
- 	ret = register_candev(ndev);
- 	if (ret)
- 		goto exit_candev;
-diff --git a/include/net/lin.h b/include/net/lin.h
-index 3f78cfda9c657..4f064a2ce2ca8 100644
---- a/include/net/lin.h
-+++ b/include/net/lin.h
-@@ -44,6 +44,11 @@ struct lin_attr {
- 	struct lin_device *ldev;
- };
- 
-+enum lin_mode {
-+	LINBUS_RESPONDER = 0,
-+	LINBUS_COMMANDER,
-+};
-+
- struct lin_device {
- 	struct can_priv can;  /* must be the first member */
- 	struct net_device *ndev;
-@@ -55,6 +60,7 @@ struct lin_device {
- 	struct sk_buff *tx_skb;
- 	struct kobject *lin_ids_kobj;
- 	struct lin_attr sysfs_entries[LIN_NUM_IDS];
-+	enum lin_mode lmode;
- };
- 
- enum lin_checksum_mode {
-@@ -79,6 +85,7 @@ struct lin_responder_answer {
- 
- struct lin_device_ops {
- 	int (*ldo_tx)(struct lin_device *ldev, const struct lin_frame *frame);
-+	int (*update_lin_mode)(struct lin_device *ldev, enum lin_mode lm);
- 	int (*update_bitrate)(struct lin_device *ldev, u16 bitrate);
- 	int (*update_responder_answer)(struct lin_device *ldev,
- 				       const struct lin_responder_answer *answ);
-diff --git a/include/uapi/linux/can/netlink.h b/include/uapi/linux/can/netlink.h
-index 51b0e2a7624e4..6c84a7666c646 100644
---- a/include/uapi/linux/can/netlink.h
-+++ b/include/uapi/linux/can/netlink.h
-@@ -104,6 +104,7 @@ struct can_ctrlmode {
- #define CAN_CTRLMODE_TDC_AUTO		0x200	/* CAN transiver automatically calculates TDCV */
- #define CAN_CTRLMODE_TDC_MANUAL		0x400	/* TDCV is manually set up by user */
- #define CAN_CTRLMODE_LIN		0x800	/* LIN bus mode */
-+#define CAN_CTRLMODE_LIN_COMMANDER	0x1000	/* LIN bus specific commander mode */
- 
- /*
-  * CAN device statistics
+The LIN bus is a lower-cost bus system with a subset of features of CAN.
+Its earlier specification (before ISO) is publicly accessible [1].
+
+This series of patches follows up on a discussion initiated by an RFC
+patch series [2].
+
+The core of this series is the first patch, which implements the CAN_LIN
+glue driver. It basically utilizes the CAN interface on one side and
+for device drivers on the other side it creates a rx() function and
+several callbacks.
+
+This approach is non-invasive, as LIN frames (nearly identical to CAN
+frames) are just treated as a special case of CAN frames. This approach
+eliminates the need for a separate API for LIN, allowing the use of
+existing CAN tools, including the CAN broadcast manager.
+
+For the responder part of LIN, when a device responds to a controller
+request, it can reply on up to LIN its 64 possible IDs (0...63) with a
+maximum of 8 bytes payload.  The response must be sent relatively
+quickly, so offloading is used (which is used by most devices anyway).
+Devices that do not support offloading (like the lightweight serdev)
+handle the list of responses in the driver on a best-effort basis.
+
+The CAN broadcast manager (bcm) makes a good interface for the LIN
+userland interface, bcm is therefore enhanced to handle the
+configuration of these offload RX frames, so that the device can handle
+the response on its own.  As a basic alternative, a sysfs file per LIN
+identifier gets also introduced.
+
+The USB device driver for the hexLIN [3] adapter uses the HID protocol
+and is located in the drivers/hid directory. Which is a bit uncommon for
+a CAN device, but this is a LIN device and mainly a hid driver (and all
+hid drivers go into drivers/hid).
+
+The other driver, the UART lin-serdev driver requires support for break
+detection, this is addressed by two serdev patches.
+
+The lin-serdev driver has been tested on an ARM SoC, on its uart
+(uart-pl011) an adapter board (hexLIN-tty [4]) has been used.  As a
+sidenote, in that tty serial driver (amba-pl011.c) it was necessary to
+disable DMA_ENGINE to accurately detect breaks [5].
+
+The functions for generating LIN-Breaks and checksums, originally from
+a line discipline driver named sllin [6], have been adopted into the
+lin-serdev driver.
+
+To make use of the LIN mode configuration (commander or responder)
+option, a patch for iproute2 [7] has been made.
+
+The lin-utils [8] provide userland tools for reference, testing, and
+evaluation. These utilities are currently separate but may potentially
+be integrated into can-utils in the future.
+
+[0]: https://en.wikipedia.org/wiki/Local_Interconnect_Network
+[1]: https://www.lin-cia.org/fileadmin/microsites/lin-cia.org/resources/documents/LIN_2.2A.pdf
+[2]: https://lwn.net/Articles/916049/
+[3]: https://hexdev.de/hexlin
+[4]: https://hexdev.de/hexlin#tty
+[5]: https://github.com/raspberrypi/linux/issues/5985
+[6]: https://github.com/lin-bus/linux-lin/blob/master/sllin/sllin.c
+[7]: https://github.com/ch-f/iproute2/tree/lin-feature
+[8]: https://github.com/ch-f/lin-utils
+
+Christoph Fritz (11):
+  can: Add LIN bus as CAN abstraction
+  HID: hexLIN: Add support for USB LIN bus adapter
+  tty: serdev: Add flag buffer aware receive_buf_fp()
+  tty: serdev: Add method to enable break flags
+  dt-bindings: net: can: Add serdev LIN bus dt bindings
+  can: Add support for serdev LIN adapters
+  can: lin: Add special frame id for rx offload config
+  can: bcm: Add LIN answer offloading for responder mode
+  can: lin: Handle rx offload config frames
+  can: lin: Support setting LIN mode
+  HID: hexLIN: Implement ability to update lin mode
+
+ .../bindings/net/can/linux,lin-serdev.yaml    |  29 +
+ drivers/hid/Kconfig                           |  19 +
+ drivers/hid/Makefile                          |   1 +
+ drivers/hid/hid-hexlin.c                      | 594 ++++++++++++++++++
+ drivers/hid/hid-ids.h                         |   1 +
+ drivers/hid/hid-quirks.c                      |   3 +
+ drivers/net/can/Kconfig                       |  26 +
+ drivers/net/can/Makefile                      |   2 +
+ drivers/net/can/lin-serdev.c                  | 467 ++++++++++++++
+ drivers/net/can/lin.c                         | 547 ++++++++++++++++
+ drivers/tty/serdev/core.c                     |  11 +
+ drivers/tty/serdev/serdev-ttyport.c           |  19 +-
+ include/linux/serdev.h                        |  19 +-
+ include/net/lin.h                             | 105 ++++
+ include/uapi/linux/can/bcm.h                  |   5 +-
+ include/uapi/linux/can/netlink.h              |   2 +
+ net/can/bcm.c                                 |  74 ++-
+ 17 files changed, 1918 insertions(+), 6 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/net/can/linux,lin-serdev.yaml
+ create mode 100644 drivers/hid/hid-hexlin.c
+ create mode 100644 drivers/net/can/lin-serdev.c
+ create mode 100644 drivers/net/can/lin.c
+ create mode 100644 include/net/lin.h
+
 -- 
 2.39.2
 

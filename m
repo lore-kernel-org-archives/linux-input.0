@@ -1,111 +1,160 @@
-Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com [209.85.208.182])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 399B784FB9
-	for <linux-input@vger.kernel.org>; Tue, 23 Apr 2024 11:32:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 213257BB0C
+	for <linux-input@vger.kernel.org>; Tue, 23 Apr 2024 12:18:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713871955; cv=none; b=mI9QWV59vqTP43havaKZxBwCYBiPMrx2Q6nfZr5KsitGIQHVV3MCEhK6XUUdxN5NbW8LNwkQbVbsASUzTtmEOtmDaUpxaQzCyTNRv7MJFjGxFGaZDIVua9w0lTaQkfTyXWHVOy5NXkEfskDEGkL/8azE35WsAVVXiTEmcNKnjzs=
+	t=1713874709; cv=none; b=U4E8w8VB+oXEvj6k0A0qrIhkzeVr+Vym0YrHumjxVknNYX53VqmFaRAJKaWrH6MK5BSb3wUHIQKoeDrr+Y5MdANLfr2xspwY/7zQSQ3PtfAp6rZ0MKfOLGBQohZVUCFCD+MhEk7EU20nxIEqjdomDQTI71Aq+kRPADI0vQXFhxg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713871955; c=relaxed/simple;
-	bh=LdqZ/QWiaje++MLzUHTivAf9HQkerMZ5MNR1lT49cmw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=tIwZ3Zr2xygdehVQNVsLc1AuoYSCP86zYR2dxId90gTaDLeczUcTm9IQN+RykN2x2Kcw4GySlJP2ciR1NOlWLzLEXQ5RC+io1zr3Oa6Wk5RCq5xejWOugUhMREtJWaeWSWJ394n1xKxK7LRtKO2U7UDgO85IB1ZKp+XwD0licRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=C+acaH4q; arc=none smtp.client-ip=209.85.208.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1713874709; c=relaxed/simple;
+	bh=Vzdpw2/uEznuSfdQMFfhde2Y0dHZrz/Y0tK/HgOsKHw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YQVrhqE4hgAsnup0XiHXnquTNSw3QTqCI3DHXq9XmoOcscJ0XR5WSmJ8ut9EIKvOvRrPNCTyJ/SWfgurpXc0/iSywtstXIK/gC0Xn2HnlwLc5WLzlZA/9XU/EkjFxMJocNKezkVS/xhwdtgmHa0hY3CQDqo35kybNrj1/mIAHRg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=T1tTpSCD; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="C+acaH4q"
-Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-2da0f8f7b24so62417341fa.1
-        for <linux-input@vger.kernel.org>; Tue, 23 Apr 2024 04:32:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="T1tTpSCD"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-41adf3580dbso307435e9.0
+        for <linux-input@vger.kernel.org>; Tue, 23 Apr 2024 05:18:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1713871952; x=1714476752; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LdqZ/QWiaje++MLzUHTivAf9HQkerMZ5MNR1lT49cmw=;
-        b=C+acaH4qOUg9jybSC5MkIbc7e61DfUWCN0Zw0vxjfWACydLYvx2MKkuzR9xtpJ4bHj
-         Ei5MZF4wb4tToYmDrOItQlvhltPeW5HxwhuzT53PFxGAW4q/rQdzDKFEaRjdKwM6SSGq
-         2lmHu+MDS8AyBW8TsMPmQbaUV/3XxXU5qmZFc=
+        d=linaro.org; s=google; t=1713874705; x=1714479505; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=qovlPvm+dXAcLyyeUhuunG1IdfbZgObOR6Q+gFrPnAI=;
+        b=T1tTpSCDZ7n1dooCZf+cM3WdkrWy/YnAeHHOX0Phu9pJ53w3eSaAhUhsmU54WJHb64
+         /UUn4s4xnEXzKFOB9Q3bsrcb0yaIH7OS4RfyFUgN5pgudva+AXZyxdGCO1zh44x1DmOs
+         IGGmHVSwzvLoii2ryBqE8/57HI8bLXx5GFjFvdkw0LeBuVvtvxW39QfwbKW5bZ85XyrX
+         YN82W5loM59bumK9uMOrUhdH+2szM7np+JGrWBFLm+MWxNIyIt+mo126TMhht589/sCk
+         AmzENDLfkL+hGuwdW/ew3VaMWbz1jkm2YsWvETuJXqlv0mr9PhjFQ9xIV5Aj4aiBMSoS
+         hogA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713871952; x=1714476752;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LdqZ/QWiaje++MLzUHTivAf9HQkerMZ5MNR1lT49cmw=;
-        b=rDx3kMA9/HU0Aakw/3JPOdVG9lc1pJw1g6uV885LWC3v0p0vTg/KTkUInJAlElUdgU
-         EKGUelpYmwubN9ygL9njHDzb2qIzk19YDiHj2F4wrPP/A6Qg44buy/IRLNqZ8Rng7gaH
-         dyybyplHc1bT7rFxudOYGMa4jHQPX3+1thc8anuX3D7RZ2ufzoGB4M3dKgz3zrRQmeN5
-         lejAso253xV0xHy21G0HXwxH2SKB9Nhl7Wy81Ig5/pDSrYHXBrP5EzArXQsceFm4aF/c
-         kQ3HG3fxQrYq22fII091foj7CB8ySe42xxyEy6R7/XZOvTzAYVrTCl73C2f8Nl1GTOWw
-         hFMA==
-X-Forwarded-Encrypted: i=1; AJvYcCV7i6Hqg/kBN6OvKoDRVnKImVJI/oaMYl8Coxv+gXlpgTBXg1Z1UHgHtIszA26iet/iParXb6J2cOHsFlHUBIu3wcM+ciT+5Wd6tg8=
-X-Gm-Message-State: AOJu0YwhZapbqSC4Rn9A1EGrT9hxvXkhftXPWvKufsSulchr8y9FqVal
-	9JknYXoEvr1OzNZOMmJwUh6B7tgNZBk9q8kz/71MGzJ4e8ydj7miARu1iHN2wsar3T+KcMfwVDW
-	5awoC427lllz47sCa4YzkK1P/oaqdfQXz+Kxz
-X-Google-Smtp-Source: AGHT+IERajGx70v108Wf4eXuvycl6t3zVenYntzqbYq+/h/p6VvcDPumtQl29D9vFRK+LBHfWe/oUq0ddGwNxAxPMyU=
-X-Received: by 2002:a2e:9cd7:0:b0:2dc:f188:9945 with SMTP id
- g23-20020a2e9cd7000000b002dcf1889945mr702989ljj.25.1713871952428; Tue, 23 Apr
- 2024 04:32:32 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1713874705; x=1714479505;
+        h=content-transfer-encoding:in-reply-to:autocrypt:content-language
+         :from:references:cc:to:subject:user-agent:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qovlPvm+dXAcLyyeUhuunG1IdfbZgObOR6Q+gFrPnAI=;
+        b=GFiyReV0HbSskvKAQTCLCwwBBYxiU+tW8tq/MIf33Fq5FzjOfZ5JE8hZFgyNB1nZYQ
+         4Mbc8zZ8WWYvFRfyU/P6EGZaOIGcenbHp5/+wotlTKDBIGn4/GqD1nmWuf8Dxnz7+oyR
+         BhOWvOV/xpggPhpUMWTLIqTz5os4JXPYCkJ945oiJ/YfgJyo0gnekjvJ0NX66nLHp+i3
+         bXUrBHv77Uo8sXvaU9N6lNBlgSrw2A9x7FvPJK7mflEqo1n/t09VwaZ2mUcwqqOZa+Pn
+         U4MNgT5MC4NAqs9Atw3hn3Oa6d5u64U4gZI7XKYuQXP9y+exCo4vM4SGBNzppCL2N7Dl
+         ikQg==
+X-Gm-Message-State: AOJu0YyAPthyU1ugzaXcIxdEx74r5jfD5wEr4g3xKFrZ+B7RfOxnfpBw
+	Y+IJC4qFNxPyFmWTKlcAiuEGiKZVEaPG3pUect9pOMzXDxIXa3f2wTiEZ7io/Lw=
+X-Google-Smtp-Source: AGHT+IGAgnjdaHAl8g9ADJ2jkebw1eWUOpqoPI58UOiJLtKgVfUXANOzLb2tjQjwERzuHX13N4uqEw==
+X-Received: by 2002:a05:600c:450d:b0:41a:410b:fe9e with SMTP id t13-20020a05600c450d00b0041a410bfe9emr1940596wmo.12.1713874705465;
+        Tue, 23 Apr 2024 05:18:25 -0700 (PDT)
+Received: from [192.168.1.20] ([178.197.223.16])
+        by smtp.gmail.com with ESMTPSA id j2-20020a05600c1c0200b0041ac3e13f1esm1597319wms.37.2024.04.23.05.18.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 23 Apr 2024 05:18:25 -0700 (PDT)
+Message-ID: <f2021c5d-25fa-4bdf-8f8c-b0bc271eb54e@linaro.org>
+Date: Tue, 23 Apr 2024 14:18:23 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAE5UKNqufWZfKLAXLcpBYKQpJEVt6jPD4Xtr=Nesh34VkNOETg@mail.gmail.com>
- <81e1b870-37f9-4ef2-9a3d-87015f32546b@kl.wtf> <Zh0qKeI-YPDE-NVT@hovoldconsulting.com>
- <535f3756-80d9-4599-bf73-a8785d18c399@kl.wtf>
-In-Reply-To: <535f3756-80d9-4599-bf73-a8785d18c399@kl.wtf>
-From: =?UTF-8?Q?=C5=81ukasz_Majczak?= <lma@chromium.org>
-Date: Tue, 23 Apr 2024 13:32:21 +0200
-Message-ID: <CAE5UKNqPA4SnnXyaB7Hwk0kcKMMQ_DUuxogDphnnvSGP8g1nAQ@mail.gmail.com>
-Subject: Re: [PATCH v2] HID: i2c-hid: wait for i2c touchpad deep-sleep to
- power-up transition
-To: Kenny Levinsen <kl@kl.wtf>
-Cc: Johan Hovold <johan@kernel.org>, benjamin.tissoires@redhat.com, dianders@chromium.org, 
-	dtor@chromium.org, hdegoede@redhat.com, jikos@kernel.org, 
-	johan+linaro@kernel.org, kai.heng.feng@canonical.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, mripard@kernel.org, 
-	rad@chromium.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] dt-bindings: input: sun4i-lradc-keys: Add H616
+ compatible
+To: Andre Przywara <andre.przywara@arm.com>,
+ Hans de Goede <hdegoede@redhat.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+ Conor Dooley <conor+dt@kernel.org>, Chen-Yu Tsai <wens@csie.org>,
+ Jernej Skrabec <jernej.skrabec@gmail.com>,
+ Samuel Holland <samuel@sholland.org>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
+ James McGregor <jamcgregor@protonmail.com>
+References: <20240422164511.2488261-1-andre.przywara@arm.com>
+ <20240422164511.2488261-2-andre.przywara@arm.com>
+ <20240423111502.6e068887@donnerap.manchester.arm.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Content-Language: en-US
+Autocrypt: addr=krzysztof.kozlowski@linaro.org; keydata=
+ xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
+ cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
+ JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
+ gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
+ J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
+ NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
+ BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
+ vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
+ Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
+ TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzTRLcnp5c3p0b2Yg
+ S296bG93c2tpIDxrcnp5c3p0b2Yua296bG93c2tpQGxpbmFyby5vcmc+wsGUBBMBCgA+FiEE
+ m9B+DgxR+NWWd7dUG5NDfTtBYpsFAmI+BxMCGwMFCRRfreEFCwkIBwIGFQoJCAsCBBYCAwEC
+ HgECF4AACgkQG5NDfTtBYptgbhAAjAGunRoOTduBeC7V6GGOQMYIT5n3OuDSzG1oZyM4kyvO
+ XeodvvYv49/ng473E8ZFhXfrre+c1olbr1A8pnz9vKVQs9JGVa6wwr/6ddH7/yvcaCQnHRPK
+ mnXyP2BViBlyDWQ71UC3N12YCoHE2cVmfrn4JeyK/gHCvcW3hUW4i5rMd5M5WZAeiJj3rvYh
+ v8WMKDJOtZFXxwaYGbvFJNDdvdTHc2x2fGaWwmXMJn2xs1ZyFAeHQvrp49mS6PBQZzcx0XL5
+ cU9ZjhzOZDn6Apv45/C/lUJvPc3lo/pr5cmlOvPq1AsP6/xRXsEFX/SdvdxJ8w9KtGaxdJuf
+ rpzLQ8Ht+H0lY2On1duYhmro8WglOypHy+TusYrDEry2qDNlc/bApQKtd9uqyDZ+rx8bGxyY
+ qBP6bvsQx5YACI4p8R0J43tSqWwJTP/R5oPRQW2O1Ye1DEcdeyzZfifrQz58aoZrVQq+innR
+ aDwu8qDB5UgmMQ7cjDSeAQABdghq7pqrA4P8lkA7qTG+aw8Z21OoAyZdUNm8NWJoQy8m4nUP
+ gmeeQPRc0vjp5JkYPgTqwf08cluqO6vQuYL2YmwVBIbO7cE7LNGkPDA3RYMu+zPY9UUi/ln5
+ dcKuEStFZ5eqVyqVoZ9eu3RTCGIXAHe1NcfcMT9HT0DPp3+ieTxFx6RjY3kYTGLOwU0EVUNc
+ NAEQAM2StBhJERQvgPcbCzjokShn0cRA4q2SvCOvOXD+0KapXMRFE+/PZeDyfv4dEKuCqeh0
+ hihSHlaxTzg3TcqUu54w2xYskG8Fq5tg3gm4kh1Gvh1LijIXX99ABA8eHxOGmLPRIBkXHqJY
+ oHtCvPc6sYKNM9xbp6I4yF56xVLmHGJ61KaWKf5KKWYgA9kfHufbja7qR0c6H79LIsiYqf92
+ H1HNq1WlQpu/fh4/XAAaV1axHFt/dY/2kU05tLMj8GjeQDz1fHas7augL4argt4e+jum3Nwt
+ yupodQBxncKAUbzwKcDrPqUFmfRbJ7ARw8491xQHZDsP82JRj4cOJX32sBg8nO2N5OsFJOcd
+ 5IE9v6qfllkZDAh1Rb1h6DFYq9dcdPAHl4zOj9EHq99/CpyccOh7SrtWDNFFknCmLpowhct9
+ 5ZnlavBrDbOV0W47gO33WkXMFI4il4y1+Bv89979rVYn8aBohEgET41SpyQz7fMkcaZU+ok/
+ +HYjC/qfDxT7tjKXqBQEscVODaFicsUkjheOD4BfWEcVUqa+XdUEciwG/SgNyxBZepj41oVq
+ FPSVE+Ni2tNrW/e16b8mgXNngHSnbsr6pAIXZH3qFW+4TKPMGZ2rZ6zITrMip+12jgw4mGjy
+ 5y06JZvA02rZT2k9aa7i9dUUFggaanI09jNGbRA/ABEBAAHCwXwEGAEKACYCGwwWIQSb0H4O
+ DFH41ZZ3t1Qbk0N9O0FimwUCYDzvagUJFF+UtgAKCRAbk0N9O0Fim9JzD/0auoGtUu4mgnna
+ oEEpQEOjgT7l9TVuO3Qa/SeH+E0m55y5Fjpp6ZToc481za3xAcxK/BtIX5Wn1mQ6+szfrJQ6
+ 59y2io437BeuWIRjQniSxHz1kgtFECiV30yHRgOoQlzUea7FgsnuWdstgfWi6LxstswEzxLZ
+ Sj1EqpXYZE4uLjh6dW292sO+j4LEqPYr53hyV4I2LPmptPE9Rb9yCTAbSUlzgjiyyjuXhcwM
+ qf3lzsm02y7Ooq+ERVKiJzlvLd9tSe4jRx6Z6LMXhB21fa5DGs/tHAcUF35hSJrvMJzPT/+u
+ /oVmYDFZkbLlqs2XpWaVCo2jv8+iHxZZ9FL7F6AHFzqEFdqGnJQqmEApiRqH6b4jRBOgJ+cY
+ qc+rJggwMQcJL9F+oDm3wX47nr6jIsEB5ZftdybIzpMZ5V9v45lUwmdnMrSzZVgC4jRGXzsU
+ EViBQt2CopXtHtYfPAO5nAkIvKSNp3jmGxZw4aTc5xoAZBLo0OV+Ezo71pg3AYvq0a3/oGRG
+ KQ06ztUMRrj8eVtpImjsWCd0bDWRaaR4vqhCHvAG9iWXZu4qh3ipie2Y0oSJygcZT7H3UZxq
+ fyYKiqEmRuqsvv6dcbblD8ZLkz1EVZL6djImH5zc5x8qpVxlA0A0i23v5QvN00m6G9NFF0Le
+ D2GYIS41Kv4Isx2dEFh+/Q==
+In-Reply-To: <20240423111502.6e068887@donnerap.manchester.arm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Apr 15, 2024 at 7:14=E2=80=AFPM Kenny Levinsen <kl@kl.wtf> wrote:
->
-> On 4/15/24 3:22 PM, Johan Hovold wrote:
-> > We also use it for devices that may not be populated (e.g. an optional
-> > touchscreen) and in that case we should not print anything.
->
-> I sent a patch series[0] that shows how the same can be achieved
-> (gracefully handling missing device + retry to wake device) without any
-> smbus probes, following the existing retry style in i2c_hid_set_power().
->
-> Radoslaw and Lukasz, it somehow felt rude to tag and blame you for code
-> you hadn't seen yet. If my patch ends up favored we should make sure to
-> have the appropriate attribution tags added...
->
-> [0]: https://lore.kernel.org/all/20240415170517.18780-1-kl@kl.wtf/
->
-Hi Kenny,
+On 23/04/2024 12:15, Andre Przywara wrote:
+> On Mon, 22 Apr 2024 17:45:10 +0100
+> Andre Przywara <andre.przywara@arm.com> wrote:
+> 
+> Hi,
+> 
+>> From: James McGregor <jamcgregor@protonmail.com>
+>>
+>> The Allwinner H616 SoC has an LRADC which is compatible with the
+>> versions in existing SoCs.
+>> Add a compatible string for H616, with the R329 fallback. This is the
+>> same as the D1, so put them into an enum.
+>>
+>> Signed-off-by: James McGregor <jamcgregor@protonmail.com>
+>> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+> 
+> Compared the descriptions in the manual between the R392 and the H616, they
+> look the same:
+> 
+> Reviewed-by: Andre Przywara <andre.przywara@arm.com>
 
-Unfortunately, your fix doesn't help in our case as there is no sleep
-before the second call to
-i2c_hid_fetch_hid_descriptor().
+Why do you review your own patches? Does it mean that you contribute
+code which you did not review before?
 
-Saying more, this STM exposes two i2c addresses (connected physically
-to the same bus)
-one is the HID interface and the other one gives an access to the base
-firmware and is
-served by cros_ec_i2c driver and actually thanks to this driver,
-touchpad is woken up because
-In the resume path cros_ec_i2c "starts talking" through the i2c bus
-thus generating a wakeup
-interrupt.
+This is odd process.
 
-So we need to send a dummy (or any other) transaction that may fail to
-wake up the controller after
-a whole chromebook rebook and on the resume path.
+Your Review is implied by sending the patch. And you have there SoB
+which indicates you sent it...
 
 Best regards,
-Lukasz
+Krzysztof
+

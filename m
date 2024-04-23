@@ -1,87 +1,103 @@
-Received: from out-177.mta0.migadu.com (out-177.mta0.migadu.com [91.218.175.177])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80CFA76048;
-	Tue, 23 Apr 2024 13:01:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77F49135A78;
+	Tue, 23 Apr 2024 13:46:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713877320; cv=none; b=fqABQjbbMBpDXf08k6AxckbkA1Hc3vpq8SKCq+i/GWHL/mhPaW7WviWWOWtqQbqfE/afbU/WKu4D5/M5tgJorgTsRrTPVlI2/2s6+PQsPXqYdeZMQwWpBMOCKGf/Fw6JKmXy9Fmr5SQ/NnxadVSRYi5aHSfWD9zioQAKr1ROdPM=
+	t=1713880012; cv=none; b=NFBrKYyWCBPyg6Bl5tOFRItt+nAckE2eiguCsLFlEwqDhCI5WEsEOz/zznCAGdiBXrh6OidcdxnACj3xQ4murn8tJemiyEBbK/UFcFzool4X/wi11Zxqvoz5uVXqN2JLiH16moVTnEVaFC1c0xUTvPf5rPFEeEhAayClclZrkfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713877320; c=relaxed/simple;
-	bh=3OdiHaW3XfhNrYYNY1DDe5kYJ8SC6l+BMHyms2q7tnU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Qv4lsIS/yXQsJM/vaZduPyzAFkERkgZurLT8ar+skGbOoqIXiSz3v5+DcI5CEmLzpKDF315/EGi02dPUUv0RSApWxsuDeF9cx6A50k/P4ayo0JxTVygYPW2IpWKNc2uRhpza016iDu8rHWjGZ/I085CkY/RtIGnBL5GcW/TquE8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kl.wtf; spf=pass smtp.mailfrom=kl.wtf; dkim=pass (2048-bit key) header.d=kl.wtf header.i=@kl.wtf header.b=Wyv+irvR; arc=none smtp.client-ip=91.218.175.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kl.wtf
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kl.wtf
+	s=arc-20240116; t=1713880012; c=relaxed/simple;
+	bh=tCfBMb3DOalmVHX+fKphZQx4T+5g7FInpPlj/Ww+I/8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=RtXGrK9QpbgRuAiH3NzfjDrrCc1bxN/aH8ejj7V+U/FIvVTrbp1h2DWeqnkTDHsKPy75793bAq81Bt45YnQp3jWNFb0x901AkhlQDCo7QapYgNtHwE4CKLwSntw3cQOdKxOehLovSZ8omZrV4XAPBdqHkvuqbByNdNuqjZnYxH8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MNpvskNG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kl.wtf header.i=@kl.wtf header.b="Wyv+irvR"
-Message-ID: <25f3ac4f-0c0d-4183-93f1-e7069579420b@kl.wtf>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kl.wtf; s=key1;
-	t=1713877316;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VpVOPDgVjeP7Gtlmu1PRLEP/ygT17A2RK4mO+N4cqNo=;
-	b=Wyv+irvR4ZYduylvRUwSHbWf4iMmQpftpA/uNh2NL1nVlyetSHpb0fS8lB/5gsl+LwYi1u
-	q06elO7BC16qV59p3Y5R9jRlTvhyPwmBzq/2Uhf3vJkFjXSCxhZmfrrpIOcdpQy0N5nH7/
-	sE0yR/UTrfdcXO+owPbhlLf3+DnyVjSjcpCDM5bgSvWaUbeiCh1jSuxPrlVkX7D72NnrPF
-	qD4V1MGcotN3Fn01E5F4+OxnR8ImoXPQT4UBh2BPog7yTtiktXjovWe+FfT/dv8UyVqTjR
-	V/0rGl7Nhb2BraGMV/mFLb2XU4Rs0ZdPEUFy6ZbGvFJP0UUFkFkda1UzvE9x7A==
-Date: Tue, 23 Apr 2024 15:01:50 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MNpvskNG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F217FC116B1;
+	Tue, 23 Apr 2024 13:46:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713880012;
+	bh=tCfBMb3DOalmVHX+fKphZQx4T+5g7FInpPlj/Ww+I/8=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=MNpvskNGtKjrw85/aCr/RXmboU6e8AvOWeXGUwV329/8YZkgIBU4eKVxMeh9Zboce
+	 YuVM4p5AXMykfl+7pzVHREMd6UIa2KkFHqxqy5Yojna4/pfNVlvCReRH0bwcmthPNi
+	 eMOnWsKUf+ZtukOShJwCv7qO4qhyljeKcP94opVmYCOQwQ84DD8uZvS/362NEUwY7/
+	 9jtNu51nqI0ABNE6HtYqhDN7A2Da1vi6Q0Ns3zBWsuVtsopB7uqT/TINBDdSmI2qu5
+	 EEc8GaBSINdd9lsfXj/v27uFA/1NIgjC5+/SJWXrLkVi0v4r+i+6v43019QRE+DDC+
+	 a80J+KdSGwT8w==
+Received: from johan by xi.lan with local (Exim 4.97.1)
+	(envelope-from <johan+linaro@kernel.org>)
+	id 1rzGTy-000000008Kk-1836;
+	Tue, 23 Apr 2024 15:46:50 +0200
+From: Johan Hovold <johan+linaro@kernel.org>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@linaro.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Douglas Anderson <dianders@chromium.org>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH 3/6] dt-bindings: HID: i2c-hid: elan: add 'no-reset-on-power-off' property
+Date: Tue, 23 Apr 2024 15:46:08 +0200
+Message-ID: <20240423134611.31979-4-johan+linaro@kernel.org>
+X-Mailer: git-send-email 2.43.2
+In-Reply-To: <20240423134611.31979-1-johan+linaro@kernel.org>
+References: <20240423134611.31979-1-johan+linaro@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] HID: i2c-hid: wait for i2c touchpad deep-sleep to
- power-up transition
-To: =?UTF-8?Q?=C5=81ukasz_Majczak?= <lma@chromium.org>
-Cc: Johan Hovold <johan@kernel.org>, benjamin.tissoires@redhat.com,
- dianders@chromium.org, dtor@chromium.org, hdegoede@redhat.com,
- jikos@kernel.org, johan+linaro@kernel.org, kai.heng.feng@canonical.com,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
- mripard@kernel.org, rad@chromium.org
-References: <CAE5UKNqufWZfKLAXLcpBYKQpJEVt6jPD4Xtr=Nesh34VkNOETg@mail.gmail.com>
- <81e1b870-37f9-4ef2-9a3d-87015f32546b@kl.wtf>
- <Zh0qKeI-YPDE-NVT@hovoldconsulting.com>
- <535f3756-80d9-4599-bf73-a8785d18c399@kl.wtf>
- <CAE5UKNqPA4SnnXyaB7Hwk0kcKMMQ_DUuxogDphnnvSGP8g1nAQ@mail.gmail.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Kenny Levinsen <kl@kl.wtf>
-In-Reply-To: <CAE5UKNqPA4SnnXyaB7Hwk0kcKMMQ_DUuxogDphnnvSGP8g1nAQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-On 4/23/24 1:32 PM, Łukasz Majczak wrote:
-> Unfortunately, your fix doesn't help in our case as there is no sleep
-> before the second call to
-> i2c_hid_fetch_hid_descriptor().
+When the power supply is shared with other peripherals the reset line
+can be wired in such a way that it can remain deasserted regardless of
+whether the supply is on or not.
 
-Yeah, I checked with a logic analyzer and only see ~50µs delay from the 
-I2C timeout, and 50 is according to my quick math less than the 400 you 
-mention is the requirement. That means that the current resume path also 
-lacked a sleep, as it tried power commands in immediate succession.
+This is important as it can be used to avoid holding the controller in
+reset for extended periods of time when it remains powered, something
+which can lead to increased power consumption. Leaving reset deasserted
+also avoids leaking current through the reset circuitry pull-up
+resistors.
 
-I have made a v2 with your sleeps added, and added you as Co-developed-by.
+Add a new 'no-reset-on-power-off' devicetree property which can be used
+by the OS to determine when reset needs to be asserted on power down.
 
-Link: https://lore.kernel.org/all/20240423122518.34811-1-kl@kl.wtf/
+Note that this property can also be used when the supply cannot be
+turned off by the OS at all.
 
-> Saying more, this STM exposes two i2c addresses (connected physically
-> to the same bus)
-> one is the HID interface and the other one gives an access to the base
-> firmware and is
-> served by cros_ec_i2c driver and actually thanks to this driver,
-> touchpad is woken up because
-> In the resume path cros_ec_i2c "starts talking" through the i2c bus
-> thus generating a wakeup
-> interrupt.
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+---
+ Documentation/devicetree/bindings/input/elan,ekth6915.yaml | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Ah, that explains why you did not find an issue with the resume path. In 
-the patch-series I sent, the boot (hid descriptor fetch) and resume 
-(power on) wake-up paths are fully aligned so neither have to rely on 
-such "adjacent drivers" waking up the i2c-hid device.
+diff --git a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
+index c3a6f901ff45..3d20673f10b2 100644
+--- a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
++++ b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
+@@ -37,6 +37,12 @@ properties:
+   reset-gpios:
+     description: Reset GPIO; not all touchscreens using eKTH6915 hook this up.
+ 
++  no-reset-on-power-off:
++    type: boolean
++    description:
++      Reset line is wired so that it can be left deasserted when the power
++      supply is off.
++
+   vcc33-supply:
+     description: The 3.3V supply to the touchscreen.
+ 
+-- 
+2.43.2
+

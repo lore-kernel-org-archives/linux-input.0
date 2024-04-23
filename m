@@ -1,108 +1,114 @@
-Received: from out-179.mta1.migadu.com (out-179.mta1.migadu.com [95.215.58.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E54985274
-	for <linux-input@vger.kernel.org>; Tue, 23 Apr 2024 12:26:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.179
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 35B4B84A20;
+	Tue, 23 Apr 2024 12:51:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713875172; cv=none; b=ifbuOSGOcEpA89r6bHCRcePpDbDjIBKwkuDtN/JWFJJhkO94qpytzld1bPIYEUw2ANe1pd7r+RcVJjCiqDNo+h5MGH554wF11XxDmI3OnvLUCF9+PyFGol0NepFlKffwJwEN8fAimwARfXSSIPXKK0fhwVe5afYHxKPgYHdVh0Y=
+	t=1713876673; cv=none; b=J0KuzuQ4DHwA2EYvHms8brR2Uf7ZNjPr/FjerA25pCNRyGlpcX1k3/AZZ5SLWAO0Cwoc3Fq5juWXeBdWehcF9Q/RE820xJK7t5UzIjuMTEiPoWzGSKvohw2p4TVD+MrBOFoMTaaeiuSPPreQ9nufOpGL9bsja7T9SqCg8ftEQCw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713875172; c=relaxed/simple;
-	bh=dqEhvtsQA/KnqwaWloiCB5LQGWxBUcBJsyA+qcy7+RE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=YprnzwYTcpbykRG4N/7/BnIEr6pArieMh99yLqzFZOig9bvCWiRzCjU+QepD+vnc+vJbtLGl+xwanVpSsQfkzOHkxI5pvk7ascYVlbfgn9pKbjJgKrXegFMNo/chcP0A4SdzuvvNqNlo/32XoAWJTV9yOZe037GD8L/jSZqzINc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kl.wtf; spf=pass smtp.mailfrom=kl.wtf; dkim=pass (2048-bit key) header.d=kl.wtf header.i=@kl.wtf header.b=pB68De/h; arc=none smtp.client-ip=95.215.58.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kl.wtf
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kl.wtf
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kl.wtf header.i=@kl.wtf header.b="pB68De/h"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kl.wtf; s=key1;
-	t=1713875167;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=WYMVR/H/8GVmViImqt+rKjHX+PeAvfbdfXWhlI89GyM=;
-	b=pB68De/hJ8iiLC1/E0Uq7rEtsYEuIKtvB9J2TzUbzCeorsSo7n5wmAG7HzHjfBT4xCk95C
-	2aJv32U/52tynBxdhVwddI5alPtJmh7J3leiDsRX0t7bRgV3R80JFmUyRIaWzkU7vGqNNi
-	b3w8KIn0yKyCl+1YCItZVGREIjWJer96lfulP4xHCsBd89r45LdXtzdGgxCJF+vD4NCpJr
-	iXhL+9F8uCpOzCMeIfF7Rr782gu4WTv1G3So6Cjc9VXpmHhHvnUzMCSI7qvjIvC5Rnm7tu
-	fF7bdKQhq64nU2aVVKiHlrVA7dJeICiFTCYOnkQu+PVF7oWpCIRgV5bGnxst4Q==
-From: Kenny Levinsen <kl@kl.wtf>
-To: Jiri Kosina <jikos@kernel.org>,
-	Dmitry Torokhov <dtor@chromium.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-	Douglas Anderson <dianders@chromium.org>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Kai-Heng Feng <kai.heng.feng@canonical.com>,
-	Johan Hovold <johan+linaro@kernel.org>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Radoslaw Biernacki <rad@chromium.org>,
-	Lukasz Majczak <lma@chromium.org>
-Cc: Kenny Levinsen <kl@kl.wtf>
-Subject: [PATCH v2 3/3] HID: i2c-hid: Align i2c_hid_set_power() retry with HID descriptor read
-Date: Tue, 23 Apr 2024 14:07:55 +0200
-Message-ID: <20240423122518.34811-4-kl@kl.wtf>
-In-Reply-To: <20240423122518.34811-1-kl@kl.wtf>
-References: <20240423122518.34811-1-kl@kl.wtf>
+	s=arc-20240116; t=1713876673; c=relaxed/simple;
+	bh=2E6SRIyA73cjTpevRa1WmA6oQJTuq8bhZKn4jV3QIk8=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cZlv/ctKIL1Zvu034O8J5lkVwoGWJjUxAQZnaQp5k+UKggRdscvWXQC+jbj6osIzuCcC4MXebTnRsypTjWF5yYcxybqg7ZpHH+IdckgknAqv7h/UOWx2tzIrq12Ipz5OCgGKAfV+AXq+qV/ma+oIszdBksOEcKos5MEkB65h6jc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A4272339;
+	Tue, 23 Apr 2024 05:51:38 -0700 (PDT)
+Received: from donnerap.manchester.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id D6E3B3F64C;
+	Tue, 23 Apr 2024 05:51:08 -0700 (PDT)
+Date: Tue, 23 Apr 2024 13:51:06 +0100
+From: Andre Przywara <andre.przywara@arm.com>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Hans de Goede <hdegoede@redhat.com>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, Krzysztof
+ Kozlowski <krzysztof.kozlowski+dt@linaro.org>, Conor Dooley
+ <conor+dt@kernel.org>, Chen-Yu Tsai <wens@csie.org>, Jernej Skrabec
+ <jernej.skrabec@gmail.com>, Samuel Holland <samuel@sholland.org>,
+ linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev, James
+ McGregor <jamcgregor@protonmail.com>
+Subject: Re: [PATCH 1/2] dt-bindings: input: sun4i-lradc-keys: Add H616
+ compatible
+Message-ID: <20240423135106.02ab4473@donnerap.manchester.arm.com>
+In-Reply-To: <f2021c5d-25fa-4bdf-8f8c-b0bc271eb54e@linaro.org>
+References: <20240422164511.2488261-1-andre.przywara@arm.com>
+	<20240422164511.2488261-2-andre.przywara@arm.com>
+	<20240423111502.6e068887@donnerap.manchester.arm.com>
+	<f2021c5d-25fa-4bdf-8f8c-b0bc271eb54e@linaro.org>
+Organization: ARM
+X-Mailer: Claws Mail 3.18.0 (GTK+ 2.24.32; aarch64-unknown-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The retry for HID descriptor and for power commands deals with the same
-device quirk, so align the two.
+On Tue, 23 Apr 2024 14:18:23 +0200
+Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org> wrote:
 
-Signed-off-by: Kenny Levinsen <kl@kl.wtf>
----
- drivers/hid/i2c-hid/i2c-hid-core.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+Hi,
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 252ccb3b71d1..749c0c036adb 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -391,25 +391,21 @@ static int i2c_hid_set_power(struct i2c_hid *ihid, int power_state)
- 	i2c_hid_dbg(ihid, "%s\n", __func__);
- 
- 	/*
--	 * Some devices require to send a command to wakeup before power on.
--	 * The call will get a return value (EREMOTEIO) but device will be
--	 * triggered and activated. After that, it goes like a normal device.
-+	 * Some STM-based devices need 400µs after a rising clock edge to wake
-+	 * from deep sleep, which in turn means that our first command will
-+	 * fail EREMOTEIO. Certain Weida Tech devices also need this wake-up.
-+	 * Retry the command in this case.
- 	 */
--	if (power_state == I2C_HID_PWR_ON) {
-+	ret = i2c_hid_set_power_command(ihid, power_state);
-+	if (ret == -EREMOTEIO && power_state == I2C_HID_PWR_ON) {
-+		usleep_range(400, 500);
- 		ret = i2c_hid_set_power_command(ihid, I2C_HID_PWR_ON);
--
--		/* Device was already activated */
--		if (!ret)
--			goto set_pwr_exit;
- 	}
- 
--	ret = i2c_hid_set_power_command(ihid, power_state);
- 	if (ret)
- 		dev_err(&ihid->client->dev,
- 			"failed to change power setting.\n");
- 
--set_pwr_exit:
--
- 	/*
- 	 * The HID over I2C specification states that if a DEVICE needs time
- 	 * after the PWR_ON request, it should utilise CLOCK stretching.
--- 
-2.44.0
+> On 23/04/2024 12:15, Andre Przywara wrote:
+> > On Mon, 22 Apr 2024 17:45:10 +0100
+> > Andre Przywara <andre.przywara@arm.com> wrote:
+> > 
+> > Hi,
+> >   
+> >> From: James McGregor <jamcgregor@protonmail.com>
+> >>
+> >> The Allwinner H616 SoC has an LRADC which is compatible with the
+> >> versions in existing SoCs.
+> >> Add a compatible string for H616, with the R329 fallback. This is the
+> >> same as the D1, so put them into an enum.
+> >>
+> >> Signed-off-by: James McGregor <jamcgregor@protonmail.com>
+> >> Signed-off-by: Andre Przywara <andre.przywara@arm.com>  
+> > 
+> > Compared the descriptions in the manual between the R392 and the H616, they
+> > look the same:
+> > 
+> > Reviewed-by: Andre Przywara <andre.przywara@arm.com>  
+> 
+> Why do you review your own patches? Does it mean that you contribute
+> code which you did not review before?
 
+I just merely sent the code on behalf of James, because he had trouble
+with the email setup (Protonmail has no SMTP), but didn't want to delay
+the post any longer.
+
+> This is odd process.
+
+I agree, I would have liked it more if James would have sent it himself,
+and then my review would look more natural, but with my review I
+wanted to explicitly point out the technical correctness. Besides: I found
+this ordering issue in the other patch only after sending, so needed to
+somehow respond anyway.
+Also I wanted to make the process transparent: someone posts a patch (in
+this case via a proxy), then it gets reviewed.
+
+> Your Review is implied by sending the patch.
+
+Is that really true? I was under the impression that sending is
+independent from review. I mean I doubt that every maintainer sending
+patches up the chain (when they add their SoB) implies a *review*? Surely
+they do agree on the patch (also typically expressed by an Ack), otherwise
+they wouldn't send it, but a "review" is still a different thing.
+The Linux history has both Rb + SoB from the same person and just SoB
+signatures, so I assume that it's not implied.
+
+> And you have there SoB which indicates you sent it...
+
+Yes, but SoB just means I sign off on the legal aspects: that I got the
+patches legally, compliant with the GPL, and that I am fine with and
+allowed to release them under GPL conditions.
+That does not include any code review aspect, AFAICT.
+
+Happy to hear other opinions, but this is my interpretation.
+
+Cheers,
+Andre

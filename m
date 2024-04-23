@@ -1,130 +1,80 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B32831369BE;
-	Tue, 23 Apr 2024 13:46:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5644019470;
+	Tue, 23 Apr 2024 14:32:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713880012; cv=none; b=HS/KxlOTRJM5dimZLLfUebBvEKas7XGw8TyGfqgyA4VchHJlbHcuJekAgm3r1NpUGXE0IHzq/7ZP50kd3YDRe4V0eVIIPWBFmyjRbca1qhuvyCaOmDMSCiiwa3Ch4LX/1N8I9qNlIM4NTSGbBEw9+0r8o4rmKkpU47BQ/4cS1gI=
+	t=1713882759; cv=none; b=tyFEtBM5my99/mi5SOxAW4dNVnj9tEel4lDonmJm+GZJDU2J+wPc6fHqksIdIZko0jw3pGxQI6wT7JJlmHxu/xUqCVg7Px2133pqZtvdGCrJ3Fws9MlUY925PBTLtvWFeb7dJv3MCqdip55v5XNbA5oW/HsLhNNHqOaVh/JnRkE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713880012; c=relaxed/simple;
-	bh=Wm1xdrgosT91TDDq0rbWVizXhaR6E3LE+4BSaV+vb6A=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QQTbnA4t5zPcw16ck6Pjcl2IYaLfx7HV2laUlKcMKbJaSea3+UjH75So/YGCdxHVrWYdDmA/2XRkoQdTBsewPNaJY3brrwUbInraFT2y2KBUsUz5an1IwUPnrEyID3y5R7ykpXFmlhvjky0ylA3w/LhbN/IaDpDWbS99IwkD9fY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=n1YofQiA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1713882759; c=relaxed/simple;
+	bh=UG4Ckj0nMbH7B0JHsiJXAgvQNIVvA99ebpslMDJkG+k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tXdGINRcu31sAFpYXQGyBABkJgnkyAIcHsjxUPR4t91BFzunnliv4JA3BTeME7QOKZFPjat+8131baFv9GIvLg6S0kFEOdN/Uh1SdJ4/wcxki49nKyRbaAgV0qekFw+/M0by3G/dm8jB0VeshjTxEsAiIUYMIxlnPdEwybuE3Us=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OiPqcHjD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="n1YofQiA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DEE8C4AF07;
-	Tue, 23 Apr 2024 13:46:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OiPqcHjD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D1F4C2BD11;
+	Tue, 23 Apr 2024 14:32:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713880012;
-	bh=Wm1xdrgosT91TDDq0rbWVizXhaR6E3LE+4BSaV+vb6A=;
-	h=From:To:Cc:Subject:Date:From;
-	b=n1YofQiAQSaaW+Ph9p5+IdGwbdhbsdJuuaWlpJp0P8IxtxOY0UdutduFzvWdMvCpp
-	 EMXcZJ9rSO2IuqjeRgM8qKfvW7c46pPvQt+NlDKhXK3ibVtf9kQ6fphCXOvmgEaxDi
-	 LMrPMXgXjxLqIUqKnTjbjudUl2DOmqlh1ILzJu3lwMb85XaHgjfrGmvZFo7jbA68OM
-	 qdFFrekPyvUDj/Wu3EJEYWU9Q0v8PzZ1Sqi00kus+a3mXpxv0pnn82qLai0jw5PSEW
-	 eafiFqCxKX9hJqcDTq1NsGe6C6vzaxm3oraGlstudxGm0c+REiQNn/4/1S7Lywxrq6
-	 X9vqv5Eya3hVQ==
-Received: from johan by xi.lan with local (Exim 4.97.1)
-	(envelope-from <johan+linaro@kernel.org>)
-	id 1rzGTx-000000008Ke-405K;
-	Tue, 23 Apr 2024 15:46:50 +0200
-From: Johan Hovold <johan+linaro@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Douglas Anderson <dianders@chromium.org>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH 0/6] HID/arm64: dts: qcom: sc8280xp-x13s: fix touchscreen power on
-Date: Tue, 23 Apr 2024 15:46:05 +0200
-Message-ID: <20240423134611.31979-1-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.43.2
+	s=k20201202; t=1713882758;
+	bh=UG4Ckj0nMbH7B0JHsiJXAgvQNIVvA99ebpslMDJkG+k=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OiPqcHjD5e4XHAkIvbr126NMpBXMcCjkBkTevTi7oTzIKohSkRGzfpAcW0VD+0Hnx
+	 WNIZcm45p8O5X+aX/Ir5QFFC6DVG2PCedaiOSLqXS8wzmMHX5lGtPbhhLsPaQf9eY6
+	 Vb/t8/i+KvhQiLNp1K+4DzYRMyUHrZfEZLw87+9oO0ths2/Yehk07HxaryZN16ktqt
+	 Jlo7P+y27aUzjKzX6+fPU310ZMVuybtQHRiYahbqnUpJCKgwEf4U8HCdFUUkBXHJaH
+	 kRg/2ifj3orAnEIDt70a+ZlSlJdFebXQ4RnI7g2cum1cjn47YJv7w7GJbgsZuxjnMp
+	 vj8psl1kLqvVw==
+Date: Tue, 23 Apr 2024 09:32:36 -0500
+From: Rob Herring <robh@kernel.org>
+To: Andre Przywara <andre.przywara@arm.com>
+Cc: devicetree@vger.kernel.org, James McGregor <jamcgregor@protonmail.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Hans de Goede <hdegoede@redhat.com>, Chen-Yu Tsai <wens@csie.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org,
+	linux-sunxi@lists.linux.dev,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	linux-arm-kernel@lists.infradead.org,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Samuel Holland <samuel@sholland.org>
+Subject: Re: [PATCH 1/2] dt-bindings: input: sun4i-lradc-keys: Add H616
+ compatible
+Message-ID: <171388262405.158384.14488465462806439930.robh@kernel.org>
+References: <20240422164511.2488261-1-andre.przywara@arm.com>
+ <20240422164511.2488261-2-andre.przywara@arm.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-
-The Elan eKTH5015M touch controller on the X13s requires a 300 ms delay
-before sending commands after having deasserted reset during power on.
-
-This series switches the X13s devicetree to use the Elan specific
-binding so that the OS can determine the required power-on sequence and
-make sure that the controller is always detected during boot. [1]
-
-The Elan hid-i2c driver currently asserts reset unconditionally during
-suspend, which does not work on the X13s where the touch controller
-supply is shared with other peripherals that may remain powered. Holding
-the controller in reset can increase power consumption and also leaks
-current through the reset circuitry pull ups.
-
-Note that the latter also affects X13s variants where the touchscreen is
-not populated as the driver also exits probe() with reset asserted.
-
-Fix this by adding a new 'no-reset-on-power-off' devicetree property
-which can be used by the OS to determine when reset needs to be asserted
-on power down and when it safe and desirable to leave it deasserted.
-
-I tried to look for drivers that had already addressed this but it was
-only after I finished implementing this that I noticed Doug's reference
-to commit 18eeef46d359 ("HID: i2c-hid: goodix: Tie the reset line to
-true state of the regulator"), which tried to solve a related problem.
-
-That commit has since been reverted but ultimately resulted in commit
-7607f12ba735 ("HID: i2c-hid: goodix: Add support for
-"goodix,no-reset-during-suspend" property") being merged to handle the
-related case where the touch controller supply is always on.
-
-The implementation is very similar, but I decided to use the slightly
-more generic 'no-reset-on-power-off' property name after considering a
-number of alternatives (including trying to describe the hardware
-configuration in the name). (And as this is not vendor specific, I left
-out the prefix.)
-
-Note that my X13s does not have a touchscreen, but I have done partial
-verification of the implementation using that machine and the sc8280xp
-CRD reference design. Bjorn has promised to help out with final
-verification on an X13s with a touchscreen.
-
-The devicetree changes are expected to go in through the Qualcomm tree
-once the binding and driver updates have been merged.
-
-Johan
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240422164511.2488261-2-andre.przywara@arm.com>
 
 
-[1] The reset signal is currently deasserted using the pin configuration
-    and the controller would be detected if probe is deferred or if user
-    space triggers a reprobe through sysfs.
+On Mon, 22 Apr 2024 17:45:10 +0100, Andre Przywara wrote:
+> From: James McGregor <jamcgregor@protonmail.com>
+> 
+> The Allwinner H616 SoC has an LRADC which is compatible with the
+> versions in existing SoCs.
+> Add a compatible string for H616, with the R329 fallback. This is the
+> same as the D1, so put them into an enum.
+> 
+> Signed-off-by: James McGregor <jamcgregor@protonmail.com>
+> Signed-off-by: Andre Przywara <andre.przywara@arm.com>
+> ---
+>  .../bindings/input/allwinner,sun4i-a10-lradc-keys.yaml        | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
 
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
 
-Johan Hovold (6):
-  dt-bindings: HID: i2c-hid: add dedicated Ilitek ILI2901 schema
-  dt-bindings: HID: i2c-hid: elan: add Elan eKTH5015M
-  dt-bindings: HID: i2c-hid: elan: add 'no-reset-on-power-off' property
-  HID: i2c-hid: elan: fix reset suspend current leakage
-  arm64: dts: qcom: sc8280xp-x13s: fix touchscreen power on
-  arm64: dts: qcom: sc8280xp-crd: use external pull up for touch reset
+While the Reviewed-by from Andre was a bit unusual, the explanation 
+makes sense.
 
- .../bindings/input/elan,ekth6915.yaml         | 20 ++++--
- .../bindings/input/ilitek,ili2901.yaml        | 66 +++++++++++++++++++
- arch/arm64/boot/dts/qcom/sc8280xp-crd.dts     |  3 +-
- .../qcom/sc8280xp-lenovo-thinkpad-x13s.dts    | 15 +++--
- drivers/hid/i2c-hid/i2c-hid-of-elan.c         | 37 ++++++++---
- 5 files changed, 118 insertions(+), 23 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/input/ilitek,ili2901.yaml
+Also note that b4 can proxy send patches for people with broken (or 
+non-existent) SMTP servers.
 
--- 
-2.43.2
-
+Rob

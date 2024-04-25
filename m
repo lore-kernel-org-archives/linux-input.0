@@ -1,101 +1,185 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A9D514A638;
-	Thu, 25 Apr 2024 15:22:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A3D014D717;
+	Thu, 25 Apr 2024 17:04:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714058535; cv=none; b=eZVz53xVJUeIbAOnSOEE+KFA8UWoFjT8Ylbge9uprGbuzdU4zwyteplwrMhCfxDrMqBTQMBk3e9EhHh4hdlFo57ONjdLMYWIzE4queFeUTGcWvWykU6P//Uccz1l8VMN7t5EKOT6M222KowQkqaKkGX0yt1RtLU2zig9J/QNnBs=
+	t=1714064678; cv=none; b=ZJvhjPGzxPq18f3vy39qWrc/Ap5yEY7rGzHwMdlFC0xoXkm7zcUohMIHsA7BN1dLz/y6OY1GZ1LsMbnZVuOIubJyK+BNcA4t/qLpJafSfdr+BcwROniKHqXLJecTBP044TJskuI6UOEsoygdSc9VmdvOcCaRIWf+dPA92O2kWj0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714058535; c=relaxed/simple;
-	bh=jizBKTX8MvHG0cRj+2IzEtYv+6KlE66nInc7exVUWzs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hPIS6XkjhuHnBuRhGrHHqZVKiZdri71xfcztPAtYOp6YDgTc9opImxqDo4IFi5JMHbynjTrvrwGMUmo0MY6rL1RTIjUO8wcoNnxBTI2HWb/wcX89L8Qd/A3432M7u6t5rWnqcGhQlu18kVQoB3l+74/lDqwkDqIYWXdwemXwDsE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=f3Ob8V05; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1714064678; c=relaxed/simple;
+	bh=10seaOuogLecZ+rmxfHQABFw/3RsOlWdgZz3zMbZs4o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fictwhkqxTdXjMSVFdtr9duACVESTS4Ph8gIS6ie1fpJ0sfMVqBhjKsq4wh/Bf7SATwi9wcmNAfP7gtsNl6+9sS3lw5wGVZ1nytA3RQL1oGq8+tsIfwE19OAJCSjibAFy8/UkW0EpC1zpSbpC+x+M0FK+9pSAVlAhJVRJwXHydI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=cK9Z9xlq; arc=none smtp.client-ip=46.235.227.194
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="f3Ob8V05"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id C72B740E01C5;
-	Thu, 25 Apr 2024 15:22:05 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id zo89ggfrjeLT; Thu, 25 Apr 2024 15:22:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1714058521; bh=6wNh2/5WJqAiPo6RPMCDTroIUccA+3uUajnQfIANALw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=f3Ob8V057rdVSck90A83wZXeph/7GtAdQYLuTScSMYcMsRlDy322GITOZB08R+2zH
-	 WJAQPRKWgI6rGP5DekauVZRYVC6v+x0djmLHr4YM5x8Sn+yE6qw1+Tuw/dFLoxEgMt
-	 O4WWlkpuAoNiMRBJIWn6gaOqdtb0+P14QGl5fOYzlw1cGRu1xYEGnL3uxMdJKaBuJg
-	 R2OzjcscwRkLGZGJ3L9V1kttt6yFvrs+wGpvAlQIdZqVA1JLfMMFfr74b67uvPbPRS
-	 61vpzoxHqCtIK3bBjCPcbv3xBolTUaMjEqobmzgwaMNEViuOPbwbZLkVTaKtxPomon
-	 3wS2TjSW3M4l/KPIhyPrbevzhE8yRvOBxhxxkhaB0armH29aAtv0vcphTaf+tTHM8k
-	 69IEcBdf6tdGFrOUOn41HjjaBQyB0AtllH4DNANzvv/oerKUqq4NZ3AbGUpnosCefQ
-	 SAsCoJR+lxGWQL67jAC4kRYHVm12uzQyPEE0QCcHZbba2O+TG2976Zb9N7UsemohsT
-	 I9Y9qSmIgHdiLXC0hpawtrmiSpZ8y80rSue9T0oeWT5mdgSp2JwtFEfPzdeMkPY1Jv
-	 YTBrtpi4DOkMmVnoT1dzUQF30BsuCRgLfSnbYez9K4Kdomax740C14p2fW3I3gfpbh
-	 DxbQwYxgvWIRX+kxSk0WuNpo=
-Received: from zn.tnic (pd953020b.dip0.t-ipconnect.de [217.83.2.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="cK9Z9xlq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1714064671;
+	bh=10seaOuogLecZ+rmxfHQABFw/3RsOlWdgZz3zMbZs4o=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=cK9Z9xlqxGw75YqQktQFKZFa7lA7SfBzHD82hMw2EXRSS3QIKCV+c1NsyVcG8lCCv
+	 jd9dAxh2IngIxZ36GtizEYTucrmZxZzPGut8E3uz78Mnqv0Xb/VjYtZsMQqBhJUIDc
+	 +d4FtjPycKi9gJk1O53nm+344LdA2Huw0SJ/teZEhhGmku5FC7jMFdrpisY2QpPMk1
+	 JdA04+DM3gOXapSbmeSTfSb+y0v7iCx8eJXmhvshZ8e58J9rI/YLSa9fjJ91ZWRVIa
+	 TO6+qqqbHF4+Az3A1yaITZwcXWUBiLcRA8FUPt9Z+NW2ytKZ497xT2rLjTnnxkROzj
+	 xSSCZikm/ZOrQ==
+Received: from [100.95.196.182] (cola.collaboradmins.com [195.201.22.229])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 3D3DB40E0192;
-	Thu, 25 Apr 2024 15:21:36 +0000 (UTC)
-Date: Thu, 25 Apr 2024 17:21:30 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Alexey Makhalov <alexey.makhalov@broadcom.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
-	tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
-	richardcochran@gmail.com, linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com, zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
-	timothym@vmware.com, akaher@vmware.com,
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
-	tzimmermann@suse.de, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, horms@kernel.org,
-	kirill.shutemov@linux.intel.com
-Subject: Re: [PATCH v9 1/8] x86/vmware: Correct macro names
-Message-ID: <20240425152130.GJZip0-l040XCyUapN@fat_crate.local>
-References: <adcbfb9a-a4e1-4a32-b786-6c204d941e9f@broadcom.com>
- <20240424231407.14098-1-alexey.makhalov@broadcom.com>
+	(Authenticated sender: andrzej.p)
+	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 743FB378148F;
+	Thu, 25 Apr 2024 17:04:31 +0000 (UTC)
+Message-ID: <043e53c5-98a0-4205-8065-cd57dceacd3f@collabora.com>
+Date: Thu, 25 Apr 2024 19:04:30 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20240424231407.14098-1-alexey.makhalov@broadcom.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: cyapa - add missing input core locking to
+ suspend/resume functions
+To: Marek Szyprowski <m.szyprowski@samsung.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+References: <CGME20231009121026eucas1p19ed2a6a88fa6b899ef9b915a73ad87b5@eucas1p1.samsung.com>
+ <20231009121018.1075318-1-m.szyprowski@samsung.com>
+ <5f9052f0-ef5f-4c4f-85f9-f07fffd2b5ef@samsung.com>
+Content-Language: en-US
+From: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+In-Reply-To: <5f9052f0-ef5f-4c4f-85f9-f07fffd2b5ef@samsung.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Wed, Apr 24, 2024 at 04:14:06PM -0700, Alexey Makhalov wrote:
-> VCPU_RESERVED and LEGACY_X2APIC are not VMware hypercall commands.
-> These are bits in return value of VMWARE_CMD_GETVCPU_INFO command.
-> Change VMWARE_CMD_ prefix to GETVCPU_INFO_ one. And move bit-shift
-> operation to the macro body.
+Hi Marek,
 
-I don't understand:
+W dniu 25.04.2024 o 12:02, Marek Szyprowski pisze:
+> On 09.10.2023 14:10, Marek Szyprowski wrote:
+>> Grab input->mutex during suspend/resume functions like it is done in
+>> other input drivers. This fixes the following warning during system
+>> suspend/resume cycle on Samsung Exynos5250-based Snow Chromebook:
+>>
+>> ------------[ cut here ]------------
+>> WARNING: CPU: 1 PID: 1680 at drivers/input/input.c:2291 input_device_enabled+0x68/0x6c
+>> Modules linked in: ...
+>> CPU: 1 PID: 1680 Comm: kworker/u4:12 Tainted: G        W          6.6.0-rc5-next-20231009 #14109
+>> Hardware name: Samsung Exynos (Flattened Device Tree)
+>> Workqueue: events_unbound async_run_entry_fn
+>>    unwind_backtrace from show_stack+0x10/0x14
+>>    show_stack from dump_stack_lvl+0x58/0x70
+>>    dump_stack_lvl from __warn+0x1a8/0x1cc
+>>    __warn from warn_slowpath_fmt+0x18c/0x1b4
+>>    warn_slowpath_fmt from input_device_enabled+0x68/0x6c
+>>    input_device_enabled from cyapa_gen3_set_power_mode+0x13c/0x1dc
+>>    cyapa_gen3_set_power_mode from cyapa_reinitialize+0x10c/0x15c
+>>    cyapa_reinitialize from cyapa_resume+0x48/0x98
+>>    cyapa_resume from dpm_run_callback+0x90/0x298
+>>    dpm_run_callback from device_resume+0xb4/0x258
+>>    device_resume from async_resume+0x20/0x64
+>>    async_resume from async_run_entry_fn+0x40/0x15c
+>>    async_run_entry_fn from process_scheduled_works+0xbc/0x6a8
+>>    process_scheduled_works from worker_thread+0x188/0x454
+>>    worker_thread from kthread+0x108/0x140
+>>    kthread from ret_from_fork+0x14/0x28
+>> Exception stack(0xf1625fb0 to 0xf1625ff8)
+>> ...
+>> ---[ end trace 0000000000000000 ]---
+>> ...
+>> ------------[ cut here ]------------
+>> WARNING: CPU: 1 PID: 1680 at drivers/input/input.c:2291 input_device_enabled+0x68/0x6c
+>> Modules linked in: ...
+>> CPU: 1 PID: 1680 Comm: kworker/u4:12 Tainted: G        W          6.6.0-rc5-next-20231009 #14109
+>> Hardware name: Samsung Exynos (Flattened Device Tree)
+>> Workqueue: events_unbound async_run_entry_fn
+>>    unwind_backtrace from show_stack+0x10/0x14
+>>    show_stack from dump_stack_lvl+0x58/0x70
+>>    dump_stack_lvl from __warn+0x1a8/0x1cc
+>>    __warn from warn_slowpath_fmt+0x18c/0x1b4
+>>    warn_slowpath_fmt from input_device_enabled+0x68/0x6c
+>>    input_device_enabled from cyapa_gen3_set_power_mode+0x13c/0x1dc
+>>    cyapa_gen3_set_power_mode from cyapa_reinitialize+0x10c/0x15c
+>>    cyapa_reinitialize from cyapa_resume+0x48/0x98
+>>    cyapa_resume from dpm_run_callback+0x90/0x298
+>>    dpm_run_callback from device_resume+0xb4/0x258
+>>    device_resume from async_resume+0x20/0x64
+>>    async_resume from async_run_entry_fn+0x40/0x15c
+>>    async_run_entry_fn from process_scheduled_works+0xbc/0x6a8
+>>    process_scheduled_works from worker_thread+0x188/0x454
+>>    worker_thread from kthread+0x108/0x140
+>>    kthread from ret_from_fork+0x14/0x28
+>> Exception stack(0xf1625fb0 to 0xf1625ff8)
+>> ...
+>> ---[ end trace 0000000000000000 ]---
+>>
+>> Fixes: d69f0a43c677 ("Input: use input_device_enabled()")
+>> Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+> 
+> Gentle ping?
 
-$ git grep GETVCPU_INFO
-arch/x86/kernel/cpu/vmware.c:51:#define VMWARE_CMD_GETVCPU_INFO  68
-arch/x86/kernel/cpu/vmware.c:478:       VMWARE_CMD(GETVCPU_INFO, eax, ebx, ecx, edx);
+Thanks for pinging this gently ;)
 
-so that's a VMWARE_CMD 68, at least the prefix says so.
+Unfortunately I am unable to test it now, but I assume this
+fixes the problem for you. If so, you can add my
 
-And those two are *bits* in that eax which that hypercall returns.
+Reviewed-by: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
 
-Or are those two bits generic but defined in a vmware-specific
-hypercall?
+> 
+>> ---
+>>    drivers/input/mouse/cyapa.c | 12 +++++++++++-
+>>    1 file changed, 11 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/input/mouse/cyapa.c b/drivers/input/mouse/cyapa.c
+>> index a84098448f5b..cf23f95b5f11 100644
+>> --- a/drivers/input/mouse/cyapa.c
+>> +++ b/drivers/input/mouse/cyapa.c
+>> @@ -1347,10 +1347,16 @@ static int cyapa_suspend(struct device *dev)
+>>    	u8 power_mode;
+>>    	int error;
+>>    
+>> -	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
+>> +	error = mutex_lock_interruptible(&cyapa->input->mutex);
+>>    	if (error)
+>>    		return error;
+>>    
+>> +	error = mutex_lock_interruptible(&cyapa->state_sync_lock);
+>> +	if (error) {
+>> +		mutex_unlock(&cyapa->input->mutex);
+>> +		return error;
+>> +	}
+>> +
+>>    	/*
+>>    	 * Runtime PM is enable only when device is in operational mode and
+>>    	 * users in use, so need check it before disable it to
+>> @@ -1385,6 +1391,8 @@ static int cyapa_suspend(struct device *dev)
+>>    		cyapa->irq_wake = (enable_irq_wake(client->irq) == 0);
+>>    
+>>    	mutex_unlock(&cyapa->state_sync_lock);
+>> +	mutex_unlock(&cyapa->input->mutex);
+>> +
+>>    	return 0;
+>>    }
+>>    
+>> @@ -1394,6 +1402,7 @@ static int cyapa_resume(struct device *dev)
+>>    	struct cyapa *cyapa = i2c_get_clientdata(client);
+>>    	int error;
+>>    
+>> +	mutex_lock(&cyapa->input->mutex);
+>>    	mutex_lock(&cyapa->state_sync_lock);
+>>    
+>>    	if (device_may_wakeup(dev) && cyapa->irq_wake) {
+>> @@ -1412,6 +1421,7 @@ static int cyapa_resume(struct device *dev)
+>>    	enable_irq(client->irq);
+>>    
+>>    	mutex_unlock(&cyapa->state_sync_lock);
+>> +	mutex_unlock(&cyapa->input->mutex);
+>>    	return 0;
+>>    }
+>>    
+> 
+> Best regards
 
-Hm.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette

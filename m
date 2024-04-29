@@ -1,57 +1,57 @@
-Received: from mail-oa1-f42.google.com (mail-oa1-f42.google.com [209.85.160.42])
+Received: from mail-oa1-f54.google.com (mail-oa1-f54.google.com [209.85.160.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2913194C85
-	for <linux-input@vger.kernel.org>; Mon, 29 Apr 2024 23:40:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28617199EAD
+	for <linux-input@vger.kernel.org>; Mon, 29 Apr 2024 23:40:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714434038; cv=none; b=H6WvR7ul8geAft3Ior1jwRZH3QIL5m/Uqe3kPD2unb9eRQ7g0qIHB5pRl+EeDbJKpc93Y29Uzsv/69JiFCrjW2Hqs3uI0AsJb44dGpNTxCZFkzt9jiC+U9sP7eZCdWR0DY2nun992YiAw+aiqdsWjvARqMSWBDOBP0Vxlm7kNFg=
+	t=1714434040; cv=none; b=LlDgOt9otU/PZkPQcn5Idgi8Jo87j1kvluOVFQnLH8gME82tZQjg2jJrwfPTOYKCyOkSQIbT+z3vzArzRZzBgAi/s0XX540u475WSUCHaWfVzE2HGncSbI7oJZsVNho9lwhVGySOOGsRxb1kDj1HpZKtPd+lUkxftiylwxEPTAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714434038; c=relaxed/simple;
-	bh=9vMzN7GknLhBK91OqN5FGd7OXYyaUfOO8wINrzGG+oo=;
+	s=arc-20240116; t=1714434040; c=relaxed/simple;
+	bh=NUwBgmeSK3VKvI/ARdfWUNBS7Wbg1ExrHA4koeGcxm0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=S4GD+l3LV7WnWuETj8yPT/zveNU3XDLzN+hUsszHlJzZ2uD/4MrL/qpc8NViHvzqHgZVrfPzQKlytKMOs0qTe9kBOdLQK583XPwOVYsIcuRWxf8bm53865xtsb8CyVd616UpIa/lfNRSkG2syHS2xQwOTcoRn6ScYmK/D/Akszw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=OnHNl+55; arc=none smtp.client-ip=209.85.160.42
+	 MIME-Version:Content-Type; b=pPSmuqgfRFBBBrZF+QKfjCFlkkCTXvBM4mL3iOjmQMB0SSRpQc97lAx7Sv34bQbviMJUqL0XqLHT4V9KZi9vv+7rVi7mYKOn3irVCbdRKAcjgEMGXbWJNIJiUcdimtBbQdRIDfWCnXhLe9eHhUXxmSj4PfFT51XllkB8fS8TGPs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=K9iiAVNG; arc=none smtp.client-ip=209.85.160.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="OnHNl+55"
-Received: by mail-oa1-f42.google.com with SMTP id 586e51a60fabf-22fa7e4b0beso1948429fac.1
-        for <linux-input@vger.kernel.org>; Mon, 29 Apr 2024 16:40:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="K9iiAVNG"
+Received: by mail-oa1-f54.google.com with SMTP id 586e51a60fabf-22fa7e4b0beso1948442fac.1
+        for <linux-input@vger.kernel.org>; Mon, 29 Apr 2024 16:40:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1714434035; x=1715038835; darn=vger.kernel.org;
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1714434037; x=1715038837; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=U0CekvxTmvga6LetnTaTS9D84AmKilMVxsoFH3MiYrM=;
-        b=OnHNl+551AFCEQRJL0v+SJ/Cb6yUA3AiYq6YFTJTZjoP6d+jX1JTo1hyU0aAW5nwma
-         2H3mw+CcMSleydbQaDDxBpnETPN/4rTisJScMOZU9k94IvbfnwzLUnFddOeJhdSPmicH
-         2mxfu0hmXYiXsH88t2T9jI61BOvR6i55SufZnB1QrIB5FIxzdosDuffF161YjVOs8wUq
-         hkVmMzl/zt/ysCwcHbv5YKlduevuPeYAiPaYvdKIWFhQIkoADAlgfmXi4aoMpD7KbXr8
-         8IdMyoOCrpFCnIjfu0+1AG9ihEB9kADlPQ6O0NKcc6F9vR4da56XwKEx8tSBuFxGBPgO
-         FHdQ==
+        bh=7M5L1jF+Kp9rDaa/Fjma53dz8N5rl7gUPtDyE6LZUDo=;
+        b=K9iiAVNGKN9MnTEvkvb9qzEjylwdt6PrKJCjK9jUaNjF16En1bFd4+xCl4WyRd+uCL
+         UIfmPB/fp8yLBc45WWscm51b75qPYC4MtQbIEgu94CQGdVZA0s7hzhZfNfLSIXO7E0jh
+         RmcCp/UP0zMof4hTTwHGCj7DEI+NX5bDwgA/TOBWKWEC49Df09pZF1Pa9g2RBsvtKUba
+         HA1ZLnNv2P5rq2PxWJJvfwlXa0IXwqK8QIX6jkytXacyZfxLkSV+W8RWMezm9Xr8TCSW
+         utH/sYhCB+06jqlw2i8q0TGwY3a+nNwURYJ1EGChrnMqoZgF7xvP552JddzIgrDsd4Tk
+         1VIQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1714434035; x=1715038835;
+        d=1e100.net; s=20230601; t=1714434037; x=1715038837;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=U0CekvxTmvga6LetnTaTS9D84AmKilMVxsoFH3MiYrM=;
-        b=ZIY53aE+oshONVhakjxIkQvUWuyaNjrOp0HOp9CUHNjRn9UCydAQLldRWZ3i5LkzRJ
-         jeqiXVpwjvc58W8Dy0nCbKkahLZgAfxfP2tOv8uxAaA+oWj66Uzc0pyj3wbE0X93Jyha
-         nS2571Rihm2fNKo0apG1yB9BWM9lkYobz/H9OX6rbgLKK5Oj+k29QxlN2GhUSw9I0QYG
-         xLDY4jjQmGXFaU6PhvWWDnkzwevBgJui9loobi4GcwrI6+HLrBRT7ELr3rcq+Wa/OT3Q
-         jrZFriNAWq9f8DXoA8xruLua09uaOv8Qx8ylJ/sKkwoD050SNedGAQbWKWu8jCa4GzNB
-         oaMg==
-X-Forwarded-Encrypted: i=1; AJvYcCUIRIE1CI4hDfMQXQmeHDBEddAI1E0qifTHhyjEf3VQFY8enmo+O6Ijk+RP+jvao9lqXPE64qDIzh4MVe8IAaTy4wpZejWiRgo9XPc=
-X-Gm-Message-State: AOJu0YzJFMS3bRBc0cexnJkEU5wvCkX7Cgd6+JBVAqYSfDHkfDyYU83v
-	zJxgS3tSL6GXLorqWAi3i/eHF2SoddRwG6LtPVXYRZoFD0YIIxMs5iLTz6kPEwU=
-X-Google-Smtp-Source: AGHT+IG3ocOUnX8fvHwyLMD+MT8XyRnapUIMPk5vg9h/GD5BQU/zEJPB811dMM2382JKTXmv4mcYHA==
-X-Received: by 2002:a05:6871:7aa:b0:23a:980f:1fb8 with SMTP id o42-20020a05687107aa00b0023a980f1fb8mr13141585oap.53.1714434035037;
-        Mon, 29 Apr 2024 16:40:35 -0700 (PDT)
+        bh=7M5L1jF+Kp9rDaa/Fjma53dz8N5rl7gUPtDyE6LZUDo=;
+        b=tEKnfRvw+dUhPcgCzhxKT2zHbKHFT2KkvJDtXdERABuC2l2nPu9Rvwx5mrZNWF6iJD
+         dGMIftWh6pvlyBLx/F1n9c8Sgs1mNmCdlY4Iws1+Z9eG3b9cxY/Kbr3BdTN0G/3f256E
+         SFNJHDITSICc/Pc6nOWA7ZUvOIegpI8OJ6BRR6ESMmdeuj1Qgjlq6SigTvWdjxzSrHeF
+         a8B7hXT9kbOa4jvQEPLcf7GAZ40ANZ7FDcTeaqfkVRhi3JxDZEcV40Stf0gkErLJvJmK
+         Prx2xqCBRmYlFBt+wv8VgNY9AzEGi2V4J3UfypncD8n7trzvTRzDSPtHoqTkFPcZ63LI
+         fgPg==
+X-Forwarded-Encrypted: i=1; AJvYcCWO36EW7zIe0/ZdeKhJQ1LAgvABrtwcFDpTrIzRUs3/2Om8OMWkm+3Ir90Bds6UNVgGTjN6R/CXUsUJGELrlz19BotrUhE7a4jlmgk=
+X-Gm-Message-State: AOJu0Yy0fpfs5HkpX1qUJQBMpsiyID2k6SNN2evBxaslwJzf2hxqzJ66
+	cXEmbQoFMwU16+uB+3+JedwACTXifJi3a4lTHmNdws68GwkrKe95ddERDUttXpk=
+X-Google-Smtp-Source: AGHT+IEkVlk2cV8mp+ZOarfU3l4tFQus8TZbqOG542aqbSglrecsjyn0xdubyW2FSqkOsnvvP58lDA==
+X-Received: by 2002:a05:6870:1604:b0:22e:dea0:83c6 with SMTP id b4-20020a056870160400b0022edea083c6mr14055773oae.10.1714434037262;
+        Mon, 29 Apr 2024 16:40:37 -0700 (PDT)
 Received: from freyr.lechnology.com (ip98-183-112-25.ok.ok.cox.net. [98.183.112.25])
-        by smtp.gmail.com with ESMTPSA id hp22-20020a0568709a9600b0023b58aa20afsm2144508oab.25.2024.04.29.16.40.34
+        by smtp.gmail.com with ESMTPSA id hp22-20020a0568709a9600b0023b58aa20afsm2144508oab.25.2024.04.29.16.40.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Apr 2024 16:40:34 -0700 (PDT)
+        Mon, 29 Apr 2024 16:40:36 -0700 (PDT)
 From: David Lechner <dlechner@baylibre.com>
 To: Liam Girdwood <lgirdwood@gmail.com>,
 	Mark Brown <broonie@kernel.org>,
@@ -72,10 +72,11 @@ Cc: David Lechner <dlechner@baylibre.com>,
 	linux-hwmon@vger.kernel.org,
 	linux-iio@vger.kernel.org,
 	linux-staging@lists.linux.dev,
-	linux-input@vger.kernel.org
-Subject: [PATCH v2 1/7] regulator: devres: add API for reference voltage supplies
-Date: Mon, 29 Apr 2024 18:40:09 -0500
-Message-ID: <20240429-regulator-get-enable-get-votlage-v2-1-b1f11ab766c1@baylibre.com>
+	linux-input@vger.kernel.org,
+	Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH v2 3/7] hwmon: (da9052) Use devm_regulator_get_enable_read_voltage()
+Date: Mon, 29 Apr 2024 18:40:11 -0500
+Message-ID: <20240429-regulator-get-enable-get-votlage-v2-3-b1f11ab766c1@baylibre.com>
 X-Mailer: git-send-email 2.43.2
 In-Reply-To: <20240429-regulator-get-enable-get-votlage-v2-0-b1f11ab766c1@baylibre.com>
 References: <20240429-regulator-get-enable-get-votlage-v2-0-b1f11ab766c1@baylibre.com>
@@ -89,133 +90,114 @@ Content-Type: text/plain; charset="utf-8"
 X-Mailer: b4 0.12.4
 Content-Transfer-Encoding: 8bit
 
-A common use case for regulators is to supply a reference voltage to an
-analog input or output device. This adds a new devres API to get,
-enable, and get the voltage in a single call. This allows eliminating
-boilerplate code in drivers that use reference supplies in this way.
+We can reduce boilerplate code by using
+devm_regulator_get_enable_read_voltage().
 
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: David Lechner <dlechner@baylibre.com>
 ---
 
 v2 changes:
-* removed dev_err_probe() on error return
-* dropped optional version of the function since there is no more
-  difference after dev_err_probe() is removed
-* renamed function to devm_regulator_get_enable_read_voltage()
-* added unwinding on error paths
+* rename to devm_regulator_get_enable_read_voltage()
+* add local variable tsiref_uv instead of using err
+* restored error message via dev_err_probe()
+* shortened pdev->dev to dev in lines we are touching anyway
 ---
- Documentation/driver-api/driver-model/devres.rst |  1 +
- drivers/regulator/devres.c                       | 59 ++++++++++++++++++++++++
- include/linux/regulator/consumer.h               |  7 +++
- 3 files changed, 67 insertions(+)
+ drivers/hwmon/da9052-hwmon.c | 38 ++++++++++----------------------------
+ 1 file changed, 10 insertions(+), 28 deletions(-)
 
-diff --git a/Documentation/driver-api/driver-model/devres.rst b/Documentation/driver-api/driver-model/devres.rst
-index 7be8b8dd5f00..18caebad7376 100644
---- a/Documentation/driver-api/driver-model/devres.rst
-+++ b/Documentation/driver-api/driver-model/devres.rst
-@@ -433,6 +433,7 @@ REGULATOR
-   devm_regulator_bulk_put()
-   devm_regulator_get()
-   devm_regulator_get_enable()
-+  devm_regulator_get_enable_read_voltage()
-   devm_regulator_get_enable_optional()
-   devm_regulator_get_exclusive()
-   devm_regulator_get_optional()
-diff --git a/drivers/regulator/devres.c b/drivers/regulator/devres.c
-index 90bb0d178885..4f290b9b559b 100644
---- a/drivers/regulator/devres.c
-+++ b/drivers/regulator/devres.c
-@@ -145,6 +145,65 @@ struct regulator *devm_regulator_get_optional(struct device *dev,
+diff --git a/drivers/hwmon/da9052-hwmon.c b/drivers/hwmon/da9052-hwmon.c
+index 2bd7ae8100d7..7fb0c57dfef5 100644
+--- a/drivers/hwmon/da9052-hwmon.c
++++ b/drivers/hwmon/da9052-hwmon.c
+@@ -26,7 +26,6 @@ struct da9052_hwmon {
+ 	struct mutex		hwmon_lock;
+ 	bool			tsi_as_adc;
+ 	int			tsiref_mv;
+-	struct regulator	*tsiref;
+ 	struct completion	tsidone;
+ };
+ 
+@@ -397,7 +396,7 @@ static int da9052_hwmon_probe(struct platform_device *pdev)
+ 	struct device *dev = &pdev->dev;
+ 	struct da9052_hwmon *hwmon;
+ 	struct device *hwmon_dev;
+-	int err;
++	int err, tsiref_uv;
+ 
+ 	hwmon = devm_kzalloc(dev, sizeof(struct da9052_hwmon), GFP_KERNEL);
+ 	if (!hwmon)
+@@ -414,32 +413,20 @@ static int da9052_hwmon_probe(struct platform_device *pdev)
+ 		device_property_read_bool(pdev->dev.parent, "dlg,tsi-as-adc");
+ 
+ 	if (hwmon->tsi_as_adc) {
+-		hwmon->tsiref = devm_regulator_get(pdev->dev.parent, "tsiref");
+-		if (IS_ERR(hwmon->tsiref)) {
+-			err = PTR_ERR(hwmon->tsiref);
+-			dev_err(&pdev->dev, "failed to get tsiref: %d", err);
+-			return err;
+-		}
+-
+-		err = regulator_enable(hwmon->tsiref);
+-		if (err)
+-			return err;
+-
+-		hwmon->tsiref_mv = regulator_get_voltage(hwmon->tsiref);
+-		if (hwmon->tsiref_mv < 0) {
+-			err = hwmon->tsiref_mv;
+-			goto exit_regulator;
+-		}
++		tsiref_uv = devm_regulator_get_enable_read_voltage(dev->parent,
++								   "tsiref");
++		if (tsiref_uv < 0)
++			return dev_err_probe(dev, tsiref_uv,
++					     "failed to get tsiref voltage\n");
+ 
+ 		/* convert from microvolt (DT) to millivolt (hwmon) */
+-		hwmon->tsiref_mv /= 1000;
++		hwmon->tsiref_mv = tsiref_uv / 1000;
+ 
+ 		/* TSIREF limits from datasheet */
+ 		if (hwmon->tsiref_mv < 1800 || hwmon->tsiref_mv > 2600) {
+ 			dev_err(hwmon->da9052->dev, "invalid TSIREF voltage: %d",
+ 				hwmon->tsiref_mv);
+-			err = -ENXIO;
+-			goto exit_regulator;
++			return -ENXIO;
+ 		}
+ 
+ 		/* disable touchscreen features */
+@@ -456,7 +443,7 @@ static int da9052_hwmon_probe(struct platform_device *pdev)
+ 		if (err) {
+ 			dev_err(&pdev->dev, "Failed to register TSIRDY IRQ: %d",
+ 				err);
+-			goto exit_regulator;
++			return err;
+ 		}
+ 	}
+ 
+@@ -472,9 +459,6 @@ static int da9052_hwmon_probe(struct platform_device *pdev)
+ exit_irq:
+ 	if (hwmon->tsi_as_adc)
+ 		da9052_free_irq(hwmon->da9052, DA9052_IRQ_TSIREADY, hwmon);
+-exit_regulator:
+-	if (hwmon->tsiref)
+-		regulator_disable(hwmon->tsiref);
+ 
+ 	return err;
  }
- EXPORT_SYMBOL_GPL(devm_regulator_get_optional);
- 
-+/**
-+ * devm_regulator_get_enable_read_voltage - Resource managed regulator get and
-+ *                                          enable that returns the voltage
-+ * @dev: device to supply
-+ * @id:  supply name or regulator ID.
-+ *
-+ * Get and enable regulator for duration of the device life-time.
-+ * regulator_disable() and regulator_put() are automatically called on driver
-+ * detach. See regulator_get_optional(), regulator_enable(), and
-+ * regulator_get_voltage() for more information.
-+ *
-+ * This is a convenience function for supplies that provide a reference voltage
-+ * where the consumer driver just needs to know the voltage and keep the
-+ * regulator enabled.
-+ *
-+ * In cases where the supply is not strictly required, callers can check for
-+ * -ENODEV error and handle it accordingly.
-+ *
-+ * Returns: voltage in microvolts on success, or an error code on failure.
-+ */
-+int devm_regulator_get_enable_read_voltage(struct device *dev, const char *id)
-+{
-+	struct regulator *r;
-+	int ret;
-+
-+	/*
-+	 * Since we need a real voltage, we use devm_regulator_get_optional()
-+	 * rather than getting a dummy regulator with devm_regulator_get() and
-+	 * then letting regulator_get_voltage() fail with -EINVAL. This way, the
-+	 * caller can handle the -ENODEV error code if needed instead of the
-+	 * ambiguous -EINVAL.
-+	 */
-+	r = devm_regulator_get_optional(dev, id);
-+	if (IS_ERR(r))
-+		return PTR_ERR(r);
-+
-+	ret = regulator_enable(r);
-+	if (ret)
-+		goto err_regulator_put;
-+
-+	ret = devm_add_action_or_reset(dev, regulator_action_disable, r);
-+	if (ret)
-+		goto err_regulator_put;
-+
-+	ret = regulator_get_voltage(r);
-+	if (ret < 0)
-+		goto err_release_action;
-+
-+	return 0;
-+
-+err_release_action:
-+	devm_release_action(dev, regulator_action_disable, r);
-+err_regulator_put:
-+	devm_regulator_put(r);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(devm_regulator_get_enable_read_voltage);
-+
- static int devm_regulator_match(struct device *dev, void *res, void *data)
+@@ -483,10 +467,8 @@ static void da9052_hwmon_remove(struct platform_device *pdev)
  {
- 	struct regulator **r = res;
-diff --git a/include/linux/regulator/consumer.h b/include/linux/regulator/consumer.h
-index ed180ca419da..59d0b9a79e6e 100644
---- a/include/linux/regulator/consumer.h
-+++ b/include/linux/regulator/consumer.h
-@@ -164,6 +164,7 @@ struct regulator *__must_check devm_regulator_get_optional(struct device *dev,
- 							   const char *id);
- int devm_regulator_get_enable(struct device *dev, const char *id);
- int devm_regulator_get_enable_optional(struct device *dev, const char *id);
-+int devm_regulator_get_enable_read_voltage(struct device *dev, const char *id);
- void regulator_put(struct regulator *regulator);
- void devm_regulator_put(struct regulator *regulator);
+ 	struct da9052_hwmon *hwmon = platform_get_drvdata(pdev);
  
-@@ -329,6 +330,12 @@ static inline int devm_regulator_get_enable_optional(struct device *dev,
- 	return 0;
+-	if (hwmon->tsi_as_adc) {
++	if (hwmon->tsi_as_adc)
+ 		da9052_free_irq(hwmon->da9052, DA9052_IRQ_TSIREADY, hwmon);
+-		regulator_disable(hwmon->tsiref);
+-	}
  }
  
-+static inline int devm_regulator_get_enable_read_voltage(struct device *dev,
-+							 const char *id)
-+{
-+	return -ENODEV;
-+}
-+
- static inline struct regulator *__must_check
- regulator_get_optional(struct device *dev, const char *id)
- {
+ static struct platform_driver da9052_hwmon_driver = {
 
 -- 
 2.43.2

@@ -1,37 +1,36 @@
-Received: from smtp.smtpout.orange.fr (smtp-18.smtpout.orange.fr [80.12.242.18])
+Received: from msa.smtpout.orange.fr (msa-210.smtpout.orange.fr [193.252.23.210])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E60481A3;
-	Wed,  1 May 2024 05:32:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 773BF48781;
+	Wed,  1 May 2024 05:32:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.252.23.210
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714541543; cv=none; b=UY2UtZ4sFK5Mv5iWjwffKD88BPTEFdRUc1kGkGWLUuHODWfFUbKr57y7i+kwFu279rRqfIDe3ZQWamBDJG+dHLfjKeWFfFntPoJxkRcD/cnqdAUa2YSEjhV7r0thglt+rXUlkugrVoJ2WGEsvGQ3ZXyrykgmbBII8yRF/UQozKA=
+	t=1714541551; cv=none; b=Gy6hAC5yBlZpi0qjlO/kewC0HqfhocqVwfEJlW4jNOLsyZqYXowfdfLXDadcBbtAKZ3pooyTYP9sFMoxoEkyIlvIzAXqMb6aivsRcvcIwA8g18aWkcUaTe/9QcWph5zmXR5Yzl0OiNRxeGRSlJzICI7lpMwYoO1W1r3sfYtzgb8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714541543; c=relaxed/simple;
-	bh=ArOXPy7P1rDCISOetC7udZv3vahyD59OFDoMpu2TJss=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Vb3XbVpkKmZkDTizkLPwiEi/s3zXBEBcsTskVtGpZhQ7H2JHWFUWouSRvA1BDsocEsQISoaBL+pndV82kTcB3sh+Dri2SdRjxR9N40pJRWd0rdtf85SO0AOeukU2XPyQnRRgA3+Iz4IAu+g9J6OMJgP0Al7szn06zduJF9M/Edg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=qwz3qeDO; arc=none smtp.client-ip=80.12.242.18
+	s=arc-20240116; t=1714541551; c=relaxed/simple;
+	bh=XGnwqzGVRVLKMqUxqhbPMjTk3pC1cEJXJekJTprHVbY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Q7B8smJc+qBygTaL16I1elJwy8dYDPwqJtGvk9XFclyiqfjztidnY55l8rsQ3ObJC4Gbux0z5OIzKD6Mqabdz1xZ8TZ4iGgjuKG1KL3LqOEXUILF+VuLPmeWvHpWXRJGTTiYEZkeF5ThFszi8jVEvc5qUCk+1DCmRtcr6ctgG4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=Su0SsbPE; arc=none smtp.client-ip=193.252.23.210
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="qwz3qeDO"
+	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="Su0SsbPE"
 Received: from localhost.localdomain ([86.243.17.157])
 	by smtp.orange.fr with ESMTPA
-	id 22YcsEsBRAF5O22YosxtZt; Wed, 01 May 2024 07:31:18 +0200
+	id 22YcsEsBRAF5O22YcsxtZ3; Wed, 01 May 2024 07:31:09 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-	s=t20230301; t=1714541478;
-	bh=PKg24I0LA3FDiDUWAMdwYK2Up/UUtvN46WwgU2Vuv+U=;
+	s=t20230301; t=1714541469;
+	bh=gkHbjdcpVGhYwhArziDiurlEAkgTgXQtE1ztZgQ3NT0=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=qwz3qeDOGFZtq2o1uiGHa2FXUydYvXEJCRia7jopwBrhcbjIOfFU0aKIOz5OjJBwl
-	 VlqhfRhpiK2pMCjHkOjpGjmBfm739M2qcXOaGlD1rsA7v/KDI7x4v0k4fblgNKdLhh
-	 VJb4+wX2NxcpVblrZTNGg4utZFgiKqSdmh2RJidzE5HlzzSQBHjrjaxXQPW0w8p3fI
-	 SLDGXVHMbJOm/BYWOSdwfc3Cim32m5/1Kdm7yo26ScUJSbTlxpko6RlDShJpSAiVBE
-	 jzGYY2zM/1H62BLeqh4FxxfQpA/hWQYnO00uyv0lecRt6Q7ChPTpCKoan+gmhTp67Q
-	 2AJIG5SBL0mzQ==
+	b=Su0SsbPEuir6j/Zux1shoe7hWU5cHbMmAjZeNs+AcGlPQSQzH6xK4g3hpG/lvEYMo
+	 4PIs7R86sjYyJBuc8U4bGpMUTnaiLPi7jJq1qJYqDndXtMdUsG+Bg3UiMlYt2oEqzH
+	 uLz1xQciAnlGsatK1tLkvNwo02V0pHtM7GQNygrpGOB443fIH8qyHwoLKojrFXi/hV
+	 1AhKneC8872Xdz8T3HJkWr/NEf91mmgnvUyuPlBQuTTZdAbnsBAnJ39g5dghr/OGVn
+	 ZvyOT1V7D551eaLhKwrldwt3LZdXQKLu0YFve9CyrMVNwAL5PfinnDdg+zo5Xt7nkI
+	 ylq36OpLmWmHw==
 X-ME-Helo: localhost.localdomain
 X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Wed, 01 May 2024 07:31:18 +0200
+X-ME-Date: Wed, 01 May 2024 07:31:09 +0200
 X-ME-IP: 86.243.17.157
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
@@ -39,12 +38,10 @@ Cc: linux-kernel@vger.kernel.org,
 	kernel-janitors@vger.kernel.org,
 	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
 	linux-input@vger.kernel.org
-Subject: [PATCH 2/2] Input: tca6416-keypad - Remove unused struct tca6416_drv_data
-Date: Wed,  1 May 2024 07:30:55 +0200
-Message-ID: <3e6fd1d0875ef3c90ecaab7adf7fd4a5e8e6f708.1714541432.git.christophe.jaillet@wanadoo.fr>
+Subject: [PATCH 1/2] Input: tca6416-keypad - Remove an unused field in struct tca6416_keypad_chip
+Date: Wed,  1 May 2024 07:30:54 +0200
+Message-ID: <926c0f40040671565dcc54d5146a8f9511fb6d46.1714541432.git.christophe.jaillet@wanadoo.fr>
 X-Mailer: git-send-email 2.44.0
-In-Reply-To: <926c0f40040671565dcc54d5146a8f9511fb6d46.1714541432.git.christophe.jaillet@wanadoo.fr>
-References: <926c0f40040671565dcc54d5146a8f9511fb6d46.1714541432.git.christophe.jaillet@wanadoo.fr>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -53,7 +50,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-"struct tca6416_drv_data" is unused.
+In "struct tca6416_keypad_chip", the 'irqnum' field is unused.
 Remove it.
 
 Found with cppcheck, unusedStructMember.
@@ -63,27 +60,25 @@ Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Compile tested only.
 
 It was added in the initial commit 30ba3ead0576 ("Input: add keypad driver
-for keys interfaced to TCA6416") but was never used.
+for keys interfaced to TCA6416") and its users were removed in commit
+687fe7dfb736 ("Input: tca6416-keypad - always expect proper IRQ number in
+i2c client").
 ---
- drivers/input/keyboard/tca6416-keypad.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/input/keyboard/tca6416-keypad.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
-index 044401d01bf6..fbc674d7b9f0 100644
+index 677bc4baa5d1..044401d01bf6 100644
 --- a/drivers/input/keyboard/tca6416-keypad.c
 +++ b/drivers/input/keyboard/tca6416-keypad.c
-@@ -32,11 +32,6 @@ static const struct i2c_device_id tca6416_id[] = {
- };
- MODULE_DEVICE_TABLE(i2c, tca6416_id);
- 
--struct tca6416_drv_data {
--	struct input_dev *input;
--	struct tca6416_button data[];
--};
--
- struct tca6416_keypad_chip {
- 	uint16_t reg_output;
- 	uint16_t reg_direction;
+@@ -45,7 +45,6 @@ struct tca6416_keypad_chip {
+ 	struct i2c_client *client;
+ 	struct input_dev *input;
+ 	int io_size;
+-	int irqnum;
+ 	u16 pinmask;
+ 	bool use_polling;
+ 	struct tca6416_button buttons[];
 -- 
 2.44.0
 

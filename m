@@ -1,103 +1,89 @@
-Received: from out-183.mta1.migadu.com (out-183.mta1.migadu.com [95.215.58.183])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp.smtpout.orange.fr (smtp-18.smtpout.orange.fr [80.12.242.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 361DF46558
-	for <linux-input@vger.kernel.org>; Wed,  1 May 2024 05:24:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E60481A3;
+	Wed,  1 May 2024 05:32:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714541059; cv=none; b=rZzED/jepbYIR4zzYauFCbRzjN7UcgUYIAZRULgYsghnH0WCznlTQbSxSbKGewTgpZnW1NGPxt8ySSOlpQBGfZDYXPNhO7Z+aeNjxr4rSNsV0U/lZAjt21yH10cy+e9uDk0FQqwY2Gj2ytvf2EU81uGgm8B2+8vQpONDLDzk9tc=
+	t=1714541543; cv=none; b=UY2UtZ4sFK5Mv5iWjwffKD88BPTEFdRUc1kGkGWLUuHODWfFUbKr57y7i+kwFu279rRqfIDe3ZQWamBDJG+dHLfjKeWFfFntPoJxkRcD/cnqdAUa2YSEjhV7r0thglt+rXUlkugrVoJ2WGEsvGQ3ZXyrykgmbBII8yRF/UQozKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714541059; c=relaxed/simple;
-	bh=W6vQknOCG9pH+KpiTCI9n0o+sqxHWVPRqivmOUwN4wU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SYI7DToqPj9v6EJ+xeXJhkdwfEMxX6L1RSUWgS5J8zlqs4mOwL7NJZTg3MCwj5IyOIsSR6ygAD5U1I0OF5m1LpBBWrNIIail2SnVHmCrAwRQ3/SvctjlNvUY6TDcxXeP4v1G1YQb1UshII45+MsTwtFEeSjQKBc3J7eEKnKMr+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kl.wtf; spf=pass smtp.mailfrom=kl.wtf; dkim=pass (2048-bit key) header.d=kl.wtf header.i=@kl.wtf header.b=hf2VBGy0; arc=none smtp.client-ip=95.215.58.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kl.wtf
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kl.wtf
+	s=arc-20240116; t=1714541543; c=relaxed/simple;
+	bh=ArOXPy7P1rDCISOetC7udZv3vahyD59OFDoMpu2TJss=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Vb3XbVpkKmZkDTizkLPwiEi/s3zXBEBcsTskVtGpZhQ7H2JHWFUWouSRvA1BDsocEsQISoaBL+pndV82kTcB3sh+Dri2SdRjxR9N40pJRWd0rdtf85SO0AOeukU2XPyQnRRgA3+Iz4IAu+g9J6OMJgP0Al7szn06zduJF9M/Edg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=qwz3qeDO; arc=none smtp.client-ip=80.12.242.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kl.wtf header.i=@kl.wtf header.b="hf2VBGy0"
-Message-ID: <26070c7a-4005-4bb4-b4af-779bfc415dea@kl.wtf>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kl.wtf; s=key1;
-	t=1714541052;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DY5QCzdG2l5n9xOYJTH9mAFpqSJJ9rQm13TN9QItwbA=;
-	b=hf2VBGy0lVBFv/YVa68S9xhqplWrtjAcAvXPKeohrhdgYWNn+SfInIqhAbzGn5aFpWSBWD
-	fXSek3RABzu0zWhAB/dtVmfAdpJm9msJXv88ZqxCuAcimMExS+VY/1723GxzyBHEKN6iD8
-	PEsSniZPD3YloWzhNIqrUm0NxQGRcFncMAOTS4AB14LnpEOfjq5kU8gi3OffZ9j2Tqerl8
-	9y4v6jJclwhl1boFvdYcRV59LThvWa5JFrR7ppIEDe1TMj7O1dbyfDvEbxb5iqrdAoPfzo
-	LNGULD8FGqFG39Cq2AlZFDfXf8maPFq+rCx5b1kgJ8w+ai+fATBqfK4bK5pfWA==
-Date: Wed, 1 May 2024 07:24:08 +0200
+	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="qwz3qeDO"
+Received: from localhost.localdomain ([86.243.17.157])
+	by smtp.orange.fr with ESMTPA
+	id 22YcsEsBRAF5O22YosxtZt; Wed, 01 May 2024 07:31:18 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
+	s=t20230301; t=1714541478;
+	bh=PKg24I0LA3FDiDUWAMdwYK2Up/UUtvN46WwgU2Vuv+U=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=qwz3qeDOGFZtq2o1uiGHa2FXUydYvXEJCRia7jopwBrhcbjIOfFU0aKIOz5OjJBwl
+	 VlqhfRhpiK2pMCjHkOjpGjmBfm739M2qcXOaGlD1rsA7v/KDI7x4v0k4fblgNKdLhh
+	 VJb4+wX2NxcpVblrZTNGg4utZFgiKqSdmh2RJidzE5HlzzSQBHjrjaxXQPW0w8p3fI
+	 SLDGXVHMbJOm/BYWOSdwfc3Cim32m5/1Kdm7yo26ScUJSbTlxpko6RlDShJpSAiVBE
+	 jzGYY2zM/1H62BLeqh4FxxfQpA/hWQYnO00uyv0lecRt6Q7ChPTpCKoan+gmhTp67Q
+	 2AJIG5SBL0mzQ==
+X-ME-Helo: localhost.localdomain
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Wed, 01 May 2024 07:31:18 +0200
+X-ME-IP: 86.243.17.157
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	kernel-janitors@vger.kernel.org,
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+	linux-input@vger.kernel.org
+Subject: [PATCH 2/2] Input: tca6416-keypad - Remove unused struct tca6416_drv_data
+Date: Wed,  1 May 2024 07:30:55 +0200
+Message-ID: <3e6fd1d0875ef3c90ecaab7adf7fd4a5e8e6f708.1714541432.git.christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.44.0
+In-Reply-To: <926c0f40040671565dcc54d5146a8f9511fb6d46.1714541432.git.christophe.jaillet@wanadoo.fr>
+References: <926c0f40040671565dcc54d5146a8f9511fb6d46.1714541432.git.christophe.jaillet@wanadoo.fr>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH v3 1/3] HID: i2c-hid: Rely on HID descriptor fetch to
- probe
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@kernel.org>, Dmitry Torokhov <dtor@chromium.org>,
- Benjamin Tissoires <benjamin.tissoires@redhat.com>,
- Douglas Anderson <dianders@chromium.org>, Hans de Goede
- <hdegoede@redhat.com>, Maxime Ripard <mripard@kernel.org>,
- Kai-Heng Feng <kai.heng.feng@canonical.com>,
- Johan Hovold <johan+linaro@kernel.org>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org, Radoslaw Biernacki <rad@chromium.org>,
- Lukasz Majczak <lma@chromium.org>
-References: <20240426225739.2166-1-kl@kl.wtf>
- <20240426225739.2166-2-kl@kl.wtf> <ZixvUNooESC02cJK@google.com>
- <5aa9f745-7f6a-4873-90ba-79c55335905c@kl.wtf> <ZjFli4zOalXkDWx_@google.com>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Kenny Levinsen <kl@kl.wtf>
-In-Reply-To: <ZjFli4zOalXkDWx_@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Transfer-Encoding: 8bit
 
-On 4/30/24 11:41 PM, Dmitry Torokhov wrote:
-> I actually believe there is. On Chromebooks we may source components
-> from several vendors and use them in our devices. The components
-> are electrically compatible with each other, have exactly the same
-> connector, and therefore interchangeable. Because of that at probe time
-> we do not quite know if the device is there at given address, or not
-> (i.e. the touchpad could be from a different vendor and listening on
-> another address) and we need to make a quick determination whether we
-> should continue with probe or not.
+"struct tca6416_drv_data" is unused.
+Remove it.
 
-Maybe I should clarify what I meant: All I2C operations start with the 
-master writing the slave address to the bus. When a slave reads its own 
-address off the bus, it pulls the data line low to ACK. If no device is 
-present on the bus with the specified address, the line stays high which 
-is a NACK. This means that on the bus level, we have a clear error 
-condition specifically for no device with the specified address being 
-present on the bus.
+Found with cppcheck, unusedStructMember.
 
-Whether the operation used is a dummy read or our first actual write 
-should not matter - if the address is not acknowledged, the device is 
-not present (or able to talk I2C). The problem lies in whether this "no 
-device present on bus" error is reported clearly to us: Some drivers use 
--ENXIO specifically for this, some use it also for NACKs on written 
-data, some report it but use other return codes for it, etc.
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+Compile tested only.
 
-Even if we stick to the smbus probe in the long run, if we get to the 
-point where we can rely on the error codes from I2C drivers we would be 
-able to correctly log and propagate other error classes like bus errors 
-or I2C driver issues which are all currently silenced as "nothing at 
-address" by the smbus probe.
+It was added in the initial commit 30ba3ead0576 ("Input: add keypad driver
+for keys interfaced to TCA6416") but was never used.
+---
+ drivers/input/keyboard/tca6416-keypad.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-> I am not sure we can fully unify what Windows does and what Linux does,
-> mainly because our firmwares are different (I think Windows devices do a
-> lot more device discovery in firmware, Chrome OS historically tried to
-> limit amount of code in its firmware). We also need to make sure it
-> works on non-ACPI systems/ARM.
+diff --git a/drivers/input/keyboard/tca6416-keypad.c b/drivers/input/keyboard/tca6416-keypad.c
+index 044401d01bf6..fbc674d7b9f0 100644
+--- a/drivers/input/keyboard/tca6416-keypad.c
++++ b/drivers/input/keyboard/tca6416-keypad.c
+@@ -32,11 +32,6 @@ static const struct i2c_device_id tca6416_id[] = {
+ };
+ MODULE_DEVICE_TABLE(i2c, tca6416_id);
+ 
+-struct tca6416_drv_data {
+-	struct input_dev *input;
+-	struct tca6416_button data[];
+-};
+-
+ struct tca6416_keypad_chip {
+ 	uint16_t reg_output;
+ 	uint16_t reg_direction;
+-- 
+2.44.0
 
-Good point. My main focus is also quirky behaviors we have added to 
-replicate Windows behavior, the smbus probe just stood out in my bus traces.
-
-I already sent 
-https://lore.kernel.org/all/20240429233924.6453-1-kl@kl.wtf/ which goes 
-back to improving the bus probe.

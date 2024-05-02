@@ -1,67 +1,68 @@
-Received: from fritzc.com (mail.fritzc.com [213.160.72.247])
+Received: from mail2.andi.de1.cc (vmd64148.contaboserver.net [161.97.139.27])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E0CD181D09;
-	Thu,  2 May 2024 18:29:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.72.247
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AEB2664DB;
+	Thu,  2 May 2024 18:58:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.97.139.27
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714674555; cv=none; b=bzPn42zd5YfjUxMOO7zTihtjomIBYIH/6IBGzAPxILnUsPDI2bv/STPX3B3qxNKJ7fjC20jgyLIu5/xjHQ8vSuTgttA9r+HzdEU7PYKkAGX/yTTTd5JYcYFxETeK01D7iBTl9OqdMq0/N8LJ3a8hli7OcnhXAyTOTphjHWAVGTM=
+	t=1714676310; cv=none; b=Dq2BAtAu2dF9B71J8D6OLxLIQAS7eIGo/h7WBhrpP56yjpusqmob5qeI55O+DIwnQP/M7qvrEynvmAZBs4cfPKa58PrtvsBHPUN5Ne4VO6u5CH+IQar4leB/oLyA6vDNx0Qx4Le5e2GS3J049DD1TBTBLinNUZe4tNBx7sKpDCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714674555; c=relaxed/simple;
-	bh=bMBvt+Lny9gltUtFkgHUIDgYVSPlUfopJMIv+FezAFI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=TQTM49sML4A2tNk9ZE8fj5akA9Jx6toLem/srBG8cIVWwy+OX1OSagh1kMwPJmkuLfm2FTdBdRxH0i6I6wUv4Xh4803pkMV4JriBZvUAivTny+Vs08MpPA59xOq0r1gThDhGFnXaQY5DRJuIQMULqzmMP4l93aoHmpkVxqvW+cc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=vnXQ9fsb; arc=none smtp.client-ip=213.160.72.247
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hexdev.de
+	s=arc-20240116; t=1714676310; c=relaxed/simple;
+	bh=aCHIniCv0Tc+PYxGKN7qCxfa+STcvQCfgUcxyDpVlqI=;
+	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=W2JrB8fWn/0tGnLfzGXbc4qQL2FJQVSJxCiYckBJeOjiUOWCJ+L5K7M1uSTKSAUnbH4Opb5fSxvp913sHHkHs4ZEh+rfgDT8vQapBsjEqqQaXi429O6xc7A/qRLlTMuHIWTzqnb+nmj/Z1Ue8CpSpPlob0ZYx6IMjlQB0Wozjz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=Ky+hkpkk; arc=none smtp.client-ip=161.97.139.27
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="vnXQ9fsb"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fritzc.com;
-	s=dkim; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
-	Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=7E5q+Jclu2EnfpQbseAxE8rYQRfjMaRwwerkW79IgBU=; b=vnXQ9fsbyaYSGCfe9LMRKQ1jKF
-	V57IwJD8gNhVezB5jBY21dzZu66qDGvTuvdJC9VS4Sg5RPIcDB6n6OYlS2N64+r3YRKbOAWFMdrNk
-	lxNacJHg2A1a4wR9VyNIDFHCZab6wt8gL2t6ByYj6vbBeQTCWEbODojN8I/XpwYyvbFw=;
-Received: from 127.0.0.1
-	by fritzc.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim latest)
-	(envelope-from <christoph.fritz@hexdev.de>)
-	id 1s2bB3-001ZbZ-33;
-	Thu, 02 May 2024 20:29:06 +0200
-From: Christoph Fritz <christoph.fritz@hexdev.de>
-To: Jiri Slaby <jirislaby@kernel.org>,
-	Oliver Hartkopp <socketcan@hartkopp.net>,
-	Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol.vincent@wanadoo.fr>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Sebastian Reichel <sre@kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>
-Cc: Andreas Lauser <andreas.lauser@mercedes-benz.com>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Pavel Pisa <pisa@cmp.felk.cvut.cz>,
-	linux-can@vger.kernel.org,
-	netdev@vger.kernel.org,
-	devicetree@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="Ky+hkpkk"
+Received: from mail.andi.de1.cc ([2a02:c205:3004:2154::1])
+	by mail2.andi.de1.cc with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <andreas@kemnade.info>)
+	id 1s2bdQ-005SoT-15;
+	Thu, 02 May 2024 20:58:25 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=Content-Transfer-Encoding:MIME-Version:
+	References:In-Reply-To:Message-Id:Date:Subject:To:From:Sender:Reply-To:Cc:
+	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=0CDwM9oX6z8Z0kLm8cR2Bq5GdQPw7AnnpcL4J7ndwOg=; b=Ky+hkpkk3z2PboFTrISt8+jlhm
+	06uyU48sOjDH1samrFh8h7+jfflyqOIznBzV+sMpokvLvjS7oOwexMsfO2b6vMhv+l/HtfMunMQEe
+	2kTJ8cPnVmYuE5ba++9ruIB7m8vrRSfAKXSpghihe2+V/MMW3/1FaY1BaurRgLY8JkOUVXj7QbQms
+	8Jatu+s3xvyDi+HjWSNzcS9lkI2ByAsFbkZzNYB81O9wK2H8TKbTfSdRPH1YzO8HafUvj7OYO8T60
+	JKLOjrJyGegyFd9ofxuzzsIEgSvcEu3f/gG0UsKMkyGKOzqugzdVt900EdeJSotZzMUORS6PuAuCz
+	eXDIT25w==;
+Received: from p200300c20737c2001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:c2:737:c200:1a3d:a2ff:febf:d33a] helo=aktux)
+	by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <andreas@kemnade.info>)
+	id 1s2bdO-000RVZ-1U;
+	Thu, 02 May 2024 20:58:23 +0200
+Received: from andi by aktux with local (Exim 4.96)
+	(envelope-from <andreas@kemnade.info>)
+	id 1s2bdP-003JC1-1V;
+	Thu, 02 May 2024 20:58:23 +0200
+From: Andreas Kemnade <andreas@kemnade.info>
+To: dmitry.torokhov@gmail.com,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	andreas@kemnade.info,
+	hdegoede@redhat.com,
+	andy.shevchenko@gmail.com,
+	u.kleine-koenig@pengutronix.de,
+	siebren.vroegindeweij@hotmail.com,
 	linux-input@vger.kernel.org,
-	linux-serial@vger.kernel.org
-Subject: [PATCH v3 11/11] HID: hexLIN: Implement ability to update lin mode
-Date: Thu,  2 May 2024 20:28:04 +0200
-Message-Id: <20240502182804.145926-12-christoph.fritz@hexdev.de>
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] Input: ektf2127 - add ektf2232 support
+Date: Thu,  2 May 2024 20:58:19 +0200
+Message-Id: <20240502185819.788716-3-andreas@kemnade.info>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240502182804.145926-1-christoph.fritz@hexdev.de>
-References: <20240502182804.145926-1-christoph.fritz@hexdev.de>
+In-Reply-To: <20240502185819.788716-1-andreas@kemnade.info>
+References: <20240502185819.788716-1-andreas@kemnade.info>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -70,51 +71,61 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch enhances the hexLIN driver by implementing the newly
-introduced update_lin_mode() callback.  So that either commander or
-responder mode can be configured on this hardware.
+The chip is similar, but has status bits at different positions,
+so use the correct bits.
 
-Signed-off-by: Christoph Fritz <christoph.fritz@hexdev.de>
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
 ---
- drivers/hid/hid-hexdev-hexlin.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/input/touchscreen/ektf2127.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-hexdev-hexlin.c b/drivers/hid/hid-hexdev-hexlin.c
-index 1ddc1e00ab2da..1723b272138ba 100644
---- a/drivers/hid/hid-hexdev-hexlin.c
-+++ b/drivers/hid/hid-hexdev-hexlin.c
-@@ -180,6 +180,8 @@ HEXLIN_GET_CMD(get_baudrate, HEXLIN_GET_BAUDRATE)
- 	}
+diff --git a/drivers/input/touchscreen/ektf2127.c b/drivers/input/touchscreen/ektf2127.c
+index cc3103b9cbfba..5c2a6bfc63d84 100644
+--- a/drivers/input/touchscreen/ektf2127.c
++++ b/drivers/input/touchscreen/ektf2127.c
+@@ -46,6 +46,7 @@ struct ektf2127_ts {
+ 	struct input_dev *input;
+ 	struct gpio_desc *power_gpios;
+ 	struct touchscreen_properties prop;
++	bool shifted_status;
+ };
  
- HEXLIN_VAL_CMD(send_break, HEXLIN_SEND_BREAK, hexlin_val8_req, u8)
-+HEXLIN_VAL_CMD(set_mode_controller, HEXLIN_SET_MODE_CONTROLLER, hexlin_val8_req,
-+	       bool)
+ static void ektf2127_parse_coordinates(const u8 *buf, unsigned int touch_count,
+@@ -112,8 +113,13 @@ static void ektf2127_report2_contact(struct ektf2127_ts *ts, int slot,
  
- static int hexlin_queue_frames_insert(struct hexlin_priv_data *priv,
- 				      const u8 *raw_data, int sz)
-@@ -346,6 +348,14 @@ static int hexlin_ldo_tx(struct lin_device *ldev,
- 	return ret;
- }
- 
-+static int  hexlin_update_lin_mode(struct lin_device *ldev, enum lin_mode lm)
-+{
-+	struct hid_device *hdev = to_hid_device(ldev->dev);
-+	struct hexlin_priv_data *priv = hid_get_drvdata(hdev);
-+
-+	return hexlin_set_mode_controller(priv, lm == LINBUS_COMMANDER);
-+}
-+
- static int hexlin_update_bitrate(struct lin_device *ldev, u16 bitrate)
+ static void ektf2127_report2_event(struct ektf2127_ts *ts, const u8 *buf)
  {
- 	struct hid_device *hdev = to_hid_device(ldev->dev);
-@@ -417,6 +427,7 @@ static const struct lin_device_ops hexlin_ldo = {
- 	.ldo_open = hexlin_open,
- 	.ldo_stop = hexlin_stop,
- 	.ldo_tx = hexlin_ldo_tx,
-+	.update_lin_mode = hexlin_update_lin_mode,
- 	.update_bitrate = hexlin_update_bitrate,
- 	.get_responder_answer = hexlin_get_responder_answer,
- 	.update_responder_answer = hexlin_update_resp_answer,
+-	ektf2127_report2_contact(ts, 0, &buf[1], !!(buf[7] & 2));
+-	ektf2127_report2_contact(ts, 1, &buf[4], !!(buf[7] & 4));
++	if (ts->shifted_status) {
++		ektf2127_report2_contact(ts, 0, &buf[1], !!(buf[7] & 1));
++		ektf2127_report2_contact(ts, 1, &buf[4], !!(buf[7] & 2));
++	} else {
++		ektf2127_report2_contact(ts, 0, &buf[1], !!(buf[7] & 2));
++		ektf2127_report2_contact(ts, 1, &buf[4], !!(buf[7] & 4));
++	}
+ 
+ 	input_mt_sync_frame(ts->input);
+ 	input_sync(ts->input);
+@@ -303,6 +309,10 @@ static int ektf2127_probe(struct i2c_client *client)
+ 		return error;
+ 
+ 	ts->input = input;
++	if (dev->of_node &&
++	    of_device_is_compatible(dev->of_node, "elan,ektf2232"))
++		ts->shifted_status = true;
++
+ 	input_set_drvdata(input, ts);
+ 
+ 	error = devm_request_threaded_irq(dev, client->irq,
+@@ -329,6 +339,7 @@ static int ektf2127_probe(struct i2c_client *client)
+ static const struct of_device_id ektf2127_of_match[] = {
+ 	{ .compatible = "elan,ektf2127" },
+ 	{ .compatible = "elan,ektf2132" },
++	{ .compatible = "elan,ektf2232" },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, ektf2127_of_match);
 -- 
 2.39.2
 

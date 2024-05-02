@@ -1,183 +1,148 @@
-Received: from mail2.andi.de1.cc (vmd64148.contaboserver.net [161.97.139.27])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B116E15E5CE;
-	Thu,  2 May 2024 18:58:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=161.97.139.27
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C0F1161304;
+	Thu,  2 May 2024 19:03:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714676312; cv=none; b=IfV5oMwAvZQ/MqWHLeBjC/dbjbelYc6eXHYgJ3eEZwd+Doj7jiVui1v+4+ywSICFbiCkE+skx2Ju5kT3qpPU6G5KS7b9DrqfOBOF3AwrGP5zxSTWpzSUcFVzB4IG1+5BOKANN7h9UQ25gXhLZ2ghPtqf+tJvDZZdPkviu/AGPMs=
+	t=1714676639; cv=none; b=nDKYKaazrDsWpqwOCpqp8Y4NJYBEs8Acd5hobJk/2CiCHu1UnE6xUpbcGYTmTQoPWCzHJheUhIUaGia4chobVQh3Kx4IYbHGl3QZwzGhblmZrzs07iHZwAGjk2esCIn+JfMRN/AQ1z3+xrfosmN8Nq5JBa9bgtp4DPXRyyFX4IU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714676312; c=relaxed/simple;
-	bh=1ddELZ3rv7/x2FMyMnZThIFs8dk075U55LChIsF4djo=;
-	h=From:To:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=UZ+2DPaVwSh23d+xKiD1Bd5HU99age6mSBBkV/xr+9dFuFj9omVI+NtLYKlzAVvoySIef5ksSJJvaKTQ/GNqc/c2lTHgXV8oX6Emfuy13oVj8O73bWGTTuVvW36UnIBwD1cA9a44BtWMvVp5hQ0Fw4/w9Tgi1G4546IuSOW/0qg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=VVybXyDH; arc=none smtp.client-ip=161.97.139.27
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	s=arc-20240116; t=1714676639; c=relaxed/simple;
+	bh=EoWpaGahS9+7N/Tn7VrR0XBjpa7/lAxYqFMa8FhNZMQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sM7o5JIozO//mwuJvitrQ5g3ixf/7iqhh4LinQfkgFtvaRWVUXMSvZDEp+76lBbeXy2xbvMpQn/gb9PSqebCceM5TlbfBCUzpkdvi67ZK8F7VVivgTggh56hhILdmP2N1KTbxTP/Q3wRBkY6x3PYwBKcvfGmnlonXiI4qmlHBXE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HNtG7Hdj; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="VVybXyDH"
-Received: from mail.andi.de1.cc ([2a02:c205:3004:2154::1])
-	by mail2.andi.de1.cc with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <andreas@kemnade.info>)
-	id 1s2bdQ-005SoS-1F;
-	Thu, 02 May 2024 20:58:25 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-Id:Date:Subject:To:From:Sender:Reply-To:Cc:
-	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=eOa7z2BB2RrbUPKNWTzARvpY9sFJebL6N8r4Bi6ZY8c=; b=VVybXyDHiAVomT+iJTmAt7+Ut/
-	PNTRndoK1LlVEaqXqdoA+BqJywRqK9RaNEIHcu+ceif6QpDwpXGFBOGrZhIcDlDH7HYhzbG9tJrZV
-	niDohH4XAhiqu5SG1yJ+19fG+5H/hoBVEbEFrU2FYwk8qW2qFB6wxV0WqeLJM3BjoXqlxkUqz2q9Z
-	dOgILdpIRMHezsG35wGfF0JDKycXAGWWtJjv1Gs5BAigTaoZOSnDpzZJGYujqY5k4VEjY/v7/mmgF
-	o9sp1DlhTv+PnE86BYom/0uXmulRqniwffukpz2pHrR8+K0PeN0t+13Ti5gB6ZZFXJiesUZgk+YbO
-	K8JLCPCg==;
-Received: from p200300c20737c2001a3da2fffebfd33a.dip0.t-ipconnect.de ([2003:c2:737:c200:1a3d:a2ff:febf:d33a] helo=aktux)
-	by mail.andi.de1.cc with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <andreas@kemnade.info>)
-	id 1s2bdO-000RVW-0I;
-	Thu, 02 May 2024 20:58:23 +0200
-Received: from andi by aktux with local (Exim 4.96)
-	(envelope-from <andreas@kemnade.info>)
-	id 1s2bdP-003JBv-0J;
-	Thu, 02 May 2024 20:58:23 +0200
-From: Andreas Kemnade <andreas@kemnade.info>
-To: dmitry.torokhov@gmail.com,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	andreas@kemnade.info,
-	hdegoede@redhat.com,
-	andy.shevchenko@gmail.com,
-	u.kleine-koenig@pengutronix.de,
-	siebren.vroegindeweij@hotmail.com,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 1/2] dt-bindings: touchscreen: convert elan,ektf2127 to json-schema
-Date: Thu,  2 May 2024 20:58:18 +0200
-Message-Id: <20240502185819.788716-2-andreas@kemnade.info>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240502185819.788716-1-andreas@kemnade.info>
-References: <20240502185819.788716-1-andreas@kemnade.info>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HNtG7Hdj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1714676638; x=1746212638;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=EoWpaGahS9+7N/Tn7VrR0XBjpa7/lAxYqFMa8FhNZMQ=;
+  b=HNtG7HdjMP1UJrDta3vc46HzKIDCgh271Ynb31QKtPwL6I4ekeeCfjGu
+   u6LIMZaV74gKRi4eD1elJ037tP/ESsDdXFmHaYPEvsa3We/c4cGrkmXlJ
+   YBP9mtGXzfMqhAxMwBy+00tJr6gBofjfAoHsczgw/D0amsJQ0mhDU48ZR
+   QG201nI3yGX+nfn2CzbWrQfqgeOEFMv40XoCZzOHbUprJxMy8bp5ET/sp
+   spvYucJEWwKm6hOEqgSXuiiRwpuSrAxqZvTE28grDqm8yGOWCU0Pcytju
+   L1h+YWUorKpZ7i4HeWlmbOwVtn5QSAo5cTR1wuTZBoFdy5nvQVw3kvOek
+   A==;
+X-CSE-ConnectionGUID: 6FIU4BbMRY+agvDhufdh2Q==
+X-CSE-MsgGUID: sPeGEydlQYuQ9EJm/hXhmw==
+X-IronPort-AV: E=McAfee;i="6600,9927,11062"; a="10399727"
+X-IronPort-AV: E=Sophos;i="6.07,247,1708416000"; 
+   d="scan'208";a="10399727"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 May 2024 12:03:57 -0700
+X-CSE-ConnectionGUID: hIsS+t9vTdWnvfoomMjbOQ==
+X-CSE-MsgGUID: pNk0L24ZSrGX7MRYoWkhkg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.07,247,1708416000"; 
+   d="scan'208";a="27324360"
+Received: from lkp-server01.sh.intel.com (HELO e434dd42e5a1) ([10.239.97.150])
+  by fmviesa006.fm.intel.com with ESMTP; 02 May 2024 12:03:54 -0700
+Received: from kbuild by e434dd42e5a1 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1s2bii-000AuK-02;
+	Thu, 02 May 2024 19:03:52 +0000
+Date: Fri, 3 May 2024 03:03:18 +0800
+From: kernel test robot <lkp@intel.com>
+To: Jonathan Denose <jdenose@google.com>,
+	LKML <linux-kernel@vger.kernel.org>
+Cc: oe-kbuild-all@lists.linux.dev, linux-input@vger.kernel.org,
+	Jonathan Denose <jdenose@google.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jeffery Miller <jefferymiller@google.com>
+Subject: Re: [PATCH] Input: elantech - fix touchpad state on resume for
+ Lenovo N24
+Message-ID: <202405030210.izdCj8wZ-lkp@intel.com>
+References: <20240501140231.1.Ifa0e25ebf968d8f307f58d678036944141ab17e6@changeid>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240501140231.1.Ifa0e25ebf968d8f307f58d678036944141ab17e6@changeid>
 
-Convert EKTF2127 infrared touchscreen controller binding to DT schema
-and add ektf2232 compatible.
+Hi Jonathan,
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
----
- .../bindings/input/touchscreen/ektf2127.txt   | 25 --------
- .../input/touchscreen/elan,ektf2127.yaml      | 59 +++++++++++++++++++
- 2 files changed, 59 insertions(+), 25 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/input/touchscreen/ektf2127.txt
- create mode 100644 Documentation/devicetree/bindings/input/touchscreen/elan,ektf2127.yaml
+kernel test robot noticed the following build warnings:
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/ektf2127.txt b/Documentation/devicetree/bindings/input/touchscreen/ektf2127.txt
-deleted file mode 100644
-index c9f2c9f578e34..0000000000000
---- a/Documentation/devicetree/bindings/input/touchscreen/ektf2127.txt
-+++ /dev/null
-@@ -1,25 +0,0 @@
--* Elan eKTF2127 I2C touchscreen controller
--
--Required properties:
-- - compatible		  : "elan,ektf2127" or "elan,ektf2132"
-- - reg			  : I2C slave address of the chip (0x40)
-- - interrupts		  : interrupt specification for the ektf2127 interrupt
-- - power-gpios		  : GPIO specification for the pin connected to the
--			    ektf2127's wake input. This needs to be driven high
--			    to take ektf2127 out of its low power state
--
--For additional optional properties see: touchscreen.txt
--
--Example:
--
--i2c@00000000 {
--	ektf2127: touchscreen@15 {
--		compatible = "elan,ektf2127";
--		reg = <0x15>;
--		interrupt-parent = <&pio>;
--		interrupts = <6 11 IRQ_TYPE_EDGE_FALLING>
--		power-gpios = <&pio 1 3 GPIO_ACTIVE_HIGH>;
--		touchscreen-inverted-x;
--		touchscreen-swapped-x-y;
--	};
--};
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/elan,ektf2127.yaml b/Documentation/devicetree/bindings/input/touchscreen/elan,ektf2127.yaml
-new file mode 100644
-index 0000000000000..66cda99a2ddd0
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/elan,ektf2127.yaml
-@@ -0,0 +1,59 @@
-+# SPDX-License-Identifier: GPL-2.0-only OR BSD-2-Clause
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/elan,ektf2127.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Elan eKTF2127 I2C touchscreen controller
-+
-+maintainers:
-+  - Siebren Vroegindeweij <siebren.vroegindeweij@hotmail.com>
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - elan,ektf2127
-+      - elan,ektf2132
-+      - elan,ektf2232
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  power-gpios:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - power-gpios
-+
-+unevaluatedProperties: false
-+
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        touchscreen@15 {
-+            compatible = "elan,ektf2127";
-+            reg = <0x15>;
-+            interrupt-parent = <&pio>;
-+            interrupts = <6 11 IRQ_TYPE_EDGE_FALLING>;
-+            power-gpios = <&pio 1 3 GPIO_ACTIVE_HIGH>;
-+            touchscreen-inverted-x;
-+            touchscreen-swapped-x-y;
-+        };
-+    };
-+...
+[auto build test WARNING on dtor-input/next]
+[also build test WARNING on dtor-input/for-linus hid/for-next linus/master v6.9-rc6 next-20240502]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Jonathan-Denose/Input-elantech-fix-touchpad-state-on-resume-for-Lenovo-N24/20240501-220739
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+patch link:    https://lore.kernel.org/r/20240501140231.1.Ifa0e25ebf968d8f307f58d678036944141ab17e6%40changeid
+patch subject: [PATCH] Input: elantech - fix touchpad state on resume for Lenovo N24
+config: x86_64-rhel-8.3 (https://download.01.org/0day-ci/archive/20240503/202405030210.izdCj8wZ-lkp@intel.com/config)
+compiler: gcc-13 (Ubuntu 13.2.0-4ubuntu3) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240503/202405030210.izdCj8wZ-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202405030210.izdCj8wZ-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   In file included from include/uapi/linux/posix_types.h:5,
+                    from include/uapi/linux/types.h:14,
+                    from include/linux/types.h:6,
+                    from include/linux/math.h:5,
+                    from include/linux/delay.h:22,
+                    from drivers/input/mouse/elantech.c:10:
+   drivers/input/mouse/elantech.c: In function 'elantech_reconnect':
+>> include/linux/stddef.h:8:14: warning: passing argument 3 of 'ps2_sendbyte' makes integer from pointer without a cast [-Wint-conversion]
+       8 | #define NULL ((void *)0)
+         |              ^~~~~~~~~~~
+         |              |
+         |              void *
+   drivers/input/mouse/elantech.c:1509:75: note: in expansion of macro 'NULL'
+    1509 |                 err = ps2_sendbyte(&psmouse->ps2dev, PSMOUSE_CMD_DISABLE, NULL);
+         |                                                                           ^~~~
+   In file included from drivers/input/mouse/elantech.c:19:
+   include/linux/libps2.h:64:63: note: expected 'unsigned int' but argument is of type 'void *'
+      64 | int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout);
+         |                                                  ~~~~~~~~~~~~~^~~~~~~
+>> include/linux/stddef.h:8:14: warning: passing argument 3 of 'ps2_sendbyte' makes integer from pointer without a cast [-Wint-conversion]
+       8 | #define NULL ((void *)0)
+         |              ^~~~~~~~~~~
+         |              |
+         |              void *
+   drivers/input/mouse/elantech.c:1515:74: note: in expansion of macro 'NULL'
+    1515 |                 err = ps2_sendbyte(&psmouse->ps2dev, PSMOUSE_CMD_ENABLE, NULL);
+         |                                                                          ^~~~
+   include/linux/libps2.h:64:63: note: expected 'unsigned int' but argument is of type 'void *'
+      64 | int ps2_sendbyte(struct ps2dev *ps2dev, u8 byte, unsigned int timeout);
+         |                                                  ~~~~~~~~~~~~~^~~~~~~
+   drivers/input/mouse/elantech.c: In function 'elantech_setup_ps2':
+   drivers/input/mouse/elantech.c:2123:65: warning: '/input1' directive output may be truncated writing 7 bytes into a region of size between 1 and 32 [-Wformat-truncation=]
+    2123 |                 snprintf(etd->tp_phys, sizeof(etd->tp_phys), "%s/input1",
+         |                                                                 ^~~~~~~
+   drivers/input/mouse/elantech.c:2123:17: note: 'snprintf' output between 8 and 39 bytes into a destination of size 32
+    2123 |                 snprintf(etd->tp_phys, sizeof(etd->tp_phys), "%s/input1",
+         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    2124 |                         psmouse->ps2dev.serio->phys);
+         |                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+vim +/ps2_sendbyte +8 include/linux/stddef.h
+
+^1da177e4c3f41 Linus Torvalds   2005-04-16  6  
+^1da177e4c3f41 Linus Torvalds   2005-04-16  7  #undef NULL
+^1da177e4c3f41 Linus Torvalds   2005-04-16 @8  #define NULL ((void *)0)
+6e218287432472 Richard Knutsson 2006-09-30  9  
+
 -- 
-2.39.2
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

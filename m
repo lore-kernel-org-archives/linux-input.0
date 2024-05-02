@@ -1,36 +1,36 @@
 Received: from fritzc.com (mail.fritzc.com [213.160.72.247])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98BB617F385;
-	Thu,  2 May 2024 18:29:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADDFD174EC0;
+	Thu,  2 May 2024 18:29:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.72.247
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714674549; cv=none; b=DNjC4jfVVjPntOvOFjwJ2CCWW51XX0dI/jEX5TMB3mrB9ClbmwyK+/t6gFlpsFlv84Q5TlbRGHVuthuhhvZwPQJe2+eaagX+Lxv/8rmpMtRe1iTnOSrHSNl86P61WFXySTTscMiJQ0uaGUbvLyxUb8mKcImZixg8pCf3ZvcbaKU=
+	t=1714674552; cv=none; b=o5NJv+YBia9u3JiVvZRAAM2yGxmhmcL6+twyEBinWav7gBrD0Twohhpshb/NqJku67KffusJX2OC2cW9GBNAF76JsPt7U2SM3LVe8vssd30Flia4Ice5adKF55wloiouPpo2J0lHTYEN/tLRqUXMjatorLI4/LJZEikir6hPHnw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714674549; c=relaxed/simple;
-	bh=BCLyRn6CAWrGWzuuim46rr9r7Y1EbKkSb3hW4oSGMKA=;
+	s=arc-20240116; t=1714674552; c=relaxed/simple;
+	bh=+LED3j9UryOnzM8qONYEGqaHQ70XD8TvZDjsh/8WL7Q=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=YHpGN+ZQ/i6zwnx/LdW5XVIO+kNbby+zLji+uuMYoulsR1tF1kh+efp/ZBaLJL70T+TEEH+3rfYD6ETznzoxfNsfA+d5/U+1J+GRXQ8OObbsxSkFMYpyDAMbvEtNmkg4z467eWbwjTNNci8vlT6hEJpM2KjEonlvEQ4UpIfya+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=o5Vv90Uj; arc=none smtp.client-ip=213.160.72.247
+	 MIME-Version; b=Np9UpueOE0qEpzib84hlFqIZ7czkOFspouO1HcHqkbNzY5vor6ZNWNKHmVzBDMuG9T7BotxFODpKveOahwe8H+PnDyCrBHhZjHVXepTFyd1XTRsOvAZH7kiQFHISHlflQC6bc+94BC5HBMSdhQZoOa5aFfVOXNinHkMO614ZJw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=mU5MPRXo; arc=none smtp.client-ip=213.160.72.247
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="o5Vv90Uj"
+	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="mU5MPRXo"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fritzc.com;
 	s=dkim; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
 	Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=ovSYkpeke3/a3PG+6oPTsSVDfi0gMV1wcBnaCGOSfVs=; b=o5Vv90Uj8lJ9qhhk95/QxUXPCH
-	qj5GiVbUKmeW9ZBp1i8ilqjucg4gdgJqaCXBOIVHcn/mO4qqwtR9/RqACvwH5ZJ0+nvvAkWgcGIEq
-	08bS17Q5uTtSvGksbR9PQgYxeKt5Mx73qceoIxYExpXeDxTzaAmYtSNe4BDHnBmrQCuI=;
+	bh=4mGMEjjPGqNagIRfWqi116NhC2pHD+0tS99iQ53aUj4=; b=mU5MPRXoTUOaMTavt/B33ckfd2
+	gvpJGxmY2O2Mg2eaNBHA+jpwLqAPadhTs7udak5r9FlJykRAhMR741cWXh07fogAvRaxhHhbqodBv
+	FDkAYBemXnVox4dx+ZvmEPaMZJUKVfbcuWqyi/yE5OOxz5QSq27iCaSHXeuePOKG3KXI=;
 Received: from 127.0.0.1
 	by fritzc.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim latest)
 	(envelope-from <christoph.fritz@hexdev.de>)
-	id 1s2bAx-001ZbZ-1l;
-	Thu, 02 May 2024 20:29:00 +0200
+	id 1s2bB0-001ZbZ-0q;
+	Thu, 02 May 2024 20:29:02 +0200
 From: Christoph Fritz <christoph.fritz@hexdev.de>
 To: Jiri Slaby <jirislaby@kernel.org>,
 	Oliver Hartkopp <socketcan@hartkopp.net>,
@@ -56,9 +56,9 @@ Cc: Andreas Lauser <andreas.lauser@mercedes-benz.com>,
 	devicetree@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-serial@vger.kernel.org
-Subject: [PATCH v3 06/11] dt-bindings: net/can: Add serial (serdev) LIN adapter
-Date: Thu,  2 May 2024 20:27:59 +0200
-Message-Id: <20240502182804.145926-7-christoph.fritz@hexdev.de>
+Subject: [PATCH v3 08/11] can: bcm: Add LIN answer offloading for responder mode
+Date: Thu,  2 May 2024 20:28:01 +0200
+Message-Id: <20240502182804.145926-9-christoph.fritz@hexdev.de>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240502182804.145926-1-christoph.fritz@hexdev.de>
 References: <20240502182804.145926-1-christoph.fritz@hexdev.de>
@@ -70,53 +70,144 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add dt-bindings for serial LIN bus adapters. These adapters are
-basically just LIN transceivers that are hard-wired to serial devices.
+Enhance CAN broadcast manager with RX_LIN_SETUP and RX_LIN_DELETE
+operations to setup automatic LIN frame responses in responder mode.
+
+Additionally, the patch introduces the LIN_EVENT_FRAME flag to
+setup event-triggered LIN frames.
 
 Signed-off-by: Christoph Fritz <christoph.fritz@hexdev.de>
 ---
- .../bindings/net/can/hexdev,lin-serdev.yaml   | 32 +++++++++++++++++++
- 1 file changed, 32 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/net/can/hexdev,lin-serdev.yaml
+ include/uapi/linux/can/bcm.h |  5 ++-
+ net/can/bcm.c                | 74 +++++++++++++++++++++++++++++++++++-
+ 2 files changed, 77 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/net/can/hexdev,lin-serdev.yaml b/Documentation/devicetree/bindings/net/can/hexdev,lin-serdev.yaml
-new file mode 100644
-index 0000000000000..c178eb9be1391
---- /dev/null
-+++ b/Documentation/devicetree/bindings/net/can/hexdev,lin-serdev.yaml
-@@ -0,0 +1,32 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/net/can/hexdev,lin-serdev.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/include/uapi/linux/can/bcm.h b/include/uapi/linux/can/bcm.h
+index f1e45f533a72c..c46268a114078 100644
+--- a/include/uapi/linux/can/bcm.h
++++ b/include/uapi/linux/can/bcm.h
+@@ -86,7 +86,9 @@ enum {
+ 	TX_EXPIRED,	/* notification on performed transmissions (count=0) */
+ 	RX_STATUS,	/* reply to RX_READ request */
+ 	RX_TIMEOUT,	/* cyclic message is absent */
+-	RX_CHANGED	/* updated CAN frame (detected content change) */
++	RX_CHANGED,	/* updated CAN frame (detected content change) */
++	RX_LIN_SETUP,	/* create auto-response for LIN frame */
++	RX_LIN_DELETE,  /* remove auto-response for LIN frame */
+ };
+ 
+ #define SETTIMER            0x0001
+@@ -101,5 +103,6 @@ enum {
+ #define TX_RESET_MULTI_IDX  0x0200
+ #define RX_RTR_FRAME        0x0400
+ #define CAN_FD_FRAME        0x0800
++#define LIN_EVENT_FRAME     0x1000
+ 
+ #endif /* !_UAPI_CAN_BCM_H */
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index 27d5fcf0eac9d..a717e594234d1 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -59,6 +59,7 @@
+ #include <linux/can/bcm.h>
+ #include <linux/slab.h>
+ #include <net/sock.h>
++#include <net/lin.h>
+ #include <net/net_namespace.h>
+ 
+ /*
+@@ -1330,6 +1331,59 @@ static int bcm_tx_send(struct msghdr *msg, int ifindex, struct sock *sk,
+ 	return cfsiz + MHSIZ;
+ }
+ 
++static int bcm_lin_setup(struct bcm_msg_head *msg_head, struct msghdr *msg,
++			 int ifindex, struct sock *sk, int cfsiz, int is_active)
++{
++	struct lin_responder_answer answ;
++	struct net_device *dev;
++	struct sk_buff *skb;
++	struct canfd_frame cf;
++	netdevice_tracker tracker;
++	size_t sz;
++	int ret;
 +
-+title: Serial LIN Adapter
++	if (msg_head->nframes > 1)
++		return -EINVAL;
 +
-+description:
-+  LIN transceiver, mostly hard-wired to a serial device, used for communication
-+  on a LIN bus.
-+  For more details on an adapter, visit <https://hexdev.de/hexlin#tty>.
++	if (!(msg_head->flags & CAN_FD_FRAME))
++		return -EINVAL;
 +
-+maintainers:
-+  - Christoph Fritz <christoph.fritz@hexdev.de>
++	ret = memcpy_from_msg(&cf, msg, cfsiz);
++	if (ret < 0)
++		return ret;
 +
-+properties:
-+  compatible:
-+    const: hexdev,lin-serdev
++	answ.lf.lin_id = cf.can_id & LIN_ID_MASK;
++	answ.is_active = is_active;
++	answ.is_event_frame = !!(msg_head->flags & LIN_EVENT_FRAME);
++	answ.event_associated_id = msg_head->can_id;
++	answ.lf.len = min(cf.len, LIN_MAX_DLEN);
++	memcpy(answ.lf.data, cf.data, answ.lf.len);
++	sz = min(sizeof(struct lin_responder_answer), sizeof(cf.data));
++	cf.can_id |= LIN_RXOFFLOAD_DATA_FLAG;
++	memcpy(cf.data, &answ, sz);
 +
-+required:
-+  - compatible
++	dev = netdev_get_by_index(sock_net(sk), ifindex, &tracker, GFP_KERNEL);
++	if (!dev)
++		return -ENODEV;
 +
-+additionalProperties: false
++	skb = alloc_skb(cfsiz + sizeof(struct can_skb_priv), gfp_any());
++	if (!skb)
++		goto lin_out;
 +
-+examples:
-+  - |
-+    serial {
-+        linbus {
-+            compatible = "hexdev,lin-serdev";
-+        };
-+    };
++	can_skb_reserve(skb);
++	can_skb_prv(skb)->ifindex = dev->ifindex;
++	can_skb_prv(skb)->skbcnt = 0;
++	skb_put_data(skb, &cf, cfsiz);
++
++	skb->dev = dev;
++	can_skb_set_owner(skb, sk);
++	ret = can_send(skb, 1); /* send with loopback */
++
++lin_out:
++	netdev_put(dev, &tracker);
++	return ret;
++}
++
+ /*
+  * bcm_sendmsg - process BCM commands (opcodes) from the userspace
+  */
+@@ -1429,12 +1483,30 @@ static int bcm_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 
+ 	case TX_SEND:
+ 		/* we need exactly one CAN frame behind the msg head */
+-		if ((msg_head.nframes != 1) || (size != cfsiz + MHSIZ))
++		if (msg_head.nframes != 1 || size != cfsiz + MHSIZ)
+ 			ret = -EINVAL;
+ 		else
+ 			ret = bcm_tx_send(msg, ifindex, sk, cfsiz);
+ 		break;
+ 
++	case RX_LIN_SETUP:
++		/* we need exactly one CAN frame behind the msg head */
++		if (msg_head.nframes != 1 || size != cfsiz + MHSIZ)
++			ret = -EINVAL;
++		else
++			ret = bcm_lin_setup(&msg_head, msg, ifindex, sk, cfsiz,
++					    1);
++		break;
++
++	case RX_LIN_DELETE:
++		/* we need exactly one CAN frame behind the msg head */
++		if (msg_head.nframes != 1 || size != cfsiz + MHSIZ)
++			ret = -EINVAL;
++		else
++			ret = bcm_lin_setup(&msg_head, msg, ifindex, sk, cfsiz,
++					    0);
++		break;
++
+ 	default:
+ 		ret = -EINVAL;
+ 		break;
 -- 
 2.39.2
 

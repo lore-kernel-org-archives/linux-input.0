@@ -1,30 +1,30 @@
 Received: from mail.kaechele.ca (mail.kaechele.ca [54.39.219.105])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D564AD31;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D4FC7484;
 	Sat,  4 May 2024 02:15:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.39.219.105
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714788923; cv=none; b=VFSJx/F8juO9o1zKd/v7/v8nBh3BCoiNHo98xmbdfre1eKmXFGtTGFuo5jWBLFt7g3RZTtZjEwQefXKOFeIv4A3tK39yHAMnmTkpSISIFHNv3DTUYi8CKy8FS48IDJ/lNdTcUwrUJ7aZnq4lw/2/YGPE+oH02mrdiGOqHQnFoSs=
+	t=1714788924; cv=none; b=YOxuKPBqiLlEixyCGus+ZoGT5goP9C+PLmWuU1JDQBzmhAWJBSHIC0rFjp73lVebDfbN9SAoOQFITap5GMU6jA1EYon26oDO7lq9McD68jk/ih/jadB8HVfaUHDSp+wee7CvolpYHKcQT5u8pTLp6sDJPXNDG4DMtbpp7SFaNq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714788923; c=relaxed/simple;
-	bh=QekW4ra98idxZLFZSch4rIOC7DAEv7PojML3X6CnQXE=;
+	s=arc-20240116; t=1714788924; c=relaxed/simple;
+	bh=p2TszyFmu2FkHsRRzAxyX9QqovN3gTcmuT+Tg23mkSQ=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QcgFAWPKEKI1HRznylfiyCvsWBkohT3YwYD0ImartosUOxfT5Dnim6iG/QADSLDU+KRctWBuZSz78+4SKaIIWzCQFJ/6n0F34BeccEz9M/VMOrhR5+HLzWNqpnLRcRHnSDKLE2k3oeDbKtizHksZhzDygtcI7wUvwtqfO9np1Q8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=Wy9YlDaq; arc=none smtp.client-ip=54.39.219.105
+	 MIME-Version; b=DfQOjEVth6WLWrv3phkDdma5bOji+0gyV8k2vrfMD31umhWx34uqA1UmwsZjaOQNjugUNu/DfmvovYS3i83MFO89zmedHlyioLoKe4LLBdgdOwqqZPZbcUx2BglZqD0JJEgDajomoCOMyEjvZYsXvmH9MJFfEq3+7buAnpTlMnA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=Vz3sRLDC; arc=none smtp.client-ip=54.39.219.105
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kaechele.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="Wy9YlDaq"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 5520CC0071;
-	Fri,  3 May 2024 22:08:11 -0400 (EDT)
+	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="Vz3sRLDC"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1DC7CC006A;
+	Fri,  3 May 2024 22:08:06 -0400 (EDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kaechele.ca; s=201907;
-	t=1714788491; h=from:subject:date:message-id:to:mime-version:
+	t=1714788486; h=from:subject:date:message-id:to:mime-version:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=9lSYqpkK/tY8uix/2anBrbdiWyUXg2DgSAxMjG5QZKc=;
-	b=Wy9YlDaqwg4moJOujWEOfpaS6qZKy8E9jnd569vYPo1xWqcQ2/O709He8KCG8FmPWVVIcb
-	snB9NXnFtzKvwN2xxpT00w+AKQ6Q+jZ/n4dF/PiuE3bEEMlUEWUwnnkVBf68KHQSramlhT
-	eQzhot65+WcRPGvPaq363OLP3zVXGPE=
+	bh=uO4vCIsUirzrH7yn6QZzygawT9UuLKwK+60u/xACvr8=;
+	b=Vz3sRLDCuP6ShnFA89j3+M8pLX9GRZs8qttQTFhg/con9N4mvuHqD1Khi/MWxSOdJEGol4
+	aQCJupFSQBXLdCZ3e/omrj8DtCKnLSAbSxrrm2LVVzf7IGewzjdvOpaTHVfIZRflD2L7CG
+	wkTK2lXBDQYuH4fw1SdbM597jZLQeN8=
 From: Felix Kaechele <felix@kaechele.ca>
 To: Job Noorman <job@noorman.info>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -34,9 +34,9 @@ To: Job Noorman <job@noorman.info>,
 	linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 4/6] input: himax_hx83112b: implement MCU register reading
-Date: Fri,  3 May 2024 22:04:43 -0400
-Message-ID: <20240504020745.68525-5-felix@kaechele.ca>
+Subject: [PATCH 1/6] dt-bindings: input: touchscreen: himax,hx83112b: add HX83100A
+Date: Fri,  3 May 2024 22:04:40 -0400
+Message-ID: <20240504020745.68525-2-felix@kaechele.ca>
 X-Mailer: git-send-email 2.44.0
 In-Reply-To: <20240504020745.68525-1-felix@kaechele.ca>
 References: <20240504020745.68525-1-felix@kaechele.ca>
@@ -49,104 +49,48 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-Implement reading from the MCU in a more universal fashion. This allows
-properly handling reads of more than 4 bytes using the AHB FIFO
-implemented in the chip.
+This adds a compatible string for the Himax HX83100A touch controller
+including the AVDD and VDD supply nodes used by this chip family.
 
 Signed-off-by: Felix Kaechele <felix@kaechele.ca>
 ---
- drivers/input/touchscreen/himax_hx83112b.c | 51 ++++++++++++++++++++--
- 1 file changed, 48 insertions(+), 3 deletions(-)
+ .../bindings/input/touchscreen/himax,hx83112b.yaml       | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
-index ba5442cc0a24..0173ff394a99 100644
---- a/drivers/input/touchscreen/himax_hx83112b.c
-+++ b/drivers/input/touchscreen/himax_hx83112b.c
-@@ -29,9 +29,13 @@
- #define HIMAX_AHB_ADDR_BYTE_0			0x00
- #define HIMAX_AHB_ADDR_RDATA_BYTE_0		0x08
- #define HIMAX_AHB_ADDR_ACCESS_DIRECTION		0x0c
-+#define HIMAX_AHB_ADDR_INCR4			0x0d
-+#define HIMAX_AHB_ADDR_CONTI			0x13
- #define HIMAX_AHB_ADDR_EVENT_STACK		0x30
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml b/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
+index f42b23d532eb..5809afedb9a2 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
+@@ -15,6 +15,7 @@ allOf:
+ properties:
+   compatible:
+     enum:
++      - himax,hx83100a
+       - himax,hx83112b
  
- #define HIMAX_AHB_CMD_ACCESS_DIRECTION_READ	0x00
-+#define HIMAX_AHB_CMD_INCR4			0x10
-+#define HIMAX_AHB_CMD_CONTI			0x31
+   reg:
+@@ -26,6 +27,12 @@ properties:
+   reset-gpios:
+     maxItems: 1
  
- #define HIMAX_REG_ADDR_ICID			0x900000d0
- 
-@@ -73,10 +77,34 @@ static const char *const himax_supply_names[] = {
- 	"vdd",
- };
- 
--static int himax_read_config(struct himax_ts_data *ts, u32 address, u32 *dst)
-+static int himax_bus_enable_burst(struct himax_ts_data *ts)
- {
- 	int error;
- 
-+	error = regmap_write(ts->regmap, HIMAX_AHB_ADDR_CONTI,
-+					 HIMAX_AHB_CMD_CONTI);
-+	if (error)
-+		return error;
++  avdd-supply:
++    description: Analog power supply regulator
 +
-+	error = regmap_write(ts->regmap, HIMAX_AHB_ADDR_INCR4,
-+					 HIMAX_AHB_CMD_INCR4);
-+	if (error)
-+		return error;
++  vdd-supply:
++    description: Digital power supply regulator
 +
-+	return 0;
-+}
-+
-+static int himax_bus_read(struct himax_ts_data *ts, u32 address, void *dst,
-+			  size_t length)
-+{
-+	int error;
-+
-+	if (length > 4) {
-+		error = himax_bus_enable_burst(ts);
-+		if (error)
-+			return error;
-+	}
-+
- 	error = regmap_write(ts->regmap, HIMAX_AHB_ADDR_BYTE_0, address);
- 	if (error)
- 		return error;
-@@ -86,7 +114,24 @@ static int himax_read_config(struct himax_ts_data *ts, u32 address, u32 *dst)
- 	if (error)
- 		return error;
- 
--	error = regmap_read(ts->regmap, HIMAX_AHB_ADDR_RDATA_BYTE_0, dst);
-+	if (length > 4)
-+		error = regmap_noinc_read(ts->regmap,
-+					  HIMAX_AHB_ADDR_RDATA_BYTE_0,
-+					  dst, length);
-+	else
-+		error = regmap_read(ts->regmap,
-+				    HIMAX_AHB_ADDR_RDATA_BYTE_0, dst);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+static int himax_read_mcu(struct himax_ts_data *ts, u32 address, u32 *dst)
-+{
-+	int error;
-+
-+	error = himax_bus_read(ts, address, dst, sizeof(dst));
- 	if (error)
- 		return error;
- 
-@@ -112,7 +157,7 @@ static int himax_read_product_id(struct himax_ts_data *ts, u32 *product_id)
- {
- 	int error;
- 
--	error = himax_read_config(ts, HIMAX_REG_ADDR_ICID, product_id);
-+	error = himax_read_mcu(ts, HIMAX_REG_ADDR_ICID, product_id);
- 	if (error)
- 		return error;
- 
+   touchscreen-inverted-x: true
+   touchscreen-inverted-y: true
+   touchscreen-size-x: true
+@@ -54,6 +61,8 @@ examples:
+         reg = <0x48>;
+         interrupt-parent = <&tlmm>;
+         interrupts = <65 IRQ_TYPE_LEVEL_LOW>;
++        avdd-supply = <&avdd_reg>;
++        vdd-supply = <&vdd_reg>;
+         touchscreen-size-x = <1080>;
+         touchscreen-size-y = <2160>;
+         reset-gpios = <&tlmm 64 GPIO_ACTIVE_LOW>;
 -- 
 2.44.0
 

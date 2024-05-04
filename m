@@ -1,132 +1,183 @@
-Received: from fritzc.com (mail.fritzc.com [213.160.72.247])
+Received: from mail.kaechele.ca (mail.kaechele.ca [54.39.219.105])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E0C8158866;
-	Fri,  3 May 2024 18:29:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.72.247
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B1EF210D;
+	Sat,  4 May 2024 02:08:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.39.219.105
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714760992; cv=none; b=P2g4v4HWxauRbZOBMXaGkCPAj1QQeTQBjU73a8sfL+cmlm/0sv5btBm70zHblscjF/e+GfzKTyLCL0bz+GnROBv3GnoPrUYhFQjtdFtJVkBsFXIPFgwAAaQEIo7HGYs12+2UamrQ2/z1uPcPakb/AIDCeOwuzp+SgHoAd8Yytkg=
+	t=1714788484; cv=none; b=F2L0xb3avCttOTBxTfAnWxaDIjvosZgbDf1MbwnVyJIPnCbJ1/rM4zcC9DwqfGBPzGtWLHnBWIT1r+u3PxZ4CKKPeqw4udJdfPPOSASlArM78v3baCZQdEtVhZgPzR04CdLR7MDrhKn0sxg7AObU13V49l9RP86dhDtNOtkNydQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714760992; c=relaxed/simple;
-	bh=e6ynbt8+QgxzbH/E73GTS+ubMG/h4wOsFbzFgj/kgyM=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=nhLfjdpv2NIJ+ouHl9mO+ny244RWGHNO25GhDAy2OzCQ4hZL0vCMkD1fyt9z8KFMUe9HrsanIyqtHBBR2XykkGmWiJCEut6cKIrPPDq7oEYRpXVCw+3Q5osLm28aa2OrHGfGluxWo0esAdUdsuB6cd4ujgOzbpl7o9w0doGvuVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=jcYIdUNN; arc=none smtp.client-ip=213.160.72.247
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hexdev.de
+	s=arc-20240116; t=1714788484; c=relaxed/simple;
+	bh=BYyg1SiTgeo3qfXhKZEi1hR0S5PAcTSMT9TliXuH9hY=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ckx0ujMrUL8VfdRCmEfzwT6aDQGeIP0AYdzLoQKuUSTYDo2FZn4xyG2KohltCLhArvS4ndgtWE6VQ0zF1qRUWYCKPZ7o2p/E6unOUVGsRmOQi+D9hnMiH6lPtfPumSn1QgKJpCmlIeBce3L9tulqLWR1ePoO3kuGG+cVVjLeJaE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=mJ1Zhou+; arc=none smtp.client-ip=54.39.219.105
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kaechele.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="jcYIdUNN"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fritzc.com;
-	s=dkim; h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:Reply-To:From:Subject:Message-ID:Sender:Content-ID:
-	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=gsmaW6yu2jr4Gxl/DMVyniBNsiaG9rH9ORl++Cua8YA=; b=jcYIdUNNrnGBnjJCd2kt159D5n
-	GZ7PdVcmuvmeEJg3t72W8DVoPl6nrYUZFNktgbaSVxnYtzKwYLdZNCfGoMSzlE2DOk94SbiRWszL7
-	+fMD4AhUVD2/UAwOZxo+Ub27B9PuY0a2SFGJ+8G5euEUsp6sbh7mbxXk7CwfGq3AFw/E=;
-Received: from 127.0.0.1
-	by fritzc.com with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim latest)
-	(envelope-from <christoph.fritz@hexdev.de>)
-	id 1s2xep-001awL-0X;
-	Fri, 03 May 2024 20:29:19 +0200
-Message-ID: <a5b894f8dc2ab0cf087a5b4972d7f752e6c17c16.camel@hexdev.de>
-Subject: Re: [PATCH v3 06/11] dt-bindings: net/can: Add serial (serdev) LIN
- adapter
-From: Christoph Fritz <christoph.fritz@hexdev.de>
-Reply-To: christoph.fritz@hexdev.de
-To: Conor Dooley <conor@kernel.org>
-Cc: Jiri Slaby <jirislaby@kernel.org>, Oliver Hartkopp
- <socketcan@hartkopp.net>,  Marc Kleine-Budde <mkl@pengutronix.de>, Vincent
- Mailhol <mailhol.vincent@wanadoo.fr>, "David S . Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
- <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>, Rob Herring
- <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,  Conor Dooley
- <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires
- <bentiss@kernel.org>,  Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Sebastian Reichel <sre@kernel.org>, Linus Walleij
- <linus.walleij@linaro.org>, Andreas Lauser
- <andreas.lauser@mercedes-benz.com>,  Jonathan Corbet <corbet@lwn.net>,
- Pavel Pisa <pisa@cmp.felk.cvut.cz>, linux-can@vger.kernel.org, 
- netdev@vger.kernel.org, devicetree@vger.kernel.org,
- linux-input@vger.kernel.org,  linux-serial@vger.kernel.org
-Date: Fri, 03 May 2024 20:29:15 +0200
-In-Reply-To: <20240503-fading-extruding-2105bbd8b479@spud>
-References: <20240502182804.145926-1-christoph.fritz@hexdev.de>
-	 <20240502182804.145926-7-christoph.fritz@hexdev.de>
-	 <20240503-fading-extruding-2105bbd8b479@spud>
-Organization: hexDEV GmbH
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.46.4-2 
+	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="mJ1Zhou+"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id EBDD9C0072;
+	Fri,  3 May 2024 22:08:11 -0400 (EDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kaechele.ca; s=201907;
+	t=1714788492; h=from:subject:date:message-id:to:mime-version:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=urS88EVc3Y2DTRlVBr6koQ8c8bKoBQO9OBgP+LpuXV0=;
+	b=mJ1Zhou+K7+3qsOhx6ecPzBFInJ/SuPXoVtBpzVFfi7rOLh/vxLkbEWFAHD52SO+KiuPh4
+	mlKn13eFDJ4DWwsqpg4jBvyli3JgfP9nnX0L3ePpo+Sv1jb7MPTSHt0p8aE83zXCVQUfxY
+	4+IMvNonBRXVB4ZOZmRf1qRSPdp27Lo=
+From: Felix Kaechele <felix@kaechele.ca>
+To: Job Noorman <job@noorman.info>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 5/6] input: himax_hx83112b: add himax_chip struct for multi-chip support
+Date: Fri,  3 May 2024 22:04:44 -0400
+Message-ID: <20240504020745.68525-6-felix@kaechele.ca>
+X-Mailer: git-send-email 2.44.0
+In-Reply-To: <20240504020745.68525-1-felix@kaechele.ca>
+References: <20240504020745.68525-1-felix@kaechele.ca>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hello Conor,
+In preparation for HX83100A support allow defining separate functions
+for specific chip operations.
 
- thanks for having an eye on this, please see my answer below.
+Signed-off-by: Felix Kaechele <felix@kaechele.ca>
+---
+ drivers/input/touchscreen/himax_hx83112b.c | 53 +++++++++++++++-------
+ 1 file changed, 37 insertions(+), 16 deletions(-)
 
-On Fri, 2024-05-03 at 18:12 +0100, Conor Dooley wrote:
-> On Thu, May 02, 2024 at 08:27:59PM +0200, Christoph Fritz wrote:
-> > Add dt-bindings for serial LIN bus adapters. These adapters are
-> > basically just LIN transceivers that are hard-wired to serial devices.
-> > 
-> > Signed-off-by: Christoph Fritz <christoph.fritz@hexdev.de>
-> > ---
-> >  .../bindings/net/can/hexdev,lin-serdev.yaml   | 32 +++++++++++++++++++
-> >  1 file changed, 32 insertions(+)
-> >  create mode 100644 Documentation/devicetree/bindings/net/can/hexdev,lin-serdev.yaml
-> > 
-> > diff --git a/Documentation/devicetree/bindings/net/can/hexdev,lin-serdev.yaml b/Documentation/devicetree/bindings/net/can/hexdev,lin-serdev.yaml
-> > new file mode 100644
-> > index 0000000000000..c178eb9be1391
-> > --- /dev/null
-> > +++ b/Documentation/devicetree/bindings/net/can/hexdev,lin-serdev.yaml
-> > @@ -0,0 +1,32 @@
-> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> > +%YAML 1.2
-> > +---
-> > +$id: http://devicetree.org/schemas/net/can/hexdev,lin-serdev.yaml#
-> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> > +
-> > +title: Serial LIN Adapter
-> > +
-> > +description:
-> > +  LIN transceiver, mostly hard-wired to a serial device, used for communication
-> > +  on a LIN bus.
-> > +  For more details on an adapter, visit <https://hexdev.de/hexlin#tty>.
-> > +
-> > +maintainers:
-> > +  - Christoph Fritz <christoph.fritz@hexdev.de>
-> > +
-> > +properties:
-> > +  compatible:
-> > +    const: hexdev,lin-serdev
-> 
-> Maybe I've just missed something on earlier versions that I didn't
-> read, but the name of the device on the website you link is "hexLIN",
-> so why is "lin-serdev" used here instead?
+diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
+index 0173ff394a99..667611c5a018 100644
+--- a/drivers/input/touchscreen/himax_hx83112b.c
++++ b/drivers/input/touchscreen/himax_hx83112b.c
+@@ -21,8 +21,6 @@
+ #include <linux/regmap.h>
+ #include <linux/regulator/consumer.h>
+ 
+-#define HIMAX_ID_83112B			0x83112b
+-
+ #define HIMAX_MAX_POINTS		10
+ #define HIMAX_MAX_SUPPLIES		2
+ 
+@@ -57,7 +55,17 @@ struct himax_event {
+ 
+ static_assert(sizeof(struct himax_event) == 56);
+ 
++struct himax_ts_data;
++struct himax_chip {
++	u32 id;
++	int (*check_id)(struct himax_ts_data *ts);
++	int (*read_events)(struct himax_ts_data *ts,
++			   struct himax_event *event,
++			   size_t length);
++};
++
+ struct himax_ts_data {
++	const struct himax_chip *chip;
+ 	struct regulator_bulk_data supplies[HIMAX_MAX_SUPPLIES];
+ 	struct gpio_desc *gpiod_rst;
+ 	struct input_dev *input_dev;
+@@ -176,15 +184,12 @@ static int himax_check_product_id(struct himax_ts_data *ts)
+ 
+ 	dev_dbg(&ts->client->dev, "Product id: %x\n", product_id);
+ 
+-	switch (product_id) {
+-	case HIMAX_ID_83112B:
++	if (product_id == ts->chip->id)
+ 		return 0;
+ 
+-	default:
+-		dev_err(&ts->client->dev,
+-			"Unknown product id: %x\n", product_id);
+-		return -EINVAL;
+-	}
++	dev_err(&ts->client->dev, "Unknown product id: %x\n",
++		product_id);
++	return -EINVAL;
+ }
+ 
+ static int himax_input_register(struct himax_ts_data *ts)
+@@ -286,13 +291,20 @@ static bool himax_verify_checksum(struct himax_ts_data *ts,
+ 	return true;
+ }
+ 
++static int himax_read_events(struct himax_ts_data *ts,
++			     struct himax_event *event,
++			     size_t length)
++{
++	return regmap_raw_read(ts->regmap, HIMAX_AHB_ADDR_EVENT_STACK, event,
++			       length);
++}
++
+ static int himax_handle_input(struct himax_ts_data *ts)
+ {
+ 	int error;
+ 	struct himax_event event;
+ 
+-	error = regmap_raw_read(ts->regmap, HIMAX_AHB_ADDR_EVENT_STACK, &event,
+-				sizeof(event));
++	error = ts->chip->read_events(ts, &event, sizeof(event));
+ 	if (error) {
+ 		dev_err(&ts->client->dev, "Failed to read input event: %d\n",
+ 			error);
+@@ -338,6 +350,7 @@ static int himax_probe(struct i2c_client *client)
+ 
+ 	i2c_set_clientdata(client, ts);
+ 	ts->client = client;
++	ts->chip = i2c_get_match_data(client);
+ 
+ 	ts->regmap = devm_regmap_init_i2c(client, &himax_regmap_config);
+ 	error = PTR_ERR_OR_ZERO(ts->regmap);
+@@ -375,9 +388,11 @@ static int himax_probe(struct i2c_client *client)
+ 
+ 	himax_reset(ts);
+ 
+-	error = himax_check_product_id(ts);
+-	if (error)
+-		return error;
++	if (ts->chip->check_id) {
++		error = himax_check_product_id(ts);
++		if (error)
++			return error;
++	}
+ 
+ 	error = himax_input_register(ts);
+ 	if (error)
+@@ -421,15 +436,21 @@ static int himax_resume(struct device *dev)
+ 
+ static DEFINE_SIMPLE_DEV_PM_OPS(himax_pm_ops, himax_suspend, himax_resume);
+ 
++static const struct himax_chip hx83112b_chip = {
++	.id = 0x83112b,
++	.check_id = himax_check_product_id,
++	.read_events = himax_read_events,
++};
++
+ static const struct i2c_device_id himax_ts_id[] = {
+-	{ "hx83112b", 0 },
++	{ "hx83112b", (kernel_ulong_t) &hx83112b_chip },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(i2c, himax_ts_id);
+ 
+ #ifdef CONFIG_OF
+ static const struct of_device_id himax_of_match[] = {
+-	{ .compatible = "himax,hx83112b" },
++	{ .compatible = "himax,hx83112b", .data = &hx83112b_chip },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, himax_of_match);
+-- 
+2.44.0
 
-The USB one is called hexLIN and has it's own HID driver.
-
-This serial LIN adapter doesn't really have a product name. Currently
-on our website it's generically called 'UART LIN Adapter'.
-
-This LIN adapter is basically just a LIN transceiver and very generic,
-so that one could solder it to any single-board computer with an uart.
-
-I think 'lin-serdev' for LIN and serial device fits great, also serdev
-is the name of the used kernel infrastructure (besides the LIN glue
-driver).
-
-If you still don't like it, I'm open to other names. What about
-"hexlin-uart" or "linser"?
-
-Thanks
-  -- Christoph
-> 

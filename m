@@ -1,128 +1,76 @@
-Received: from mail.kaechele.ca (mail.kaechele.ca [54.39.219.105])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D52B8F6D;
-	Sat,  4 May 2024 02:15:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.39.219.105
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCE5A12E4A;
+	Sat,  4 May 2024 11:25:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714788924; cv=none; b=ft9qNMbFJqh2pcODVrsH8f91gSshPsrHt2eWWi5dc64zrbq1j/e3dESqbKLQhYTLfeCrU4N/uZo/mzNREiHFhHLjxwxNHeATNZKY0vjZ+Qq7O8zxAhd4APBGjseKeL5ALF2+jkvrLgb7QDoCaV2H/6jHnCkhxnAOm6otBfmFBg4=
+	t=1714821917; cv=none; b=d3UEIneovagY0rH7uZ1slvSvtKoiRRdR+uuPvqCtnMc0/JoFkTAs5fOUYpemli7KjLh6XsQJ5qqyqOGGR9IFp/y99lVxdRTYPRY+YsydUnnjz3mvMk8/o6s8gkXm6R1kIQUYLjgCe7qXg97MoNAYIWhPTMONhSqFVh0JxHQmJh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714788924; c=relaxed/simple;
-	bh=ImJjYhwLeq6DoD7y9lot08dHBzE0SDmStx3VVB4Rp4Y=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R5Bqv+ih9yZctcHLtKfTFs4a6nQRN0jYVpqDGyHV2sbFd1gQJIrH4IslGsot2RJwzixd8YRZ0t6aB4iZqbaf3+Kaqzj/s2WCtCN+8ejFRx0EfqA9cBMuq9B2OY1YP9zQZZAN9ThdaSL1Ri2ItDjceGzBg59r1GEKngf2IfCbnaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=D0MX2+BA; arc=none smtp.client-ip=54.39.219.105
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kaechele.ca
+	s=arc-20240116; t=1714821917; c=relaxed/simple;
+	bh=aoXtElC6QjfEFEfzT5AfaOXZlXtAWDSJADrXTUPIhJ0=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Iw+p2gYXchSk9PxM3LRIXLjEDaluYG0/MgZXGR39cLALH5fOXpj+WG45yctgD1+IBsFqyy7vk8xjz/asYAFgOGu7fo3d+TKm6sHE47fqDdMu7P9rpNoqtQo64Zsz6w8YNpz25KC0wxMu7ep74wpotNazKcF0uUCj0jBlHt/oHJw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tu1gtAgG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="D0MX2+BA"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1C3D3C0070;
-	Fri,  3 May 2024 22:08:10 -0400 (EDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kaechele.ca; s=201907;
-	t=1714788490; h=from:subject:date:message-id:to:mime-version:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=BG74+zku+YYoWtxycM9DdqK7wU1Re6w/HHT7DHU603Q=;
-	b=D0MX2+BAKHFoo0B8BrQ2GjO7p68ACYlPPe8f74HerI+O5NWglTb3plAsHV+qAah0NdKcul
-	7otF5Gl/5jGlUx4kQ1NqNqoUGi0kpwUDNOAeDgHW38wcaejaq0F5L2p/TcnGWuzzrpbzxG
-	F8lhv2GnkmpxhHEg2azL7xXcagW10Uw=
-From: Felix Kaechele <felix@kaechele.ca>
-To: Job Noorman <job@noorman.info>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh+dt@kernel.org>,
-	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 3/6] input: himax_hx83112b: use more descriptive register defines
-Date: Fri,  3 May 2024 22:04:42 -0400
-Message-ID: <20240504020745.68525-4-felix@kaechele.ca>
-X-Mailer: git-send-email 2.44.0
-In-Reply-To: <20240504020745.68525-1-felix@kaechele.ca>
-References: <20240504020745.68525-1-felix@kaechele.ca>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tu1gtAgG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C081C072AA;
+	Sat,  4 May 2024 11:25:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714821917;
+	bh=aoXtElC6QjfEFEfzT5AfaOXZlXtAWDSJADrXTUPIhJ0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Tu1gtAgG9z5Y+yIvIEIVmQ2fgyjD9Tn/RCv0n/DVuQsXojxeIcNqTROwRA0zGng4j
+	 Ya5SpoaGi4SNih9n8Sq3x2yfWbKEhYzBOqQZnSxnGf5l7dtD3PWZLGjvO1Ih20FJQD
+	 TReESyKIdZ7IsVIZsuw+P7sRyIFVtAbV56r6zgRm45YQ57ybcMMkFIXvmtn8AJNS7L
+	 SXuEjrVx4AQy13Z4yg9Rs4OpkuCPiiSzKbCIBkbCtfS15qjAPrPWQ8hxsqGMzicPgt
+	 RLgbpCGMpBjeLONT4v4OjIUqu4JFCpK+1qh829hJZmLNgsXGxStgLOER2GggkuhHv7
+	 8TOSwx7Ys5crA==
+Date: Sat, 4 May 2024 12:25:04 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: David Lechner <dlechner@baylibre.com>
+Cc: Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Jonathan Corbet
+ <corbet@lwn.net>, Support Opensource <support.opensource@diasemi.com>,
+ Cosmin Tanislav <cosmin.tanislav@analog.com>, Lars-Peter Clausen
+ <lars@metafoo.de>, Michael Hennerich <Michael.Hennerich@analog.com>,
+ Antoniu Miclaus <antoniu.miclaus@analog.com>, Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-staging@lists.linux.dev,
+ linux-input@vger.kernel.org
+Subject: Re: [PATCH v2 4/7] iio: addac: ad74115: Use
+ devm_regulator_get_enable_read_voltage()
+Message-ID: <20240504122504.0389b872@jic23-huawei>
+In-Reply-To: <20240429-regulator-get-enable-get-votlage-v2-4-b1f11ab766c1@baylibre.com>
+References: <20240429-regulator-get-enable-get-votlage-v2-0-b1f11ab766c1@baylibre.com>
+	<20240429-regulator-get-enable-get-votlage-v2-4-b1f11ab766c1@baylibre.com>
+X-Mailer: Claws Mail 4.2.0 (GTK 3.24.41; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Himax uses an AHB-style bus to communicate with different parts of the
-display driver and touch controller system.
-Use more descriptive names for the register and address defines.
-The names were taken from a driver submission for the similar HX83102J
-chip.
+On Mon, 29 Apr 2024 18:40:12 -0500
+David Lechner <dlechner@baylibre.com> wrote:
 
-Signed-off-by: Felix Kaechele <felix@kaechele.ca>
-Link: https://lore.kernel.org/all/TY0PR06MB561105A3386E9D76F429110D9E0F2@TY0PR06MB5611.apcprd06.prod.outlook.com/
----
- drivers/input/touchscreen/himax_hx83112b.c | 23 ++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+> We can reduce boilerplate code by using
+> devm_regulator_get_enable_read_voltage().
+> 
+> To maintain backwards compatibility in the case a DT does not provide
+> an avdd-supply, we fall back to calling devm_regulator_get_enable()
+> so that there is no change in user-facing behavior (e.g. dummy regulator
+> will still be in sysfs).
+> 
+> Also add an informative error message when we failed to get the voltage
+> and knowing the voltage is required while we are touching this.
+> 
+> Signed-off-by: David Lechner <dlechner@baylibre.com>
+A somewhat fiddly case.  I think you've done it the best way possible though.
 
-diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
-index 0a797789e548..ba5442cc0a24 100644
---- a/drivers/input/touchscreen/himax_hx83112b.c
-+++ b/drivers/input/touchscreen/himax_hx83112b.c
-@@ -26,12 +26,14 @@
- #define HIMAX_MAX_POINTS		10
- #define HIMAX_MAX_SUPPLIES		2
- 
--#define HIMAX_REG_CFG_SET_ADDR		0x00
--#define HIMAX_REG_CFG_INIT_READ		0x0c
--#define HIMAX_REG_CFG_READ_VALUE	0x08
--#define HIMAX_REG_READ_EVENT		0x30
-+#define HIMAX_AHB_ADDR_BYTE_0			0x00
-+#define HIMAX_AHB_ADDR_RDATA_BYTE_0		0x08
-+#define HIMAX_AHB_ADDR_ACCESS_DIRECTION		0x0c
-+#define HIMAX_AHB_ADDR_EVENT_STACK		0x30
- 
--#define HIMAX_CFG_PRODUCT_ID		0x900000d0
-+#define HIMAX_AHB_CMD_ACCESS_DIRECTION_READ	0x00
-+
-+#define HIMAX_REG_ADDR_ICID			0x900000d0
- 
- #define HIMAX_INVALID_COORD		0xffff
- 
-@@ -75,15 +77,16 @@ static int himax_read_config(struct himax_ts_data *ts, u32 address, u32 *dst)
- {
- 	int error;
- 
--	error = regmap_write(ts->regmap, HIMAX_REG_CFG_SET_ADDR, address);
-+	error = regmap_write(ts->regmap, HIMAX_AHB_ADDR_BYTE_0, address);
- 	if (error)
- 		return error;
- 
--	error = regmap_write(ts->regmap, HIMAX_REG_CFG_INIT_READ, 0x0);
-+	error = regmap_write(ts->regmap, HIMAX_AHB_ADDR_ACCESS_DIRECTION,
-+					 HIMAX_AHB_CMD_ACCESS_DIRECTION_READ);
- 	if (error)
- 		return error;
- 
--	error = regmap_read(ts->regmap, HIMAX_REG_CFG_READ_VALUE, dst);
-+	error = regmap_read(ts->regmap, HIMAX_AHB_ADDR_RDATA_BYTE_0, dst);
- 	if (error)
- 		return error;
- 
-@@ -109,7 +112,7 @@ static int himax_read_product_id(struct himax_ts_data *ts, u32 *product_id)
- {
- 	int error;
- 
--	error = himax_read_config(ts, HIMAX_CFG_PRODUCT_ID, product_id);
-+	error = himax_read_config(ts, HIMAX_REG_ADDR_ICID, product_id);
- 	if (error)
- 		return error;
- 
-@@ -243,7 +246,7 @@ static int himax_handle_input(struct himax_ts_data *ts)
- 	int error;
- 	struct himax_event event;
- 
--	error = regmap_raw_read(ts->regmap, HIMAX_REG_READ_EVENT, &event,
-+	error = regmap_raw_read(ts->regmap, HIMAX_AHB_ADDR_EVENT_STACK, &event,
- 				sizeof(event));
- 	if (error) {
- 		dev_err(&ts->client->dev, "Failed to read input event: %d\n",
--- 
-2.44.0
-
+Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>

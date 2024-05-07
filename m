@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 980FC15FCF9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9814115FCFC;
 	Tue,  7 May 2024 14:48:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715093330; cv=none; b=jAcg27GMJ6RMBomQvAElMjoeWnCpysBxLCpdgOfrALmYp4wX8v13JOUhhA288fXfVSdzgM2WIKXGmpbTL+UgciIONSw5XzIia8+y5/k+HnHl2+GqMOqTczUKh5fCk685ggs2wwXUxUCZh8cclLFy+wAn/5fA8fd2mn2zvVeknbg=
+	t=1715093330; cv=none; b=HO6JztUo4vzB6Rycqr5pwKOWLdZ9d3qu3G4lBMK6ys7vnGKTfLaVfd/kYXVwHBFM1D4fUDDvKq+aEUA4rKPhBLoO9n4SeUj0puRfvcsOzrV2xcGgezsBIZ6PhbehsHoIui1fNB7+qrUSX/oDP6K7pCaTw4WGHmklKtu5zzZjA+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1715093330; c=relaxed/simple;
-	bh=QQXWL5yR1HiJCZ+WQ5ZsByv2gulWkZie9+fjYZTlccQ=;
+	bh=YIIm3nA6A0qem8v1BHDbNeu0AaDyLJhWVD2pEz5yb2s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LlHqJ8bYftSNHT2EClGCrAAyTEGCMstfoDcu7YLjTjmaewuYDjX968ANfa9bkECeXOM6VTRUyaR9xY2CKK6yrU2N1T+kn4wbH/7BYwpi9Qg5gQZM57GhbT/TwUeB2fyuhnnmndgVPK5ocQIIB+8HrCNyEAHbUwwcryy3AHCOYHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X2RQZtN8; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=CWXIYFtgrMheNJFVq/5D+kExxjR9xv9ZofEVue5hVXm5KklZIUQw9r+yN+t8j7KHauBDlK1pbWFeu5zFCgVoWX/Nb+VLvWh80NCBQZjYi842Cyx3xcVxShWpDDv6oXiMLMrEA58xKk5o4VerRKsYLa5h06yeDq2naUGAq9F/yuo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VGt5jbgH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X2RQZtN8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DC73C4AF67;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VGt5jbgH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34BA3C2BBFC;
 	Tue,  7 May 2024 14:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1715093330;
-	bh=QQXWL5yR1HiJCZ+WQ5ZsByv2gulWkZie9+fjYZTlccQ=;
+	bh=YIIm3nA6A0qem8v1BHDbNeu0AaDyLJhWVD2pEz5yb2s=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=X2RQZtN8yZACEp4+OiKlSwk+eVhqNdNjAlU+SeIL43oJzchRfChl70dJNU4Srjpn1
-	 lHcJOv7oZpQdfaZERMioiHR7SP7n0Ptnl6+zoQQeBJJ3/+s1PXgll1kn50aPtOzuAt
-	 whwa0fz9qLL04/pE0KLiZCa83kKWhwwBdz8BoMAM9OTh+hZXGE04aBuomgwKNmI2Qr
-	 o4aLXBLYbd18K75b6F+2jQyGMtNerWvBcQFfd3WP+1PiWJIwMMvAY0BEUsiju4B0Nt
-	 40lRrRMKHQIzvpIrHvzEVXjDdfu3BWNfthN+ZImdaD7flZy0ucSrLAv5AzRzaYs+O+
-	 44PuGGbMu1RfA==
+	b=VGt5jbgHoMdcYgrhzFq7XaxAEKYapGeiW9qct1GQosuDopf/eAhKNtg/kTkPTxrIO
+	 Rzf5wIcfVGkp1S+8svUh0POVnMXoSkUs+HDhALkWa5/hVrzQ/JAK7RKYo7R2oVZL9G
+	 imZxGAaCorrIeDisyyy7gfdp09h4iylmwSQXoifovWI21nyopshKIFDZ76cb6EycJt
+	 fy99zRR3dy7X+xSE1aM0d7FA8xK4GTziKiuGqVkVwp/wD8Abd17EdnZOhcXSxdfdHe
+	 ZiMhERN3MaE0XIMHRvpUpValtUDJiRDlMfbtPEM/700MhLttnGbSaMU7sLQpyc4qbb
+	 76t1CgBuBoSoA==
 Received: from johan by xi.lan with local (Exim 4.97.1)
 	(envelope-from <johan+linaro@kernel.org>)
-	id 1s4M7g-000000003Cy-34Ll;
+	id 1s4M7g-000000003Cq-1cAt;
 	Tue, 07 May 2024 16:48:52 +0200
 From: Johan Hovold <johan+linaro@kernel.org>
 To: Jiri Kosina <jikos@kernel.org>,
@@ -45,10 +45,11 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	devicetree@vger.kernel.org,
 	linux-arm-msm@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH v2 6/7] arm64: dts: qcom: sc8280xp-crd: use external pull up for touch reset
-Date: Tue,  7 May 2024 16:48:20 +0200
-Message-ID: <20240507144821.12275-7-johan+linaro@kernel.org>
+	Johan Hovold <johan+linaro@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v2 2/7] dt-bindings: HID: i2c-hid: elan: add Elan eKTH5015M
+Date: Tue,  7 May 2024 16:48:16 +0200
+Message-ID: <20240507144821.12275-3-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.43.2
 In-Reply-To: <20240507144821.12275-1-johan+linaro@kernel.org>
 References: <20240507144821.12275-1-johan+linaro@kernel.org>
@@ -60,33 +61,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The touch controller reset line is currently not described by the
-devicetree except in the pin configuration which is used to deassert
-reset.
+Add a compatible string for the Elan eKTH5015M touch controller.
 
-As the reset line has an external pull up to an always-on rail there is
-no need to drive the pin high so just leave it configured as an input
-and disable the internal pull down.
+Judging from the current binding and commit bd3cba00dcc6 ("HID: i2c-hid:
+elan: Add support for Elan eKTH6915 i2c-hid touchscreens"), eKTH5015M
+appears to be compatible with eKTH6915. Notably the power-on sequence is
+the same.
 
+While at it, drop a redundant label from the example.
+
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc8280xp-crd.dts | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../devicetree/bindings/input/elan,ekth6915.yaml     | 12 ++++++++----
+ 1 file changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts b/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
-index 41215567b3ae..372b35fb844f 100644
---- a/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
-+++ b/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
-@@ -977,8 +977,7 @@ int-n-pins {
- 		reset-n-pins {
- 			pins = "gpio99";
- 			function = "gpio";
--			output-high;
--			drive-strength = <16>;
-+			bias-disable;
- 		};
- 	};
+diff --git a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
+index c1fcf8c90c24..be84f7ed0abc 100644
+--- a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
++++ b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
+@@ -18,8 +18,12 @@ allOf:
  
+ properties:
+   compatible:
+-    enum:
+-      - elan,ekth6915
++    oneOf:
++      - items:
++          - enum:
++              - elan,ekth5015m
++          - const: elan,ekth6915
++      - const: elan,ekth6915
+ 
+   reg:
+     const: 0x10
+@@ -57,8 +61,8 @@ examples:
+       #address-cells = <1>;
+       #size-cells = <0>;
+ 
+-      ap_ts: touchscreen@10 {
+-        compatible = "elan,ekth6915";
++      touchscreen@10 {
++        compatible = "elan,ekth5015m", "elan,ekth6915";
+         reg = <0x10>;
+ 
+         interrupt-parent = <&tlmm>;
 -- 
 2.43.2
 

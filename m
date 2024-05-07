@@ -1,98 +1,92 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AFC7154BFC;
-	Tue,  7 May 2024 14:36:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 980FC15FCF9;
+	Tue,  7 May 2024 14:48:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715092604; cv=none; b=pTtw/kqkmR8Pkhgw5Manz8AEtuzULtQI2fQz/wVZOr31lEw3UULhooBzBRHO6NaOqNsVmsmCl7K82xZxARJ/9WdLE8jcsVTpV255S3wnxAEF46OJbQ66TAtDjkH/O0+ld8V/qRACeUN/YCML0aH7rrn/BHnHMgQ3QN0ZlKryRCA=
+	t=1715093330; cv=none; b=jAcg27GMJ6RMBomQvAElMjoeWnCpysBxLCpdgOfrALmYp4wX8v13JOUhhA288fXfVSdzgM2WIKXGmpbTL+UgciIONSw5XzIia8+y5/k+HnHl2+GqMOqTczUKh5fCk685ggs2wwXUxUCZh8cclLFy+wAn/5fA8fd2mn2zvVeknbg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715092604; c=relaxed/simple;
-	bh=tMTmRH5/GWPjl9T+PClN91yYJR6r89On46+/BeKoh6k=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qmLoIwAjK2Jg7MIh2FudhPIS9+ewTTdVfCRNmr5+Msk8V5bmtiSimUb3HLNCMI+nwCEczaX4HerPLh6DniOxQVN/jR5xUEGt5ziaMX6dTeqzcMMKlafZWekmMVfm1xm9b0XaFJBT7bQ2sS8UWsFYksMTMO0y/inA1jHrfgk1nHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TAEXXUXv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1715093330; c=relaxed/simple;
+	bh=QQXWL5yR1HiJCZ+WQ5ZsByv2gulWkZie9+fjYZTlccQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=LlHqJ8bYftSNHT2EClGCrAAyTEGCMstfoDcu7YLjTjmaewuYDjX968ANfa9bkECeXOM6VTRUyaR9xY2CKK6yrU2N1T+kn4wbH/7BYwpi9Qg5gQZM57GhbT/TwUeB2fyuhnnmndgVPK5ocQIIB+8HrCNyEAHbUwwcryy3AHCOYHk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X2RQZtN8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TAEXXUXv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DBEEC2BBFC;
-	Tue,  7 May 2024 14:36:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X2RQZtN8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DC73C4AF67;
+	Tue,  7 May 2024 14:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1715092604;
-	bh=tMTmRH5/GWPjl9T+PClN91yYJR6r89On46+/BeKoh6k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=TAEXXUXvP/RwXMufOxMcpdr0ktv6yxwsW7WAv9/h370YTCjXFYtnJUhRjnfUWyslu
-	 +LaWO4UEtWUnCDAbfm2GMxC0GdtC2ZUAYfABjbvYuAimQn5h7LvLT9N51BLY9YpM6t
-	 L0H17jUkUxj/47TYyxguGxRlqBPtGopQwDyCRaVSRYZLdD4vFAbNTueiqKVsE+9W0V
-	 cpQ5THDkwwmOTm4S2uhYLKLktFIpUxroiI6hixZ+/S6Y2Wk/WUReX2aBn3p3JiWQpG
-	 /J6wpeUm/bk67u57GqPOBJoE8YZL4RHhMvI3t2pMpndWL4ZXVIr57X0JcrD4CH5BLl
-	 w4KYGQzrl5w2A==
-Date: Tue, 7 May 2024 23:36:41 +0900
-From: Mark Brown <broonie@kernel.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Hans de Goede <hdegoede@redhat.com>,
-	Charles Wang <charles.goodix@gmail.com>, hadess@hadess.net,
-	Richard Hughes <hughsient@gmail.com>, linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org, neil.armstrong@linaro.org
-Subject: Re: [PATCH] Input: goodix-berlin - Add sysfs interface for reading
- and writing touch IC registers
-Message-ID: <Zjo8eTQQS1LvzFgZ@finisterre.sirena.org.uk>
-References: <20240506114752.47204-1-charles.goodix@gmail.com>
- <6362e889-7df2-4c61-8ad5-bfe199e451ec@redhat.com>
- <ZjmOUp725QTHrfcT@google.com>
+	s=k20201202; t=1715093330;
+	bh=QQXWL5yR1HiJCZ+WQ5ZsByv2gulWkZie9+fjYZTlccQ=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=X2RQZtN8yZACEp4+OiKlSwk+eVhqNdNjAlU+SeIL43oJzchRfChl70dJNU4Srjpn1
+	 lHcJOv7oZpQdfaZERMioiHR7SP7n0Ptnl6+zoQQeBJJ3/+s1PXgll1kn50aPtOzuAt
+	 whwa0fz9qLL04/pE0KLiZCa83kKWhwwBdz8BoMAM9OTh+hZXGE04aBuomgwKNmI2Qr
+	 o4aLXBLYbd18K75b6F+2jQyGMtNerWvBcQFfd3WP+1PiWJIwMMvAY0BEUsiju4B0Nt
+	 40lRrRMKHQIzvpIrHvzEVXjDdfu3BWNfthN+ZImdaD7flZy0ucSrLAv5AzRzaYs+O+
+	 44PuGGbMu1RfA==
+Received: from johan by xi.lan with local (Exim 4.97.1)
+	(envelope-from <johan+linaro@kernel.org>)
+	id 1s4M7g-000000003Cy-34Ll;
+	Tue, 07 May 2024 16:48:52 +0200
+From: Johan Hovold <johan+linaro@kernel.org>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+	Bjorn Andersson <andersson@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Konrad Dybcio <konrad.dybcio@linaro.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Douglas Anderson <dianders@chromium.org>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Johan Hovold <johan+linaro@kernel.org>
+Subject: [PATCH v2 6/7] arm64: dts: qcom: sc8280xp-crd: use external pull up for touch reset
+Date: Tue,  7 May 2024 16:48:20 +0200
+Message-ID: <20240507144821.12275-7-johan+linaro@kernel.org>
+X-Mailer: git-send-email 2.43.2
+In-Reply-To: <20240507144821.12275-1-johan+linaro@kernel.org>
+References: <20240507144821.12275-1-johan+linaro@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="lPiblj3fTQ4wDvEh"
-Content-Disposition: inline
-In-Reply-To: <ZjmOUp725QTHrfcT@google.com>
-X-Cookie: Accuracy, n.:
+Content-Transfer-Encoding: 8bit
 
+The touch controller reset line is currently not described by the
+devicetree except in the pin configuration which is used to deassert
+reset.
 
---lPiblj3fTQ4wDvEh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+As the reset line has an external pull up to an always-on rail there is
+no need to drive the pin high so just leave it configured as an input
+and disable the internal pull down.
 
-On Mon, May 06, 2024 at 07:13:38PM -0700, Dmitry Torokhov wrote:
-> On Mon, May 06, 2024 at 02:03:13PM +0200, Hans de Goede wrote:
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+---
+ arch/arm64/boot/dts/qcom/sc8280xp-crd.dts | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-> > If raw register access is seen as a good solution, then I think this
-> > should use regmap + some generic helpers (to be written) to export
-> > regmap r/w access to userspace.
+diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts b/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
+index 41215567b3ae..372b35fb844f 100644
+--- a/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
++++ b/arch/arm64/boot/dts/qcom/sc8280xp-crd.dts
+@@ -977,8 +977,7 @@ int-n-pins {
+ 		reset-n-pins {
+ 			pins = "gpio99";
+ 			function = "gpio";
+-			output-high;
+-			drive-strength = <16>;
++			bias-disable;
+ 		};
+ 	};
+ 
+-- 
+2.43.2
 
-> I think the less code we have in kernel the better, especially if in
-> cases where firmware flashing is not essential for device to work (i.e.
-> it the controller has a flash memory). That said IIRC Mark felt very
-> strongly about allowing regmap writes from userspace... but maybe he
-> softened the stance or we could have this functionality opt-in?
-
-I think unmediated raw register access is a terrible idea, you can't
-safely write a driver if userspace can just go in and randomly write to
-registers with no coordination with the running driver and for some
-devices the kernel needs to ensure that any writes don't damage or
-destabalise the system.  If a driver provides an interface that looks
-like raw register accesses that's of course fine (I mean, a lot of
-firmware formats basically boil down to register write sequences which
-is clearly fine) but it should be the driver doing that and it should be
-looking at what's going on and ensure that it's joined up with the needs
-of the rest of the system.
-
---lPiblj3fTQ4wDvEh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmY6PHgACgkQJNaLcl1U
-h9D1eAf8CiFrx1FTof5H3G+5IPZ86vGYxnBqYnt4ClHpxIe7bCBCQTi2o0/+2eOr
-dbx61ihnlezPAkp+0cFqM7/Kzxruc9I0cEP6jp4LtOP6sDJgTz9Zj0zRht2i6A5b
-j+BOo/2UHk+Q7nhde9m/7tjL6MkwsHpvg+ydWB679H/PnBo8hm75lgjq3gy+3gGd
-EOMryKmKcnF/bPEk24QpI1BNf3mdbJ63Avcj0LCvack3yeaEoXPKJ89xN1SqLdAe
-LMzF9V0YqKi3H8llb0Jfccvta9feqUQ/k/XI2mq2j4nr2/M7UBh/ckThwHUZRT18
-nB7fKVugWFClUR8n/kKIp2fRdxsG9A==
-=4jXB
------END PGP SIGNATURE-----
-
---lPiblj3fTQ4wDvEh--

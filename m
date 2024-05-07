@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9823C160787;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 981F9160785;
 	Tue,  7 May 2024 14:48:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715093330; cv=none; b=Fts2iorPNWonoqZPZNwTRhnxIwf/yny1LrZH7rmodM0tHylZOuzreW2uSBQBf8KXYbcE1VMpWYmN5P8WjCrqSW41HTHtLHQ2SzzARVrf/6P41AkdzJcIuP0eGG+R87ikj1+6SPix0bVoZGck4/oIm8muS46ip2mg58TwvqJxnTk=
+	t=1715093330; cv=none; b=NJC0Qo1TFB8mhH73pCwj/UJv0XPx9OfdkrbCoLUnt82KPSe6nyAYBehu74X7Pad8O/8pYzFWV36cwr77YkL4kSRrhejkXi6nLfBz8rIGGpcyRoiiFYWwkrRsnt8czK7khxT55livPHb8Qg6qcJQldEJEMEh1it+zwMHJCLSGXzY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1715093330; c=relaxed/simple;
-	bh=6WJMlO8gbUhTSrAmcfkEkiZgyq69dy2zzKoL04LcRnY=;
+	bh=d+flEQr9cxZbb3a6RHKFy4dAh2/qde9+Fg9iSBSS0ig=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PaL3eLZkJAVjxhLpUAbjktKoH3c78oDArhCQwUh7cATKb5frnW0YgcKGywjVsFHRm4ea8GIsxghUOlghjqfpIEi24LjHq8+Wt4lTXGfvt9DZ1SeMKg+a5+l0ju1l4OKaJ837go38X44JH95/fMJGSN48gsDkshYzzE3fV/Hw3lY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b66R8hOJ; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=BIEEVwoJBDj1e3E+/zg6yRTRU9y4XTH60Aq70lr/2potRMkoq1ncDVAOpBH1S7bVTpTyYE7hylN0ESseW3Q52kGqT5GiCmqS/j4zXwldS6AHDbR1PFNOjLbhriUUks+bisfHY8fb+yXwXFcyYti4aeQlrsZuhbNalqwW7OvvXrA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qd/8ltE8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b66R8hOJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F93C4DDE0;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qd/8ltE8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B6F5C4AF66;
 	Tue,  7 May 2024 14:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1715093330;
-	bh=6WJMlO8gbUhTSrAmcfkEkiZgyq69dy2zzKoL04LcRnY=;
+	bh=d+flEQr9cxZbb3a6RHKFy4dAh2/qde9+Fg9iSBSS0ig=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=b66R8hOJPqr0ImuxapZCr3pdViEH/w+wc0r8asncTRwE6WVnaDZUJTZk7oJyEld/l
-	 w+ffXPElsnVef9Gmuhc1fy+3JAs9iYlcLK7sytKJI6YzEfD+tUx76u1HPNxtn9WoG7
-	 LIdPtspYkpffD1cOvT4rkPavw7d1aDQxv2zrjfh9y6Nz/8rv7ZQjTjE1kKDpBqldwb
-	 JnV8TETpyheH3gYA2cIxRTSX2jRIJyzUO/RO35ioHcl3JXksd4xx4mNb5HKmacdDOp
-	 eZUkUSxG2azPwzxE/3FV/E8ynCpuGf2H392EI0DghsNg8Qo7VOA7Pr3J/ByseSL+h/
-	 VVkp+x/GQch+A==
+	b=Qd/8ltE86w+ref6wRBvnIlr3iGN4tqq/VrVV/RntiAX2mq8zAteNvcbQz21CPMM3r
+	 bLmo0bj0DRiBetCX2YcnzBJ9JK9gV/xwjt+WpCKH83ZFLe1cIRYRsTYC+QeCLmGyGk
+	 M/bG8HtvM+LxjtOkXDLgTPutJkXs7yrC2KupFAkfNhz/E4KxXwsKm8kL1YyNQI0vHA
+	 2tuiqb2rhyBQpmctcr8orAr9kiUdYQEP7ek7zlQmVN6MN2pNJra6zQNO2sYwMti2Oy
+	 uB9ZP/uG2S/P/Np7PwE+3WYYeZAXXBn6XNpc0CY0bMJyymVrkXbMqAjWi9ESH9QWp6
+	 XmXn8VS7f8Xpg==
 Received: from johan by xi.lan with local (Exim 4.97.1)
 	(envelope-from <johan+linaro@kernel.org>)
-	id 1s4M7g-000000003Co-1C7q;
+	id 1s4M7g-000000003Cw-2jvi;
 	Tue, 07 May 2024 16:48:52 +0200
 From: Johan Hovold <johan+linaro@kernel.org>
 To: Jiri Kosina <jikos@kernel.org>,
@@ -46,11 +46,11 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-arm-msm@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Johan Hovold <johan+linaro@kernel.org>,
-	Zhengqiao Xia <xiazhengqiao@huaqin.corp-partner.google.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v2 1/7] dt-bindings: HID: i2c-hid: add dedicated Ilitek ILI2901 schema
-Date: Tue,  7 May 2024 16:48:15 +0200
-Message-ID: <20240507144821.12275-2-johan+linaro@kernel.org>
+	stable@vger.kernel.org,
+	Steev Klimaszewski <steev@kali.org>
+Subject: [PATCH v2 5/7] arm64: dts: qcom: sc8280xp-x13s: fix touchscreen power on
+Date: Tue,  7 May 2024 16:48:19 +0200
+Message-ID: <20240507144821.12275-6-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.43.2
 In-Reply-To: <20240507144821.12275-1-johan+linaro@kernel.org>
 References: <20240507144821.12275-1-johan+linaro@kernel.org>
@@ -62,114 +62,61 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Ilitek ILI2901 touch screen controller was apparently incorrectly
-added to the Elan eKTH6915 schema simply because it also has a reset
-gpio and is currently managed by the Elan driver in Linux.
+The Elan eKTH5015M touch controller on the X13s requires a 300 ms delay
+before sending commands after having deasserted reset during power on.
 
-The two controllers are not related even if an unfortunate wording in
-the commit message adding the Ilitek compatible made it sound like they
-were.
+Switch to the Elan specific binding so that the OS can determine the
+required power-on sequence and make sure that the controller is always
+detected during boot.
 
-Add a dedicated schema for the ILI2901 which does not specify the I2C
-address (which is likely 0x41 rather than 0x10 as for other Ilitek touch
-controllers) to avoid cluttering the Elan schema with unrelated devices
-and to make it easier to find the correct schema when adding further
-Ilitek controllers.
+Note that the always-on 1.8 V supply (s10b) is not used by the
+controller directly and should not be described.
 
-Fixes: d74ac6f60a7e ("dt-bindings: HID: i2c-hid: elan: Introduce Ilitek ili2901")
-Cc: Zhengqiao Xia <xiazhengqiao@huaqin.corp-partner.google.com>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Fixes: 32c231385ed4 ("arm64: dts: qcom: sc8280xp: add Lenovo Thinkpad X13s devicetree")
+Cc: stable@vger.kernel.org	# 6.0
+Tested-by: Steev Klimaszewski <steev@kali.org>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- .../bindings/input/elan,ekth6915.yaml         |  1 -
- .../bindings/input/ilitek,ili2901.yaml        | 66 +++++++++++++++++++
- 2 files changed, 66 insertions(+), 1 deletion(-)
- create mode 100644 Documentation/devicetree/bindings/input/ilitek,ili2901.yaml
+ .../dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts    | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-index dc4ac41f2441..c1fcf8c90c24 100644
---- a/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-+++ b/Documentation/devicetree/bindings/input/elan,ekth6915.yaml
-@@ -20,7 +20,6 @@ properties:
-   compatible:
-     enum:
-       - elan,ekth6915
--      - ilitek,ili2901
+diff --git a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
+index 569add4ebfab..98c1b75513be 100644
+--- a/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
++++ b/arch/arm64/boot/dts/qcom/sc8280xp-lenovo-thinkpad-x13s.dts
+@@ -653,15 +653,16 @@ &i2c4 {
  
-   reg:
-     const: 0x10
-diff --git a/Documentation/devicetree/bindings/input/ilitek,ili2901.yaml b/Documentation/devicetree/bindings/input/ilitek,ili2901.yaml
-new file mode 100644
-index 000000000000..1abeec768d79
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/ilitek,ili2901.yaml
-@@ -0,0 +1,66 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/ilitek,ili2901.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+ 	status = "okay";
+ 
+-	/* FIXME: verify */
+ 	touchscreen@10 {
+-		compatible = "hid-over-i2c";
++		compatible = "elan,ekth5015m", "elan,ekth6915";
+ 		reg = <0x10>;
+ 
+-		hid-descr-addr = <0x1>;
+ 		interrupts-extended = <&tlmm 175 IRQ_TYPE_LEVEL_LOW>;
+-		vdd-supply = <&vreg_misc_3p3>;
+-		vddl-supply = <&vreg_s10b>;
++		reset-gpios = <&tlmm 99 (GPIO_ACTIVE_LOW | GPIO_OPEN_DRAIN)>;
++		no-reset-on-power-off;
 +
-+title: Ilitek ILI2901 touchscreen controller
-+
-+maintainers:
-+  - Jiri Kosina <jkosina@suse.com>
-+
-+description:
-+  Supports the Ilitek ILI2901 touchscreen controller.
-+  This touchscreen controller uses the i2c-hid protocol with a reset GPIO.
-+
-+allOf:
-+  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - ilitek,ili2901
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  panel: true
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+  vcc33-supply: true
-+
-+  vccio-supply: true
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - vcc33-supply
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+
-+      touchscreen@41 {
-+        compatible = "ilitek,ili2901";
-+        reg = <0x41>;
-+
-+        interrupt-parent = <&tlmm>;
-+        interrupts = <9 IRQ_TYPE_LEVEL_LOW>;
-+
-+        reset-gpios = <&tlmm 8 GPIO_ACTIVE_LOW>;
-+        vcc33-supply = <&pp3300_ts>;
-+      };
-+    };
++		vcc33-supply = <&vreg_misc_3p3>;
++		vccio-supply = <&vreg_misc_3p3>;
+ 
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&ts0_default>;
+@@ -1507,8 +1508,8 @@ int-n-pins {
+ 		reset-n-pins {
+ 			pins = "gpio99";
+ 			function = "gpio";
+-			output-high;
+-			drive-strength = <16>;
++			drive-strength = <2>;
++			bias-disable;
+ 		};
+ 	};
+ 
 -- 
 2.43.2
 

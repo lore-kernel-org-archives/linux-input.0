@@ -1,38 +1,38 @@
 Received: from fritzc.com (mail.fritzc.com [213.160.72.247])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8BA854794;
-	Wed,  8 May 2024 08:37:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3F7A53E00;
+	Wed,  8 May 2024 08:38:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.72.247
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715157482; cv=none; b=K98gpUJx8Zlzj4FGeaKD32iYQ50v+ijk3wuP7vYnoq1pVH6Myab0ArP9aX2uSz0egBC498Cyi3yoZYtTkRcUt4WBmyP2EQfL1XdHvERB4A9x3MYBCFaw/KZHTQwnGuFGkD6Sqb3AQb6HEcb7OEHhLmxjCKeEdaGoEj5OMzudKIo=
+	t=1715157488; cv=none; b=Tgieo5H+0HIE1y/zwSYCT1DQfkf3jsvGKJyKasWQh+BUL7nMEMPvObcH6/CtWBsyJ6IhlnYZ2Akpph94NUFkrwJKi/GTjOvoLVBh+DifRlYCa6nUy+leM6zhTssNpC30zm1GzADcuo9hLKO7JT+OiwNsr5/jUayJBuLKNCD/69o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715157482; c=relaxed/simple;
-	bh=Ymt6mozaZpmsZUFJR/IHGnlk0I5feZGcwlYIOyneKek=;
+	s=arc-20240116; t=1715157488; c=relaxed/simple;
+	bh=Ef1wep/PhTbBZLqfc10k/PySfreDf9wUyFGc7eJzthA=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=jGR+SDXGlom9b8or42nv+gxXD6TIUYY6d899D3+6NYG/5iiY9Mdt75A/BHad7B71n7kN9PqOrDkDOZQThxdOFMqEPWzjNRIylOqwdMIdWH5IN4Q+MXf0sWOys75CDVOoGWa4/sdUWc1kekO1U3UsECVbJ7WY8vezs9qVoB3pKGM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=TI8Ilyfb; arc=none smtp.client-ip=213.160.72.247
+	 Content-Type:MIME-Version; b=qge9jkaeJkej3zSefiQNqK3uCkSvEkfNG2QkQ5r2Y3nMAeThmNVcZBmVwMtndZd6pvXnYIY6XhRJx2xI83+k/Qyl2PTd4JtkrcAFdfmikBM6Geh/SNKe6tqB7p+13irU8xRc5XfjL0TscMLJAP8+d1JA+cp5GXuwPd07TxUqmCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=KILPThKD; arc=none smtp.client-ip=213.160.72.247
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="TI8Ilyfb"
+	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="KILPThKD"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fritzc.com;
 	s=dkim; h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:
 	In-Reply-To:Date:Cc:To:Reply-To:From:Subject:Message-ID:Sender:Content-ID:
 	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
 	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
 	List-Post:List-Owner:List-Archive;
-	bh=/cwWJ2hMCsxHa5oCqbo42OeplSDlKH5HJFgON70WHio=; b=TI8Ilyfby4KeVuwyRX1MiCEsjZ
-	gm+QHj0oxkL/6FiMJTs/z/VC+0bOPbtwYXMDKUJjgkTQmUU0PGY4BQ7u0XiwKzCxheL4pO5AAQV0P
-	O6R7iVA7HrAyfvEUdMQZ4nknb2bmdyd6s1Rj9hesRknNtKiIsb2ThZXdHPHdNkJE4H/8=;
+	bh=q34xDwpOIYuBXEyGxwytUZEJt75D/MfWylBl9+mCp1Q=; b=KILPThKDFa+8zSIJZoH2T2Qzue
+	S8ka4i+MAKocYJ4yYFNobdW3mEe/YktYRWDyOsOuMLqlgHwp3toFuI9FTgHK/BOglgQaWXgX6fjnd
+	eogiztd4S/LIJA9hQJotLrdqRO/0HZ/rGoRurP5LHz9VAvsYz2TSibQX/QNlBOWp3D9Q=;
 Received: from 127.0.0.1
 	by fritzc.com with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
 	(Exim latest)
 	(envelope-from <christoph.fritz@hexdev.de>)
-	id 1s4cns-001hLj-2m;
-	Wed, 08 May 2024 10:37:33 +0200
-Message-ID: <42012e066d3da1ac89b00b793283d03874cd0776.camel@hexdev.de>
-Subject: Re: [PATCH v2 01/12] can: Add LIN bus as CAN abstraction
+	id 1s4coG-001hMF-0S;
+	Wed, 08 May 2024 10:37:56 +0200
+Message-ID: <7e321216b92651680f0b9adafc11afe27c8a49c3.camel@hexdev.de>
+Subject: Re: [PATCH v2 07/12] can: Add support for serdev LIN adapters
 From: Christoph Fritz <christoph.fritz@hexdev.de>
 Reply-To: christoph.fritz@hexdev.de
 To: Simon Horman <horms@kernel.org>
@@ -50,11 +50,11 @@ Cc: Oliver Hartkopp <socketcan@hartkopp.net>, Marc Kleine-Budde
  linux-can@vger.kernel.org,  netdev@vger.kernel.org,
  devicetree@vger.kernel.org, linux-input@vger.kernel.org, 
  linux-serial@vger.kernel.org
-Date: Wed, 08 May 2024 10:37:31 +0200
-In-Reply-To: <20240504124904.GJ3167983@kernel.org>
+Date: Wed, 08 May 2024 10:37:54 +0200
+In-Reply-To: <20240504131331.GL3167983@kernel.org>
 References: <20240502075534.882628-1-christoph.fritz@hexdev.de>
-	 <20240502075534.882628-2-christoph.fritz@hexdev.de>
-	 <20240504124904.GJ3167983@kernel.org>
+	 <20240502075534.882628-8-christoph.fritz@hexdev.de>
+	 <20240504131331.GL3167983@kernel.org>
 Organization: hexDEV GmbH
 Content-Type: text/plain; charset="UTF-8"
 User-Agent: Evolution 3.46.4-2 
@@ -66,128 +66,83 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
 
-On Sat, 2024-05-04 at 13:49 +0100, Simon Horman wrote:
-> On Thu, May 02, 2024 at 09:55:23AM +0200, Christoph Fritz wrote:
-> > This patch adds a LIN (local interconnect network) bus abstraction on
-> > top of CAN.  It is a glue driver adapting CAN on one side while offering
-> > LIN abstraction on the other side. So that upcoming LIN device drivers
-> > can make use of it.
+On Sat, 2024-05-04 at 14:13 +0100, Simon Horman wrote:
+> On Thu, May 02, 2024 at 09:55:29AM +0200, Christoph Fritz wrote:
+> > This commit introduces LIN-Bus support for UART devices equipped with
+> > LIN transceivers, utilizing the Serial Device Bus (serdev) interface.
 > > 
-> > Tested-by: Andreas Lauser <andreas.lauser@mercedes-benz.com>
+> > For more details on an adapter, visit: https://hexdev.de/hexlin#tty
+> > 
 > > Signed-off-by: Christoph Fritz <christoph.fritz@hexdev.de>
 > 
 > ...
 > 
-> > diff --git a/drivers/net/can/lin.c b/drivers/net/can/lin.c
+> > diff --git a/drivers/net/can/lin-serdev.c b/drivers/net/can/lin-serdev.c
 > 
 > ...
 > 
-> > +struct lin_device *register_lin(struct device *dev,
-> > +				const struct lin_device_ops *ldops)
+> > +static int linser_probe(struct serdev_device *serdev)
 > > +{
-> > +	struct net_device *ndev;
-> > +	struct lin_device *ldev;
+> > +	struct linser_priv *priv;
 > > +	int ret;
 > > +
-> > +	if (!ldops || !ldops->ldo_tx || !ldops->update_bitrate  ||
-> > +	    !ldops->ldo_open || !ldops->ldo_stop) {
-> > +		netdev_err(ndev, "missing mandatory lin_device_ops\n");
-> 
-> Hi Christoph,
-
-Hi Simon
-
-> The line above uses ndev, but ndev is not initialised
-> until a few lines further down.
-> 
-> Flagged by Smatch.
-
-Despite netdev_err() checks validity of ndev, I agree with Smatch: In
-upcoming v4 I'll use dev_err() here instead.
-
-> > +		return ERR_PTR(-EINVAL);
-> > +	}
+> > +	priv = devm_kzalloc(&serdev->dev, sizeof(*priv), GFP_KERNEL);
+> > +	if (!priv)
+> > +		return -ENOMEM;
 > > +
-> > +	ndev = alloc_candev(sizeof(struct lin_device), 1);
-> > +	if (!ndev)
-> > +		return ERR_PTR(-ENOMEM);
-> > +
-> > +	ldev = netdev_priv(ndev);
-> > +
-> > +	ldev->ldev_ops = ldops;
-> > +	ndev->netdev_ops = &lin_netdev_ops;
-> > +	ndev->flags |= IFF_ECHO;
-> > +	ndev->mtu = CANFD_MTU;
-> > +	ldev->can.bittiming.bitrate = LIN_DEFAULT_BAUDRATE;
-> > +	ldev->can.ctrlmode = CAN_CTRLMODE_LIN;
-> > +	ldev->can.ctrlmode_supported = 0;
-> > +	ldev->can.bitrate_const = lin_bitrate;
-> > +	ldev->can.bitrate_const_cnt = ARRAY_SIZE(lin_bitrate);
-> > +	ldev->can.do_set_bittiming = lin_set_bittiming;
-> > +	ldev->ndev = ndev;
-> > +	ldev->dev = dev;
-> > +
-> > +	SET_NETDEV_DEV(ndev, dev);
-> > +
-> > +	ret = lin_set_bittiming(ndev);
-> > +	if (ret) {
-> > +		netdev_err(ndev, "set bittiming failed\n");
-> > +		goto exit_candev;
-> > +	}
-> > +
-> > +	ret = register_candev(ndev);
+> > +	ret = kfifo_alloc(&priv->rx_fifo, LINSER_RX_FIFO_SIZE, GFP_KERNEL);
 > > +	if (ret)
-> > +		goto exit_candev;
+> > +		return ret;
 > > +
-> > +	ldev->lin_ids_kobj = kobject_create_and_add("lin_ids", &ndev->dev.kobj);
-> > +	if (!ldev->lin_ids_kobj) {
-> > +		netdev_err(ndev, "Failed to create sysfs directory\n");
-> > +		ret = -ENOMEM;
-> > +		goto exit_unreg;
-> > +	}
+> > +	INIT_DELAYED_WORK(&priv->rx_work, linser_process_delayed);
 > > +
-> > +	ret = lin_create_sysfs_id_files(ndev);
+> > +	priv->serdev = serdev;
+> > +	serdev_device_set_drvdata(serdev, priv);
+> > +	serdev_device_set_client_ops(serdev, &linser_ops);
+> > +
+> > +	ret = serdev_device_open(serdev);
 > > +	if (ret) {
-> > +		netdev_err(ndev, "Failed to create sysfs entry: %d\n", ret);
-> > +		goto exit_kobj_put;
+> > +		dev_err(&serdev->dev, "Unable to open device\n");
+> > +		goto err_open;
 > > +	}
 > > +
-> > +	/* Using workqueue as tx over USB/SPI/... may sleep */
-> > +	ldev->wq = alloc_workqueue(dev_name(dev), WQ_FREEZABLE | WQ_MEM_RECLAIM,
-> > +				   0);
-> > +	if (!ldev->wq)
-> > +		goto exit_rm_files;
+> > +	serdev_device_set_flow_control(serdev, false);
+> > +	serdev_device_set_break_detection(serdev, true);
+> > +	linser_derive_timings(priv, LIN_DEFAULT_BAUDRATE);
+> > +
+> > +	mutex_init(&priv->resp_lock);
+> > +
+> > +	priv->lin_dev = register_lin(&serdev->dev, &linser_lindev_ops);
+> > +	if (IS_ERR_OR_NULL(priv->lin_dev)) {
+> > +		ret = PTR_ERR(priv->lin_dev);
 > 
-> The goto above will result in: return ERR_PTR(ret)
-> But ret is 0 here. Should it be set to a negative error value?
+> As per my feedback on an earlier patch in the series,
+> in the case where priv->lin_dev is NULL,
+> this will result in the function returning 0.
+> Is that ok?
 > 
-> Also flagged by Smatch.
+> Flagged by Smatch
 
-OK, will get an
-
-ret = -ENOMEM;
-
-> 
-> > +
-> > +	INIT_WORK(&ldev->tx_work, lin_tx_work_handler);
-> > +
-> > +	netdev_info(ndev, "LIN initialized.\n");
-> > +
-> > +	return ldev;
-> > +
-> > +exit_rm_files:
-> > +	lin_remove_sysfs_id_files(ndev);
-> > +exit_kobj_put:
-> > +	kobject_put(ldev->lin_ids_kobj);
-> > +exit_unreg:
-> > +	unregister_candev(ndev);
-> > +exit_candev:
-> > +	free_candev(ndev);
-> > +	return ERR_PTR(ret);
-> > +}
-> > +EXPORT_SYMBOL_GPL(register_lin);
-> 
-> ...
+IS_ERR_OR_NULL() gets IS_ERR() in upcoming v4
 
 Thanks
   -- Christoph
+
+> 
+> > +		goto err_register_lin;
+> > +	}
+> > +
+> > +	serdev_device_close(serdev);
+> > +	priv->is_stopped = true;
+> > +
+> > +	return 0;
+> > +
+> > +err_register_lin:
+> > +	serdev_device_close(serdev);
+> > +err_open:
+> > +	kfifo_free(&priv->rx_fifo);
+> > +	return ret;
+> > +}
+> 
+> ...
+

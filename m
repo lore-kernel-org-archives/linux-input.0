@@ -1,176 +1,234 @@
-Received: from madrid.collaboradmins.com (madrid.collaboradmins.com [46.235.227.194])
+Received: from fritzc.com (mail.fritzc.com [213.160.72.247])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDE503F8F0;
-	Wed,  8 May 2024 07:58:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.227.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8BFF548E4;
+	Wed,  8 May 2024 08:37:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.72.247
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715155104; cv=none; b=gQ4T2L0LXhqW/pB+iPtxRhC2vQXpUkZORoctNgSKFqiwpu82JG31vKlnrXFkq5gS1NUDo3zNgLjfHCumcCS8W1PpwNK7H8ckUIzBfWJ2kDZWQzZvlDhg3d3v0L4VBmsMw80dDmbO5s7GQyBalxCj+Gks06aXedKEu9V1B+fGf8E=
+	t=1715157482; cv=none; b=m78+hO7/bTlWP9NfVXKAhc1i1k54BAcH56ZvMqYWVv79wneH4uyoWMCX/rog4j2obu5cxshPftGEf3bq7OpA242QXO8J4i/YSVeZMYHGNK8n2kYcciW/JuDLprFlhHZbjDGadZ7GMWYjvAnbp1AW9D2uQc7YQ/dy4TAheIbvMC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715155104; c=relaxed/simple;
-	bh=W8h0zv7fM5rho2qCrJQe63u3RrkuJY8jHMl1xzQ0llk=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=IjU25Xg9gPe5MqgyNQI+U3t/5SVR1EJeHEUhkho0498dTu6O/PwyMaXW/1V8dqTMNciDI3/Ib7JxDW4bGVwTxeFpb9L0irSuXYBlYHPO7p5/4qsnQIxnJ3cc+vzZGpmgGXU6AJRQn8PXpSLDRpfFxbisyejQSs7AqMsrCk1ga40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=d+6Wlldu; arc=none smtp.client-ip=46.235.227.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1715157482; c=relaxed/simple;
+	bh=9AjlhM0sWYPu1nGwE34U3Kl+ycclxgyy2cXzdJFueqA=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=FLfeI1XGFnT9/kk7SXQbTDL2KFyZMOktkWwHQAAJqSxugGwWJzit6lqxNvzOwkoyaQbUpkDxfIRSXQv0VmvfAz/Mw4QCTpd9XeKFSAtsehDq2N08Du/rU8a5AHMZfvp28VD3DsW7oNBpU5yWZ6JXlr4ECmzWMFCE8Jdzog2jtEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de; spf=pass smtp.mailfrom=hexdev.de; dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b=KmxqBOfK; arc=none smtp.client-ip=213.160.72.247
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hexdev.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hexdev.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="d+6Wlldu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1715155100;
-	bh=W8h0zv7fM5rho2qCrJQe63u3RrkuJY8jHMl1xzQ0llk=;
-	h=Date:Cc:Subject:To:References:From:In-Reply-To:From;
-	b=d+6WlldukdN+eWmS3sBsn4libaX2zcJvXa/ngL+dhdc+DchosZSUl43ALM0fKrizz
-	 ysZ99uHC/8UpNmyFE4hOPapdp0NUzrlzrQjGLrkMDMqYNps7lgHGiCM7grlVWeqvuL
-	 e5HkvXoNYPhMwpb30PKIuWAHw1A/b8v33oat12Wn15tu738O33/VYc94jtdztajScu
-	 4J+5rFyzWIZ90H5CzrX9B4Ib32RGjnbcFX2KDX2Cv9yM6dA7sRVQyStsK2OIpLFTHR
-	 MsAgmoQsx7QhT2c2rNTU9MLlxEjijsJQpah0OPot4l0rd5cOVPx4wu8rShkkg7Xmln
-	 rRM76zFaWDvsw==
-Received: from [10.193.1.1] (broslavsky.collaboradmins.com [68.183.210.73])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: usama.anjum)
-	by madrid.collaboradmins.com (Postfix) with ESMTPSA id 5163A378107C;
-	Wed,  8 May 2024 07:57:56 +0000 (UTC)
-Message-ID: <e3f6bb2a-a9bd-43c2-9468-85242eab0390@collabora.com>
-Date: Wed, 8 May 2024 12:58:20 +0500
+	dkim=pass (1024-bit key) header.d=fritzc.com header.i=@fritzc.com header.b="KmxqBOfK"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=fritzc.com;
+	s=dkim; h=Content-Transfer-Encoding:MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:Reply-To:From:Subject:Message-ID:Sender:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=d4IrycAw86Vg37ALA8F7zQoyYSzRTtsKV382FbyAFBU=; b=KmxqBOfK+v4xpEj7Sy3Uh2G83h
+	+b9SOEYUVk1W7of8Iv0YB3lUrXsWgNiVgRS6KfxTB31klgMvtUR6hjHRRxvSJDDrHXe/JdA/fCm1B
+	B+ddousDfC+bl6xrbztqNFjRnKE+3a04agFzLZ/rk400HttKS5t70TVjm8sujUkz9ZtU=;
+Received: from 127.0.0.1
+	by fritzc.com with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim latest)
+	(envelope-from <christoph.fritz@hexdev.de>)
+	id 1s4co3-001hLv-29;
+	Wed, 08 May 2024 10:37:44 +0200
+Message-ID: <45ed69b00f64607c70f1090941f36b71202807f2.camel@hexdev.de>
+Subject: Re: [PATCH v2 02/12] HID: hexLIN: Add support for USB LIN bus
+ adapter
+From: Christoph Fritz <christoph.fritz@hexdev.de>
+Reply-To: christoph.fritz@hexdev.de
+To: Simon Horman <horms@kernel.org>
+Cc: Oliver Hartkopp <socketcan@hartkopp.net>, Marc Kleine-Budde
+ <mkl@pengutronix.de>, Vincent Mailhol <mailhol.vincent@wanadoo.fr>, "David
+ S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,  Paolo Abeni <pabeni@redhat.com>, Rob
+ Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,  Conor
+ Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>, Benjamin
+ Tissoires <bentiss@kernel.org>,  Greg Kroah-Hartman
+ <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, Sebastian
+ Reichel <sre@kernel.org>,  Linus Walleij <linus.walleij@linaro.org>,
+ Andreas Lauser <andreas.lauser@mercedes-benz.com>, Jonathan Corbet
+ <corbet@lwn.net>, Pavel Pisa <pisa@cmp.felk.cvut.cz>,
+ linux-can@vger.kernel.org,  netdev@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-input@vger.kernel.org, 
+ linux-serial@vger.kernel.org
+Date: Wed, 08 May 2024 10:37:42 +0200
+In-Reply-To: <20240504125828.GK3167983@kernel.org>
+References: <20240502075534.882628-1-christoph.fritz@hexdev.de>
+	 <20240502075534.882628-3-christoph.fritz@hexdev.de>
+	 <20240504125828.GK3167983@kernel.org>
+Organization: hexDEV GmbH
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.46.4-2 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Cc: Muhammad Usama Anjum <usama.anjum@collabora.com>,
- linux-kernel@vger.kernel.org, linux-kselftest@vger.kernel.org,
- kernel-team@android.com, linux-sound@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-mm@kvack.org,
- linux-input@vger.kernel.org, iommu@lists.linux.dev, kvmarm@lists.linux.dev,
- kvm@vger.kernel.org, kvm-riscv@lists.infradead.org,
- linux-riscv@lists.infradead.org, linux-security-module@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, netdev@vger.kernel.org,
- linux-actions@lists.infradead.org, mptcp@lists.linux.dev,
- linux-rtc@vger.kernel.org, linux-sgx@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH v2 5/5] selftests: Drop duplicate -D_GNU_SOURCE
-To: Edward Liaw <edliaw@google.com>, shuah@kernel.org,
- Mark Brown <broonie@kernel.org>, Jaroslav Kysela <perex@perex.cz>,
- Takashi Iwai <tiwai@suse.com>, Catalin Marinas <catalin.marinas@arm.com>,
- Will Deacon <will@kernel.org>, Nhat Pham <nphamcs@gmail.com>,
- Johannes Weiner <hannes@cmpxchg.org>, Christian Brauner
- <brauner@kernel.org>, Eric Biederman <ebiederm@xmission.com>,
- Kees Cook <keescook@chromium.org>,
- OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Peter Zijlstra <peterz@infradead.org>, Darren Hart <dvhart@infradead.org>,
- Davidlohr Bueso <dave@stgolabs.net>, =?UTF-8?Q?Andr=C3=A9_Almeida?=
- <andrealmeid@igalia.com>, Jiri Kosina <jikos@kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>, Jason Gunthorpe <jgg@ziepe.ca>,
- Kevin Tian <kevin.tian@intel.com>, Andy Lutomirski <luto@amacapital.net>,
- Will Drewry <wad@chromium.org>, Marc Zyngier <maz@kernel.org>,
- Oliver Upton <oliver.upton@linux.dev>, James Morse <james.morse@arm.com>,
- Suzuki K Poulose <suzuki.poulose@arm.com>, Zenghui Yu
- <yuzenghui@huawei.com>, Paolo Bonzini <pbonzini@redhat.com>,
- Sean Christopherson <seanjc@google.com>, Anup Patel <anup@brainfault.org>,
- Atish Patra <atishp@atishpatra.org>, Paul Walmsley
- <paul.walmsley@sifive.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Albert Ou <aou@eecs.berkeley.edu>,
- Christian Borntraeger <borntraeger@linux.ibm.com>,
- Janosch Frank <frankja@linux.ibm.com>,
- Claudio Imbrenda <imbrenda@linux.ibm.com>,
- David Hildenbrand <david@redhat.com>, =?UTF-8?Q?Micka=C3=ABl_Sala=C3=BCn?=
- <mic@digikod.net>, Paul Moore <paul@paul-moore.com>,
- James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>,
- Andrew Morton <akpm@linux-foundation.org>, Seth Forshee
- <sforshee@kernel.org>, Bongsu Jeon <bongsu.jeon@samsung.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Steffen Klassert <steffen.klassert@secunet.com>,
- Herbert Xu <herbert@gondor.apana.org.au>, =?UTF-8?Q?Andreas_F=C3=A4rber?=
- <afaerber@suse.de>, Manivannan Sadhasivam
- <manivannan.sadhasivam@linaro.org>, Matthieu Baerts <matttbe@kernel.org>,
- Mat Martineau <martineau@kernel.org>, Geliang Tang <geliang@kernel.org>,
- Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
- Fenghua Yu <fenghua.yu@intel.com>,
- Reinette Chatre <reinette.chatre@intel.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- "Paul E. McKenney" <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
- Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Jarkko Sakkinen <jarkko@kernel.org>,
- Dave Hansen <dave.hansen@linux.intel.com>
-References: <20240507214254.2787305-1-edliaw@google.com>
- <20240507214254.2787305-6-edliaw@google.com>
-Content-Language: en-US
-From: Muhammad Usama Anjum <usama.anjum@collabora.com>
-In-Reply-To: <20240507214254.2787305-6-edliaw@google.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 5/8/24 2:38 AM, Edward Liaw wrote:
-> -D_GNU_SOURCE can be de-duplicated here, as it is added by
-> KHDR_INCLUDES.
+On Sat, 2024-05-04 at 13:58 +0100, Simon Horman wrote:
+> On Thu, May 02, 2024 at 09:55:24AM +0200, Christoph Fritz wrote:
+> > This patch introduces driver support for the hexLIN USB LIN bus adapter,
+> > enabling LIN communication over USB for both controller and responder
+> > modes. The driver interfaces with the CAN_LIN framework for userland
+> > connectivity.
+> > 
+> > For more details on the adapter, visit: https://hexdev.de/hexlin/
+> > 
+> > Tested-by: Andreas Lauser <andreas.lauser@mercedes-benz.com>
+> > Signed-off-by: Christoph Fritz <christoph.fritz@hexdev.de>
 > 
-> Signed-off-by: Edward Liaw <edliaw@google.com>
-Reviewed-by: Muhammad Usama Anjum <usama.anjum@collabora.com>
-
-> ---
->  tools/testing/selftests/futex/functional/Makefile | 2 +-
->  tools/testing/selftests/iommu/Makefile            | 2 --
->  tools/testing/selftests/net/tcp_ao/Makefile       | 2 +-
->  tools/testing/selftests/resctrl/Makefile          | 2 +-
->  4 files changed, 3 insertions(+), 5 deletions(-)
+> Hi Christoph,
 > 
-> diff --git a/tools/testing/selftests/futex/functional/Makefile b/tools/testing/selftests/futex/functional/Makefile
-> index a392d0917b4e..f79f9bac7918 100644
-> --- a/tools/testing/selftests/futex/functional/Makefile
-> +++ b/tools/testing/selftests/futex/functional/Makefile
-> @@ -1,6 +1,6 @@
->  # SPDX-License-Identifier: GPL-2.0
->  INCLUDES := -I../include -I../../ $(KHDR_INCLUDES)
-> -CFLAGS := $(CFLAGS) -g -O2 -Wall -D_GNU_SOURCE -pthread $(INCLUDES) $(KHDR_INCLUDES)
-> +CFLAGS := $(CFLAGS) -g -O2 -Wall -pthread $(INCLUDES) $(KHDR_INCLUDES)
->  LDLIBS := -lpthread -lrt
->  
->  LOCAL_HDRS := \
-> diff --git a/tools/testing/selftests/iommu/Makefile b/tools/testing/selftests/iommu/Makefile
-> index 32c5fdfd0eef..fd6477911f24 100644
-> --- a/tools/testing/selftests/iommu/Makefile
-> +++ b/tools/testing/selftests/iommu/Makefile
-> @@ -2,8 +2,6 @@
->  CFLAGS += -Wall -O2 -Wno-unused-function
->  CFLAGS += $(KHDR_INCLUDES)
->  
-> -CFLAGS += -D_GNU_SOURCE
-> -
->  TEST_GEN_PROGS :=
->  TEST_GEN_PROGS += iommufd
->  TEST_GEN_PROGS += iommufd_fail_nth
-> diff --git a/tools/testing/selftests/net/tcp_ao/Makefile b/tools/testing/selftests/net/tcp_ao/Makefile
-> index 522d991e310e..c608b1ec02e6 100644
-> --- a/tools/testing/selftests/net/tcp_ao/Makefile
-> +++ b/tools/testing/selftests/net/tcp_ao/Makefile
-> @@ -26,7 +26,7 @@ LIB	:= $(LIBDIR)/libaotst.a
->  LDLIBS	+= $(LIB) -pthread
->  LIBDEPS	:= lib/aolib.h Makefile
->  
-> -CFLAGS	:= -Wall -O2 -g -D_GNU_SOURCE -fno-strict-aliasing
-> +CFLAGS	:= -Wall -O2 -g -fno-strict-aliasing
->  CFLAGS	+= $(KHDR_INCLUDES)
->  CFLAGS	+= -iquote ./lib/ -I ../../../../include/
->  
-> diff --git a/tools/testing/selftests/resctrl/Makefile b/tools/testing/selftests/resctrl/Makefile
-> index 2deac2031de9..5073dbc96125 100644
-> --- a/tools/testing/selftests/resctrl/Makefile
-> +++ b/tools/testing/selftests/resctrl/Makefile
-> @@ -1,6 +1,6 @@
->  # SPDX-License-Identifier: GPL-2.0
->  
-> -CFLAGS = -g -Wall -O2 -D_FORTIFY_SOURCE=2 -D_GNU_SOURCE
-> +CFLAGS = -g -Wall -O2 -D_FORTIFY_SOURCE=2
->  CFLAGS += $(KHDR_INCLUDES)
->  
->  TEST_GEN_PROGS := resctrl_tests
+> Some minor feedback from my side.
+> 
+> ...
+> 
+> > diff --git a/drivers/hid/hid-hexdev-hexlin.c b/drivers/hid/hid-hexdev-hexlin.c
+> 
+> ...
+> 
+> > +static int hexlin_queue_frames_insert(struct hexlin_priv_data *priv,
+> > +				      const u8 *raw_data, int sz)
+> > +{
+> > +	struct hid_device *hdev = priv->hid_dev;
+> > +	struct hexlin_frame hxf;
+> > +	struct lin_frame lf;
+> > +
+> > +	if (sz != sizeof(struct hexlin_frame))
+> > +		return -EREMOTEIO;
+> > +
+> > +	memcpy(&hxf, raw_data, sz);
+> > +	le32_to_cpus(hxf.flags);
+> > +
+> > +	lf.len = hxf.len;
+> > +	lf.lin_id = hxf.lin_id;
+> > +	memcpy(lf.data, hxf.data, LIN_MAX_DLEN);
+> > +	lf.checksum = hxf.checksum;
+> > +	lf.checksum_mode = hxf.checksum_mode;
+> > +
+> > +	hid_dbg(hdev, "id:%02x, len:%u, data:%*ph, checksum:%02x (%s)\n",
+> > +		   lf.lin_id, lf.len, lf.len, lf.data, lf.checksum,
+> > +		   lf.checksum_mode ? "enhanced" : "classic");
+> 
+> nit: The indentation above is not quite right.
+>      It should align to inside the opening '(' like this.
+> 
+> 	hid_dbg(hdev, "id:%02x, len:%u, data:%*ph, checksum:%02x (%s)\n",
+> 		lf.lin_id, lf.len, lf.len, lf.data, lf.checksum,
+> 		lf.checksum_mode ? "enhanced" : "classic");
+> 
+> Flagged by checkpatch.
 
--- 
-BR,
-Muhammad Usama Anjum
+OK
+
+> 
+> ...
+> 
+> > +static int hexlin_set_baudrate(struct hexlin_priv_data *priv, u16 baudrate)
+> > +{
+> > +	struct hexlin_baudrate_req req;
+> > +	int ret;
+> > +
+> > +	if (baudrate < LIN_MIN_BAUDRATE || baudrate > LIN_MAX_BAUDRATE)
+> > +		return -EINVAL;
+> > +
+> > +	req.cmd = HEXLIN_SET_BAUDRATE;
+> > +	req.baudrate = cpu_to_le16(baudrate);
+> 
+> The type of req.baudrate is u16, a host byte-order type.
+> But it is being assigned a little endian value.
+> This does not seem right.
+> 
+> Flagged by Smatch.
+
+In upcoming v4 I'll use __le16
+
+> 
+> > +
+> > +	ret = hexlin_tx_req_status(priv, &req,
+> > +				   sizeof(struct hexlin_baudrate_req));
+> > +	if (ret)
+> > +		hid_err(priv->hid_dev, "%s failed with %d\n", __func__, ret);
+> > +
+> > +	return ret;
+> > +}
+> 
+> ...
+> 
+> > +static int hexlin_probe(struct hid_device *hdev,
+> > +			const struct hid_device_id *id)
+> > +{
+> > +	struct hexlin_priv_data *priv;
+> > +	int ret;
+> > +
+> > +	priv = devm_kzalloc(&hdev->dev, sizeof(*priv), GFP_KERNEL);
+> > +	if (!priv)
+> > +		return -ENOMEM;
+> > +
+> > +	priv->hid_dev = hdev;
+> > +	hid_set_drvdata(hdev, priv);
+> > +
+> > +	mutex_init(&priv->tx_lock);
+> > +
+> > +	ret = hid_parse(hdev);
+> > +	if (ret) {
+> > +		hid_err(hdev, "hid parse failed with %d\n", ret);
+> > +		goto fail_and_free;
+> > +	}
+> > +
+> > +	ret = hid_hw_start(hdev, HID_CONNECT_DRIVER);
+> > +	if (ret) {
+> > +		hid_err(hdev, "hid hw start failed with %d\n", ret);
+> > +		goto fail_and_stop;
+> > +	}
+> > +
+> > +	ret = hid_hw_open(hdev);
+> > +	if (ret) {
+> > +		hid_err(hdev, "hid hw open failed with %d\n", ret);
+> > +		goto fail_and_close;
+> > +	}
+> > +
+> > +	init_completion(&priv->wait_in_report);
+> > +
+> > +	hid_device_io_start(hdev);
+> > +
+> > +	ret = init_hw(priv);
+> > +	if (ret)
+> > +		goto fail_and_close;
+> > +
+> > +	priv->ldev = register_lin(&hdev->dev, &hexlin_ldo);
+> > +	if (IS_ERR_OR_NULL(priv->ldev)) {
+> > +		ret = PTR_ERR(priv->ldev);
+> > +		goto fail_and_close;
+> 
+> Is it intentional that when priv->ldev is NULL here,
+> the function will return 0?
+> 
+> Flagged by Smatch.
+
+IS_ERR_OR_NULL() gets IS_ERR() in upcoming v4
+
+> 
+> > +	}
+> > +
+> > +	hid_hw_close(hdev);
+> > +
+> > +	hid_info(hdev, "hexLIN (fw-version: %u) probed\n", priv->fw_version);
+> > +
+> > +	return 0;
+> > +
+> > +fail_and_close:
+> > +	hid_hw_close(hdev);
+> > +fail_and_stop:
+> > +	hid_hw_stop(hdev);
+> > +fail_and_free:
+> > +	mutex_destroy(&priv->tx_lock);
+> > +	return ret;
+> > +}
+> 
+> ...
+
+Thanks
+  -- Christoph

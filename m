@@ -1,38 +1,45 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D05225A4CD
-	for <linux-input@vger.kernel.org>; Wed, 15 May 2024 08:59:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from tika.stderr.nl (tika.stderr.nl [94.142.244.14])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7C8E15573E
+	for <linux-input@vger.kernel.org>; Wed, 15 May 2024 15:25:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=94.142.244.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715763563; cv=none; b=unVjLh2yy8nWP0SiHtg1Fqjzyt9g2BdHTiIPZdMHvtKl1Hv/3XStj/KKPyaXS0dIwrDGnFzrRN5R7+/YBH0Y352IPfzIV6CFuC+b3fY1q4MlOMFMktrs43PlTrDPzzwVpRyVpW1rwBlKgAeLp8pooF2SRb/kSCFIQGn5NtyPKRc=
+	t=1715786710; cv=none; b=BDErsef/+62Yu8ySjD1DHfF26QGKUDXqZIMj7bFj4PYPL28oBPUOXkNGFzhK1csnGmU2GlTdxCgvYJR5U/lEg13STSdHVeuxY8RhK4w7che4hFbOKB1v0hfTepbrl5Jdm8g9zLH2GWjxduVYGT+wDRsHdmIJ5yAUnBpv8RRc9N4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715763563; c=relaxed/simple;
-	bh=JbfLvn1uIOr3adTFWgtUXfVQ4hlJMmXOQNJ2l3urvV4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=bz8Uo2BD8NV4Zu8m6oFqYJe+oux2/vQABGg1LiDd6UTGYDKDd9BHTP2q0s56Ag9wnyqz3PmUdU3eUCcieCG0fl8sDKfktB/EbiwB8C0pjMpuv8PKDywphlvXs5/Gqbdp3xb6x6rdaB758JyDqHajURdTLxLgYYgU4jPI1LK/mjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [112.20.112.247])
-	by gateway (Coremail) with SMTP id _____8AxqelgeURm8AANAA--.19294S3;
-	Wed, 15 May 2024 16:59:12 +0800 (CST)
-Received: from localhost.localdomain (unknown [112.20.112.247])
-	by localhost.localdomain (Coremail) with SMTP id AQAAf8Cx67pceURmwn0gAA--.0S3;
-	Wed, 15 May 2024 16:59:11 +0800 (CST)
-From: Binbin Zhou <zhoubinbin@loongson.cn>
-To: Binbin Zhou <zhoubb.aaron@gmail.com>,
-	Huacai Chen <chenhuacai@loongson.cn>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Huacai Chen <chenhuacai@kernel.org>,
-	loongson-kernel@lists.loongnix.cn,
-	linux-input@vger.kernel.org,
-	Xiaotian Wu <wuxiaotian@loongson.cn>,
-	Binbin Zhou <zhoubinbin@loongson.cn>
-Subject: [PATCH v1 1/2] Input: psmouse - Expanding the psmouse packet array
-Date: Wed, 15 May 2024 16:58:56 +0800
-Message-ID: <714216496603cd23c18d9d3e1cc52d8ba21e386d.1715224143.git.zhoubinbin@loongson.cn>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1715224143.git.zhoubinbin@loongson.cn>
-References: <cover.1715224143.git.zhoubinbin@loongson.cn>
+	s=arc-20240116; t=1715786710; c=relaxed/simple;
+	bh=3/gBG12SdrNquCn61uCLM9Nd7nAnF7/euXYf6ET/QBc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=li6YnjBX/5UVDYsvbQhuoELnsVNe1xw0iKKRaI7T0+qb7JQj5VEImia3UtdeXJ2j8F1FyqMBFQO1B5EAYnyRrN5rK+C+U8CHjhMlphGhJFzwmbmo9E6FKvPI5f+CqsbJnrAQqlGJciUEtI6blwhhoOiP4gsEfWGjKX7ID9Gp9mQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=stdin.nl; spf=none smtp.mailfrom=tika.stderr.nl; dkim=pass (1024-bit key) header.d=mail.tikatika.nl header.i=@mail.tikatika.nl header.b=O0We/ZGQ; arc=none smtp.client-ip=94.142.244.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=stdin.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=tika.stderr.nl
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=mail.tikatika.nl header.i=@mail.tikatika.nl header.b="O0We/ZGQ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=mail.tikatika.nl; s=201709.tika; h=Content-Transfer-Encoding:MIME-Version:
+	Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=n34FeKsLTWyb8TghmAHaTg2CJa+VcqsBeTp6NSDv9zE=; b=O0We/ZGQT1GnjuyhigqWKl8qwn
+	MkncVeY07XCXN7wuSj4XRW7CieaaRxj3Xkg7b4TCYouF4fIVxL7hLCl7cW/0ZFwxsEVRB7KD9tbPg
+	8Sc75GC5dT6h7CQo45QIOcAbPl8KxJ3+kvJP9/BJEG/PxSX0o2WzZKwnxYcsCyRIQy6Q=;
+X-Preliminary-Spam-Score: -3.1 (---)
+Received: from 89-250-188-118.tangos.nl ([89.250.188.118] helo=dottie)
+	by tika.stderr.nl with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <matthijs@tika.stderr.nl>)
+	id 1s7Fx5-004LRr-0p;
+	Wed, 15 May 2024 16:49:55 +0200
+Received: (nullmailer pid 678346 invoked by uid 1000);
+	Wed, 15 May 2024 14:49:54 -0000
+From: Matthijs Kooijman <matthijs@stdin.nl>
+To: linux-input@vger.kernel.org
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Matthijs Kooijman <matthijs@stdin.nl>
+Subject: [PATCH] Input: ilitek_ts_i2c: Use gpiod_set_value_cansleep()
+Date: Wed, 15 May 2024 16:49:44 +0200
+Message-Id: <20240515144943.678260-1-matthijs@stdin.nl>
+X-Mailer: git-send-email 2.40.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,49 +47,39 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:AQAAf8Cx67pceURmwn0gAA--.0S3
-X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/
-X-Coremail-Antispam: 1Uk129KBj9xXoWrtw1fXryfXw18Wr48Jr45twc_yoWftwb_ua
-	4Sqrn7Ww1vvr1qqw1UC34fZry0van0gryvkan0qws8K34kZr9xury8Crn7Zr15WrWrArnF
-	k347XrWUC3yj9osvyTuYvTs0mTUanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUj1kv1TuYvT
-	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
-	cSsGvfJTRUUUb7AYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
-	vaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
-	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JF0_Jw1lYx0Ex4A2jsIE
-	14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCF04k20xvY0x
-	0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E
-	7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcV
-	C0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIxAIcVCF
-	04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7
-	CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU1LiSJUUUUU==
 
-According to the current design of PixArt touchpad hardware and FW, our
-single packet data width needs 11 bytes/15 bytes to receive the complete
-three-finger/four-finger data in absolute coordinate mode.
-Obviously, it exceeds the design of the native driver, and we try to
-extend the length of a single data packet to 16.
+Use gpiod_set_value_cansleep in the ilitek_reset function (called only
+from ilitek_ts_i2c_probe and ilitek_resume).
 
-Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+Without this change, the driver may print a warning if the reset pin is
+connected to a GPIO chip which can sleep (e.g. a GPIO expander):
+
+WARNING: CPU: 1 PID: 578 at gpiod_set_value+0x5c/0xd0
+
+This commit is modeled after commit 7c977019c53ed (leds: lp55xx: Use
+gpiod_set_value_cansleep(), 2023-09-18)
+
+Signed-off-by: Matthijs Kooijman <matthijs@stdin.nl>
 ---
- drivers/input/mouse/psmouse.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/ilitek_ts_i2c.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/input/mouse/psmouse.h b/drivers/input/mouse/psmouse.h
-index 4d8acfe0d82a..b05c6fbae7e3 100644
---- a/drivers/input/mouse/psmouse.h
-+++ b/drivers/input/mouse/psmouse.h
-@@ -94,7 +94,7 @@ struct psmouse {
- 	const char *vendor;
- 	const char *name;
- 	const struct psmouse_protocol *protocol;
--	unsigned char packet[8];
-+	unsigned char packet[16];
- 	unsigned char badbyte;
- 	unsigned char pktcnt;
- 	unsigned char pktsize;
+diff --git a/drivers/input/touchscreen/ilitek_ts_i2c.c b/drivers/input/touchscreen/ilitek_ts_i2c.c
+index fc4e39b6651a4..236c332de6cdc 100644
+--- a/drivers/input/touchscreen/ilitek_ts_i2c.c
++++ b/drivers/input/touchscreen/ilitek_ts_i2c.c
+@@ -391,9 +391,9 @@ static const struct ilitek_protocol_map ptl_func_map[] = {
+ static void ilitek_reset(struct ilitek_ts_data *ts, int delay)
+ {
+ 	if (ts->reset_gpio) {
+-		gpiod_set_value(ts->reset_gpio, 1);
++		gpiod_set_value_cansleep(ts->reset_gpio, 1);
+ 		mdelay(10);
+-		gpiod_set_value(ts->reset_gpio, 0);
++		gpiod_set_value_cansleep(ts->reset_gpio, 0);
+ 		mdelay(delay);
+ 	}
+ }
 -- 
-2.43.0
+2.40.1
 

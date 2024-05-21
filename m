@@ -1,91 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from e242-11.smtp-out.us-west-1.amazonses.com (e242-11.smtp-out.us-west-1.amazonses.com [23.251.242.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 447A176025;
-	Tue, 21 May 2024 12:10:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 321D877F32
+	for <linux-input@vger.kernel.org>; Tue, 21 May 2024 13:31:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=23.251.242.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716293428; cv=none; b=tduuuOWJFAK71XzQ9GUUO1KzulUqOuLR7zCU70XYPW5ffQYroLNv82N1qJoXmJW0plll1rI6HhYqlzu7xOMO079rXiu3OjFhhrfEi0yTpkFJwsp4878+ty5PGp9IBJZK3THzhk6yMxqSXvxTKf5MphNwOF1ZD+3OA2z1TR7PmmY=
+	t=1716298284; cv=none; b=mMtf9xHoSOqRUAmTAgxX9xxwKmH5JD5MD4w/IB9GHX7YO43l2Nyvu0lWpKD9BTItoZzQS1J8sGGl3P06ergl2bgJgDYnJ0NfpCjTwV+5Duk0WRWFJAP4dDUf1Vpodwre8YQCFCA1TmDugP9M4+RUWKUyPpgphCpUZnvrLOMPNXY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716293428; c=relaxed/simple;
-	bh=f2GQ0va2lsLTO8nlzPzR6f1yERxb6qBUyy6szVB7sAM=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=O4ArjDmpsKgt/5qLnnWgBtuUoFYgtbpIBPWcV3X6uCb6+FB+2jPyHFrqV285L70OGCu1ZFVH9AnazRgHrJmLEDwTx6IQenYgzkyFMHkbDg7WmhFqXvsgACjO4gi2jZolov80/TFIurImpFkBJKeEJheeks/mlJeqedefJsScNbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tSy9jzyo; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1716298284; c=relaxed/simple;
+	bh=Zs/I9oolkSjtcYPVN3LBpc6+Q4BVG/q1UQVRFxb36gs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SiURnsS+E3/Xrwmekp5Tu5DnaMXbqV+nCDVXTOVk6a3kX05AKu86+Ce/YlFzG5vxe8T1Sf1khPhDbyZ8oNm6d9zbhaRJoA/MC0sZ6n68VkXD9IKN3R9RVecJrc4/X+bPgeSxIpMxHp8SLGK9HMDNzYB4L2lE+6ywhZekx2Ej9pw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=arazil.net; spf=pass smtp.mailfrom=us-west-1.amazonses.com; dkim=pass (2048-bit key) header.d=arazil.net header.i=@arazil.net header.b=JTwcbAD4; dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b=J8uYfgc1; dkim=fail (2048-bit key) header.d=arazil.net header.i=@arazil.net header.b=dA40V/lQ reason="signature verification failed"; arc=none smtp.client-ip=23.251.242.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=arazil.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=us-west-1.amazonses.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tSy9jzyo"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C839CC2BD11;
-	Tue, 21 May 2024 12:10:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1716293427;
-	bh=f2GQ0va2lsLTO8nlzPzR6f1yERxb6qBUyy6szVB7sAM=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=tSy9jzyoijfqBI59lgA6oL+x4sNWOSz//Hs6yMCVWi5/gMBKScYRp6RaqM40s5wnB
-	 hUxxsP7i6vD8++xZSqE+kys/5mluxZs3KtAWe6pX3rl/haMDLZDex4uy9paPEtEGJ/
-	 mUXle1pXdMrizuolWU3tHnluXrnjKS3P7wVRENzT5PS+DoUkM2CVuGdXdZCxzOceZZ
-	 EFVLl0e7Ek+Q4t1qXjwAuXeaqUDNR8+UtVRSWv0N+KjXbzZeBTNZhWHD/WpnqOhf97
-	 uXvmGs5Nv7w6njANCPoSkzZNhAohpzD7gx9+962Jz7nCTmzMHdxnDoAWB9lMsws+Pm
-	 EZ6uxKYaSEO1g==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B37F9C25B74;
-	Tue, 21 May 2024 12:10:27 +0000 (UTC)
-From: Joel Selvaraj via B4 Relay <devnull+joelselvaraj.oss.gmail.com@kernel.org>
-Subject: [PATCH 0/2] novatek-nvt-ts: add support for NT36672A touchscreen
-Date: Tue, 21 May 2024 07:09:44 -0500
-Message-Id: <20240521-nvt-ts-devicetree-regulator-support-v1-0-8d766c639dca@gmail.com>
+	dkim=pass (2048-bit key) header.d=arazil.net header.i=@arazil.net header.b="JTwcbAD4";
+	dkim=pass (1024-bit key) header.d=amazonses.com header.i=@amazonses.com header.b="J8uYfgc1";
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=arazil.net header.i=@arazil.net header.b="dA40V/lQ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=qo5nb3djytn6yyi2uek5wqamxnq536po; d=arazil.net; t=1716298282;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+	bh=Zs/I9oolkSjtcYPVN3LBpc6+Q4BVG/q1UQVRFxb36gs=;
+	b=JTwcbAD4fEWEHswvEs9Vt14kYILAr/aQmk6EqB9XlHamdsAVTgZEbm1QZZ7Q6vy6
+	u05wQuiAa9XekbMnpnWMqSSEu6m0a/vrO1pVVx0YN8EsvbzGw1P9s1jhC924zPHZO3+
+	Cac/IYhl97vXZNQgySFwMlcww/lPh7JwJcwtpC9Q77dIP1w3bNdpcjsqrroMpD5i7R8
+	fIaJnpOQpqSIob6MmR+Wb0v6+DIzEbM/6zbhg1zaTA0J9ATGHLLVqPDvLW3TqtO6X8S
+	R3gNDwgIJdtb9vnWrKtJhREUU7f0yCWFf0CaNUe4seFgg7k6QmGTBw4ca5Kr1AV5QrQ
+	WmwfvVllFQ==
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/simple;
+	s=iek43urnex4zqv5t3opageoatkmhcael; d=amazonses.com; t=1716298282;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Feedback-ID;
+	bh=Zs/I9oolkSjtcYPVN3LBpc6+Q4BVG/q1UQVRFxb36gs=;
+	b=J8uYfgc1nlU5q27OlS3ArQTbDKkcoqMdGL3WzD/G5OucHO6z9AIMjM7eR8a1sQMh
+	kIvrAfxxJ2iuuVu9ub3zAyQsjUYIBrpH/jUfkuafEmf2/G1ookq+Ny6XxX33rn/RPih
+	Ox5HrSdYcsODDGfp2v1wxsy4xJR9AJJ24Njz63Fk=
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arazil.net; s=dkim;
+	t=1716298279; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to:references;
+	bh=VSXVFigBxqcoL5zF+9uC5xYJITLyTy1DfQ2qX3P0T48=;
+	b=dA40V/lQNXLGkZXF3CXYXESo8kDoc+q0SGsXue28Uo79zLLXnRMtINypi0nsT6gUQYVNNs
+	C38BxxhcmIMF7+TUsy0mF1+I9Sf/0r42Ag4CxAWIz5yTTm+nFIS9pqlfgIXuJ3l0Yrhf2G
+	eoeZt8IFNZ5MN+CWEMtdWwhLp9m9ImZCX2jRxBt8Y9uJ9nvX8H0COdeiuRaHkkeRHwUy4i
+	7NGGfeEjzuvMbHWCSDcnMchIh7VmcspZ2XDp/PkWIBumf+IzPGAUOOB19zEfzT6WDCCy6S
+	mJ+7DvHRcKUalnzPKnMlqj8XU/8Gpt4ICXBNtjrIgAYN4ovYw2We8GHOyUsdew==
+Message-ID: <0111018f9b597531-d4643a7e-c27a-46f9-9e25-90530d648d65-000000@us-west-1.amazonses.com>
+Date: Tue, 21 May 2024 13:31:22 +0000
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: BUG: Framework Laptop 16 i2c-hid Based Touchpad Sometimes Fails
+ To Initialize Properly On Early Boot
+To: Linux regressions mailing list <regressions@lists.linux.dev>
+Cc: linux-input@vger.kernel.org
+References: <0111018f7508efb1-1206661a-d4b5-4bd1-b54f-ccb8504b8b4a-000000@us-west-1.amazonses.com>
+ <f0dd90aa-78b0-4253-96b0-3241e8b2a11b@leemhuis.info>
+Content-Language: en-US
+From: Arazil Songweaver <arazil@arazil.net>
+In-Reply-To: <f0dd90aa-78b0-4253-96b0-3241e8b2a11b@leemhuis.info>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAiPTGYC/x2NwQqDMBAFf0X23AUj1mp/pfSQxqddKEnYjVIQ/
- 72hx4Fh5iCDCozuzUGKXUxSrOAuDYW3jytY5srUtV3fXt3IcS9cjOfqBhQFWLFuH1+Ssm05Jy3
- sw4R+et1G7waqpaxY5Pu/PJ7n+QNYFuZEdQAAAA==
-To: Hans de Goede <hdegoede@redhat.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Joel Selvaraj <joelselvaraj.oss@gmail.com>
-X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1716293427; l=1155;
- i=joelselvaraj.oss@gmail.com; s=20240420; h=from:subject:message-id;
- bh=f2GQ0va2lsLTO8nlzPzR6f1yERxb6qBUyy6szVB7sAM=;
- b=RwjnyeMqeGDD586cQXkEIsoybnrUaiCO8HAys+wB2ry3yzDHXQjh8LXhO3b3RTvs2fuPPGF4w
- XNDDR+VcijjD6awjhM6ZJsneWQ62X3ZMHBccN8iPQVlpoHccYsX2p3i
-X-Developer-Key: i=joelselvaraj.oss@gmail.com; a=ed25519;
- pk=qT4gsuVtlPE0Dpr+tQA/Fumm7wzVP6qfeVaY+6pX04s=
-X-Endpoint-Received: by B4 Relay for joelselvaraj.oss@gmail.com/20240420
- with auth_id=165
-X-Original-From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
-Reply-To: joelselvaraj.oss@gmail.com
+X-Last-TLS-Session-Version: TLSv1.3
+Feedback-ID: ::1.us-west-1.+ToUlskFmoAr0tQOMQW4CAabIYpBdjD9BBfO15fkT3E=:AmazonSES
+X-SES-Outgoing: 2024.05.21-23.251.242.11
 
-Extend the novatek touchscreen driver to support NT36672A chip which
-is found in phones like Xiaomi Poco F1 [1]. Added devicetree support for
-the driver and used i2c chip data to handle the variation in chip id and
-wake type. Also added vcc and iovcc regulators which are used to power
-the touchscreen hardware.
+I was able to reproduce bug again with: Linux version 
+6.9.0-1-git-10323-g8f6a15f095a6 (linux-git@archlinux) (gcc (GCC) 14.1.1 
+20240507, GNU ld (GNU Binutils) 2.42.0) #1 SMP PREEMPT_DYNAMIC Tue, 21 
+May 2024 11:58:24 +0000 (not an official Arch Linux package)
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-tianma.dts?h=v6.9
+The relevant I2C_HID module needs to be built in to the kernel for the 
+bug to trigger on a consistent basis. Arch Linux and mkinitcpio is 
+currently getting around this issue by building I2C_HID as a module and 
+delaying the load of that module until the part when autoprobe starts 
+loading relevant kernel modules. The bug became (more) visible on Arch 
+Linux after an update to mkinitcpio moved the I2C_HID module up to the 
+beginning of the boot process.
 
-Signed-off-by: Joel Selvaraj <joelselvaraj.oss@gmail.com>
----
-Joel Selvaraj (2):
-      dt-bindings: input: document Novatek NVT touchscreen controller
-      Input: novatek-nvt-ts: add support for NT36672A touchscreen
+This is not a recent regression. In my testing, I was able to reproduce 
+this issue as far back as version 6.8. I did not test 6.7 or earlier 
+revisions yet.
 
- .../bindings/input/touchscreen/novatek,nvt-ts.yaml | 62 +++++++++++++++++
- MAINTAINERS                                        |  1 +
- drivers/input/touchscreen/novatek-nvt-ts.c         | 78 ++++++++++++++++++++--
- 3 files changed, 135 insertions(+), 6 deletions(-)
----
-base-commit: 6578aac6a270bd6deb9f9319b991dd430de263dd
-change-id: 20240518-nvt-ts-devicetree-regulator-support-ac9e49b78a16
+Thanks for the follow up.
 
-Best regards,
--- 
-Joel Selvaraj <joelselvaraj.oss@gmail.com>
+-Arazil
 
-
+On 5/21/24 5:57 AM, Linux regression tracking (Thorsten Leemhuis) wrote:
+> On 14.05.24 04:57, Arazil Songweaver wrote:
+>> We are experiencing an issue where the touch pad on the Framework Laptop
+>> 16 fails to initialize properly when the "i2c-hid" is loaded early in
+>> the boot process. This issue is especially prominent when "i2c-hid" is
+>> built directly into the kernel. When the "i2c-hid" module is built in,
+>> the issue occurs roughly 50% of the time.
+>> (https://community.frame.work/t/touchpad-not-working-since-update-archlinux/50304) Moving the module load to later in the boot process appears to resolve this issue by making initialization more likely to succeed. (https://gitlab.archlinux.org/archlinux/mkinitcpio/mkinitcpio/-/releases/v39.1)
+>>
+>> Kernel version: Linux artemis 6.9.0-1-git-01560-ga7c840ba5fa7 #1 SMP
+>> PREEMPT_DYNAMIC Tue, 14 May 2024 01:49:25 +0000 x86_64 GNU/Linux
+>>
+>> I'm using the standard Arch Linux AUR "linux-git" package with the
+>> following kernel configuration changes:
+>>
+>> CONFIG_I2C_DEBUG_CORE=y
+>> CONFIG_I2C_DEBUG_ALGO=y
+>> CONFIG_I2C_DEBUG_BUS=y
+>> CONFIG_I2C_HID=y
+>> CONFIG_I2C_HID_ACPI=y
+>> CONFIG_I2C_HID_OF=y
+>> CONFIG_I2C_HID_CORE=y
+>>
+>> We tried reverting the following patches without any behavior impact
+>> (good or bad):
+>>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.8.y&id=fb49deec375aa5beca4a5d71d7a74ec951872f28
+>>
+>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=linux-6.8.y&id=418c5575d56410c6e186ab727bf32ae32447d497
+>>
+>> Impacted devices seem to include: "PIXA3854:00" and "i2c_designware
+>> AMDI0010:03"
+> Any news on this? If this is still unresolved I'll bring this to the
+> attention of the right developer, if this is a recent regressions (it
+> sounds like it, but it's not exactly clear; and from the first link
+> above it sounds like it's partly due to a change in arch's approach to
+> the initramfs).
+>
+> Ciao, Thorsten

@@ -1,105 +1,83 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1D6F126F06;
-	Fri, 24 May 2024 14:39:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20512EC7;
+	Fri, 24 May 2024 15:18:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716561589; cv=none; b=bHTdiPReZB6lSlsDUjcYb4rbGXY9cIdN00NazB4Blb40tdQs7VuBvjt5Lcd2BiLIwzCAUQJ/zrFUizT5LyQKja3eeTdBwXQSsHD6fMIZTPxcQIoHfvbbi0+UVLb4BPL95hmTTlkbnx8XjLWyXR9n3gFj4RPoisuu0yZeQ4251QA=
+	t=1716563937; cv=none; b=YHfrLjWxtcrp4d96lMJmm2ZaKoxs/wzii6lv8D94F7btA+JiqDN/YN/o6mCDM6Tu6zDvdWzibQWxI5hHNoxIfSE0g1TulhB0/vhtBHHumSPHJdl6nuPYboH/qinuL/gmy1kW9k7RF/Ezr48Ob/Zh4mfScYtITlszQ1QLBBhsyio=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716561589; c=relaxed/simple;
-	bh=WnxLNupJVJOryf7l5yLGWQgD6VwnyCE/cZW/EX1xubA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=jIiOs3np1N86zYdefiFTZPv3kG537VY7u8mtW7DcgWY5ZJw2MzpAQlViSaxubMZFAkqF0dmMyyOsnnLfx343L/Ii5dH2+G/rYsngj5K2CKXevCurDCItcmeuQcM3Vgb4lYgvn9Zrk8lrkAmjjUJKoe6CGjaM2Fl/ol1ZGwFDgmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wb1kE5LK; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1716563937; c=relaxed/simple;
+	bh=B6k6qQCQ7RE6o43aRIRTqfgkU/0aOiJtLBaWr+pByx0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uRCU2xnqs3LC88/4W401sDyBqPWfCk3FvsiOttiH1j/+PfXi1Et4ITWfrDC4Yb/FJSaND9fjze/SnWe3jjP2s+ZDuK2gF5bwiJRPxdlVLpiu7c7+G44V11hoadJO9+8RS6cSXOt1jEjYm6TzMLlH4K1NJReaACr2nI0fNOCzl4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SP9oAVGY; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wb1kE5LK"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6532BC2BBFC;
-	Fri, 24 May 2024 14:39:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1716561589;
-	bh=WnxLNupJVJOryf7l5yLGWQgD6VwnyCE/cZW/EX1xubA=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=Wb1kE5LKILnkmLBG+wDmvOJDqaTj4+pJxrBEOlUcZKtTEwk3KYVBam7IEY3YwAnws
-	 yUKP5NraFi+PVrXZMvlfFuQR47P15RDqrn/0TD4m1zLDYmWsCAT9t72ukt/FTfVw5b
-	 e6a9EumNQucWW4BVQG6UwGiwqO8KoieJeK3p2u/cEI9NqBqbzZzFZRz4cra73rn4hw
-	 lYBtH1GY+Y44nayz6nj2SKbm8WBKptiM0fvlEi2erbS2JdTPQsUkchER2xYUJsRCm1
-	 DajB82XHirqaiu9IYuTguaKdtZTTgIqBBKdfIU/DgXqHgQQC+HVey1Wcm+az/cSlQo
-	 ER6GooD+B+7Iw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EB9BC25B74;
-	Fri, 24 May 2024 14:39:49 +0000 (UTC)
-From: Joel Selvaraj via B4 Relay <devnull+joelselvaraj.oss.gmail.com@kernel.org>
-Subject: [PATCH v2 0/3] novatek-nvt-ts: add support for NT36672A
- touchscreen
-Date: Fri, 24 May 2024 09:39:17 -0500
-Message-Id: <20240524-nvt-ts-devicetree-regulator-support-v2-0-b74947038c44@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SP9oAVGY"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-1f33d84eaefso15446265ad.3;
+        Fri, 24 May 2024 08:18:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1716563935; x=1717168735; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=YSu9rEKkZeH5NZDPLkhnan7YnKsRldyiLYfLLtz2DGs=;
+        b=SP9oAVGYdjH4qJqP+TPqHY6PbAY0C+m3ywwR4cEb81gGc1EmsV9fi6NzTGQwNoSIuU
+         79CxNTo2UgWcZCFOz3pxsqMM//f4wznu0EavB5dI8JByXjPTvDAbAstVfcU4cpWady8i
+         Xbz/GjHfecbETSFCiA6TVs96WCic+eiduraVIy5n66mIvj9YvU0ikvYeDp6eGqx4ysLT
+         mj3anmT2BRzmN62OSc8IFeeJ0DCBry0w21MQYInxNNH/0PeUvBQ4ePYxup2+L0tTVkaO
+         tWNk58Z2zb357VfMx6VKyTA24WPyt5Io6fx0i78LlRwYfvauWpaVDizd5uyw+ascGCIG
+         HoNw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716563935; x=1717168735;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=YSu9rEKkZeH5NZDPLkhnan7YnKsRldyiLYfLLtz2DGs=;
+        b=kUN1xRRe/AWrmKnVon2c6izU9j/7b57sLvcBsouUpjLKLgMwBoCLEHqQuL00HsULLR
+         ZMnvHeJ8ENAqIKMSyCKbHAzjbXivi+XoS2f+F+3DH7N4Fo6ys8gto2HV3F1ScHkMz6gL
+         E4Olsk4DRnqGai8a96oeVMg+As7WQ/S/c2zKWL1PQGnkxQZN3RzKODmbL2VTEEW0Ny24
+         hXGEmjpQV6lj4Jb+Cg2vHOWmCICT5fh3hnuyyvT2HXq5lQMfCjM5SYEWdMOFVa7OAxus
+         9v/KZ0FeFRawFwZZR91myxvbZHGVSDqinzxnNC7J+DKh8xCG7NN3OQbre/0Zi/MfpbnZ
+         Peyg==
+X-Forwarded-Encrypted: i=1; AJvYcCWbm0bXKgL2xG2flzkNile21tBRD3TAdQ5x3zq7DKPhlUnays1TWe9MPV4ENW5BI4vjb7rKsdaR2+8BsrbZD2pmoPEcQA/uqD2UHsE=
+X-Gm-Message-State: AOJu0YxCajQwW3p2MCT0CKeCVj4wm5Y0H/Dc6FNWD/Hq+akj/rd0zwoL
+	zRFyXeiZvm6lzILZiKxFZdImbHCsNKhh1bDZvDbCaCb9H87cyerzF+8A0w==
+X-Google-Smtp-Source: AGHT+IEypr2Cl2lAvLN7gQaw1mI8Y04OYt5QYfEGA4V1Xu00CQVTm6eqWzP7bf3iITw1S9ACYDUU+A==
+X-Received: by 2002:a17:902:c944:b0:1f3:2874:d4e with SMTP id d9443c01a7336-1f4486c65f1mr38650045ad.7.1716563935379;
+        Fri, 24 May 2024 08:18:55 -0700 (PDT)
+Received: from google.com ([2620:15c:9d:2:a2db:c673:b8d1:3097])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f44c75dea9sm15477445ad.11.2024.05.24.08.18.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 May 2024 08:18:54 -0700 (PDT)
+Date: Fri, 24 May 2024 08:18:52 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
+Subject: Re: [git pull] Input updates for v6.10-rc0
+Message-ID: <ZlCv3HNhfcaEYjHf@google.com>
+References: <Zk_rXBV8E8Hwu04W@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAJWmUGYC/42NQQ6CMBBFr0Jm7RhasYAr72FY1HaESZCStjQaw
- t2txAO4fD8/760QyDMFuBQreEoc2E0Z5KEAM+ipJ2SbGWQpq/IsGpxSxBjQ5q+h6InQU7+MOjq
- PYZln5yNq01LV3utGCwXZNHt68Guv3LrMA4d8f+/RJL7rzy/FX/4ksMTG1koZdWqt0df+qXk8G
- veEbtu2DyHSnqzWAAAA
-To: Hans de Goede <hdegoede@redhat.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
- Joel Selvaraj <joelselvaraj.oss@gmail.com>
-X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1716561588; l=1668;
- i=joelselvaraj.oss@gmail.com; s=20240420; h=from:subject:message-id;
- bh=WnxLNupJVJOryf7l5yLGWQgD6VwnyCE/cZW/EX1xubA=;
- b=yhyitQNPtgrT0jWpsno8N21dVyiLPhcYAPHd0sGgXsFN0PMSiHuIVxO2SpEOiZDro2D/VTryf
- 9SdJ10nCtx2BpX/bW3ao1+v3Ng4dIejkaASvEqXOIGJOU/rbrPQ3aTk
-X-Developer-Key: i=joelselvaraj.oss@gmail.com; a=ed25519;
- pk=qT4gsuVtlPE0Dpr+tQA/Fumm7wzVP6qfeVaY+6pX04s=
-X-Endpoint-Received: by B4 Relay for joelselvaraj.oss@gmail.com/20240420
- with auth_id=165
-X-Original-From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
-Reply-To: joelselvaraj.oss@gmail.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Zk_rXBV8E8Hwu04W@google.com>
 
-Extend the novatek touchscreen driver to support NT36672A chip which
-is found in phones like Xiaomi Poco F1 [1]. Added devicetree support for
-the driver and used i2c chip data to handle the variation in chip id and
-wake type. Also added vcc and iovcc regulators which are used to power
-the touchscreen hardware. 
+On Thu, May 23, 2024 at 06:20:28PM -0700, Dmitry Torokhov wrote:
+> Hi Linus,
+> 
+> Please pull from:
+> 
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git tags/input-for-v6.10-rc0
 
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-tianma.dts?h=v6.9
+Oops, forgot to push the tag, sorry about it. Should be there now.
 
-Signed-off-by: Joel Selvaraj <joelselvaraj.oss@gmail.com>
----
-Changes in v2:
-- The generic i2c device id is now replaced with the correct IC variant
-  provided by Hans de Goede
-- Updated the bindings to reflect the latest changes and also incorporated
-  the suggestions provided by Krzysztof Kozlowski
-- Link to v1: https://lore.kernel.org/r/20240521-nvt-ts-devicetree-regulator-support-v1-0-8d766c639dca@gmail.com
+Thanks.
 
----
-Joel Selvaraj (3):
-      Input: novatek-nvt-ts: replace generic i2c device id with specific IC variant
-      dt-bindings: input: document Novatek NVT touchscreen controller
-      Input: novatek-nvt-ts: add support for NT36672A touchscreen
-
- .../bindings/input/touchscreen/novatek,nvt-ts.yaml | 62 +++++++++++++++++
- MAINTAINERS                                        |  1 +
- drivers/input/touchscreen/novatek-nvt-ts.c         | 78 ++++++++++++++++++++--
- drivers/platform/x86/x86-android-tablets/other.c   |  2 +-
- 4 files changed, 136 insertions(+), 7 deletions(-)
----
-base-commit: 6578aac6a270bd6deb9f9319b991dd430de263dd
-change-id: 20240518-nvt-ts-devicetree-regulator-support-ac9e49b78a16
-
-Best regards,
 -- 
-Joel Selvaraj <joelselvaraj.oss@gmail.com>
-
-
+Dmitry

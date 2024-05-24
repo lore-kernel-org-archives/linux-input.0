@@ -1,99 +1,166 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A7F886263;
-	Fri, 24 May 2024 13:06:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1CC117C9;
+	Fri, 24 May 2024 14:39:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716555967; cv=none; b=rpBF6IH5Bx8uR+dCxWhoqWuYyWFAzH522ouncyBSVfDBkvALuI5uHf1ZeYNtV/Eeh7M7yEObQi6rzYSE3u9hywvMhT5y05GogqZf+G0vr2B+YitbT7bwMcHcSwkkDECD0vj3foODRzBoWrWaXYyaOcj7NL+JLvgW+6hM0wjFTeA=
+	t=1716561589; cv=none; b=mhSZozOCHHwLC7QBTi9Llbcv9sXgk0e9kLoTbzMDhl6ODod6YAhYvjF6SbMvPxfpNKTeBDL52hNgmOt9W/8RcM3P9bx3pIEpsLRgwH2O73GssuadzfozrOW7Ed51hYGVBCiqpPo6K9xIhvSoZkGdIhmyS3wUbh/3SXNDfjiXPts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716555967; c=relaxed/simple;
-	bh=DoWs5BPUI9cxJ0X+dQ+0JUONSFZr+7WHS2zegtsXtpM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=tlv76QYbo+/0St8SB6X8cXN5lMXqqAKksFu1GAl4qhwFwNXmKdT8V/eZgY1+wcdipfeFsvsNHpc0GiVsTLR8vKPgZzsntzHBy6r/aVTPKtcloIvWEMWg2S2Zmq1O7yE4lfYbwU5o/k7n1mGkh8feeFiBXJTBcv8HZUmkcpJCBBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PdjqiMk7; arc=none smtp.client-ip=209.85.221.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1716561589; c=relaxed/simple;
+	bh=qPagS3nf7JxLDEBoJP6Rlhnx9zPxEQqI9AG4+8sd/Oo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=SXrlhEh/wTJKWQ16zw324XF0Jbfs3tL3AdgAVzpin9wJrtykg2Yyn8pO1p6Dg95dPxl0LKyjNrOkUKqDGxFPSiCme/hkVfA19m1AtkZZJwxkcMnGywWvTchgBdhE92KIoYD7TcxfT/YvQd/q+wNllnTrxuTks6xwmHHB7eWsiOQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a5U1d6lj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PdjqiMk7"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-354e0cc9c5cso2654095f8f.0;
-        Fri, 24 May 2024 06:06:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1716555964; x=1717160764; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=afPh9P2vN9D4alg4S+/YGRy8MrT0d+ItioNuY/3leJk=;
-        b=PdjqiMk75wUcHYpJtysTt2CmehJMC2JZVkkqyBUYsPdvCNLhRW0sO6lFfjS60RNMNw
-         q2nNlRseL/U8s9xeGNyzmsVYLRg5oKWSruhcOzTQZ0+FKjCr+B3cM0qMwQ7XFT9YeS16
-         B/EKjGflkrr+pfzZ3Ze8W4u/992ySF/ODGbMoP0ZUiO0Hqa6D6eVfTPnFl+NDKELe4f6
-         eo+jOOXaHKIKVMyH+7XEQw9w5o3ni59dZkOpw4TXWu64eZ76Mq2QKdBz7Vxyr0KTJ6vG
-         jRSEx/vbFprkKIrjU1+Qpm7ZikVPW5aJ0aVInHR1kX/uURcUS0+Say9I2rDEqhOxhD2y
-         ALzg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1716555964; x=1717160764;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=afPh9P2vN9D4alg4S+/YGRy8MrT0d+ItioNuY/3leJk=;
-        b=ds5uLIvu5KOl77vQm1eMDskE6wVEnd/WlTQZpiVcDoPR2PMn+Bh74Oiu4wUbxAnlpF
-         /w7JgCed39rwuClz+4CJ6w649kRtZXv8uICNrxsxGRihvc83rasDzQQWJD+K/DJHeW7p
-         AGVquew8TByjF5lSqiZL0YShkL9a3PtuZcRy17Mjj7XT8o04xoB04qGOWikJkOpF/SbQ
-         A5GTU7b9yDL9lL6sYCoi1M3PBYByMeJ4OxAAEx/9gluGm7/ObWuBZ7n936lksJboe28i
-         A8lGaION8tOj2Ekd1MolyorLLjWZSdge0c6d+DwdPApPgaKqxtpQ/No27znSrB7plBgI
-         gGaw==
-X-Forwarded-Encrypted: i=1; AJvYcCUsH/y0Edax3r8uKcMp1WlLqHARgVz9SBPrQ+bVlUK9DQCyZvzm/Jt3DO3c/pC6oWXJil1A7Ia3elXATLmH5E5+7Iujl4i+LseksMocPU7F80cLoXU2MhNK18CQ/FAp9FU9k1gogMTrLVc=
-X-Gm-Message-State: AOJu0YwGwTU6nYmY9TdoPn29uCFwkPbtQWmQatZk5ea6gVYt/DuKCt/E
-	6p+6ft9qcbZQ2qZTNTZ4nO2MmDNEQaUqZULwFkmqFUrq2AQiBv8V
-X-Google-Smtp-Source: AGHT+IGPXI9JqXB12zg9HUB94hfAt4AWZBgnbpkF/gJYhJZtb1fO/ujOTpFiS0fhn/EduG7W2NCjEw==
-X-Received: by 2002:adf:e546:0:b0:354:e0c9:f620 with SMTP id ffacd0b85a97d-35526c38c7bmr1344527f8f.24.1716555964301;
-        Fri, 24 May 2024 06:06:04 -0700 (PDT)
-Received: from fedora.. ([213.94.26.172])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-35579d7db6bsm1595633f8f.2.2024.05.24.06.06.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 May 2024 06:06:03 -0700 (PDT)
-From: =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-To: jikos@kernel.org
-Cc: bentiss@kernel.org,
-	lains@riseup.net,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	=?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>
-Subject: [PATCH] HID: logitech-dj: Fix memory leak in logi_dj_recv_switch_to_dj_mode()
-Date: Fri, 24 May 2024 15:05:39 +0200
-Message-ID: <20240524130600.275577-1-jose.exposito89@gmail.com>
-X-Mailer: git-send-email 2.45.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a5U1d6lj"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 81378C2BD11;
+	Fri, 24 May 2024 14:39:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1716561589;
+	bh=qPagS3nf7JxLDEBoJP6Rlhnx9zPxEQqI9AG4+8sd/Oo=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=a5U1d6lj5avUgnLbwhLnasDun9VuLD6Pq/mjpi/7jv7N7IGzpIngjgD4vilY1n6QZ
+	 zOfbqsOmWG1fxUABq3uBdE2Pf67RCpya3JZRtbrU8EAjEq5oRHJqxRiZAUazcw2ekT
+	 iLj+dG3T5C1aKQCpib/8bKODh+xQnpzheOniz3SHbA7sjxl4Poqg8XVMuhkbHIe4rW
+	 Uzz6GyNwE2K2WuFK4FzA3QLbDUrQPvoMsNdIoiXBqDbAGh5GTUq9jaU7hr5vPGh0AZ
+	 JPncP6XxhC+5r8zyDInFjaaLJvEc3mr2h5MQRA377B2DbzViyLaCLvura7nl6j0sIm
+	 4jhX8OEwoRf5A==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6912FC25B7D;
+	Fri, 24 May 2024 14:39:49 +0000 (UTC)
+From: Joel Selvaraj via B4 Relay <devnull+joelselvaraj.oss.gmail.com@kernel.org>
+Date: Fri, 24 May 2024 09:39:19 -0500
+Subject: [PATCH v2 2/3] dt-bindings: input: document Novatek NVT
+ touchscreen controller
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240524-nvt-ts-devicetree-regulator-support-v2-2-b74947038c44@gmail.com>
+References: <20240524-nvt-ts-devicetree-regulator-support-v2-0-b74947038c44@gmail.com>
+In-Reply-To: <20240524-nvt-ts-devicetree-regulator-support-v2-0-b74947038c44@gmail.com>
+To: Hans de Goede <hdegoede@redhat.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
+ Joel Selvaraj <joelselvaraj.oss@gmail.com>
+X-Mailer: b4 0.14-dev
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1716561588; l=2807;
+ i=joelselvaraj.oss@gmail.com; s=20240420; h=from:subject:message-id;
+ bh=Y6dkGY1AKwCQh1ciYwF2DiXPtYGhHE52a60bkhbIlpc=;
+ b=YJD1TuFL0D65mNKAyem1JMSxF062NJeL2lFevzqLNvapmkGwEpGn6W+EksRgr26odzQCIas0Z
+ ARnVuVCHoCHAQSjHxcO1EKB+XS9z9dysNdHYAWfB8a2InIhr0Ja1/na
+X-Developer-Key: i=joelselvaraj.oss@gmail.com; a=ed25519;
+ pk=qT4gsuVtlPE0Dpr+tQA/Fumm7wzVP6qfeVaY+6pX04s=
+X-Endpoint-Received: by B4 Relay for joelselvaraj.oss@gmail.com/20240420
+ with auth_id=165
+X-Original-From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
+Reply-To: joelselvaraj.oss@gmail.com
 
-Fix a memory leak on logi_dj_recv_send_report() error path.
+From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
 
-Fixes: 6f20d3261265 ("HID: logitech-dj: Fix error handling in logi_dj_recv_switch_to_dj_mode()")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Document the Novatek NVT touchscreen controller present in devices like
+the Xiaomi Poco F1 [1]. Also, include the devictree binding file in the
+MAINTAINERS file.
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-tianma.dts?h=v6.9
+
+Signed-off-by: Joel Selvaraj <joelselvaraj.oss@gmail.com>
 ---
- drivers/hid/hid-logitech-dj.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../bindings/input/touchscreen/novatek,nvt-ts.yaml | 62 ++++++++++++++++++++++
+ MAINTAINERS                                        |  1 +
+ 2 files changed, 63 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 3c3c497b6b91..37958edec55f 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -1284,8 +1284,10 @@ static int logi_dj_recv_switch_to_dj_mode(struct dj_receiver_dev *djrcv_dev,
- 		 */
- 		msleep(50);
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml b/Documentation/devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml
+new file mode 100644
+index 0000000000000..c47b4de9d58e7
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml
+@@ -0,0 +1,62 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/novatek,nvt-ts.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Novatek NVT Touchscreen Controller
++
++maintainers:
++  - Hans de Goede <hdegoede@redhat.com>
++
++allOf:
++  - $ref: touchscreen.yaml#
++
++properties:
++  compatible:
++    enum:
++      - novatek,nt11205-ts
++      - novatek,nt36672a-ts
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  vcc-supply: true
++  iovcc-supply: true
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++        touchscreen@1 {
++          compatible = "novatek,nt36672a-ts";
++          reg = <0x01>;
++          interrupts-extended = <&tlmm 31 IRQ_TYPE_EDGE_RISING>;
++          reset-gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
++          vcc-supply = <&vreg_l22a_2p85>;
++          iovcc-supply = <&vreg_l14a_1p8>;
++          pinctrl-0 = <&ts_int_default &ts_reset_default>;
++          pinctrl-1 = <&ts_int_sleep &ts_reset_sleep>;
++          pinctrl-names = "default", "sleep";
++          touchscreen-size-x = <1080>;
++          touchscreen-size-y = <2246>;
++        };
++    };
++
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 90754a451bcfc..e1f744992b15f 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -15942,6 +15942,7 @@ NOVATEK NVT-TS I2C TOUCHSCREEN DRIVER
+ M:	Hans de Goede <hdegoede@redhat.com>
+ L:	linux-input@vger.kernel.org
+ S:	Maintained
++F:	Documentation/devicetree/bindings/input/touchscreen/novatek,nvt-ts.yaml
+ F:	drivers/input/touchscreen/novatek-nvt-ts.c
  
--		if (retval)
-+		if (retval) {
-+			kfree(dj_report);
- 			return retval;
-+		}
- 	}
- 
- 	/*
+ NSDEPS
+
 -- 
 2.45.1
+
 

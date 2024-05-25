@@ -1,108 +1,95 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mout.web.de (mout.web.de [212.227.15.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBEE04EB45;
-	Sat, 25 May 2024 15:18:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B903376F4;
+	Sat, 25 May 2024 15:54:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716650300; cv=none; b=OxjJCbWaGLAreV/80i/9mrqUfAkidZUDcA5l+pe8FgOmxgPLbId9662ulP1gbVoJkCldzV4aOjdb02tTTPkBoEyo4iHIEchf4qN/A/N2FJjenTTZ+QcF4j7V3ZEWUaEPzzDQ2OTRM3+RqqgQsycB7yrA820ApPvvHzlVcM2U62I=
+	t=1716652446; cv=none; b=lDfBW0B4YuyMKtWIcT2gPvyLWttodDHX2KTMy41DUJMVybcSK2ldx4/ELnRk9f3pr6vSVQFr7f+G53M0X2qU8uVMGZdXhvy6Y4cmlteqahEk0xnT0lQEUWTdomYtNAVkOuuRdZYEfosrVIyrDlfPIunRIdWGjl6Sza3lNve91RI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716650300; c=relaxed/simple;
-	bh=7GWmKKcJ+5mtRipnp051mF1k19YX/MVXaBh2cg+3N48=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
-	 In-Reply-To:To:CC; b=PyoZvw5YUFH2ysQG/p3Rp3n3grwrU8ekAv7S5xMitdBwKGanbKYT6mCez/E2pKyCiFcA/SKdfWk8sdAGtjDDmEhJBqpvNT8/HNPx1bV0AaJyJazLG93BDK7NlKG/wwLXrjR7XJe8RfuGxHGAcqEgI1Tq35eXBynVRG65mFv3ozQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=LI0D/8UF; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1716652446; c=relaxed/simple;
+	bh=L4m7Fdh4Tj1XBqkhWZwUbBfV6T54F9ZygtQb5A6gqLg=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
+	 In-Reply-To:Content-Type; b=G7XrutzE5K0Nj8W2x3EAs7XXUpsmJw6/1lSKinGBU10GJsOvLh9wLVM2NDSWZdbYGCEYlUIKGUKMH/F8BTfHENp7+/HG+C6IafllcQSuJIByiNjZHWTGwNsm6iFoyTvzjZHeINn0+yrj4ssqp/qCfub73GvfjtH4Kas1RLvGTFU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=BB4VBiZx; arc=none smtp.client-ip=212.227.15.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="LI0D/8UF"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 44PDNqGE023457;
-	Sat, 25 May 2024 15:18:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	NoDoCXrrGjP4Dq4Apr/IETWJzT8dMisgvF5Uj8McL2c=; b=LI0D/8UFgW0gcvUp
-	lo1IStZxPLLneProSzdcyVcBGVmA53eIFnJ5JR4sZ1vlpOtQySU8xbOPQ3ynf2db
-	0fdCqobDrK4XbzzzvVxpHYjC3i+x+QKifo8HDhPXK8RmdT6CJC+h2tuDj9L2FfFX
-	mDz0hDnK3oklWosF2RlAQONZzQMk0/emCJMWI3aEtoQi3yw7WQnQs+JecGozeI6x
-	QiqoS6SltmV+y9GY9TuCGNp4u8Dz55P0Z5AmZ8bxhqk26QfaY6a0fA5tKMz77tDC
-	U1PKlyz31NzAbnD9Sb+h0FqLeur8tk+JiUaJEFPBVln/fKNipIcEB+ZtCMSRiKAX
-	Saz1VQ==
-Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3yba0q8gas-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 25 May 2024 15:18:00 +0000 (GMT)
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-	by NALASPPMTA04.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 44PFHxQ2010178
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Sat, 25 May 2024 15:17:59 GMT
-Received: from [169.254.0.1] (10.49.16.6) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Sat, 25 May
- 2024 08:17:59 -0700
-From: Jeff Johnson <quic_jjohnson@quicinc.com>
-Date: Sat, 25 May 2024 08:17:41 -0700
-Subject: [PATCH 1/2] HID: intel-ish-hid: fix ishtp_wait_resume() kernel-doc
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="BB4VBiZx"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1716652396; x=1717257196; i=markus.elfring@web.de;
+	bh=L4m7Fdh4Tj1XBqkhWZwUbBfV6T54F9ZygtQb5A6gqLg=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
+	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 cc:content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=BB4VBiZxXgWCAnrwgXJG5osFFN6ugZX5WYXapZDRaJ+uN/ko/DAYyv8rkQ6v5IVI
+	 zmO5lnS+gZmFSd3OrdraB2zcq2n2IPGKijol8Y4T7Qgj14C4iAZq9AucbGLvJK1aH
+	 jbfMV5PbNLG4W5fRcnht1qyVhOOdIjJF0fg5Wpw6gLhMxB8tFcr4M9ow/KKXHA1le
+	 I+JbCoLnPJYumnP0ICYLfk/lnkH3s2fFapEaBANIIZw9anLzjyAr6uyiDGEwQ7QYC
+	 uh9lG42ek/CUdavLD3Geh6jMS5lxvlTDgjwboE9N569FzefLAzm9XmemBcbDIgUTB
+	 rooYb/rrR1DHtwj3Gg==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.21] ([94.31.83.95]) by smtp.web.de (mrweb006
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1N2jaS-1sepe40oLE-0131uc; Sat, 25
+ May 2024 17:53:16 +0200
+Message-ID: <448230a6-1afd-416f-a430-3fc83d81908f@web.de>
+Date: Sat, 25 May 2024 17:53:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-ID: <20240525-kd-ishtp_wait_resume-v1-1-fec87a6f7916@quicinc.com>
-References: <20240525-kd-ishtp_wait_resume-v1-0-fec87a6f7916@quicinc.com>
-In-Reply-To: <20240525-kd-ishtp_wait_resume-v1-0-fec87a6f7916@quicinc.com>
-To: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jiri Kosina
-	<jikos@kernel.org>,
-        Benjamin Tissoires <bentiss@kernel.org>
-CC: <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <kernel-janitors@vger.kernel.org>, kernel test robot <lkp@intel.com>,
-        "Jeff
- Johnson" <quic_jjohnson@quicinc.com>
-X-Mailer: b4 0.13.0
-X-ClientProxiedBy: nalasex01c.na.qualcomm.com (10.47.97.35) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: AHbSdyP64nX9haNgHsXaVN0ppmR4OMAe
-X-Proofpoint-ORIG-GUID: AHbSdyP64nX9haNgHsXaVN0ppmR4OMAe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.12.28.16
- definitions=2024-05-25_09,2024-05-24_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- suspectscore=0 lowpriorityscore=0 impostorscore=0 clxscore=1011 mlxscore=0
- mlxlogscore=804 malwarescore=0 spamscore=0 adultscore=0 bulkscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2405170001 definitions=main-2405250124
+User-Agent: Mozilla Thunderbird
+To: Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+ virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ linux-input@vger.kernel.org, netdev@vger.kernel.org,
+ kernel-janitors@vger.kernel.org, x86@kernel.org,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+ Thomas Gleixner <tglx@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ajay Kaher <akaher@vmware.com>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Daniel Vetter
+ <daniel@ffwll.ch>, David Airlie <airlied@gmail.com>,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Simon Horman <horms@kernel.org>,
+ Thomas Zimmermann <tzimmermann@suse.de>, Tim Merrifield
+ <timothym@vmware.com>, Zack Rusin <zackr@vmware.com>
+References: <20240523191446.54695-7-alexey.makhalov@broadcom.com>
+Subject: Re: [PATCH v10 6/8] x86/vmware: Correct macro names
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20240523191446.54695-7-alexey.makhalov@broadcom.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:cmJLXeOyO6RwrkGVOYZa3TDqSK+xvVSWKeWZu05zk6kvDxPi6KM
+ VI24pllby/m9VxcIP611LmnPKT3Fkb6lA6kPaZTrlGfidwOThVsC+SImxKngIDDFV6xW6BP
+ J6RXUK+VqU+ENdI7eNUSxO6SAl82GwEAtBReZA6WBG+5uxYWZk2/ZxJmuB9BaqFOoor088e
+ IJYEq2ueiDM77HRnLv6Lg==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:F/nmIhTSQEM=;WriBGqpL96mcTgTrjkKuqUYepA/
+ UohE/5dqPTe/KgqqIo6WN4SmC2QoADhjOr1NRsUjVJlCorMWJdgT+OGfndZfvuYSll/4sGSTb
+ abUFhN6sj6CunNVjqF7byQLs2Jg/VI6HlWk0ZZC20SecLBIp2/GBPqABkmr3W+PJQuSwrvXrI
+ /gJwrghxNrelmCCaBCHdqtv9ndEagLjQpSGNodYv9OPFL7kYDorV4dqvT8FCcYTFrhVeV1prI
+ oO6SYTA9y7H3WsRSO5s+EgGf9Ko3livXoMiaUarggm9xSeR21+EePao32z1MR0F7+sfppeo32
+ dvw94GD9I+92QP+DThlY8uXQyw3SZt36Z/iNrpGUmuZjzWMtPsFzDuhuB+jLC17VP7kYO7hmn
+ R3N+3K6k6h2BTGWSncnZaKW6VEYsaSzkKzVH03iQY5JyBlr1EAaDUtulo26XRNL/25ktFQf+0
+ FpPsRZ+7H0ninFsvM2GhVEPzyXeRw8KjI1MQf0iAU+XOv1z4hSI61NHwzX5h1leBsQ2MwoA91
+ ZLVvQdisSvpzC6VAiMNdQM1pg98ynpkS6Zfmmbv7VNr4M9pkpRsPu7A86dTm+wUPF1ge8OWTK
+ UFDe5kcry8dYUDcnMpbCuOfHRaCV4MjXSKgjim82LE3reHwBHWyJD813B9dpQr7MhQrp1sVmU
+ sGLuRvFwNOqz2cuRtcQ/VSL2NN6GW1GoPCAXw79Uws/tI88dgCJ0fYbc/6Mnk/XwUFWcnMLlN
+ /nE9UjAnsNkT1sL97A65WFkmwcjX5aevSrBByJ3Fwuhl/tGsA6puCYjY90gRZ7vEGqmqOi9BC
+ xI8eZTNeTIvWxeuVJ+1tDC82CUxAg53nQ34H/Cc0p/qlM=
 
-Fix the 'make W=1' kernel-doc warning:
+> VCPU_RESERVED and LEGACY_X2APIC are not VMware hypercall commands.
+> These are bits in return value of VMWARE_CMD_GETVCPU_INFO command.
+> Change VMWARE_CMD_ prefix to GETVCPU_INFO_ one. =E2=80=A6
 
-drivers/hid/intel-ish-hid/ishtp/bus.c:853: warning: Function parameter or struct member 'dev' not described in 'ishtp_wait_resume'
+Can such information be relevant for the addition of the tag =E2=80=9CFixe=
+s=E2=80=9D?
 
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/oe-kbuild-all/202311060843.dXENYlGc-lkp@intel.com/
-Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
----
- drivers/hid/intel-ish-hid/ishtp/bus.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/hid/intel-ish-hid/ishtp/bus.c b/drivers/hid/intel-ish-hid/ishtp/bus.c
-index 03d5601ce807..f3042c4b8710 100644
---- a/drivers/hid/intel-ish-hid/ishtp/bus.c
-+++ b/drivers/hid/intel-ish-hid/ishtp/bus.c
-@@ -844,6 +844,7 @@ EXPORT_SYMBOL(ishtp_device);
- 
- /**
-  * ishtp_wait_resume() - Wait for IPC resume
-+ * @dev: ishtp device
-  *
-  * Wait for IPC resume
-  *
-
--- 
-2.42.0
-
+Regards,
+Markus

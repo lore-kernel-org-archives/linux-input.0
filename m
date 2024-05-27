@@ -1,125 +1,109 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56DD379E1;
-	Mon, 27 May 2024 03:07:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5DA64C96;
+	Mon, 27 May 2024 03:26:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716779226; cv=none; b=bvc9+lTHmB756ghHlz60I+i0u//2iaP6Hp66xmV5UU7mjzOB9YI5l1veOY18CcI70ZeJKowpnm05CqsLuAlBE989IfUeAZ+/RjCJW6v0gmV6AFXhIJuIHUhJ3Rq9Z2Lye2YmMELEqDW1gjpfISGmQSctvsANasDP3SOFEu9CGTQ=
+	t=1716780395; cv=none; b=myQKmHsqSTPdUyayfCGqXsZ3PpdztKrOifbf5DtBWUjYceydlMMqhQfRNfuiXspi5M86EsulA1j042boD6p/PrQPnFa3AFXAsAbVD00hq8Vhe3SWy5GQpYI/uy0PwSZMn/01wGDct6hfSiYgcLYJvXS3yH9YBhhI3lMP3ajiu9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716779226; c=relaxed/simple;
-	bh=C33d2bsfpP85hL2H7m104ihPh1qEsm4+V/IrMSXkFww=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=pOafTilqeztJzLAhF3aTaUPRyTVUqrTj1EtywS4EC53nq5F9rDDqJaY9HCDxYiSAArA0GukH3O+aZigbU3xXXF7dnftYpJYR/T3+NLHavqDWw5yPuaVgclnunhOEVSJLUCjy4e+5tgxTEnzQVJ708yAGsj4tKvm0UQnO1mA3J5E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZLwAnQh9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1716780395; c=relaxed/simple;
+	bh=M9oEkYlMCsLV8xMj4+wTERAWbk6x/3fQFKuCW2n0YG8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=T4PrI5amACmQmdEe7kLI6ToVwcg+I6k+Ov4VDOYKeIxoo+p4W2LBrLEFWjumfUGm+gaZ4bSlv6MD9n+gZzFnvKsn3eSQPRM4FS0DY/pUsTaO9ZD+y5YbPT+1tnqDpFJJwmZdVXvan9Gkm2pADQLr52y2SwNUBPBINVLHbUD0tTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dCj3FsZI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZLwAnQh9"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E6F49C4AF07;
-	Mon, 27 May 2024 03:07:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dCj3FsZI"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 2EF19C4AF07;
+	Mon, 27 May 2024 03:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1716779226;
-	bh=C33d2bsfpP85hL2H7m104ihPh1qEsm4+V/IrMSXkFww=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=ZLwAnQh9aenvjcS4zJK+gncNSAqPF7Fotx1ZAW/toTfPv8ziUn9JTznwRKzKn0AMU
-	 NIKDoKB3+KPoCpFuuZHoXlYss4UxhbX5UKtkyD7FCRTfsPrIlazfbjb46ORKEiAeBn
-	 tTIAo4OM885XqO1JZUXwYHXwgRlCapLmIJxNyWpQ/h+YlafQEtrHHwJ7RfAfsu7/du
-	 4Ynt+TWRlUrwopJDAlI+9Lp+sPw8J+OccLEmdCoKE9dwF90LPK3+94zYrvJy/AIviV
-	 aFL2XskCy7W3CyIchVkCyFC6IUWG7iAf0fdhDyfWpBuTN7jII2DTO37wgINKxnLknZ
-	 TqSJ+GPIIMkkw==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id CB932CF21E0;
-	Mon, 27 May 2024 03:07:05 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1716780395;
+	bh=M9oEkYlMCsLV8xMj4+wTERAWbk6x/3fQFKuCW2n0YG8=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=dCj3FsZI73nlPbxBzdr0XGoPyXWNAXqnPiRrWxDoo28CK8Xqqfdd5brBc0mbk+z9X
+	 N3lXGDON40JXmVvQVz/+1ph5k0W6YJJtlb8V5P8GPAeuPcilGM7jxPzubP8+0U9i2L
+	 gNfpyy+Y8UinXIzjl6cAUjeZQehlZCPg/41ZrMxo9w9ShRPaN92K8pqprkQPveRQGv
+	 +TCg9dzFExMi4eQayjRwHvCdtgNDn/vYUG4a9TKzjAL7xnDuvQStyaojPKnmx8jkc3
+	 WnK8N+SuwSS8qUiHY8CbA4CTQXC2rx4jX0uof61vxmM3Ent6wGsWhi/2McCYBclKln
+	 iQ1o3Ol2dRs5A==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A177C25B79;
+	Mon, 27 May 2024 03:26:35 +0000 (UTC)
+From: Joel Selvaraj via B4 Relay <devnull+joelselvaraj.oss.gmail.com@kernel.org>
+Date: Sun, 26 May 2024 22:26:24 -0500
+Subject: [PATCH v3 1/3] Input: novatek-nvt-ts: replace generic i2c device
+ id with specific IC variant
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 00/19] ACPI: store owner from modules with
- acpi_bus_register_driver()
-From: patchwork-bot+chrome-platform@kernel.org
-Message-Id: 
- <171677922582.1901.13180698074566654987.git-patchwork-notify@kernel.org>
-Date: Mon, 27 May 2024 03:07:05 +0000
-References: <20240328-b4-module-owner-acpi-v2-0-1e5552c2c69f@linaro.org>
-In-Reply-To: <20240328-b4-module-owner-acpi-v2-0-1e5552c2c69f@linaro.org>
-To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: rafael@kernel.org, lenb@kernel.org, robert.moore@intel.com,
- dmitry.torokhov@gmail.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, bleung@chromium.org, tzungbi@kernel.org,
- corentin.chary@gmail.com, luke@ljones.dev, hdegoede@redhat.com,
- ilpo.jarvinen@linux.intel.com, cascardo@holoscopio.com, pali@kernel.org,
- matan@svgalib.org, malattia@linux.it, coproscefalo@gmail.com,
- akaher@vmware.com, amakhalov@vmware.com, pv-drivers@vmware.com,
- richardcochran@gmail.com, tytso@mit.edu, Jason@zx2c4.com,
- linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
- acpica-devel@lists.linux.dev, linux-input@vger.kernel.org,
- netdev@vger.kernel.org, chrome-platform@lists.linux.dev,
- platform-driver-x86@vger.kernel.org, rafael.j.wysocki@intel.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240526-nvt-ts-devicetree-regulator-support-v3-1-aa88d10ccd9a@gmail.com>
+References: <20240526-nvt-ts-devicetree-regulator-support-v3-0-aa88d10ccd9a@gmail.com>
+In-Reply-To: <20240526-nvt-ts-devicetree-regulator-support-v3-0-aa88d10ccd9a@gmail.com>
+To: Hans de Goede <hdegoede@redhat.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
+ Joel Selvaraj <joelselvaraj.oss@gmail.com>
+X-Mailer: b4 0.14-dev
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1716780394; l=1393;
+ i=joelselvaraj.oss@gmail.com; s=20240420; h=from:subject:message-id;
+ bh=o9JSDCGAeFyywH+QabP9V+yumWYX1UdF0t0fi0getJU=;
+ b=8FfurXUpLV+IoRY8Zi4iAt7/+TyxzFfJwjFZLV1wORlhXEFvibA7HtBlgm+zJejWGxxNBJMYV
+ iRcI+G4lgkhDIogOvq0knO3l4FDjijRBX4LOoGM3K+JcqtfIC1sH4tb
+X-Developer-Key: i=joelselvaraj.oss@gmail.com; a=ed25519;
+ pk=qT4gsuVtlPE0Dpr+tQA/Fumm7wzVP6qfeVaY+6pX04s=
+X-Endpoint-Received: by B4 Relay for joelselvaraj.oss@gmail.com/20240420
+ with auth_id=165
+X-Original-From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
+Reply-To: joelselvaraj.oss@gmail.com
 
-Hello:
+From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
 
-This series was applied to chrome-platform/linux.git (for-next)
-by Rafael J. Wysocki <rafael.j.wysocki@intel.com>:
+This is done in preparation to introduce other variants of the Novatek NVT
+touchscreen controller that can be supported by the driver.
 
-On Thu, 28 Mar 2024 20:49:10 +0100 you wrote:
-> Changes in v2:
-> - Correct input and platform/chrome subjects.
-> - Add acks.
-> - Link to v1: https://lore.kernel.org/r/20240327-b4-module-owner-acpi-v1-0-725241a2d224@linaro.org
-> 
-> Merging
-> =======
-> All further patches depend on the first amba patch, therefore one way is
-> to ack and take it via one tree, e.g. ACPI.
-> 
-> [...]
+Signed-off-by: Joel Selvaraj <joelselvaraj.oss@gmail.com>
+---
+ drivers/input/touchscreen/novatek-nvt-ts.c       | 2 +-
+ drivers/platform/x86/x86-android-tablets/other.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Here is the summary with links:
-  - [v2,01/19] ACPI: store owner from modules with acpi_bus_register_driver()
-    https://git.kernel.org/chrome-platform/c/48b9c4862bd3
-  - [v2,02/19] Input: atlas - drop owner assignment
-    https://git.kernel.org/chrome-platform/c/726c149e0798
-  - [v2,03/19] net: fjes: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/3bdef399d00e
-  - [v2,04/19] platform/chrome: wilco_ec: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/245d97ff3473
-  - [v2,05/19] platform: asus-laptop: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/eda8304c74f0
-  - [v2,06/19] platform: classmate-laptop: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/be24e9a09337
-  - [v2,07/19] platform/x86/dell: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/1baad72e9026
-  - [v2,08/19] platform/x86/eeepc: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/4313188f8128
-  - [v2,09/19] platform/x86/intel/rst: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/68370cc2e32a
-  - [v2,10/19] platform/x86/intel/smartconnect: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/e84a761f1215
-  - [v2,11/19] platform/x86/lg-laptop: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/2929a735d92e
-  - [v2,12/19] platform/x86/sony-laptop: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/562231f34cea
-  - [v2,13/19] platform/x86/toshiba_acpi: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/b655cda9f089
-  - [v2,14/19] platform/x86/toshiba_bluetooth: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/ce69eeb2ccb7
-  - [v2,15/19] platform/x86/toshiba_haps: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/eb22f3ba0c2e
-  - [v2,16/19] platform/x86/wireless-hotkey: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/d49c09ddfbd5
-  - [v2,17/19] ptp: vmw: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/cd3eda2e3508
-  - [v2,18/19] virt: vmgenid: drop owner assignment
-    https://git.kernel.org/chrome-platform/c/00e8b52bf9f9
-  - [v2,19/19] ACPI: drop redundant owner from acpi_driver
-    https://git.kernel.org/chrome-platform/c/cc85f9c05bba
+diff --git a/drivers/input/touchscreen/novatek-nvt-ts.c b/drivers/input/touchscreen/novatek-nvt-ts.c
+index 1a797e410a3fa..224fd112b25a9 100644
+--- a/drivers/input/touchscreen/novatek-nvt-ts.c
++++ b/drivers/input/touchscreen/novatek-nvt-ts.c
+@@ -278,7 +278,7 @@ static int nvt_ts_probe(struct i2c_client *client)
+ }
+ 
+ static const struct i2c_device_id nvt_ts_i2c_id[] = {
+-	{ "NVT-ts" },
++	{ "NT11205-ts" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, nvt_ts_i2c_id);
+diff --git a/drivers/platform/x86/x86-android-tablets/other.c b/drivers/platform/x86/x86-android-tablets/other.c
+index eb0e55c69dfed..5ecee6e66fb4d 100644
+--- a/drivers/platform/x86/x86-android-tablets/other.c
++++ b/drivers/platform/x86/x86-android-tablets/other.c
+@@ -40,7 +40,7 @@ static const struct x86_i2c_client_info acer_b1_750_i2c_clients[] __initconst =
+ 	{
+ 		/* Novatek NVT-ts touchscreen */
+ 		.board_info = {
+-			.type = "NVT-ts",
++			.type = "NT11205-ts",
+ 			.addr = 0x34,
+ 			.dev_name = "NVT-ts",
+ 		},
 
-You are awesome, thank you!
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+2.45.1
 
 

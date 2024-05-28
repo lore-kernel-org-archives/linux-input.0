@@ -1,260 +1,118 @@
-Received: from wfhigh7-smtp.messagingengine.com (wfhigh7-smtp.messagingengine.com [64.147.123.158])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE74A17E8E4;
-	Wed, 29 May 2024 00:38:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E31CF2B9A9
+	for <linux-input@vger.kernel.org>; Wed, 29 May 2024 01:21:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1716943096; cv=none; b=LmdBXpomhEOh9uxmOOvRByIlpfZ712iwJPy/26J9+bcJa2WoubYBek+87yuYA77WzJN35sh9PtZNgAFcmUB5LpVOCLyV2VIBACthqtHIWd5dRp7LSNljjTTIyFN/FZ1c4B0W9uSEh7qMxlJ8a62q6B4OPSg8SH4K+6M/sV/LyUA=
+	t=1716945683; cv=none; b=nlegc8eQX8m1umQt1VCknv8IQJkaCgvXpPJw8CPBOcaNX3g+iHB6v+wiGOgGTIwjEX0FHdxcEodsrQ5vdvhXJ5u4z27GrkyFC6E5a3HLiaktNVvo6RRjOAxUm8/YHcY6y+bYnlCsUWD3ikwZonrbrHYx9NSpK88APrRl6K/TSzk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1716943096; c=relaxed/simple;
-	bh=6e5LyDX4ws9lAD5qNZ6NI7Us1d194wOLh7n8KUxOZFM=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=M2VYRw1L5WPwCAbl3RhTZNUZNPVisXyVdGxyZGFMoph3OlDFSxMrZLqzstD/Qts1/7qw1nzOttJCWUf2IiO2FzqDZkLtGJ1qNI4+nCexfQm82vdSuDom6BJrThowfuSvjSL9cNqCjnxQWvqbY39BXDCX56AQvixHZxD9NHeQSPg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ljones.dev; spf=none smtp.mailfrom=ljones.dev; dkim=pass (2048-bit key) header.d=ljones.dev header.i=@ljones.dev header.b=U5G2+ryE; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=iz2ctrKz; arc=none smtp.client-ip=64.147.123.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ljones.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ljones.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ljones.dev header.i=@ljones.dev header.b="U5G2+ryE";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="iz2ctrKz"
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-	by mailfhigh.west.internal (Postfix) with ESMTP id 843E418000E8;
-	Tue, 28 May 2024 20:38:13 -0400 (EDT)
-Received: from imap41 ([10.202.2.91])
-  by compute2.internal (MEProxy); Tue, 28 May 2024 20:38:14 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ljones.dev; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1716943093;
-	 x=1717029493; bh=yOSdYu9TZvyv91nLknKSw3S/vqamkIsje7Xm5pDqaOQ=; b=
-	U5G2+ryEBe8iQutVtk6Z/Te6TMhJ51uE024SWqrYYSdfGY29n6URgPyiwn/dYxsT
-	WL+0bvJtgR37Dk1NLKxJJ8l3UPhYkEjlnSuxv4XKGFlbRu+qxtz5PlJ2Ol7tKkNe
-	2imFCjpXN/u25NIuzTRWiFkbzOQneLTp7n4Si49kgppagVowwuyTJtvSzn3H3fvX
-	p22CK5klINEbPhptKDZYQ/HkCHTUNesI/ikB3eT+HpdtQqB3/95dq8OUQcSIK/QM
-	yAaJOhdVeOtSkoGNmX8hEpvT9feKEXYKH+mKrQe150UvdPnWooGLk5Qn4Jb9wPYM
-	t4xu8TaJLDK2Y2w3jAG+Dw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1716943093; x=
-	1717029493; bh=yOSdYu9TZvyv91nLknKSw3S/vqamkIsje7Xm5pDqaOQ=; b=i
-	z2ctrKzOgsrShWAtpUrw+klhdksI9TS47vqzbKlyLNhs67siwtDBPHGexMX/BZhW
-	kF2dcvaMin9wkAzGyPXLyfYiUQPvi3Ycp3cXLPh5ZGheXtNStJMW3JlqdXGVY5c0
-	XMsqjb57ofEfsXva5enbTnnKX6xtIPODw+itKw8AkvRiSLJMxABGgBpJTsEidRe0
-	DJmvHwx4bfuGjac+Rf75n7LaxMZpwpmSl5gY8rcLwzLF0F7H1yOfRJOYfgNm7tWk
-	OzLjcAkPvUDMGclrJk/sR8PwGE7JjlZsYpjW8pKAAhfZPf8fRYeKh0mnev4ySuHe
-	AGA+bLqI4YHAKV+LvEN5A==
-X-ME-Sender: <xms:9HhWZkniop2zYrmTALttKKB2NVoQZeaZAfb1Frk_fFBSE3cWkkYrVg>
-    <xme:9HhWZj0L6qZGbICV2ykJ1FrTyBUlt0jdjJCrIam7xwTRRGkl3JZ4ZM1H6QEi-nXNI
-    oM3bWgiUtGLt6HS1nk>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrvdejledgfeeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepofgfggfkjghffffhvfevufgtgfesthhqredtreerjeenucfhrhhomhepfdfn
-    uhhkvgculfhonhgvshdfuceolhhukhgvsehljhhonhgvshdruggvvheqnecuggftrfgrth
-    htvghrnhepfeeugffhvdeufeehieelvdegfeffveegleehtddvheegkeetueegtdegueeh
-    vdelnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheplh
-    hukhgvsehljhhonhgvshdruggvvh
-X-ME-Proxy: <xmx:9HhWZirvW5Fe4hUG7eZ07r7kR6JR_hF3Qq2CssapME1e4OOTZ43kFw>
-    <xmx:9HhWZgn9n6hlmVKVARNOweUCD12qSZi0N2fbAUhJ1tigq-P-jbx7rg>
-    <xmx:9HhWZi2XBNiQNu2ypnQgr9ZnbDx4kj5zTrWozhpODHoiXxg8AtYrpQ>
-    <xmx:9HhWZntoKf4yUdldq1gyv49kjx-TWYlcSRdgSmeMcRIn1f7_biQVGw>
-    <xmx:9XhWZsproeA7V0mXt1xo9Kr-xBMWOywiUgVPbBEya22JeZsTmfXgi_KR>
-Feedback-ID: i5ec1447f:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id D49C52340080; Tue, 28 May 2024 20:38:12 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-491-g033e30d24-fm-20240520.001-g033e30d2
+	s=arc-20240116; t=1716945683; c=relaxed/simple;
+	bh=fRDuONy6QzMxYX98b8awx7ih4nM00Yas8UAdlH8+7N8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FEFiAealXLz/ooNVSFjwuT9aHUnSjQRdgZKq9T1YiCoXE/+qZMmfEfbWJV23+1l9CdKFB6pKbRvFIa79TGzGeBScIQN7qk0+aGb1+ZovKc7fQsy+pYnBxEDPBiAFQ31RNKAgEhRHG/pvoIkZ87AKsbQCNr2g/1inP2hpn7M+6Jc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=moeller.io; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=moeller.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-a62972c88a9so185528966b.1
+        for <linux-input@vger.kernel.org>; Tue, 28 May 2024 18:21:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1716945680; x=1717550480;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FuuAWdxCmRzs75Q4GZxnHik/Fklc5HH5Xf5RNHB1a6g=;
+        b=VA39wWi354pbEwsP86rVaNproleKlSzBrWl22kxOAO0XyaPV2C9eob/3rMxKrpzjPP
+         skMWOYLswp1ThiiUbNbQyMd4DocADd5ABu74JUNRLqM7/8OnLo3kAC/HdVgVohrrZM04
+         g9ZaOQoNw0n9roTWkFcEtvNGGt/RWhigI0+SB569zvqswaTUlWIACBB01DxlSfXOaSCs
+         51q7f6Rj3Tg5MWeTMcEwhGksKM3JZWkoG/+8WhixcAw6NEohkAMl74eGOkZ9vKvqIIb0
+         gMMaecAOB2cYI7MplTg3/AaijgMYara8JgdEKPUXoQm+kTFp+I3UfaatcCv1Koo3mbAC
+         CkIQ==
+X-Gm-Message-State: AOJu0Yz6OUOD/Rs4QWZo3VyftGI8hYAyAT9QFDj3Vf5uomzGEaZVeVs+
+	vTIa5qofeai1WQ1IwbTXmYvDqYglS4VYtjO/eihUoWLQuOUKWQM1bjMCTbCOALo=
+X-Google-Smtp-Source: AGHT+IFPPbjZKtqL1e8iXEWjESu7j97mSk3NjLdPtJzNA3p1A23mNOdHjb/E0fKVkGfS92YAF5gFrw==
+X-Received: by 2002:a17:906:3c05:b0:a59:cf0a:4e4d with SMTP id a640c23a62f3a-a626407d4f5mr979725966b.12.1716945679622;
+        Tue, 28 May 2024 18:21:19 -0700 (PDT)
+Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com. [209.85.208.44])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a632fde2922sm158736866b.195.2024.05.28.18.21.19
+        for <linux-input@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 May 2024 18:21:19 -0700 (PDT)
+Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-5786988ae9bso1823906a12.3
+        for <linux-input@vger.kernel.org>; Tue, 28 May 2024 18:21:19 -0700 (PDT)
+X-Received: by 2002:a50:cd13:0:b0:578:60ab:2b8f with SMTP id
+ 4fb4d7f45d1cf-57860ab3133mr6859303a12.42.1716945679238; Tue, 28 May 2024
+ 18:21:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <80aacd65-d5e1-40ac-9d8d-3bb9582d1687@app.fastmail.com>
-In-Reply-To: <17aa68e2-4af6-68ad-e81a-abc714517f6b@linux.intel.com>
-References: <20240528013959.14661-1-luke@ljones.dev>
- <17aa68e2-4af6-68ad-e81a-abc714517f6b@linux.intel.com>
-Date: Wed, 29 May 2024 12:37:47 +1200
-From: "Luke Jones" <luke@ljones.dev>
-To: =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Cc: "Jiri Kosina" <jikos@kernel.org>, "Hans de Goede" <hdegoede@redhat.com>,
- corentin.chary@gmail.com, platform-driver-x86@vger.kernel.org,
- LKML <linux-kernel@vger.kernel.org>, linux-input@vger.kernel.org,
- bentiss@kernel.org
-Subject: Re: [PATCH] hid-asus: use hid for brightness control on keyboard
-Content-Type: text/plain;charset=utf-8
+References: <20240429070950.247183-1-jon@moeller.io>
+In-Reply-To: <20240429070950.247183-1-jon@moeller.io>
+From: Jon Moeller <jon@moeller.io>
+Date: Tue, 28 May 2024 11:21:10 -0700
+X-Gmail-Original-Message-ID: <CABWf9sbtpJMCPrHRu1jtL7d_ozPmyXO11QedXuTww3nAyzP0vA@mail.gmail.com>
+Message-ID: <CABWf9sbtpJMCPrHRu1jtL7d_ozPmyXO11QedXuTww3nAyzP0vA@mail.gmail.com>
+Subject: Re: [PATCH] Adding quirks for 2024 HP Spectre x360 touchpads
+To: Jon Moeller <jon@moeller.io>
+Cc: linux-input@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
+Is there anything special I need to do to get this merged? I was
+hoping this would get worked into 6.10.
 
-
-On Tue, 28 May 2024, at 8:36 PM, Ilpo J=C3=A4rvinen wrote:
-> On Tue, 28 May 2024, Luke D. Jones wrote:
->=20
-> > On almost all ASUS ROG series laptops the MCU used for the USB keybo=
-ard
-> > also has a HID packet used for setting the brightness. This is usual=
-ly
-> > the same as the WMI method. But in some laptops the WMI method either
-> > is missing or doesn't work, so we should default to the HID control.
-> >=20
-> > Signed-off-by: Luke D. Jones <luke@ljones.dev>
-> > ---
-> >  drivers/hid/hid-asus.c                     | 19 ++++++++++++-
-> >  drivers/platform/x86/asus-wmi.c            |  3 ++-
-> >  include/linux/platform_data/x86/asus-wmi.h | 31 +++++++++++++++++++=
-+++
-> >  3 files changed, 51 insertions(+), 2 deletions(-)
-> >=20
-> > diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-> > index 02de2bf4f790..9389a3e733e3 100644
-> > --- a/drivers/hid/hid-asus.c
-> > +++ b/drivers/hid/hid-asus.c
-> > @@ -101,6 +101,7 @@ struct asus_kbd_leds {
-> >  unsigned int brightness;
-> >  spinlock_t lock;
-> >  bool removed;
-> > + int report_id;
-> >  };
-> > =20
-> >  struct asus_touchpad_info {
-> > @@ -473,7 +474,7 @@ static enum led_brightness asus_kbd_backlight_ge=
-t(struct led_classdev *led_cdev)
-> >  static void asus_kbd_backlight_work(struct work_struct *work)
-> >  {
-> >  struct asus_kbd_leds *led =3D container_of(work, struct asus_kbd_le=
-ds, work);
-> > - u8 buf[] =3D { FEATURE_KBD_REPORT_ID, 0xba, 0xc5, 0xc4, 0x00 };
-> > + u8 buf[] =3D { led->report_id, 0xba, 0xc5, 0xc4, 0x00 };
-> >  int ret;
-> >  unsigned long flags;
-> > =20
-> > @@ -492,12 +493,18 @@ static void asus_kbd_backlight_work(struct wor=
-k_struct *work)
-> >   */
-> >  static bool asus_kbd_wmi_led_control_present(struct hid_device *hde=
-v)
-> >  {
-> > + struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> >  u32 value;
-> >  int ret;
-> > =20
-> >  if (!IS_ENABLED(CONFIG_ASUS_WMI))
-> >  return false;
-> > =20
-> > + if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD && asus_use_hidraw_l=
-ed()) {
-> > + hid_info(hdev, "using hidraw for asus::kbd_backlight\n");
-> > + return false;
-> > + }
-> > +
-> >  ret =3D asus_wmi_evaluate_method(ASUS_WMI_METHODID_DSTS,
-> >         ASUS_WMI_DEVID_KBD_BACKLIGHT, 0, &value);
-> >  hid_dbg(hdev, "WMI backlight check: rc %d value %x", ret, value);
-> > @@ -507,6 +514,12 @@ static bool asus_kbd_wmi_led_control_present(st=
-ruct hid_device *hdev)
-> >  return !!(value & ASUS_WMI_DSTS_PRESENCE_BIT);
-> >  }
-> > =20
-> > +static bool asus_kbd_is_input_led(void)
-> > +{
-> > + return dmi_match(DMI_PRODUCT_NAME, "GU605")
-> > +     || dmi_match(DMI_PRODUCT_NAME, "GA403");
-> > +}
-> > +
-> >  static int asus_kbd_register_leds(struct hid_device *hdev)
-> >  {
-> >  struct asus_drvdata *drvdata =3D hid_get_drvdata(hdev);
-> > @@ -549,6 +562,10 @@ static int asus_kbd_register_leds(struct hid_de=
-vice *hdev)
-> >  if (!drvdata->kbd_backlight)
-> >  return -ENOMEM;
-> > =20
-> > + drvdata->kbd_backlight->report_id =3D FEATURE_KBD_REPORT_ID;
-> > + if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD && asus_kbd_is_input=
-_led())
-> > + drvdata->kbd_backlight->report_id =3D FEATURE_KBD_LED_REPORT_ID1;
-> > +
-> >  drvdata->kbd_backlight->removed =3D false;
-> >  drvdata->kbd_backlight->brightness =3D 0;
-> >  drvdata->kbd_backlight->hdev =3D hdev;
-> > diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/=
-asus-wmi.c
-> > index 3f9b6285c9a6..a58df18a70ad 100644
-> > --- a/drivers/platform/x86/asus-wmi.c
-> > +++ b/drivers/platform/x86/asus-wmi.c
-> > @@ -1681,7 +1681,8 @@ static int asus_wmi_led_init(struct asus_wmi *=
-asus)
-> >  goto error;
-> >  }
-> > =20
-> > - if (!kbd_led_read(asus, &led_val, NULL)) {
-> > + if (!kbd_led_read(asus, &led_val, NULL) && !asus_use_hidraw_led())=
+On Mon, Apr 29, 2024 at 12:09=E2=80=AFAM Jon Moeller <jon@moeller.io> wrote=
+:
+>
+> ---
+>  drivers/hid/hid-multitouch.c | 14 ++++++++++++++
+>  1 file changed, 14 insertions(+)
+>
+> diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+> index 04a014cd2a2f..7a7918191628 100644
+> --- a/drivers/hid/hid-multitouch.c
+> +++ b/drivers/hid/hid-multitouch.c
+> @@ -212,6 +212,7 @@ static void mt_post_parse(struct mt_device *td, struc=
+t mt_application *app);
+>  #define MT_CLS_GOOGLE                          0x0111
+>  #define MT_CLS_RAZER_BLADE_STEALTH             0x0112
+>  #define MT_CLS_SMART_TECH                      0x0113
+> +#define MT_CLS_HP_SPECTRE_ELAN_HAPTIC          0x0114
+>
+>  #define MT_DEFAULT_MAXCONTACT  10
+>  #define MT_MAX_MAXCONTACT      250
+> @@ -396,6 +397,13 @@ static const struct mt_class mt_classes[] =3D {
+>                         MT_QUIRK_CONTACT_CNT_ACCURATE |
+>                         MT_QUIRK_SEPARATE_APP_REPORT,
+>         },
+> +       { .name =3D MT_CLS_HP_SPECTRE_ELAN_HAPTIC,
+> +               .quirks =3D MT_QUIRK_ALWAYS_VALID |
+> +                       MT_QUIRK_SLOT_IS_CONTACTID |
+> +                       MT_QUIRK_CONTACT_CNT_ACCURATE |
+> +                       MT_QUIRK_CONFIDENCE |
+> +                       MT_QUIRK_WIN8_PTP_BUTTONS,
+> +       },
+>         { }
+>  };
+>
+> @@ -1992,6 +2000,12 @@ static const struct hid_device_id mt_devices[] =3D=
  {
-> > + pr_info("using asus-wmi for asus::kbd_backlight\n");
-> >  asus->kbd_led_wk =3D led_val;
-> >  asus->kbd_led.name =3D "asus::kbd_backlight";
-> >  asus->kbd_led.flags =3D LED_BRIGHT_HW_CHANGED;
-> > diff --git a/include/linux/platform_data/x86/asus-wmi.h b/include/li=
-nux/platform_data/x86/asus-wmi.h
-> > index 3eb5cd6773ad..79a50102440d 100644
-> > --- a/include/linux/platform_data/x86/asus-wmi.h
-> > +++ b/include/linux/platform_data/x86/asus-wmi.h
-> > @@ -160,4 +160,35 @@ static inline int asus_wmi_evaluate_method(u32 =
-method_id, u32 arg0, u32 arg1,
-> >  }
-> >  #endif
-> > =20
-> > +/* To be used by both hid-asus and asus-wmi to determine which cont=
-rols kbd_brightness */
-> > +#if IS_REACHABLE(CONFIG_ASUS_WMI)
-> > +static bool asus_use_hidraw_led(void)
->=20
-> Since it's in a header, it's missing inline. However, this function lo=
-oks=20
-> quite complicated so putting it into a header file is questionable to=20
-> begin with so I'd prefer it to be in a .c file.
-
-Thanks for the review y'all. All recommendations implemented including t=
-his and splitting to two commits.
-
-> > +{
-> > + const char *product, *board;
-> > +
-> > + product =3D dmi_get_system_info(DMI_PRODUCT_FAMILY);
-> > + if (!product)
-> > + return false;
-> > +
-> > + /* These product ranges should all be using HID for keyboard LED */
-> > + if (strstr(product, "ROG Zephyrus")
-> > + || strstr(product, "ROG Strix")
-> > + || strstr(product, "ROG Flow")
-> > + || strstr(product, "GA403")
-> > + || strstr(product, "GU605"))
->=20
-> Please align these properly but consider using array and loop.
->=20
-> > + return true;
-> > +
-> > + board =3D dmi_get_system_info(DMI_BOARD_NAME);
-> > + if (!board)
-> > + return false;
-> > +
-> > + return strstr(board, "RC71L"); /* ROG Ally specific */
-> > +}
-> > +#else
-> > +static inline bool asus_use_hidraw_led(void)
-> > +{
-> > + return true;
-> > +}
-> > +#endif
-> > +
-> >  #endif /* __PLATFORM_DATA_X86_ASUS_WMI_H */
-> >=20
->=20
-> --=20
-> i.
->=20
->=20
+>                 HID_DEVICE(BUS_I2C, HID_GROUP_MULTITOUCH_WIN_8,
+>                         USB_VENDOR_ID_ELAN, 0x3148) },
+>
+> +       { .driver_data =3D MT_CLS_HP_SPECTRE_ELAN_HAPTIC,
+> +               HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x32c8) },
+> +
+> +       { .driver_data =3D MT_CLS_HP_SPECTRE_ELAN_HAPTIC,
+> +               HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, 0x310a) },
+> +
+>         /* Elitegroup panel */
+>         { .driver_data =3D MT_CLS_SERIAL,
+>                 MT_USB_DEVICE(USB_VENDOR_ID_ELITEGROUP,
+> --
+> 2.44.0
+>
+> Signed-off-by: Jon Moeller <jon@moeller.io>

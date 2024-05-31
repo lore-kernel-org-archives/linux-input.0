@@ -1,115 +1,180 @@
-Received: from wfhigh6-smtp.messagingengine.com (wfhigh6-smtp.messagingengine.com [64.147.123.157])
+Received: from smtp1.ms.mff.cuni.cz (smtp-in1.ms.mff.cuni.cz [195.113.20.234])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9176A158D90;
-	Fri, 31 May 2024 16:29:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=64.147.123.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1A421DFCB;
+	Fri, 31 May 2024 17:53:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.113.20.234
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717172992; cv=none; b=bC0ijmM9sXmx0QVTDLqhq4FVyWEjFrlEEgGf3LGe+Ueh0nwrutb2LjtUAJ74ZRGj/y71PQOVz9FnBfnrMGYCVETPJN1mn8UUBtL/mUy00zWPhtpm8hagI7SH5sLLAC1lnYGLico4OYFKgC2fZE8jXLrH8PCakXxZnHbKeTKHp90=
+	t=1717177986; cv=none; b=XB+7koBLnXHKVdy8k5LcEh8teh34K4J1tdq3mZcSRVMFJSp6UQ5TusztJRE7KNQI9igazyA83TGiD7alU41XhUQxlKZWyCi9BDFugJgf7nMe9FHvksb43HgP5IHP1YHBXOcRp98FPCxm7znvl4aDznjyD37mE7QmuPIe8Ec1bmg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717172992; c=relaxed/simple;
-	bh=kU8TeoYAbAgdQQ2v+KTA4NOoe3XrDNd8HRj+9JUGtfM=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=UymEqMRZYLztbxqNSsaIXbvPxgJ+T1MceC4fdguu5uk4BhtUv6g6DLGbOI9rBnSjhU0ZFyColPkQ11oV+wz7m4f3dwWTL+Oa5m4kfF3RKMUZN9vKxlJmEztn+INUChHGFT95mTSnPrjWy9KOC7VjT0ODJ9JxkxVsMahNHBjo4co=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=QU8eKpKR; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=JMyZY6H/; arc=none smtp.client-ip=64.147.123.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1717177986; c=relaxed/simple;
+	bh=hE4Opi8q88sj3bbE4tAGJfv+i/kDFTsswL5/vRLXjK4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ujF50/f4tJYAcGXkAsZR7QkHS0TbuCny/FH+FNfyn1ZMZeXueBQPoJXlU8gTuIGDmVDOx3J5YJUAlLnwcvhOoWTixLyxCTb0miVwX1Hw9FibbmN3DqLqJTMrceqbmENp23gLOnxIkNiqOCqfGO94I43A7FACcTmtk2nq4pFx8J4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=matfyz.cz; spf=pass smtp.mailfrom=matfyz.cz; dkim=pass (2048-bit key) header.d=mff.cuni.cz header.i=@mff.cuni.cz header.b=GElUbOIN; arc=none smtp.client-ip=195.113.20.234
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=matfyz.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matfyz.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="QU8eKpKR";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="JMyZY6H/"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailfhigh.west.internal (Postfix) with ESMTP id 3BF7518000DF;
-	Fri, 31 May 2024 12:29:49 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Fri, 31 May 2024 12:29:49 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm3; t=1717172988; x=1717259388; bh=TJTJrhdkPm
-	ycIRaV1DpT+zY/SG85hVABIEWoJz6Cpuc=; b=QU8eKpKRcoMPXOk3xk2xSo0dXV
-	X3PeHMk19LtXJirQ5BdwCRrFAklcA6squS15dHttRdRM6PWfAE2qHz+1ey3W8ag8
-	t/0OklpufDvKcNXCk9IlySy2e4XhK4bDIxugSvKi2TS2ex7++sPDD1epMpir5URh
-	aM2DPaDyHpR+BZL4CmHnqucxaXAAINpJUdjSgin+QifpWeY3XKn4x6a+AwSMas1X
-	+hYm75sL2vumlY1ZS7YqDUD3s5iEwGhISz1qa2Fo0omM1Kkz3jM1l68qc+BQ1xKd
-	TBacjtDhVBV3qLSn5SoHEFQ8mr1aywXHsYlqh+CToqF5RO2WyKf5UpEQdAJg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm1; t=1717172988; x=1717259388; bh=TJTJrhdkPmycIRaV1DpT+zY/SG85
-	hVABIEWoJz6Cpuc=; b=JMyZY6H/F1Py574a30fMPHlBTwIRVHO/MZH9BWcfvEn0
-	uIPan4Jd0HGHxi2l5IJ35ugFCNkUDXMIDrLUlGPvb+wxhOFGdhzWeMOJW2J/+DUC
-	SN9LHjEHqiLFLqht9ZSVnjGK3LKqslu5576qVJRKunfFxLCUn7IT1WtY0kyswoR7
-	/kduzzlVKnbzglfQLOdyAcCeFaFkevAdaa3lqUoyYY+1O7SYtmjK8PlwXKFhOfQB
-	jU1jB5u5k4RSmQZVSd+DS26SzBKuA9jH6qgiYALEG8UhiH9tcaagWBUl+rvhIBD1
-	HDOqs3AA0u2YJqXQBoWJXsc8XqDjWYZsj/4vXndDFg==
-X-ME-Sender: <xms:_PpZZimKVAPx7QGekOxUufZMvIGobX0MSbaNLiP0UShO2OREIz_Hvw>
-    <xme:_PpZZp3F4ZKbwEhvycanUNNd30RVhHKwpDhAtZ6q_AohSt6D5Mlc3fpdSEEIOx7Bv
-    ij9svoV8r6GCto1834>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvledrvdekiedguddttdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdet
-    rhhnugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrg
-    htthgvrhhnpeffheeugeetiefhgeethfejgfdtuefggeejleehjeeutefhfeeggefhkedt
-    keetffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grrhhnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:_PpZZgqKyKtVfrResp5-VblSRxLVp2b2jiQ9Tlt1sN-95L31JbCLHQ>
-    <xmx:_PpZZmkug4JC_tumyls9n99yk63x0Kz1DNn2pZmdpzz3MZ0pFbCatw>
-    <xmx:_PpZZg3dnIAzIcKmBaGZaJAHG_gANsHct8I5J4ZmfbCjDnXtc8o7SQ>
-    <xmx:_PpZZttoRkBaeZ2j0DS8dl0C2gLKlVTaoQpdPeZ9digSkhJa7__LGw>
-    <xmx:_PpZZqrLjCfAl_C1jSQbDHHrXPPCpQdUsa4vGx1FuF9svErOVD0ktVid>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 9A1F3B6008D; Fri, 31 May 2024 12:29:48 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-491-g033e30d24-fm-20240520.001-g033e30d2
+	dkim=pass (2048-bit key) header.d=mff.cuni.cz header.i=@mff.cuni.cz header.b="GElUbOIN"
+X-SubmittedBy: id balejk@matfyz.cz subject /postalCode=110+2000/O=Univerzita+20Karlova/street=Ovocn+5CxC3+5CxBD+20trh+20560/5/ST=Praha,+20Hlavn+5CxC3+5CxAD+20m+5CxC4+5Cx9Bsto/C=CZ/CN=Karel+20Balej/emailAddress=balejk@matfyz.cz
+	serial F5FD910E8FE2121B897F7E55B84E351D
+	issued by /C=NL/O=GEANT+20Vereniging/CN=GEANT+20Personal+20CA+204
+	auth type TLS.CUNI
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mff.cuni.cz;
+	s=submission; t=1717177963; x=1718477963;
+	bh=S4yar11jBskM5NXE2uCCskBWs3tTNTOtonw/YB5eXo0=; h=From;
+	b=GElUbOINYK4b3I8nCHwpy1dVF8nzuxozRSHEaJrwjbQvOIjPl0dH1lV5pMjHPM3rd
+	 RzWF6ghkKugZQygBnc39jZZML5oiK8NYFd5d1dii9PKnrBKUN/kSb+xweVD/anVvDw
+	 LyYIXRXYGU6fr0sVVqDAZUtqcLpLkminGGCqUQu0ej46v59Ff3TN0nEkUIK+auuqd+
+	 +qfeRiH0YKYJvogHrA5IdPMR2nbyYzzKzENIuIeaYK+duZAbD0sr6rkp6v4ByGGs6I
+	 TWaGXQslSyuPSE7nie8E8oP3su9ZrIb0lnrGsT10p78V3APbIUk7aq9PQ1CNDu/ofd
+	 9Zsc2ExGBBZsw==
+Received: from localhost (internet5.mraknet.com [185.200.108.250])
+	(authenticated)
+	by smtp1.ms.mff.cuni.cz (8.16.1/8.16.1) with ESMTPS id 44VHqg4C001112
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=OK);
+	Fri, 31 May 2024 19:52:43 +0200 (CEST)
+	(envelope-from balejk@matfyz.cz)
+From: Karel Balej <balejk@matfyz.cz>
+To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org
+Cc: =?UTF-8?q?Duje=20Mihanovi=C4=87?= <duje.mihanovic@skole.hr>,
+        ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
+        balejk@matfyz.cz
+Subject: [PATCH v7 1/5] dt-bindings: mfd: add entry for Marvell 88PM886 PMIC
+Date: Fri, 31 May 2024 19:34:56 +0200
+Message-ID: <20240531175109.15599-2-balejk@matfyz.cz>
+X-Mailer: git-send-email 2.45.1
+In-Reply-To: <20240531175109.15599-1-balejk@matfyz.cz>
+References: <20240531175109.15599-1-balejk@matfyz.cz>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <173c371a-5669-432a-9826-ce799102f6c1@app.fastmail.com>
-In-Reply-To: <93a4b3f093a3105c4731fdac37cc1964b266302c.camel@linux.intel.com>
-References: <20240528115802.3122955-1-arnd@kernel.org>
- <20240528115802.3122955-2-arnd@kernel.org>
- <DM4PR11MB59959F1AE3E9BDA36642000B93F22@DM4PR11MB5995.namprd11.prod.outlook.com>
- <508d40bb-f2df-469a-9f94-58b41a28f53a@app.fastmail.com>
- <93a4b3f093a3105c4731fdac37cc1964b266302c.camel@linux.intel.com>
-Date: Fri, 31 May 2024 18:29:28 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: 
- "srinivas.pandruvada@linux.intel.com" <srinivas.pandruvada@linux.intel.com>,
- "Lixu Zhang" <lixu.zhang@intel.com>, "Arnd Bergmann" <arnd@kernel.org>,
- "Jiri Kosina" <jikos@kernel.org>, "Benjamin Tissoires" <bentiss@kernel.org>
-Cc: "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2/2] HID: intel-ish-hid: fix endian-conversion
-Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 
-On Fri, May 31, 2024, at 05:49, srinivas pandruvada wrote:
-> On Wed, 2024-05-29 at 15:18 +0200, Arnd Bergmann wrote:
->> On Wed, May 29, 2024, at 09:05, Zhang, Lixu wrote:
->> 
->> > > 
->> > > 	for (i = 0; i < fragment->fragment_cnt && offset <
->> > > ish_fw->size; i++) {
->> > You added a parameter fragment_count, but you didn't use it. Did
->> > you 
->> > intend to use it here?
->> > 
->> 
->> My mistake, that was again broken in my incorrect
->> rebase.
->> 
-> Do you have updated patch? Lixu can try and make sure that the
-> functionality is not broken by changes.
->
+Marvell 88PM886 is a PMIC with several subdevices such as onkey,
+regulators or battery and charger. It comes in at least two revisions,
+A0 and A1 -- only A1 is described here at the moment.
 
-I've sent v2 now, hopefully addressing all the issues
-of the first version. I've dropped the other patch now,
-though I still think something is wrong there.
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Signed-off-by: Karel Balej <balejk@matfyz.cz>
+---
 
-    Arnd
+Notes:
+    RFC v4:
+    - Address Krzysztof's comments:
+      - Fix regulators indentation.
+      - Add Krzysztof's trailer.
+    RFC v3:
+    - Add wakeup-source property.
+    - Address Rob's feedback:
+      - Move regulators into the MFD file.
+      - Remove interrupt-controller and #interrupt-cells properties.
+    RFC v2:
+    - Address Rob's feedback:
+      - Drop mention of 88PM880.
+      - Make sure the file passes bindings check (add the necessary header
+        and fix `interrupt-cells`).
+      - Other small changes.
+    - Add regulators. Changes with respect to the regulator RFC series:
+      - Address Krzysztof's comments:
+        - Drop unused compatible.
+        - Fix sub-node pattern.
+
+ .../bindings/mfd/marvell,88pm886-a1.yaml      | 76 +++++++++++++++++++
+ 1 file changed, 76 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/marvell,88pm886-a1.yaml
+
+diff --git a/Documentation/devicetree/bindings/mfd/marvell,88pm886-a1.yaml b/Documentation/devicetree/bindings/mfd/marvell,88pm886-a1.yaml
+new file mode 100644
+index 000000000000..d6a71c912b76
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/marvell,88pm886-a1.yaml
+@@ -0,0 +1,76 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/marvell,88pm886-a1.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Marvell 88PM886 PMIC core
++
++maintainers:
++  - Karel Balej <balejk@matfyz.cz>
++
++description:
++  Marvell 88PM886 is a PMIC providing several functions such as onkey,
++  regulators or battery and charger.
++
++properties:
++  compatible:
++    const: marvell,88pm886-a1
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  wakeup-source: true
++
++  regulators:
++    type: object
++    additionalProperties: false
++    patternProperties:
++      "^(ldo(1[0-6]|[1-9])|buck[1-5])$":
++        type: object
++        $ref: /schemas/regulator/regulator.yaml#
++        description: LDO or buck regulator.
++        unevaluatedProperties: false
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++additionalProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++      pmic@30 {
++        compatible = "marvell,88pm886-a1";
++        reg = <0x30>;
++        interrupts = <0 4 IRQ_TYPE_LEVEL_HIGH>;
++        interrupt-parent = <&gic>;
++        wakeup-source;
++
++        regulators {
++          ldo2: ldo2 {
++            regulator-min-microvolt = <3100000>;
++            regulator-max-microvolt = <3300000>;
++          };
++
++          ldo15: ldo15 {
++            regulator-min-microvolt = <3300000>;
++            regulator-max-microvolt = <3300000>;
++          };
++
++          buck2: buck2 {
++            regulator-min-microvolt = <1800000>;
++            regulator-max-microvolt = <1800000>;
++          };
++        };
++      };
++    };
++...
+-- 
+2.45.1
+

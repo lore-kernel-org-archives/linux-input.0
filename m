@@ -1,78 +1,45 @@
-Received: from mail-ot1-f54.google.com (mail-ot1-f54.google.com [209.85.210.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fgw21-7.mail.saunalahti.fi (fgw21-7.mail.saunalahti.fi [62.142.5.82])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF3311E535;
-	Sun,  2 Jun 2024 08:51:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F214249E5
+	for <linux-input@vger.kernel.org>; Sun,  2 Jun 2024 09:02:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.82
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717318312; cv=none; b=Ec/pRrZTq4dQXvQq+uVRzZXcKleNnz3YhTxohGL9GwLChTo7UxQbeCzaAhZKCfJNs7uZvMujyjaFLsihhOmhR+aPk5SlL0dI4X4HngLkKJUz/D9ITfjt937yJgGFWuSSLWqx6lx6eUDaWpFoLxcq3DA/aKFy1qobJpEy3gQ0bgc=
+	t=1717318974; cv=none; b=fvfFQ2YwAbGiRJD7aCg89UQsXqkGhT9+ZQ2snXVHGmYIn4ywSeDd8ef9V7nXW0RETHYD/8ONZqbOtkxqBrDbQQFvCrsZcFc7raDD9X1Qx9S7uukTACjw7Xl6RSJsW41+53CEGeXAxb0p+7xbxI/FKr1sx3nwuONGN22mMkzRq3o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717318312; c=relaxed/simple;
-	bh=e65MDGgz/5t6pNJjm2h6eNurKKcTphF0Q2NEmJmIwI8=;
+	s=arc-20240116; t=1717318974; c=relaxed/simple;
+	bh=9h94DqXvQDdb48Sdw6WpvBt3kLrGfO30x8RvJcq38WI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=G2XKzPxvH4608GwX6BHnq/cxWfUJ7QGEOWaZet7ZEriuz0IZ2pMNuUJYqCRCRgiTbuHloBzOfga/sHOPWzsBVGJFz7W+RamAd/xlGqw3zqH8XT8lVIbL729evx7vsozYHQ3SaqCAwd8MeSqCI5K+/M43U/KgTwKUQsgXb1EgBww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jtFdSVVw; arc=none smtp.client-ip=209.85.210.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jtFdSVVw"
-Received: by mail-ot1-f54.google.com with SMTP id 46e09a7af769-6f8d0a215deso1685489a34.0;
-        Sun, 02 Jun 2024 01:51:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1717318309; x=1717923109; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=B4hYHmgrY/sSpNoKlBUHQFCOVOO+xIhSM1LWCgBv6E8=;
-        b=jtFdSVVwxMJN+IfM/Qj0maZbLCSUFQHHaaGeWQKBMMEuptqbyqB6XzjZH++P3MQ8zT
-         TcSDMy/ZM4w5nXK453/tZq8N3iNB+3kGZM+BBMqvjMO4ZCIpFJZEVwC4910ZONv6AS51
-         kfY8J+7HU90M+nKB8TYBWIwzPKZHpqQ32N1WcQESI+Jm5V44Es9PX+R42NAe8zeXlic0
-         KnXZo+1tvxddtwtJ8yGry25HrQXto8YQrKpGnGv/h5F0MLWT4dALG39wGIF1B8PONGfv
-         UWIIP1RrYj/5St3oxiG5Fv4lRPKk2jlMx0jCKxsqlZE5QVCueuLYsfv4wfKCSTt8gBZ+
-         pqWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1717318309; x=1717923109;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=B4hYHmgrY/sSpNoKlBUHQFCOVOO+xIhSM1LWCgBv6E8=;
-        b=WennGhYAEgQpK0EXIxcv3ZIXQQy/JCSwBLtaC2kVqBBbGEXNeGqEcfm4jky2MfZZTy
-         BZAIsYZSpO75JGiQgnoRWt9bVCsG/DHw5bKx6AQNqhfJW6Wjv0DbymH0/O1K4PNNkYpk
-         y8kkWowmkJ6/V5zGmMfZYkT/ltwh4LlS2wcn8TvB4ZLUUmqt3ap+DStZ3ZNZFsNVlkTh
-         bOviKXBakFHuF6jJmO03ToeC5s2nAQazAfWu7vTga3EM2B2zdoPsiw1HUq0q7hgcBzwX
-         0AwKx4jeUG6QV9FxhSirfd9TtVRQ3m0NY3SxL8N1ggG+f4c781zAc8Zggf9r6QjTIMrv
-         siGw==
-X-Forwarded-Encrypted: i=1; AJvYcCVDMYk4qUoQ7Bj0Df9YjQXQoSW4ICA7uBQ6H+1I+SEKsF4UYT772//giJ24SzSWtcBUwNUN+xTHo0wgaR+Wi9cA4GlaKvJE8bO8bcIfTdXME1ZnS4FvzUIu14tpvHVIbGMRgQWANGk4Y/tf7qT6721A0t+D+4wUixCT5sIQ15Dkgpp4tCY=
-X-Gm-Message-State: AOJu0Yx3mP6cK49M+s+E0BSSqcnF06GEOeweAI1X5R8/TSLOyCtaBzL/
-	jj5C/dRVpjnGUgbVgtD7TM/VA5Ehr0//AHmOTpVREkWHkuqr11VN
-X-Google-Smtp-Source: AGHT+IEoQt9fiVgS/wUK8ZbhbZqDxwqVnEkmcyWbSOlcPJ7KPfGB5ccFde9C7qL7s2kTgPWdscxIPg==
-X-Received: by 2002:a9d:3e0c:0:b0:6f0:360d:d730 with SMTP id 46e09a7af769-6f911a8e5d6mr2783523a34.6.1717318309450;
-        Sun, 02 Jun 2024 01:51:49 -0700 (PDT)
-Received: from my-computer.lan (c-98-39-68-68.hsd1.tx.comcast.net. [98.39.68.68])
-        by smtp.googlemail.com with ESMTPSA id 46e09a7af769-6f91054f672sm1016350a34.46.2024.06.02.01.51.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Jun 2024 01:51:49 -0700 (PDT)
-From: Andrew Ballance <andrewjballance@gmail.com>
-To: dan.carpenter@linaro.org
-Cc: andrewjballance@gmail.com,
-	benjamin.tissoires@redhat.com,
-	bentiss@kernel.org,
-	jikos@kernel.org,
-	jkosina@suse.com,
-	linux-input@vger.kernel.org,
-	linux-kernel-mentees@lists.linuxfoundation.org,
+	 MIME-Version; b=LAZD0vcAHL/jWi39tbVFmwMDdFEMd2D9mHQU2jDtsg7/0yjNmqIXSYiQOa0h2dmvpcZDNWERLBHwAZZKFxwa22WVSbaEP6BemtNzw7akXnqhzheVegH86CsZ1VNyviEv7g2obgAlAnxPOnsWAQE/h4rBVq2AVeS84t3FgT3HVjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.82
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
+Received: from localhost (88-113-26-230.elisa-laajakaista.fi [88.113.26.230])
+	by fgw22.mail.saunalahti.fi (Halon) with ESMTP
+	id e39b5d9a-20be-11ef-8e3d-005056bdf889;
+	Sun, 02 Jun 2024 12:02:50 +0300 (EEST)
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+To: Hans de Goede <hdegoede@redhat.com>,
+	Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Jorge Lopez <jorge.lopez2@hp.com>,
+	Li Zetao <lizetao1@huawei.com>,
+	Simon Trimmer <simont@opensource.cirrus.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Mark Pearson <mpearson-lenovo@squebb.ca>,
+	platform-driver-x86@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	luke@ljones.dev,
-	skhan@linuxfoundation.org,
-	syzbot+07762f019fd03d01f04c@syzkaller.appspotmail.com,
-	syzkaller-bugs@googlegroups.com
-Subject: [PATCH v2] hid: asus: asus_report_fixup: fix potential read out of bounds
-Date: Sun,  2 Jun 2024 03:50:23 -0500
-Message-ID: <20240602085023.1720492-1-andrewjballance@gmail.com>
+	ibm-acpi-devel@lists.sourceforge.net,
+	linux-input@vger.kernel.org
+Cc: Corentin Chary <corentin.chary@gmail.com>,
+	"Luke D. Jones" <luke@ljones.dev>,
+	Mark Pearson <markpearson@lenovo.com>,
+	Henrique de Moraes Holschuh <hmh@hmh.eng.br>
+Subject: [PATCH v1 2/7] platform/x86: hp: hp-bioscfg: Use 2-argument strscpy()
+Date: Sun,  2 Jun 2024 11:57:55 +0300
+Message-ID: <20240602090244.1666360-3-andy.shevchenko@gmail.com>
 X-Mailer: git-send-email 2.45.1
-In-Reply-To: <d87335b8-9eae-4689-87b4-b581c0b28c9b@moroto.mountain>
-References: <d87335b8-9eae-4689-87b4-b581c0b28c9b@moroto.mountain>
+In-Reply-To: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
+References: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -81,33 +48,259 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-syzbot reported a potential read out of bounds in asus_report_fixup.
+Use 2-argument strscpy(), which is not only shorter but also provides
+an additional check that destination buffer is an array.
 
-this patch adds checks so that a read out of bounds will not occur
-
-Signed-off-by: Andrew Ballance <andrewjballance@gmail.com>
-Reported-by: syzbot+07762f019fd03d01f04c@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=07762f019fd03d01f04c
-Fixes: 59d2f5b73921 ("HID: asus: fix more n-key report descriptors if n-key quirked")
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/hid/hid-asus.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../x86/hp/hp-bioscfg/enum-attributes.c       | 18 +++++-------------
+ .../x86/hp/hp-bioscfg/int-attributes.c        |  7 ++-----
+ .../x86/hp/hp-bioscfg/order-list-attributes.c | 18 +++++-------------
+ .../x86/hp/hp-bioscfg/passwdobj-attributes.c  | 19 +++++--------------
+ .../x86/hp/hp-bioscfg/spmobj-attributes.c     |  3 +--
+ .../x86/hp/hp-bioscfg/string-attributes.c     | 12 ++++--------
+ 6 files changed, 22 insertions(+), 55 deletions(-)
 
-diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 02de2bf4f790..37e6d25593c2 100644
---- a/drivers/hid/hid-asus.c
-+++ b/drivers/hid/hid-asus.c
-@@ -1204,8 +1204,8 @@ static __u8 *asus_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+diff --git a/drivers/platform/x86/hp/hp-bioscfg/enum-attributes.c b/drivers/platform/x86/hp/hp-bioscfg/enum-attributes.c
+index a2402d31c146..c50ad5880503 100644
+--- a/drivers/platform/x86/hp/hp-bioscfg/enum-attributes.c
++++ b/drivers/platform/x86/hp/hp-bioscfg/enum-attributes.c
+@@ -52,9 +52,7 @@ static void update_enumeration_value(int instance_id, char *attr_value)
+ {
+ 	struct enumeration_data *enum_data = &bioscfg_drv.enumeration_data[instance_id];
+ 
+-	strscpy(enum_data->current_value,
+-		attr_value,
+-		sizeof(enum_data->current_value));
++	strscpy(enum_data->current_value, attr_value);
+ }
+ 
+ ATTRIBUTE_S_COMMON_PROPERTY_SHOW(display_name, enumeration);
+@@ -174,8 +172,7 @@ static int hp_populate_enumeration_elements_from_package(union acpi_object *enum
+ 		case VALUE:
+ 			break;
+ 		case PATH:
+-			strscpy(enum_data->common.path, str_value,
+-				sizeof(enum_data->common.path));
++			strscpy(enum_data->common.path, str_value);
+ 			break;
+ 		case IS_READONLY:
+ 			enum_data->common.is_readonly = int_value;
+@@ -222,9 +219,7 @@ static int hp_populate_enumeration_elements_from_package(union acpi_object *enum
+ 				if (ret)
+ 					return -EINVAL;
+ 
+-				strscpy(enum_data->common.prerequisites[reqs],
+-					str_value,
+-					sizeof(enum_data->common.prerequisites[reqs]));
++				strscpy(enum_data->common.prerequisites[reqs], str_value);
+ 
+ 				kfree(str_value);
+ 				str_value = NULL;
+@@ -236,8 +231,7 @@ static int hp_populate_enumeration_elements_from_package(union acpi_object *enum
+ 			break;
+ 
+ 		case ENUM_CURRENT_VALUE:
+-			strscpy(enum_data->current_value,
+-				str_value, sizeof(enum_data->current_value));
++			strscpy(enum_data->current_value, str_value);
+ 			break;
+ 		case ENUM_SIZE:
+ 			if (int_value > MAX_VALUES_SIZE) {
+@@ -278,9 +272,7 @@ static int hp_populate_enumeration_elements_from_package(union acpi_object *enum
+ 				 * is greater than MAX_VALUES_SIZE
+ 				 */
+ 				if (size < MAX_VALUES_SIZE)
+-					strscpy(enum_data->possible_values[pos_values],
+-						str_value,
+-						sizeof(enum_data->possible_values[pos_values]));
++					strscpy(enum_data->possible_values[pos_values], str_value);
+ 
+ 				kfree(str_value);
+ 				str_value = NULL;
+diff --git a/drivers/platform/x86/hp/hp-bioscfg/int-attributes.c b/drivers/platform/x86/hp/hp-bioscfg/int-attributes.c
+index 86b7ac63fec2..6c7f4d5fa9cb 100644
+--- a/drivers/platform/x86/hp/hp-bioscfg/int-attributes.c
++++ b/drivers/platform/x86/hp/hp-bioscfg/int-attributes.c
+@@ -192,8 +192,7 @@ static int hp_populate_integer_elements_from_package(union acpi_object *integer_
+ 			integer_data->current_value = int_value;
+ 			break;
+ 		case PATH:
+-			strscpy(integer_data->common.path, str_value,
+-				sizeof(integer_data->common.path));
++			strscpy(integer_data->common.path, str_value);
+ 			break;
+ 		case IS_READONLY:
+ 			integer_data->common.is_readonly = int_value;
+@@ -240,9 +239,7 @@ static int hp_populate_integer_elements_from_package(union acpi_object *integer_
+ 				if (ret)
+ 					continue;
+ 
+-				strscpy(integer_data->common.prerequisites[reqs],
+-					str_value,
+-					sizeof(integer_data->common.prerequisites[reqs]));
++				strscpy(integer_data->common.prerequisites[reqs], str_value);
+ 				kfree(str_value);
+ 				str_value = NULL;
+ 			}
+diff --git a/drivers/platform/x86/hp/hp-bioscfg/order-list-attributes.c b/drivers/platform/x86/hp/hp-bioscfg/order-list-attributes.c
+index 1ff09dfb7d7e..c6e57bb9d8b7 100644
+--- a/drivers/platform/x86/hp/hp-bioscfg/order-list-attributes.c
++++ b/drivers/platform/x86/hp/hp-bioscfg/order-list-attributes.c
+@@ -57,9 +57,7 @@ static void update_ordered_list_value(int instance, char *attr_value)
+ {
+ 	struct ordered_list_data *ordered_list_data = &bioscfg_drv.ordered_list_data[instance];
+ 
+-	strscpy(ordered_list_data->current_value,
+-		attr_value,
+-		sizeof(ordered_list_data->current_value));
++	strscpy(ordered_list_data->current_value, attr_value);
+ }
+ 
+ ATTRIBUTE_S_COMMON_PROPERTY_SHOW(display_name, ordered_list);
+@@ -179,13 +177,11 @@ static int hp_populate_ordered_list_elements_from_package(union acpi_object *ord
+ 		/* Assign appropriate element value to corresponding field*/
+ 		switch (eloc) {
+ 		case VALUE:
+-			strscpy(ordered_list_data->current_value,
+-				str_value, sizeof(ordered_list_data->current_value));
++			strscpy(ordered_list_data->current_value, str_value);
+ 			replace_char_str(ordered_list_data->current_value, COMMA_SEP, SEMICOLON_SEP);
+ 			break;
+ 		case PATH:
+-			strscpy(ordered_list_data->common.path, str_value,
+-				sizeof(ordered_list_data->common.path));
++			strscpy(ordered_list_data->common.path, str_value);
+ 			break;
+ 		case IS_READONLY:
+ 			ordered_list_data->common.is_readonly = int_value;
+@@ -227,9 +223,7 @@ static int hp_populate_ordered_list_elements_from_package(union acpi_object *ord
+ 				if (ret)
+ 					continue;
+ 
+-				strscpy(ordered_list_data->common.prerequisites[reqs],
+-					str_value,
+-					sizeof(ordered_list_data->common.prerequisites[reqs]));
++				strscpy(ordered_list_data->common.prerequisites[reqs], str_value);
+ 
+ 				kfree(str_value);
+ 				str_value = NULL;
+@@ -271,9 +265,7 @@ static int hp_populate_ordered_list_elements_from_package(union acpi_object *ord
+ 			part = strsep(&part_tmp, COMMA_SEP);
+ 
+ 			for (olist_elem = 0; olist_elem < MAX_ELEMENTS_SIZE && part; olist_elem++) {
+-				strscpy(ordered_list_data->elements[olist_elem],
+-					part,
+-					sizeof(ordered_list_data->elements[olist_elem]));
++				strscpy(ordered_list_data->elements[olist_elem], part);
+ 				part = strsep(&part_tmp, COMMA_SEP);
+ 			}
+ 			ordered_list_data->elements_size = olist_elem;
+diff --git a/drivers/platform/x86/hp/hp-bioscfg/passwdobj-attributes.c b/drivers/platform/x86/hp/hp-bioscfg/passwdobj-attributes.c
+index f7efe217a4bb..35936c05e45b 100644
+--- a/drivers/platform/x86/hp/hp-bioscfg/passwdobj-attributes.c
++++ b/drivers/platform/x86/hp/hp-bioscfg/passwdobj-attributes.c
+@@ -101,13 +101,9 @@ static int store_password_instance(struct kobject *kobj, const char *buf,
+ 
+ 	if (!ret) {
+ 		if (is_current)
+-			strscpy(bioscfg_drv.password_data[id].current_password,
+-				buf_cp,
+-				sizeof(bioscfg_drv.password_data[id].current_password));
++			strscpy(bioscfg_drv.password_data[id].current_password, buf_cp);
+ 		else
+-			strscpy(bioscfg_drv.password_data[id].new_password,
+-				buf_cp,
+-				sizeof(bioscfg_drv.password_data[id].new_password));
++			strscpy(bioscfg_drv.password_data[id].new_password, buf_cp);
  	}
  
- 	/* match many more n-key devices */
--	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
--		for (int i = 0; i < *rsize + 1; i++) {
-+	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD && *rsize > 15) {
-+		for (int i = 0; i < *rsize - 15; i++) {
- 			/* offset to the count from 0x5a report part always 14 */
- 			if (rdesc[i] == 0x85 && rdesc[i + 1] == 0x5a &&
- 			    rdesc[i + 14] == 0x95 && rdesc[i + 15] == 0x05) {
+ 	kfree(buf_cp);
+@@ -272,8 +268,7 @@ static int hp_populate_password_elements_from_package(union acpi_object *passwor
+ 		case VALUE:
+ 			break;
+ 		case PATH:
+-			strscpy(password_data->common.path, str_value,
+-				sizeof(password_data->common.path));
++			strscpy(password_data->common.path, str_value);
+ 			break;
+ 		case IS_READONLY:
+ 			password_data->common.is_readonly = int_value;
+@@ -315,9 +310,7 @@ static int hp_populate_password_elements_from_package(union acpi_object *passwor
+ 				if (ret)
+ 					break;
+ 
+-				strscpy(password_data->common.prerequisites[reqs],
+-					str_value,
+-					sizeof(password_data->common.prerequisites[reqs]));
++				strscpy(password_data->common.prerequisites[reqs], str_value);
+ 
+ 				kfree(str_value);
+ 				str_value = NULL;
+@@ -359,9 +352,7 @@ static int hp_populate_password_elements_from_package(union acpi_object *passwor
+ 				if (ret)
+ 					break;
+ 
+-				strscpy(password_data->encodings[pos_values],
+-					str_value,
+-					sizeof(password_data->encodings[pos_values]));
++				strscpy(password_data->encodings[pos_values], str_value);
+ 				kfree(str_value);
+ 				str_value = NULL;
+ 
+diff --git a/drivers/platform/x86/hp/hp-bioscfg/spmobj-attributes.c b/drivers/platform/x86/hp/hp-bioscfg/spmobj-attributes.c
+index 86f90238750c..2b00a14792e9 100644
+--- a/drivers/platform/x86/hp/hp-bioscfg/spmobj-attributes.c
++++ b/drivers/platform/x86/hp/hp-bioscfg/spmobj-attributes.c
+@@ -365,8 +365,7 @@ int hp_populate_secure_platform_data(struct kobject *attr_name_kobj)
+ 	/* Populate data for Secure Platform Management */
+ 	bioscfg_drv.spm_data.attr_name_kobj = attr_name_kobj;
+ 
+-	strscpy(bioscfg_drv.spm_data.attribute_name, SPM_STR,
+-		sizeof(bioscfg_drv.spm_data.attribute_name));
++	strscpy(bioscfg_drv.spm_data.attribute_name, SPM_STR);
+ 
+ 	bioscfg_drv.spm_data.is_enabled = 0;
+ 	bioscfg_drv.spm_data.mechanism = 0;
+diff --git a/drivers/platform/x86/hp/hp-bioscfg/string-attributes.c b/drivers/platform/x86/hp/hp-bioscfg/string-attributes.c
+index f0c20070094d..27758b779b2d 100644
+--- a/drivers/platform/x86/hp/hp-bioscfg/string-attributes.c
++++ b/drivers/platform/x86/hp/hp-bioscfg/string-attributes.c
+@@ -50,7 +50,7 @@ static void update_string_value(int instance_id, char *attr_value)
+ 	struct string_data *string_data = &bioscfg_drv.string_data[instance_id];
+ 
+ 	/* Write settings to BIOS */
+-	strscpy(string_data->current_value, attr_value, sizeof(string_data->current_value));
++	strscpy(string_data->current_value, attr_value);
+ }
+ 
+ /*
+@@ -178,12 +178,10 @@ static int hp_populate_string_elements_from_package(union acpi_object *string_ob
+ 		/* Assign appropriate element value to corresponding field*/
+ 		switch (eloc) {
+ 		case VALUE:
+-			strscpy(string_data->current_value,
+-				str_value, sizeof(string_data->current_value));
++			strscpy(string_data->current_value, str_value);
+ 			break;
+ 		case PATH:
+-			strscpy(string_data->common.path, str_value,
+-				sizeof(string_data->common.path));
++			strscpy(string_data->common.path, str_value);
+ 			break;
+ 		case IS_READONLY:
+ 			string_data->common.is_readonly = int_value;
+@@ -231,9 +229,7 @@ static int hp_populate_string_elements_from_package(union acpi_object *string_ob
+ 				if (ret)
+ 					continue;
+ 
+-				strscpy(string_data->common.prerequisites[reqs],
+-					str_value,
+-					sizeof(string_data->common.prerequisites[reqs]));
++				strscpy(string_data->common.prerequisites[reqs], str_value);
+ 				kfree(str_value);
+ 				str_value = NULL;
+ 			}
 -- 
 2.45.1
 

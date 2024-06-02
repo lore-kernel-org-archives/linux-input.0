@@ -1,23 +1,23 @@
-Received: from fgw21-7.mail.saunalahti.fi (fgw21-7.mail.saunalahti.fi [62.142.5.82])
+Received: from fgw22-7.mail.saunalahti.fi (fgw22-7.mail.saunalahti.fi [62.142.5.83])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAB773BBF1
-	for <linux-input@vger.kernel.org>; Sun,  2 Jun 2024 09:02:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.82
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BD3E3AC1F
+	for <linux-input@vger.kernel.org>; Sun,  2 Jun 2024 09:03:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.83
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717318981; cv=none; b=J88d3wFrGw0Kd/vk7p5rIsYNzqXTdfXRQshjgehTz0YZ9LG4XBP5W60NHMJpnm9nUEE56HSM9UhZT4/ROECNbG+Bm7eR2HLlC+I/UxZ16wN17VFNKO5pb/RFf28Y3B5cP4zjnDbwKTZd3eFFn+lCpvkBmHerL/AtoUEPrJ3mBnQ=
+	t=1717318982; cv=none; b=NsWaH4U5DipCdXVWJ73sEHUmMYxT80FRU7+WAmUJHx3EJycWkrogEfbCh+GWbIpNIRd4QqXgQwj7WGOnpXTD6Is+UskiuA+jVA8MdL0E/E4FU6JUyQq7Gus2YjGE1ucZHqFbpoDwWY3l8CuGxxg8qf4Rms1qGE09ryFkznhPuZ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717318981; c=relaxed/simple;
-	bh=UgAuMHpFIkncb10bX6YzLxaitjoHyiUwEFu7OS+KpA4=;
+	s=arc-20240116; t=1717318982; c=relaxed/simple;
+	bh=Zev7O1OaJPuWxSkFHl6udbLp67nkr4VjyCzglGcW7E0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QY5VjLec1wAg2/GfaezcjO9UkpLGKmA947Vy5/43pNPBzxe986NXTGQ7/T5QyHeiQbUcHr6Hi8kavXU2zmjSqJmQBiYYB1QHcLBldLMGDDjWONPju+bsyaoO70weSggOzgipWzekNPHaUs8dHgf12x5e7FLS9GS73KEu+G7Uv74=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.82
+	 MIME-Version; b=aO99URxwA2v6Ie1jte0XtxVOUzNsfdRpjZylFkM1NvZDrcVB24Hn4Xunu3qdN52AEhLjH8lpgCAptATamijFQvMwN6BDHzqNGzWPMZKgLHpgmqa04ZPxDrfMGpyIv1DILAOm14WRjUZML/7U5bP4vqsDIKebMDZp23qGCVuvY00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.83
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
 Received: from localhost (88-113-26-230.elisa-laajakaista.fi [88.113.26.230])
-	by fgw22.mail.saunalahti.fi (Halon) with ESMTP
-	id e585c43e-20be-11ef-8e3d-005056bdf889;
-	Sun, 02 Jun 2024 12:02:53 +0300 (EEST)
+	by fgw21.mail.saunalahti.fi (Halon) with ESMTP
+	id e4aa8b06-20be-11ef-ab01-005056bdd08f;
+	Sun, 02 Jun 2024 12:02:52 +0300 (EEST)
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
 To: Hans de Goede <hdegoede@redhat.com>,
 	Andy Shevchenko <andy.shevchenko@gmail.com>,
@@ -34,9 +34,9 @@ Cc: Corentin Chary <corentin.chary@gmail.com>,
 	"Luke D. Jones" <luke@ljones.dev>,
 	Mark Pearson <markpearson@lenovo.com>,
 	Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: [PATCH v1 6/7] platform/x86: thinkpad_acpi: Use 2-argument strscpy()
-Date: Sun,  2 Jun 2024 11:57:59 +0300
-Message-ID: <20240602090244.1666360-7-andy.shevchenko@gmail.com>
+Subject: [PATCH v1 4/7] platform/x86: serial-multi-instantiate: Use 2-argument strscpy()
+Date: Sun,  2 Jun 2024 11:57:57 +0300
+Message-ID: <20240602090244.1666360-5-andy.shevchenko@gmail.com>
 X-Mailer: git-send-email 2.45.1
 In-Reply-To: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
 References: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
@@ -53,26 +53,31 @@ an additional check that destination buffer is an array.
 
 Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/platform/x86/thinkpad_acpi.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/platform/x86/serial-multi-instantiate.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index 397b409064c9..f269ca1ff771 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -7416,10 +7416,8 @@ static int __init volume_create_alsa_mixer(void)
- 	data = card->private_data;
- 	data->card = card;
+diff --git a/drivers/platform/x86/serial-multi-instantiate.c b/drivers/platform/x86/serial-multi-instantiate.c
+index 97b9c6392230..3be016cfe601 100644
+--- a/drivers/platform/x86/serial-multi-instantiate.c
++++ b/drivers/platform/x86/serial-multi-instantiate.c
+@@ -131,7 +131,7 @@ static int smi_spi_probe(struct platform_device *pdev, struct smi *smi,
  
--	strscpy(card->driver, TPACPI_ALSA_DRVNAME,
--		sizeof(card->driver));
--	strscpy(card->shortname, TPACPI_ALSA_SHRTNAME,
--		sizeof(card->shortname));
-+	strscpy(card->driver, TPACPI_ALSA_DRVNAME);
-+	strscpy(card->shortname, TPACPI_ALSA_SHRTNAME);
- 	snprintf(card->mixername, sizeof(card->mixername), "ThinkPad EC %s",
- 		 (thinkpad_id.ec_version_str) ?
- 			thinkpad_id.ec_version_str : "(unknown)");
+ 		ctlr = spi_dev->controller;
+ 
+-		strscpy(spi_dev->modalias, inst_array[i].type, sizeof(spi_dev->modalias));
++		strscpy(spi_dev->modalias, inst_array[i].type);
+ 
+ 		ret = smi_get_irq(pdev, adev, &inst_array[i]);
+ 		if (ret < 0) {
+@@ -205,7 +205,7 @@ static int smi_i2c_probe(struct platform_device *pdev, struct smi *smi,
+ 
+ 	for (i = 0; i < count && inst_array[i].type; i++) {
+ 		memset(&board_info, 0, sizeof(board_info));
+-		strscpy(board_info.type, inst_array[i].type, I2C_NAME_SIZE);
++		strscpy(board_info.type, inst_array[i].type);
+ 		snprintf(name, sizeof(name), "%s-%s.%d", dev_name(dev), inst_array[i].type, i);
+ 		board_info.dev_name = name;
+ 
 -- 
 2.45.1
 

@@ -1,23 +1,22 @@
-Received: from fgw21-7.mail.saunalahti.fi (fgw21-7.mail.saunalahti.fi [62.142.5.82])
+Received: from fgw22-7.mail.saunalahti.fi (fgw22-7.mail.saunalahti.fi [62.142.5.83])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F968364A0
-	for <linux-input@vger.kernel.org>; Sun,  2 Jun 2024 09:02:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.82
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 674B4374F5
+	for <linux-input@vger.kernel.org>; Sun,  2 Jun 2024 09:02:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.83
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717318976; cv=none; b=HHF5SkOzOFHa2+hnLNaIC2PtLM9UIUI5I6q7jKs7DtozK5zqQwwrXzJh1xb249HLS7jA5+DUY6xPfTpRYt33lCujQYQjWha2L1j3AEtUGxZUbBdM0ZE4itxxtX6MuVjvDEA60M6cr7qBJFHo2v+O4YpIRt4HAHCJImbTUSrAObQ=
+	t=1717318977; cv=none; b=IJSHAG2n0RnmTCLeGML0MBxOASCD0HzMhw0JncTk1vOV3nxWg6/gORvOw9ok2H88X2wuCpkrjBL4kN/mQIbvVoFzSPwkk1VJ+jFMzwT/+ppif8cTSfnciKskz7PXUKn/aaJgFR9yAAQaGuoyTC7QYL3/aP6Dk/aCqFYXVz5xpN8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717318976; c=relaxed/simple;
-	bh=A6dVcyj3TpXvLRLkS0fzqxH5DLBjNaIzUh/UVu5B6N0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZE4QKrzdKmJ7k1H3VBTWLKrhhjOlt3mHyoOnyAtt4NgrT1ooE3p83XULNgb1wNOikZX5KLrtf1RXAPALsdWwKuEMS5LCEUHwa5rCcDjZcXbwEH0kSEejjK7lMvkbVzVMYwhDWz9Gdfh/5uyGdfFrkkxxPKsXpNENekxO//M42sk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.82
+	s=arc-20240116; t=1717318977; c=relaxed/simple;
+	bh=kvjM+fA8m/X7nFchC9GtlIpylkN/zyU5xhYjmg6++aU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rj8+hvi606ia9Hr4IYrcOgJzGCHyoCjVgk3n95cmrTM3aC2pU3u0vs8yMd198SAuPN3kFlj99+LI1ynq6pRQMatxfjU3odHU2RmxcWpmRNXbuykbe/bBJSABc9xmmBd8XTrXV2mfuHLjxuCx25bYkVO8TRoEoCWIz/R0gnEEs+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.83
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
 Received: from localhost (88-113-26-230.elisa-laajakaista.fi [88.113.26.230])
-	by fgw20.mail.saunalahti.fi (Halon) with ESMTP
-	id e519696a-20be-11ef-8d47-005056bd6ce9;
-	Sun, 02 Jun 2024 12:02:53 +0300 (EEST)
+	by fgw22.mail.saunalahti.fi (Halon) with ESMTP
+	id e0b351d6-20be-11ef-8e3d-005056bdf889;
+	Sun, 02 Jun 2024 12:02:48 +0300 (EEST)
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
 To: Hans de Goede <hdegoede@redhat.com>,
 	Andy Shevchenko <andy.shevchenko@gmail.com>,
@@ -34,12 +33,10 @@ Cc: Corentin Chary <corentin.chary@gmail.com>,
 	"Luke D. Jones" <luke@ljones.dev>,
 	Mark Pearson <markpearson@lenovo.com>,
 	Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: [PATCH v1 5/7] platform/x86: think-lmi: Use 2-argument strscpy()
-Date: Sun,  2 Jun 2024 11:57:58 +0300
-Message-ID: <20240602090244.1666360-6-andy.shevchenko@gmail.com>
+Subject: [PATCH v1 0/7] platform/x86: Move to 2-argument strscpy()
+Date: Sun,  2 Jun 2024 11:57:53 +0300
+Message-ID: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
 X-Mailer: git-send-email 2.45.1
-In-Reply-To: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
-References: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -48,36 +45,34 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use 2-argument strscpy(), which is not only shorter but also provides
-an additional check that destination buffer is an array.
+Move to 2-argument strscpy() to make code shorter and have an additional check.
+No functional change intended.
 
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
- drivers/platform/x86/think-lmi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Some cases are let untouched where it looks better with the 3rd argument.
 
-diff --git a/drivers/platform/x86/think-lmi.c b/drivers/platform/x86/think-lmi.c
-index 0f2264bb7577..4cfb53206cb8 100644
---- a/drivers/platform/x86/think-lmi.c
-+++ b/drivers/platform/x86/think-lmi.c
-@@ -1508,7 +1508,7 @@ static struct tlmi_pwd_setting *tlmi_create_auth(const char *pwd_type,
- 	if (!new_pwd)
- 		return NULL;
- 
--	strscpy(new_pwd->kbdlang, "us", TLMI_LANG_MAXLEN);
-+	strscpy(new_pwd->kbdlang, "us");
- 	new_pwd->encoding = TLMI_ENCODING_ASCII;
- 	new_pwd->pwd_type = pwd_type;
- 	new_pwd->role = pwd_role;
-@@ -1582,7 +1582,7 @@ static int tlmi_analyze(void)
- 			goto fail_clear_attr;
- 		}
- 		setting->index = i;
--		strscpy(setting->display_name, item, TLMI_SETTINGS_MAXLEN);
-+		strscpy(setting->display_name, item);
- 		/* If BIOS selections supported, load those */
- 		if (tlmi_priv.can_get_bios_selections) {
- 			ret = tlmi_get_bios_selections(setting->display_name,
+Andy Shevchenko (7):
+  platform/x86: asus-tf103c-dock: Use 2-argument strscpy()
+  platform/x86: hp: hp-bioscfg: Use 2-argument strscpy()
+  platform/x86: intel: chtwc_int33fe: Use 2-argument strscpy()
+  platform/x86: serial-multi-instantiate: Use 2-argument strscpy()
+  platform/x86: think-lmi: Use 2-argument strscpy()
+  platform/x86: thinkpad_acpi: Use 2-argument strscpy()
+  platform/x86: touchscreen_dmi: Use 2-argument strscpy()
+
+ drivers/platform/x86/asus-tf103c-dock.c       | 10 +++++-----
+ .../x86/hp/hp-bioscfg/enum-attributes.c       | 18 +++++-------------
+ .../x86/hp/hp-bioscfg/int-attributes.c        |  7 ++-----
+ .../x86/hp/hp-bioscfg/order-list-attributes.c | 18 +++++-------------
+ .../x86/hp/hp-bioscfg/passwdobj-attributes.c  | 19 +++++--------------
+ .../x86/hp/hp-bioscfg/spmobj-attributes.c     |  3 +--
+ .../x86/hp/hp-bioscfg/string-attributes.c     | 12 ++++--------
+ drivers/platform/x86/intel/chtwc_int33fe.c    |  6 +++---
+ .../platform/x86/serial-multi-instantiate.c   |  4 ++--
+ drivers/platform/x86/think-lmi.c              |  4 ++--
+ drivers/platform/x86/thinkpad_acpi.c          |  6 ++----
+ drivers/platform/x86/touchscreen_dmi.c        |  2 +-
+ 12 files changed, 37 insertions(+), 72 deletions(-)
+
 -- 
 2.45.1
 

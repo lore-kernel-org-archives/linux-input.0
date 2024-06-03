@@ -1,90 +1,164 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73A968595B;
-	Mon,  3 Jun 2024 11:54:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3DB6882B;
+	Mon,  3 Jun 2024 15:40:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717415652; cv=none; b=Kl7Qyn5AX8YfeH8xBhhouVr0RZ/dCBhcVALKv3sovcUt94TFSOkkQtO4oTV7LHM4qCPAilkv4aJpxWHmYzA/l9ulUYGOC41t1UKKU7XL0ujNsnkXQ3FjUDwNS6uS1//HFabqSBw7p4WCCHmFpOlwFiDjIrhKPfrb8lv4DHf/TxY=
+	t=1717429237; cv=none; b=D7k4NI6aM9D6ElM+YMDDFoVH3bjVtPIhjIvyIrPaY41eVjxxmzcU/nP9HR4SLPxJzoiu1UsfBncEwPxFkE2QaxDT6k06N5/VJECRtqeUj0L3gLcXBAVvldgoahldKSmZ1wWlya+w0KSox+rnzEi8Iw9b4AjyA4vBjghzN1O2m0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717415652; c=relaxed/simple;
-	bh=GPMUJJ53l+0ecXS1pAoUJQYrHF+UZHS+9Mt++PXszzU=;
-	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=s04M1AUnkBiAJyDhMwQ8TAYVxc2f1bRm7Ss//LTss3YA365RoeqQiLtmLtu5FUIC+g32rC9yVkjcml2GnDO4WkxPPzg3ASBg8Zn9s8QkNLJbr1c0Ic2rsvrswwSutrUVVdI4aRkfHNS9+JdWcp0Rmbd6ysT0/2xT7xx834RDiE0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lw0TtGBh; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1717429237; c=relaxed/simple;
+	bh=PQWwAwlEnBREZ6TGncG2YN022xaCSGsXTa+dUIzPx0E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Ato/3w+Hk7WLaogGGl2VguDZNWqZMKm3jSNGVvHaPYWjOrSc8xT/BB8JjVmNDfg1nUhrkaiiSrnJIWDZOacI+HF8XtQtS1H/z4BkPYcF9dcUaGD1o9rQ5NR8jEE5VDuQTe4PJiEiEiyPpvH+Nez8PCygPvKtICRz18LsKBObWFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=jMRjoozV; arc=none smtp.client-ip=217.70.183.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lw0TtGBh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1717415651; x=1748951651;
-  h=from:date:to:cc:subject:in-reply-to:message-id:
-   references:mime-version;
-  bh=GPMUJJ53l+0ecXS1pAoUJQYrHF+UZHS+9Mt++PXszzU=;
-  b=lw0TtGBh+DQXKWh1iIb8hLe1oY/jwgiSCBSdtzV7OnmkHauzTkfDHQvW
-   WuVNnZkLb2LudwyRzIooHNcODTnpZS7YHnZQwkmDhmIZcrRVY4iocy8a/
-   LaEHpqAU0loYeOiJkSXrF5VbkHte99yfms+aThhDCnf0AnQGDRLdfm8n3
-   4JdfDa1Gd5Z1kxUuJFF6iv+iKM1fO9KXYj9KvHag3yEHutIWiQLziiI5d
-   NpfRXt6SjpcATUJrCPZyKJ0nu1TX888C0lMliYlwJ/JhwCO6capW4CBeD
-   1LxupYrzeUlD+cyNE4rwA1DQ4MhiT9gzM5AfqRF7t0Pp938kes2MC5rmm
-   Q==;
-X-CSE-ConnectionGUID: Rr2AK2xvQiCcl4NkXv3hxQ==
-X-CSE-MsgGUID: fzzvlTjCRMySF9qe+lMITg==
-X-IronPort-AV: E=McAfee;i="6600,9927,11091"; a="13650913"
-X-IronPort-AV: E=Sophos;i="6.08,211,1712646000"; 
-   d="scan'208";a="13650913"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2024 04:54:10 -0700
-X-CSE-ConnectionGUID: eHH8JyTaRQ2o1D3/0McGlQ==
-X-CSE-MsgGUID: UO/ceDCRQKu7ajfICb02Yw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.08,211,1712646000"; 
-   d="scan'208";a="36753925"
-Received: from ijarvine-desk1.ger.corp.intel.com (HELO localhost) ([10.245.247.161])
-  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Jun 2024 04:54:06 -0700
-From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Mon, 3 Jun 2024 14:54:01 +0300 (EEST)
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-cc: Hans de Goede <hdegoede@redhat.com>, Jorge Lopez <jorge.lopez2@hp.com>, 
-    Li Zetao <lizetao1@huawei.com>, 
-    Simon Trimmer <simont@opensource.cirrus.com>, 
-    Mark Pearson <mpearson-lenovo@squebb.ca>, 
-    platform-driver-x86@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, 
-    ibm-acpi-devel@lists.sourceforge.net, linux-input@vger.kernel.org, 
-    Corentin Chary <corentin.chary@gmail.com>, 
-    "Luke D. Jones" <luke@ljones.dev>, Mark Pearson <markpearson@lenovo.com>, 
-    Henrique de Moraes Holschuh <hmh@hmh.eng.br>
-Subject: Re: [PATCH v1 0/7] platform/x86: Move to 2-argument strscpy()
-In-Reply-To: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
-Message-ID: <35a722b6-995b-25d9-189c-5283a52a379f@linux.intel.com>
-References: <20240602090244.1666360-1-andy.shevchenko@gmail.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="jMRjoozV"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 4D2B020002;
+	Mon,  3 Jun 2024 15:40:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1717429233;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=M2PtE5CESFJxKL7JvvPbdq+3ps8sNXMJTX6WIUyssys=;
+	b=jMRjoozV7W567qKvTwuObeuv0MFmdggNMsFL2KVWtTw2lg5dc6X975CYvkH2RhvIsxbfun
+	mB+XSMfQSV3LJSyUY2koKJm/qArhOo0glrdXX00BYaq8ZjELBaMvdtLPSIuT10HC8+dWrO
+	vjRLLosQ7HwM7DcT+n85WndLRFdymUdVeugXsmxr5bAi9h14oDW2CAH4qhfPHIe8jDHFn2
+	ufGlU755k1RPjRvkQ0lOOZEfdvrEQ0+aR6GEfRlH/2V5ONBED8a7wkRekP/seXBxPDAX1u
+	MgUmLgzHDTSeOjK7z9RaVOdj6djvMlmK0XmwWU2coskiUWPYM9HlpyJY0adPfw==
+From: Kamel Bouhara <kamel.bouhara@bootlin.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Henrik Rydberg <rydberg@bitmath.org>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	Marco Felsch <m.felsch@pengutronix.de>,
+	Jeff LaBundy <jeff@labundy.com>
+Cc: catalin.popescu@leica-geosystems.com,
+	mark.satterthwaite@touchnetix.com,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	bsp-development.geo@leica-geosystems.com,
+	Kamel Bouhara <kamel.bouhara@bootlin.com>,
+	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: [PATCH v13 2/3] dt-bindings: input: Add TouchNetix axiom touchscreen
+Date: Mon,  3 Jun 2024 17:39:24 +0200
+Message-ID: <20240603153929.29218-3-kamel.bouhara@bootlin.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240603153929.29218-1-kamel.bouhara@bootlin.com>
+References: <20240603153929.29218-1-kamel.bouhara@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-GND-Sasl: kamel.bouhara@bootlin.com
 
-On Sun, 2 Jun 2024, Andy Shevchenko wrote:
+Add the TouchNetix axiom I2C touchscreen device tree bindings
+documentation.
 
-> Move to 2-argument strscpy() to make code shorter and have an additional check.
-> No functional change intended.
-> 
-> Some cases are let untouched where it looks better with the 3rd argument.
-> 
-> Andy Shevchenko (7):
->   platform/x86: asus-tf103c-dock: Use 2-argument strscpy()
->   platform/x86: hp: hp-bioscfg: Use 2-argument strscpy()
->   platform/x86: intel: chtwc_int33fe: Use 2-argument strscpy()
->   platform/x86: serial-multi-instantiate: Use 2-argument strscpy()
->   platform/x86: think-lmi: Use 2-argument strscpy()
->   platform/x86: thinkpad_acpi: Use 2-argument strscpy()
->   platform/x86: touchscreen_dmi: Use 2-argument strscpy()
+Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ .../input/touchscreen/touchnetix,ax54a.yaml   | 62 +++++++++++++++++++
+ MAINTAINERS                                   |  6 ++
+ 2 files changed, 68 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
 
-Patches 1-6 applied to review-ilpo branch.
-
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
+new file mode 100644
+index 000000000000..66229a4d6f15
+--- /dev/null
++++ b/Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
+@@ -0,0 +1,62 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/input/touchscreen/touchnetix,ax54a.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: TouchNetix Axiom series touchscreen controller
++
++maintainers:
++  - Kamel Bouhara <kamel.bouhara@bootlin.com>
++
++allOf:
++  - $ref: /schemas/input/touchscreen/touchscreen.yaml#
++  - $ref: /schemas/input/input.yaml#
++
++properties:
++  compatible:
++    const: touchnetix,ax54a
++
++  reg:
++    const: 0x66
++
++  interrupts:
++    maxItems: 1
++
++  reset-gpios:
++    maxItems: 1
++
++  vdda-supply:
++    description: Analog power supply regulator on VDDA pin
++
++  vddi-supply:
++    description: I/O power supply regulator on VDDI pin
++
++required:
++  - compatible
++  - reg
++  - vdda-supply
++  - vddi-supply
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/gpio/gpio.h>
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      touchscreen@66 {
++        compatible = "touchnetix,ax54a";
++        reg = <0x66>;
++        interrupt-parent = <&gpio2>;
++        interrupts = <2 IRQ_TYPE_EDGE_FALLING>;
++        reset-gpios = <&gpio1 1 GPIO_ACTIVE_HIGH>;
++        vdda-supply = <&vdda_reg>;
++        vddi-supply = <&vddi_reg>;
++        poll-interval = <20>;
++      };
++    };
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 8754ac2c259d..225309db4110 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -22742,6 +22742,12 @@ L:	platform-driver-x86@vger.kernel.org
+ S:	Maintained
+ F:	drivers/platform/x86/toshiba-wmi.c
+ 
++TOUCHNETIX AXIOM I2C TOUCHSCREEN DRIVER
++M:	Kamel Bouhara <kamel.bouhara@bootlin.com>
++L:	linux-input@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/input/touchscreen/touchnetix,ax54a.yaml
++
+ TPM DEVICE DRIVER
+ M:	Peter Huewe <peterhuewe@gmx.de>
+ M:	Jarkko Sakkinen <jarkko@kernel.org>
 -- 
- i.
+2.25.1
 

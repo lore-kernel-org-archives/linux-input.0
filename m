@@ -1,43 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96D4D1422D8;
-	Tue,  4 Jun 2024 08:40:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1EA3652;
+	Tue,  4 Jun 2024 09:05:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717490458; cv=none; b=RBPT9rtfKj6hBg+OihhiibDqbySiJjphIxx2wR0v2TH5AZN/v3O8t7dc+Lwl3aiPF1tJGH8SW6yWt99tvUWBjfmsbA+81QzeehcuhO5wvz5FiTOMRtrN7ImzhyMBzAiKMWFLLrbfMYZMRtDiIGI4GljLaWeJCSgmjytUO08k3xg=
+	t=1717491947; cv=none; b=WIyRy9qyutiCGuSCsK1v8Jbdq5Up/ZiZLsGPx9KyHVj7aS9MLMPrZA3VIeCjQHkCte1iXeWzX63RPp1E4xLCIVwdQmXpW9fXQ0JnuAp72arohoSANSRJWdg6gW+GT68N2rNCd5mB6NHmRNy1yjvSh75OStD5+k8mEcxc2b3rpPA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717490458; c=relaxed/simple;
-	bh=QGgZbW90IOBxyw0tPgck/VovxBWLuXnIo7I9R9vrkWM=;
+	s=arc-20240116; t=1717491947; c=relaxed/simple;
+	bh=HF9C4tP0DgrqQfP3WI0DBh204AtPw8xLNHQwLz/tONk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=lJzj58QeWI+uXFRVHZ/0eF77JTG2h0t4jjRw7RVnG6StfMZXzS22NEZNqrwSztotmFpzGoHFosb8JIQjBPnIqiP1bN7ii7YFH2Q8pYQz+jLYXLOR94ftfey8c7mUHDeoobkMRXfiOtQb0p3PsUgtgYHlE4w/FIZst5vTrrhj4Ng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mL1kwb7Y; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=BWz411BAfBeGORYJVhGuKVFlGiYVn/2XFRZwUkZbiRrdds9deAXZhoJREEitHh5Mh1FFeWKa0jV9m1wst7BHAcCscZe4eadShGaJdE8vyrjyhOHVrg+j2DN5uQVFRKt/TndUyVZr7c12PvogXU8cLHpRQQDGbYt7dAzRNQ1kgf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PU9asgye; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mL1kwb7Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D9CC2BBFC;
-	Tue,  4 Jun 2024 08:40:57 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PU9asgye"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D29BAC2BBFC;
+	Tue,  4 Jun 2024 09:05:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1717490458;
-	bh=QGgZbW90IOBxyw0tPgck/VovxBWLuXnIo7I9R9vrkWM=;
+	s=k20201202; t=1717491947;
+	bh=HF9C4tP0DgrqQfP3WI0DBh204AtPw8xLNHQwLz/tONk=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=mL1kwb7YL3z9nRa8E2dhMl5HxHLW6zK6to0FNXh/py4c8mARAgIie9EVwnLbczAtp
-	 fAtW6BnCHjREZK00l1LUWB2IxeYjz7OVK5dCsT1AR6atr6415nhnU8EbPlcBHlzzLs
-	 HNJ8J4sD727+Eb92g2P5Rx6pNmoRutzbnBkFInLTKYjnrCVOHedUZ90qZ/BBugMm/U
-	 mx9PRGsEPKdQwX670Ys3R62n3w6FnNOrlMCFkkavdqihKGVjXvAaogoNX7bvzL2IVO
-	 kbJhR+RWH+qgcmZRWZwL4/NynPtkNlHoX3YKPwL0Hz0IXvmuQ4kFV8M5LsyMNi4z6m
-	 9/FsCoE+23xYA==
-Date: Tue, 4 Jun 2024 10:40:54 +0200 (CEST)
+	b=PU9asgyeuhv/jbHQlmjA2PLiJogkeHO2JFQxyqmkP+MCUr5eN9jcArBU61Av2rtZh
+	 6VcHIwp3uPvKLKjMPN8FuCqylltL8mrVbHfpcxkd1GvYrjBn10wjuyYNYjIQ7ojv95
+	 tNL7YJNc+fsDf5VUJsB+VUnVMPAMVXlvMDrMQ5hEOq50apM8SKAb4UY5+9nBWqK0sa
+	 elUxJcYbof9upT1LBtKTBiNkvnGpNXmqVV+/QG76igyttOWydDMtPKx0iNPQkANiv+
+	 yvISwk9ybf4FPAk30VfN+CRYvXjh4s64KfLWjjapUlQgzOnj8ZfEP7l5Dv7URu+88n
+	 2F3cftLZEh+iQ==
+Date: Tue, 4 Jun 2024 11:05:43 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Jeff Johnson <quic_jjohnson@quicinc.com>
-cc: =?ISO-8859-15?Q?Filipe_La=EDns?= <lains@riseup.net>, 
-    Bastien Nocera <hadess@hadess.net>, 
-    Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-    linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] HID: logitech-hidpp: add missing MODULE_DESCRIPTION()
- macro
-In-Reply-To: <20240603-md-hid-logitech-hidpp-v1-1-060f06e4529f@quicinc.com>
-Message-ID: <nycvar.YFH.7.76.2406041040470.24940@cbobk.fhfr.pm>
-References: <20240603-md-hid-logitech-hidpp-v1-1-060f06e4529f@quicinc.com>
+To: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+cc: djogorchock@gmail.com, bentiss@kernel.org, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>
+Subject: Re: [PATCH] HID: nintendo: Remove some unused functions
+In-Reply-To: <20240531085559.129085-1-jiapeng.chong@linux.alibaba.com>
+Message-ID: <nycvar.YFH.7.76.2406041105360.24940@cbobk.fhfr.pm>
+References: <20240531085559.129085-1-jiapeng.chong@linux.alibaba.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -47,14 +44,19 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 3 Jun 2024, Jeff Johnson wrote:
+On Fri, 31 May 2024, Jiapeng Chong wrote:
 
-> make allmodconfig && make W=1 C=1 reports:
-> WARNING: modpost: missing MODULE_DESCRIPTION() in drivers/hid/hid-logitech-hidpp.o
+> These functions are defined in the hid-nintendo.c file, but not
+> called elsewhere, so delete these unused functions.
 > 
-> Add the missing invocation of the MODULE_DESCRIPTION() macro.
+> drivers/hid/hid-nintendo.c:672:20: warning: unused function 'joycon_device_is_procon'.
+> drivers/hid/hid-nintendo.c:682:20: warning: unused function 'joycon_device_is_snescon'.
+> drivers/hid/hid-nintendo.c:687:20: warning: unused function 'joycon_device_is_gencon'.
+> drivers/hid/hid-nintendo.c:692:20: warning: unused function 'joycon_device_is_n64con'.
 > 
-> Signed-off-by: Jeff Johnson <quic_jjohnson@quicinc.com>
+> Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+> Closes: https://bugzilla.openanolis.cn/show_bug.cgi?id=9265
+> Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
 Applied, thanks.
 

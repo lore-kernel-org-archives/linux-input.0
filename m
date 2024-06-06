@@ -1,172 +1,186 @@
-Received: from mx0b-0046e701.pphosted.com (mx0b-0046e701.pphosted.com [67.231.157.77])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A76FD173;
-	Thu,  6 Jun 2024 00:21:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.157.77
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AFDA4C7D;
+	Thu,  6 Jun 2024 00:24:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717633279; cv=none; b=AMclPBEPhvQG9B0JEBdKATGqu/VVSYx0jKaUysukO0EGvLHlqyxDsvpH5XLP3kqPjQAidqDRO1jc7GQiboIRcvlMMpDNGELJE1Dgz+jy839wWenE7Jz04GI+lVvGIGJLRaw0qXJeGPU2DsSabkrKY1BWQD1h2mCa6AwwXtkumgs=
+	t=1717633449; cv=none; b=g6eL+TiDc8QMVXvfxljpwoMLFVoKPMGOt2HjFESO6o175xOfkJ+APXaO7MNOXx4I9YocAKrYKJdkw2HcEz8c5GYNSdtZuHBoNmV6UrWEcfTbpC8UU5fdXArxTmtftsYNnKkPJBNp9v6vcyZ10QGR3ZPhD+xq+udNTTmDiF4KLWk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717633279; c=relaxed/simple;
-	bh=p/ENPCayabTlcHXB5bmkUIvHlNXCalofVESa/auPyas=;
-	h=From:Subject:Date:Message-ID:MIME-Version:Content-Type:To:CC; b=uoXMmoEA2esXTGqHrFSQjhWrYflWk1OLuUVN3KV3/f1znuukBhFoaAshRlgOm10ojSOUIz5jRELqpn0Fj4T2dWrIrk39EMkt1ZFxt5ux+2S8nn7yAZEPQT0FmtekaxI6OZQRcRFRysJBqT0Fn2eK+OzHqWkVd3kd4JuktnwKIIE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=JvGvtY2o; arc=none smtp.client-ip=67.231.157.77
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=plexus.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
+	s=arc-20240116; t=1717633449; c=relaxed/simple;
+	bh=zACP1JLsppCuez65YERBmhPkTyiM+safYjy0gPvN8lw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WhULOe8N/cdSiO50tSm/EWE6cEFhsVupHJ919xVDTYBpM9m0XDMwggP2zA3rmc6f/ab/Uxv+fqC0SEkY5pe2FI2TsdHWPHolyonET78eXb9A+0jbL1DW2rMxB/WMqVREbzlyOg8BAfQ5X7Ybw7cgICtL6FOHpoyr66ii8w6Tdh4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ceCEYX9s; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="JvGvtY2o"
-Received: from pps.filterd (m0341555.ppops.net [127.0.0.1])
-	by mx0b-0046e701.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 455MCwgp016418;
-	Wed, 5 Jun 2024 23:17:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pps1; bh=GxgW7Z/4D6qnA1EP7/4DABZRqJF
-	cYIl8U5O+vv2vby8=; b=JvGvtY2oOJgeU96xCoEU01HWgsIOSpRphmcyG3pxZpO
-	tfKFQaggbslyEf3lhWpsMHVMB3LH9zLF/xLVqstOPgIC/wQ8t/JMNzP8TDPVrQjC
-	luLcJ+ees1ibkdZI12l23hmZ9hfP0NW42Pwv7Rmy7jX7IBU9I2N03FfFwlZ6/bMe
-	yuT5lvfUXZaHq6L5A2UFz2ZnuV2D8LKH7/j1fVmWHsSY+MVZYTTTynyjKgHkBt3A
-	zIIdnMpekzCZ93QBXEd39dxs3vD2eWIabqcDyTIM8uMSX18oPT/URSSHRWEZT/Ut
-	tAAPYuPlwoHgh37Y8Cr9KEAZFO3LZTlTf9fFqsfgulg==
-Received: from gcc-mail-mx-001.na.plexus.com (outbound.plexus.com [64.215.193.254])
-	by mx0b-0046e701.pphosted.com (PPS) with ESMTPS id 3yjyu387kk-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Jun 2024 23:17:48 +0000 (GMT)
-Received: from gcc-mail-mx-004.Na.Plexus.com (10.255.51.224) by
- gcc-mail-mx-001.na.plexus.com (10.255.51.220) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.37; Wed, 5 Jun 2024 23:17:47 +0000
-Received: from LNDCL34533.neenah.na.plexus.com (10.255.48.203) by
- gcc-mail-mx-004.Na.Plexus.com (10.255.51.224) with Microsoft SMTP Server id
- 15.1.2507.37 via Frontend Transport; Wed, 5 Jun 2024 23:17:47 +0000
-From: Danny Kaehn <danny.kaehn@plexus.com>
-Subject: [PATCH v11 0/4] Firmware Support for USB-HID Devices and CP2112
-Date: Wed, 5 Jun 2024 18:12:43 -0500
-Message-ID: <20240605-cp2112-dt-v11-0-d55f0f945a62@plexus.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ceCEYX9s"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E618C2BD11;
+	Thu,  6 Jun 2024 00:24:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1717633449;
+	bh=zACP1JLsppCuez65YERBmhPkTyiM+safYjy0gPvN8lw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ceCEYX9swt6oUdD83N+Dn0TprBelZK0XyzkwqtehmDvOoXjeLtLR5/irNitMobfjC
+	 lPaBpB21ox2ddyTDI9tWyWbKAUBROmTSkbGGPAQ0Kra1tSrO1J96mCPunxbDd95mAQ
+	 aSi8DEmkrJ0+vZASlQUUmLwXjJwISyMrJKgWh/XNB90PE0KSwPaB1o15CINeZ7/lOf
+	 pKj5l/nutEqQX+8O56Nc87f6lL2yugsBnMvl99huwlFBjParNuqoa6yevsLifUouQd
+	 KURO0rE5soZExXcqnKUolB/zTvZ+7Ywu8GUQ9vsI3kAsKErG3qEMzi151LEk7Eb9SQ
+	 yZjOESCbXnQEw==
+Date: Wed, 5 Jun 2024 18:24:06 -0600
+From: Rob Herring <robh@kernel.org>
+To: Daisuke Nojiri <dnojiri@chromium.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Benson Leung <bleung@chromium.org>,
+	Guenter Roeck <groeck@chromium.org>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, chrome-platform@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/3] ARM: dts: cros-ec-keyboard: Add keyboard matrix v3.0
+Message-ID: <20240606002406.GA3505320-robh@kernel.org>
+References: <20240604005354.2294468-1-dnojiri@chromium.org>
+ <20240604230909.2879006-1-dnojiri@chromium.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAOvwYGYC/0XMQQ7CIBCF4as0sxYyINjiynsYF4ROhWiBQDU1T
- e8ucePyf3n5NqhUAlU4dxsUeocaUmwhxKED5228EwtjG0CiVHhCzVyWQkg2Lqx3ozNaqYEGC+2
- fC01h/WHXW+uppJktvpD9CxK16NFI5OaojGENsjF++MOSj5f8pPVVuUsz7PsX3hod+pwAAAA=
-To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Benjamin Tissoires <bentiss@kernel.org>,
-        Andy Shevchenko
-	<andriy.shevchenko@linux.intel.com>,
-        Danny Kaehn <danny.kaehn@plexus.com>
-CC: Jiri Kosina <jikos@kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-input@vger.kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Ethan Twardy
-	<ethan.twardy@plexus.com>
-X-Mailer: b4 0.14-dev-d4707
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1717629180; l=3513;
- i=danny.kaehn@plexus.com; s=20240605; h=from:subject:message-id;
- bh=p/ENPCayabTlcHXB5bmkUIvHlNXCalofVESa/auPyas=;
- b=FY5sfQ0DygsVJB7thxf1sooCwz2oGGXbAc7Dk/7a8Hv2i60FCoXJeEysvpIlALz553oY6cgk6
- nXAhW+JKKj1BU59qnZRnmitbD736G6FjLptNqj2K7AGgMW3MkcCPBRr
-X-Developer-Key: i=danny.kaehn@plexus.com; a=ed25519;
- pk=+a/HbfS1U7uuw+5dRHN5PsUDyPWbx4dXDnblK41GI2s=
-X-Proofpoint-GUID: h9kO78V1uXoYedV-agMnFFTR0YwhBiQC
-X-Proofpoint-ORIG-GUID: h9kO78V1uXoYedV-agMnFFTR0YwhBiQC
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-05_02,2024-06-05_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 phishscore=0 malwarescore=0 suspectscore=0 bulkscore=0
- mlxlogscore=999 impostorscore=0 adultscore=0 spamscore=0 clxscore=1011
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2405170001 definitions=main-2406050175
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240604230909.2879006-1-dnojiri@chromium.org>
 
-This patchset allows USB-HID devices to have Firmware bindings through sharing
-the USB fwnode with the HID driver, and adds such a binding and driver
-implementation for the CP2112 USB to SMBus Bridge (which necessitated the
-USB-HID change). This change allows a CP2112 permanently attached in hardware to
-be described in DT and ACPI and interoperate with other drivers.
+On Tue, Jun 04, 2024 at 04:09:07PM -0700, Daisuke Nojiri wrote:
+> Add support for keyboard matrix version 3.0.
 
-Changes in v11:
-- Eliminate 'gpio' subnode for DT and ACPI for the CP2112 per comment
-    from Rob H.
-- Edit hid-cp2112.c to match for ACPI index and fall back to matching by
-    name (instead of the other way around)
-- Separate CP2112 I2C bus speed configuration into a separate patch
+What's that?
 
-Changes in v10:
-- Define an enumeration and mapping for CP2112 ACPI _ADRs and devicetree
-    child node names, and use these in the scanning of child nodes
-- Address other miscellaneous
+Subject is wrong. This is not an ARM dts. 'dt-bindings: ' is the prefix.
 
-Changes in v9:
-- Add _ADR-based ACPI binding of child nodes (I2C is _ADR Zero, GPIO is _ADR One)
-- Use a loop-based approach for assigning child nodes within probe().
-    As a consequence, hid-cp2112.c no longer maintains references to the
-    child fwnodes during the lifetime of the device. (plese correct if this
-    is actually needed for this use-case)
 
-Changes in v8:
-- Apply Review tags retroactively to patches previously reviewed
+> 
+> Signed-off-by: Daisuke Nojiri <dnojiri@chromium.org>
+> Change-Id: I18957556bcd01c74ded84571638de2583dccb93f
 
-Changes in v7:
-- Use dev_fwnode when calling fwnod_handle_put in i2c_adapter in hid-cp2112.c
-- Capitalize I2C and GPIO in commit message for patch 0003
+Drop Change-Id for upstream.
 
-Changes in v6:
-- Fix fwnode_handle reference leaks in hid-cp21112.c
-- Simplify hog node pattern in silabs,cp2112.yaml
-
-Changes in v5:
- - Use fwnode API instead of of_node api in hid-core.c and hid-cp2112.c
- - Include sda-gpios and scl-gpios in silabs,cp2112.yaml
- - Additional fixups to silabs,cp2112.yaml to address comments
- - Submit threaded interrupt bugfix separately from this patchset, as requested
-
-Changes in v4:
- - Moved silabs,cp2112.yaml to /Documentation/devicetree/bindings/i2c
-
-Changes in v3:
- - Additional fixups to silabs,cp2112.yaml to address comments
-
-Changes in v2:
- - Added more detail to silabs,cp2112.yaml dt-binding
- - Moved silabs,cp2112.yaml to /Documentation/devicetree/bindings/input
- - Added support for setting smbus clock-frequency from DT in hid-cp2112.c
- - Added freeing of of_nodes on error paths of _probe in hid-cp2112.c
-
-Danny Kaehn (3):
-  dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
-  HID: usbhid: Share USB device firmware node with child HID device
-  HID: cp2112: Fwnode Support
-
- .../bindings/i2c/silabs,cp2112.yaml           | 113 ++++++++++++++++++
- drivers/hid/hid-cp2112.c                      |  50 ++++++++
- drivers/hid/usbhid/hid-core.c                 |   2 +
- 3 files changed, 165 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
-
---
-2.25.1
-
----
-Danny Kaehn (4):
-      dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
-      HID: usbhid: Share USB device firmware node with child HID device
-      HID: cp2112: Fwnode Support
-      HID: cp2112: Configure I2C Bus Speed from Firmware
-
- .../devicetree/bindings/i2c/silabs,cp2112.yaml     | 105 +++++++++++++++++++++
- drivers/hid/hid-cp2112.c                           |  43 +++++++++
- drivers/hid/usbhid/hid-core.c                      |   2 +
- 3 files changed, 150 insertions(+)
----
-base-commit: 4f54308c970692e66a2a354ac2bde32f228cedeb
-change-id: 20240605-cp2112-dt-7cdc95448e8a
-
-Best regards,
--- 
-Danny Kaehn <danny.kaehn@plexus.com>
-
+> ---
+>  include/dt-bindings/input/cros-ec-keyboard.h | 104 +++++++++++++++++++
+>  1 file changed, 104 insertions(+)
+> 
+> diff --git a/include/dt-bindings/input/cros-ec-keyboard.h b/include/dt-bindings/input/cros-ec-keyboard.h
+> index f0ae03634a96..afc12f6aa642 100644
+> --- a/include/dt-bindings/input/cros-ec-keyboard.h
+> +++ b/include/dt-bindings/input/cros-ec-keyboard.h
+> @@ -100,4 +100,108 @@
+>  	MATRIX_KEY(0x07, 0x0b, KEY_UP)		\
+>  	MATRIX_KEY(0x07, 0x0c, KEY_LEFT)
+>  
+> +/* No numpad */
+> +#define CROS_TOP_ROW_KEYMAP_V30 \
+> +	MATRIX_KEY(0x00, 0x01, KEY_F11)		/* T11 */	\
+> +	MATRIX_KEY(0x00, 0x02, KEY_F1)		/* T1 */	\
+> +	MATRIX_KEY(0x00, 0x04, KEY_F10)		/* T10 */	\
+> +	MATRIX_KEY(0x00, 0x0b, KEY_F14)		/* T14 */	\
+> +	MATRIX_KEY(0x00, 0x0c, KEY_F15)		/* T15 */	\
+> +	MATRIX_KEY(0x01, 0x02, KEY_F4)		/* T4 */	\
+> +	MATRIX_KEY(0x01, 0x04, KEY_F7)		/* T7 */	\
+> +	MATRIX_KEY(0x01, 0x05, KEY_F12)		/* T12 */	\
+> +	MATRIX_KEY(0x01, 0x09, KEY_F9)		/* T9 */	\
+> +	MATRIX_KEY(0x02, 0x02, KEY_F3)		/* T3 */	\
+> +	MATRIX_KEY(0x02, 0x04, KEY_F6)		/* T6 */	\
+> +	MATRIX_KEY(0x02, 0x0b, KEY_F8)		/* T8 */	\
+> +	MATRIX_KEY(0x03, 0x02, KEY_F2)		/* T2 */	\
+> +	MATRIX_KEY(0x03, 0x05, KEY_F13)		/* T13 */	\
+> +	MATRIX_KEY(0x04, 0x04, KEY_F5)		/* T5 */
+> +
+> +#define CROS_MAIN_KEYMAP_V30			/* Keycode */	\
+> +	MATRIX_KEY(0x00, 0x03, KEY_B)		/* 50 */	\
+> +	MATRIX_KEY(0x00, 0x05, KEY_N)		/* 51 */	\
+> +	MATRIX_KEY(0x00, 0x06, KEY_RO)		/* 56 (JIS) */	\
+> +	MATRIX_KEY(0x00, 0x08, KEY_EQUAL)	/* 13 */	\
+> +	MATRIX_KEY(0x00, 0x09, KEY_HOME)	/* 80 (Numpad) */	\
+> +	MATRIX_KEY(0x00, 0x0a, KEY_RIGHTALT)	/* 62 */	\
+> +	MATRIX_KEY(0x00, 0x10, KEY_FN)		/* 127 */	\
+> +								\
+> +	MATRIX_KEY(0x01, 0x01, KEY_ESC)		/* 110 */	\
+> +	MATRIX_KEY(0x01, 0x03, KEY_G)		/* 35 */	\
+> +	MATRIX_KEY(0x01, 0x06, KEY_H)		/* 36 */	\
+> +	MATRIX_KEY(0x01, 0x08, KEY_APOSTROPHE)	/* 41 */	\
+> +	MATRIX_KEY(0x01, 0x0b, KEY_BACKSPACE)	/* 15 */	\
+> +	MATRIX_KEY(0x01, 0x0c, KEY_HENKAN)	/* 65 (JIS) */	\
+> +	MATRIX_KEY(0x01, 0x0e, KEY_LEFTCTRL)	/* 58 */	\
+> +								\
+> +	MATRIX_KEY(0x02, 0x01, KEY_TAB)		/* 16 */	\
+> +	MATRIX_KEY(0x02, 0x03, KEY_T)		/* 21 */	\
+> +	MATRIX_KEY(0x02, 0x05, KEY_RIGHTBRACE)	/* 28 */	\
+> +	MATRIX_KEY(0x02, 0x06, KEY_Y)		/* 22 */	\
+> +	MATRIX_KEY(0x02, 0x08, KEY_LEFTBRACE)	/* 27 */	\
+> +	MATRIX_KEY(0x02, 0x09, KEY_DELETE)	/* 76 (Numpad) */	\
+> +	MATRIX_KEY(0x02, 0x0c, KEY_PAGEUP)	/* 85 (Numpad) */	\
+> +	MATRIX_KEY(0x02, 0x011, KEY_YEN)	/* 14 (JIS) */	\
+> +								\
+> +	MATRIX_KEY(0x03, 0x00, KEY_LEFTMETA)	/* Launcher */	\
+> +	MATRIX_KEY(0x03, 0x01, KEY_GRAVE)	/* 1 */	\
+> +	MATRIX_KEY(0x03, 0x03, KEY_5)		/* 6 */	\
+> +	MATRIX_KEY(0x03, 0x04, KEY_S)		/* 32 */	\
+> +	MATRIX_KEY(0x03, 0x06, KEY_MINUS)	/* 12 */	\
+> +	MATRIX_KEY(0x03, 0x08, KEY_6)		/* 7 */		\
+> +	MATRIX_KEY(0x03, 0x09, KEY_SLEEP)	/* Lock */	\
+> +	MATRIX_KEY(0x03, 0x0b, KEY_BACKSLASH)	/* 29 */	\
+> +	MATRIX_KEY(0x03, 0x0c, KEY_MUHENKAN)	/* 63 (JIS) */	\
+> +	MATRIX_KEY(0x03, 0x0e, KEY_RIGHTCTRL)	/* 64 */	\
+> +								\
+> +	MATRIX_KEY(0x04, 0x01, KEY_A)		/* 31 */	\
+> +	MATRIX_KEY(0x04, 0x02, KEY_D)		/* 33 */	\
+> +	MATRIX_KEY(0x04, 0x03, KEY_F)		/* 34 */	\
+> +	MATRIX_KEY(0x04, 0x05, KEY_K)		/* 38 */	\
+> +	MATRIX_KEY(0x04, 0x06, KEY_J)		/* 37 */	\
+> +	MATRIX_KEY(0x04, 0x08, KEY_SEMICOLON)	/* 40 */	\
+> +	MATRIX_KEY(0x04, 0x09, KEY_L)		/* 39 */	\
+> +	MATRIX_KEY(0x04, 0x0b, KEY_ENTER)	/* 43 */	\
+> +	MATRIX_KEY(0x04, 0x0c, KEY_END)		/* 81 (Numpad) */	\
+> +								\
+> +	MATRIX_KEY(0x05, 0x01, KEY_1)		/* 2 */	\
+> +	MATRIX_KEY(0x05, 0x02, KEY_COMMA)	/* 53 */	\
+> +	MATRIX_KEY(0x05, 0x03, KEY_DOT)		/* 54 */	\
+> +	MATRIX_KEY(0x05, 0x04, KEY_SLASH)	/* 55 */	\
+> +	MATRIX_KEY(0x05, 0x05, KEY_C)		/* 48 */	\
+> +	MATRIX_KEY(0x05, 0x06, KEY_SPACE)	/* 61 */	\
+> +	MATRIX_KEY(0x05, 0x07, KEY_LEFTSHIFT)	/* 44 */	\
+> +	MATRIX_KEY(0x05, 0x08, KEY_X)		/* 47 */	\
+> +	MATRIX_KEY(0x05, 0x09, KEY_V)		/* 49 */	\
+> +	MATRIX_KEY(0x05, 0x0b, KEY_M)		/* 52 */	\
+> +	MATRIX_KEY(0x05, 0x0c, KEY_PAGEDOWN)	/* 86 (Numpad) */	\
+> +								\
+> +	MATRIX_KEY(0x06, 0x01, KEY_Z)		/* 46 */	\
+> +	MATRIX_KEY(0x06, 0x02, KEY_3)		/* 4 */		\
+> +	MATRIX_KEY(0x06, 0x03, KEY_4)		/* 5 */		\
+> +	MATRIX_KEY(0x06, 0x04, KEY_2)		/* 3 */		\
+> +	MATRIX_KEY(0x06, 0x05, KEY_8)		/* 9 */		\
+> +	MATRIX_KEY(0x06, 0x06, KEY_0)		/* 11 */	\
+> +	MATRIX_KEY(0x06, 0x08, KEY_7)		/* 8 */		\
+> +	MATRIX_KEY(0x06, 0x09, KEY_9)		/* 10 */	\
+> +	MATRIX_KEY(0x06, 0x0b, KEY_DOWN)	/* 84 */	\
+> +	MATRIX_KEY(0x06, 0x0c, KEY_RIGHT)	/* 89 */	\
+> +	MATRIX_KEY(0x06, 0x0d, KEY_LEFTALT)	/* 60 */	\
+> +	MATRIX_KEY(0x06, 0x0f, KEY_ASSISTANT)	/* 128 */	\
+> +	MATRIX_KEY(0x06, 0x11, KEY_BACKSLASH)	/* 42 (JIS, ISO) */	\
+> +								\
+> +	MATRIX_KEY(0x07, 0x01, KEY_U)		/* 23 */	\
+> +	MATRIX_KEY(0x07, 0x02, KEY_I)		/* 24 */	\
+> +	MATRIX_KEY(0x07, 0x03, KEY_O)		/* 25 */	\
+> +	MATRIX_KEY(0x07, 0x04, KEY_P)		/* 26 */	\
+> +	MATRIX_KEY(0x07, 0x05, KEY_Q)		/* 17 */	\
+> +	MATRIX_KEY(0x07, 0x06, KEY_W)		/* 18 */	\
+> +	MATRIX_KEY(0x07, 0x07, KEY_RIGHTSHIFT)	/* 57 */	\
+> +	MATRIX_KEY(0x07, 0x08, KEY_E)		/* 19 */	\
+> +	MATRIX_KEY(0x07, 0x09, KEY_R)		/* 20 */	\
+> +	MATRIX_KEY(0x07, 0x0b, KEY_UP)		/* 83 */	\
+> +	MATRIX_KEY(0x07, 0x0c, KEY_LEFT)	/* 79 */	\
+> +	MATRIX_KEY(0x07, 0x11, KEY_102ND)	/* 45 (ISO) */
+> +
+>  #endif /* _CROS_EC_KEYBOARD_H */
+> -- 
+> 2.45.1.288.g0e0cd299f1-goog
+> 

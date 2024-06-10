@@ -1,84 +1,141 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87E1518C31;
-	Mon, 10 Jun 2024 09:22:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A47F574404
+	for <linux-input@vger.kernel.org>; Mon, 10 Jun 2024 09:40:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718011354; cv=none; b=hRqOZy700FsL5FPtFTqisINKBTA8dRwDYD2/t1pGe0So5S2+QlKBV2P8fHo8270c1evLBO7s2DSM0dX0aQkHXvL4PbbGL67OnuEfdrPcjC5Hj/t2nhIyaY0w2icDXnm5WmV3NbbQ5E5OlBTQnGMe89n8HFZ3J4RSA0VpQlCEl8k=
+	t=1718012402; cv=none; b=hzDrb5TZ9w6yMaO+Nt1C8jlRLecf/yd2Q7A1w9Zb/QFug3w8WADkc/tqb9s7rEJjQKBBO9gMTTw0Yz82qr/ssMHvOVJpT4X/oNFtu2MsCYaHVcXmyPBYAtHbG1FDPbdamE/7kwYatNd20egVDtdpn8cKXG6Elqe8nMmq2pdkFY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718011354; c=relaxed/simple;
-	bh=j9A/rBwDhxLLDCI7vyau1r8sh17/Qb17QTv36WldZwI=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=pG0d6UNccaDDCzG3l7LLnbKysjZiH1RMMp3nbyLU8rK7U4Z9s8mE/+lbN7+OKVmW3ZpFcyUcfb0dgY/ErG2GYi9HgcCyvk6cf0TqTVKsxBWD5xO7+ZAv5udJjNUKbc5WHiptFDV+Yb5FJu7k8Pz7DbI0AzmAlMPOtwVxNsPsiZo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KvqkuG4j; arc=none smtp.client-ip=209.85.208.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1718012402; c=relaxed/simple;
+	bh=Td/N4E9UURCdvg10DSgcFTNUdT3qZG8vl6zhjaJaZbU=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=IfAf5//y9CDmPYigQj8dvjxjnB/3ou0Ux1BS955V3loLGPNDTNl9EG7rPxNJszPOuvAs/R/vSoiNmk5gJFCbp2MMZvT16EyA3xbpThmdc4n3CGQcNcOgWRUcl/yqYJeFuaKx34DMnymBUcJebTZ6rcf0cDmFrHGdW3yc4cJov/c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=GQlh0vnA; arc=none smtp.client-ip=209.85.221.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KvqkuG4j"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-57c5c51cb89so3152354a12.2;
-        Mon, 10 Jun 2024 02:22:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="GQlh0vnA"
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-35f1c209893so1490115f8f.2
+        for <linux-input@vger.kernel.org>; Mon, 10 Jun 2024 02:40:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1718011350; x=1718616150; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=j9A/rBwDhxLLDCI7vyau1r8sh17/Qb17QTv36WldZwI=;
-        b=KvqkuG4jkd/6b49mtHXnw3SWUI3imM2bNn+Dt/eSgJLJ6etyhESeHCTOYLv0BI7DGF
-         U1qNlf+zBepXeEB5lw5QisgRDMSnwzC9mtacKeiAspoEIdtmI4F97oBCq7VSgxfVW1oC
-         /0GOYsRYnBi8FV0vYESxPs0IDPcI3o0wLRT/7CxSxkiFYC8dzlGyyDZPw5msfA/mHv57
-         535KEc7B+Smau5UmlQFaTDPYX3Z86FiXQ3b1+my5nHqQMODXhZuVOdXEOqfScXeQE3we
-         4TpACA+zsNUJwej4ZR/ZRZ9zHbtwULn8hoGiCG/edb6iWEiDRBVj0cb4xGMMrQ0MWsa3
-         tr6A==
+        d=linaro.org; s=google; t=1718012399; x=1718617199; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ocMM4wK0KoJUr2SNgjlZ+bFq4hxDtEwVWf5fWyCNQzA=;
+        b=GQlh0vnA/ENo9JZ5o/IbR+H28DbzWybrVyUvMVcnVB30OF/Bh4+Ld+c1Zdpn+8QMx1
+         ZHHwbcwHUgKOCiNf/Jx+fHc7jQKIwd94Hf//0aJJXDoZf6klysH6i8z0/FLVQo0iDq5G
+         8AB4qNdUapHrJsaElTk6hDGQKiFZiwsByfRLDJaR8OIjVQcpR7jhwiH70GDEqTAA+Qv+
+         +zNPnetzCcOzlvTcfYXUPfVhYiR56JbdDhuOVAyfP9p27XEseDIYjziVFHP/jB9C81No
+         DO3gbi+MGXRbOOflXbou4EhRo7Y3etBkAHczGlVNkbzbWkrZ20YOmrvA/MWuMluSjnNE
+         riVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718011350; x=1718616150;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=j9A/rBwDhxLLDCI7vyau1r8sh17/Qb17QTv36WldZwI=;
-        b=C5jWcUBBFWt3y6LSqgeYY0TzEZruQxI05KKRh79Uum1y9ZwMx8B7vrxZ/PRD/fAeOY
-         hlCqXAQeTCnD/S4rezHZoPVospzFm/pJK1BW716N9JVE4PoYCpLWEXkzUsU+MIlLTIYe
-         zv+TeV6j4xjho0uMT1ZyECuyRvT+kLVtdGQw2Nlv9i6wS02BK9+Ibk4fr43etxH3emg8
-         fhUAdSAz2McOPQ7ov43kDaQ3NEv/FdMscGjNUp7VFiIRIq619Vrs0urlV6pdE7O0AifK
-         gu42EKj4YNMgwS7n6QAv612k9iJodIqtxGM9lJCHKp0kTV3ouN6nCyh9t1BOTtv6tcGn
-         y8sw==
-X-Forwarded-Encrypted: i=1; AJvYcCU2Fku2epBAkPTmseamcx9CxG2rzcw2rHIKaihDMXDQnhSrg++mLpimSBu2KMwFERSMCrCWT6GkzSVsWKR+QWjulZ+Su9to7ygkzyAGsIPqxB2Igb4WWOKlBkqFZipq1Z9fiUAQxdgbHxc=
-X-Gm-Message-State: AOJu0Yzab9Wn5GIHY2WINLuiwakb4hQ7aLEADZHvbdAooFd6kXFOX4Bw
-	gqFd98IQkS4TWurmpy/JtxM4GUnd13WLOm+e314aykfuk4wIt1cF
-X-Google-Smtp-Source: AGHT+IFlYbCXBRu3JVxA9Oyw9DxIPbdy4/XMF+m85UANVbqTTgmxVTnSW/xQIVTtXSsI4wF2xc2Ypg==
-X-Received: by 2002:a50:9f49:0:b0:57c:7f2a:c13f with SMTP id 4fb4d7f45d1cf-57c7f2ac1demr2253610a12.26.1718011350084;
-        Mon, 10 Jun 2024 02:22:30 -0700 (PDT)
-Received: from ?IPv6:2003:f6:ef1c:c500:ee59:d953:f148:40ba? (p200300f6ef1cc500ee59d953f14840ba.dip0.t-ipconnect.de. [2003:f6:ef1c:c500:ee59:d953:f148:40ba])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-57c69d06729sm4233854a12.56.2024.06.10.02.22.29
+        d=1e100.net; s=20230601; t=1718012399; x=1718617199;
+        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
+         :to:from:date:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ocMM4wK0KoJUr2SNgjlZ+bFq4hxDtEwVWf5fWyCNQzA=;
+        b=OVuXKqKW+hZcZZVrShmjbeDvVFTHTuK5jTV7wMxMNaFYerpjOMdXyDu1mrT2jkEljp
+         /vhi50ygq3cS+fJAImdlWEoN0eVRHtVG7COdtTpi5E9XbdIU4R8tyNi+blNBubHFisJt
+         AuiXBMwZZCTsAQLePc70r+Mw89oVgfwSpCUfYDOzMFwYa3yjxFIqymh0ERLq6128ePJA
+         n0H93oVi3HPV9geCO+4e4pTJORD5MZX2l6iww9zLG++jjUnEdMgWrepR6fnuIfhZD/Ls
+         cD0N9GQWAL1E2h9e47Wh26pAoQNSup3ME05fB66xVUTygbaDbO7hf5mADU3m58olNjrY
+         x/dw==
+X-Forwarded-Encrypted: i=1; AJvYcCWLQWT8uwBqUgkRyaZ6EzuZumSQ97HQrehYbTdII7m9q2v8SHF7V9qmB1K5uFwjhm0gOehnrOREZRpI0G16Dzxmc+clzXZfS7EkPvo=
+X-Gm-Message-State: AOJu0Ywued8g0IVSADa+PzqSPqdrHPn20Ko9fb0ISdjqtRH65M5BbW90
+	Q87N3qral8/W2IpXw3kcwFoPep9DjQAmM1IYqTKtBy3QB99HmNDiMkaQQ9xUkZI=
+X-Google-Smtp-Source: AGHT+IG9mD8/x+WVTXsrh8hQTA7ERg9+SENT0a0IkJ0cM7ILrlB0FyR88e3665ehddKLwYaoQrystQ==
+X-Received: by 2002:a5d:5987:0:b0:355:4cb:5048 with SMTP id ffacd0b85a97d-35efedd95f9mr7952708f8f.43.1718012398839;
+        Mon, 10 Jun 2024 02:39:58 -0700 (PDT)
+Received: from localhost ([102.222.70.76])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4215c19e567sm136806365e9.1.2024.06.10.02.39.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Jun 2024 02:22:29 -0700 (PDT)
-Message-ID: <15af47e6005286c02b70b232d96b1ba1a49659b9.camel@gmail.com>
-Subject: Re: [PATCH 3/3] Input: adxl34x- switch to using "guard" notation
-From: Nuno =?ISO-8859-1?Q?S=E1?= <noname.nuno@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: Michael Hennerich <michael.hennerich@analog.com>, 
-	linux-kernel@vger.kernel.org
-Date: Mon, 10 Jun 2024 11:26:18 +0200
-In-Reply-To: <20240609234122.603796-3-dmitry.torokhov@gmail.com>
-References: <20240609234122.603796-1-dmitry.torokhov@gmail.com>
-	 <20240609234122.603796-3-dmitry.torokhov@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.2 
+        Mon, 10 Jun 2024 02:39:58 -0700 (PDT)
+Date: Mon, 10 Jun 2024 12:39:54 +0300
+From: Dan Carpenter <dan.carpenter@linaro.org>
+To: oe-kbuild@lists.linux.dev, Charles Wang <charles.goodix@gmail.com>,
+	dmitry.torokhov@gmail.com, jikos@kernel.org, bentiss@kernel.org
+Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev, hbarnor@chromium.org,
+	dianders@chromium.org, linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Charles Wang <charles.goodix@gmail.com>
+Subject: Re: [PATCH v3] HID: hid-goodix: Add Goodix HID-over-SPI driver
+Message-ID: <030b639e-f5d1-40a2-8980-f436ca686e6e@moroto.mountain>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240607133709.3518-1-charles.goodix@gmail.com>
 
-On Sun, 2024-06-09 at 16:41 -0700, Dmitry Torokhov wrote:
-> Switch to using guard(mutex)() notation to acquire and automatically
-> release mutexes.
->=20
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-> ---
+Hi Charles,
 
-Reviewed-by: Nuno Sa <nuno.sa@analog.com>
+kernel test robot noticed the following build warnings:
 
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Charles-Wang/HID-hid-goodix-Add-Goodix-HID-over-SPI-driver/20240607-214042
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/hid/hid.git for-next
+patch link:    https://lore.kernel.org/r/20240607133709.3518-1-charles.goodix%40gmail.com
+patch subject: [PATCH v3] HID: hid-goodix: Add Goodix HID-over-SPI driver
+config: sparc64-randconfig-r071-20240609 (https://download.01.org/0day-ci/archive/20240610/202406101633.1RJnij1Y-lkp@intel.com/config)
+compiler: sparc64-linux-gcc (GCC) 13.2.0
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+| Closes: https://lore.kernel.org/r/202406101633.1RJnij1Y-lkp@intel.com/
+
+smatch warnings:
+drivers/hid/hid-goodix-spi.c:217 goodix_hid_parse() error: uninitialized symbol 'rdesc'.
+
+vim +/rdesc +217 drivers/hid/hid-goodix-spi.c
+
+bb11c3a1740813 Charles Wang 2024-06-07  214  static int goodix_hid_parse(struct hid_device *hid)
+bb11c3a1740813 Charles Wang 2024-06-07  215  {
+bb11c3a1740813 Charles Wang 2024-06-07  216  	struct goodix_ts_data *ts = hid->driver_data;
+bb11c3a1740813 Charles Wang 2024-06-07 @217  	u8 *rdesc __free(kfree);
+bb11c3a1740813 Charles Wang 2024-06-07  218  	u16 rsize;
+bb11c3a1740813 Charles Wang 2024-06-07  219  	int error;
+bb11c3a1740813 Charles Wang 2024-06-07  220  
+bb11c3a1740813 Charles Wang 2024-06-07  221  	rsize = le16_to_cpu(ts->hid_desc.report_desc_lenght);
+bb11c3a1740813 Charles Wang 2024-06-07  222  	if (!rsize || rsize > HID_MAX_DESCRIPTOR_SIZE) {
+bb11c3a1740813 Charles Wang 2024-06-07  223  		dev_err(ts->dev, "invalid report desc size %d", rsize);
+bb11c3a1740813 Charles Wang 2024-06-07  224  		return -EINVAL;
+                                                        ^^^^^^^^^^^^^^^
+rdesc isn't initialized here.  It should be declared as:
+
+	u8 *rdesc __free(kfree) = NULL;
+
+bb11c3a1740813 Charles Wang 2024-06-07  225  	}
+bb11c3a1740813 Charles Wang 2024-06-07  226  
+bb11c3a1740813 Charles Wang 2024-06-07  227  	rdesc = kzalloc(rsize, GFP_KERNEL);
+
+Or it could be declared here instead.
+
+	u8 *rdesc __free(kfree) = kzalloc(rsize, GFP_KERNEL);
+
+bb11c3a1740813 Charles Wang 2024-06-07  228  	if (!rdesc)
+bb11c3a1740813 Charles Wang 2024-06-07  229  		return -ENOMEM;
+bb11c3a1740813 Charles Wang 2024-06-07  230  
+bb11c3a1740813 Charles Wang 2024-06-07  231  	error = goodix_spi_read(ts, GOODIX_HID_REPORT_DESC_ADDR, rdesc, rsize);
+bb11c3a1740813 Charles Wang 2024-06-07  232  	if (error) {
+bb11c3a1740813 Charles Wang 2024-06-07  233  		dev_err(ts->dev, "failed get report desc, %d", error);
+bb11c3a1740813 Charles Wang 2024-06-07  234  		return error;
+bb11c3a1740813 Charles Wang 2024-06-07  235  	}
+bb11c3a1740813 Charles Wang 2024-06-07  236  
+bb11c3a1740813 Charles Wang 2024-06-07  237  	error = hid_parse_report(hid, rdesc, rsize);
+bb11c3a1740813 Charles Wang 2024-06-07  238  	if (error)
+bb11c3a1740813 Charles Wang 2024-06-07  239  		dev_err(ts->dev, "failed parse report, %d", error);
+bb11c3a1740813 Charles Wang 2024-06-07  240  
+bb11c3a1740813 Charles Wang 2024-06-07  241  	return error;
+bb11c3a1740813 Charles Wang 2024-06-07  242  }
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
 

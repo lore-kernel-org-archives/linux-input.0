@@ -1,124 +1,132 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E940416C692;
-	Fri, 14 Jun 2024 16:14:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCF6C1802DF;
+	Fri, 14 Jun 2024 16:19:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718381684; cv=none; b=eNtxVMArnn/KDqxj5uEqDhxpiabtaUGHHPAA/j70Jzv8phi1iSH5aMn0yyCG+daTb5tRNCSzyF65oX4QqIsSxnKNmfBmqc8se7/uqu5MyWlANV/vcJvMQtYID/dRzuTDV543NHpytUzCMy3d1e8TDx924mI91oRZm5NjtqSqsv4=
+	t=1718381980; cv=none; b=emRdVD6ly0yMTN7gcuQWpdkiLkE0JOmJjEi8hvr7Q3vtkRsZnQkMns27Rjnfxw1m8UVBErMtLnnfdwx7iqN2n2nBVIUys1Hbfm5qMn/Qcsv/htY1hjQZD7fp6Xia1nRRNgRax8SKhCwHibWFKkxsivKXQM09ZcfKdhvyWPRRTQg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718381684; c=relaxed/simple;
-	bh=LMw3EUTdmoUsLVtEEpSfoba4SLHWBjDgCwfZRp5X+e8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YfWYHO+Ab+kcOGl4pbWoNJedn4ZpSoWjG7LmpjmqHE+yci3mfuX1ouLBpc8DwcXpkO8oSoVA5/3NWU0twcF2yOd3gf+3iG7STfqjC6CBx+ddgj9lo6m1Gd9TXI/xQGDnjBl1NVPZKAov8BfFTYDR9XaO87zk3IAhxceU4682XYQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=iZBd8+jP; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1718381980; c=relaxed/simple;
+	bh=X7O9sgfBk/HcHdXdDTmYkBdEl+w9C7UN+j/WfZL45CQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Eod0UTZbdF0JJPittCrmQV/wC7cuI6+xgUMr9oSCJYbIpoDANUKmi2fEEy9dAuNXpYboRiGlXqNHmfqSw+/w5YEQLG0IRy5RdOeBiZh9W73W5w1VxdRWSqMgy7/iAPjm59UDpEdoERueJcULbyyJUPtW3nnQly5ox1qoGhoG3ss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lc4Wln6a; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="iZBd8+jP"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id 2FE7A40E019F;
-	Fri, 14 Jun 2024 16:14:40 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id 6wf_wZH5Ifv4; Fri, 14 Jun 2024 16:14:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1718381677; bh=i2Oov2b/x7FRTX2KE+EloDSI1YULDDwDpYnfJIwHGJE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=iZBd8+jPngmiZb77P8mi6r7eRQtBh4h9gbPdm6FJabEDpaE6/+HzqqWZJw5Thr2GN
-	 Vj+ctIZT7b+eEvcBV4iqtgJsFoo39TWSCZJlGVELqkLcmGXi6zp4YbzqinkqBHrasA
-	 /+nuxMuwHR2gClm3uYzPTVwXzDrjVPOH7s8nqZk0eUQ0tRWo9Y84kOWt3RVz7MZPvq
-	 EypI+ADjwmqcT3if6YAYnQGldPMWQ3qM91lVdQKJYemC2e6ySo7sXeU0AvCOYSzfRJ
-	 QqMvDkOun8hGXfLPutsqMekWnqgsffzsLaGPSV8nSZhL4hAYrdnlfmswwvDYmCEeBm
-	 oNV6lsqmFV5TwQXrpu7OA4hgze+qjHgJ5yQnLFoOdmZQIiyW7wFzrbL4hO1qme6FZ4
-	 VhN2d6eUULdMgP6Y+6A/Yw3Ex0Cfc3r0pUIMk0oacL9T8dQtQ1Q/2S+dvnkTVvwH12
-	 BlRrX+ALNJMmw6dDAPemqvDUWrc4an16PRliARVl6VFGT3K9UcZFEQED5blrBfu2sn
-	 SDIzmIppS5IQzJjy5a7IbGoHR5zjeEshCmHz8oKq5nOR6340YfM/tcEsS0Ov8dM0l0
-	 Gqm1qYxxDVqAvB3HoOo965IKG/AKtBdPNrK2rdYkjMitOo4O2MpCyUkmCstYJ5Uo7e
-	 pWxN9W+gGhj1uFhFunJqQjjw=
-Received: from zn.tnic (p5de8ee85.dip0.t-ipconnect.de [93.232.238.133])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 9990440E00C9;
-	Fri, 14 Jun 2024 16:14:09 +0000 (UTC)
-Date: Fri, 14 Jun 2024 18:14:04 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Dave Hansen <dave.hansen@intel.com>
-Cc: Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-	hpa@zytor.com, dave.hansen@linux.intel.com, mingo@redhat.com,
-	tglx@linutronix.de, x86@kernel.org, netdev@vger.kernel.org,
-	richardcochran@gmail.com, linux-input@vger.kernel.org,
-	dmitry.torokhov@gmail.com, zackr@vmware.com,
-	linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
-	timothym@vmware.com, akaher@vmware.com,
-	dri-devel@lists.freedesktop.org, daniel@ffwll.ch, airlied@gmail.com,
-	tzimmermann@suse.de, mripard@kernel.org,
-	maarten.lankhorst@linux.intel.com, horms@kernel.org,
-	kirill.shutemov@linux.intel.com,
-	Tim Merrifield <tim.merrifield@broadcom.com>
-Subject: Re: [PATCH v11 8/8] x86/vmware: Add TDX hypercall support
-Message-ID: <20240614161404.GCZmxsTNLSoYTqoRoj@fat_crate.local>
-References: <20240613191650.9913-1-alexey.makhalov@broadcom.com>
- <20240613191650.9913-9-alexey.makhalov@broadcom.com>
- <844ef200-aabe-4497-85c9-44fc46c9133a@intel.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lc4Wln6a"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1718381979; x=1749917979;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=X7O9sgfBk/HcHdXdDTmYkBdEl+w9C7UN+j/WfZL45CQ=;
+  b=lc4Wln6arn1DHMDjA/8OpuTBuzRrmVOVYQy5IYZ+J1vM7V/NGX5HS5+L
+   UUWReLxmUqZur5roD+wdZGjfsdW7DI4hFa39C0bnyJNbY4M/LKvGNs53J
+   UjWOlZs7yF1jpryGZSzW1IFPe/fK7ce/DdIbWrsUKRw485k5ZCj6Vt5KN
+   CnmuM964x7KLzyK+HiOiq3NDjh8AizyEAA+bH8bcZSql9wtLacmhjK5f+
+   fTuG5TAnMeLlq9vTiYjY5fYsPCCAAuwM7RahiXl2a4AeDDDNy0elClkBW
+   k9uX55zKTVbTtvGq5nyfNait+e8hDezUnbojeJvcdDUt9evnm43zi4M+Y
+   Q==;
+X-CSE-ConnectionGUID: aXpX8r0jQDeK1wX2dyOH/g==
+X-CSE-MsgGUID: ld63QdzzTkWuAQukoMf2fg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11103"; a="26694886"
+X-IronPort-AV: E=Sophos;i="6.08,238,1712646000"; 
+   d="scan'208";a="26694886"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jun 2024 09:19:38 -0700
+X-CSE-ConnectionGUID: oZ52MSDoR5Cde6m1ib9q7A==
+X-CSE-MsgGUID: U6wrozA3SGOq5yXZhGkxCA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.08,238,1712646000"; 
+   d="scan'208";a="45080061"
+Received: from unknown (HELO [10.125.111.79]) ([10.125.111.79])
+  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jun 2024 09:19:37 -0700
+Message-ID: <74f8300b-3520-4824-81e3-71464e3da3b6@intel.com>
+Date: Fri, 14 Jun 2024 09:19:35 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <844ef200-aabe-4497-85c9-44fc46c9133a@intel.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v11 8/8] x86/vmware: Add TDX hypercall support
+To: Borislav Petkov <bp@alien8.de>
+Cc: Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, hpa@zytor.com,
+ dave.hansen@linux.intel.com, mingo@redhat.com, tglx@linutronix.de,
+ x86@kernel.org, netdev@vger.kernel.org, richardcochran@gmail.com,
+ linux-input@vger.kernel.org, dmitry.torokhov@gmail.com, zackr@vmware.com,
+ linux-graphics-maintainer@vmware.com, pv-drivers@vmware.com,
+ timothym@vmware.com, akaher@vmware.com, dri-devel@lists.freedesktop.org,
+ daniel@ffwll.ch, airlied@gmail.com, tzimmermann@suse.de, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, horms@kernel.org,
+ kirill.shutemov@linux.intel.com, Tim Merrifield <tim.merrifield@broadcom.com>
+References: <20240613191650.9913-1-alexey.makhalov@broadcom.com>
+ <20240613191650.9913-9-alexey.makhalov@broadcom.com>
+ <844ef200-aabe-4497-85c9-44fc46c9133a@intel.com>
+ <20240614161404.GCZmxsTNLSoYTqoRoj@fat_crate.local>
+From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20240614161404.GCZmxsTNLSoYTqoRoj@fat_crate.local>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jun 14, 2024 at 09:03:22AM -0700, Dave Hansen wrote:
-> On 6/13/24 12:16, Alexey Makhalov wrote:
-> > +unsigned long vmware_tdx_hypercall(unsigned long cmd,
-> > +				   unsigned long in1, unsigned long in3,
-> > +				   unsigned long in4, unsigned long in5,
-> > +				   u32 *out1, u32 *out2, u32 *out3,
-> > +				   u32 *out4, u32 *out5)
-> > +{
-> > +	struct tdx_module_args args;
-> > +
-> > +	if (!hypervisor_is_type(X86_HYPER_VMWARE)) {
-> > +		pr_warn_once("Incorrect usage\n");
-> > +		return ULONG_MAX;
-> > +	}
-> > +
-> > +	if (cmd & ~VMWARE_CMD_MASK) {
-> > +		pr_warn_once("Out of range command %lx\n", cmd);
-> > +		return ULONG_MAX;
-> > +	}
-> > +
-> > +	args.rbx = in1;
-> > +	args.rdx = in3;
-> > +	args.rsi = in4;
-> > +	args.rdi = in5;
-> > +	args.r10 = VMWARE_TDX_VENDOR_LEAF;
-> > +	args.r11 = VMWARE_TDX_HCALL_FUNC;
-> > +	args.r12 = VMWARE_HYPERVISOR_MAGIC;
-> > +	args.r13 = cmd;
-> > +	args.r15 = 0; /* CPL */
+On 6/14/24 09:14, Borislav Petkov wrote:
+> On Fri, Jun 14, 2024 at 09:03:22AM -0700, Dave Hansen wrote:
+...
+>> You need to zero out all of 'args' somehow.
 > 
-> I believe this leaks stack data into the hypervisor.  Or did I miss the
-> zeroing of rcx/r8/r9/r14?
+> You mean like this:
 > 
-> You need to zero out all of 'args' somehow.
+> 	struct tdx_module_args args = {};
+> 
+> ?
 
-You mean like this:
-
-	struct tdx_module_args args = {};
-
-?
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Yes, or do all the assignments with the initializer.  We seem to do it
+both ways, so whatever works.

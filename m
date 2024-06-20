@@ -1,126 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.kaechele.ca (mail.kaechele.ca [54.39.219.105])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 227AC21A19
-	for <linux-input@vger.kernel.org>; Thu, 20 Jun 2024 11:01:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FABE1A00E8;
+	Thu, 20 Jun 2024 14:50:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.39.219.105
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718881302; cv=none; b=j5jeaD1ZmbPqC5P7lYR0qY+5GZdabmcnl8el9gceKD+r/S1XUNTk6Hg9+cMBSRztSpsbl42FRQ/sT3obieOc77bSLs/yt30xn3saGzjnBL0OTW2DfC7wBvOUU9+MHZgy1LUhAv+ynlx8Z2nulR84pxIrRzQKkVnO+aRjVqEMVBY=
+	t=1718895035; cv=none; b=PzTGFApON5KrrKwih0nxXDFXTQNrGMNyzjHt186imCC9TV111BQjfP/6Jud2TgjIdzk/CTHQ74cHpDh3Hlszk9rcCxcqOXXT0xEL1XOFlbiD3xI3D9AH+8uCA38g58aYcKjTki9SKgSIS8ryOQYTQZePtJ4SVEFwfPYPYlhSNak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718881302; c=relaxed/simple;
-	bh=t3sgE0x9AbD57jiCr5FUfU139Gg0VdDVokNa7k0YyDQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kDu+UvodGGKmQzN4Leb1WgzwBwkZSAOu6a8d9oySZ534gKCunOvdC3auprbIgPLgBYP2afHrFYxhfvu5LDCtVFUhSCglgi2J+mikPuxKn+lVyVzANnyAZKLnipe5+bTO6VgAKKIYza/Aw38qj9pFeYVpxVkYbtPd++jzscYUdwQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XXXUdK97; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1718895035; c=relaxed/simple;
+	bh=e7ET5z0NH76O9Cj6VARop7hsLimA/o/QRhe+lUYgjas=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=OHrvyzOiKvYlfJdx1JXRS3vxsLXrdtcshEUi4cg8sBInrXutNbb1BDfo4rGdi3XIx83zii0pUpP9qJppQas6F06J3aSX/F2cDyHFCripmjK33UXTw6JjlgfSMeeqjkmAJLjUDS4yZ4d5IWEExzdIIetGV24PITNx56l4ku0podY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=fOXy4Vrc; arc=none smtp.client-ip=54.39.219.105
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kaechele.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XXXUdK97"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0E2AC2BD10;
-	Thu, 20 Jun 2024 11:01:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1718881300;
-	bh=t3sgE0x9AbD57jiCr5FUfU139Gg0VdDVokNa7k0YyDQ=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=XXXUdK977lALMBlfHXSEzOJRJgKy9QTfhb4yCLqViHg9VhPqRS+vtfyF7RZaGsPFd
-	 Nr8mE7Qzvo6rAKfnTQicYt5Rk+8STzZbWboGZhprmMCNe4flX+Nmx/8f60V3kwJnRI
-	 IX0C+vwVXUXRMXwlzy00R1MMtu6DFgiWVFOiKa7+NpcmvYYOqZ2UwpGcKAZ89Nabme
-	 bSZR5Di8Jrm9WKaHUMd3RQ0PTaMYb4pu2SZ+cTYKIYR6PpolvX7+IRraslFAeS4YXY
-	 zIOOtM97DMc0KMYW4hcbYSnEUixLXbMNxVRiXYrkoH/KyzPhdikSVYj/DXVpZIU7Zf
-	 wf60XNQLKguJw==
-Date: Thu, 20 Jun 2024 13:01:36 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Dan Carpenter <dan.carpenter@linaro.org>
-Cc: linux-input@vger.kernel.org
-Subject: Re: [bug report] HID: bpf: remove tracing HID-BPF capability
-Message-ID: <aiw25qbnoyzefiwzicjhe4docbs2xis6l756fpi4xhmvgiajr3@pfrdaslfss6r>
-References: <00f7b624-219f-4a05-a7ad-5335f15a41c7@moroto.mountain>
+	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="fOXy4Vrc"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 885D1C0070;
+	Thu, 20 Jun 2024 10:52:12 -0400 (EDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kaechele.ca; s=201907;
+	t=1718895132; h=from:subject:date:message-id:to:mime-version:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=h7BDR8ebm7wi5ol2mXXhFOPU8d2goNXVwlQM/DNXqhQ=;
+	b=fOXy4VrcrSmvZVmXj2uQIqsUxnVIrcgn9A6d7f1WRTcKY/T6cAJ/AEgJDou77wgqskRnIN
+	9PCY7O9/ZkMBQziYIphwWFgpXXmExJoHxe+ciHfD0xOsyLifsGNXGrMUad9fUtN5XrqF4p
+	DjDll9mpx4KXPBTkM3wdiu6CCRLukGw=
+From: Felix Kaechele <felix@kaechele.ca>
+To: Job Noorman <job@noorman.info>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v3 4/5] input: himax_hx83112b: add himax_chip struct for multi-chip support
+Date: Thu, 20 Jun 2024 10:50:05 -0400
+Message-ID: <20240620145019.156187-5-felix@kaechele.ca>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240620145019.156187-1-felix@kaechele.ca>
+References: <20240620145019.156187-1-felix@kaechele.ca>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <00f7b624-219f-4a05-a7ad-5335f15a41c7@moroto.mountain>
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi,
+In preparation for HX83100A support allow defining separate functions
+for specific chip operations.
 
-On Jun 20 2024, Dan Carpenter wrote:
-> Hello Benjamin Tissoires,
-> 
-> Commit 4a86220e046d ("HID: bpf: remove tracing HID-BPF capability")
-> from Jun 8, 2024 (linux-next), leads to the following Smatch static
-> checker warning:
-> 
-> 	drivers/hid/bpf/hid_bpf_dispatch.c:65 dispatch_hid_bpf_device_event()
-> 	error: uninitialized symbol 'ret'.
-> 
-> drivers/hid/bpf/hid_bpf_dispatch.c
->     26  dispatch_hid_bpf_device_event(struct hid_device *hdev, enum hid_report_type type, u8 *data,
->     27                                u32 *size, int interrupt)
->     28  {
->     29          struct hid_bpf_ctx_kern ctx_kern = {
->     30                  .ctx = {
->     31                          .hid = hdev,
->     32                          .allocated_size = hdev->bpf.allocated_data,
->     33                          .size = *size,
->     34                  },
->     35                  .data = hdev->bpf.device_data,
->     36          };
->     37          struct hid_bpf_ops *e;
->     38          int ret;
->     39  
->     40          if (type >= HID_REPORT_TYPES)
->     41                  return ERR_PTR(-EINVAL);
->     42  
->     43          /* no program has been attached yet */
->     44          if (!hdev->bpf.device_data)
->     45                  return data;
->     46  
->     47          memset(ctx_kern.data, 0, hdev->bpf.allocated_data);
->     48          memcpy(ctx_kern.data, data, *size);
->     49  
->     50          rcu_read_lock();
->     51          list_for_each_entry_rcu(e, &hdev->bpf.prog_list, list) {
->     52                  if (e->hid_device_event) {
->     53                          ret = e->hid_device_event(&ctx_kern.ctx, type);
->     54                          if (ret < 0) {
->     55                                  rcu_read_unlock();
->     56                                  return ERR_PTR(ret);
->     57                          }
->     58  
->     59                          if (ret)
->     60                                  ctx_kern.ctx.retval = ret;
->     61                  }
-> 
-> Can all the e->hid_device_event pointers be NULL?
+Signed-off-by: Felix Kaechele <felix@kaechele.ca>
+---
+ drivers/input/touchscreen/himax_hx83112b.c | 51 +++++++++++++++-------
+ 1 file changed, 35 insertions(+), 16 deletions(-)
 
-They can, but then hdev->bpf.device_data will also set to NULL in 99% of
-the normal cases. The only case where device_data is set to a value and
-hid_device_event is never set anywhere is after the last bpf filter has
-been removed.
+diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
+index c9cc69bf242a..5092a357c332 100644
+--- a/drivers/input/touchscreen/himax_hx83112b.c
++++ b/drivers/input/touchscreen/himax_hx83112b.c
+@@ -20,8 +20,6 @@
+ #include <linux/kernel.h>
+ #include <linux/regmap.h>
+ 
+-#define HIMAX_ID_83112B			0x83112b
+-
+ #define HIMAX_MAX_POINTS		10
+ 
+ #define HIMAX_AHB_ADDR_BYTE_0			0x00
+@@ -55,7 +53,16 @@ struct himax_event {
+ 
+ static_assert(sizeof(struct himax_event) == 56);
+ 
++struct himax_ts_data;
++struct himax_chip {
++	u32 id;
++	int (*check_id)(struct himax_ts_data *ts);
++	int (*read_events)(struct himax_ts_data *ts, struct himax_event *event,
++			   size_t length);
++};
++
+ struct himax_ts_data {
++	const struct himax_chip *chip;
+ 	struct gpio_desc *gpiod_rst;
+ 	struct input_dev *input_dev;
+ 	struct i2c_client *client;
+@@ -167,15 +174,12 @@ static int himax_check_product_id(struct himax_ts_data *ts)
+ 
+ 	dev_dbg(&ts->client->dev, "Product id: %x\n", product_id);
+ 
+-	switch (product_id) {
+-	case HIMAX_ID_83112B:
++	if (product_id == ts->chip->id)
+ 		return 0;
+ 
+-	default:
+-		dev_err(&ts->client->dev,
+-			"Unknown product id: %x\n", product_id);
+-		return -EINVAL;
+-	}
++	dev_err(&ts->client->dev, "Unknown product id: %x\n",
++		product_id);
++	return -EINVAL;
+ }
+ 
+ static int himax_input_register(struct himax_ts_data *ts)
+@@ -277,13 +281,19 @@ static bool himax_verify_checksum(struct himax_ts_data *ts,
+ 	return true;
+ }
+ 
++static int himax_read_events(struct himax_ts_data *ts,
++			     struct himax_event *event, size_t length)
++{
++	return regmap_raw_read(ts->regmap, HIMAX_AHB_ADDR_EVENT_STACK, event,
++			       length);
++}
++
+ static int himax_handle_input(struct himax_ts_data *ts)
+ {
+ 	int error;
+ 	struct himax_event event;
+ 
+-	error = regmap_raw_read(ts->regmap, HIMAX_AHB_ADDR_EVENT_STACK, &event,
+-				sizeof(event));
++	error = ts->chip->read_events(ts, &event, sizeof(event));
+ 	if (error) {
+ 		dev_err(&ts->client->dev, "Failed to read input event: %d\n",
+ 			error);
+@@ -329,6 +339,7 @@ static int himax_probe(struct i2c_client *client)
+ 
+ 	i2c_set_clientdata(client, ts);
+ 	ts->client = client;
++	ts->chip = i2c_get_match_data(client);
+ 
+ 	ts->regmap = devm_regmap_init_i2c(client, &himax_regmap_config);
+ 	error = PTR_ERR_OR_ZERO(ts->regmap);
+@@ -346,9 +357,11 @@ static int himax_probe(struct i2c_client *client)
+ 
+ 	himax_reset(ts);
+ 
+-	error = himax_check_product_id(ts);
+-	if (error)
+-		return error;
++	if (ts->chip->check_id) {
++		error = himax_check_product_id(ts);
++		if (error)
++			return error;
++	}
+ 
+ 	error = himax_input_register(ts);
+ 	if (error)
+@@ -381,15 +394,21 @@ static int himax_resume(struct device *dev)
+ 
+ static DEFINE_SIMPLE_DEV_PM_OPS(himax_pm_ops, himax_suspend, himax_resume);
+ 
++static const struct himax_chip hx83112b_chip = {
++	.id = 0x83112b,
++	.check_id = himax_check_product_id,
++	.read_events = himax_read_events,
++};
++
+ static const struct i2c_device_id himax_ts_id[] = {
+-	{ "hx83112b" },
++	{ "hx83112b", (kernel_ulong_t)&hx83112b_chip },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(i2c, himax_ts_id);
+ 
+ #ifdef CONFIG_OF
+ static const struct of_device_id himax_of_match[] = {
+-	{ .compatible = "himax,hx83112b" },
++	{ .compatible = "himax,hx83112b", .data = &hx83112b_chip },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, himax_of_match);
+-- 
+2.45.2
 
-> 
->     62          }
->     63          rcu_read_unlock();
->     64  
->     65          if (ret) {
->                     ^^^
-> If so then ret is uninitialized
-
-Yep, good point. Let me fix that in my followup series.
-
-> 
->     66                  if (ret > ctx_kern.ctx.allocated_size)
->     67                          return ERR_PTR(-EINVAL);
->     68  
->     69                  *size = ret;
-> 
-> 
-> regards,
-> dan carpenter
-
-Thanks!
-
-Cheers,
-Benjamin

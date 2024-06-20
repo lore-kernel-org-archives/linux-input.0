@@ -1,48 +1,48 @@
-Received: from mx0b-001ae601.pphosted.com (mx0a-001ae601.pphosted.com [67.231.149.25])
+Received: from mx0b-001ae601.pphosted.com (mx0b-001ae601.pphosted.com [67.231.152.168])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87BB61B3F00;
-	Thu, 20 Jun 2024 16:18:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B116D1B3F00;
+	Thu, 20 Jun 2024 16:18:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.152.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718900294; cv=none; b=faAUCDKYTaVGETVbk5s0Oh7/5/LhlcPtNb3Kh84Vfc1qVgIp2EjtPJ/QAdewosfkIfCNfdaFWmYwXUnUlm1qOHtwlIbUjSvz5SsV7Dqi9GgpXcgPuxo5UWsdKx8TdPXh8DRMHee/MHAIZgLQADdjeKFNuoTMsuJib2UP4q11f9M=
+	t=1718900304; cv=none; b=lQ4P3Bp8kHbMIOgPpHasnDCruzYVkwKSQSUGqzMIu4lkLElxyUXkfuH69RBtu3Pfl7oN28jd2EPidmUkvhHXo58KTo3h5M8psJVRxpr8xSvil/iA7AHuMIu2Y4ZZ2EdYT2ae78kKO/uImid+HmbzROJq6g5FqNCcIhyYoB43yh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718900294; c=relaxed/simple;
-	bh=mmYoQlLDtxon5ZignMSw+iJHl0BQToWWtnG8A8ex6WI=;
+	s=arc-20240116; t=1718900304; c=relaxed/simple;
+	bh=p9FS55sVWPPGP62XgRTpSwJRof6LmsxlJdk3vwWo2lI=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=kXNGf/bRmHOkjbKqjCUxhCxbApawBoL7pGmipp73yrlJLxj2mSjwdYssR5qgLmrdV1WIYrXvHE60SnLzkZZx2Fc2O+f9lWODVAL15IcjapYh3OEm7YtwuxU2KK4wa8x5miJqNy0EmdRsUWVBY3Dqt9wBhf5O+yKcTEu7W6nV1Ss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com; spf=pass smtp.mailfrom=opensource.cirrus.com; dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b=i3pLhRT7; arc=none smtp.client-ip=67.231.149.25
+	 MIME-Version:Content-Type; b=EV0nh6rx1MmvYX+Tlb5MxdLTKUrMEpgZjU5IU3luq/vt0o2/5kCBj+bf9gBVfIp7IuhGGaVjfYyVNo0qAIUYRU7zFinH08y2rTnyEjQh3lpvBVDKij8BsjV60AC2tNfUqor7uc//A/3JMKikDl3srYhKLmQN2+yam/XApQT/2to=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com; spf=pass smtp.mailfrom=opensource.cirrus.com; dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b=j0zjZ7zT; arc=none smtp.client-ip=67.231.152.168
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensource.cirrus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b="i3pLhRT7"
-Received: from pps.filterd (m0077473.ppops.net [127.0.0.1])
-	by mx0a-001ae601.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45K5O0A8008336;
-	Thu, 20 Jun 2024 11:17:54 -0500
+	dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b="j0zjZ7zT"
+Received: from pps.filterd (m0077474.ppops.net [127.0.0.1])
+	by mx0b-001ae601.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 45K5kLgU016004;
+	Thu, 20 Jun 2024 11:18:07 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=
-	PODMain02222019; bh=K1saxXkPLlYmyIq4VJ5IQw6ApqPxLvhY+BMePcpXZIE=; b=
-	i3pLhRT7rkdzPUYzZdiXNzJOseeuZsQ8dgGt9yeNygagB0zj0mcD1C7o/AZOGTVU
-	n0Em0rGwOVuTnhB3ROhxKGaIW7mDgqDg/hf6ezwJKOC/LfpUKRxPznfUp4GvGDqk
-	mL660IXQNO6GLhKaLhqnPocspmgRaEXc+k1G59iVO14bC/xZ6KFsKdQ+SFTFLVNK
-	tel7+b/Xs/DfKjRtFSGK7YJLdEv2gFvAMZi43Fz2nlWMuQOInbfxg9+5bRYx3kPC
-	1ClxEOMDJwT0yCb/lqgXWeuZ710rxSsrJ9sUkGKLvzuAwH10ZyS/D1XL76daZLId
-	oxJ/hA51Y7yOm5D9oNAn/w==
+	PODMain02222019; bh=Q3JTcrGXXyM2L8TxxmCI2bzNXnKKi72mxePhEJkPreM=; b=
+	j0zjZ7zT+ZWID2q0zvqVchFLprdE+4Pf0LczuzBLTsebtzecz5c0GnozLUyqVtmd
+	sbZJ3+EF8+ZYOfy5hay4nRVvAwUw+IUnKt1mD8MNu4pcouB+vVgB7IYldHMg4/R8
+	ZvdC3xiBuQl72WcrMUB6tI1BcuJRzszvivb+Wkr1oem+7h9VjJq0gCUrsR9NWZy7
+	c/2nGMC0HvResGgX0S719/EyoawHHYdGjhzs/WslrpgWE2cQKNPY2p4IWWMXxkEl
+	6YmnTnMMKmsEw5dCWSDI1RZ4JxMsUYy+MpoMaPRAQEfkVM0GTdGSuioI+k3Th3S7
+	SZ5SjPdKlgOYWZoOTNa/+w==
 Received: from ediex02.ad.cirrus.com ([84.19.233.68])
-	by mx0a-001ae601.pphosted.com (PPS) with ESMTPS id 3yuj8m2276-1
+	by mx0b-001ae601.pphosted.com (PPS) with ESMTPS id 3yujb12a2v-2
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 20 Jun 2024 11:17:54 -0500 (CDT)
-Received: from ediex01.ad.cirrus.com (198.61.84.80) by ediex02.ad.cirrus.com
+	Thu, 20 Jun 2024 11:18:07 -0500 (CDT)
+Received: from ediex02.ad.cirrus.com (198.61.84.81) by ediex02.ad.cirrus.com
  (198.61.84.81) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Thu, 20 Jun
- 2024 17:17:52 +0100
+ 2024 17:18:00 +0100
 Received: from ediswmail9.ad.cirrus.com (198.61.86.93) by
- anon-ediex01.ad.cirrus.com (198.61.84.80) with Microsoft SMTP Server id
- 15.2.1544.9 via Frontend Transport; Thu, 20 Jun 2024 17:17:52 +0100
+ anon-ediex02.ad.cirrus.com (198.61.84.81) with Microsoft SMTP Server id
+ 15.2.1544.9 via Frontend Transport; Thu, 20 Jun 2024 17:18:00 +0100
 Received: from aus-sw-rshr002.ad.cirrus.com (aus-sw-rshr002.ad.cirrus.com [141.131.145.42])
-	by ediswmail9.ad.cirrus.com (Postfix) with ESMTP id 5C232820248;
-	Thu, 20 Jun 2024 16:17:50 +0000 (UTC)
+	by ediswmail9.ad.cirrus.com (Postfix) with ESMTP id 364D4820248;
+	Thu, 20 Jun 2024 16:17:58 +0000 (UTC)
 From: James Ogletree <jogletre@opensource.cirrus.com>
 To: <dmitry.torokhov@gmail.com>, <robh+dt@kernel.org>,
         <krzysztof.kozlowski+dt@linaro.org>, <conor+dt@kernel.org>,
@@ -51,11 +51,11 @@ CC: <patches@opensource.cirrus.com>, <linux-sound@vger.kernel.org>,
         <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
         James Ogletree
 	<jogletre@opensource.cirrus.com>,
-        Charles Keepax
-	<ckeepax@opensource.cirrus.com>
-Subject: [PATCH RESEND v11 1/5] firmware: cs_dsp: Add write sequence interface
-Date: Thu, 20 Jun 2024 16:17:41 +0000
-Message-ID: <20240620161745.2312359-2-jogletre@opensource.cirrus.com>
+        David Rhodes
+	<drhodes@opensource.cirrus.com>
+Subject: [PATCH RESEND v11 5/5] ASoC: cs40l50: Support I2S streaming to CS40L50
+Date: Thu, 20 Jun 2024 16:17:45 +0000
+Message-ID: <20240620161745.2312359-6-jogletre@opensource.cirrus.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240620161745.2312359-1-jogletre@opensource.cirrus.com>
 References: <20240620161745.2312359-1-jogletre@opensource.cirrus.com>
@@ -67,367 +67,400 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Proofpoint-GUID: SBVrV7pt7Yqv7kEgPQvY5EdIKiWRVUHA
-X-Proofpoint-ORIG-GUID: SBVrV7pt7Yqv7kEgPQvY5EdIKiWRVUHA
+X-Proofpoint-ORIG-GUID: 1_vfgL0RH6Rgpa8O2_QaxeuU_f7H9o8a
+X-Proofpoint-GUID: 1_vfgL0RH6Rgpa8O2_QaxeuU_f7H9o8a
 X-Proofpoint-Spam-Reason: safe
 
-A write sequence is a sequence of register addresses
-and values executed by some Cirrus DSPs following
-certain power state transitions.
+Introduce support for Cirrus Logic Device CS40L50: a
+haptic driver with waveform memory, integrated DSP,
+and closed-loop algorithms.
 
-Add support for Cirrus drivers to update or add to a
-write sequence present in firmware.
+The ASoC driver enables I2S streaming to the device.
 
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Reviewed-by: David Rhodes <drhodes@opensource.cirrus.com>
 Signed-off-by: James Ogletree <jogletre@opensource.cirrus.com>
 ---
-Note that this patch can be applied before the others.
+ MAINTAINERS                      |   1 +
+ sound/soc/codecs/Kconfig         |  11 ++
+ sound/soc/codecs/Makefile        |   2 +
+ sound/soc/codecs/cs40l50-codec.c | 307 +++++++++++++++++++++++++++++++
+ 4 files changed, 321 insertions(+)
+ create mode 100644 sound/soc/codecs/cs40l50-codec.c
 
- drivers/firmware/cirrus/cs_dsp.c       | 278 +++++++++++++++++++++++++
- include/linux/firmware/cirrus/cs_dsp.h |  27 +++
- 2 files changed, 305 insertions(+)
-
-diff --git a/drivers/firmware/cirrus/cs_dsp.c b/drivers/firmware/cirrus/cs_dsp.c
-index 79d4254d1f9b..6d886ffea10f 100644
---- a/drivers/firmware/cirrus/cs_dsp.c
-+++ b/drivers/firmware/cirrus/cs_dsp.c
-@@ -275,6 +275,12 @@
- #define HALO_MPU_VIO_ERR_SRC_MASK           0x00007fff
- #define HALO_MPU_VIO_ERR_SRC_SHIFT                   0
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 49c2e6e57b09..62701b13f741 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -4943,6 +4943,7 @@ F:	Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
+ F:	drivers/input/misc/cs40l*
+ F:	drivers/mfd/cs40l*
+ F:	include/linux/mfd/cs40l*
++F:	sound/soc/codecs/cs40l*
  
-+/*
-+ * Write Sequence
-+ */
-+#define WSEQ_OP_MAX_WORDS	3
-+#define WSEQ_END_OF_SCRIPT	0xFFFFFF
-+
- struct cs_dsp_ops {
- 	bool (*validate_version)(struct cs_dsp *dsp, unsigned int version);
- 	unsigned int (*parse_sizes)(struct cs_dsp *dsp,
-@@ -3339,6 +3345,278 @@ int cs_dsp_chunk_read(struct cs_dsp_chunk *ch, int nbits)
- }
- EXPORT_SYMBOL_NS_GPL(cs_dsp_chunk_read, FW_CS_DSP);
+ CIRRUS LOGIC DSP FIRMWARE DRIVER
+ M:	Simon Trimmer <simont@opensource.cirrus.com>
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index f1e1dbc509f6..1a81bedfdbe3 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -73,6 +73,7 @@ config SND_SOC_ALL_CODECS
+ 	imply SND_SOC_CS35L56_I2C
+ 	imply SND_SOC_CS35L56_SPI
+ 	imply SND_SOC_CS35L56_SDW
++	imply SND_SOC_CS40L50
+ 	imply SND_SOC_CS42L42
+ 	imply SND_SOC_CS42L42_SDW
+ 	imply SND_SOC_CS42L43
+@@ -800,6 +801,16 @@ config SND_SOC_CS35L56_SDW
+ 	help
+ 	  Enable support for Cirrus Logic CS35L56 boosted amplifier with SoundWire control
  
++config SND_SOC_CS40L50
++	tristate "Cirrus Logic CS40L50 CODEC"
++	depends on MFD_CS40L50_CORE
++	help
++	  This option enables support for I2S streaming to Cirrus Logic CS40L50.
 +
-+struct cs_dsp_wseq_op {
-+	struct list_head list;
-+	u32 address;
-+	u32 data;
-+	u16 offset;
-+	u8 operation;
++	  CS40L50 is a haptic driver with waveform memory, an integrated
++	  DSP, and closed-loop algorithms. If built as a module, it will be
++	  called snd-soc-cs40l50.
++
+ config SND_SOC_CS42L42_CORE
+ 	tristate
+ 
+diff --git a/sound/soc/codecs/Makefile b/sound/soc/codecs/Makefile
+index b4df22186e25..3afd7c16c959 100644
+--- a/sound/soc/codecs/Makefile
++++ b/sound/soc/codecs/Makefile
+@@ -78,6 +78,7 @@ snd-soc-cs35l56-shared-y := cs35l56-shared.o
+ snd-soc-cs35l56-i2c-y := cs35l56-i2c.o
+ snd-soc-cs35l56-spi-y := cs35l56-spi.o
+ snd-soc-cs35l56-sdw-y := cs35l56-sdw.o
++snd-soc-cs40l50-objs := cs40l50-codec.o
+ snd-soc-cs42l42-y := cs42l42.o
+ snd-soc-cs42l42-i2c-y := cs42l42-i2c.o
+ snd-soc-cs42l42-sdw-y := cs42l42-sdw.o
+@@ -475,6 +476,7 @@ obj-$(CONFIG_SND_SOC_CS35L56_SHARED)	+= snd-soc-cs35l56-shared.o
+ obj-$(CONFIG_SND_SOC_CS35L56_I2C)	+= snd-soc-cs35l56-i2c.o
+ obj-$(CONFIG_SND_SOC_CS35L56_SPI)	+= snd-soc-cs35l56-spi.o
+ obj-$(CONFIG_SND_SOC_CS35L56_SDW)	+= snd-soc-cs35l56-sdw.o
++obj-$(CONFIG_SND_SOC_CS40L50)		+= snd-soc-cs40l50.o
+ obj-$(CONFIG_SND_SOC_CS42L42_CORE)	+= snd-soc-cs42l42.o
+ obj-$(CONFIG_SND_SOC_CS42L42)	+= snd-soc-cs42l42-i2c.o
+ obj-$(CONFIG_SND_SOC_CS42L42_SDW)	+= snd-soc-cs42l42-sdw.o
+diff --git a/sound/soc/codecs/cs40l50-codec.c b/sound/soc/codecs/cs40l50-codec.c
+new file mode 100644
+index 000000000000..aa629ef53db4
+--- /dev/null
++++ b/sound/soc/codecs/cs40l50-codec.c
+@@ -0,0 +1,307 @@
++// SPDX-License-Identifier: GPL-2.0
++//
++// CS40L50 Advanced Haptic Driver with waveform memory,
++// integrated DSP, and closed-loop algorithms
++//
++// Copyright 2024 Cirrus Logic, Inc.
++//
++// Author: James Ogletree <james.ogletree@cirrus.com>
++
++#include <linux/bitfield.h>
++#include <linux/mfd/cs40l50.h>
++#include <sound/pcm_params.h>
++#include <sound/soc.h>
++
++#define CS40L50_REFCLK_INPUT		0x2C04
++#define CS40L50_ASP_CONTROL2		0x4808
++#define CS40L50_ASP_DATA_CONTROL5	0x4840
++
++/* PLL Config */
++#define CS40L50_PLL_REFCLK_BCLK		0x0
++#define CS40L50_PLL_REFCLK_MCLK		0x5
++#define CS40L50_PLL_REEFCLK_MCLK_CFG	0x00
++#define CS40L50_PLL_REFCLK_LOOP_MASK	BIT(11)
++#define CS40L50_PLL_REFCLK_OPEN_LOOP	1
++#define CS40L50_PLL_REFCLK_CLOSED_LOOP	0
++#define CS40L50_PLL_REFCLK_LOOP_SHIFT	11
++#define CS40L50_PLL_REFCLK_FREQ_MASK	GENMASK(10, 5)
++#define CS40L50_PLL_REFCLK_FREQ_SHIFT	5
++#define CS40L50_PLL_REFCLK_SEL_MASK	GENMASK(2, 0)
++#define CS40L50_BCLK_RATIO_DEFAULT	32
++
++/* ASP Config */
++#define CS40L50_ASP_RX_WIDTH_SHIFT	24
++#define CS40L50_ASP_RX_WIDTH_MASK	GENMASK(31, 24)
++#define CS40L50_ASP_RX_WL_MASK		GENMASK(5, 0)
++#define CS40L50_ASP_FSYNC_INV_MASK	BIT(2)
++#define CS40L50_ASP_BCLK_INV_MASK	BIT(6)
++#define CS40L50_ASP_FMT_MASK		GENMASK(10, 8)
++#define CS40L50_ASP_FMT_I2S		0x2
++
++struct cs40l50_pll_config {
++	unsigned int freq;
++	unsigned int cfg;
 +};
 +
-+static void cs_dsp_wseq_clear(struct cs_dsp *dsp, struct cs_dsp_wseq *wseq)
-+{
-+	struct cs_dsp_wseq_op *op, *op_tmp;
++struct cs40l50_codec {
++	struct device *dev;
++	struct regmap *regmap;
++	unsigned int daifmt;
++	unsigned int bclk_ratio;
++	unsigned int rate;
++};
 +
-+	list_for_each_entry_safe(op, op_tmp, &wseq->ops, list) {
-+		list_del(&op->list);
-+		devm_kfree(dsp->dev, op);
++static const struct cs40l50_pll_config cs40l50_pll_cfg[] = {
++	{ 32768, 0x00 },
++	{ 1536000, 0x1B },
++	{ 3072000, 0x21 },
++	{ 6144000, 0x28 },
++	{ 9600000, 0x30 },
++	{ 12288000, 0x33 },
++};
++
++static int cs40l50_get_clk_config(const unsigned int freq, unsigned int *cfg)
++{
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(cs40l50_pll_cfg); i++) {
++		if (cs40l50_pll_cfg[i].freq == freq) {
++			*cfg = cs40l50_pll_cfg[i].cfg;
++			return 0;
++		}
 +	}
++
++	return -EINVAL;
 +}
 +
-+static int cs_dsp_populate_wseq(struct cs_dsp *dsp, struct cs_dsp_wseq *wseq)
++static int cs40l50_swap_ext_clk(struct cs40l50_codec *codec, const unsigned int clk_src)
 +{
-+	struct cs_dsp_wseq_op *op = NULL;
-+	struct cs_dsp_chunk chunk;
-+	u8 *words;
++	unsigned int cfg;
 +	int ret;
 +
-+	if (!wseq->ctl) {
-+		cs_dsp_err(dsp, "No control for write sequence\n");
++	switch (clk_src) {
++	case CS40L50_PLL_REFCLK_BCLK:
++		ret = cs40l50_get_clk_config(codec->bclk_ratio * codec->rate, &cfg);
++		if (ret)
++			return ret;
++		break;
++	case CS40L50_PLL_REFCLK_MCLK:
++		cfg = CS40L50_PLL_REEFCLK_MCLK_CFG;
++		break;
++	default:
 +		return -EINVAL;
 +	}
 +
-+	words = kzalloc(wseq->ctl->len, GFP_KERNEL);
-+	if (!words)
-+		return -ENOMEM;
++	ret = regmap_update_bits(codec->regmap, CS40L50_REFCLK_INPUT,
++				 CS40L50_PLL_REFCLK_LOOP_MASK,
++				 CS40L50_PLL_REFCLK_OPEN_LOOP <<
++				 CS40L50_PLL_REFCLK_LOOP_SHIFT);
++	if (ret)
++		return ret;
 +
-+	ret = cs_dsp_coeff_read_ctrl(wseq->ctl, 0, words, wseq->ctl->len);
-+	if (ret) {
-+		cs_dsp_err(dsp, "Failed to read %s: %d\n", wseq->ctl->subname, ret);
-+		goto err_free;
-+	}
++	ret = regmap_update_bits(codec->regmap, CS40L50_REFCLK_INPUT,
++				 CS40L50_PLL_REFCLK_FREQ_MASK |
++				 CS40L50_PLL_REFCLK_SEL_MASK,
++				 (cfg << CS40L50_PLL_REFCLK_FREQ_SHIFT) | clk_src);
++	if (ret)
++		return ret;
 +
-+	INIT_LIST_HEAD(&wseq->ops);
-+
-+	chunk = cs_dsp_chunk(words, wseq->ctl->len);
-+
-+	while (!cs_dsp_chunk_end(&chunk)) {
-+		op = devm_kzalloc(dsp->dev, sizeof(*op), GFP_KERNEL);
-+		if (!op) {
-+			ret = -ENOMEM;
-+			goto err_free;
-+		}
-+
-+		op->offset = cs_dsp_chunk_bytes(&chunk);
-+		op->operation = cs_dsp_chunk_read(&chunk, 8);
-+
-+		switch (op->operation) {
-+		case CS_DSP_WSEQ_END:
-+			op->data = WSEQ_END_OF_SCRIPT;
-+			break;
-+		case CS_DSP_WSEQ_UNLOCK:
-+			op->data = cs_dsp_chunk_read(&chunk, 16);
-+			break;
-+		case CS_DSP_WSEQ_ADDR8:
-+			op->address = cs_dsp_chunk_read(&chunk, 8);
-+			op->data = cs_dsp_chunk_read(&chunk, 32);
-+			break;
-+		case CS_DSP_WSEQ_H16:
-+		case CS_DSP_WSEQ_L16:
-+			op->address = cs_dsp_chunk_read(&chunk, 24);
-+			op->data = cs_dsp_chunk_read(&chunk, 16);
-+			break;
-+		case CS_DSP_WSEQ_FULL:
-+			op->address = cs_dsp_chunk_read(&chunk, 32);
-+			op->data = cs_dsp_chunk_read(&chunk, 32);
-+			break;
-+		default:
-+			ret = -EINVAL;
-+			cs_dsp_err(dsp, "Unsupported op: %X\n", op->operation);
-+			devm_kfree(dsp->dev, op);
-+			goto err_free;
-+		}
-+
-+		list_add_tail(&op->list, &wseq->ops);
-+
-+		if (op->operation == CS_DSP_WSEQ_END)
-+			break;
-+	}
-+
-+	if (op && op->operation != CS_DSP_WSEQ_END) {
-+		cs_dsp_err(dsp, "%s missing end terminator\n", wseq->ctl->subname);
-+		ret = -ENOENT;
-+	}
-+
-+err_free:
-+	kfree(words);
-+
-+	return ret;
++	return regmap_update_bits(codec->regmap, CS40L50_REFCLK_INPUT,
++				  CS40L50_PLL_REFCLK_LOOP_MASK,
++				  CS40L50_PLL_REFCLK_CLOSED_LOOP <<
++				  CS40L50_PLL_REFCLK_LOOP_SHIFT);
 +}
 +
-+/**
-+ * cs_dsp_wseq_init() - Initialize write sequences contained within the loaded DSP firmware
-+ * @dsp: Pointer to DSP structure
-+ * @wseqs: List of write sequences to initialize
-+ * @num_wseqs: Number of write sequences to initialize
-+ *
-+ * Return: Zero for success, a negative number on error.
-+ */
-+int cs_dsp_wseq_init(struct cs_dsp *dsp, struct cs_dsp_wseq *wseqs, unsigned int num_wseqs)
++static int cs40l50_clk_en(struct snd_soc_dapm_widget *w,
++			  struct snd_kcontrol *kcontrol,
++			  int event)
 +{
-+	int i, ret;
++	struct snd_soc_component *comp = snd_soc_dapm_to_component(w->dapm);
++	struct cs40l50_codec *codec = snd_soc_component_get_drvdata(comp);
++	int ret;
 +
-+	lockdep_assert_held(&dsp->pwr_lock);
-+
-+	for (i = 0; i < num_wseqs; i++) {
-+		ret = cs_dsp_populate_wseq(dsp, &wseqs[i]);
-+		if (ret) {
-+			cs_dsp_wseq_clear(dsp, &wseqs[i]);
++	switch (event) {
++	case SND_SOC_DAPM_POST_PMU:
++		ret = cs40l50_dsp_write(codec->dev, codec->regmap, CS40L50_STOP_PLAYBACK);
++		if (ret)
 +			return ret;
-+		}
-+	}
 +
-+	return 0;
-+}
-+EXPORT_SYMBOL_NS_GPL(cs_dsp_wseq_init, FW_CS_DSP);
++		ret = cs40l50_dsp_write(codec->dev, codec->regmap, CS40L50_START_I2S);
++		if (ret)
++			return ret;
 +
-+static struct cs_dsp_wseq_op *cs_dsp_wseq_find_op(u32 addr, u8 op_code,
-+						  struct list_head *wseq_ops)
-+{
-+	struct cs_dsp_wseq_op *op;
-+
-+	list_for_each_entry(op, wseq_ops, list) {
-+		if (op->operation == op_code && op->address == addr)
-+			return op;
-+	}
-+
-+	return NULL;
-+}
-+
-+/**
-+ * cs_dsp_wseq_write() - Add or update an entry in a write sequence
-+ * @dsp: Pointer to a DSP structure
-+ * @wseq: Write sequence to write to
-+ * @addr: Address of the register to be written to
-+ * @data: Data to be written
-+ * @op_code: The type of operation of the new entry
-+ * @update: If true, searches for the first entry in the write sequence with
-+ * the same address and op_code, and replaces it. If false, creates a new entry
-+ * at the tail
-+ *
-+ * This function formats register address and value pairs into the format
-+ * required for write sequence entries, and either updates or adds the
-+ * new entry into the write sequence.
-+ *
-+ * If update is set to true and no matching entry is found, it will add a new entry.
-+ *
-+ * Return: Zero for success, a negative number on error.
-+ */
-+int cs_dsp_wseq_write(struct cs_dsp *dsp, struct cs_dsp_wseq *wseq,
-+		      u32 addr, u32 data, u8 op_code, bool update)
-+{
-+	struct cs_dsp_wseq_op *op_end, *op_new = NULL;
-+	u32 words[WSEQ_OP_MAX_WORDS];
-+	struct cs_dsp_chunk chunk;
-+	int new_op_size, ret;
-+
-+	if (update)
-+		op_new = cs_dsp_wseq_find_op(addr, op_code, &wseq->ops);
-+
-+	/* If entry to update is not found, treat it as a new operation */
-+	if (!op_new) {
-+		op_end = cs_dsp_wseq_find_op(0, CS_DSP_WSEQ_END, &wseq->ops);
-+		if (!op_end) {
-+			cs_dsp_err(dsp, "Missing terminator for %s\n", wseq->ctl->subname);
-+			return -EINVAL;
-+		}
-+
-+		op_new = devm_kzalloc(dsp->dev, sizeof(*op_new), GFP_KERNEL);
-+		if (!op_new)
-+			return -ENOMEM;
-+
-+		op_new->operation = op_code;
-+		op_new->address = addr;
-+		op_new->offset = op_end->offset;
-+		update = false;
-+	}
-+
-+	op_new->data = data;
-+
-+	chunk = cs_dsp_chunk(words, sizeof(words));
-+	cs_dsp_chunk_write(&chunk, 8, op_new->operation);
-+
-+	switch (op_code) {
-+	case CS_DSP_WSEQ_FULL:
-+		cs_dsp_chunk_write(&chunk, 32, op_new->address);
-+		cs_dsp_chunk_write(&chunk, 32, op_new->data);
++		ret = cs40l50_swap_ext_clk(codec, CS40L50_PLL_REFCLK_BCLK);
++		if (ret)
++			return ret;
 +		break;
-+	case CS_DSP_WSEQ_L16:
-+	case CS_DSP_WSEQ_H16:
-+		cs_dsp_chunk_write(&chunk, 24, op_new->address);
-+		cs_dsp_chunk_write(&chunk, 16, op_new->data);
++	case SND_SOC_DAPM_PRE_PMD:
++		ret = cs40l50_swap_ext_clk(codec, CS40L50_PLL_REFCLK_MCLK);
++		if (ret)
++			return ret;
 +		break;
 +	default:
-+		ret = -EINVAL;
-+		cs_dsp_err(dsp, "Operation %X not supported\n", op_code);
-+		goto op_new_free;
-+	}
-+
-+	new_op_size = cs_dsp_chunk_bytes(&chunk);
-+
-+	if (!update) {
-+		if (wseq->ctl->len - op_end->offset < new_op_size) {
-+			cs_dsp_err(dsp, "Not enough memory in %s for entry\n", wseq->ctl->subname);
-+			ret = -E2BIG;
-+			goto op_new_free;
-+		}
-+
-+		op_end->offset += new_op_size;
-+
-+		ret = cs_dsp_coeff_write_ctrl(wseq->ctl, op_end->offset / sizeof(u32),
-+					      &op_end->data, sizeof(u32));
-+		if (ret)
-+			goto op_new_free;
-+
-+		list_add_tail(&op_new->list, &op_end->list);
-+	}
-+
-+	ret = cs_dsp_coeff_write_ctrl(wseq->ctl, op_new->offset / sizeof(u32),
-+				      words, new_op_size);
-+	if (ret)
-+		goto op_new_free;
-+
-+	return 0;
-+
-+op_new_free:
-+	devm_kfree(dsp->dev, op_new);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_NS_GPL(cs_dsp_wseq_write, FW_CS_DSP);
-+
-+/**
-+ * cs_dsp_wseq_multi_write() - Add or update multiple entries in a write sequence
-+ * @dsp: Pointer to a DSP structure
-+ * @wseq: Write sequence to write to
-+ * @reg_seq: List of address-data pairs
-+ * @num_regs: Number of address-data pairs
-+ * @op_code: The types of operations of the new entries
-+ * @update: If true, searches for the first entry in the write sequence with
-+ * the same address and op_code, and replaces it. If false, creates a new entry
-+ * at the tail
-+ *
-+ * This function calls cs_dsp_wseq_write() for multiple address-data pairs.
-+ *
-+ * Return: Zero for success, a negative number on error.
-+ */
-+int cs_dsp_wseq_multi_write(struct cs_dsp *dsp, struct cs_dsp_wseq *wseq,
-+			    const struct reg_sequence *reg_seq, int num_regs,
-+			    u8 op_code, bool update)
-+{
-+	int i, ret;
-+
-+	for (i = 0; i < num_regs; i++) {
-+		ret = cs_dsp_wseq_write(dsp, wseq, reg_seq[i].reg,
-+					reg_seq[i].def, op_code, update);
-+		if (ret)
-+			return ret;
++		return -EINVAL;
 +	}
 +
 +	return 0;
 +}
-+EXPORT_SYMBOL_NS_GPL(cs_dsp_wseq_multi_write, FW_CS_DSP);
 +
- MODULE_DESCRIPTION("Cirrus Logic DSP Support");
- MODULE_AUTHOR("Simon Trimmer <simont@opensource.cirrus.com>");
- MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/firmware/cirrus/cs_dsp.h b/include/linux/firmware/cirrus/cs_dsp.h
-index 29cd11d5a3cf..4cef6fafa1d8 100644
---- a/include/linux/firmware/cirrus/cs_dsp.h
-+++ b/include/linux/firmware/cirrus/cs_dsp.h
-@@ -42,6 +42,16 @@
- #define CS_DSP_ACKED_CTL_MIN_VALUE           0
- #define CS_DSP_ACKED_CTL_MAX_VALUE           0xFFFFFF
- 
-+/*
-+ * Write sequence operation codes
-+ */
-+#define CS_DSP_WSEQ_FULL	0x00
-+#define CS_DSP_WSEQ_ADDR8	0x02
-+#define CS_DSP_WSEQ_L16		0x04
-+#define CS_DSP_WSEQ_H16		0x05
-+#define CS_DSP_WSEQ_UNLOCK	0xFD
-+#define CS_DSP_WSEQ_END		0xFF
-+
- /**
-  * struct cs_dsp_region - Describes a logical memory region in DSP address space
-  * @type:	Memory region type
-@@ -255,6 +265,23 @@ struct cs_dsp_alg_region *cs_dsp_find_alg_region(struct cs_dsp *dsp,
- 
- const char *cs_dsp_mem_region_name(unsigned int type);
- 
-+/**
-+ * struct cs_dsp_wseq - Describes a write sequence
-+ * @ctl:	Write sequence cs_dsp control
-+ * @ops:	Operations contained within
-+ */
-+struct cs_dsp_wseq {
-+	struct cs_dsp_coeff_ctl *ctl;
-+	struct list_head ops;
++static const struct snd_soc_dapm_widget cs40l50_dapm_widgets[] = {
++	SND_SOC_DAPM_SUPPLY_S("ASP PLL", 0, SND_SOC_NOPM, 0, 0, cs40l50_clk_en,
++			      SND_SOC_DAPM_POST_PMU | SND_SOC_DAPM_PRE_PMD),
++	SND_SOC_DAPM_AIF_IN("ASPRX1", NULL, 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_AIF_IN("ASPRX2", NULL, 0, SND_SOC_NOPM, 0, 0),
++	SND_SOC_DAPM_OUTPUT("OUT"),
 +};
 +
-+int cs_dsp_wseq_init(struct cs_dsp *dsp, struct cs_dsp_wseq *wseqs, unsigned int num_wseqs);
-+int cs_dsp_wseq_write(struct cs_dsp *dsp, struct cs_dsp_wseq *wseq, u32 addr, u32 data,
-+		      u8 op_code, bool update);
-+int cs_dsp_wseq_multi_write(struct cs_dsp *dsp, struct cs_dsp_wseq *wseq,
-+			    const struct reg_sequence *reg_seq, int num_regs,
-+			    u8 op_code, bool update);
++static const struct snd_soc_dapm_route cs40l50_dapm_routes[] = {
++	{ "ASP Playback", NULL, "ASP PLL" },
++	{ "ASPRX1", NULL, "ASP Playback" },
++	{ "ASPRX2", NULL, "ASP Playback" },
 +
- /**
-  * struct cs_dsp_chunk - Describes a buffer holding data formatted for the DSP
-  * @data:	Pointer to underlying buffer memory
++	{ "OUT", NULL, "ASPRX1" },
++	{ "OUT", NULL, "ASPRX2" },
++};
++
++static int cs40l50_set_dai_fmt(struct snd_soc_dai *codec_dai, unsigned int fmt)
++{
++	struct cs40l50_codec *codec = snd_soc_component_get_drvdata(codec_dai->component);
++
++	if ((fmt & SND_SOC_DAIFMT_MASTER_MASK) != SND_SOC_DAIFMT_CBC_CFC)
++		return -EINVAL;
++
++	switch (fmt & SND_SOC_DAIFMT_INV_MASK) {
++	case SND_SOC_DAIFMT_NB_NF:
++		codec->daifmt = 0;
++		break;
++	case SND_SOC_DAIFMT_NB_IF:
++		codec->daifmt = CS40L50_ASP_FSYNC_INV_MASK;
++		break;
++	case SND_SOC_DAIFMT_IB_NF:
++		codec->daifmt = CS40L50_ASP_BCLK_INV_MASK;
++		break;
++	case SND_SOC_DAIFMT_IB_IF:
++		codec->daifmt = CS40L50_ASP_FSYNC_INV_MASK | CS40L50_ASP_BCLK_INV_MASK;
++		break;
++	default:
++		dev_err(codec->dev, "Invalid clock invert\n");
++		return -EINVAL;
++	}
++
++	switch (fmt & SND_SOC_DAIFMT_FORMAT_MASK) {
++	case SND_SOC_DAIFMT_I2S:
++		codec->daifmt |= FIELD_PREP(CS40L50_ASP_FMT_MASK, CS40L50_ASP_FMT_I2S);
++		break;
++	default:
++		dev_err(codec->dev, "Unsupported DAI format\n");
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
++static int cs40l50_hw_params(struct snd_pcm_substream *substream,
++			     struct snd_pcm_hw_params *params,
++			     struct snd_soc_dai *dai)
++{
++	struct cs40l50_codec *codec = snd_soc_component_get_drvdata(dai->component);
++	unsigned int asp_rx_wl = params_width(params);
++	int ret;
++
++	codec->rate = params_rate(params);
++
++	ret = regmap_update_bits(codec->regmap, CS40L50_ASP_DATA_CONTROL5,
++				 CS40L50_ASP_RX_WL_MASK, asp_rx_wl);
++	if (ret)
++		return ret;
++
++	codec->daifmt |= (asp_rx_wl << CS40L50_ASP_RX_WIDTH_SHIFT);
++
++	return regmap_update_bits(codec->regmap, CS40L50_ASP_CONTROL2,
++				  CS40L50_ASP_FSYNC_INV_MASK |
++				  CS40L50_ASP_BCLK_INV_MASK |
++				  CS40L50_ASP_FMT_MASK |
++				  CS40L50_ASP_RX_WIDTH_MASK, codec->daifmt);
++}
++
++static int cs40l50_set_dai_bclk_ratio(struct snd_soc_dai *dai, unsigned int ratio)
++{
++	struct cs40l50_codec *codec = snd_soc_component_get_drvdata(dai->component);
++
++	codec->bclk_ratio = ratio;
++
++	return 0;
++}
++
++static const struct snd_soc_dai_ops cs40l50_dai_ops = {
++	.set_fmt = cs40l50_set_dai_fmt,
++	.set_bclk_ratio = cs40l50_set_dai_bclk_ratio,
++	.hw_params = cs40l50_hw_params,
++};
++
++static struct snd_soc_dai_driver cs40l50_dai[] = {
++	{
++		.name = "cs40l50-pcm",
++		.id = 0,
++		.playback = {
++			.stream_name = "ASP Playback",
++			.channels_min = 1,
++			.channels_max = 2,
++			.rates = SNDRV_PCM_RATE_48000,
++			.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE,
++		},
++		.ops = &cs40l50_dai_ops,
++	},
++};
++
++static int cs40l50_codec_probe(struct snd_soc_component *component)
++{
++	struct cs40l50_codec *codec = snd_soc_component_get_drvdata(component);
++
++	codec->bclk_ratio = CS40L50_BCLK_RATIO_DEFAULT;
++
++	return 0;
++}
++
++static const struct snd_soc_component_driver soc_codec_dev_cs40l50 = {
++	.probe = cs40l50_codec_probe,
++	.dapm_widgets = cs40l50_dapm_widgets,
++	.num_dapm_widgets = ARRAY_SIZE(cs40l50_dapm_widgets),
++	.dapm_routes = cs40l50_dapm_routes,
++	.num_dapm_routes = ARRAY_SIZE(cs40l50_dapm_routes),
++};
++
++static int cs40l50_codec_driver_probe(struct platform_device *pdev)
++{
++	struct cs40l50 *cs40l50 = dev_get_drvdata(pdev->dev.parent);
++	struct cs40l50_codec *codec;
++
++	codec = devm_kzalloc(&pdev->dev, sizeof(*codec), GFP_KERNEL);
++	if (!codec)
++		return -ENOMEM;
++
++	codec->regmap = cs40l50->regmap;
++	codec->dev = &pdev->dev;
++
++	return devm_snd_soc_register_component(&pdev->dev, &soc_codec_dev_cs40l50,
++					       cs40l50_dai, ARRAY_SIZE(cs40l50_dai));
++}
++
++static const struct platform_device_id cs40l50_id[] = {
++	{ "cs40l50-codec", },
++	{}
++};
++MODULE_DEVICE_TABLE(platform, cs40l50_id);
++
++static struct platform_driver cs40l50_codec_driver = {
++	.probe = cs40l50_codec_driver_probe,
++	.id_table = cs40l50_id,
++	.driver = {
++		.name = "cs40l50-codec",
++	},
++};
++module_platform_driver(cs40l50_codec_driver);
++
++MODULE_DESCRIPTION("ASoC CS40L50 driver");
++MODULE_AUTHOR("James Ogletree <james.ogletree@cirrus.com>");
++MODULE_LICENSE("GPL");
 -- 
 2.34.1
 

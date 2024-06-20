@@ -1,30 +1,28 @@
 Received: from mail.kaechele.ca (mail.kaechele.ca [54.39.219.105])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A38F01AE875;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A38A91AE0BC;
 	Thu, 20 Jun 2024 14:56:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.39.219.105
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718895381; cv=none; b=F/W262zXmmbd4A8vCZvMtOe0iMSkMY0x3RhOn+yLZtSzD3hewupa5tpxKVJLSWM8/w+qJwLt164FdJGndFvBUXJcHEsonvQFm16G8Kwa5GjlWb58DCc+Tzgf8lLEK0iNB8bSobukrLtoxK6fgyP9TuMS//dvy4Mxsu23yKkIqBA=
+	t=1718895381; cv=none; b=hePiB/KmoPC3zpjxMQoan16wvvGo2X19RIrHi3SRiqfuzcCPxzcI91lTTWDfFyyvzXPVvwbjl9SCV3nKExltERNZ1DlDqm1Me+WHXD7H/LfUM1N9trAYff4NjvkuEo9pwUERDIcuFD5yJhMAxZs08+bca1jeHkeU+JrUn5v9H24=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1718895381; c=relaxed/simple;
-	bh=v45ml3qrg1Vhx3Tb6RVFRxV1+YollR6UlAHlQpqsL5I=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=VCtnG1U76cVtpBBR5VlN7SC2c50tZHF1mqlcJEhFSnMaQJ8QY4LHqj1Br5ye6JVK5CGEVl1snHRvfYNgBhKIEdChYz/CjwRAcWyvO81fNIlszJBJjx6W5w0Vd4hdn5Uy51uPBtAPWucw5olMbUEIca6s+QAmkRhDFtPhoecPf2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=BtUFbhxp; arc=none smtp.client-ip=54.39.219.105
+	bh=BpEV79eo6xk9KXuJ3PMnb12OvINVybVtAnOBSCvI/6k=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=AutrwL3pSY2eNlhZvCA1jZeFhDtFH0eDKlIEPAzgKiZuK2RLIvqbtKOQGAlfbvvqsO3RuVFFEuh+dAvCk2FqQlUWa170SHKHO2sPJ4+yxlMBp/I7kqMTHbM7B3sYIq8L5otqhGPg5W54HHPAiaKBYLdz2JmsEGos2ypAC6WGUMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=hsIagqz6; arc=none smtp.client-ip=54.39.219.105
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kaechele.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="BtUFbhxp"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 63C7EC006E;
-	Thu, 20 Jun 2024 10:52:10 -0400 (EDT)
+	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="hsIagqz6"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 557CCC005F;
+	Thu, 20 Jun 2024 10:52:03 -0400 (EDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kaechele.ca; s=201907;
-	t=1718895130; h=from:subject:date:message-id:to:mime-version:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=DaqAvMZQgJwWZoTHGQT47OiyxpPitTDwP3ZrPha3UNk=;
-	b=BtUFbhxpaCWPb4Ct9QGF6XsihiCnilgfYEv2gKN/QXC2i0wo6GK0atNhyMGPLEyTNtQZPC
-	pomHvqwRC6TJD1de/jnP5sR4oyxXFTPH2hzotS3ialvEKyYZQsslR8jzul2ozjuZ5kYrkJ
-	Yac1Dzqgr15GC98ZqdjW+oqIhAJXDgg=
+	t=1718895125; h=from:subject:date:message-id:to:mime-version:
+	 content-transfer-encoding; bh=RbUp2ReLkv8gW9t5ybofz1VtOsfVeEDuSj6SOVF6e7k=;
+	b=hsIagqz6wRdxIBZkmLSqDdevXOJCGY+pn9TkzPGYp6Z00UL2BE3hUWM4kko/9FW2cGLodo
+	KTz7sqql7hziNSqgXf/ib+/TfuWDz5+Js/ltgrwATIue8svQBDtOhRMdsfSsbMgZtEp2XX
+	n0BwPl2PuwKmSX6ncfyaWT27akPtEFw=
 From: Felix Kaechele <felix@kaechele.ca>
 To: Job Noorman <job@noorman.info>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -34,12 +32,10 @@ To: Job Noorman <job@noorman.info>,
 	linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 2/5] input: himax_hx83112b: use more descriptive register defines
-Date: Thu, 20 Jun 2024 10:50:03 -0400
-Message-ID: <20240620145019.156187-3-felix@kaechele.ca>
+Subject: [PATCH v3 0/5] himax_hx83112b: add support for HX83100A
+Date: Thu, 20 Jun 2024 10:50:01 -0400
+Message-ID: <20240620145019.156187-1-felix@kaechele.ca>
 X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20240620145019.156187-1-felix@kaechele.ca>
-References: <20240620145019.156187-1-felix@kaechele.ca>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -49,80 +45,33 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-Himax uses an AHB-style bus to communicate with different parts of the
-display driver and touch controller system.
-Use more descriptive names for the register and address defines.
-The names were taken from a driver submission for the similar HX83102J
-chip.
+Original discussion around v2 here: https://lore.kernel.org/all/20240511121245.109644-1-felix@kaechele.ca/
 
-Signed-off-by: Felix Kaechele <felix@kaechele.ca>
-Link: https://lore.kernel.org/all/TY0PR06MB561105A3386E9D76F429110D9E0F2@TY0PR06MB5611.apcprd06.prod.outlook.com/
----
- drivers/input/touchscreen/himax_hx83112b.c | 23 ++++++++++++----------
- 1 file changed, 13 insertions(+), 10 deletions(-)
+Changes from v2:
+- reworded dt-bindings commit message to specifiy how the HX83100A is different
+  from other chips in this series to justify having its own compatible string
+- added Acked-By from Conor that was given in the v2 thread to commit message
 
-diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
-index bafabd06dabc..d6c4a68eac23 100644
---- a/drivers/input/touchscreen/himax_hx83112b.c
-+++ b/drivers/input/touchscreen/himax_hx83112b.c
-@@ -24,12 +24,14 @@
- 
- #define HIMAX_MAX_POINTS		10
- 
--#define HIMAX_REG_CFG_SET_ADDR		0x00
--#define HIMAX_REG_CFG_INIT_READ		0x0c
--#define HIMAX_REG_CFG_READ_VALUE	0x08
--#define HIMAX_REG_READ_EVENT		0x30
-+#define HIMAX_AHB_ADDR_BYTE_0			0x00
-+#define HIMAX_AHB_ADDR_RDATA_BYTE_0		0x08
-+#define HIMAX_AHB_ADDR_ACCESS_DIRECTION		0x0c
-+#define HIMAX_AHB_ADDR_EVENT_STACK		0x30
- 
--#define HIMAX_CFG_PRODUCT_ID		0x900000d0
-+#define HIMAX_AHB_CMD_ACCESS_DIRECTION_READ	0x00
-+
-+#define HIMAX_REG_ADDR_ICID			0x900000d0
- 
- #define HIMAX_INVALID_COORD		0xffff
- 
-@@ -67,15 +69,16 @@ static int himax_read_config(struct himax_ts_data *ts, u32 address, u32 *dst)
- {
- 	int error;
- 
--	error = regmap_write(ts->regmap, HIMAX_REG_CFG_SET_ADDR, address);
-+	error = regmap_write(ts->regmap, HIMAX_AHB_ADDR_BYTE_0, address);
- 	if (error)
- 		return error;
- 
--	error = regmap_write(ts->regmap, HIMAX_REG_CFG_INIT_READ, 0x0);
-+	error = regmap_write(ts->regmap, HIMAX_AHB_ADDR_ACCESS_DIRECTION,
-+			     HIMAX_AHB_CMD_ACCESS_DIRECTION_READ);
- 	if (error)
- 		return error;
- 
--	error = regmap_read(ts->regmap, HIMAX_REG_CFG_READ_VALUE, dst);
-+	error = regmap_read(ts->regmap, HIMAX_AHB_ADDR_RDATA_BYTE_0, dst);
- 	if (error)
- 		return error;
- 
-@@ -101,7 +104,7 @@ static int himax_read_product_id(struct himax_ts_data *ts, u32 *product_id)
- {
- 	int error;
- 
--	error = himax_read_config(ts, HIMAX_CFG_PRODUCT_ID, product_id);
-+	error = himax_read_config(ts, HIMAX_REG_ADDR_ICID, product_id);
- 	if (error)
- 		return error;
- 
-@@ -235,7 +238,7 @@ static int himax_handle_input(struct himax_ts_data *ts)
- 	int error;
- 	struct himax_event event;
- 
--	error = regmap_raw_read(ts->regmap, HIMAX_REG_READ_EVENT, &event,
-+	error = regmap_raw_read(ts->regmap, HIMAX_AHB_ADDR_EVENT_STACK, &event,
- 				sizeof(event));
- 	if (error) {
- 		dev_err(&ts->client->dev, "Failed to read input event: %d\n",
+I've done some more testing in the meantime and haven't found any issues.
+I haven't heard back from anyone with an HX83112B, but the HX83100A works as
+intended with these changes and I assume the HX83112B will too.
+
+Thanks,
+Felix
+
+Felix Kaechele (5):
+  dt-bindings: input: touchscreen: himax,hx83112b: add HX83100A
+  input: himax_hx83112b: use more descriptive register defines
+  input: himax_hx83112b: implement MCU register reading
+  input: himax_hx83112b: add himax_chip struct for multi-chip support
+  input: himax_hx83112b: add support for HX83100A
+
+ .../input/touchscreen/himax,hx83112b.yaml     |   1 +
+ drivers/input/touchscreen/himax_hx83112b.c    | 135 ++++++++++++++----
+ 2 files changed, 110 insertions(+), 26 deletions(-)
+
+
+base-commit: 9b9247397e2e20016031e59f76dae563b79b6ee2
 -- 
 2.45.2
 

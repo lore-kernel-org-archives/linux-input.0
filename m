@@ -1,30 +1,30 @@
 Received: from mail.kaechele.ca (mail.kaechele.ca [54.39.219.105])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1FFD1AE08E;
-	Thu, 20 Jun 2024 14:50:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A38521AE083;
+	Thu, 20 Jun 2024 14:56:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.39.219.105
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718895036; cv=none; b=OKtuNqa/R8ht6WHzQ9K3RPtI+Xcoh85sxqJWgfVYkb3g9eL9uVCo8tFvSf3KDtYo3VWPB2xU2vPDGcTSrkZw/uCtg2XgGL8AVeOf+45zD3hBx1rLH/cBNDXjz69Q5OhelwV+YeJ4wkiqWE3atwOxlvfoQSRRj4TTCZxsax7Q9wE=
+	t=1718895381; cv=none; b=kPEmkFnQ19JZSoZBtNmkjl8MOvndOydNYvD2Tom901Ss+p69lnlNyjVrlU0FpifTt11AhkUMidV4I5X67n6zV4madDZuLX+xfV9J7gd5EmcgOGUlv9wkCtyKxO3GQbRAdtyvhIjbHjRQ0XEHlhpBzhF7Rj2QEjt65rEFApbVWHI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718895036; c=relaxed/simple;
-	bh=2DzxvjV6MvKhNUdCZmu80xYkWaZG1Zm5C2Gtma+Iq1A=;
+	s=arc-20240116; t=1718895381; c=relaxed/simple;
+	bh=HELkkarDKoiIzgewN1eHfJl5FJ8bH/Y/B9z+tSNdslE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=r1z7vxm16aWWsCoMmwL3+GFjfamk6HJIFdeb0dHs7LqRyq32dJhs2k89mkgRaihwAjfJWf2rVRBb9F39yje0ofFdO5r2zz4EKhDBLYDXt8WW+eCb2aP7jxmIYk5qT7H8L8MX7da6+uUV8K+tX8ImJWBjPshw7xR0wqOXkU/9U1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=E9rXJphZ; arc=none smtp.client-ip=54.39.219.105
+	 MIME-Version; b=Jg6OhHWZ1Cwblab9Gmy1ihCoO4RnMHW6zin9oldHeShkJwwdrkLRceBYIQDVYYyQy9LEPxX9em3KRpeAWfsJ8NKBvXLTlMCvT68p1IghOEH3CQrRK/B9Jb8qGErix5Z7Tqt5UGtxuNn7eFMn15h2jTk78Pc1pCO1gNAZPMpanyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca; spf=pass smtp.mailfrom=kaechele.ca; dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b=VQDuihoO; arc=none smtp.client-ip=54.39.219.105
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kaechele.ca
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kaechele.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="E9rXJphZ"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 60CFDC0072;
-	Thu, 20 Jun 2024 10:52:13 -0400 (EDT)
+	dkim=pass (1024-bit key) header.d=kaechele.ca header.i=@kaechele.ca header.b="VQDuihoO"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C2DE7C006A;
+	Thu, 20 Jun 2024 10:52:05 -0400 (EDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kaechele.ca; s=201907;
-	t=1718895134; h=from:subject:date:message-id:to:cc:mime-version:
+	t=1718895127; h=from:subject:date:message-id:to:cc:mime-version:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=K6yI03A8YX5AxufGKnNrR+pc9BLu4Q5cOZcnXlwV5G4=;
-	b=E9rXJphZGhN4S6CmjEvA6PdMbMcrSpFkJaoiDBfr68ID8nM6Iw15+dWQv/AXLUg7MsF156
-	E660eXuJftvqEpcp8WtJEY/1XwKXT0IWDxPDIu6HMxcFgUMmoCjV0UsntS1ae7fHIEStOn
-	jZR584DHqM0+FnSHDq53ilscClvaWLE=
+	bh=ssK0mY4ZibiWPcJi3x1KxbtlmlbaryPSbpR5dRa8d/M=;
+	b=VQDuihoOg2ciDxtC0nsjQITZvqJ8bEpAXylhKMfIAxQWTSKlT/jaZgLNbQU5tFmcq9nUta
+	cH9BhFJ0VOtmlz9war3roacU/lv3Ko4e6UWn6xtzCKS41EDjeoe9Z06oYXfRkIiWJVvFmN
+	7vI1p/bQHBsj8/O141y2Msck+OvNlJ0=
 From: Felix Kaechele <felix@kaechele.ca>
 To: Job Noorman <job@noorman.info>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
@@ -34,10 +34,10 @@ To: Job Noorman <job@noorman.info>,
 	linux-input@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Cc: Paul Gale <paul@siliconpixel.com>
-Subject: [PATCH v3 5/5] input: himax_hx83112b: add support for HX83100A
-Date: Thu, 20 Jun 2024 10:50:06 -0400
-Message-ID: <20240620145019.156187-6-felix@kaechele.ca>
+Cc: Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v3 1/5] dt-bindings: input: touchscreen: himax,hx83112b: add HX83100A
+Date: Thu, 20 Jun 2024 10:50:02 -0400
+Message-ID: <20240620145019.156187-2-felix@kaechele.ca>
 X-Mailer: git-send-email 2.45.2
 In-Reply-To: <20240620145019.156187-1-felix@kaechele.ca>
 References: <20240620145019.156187-1-felix@kaechele.ca>
@@ -50,87 +50,30 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-The HX83100A is a bit of an outlier in the Himax HX831xxx series of
-touch controllers as it requires reading touch events through the AHB
-interface of the MCU rather than providing a dedicated FIFO address like
-the other chips do.
-This patch implements the specific read function and introduces the
-HX83100A chip with an appropriate i2c ID and DT compatible string.
+Add a compatible string for the Himax HX83100A touch controller.
 
-The HX83100A doesn't have a straightforward way to do chip
-identification, which is why it is not implemented in this patch.
-
-Tested on: Lenovo ThinkSmart View (CD-18781Y) / Innolux P080DDD-AB2 LCM
+The HX83100A presents touch events on the internal bus rather than
+offering a dedicated event register like the other chips in this family
+do.
 
 Signed-off-by: Felix Kaechele <felix@kaechele.ca>
-Tested-by: Paul Gale <paul@siliconpixel.com>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
 ---
- drivers/input/touchscreen/himax_hx83112b.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ .../devicetree/bindings/input/touchscreen/himax,hx83112b.yaml    | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/himax_hx83112b.c b/drivers/input/touchscreen/himax_hx83112b.c
-index 5092a357c332..9ed3bccde4ac 100644
---- a/drivers/input/touchscreen/himax_hx83112b.c
-+++ b/drivers/input/touchscreen/himax_hx83112b.c
-@@ -4,6 +4,9 @@
-  *
-  * Copyright (C) 2022 Job Noorman <job@noorman.info>
-  *
-+ * HX83100A support
-+ * Copyright (C) 2024 Felix Kaechele <felix@kaechele.ca>
-+ *
-  * This code is based on "Himax Android Driver Sample Code for QCT platform":
-  *
-  * Copyright (C) 2017 Himax Corporation.
-@@ -35,6 +38,8 @@
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml b/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
+index f42b23d532eb..f5cfacb5e966 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/himax,hx83112b.yaml
+@@ -15,6 +15,7 @@ allOf:
+ properties:
+   compatible:
+     enum:
++      - himax,hx83100a
+       - himax,hx83112b
  
- #define HIMAX_REG_ADDR_ICID			0x900000d0
- 
-+#define HX83100A_REG_FW_EVENT_STACK		0x90060000
-+
- #define HIMAX_INVALID_COORD		0xffff
- 
- struct himax_event_point {
-@@ -288,6 +293,12 @@ static int himax_read_events(struct himax_ts_data *ts,
- 			       length);
- }
- 
-+static int hx83100a_read_events(struct himax_ts_data *ts,
-+				struct himax_event *event, size_t length)
-+{
-+	return himax_bus_read(ts, HX83100A_REG_FW_EVENT_STACK, event, length);
-+};
-+
- static int himax_handle_input(struct himax_ts_data *ts)
- {
- 	int error;
-@@ -394,6 +405,10 @@ static int himax_resume(struct device *dev)
- 
- static DEFINE_SIMPLE_DEV_PM_OPS(himax_pm_ops, himax_suspend, himax_resume);
- 
-+static const struct himax_chip hx83100a_chip = {
-+	.read_events = hx83100a_read_events,
-+};
-+
- static const struct himax_chip hx83112b_chip = {
- 	.id = 0x83112b,
- 	.check_id = himax_check_product_id,
-@@ -401,6 +416,7 @@ static const struct himax_chip hx83112b_chip = {
- };
- 
- static const struct i2c_device_id himax_ts_id[] = {
-+	{ "hx83100a", (kernel_ulong_t)&hx83100a_chip },
- 	{ "hx83112b", (kernel_ulong_t)&hx83112b_chip },
- 	{ /* sentinel */ }
- };
-@@ -408,6 +424,7 @@ MODULE_DEVICE_TABLE(i2c, himax_ts_id);
- 
- #ifdef CONFIG_OF
- static const struct of_device_id himax_of_match[] = {
-+	{ .compatible = "himax,hx83100a", .data = &hx83100a_chip },
- 	{ .compatible = "himax,hx83112b", .data = &hx83112b_chip },
- 	{ /* sentinel */ }
- };
+   reg:
 -- 
 2.45.2
 

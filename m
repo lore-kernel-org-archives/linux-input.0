@@ -1,53 +1,54 @@
-Received: from EUR05-DB8-obe.outbound.protection.outlook.com (mail-db8eur05on2136.outbound.protection.outlook.com [40.107.20.136])
+Received: from EUR03-DBA-obe.outbound.protection.outlook.com (mail-dbaeur03on2134.outbound.protection.outlook.com [40.107.104.134])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1DB116630E;
-	Wed, 26 Jun 2024 09:56:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.20.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 801D116F0D1;
+	Wed, 26 Jun 2024 09:56:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.104.134
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719395788; cv=fail; b=Our/tYqatWSXv9K9Z9wNac3r31nxjJXHrk/orllpExn9bmqsTJajEFYM66o7iyHlMxVz2ebtQrPvfNVOK+xvqenTD9QKJGIx/v1WFcG7Ax9JWmOg/izoJePQwsxjLYaCI7wZLjKr0LWfNCeZUdilJwTmGaxQ/NIBbXKtMgOiv1g=
+	t=1719395789; cv=fail; b=G1be8I3gD1SHYKhJWUL2lRph+w6MJULPb/wU1jONrk9QCtrjUYz+1BFmefsCXY6CTQ0x8keoKj9IaW6oLRCSnxvQ0G2gHCXoJhvrbUVisKscIUrr0C3rJNj5M5w6IBfrjUlnpMti7IlwgZ/CugUdPNSsp+EvYHx7QT6stmed2rk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719395788; c=relaxed/simple;
-	bh=vsFZ9q+ydDIxRWmbs1NXOo9kzGcFogQc7xsPDOQ5BJY=;
+	s=arc-20240116; t=1719395789; c=relaxed/simple;
+	bh=We4djLZrQmwTewoy3TXvLCuEcuRF2BZn64gf0yEafpU=;
 	h=From:Date:Subject:Content-Type:Message-Id:References:In-Reply-To:
-	 To:Cc:MIME-Version; b=Ltj0y9ya7MUzUX+FkDu0stT3DSnADCSvVrtujD6HmKzkLnAGmvQ4C8l4PSgQuuCjk20Jk9cQ0iMc0L6aFYhtqQ4ZkUNXe/Y/UyP8zgaY4x+D9TWOYjlhUUNNkSABq9vmunwDL7o/SDhOkb9MFZ9pgIEXZULWrmLpsQ3Xm+mtvQY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wolfvision.net; spf=pass smtp.mailfrom=wolfvision.net; dkim=pass (1024-bit key) header.d=wolfvision.net header.i=@wolfvision.net header.b=TAK4nxUH; arc=fail smtp.client-ip=40.107.20.136
+	 To:Cc:MIME-Version; b=b2b9TFFpQq8jxF/XoIkRuOkMadgttaOOBaxbVxkk44tlZzgYIv53du4AjziaNY/BI/D/E1WREINszmESdg+KCYRn3eF5hM22w/N0l0VXh+v08p3d0peeCj/0OAfSkZTEWR/sHiJ/uInnUvqHZ1hIxjzCZ5XleHgV87NiDi9meJg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wolfvision.net; spf=pass smtp.mailfrom=wolfvision.net; dkim=pass (1024-bit key) header.d=wolfvision.net header.i=@wolfvision.net header.b=UiCYjQIc; arc=fail smtp.client-ip=40.107.104.134
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wolfvision.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wolfvision.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=wolfvision.net header.i=@wolfvision.net header.b="TAK4nxUH"
+	dkim=pass (1024-bit key) header.d=wolfvision.net header.i=@wolfvision.net header.b="UiCYjQIc"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=B+kP21oWfuAWUYP5wewlED4lbnGbqZor2PXRk28oAAVtCI5tBv82XHFxfepLT8HRHldyuZCSG+xcWMbsael0w01Q9UUIVmI0J1xW/0NPd1/0NQMaZaMRIxzzHf6CnGB6wHYkvhff+rR85CPDgPovsbxYxh92+O6tmFNHdtOnwbi8Zb6iJgq/TyueKE0qWCeSNHn2Y05t9I0dcHEayrzABuhJTOGHsRV7Zz0lapS71DWqGlkPhWXw8n0TmZZ1QVNtd9bMNeOS8TCOEytUNBDA9mQYZ186ZT+Lq0TBhdJ/r6yykggl6JX8/pO94wdFqM8JxNO9a9RKxPNa9Sc4o6sdLA==
+ b=eCi1vMbb1booEQ5+ovz0I1f0yzfOLOU1RRSwuc1iA8zAEhpwcAsnmw6H88lymkzowhriWAbhBuWW90Z97o3dQCzS20b2nRRqXwrtXsFXH0UTBGeN7GZ2U0/D4VY5bKk0Yrkg0prsCdWJoWqo7DzZ/qKCYE76LUddSQs+lX1o5uO2pVcL5mxd8UdZoy5SCKV3db/umOnEoxZQ84RYVcILt/zuS2feDZ08d1HXos22nB4nAciFFbXnkqkG1ZLmITjvT1WiEzCB3OWRlyw24UkGTowq3h8RySkcuXSbGjjQ2SuHi01n1673DxJlGs6dNdveQA/xzsgCPPDEWi06evRgmA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=16dHfUkG6vspy9E+xLRgyQx+eEGZf+k0YLqnYjZmSGE=;
- b=PBW9+kxuYtONRWYyx8gCLuWZoskORxQSfZBatC0XjSkQPgcF5dutc5OxPyvMZzD2vR7vWMkuMh/NhFiuKHeX2h3H3nDpDMDyr8W9Yn3KGEiWziib2vXhNxPGrnFL1iSumH92sPEIWV3HURj3OxUwtzEYoV42KK1ociuswsCo1Q6pK43OyHXFeGPl/kYGsUqbWhK0vYMv45ZrdDLQ3T+Lsgy9V5i1wCjo1mbKcrJo3/I/4bsiRKA30POUn+t+3zw7ljMBE118vtD00DCObekyl2bmEjb7t6UtMre78xV4cxClylqE07Vn5k8CIAXwqz8apw8rFDQ6xnXWX38MUhX1hQ==
+ bh=lRUe7KDkC01XwoHUft0RG9xZV2wyedfrobtHpSyaX+g=;
+ b=FBeMhlwBUBqcwB8kFqb675DwjdqoqL5RGoP92ljtj91MzpRNLuhbbgq8dCp8990E5v/JzGYTdl7aOapBO2i308yPP0uv0a3bQ7RmWVY6uw/Yy4QRpV21pu9XduKYvfmSO+/vRVIu2yKG0Dh6xnDtWsml0NcP49piemrmQnxaEPDbai4+DaeD8RRPmKV+F+v9QZoLQxfCoiDpO730hg8fjE4yO64IgudbEC5HtGS6xaTMPBvNJMDzunhZXMh78Zalo8acCos6o5AtmAg/5SDkGD+/AjtLJI4gEM4MP0D2dnT1Te+ZQy9r6tQzzY003FzgD/oLEcxbJKw6OGjP9SFJ8g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=wolfvision.net; dmarc=pass action=none
  header.from=wolfvision.net; dkim=pass header.d=wolfvision.net; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wolfvision.net;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=16dHfUkG6vspy9E+xLRgyQx+eEGZf+k0YLqnYjZmSGE=;
- b=TAK4nxUHW8eP38+gd8WajBFs1S0FbGO8SowooB7s3pJw+GkgLM+ZVTfRiDiriJ59cGBijWayXuVFu8OwSE0yEEMvOWTLCEC0MvpFd++DjXUMXgw9BgacBe5u3sJZZg4A3kIkHxA6MCwZkgE5rimSM4grkIbFllPeR5g2z6Dp+4s=
+ bh=lRUe7KDkC01XwoHUft0RG9xZV2wyedfrobtHpSyaX+g=;
+ b=UiCYjQIc9WzBNVC78GkJQ1CUJR3kFZYFiI14+ZrLXqk3Kht1J2Kh0qE1Hgz9QD7tlsblVkRIheq3LTvm+Ez/Dm57PB5Ay5xAb8YmuYzwIgzgBKtRIBIjsPUhCNFr6M+gtSMJRuptABTrled2LeLdgJKkZumPXFGunZ56xmrDttE=
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=wolfvision.net;
 Received: from VE1PR08MB4974.eurprd08.prod.outlook.com (2603:10a6:803:111::15)
- by AS8PR08MB5893.eurprd08.prod.outlook.com (2603:10a6:20b:23e::18) with
+ by GV2PR08MB8679.eurprd08.prod.outlook.com (2603:10a6:150:b3::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7698.32; Wed, 26 Jun
- 2024 09:56:22 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7698.30; Wed, 26 Jun
+ 2024 09:56:20 +0000
 Received: from VE1PR08MB4974.eurprd08.prod.outlook.com
  ([fe80::a08:11be:8709:f5e1]) by VE1PR08MB4974.eurprd08.prod.outlook.com
  ([fe80::a08:11be:8709:f5e1%4]) with mapi id 15.20.7698.025; Wed, 26 Jun 2024
- 09:56:22 +0000
+ 09:56:20 +0000
 From: Javier Carrasco <javier.carrasco@wolfvision.net>
-Date: Wed, 26 Jun 2024 11:56:16 +0200
-Subject: [PATCH v10 4/4] Input: st1232 - add touch overlays handling
+Date: Wed, 26 Jun 2024 11:56:13 +0200
+Subject: [PATCH v10 1/4] dt-bindings: touchscreen: add touch-overlay
+ property
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20240626-feature-ts_virtobj_patch-v10-4-873ad79bb2c9@wolfvision.net>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20240626-feature-ts_virtobj_patch-v10-1-873ad79bb2c9@wolfvision.net>
 References: <20240626-feature-ts_virtobj_patch-v10-0-873ad79bb2c9@wolfvision.net>
 In-Reply-To: <20240626-feature-ts_virtobj_patch-v10-0-873ad79bb2c9@wolfvision.net>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
@@ -60,11 +61,11 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  Javier Carrasco <javier.carrasco@wolfvision.net>, 
  Jeff LaBundy <jeff@labundy.com>
 X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1719395779; l=3367;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1719395779; l=7148;
  i=javier.carrasco@wolfvision.net; s=20240617; h=from:subject:message-id;
- bh=vsFZ9q+ydDIxRWmbs1NXOo9kzGcFogQc7xsPDOQ5BJY=;
- b=55Ks+AEa+N68j45g05Yo/HraT+5FsMOqFEGQ1g5gLaV19GDbogCTq5FrHnjlb51TjQv0g1rS/
- 4kRtBurCQ9fD613yTeuHd6L14cGDh13i4pP/MYNGXmPrqiZOt6e1b0g
+ bh=We4djLZrQmwTewoy3TXvLCuEcuRF2BZn64gf0yEafpU=;
+ b=YlK4JaFidAVMRn33kw1XiwovX2umUaWolUAhUf5+jWXp1ufEs4jEbzu5fz9EoCQAQOa3fabxz
+ 4NqfySMMCDxDjKgtwxROK1H5apOPE6b4GAotRXyhlnboxGs1HI7BdAE
 X-Developer-Key: i=javier.carrasco@wolfvision.net; a=ed25519;
  pk=hfASRUP6l4lf3Lo2mjLM085/h37dT3m0Qj1HejXDPDc=
 X-ClientProxiedBy: VI1PR09CA0118.eurprd09.prod.outlook.com
@@ -77,195 +78,245 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VE1PR08MB4974:EE_|AS8PR08MB5893:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8c37b82f-737d-4640-adbc-08dc95c63b23
+X-MS-TrafficTypeDiagnostic: VE1PR08MB4974:EE_|GV2PR08MB8679:EE_
+X-MS-Office365-Filtering-Correlation-Id: a988b97e-b829-4cf2-ebb5-08dc95c63a86
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230038|366014|1800799022|376012|52116012|38350700012;
+	BCL:0;ARA:13230038|366014|52116012|376012|1800799022|38350700012;
 X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?WXlCWG9MWjNwdVNyM2x4Z1NLVHRFd3RaeG1xU0VRSUFpN0RnQ0JYazExcDAz?=
- =?utf-8?B?bDN1N0p6aHZ2RWtQbnhwWmt6RHgzNStDSU5zQ0o1WFQ2dnBEZnFBTG4weXhE?=
- =?utf-8?B?SmQvUDlMY2FCRzhuU2ZtMUhKZDRoQWxmUTJOUGl2RnV3ZXMzck12MVFsNnBm?=
- =?utf-8?B?YmVIMDV2TDBYdVNYZkMzSHJ6aWdpWExveWh4NVpRZnIxTGhMd3JjTlVaMmli?=
- =?utf-8?B?bzF5UUhQbS85bGVEVWVibFB1K0hYQUZOV1U3Mkh0aWNMcVY2WnN1RitiaU1a?=
- =?utf-8?B?NlV6VXVsenZzbDViWHgvS3VmVTEyclRQWjUzQW9NbEUrL254UklTK3VGT1hv?=
- =?utf-8?B?emh2NE1tN01WNDBqLzlhQWJQL0dFSkJaTVJ6Z1A0cmcxMmxKdzcxS0RDNUxE?=
- =?utf-8?B?eGxDR1ROYjgrSVRkcUk2ZHJqbDBIV2VlendmMktEdDJ4L3F6TEtKNjM1Skdi?=
- =?utf-8?B?KzZKZTVCSlhwN2xjV1RJNUU5WHdJcGtZVjljeE1MRHBiaGx2enFGTjExWk9N?=
- =?utf-8?B?dlFvVTlPbnIwaVNpSERTdVJyaU4wL1l2MHlseHRXSHFTKytlWllKWVRvWEMr?=
- =?utf-8?B?b0pxQzY0aE9KRkNrSVI5MXZtd1ExbFRrcXVZRG8xN09INGdFTGk5YXFGWEx2?=
- =?utf-8?B?YXhCSU1vc0FHL3dYQnZKSmwreVBEbGpoYjVuVlJDQmVZcUJNdGFJZjFFbXI5?=
- =?utf-8?B?RmdJckdNU01ENERBNHFWYmpwTGE4NmpLTFR0aDhvZklhQWpDbVJaamhuQlll?=
- =?utf-8?B?ZnVlY3NsckJjOW1qZFgyek85enBsdzdkbDhlQnE4YWluY1pLL1BLbThoMFhm?=
- =?utf-8?B?Qmg1MG5Pb0NjV0pibnJKTXFMOWxmQlNvc0QvTEFaUUJ0L0Z1b3ROR0pBZ3hM?=
- =?utf-8?B?aFFOV3pyU2FWblUyclZRMVpuZjdEVDM1aXpxOFVJMWFSTk5uVlluKytDMlhl?=
- =?utf-8?B?VEdYSkdiYTNoSFhMcjVjUGZIdSszMk9NSU1DbHVpSWQ5V0xoQUVxREZTMHR6?=
- =?utf-8?B?K0ZqUFFLODgxR2ZtWklhYXFZRzhNa251a1lmWXFyb0diUFN4YjZCcGFtZytB?=
- =?utf-8?B?UHhscXplNklQTDlBRnFxMG9zb1hrdGROdVQ2cE0vRHBnVmkwNDNJdW5vazFv?=
- =?utf-8?B?Mk5hQ3orZTJiUEh3TE51SnVwMXpZMWNvTWVVSnRIVXhxVjlpQjNwVHFDekgx?=
- =?utf-8?B?dkFZRWZrV1RZUmVJY1NlaDQ1OEJYOWRYaFVVNWkxWFdOeVBLaGFiMHVXeHJa?=
- =?utf-8?B?RENyQXAwaENSMC9mdVFUamRsUTVvQStjZHVOS0o3WVV4M2ZQT1BpWGxyZkls?=
- =?utf-8?B?NHdoQ2JzZkgvVU9nbTF0RExsNW0yYWc1TUhTZnJ4Y3NuUzFtWHlJM3BCM1VF?=
- =?utf-8?B?YmJKMXUxSE5KTkNsL1oxaXZDdXA5d2hTVWxLWW1UTHVpTHFpRGk0TmJMSXla?=
- =?utf-8?B?MVl2MnMzcXNFK2FVQmpPR2RmRlRxWDNnaXhKTnJyNnJzZURDVHVDR2tvRTVm?=
- =?utf-8?B?ZDZQT09SVXNTNk9LTVFHUlArS3VOQXhhSWRFZk55TWJUczdaWURtaWlrd2Y4?=
- =?utf-8?B?OFF2THhIQWFZKy9yV3kvd2UreURVVnpURjJkc3RzWUJkajYwZzVvMjRkKzJP?=
- =?utf-8?B?NDE4ankydHV4VFZSL2FYR1Rpdm5GNDZOVUhZSzd2VS9lbHk3bnZ4Wno1QXEv?=
- =?utf-8?B?ZVB3UzZWMENoTWVvekFVT0I0WWUyQnp4cUhVTzB4M1RsbEJML1NBT1BpWnlt?=
- =?utf-8?B?R0hobXBibW9tMDBBamxCWVFna1NHYjZBUFlRbmhSYnNiVk5zVkFpY1UrdERY?=
- =?utf-8?Q?kU8oP5QWvPMBeTNfEBCQZOMiRYK9ga2xxRkps=3D?=
+	=?utf-8?B?U2FDd21rUFFESkM4QzZsR2ZoSkZnNlF2K2hrdTNXWFZ1VjQ1RWdKRHBWYzdw?=
+ =?utf-8?B?MzI4S1N6TGttdmNiV0FObzhpTHlBaU9pR0hnTkNSekxLcTFFMjIzNnhNaTVT?=
+ =?utf-8?B?UzF0Ri9PbW9YOW9XbVlCd2lRdndWaXdsM3Y3U3A2aWxTbWpMcjV2ZTFZY0dG?=
+ =?utf-8?B?cXc4bFBJMitPZUdxTE1FS3Q2WlFGenpVcWRJVUk1QlRKUHFhaTM4aHBDUEVv?=
+ =?utf-8?B?TGI2VVhMais3ME42UGJTM3F4R0IycjJyZTRqYnpUbURsN3JJMmJwaUQ5OUdC?=
+ =?utf-8?B?c0lPcUxpakN6NjVteXJvTE1qVEhPQmNkL3pJamxyMk9oWm5MVVRnUk5rS3gz?=
+ =?utf-8?B?ZXB5V0NHY0JoUTlickE5TkZFWlNsMm1RQUQwZDFzRTg5T0cwTUduZHFUemo1?=
+ =?utf-8?B?dmF5M0NqcnEwbS9PSXUzVWNCamg3WFpFNXMwQnJZNHhKaE15dE5DU08vbWRy?=
+ =?utf-8?B?QkZNTkJrRDRJanVIWVZVUDFZMm1SSUtJUnZuUzRKbURJWHhqbkJzQzNxSUZl?=
+ =?utf-8?B?bHc4WTEyUXdhSFdZM0dlVUZLRWxSczBBZVlVdFBrNGRvMUQ1NTQxMHk0MmRu?=
+ =?utf-8?B?NktsaklleWFQckF0MDMvd2tIbmxZZk9MM1c1K243NHdEVFQ0ci95UFRadU1T?=
+ =?utf-8?B?Y09jRlRBdUdKMG42NUJtSW5UOHp5MGk0N2k2bWNqdXJnMnUvc2NHQzQ2ZmhH?=
+ =?utf-8?B?bFdUdjRPYU1qQlRvVkQyUEZVVWdCWnAyZEJnRTFmKzExSmpjbHAwOEJNc3Vk?=
+ =?utf-8?B?MlpJaExKYlVjMDAvRW93OVlRZlRFajRBRDZ0bmRXWXBDQWtJM0NFOGNwUWtB?=
+ =?utf-8?B?UmZQUVQ2alZaZ0ZsUVFJZkxLQmdoNE0vQTBnR205eDRIRWkzcTB0eXZxc2V3?=
+ =?utf-8?B?VjI3cS9NL2lodnBpdG50S1VCK1NKYjZWa1dBVG50OElaTUtJd0JrY1VPTDlv?=
+ =?utf-8?B?T2hzOG5vaDZHRWpRVVV0ZHVnS3lZNHNwdU4xZEJGYUJQUytQVXFCTUY0cDhm?=
+ =?utf-8?B?bHhwUVpBZkpvdW9CN1cvWU0wb2poc09iQVVEK2NzMXF1d1lSVGluUk9Edytm?=
+ =?utf-8?B?dmNVNWVPcVdHVTNWQW52RnMyRVlEZUFsRkZnaG84TlI5cUdwVFRBZHRrVFBj?=
+ =?utf-8?B?empnK0trdVVSSGtNQ2JXY1dPNEthNUpEL3pKTFpQYUxKQlpjQU9sb3lhd1lk?=
+ =?utf-8?B?czBsZS92UEZyMHpibmUrcUloUmpQWnl1UzZFVWJEVlhzZFZ5RTNQS1pJby9R?=
+ =?utf-8?B?OWVRRXV3SUxVU0M1dlRsc2I3WVAvQ0NVdEd0TGNrRC9lSElucFVQNlh3dE41?=
+ =?utf-8?B?Sm9RV2JRRm9ldHlBT2VzOEVqRlprNG5MYWhFaWxVcWVUSHFHdnZ1c1JsUVdD?=
+ =?utf-8?B?VGFTZExqQVJsaUM5RDdJdjRhaVNKd1l4WDQrQlpzNVhuOHVUdS8waDdRNDZ6?=
+ =?utf-8?B?SUNORGxjODVMbmhhZGlJaS9FaXR2Z01KeCtvdWVMSE8xb2g1NUVVdWw4eDc2?=
+ =?utf-8?B?OEdOckhKdkRyZjZkMlBaSjJrYmcyM014Mm1FcG4yOEZTRjU3dGZwaVVVckVr?=
+ =?utf-8?B?MkcrdG5GSTV6Sk9ZZjNTcmFMV2YzK1paNlRjMk45cnl5a1lOaDZ5YW5YUlJo?=
+ =?utf-8?B?S1dObHJETXBTY1pKd0tWL2I3eW4rNGs1QUNmUEl2TVRSUHRBd09xYnJidTFp?=
+ =?utf-8?B?OThxaE14RHMvMEgyMjRFM0NJMzk1ejlxZ2ZxUFJuT01hVGJrejhnU1pnZWc3?=
+ =?utf-8?B?NTR1YjYxcysrWG1TdmRTcDJmTTdhNWNoVEF1b2ZhS3lnRnlxYkFFaWFjY1JR?=
+ =?utf-8?B?SkduQy9adnc3NjM2andzZk1OWk5QUkd1NE05b0hYRGN0NkNOYkZIYnFRNzBO?=
+ =?utf-8?B?cERKQ0ZOZmJnZlpvQmFIbVNyZkhDZ1kvYncva0ViY1N6Z3c9PQ==?=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR08MB4974.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230038)(366014)(1800799022)(376012)(52116012)(38350700012);DIR:OUT;SFP:1102;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR08MB4974.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230038)(366014)(52116012)(376012)(1800799022)(38350700012);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?dGlyeGUxenZreExoOEFycjFZajBCK1llcEVWUXFSU0JBakV4SVNUbDFUbXNO?=
- =?utf-8?B?a09BcFE2NkQ4ZjAzaEg2T3RrVitYUzJaaWM2Vi9xNWFERllMVVU3UkhCeDJq?=
- =?utf-8?B?dHhEOTd6dXpIOWgva1lQU1NpOUpGTmlSUU1aWm5GcElPNnoxYitKOGExTitD?=
- =?utf-8?B?WitLM1laMjAzd09MSHlKMkp6Qkx3Q3VTdnRBSXVyUzRZT1U1UzR1Q0JKZm1p?=
- =?utf-8?B?dHU1MTRkSzJkMmZBd1I0aUh5WDRUUWRSNGdGOVdVL3pDYjR0eW1WeDhqK29u?=
- =?utf-8?B?NjVobnJjUjd4TWc4S3VDS0RXLzBZcW1Pc2hYOForTHlVYkZ1dGYzNmZiZ2ZL?=
- =?utf-8?B?MEdOVThpbFBNcDd4N3o1MnpUR0FtNi9CNUIraVhkTjB1czJXdTZ5ZFYyaXBv?=
- =?utf-8?B?OFdZOUFKemxOYlkzNGF0MVhxUmpvRmxDZVg3SC8xZ0Rqcko0eG1uTnBUR2JB?=
- =?utf-8?B?Ni9VZjdJU3c2M0ZPVHE5a3NKdDBnV05FakZkWlZtZC84Smo5TU9QYUFvdlQ4?=
- =?utf-8?B?bnVGNTVpTTM2VmRQTFlKVzhnL1N6ai9ZNHBKODFYRXVaZ2pKVHplL1p5N3E4?=
- =?utf-8?B?b2hiWWF1MUFDNEdLTTV0TjA5aW9KV1dSQytINDl6M2FBbjM3eE44MDNOaEVQ?=
- =?utf-8?B?ckRIMnYvTURPSTB5clFqR2g2R3JLc3JWVzhhR2lSYnQ5MktVRE8xOFVNRnRp?=
- =?utf-8?B?QUtaN0Y2c2U2UEFHcjJCSE1hdjk3QXA5WU5QN2dXSGZ6T3NpeGhOSW5NR2ph?=
- =?utf-8?B?d2lxVkp3SVF4TTFjdTN0UlNvSGZGWVFCbHJ5UzJKM3JvbzlHZFFnSFBZZmRi?=
- =?utf-8?B?Z2dram44cG5zSjhhNW9nbjBYeTdNZVRaNWJFSFI5NzBoY1lOc25tY3VHSEtE?=
- =?utf-8?B?N2cwOGxJUDdTTWFHaFo2cjRjcDBVV2ZEMmFic2VBU3JrM0xMT1lTTEtFdDIy?=
- =?utf-8?B?T214RVNORDVhZzRTeFpaMG5XWmNORHdnM0NQQVoyK2tPNHJUYUN0OWorNTh4?=
- =?utf-8?B?Y3F3UDJFam55dWRYNC9PcHIwZ0F1ZmR3a1JIR0VhNHY4ZEprNUp3ektadG81?=
- =?utf-8?B?K3gzNjdLQUJKNE5oOTBFbWt5RXBMY1ZCV2J0OEp3V2ZpMjFXeml1TzJyc3J2?=
- =?utf-8?B?dDVwcXJvb0xYTnZIYUplY3hJNmcwNWFVRmJoZmhRSDFmRUVnMjJVZit5QWpr?=
- =?utf-8?B?UXRPeGxLSGIvcUNwcktidnRMTmxDR2NETDBhNHM2Kzd4S2FsSi8zYklYNWds?=
- =?utf-8?B?NjhqRGRHbzJ4YlRSVzZkRnJOcjZtN00xM2lNWHhvYmFkS1VRYmcvUHJyMGtE?=
- =?utf-8?B?TTFxcU90eXpyOGRMdEN0a1hadXhRTFBNOTJCRUNHMWY0S0VXL3VoVFRlamdS?=
- =?utf-8?B?d0hZQzRmS2JEWlZOVVZ6NVlIYWhlV2UwOFU0OC9Kek4xOUw2dERuU0lRN3NG?=
- =?utf-8?B?SFd5SWJSZGErZU5Vay9SL2c3VWxnaVBoRkRaNEtacXJQRE1BNEFCdjZRZ2Ew?=
- =?utf-8?B?OUtQM2NnRGpyN2hwNG1iSk8xTW8zNU5mNTlVUW9EL3FMZDI2MFhhR0tmak4x?=
- =?utf-8?B?MFJ3ek9wdW1ON3k4S04zd3BkMUdHcWVybXRCU1FTNVU3YUFZNEFKNnNlYUpx?=
- =?utf-8?B?U1Bqdko5UXNCTXlaZk1zRWYrSDJqZk9FdGl2UWFjN0hnQWsrcy9VdDdZdTc1?=
- =?utf-8?B?MC9IOWhxdDFhWDZGRmcvV3c0MVJYNVdpakliVDkxZTdGNFNRU3NMN0hySzhi?=
- =?utf-8?B?ZVo4UWpzZ1Bma213UFJXNzR5cERYMVVnSlliUGtuQWROMC95WWVwZHJ5L09W?=
- =?utf-8?B?dFFwVko4M1Nid2VyajhlMGNGTW5hMm4zQUZTWWovUkEyNlFCTi9jUFRpN1Ra?=
- =?utf-8?B?WUlQUjNMRXNXMzd1cURpOTBSbTdqNGhZWFZGS0dscG9FcUhna3orcytJMUNS?=
- =?utf-8?B?MWJHb2dMZ29HZnN1YUxBVGNlbTJna3VXd1BRRXFWajBQbnJFUUEzRUI1YWs3?=
- =?utf-8?B?dWdwaUpiNXYxVUw5WkZSZGJKQWFVQktKUlVmUDZqYmtmaFZGWXZQNXZQbVdK?=
- =?utf-8?B?VDR3MTN1VUs1azAxdVBsdFRrSTN3VDJGbVU2dndDSnNHeVVpdnIvcTZjbnlK?=
- =?utf-8?B?ckVwUWpxOC9QdDA5b0Nid1dRanZlNWpEb1lScEVoaC9yVk9pL0pUYmRuaUxZ?=
- =?utf-8?Q?Te36ec/u/MXmqgcnPJkhjN4=3D?=
+	=?utf-8?B?TGJTT1loNDNURmFXWDNVRVhGbHdJNmxyMFl4MWhzQy9sbHJ1QTB4R0dsRzEv?=
+ =?utf-8?B?RUtTUlU1T3Zxa0lPdkZ6RnR2UzlCRXlxVHpFNUswb24xRWwrcXJWSWw2THdG?=
+ =?utf-8?B?UWJ6L1N0QjNac1Jrd2EvRjVmOVUrcnFtTGptbU1QeTUzelBWOFdsbVVrbHhL?=
+ =?utf-8?B?dGxYR240SjhkcmZLRUlZdytSeGg2b0U4NEVRSldjWHM5OU1GWFNwVitleWha?=
+ =?utf-8?B?UGpCRTZJU0gyZEV2OTlXdndKanppVFozdVVqVVdYS0xDUlR1eFAxNDZ1Q2c2?=
+ =?utf-8?B?b2lPZW0ra3E0dUZMM1h4WlpOZEh2MUhWYXV5R1JuMy9pQmQ5cUZRUThWSDM4?=
+ =?utf-8?B?YXRLaGN2Z2ZwTXBjeURpYk1vNkI5bE11Z291YUJnNkpEdkt4YTJ6bWxuT29G?=
+ =?utf-8?B?N011MkJoa0JsUUZua21UdHZtTFhCaGtJaTJoMm5Eck1CMHY5cmdtQjdOMG8z?=
+ =?utf-8?B?STJjR2EyYWk0SExGMklXZWNoT1JOSnFZSzlkL3lRK3BwMm5GNm05SHdZb3Q4?=
+ =?utf-8?B?SW5TR3dsWityY2I5ZGQyL3BrRDZEV2ZyNEhqTytvMjJBc0VtenV2YTFxdjlh?=
+ =?utf-8?B?M2M0Mm5aa2xZVUF6NmxvTlhnTmtlMTJLSDZHb1BXUkdIT3BDVXdrTHhZamdX?=
+ =?utf-8?B?TWsrMGNtQnNNb042VlFpZzBXSTJYZDY5RlJ6OGRvVGNwMjIzdUZneGl3cFNs?=
+ =?utf-8?B?NzYybUc1TkFTZGlSUjdGNWZLWEhhT21URUlMZngzK3BMbXlxNWF5MkFjQUdh?=
+ =?utf-8?B?eWR4VGFGY2w5UWliVFJRSUZBVnNscFl3cEdveU5BOTBjOXhFcWVnTkFJUXFR?=
+ =?utf-8?B?RTk4bzFuSWJtMTBrT0k1RDBtUE9vWkZOMzJsTWxoMktQbmxUWk1TK3RqUjNP?=
+ =?utf-8?B?S0JUaUJrbmtlVldSZWVjd2FKNzZzYmYzbjVzQkxha1VqbTlEdGorUkMyVVU0?=
+ =?utf-8?B?MStyOExPWTBLSUJDSWliMHlKRjkrODZWbnZLM0Z0YXAwQkE5MUFhZk9LbEdB?=
+ =?utf-8?B?ci94UFNCM2lydEpvR3lhSzJPb09sQ2poK0ptdSthMHd0Uk5XekN1T04rNWdr?=
+ =?utf-8?B?U0JNTTJMdnNONzJyR3lrYkZOeWllM0VmcXBJaW1lQk15aDErbk1EYk83UXpi?=
+ =?utf-8?B?bFpNVXhZa0NjVW9lanVhOThoSE14T2RmTkR1WnFhNCtGMyt0Q0t1S3dDS2VJ?=
+ =?utf-8?B?aWtGdWJXRUxYWmdsZnRMd0MvT2x6b0pnU2g4aXRRS0x0eXo1MTlTZFZlTDFJ?=
+ =?utf-8?B?OVBmcjJTTGE0K2ZrdHhLQlpiMHVBVXcwRFFoRmlrT2d6c0Jpa1JZRkJCY1RB?=
+ =?utf-8?B?cit1eGlUOXVwQk40YTR6SGZSV3pNRHFGU01SejFYVEo4bExGNUVFVG9ia3lj?=
+ =?utf-8?B?aXpZUkFiV3ZtZUcxYmt3cWRwS1hocm5XTERHci9QTHc4Z2NVaWlrSWdaeXd0?=
+ =?utf-8?B?SzZrVTBuM0hPQzA0L1N3MnFhb0FFbkpwOXRJUnZ5aXFmajJGZnR6dWxIQlRa?=
+ =?utf-8?B?elRob3NpZWlobFZLcnNTU01NeEpuNUtGS0I2aVJobUlQRWg3WXFyTUxaK1Ru?=
+ =?utf-8?B?cUpMOWxidU9LdnBrUXFJdXRTaDV2bnV4WVhqSy9MM2FBbkxHSmpUSHZSNXNy?=
+ =?utf-8?B?UHV5aWcvZ0hxOWd4eUdxMGdyY29qcjEzS1ZBak1oVkFqVklzWmNUY1ZsMmxt?=
+ =?utf-8?B?enB2NzhPUnYzSTRJKzlESXdDNGdySklIWjRYUnFLK3lnVFdGelJRZTFML3FY?=
+ =?utf-8?B?TXhOTTZJQVpHTVB2aTRybHpTNWdralNjWjVVQmdIQ0NwaEgyV2lsZUU2RlMw?=
+ =?utf-8?B?Qmhad09ORTZwSnp0SGNWL3VXdis2ZFpYaUpoUjBRRGoxZExESnI4Z2VCN3BX?=
+ =?utf-8?B?aGkzbUtTSktNanBMQ0MzYWRSbmhYbXBJZkFOZ2hKMCtCOFJiREFCYkVTQTBh?=
+ =?utf-8?B?WWJaL1ROSWE0QytqYjgxcnlGOGNJNU05NUduVTZWclVxU1MxYVpZaERNMWts?=
+ =?utf-8?B?T0JuS1A5U3p4cUl4QUYvZHhyb2tOMHlVYVk4TEx2VUtZU3BHM2ZTWFlvUGxl?=
+ =?utf-8?B?UWs0WmpPTEIxV1dxcW5BbWtjTkJYTDdRYXdiYzhNUmlOdlRpZnBSeW5YRDdh?=
+ =?utf-8?B?bG5EdytFcjhVRjJraE53d3RRdDd4bE1qMTdaODd1M1lFVm9MWnJNNERRVTJ0?=
+ =?utf-8?Q?F8l8u+R2Haq6tY729a9luHQ=3D?=
 X-OriginatorOrg: wolfvision.net
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8c37b82f-737d-4640-adbc-08dc95c63b23
+X-MS-Exchange-CrossTenant-Network-Message-Id: a988b97e-b829-4cf2-ebb5-08dc95c63a86
 X-MS-Exchange-CrossTenant-AuthSource: VE1PR08MB4974.eurprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jun 2024 09:56:20.9499
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Jun 2024 09:56:19.9003
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: e94ec9da-9183-471e-83b3-51baa8eb804f
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: Vrr0sksCYcSBfF08uaG6rq0Uo9K5jafWveXK8u414RiAzz2MAqtXJDIcrBnUivdLoLmp8Try/hFuJMXYKG1h1O74TpctW6n9IfV8H+9upkU=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR08MB5893
+X-MS-Exchange-CrossTenant-UserPrincipalName: wOIXqecYMEBws73wjpv2ogeZLtE/2K7L2Vig7BGKlg2ftbB0rvFSVDUs06qRXh9NmE4YdMi8nknm/yuaONedUyGvwHKETn1gTTlBNnjVEIk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV2PR08MB8679
 
-Use touch-overlay to support overlay objects such as buttons and a
-resized frame defined in the device tree.
+The touch-overlay encompasses a number of touch areas that define a
+clipped touchscreen area and/or buttons with a specific functionality.
 
-A key event will be generated if the coordinates of a touch event are
-within the area defined by the button properties.
+A clipped touchscreen area avoids getting events from regions that are
+physically hidden by overlay frames.
+
+For touchscreens with printed overlay buttons, sub-nodes with a suitable
+key code can be defined to report key events instead of the original
+touch events.
 
 Reviewed-by: Jeff LaBundy <jeff@labundy.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Javier Carrasco <javier.carrasco@wolfvision.net>
 ---
- drivers/input/touchscreen/st1232.c | 48 +++++++++++++++++++++++++++-----------
- 1 file changed, 34 insertions(+), 14 deletions(-)
+ .../bindings/input/touchscreen/touchscreen.yaml    | 119 +++++++++++++++++++++
+ 1 file changed, 119 insertions(+)
 
-diff --git a/drivers/input/touchscreen/st1232.c b/drivers/input/touchscreen/st1232.c
-index 6475084aee1b..4fa31447dbc1 100644
---- a/drivers/input/touchscreen/st1232.c
-+++ b/drivers/input/touchscreen/st1232.c
-@@ -22,6 +22,7 @@
- #include <linux/pm_qos.h>
- #include <linux/slab.h>
- #include <linux/types.h>
-+#include <linux/input/touch-overlay.h>
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+index 431c13335c40..3e3572aa483a 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/touchscreen.yaml
+@@ -87,6 +87,125 @@ properties:
+   touchscreen-y-plate-ohms:
+     description: Resistance of the Y-plate in Ohms
  
- #define ST1232_TS_NAME	"st1232-ts"
- #define ST1633_TS_NAME	"st1633-ts"
-@@ -57,6 +58,7 @@ struct st1232_ts_data {
- 	struct dev_pm_qos_request low_latency_req;
- 	struct gpio_desc *reset_gpio;
- 	const struct st_chip_info *chip_info;
-+	struct list_head touch_overlay_list;
- 	int read_buf_len;
- 	u8 *read_buf;
- };
-@@ -138,14 +140,20 @@ static int st1232_ts_parse_and_report(struct st1232_ts_data *ts)
- 
- 	for (i = 0; i < ts->chip_info->max_fingers; i++) {
- 		u8 *buf = &ts->read_buf[i * 4];
-+		bool contact = buf[0] & BIT(7);
-+		unsigned int x, y;
- 
--		if (buf[0] & BIT(7)) {
--			unsigned int x = ((buf[0] & 0x70) << 4) | buf[1];
--			unsigned int y = ((buf[0] & 0x07) << 8) | buf[2];
--
--			touchscreen_set_mt_pos(&pos[n_contacts],
--					       &ts->prop, x, y);
-+		if (contact) {
-+			x = ((buf[0] & 0x70) << 4) | buf[1];
-+			y = ((buf[0] & 0x07) << 8) | buf[2];
-+		}
-+		if (touch_overlay_process_event(&ts->touch_overlay_list, input,
-+						contact ? &x : NULL,
-+						contact ? &y : NULL, i))
-+			continue;
- 
-+		if (contact) {
-+			touchscreen_set_mt_pos(&pos[n_contacts], &ts->prop, x, y);
- 			/* st1232 includes a z-axis / touch strength */
- 			if (ts->chip_info->have_z)
- 				z[n_contacts] = ts->read_buf[i + 6];
-@@ -292,18 +300,30 @@ static int st1232_ts_probe(struct i2c_client *client)
- 	if (error)
- 		return error;
- 
--	/* Read resolution from the chip */
--	error = st1232_ts_read_resolution(ts, &max_x, &max_y);
--	if (error) {
--		dev_err(&client->dev,
--			"Failed to read resolution: %d\n", error);
--		return error;
--	}
--
- 	if (ts->chip_info->have_z)
- 		input_set_abs_params(input_dev, ABS_MT_TOUCH_MAJOR, 0,
- 				     ts->chip_info->max_area, 0, 0);
- 
-+	/* map overlay objects if defined in the device tree */
-+	INIT_LIST_HEAD(&ts->touch_overlay_list);
-+	error = touch_overlay_map(&ts->touch_overlay_list, input_dev);
-+	if (error)
-+		return error;
++  touch-overlay:
++    description: |
++      List of nodes defining segments (touch areas) on the touchscreen.
 +
-+	if (touch_overlay_mapped_touchscreen(&ts->touch_overlay_list)) {
-+		/* Read resolution from the overlay touchscreen if defined */
-+		touch_overlay_get_touchscreen_abs(&ts->touch_overlay_list,
-+						  &max_x, &max_y);
-+	} else {
-+		/* Read resolution from the chip */
-+		error = st1232_ts_read_resolution(ts, &max_x, &max_y);
-+		if (error) {
-+			dev_err(&client->dev,
-+				"Failed to read resolution: %d\n", error);
-+			return error;
-+		}
-+	}
++      This object can be used to describe a series of segments to restrict
++      the region within touch events are reported or buttons with a specific
++      functionality.
 +
- 	input_set_abs_params(input_dev, ABS_MT_POSITION_X,
- 			     0, max_x, 0, 0);
- 	input_set_abs_params(input_dev, ABS_MT_POSITION_Y,
++      This is of special interest if the touchscreen is shipped with a physical
++      overlay on top of it with a frame that hides some part of the original
++      touchscreen area. Printed buttons on that overlay are also a typical
++      use case.
++
++      A new touchscreen area is defined as a sub-node without a key code. If a
++      key code is defined in the sub-node, it will be interpreted as a button.
++
++      The x-origin and y-origin properties of a touchscreen area define the
++      offset of a new origin from where the touchscreen events are referenced.
++      This offset is applied to the events accordingly. The x-size and y-size
++      properties define the size of the touchscreen effective area.
++
++      The following example shows a new touchscreen area with the new origin
++      (0',0') for the touch events generated by the device.
++
++                   Touchscreen (full area)
++         ┌────────────────────────────────────────┐
++         │    ┌───────────────────────────────┐   │
++         │    │                               │   │
++         │    ├ y-size                        │   │
++         │    │                               │   │
++         │    │       touchscreen area        │   │
++         │    │         (no key code)         │   │
++         │    │                               │   │
++         │    │            x-size             │   │
++         │   ┌└──────────────┴────────────────┘   │
++         │(0',0')                                 │
++        ┌└────────────────────────────────────────┘
++      (0,0)
++
++      where (0',0') = (0+x-origin,0+y-origin)
++
++      Sub-nodes with key codes report the touch events on their surface as key
++      events instead.
++
++      The following example shows a touchscreen with a single button on it.
++
++              Touchscreen (full area)
++        ┌───────────────────────────────────┐
++        │                                   │
++        │                                   │
++        │   ┌─────────┐                     │
++        │   │button 0 │                     │
++        │   │KEY_POWER│                     │
++        │   └─────────┘                     │
++        │                                   │
++        │                                   │
++       ┌└───────────────────────────────────┘
++      (0,0)
++
++      Segments defining buttons and clipped toushcreen areas can be combined
++      as shown in the following example.
++      In that case only the events within the touchscreen area are reported
++      as touch events. Events within the button areas report their associated
++      key code. Any events outside the defined areas are ignored.
++
++                  Touchscreen (full area)
++        ┌─────────┬──────────────────────────────┐
++        │         │                              │
++        │         │    ┌───────────────────────┐ │
++        │ button 0│    │                       │ │
++        │KEY_POWER│    │                       │ │
++        │         │    │                       │ │
++        ├─────────┤    │   touchscreen area    │ │
++        │         │    │     (no key code)     │ │
++        │         │    │                       │ │
++        │ button 1│    │                       │ │
++        │ KEY_INFO│   ┌└───────────────────────┘ │
++        │         │(0',0')                       │
++       ┌└─────────┴──────────────────────────────┘
++      (0,0)
++
++    type: object
++
++    patternProperties:
++      '^segment-':
++        type: object
++        description:
++          Each segment is represented as a sub-node.
++        properties:
++          x-origin:
++            description: horizontal origin of the node area
++            $ref: /schemas/types.yaml#/definitions/uint32
++
++          y-origin:
++            description: vertical origin of the node area
++            $ref: /schemas/types.yaml#/definitions/uint32
++
++          x-size:
++            description: horizontal resolution of the node area
++            $ref: /schemas/types.yaml#/definitions/uint32
++
++          y-size:
++            description: vertical resolution of the node area
++            $ref: /schemas/types.yaml#/definitions/uint32
++
++          label:
++            description: descriptive name of the segment
++            $ref: /schemas/types.yaml#/definitions/string
++
++          linux,code: true
++
++        required:
++          - x-origin
++          - y-origin
++          - x-size
++          - y-size
++
++        unevaluatedProperties: false
++
+ dependencies:
+   touchscreen-size-x: [ touchscreen-size-y ]
+   touchscreen-size-y: [ touchscreen-size-x ]
 
 -- 
 2.40.1

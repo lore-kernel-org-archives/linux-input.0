@@ -1,182 +1,98 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C67C94436A;
-	Fri, 28 Jun 2024 08:06:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F59114B970
+	for <linux-input@vger.kernel.org>; Fri, 28 Jun 2024 08:36:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719562018; cv=none; b=CyNqn1GD8jr+lc5pG29RtM98Ewae+e6njuS1AhOjmAzSTgJOSmn5xbDb8FSlXTj9BI4E2n7nBRVKrr75opZnyIVL/pxcC33ESchzx9etrDEmJRWF5z+cP/o4OI5QMUhFxmZCvNuyfAMpN3AGc02GdTYnYwk6kKoytAz6UlMBFh8=
+	t=1719563765; cv=none; b=anTO9LrYNS0Wpm5RlAxmGfhNMert/O4JNez1hkMeV3feuX7z5d9UjX3RZhEo84XWNvr4u6DtfhBzLzrBsy0ZVMmsaW3wgooWf29lo/+X8yVxGXo3bZjRlV806hvLIF+MqCNNdRwVOkipMVXa0zLZs15MinnROHBSA7ZyDdop4Ik=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719562018; c=relaxed/simple;
-	bh=Iy8/UxZRhExwvU1/4dAFYZkxite/l0ek3Z7R2WkUJCA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Fpxudu7N7JDANKtqy8pyc46dSGDMMLPK1k9Twv5Gi7iDFYxXsX2SullfBF3e+pGkMjcz0fVn6FAWS9T12DUKLSfTZxT5Y9xwZUFphR8xtW696P6uVJ2ZxkNpymFuWfb6Uw/3suCWOS2TiHDZY641DBFtE9VKRpuJ/HBNGjEfrzM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ddWAcFDj; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ddWAcFDj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CAF9C32781;
-	Fri, 28 Jun 2024 08:06:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1719562018;
-	bh=Iy8/UxZRhExwvU1/4dAFYZkxite/l0ek3Z7R2WkUJCA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=ddWAcFDjX0QfautySQE9b+e04FLKN6UtAFVjcXXUG+KFdZ7cu2KxlcYX7JZ9j+SBI
-	 /l3QHtcjZAm0H+pqMjqa7UNXNqi3KLUVLNfQs2t96afCUgs5VRRZdiflY+UwVzNGQy
-	 6chnlUZw5ixIa77vbxSSN/M1LOqVrFsB3A/JVtxPoo0MqpwZ21Yy4tdyLHbtBNxzcG
-	 5GYkHugbz5ll775Y3nQQY/P5vBGUP2TVh9XYkRliuyYCcG0Qm6E8oPCg3fkBA2mu2T
-	 DqsizVQ1ZYc9yknrnBZ8VxjX1jI+o0iKUZIp/Kzz241EPN1vp54yDt+cQ2MKkbfIyj
-	 Ts4Vy/xh+w8/Q==
-Date: Fri, 28 Jun 2024 09:06:53 +0100
-From: Lee Jones <lee@kernel.org>
-To: James Ogletree <James.Ogletree@cirrus.com>
-Cc: James Ogletree <jogletre@opensource.cirrus.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	"robh+dt@kernel.org" <robh+dt@kernel.org>,
-	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-	Conor Dooley <conor+dt@kernel.org>, Mark Brown <broonie@kernel.org>,
-	Jeff LaBundy <jeff@labundy.com>,
-	"patches@opensource.cirrus.com" <patches@opensource.cirrus.com>,
-	"linux-sound@vger.kernel.org" <linux-sound@vger.kernel.org>,
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>
-Subject: Re: [PATCH RESEND v11 0/5] Add support for CS40L50
-Message-ID: <20240628080653.GJ2532839@google.com>
-References: <20240620161745.2312359-1-jogletre@opensource.cirrus.com>
- <20240620165935.GT3029315@google.com>
- <21975F67-D71D-4D5D-8042-8EE64E8864CA@cirrus.com>
- <20240627071258.GE2532839@google.com>
- <C8C41985-E19A-400C-9DF2-720BCDE984E1@cirrus.com>
+	s=arc-20240116; t=1719563765; c=relaxed/simple;
+	bh=gHMdO7hF0ijVO2uBybJPigxxQb5PDIZ2BIRF4UZbLlM=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=s9ZXYUYgbg9MVlyaKtwNdI6U6ZMt8SDE5AZrbD7e18o/IT+Rt3KcIrRSylmtholxS39Vllk8/W7JUK72O6LXMPza46/TYNYHHkaOg20IxZWhj7jm8iULzX3xnxGLFJl960kAI3yriQocAtFrbejO0QIONmP0OF4RVgijXHXXPkE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1sN75I-00079B-Oc; Fri, 28 Jun 2024 10:35:56 +0200
+Received: from [2a0a:edc0:0:900:1d::4e] (helo=lupine)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1sN75I-005Z2n-A4; Fri, 28 Jun 2024 10:35:56 +0200
+Received: from pza by lupine with local (Exim 4.96)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1sN75I-0002mC-0o;
+	Fri, 28 Jun 2024 10:35:56 +0200
+Message-ID: <823c4c54441af0f2f9e392a142e582120a335440.camel@pengutronix.de>
+Subject: Re: [PATCH] Input: exc3000 - add EXC81W32 support
+From: Philipp Zabel <p.zabel@pengutronix.de>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+  Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org,
+ devicetree@vger.kernel.org,  linux-kernel@vger.kernel.org,
+ kernel@pengutronix.de
+Date: Fri, 28 Jun 2024 10:35:56 +0200
+In-Reply-To: <Zn2Yfeaewi-Bxx83@google.com>
+References: 
+	<20240626-input-exc3000-exc81w32-v1-1-ac42d3b87aff@pengutronix.de>
+	 <Zn2Yfeaewi-Bxx83@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.4-2 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <C8C41985-E19A-400C-9DF2-720BCDE984E1@cirrus.com>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: p.zabel@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: linux-input@vger.kernel.org
 
-On Thu, 27 Jun 2024, James Ogletree wrote:
+On Do, 2024-06-27 at 09:51 -0700, Dmitry Torokhov wrote:
+> Hi Philipp,
+>=20
+> On Wed, Jun 26, 2024 at 04:26:48PM +0200, Philipp Zabel wrote:
+> > This adds support for EXC81W32 controllers.
+> >=20
+> > Tested with firmware reported as type "PCAP81X32 Series",
+> > model "Orion_0183_1019", fw_version "8001280G".
+> >=20
+> > Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+> > ---
+> >  .../devicetree/bindings/input/touchscreen/eeti,exc3000.yaml        | 1=
+ +
+> >  drivers/input/touchscreen/exc3000.c                                | 7=
+ +++++++
+> >  2 files changed, 8 insertions(+)
+> >=20
+> > diff --git a/Documentation/devicetree/bindings/input/touchscreen/eeti,e=
+xc3000.yaml b/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3=
+000.yaml
+> > index 9dc25d30a0a8..c299838e2680 100644
+> > --- a/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.=
+yaml
+> > +++ b/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.=
+yaml
+> > @@ -18,6 +18,7 @@ properties:
+> >        - eeti,exc3000
+> >        - eeti,exc80h60
+> >        - eeti,exc80h84
+> > +      - eeti,exc81w32
+> >    reg:
+> >      const: 0x2a
+> >    interrupts:
+>=20
+> Could you please split this chunk into a separate patch so that DT folks
+> can chime in on it separately from the driver change?
 
-> 
-> > On Jun 27, 2024, at 2:12 AM, Lee Jones <lee@kernel.org> wrote:
-> > 
-> > On Wed, 26 Jun 2024, James Ogletree wrote:
-> > 
-> >> 
-> >>> On Jun 20, 2024, at 11:59 AM, Lee Jones <lee@kernel.org> wrote:
-> >>> 
-> >>> On Thu, 20 Jun 2024, James Ogletree wrote:
-> >>> 
-> >>>> Changes in v11:
-> >>>> - Constified function parameters in ASOC driver
-> >>>> - Removed an unneeded #include
-> >>>> - Changed number of max FF effects = 1
-> >>>> - Minor refactoring in Input driver
-> >>>> - Reworded comment in MFD driver
-> >>>> 
-> >>>> Changes in v10:
-> >>>> - Minor refactoring and logical improvements all around
-> >>>> - Renamed and added supplies
-> >>>> 
-> >>>> Changes in v9:
-> >>>> - Fixed empty struct by utilizing cs_dsp's post_run callback
-> >>>> - Style fixes in MFD driver
-> >>>> 
-> >>>> Changes in v8:
-> >>>> - set_sysclk() -> set_bclk_ratio()
-> >>>> - Added ID table to codec driver
-> >>>> - Style improvements
-> >>>> - Fixed ordering of new write sequence operations
-> >>>> 
-> >>>> Changes in v7:
-> >>>> - Fixed sparse warning
-> >>>> - Moved write sequences to private data structure
-> >>>> - Logical and style improvements in write sequence interface
-> >>>> 
-> >>>> Changes in v6:
-> >>>> - Updated write sequencer interface to be control-name based
-> >>>> - Fixed a race condition and non-handling of repeats in playback callback
-> >>>> - Stylistic and logical improvements all around
-> >>>> 
-> >>>> Changes in v5:
-> >>>> - Added a codec sub-device to support I2S streaming
-> >>>> - Moved write sequencer code from cirrus_haptics to cs_dsp
-> >>>> - Reverted cirrus_haptics library; future Cirrus input
-> >>>> drivers will export and utilize cs40l50_vibra functions
-> >>>> - Added more comments
-> >>>> - Many small stylistic and logical improvements
-> >>>> 
-> >>>> Changes in v4:
-> >>>> - Moved from Input to MFD
-> >>>> - Moved common Cirrus haptic functions to a library
-> >>>> - Incorporated runtime PM framework
-> >>>> - Many style improvements
-> >>>> 
-> >>>> Changes in v3:
-> >>>> - YAML formatting corrections
-> >>>> - Fixed typo in MAINTAINERS
-> >>>> - Used generic node name "haptic-driver"
-> >>>> - Fixed probe error code paths
-> >>>> - Switched to "sizeof(*)"
-> >>>> - Removed tree reference in MAINTAINERS
-> >>>> 
-> >>>> Changes in v2:
-> >>>> - Fixed checkpatch warnings
-> >>>> 
-> >>>> James Ogletree (5):
-> >>>> firmware: cs_dsp: Add write sequence interface
-> >>>> dt-bindings: input: cirrus,cs40l50: Add initial DT binding
-> >>>> mfd: cs40l50: Add support for CS40L50 core driver
-> >>>> Input: cs40l50 - Add support for the CS40L50 haptic driver
-> >>>> ASoC: cs40l50: Support I2S streaming to CS40L50
-> >>>> 
-> >>>> .../bindings/input/cirrus,cs40l50.yaml        |  68 +++
-> >>>> MAINTAINERS                                   |  12 +
-> >>>> drivers/firmware/cirrus/cs_dsp.c              | 278 +++++++++
-> >>>> drivers/input/misc/Kconfig                    |  10 +
-> >>>> drivers/input/misc/Makefile                   |   1 +
-> >>>> drivers/input/misc/cs40l50-vibra.c            | 555 +++++++++++++++++
-> >>>> drivers/mfd/Kconfig                           |  30 +
-> >>>> drivers/mfd/Makefile                          |   4 +
-> >>>> drivers/mfd/cs40l50-core.c                    | 570 ++++++++++++++++++
-> >>>> drivers/mfd/cs40l50-i2c.c                     |  68 +++
-> >>>> drivers/mfd/cs40l50-spi.c                     |  68 +++
-> >>>> include/linux/firmware/cirrus/cs_dsp.h        |  27 +
-> >>>> include/linux/mfd/cs40l50.h                   | 137 +++++
-> >>>> sound/soc/codecs/Kconfig                      |  11 +
-> >>>> sound/soc/codecs/Makefile                     |   2 +
-> >>>> sound/soc/codecs/cs40l50-codec.c              | 307 ++++++++++
-> >>>> 16 files changed, 2148 insertions(+)
-> >>>> create mode 100644 Documentation/devicetree/bindings/input/cirrus,cs40l50.yaml
-> >>>> create mode 100644 drivers/input/misc/cs40l50-vibra.c
-> >>>> create mode 100644 drivers/mfd/cs40l50-core.c
-> >>>> create mode 100644 drivers/mfd/cs40l50-i2c.c
-> >>>> create mode 100644 drivers/mfd/cs40l50-spi.c
-> >>>> create mode 100644 include/linux/mfd/cs40l50.h
-> >>>> create mode 100644 sound/soc/codecs/cs40l50-codec.c
-> >>> 
-> >>> Still needs Acks - ping me when you have them.
-> >>> 
-> >>> -- 
-> >>> Lee Jones [李琼斯]
-> >> 
-> >> Hi Lee,
-> >> 
-> >> You can take this series now.
-> > 
-> > sound/soc?
-> > 
-> > -- 
-> > Lee Jones [李琼斯]
-> 
-> Mark has Acked the original v11 series here:
-> https://lore.kernel.org/all/a85e09d6-d8eb-4c60-ae83-b4dbf875a926@sirena.org.uk/
+Sorry, fixed in v2.
 
-Ah, you just forgot to add it to the RESEND?
-
-Okay, leave it with me then.
-
--- 
-Lee Jones [李琼斯]
+regards
+Philipp

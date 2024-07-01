@@ -1,129 +1,153 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EF584696;
-	Mon,  1 Jul 2024 14:42:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9282A16C850;
+	Mon,  1 Jul 2024 15:05:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719844961; cv=none; b=Wv0lvCC11h8mD2kgsRvavWPyUbssqvskV/CTJRNfEq17z4Q2tc5GUNBiOq/phhVzFzZDj9txDS8oL2J3sqCV6TLV/HDGUueQc1vjXspD43v7Vhgs18qLXxKXGOxT9OyisHuKawqwN1U2koZ3z/NTw5OLki0tJHik+dEiGStxqlc=
+	t=1719846303; cv=none; b=HVxJMoZ5AHbSkV9XiXeXZoKAIRNQULoW1rPLy0Q0r9eeePT5BzVujAwMBLSCEQewLsoNXoQQsDt8C6ZcIF6JtHJpkfxochrYDZg//tMRzbiXmQpDgeTJKnKDvPXkyKWuiF+8odsjhDUAZPeAei0EeN0C9/CWm2hv32xNd9kA5/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719844961; c=relaxed/simple;
-	bh=oqreuN7Lmf3KZB06NiHnlq3XgvAne96Q0HZLnxU1cvA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cetDsoaMvwzi8W9hhDbN5E8LUWMYgDwpGNmwtbde3BHQwDWiyciQo7/zZfC+4qqu6SkXmsAvcsmUylFs89e6r+CqYTrT+awDdsa1mGXvYem/dLPbFnKC+KBPJsi1zL4baVpUIFcQzk4uhe1/tFsgxYxnHmRx5x2WITq/v//Yu7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Es6ZvAts; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1719846303; c=relaxed/simple;
+	bh=y5N/8gcyMHIxAa9yP/tfjecoJYFpqjhq0ooiXguECmI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=J6/Bl0GdJlOuGPmZVnsv9xScJXcEvai0bsbR19EtZADpLwn+bRt4oYe8MVr+JdL21AH8JXTWG47UGZ/+b25tmaQo6snSScvoy/MFVNh6B6T/JV25Zb7k0Ev6HFHilSrSnIsYv9M8g6/D+QOkOcatE1bmmgdgZAjjPMXM+PB9tRc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N2R3vbWC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Es6ZvAts"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A929C116B1;
-	Mon,  1 Jul 2024 14:42:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N2R3vbWC"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4715CC2BD10;
+	Mon,  1 Jul 2024 15:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1719844961;
-	bh=oqreuN7Lmf3KZB06NiHnlq3XgvAne96Q0HZLnxU1cvA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Es6ZvAtss93UUyTV0/C5Kq7xcHV2mMr7W2uHGzC8FpKbNdC+jdwp2ciIC5jj/WLlr
-	 FyJlaV6yEroIgDjOJcuzd9aP6IUmM5Sp6czY1Awasc8IPqdGjj19lmJ1PoKJQekKjF
-	 iO8Evf/hfcQCmvr2bAjQTBrWOLxgdGAf4UNc7gokAoLxG4XDH0ROZNiDmRHlstPjTK
-	 RYuYX45Ln2d79925pclof5E9V0BwvtKu0XXZGfSh1PNR9rQGijypIVTJJfg19nB3Ou
-	 eOYGsfaO+Ws94mFfXxKN7LCu/yzJU5xXxZNZxLrtd2oRTkk6rkoTKotFrck44To5RZ
-	 tLuvqQyHCPFuA==
-Date: Mon, 1 Jul 2024 15:42:37 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kernel@pengutronix.de
-Subject: Re: [PATCH v2 1/2] dt-bindings: input: touchscreen: exc3000: add
- EXC81W32
-Message-ID: <20240701-evolve-unbutton-ef7d913ad69f@spud>
-References: <20240628-input-exc3000-exc81w32-v2-0-c2b21a369c05@pengutronix.de>
- <20240628-input-exc3000-exc81w32-v2-1-c2b21a369c05@pengutronix.de>
- <20240628-agonizing-syrup-fcd55c441b3f@spud>
- <150055844b8af2017fa721ff08bbde473354b2da.camel@pengutronix.de>
+	s=k20201202; t=1719846303;
+	bh=y5N/8gcyMHIxAa9yP/tfjecoJYFpqjhq0ooiXguECmI=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=N2R3vbWC3CfKX/XkzLniLKdj+mZCkJ9nUsj/fq9jNJYcScq2DfQj/xrGW1tWJRpaK
+	 ZPrUHqCMGvRo1VGLzqj0KPLgmG2MvnbmF8Zff/grQNnbtAjdMemEHMMWnKmmnzCwLU
+	 G3FdZLHGn1nzKO09e4ze2XwFdHQglay0LiaMFhXs/yi9Rp7/gWiTctQ7T8rbol0b82
+	 VxiLTMW0FAYqalLzTvmhLaOF0QAJ2+hNnBY6Ohhu/9ifLRqTVXykA92QVzl7KvO//p
+	 ISwkCnWd3HNB00J8odj9EEfU4f5ERpo2zM3SRUddT5gei6CmoYJXu7BoZb5pUdnylk
+	 /cPqrniJUxdGQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32C97C3065D;
+	Mon,  1 Jul 2024 15:05:03 +0000 (UTC)
+From: Utsav Agarwal via B4 Relay <devnull+utsav.agarwal.analog.com@kernel.org>
+Date: Mon, 01 Jul 2024 16:04:50 +0100
+Subject: [PATCH v4 1/2] Input: adp5588-keys - add support for pure gpio
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="oXw+Hz09N3mxcR0V"
-Content-Disposition: inline
-In-Reply-To: <150055844b8af2017fa721ff08bbde473354b2da.camel@pengutronix.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240701-adp5588_gpio_support-v4-1-44bba0445e90@analog.com>
+References: <20240701-adp5588_gpio_support-v4-0-44bba0445e90@analog.com>
+In-Reply-To: <20240701-adp5588_gpio_support-v4-0-44bba0445e90@analog.com>
+To: Utsav Agarwal <utsav.agarwal@analog.com>, 
+ Michael Hennerich <michael.hennerich@analog.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ Arturs Artamonovs <arturs.artamonovs@analog.com>, 
+ Vasileios Bimpikas <vasileios.bimpikas@analog.com>, 
+ Oliver Gaskell <oliver.gaskell@analog.com>
+X-Mailer: b4 0.14.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1719846302; l=2707;
+ i=utsav.agarwal@analog.com; s=20240701; h=from:subject:message-id;
+ bh=4MOqqbvu+G4mWGneQ9XlZytwFprVvyttFAs0sfdSVt8=;
+ b=AXq4+34Kr6HuK+m3l4PkJn6TEktCmcrhFRM3v2rbScSMc4u+oOQPD/BS95WIgw3aoWo6/JXsM
+ 6CFL+P6xJfaAcNktKmAsEVrlKdXnVfbm6q5yvInMojx+4CckfWSpWZz
+X-Developer-Key: i=utsav.agarwal@analog.com; a=ed25519;
+ pk=mIG5Dmd3TO5rcICwTsixl2MoUcf/i2u+jYqifd7+fmI=
+X-Endpoint-Received: by B4 Relay for utsav.agarwal@analog.com/20240701 with
+ auth_id=178
+X-Original-From: Utsav Agarwal <utsav.agarwal@analog.com>
+Reply-To: utsav.agarwal@analog.com
+
+From: Utsav Agarwal <utsav.agarwal@analog.com>
+
+Keypad specific checks in the probe function are relaxed if the
+following conditions are met:
+	1) "gpio-only" property has been specified for the node
+	2) No keypad rows/columns are specified
+
+The "gpio-only" property is introduced to simplify usage since it
+serves as a clear indication of the user's intention as opposed to being
+inferred from the number of rows and columns specified. This
+adds simplicity for the accompanying dt binding update as well
+as interpretation of the same.
+
+In such a scenario, additional checks are also introduced to make sure
+that keypad and pure GPIO operation are mutually exclusive resulting
+in an error if unintentional/incompatible changes are present.
+
+Signed-off-by: Utsav Agarwal <utsav.agarwal@analog.com>
+---
+ drivers/input/keyboard/adp5588-keys.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
+
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 1b0279393df4..6f4a52ce20f8 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -188,6 +188,7 @@ struct adp5588_kpad {
+ 	u32 cols;
+ 	u32 unlock_keys[2];
+ 	int nkeys_unlock;
++	bool gpio_only;
+ 	unsigned short keycode[ADP5588_KEYMAPSIZE];
+ 	unsigned char gpiomap[ADP5588_MAXGPIO];
+ 	struct gpio_chip gc;
+@@ -647,6 +648,32 @@ static int adp5588_fw_parse(struct adp5588_kpad *kpad)
+ 	struct i2c_client *client = kpad->client;
+ 	int ret, i;
+ 
++	kpad->gpio_only = device_property_present(&client->dev, "gpio-only");
++	/*
++	 * Check if the device is to be operated purely in GPIO mode. If so,
++	 * confirm that no keypad rows or columns have been specified, since
++	 * all GPINS should be configured as GPIO.
++	 */
++	if (kpad->gpio_only) {
++		ret = device_property_present(&client->dev,
++				"keypad,num-rows");
++		if (ret) {
++			dev_err(&client->dev,
++				"Specified num-rows with mode gpio-only\n");
++			return -EINVAL;
++		}
++
++		ret = device_property_present(&client->dev,
++				"keypad,num-columns");
++		if (ret) {
++			dev_err(&client->dev,
++				"Specified num-columns with mode gpio-only\n");
++			return -EINVAL;
++		}
++
++		return 0;
++	}
++
+ 	ret = matrix_keypad_parse_properties(&client->dev, &kpad->rows,
+ 					     &kpad->cols);
+ 	if (ret)
+@@ -790,6 +817,11 @@ static int adp5588_probe(struct i2c_client *client)
+ 	if (error)
+ 		return error;
+ 
++	if (kpad->gpio_only) {
++		dev_info(&client->dev, "Rev.%d, started as GPIO only\n", revid);
++		return 0;
++	}
++
+ 	error = devm_request_threaded_irq(&client->dev, client->irq,
+ 					  adp5588_hard_irq, adp5588_thread_irq,
+ 					  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+
+-- 
+2.34.1
 
 
---oXw+Hz09N3mxcR0V
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Mon, Jul 01, 2024 at 02:47:50PM +0200, Philipp Zabel wrote:
-> Hi Conor,
->=20
-> On Fr, 2024-06-28 at 17:21 +0100, Conor Dooley wrote:
-> > On Fri, Jun 28, 2024 at 10:35:51AM +0200, Philipp Zabel wrote:
-> > > Add compatible for EXC81W32 touchscreen controllers.
-> >=20
-> > Could you please mention in your commit messages what makes a fallback
-> > compatible inappropriate here?
->=20
-> thank for pointing this out. Actually, I'm not sure a fallback
-> compatible is inappropriate at all. There just is none currently, even
-> though EXC80H60 and EXC80H84 already look compatible to me.
->=20
-> To my understanding, there's EXC80[WH]{32,46,60,84} models, that should
-> only differ in ball pitch (W or H) and targeted display size (the last
-> number).
-> I don't know if there are actual relevant differences between what I
-> assume are model generations, such as EXC80 to EXC81. At least the
-> limited currently implemented feature set in the exc3000 driver is
-> identical.
->=20
-> Given that EXC80H60, EXC80H84, and now EXC81W32 all share the same 16K
-> resolution and the same message format (possible differences in
-> capability to measure touch area nonwithstanding), should I prepend
-> this series with a patch:
-
-If you're prepared to update the two users to avoid adding more
-dtbs_check warnings, sure.
-
-Thanks,
-Conor.
-
->=20
-> @@ -14,10 +14,13 @@
-> =20
->  properties:
->    compatible:
-> -    enum:
-> -      - eeti,exc3000
-> -      - eeti,exc80h60
-> -      - eeti,exc80h84
-> +    oneOf:
-> +      - const: eeti,exc3000
-> +      - items:
-> +          - enum:
-> +              - eeti,exc80h60
-> +          - const: eeti,exc80h84
-> +      - const: eeti,exc80h84
->    reg:
->      const: 0x2a
->    interrupts:
->=20
-> regards
-> Philipp
-
---oXw+Hz09N3mxcR0V
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHQEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZoLAXQAKCRB4tDGHoIJi
-0kfdAPinlDksflI+CZ0V7RLLNE6TzTiZAcuSVA8xrHNj8sd+AP4/QgKGeSLOwa2n
-NxYwmgWXdF5eK9yJeua4gyd0PjUSBg==
-=eq1X
------END PGP SIGNATURE-----
-
---oXw+Hz09N3mxcR0V--

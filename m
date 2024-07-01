@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 927A984DE9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1C0816C86F;
 	Mon,  1 Jul 2024 15:05:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719846303; cv=none; b=GeYMCqOjAbHBDmRfQXs/t7XPbDDHIH3tWVVn9R8PIyCVnYFMPwoHUAALFUeaOaR9pV4flAha7tp1LwLX5+4vElkHnsL9o4+Ky32Yg0C4U3zaXBZlrSZpNCITynDvJTgbXNKDLxGjwcu+1ykJCul5erZ+lvL7pHpGiCHOkIeE54E=
+	t=1719846303; cv=none; b=YkxGcWpcjYosAx0+A5JyNXaYnIRf5GoquvRHgVOIThnozQrPKra1XO82Z3ggEAFMfxH45MuRRPWM8WO/2TbPd1tuWOGbk9wuyPur7MPEflGf5A9VHV1LlVk/8ja9Qc6KCpvaT2cgq7MIeva9fF5WYDFUni1Ff2Xy1pbtiNmyBsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1719846303; c=relaxed/simple;
-	bh=looVJtFQZcec+jXHJMoRnWIFRehDK3wbXLGpJmuScKU=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=LTP/bE1RD9B8v8YHD0UzL+xKC7kCRlYF0rcxGeVbyOEdLLY0PiFPwDQnoiiOGp8D3k4whfDG0OTFMAZXOlAwT4G3FOwQC9AT3pPrJUFT/H/5sLs6be+Lc6FKy7FGFuAwDAqx5GLYZFZEmHG6iTwRK+TO/MQ5ecLerswUHcBoKw0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UqcfcZrb; arc=none smtp.client-ip=10.30.226.201
+	bh=h7iGe0Nh7IPjp654fHg/MivCpi9BUQ3tEVx6hM5y4KY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=RqF7ZYL7eSaM9P40CiPbm50E6O75UekqLNe/rlSfMzhGIncGZk3NRJURApLy1ciViY0wHyzz9K3aI6CRffFxjMR0yWOvX55extTqpVyXiZR0FQuG8KjRc13Vs6EO2ogyzg0d1NkATUja7+jhKn1vp5VQXfJel4ll7Q7Gil9BAc4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s64otzxt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UqcfcZrb"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 31FA9C116B1;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s64otzxt"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 57C35C32786;
 	Mon,  1 Jul 2024 15:05:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1719846303;
-	bh=looVJtFQZcec+jXHJMoRnWIFRehDK3wbXLGpJmuScKU=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=UqcfcZrbPw1oan2NJpUaBEklGp+k/qH1KmTjYMtf5YhgY71WnghXtsqY5A+LA4HuX
-	 UhX77bCjIuAoBbkAsZTwygPM8RYy2712PPN7zfUwBKTxFo/97+sEbMYvJ8+9wct+7w
-	 n71ffo/1mGC2626R9yiE2/T3jomAsHhyteaOmSr0VUlNnoenOlDaNPLmz5tKle/LL5
-	 EzyE5KEAZxHgO0+5387kXdKb04KySFqI1rYE+iIqwNQiT1OufgKz0AI4yMNqOCTQbx
-	 Gic1Jg1o0SqCqZCdpAB0xPSlv/nO2S7IeAAhcw6pOB8AytfPUSQsK5xVYzw7e8NmjV
-	 4Lt0C1h2gbrSQ==
+	bh=h7iGe0Nh7IPjp654fHg/MivCpi9BUQ3tEVx6hM5y4KY=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=s64otzxtlKTKDDSZJwaVIiJJNK4UXnspi14ImzYhUOWOae85KlHO/qTLt6caLUDCB
+	 bJQIAy1u+qZyoiJGhuAL4vQOYqbrq4wx99i6HbdgPEJvwfHsUX5JqxYuXF19MV3JdW
+	 3dLeVx/FZgzdOj/GexvwPuYTBhwsk9ojORCtKT/YGRRUsIxBm9OyGeTc1qGp/mV73M
+	 hyAElEuWJV1nm+SbAL3BUUaHft18s8HUMVT1k8+2S0dwlMYZtOB9Wi//WfK2/tiQEq
+	 DJFd+0q9Kcsn66HSmM/1tKn5XoCMY+TB4uAMrg9zXV5oariS7IYf+r048SRSFeGXqF
+	 g28nthQb8pyJA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DCFAC3065B;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48B6DC3065A;
 	Mon,  1 Jul 2024 15:05:03 +0000 (UTC)
 From: Utsav Agarwal via B4 Relay <devnull+utsav.agarwal.analog.com@kernel.org>
-Subject: [PATCH v4 0/2] adp5588-keys: Support for dedicated gpio operation
-Date: Mon, 01 Jul 2024 16:04:49 +0100
-Message-Id: <20240701-adp5588_gpio_support-v4-0-44bba0445e90@analog.com>
+Date: Mon, 01 Jul 2024 16:04:51 +0100
+Subject: [PATCH v4 2/2] dt-bindings: input: Update dtbinding for adp5588
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,9 +40,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAJHFgmYC/x3MTQqAIBBA4avErBNMsr+rRITmWLPJQSuC6O5Jy
- 2/x3gMJI2GCoXgg4kWJwp5RlwUsm9lXFOSyQUlVy1ZWwjjWuuvmlSnM6WQO8RCNdlZZpyrTe8g
- pR/R0/9txet8Pb4Bme2YAAAA=
+Message-Id: <20240701-adp5588_gpio_support-v4-2-44bba0445e90@analog.com>
+References: <20240701-adp5588_gpio_support-v4-0-44bba0445e90@analog.com>
+In-Reply-To: <20240701-adp5588_gpio_support-v4-0-44bba0445e90@analog.com>
 To: Utsav Agarwal <utsav.agarwal@analog.com>, 
  Michael Hennerich <michael.hennerich@analog.com>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
@@ -55,11 +55,11 @@ Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
  Vasileios Bimpikas <vasileios.bimpikas@analog.com>, 
  Oliver Gaskell <oliver.gaskell@analog.com>
 X-Mailer: b4 0.14.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1719846302; l=1741;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1719846302; l=1849;
  i=utsav.agarwal@analog.com; s=20240701; h=from:subject:message-id;
- bh=looVJtFQZcec+jXHJMoRnWIFRehDK3wbXLGpJmuScKU=;
- b=cWNWYh5i4IA/s9OTtCFegD8Y7IPG9TExKPDAInMmjMa8tAX0BzwvV3Ls8eq3o6mp2vn8kRDOd
- LooKZhMUTajDt2kVEMp/BIaHeUqq+t00LcsvjeFOBG+LUyOB0NOO/lP
+ bh=R/G0DKQvnInMMKOi2Ti6N/j7TpAXEYOccy0wLPhCRJc=;
+ b=S6UwSAlomrXIllsnT//Gm6AItJFxmvZCHA+3ptH9mIbPrtpnFw7JXQXJ9x/7Jr0po8RxHyeuM
+ 6dkgupGl/TMDOhuKDMkWgSUzy6aTIovcjGi/JfjgJ3VdEW5OwibrtAq
 X-Developer-Key: i=utsav.agarwal@analog.com; a=ed25519;
  pk=mIG5Dmd3TO5rcICwTsixl2MoUcf/i2u+jYqifd7+fmI=
 X-Endpoint-Received: by B4 Relay for utsav.agarwal@analog.com/20240701 with
@@ -67,52 +67,75 @@ X-Endpoint-Received: by B4 Relay for utsav.agarwal@analog.com/20240701 with
 X-Original-From: Utsav Agarwal <utsav.agarwal@analog.com>
 Reply-To: utsav.agarwal@analog.com
 
-Current state of the driver for the ADP5588/87 only allows partial
-I/O to be used as GPIO. This support was previously present as a
-separate gpio driver, which was dropped with the commit
-5ddc896088b0 ("gpio: gpio-adp5588: drop the driver") since the
-functionality was deemed to have been merged with adp5588-keys.
+From: Utsav Agarwal <utsav.agarwal@analog.com>
 
-This series of patches re-enables this support by introducing a new
-property names "gpio-only", which allows the driver to relax the
-requirement for registering a keymap and enable pure GPIO operation. 
-
-Changelog
-==========
-
-V2: 
-	-  Changed gpio_only from a local variable to a member of struct
-	adp5588_kpad
-	-  Removed condition from adp5588_probe() to skip adp5588_fw_parse() if 
-	gpio-only specified. adp558_fw_parse() now handles and returns
-	0 if gpio-only has been specified.
-	-  Added a check in adp5588_fw_parse() to make sure keypad 
-	properties(keypad,num-columns and keypad,num-rows) were not defined when 
-	gpio-only specified
-
-V3:
-	-  Moved device_property_present() for reading "gpio-only" into 
-	adp558_fw_parse()
-	-  Added print statements in case of error
-
-V4:
-	- Added dt-bindings patch
+Updating dt bindings for adp5588. Following properties are now made
+optional:
+	- interrupts
+	- keypad,num-rows
+	- keypad,num-columns
+	- linux,keymap
+The proposed new property "gpio-only" has been added as an optional
+property with an additional example.
 
 Signed-off-by: Utsav Agarwal <utsav.agarwal@analog.com>
 ---
-Utsav Agarwal (2):
-      Input: adp5588-keys - add support for pure gpio
-      dt-bindings: input: Update dtbinding for adp5588
+ .../devicetree/bindings/input/adi,adp5588.yaml     | 28 ++++++++++++++++++----
+ 1 file changed, 24 insertions(+), 4 deletions(-)
 
- .../devicetree/bindings/input/adi,adp5588.yaml     | 28 ++++++++++++++++---
- drivers/input/keyboard/adp5588-keys.c              | 32 ++++++++++++++++++++++
- 2 files changed, 56 insertions(+), 4 deletions(-)
----
-base-commit: 1c52cf5e79d30ac996f34b64284f2c317004d641
-change-id: 20240701-adp5588_gpio_support-65db2bd21a9f
+diff --git a/Documentation/devicetree/bindings/input/adi,adp5588.yaml b/Documentation/devicetree/bindings/input/adi,adp5588.yaml
+index 26ea66834ae2..158fbf02cc16 100644
+--- a/Documentation/devicetree/bindings/input/adi,adp5588.yaml
++++ b/Documentation/devicetree/bindings/input/adi,adp5588.yaml
+@@ -46,6 +46,11 @@ properties:
+   '#gpio-cells':
+     const: 2
+ 
++  gpio-only:
++    description:
++      This property applies if keypad,num-rows, keypad,num-columns and
++      linux,keypad are not specified. All keys will be marked as gpio.
++
+   interrupt-controller:
+     description:
+       This property applies if either keypad,num-rows lower than 8 or
+@@ -68,10 +73,6 @@ properties:
+ required:
+   - compatible
+   - reg
+-  - interrupts
+-  - keypad,num-rows
+-  - keypad,num-columns
+-  - linux,keymap
+ 
+ unevaluatedProperties: false
+ 
+@@ -108,4 +109,23 @@ examples:
+             >;
+         };
+     };
++
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/input/input.h>
++    #include <dt-bindings/gpio/gpio.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++        gpio@34 {
++            compatible = "adi,adp5588";
++            reg = <0x34>;
++
++            #gpio-cells = <2>;
++            gpio-controller;
++            gpio-only;
++            };
++        };
++
+ ...
 
-Best regards,
 -- 
-Utsav Agarwal <utsav.agarwal@analog.com>
+2.34.1
 
 

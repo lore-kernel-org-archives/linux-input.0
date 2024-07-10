@@ -1,80 +1,98 @@
 Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A88321922F1
-	for <linux-input@vger.kernel.org>; Wed, 10 Jul 2024 10:28:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1E38190059
+	for <linux-input@vger.kernel.org>; Wed, 10 Jul 2024 10:32:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720607327; cv=none; b=qjKUoq/KIraVXeTzvGsBVvR+JAx8pCK+LGXjMX3FC2E3oJ3vaT48JjLa6o6j6RcJBUKSJD1Cn/c/oS1dyKnb1PnUAD2ijHRa/WT3UBkmScHynYYpiIJS4+SQlS6qOvX21VX3rH98IrTech+R9KHYkxAq89U7XaffboOe8RfyVSg=
+	t=1720607550; cv=none; b=g8C1ei1Wvbay70DtAKfgXOwE0mjAIPYXDmTUo8GZH1IyMWOkY98bFom0etnq2Ac0YIXzRQrrwON9gvvl7dHy/bC2neTbDCSgglGHt2U0adzbGP94nn332dIGGKhacURshlsdYRm07aZTJchpQqnv9XVNdBS6YyI4W5IjSCVhZdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720607327; c=relaxed/simple;
-	bh=gEgMkBU4WxtJ5COcKXI5DIYZlMPRdvHUdvbN021sfQc=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=DjksGMfneYVU1SGvsZUA4PbpvFeDiREIrvRaX9JrKokf6V+lDSBxQ6pLnc8NLk9exZ4Sn6qAqaWgPa2mUbbcDqldtS20wjA5XtYysdyz0mRMKJuP0M9MWy9jVnX6+db736+o/LVGkuozlDQUs8IrVq99OZqKY9FHDzr1b8EH7DA=
+	s=arc-20240116; t=1720607550; c=relaxed/simple;
+	bh=fTQ7zkRLNDCLn/p4WuewCqh1pWrTOX5y6H7fbS4cZeU=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=UrwVLg6D3r1T2VOauB3wPobuplqxsQX/3reXkEUEwnaQgdYFXcsf9QVCck2iJYa4Kh7iWnh6rDi+VAIcfoQy5sV/s5WE7ud/vaNGhcKLouKHuhk7ejl9MbC3Aiq/pIcZyq0SmTT6JbUWuTmpNirykRCPkmrz7qjRcNlQi2G0D4Y=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from dude05.red.stw.pengutronix.de ([2a0a:edc0:0:1101:1d::54])
-	by metis.whiteo.stw.pengutronix.de with esmtp (Exim 4.92)
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
 	(envelope-from <p.zabel@pengutronix.de>)
-	id 1sRUYs-0001Y8-UU; Wed, 10 Jul 2024 12:28:34 +0200
+	id 1sRUcX-0001wy-IB; Wed, 10 Jul 2024 12:32:21 +0200
+Received: from [2a0a:edc0:0:900:1d::4e] (helo=lupine)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1sRUcX-008Ui7-4a; Wed, 10 Jul 2024 12:32:21 +0200
+Received: from pza by lupine with local (Exim 4.96)
+	(envelope-from <p.zabel@pengutronix.de>)
+	id 1sRUcX-0006FY-0F;
+	Wed, 10 Jul 2024 12:32:21 +0200
+Message-ID: <863e5bcd9160090f3b9a93f70da0de50d5efbe9a.camel@pengutronix.de>
+Subject: Re: [PATCH v2 1/2] dt-bindings: input: touchscreen: exc3000: add
+ EXC81W32
 From: Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH v3 0/2] Input: exc3000 - EXC81W32 controller support
-Date: Wed, 10 Jul 2024 12:28:30 +0200
-Message-Id: <20240710-input-exc3000-exc81w32-v3-0-4272183628b4@pengutronix.de>
+To: Conor Dooley <conor@kernel.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
+ <robh@kernel.org>,  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>,  linux-input@vger.kernel.org,
+ devicetree@vger.kernel.org,  linux-kernel@vger.kernel.org,
+ kernel@pengutronix.de
+Date: Wed, 10 Jul 2024 12:32:20 +0200
+In-Reply-To: <20240701-evolve-unbutton-ef7d913ad69f@spud>
+References: 
+	<20240628-input-exc3000-exc81w32-v2-0-c2b21a369c05@pengutronix.de>
+	 <20240628-input-exc3000-exc81w32-v2-1-c2b21a369c05@pengutronix.de>
+	 <20240628-agonizing-syrup-fcd55c441b3f@spud>
+	 <150055844b8af2017fa721ff08bbde473354b2da.camel@pengutronix.de>
+	 <20240701-evolve-unbutton-ef7d913ad69f@spud>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.4-2 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAE5ijmYC/4XNwQqDMAwG4FeRnpfRpurqTnuPsUOtUXup0mrnE
- N991dNgjJFD+H/Il5UF8pYCu2Yr8xRtsINLQZ4yZnrtOgLbpMyQY85LLMG6cZ6AFiM55/tW4ik
- RCpWm1rmuVMvS8eiptcsB3x8p9zZMg38df6LY279kFCBAmxwbWauLbtvbSK6bJz84u5wbYrsb8
- dNSPy0EDgZrFFqWleHFl7Vt2xuYqFLaDQEAAA==
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, kernel@pengutronix.de, 
- Philipp Zabel <p.zabel@pengutronix.de>
-X-Mailer: b4 0.15-dev-13183
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:1101:1d::54
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
 X-SA-Exim-Mail-From: p.zabel@pengutronix.de
 X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
 X-PTX-Original-Recipient: linux-input@vger.kernel.org
 
-EXC81W32 controllers use the same protocol and have the same resolution
-as the EXC80 controllers. They can be supported by the exc3000 driver
-with minimal changes.
+On Mo, 2024-07-01 at 15:42 +0100, Conor Dooley wrote:
+> On Mon, Jul 01, 2024 at 02:47:50PM +0200, Philipp Zabel wrote:
+> > Hi Conor,
+> >=20
+> > On Fr, 2024-06-28 at 17:21 +0100, Conor Dooley wrote:
+> > > On Fri, Jun 28, 2024 at 10:35:51AM +0200, Philipp Zabel wrote:
+> > > > Add compatible for EXC81W32 touchscreen controllers.
+> > >=20
+> > > Could you please mention in your commit messages what makes a fallbac=
+k
+> > > compatible inappropriate here?
+> >=20
+> > thank for pointing this out. Actually, I'm not sure a fallback
+> > compatible is inappropriate at all. There just is none currently, even
+> > though EXC80H60 and EXC80H84 already look compatible to me.
+> >=20
+> > To my understanding, there's EXC80[WH]{32,46,60,84} models, that should
+> > only differ in ball pitch (W or H) and targeted display size (the last
+> > number).
+> > I don't know if there are actual relevant differences between what I
+> > assume are model generations, such as EXC80 to EXC81. At least the
+> > limited currently implemented feature set in the exc3000 driver is
+> > identical.
+> >=20
+> > Given that EXC80H60, EXC80H84, and now EXC81W32 all share the same 16K
+> > resolution and the same message format (possible differences in
+> > capability to measure touch area nonwithstanding), should I prepend
+> > this series with a patch:
+>=20
+> If you're prepared to update the two users to avoid adding more
+> dtbs_check warnings, sure.
 
-Their featureset may differ, though. Looking at the messages, it appears
-the EXC81 also supports touch pressure or area measurement, for example.
+I'll follow up with another patch series, thanks.
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
----
-Changes in v3:
-- mark exc81w32 as compatible with exc80h84
-- Link to v2: https://lore.kernel.org/r/20240628-input-exc3000-exc81w32-v2-0-c2b21a369c05@pengutronix.de
-
-Changes in v2:
-- split device tree binding compatible update out of the driver patch
-- Link to v1: https://lore.kernel.org/r/20240626-input-exc3000-exc81w32-v1-1-ac42d3b87aff@pengutronix.de
-
----
-Philipp Zabel (2):
-      dt-bindings: input: touchscreen: exc3000: add EXC81W32
-      Input: exc3000 - add EXC81W32 support
-
- .../devicetree/bindings/input/touchscreen/eeti,exc3000.yaml  | 12 ++++++++----
- drivers/input/touchscreen/exc3000.c                          |  7 +++++++
- 2 files changed, 15 insertions(+), 4 deletions(-)
----
-base-commit: 1613e604df0cd359cf2a7fbd9be7a0bcfacfabd0
-change-id: 20240626-input-exc3000-exc81w32-58585ba4a98f
-
-Best regards,
--- 
-Philipp Zabel <p.zabel@pengutronix.de>
-
+regards
+Philipp

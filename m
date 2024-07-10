@@ -1,119 +1,146 @@
-Received: from forward500a.mail.yandex.net (forward500a.mail.yandex.net [178.154.239.80])
+Received: from mail.enpas.org (zhong.enpas.org [46.38.239.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D25DC1E878;
-	Wed, 10 Jul 2024 13:57:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CF86191494;
+	Wed, 10 Jul 2024 15:40:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.239.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720619860; cv=none; b=sy98DrUBXGepTPdLMsrKoZJEeW/CSOKaGMiGzwCgk4yzfbUiSkMnHp6FDkdTdCpheyPoDEJ94yp53kjtQV1Uci6t21gftV3GCBA0MJa84hMe1K3ZFFliGB7QsYqY2OAjovsoVM20e2bbFbcb64aP3ljsohITNq+TiyAUI/QkclI=
+	t=1720626059; cv=none; b=EW7LFSXV/saO/XhaDwxR4GtMgBBwJEv8khpwA4rMyEanVM+5HtqBmq01rAOrjqdaHvoCu5orVOQvDiqc6CjvdPK8oQIVPCVqhyDweaUSJla7C+a68WHZXVQGIOwtL41mm60nrucOxeYNtqJVG42BMK/4DqrwWcOUxFcsuu/zB0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720619860; c=relaxed/simple;
-	bh=dvNWlpITxM+kcZ2muxDh7Vnog/B/XqfEmWB2Ko9b+L0=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=A9yABq3xNY3Qyc2Rlq7GMIWh7OHepCHoD51BHjJ0vqugDOZ2PsJJiolF17Uw/IyVqPeD8R7MWbh+A5HNFuNlfK6T5v1y6T3qOo5rZF7U1OV7GWlsWjiaMNEkjoZ74Bhs+dOvTWC+kdlv8kP1GGWvlfwkXMiOphVd+8kG/JpVz7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=maquefel.me; spf=pass smtp.mailfrom=maquefel.me; dkim=pass (1024-bit key) header.d=maquefel.me header.i=@maquefel.me header.b=Lz4kK/pL; arc=none smtp.client-ip=178.154.239.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=maquefel.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=maquefel.me
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=maquefel.me header.i=@maquefel.me header.b="Lz4kK/pL"
-Received: from mail-nwsmtp-smtp-production-main-31.vla.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-31.vla.yp-c.yandex.net [IPv6:2a02:6b8:c0d:38a3:0:640:a710:0])
-	by forward500a.mail.yandex.net (Yandex) with ESMTPS id 7E56061E0D;
-	Wed, 10 Jul 2024 16:48:42 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-31.vla.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id Xmecr64OiuQ0-yRS0mYRs;
-	Wed, 10 Jul 2024 16:48:40 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=maquefel.me; s=mail;
-	t=1720619320; bh=dvNWlpITxM+kcZ2muxDh7Vnog/B/XqfEmWB2Ko9b+L0=;
-	h=References:Date:In-Reply-To:Cc:To:From:Subject:Message-ID;
-	b=Lz4kK/pLIiP7TRsvVcCsyN/ENXOi/cbuOigQPGq6WepeV2OMr/VX7mIKmanRWGhgr
-	 BHxt03weitFN0X52cEW+k6DsO/fFgVBLHT5tNa8+AeAum0LY8n5C2G7QIul1NoywuN
-	 cqt18iShdPqpcuaqZATlZBHaI3uCXuLlRUg1hK8k=
-Authentication-Results: mail-nwsmtp-smtp-production-main-31.vla.yp-c.yandex.net; dkim=pass header.i=@maquefel.me
-Message-ID: <6a0b3b3b03706367e7bd2d3ed7132e9cc454af00.camel@maquefel.me>
-Subject: Re: [PATCH v10 00/38] ep93xx device tree conversion
-From: Nikita Shubin <nikita.shubin@maquefel.me>
-To: Arnd Bergmann <arnd@arndb.de>, Uwe =?ISO-8859-1?Q?Kleine-K=F6nig?=
-	 <u.kleine-koenig@baylibre.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, Stephen Boyd
- <sboyd@kernel.org>,  Hartley Sweeten <hsweeten@visionengravers.com>,
- Alexander Sverdlin <alexander.sverdlin@gmail.com>, Russell King
- <linux@armlinux.org.uk>, Lukasz Majewski <lukma@denx.de>, Linus Walleij
- <linus.walleij@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Andy
- Shevchenko <andy@kernel.org>, Michael Turquette <mturquette@baylibre.com>,
- Sebastian Reichel <sre@kernel.org>, Rob Herring <robh+dt@kernel.org>,
- Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, Conor Dooley
- <conor+dt@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter
- Roeck <linux@roeck-us.net>, Thierry Reding <thierry.reding@gmail.com>, Mark
- Brown <broonie@kernel.org>, "David S . Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Miquel Raynal <miquel.raynal@bootlin.com>,
- Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
- Damien Le Moal <dlemoal@kernel.org>, Sergey Shtylyov <s.shtylyov@omp.ru>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Liam Girdwood
- <lgirdwood@gmail.com>, Jaroslav Kysela <perex@perex.cz>,  Takashi Iwai
- <tiwai@suse.com>, Ralf Baechle <ralf@linux-mips.org>, Aaron Wu
- <Aaron.Wu@analog.com>, Lee Jones <lee@kernel.org>, Olof Johansson
- <olof@lixom.net>, Niklas Cassel <cassel@kernel.org>,
- linux-arm-kernel@lists.infradead.org,  linux-kernel@vger.kernel.org, "open
- list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- linux-clk@vger.kernel.org,  linux-pm@vger.kernel.org,
- devicetree@vger.kernel.org, dmaengine@vger.kernel.org, 
- linux-watchdog@vger.kernel.org, linux-pwm@vger.kernel.org, 
- linux-spi@vger.kernel.org, Netdev <netdev@vger.kernel.org>, 
- linux-mtd@lists.infradead.org, linux-ide@vger.kernel.org, 
- linux-input@vger.kernel.org, linux-sound@vger.kernel.org, Bartosz
- Golaszewski <bartosz.golaszewski@linaro.org>, Krzysztof Kozlowski
- <krzysztof.kozlowski@linaro.org>, Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>, Andrew Lunn <andrew@lunn.ch>, Vinod
- Koul <vkoul@kernel.org>
-Date: Wed, 10 Jul 2024 16:48:34 +0300
-In-Reply-To: <8f45a3d9-429c-441e-a17c-33a163eb86c2@app.fastmail.com>
-References: <20240617-ep93xx-v10-0-662e640ed811@maquefel.me>
-	 <CAHp75VfSC9gAD9ipeWRPdQOxUp4FXqYYei-cJTs38nbz0cHpkg@mail.gmail.com>
-	 <48c242838c77034485a9e667dc0e867207c5beed.camel@maquefel.me>
-	 <241a4cf9830b0118f01e8fcf2853c62527636049.camel@maquefel.me>
-	 <jyvlqfvqn5bp3jmvxvwyrcqmihjohuq3o757mfph7x37kbwvtq@gtgyh4fca4fq>
-	 <663b1749afeb5cec281149fdb445ed36fdcbc68e.camel@maquefel.me>
-	 <8f45a3d9-429c-441e-a17c-33a163eb86c2@app.fastmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 
+	s=arc-20240116; t=1720626059; c=relaxed/simple;
+	bh=CrL/Jn/Ty/fnR5ezAckIV+af6We6y4cUsMgzE8M/R7o=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=uCCfNzvj6D7MYgtbMrW5EklZQtHgUj0zmFy51vcqNn+21ROgi1iDyIUoBJhj/yaq1hRKxgnwyhvgjCUTd5MoPDtWjfCQowtw3VcQvsZ0mQmobkAZA21Wxmpv9DdHHb4QuPfu0+nEAbHJcHfxfxSVQomBUrRjZ0PZTM4sTgvNKdM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org; spf=pass smtp.mailfrom=enpas.org; arc=none smtp.client-ip=46.38.239.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=enpas.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enpas.org
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+	by mail.enpas.org (Postfix) with ESMTPSA id 1A3FF1000C8;
+	Wed, 10 Jul 2024 15:35:21 +0000 (UTC)
+Message-ID: <afda41dc-7b36-4ddd-abfc-c9430d8c9503@enpas.org>
+Date: Thu, 11 Jul 2024 00:35:16 +0900
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+From: Max Staudt <max@enpas.org>
+Subject: Re: [PATCH v1] hid-playstation: DS4: Update rumble and lightbar
+ together
+To: Roderick Colenbrander <thunderbird2k@gmail.com>
+Cc: Roderick Colenbrander <roderick.colenbrander@sony.com>,
+ Jiri Kosina <jikos@kernel.org>,
+ Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+ linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20240616163055.75174-1-max@enpas.org>
+ <CAEc3jaCkH5JwNTpHRZYsekbwX+G6T5tMTLD0+O6E7Q2hqcAFHw@mail.gmail.com>
+ <dedb2c39-fc28-4cba-802f-5d56f23db722@enpas.org>
+ <CAEc3jaC-Tmd2XtK9H2sipBJAhCf16dMWx46r8Hs4p9At3LC_Jg@mail.gmail.com>
+Content-Language: en-US
+In-Reply-To: <CAEc3jaC-Tmd2XtK9H2sipBJAhCf16dMWx46r8Hs4p9At3LC_Jg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hello Arnd!
+Hi Roderick,
 
-On Wed, 2024-07-10 at 14:31 +0200, Arnd Bergmann wrote:
-> On Mon, Jul 8, 2024, at 09:34, Nikita Shubin wrote:
-> > Arnd,=20
-> >=20
-> > Are we continuing this patch series ?
-> >=20
-> > You are silent since last version submit, which makes me a bit
-> > worried.
-> >=20
-> > If you suddenly changed your mind please let us know, cause anyway
-> > we
-> > have no possibility to merge these series without you.
->=20
-> Hi Nikita,
->=20
-> I definitely still want to merge your work, I was just not paying
-> attention while there were others commenting on it, and I don't
-> know what the current state is. If you are ready to have some
-> or all of the patches included in the next merge window, can
-> you send either the set of patches that were reviewed to
-> soc@kernel.org=C2=A0for me to pick up, or prepare a pull request
-> to that address?
->=20
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Arnd
 
-Thanks for support!
+On 7/9/24 01:07, Roderick Colenbrander wrote:
+> The console behavior (I checked the code) does use the flags as well 
+> like I do. The architecture there between usermode/kernel is a bit 
+> different, so in some cases flags do get set when not needed.
 
-We still have a minor issue but AFAIS only a single patch left, but
-hoping to settle this one with Stephen soon.
+Thank you so, so much for double checking this. It's always great to 
+have someone who can speak authoritatively on such matters and eliminate 
+the guesswork.
+
+
+> Various devices tried to capture bit patterns and see what kind of 
+> worked even though not really right. (Officially licensed
+> controllers are a different story they use different hid reports.) We
+> didn't know other devices did this wrong.
+
+Licensed controllers... That will be my next patch set, apologies in 
+advance :)
+
+They need quite a few quirks, too... And as it turns out, my previous 
+patches have laid a lot of ground work for them :)
+
+
+> Correct the validation tests are all uhid based, which is the best 
+> which can be done.
+
+Please correct me if I'm getting the wrong idea here, but what I read 
+between the lines and from your email address is that this is something 
+in Sony's interest.
+
+So an idea comes to mind: Maybe somewhere inside Sony, there exists 
+something like a DS4 simulator at the HID level, which could serve as a 
+foundation for improving the tests? That would get the tests much closer 
+to the gold standard, which is using a real controller.
+
+If not, then maybe there is protocol documentation that could help test 
+writers in creating more precise tests?
+
+
+> There is the hid-tools one, but the one which we help out with, but
+> the key one is the Android ones. We have so many problems with these.
+> Mostly because of vendors not enabling e.g. FF support or LED support
+> other things.
+
+Hm, but downstream users misconfiguring kernels is not our fault, is it? 
+In that case, the tests actually do their work correctly if they show 
+that something is amiss.
+
+
+> The main new Android kernel (public knowledge) is now 6.6 and many
+> new devices due later this year/early next year will use it.  The
+> eco system is a lot wider now and the drivers are used a lot on
+> non-mobile devices (cars, televisions, chromecast,..). Occassionally
+> driver patches are also backported from upstream to older Android
+> kernels (patches have to be merged upstream first).
+
+I see. But still, that is just typical downstream risk of building on 
+behaviour that the kernel does not provide guarantees for. I know 
+first-hand that backporting is a lot of work and easy to get wrong, but 
+this is the first time that I hear that as a reason to stop improving 
+the mainline kernel. Hence my confusion here.
+
+
+> Not that I wouldn't want these kind of patches, but I have to weigh 
+> both sides.
+
+Thanks for your understanding, and hence my offer to help if I somehow 
+can...
+
+
+> The pain on addressing things downstream and in Android conformance
+> tests is quite painful.
+
+Hm, I can somewhat imagine this. I've heard that Android conformance is 
+quite strict.
+
+Given Sony's supposed interest (see above), I guess it would be a 
+worthwhile investment to make the tests more robust? We could just hold 
+off on this patch for a while until downstream has better tests... What 
+would be a timeline for this to trickle downstream?
+
+
+> We would also have both code paths used in the wild forever, because
+> existing 6.6 devices wouldn't change behavior.
+
+Well, that's kind of the point of LTS releases, if I'm not mistaken...
+
+
+> (The official Android tests are kind of kernel version agnostic as
+> they work across multiple kernel and Android versions.
+
+Hm, sounds to me like the Android test framework is broken if it cannot 
+be kernel-specific in such cases. What's required in order to improve this?
+
+
+
+Max
+
 

@@ -1,152 +1,122 @@
-Received: from flow1-smtp.messagingengine.com (flow1-smtp.messagingengine.com [103.168.172.136])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4E9A128369;
-	Wed, 10 Jul 2024 12:32:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F3B6193449;
+	Wed, 10 Jul 2024 13:52:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720614729; cv=none; b=csrJvAVSUEZwOrRm+YLdXwbqvOhtdUAQMz6yiXysgDin4o5d/Tq2F5VJzcoH+bihh/UQA1tNwo/OQRFmQw69cdeSxLcDFr14MW4zcrACaB+4yR8Cm9W0e8G/EOChBcTNuld9WBl1IoBzdMAXo9LeNU9uhloVlYhG8esfyTpulV0=
+	t=1720619577; cv=none; b=YtzVHb6E1aPS5Om+ZbXZCdazoTdCvJF7iJeCQUadcAsVqE7LmM5zCZsOSJF0jK1Z0YsXNQX6tqe1pytsQR2s76qwez8TWJVb5+k6LeSNflSoJRmqxwOVymQrA0UHF6qJ9wlEmwxo9YXqFHVqlLyB/DT029Tk+DvzVxoPQqoBFNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720614729; c=relaxed/simple;
-	bh=XU81jlqPSEHhklnXvmeUHF4K+FfBTeR9jSQAbMBRniM=;
-	h=MIME-Version:Message-Id:In-Reply-To:References:Date:From:To:Cc:
-	 Subject:Content-Type; b=PSiJXSZwPFZ9lSdvn0SeQa1cXNthHMILVhMvD1Ov+jLoKTKPVaV/HY4gD3AYavWa67MoocDaVNR/COKbSXu6UlRxtJsN5XfJbVE2q6qk3WoEbUWxIhVbVVAFgCVPiN3r/GFKOdJe3hidYzN2Pf6jNI/mR42Jfj9IhtcO042jCho=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=cOl7Zcvk; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=LpLxRYuW; arc=none smtp.client-ip=103.168.172.136
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1720619577; c=relaxed/simple;
+	bh=QhaNADKPWhmGoAiQ07UnKvQntsV5hpp5wAActCfsVSU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HX8MvLOT7COjDaTKwgQxcxk8900EvlDMV5zSC4L+Ory0qGZaf+VMJ3nXdNZ1zxOiEdJrAXje19YOTbRT07h/CDurajZsdxHaJ/Aq0HL4DfB5T8jQjMFnTSOMUuLYGrLRhG5J8J6NLyDa9kq6XMA1n3QWUt8j0IlSaOZ6/DONPF0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZkIZxIE9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="cOl7Zcvk";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="LpLxRYuW"
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-	by mailflow.nyi.internal (Postfix) with ESMTP id A4406200314;
-	Wed, 10 Jul 2024 08:32:06 -0400 (EDT)
-Received: from imap51 ([10.202.2.101])
-  by compute5.internal (MEProxy); Wed, 10 Jul 2024 08:32:06 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1720614726; x=1720621926; bh=C2Se+H9RzY
-	HkM+IvsyadLBKj3T9ynrUDq9Xcr2QdKUs=; b=cOl7Zcvkzf0wDdLrzY4XZ4nqyK
-	Q0n/RJfmgELZTtTqod2qQXQqjWvo6hLyv8ZupwoPZleV74KB7CrYe8SjUf4ceunh
-	CCahWbr44J1SkI4rlgeI03TRPOLSw5VTaOaCk8uarlYDXmbvY5gg6XFdGRnBLRmT
-	VFLQKnpwzfM4POIfXCcKIBRg/+pkVOQlBJ0GH3BxqYageTKlELXoNlTt4mw+Q4Aj
-	k2Im0F4pgLhehsHgB2bzs6UKs606OMlnCduj2/iYMXP59CpYQjVYC2vfu4cHRoAf
-	cyc43gZGXwtKhum8Bm+sgJK4LC6XjiAJWyjbEM9FItPgj+N5bQP6BT/4uDQw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-type:content-type:date:date
-	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-	:message-id:mime-version:references:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1720614726; x=1720621926; bh=C2Se+H9RzYHkM+IvsyadLBKj3T9y
-	nrUDq9Xcr2QdKUs=; b=LpLxRYuWKtNXiN+vMol//S9HJvuDNvoMySy3IEcvEnBP
-	u9nXxRywgLMUEzBCTM0mYX9ux3yyTeKxg3a3Qgn4q/3Io5xtp/Vv1mphh8pcf9E6
-	vhNbLB9DALQvdlqA+SoPJLiJF9I1J2l9vi9JhSpyNJ/U2kN1jkcNAhlPjGeBJNuf
-	dq24Q8irGyqaVcPnhFTsXs+y9AUvU7g3iwOe2EAup6fP+ru5f+A7TeI4ed07Fl+D
-	8S+3VmfI4gOVzGcHNSOk1DfOPIUoqSrnh5pt7UgSz6xINcZRaJfz0qVD/8QFgZDt
-	zBwpgYQWHBL/Ev+vGiiYevpXhAYme5o7Y0QxcBEGaw==
-X-ME-Sender: <xms:Q3-OZurnKRkHBlEZMjc2PijwVnii3Ft7oAVSuLA0qFmezC5Y5EJm9Q>
-    <xme:Q3-OZsoW4lzanijF6DQpYWPbUfD-CFYt0QhuAlF3F1xQAlxGDVndb8vyQkcKdK_mG
-    3wR-2RmoSV2vmVg9Xc>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrfedugdehfecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpefofgggkfgjfhffhffvvefutgesthdtredtreertdenucfhrhhomhepfdetrhhn
-    ugcuuegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtth
-    gvrhhnpeffheeugeetiefhgeethfejgfdtuefggeejleehjeeutefhfeeggefhkedtkeet
-    ffenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrh
-    hnugesrghrnhgusgdruggv
-X-ME-Proxy: <xmx:Q3-OZjOIVdJEtnz-150-q7qjX0LUXM6RkvkquzoxolFuI1CETJjJiw>
-    <xmx:Q3-OZt47sHQWBMp4Sm_h9D_Itaa2UR7xRR6oz4VfTFgZl4xOrpRMow>
-    <xmx:Q3-OZt61vvUylUkBQV7eSWZtpYz_EP3x6iU3PqX4vtnbW2NiXElrdg>
-    <xmx:Q3-OZth_J6crv8zLOcicEfQqH5MMDIkvJ1IgWC5x8R0svP4D8xWqkw>
-    <xmx:Rn-OZgIBVQ1boHKoWWrW7KFkxPc4r84muU_5CzmiqF-M7CrvG824ufJd>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.nyi.internal (Postfix, from userid 501)
-	id 09148B6008D; Wed, 10 Jul 2024 08:32:03 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
-User-Agent: Cyrus-JMAP/3.11.0-alpha0-568-g843fbadbe-fm-20240701.003-g843fbadb
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZkIZxIE9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D85E4C32786;
+	Wed, 10 Jul 2024 13:52:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1720619576;
+	bh=QhaNADKPWhmGoAiQ07UnKvQntsV5hpp5wAActCfsVSU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ZkIZxIE9HFZpTFdTcF9Pn3T5CVGo0zmI+mKzMTlUtV32Ky5lpV5NTDQ1HxoU9e139
+	 2CwfH8fja2VIo1DUzJvoO2VafelRm3DIBLrD6UuJj2vJSoOBNQ/FkgQ6E7xH9h8p6t
+	 dUS8yHsHK0BTKJVfgAI/942cKxbbEom/uzbLDVbd0y8M7kZ+ml5TTdPvUSHGrGh5CK
+	 mWN0glJls9YrvjxYiXKdMXiWre+n+LC1pBoQlQ5u1pueuD5jliY5iVv/n9ok20ZaQs
+	 rFEYxyTu8IHy4vWFJQQus2Y5ReL10550An05mT2nACI3a+kyzuwrbPX44tudqgBFUU
+	 r57+CplF1ng+w==
+Date: Wed, 10 Jul 2024 14:52:52 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Philipp Zabel <p.zabel@pengutronix.de>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-input@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	kernel@pengutronix.de
+Subject: Re: [PATCH v3 1/2] dt-bindings: input: touchscreen: exc3000: add
+ EXC81W32
+Message-ID: <20240710-couch-creamed-11ff20becccd@spud>
+References: <20240710-input-exc3000-exc81w32-v3-0-4272183628b4@pengutronix.de>
+ <20240710-input-exc3000-exc81w32-v3-1-4272183628b4@pengutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-Id: <8f45a3d9-429c-441e-a17c-33a163eb86c2@app.fastmail.com>
-In-Reply-To: <663b1749afeb5cec281149fdb445ed36fdcbc68e.camel@maquefel.me>
-References: <20240617-ep93xx-v10-0-662e640ed811@maquefel.me>
- <CAHp75VfSC9gAD9ipeWRPdQOxUp4FXqYYei-cJTs38nbz0cHpkg@mail.gmail.com>
- <48c242838c77034485a9e667dc0e867207c5beed.camel@maquefel.me>
- <241a4cf9830b0118f01e8fcf2853c62527636049.camel@maquefel.me>
- <jyvlqfvqn5bp3jmvxvwyrcqmihjohuq3o757mfph7x37kbwvtq@gtgyh4fca4fq>
- <663b1749afeb5cec281149fdb445ed36fdcbc68e.camel@maquefel.me>
-Date: Wed, 10 Jul 2024 14:31:42 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Nikita Shubin" <nikita.shubin@maquefel.me>,
- =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
-Cc: "Andy Shevchenko" <andy.shevchenko@gmail.com>,
- "Stephen Boyd" <sboyd@kernel.org>,
- "Hartley Sweeten" <hsweeten@visionengravers.com>,
- "Alexander Sverdlin" <alexander.sverdlin@gmail.com>,
- "Russell King" <linux@armlinux.org.uk>,
- "Lukasz Majewski" <lukma@denx.de>,
- "Linus Walleij" <linus.walleij@linaro.org>,
- "Bartosz Golaszewski" <brgl@bgdev.pl>,
- "Andy Shevchenko" <andy@kernel.org>,
- "Michael Turquette" <mturquette@baylibre.com>,
- "Sebastian Reichel" <sre@kernel.org>, "Rob Herring" <robh+dt@kernel.org>,
- "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>,
- "Conor Dooley" <conor+dt@kernel.org>,
- "Wim Van Sebroeck" <wim@linux-watchdog.org>,
- "Guenter Roeck" <linux@roeck-us.net>,
- "Thierry Reding" <thierry.reding@gmail.com>,
- "Mark Brown" <broonie@kernel.org>,
- "David S . Miller" <davem@davemloft.net>,
- "Eric Dumazet" <edumazet@google.com>, "Jakub Kicinski" <kuba@kernel.org>,
- "Paolo Abeni" <pabeni@redhat.com>,
- "Miquel Raynal" <miquel.raynal@bootlin.com>,
- "Richard Weinberger" <richard@nod.at>,
- "Vignesh Raghavendra" <vigneshr@ti.com>,
- "Damien Le Moal" <dlemoal@kernel.org>,
- "Sergey Shtylyov" <s.shtylyov@omp.ru>,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- "Liam Girdwood" <lgirdwood@gmail.com>,
- "Jaroslav Kysela" <perex@perex.cz>, "Takashi Iwai" <tiwai@suse.com>,
- "Ralf Baechle" <ralf@linux-mips.org>, "Aaron Wu" <Aaron.Wu@analog.com>,
- "Lee Jones" <lee@kernel.org>, "Olof Johansson" <olof@lixom.net>,
- "Niklas Cassel" <cassel@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- linux-clk@vger.kernel.org, linux-pm@vger.kernel.org,
- devicetree@vger.kernel.org, dmaengine@vger.kernel.org,
- linux-watchdog@vger.kernel.org, linux-pwm@vger.kernel.org,
- linux-spi@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
- linux-mtd@lists.infradead.org, linux-ide@vger.kernel.org,
- linux-input@vger.kernel.org, linux-sound@vger.kernel.org,
- "Bartosz Golaszewski" <bartosz.golaszewski@linaro.org>,
- "Krzysztof Kozlowski" <krzysztof.kozlowski@linaro.org>,
- "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>,
- "Andrew Lunn" <andrew@lunn.ch>, "Vinod Koul" <vkoul@kernel.org>
-Subject: Re: [PATCH v10 00/38] ep93xx device tree conversion
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="XOyo+sROn9MECkm7"
+Content-Disposition: inline
+In-Reply-To: <20240710-input-exc3000-exc81w32-v3-1-4272183628b4@pengutronix.de>
 
-On Mon, Jul 8, 2024, at 09:34, Nikita Shubin wrote:
-> Arnd, 
->
-> Are we continuing this patch series ?
->
-> You are silent since last version submit, which makes me a bit worried.
->
-> If you suddenly changed your mind please let us know, cause anyway we
-> have no possibility to merge these series without you.
 
-Hi Nikita,
+--XOyo+sROn9MECkm7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I definitely still want to merge your work, I was just not paying
-attention while there were others commenting on it, and I don't
-know what the current state is. If you are ready to have some
-or all of the patches included in the next merge window, can
-you send either the set of patches that were reviewed to
-soc@kernel.org for me to pick up, or prepare a pull request
-to that address?
+On Wed, Jul 10, 2024 at 12:28:31PM +0200, Philipp Zabel wrote:
+> Add compatible for EXC81W32 touchscreen controllers.
+> They use the same protocol and have the same resolution as EXC80H84.
+>=20
+> Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
+> ---
+> v3: Mark exc81w32 as compatible with exc80h84.
+> ---
+>  .../devicetree/bindings/input/touchscreen/eeti,exc3000.yaml  | 12 ++++++=
+++----
+>  1 file changed, 8 insertions(+), 4 deletions(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/input/touchscreen/eeti,exc=
+3000.yaml b/Documentation/devicetree/bindings/input/touchscreen/eeti,exc300=
+0.yaml
+> index 9dc25d30a0a8..1c7ae05a8c15 100644
+> --- a/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.ya=
+ml
+> +++ b/Documentation/devicetree/bindings/input/touchscreen/eeti,exc3000.ya=
+ml
+> @@ -14,10 +14,14 @@ allOf:
+> =20
+>  properties:
+>    compatible:
+> -    enum:
+> -      - eeti,exc3000
+> -      - eeti,exc80h60
+> -      - eeti,exc80h84
+> +    oneOf:
+> +      - const: eeti,exc3000
+> +      - const: eeti,exc80h60
+> +      - const: eeti,exc80h84
 
-       Arnd
+This portion could've remained an enum.
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+
+Cheers,
+Conor.
+
+> +      - items:
+> +          - enum:
+> +              - eeti,exc81w32
+> +          - const: eeti,exc80h84
+>    reg:
+>      const: 0x2a
+>    interrupts:
+>=20
+> --=20
+> 2.39.2
+>=20
+
+--XOyo+sROn9MECkm7
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZo6SNAAKCRB4tDGHoIJi
+0vzYAQDcPRhGnxO6POKthGpu366MT1iGX+CXzGRY6KCZNAqyZQD+MjJES5StKWp4
+KA+fWgMhbNa5geuwCYyoGQc+SxlnHwg=
+=58jP
+-----END PGP SIGNATURE-----
+
+--XOyo+sROn9MECkm7--

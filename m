@@ -1,48 +1,52 @@
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from msa.smtpout.orange.fr (smtp-77.smtpout.orange.fr [80.12.242.77])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3643A13AD23;
-	Thu, 25 Jul 2024 19:46:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99647E556
+	for <linux-input@vger.kernel.org>; Thu, 25 Jul 2024 20:47:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721936777; cv=none; b=l4WHsCvHRuoOVOWnS+UEpgBKlXyzIWFQCWjUNRiSu9X4XjH+uNluSqkX+SWD9PVIFEcz/nPLza0Mdz3ttkq0B8prlHz4BsmFt1mse5bMK1mOEb9qwtOm9kippd9kipDWRTK3xrGAE7FiDVSb3W5CO9+69Ufl7/qzqnFeoaLPhoA=
+	t=1721940434; cv=none; b=B7j6QFw8omzEMnGUMbscvSdKFBxOXHDMYqJ1mQf6gWNs8uHYYTXXNN4ER7kkqTQaj4ERmOXlhnivF6g/ixSuzJOeRI4XT9aqgaquJo26LW/QGI+BIPyembRf5QO6NGeYI8Pacw5WONV2kWb45j+ZhmWW8Mt/RTIWTUmWPJ5hO/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721936777; c=relaxed/simple;
-	bh=+tAV/jdwNu/c42NsW1/DDe58gft+TQdAXYr918JtTps=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=lfUgjtUtiTV3LqMSHTIdPSl+/sHZVlS+18k2Sbyy9FZ0xO8baD5sgi2WoSUEl/mfoCmfKIpM32As60ffCJlOgBtAyzNYd071v+aX8dbYbD0naUwGEHa3mD7b1448JlRper25KVk+ZEUUQcDDOQELjXtdCsotLNlvIWoGCqyQ/LQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; arc=none smtp.client-ip=185.11.138.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
-Received: from i5e860cdd.versanet.de ([94.134.12.221] helo=phil.lan)
-	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <heiko@sntech.de>)
-	id 1sX4PQ-0001rD-7y; Thu, 25 Jul 2024 21:45:52 +0200
-From: Heiko Stuebner <heiko@sntech.de>
-To: lee@kernel.org,
-	jdelvare@suse.com,
-	linux@roeck-us.net,
-	dmitry.torokhov@gmail.com,
-	pavel@ucw.cz
-Cc: robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	heiko@sntech.de,
-	ukleinek@debian.org,
-	devicetree@vger.kernel.org,
+	s=arc-20240116; t=1721940434; c=relaxed/simple;
+	bh=JHDXKeWytPW/ro4uzW8sk6fYfCOgjS6eqK7o1zZy53g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=hIVtOe6DOLWHcc/y3QbCzJ9IpS5N82rlD3NhO2LyhOsZybIJQ6JWJuqtk0f7EfJ78bv03ra6orW6VYgQzkHA6TBZAVhZKo1t9G8IeGKh42SDLBMdxI69EWU84pewg+vE1ARNkCC8KW+wxhYEBnV9UiGSkKXqpopQQrA54UVgCUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=JHCHykUz; arc=none smtp.client-ip=80.12.242.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="JHCHykUz"
+Received: from fedora.home ([90.11.132.44])
+	by smtp.orange.fr with ESMTPA
+	id X5MSsJCR06bu3X5Mbs696W; Thu, 25 Jul 2024 22:47:03 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
+	s=t20230301; t=1721940423;
+	bh=O3ZVT0Ujn9hJ7jDCPbtGlOBgrRHSOXl/SJzBREYLERg=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=JHCHykUzoFQDo6moseWVMxr3phGNAXoZAwrR5hJo0TQIehH5Sw5sR1/P3azDW5VP5
+	 dTFuSjrySH1iW+3GFgjFIM/hbs77WjbjR3f6nE/Hq+YfmD9Z2Y76Jkg6UCUd8Y7klw
+	 VSmqzABFeUioO8eKfMvVVJZrOGMjFaeKjgcjm7zcSvQvaw7heh/LwTQckU5k4RMWZU
+	 gVCP2t/BNOLhcIxZGuy1rwwK9R+23uIf47QXg5aFkOf4qpG1pWK0HoTaAspcxcvq9m
+	 hge9vciqNUvw7jnUvAK0r+j9q1E85f7j+J6GRmIaQNUieQNgTPMUmtloqv9EHALnN2
+	 yf2gq719CMNhA==
+X-ME-Helo: fedora.home
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Thu, 25 Jul 2024 22:47:03 +0200
+X-ME-IP: 90.11.132.44
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To: dmitry.torokhov@gmail.com,
+	vipulkumar.samar@st.com,
+	viresh.kumar@linaro.org
+Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	linux-hwmon@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org
-Subject: [PATCH 4/7] Input: add driver for the input part of qnap-mcu devices
-Date: Thu, 25 Jul 2024 21:45:36 +0200
-Message-Id: <20240725194539.1780790-5-heiko@sntech.de>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240725194539.1780790-1-heiko@sntech.de>
-References: <20240725194539.1780790-1-heiko@sntech.de>
+	kernel-janitors@vger.kernel.org,
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH 2/2] Input: spear-keyboard - Switch to devm_clk_get_prepared()
+Date: Thu, 25 Jul 2024 22:46:50 +0200
+Message-ID: <ea855328eb4396cd1c44d2b6acc1fc394fcb1508.1721939824.git.christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <cover.1721939824.git.christophe.jaillet@wanadoo.fr>
+References: <cover.1721939824.git.christophe.jaillet@wanadoo.fr>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -51,217 +55,67 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The MCU controls the power-button and beeper, so expose them as input
-device. There is of course no interrupt line, so the status of the
-power-button needs to be polled. To generate an event the power-button
-also needs to be held for 1-2 seconds, so the polling interval does
-not need to be overly fast.
+Use devm_clk_get_prepared() in order to remove a clk_unprepare() in an
+error handling path of the probe and completely remove the .remove()
+function.
 
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 ---
- drivers/input/misc/Kconfig          |  12 +++
- drivers/input/misc/Makefile         |   1 +
- drivers/input/misc/qnap-mcu-input.c | 156 ++++++++++++++++++++++++++++
- 3 files changed, 169 insertions(+)
- create mode 100644 drivers/input/misc/qnap-mcu-input.c
+Compile tested only.
+---
+ drivers/input/keyboard/spear-keyboard.c | 15 +--------------
+ 1 file changed, 1 insertion(+), 14 deletions(-)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 6ba984d7f0b18..4ab8fe8301635 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -900,6 +900,18 @@ config INPUT_HISI_POWERKEY
- 	  To compile this driver as a module, choose M here: the
- 	  module will be called hisi_powerkey.
+diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
+index 5d9fc8dc9433..1df4feb8ba01 100644
+--- a/drivers/input/keyboard/spear-keyboard.c
++++ b/drivers/input/keyboard/spear-keyboard.c
+@@ -222,7 +222,7 @@ static int spear_kbd_probe(struct platform_device *pdev)
+ 	if (IS_ERR(kbd->io_base))
+ 		return PTR_ERR(kbd->io_base);
  
-+config INPUT_QNAP_MCU
-+	tristate "Input Support for QNAP MCU controllers"
-+	depends on MFD_QNAP_MCU
-+	help
-+	  This option enables support for input elements available on
-+	  embedded controllers used in QNAP NAS devices.
-+
-+	  This includes a polled power-button as well as a beeper.
-+
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called qnap-mcu-input.
-+
- config INPUT_RAVE_SP_PWRBUTTON
- 	tristate "RAVE SP Power button Driver"
- 	depends on RAVE_SP_CORE
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 04296a4abe8e8..05f5d0072b08f 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -66,6 +66,7 @@ obj-$(CONFIG_INPUT_PMIC8XXX_PWRKEY)	+= pmic8xxx-pwrkey.o
- obj-$(CONFIG_INPUT_POWERMATE)		+= powermate.o
- obj-$(CONFIG_INPUT_PWM_BEEPER)		+= pwm-beeper.o
- obj-$(CONFIG_INPUT_PWM_VIBRA)		+= pwm-vibra.o
-+obj-$(CONFIG_INPUT_QNAP_MCU)		+= qnap-mcu-input.o
- obj-$(CONFIG_INPUT_RAVE_SP_PWRBUTTON)	+= rave-sp-pwrbutton.o
- obj-$(CONFIG_INPUT_RB532_BUTTON)	+= rb532_button.o
- obj-$(CONFIG_INPUT_REGULATOR_HAPTIC)	+= regulator-haptic.o
-diff --git a/drivers/input/misc/qnap-mcu-input.c b/drivers/input/misc/qnap-mcu-input.c
-new file mode 100644
-index 0000000000000..9bac7ea2c6b80
---- /dev/null
-+++ b/drivers/input/misc/qnap-mcu-input.c
-@@ -0,0 +1,156 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+
-+/*
-+ * Driver for input events on QNAP-MCUs
-+ *
-+ * Copyright (C) 2024 Heiko Stuebner <heiko@sntech.de>
-+ */
-+
-+#include <linux/input.h>
-+#include <linux/mfd/qnap-mcu.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/slab.h>
-+#include <uapi/linux/input-event-codes.h>
-+
-+/*
-+ * The power-key needs to be pressed for a while to create an event,
-+ * so there is no use for overly frequent polling.
-+ */
-+#define POLL_INTERVAL		500
-+
-+struct qnap_mcu_input_dev {
-+	struct input_dev *input;
-+	struct qnap_mcu *mcu;
-+	struct device *dev;
-+
-+	struct work_struct beep_work;
-+	int beep_type;
-+};
-+
-+static void qnap_mcu_input_poll(struct input_dev *input)
-+{
-+	struct qnap_mcu_input_dev *idev = input_get_drvdata(input);
-+	u8 cmd[] = {
-+		[0] = 0x40, /* @ */
-+		[1] = 0x43, /* C */
-+		[2] = 0x56  /* V */
-+	};
-+	u8 reply[4];
-+	int state, ret;
-+
-+	/* poll the power button */
-+	ret = qnap_mcu_exec(idev->mcu, cmd, sizeof(cmd), reply, sizeof(reply));
-+	if (ret)
-+		return;
-+
-+	/* First bytes must mirror the sent command */
-+	if (memcmp(cmd, reply, sizeof(cmd))) {
-+		dev_err(idev->dev, "malformed data received\n");
-+		return;
-+	}
-+
-+	state = reply[3] - 0x30;
-+	input_event(input, EV_KEY, KEY_POWER, state);
-+	input_sync(input);
-+}
-+
-+static void qnap_mcu_input_beeper_work(struct work_struct *work)
-+{
-+	struct qnap_mcu_input_dev *idev =
-+		container_of(work, struct qnap_mcu_input_dev, beep_work);
-+	u8 cmd[] = {
-+		[0] = 0x40, /* @ */
-+		[1] = 0x43, /* C */
-+		[2] = (idev->beep_type == SND_TONE) ? 0x33 : 0x32
-+	};
-+
-+	qnap_mcu_exec_with_ack(idev->mcu, cmd, sizeof(cmd));
-+}
-+
-+static int qnap_mcu_input_event(struct input_dev *input, unsigned int type,
-+				unsigned int code, int value)
-+{
-+	struct qnap_mcu_input_dev *idev = input_get_drvdata(input);
-+
-+	if (type != EV_SND || (code != SND_BELL && code != SND_TONE))
-+		return -EOPNOTSUPP;
-+
-+	if (value < 0)
-+		return -EINVAL;
-+
-+	/* beep runtime is determined by the MCU */
-+	if (value == 0)
-+		return 0;
-+
-+	/* Schedule work to actually turn the beeper on */
-+	idev->beep_type = code;
-+	schedule_work(&idev->beep_work);
-+
-+	return 0;
-+}
-+
-+static int qnap_mcu_input_probe(struct platform_device *pdev)
-+{
-+	struct qnap_mcu *mcu = dev_get_drvdata(pdev->dev.parent);
-+	struct qnap_mcu_input_dev *idev;
-+	struct device *dev = &pdev->dev;
-+	struct input_dev *input;
-+	int ret;
-+
-+	idev = devm_kzalloc(dev, sizeof(*idev), GFP_KERNEL);
-+	if (!idev)
-+		return -ENOMEM;
-+
-+	input = devm_input_allocate_device(dev);
-+	if (!input)
-+		return dev_err_probe(dev, -ENOMEM, "no memory for input device\n");
-+
-+	idev->input = input;
-+	idev->dev = dev;
-+	idev->mcu = mcu;
-+
-+	input_set_drvdata(input, idev);
-+
-+	input->name		= "qnap-mcu";
-+	input->phys		= "qnap-mcu-input/input0";
-+	input->id.bustype	= BUS_HOST;
-+	input->id.vendor	= 0x0001;
-+	input->id.product	= 0x0001;
-+	input->id.version	= 0x0100;
-+	input->event		= qnap_mcu_input_event;
-+
-+	input_set_capability(input, EV_KEY, KEY_POWER);
-+	input_set_capability(input, EV_SND, SND_BELL);
-+	input_set_capability(input, EV_SND, SND_TONE);
-+
-+	INIT_WORK(&idev->beep_work, qnap_mcu_input_beeper_work);
-+
-+	ret = input_setup_polling(input, qnap_mcu_input_poll);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "unable to set up polling\n");
-+
-+	input_set_poll_interval(input, POLL_INTERVAL);
-+
-+	ret = input_register_device(input);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "unable to register input device\n");
-+
-+	qnap_mcu_input_poll(input);
-+	input_sync(input);
-+
-+	return 0;
-+}
-+
-+static struct platform_driver qnap_mcu_input_driver = {
-+	.probe = qnap_mcu_input_probe,
-+	.driver = {
-+		.name = "qnap-mcu-input",
-+	},
-+};
-+module_platform_driver(qnap_mcu_input_driver);
-+
-+MODULE_ALIAS("platform:qnap-mcu-input");
-+MODULE_AUTHOR("Heiko Stuebner <heiko@sntech.de>");
-+MODULE_DESCRIPTION("QNAP MCU input driver");
-+MODULE_LICENSE("GPL");
+-	kbd->clk = devm_clk_get(&pdev->dev, NULL);
++	kbd->clk = devm_clk_get_prepared(&pdev->dev, NULL);
+ 	if (IS_ERR(kbd->clk))
+ 		return PTR_ERR(kbd->clk);
+ 
+@@ -255,14 +255,9 @@ static int spear_kbd_probe(struct platform_device *pdev)
+ 		return error;
+ 	}
+ 
+-	error = clk_prepare(kbd->clk);
+-	if (error)
+-		return error;
+-
+ 	error = input_register_device(input_dev);
+ 	if (error) {
+ 		dev_err(&pdev->dev, "Unable to register keyboard device\n");
+-		clk_unprepare(kbd->clk);
+ 		return error;
+ 	}
+ 
+@@ -272,13 +267,6 @@ static int spear_kbd_probe(struct platform_device *pdev)
+ 	return 0;
+ }
+ 
+-static void spear_kbd_remove(struct platform_device *pdev)
+-{
+-	struct spear_kbd *kbd = platform_get_drvdata(pdev);
+-
+-	clk_unprepare(kbd->clk);
+-}
+-
+ static int spear_kbd_suspend(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+@@ -372,7 +360,6 @@ MODULE_DEVICE_TABLE(of, spear_kbd_id_table);
+ 
+ static struct platform_driver spear_kbd_driver = {
+ 	.probe		= spear_kbd_probe,
+-	.remove_new	= spear_kbd_remove,
+ 	.driver		= {
+ 		.name	= "keyboard",
+ 		.pm	= pm_sleep_ptr(&spear_kbd_pm_ops),
 -- 
-2.39.2
+2.45.2
 

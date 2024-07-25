@@ -1,16 +1,16 @@
 Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5019A60B96;
-	Thu, 25 Jul 2024 19:46:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83149762EB;
+	Thu, 25 Jul 2024 19:46:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721936774; cv=none; b=kWQyN/4+Pu+0Rg6U4xEHhBAD/PMdqHWj6cViQ4ZbSOylIYFCH1v6I5JjOo/kLPkQDN3diR+UDSGaNC81NtJBHI0dGdL4xnw0M9zHgDmhiYo0rBA+txh1X0x2VqmdAEZdiGQ9YEI1gpak2O9WAdyP/iwR7GtmTX0/0nRb6n2aV/Q=
+	t=1721936775; cv=none; b=kD2B6+xaCw0KLSn/TIb6tNSws2SUCrWQL6t5hUoTRV6+HnbBGkuzCWewgSHf6Y+iD23sl6vXMIIU5/gkvTDLBDg5ccrJfvc6QHEYp3GeQzroTGC5vOI8dmxaZ1Xzm2WcxM6P0XpPUF5O7eVOpYjCauR9NtSEJwFYMaBpqrNwyyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721936774; c=relaxed/simple;
-	bh=09KivGoGc4Pv0IQGH9j0x6dXZZIgfM7SGRm7MhgvkAI=;
+	s=arc-20240116; t=1721936775; c=relaxed/simple;
+	bh=IP68vUdNzVSNudRdfpyMCb7gGfeDSlK8BmqYyXksQzg=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=BHayLzaljaNaev2CeYGcHlLP4R6I7n9YMOm3jzfcqDjnYwg8uzFG4u99EenPxDRzbgxYuq+hJ2ZNAy+EPX3+bts3l/Ol69nqIUPnEMmDjIj5cguvgXdpEIKaXGW8lazdCmvQxHmYsRLR5YuAX4Jd0zqTQy/M+/AdC+zs6BRT9Ak=
+	 MIME-Version; b=BEXDSbcArf+94MSjPZYtWnfs8S+rX2Zk5EfXiX42aoOI4X6/u6KwTzcTwIvt7dBczUQVjc74up+4/bIlnJ32OpaX/z0IEqVo/udxy+bq3tiwx0styeep1Os0vrkC5WL3jHvapY3GfsH/UXJp4p+IH05wGui6S0vf3HOhTM0iJBg=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; arc=none smtp.client-ip=185.11.138.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
@@ -18,7 +18,7 @@ Received: from i5e860cdd.versanet.de ([94.134.12.221] helo=phil.lan)
 	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.94.2)
 	(envelope-from <heiko@sntech.de>)
-	id 1sX4PR-0001rD-Ie; Thu, 25 Jul 2024 21:45:53 +0200
+	id 1sX4PO-0001rD-6Z; Thu, 25 Jul 2024 21:45:50 +0200
 From: Heiko Stuebner <heiko@sntech.de>
 To: lee@kernel.org,
 	jdelvare@suse.com,
@@ -37,9 +37,9 @@ Cc: robh@kernel.org,
 	linux-hwmon@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-leds@vger.kernel.org
-Subject: [PATCH 6/7] arm64: dts: rockchip: hook up the MCU on the QNAP TS433
-Date: Thu, 25 Jul 2024 21:45:38 +0200
-Message-Id: <20240725194539.1780790-7-heiko@sntech.de>
+Subject: [PATCH 1/7] dt-bindings: mfd: add binding for qnap,mcu devices
+Date: Thu, 25 Jul 2024 21:45:33 +0200
+Message-Id: <20240725194539.1780790-2-heiko@sntech.de>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20240725194539.1780790-1-heiko@sntech.de>
 References: <20240725194539.1780790-1-heiko@sntech.de>
@@ -51,96 +51,65 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The MCU is an important part of the device functionality. It provides
-functionality like fan-control, more leds, etc and even more important
-without it, the NAS-device cannot even fully turned off.
-
-Hook up the serial device to its uart and hook into the thermal
-management to control the fan according to the cpu temperature.
-
-While the MCU also provides a temperature sensor for the case, this one
-is just polled and does not provide functionality for handling trip
-points in hardware, so a lot of polling would be involved.
-As the cpu is only cooled passively in these devices, it's temperature
-rising will indicate the temperature level of the system just earlier.
+These MCUs can be found in network attached storage devices made by QNAP.
+They are connected to a serial port of the host device and provide
+functionality like LEDs, power-control and temperature monitoring.
 
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- .../boot/dts/rockchip/rk3568-qnap-ts433.dts   | 54 +++++++++++++++++++
- 1 file changed, 54 insertions(+)
+ .../devicetree/bindings/mfd/qnap,mcu.yaml     | 43 +++++++++++++++++++
+ 1 file changed, 43 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/qnap,mcu.yaml
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
-index 6c4269b3d9597..bff21684a3970 100644
---- a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
-@@ -465,6 +465,54 @@ rgmii_phy0: ethernet-phy@0 {
- 	};
- };
- 
-+/*
-+ * The MCU can provide system temperature too, but only by polling and of
-+ * course also cannot set trip points. So attach to the cpu thermal-zone
-+ * instead to control the fan.
-+ */
-+&cpu_thermal {
-+	trips {
-+		case_fan0: case-fan0 {
-+			hysteresis = <2000>;
-+			temperature = <35000>;
-+			type = "active";
-+		};
+diff --git a/Documentation/devicetree/bindings/mfd/qnap,mcu.yaml b/Documentation/devicetree/bindings/mfd/qnap,mcu.yaml
+new file mode 100644
+index 0000000000000..3b1ad8cb54da3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/qnap,mcu.yaml
+@@ -0,0 +1,43 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/qnap,mcu.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+		case_fan1: case-fan1 {
-+			hysteresis = <2000>;
-+			temperature = <45000>;
-+			type = "active";
-+		};
++title: QNAP NAS on-board Microcontroller
 +
-+		case_fan2: case-fan2 {
-+			hysteresis = <2000>;
-+			temperature = <65000>;
-+			type = "active";
-+		};
-+	};
++maintainers:
++  - Heiko Stuebner <heiko@sntech.de>
 +
-+	cooling-maps {
-+		/*
-+		 * Always provide some air movement, due to small case
-+		 * full of harddrives.
-+		 */
-+		map1 {
-+			cooling-device = <&fan THERMAL_NO_LIMIT 1>;
-+			trip = <&case_fan0>;
-+		};
++description: |
++  QNAP embeds a microcontroller on their NAS devices adding system feature
++  as PWM Fan control, additional LEDs, power button status and more.
 +
-+		map2 {
-+			cooling-device = <&fan 2 3>;
-+			trip = <&case_fan1>;
-+		};
++properties:
++  compatible:
++    enum:
++      - qnap,ts433-mcu
 +
-+		map3 {
-+			cooling-device = <&fan 4 THERMAL_NO_LIMIT>;
-+			trip = <&case_fan2>;
-+		};
-+	};
-+};
++  "#cooling-cells":
++    const: 2
 +
- &pcie30phy {
- 	data-lanes = <1 2>;
- 	status = "okay";
-@@ -563,6 +611,12 @@ &tsadc {
-  */
- &uart0 {
- 	status = "okay";
++  cooling-levels:
++    description: PWM duty cycle values corresponding to thermal cooling states.
++    $ref: /schemas/types.yaml#/definitions/uint32-array
++    items:
++      maximum: 255
 +
-+	fan: mcu {
-+		compatible = "qnap,ts433-mcu";
-+		#cooling-cells = <2>;
-+		cooling-levels = <0 64 89 128 166 204 221 238>;
-+	};
- };
- 
- /*
++required:
++  - compatible
++
++additionalProperties: false
++
++examples:
++  - |
++    uart {
++      mcu {
++        compatible = "qnap,ts433-mcu";
++        #cooling-cells = <2>;
++        cooling-levels = <0 64 89 128 166 204 221 238>;
++      };
++    };
 -- 
 2.39.2
 

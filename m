@@ -1,37 +1,36 @@
-Received: from msa.smtpout.orange.fr (smtp-77.smtpout.orange.fr [80.12.242.77])
+Received: from smtp.smtpout.orange.fr (smtp-22.smtpout.orange.fr [80.12.242.22])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99647E556
-	for <linux-input@vger.kernel.org>; Thu, 25 Jul 2024 20:47:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.77
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7222213E8A5
+	for <linux-input@vger.kernel.org>; Thu, 25 Jul 2024 20:48:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.22
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721940434; cv=none; b=B7j6QFw8omzEMnGUMbscvSdKFBxOXHDMYqJ1mQf6gWNs8uHYYTXXNN4ER7kkqTQaj4ERmOXlhnivF6g/ixSuzJOeRI4XT9aqgaquJo26LW/QGI+BIPyembRf5QO6NGeYI8Pacw5WONV2kWb45j+ZhmWW8Mt/RTIWTUmWPJ5hO/g=
+	t=1721940489; cv=none; b=uqKPrPvDXtUpmjRYWz/iStoXs98UJ2JHzbfBrf599ll3dko5fTAXcMVlCgeHvP8k8OD+ruRVBhEzQz1kN0nmDfHeTLVebPzCS02Ds92eN4EAsFdJkeqcav7I4tIFQaHNA0LwPXcbt4hvgw+TCb7R8gpGTY4MTivCwOjNK5Hp0hM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721940434; c=relaxed/simple;
-	bh=JHDXKeWytPW/ro4uzW8sk6fYfCOgjS6eqK7o1zZy53g=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hIVtOe6DOLWHcc/y3QbCzJ9IpS5N82rlD3NhO2LyhOsZybIJQ6JWJuqtk0f7EfJ78bv03ra6orW6VYgQzkHA6TBZAVhZKo1t9G8IeGKh42SDLBMdxI69EWU84pewg+vE1ARNkCC8KW+wxhYEBnV9UiGSkKXqpopQQrA54UVgCUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=JHCHykUz; arc=none smtp.client-ip=80.12.242.77
+	s=arc-20240116; t=1721940489; c=relaxed/simple;
+	bh=zLO1NlLHeLSZwvDSiFGjY7aAX3UM0dHw/gZT//5jtkw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SsVPWtcj+KyYUHGOQHSiYNAqlOF+TKJMDdobIi4JD3jZdoP6wnB35/TonCDrkSEwUkJG2yuFz0quL4CTQLpW19tYQjxWotZaVxBMVIFa3OJZ+8rg2XlxEl5/boP6qHz2NKphOYACKhdv5USKbAd1sgZ2+FwzWWIqXRqbcqQLjN4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=FBjGdCe/; arc=none smtp.client-ip=80.12.242.22
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="JHCHykUz"
+	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="FBjGdCe/"
 Received: from fedora.home ([90.11.132.44])
 	by smtp.orange.fr with ESMTPA
-	id X5MSsJCR06bu3X5Mbs696W; Thu, 25 Jul 2024 22:47:03 +0200
+	id X5MSsJCR06bu3X5MTs68yo; Thu, 25 Jul 2024 22:46:54 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
-	s=t20230301; t=1721940423;
-	bh=O3ZVT0Ujn9hJ7jDCPbtGlOBgrRHSOXl/SJzBREYLERg=;
+	s=t20230301; t=1721940414;
+	bh=jiHdzIKpBMjgCjVSVMxDF60tEeu32uxFn6X9R02aY5k=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=JHCHykUzoFQDo6moseWVMxr3phGNAXoZAwrR5hJo0TQIehH5Sw5sR1/P3azDW5VP5
-	 dTFuSjrySH1iW+3GFgjFIM/hbs77WjbjR3f6nE/Hq+YfmD9Z2Y76Jkg6UCUd8Y7klw
-	 VSmqzABFeUioO8eKfMvVVJZrOGMjFaeKjgcjm7zcSvQvaw7heh/LwTQckU5k4RMWZU
-	 gVCP2t/BNOLhcIxZGuy1rwwK9R+23uIf47QXg5aFkOf4qpG1pWK0HoTaAspcxcvq9m
-	 hge9vciqNUvw7jnUvAK0r+j9q1E85f7j+J6GRmIaQNUieQNgTPMUmtloqv9EHALnN2
-	 yf2gq719CMNhA==
+	b=FBjGdCe/LqhDP5twVFOxTlnOKeH/V10meTO7CetJcgksP+lkfsCx5nBavPejiAGwM
+	 hVbbCzOgrvDBjKa+VgA61h1CUOIHeeTXXj/FG6TDJpai693G+d8q4uLP2jGzRdgPYx
+	 CbKqjoeHXGL59qt7+uYIb5uBfkMnmmai124M+IdQIiCs2AQnB+RAGqg6FpXcilz0nY
+	 XKY/yvg+38ZjUDV5jsi5A9SyUQn43PQeXemKppZQgeBVckKftporXjBaC6I26RlkM3
+	 CflF0KSGKVSLbHBdnBP78KzcYDxDddTMWr7Nhp7UL0QPP3G7qwOboRimtv4JxNPeEU
+	 2zesXk6cy1TLg==
 X-ME-Helo: fedora.home
 X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
-X-ME-Date: Thu, 25 Jul 2024 22:47:03 +0200
+X-ME-Date: Thu, 25 Jul 2024 22:46:54 +0200
 X-ME-IP: 90.11.132.44
 From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 To: dmitry.torokhov@gmail.com,
@@ -41,12 +40,10 @@ Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	kernel-janitors@vger.kernel.org,
 	Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH 2/2] Input: spear-keyboard - Switch to devm_clk_get_prepared()
-Date: Thu, 25 Jul 2024 22:46:50 +0200
-Message-ID: <ea855328eb4396cd1c44d2b6acc1fc394fcb1508.1721939824.git.christophe.jaillet@wanadoo.fr>
+Subject: [PATCH 0/2] Input: spear-keyboard - Fix an issue and clean-up code
+Date: Thu, 25 Jul 2024 22:46:48 +0200
+Message-ID: <cover.1721939824.git.christophe.jaillet@wanadoo.fr>
 X-Mailer: git-send-email 2.45.2
-In-Reply-To: <cover.1721939824.git.christophe.jaillet@wanadoo.fr>
-References: <cover.1721939824.git.christophe.jaillet@wanadoo.fr>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -55,67 +52,24 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use devm_clk_get_prepared() in order to remove a clk_unprepare() in an
-error handling path of the probe and completely remove the .remove()
-function.
+Patch 1 fixes an old double put issue in the remove function.
 
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
----
-Compile tested only.
----
- drivers/input/keyboard/spear-keyboard.c | 15 +--------------
- 1 file changed, 1 insertion(+), 14 deletions(-)
+Patch 2 is just a clean up to remove some lines of code. It changes the
+order of some initialization so should be reviewed with care.
+This driver looks old, without changes other than clean-up for more than
+10 years, so maybe this patch should just be dropped.
+I let you decide if safe and useful or not.
 
-diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
-index 5d9fc8dc9433..1df4feb8ba01 100644
---- a/drivers/input/keyboard/spear-keyboard.c
-+++ b/drivers/input/keyboard/spear-keyboard.c
-@@ -222,7 +222,7 @@ static int spear_kbd_probe(struct platform_device *pdev)
- 	if (IS_ERR(kbd->io_base))
- 		return PTR_ERR(kbd->io_base);
- 
--	kbd->clk = devm_clk_get(&pdev->dev, NULL);
-+	kbd->clk = devm_clk_get_prepared(&pdev->dev, NULL);
- 	if (IS_ERR(kbd->clk))
- 		return PTR_ERR(kbd->clk);
- 
-@@ -255,14 +255,9 @@ static int spear_kbd_probe(struct platform_device *pdev)
- 		return error;
- 	}
- 
--	error = clk_prepare(kbd->clk);
--	if (error)
--		return error;
--
- 	error = input_register_device(input_dev);
- 	if (error) {
- 		dev_err(&pdev->dev, "Unable to register keyboard device\n");
--		clk_unprepare(kbd->clk);
- 		return error;
- 	}
- 
-@@ -272,13 +267,6 @@ static int spear_kbd_probe(struct platform_device *pdev)
- 	return 0;
- }
- 
--static void spear_kbd_remove(struct platform_device *pdev)
--{
--	struct spear_kbd *kbd = platform_get_drvdata(pdev);
--
--	clk_unprepare(kbd->clk);
--}
--
- static int spear_kbd_suspend(struct device *dev)
- {
- 	struct platform_device *pdev = to_platform_device(dev);
-@@ -372,7 +360,6 @@ MODULE_DEVICE_TABLE(of, spear_kbd_id_table);
- 
- static struct platform_driver spear_kbd_driver = {
- 	.probe		= spear_kbd_probe,
--	.remove_new	= spear_kbd_remove,
- 	.driver		= {
- 		.name	= "keyboard",
- 		.pm	= pm_sleep_ptr(&spear_kbd_pm_ops),
+
+Both patch are compile tested only.
+
+Christophe JAILLET (2):
+  Input: spear-keyboard - Fix a double put in spear_kbd_remove()
+  Input: spear-keyboard - Switch to devm_clk_get_prepared()
+
+ drivers/input/keyboard/spear-keyboard.c | 16 +---------------
+ 1 file changed, 1 insertion(+), 15 deletions(-)
+
 -- 
 2.45.2
 

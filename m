@@ -1,42 +1,48 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FEF816C6B5;
-	Wed, 31 Jul 2024 20:14:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C96A208D1;
+	Wed, 31 Jul 2024 21:24:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722456883; cv=none; b=C35X1M6j82a0y8/ujW+phElx6oR5iQEiSfjhjdJBVMuX6B14vRb8WUPvQSPo1UuRu9r1nChLu+upv57HjwAmpNg/n5EFL9NJVGyAH4D71aaUBjtujLWVAo0JxHKe9i45uVsKF4G6ZlcQ9eQFjlYeT/DjPuf43pDqdwLFuMAz4jM=
+	t=1722461095; cv=none; b=Tvocx1S6upXZN9G0Fj55gxasWL7QL+I4+HDDtOzup2z298lj3ycHrFVp+t/Ms632jFtuJiSOLf/6SFfjfWUQq6S3MueosWV2xRdS6ANaGZzTaIa1lT2ZAu1x64Sz4plAIjRyKEj7BLVsNNB8W9D9AWCNO1Dd558hg0j6icSnpIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722456883; c=relaxed/simple;
-	bh=oJGAtAHYW6J5L4jx2/Dh0v9aVLJrCw5LhgkmOC6rItM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=r10XXzr9eg7TtsR2Gb+FCQXspWFAtCoDl2lfdR2ZuXOfj1C7HEaNeMCRZTtWoiLvDVRxZ1gyWczI2ZBSzpnFnG7XJLlkO9H4flWvRh2ZyZisyVDaGI2iS67t/jvjtlctjV0rsVlffgMPReiUoJJ4CMzV5HdL56BIXIWsDj6TkmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jeMcF3Pt; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jeMcF3Pt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5325DC4AF0C;
-	Wed, 31 Jul 2024 20:14:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1722456883;
-	bh=oJGAtAHYW6J5L4jx2/Dh0v9aVLJrCw5LhgkmOC6rItM=;
-	h=From:To:Cc:Subject:Date:From;
-	b=jeMcF3PtJ+DxggC/AT6CnpH4gsTnjuC3wUxRDbu1cWWob1QUbEUb9XYXDsOQnszMJ
-	 ej21lvwHzaU+i9FxOkXg0RaN/SHXn3QUMFHleZi2r25mPl5xstWdhbRWmfYBrOvkzE
-	 jZYOHMGZuUErxLw6UTac7HRR+JmCA8rAgIjroyLnL2GJUD9DTjJoHNli61TrrLiXu7
-	 p9IuvJi3q6nyaSIHxY0RFJngGe2LRMYGi5+l6Oh6hTP7lx4kBUc95UXseBwexBO8ap
-	 8kZrt0+Rh/4YenPZA2/Z9cTrMxBxE4OmMzGpvZiyDoXBxlhds3qvjEW8zeYuBKtWmi
-	 oxiAwz+uV0ZKA==
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Laxman Dewangan <ldewangan@nvidia.com>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Thierry Reding <thierry.reding@gmail.com>,
-	Jonathan Hunter <jonathanh@nvidia.com>
-Cc: linux-input@vger.kernel.org,
-	linux-tegra@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] input: tegra: Use of_property_read_variable_u32_array() and of_property_present()
-Date: Wed, 31 Jul 2024 14:14:01 -0600
-Message-ID: <20240731201407.1838385-6-robh@kernel.org>
-X-Mailer: git-send-email 2.43.0
+	s=arc-20240116; t=1722461095; c=relaxed/simple;
+	bh=fkrMzGswzCO7CPU3pzXIY4sgrQ/Z3eYGrtwNukVb2dM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=I2CHiwtLsX6GgqLD2v1F67WLBQJiGZMYZlmxNezAr694PefUZx2V8qixguZ1WZwR+7FHdLUAHq3YZtkwsNFmFNE8VhawBp7pM8ymAinznCRZJmig77XrM6jFPDwj2re0eCwAHHGgcPx0qLkWRvLHClJpzI+Rm98e9rVOpf6kmO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; arc=none smtp.client-ip=185.11.138.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
+Received: from i53875ac5.versanet.de ([83.135.90.197] helo=phil.lan)
+	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <heiko@sntech.de>)
+	id 1sZGoQ-0007jg-Hv; Wed, 31 Jul 2024 23:24:46 +0200
+From: Heiko Stuebner <heiko@sntech.de>
+To: lee@kernel.org,
+	jdelvare@suse.com,
+	linux@roeck-us.net,
+	dmitry.torokhov@gmail.com,
+	pavel@ucw.cz
+Cc: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	heiko@sntech.de,
+	ukleinek@debian.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-hwmon@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org
+Subject: [PATCH v3 7/7] arm64: dts: rockchip: set hdd led labels on qnap-ts433
+Date: Wed, 31 Jul 2024 23:24:30 +0200
+Message-Id: <20240731212430.2677900-8-heiko@sntech.de>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240731212430.2677900-1-heiko@sntech.de>
+References: <20240731212430.2677900-1-heiko@sntech.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,132 +51,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-There's no need to get the length of an DT array property before
-parsing the array. of_property_read_variable_u32_array() takes a
-minimum and maximum length and returns the actual length (or error
-code).
+The automatically generated names for the LEDs from color and function
+do not match nicely for the 4 hdds, so set them manually per the label
+property to also match the LEDs generated from the MCU.
 
-This is part of a larger effort to remove callers of of_get_property()
-and similar functions. of_get_property() leaks the DT property data
-pointer which is a problem for dynamically allocated nodes which may
-be freed.
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- drivers/input/keyboard/tegra-kbc.c | 72 +++++++++++-------------------
- 1 file changed, 27 insertions(+), 45 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
-index a1765ed8c825..53f39fc155ea 100644
---- a/drivers/input/keyboard/tegra-kbc.c
-+++ b/drivers/input/keyboard/tegra-kbc.c
-@@ -491,12 +491,10 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
- 	struct device_node *np = kbc->dev->of_node;
- 	u32 prop;
- 	int i;
--	u32 num_rows = 0;
--	u32 num_cols = 0;
-+	int num_rows;
-+	int num_cols;
- 	u32 cols_cfg[KBC_MAX_GPIO];
- 	u32 rows_cfg[KBC_MAX_GPIO];
--	int proplen;
--	int ret;
- 
- 	if (!of_property_read_u32(np, "nvidia,debounce-delay-ms", &prop))
- 		kbc->debounce_cnt = prop;
-@@ -510,56 +508,23 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
- 	    of_property_read_bool(np, "nvidia,wakeup-source")) /* legacy */
- 		kbc->wakeup = true;
- 
--	if (!of_get_property(np, "nvidia,kbc-row-pins", &proplen)) {
--		dev_err(kbc->dev, "property nvidia,kbc-row-pins not found\n");
--		return -ENOENT;
--	}
--	num_rows = proplen / sizeof(u32);
--
--	if (!of_get_property(np, "nvidia,kbc-col-pins", &proplen)) {
--		dev_err(kbc->dev, "property nvidia,kbc-col-pins not found\n");
--		return -ENOENT;
--	}
--	num_cols = proplen / sizeof(u32);
--
--	if (num_rows > kbc->hw_support->max_rows) {
--		dev_err(kbc->dev,
--			"Number of rows is more than supported by hardware\n");
--		return -EINVAL;
--	}
--
--	if (num_cols > kbc->hw_support->max_columns) {
--		dev_err(kbc->dev,
--			"Number of cols is more than supported by hardware\n");
--		return -EINVAL;
--	}
--
--	if (!of_get_property(np, "linux,keymap", &proplen)) {
-+	if (!of_property_present(np, "linux,keymap")) {
- 		dev_err(kbc->dev, "property linux,keymap not found\n");
- 		return -ENOENT;
- 	}
- 
--	if (!num_rows || !num_cols || ((num_rows + num_cols) > KBC_MAX_GPIO)) {
--		dev_err(kbc->dev,
--			"keypad rows/columns not properly specified\n");
--		return -EINVAL;
--	}
--
- 	/* Set all pins as non-configured */
- 	for (i = 0; i < kbc->num_rows_and_columns; i++)
- 		kbc->pin_cfg[i].type = PIN_CFG_IGNORE;
- 
--	ret = of_property_read_u32_array(np, "nvidia,kbc-row-pins",
--				rows_cfg, num_rows);
--	if (ret < 0) {
-+	num_rows = of_property_read_variable_u32_array(np, "nvidia,kbc-row-pins",
-+				rows_cfg, 1, KBC_MAX_GPIO);
-+	if (num_rows < 0) {
- 		dev_err(kbc->dev, "Rows configurations are not proper\n");
--		return -EINVAL;
--	}
--
--	ret = of_property_read_u32_array(np, "nvidia,kbc-col-pins",
--				cols_cfg, num_cols);
--	if (ret < 0) {
--		dev_err(kbc->dev, "Cols configurations are not proper\n");
-+		return num_rows;
-+	} else if (num_rows > kbc->hw_support->max_rows) {
-+		dev_err(kbc->dev,
-+			"Number of rows is more than supported by hardware\n");
- 		return -EINVAL;
- 	}
- 
-@@ -568,11 +533,28 @@ static int tegra_kbc_parse_dt(struct tegra_kbc *kbc)
- 		kbc->pin_cfg[rows_cfg[i]].num = i;
- 	}
- 
-+	num_cols = of_property_read_variable_u32_array(np, "nvidia,kbc-col-pins",
-+				cols_cfg, 1, KBC_MAX_GPIO);
-+	if (num_cols < 0) {
-+		dev_err(kbc->dev, "Cols configurations are not proper\n");
-+		return num_cols;
-+	} else if (num_cols > kbc->hw_support->max_columns) {
-+		dev_err(kbc->dev,
-+			"Number of cols is more than supported by hardware\n");
-+		return -EINVAL;
-+	}
-+
- 	for (i = 0; i < num_cols; i++) {
- 		kbc->pin_cfg[cols_cfg[i]].type = PIN_CFG_COL;
- 		kbc->pin_cfg[cols_cfg[i]].num = i;
- 	}
- 
-+	if (!num_rows || !num_cols || ((num_rows + num_cols) > KBC_MAX_GPIO)) {
-+		dev_err(kbc->dev,
-+			"keypad rows/columns not properly specified\n");
-+		return -EINVAL;
-+	}
-+
- 	return 0;
- }
- 
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
+index bff21684a3970..c35c11203e903 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
+@@ -50,6 +50,7 @@ led-0 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD5 GPIO_ACTIVE_LOW>;
++			label = "hdd1:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd1_led_pin>;
+@@ -59,6 +60,7 @@ led-1 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD6 GPIO_ACTIVE_LOW>;
++			label = "hdd2:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd2_led_pin>;
+@@ -68,6 +70,7 @@ led-2 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD7 GPIO_ACTIVE_LOW>;
++			label = "hdd3:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd3_led_pin>;
+@@ -77,6 +80,7 @@ led-3 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio2 RK_PA0 GPIO_ACTIVE_LOW>;
++			label = "hdd4:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd4_led_pin>;
 -- 
-2.43.0
+2.39.2
 

@@ -1,100 +1,115 @@
 Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 217211B3F37;
-	Wed, 31 Jul 2024 12:54:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C67741AB52C;
+	Wed, 31 Jul 2024 12:58:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722430449; cv=none; b=tp8WOacCBWrTp2WQnwOrj5aLRBDFkzxqQ5LhIB3MkRC9qfqbazj5rItUUF3h8gfz0nhknX55HnC34t4eAdKCBR3yA/Fab0M6bZqDgOzvmeWsvMzgG2EaFwGxzhgD78qunYzvA3ZFPKcO5KjiIyPWpXtNonT74zx3/3YfkdfQofE=
+	t=1722430734; cv=none; b=OYlF5cE7HqrHAc8hV6rlz1zDuhZfHvvbHmnSPcn0H16A94olifZ7unjIK8zFWZmguCJ2O5CpuEdG26+BkIXaqoMpwB4rWDypLToIIOP62LR+xY1nKP+HR2DprvIfVHtn0+R1PZu1bkBR+fEk8FY+0A/5E40E9QxJMZ5zy3mqt/s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722430449; c=relaxed/simple;
-	bh=am7KJVl9wrDRT1DPp9yRFXK4Hr35jYnU3OMg5geB5jY=;
+	s=arc-20240116; t=1722430734; c=relaxed/simple;
+	bh=Cz9rXVlUuUIx2KdvrKVffZhncBvWWxea9mzmttsi2Cg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=smKpK6rT0q2JymDVl+QyFzPqVLtlLu7P2mgh57T283uBTk25XKjONgSfMAjjCRVAzm3dH9+2Pk+xYiWGKQupf+Fgz7ARaH7qRx9YthKqnyAeMwLoKl2QgybItML92CUi6fhkNhnyl2rHt8uPLfddhQ2OnXWRJcoQz3TdEjAVqes=
+	 Content-Type:Content-Disposition:In-Reply-To; b=raA7593JR4oKwtvymFx5C1SjZmEWP15zleoFXbsjeaxmKThfyiMPSKUc2iNUUHZMMoMIclnpOLbhvt/zgH4zJB8RbLkYwj9mhpacMjXqz8sBxXbL1x34UcdEOXNhFvQ95xX2RiSKa2bI3JsMkGSGi25tHHLjjufF8eI8a5p/rSE=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; arc=none smtp.client-ip=217.140.110.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 20EE01007;
-	Wed, 31 Jul 2024 05:54:33 -0700 (PDT)
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D69881007;
+	Wed, 31 Jul 2024 05:59:16 -0700 (PDT)
 Received: from bogus (e103737-lin.cambridge.arm.com [10.1.197.49])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 3D51C3F766;
-	Wed, 31 Jul 2024 05:54:04 -0700 (PDT)
-Date: Wed, 31 Jul 2024 13:54:01 +0100
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 78EE43F766;
+	Wed, 31 Jul 2024 05:58:48 -0700 (PDT)
+Date: Wed, 31 Jul 2024 13:58:46 +0100
 From: Sudeep Holla <sudeep.holla@arm.com>
-To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
-Cc: Cristian Marussi <cristian.marussi@arm.com>,
-	Rob Herring <robh@kernel.org>, Sudeep Holla <sudeep.holla@arm.com>,
+To: Peng Fan <peng.fan@nxp.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>,
+	"Peng Fan (OSS)" <peng.fan@oss.nxp.com>,
+	Cristian Marussi <cristian.marussi@arm.com>,
+	Sudeep Holla <sudeep.holla@arm.com>, Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
 	Sascha Hauer <s.hauer@pengutronix.de>,
 	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, Peng Fan <peng.fan@nxp.com>,
+	Fabio Estevam <festevam@gmail.com>,
 	Alexandre Belloni <alexandre.belloni@bootlin.com>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	arm-scmi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	imx@lists.linux.dev, linux-rtc@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH v7 0/7] firmware: support i.MX95 SCMI BBM/MISC Extenstion
-Message-ID: <Zqoz6RVcvNLEh2UT@bogus>
-References: <20240731-imx95-bbm-misc-v2-v7-0-a41394365602@nxp.com>
+	"arm-scmi@vger.kernel.org" <arm-scmi@vger.kernel.org>,
+	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"imx@lists.linux.dev" <imx@lists.linux.dev>,
+	"linux-rtc@vger.kernel.org" <linux-rtc@vger.kernel.org>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Subject: Re: [PATCH v6 1/7] dt-bindings: firmware: add i.MX95 SCMI Extension
+ protocol
+Message-ID: <Zqo1BpZ9i3LC_TIQ@bogus>
+References: <20240718-imx95-bbm-misc-v2-v6-0-18f008e16e9d@nxp.com>
+ <20240718-imx95-bbm-misc-v2-v6-1-18f008e16e9d@nxp.com>
+ <dee6e871-daa3-4886-be57-e4d4b3fa198d@kernel.org>
+ <PAXPR04MB84592DE4592FC5D270F0820B88B12@PAXPR04MB8459.eurprd04.prod.outlook.com>
+ <ZqovdlPcnBbZn0Ue@bogus>
+ <PAXPR04MB84599389611E0E789E425FD588B12@PAXPR04MB8459.eurprd04.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20240731-imx95-bbm-misc-v2-v7-0-a41394365602@nxp.com>
+In-Reply-To: <PAXPR04MB84599389611E0E789E425FD588B12@PAXPR04MB8459.eurprd04.prod.outlook.com>
 
-On Wed, Jul 31, 2024 at 08:56:04PM +0800, Peng Fan (OSS) wrote:
-> i.MX95 System Manager Firmware source: https://github.com/nxp-imx/imx-sm
-> To generate html from the repo: make html
+On Wed, Jul 31, 2024 at 12:49:59PM +0000, Peng Fan wrote:
+> > Subject: Re: [PATCH v6 1/7] dt-bindings: firmware: add i.MX95 SCMI
+> > Extension protocol
+> >
+> > On Wed, Jul 31, 2024 at 12:18:28PM +0000, Peng Fan wrote:
+> > > > Subject: Re: [PATCH v6 1/7] dt-bindings: firmware: add i.MX95
+> > SCMI
+> > > > Extension protocol
+> > > >
+> > > > On 18/07/2024 09:41, Peng Fan (OSS) wrote:
+> > > > > From: Peng Fan <peng.fan@nxp.com>
+> > > > >
+> > > > > Add i.MX SCMI Extension protocols bindings for:
+> > > > > - Battery Backed Module(BBM) Protocol
+> > > > >   This contains persistent storage (GPR), an RTC, and the ON/OFF
+> > > > button.
+> > > > >   The protocol can also provide access to similar functions
+> > > > implemented via
+> > > > >   external board components.
+> > > > > - MISC Protocol.
+> > > > >   This includes controls that are misc settings/actions that must
+> > > > > be
+> > > > exposed
+> > > > >   from the SM to agents. They are device specific and are usually
+> > > > define to
+> > > > >   access bit fields in various mix block control modules,
+> > > > > IOMUX_GPR,
+> > > > and
+> > > > >   other GPR/CSR owned by the SM.
+> > > > >
+> > > > > Reviewed-by: "Rob Herring (Arm)" <robh@kernel.org>
+> > > >
+> > > > Why quotes? Which tools did you use?
+> > >
+> > > I could not recall why have this. I will drop and resend the patchset.
+> > >
+> >
+> > Resend only if you have any other comments addressed, no spin just
+> > for this one please.
 >
-> i.MX95 System Manager Firmware support vendor extension protocol:
-> - Battery Backed Module(BBM) Protocol
->   This protocol is intended provide access to the battery-backed module.
->   This contains persistent storage (GPR), an RTC, and the ON/OFF button.
->   The protocol can also provide access to similar functions implemented via
->   external board components. The BBM protocol provides functions to:
+> Sorry, I pushed the button too quick to send out v7(just correct
+> this R-b tag and rebased to linux-next) before checking my inbox.
 >
->   - Describe the protocol version.
->   - Discover implementation attributes.
->   - Read/write GPR
->   - Discover the RTCs available in the system.
->   - Read/write the RTC time in seconds and ticks
->   - Set an alarm (per LM) in seconds
->   - Get notifications on RTC update, alarm, or rollover.
->   - Get notification on ON/OFF button activity.
->
-> - MISC Protocol for misc settings
->   This includes controls that are misc settings/actions that must be
->   exposed from the SM to agents. They are device specific and are usually
->   define to access bit fields in various mix block control modules,
->   IOMUX_GPR, and other GPR/CSR owned by the SM.
->   This protocol supports the following functions:
->
->   - Describe the protocol version.
->   - Discover implementation attributes.
->   - Set/Get a control.
->   - Initiate an action on a control.
->   - Obtain platform (i.e. SM) build information.
->   - Obtain ROM passover data.
->   - Read boot/shutdown/reset information for the LM or the system.
->
-> This patchset is to support the two protocols and users that use the
-> protocols. The upper protocol infomation is also included in patch 1
->
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
->
-> Changes in v7:
-> - Just correct R-b tag from Rob to drop quotes "", and rebased
-> - Link to v6: https://lore.kernel.org/r/20240718-imx95-bbm-misc-v2-v6-0-18f008e16e9d@nxp.com
 
-I specifically asked you to avoid re-spinning just for this reason within
-20 mins from your response, yet you managed to churn it within that time 🙁.
-I must respond at flash speed to avoid such things in the future 😢.
+Just makes me wonder if I should wait for 3-4 pings + 2-3 weeks after the
+last version of any of your patch set without any version bump before I
+can look at it. Otherwise it is quite impossible to match your speed of
+patch respinning and the whole review process gets complicated to follow.
+
+Also it is bit sad that you thought it needs to be re-spinned just for this
+which can be easily fixed when applying. Also I haven't even started looking
+at this series for the reason I mentioned above.
 
 --
 Regards,

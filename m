@@ -1,31 +1,31 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1F5E139D13;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B443113A24D;
 	Sat,  3 Aug 2024 12:34:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722688479; cv=none; b=D00dGH/1yZ7zTwZs1zimh+q/a7niTTtsrA6TmofJFHNDfSIL+AqsQzHsKmF4AsL883gZlpZCHKIsOz41vAp194oDBs26ibekrou8lfV/kRg+j3IzO8nz8R6pyxTSeq9rrGRHywK4lAKW0TwraEILSIH3he6WLFfjt4a8Sv3KehE=
+	t=1722688479; cv=none; b=NOaTXuLAcevQQttcSI+0/SVlIQVpbfOwSjyDowT0qepjxV9KnQ0VYM+b6+V+8bOSGMLByR/X0oeMlQiOPNmieDQcl6brGEdI8lNkPds9irX6PcxBC7KoOCVI5F2aVknyfoOpYIhHSsG9cAj5hT+prXC08KlkO2Qc6tBWgCVKs2Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1722688479; c=relaxed/simple;
-	bh=CVotvxt6Ev1/ZtBzJ8QQDB8T5gB/U5poMNIdk49m5XI=;
+	bh=Ye+Se1jHXdT0yhJQ5K0ZLTO5vrH33EndOJgJ+SFjo4c=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=O4cjzJyJTgwJkUTjroS7XO/9fu0hze4EjJ/MHaq4I4rLJ+NsoBlt+cmj+coHTf2fZmppDf7Ej6M1jhYLsF75yRUNP5ZksvOCaU0porArreeT4XbywNO6MLYf7Lx21VBwgnGKsIVdgiBr8nKV4JUj9MnecxYXplkNWUux99s/jFg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=rUBbWjpD; arc=none smtp.client-ip=159.69.126.157
+	 In-Reply-To:To:Cc; b=B5prADWswFMUtzT7YvkdhnzIEsKubciujs59Lj06nM/MJprjsMvqKWGcVhuO+kpxnDGN1v5+DwVX59QE5CKA2gci+AI3A6dOH9KlOOYGR+bqtsAEtIrFks9ysKgKgj6DUl+jufjeULWxLKNd+Yc+4VzrmNFDI4UbG2RUif8rvgU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=DTnqFPvF; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="rUBbWjpD"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="DTnqFPvF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1722688475;
-	bh=CVotvxt6Ev1/ZtBzJ8QQDB8T5gB/U5poMNIdk49m5XI=;
+	bh=Ye+Se1jHXdT0yhJQ5K0ZLTO5vrH33EndOJgJ+SFjo4c=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=rUBbWjpDJ0FMpe2L1fYTli14Y4L0ajrAMElC9kii/fQhCq32CYCaM3DXqWg4fvx4x
-	 DWfx4TQaieI8wi47945+yAjdKHkIf6SEACROOlynD98uTyGzdwTtEsEd2Q2XWhwJmJ
-	 SV2LSdW+gzKN3hT2amnXVoWm2IRMgGzDs2A5RokQ=
+	b=DTnqFPvFkSc7yjrvOwL4Lkij96qaZQ2XL76I2lELCrw0aILWHtw69h6hDfLCffVLE
+	 C5f1P1DhimbWhpcjdyusgpiIyBC1k+uO0q4nUIINrO+DkhUpiJzWGDKKTQpxiYJYic
+	 EQXaePGQuOHQ5uC2dDYAc6vbFzCHerzCix0SKW+c=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Sat, 03 Aug 2024 14:34:21 +0200
-Subject: [PATCH v2 5/7] HID: constify hid_device::dev_rdesc
+Date: Sat, 03 Aug 2024 14:34:23 +0200
+Subject: [PATCH v2 7/7] HID: cmedia: constify fixed up report descriptor
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -34,43 +34,52 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240803-hid-const-fixup-v2-5-f53d7a7b29d8@weissschuh.net>
+Message-Id: <20240803-hid-const-fixup-v2-7-f53d7a7b29d8@weissschuh.net>
 References: <20240803-hid-const-fixup-v2-0-f53d7a7b29d8@weissschuh.net>
 In-Reply-To: <20240803-hid-const-fixup-v2-0-f53d7a7b29d8@weissschuh.net>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1722688475; l=697;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1722688475; l=1211;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=CVotvxt6Ev1/ZtBzJ8QQDB8T5gB/U5poMNIdk49m5XI=;
- b=DAHwlqPZPFEmSWBgWcpxXGqERIvNzcNxZ921KeGrv2S0WtMMKXxtSevfXcSqDfToJkuS6yjFN
- OnYGN3e+x9oBufeWJ8ytkA9e5j369JYJ31DqOorn4Ee5QZkPMiHzy1z
+ bh=Ye+Se1jHXdT0yhJQ5K0ZLTO5vrH33EndOJgJ+SFjo4c=;
+ b=tVdbWtGXshD2pV58/YbAbvw9Up+nAdKSqulY7YKCT2xq9zp561GNH9Ezqw9KekvyxhjXRUJQu
+ RKkv/LxPqBhA8m+YPxT7OoFws4jz7UPBb79SCC2aVKeSD+J+F9ZB1WK
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-Once a report descriptor has been created by the HID core it is not
-supposed to be modified anymore.
-Enforce this invariant through the type system.
+The HID core now allows static report descriptors to be read-only,
+make use of it.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- include/linux/hid.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/hid-cmedia.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 502bbc6f078c..c5fb43db0f2e 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -600,7 +600,7 @@ struct hid_driver;
- struct hid_ll_driver;
- 
- struct hid_device {							/* device report descriptor */
--	__u8 *dev_rdesc;
-+	const __u8 *dev_rdesc;
- 	unsigned dev_rsize;
- 	const __u8 *rdesc;
- 	unsigned rsize;
+diff --git a/drivers/hid/hid-cmedia.c b/drivers/hid/hid-cmedia.c
+index 01009c95613c..528d7f361215 100644
+--- a/drivers/hid/hid-cmedia.c
++++ b/drivers/hid/hid-cmedia.c
+@@ -26,7 +26,7 @@ MODULE_LICENSE("GPL");
+ /* Fixed report descriptor of HS-100B audio chip
+  * Bit 4 is an abolute Microphone mute usage instead of being unassigned.
+  */
+-static __u8 hs100b_rdesc_fixed[] = {
++static const __u8 hs100b_rdesc_fixed[] = {
+ 	0x05, 0x0C,         /*  Usage Page (Consumer),          */
+ 	0x09, 0x01,         /*  Usage (Consumer Control),       */
+ 	0xA1, 0x01,         /*  Collection (Application),       */
+@@ -204,8 +204,8 @@ static const __u8 *cmhid_hs100b_report_fixup(struct hid_device *hid, __u8 *rdesc
+ {
+ 	if (*rsize == HS100B_RDESC_ORIG_SIZE) {
+ 		hid_info(hid, "Fixing CMedia HS-100B report descriptor\n");
+-		rdesc = hs100b_rdesc_fixed;
+ 		*rsize = sizeof(hs100b_rdesc_fixed);
++		return hs100b_rdesc_fixed;
+ 	}
+ 	return rdesc;
+ }
 
 -- 
 2.46.0

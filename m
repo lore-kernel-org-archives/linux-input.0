@@ -1,109 +1,77 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C46A1D53B;
-	Sat,  3 Aug 2024 12:31:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5738349659;
+	Sat,  3 Aug 2024 12:34:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722688272; cv=none; b=CtllD/4v5UQpVY8ecvhWrsGHlnNRzk+IfKS2sp5GpKM4lD5vkSo8jFmB3Xnt5OmeOyN43gy8gKGx0LnsLqmbdgfpGowIrHH9wAOAvXRHJOZF4zFRavduWHWAXbqF6ff8h2DT05xHGTGShzgBQr633z6Yq1N/woc3VewEfG5l6zU=
+	t=1722688479; cv=none; b=O4zXkQDkospF99kUuL+UHNqIjfKLYYsf6J2Gpj7/YKxD7HLo3wcfjWhHCR8XTPFMS0MiFSA1g/35l89YcV7mDeedUQvdyPxLtG8y13LXaADt+FqRUNgimEIZ2Z4dAx0/VgnxHuyveIlHduY/S/CIrmj5z3QUEv7d0sIOVWuSuiE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722688272; c=relaxed/simple;
-	bh=CMS5+c/qQz1o2D46lsvfZ5yvcnTgysrck07yIKd+E3E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=clSPPnsaR1DOfvFMqc3NH4fTtBoSr2givaMwNn3K5b0Apj75F16Udx5R/jsohOHfZUpAz0X1FG5TMbA5o2V6GBu0n2y5jydOVmCaX0jRAqB1Q0qxoSb9C4NIBgGm6A1qOqxRJ3EOlto/w2pKAcD61kAmNNgGkkx6QLpFON6zgLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=tE3EiRX0; arc=none smtp.client-ip=159.69.126.157
+	s=arc-20240116; t=1722688479; c=relaxed/simple;
+	bh=GWOMFHYuzBRoDKc5Q4V1fjiaApN96tHpO+li4pf9Qv0=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=Wvlkc4RcZtHVjW6l/7EOfowqIz5JsHJz5HxGSqBINuhiIGEvmD9X4rDpsvtdD/XvikeyNZwNKv/NRdxPvbicvXdMxvdqgHFULcYVUERdxt6JyR0+uRcd/LUJ+4/MDVb3rNOV9uX9L/cbnPr4JJj1fkv+YSXHjbFJkd4hlp32VBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=VSq61fZ3; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="tE3EiRX0"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="VSq61fZ3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1722688259;
-	bh=CMS5+c/qQz1o2D46lsvfZ5yvcnTgysrck07yIKd+E3E=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=tE3EiRX0AN08enhI7Bn94Wn5BDEaBAeAfezzn5wLB9iS1GQqzf/8CJ1nIJOLHeK47
-	 L/fO7zcbBX7Eywj+1iUhaCDGPbViJ0KYZIBojZBkTasq5xdxoS8gRmpybwueIuTwZr
-	 jBjWc0eoYUFX3uODX5VY930rinftlIKnC7I9lnYI=
-Date: Sat, 3 Aug 2024 14:30:59 +0200
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <linux@weissschuh.net>
-To: Benjamin Tissoires <bentiss@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 1/4] HID: treat fixed up report as const
-Message-ID: <a48c4f98-bf7c-4050-807c-5c86fbbbd4f8@t-8ch.de>
-References: <20240730-hid-const-fixup-v1-0-f667f9a653ba@weissschuh.net>
- <20240730-hid-const-fixup-v1-1-f667f9a653ba@weissschuh.net>
- <2kfmgwlmliwmn6olmnaab2mdn4ywquqputk3hcdqqkyqc6bfvd@jtlmixoar7qu>
+	s=mail; t=1722688475;
+	bh=GWOMFHYuzBRoDKc5Q4V1fjiaApN96tHpO+li4pf9Qv0=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=VSq61fZ3jUFbw3jyJ4R+mz1G1n6jpIoQn+vabzpRC42oxeiT7Wv4sJqXHqabgDIAy
+	 7/SZ6Zh9kv1FQgq1x0kzOSXtmBnNyBKAKFvS8/jSL5xdAQonyga2l3r3vU/V6/2NFd
+	 dsX8oGlHWlKtJIuGZPlVtq0QEMW50lctnbvGSSME=
+From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+Date: Sat, 03 Aug 2024 14:34:19 +0200
+Subject: [PATCH v2 3/7] HID: constify hid_device::rdesc
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <2kfmgwlmliwmn6olmnaab2mdn4ywquqputk3hcdqqkyqc6bfvd@jtlmixoar7qu>
+Message-Id: <20240803-hid-const-fixup-v2-3-f53d7a7b29d8@weissschuh.net>
+References: <20240803-hid-const-fixup-v2-0-f53d7a7b29d8@weissschuh.net>
+In-Reply-To: <20240803-hid-const-fixup-v2-0-f53d7a7b29d8@weissschuh.net>
+To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
+X-Mailer: b4 0.14.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1722688475; l=809;
+ i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
+ bh=GWOMFHYuzBRoDKc5Q4V1fjiaApN96tHpO+li4pf9Qv0=;
+ b=Rp9kyvG7rK3p9q9imIpa2BEwUnrA6FFCyJ4ALvH4ikxZD8lpc3cJOc/3e4ZpiuBceXBkZZMjH
+ YSnR/iJI01dDLXNgNOIScenaFExkXNc2f7Ma0Ags++UsVDI5i1Zj7w/
+X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
+ pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-On 2024-07-31 15:59:21+0000, Benjamin Tissoires wrote:
-> On Jul 30 2024, Thomas Weißschuh wrote:
-> > Prepare the HID core for the ->report_fixup() callback to return const
-> > data. This will then allow the HID drivers to store their static reports
-> > in read-only memory.
-> > 
-> > Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-> > ---
-> >  drivers/hid/hid-core.c | 7 ++++---
-> >  1 file changed, 4 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-> > index 988d0acbdf04..dc233599ae56 100644
-> > --- a/drivers/hid/hid-core.c
-> > +++ b/drivers/hid/hid-core.c
-> > @@ -1203,6 +1203,7 @@ int hid_open_report(struct hid_device *device)
-> >  {
-> >  	struct hid_parser *parser;
-> >  	struct hid_item item;
-> > +	const __u8 *fixed_up;
-> >  	unsigned int size;
-> >  	__u8 *start;
-> >  	__u8 *buf;
-> > @@ -1232,11 +1233,11 @@ int hid_open_report(struct hid_device *device)
-> >  		return -ENOMEM;
-> >  
-> >  	if (device->driver->report_fixup)
-> > -		start = device->driver->report_fixup(device, buf, &size);
-> > +		fixed_up = device->driver->report_fixup(device, buf, &size);
-> >  	else
-> > -		start = buf;
-> > +		fixed_up = buf;
-> >  
-> > -	start = kmemdup(start, size, GFP_KERNEL);
-> > +	start = kmemdup(fixed_up, size, GFP_KERNEL);
-> 
-> I think that kmemdup makes all of your efforts pointless because from
-> now, there is no guarantees that the report descriptor is a const.
+Once a report descriptor has been created by the HID core it is not
+supposed to be modified anymore.
+Enforce this invariant through the type system.
 
-The patch was meant to clarify the API to driver authors, not to make
-the HID core safer. So I think it would not be pointless :-)
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+---
+ include/linux/hid.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> How about you also change the struct hid_device to have both .dev_rdesc
-> and .rdesc as const u8 *, and then also amend the function here so that
-> start and end are properly handled?
-> 
-> This will make a slightly bigger patch but at least the compiler should
-> then shout at us if we try to change the content of those buffers
-> outside of the authorized entry points.
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index e7a5d6f2f2eb..dda34d8cad19 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -602,7 +602,7 @@ struct hid_ll_driver;
+ struct hid_device {							/* device report descriptor */
+ 	__u8 *dev_rdesc;
+ 	unsigned dev_rsize;
+-	__u8 *rdesc;
++	const __u8 *rdesc;
+ 	unsigned rsize;
+ 	struct hid_collection *collection;				/* List of HID collections */
+ 	unsigned collection_size;					/* Number of allocated hid_collections */
 
-That sounds indeed like the correct solution.
-It also completely avoids to introduction of yet another variable.
+-- 
+2.46.0
 
-> Cheers,
-> Benjamin
-> 
-> >  	kfree(buf);
-> >  	if (start == NULL)
-> >  		return -ENOMEM;
-> > 
-> > -- 
-> > 2.45.2
-> > 

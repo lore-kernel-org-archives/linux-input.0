@@ -1,120 +1,203 @@
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38EBE1514D1;
-	Sat,  3 Aug 2024 12:34:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67EFC370;
+	Sun,  4 Aug 2024 01:21:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722688484; cv=none; b=a6g6XCOydTS2m9FyqYlSKutIPRhhj3qjDArNIQT325Ve/zkzQ0z3uqF6jMc2tr0SKvixZPTMBC9HzuKKuAjG0CUgh1tvGjrTYmvrmqUWv2Ug5tw1RoTvN5Qh5Mi6qfhaUayw2FU8vwep80M738RZIB1LVw3ISdIMaxCCId1LOo4=
+	t=1722734508; cv=none; b=alFnNR+KBDm6/udpZ5xr/OgoaOlcAWY3edOoL04tavLR4v2wd5LvDSiufM0nCaUPyE2gVpqPnWDYfEDSMo4boy8nBxJC8rE6Xbr0CxX5r78hgPyseQrO6hTVpsdKaXe9QVwYbboE+0i9i9oyKkdxA6AUtm9FpWzYUAqfk2BA5xo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722688484; c=relaxed/simple;
-	bh=41db0DCPljjefLQISTecFIjtVv/OPNT2yjlTdCnDI90=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=WL0wx5a9ljUdsWUpgxhBYcX1X21E8IPhuHYLKBnO1Q+ZRyGqDfkGEUPRNJf50bMR+byqPHeNg4y090sw5Mb2oHeT3p/u7fKGHdfqjIU7+zflJ0bqBt2N/6124AzagEKKeRDNOfXIIAzeoWY8SxMzpB+mZmN60KScTLHQf30vI9c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=mhiFi7Iy; arc=none smtp.client-ip=159.69.126.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
+	s=arc-20240116; t=1722734508; c=relaxed/simple;
+	bh=ULD8hu/6LbE9TECygni6jXGyKWNJRoJvqssfORjqyc8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EojY7FpQr+EFbk0JHX7yluHRkWVLihwXVvyexj1mHNxnCDLppwoiisrBW7rwHLC7/c1D+qqj2SxauERcksZbJ1sllYtYTNIZDez+wkpjR4wA0ykiGydW36rhFXlGLvyWubH3i1GJeJjZkwklw5IDiVT361nPcNbPxmJUlNCSHtE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LOU2MVWz; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="mhiFi7Iy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1722688475;
-	bh=41db0DCPljjefLQISTecFIjtVv/OPNT2yjlTdCnDI90=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=mhiFi7Iyya8cpLku7OF8b+ZCM9J9WSJ8b/sNwC1Ijpck/iUZThgnVnfuP5K46QmYt
-	 Ab0qzdaqEC9yCq6H/WMHqn3vWKDzfH4Nr9iHX0pswShxSY1ibfHQS5l6L0L6pf+EPy
-	 RuwHaNj2WisVDAW1ESMkykEAl9Qb4GurNsakavY8=
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Sat, 03 Aug 2024 14:34:20 +0200
-Subject: [PATCH v2 4/7] HID: constify params and return value of
- fetch_item()
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LOU2MVWz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1722734506; x=1754270506;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ULD8hu/6LbE9TECygni6jXGyKWNJRoJvqssfORjqyc8=;
+  b=LOU2MVWzaJyoyqVF79SI1vqNewRmL68GO7EuatB6b9j2gRTjo2vZlnAh
+   8tNsAjvgubCxTIRRajJpbN8ZfPhU1q8T47uF7I+x8r6g4zLWZlu201NGB
+   rxcPQkZGRZJ15HSTGRnnM0aTwh5BwSphuzl1mEs6Mu3Ysw4q91uPi2AeS
+   ZVKNAM9tNCzra0HbIqQgC4++FIeC3F8wpDzCBAkdL4xtJ9/Ao0/qcBTVU
+   bFvUp0vj7pP/LNiL8p56xy95vMqfZqZ/kck9WWPW5FnsTgr00mCknlEfx
+   V2XoNr53R4HG97siWwzt7G70MjsrcMqmkXtcRw8F7A6sJuHmPuoKk4wj8
+   w==;
+X-CSE-ConnectionGUID: ckbaHkxhQkmZGr81agKgdw==
+X-CSE-MsgGUID: ZHWW/Z0sRKmSpb0xIArajw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11153"; a="20859135"
+X-IronPort-AV: E=Sophos;i="6.09,261,1716274800"; 
+   d="scan'208";a="20859135"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Aug 2024 18:21:45 -0700
+X-CSE-ConnectionGUID: cqwGBeSoQvuKkFJN5XcBXA==
+X-CSE-MsgGUID: 44clfnrcTBWWL/76f/LRnw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,261,1716274800"; 
+   d="scan'208";a="55705972"
+Received: from unknown (HELO b6bf6c95bbab) ([10.239.97.151])
+  by orviesa009.jf.intel.com with ESMTP; 03 Aug 2024 18:21:41 -0700
+Received: from kbuild by b6bf6c95bbab with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1saPwH-00013S-38;
+	Sun, 04 Aug 2024 01:21:37 +0000
+Date: Sun, 4 Aug 2024 09:21:33 +0800
+From: kernel test robot <lkp@intel.com>
+To: Heiko Stuebner <heiko@sntech.de>, lee@kernel.org, jdelvare@suse.com,
+	linux@roeck-us.net, dmitry.torokhov@gmail.com, pavel@ucw.cz
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev, robh@kernel.org,
+	krzk+dt@kernel.org, conor+dt@kernel.org, heiko@sntech.de,
+	ukleinek@debian.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-rockchip@lists.infradead.org, linux-hwmon@vger.kernel.org,
+	linux-input@vger.kernel.org, linux-leds@vger.kernel.org
+Subject: Re: [PATCH v3 2/7] mfd: add base driver for qnap-mcu devices
+Message-ID: <202408040850.uHsR1c30-lkp@intel.com>
+References: <20240731212430.2677900-3-heiko@sntech.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20240803-hid-const-fixup-v2-4-f53d7a7b29d8@weissschuh.net>
-References: <20240803-hid-const-fixup-v2-0-f53d7a7b29d8@weissschuh.net>
-In-Reply-To: <20240803-hid-const-fixup-v2-0-f53d7a7b29d8@weissschuh.net>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1722688475; l=2018;
- i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=41db0DCPljjefLQISTecFIjtVv/OPNT2yjlTdCnDI90=;
- b=Wh3BXYGRis3m8rEtQ7qvpsRFbo7loEXB01t3D9OFeSU3NFjrM7I1TDYgGP7/KbyBJYcGqmSoU
- sE5W5xbMHzeDN0LWAn15LrRduwoKjuUfvKkV8YhxNCgMr6qXbFBBK4N
-X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
- pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240731212430.2677900-3-heiko@sntech.de>
 
-fetch_item() does not modify the descriptor it operates on.
-As a prerequisite for the constification of hid_driver::dev_rdesc,
-mark the parameters and return value of fetch_item() as const.
+Hi Heiko,
 
-Also adapt the variable types in the callers to match this
-constification.
+kernel test robot noticed the following build warnings:
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
----
- drivers/hid/hid-core.c | 12 ++++++------
- include/linux/hid.h    |  2 +-
- 2 files changed, 7 insertions(+), 7 deletions(-)
+[auto build test WARNING on next-20240801]
+[also build test WARNING on v6.11-rc1]
+[cannot apply to groeck-staging/hwmon-next lee-leds/for-leds-next lee-mfd/for-mfd-next lee-mfd/for-mfd-fixes linus/master v6.11-rc1 v6.10 v6.10-rc7]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 0d2cbe491708..311069588321 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -723,7 +723,7 @@ static void hid_device_release(struct device *dev)
-  * items, though they are not used yet.
-  */
- 
--static u8 *fetch_item(__u8 *start, __u8 *end, struct hid_item *item)
-+static const u8 *fetch_item(const __u8 *start, const __u8 *end, struct hid_item *item)
- {
- 	u8 b;
- 
-@@ -880,8 +880,8 @@ static int hid_scan_report(struct hid_device *hid)
- {
- 	struct hid_parser *parser;
- 	struct hid_item item;
--	__u8 *start = hid->dev_rdesc;
--	__u8 *end = start + hid->dev_rsize;
-+	const __u8 *start = hid->dev_rdesc;
-+	const __u8 *end = start + hid->dev_rsize;
- 	static int (*dispatch_type[])(struct hid_parser *parser,
- 				      struct hid_item *item) = {
- 		hid_scan_main,
-@@ -1204,10 +1204,10 @@ int hid_open_report(struct hid_device *device)
- 	struct hid_parser *parser;
- 	struct hid_item item;
- 	unsigned int size;
--	__u8 *start;
-+	const __u8 *start;
- 	__u8 *buf;
--	__u8 *end;
--	__u8 *next;
-+	const __u8 *end;
-+	const __u8 *next;
- 	int ret;
- 	int i;
- 	static int (*dispatch_type[])(struct hid_parser *parser,
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index dda34d8cad19..502bbc6f078c 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -46,7 +46,7 @@ struct hid_item {
- 	    __s16  s16;
- 	    __u32  u32;
- 	    __s32  s32;
--	    __u8  *longdata;
-+	    const __u8  *longdata;
- 	} data;
- };
- 
+url:    https://github.com/intel-lab-lkp/linux/commits/Heiko-Stuebner/dt-bindings-mfd-add-binding-for-qnap-ts433-mcu-devices/20240802-103948
+base:   next-20240801
+patch link:    https://lore.kernel.org/r/20240731212430.2677900-3-heiko%40sntech.de
+patch subject: [PATCH v3 2/7] mfd: add base driver for qnap-mcu devices
+config: hexagon-allmodconfig (https://download.01.org/0day-ci/archive/20240804/202408040850.uHsR1c30-lkp@intel.com/config)
+compiler: clang version 20.0.0git (https://github.com/llvm/llvm-project 423aec6573df4424f90555468128e17073ddc69e)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240804/202408040850.uHsR1c30-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202408040850.uHsR1c30-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+   In file included from drivers/mfd/qnap-mcu.c:17:
+   In file included from include/linux/serdev.h:10:
+   In file included from include/linux/iopoll.h:14:
+   In file included from include/linux/io.h:14:
+   In file included from arch/hexagon/include/asm/io.h:328:
+   include/asm-generic/io.h:548:31: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     548 |         val = __raw_readb(PCI_IOBASE + addr);
+         |                           ~~~~~~~~~~ ^
+   include/asm-generic/io.h:561:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     561 |         val = __le16_to_cpu((__le16 __force)__raw_readw(PCI_IOBASE + addr));
+         |                                                         ~~~~~~~~~~ ^
+   include/uapi/linux/byteorder/little_endian.h:37:51: note: expanded from macro '__le16_to_cpu'
+      37 | #define __le16_to_cpu(x) ((__force __u16)(__le16)(x))
+         |                                                   ^
+   In file included from drivers/mfd/qnap-mcu.c:17:
+   In file included from include/linux/serdev.h:10:
+   In file included from include/linux/iopoll.h:14:
+   In file included from include/linux/io.h:14:
+   In file included from arch/hexagon/include/asm/io.h:328:
+   include/asm-generic/io.h:574:61: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     574 |         val = __le32_to_cpu((__le32 __force)__raw_readl(PCI_IOBASE + addr));
+         |                                                         ~~~~~~~~~~ ^
+   include/uapi/linux/byteorder/little_endian.h:35:51: note: expanded from macro '__le32_to_cpu'
+      35 | #define __le32_to_cpu(x) ((__force __u32)(__le32)(x))
+         |                                                   ^
+   In file included from drivers/mfd/qnap-mcu.c:17:
+   In file included from include/linux/serdev.h:10:
+   In file included from include/linux/iopoll.h:14:
+   In file included from include/linux/io.h:14:
+   In file included from arch/hexagon/include/asm/io.h:328:
+   include/asm-generic/io.h:585:33: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     585 |         __raw_writeb(value, PCI_IOBASE + addr);
+         |                             ~~~~~~~~~~ ^
+   include/asm-generic/io.h:595:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     595 |         __raw_writew((u16 __force)cpu_to_le16(value), PCI_IOBASE + addr);
+         |                                                       ~~~~~~~~~~ ^
+   include/asm-generic/io.h:605:59: warning: performing pointer arithmetic on a null pointer has undefined behavior [-Wnull-pointer-arithmetic]
+     605 |         __raw_writel((u32 __force)cpu_to_le32(value), PCI_IOBASE + addr);
+         |                                                       ~~~~~~~~~~ ^
+>> drivers/mfd/qnap-mcu.c:109:5: warning: format specifies type 'unsigned long' but the argument has type 'size_t' (aka 'unsigned int') [-Wformat]
+     108 |                 dev_warn(dev, "received %lu bytes, we were not waiting for\n",
+         |                                         ~~~
+         |                                         %zu
+     109 |                          size);
+         |                          ^~~~
+   include/linux/dev_printk.h:156:70: note: expanded from macro 'dev_warn'
+     156 |         dev_printk_index_wrap(_dev_warn, KERN_WARNING, dev, dev_fmt(fmt), ##__VA_ARGS__)
+         |                                                                     ~~~     ^~~~~~~~~~~
+   include/linux/dev_printk.h:110:23: note: expanded from macro 'dev_printk_index_wrap'
+     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
+         |                              ~~~    ^~~~~~~~~~~
+   7 warnings generated.
+
+
+vim +109 drivers/mfd/qnap-mcu.c
+
+    96	
+    97	static size_t qnap_mcu_receive_buf(struct serdev_device *serdev,
+    98					   const u8 *buf, size_t size)
+    99	{
+   100		struct device *dev = &serdev->dev;
+   101		struct qnap_mcu *mcu = dev_get_drvdata(dev);
+   102		struct qnap_mcu_reply *reply = mcu->reply;
+   103		const u8 *src = buf;
+   104		const u8 *end = buf + size;
+   105	
+   106		mutex_lock(&mcu->reply_lock);
+   107		if (!reply) {
+   108			dev_warn(dev, "received %lu bytes, we were not waiting for\n",
+ > 109				 size);
+   110			mutex_unlock(&mcu->reply_lock);
+   111			return size;
+   112		}
+   113	
+   114		while (src < end) {
+   115			reply->data[reply->received] = *src++;
+   116			reply->received++;
+   117	
+   118			if (reply->received == reply->length) {
+   119				complete(&reply->done);
+   120				mutex_unlock(&mcu->reply_lock);
+   121	
+   122				/*
+   123				 * We report the consumed number of bytes. If there
+   124				 * are still bytes remaining (though there shouldn't)
+   125				 * the serdev layer will re-execute this handler with
+   126				 * the remainder of the Rx bytes.
+   127				 */
+   128				return src - buf;
+   129			}
+   130		}
+   131	
+   132		/*
+   133		 * The only way to get out of the above loop and end up here
+   134		 * is through consuming all of the supplied data, so here we
+   135		 * report that we processed it all.
+   136		 */
+   137		mutex_unlock(&mcu->reply_lock);
+   138		return size;
+   139	}
+   140	
 
 -- 
-2.46.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

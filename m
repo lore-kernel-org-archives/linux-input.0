@@ -1,127 +1,212 @@
-Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74A7D3C092;
-	Tue,  6 Aug 2024 08:26:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D5A01BD006;
+	Tue,  6 Aug 2024 08:49:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722932817; cv=none; b=nfk3YijQ+ICxooI9tm+wWvpmEGH6rv87hZkHWNpCUqovWRPEmtTYJly6HR3vYvact5jufuz7fWaISi91IM3tLRlMwU/46LWJrG6I7JGR/SXRsDNQeet3dTYFuXA8bwut04uzT+EfvkasEe+ULkjgRh4cSdRCtXODCZyci5Su69A=
+	t=1722934168; cv=none; b=Nkvpi5OynQ+OfqpPzYnoDjfmvQaJzlAQysv729/5C2a9mX755rlUoE9uBseGqWNWTnrrhUW62pWb2fiEfNfqtKLKXAq6a29FBjzwQ8leH8fsLx3vRaNL8uNCAx5ElxDY63rbWs1k+CBgCpnvlZTtuFBK6xUIehds0r27smEtCbQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722932817; c=relaxed/simple;
-	bh=QJkh28dfaTpLjVEIV2Nz8NvUIGeG3YYvhCkbDyeVoJ0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sBmPQhkMCXDj8YfQ3AXOp2SOxTgWQStPYV8/i/rNTjqoKKaM+Muh5A2duX6BSCtl3wcqyVBiARrx5Jy4FFmorSelfsI+oFJCyd6dvYdOOefW39l89BvPk1Yic9+DbguqIJ3zl2Mc72WZI/L+ef3xSGYoGvZGWR6bcpq6s+1u6uY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=QXLFizCS; arc=none smtp.client-ip=209.85.214.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1722934168; c=relaxed/simple;
+	bh=aEuCjWxRkzWwfDTMdgU+LpngRSgkeUQ7WrIWnqmQ1+I=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=BuAm2mwgxIm04nnapHR5Dvv4/AQUbfIHDzV0ZQR2FNIGj+k0kwMNAvoQTXuqRI82ii6k9e8gqPpareW70Mxnv1ggteknojx93gi4nVYi1mR3xG+X3AFoAlUHucVHnsm5ym994JK9m+mzRJUELP3bcxbstyH6AnPRvsdVvqK3o1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=e/Hw7Cw6; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="QXLFizCS"
-Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-1fc4fccdd78so2332445ad.2;
-        Tue, 06 Aug 2024 01:26:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1722932816; x=1723537616; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=21cCqT5PRweYK70/48x7Kh3qRL476Uhp78KESvWeohE=;
-        b=QXLFizCSpMo3TohhAtGiWUMt8pJjpm+2y1tS7Mij21GIbxBbgarpkQBrVhWFX5RRH7
-         kDQ3uUcY9vhbtERPRIWNNpr4hgvFziSPTsecsZ93IWlsvcjz5MPv30p9vogi7xUA2JKU
-         iRnZk0KRxGGPewZl+lqJU4m0RrxJEdxx9fdOHcBRA9ntXXHI8lq+cw+jL7orsSzt1TQC
-         y6dsjAZwY6lHGXoBJtkjAxTzwFdif+p1hcrHT4S7kh274raeffUcKMxjTPV+Yit9XEdL
-         T5N/bGB5yMJ7TS4XkG+ErVeEngf8UjGlOwOurFTTc5dkjj6GdSR2rLLGJrUT2G0BLLLJ
-         Z50w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722932816; x=1723537616;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=21cCqT5PRweYK70/48x7Kh3qRL476Uhp78KESvWeohE=;
-        b=V57y3OwWo0adEgfj8OupllJuPyYaypf9EwZKesKFMD6YFB9a3rJXcdz4/S/Asoz5MX
-         xU7l/nh7sKjxyfxguqTjonjKAOS97TV4yJhloxvdKILcH0o/vKzfprp0VYIJ6EmGmDyq
-         IntSP+4CYRvUMaUoyx1NnoMRYbEvXf3QA7USpFder7fOm7UPMCW6ZrTISt3LL63tJhl5
-         KEu2AcBHg0rPA4EMrTTxFTRrWW8NkiXQmZOj2LK9sFqx8kbSMULNORUdgZMvYDChsU6U
-         BAtQip/5SWDdXkf9RewFy0q8COirEJPAYF6UmBm8v5LvY2SxdTX8Ufnk7uv3lyjzc8AF
-         JUkg==
-X-Forwarded-Encrypted: i=1; AJvYcCXLv+m/O3l5x6NKjki3ZAH25GHZ8zVIdoj4yGXKPvXWIqi3wGcwkH2TCOrchFiYJDTwIPyIu5gyiz2ekto=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyJIWpUYH+jVbcAxsGMvPKyTkTDDuaQXZrNmPVCfRQmSCF9wpw2
-	l0K3ldkrUp5fnsNl1sVbqjrB6ySS0/QdCuQEhK/JiAgdFn68RB7f
-X-Google-Smtp-Source: AGHT+IEq9/4drMN7kIJagyt6lrlCSWgHiibKxIIRqUq2p5mmi0bXPHTGWSPyacFRkErrEli/VAB2LA==
-X-Received: by 2002:a17:903:22d1:b0:1fd:7097:af58 with SMTP id d9443c01a7336-1ff5727d560mr147468455ad.11.1722932815585;
-        Tue, 06 Aug 2024 01:26:55 -0700 (PDT)
-Received: from sis-tammy.. ([2402:7500:587:98f5:915f:607f:a35b:7990])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1ff591764ebsm82106985ad.197.2024.08.06.01.26.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 06 Aug 2024 01:26:55 -0700 (PDT)
-From: tammy tseng <tammy0524@gmail.com>
-To: jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	tammy_tseng@sis.com,
-	tammy tseng <tammy0524@gmail.com>
-Subject: [PATCH RESEND] hid: add patch for sis multitouch format
-Date: Tue,  6 Aug 2024 16:25:32 +0800
-Message-ID: <20240806082531.1353207-2-tammy0524@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="e/Hw7Cw6"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 11404C4AF09;
+	Tue,  6 Aug 2024 08:49:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1722934168;
+	bh=aEuCjWxRkzWwfDTMdgU+LpngRSgkeUQ7WrIWnqmQ1+I=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=e/Hw7Cw6s844/rEGJvUySv1Zqupiy12WP1QsgKY4mzftKHzAEW47tOddwUThQLBJW
+	 Samq+lJPXX8/qdrRzFAPLy9vjXMKiE5s3F/g7Sq43XyeBKk275OakkSxyXOQ8M3TUQ
+	 I76JrcsB7x7+TtRbngOxbZhi/l3CgcStzdFnF6VaA9r4lWZNWKnMzyiNxnecHV/pAi
+	 lT88pL46lpzLDKM2+CFJTYjy/LkQ82mvu8q4jaoUKPPP7+7muah/ErrOdnMGSu3Fxw
+	 iOOtM8MqjM3++I+QEYcYDkOfKsaHwTDQTaBy6EqabcM2K5Jy6ArXnIzRvGM07RWjoe
+	 6uziRXNroZm+A==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E9557C52D70;
+	Tue,  6 Aug 2024 08:49:27 +0000 (UTC)
+From: Utsav Agarwal via B4 Relay <devnull+utsav.agarwal.analog.com@kernel.org>
+Date: Tue, 06 Aug 2024 09:48:02 +0100
+Subject: [PATCH v9 1/3] Input: adp5588-keys - use guard notation when
+ acquiring mutexes
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240806-adp5588_gpio_support-v9-1-4d6118b6d653@analog.com>
+References: <20240806-adp5588_gpio_support-v9-0-4d6118b6d653@analog.com>
+In-Reply-To: <20240806-adp5588_gpio_support-v9-0-4d6118b6d653@analog.com>
+To: Utsav Agarwal <utsav.agarwal@analog.com>, 
+ Michael Hennerich <michael.hennerich@analog.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ Arturs Artamonovs <arturs.artamonovs@analog.com>, 
+ Vasileios Bimpikas <vasileios.bimpikas@analog.com>, 
+ Oliver Gaskell <oliver.gaskell@analog.com>
+X-Mailer: b4 0.14.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1722934106; l=4350;
+ i=utsav.agarwal@analog.com; s=20240701; h=from:subject:message-id;
+ bh=mDwNB6wUzoZc6JGCdhyWFTBkDbZltiAbjw3N6y6sDvU=;
+ b=UNBidsq6/oHQn9kzLAo4fwEqmeEumu0eL5ADWjLJVIvoBLH4FLZnqUUeEJxGqaB8IMF9Eipji
+ 6x3rZeExX0nBoxfbdE2BvGtfGPcBqX62Qf3mUCdD58Co0eBjj3yltDF
+X-Developer-Key: i=utsav.agarwal@analog.com; a=ed25519;
+ pk=mIG5Dmd3TO5rcICwTsixl2MoUcf/i2u+jYqifd7+fmI=
+X-Endpoint-Received: by B4 Relay for utsav.agarwal@analog.com/20240701 with
+ auth_id=178
+X-Original-From: Utsav Agarwal <utsav.agarwal@analog.com>
+Reply-To: utsav.agarwal@analog.com
 
-The patch is to add proper quirks for sis multitouch format
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-Signed-off-by: tammy tseng <tammy0524@gmail.com>
+This makes the code more compact and error handling more robust.
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
 ---
- drivers/hid/hid-multitouch.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/input/keyboard/adp5588-keys.c | 49 ++++++++++++-----------------------
+ 1 file changed, 17 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
-index 56fc78841f24..9f49bc7a157c 100644
---- a/drivers/hid/hid-multitouch.c
-+++ b/drivers/hid/hid-multitouch.c
-@@ -212,6 +212,7 @@ static void mt_post_parse(struct mt_device *td, struct mt_application *app);
- #define MT_CLS_GOOGLE				0x0111
- #define MT_CLS_RAZER_BLADE_STEALTH		0x0112
- #define MT_CLS_SMART_TECH			0x0113
-+#define MT_CLS_SIS				0x0457
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 1b0279393df4..09bcfc6b9408 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -221,15 +221,13 @@ static int adp5588_gpio_get_value(struct gpio_chip *chip, unsigned int off)
+ 	unsigned int bit = ADP5588_BIT(kpad->gpiomap[off]);
+ 	int val;
  
- #define MT_DEFAULT_MAXCONTACT	10
- #define MT_MAX_MAXCONTACT	250
-@@ -396,6 +397,11 @@ static const struct mt_class mt_classes[] = {
- 			MT_QUIRK_CONTACT_CNT_ACCURATE |
- 			MT_QUIRK_SEPARATE_APP_REPORT,
- 	},
-+	{ .name = MT_CLS_SIS,
-+		.quirks = MT_QUIRK_NOT_SEEN_MEANS_UP |
-+			MT_QUIRK_ALWAYS_VALID |
-+			MT_QUIRK_CONTACT_CNT_ACCURATE,
-+	},
- 	{ }
- };
+-	mutex_lock(&kpad->gpio_lock);
++	guard(mutex)(&kpad->gpio_lock);
  
-@@ -1787,6 +1793,9 @@ static int mt_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	if (mtclass->quirks & MT_QUIRK_FIX_CONST_CONTACT_ID)
- 		mt_fix_const_fields(hdev, HID_DG_CONTACTID);
+ 	if (kpad->dir[bank] & bit)
+ 		val = kpad->dat_out[bank];
+ 	else
+ 		val = adp5588_read(kpad->client, GPIO_DAT_STAT1 + bank);
  
-+	if (hdev->vendor == USB_VENDOR_ID_SIS_TOUCH)
-+		hdev->quirks |= HID_QUIRK_NOGET;
-+
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
- 	if (ret)
- 		return ret;
-@@ -2243,6 +2252,11 @@ static const struct hid_device_id mt_devices[] = {
- 		HID_DEVICE(BUS_USB, HID_GROUP_MULTITOUCH_WIN_8, USB_VENDOR_ID_GOOGLE,
- 			USB_DEVICE_ID_GOOGLE_WHISKERS) },
+-	mutex_unlock(&kpad->gpio_lock);
+-
+ 	return !!(val & bit);
+ }
  
-+	/* sis */
-+	{ .driver_data = MT_CLS_SIS,
-+		HID_DEVICE(HID_BUS_ANY, HID_GROUP_ANY, USB_VENDOR_ID_SIS_TOUCH,
-+			HID_ANY_ID) },
-+
- 	/* Generic MT device */
- 	{ HID_DEVICE(HID_BUS_ANY, HID_GROUP_MULTITOUCH, HID_ANY_ID, HID_ANY_ID) },
+@@ -240,7 +238,7 @@ static void adp5588_gpio_set_value(struct gpio_chip *chip,
+ 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
+ 	unsigned int bit = ADP5588_BIT(kpad->gpiomap[off]);
  
+-	mutex_lock(&kpad->gpio_lock);
++	guard(mutex)(&kpad->gpio_lock);
+ 
+ 	if (val)
+ 		kpad->dat_out[bank] |= bit;
+@@ -248,8 +246,6 @@ static void adp5588_gpio_set_value(struct gpio_chip *chip,
+ 		kpad->dat_out[bank] &= ~bit;
+ 
+ 	adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank, kpad->dat_out[bank]);
+-
+-	mutex_unlock(&kpad->gpio_lock);
+ }
+ 
+ static int adp5588_gpio_set_config(struct gpio_chip *chip,  unsigned int off,
+@@ -259,7 +255,6 @@ static int adp5588_gpio_set_config(struct gpio_chip *chip,  unsigned int off,
+ 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
+ 	unsigned int bit = ADP5588_BIT(kpad->gpiomap[off]);
+ 	bool pull_disable;
+-	int ret;
+ 
+ 	switch (pinconf_to_config_param(config)) {
+ 	case PIN_CONFIG_BIAS_PULL_UP:
+@@ -272,19 +267,15 @@ static int adp5588_gpio_set_config(struct gpio_chip *chip,  unsigned int off,
+ 		return -ENOTSUPP;
+ 	}
+ 
+-	mutex_lock(&kpad->gpio_lock);
++	guard(mutex)(&kpad->gpio_lock);
+ 
+ 	if (pull_disable)
+ 		kpad->pull_dis[bank] |= bit;
+ 	else
+ 		kpad->pull_dis[bank] &= bit;
+ 
+-	ret = adp5588_write(kpad->client, GPIO_PULL1 + bank,
+-			    kpad->pull_dis[bank]);
+-
+-	mutex_unlock(&kpad->gpio_lock);
+-
+-	return ret;
++	return adp5588_write(kpad->client, GPIO_PULL1 + bank,
++			     kpad->pull_dis[bank]);
+ }
+ 
+ static int adp5588_gpio_direction_input(struct gpio_chip *chip, unsigned int off)
+@@ -292,16 +283,11 @@ static int adp5588_gpio_direction_input(struct gpio_chip *chip, unsigned int off
+ 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
+ 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
+ 	unsigned int bit = ADP5588_BIT(kpad->gpiomap[off]);
+-	int ret;
+ 
+-	mutex_lock(&kpad->gpio_lock);
++	guard(mutex)(&kpad->gpio_lock);
+ 
+ 	kpad->dir[bank] &= ~bit;
+-	ret = adp5588_write(kpad->client, GPIO_DIR1 + bank, kpad->dir[bank]);
+-
+-	mutex_unlock(&kpad->gpio_lock);
+-
+-	return ret;
++	return adp5588_write(kpad->client, GPIO_DIR1 + bank, kpad->dir[bank]);
+ }
+ 
+ static int adp5588_gpio_direction_output(struct gpio_chip *chip,
+@@ -310,9 +296,9 @@ static int adp5588_gpio_direction_output(struct gpio_chip *chip,
+ 	struct adp5588_kpad *kpad = gpiochip_get_data(chip);
+ 	unsigned int bank = ADP5588_BANK(kpad->gpiomap[off]);
+ 	unsigned int bit = ADP5588_BIT(kpad->gpiomap[off]);
+-	int ret;
++	int error;
+ 
+-	mutex_lock(&kpad->gpio_lock);
++	guard(mutex)(&kpad->gpio_lock);
+ 
+ 	kpad->dir[bank] |= bit;
+ 
+@@ -321,17 +307,16 @@ static int adp5588_gpio_direction_output(struct gpio_chip *chip,
+ 	else
+ 		kpad->dat_out[bank] &= ~bit;
+ 
+-	ret = adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank,
+-			    kpad->dat_out[bank]);
+-	if (ret)
+-		goto out_unlock;
+-
+-	ret = adp5588_write(kpad->client, GPIO_DIR1 + bank, kpad->dir[bank]);
++	error = adp5588_write(kpad->client, GPIO_DAT_OUT1 + bank,
++			      kpad->dat_out[bank]);
++	if (error)
++		return error;
+ 
+-out_unlock:
+-	mutex_unlock(&kpad->gpio_lock);
++	error = adp5588_write(kpad->client, GPIO_DIR1 + bank, kpad->dir[bank]);
++	if (error)
++		return error;
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int adp5588_build_gpiomap(struct adp5588_kpad *kpad)
+
 -- 
-2.43.0
+2.34.1
+
 

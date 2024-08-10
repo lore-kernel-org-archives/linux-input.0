@@ -1,140 +1,101 @@
-Received: from IND01-MAX-obe.outbound.protection.outlook.com (mail-maxind01olkn2072.outbound.protection.outlook.com [40.92.102.72])
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87D2515854B;
-	Sat, 10 Aug 2024 16:42:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.92.102.72
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723308141; cv=fail; b=NJ09PLGDaQ4/jq5kRhKeCCOiwu4qt8uETYC4OU3InR3Q2T/1Zy5t+sn5Mum+vhs3L0ncbMU2Um37hmKkwZn46eGzer9UBz1oCkgzp0woICw0NK4Za7MUaBH8gaebE4YPq+L2Tu3tnre+/xFOVBobQZQDMbbSE2dz+Qu4UdSgTfY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723308141; c=relaxed/simple;
-	bh=zaxDcUwhj67U1gIusMCAS/KoaILV4JdkHAzN4Ep+VXw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Y8Sjp0f+ilFEBm1S+45XJE+95wg3bpajKkK1njSfP5ndWu77/FQ5e0lu0eWWjkh4syXHOlSVuRjPOY1Rh5DKxoPcKbPc3ciiromho6tlS3HCvL2ij+eGX3Rf4Lv+llorWnNrqEsoE3vyLoN13yQC8EjSvHv1cq3s/Z1NMG3DcL0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com; spf=pass smtp.mailfrom=live.com; dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b=fLgo5fNB; arc=fail smtp.client-ip=40.92.102.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=live.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=live.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=live.com header.i=@live.com header.b="fLgo5fNB"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=jK9sZ0PbN6o0wKJodM+y8jhWMZWxgvjtnbHjXWcJTZeOjh0pD7bSbV9qqy6sd59Wdt06MZGtGZtdDi0nRRAKLBP+YnsqyZ4PXTlfQIhh+vLQG2dsS+t2vbOA6EUAUTKin3jbiLHi12NYNR3wbzj+VApOKGJY0kFTL3yrwDP53Rf4p0djmdi704EtqlcXFRmsNMKN9XgMAN+1MkWBXQ2X1PfuSUbpOSAnRAZ4GaUSzvt+GbhTf3+VZjZITP27ghSiQzVJGSyTxz0v+fQorl//cn2SrG9rhtyxvczcprtJUE3jpBF6A5qKzNS1aYJ5UbpQEmKxUFo9jYieZjDuLXHQYQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zaxDcUwhj67U1gIusMCAS/KoaILV4JdkHAzN4Ep+VXw=;
- b=NkG+2OQbzP48nkFtiF4fTygP2l14MbRVa1FAOOg5sSJHwOZJFLHTCyOvWjJ5WbXmMB1uAtSB5vhAVG+0aVmcRMo1FMIxhHSehwrF66r/2d3l3xtf2tG6YD6K9YHkSEgk9iHnke2nVPicnYkrOYKPeO5oUhikIPUYUlDNfRIlDytq6Z97odgw8td7ihBOeEYIQ343RXY5uPxq0ObWqt4TFoQfEIbG3DqAX0lhBtcYTwWK94Mepr+M/jOvkSbeDiS6BHVTKGS0b99jWl9X6BC5S6tuBINNgmljbhvWEO2z0zs/RnPoeQ53s2/gBO3TW69ffU9Wlj24VLJqluMBWFnAOQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zaxDcUwhj67U1gIusMCAS/KoaILV4JdkHAzN4Ep+VXw=;
- b=fLgo5fNBjDRMHq5J0rultmS0QnMZAhsfkjzcB80IAT3YpL8xjwlSh95Yh0QTOQhLXwCGBY1u9zpYdCoNP0B7QOc8L+CuFiSlu8B5xFMXFgDEIjFkRRM2aI/hFZqbEzRoVEkh9yCr0tzPeHS/TchlzJ0QCJL9/xY34Gtec4i0CvQR89/vcAs2UsNAvq3IzPklg6kgEXLjy2aBRFSswLr2rzzQgsHS1tsiSlcQooS8uGLmsaQMHFT07OF2QXs5kborBi3JRvQZfo6NVBBa1XBa7T1MJbNE9maX9wDRAZSbClFZ7FCZul5RtCvD2xRVhPePYg/5oUZoY5x6UmM43hNXrQ==
-Received: from MA0P287MB0217.INDP287.PROD.OUTLOOK.COM (2603:1096:a01:b3::9) by
- PN2P287MB1165.INDP287.PROD.OUTLOOK.COM (2603:1096:c01:154::10) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.7849.17; Sat, 10 Aug 2024 16:42:08 +0000
-Received: from MA0P287MB0217.INDP287.PROD.OUTLOOK.COM
- ([fe80::98d2:3610:b33c:435a]) by MA0P287MB0217.INDP287.PROD.OUTLOOK.COM
- ([fe80::98d2:3610:b33c:435a%5]) with mapi id 15.20.7849.015; Sat, 10 Aug 2024
- 16:42:08 +0000
-From: Aditya Garg <gargaditya08@live.com>
-To: =?utf-8?B?VGhvbWFzIFdlacOfc2NodWg=?= <thomas@t-8ch.de>
-CC: "tzimmermann@suse.de" <tzimmermann@suse.de>,
-	"maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
-	"mripard@kernel.org" <mripard@kernel.org>, "airlied@gmail.com"
-	<airlied@gmail.com>, "daniel@ffwll.ch" <daniel@ffwll.ch>, Jiri Kosina
-	<jikos@kernel.org>, "bentiss@kernel.org" <bentiss@kernel.org>, Orlando
- Chamberlain <orlandoch.dev@gmail.com>, Kerem Karabay <kekrby@gmail.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
-	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>
-Subject: Re: [PATCH v3 1/9] HID: hid-appletb-bl: add driver for the backlight
- of Apple Touch Bars
-Thread-Topic: [PATCH v3 1/9] HID: hid-appletb-bl: add driver for the backlight
- of Apple Touch Bars
-Thread-Index:
- AQHa6ZnwyB5bPU44IEyDnWntQU6RLbIgavQAgAASw4CAABOOAIAAEBEAgAAPhACAAARdgA==
-Date: Sat, 10 Aug 2024 16:42:07 +0000
-Message-ID: <151AA17E-7354-4D61-9587-E755334CD6DA@live.com>
-References: <1368FEE8-58BB-41C9-B9AD-7F2F68FF1D53@live.com>
- <0DDD5C22-A42A-49F2-984C-F3595F71AB1C@live.com>
- <9e398f1b-05c2-4dd3-bc56-2b61c6784aef@t-8ch.de>
- <79DB1D9D-8D32-474F-972F-F82C818AF38F@live.com>
- <375d99a9-5516-4a39-a912-1961b3dd725d@t-8ch.de>
- <6340DD46-4537-434E-9E14-EEFE7E04AAD0@live.com>
- <1166bdaa-ea14-430a-be2e-9593cc08491a@t-8ch.de>
-In-Reply-To: <1166bdaa-ea14-430a-be2e-9593cc08491a@t-8ch.de>
-Accept-Language: en-IN, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:
- [dXUrjqcoZIwTlmvRfb+iUk48XvPd+oxRbbSjhE3zs/oJ+F770k8Sp9F3W2sesMnTPc8EZh70qg8=]
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: MA0P287MB0217:EE_|PN2P287MB1165:EE_
-x-ms-office365-filtering-correlation-id: ac017dd0-97d0-4425-35b8-08dcb95b5f4c
-x-microsoft-antispam:
- BCL:0;ARA:14566002|8060799006|15080799003|19110799003|461199028|102099032|440099028|4302099013|3412199025|1602099012;
-x-microsoft-antispam-message-info:
- 6Zx2XfzP3vdXvKmMz6eQl+gJeUfHji9mDhvXEAHhyDWYeGD6wx3xbAzREPQs0XU9Yw8/bZKCt9zaiTpXVr+ZDPn+FzfveTj5YThHL7dFTBR89d+OjZzIjeMFd0quL9IqKUM8qBWs+kE8GySzGew+9DYMydrkfz7pWLlge+Qe5WppMrgPQ1Vqve8CbI/RESoYpBjju4HJprzUSbStrd70m3/bLTwMHRCP00j6sAOobnCzFgzJQY2yYLTCtEWyeiC0cpAKqrm2B27pgFoTuBVHq07Ctu7lc89xXG+ntpOwObZQq0/mLQki94PW3VAEWU0GEgMy4lzA0N9CmtZuw66seAJV5KYe2dZTd377fx4B9+sIjJMF/im4Al+7UTUKOz7HwuFvhzyOg6NLUFPtY8dYLW/DoOpLL2g4qCKzCABNvcCZkZA18dhNsnabbqmg+mqc4JimXp7F2fEt2fkd3u6+Al/EKvE0TMdYAgGUbqWdP2SD6eblNH5bgyHCQERk25BmMtlSoXWXJLnrExBz40dvFGbuzjoaUO/UTVDyglF/6CYstW1yhkannGqrgbVPk/MuKeqS6jw2MP/V6m6BGb9qT5j+0WrgcN2pPrJkR3UcOvrC4dUf/Xf0o9686cB/ojwjOABmHkhRDj3ha8mj1OdWyTF9GQjAsMCt6ipGYVyH7XZiwOkbMOFj8bpHiaC/pc+LGsqSoj90na0XUN/0EjJnRgBjwpLaTYRF/WhbSamP0ELCaRdVhS7dLUd81kUvtd++nr9q4K2CZIq32Qqor4EWIt1AtbCJxfXVvqm4Kae+OGA=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?bitLOHRMMmpCSkFTaFpFd3BMVGRKWE9jcUtkSzN0L2N3MjZQUDVRRTl5V3Ix?=
- =?utf-8?B?Z2FJemJyNk00RzBtV3c0VjVYNUpVY2dLa3FjZSt3U0hjVm1La0RhakRsTm1M?=
- =?utf-8?B?UEpsN05tTDlVZHBISGJvTFRaOC9UOUdXRm5hZkhVWTNUWFBSaG9Vc3lBM0M2?=
- =?utf-8?B?TlQ5Z2VpVURmTHZLaDNWOEp6bUtLOHgvenE2QnhYMlBYVkMzc24zWFZ2djlH?=
- =?utf-8?B?VHJUUWRkUndydWR0c1lXaXFjbzhBcDc5YU1RWFZ2cDFvdjBkdjZzRzQ2RUsv?=
- =?utf-8?B?VkUxYlVqcDBkZ1JVck0rVWVPaUVJZ3RHZHlTTlU3a0tLcnl1T0gxdzZGYVpY?=
- =?utf-8?B?VUVHeVFIT016bmIyM0wwYTNPTEtEVkhyL1JVLzlYYWRCdDluNU51cll1dW45?=
- =?utf-8?B?YVVadjBDLzV0alZyZGtrcGNZV1hxYi8yMGRhN0c4Mzl6Q1FQNVpieHA1dFhr?=
- =?utf-8?B?SVU0SENTU0JyZXl6QVZ2RWdxaFNmUUN3OEdza3JaT2dndmtFTFJKTHprMWg5?=
- =?utf-8?B?aUU5REdMOVRLWnR3Y2R1Ym5ObmRUSTkzTUQ2bGIwemgreGxVYVIrVmRHd3VL?=
- =?utf-8?B?Ym94QklLV1B1cEx2eDc0dEkzTmRPdW1zZ293bmQ5YUp1QkowVmZteXdmNmJJ?=
- =?utf-8?B?K2YvcGk5U2pwZFc2TFRpcXZBdElXMjMxR1pzcnB3a1NGbVQ0WG5TZElrY1dl?=
- =?utf-8?B?aDNpWHZFbnBIWlcxTmlSMGNCUXZWRWFxdVJUaDFXeVY4K0JhcnJMWENvWDdE?=
- =?utf-8?B?eE5jbzZzSWQ2Nng5Y0FqbU1CcVZMZ3BpNWN5SUl5WkxwbndLZjJNemkrTlZp?=
- =?utf-8?B?MjJzcTZ1d2VCZTZPcnByU0ZsQkhYRlJSMi95V3FHUFAvSnNHT1JyUzB1OFVq?=
- =?utf-8?B?VXArN3JvRmpxeE96dCs5WVIvcUc0WFFyb0VSbWdZTDJZRXpHU0Zxc3hWaVNR?=
- =?utf-8?B?VzhTNWhQQjNjdFFJbG42RkhIZCtCcTFrMEUzVzRWWmd2NnZaVnFoVElCaXph?=
- =?utf-8?B?QklRVnlpNDVVTGJrVjZ4THUwR0huVjVXRUJJNDNDdXJCbFFuQ2N0RnllTXlF?=
- =?utf-8?B?RGxtWEovbjAvb0d0VU15ZlNUcXQ4WjdvdUJzZGp0VGp1ZXJOTlYwejVqL0dJ?=
- =?utf-8?B?V3Z3N3MraHlnNlZxVDQ5UFI3WkxDdUNiMWRRcVZzN2cvSm00U3JPekV4YWFY?=
- =?utf-8?B?Uk9DRzVqTU94bm1VQ2ZOSkRLa3I5MUVacUZJMUFFVGxkdHFmMkY2NW5tcW95?=
- =?utf-8?B?eFpxVVdPQWFKNTBJcWwxNjkvN0lEZXoxT0lJYnpvbHdaVEt0RlhHQkhTaXhq?=
- =?utf-8?B?NnlxMkJkZTFTWFRBUW5wOFdoT0k4T2FGRVUxdytDL3BTSndSMkNVcWtzNGNC?=
- =?utf-8?B?YktTb2ZQa1NXcmFEbi9WbkJRZEZKYlBsVk5RR2xjVG9LVUh6OTlqbDhZeG1W?=
- =?utf-8?B?R3R4RGx1UDNsQ0VCVlBrTFdiTG5KMmZSbHZVT0NIZjNJMGhHa1Vxak9Telc0?=
- =?utf-8?B?bmlqczFhK1JVRFZNblBmZy8wWU5ZS1Z6UTJ5RHVtbkg2R2RWcG9McUNnenY3?=
- =?utf-8?B?RlJoTm9GaHN1YXpndElPaURGNy9vN1E5bWQ5VGZWdTlzUkc3TFQyRDF6Ukd5?=
- =?utf-8?B?WkdjVU80dTFxNk5TSWhPRUl1N2t2b3h6dHZzcDJTanlsS1hlcklQT1l0dWZz?=
- =?utf-8?B?a2RreWcrMnErVHpaamlrdThRTE94M25uam1Kdk44UUYxNmZMM0xRWVloSHBH?=
- =?utf-8?Q?RvQKnV0FjloiACHpAQ9dFb9dBe7g5zytiu6NHAU?=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <2C66AB5583D74049A260749762C0D449@INDP287.PROD.OUTLOOK.COM>
-Content-Transfer-Encoding: base64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1F03482DB;
+	Sat, 10 Aug 2024 18:48:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1723315694; cv=none; b=oY5C9fTBlQptej1PbtECgTX57+Eg4JzCpb7ApYrpmllczoSEzRHTlGkFm8SW9plttQo+MVzSOtRwzirUgw4m0V9QOSAZKm8qt2j7bmbaU8TzUj8uGlRj1SzQE38P/4J+XmwY/MlABrUxR/h7Kwx2gIpvBr9+cEImsYDBwuMFg90=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1723315694; c=relaxed/simple;
+	bh=3oRagH2yyp/5JVazFAZWcnGYexHP4Uw1cLEt7HEAvTo=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=r4EH9RXYL9ngilVMX8jyjl9mC20VZqZ4fVS6ae1WD1D4xhm36m8Bsb/ntxEWEVo9W2jG0uOKTaJRX+lFp12+kQDfVVpWz5uUHfxb0TQWZiLTU3OY0a/VB/8WGvC/jeJLIa/pwPe9Mzw+J6JP1C7ChDesJuwZBumssEycXk/UjdI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; arc=none smtp.client-ip=185.11.138.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
+Received: from i53875b02.versanet.de ([83.135.91.2] helo=phil.lan)
+	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <heiko@sntech.de>)
+	id 1scr84-0006GR-HN; Sat, 10 Aug 2024 20:47:52 +0200
+From: Heiko Stuebner <heiko@sntech.de>
+To: lee@kernel.org,
+	jdelvare@suse.com,
+	linux@roeck-us.net,
+	dmitry.torokhov@gmail.com,
+	pavel@ucw.cz
+Cc: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	heiko@sntech.de,
+	ukleinek@debian.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-hwmon@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org
+Subject: [PATCH v4 7/7] arm64: dts: rockchip: set hdd led labels on qnap-ts433
+Date: Sat, 10 Aug 2024 20:47:43 +0200
+Message-Id: <20240810184743.277248-8-heiko@sntech.de>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240810184743.277248-1-heiko@sntech.de>
+References: <20240810184743.277248-1-heiko@sntech.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: sct-15-20-7719-20-msonline-outlook-24072.templateTenant
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MA0P287MB0217.INDP287.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: ac017dd0-97d0-4425-35b8-08dcb95b5f4c
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Aug 2024 16:42:07.1413
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN2P287MB1165
+Content-Transfer-Encoding: 8bit
 
-DQo+IA0KPiBTb3VuZHMgZ29vZC4NCj4gDQo+IEZZSSBJJ2xsIGFsc28gcmV2aWV3IHRoZSBvdGhl
-ciBwYXRjaGVzIHNvb25pc2guDQo+IFNvIHNlbmRpbmcgYSB2NSByaWdodCBhd2F5IGlzIG5vdCBu
-ZWNlc3NhcnkuDQoNCkFscmlnaHQsIGZhaXIgZW5vdWdoLg0KWW914oCZZCB3YW50IHRvIHJldmll
-dyB0aGUgdjQgb2YgdGhpcyBwYXRjaHNldCB0aGVuLCBhbHRob3VnaCB0aGUgb25seSBkaWZmZXJl
-bmNlIGlzIHByZXNlbmNlIG9mIDEgZXh0cmEgcGF0Y2ggaW4gdjQuDQoNCmh0dHBzOi8vbG9yZS5r
-ZXJuZWwub3JnL2xpbnV4LWlucHV0LzIwMTkwQ0Q3LTQ2Q0UtNDAwRC05QzU4LTI5Nzk4NDc5NjYw
-RUBsaXZlLmNvbS9ULyN0DQoNCg0KDQo=
+The automatically generated names for the LEDs from color and function
+do not match nicely for the 4 hdds, so set them manually per the label
+property to also match the LEDs generated from the MCU.
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+---
+ arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
+index 6405ec7d47361..110c323786848 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
+@@ -50,6 +50,7 @@ led-0 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD5 GPIO_ACTIVE_LOW>;
++			label = "hdd1:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd1_led_pin>;
+@@ -59,6 +60,7 @@ led-1 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD6 GPIO_ACTIVE_LOW>;
++			label = "hdd2:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd2_led_pin>;
+@@ -68,6 +70,7 @@ led-2 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD7 GPIO_ACTIVE_LOW>;
++			label = "hdd3:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd3_led_pin>;
+@@ -77,6 +80,7 @@ led-3 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio2 RK_PA0 GPIO_ACTIVE_LOW>;
++			label = "hdd4:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd4_led_pin>;
+-- 
+2.39.2
+

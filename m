@@ -1,537 +1,273 @@
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
+Received: from fout5-smtp.messagingengine.com (fout5-smtp.messagingengine.com [103.168.172.148])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1E7E18AF9;
-	Sat, 10 Aug 2024 18:48:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A04D3D969;
+	Sun, 11 Aug 2024 09:22:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.148
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723315695; cv=none; b=Po7S6riOhKg2zcrHnBy/RFgnjbluWL33Kq+Uc3RQ566ktmJ0eGokmErRElndvCaRSrC3QU+3D34+nbH5U6fM3rzQIozCCyVc+ixnKJllp20/NOkYzpxufBsfzeaG4A3cEoFvnfcDMR4oypXaFOgaRzOna8nHuW9e7VdwJc1xzSI=
+	t=1723368160; cv=none; b=rTu349pP45ifzaTklGe8YsNxxEUVBbhFSaXbfk4EI7ZOB2c+Uv/odqqqsarbAsDR8b0Jlk5j7mJFnxrE3prYDNpgBKh5AEWB24xgI79prSRvwuMyteDDOHHbIEHslM+b44102n73Fga/sJ32ysQCZLRtiPbkl5t0IHFuQzBFiOA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723315695; c=relaxed/simple;
-	bh=AWyMXvk/iWqtLV/h6ZEpyfedVGM0VdYdZqnl6AsSX3w=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=AmK9sxE+NXXCN5FCk/GAYU+RNsthHTT0Fp/AXWPKrH2DQkBB6FmB+JZNI9O2CoTLPPWyhkmgnHaywfHqnZVbYfW1GRNsdnCYRx2BB2ol6wBe/vCv7sYC7FHPvIqxWgpwQuhpZ8vP6ObFtFgtUEvcFCZGkD9vYFd63MxNF2QKiPc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; arc=none smtp.client-ip=185.11.138.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
-Received: from i53875b02.versanet.de ([83.135.91.2] helo=phil.lan)
-	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <heiko@sntech.de>)
-	id 1scr81-0006GR-4y; Sat, 10 Aug 2024 20:47:49 +0200
-From: Heiko Stuebner <heiko@sntech.de>
-To: lee@kernel.org,
-	jdelvare@suse.com,
-	linux@roeck-us.net,
-	dmitry.torokhov@gmail.com,
-	pavel@ucw.cz
-Cc: robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	heiko@sntech.de,
-	ukleinek@debian.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	linux-hwmon@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org
-Subject: [PATCH v4 2/7] mfd: add base driver for qnap-mcu devices
-Date: Sat, 10 Aug 2024 20:47:38 +0200
-Message-Id: <20240810184743.277248-3-heiko@sntech.de>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240810184743.277248-1-heiko@sntech.de>
-References: <20240810184743.277248-1-heiko@sntech.de>
+	s=arc-20240116; t=1723368160; c=relaxed/simple;
+	bh=owZ4KF0qdrz087DO/3CWdbMlQfqB1H3u531+Nx3QMUc=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=bFpXdisyUT40Wjxs9JBkfZPVyvgnvWtX1EhqEVC23yZTZAiGMDaEPVvYJ2HDx4NN6DCcaw1wp8rOBK1lZZciGfQYRRO7WDSYZuf5lPR6f72nTKP9K/RciR0PW7udWgnUMhkhKkir4P+UF2UNvWPZ7ap+LJN9PeOcpYZ5wN7nSqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ljones.dev; spf=none smtp.mailfrom=ljones.dev; dkim=pass (2048-bit key) header.d=ljones.dev header.i=@ljones.dev header.b=XJTyb3iT; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=ZlfgoODc; arc=none smtp.client-ip=103.168.172.148
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ljones.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ljones.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=ljones.dev header.i=@ljones.dev header.b="XJTyb3iT";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="ZlfgoODc"
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+	by mailfout.nyi.internal (Postfix) with ESMTP id 4627C13807E7;
+	Sun, 11 Aug 2024 05:22:37 -0400 (EDT)
+Received: from imap41 ([10.202.2.91])
+  by compute3.internal (MEProxy); Sun, 11 Aug 2024 05:22:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ljones.dev; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1723368157;
+	 x=1723454557; bh=igcMJ+br0SbtSjgPx9k1pidzNRWIcYzar2UqL1qu7C8=; b=
+	XJTyb3iTcOKfUNf3NxX8v+9JnR8bxxbGRkx0cSSD5k9FUIxOsj0Yk4TjmyVmEONE
+	hPHeZyHCeVlJ0sUbeck6/a/NjOt5qrYnll04e1dGt9SGuscljGdSxslFL18pzoOS
+	cw/qTi0ODQSejnLd8En+fb4AdHYQ++fjrrGaU2guYH1LL1hLJUWL3tasjj/Ijl2v
+	3/Jbvz0fanAkBZ5LpU/43FncHK6M/tSRyQwHueCm1M0NSIie4YMtAMz65I0GX5bk
+	G0eNzsLX7YADlYC7lqk/Psy/MH/+dBU1wu+Iz3tY2R+hbuZWEkLn57YJoSFjr9i5
+	xA7YlW4HLRi2ghOtjN/39w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1723368157; x=
+	1723454557; bh=igcMJ+br0SbtSjgPx9k1pidzNRWIcYzar2UqL1qu7C8=; b=Z
+	lfgoODcD6mE+Zg1QNL2zgpMsV0fXJa/wDIqNzCT69GwBfqG74kS0jGltxTmCjrtT
+	wpQNqIXBgOkq51Yq4tVL3FI2qNVdbeFfD45KBD4AK39gtuWtPZktE1Tjsz8FQDH+
+	8PgKW+2XXokT6G0hI+f4cG7s2dlRhoHqP+obvH7AZw8dlNBJL32F265bGvOIXc7m
+	84cdzBxkVG1R2puS4lLClsDIE4Hv4w315R2rPuBMae7EVU/zxY7C+ASwGRm7t8b9
+	ygue0iMVEy/jNSNACVzXs3GAQGB/yjsDI2MNLIK0cFc9HkZyq2zYgiges4UHX4a4
+	FKdkKINQl/T136KrKvmmQ==
+X-ME-Sender: <xms:3YK4ZoFgxu06-MPVgo8QrgXw7kCPrfbbgftMCiIUZ2v6rXOm88N6zA>
+    <xme:3YK4ZhUZDZX9xAa6HQyynydjUS5RvJWzxu8JUq04ToRbvU12-O9bWEb6c7O1u8x7v
+    RJESVjQ-7UU8ypNEF0>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrleekgdduiecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpggftfghnshhusghstghrihgsvgdpuffr
+    tefokffrpgfnqfghnecuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnth
+    hsucdlqddutddtmdenogfuuhhsphgvtghtffhomhgrihhnucdlgeelmdenucfjughrpefo
+    ggffhffvvefkjghfufgtgfesthejredtredttdenucfhrhhomhepfdfnuhhkvgculfhonh
+    gvshdfuceolhhukhgvsehljhhonhgvshdruggvvheqnecuggftrfgrthhtvghrnhepjedv
+    geeuudektdejkefgjeejtefhvdetgeejkedtleelfeeitdeuudfftdduudegnecuffhomh
+    grihhnpehgihhthhhusgdrtghomhdpthhhihhsrdigsghogidpsggvnhguphhoihhnthgr
+    uggurhgvshhsrdhsohenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehluhhkvgeslhhjohhnvghsrdguvghvpdhnsggprhgtphhtthhopeehpdhm
+    ohguvgepshhmthhpohhuthdprhgtphhtthhopehlkhhmlhesrghnthhhvggrshdruggvvh
+    dprhgtphhtthhopegsvghnthhishhssehkvghrnhgvlhdrohhrghdprhgtphhtthhopehj
+    ihhkohhssehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhinhhpuhhtse
+    hvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghl
+    sehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:3YK4ZiLk2If9KB96eEfrcMwfu4hDJzLF7UhWh3kv-AInuRn384wgDg>
+    <xmx:3YK4ZqEai8TExA6w7qDc9LwhhqjqZtdxi80dxqbyQC_hVHxs0-osmg>
+    <xmx:3YK4ZuXA1g-K4VBykyHKxgAtjVF3m4NYolfiSZ_eEi57nDQs1Y9qRw>
+    <xmx:3YK4ZtN7wJmByWQ4Wh9Jfg6RdG-TwyfAyftnNYLPIFom-VMeWaFA7Q>
+    <xmx:3YK4ZtRo3zYHLpwj5lQhoMTT-FyIvJAm9qbub7anEV78GuC1l0Q7IK6i>
+Feedback-ID: i5ec1447f:Fastmail
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+	id E8FB32340081; Sun, 11 Aug 2024 05:22:36 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date: Sun, 11 Aug 2024 21:22:16 +1200
+From: "Luke Jones" <luke@ljones.dev>
+To: "Antheas Kapenekakis" <lkml@antheas.dev>
+Cc: "Benjamin Tissoires" <bentiss@kernel.org>,
+ "Jiri Kosina" <jikos@kernel.org>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Message-Id: <9078b350-27a8-48af-a19d-2adaaaa16f9f@app.fastmail.com>
+In-Reply-To: 
+ <CAGwozwHDwswam-Q40YqXMDJt6oui=UHv-bkjuF+X5fOmT+6PaA@mail.gmail.com>
+References: 
+ <CAGwozwHDwswam-Q40YqXMDJt6oui=UHv-bkjuF+X5fOmT+6PaA@mail.gmail.com>
+Subject: Re: [PATCH] hid-asus-ally: Add full gamepad support
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-These MCUs are used in network-attached-storage devices made by QNAP
-and provide additional functionality to the system.
+On Fri, 9 Aug 2024, at 3:35 AM, Antheas Kapenekakis wrote:
+> Hi Luke,
+> I reviewed this patch and leave some of my thoughts below.
+> 
+> I am the creator of the Handheld Daemon (HHD) (https://github.com/hhd-dev/hhd)
+> app, which offers a lot of this functionality using a userspace implementation,
+> and have thousands of handheld users, a lot of whom are on both Allies,
+> so I believe I have some valuable feedback on this.
 
-This adds the base driver that implements the serial protocol via
-serdev and additionally hooks into the poweroff handlers to turn
-off the parts of the system not supplied by the general PMIC.
+Then you are aware that the work I do in kernel is almost always targeting ASUS ROG. You will also be aware that my goal is to enable default user experience *without* the requirement of any userspace blobs - this includes moving things from my own daemon to kernel where possible so that users do not require a userspace app at all if they so desire.
 
-Turning off (at least the TSx33 devices using Rockchip SoCs) is twofold.
-Turning off the MCU does not turn off the SoC and turning off the SoC
-does not turn off the hard-drives. And if the MCU is not turned off,
-the system also won't start again until it is unplugged from power.
+> In Ally X, Asus seems to have been told by Microsoft that the XInput driver is
+> being deprecated and they've had to move on to a different one.
+> For Asus, this meant doing a HID implementation which seems to be
+> similar to the Xbox Adaptive Controller, and using a custom windows
+> driver for it
+> in Windows. Therefore, unlike the original Ally, which did not require Windows
+> drivers to have its controller work, Ally X does.
 
-So on shutdown the MCU needs to be turned off before the general PMIC.
+You're repeating information that has come directly from me.
 
-The protocol spoken by the MCU is sadly not documented, but was
-obtained by listening to the chatter on the serial port, as thankfully
-the "hal_app" program from QNAPs firmware allows triggering all/most
-MCU actions from the command line.
+> First, you are hardcoding `desc.bEndpointAddress`, which is error
+> prone and could
+> break in the future with an MCU/EC update.
 
-The implementation of how to talk to the serial device got some
-inspiration from the rave-sp servdev mfd.
+I have many records from many MCU updates. It doesn't happen. This is even true right across the ROG laptop range for as long as I've been tracking these. ASUS is remarkably consistent.
 
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
----
- MAINTAINERS                  |   6 +
- drivers/mfd/Kconfig          |  10 +
- drivers/mfd/Makefile         |   2 +
- drivers/mfd/qnap-mcu.c       | 358 +++++++++++++++++++++++++++++++++++
- include/linux/mfd/qnap-mcu.h |  28 +++
- 5 files changed, 404 insertions(+)
- create mode 100644 drivers/mfd/qnap-mcu.c
- create mode 100644 include/linux/mfd/qnap-mcu.h
+> HID gamepad, the usage page is 0xFF31 and the usage is 0x0080. And perhaps there
+> is a gamepad driver already that could support Ally X with a simple quirk.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 8766f3e5e87e0..f9f605a3c12a4 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18652,6 +18652,12 @@ L:	linux-media@vger.kernel.org
- S:	Odd Fixes
- F:	drivers/media/tuners/qm1d1c0042*
- 
-+QNAP MCU DRIVER
-+M:	Heiko Stuebner <heiko@sntech.de>
-+S:	Maintained
-+F:	drivers/mfd/qnap-mcu.c
-+F:	include/linux/qnap-mcu.h
-+
- QNX4 FILESYSTEM
- M:	Anders Larsen <al@alarsen.net>
- S:	Maintained
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index bc8be2e593b6b..ca7289e906a7b 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -2362,6 +2362,16 @@ config MFD_INTEL_M10_BMC_PMCI
- 	  additional drivers must be enabled in order to use the functionality
- 	  of the device.
- 
-+config MFD_QNAP_MCU
-+	tristate "QNAP MCU core driver"
-+	depends on SERIAL_DEV_BUS
-+	help
-+	  Select this to get support for the QNAP MCU device found in
-+	  several devices of QNAP network attached storages.
-+
-+	  It implements the base serial protocol to talk to the device
-+	  and provides functions for the other parts to hook into.
-+
- config MFD_RSMU_I2C
- 	tristate "Renesas Synchronization Management Unit with I2C"
- 	depends on I2C && OF
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 02b651cd75352..fc8b825725ff2 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -286,5 +286,7 @@ obj-$(CONFIG_MFD_INTEL_M10_BMC_PMCI)   += intel-m10-bmc-pmci.o
- obj-$(CONFIG_MFD_ATC260X)	+= atc260x-core.o
- obj-$(CONFIG_MFD_ATC260X_I2C)	+= atc260x-i2c.o
- 
-+obj-$(CONFIG_MFD_QNAP_MCU)	+= qnap-mcu.o
-+
- obj-$(CONFIG_MFD_RSMU_I2C)	+= rsmu_i2c.o rsmu_core.o
- obj-$(CONFIG_MFD_RSMU_SPI)	+= rsmu_spi.o rsmu_core.o
-diff --git a/drivers/mfd/qnap-mcu.c b/drivers/mfd/qnap-mcu.c
-new file mode 100644
-index 0000000000000..be73bd88d7608
---- /dev/null
-+++ b/drivers/mfd/qnap-mcu.c
-@@ -0,0 +1,358 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+
-+/*
-+ * MFD core driver for the MCU in Qnap NAS devices that is connected
-+ * via a dedicated UART port
-+ *
-+ * Copyright (C) 2024 Heiko Stuebner <heiko@sntech.de>
-+ */
-+
-+#include <linux/export.h>
-+#include <linux/slab.h>
-+#include <linux/mfd/core.h>
-+#include <linux/mfd/qnap-mcu.h>
-+#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/reboot.h>
-+#include <linux/serdev.h>
-+
-+/* The longest command found so far is 5 bytes long */
-+#define QNAP_MCU_MAX_CMD_SIZE		5
-+#define QNAP_MCU_MAX_DATA_SIZE		36
-+#define QNAP_MCU_CHECKSUM_SIZE		1
-+
-+#define QNAP_MCU_RX_BUFFER_SIZE		\
-+		(QNAP_MCU_MAX_DATA_SIZE + QNAP_MCU_CHECKSUM_SIZE)
-+
-+#define QNAP_MCU_TX_BUFFER_SIZE		\
-+		(QNAP_MCU_MAX_CMD_SIZE + QNAP_MCU_CHECKSUM_SIZE)
-+
-+/**
-+ * struct qnap_mcu_reply - Reply to a command
-+ *
-+ * @data:	Buffer to store reply payload in
-+ * @length:	Expected reply length, including the checksum
-+ * @received:	So far received number of bytes
-+ * @done:	Reply received completely
-+ */
-+struct qnap_mcu_reply {
-+	u8 *data;
-+	size_t length;
-+	size_t received;
-+	struct completion done;
-+};
-+
-+/**
-+ * struct qnap_mcu - QNAP NAS embedded controller
-+ *
-+ * @serdev:	Pointer to underlying serdev
-+ * @bus_lock:	Lock to serialize access to the device
-+ * @reply_lock:	Lock protecting @reply
-+ * @reply:	Pointer to memory to store reply payload
-+ * @variant:	Device variant specific information
-+ * @version:	MCU firmware version
-+ */
-+struct qnap_mcu {
-+	struct serdev_device *serdev;
-+	/* Serialize access to the device */
-+	struct mutex bus_lock;
-+	/* Protect access to the reply pointer */
-+	struct mutex reply_lock;
-+	struct qnap_mcu_reply *reply;
-+	const struct qnap_mcu_variant *variant;
-+	u8 version[4];
-+};
-+
-+/*
-+ * The QNAP-MCU uses a basic XOR checksum.
-+ * It is always the last byte and XORs the whole previous message.
-+ */
-+static u8 qnap_mcu_csum(const u8 *buf, size_t size)
-+{
-+	u8 csum = 0;
-+
-+	while (size--)
-+		csum ^= *buf++;
-+
-+	return csum;
-+}
-+
-+static int qnap_mcu_write(struct qnap_mcu *sp, const u8 *data, u8 data_size)
-+{
-+	unsigned char tx[QNAP_MCU_TX_BUFFER_SIZE];
-+	size_t length = data_size + QNAP_MCU_CHECKSUM_SIZE;
-+
-+	if (WARN_ON(length > sizeof(tx)))
-+		return -ENOMEM;
-+
-+	memcpy(tx, data, data_size);
-+	tx[data_size] = qnap_mcu_csum(data, data_size);
-+
-+	print_hex_dump_debug("qnap-mcu tx: ", DUMP_PREFIX_NONE,
-+			     16, 1, tx, length, false);
-+
-+	return serdev_device_write(sp->serdev, tx, length, HZ);
-+}
-+
-+static size_t qnap_mcu_receive_buf(struct serdev_device *serdev,
-+				   const u8 *buf, size_t size)
-+{
-+	struct device *dev = &serdev->dev;
-+	struct qnap_mcu *mcu = dev_get_drvdata(dev);
-+	struct qnap_mcu_reply *reply = mcu->reply;
-+	const u8 *src = buf;
-+	const u8 *end = buf + size;
-+
-+	mutex_lock(&mcu->reply_lock);
-+	if (!reply) {
-+		dev_warn(dev, "received %zu bytes, we were not waiting for\n",
-+			 size);
-+		mutex_unlock(&mcu->reply_lock);
-+		return size;
-+	}
-+
-+	while (src < end) {
-+		reply->data[reply->received] = *src++;
-+		reply->received++;
-+
-+		if (reply->received == reply->length) {
-+			complete(&reply->done);
-+			mutex_unlock(&mcu->reply_lock);
-+
-+			/*
-+			 * We report the consumed number of bytes. If there
-+			 * are still bytes remaining (though there shouldn't)
-+			 * the serdev layer will re-execute this handler with
-+			 * the remainder of the Rx bytes.
-+			 */
-+			return src - buf;
-+		}
-+	}
-+
-+	/*
-+	 * The only way to get out of the above loop and end up here
-+	 * is through consuming all of the supplied data, so here we
-+	 * report that we processed it all.
-+	 */
-+	mutex_unlock(&mcu->reply_lock);
-+	return size;
-+}
-+
-+static const struct serdev_device_ops qnap_mcu_serdev_device_ops = {
-+	.receive_buf  = qnap_mcu_receive_buf,
-+	.write_wakeup = serdev_device_write_wakeup,
-+};
-+
-+int qnap_mcu_exec(struct qnap_mcu *mcu,
-+		  const u8 *cmd_data, size_t cmd_data_size,
-+		  u8 *reply_data, size_t reply_data_size)
-+{
-+	unsigned char rx[QNAP_MCU_RX_BUFFER_SIZE];
-+	size_t length = reply_data_size + QNAP_MCU_CHECKSUM_SIZE;
-+	struct qnap_mcu_reply reply = {
-+		.data     = rx,
-+		.length   = length,
-+		.received = 0,
-+		.done     = COMPLETION_INITIALIZER_ONSTACK(reply.done),
-+	};
-+	int ret;
-+
-+	if (WARN_ON(length > sizeof(rx)))
-+		return -ENOMEM;
-+
-+	mutex_lock(&mcu->bus_lock);
-+
-+	mutex_lock(&mcu->reply_lock);
-+	mcu->reply = &reply;
-+	mutex_unlock(&mcu->reply_lock);
-+
-+	qnap_mcu_write(mcu, cmd_data, cmd_data_size);
-+
-+	if (!wait_for_completion_timeout(&reply.done,
-+					 msecs_to_jiffies(500))) {
-+		dev_err(&mcu->serdev->dev, "Command timeout\n");
-+		ret = -ETIMEDOUT;
-+	} else {
-+		u8 crc = qnap_mcu_csum(rx, reply_data_size);
-+
-+		print_hex_dump_debug("qnap-mcu rx: ", DUMP_PREFIX_NONE,
-+				     16, 1, rx, length, false);
-+
-+		if (crc != rx[reply_data_size]) {
-+			dev_err(&mcu->serdev->dev,
-+				"Checksum 0x%02x wrong for data\n", crc);
-+			ret = -EIO;
-+		} else {
-+			memcpy(reply_data, rx, reply_data_size);
-+			ret = 0;
-+		}
-+	}
-+
-+	mutex_lock(&mcu->reply_lock);
-+	mcu->reply = NULL;
-+	mutex_unlock(&mcu->reply_lock);
-+
-+	mutex_unlock(&mcu->bus_lock);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(qnap_mcu_exec);
-+
-+int qnap_mcu_exec_with_ack(struct qnap_mcu *mcu,
-+			   const u8 *cmd_data, size_t cmd_data_size)
-+{
-+	u8 ack[2];
-+	int ret;
-+
-+	ret = qnap_mcu_exec(mcu, cmd_data, cmd_data_size, ack, sizeof(ack));
-+	if (ret)
-+		return ret;
-+
-+	/* Should return @0 */
-+	if (ack[0] != 0x40 || ack[1] != 0x30) {
-+		dev_err(&mcu->serdev->dev, "Did not receive ack\n");
-+		return -EIO;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(qnap_mcu_exec_with_ack);
-+
-+const struct qnap_mcu_variant *qnap_mcu_get_variant_data(struct qnap_mcu *mcu)
-+{
-+	return mcu->variant;
-+}
-+EXPORT_SYMBOL_GPL(qnap_mcu_get_variant_data);
-+
-+static int qnap_mcu_get_version(struct qnap_mcu *mcu)
-+{
-+	u8 cmd[] = {
-+		[0] = 0x25, /* % */
-+		[1] = 0x56  /* V */
-+	};
-+	u8 rx[14];
-+	int ret;
-+
-+	ret = qnap_mcu_exec(mcu, cmd, sizeof(cmd), rx, 6);
-+	if (ret)
-+		return ret;
-+
-+	memcpy(mcu->version, &rx[2], 4);
-+
-+	return 0;
-+}
-+
-+/*
-+ * The MCU controls power to the peripherals but not the CPU.
-+ *
-+ * So using the pmic to power off the system keeps the MCU and hard-drives
-+ * running. This also then prevents the system from turning back on until
-+ * the MCU is turned off by unplugging the power-cable.
-+ * Turning off the MCU alone on the other hand turns off the hard-drives,
-+ * LEDs, etc while the main SoC stays running - including its network ports.
-+ */
-+static int qnap_mcu_power_off(struct sys_off_data *data)
-+{
-+	struct qnap_mcu *mcu = data->cb_data;
-+	int ret;
-+	u8 cmd[] = {
-+		[0] = 0x40, /* @ */
-+		[1] = 0x43, /* C */
-+		[2] = 0x30  /* 0 */
-+	};
-+
-+	dev_dbg(&mcu->serdev->dev, "running MCU poweroff\n");
-+	ret = qnap_mcu_exec_with_ack(mcu, cmd, sizeof(cmd));
-+	if (ret) {
-+		dev_err(&mcu->serdev->dev, "MCU poweroff failed %d\n", ret);
-+		return NOTIFY_STOP;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static const struct qnap_mcu_variant qnap_ts433_mcu = {
-+	.baud_rate = 115200,
-+	.num_drives = 4,
-+	.fan_pwm_min = 51,  /* specified in original model.conf */
-+	.fan_pwm_max = 255,
-+	.usb_led = true,
-+};
-+
-+static const struct of_device_id qnap_mcu_dt_ids[] = {
-+	{ .compatible = "qnap,ts433-mcu", .data = &qnap_ts433_mcu },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, qnap_mcu_dt_ids);
-+
-+static const struct mfd_cell qnap_mcu_subdevs[] = {
-+	{ .name = "qnap-mcu-input", },
-+	{ .name = "qnap-mcu-leds", },
-+	{ .name = "qnap-mcu-hwmon", }
-+};
-+
-+static int qnap_mcu_probe(struct serdev_device *serdev)
-+{
-+	struct device *dev = &serdev->dev;
-+	struct qnap_mcu *mcu;
-+	int ret;
-+
-+	mcu = devm_kzalloc(dev, sizeof(*mcu), GFP_KERNEL);
-+	if (!mcu)
-+		return -ENOMEM;
-+
-+	mcu->serdev = serdev;
-+	dev_set_drvdata(dev, mcu);
-+
-+	mcu->variant = of_device_get_match_data(dev);
-+	if (!mcu->variant)
-+		return -ENODEV;
-+
-+	mutex_init(&mcu->bus_lock);
-+	mutex_init(&mcu->reply_lock);
-+
-+	serdev_device_set_client_ops(serdev, &qnap_mcu_serdev_device_ops);
-+	ret = devm_serdev_device_open(dev, serdev);
-+	if (ret)
-+		return ret;
-+
-+	serdev_device_set_baudrate(serdev, mcu->variant->baud_rate);
-+	serdev_device_set_flow_control(serdev, false);
-+
-+	ret = serdev_device_set_parity(serdev, SERDEV_PARITY_NONE);
-+	if (ret) {
-+		dev_err(dev, "Failed to set parity\n");
-+		return ret;
-+	}
-+
-+	ret = qnap_mcu_get_version(mcu);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_register_sys_off_handler(dev,
-+					    SYS_OFF_MODE_POWER_OFF_PREPARE,
-+					    SYS_OFF_PRIO_DEFAULT,
-+					    &qnap_mcu_power_off, mcu);
-+	if (ret)
-+		return dev_err_probe(dev, ret,
-+				     "failed to register poweroff handler\n");
-+
-+	ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_AUTO, qnap_mcu_subdevs,
-+				   ARRAY_SIZE(qnap_mcu_subdevs), NULL, 0, NULL);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "adding qnap mfd devices failed\n");
-+
-+	return 0;
-+}
-+
-+static struct serdev_device_driver qnap_mcu_drv = {
-+	.probe			= qnap_mcu_probe,
-+	.driver = {
-+		.name		= "qnap-mcu",
-+		.of_match_table	= qnap_mcu_dt_ids,
-+	},
-+};
-+module_serdev_device_driver(qnap_mcu_drv);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Heiko Stuebner <heiko@sntech.de>");
-+MODULE_DESCRIPTION("QNAP MCU core driver");
-diff --git a/include/linux/mfd/qnap-mcu.h b/include/linux/mfd/qnap-mcu.h
-new file mode 100644
-index 0000000000000..f954815d3025b
---- /dev/null
-+++ b/include/linux/mfd/qnap-mcu.h
-@@ -0,0 +1,28 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+
-+/*
-+ * Core definitions for QNAP MCU MFD driver.
-+ * Copyright (C) 2024 Heiko Stuebner <heiko@sntech.de>
-+ */
-+
-+#ifndef _LINUX_QNAP_MCU_H_
-+#define _LINUX_QNAP_MCU_H_
-+
-+struct qnap_mcu;
-+
-+struct qnap_mcu_variant {
-+	u32 baud_rate;
-+	int num_drives;
-+	int fan_pwm_min;
-+	int fan_pwm_max;
-+	bool usb_led;
-+};
-+
-+int qnap_mcu_exec(struct qnap_mcu *mcu,
-+		  const u8 *cmd_data, size_t cmd_data_size,
-+		  u8 *reply_data, size_t reply_data_size);
-+int qnap_mcu_exec_with_ack(struct qnap_mcu *mcu,
-+			   const u8 *cmd_data, size_t cmd_data_size);
-+const struct qnap_mcu_variant *qnap_mcu_get_variant_data(struct qnap_mcu *mcu);
-+
-+#endif /* _LINUX_QNAP_MCU_H_ */
--- 
-2.39.2
+There isn't. The ones that might support it are not being upstreamed. And that is also *not* my goal here (a complete and accessible default user experience with zero dependency).
 
+> Following, you attempted to mimic an Xinput device, but your driver does not set
+> the ABS values of the device properly. For your convenience, here are the values
+> from the Legion Go, which uses an XInput gamepad:
+> ```
+>    0x0000: ABS_X
+>      > [val 0, min -32768, max 32767, fuzz 16, flat 128, res 0]
+>    0x0001: ABS_Y
+>      > [val -1, min -32768, max 32767, fuzz 16, flat 128, res 0]
+>    0x0002: ABS_Z
+>      > [val 0, min 0, max 255, fuzz 0, flat 0, res 0]
+>    0x0003: ABS_RX
+>      > [val 0, min -32768, max 32767, fuzz 16, flat 128, res 0]
+>    0x0004: ABS_RY
+>      > [val 0, min -32768, max 32767, fuzz 16, flat 128, res 0]
+>    0x0005: ABS_RZ
+>      > [val 0, min 0, max 255, fuzz 0, flat 0, res 0]
+>    0x0010: ABS_HAT0X
+>      > [val 0, min -1, max 1, fuzz 0, flat 0, res 0]
+>    0x0011: ABS_HAT0Y
+>      > [val 0, min -1, max 1, fuzz 0, flat 0, res 0]
+> ```
+
+"Attempted"... I *did*. You've failed to notice that what I've set is what is reported by the HID report. When you use the event and js interfaces it is shown as above. I invite you to modify the driver as you think and see the results for yourself instead of suggesting I don't know what I'm doing here.
+
+> quirk it only for the Ally X. If you break HHD, the chance you break
+> userspace in
+> general (e.g., random proton game) is very high.
+
+I don't know what HHD is doing, but it sounds like it is not very compatible with anything anyone else does - particularly in kernel when functionality *is being added*. InputPlumber on the other hand was easily able to support this driver.
+
+If functionality is missing for a device the proper thing to do is add that upstream to the kernel for *everyone* to benefit from, not keep it local to a userspace application where it benefits only users of that application and results in yet more duplicated effort, fragmentation, lack of or less peer review.
+
+> I recall multiple examples of this in Linux as well, e.g., Solaar for Logitech,
+> asusctl (your daemon) for Asus, libratbag for mice, and OpenRGB for
+> rgb which includes
+> the Ally. Can you justify the deviation here and the need for a kernel driver?
+
+As I said, default user experience *without* requirement for userspace - the appropriate place for this is in the kernel, not in userspace. The job of the kernel is to handle hardware and expose safe interfaces for it (asusctl exists to expose a safe userspace dbus API for the functions I add to the kernel that doesn't require root. And I code for kernel first, asusctl second - the exception being RGB led because that is difficult to handle well with mcled_class when so many laptops have varying levels of function here - thus I await the outcome of a very long discussion on LKML regarding this).
+
+Throw any plain distro on Ally with this patch and it should just work. And again InputPlumber was able to work with it without any fuss and I believe has gained a lot from it. Why can't you?
+
+> 
+> I am afraid that it might be unreliable, and applying kernel patches
+> is something
+> very difficult that most users can not do. Furthermore, given the user chooses
+> to install a userspace program to manage their controller (e.g., HHD),
+> you should
+> ensure this driver functionality can be disabled, from boot, so that it does not
+> interfere with userspace programs.
+
+It is so far more reliable than a python daemon and it all gets reviewed heavily before being accepted to mainstream. Most users do not apply patches, they use a distro that provides everything required.
+
+> For example, one problem I recall that before we removed the XPAD patchset
+> from the distribution Bazzite, I noticed during reviewing logs that your patch
+> regularly failed the ready check on certain allies, and after trying
+> the ready check
+> myself as part of HHD, I had to pull it after 10 hours because users
+> came out of
+> the woodwork to report their controller misbehaved.
+> Of course, in those cases HHD handled initialization, so your patch failing did
+> not affect functionality.
+
+I've had zero reports of this.
+
+> ## Xbox/Xbox + A Quirk
+> As mentioned above, the vendor device of the Ally reports the front manufacturer
+> buttons as HID commands from the special vendor device. This allows Armoury
+> crate to open in windows. Of course, in Linux there is no Armoury crate, so
+> these buttons are unused by default. Userspace programs can fix this
+> quirk and your previous kernel patches do as much, by exposing the buttons as
+> F15, F16, F17, F18.
+> 
+> A final component to this patchset is taking this vendor device and making it
+> accessible from the gamepad driver. This is uniquely possible on the
+> Ally X, because
+> the gamepad happens to be HID and located on the same USB interface, so you can,
+> with a bit of trickery, receive the front button commands from the
+> gamepad driver.
+
+There is no trickery. It very simply takes the event and puts it through the shared input device that was created - dead easy with a driver with global state.
+
+> This allows you to quirk them, and here specifically for steam, to
+> Xbox and Xbox+A
+> ("BTN_GUIDE" and "BTN_GUIDE+BTN_SOUTH"), which have similar functionality to
+> the Steamdeck's steam and three dot buttons.
+> 
+> In my opinion, that borders a bit on being too opinionated, and perhaps e.g.,
+> Asus would also share this opinion. Imagine if Asus tried to add some sort of
+> official support to linux, only to find out the Linux driver is remapping the
+> buttons and they have to work around that. Also, combining two HID devices is
+> a bit unorthodox, and may cause other issues (see `desc.bEndpointAddress`).
+> So perhaps Asus needs to be consulted here?
+
+I talk to ASUS engineers regularly. I in fact have an agreement with them, and I'm under NDA for a lot of specifics.
+
+> Further, I have some advice for your button implementation.
+> 80ms is too short for steam and is a delay I have tried before. It
+> will fail in low
+> device TDPs, as Steam will begin to lag and miss the commands. For
+> your reference,
+> HHD uses 150ms for this and I have tried 80ms in the past.c.
+
+It is a very different story in a kernel driver vs a python blob daemon subject to GC, userspace etc.
+
+> In general, I am trying to move away from Xbox+A as it tends to add delay and
+> since I prefer to multiplex the right vendor button for double
+> presses, it starts
+> to become noticable. It also does not work if the user presses the
+> Nintendo layout
+> button in the Steam UI.
+> 
+> In addition, you are freezing the kernel driver to send those commands for 240ms
+> which is around 100 reports.
+
+It is done on a worker. It is not blocking the kernel....
+
+> The first one is allowing users to enable mcu_powersave in February.
+> Beforehand, it was force disabled by the kernel by your previous patch.
+> This feature remains broken when the device is at low TDPs and unplugged.
+> We force disable it now as part of the distribution Bazzite now.
+> Applies to both Ally and Ally X.
+
+This is not my experience on both Ally and Ally X. Please describe how you think it is broken? If you mean that the USB devices are removed and re-added - then it is up to you to account for this, just as other tools now do. The powersaving gained from enabling this for suspend can be significant and in the case of the Ally X it drops right down to a 2% use of 80Wh over 10 hours. ChimeraOS now enables it by default, and this was heavily tested.
+
+> 
+> The second occasion was 3 weeks ago when you pushed the Ally X quirk
+> and converted
+> `ally_mcu_usb_switch` into a DMI table. It seems that a DMI table does
+> not work in
+> this codepath, and it is something that we had tried over a week
+> before you posted the
+> patch and had reverted it. If you had asked me I would have told you as much.
+> After this patch got cherry picked by CachyOS and ChimeraOS, it ended
+> up breaking
+> both Allies, which is not a favorable user experience.
+
+Does not work how? And what do you mean "Asked you?" I don't know you, and your work is not my target here - the default kernel is. This is what you need to be prepared to work with just like others are. Userspace needs to work with kernelspace, and hardware interaction is the purpose of the kernel - this driver exposes this functionality in a safe way *for* userspace to consume without requiring direct (raw) access to hardware.
+
+> Moving forward, I will try to be more attentive in the kernel conversation and,
+> e.g., upstream patches. And perhaps you can be a bit more thorough
+> testing before you push your patches up to the kernel.
+
+I test, mate. With the default kernel and empty userspace. This was also pulled in to ChimeraOS Unstable as part of that testing and validation - it has been quite thoroughly vetted at this point by myself and many others.
+
+Luke.

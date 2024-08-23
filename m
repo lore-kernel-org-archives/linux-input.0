@@ -1,45 +1,45 @@
 Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EF61198A02;
-	Fri, 23 Aug 2024 20:01:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D48319885E;
+	Fri, 23 Aug 2024 20:01:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724443315; cv=none; b=Xs09oBzg26L+aymJgqIAG5hOUnEVXSuFJHhL6uLRYVlNicXRHo+aoCUKm3oT+GuHGg+G800xpKzIim8PWjgjh7kcw5qOj9IYXt2BChT70W6RQSh8XBH1mwoFY3wl9pszGvvrup+AsSeFoIHOGbOfXkhzoFksGDTLHu+Hlulj2ZM=
+	t=1724443315; cv=none; b=m8I7Y5AE2tVd8YXzRS1srWORZ/LpNT27SbU0QxS0DiN0y8nTG6oECKKBDRU/EfZ0R72qcQWORZ7XsJ/q9iHkUdb5NfiqsHmueHet1wGTwtadDlCWw2ysDxnh8KeCscsN6v8npNC4qKBk7ZdLjY/k1kmRbNelxxvRhXup+KctxBg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1724443315; c=relaxed/simple;
-	bh=1Hp7NsyUYlfn3QAxb9QnxnkH97Pw2w+Y8pA0TZzpWMk=;
+	bh=0MJS8UeMpuXcDwnxeJSxD4KAUtp1EpDdAN5SuzBWIq8=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PSkMFNpa2vwqdGmkJjDuH2IokOKxeOgHyRhYCpGzP1UH81x6zUXzabMI0JnJXVaDdqSaPO5GJCm9saqMX1eclO8A+v/DsfbZoD2GaWYWC3JXW6o7jysAULxkxm3BjwyNaIejNzVrOFizgZ0c+QcIb7AgLzvt+lvGlHAOjo0NkVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=YEE14eln; arc=none smtp.client-ip=205.220.168.131
+	 MIME-Version:Content-Type; b=kF/k+4jZLdCM2AkSf+mMexdyRxEjQKt8iOuwopuOYrwwFeptjv2nl6Bklecaf/Yasx+NgVlcmsrVJutX+2MEO+AmSJZFLA0tsAm11eJQIW4MYSRWSfs8VaMNFRaCKULnu5N+7Q7RHXHkyY11h5hOmt1ZJ5+PLDf7XKqnrQX3180=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=P7WsXg1L; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="YEE14eln"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47NBWUTX030906;
-	Fri, 23 Aug 2024 20:01:15 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="P7WsXg1L"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 47NAQ9vN019828;
+	Fri, 23 Aug 2024 20:01:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=PGp6ZQrpBw6E+mtDZb2UpP5A
-	W9qYy/DIjxLaXDKBVPk=; b=YEE14elnzbKNonHI0X0VDaxhgOtrW45M/S096u+x
-	9BB7cVJ7CMid8hbjBcEPwys0sOn5UTsCBoDffCv8BSr1cmhet49/IvsTCY8QKuo1
-	cjVVdBid1ARBK9sDWfOSdGl+AwVeJrktOL+pFI8SXU61FzwJ3UFjLYbmx8rCqDtN
-	mJmMNPgIpGcNkXleEfSaXH+94Dxhs8AzcUX89IhFbZVlbZjhWBAngocq8TkF5dxz
-	vPf8gYt3H66mtX10cKX5jixTbfjJQ2Pm9O/wB2DvodSKw5n7d8Mx9W3Ctx+fpIY+
-	bum25W+YThKAKw+TUlwt65wOfopQGvfpVIq02tB3TBc8zg==
-Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 415ck9gpxq-1
+	:references:subject:to; s=qcppdkim1; bh=fwoK+cn40eMnrjglUoPoHYbi
+	xjSEVmH70XhslNYScKM=; b=P7WsXg1L56XDmddW5MXN2m1kQBlmeOj9H1OaeNaa
+	36eadIqnvtlnu7jvWLUKHDDMmRSmNYqG/LlGKupmaP8jJOgh0KnhuKkXLgpLqY7Q
+	fTI0XHf0cy9uUsOQ80t6PprKLVAUVSgVh+dVlyYjCacC1w+ZXWNxA21QJ7QkfRbh
+	hdKv3GQ3SR9A+qGVd/Ats5v7iNrKIJZPAfIx6g3puwdmRHXWtjoSQ7eZMCs99nNc
+	2EziM+JcCeEAJZ5Xkvwc0NjmOBpsJ50XMDkZeZhgwuAoz5td+cyp1CORFJn1HQ6V
+	Y699WgtJoOwLF2WdwLyvoe77mYUpccmUOrUrQxHVwBzPNQ==
+Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 415bkwgy6h-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Aug 2024 20:01:15 +0000 (GMT)
+	Fri, 23 Aug 2024 20:01:18 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 47NK1Ebu008316
+	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 47NK1HK3001660
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 23 Aug 2024 20:01:14 GMT
+	Fri, 23 Aug 2024 20:01:17 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Fri, 23 Aug 2024 13:01:13 -0700
+ 15.2.1544.9; Fri, 23 Aug 2024 13:01:17 -0700
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -51,12 +51,11 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-sound@vger.kernel.org>, <linux-usb@vger.kernel.org>,
         <linux-input@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, <alsa-devel@alsa-project.org>,
-        Mathias Nyman
-	<mathias.nyman@linux.intel.com>,
-        Wesley Cheng <quic_wcheng@quicinc.com>
-Subject: [PATCH v25 01/33] xhci: add helper to stop endpoint and wait for completion
-Date: Fri, 23 Aug 2024 13:00:29 -0700
-Message-ID: <20240823200101.26755-2-quic_wcheng@quicinc.com>
+        Wesley Cheng
+	<quic_wcheng@quicinc.com>
+Subject: [PATCH v25 14/33] ASoC: usb: Create SOC USB SND jack kcontrol
+Date: Fri, 23 Aug 2024 13:00:42 -0700
+Message-ID: <20240823200101.26755-15-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20240823200101.26755-1-quic_wcheng@quicinc.com>
 References: <20240823200101.26755-1-quic_wcheng@quicinc.com>
@@ -71,92 +70,148 @@ X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: S7pu7PYNE4IGi6LTxP4rc212N3W3r7YW
-X-Proofpoint-ORIG-GUID: S7pu7PYNE4IGi6LTxP4rc212N3W3r7YW
+X-Proofpoint-ORIG-GUID: _S9qeXq5gy9Zb40gkFUg8CMX98-qCNO8
+X-Proofpoint-GUID: _S9qeXq5gy9Zb40gkFUg8CMX98-qCNO8
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
  definitions=2024-08-23_16,2024-08-23_01,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
- lowpriorityscore=0 malwarescore=0 priorityscore=1501 mlxlogscore=999
- suspectscore=0 mlxscore=0 spamscore=0 bulkscore=0 adultscore=0
- clxscore=1015 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2408230147
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 spamscore=0
+ mlxscore=0 mlxlogscore=796 bulkscore=0 malwarescore=0 priorityscore=1501
+ adultscore=0 phishscore=0 impostorscore=0 lowpriorityscore=0 clxscore=1015
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2407110000
+ definitions=main-2408230147
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+Expose API for creation of a jack control for notifying of available
+devices that are plugged in/discovered, and that support offloading.  This
+allows for control names to be standardized across implementations of USB
+audio offloading.
 
-Expose xhci_stop_endpoint_sync() which is a synchronous variant of
-xhci_queue_stop_endpoint().  This is useful for client drivers that are
-using the secondary interrupters, and need to stop/clean up the current
-session.  The stop endpoint command handler will also take care of cleaning
-up the ring.
-
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- drivers/usb/host/xhci.c | 39 +++++++++++++++++++++++++++++++++++++++
- drivers/usb/host/xhci.h |  2 ++
- 2 files changed, 41 insertions(+)
+ include/sound/soc-usb.h | 17 +++++++++++
+ sound/soc/soc-usb.c     | 62 ++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 78 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 37eb37b0affa..3a051ed32907 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -2784,6 +2784,45 @@ static int xhci_reserve_bandwidth(struct xhci_hcd *xhci,
- 	return -ENOMEM;
+diff --git a/include/sound/soc-usb.h b/include/sound/soc-usb.h
+index ef667b3672bf..3ad15e9b8e15 100644
+--- a/include/sound/soc-usb.h
++++ b/include/sound/soc-usb.h
+@@ -6,6 +6,8 @@
+ #ifndef __LINUX_SND_SOC_USB_H
+ #define __LINUX_SND_SOC_USB_H
+ 
++#include <sound/soc.h>
++
+ /**
+  * struct snd_soc_usb_device
+  * @card_idx - sound card index associated with USB device
+@@ -52,6 +54,10 @@ int snd_soc_usb_connect(struct device *usbdev, struct snd_soc_usb_device *sdev);
+ int snd_soc_usb_disconnect(struct device *usbdev, struct snd_soc_usb_device *sdev);
+ void *snd_soc_usb_find_priv_data(struct device *dev);
+ 
++int snd_soc_usb_setup_offload_jack(struct snd_soc_component *component,
++					struct snd_soc_jack *jack);
++int snd_soc_usb_disable_offload_jack(struct snd_soc_component *component);
++
+ struct snd_soc_usb *snd_soc_usb_allocate_port(struct snd_soc_component *component,
+ 					      void *data);
+ void snd_soc_usb_free_port(struct snd_soc_usb *usb);
+@@ -82,6 +88,17 @@ static inline void *snd_soc_usb_find_priv_data(struct device *dev)
+ 	return NULL;
  }
  
-+/*
-+ * Synchronous XHCI stop endpoint helper.  Issues the stop endpoint command and
-+ * waits for the command completion before returning.
-+ */
-+int xhci_stop_endpoint_sync(struct xhci_hcd *xhci, struct xhci_virt_ep *ep, int suspend,
-+			    gfp_t gfp_flags)
++static inline int snd_soc_usb_setup_offload_jack(struct snd_soc_component *component,
++						 struct snd_soc_jack *jack)
 +{
-+	struct xhci_command *command;
-+	unsigned long flags;
++	return 0;
++}
++
++static inline int snd_soc_usb_disable_offload_jack(struct snd_soc_component *component)
++{
++	return 0;
++}
++
+ static inline struct snd_soc_usb *snd_soc_usb_allocate_port(
+ 					      struct snd_soc_component *component,
+ 					      void *data)
+diff --git a/sound/soc/soc-usb.c b/sound/soc/soc-usb.c
+index c5646daa7cda..90266fd7a7ff 100644
+--- a/sound/soc/soc-usb.c
++++ b/sound/soc/soc-usb.c
+@@ -4,8 +4,10 @@
+  */
+ #include <linux/of.h>
+ #include <linux/usb.h>
+-#include <sound/soc.h>
++
++#include <sound/jack.h>
+ #include <sound/soc-usb.h>
++
+ #include "../usb/card.h"
+ 
+ static DEFINE_MUTEX(ctx_mutex);
+@@ -57,6 +59,64 @@ static struct snd_soc_usb *snd_soc_find_usb_ctx(struct device *dev)
+ 	return ctx ? ctx : NULL;
+ }
+ 
++/* SOC USB sound kcontrols */
++/**
++ * snd_soc_usb_setup_offload_jack() - Create USB offloading jack
++ * @component: USB DPCM backend DAI component
++ * @jack: jack structure to create
++ *
++ * Creates a jack device for notifying userspace of the availability
++ * of an offload capable device.
++ *
++ * Returns 0 on success, negative on error.
++ *
++ */
++int snd_soc_usb_setup_offload_jack(struct snd_soc_component *component,
++					struct snd_soc_jack *jack)
++{
 +	int ret;
 +
-+	command = xhci_alloc_command(xhci, true, gfp_flags);
-+	if (!command)
-+		return -ENOMEM;
-+
-+	spin_lock_irqsave(&xhci->lock, flags);
-+	ret = xhci_queue_stop_endpoint(xhci, command, ep->vdev->slot_id,
-+				       ep->ep_index, suspend);
++	ret = snd_soc_card_jack_new(component->card, "USB Offload Jack",
++					SND_JACK_USB, jack);
 +	if (ret < 0) {
-+		spin_unlock_irqrestore(&xhci->lock, flags);
-+		goto out;
++		dev_err(component->card->dev, "Unable to add USB offload jack\n");
++		return ret;
 +	}
 +
-+	xhci_ring_cmd_db(xhci);
-+	spin_unlock_irqrestore(&xhci->lock, flags);
-+
-+	wait_for_completion(command->completion);
-+
-+	if (command->status == COMP_COMMAND_ABORTED ||
-+	    command->status == COMP_COMMAND_RING_STOPPED) {
-+		xhci_warn(xhci, "Timeout while waiting for stop endpoint command\n");
-+		ret = -ETIME;
++	ret = snd_soc_component_set_jack(component, jack, NULL);
++	if (ret) {
++		dev_err(component->card->dev, "Failed to set jack: %d\n", ret);
++		return ret;
 +	}
-+out:
-+	xhci_free_command(xhci, command);
 +
-+	return ret;
++	return 0;
 +}
-+EXPORT_SYMBOL_GPL(xhci_stop_endpoint_sync);
- 
- /* Issue a configure endpoint command or evaluate context command
-  * and wait for it to finish.
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 30415158ed3c..1c6126ed55b0 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1914,6 +1914,8 @@ void xhci_ring_doorbell_for_active_rings(struct xhci_hcd *xhci,
- void xhci_cleanup_command_queue(struct xhci_hcd *xhci);
- void inc_deq(struct xhci_hcd *xhci, struct xhci_ring *ring);
- unsigned int count_trbs(u64 addr, u64 len);
-+int xhci_stop_endpoint_sync(struct xhci_hcd *xhci, struct xhci_virt_ep *ep,
-+			    int suspend, gfp_t gfp_flags);
- 
- /* xHCI roothub code */
- void xhci_set_link_state(struct xhci_hcd *xhci, struct xhci_port *port,
++EXPORT_SYMBOL_GPL(snd_soc_usb_setup_offload_jack);
++
++/**
++ * snd_soc_usb_disable_offload_jack() - Disables USB offloading jack
++ * @component: USB DPCM backend DAI component
++ *
++ * Disables the offload jack device, so that further connection events
++ * won't be notified.
++ *
++ * Returns 0 on success, negative on error.
++ *
++ */
++int snd_soc_usb_disable_offload_jack(struct snd_soc_component *component)
++{
++	int ret;
++
++	ret = snd_soc_component_set_jack(component, NULL, NULL);
++	if (ret) {
++		dev_err(component->card->dev, "Failed to disable jack: %d\n", ret);
++		return ret;
++	}
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(snd_soc_usb_disable_offload_jack);
++
+ /**
+  * snd_soc_usb_find_priv_data() - Retrieve private data stored
+  * @dev: device reference

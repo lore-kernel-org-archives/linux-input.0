@@ -1,38 +1,38 @@
 Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF8781714D9;
-	Sun, 25 Aug 2024 20:32:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CA5417AE03;
+	Sun, 25 Aug 2024 20:32:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724617981; cv=none; b=kHEtRjK0zqzzLZeXExDGFiy4uSaxvLIFY0NDh9F4ui0DDSoaIH5xXBjdcyRDFHNn7Q5Ad9e/ThVitNJBUiJE+VaecM1XWBlJgxvn0RH6IpPSXITM9eY0Mjg59jQ7XFKokUBQF8v4T2dkXfl+kWAc28R+PLerBY/34GkPw+QRVKI=
+	t=1724617982; cv=none; b=lAkBL01RhvuQszUBzx6xG3V43beSenEw0vAg54Cti8n7efMfm7vNMWtPFSK9+9AMCppYbXpGg0Pgd3bZ3q95wOYaLb4MjIGEOnailqHwHOBmY5iAWZcqaa4XkIM2v+cFVRPa2/zCKu51a6Ykt1LF3QksCfaJFyl3rWgOsI86W1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724617981; c=relaxed/simple;
-	bh=Bv9yj6h/bxQ1fHoVC6O1jyNr1H09xKpaW+G8cAT7fVg=;
+	s=arc-20240116; t=1724617982; c=relaxed/simple;
+	bh=bgkoltZkzsHs4uV8Y+8jsIrhqPbvl7FH3osO5/I5Joc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=eoaYiYwwQggdkx/Qm3CvxunenoW/GOMgBgRCixpcxn6gqyHsbkdU2hYaGcPFzDhV2jjBwcogdBxNHTYRPpeshVKHONCmtaznD/ea0PJkzVPSvtYHK7wEx555bxHAhuNaB7oxEuA95o+aj4NkNVVrODmJWI2sSL6yrdWGhSMlUvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=lMOtv9Me; arc=none smtp.client-ip=185.11.138.130
+	 MIME-Version; b=owUYKwyMlc0gMcaGaXQS1dEyGlPMA5UldgzNcV/2CUh0Dd6XQSIwGPhx8SSFTKkr2nTT0CqS0C+xvQ2UvNHaSrii4N4ywkNBymycYkWn8roUZcOrPxmsWtyvT0NAa8IicXCgYuDuxAKKawoREWkkFffZqCZz/+4a+VdZJ2fQBSI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=hBKTQErn; arc=none smtp.client-ip=185.11.138.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="lMOtv9Me"
+	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="hBKTQErn"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
 	s=gloria202408; h=Content-Transfer-Encoding:MIME-Version:References:
 	In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
 	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
 	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
 	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=34VBey4pM9f27ceoXU7BRJqA2AAmnLAvx8X7m43unN4=; b=lMOtv9MehEReojG85GOKEa/t0f
-	gFen0UxGygvEw63Cs6/mEnyojG5pFc3tXhuQLCMNnl1b/4v3X6UIZJhnPqpUzulizZM+MeOboOhcP
-	t18IUhNg1CyUmvyVW2FVAwikXp/s9Tvo2+LqRT2QQBd2lAf0NdPsUetLX8/vDMobepUrFA0OYgnXv
-	jLW2jP6NW9NGZWwumGLt+ij910IDG7LU2NQ0D8pNb5PjPO59P0curJJbipE45Zrq7DtSpOwygDE8l
-	5EOq3tr/KH1uQKr1gb5SmVL9DOkLndJw3SdjIv8+nU1tDnjs9BmRWb20VLHkpz8NvMGg4JUG4iWTq
-	lBllyNMA==;
+	bh=STSk6yWWwVN0S3N57FhRjWR7zPjTxlqPzZ4ZKSPwEtA=; b=hBKTQErnopmvQ7oO9Oeg/0gxz9
+	i2W9jYak8foiUdpFd1wWKPhDM2YYCii3Zo3KwVtVYTeOcQBPWZFvGlhmLnHI+8IKvlv3Y2e4Tc7+n
+	qjcNbR6hORakKKyMDGFlzsNGozjCYlEmU5CzLCUA3ZhGCP8avyH7PXtE7PvSRk/cu42UlQgx6olGm
+	T6y34mSIaY3I/5iiGoMkuTcSOp7Hl3e3piuUXsV3c/+SO/8pLiC0OkfoQLImN9fDIET6KQ4Kl5Ybu
+	Kq6fds8tlOjVjRdZI9BmgY9N+Z0OdCLO7Nj8yAk5eSDgGjPTCP45LAdxbB0I3eq/N35ftmYBX7ekg
+	rah64cuQ==;
 Received: from i53875a40.versanet.de ([83.135.90.64] helo=phil.lan)
 	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.94.2)
 	(envelope-from <heiko@sntech.de>)
-	id 1siJuj-0001cM-TZ; Sun, 25 Aug 2024 22:32:42 +0200
+	id 1siJum-0001cM-0z; Sun, 25 Aug 2024 22:32:44 +0200
 From: Heiko Stuebner <heiko@sntech.de>
 To: lee@kernel.org
 Cc: robh@kernel.org,
@@ -51,9 +51,9 @@ Cc: robh@kernel.org,
 	linux-rockchip@lists.infradead.org,
 	linux-input@vger.kernel.org,
 	linux-leds@vger.kernel.org
-Subject: [PATCH v6 2/7] mfd: add base driver for qnap-mcu devices
-Date: Sun, 25 Aug 2024 22:32:30 +0200
-Message-ID: <20240825203235.1122198-3-heiko@sntech.de>
+Subject: [PATCH v6 5/7] hwmon: add driver for the hwmon parts of qnap-mcu devices
+Date: Sun, 25 Aug 2024 22:32:33 +0200
+Message-ID: <20240825203235.1122198-6-heiko@sntech.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240825203235.1122198-1-heiko@sntech.de>
 References: <20240825203235.1122198-1-heiko@sntech.de>
@@ -65,472 +65,485 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-These microcontroller units are used in network-attached-storage devices
-made by QNAP and provide additional functionality to the system.
+The MCU can be found on network-attached-storage devices made by QNAP
+and provides access to fan control including reading back its RPM as
+well as reading the temperature of the NAS case.
 
-This adds the base driver that implements the serial protocol via
-serdev and additionally hooks into the poweroff handlers to turn
-off the parts of the system not supplied by the general PMIC.
-
-Turning off (at least the TSx33 devices using Rockchip SoCs) consists of
-two separate actions. Turning off the MCU alone does not turn off the main
-SoC and turning off only the SoC/PMIC does not turn off the hard-drives.
-Also if the MCU is not turned off, the system also won't start again until
-it is unplugged from power.
-
-So on shutdown the MCU needs to be turned off separately before the
-main PMIC.
-
-The protocol spoken by the MCU is sadly not documented, but was
-obtained by listening to the chatter on the serial port, as thankfully
-the "hal_app" program from QNAPs firmware allows triggering all/most
-MCU actions from the command line.
-
-The implementation of how to talk to the serial device got some
-inspiration from the rave-sp servdev driver.
-
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- MAINTAINERS                  |   6 +
- drivers/mfd/Kconfig          |  13 ++
- drivers/mfd/Makefile         |   2 +
- drivers/mfd/qnap-mcu.c       | 339 +++++++++++++++++++++++++++++++++++
- include/linux/mfd/qnap-mcu.h |  27 +++
- 5 files changed, 387 insertions(+)
- create mode 100644 drivers/mfd/qnap-mcu.c
- create mode 100644 include/linux/mfd/qnap-mcu.h
+ Documentation/hwmon/index.rst          |   1 +
+ Documentation/hwmon/qnap-mcu-hwmon.rst |  27 ++
+ MAINTAINERS                            |   1 +
+ drivers/hwmon/Kconfig                  |  12 +
+ drivers/hwmon/Makefile                 |   1 +
+ drivers/hwmon/qnap-mcu-hwmon.c         | 364 +++++++++++++++++++++++++
+ 6 files changed, 406 insertions(+)
+ create mode 100644 Documentation/hwmon/qnap-mcu-hwmon.rst
+ create mode 100644 drivers/hwmon/qnap-mcu-hwmon.c
 
+diff --git a/Documentation/hwmon/index.rst b/Documentation/hwmon/index.rst
+index 913c11390a45..7adbe23f0659 100644
+--- a/Documentation/hwmon/index.rst
++++ b/Documentation/hwmon/index.rst
+@@ -199,6 +199,7 @@ Hardware Monitoring Kernel Drivers
+    pxe1610
+    pwm-fan
+    q54sj108a2
++   qnap-mcu-hwmon
+    raspberrypi-hwmon
+    sbrmi
+    sbtsi_temp
+diff --git a/Documentation/hwmon/qnap-mcu-hwmon.rst b/Documentation/hwmon/qnap-mcu-hwmon.rst
+new file mode 100644
+index 000000000000..83407e3408f2
+--- /dev/null
++++ b/Documentation/hwmon/qnap-mcu-hwmon.rst
+@@ -0,0 +1,27 @@
++.. SPDX-License-Identifier: GPL-2.0-or-later
++
++Kernel driver qnap-mcu-hwmon
++============================
++
++This driver enables the use of the hardware monitoring and fan control
++of the MCU used on some QNAP network attached storage devices.
++
++Author: Heiko Stuebner <heiko@sntech.de>
++
++Description
++-----------
++
++The driver implements a simple interface for driving the fan controlled by
++setting its PWM output value and exposes the fan rpm and case-temperature
++to user space through hwmon's sysfs interface.
++
++The fan rotation speed returned via the optional 'fan1_input' is calculated
++inside the MCU device.
++
++The driver provides the following sensor accesses in sysfs:
++
++=============== ======= =======================================================
++fan1_input	ro	fan tachometer speed in RPM
++pwm1		rw	relative speed (0-255), 255=max. speed.
++temp1_input	ro	Measured temperature in millicelsius
++=============== ======= =======================================================
 diff --git a/MAINTAINERS b/MAINTAINERS
-index 3e7359ac005c..0fbd2d953da4 100644
+index a41906b3caa3..d500a771ad8a 100644
 --- a/MAINTAINERS
 +++ b/MAINTAINERS
-@@ -18654,6 +18654,12 @@ L:	linux-media@vger.kernel.org
- S:	Odd Fixes
- F:	drivers/media/tuners/qm1d1c0042*
- 
-+QNAP MCU DRIVER
-+M:	Heiko Stuebner <heiko@sntech.de>
-+S:	Maintained
-+F:	drivers/mfd/qnap-mcu.c
-+F:	include/linux/qnap-mcu.h
-+
- QNX4 FILESYSTEM
- M:	Anders Larsen <al@alarsen.net>
+@@ -18657,6 +18657,7 @@ F:	drivers/media/tuners/qm1d1c0042*
+ QNAP MCU DRIVER
+ M:	Heiko Stuebner <heiko@sntech.de>
  S:	Maintained
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index bc8be2e593b6..d43d2747ac4e 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -2362,6 +2362,19 @@ config MFD_INTEL_M10_BMC_PMCI
- 	  additional drivers must be enabled in order to use the functionality
- 	  of the device.
++F:	drivers/hwmon/qnap-mcu-hwmon.c
+ F:	drivers/input/misc/qnap-mcu-input.c
+ F:	drivers/leds/leds-qnap-mcu.c
+ F:	drivers/mfd/qnap-mcu.c
+diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
+index b60fe2e58ad6..0118ad91057e 100644
+--- a/drivers/hwmon/Kconfig
++++ b/drivers/hwmon/Kconfig
+@@ -1793,6 +1793,18 @@ config SENSORS_PWM_FAN
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called pwm-fan.
  
-+config MFD_QNAP_MCU
-+	tristate "QNAP microcontroller unit core driver"
-+	depends on SERIAL_DEV_BUS
-+	select MFD_CORE
++config SENSORS_QNAP_MCU_HWMON
++	tristate "QNAP MCU hardware monitoring"
++	depends on MFD_QNAP_MCU
++	depends on THERMAL || THERMAL=n
 +	help
-+	  Select this to get support for the QNAP MCU device found in
-+	  several devices of QNAP network attached storage devices that
-+	  implements additional functionality for the device, like
-+	  fan- and LED control.
++	  Say yes here to enable support for fan and temperature sensor
++	  connected to a QNAP MCU, as found in a number of QNAP network
++	  attached storage devices.
 +
-+	  This driver implements the base serial protocol to talk to the
-+	  device and provides functions for the other parts to hook into.
++	  This driver can also be built as a module. If so, the module
++	  will be called qnap-mcu-hwmon.
 +
- config MFD_RSMU_I2C
- 	tristate "Renesas Synchronization Management Unit with I2C"
- 	depends on I2C && OF
-diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index 02b651cd7535..fc8b825725ff 100644
---- a/drivers/mfd/Makefile
-+++ b/drivers/mfd/Makefile
-@@ -286,5 +286,7 @@ obj-$(CONFIG_MFD_INTEL_M10_BMC_PMCI)   += intel-m10-bmc-pmci.o
- obj-$(CONFIG_MFD_ATC260X)	+= atc260x-core.o
- obj-$(CONFIG_MFD_ATC260X_I2C)	+= atc260x-i2c.o
- 
-+obj-$(CONFIG_MFD_QNAP_MCU)	+= qnap-mcu.o
-+
- obj-$(CONFIG_MFD_RSMU_I2C)	+= rsmu_i2c.o rsmu_core.o
- obj-$(CONFIG_MFD_RSMU_SPI)	+= rsmu_spi.o rsmu_core.o
-diff --git a/drivers/mfd/qnap-mcu.c b/drivers/mfd/qnap-mcu.c
+ config SENSORS_RASPBERRYPI_HWMON
+ 	tristate "Raspberry Pi voltage monitor"
+ 	depends on RASPBERRYPI_FIRMWARE || (COMPILE_TEST && !RASPBERRYPI_FIRMWARE)
+diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
+index b1c7056c37db..d60f46a03cc9 100644
+--- a/drivers/hwmon/Makefile
++++ b/drivers/hwmon/Makefile
+@@ -187,6 +187,7 @@ obj-$(CONFIG_SENSORS_POWERZ)	+= powerz.o
+ obj-$(CONFIG_SENSORS_POWR1220)  += powr1220.o
+ obj-$(CONFIG_SENSORS_PT5161L)	+= pt5161l.o
+ obj-$(CONFIG_SENSORS_PWM_FAN)	+= pwm-fan.o
++obj-$(CONFIG_SENSORS_QNAP_MCU_HWMON)	+= qnap-mcu-hwmon.o
+ obj-$(CONFIG_SENSORS_RASPBERRYPI_HWMON)	+= raspberrypi-hwmon.o
+ obj-$(CONFIG_SENSORS_SBTSI)	+= sbtsi_temp.o
+ obj-$(CONFIG_SENSORS_SBRMI)	+= sbrmi.o
+diff --git a/drivers/hwmon/qnap-mcu-hwmon.c b/drivers/hwmon/qnap-mcu-hwmon.c
 new file mode 100644
-index 000000000000..ab6036e9a843
+index 000000000000..8fe6310a1b59
 --- /dev/null
-+++ b/drivers/mfd/qnap-mcu.c
-@@ -0,0 +1,339 @@
++++ b/drivers/hwmon/qnap-mcu-hwmon.c
+@@ -0,0 +1,364 @@
 +// SPDX-License-Identifier: GPL-2.0-only
++
 +/*
-+ * Core driver for the microcontroller unit in QNAP NAS devices that is
-+ * connected via a dedicated UART port.
++ * Driver for hwmon elements found on QNAP-MCU devices
 + *
 + * Copyright (C) 2024 Heiko Stuebner <heiko@sntech.de>
 + */
 +
-+#include <linux/cleanup.h>
-+#include <linux/export.h>
-+#include <linux/mfd/core.h>
++#include <linux/fwnode.h>
++#include <linux/hwmon.h>
 +#include <linux/mfd/qnap-mcu.h>
 +#include <linux/module.h>
-+#include <linux/of.h>
-+#include <linux/reboot.h>
-+#include <linux/serdev.h>
-+#include <linux/slab.h>
++#include <linux/platform_device.h>
++#include <linux/property.h>
++#include <linux/thermal.h>
 +
-+/* The longest command found so far is 5 bytes long */
-+#define QNAP_MCU_MAX_CMD_SIZE		5
-+#define QNAP_MCU_MAX_DATA_SIZE		36
-+#define QNAP_MCU_CHECKSUM_SIZE		1
++struct qnap_mcu_hwmon {
++	struct qnap_mcu *mcu;
++	struct device *dev;
 +
-+#define QNAP_MCU_RX_BUFFER_SIZE		\
-+		(QNAP_MCU_MAX_DATA_SIZE + QNAP_MCU_CHECKSUM_SIZE)
++	unsigned int pwm_min;
++	unsigned int pwm_max;
 +
-+#define QNAP_MCU_TX_BUFFER_SIZE		\
-+		(QNAP_MCU_MAX_CMD_SIZE + QNAP_MCU_CHECKSUM_SIZE)
++	struct fwnode_handle *fan_node;
++	unsigned int fan_state;
++	unsigned int fan_max_state;
++	unsigned int *fan_cooling_levels;
 +
-+#define QNAP_MCU_ACK_LEN		2
-+#define QNAP_MCU_VERSION_LEN		4
-+
-+/**
-+ * struct qnap_mcu_reply - Reply to a command
-+ *
-+ * @data:	Buffer to store reply payload in
-+ * @length:	Expected reply length, including the checksum
-+ * @received:	Received number of bytes, so far
-+ * @done:	Triggered when the entire reply has been received
-+ */
-+struct qnap_mcu_reply {
-+	u8 *data;
-+	size_t length;
-+	size_t received;
-+	struct completion done;
++	struct thermal_cooling_device *cdev;
++	struct hwmon_chip_info info;
 +};
 +
-+/**
-+ * struct qnap_mcu - QNAP NAS embedded controller
-+ *
-+ * @serdev:	Pointer to underlying serdev
-+ * @bus_lock:	Lock to serialize access to the device
-+ * @reply:	Reply data structure
-+ * @variant:	Device variant specific information
-+ * @version:	MCU firmware version
-+ */
-+struct qnap_mcu {
-+	struct serdev_device *serdev;
-+	struct mutex bus_lock;
-+	struct qnap_mcu_reply reply;
-+	const struct qnap_mcu_variant *variant;
-+	u8 version[QNAP_MCU_VERSION_LEN];
-+};
-+
-+/*
-+ * The QNAP-MCU uses a basic XOR checksum.
-+ * It is always the last byte and XORs the whole previous message.
-+ */
-+static u8 qnap_mcu_csum(const u8 *buf, size_t size)
++static int qnap_mcu_hwmon_get_rpm(struct qnap_mcu_hwmon *hwm)
 +{
-+	u8 csum = 0;
++	static const u8 cmd[] = { 0x40, 0x46, 0x41 }; /* @, F, A */
++	u8 reply[6];
++	int ret;
 +
-+	while (size--)
-+		csum ^= *buf++;
++	/* poll the fan rpm */
++	ret = qnap_mcu_exec(hwm->mcu, cmd, sizeof(cmd), reply, sizeof(reply));
++	if (ret)
++		return ret;
 +
-+	return csum;
++	/* First 2 bytes must mirror the sent command */
++	if (memcmp(cmd, reply, 2))
++		return -EIO;
++
++	return reply[4] * 30;
 +}
 +
-+static int qnap_mcu_write(struct qnap_mcu *mcu, const u8 *data, u8 data_size)
++static int qnap_mcu_hwmon_get_pwm(struct qnap_mcu_hwmon *hwm)
 +{
-+	unsigned char tx[QNAP_MCU_TX_BUFFER_SIZE];
-+	size_t length = data_size + QNAP_MCU_CHECKSUM_SIZE;
++	static const u8 cmd[] = { 0x40, 0x46, 0x5a, 0x30 }; /* @, F, Z, 0 = fan-id? */
++	u8 reply[4];
++	int ret;
 +
-+	if (length > sizeof(tx)) {
-+		dev_err(&mcu->serdev->dev, "data too big for transmit buffer");
-+		return -EINVAL;
-+	}
++	/* poll the fan pwm */
++	ret = qnap_mcu_exec(hwm->mcu, cmd, sizeof(cmd), reply, sizeof(reply));
++	if (ret)
++		return ret;
 +
-+	memcpy(tx, data, data_size);
-+	tx[data_size] = qnap_mcu_csum(data, data_size);
++	/* First 3 bytes must mirror the sent command */
++	if (memcmp(cmd, reply, 3))
++		return -EIO;
 +
-+	return serdev_device_write(mcu->serdev, tx, length, HZ);
++	return reply[3];
 +}
 +
-+static size_t qnap_mcu_receive_buf(struct serdev_device *serdev, const u8 *buf, size_t size)
++static int qnap_mcu_hwmon_set_pwm(struct qnap_mcu_hwmon *hwm, u8 pwm)
 +{
-+	struct device *dev = &serdev->dev;
-+	struct qnap_mcu *mcu = dev_get_drvdata(dev);
-+	struct qnap_mcu_reply *reply = &mcu->reply;
-+	const u8 *src = buf;
-+	const u8 *end = buf + size;
++	const u8 cmd[] = { 0x40, 0x46, 0x57, 0x30, pwm }; /* @, F, W, 0 = fan-id, pwm */
 +
-+	if (!reply->length) {
-+		dev_warn(dev, "Received %zu bytes, we were not waiting for\n",
-+			 size);
-+		return size;
-+	}
++	/* set the fan pwm */
++	return qnap_mcu_exec_with_ack(hwm->mcu, cmd, sizeof(cmd));
++}
 +
-+	while (src < end) {
-+		reply->data[reply->received] = *src++;
-+		reply->received++;
++static int qnap_mcu_hwmon_get_temp(struct qnap_mcu_hwmon *hwm)
++{
++	static const u8 cmd[] = { 0x40, 0x54, 0x33 }; /* @, T, 3 */
++	u8 reply[4];
++	int ret;
 +
-+		if (reply->received == reply->length) {
-+			complete(&reply->done);
++	/* poll the fan rpm */
++	ret = qnap_mcu_exec(hwm->mcu, cmd, sizeof(cmd), reply, sizeof(reply));
++	if (ret)
++		return ret;
 +
-+			/*
-+			 * We report the consumed number of bytes. If there
-+			 * are still bytes remaining (though there shouldn't)
-+			 * the serdev layer will re-execute this handler with
-+			 * the remainder of the Rx bytes.
-+			 */
-+			return src - buf;
-+		}
-+	}
++	/* First bytes must mirror the sent command */
++	if (memcmp(cmd, reply, sizeof(cmd)))
++		return -EIO;
 +
 +	/*
-+	 * The only way to get out of the above loop and end up here
-+	 * is through consuming all of the supplied data, so here we
-+	 * report that we processed it all.
++	 * There is an unknown bit set in bit7.
++	 * Bits [6:0] report the actual temperature as returned by the
++	 * original qnap firmware-tools, so just drop bit7 for now.
 +	 */
-+	return size;
++	return (reply[3] & 0x7f) * 1000;
 +}
 +
-+static const struct serdev_device_ops qnap_mcu_serdev_device_ops = {
-+	.receive_buf  = qnap_mcu_receive_buf,
-+	.write_wakeup = serdev_device_write_wakeup,
-+};
-+
-+int qnap_mcu_exec(struct qnap_mcu *mcu,
-+		  const u8 *cmd_data, size_t cmd_data_size,
-+		  u8 *reply_data, size_t reply_data_size)
++static int qnap_mcu_hwmon_write(struct device *dev, enum hwmon_sensor_types type,
++				u32 attr, int channel, long val)
 +{
-+	unsigned char rx[QNAP_MCU_RX_BUFFER_SIZE];
-+	size_t length = reply_data_size + QNAP_MCU_CHECKSUM_SIZE;
-+	struct qnap_mcu_reply *reply = &mcu->reply;
++	struct qnap_mcu_hwmon *hwm = dev_get_drvdata(dev);
++
++	switch (attr) {
++	case hwmon_pwm_input:
++		if (val < 0 || val > 255)
++			return -EINVAL;
++
++		if (val != 0)
++			val = clamp_val(val, hwm->pwm_min, hwm->pwm_max);
++
++		return qnap_mcu_hwmon_set_pwm(hwm, val);
++	default:
++		return -EOPNOTSUPP;
++	}
++
++	return 0;
++}
++
++static int qnap_mcu_hwmon_read(struct device *dev, enum hwmon_sensor_types type,
++			       u32 attr, int channel, long *val)
++{
++	struct qnap_mcu_hwmon *hwm = dev_get_drvdata(dev);
 +	int ret;
 +
-+	if (length > sizeof(rx)) {
-+		dev_err(&mcu->serdev->dev, "expected data too big for receive buffer");
-+		return -EINVAL;
-+	}
++	switch (type) {
++	case hwmon_pwm:
++		switch (attr) {
++		case hwmon_pwm_input:
++			ret = qnap_mcu_hwmon_get_pwm(hwm);
++			if (ret < 0)
++				return ret;
 +
-+	mutex_lock(&mcu->bus_lock);
-+
-+	/* Initialize reply fields */
-+	reply->data = rx,
-+	reply->length = length,
-+	reply->received = 0,
-+	reinit_completion(&reply->done);
-+
-+	qnap_mcu_write(mcu, cmd_data, cmd_data_size);
-+
-+	if (!wait_for_completion_timeout(&reply->done,
-+					 msecs_to_jiffies(500))) {
-+		dev_err(&mcu->serdev->dev, "Command timeout\n");
-+		ret = -ETIMEDOUT;
-+	} else {
-+		u8 crc = qnap_mcu_csum(rx, reply_data_size);
-+
-+		if (crc != rx[reply_data_size]) {
-+			dev_err(&mcu->serdev->dev,
-+				"Checksum 0x%02x wrong for data\n", crc);
-+			ret = -EIO;
-+		} else {
-+			memcpy(reply_data, rx, reply_data_size);
-+			ret = 0;
++			*val = ret;
++			return 0;
++		default:
++			return -EOPNOTSUPP;
 +		}
++	case hwmon_fan:
++		ret = qnap_mcu_hwmon_get_rpm(hwm);
++		if (ret < 0)
++			return ret;
++
++		*val = ret;
++		return 0;
++	case hwmon_temp:
++		ret = qnap_mcu_hwmon_get_temp(hwm);
++		if (ret < 0)
++			return ret;
++
++		*val = ret;
++		return 0;
++	default:
++		return -EOPNOTSUPP;
 +	}
++}
 +
-+	/* We don't expect any characters from the device now */
-+	reply->length = 0;
++static umode_t qnap_mcu_hwmon_is_visible(const void *data,
++					 enum hwmon_sensor_types type,
++					 u32 attr, int channel)
++{
++	switch (type) {
++	case hwmon_temp:
++		return 0444;
 +
-+	mutex_unlock(&mcu->bus_lock);
++	case hwmon_pwm:
++		return 0644;
++
++	case hwmon_fan:
++		return 0444;
++
++	default:
++		return 0;
++	}
++}
++
++static const struct hwmon_ops qnap_mcu_hwmon_hwmon_ops = {
++	.is_visible = qnap_mcu_hwmon_is_visible,
++	.read = qnap_mcu_hwmon_read,
++	.write = qnap_mcu_hwmon_write,
++};
++
++/* thermal cooling device callbacks */
++static int qnap_mcu_hwmon_get_max_state(struct thermal_cooling_device *cdev,
++					unsigned long *state)
++{
++	struct qnap_mcu_hwmon *hwm = cdev->devdata;
++
++	if (!hwm)
++		return -EINVAL;
++
++	*state = hwm->fan_max_state;
++
++	return 0;
++}
++
++static int qnap_mcu_hwmon_get_cur_state(struct thermal_cooling_device *cdev,
++					unsigned long *state)
++{
++	struct qnap_mcu_hwmon *hwm = cdev->devdata;
++
++	if (!hwm)
++		return -EINVAL;
++
++	*state = hwm->fan_state;
++
++	return 0;
++}
++
++static int qnap_mcu_hwmon_set_cur_state(struct thermal_cooling_device *cdev,
++					unsigned long state)
++{
++	struct qnap_mcu_hwmon *hwm = cdev->devdata;
++	int ret;
++
++	if (!hwm || state > hwm->fan_max_state)
++		return -EINVAL;
++
++	if (state == hwm->fan_state)
++		return 0;
++
++	ret = qnap_mcu_hwmon_set_pwm(hwm, hwm->fan_cooling_levels[state]);
++	if (ret)
++		return ret;
++
++	hwm->fan_state = state;
++
 +	return ret;
 +}
-+EXPORT_SYMBOL_GPL(qnap_mcu_exec);
 +
-+int qnap_mcu_exec_with_ack(struct qnap_mcu *mcu,
-+			   const u8 *cmd_data, size_t cmd_data_size)
++static const struct thermal_cooling_device_ops qnap_mcu_hwmon_cooling_ops = {
++	.get_max_state = qnap_mcu_hwmon_get_max_state,
++	.get_cur_state = qnap_mcu_hwmon_get_cur_state,
++	.set_cur_state = qnap_mcu_hwmon_set_cur_state,
++};
++
++static void devm_fan_node_release(void *data)
 +{
-+	u8 ack[QNAP_MCU_ACK_LEN];
-+	int ret;
++	struct qnap_mcu_hwmon *hwm = data;
 +
-+	ret = qnap_mcu_exec(mcu, cmd_data, cmd_data_size, ack, sizeof(ack));
++	fwnode_handle_put(hwm->fan_node);
++}
++
++static int qnap_mcu_hwmon_get_cooling_data(struct device *dev, struct qnap_mcu_hwmon *hwm)
++{
++	struct fwnode_handle *fwnode;
++	int num, i, ret;
++
++	fwnode = device_get_named_child_node(dev->parent, "fan-0");
++	if (!fwnode)
++		return 0;
++
++	/* if we found the fan-node, we're keeping it until device-unbind */
++	hwm->fan_node = fwnode;
++	ret = devm_add_action_or_reset(dev, devm_fan_node_release, hwm);
 +	if (ret)
 +		return ret;
 +
-+	/* Should return @0 */
-+	if (ack[0] != 0x40 || ack[1] != 0x30) {
-+		dev_err(&mcu->serdev->dev, "Did not receive ack\n");
-+		return -EIO;
-+	}
++	num = fwnode_property_count_u32(fwnode, "cooling-levels");
++	if (num <= 0)
++		return dev_err_probe(dev, num ? : -EINVAL,
++				     "Failed to count elements in 'cooling-levels'\n");
 +
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(qnap_mcu_exec_with_ack);
-+
-+const struct qnap_mcu_variant *qnap_mcu_get_variant_data(struct qnap_mcu *mcu)
-+{
-+	return mcu->variant;
-+}
-+EXPORT_SYMBOL_GPL(qnap_mcu_get_variant_data);
-+
-+static int qnap_mcu_get_version(struct qnap_mcu *mcu)
-+{
-+	const u8 cmd[] = { 0x25, 0x56 }; /* %, V */
-+	u8 rx[14];
-+	int ret;
-+
-+	/* Reply is the 2 command-bytes + 4 bytes describing the version */
-+	ret = qnap_mcu_exec(mcu, cmd, sizeof(cmd), rx, QNAP_MCU_VERSION_LEN + 2);
-+	if (ret)
-+		return ret;
-+
-+	memcpy(mcu->version, &rx[2], QNAP_MCU_VERSION_LEN);
-+
-+	return 0;
-+}
-+
-+/*
-+ * The MCU controls power to the peripherals but not the CPU.
-+ *
-+ * So using the pmic to power off the system keeps the MCU and hard-drives
-+ * running. This also then prevents the system from turning back on until
-+ * the MCU is turned off by unplugging the power-cable.
-+ * Turning off the MCU alone on the other hand turns off the hard-drives,
-+ * LEDs, etc while the main SoC stays running - including its network ports.
-+ */
-+static int qnap_mcu_power_off(struct sys_off_data *data)
-+{
-+	const u8 cmd[] = { 0x40, 0x43, 0x30 }; /* @, C, 0 */
-+	struct qnap_mcu *mcu = data->cb_data;
-+	int ret;
-+
-+	ret = qnap_mcu_exec_with_ack(mcu, cmd, sizeof(cmd));
-+	if (ret) {
-+		dev_err(&mcu->serdev->dev, "MCU poweroff failed %d\n", ret);
-+		return NOTIFY_STOP;
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+static const struct qnap_mcu_variant qnap_ts433_mcu = {
-+	.baud_rate = 115200,
-+	.num_drives = 4,
-+	.fan_pwm_min = 51,  /* Specified in original model.conf */
-+	.fan_pwm_max = 255,
-+	.usb_led = true,
-+};
-+
-+static const struct of_device_id qnap_mcu_dt_ids[] = {
-+	{ .compatible = "qnap,ts433-mcu", .data = &qnap_ts433_mcu },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, qnap_mcu_dt_ids);
-+
-+static const struct mfd_cell qnap_mcu_subdevs[] = {
-+	{ .name = "qnap-mcu-input", },
-+	{ .name = "qnap-mcu-leds", },
-+	{ .name = "qnap-mcu-hwmon", }
-+};
-+
-+static int qnap_mcu_probe(struct serdev_device *serdev)
-+{
-+	struct device *dev = &serdev->dev;
-+	struct qnap_mcu *mcu;
-+	int ret;
-+
-+	mcu = devm_kzalloc(dev, sizeof(*mcu), GFP_KERNEL);
-+	if (!mcu)
++	hwm->fan_cooling_levels = devm_kcalloc(dev, num, sizeof(u32),
++					       GFP_KERNEL);
++	if (!hwm->fan_cooling_levels)
 +		return -ENOMEM;
 +
-+	mcu->serdev = serdev;
-+	dev_set_drvdata(dev, mcu);
-+
-+	mcu->variant = of_device_get_match_data(dev);
-+	if (!mcu->variant)
-+		return -ENODEV;
-+
-+	mutex_init(&mcu->bus_lock);
-+	init_completion(&mcu->reply.done);
-+
-+	serdev_device_set_client_ops(serdev, &qnap_mcu_serdev_device_ops);
-+	ret = devm_serdev_device_open(dev, serdev);
++	ret = fwnode_property_read_u32_array(fwnode, "cooling-levels",
++					     hwm->fan_cooling_levels, num);
 +	if (ret)
-+		return ret;
++		return dev_err_probe(dev, ret, "Failed to read 'cooling-levels'\n");
 +
-+	serdev_device_set_baudrate(serdev, mcu->variant->baud_rate);
-+	serdev_device_set_flow_control(serdev, false);
-+
-+	ret = serdev_device_set_parity(serdev, SERDEV_PARITY_NONE);
-+	if (ret) {
-+		dev_err(dev, "Failed to set parity\n");
-+		return ret;
++	for (i = 0; i < num; i++) {
++		if (hwm->fan_cooling_levels[i] > hwm->pwm_max)
++			return dev_err_probe(dev, -EINVAL, "fan state[%d]:%d > %d\n", i,
++					     hwm->fan_cooling_levels[i], hwm->pwm_max);
 +	}
 +
-+	ret = qnap_mcu_get_version(mcu);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_register_sys_off_handler(dev,
-+					    SYS_OFF_MODE_POWER_OFF_PREPARE,
-+					    SYS_OFF_PRIO_DEFAULT,
-+					    &qnap_mcu_power_off, mcu);
-+	if (ret)
-+		return dev_err_probe(dev, ret,
-+				     "Failed to register poweroff handler\n");
-+
-+	ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_AUTO, qnap_mcu_subdevs,
-+				   ARRAY_SIZE(qnap_mcu_subdevs), NULL, 0, NULL);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "Failed to add child devices\n");
++	hwm->fan_max_state = num - 1;
 +
 +	return 0;
 +}
 +
-+static struct serdev_device_driver qnap_mcu_drv = {
-+	.probe = qnap_mcu_probe,
++static const struct hwmon_channel_info * const qnap_mcu_hwmon_channels[] = {
++	HWMON_CHANNEL_INFO(pwm, HWMON_PWM_INPUT),
++	HWMON_CHANNEL_INFO(fan, HWMON_F_INPUT),
++	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT),
++	NULL
++};
++
++static int qnap_mcu_hwmon_probe(struct platform_device *pdev)
++{
++	struct qnap_mcu *mcu = dev_get_drvdata(pdev->dev.parent);
++	const struct qnap_mcu_variant *variant = qnap_mcu_get_variant_data(mcu);
++	struct qnap_mcu_hwmon *hwm;
++	struct thermal_cooling_device *cdev;
++	struct device *dev = &pdev->dev;
++	struct device *hwmon;
++	int ret;
++
++	hwm = devm_kzalloc(dev, sizeof(*hwm), GFP_KERNEL);
++	if (!hwm)
++		return -ENOMEM;
++
++	hwm->mcu = mcu;
++	hwm->dev = &pdev->dev;
++	hwm->pwm_min = variant->fan_pwm_min;
++	hwm->pwm_max = variant->fan_pwm_max;
++
++	platform_set_drvdata(pdev, hwm);
++
++	/*
++	 * Set duty cycle to maximum allowed.
++	 */
++	ret = qnap_mcu_hwmon_set_pwm(hwm, hwm->pwm_max);
++	if (ret)
++		return ret;
++
++	hwm->info.ops = &qnap_mcu_hwmon_hwmon_ops;
++	hwm->info.info = qnap_mcu_hwmon_channels;
++
++	ret = qnap_mcu_hwmon_get_cooling_data(dev, hwm);
++	if (ret)
++		return ret;
++
++	hwm->fan_state = hwm->fan_max_state;
++
++	hwmon = devm_hwmon_device_register_with_info(dev, "qnapmcu",
++						     hwm, &hwm->info, NULL);
++	if (IS_ERR(hwmon))
++		return dev_err_probe(dev, PTR_ERR(hwmon), "Failed to register hwmon device\n");
++
++	/*
++	 * Only register cooling device when we found cooling-levels.
++	 * qnap_mcu_hwmon_get_cooling_data() will fail when reading malformed
++	 * levels and only succeed with either no or correct cooling levels.
++	 */
++	if (IS_ENABLED(CONFIG_THERMAL) && hwm->fan_cooling_levels) {
++		cdev = devm_thermal_of_cooling_device_register(dev,
++					to_of_node(hwm->fan_node), "qnap-mcu-hwmon",
++					hwm, &qnap_mcu_hwmon_cooling_ops);
++		if (IS_ERR(cdev))
++			return dev_err_probe(dev, PTR_ERR(cdev),
++				"Failed to register qnap-mcu-hwmon as cooling device\n");
++		hwm->cdev = cdev;
++	}
++
++	return 0;
++}
++
++static struct platform_driver qnap_mcu_hwmon_driver = {
++	.probe = qnap_mcu_hwmon_probe,
 +	.driver = {
-+		.name = "qnap-mcu",
-+		.of_match_table = qnap_mcu_dt_ids,
++		.name = "qnap-mcu-hwmon",
 +	},
 +};
-+module_serdev_device_driver(qnap_mcu_drv);
++module_platform_driver(qnap_mcu_hwmon_driver);
 +
++MODULE_ALIAS("platform:qnap-mcu-hwmon");
 +MODULE_AUTHOR("Heiko Stuebner <heiko@sntech.de>");
-+MODULE_DESCRIPTION("QNAP MCU core driver");
++MODULE_DESCRIPTION("QNAP MCU hwmon driver");
 +MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/qnap-mcu.h b/include/linux/mfd/qnap-mcu.h
-new file mode 100644
-index 000000000000..903b923537c7
---- /dev/null
-+++ b/include/linux/mfd/qnap-mcu.h
-@@ -0,0 +1,27 @@
-+/* SPDX-License-Identifier: GPL-2.0+ */
-+/*
-+ * Core definitions for QNAP MCU MFD driver.
-+ * Copyright (C) 2024 Heiko Stuebner <heiko@sntech.de>
-+ */
-+
-+#ifndef _LINUX_QNAP_MCU_H_
-+#define _LINUX_QNAP_MCU_H_
-+
-+struct qnap_mcu;
-+
-+struct qnap_mcu_variant {
-+	u32 baud_rate;
-+	int num_drives;
-+	int fan_pwm_min;
-+	int fan_pwm_max;
-+	bool usb_led;
-+};
-+
-+int qnap_mcu_exec(struct qnap_mcu *mcu,
-+		  const u8 *cmd_data, size_t cmd_data_size,
-+		  u8 *reply_data, size_t reply_data_size);
-+int qnap_mcu_exec_with_ack(struct qnap_mcu *mcu,
-+			   const u8 *cmd_data, size_t cmd_data_size);
-+const struct qnap_mcu_variant *qnap_mcu_get_variant_data(struct qnap_mcu *mcu);
-+
-+#endif /* _LINUX_QNAP_MCU_H_ */
 -- 
 2.43.0
 

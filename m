@@ -1,57 +1,57 @@
-Received: from mail-oa1-f49.google.com (mail-oa1-f49.google.com [209.85.160.49])
+Received: from mail-oo1-f44.google.com (mail-oo1-f44.google.com [209.85.161.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F7A91369BC;
-	Sun, 25 Aug 2024 05:16:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 320CA4778C;
+	Sun, 25 Aug 2024 05:17:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724563022; cv=none; b=Si7nBrevrxVslNfQgb3sViCX+QPonX8OulthGpxeIr1BOasP937sHpiIVne+e5dHiSDWbqrWT4pJt948G7+hIurYIcq7SuutRtzuNLYrZup1jnuKyjG5KxUwTTRN6ONvh+i+VjrDmWdi3a+Zp96qqSClOJmarpTre/L3g9PrXB0=
+	t=1724563023; cv=none; b=LbaxOekw3ZOfi62Ncam0vVTzbGK5tghdM+WNEOvtVvHGczdGnS4nueSI1a+kGzKpwD5+LrwZE97iE+EpuD0T4kzRFbRX+TjQZHFte2e4yqonmFyUtKSApIRm3cbNXC25UyuXVhjHX04r4SMoQdEooCgEuXhQ9qP9h41B++bSWuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724563022; c=relaxed/simple;
-	bh=jwVJzglfziH/nV1kcY0Uo3ZHM0I6kZU1L/m/bOzcWFo=;
+	s=arc-20240116; t=1724563023; c=relaxed/simple;
+	bh=yY4ZVaSxsIM1IRldiqRRPie18QZDpDnG/Gx5Op+I8sM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=A4pUvCPlF6H5loxsYf5XyGuW/n6RfYiaJMf2pb3rYcndaym8Z+d9MTQ4q/0xbW7chjGkLXHQv8higZQAE1/+NBsG5kernvKTgh9QRkaHdcScCLVHapVq1tSkNfZJzlN5OtxWrBROedGQh2Ak2yFMkEVrxag9ELwTpiwhKcx22i0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IxLG+lpT; arc=none smtp.client-ip=209.85.160.49
+	 MIME-Version; b=k+cLKGtSOAwjud0R9P9bbl0OmrjnwTwo7D6EuwgjTuRbimJD5YUe30bwCGbfZdjgmD3iEIMr1n0kXjsqLiIGnN4amiIZV/ttT9crBoPnrj+3LeEtDgb8fLtdBKAUf25AZARnfkSgVzOAr4N3s97QP3JnWeimT/raK+CKFZDu+Y0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ky5NFyOy; arc=none smtp.client-ip=209.85.161.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IxLG+lpT"
-Received: by mail-oa1-f49.google.com with SMTP id 586e51a60fabf-27022a3536dso2500625fac.2;
-        Sat, 24 Aug 2024 22:16:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ky5NFyOy"
+Received: by mail-oo1-f44.google.com with SMTP id 006d021491bc7-5daa93677e1so2541516eaf.3;
+        Sat, 24 Aug 2024 22:17:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1724563018; x=1725167818; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1724563021; x=1725167821; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TIA6h/0y/Yz1gsinooJtctLwNKMffY0VfmYdSxulMqA=;
-        b=IxLG+lpTWU5BUWhhQP73JYz8ObqBEVukJhldiZXlnPBRWoEWcEreCB0g8zKWr2IQ4h
-         xn9QcBKuwXFiah8xkvdp4Tq+Re7hJ77T0op6f/QSxrOaTTBoXu5eYHda8p3nBRDzS0dM
-         jbdzic3pU1djenBpx6PwtiDQPeiJWEwaLhdiccRUgXxlsawZ3JVSNWcM32I/zDLp4xoP
-         3blw8dy/1iK6eVoSiziUEWbJAmc3Qxdaidn4CirRTfOJUo6rdNcrhT6QBEQUjRDCuRgR
-         9qAoIG7jRpctqoYlN1/zyWGjRWDpQCFxf97roTBcbCaYjm3rVPxNHajtwv7A0jlMbSky
-         0I1Q==
+        bh=iL+2InRXO647WU3Yi34+ctBbVoiJtTYGlGR4qSXeVCA=;
+        b=Ky5NFyOyT5Rs3ZCCPReCy0Q8a1H9MoPC/0KwgZS8O3dXX8/8pErvDUPXot/UbeWgWa
+         Ezh+NsWryoKoPvSp3twIQqs7Ul2M6DOJpFZM9UrR1d0pw5gOPowtp9Ga9J2STMwhwaxU
+         vWPMsk2W1SShX+UWmzIXtDLPrUsoTseOtu6LOLWGh+2MWaaEuKdWczlT5eryfX05/Amy
+         6jCfA2M+hwubmMkJyXeTSwnam26T8EDdVjxachlwWrh1Knk4XRMeTf8l6rvn8y3agPLa
+         qsjOO0qbwTAWW3E98EXPRPHQJIuI24WcCW4J1NroS94DWAA3yHtcg7Yo8S+t6RE3LlQk
+         R2Sw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724563018; x=1725167818;
+        d=1e100.net; s=20230601; t=1724563021; x=1725167821;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=TIA6h/0y/Yz1gsinooJtctLwNKMffY0VfmYdSxulMqA=;
-        b=nnvko0+2npddzLESQB/kDEJgbpQT9YVTW9oG1xj4gmMQyaNZHj0NbHG6wVYNulJvcp
-         HKXZgieLSW0DQSdtKwBgKJ3OaJBTAJ4EZKDPtgzGXABiCLu8SKGka2laKKQ2PbLQ5rjD
-         tTe3FWaISZYLOdBadpasGisA3DdhW/lCy8kmoHJal4M3No2trWmzhdqNkzU21Y8wzMtv
-         q+rbPvedaPMU+fCc7fEnfItTAKx37Z9orFPcoQD2rqRQP0dKqwT3zjsm9rQySLpCCujI
-         oBlyNIQCUoR29ILsN16M5HmlF67m+y1WaxUwDyBpWdypHC0R+LeK1l5heOcaOsATBLQz
-         A/mw==
-X-Forwarded-Encrypted: i=1; AJvYcCVrXe2UVradkWV/31T82WiMfIdzfELnYmtSac7q+KUYLavXVi4PSzNvBfK4gyEIvYtyecGLZeK3dBH+px0=@vger.kernel.org, AJvYcCXwBHjes4YEMIcs3FrPprQGMHhqwow5p0/VKeAJ6ehNN/Sy8vM+RniXlTXubOVea2GkCESAmXenvgZCTD8=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyk6PkGCgrUJdYkQLyat/inf5zoL9yUa1TH3xh9wkOLByKl/MPX
-	u2XS3QJv/DfScMIAznwcxB3WhrJicudJJUhm1V01WXjxDxeRICU1j6b9sA==
-X-Google-Smtp-Source: AGHT+IGpby1l5kr49d3Ag7IqPDJ5s1jsbrR0tYx5ZtWy5I5Dnd9r2dAg+L7acAO7bMwntLfgmcpiOw==
-X-Received: by 2002:a05:6870:548a:b0:26f:e09f:6090 with SMTP id 586e51a60fabf-273e6620ee7mr7487035fac.37.1724563018382;
-        Sat, 24 Aug 2024 22:16:58 -0700 (PDT)
+        bh=iL+2InRXO647WU3Yi34+ctBbVoiJtTYGlGR4qSXeVCA=;
+        b=glzyEvkTDMDeoFoLvBff4ZZrE8eWwZBziAT1nPmFEUCAm5Bu59gHVpHoq0kLUZ4qyf
+         LyZcfLfx85k/ngcCb8bkKRPWRQa74vbrMrriLtTdcwWFycAoNLkvCqI+Lv1VpDK7H0o9
+         54NCHBM/qgp5YTJd8oPZSDXEmuuW44tQ1DWd3drBy/qTCKRoJ8hJCCmjusIseQJ5mO82
+         df1iFmPuaYphT0q9bswyoZDawYNgyc092gM5fbq3MzoqvWdOmy+UXIiHEyeujbmy43w1
+         6TymS6z3XcLdKMRYfwailgcpTJTL794PDKeoPmC9iQ9l1bQYXz2E+Wyyb8LO9Wcv8LHP
+         YzoA==
+X-Forwarded-Encrypted: i=1; AJvYcCVcqd6ID+rj6KhBMrc/+k/qc6RH105t1ocpN1sLIsVapF7tE4tC4B84uICtDSMA363GbP5UYor+CZOp/9A=@vger.kernel.org, AJvYcCXcyHhRfKF+LZyqiXIEUA5r1kTPBm/MSTcpoasRKBYw3jVz0Kfvu/f8ZrFuMNctaXrf3Lw4YL6zXl5RR64=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzpPiRmvAxPoL/fG55etWJbhBmogLoE2jQYMldWorREIHX51OeZ
+	3m2PZxNOD2GFVBqY/XkKeCIuFMadzDwsQR3HAhAGC86uEAXu/vRzbOKZBw==
+X-Google-Smtp-Source: AGHT+IHIrpT9TrF1Y6WIh6M0wyTrLhvKWZg8Ae6gbV2uHoKlDK9dxT5dBqBF7dMmWUdbcIyQW1ik1w==
+X-Received: by 2002:a05:6808:199a:b0:3d9:3f51:f351 with SMTP id 5614622812f47-3de2a853444mr7501714b6e.11.1724563020952;
+        Sat, 24 Aug 2024 22:17:00 -0700 (PDT)
 Received: from dtor-ws.sjc.corp.google.com ([2620:15c:9d:2:66dc:ce07:b7cc:51ea])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-7cd9ad55a94sm5622442a12.57.2024.08.24.22.16.57
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-7cd9ad55a94sm5622442a12.57.2024.08.24.22.16.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 24 Aug 2024 22:16:57 -0700 (PDT)
+        Sat, 24 Aug 2024 22:17:00 -0700 (PDT)
 From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 To: linux-input@vger.kernel.org
 Cc: Michael Hennerich <michael.hennerich@analog.com>,
@@ -67,9 +67,9 @@ Cc: Michael Hennerich <michael.hennerich@analog.com>,
 	imx@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org,
 	linux-tegra@vger.kernel.org
-Subject: [PATCH 15/17] Input: spear-keyboard - use guard notation when acquiring mutex
-Date: Sat, 24 Aug 2024 22:16:19 -0700
-Message-ID: <20240825051627.2848495-16-dmitry.torokhov@gmail.com>
+Subject: [PATCH 17/17] Input: tegra-kbc - use guard notation when acquiring mutex and spinlock
+Date: Sat, 24 Aug 2024 22:16:21 -0700
+Message-ID: <20240825051627.2848495-18-dmitry.torokhov@gmail.com>
 X-Mailer: git-send-email 2.46.0.295.g3b9ea8a38a-goog
 In-Reply-To: <20240825051627.2848495-1-dmitry.torokhov@gmail.com>
 References: <20240825051627.2848495-1-dmitry.torokhov@gmail.com>
@@ -82,54 +82,135 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
 This makes the code more compact and error handling more robust
-by ensuring that mutexes are released in all code paths when control
+by ensuring that locks are released in all code paths when control
 leaves critical section.
 
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 ---
- drivers/input/keyboard/spear-keyboard.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/input/keyboard/tegra-kbc.c | 45 +++++++++++++-----------------
+ 1 file changed, 19 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/input/keyboard/spear-keyboard.c b/drivers/input/keyboard/spear-keyboard.c
-index 1df4feb8ba01..2d3f656e59dc 100644
---- a/drivers/input/keyboard/spear-keyboard.c
-+++ b/drivers/input/keyboard/spear-keyboard.c
-@@ -274,7 +274,7 @@ static int spear_kbd_suspend(struct device *dev)
- 	struct input_dev *input_dev = kbd->input;
- 	unsigned int rate = 0, mode_ctl_reg, val;
+diff --git a/drivers/input/keyboard/tegra-kbc.c b/drivers/input/keyboard/tegra-kbc.c
+index a1765ed8c825..204ba189807e 100644
+--- a/drivers/input/keyboard/tegra-kbc.c
++++ b/drivers/input/keyboard/tegra-kbc.c
+@@ -241,11 +241,10 @@ static void tegra_kbc_set_fifo_interrupt(struct tegra_kbc *kbc, bool enable)
+ static void tegra_kbc_keypress_timer(struct timer_list *t)
+ {
+ 	struct tegra_kbc *kbc = from_timer(kbc, t, timer);
+-	unsigned long flags;
+ 	u32 val;
+ 	unsigned int i;
  
--	mutex_lock(&input_dev->mutex);
-+	guard(mutex)(&input_dev->mutex);
+-	spin_lock_irqsave(&kbc->lock, flags);
++	guard(spinlock_irqsave)(&kbc->lock);
  
- 	/* explicitly enable clock as we may program device */
- 	clk_enable(kbd->clk);
-@@ -315,8 +315,6 @@ static int spear_kbd_suspend(struct device *dev)
- 	/* restore previous clk state */
- 	clk_disable(kbd->clk);
- 
--	mutex_unlock(&input_dev->mutex);
+ 	val = (readl(kbc->mmio + KBC_INT_0) >> 4) & 0xf;
+ 	if (val) {
+@@ -270,17 +269,14 @@ static void tegra_kbc_keypress_timer(struct timer_list *t)
+ 		/* All keys are released so enable the keypress interrupt */
+ 		tegra_kbc_set_fifo_interrupt(kbc, true);
+ 	}
 -
- 	return 0;
+-	spin_unlock_irqrestore(&kbc->lock, flags);
  }
  
-@@ -326,7 +324,7 @@ static int spear_kbd_resume(struct device *dev)
- 	struct spear_kbd *kbd = platform_get_drvdata(pdev);
- 	struct input_dev *input_dev = kbd->input;
+ static irqreturn_t tegra_kbc_isr(int irq, void *args)
+ {
+ 	struct tegra_kbc *kbc = args;
+-	unsigned long flags;
+ 	u32 val;
  
--	mutex_lock(&input_dev->mutex);
-+	guard(mutex)(&input_dev->mutex);
+-	spin_lock_irqsave(&kbc->lock, flags);
++	guard(spinlock_irqsave)(&kbc->lock);
  
+ 	/*
+ 	 * Quickly bail out & reenable interrupts if the fifo threshold
+@@ -301,8 +297,6 @@ static irqreturn_t tegra_kbc_isr(int irq, void *args)
+ 		kbc->keypress_caused_wake = true;
+ 	}
+ 
+-	spin_unlock_irqrestore(&kbc->lock, flags);
+-
+ 	return IRQ_HANDLED;
+ }
+ 
+@@ -413,14 +407,13 @@ static int tegra_kbc_start(struct tegra_kbc *kbc)
+ 
+ static void tegra_kbc_stop(struct tegra_kbc *kbc)
+ {
+-	unsigned long flags;
+ 	u32 val;
+ 
+-	spin_lock_irqsave(&kbc->lock, flags);
+-	val = readl(kbc->mmio + KBC_CONTROL_0);
+-	val &= ~1;
+-	writel(val, kbc->mmio + KBC_CONTROL_0);
+-	spin_unlock_irqrestore(&kbc->lock, flags);
++	scoped_guard(spinlock_irqsave, &kbc->lock) {
++		val = readl(kbc->mmio + KBC_CONTROL_0);
++		val &= ~1;
++		writel(val, kbc->mmio + KBC_CONTROL_0);
++	}
+ 
+ 	disable_irq(kbc->irq);
+ 	del_timer_sync(&kbc->timer);
+@@ -724,7 +717,8 @@ static int tegra_kbc_suspend(struct device *dev)
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
+ 
+-	mutex_lock(&kbc->idev->mutex);
++	guard(mutex)(&kbc->idev->mutex);
++
  	if (device_may_wakeup(&pdev->dev)) {
- 		if (kbd->irq_wake_enabled) {
-@@ -342,8 +340,6 @@ static int spear_kbd_resume(struct device *dev)
- 	if (input_device_enabled(input_dev))
- 		writel_relaxed(kbd->mode_ctl_reg, kbd->io_base + MODE_CTL_REG);
+ 		disable_irq(kbc->irq);
+ 		del_timer_sync(&kbc->timer);
+@@ -747,11 +741,9 @@ static int tegra_kbc_suspend(struct device *dev)
+ 		tegra_kbc_set_keypress_interrupt(kbc, true);
+ 		enable_irq(kbc->irq);
+ 		enable_irq_wake(kbc->irq);
+-	} else {
+-		if (input_device_enabled(kbc->idev))
+-			tegra_kbc_stop(kbc);
++	} else if (input_device_enabled(kbc->idev)) {
++		tegra_kbc_stop(kbc);
+ 	}
+-	mutex_unlock(&kbc->idev->mutex);
  
--	mutex_unlock(&input_dev->mutex);
--
  	return 0;
  }
+@@ -760,9 +752,10 @@ static int tegra_kbc_resume(struct device *dev)
+ {
+ 	struct platform_device *pdev = to_platform_device(dev);
+ 	struct tegra_kbc *kbc = platform_get_drvdata(pdev);
+-	int err = 0;
++	int err;
++
++	guard(mutex)(&kbc->idev->mutex);
  
+-	mutex_lock(&kbc->idev->mutex);
+ 	if (device_may_wakeup(&pdev->dev)) {
+ 		disable_irq_wake(kbc->irq);
+ 		tegra_kbc_setup_wakekeys(kbc, false);
+@@ -787,13 +780,13 @@ static int tegra_kbc_resume(struct device *dev)
+ 			input_report_key(kbc->idev, kbc->wakeup_key, 0);
+ 			input_sync(kbc->idev);
+ 		}
+-	} else {
+-		if (input_device_enabled(kbc->idev))
+-			err = tegra_kbc_start(kbc);
++	} else if (input_device_enabled(kbc->idev)) {
++		err = tegra_kbc_start(kbc);
++		if (err)
++			return err;
+ 	}
+-	mutex_unlock(&kbc->idev->mutex);
+ 
+-	return err;
++	return 0;
+ }
+ 
+ static DEFINE_SIMPLE_DEV_PM_OPS(tegra_kbc_pm_ops,
 -- 
 2.46.0.295.g3b9ea8a38a-goog
 

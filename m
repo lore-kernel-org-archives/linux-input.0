@@ -1,83 +1,163 @@
-Received: from mout.web.de (mout.web.de [212.227.17.12])
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 708051803A;
-	Sun, 25 Aug 2024 20:27:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 737093B78D;
+	Sun, 25 Aug 2024 20:32:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724617634; cv=none; b=dZjHYaVTfN/i4zbYPUrKfDVCFD+0KNaYQRUj1IPKkrOb3DnevbE1bglaize+JJ5BKlJozcgC4/GSnqv48GWB/8mcbmUWJ3ZW3Vrzixb3BujWH4a9EdcWFHYQRYL45oZHHkiO9+vmqk9O83qvOJu3otS/0OvuNVzjMdOQYIiOsNA=
+	t=1724617977; cv=none; b=QV5xfPDWW4W5YQ+PrMtvb8Q/4Qwhdi4sqzNpsznWGnQoUNOz0RLQykdAH0ACj8+ndFid+KwtHy7rKvOrGLrV3Gg5/io/EEV/ZUa/lgQ7DMNc+X3KhFHeFjovMvfRBsnb3OT7T5frI2hVOOf9G5D4bd+ePJmWRDGn6eai5IV2JSY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724617634; c=relaxed/simple;
-	bh=eA09jemE7xkLxSctCuVNbSiyK4FvPa5Snh8jF7TjOvU=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=AOV/Pc8dzNtRFugsQvMK2WcvJhTcn1Yv5A46swF4jFCQsNULFRmrGsQMlCZsqB7wNT0YJ5J8E4TLGcjPjhb/5U7DZn9HiyZdujykgDeNDcpJtJvkyMuZlfxvaAEw0lic44W23+Q0a4eHqlKPt4a2tueXyOpR6VskL2HkU0Gq3pU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=u043YocN; arc=none smtp.client-ip=212.227.17.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1724617977; c=relaxed/simple;
+	bh=I1ayERe8+MKL+sKOTVHqL9vNWgJrFIP3xM5InJN9/c8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=svU4aw/1SFnBo/NbCbpiKAQhEO75GLJgfV9Fe+wWBbbKD/zpegS/HPpmDPCvydf+S2AjbZ5iqPNp0souZjy5Sln9rKEsmDpcv5fbf9XXHGWV6RV2T8vjQZsWmVDMq25e84Z7H2IWqxMqa7hxl182CRu5td9A+02W/lumgZO/Ijs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=D1gBs5Fm; arc=none smtp.client-ip=185.11.138.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="u043YocN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1724617608; x=1725222408; i=markus.elfring@web.de;
-	bh=eA09jemE7xkLxSctCuVNbSiyK4FvPa5Snh8jF7TjOvU=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=u043YocNbBAblqVhzJxO2S+bWvPmuqOYyxafTK9zUq9ChdmwDpo17yUbtoDwtUEe
-	 mtij9sPoKlwyFIDZK1xeSNBlOg3Fk4syBE3QdFvCX4x0bjCcXjKQuvTTV3Vis9k/p
-	 OIcg3qKlQ9vtgWb2uwgaH3NKlFF8W/DRQKwzEmItzaIXadPYg/8izwoD/U7SD5YuB
-	 9CC8jLtOZZoVJZFabfSWQAgCBFqdprQG+7k/3gUKlQCH3kfBcJuKSct0gl4dxAG40
-	 VMFrQH09XP9CVmriHEapCTGLKQ/GRJhVSMq+oV3D9QEp2LYljHr1XvDr0IG/7cgMo
-	 Ypf27nMRtdEbKyEK4w==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.85.95]) by smtp.web.de (mrweb105
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1N9cLf-1s5UvV2zCf-00yY8D; Sun, 25
- Aug 2024 22:26:48 +0200
-Message-ID: <08a8ad8a-e555-4d15-8292-17ef8df59686@web.de>
-Date: Sun, 25 Aug 2024 22:26:47 +0200
+	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="D1gBs5Fm"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
+	s=gloria202408; h=Content-Transfer-Encoding:MIME-Version:References:
+	In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=OX2mDGoNhn5NuPQsdotMoW4uOBKIyWHrefRAShTe53U=; b=D1gBs5FmrSMGtVNzlimfww/Xy8
+	T2YkapJ/ZtqFbvVpKcdSmZ8niwabpAS1z2l5H0lSVjRydt1dE7yiAr8sh26RtK7HYm965BHXJ0JOZ
+	s7MEJnSYzght/OlC1dQUe3XM0TFMTf/5DI2TMn1COcnEVHFYi7BqWqo09ALxUCCWtAlew2VPVeGdQ
+	PAbtsVO5SzPH8Pdza+0Ob5rjC+NaVX1kDintIBnvMnmV7DUgxrvz5qOJ4AWPIC0zxnqQhARGxI3Qq
+	lDZyy7knvtsv65hl4IDgnMdCNLMhzvogTFgMszjJ/V3IVCqRGwsGX0KlkhYpjuq5wU0Nl0kH5I+je
+	JpWC1cOQ==;
+Received: from i53875a40.versanet.de ([83.135.90.64] helo=phil.lan)
+	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <heiko@sntech.de>)
+	id 1siJum-0001cM-OR; Sun, 25 Aug 2024 22:32:44 +0200
+From: Heiko Stuebner <heiko@sntech.de>
+To: lee@kernel.org
+Cc: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	jdelvare@suse.com,
+	linux@roeck-us.net,
+	heiko@sntech.de,
+	dmitry.torokhov@gmail.com,
+	pavel@ucw.cz,
+	ukleinek@debian.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org
+Subject: [PATCH v6 6/7] arm64: dts: rockchip: hook up the MCU on the QNAP TS433
+Date: Sun, 25 Aug 2024 22:32:34 +0200
+Message-ID: <20240825203235.1122198-7-heiko@sntech.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240825203235.1122198-1-heiko@sntech.de>
+References: <20240825203235.1122198-1-heiko@sntech.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
-Cc: LKML <linux-kernel@vger.kernel.org>,
- Erick Archer <erick.archer@outlook.com>, =?UTF-8?Q?Pali_Roh=C3=A1r?=
- <pali@kernel.org>
-References: <ZsrBkWIpyEqzClUG@google.com>
-Subject: Re: [PATCH] Input: alps - use guard notation when acquiring mutex
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <ZsrBkWIpyEqzClUG@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:pEnG2rCchP1mLvoSSPHLpEOptsApcUbwDfBWvvMUTPYBzOGUgga
- 9TwP7ieqlyg6tt+vvXtZMXazSRTVNfBM+ZnWB2S0fPqzdIWeLUhoyqIziwQtC0NZh40Jf8Y
- kE+GjbFtECzKS5BWnooMs7ICDCfNTtHdpjPHf8JIm1f9tvCGqObV0nNmU2KqB6zRv4WxM94
- lNy78UFFG2qxbgJejjMRA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:Pwe7XZDpCkM=;lch53AI1jYtpOOGgUZfecRxoSsy
- GVzbRbgujntXlaBFcOOsBRL+Vw+yYZxI70foaD0LDjBqmkXOqueWxYlCTKFSQjuLn19hN0xFa
- RXxBt/ZyL6weMhO/0eiH6JlNZYz/gQ2KPXiRxzauzNnvuRcNz0jK+R8//MslFCZtZ9nFYlbET
- Abb5b5AKQ1eJfo6e4no663PIpGPSR6Cdb7bcNdiitumhfLdO0l0Uz8m9LRl60qcQE1oTZQHB2
- CxI/okO8wUXmaLr95j8yLqh3TfyKG4SsSWD4Ml/17+9grpFVuhk6DYCgVDq3tkQ2ZYn7nsitS
- FwBIEiYpTOWqupaK+a+sZKoSQoG5Yula+z4r2voo0q1NhPmnm7uDeZpfNdJCeK6PwaGJKLkjs
- 16DyL3pGHuSozom9I1CGB0Ny6Z6QWFytmUiVveqLd8Y4k89bwan/plVaRBZDl2ATcjU7z+jEK
- 87dBzxX2hfLK+gukNzLSzDDtZwW5o6n9WZNIG9oqErsvtBQ2KECktG7icgvnanc88i3DCpR6n
- +rt615o9s6FZAqqIXUQl60NBhUzGv0ofPnxSwaZnMS3cb82E4KEy/74b42nejd+6toxqldjx4
- Evaac45nSIhaTq1zXDVMzIez8/uILh/IFPLtv2XwGNNe473yV0WHDYuQmdc124CRSwpz29E8X
- Ccb/e0RQbiu8pJV34QaKsy6tzs7TrQg7c7nNpuPuNfmvEKV7jnQsD33ZpQgRA71Z2ATeIZbSA
- ODncRYtMC6sNbBMuFjHkylaeSkU4t/4Vu8CVL0X11MCw9Hwv5dFDHFHqzu+7sHbfU36Xjvhw+
- EEq52P4NIqgY9VtgQ0Afnncw==
+Content-Transfer-Encoding: 8bit
 
-> This makes the code =E2=80=A6
+The MCU is an important part of the device functionality. It provides
+functionality like fan-control, more leds, etc and even more important
+without it, the NAS-device cannot even fully turned off.
 
-Would you ever like to improve such a change description with imperative w=
-ordings?
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
-cumentation/process/submitting-patches.rst?h=3Dv6.11-rc5#n94
+Hook up the serial device to its uart and hook into the thermal
+management to control the fan according to the cpu temperature.
 
-Regards,
-Markus
+While the MCU also provides a temperature sensor for the case, this one
+is just polled and does not provide functionality for handling trip
+points in hardware, so a lot of polling would be involved.
+As the cpu is only cooled passively in these devices, it's temperature
+rising will indicate the temperature level of the system just earlier.
+
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+---
+ .../boot/dts/rockchip/rk3568-qnap-ts433.dts   | 57 +++++++++++++++++++
+ 1 file changed, 57 insertions(+)
+
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
+index e601d9271ba8..4bc5f5691d45 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
+@@ -483,6 +483,54 @@ rgmii_phy0: ethernet-phy@0 {
+ 	};
+ };
+ 
++/*
++ * The MCU can provide system temperature too, but only by polling and of
++ * course also cannot set trip points. So attach to the cpu thermal-zone
++ * instead to control the fan.
++ */
++&cpu_thermal {
++	trips {
++		case_fan0: case-fan0 {
++			hysteresis = <2000>;
++			temperature = <35000>;
++			type = "active";
++		};
++
++		case_fan1: case-fan1 {
++			hysteresis = <2000>;
++			temperature = <45000>;
++			type = "active";
++		};
++
++		case_fan2: case-fan2 {
++			hysteresis = <2000>;
++			temperature = <65000>;
++			type = "active";
++		};
++	};
++
++	cooling-maps {
++		/*
++		 * Always provide some air movement, due to small case
++		 * full of harddrives.
++		 */
++		map1 {
++			cooling-device = <&fan THERMAL_NO_LIMIT 1>;
++			trip = <&case_fan0>;
++		};
++
++		map2 {
++			cooling-device = <&fan 2 3>;
++			trip = <&case_fan1>;
++		};
++
++		map3 {
++			cooling-device = <&fan 4 THERMAL_NO_LIMIT>;
++			trip = <&case_fan2>;
++		};
++	};
++};
++
+ &pcie30phy {
+ 	data-lanes = <1 2>;
+ 	status = "okay";
+@@ -582,6 +630,15 @@ &tsadc {
+  */
+ &uart0 {
+ 	status = "okay";
++
++	mcu {
++		compatible = "qnap,ts433-mcu";
++
++		fan: fan-0 {
++			#cooling-cells = <2>;
++			cooling-levels = <0 64 89 128 166 204 221 238>;
++		};
++	};
+ };
+ 
+ /*
+-- 
+2.43.0
+

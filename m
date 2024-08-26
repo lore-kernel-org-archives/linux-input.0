@@ -1,40 +1,50 @@
-Received: from mout.web.de (mout.web.de [212.227.15.14])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D749913AD22;
-	Mon, 26 Aug 2024 09:00:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C88C1143C70;
+	Mon, 26 Aug 2024 09:32:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724662846; cv=none; b=SS2McssDUVA6izXaPETtPs7FjSZgptqjhCXMZhxxd2TAJ5QEmXl2nfkF7qYPXcJpB/VWjjLj6uB9DliF17/nZTEzJxsRUj3sDBOeALhTwugPK1nmZmx2pN8w780aCxbHgz4q7ogXwFolt72mY8AmXxwZFFyTkeQFsCj+FneTagI=
+	t=1724664778; cv=none; b=Z2xH97e0woklw6WltLoSC3BXAbssL2EyfM+PLgRwYDnmW6R43epjkWYLcZ/Y/KGBM9xGFLodDLMQ5ABOR3gAlrR54tWqzNZW2mWHRI+TNWkqXre8p8+UCYxT2TN+w1GPBpTm8WZXFJdCQgHRoBjsil4YOUb0Jqzhp7VFFhMtPTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724662846; c=relaxed/simple;
-	bh=fw3mwugogCB7KnXEdkXpUIMDWmO4PBh+J4IMIJItIZI=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=Ff6cmtyJwAOggG+7X8zp8mjR0XXRiqkf2KwBMSLdUOS5i9gBzvd0tBMdXDMsDUq5pSjrZid1bJBryPykQC4rxF3tfmiCb6cRn6qCIWihCO+XewJXs+FBMpcERWncD2nfqB770zc66HrsWpneaT/yZ9aRzf2M4krKIRhxjcpomFs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=pXL8eYFR; arc=none smtp.client-ip=212.227.15.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1724664778; c=relaxed/simple;
+	bh=CNlgUOIhnZS0GrsQng07UAMdA7zQHT5HyZ7gwUjR7Rk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=afSrq7tqzAt0FBocXkWCBZ6YdC6J/hWb3uo7DV7IWFt6/s6rXpiswmopsrS6NIgdn8yXy4POtyEBCxOsfw9oMcAseK+m/xMP+vdkkmKPSu5IdWTC+gj5ONGyl5F2GBBw9gzS47VVIxbfL8UZdiIHFfWTBXNCjAo3vog/pPK5kuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EOIanDy6; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="pXL8eYFR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1724662830; x=1725267630; i=markus.elfring@web.de;
-	bh=fw3mwugogCB7KnXEdkXpUIMDWmO4PBh+J4IMIJItIZI=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=pXL8eYFRNcxdMdZT0savz718Vnmqg4hulxFAw5Dp+L/NA3f792ar2uW1iWUJPhmR
-	 f5yHDkQ8nbHeelR04ifjGuT9mLOGp0WX6B4YYR+PFg2AId/QZgWn+ezRoD5JPpOoc
-	 al4+4dWdCbM5GzGYAhJb1LYBm6PKiLvcHPduoAXPo79EALfETPVSS9H3FLHUcNf06
-	 jRG3hh8jwtbZ90yRsXVWaALrY1CZCn3T4ugcQBDws4pBZmG3DG06S3XdfUMLAkFU6
-	 i2MzlH/Kbg2Vdu19qJ5QqtOC/6ILXwTOSmzpeVbcAwFmhJJwTXT5895hOsGFiLWfL
-	 HrBMRH4uYbBtadizlg==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.21] ([94.31.85.95]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1N3Gkg-1s1AQW1znO-00zsLs; Mon, 26
- Aug 2024 11:00:30 +0200
-Message-ID: <05a1b1bf-4de7-4e1e-8ec9-8c61e129e5b5@web.de>
-Date: Mon, 26 Aug 2024 11:00:30 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EOIanDy6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1724664776; x=1756200776;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=CNlgUOIhnZS0GrsQng07UAMdA7zQHT5HyZ7gwUjR7Rk=;
+  b=EOIanDy6WKVOWqNGb8VoKVTyz5MHq827hmKYXYOglpGNGU2O4KN44xJH
+   MB96NL5Ql9/BBRP1aPCw6FJS7eNFu9LnMMBaS0Fgnf9xHR0UNkCGlvf84
+   wtqIA38ZlIdyN3rvUXmsJerdiGtHa8LvsEkXL2UwNuz02qzAnecMIueqZ
+   0HyrcFcHX9Z0b019Eq41ATGjWvcEjtTFLhiqqRH9dcsPexOzS68gY+EUy
+   W7iawrrkhadQJRet03mp2NGq5p9kG5qyB7i5YddoaP2+CG3avXFMCQK3U
+   m3inFtu0q5b2UXnHU1wOb/pAd0j9ML72EHDQ0ChoT5fcvdrjGEMTJVAny
+   A==;
+X-CSE-ConnectionGUID: /MZactx/QFC/l6uKqmMQxg==
+X-CSE-MsgGUID: HKpjTBjSTeSwwz2paY1HuA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11175"; a="25967061"
+X-IronPort-AV: E=Sophos;i="6.10,177,1719903600"; 
+   d="scan'208";a="25967061"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2024 02:32:55 -0700
+X-CSE-ConnectionGUID: wdvPnAEPTqmZhETgD1WLmA==
+X-CSE-MsgGUID: RKvQAKVwRa24HsNafnwANQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,177,1719903600"; 
+   d="scan'208";a="62134672"
+Received: from cpetruta-mobl1.ger.corp.intel.com (HELO [10.245.246.121]) ([10.245.246.121])
+  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Aug 2024 02:32:49 -0700
+Message-ID: <9f25b900-ae1c-41af-a380-ac5e00860283@linux.intel.com>
+Date: Mon, 26 Aug 2024 10:48:24 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,42 +52,110 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
- Benjamin Tissoires <bentiss@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <ZsrAa9XcDvHeIs9T@google.com>
-Subject: Re: [PATCH] Input: psmouse-smbus - use guard notation when acquiring
- mutex
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <ZsrAa9XcDvHeIs9T@google.com>
+Subject: Re: [PATCH v25 01/33] xhci: add helper to stop endpoint and wait for
+ completion
+To: Wesley Cheng <quic_wcheng@quicinc.com>, srinivas.kandagatla@linaro.org,
+ mathias.nyman@intel.com, perex@perex.cz, conor+dt@kernel.org,
+ dmitry.torokhov@gmail.com, corbet@lwn.net, broonie@kernel.org,
+ lgirdwood@gmail.com, tiwai@suse.com, krzk+dt@kernel.org,
+ Thinh.Nguyen@synopsys.com, bgoswami@quicinc.com, robh@kernel.org,
+ gregkh@linuxfoundation.org
+Cc: linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-sound@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ linux-doc@vger.kernel.org, alsa-devel@alsa-project.org,
+ Mathias Nyman <mathias.nyman@linux.intel.com>
+References: <20240823200101.26755-1-quic_wcheng@quicinc.com>
+ <20240823200101.26755-2-quic_wcheng@quicinc.com>
+Content-Language: en-US
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+In-Reply-To: <20240823200101.26755-2-quic_wcheng@quicinc.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:3Z2aoRuaPlsTgz07INOT3VvchL+LwZAFNzoMIAFiuj3zPvmM5Xm
- oIKD2tLweh1nm1c6LYjBv4U2z2qgG38WMRhDcXCdzCNQkMDLXKrd4DFoFM2H5ae8twIIe1q
- zcejtzekH6CKnaaRyjU57CqkR3eWRcLwCvGeK0t/wWGd0tX4VHQKWl4b6ul1sS24MW7Hp5/
- wTuYbpztUGfaW9kc8sfBA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:bxSVx8RpDCc=;qIlbB4Qx+F5roM7zGOVTn91fST/
- xbfvou3+OPHo7UkdkcIzf5rREXfPGBWsfn7baCEdM9EZXoIk7Ziryz1qn1KJQCfcZZ6KyCsPe
- 1n2G6ZBfN3NeENhqtj/N6GuArE3d26tKfS1ilpqTJDaxXZzLwZlFwtwGEGiAaGE9cJwQF3kys
- 5BtyOQD7QnUdQ6+n+dUT93rz78FpO52llALuu3sM16zqWiowBWNLQJca7vwZVWG+/TCAU/isR
- sYweaP1HphG4jUWCEtyaTlz3kXCG8wccaPdMNy14whwU4meNsx79QAy35uhVtEruKbJKHbokJ
- BorZOjV9clBufA59dPvHfOkpRh7KvTnAD9mK08cst3quyNyOaHYXD10Bqzy2FbGtBkQcvT9zk
- 1q2v5ch2NaTqD3EMrPiUFVO9tPf2rDpSPZz2QdHf5WOfqSUO5hmqSBvpZeM+X+lYUI6RP58PP
- 5A1jOqhNlfYmBHEZpiO892Hr4uNKsc3WaXhuWjIi3UKeM4Tm6LyF0PpBCX293pO4VC8it1V7m
- J8sUYgFkSIkDIaD+khlgFKOiwo0WaTB+WvlCEs6ELA9NmqLSKvuKbxpS0e9FN1pTz2swnZ3zB
- NXXDuZ2a4rNN9D16zbMCDLJBWd1OJzl1XURa6CqVdKGfDJgDnl+9ASIqbvmiQRlhNFPIVyUeY
- RDzNkCPecgjofwfbFXdVnootBSuIBrhKDobrDbiVgpT7mQ21NsIBd1UlCqaiJl7TIwUCOlLst
- RQXYVvOh3mtwazLF7pYvdM64JlydnZ3NbwhAoDaxGxkT/biFs3rhnER7zQ1n94M5dGm9o1Dm1
- 5VSleBjXqQdMBrqvP5yoAqjg==
+Content-Transfer-Encoding: 7bit
 
-> This makes the code =E2=80=A6
 
-How do you think about to improve such a change description with imperativ=
-e wordings?
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
-cumentation/process/submitting-patches.rst?h=3Dv6.11-rc5#n94
 
-Regards,
-Markus
+On 8/23/24 22:00, Wesley Cheng wrote:
+> From: Mathias Nyman <mathias.nyman@linux.intel.com>
+> 
+> Expose xhci_stop_endpoint_sync() which is a synchronous variant of
+> xhci_queue_stop_endpoint().  This is useful for client drivers that are
+> using the secondary interrupters, and need to stop/clean up the current
+> session.  The stop endpoint command handler will also take care of cleaning
+> up the ring.
+> 
+> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+> ---
+>  drivers/usb/host/xhci.c | 39 +++++++++++++++++++++++++++++++++++++++
+>  drivers/usb/host/xhci.h |  2 ++
+>  2 files changed, 41 insertions(+)
+> 
+> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> index 37eb37b0affa..3a051ed32907 100644
+> --- a/drivers/usb/host/xhci.c
+> +++ b/drivers/usb/host/xhci.c
+> @@ -2784,6 +2784,45 @@ static int xhci_reserve_bandwidth(struct xhci_hcd *xhci,
+>  	return -ENOMEM;
+>  }
+>  
+> +/*
+> + * Synchronous XHCI stop endpoint helper.  Issues the stop endpoint command and
+> + * waits for the command completion before returning.
+> + */
+> +int xhci_stop_endpoint_sync(struct xhci_hcd *xhci, struct xhci_virt_ep *ep, int suspend,
+> +			    gfp_t gfp_flags)
+> +{
+> +	struct xhci_command *command;
+> +	unsigned long flags;
+> +	int ret;
+> +
+> +	command = xhci_alloc_command(xhci, true, gfp_flags);
+> +	if (!command)
+> +		return -ENOMEM;
+> +
+> +	spin_lock_irqsave(&xhci->lock, flags);
+> +	ret = xhci_queue_stop_endpoint(xhci, command, ep->vdev->slot_id,
+> +				       ep->ep_index, suspend);
+> +	if (ret < 0) {
+> +		spin_unlock_irqrestore(&xhci->lock, flags);
+> +		goto out;
+> +	}
+> +
+> +	xhci_ring_cmd_db(xhci);
+> +	spin_unlock_irqrestore(&xhci->lock, flags);
+> +
+> +	wait_for_completion(command->completion);
+> +
+> +	if (command->status == COMP_COMMAND_ABORTED ||
+> +	    command->status == COMP_COMMAND_RING_STOPPED) {
+> +		xhci_warn(xhci, "Timeout while waiting for stop endpoint command\n");
+
+nit-pick: is this really a timeout? In that case you would have used
+wait_for_completion_timeout(), no?
+
+> +		ret = -ETIME;
+> +	}
+> +out:
+> +	xhci_free_command(xhci, command);
+> +
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL_GPL(xhci_stop_endpoint_sync);
+>  
+>  /* Issue a configure endpoint command or evaluate context command
+>   * and wait for it to finish.
+> diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+> index 30415158ed3c..1c6126ed55b0 100644
+> --- a/drivers/usb/host/xhci.h
+> +++ b/drivers/usb/host/xhci.h
+> @@ -1914,6 +1914,8 @@ void xhci_ring_doorbell_for_active_rings(struct xhci_hcd *xhci,
+>  void xhci_cleanup_command_queue(struct xhci_hcd *xhci);
+>  void inc_deq(struct xhci_hcd *xhci, struct xhci_ring *ring);
+>  unsigned int count_trbs(u64 addr, u64 len);
+> +int xhci_stop_endpoint_sync(struct xhci_hcd *xhci, struct xhci_virt_ep *ep,
+> +			    int suspend, gfp_t gfp_flags);
+>  
+>  /* xHCI roothub code */
+>  void xhci_set_link_state(struct xhci_hcd *xhci, struct xhci_port *port,
+

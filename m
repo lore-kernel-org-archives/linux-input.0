@@ -1,549 +1,166 @@
-Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
+Received: from APC01-TYZ-obe.outbound.protection.outlook.com (mail-tyzapc01on2059.outbound.protection.outlook.com [40.107.117.59])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CA5417AE03;
-	Sun, 25 Aug 2024 20:32:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724617982; cv=none; b=lAkBL01RhvuQszUBzx6xG3V43beSenEw0vAg54Cti8n7efMfm7vNMWtPFSK9+9AMCppYbXpGg0Pgd3bZ3q95wOYaLb4MjIGEOnailqHwHOBmY5iAWZcqaa4XkIM2v+cFVRPa2/zCKu51a6Ykt1LF3QksCfaJFyl3rWgOsI86W1s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724617982; c=relaxed/simple;
-	bh=bgkoltZkzsHs4uV8Y+8jsIrhqPbvl7FH3osO5/I5Joc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=owUYKwyMlc0gMcaGaXQS1dEyGlPMA5UldgzNcV/2CUh0Dd6XQSIwGPhx8SSFTKkr2nTT0CqS0C+xvQ2UvNHaSrii4N4ywkNBymycYkWn8roUZcOrPxmsWtyvT0NAa8IicXCgYuDuxAKKawoREWkkFffZqCZz/+4a+VdZJ2fQBSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=hBKTQErn; arc=none smtp.client-ip=185.11.138.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FB8310F7;
+	Mon, 26 Aug 2024 04:53:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.117.59
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724648000; cv=fail; b=b4CqW4PieKagC1PyL76VCqzfzMwYCD3ABy209yXI0F8+xwiT8ktmIXvhGLPLacKHiIeHiEjV5L9FSy7SlVuS78OYzrEiMKS1lCO341SkZkbpolI3g5cxc5dTQtv6R0h6om5Fd6OMlo+LL0pJ63O2GyClh6PVGNLFI3XIx2KGojU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724648000; c=relaxed/simple;
+	bh=G+mg6KMIu5hrK+4pODIYqEpLsV9e+wytTGgkjfXky14=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=mWvPjWrj0PF+Ra8wLLhXolSR8upo5hMwBItkAZbADYwQjzKnDnkHYaGj1xO6ZTSfQ/PV+B6LIWijcS+mqmjAgukBPT9SHTYSG93Hxfol0hu5JKc27EPRmvTku0z8mRyQzrf2TicTc3NGEFFg6AQjI7VJ1gNFcWk3Q8KEPBP0Rxo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com; spf=pass smtp.mailfrom=vivo.com; dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b=YuP2xPpu; arc=fail smtp.client-ip=40.107.117.59
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=vivo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=vivo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="hBKTQErn"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
-	s=gloria202408; h=Content-Transfer-Encoding:MIME-Version:References:
-	In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
-	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=STSk6yWWwVN0S3N57FhRjWR7zPjTxlqPzZ4ZKSPwEtA=; b=hBKTQErnopmvQ7oO9Oeg/0gxz9
-	i2W9jYak8foiUdpFd1wWKPhDM2YYCii3Zo3KwVtVYTeOcQBPWZFvGlhmLnHI+8IKvlv3Y2e4Tc7+n
-	qjcNbR6hORakKKyMDGFlzsNGozjCYlEmU5CzLCUA3ZhGCP8avyH7PXtE7PvSRk/cu42UlQgx6olGm
-	T6y34mSIaY3I/5iiGoMkuTcSOp7Hl3e3piuUXsV3c/+SO/8pLiC0OkfoQLImN9fDIET6KQ4Kl5Ybu
-	Kq6fds8tlOjVjRdZI9BmgY9N+Z0OdCLO7Nj8yAk5eSDgGjPTCP45LAdxbB0I3eq/N35ftmYBX7ekg
-	rah64cuQ==;
-Received: from i53875a40.versanet.de ([83.135.90.64] helo=phil.lan)
-	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.94.2)
-	(envelope-from <heiko@sntech.de>)
-	id 1siJum-0001cM-0z; Sun, 25 Aug 2024 22:32:44 +0200
-From: Heiko Stuebner <heiko@sntech.de>
-To: lee@kernel.org
-Cc: robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	jdelvare@suse.com,
-	linux@roeck-us.net,
-	heiko@sntech.de,
-	dmitry.torokhov@gmail.com,
-	pavel@ucw.cz,
-	ukleinek@debian.org,
-	devicetree@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=vivo.com header.i=@vivo.com header.b="YuP2xPpu"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=DXaDP3laJpZcgnI/SJ7g8UDkmI1I5K1UJWS7Z2i9gfj7h/O7HkeqN4PUTVp6CZlMpXIlGX5De6rH/2lujGQuygc7JkQCPusNWXDEWrVdpVGXwhCoscJUzatLbaSSgDObrLegtVov+fbO95ec8B/G6n131hwShW4WcjmDzFPdFI6MDxSKM8sDBU/qoPiXPZkH+cT0WeUTRxm2zqlLGSUt8rQJDGUwVW1YHEE9rMD5UkVkHU3VeFtIUJ97+8AjMQ4L5RnmuaDx0kGmcgRhB9mFc7nPoDEDGsC0pXR44CWfKK7nQI6SjXSgM0POD9kBCJfVtnlrwYoq8BSyOQzf9pqAOA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ogyw2i8X2lFwz6teQLTB8szg9UUm/rff9PfJSsPAoQY=;
+ b=oHiguvOEQ1XXbsnSCdk9bHGRTq0AaM3B1cIglyN8PkWCsO9/MFdQTZpfaXrIZyPxl23/J2AAvYL07cRlUokNi0/WbpfM8Ml5r9Fn519Z4DwLzdbFSV8QITKdg3TagOJH+yx3x1coNZuUbRO1VBR8zixlD/Qi4JE6nCvF34kGKs4NPWy8obJi9FL6cMLDGjxZkWgbnSjuXGgLWKELp9IU1Dbq0zGaRW1fnD6qtmnfHWUdZnwHyyg2A52R6Kdz4GYx/HmGYADfgtHYFo0vBwX4WTBPdSwQFy7xuAM6MxVsmVWjQQnojLASl6/crY+AOrfqz5gj6/jRo2JmQU+w/EMcBA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=vivo.com; dmarc=pass action=none header.from=vivo.com;
+ dkim=pass header.d=vivo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vivo.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ogyw2i8X2lFwz6teQLTB8szg9UUm/rff9PfJSsPAoQY=;
+ b=YuP2xPpuHpJj3pMJlxO2vHm+O586E0y/fGVN1teN6Twc+vXsyrh7s9SujvA5dOuZ/4R/zDZQjTM26L4dbspI5s3qGwzCITWoBr9FRTUe4Z5U2iww0VmGyLhS2Lm2ebXJxygsMniYw9TVtmODVS6iBzqWn9x0q9SNZLU/EnZ6v/Ivi5nPSJqf/AtIdoa7I2jvkP+lwcL4TQJJ9Ld0Dfz0RZim9EnZDDA7tD77ujzliUvtwM7MkWD2XT9jVtk2NVcNVuX6+55ZGEQCkMyuvKib2PbVVfi/oLUmn6h/9XJErrDQSVFpnB2pC+foPbjFkSqoXdSfxA+K9MXtaG0XobC6XQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vivo.com;
+Received: from SEZPR06MB5899.apcprd06.prod.outlook.com (2603:1096:101:e3::16)
+ by KL1PR06MB6709.apcprd06.prod.outlook.com (2603:1096:820:fd::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7875.21; Mon, 26 Aug
+ 2024 04:53:13 +0000
+Received: from SEZPR06MB5899.apcprd06.prod.outlook.com
+ ([fe80::8bfc:f1ee:8923:77ce]) by SEZPR06MB5899.apcprd06.prod.outlook.com
+ ([fe80::8bfc:f1ee:8923:77ce%3]) with mapi id 15.20.7897.021; Mon, 26 Aug 2024
+ 04:53:13 +0000
+From: Shen Lichuan <shenlichuan@vivo.com>
+To: mitr@volny.cz,
+	dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-hwmon@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org,
-	linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org
-Subject: [PATCH v6 5/7] hwmon: add driver for the hwmon parts of qnap-mcu devices
-Date: Sun, 25 Aug 2024 22:32:33 +0200
-Message-ID: <20240825203235.1122198-6-heiko@sntech.de>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240825203235.1122198-1-heiko@sntech.de>
-References: <20240825203235.1122198-1-heiko@sntech.de>
+	Shen Lichuan <shenlichuan@vivo.com>
+Subject: [PATCH v1] Input: wistron_btns - use kmemdup_array instead of kmemdup for multiple allocation
+Date: Mon, 26 Aug 2024 12:52:53 +0800
+Message-Id: <20240826045253.3503-1-shenlichuan@vivo.com>
+X-Mailer: git-send-email 2.17.1
+Content-Type: text/plain
+X-ClientProxiedBy: SI2PR04CA0003.apcprd04.prod.outlook.com
+ (2603:1096:4:197::23) To SEZPR06MB5899.apcprd06.prod.outlook.com
+ (2603:1096:101:e3::16)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SEZPR06MB5899:EE_|KL1PR06MB6709:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1ac86699-4d55-498a-4fa2-08dcc58afd6f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|52116014|376014|1800799024|366016|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?9JGAqBCgbu+Q9iX1S+UgNd/5i3Rpj110ibxDP1KP4VNwH2BvPCS4FA9wQ1SE?=
+ =?us-ascii?Q?M4Q1R7uX6r4R9kSCA6unDQ/ldP1M2uCu+1vP0qcNYi8C8zMYRd8OzX44kikF?=
+ =?us-ascii?Q?562cDyez8PBA+Z3ANyClsbknMqf/kWRl2xPPz29w89P5g4JijF711KN9r4cj?=
+ =?us-ascii?Q?qsWeDxIczY474/SVg19VlGGMcZtm3tDhRA2luD4+TpWQDcmL+wXmqbX5IL0e?=
+ =?us-ascii?Q?zmdugAv2QzHH7RhT3PRRWk8Gd4zwHxsbpkmLSY+f3ntLol+vkTuy/VhZRVRA?=
+ =?us-ascii?Q?XAto5NAIebQm4+sjo2YFhrRosYX7nJld9CsWJ5zCTo5SEKXkUUTwZbN2Q33g?=
+ =?us-ascii?Q?9x8HhU/WZl5ZzRK6SuQylvD99FgHl5pZxr6u13YDvOuTx62eOqvczFT3A9wD?=
+ =?us-ascii?Q?INmdRH5b0gkariIcE2FiI7btxZV1w9q4dh9S4t0AsjKyFHH0LDcj7lUeqsFj?=
+ =?us-ascii?Q?ulWo6/7FAa9oh+ksjX33jNVnNOg3TRG2XGSVY7l9xNP5rw12TapB1EU+ikNV?=
+ =?us-ascii?Q?cLYQj1HG7Ga9Ni6hlsLjR9Mwp0Qm/lILfrJq6tIxRDDPSuoLckEE0+Wlh/3g?=
+ =?us-ascii?Q?mEgF80/69WWiEyNDLOzf4zF3RPeSrGVA7fkWzM2C4CN4r/Z9lWKP46vTWlOt?=
+ =?us-ascii?Q?drJBJJ+prcy8DhfMDXV579YRGz8Pyr7UzF+qZO7n3nSLAiT/a54BbBcq5RzE?=
+ =?us-ascii?Q?MVkLznrY+MqN1mCZ/KZELBPxQ7IGzqdcElAo7HKK79ZRI8ggR/gaFZ64O1OQ?=
+ =?us-ascii?Q?68giFS7ynUp0gAqKFlDIcPZrpl4yA8cVsE9uQzmQ3FnfNmkdX4+vEWZNWtzt?=
+ =?us-ascii?Q?OjLF+VQ/3kFSgCtByCeBBaLbCjkcz7TgSPk+yIiTGHPWbgSq9Jg/Q4IUmHHp?=
+ =?us-ascii?Q?4ObMlGzFdm8OltumWs3AZc17VVUVK2IksDnpThGYDbZipnw9Tak+7cnlyZnz?=
+ =?us-ascii?Q?/+8Yys/heK1u1tMNdvrauOwH+NUADUhG2FsPno4CAzKXsoIooft2u9xPH1Qp?=
+ =?us-ascii?Q?D5uEv4lcUo/uYlzg920ugoQedOK6HvRn/bPW9vZlFLVpuODAtK70qSp+Hw1N?=
+ =?us-ascii?Q?71tv5kmk4UCaE7q8LWKtecx4P+6tPou288RZp7YBLNBhLgSR84A9WN3LiqQc?=
+ =?us-ascii?Q?WlR7pObtT8Qwzn8CPDESEo38URCZgW5qL4O6Hz1zXOkZphjGlZLgH79LZ6ND?=
+ =?us-ascii?Q?4BCz4YBO5R1c5fPCliFtcsonQFJf5or6v2D70uMx90TA4oNs78qx8bdrTEgJ?=
+ =?us-ascii?Q?vtScloTQm0XCwLnaQTCUUtFLfb5SdZ7ncxNJYFJaPjWcXrMZQ1dUz8OsKhwS?=
+ =?us-ascii?Q?PJ83ZWYqZAaJ3t9ePikJWvClFttKgslcpwMpK4jgj0SWb5/v3sPSiF6/qpf8?=
+ =?us-ascii?Q?d0TnVtFDRBV39el+h9IsGosD3E+If+jWc9/shaE0DMMZhu0DMg=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SEZPR06MB5899.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(52116014)(376014)(1800799024)(366016)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?5AMqGW2jdCiqBE4LtAAu7fearb+RNfeYc4zJ0LYQ3DbFLngby3tN2LhcuEUU?=
+ =?us-ascii?Q?eDFfnqXX5yTX9oUkZVZt1qa19G2s6JXGdC4q29RBryy6jXT6eirKDXg8yca0?=
+ =?us-ascii?Q?dSnjif2z8bJ5NAYPOLjxfw5Q7UeDN9BFvj8dT1lUDNA4AY9yE8N4uyibn/Ub?=
+ =?us-ascii?Q?8+vdDp8NZLWLVK88rou0jQJugup4OR28HCiYCK+KXRyjAvYTe/cetI9/VnAQ?=
+ =?us-ascii?Q?64R6iro4CTe7NS0AetqR1VQCarOJRtWM0BYT+PalTOh1EaZmpoMwk3qYUmrO?=
+ =?us-ascii?Q?JtgNgg+0wC8hvTalE2JqLJFi6lAbAI/t8gqzzac3Mj8RkirteDRfsINAfa+i?=
+ =?us-ascii?Q?Gm9AbA/3y7He+ZiQRi9zT5SRlHy93ZYblx1kdRsjdyR3D2/Q0XqZ+CkerVuE?=
+ =?us-ascii?Q?J90DCQkpRWifpPkJYaYHa3/luKSaosFVS+qsHEh698V+DgOCspAXSaZN7/cl?=
+ =?us-ascii?Q?bqlF3q5MwFSDf/qc/fGHezkhsGJpdGzr3oKkiFxU3AFWzxut9dqCfjd2icdR?=
+ =?us-ascii?Q?nGUwSdJzfdZ04sxaFhwfGz25yl/ybBkGUtstYRAHAeOZNegFJQcef+kMHhHd?=
+ =?us-ascii?Q?vaagVRDVumqk8M7a95FM7PFDcxxm7O8bAjeyATuYOE0depshAZWM+3RbNp7E?=
+ =?us-ascii?Q?dBA9wFmg3eDis4EHCXgCG0Xjp6k7mHkvVailkTgQyFWwp1taTd1vp61JmIIN?=
+ =?us-ascii?Q?sur8+qb82oOpIwcTpn5uFfUAd0lpj0w3JKU5vLn4dOLUHOh3tAqsIQI5ySoQ?=
+ =?us-ascii?Q?0Z4adrdGo+lppj73qc0vWGxApKFdglfmFzaljIcN4R3WTFNKMFQOVbUYZIPh?=
+ =?us-ascii?Q?5gsqhs2S/llOHTW0egsiBwhraMKtNYboXTkyfRTCZueDDn3/D8gU/plzSdHR?=
+ =?us-ascii?Q?LDQMG7kYVlxNyFVUTtduxQ/0C/0zzqfottJaI/hRnzYiqMCys15Ggygi2Y/B?=
+ =?us-ascii?Q?eEWR6cjcSmv57OO5HDNeDPUwCKbAxcAKOjm0lshLNKgSl6Mvdeo/XH0dp/Yx?=
+ =?us-ascii?Q?kX6zDua5EVttUWOcKZtJgrTXbaTIr5+Odfx41T6zhr4O5BOo54Ku5b1ZDHr0?=
+ =?us-ascii?Q?uNtnx018ozELQILdP6Fu3YVJV02d/N9dyjr95GdC30w2m3Xq+W85wCuU3RqL?=
+ =?us-ascii?Q?sfA+sOG/8YO2wbFAk/rZV75GvMNE/rHtqXIG0errTvHaN9PKdfqBCBIu5B+3?=
+ =?us-ascii?Q?dPZOCNsRCiDZewxkIPmOHzjCU2YgRKv+JPdFMRzD5qg2lnEUKAZkPplqBZ7K?=
+ =?us-ascii?Q?B43Qe5CMsxSV/yMdEB2xjqA+lnqbWlJSDddC1QhebaVW69u+I9Gx7yh9NvVF?=
+ =?us-ascii?Q?c3hHmO0XePLqQH6trYo1FF3ZW0GGfYuraFtSCRcdglmEJGttXKeqFQXe/th3?=
+ =?us-ascii?Q?rAlhhM+G1IuX5SSeR5ZwAQfheahKdhR0ka2t71KcGnAQW7c2zF2dSRLRmSxC?=
+ =?us-ascii?Q?7a8RjK4XTkiD/9WerMdne7h2YYYLkalhpxIW2TCdW3hI1Q5H28JHxrpwlRnX?=
+ =?us-ascii?Q?OzBjd8p5CRj5wPcPzA3Lak9q3AEb9C0wV6c7FK+Zfp6+frD3t28680mamab9?=
+ =?us-ascii?Q?JHTzuYZwfVRfOH0+1NI5dvTUR/vHDwfaYOQg6Gan?=
+X-OriginatorOrg: vivo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1ac86699-4d55-498a-4fa2-08dcc58afd6f
+X-MS-Exchange-CrossTenant-AuthSource: SEZPR06MB5899.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2024 04:53:12.9948
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 923e42dc-48d5-4cbe-b582-1a797a6412ed
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 17iOU+exyeW2fgrZGZDM/IDxt3+GK9JSq2PaO8hPRfn05iwwNP+8qND9OrTZ0tJBeB13g8d4zKEjoApYJ9vItw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: KL1PR06MB6709
 
-The MCU can be found on network-attached-storage devices made by QNAP
-and provides access to fan control including reading back its RPM as
-well as reading the temperature of the NAS case.
+Let the kmemdup_array() take care about multiplication
+and possible overflows.
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Using kmemdup_array() is more appropriate and makes the code
+easier to audit.
+
+Signed-off-by: Shen Lichuan <shenlichuan@vivo.com>
 ---
- Documentation/hwmon/index.rst          |   1 +
- Documentation/hwmon/qnap-mcu-hwmon.rst |  27 ++
- MAINTAINERS                            |   1 +
- drivers/hwmon/Kconfig                  |  12 +
- drivers/hwmon/Makefile                 |   1 +
- drivers/hwmon/qnap-mcu-hwmon.c         | 364 +++++++++++++++++++++++++
- 6 files changed, 406 insertions(+)
- create mode 100644 Documentation/hwmon/qnap-mcu-hwmon.rst
- create mode 100644 drivers/hwmon/qnap-mcu-hwmon.c
+ drivers/input/misc/wistron_btns.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/hwmon/index.rst b/Documentation/hwmon/index.rst
-index 913c11390a45..7adbe23f0659 100644
---- a/Documentation/hwmon/index.rst
-+++ b/Documentation/hwmon/index.rst
-@@ -199,6 +199,7 @@ Hardware Monitoring Kernel Drivers
-    pxe1610
-    pwm-fan
-    q54sj108a2
-+   qnap-mcu-hwmon
-    raspberrypi-hwmon
-    sbrmi
-    sbtsi_temp
-diff --git a/Documentation/hwmon/qnap-mcu-hwmon.rst b/Documentation/hwmon/qnap-mcu-hwmon.rst
-new file mode 100644
-index 000000000000..83407e3408f2
---- /dev/null
-+++ b/Documentation/hwmon/qnap-mcu-hwmon.rst
-@@ -0,0 +1,27 @@
-+.. SPDX-License-Identifier: GPL-2.0-or-later
-+
-+Kernel driver qnap-mcu-hwmon
-+============================
-+
-+This driver enables the use of the hardware monitoring and fan control
-+of the MCU used on some QNAP network attached storage devices.
-+
-+Author: Heiko Stuebner <heiko@sntech.de>
-+
-+Description
-+-----------
-+
-+The driver implements a simple interface for driving the fan controlled by
-+setting its PWM output value and exposes the fan rpm and case-temperature
-+to user space through hwmon's sysfs interface.
-+
-+The fan rotation speed returned via the optional 'fan1_input' is calculated
-+inside the MCU device.
-+
-+The driver provides the following sensor accesses in sysfs:
-+
-+=============== ======= =======================================================
-+fan1_input	ro	fan tachometer speed in RPM
-+pwm1		rw	relative speed (0-255), 255=max. speed.
-+temp1_input	ro	Measured temperature in millicelsius
-+=============== ======= =======================================================
-diff --git a/MAINTAINERS b/MAINTAINERS
-index a41906b3caa3..d500a771ad8a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18657,6 +18657,7 @@ F:	drivers/media/tuners/qm1d1c0042*
- QNAP MCU DRIVER
- M:	Heiko Stuebner <heiko@sntech.de>
- S:	Maintained
-+F:	drivers/hwmon/qnap-mcu-hwmon.c
- F:	drivers/input/misc/qnap-mcu-input.c
- F:	drivers/leds/leds-qnap-mcu.c
- F:	drivers/mfd/qnap-mcu.c
-diff --git a/drivers/hwmon/Kconfig b/drivers/hwmon/Kconfig
-index b60fe2e58ad6..0118ad91057e 100644
---- a/drivers/hwmon/Kconfig
-+++ b/drivers/hwmon/Kconfig
-@@ -1793,6 +1793,18 @@ config SENSORS_PWM_FAN
- 	  This driver can also be built as a module. If so, the module
- 	  will be called pwm-fan.
+diff --git a/drivers/input/misc/wistron_btns.c b/drivers/input/misc/wistron_btns.c
+index 5c4956678cd0..907b1a4e6633 100644
+--- a/drivers/input/misc/wistron_btns.c
++++ b/drivers/input/misc/wistron_btns.c
+@@ -990,8 +990,8 @@ static int __init copy_keymap(void)
+ 	for (key = keymap; key->type != KE_END; key++)
+ 		length++;
  
-+config SENSORS_QNAP_MCU_HWMON
-+	tristate "QNAP MCU hardware monitoring"
-+	depends on MFD_QNAP_MCU
-+	depends on THERMAL || THERMAL=n
-+	help
-+	  Say yes here to enable support for fan and temperature sensor
-+	  connected to a QNAP MCU, as found in a number of QNAP network
-+	  attached storage devices.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called qnap-mcu-hwmon.
-+
- config SENSORS_RASPBERRYPI_HWMON
- 	tristate "Raspberry Pi voltage monitor"
- 	depends on RASPBERRYPI_FIRMWARE || (COMPILE_TEST && !RASPBERRYPI_FIRMWARE)
-diff --git a/drivers/hwmon/Makefile b/drivers/hwmon/Makefile
-index b1c7056c37db..d60f46a03cc9 100644
---- a/drivers/hwmon/Makefile
-+++ b/drivers/hwmon/Makefile
-@@ -187,6 +187,7 @@ obj-$(CONFIG_SENSORS_POWERZ)	+= powerz.o
- obj-$(CONFIG_SENSORS_POWR1220)  += powr1220.o
- obj-$(CONFIG_SENSORS_PT5161L)	+= pt5161l.o
- obj-$(CONFIG_SENSORS_PWM_FAN)	+= pwm-fan.o
-+obj-$(CONFIG_SENSORS_QNAP_MCU_HWMON)	+= qnap-mcu-hwmon.o
- obj-$(CONFIG_SENSORS_RASPBERRYPI_HWMON)	+= raspberrypi-hwmon.o
- obj-$(CONFIG_SENSORS_SBTSI)	+= sbtsi_temp.o
- obj-$(CONFIG_SENSORS_SBRMI)	+= sbrmi.o
-diff --git a/drivers/hwmon/qnap-mcu-hwmon.c b/drivers/hwmon/qnap-mcu-hwmon.c
-new file mode 100644
-index 000000000000..8fe6310a1b59
---- /dev/null
-+++ b/drivers/hwmon/qnap-mcu-hwmon.c
-@@ -0,0 +1,364 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+
-+/*
-+ * Driver for hwmon elements found on QNAP-MCU devices
-+ *
-+ * Copyright (C) 2024 Heiko Stuebner <heiko@sntech.de>
-+ */
-+
-+#include <linux/fwnode.h>
-+#include <linux/hwmon.h>
-+#include <linux/mfd/qnap-mcu.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/thermal.h>
-+
-+struct qnap_mcu_hwmon {
-+	struct qnap_mcu *mcu;
-+	struct device *dev;
-+
-+	unsigned int pwm_min;
-+	unsigned int pwm_max;
-+
-+	struct fwnode_handle *fan_node;
-+	unsigned int fan_state;
-+	unsigned int fan_max_state;
-+	unsigned int *fan_cooling_levels;
-+
-+	struct thermal_cooling_device *cdev;
-+	struct hwmon_chip_info info;
-+};
-+
-+static int qnap_mcu_hwmon_get_rpm(struct qnap_mcu_hwmon *hwm)
-+{
-+	static const u8 cmd[] = { 0x40, 0x46, 0x41 }; /* @, F, A */
-+	u8 reply[6];
-+	int ret;
-+
-+	/* poll the fan rpm */
-+	ret = qnap_mcu_exec(hwm->mcu, cmd, sizeof(cmd), reply, sizeof(reply));
-+	if (ret)
-+		return ret;
-+
-+	/* First 2 bytes must mirror the sent command */
-+	if (memcmp(cmd, reply, 2))
-+		return -EIO;
-+
-+	return reply[4] * 30;
-+}
-+
-+static int qnap_mcu_hwmon_get_pwm(struct qnap_mcu_hwmon *hwm)
-+{
-+	static const u8 cmd[] = { 0x40, 0x46, 0x5a, 0x30 }; /* @, F, Z, 0 = fan-id? */
-+	u8 reply[4];
-+	int ret;
-+
-+	/* poll the fan pwm */
-+	ret = qnap_mcu_exec(hwm->mcu, cmd, sizeof(cmd), reply, sizeof(reply));
-+	if (ret)
-+		return ret;
-+
-+	/* First 3 bytes must mirror the sent command */
-+	if (memcmp(cmd, reply, 3))
-+		return -EIO;
-+
-+	return reply[3];
-+}
-+
-+static int qnap_mcu_hwmon_set_pwm(struct qnap_mcu_hwmon *hwm, u8 pwm)
-+{
-+	const u8 cmd[] = { 0x40, 0x46, 0x57, 0x30, pwm }; /* @, F, W, 0 = fan-id, pwm */
-+
-+	/* set the fan pwm */
-+	return qnap_mcu_exec_with_ack(hwm->mcu, cmd, sizeof(cmd));
-+}
-+
-+static int qnap_mcu_hwmon_get_temp(struct qnap_mcu_hwmon *hwm)
-+{
-+	static const u8 cmd[] = { 0x40, 0x54, 0x33 }; /* @, T, 3 */
-+	u8 reply[4];
-+	int ret;
-+
-+	/* poll the fan rpm */
-+	ret = qnap_mcu_exec(hwm->mcu, cmd, sizeof(cmd), reply, sizeof(reply));
-+	if (ret)
-+		return ret;
-+
-+	/* First bytes must mirror the sent command */
-+	if (memcmp(cmd, reply, sizeof(cmd)))
-+		return -EIO;
-+
-+	/*
-+	 * There is an unknown bit set in bit7.
-+	 * Bits [6:0] report the actual temperature as returned by the
-+	 * original qnap firmware-tools, so just drop bit7 for now.
-+	 */
-+	return (reply[3] & 0x7f) * 1000;
-+}
-+
-+static int qnap_mcu_hwmon_write(struct device *dev, enum hwmon_sensor_types type,
-+				u32 attr, int channel, long val)
-+{
-+	struct qnap_mcu_hwmon *hwm = dev_get_drvdata(dev);
-+
-+	switch (attr) {
-+	case hwmon_pwm_input:
-+		if (val < 0 || val > 255)
-+			return -EINVAL;
-+
-+		if (val != 0)
-+			val = clamp_val(val, hwm->pwm_min, hwm->pwm_max);
-+
-+		return qnap_mcu_hwmon_set_pwm(hwm, val);
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+
-+	return 0;
-+}
-+
-+static int qnap_mcu_hwmon_read(struct device *dev, enum hwmon_sensor_types type,
-+			       u32 attr, int channel, long *val)
-+{
-+	struct qnap_mcu_hwmon *hwm = dev_get_drvdata(dev);
-+	int ret;
-+
-+	switch (type) {
-+	case hwmon_pwm:
-+		switch (attr) {
-+		case hwmon_pwm_input:
-+			ret = qnap_mcu_hwmon_get_pwm(hwm);
-+			if (ret < 0)
-+				return ret;
-+
-+			*val = ret;
-+			return 0;
-+		default:
-+			return -EOPNOTSUPP;
-+		}
-+	case hwmon_fan:
-+		ret = qnap_mcu_hwmon_get_rpm(hwm);
-+		if (ret < 0)
-+			return ret;
-+
-+		*val = ret;
-+		return 0;
-+	case hwmon_temp:
-+		ret = qnap_mcu_hwmon_get_temp(hwm);
-+		if (ret < 0)
-+			return ret;
-+
-+		*val = ret;
-+		return 0;
-+	default:
-+		return -EOPNOTSUPP;
-+	}
-+}
-+
-+static umode_t qnap_mcu_hwmon_is_visible(const void *data,
-+					 enum hwmon_sensor_types type,
-+					 u32 attr, int channel)
-+{
-+	switch (type) {
-+	case hwmon_temp:
-+		return 0444;
-+
-+	case hwmon_pwm:
-+		return 0644;
-+
-+	case hwmon_fan:
-+		return 0444;
-+
-+	default:
-+		return 0;
-+	}
-+}
-+
-+static const struct hwmon_ops qnap_mcu_hwmon_hwmon_ops = {
-+	.is_visible = qnap_mcu_hwmon_is_visible,
-+	.read = qnap_mcu_hwmon_read,
-+	.write = qnap_mcu_hwmon_write,
-+};
-+
-+/* thermal cooling device callbacks */
-+static int qnap_mcu_hwmon_get_max_state(struct thermal_cooling_device *cdev,
-+					unsigned long *state)
-+{
-+	struct qnap_mcu_hwmon *hwm = cdev->devdata;
-+
-+	if (!hwm)
-+		return -EINVAL;
-+
-+	*state = hwm->fan_max_state;
-+
-+	return 0;
-+}
-+
-+static int qnap_mcu_hwmon_get_cur_state(struct thermal_cooling_device *cdev,
-+					unsigned long *state)
-+{
-+	struct qnap_mcu_hwmon *hwm = cdev->devdata;
-+
-+	if (!hwm)
-+		return -EINVAL;
-+
-+	*state = hwm->fan_state;
-+
-+	return 0;
-+}
-+
-+static int qnap_mcu_hwmon_set_cur_state(struct thermal_cooling_device *cdev,
-+					unsigned long state)
-+{
-+	struct qnap_mcu_hwmon *hwm = cdev->devdata;
-+	int ret;
-+
-+	if (!hwm || state > hwm->fan_max_state)
-+		return -EINVAL;
-+
-+	if (state == hwm->fan_state)
-+		return 0;
-+
-+	ret = qnap_mcu_hwmon_set_pwm(hwm, hwm->fan_cooling_levels[state]);
-+	if (ret)
-+		return ret;
-+
-+	hwm->fan_state = state;
-+
-+	return ret;
-+}
-+
-+static const struct thermal_cooling_device_ops qnap_mcu_hwmon_cooling_ops = {
-+	.get_max_state = qnap_mcu_hwmon_get_max_state,
-+	.get_cur_state = qnap_mcu_hwmon_get_cur_state,
-+	.set_cur_state = qnap_mcu_hwmon_set_cur_state,
-+};
-+
-+static void devm_fan_node_release(void *data)
-+{
-+	struct qnap_mcu_hwmon *hwm = data;
-+
-+	fwnode_handle_put(hwm->fan_node);
-+}
-+
-+static int qnap_mcu_hwmon_get_cooling_data(struct device *dev, struct qnap_mcu_hwmon *hwm)
-+{
-+	struct fwnode_handle *fwnode;
-+	int num, i, ret;
-+
-+	fwnode = device_get_named_child_node(dev->parent, "fan-0");
-+	if (!fwnode)
-+		return 0;
-+
-+	/* if we found the fan-node, we're keeping it until device-unbind */
-+	hwm->fan_node = fwnode;
-+	ret = devm_add_action_or_reset(dev, devm_fan_node_release, hwm);
-+	if (ret)
-+		return ret;
-+
-+	num = fwnode_property_count_u32(fwnode, "cooling-levels");
-+	if (num <= 0)
-+		return dev_err_probe(dev, num ? : -EINVAL,
-+				     "Failed to count elements in 'cooling-levels'\n");
-+
-+	hwm->fan_cooling_levels = devm_kcalloc(dev, num, sizeof(u32),
-+					       GFP_KERNEL);
-+	if (!hwm->fan_cooling_levels)
-+		return -ENOMEM;
-+
-+	ret = fwnode_property_read_u32_array(fwnode, "cooling-levels",
-+					     hwm->fan_cooling_levels, num);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "Failed to read 'cooling-levels'\n");
-+
-+	for (i = 0; i < num; i++) {
-+		if (hwm->fan_cooling_levels[i] > hwm->pwm_max)
-+			return dev_err_probe(dev, -EINVAL, "fan state[%d]:%d > %d\n", i,
-+					     hwm->fan_cooling_levels[i], hwm->pwm_max);
-+	}
-+
-+	hwm->fan_max_state = num - 1;
-+
-+	return 0;
-+}
-+
-+static const struct hwmon_channel_info * const qnap_mcu_hwmon_channels[] = {
-+	HWMON_CHANNEL_INFO(pwm, HWMON_PWM_INPUT),
-+	HWMON_CHANNEL_INFO(fan, HWMON_F_INPUT),
-+	HWMON_CHANNEL_INFO(temp, HWMON_T_INPUT),
-+	NULL
-+};
-+
-+static int qnap_mcu_hwmon_probe(struct platform_device *pdev)
-+{
-+	struct qnap_mcu *mcu = dev_get_drvdata(pdev->dev.parent);
-+	const struct qnap_mcu_variant *variant = qnap_mcu_get_variant_data(mcu);
-+	struct qnap_mcu_hwmon *hwm;
-+	struct thermal_cooling_device *cdev;
-+	struct device *dev = &pdev->dev;
-+	struct device *hwmon;
-+	int ret;
-+
-+	hwm = devm_kzalloc(dev, sizeof(*hwm), GFP_KERNEL);
-+	if (!hwm)
-+		return -ENOMEM;
-+
-+	hwm->mcu = mcu;
-+	hwm->dev = &pdev->dev;
-+	hwm->pwm_min = variant->fan_pwm_min;
-+	hwm->pwm_max = variant->fan_pwm_max;
-+
-+	platform_set_drvdata(pdev, hwm);
-+
-+	/*
-+	 * Set duty cycle to maximum allowed.
-+	 */
-+	ret = qnap_mcu_hwmon_set_pwm(hwm, hwm->pwm_max);
-+	if (ret)
-+		return ret;
-+
-+	hwm->info.ops = &qnap_mcu_hwmon_hwmon_ops;
-+	hwm->info.info = qnap_mcu_hwmon_channels;
-+
-+	ret = qnap_mcu_hwmon_get_cooling_data(dev, hwm);
-+	if (ret)
-+		return ret;
-+
-+	hwm->fan_state = hwm->fan_max_state;
-+
-+	hwmon = devm_hwmon_device_register_with_info(dev, "qnapmcu",
-+						     hwm, &hwm->info, NULL);
-+	if (IS_ERR(hwmon))
-+		return dev_err_probe(dev, PTR_ERR(hwmon), "Failed to register hwmon device\n");
-+
-+	/*
-+	 * Only register cooling device when we found cooling-levels.
-+	 * qnap_mcu_hwmon_get_cooling_data() will fail when reading malformed
-+	 * levels and only succeed with either no or correct cooling levels.
-+	 */
-+	if (IS_ENABLED(CONFIG_THERMAL) && hwm->fan_cooling_levels) {
-+		cdev = devm_thermal_of_cooling_device_register(dev,
-+					to_of_node(hwm->fan_node), "qnap-mcu-hwmon",
-+					hwm, &qnap_mcu_hwmon_cooling_ops);
-+		if (IS_ERR(cdev))
-+			return dev_err_probe(dev, PTR_ERR(cdev),
-+				"Failed to register qnap-mcu-hwmon as cooling device\n");
-+		hwm->cdev = cdev;
-+	}
-+
-+	return 0;
-+}
-+
-+static struct platform_driver qnap_mcu_hwmon_driver = {
-+	.probe = qnap_mcu_hwmon_probe,
-+	.driver = {
-+		.name = "qnap-mcu-hwmon",
-+	},
-+};
-+module_platform_driver(qnap_mcu_hwmon_driver);
-+
-+MODULE_ALIAS("platform:qnap-mcu-hwmon");
-+MODULE_AUTHOR("Heiko Stuebner <heiko@sntech.de>");
-+MODULE_DESCRIPTION("QNAP MCU hwmon driver");
-+MODULE_LICENSE("GPL");
+-	new_keymap = kmemdup(keymap, length * sizeof(struct key_entry),
+-			     GFP_KERNEL);
++	new_keymap = kmemdup_array(keymap, length, sizeof(struct key_entry),
++				   GFP_KERNEL);
+ 	if (!new_keymap)
+ 		return -ENOMEM;
+ 
 -- 
-2.43.0
+2.17.1
 

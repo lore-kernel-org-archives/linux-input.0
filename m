@@ -1,106 +1,142 @@
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DA97166F0B;
-	Wed, 28 Aug 2024 07:34:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8647815B107
+	for <linux-input@vger.kernel.org>; Wed, 28 Aug 2024 09:31:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724830497; cv=none; b=cdGe//bJ/PzEuTQx0JgtDsRANhd+PYz6klzFZf63X1CZzM8KnEJfRna4jaFAuLZ/r5jMZ4IdtneXMefxxZ119DI38MQDbYdYC8wGbyKiV8kpCSNTQ9ksHH+7LSjVANToHw7c/fMtQiyXEiGGlxoF1Vdqj2CKV1gSYWQaMNa9nSY=
+	t=1724837477; cv=none; b=gVuuYLodavL+vVxGVc+d3B+puyq1ZmIPv+LqlpVKkrtq04SzPlZV9g6KmMn4i00O4tmxq2RTiWDCrCkslnMeexj3+W6bu4ES+P3gJZXJYakvFY0MRIr9GhqJ4XQECnkP6OaOgklJmgh442HFbwDasSNBoxtTXzWQiAA6+t4sFHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724830497; c=relaxed/simple;
-	bh=MUG+GgrRIkc7eiHdF9hdxnaVPvsfw77S7LOFjwJ8l+U=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=fjQwlsLYqjCMzuPdJ8D9+bson0Oc4WdPdVDzFuRcbYeaame5UZ2C5AzcmguuuV3qNDdNOVscOCEUoUQJVHimohnXb5Pe4/R3rb9s3pau87cJmjqg5qDDOmcB/GrrxdYpw8JTnY+4mElOvfEBE5XrZou+Z139rxW2L7m+koGyeqY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=QwuBeYfD; arc=none smtp.client-ip=159.69.126.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
+	s=arc-20240116; t=1724837477; c=relaxed/simple;
+	bh=zQqg7cbzkAAqq8El2KBhqA+3KnZohuXfc/S1tJbpDuk=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=hVrSfsk52tB/ZYU9SUSwZVoh90ayLXy+Py7c0FlROq8KnK8j3iUtHGoG5XsLmcVYH/0fHfus3lbjZTI5xZhRlWan+4DaxAKoGBGeAAQwKHH1vKbGSlkATbU5iBYSDty9cWBO0RIn+Wio5Uzgs5jFnDTbCYv9fF5XDjN42UwDNrM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=Kd7w/fje; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="QwuBeYfD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1724830494;
-	bh=MUG+GgrRIkc7eiHdF9hdxnaVPvsfw77S7LOFjwJ8l+U=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=QwuBeYfDaLX/fsOh0+99MQuAqw7s1okX/N5pMJzSDRRftYU6tM2TLFi5kSdMuasY4
-	 5LvSV01QAlTiSdls8h3vKIiFp/WReX3SPHH/Vbs5rhXAtGzBUOHEPjlsaPBYFT6cDl
-	 QW7Jnjl+MeiAU5ecubGRxUW/GofT+A5p6lHd+IgU=
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Wed, 28 Aug 2024 09:33:30 +0200
-Subject: [PATCH 11/14] HID: sony: constify fixed up report descriptor
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="Kd7w/fje"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-428e0d184b4so54222395e9.2
+        for <linux-input@vger.kernel.org>; Wed, 28 Aug 2024 02:31:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1724837472; x=1725442272; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:references
+         :in-reply-to:subject:cc:to:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Nztb8QTWKE8vCqoi2j1vz8Fswgv7hpm8l/u2GeDh0dg=;
+        b=Kd7w/fjehnmRzxP8+5uAV3zYbfe2EuE28RcGTEKXUqMp1ycV6THrC/563lTiQmMgzn
+         ei4eBLBDhTcpHPU/y4/vjhcHGolxGMSPSwsS+uOqRmyu2XtlAqsQy4fG65mVvYRRzq4G
+         /RbzuN09r1pNvV9YzvVW/OCsjD4zp5UtCputf9gtXlSai51XCJHrk5zOeXeLTAoRqM4P
+         nGKoDlVAgOJWBP6q9+ln1+RvB1EaqYFqGVDzhxz9FpMmSUkBws9lhkAJAcH44xnjTljL
+         tjZVJgIn5CxRmxUgJbq6ZA8Ju5SOKIg1PRCXQn+Za2UB4OK4EVIO6tT2u1247maDkifN
+         0qYw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1724837472; x=1725442272;
+        h=content-transfer-encoding:mime-version:message-id:date:references
+         :in-reply-to:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Nztb8QTWKE8vCqoi2j1vz8Fswgv7hpm8l/u2GeDh0dg=;
+        b=dX+rQ9OytQtSZifD0MijHdTQU7sFh9F5/40slbrqwglfvfGYPHjm/WM5QcJgZHp6OF
+         Ug4I+lnlp52L/78Hml92GkHDeU4Hx3e9JJyQ6vhUT6QglC7eo+JX7gtAUyxqwxeCTakQ
+         NbUpW55UYz2//1MvbsK2wNaM9nHW3hkmdESSegbLXJ7Fvj+JCsq/ZcuA2x6G46Yrn/Nc
+         CtzYHKNDUSZcIwux7dVIXHkNmQSqilqD/xsFD3XZMJWDaHKqyIUJ5Alq+/3iU0YX6oGU
+         uH4FPMsG4OZqPllgpmjRnnovF5rgQfYPLT4UTvytbTtIVqh3fFTakmlaRuC8gKe782MI
+         u3JQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUWQZJJ0IuzJS8maYgbaXvDxC0lrC6DRw44/LCeXm0sz1MyubwIPtdlE9CUUuD+bUNPGbEqMTWNONAzaw==@vger.kernel.org
+X-Gm-Message-State: AOJu0YygOuhSdAOexMsmk2Dfh3p4pCJWSWYTdwpLQ6pwYoC/15MDc93x
+	iqxHO4reloTVOT43OWScC+p3LtTlM9nf1/hQaia5EwtNkF46xEuRf0oF2PajyPg=
+X-Google-Smtp-Source: AGHT+IF2qTvtGuAd4Hsxi0pkISJXFGgyQwIBCynnMQqBlF2Bo98neUQNmwhUdIKiZ3qtSZRVcHdVng==
+X-Received: by 2002:a5d:4687:0:b0:371:7e73:eb43 with SMTP id ffacd0b85a97d-373118e35ccmr10622857f8f.42.1724837471143;
+        Wed, 28 Aug 2024 02:31:11 -0700 (PDT)
+Received: from localhost ([2a01:cb19:95ba:5000:d6dd:417f:52ac:335b])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3730813cdf2sm15169916f8f.38.2024.08.28.02.31.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 28 Aug 2024 02:31:10 -0700 (PDT)
+From: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno
+ <angelogioacchino.delregno@collabora.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org
+Subject: Re: [PATCH] Input: mt6779-keypad - use devm_clk_get_enabled()
+In-Reply-To: <Zs4UWGKt3hLjNmoP@google.com>
+References: <Zs4UWGKt3hLjNmoP@google.com>
+Date: Wed, 28 Aug 2024 11:31:08 +0200
+Message-ID: <87r0a9q9ib.fsf@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20240828-hid-const-fixup-2-v1-11-663b9210eb69@weissschuh.net>
-References: <20240828-hid-const-fixup-2-v1-0-663b9210eb69@weissschuh.net>
-In-Reply-To: <20240828-hid-const-fixup-2-v1-0-663b9210eb69@weissschuh.net>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1724830449; l=1816;
- i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=MUG+GgrRIkc7eiHdF9hdxnaVPvsfw77S7LOFjwJ8l+U=;
- b=LqYUJr+TcxlROohFjV9DxjVrTGAXGJcnN+PkyGw0jTb5zqnEipvuKltiD2jlCU84A/etRTUoR
- qOxB2KMeklWAs0EEOua2AenbTWAOSmLG7bUTm8eTHHN188oL6dh550C
-X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
- pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-Now that the HID core can handle const report descriptors,
-constify them where possible.
+Hi Dmitry
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
----
- drivers/hid/hid-sony.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+Thank you for the patch.
 
-diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
-index 8e2e914bd236..df29c614e490 100644
---- a/drivers/hid/hid-sony.c
-+++ b/drivers/hid/hid-sony.c
-@@ -99,7 +99,7 @@ static const char ghl_ps4_magic_data[] = {
- };
- 
- /* PS/3 Motion controller */
--static u8 motion_rdesc[] = {
-+static const u8 motion_rdesc[] = {
- 	0x05, 0x01,         /*  Usage Page (Desktop),               */
- 	0x09, 0x04,         /*  Usage (Joystick),                   */
- 	0xA1, 0x01,         /*  Collection (Application),           */
-@@ -195,7 +195,7 @@ static u8 motion_rdesc[] = {
- 	0xC0                /*  End Collection                      */
- };
- 
--static u8 ps3remote_rdesc[] = {
-+static const u8 ps3remote_rdesc[] = {
- 	0x05, 0x01,          /* GUsagePage Generic Desktop */
- 	0x09, 0x05,          /* LUsage 0x05 [Game Pad] */
- 	0xA1, 0x01,          /* MCollection Application (mouse, keyboard) */
-@@ -599,15 +599,15 @@ static int guitar_mapping(struct hid_device *hdev, struct hid_input *hi,
- 	return 0;
- }
- 
--static u8 *motion_fixup(struct hid_device *hdev, u8 *rdesc,
--			     unsigned int *rsize)
-+static const u8 *motion_fixup(struct hid_device *hdev, u8 *rdesc,
-+			      unsigned int *rsize)
- {
- 	*rsize = sizeof(motion_rdesc);
- 	return motion_rdesc;
- }
- 
--static u8 *ps3remote_fixup(struct hid_device *hdev, u8 *rdesc,
--			     unsigned int *rsize)
-+static const u8 *ps3remote_fixup(struct hid_device *hdev, u8 *rdesc,
-+				 unsigned int *rsize)
- {
- 	*rsize = sizeof(ps3remote_rdesc);
- 	return ps3remote_rdesc;
+On mar., ao=C3=BBt 27, 2024 at 11:00, Dmitry Torokhov <dmitry.torokhov@gmai=
+l.com> wrote:
 
--- 
-2.46.0
+> Switch to using devm_clk_get_enable() helper instead of acquiring the
+> clock with devm_clk_get(), enabling it, and defining and installing
+> a custom devm action to call clk_disable().
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
+Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+
+> ---
+>  drivers/input/keyboard/mt6779-keypad.c | 18 +-----------------
+>  1 file changed, 1 insertion(+), 17 deletions(-)
+>
+> diff --git a/drivers/input/keyboard/mt6779-keypad.c b/drivers/input/keybo=
+ard/mt6779-keypad.c
+> index 19f69d167fbd..c13880103429 100644
+> --- a/drivers/input/keyboard/mt6779-keypad.c
+> +++ b/drivers/input/keyboard/mt6779-keypad.c
+> @@ -92,11 +92,6 @@ static irqreturn_t mt6779_keypad_irq_handler(int irq, =
+void *dev_id)
+>  	return IRQ_HANDLED;
+>  }
+>=20=20
+> -static void mt6779_keypad_clk_disable(void *data)
+> -{
+> -	clk_disable_unprepare(data);
+> -}
+> -
+>  static void mt6779_keypad_calc_row_col_single(unsigned int key,
+>  					      unsigned int *row,
+>  					      unsigned int *col)
+> @@ -213,21 +208,10 @@ static int mt6779_keypad_pdrv_probe(struct platform=
+_device *pdev)
+>  	regmap_update_bits(keypad->regmap, MTK_KPD_SEL, MTK_KPD_SEL_COL,
+>  			   MTK_KPD_SEL_COLMASK(keypad->n_cols));
+>=20=20
+> -	keypad->clk =3D devm_clk_get(&pdev->dev, "kpd");
+> +	keypad->clk =3D devm_clk_get_enabled(&pdev->dev, "kpd");
+>  	if (IS_ERR(keypad->clk))
+>  		return PTR_ERR(keypad->clk);
+>=20=20
+> -	error =3D clk_prepare_enable(keypad->clk);
+> -	if (error) {
+> -		dev_err(&pdev->dev, "cannot prepare/enable keypad clock\n");
+> -		return error;
+> -	}
+> -
+> -	error =3D devm_add_action_or_reset(&pdev->dev, mt6779_keypad_clk_disabl=
+e,
+> -					 keypad->clk);
+> -	if (error)
+> -		return error;
+> -
+>  	irq =3D platform_get_irq(pdev, 0);
+>  	if (irq < 0)
+>  		return irq;
+> --=20
+> 2.46.0.295.g3b9ea8a38a-goog
+>
+>
+> --=20
+> Dmitry

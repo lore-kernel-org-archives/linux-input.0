@@ -1,31 +1,32 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C67D915AADE;
-	Wed, 28 Aug 2024 07:34:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75D2D15B13C;
+	Wed, 28 Aug 2024 07:34:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724830479; cv=none; b=dGLjHo5ZD2qgn4IjWo2HBfrEbzybThPhVx+cUfrXnzkJ9y0tVeNY7NpEfKsGkgrKyQpdCS7CxaETeuFZTAVLxKGwKUDBVNMaNJLlt9gzBn6LIDCmj5Uc51xuAmpw82bmdZ2X6uZfsWjnGgf5DGQXUb2ZLElTCMqkA5ZEzDZqsWo=
+	t=1724830480; cv=none; b=qC+Q/oecPIXwSTU45PLIdjYhDlfz372f083PaFZXYGqXcyDLWx+Z83YW46XCEYw+fLEmmV1yafkFskyQ38nguzcuX+avE1bIVyjtGvxQmvfD4khqVJ81xrbDH6n4fxZyRev0Qc93Zc4kTn9+n6yhOn1QqfSrzgPy63VWt5L1Dh8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724830479; c=relaxed/simple;
-	bh=b0SHEar1LjwTGvnWhUaEDqZURBTUdfYfF4a/RRvIPVU=;
+	s=arc-20240116; t=1724830480; c=relaxed/simple;
+	bh=d/Hy3jTDpRGHAOU4IIxyREy5kpLEitmtqMFs7QmKIJM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=OOY5dg98DZ2ieDEB9oSuoaEU7GkwOJ1lSdHHD1rjvJCcK7g4gpmaxwtL92HrSDuuq38OqFXQT0sC4mz03Ve/nqZsAszqbFd5mGj22GDLENTG6sOHlJvDB2cmbVfUTB41xiCnkVYtbGpLMVykEjydi02rTzFWvgTRJpLWd5kq9i4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=gyG156zS; arc=none smtp.client-ip=159.69.126.157
+	 In-Reply-To:To:Cc; b=erQYD9alOInQ/w37wc9EMKRGnCmSxW7WOo4aBu4lKa2E4uUXYTeT5zMtAwHcqRPxOAnhxirpcoAvPT21TRQj+M3t6zWv/F+U7Svj4l+kAF8nrQnsurOouGW1rKvdC/VX1tajqC2WwHKl9jaz5R7/C2A/spN5B1zwLVSOk9xE6Z0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=KlJg7BVQ; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="gyG156zS"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="KlJg7BVQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1724830475;
-	bh=b0SHEar1LjwTGvnWhUaEDqZURBTUdfYfF4a/RRvIPVU=;
+	s=mail; t=1724830476;
+	bh=d/Hy3jTDpRGHAOU4IIxyREy5kpLEitmtqMFs7QmKIJM=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=gyG156zSHA4PGk7BcoHQ4Iam4SCgQDnQOj+KC8mUGUZk/shFh4zJliNoIevwEn8AQ
-	 xRs8eLE5CsVrHdyhXo8YG6NhCA9g6yZBf+9BRMXqwPKF9F8vT9V0Fy37dqSiiqc7Tr
-	 swTwZlwgAyb4wcCu454Yx8mHc3jIV5uVpUqWinTM=
+	b=KlJg7BVQghLT+w+R8yyj6f9P/CHrRki5cqOloD+sXZq8RFpdCWjGpyqMBhmt3l8G4
+	 pg/+++n15dNGDtIvmn7qZSwlRgOhGxzgJJYn0Df/j0m00YnBDiGRGcxKMWKltY9gR3
+	 MuV+7G3LCddviRb6BlrJwfVtJVG6bAFS6ZrHKVm4=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Wed, 28 Aug 2024 09:33:25 +0200
-Subject: [PATCH 06/14] HID: xiaomi: constify fixed up report descriptor
+Date: Wed, 28 Aug 2024 09:33:28 +0200
+Subject: [PATCH 09/14] HID: steelseries: constify fixed up report
+ descriptor
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -34,7 +35,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240828-hid-const-fixup-2-v1-6-663b9210eb69@weissschuh.net>
+Message-Id: <20240828-hid-const-fixup-2-v1-9-663b9210eb69@weissschuh.net>
 References: <20240828-hid-const-fixup-2-v1-0-663b9210eb69@weissschuh.net>
 In-Reply-To: <20240828-hid-const-fixup-2-v1-0-663b9210eb69@weissschuh.net>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -42,11 +43,11 @@ To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1724830449; l=1338;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1724830449; l=1303;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=b0SHEar1LjwTGvnWhUaEDqZURBTUdfYfF4a/RRvIPVU=;
- b=1+CZsM0eFLR+zRqBprh75hyhVhbOKluAdjArhN5Rt7lFHKQKnKVEvVEE8G33Gt+Kq576MUSr7
- Cjef+krNr5nAmlJVC287juDCtvaXiMFA+FCvgLzMu4xOyfCbeyOBXhy
+ bh=d/Hy3jTDpRGHAOU4IIxyREy5kpLEitmtqMFs7QmKIJM=;
+ b=U2dXddlGmgOGNJohfVOgYOYTN9TkcY8xwfL2/bOf4Bky49k74MAA2Ck9CXkLq4LYjrOo/Y/4k
+ sBR4MayqNzvBp0hes/C6FTOoz7b8OIZLoMXQ7U/3uBxgpY/EulefPUn
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
@@ -55,32 +56,32 @@ constify them where possible.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- drivers/hid/hid-xiaomi.c | 4 ++--
+ drivers/hid/hid-steelseries.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-xiaomi.c b/drivers/hid/hid-xiaomi.c
-index 035733fce2e1..ef6598550a40 100644
---- a/drivers/hid/hid-xiaomi.c
-+++ b/drivers/hid/hid-xiaomi.c
-@@ -14,7 +14,7 @@
- /* Fixed Mi Silent Mouse report descriptor */
- /* Button's Usage Maximum changed from 3 to 5 to make side buttons work */
- #define MI_SILENT_MOUSE_ORIG_RDESC_LENGTH   87
--static __u8 mi_silent_mouse_rdesc_fixed[] = {
-+static const __u8 mi_silent_mouse_rdesc_fixed[] = {
- 	0x05, 0x01,         /*  Usage Page (Desktop),               */
- 	0x09, 0x02,         /*  Usage (Mouse),                      */
- 	0xA1, 0x01,         /*  Collection (Application),           */
-@@ -68,8 +68,8 @@ static const __u8 *xiaomi_report_fixup(struct hid_device *hdev, __u8 *rdesc,
- 	case USB_DEVICE_ID_MI_SILENT_MOUSE:
- 		if (*rsize == MI_SILENT_MOUSE_ORIG_RDESC_LENGTH) {
- 			hid_info(hdev, "fixing up Mi Silent Mouse report descriptor\n");
--			rdesc = mi_silent_mouse_rdesc_fixed;
- 			*rsize = sizeof(mi_silent_mouse_rdesc_fixed);
-+			return mi_silent_mouse_rdesc_fixed;
- 		}
- 		break;
+diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
+index 895da49e8ead..7e83fee1ffa0 100644
+--- a/drivers/hid/hid-steelseries.c
++++ b/drivers/hid/hid-steelseries.c
+@@ -51,7 +51,7 @@ struct steelseries_srws1_data {
+  * appear in the 'Generic Desktop' usage.
+  */
+ 
+-static __u8 steelseries_srws1_rdesc_fixed[] = {
++static const __u8 steelseries_srws1_rdesc_fixed[] = {
+ 0x05, 0x01,         /*  Usage Page (Desktop)                */
+ 0x09, 0x08,         /*  Usage (MultiAxis), Changed          */
+ 0xA1, 0x01,         /*  Collection (Application),           */
+@@ -580,8 +580,8 @@ static const __u8 *steelseries_srws1_report_fixup(struct hid_device *hdev,
+ 	if (*rsize >= 115 && rdesc[11] == 0x02 && rdesc[13] == 0xc8
+ 			&& rdesc[29] == 0xbb && rdesc[40] == 0xc5) {
+ 		hid_info(hdev, "Fixing up Steelseries SRW-S1 report descriptor\n");
+-		rdesc = steelseries_srws1_rdesc_fixed;
+ 		*rsize = sizeof(steelseries_srws1_rdesc_fixed);
++		return steelseries_srws1_rdesc_fixed;
  	}
+ 	return rdesc;
+ }
 
 -- 
 2.46.0

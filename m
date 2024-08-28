@@ -1,31 +1,31 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FABA15AAC6;
-	Wed, 28 Aug 2024 07:34:18 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8CC0158DC1;
+	Wed, 28 Aug 2024 07:34:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724830461; cv=none; b=l4V0IX9SrmyjgWV7brDjCHTgk1PdcJsBHRSkR7dDaC8Em3BWL2rzbRoGtTMb5xSNFcnGY+NMopItQP1V6YeNvG0wu+KI2mfZ6fo0YT+9aRzk+XpFsmojl4TZxMG139JcIFuG609kkRex7dgBqOGqFwmaZdtiDIPWbeupgO94sqA=
+	t=1724830475; cv=none; b=qQLmd6XNgxnAtBLPKCG0Jt1rgb1hLwT0rN/U66HssyapBSuXrPZYa6vkCqtVTmJalrBEYA4Nr0kFR3fiRfjgA+dOKpcs4HomNGG2oFGcjNIq3JdmZvyhXsrxPCGEhXASI9lLug78QgFGw+lWxdR9pihKcrdf/w4ruBCdqcd0NRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724830461; c=relaxed/simple;
-	bh=ZoeDwrTr7TMpwmX0t0rvsYpMVkIbB6PZwEyly8Jstd4=;
+	s=arc-20240116; t=1724830475; c=relaxed/simple;
+	bh=s8u6a9TkNPDcGsOU0zOl6US0uH9xifpDR4NGmMEERmE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=pF+H2cS+O8YVIcS8TCsKd8J2i+nWe2rUroYOrt6RQTJhtpItszfODWtI9C8h25bBX3KGGasFye1E9Hafw0pFEXWt7UmODoPFf8eSmd+HhxrjpPGghLRmmAi6PDtLLg6DW++ciwcH/nu7rt+Fenp0XRMTWhLNQeio6Rboy5QYyhM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=MNxh+maX; arc=none smtp.client-ip=159.69.126.157
+	 In-Reply-To:To:Cc; b=s1tRBBvLFOlClHdT2ERL3r8r/ovmdrqU+cuyi2L//gPz2dQ/46wUatVa/cAvvACP1KM3cAZ0WHhfVAVRJaa4HOBnbFj2oPaDgnbXqFdoqmtIQOS/g3Zewtip5RBOO/NgbyFSq0Ls+nUxokAcUTOpSr98fUpgMMVn++I7DX00Jhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=UWzbHv2b; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="MNxh+maX"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="UWzbHv2b"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1724830457;
-	bh=ZoeDwrTr7TMpwmX0t0rvsYpMVkIbB6PZwEyly8Jstd4=;
+	s=mail; t=1724830471;
+	bh=s8u6a9TkNPDcGsOU0zOl6US0uH9xifpDR4NGmMEERmE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=MNxh+maXAqU+m8DkzxXQOOC0nGzSekiBqMEcN2pRFnFnkHmulJzF3xVCi8dwULCd0
-	 bJIF7UdX18yWtIVH6+drMqHk43TUDNJYDfbsfiuZZmr1J8ZYknDYR1ufrrrL6+j6NI
-	 ZET3MqCBxwqBHi6kFyet+6ruGeZjoUb/2fT/L90g=
+	b=UWzbHv2b21wBcbAkI+O2+0VCHe7RMZoBHRrugmAJ0Qo53SCI1MYxZaviPRxh4FewA
+	 7/6PHAepMXk5uye3kq+u0PeBT4rQeGFVZC/876lsh6/uOrruJXl+eSZEXuO4PHXRj3
+	 zwxiVII5fDpguSpts4gVx77vRED+2iyFGeU3vLPU=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Wed, 28 Aug 2024 09:33:20 +0200
-Subject: [PATCH 01/14] HID: bigbenff: constify fixed up report descriptor
+Date: Wed, 28 Aug 2024 09:33:29 +0200
+Subject: [PATCH 10/14] HID: pxrc: constify fixed up report descriptor
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -34,7 +34,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240828-hid-const-fixup-2-v1-1-663b9210eb69@weissschuh.net>
+Message-Id: <20240828-hid-const-fixup-2-v1-10-663b9210eb69@weissschuh.net>
 References: <20240828-hid-const-fixup-2-v1-0-663b9210eb69@weissschuh.net>
 In-Reply-To: <20240828-hid-const-fixup-2-v1-0-663b9210eb69@weissschuh.net>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -42,11 +42,11 @@ To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1724830449; l=1184;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1724830449; l=712;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=ZoeDwrTr7TMpwmX0t0rvsYpMVkIbB6PZwEyly8Jstd4=;
- b=eEZPwKVjrNNUZyECxP5NutenaxR5XxWaB0Mpsgrp5GPKQzslKkW6tTvRXNers7+fZy5RmJAsC
- b4mPpgdhbhODOL8hkuFEXmrcshSgoZctTlNh720EF8EcmnVPTrAVKdQ
+ bh=s8u6a9TkNPDcGsOU0zOl6US0uH9xifpDR4NGmMEERmE=;
+ b=Nk+sZP/Mai9floMTs4IIf93OTdj2RUxOZLh1K6vzzKDFZOYMWo8Z5i0RCLCN+hZcWxtUXGRcU
+ aSpEpPCmNUwA3+AopI7PX9F194gHN7Km1H0yLUa1dUlm5scsMITwE18
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
@@ -55,32 +55,22 @@ constify them where possible.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- drivers/hid/hid-bigbenff.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/hid/hid-pxrc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-bigbenff.c b/drivers/hid/hid-bigbenff.c
-index a2ff60dd834c..9f05465358d9 100644
---- a/drivers/hid/hid-bigbenff.c
-+++ b/drivers/hid/hid-bigbenff.c
-@@ -99,7 +99,7 @@
-  * - map previously unused analog trigger data to Z/RZ
-  * - simplify feature and output descriptor
-  */
--static __u8 pid0902_rdesc_fixed[] = {
-+static const __u8 pid0902_rdesc_fixed[] = {
- 	0x05, 0x01,        /* Usage Page (Generic Desktop Ctrls) */
- 	0x09, 0x05,        /* Usage (Game Pad) */
- 	0xA1, 0x01,        /* Collection (Application) */
-@@ -468,8 +468,8 @@ static const __u8 *bigben_report_fixup(struct hid_device *hid, __u8 *rdesc,
- 	unsigned int *rsize)
- {
- 	if (*rsize == PID0902_RDESC_ORIG_SIZE) {
--		rdesc = pid0902_rdesc_fixed;
- 		*rsize = sizeof(pid0902_rdesc_fixed);
-+		return pid0902_rdesc_fixed;
- 	} else
- 		hid_warn(hid, "unexpected rdesc, please submit for review\n");
- 	return rdesc;
+diff --git a/drivers/hid/hid-pxrc.c b/drivers/hid/hid-pxrc.c
+index ef38730e78ab..71fe0c06ddcd 100644
+--- a/drivers/hid/hid-pxrc.c
++++ b/drivers/hid/hid-pxrc.c
+@@ -17,7 +17,7 @@ struct pxrc_priv {
+ 	bool alternate;
+ };
+ 
+-static __u8 pxrc_rdesc_fixed[] = {
++static const __u8 pxrc_rdesc_fixed[] = {
+ 	0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
+ 	0x09, 0x04,        // Usage (Joystick)
+ 	0xA1, 0x01,        // Collection (Application)
 
 -- 
 2.46.0

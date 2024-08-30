@@ -1,59 +1,59 @@
-Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99CB91B2EC6
-	for <linux-input@vger.kernel.org>; Fri, 30 Aug 2024 14:04:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D6861B1D79
+	for <linux-input@vger.kernel.org>; Fri, 30 Aug 2024 14:04:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725026679; cv=none; b=c+orvFrXIKO+jFeO3JS1Eteuj7rnrdTFGRckrC+2HogZvC0AGr8+JeVBLOEyDBBhS4UEmljyE5Wq9hkraoq2A2Y4k5CJFshU/P2/CWBOWX+ide/2dkHEVBwqyE+KLBc3iEfwNmRbwEMBUFvcSv+zb2RnyIGKluWiY/ZSCeWQ0lw=
+	t=1725026680; cv=none; b=US0QJrV4L7T0S/6e77AkMtGGcZgOLT63tZJDKkKMDDhi3fSlvR6yBwBkHchfYtnBVZa2HumxTx9JRnWnZm8tiDV/DFOtDGRi9WgPeLh2xSgxCdEZp5Q3IshO7fzEzg5aT1XqPCWCE2SbTJznVei2nnMJ/X41gFVyqqrFgdWLpCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725026679; c=relaxed/simple;
-	bh=vC6E1dmI+DVdLPbsboa4vE5TR88Fimwcbq1iFUmZlLc=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=fDJuYMiJnZSUz49wR6EGxqfgzRB8TNVWKrxwxWv8wHGFGlIrlG5bzsvAq4xU4svIQwLvQ6p/qBtoGZu5XPLzCp8ksohjCDLUrOmj+gHzoR9wEtD+eqdFeVxeIm8Q10rW0cO5iQ4YKF+z8ZgfzLoAy5cW0jguNio1SA9zozbG02k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=dhmvuQOE; arc=none smtp.client-ip=209.85.167.53
+	s=arc-20240116; t=1725026680; c=relaxed/simple;
+	bh=bUSAlReA5HCO5Hbs+U36cEM1lcuyKt/jW8z+UxbrTMI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=kHXNQWjLEGegi1f0teiIdOxfL+UyflBe73+C1NhSoHLmHUnnAe6iGhKZOUKAdHftJoj1FzVgVZf7rIB8brgDH5D0Zuw/Z5bmXe78ak/Jj0uty3GNhNQ+3SIB79Q7l0TTM++ZXYQczW0/laCSELGNUAFc0j5zRkriAPqiWbTRcrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=NgDB6If4; arc=none smtp.client-ip=209.85.167.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="dhmvuQOE"
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5343eeb4973so2859931e87.2
-        for <linux-input@vger.kernel.org>; Fri, 30 Aug 2024 07:04:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="NgDB6If4"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5353cd2fa28so2427985e87.3
+        for <linux-input@vger.kernel.org>; Fri, 30 Aug 2024 07:04:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1725026674; x=1725631474; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=8rRGNMPrMx4PkGhanzqLIDkRAwzJPAKyu4iHvprRv2o=;
-        b=dhmvuQOEfmmWVasF4VMsvhcJ1W7T7UbiuEEfTZIz38Cdq4puxvgfIxFQgBEqLLhqgj
-         HgsLfnmZTIodM8Y+rt868ivihqsjJnw2HLX/LqpiVAt/v1aw13yz0GZJE60q90rrTZzX
-         Tbp16+4bhz6dGK6UXXlRofH8z4My3zlbpq2P+1k2wqcg7r5dryGqlFCTU1822+380MrV
-         rh1dGfMEOUgl02K4ROAdtSaYdYFT8wrHB9hJfjvBz43OzGwVtTN83kkp2J8fXyiXUBX4
-         Qqvx73MnZUD5UkdxjWl8jcouTtl4MH6cuAoMDxamKRQYdz8iaWu8EwM8h4ytRs2bxlr1
-         cmUQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725026674; x=1725631474;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=linaro.org; s=google; t=1725026676; x=1725631476; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=8rRGNMPrMx4PkGhanzqLIDkRAwzJPAKyu4iHvprRv2o=;
-        b=iCm0mmoAO48AkrSpFzY94OEOrXj+BAxRf703jnnMFr+gQtkNewSvqccGYUb0EbPeAp
-         NWaQAKIp2F31QP7TYePcHK+4sj4kSP4Kx5q7P/o2kdDsgPsD0geD/Uo05j3E7PPGxdXr
-         OmjOUvR2CgN0BT4Wna/k17BmGCDW5GqZyHh0HlDOqYbgdGfndkhvgJ+M2YZAYgWAngrj
-         aKYx6Z2MitztePBwWRDwQYyIdvXPoqCTdaHNCCWZjK1jYiWpldd60M6RBqypi87yFBnM
-         wC/VgSli5FZCpQ0o8/OKcuAz5YUb49x2SukB3sgOENGl389idJ0MamJGwkEQUz9GyByO
-         jeug==
-X-Gm-Message-State: AOJu0Yx8IP62+dNi6Hg4xY/Dgr/oWdhcHevA66Di/fKBXbNCI6tTSHJj
-	mmO7kOHpyQeJPpP87P9PuhA8MVFMKT7FJ+g6G1/UM35NzEmPxjEkDIf1yGj5Wuo=
-X-Google-Smtp-Source: AGHT+IHbtCYQLg/fD4tXDbJPsa6LQjl1fw2InO4YLVPo9anHxLG26kTZRmZH5CPEsdKyf7ixXGeP0g==
-X-Received: by 2002:a05:6512:3b99:b0:535:3d15:e70e with SMTP id 2adb3069b0e04-53546bde524mr1855327e87.37.1725026671382;
-        Fri, 30 Aug 2024 07:04:31 -0700 (PDT)
+        bh=fwZj4nHmi3YA+XCByv/flCbspNw18pXfJDWZvmz0uO4=;
+        b=NgDB6If43opF6F+tD6QppqTMw5IqP9Vj5FqlPHEw5XojmFi2Uk6NxSd15mAxfn8mvc
+         As7EqQAM/F8m4LUn9UecrZOzcAb7+GpYDbPbCvzkk2RdS9/YXnRBKLxclR9htLCuNsNz
+         ZNuxVs8WA8/bPGVW2t3CrhbdduuAnwzHbTCRG4E47eg0h/dbsgjDtZiUsPbQ26x5a+AI
+         oBUf+GSkSQ0UlSTarU+SPYeek63oxj+R+ZimNhZCALrAxU3OyI9bZZ+MLB9Wh1INdbPe
+         SBtPMlww/6nXJNi1Vq/SrE/C7ZWjeWFLKhQ2hgVW1OkiKGHktLT0BGm+SpP2qUmYY5o4
+         +UnA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725026676; x=1725631476;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=fwZj4nHmi3YA+XCByv/flCbspNw18pXfJDWZvmz0uO4=;
+        b=UnIsyj370M9AbAOjenT96n17I8A9Kxb4abXoe9T95ejha4aetzk7Xonpl9NO7aBwFZ
+         ZyT68NwiPnlcX4ST+PtT7tqI0F8AhX34XQbLq3unjdlEAJEdbSBwPR7+m5Ay2pxytwHc
+         medtpDW86J0tGgy1P8gM87jw6GFrspLYeNWbH27I8OTqPbDUPu4p6jemR7t/Nt3lB59d
+         GGkETmRt59YazHUQ4mm2IPuGPlomMKuYJ0TgmUDHXDvtAh8N1E7h0RDxGnyqywVFFiAj
+         NxrPWVbuSO3eI7xazNXgPSJ3f2lwfRjmdJZiP/oOOGLeMRDkOX1uj9Qe7IbGk4HySHO+
+         dCSw==
+X-Gm-Message-State: AOJu0YyC5eZTR1kCL4b8sGRd9qoNsQyGUQ1i+l1VGXJTf4UZbh7wgQ7V
+	Znj9CgzoSCGr6ioYkOrQvOiTRRscyPVYS/RJD9d3V/Dr9cq2PuKKEA0rJqMqRyQ=
+X-Google-Smtp-Source: AGHT+IEIDCCPohsfd6Zso0VznQ3mvvEWhBtIgd633g3IeF9np2aS5n9uDfYEht1/pzwWg6nyrWUH/w==
+X-Received: by 2002:a05:6512:3e06:b0:52c:dfa0:dca0 with SMTP id 2adb3069b0e04-53546ba0eabmr1464475e87.43.1725026674829;
+        Fri, 30 Aug 2024 07:04:34 -0700 (PDT)
 Received: from Fecusia.lan (c-21d3225c.014-348-6c756e10.bbcust.telenor.se. [92.34.211.33])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5354084118dsm616826e87.217.2024.08.30.07.04.30
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5354084118dsm616826e87.217.2024.08.30.07.04.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 30 Aug 2024 07:04:31 -0700 (PDT)
+        Fri, 30 Aug 2024 07:04:34 -0700 (PDT)
 From: Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH v2 0/2] Input: zinitix - Handle chip revisions for
- touchkeys
-Date: Fri, 30 Aug 2024 16:04:26 +0200
-Message-Id: <20240830-zinitix-tk-versions-v2-0-90eae6817eda@linaro.org>
+Date: Fri, 30 Aug 2024 16:04:28 +0200
+Subject: [PATCH v2 2/2] Input: zinitix - Varying icon status registers
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -62,49 +62,82 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAGrR0WYC/32NTQ6CMBCFr0Jm7Zi2Gn5ceQ/DosAAE01rpk2DE
- u5u4QAuv5f3vrdCIGEKcCtWEEoc2LsM5lRAP1s3EfKQGYwyV1WrEr/sOPKC8YmJZK8HbDpdd0Z
- RZ+0AefkWGnk5rI8288whevkcJ0nv6X9f0qiwvNBYNX01GqvvL3ZW/NnLBO22bT/zmSPNtwAAA
- A==
+Message-Id: <20240830-zinitix-tk-versions-v2-2-90eae6817eda@linaro.org>
+References: <20240830-zinitix-tk-versions-v2-0-90eae6817eda@linaro.org>
+In-Reply-To: <20240830-zinitix-tk-versions-v2-0-90eae6817eda@linaro.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
  Nikita Travkin <nikita@trvn.ru>
 Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
 X-Mailer: b4 0.12.4
 
-The registers containing the touchkey status varies between
-different chip revisions for the Zinitix touchscreens.
+The different revisions of the Zinitix BTXXX touchscreens place
+the icon status register (to read out touchkey status) in
+different places. Use the chip revision bits to discern
+between the different versions at runtime.
 
-This series address the problem by reading out some chip
-revision and firmware data so we can take different runtime
-paths in different chip versions.
-
-Also read out firmware and register version as this may
-prove helpful to similar situations in the future.
-
-This applies on top of Nikitas series to handle touchkeys
-that was recently merged.
-
-After this my BT404 touchkeys work.
+This makes touchkeys work on the BT404 on the Samsung Codina
+GT-I8160 mobile phone.
 
 Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 ---
-Changes in v2:
-- Move the variable keeping track of versioning info being
-  read into the per-device state.
-- Link to v1: https://lore.kernel.org/r/20240806-zinitix-tk-versions-v1-0-63ef79c7f2a1@linaro.org
-
+ChangeLog v1->v2:
+- No changes
 ---
-Linus Walleij (2):
-      Input: zinitix - Read and cache device version numbers
-      Input: zinitix - Varying icon status registers
+ drivers/input/touchscreen/zinitix.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
- drivers/input/touchscreen/zinitix.c | 59 +++++++++++++++++++++++++++++++++++--
- 1 file changed, 57 insertions(+), 2 deletions(-)
----
-base-commit: 669e9cb5f59903fbb1649660f3cb04e5217a7e58
-change-id: 20240806-zinitix-tk-versions-9b18b20ebaad
+diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
+index e47e0bff80db..b6b380f5aed5 100644
+--- a/drivers/input/touchscreen/zinitix.c
++++ b/drivers/input/touchscreen/zinitix.c
+@@ -35,7 +35,13 @@
+ #define ZINITIX_DEBUG_REG			0x0115 /* 0~7 */
+ 
+ #define ZINITIX_TOUCH_MODE			0x0010
++
+ #define ZINITIX_CHIP_REVISION			0x0011
++#define ZINITIX_CHIP_BTX0X_MASK			0xF0F0
++#define ZINITIX_CHIP_BT4X2			0x4020
++#define ZINITIX_CHIP_BT4X3			0x4030
++#define ZINITIX_CHIP_BT4X4			0x4040
++
+ #define ZINITIX_FIRMWARE_VERSION		0x0012
+ 
+ #define ZINITIX_USB_DETECT			0x116
+@@ -63,7 +69,11 @@
+ #define ZINITIX_Y_RESOLUTION			0x00C1
+ 
+ #define ZINITIX_POINT_STATUS_REG		0x0080
+-#define ZINITIX_ICON_STATUS_REG			0x00AA
++
++#define ZINITIX_BT4X2_ICON_STATUS_REG		0x009A
++#define ZINITIX_BT4X3_ICON_STATUS_REG		0x00A0
++#define ZINITIX_BT4X4_ICON_STATUS_REG		0x00A0
++#define ZINITIX_BT5XX_ICON_STATUS_REG		0x00AA
+ 
+ #define ZINITIX_POINT_COORD_REG			(ZINITIX_POINT_STATUS_REG + 2)
+ 
+@@ -425,7 +435,18 @@ static irqreturn_t zinitix_ts_irq_handler(int irq, void *bt541_handler)
+ 	}
+ 
+ 	if (le16_to_cpu(touch_event.status) & BIT_ICON_EVENT) {
+-		error = zinitix_read_data(bt541->client, ZINITIX_ICON_STATUS_REG,
++		u16 iconstatus;
++
++		if ((bt541->chip_revision & ZINITIX_CHIP_BTX0X_MASK) == ZINITIX_CHIP_BT4X2)
++			iconstatus = ZINITIX_BT4X2_ICON_STATUS_REG;
++		else if ((bt541->chip_revision & ZINITIX_CHIP_BTX0X_MASK) == ZINITIX_CHIP_BT4X3)
++			iconstatus = ZINITIX_BT4X3_ICON_STATUS_REG;
++		else if ((bt541->chip_revision & ZINITIX_CHIP_BTX0X_MASK) == ZINITIX_CHIP_BT4X4)
++			iconstatus = ZINITIX_BT4X4_ICON_STATUS_REG;
++		else
++			iconstatus = ZINITIX_BT5XX_ICON_STATUS_REG;
++
++		error = zinitix_read_data(bt541->client, iconstatus,
+ 					  &icon_events, sizeof(icon_events));
+ 		if (error) {
+ 			dev_err(&client->dev, "Failed to read icon events\n");
 
-Best regards,
 -- 
-Linus Walleij <linus.walleij@linaro.org>
+2.46.0
 

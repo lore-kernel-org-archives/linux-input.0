@@ -1,80 +1,152 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C5D8199952
-	for <linux-input@vger.kernel.org>; Fri, 30 Aug 2024 13:24:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E3651B2EC0
+	for <linux-input@vger.kernel.org>; Fri, 30 Aug 2024 14:04:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725024245; cv=none; b=AHUAq8GN8oaGhAwcv3I7MMdxEbLF9JEQQFOrA9g1sheYK/k4MtBrdIaiifeEUOED3jdRP+lW7N7dJThmy+Jl0nYEkv1aSOpu7+/w9H38SnumyWy/IMySLg9afeQfiwk3weKnOq/GDD3k17TOM7M+5Rhzr0Ytk5qkukrAlQIRqw8=
+	t=1725026679; cv=none; b=UZe3ZgD2FXomEm0RnlmPwEkpMLFoNjyPuShGOKJjn9vLtfc4DD4z9elx0UcHlHNWrC4Zqun4ZTMOA1iDrx+3rWI0j4Zx29ytJNhyj9SDj4Pfk1rjwegKB2+qfSUMIoMMBJEMm2NdT+a9aX+fIhmf7BgT/4QzedBTJd2PWr9zNYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725024245; c=relaxed/simple;
-	bh=alkXXliIvrPqNJdORoYbqa2xI4tj+lKeqJUtmJkDRyc=;
-	h=MIME-Version:Message-ID:From:To:Cc:Subject:Content-Type:Date; b=ck4fG31oN6Bw1QG8yOrxTUxg8sINcwEQFqaxU/ZMsA53P6f1XIveFePe4PPh/Ct5y4SpRaDUrrbnVfMZHe4HbAabDmR1zzLK0Itc9/2WHxVCLNB6EAlxkR1OW+OIg1+1qB/2W4G4h9d85GOf2M2DtbHg8xHQ95tyJGOrchaRLvY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com; spf=pass smtp.mailfrom=gmx.com; dkim=pass (2048-bit key) header.d=gmx.com header.i=aloisio@gmx.com header.b=FGk9kxuC; arc=none smtp.client-ip=212.227.15.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.com
+	s=arc-20240116; t=1725026679; c=relaxed/simple;
+	bh=LjFHjn+Y7YtRnQVaacjI7LDbGXTKAI3Ki3bx4k66SbE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=j3QuW4n9tEgdxE3ejnUoL7XsczMOh+3OAGu5a98jSFgyVyjovLikUXW/C1sVjRWpWo4zQSIAuIzig1kNsOX2vMG4r77XZRqv4FyVL4hWSv/5q/amx1a8IKvU4inEWPtSnVk8AvxkmgSKkxBi3b3kcUJaBx4A1hnxE58xF83R+QA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=qmMF0kl2; arc=none smtp.client-ip=209.85.208.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.com header.i=aloisio@gmx.com header.b="FGk9kxuC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.com;
-	s=s31663417; t=1725024240; x=1725629040; i=aloisio@gmx.com;
-	bh=eHLPMZfKiucgpaqQjfGORBQpODzvnsnoabaYsRoXsEw=;
-	h=X-UI-Sender-Class:MIME-Version:Message-ID:From:To:Cc:Subject:
-	 Content-Type:Date:cc:content-transfer-encoding:content-type:date:
-	 from:message-id:mime-version:reply-to:subject:to;
-	b=FGk9kxuCgxnNIc84Q3MgNHJhr+46iTmsAV82dJkUwSR31zMNao9moxPlCNbllegz
-	 iR6Lga1lcxlxxg8rr9svyLxDwGAOMBdTAMIDuL06lovNmkwGdaNSDNgLM9Zt9x/V+
-	 rFH7H+ZhrOGDxOfTgWwRUtvSUyRjOhxp33GsB3r2iv4eBiT5jpVYsKHj900Ie9TkA
-	 7Jl8SK0Dsk6Js7a7rPchfyBtvQkFWPYwbg9qjMybHZcyHLZY+lYYvI02A7dqtWFFA
-	 dkMnHh3HLeflXponE4Kh+Q/yxib8lZFRkuvqWkU5o+CqawV6cR+/LhyeKSDDyFNwE
-	 LNs1EHvwBnum2i5ngg==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [80.104.255.168] ([80.104.255.168]) by web-mail.gmx.net
- (3c-app-mailcom-bs11.server.lan [172.19.170.179]) (via HTTP); Fri, 30 Aug
- 2024 15:23:59 +0200
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="qmMF0kl2"
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-2f3f90295a9so21269231fa.0
+        for <linux-input@vger.kernel.org>; Fri, 30 Aug 2024 07:04:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1725026675; x=1725631475; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=bldFDzJUn/k2Bt8f74T3d+f2wRvuEAT5t+HNQ8xZJH8=;
+        b=qmMF0kl2f5kgPfx4zlizp9UFRgxOjyBeD+9XojGZDsA2EsVQ1AAN6b0f5xpva0Q2FH
+         AUqGhIkt1y5MwhNpsgPpn+LR75zGGFS8b8k5tnQW8LSG7QBhhwHztOJ1B9Et/VIiEqg9
+         0iBAvSyZqi5MGTt/mj1eva7CrlgF7tma5UfQQIbSaJvpgPXKL5xFxfijr6/QvzryBbiP
+         AdbbL05rX5PQSDi0RZsbhBEs/Cd2jiaWR6Ywt8n4lD/xLQoQvJ7KCPksTrqNlFFbZ35+
+         T1ZBPVApuXl0QRs6KeNsmAgSi1ygihBP3OoL9hymvt7T5EGv737viji8rklnF/EmDRPz
+         mTIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725026675; x=1725631475;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bldFDzJUn/k2Bt8f74T3d+f2wRvuEAT5t+HNQ8xZJH8=;
+        b=E3BIjAL5USWHtUXPhHp0yhOPVg6nJyj1DHMaQ3KSik2CHmJqaKvljvHU3yLeHA512e
+         foLhZRamTmXSmC99m228XcA9jxSBmOmlYQHz5zCltM2sBgkucmxxWcnDUC663FmE5MvM
+         5pShryD2mWR8GOzTwua9RM6kOnT5Ji3FtO0XEqJGbIsKI8fEoWPSg2zuaBurnr6ffGqV
+         4JdxdZ3zO8FfUwGQxt/4lbgHenEFSVVa6hDCiwG+YZtarKFPGHBfntH/p8GMQzdey7CW
+         N6xMn7MmoBvShHTmHu7/SXy3RuKKa0C08F+bZ7NWEsoGKGPMTfvZLgj5Ny4yh9lSevhk
+         UZjQ==
+X-Gm-Message-State: AOJu0YyJu3Bs5mTLnlFPR3gNmFXIb7YzJIHrUceN5qCjGvuSBY/gQYyX
+	G4RsLJmeatf3vfCcy3/pIAPYggo8j27NIHhQ65wPMMtZ8gFcgvQVyr8ldshwMu4=
+X-Google-Smtp-Source: AGHT+IHv5mXRP97AwaUJFidIZZ86IhE1DwuNQ1qw4H4asZOp7h2/u9+in9unkHyTtSVIKvgypJwSiA==
+X-Received: by 2002:a05:6512:694:b0:52c:a016:5405 with SMTP id 2adb3069b0e04-53546aef3e9mr1912932e87.8.1725026674334;
+        Fri, 30 Aug 2024 07:04:34 -0700 (PDT)
+Received: from Fecusia.lan (c-21d3225c.014-348-6c756e10.bbcust.telenor.se. [92.34.211.33])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5354084118dsm616826e87.217.2024.08.30.07.04.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 30 Aug 2024 07:04:34 -0700 (PDT)
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Fri, 30 Aug 2024 16:04:27 +0200
+Subject: [PATCH v2 1/2] Input: zinitix - Read and cache device version
+ numbers
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-ID: <trinity-449b8dc4-ceb8-4098-ae8d-74fcdedb9d04-1725024239914@3c-app-mailcom-bs11>
-From: Luigi Baldoni <aloisio@gmx.com>
-To: linux-input@vger.kernel.org
-Cc: Benjamin Tissoires <benjamin.tissoires@gmail.com>, Stephane Chatty
- <chatty@enac.fr>
-Subject: Lenovo Ideapad and hid-multitouch
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 30 Aug 2024 15:23:59 +0200
-Importance: normal
-Sensitivity: Normal
-X-Priority: 3
-X-Provags-ID: V03:K1:HwhN7foJbLgY698/fo4FDaImOQaXXtgk48scTbVlNbF84uyB8ss8FIYq5AwRTNaAn1MzU
- N4eP8Zp6D1c4jikgIrnC/W2pBY0Mom6hkdPA9bOzGB5vf38sCRX+5fGAWGyVTBgTBCpWujhp8Kdk
- hbs5qHIRIrmpoAYnM6gUf5+G1v0YX6yShsEz6BPGxDDh4VEexiWVNQ84GmXsb5jjlrjKD21kZ/l6
- tgocE2FwKHPWd3ynyCdLNQN7Cy3i4PhTu8R9gxa771Ol0jkwCnewgct68XVZR3cGr96aCV1vmcXp
- 18=
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:PGz1iTtWlbo=;x87ldu21kGPIL7P2qFXTisXNoGW
- OV58fjrung7V6qcY60rGiFBltDPlFRB2PkFWCJ1mEAelxQDbaGYn9SGIPPlOaKTksVNz1FpEH
- rtgg/QxRlYOLiiDpXhso/JVuetup0Biq2VPf/XPvHPt4V7AfNKHtpOWbkPVsoorduJ3QGkcJW
- 2w+9ztreVQ/wGdTILEnAnzsiVGGaFKHfpwpemvYLP8BZvJNAvB+OSSm0zPkhtjni5sHLVA7lU
- bdpzQJZ7b24FzO4CArcOiBedArOrJ337wGMFF+b7LoclOZ1r2tovcUcredVIIM1mP6abr2I8d
- J8RAvoeSSQvRcORjwndZQO8aA8aTpXYlKG1oMJF436iMa9LwL+WBaJnPYVOxnPLgI+CD3+lGY
- yFHFrVGCGdl75zcOOu7YmtX9M309UVM7NhCN3PMga69GUKhY+dYjswZxn4QI2kHnw4TmaM7+9
- qGAx2hzaQnqLJqrgEljWNIuJgfAtQFV2zdsTJJrBb2eFuhSOGq9ntE+UL5VLGi84v1I8MkB37
- KYQFafWeIHjgKOI+z2XJvSSSEV0nVZqyMtILKxz5KCaQjB0SHjFDCG5vHE0Je3ARegobwtwKX
- iViWUAA7qdWqOEREGuVEw5M2aDasNL6nz9n28lUxiIR0OsTTOpW8rzVdsDqJcGOXCvy4YxaTC
- cQekH5S1uTXlwXr3SEjQNvIfEFTWEcQhA1ARn5HKBQ==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20240830-zinitix-tk-versions-v2-1-90eae6817eda@linaro.org>
+References: <20240830-zinitix-tk-versions-v2-0-90eae6817eda@linaro.org>
+In-Reply-To: <20240830-zinitix-tk-versions-v2-0-90eae6817eda@linaro.org>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Nikita Travkin <nikita@trvn.ru>
+Cc: linux-input@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>
+X-Mailer: b4 0.12.4
 
-  Hello everyone,
-I've had a problem with the touchpad on my Lenovo Ideapad laptop since buying it, namely
-it's way too sensitive and this results in fake clicks and jumpy behaviour overall.
-Libinput people told me there's nothing they can do (https://gitlab.freedesktop.org/libinput/libinput/-/issues/946)
-and referred me to this mailing list.
+The chip hardware revision, firmware version and regdata
+revision is needed to discern because for example touchkeys
+are handled by different registers on different versions of
+the chip. Example output from BT404:
 
-Do you see a potential margin of improvement here?
+Zinitix-TS 3-0020: chip revision 4040 firmware version 0088
+  regdata version 0004
 
-If there's any further test I could run or experimental drivers to try, please tell me.
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+---
+ChangeLog v1->v2:
+- Move read status into the per-device struct.
+---
+ drivers/input/touchscreen/zinitix.c | 34 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 34 insertions(+)
 
-Thanks
+diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
+index 1df93c96f6bf..e47e0bff80db 100644
+--- a/drivers/input/touchscreen/zinitix.c
++++ b/drivers/input/touchscreen/zinitix.c
+@@ -150,6 +150,10 @@ struct bt541_ts_data {
+ 	u32 zinitix_mode;
+ 	u32 keycodes[MAX_SUPPORTED_BUTTON_NUM];
+ 	int num_keycodes;
++	bool read_versioninfo;
++	u16 chip_revision;
++	u16 firmware_version;
++	u16 regdata_version;
+ };
+ 
+ static int zinitix_read_data(struct i2c_client *client,
+@@ -194,6 +198,18 @@ static int zinitix_write_cmd(struct i2c_client *client, u16 reg)
+ 	return 0;
+ }
+ 
++static u16 zinitix_get_u16_reg(struct bt541_ts_data *bt541, u16 vreg)
++{
++	struct i2c_client *client = bt541->client;
++	int error;
++	__le16 val;
++
++	error = zinitix_read_data(client, vreg, (void *)&val, 2);
++	if (error)
++		return U8_MAX;
++        return le16_to_cpu(val);
++}
++
+ static int zinitix_init_touch(struct bt541_ts_data *bt541)
+ {
+ 	struct i2c_client *client = bt541->client;
+@@ -207,6 +223,24 @@ static int zinitix_init_touch(struct bt541_ts_data *bt541)
+ 		return error;
+ 	}
+ 
++	/*
++	 * Read and cache the chip revision and firmware version the first time
++	 * we get here.
++	 */
++	if (!bt541->read_versioninfo) {
++		bt541->chip_revision = zinitix_get_u16_reg(bt541,
++					ZINITIX_CHIP_REVISION);
++		bt541->firmware_version = zinitix_get_u16_reg(bt541,
++					ZINITIX_FIRMWARE_VERSION);
++		bt541->regdata_version = zinitix_get_u16_reg(bt541,
++					ZINITIX_DATA_VERSION_REG);
++		dev_dbg(&client->dev,
++			"chip revision %04x firmware version %04x regdata version %04x\n",
++			bt541->chip_revision, bt541->firmware_version,
++			bt541->regdata_version);
++		bt541->read_versioninfo = true;
++	}
++
+ 	error = zinitix_write_u16(client, ZINITIX_INT_ENABLE_FLAG, 0x0);
+ 	if (error) {
+ 		dev_err(&client->dev,
+
+-- 
+2.46.0
 

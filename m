@@ -1,23 +1,23 @@
-Received: from fgw21-7.mail.saunalahti.fi (fgw21-7.mail.saunalahti.fi [62.142.5.82])
+Received: from fgw20-7.mail.saunalahti.fi (fgw20-7.mail.saunalahti.fi [62.142.5.81])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 613A418BC17
-	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:29:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.82
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DFD0187FF7
+	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:29:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725316169; cv=none; b=NfwSov/QgcOTTetcKOGmiDCBaQN6npQPZ6IarZcboKOwai3td/8eYtXxLR2qSX4vMTsy+EY5EyXK10Z0gVx6laESB6M3ZwOoedtPKX3hOE65bnqA3+rC1kTaacb7iKWSOf7U1k8aKjaGsEMbx4fy+D6WkTMQOaGWuaJkhvuuTzM=
+	t=1725316173; cv=none; b=AI0i9tg/BUk3eJy52oqD/QKZ9BhdI5useQ6PYHdNFtbZhN2C+jTLRN0AQbm+rDB24SwJ4kFnVyrYuFR23Ne7/atB9u2LWXN/WFPjopN6/EVhV5cBQwMBHtapm9UkmE7v0OOgWDAgAOqs2O/s0ihSuvn3+XZSh7FYI4j21iktGV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725316169; c=relaxed/simple;
-	bh=rz4cPLPk4U/N9gxi84pXdf1L9hx4wLHD3D5UxEPPbnc=;
+	s=arc-20240116; t=1725316173; c=relaxed/simple;
+	bh=JbN8T71a/PZKhOL1QNhERt7e8cyfCWMB8Ep8u0D95s4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dto+rLuCKCeUB2bn1tsuMKiJtHpxnqrRpGy1LDKKQ50LIFFitsnq6iKo9GhBhcDIARbAcxoVCaaEDcSEN8KtOjcBk8zz5SCxHXIKRNZ8PqQ/+OyVrqCWVmheyp3B3KzlTjWy29FQ0FytrOmkwcapbcKvYlnUAt1oVEZunHWG/II=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.82
+	 MIME-Version; b=jvblGuZnfEaA27/TJg8VWcchyhyUPqVv4ZE5KfOqjo1oWpxA3UUfP2SjIEEEqftkdaKCjuO8fiBrClo8GTVzQus0XI6DtAWQqSesNP0QuUy3KBZIpMqViNCMbuG3r1wiaGdX/Lg4XT+pV8p325WYedtbNebfRr1JYdE2ltDvpYg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.81
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
 Received: from localhost (88-113-25-87.elisa-laajakaista.fi [88.113.25.87])
 	by fgw20.mail.saunalahti.fi (Halon) with ESMTP
-	id b3ad4428-697a-11ef-8e8a-005056bd6ce9;
-	Tue, 03 Sep 2024 01:28:39 +0300 (EEST)
+	id aff40cbd-697a-11ef-8e8a-005056bd6ce9;
+	Tue, 03 Sep 2024 01:28:33 +0300 (EEST)
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
 To: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
 	David Lechner <dlechner@baylibre.com>,
@@ -36,9 +36,9 @@ Cc: Jiri Kosina <jikos@kernel.org>,
 	Lars-Peter Clausen <lars@metafoo.de>,
 	Michael Hennerich <Michael.Hennerich@analog.com>,
 	Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v1 14/22] iio: imu: st_lsm6dsx: Get platform data via dev_get_platdata()
-Date: Tue,  3 Sep 2024 01:16:59 +0300
-Message-ID: <20240902222824.1145571-15-andy.shevchenko@gmail.com>
+Subject: [PATCH v1 06/22] iio: adc: ltc2497: Get platform data via dev_get_platdata()
+Date: Tue,  3 Sep 2024 01:16:51 +0300
+Message-ID: <20240902222824.1145571-7-andy.shevchenko@gmail.com>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
 References: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
@@ -54,76 +54,47 @@ From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Access to platform data via dev_get_platdata() getter to make code cleaner.
 
+While at it, drop duplicate NULL check that iio_map_array_register()
+already has.
+
 Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c | 15 +++++----------
+ drivers/iio/adc/ltc2497-core.c | 15 +++++----------
  1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-index ed0267929725..3958b5e1a3f6 100644
---- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-+++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c
-@@ -2132,14 +2132,11 @@ st_lsm6dsx_get_drdy_reg(struct st_lsm6dsx_hw *hw,
- 			const struct st_lsm6dsx_reg **drdy_reg)
+diff --git a/drivers/iio/adc/ltc2497-core.c b/drivers/iio/adc/ltc2497-core.c
+index 996f6cbbed3c..ad8ddf80310e 100644
+--- a/drivers/iio/adc/ltc2497-core.c
++++ b/drivers/iio/adc/ltc2497-core.c
+@@ -168,6 +168,7 @@ static const struct iio_info ltc2497core_info = {
+ int ltc2497core_probe(struct device *dev, struct iio_dev *indio_dev)
  {
- 	struct device *dev = hw->dev;
-+	const struct st_sensors_platform_data *pdata = dev_get_platdata(dev);
- 	int err = 0, drdy_pin;
+ 	struct ltc2497core_driverdata *ddata = iio_priv(indio_dev);
++	struct iio_map *plat_data = dev_get_platdata(dev);
+ 	int ret;
  
--	if (device_property_read_u32(dev, "st,drdy-int-pin", &drdy_pin) < 0) {
--		struct st_sensors_platform_data *pdata;
+ 	/*
+@@ -200,16 +201,10 @@ int ltc2497core_probe(struct device *dev, struct iio_dev *indio_dev)
+ 		return ret;
+ 	}
+ 
+-	if (dev->platform_data) {
+-		struct iio_map *plat_data;
 -
--		pdata = (struct st_sensors_platform_data *)dev->platform_data;
-+	if (device_property_read_u32(dev, "st,drdy-int-pin", &drdy_pin) < 0)
- 		drdy_pin = pdata ? pdata->drdy_int_pin : 1;
--	}
+-		plat_data = (struct iio_map *)dev->platform_data;
+-
+-		ret = iio_map_array_register(indio_dev, plat_data);
+-		if (ret) {
+-			dev_err(&indio_dev->dev, "iio map err: %d\n", ret);
+-			goto err_regulator_disable;
+-		}
++	ret = iio_map_array_register(indio_dev, plat_data);
++	if (ret) {
++		dev_err(&indio_dev->dev, "iio map err: %d\n", ret);
++		goto err_regulator_disable;
+ 	}
  
- 	switch (drdy_pin) {
- 	case 1:
-@@ -2162,14 +2159,13 @@ st_lsm6dsx_get_drdy_reg(struct st_lsm6dsx_hw *hw,
- static int st_lsm6dsx_init_shub(struct st_lsm6dsx_hw *hw)
- {
- 	const struct st_lsm6dsx_shub_settings *hub_settings;
--	struct st_sensors_platform_data *pdata;
- 	struct device *dev = hw->dev;
-+	const struct st_sensors_platform_data *pdata = dev_get_platdata(dev);
- 	unsigned int data;
- 	int err = 0;
- 
- 	hub_settings = &hw->settings->shub_settings;
- 
--	pdata = (struct st_sensors_platform_data *)dev->platform_data;
- 	if (device_property_read_bool(dev, "st,pullups") ||
- 	    (pdata && pdata->pullups)) {
- 		if (hub_settings->pullup_en.sec_page) {
-@@ -2524,9 +2520,9 @@ static irqreturn_t st_lsm6dsx_sw_trigger_handler_thread(int irq,
- 
- static int st_lsm6dsx_irq_setup(struct st_lsm6dsx_hw *hw)
- {
--	struct st_sensors_platform_data *pdata;
- 	const struct st_lsm6dsx_reg *reg;
- 	struct device *dev = hw->dev;
-+	const struct st_sensors_platform_data *pdata = dev_get_platdata(dev);
- 	unsigned long irq_type;
- 	bool irq_active_low;
- 	int err;
-@@ -2554,7 +2550,6 @@ static int st_lsm6dsx_irq_setup(struct st_lsm6dsx_hw *hw)
- 	if (err < 0)
- 		return err;
- 
--	pdata = (struct st_sensors_platform_data *)dev->platform_data;
- 	if (device_property_read_bool(dev, "drive-open-drain") ||
- 	    (pdata && pdata->open_drain)) {
- 		reg = &hw->settings->irq_config.od;
-@@ -2639,7 +2634,7 @@ static int st_lsm6dsx_init_regulators(struct device *dev)
- int st_lsm6dsx_probe(struct device *dev, int irq, int hw_id,
- 		     struct regmap *regmap)
- {
--	struct st_sensors_platform_data *pdata = dev->platform_data;
-+	const struct st_sensors_platform_data *pdata = dev_get_platdata(dev);
- 	const struct st_lsm6dsx_shub_settings *hub_settings;
- 	struct st_lsm6dsx_hw *hw;
- 	const char *name = NULL;
+ 	ddata->addr_prev = LTC2497_CONFIG_DEFAULT;
 -- 
 2.46.0
 

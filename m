@@ -1,23 +1,23 @@
-Received: from fgw23-7.mail.saunalahti.fi (fgw23-7.mail.saunalahti.fi [62.142.5.84])
+Received: from fgw20-7.mail.saunalahti.fi (fgw20-7.mail.saunalahti.fi [62.142.5.81])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4584718787F
-	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:29:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E813189913
+	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:29:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725316164; cv=none; b=b+lz2EDApjbWruxOdoumaxZQ8yIibtfhbACraL2FWK9FtTpTeXf+vRjJVFP+Z2r7cyV9bPTT1i9xyQXCA1A/ET+wUdFBIfJeir/9CGGsMB5CHMpVqGiUwqM0fsX7W1/63sFzcAaXRBuRcODuDC3GnaXqaJaQiEZoa3xXWlszT+k=
+	t=1725316166; cv=none; b=GdRtKCtT/BW6TI31eLuwcyHtLLBOhBfTF4mrLochcgMMx7G6T7bU98qtKR0HMsELdcKgh7KRn7CJx7Y6CDG1c/Ay0iLV9LFiQdSsncnEe0kg/g7fzEMJexZzE0qpGK14Jaq57YEOgodVn0IXF4qKgQX9HZ8SWLNdOHD3ciDWsRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725316164; c=relaxed/simple;
-	bh=3dUeMEczuVrufl8SGQjkyOoqnQqLp4XWk+aY6v1VujM=;
+	s=arc-20240116; t=1725316166; c=relaxed/simple;
+	bh=nHbfgrvQy0z0lM6FjGAHDJWcQ2iS9trkZXW+dADx3oY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gI3KiBbfcB9Gm9TSG5E5GVZCFa/Vzste5jC/crvhj7spgIqCG+FqC0ySSEK8kYioqjuLZrRefq22asxnbPlsyErmX7BnsIc3odwQBGMxE/KPmQl13St3ok5kp4V+yGwiIx0MdSi0Tsok7XoHeIwqI8kq57qdkUt7X90FbISsNpU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.84
+	 MIME-Version; b=ioVuNqg7YC5dnhEI7rNttDDWfRZcH5m90UYqrdyyV3Y6S+xg3tCnqUB/3NpYJZjuWZrcKTtHgdh9oWLYz8z2ykjAe6aWJ/snpKdl4rweCnC/ZzIBGUDbw6/J5zQxwH93Yn6o0451s+csquml4342y1Wj9V4mL7VBL32DZSbTU8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.81
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
 Received: from localhost (88-113-25-87.elisa-laajakaista.fi [88.113.25.87])
-	by fgw21.mail.saunalahti.fi (Halon) with ESMTP
-	id b330a4cc-697a-11ef-abae-005056bdd08f;
-	Tue, 03 Sep 2024 01:28:38 +0300 (EEST)
+	by fgw20.mail.saunalahti.fi (Halon) with ESMTP
+	id ae7e2ff2-697a-11ef-8e8a-005056bd6ce9;
+	Tue, 03 Sep 2024 01:28:30 +0300 (EEST)
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
 To: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
 	David Lechner <dlechner@baylibre.com>,
@@ -36,9 +36,9 @@ Cc: Jiri Kosina <jikos@kernel.org>,
 	Lars-Peter Clausen <lars@metafoo.de>,
 	Michael Hennerich <Michael.Hennerich@analog.com>,
 	Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v1 13/22] iio: gyro: hid-sensor-gyro-3d: Get platform data via dev_get_platdata()
-Date: Tue,  3 Sep 2024 01:16:58 +0300
-Message-ID: <20240902222824.1145571-14-andy.shevchenko@gmail.com>
+Subject: [PATCH v1 03/22] iio: adc: ad7791: Get platform data via dev_get_platdata()
+Date: Tue,  3 Sep 2024 01:16:48 +0300
+Message-ID: <20240902222824.1145571-4-andy.shevchenko@gmail.com>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
 References: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
@@ -56,35 +56,31 @@ Access to platform data via dev_get_platdata() getter to make code cleaner.
 
 Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/iio/gyro/hid-sensor-gyro-3d.c | 4 ++--
+ drivers/iio/adc/ad7791.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/gyro/hid-sensor-gyro-3d.c b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-index 59a38bf9459b..490c325897bd 100644
---- a/drivers/iio/gyro/hid-sensor-gyro-3d.c
-+++ b/drivers/iio/gyro/hid-sensor-gyro-3d.c
-@@ -279,11 +279,11 @@ static int gyro_3d_parse_report(struct platform_device *pdev,
- /* Function to initialize the processing for usage id */
- static int hid_gyro_3d_probe(struct platform_device *pdev)
+diff --git a/drivers/iio/adc/ad7791.c b/drivers/iio/adc/ad7791.c
+index 86effe8501b4..5d2ad3dd6caa 100644
+--- a/drivers/iio/adc/ad7791.c
++++ b/drivers/iio/adc/ad7791.c
+@@ -371,7 +371,7 @@ static const struct iio_info ad7791_no_filter_info = {
+ };
+ 
+ static int ad7791_setup(struct ad7791_state *st,
+-			struct ad7791_platform_data *pdata)
++			const struct ad7791_platform_data *pdata)
  {
-+	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
- 	int ret = 0;
- 	static const char *name = "gyro_3d";
+ 	/* Set to poweron-reset default values */
+ 	st->mode = AD7791_MODE_BUFFER;
+@@ -401,7 +401,7 @@ static void ad7791_reg_disable(void *reg)
+ 
+ static int ad7791_probe(struct spi_device *spi)
+ {
+-	struct ad7791_platform_data *pdata = spi->dev.platform_data;
++	const struct ad7791_platform_data *pdata = dev_get_platdata(&spi->dev);
  	struct iio_dev *indio_dev;
- 	struct gyro_3d_state *gyro_state;
--	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
- 
- 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*gyro_state));
- 	if (!indio_dev)
-@@ -361,7 +361,7 @@ static int hid_gyro_3d_probe(struct platform_device *pdev)
- /* Function to deinitialize the processing for usage id */
- static void hid_gyro_3d_remove(struct platform_device *pdev)
- {
--	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
-+	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
- 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
- 	struct gyro_3d_state *gyro_state = iio_priv(indio_dev);
- 
+ 	struct ad7791_state *st;
+ 	int ret;
 -- 
 2.46.0
 

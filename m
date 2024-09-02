@@ -1,23 +1,22 @@
 Received: from fgw21-7.mail.saunalahti.fi (fgw21-7.mail.saunalahti.fi [62.142.5.82])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D14D187849
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C0D2188581
 	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:28:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.82
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725316120; cv=none; b=fxGU62SqkZLlI4T3fkRcsIvj5oInfYSvrrgB9M2vSoA2rUa5oQbhqf306vWuVSOJDcUMkbzjvbYm4w+6MbyQrmvl2tot8yjiDFKp/ZOXw119Zwz8YkNMggwR6mT6LmclHbnwNflfRhloRH7phidOiq4USScZ4lzXjtljKEV4a8E=
+	t=1725316120; cv=none; b=qyRa4MLHtbnqNpejX70A2qQ+KZEcQD/X84E+Mc3e5X9Kidmz8+v6ieH7dIv4u32Dp0dE0HUlNRmnLxNlTrCUz5zgtZHKm1V/1uCCEexHSLVBLLTNN8VQPW+TUCoVI96vBltD4cqYpty3RzOb1oIM7MPtow6YRkyu2MBnFlCnlaY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725316120; c=relaxed/simple;
-	bh=QWPgIRpwXymjEgzsDh0vqG0Bdp+osf8cuQX3gO2Y+Z8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZzPLM/HxiiqzoUtHXfbvRCvW9LU5r7HAp6TuX8FZ7S7zJzLtbYRNA6axt1xhn++VqLKEl2nUMb68UDiTvZBJlBEvORONQksNeDcVRJXCQC2Ff8vQbTPUIIIu8oWMiJMya4U4P138jqFOSqdf0mV4ucpdM1LH+61clk9vuHdAm7s=
+	bh=h/Tc5Jonr5mhfATTRiYj4QzNBRxFdOcYM0UuTjM6PEg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TKueK8i1KgyHY4mxcf3IUbWlbM1GDwCv5FmyTLBaQ7NiOVP3YCXTTFTkHIDdVJAc5eDWoZHXd98d0JPzFkABs9VLItfHLjD0dibXYPLP6BzJz0lG5lUitBcY6XetZ3lbozR6ac+UXotjgkE7CJEbuLW7dTvwinRdIPrhvlmJjcQ=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.82
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
 Received: from localhost (88-113-25-87.elisa-laajakaista.fi [88.113.25.87])
-	by fgw22.mail.saunalahti.fi (Halon) with ESMTP
-	id b1ab8451-697a-11ef-8ecb-005056bdf889;
-	Tue, 03 Sep 2024 01:28:36 +0300 (EEST)
+	by fgw23.mail.saunalahti.fi (Halon) with ESMTP
+	id abfcba88-697a-11ef-8256-005056bdfda7;
+	Tue, 03 Sep 2024 01:28:26 +0300 (EEST)
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
 To: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
 	David Lechner <dlechner@baylibre.com>,
@@ -36,12 +35,10 @@ Cc: Jiri Kosina <jikos@kernel.org>,
 	Lars-Peter Clausen <lars@metafoo.de>,
 	Michael Hennerich <Michael.Hennerich@analog.com>,
 	Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v1 10/22] iio: dac: max517: Get platform data via dev_get_platdata()
-Date: Tue,  3 Sep 2024 01:16:55 +0300
-Message-ID: <20240902222824.1145571-11-andy.shevchenko@gmail.com>
+Subject: [PATCH v1 00/22] iio: use dev_get_platdata() to access platform_data
+Date: Tue,  3 Sep 2024 01:16:45 +0300
+Message-ID: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
 X-Mailer: git-send-email 2.46.0
-In-Reply-To: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
-References: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -50,40 +47,66 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Unify how IIO drivers access platform_data field of struct device.
+In simple and straightforward cases constify the local variables.
 
-Access to platform data via dev_get_platdata() getter to make code cleaner.
+(Not tested)
 
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
----
- drivers/iio/dac/max517.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+Andy Shevchenko (22):
+  iio: accel: hid-sensor-accel-3d: Get platform data via
+    dev_get_platdata()
+  iio: adc: ad7266: Get platform data via dev_get_platdata()
+  iio: adc: ad7791: Get platform data via dev_get_platdata()
+  iio: adc: ad7887: Get platform data via dev_get_platdata()
+  iio: adc: ad7793: Get platform data via dev_get_platdata()
+  iio: adc: ltc2497: Get platform data via dev_get_platdata()
+  iio: dac: ad5504: Get platform data via dev_get_platdata()
+  iio: dac: ad5791: Get platform data via dev_get_platdata()
+  iio: dac: m62332: Get platform data via dev_get_platdata()
+  iio: dac: max517: Get platform data via dev_get_platdata()
+  iio: frequency: ad9523: Get platform data via dev_get_platdata()
+  iio: frequency: adf4350: Get platform data via dev_get_platdata()
+  iio: gyro: hid-sensor-gyro-3d: Get platform data via
+    dev_get_platdata()
+  iio: imu: st_lsm6dsx: Get platform data via dev_get_platdata()
+  iio: light: hid-sensor-als: Get platform data via dev_get_platdata()
+  iio: light: hid-sensor-prox: Get platform data via dev_get_platdata()
+  iio: light: lm3533-als: Get platform data via dev_get_platdata()
+  iio: magnetometer: hid-sensor-magn-3d: Get platform data via
+    dev_get_platdata()
+  iio: orientation: hid-sensor-incl-3d: Get platform data via
+    dev_get_platdata()
+  iio: orientation: hid-sensor-rotation: Get platform data via
+    dev_get_platdata()
+  iio: position: hid-sensor-custom-intel-hinge: Get platform data via
+    dev_get_platdata()
+  iio: pressure: hid-sensor-press: Get platform data via
+    dev_get_platdata()
 
-diff --git a/drivers/iio/dac/max517.c b/drivers/iio/dac/max517.c
-index 685980184d3c..96781ae04f9d 100644
---- a/drivers/iio/dac/max517.c
-+++ b/drivers/iio/dac/max517.c
-@@ -143,10 +143,10 @@ static const struct iio_chan_spec max517_channels[] = {
- 
- static int max517_probe(struct i2c_client *client)
- {
-+	const struct max517_platform_data *platform_data = dev_get_platdata(&client->dev);
- 	const struct i2c_device_id *id = i2c_client_get_device_id(client);
- 	struct max517_data *data;
- 	struct iio_dev *indio_dev;
--	struct max517_platform_data *platform_data = client->dev.platform_data;
- 	int chan;
- 
- 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
-@@ -176,7 +176,7 @@ static int max517_probe(struct i2c_client *client)
- 
- 	/*
- 	 * Reference voltage on MAX518 and default is 5V, else take vref_mv
--	 * from platform_data
-+	 * from platform_data.
- 	 */
- 	for (chan = 0; chan < indio_dev->num_channels; chan++) {
- 		if (id->driver_data == ID_MAX518 || !platform_data)
+ drivers/iio/accel/hid-sensor-accel-3d.c           |  5 ++---
+ drivers/iio/adc/ad7266.c                          |  2 +-
+ drivers/iio/adc/ad7791.c                          |  4 ++--
+ drivers/iio/adc/ad7793.c                          |  2 +-
+ drivers/iio/adc/ad7887.c                          |  2 +-
+ drivers/iio/adc/ltc2497-core.c                    | 15 +++++----------
+ drivers/iio/dac/ad5504.c                          |  2 +-
+ drivers/iio/dac/ad5791.c                          |  2 +-
+ drivers/iio/dac/m62332.c                          |  2 +-
+ drivers/iio/dac/max517.c                          |  4 ++--
+ drivers/iio/frequency/ad9523.c                    |  2 +-
+ drivers/iio/frequency/adf4350.c                   |  2 +-
+ drivers/iio/gyro/hid-sensor-gyro-3d.c             |  4 ++--
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_core.c      | 15 +++++----------
+ drivers/iio/light/hid-sensor-als.c                |  4 ++--
+ drivers/iio/light/hid-sensor-prox.c               |  4 ++--
+ drivers/iio/light/lm3533-als.c                    |  6 +++---
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c     |  4 ++--
+ drivers/iio/orientation/hid-sensor-incl-3d.c      |  4 ++--
+ drivers/iio/orientation/hid-sensor-rotation.c     |  4 ++--
+ .../iio/position/hid-sensor-custom-intel-hinge.c  |  4 ++--
+ drivers/iio/pressure/hid-sensor-press.c           |  4 ++--
+ 22 files changed, 43 insertions(+), 54 deletions(-)
+
 -- 
 2.46.0
 

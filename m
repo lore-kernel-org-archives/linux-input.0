@@ -1,172 +1,94 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1643125DB;
-	Mon,  2 Sep 2024 02:42:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3A768460
+	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 08:17:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725244942; cv=none; b=CndAInVET6RZOj69W8CX2rKO8ityQhD8WC9BQgFdaooQKjWgVuY1ZdYIB9eyYdrsd9a7MsyCbP5VH/1vw5W2T1a2eo+Ku9PsUvC4j1OAz+UA56HQOrmOiVbFV8/h7Wjm+u0bXWy8fd7XlFvcLSoJBAbyvmuGzhpcZ1cCetOTnaY=
+	t=1725265043; cv=none; b=mbjRynNhCiWBjX1U9PpT7Hf9UVhROama0RImVamhwKpkXaC7h3slaFft69ditf7m6a8TPlLq+XuocovNAPHfI2mOPlbILIKWkkJ/1xWynEoF8SJofddP4lBbRMqpShXOS9GYEdRutMobqPfEHqcZkuge0nTkvNANB2i9duZbxW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725244942; c=relaxed/simple;
-	bh=t6chKW6RMvMt2i9pgxOGJ5l7bmaMm7fN5NVEpyqYIHY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=WNWTwntSQbnGeWJkwGzzu2+V8aOudhP0RvAwSD3uUM+tjQPBLACfPKgmM+rctJqQ7Ok0y0+OEVoEX4De5VUDsohmt1/sN0DV7CqFyw60DoQpfLQsznuJLi2T0Ep7wdGIuRo55YIyXnJgca6SHSocAxTgQ1n7RNslK1pRtPb6UE4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OI2fhqN5; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OI2fhqN5"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-2d8818337a5so1369314a91.1;
-        Sun, 01 Sep 2024 19:42:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1725244940; x=1725849740; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yXd0X4HGrs7xpc3uqMOVPvCYkT/FBY5ETInSg1kYP44=;
-        b=OI2fhqN5aH7QktoJvwdHA0TfSVunVllMedaDPcUZYnQQ7lFunOZgws2LE8rT+XmbKD
-         Bty1E0JpJSC2+yfhNxDc1c/PGMtD4oSRRIUoySYXH9GMqkC8BuI6ClATgD9cPrqf3FhY
-         +VOx/bfD/sJLjY8HE3hKOwj7gLe1683pSApbmb2nv2/1ukUD8SRxXm21Vg6jBRk4F95s
-         IK0tH0qVeSqRYdC/g9mLGkcOj8IMWJ5lPn1SzFxHpij2G9uQfeDGk+14QlGtGd/UA3jj
-         bopvBN8cifzAUTz5pH9CD5tko6JOkHTOad5dph1J3DH7RGN9VKE5tH5lINjywivTD4a7
-         F7+g==
+	s=arc-20240116; t=1725265043; c=relaxed/simple;
+	bh=IRTJHVYUzlZ9RvtWow2fn+GIAETMjVyYAVFQqMO2Jgk=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=e11cRf6yEhttZXrztyAVZRviE+ADL2HzB/KBcLW++8Bx2GnCpyAmcJ+UMybSd1IYc2RD4kxc/xe04GI08YhKLNiHmktRTcVxHTQcFh7V81M2b3Z0ZC3iFn3R1dwNsNHPpcJ78JrOr4WyGzYGzr2P3gw+fICg9nGQVUHI2y77Opc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-io1-f71.google.com with SMTP id ca18e2360f4ac-82a1c57f4dcso499229439f.2
+        for <linux-input@vger.kernel.org>; Mon, 02 Sep 2024 01:17:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1725244940; x=1725849740;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=yXd0X4HGrs7xpc3uqMOVPvCYkT/FBY5ETInSg1kYP44=;
-        b=pMZNldTjdrTtYz99XtzMI5Xd4rsz8Y6FOS4aF7jG46bmBzl/TTWC6r5UJMzT0GrvbQ
-         miu8rFrA5JSZD975cBIny3q89SxrfsVUzRWwy3bpPXRwoHuEjdfoozV1Cd14rIFomWOi
-         Ik01eziUCREH8dG5j2NViEjT7c+mfi5MbEFl2z+Qo2z6IWmvgfWNgCOhMe27Vi4zgzs4
-         CW4Bt1psHAnXRtrC/R5HR2UQUiry90Z/Qjtuh9JzcwEZAffZla5Dwo3rrqDMDGvFOSKF
-         OWceXKpGr9WUr14lCmJlPysSQqRmAdSJU7BSM7ExK/ZgZ82WZ0xKv0GNJo4Im73Lsie6
-         90vg==
-X-Forwarded-Encrypted: i=1; AJvYcCWffTdPd9t2UTsOLHjjQAZ9vhn50AjJOyhg8Ep+JtIoPjOsvAApbSXKPJfN/U83g7XMOECTwoakWmitwA==@vger.kernel.org, AJvYcCXB95j6Z4bL/9BMaPaSxCehVy4oMuAb5uYrV3dUHrTFC32rlBY2oTPs+cl/SpaMlZGRbegXD65BuMJ/Xbem@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywt1g1DsG7PafO8VFNmrX7KBY9EY+t0vZogWVF6v88IkvuLBADv
-	zaF/t3SUcG9aVe7PwEjreqd5TfXBNJT8IfHm/3MDuGIUOz2WTfEx
-X-Google-Smtp-Source: AGHT+IFbP04WevZii1FQd+1xfh1FpFgPQh+p+H/vJhSqt+lAcxOjo4/qNj5li6ohhC9f5GcFNoRwPw==
-X-Received: by 2002:a17:90b:3c8:b0:2d8:999a:bc37 with SMTP id 98e67ed59e1d1-2d8999abeb0mr8334608a91.19.1725244939864;
-        Sun, 01 Sep 2024 19:42:19 -0700 (PDT)
-Received: from localhost.localdomain ([220.241.42.160])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-2d8f1b74a26sm59624a91.52.2024.09.01.19.42.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Sep 2024 19:42:19 -0700 (PDT)
-From: "Wei Ping.Xiao" <xiaoweiping.pccw@gmail.com>
-To: jikos@kernel.org,
-	benjamin.tissoires@redhat.com,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: svv@google.com,
-	hadess@hadess.net,
-	Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.10.y] HID: microsoft: Add rumble support to latest xbox controllers
-Date: Mon,  2 Sep 2024 10:42:05 +0800
-Message-Id: <20240902024205.9243-2-xiaoweiping.pccw@gmail.com>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20240902024205.9243-1-xiaoweiping.pccw@gmail.com>
-References: <20240902024205.9243-1-xiaoweiping.pccw@gmail.com>
+        d=1e100.net; s=20230601; t=1725265041; x=1725869841;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=2sns7FwWpwK54OmxtXlX+1DBcBpWQtZaZin2PDIL4+0=;
+        b=U6O6Eu+sXwKDobqxKfuthhnjFeVlXNDWIkhaQ7UYb1bRMbqU4H+Xh0lKaZste0pcmR
+         1w6if/kE5/rAnVqdSqM32giNNlWVTOOS3uyt8hl0Nk8AMl9OQ2CzIcvAhXGLpwJZjlql
+         xYQLelSNtmUxi+huZHv7Gvtpe47kw9Q99VJuln0iaFWGBEG2dBoAkoyqQlD61YnjZQQY
+         DMb3MgsbEsaLmSa4vZNI1FB904FHQ6SuD3IWcHmqqcPQ7fX9BQXfU5gLTCXp/M7eAlFB
+         OVTBoAtFoRoF198lepJdc1rxNKQdH2BPNrZrosvIejG90zhFlYlcFFbQ4aFZJUNdveM8
+         rTbw==
+X-Gm-Message-State: AOJu0YwCMEY6FYKjPKkQVxdpC1yT90rxgEaKYpuK1xxmBk0JNr4by4S6
+	F2epvrgyERsITed+MiOtbohzmu321M5j9xLzLN9ye/tputIp/BgzjyWyRDTEU/fuP9wFfaYIlIc
+	yzjVEQKKAc+MlPWkgGJgDCkkQXclhdMuWZ7ZtmusglhuyCDgBXozhawM=
+X-Google-Smtp-Source: AGHT+IGbwOCsNT+/J0+VefbIlcQy4+aRzLa3+CQCPb/6igbcthkuqiPhcsqwpBWr6e16Rf1yZ4MtiBXaLjNbXVhny5tNaffBanRZ
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6e02:1e09:b0:39d:637f:97cf with SMTP id
+ e9e14a558f8ab-39f40ef46b7mr6736105ab.1.1725265040927; Mon, 02 Sep 2024
+ 01:17:20 -0700 (PDT)
+Date: Mon, 02 Sep 2024 01:17:20 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <000000000000e882a306211e9197@google.com>
+Subject: [syzbot] Monthly input report (Sep 2024)
+From: syzbot <syzbot+list404de26cc86aa8de7c97@syzkaller.appspotmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-From: Siarhei Vishniakou <svv@google.com>
+Hello input maintainers/developers,
 
-Currently, rumble is only supported via bluetooth on a single xbox
-controller, called 'model 1708'. On the back of the device, it's named
-'wireless controller for xbox one'. However, in 2021, Microsoft released
-a firmware update for this controller. As part of this update, the HID
-descriptor of the device changed. The product ID was also changed from
-0x02fd to 0x0b20. On this controller, rumble was supported via
-hid-microsoft, which matched against the old product id (0x02fd). As a
-result, the firmware update broke rumble support on this controller.
+This is a 31-day syzbot report for the input subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/input
 
-See:
-https://news.xbox.com/en-us/2021/09/08/xbox-controller-firmware-update-rolling-out-to-insiders-starting-today/
+During the period, 3 new issues were detected and 0 were fixed.
+In total, 18 issues are still open and 57 have been fixed so far.
 
-The hid-microsoft driver actually supports rumble on the new firmware,
-as well. So simply adding new product id is sufficient to bring back
-this support.
+Some of the still happening issues:
 
-After discussing further with the xbox team, it was pointed out that
-another xbox controller, xbox elite series 2, can be supported in a
-similar way.
+Ref Crashes Repro Title
+<1> 702     No    possible deadlock in evdev_pass_values (2)
+                  https://syzkaller.appspot.com/bug?extid=13d3cb2a3dc61e6092f5
+<2> 392     Yes   INFO: task hung in uhid_char_release
+                  https://syzkaller.appspot.com/bug?extid=8fe2d362af0e1cba8735
+<3> 353     Yes   WARNING in cm109_urb_irq_callback/usb_submit_urb
+                  https://syzkaller.appspot.com/bug?extid=2d6d691af5ab4b7e66df
+<4> 23      Yes   WARNING in cm109_input_open/usb_submit_urb (3)
+                  https://syzkaller.appspot.com/bug?extid=ac0f9c4cc1e034160492
+<5> 21      Yes   possible deadlock in uinput_request_submit
+                  https://syzkaller.appspot.com/bug?extid=159077b1355b8cd72757
+<6> 19      No    possible deadlock in __input_unregister_device
+                  https://syzkaller.appspot.com/bug?extid=3f4bf5c599ee9b16d704
+<7> 10      Yes   INFO: rcu detected stall in sendmsg (4)
+                  https://syzkaller.appspot.com/bug?extid=9c0539eda655673bdaa4
+<8> 9       No    possible deadlock in hid_hw_open
+                  https://syzkaller.appspot.com/bug?extid=2313ca2498b9554beeba
+<9> 3       Yes   WARNING in bcm5974_start_traffic/usb_submit_urb (2)
+                  https://syzkaller.appspot.com/bug?extid=b064b5599f18f7ebb1e1
 
-Add rumble support for all of these devices in this patch. Two of the
-devices have received firmware updates that caused their product id's to
-change. Both old and new firmware versions of these devices were tested.
-
-The tested controllers are:
-
-1. 'wireless controller for xbox one', model 1708
-2. 'xbox wireless controller', model 1914. This is also sometimes
-   referred to as 'xbox series S|X'.
-3. 'elite series 2', model 1797.
-
-The tested configurations are:
-1. model 1708, pid 0x02fd (old firmware)
-2. model 1708, pid 0x0b20 (new firmware)
-3. model 1914, pid 0x0b13
-4. model 1797, pid 0x0b05 (old firmware)
-5. model 1797, pid 0x0b22 (new firmware)
-
-I verified rumble support on both bluetooth and usb.
-
-Reviewed-by: Bastien Nocera <hadess@hadess.net>
-Signed-off-by: Siarhei Vishniakou <svv@google.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 ---
- drivers/hid/hid-ids.h       | 10 +++++++++-
- drivers/hid/hid-microsoft.c | 11 ++++++++++-
- 2 files changed, 19 insertions(+), 2 deletions(-)
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 9f3f7588fe46..c4e4a24692f6 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -875,7 +875,15 @@
- #define USB_DEVICE_ID_MS_TYPE_COVER_2    0x07a9
- #define USB_DEVICE_ID_MS_POWER_COVER     0x07da
- #define USB_DEVICE_ID_MS_SURFACE3_COVER		0x07de
--#define USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER	0x02fd
-+/*
-+ * For a description of the Xbox controller models, refer to:
-+ * https://en.wikipedia.org/wiki/Xbox_Wireless_Controller#Summary
-+ */
-+#define USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1708	0x02fd
-+#define USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1708_BLE	0x0b20
-+#define USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1914	0x0b13
-+#define USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1797	0x0b05
-+#define USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1797_BLE	0x0b22
- #define USB_DEVICE_ID_MS_PIXART_MOUSE    0x00cb
- #define USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS      0x02e0
- #define USB_DEVICE_ID_MS_MOUSE_0783      0x0783
-diff --git a/drivers/hid/hid-microsoft.c b/drivers/hid/hid-microsoft.c
-index 071fd093a5f4..9345e2bfd56e 100644
---- a/drivers/hid/hid-microsoft.c
-+++ b/drivers/hid/hid-microsoft.c
-@@ -446,7 +446,16 @@ static const struct hid_device_id ms_devices[] = {
- 		.driver_data = MS_PRESENTER },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, 0x091B),
- 		.driver_data = MS_SURFACE_DIAL },
--	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_ONE_S_CONTROLLER),
-+
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1708),
-+		.driver_data = MS_QUIRK_FF },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1708_BLE),
-+		.driver_data = MS_QUIRK_FF },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1914),
-+		.driver_data = MS_QUIRK_FF },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1797),
-+		.driver_data = MS_QUIRK_FF },
-+	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_MS_XBOX_CONTROLLER_MODEL_1797_BLE),
- 		.driver_data = MS_QUIRK_FF },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_MICROSOFT, USB_DEVICE_ID_8BITDO_SN30_PRO_PLUS),
- 		.driver_data = MS_QUIRK_FF },
--- 
-2.39.1
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
 
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
+
+You may send multiple commands in a single email message.

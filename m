@@ -1,23 +1,23 @@
-Received: from fgw20-7.mail.saunalahti.fi (fgw20-7.mail.saunalahti.fi [62.142.5.81])
+Received: from fgw21-7.mail.saunalahti.fi (fgw21-7.mail.saunalahti.fi [62.142.5.82])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8E9F1A4E8A
-	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:28:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D14D187849
+	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:28:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.82
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725316116; cv=none; b=EO6SV56j1hXceLtgvWpHqTbzNYxXhRaQX0kUWxFrDtxClcswGHXP6QAOn6muB+TGUXPGOqH2h0h4aqWtMXJDHBmddhTDUMCXi2COz13+DdkdUD/p2ephD0QlGuDhYylXJqVqxlIIjnWbS8ptGFag2E39b/Qrr6Creql2QznmpO0=
+	t=1725316120; cv=none; b=fxGU62SqkZLlI4T3fkRcsIvj5oInfYSvrrgB9M2vSoA2rUa5oQbhqf306vWuVSOJDcUMkbzjvbYm4w+6MbyQrmvl2tot8yjiDFKp/ZOXw119Zwz8YkNMggwR6mT6LmclHbnwNflfRhloRH7phidOiq4USScZ4lzXjtljKEV4a8E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725316116; c=relaxed/simple;
-	bh=TJVJWUgFroHz4D1KAqxrh0hBNP9FzfldUPa3LBUsFjI=;
+	s=arc-20240116; t=1725316120; c=relaxed/simple;
+	bh=QWPgIRpwXymjEgzsDh0vqG0Bdp+osf8cuQX3gO2Y+Z8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=E8JE/Gl9hUZ42TFHokXyulu/3UNspQsgqQ7qdKq65VZmQiwGaSpXIpzJOWv9LV52r8oWC4mWm2bt4+T7egnCmM/LD0BFZj8X7RgrIbzuxhDk6A+PT0Kp4nqjIoC6GcZjbPrKnrGP4HFyHq+ysHYQqMxRQjbvOdmiUhiVFcF4IK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.81
+	 MIME-Version; b=ZzPLM/HxiiqzoUtHXfbvRCvW9LU5r7HAp6TuX8FZ7S7zJzLtbYRNA6axt1xhn++VqLKEl2nUMb68UDiTvZBJlBEvORONQksNeDcVRJXCQC2Ff8vQbTPUIIIu8oWMiJMya4U4P138jqFOSqdf0mV4ucpdM1LH+61clk9vuHdAm7s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.82
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
 Received: from localhost (88-113-25-87.elisa-laajakaista.fi [88.113.25.87])
 	by fgw22.mail.saunalahti.fi (Halon) with ESMTP
-	id af57ce29-697a-11ef-8ecb-005056bdf889;
-	Tue, 03 Sep 2024 01:28:32 +0300 (EEST)
+	id b1ab8451-697a-11ef-8ecb-005056bdf889;
+	Tue, 03 Sep 2024 01:28:36 +0300 (EEST)
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
 To: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
 	David Lechner <dlechner@baylibre.com>,
@@ -36,9 +36,9 @@ Cc: Jiri Kosina <jikos@kernel.org>,
 	Lars-Peter Clausen <lars@metafoo.de>,
 	Michael Hennerich <Michael.Hennerich@analog.com>,
 	Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v1 05/22] iio: adc: ad7793: Get platform data via dev_get_platdata()
-Date: Tue,  3 Sep 2024 01:16:50 +0300
-Message-ID: <20240902222824.1145571-6-andy.shevchenko@gmail.com>
+Subject: [PATCH v1 10/22] iio: dac: max517: Get platform data via dev_get_platdata()
+Date: Tue,  3 Sep 2024 01:16:55 +0300
+Message-ID: <20240902222824.1145571-11-andy.shevchenko@gmail.com>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
 References: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
@@ -56,22 +56,34 @@ Access to platform data via dev_get_platdata() getter to make code cleaner.
 
 Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/iio/adc/ad7793.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/dac/max517.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/ad7793.c b/drivers/iio/adc/ad7793.c
-index abebd519cafa..b86e89370e0d 100644
---- a/drivers/iio/adc/ad7793.c
-+++ b/drivers/iio/adc/ad7793.c
-@@ -770,7 +770,7 @@ static const struct ad7793_chip_info ad7793_chip_info_tbl[] = {
+diff --git a/drivers/iio/dac/max517.c b/drivers/iio/dac/max517.c
+index 685980184d3c..96781ae04f9d 100644
+--- a/drivers/iio/dac/max517.c
++++ b/drivers/iio/dac/max517.c
+@@ -143,10 +143,10 @@ static const struct iio_chan_spec max517_channels[] = {
  
- static int ad7793_probe(struct spi_device *spi)
+ static int max517_probe(struct i2c_client *client)
  {
--	const struct ad7793_platform_data *pdata = spi->dev.platform_data;
-+	const struct ad7793_platform_data *pdata = dev_get_platdata(&spi->dev);
- 	struct ad7793_state *st;
++	const struct max517_platform_data *platform_data = dev_get_platdata(&client->dev);
+ 	const struct i2c_device_id *id = i2c_client_get_device_id(client);
+ 	struct max517_data *data;
  	struct iio_dev *indio_dev;
- 	int ret, vref_mv = 0;
+-	struct max517_platform_data *platform_data = client->dev.platform_data;
+ 	int chan;
+ 
+ 	indio_dev = devm_iio_device_alloc(&client->dev, sizeof(*data));
+@@ -176,7 +176,7 @@ static int max517_probe(struct i2c_client *client)
+ 
+ 	/*
+ 	 * Reference voltage on MAX518 and default is 5V, else take vref_mv
+-	 * from platform_data
++	 * from platform_data.
+ 	 */
+ 	for (chan = 0; chan < indio_dev->num_channels; chan++) {
+ 		if (id->driver_data == ID_MAX518 || !platform_data)
 -- 
 2.46.0
 

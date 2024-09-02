@@ -1,23 +1,23 @@
-Received: from fgw20-7.mail.saunalahti.fi (fgw20-7.mail.saunalahti.fi [62.142.5.81])
+Received: from fgw22-7.mail.saunalahti.fi (fgw22-7.mail.saunalahti.fi [62.142.5.83])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DFD0187FF7
-	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:29:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D5AE18C35C
+	for <linux-input@vger.kernel.org>; Mon,  2 Sep 2024 22:29:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.83
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725316173; cv=none; b=AI0i9tg/BUk3eJy52oqD/QKZ9BhdI5useQ6PYHdNFtbZhN2C+jTLRN0AQbm+rDB24SwJ4kFnVyrYuFR23Ne7/atB9u2LWXN/WFPjopN6/EVhV5cBQwMBHtapm9UkmE7v0OOgWDAgAOqs2O/s0ihSuvn3+XZSh7FYI4j21iktGV8=
+	t=1725316174; cv=none; b=GYmXiWiyOJWSJFXxJR15nyMQa796Q989ImT3X8BUOX1K07HIUsMCRjxzMujHxcmjTMt2wmfIDIFPPiv0/UZqGt25vxChqfyhgA/ZszgOjY+7bQaOScgYSrd9jcRawishxOn8pNz0Q+eVNFn2tXOPakZmq3/4yfSIBWW2yayV+x4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725316173; c=relaxed/simple;
-	bh=JbN8T71a/PZKhOL1QNhERt7e8cyfCWMB8Ep8u0D95s4=;
+	s=arc-20240116; t=1725316174; c=relaxed/simple;
+	bh=VPi5go2UZSyYcoqWpNRAu5quJSpMf/nZhR31FMIQHoo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jvblGuZnfEaA27/TJg8VWcchyhyUPqVv4ZE5KfOqjo1oWpxA3UUfP2SjIEEEqftkdaKCjuO8fiBrClo8GTVzQus0XI6DtAWQqSesNP0QuUy3KBZIpMqViNCMbuG3r1wiaGdX/Lg4XT+pV8p325WYedtbNebfRr1JYdE2ltDvpYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.81
+	 MIME-Version; b=GoM2wGu88VW6eXGaffNkZojor0U/GBPgmgQYtwsxKPJeS8bddSqokDAdVyzI2b+3bCSGaqnKUplVQUclSYAsnRuooyY5wnHFmtZD9Xo6eG+WOJJKgkiydTMoM8SjbEkYKc61Fe8+6Jkpyof5gDgcCQPi+cvo58Pd0L/Eg0/cMzM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.83
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
 Received: from localhost (88-113-25-87.elisa-laajakaista.fi [88.113.25.87])
-	by fgw20.mail.saunalahti.fi (Halon) with ESMTP
-	id aff40cbd-697a-11ef-8e8a-005056bd6ce9;
-	Tue, 03 Sep 2024 01:28:33 +0300 (EEST)
+	by fgw21.mail.saunalahti.fi (Halon) with ESMTP
+	id b563aa78-697a-11ef-abae-005056bdd08f;
+	Tue, 03 Sep 2024 01:28:42 +0300 (EEST)
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
 To: Jonathan Cameron <Jonathan.Cameron@huawei.com>,
 	David Lechner <dlechner@baylibre.com>,
@@ -36,9 +36,9 @@ Cc: Jiri Kosina <jikos@kernel.org>,
 	Lars-Peter Clausen <lars@metafoo.de>,
 	Michael Hennerich <Michael.Hennerich@analog.com>,
 	Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: [PATCH v1 06/22] iio: adc: ltc2497: Get platform data via dev_get_platdata()
-Date: Tue,  3 Sep 2024 01:16:51 +0300
-Message-ID: <20240902222824.1145571-7-andy.shevchenko@gmail.com>
+Subject: [PATCH v1 18/22] iio: magnetometer: hid-sensor-magn-3d: Get platform data via dev_get_platdata()
+Date: Tue,  3 Sep 2024 01:17:03 +0300
+Message-ID: <20240902222824.1145571-19-andy.shevchenko@gmail.com>
 X-Mailer: git-send-email 2.46.0
 In-Reply-To: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
 References: <20240902222824.1145571-1-andy.shevchenko@gmail.com>
@@ -54,47 +54,37 @@ From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Access to platform data via dev_get_platdata() getter to make code cleaner.
 
-While at it, drop duplicate NULL check that iio_map_array_register()
-already has.
-
 Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 ---
- drivers/iio/adc/ltc2497-core.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/iio/magnetometer/hid-sensor-magn-3d.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/adc/ltc2497-core.c b/drivers/iio/adc/ltc2497-core.c
-index 996f6cbbed3c..ad8ddf80310e 100644
---- a/drivers/iio/adc/ltc2497-core.c
-+++ b/drivers/iio/adc/ltc2497-core.c
-@@ -168,6 +168,7 @@ static const struct iio_info ltc2497core_info = {
- int ltc2497core_probe(struct device *dev, struct iio_dev *indio_dev)
+diff --git a/drivers/iio/magnetometer/hid-sensor-magn-3d.c b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+index 5c795a430d09..ae10db87d1e1 100644
+--- a/drivers/iio/magnetometer/hid-sensor-magn-3d.c
++++ b/drivers/iio/magnetometer/hid-sensor-magn-3d.c
+@@ -466,11 +466,11 @@ static int magn_3d_parse_report(struct platform_device *pdev,
+ /* Function to initialize the processing for usage id */
+ static int hid_magn_3d_probe(struct platform_device *pdev)
  {
- 	struct ltc2497core_driverdata *ddata = iio_priv(indio_dev);
-+	struct iio_map *plat_data = dev_get_platdata(dev);
- 	int ret;
++	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
+ 	int ret = 0;
+ 	static char *name = "magn_3d";
+ 	struct iio_dev *indio_dev;
+ 	struct magn_3d_state *magn_state;
+-	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
+ 	struct iio_chan_spec *channels;
+ 	int chan_count = 0;
  
- 	/*
-@@ -200,16 +201,10 @@ int ltc2497core_probe(struct device *dev, struct iio_dev *indio_dev)
- 		return ret;
- 	}
+@@ -549,7 +549,7 @@ static int hid_magn_3d_probe(struct platform_device *pdev)
+ /* Function to deinitialize the processing for usage id */
+ static void hid_magn_3d_remove(struct platform_device *pdev)
+ {
+-	struct hid_sensor_hub_device *hsdev = pdev->dev.platform_data;
++	struct hid_sensor_hub_device *hsdev = dev_get_platdata(&pdev->dev);
+ 	struct iio_dev *indio_dev = platform_get_drvdata(pdev);
+ 	struct magn_3d_state *magn_state = iio_priv(indio_dev);
  
--	if (dev->platform_data) {
--		struct iio_map *plat_data;
--
--		plat_data = (struct iio_map *)dev->platform_data;
--
--		ret = iio_map_array_register(indio_dev, plat_data);
--		if (ret) {
--			dev_err(&indio_dev->dev, "iio map err: %d\n", ret);
--			goto err_regulator_disable;
--		}
-+	ret = iio_map_array_register(indio_dev, plat_data);
-+	if (ret) {
-+		dev_err(&indio_dev->dev, "iio map err: %d\n", ret);
-+		goto err_regulator_disable;
- 	}
- 
- 	ddata->addr_prev = LTC2497_CONFIG_DEFAULT;
 -- 
 2.46.0
 

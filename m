@@ -1,115 +1,115 @@
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
+Received: from mx0b-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66B8917A5BD;
-	Mon,  2 Sep 2024 08:27:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD778185B7D;
+	Mon,  2 Sep 2024 08:27:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.135.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725265654; cv=none; b=KDgc1HkI3uEL9dz5ykBnfu4eutApq5OSy0aIIFJ0Mpt/R3Pe+p6aNoglRSOd0KnVagc+mAKptluT7W4+hjX2lGEnP/BxNfELGHqJq2o1hK4NRi6c+LxhCDn9wRp/YOP5b7Y+RIoo5s1xJMDMLTwJEtGz3/fPnDVnty9J0GYnK20=
+	t=1725265663; cv=none; b=fIcldNzuWtw+njYdaz8lJlptjyAk5aXTB9f1fm78TOIS3pRhlLmETdEhmN/x0LStsPABqYsSY05GHhyCVz4AzyrlvhigLbft/gE8XHFJzwye2YYs3jxc6tp5OHO8FrvumOOzXbuQB0Pa63osULn+4fCejHOUXTNY2lhXNE4WtV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725265654; c=relaxed/simple;
-	bh=067Yigajm/Ie87GEvqMGn5qqfEtpvaRPy8BH4eBmsFw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BPzaz0cZamq0aDAG7I5OTg91Cbf84yM2VA+/NhTe/xPGWTOxMkwvMZ/s4l6dreWIstGy42NSc3KsIKanwoPYYJzegtQYfu3M92c/1r0FhgSveMgWSspDo7oElDHA2UuPWJLLQNR0B+5mT3kjk3cA188mj8Lp2cRiiE4DaUWueGc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=lvE9wbgO; arc=none smtp.client-ip=178.238.236.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	s=arc-20240116; t=1725265663; c=relaxed/simple;
+	bh=bwCr2cKS3bvq6ljjGjHqWsqogAeGXrGBsmS3vger5CM=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=oPm89UJins3XMDpW7W0hQJwxRj5qDOoqCFIZPZdySEV2hRogw4FhB6wLrZ+KOXj4mVyt52ZfXk2HUE/+pMqP30bJIHU6DBTF35/8tuQejS/ZZRKM7p/6EgEr+O/4griyKOoHgjVtiRK25Tiy/YvzfBT87FYriiNx3gR6sDIMVj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=analog.com; spf=pass smtp.mailfrom=analog.com; dkim=pass (2048-bit key) header.d=analog.com header.i=@analog.com header.b=Eg5rDLZ3; arc=none smtp.client-ip=148.163.135.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=analog.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=analog.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="lvE9wbgO"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=Content-Transfer-Encoding:Content-Type:
-	MIME-Version:References:In-Reply-To:Message-ID:Subject:Cc:To:From:Date:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=zUxGLZzgJRBb41LllXp0i8xbGv2sRSy1/y3XNwT6iaQ=; b=lvE9wbgOI4RmS8P5mn/frwQzSi
-	7DsnOBmL16smnDMuxBvOyws7qE5b8+t10aS5ZkdImC8toi2s6i9iHf0mcL1zJsCHaEWm8oj8hrASv
-	cYmb9ckgipfIvixPpJAgawRa8tNg38IhOuMhEcv3kxtP9Wv8H5/zdpVMcr3LHCb9lO0e4yGsPpb44
-	Bb7XOK8S29yjZowoqWnA33+8qxxjE31Lkz+zX9QahtDIuxmlJu8gszqpYLiITC5yyBBYSs1R1Tp1I
-	lAeYgNYEXXRkbx0v2rMPp9BCJUqI42gGznyrJ7LoM/l1d6fqOxmEVeRA6Sm+XvCeEj1AvoRvXomoi
-	i2Y59c1A==;
-Date: Mon, 2 Sep 2024 10:08:05 +0200
-From: Andreas Kemnade <andreas@kemnade.info>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Heiko =?UTF-8?B?U3TDvGJuZXI=?= <heiko@sntech.de>,
- linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/18] zforse_ts: assorted cleanups
-Message-ID: <20240902100805.2148ccea@akair>
-In-Reply-To: <20240824055047.1706392-1-dmitry.torokhov@gmail.com>
-References: <20240824055047.1706392-1-dmitry.torokhov@gmail.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=analog.com header.i=@analog.com header.b="Eg5rDLZ3"
+Received: from pps.filterd (m0375855.ppops.net [127.0.0.1])
+	by mx0b-00128a01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4823IUPg003128;
+	Mon, 2 Sep 2024 04:27:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=analog.com; h=
+	content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=DKIM; bh=niI3I7JyZS3O6tP9TPghw9Awc8v
+	0YPXV7qysyszBa1A=; b=Eg5rDLZ3eKtjPeh354ukZKPWaIE6L2tT4GgkaX0ccUD
+	sKlkyr++E+vR9Hxy402sWU8x3cyHlOKO0plFryEN+5ddCqibLLh8qgx7i+bTnof+
+	p3tiGsZ7PNZc3P61uY8jkp3v/DpRYh18ZxQaIPwF7vlyPhcxKb9xbepB6ULqqJS0
+	blvhtHUsOGl633HW28K6v5wM13BrqDcjnfy7UCWKdLG/mdPJrl4yPifd/viSGwnq
+	mfJCsfgj8qyZd/P2PTJuG4cePdsduLKZcDbgbFH6eF5weGb16Vj+p7NW8DfcGLYi
+	58Fl/dV4ZIDZ7+t1ezVkUCjRIUyz2kMo/h4rxqJFycA==
+Received: from nwd2mta3.analog.com ([137.71.173.56])
+	by mx0b-00128a01.pphosted.com (PPS) with ESMTPS id 41d5bg8vb9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 02 Sep 2024 04:27:24 -0400 (EDT)
+Received: from ASHBMBX8.ad.analog.com (ASHBMBX8.ad.analog.com [10.64.17.5])
+	by nwd2mta3.analog.com (8.14.7/8.14.7) with ESMTP id 4828RNRT022710
+	(version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+	Mon, 2 Sep 2024 04:27:23 -0400
+Received: from ASHBMBX9.ad.analog.com (10.64.17.10) by ASHBMBX8.ad.analog.com
+ (10.64.17.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Mon, 2 Sep 2024
+ 04:27:22 -0400
+Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx9.ad.analog.com
+ (10.64.17.10) with Microsoft SMTP Server id 15.2.986.14 via Frontend
+ Transport; Mon, 2 Sep 2024 04:27:22 -0400
+Received: from amiclaus-VirtualBox.ad.analog.com (AMICLAUS-L02.ad.analog.com [10.48.65.139])
+	by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 4828R9oQ014033;
+	Mon, 2 Sep 2024 04:27:12 -0400
+From: Antoniu Miclaus <antoniu.miclaus@analog.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Rob Herring
+	<robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+	<conor+dt@kernel.org>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Antoniu Miclaus <antoniu.miclaus@analog.com>,
+        <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: [PATCH v2 1/3] input: touchscreem: ad7877: add match table
+Date: Mon, 2 Sep 2024 11:24:31 +0300
+Message-ID: <20240902082707.4325-1-antoniu.miclaus@analog.com>
+X-Mailer: git-send-email 2.46.0
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ADIRuleOP-NewSCL: Rule Triggered
+X-Proofpoint-GUID: HMTvouU1rGNzCmtDj2v7hLqKUcCe7G64
+X-Proofpoint-ORIG-GUID: HMTvouU1rGNzCmtDj2v7hLqKUcCe7G64
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
+ definitions=2024-09-02_01,2024-08-30_01,2024-05-17_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 suspectscore=0
+ spamscore=0 phishscore=0 adultscore=0 malwarescore=0 mlxlogscore=999
+ lowpriorityscore=0 impostorscore=0 mlxscore=0 bulkscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2407110000 definitions=main-2409020068
 
-Hi Dmitry,
+Add match table for the ad7877 driver and define the compatible string.
 
-Am Fri, 23 Aug 2024 22:50:24 -0700
-schrieb Dmitry Torokhov <dmitry.torokhov@gmail.com>:
+Signed-off-by: Antoniu Miclaus <antoniu.miclaus@analog.com>
+---
+no changes in v2.
+ drivers/input/touchscreen/ad7877.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-> Hi,
-> 
-> This is a set of somewhat random cleanups for the zforce_ts driver. 
-> 
-> Heiko, Andreas, if you still have access to the hardware it would be
-> great if you could give it a spin.
-> 
-> Thanks!
-> 
-nice cleanup,
-I tested a bit on the Toline Shine 2HD without gui (have not rebased my
-other stuff to 6.11 yet)
+diff --git a/drivers/input/touchscreen/ad7877.c b/drivers/input/touchscreen/ad7877.c
+index a0598e9c7aff..7886454a19c6 100644
+--- a/drivers/input/touchscreen/ad7877.c
++++ b/drivers/input/touchscreen/ad7877.c
+@@ -805,10 +805,17 @@ static int ad7877_resume(struct device *dev)
+ 
+ static DEFINE_SIMPLE_DEV_PM_OPS(ad7877_pm, ad7877_suspend, ad7877_resume);
+ 
++static const struct of_device_id ad7877_of_match[] = {
++	{ .compatible = "adi,ad7877", },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, ad7877_of_match);
++
+ static struct spi_driver ad7877_driver = {
+ 	.driver = {
+ 		.name		= "ad7877",
+ 		.dev_groups	= ad7877_groups,
++		.of_match_table = ad7877_of_match,
+ 		.pm		= pm_sleep_ptr(&ad7877_pm),
+ 	},
+ 	.probe		= ad7877_probe,
+-- 
+2.46.0
 
-A short move on the touchscreen gives this:
-Event: time 1725264307.093542, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value 24
-Event: time 1725264307.093542, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 1159
-Event: time 1725264307.093542, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 596
-Event: time 1725264307.093542, type 3 (EV_ABS), code 48 (ABS_MT_TOUCH_MAJOR), value 11
-Event: time 1725264307.093542, type 3 (EV_ABS), code 49 (ABS_MT_TOUCH_MINOR), value 11
-Event: time 1725264307.093542, type 3 (EV_ABS), code 52 (ABS_MT_ORIENTATION), value 0
-Event: time 1725264307.093542, type 1 (EV_KEY), code 330 (BTN_TOUCH), value 1
-Event: time 1725264307.093542, type 3 (EV_ABS), code 0 (ABS_X), value 1159
-Event: time 1725264307.093542, type 3 (EV_ABS), code 1 (ABS_Y), value 596
-Event: time 1725264307.093542, -------------- SYN_REPORT ------------
-Event: time 1725264307.096361, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 1039
-Event: time 1725264307.096361, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 607
-Event: time 1725264307.096361, type 3 (EV_ABS), code 0 (ABS_X), value 1039
-Event: time 1725264307.096361, type 3 (EV_ABS), code 1 (ABS_Y), value 607
-Event: time 1725264307.096361, -------------- SYN_REPORT ------------
-Event: time 1725264307.112426, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 934
-Event: time 1725264307.112426, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 637
-Event: time 1725264307.112426, type 3 (EV_ABS), code 0 (ABS_X), value 934
-Event: time 1725264307.112426, type 3 (EV_ABS), code 1 (ABS_Y), value 637
-Event: time 1725264307.112426, -------------- SYN_REPORT ------------
-Event: time 1725264307.131523, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 859
-Event: time 1725264307.131523, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 661
-Event: time 1725264307.131523, type 3 (EV_ABS), code 48 (ABS_MT_TOUCH_MAJOR), value 12
-Event: time 1725264307.131523, type 3 (EV_ABS), code 0 (ABS_X), value 859
-Event: time 1725264307.131523, type 3 (EV_ABS), code 1 (ABS_Y), value 661
-Event: time 1725264307.131523, -------------- SYN_REPORT ------------
-Event: time 1725264307.150540, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 795
-Event: time 1725264307.150540, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 671
-Event: time 1725264307.150540, type 3 (EV_ABS), code 48 (ABS_MT_TOUCH_MAJOR), value 13
-Event: time 1725264307.150540, type 3 (EV_ABS), code 0 (ABS_X), value 795
-Event: time 1725264307.150540, type 3 (EV_ABS), code 1 (ABS_Y), value 671
-Event: time 1725264307.150540, -------------- SYN_REPORT ------------
-Event: time 1725264307.169589, type 3 (EV_ABS), code 53 (ABS_MT_POSITION_X), value 760
-Event: time 1725264307.169589, type 3 (EV_ABS), code 54 (ABS_MT_POSITION_Y), value 675
-Event: time 1725264307.169589, type 3 (EV_ABS), code 0 (ABS_X), value 760
-Event: time 1725264307.169589, type 3 (EV_ABS), code 1 (ABS_Y), value 675
-Event: time 1725264307.169589, -------------- SYN_REPORT ------------
-Event: time 1725264307.188157, type 3 (EV_ABS), code 57 (ABS_MT_TRACKING_ID), value -1
-Event: time 1725264307.188157, type 1 (EV_KEY), code 330 (BTN_TOUCH), value 0
-Event: time 1725264307.188157, -------------- SYN_REPORT ------------
-
-So,
-
-Tested-by: Andreas Kemnade <andreas@kemnade.info> # Tolino Shine2HD
-
-Regards,
-Andreas

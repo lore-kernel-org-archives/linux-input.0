@@ -1,49 +1,50 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95C5718E03B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CD9C190682;
 	Tue,  3 Sep 2024 18:02:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725386550; cv=none; b=i66Yf6qclT+3+0qqx/uyRTp+CmxBh8+v4o70mO3oA2n3H3TCfyApeVdvmVJV568BNwQiCl9mPx/JLTKbUzn3ama+Wa+0znDXDVBmu+EhLlCE8kOrOI60PQCkoTNsmEuZt5P0nwOaxouM9PIsp8G4Qh+ceJmK2luXmXIEVKhjvJU=
+	t=1725386550; cv=none; b=SrH9QoZf2YywJ3/ETJSSbgvr4fQpKWZY+3RlUTc7TaI12T9O+RTef1kN09q3xRA6TvgF/I+YEnn7K8GzzJ6ppkYDARjoswTjqkY7lrZUV+tHrkhpjrFd0owQOjYQF1csLw2jxuOt+3cX9hE+ErefNoTKWN47bLSrNNyXArV0sWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725386550; c=relaxed/simple;
-	bh=sxUw7sTT1Ze0YVA00KOQGbPUOTeTK2TesmW6TEx4mIc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uraU/lKcQN+PvqRmzf70aeO8XN/3JgB8rEFuYLKnPstn2kjioNKxitG9IIsHSSFfTeQPgWgk3nhea6b2GGfpsytjJREEK4LYyWHypORuDhcJdLtXXSYZ0b+qBu35mE3wnZZ8onREgW6EO7dGaYLsh1p14SzCXqkI7ljAUQ7SYn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DUXp0Bu5; arc=none smtp.client-ip=192.198.163.14
+	bh=WXdmBtP+Y0S73T1rCgBKBG+heoNHf4g8ekVA/ZA9/Kc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=G1Jl9m8EcQXWGMxepe81yL2Bq6ZumVZaMtNzS3ACrYAskUIEvpOy5a8zGmiSYS4hY4fUXHoz2btFnQCbckRB1oCoDDjbjCARTdiWXDOBv+JZOKDfg/4WjipCb1nP8ckXWmlUNBuMJb50NG8MtEMywrGMXs+QHZtlqdPltD6DcJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Rl9H3hru; arc=none smtp.client-ip=192.198.163.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DUXp0Bu5"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Rl9H3hru"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1725386548; x=1756922548;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=sxUw7sTT1Ze0YVA00KOQGbPUOTeTK2TesmW6TEx4mIc=;
-  b=DUXp0Bu5mhIZm8skVEVzGlIU0cc++/gzYFNHYyoD5E9DvoecQurGDPGg
-   lXPuh9yHLs2HY1L34xvCybe36Eg2d46P1bkP1yYu5qUd5vnztguMT8Vme
-   5T5rlakROg1flcSyixoi0Ykbox6xNH4yqtf1K9QbiPnpWxJfaiymJxMcx
-   IkQCV0o0z7HzjVoMkp4mDvmdd8u5++48RmFaC04/AW/q6LWAcOXdINsBp
-   utwVSCMlrHGXQJHr150FisduiXlqA1uVs5vrZPrZH9HFjd54qno0LUQRP
-   zZyX/w1eSNINrlmF7+DcbErNDQnbHSGCC1KyfISgm+hJDyuc30nMpToiV
-   Q==;
-X-CSE-ConnectionGUID: TW5LFDJhSvygIAiBuMrv5A==
-X-CSE-MsgGUID: qGH1wHhOQiCsUlQPb5Fqqg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11184"; a="24194284"
+  t=1725386549; x=1756922549;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=WXdmBtP+Y0S73T1rCgBKBG+heoNHf4g8ekVA/ZA9/Kc=;
+  b=Rl9H3hruJ8vhjxrjA/0RGgOcSF5TLbJi7mbHLFEFic6FabCf2ewRpExu
+   GS0ll65r4FzrOj5i/saOx10nNJwfXprfBw+XJCzE0hIvJHzTlKM8fuzUh
+   Help1Hnmqgf3VQYt4PNfoNUntYYOMeqRDVEjBWL5ym0v5U02I+fN63V/R
+   Db4qBpJ5jugdhAGhVCUQvlvzX1kMc5Umxh5k92y9IhD73rfs7Gua27gkS
+   e5ECs4USPvwPIyGM20+MH1LX9x8ju9V5SGzgqYOfrQVhmDVO60PrcV1rD
+   g5PY80eT8M4qKB72mEOKFGkw/nj9JDLYTKC784ZciZnXd4TsHRK2TPaTU
+   A==;
+X-CSE-ConnectionGUID: JkpAfN8ISymsfMaPZt+R8A==
+X-CSE-MsgGUID: 2Kw13RiZRf2fVhCrTho2nw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11184"; a="24194288"
 X-IronPort-AV: E=Sophos;i="6.10,199,1719903600"; 
-   d="scan'208";a="24194284"
+   d="scan'208";a="24194288"
 Received: from fmviesa003.fm.intel.com ([10.60.135.143])
   by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Sep 2024 11:02:26 -0700
-X-CSE-ConnectionGUID: RtawkUaKSvauPLVCnK/EHQ==
-X-CSE-MsgGUID: THljokd+RdCN81b0+sYaAg==
+X-CSE-ConnectionGUID: XlidVr0OQF2XCKfpaEqy5w==
+X-CSE-MsgGUID: Y3RlitJTSYaqgy1paMchdQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.10,199,1719903600"; 
-   d="scan'208";a="69151344"
+   d="scan'208";a="69151346"
 Received: from black.fi.intel.com ([10.237.72.28])
   by fmviesa003.fm.intel.com with ESMTP; 03 Sep 2024 11:02:23 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 9BA3D3C1; Tue, 03 Sep 2024 21:02:21 +0300 (EEST)
+	id B712EAF3; Tue, 03 Sep 2024 21:02:21 +0300 (EEST)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -57,10 +58,12 @@ Cc: Jiri Kosina <jikos@kernel.org>,
 	Jonathan Cameron <jic23@kernel.org>,
 	Lars-Peter Clausen <lars@metafoo.de>,
 	Lorenzo Bianconi <lorenzo@kernel.org>
-Subject: [PATCH v2 0/3] iio: Introduce and use aligned_s64 type
-Date: Tue,  3 Sep 2024 20:59:03 +0300
-Message-ID: <20240903180218.3640501-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 2/3] iio: imu: st_lsm6dsx: Use aligned data type for timestamp
+Date: Tue,  3 Sep 2024 20:59:05 +0300
+Message-ID: <20240903180218.3640501-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
+In-Reply-To: <20240903180218.3640501-1-andriy.shevchenko@linux.intel.com>
+References: <20240903180218.3640501-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -69,33 +72,29 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Instead of having open coded idea of aligned member, use
-a newly defined type like it's done in, e.g., u64 case.
-Update a few IIO drivers to show how to use it.
+Use __aligned_s64 for the timestamp field.
 
-v2 (took only one year from v1, not bad!):
-- avoided touching unrelated comments, code lines, etc. (Jonathan)
-- used kernel internal type for the in-kernel code (Jonathan)
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-Andy Shevchenko (3):
-  types: Complement the aligned types with signed 64-bit one
-  iio: imu: st_lsm6dsx: Use aligned data type for timestamp
-  iio: hid-sensor: Use aligned data type for timestamp
-
- drivers/iio/accel/hid-sensor-accel-3d.c              | 2 +-
- drivers/iio/gyro/hid-sensor-gyro-3d.c                | 2 +-
- drivers/iio/humidity/hid-sensor-humidity.c           | 2 +-
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h              | 3 +--
- drivers/iio/light/hid-sensor-als.c                   | 2 +-
- drivers/iio/orientation/hid-sensor-incl-3d.c         | 2 +-
- drivers/iio/orientation/hid-sensor-rotation.c        | 2 +-
- drivers/iio/position/hid-sensor-custom-intel-hinge.c | 2 +-
- drivers/iio/pressure/hid-sensor-press.c              | 2 +-
- drivers/iio/temperature/hid-sensor-temperature.c     | 2 +-
- include/linux/types.h                                | 3 ++-
- include/uapi/linux/types.h                           | 1 +
- 12 files changed, 13 insertions(+), 12 deletions(-)
-
+diff --git a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+index a3b93566533b..d5e2771042bd 100644
+--- a/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
++++ b/drivers/iio/imu/st_lsm6dsx/st_lsm6dsx.h
+@@ -444,10 +444,9 @@ struct st_lsm6dsx_hw {
+ 	const struct st_lsm6dsx_settings *settings;
+ 
+ 	struct iio_mount_matrix orientation;
+-	/* Ensure natural alignment of buffer elements */
+ 	struct {
+ 		__le16 channels[3];
+-		s64 ts __aligned(8);
++		aligned_s64 ts;
+ 	} scan[ST_LSM6DSX_ID_MAX];
+ };
+ 
 -- 
 2.43.0.rc1.1336.g36b5255a03ac
 

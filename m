@@ -1,29 +1,29 @@
-Received: from szxga03-in.huawei.com (szxga03-in.huawei.com [45.249.212.189])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DBC51D54DC;
-	Wed,  4 Sep 2024 12:27:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.189
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9EB91D88BB;
+	Wed,  4 Sep 2024 12:27:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725452857; cv=none; b=nfzqLKWOYiCwInNwYZVpEMOWi8I9RdLp2qmufPDuibRqCfGQO76XMRkUuJpz3EnyDyUB1M8WkxtngOnTrIy2Nvctba7C87/fv7XXzBiU/BkPHzULZtTkZF6dXnh+qgOz0PYIGSIcn61K2X6tZI8zO0wdrTs2U1BOMsNg3urw3Ok=
+	t=1725452857; cv=none; b=jK6BK4oVST3Hi5pla8VDRIDhmQ0thJFqJfwEIoYf4vySl7T/Chwt/yd2O1PEDdLE6KQFILDMDAWAIr1ojC78je9AhVbjO46/3xYNVm9Y9pctixsA40yJRNPmZdOX1WUVmJM/o+SKp8fygN5I7yv6fulLQba3E/7UJymMmMmKSFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725452857; c=relaxed/simple;
-	bh=qSgrN06x9hDxRaTMql1PfTsxtnAVoc2I43BMIVKDs+E=;
+	bh=cD/NexygJxM+WqNv0qEX/1P52KZPmiT2jbO4E3malAk=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=MTgRiZnbbCSLeG+ldWAwj91bnpOio+Llzct+QRj/TOBXwsIbWB8BOmh35zJef3pt7pykymnx9X9UMaQ6Hm8Zvi8ejHkH6rC8H7/hJaLPP+mDgJUk1zloF3scw6MD+YIsarb/LRboD/GA+zbQ5tHqbzRrnbTHkwFeIZDNF075Ua4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.189
+	 MIME-Version:Content-Type; b=dGs7U/HmyFoBLEx1ZPjUlWVynMZUaEHLPHS4FbeyF59YTAGedqBXFVRopuDg8AfsO88eTz1bmoCAmp0Ax50YADVkhwGys1KyQDPWeBwtzRyhgvLS20u+rhvh6DK7iI8wjjk1l/rdcxCC4pEh8JAG2mIMZlnA18zxAkjgSlaC6eY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.194])
-	by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4WzM7s6wDMz69WR;
-	Wed,  4 Sep 2024 20:22:33 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.88.234])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4WzMFF0pYsz2Dbhr;
+	Wed,  4 Sep 2024 20:27:13 +0800 (CST)
 Received: from kwepemd500012.china.huawei.com (unknown [7.221.188.25])
-	by mail.maildlp.com (Postfix) with ESMTPS id 865201400CA;
-	Wed,  4 Sep 2024 20:27:31 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 83A721402CC;
+	Wed,  4 Sep 2024 20:27:33 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemd500012.china.huawei.com
  (7.221.188.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.34; Wed, 4 Sep
- 2024 20:27:30 +0800
+ 2024 20:27:32 +0800
 From: Li Zetao <lizetao1@huawei.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<gupt21@gmail.com>, <djogorchock@gmail.com>, <rrameshbabu@nvidia.com>,
@@ -34,9 +34,9 @@ To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<mezin.alexander@gmail.com>
 CC: <lizetao1@huawei.com>, <linux-input@vger.kernel.org>,
 	<linux-i2c@vger.kernel.org>, <linux-hwmon@vger.kernel.org>
-Subject: [PATCH -next 02/19] HID: cp2112: Use devm_hid_hw_start_and_open in cp2112_probe()
-Date: Wed, 4 Sep 2024 20:35:50 +0800
-Message-ID: <20240904123607.3407364-3-lizetao1@huawei.com>
+Subject: [PATCH -next 05/19] HID: mcp2221: Use devm_hid_hw_start_and_open in mcp2221_probe()
+Date: Wed, 4 Sep 2024 20:35:53 +0800
+Message-ID: <20240904123607.3407364-6-lizetao1@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240904123607.3407364-1-lizetao1@huawei.com>
 References: <20240904123607.3407364-1-lizetao1@huawei.com>
@@ -51,74 +51,69 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
  kwepemd500012.china.huawei.com (7.221.188.25)
 
-Currently, the cp2112 module needs to maintain hid resources
-by itself. Consider using devm_hid_hw_start_and_open helper to ensure
-that hid resources are consistent with the device life cycle, and release
-hid resources before device is released. At the same time, it can avoid
-the goto-release encoding, drop the err_hid_close and err_hid_stop
-lables.
+Currently, the mcp2221 module use devm_add_action_or_reset() to manage
+device resource for HID unregistration, now that a universal interface
+has been provided, consider using a universal interface to replace it.
 
 Signed-off-by: Li Zetao <lizetao1@huawei.com>
 ---
- drivers/hid/hid-cp2112.c | 26 +++-----------------------
- 1 file changed, 3 insertions(+), 23 deletions(-)
+ drivers/hid/hid-mcp2221.c | 26 ++------------------------
+ 1 file changed, 2 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index 20a0d1315d90..6d65c65f1b83 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -1215,22 +1215,14 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		return ret;
- 	}
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index 0f93c22a479f..3b8269f7e923 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -932,15 +932,6 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 	return 1;
+ }
  
--	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
+-/* Device resource managed function for HID unregistration */
+-static void mcp2221_hid_unregister(void *ptr)
+-{
+-	struct hid_device *hdev = ptr;
+-
+-	hid_hw_close(hdev);
+-	hid_hw_stop(hdev);
+-}
+-
+ /* This is needed to be sure hid_hw_stop() isn't called twice by the subsystem */
+ static void mcp2221_remove(struct hid_device *hdev)
+ {
+@@ -1141,31 +1132,18 @@ static int mcp2221_probe(struct hid_device *hdev,
+ 	 * This driver uses the .raw_event callback and therefore does not need any
+ 	 * HID_CONNECT_xxx flags.
+ 	 */
+-	ret = hid_hw_start(hdev, 0);
 -	if (ret) {
--		hid_err(hdev, "hw start failed\n");
-+	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
+-		hid_err(hdev, "can't start hardware\n");
++	ret = devm_hid_hw_start_and_open(hdev, 0);
 +	if (ret)
  		return ret;
 -	}
--
+ 
+ 	hid_info(hdev, "USB HID v%x.%02x Device [%s] on %s\n", hdev->version >> 8,
+ 			hdev->version & 0xff, hdev->name, hdev->phys);
+ 
 -	ret = hid_hw_open(hdev);
 -	if (ret) {
--		hid_err(hdev, "hw open failed\n");
--		goto err_hid_stop;
+-		hid_err(hdev, "can't open device\n");
+-		hid_hw_stop(hdev);
+-		return ret;
 -	}
+-
+ 	mutex_init(&mcp->lock);
+ 	init_completion(&mcp->wait_in_report);
+ 	hid_set_drvdata(hdev, mcp);
+ 	mcp->hdev = hdev;
  
- 	ret = hid_hw_power(hdev, PM_HINT_FULLON);
- 	if (ret < 0) {
- 		hid_err(hdev, "power management error: %d\n", ret);
--		goto err_hid_close;
-+		return ret;
- 	}
+-	ret = devm_add_action_or_reset(&hdev->dev, mcp2221_hid_unregister, hdev);
+-	if (ret)
+-		return ret;
+-
+ 	hid_device_io_start(hdev);
  
- 	ret = cp2112_hid_get(hdev, CP2112_GET_VERSION_INFO, buf, sizeof(buf),
-@@ -1334,10 +1326,6 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	i2c_del_adapter(&dev->adap);
- err_power_normal:
- 	hid_hw_power(hdev, PM_HINT_NORMAL);
--err_hid_close:
--	hid_hw_close(hdev);
--err_hid_stop:
--	hid_hw_stop(hdev);
- 	return ret;
- }
- 
-@@ -1354,14 +1342,6 @@ static void cp2112_remove(struct hid_device *hdev)
- 	}
- 
- 	gpiochip_remove(&dev->gc);
--	/* i2c_del_adapter has finished removing all i2c devices from our
--	 * adapter. Well behaved devices should no longer call our cp2112_xfer
--	 * and should have waited for any pending calls to finish. It has also
--	 * waited for device_unregister(&adap->dev) to complete. Therefore we
--	 * can safely free our struct cp2112_device.
--	 */
--	hid_hw_close(hdev);
--	hid_hw_stop(hdev);
- }
- 
- static int cp2112_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	/* Set I2C bus clock diviser */
 -- 
 2.34.1
 

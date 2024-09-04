@@ -1,29 +1,29 @@
 Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D84411D88AF;
-	Wed,  4 Sep 2024 12:27:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DA351CCB5B;
+	Wed,  4 Sep 2024 12:27:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725452859; cv=none; b=MTGg8RqgNGwK1sZT+EFm9u7mVWI9bIR7G0Y2aYrXMhMdMX9I96jgQXNM74Jv6SvLCJ+fWjInY0z7iqGWVTEzChmYDVpVYzhK3KMLwP1YUBOxIi8iuUNRF4ZsvkBzhS3t9Qb5ngZkzUoGdQuxJtJgZRSdlvQpmVwVtQK7qTTatYY=
+	t=1725452860; cv=none; b=JCpRvqBBxwkjFOcSSRAZyaYVNf6uHMiNqOXa2PJjLchunoxlclPAUb3PUHrr1pkk+hZV2MLop+CyJCb3dI6haXNrc/c81+3HP4di8SVT3YQvgqvZg71uExsaDq6YNpeikB/9NkjLpU57Yr8DubHUKbzDduNPYjEQNM4Ua/Y9WAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725452859; c=relaxed/simple;
-	bh=vQvPqAP0diQOLRiYXQiwLcyt/I7kkEFal1101rSZJoM=;
+	s=arc-20240116; t=1725452860; c=relaxed/simple;
+	bh=f9uFQrzNSg5VkANf3YwBhU0Mjk2DALfu+37rTc/529U=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OnA3AZynhCLyGouqSN+1zUcwfNV0kOA6OkCc01VEps+L0dsBCwNT5vhdUZKNxk8YqTlyHuGDAGF6COmdFdKdZdlSoQ/Z2WHrm3Sd3XC6TSJXULvNKZOCVtgk4nQVo8C1VDTgCj1s+iHhxkbsxtKJcBQA5HYeiwPhYDb3ZDHU/iM=
+	 MIME-Version:Content-Type; b=r9IYVPel5DeR5V1NUb/bLWgUL88JB9i3G10PbqtLJTEuUDNP64pkrmdMQg9uNvr9pAHTHDe93hNWbL0wZJ2VSRF3UUXLQKBIIvOD1ande/ZlXf+lSIOvewTI+eOXEvt8gPY/0GzexdUPSpsGbvsNTA+t7yckIjtxAdJA8JTUVaU=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.194])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4WzMCV540qzpSwV;
-	Wed,  4 Sep 2024 20:25:42 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.252])
+	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4WzMCB6Xz7zgYvn;
+	Wed,  4 Sep 2024 20:25:26 +0800 (CST)
 Received: from kwepemd500012.china.huawei.com (unknown [7.221.188.25])
-	by mail.maildlp.com (Postfix) with ESMTPS id 711DD1400CA;
-	Wed,  4 Sep 2024 20:27:35 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 2BA401800D2;
+	Wed,  4 Sep 2024 20:27:34 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemd500012.china.huawei.com
  (7.221.188.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.34; Wed, 4 Sep
- 2024 20:27:34 +0800
+ 2024 20:27:33 +0800
 From: Li Zetao <lizetao1@huawei.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<gupt21@gmail.com>, <djogorchock@gmail.com>, <rrameshbabu@nvidia.com>,
@@ -34,9 +34,9 @@ To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<mezin.alexander@gmail.com>
 CC: <lizetao1@huawei.com>, <linux-input@vger.kernel.org>,
 	<linux-i2c@vger.kernel.org>, <linux-hwmon@vger.kernel.org>
-Subject: [PATCH -next 08/19] HID: hid-picolcd: Use devm_hid_hw_start_and_open in picolcd_probe()
-Date: Wed, 4 Sep 2024 20:35:56 +0800
-Message-ID: <20240904123607.3407364-9-lizetao1@huawei.com>
+Subject: [PATCH -next 06/19] HID: nintendo: Use devm_hid_hw_start_and_open in nintendo_hid_probe()
+Date: Wed, 4 Sep 2024 20:35:54 +0800
+Message-ID: <20240904123607.3407364-7-lizetao1@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240904123607.3407364-1-lizetao1@huawei.com>
 References: <20240904123607.3407364-1-lizetao1@huawei.com>
@@ -51,70 +51,78 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
  kwepemd500012.china.huawei.com (7.221.188.25)
 
-Currently, the hid-picolcd module needs to maintain hid resources
+Currently, the nintendo module needs to maintain hid resources
 by itself. Consider using devm_hid_hw_start_and_open helper to ensure
 that hid resources are consistent with the device life cycle, and release
 hid resources before device is released. At the same time, it can avoid
-the goto-release encoding, drop the err_cleanup_hid_ll and
-err_cleanup_hid_hw lables.
+the goto-release encoding, drop the err_close and err_stop lables.
 
 Signed-off-by: Li Zetao <lizetao1@huawei.com>
 ---
- drivers/hid/hid-picolcd_core.c | 22 ++++------------------
- 1 file changed, 4 insertions(+), 18 deletions(-)
+ drivers/hid/hid-nintendo.c | 23 ++++-------------------
+ 1 file changed, 4 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/hid/hid-picolcd_core.c b/drivers/hid/hid-picolcd_core.c
-index 297103be3381..973822d1b2db 100644
---- a/drivers/hid/hid-picolcd_core.c
-+++ b/drivers/hid/hid-picolcd_core.c
-@@ -551,23 +551,15 @@ static int picolcd_probe(struct hid_device *hdev,
- 		goto err_cleanup_data;
- 	}
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index 58cd0506e431..45ac4fd3c7ea 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -2673,31 +2673,23 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 	 */
+ 	hdev->version |= 0x8000;
  
--	error = hid_hw_start(hdev, 0);
-+	error = devm_hid_hw_start_and_open(hdev, 0);
- 	if (error) {
--		hid_err(hdev, "hardware start failed\n");
-+		hid_err(hdev, "hardware start and open failed\n");
- 		goto err_cleanup_data;
- 	}
- 
--	error = hid_hw_open(hdev);
--	if (error) {
--		hid_err(hdev, "failed to open input interrupt pipe for key and IR events\n");
--		goto err_cleanup_hid_hw;
+-	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
+-	if (ret) {
+-		hid_err(hdev, "HW start failed\n");
++	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
++	if (ret)
+ 		goto err_wq;
 -	}
 -
- 	error = device_create_file(&hdev->dev, &dev_attr_operation_mode_delay);
--	if (error) {
--		hid_err(hdev, "failed to create sysfs attributes\n");
--		goto err_cleanup_hid_ll;
+-	ret = hid_hw_open(hdev);
+-	if (ret) {
+-		hid_err(hdev, "cannot start hardware I/O\n");
+-		goto err_stop;
 -	}
-+	if (error)
-+		goto err_cleanup_data;
  
- 	error = device_create_file(&hdev->dev, &dev_attr_operation_mode);
- 	if (error) {
-@@ -589,10 +581,6 @@ static int picolcd_probe(struct hid_device *hdev,
- 	device_remove_file(&hdev->dev, &dev_attr_operation_mode);
- err_cleanup_sysfs1:
- 	device_remove_file(&hdev->dev, &dev_attr_operation_mode_delay);
--err_cleanup_hid_ll:
--	hid_hw_close(hdev);
--err_cleanup_hid_hw:
--	hid_hw_stop(hdev);
- err_cleanup_data:
- 	kfree(data);
- 	return error;
-@@ -611,8 +599,6 @@ static void picolcd_remove(struct hid_device *hdev)
- 	picolcd_exit_devfs(data);
- 	device_remove_file(&hdev->dev, &dev_attr_operation_mode);
- 	device_remove_file(&hdev->dev, &dev_attr_operation_mode_delay);
--	hid_hw_close(hdev);
--	hid_hw_stop(hdev);
+ 	hid_device_io_start(hdev);
  
- 	/* Shortcut potential pending reply that will never arrive */
- 	spin_lock_irqsave(&data->lock, flags);
+ 	ret = joycon_init(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to initialize controller; ret=%d\n", ret);
+-		goto err_close;
++		goto err_wq;
+ 	}
+ 
+ 	/* Initialize the leds */
+ 	ret = joycon_leds_create(ctlr);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to create leds; ret=%d\n", ret);
+-		goto err_close;
++		goto err_wq;
+ 	}
+ 
+ 	/* Initialize the battery power supply */
+@@ -2720,10 +2712,6 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 
+ err_ida:
+ 	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
+-err_close:
+-	hid_hw_close(hdev);
+-err_stop:
+-	hid_hw_stop(hdev);
+ err_wq:
+ 	destroy_workqueue(ctlr->rumble_queue);
+ err:
+@@ -2745,9 +2733,6 @@ static void nintendo_hid_remove(struct hid_device *hdev)
+ 
+ 	destroy_workqueue(ctlr->rumble_queue);
+ 	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
+-
+-	hid_hw_close(hdev);
+-	hid_hw_stop(hdev);
+ }
+ 
+ #ifdef CONFIG_PM
 -- 
 2.34.1
 

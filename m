@@ -1,128 +1,151 @@
-Received: from fout4-smtp.messagingengine.com (fout4-smtp.messagingengine.com [103.168.172.147])
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D15E214A8B;
-	Thu,  5 Sep 2024 14:36:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13808179BF;
+	Thu,  5 Sep 2024 14:48:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725546999; cv=none; b=tVH54rPjYXaB5JqeAJZNOE8fi/vMpqi+93Wfx7tfWqSjzhCJHCEIn6jwylIB8kZXyFIZaK6xzkV7hEeVXY2hXPZ5zzWnA72nv+4lw7GgZuI+4h5LvJt9UUnglwOqeCrddzKnChdAPzXtSak8zRZqC/Dc3TPgbVGTJR8O9uBPuwI=
+	t=1725547725; cv=none; b=dO8ul8/V6RZJOasWSvWJBgwC2d4VEDvSY/IBwFhoVoCWcjmLfVoGii5/SyLfmOURN3iMgCnHXMOP32XySpUTlVjb4jrofVlzIW0PsQ/OyzpPdtZYjPRTIzXEA0carIfO+LsagFcvEZB3db+E1EtcmEm9PlhPIxnnotShVgDV+EY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725546999; c=relaxed/simple;
-	bh=MbBmuhIqi6H5qQWXHp/yL+9hCsC0gcfcAgyKgrBXuk0=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=CekW0CTNJPmnAbJx18qzTwPO2uecnGGm8ybjSXNKwodZCoJjY20HfrWFhc184vfCmqf5QYR2MbS6U/qngm5ucvCZMNXrNvyffcm4xDOU4XF9w01oqlxKyPbcqiAIeoYBn5qDnOg/GS64rh1UysEVrI0qme+x2NGrY1X9ED2rzl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=TrY3foED; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=e6njH3pq; arc=none smtp.client-ip=103.168.172.147
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1725547725; c=relaxed/simple;
+	bh=0ommqQRWmdehvN0o6pbfhCcsZNj04TF1UHTEwGE5yDM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=j3ez7wsb/1ApqH+94ZSJ7MpY+Wc6GIDtaLnrHA8LZz9w+6e4pt28cDZRanlykN7wNXiJAEVkBkjK7KE3f/S91Rpm7MmJ25tyAudcwEFZGnh2IiEExlwT/z4SY4NNMlDZMVjCZIULEuKh784ioAnCevBXw5eyZwzNBYdEltIykDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=w/b4diqw; arc=none smtp.client-ip=185.11.138.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="TrY3foED";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="e6njH3pq"
-Received: from phl-compute-04.internal (phl-compute-04.phl.internal [10.202.2.44])
-	by mailfout.phl.internal (Postfix) with ESMTP id C552113800F6;
-	Thu,  5 Sep 2024 10:36:36 -0400 (EDT)
-Received: from phl-imap-11 ([10.202.2.101])
-  by phl-compute-04.internal (MEProxy); Thu, 05 Sep 2024 10:36:36 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm3; t=1725546996;
-	 x=1725633396; bh=uIbC69aguAWvRSfW+UCsvvSejwdoxgr+xUoySi1DV84=; b=
-	TrY3foEDI7o6+2N5x+GTphSQpPUXdrdXKeGD5eB1Bj2zygPYECeEip3/hSlMBwdj
-	gC5vTi5NLrhzT8o8wKN1pdsMOTSCRwQoNU4DoxwIf8Aw8rz/0+c4E6pbH6swcLww
-	n69TWwIO+YjJt+9GGHqB+3x8nyxS2eyMpj8/PVq/Mj14hyuW0ywGZg/OjDMMpNJj
-	HcwbWRWqqa5eWqnYIFBaG9sLe7r5DJhfjE1faWPXEH8NefZNtUE1gTMBK4z7viqS
-	Rw2GSQzne8+jNQg1EBQsj/gPw+8Sxf2E2MXaq6SUhugenNKeQ4i1VfZcpdViQrPg
-	Ya9wRFKIn//UfIMyv1ntLg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1725546996; x=
-	1725633396; bh=uIbC69aguAWvRSfW+UCsvvSejwdoxgr+xUoySi1DV84=; b=e
-	6njH3pqZ9S0hD0AFdXmaR+YHSdexQ1bRBUVR6cAsL/xwXrK+myDrg+8Nzc79FCns
-	Z/OvUW7ScA0TBcDomZRi4GUipYPz3u/uvSEAn3Wh7BaBhYsgABXzOF+OhGxsQt2Q
-	QHaA5UnRfbk0jG9EVDdcwSO7liKJZC3l4CKezC5z6cC0K20Lj57gIVfdg4c4cGFd
-	jWXVssho39u/CkbmzkxHlTpd28X+yTCXCFS3fi52HeoON1rJTi4+Mw4E3OYULtdq
-	fhFHvSjerSH/L9B7dvyQao3gsrw9/A2Pbs3qORZQOm1GTcQlEZTc8/Dt78KzGh/D
-	ywveDOGO/62XOLR7gELew==
-X-ME-Sender: <xms:9MHZZpaETmJpoiepAPmHQQIFLBYv8slUu6e8N8ZWu28ZYmKX0q7FhQ>
-    <xme:9MHZZgZUy_yPXZQL_DvgzmKL_I5ci4EcI-iSP8g3OEmt5VuMWUxTRlOLa6NWrtRgw
-    gMKHHxvgEa6XnnDf2w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeeftddrudehledgjeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdggtfgfnhhsuhgsshgtrhhisggvpdfu
-    rfetoffkrfgpnffqhgenuceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnh
-    htshculddquddttddmnecujfgurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdej
-    necuhfhrohhmpedftehrnhguuceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrd
-    guvgeqnecuggftrfgrthhtvghrnhepvdfhvdekueduveffffetgfdvveefvdelhedvvdeg
-    jedvfeehtdeggeevheefleejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomheprghrnhgusegrrhhnuggsrdguvgdpnhgspghrtghpthhtohepledp
-    mhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheprhhosggvrhhtrdhjrghriihmihhkse
-    hfrhgvvgdrfhhrpdhrtghpthhtohepughmihhtrhihrdhtohhrohhkhhhovhesghhmrghi
-    lhdrtghomhdprhgtphhtthhopehhrghojhhirghnrdiihhhurghnghesghhmrghilhdrtg
-    homhdprhgtphhtthhopehsohgtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhn
-    uhhsrdifrghllhgvihhjsehlihhnrghrohdrohhrghdprhgtphhtthhopehlihhnuhigqd
-    grrhhmqdhkvghrnhgvlheslhhishhtshdrihhnfhhrrgguvggrugdrohhrghdprhgtphht
-    thhopehlihhnuhigqdhinhhpuhhtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpth
-    htoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghp
-    thhtohepuggrnhhivghlseiiohhnqhhuvgdrohhrgh
-X-ME-Proxy: <xmx:9MHZZr-C-PAQCMNBK2czpj2-SmHV6PYP_4-xIlmcNaQyubj42ntkhA>
-    <xmx:9MHZZnqxPk7iaVqzS8SMVq4saAd8AxTsGpJpr3AsKRTI50TdsnL74Q>
-    <xmx:9MHZZkrx4Ejc2CbshK0_Wi9Nxy_J0YdG4y5vywaoLlQVwAF21WEiGg>
-    <xmx:9MHZZtTUrT1ctS3jun852oFlSXSR3kY96Smk3o9chMTP65IpBKofKA>
-    <xmx:9MHZZgeZWTatk783rZIGHyJetSmDCqIKUaDaQbHz3ppiizM6Cw-rRnhF>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 5F7812220072; Thu,  5 Sep 2024 10:36:36 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="w/b4diqw"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
+	s=gloria202408; h=Content-Type:Content-Transfer-Encoding:MIME-Version:
+	References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=Z9IgYD/2bP3HwiWDe9m6U4cOpfzwTsOumgc5N6zAYJA=; b=w/b4diqw5J8ZIWZLi5djL0KZax
+	oYskcatg6UJKVdLpBuSCCoPxb857ufeJN9eshcmsi68J/7ptbzWk043BsCHcRZ+oXflAwquP5rcoA
+	MV40is1liBi9d8axQSJHuIhypek6r9Lvz4WU8t+VItpygoIB3Qrdq4VKamWkE7HBi7vMET96xV0oC
+	yyF4mAvu0ThWEjYfLULsTtkVHc3A6s7wx5yRnUz9WjN0FdjUpRdKbQ0bD/gnSFwMp9guoDc2fL3HW
+	4iE5WgDR4IijnID5sLC2t6JfrtyLyvB2hFOMLYI26aTLd/qZk5RdFq5LFYVTydBQ05sXM6fHcZQsu
+	0P35Q/gw==;
+Received: from i5e860d0f.versanet.de ([94.134.13.15] helo=diego.localnet)
+	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <heiko@sntech.de>)
+	id 1smDmd-0002HD-Hx; Thu, 05 Sep 2024 16:48:27 +0200
+From: Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
+To: Lee Jones <lee@kernel.org>
+Cc: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+ jdelvare@suse.com, linux@roeck-us.net, dmitry.torokhov@gmail.com,
+ pavel@ucw.cz, ukleinek@debian.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org,
+ linux-input@vger.kernel.org, linux-leds@vger.kernel.org
+Subject: Re: [PATCH v6 3/7] leds: add driver for LEDs from qnap-mcu devices
+Date: Thu, 05 Sep 2024 16:50:22 +0200
+Message-ID: <3627679.ZzFAyJQhcr@diego>
+In-Reply-To: <20240829162705.GR6858@google.com>
+References:
+ <20240825203235.1122198-1-heiko@sntech.de>
+ <20240825203235.1122198-4-heiko@sntech.de> <20240829162705.GR6858@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Date: Thu, 05 Sep 2024 14:36:15 +0000
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Linus Walleij" <linus.walleij@linaro.org>,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-Cc: "Haojian Zhuang" <haojian.zhuang@gmail.com>,
- "Daniel Mack" <daniel@zonque.org>, "Robert Jarzmik" <robert.jarzmik@free.fr>,
- soc@kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-kernel@vger.kernel.org, linux-input@vger.kernel.org
-Message-Id: <513f718b-b964-4af1-9c51-9e0ba3809225@app.fastmail.com>
-In-Reply-To: 
- <CACRpkdZ_y=2WKCLwi5or-=MasvNw2bcxht6a+bFjV=yAfvQhdQ@mail.gmail.com>
-References: <20240805014710.1961677-1-dmitry.torokhov@gmail.com>
- <CACRpkdYFc8vuz__7DkFSMFxUC=LSwCJmEun2KXgUvPMq+_e17A@mail.gmail.com>
- <ZsiygIj9SiP4O0OM@google.com>
- <CACRpkdZ_y=2WKCLwi5or-=MasvNw2bcxht6a+bFjV=yAfvQhdQ@mail.gmail.com>
-Subject: Re: [PATCH 0/5] Remove support for platform data from matrix keypad driver
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
 
-On Mon, Aug 26, 2024, at 08:52, Linus Walleij wrote:
-> On Fri, Aug 23, 2024 at 6:02=E2=80=AFPM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
->
->> I'm glad that we agree that we do not want the elaborate merge process
->> and instead push the changes through one tree in one shot we just need
->> to decide which one - soc or input. I am fine with using either.
->
-> I'm also fine with either, but let's take the input tree because the
-> you're in direct control of it so it will be easier.
+Am Donnerstag, 29. August 2024, 18:27:05 CEST schrieben Sie:
+> On Sun, 25 Aug 2024, Heiko Stuebner wrote:
+> 
+> > This adds a driver that connects to the qnap-mcu mfd driver and provides
+> > access to the LEDs on it.
+> > 
+> > Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 
-Sorry I dropped the ball here, I just saw that these five patches
-are still in the patchwork waiting for me to apply them.
+[...]
 
-I'm also happy for them to go through the input tree, and have
-marked them as not-for-us in patchwork now. Dmitry, please add
-my
+> > +{
+> > +	struct qnap_mcu_err_led *err_led = cdev_to_qnap_mcu_err_led(led_cdev);
+> > +	u8 cmd[] = { 0x40, 0x52, 0x30 + err_led->num, 0x30 };
+> 
+> Really not fan of these magic values being used raw like this.
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+Me neither, I tried my luck with QNAP support to get some sort of
+documentation on what these magic characters mean, and it did
+even get up to some "product team" but ultimately they decided
+against providing any help.
 
-and pick them up in your tree. I've checked that there are no
-conflicts against contents of the SoC tree. If you prefer me to
-pick them up after all, that is also fine, but please resend in
-that case.
+But ok, if it makes you feel more at ease, I'll switch to at least
+replaying ascii-values where possible :-) .
 
-      Arnd
+
+> > +static int qnap_mcu_err_led_blink_set(struct led_classdev *led_cdev,
+> > +				      unsigned long *delay_on,
+> > +				      unsigned long *delay_off)
+> > +{
+> > +	struct qnap_mcu_err_led *err_led = cdev_to_qnap_mcu_err_led(led_cdev);
+> > +	u8 cmd[] = { 0x40, 0x52, 0x30 + err_led->num, 0x30 };
+> > +
+> > +	/* LED is off, nothing to do */
+> > +	if (err_led->mode == QNAP_MCU_ERR_LED_OFF)
+> > +		return 0;
+> > +
+> > +	if (*delay_on < 500) {
+> 
+> Setting delay_on based on the current value of delay_on sounds sketchy.
+
+As far as I understood the API, the parameter should indicated the wanted
+blink time, while the function then should set in those variables the delay
+the driver actually set.
+
+So if the delay_on is < 500, select the fast blink mode, which is this
+100/100 variant and for everything >= 500 the slow blink mode.
+
+I.e. you set the trigger to "timer" and this creates the delay_on and
+delay_off sysfs files, where you put you wish into and can read the
+actually set delays out of.
+
+
+> > +		*delay_on = 100;
+> > +		*delay_off = 100;
+> > +		err_led->mode = QNAP_MCU_ERR_LED_BLINK_FAST;
+> > +	} else {
+> > +		*delay_on = 500;
+> > +		*delay_off = 500;
+> > +		err_led->mode = QNAP_MCU_ERR_LED_BLINK_SLOW;
+> > +	}
+> 
+> How do you change from a fast to a slow blinking LED and back again?
+
+echo timer > /sys/class/leds/hdd4:red:status/trigger
+## creates delay_on + delay_off sysfs files
+
+echo 150 > /sys/class/leds/hdd4:red:status/delay_on
+cat /sys/class/leds/hdd4:red:status/delay_on --> 100
+
+echo 250 > /sys/class/leds/hdd4:red:status/delay_on
+cat /sys/class/leds/hdd4:red:status/delay_on --> 100
+
+## switch to slow blink
+
+echo 500 > /sys/class/leds/hdd4:red:status/delay_on
+cat /sys/class/leds/hdd4:red:status/delay_on --> 500
+
+echo 600 > /sys/class/leds/hdd4:red:status/delay_on
+cat /sys/class/leds/hdd4:red:status/delay_on --> 500
+
+## switch to fast blink again
+
+echo 150 > /sys/class/leds/hdd4:red:status/delay_on
+cat /sys/class/leds/hdd4:red:status/delay_on --> 100
+
+echo heartbeat > /sys/class/leds/hdd4:red:status/trigger
+## removes the delay_on + delay_off files again
+
+
+Heiko
+
+

@@ -1,65 +1,62 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7912C17C991;
-	Thu,  5 Sep 2024 18:43:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A51B158DC0;
+	Thu,  5 Sep 2024 18:52:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725561839; cv=none; b=TSKBFE7XuPfJ52926JG94zy8CtDBP0hKQYhEwBw5gWYbpUmzmikFLXP5nbDWCBRPE97wMiAM2jfUNIQH1iq8xkTDaMam4oiHVgEyMnTokD6q9yFKnWneu1plJraQM9r6AXWKcXEMUU9EdE+o3GjcAwp8O2MCRsB5q4QChvT6ono=
+	t=1725562370; cv=none; b=CbMnTu/88Ry1o4Ng//LtvszqBbiodI6qx3X9T94+NGLpHEcWWP56Z/VBzBCSK0VYHqCvY4Ll8HLkOXi8wmBd1WbSI7yRxoy3An4Ozb7bIkKmy1SAcuqvXTY2bGtTMkOeVjZ/X5NX4j6hHiRMbY/tj8+s/RuBkUS6ghRVpfi9dow=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725561839; c=relaxed/simple;
-	bh=nBfjKE3bg5Bz1iS/U8d1Ggy3AginAlf1fR3zMKD5m24=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rdXNJZG9E4uZ2a47q0GijtoYQg/ZQ3NXgVOfgqcDlbULa8FKLqdTgsbIrNb710XMWHLUaiDHafIlj/IF4lMlnGHfCpsqBuXpkCUWzwj1mDcvsgyV5Gy5Ieh6eH0q1LgdslJUtQxZ26yFRuvmZGr/boFREfpzrlOVcbJLsNLwmP4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZQQOISAU; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1725562370; c=relaxed/simple;
+	bh=equbU9VBMIwdvGkqWk+AjPVcTc+O1BMZPBWXnDB1Dyo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Qf+m+Yp8I/xMi1Ds1xz2Po2gun+3sd5dgUTl1D0fm0kDUQ1WTuIc4drcx+5NvGSo5MJcABHJxoJWWtfz0jqIlShZ4Hayh5wseciAKv4aD1sN/ppcgb6gRuYSdTVGnVeiW8iI2Y+/ARqmXLx7LPeXHVYr+E0vZT9l93wThhofO/4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=Zw2ev8a4; arc=none smtp.client-ip=185.11.138.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZQQOISAU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1725561837; x=1757097837;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=nBfjKE3bg5Bz1iS/U8d1Ggy3AginAlf1fR3zMKD5m24=;
-  b=ZQQOISAUpQSoiZTtsoaj+Xi5Q/P6e7FqzvYFq6SDiqDssDiiKfuNR8eM
-   oCauTRzfewAuqNe6Ku58ldOgJm5G/eLpBHdhtnrxJW7oOI2VyXPSF4m4w
-   9vG4of7ICr6TRoFxEHncW/kucwDzN/thEZzNN6z4LY4ihPQJsMHjJqJ3B
-   wnw4YiGFeShzTd2QHnbiOOGYVkSa1dJ3z3YxN6vFRpYTkICNECiSjM5ed
-   LnQsN7PJJwxxZDIhKQ6OL3jcKt4U/J/trxc00a4EPk4jBzg9NW3N3Gjre
-   E5I5ZR3miZexMNad3Qglx92oTiPxvSAbu4XWoZC42/uwkT+tUjGlbalVR
-   Q==;
-X-CSE-ConnectionGUID: 2senLj4+Rri22isfFvWQoQ==
-X-CSE-MsgGUID: qGYmf1NEQGCgkxRLgL4Hvg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11186"; a="28052938"
-X-IronPort-AV: E=Sophos;i="6.10,205,1719903600"; 
-   d="scan'208";a="28052938"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2024 11:43:56 -0700
-X-CSE-ConnectionGUID: zWIrjf09Rkieqb+IT4Yw6A==
-X-CSE-MsgGUID: 0aospkpTQAmLaCnKqZSwfw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,205,1719903600"; 
-   d="scan'208";a="65955636"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa010.fm.intel.com with ESMTP; 05 Sep 2024 11:43:53 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id BDE8731E; Thu, 05 Sep 2024 21:43:51 +0300 (EEST)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Thomas Kuehne <thomas.kuehne@gmx.li>,
-	linux-input@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="Zw2ev8a4"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
+	s=gloria202408; h=Content-Transfer-Encoding:MIME-Version:References:
+	In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+	List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=q1jpFbe8UJlfuFdvluwPG8fKnNdFZmBXVzuyZQAcBU0=; b=Zw2ev8a4ieSzwL/N0YlGZzW/ll
+	TKKyyBaABhDZ1kOpCLCfFkpqQ/qY8eaVT9pwdT0xUL91tY2qb6ru1I2JSnL4SWInTy8w2+QaVP1Qr
+	Un/8mXkQ+CRnjD/tJ85HXqHWJqyBarz06F0vMw36oaQ7Khm3qkSrVxfFyhQrG0A2P4y5XU7vy65W1
+	YXtGsP8a03bamLMJuKSPVqDjbnxo/rLax1/V2T7boLTfN+eKbdsidip7y+Oc7GtV5xc2lnuR5pEMB
+	zTMcXT944RBvfFsdbawLbD5GSjamt/3S45bZJyHGQaUHdZP1rlEtwG3HHbC0XihEr/G051j7aDSui
+	qdAog12w==;
+Received: from i5e860d0f.versanet.de ([94.134.13.15] helo=phil.lan)
+	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.94.2)
+	(envelope-from <heiko@sntech.de>)
+	id 1smHb1-0003sR-Ft; Thu, 05 Sep 2024 20:52:43 +0200
+From: Heiko Stuebner <heiko@sntech.de>
+To: lee@kernel.org
+Cc: robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	jdelvare@suse.com,
+	linux@roeck-us.net,
+	heiko@sntech.de,
+	dmitry.torokhov@gmail.com,
+	pavel@ucw.cz,
+	ukleinek@debian.org,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	llvm@lists.linux.dev
-Cc: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <ndesaulniers@google.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/1] HID: debug: Remove duplicates from 'keys'
-Date: Thu,  5 Sep 2024 21:43:50 +0300
-Message-ID: <20240905184351.311858-1-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
+	linux-hwmon@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-rockchip@lists.infradead.org,
+	linux-input@vger.kernel.org,
+	linux-leds@vger.kernel.org
+Subject: [PATCH v7 8/8] arm64: dts: rockchip: set hdd led labels on qnap-ts433
+Date: Thu,  5 Sep 2024 20:52:32 +0200
+Message-ID: <20240905185232.2899464-9-heiko@sntech.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240905185232.2899464-1-heiko@sntech.de>
+References: <20240905185232.2899464-1-heiko@sntech.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -68,62 +65,51 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Duplicates in 'keys prevents kernel builds with clang, `make W=1` and
-CONFIG_WERROR=y, for example:
+The automatically generated names for the LEDs from color and function
+do not match nicely for the 4 hdds, so set them manually per the label
+property to also match the LEDs generated from the MCU.
 
-drivers/hid/hid-debug.c:3443:18: error: initializer overrides prior initialization of this subobject [-Werror,-Winitializer-overrides]
- 3443 |         [KEY_HANGEUL] = "HanGeul",              [KEY_HANGUP_PHONE] = "HangUpPhone",
-      |                         ^~~~~~~~~
-drivers/hid/hid-debug.c:3217:18: note: previous initialization is here
- 3217 |         [KEY_HANGUEL] = "Hangeul",              [KEY_HANJA] = "Hanja",
-      |                         ^~~~~~~~~
-
-Fix this by removing them.
-
-The logic of removal is that, remove...
-1) if there is a constant that uses another defined constant, OR
-2) the one that appears later in the list.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- drivers/hid/hid-debug.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index d5abfe652fb5..618ebaa3bfc0 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -3214,7 +3214,7 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_VOLUMEUP] = "VolumeUp",		[KEY_POWER] = "Power",
- 	[KEY_KPEQUAL] = "KPEqual",		[KEY_KPPLUSMINUS] = "KPPlusMinus",
- 	[KEY_PAUSE] = "Pause",			[KEY_KPCOMMA] = "KPComma",
--	[KEY_HANGUEL] = "Hangeul",		[KEY_HANJA] = "Hanja",
-+	[KEY_HANJA] = "Hanja",
- 	[KEY_YEN] = "Yen",			[KEY_LEFTMETA] = "LeftMeta",
- 	[KEY_RIGHTMETA] = "RightMeta",		[KEY_COMPOSE] = "Compose",
- 	[KEY_STOP] = "Stop",			[KEY_AGAIN] = "Again",
-@@ -3309,9 +3309,9 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_EPG] = "EPG",			[KEY_PVR] = "PVR",
- 	[KEY_MHP] = "MHP",			[KEY_LANGUAGE] = "Language",
- 	[KEY_TITLE] = "Title",			[KEY_SUBTITLE] = "Subtitle",
--	[KEY_ANGLE] = "Angle",			[KEY_ZOOM] = "Zoom",
-+	[KEY_ANGLE] = "Angle",
- 	[KEY_MODE] = "Mode",			[KEY_KEYBOARD] = "Keyboard",
--	[KEY_SCREEN] = "Screen",		[KEY_PC] = "PC",
-+	[KEY_PC] = "PC",
- 	[KEY_TV] = "TV",			[KEY_TV2] = "TV2",
- 	[KEY_VCR] = "VCR",			[KEY_VCR2] = "VCR2",
- 	[KEY_SAT] = "Sat",			[KEY_SAT2] = "Sat2",
-@@ -3409,8 +3409,7 @@ static const char *keys[KEY_MAX + 1] = {
- 	[BTN_TRIGGER_HAPPY35] = "TriggerHappy35", [BTN_TRIGGER_HAPPY36] = "TriggerHappy36",
- 	[BTN_TRIGGER_HAPPY37] = "TriggerHappy37", [BTN_TRIGGER_HAPPY38] = "TriggerHappy38",
- 	[BTN_TRIGGER_HAPPY39] = "TriggerHappy39", [BTN_TRIGGER_HAPPY40] = "TriggerHappy40",
--	[BTN_DIGI] = "Digi",			[BTN_STYLUS3] = "Stylus3",
--	[BTN_TOOL_QUINTTAP] = "ToolQuintTap",	[BTN_WHEEL] = "Wheel",
-+	[BTN_STYLUS3] = "Stylus3",		 [BTN_TOOL_QUINTTAP] = "ToolQuintTap",
- 	[KEY_10CHANNELSDOWN] = "10ChannelsDown",
- 	[KEY_10CHANNELSUP] = "10ChannelsUp",
- 	[KEY_3D_MODE] = "3DMode",		[KEY_ADDRESSBOOK] = "Addressbook",
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
+index 4bc5f5691d45..7bd32d230ad2 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
+@@ -50,6 +50,7 @@ led-0 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD5 GPIO_ACTIVE_LOW>;
++			label = "hdd1:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd1_led_pin>;
+@@ -59,6 +60,7 @@ led-1 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD6 GPIO_ACTIVE_LOW>;
++			label = "hdd2:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd2_led_pin>;
+@@ -68,6 +70,7 @@ led-2 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio1 RK_PD7 GPIO_ACTIVE_LOW>;
++			label = "hdd3:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd3_led_pin>;
+@@ -77,6 +80,7 @@ led-3 {
+ 			color = <LED_COLOR_ID_GREEN>;
+ 			function = LED_FUNCTION_DISK;
+ 			gpios = <&gpio2 RK_PA0 GPIO_ACTIVE_LOW>;
++			label = "hdd4:green:disk";
+ 			linux,default-trigger = "disk-activity";
+ 			pinctrl-names = "default";
+ 			pinctrl-0 = <&hdd4_led_pin>;
 -- 
-2.43.0.rc1.1336.g36b5255a03ac
+2.43.0
 

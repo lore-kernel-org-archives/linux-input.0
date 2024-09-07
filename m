@@ -1,134 +1,107 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from smtpbgeu1.qq.com (smtpbgeu1.qq.com [52.59.177.22])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BFA015990E;
-	Sat,  7 Sep 2024 12:05:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0D2713C836
+	for <linux-input@vger.kernel.org>; Sat,  7 Sep 2024 15:31:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.59.177.22
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725710745; cv=none; b=DPlTBFTbVqXzZjA0v1+kmg3//BCjraCuD8Nac+VmYOu0w8c/hQYXokan84IQdGBqNnqu71XfndtporLbd1X5bl7R4Kv0YHXWoHoiwv/wPQBTnDZGpS/PGRviZojoaerC61aw95dyL7/3UMX5ygwbI+aOgb+6Hjy4KHVg3FBkgL4=
+	t=1725723093; cv=none; b=oaRH/wJg0dORPz/7g3jYKkE1ha6XafsiGxaaVNhVxN2at4eLQeCjTaJol6d5/G/oVtsUckHCNuaynu+2LppQyt5S/EoL/A64PtJFj9+ge8XrttJhT8WQpGNYbRi3T6ou/BzwUmRo1YVr38YiTeM5r3iflUIBAniu5JOu34zexOY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725710745; c=relaxed/simple;
-	bh=Jh4PwUNysNxdEFJP39u3JzBg34efqUZTVLbPaBatgo8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HOnmvhrXvWfbyvBykTTObZy4CzfBanmEXSZzM/iF2eSdy867vP7WJnQFJ2AiTeBzqR1nH/paTAhYaeZTbe3RXSrrBH/Ot+s9zQWiUGoP7uHi0IzwxCiRkBuRGLX2xCIckvp4L1WiyM3lQuuVZ//MawfMDdGzMGsY54TqdtO/W28=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Q4YMcO7d; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1725723093; c=relaxed/simple;
+	bh=NEWvGIeL91jpBpunK2S29T+0yqo5H/Keu6U4rvEht0I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZjJpkmUsW92gCCkJBRTpSsQ9QSU2YrUmn9oOmsX+sTTuI9TxCqH8l6khXTQHTyvs/Di8tfKy2Iy8W17pLmjTyGPdza7nudVkkG+tBScYGm6j09rqZCrJNFJdRBwQy2mCai399cmdfca5qoYnAw7MFRXTNz8S1DpbbMjvI9PbRzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=ecOlYvUg; arc=none smtp.client-ip=52.59.177.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q4YMcO7d"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1725710741; x=1757246741;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Jh4PwUNysNxdEFJP39u3JzBg34efqUZTVLbPaBatgo8=;
-  b=Q4YMcO7dOqqNLWugfY5AeQvtMGXWwnseOWGc9YPFkh6pgqVwe6khaT/7
-   Kd7TPwvR9XeEE9kY8QBRIPb+Guh4cSTg99M6CFZARP7985FpiPUdGXYk2
-   BM/ro2Ww4U3drV1PGGd/3GBsR1qXPzw5IvvlfBUrAPI3y+ChDX/XMo3BI
-   7Y6L+DOeDpdsh5smYqmoQRpbKXTxGq2lIpn7Zmq4/aRoXfVZGINk54ygU
-   4K1bxEQhWiLNOPFcfl1Rt/YsSjEGVQ0jf9O7sDqDnBhpuAvVxtYGGbEyP
-   WqZFKldqA5vWKrjytmfpHc5G/lArd33C5zuPl+TExek26j/gd0FDx77Dj
-   Q==;
-X-CSE-ConnectionGUID: TwjFPAelS/C56GWfgEArdg==
-X-CSE-MsgGUID: d7xySXsKRhmVMR3aZFwF2A==
-X-IronPort-AV: E=McAfee;i="6700,10204,11187"; a="49872531"
-X-IronPort-AV: E=Sophos;i="6.10,210,1719903600"; 
-   d="scan'208";a="49872531"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Sep 2024 05:05:40 -0700
-X-CSE-ConnectionGUID: qTGdgX/USkqhGra9JyUMFQ==
-X-CSE-MsgGUID: zMDTSoB0Tr6gGm+EcdIcvA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.10,210,1719903600"; 
-   d="scan'208";a="70322273"
-Received: from lkp-server01.sh.intel.com (HELO 9c6b1c7d3b50) ([10.239.97.150])
-  by fmviesa003.fm.intel.com with ESMTP; 07 Sep 2024 05:05:37 -0700
-Received: from kbuild by 9c6b1c7d3b50 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1smuC6-000CXD-1E;
-	Sat, 07 Sep 2024 12:05:34 +0000
-Date: Sat, 7 Sep 2024 20:04:56 +0800
-From: kernel test robot <lkp@intel.com>
-To: Heiko Stuebner <heiko@sntech.de>, lee@kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, robh@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, jdelvare@suse.com, linux@roeck-us.net,
-	heiko@sntech.de, dmitry.torokhov@gmail.com, pavel@ucw.cz,
-	ukleinek@debian.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org, linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org
-Subject: Re: [PATCH v7 1/8] mfd: core: make platform_data pointer const in
- struct mfd_cell
-Message-ID: <202409071933.IYm8oa1N-lkp@intel.com>
-References: <20240905185232.2899464-2-heiko@sntech.de>
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="ecOlYvUg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1725723069;
+	bh=LxPiNUB9BhE3lduZ6Kk6M4bSZo6yg3DHGi0OrDKW3+M=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=ecOlYvUgOgRQCe+wgiMSOPaoy0QS1Hjy4UK4OyfEBUpmvvJIjY3Hh13m56W0j6jFF
+	 LNmIDMu+PSWMvxtfS0iJnwuNM+uDGJKA19rCp+8Mg/4Mr5vfZFnOuyJ5QHj9xpTyM/
+	 tvMfkq3dt6yCTOT7ghQmQCsoAqOJv/M7wa6mOamM=
+X-QQ-mid: bizesmtpsz14t1725723065tb1cco
+X-QQ-Originating-IP: mf7GxU8B81MDKJ6OuSPbN3BCaC1VGy74z/w2qyx5suA=
+Received: from localhost.localdomain ( [221.226.144.218])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Sat, 07 Sep 2024 23:31:00 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 11342779804925214705
+From: He Lugang <helugang@uniontech.com>
+To: jikos@kernel.org,
+	bentiss@kernel.org
+Cc: linux-input@vger.kernel.org,
+	He Lugang <helugang@uniontech.com>
+Subject: [PATCH] HID:replace BUG_ON() with WARN_ON()
+Date: Sat,  7 Sep 2024 23:30:58 +0800
+Message-ID: <08FEC98F56735FE3+20240907153058.22980-1-helugang@uniontech.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240905185232.2899464-2-heiko@sntech.de>
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: bizesmtpsz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz7a-0
 
-Hi Heiko,
+There is no need to kill the system entirely in HID with BUG_ON,
+use WARN_ON to handle fault more gracefully which allow the system
+to keep running.
 
-kernel test robot noticed the following build warnings:
+Signed-off-by: He Lugang <helugang@uniontech.com>
+---
+ drivers/hid/hid-cp2112.c | 3 ++-
+ drivers/hid/hid-lg4ff.c  | 3 ++-
+ drivers/hid/hid-sony.c   | 3 ++-
+ 3 files changed, 6 insertions(+), 3 deletions(-)
 
-[auto build test WARNING on next-20240905]
-[also build test WARNING on v6.11-rc6]
-[cannot apply to lee-mfd/for-mfd-next groeck-staging/hwmon-next lee-leds/for-leds-next linus/master lee-mfd/for-mfd-fixes v6.11-rc6 v6.11-rc5 v6.11-rc4]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Heiko-Stuebner/mfd-core-make-platform_data-pointer-const-in-struct-mfd_cell/20240906-025553
-base:   next-20240905
-patch link:    https://lore.kernel.org/r/20240905185232.2899464-2-heiko%40sntech.de
-patch subject: [PATCH v7 1/8] mfd: core: make platform_data pointer const in struct mfd_cell
-config: arm-randconfig-001-20240907 (https://download.01.org/0day-ci/archive/20240907/202409071933.IYm8oa1N-lkp@intel.com/config)
-compiler: arm-linux-gnueabi-gcc (GCC) 14.1.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240907/202409071933.IYm8oa1N-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202409071933.IYm8oa1N-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   drivers/hid/hid-sensor-hub.c: In function 'sensor_hub_remove':
->> drivers/hid/hid-sensor-hub.c:745:25: warning: initialization discards 'const' qualifier from pointer target type [-Wdiscarded-qualifiers]
-     745 |                         data->hid_sensor_hub_client_devs[i].platform_data;
-         |                         ^~~~
-
-
-vim +/const +745 drivers/hid/hid-sensor-hub.c
-
-401ca24fb34aee srinivas pandruvada 2012-09-05  732  
-401ca24fb34aee srinivas pandruvada 2012-09-05  733  static void sensor_hub_remove(struct hid_device *hdev)
-401ca24fb34aee srinivas pandruvada 2012-09-05  734  {
-401ca24fb34aee srinivas pandruvada 2012-09-05  735  	struct sensor_hub_data *data = hid_get_drvdata(hdev);
-401ca24fb34aee srinivas pandruvada 2012-09-05  736  	unsigned long flags;
-e651a1da442ae0 Srinivas Pandruvada 2015-02-19  737  	int i;
-401ca24fb34aee srinivas pandruvada 2012-09-05  738  
-401ca24fb34aee srinivas pandruvada 2012-09-05  739  	hid_dbg(hdev, " hardware removed\n");
-401ca24fb34aee srinivas pandruvada 2012-09-05  740  	hid_hw_close(hdev);
-f2f13a68c37c13 Axel Lin            2012-09-19  741  	hid_hw_stop(hdev);
-401ca24fb34aee srinivas pandruvada 2012-09-05  742  	spin_lock_irqsave(&data->lock, flags);
-e651a1da442ae0 Srinivas Pandruvada 2015-02-19  743  	for (i = 0; i < data->hid_sensor_client_cnt; ++i) {
-e651a1da442ae0 Srinivas Pandruvada 2015-02-19  744  		struct hid_sensor_hub_device *hsdev =
-e651a1da442ae0 Srinivas Pandruvada 2015-02-19 @745  			data->hid_sensor_hub_client_devs[i].platform_data;
-e651a1da442ae0 Srinivas Pandruvada 2015-02-19  746  		if (hsdev->pending.status)
-e651a1da442ae0 Srinivas Pandruvada 2015-02-19  747  			complete(&hsdev->pending.ready);
-e651a1da442ae0 Srinivas Pandruvada 2015-02-19  748  	}
-401ca24fb34aee srinivas pandruvada 2012-09-05  749  	spin_unlock_irqrestore(&data->lock, flags);
-401ca24fb34aee srinivas pandruvada 2012-09-05  750  	mfd_remove_devices(&hdev->dev);
-401ca24fb34aee srinivas pandruvada 2012-09-05  751  	mutex_destroy(&data->mutex);
-401ca24fb34aee srinivas pandruvada 2012-09-05  752  }
-401ca24fb34aee srinivas pandruvada 2012-09-05  753  
-
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 20a0d1315d90..03e11f15257f 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -852,7 +852,8 @@ static int cp2112_set_usb_config(struct hid_device *hdev,
+ {
+ 	int ret;
+ 
+-	BUG_ON(cfg->report != CP2112_USB_CONFIG);
++	if (WARN_ON(cfg->report != CP2112_USB_CONFIG))
++		return -EINVAL;
+ 
+ 	ret = cp2112_hid_output(hdev, (u8 *)cfg, sizeof(*cfg),
+ 				HID_FEATURE_REPORT);
+diff --git a/drivers/hid/hid-lg4ff.c b/drivers/hid/hid-lg4ff.c
+index e3fcf1353fb3..c0a138f21ca4 100644
+--- a/drivers/hid/hid-lg4ff.c
++++ b/drivers/hid/hid-lg4ff.c
+@@ -1350,7 +1350,8 @@ int lg4ff_init(struct hid_device *hid)
+ 
+ 	/* Initialize device properties */
+ 	if (mmode_ret == LG4FF_MMODE_IS_MULTIMODE) {
+-		BUG_ON(mmode_idx == -1);
++		if (WARN_ON(mmode_idx == -1))
++			return -EINVAL;
+ 		mmode_wheel = &lg4ff_multimode_wheels[mmode_idx];
+ 	}
+ 	lg4ff_init_wheel_data(&entry->wdata, &lg4ff_devices[i], mmode_wheel, real_product_id);
+diff --git a/drivers/hid/hid-sony.c b/drivers/hid/hid-sony.c
+index df29c614e490..c5db29456507 100644
+--- a/drivers/hid/hid-sony.c
++++ b/drivers/hid/hid-sony.c
+@@ -1379,7 +1379,8 @@ static int sony_leds_init(struct sony_sc *sc)
+ 	u8 max_brightness[MAX_LEDS] = { [0 ... (MAX_LEDS - 1)] = 1 };
+ 	u8 use_hw_blink[MAX_LEDS] = { 0 };
+ 
+-	BUG_ON(!(sc->quirks & SONY_LED_SUPPORT));
++	if (WARN_ON(!(sc->quirks & SONY_LED_SUPPORT)))
++		return -EINVAL;
+ 
+ 	if (sc->quirks & BUZZ_CONTROLLER) {
+ 		sc->led_count = 4;
 -- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+2.45.2
+

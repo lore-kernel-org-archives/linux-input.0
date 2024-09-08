@@ -1,38 +1,38 @@
 Received: from gloria.sntech.de (gloria.sntech.de [185.11.138.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D58417BB1E;
-	Sun,  8 Sep 2024 21:09:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C16617BEBD;
+	Sun,  8 Sep 2024 21:09:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.11.138.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725829800; cv=none; b=XlxuKMxDpSKBKxMqvvwz5aCp+amS9uaV650dgKFS4qrIAPpfgHgfjReRZnBk40Vr4LNk/FqdzsHYgN2SlT5TYGXdN3ezewK9zM18I3r3rZzgjt8mjIDmAriDIZAj/FLvrj76AG9DKExqUrnclERPWFVFieTh/NXRft1GCsrdXVI=
+	t=1725829801; cv=none; b=W9qpK7mdLum70wGwgXDSzqvQrGzBlEpNkY9g6sMbjthtCRGpYKk64elZa8SxFEGKGV5qigPGronaO5JFBx/QGlEaCVZ6l8E2083zHRZoCzYoxN9RUQm1Omi4UeuRTnMxClWf3lu+xA+TdhctdNSjp8mAyzqSrONIzc/HhC6eF7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725829800; c=relaxed/simple;
-	bh=equbU9VBMIwdvGkqWk+AjPVcTc+O1BMZPBWXnDB1Dyo=;
+	s=arc-20240116; t=1725829801; c=relaxed/simple;
+	bh=iqySBVgrCYk4SEf5Smqb0R4Fqpk7CWOcEPykIQqXkH4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=rHqimKcnp5GjJpo4+eQgRSda1VoQcokfamvR2y7D/YtHACidx0Rvc4KOsjR23YaG1LNSfGZBXZQD+qN81Xqu9xhFbRygXPGMXq9pUvtwdA7yWZJogoa7II1mrhNNrdyJGjJLNUPB/b9rVFi9/j0jyutnRNiIjkDqZ8rY680mjCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=2uWcj+fS; arc=none smtp.client-ip=185.11.138.130
+	 MIME-Version; b=NDifQsRNOEsBlcxT8bPMacoT0CsjHxRhI9XRdJsRxFs0UQXTfU2YBfBO7fC2RnN8AL1Ds8I/DytlzrcwNLVrSYnVkaj3xwDQWlR993mtO6GyBUj8EGEYdPh0UD43Oa+j3e1HRVUafUH+oFrzmutna9IXcP9V/zuCd5vdtBkbG8w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de; spf=pass smtp.mailfrom=sntech.de; dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b=kXpovhT/; arc=none smtp.client-ip=185.11.138.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sntech.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sntech.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="2uWcj+fS"
+	dkim=pass (2048-bit key) header.d=sntech.de header.i=@sntech.de header.b="kXpovhT/"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=sntech.de;
 	s=gloria202408; h=Content-Transfer-Encoding:MIME-Version:References:
 	In-Reply-To:Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:
 	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
 	Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
 	List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=q1jpFbe8UJlfuFdvluwPG8fKnNdFZmBXVzuyZQAcBU0=; b=2uWcj+fSeC3gcEwnxueXgjo0si
-	Z3hkjgc4JZ0ZdQi6FYCFmDU1+Nv/5yQK7ScViFakuhTZu+D2GzRMq0vg0xBtkw3tc/II49bUcg3df
-	6f09+FSg4iDFa9dRssvhusUL3rsmNNEi/AUUj6EE0B9jsJtBUU2HfgUvff1l17LxvlnxQf2E1G8WN
-	ZuJy3/T1KNISHP21A27l86XKZNYErHsyPPNsSYBILehyY34QrpWVKw+spe1kyq5K0HnUHLF8muwAQ
-	ovVnCMHuVElR3a8PJzSN+Gaz/xlZ/K72xbZz8dx/L78piG/xDHe52h6YHTKEqwZKTD+fsqIAMRsSD
-	rQcD5sNA==;
+	bh=bN6g5LuUOiaBgVx2RDzw9SfT+Ft8rUzg+cw1TiUo10A=; b=kXpovhT/1PglOGOYSZG1/onakN
+	Zgc7SaXzy5UvdMJdX/hUbYm8kOw8xEUq0dzJBy3r/dhLzp642DI0ov87xe3Aj7iDA4S+iieCvb3YR
+	6vCT6KEvFh1WReF5eT1Qk12Pzc5ACEDxRbdHoVWa6hh5aTzAk26n/k7qJAOjSm+bAvN4IsoRbwOQ6
+	wg1G79xx9nluJE4uzWSS06kFzAFzUHZRHW6l+e8km+SFkwH6AevuFHh5HAWjg3zzlnaEik+YX8n+a
+	MNuJyaCD+Sx3kOBOo9/3jXpHeeYBQqIVaJt7C3j0XYoMhUA5fQj8qec5aitc6V3+SSa+vYiNGvotx
+	WmPMwaGg==;
 Received: from i5e8616cc.versanet.de ([94.134.22.204] helo=phil.lan)
 	by gloria.sntech.de with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 	(Exim 4.94.2)
 	(envelope-from <heiko@sntech.de>)
-	id 1snPA7-0003s9-U9; Sun, 08 Sep 2024 23:09:35 +0200
+	id 1snPA2-0003s9-Su; Sun, 08 Sep 2024 23:09:30 +0200
 From: Heiko Stuebner <heiko@sntech.de>
 To: lee@kernel.org,
 	jikos@kernel.org,
@@ -55,10 +55,11 @@ Cc: robh@kernel.org,
 	linux-input@vger.kernel.org,
 	linux-iio@vger.kernel.org,
 	linux-leds@vger.kernel.org,
-	Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH v8 9/9] arm64: dts: rockchip: set hdd led labels on qnap-ts433
-Date: Sun,  8 Sep 2024 23:08:03 +0200
-Message-ID: <20240908210803.3339919-10-heiko@sntech.de>
+	Heiko Stuebner <heiko@sntech.de>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v8 3/9] dt-bindings: mfd: add binding for qnap,ts433-mcu devices
+Date: Sun,  8 Sep 2024 23:07:57 +0200
+Message-ID: <20240908210803.3339919-4-heiko@sntech.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240908210803.3339919-1-heiko@sntech.de>
 References: <20240908210803.3339919-1-heiko@sntech.de>
@@ -70,51 +71,73 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The automatically generated names for the LEDs from color and function
-do not match nicely for the 4 hdds, so set them manually per the label
-property to also match the LEDs generated from the MCU.
+These MCUs can be found in network attached storage devices made by QNAP.
+They are connected to a serial port of the host device and provide
+functionality like LEDs, power-control and temperature monitoring.
 
+LEDs, buttons, etc are all elements of the MCU firmware itself, so don't
+need devicetree input, though the fan gets its cooling settings from
+a fan-0 subnode.
+
+A binding for the LEDs for setting the linux-default-trigger may come
+later, once all the LEDs are understood and ATA controllers actually
+can address individual port-LEDs, but are really optional.
+
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 ---
- arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../bindings/mfd/qnap,ts433-mcu.yaml          | 42 +++++++++++++++++++
+ 1 file changed, 42 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/mfd/qnap,ts433-mcu.yaml
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
-index 4bc5f5691d45..7bd32d230ad2 100644
---- a/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3568-qnap-ts433.dts
-@@ -50,6 +50,7 @@ led-0 {
- 			color = <LED_COLOR_ID_GREEN>;
- 			function = LED_FUNCTION_DISK;
- 			gpios = <&gpio1 RK_PD5 GPIO_ACTIVE_LOW>;
-+			label = "hdd1:green:disk";
- 			linux,default-trigger = "disk-activity";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&hdd1_led_pin>;
-@@ -59,6 +60,7 @@ led-1 {
- 			color = <LED_COLOR_ID_GREEN>;
- 			function = LED_FUNCTION_DISK;
- 			gpios = <&gpio1 RK_PD6 GPIO_ACTIVE_LOW>;
-+			label = "hdd2:green:disk";
- 			linux,default-trigger = "disk-activity";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&hdd2_led_pin>;
-@@ -68,6 +70,7 @@ led-2 {
- 			color = <LED_COLOR_ID_GREEN>;
- 			function = LED_FUNCTION_DISK;
- 			gpios = <&gpio1 RK_PD7 GPIO_ACTIVE_LOW>;
-+			label = "hdd3:green:disk";
- 			linux,default-trigger = "disk-activity";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&hdd3_led_pin>;
-@@ -77,6 +80,7 @@ led-3 {
- 			color = <LED_COLOR_ID_GREEN>;
- 			function = LED_FUNCTION_DISK;
- 			gpios = <&gpio2 RK_PA0 GPIO_ACTIVE_LOW>;
-+			label = "hdd4:green:disk";
- 			linux,default-trigger = "disk-activity";
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&hdd4_led_pin>;
+diff --git a/Documentation/devicetree/bindings/mfd/qnap,ts433-mcu.yaml b/Documentation/devicetree/bindings/mfd/qnap,ts433-mcu.yaml
+new file mode 100644
+index 000000000000..877078ac172f
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/qnap,ts433-mcu.yaml
+@@ -0,0 +1,42 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/qnap,ts433-mcu.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: QNAP NAS on-board Microcontroller
++
++maintainers:
++  - Heiko Stuebner <heiko@sntech.de>
++
++description:
++  QNAP embeds a microcontroller on their NAS devices adding system feature
++  as PWM Fan control, additional LEDs, power button status and more.
++
++properties:
++  compatible:
++    enum:
++      - qnap,ts433-mcu
++
++patternProperties:
++  "^fan-[0-9]+$":
++    $ref: /schemas/hwmon/fan-common.yaml#
++    unevaluatedProperties: false
++
++required:
++  - compatible
++
++additionalProperties: false
++
++examples:
++  - |
++    uart {
++      mcu {
++        compatible = "qnap,ts433-mcu";
++
++        fan-0 {
++          #cooling-cells = <2>;
++          cooling-levels = <0 64 89 128 166 204 221 238>;
++        };
++      };
++    };
 -- 
 2.43.0
 

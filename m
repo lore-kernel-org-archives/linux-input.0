@@ -1,29 +1,29 @@
 Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62C12175AE;
-	Mon,  9 Sep 2024 01:14:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78B37BA42;
+	Mon,  9 Sep 2024 01:14:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725844469; cv=none; b=PTmpcHYszy2HjKcijrzZLruce+zU0EgPaTxfiuibQw9wZe1Kyq73w0+BgHyvKWtv+Kwxiz84dbSJpjvFjhOIg8eG66WH2yb8tGs5Yl70FB2GIubOF9Y7XaMjK4E77rSblD0R1RQnj+Z6vdmgzc2RTbqbFoMuWj2CbRM7+UMy280=
+	t=1725844470; cv=none; b=odq46zViiA021IlKx9bxBzWNlkSdavfzyjJEx1IqO0WWMWYG0jcgHU4XgYZYK/EUjOsQxjB48vY7WLOULfbixmhg2D+1f0k7q221JopWAeCF/DGC8wfJKm8yomRnmD68n9BQidgNHELdDpx1iGIdUPyafUwsekcAU6/s9QyTWFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725844469; c=relaxed/simple;
-	bh=JFLIjC1PPR9Va59OYNU1SbHckYdIYOeRnHqM2PeJd6s=;
+	s=arc-20240116; t=1725844470; c=relaxed/simple;
+	bh=/BSWCvgetkZdKoXmqL7il2Mnc8I2MOIUMx8gyU4OiwI=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JePwuGRLDpKa9IBYqhF47cDUOR4Bo6hLliLuo2v7ucLZ3vJNRzE0gQxbdkTuJIu3ll2m7Oex9+XE4bqP4TO9GcwEqVU4nlXL2YmdlLTNXQLu5f2oSpKwOD5LX+kJeLlQ1fPaWZywX8qxX3f7D4B4abXCbKcH1PhleaYg3AZegME=
+	 MIME-Version:Content-Type; b=P7Qa+1Sq8HUYbIvlxEheEIEerRI4rCKLO+1e6f+BDa6IEAMnDc9hG6B+VPLbDBHOOJMLAmKZyY/2HDIgsxK7TkiEqFpDHJxmY7xc+TgF/7bMZFwZShQ8cSY6xO+AIqrV7DH1YCpM7TdbRUa320JmfgcIDIPhlHhNz2L8uJdSKrQ=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.163])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4X28412V4Bz1j8CY;
-	Mon,  9 Sep 2024 09:13:53 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.44])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4X280S5PFQz1HJ7d;
+	Mon,  9 Sep 2024 09:10:48 +0800 (CST)
 Received: from kwepemd500012.china.huawei.com (unknown [7.221.188.25])
-	by mail.maildlp.com (Postfix) with ESMTPS id 64FF8180041;
-	Mon,  9 Sep 2024 09:14:19 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 461171400DC;
+	Mon,  9 Sep 2024 09:14:21 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemd500012.china.huawei.com
  (7.221.188.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.34; Mon, 9 Sep
- 2024 09:14:18 +0800
+ 2024 09:14:20 +0800
 From: Li Zetao <lizetao1@huawei.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<gupt21@gmail.com>, <djogorchock@gmail.com>,
@@ -33,9 +33,9 @@ To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<mezin.alexander@gmail.com>
 CC: <lizetao1@huawei.com>, <linux-input@vger.kernel.org>,
 	<linux-i2c@vger.kernel.org>, <linux-hwmon@vger.kernel.org>
-Subject: [PATCH -next v2 07/15] HID: playstation: Use devm_hid_hw_start_and_open in ps_probe()
-Date: Mon, 9 Sep 2024 09:23:05 +0800
-Message-ID: <20240909012313.500341-8-lizetao1@huawei.com>
+Subject: [PATCH -next v2 10/15] hwmon: (corsair-cpro) Use devm_hid_hw_start_and_open in ccp_probe()
+Date: Mon, 9 Sep 2024 09:23:08 +0800
+Message-ID: <20240909012313.500341-11-lizetao1@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240909012313.500341-1-lizetao1@huawei.com>
 References: <20240909012313.500341-1-lizetao1@huawei.com>
@@ -50,82 +50,84 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
  kwepemd500012.china.huawei.com (7.221.188.25)
 
-Currently, the playstation module needs to maintain hid resources
+Currently, the corsair-cpro module needs to maintain hid resources
 by itself. Use devm_hid_hw_start_and_open helper to ensure that hid
 resources are consistent with the device life cycle, and release
 hid resources before device is released. At the same time, it can avoid
-the goto-release encoding, drop the err_close and err_stop lables, and
-directly return the error code when an error occurs.
+the goto-release encoding, drop the out_hw_close and hid_hw_stop
+lables, and directly return the error code when an error occurs.
 
 Signed-off-by: Li Zetao <lizetao1@huawei.com>
 ---
 v1 -> v2: Adjust commit information
 v1:
-https://lore.kernel.org/all/20240904123607.3407364-10-lizetao1@huawei.com/
+https://lore.kernel.org/all/20240904123607.3407364-15-lizetao1@huawei.com/
 
- drivers/hid/hid-playstation.c | 27 ++++-----------------------
- 1 file changed, 4 insertions(+), 23 deletions(-)
+ drivers/hwmon/corsair-cpro.c | 24 +++++-------------------
+ 1 file changed, 5 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
-index 0d90d7ee693c..6dddb9451a37 100644
---- a/drivers/hid/hid-playstation.c
-+++ b/drivers/hid/hid-playstation.c
-@@ -2704,41 +2704,25 @@ static int ps_probe(struct hid_device *hdev, const struct hid_device_id *id)
+diff --git a/drivers/hwmon/corsair-cpro.c b/drivers/hwmon/corsair-cpro.c
+index e1a7f7aa7f80..7bba30840f32 100644
+--- a/drivers/hwmon/corsair-cpro.c
++++ b/drivers/hwmon/corsair-cpro.c
+@@ -601,14 +601,10 @@ static int ccp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (ret)
  		return ret;
- 	}
  
 -	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
--	if (ret) {
--		hid_err(hdev, "Failed to start HID device\n");
 +	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
-+	if (ret)
+ 	if (ret)
  		return ret;
--	}
--
+ 
 -	ret = hid_hw_open(hdev);
--	if (ret) {
--		hid_err(hdev, "Failed to open HID device\n");
--		goto err_stop;
--	}
- 
- 	if (id->driver_data == PS_TYPE_PS4_DUALSHOCK4) {
- 		dev = dualshock4_create(hdev);
- 		if (IS_ERR(dev)) {
- 			hid_err(hdev, "Failed to create dualshock4.\n");
--			ret = PTR_ERR(dev);
--			goto err_close;
-+			return PTR_ERR(dev);
- 		}
- 	} else if (id->driver_data == PS_TYPE_PS5_DUALSENSE) {
- 		dev = dualsense_create(hdev);
- 		if (IS_ERR(dev)) {
- 			hid_err(hdev, "Failed to create dualsense.\n");
--			ret = PTR_ERR(dev);
--			goto err_close;
-+			return PTR_ERR(dev);
- 		}
- 	}
- 
- 	return ret;
+-	if (ret)
+-		goto out_hw_stop;
 -
--err_close:
+ 	ccp->hdev = hdev;
+ 	hid_set_drvdata(hdev, ccp);
+ 
+@@ -621,28 +617,20 @@ static int ccp_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	/* temp and fan connection status only updates when device is powered on */
+ 	ret = get_temp_cnct(ccp);
+ 	if (ret)
+-		goto out_hw_close;
++		return ret;
+ 
+ 	ret = get_fan_cnct(ccp);
+ 	if (ret)
+-		goto out_hw_close;
++		return ret;
+ 
+ 	ccp_debugfs_init(ccp);
+ 
+ 	ccp->hwmon_dev = hwmon_device_register_with_info(&hdev->dev, "corsaircpro",
+ 							 ccp, &ccp_chip_info, NULL);
+-	if (IS_ERR(ccp->hwmon_dev)) {
+-		ret = PTR_ERR(ccp->hwmon_dev);
+-		goto out_hw_close;
+-	}
++	if (IS_ERR(ccp->hwmon_dev))
++		return PTR_ERR(ccp->hwmon_dev);
+ 
+ 	return 0;
+-
+-out_hw_close:
 -	hid_hw_close(hdev);
--err_stop:
+-out_hw_stop:
 -	hid_hw_stop(hdev);
 -	return ret;
  }
  
- static void ps_remove(struct hid_device *hdev)
-@@ -2750,9 +2734,6 @@ static void ps_remove(struct hid_device *hdev)
+ static void ccp_remove(struct hid_device *hdev)
+@@ -651,8 +639,6 @@ static void ccp_remove(struct hid_device *hdev)
  
- 	if (dev->remove)
- 		dev->remove(dev);
--
+ 	debugfs_remove_recursive(ccp->debugfs);
+ 	hwmon_device_unregister(ccp->hwmon_dev);
 -	hid_hw_close(hdev);
 -	hid_hw_stop(hdev);
  }
  
- static const struct hid_device_id ps_devices[] = {
+ static const struct hid_device_id ccp_devices[] = {
 -- 
 2.34.1
 

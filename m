@@ -1,28 +1,29 @@
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B971F9EC;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E66B1101F2;
 	Mon,  9 Sep 2024 01:14:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.188
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725844466; cv=none; b=JB7Su1LkgR4VVgIgLAhP9TEvJIzrUsaZSdT3+VXd2lqpuovjLltNFUvyAlR6fLnhXDyupBQ43cOmP56UDw1VaALgLXW5IDMHVnE3fL1tq2I18O64EUI5K2oO5thjwX79jG24wWFDJ0s6dCBrOpvnBGSfNjEjRFH0bqfE9QWY2Ws=
+	t=1725844466; cv=none; b=Ug0X6Q2WCuvZQjaWL7A3ZgUPYJpXOkJ74KWBq+6ZZTqoHw947CwiWz/jdcUJ5tOMkqIJyLa9almR/ZeQLfCTmQA7QNheHEGG6npFHprSWgOqlLvv+oma87LEoB33hSIoLBb9esIzQNGClbViZ1MdGzXTSvTBxfsxdAi0jiiZUYY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725844466; c=relaxed/simple;
-	bh=6bcvZU1rTtHXISVQ5qkXgIcYAt31PhLF45p5DV9bjI0=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=NvOHNlgeR3MbQ23ArxEnp9n6tOMu2oHO0eEaGl33+hkYLNAhxqFNmO9DIr3exbHKcwPdKhr9FbzxuO6cX814CS4xw5AMOBTihcdbP80x+9fwZLlQfxs9pQoXQQEq25t7xHz4gVydAiZSCqRCvq0pTXiPr8zjADmb/KZpDacKKCo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.188
+	bh=IQlexit9L51Ox188oD4PyFOIQfKNEy9faMQJhDzrkMk=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JKg1h9057fkFXWhqnTs4Dux65y3AMs+VpgfqnKleV2p2qxngLejm8cLKhoyPHikbCbOqhPN7LNumsrtGKtdd/QX+n8iIlmRhs0mc8y0+zrZenhRyrkaphfJD6mzHYd9mJEN8Cxhy96veNvWy95nivzWNfEHtZCjyQJHhWxBbQEk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.105])
-	by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4X28273BkRzpVCL;
-	Mon,  9 Sep 2024 09:12:15 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.88.163])
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4X284427dwz2Dbxj;
+	Mon,  9 Sep 2024 09:13:56 +0800 (CST)
 Received: from kwepemd500012.china.huawei.com (unknown [7.221.188.25])
-	by mail.maildlp.com (Postfix) with ESMTPS id 13807140360;
-	Mon,  9 Sep 2024 09:14:15 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 87E22180041;
+	Mon,  9 Sep 2024 09:14:22 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemd500012.china.huawei.com
  (7.221.188.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.34; Mon, 9 Sep
- 2024 09:14:14 +0800
+ 2024 09:14:21 +0800
 From: Li Zetao <lizetao1@huawei.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<gupt21@gmail.com>, <djogorchock@gmail.com>,
@@ -32,10 +33,12 @@ To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<mezin.alexander@gmail.com>
 CC: <lizetao1@huawei.com>, <linux-input@vger.kernel.org>,
 	<linux-i2c@vger.kernel.org>, <linux-hwmon@vger.kernel.org>
-Subject: [PATCH -next v2 00/15] HID: convert to devm_hid_hw_start_and_open()
-Date: Mon, 9 Sep 2024 09:22:58 +0800
-Message-ID: <20240909012313.500341-1-lizetao1@huawei.com>
+Subject: [PATCH -next v2 12/15] hwmon: (gigabyte_waterforce) Use devm_hid_hw_start_and_open in waterforce_probe()
+Date: Mon, 9 Sep 2024 09:23:10 +0800
+Message-ID: <20240909012313.500341-13-lizetao1@huawei.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240909012313.500341-1-lizetao1@huawei.com>
+References: <20240909012313.500341-1-lizetao1@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,72 +50,84 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
  kwepemd500012.china.huawei.com (7.221.188.25)
 
-v1 -> v2:
- 1) drop some risky patches, such as patch 7, which may have race issues
- 2) Some patches can be further optimized. By replacing
-hwmon_device_register_with_info with devm_hwmon_device_register_with_info,
-the .remove operation can be completely deleted.
- 3) Adjust some commit information and use "Use" to replace
-"Consider using"
+Currently, the waterforce module needs to maintain hid resources
+by itself. Use devm_hid_hw_start_and_open helper to ensure that hid
+resources are consistent with the device life cycle, and release
+hid resources before device is released. At the same time, it can avoid
+the goto-release encoding, drop the fail_and_close and fail_and_stop
+lables, and directly return the error code when an error occurs.
 
+Signed-off-by: Li Zetao <lizetao1@huawei.com>
+---
+v1 -> v2: Adjust commit information
 v1:
-https://lore.kernel.org/all/20240904123607.3407364-1-lizetao1@huawei.com/
+https://lore.kernel.org/all/20240904123607.3407364-16-lizetao1@huawei.com/ 
 
-Hi, all
+ drivers/hwmon/gigabyte_waterforce.c | 29 +++++------------------------
+ 1 file changed, 5 insertions(+), 24 deletions(-)
 
-This patchset is dedicated to using the life cycle approach to manage
-hid resources. By keeping hid resources consistent with the life cycle
-of the device, we ensure that resources are available during the life
-cycle and the hid resources can be released before device release.
-
-Going one step further, since the module does not need to recycle hid
-resources by itself, the goto-release resource release coding can be
-avoided. It also reduces the risk of resources not being released.
-
-Thanks,
-Li Zetao.
-
-Li Zetao (15):
-  HID: core: Use devm_add_action_or_reset helper to manage hid resources
-  HID: cp2112: Use devm_hid_hw_start_and_open in cp2112_probe()
-  HID: ft260: Use devm_hid_hw_start_and_open in ft260_probe()
-  HID: mcp2200: Use devm_hid_hw_start_and_open in mcp2200_probe()
-  HID: mcp2221: Use devm_hid_hw_start_and_open in mcp2221_probe()
-  HID: nintendo: Use devm_hid_hw_start_and_open in nintendo_hid_probe()
-  HID: playstation: Use devm_hid_hw_start_and_open in ps_probe()
-  hwmon: (aquacomputer_d5next) Use devm_hid_hw_start_and_open in
-    aqc_probe()
-  hwmon: Use devm_hid_hw_start_and_open in rog_ryujin_probe()
-  hwmon: (corsair-cpro) Use devm_hid_hw_start_and_open in ccp_probe()
-  hwmon: (corsair-psu) Use devm_hid_hw_start_and_open in
-    corsairpsu_probe()
-  hwmon: (gigabyte_waterforce) Use devm_hid_hw_start_and_open in
-    waterforce_probe()
-  hwmon: (nzxt-kraken2) Use devm_hid_hw_start_and_open in
-    kraken2_probe()
-  hwmon: (nzxt-kraken3) Use devm_hid_hw_start_and_open in
-    kraken3_probe()
-  hwmon: (nzxt-smart2) Use devm_hid_hw_start_and_open in
-    nzxt_smart2_hid_probe()
-
- drivers/hid/hid-core.c              | 40 ++++++++++++++++++++++++
- drivers/hid/hid-cp2112.c            | 26 ++--------------
- drivers/hid/hid-ft260.c             | 32 +++++---------------
- drivers/hid/hid-mcp2200.c           | 22 ++------------
- drivers/hid/hid-mcp2221.c           | 26 ++--------------
- drivers/hid/hid-nintendo.c          | 23 +++-----------
- drivers/hid/hid-playstation.c       | 27 +++--------------
- drivers/hwmon/aquacomputer_d5next.c | 39 ++++++------------------
- drivers/hwmon/asus_rog_ryujin.c     | 47 +++++------------------------
- drivers/hwmon/corsair-cpro.c        | 24 +++------------
- drivers/hwmon/corsair-psu.c         | 24 +++------------
- drivers/hwmon/gigabyte_waterforce.c | 29 +++---------------
- drivers/hwmon/nzxt-kraken2.c        | 45 +++++----------------------
- drivers/hwmon/nzxt-kraken3.c        | 34 +++++----------------
- drivers/hwmon/nzxt-smart2.c         | 38 +++--------------------
- include/linux/hid.h                 |  2 ++
- 16 files changed, 114 insertions(+), 364 deletions(-)
-
+diff --git a/drivers/hwmon/gigabyte_waterforce.c b/drivers/hwmon/gigabyte_waterforce.c
+index 8129d7b3ceaf..9052d1c3d5aa 100644
+--- a/drivers/hwmon/gigabyte_waterforce.c
++++ b/drivers/hwmon/gigabyte_waterforce.c
+@@ -337,23 +337,13 @@ static int waterforce_probe(struct hid_device *hdev, const struct hid_device_id
+ 	/*
+ 	 * Enable hidraw so existing user-space tools can continue to work.
+ 	 */
+-	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
+-	if (ret) {
+-		hid_err(hdev, "hid hw start failed with %d\n", ret);
++	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
++	if (ret)
+ 		return ret;
+-	}
+-
+-	ret = hid_hw_open(hdev);
+-	if (ret) {
+-		hid_err(hdev, "hid hw open failed with %d\n", ret);
+-		goto fail_and_stop;
+-	}
+ 
+ 	priv->buffer = devm_kzalloc(&hdev->dev, MAX_REPORT_LENGTH, GFP_KERNEL);
+-	if (!priv->buffer) {
+-		ret = -ENOMEM;
+-		goto fail_and_close;
+-	}
++	if (!priv->buffer)
++		return -ENOMEM;
+ 
+ 	mutex_init(&priv->status_report_request_mutex);
+ 	mutex_init(&priv->buffer_lock);
+@@ -371,18 +361,12 @@ static int waterforce_probe(struct hid_device *hdev, const struct hid_device_id
+ 	if (IS_ERR(priv->hwmon_dev)) {
+ 		ret = PTR_ERR(priv->hwmon_dev);
+ 		hid_err(hdev, "hwmon registration failed with %d\n", ret);
+-		goto fail_and_close;
++		return ret;
+ 	}
+ 
+ 	waterforce_debugfs_init(priv);
+ 
+ 	return 0;
+-
+-fail_and_close:
+-	hid_hw_close(hdev);
+-fail_and_stop:
+-	hid_hw_stop(hdev);
+-	return ret;
+ }
+ 
+ static void waterforce_remove(struct hid_device *hdev)
+@@ -391,9 +375,6 @@ static void waterforce_remove(struct hid_device *hdev)
+ 
+ 	debugfs_remove_recursive(priv->debugfs);
+ 	hwmon_device_unregister(priv->hwmon_dev);
+-
+-	hid_hw_close(hdev);
+-	hid_hw_stop(hdev);
+ }
+ 
+ static const struct hid_device_id waterforce_table[] = {
 -- 
 2.34.1
 

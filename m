@@ -1,173 +1,91 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BA6116F0E8;
-	Mon,  9 Sep 2024 17:47:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB0E917AE19
+	for <linux-input@vger.kernel.org>; Mon,  9 Sep 2024 18:23:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725904027; cv=none; b=gkKAzg5UtbVT3sujbUs1w2yrz0+nl0yvujzmE9rIgii43HgV7uPxjv9FixcdvOfZGezzO2/1v5AoDcmWR5ossjDLtOpK/GJG56xZ0WLuVe3lksOn3iWG8mUr+Rzv26vwjF0KjyzcU2R2DpMUDenroiSf5Z4Ru30i+lFJdBnF7PQ=
+	t=1725906194; cv=none; b=WA3fOsTA2lBHWgkP4FOWiFhoQ/gDBGpFGCDcpJCUcurU5o9rAUFGxP3BMbTKCgG+C9Qp/1OTMlfeC3eNRB5DQkFHsa02WJp8kTuosjjb4+Dpya9+MOh/TpZQ9HVI2wlxdfDqkjfzSk8GFq6z3kxeAbRW0ZpgHvrOXULvWNWy7pE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725904027; c=relaxed/simple;
-	bh=d5MQ6P0P6PSk7ZUlMTuS+1vmsGp+cPoQ1jmGFxw4P7c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DQo185QI/fAYcixsQAkJA0AXDw225Huukjqyxat7jKJAMve7AtrsCUWHrELMDFL2h/ZQlOQaSyCXUUioFb6khgGs7fRfTQ+5PfzoCLMeFlOPHw20RnilkAqYc2bqyDtP5s5ajqWVOoBIsqBLqb/KGl2HH2iTJN0X2HLBOyZvdyc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bvjU6cht; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1725906194; c=relaxed/simple;
+	bh=1aitMlV23kVkVlK+hhq13LkYQUy97YyRmnk0qYwLNpc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KcXaAILcnvE0Xfsw4Gtp2v38WDV6x4UKMQcrmqDZ2amoXg9Te6oWCxylsQkzH4QSFV2jBHJKV/FgIRgIBWnj3RpAz2jh/gCqIhnUyELvaGQkFfEebEP5fCzcsrWhGH99euLRUuyfTxX9y/YnlWrkISDAaWRqCo/BH7cuXYIlzCo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=protocubo.io; spf=pass smtp.mailfrom=protocubo.io; dkim=pass (2048-bit key) header.d=protocubo.io header.i=@protocubo.io header.b=eNHlooe1; arc=none smtp.client-ip=209.85.215.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=protocubo.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protocubo.io
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bvjU6cht"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCE8AC4CEC8;
-	Mon,  9 Sep 2024 17:47:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1725904026;
-	bh=d5MQ6P0P6PSk7ZUlMTuS+1vmsGp+cPoQ1jmGFxw4P7c=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=bvjU6cht362onuC87em4aUt8sWaFGl3zfD07QULlAvFMt0rFPE/xT+L/AjOxT3fsS
-	 V61ZFLEMD18uM7gBroeBLgsujPW/BsBOpKLBT7WmWJFIkRaK15UhimPB02HO6BbFEQ
-	 saRumcLXByrefl4c1C4sW8fSB/qFgSNFehNUHwK/X49zlEH5ftSzX+oH3nU4EC0FU+
-	 2ZGYFKxQjeedzflGRk+t1eeDbMH69U+9c2sHq4beEdrqSsAN2CqoF6ltywlC7FY7tW
-	 mQtFXZwQbb0W938G483nSbu6mN86KdVU+KxqNNI++CINltXbo8UWDfEc615mMHKAcX
-	 42vFouSCSpnpQ==
-Message-ID: <a3eb6224-b355-4477-9d24-fee96f00e593@kernel.org>
-Date: Mon, 9 Sep 2024 19:47:01 +0200
+	dkim=pass (2048-bit key) header.d=protocubo.io header.i=@protocubo.io header.b="eNHlooe1"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-7d21b0c8422so669586a12.0
+        for <linux-input@vger.kernel.org>; Mon, 09 Sep 2024 11:23:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=protocubo.io; s=google; t=1725906192; x=1726510992; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=eO4L9jnbspdn3rrqanyKN+GU+DDQw2EjhWjOuAI0zjw=;
+        b=eNHlooe1rI24/CXd0sQathPdWD92AXwjD/EfLUjdXT5shmHcxORb9BDbWIhqY8q8H7
+         17Ie4h110kmkztcDV6gQ6leWoQU0MZj86t/g+OSZiLTwRWcp9r31lwvHTMp6zT8lQaCh
+         9CQ3tAxbUJQOVnGyFMBpiFivH7G+OpyU0ouQaht/pAEOJnc3gEMdTN0lneAiT+L0KoXB
+         tlYS9b/TgNzoujSgsYPfPew7tdAsp7oPYwCCytfrBs/6DC4/JclHdH6YXoH/0Lx3rTmS
+         xPsJAHcNIEbq/K8ZY92isPWNeBZEpSYDADqC2PB6VeSxuWj3NpPoBFjggxrlWU+rUrCO
+         8Vzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1725906192; x=1726510992;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eO4L9jnbspdn3rrqanyKN+GU+DDQw2EjhWjOuAI0zjw=;
+        b=hW4C5xg/G7W4rskfysuy8SQl0A3uea9qcGI/1q2eGdK+Q3er6zvIovy3e4We1rWG9w
+         VCxnhAOSbx22FiRg9tjzqN4Z40KP1qs1izHTGamdp9W8UPy90s3pZ1M8nEyfyHaPpgpj
+         txG3y0cb6qF4jKUCJgiLoBXInsBAVuMp95835Bx1J3aU2vMv3iVWVpJbENUPADXvq3xW
+         XrqCoK2JNyxjxHLUT7dXWROmS/U7U2g18LXqropvuTGt7pgwhKVbfY7anA54J24i8eSi
+         106hXuD8PHiJxA/iy8YBH1SnXn81Iw6j+RI3C+6YLtC5St1yrpC4zQuJSDSpkH+7yQx0
+         eE5w==
+X-Forwarded-Encrypted: i=1; AJvYcCXFJGXGO0UCofhomhu5p4twZvtgM9L/jPh4IAZCn4HobmDcgvXg3s9RROpNsBePg5lAqpYLycX+Y8Z2NA==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw5Tcid/VKdKnRAejL6CwuuOvroZ032wf7NYev72+ljwg3nzq8O
+	KF3Ir8j4TEMN0AToPKr+RfVomE26Iv1D9V8NYiKwtffWQcuoDpVVsblgkKWwA3c=
+X-Google-Smtp-Source: AGHT+IHRmLzz8gpcfkuwt9GgoLc7rdf9w2BVWj6aOOK5a0OAJ8CoyNVq5WjyElAeTQosquDXIT2aJw==
+X-Received: by 2002:a17:902:ec89:b0:206:a027:8aa3 with SMTP id d9443c01a7336-206f036439amr63524295ad.0.1725906192178;
+        Mon, 09 Sep 2024 11:23:12 -0700 (PDT)
+Received: from calvin.localdomain ([2804:14d:5c5e:6038::1000])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-20710f3552bsm36716195ad.289.2024.09.09.11.23.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 09 Sep 2024 11:23:11 -0700 (PDT)
+Date: Mon, 9 Sep 2024 15:23:03 -0300
+From: Jonas Malaco <jonas@protocubo.io>
+To: Li Zetao <lizetao1@huawei.com>
+Cc: jikos@kernel.org, bentiss@kernel.org, michael.zaidman@gmail.com, 
+	gupt21@gmail.com, djogorchock@gmail.com, roderick.colenbrander@sony.com, 
+	savicaleksa83@gmail.com, me@jackdoan.com, jdelvare@suse.com, linux@roeck-us.net, 
+	mail@mariuszachmann.de, wilken.gottwalt@posteo.net, mezin.alexander@gmail.com, 
+	linux-input@vger.kernel.org, linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org
+Subject: Re: [PATCH -next v2 13/15] hwmon: (nzxt-kraken2) Use
+ devm_hid_hw_start_and_open in kraken2_probe()
+Message-ID: <yfdm7idqc445lb2cl554xgsav5nzpfv6o5emlnv37ae67wauli@dcbvtbiwrpax>
+References: <20240909012313.500341-1-lizetao1@huawei.com>
+ <20240909012313.500341-14-lizetao1@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-binding: touchscreen: fix x-plat-ohm missing type
- definition
-To: Sayyad Abid <sayyad.abid16@gmail.com>
-Cc: devicetree@vger.kernel.org, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Marek Vasut <marex@denx.de>,
- Michael Welling <mwelling@ieee.org>, linux-input@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20240908151742.2453402-1-sayyad.abid16@gmail.com>
- <sllpurhdxfgducp5hb3rs7u5db76vy2wtmyha7uspskvvek463@tq2aq65qqw4x>
- <CACVUEBmCBW7a3gyZ78ZyEtxHiFkie=3wuMz-+Oq_FfTjQX6AVw@mail.gmail.com>
- <edf29295-d360-4038-a490-3a5cbb8c28cd@kernel.org>
- <CACVUEB=eQUFbDV80D7sPkK84FmnR7j66gRGvB8eusV_cz-QmAQ@mail.gmail.com>
- <CACVUEB=UBQ=qnEGHodXjYNcMicOW6dGb1Z-V1CPkBV15+OdmwA@mail.gmail.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 fv0=
-In-Reply-To: <CACVUEB=UBQ=qnEGHodXjYNcMicOW6dGb1Z-V1CPkBV15+OdmwA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20240909012313.500341-14-lizetao1@huawei.com>
 
-On 09/09/2024 14:48, Sayyad Abid wrote:
-> On Mon, Sep 9, 2024 at 1:36 PM Sayyad Abid <sayyad.abid16@gmail.com> wrote:
->>
->> On Mon, Sep 9, 2024 at 1:21 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
->>>
->>> On 09/09/2024 09:48, Sayyad Abid wrote:
->>>> On Mon, Sep 9, 2024 at 12:02 PM Krzysztof Kozlowski <krzk@kernel.org> wrote:
->>>>>
->>>>> On Sun, Sep 08, 2024 at 08:47:43PM +0530, Sayyad Abid wrote:
->>>>>> This patch fixes the issue with x-plat-ohm missing a type definition.
->>>>>> The patch adds the fix for this issue by adding value of this property
->>>>>
->>>>> You repeated twice the same while it is unclear why this is missing.
->>>> I must have overlooked it, my bad.
->>>
->>> Keep discussion public.
->> I am away form my desktop and trying to reply with Gmail's client,
->> I use mutt otherwise hence the trouble. I hit 'reply' instead of 'reply all'.
->>>
->>>>>
->>>>> Also:
->>>>> Please do not use "This commit/patch/change", but imperative mood. See
->>>>> longer explanation here:
->>>>> https://elixir.bootlin.com/linux/v5.17.1/source/Documentation/process/submitting-patches.rst#L95
->>>> Okay, I'll refer to this article for any further patches. Thank you!
->>>>>
->>>>>
->>>>>> should be a 32-bit unsigned integer.
->>>>>>
->>>>>> Signed-off-by: Sayyad Abid <sayyad.abid16@gmail.com>
->>>>>>
->>>>>> ---
->>>>>>  .../devicetree/bindings/input/touchscreen/ti,tsc2005.yaml       | 2 ++
->>>>>>  1 file changed, 2 insertions(+)
->>>>>>
->>>>>> diff --git a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
->>>>>> index 7187c390b2f5..98ff65cf9f9f 100644
->>>>>> --- a/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
->>>>>> +++ b/Documentation/devicetree/bindings/input/touchscreen/ti,tsc2005.yaml
->>>>>> @@ -38,6 +38,8 @@ properties:
->>>>>>
->>>>>>    ti,x-plate-ohms:
->>>>>>      description: resistance of the touchscreen's X plates in ohm (defaults to 280)
->>>>>
->>>>>> +    $ref: /schemas/types.yaml#/definitions/uint32
->>>>>
->>>>> $ref should not be needed, so what is exactly missing? Provide some
->>>>> sort of proof that you are fixing real issue.
->>>> I ran dt_bindings_check on the file which resulted in a warning
->>>> "x-plate-ohm : missing type definition", to resolve this warning I
->>>> looked at the other yaml files in the ti,txc2005.yaml directory
->>>> (/Documentation/devicetree/bindings/input/touchscreen/), Where I found
->>>> out that one of the TI's touchscreen (ti,am3359) binding used $ref
->>>> property for the similar "x-plate-resistance" property.
->>>>
->>>> Adding the $ref resolved the warnings.
->>>
->>> You run some older dtschema.
->> I'll update this and check again.
-> So I did a full clean clone of the kernel repo and followed the
-> dtschema installation
-> as mentioned in the Linux Kernel Documentation.
-> Running the dt_binding_check resulted in the same warning.
+On Mon, Sep 09, 2024 at 09:23:11AM GMT, Li Zetao wrote:
+> Currently, the nzxt-kraken2 module needs to maintain hid resources
+> by itself. Use devm_hid_hw_start_and_open helper to ensure that hid
+> resources are consistent with the device life cycle, and release
+> hid resources before device is released. At the same time, it can avoid
+> the goto-release encoding, drop the fail_and_close and fail_and_stop
+> lables, and directly return the error code when an error occurs.
+> 
+> Further optimization, use devm_hwmon_device_register_with_info to replace
+> hwmon_device_register_with_info, the remote operation can be completely
+> deleted, and the kraken2_priv_data no longer needs to hold hwmon device.
+> 
+> Signed-off-by: Li Zetao <lizetao1@huawei.com>
 
-The dtschema change fixing this ("schemas: property-units: Exclude some
-non-conforming properties") is not yet in a released version, so I
-suggest do nothing or try the latest dtschema from master. But in any
-case this change does not look good. ohms should not have a ref, so even
-if this warning is legitimate, the fix should be probably different.
-
-Best regards,
-Krzysztof
-
+Acked-by: Jonas Malaco <jonas@protocubo.io>

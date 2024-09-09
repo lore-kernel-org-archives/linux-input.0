@@ -1,29 +1,29 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5D1A932;
-	Mon,  9 Sep 2024 01:14:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C56D811712;
+	Mon,  9 Sep 2024 01:14:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.187
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725844468; cv=none; b=S38/QkhOgMegZSXZM3i5g1psVIdktZJ8FC0xpENd17SrzBHCdb9ONUI5zLalB1pVyXkTtqa0HVCAbCpz4trDVZH/5jK146mIrvUH5dqGmfhBVY8O78HiSFfeIgb0+gGv2zBSqwnK0tfRZKLR/O3D0e46OiBYlRulE8yMV1LZLWM=
+	t=1725844468; cv=none; b=N/g+v9Xpz1xOP5fEs8Shx5g+hakXtwrqlOL9802Vjt4lSIjaJ1wCTq2a0d2sz+dLx2nv89l2PgtxRQpjSN+89gAFmU2zTXqNpqOBZ6B6mGJ5u8BS4PnhDcAFCn3m4CokztEfApUq0u5OSkpBtNbXwfyW4aNZq67dL4KZMiiK0cw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725844468; c=relaxed/simple;
-	bh=VRfZBD5j6lzrYFnlOvgAE7SYrKCRfdZmUY09ETxQKkc=;
+	bh=a2yNCQHSb4RsF8vhWd6Tml8oxseIm7aUqomMD6XfQDQ=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bmmkFzsyikIGUz0aznxCZd1Nfn7pr/rc2zE83J+5v58m4yOGDln28V+upBMcbMBixJrI+VdOvKvjO74tayLrMwZuBN1udnAkumofwF+LC2P6He4svCXM2DBgyrGoEK5/l9Iso+TYxYEg5boLwZMWdfH5HR5OAaLURr3B+IHQr7Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+	 MIME-Version:Content-Type; b=u0x3Rudc7bE2LxXQNbuWJu4VweeMdwc1SqJmA9NTscva3OESR33HdvCl1aCEWNm9EuyjevyHWysktAic/AZM1N10jpKNlNj//6IJvviE1Nx/P0q21ZdlvrkjkdjJi7wxY4NBtH3v6WdLJ984uJk+TKtNkEZmCz95RooFcphmG6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.187
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.163.44])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4X28455KY1z1j836;
-	Mon,  9 Sep 2024 09:13:57 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.174])
+	by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4X283g58MRzyRf0;
+	Mon,  9 Sep 2024 09:13:35 +0800 (CST)
 Received: from kwepemd500012.china.huawei.com (unknown [7.221.188.25])
-	by mail.maildlp.com (Postfix) with ESMTPS id C87D21400DC;
-	Mon,  9 Sep 2024 09:14:23 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id C9B2A1403D4;
+	Mon,  9 Sep 2024 09:14:18 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemd500012.china.huawei.com
  (7.221.188.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.34; Mon, 9 Sep
- 2024 09:14:23 +0800
+ 2024 09:14:18 +0800
 From: Li Zetao <lizetao1@huawei.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<gupt21@gmail.com>, <djogorchock@gmail.com>,
@@ -33,9 +33,9 @@ To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<mezin.alexander@gmail.com>
 CC: <lizetao1@huawei.com>, <linux-input@vger.kernel.org>,
 	<linux-i2c@vger.kernel.org>, <linux-hwmon@vger.kernel.org>
-Subject: [PATCH -next v2 14/15] hwmon: (nzxt-kraken3) Use devm_hid_hw_start_and_open in kraken3_probe()
-Date: Mon, 9 Sep 2024 09:23:12 +0800
-Message-ID: <20240909012313.500341-15-lizetao1@huawei.com>
+Subject: [PATCH -next v2 06/15] HID: nintendo: Use devm_hid_hw_start_and_open in nintendo_hid_probe()
+Date: Mon, 9 Sep 2024 09:23:04 +0800
+Message-ID: <20240909012313.500341-7-lizetao1@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240909012313.500341-1-lizetao1@huawei.com>
 References: <20240909012313.500341-1-lizetao1@huawei.com>
@@ -50,104 +50,82 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
  kwepemd500012.china.huawei.com (7.221.188.25)
 
-Currently, the nzxt-kraken2 module needs to maintain hid resources
+Currently, the nintendo module needs to maintain hid resources
 by itself. Use devm_hid_hw_start_and_open helper to ensure that hid
 resources are consistent with the device life cycle, and release
 hid resources before device is released. At the same time, it can avoid
-the goto-release encoding, drop the fail_and_close and fail_and_stop
-lables, and directly return the error code when an error occurs.
+the goto-release encoding, drop the err_close and err_stop lables.
 
 Signed-off-by: Li Zetao <lizetao1@huawei.com>
 ---
 v1 -> v2: Adjust commit information
 v1:
-https://lore.kernel.org/all/20240904123607.3407364-19-lizetao1@huawei.com/
+https://lore.kernel.org/all/20240904123607.3407364-7-lizetao1@huawei.com/
 
- drivers/hwmon/nzxt-kraken3.c | 34 +++++++---------------------------
- 1 file changed, 7 insertions(+), 27 deletions(-)
+ drivers/hid/hid-nintendo.c | 23 ++++-------------------
+ 1 file changed, 4 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/hwmon/nzxt-kraken3.c b/drivers/hwmon/nzxt-kraken3.c
-index 00f3ac90a290..71b8c21cfe1b 100644
---- a/drivers/hwmon/nzxt-kraken3.c
-+++ b/drivers/hwmon/nzxt-kraken3.c
-@@ -897,17 +897,9 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
- 	}
+diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
+index 58cd0506e431..45ac4fd3c7ea 100644
+--- a/drivers/hid/hid-nintendo.c
++++ b/drivers/hid/hid-nintendo.c
+@@ -2673,31 +2673,23 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 	 */
+ 	hdev->version |= 0x8000;
  
- 	/* Enable hidraw so existing user-space tools can continue to work */
 -	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
 -	if (ret) {
--		hid_err(hdev, "hid hw start failed with %d\n", ret);
+-		hid_err(hdev, "HW start failed\n");
 +	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
 +	if (ret)
- 		return ret;
+ 		goto err_wq;
 -	}
 -
 -	ret = hid_hw_open(hdev);
 -	if (ret) {
--		hid_err(hdev, "hid hw open failed with %d\n", ret);
--		goto fail_and_stop;
+-		hid_err(hdev, "cannot start hardware I/O\n");
+-		goto err_stop;
 -	}
  
- 	switch (hdev->product) {
- 	case USB_PRODUCT_ID_X53:
-@@ -928,15 +920,12 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
- 		device_name = "kraken2023elite";
- 		break;
- 	default:
--		ret = -ENODEV;
--		goto fail_and_close;
-+		return -ENODEV;
+ 	hid_device_io_start(hdev);
+ 
+ 	ret = joycon_init(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to initialize controller; ret=%d\n", ret);
+-		goto err_close;
++		goto err_wq;
  	}
  
- 	priv->buffer = devm_kzalloc(&hdev->dev, MAX_REPORT_LENGTH, GFP_KERNEL);
--	if (!priv->buffer) {
--		ret = -ENOMEM;
--		goto fail_and_close;
--	}
-+	if (!priv->buffer)
-+		return -ENOMEM;
- 
- 	mutex_init(&priv->buffer_lock);
- 	mutex_init(&priv->z53_status_request_lock);
-@@ -948,7 +937,7 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
- 	ret = kraken3_init_device(hdev);
- 	if (ret < 0) {
- 		hid_err(hdev, "device init failed with %d\n", ret);
--		goto fail_and_close;
-+		return ret;
+ 	/* Initialize the leds */
+ 	ret = joycon_leds_create(ctlr);
+ 	if (ret) {
+ 		hid_err(hdev, "Failed to create leds; ret=%d\n", ret);
+-		goto err_close;
++		goto err_wq;
  	}
  
- 	ret = kraken3_get_fw_ver(hdev);
-@@ -960,18 +949,12 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
- 	if (IS_ERR(priv->hwmon_dev)) {
- 		ret = PTR_ERR(priv->hwmon_dev);
- 		hid_err(hdev, "hwmon registration failed with %d\n", ret);
--		goto fail_and_close;
-+		return ret;
- 	}
+ 	/* Initialize the battery power supply */
+@@ -2720,10 +2712,6 @@ static int nintendo_hid_probe(struct hid_device *hdev,
  
- 	kraken3_debugfs_init(priv, device_name);
- 
- 	return 0;
--
--fail_and_close:
+ err_ida:
+ 	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
+-err_close:
 -	hid_hw_close(hdev);
--fail_and_stop:
+-err_stop:
 -	hid_hw_stop(hdev);
--	return ret;
- }
+ err_wq:
+ 	destroy_workqueue(ctlr->rumble_queue);
+ err:
+@@ -2745,9 +2733,6 @@ static void nintendo_hid_remove(struct hid_device *hdev)
  
- static void kraken3_remove(struct hid_device *hdev)
-@@ -980,9 +963,6 @@ static void kraken3_remove(struct hid_device *hdev)
- 
- 	debugfs_remove_recursive(priv->debugfs);
- 	hwmon_device_unregister(priv->hwmon_dev);
+ 	destroy_workqueue(ctlr->rumble_queue);
+ 	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
 -
 -	hid_hw_close(hdev);
 -	hid_hw_stop(hdev);
  }
  
- static const struct hid_device_id kraken3_table[] = {
+ #ifdef CONFIG_PM
 -- 
 2.34.1
 

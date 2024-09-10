@@ -1,29 +1,29 @@
-Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
+Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88A2219ABBD;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 701EF19A28B;
 	Tue, 10 Sep 2024 15:36:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725982622; cv=none; b=ugh5a60TRknP/9pCrD7Yd3nMgZEuYnv93iLnQxJS4W3pAXT3EMxG6xIuUMY9kA4AyfibgjQ9SBYEcxe7FdufahMyX24jz2rRN0fNEtcF/m3m2x7iBJP7YY/CCaRVZYqI2CO/eMDmkmfmti+VIDQ0z01JwvyLGlNnkhLv6C5efoU=
+	t=1725982622; cv=none; b=A0n2R04CvR6WN4d99FzcV+QNQdx6sENXOmvKHUQl4PAXrCtQgjsdP71kIl5gmu6u6eOwukZtsbHdW7h+9Dc2jnaOSchgqnR9ZLyjp1hXIyQACorZRYzDsztZJtZi6geqauLbxYbp3MF57FhDCtl56YUEAHJAyHlNMyE3KCiKoyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725982622; c=relaxed/simple;
-	bh=8ykD/AS/fwG8dSMjZIPtP5G72F/K7cY7tggrJuM7Ylc=;
+	bh=uc7u5wB4LeMQ5k5CzWuYbkW0/7xI8rraHHxJe0euFvU=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=GM/QfYsPSfqNPsyiczg10mbq2tYiYpzln76Evi2nt3oppGkWn/YalSBz61RyYTItI7oQ0thpFysiZQCAxCjAAJUZ4dL6e39w+l0mNnd6Z1IUJCaKXe+66JZaXIFz+qLmIkgpgV8Rs07jqSnhIp5RWfRGN/f0C6xG4eurGAeSQEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
+	 MIME-Version:Content-Type; b=nO/Sy78z4dozMmgtj+ZnlSiPgpy6qPJPGtmImLr7z9T5cx/KfHkf3eMhNxY1jrJNM2COZk+qcWnNU6cXISxeNlIWzvAaT4SxO0uPx9RcaqFu5OXLNTNTD4HY6bhX5nCclCAmcAoUZkIgiojN63ULKpL9Sf4WIBt2gmV+QPzxkM0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Received: from mail.maildlp.com (unknown [172.19.163.17])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4X378s189qz1j8Pq;
-	Tue, 10 Sep 2024 23:36:29 +0800 (CST)
+	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4X378r5kzLz2Dc4j;
+	Tue, 10 Sep 2024 23:36:28 +0800 (CST)
 Received: from kwepemd500012.china.huawei.com (unknown [7.221.188.25])
-	by mail.maildlp.com (Postfix) with ESMTPS id 49FCC1A0191;
+	by mail.maildlp.com (Postfix) with ESMTPS id 20FE71A0191;
 	Tue, 10 Sep 2024 23:36:57 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemd500012.china.huawei.com
  (7.221.188.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.34; Tue, 10 Sep
- 2024 23:36:47 +0800
+ 2024 23:36:45 +0800
 From: Li Zetao <lizetao1@huawei.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<djogorchock@gmail.com>, <rrameshbabu@nvidia.com>,
@@ -34,9 +34,9 @@ To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<mezin.alexander@gmail.com>
 CC: <lizetao1@huawei.com>, <linux-input@vger.kernel.org>,
 	<linux-i2c@vger.kernel.org>, <linux-hwmon@vger.kernel.org>
-Subject: [PATCH -next v3 14/15] hwmon: (nzxt-kraken3) Use devm_hid_hw_start_and_open in kraken3_probe()
-Date: Tue, 10 Sep 2024 23:45:44 +0800
-Message-ID: <20240910154545.736786-15-lizetao1@huawei.com>
+Subject: [PATCH -next v3 11/15] hwmon: (corsair-psu) Use devm_hid_hw_start_and_open in corsairpsu_probe()
+Date: Tue, 10 Sep 2024 23:45:41 +0800
+Message-ID: <20240910154545.736786-12-lizetao1@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240910154545.736786-1-lizetao1@huawei.com>
 References: <20240910154545.736786-1-lizetao1@huawei.com>
@@ -51,86 +51,73 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
  kwepemd500012.china.huawei.com (7.221.188.25)
 
-Currently, the nzxt-kraken3 module needs to maintain hid resources
+Currently, the corsair-psu module needs to maintain hid resources
 by itself. Use devm_hid_hw_start_and_open helper to ensure that hid
 resources are consistent with the device life cycle, and release
 hid resources before device is released. At the same time, it can avoid
 the goto-release encoding, drop the fail_and_close and fail_and_stop
 lables, and directly return the error code when an error occurs.
 
+Reviewed-by: Wilken Gottwalt <wilken.gottwalt@posteo.net>
 Acked-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Aleksa Savic <savicaleksa83@gmail.com>
 Signed-off-by: Li Zetao <lizetao1@huawei.com>
 ---
-v2 -> v3: Change "nzxt-kraken2" to "nzxt-kraken3" in the commit message.
-v2: https://lore.kernel.org/all/20240909012313.500341-15-lizetao1@huawei.com/
+v2 -> v3: None
+v2: https://lore.kernel.org/all/20240909012313.500341-12-lizetao1@huawei.com/
 v1 -> v2: Adjust commit information
-v1: https://lore.kernel.org/all/20240904123607.3407364-19-lizetao1@huawei.com/
+v1: https://lore.kernel.org/all/20240904123607.3407364-15-lizetao1@huawei.com/
 
- drivers/hwmon/nzxt-kraken3.c | 34 +++++++---------------------------
- 1 file changed, 7 insertions(+), 27 deletions(-)
+ drivers/hwmon/corsair-psu.c | 24 +++++-------------------
+ 1 file changed, 5 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/hwmon/nzxt-kraken3.c b/drivers/hwmon/nzxt-kraken3.c
-index 00f3ac90a290..71b8c21cfe1b 100644
---- a/drivers/hwmon/nzxt-kraken3.c
-+++ b/drivers/hwmon/nzxt-kraken3.c
-@@ -897,17 +897,9 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
- 	}
- 
- 	/* Enable hidraw so existing user-space tools can continue to work */
--	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
--	if (ret) {
--		hid_err(hdev, "hid hw start failed with %d\n", ret);
-+	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
-+	if (ret)
+diff --git a/drivers/hwmon/corsair-psu.c b/drivers/hwmon/corsair-psu.c
+index f8f22b8a67cd..b574ec9cd00f 100644
+--- a/drivers/hwmon/corsair-psu.c
++++ b/drivers/hwmon/corsair-psu.c
+@@ -787,14 +787,10 @@ static int corsairpsu_probe(struct hid_device *hdev, const struct hid_device_id
+ 	if (ret)
  		return ret;
--	}
--
+ 
+-	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
++	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
+ 	if (ret)
+ 		return ret;
+ 
 -	ret = hid_hw_open(hdev);
--	if (ret) {
--		hid_err(hdev, "hid hw open failed with %d\n", ret);
+-	if (ret)
 -		goto fail_and_stop;
--	}
- 
- 	switch (hdev->product) {
- 	case USB_PRODUCT_ID_X53:
-@@ -928,15 +920,12 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
- 		device_name = "kraken2023elite";
- 		break;
- 	default:
--		ret = -ENODEV;
--		goto fail_and_close;
-+		return -ENODEV;
- 	}
- 
- 	priv->buffer = devm_kzalloc(&hdev->dev, MAX_REPORT_LENGTH, GFP_KERNEL);
--	if (!priv->buffer) {
--		ret = -ENOMEM;
--		goto fail_and_close;
--	}
-+	if (!priv->buffer)
-+		return -ENOMEM;
- 
- 	mutex_init(&priv->buffer_lock);
- 	mutex_init(&priv->z53_status_request_lock);
-@@ -948,7 +937,7 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
- 	ret = kraken3_init_device(hdev);
+-
+ 	priv->hdev = hdev;
+ 	hid_set_drvdata(hdev, priv);
+ 	mutex_init(&priv->lock);
+@@ -805,13 +801,13 @@ static int corsairpsu_probe(struct hid_device *hdev, const struct hid_device_id
+ 	ret = corsairpsu_init(priv);
  	if (ret < 0) {
- 		hid_err(hdev, "device init failed with %d\n", ret);
--		goto fail_and_close;
+ 		dev_err(&hdev->dev, "unable to initialize device (%d)\n", ret);
+-		goto fail_and_stop;
 +		return ret;
  	}
  
- 	ret = kraken3_get_fw_ver(hdev);
-@@ -960,18 +949,12 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
- 	if (IS_ERR(priv->hwmon_dev)) {
- 		ret = PTR_ERR(priv->hwmon_dev);
- 		hid_err(hdev, "hwmon registration failed with %d\n", ret);
--		goto fail_and_close;
+ 	ret = corsairpsu_fwinfo(priv);
+ 	if (ret < 0) {
+ 		dev_err(&hdev->dev, "unable to query firmware (%d)\n", ret);
+-		goto fail_and_stop;
 +		return ret;
  	}
  
- 	kraken3_debugfs_init(priv, device_name);
+ 	corsairpsu_get_criticals(priv);
+@@ -820,20 +816,12 @@ static int corsairpsu_probe(struct hid_device *hdev, const struct hid_device_id
+ 	priv->hwmon_dev = hwmon_device_register_with_info(&hdev->dev, "corsairpsu", priv,
+ 							  &corsairpsu_chip_info, NULL);
+ 
+-	if (IS_ERR(priv->hwmon_dev)) {
+-		ret = PTR_ERR(priv->hwmon_dev);
+-		goto fail_and_close;
+-	}
++	if (IS_ERR(priv->hwmon_dev))
++		return PTR_ERR(priv->hwmon_dev);
+ 
+ 	corsairpsu_debugfs_init(priv);
  
  	return 0;
 -
@@ -141,17 +128,16 @@ index 00f3ac90a290..71b8c21cfe1b 100644
 -	return ret;
  }
  
- static void kraken3_remove(struct hid_device *hdev)
-@@ -980,9 +963,6 @@ static void kraken3_remove(struct hid_device *hdev)
+ static void corsairpsu_remove(struct hid_device *hdev)
+@@ -842,8 +830,6 @@ static void corsairpsu_remove(struct hid_device *hdev)
  
  	debugfs_remove_recursive(priv->debugfs);
  	hwmon_device_unregister(priv->hwmon_dev);
--
 -	hid_hw_close(hdev);
 -	hid_hw_stop(hdev);
  }
  
- static const struct hid_device_id kraken3_table[] = {
+ static int corsairpsu_raw_event(struct hid_device *hdev, struct hid_report *report, u8 *data,
 -- 
 2.34.1
 

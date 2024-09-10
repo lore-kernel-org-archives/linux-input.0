@@ -1,29 +1,29 @@
 Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D894195F22;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16418191476;
 	Tue, 10 Sep 2024 15:36:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725982620; cv=none; b=O0LL8cnNNfUEBwC+a9TpWZhNlbeF0nmkzKC8fo2hxHXWCwuzAe5nB8kiaP3e18iapL/Dva/c9rhr3csWeoVhcUvYNV/khB6SbTquIerMeb7zxyAPjJNLbLiUGGCLo0vrls5+14bEvPhw5jsnSkaOJG32Dn3j+3STtZhKDcDgSgY=
+	t=1725982620; cv=none; b=Gh8PzLwSTOzfYX4TCSz+MVD0DPkuPH//1rJBUPaeLdIDVfGpycsT3zIkjI4aXBpcYY09C9JV0kq2jIzU55Kf07X29hvQXDZBfdszk82he/Bc/8eScqXKfopY687/EosMNf4c2UF6HyfkidtdJhUAKbT192xxHNHtlGhl8/lnOo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1725982620; c=relaxed/simple;
-	bh=WCfs992GQASkoWSrFRk//DSH3Y3151jfop8OjJGZiDw=;
+	bh=25i+UONXCDs5rFYVr2iA7Gp3T0NOZ2v/NTfArg/wAh4=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=peb5KO95gwYuJou2wpvC8nGhA9CdMkMv3j6X5yO4Y+zgYiII2IlWirXEHGtY/9urmsuX+hqOwS65eGybhipTzSv/7up+h8ZLJqQhg8yM0mxMONdpzmYMgbGdhcu5/1cbrOn6p6+xZ8NHPj/6KtsHA2vFVvUIs6keHdDcRxadIUY=
+	 MIME-Version:Content-Type; b=foumtPQ+afNdejrJX80qqMXLH1PW6nvJrrIr44NRSxdxLvY/8p0qTiqwhUdkcFpw1y/tFm3fREwgdl7+no7NmMxJcyhC1hbkrcM/vlGwXRqWaFGJTbR7cVhS7vt3Wcj24/CZf+jIqEmHv2AgytKgMK7740lCei5FYKaqv19p9Hg=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Received: from mail.maildlp.com (unknown [172.19.163.17])
-	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4X378r5BcWz1j8Lp;
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4X378r5sfzz1j8MK;
 	Tue, 10 Sep 2024 23:36:28 +0800 (CST)
 Received: from kwepemd500012.china.huawei.com (unknown [7.221.188.25])
-	by mail.maildlp.com (Postfix) with ESMTPS id D03211A0194;
+	by mail.maildlp.com (Postfix) with ESMTPS id EC42E1A0191;
 	Tue, 10 Sep 2024 23:36:56 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemd500012.china.huawei.com
  (7.221.188.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.34; Tue, 10 Sep
- 2024 23:36:42 +0800
+ 2024 23:36:43 +0800
 From: Li Zetao <lizetao1@huawei.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<djogorchock@gmail.com>, <rrameshbabu@nvidia.com>,
@@ -34,9 +34,9 @@ To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<mezin.alexander@gmail.com>
 CC: <lizetao1@huawei.com>, <linux-input@vger.kernel.org>,
 	<linux-i2c@vger.kernel.org>, <linux-hwmon@vger.kernel.org>
-Subject: [PATCH -next v3 06/15] HID: nintendo: Use devm_hid_hw_start_and_open in nintendo_hid_probe()
-Date: Tue, 10 Sep 2024 23:45:36 +0800
-Message-ID: <20240910154545.736786-7-lizetao1@huawei.com>
+Subject: [PATCH -next v3 08/15] hwmon: (aquacomputer_d5next) Use devm_hid_hw_start_and_open in aqc_probe()
+Date: Tue, 10 Sep 2024 23:45:38 +0800
+Message-ID: <20240910154545.736786-9-lizetao1@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240910154545.736786-1-lizetao1@huawei.com>
 References: <20240910154545.736786-1-lizetao1@huawei.com>
@@ -51,83 +51,116 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
  kwepemd500012.china.huawei.com (7.221.188.25)
 
-Currently, the nintendo module needs to maintain hid resources
+Currently, the aquacomputer_d5next module needs to maintain hid resources
 by itself. Use devm_hid_hw_start_and_open helper to ensure that hid
 resources are consistent with the device life cycle, and release
 hid resources before device is released. At the same time, it can avoid
-the goto-release encoding, drop the err_close and err_stop lables.
+the goto-release encoding, drop the fail_and_close and fail_and_stop
+lables, and directly return the error code when an error occurs.
 
+Reviewed-by: Aleksa Savic <savicaleksa83@gmail.com>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Li Zetao <lizetao1@huawei.com>
 ---
 v2 -> v3: None
-v2: https://lore.kernel.org/all/20240909012313.500341-7-lizetao1@huawei.com/
+v2: https://lore.kernel.org/all/20240909012313.500341-9-lizetao1@huawei.com/
 v1 -> v2: Adjust commit information
-v1: https://lore.kernel.org/all/20240904123607.3407364-7-lizetao1@huawei.com/
+v1: https://lore.kernel.org/all/20240904123607.3407364-13-lizetao1@huawei.com/
 
- drivers/hid/hid-nintendo.c | 23 ++++-------------------
- 1 file changed, 4 insertions(+), 19 deletions(-)
+ drivers/hwmon/aquacomputer_d5next.c | 39 +++++++----------------------
+ 1 file changed, 9 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/hid/hid-nintendo.c b/drivers/hid/hid-nintendo.c
-index 58cd0506e431..45ac4fd3c7ea 100644
---- a/drivers/hid/hid-nintendo.c
-+++ b/drivers/hid/hid-nintendo.c
-@@ -2673,31 +2673,23 @@ static int nintendo_hid_probe(struct hid_device *hdev,
- 	 */
- 	hdev->version |= 0x8000;
+diff --git a/drivers/hwmon/aquacomputer_d5next.c b/drivers/hwmon/aquacomputer_d5next.c
+index 8e55cd2f46f5..9b66ff0fe6e1 100644
+--- a/drivers/hwmon/aquacomputer_d5next.c
++++ b/drivers/hwmon/aquacomputer_d5next.c
+@@ -1556,14 +1556,10 @@ static int aqc_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	if (ret)
+ 		return ret;
  
 -	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
--	if (ret) {
--		hid_err(hdev, "HW start failed\n");
 +	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
-+	if (ret)
- 		goto err_wq;
--	}
--
+ 	if (ret)
+ 		return ret;
+ 
 -	ret = hid_hw_open(hdev);
--	if (ret) {
--		hid_err(hdev, "cannot start hardware I/O\n");
--		goto err_stop;
+-	if (ret)
+-		goto fail_and_stop;
+-
+ 	switch (hdev->product) {
+ 	case USB_PRODUCT_ID_AQUAERO:
+ 		/*
+@@ -1577,10 +1573,8 @@ static int aqc_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		 * they present. The two other devices have the type of the second element in
+ 		 * their respective collections set to 1, while the real device has it set to 0.
+ 		 */
+-		if (hdev->collection[1].type != 0) {
+-			ret = -ENODEV;
+-			goto fail_and_close;
+-		}
++		if (hdev->collection[1].type != 0)
++			return -ENODEV;
+ 
+ 		priv->kind = aquaero;
+ 
+@@ -1740,10 +1734,8 @@ static int aqc_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		 * Choose the right Leakshield device, because
+ 		 * the other one acts as a keyboard
+ 		 */
+-		if (hdev->type != 2) {
+-			ret = -ENODEV;
+-			goto fail_and_close;
+-		}
++		if (hdev->type != 2)
++			return -ENODEV;
+ 
+ 		priv->kind = leakshield;
+ 
+@@ -1865,30 +1857,20 @@ static int aqc_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	priv->name = aqc_device_names[priv->kind];
+ 
+ 	priv->buffer = devm_kzalloc(&hdev->dev, priv->buffer_size, GFP_KERNEL);
+-	if (!priv->buffer) {
+-		ret = -ENOMEM;
+-		goto fail_and_close;
 -	}
++	if (!priv->buffer)
++		return -ENOMEM;
  
- 	hid_device_io_start(hdev);
+ 	mutex_init(&priv->mutex);
  
- 	ret = joycon_init(hdev);
- 	if (ret) {
- 		hid_err(hdev, "Failed to initialize controller; ret=%d\n", ret);
--		goto err_close;
-+		goto err_wq;
- 	}
+ 	priv->hwmon_dev = hwmon_device_register_with_info(&hdev->dev, priv->name, priv,
+ 							  &aqc_chip_info, NULL);
  
- 	/* Initialize the leds */
- 	ret = joycon_leds_create(ctlr);
- 	if (ret) {
- 		hid_err(hdev, "Failed to create leds; ret=%d\n", ret);
--		goto err_close;
-+		goto err_wq;
- 	}
+-	if (IS_ERR(priv->hwmon_dev)) {
+-		ret = PTR_ERR(priv->hwmon_dev);
+-		goto fail_and_close;
+-	}
++	if (IS_ERR(priv->hwmon_dev))
++		return PTR_ERR(priv->hwmon_dev);
  
- 	/* Initialize the battery power supply */
-@@ -2720,10 +2712,6 @@ static int nintendo_hid_probe(struct hid_device *hdev,
+ 	aqc_debugfs_init(priv);
  
- err_ida:
- 	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
--err_close:
+ 	return 0;
+-
+-fail_and_close:
 -	hid_hw_close(hdev);
--err_stop:
+-fail_and_stop:
 -	hid_hw_stop(hdev);
- err_wq:
- 	destroy_workqueue(ctlr->rumble_queue);
- err:
-@@ -2745,9 +2733,6 @@ static void nintendo_hid_remove(struct hid_device *hdev)
+-	return ret;
+ }
  
- 	destroy_workqueue(ctlr->rumble_queue);
- 	ida_free(&nintendo_player_id_allocator, ctlr->player_id);
+ static void aqc_remove(struct hid_device *hdev)
+@@ -1897,9 +1879,6 @@ static void aqc_remove(struct hid_device *hdev)
+ 
+ 	debugfs_remove_recursive(priv->debugfs);
+ 	hwmon_device_unregister(priv->hwmon_dev);
 -
 -	hid_hw_close(hdev);
 -	hid_hw_stop(hdev);
  }
  
- #ifdef CONFIG_PM
+ static const struct hid_device_id aqc_table[] = {
 -- 
 2.34.1
 

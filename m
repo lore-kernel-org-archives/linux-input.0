@@ -1,46 +1,46 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E4921C230C;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 996541C2334;
 	Thu, 12 Sep 2024 19:40:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726170021; cv=none; b=fXqkxFADjrqXvPH7ldLCpZrLMVMG3tm0fu/W+9E2NEwhAK8myYZzc96pdhgZdN9/JrJflc3FCfsv70afXpMIcjplzzx9OdGphVtkrLkSLO48JfwkNGmjfpo1Zhe9JxeoZvNkVtaFRtSmPbQpY6T9DC5VUoo3ZjPr5PlN1+fO81Y=
+	t=1726170022; cv=none; b=f73G/+ZWr25+7LQu6kCntG0ERx35y6LmdvkhV8TbGpfA9G6u8M1T1v+gy1o7eGaejQEzkvESRzb3a4xcdgDTZcEfWjuzsU0fL8TNbbuw4FfwOmSZgke56tIgqnGX1AHndmGrkKv6Pe5b+rkkbn3TyoSFKGcktCPp5xfRroFNA8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726170021; c=relaxed/simple;
-	bh=lH6pajAyODmY/7seq1vw42FSufEXp3D1uilBoZTCkh8=;
+	s=arc-20240116; t=1726170022; c=relaxed/simple;
+	bh=Z2vXdqza1mKzaYCDwoc0E+XwQviWreyyPzXX84kItQs=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pOO/EKWqC8dLfIaexJQcO4AOnZccXhGrdtAEfolhxieXSe4Y0LUqiJPnnAXGPwa169Y+aVijfHWtj2tK9jY/IKjZDWhvoYz+LSNOkWoaR6ag3+9zr1Mn8xA/3vi8usdrtJGLZk4kK6M1dfQb+usyMKkReQR3OF0NHPvQMKnZYcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=VUGPMiaW; arc=none smtp.client-ip=205.220.180.131
+	 MIME-Version:Content-Type; b=rS+8KelXJpNeEwIr1Odd5mRTwo0hDtFw3uXr9FHrqJ3LpfbwnPjpZzusXjON30dQ0IB3nCpigkbQhafKZBl2So1JeGp+XH6ixFQFrDE8VtXMwEjrFBj2DLQSl5b6WYZL8nDS+ruopZwWY3J7UqS01Y2dDCtuXhnfyOey38rTAnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=jPIpxxy+; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="VUGPMiaW"
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48CHsbKZ002667;
-	Thu, 12 Sep 2024 19:39:54 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="jPIpxxy+"
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48CHsbeC000334;
+	Thu, 12 Sep 2024 19:39:56 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ki29lRSXvVePRr3/SBVRt9DzNF8VTubZk2D+F/mX5Zk=; b=VUGPMiaWQs4lu+xu
-	bA+BWur66fNCvVdkrBAIBwh/yB5swfKTNNNQyYfV62nh0jtP8d7bGM2GHEkMXuYM
-	wYCCV0rdzoPItznClqE4I1Y9tNTY4HwfuV9TKRRhDMR6iZDcDMIVG8xdPLVQdN8n
-	bXbrJoT+W9Q31lS59IttbZdG7Ph3o/BgB4AoelnKZZNuWEcv85ZaY/TQmgyOIaMJ
-	9sCOItRa99RRIgUkPHfosSZ1/LAAtfD53qiQN21OZ50bzt33Oc8saxh6YPMwuY0K
-	SXFDAlGkHW0hgX0dkn92z02dkl3pR3DzRxVDw8bavWN4hTYQJrdQYH4ulhxhiDfd
-	dMw4Gg==
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41gy5nxkfb-1
+	hhypoh1YkPhSPXaYJ78fwY0e2/AKkzkM+fGnN1dHQGY=; b=jPIpxxy+21GCdlWf
+	bzyw+Rj6zithV0K7ZluOegOinyR2sI2rleBf37SOWnO5ESzfczJm1P+pfoipq34i
+	XyQxFjOzz3fQ6gSvdWTREVy8EKxa5+bGwhV4QPaaDyrCLwnGe51qsARFR71JBdkn
+	ScPc+0oJyIrRo7Y2mRYfiaSGM4I3/duYg3sqnZ6VSc3DZq2IHMl/KHauEnY/6ZvI
+	U3xe6cc6hJeobCqwjIle/Zf5qGkKd/yO2rY2aPiFNiFmMZ0mQouEqssR+NW6JEy1
+	LzmWMx6gMdfScUBBMUwC2VD6J7g/UfTKeu15VVKtjR2sm2aXSJ2AbWbHH65ZThaO
+	UyMcdQ==
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41he5e5rrd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Sep 2024 19:39:54 +0000 (GMT)
+	Thu, 12 Sep 2024 19:39:56 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 48CJdr8I009887
+	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 48CJdt4b001942
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 12 Sep 2024 19:39:53 GMT
+	Thu, 12 Sep 2024 19:39:55 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Thu, 12 Sep 2024 12:39:52 -0700
+ 15.2.1544.9; Thu, 12 Sep 2024 12:39:55 -0700
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -55,9 +55,9 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, <alsa-devel@alsa-project.org>,
         Wesley Cheng
 	<quic_wcheng@quicinc.com>
-Subject: [PATCH v27 22/32] ASoC: qcom: qdsp6: q6afe: Increase APR timeout
-Date: Thu, 12 Sep 2024 12:39:25 -0700
-Message-ID: <20240912193935.1916426-23-quic_wcheng@quicinc.com>
+Subject: [PATCH v27 31/32] ALSA: usb-audio: Allow for rediscovery of connected USB SND devices
+Date: Thu, 12 Sep 2024 12:39:34 -0700
+Message-ID: <20240912193935.1916426-32-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240912193935.1916426-1-quic_wcheng@quicinc.com>
 References: <20240912193935.1916426-1-quic_wcheng@quicinc.com>
@@ -73,41 +73,87 @@ X-ClientProxiedBy: nalasex01c.na.qualcomm.com (10.47.97.35) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: JFfG3K86n10E4h71-NRzJcfYpVO3Gg2z
-X-Proofpoint-ORIG-GUID: JFfG3K86n10E4h71-NRzJcfYpVO3Gg2z
+X-Proofpoint-ORIG-GUID: 5xezDFN1T7M50gQUZeofL0qq0O7_djYH
+X-Proofpoint-GUID: 5xezDFN1T7M50gQUZeofL0qq0O7_djYH
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- mlxlogscore=999 bulkscore=0 clxscore=1015 impostorscore=0 phishscore=0
- spamscore=0 malwarescore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2408220000
- definitions=main-2409120144
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 clxscore=1015
+ priorityscore=1501 suspectscore=0 lowpriorityscore=0 impostorscore=0
+ malwarescore=0 mlxscore=0 phishscore=0 bulkscore=0 adultscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409120144
 
-For USB offloading situations, the AFE port start command will result in a
-QMI handshake between the Q6DSP and the main processor.  Depending on if
-the USB bus is suspended, this routine would require more time to complete,
-as resuming the USB bus has some overhead associated with it.  Increase the
-timeout to 3s to allow for sufficient time for the USB QMI stream enable
-handshake to complete.
+In case of notifying SND platform drivers of connection events, some of
+these use cases, such as offloading, require an ASoC USB backend device to
+be initialized before the events can be handled.  If the USB backend device
+has not yet been probed, this leads to missing initial USB audio device
+connection events.
 
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Expose an API that traverses the usb_chip array for connected devices, and
+to call the respective connection callback registered to the SND platform
+driver.
+
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- sound/soc/qcom/qdsp6/q6afe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/card.c                  | 21 +++++++++++++++++++++
+ sound/usb/card.h                  |  2 ++
+ sound/usb/qcom/qc_audio_offload.c |  2 ++
+ 3 files changed, 25 insertions(+)
 
-diff --git a/sound/soc/qcom/qdsp6/q6afe.c b/sound/soc/qcom/qdsp6/q6afe.c
-index 3ee6ff8a6bc3..b5b2af2ce50c 100644
---- a/sound/soc/qcom/qdsp6/q6afe.c
-+++ b/sound/soc/qcom/qdsp6/q6afe.c
-@@ -366,7 +366,7 @@
- #define AFE_API_VERSION_SLOT_MAPPING_CONFIG	1
- #define AFE_API_VERSION_CODEC_DMA_CONFIG	1
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index 326292f37841..1f21d11416f9 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -155,6 +155,27 @@ int snd_usb_unregister_platform_ops(void)
+ }
+ EXPORT_SYMBOL_GPL(snd_usb_unregister_platform_ops);
  
--#define TIMEOUT_MS 1000
-+#define TIMEOUT_MS 3000
- #define AFE_CMD_RESP_AVAIL	0
- #define AFE_CMD_RESP_NONE	1
- #define AFE_CLK_TOKEN		1024
++/*
++ * in case the platform driver was not ready at the time of USB SND
++ * device connect, expose an API to discover all connected USB devices
++ * so it can populate any dependent resources/structures.
++ */
++void snd_usb_rediscover_devices(void)
++{
++	int i;
++
++	guard(mutex)(&register_mutex);
++
++	if (!platform_ops || !platform_ops->connect_cb)
++		return;
++
++	for (i = 0; i < SNDRV_CARDS; i++) {
++		if (usb_chip[i])
++			platform_ops->connect_cb(usb_chip[i]);
++	}
++}
++EXPORT_SYMBOL_GPL(snd_usb_rediscover_devices);
++
+ /*
+  * Checks to see if requested audio profile, i.e sample rate, # of
+  * channels, etc... is supported by the substream associated to the
+diff --git a/sound/usb/card.h b/sound/usb/card.h
+index d8b8522e1613..94404c24d240 100644
+--- a/sound/usb/card.h
++++ b/sound/usb/card.h
+@@ -222,4 +222,6 @@ snd_usb_find_suppported_substream(int card_idx, struct snd_pcm_hw_params *params
+ 
+ int snd_usb_register_platform_ops(struct snd_usb_platform_ops *ops);
+ int snd_usb_unregister_platform_ops(void);
++
++void snd_usb_rediscover_devices(void);
+ #endif /* __USBAUDIO_CARD_H */
+diff --git a/sound/usb/qcom/qc_audio_offload.c b/sound/usb/qcom/qc_audio_offload.c
+index 5b9262a116be..2dc651cd3d05 100644
+--- a/sound/usb/qcom/qc_audio_offload.c
++++ b/sound/usb/qcom/qc_audio_offload.c
+@@ -1929,6 +1929,8 @@ static int __init qc_usb_audio_offload_init(void)
+ 	if (ret < 0)
+ 		goto release_qmi;
+ 
++	snd_usb_rediscover_devices();
++
+ 	return 0;
+ 
+ release_qmi:

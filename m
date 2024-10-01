@@ -1,205 +1,143 @@
-Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BD1863B9
-	for <linux-input@vger.kernel.org>; Tue,  1 Oct 2024 13:15:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 330B91C460E;
+	Tue,  1 Oct 2024 13:37:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.135.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727788549; cv=none; b=llyJilawyTiU9l/A5i//xM42gsAU3b34yyIZbiGqG2k0x9XrzFfsO2XgU97nhnJbJv1aJAoPF8k3p1xyqxMkvdz4Fmk6XF5tKj9AQRgJ31b1T+D4pgNBebGFpkeSMX20FX90YYmAAzgMoq0dRRaSmIWuwoMo6o64iPxHjRfo//k=
+	t=1727789876; cv=none; b=I6wGDwQaYjzhWK7ycPQO7UdB29lEetwclNDZIgUNE2sRu+IuHaksElQFxrMLWrA5hpXzPgLzeVGZwz+EPVX+G0bthCbSPDKxTd6dMjWC897l1JEkKPpsQy+fBsIyU2A6Iua1yj5eHWqUhnxJ8nkSG/IBb0l8lrQd8/RfGe8Fk/k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727788549; c=relaxed/simple;
-	bh=1B6ZFCeddxSIWcEsjASHe+Plj2V7LTxPPohScpMGuko=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OMqq9+p1iPtgyAWlaciM9cA6hqqDsUnlLJJeAKuunLs2PGW/do5sK/RfPp+AejVvuyGZf5s0swP7qTDfQPtihNiE4zCaIxL5JcM0HFNyo88B0cAx7762JJumq37HgedhDdaitL9CkpBrQIE7VxjdMdDphZnSZj3vmc6vvSm1MCs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Yvo8k5lG; arc=none smtp.client-ip=209.85.215.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1727789876; c=relaxed/simple;
+	bh=u4JyAzPVNvUTjlYjJbO9oKJ2FWk7Hli9FmLfEzQCTWE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
+	 In-Reply-To:To:CC; b=Mt2zCuzgABLqxf8M0W/4ndCy/gKoJFIrrbZ0BR0frbUhJn5ZLiCNyrORwjJfPfS2kB7J/y47F0KkeGQ8OF+R6l421AqMEQPvcHu0nSXHBN3uXZdP2uilaLzNE7wo9jAGdj9d3niV3MeSRuxdnvpSIu0XwF/G/AVARRHsEG8Z8C4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=analog.com; spf=pass smtp.mailfrom=analog.com; dkim=pass (2048-bit key) header.d=analog.com header.i=@analog.com header.b=VX3MPuh/; arc=none smtp.client-ip=148.163.135.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=analog.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=analog.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Yvo8k5lG"
-Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-7e6ba3f93fdso3475183a12.1
-        for <linux-input@vger.kernel.org>; Tue, 01 Oct 2024 06:15:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1727788546; x=1728393346; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=Rh3Z6Vdqt6Gyp4RV25Ozr3Z7T3F6F4LuAKb8Pq4O7yk=;
-        b=Yvo8k5lGCQSRiILSy9DZsfiyKX0LAdWta7cY9WGy4qcWmB6ZaFGelrooHJKik2qO28
-         VNkbQHEKlSar9TlftXBLXKUHGfblM0DbhXjfEkf06bLlYnHz0EJZBhMq4V014OL9KxAq
-         hkU1bSOgbdlRuSVV9GcWVJbPfp0ceI2+f9MLD5KVDbE+oaJa2UdvOyI++AJGMJ0xqvVD
-         kM/JZvW55uriqBgpy39pRtpZfdM6tRq5HuWrcU4JFr7fBpIdACd+PR0PUNIv/jQ5TkeG
-         D9g4g0ODSiAPwjth/jUK7fzzDcyAwI6TRtlffzYVN1KvoUeeLloualB+JGqVpzqWIwc9
-         EZ0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1727788546; x=1728393346;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Rh3Z6Vdqt6Gyp4RV25Ozr3Z7T3F6F4LuAKb8Pq4O7yk=;
-        b=SVUdY7vLtCjvLUNcDMZqJaZ2mc3Ej0VHv6huyLwyfP4wUdNFrHD/DKO8FfjL7owhuA
-         KTY4sh1jmpR/rqNCCfm6mvSSPC301AHbcoSLS+wa8Bao41YLp36Nupas5jnY4SrlCWEj
-         2ROJiISF/+mCCXLF5n0DBOvcVkA86VJ1Z23iDnkLwXkuEjDcgOKjnhHJfGRO3NmTviQe
-         pqZp4oRMr2fL1dPkBtTuAzg6hYOK5GPVK5F3Mn4ue2qatBDOb3g/UjN7GuoycHcQa01z
-         uwkQBspodr/Awpap0PZVRGywubUowxk3FMMEX5ipmcs1xDWZd4dY57DnTHl39dJw9/FD
-         oiSg==
-X-Forwarded-Encrypted: i=1; AJvYcCVsi8RE7PWhgbXZnTefvFgsJ+hW9+wKU2N+Cfgzu99EG/QpbK0d8BPwfCmCdstvRE1tJ4q5bhuFRSBofQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx/gYD/yNEGuwbY5+WrvtWVzZJCRKQLTqADzGSx6gvSf+Dtw+V5
-	gXgSncH+LfmjJ2032NtjTtOzm3eSVPb9XdvI747FjIbLBn2qKTbk
-X-Google-Smtp-Source: AGHT+IGefQzOYYPzw9DlP2Xrm5mtVN3prpeYOOD91uiy8ZCwUWjN6LbJ2MrKCfJI5gvaZK20hKlP7g==
-X-Received: by 2002:a05:6a21:8cc4:b0:1cf:6c65:68d with SMTP id adf61e73a8af0-1d4fa806e98mr23177967637.46.1727788545539;
-        Tue, 01 Oct 2024 06:15:45 -0700 (PDT)
-Received: from google.com ([2620:15c:9d:2:70a4:8eee:1d3f:e71d])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-71b26515e8dsm8006294b3a.105.2024.10.01.06.15.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Oct 2024 06:15:44 -0700 (PDT)
-Date: Tue, 1 Oct 2024 06:15:41 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Huacai Chen <chenhuacai@kernel.org>
-Cc: Benjamin Tissoires <bentiss@kernel.org>,
-	Binbin Zhou <zhoubinbin@loongson.cn>,
-	Binbin Zhou <zhoubb.aaron@gmail.com>,
-	Huacai Chen <chenhuacai@loongson.cn>, Jon Xie <jon_xie@pixart.com>,
-	Jay Lee <jay_lee@pixart.com>, linux-input@vger.kernel.org,
-	Xiaotian Wu <wuxiaotian@loongson.cn>
-Subject: Re: [PATCH v4] Input: Add driver for PixArt PS/2 touchpad
-Message-ID: <Zvv1_bHoH94-e33b@google.com>
-References: <20240704125243.3633569-1-zhoubinbin@loongson.cn>
- <tbhy6xk4tjuza7rgsv55xss5woysyv4wlg46m6sxfq6y5nk7da@7hyl7cf5ehus>
- <Zvu4mMaOzuL3tDTW@google.com>
- <Zvu7JOw0N6XB4ON6@google.com>
- <ykmhjrx7wrwqmhsyi6hawbobwfmwi2mkzyykgprlrq7iss7zet@a5hlj7qyqxxj>
- <Zvvh_tiWQ9Ig7du3@google.com>
- <CAAhV-H6WuYVa=X08NV+2XtDrcxDNfT8ti9zQ0Kc+tWM7m9iLQQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=analog.com header.i=@analog.com header.b="VX3MPuh/"
+Received: from pps.filterd (m0375855.ppops.net [127.0.0.1])
+	by mx0b-00128a01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 491BrqTJ017109;
+	Tue, 1 Oct 2024 09:37:42 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=analog.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=DKIM; bh=jdzmF
+	a+MRLExmzfQwmUWSm43/IMd89p0jkyeZQCXkmo=; b=VX3MPuh/y6hAjH1XIuLTu
+	I58cPbjV2dXqJqx94tuPpXGp261CCDPld8GvMHSPdOOB48YzWPZBVDjcVNSZWZoe
+	mZPZb1PZJFjIQteFmSUAAr0a3PXkuTdQlLbgMN/M3sDIeBrezyxbIkbVaIkOCIsL
+	UzS88isaVr9Hw5LutLQ6l2XF4MWTgImDsw2HqweUkOU5pGcDxQc+RJKP3KBFn1yH
+	HjIAzMsqzVNO5pLPCYSJxLNR+q4loPjoOR4xHIjOiJDk6NJQLvTa643/eyCc+2OX
+	YecmoorQzJpvnp8c5ejJRUFWhMLremerFpzMUjOrGGtb/IWwOhtx0Kp1vJ6jDguI
+	A==
+Received: from nwd2mta4.analog.com ([137.71.173.58])
+	by mx0b-00128a01.pphosted.com (PPS) with ESMTPS id 420c0dshpt-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 01 Oct 2024 09:37:41 -0400 (EDT)
+Received: from ASHBMBX9.ad.analog.com (ASHBMBX9.ad.analog.com [10.64.17.10])
+	by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 491Dbel6054529
+	(version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+	Tue, 1 Oct 2024 09:37:40 -0400
+Received: from ASHBMBX8.ad.analog.com (10.64.17.5) by ASHBMBX9.ad.analog.com
+ (10.64.17.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Tue, 1 Oct 2024
+ 09:37:40 -0400
+Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx8.ad.analog.com
+ (10.64.17.5) with Microsoft SMTP Server id 15.2.986.14 via Frontend
+ Transport; Tue, 1 Oct 2024 09:37:40 -0400
+Received: from [127.0.0.1] ([10.44.3.60])
+	by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 491DbTeK022143;
+	Tue, 1 Oct 2024 09:37:37 -0400
+From: Nuno Sa <nuno.sa@analog.com>
+Date: Tue, 1 Oct 2024 15:41:32 +0200
+Subject: [PATCH 01/13] Input: adp5589-keys: fix NULL pointer dereference
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAAhV-H6WuYVa=X08NV+2XtDrcxDNfT8ti9zQ0Kc+tWM7m9iLQQ@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20241001-b4-dev-adp5589-fw-conversion-v1-1-fca0149dfc47@analog.com>
+References: <20241001-b4-dev-adp5589-fw-conversion-v1-0-fca0149dfc47@analog.com>
+In-Reply-To: <20241001-b4-dev-adp5589-fw-conversion-v1-0-fca0149dfc47@analog.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Mike Frysinger
+	<vapier@gentoo.org>, Dmitry Torokhov <dtor@mail.ru>,
+        Rob Herring
+	<robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+	<conor+dt@kernel.org>
+CC: <linux-input@vger.kernel.org>, <devicetree@vger.kernel.org>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1727790102; l=1852;
+ i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
+ bh=u4JyAzPVNvUTjlYjJbO9oKJ2FWk7Hli9FmLfEzQCTWE=;
+ b=wp42qtkH7bFPutcEI4+yMWXx2vzDUQZiSODAh03s350tbFNpjzHLA/kVrQR+LmxxVCurBuJx0
+ xGsRb3QIvWeDe6YsNAC5SC9m84MrvzZy1EKKWuEBoaIW5TIivFgVBtT
+X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
+ pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
+X-ADIRuleOP-NewSCL: Rule Triggered
+X-Proofpoint-GUID: Y3CrLkHcDjbZIU2Myjdgka5bT_J6e7Nf
+X-Proofpoint-ORIG-GUID: Y3CrLkHcDjbZIU2Myjdgka5bT_J6e7Nf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 malwarescore=0
+ bulkscore=0 impostorscore=0 mlxscore=0 priorityscore=1501
+ lowpriorityscore=0 adultscore=0 clxscore=1011 suspectscore=0 phishscore=0
+ mlxlogscore=818 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2410010087
 
-On Tue, Oct 01, 2024 at 08:16:07PM +0800, Huacai Chen wrote:
-> Hi, Dmitry,
-> 
-> On Tue, Oct 1, 2024 at 7:50 PM Dmitry Torokhov
-> <dmitry.torokhov@gmail.com> wrote:
-> >
-> > On Tue, Oct 01, 2024 at 11:21:10AM +0200, Benjamin Tissoires wrote:
-> > > On Oct 01 2024, Dmitry Torokhov wrote:
-> > > > On Tue, Oct 01, 2024 at 01:53:44AM -0700, Dmitry Torokhov wrote:
-> > > > > On Mon, Sep 30, 2024 at 05:59:01PM +0200, Benjamin Tissoires wrote:
-> > > > > > Hi,
-> > > > > >
-> > > > > > On Jul 04 2024, Binbin Zhou wrote:
-> > > > > > > This patch introduces a driver for the PixArt PS/2 touchpad, which
-> > > > > > > supports both clickpad and touchpad types.
-> > > > > > >
-> > > > > > > At the same time, we extended the single data packet length to 16,
-> > > > > > > because according to the current PixArt hardware and FW design, we need
-> > > > > > > 11 bytes/15 bytes to represent the complete three-finger/four-finger data.
-> > > > > > >
-> > > > > > > Co-developed-by: Jon Xie <jon_xie@pixart.com>
-> > > > > > > Signed-off-by: Jon Xie <jon_xie@pixart.com>
-> > > > > > > Co-developed-by: Jay Lee <jay_lee@pixart.com>
-> > > > > > > Signed-off-by: Jay Lee <jay_lee@pixart.com>
-> > > > > > > Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
-> > > > > >
-> > > > > > It looks like this new driver made in v6.12-rc1 but is already breaking
-> > > > > > other touchpads in fedora:
-> > > > > >
-> > > > > > https://bugzilla.redhat.com/show_bug.cgi?id=2314756
-> > > > > >
-> > > > > > The reported touchpads used to work properly but are now directed to use
-> > > > > > the PixArt PS2 driver instead of the old one (I would say it should be
-> > > > > > using Synaptics).
-> > > > > >
-> > > > > > I haven't touched PS/2 in a long time, so it's going to be hard to
-> > > > > > pinpoint the error from my side, but it seems that the new driver is a
-> > > > > > little bit too greedy.
-> > > > >
-> > > > > OK, I gonna revert it and hope PixArt folks will figure out less greedy
-> > > > > probing sequence (or maybe we need to push it down a few sports).
-> > > >
-> > > > Although, as I am trying to read the referenced bug, one of the
-> > > > reporters are saying that they touchpad is USB:
-> > > >
-> > > > SysFS ID: /devices/pci0000:00/0000:00:14.0/usb3/3-3/3-3:1.0
-> > > > ysFS BusID: 3-3:1.0
-> > > > Hardware Class: unknown
-> > > > Model: "Synaptics Unclassified device"
-> > > > Hotplug: USB
-> > > > Vendor: usb 0x06cb "Synaptics, Inc."
-> > >
-> > > I guess this must be the fingerprint reader or some other synaptics
-> > > device.
-> > >
-> > > In the 6.11 logs (now publicly available), we can see:
-> > > [    1.601507] psmouse serio1: trackpoint: Elan TrackPoint firmware: 0x92, buttons: 3/3
-> > > [    1.614026] input: TPPS/2 Elan TrackPoint as /devices/platform/i8042/serio1/input/input5
-> > > ...
-> > > [    2.286700] input: ELAN0672:00 04F3:3187 Mouse as /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-0/i2c-ELAN0672:00/0018:04F3:3187.0002/input/input7
-> > > [    2.286834] input: ELAN0672:00 04F3:3187 Touchpad as /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-0/i2c-ELAN0672:00/0018:04F3:3187.0002/input/input9
-> > > [    2.286873] hid-generic 0018:04F3:3187.0002: input,hidraw1: I2C HID v1.00 Mouse [ELAN0672:00 04F3:3187] on i2c-ELAN0672:00
-> > > ...
-> > > [    2.337123] input: ELAN0672:00 04F3:3187 Mouse as /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-0/i2c-ELAN0672:00/0018:04F3:3187.0002/input/input10
-> > > [    2.337173] input: ELAN0672:00 04F3:3187 Touchpad as /devices/pci0000:00/0000:00:15.0/i2c_designware.0/i2c-0/i2c-ELAN0672:00/0018:04F3:3187.0002/input/input12
-> > > [    2.337212] hid-multitouch 0018:04F3:3187.0002: input,hidraw1: I2C HID v1.00 Mouse [ELAN0672:00 04F3:3187] on i2c-ELAN0672:00
-> > >
-> > >
-> > > So the touchpad seems to have the PS/2 fallback, and then switches to
-> > > i2c-HID. However, with PixArt the PS/2 touchpad isn't initialized, and
-> > > doesn't answered to i2c-hid (or is too much initialized, not sure).
-> >
-> > I see. It is interesting that the first probe fails:
-> >
-> > [    1.649119] psmouse serio1: pixart_ps2: init: Unable to query PixArt touchpad hardware.
-> >
-> >
-> > but then it goes and detects it a bit later:
-> >
-> > [    1.945075] input: PS/2 PixArt clickpad as /devices/platform/i8042/serio1/input/input5
-> >
-> > It would be curious to get the logs of the failing case with
-> > i8042.debug=1
-> >
-> > Anyway, I reverted the patch adding the driver and will send a pull
-> > request to Linus soon.
-> Don't revert now, I found the root cause:
+We register a devm action to call adp5589_clear_config() and then pass
+the i2c client as argument so that we can call i2c_get_clientdata() in
+order to get our device object. However, i2c_set_clientdata() is only
+being set at the end of the probe function which means that we'll get a
+NULL pointer dereference in case the probe function fails early.
 
-OK, so please make a fix and resubmit the whole thing for the next merge
-window. I think it needs to cook a little bit more and get more testing
-before it can be merged in mainline, given how fragile PS/2 detection
-is.
+Fixes: 30df385e35a4 ("Input: adp5589-keys - use devm_add_action_or_reset() for register clear")
+Signed-off-by: Nuno Sa <nuno.sa@analog.com>
+---
+ drivers/input/keyboard/adp5589-keys.c | 9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-> In pixart_read_tp_type(), we can see
-> 
-> +       error = ps2_command(ps2dev, param, PSMOUSE_CMD_GETINFO);
-> +       if (error)
-> +               return error;
-> +
-> +       *type = param[0] == 0x0e ? PIXART_TYPE_TOUCHPAD : PIXART_TYPE_CLICKPAD;
-> +
-> +       return 0;
-> 
-> This means, a non-pixart device will also be detected as "pixart
-> clickpad" and return 0,  unless the ps2 doesn't work at all.
-> 
-> And then in pixart_detect(), we can see
-> 
-> +       if (set_properties) {
-> +               psmouse->vendor = "PixArt";
-> +               psmouse->name = (type == PIXART_TYPE_TOUCHPAD) ?
-> +                               "touchpad" : "clickpad";
-> +       }
-> 
-> This will confuse the later logic.
-> 
-> Huacai
-
-Thanks.
+diff --git a/drivers/input/keyboard/adp5589-keys.c b/drivers/input/keyboard/adp5589-keys.c
+index 8996e00cd63a8203ec53d46ccb922c21ddb47355..68a29d67be57fc22088a912694e3e6e16e46d956 100644
+--- a/drivers/input/keyboard/adp5589-keys.c
++++ b/drivers/input/keyboard/adp5589-keys.c
+@@ -936,10 +936,9 @@ static int adp5589_keypad_add(struct adp5589_kpad *kpad, unsigned int revid)
+ 
+ static void adp5589_clear_config(void *data)
+ {
+-	struct i2c_client *client = data;
+-	struct adp5589_kpad *kpad = i2c_get_clientdata(client);
++	struct adp5589_kpad *kpad = data;
+ 
+-	adp5589_write(client, kpad->var->reg(ADP5589_GENERAL_CFG), 0);
++	adp5589_write(kpad->client, kpad->var->reg(ADP5589_GENERAL_CFG), 0);
+ }
+ 
+ static int adp5589_probe(struct i2c_client *client)
+@@ -983,7 +982,7 @@ static int adp5589_probe(struct i2c_client *client)
+ 	}
+ 
+ 	error = devm_add_action_or_reset(&client->dev, adp5589_clear_config,
+-					 client);
++					 kpad);
+ 	if (error)
+ 		return error;
+ 
+@@ -1010,8 +1009,6 @@ static int adp5589_probe(struct i2c_client *client)
+ 	if (error)
+ 		return error;
+ 
+-	i2c_set_clientdata(client, kpad);
+-
+ 	dev_info(&client->dev, "Rev.%d keypad, irq %d\n", revid, client->irq);
+ 	return 0;
+ }
 
 -- 
-Dmitry
+2.46.1
+

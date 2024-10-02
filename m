@@ -1,250 +1,211 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0FA13234;
-	Wed,  2 Oct 2024 10:21:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7057C1E7666
+	for <linux-input@vger.kernel.org>; Wed,  2 Oct 2024 10:51:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727864490; cv=none; b=tYpVaCpDHgbHw8I1I856OzQZMLDGMeT070fb8shoY9HNlYCZWCXgSNVA5SgTAS4s4o16a5FGdyA8dJXHZdE8ce9wRAyUFRTU96Ko08ok9fD814EP6a1Z1hZOFeyh8dT0omAVbJzpDdfpRPGAYuefn4MZDgWJynakjpEyKJBbQak=
+	t=1727866312; cv=none; b=CGr/OW2AnOugPuqgAHtEbbYFrVSPRF4FwGBcpKl98VgFZtJhhruz/QbQQAcrJQOxHhuTLzebnrB2n6QR5db2dow7bba1SsOYkguxjkLz+TYb9Xtn/CzwyR12hNOfuCrXuuPgz2lWB/zmVR4+eeGtFzeexF7jSux4C++6vlqxk0A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727864490; c=relaxed/simple;
-	bh=+KbXQBTEnttmeTjZtiwlSGU3lx5UCSPyQIe7qGJO+bs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R+YAWtN0tM5eqvvN+1IIlsbunC13oX4+0eAMX+qFMS9xh54wFlYxEqubukH+GvvnhUmTZarSdhYeHTEwmRW1/xe0bIYigk7zj5SSzBr2IYgFXIWYAqtFclEJMnNvaYHDhSV4e7GRTXMHIOerohvjB/5G+J3ihCb2cxz5ihAS0aU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aPXIcG32; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1727866312; c=relaxed/simple;
+	bh=GaGVBlUAZAzixzMPjr2GKd8qLJQJTfvw7fhOCSOmZbc=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=fYeeyYAlLybTwZLOJtSS7Cx5DlBkHZJAtlBc+aXmHLruyKFluHmAzT6LxIUHa5yeVz1+A3ZJmcf9Af2FGOjhOPgxrGK1NW4iSyHE6iOxdQC+q2oIs9V+jSzoEy50jdDDRAxZLodteyIEJvIOg16q8GpPJg/PA4nVZrAONjzPnOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bogkEwXB; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aPXIcG32"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFF0AC4CEC5;
-	Wed,  2 Oct 2024 10:21:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bogkEwXB"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4F433C4CED2;
+	Wed,  2 Oct 2024 10:51:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1727864490;
-	bh=+KbXQBTEnttmeTjZtiwlSGU3lx5UCSPyQIe7qGJO+bs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=aPXIcG32HgxQOp2RQoeJmOMIVHnXHStdGizxI6uxqcgCJ3teztOPPpY/85oE3KBa7
-	 hSlTS2fKBsMeCTucs7HOvuTDlleAP63Cq1wvdQT0mV2RlxlNUMP54YFIJyNRwk6I7r
-	 8uYFpEjO3ZQLyHyanHwAwMrEfGIU5XH8zDq+6eL/bDLEfPfCPCpELUa+52IXv/RXUt
-	 jZKekeT41R/u0gyDMrz7UrlIGopKlSUcziXeGqgE2FL5kN2AF/yJiflYAUMHG45x37
-	 LUaidFOpxa/Cp+h9+7bf9QQjhH+/KJ5A/jhx+/vOzvw7Rj04vRwnP/lnqqjVWBo0n8
-	 ckjKoJAaGfc0g==
-Date: Wed, 2 Oct 2024 12:21:24 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Werner Sembach <wse@tuxedocomputers.com>, Armin Wolf <W_Armin@gmx.de>, 
-	Hans de Goede <hdegoede@redhat.com>, Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, 
-	dri-devel@lists.freedesktop.org, jelle@vdwaa.nl, jikos@kernel.org, lee@kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, linux-leds@vger.kernel.org, 
-	miguel.ojeda.sandonis@gmail.com, ojeda@kernel.org, onitake@gmail.com, 
-	platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH 1/1] platform/x86/tuxedo: Add virtual LampArray for
- TUXEDO NB04 devices
-Message-ID: <hdahq2vfi3bnvaqswwdtave2kc2qm3ngvcwn6cgfiirfjfbqnz@zk77mbs3yktp>
-References: <45qkbpaxhrv2r32hghjqoexkenktymzyjgpx2xnnxt6dmfawjt@44lrhgcnozh3>
- <586a1c41-bbe0-4912-b7c7-1716d886c198@tuxedocomputers.com>
- <5th4pisccud5s7dbia42glsnu7e5u3q7jszty6o3mjdedsd2bg@7nsvp6t2krnf>
- <b6f2244d-7567-49ac-b2db-23b632a4e181@tuxedocomputers.com>
- <cflor5mz4flekn44ttlbanfigmwn5mmp3p54gkeeznzmzkyjqz@p2c6q7gulrdl>
- <84b629c6-5b26-4285-9b2f-66dd1afa99e5@tuxedocomputers.com>
- <zph6fnuaamhayivmzftowjw6klgcy2gb7vdub2v2yo7n665vpo@rkxtorfvmzph>
- <Zvxjo/CYXmKw2jjM@duo.ucw.cz>
- <rdo2yyy5dxsxrfm7bweuuvsqjzjelyevo5xvufixuiyrdlf7pc@mprc7pzbpnla>
- <Zv0YI3qIEg88Dx4c@duo.ucw.cz>
+	s=k20201202; t=1727866312;
+	bh=GaGVBlUAZAzixzMPjr2GKd8qLJQJTfvw7fhOCSOmZbc=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=bogkEwXBJTtTgdYvZEpG0DGad6Qex2vlTJpfDs6oWZmTAdtR7yZ+wWpamDx5uDFXh
+	 /W9zpUr1I9o5WpAZdy03UpTvP4GOJ+e0zAhYnG+IhNydSIJC2OkqesEems3FbjQR0h
+	 OANtJUDejt09c5VKxujJmkuuBISiST0G6RnW7b90w8cYxidB2dnDz6oCX0IocrQkBw
+	 +VDqn4C9cTEpTHiCs5LjlXzGbPzJOl5JVOQr7v58dSuWSjuDmWmvfqOpoN1LAfIicy
+	 Nr38EbrwnBSpvMyNbup8W+rHb9G8Ox5HtBWr+BDvY373fyjgpjch5+gimZNpO4EJYo
+	 JTh1cNhE/Eyrw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 479B9CF31B6;
+	Wed,  2 Oct 2024 10:51:52 +0000 (UTC)
+From: Nuno Sa via B4 Relay <devnull+nuno.sa.analog.com@kernel.org>
+Date: Wed, 02 Oct 2024 12:51:53 +0200
+Subject: [PATCH 4/4] Input: adp5588-keys: make use of dev_err_probe()
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Zv0YI3qIEg88Dx4c@duo.ucw.cz>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20241002-fix-adp5588-read-refactor-v1-4-28800f1b9773@analog.com>
+References: <20241002-fix-adp5588-read-refactor-v1-0-28800f1b9773@analog.com>
+In-Reply-To: <20241002-fix-adp5588-read-refactor-v1-0-28800f1b9773@analog.com>
+To: Michael Hennerich <michael.hennerich@analog.com>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+X-Mailer: b4 0.14.1
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1727866310; l=5144;
+ i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
+ bh=gt3jhPKFLDsBuarU+NtzbRqk71V3bunZcxmUsG25ZIQ=;
+ b=gYKNBNlZ5DgRpUEr53HOJRV/oouU2DiX5Mx5Tv95+9Wz1Z7RRCPjpYehpYB3KUrA+QjPQZsPW
+ l5m0ER1dhWlCTIehYW/9+Q2D8uo+CdH/ToS421XGySxM1Q0ndKlmfLH
+X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
+ pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
+X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
+ auth_id=100
+X-Original-From: Nuno Sa <nuno.sa@analog.com>
+Reply-To: nuno.sa@analog.com
 
-On Oct 02 2024, Pavel Machek wrote:
-> On Wed 2024-10-02 10:13:10, Benjamin Tissoires wrote:
-> > On Oct 01 2024, Pavel Machek wrote:
-> > > Hi!
-> > > 
-> > > > PPS: sorry for pushing that hard on HID-BPF, but I can see that it fits
-> > > > all of the requirements here:
-> > > > - need to be dynamic
-> > > > - still unsure of the userspace implementation, meaning that userspace
-> > > >   might do something wrong, which might require kernel changes
-> > > > - possibility to extend later the kernel API
-> > > > - lots of fun :)
-> > > 
-> > > Please don't do this.
-> > > 
-> > > We have real drivers for framebuffers. We don't make them emulate
-> > > USB-display devices.
-> > 
-> > Except that they are not framebuffer for multiple reasons. I know you
-> > disagree, but the DRM maintainers gave a strong NACK already for a
-> 
-> Person not linking the DRM stuff was not a maintainer.
-> 
-> > DRM-like interface, and the auxdisplay would need some sort of tweaking
-> > that is going too far IMO (I'll explain below why I believe this).
-> 
-> 
-> 
-> > > Yes, this is a small display, and somewhat unusual with weird pixel
-> > > positions, but it is common enough that we should have real driver for
-> > > that, with real API.
-> > 
-> > It's not just weird pixel positions. It's also weird shapes. How are you
-> > going to fit the space bar in a grid, unless you start saying that it
-> > spans accross several pixels. But then users will want to address
-> > individual "grouped" pixels, and you'll end up with a weird API. The
-> > Enter key on non US layouts is also a problem: is it 1 or 2 pixels wide?
-> > Is is 2 pixel in heights?
-> 
-> Have you seen one of those keyboards?
+From: Nuno Sa <nuno.sa@analog.com>
 
-I already refrain from mention this once or twice, but please, try not
-being aggressive in suggesting I'm dumb.
+Simplify the probe error path by using dev_err_probe().
 
-> 
-> (Hint: it is LEDs below regular keyboard.)
+Signed-off-by: Nuno Sa <nuno.sa@analog.com>
+---
+ drivers/input/keyboard/adp5588-keys.c | 70 +++++++++++++++--------------------
+ 1 file changed, 29 insertions(+), 41 deletions(-)
 
-Yes, I know, and if you read this email and the few others, you'll read
-that I own a few of them already (for a long time), and I worked on a
-cross vendor userspace API to configure them. So I know what I am
-talking about.
+diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
+index 0152e4fa088c..60a7cb040af7 100644
+--- a/drivers/input/keyboard/adp5588-keys.c
++++ b/drivers/input/keyboard/adp5588-keys.c
+@@ -439,10 +439,9 @@ static int adp5588_gpio_add(struct adp5588_kpad *kpad)
+ 	kpad->gc.owner = THIS_MODULE;
+ 
+ 	if (device_property_present(dev, "interrupt-controller")) {
+-		if (!kpad->client->irq) {
+-			dev_err(dev, "Unable to serve as interrupt controller without interrupt");
+-			return -EINVAL;
+-		}
++		if (!kpad->client->irq)
++			return dev_err_probe(dev, -EINVAL,
++					     "Unable to serve as interrupt controller without interrupt");
+ 
+ 		girq = &kpad->gc.irq;
+ 		gpio_irq_chip_set_chip(girq, &adp5588_irq_chip);
+@@ -453,10 +452,8 @@ static int adp5588_gpio_add(struct adp5588_kpad *kpad)
+ 	mutex_init(&kpad->gpio_lock);
+ 
+ 	error = devm_gpiochip_add_data(dev, &kpad->gc, kpad);
+-	if (error) {
+-		dev_err(dev, "gpiochip_add failed: %d\n", error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(dev, error, "gpiochip_add failed\n");
+ 
+ 	for (i = 0; i <= ADP5588_BANK(ADP5588_MAXGPIO); i++) {
+ 		error = adp5588_read(kpad->client,
+@@ -680,21 +677,19 @@ static int adp5588_fw_parse(struct adp5588_kpad *kpad)
+ 		return 0;
+ 	}
+ 
+-	if (!client->irq) {
+-		dev_err(&client->dev, "Keypad configured but no IRQ present\n");
+-		return -EINVAL;
+-	}
++	if (!client->irq)
++		return dev_err_probe(&client->dev, -EINVAL,
++				     "Keypad configured but no IRQ present\n");
+ 
+ 	ret = matrix_keypad_parse_properties(&client->dev, &kpad->rows,
+ 					     &kpad->cols);
+ 	if (ret)
+ 		return ret;
+ 
+-	if (kpad->rows > ADP5588_ROWS_MAX || kpad->cols > ADP5588_COLS_MAX) {
+-		dev_err(&client->dev, "Invalid nr of rows(%u) or cols(%u)\n",
+-			kpad->rows, kpad->cols);
+-		return -EINVAL;
+-	}
++	if (kpad->rows > ADP5588_ROWS_MAX || kpad->cols > ADP5588_COLS_MAX)
++		return dev_err_probe(&client->dev, -EINVAL,
++				     "Invalid nr of rows(%u) or cols(%u)\n",
++				     kpad->rows, kpad->cols);
+ 
+ 	ret = matrix_keypad_build_keymap(NULL, NULL, kpad->rows, kpad->cols,
+ 					 kpad->keycode, kpad->input);
+@@ -714,11 +709,10 @@ static int adp5588_fw_parse(struct adp5588_kpad *kpad)
+ 		return 0;
+ 	}
+ 
+-	if (kpad->nkeys_unlock > ARRAY_SIZE(kpad->unlock_keys)) {
+-		dev_err(&client->dev, "number of unlock keys(%d) > (%zu)\n",
+-			kpad->nkeys_unlock, ARRAY_SIZE(kpad->unlock_keys));
+-		return -EINVAL;
+-	}
++	if (kpad->nkeys_unlock > ARRAY_SIZE(kpad->unlock_keys))
++		return dev_err_probe(&client->dev, -EINVAL,
++				     "number of unlock keys(%d) > (%zu)\n",
++				     kpad->nkeys_unlock, ARRAY_SIZE(kpad->unlock_keys));
+ 
+ 	ret = device_property_read_u32_array(&client->dev, "adi,unlock-keys",
+ 					     kpad->unlock_keys,
+@@ -735,11 +729,10 @@ static int adp5588_fw_parse(struct adp5588_kpad *kpad)
+ 		 * part of keypad matrix to be used and if a reliable way of
+ 		 * using GPIs is found, this condition can be removed/lightened.
+ 		 */
+-		if (kpad->unlock_keys[i] >= kpad->cols * kpad->rows) {
+-			dev_err(&client->dev, "Invalid unlock key(%d)\n",
+-				kpad->unlock_keys[i]);
+-			return -EINVAL;
+-		}
++		if (kpad->unlock_keys[i] >= kpad->cols * kpad->rows)
++			return dev_err_probe(&client->dev, -EINVAL,
++					     "Invalid unlock key(%d)\n",
++					     kpad->unlock_keys[i]);
+ 
+ 		/*
+ 		 * Firmware properties keys start from 0 but on the device they
+@@ -761,10 +754,9 @@ static int adp5588_probe(struct i2c_client *client)
+ 	u8 id;
+ 
+ 	if (!i2c_check_functionality(client->adapter,
+-				     I2C_FUNC_SMBUS_BYTE_DATA)) {
+-		dev_err(&client->dev, "SMBUS Byte Data not Supported\n");
+-		return -EIO;
+-	}
++				     I2C_FUNC_SMBUS_BYTE_DATA))
++		return dev_err_probe(&client->dev, -EIO,
++				     "SMBUS Byte Data not Supported\n");
+ 
+ 	kpad = devm_kzalloc(&client->dev, sizeof(*kpad), GFP_KERNEL);
+ 	if (!kpad)
+@@ -814,11 +806,9 @@ static int adp5588_probe(struct i2c_client *client)
+ 	input->id.version = revid;
+ 
+ 	error = input_register_device(input);
+-	if (error) {
+-		dev_err(&client->dev, "unable to register input device: %d\n",
+-			error);
+-		return error;
+-	}
++	if (error)
++		return dev_err_probe(&client->dev, error,
++				     "unable to register input device\n");
+ 
+ 	error = adp5588_setup(kpad);
+ 	if (error)
+@@ -833,11 +823,9 @@ static int adp5588_probe(struct i2c_client *client)
+ 						  adp5588_hard_irq, adp5588_thread_irq,
+ 						  IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+ 						  client->dev.driver->name, kpad);
+-		if (error) {
+-			dev_err(&client->dev, "failed to request irq %d: %d\n",
+-				client->irq, error);
+-			return error;
+-		}
++		if (error)
++			return dev_err_probe(&client->dev, error,
++					     "failed to request irq %d\n", client->irq);
+ 	}
+ 
+ 	dev_info(&client->dev, "Rev.%d controller\n", revid);
 
-> 
-> > The positions of the pixels also depend on the physical layout of the
-> > keyboard itself. So with the same vendor ID/Product ID, you might have
-> > different pixel positions if the device is sold in Europe, or in the
-> > US.
-> 
-> If vendor sells different hardware with same IDs, well 1) that's a
-> nono, a 2) that's what kernel parameters are for.
+-- 
+2.46.1
 
-This is already the case (hello hid-uclogic), and no, kernel parameters
-are not helping. In that case (uclogic), we ask the device a specific
-USB string which has the information, but is not part of HID. This is
-dumb, but we don't control hardware makers.
 
-> 
-> > It's also luminance problem IIRC. Some keys might have a different range
-> > of luminance than others. I remember Bastien Nocera telling me we
-> 
-> Have you seen one of those keyboards?
-
-Again, please refrain any aggressive comments.
-
-> 
-> > But that's just the "easy" part. We can define a kernel API, for sure,
-> > but then we need users. And there are several problems here:
-> > 
-> > - first, users of this new kernel API need to be root to address the
-> >   LEDs. They probably won't, so they'll rely on a third party daemon for
-> >   that, or just use uaccess (yay!). But that part is easy
-> 
-> Eventually, desktop environment should talk the interface. (Plus, how
-> does HID or BPF craziness help with his?)
-
-HID helps because we already have the case with game controllers. Steam
-and SDL (both widely use), put rules giving uaccess to hidraw nodes on
-those controllers. So we finally made the jump and now provide in v6.12
-a new hidraw ioctl to allow logind to revoke the hidraw node. This
-should allow us to not give uaccess to those hidraw nodes.
-
-So in the near future, there will be a portal available, that says
-"please give me a fd for this hidraw node", the compositor will then ask
-logind to open the file for it and then will pass that fd to the final
-application. Once there is a vt-switch, logind will revoke the fd,
-meaning that the application will not have access to the device.
-
-> 
-> > - then, user sees a new kernel interface, and they have to implement it.
-> >   OK, fair enough, but more code to maintain
-> 
-> Yep. At least there's single interface to talk to.
-> 
-> > - but that new kernel API doesn't give enough information: all you have
-> >   is an approximation of the keyboard layout, which will not match
-> >   the
-> 
-> Have you seen OpenRGB? It already aproximates keyboard as a grid. Or
-> maybe we give them enough information.
-> 
-> Below you were just inventing problems.
-
-A simple "IMO" would makes this kind of comments acceptable. But this is
-really offensive TBH.
-
-> 
-> > - but then, even if you make everyones happy, the GUI project is
-> >   actually cross-platform (OpenRGB is, Steam is, SDL is). And what is
-> >   done on Windows is simple: raw access to the HID device. And the
-> >   raw
-> 
-> Yes, Windows is a mess. We don't want to emulate them.
-> 
-> > I've been through this exact same process with Input and game
-> > controllers, and even for libratbag for configuring gaming devices. In
-> > the end, the kernel developer never wins, but the userspace
-> 
-> Yes, we have been in this exact situation. Userland was directly
-> accessing mice. It was called "gpm" and we moved away from that for
-> good reasons.
-
-There is a slight difference between mouse support and LEDs on your
-keyboard. The former is actually required to bring up the machine and to
-use it, the latter is nice to have.
-
-And if you want to take that mouse comparison, we are already seeing the
-limits of the input subsystem, because we are running out of bits for
-defining usages. A few years ago we talked about creating evdev2, but we
-ended up nowhere. Now we are realizing that HID has way more
-inforamtions on the device that the kernel provides, so we also need a
-new way to export those information (pending proposal already).
-
-> 
-> > If you want a 100 lines of code program to control your keyboard, with
-> > LampArray, you can, as long as you don't require a GUI and don't require
-> > to be generic. Just write the values directly on the hidraw device,
-> > and
-> 
-> Haha, no. Kernel part was 400+ lines, no way you can parse that in 100
-> lines.
-
-I'm not saying "parsing", I mean adapt to your use case. If you know
-your device, your simple CLI is just writing a static array of bytes to
-the hidraw interface.
-
-> 
-> > You might agree with me or not, but this is actually not relevant to the
-> > discussion here IMO: all what Werner is doing (with crazy arrays) is to
-> > take a proprietary protocol and convert into a HID standard. He is
-> 
-> Yes, we should never have had input subsystem. We should simply
-> convert all mice to PS/2 standard protocol. ... And yes, we have that,
-> that's /dev/mice, yet input layer is very useful.
-
-Again, apple and oranges. Input is required for everything. The LEDs
-under a keyboard is not a vital component. And there is already a HID
-standard to it.
-
-> 
-> What is relevant that these crazy arrays are not going to be merged,
-> and better solution is needed.
-
-Again, you seemn to miss the point: those crazy arrays should have been
-in the firmware from day one. They are not, so the idea is to convert
-proprietary protocol into a standard. Then we can start thinking what
-comes next.
-
-> 
-> > I'm also under the impression that you are scared by BPF. BPF is just a
-> > tool here to "fix" the device with an easy path forward. BPF is
-> > safer
-> 
-> I should not need to run just-in-time compiler to get support for my
-> hardware. If you are not scared by BPF, take a look at modern CPU
-> design, with emphasis on speculation vulnerabilities such as Spectre
-> and Meltdown.
-> 
-
-Cheers,
-Benjamin

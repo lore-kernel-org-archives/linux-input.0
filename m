@@ -1,42 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4CA618FDB7;
-	Tue,  8 Oct 2024 06:57:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 404741C230A
+	for <linux-input@vger.kernel.org>; Tue,  8 Oct 2024 07:11:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728370667; cv=none; b=OjQbS45L3cxLaor1nKS/4aRNIWAwbMwKu46qafCe1sO5qoZ919W6eg1sK7VbJyDeWK7DINjnl+vzT/+zMNHFZzruf/RgKxWAeJ4xtl4JzeDl3cPajMNsWyKI+n/Z958km+kGfHTILiAjLzAhtQv3/b9f/hZ/bB85GtchvYyhM38=
+	t=1728371501; cv=none; b=PMOWyQpTML/bGMAVltGYArlj67jel940CBT65WKy0Vbv2BCdTY8/X0hgQxWVXA/d3e2I3dUPc3kyJSsMzRqtuAh0kQhXu5wQ09EYVQe2bCQhXQHXgebZAgLh1hNY3nEUy2sq0wiH+9VnSJ8JAHJmCGL7iQJkmeQr8XDfRsJJv+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728370667; c=relaxed/simple;
-	bh=UbuV+c00CwL2uO6e4Gz8tF4MdLxdFDm8hR4wKAxUJiw=;
+	s=arc-20240116; t=1728371501; c=relaxed/simple;
+	bh=vSAhI6utc46bgXE8SR4heNf/PQz6JEuNBkGM7Y3lkZU=;
 	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=L3FfV37iDnWqhFamwjiX7DGAI5M9dGcoE2vULjUY/U5XDPwIGzuI72YVG00ZNz2bwqFTA0RuhF90OhWMcBujpM4mxXD6vYMwRXcYGxS10PGKrcHbfMkZ9njPp5d+exc1OkmN85YJJvtRHdFpc+wr2aJ9mUO23/z5Cy4EyC2mi2A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Bu2uHdSB; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=oa7n2zRgJaJ1I/MiAmNc94ilyNS860acRspvt/iKwykUN7KGJ2uUX1ecTCiu0Qw2MZ6BCFaWs8j6/aWjnV1kiCTuTauDSuuc32brmCSgBLUi2cGnLm3SsKnj0QGVkjbTJY0hAbE+ZMkugwAbvA7ue0ax1WTIiRKp5AkDV84+Pds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OzdSSPhy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Bu2uHdSB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21201C4CED2;
-	Tue,  8 Oct 2024 06:57:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OzdSSPhy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7147AC4CEC7;
+	Tue,  8 Oct 2024 07:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728370666;
-	bh=UbuV+c00CwL2uO6e4Gz8tF4MdLxdFDm8hR4wKAxUJiw=;
+	s=k20201202; t=1728371500;
+	bh=vSAhI6utc46bgXE8SR4heNf/PQz6JEuNBkGM7Y3lkZU=;
 	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=Bu2uHdSBu2RTrt/+5FVX980QMypWRmQGgjMyyw+z6yKgz4xm3COU1BiXSWM5HH2Am
-	 EcWIlCi8JfX+kvvWX82BvVJYAQfZpBmBoZ1m0pYgdxCB9lQ6gh0j4BW2eHtrqE114i
-	 6THGk+OA0JywSF0ZTmwtzbF42MVxuPdy/aA/XbWpFCm3zYrDAuXESoBdGxeNY8Iw7I
-	 fu4O6NvmtFQSK8AdTmAiqXqVsEly9U0vO0ClPTIiCxKliHLM9v0ko3gLYzQqHt9swU
-	 hFfqCOA4sgN4AZm2JkCueg2zQBmlFMPiJ6Hn+/kYiYSNC9MIUj7dLQ0XztJ4ET0DYH
-	 OdU72Y2D92Psg==
-Date: Tue, 8 Oct 2024 08:57:44 +0200 (CEST)
+	b=OzdSSPhyej2P1oCYParP8BxkxRb8IM1XDndvrIOX9qiDRjEj10slt3MqgSg8bOAkl
+	 u0SocWNahj7e5dCG5wrf5rZFfdAxaHtsctmQzRLS37s38EZ7Qv9wRHFw2WCr2SXNtm
+	 Ae1gPy2MV+nnfNcpqw5+dVHgXvRmc/T6wO+b8J9f7dqRzTZ7qrmpiuNl/2sN4pNO2n
+	 zAAtgQUkStJ0PhS/DA8EHgEb0rFnPqLLFM4RnbHWit4CFMlVpsi2YiqhF6dzCeqFFd
+	 SyB/a/W7k3Nb6dt2jiy31xntemcVXIKDJ1C0AwEOMdTV2VAa1QtDpv6Kp/tIeUV/GH
+	 CBmlwdbPTzZ0g==
+Date: Tue, 8 Oct 2024 09:11:38 +0200 (CEST)
 From: Jiri Kosina <jikos@kernel.org>
-To: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
-cc: linux-input@vger.kernel.org, Benjamin Tissoires <bentiss@kernel.org>, 
-    Christophe JAILLET <christophe.jaillet@wanadoo.fr>, 
-    linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v4 RESEND] HID: corsair-void: Add Corsair Void headset
- family driver
-In-Reply-To: <20240909184936.32489-3-stuart.a.hayhurst@gmail.com>
-Message-ID: <nycvar.YFH.7.76.2410080855470.20286@cbobk.fhfr.pm>
-References: <20240909184936.32489-3-stuart.a.hayhurst@gmail.com>
+To: Stefan Blum <stefanblum2004@gmail.com>
+cc: bentiss@kernel.org, linux-input@vger.kernel.org
+Subject: Re: [PATCH] HID: multitouch: Add support for B2402FVA track point
+In-Reply-To: <1917062e-1c6e-43bd-b33a-5d40eb5c261c@gmail.com>
+Message-ID: <nycvar.YFH.7.76.2410080911200.20286@cbobk.fhfr.pm>
+References: <1917062e-1c6e-43bd-b33a-5d40eb5c261c@gmail.com>
 User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -46,44 +43,27 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 
-On Mon, 9 Sep 2024, Stuart Hayhurst wrote:
+On Sun, 6 Oct 2024, Stefan Blum wrote:
 
-> Introduce a driver for the Corsair Void family of headsets, supporting:
->  - Battery reporting (power_supply)
->  - Sidetone setting support
->  - Physical microphone location reporting
->  - Headset and receiver firmware version reporting
->  - Built-in alert triggering
->  - USB wireless_status
+> Hello,
 > 
-> Tested with a Void Pro Wireless, Void Elite Wireless and a Void Elite Wired
+> By default the track point does not work on the Asus Expertbook B2402FVA.
 > 
-> Signed-off-by: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
+> >From libinput record i got the ID of the track point device:
+>   evdev:
+>     # Name: ASUE1201:00 04F3:32AE
+>     # ID: bus 0x18 vendor 0x4f3 product 0x32ae version 0x100
+> 
+> I found that the track point is functional, when i set the MT_CLS_WIN_8_FORCE_MULTI_INPUT_NSMU class for the reported device.
+> 
+> With kind regards,
+> 
+> Stefan
+> 
+> Signed-off-by: Stefan Blum <stefan.blum@gmail.com>
 
-Thanks a lot for working on this! I have one small nit:
-
-[ ... snip ... ]
-> +config HID_CORSAIR_VOID
-> +	tristate "Corsair Void headsets"
-> +	depends on USB_HID
-> +	select POWER_SUPPLY
-> +	help
-> +	Support for Corsair Void headsets.
-> +
-> +	Supported devices:
-> +	- Corsair Void headsets
-> +
-
-As we alreay have general CONFIG_HID_CORSAIR, I think it'd make sense for 
-this driver to be encapsulated under this config option as well (it'd also 
-follow the general practice of HID subsystem, that the drivers are divided 
-per vendor) -- i.e. link hid-corsair-void into the final hid-corsair.ko 
-whenever CONFIG_HID_CORSAIR is selected.
-
-Would you be willing to make that small change, and resubmit for final 
-merge?
-
-Thanks,
+I have reformatted the changelog a little bit to match kernel standards :) 
+and applied, thanks.
 
 -- 
 Jiri Kosina

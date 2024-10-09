@@ -1,82 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001ae601.pphosted.com (mx0a-001ae601.pphosted.com [67.231.149.25])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9991A1A255A;
-	Wed,  9 Oct 2024 15:34:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D7D32AD1C;
+	Wed,  9 Oct 2024 15:41:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.149.25
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728488092; cv=none; b=CJ0pBSGSrdXoriYjvf8sahOHWBpnI3UGofipFXHtzSkslh6NdpVcZX+tVMRoNL1wJ4m+yiINCzwqqrr7U1cLCUxNlM8M2l2YnYFaf1wYS6sdQLCii3Q6CACJfLSxATEKY2BVTIa0DdmK75KguZ77CXn7lOd9CDQkaQ16mJ49e8A=
+	t=1728488467; cv=none; b=Za3EJr7JWnx8OrIxLq16fVX302S0uV6mhPd8JQocfDLJz7qz1VLxy8U4xDhb8pvEbezfKf2NgRYgG7EwyF6kJRGHyrMWJXKo1x//txd1lACWLBecEojFf5Y86cE15BASbQ5vIhDwcTanO4PmXunnVodmWaQmekYbKzRdlnwJFtA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728488092; c=relaxed/simple;
-	bh=4PNzgfGogduGWQPu+MHgim+P8zX6H6O5QWyC5G289Ho=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=GXxmpdHsuPkE6U/cv4UrCztVwhkSrtjGo2yCnsP7Y/xww8voY49nljnrkHq5IFmhPZWA2bhRWPwcvfCHaPPEuNbyvYLSyQVvgOZs6PUzXB8SjrCNz9hZxl8x2+Zs/jSydfCUjHVJoB0Toq+ZYyMTgckqaHge6rdRracuUtZ6K70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fmzfqk5e; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1728488467; c=relaxed/simple;
+	bh=WOHh/UpaH8St+UhgxQ7+nTUjI5YWKW9EZ0ZmLituKTo=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ek6oeOpkN9lykuk2wjAGuiBak60wCZp3o9lJbp9Cs03MuMlfCx0pGbucTwOgeRi5dVGvmZZftEmQptkHrudO6q/r4qib97JZZvitRRPOhwY52vQ+GwpPEeRY/CiZTuYLKlvTYu6IRjxDnpgX7KhODqZbIy0vBTdo+DnD9V7d/O4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com; spf=pass smtp.mailfrom=opensource.cirrus.com; dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b=Ks9orqre; arc=none smtp.client-ip=67.231.149.25
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=opensource.cirrus.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=opensource.cirrus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fmzfqk5e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBD8FC4CECE;
-	Wed,  9 Oct 2024 15:34:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1728488092;
-	bh=4PNzgfGogduGWQPu+MHgim+P8zX6H6O5QWyC5G289Ho=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=Fmzfqk5e101K7Llaiaf85bSK+T4tMqa8R8Y1FN8tSUWXVAN3s5htDgb6dicZahs09
-	 6S+4tU2+8Zn6oM2Qp3qu2MGI1w7HWmfHdh8UqeGxLw1snuHPejQTu+l3ZYyi/q5LEL
-	 CGJJ5IAoKi3ZWCgrjnrpiTuBVpHEa08Nkx5yb2k4mciElAJgEjvRQzjrQTMSsbP4on
-	 QfAOXqFOB4oZdJGKOUs47MmTW04TnGpupMLP+U1CdPtSN+9T5R2ikEF/2Cfij5PeCK
-	 OLWfDt7TGszKAQk3k5V1rkglPOog8s2b+9eEm8egw7fS7Ac15Z/EE4CW/zlJBd6/wl
-	 vX7QpfqzBnnMg==
-Date: Wed, 9 Oct 2024 17:34:49 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: Linux regressions mailing list <regressions@lists.linux.dev>
-cc: Basavaraj Natikar <bnatikar@amd.com>, 
-    Basavaraj Natikar <Basavaraj.Natikar@amd.com>, linux-input@vger.kernel.org, 
-    Chris Hixon <linux-kernel-bugs@hixontech.com>, Skyler <skpu@pm.me>, 
-    Richard <hobbes1069@gmail.com>, Benjamin Tissoires <bentiss@kernel.org>
-Subject: Re: [PATCH] HID: amd_sfh: Return immediately if no sensor is found
-In-Reply-To: <5b352033-2738-4804-86f8-d99b7701d655@leemhuis.info>
-Message-ID: <nycvar.YFH.7.76.2410091734010.20286@cbobk.fhfr.pm>
-References: <20241003160454.3017229-1-Basavaraj.Natikar@amd.com> <a3fb27a2-5167-4880-9102-eaf0f47df398@leemhuis.info> <uupvw2jw6j5wkwtfwljipmpx4kynv6k3wqgy6sg3crw5r27rtm@mudhwifihmtw> <79320190-8461-4a92-bde2-29a3988a6782@leemhuis.info>
- <2214cdc6-2384-dc6a-f77c-fbbe53d979a1@amd.com> <5b352033-2738-4804-86f8-d99b7701d655@leemhuis.info>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+	dkim=pass (2048-bit key) header.d=cirrus.com header.i=@cirrus.com header.b="Ks9orqre"
+Received: from pps.filterd (m0077473.ppops.net [127.0.0.1])
+	by mx0a-001ae601.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 499499oJ031691;
+	Wed, 9 Oct 2024 10:41:02 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=
+	PODMain02222019; bh=DPKVopMgdrrwHMHENM1Bl0UTsCXlqlh0hbgfzu8Bkwk=; b=
+	Ks9orqreO8RDzO+qAl1EUmkQkJ0lnLO4eRuyjMwlQf3gGYsOby2ZgLuMNWYXyv2J
+	sknUsTEwFwxv+tlpA/a/g6Kc77d9j7//c/PHATCVFiwzDTUCSh1Drlf9auH0jqaJ
+	k/p+FadzezJQiaQlyOofnNgl+1VCHxF0dFy5veQIr/BWjnCO0AuX6QWAuUThviaY
+	D6w6QHVR2NfXIY6i8/Ptd/PyBiRKQ4YYgJQI32AaVRa6rr09eP1HhzDzHNI38NYk
+	i8WjipksTLZhW3sYdIEoOqD/Enlnosr5qi4rFqkIsDW7vwKJUfrjOdhLQ9ZVgGcu
+	Kjl3G3OEYhIJ0RYXjSzAEw==
+Received: from ediex02.ad.cirrus.com ([84.19.233.68])
+	by mx0a-001ae601.pphosted.com (PPS) with ESMTPS id 4232uy661f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 09 Oct 2024 10:41:01 -0500 (CDT)
+Received: from ediex02.ad.cirrus.com (198.61.84.81) by ediex02.ad.cirrus.com
+ (198.61.84.81) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 9 Oct 2024
+ 16:40:59 +0100
+Received: from ediswmail9.ad.cirrus.com (198.61.86.93) by
+ anon-ediex02.ad.cirrus.com (198.61.84.81) with Microsoft SMTP Server id
+ 15.2.1544.9 via Frontend Transport; Wed, 9 Oct 2024 16:40:59 +0100
+Received: from aus-sw-rshr002.ad.cirrus.com (aus-sw-rshr002.ad.cirrus.com [141.131.145.15])
+	by ediswmail9.ad.cirrus.com (Postfix) with ESMTP id 2B2B182024A;
+	Wed,  9 Oct 2024 15:40:58 +0000 (UTC)
+From: James Ogletree <jogletre@opensource.cirrus.com>
+To: <jikos@kernel.org>, <bentiss@kernel.org>, <dmitry.torokhov@gmail.com>
+CC: <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-usb@vger.kernel.org>, <patches@opensource.cirrus.com>,
+        James Ogletree
+	<jogletre@opensource.cirrus.com>
+Subject: [RFC PATCH 3/6] HID: pidff: Assign max concurrent playbacks
+Date: Wed, 9 Oct 2024 15:40:43 +0000
+Message-ID: <20241009154046.1011226-4-jogletre@opensource.cirrus.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20241009154046.1011226-1-jogletre@opensource.cirrus.com>
+References: <20241009154046.1011226-1-jogletre@opensource.cirrus.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: Ogz8504EGo22Y_caY7Ly5IX8rKNFVwXM
+X-Proofpoint-ORIG-GUID: Ogz8504EGo22Y_caY7Ly5IX8rKNFVwXM
+X-Proofpoint-Spam-Reason: safe
 
-On Wed, 9 Oct 2024, Linux regression tracking (Thorsten Leemhuis) wrote:
+Explicitly assign the maximum number of simultaneously playable
+effects.
 
-> >>> PS: sorry, I know this is a long standing issue, but I'd rather not
-> >>> paper over a bigger issue :/
-> >
-> >> Yeah, me to!
-> >>
-> >> There was a new patch in bugzilla and people tested it (see
-> >> https://bugzilla.kernel.org/show_bug.cgi?id=219331 for details) , but
-> >> nothing has happened now for 48 hours, so please allow me to ask:
-> >>
-> >> Basavaraj Natikar, is there any hope that a proper fix will emerge soon?
-> > 
-> > Yes , please find link for the fix as mentioned in bugid.
-> > 
-> > https://lore.kernel.org/all/20241009144757.3577625-1-
-> > Basavaraj.Natikar@amd.com/
-> 
-> Great, many thx!
-> 
-> Nitpicking: still no stable tag though. :-/ And ideally Richard and
-> Skyler would get a "Reported-by" as well.
+Signed-off-by: James Ogletree <jogletre@opensource.cirrus.com>
+---
+ drivers/hid/usbhid/hid-pidff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-I don't care all that much about stable tag, but if there are more 
-Reported-by:s, I like to give credit where it's due, and I don't think 
-rebasing for-6.12/upstream-fixes because of that would break anybody.
-
-So please feel free to send additional tags, and I'll rewrite it.
-
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index 3b4ee21cd811..dd260fcdad60 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -1309,6 +1309,7 @@ int hid_pidff_init(struct hid_device *hid)
+ 	ff->set_gain = pidff_set_gain;
+ 	ff->set_autocenter = pidff_set_autocenter;
+ 	ff->playback = pidff_playback;
++	ff->max_concurrent_playbacks = max_effects;
+ 
+ 	hid_info(dev, "Force feedback for USB HID PID devices by Anssi Hannula <anssi.hannula@gmail.com>\n");
+ 
 -- 
-Jiri Kosina
-SUSE Labs
+2.43.0
 

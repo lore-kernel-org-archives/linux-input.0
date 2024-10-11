@@ -1,46 +1,46 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD3941D042B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 908941D0404;
 	Fri, 11 Oct 2024 00:07:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728605263; cv=none; b=VAaG39+l40n6RryAj2mKGyNLh+0kKZBi04oyj4cJKlLGDIW51eJoIe/42sI6Tpoz1OjoJXEI4qnNmHcrnVBGFgqQFEp/h5ZM2Oa0wlY2Je0lFADj81UBnBQXLJvoE2bJ5q5SCsfDUSZ/LBzn7VYLNi0KYITfBcsq3ugHeKhtEXY=
+	t=1728605263; cv=none; b=lvkbv9hLQxoheIpn5j2YbblzbwAw7F96Psd0nR8E9wOKx4JwZUAVYVzYl+owt/M7JfMIgjIyfiSgp6IwXBZi59E/REhKA4qo9FsEgXW4V8+gGIs/75rf/nxJkazeFPxbKoFFKQvKDwO4UlxZ+H9cI3TQraM+EwxNFdFn41oKQP4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1728605263; c=relaxed/simple;
 	bh=lH6pajAyODmY/7seq1vw42FSufEXp3D1uilBoZTCkh8=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=o4i/RzfvKdFwM2xjTTjLJ6jWYm68QHrt370dViaIch6kWx9mPk3DNdeN+sUzxXQiEpbJpjtmHCaDX9/Ws+yatlhk8/71BUgG68+tV+xO/qjkIer8KEC2UmVGXZaebHff0CMzYVmUESg0rvp/nt9vFui9Gvwj573fTD2dK5FVlXw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=oNWFyBcC; arc=none smtp.client-ip=205.220.168.131
+	 MIME-Version:Content-Type; b=VKRiogkihSXnkBmiotSQgXL+3pXzgWTZubwZ6XB3nsbm7N2MmfnLVggbraDiQOAlIZtv4jts2eXrObYXtgIFhJeDN55qnOywXuhXkeRDirAg9gDD4BXyN4gvgSCfCMsWlla3D4JQxwWXu2piznIN1q1EbR1xhdJFG2S0N4ckwZw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=hvqIBHKK; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="oNWFyBcC"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49ACVVQF009185;
-	Fri, 11 Oct 2024 00:07:16 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="hvqIBHKK"
+Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49ACVMar027147;
+	Fri, 11 Oct 2024 00:07:17 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ki29lRSXvVePRr3/SBVRt9DzNF8VTubZk2D+F/mX5Zk=; b=oNWFyBcC974wSZfV
-	k7PuV86DUYnMyyfNPYoJMyKHxDenznFRUzZWWssgU7pLj8i6I69sxGpVNm5f0W8D
-	xAzv95IyGE4+mlFjfc/LLddeKa7phETLx2adAgjJB4vTgbg6r8MsE0SQ6QgS6Q/v
-	GiT5V2wi2EW0ZfPS1ym0MWNm5s8UqkTlsHv7gI4u1KfUQ1CCb4z3H5ZUikCAcNDe
-	O63/UZiVLbgDmYsCXdaAzFWDvCyK7/6P8D1nhAhvoTfGULIkswSfH6nQh5dIJ3f1
-	sZHBneULLk4UJZThiUvxy2dVJ9xPh1UWZ/6l+0SP9+ypMvQKR/B9kjtS2okd6j5Z
-	pqJ9mw==
-Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 425tn150wc-1
+	ki29lRSXvVePRr3/SBVRt9DzNF8VTubZk2D+F/mX5Zk=; b=hvqIBHKKmczO1Q+L
+	dLYvqvetA1sisgkYfmK73rzpDm/YH/FhKu/nIVPSRpeddGjpiwGkFQRaRKOCjRuH
+	33XMfKB8KrNpnkMHyHb2Bx1cluUN8yuMOKxlg/PpSsAXQigdas0uqECYTtNc+4a8
+	qrppd+naWSfPTgAph7k8DQsSYjqInM1rFcw4Xn3S+hYg80xT4MoQdAqsxjijbDRW
+	pI4ONcoWUfTlSZIqJJDAzzQl/ri8gUm6swX5YLtOgsoYRuwE78azlOoTAootu1GP
+	RK4jnjXEvw2PbUmAzJb8xuV29lN0/G0PH+a0J8VTrZYQ94nB0N8kHWqF2/Zdtds2
+	Gr3lCQ==
+Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 425c8qydrk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 11 Oct 2024 00:07:16 +0000 (GMT)
+	Fri, 11 Oct 2024 00:07:17 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 49B07FDZ003419
+	by NALASPPMTA01.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 49B07FeV020123
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Fri, 11 Oct 2024 00:07:15 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Thu, 10 Oct 2024 17:07:14 -0700
+ 15.2.1544.9; Thu, 10 Oct 2024 17:07:15 -0700
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -55,9 +55,9 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, <alsa-devel@alsa-project.org>,
         Wesley Cheng
 	<quic_wcheng@quicinc.com>
-Subject: [PATCH v28 22/32] ASoC: qcom: qdsp6: q6afe: Increase APR timeout
-Date: Thu, 10 Oct 2024 17:06:29 -0700
-Message-ID: <20241011000650.2585600-45-quic_wcheng@quicinc.com>
+Subject: [PATCH v28 23/33] ASoC: qcom: qdsp6: q6afe: Increase APR timeout
+Date: Thu, 10 Oct 2024 17:06:31 -0700
+Message-ID: <20241011000650.2585600-47-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20241011000650.2585600-1-quic_wcheng@quicinc.com>
 References: <20241011000650.2585600-1-quic_wcheng@quicinc.com>
@@ -73,16 +73,16 @@ X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: -9JLsrF29t51SzrHJ8FFCDbtSHk-u0eQ
-X-Proofpoint-GUID: -9JLsrF29t51SzrHJ8FFCDbtSHk-u0eQ
+X-Proofpoint-GUID: 74K0r_qQyP4WoDdj8QT40ykQvwbXVSzR
+X-Proofpoint-ORIG-GUID: 74K0r_qQyP4WoDdj8QT40ykQvwbXVSzR
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 bulkscore=0
- suspectscore=0 priorityscore=1501 mlxlogscore=999 impostorscore=0
- spamscore=0 lowpriorityscore=0 phishscore=0 clxscore=1015 malwarescore=0
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2409260000 definitions=main-2410100159
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0
+ lowpriorityscore=0 mlxlogscore=999 malwarescore=0 suspectscore=0
+ priorityscore=1501 mlxscore=0 spamscore=0 phishscore=0 clxscore=1015
+ bulkscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2409260000 definitions=main-2410100159
 
 For USB offloading situations, the AFE port start command will result in a
 QMI handshake between the Q6DSP and the main processor.  Depending on if

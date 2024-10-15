@@ -1,46 +1,46 @@
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B2A820F5BD;
-	Tue, 15 Oct 2024 21:30:08 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC81920F5DC;
+	Tue, 15 Oct 2024 21:30:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729027811; cv=none; b=B2NEvSLiCChxq/jF4EttuHb6xthWNK10A5LS4siwevUEeNgeisTQjZwvj5Tutkr83NxLJ73qKHgfu86juPGjxIvo68wG1/Buxx4j8K1pZXjvwz67psHzUHp+E2+xFtpMx3U1h4ZJe/keuSH1zrSdb3DAdykxJW+9+BocFHxcQiM=
+	t=1729027812; cv=none; b=c57e8aOrIiNtixnXe5rQj4j2nYE3Xr1IrhTLzGi1ne9308CfyFLsv3mrIl7xhwGAfqzLCIFL/u0f6t04Q5GSGADB+wL0RSfxXuObyI0G7zbNwpQPm6wXNgIM+TfJshUUGz7RtZIqYNWbUkcEw6nJXoOHZhpjPFfikMFVsf4b0sQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729027811; c=relaxed/simple;
-	bh=kuXvZj2O2+6sLb6+HCTWSvVJ9L05ubY9bD4DgQROLzQ=;
+	s=arc-20240116; t=1729027812; c=relaxed/simple;
+	bh=k5pZXz7zhxPw2OQXkssRZiGR5LwzKnHF+F0otCkTWrY=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SzhfWCc1/L4I1kABBtIlJcAqYvBHLgVhGlAyaxQKKaSvgch8E3PcOGuz9jlhgUC0vjBmPrtU/o+Ia6OjwdA27G7J253ODeskj/BExf32gahgoEGvEpmX3kWnq0ohh8ZkIXgL6hv9y7rGdk2BpPz2x1RcSzZj+wCVZ9LyCKb8czM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=kMeqxvJW; arc=none smtp.client-ip=205.220.180.131
+	 MIME-Version:Content-Type; b=g1Qb8EDAdtlsIe+MleKB9GGq1wkaPaJvj+RSnL9QLPjgh4Yj81O7tNVvQtalWY/15IlhV/7+5NVYfvcm6hw6/bF85Antqk5soFfRNxjodMT2Wk7iw3giIx/f8HLo/TONvi/9idg5j0uYVxV4qQ+wH3MHAgSEBIhDhTMSbs7JyXE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=hyztnOS2; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="kMeqxvJW"
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="hyztnOS2"
 Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FHpJbq007382;
-	Tue, 15 Oct 2024 21:29:37 GMT
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 49FHpJbo007382;
+	Tue, 15 Oct 2024 21:29:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	T5qz9jWyU4v1+Ht9Jgi80H4Z4CwhOfh2aqovq123O+U=; b=kMeqxvJWMbIzBys/
-	2XabYM5jhDBlPT5RGyl15eaa3PwipXmmSrbPx3VD8E8ft6jq1Ulg2I5YIYw4k0ZW
-	SZTVzCQBB3OzVwEYrapGpWxygdAPJrMhEg3Qt2PympTD1bqstfmeYhnUQIH0n77L
-	letRCuQkuoVWzjBJpT2LQLRavG8xVjpJXKCFN4Mx8oK4ui78LQpI633n8QtkSro3
-	5iKj6Zo/J3LQuLhAt0MTJFBNsi1Ad71Jh7tOJE50oEpul5MO6rE+KA9Fvzcq0DwZ
-	Q4xWvNrqJ4bTojsjqdVmN6ON8xKGA8XtxFyvQkD6xpCMtsM1IKrgNwcd1TiUFcaG
-	0vqTTQ==
-Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 429mh5287y-1
+	/U7Wd7+Vcr+CGbwCDV49RDGBeJTU3cSkWA6J+KzK5+Y=; b=hyztnOS2hF5xWfNy
+	NRUTRJEdaE4wupE6q/LQpsz+wUNvBkEjTfcMTcQqkeomLTKUUcu9Ma1Q9ti/cppP
+	ehsT2m3P2GQRrULoxaraAcdYRMw6kxeDHKMd8K2cVy4WAf7h1Q9zhfvKaYCI1Vc2
+	io0LIcFLdWVk/sgrLCIW5/6YhIXjlOlCqxJwcWOGRlQaASBhYFETC+c6/ZNdLxs6
+	MgJkslah663I7IeUqPANBPO8sm0GU7zdbQYEuXWksoZcvlIq6qK3seuIvk130Hx1
+	YmV6rP4OCe2z0CaxC3Nx/aC+o+3ha7rxiQBBGvDO+roUp9z7yfictY1NsNvBuYEF
+	gSWXKg==
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 429mh5287t-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 21:29:36 +0000 (GMT)
+	Tue, 15 Oct 2024 21:29:30 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 49FLTVXF030507
+	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 49FLTTLU017663
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 15 Oct 2024 21:29:31 GMT
+	Tue, 15 Oct 2024 21:29:29 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Tue, 15 Oct 2024 14:29:30 -0700
+ 15.2.1544.9; Tue, 15 Oct 2024 14:29:28 -0700
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -55,9 +55,9 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, <alsa-devel@alsa-project.org>,
         Wesley Cheng
 	<quic_wcheng@quicinc.com>
-Subject: [PATCH v29 15/33] ASoC: Add SOC USB APIs for adding an USB backend
-Date: Tue, 15 Oct 2024 14:28:57 -0700
-Message-ID: <20241015212915.1206789-16-quic_wcheng@quicinc.com>
+Subject: [PATCH v29 07/33] usb: host: xhci-mem: Allow for interrupter clients to choose specific index
+Date: Tue, 15 Oct 2024 14:28:49 -0700
+Message-ID: <20241015212915.1206789-8-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20241015212915.1206789-1-quic_wcheng@quicinc.com>
 References: <20241015212915.1206789-1-quic_wcheng@quicinc.com>
@@ -73,392 +73,132 @@ X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: yuqcltY4t7cZYxs6CpzcADhNg7oXQ_Ek
-X-Proofpoint-ORIG-GUID: yuqcltY4t7cZYxs6CpzcADhNg7oXQ_Ek
+X-Proofpoint-GUID: GMKpMuDCCDvedqEQzch_sYtXAMzrbS8d
+X-Proofpoint-ORIG-GUID: GMKpMuDCCDvedqEQzch_sYtXAMzrbS8d
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 clxscore=1015
- spamscore=0 priorityscore=1501 adultscore=0 mlxlogscore=999
+ spamscore=0 priorityscore=1501 adultscore=0 mlxlogscore=818
  lowpriorityscore=0 mlxscore=0 phishscore=0 malwarescore=0 suspectscore=0
  bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2409260000 definitions=main-2410150143
 
-Some platforms may have support for offloading USB audio devices to a
-dedicated audio DSP.  Introduce a set of APIs that allow for management of
-USB sound card and PCM devices enumerated by the USB SND class driver.
-This allows for the ASoC components to be aware of what USB devices are
-available for offloading.
+Some clients may operate only on a specific XHCI interrupter instance.
+Allow for the associated class driver to request for the interrupter that
+it requires.
 
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- include/sound/soc-usb.h |  97 ++++++++++++++++++
- sound/soc/Kconfig       |  10 ++
- sound/soc/Makefile      |   2 +
- sound/soc/soc-usb.c     | 218 ++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 327 insertions(+)
- create mode 100644 include/sound/soc-usb.h
- create mode 100644 sound/soc/soc-usb.c
+ drivers/usb/host/xhci-mem.c       | 24 ++++++++++++++----------
+ drivers/usb/host/xhci-sideband.c  |  5 +++--
+ drivers/usb/host/xhci.h           |  2 +-
+ include/linux/usb/xhci-sideband.h |  2 +-
+ 4 files changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/include/sound/soc-usb.h b/include/sound/soc-usb.h
-new file mode 100644
-index 000000000000..34240321bbca
---- /dev/null
-+++ b/include/sound/soc-usb.h
-@@ -0,0 +1,97 @@
-+/* SPDX-License-Identifier: GPL-2.0
-+ *
-+ * Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
-+ */
-+
-+#ifndef __LINUX_SND_SOC_USB_H
-+#define __LINUX_SND_SOC_USB_H
-+
-+#include <sound/soc.h>
-+
-+/**
-+ * struct snd_soc_usb_device
-+ * @card_idx - sound card index associated with USB device
-+ * @chip_idx - USB sound chip array index
-+ * @cpcm_idx - capture PCM index array associated with USB device
-+ * @ppcm_idx - playback PCM index array associated with USB device
-+ * @num_capture - number of capture streams
-+ * @num_playback - number of playback streams
-+ * @list - list head for SoC USB devices
-+ **/
-+struct snd_soc_usb_device {
-+	int card_idx;
-+	int chip_idx;
-+
-+	/* PCM index arrays */
-+	unsigned int *cpcm_idx; /* TODO: capture path is not tested yet */
-+	unsigned int *ppcm_idx;
-+	int num_capture; /* TODO: capture path is not tested yet */
-+	int num_playback;
-+
-+	struct list_head list;
-+};
-+
-+/**
-+ * struct snd_soc_usb
-+ * @list - list head for SND SOC struct list
-+ * @component - reference to ASoC component
-+ * @connection_status_cb - callback to notify connection events
-+ * @priv_data - driver data
-+ **/
-+struct snd_soc_usb {
-+	struct list_head list;
-+	struct snd_soc_component *component;
-+	int (*connection_status_cb)(struct snd_soc_usb *usb,
-+				    struct snd_soc_usb_device *sdev,
-+				    bool connected);
-+	void *priv_data;
-+};
-+
-+#if IS_ENABLED(CONFIG_SND_SOC_USB)
-+int snd_soc_usb_connect(struct device *usbdev, struct snd_soc_usb_device *sdev);
-+int snd_soc_usb_disconnect(struct device *usbdev, struct snd_soc_usb_device *sdev);
-+void *snd_soc_usb_find_priv_data(struct device *usbdev);
-+
-+struct snd_soc_usb *snd_soc_usb_allocate_port(struct snd_soc_component *component,
-+					      void *data);
-+void snd_soc_usb_free_port(struct snd_soc_usb *usb);
-+void snd_soc_usb_add_port(struct snd_soc_usb *usb);
-+void snd_soc_usb_remove_port(struct snd_soc_usb *usb);
-+#else
-+static inline int snd_soc_usb_connect(struct device *usbdev,
-+				      struct snd_soc_usb_device *sdev)
-+{
-+	return -ENODEV;
-+}
-+
-+static inline int snd_soc_usb_disconnect(struct device *usbdev,
-+					 struct snd_soc_usb_device *sdev)
-+{
-+	return -EINVAL;
-+}
-+
-+static inline void *snd_soc_usb_find_priv_data(struct device *usbdev)
-+{
-+	return NULL;
-+}
-+
-+static inline struct snd_soc_usb *
-+snd_soc_usb_allocate_port(struct snd_soc_component *component, void *data)
-+{
-+	return ERR_PTR(-ENOMEM);
-+}
-+
-+static inline void snd_soc_usb_free_port(struct snd_soc_usb *usb)
-+{ }
-+
-+static inline void snd_soc_usb_add_port(struct snd_soc_usb *usb)
-+{
-+	return -EINVAL;
-+}
-+
-+static inline void snd_soc_usb_remove_port(struct snd_soc_usb *usb)
-+{
-+	return -ENODEV;
-+}
-+#endif /* IS_ENABLED(CONFIG_SND_SOC_USB) */
-+#endif /*__LINUX_SND_SOC_USB_H */
-diff --git a/sound/soc/Kconfig b/sound/soc/Kconfig
-index a52afb423b46..c993705c8ac2 100644
---- a/sound/soc/Kconfig
-+++ b/sound/soc/Kconfig
-@@ -84,6 +84,16 @@ config SND_SOC_UTILS_KUNIT_TEST
- config SND_SOC_ACPI
- 	tristate
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index 5e022ce3a8fe..80cd77fe3dec 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -2340,14 +2340,15 @@ xhci_add_interrupter(struct xhci_hcd *xhci, struct xhci_interrupter *ir,
  
-+config SND_SOC_USB
-+	tristate "SoC based USB audio offloading"
-+	depends on SND_USB_AUDIO
-+	help
-+	  Enable this option if an ASoC platform card has support to handle
-+	  USB audio offloading.  This enables the SoC USB layer, which will
-+	  notifies the ASoC USB DPCM backend DAI link about available USB audio
-+	  devices.  Based on the notifications, sequences to enable the audio
-+	  stream can be taken based on the design.
-+
- # All the supported SoCs
- source "sound/soc/adi/Kconfig"
- source "sound/soc/amd/Kconfig"
-diff --git a/sound/soc/Makefile b/sound/soc/Makefile
-index fd61847dd1eb..adf9d9203778 100644
---- a/sound/soc/Makefile
-+++ b/sound/soc/Makefile
-@@ -35,6 +35,8 @@ endif
+ struct xhci_interrupter *
+ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+-				  u32 imod_interval)
++				  u32 imod_interval, unsigned int intr_num)
+ {
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+ 	struct xhci_interrupter *ir;
+ 	unsigned int i;
+ 	int err = -ENOSPC;
  
- obj-$(CONFIG_SND_SOC_ACPI) += snd-soc-acpi.o
+-	if (!xhci->interrupters || xhci->max_interrupters <= 1)
++	if (!xhci->interrupters || xhci->max_interrupters <= 1 ||
++	    intr_num >= xhci->max_interrupters)
+ 		return NULL;
  
-+obj-$(CONFIG_SND_SOC_USB) += soc-usb.o
-+
- obj-$(CONFIG_SND_SOC)	+= snd-soc-core.o
- obj-$(CONFIG_SND_SOC)	+= codecs/
- obj-$(CONFIG_SND_SOC)	+= generic/
-diff --git a/sound/soc/soc-usb.c b/sound/soc/soc-usb.c
-new file mode 100644
-index 000000000000..bd2d68164206
---- /dev/null
-+++ b/sound/soc/soc-usb.c
-@@ -0,0 +1,218 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
-+ */
-+#include <linux/of.h>
-+#include <linux/usb.h>
-+#include <sound/soc-usb.h>
-+#include "../usb/card.h"
-+
-+static DEFINE_MUTEX(ctx_mutex);
-+static LIST_HEAD(usb_ctx_list);
-+
-+static struct device_node *snd_soc_find_phandle(struct device *dev)
-+{
-+	struct device_node *node;
-+
-+	node = of_parse_phandle(dev->of_node, "usb-soc-be", 0);
-+	if (!node)
-+		return ERR_PTR(-ENODEV);
-+
-+	return node;
-+}
-+
-+static struct snd_soc_usb *snd_soc_usb_ctx_lookup(struct device_node *node)
-+{
-+	struct snd_soc_usb *ctx;
-+
-+	if (!node)
-+		return NULL;
-+
-+	mutex_lock(&ctx_mutex);
-+	list_for_each_entry(ctx, &usb_ctx_list, list) {
-+		if (ctx->component->dev->of_node == node) {
-+			mutex_unlock(&ctx_mutex);
-+			return ctx;
-+		}
-+	}
-+	mutex_unlock(&ctx_mutex);
-+
-+	return NULL;
-+}
-+
-+static struct snd_soc_usb *snd_soc_find_usb_ctx(struct device *dev)
-+{
-+	struct snd_soc_usb *ctx;
-+	struct device_node *node;
-+
-+	node = snd_soc_find_phandle(dev);
-+	if (!IS_ERR(node)) {
-+		ctx = snd_soc_usb_ctx_lookup(node);
-+		of_node_put(node);
+ 	ir = xhci_alloc_interrupter(xhci, segs, GFP_KERNEL);
+@@ -2355,15 +2356,18 @@ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+ 		return NULL;
+ 
+ 	spin_lock_irq(&xhci->lock);
+-
+-	/* Find available secondary interrupter, interrupter 0 is reserved for primary */
+-	for (i = 1; i < xhci->max_interrupters; i++) {
+-		if (xhci->interrupters[i] == NULL) {
+-			err = xhci_add_interrupter(xhci, ir, i);
+-			break;
++	if (!intr_num) {
++		/* Find available secondary interrupter, interrupter 0 is reserved for primary */
++		for (i = 1; i < xhci->max_interrupters; i++) {
++			if (!xhci->interrupters[i]) {
++				err = xhci_add_interrupter(xhci, ir, i);
++				break;
++			}
+ 		}
 +	} else {
-+		ctx = snd_soc_usb_ctx_lookup(dev->of_node);
-+	}
-+
-+	return ctx ? ctx : NULL;
-+}
-+
-+/**
-+ * snd_soc_usb_find_priv_data() - Retrieve private data stored
-+ * @usbdev: device reference
-+ *
-+ * Fetch the private data stored in the USB SND SOC structure.
-+ *
-+ */
-+void *snd_soc_usb_find_priv_data(struct device *usbdev)
-+{
-+	struct snd_soc_usb *ctx;
-+
-+	ctx = snd_soc_find_usb_ctx(usbdev);
-+
-+	return ctx ? ctx->priv_data : NULL;
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_find_priv_data);
-+
-+/**
-+ * snd_soc_usb_allocate_port() - allocate a SOC USB port for offloading support
-+ * @component: USB DPCM backend DAI component
-+ * @num_streams: number of offloading sessions supported
-+ * @data: private data
-+ *
-+ * Allocate and initialize a SOC USB port.  The SOC USB port is used to communicate
-+ * different USB audio devices attached, in order to start audio offloading handled
-+ * by an ASoC entity.  USB device plug in/out events are signaled with a
-+ * notification, but don't directly impact the memory allocated for the SOC USB
-+ * port.
-+ *
-+ */
-+struct snd_soc_usb *snd_soc_usb_allocate_port(struct snd_soc_component *component,
-+					      void *data)
-+{
-+	struct snd_soc_usb *usb;
-+
-+	usb = kzalloc(sizeof(*usb), GFP_KERNEL);
-+	if (!usb)
-+		return ERR_PTR(-ENOMEM);
-+
-+	usb->component = component;
-+	usb->priv_data = data;
-+
-+	return usb;
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_allocate_port);
-+
-+/**
-+ * snd_soc_usb_free_port() - free a SOC USB port used for offloading support
-+ * @usb: allocated SOC USB port
-+
-+ * Free and remove the SOC USB port from the available list of ports.  This will
-+ * ensure that the communication between USB SND and ASoC is halted.
-+ *
-+ */
-+void snd_soc_usb_free_port(struct snd_soc_usb *usb)
-+{
-+	snd_soc_usb_remove_port(usb);
-+	kfree(usb);
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_free_port);
-+
-+/**
-+ * snd_soc_usb_add_port() - Add a USB backend port
-+ * @usb: soc usb port to add
-+ *
-+ * Register a USB backend DAI link to the USB SOC framework.  Memory is allocated
-+ * as part of the USB backend DAI link.
-+ *
-+ */
-+void snd_soc_usb_add_port(struct snd_soc_usb *usb)
-+{
-+	mutex_lock(&ctx_mutex);
-+	list_add_tail(&usb->list, &usb_ctx_list);
-+	mutex_unlock(&ctx_mutex);
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_add_port);
-+
-+/**
-+ * snd_soc_usb_remove_port() - Remove a USB backend port
-+ * @usb: soc usb port to remove
-+ *
-+ * Remove a USB backend DAI link from USB SOC.  Memory is freed when USB backend
-+ * DAI is removed, or when snd_soc_usb_free_port() is called.
-+ *
-+ */
-+void snd_soc_usb_remove_port(struct snd_soc_usb *usb)
-+{
-+	struct snd_soc_usb *ctx, *tmp;
-+
-+	mutex_lock(&ctx_mutex);
-+	list_for_each_entry_safe(ctx, tmp, &usb_ctx_list, list) {
-+		if (ctx == usb) {
-+			list_del(&ctx->list);
-+			break;
-+		}
-+	}
-+	mutex_unlock(&ctx_mutex);
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_remove_port);
-+
-+/**
-+ * snd_soc_usb_connect() - Notification of USB device connection
-+ * @usbdev: USB bus device
-+ * @sdev: USB SND device to add
-+ *
-+ * Notify of a new USB SND device connection.  The sdev->card_idx can be used to
-+ * handle how the DPCM backend selects, which device to enable USB offloading
-+ * on.
-+ *
-+ */
-+int snd_soc_usb_connect(struct device *usbdev, struct snd_soc_usb_device *sdev)
-+{
-+	struct snd_soc_usb *ctx;
-+
-+	if (!usbdev)
-+		return -ENODEV;
-+
-+	ctx = snd_soc_find_usb_ctx(usbdev);
-+	if (IS_ERR(ctx))
-+		return -ENODEV;
-+
-+	mutex_lock(&ctx_mutex);
-+	if (ctx->connection_status_cb)
-+		ctx->connection_status_cb(ctx, sdev, true);
-+	mutex_unlock(&ctx_mutex);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_connect);
-+
-+/**
-+ * snd_soc_usb_disconnect() - Notification of USB device disconnection
-+ * @usbdev: USB bus device
-+ * @sdev: USB SND device to remove
-+ *
-+ * Notify of a new USB SND device disconnection to the USB backend.
-+ *
-+ */
-+int snd_soc_usb_disconnect(struct device *usbdev, struct snd_soc_usb_device *sdev)
-+{
-+	struct snd_soc_usb *ctx;
-+
-+	if (!usbdev)
-+		return -ENODEV;
-+
-+	ctx = snd_soc_find_usb_ctx(usbdev);
-+	if (IS_ERR(ctx))
-+		return -ENODEV;
-+
-+	mutex_lock(&ctx_mutex);
-+	if (ctx->connection_status_cb)
-+		ctx->connection_status_cb(ctx, sdev, false);
-+	mutex_unlock(&ctx_mutex);
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_disconnect);
-+
-+MODULE_LICENSE("GPL");
-+MODULE_DESCRIPTION("SoC USB driver for offloading");
++		if (!xhci->interrupters[intr_num])
++			err = xhci_add_interrupter(xhci, ir, intr_num);
+ 	}
+-
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	if (err) {
+@@ -2379,7 +2383,7 @@ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+ 			  i, imod_interval);
+ 
+ 	xhci_dbg(xhci, "Add secondary interrupter %d, max interrupters %d\n",
+-		 i, xhci->max_interrupters);
++		 ir->intr_num, xhci->max_interrupters);
+ 
+ 	return ir;
+ }
+diff --git a/drivers/usb/host/xhci-sideband.c b/drivers/usb/host/xhci-sideband.c
+index 248d9713570e..d04cf0af57ae 100644
+--- a/drivers/usb/host/xhci-sideband.c
++++ b/drivers/usb/host/xhci-sideband.c
+@@ -259,7 +259,7 @@ EXPORT_SYMBOL_GPL(xhci_sideband_get_event_buffer);
+  */
+ int
+ xhci_sideband_create_interrupter(struct xhci_sideband *sb, int num_seg,
+-				 bool ip_autoclear, u32 imod_interval)
++				 bool ip_autoclear, u32 imod_interval, int intr_num)
+ {
+ 	int ret = 0;
+ 
+@@ -273,7 +273,8 @@ xhci_sideband_create_interrupter(struct xhci_sideband *sb, int num_seg,
+ 	}
+ 
+ 	sb->ir = xhci_create_secondary_interrupter(xhci_to_hcd(sb->xhci),
+-						   num_seg, imod_interval);
++						   num_seg, imod_interval,
++						   intr_num);
+ 	if (!sb->ir) {
+ 		ret = -ENOMEM;
+ 		goto out;
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index e37d27190e3c..b4b411d63694 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1833,7 +1833,7 @@ void xhci_free_container_ctx(struct xhci_hcd *xhci,
+ 		struct xhci_container_ctx *ctx);
+ struct xhci_interrupter *
+ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+-				  u32 imod_interval);
++				  u32 imod_interval, unsigned int intr_num);
+ void xhci_remove_secondary_interrupter(struct usb_hcd
+ 				       *hcd, struct xhci_interrupter *ir);
+ void xhci_skip_sec_intr_events(struct xhci_hcd *xhci,
+diff --git a/include/linux/usb/xhci-sideband.h b/include/linux/usb/xhci-sideband.h
+index bc5b56a77e37..f0223c5535e0 100644
+--- a/include/linux/usb/xhci-sideband.h
++++ b/include/linux/usb/xhci-sideband.h
+@@ -59,7 +59,7 @@ xhci_sideband_get_event_buffer(struct xhci_sideband *sb);
+ 
+ int
+ xhci_sideband_create_interrupter(struct xhci_sideband *sb, int num_seg,
+-				 bool ip_autoclear, u32 imod_interval);
++				 bool ip_autoclear, u32 imod_interval, int intr_num);
+ 
+ void
+ xhci_sideband_remove_interrupter(struct xhci_sideband *sb);

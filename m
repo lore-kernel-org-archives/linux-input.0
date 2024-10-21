@@ -1,130 +1,77 @@
-Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE8311FDFA8;
-	Mon, 21 Oct 2024 20:28:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+Received: from bout3.ijzerbout.nl (bout3.ijzerbout.nl [136.144.140.114])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 55E7E450FE
+	for <linux-input@vger.kernel.org>; Mon, 21 Oct 2024 20:41:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=136.144.140.114
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729542514; cv=none; b=SemAzkg0t5kDXE7epv2jY3TexQCNlK4i9Gl8iKVdKWRFzlBWhKDHI8O1u03fqs+i+OQ8e7Bh1MVh8oST4+UNsdChpO3INbDoK806ulxd68k2ZDMJQC5OBLnNC38kk/G55JlXKQI5gn6HdZ/gal63/Arp6fZa44uzt+XIoUx2W/E=
+	t=1729543275; cv=none; b=g5kmkzhEz6jQh6+Na4uSn7wMAJt8Llg271sH7/eC6EJE5arUyPGCJ7WMfyfngtRQ/QWncbdRV06IgnY6ws3ioLocyQUFygpW15/CVfsz9yY4XbAYVKOoIt2hdk18WPq3ZMjgLe0SRF83p+lnBjZMKsPnzdM4xjw0bQ16WUzQdP4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729542514; c=relaxed/simple;
-	bh=F8YQ3HQYY2w+VhZkKOD4BkQV8/JYW/XDhWfSKzi9Psg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=J159L3EGMiA24qdsEsc8/Y7GELVCNTH0wDpQToe2wv4FdChsGFxunO82VYQ9itPcPH4+ABLgcQmueBNlcX7goRNvLkd3L8tQfS8IFlZ0TlAR6ctXNZln0gOJ+hH74Bxeiko7X7+wqvm3ooXTei+CqU0Ism2i93GFFyVuKXgXkdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A56Bvk6G; arc=none smtp.client-ip=209.85.221.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1729543275; c=relaxed/simple;
+	bh=S1u4+7JlC6BpoIomuTFWTJnRyqmbgIbY3Hf2trWzNP4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=dOfSdnO0VyFjvZqIj5XdICkwyi63UJqeeOI9fvh3wjs1WdFtR4jbU4O6PKhM0fMF1Bgoq1PrSzVa1dAMk8zePLck8ZKjxUtsgt87fVOzIQkVENyCTGS02qF4mUltwU+3sxIZ1Aum0L2gMuCfPfPz8ZqYawN+w9Tg6Q8rcGXof04=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ijzerbout.nl; spf=pass smtp.mailfrom=ijzerbout.nl; dkim=pass (4096-bit key) header.d=ijzerbout.nl header.i=@ijzerbout.nl header.b=qstA2uyL; arc=none smtp.client-ip=136.144.140.114
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=ijzerbout.nl
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ijzerbout.nl
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A56Bvk6G"
-Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-37d41894a32so3178928f8f.1;
-        Mon, 21 Oct 2024 13:28:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1729542511; x=1730147311; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=EXOGORusAheGbXjY9YsHgDJ6EQdczoB5sORBvnGhFxE=;
-        b=A56Bvk6Giisap3eAmNQ8TZuPG+hFRvXAM7f0oCwzeFVNAvYBkL5o/nWLWyYTupOwy1
-         74R4sM+oHZQvcVIYpge6dUbi5ZCRuJhXvPTKVfrfnvFWW5WVBdOCmGKe/3oX3JVt1b8/
-         T6MRSwDsrwflky94VcJ7VYFnPbVVSi73qaH+mPEfn0KVmLxsyiGZ7V7ZWgg0qw4e4SjP
-         XCYX7HoBcbwFwZuReMRofmjejMR2ThH4IgSrgOXRp13UAdCPkoTti7MrzRz0sgqPXb9z
-         i+yUMVk6Mm9wsq1s9+4PU2HL+f9quf1VkjiwgdbDkoF1AH2C5VoH7KEsb5cwKBlA8ix4
-         g36Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729542511; x=1730147311;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EXOGORusAheGbXjY9YsHgDJ6EQdczoB5sORBvnGhFxE=;
-        b=QGmp7Js/u1OL2xRNWwN++Bxh73KBBq7aDDkEy8Rjfr+N1ush9/M7jiJKWar2fRjDMl
-         u4z4vp6N2osIoJeFk7PDueEqQrilsD3bOtjJQfdYGeP65PXIsvpKSqYrPUm5vcQ0FiA1
-         EcGNen/m5Kqe9aF45/MjRqBRGrnqmjdkjyNKdzVg/IK1pzzse3zNVxr8ui3PAqz0tzqC
-         HYkzphoejfeWoB4Sy95zEAptgjC4QY3gS3cIuJzInCKAOZoO8eeaWlmIlsjYzL8wN+ht
-         qJQEwL1JSjgAkjioc2lj2J1cRIp0Qvcp6gvRHpK0R5QDfyuqA4cfr62sjurEXslWYWNX
-         ISXQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVhUgYvTOHb86Mh8HJrZLRJt6T2wU7ORuJttvvV0jErpcdfn8fhwQFJsFxh/zk4zxe9v+mqChS1rs6fs6g=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwzeILSbxpXGkh7soGfdKnSiEB6jJJ/oDZ7Axbo6jhzpphY9jwn
-	ijGeOCN8+gJhf5IFAXGUshaCK75AB5i3MxVgYVK9b6TsX3etK83a
-X-Google-Smtp-Source: AGHT+IFeBUJWb0/ZbDfeWjDseKy/gwO7cFLphK1AYxGeWiXouKa5IzBBH4eytV8fsrQlZUdSg1h2BQ==
-X-Received: by 2002:adf:e00c:0:b0:37c:cc7c:761c with SMTP id ffacd0b85a97d-37ef12628famr494947f8f.3.1729542511079;
-        Mon, 21 Oct 2024 13:28:31 -0700 (PDT)
-Received: from [127.0.1.1] (2a02-8389-41cf-e200-023d-d91a-ee8e-da73.cable.dynamic.v6.surfer.at. [2a02:8389:41cf:e200:23d:d91a:ee8e:da73])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-37ee0a5b98asm5093263f8f.61.2024.10.21.13.28.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 21 Oct 2024 13:28:29 -0700 (PDT)
-From: Javier Carrasco <javier.carrasco.cruz@gmail.com>
-Date: Mon, 21 Oct 2024 22:28:24 +0200
-Subject: [PATCH v3 2/2] Input: sparcspkr - use cleanup facility for
- device_node
+	dkim=pass (4096-bit key) header.d=ijzerbout.nl header.i=@ijzerbout.nl header.b="qstA2uyL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ijzerbout.nl; s=key;
+	t=1729543268; bh=S1u4+7JlC6BpoIomuTFWTJnRyqmbgIbY3Hf2trWzNP4=;
+	h=Date:Subject:To:References:From:In-Reply-To:From;
+	b=qstA2uyLWptclJJtXyf8rpwRFqMbHj6u5BkcUEX0yVrMUOs5dx1Fs+e8iQjLPvs8/
+	 d7w2/8dUFd5BJjfv8y/InndoNpThjhjXERA8iwpj5TfOOmw0DpHMHEyX2AkK3Mc79u
+	 h3knX9TLJETSsjSf0Fk/XJf9MRtHqwkme5889aBLF91lrEdvvXjL72jnnJjlHIcM/E
+	 6xTWP2oUQiqqdPe/pbTwVS2vBzHyuHQCDaHXrrT+s9k2y5/0exhHTr/eAjgu8ZdQV4
+	 HvJ7F90zHXquKsT/RMD+U+iY7QXawmH94u+70u19wM6bZUzQD4FuuVK4eZuj3RYGhQ
+	 3wtTQj8yCilxpTL9lFEzCjE5UJJ1HTEBYX5A18M6VkU1FbUcaMJgNA/6XJd1CvMktz
+	 TfhW2PqGFQOSPm4q15XWO6Qu8MgGQ+4gW/cV1YppDWlxVSOjA2/qnU4/th+hnCiFtn
+	 cAe5CTavimA7YQrijUy5A5aGUe12EWqxIahugMsPUaiQZg56TsxSFA65vuoXjkrucu
+	 WSRd9auukr374uYD+LxEGHeGQYH9MqIJACFx42KxNBZToDe/ahbrf33hJmpiHcIq9v
+	 npA7BmXLnTQq7AIhnWyT5H6ZD39bB3Ev0NR9b7NBoi9mSwJGbEV6R/awZukOyw6+H7
+	 h8v5VB6W1xjLH4c4cKXEvze4=
+Received: from [IPV6:2a10:3781:99:1:1ac0:4dff:fea7:ec3a] (racer.ijzerbout.nl [IPv6:2a10:3781:99:1:1ac0:4dff:fea7:ec3a])
+	by bout3.ijzerbout.nl (Postfix) with ESMTPSA id A76F118DB7A;
+	Mon, 21 Oct 2024 22:41:08 +0200 (CEST)
+Message-ID: <a6d13b00-6ca8-426f-86fd-cbb55d219217@ijzerbout.nl>
+Date: Mon, 21 Oct 2024 22:41:06 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 20/24] Input: serio_raw - use guard notation for locks and
+ other resources
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+References: <20240905041732.2034348-1-dmitry.torokhov@gmail.com>
+ <20240905041732.2034348-21-dmitry.torokhov@gmail.com>
+Content-Language: en-US
+From: Kees Bakker <kees@ijzerbout.nl>
+In-Reply-To: <20240905041732.2034348-21-dmitry.torokhov@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241021-input_automate_of_node_put-v3-2-cc73f636e1bc@gmail.com>
-References: <20241021-input_automate_of_node_put-v3-0-cc73f636e1bc@gmail.com>
-In-Reply-To: <20241021-input_automate_of_node_put-v3-0-cc73f636e1bc@gmail.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Matthias Brugger <matthias.bgg@gmail.com>, 
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
- Hans de Goede <hdegoede@redhat.com>, Chen-Yu Tsai <wens@csie.org>, 
- Jernej Skrabec <jernej.skrabec@gmail.com>, 
- Samuel Holland <samuel@sholland.org>, 
- Florian Fainelli <florian.fainelli@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
- linux-sunxi@lists.linux.dev, linux-rpi-kernel@lists.infradead.org, 
- Javier Carrasco <javier.carrasco.cruz@gmail.com>
-X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1729542504; l=1243;
- i=javier.carrasco.cruz@gmail.com; s=20240312; h=from:subject:message-id;
- bh=F8YQ3HQYY2w+VhZkKOD4BkQV8/JYW/XDhWfSKzi9Psg=;
- b=M3sNpqf8PQCbKNRdH+2y4CtcxjbUY0Y4O+QhTzB0pxtLymehiwDv34D4DGZCIPoFG4+SgMjxG
- o6LPTXFYrTVCCVm12J/rHqr8htvu+Jf/gW7E3cYP+i57YZdxSIDbWpb
-X-Developer-Key: i=javier.carrasco.cruz@gmail.com; a=ed25519;
- pk=lzSIvIzMz0JhJrzLXI0HAdPwsNPSSmEn6RbS+PTS9aQ=
 
-Use the 'free(device_node)' macro to simplify the code by automatically
-freeing the device node, which removes the need for explicit calls to
-'of_node_put()'.
-
-Signed-off-by: Javier Carrasco <javier.carrasco.cruz@gmail.com>
----
- drivers/input/misc/sparcspkr.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/input/misc/sparcspkr.c b/drivers/input/misc/sparcspkr.c
-index e484d79b5597..8d7303fc13bc 100644
---- a/drivers/input/misc/sparcspkr.c
-+++ b/drivers/input/misc/sparcspkr.c
-@@ -182,7 +182,6 @@ static int bbc_beep_probe(struct platform_device *op)
- {
- 	struct sparcspkr_state *state;
- 	struct bbc_beep_info *info;
--	struct device_node *dp;
- 	int err;
- 
- 	state = devm_kzalloc(&op->dev, sizeof(*state), GFP_KERNEL);
-@@ -193,13 +192,12 @@ static int bbc_beep_probe(struct platform_device *op)
- 	state->event = bbc_spkr_event;
- 	spin_lock_init(&state->lock);
- 
--	dp = of_find_node_by_path("/");
-+	struct device_node *dp __free(device_node) = of_find_node_by_path("/");
- 	if (!dp)
- 		return -ENODEV;
- 
- 	info = &state->u.bbc;
- 	info->clock_freq = of_getintprop_default(dp, "clock-frequency", 0);
--	of_node_put(dp);
- 	if (!info->clock_freq)
- 		return -ENODEV;
- 
-
--- 
-2.43.0
-
+Op 05-09-2024 om 06:17 schreef Dmitry Torokhov:
+> Use guard notation when acquiring mutexes and spinlocks, and when
+> pausing and resuming serio port. Such guard notation makes the code
+> more compact and error handling more robust by ensuring that locks
+> are released in all code paths when control leaves critical section.
+>
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> ---
+>   drivers/input/serio/serio_raw.c | 121 +++++++++++++-------------------
+>   1 file changed, 49 insertions(+), 72 deletions(-)
+>
+> diff --git a/drivers/input/serio/serio_raw.c b/drivers/input/serio/serio_raw.c
+> index 0186d1b38f49..aef8301313b2 100644
+> [...]
+>   static ssize_t serio_raw_read(struct file *file, char __user *buffer,
+> @@ -200,40 +185,32 @@ static ssize_t serio_raw_write(struct file *file, const char __user *buffer,
+>   {
+>   	struct serio_raw_client *client = file->private_data;
+>   	struct serio_raw *serio_raw = client->serio_raw;
+> -	int retval = 0;
+> +	int written;
+Didn't you forget to initialize `written` to zero?
+> [...]
+>

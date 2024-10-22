@@ -1,191 +1,242 @@
-Received: from matoro.tk (matoro.tk [104.188.251.153])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 681941C9EDD;
-	Mon, 21 Oct 2024 20:51:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=104.188.251.153
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 977742233B
+	for <linux-input@vger.kernel.org>; Tue, 22 Oct 2024 00:34:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729543867; cv=none; b=FIiRgUCItOxC//LSXC0bJvj6ToX3Orx1eltk3R8i3w1VfsJCOuOMT7Vk+Ghmmh+ESsbyULqdc3qF20BFtO+u8B51PgxiUG6RmqxdzDlj07UHW1pF7JdwYJNKIDKnS5cwGqN0ZCCxDoizv9dKJqrg9LdMkyAT+8805/5MkQHBwGw=
+	t=1729557243; cv=none; b=IYIZyWVhZyZQ+9XnstRK44GcEr1kuKKwt5KHo6JABeEzMYsYc/3JukG7AsjHVQniVM8VO/p7fluCioLuth9obO4K3eB3wGWWbrMddAh0NaML+u3NOCqYZxulxXyDJR0lGApTIuc+GYZyG+PWZfkerg0dDsQxCUxXnR8Hdj2dq+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729543867; c=relaxed/simple;
-	bh=owsn1q/hvcIZGEc2BuA64YfBEhtF/nMpTR5LxSzQUwQ=;
-	h=MIME-Version:Date:From:To:Subject:Message-ID:Content-Type; b=gABZw7yB3WYYViBFcZ0o/SL9ImsPmuZRdIn3auqgBpQpijUjR7h7jupNlGjC/Y8Xue6f9XN17ongHcg5z+y0cbI2k6vTbEWDHLSFNZ2ZGbfboXh4HFpiCwGsMqQOKKuj1HY7F2lw3xql78KO/n26iessYgB9T6t7A/CUIFOSNx0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=matoro.tk; spf=pass smtp.mailfrom=matoro.tk; dkim=pass (4096-bit key) header.d=matoro.tk header.i=@matoro.tk header.b=iQaT7NUx; arc=none smtp.client-ip=104.188.251.153
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=matoro.tk
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=matoro.tk
+	s=arc-20240116; t=1729557243; c=relaxed/simple;
+	bh=bHNLY43M/5PWSunosIX18Q4TLUO3WpBXMMTSb9IceVY=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=qIVK62zpPV8tKP8Wx25jcGkaviQ4dKOUjlXOds+F47b/eEjki+KSiPx0zeN20sMR5RL7TE4i72c/8Usjj9CO4I7CmVpY4mhDdueFTJlX+yakpHcmgLiIE6qlp5+tugHi9aBhM4+ogaotGyqv0URskZuTk8M68RdttFExf/sOy9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hvYuG6Z5; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=matoro.tk header.i=@matoro.tk header.b="iQaT7NUx"
-DKIM-Signature: a=rsa-sha256; bh=4AoEF/INFuOSvZ5yTzU8RRLz1qRNjLhxw4DMjISGWWM=;
- c=relaxed/relaxed; d=matoro.tk;
- h=Subject:Subject:Sender:To:To:Cc:From:From:Date:Date:MIME-Version:MIME-Version:Content-Type:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Reply-To:In-Reply-To:Message-Id:Message-Id:References:Autocrypt:Openpgp;
- i=@matoro.tk; s=20240828; t=1729542952; v=1; x=1729974952;
- b=iQaT7NUxeo4cDq2HUa0+f41L6SbFSe3vI8lqA1lBFVUf9hGXfxsZAZw/H7R6OlAj0YRpylhg
- Z696ElGZjr6eIqkQKCzO5HUfIti6rYzLZgeNifEaIeoPXLfSjVX3NRgFyz8fxHhEiwgSjvSnBpi
- YlxYgPdjh2C6KNMDPYea+NbLKtA9LTO/ZOH3EfhI0zLGx4aXRzVTQsJtA7zRVHXVQI+Le0snP/U
- xj0rIo3hkB0ENb3KQvJHHNeTuDl2Zmui66WIxNmR9AiL8xH06YwKM6qviaj9bcebCgiOKKZPmQO
- hsfGRSOqnxwwVKtlSJTAvix/jdwd3JwIX90lyLB5lO9aoGEB/CzoVbIbUCntjm+o55afZWcWn9t
- 8mcG1wp5F6CAgoJ2M6YibCVu+LKf+Ln/vZ10SOO2gil8RZk+32wNmRvGthMkoiMeKv/AHdq/Q/H
- sJbSRYl2EzCmCq4o6evSc4tYksqV1Agah98ez6Oy6W2suVU3QrQyKQabeFaeAhbm6wtvyHJ5yMI
- dvtm0tv6Xm/Lhx12fWgwYxO1ga0kuWIxiSV/o99V1e0wI9tUowkPkZo9tvQbSo5MM7YfNIjtmnT
- DOw+Zq/E98owE5tDOr1/HOmmDc5jmeyzKPV/FcF8oYln4PrQsYhZQvPonFKML0C85NFMcSVN/J9
- uvXPz9ik1c4=
-Received: by matoro.tk (envelope-sender
- <matoro_mailinglist_kernel@matoro.tk>) with ESMTPS id 4eb3a98f; Mon, 21 Oct
- 2024 16:35:52 -0400
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hvYuG6Z5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1729557241; x=1761093241;
+  h=date:from:to:cc:subject:message-id;
+  bh=bHNLY43M/5PWSunosIX18Q4TLUO3WpBXMMTSb9IceVY=;
+  b=hvYuG6Z5DXY3axK9ONVDFr3Rz10h6qYZxXBWjEykStNToXwKzd2xV5KG
+   lx8o10gQdKI6ZZP7M/Lz78KXfxnLnRrw6/0hCwAjStVZCSkw49YgLLqlE
+   0kBDRc5qy4GLlDB8XaqVL+nWM+XJ/FgbOtEkmZS+XQWt0DGZGripOOm6b
+   BWeJcfLZX/Eo+wT0j551aCKxTyOHxwJ/8X3rkQcbtf+b1AzZ34Fu6EfOe
+   Ul0i9SiO8NyR/hhGAH6Xp9va+OhyUUmj17avj52t7RWFWrnXMSdu6zqM6
+   0vkyRvjRNbtfAsV14LeyPfM+Az0kVb/2TIS+thA4r6poKgvOeLzhPO0ER
+   w==;
+X-CSE-ConnectionGUID: I5UzUj3QQZCS40pfg70lrA==
+X-CSE-MsgGUID: kdkagKb5Tk+I0VBt3SRWlA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11222"; a="28945841"
+X-IronPort-AV: E=Sophos;i="6.11,199,1725346800"; 
+   d="scan'208";a="28945841"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Oct 2024 17:34:01 -0700
+X-CSE-ConnectionGUID: bmX6aMXGTB6S8ymbfO2Exw==
+X-CSE-MsgGUID: dUY66iz9RRy9yyBNzqJLLg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.11,221,1725346800"; 
+   d="scan'208";a="79324147"
+Received: from lkp-server01.sh.intel.com (HELO a48cf1aa22e8) ([10.239.97.150])
+  by fmviesa007.fm.intel.com with ESMTP; 21 Oct 2024 17:34:00 -0700
+Received: from kbuild by a48cf1aa22e8 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1t32qT-000Sp2-2S;
+	Tue, 22 Oct 2024 00:33:57 +0000
+Date: Tue, 22 Oct 2024 08:33:30 +0800
+From: kernel test robot <lkp@intel.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org
+Subject: [dtor-input:next] BUILD SUCCESS
+ d0c3a7aa814c091843ccca467c02078db9da4e1e
+Message-ID: <202410220822.kBwAgpCP-lkp@intel.com>
+User-Agent: s-nail v14.9.24
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Date: Mon, 21 Oct 2024 16:35:52 -0400
-From: matoro <matoro_mailinglist_kernel@matoro.tk>
-To: linux-input@vger.kernel.org, Linux Kernel Mailing List
- <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Input: xpad - enable & autodetect Flydigi extra buttons
-Message-ID: <42fe05eb92b4b03791a78c8cbc552562@matoro.tk>
-X-Sender: matoro_mailinglist_kernel@matoro.tk
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
 
-This adds a framework for supporting additional features on devices
-piggybacking an existing USB vendor/product ID but distinguishing
-themselves via the idProduct field.  This is necessary because the
-Flydigi Vader Pro series controllers reuse the same vendor/product ID as
-orginal Microsoft Xbox 360 controllers.
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/dtor/input.git next
+branch HEAD: d0c3a7aa814c091843ccca467c02078db9da4e1e  Input: serio_raw - fix uninitialized variable bug
 
-The MAP_FLYDIGI_BUTTONS is a new mapping for the C, Z, and Circle face
-buttons on Flydigi 360-compatible controllers.  It has been tested on
-the Vader 3 Pro and Vader 4 Pro.
+elapsed time: 990m
 
-These controllers additionally have 4 back paddles, same as the Xbox
-Elite controller, so it is included in the extra feature list.
+configs tested: 165
+configs skipped: 6
 
-Thanks-to: Matthew Carter <m@ahungry.com>
-See: https://github.com/paroj/xpad/pull/268
-Signed-off-by: Matoro Mahri <matoro_mailinglist_kernel@matoro.tk>
----
-  drivers/input/joystick/xpad.c | 53 ++++++++++++++++++++++++++++++++++-
-  1 file changed, 52 insertions(+), 1 deletion(-)
+The following configs have been built successfully.
+More configs may be tested in the coming days.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 2b8370ecf42a..5088a97de73e 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -83,6 +83,7 @@
-  #define MAP_SELECT_BUTTON		(1 << 3)
-  #define MAP_PADDLES			(1 << 4)
-  #define MAP_PROFILE_BUTTON		(1 << 5)
-+#define MAP_FLYDIGI_BUTTONS		(1 << 6)
+tested configs:
+alpha                             allnoconfig    gcc-14.1.0
+alpha                            allyesconfig    clang-20
+alpha                               defconfig    gcc-14.1.0
+arc                              allmodconfig    clang-20
+arc                               allnoconfig    gcc-14.1.0
+arc                              allyesconfig    clang-20
+arc                      axs103_smp_defconfig    gcc-14.1.0
+arc                                 defconfig    gcc-14.1.0
+arc                   randconfig-001-20241021    gcc-14.1.0
+arc                   randconfig-002-20241021    gcc-14.1.0
+arm                              allmodconfig    clang-20
+arm                               allnoconfig    gcc-14.1.0
+arm                              allyesconfig    clang-20
+arm                        clps711x_defconfig    gcc-14.1.0
+arm                                 defconfig    gcc-14.1.0
+arm                             mxs_defconfig    gcc-14.1.0
+arm                       omap2plus_defconfig    gcc-14.1.0
+arm                   randconfig-001-20241021    gcc-14.1.0
+arm                   randconfig-002-20241021    gcc-14.1.0
+arm                   randconfig-003-20241021    gcc-14.1.0
+arm                   randconfig-004-20241021    gcc-14.1.0
+arm                             rpc_defconfig    gcc-14.1.0
+arm                         socfpga_defconfig    gcc-14.1.0
+arm                       versatile_defconfig    gcc-14.1.0
+arm64                            allmodconfig    clang-20
+arm64                             allnoconfig    gcc-14.1.0
+arm64                               defconfig    gcc-14.1.0
+arm64                 randconfig-001-20241021    gcc-14.1.0
+arm64                 randconfig-002-20241021    gcc-14.1.0
+arm64                 randconfig-003-20241021    gcc-14.1.0
+arm64                 randconfig-004-20241021    gcc-14.1.0
+csky                              allnoconfig    gcc-14.1.0
+csky                                defconfig    gcc-14.1.0
+csky                  randconfig-001-20241021    gcc-14.1.0
+csky                  randconfig-002-20241021    gcc-14.1.0
+hexagon                          alldefconfig    gcc-14.1.0
+hexagon                          allmodconfig    clang-20
+hexagon                           allnoconfig    gcc-14.1.0
+hexagon                          allyesconfig    clang-20
+hexagon                             defconfig    gcc-14.1.0
+hexagon               randconfig-001-20241021    gcc-14.1.0
+hexagon               randconfig-002-20241021    gcc-14.1.0
+i386                             allmodconfig    clang-18
+i386                              allnoconfig    clang-18
+i386                             allyesconfig    clang-18
+i386        buildonly-randconfig-001-20241021    clang-18
+i386        buildonly-randconfig-002-20241021    clang-18
+i386        buildonly-randconfig-003-20241021    clang-18
+i386        buildonly-randconfig-004-20241021    clang-18
+i386        buildonly-randconfig-005-20241021    clang-18
+i386        buildonly-randconfig-006-20241021    clang-18
+i386                                defconfig    clang-18
+i386                  randconfig-001-20241021    clang-18
+i386                  randconfig-002-20241021    clang-18
+i386                  randconfig-003-20241021    clang-18
+i386                  randconfig-004-20241021    clang-18
+i386                  randconfig-005-20241021    clang-18
+i386                  randconfig-006-20241021    clang-18
+i386                  randconfig-011-20241021    clang-18
+i386                  randconfig-012-20241021    clang-18
+i386                  randconfig-013-20241021    clang-18
+i386                  randconfig-014-20241021    clang-18
+i386                  randconfig-015-20241021    clang-18
+i386                  randconfig-016-20241021    clang-18
+loongarch                        allmodconfig    gcc-14.1.0
+loongarch                         allnoconfig    gcc-14.1.0
+loongarch                           defconfig    gcc-14.1.0
+loongarch             randconfig-001-20241021    gcc-14.1.0
+loongarch             randconfig-002-20241021    gcc-14.1.0
+m68k                             allmodconfig    gcc-14.1.0
+m68k                              allnoconfig    gcc-14.1.0
+m68k                             allyesconfig    gcc-14.1.0
+m68k                                defconfig    gcc-14.1.0
+m68k                        m5307c3_defconfig    gcc-14.1.0
+m68k                       m5475evb_defconfig    gcc-14.1.0
+microblaze                       allmodconfig    gcc-14.1.0
+microblaze                        allnoconfig    gcc-14.1.0
+microblaze                       allyesconfig    gcc-14.1.0
+microblaze                          defconfig    gcc-14.1.0
+mips                              allnoconfig    gcc-14.1.0
+mips                        bcm47xx_defconfig    gcc-14.1.0
+mips                        bcm63xx_defconfig    gcc-14.1.0
+mips                          eyeq6_defconfig    gcc-14.1.0
+mips                     loongson1b_defconfig    gcc-14.1.0
+nios2                             allnoconfig    gcc-14.1.0
+nios2                               defconfig    gcc-14.1.0
+nios2                 randconfig-001-20241021    gcc-14.1.0
+nios2                 randconfig-002-20241021    gcc-14.1.0
+openrisc                          allnoconfig    clang-20
+openrisc                         allyesconfig    gcc-14.1.0
+openrisc                            defconfig    gcc-12
+parisc                           allmodconfig    gcc-14.1.0
+parisc                            allnoconfig    clang-20
+parisc                           allyesconfig    gcc-14.1.0
+parisc                              defconfig    gcc-12
+parisc                randconfig-001-20241021    gcc-14.1.0
+parisc                randconfig-002-20241021    gcc-14.1.0
+parisc64                            defconfig    gcc-14.1.0
+powerpc                          allmodconfig    gcc-14.1.0
+powerpc                           allnoconfig    clang-20
+powerpc                          allyesconfig    gcc-14.1.0
+powerpc                       maple_defconfig    gcc-14.1.0
+powerpc                     mpc512x_defconfig    gcc-14.1.0
+powerpc                 mpc832x_rdb_defconfig    gcc-14.1.0
+powerpc                       ppc64_defconfig    gcc-14.1.0
+powerpc                      ppc64e_defconfig    gcc-14.1.0
+powerpc                         ps3_defconfig    gcc-14.1.0
+powerpc               randconfig-001-20241021    gcc-14.1.0
+powerpc               randconfig-002-20241021    gcc-14.1.0
+powerpc               randconfig-003-20241021    gcc-14.1.0
+powerpc                     tqm5200_defconfig    gcc-14.1.0
+powerpc                     tqm8548_defconfig    gcc-14.1.0
+powerpc64             randconfig-001-20241021    gcc-14.1.0
+powerpc64             randconfig-002-20241021    gcc-14.1.0
+powerpc64             randconfig-003-20241021    gcc-14.1.0
+riscv                            allmodconfig    gcc-14.1.0
+riscv                             allnoconfig    clang-20
+riscv                            allyesconfig    gcc-14.1.0
+riscv                               defconfig    gcc-12
+riscv                 randconfig-001-20241021    gcc-14.1.0
+riscv                 randconfig-002-20241021    gcc-14.1.0
+s390                             allmodconfig    gcc-14.1.0
+s390                              allnoconfig    clang-20
+s390                             allyesconfig    gcc-14.1.0
+s390                                defconfig    gcc-12
+s390                  randconfig-001-20241021    gcc-14.1.0
+s390                  randconfig-002-20241021    gcc-14.1.0
+sh                               allmodconfig    gcc-14.1.0
+sh                                allnoconfig    gcc-14.1.0
+sh                               allyesconfig    gcc-14.1.0
+sh                        apsh4ad0a_defconfig    gcc-14.1.0
+sh                                  defconfig    gcc-12
+sh                        edosk7705_defconfig    gcc-14.1.0
+sh                          landisk_defconfig    gcc-14.1.0
+sh                    randconfig-001-20241021    gcc-14.1.0
+sh                    randconfig-002-20241021    gcc-14.1.0
+sh                  sh7785lcr_32bit_defconfig    gcc-14.1.0
+sh                             shx3_defconfig    gcc-14.1.0
+sparc                            allmodconfig    gcc-14.1.0
+sparc64                             defconfig    gcc-12
+sparc64               randconfig-001-20241021    gcc-14.1.0
+sparc64               randconfig-002-20241021    gcc-14.1.0
+um                               allmodconfig    clang-20
+um                                allnoconfig    clang-20
+um                               allyesconfig    clang-20
+um                                  defconfig    gcc-12
+um                             i386_defconfig    gcc-12
+um                    randconfig-001-20241021    gcc-14.1.0
+um                    randconfig-002-20241021    gcc-14.1.0
+um                           x86_64_defconfig    gcc-12
+x86_64                            allnoconfig    clang-18
+x86_64                           allyesconfig    clang-18
+x86_64                              defconfig    clang-18
+x86_64                                  kexec    clang-18
+x86_64                                  kexec    gcc-12
+x86_64                               rhel-8.3    gcc-12
+x86_64                           rhel-8.3-bpf    clang-18
+x86_64                    rhel-8.3-kselftests    gcc-12
+x86_64                         rhel-8.3-kunit    clang-18
+x86_64                           rhel-8.3-ltp    clang-18
+x86_64                          rhel-8.3-rust    clang-18
+xtensa                            allnoconfig    gcc-14.1.0
+xtensa                randconfig-001-20241021    gcc-14.1.0
+xtensa                randconfig-002-20241021    gcc-14.1.0
+xtensa                    smp_lx200_defconfig    gcc-14.1.0
 
-  #define DANCEPAD_MAP_CONFIG	(MAP_DPAD_TO_BUTTONS |			\
-  				MAP_TRIGGERS_TO_BUTTONS | MAP_STICKS_TO_NULL)
-@@ -387,6 +388,19 @@ static const struct xpad_device {
-  	{ 0x0000, 0x0000, "Generic X-Box pad", 0, XTYPE_UNKNOWN }
-  };
-
-+// A "flavor" is an aftermarket variant of an existing model supporting
-+// additional features.
-+static const struct xpad_flavor {
-+	u16 idVendor;
-+	u16 idProduct;
-+	char *product;
-+	u8 mapping;
-+} xpad_flavor[] = {
-+	{ 0x045e, 0x028e, "Flydigi VADER3", MAP_PADDLES | MAP_FLYDIGI_BUTTONS },
-+	{ 0x045e, 0x028e, "Flydigi VADER4", MAP_PADDLES | MAP_FLYDIGI_BUTTONS },
-+	{ 0x0000, 0x0000, NULL, 0 }
-+};
-+
-  /* buttons shared with xbox and xbox360 */
-  static const signed short xpad_common_btn[] = {
-  	BTN_A, BTN_B, BTN_X, BTN_Y,			/* "analog" buttons */
-@@ -444,6 +458,13 @@ static const signed short xpad_btn_paddles[] = {
-  	-1						/* terminating entry */
-  };
-
-+/* used for extra buttons in addition to paddles on Flydigi Vader Pro 
-series*/
-+static const signed short xpad_btn_extra[] = {
-+	BTN_TRIGGER_HAPPY9, BTN_TRIGGER_HAPPY10, /* C, Z face buttons */
-+	BTN_TRIGGER_HAPPY11,			 /* circle */
-+	-1						/* terminating entry */
-+};
-+
-  /*
-   * Xbox 360 has a vendor-specific class, so we cannot match it with only
-   * USB_INTERFACE_INFO (also specifically refused by USB subsystem), so we
-@@ -898,6 +919,17 @@ static void xpad360_process_packet(struct usb_xpad 
-*xpad, struct input_dev *dev,
-  		input_report_abs(dev, ABS_RZ, data[5]);
-  	}
-
-+	/* Additional buttons for Flydigi Vader Pro series presenting as 360 pad. 
-*/
-+	if (xpad->mapping & MAP_FLYDIGI_BUTTONS) {
-+		input_report_key(dev, BTN_TRIGGER_HAPPY9, data[19] & BIT(0));   // C
-+		input_report_key(dev, BTN_TRIGGER_HAPPY10, data[19] & BIT(1));  // Z
-+		input_report_key(dev, BTN_TRIGGER_HAPPY5, data[19] & BIT(3));   // 
-Leftmost paddle (M2)
-+		input_report_key(dev, BTN_TRIGGER_HAPPY6, data[19] & BIT(5));   // Second 
-to leftmost (M4)
-+		input_report_key(dev, BTN_TRIGGER_HAPPY7, data[19] & BIT(4));   // Second 
-to rightmost (M3)
-+		input_report_key(dev, BTN_TRIGGER_HAPPY8, data[19] & BIT(2));   // 
-Rightmost paddle (M1)
-+		input_report_key(dev, BTN_TRIGGER_HAPPY11, data[20] & BIT(0));  // Circle
-+	}
-+
-  	input_sync(dev);
-
-  	/* XBOX360W controllers can't be turned off without driver assistance */
-@@ -1958,6 +1990,13 @@ static int xpad_init_input(struct usb_xpad *xpad)
-  			input_set_capability(input_dev, EV_KEY, xpad_btn_paddles[i]);
-  	}
-
-+	/* set up extra face buttons if the controller has them */
-+	if (xpad->mapping & MAP_FLYDIGI_BUTTONS) {
-+		for (i = 0; xpad_btn_extra[i] >= 0; i++) {
-+			input_set_capability(input_dev, EV_KEY, xpad_btn_extra[i]);
-+		}
-+	}
-+
-  	/*
-  	 * This should be a simple else block. However historically
-  	 * xbox360w has mapped DPAD to buttons while xbox360 did not. This
-@@ -2012,7 +2051,7 @@ static int xpad_probe(struct usb_interface *intf, const 
-struct usb_device_id *id
-  	struct usb_device *udev = interface_to_usbdev(intf);
-  	struct usb_xpad *xpad;
-  	struct usb_endpoint_descriptor *ep_irq_in, *ep_irq_out;
--	int i, error;
-+	int i, j, error;
-
-  	if (intf->cur_altsetting->desc.bNumEndpoints != 2)
-  		return -ENODEV;
-@@ -2046,6 +2085,18 @@ static int xpad_probe(struct usb_interface *intf, 
-const struct usb_device_id *id
-  	xpad->udev = udev;
-  	xpad->intf = intf;
-  	xpad->mapping = xpad_device[i].mapping;
-+
-+	if (udev->product) {	// Only worry about extra flavors if a product string 
-is present
-+		for(j = 0; xpad_flavor[j].idVendor; j++) {
-+			if (le16_to_cpu(udev->descriptor.idVendor) == xpad_flavor[j].idVendor &&
-+			    le16_to_cpu(udev->descriptor.idProduct) == xpad_flavor[j].idProduct 
-&&
-+			    !strcmp(udev->product, xpad_flavor[j].product)) {
-+				xpad->mapping |= xpad_flavor[j].mapping;
-+				break;
-+			}
-+		}
-+	}
-+
-  	xpad->xtype = xpad_device[i].xtype;
-  	xpad->name = xpad_device[i].name;
-  	xpad->packet_type = PKT_XB;
--- 
-2.47.0
-
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki

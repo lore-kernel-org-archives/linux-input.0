@@ -1,50 +1,50 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FA8E1AF0A0;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9719B1AF0B2;
 	Mon,  4 Nov 2024 09:36:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730712985; cv=none; b=rV3apjAV4LK5N8AeW1PzHHCXM6lhhLt0g+ERP1j6yrz9djezu2pSj9OIWXe6CttnZ+Rsg4Yl5WSDYxETQhIUg8/VbSUHgeM9e6lnF6BKLZlhzO+liKnT/GFusJHvKXYzxGyimR6BSF2ceSrcgUxXpa1CqrS5KlUXP44U5FU0naI=
+	t=1730712986; cv=none; b=RxtPXvfuzU+SL6COgLUE+r1Q9ZWAFsqZkyEul+W3eJDQnWRsumyQ5D1MmNDmZOSaDaX4UIGtLc9uMAs3odLpf7fr/ztzHiyIzV1D4vYEzifWeRavmsLm4qI8UadBq0ZGSSLgpLMq/86+AM17ysHQfCFMsxqzoT7k8M6FWvysrKs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730712985; c=relaxed/simple;
-	bh=vZMtd1T590YnZLPRvMitwgFNTD+hNyBhf6P6IUabJ8s=;
+	s=arc-20240116; t=1730712986; c=relaxed/simple;
+	bh=hwe/b3t0fRSiOwM5LgSXyqtmSdkws0uscP6ALDCp0/s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mnm6nYjiqztV0THzz2hCe0qylcGraGIZSfLcIuLDaz23HLdG3Oe0nxCbNe34FcHcBFBrEv+NI30ER8cb4JNtRqdFvzGkO7U9esfCCBJcwgLNR1WVHbaG0rvhbt/byFtb73/mlkn6/k7sepvKzL9LDbRkWuIqKq4Q0ISkU5VYoQ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KGpRmAl8; arc=none smtp.client-ip=192.198.163.14
+	 MIME-Version; b=lH0FCKYZx2ifyo+uofDJv7qmKBZztHMo+s9MZGOOST5/CZqVooOWpFztERoDR0RN8H+0BJDPoN7YiAdYeK9ajGuehi+tQfShxgJGwjx6blM1zlrEjWtl6/H3Au76+q52CvgrSBsihv3nKMwrP06+yW+i/5Pbf1nMLVR4z/aj+o0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PdCINBMY; arc=none smtp.client-ip=192.198.163.17
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KGpRmAl8"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PdCINBMY"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1730712984; x=1762248984;
+  t=1730712983; x=1762248983;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=vZMtd1T590YnZLPRvMitwgFNTD+hNyBhf6P6IUabJ8s=;
-  b=KGpRmAl8pl+DBl2o9QsdZ3MijTvr5+mCAqiewO3RiIFNJcnSDTnNYPly
-   jcNsexOK8TUqoLRWN+7fkEQG/mwYEQTnGR6U1AmbGul8+QTbHSEbmA0Nl
-   l4jdAPZaQzoz0MaJWvZN7NZQl7KuW7fENEYyAxHIxQdD57XvU5pDuKn2N
-   2savxXY2uz+abdeQeVATA3ygbg6oZS+UAfFldXqmOq+/fX6nALIs7U64z
-   xdhG6kcG2JvFfFgMt7PSTxbF0epMLJIuf61tmALyIiDsTCrmeXHBXfU1q
-   6Jxj46M5ZVwwJgYId3hiT3jpTTTFA+MvQE7usdiQ28EL9OMQa92+V4FKr
+  bh=hwe/b3t0fRSiOwM5LgSXyqtmSdkws0uscP6ALDCp0/s=;
+  b=PdCINBMYVI5gsHEukFi79h89KZ4q5sfxSQWC4iTVuzAjfrmhMqHdBaEa
+   9o2UEwAk+Y4SAjN4YdgsJO1LPhhkqce/SS97xa3czwWB3p2lzF306eGfk
+   96UAvk589wJIQmmPaluOVqcOQ5Xl0eYQPTxtfrs497EtQtQgBtQHUpb0b
+   fNuNakDhvMMLR1OKi68Wtvet10kVK384xTTQMyFKt7L2SC0vOBXYfUFFh
+   vHmgA1SUoIOxyY9aYOVW8DktHHrqwVXFNaOdaTbQgEfNo9Q/WOL/TDYkQ
+   Pc2NDeXzAotOM78J7bE0a0+O6g+TYdVoliAdav4svENT82UR2guiq7yjW
    Q==;
-X-CSE-ConnectionGUID: xN4R/pzXQ7uiptUfJWuC2A==
-X-CSE-MsgGUID: YSV/pTB2SbKXdNqD2X7VHQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11245"; a="30620090"
+X-CSE-ConnectionGUID: 1BqkHAM0RROpjq5Vh/RHcQ==
+X-CSE-MsgGUID: bJXvU7QpSCmIAdLEjJivpw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11245"; a="30278788"
 X-IronPort-AV: E=Sophos;i="6.11,256,1725346800"; 
-   d="scan'208";a="30620090"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2024 01:36:20 -0800
-X-CSE-ConnectionGUID: UCIDPEfhSVKAFG44XKPZtQ==
-X-CSE-MsgGUID: 697U+mSATYmDf45+hbnpFA==
+   d="scan'208";a="30278788"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2024 01:36:21 -0800
+X-CSE-ConnectionGUID: s9rewHwKS8eXCZpHso+clw==
+X-CSE-MsgGUID: nJ4vzYBeTXunQESoKPaApw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.11,256,1725346800"; 
-   d="scan'208";a="83127055"
+   d="scan'208";a="83481194"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa006.fm.intel.com with ESMTP; 04 Nov 2024 01:36:11 -0800
+  by orviesa009.jf.intel.com with ESMTP; 04 Nov 2024 01:36:17 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id B69AC320; Mon, 04 Nov 2024 11:36:10 +0200 (EET)
+	id DEBD7740; Mon, 04 Nov 2024 11:36:10 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
@@ -65,9 +65,9 @@ Cc: Linus Walleij <linus.walleij@linaro.org>,
 	Haojian Zhuang <haojian.zhuang@gmail.com>,
 	Robert Jarzmik <robert.jarzmik@free.fr>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH v1 3/6] leds: gpio: Avoid using GPIOF_ACTIVE_LOW
-Date: Mon,  4 Nov 2024 11:34:21 +0200
-Message-ID: <20241104093609.156059-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 6/6] gpio: Get rid of GPIOF_ACTIVE_LOW
+Date: Mon,  4 Nov 2024 11:34:24 +0200
+Message-ID: <20241104093609.156059-7-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
 In-Reply-To: <20241104093609.156059-1-andriy.shevchenko@linux.intel.com>
 References: <20241104093609.156059-1-andriy.shevchenko@linux.intel.com>
@@ -79,47 +79,42 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Avoid using GPIOF_ACTIVE_LOW as it's deprecated and subject to remove.
+No more users.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/leds/leds-gpio.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/gpio/gpiolib-legacy.c | 3 ---
+ include/linux/gpio.h          | 3 ---
+ 2 files changed, 6 deletions(-)
 
-diff --git a/drivers/leds/leds-gpio.c b/drivers/leds/leds-gpio.c
-index 0d59b0bbc002..a3428b22de3a 100644
---- a/drivers/leds/leds-gpio.c
-+++ b/drivers/leds/leds-gpio.c
-@@ -212,7 +212,6 @@ static struct gpio_desc *gpio_led_get_gpiod(struct device *dev, int idx,
- 					    const struct gpio_led *template)
- {
- 	struct gpio_desc *gpiod;
--	unsigned long flags = GPIOF_OUT_INIT_LOW;
- 	int ret;
+diff --git a/drivers/gpio/gpiolib-legacy.c b/drivers/gpio/gpiolib-legacy.c
+index 28f1046fb670..aeae6df8bec9 100644
+--- a/drivers/gpio/gpiolib-legacy.c
++++ b/drivers/gpio/gpiolib-legacy.c
+@@ -46,9 +46,6 @@ int gpio_request_one(unsigned gpio, unsigned long flags, const char *label)
+ 	if (err)
+ 		return err;
  
- 	/*
-@@ -239,10 +238,7 @@ static struct gpio_desc *gpio_led_get_gpiod(struct device *dev, int idx,
- 	if (!gpio_is_valid(template->gpio))
- 		return ERR_PTR(-ENOENT);
- 
--	if (template->active_low)
--		flags |= GPIOF_ACTIVE_LOW;
+-	if (flags & GPIOF_ACTIVE_LOW)
+-		set_bit(FLAG_ACTIVE_LOW, &desc->flags);
 -
--	ret = devm_gpio_request_one(dev, template->gpio, flags,
-+	ret = devm_gpio_request_one(dev, template->gpio, GPIOF_OUT_INIT_LOW,
- 				    template->name);
- 	if (ret < 0)
- 		return ERR_PTR(ret);
-@@ -251,6 +247,9 @@ static struct gpio_desc *gpio_led_get_gpiod(struct device *dev, int idx,
- 	if (!gpiod)
- 		return ERR_PTR(-EINVAL);
+ 	if (flags & GPIOF_IN)
+ 		err = gpiod_direction_input(desc);
+ 	else
+diff --git a/include/linux/gpio.h b/include/linux/gpio.h
+index 2d105be7bbc3..6270150f4e29 100644
+--- a/include/linux/gpio.h
++++ b/include/linux/gpio.h
+@@ -21,9 +21,6 @@ struct device;
+ #define GPIOF_OUT_INIT_LOW	((0 << 0) | (0 << 1))
+ #define GPIOF_OUT_INIT_HIGH	((0 << 0) | (1 << 1))
  
-+	if (template->active_low ^ gpiod_is_active_low(gpiod))
-+		gpiod_toggle_active_low(gpiod);
-+
- 	return gpiod;
- }
- 
+-/* Gpio pin is active-low */
+-#define GPIOF_ACTIVE_LOW        (1 << 2)
+-
+ /**
+  * struct gpio - a structure describing a GPIO with configuration
+  * @gpio:	the GPIO number
 -- 
 2.43.0.rc1.1336.g36b5255a03ac
 

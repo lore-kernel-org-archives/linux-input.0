@@ -1,118 +1,169 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
+Received: from mout.kundenserver.de (mout.kundenserver.de [212.227.17.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACA701AE01F;
-	Mon,  4 Nov 2024 09:36:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCED17C0BE;
+	Mon,  4 Nov 2024 12:07:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730712990; cv=none; b=Cljt9+64fMosPCc+cZqC6q+4YjJhTy3Blza5ignzo6YeMlKT5DrkbcWvnBJ6jsM1SNaJgCX52U3TM0lHChDZFlOHN7ClA9U5fg4+KxWH3B/imzQ7JNmy2So4sexh5KfCT0ZdZ2gdeFRdWhhqjalp1VJJ4CRCWfGyXM1U7Jq0/MI=
+	t=1730722024; cv=none; b=lYof363JgX7fWP+9lVbFtUFLmWN5He9uUdEYXVXlotSpwaSlXwlc7bq1u1pzfXrA8rHSsCvqXnA9WQcIQEGhUFGQRxuW0C9OcucqUYznr0P3px8wf1nd14IYuc7RUj+C/rFaFvlkFE1voYe7IJWVu/aSxmE0ysGjOFjvcYkW1jY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1730712990; c=relaxed/simple;
-	bh=Sc+eqveINCgjfeZ/XCA8LOsWGvrDOO3Z75MHxHV6gP0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mt+RPlEdvCZsyLcedYLWecW1tqWl4Unb0QTaHpo6LVY2MBYXq+g/UWw9gFthakmBjcDBSW6LQBQai2XenkMd/jYj2HJQkC9W1B/ZDtZA7wwZExRtelWTeqaI5LOeX6OoSw5bdhZXfxJUnUQbfn6a+gku6MkdfMGr4+WmQeyv9Zc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cmsGN5d0; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1730722024; c=relaxed/simple;
+	bh=svftIwQDl37QDsPAYgFM9jEXoads4cBFTHeHa36t9CM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Qryt5X8FyEAkGiePq3S+5PKsD4OCEK7Z6uts/SpBss7jC4D1ZNGGWQabmipJRpAPe8gfwmARiyXuS0HNDeGMYbg328rV9N0aZIUH9V0mLN873mNb7m0w/ah6g64CjA7BabMWDOgIZyQrhew5hh9BE+4PYWNAzYzJa32YLMGZkY4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=heusel.eu; spf=pass smtp.mailfrom=heusel.eu; dkim=pass (2048-bit key) header.d=heusel.eu header.i=christian@heusel.eu header.b=YZUClsfO; arc=none smtp.client-ip=212.227.17.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=heusel.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=heusel.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cmsGN5d0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1730712989; x=1762248989;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=Sc+eqveINCgjfeZ/XCA8LOsWGvrDOO3Z75MHxHV6gP0=;
-  b=cmsGN5d0H45SlHE2iorkOF4oDGsx0dkzWCvZqWymjaX6giruS7iDSnAt
-   CLQeiOMSud5hKCG4ejQ1CoV7brTpn+ImUgZ1LFZzc1B3oDIhFN2yK1XCL
-   Tfq0Uk1CkFTzQCYjg3gKgzUaTKLhXoFMpy/uiOKvXph4YsEsW6uVlN08L
-   P7rYVvL2ERf+KTF7dhEtFYCJ9amvHXn4qQoZIT1tlAMmJ+KFCpjGGbfmh
-   zV9TEK++pm0l+8YuU82ygtvMYhptdflipxeQl7PP38Ug2ZjIXbUI2UgtB
-   zAP02g5A7uR3Fwxvb8Na1wDPxf/+J/wnf2B4TJpqPJDGAtOR1tKk9ii4M
-   g==;
-X-CSE-ConnectionGUID: fCGnczMRShubdAUWnlhnBA==
-X-CSE-MsgGUID: tuH0gCZQQwWibhfRlgAwSA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11245"; a="30620092"
-X-IronPort-AV: E=Sophos;i="6.11,256,1725346800"; 
-   d="scan'208";a="30620092"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Nov 2024 01:36:21 -0800
-X-CSE-ConnectionGUID: Ah+BKPYZTaqhFdk5MbXoWg==
-X-CSE-MsgGUID: 7yc422SjSi6VFqbnsmzs9g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.11,256,1725346800"; 
-   d="scan'208";a="83127064"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa006.fm.intel.com with ESMTP; 04 Nov 2024 01:36:16 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id D17216CE; Mon, 04 Nov 2024 11:36:10 +0200 (EET)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Tony Lindgren <tony@atomide.com>,
-	Lee Jones <lee@kernel.org>,
-	linux-gpio@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-leds@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-usb@vger.kernel.org
-Cc: Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Pavel Machek <pavel@ucw.cz>,
-	Dominik Brodowski <linux@dominikbrodowski.net>,
-	Daniel Mack <daniel@zonque.org>,
-	Haojian Zhuang <haojian.zhuang@gmail.com>,
-	Robert Jarzmik <robert.jarzmik@free.fr>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH v1 5/6] USB: gadget: pxa27x_udc: Avoid using GPIOF_ACTIVE_LOW
-Date: Mon,  4 Nov 2024 11:34:23 +0200
-Message-ID: <20241104093609.156059-6-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
-In-Reply-To: <20241104093609.156059-1-andriy.shevchenko@linux.intel.com>
-References: <20241104093609.156059-1-andriy.shevchenko@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=heusel.eu header.i=christian@heusel.eu header.b="YZUClsfO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=heusel.eu;
+	s=s1-ionos; t=1730722004; x=1731326804; i=christian@heusel.eu;
+	bh=isvhMXR16jgELvfkYUGhK0LUKbb8tRcCfdj7u9VzZNM=;
+	h=X-UI-Sender-Class:Date:From:To:Cc:Subject:Message-ID:References:
+	 MIME-Version:Content-Type:In-Reply-To:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=YZUClsfOhRNFec/U9oFceOMVZmq0LtHEtwiA8QVxLFdxKv5DFHA2rHvx5QYV8XMr
+	 DhXQym8+qd2uVV04/0CV6emUZHzfkR/02wGayNMz/krYv/Xdgd6ysX+1bv9SuU7FL
+	 Y3z/LWiqt9iBQVSUMB6XoOd+EcmZoxgTHogU7/57RnRAYKWjNqoX/G/XQRviHWu4e
+	 OlsmM+h/6VO2+QQQZAMdG1UEOfcnoh62Gq4No3BiZgwywlu62kfSHDpF+uD46/E7Z
+	 euxsmNIm40Y6+ei+gVAwQTo2Wh5WpExZvEzmMP7+f3ryXhjzHBLSQB/V2ma2W5aav
+	 PR+3QJu/gJjG4bnciw==
+X-UI-Sender-Class: 55c96926-9e95-11ee-ae09-1f7a4046a0f6
+Received: from localhost ([80.187.64.99]) by mrelayeu.kundenserver.de
+ (mreue108 [212.227.15.183]) with ESMTPSA (Nemesis) id
+ 1M593i-1t92Jj3fEK-0056Mo; Mon, 04 Nov 2024 13:06:44 +0100
+Date: Mon, 4 Nov 2024 13:06:40 +0100
+From: Christian Heusel <christian@heusel.eu>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: "Ned T. Crigler" <crigler@gmail.com>, 
+	Peter Seiderer <ps.report@gmx.net>, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	regressions@lists.linux.dev, Jeff LaBundy <jeff@labundy.com>, 
+	Benjamin Tissoires <bentiss@kernel.org>
+Subject: Re: [REGRESSION] disabling and re-enabling magic sysrq fails after
+ kernel 6.11
+Message-ID: <dcde5b37-2ea7-472e-abe3-2cadc9d1e651@heusel.eu>
+References: <Zx2iQp6csn42PJA7@xavtug>
+ <69b6119c-3c3a-406f-9375-3e55fba9b732@heusel.eu>
+ <20241027163744.2d396c61@gmx.net>
+ <Zx5yIEZwT5SxzCTx@xavtug>
+ <Zx8hfE2_3zXSTi05@google.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="mv3uxb56tz6fok5b"
+Content-Disposition: inline
+In-Reply-To: <Zx8hfE2_3zXSTi05@google.com>
+X-Provags-ID: V03:K1:JDpponhYnC4ZR0IulelKBhkv7BTepDK8a2dcHE68/+bYOMQ3e8h
+ 7EZ2ZT6MM6utvvtYNagWIhwdJ96Fhef1430RA6MCgKVtHzkTmb6J3AtB0pIJp48O3Qi6Hru
+ 6qJMKpk7H683dE69rQNwtptLUHnQ6XSdanIl4ASDH7Y02xl+0GuqWMLKMr0IW/lTpq7xdcY
+ UlXBPvIxlIvyRuPMRfA3Q==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:IRRAjWkgUW0=;L0WoqOJ0RM2nuiH11dCchM00spD
+ M9W6WU0gNSZb+KuGA6Dzul9NtkLSuU7wC2zknhF3XYiwlnQ36oMw1hLPoknjg9WCT3IFLCcuv
+ ep5opLxKa3E9sqmx+cReQXlbPyW4Cl29V8cApx00SQyLjvZloxfVhD0XjlQB1KxgiB2/mCIhn
+ xi7qwOCp0btvK0iwt/wR5zOEpqiJ3Z8PZtNIv8w7aKHPoW2Hg70wbwqETzcLXQ+ThdCZjpEpj
+ YE+wh7Ddo3iE/DudAolhsO90EHxbxn9o8ohrsit/pNk0IhwS+QdK0y9WnlrmM7oyGws3t1Psl
+ PUeP8I6JeWIQNJ4PIoxubVXeCxSUd/QcbPQmAhTXtPNoNgjQ6KhP5VfnpN9dG1WqCaZnfWGMz
+ c+kQRbnwwbTEQx/836HZSuH1b28il7sONrgMzNvJW/SOeMWmpYKPEUeBgRjBPYKg4+z/z7GjE
+ kul78VgkZGNsS6nltqn6OvIL78y3w3tdZAauNDCQ+8hQEj5nlu+be5gIs+1TRVUMmIfQF+Haw
+ Hxz3TYwyBt6U/ehgm1+8WeKXXhaKd9KTy79EVVUUF16RqXH/Egdt3mvV4IirMY/ElRrv1x+56
+ viyh/d7FEx9epQWv+r50h2K4Qrk6STwz/pkdxgJzV4ESdkfjIVDHjyPcbjVR3JzhcLQe/kGzn
+ mKow3CfBG9b2+ol2Xo9abyqDWDWdwfIuIcUbhSaUFrH1TlLQEYazlnwaf5iFX2HQcv1Y1z97j
+ SU8j4IIiELw56Sut1KUV3DSrd5ZQD5M6Q==
 
-Avoid using GPIOF_ACTIVE_LOW as it's deprecated and subject to remove.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/usb/gadget/udc/pxa27x_udc.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+--mv3uxb56tz6fok5b
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [REGRESSION] disabling and re-enabling magic sysrq fails after
+ kernel 6.11
+MIME-Version: 1.0
 
-diff --git a/drivers/usb/gadget/udc/pxa27x_udc.c b/drivers/usb/gadget/udc/pxa27x_udc.c
-index 7d3a8a5f3796..f9a55d4f189f 100644
---- a/drivers/usb/gadget/udc/pxa27x_udc.c
-+++ b/drivers/usb/gadget/udc/pxa27x_udc.c
-@@ -2355,18 +2355,19 @@ static int pxa_udc_probe(struct platform_device *pdev)
- 	struct pxa_udc *udc = &memory;
- 	int retval = 0, gpio;
- 	struct pxa2xx_udc_mach_info *mach = dev_get_platdata(&pdev->dev);
--	unsigned long gpio_flags;
- 
- 	if (mach) {
--		gpio_flags = mach->gpio_pullup_inverted ? GPIOF_ACTIVE_LOW : 0;
- 		gpio = mach->gpio_pullup;
- 		if (gpio_is_valid(gpio)) {
- 			retval = devm_gpio_request_one(&pdev->dev, gpio,
--						       gpio_flags,
-+						       GPIOF_OUT_INIT_LOW,
- 						       "USB D+ pullup");
- 			if (retval)
- 				return retval;
- 			udc->gpiod = gpio_to_desc(mach->gpio_pullup);
-+
-+			if (mach->gpio_pullup_inverted ^ gpiod_is_active_low(udc->gpiod))
-+				gpiod_toggle_active_low(udc->gpiod);
- 		}
- 		udc->udc_command = mach->udc_command;
- 	} else {
--- 
-2.43.0.rc1.1336.g36b5255a03ac
+On 24/10/27 10:30PM, Dmitry Torokhov wrote:
+> Hi everyone,
+>=20
+> On Sun, Oct 27, 2024 at 10:02:24AM -0700, Ned T. Crigler wrote:
+> > Hi Peter, Christian,
+> >=20
+> > On Sun, Oct 27, 2024 at 04:37:44PM +0100, Peter Seiderer wrote:
+> > > Hello Ned, Christian, *,
+> > >=20
+> > > On Sun, 27 Oct 2024 15:06:09 +0100, Christian Heusel <christian@heuse=
+l.eu> wrote:
+> > >=20
+> > > > On 24/10/26 07:15PM, Ned T. Crigler wrote:
+> > > > > Hi,
+> > > >
+> > > > Hey Ned,
+> > > >
+> > > > > It looks like starting with kernel 6.11, disabling and re-enabling
+> > > > > magic
+> > > > > sysrq fails with these errors in dmesg:
+> > > > >
+> > > > > kernel: input: input_handler_check_methods: only one event proces=
+sing
+> > > > > method can be defined (sysrq)
+> > > > > kernel: sysrq: Failed to register input handler, error -22
+> > > > >
+> > > > > after doing:
+> > > > >
+> > > > > # echo 0 > /proc/sys/kernel/sysrq
+> > > > > # echo 438 > /proc/sys/kernel/sysrq
+> > > > > # echo 0 > /proc/sys/kernel/sysrq
+> > > > > # echo 438 > /proc/sys/kernel/sysrq
+> > > > > # echo 0 > /proc/sys/kernel/sysrq
+> > > > > # echo 438 > /proc/sys/kernel/sysrq
+> > > >
+> > > > I have found that this issue is also present in the latest mainline
+> > > > release and bisected it to the following commit:
+> > > >
+> > > >     d469647bafd9 ("Input: simplify event handling logic")
+> > > >
+> > >=20
+>=20
+> Yes, I did not consider that we might want to re-register the same input
+> handler, thank you for alerting me about the regression.
+>=20
+> > >=20
+> > >=20
+> > > A quick fix/hack for the sysrq case:
+> > >=20
+> > > --- a/drivers/tty/sysrq.c
+> > > +++ b/drivers/tty/sysrq.c
+> > > @@ -1045,7 +1045,7 @@ static inline void sysrq_register_handler(void)
+> > > <snip>
 
+Thanks for the patch, are you looking to fix this in a more general way
+or do you plan on just sending in the above patch? (or did this already
+happen and I just missed it? :p)
+
+Cheers,
+Chris
+
+--mv3uxb56tz6fok5b
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCAAdFiEEb3ea3iR6a4oPcswTwEfU8yi1JYUFAmcouNAACgkQwEfU8yi1
+JYXw3RAAmi2HUOlFjtSr0cKl3FEeXlPXeSujon33yrWSAZpA2TzjzgdLhYjiTEDu
+xhCrH1nDtMMAn7YuByZivANN+OyliC1STUApCsNGx+JOmlD82pP6GGZGTKI/YBTC
+HjMfEmkq3P3h8po3xZ5CFLd+htb5k2Psso6v/uUxC1pr99byRTJpgOeqv1TTUdOA
+3ftkgCapY0i1a4WmHSErinrMPc+f6PX9o2rL0wPv/22oVK2TaCHE0whoZG1Q/aYk
+89rHHoq8BxpkgM7pD1qxExk3To5WVLh38wLfbkAvJP6UYZKaqOzyMITGN/C6pzye
+KEhB7+SD8ikqejHKY0vU6lzFbVdKe9v2/+60z+KhXXy5JJd5c/LkSmlP/fLhXzWc
+zqhm83V93XiSlO/pY5IyatQLeD15ICMdL/qS1TaAQsAMviMkM9aVccnshqEyEnIz
+aSI4VJdAA+iqqPNrWSkWyEF4TtJ5qXGthXvbzQfPc3eO2XlL7+Rr8RoI9j2ZySbU
+nCuHekNR4anE8f+RquYwmYinXtlICEl8HGf2kkqZKkGGaAQqrXQuAhgPS9n41VjD
+QTkLTeRGjQtxmcTo+wvP7pkmTF8QN2lfD+3JmDCZfa7NvN+6MBZr+kx+Yrs/GZlO
+QM+U0fRM04GGuoy15xCaR0gnTT9CMkAfj6v8+eEeRvkZZqf6FV4=
+=KUA8
+-----END PGP SIGNATURE-----
+
+--mv3uxb56tz6fok5b--

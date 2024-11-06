@@ -1,46 +1,46 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CA6D2101A1;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51F5921018F;
 	Wed,  6 Nov 2024 19:34:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730921699; cv=none; b=TLuz2ktyHDWVNnvqDG3+zrDb01y/vluImu1AevTcFXDI7/SiaMGHcla2YP+5TDFmRT3UxFuYoN5P0LVAPIqdO7K3hesJfNC/VW9bWpwSXOERO/R4eRtp+7p6HOIJRoxx6W4Te0rfSw5YPkqpD7fTQyDm4vdZ7uSLea28uWguph8=
+	t=1730921699; cv=none; b=ZyS3bxyQpdxIJnAmNB+VqsmSJ/87HZYKtWcPrPH9tJwwQFD2ar4KOxccpSrAotRpGyGYrk9IMG8oWJ0QJekUvL6Hk6d4bcpxlA6O6jqKe5qrWtn4QoRpSUl/dzwkUZtDdU31jJkyfYEZH/2qInKjKcRk4ShRdK/Bv/s0dr6YDig=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1730921699; c=relaxed/simple;
-	bh=IkMCCmmayPEOkLVBZv1cFnxPTwhINuoT5uWbQVxY0J8=;
+	bh=TyZpAqNQq1ttOG6UfwMIX9VH/VClmDIoFLNFsNFe7AE=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=LLqsotoiuzlcWC9WdY+AB+2WIQ6OeN3Y9Tedh6JkqjXlY7fsnNwpD75wqUDd0UQs3IdAiAevIucozUo7Pjb6b21Ye7XivzI6X2r21GVDclqIoNBYNXTNErOirndF+boVti6s6hmB0fwjY4DI1pZwj8t/oImLl5hscL28Fa/uduo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=mE/m/AwA; arc=none smtp.client-ip=205.220.168.131
+	 MIME-Version:Content-Type; b=u19AmMV9K34AEsnqsH/BcFH7sN8ES6X6zF5z+7VqLHcVBy6QFHz8RCGf2N3KPPSCNULti8+IfUK1sJVcAnHz1wm5EAP7MR6LCG3ThvuKu0gKeJ+4fFGhfosNOolwZCsZ0xm+VrRzT+zeHzjYx4jzHlax7fuhQNVFRqsZQDtYROw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=NUZq7HR/; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="mE/m/AwA"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A6AiTr0004338;
-	Wed, 6 Nov 2024 19:34:34 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="NUZq7HR/"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A6D7RYR001544;
+	Wed, 6 Nov 2024 19:34:36 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	8f3ltJ7kTNBqD63IJWPrINYxMdkP2wD5fAwRcNzFY10=; b=mE/m/AwAY7ahX25J
-	SYvJOi25KyDSGQiru+E8SheQY2QexBCoY4CMYyiWSvS0LsHvbRIcsFkZM3uWso5+
-	mzBwJrgUTAHqiejNxurQbnTOZbw2uYzNm/UqS3KHs/vg08ieuN7CCrUCVwNZhyrw
-	Ab6NgcqlSoK5mLTHFji1r0xEyY+6kqkHXJq0qNi9PVlOfrwUIDNVLaAO2weSr+nz
-	n8IVW4HTHy3r6mrM2oswpFVQ8+SVnie29OuuBEyKbkFRo7wdRiUoMIoUU8xfLdW2
-	lCHkD2UNYi8qjkK74yHHCBml8SrlwjNY5Hp6oCDmoJtm4xwIAbHrgMAq+BniZ51/
-	jJKxmA==
-Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 42qvhd2y93-1
+	Jgs2rFGJgbAL0aGklun+Od7AKyFR8h9rOvkhmuxHVj8=; b=NUZq7HR/G7GkpSzb
+	X2+brSAMmXM/kMnWYf85dPY4xdqX4EzHRmyomOI8caAdXNZ93TkZuvsi4BigcH+z
+	Mc5r9l73EnA3K5akXWkkKovgbu/NY+KbUpCrL1Crmpbf/VGSZo2VLM5VfnXhIM3i
+	sSdMu5/Ha9bqmeyJkxkO1zoiEiJleX8UBCSO744mpF18Rhtzno/Z3ftb6m0TQzq9
+	fBk1TrdL+sVR2yF8xWqFYArMmUujOtvhgSHOsYYrK7h05kdt0w8XN28BhoLz9Qup
+	L//WPpqRiNBAOzuO0D8k557XfdF2eiF592qIK/Q015YW5+BWoiLnic1dc+ikVORG
+	O56RoA==
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 42r07hjg99-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Nov 2024 19:34:34 +0000 (GMT)
+	Wed, 06 Nov 2024 19:34:36 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 4A6JYXlg030265
+	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 4A6JYZ67008671
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 6 Nov 2024 19:34:33 GMT
+	Wed, 6 Nov 2024 19:34:35 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Wed, 6 Nov 2024 11:34:32 -0800
+ 15.2.1544.9; Wed, 6 Nov 2024 11:34:34 -0800
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -52,9 +52,9 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-sound@vger.kernel.org>, <linux-usb@vger.kernel.org>,
         <linux-input@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
-Subject: [PATCH v30 14/30] ASoC: usb: Create SOC USB SND jack kcontrol
-Date: Wed, 6 Nov 2024 11:33:57 -0800
-Message-ID: <20241106193413.1730413-15-quic_wcheng@quicinc.com>
+Subject: [PATCH v30 21/30] ASoC: qcom: qdsp6: Add USB backend ASoC driver for Q6
+Date: Wed, 6 Nov 2024 11:34:04 -0800
+Message-ID: <20241106193413.1730413-22-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20241106193413.1730413-1-quic_wcheng@quicinc.com>
 References: <20241106193413.1730413-1-quic_wcheng@quicinc.com>
@@ -70,175 +70,340 @@ X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: B_tJ_c2LsOAHzVcUksBJry8vSWEa7RU3
-X-Proofpoint-GUID: B_tJ_c2LsOAHzVcUksBJry8vSWEa7RU3
+X-Proofpoint-GUID: 3WRNs6NiXvWX1G8ILvQuTl4gSAfTQ-m3
+X-Proofpoint-ORIG-GUID: 3WRNs6NiXvWX1G8ILvQuTl4gSAfTQ-m3
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=913
- suspectscore=0 adultscore=0 clxscore=1015 mlxscore=0 spamscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 malwarescore=0
- impostorscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2409260000 definitions=main-2411060149
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 impostorscore=0
+ mlxlogscore=999 malwarescore=0 phishscore=0 adultscore=0 mlxscore=0
+ spamscore=0 bulkscore=0 lowpriorityscore=0 priorityscore=1501
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411060149
 
-Expose API for creation of a jack control for notifying of available
-devices that are plugged in/discovered, and that support offloading.  This
-allows for control names to be standardized across implementations of USB
-audio offloading.
+Create a USB BE component that will register a new USB port to the ASoC USB
+framework.  This will handle determination on if the requested audio
+profile is supported by the USB device currently selected.
 
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Check for if the PCM format is supported during the hw_params callback.  If
+the profile is not supported then the userspace ALSA entity will receive an
+error, and can take further action.
+
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- include/sound/soc-usb.h | 23 +++++++++++
- sound/soc/soc-usb.c     | 89 +++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 112 insertions(+)
+ include/sound/q6usboffload.h  |  20 +++
+ sound/soc/qcom/Kconfig        |  10 ++
+ sound/soc/qcom/qdsp6/Makefile |   1 +
+ sound/soc/qcom/qdsp6/q6usb.c  | 246 ++++++++++++++++++++++++++++++++++
+ 4 files changed, 277 insertions(+)
+ create mode 100644 include/sound/q6usboffload.h
+ create mode 100644 sound/soc/qcom/qdsp6/q6usb.c
 
-diff --git a/include/sound/soc-usb.h b/include/sound/soc-usb.h
-index db9ff0b4191d..587ea07a8cf5 100644
---- a/include/sound/soc-usb.h
-+++ b/include/sound/soc-usb.h
-@@ -56,6 +56,12 @@ int snd_soc_usb_connect(struct device *usbdev, struct snd_soc_usb_device *sdev);
- int snd_soc_usb_disconnect(struct device *usbdev, struct snd_soc_usb_device *sdev);
- void *snd_soc_usb_find_priv_data(struct device *usbdev);
- 
-+int snd_soc_usb_setup_offload_jack(struct snd_soc_component *component,
-+				   struct snd_soc_jack *jack);
-+int snd_soc_usb_disable_offload_jack(struct snd_soc_component *component);
-+int snd_soc_usb_enable_offload_jack(struct snd_soc_component *component,
-+				    struct snd_soc_jack *jack);
-+
- struct snd_soc_usb *snd_soc_usb_allocate_port(struct snd_soc_component *component,
- 					      void *data);
- void snd_soc_usb_free_port(struct snd_soc_usb *usb);
-@@ -86,6 +92,23 @@ static inline void *snd_soc_usb_find_priv_data(struct device *usbdev)
- 	return NULL;
- }
- 
-+static inline int snd_soc_usb_setup_offload_jack(struct snd_soc_component *component,
-+						 struct snd_soc_jack *jack)
-+{
-+	return 0;
-+}
-+
-+static inline int snd_soc_usb_disable_offload_jack(struct snd_soc_component *component)
-+{
-+	return 0;
-+}
-+
-+static inline int snd_soc_usb_enable_offload_jack(struct snd_soc_component *component,
-+						  struct snd_soc_jack *jack)
-+{
-+	return 0;
-+}
-+
- static inline struct snd_soc_usb *
- snd_soc_usb_allocate_port(struct snd_soc_component *component, void *data)
- {
-diff --git a/sound/soc/soc-usb.c b/sound/soc/soc-usb.c
-index c63033468e4a..ab914878e101 100644
---- a/sound/soc/soc-usb.c
-+++ b/sound/soc/soc-usb.c
-@@ -4,7 +4,10 @@
-  */
- #include <linux/of.h>
- #include <linux/usb.h>
-+
-+#include <sound/jack.h>
- #include <sound/soc-usb.h>
-+
- #include "../usb/card.h"
- 
- static DEFINE_MUTEX(ctx_mutex);
-@@ -56,6 +59,92 @@ static struct snd_soc_usb *snd_soc_find_usb_ctx(struct device *dev)
- 	return ctx ? ctx : NULL;
- }
- 
-+/* SOC USB sound kcontrols */
-+/**
-+ * snd_soc_usb_setup_offload_jack() - Create USB offloading jack
-+ * @component: USB DPCM backend DAI component
-+ * @jack: jack structure to create
+diff --git a/include/sound/q6usboffload.h b/include/sound/q6usboffload.h
+new file mode 100644
+index 000000000000..35fd7388fd52
+--- /dev/null
++++ b/include/sound/q6usboffload.h
+@@ -0,0 +1,20 @@
++/* SPDX-License-Identifier: GPL-2.0
 + *
-+ * Creates a jack device for notifying userspace of the availability
-+ * of an offload capable device.
++ * sound/q6usboffload.h -- QDSP6 USB offload
 + *
-+ * Returns 0 on success, negative on error.
-+ *
++ * Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
 + */
-+int snd_soc_usb_setup_offload_jack(struct snd_soc_component *component,
-+				   struct snd_soc_jack *jack)
-+{
-+	int ret;
-+
-+	ret = snd_soc_card_jack_new(component->card, "USB Offload Jack",
-+				    SND_JACK_USB, jack);
-+	if (ret < 0) {
-+		dev_err(component->card->dev, "Unable to add USB offload jack: %d\n",
-+			ret);
-+		return ret;
-+	}
-+
-+	ret = snd_soc_component_set_jack(component, jack, NULL);
-+	if (ret) {
-+		dev_err(component->card->dev, "Failed to set jack: %d\n", ret);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_setup_offload_jack);
 +
 +/**
-+ * snd_soc_usb_disable_offload_jack() - Disables USB offloading jack
-+ * @component: USB DPCM backend DAI component
-+ *
-+ * Disables the offload jack device, so that further connection events
-+ * won't be notified.
-+ *
-+ * Returns 0 on success, negative on error.
-+ *
-+ */
-+int snd_soc_usb_disable_offload_jack(struct snd_soc_component *component)
-+{
-+	int ret;
++ * struct q6usb_offload
++ * @dev - dev handle to usb be
++ * @domain - allocated iommu domain
++ * @sid - streamID for iommu
++ * @intr_num - usb interrupter number
++ **/
++struct q6usb_offload {
++	struct device *dev;
++	struct iommu_domain *domain;
++	long long sid;
++	u16 intr_num;
++};
+diff --git a/sound/soc/qcom/Kconfig b/sound/soc/qcom/Kconfig
+index ca7a30ebd26a..77c21fc4fc1b 100644
+--- a/sound/soc/qcom/Kconfig
++++ b/sound/soc/qcom/Kconfig
+@@ -118,6 +118,16 @@ config SND_SOC_QDSP6_PRM
+ 	tristate
+ 	select SND_SOC_QDSP6_PRM_LPASS_CLOCKS
+ 
++config SND_SOC_QDSP6_USB
++    tristate "SoC ALSA USB offloading backing for QDSP6"
++    depends on SND_SOC_USB
++    help
++      Adds support for USB offloading for QDSP6 ASoC
++      based platform sound cards.  This will enable the
++      Q6USB DPCM backend DAI link, which will interact
++      with the SoC USB framework to initialize a session
++      with active USB SND devices.
 +
-+	ret = snd_soc_component_set_jack(component, NULL, NULL);
-+	if (ret) {
-+		dev_err(component->card->dev, "Failed to disable jack: %d\n", ret);
-+		return ret;
+ config SND_SOC_QDSP6
+ 	tristate "SoC ALSA audio driver for QDSP6"
+ 	depends on QCOM_APR
+diff --git a/sound/soc/qcom/qdsp6/Makefile b/sound/soc/qcom/qdsp6/Makefile
+index 26b7c55c9c11..67267304e7e9 100644
+--- a/sound/soc/qcom/qdsp6/Makefile
++++ b/sound/soc/qcom/qdsp6/Makefile
+@@ -17,3 +17,4 @@ obj-$(CONFIG_SND_SOC_QDSP6_APM_DAI) += q6apm-dai.o
+ obj-$(CONFIG_SND_SOC_QDSP6_APM_LPASS_DAI) += q6apm-lpass-dais.o
+ obj-$(CONFIG_SND_SOC_QDSP6_PRM) += q6prm.o
+ obj-$(CONFIG_SND_SOC_QDSP6_PRM_LPASS_CLOCKS) += q6prm-clocks.o
++obj-$(CONFIG_SND_SOC_QDSP6_USB) += q6usb.o
+diff --git a/sound/soc/qcom/qdsp6/q6usb.c b/sound/soc/qcom/qdsp6/q6usb.c
+new file mode 100644
+index 000000000000..2b3e24520070
+--- /dev/null
++++ b/sound/soc/qcom/qdsp6/q6usb.c
+@@ -0,0 +1,246 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
++ */
++
++#include <linux/device.h>
++#include <linux/dma-mapping.h>
++#include <linux/dma-map-ops.h>
++#include <linux/err.h>
++#include <linux/init.h>
++#include <linux/iommu.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++
++#include <sound/asound.h>
++#include <sound/pcm.h>
++#include <sound/pcm_params.h>
++#include <sound/q6usboffload.h>
++#include <sound/soc.h>
++#include <sound/soc-usb.h>
++
++#include <dt-bindings/sound/qcom,q6afe.h>
++
++#include "q6afe.h"
++#include "q6dsp-lpass-ports.h"
++
++#define Q6_USB_SID_MASK	0xF
++
++struct q6usb_port_data {
++	struct q6afe_usb_cfg usb_cfg;
++	struct snd_soc_usb *usb;
++	struct q6usb_offload priv;
++
++	/* Protects against operations between SOC USB and ASoC */
++	struct mutex mutex;
++	struct list_head devices;
++};
++
++static const struct snd_soc_dapm_widget q6usb_dai_widgets[] = {
++	SND_SOC_DAPM_HP("USB_RX_BE", NULL),
++};
++
++static const struct snd_soc_dapm_route q6usb_dapm_routes[] = {
++	{"USB Playback", NULL, "USB_RX_BE"},
++};
++
++static int q6usb_hw_params(struct snd_pcm_substream *substream,
++			   struct snd_pcm_hw_params *params,
++			   struct snd_soc_dai *dai)
++{
++	struct q6usb_port_data *data = dev_get_drvdata(dai->dev);
++	struct snd_soc_pcm_runtime *rtd = substream->private_data;
++	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
++	int direction = substream->stream;
++	struct q6afe_port *q6usb_afe;
++	struct snd_soc_usb_device *sdev;
++	int ret = -EINVAL;
++
++	mutex_lock(&data->mutex);
++
++	/* No active chip index */
++	if (list_empty(&data->devices))
++		goto out;
++
++	sdev = list_last_entry(&data->devices, struct snd_soc_usb_device, list);
++
++	ret = snd_soc_usb_find_supported_format(sdev->chip_idx, params, direction);
++	if (ret < 0)
++		goto out;
++
++	q6usb_afe = q6afe_port_get_from_id(cpu_dai->dev, USB_RX);
++	if (IS_ERR(q6usb_afe))
++		goto out;
++
++	/* Notify audio DSP about the devices being offloaded */
++	ret = afe_port_send_usb_dev_param(q6usb_afe, sdev->card_idx,
++					  sdev->ppcm_idx[sdev->num_playback - 1]);
++
++out:
++	mutex_unlock(&data->mutex);
++
++	return ret;
++}
++
++static const struct snd_soc_dai_ops q6usb_ops = {
++	.hw_params = q6usb_hw_params,
++};
++
++static struct snd_soc_dai_driver q6usb_be_dais[] = {
++	{
++		.playback = {
++			.stream_name = "USB BE RX",
++			.rates = SNDRV_PCM_RATE_8000 | SNDRV_PCM_RATE_11025 |
++				SNDRV_PCM_RATE_16000 | SNDRV_PCM_RATE_22050 |
++				SNDRV_PCM_RATE_32000 | SNDRV_PCM_RATE_44100 |
++				SNDRV_PCM_RATE_48000 | SNDRV_PCM_RATE_96000 |
++				SNDRV_PCM_RATE_192000,
++			.formats = SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S16_BE |
++				SNDRV_PCM_FMTBIT_U16_LE | SNDRV_PCM_FMTBIT_U16_BE |
++				SNDRV_PCM_FMTBIT_S24_LE | SNDRV_PCM_FMTBIT_S24_BE |
++				SNDRV_PCM_FMTBIT_U24_LE | SNDRV_PCM_FMTBIT_U24_BE,
++			.channels_min = 1,
++			.channels_max = 2,
++			.rate_max =     192000,
++			.rate_min =	8000,
++		},
++		.id = USB_RX,
++		.name = "USB_RX_BE",
++		.ops = &q6usb_ops,
++	},
++};
++
++static int q6usb_audio_ports_of_xlate_dai_name(struct snd_soc_component *component,
++					       const struct of_phandle_args *args,
++					       const char **dai_name)
++{
++	int id = args->args[0];
++	int ret = -EINVAL;
++	int i;
++
++	for (i = 0; i < ARRAY_SIZE(q6usb_be_dais); i++) {
++		if (q6usb_be_dais[i].id == id) {
++			*dai_name = q6usb_be_dais[i].name;
++			ret = 0;
++			break;
++		}
 +	}
++
++	return ret;
++}
++
++static int q6usb_alsa_connection_cb(struct snd_soc_usb *usb,
++				    struct snd_soc_usb_device *sdev, bool connected)
++{
++	struct q6usb_port_data *data;
++
++	if (!usb->component)
++		return -ENODEV;
++
++	data = dev_get_drvdata(usb->component->dev);
++
++	mutex_lock(&data->mutex);
++	if (connected) {
++		/* Selects the latest USB headset plugged in for offloading */
++		list_add_tail(&sdev->list, &data->devices);
++	} else {
++		list_del(&sdev->list);
++	}
++	mutex_unlock(&data->mutex);
 +
 +	return 0;
 +}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_disable_offload_jack);
 +
-+/**
-+ * snd_soc_usb_enable_offload_jack() - Enables USB offloading jack
-+ * @component: USB DPCM backend DAI component
-+ * @jack: offload jack to enable
-+ *
-+ * Enables the offload jack device, so that further connection events
-+ * will be notified.  This is the complement to
-+ * snd_soc_usb_disable_offload_jack().
-+ *
-+ * Returns 0 on success, negative on error.
-+ *
-+ */
-+int snd_soc_usb_enable_offload_jack(struct snd_soc_component *component,
-+				    struct snd_soc_jack *jack)
++static int q6usb_component_probe(struct snd_soc_component *component)
 +{
-+	int ret;
++	struct q6usb_port_data *data = dev_get_drvdata(component->dev);
++	struct snd_soc_usb *usb;
 +
-+	ret = snd_soc_component_set_jack(component, jack, NULL);
-+	if (ret) {
-+		dev_err(component->card->dev, "Failed to enable jack: %d\n", ret);
-+		return ret;
-+	}
++	usb = snd_soc_usb_allocate_port(component, &data->priv);
++	if (IS_ERR(usb))
++		return -ENOMEM;
++
++	usb->connection_status_cb = q6usb_alsa_connection_cb;
++
++	snd_soc_usb_add_port(usb);
++	data->usb = usb;
 +
 +	return 0;
 +}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_enable_offload_jack);
 +
- /**
-  * snd_soc_usb_find_priv_data() - Retrieve private data stored
-  * @usbdev: device reference
++static void q6usb_component_remove(struct snd_soc_component *component)
++{
++	struct q6usb_port_data *data = dev_get_drvdata(component->dev);
++
++	snd_soc_usb_remove_port(data->usb);
++	snd_soc_usb_free_port(data->usb);
++}
++
++static const struct snd_soc_component_driver q6usb_dai_component = {
++	.probe = q6usb_component_probe,
++	.remove = q6usb_component_remove,
++	.name = "q6usb-dai-component",
++	.dapm_widgets = q6usb_dai_widgets,
++	.num_dapm_widgets = ARRAY_SIZE(q6usb_dai_widgets),
++	.dapm_routes = q6usb_dapm_routes,
++	.num_dapm_routes = ARRAY_SIZE(q6usb_dapm_routes),
++	.of_xlate_dai_name = q6usb_audio_ports_of_xlate_dai_name,
++};
++
++static int q6usb_dai_dev_probe(struct platform_device *pdev)
++{
++	struct device_node *node = pdev->dev.of_node;
++	struct q6usb_port_data *data;
++	struct device *dev = &pdev->dev;
++	struct of_phandle_args args;
++	int ret;
++
++	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
++	ret = of_property_read_u16(node, "qcom,usb-audio-intr-idx",
++				   &data->priv.intr_num);
++	if (ret) {
++		dev_err(&pdev->dev, "failed to read intr idx.\n");
++		return ret;
++	}
++
++	ret = of_parse_phandle_with_fixed_args(node, "iommus", 1, 0, &args);
++	if (ret < 0)
++		data->priv.sid = -1;
++	else
++		data->priv.sid = args.args[0] & Q6_USB_SID_MASK;
++
++	data->priv.domain = iommu_get_domain_for_dev(&pdev->dev);
++
++	data->priv.dev = dev;
++	INIT_LIST_HEAD(&data->devices);
++	dev_set_drvdata(dev, data);
++
++	return devm_snd_soc_register_component(dev, &q6usb_dai_component,
++					q6usb_be_dais, ARRAY_SIZE(q6usb_be_dais));
++}
++
++static const struct of_device_id q6usb_dai_device_id[] = {
++	{ .compatible = "qcom,q6usb" },
++	{},
++};
++MODULE_DEVICE_TABLE(of, q6usb_dai_device_id);
++
++static struct platform_driver q6usb_dai_platform_driver = {
++	.driver = {
++		.name = "q6usb-dai",
++		.of_match_table = of_match_ptr(q6usb_dai_device_id),
++	},
++	.probe = q6usb_dai_dev_probe,
++	/*
++	 * Remove not required as resources are cleaned up as part of
++	 * component removal.  Others are device managed resources.
++	 */
++};
++module_platform_driver(q6usb_dai_platform_driver);
++
++MODULE_DESCRIPTION("Q6 USB backend dai driver");
++MODULE_LICENSE("GPL");

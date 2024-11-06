@@ -1,46 +1,46 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DB1220B1F1;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9521C20B1E9;
 	Wed,  6 Nov 2024 19:34:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730921688; cv=none; b=YVt1hoR/P6umA8V1l9D+Qt/gYqyVF9j5I/ozVQ6VM9Bo+XodXFEUVeb7IYxXOz3CCwE+TpB/JGoiXHK6hsqaStYtuqhNnW0EwnU/ma39tz0Nyv/Pvq+qFj83I88RYP80CYzVNnIAp2CDq3AUw0ZKKhRgfIjOAbCjlkRkrDw5VvM=
+	t=1730921688; cv=none; b=oDGK/uTIL7ScoJv2RgOadlwuQ8X3eJn6qNwiL26JtwOzHoIBLecsFZK/crHyVrT95H28cBSeuWl/M1oxo+MfYSbO23NUCAkIqqa287Uw01NfVpcXjTPlWvjxl9e1dOf0ZOEzFcuyaLfT4xeUcfHC/unyI9u6q1q6VGfuKX9JshU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1730921688; c=relaxed/simple;
-	bh=3aKgo1B1SjDxD8PPQOCXFwIWL2yks3KgGJZ11r+01yM=;
+	bh=S6FMCZqhVORDjmGIdqc8rXu1RNcS+gjVrsIOxyBtOW8=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=savabo/vNki8kNbCwi77NAoz3ndWslQwW33+W0q6BFhJ8znWBR/saP3wk5yIFkazVGcYH96aAuyNCubz+65rM/65SzT1qo/iZIlwyONyeu7ObaWDUuXuALNwiCx2dNnsH739b8v/noK64hLb6DTXJT6lywGoVlzDTqIP8v+XghA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=OCsR175x; arc=none smtp.client-ip=205.220.168.131
+	 MIME-Version:Content-Type; b=aMx9205ptmTp1yOJivwRlPlYnxDVcZ9zMPv8KQRuFASOKv3P3qDNr9+iH/ydgaq10fJe6djd1/71bVNJZCXBOZ3POjFQzkchEB+L6dHSYU0Z89P1FLUGGXA9WW+LpgOZn2+gFxX3G+fAgtEhVCZQTzdkQN+6tTg+Mlsi+9Exlcc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=pvQ20/tL; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="OCsR175x"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A6ADNU9002680;
-	Wed, 6 Nov 2024 19:34:33 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="pvQ20/tL"
+Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4A6G9I1g024567;
+	Wed, 6 Nov 2024 19:34:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	S5Jw2gC1EQgPX91aR8AjH9HQJRC/Jt3vETf9MI+H438=; b=OCsR175xOQKrjKpU
-	ZNNwC3Cy22dq5MJdT0zr14LPrE90ri1q4+kD655F1NfengqXb2DmSRMoLTZtc9rK
-	ThxprDLq6x0TAwjX+r94xGQGAbIydVDyabeyXaaExKSKqpr0V5azVF0Q0Q803oXO
-	/FthQd1CRb+tZINffZ0+2RcII4x1mpK9xRqMJ9xRg8DlmCVYezawCdf2xdrG5p5E
-	SGxGdLjbsufz4oD9U9pujTjcB0teBRSIplBtw/gf+xqxWTYNYH/hxa9H/z/pWQIn
-	vDHadvSAJXoCzETPLZLx/xza91k3WIaQB4fa4cOHGjMdFj3O4Fk65MBq+/RCB9Yi
-	JoW6Jg==
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 42qvhd2y8x-1
+	bioXrssGHt22KXnwOvG5MvHodH36aHbdDnMMtMovjy4=; b=pvQ20/tLlyO+N0T1
+	h96RTp1rm2cFCPPaE0mjac2/IefoiEp0OLnEATzAjAX0ronTfi8KFBhRSYBiu6Mk
+	D+kqPLpt7VYUogbjr3kkCq+NlPAVnG7G8n/l0Gj3P4UnrPKq7qpEzfqrVCE8F86h
+	SAfJHCk2+8RTsmI8G12Ad3Bb1PL+qEVpJ8XHGLhy2zCoJEJ0DT89shUdB7BJFcq9
+	wRWXLBcvvaKmwz9ZIGu8sBiU9AeBMrGxK00527b+sN8gnS/EVNfjZKHiK5WB7jtT
+	gMLLxdovQY3qB/kexRt91lxFbIFNgpG0p6xOCFQfjM8XD1t2jw+N1nqLpPywXHOe
+	wJN88A==
+Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 42r2ugt4yx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 06 Nov 2024 19:34:32 +0000 (GMT)
+	Wed, 06 Nov 2024 19:34:31 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA01.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 4A6JYWF9011967
+	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 4A6JYUC5003973
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 6 Nov 2024 19:34:32 GMT
+	Wed, 6 Nov 2024 19:34:30 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Wed, 6 Nov 2024 11:34:31 -0800
+ 15.2.1544.9; Wed, 6 Nov 2024 11:34:29 -0800
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -52,9 +52,9 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-sound@vger.kernel.org>, <linux-usb@vger.kernel.org>,
         <linux-input@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
-Subject: [PATCH v30 10/30] ALSA: usb-audio: Save UAC sample size information
-Date: Wed, 6 Nov 2024 11:33:53 -0800
-Message-ID: <20241106193413.1730413-11-quic_wcheng@quicinc.com>
+Subject: [PATCH v30 04/30] usb: host: xhci-mem: Allow for interrupter clients to choose specific index
+Date: Wed, 6 Nov 2024 11:33:47 -0800
+Message-ID: <20241106193413.1730413-5-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20241106193413.1730413-1-quic_wcheng@quicinc.com>
 References: <20241106193413.1730413-1-quic_wcheng@quicinc.com>
@@ -70,53 +70,132 @@ X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: qHhC0xB32AH0VAlXaMM1iMCxJlU9-X0n
-X-Proofpoint-GUID: qHhC0xB32AH0VAlXaMM1iMCxJlU9-X0n
+X-Proofpoint-ORIG-GUID: gH_O-TLzL0txk96D-5qOX6fYa_B78s-f
+X-Proofpoint-GUID: gH_O-TLzL0txk96D-5qOX6fYa_B78s-f
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- suspectscore=0 adultscore=0 clxscore=1015 mlxscore=0 spamscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 malwarescore=0
- impostorscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2409260000 definitions=main-2411060149
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 mlxscore=0 suspectscore=0 priorityscore=1501 phishscore=0
+ clxscore=1015 impostorscore=0 malwarescore=0 bulkscore=0 mlxlogscore=760
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2409260000 definitions=main-2411060149
 
-Within the UAC descriptor, there is information describing the size of a
-sample (bSubframeSize/bSubslotSize) and the number of relevant bits
-(bBitResolution).  Currently, fmt_bits carries only the bit resolution,
-however, some offloading entities may also require the overall size of the
-sample.  Save this information in a separate parameter, as depending on the
-UAC format type, the sample size can not easily be decoded from other
-existing parameters.
+Some clients may operate only on a specific XHCI interrupter instance.
+Allow for the associated class driver to request for the interrupter that
+it requires.
 
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- sound/usb/card.h   | 1 +
- sound/usb/format.c | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/usb/host/xhci-mem.c       | 24 ++++++++++++++----------
+ drivers/usb/host/xhci-sec-intr.c  |  5 +++--
+ drivers/usb/host/xhci.h           |  2 +-
+ include/linux/usb/xhci-sec-intr.h |  2 +-
+ 4 files changed, 19 insertions(+), 14 deletions(-)
 
-diff --git a/sound/usb/card.h b/sound/usb/card.h
-index 4f4f3f39b7fa..b65163c60176 100644
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -15,6 +15,7 @@ struct audioformat {
- 	unsigned int channels;		/* # channels */
- 	unsigned int fmt_type;		/* USB audio format type (1-3) */
- 	unsigned int fmt_bits;		/* number of significant bits */
-+	unsigned int fmt_sz;		/* overall audio sub frame/slot size */
- 	unsigned int frame_size;	/* samples per frame for non-audio */
- 	unsigned char iface;		/* interface number */
- 	unsigned char altsetting;	/* corresponding alternate setting */
-diff --git a/sound/usb/format.c b/sound/usb/format.c
-index 0cbf1d4fbe6e..f8a93065ad73 100644
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -80,6 +80,7 @@ static u64 parse_audio_format_i_type(struct snd_usb_audio *chip,
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index f6cfc989e28e..598d0b92c6fe 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -2338,14 +2338,15 @@ xhci_add_interrupter(struct xhci_hcd *xhci, struct xhci_interrupter *ir,
+ 
+ struct xhci_interrupter *
+ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+-				  u32 imod_interval)
++				  u32 imod_interval, unsigned int intr_num)
+ {
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+ 	struct xhci_interrupter *ir;
+ 	unsigned int i;
+ 	int err = -ENOSPC;
+ 
+-	if (!xhci->interrupters || xhci->max_interrupters <= 1)
++	if (!xhci->interrupters || xhci->max_interrupters <= 1 ||
++	    intr_num >= xhci->max_interrupters)
+ 		return NULL;
+ 
+ 	ir = xhci_alloc_interrupter(xhci, segs, GFP_KERNEL);
+@@ -2353,15 +2354,18 @@ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+ 		return NULL;
+ 
+ 	spin_lock_irq(&xhci->lock);
+-
+-	/* Find available secondary interrupter, interrupter 0 is reserved for primary */
+-	for (i = 1; i < xhci->max_interrupters; i++) {
+-		if (xhci->interrupters[i] == NULL) {
+-			err = xhci_add_interrupter(xhci, ir, i);
+-			break;
++	if (!intr_num) {
++		/* Find available secondary interrupter, interrupter 0 is reserved for primary */
++		for (i = 1; i < xhci->max_interrupters; i++) {
++			if (!xhci->interrupters[i]) {
++				err = xhci_add_interrupter(xhci, ir, i);
++				break;
++			}
+ 		}
++	} else {
++		if (!xhci->interrupters[intr_num])
++			err = xhci_add_interrupter(xhci, ir, intr_num);
+ 	}
+-
+ 	spin_unlock_irq(&xhci->lock);
+ 
+ 	if (err) {
+@@ -2377,7 +2381,7 @@ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+ 			  i, imod_interval);
+ 
+ 	xhci_dbg(xhci, "Add secondary interrupter %d, max interrupters %d\n",
+-		 i, xhci->max_interrupters);
++		 ir->intr_num, xhci->max_interrupters);
+ 
+ 	return ir;
+ }
+diff --git a/drivers/usb/host/xhci-sec-intr.c b/drivers/usb/host/xhci-sec-intr.c
+index b112c3388368..80d889979f30 100644
+--- a/drivers/usb/host/xhci-sec-intr.c
++++ b/drivers/usb/host/xhci-sec-intr.c
+@@ -273,7 +273,7 @@ EXPORT_SYMBOL_GPL(xhci_sec_intr_get_event_buffer);
+  */
+ int
+ xhci_sec_intr_create_interrupter(struct xhci_sec_intr *si, int num_seg,
+-				 bool ip_autoclear, u32 imod_interval)
++				 bool ip_autoclear, u32 imod_interval, int intr_num)
+ {
+ 	int ret = 0;
+ 
+@@ -287,7 +287,8 @@ xhci_sec_intr_create_interrupter(struct xhci_sec_intr *si, int num_seg,
  	}
  
- 	fp->fmt_bits = sample_width;
-+	fp->fmt_sz = sample_bytes;
+ 	si->ir = xhci_create_secondary_interrupter(xhci_to_hcd(si->xhci),
+-						   num_seg, imod_interval);
++						   num_seg, imod_interval,
++						   intr_num);
+ 	if (!si->ir) {
+ 		ret = -ENOMEM;
+ 		goto out;
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index cde0105a7f1e..a95adbfc583b 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1833,7 +1833,7 @@ void xhci_free_container_ctx(struct xhci_hcd *xhci,
+ 		struct xhci_container_ctx *ctx);
+ struct xhci_interrupter *
+ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+-				  u32 imod_interval);
++				  u32 imod_interval, unsigned int intr_num);
+ void xhci_remove_secondary_interrupter(struct usb_hcd
+ 				       *hcd, struct xhci_interrupter *ir);
+ void xhci_skip_sec_intr_events(struct xhci_hcd *xhci,
+diff --git a/include/linux/usb/xhci-sec-intr.h b/include/linux/usb/xhci-sec-intr.h
+index f6edb27b1d99..6e9b891bdced 100644
+--- a/include/linux/usb/xhci-sec-intr.h
++++ b/include/linux/usb/xhci-sec-intr.h
+@@ -59,7 +59,7 @@ xhci_sec_intr_get_event_buffer(struct xhci_sec_intr *si);
  
- 	if ((pcm_formats == 0) &&
- 	    (format == 0 || format == BIT(UAC_FORMAT_TYPE_I_UNDEFINED))) {
+ int
+ xhci_sec_intr_create_interrupter(struct xhci_sec_intr *si, int num_seg,
+-				 bool ip_autoclear, u32 imod_interval);
++				 bool ip_autoclear, u32 imod_interval, int intr_num);
+ 
+ void
+ xhci_sec_intr_remove_interrupter(struct xhci_sec_intr *si);

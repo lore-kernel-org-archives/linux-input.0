@@ -1,104 +1,96 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C27B25777
-	for <linux-input@vger.kernel.org>; Mon, 11 Nov 2024 17:25:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 253F11BF58
+	for <linux-input@vger.kernel.org>; Mon, 11 Nov 2024 17:32:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.62.61
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731345952; cv=none; b=YVe+cySBCep9+yzu6KOCh5b7vlUbOsYjSUvoA6//gtuOvv/onCcg/F8UCtSpXf33hWdCMQ3nDmmoeHGk1FQwF/P241Y1vNX9po/jkYPO6gGFvY3XJ2zgLBOEdLZzZSW1z21Wje9mOw9KzUkmRGDvr3PCH9KUoiYTldQ3Lzbz5rU=
+	t=1731346327; cv=none; b=Ferl5jGF9q8LAeO2WqeYWlWh9JRY0bek5O2YBmDfP5J3taBkhU9OxllTmmeZRej3O64La/JOCShHZ4DmuzpFqZqQ6Qe6M9VXkx0xTGfMxAX6LbmDLVpWQM2BF4FPX1Num16wJqHLm9HCaH29H9KEBCCGENWEcmJdzALzXIyADwM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1731345952; c=relaxed/simple;
-	bh=ZTk11ZVemdflfr0virzfjHPwj/DySg68gOxo+IYI7+0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P56ygsnR1tpd9tDEPfcp7bxbQBCHYQSGGKnX/Sw0tZaAfq5JejYEF0H3o31H5KitliUQeVzgtjEfFUhllPQPcCw2rJ1gjMu7/kOxbd8BZnsWiTPwtXkcOBgJ2vsqDWbSuDKXT+YrNFDmVlyAJFIJhkFlUFLnSTfQHjVckWMQXmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=YZmsLlt+; arc=none smtp.client-ip=209.85.167.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1731346327; c=relaxed/simple;
+	bh=R1OxGtW1OXn6UnWHatNz7pta1Hc/mAoMIINg5IcSwIw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rrww2ktrLxTEVsN8efvwB1PS/rda726BWfe3G/EW4EhY/JkkThsD4vGuBWQoW7QurMKJNs/KqjYDiNNn+NihBIN+k7zf6c1p9hX15izddpVQdi8zaIdmoHgwexvu4Pcm4/iCwG3CsAtbXzjkckoq+gpunBVaaEfRBi//J+HdVws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=mIveQqah; arc=none smtp.client-ip=85.214.62.61
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="YZmsLlt+"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-53a007743e7so5663101e87.1
-        for <linux-input@vger.kernel.org>; Mon, 11 Nov 2024 09:25:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1731345949; x=1731950749; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jH1JjioDnQEXEHp1YxtApalVozz8jy8hPAeJoS9fBbM=;
-        b=YZmsLlt+y7Rd0Omr+40zZ/HfxSdmp0NmvrfXBCqw62B7x5Va7ImQLM/xAqXjDKFADe
-         3aYUcZtVg56gQ7lboA9dN1oU/LsqMNnPCjephIRAXq/pSISP6oTEwnzzhjG7C10sU7XZ
-         vPAOOFagaSsKbSzmRmU1/JkdEVAFMqst0Sh+0=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1731345949; x=1731950749;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jH1JjioDnQEXEHp1YxtApalVozz8jy8hPAeJoS9fBbM=;
-        b=Qqv+BbXr71F5PEsW7Uk0lo4phGPQVS412OV31GMCRKCZdhWzekHHnJPdm8K6gJikJy
-         d1mESb9O+5tq5sNnvA8B+X5Og330/yB3WEXVl7VI+pEMoVzHXjQKnY6ANf9Fs1TGNvh8
-         kPu/Gb1Y3NExMOoYza08WKMF9auspyYNlCjgJeF1TrTmHkSL4R2UdNUAce3OmhCntH+u
-         OwVC8+9Z5g+9vPqBu2udB4mqY3GFVZXOkSlWXXG+Z6qOcu+EOgdotRZNiZfSDKsKyzSq
-         ct4WmHECgLyTJXwy4b/v0d3DvX0UihcSpcVflSuVMJ7f+g792qmdPiDuRueylAlUkioX
-         14UQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXQjKfR5c1lexEKhS6a7U16xryqf5vecO+bK8msLVqU33w2KpLDIjuPz+poB3Z5y46AE076CeZy2+NaQQ==@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy61RJ65hy/N5hb8Y2wfssHNacZrDQMMBKn6fHFr8BGIkZwXAzQ
-	AK+bbrCfTW8eR3+Rxo8Szfuz5UCGxMFK9FgdeLWIEK9nEMTHeESfiq8HPtx6oIQm90J/hrRlDkb
-	HXw==
-X-Google-Smtp-Source: AGHT+IF1mSjLdB4TnFpX7/BjPRntryBLtvZHzUEDEfg1Ai+VC2To/FS8lHdb0rp+420TB3JIsF166g==
-X-Received: by 2002:a05:6512:1255:b0:539:fcba:cc6d with SMTP id 2adb3069b0e04-53d8626c818mr5747776e87.42.1731345948746;
-        Mon, 11 Nov 2024 09:25:48 -0800 (PST)
-Received: from mail-lj1-f172.google.com (mail-lj1-f172.google.com. [209.85.208.172])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-53d826a723dsm1594258e87.124.2024.11.11.09.25.47
-        for <linux-input@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 11 Nov 2024 09:25:47 -0800 (PST)
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-2fc968b3545so38675931fa.2
-        for <linux-input@vger.kernel.org>; Mon, 11 Nov 2024 09:25:47 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXbBOIIEZJBGp5odKl81HOT0weyGY0aHEfPz/jHo6bHopHIyWxtr6016BJ6F94Ix7PhrTpc5y5zV/iuLw==@vger.kernel.org
-X-Received: by 2002:a05:651c:1593:b0:2fb:60a0:f4e1 with SMTP id
- 38308e7fff4ca-2ff201b29a7mr58237271fa.24.1731345947358; Mon, 11 Nov 2024
- 09:25:47 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="mIveQqah"
+Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
+	(No client certificate requested)
+	(Authenticated sender: marex@denx.de)
+	by phobos.denx.de (Postfix) with ESMTPSA id 108F88932A;
+	Mon, 11 Nov 2024 18:32:03 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+	s=phobos-20191101; t=1731346324;
+	bh=m+Eyb5nA9rP5UvCqe5BJXcKC8MFjYJaJOoHKui5tOZc=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=mIveQqahnM5ROin2S8Hd9hqJT92YGDjyviAFuRNsqftCOxP0Ha/b5in09JCXIVOba
+	 o5pr2rda+lX8TFA8UPLPUiniuAS3I0t+73b6DwLH7uA8XbumIYrGRTQrkMtxrEjV9n
+	 ESF5hZEiWz7sZ+y+KSZL5ykZNFTCE18BNkAzcfWplnHn+1Bgk6WqKHHrzM7zgqqzUu
+	 1mpDzt4VuXtPZJqKqHHwKyKvpm7dUdctaj6XqKO0KEBSOtXEoeTAxuPkLB+ut55QJD
+	 yNJTvZYE2A8KkZoX46qhtPe3nxOT+heUkH63krZ/A0ahUQKAh3Q6mopMqzHfMhKqqX
+	 QQSCs4dSCPs4w==
+Message-ID: <781bff37-975d-418e-9ea1-ecb3deb16612@denx.de>
+Date: Mon, 11 Nov 2024 17:18:12 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241111075000.111509-1-charles.goodix@gmail.com> <20241111075000.111509-2-charles.goodix@gmail.com>
-In-Reply-To: <20241111075000.111509-2-charles.goodix@gmail.com>
-From: Doug Anderson <dianders@chromium.org>
-Date: Mon, 11 Nov 2024 09:25:31 -0800
-X-Gmail-Original-Message-ID: <CAD=FV=UDGqVHxFLEh1e5BW5p1Db+WNjntuSqFjf5uSFLncJUvw@mail.gmail.com>
-Message-ID: <CAD=FV=UDGqVHxFLEh1e5BW5p1Db+WNjntuSqFjf5uSFLncJUvw@mail.gmail.com>
-Subject: Re: [PATCH v4 1/2] dt-bindings: input: Goodix GT7986U SPI HID Touchscreen
-To: Charles Wang <charles.goodix@gmail.com>
-Cc: robh@kernel.org, krzk@kernel.org, hbarnor@chromium.org, 
-	conor.dooley@microchip.com, dmitry.torokhov@gmail.com, jikos@kernel.org, 
-	bentiss@kernel.org, linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: ads7846 - Increase xfer array size in 'struct
+ ser_req'
+To: Nathan Chancellor <nathan@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, llvm@lists.linux.dev, patches@lists.linux.dev
+References: <20241111-input-ads7846-increase-xfer-array-size-v1-1-06cd92e9f20f@kernel.org>
+Content-Language: en-US
+From: Marek Vasut <marex@denx.de>
+In-Reply-To: <20241111-input-ads7846-increase-xfer-array-size-v1-1-06cd92e9f20f@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
+X-Virus-Status: Clean
 
-Hi,
-
-On Sun, Nov 10, 2024 at 11:50=E2=80=AFPM Charles Wang <charles.goodix@gmail=
-.com> wrote:
->
-> The Goodix GT7986U touch controller report touch data according to the
-> HID protocol through the SPI bus. However, it is incompatible with
-> Microsoft's HID-over-SPI protocol.
->
-> NOTE: these bindings are distinct from the bindings used with the
-> GT7986U when the chip is running I2C firmware. For some background,
-> see discussion on the mailing lists in the thread:
->
-> https://lore.kernel.org/r/20241018020815.3098263-2-charles.goodix@gmail.c=
-om
->
-> Signed-off-by: Charles Wang <charles.goodix@gmail.com>
+On 11/11/24 4:09 PM, Nathan Chancellor wrote:
+> Clang warns (or errors with CONFIG_WERROR=y, trimmed for brevity):
+> 
+>    drivers/input/touchscreen/ads7846.c:412:2: error: array index 6 is past the end of the array (that has type 'struct spi_transfer[6]') [-Werror,-Warray-bounds]
+>      412 |         req->xfer[6].tx_buf = &req->scratch;
+>          |         ^         ~
+>    ...
+>    drivers/input/touchscreen/ads7846.c:416:2: error: array index 7 is past the end of the array (that has type 'struct spi_transfer[6]') [-Werror,-Warray-bounds]
+>      416 |         req->xfer[7].rx_buf = &req->scratch;
+>          |         ^         ~
+>    drivers/input/touchscreen/ads7846.c:334:2: note: array 'xfer' declared here
+>      334 |         struct spi_transfer     xfer[6];
+>          |         ^
+> 
+> Increase the size of xfer in 'struct ser_req' to ensure that there is
+> enough space for all necessary members and there are no out of bounds
+> accesses, clearing up the warning.
+> 
+> Fixes: 781a07da9bb9 ("Input: ads7846 - add dummy command register clearing cycle")
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 > ---
->  .../bindings/input/goodix,gt7986u-spifw.yaml  | 69 +++++++++++++++++++
->  1 file changed, 69 insertions(+)
+>   drivers/input/touchscreen/ads7846.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/input/touchscreen/ads7846.c b/drivers/input/touchscreen/ads7846.c
+> index f7bc0a3e56d86932823b6bc0dcd6bcd8e1b9b5c2..7b3711a3597c86f18c45d040f73bef884ec3c4aa 100644
+> --- a/drivers/input/touchscreen/ads7846.c
+> +++ b/drivers/input/touchscreen/ads7846.c
+> @@ -331,7 +331,7 @@ struct ser_req {
+>   	u8			ref_off;
+>   	u16			scratch;
+>   	struct spi_message	msg;
+> -	struct spi_transfer	xfer[6];
+> +	struct spi_transfer	xfer[8];
+Sigh ...
 
-As far as I can tell this looks fine now. Thanks!
+Reviewed-by: Marek Vasut <marex@denx.de>
 
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Thank you

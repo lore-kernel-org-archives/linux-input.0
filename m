@@ -1,53 +1,53 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3CF61A2C04;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5A3B1A3047;
 	Sat, 23 Nov 2024 20:06:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732392372; cv=none; b=hynJHXyuW4OwLwpxgEEEAM932pC+RdDIG3pf7E7ODsVjJcPdkDH0mSQO/MaGDLeDkfVv5ciVybVUIj4kCI3YkJf+nGwCe6MUmWWDhHKLepZaglCQJsoB66WtXDvodhD23Omo155w8MU6kNwkZiJC+JoPs5UHnNP64uiLDa+Jdks=
+	t=1732392372; cv=none; b=VlXALqQknh5wHXVU3b14WFgrUagDvxUCOeznXYZpwlpHAyx3TX1msyXojptTV0yhWEnygXIYbe4V7hGcylCqpRwPRrIXhuxw9Ra/zmEn3KuuSuqsMErAOXUBbxyvUTiq5knUR73L24NSv5KXcawzAViXJIXxr/KazoiMiG5CCM4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1732392372; c=relaxed/simple;
-	bh=6Tidakgtdfgzj7ArIO1jYC1ie3c1/PQNJd0mdhYzvBc=;
+	bh=++FE/7iFKI7NjgLLAi5nkL/mj98q5NwZkvRUtGH5+AI=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=DQl2dp9bj15JOYAR+/ZUmhMYttCJwr0TorV4R/Fi+cdHdjtP5UhoyoVvIX2Bf2Ne6mn3CwDAD5SrxGZUMKIYPD9HjSaio46Shi44QZhrYrHYmnyBZtgGalpgWvIk+jQ/7d11YFko53dAJ4+5FPvLyYj4hl/1XO4AZK8Ez9QjFfU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=none smtp.mailfrom=ecsmtp.iind.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZVls4Txp; arc=none smtp.client-ip=198.175.65.18
+	 MIME-Version; b=UyDBPO5/MuoTQOKKfvz1HxO4QwFL5ED/lM2Q0BtFAK2oG5DCF15vp2MgkLxr5HQ7ijqW6bnKVAZby2ft050q8BZ5YpwDxq5zkXw9Rj60wQDJHe8LBfc6mPBNLD5LmsKAb/HM0baLKsw6Lgki3xQ21MmiYj01M/JF2YfWtqQxz6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=none smtp.mailfrom=ecsmtp.iind.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YZWzLDo4; arc=none smtp.client-ip=198.175.65.18
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ecsmtp.iind.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZVls4Txp"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YZWzLDo4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1732392371; x=1763928371;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=6Tidakgtdfgzj7ArIO1jYC1ie3c1/PQNJd0mdhYzvBc=;
-  b=ZVls4TxpWL9TOFkLWuavA58QCniCnFf1yoa8hOgbo5DSqZtnd0hy4cnv
-   4A01qrhCp+cd1miramVWRWCbYG6l7Wa9Nrh6luy1oNaLOXuJlEB3o7j5s
-   sOOjJ3XUEQ/Bx/4CB6USWRTWi1blLwhE4P3+laIXk4J7cAYVhokKQobQN
-   cDepYdY9XfqU+ZJ/eTkgk25zK8yahfQF/Py1b9UBEDtmOPX9P8/p3dUW9
-   Tz6VntDRgG/nXKR+bJsga+vx0IghkbV6fa5TQvWI2/4q/b+SOcqya36bH
-   lwxX6quGPRwplw9WXcqJLmNPvGZOFXUAcYEkK+yJHTPCgFOmDDoiWkXxb
-   w==;
-X-CSE-ConnectionGUID: z1+T5w8pR6+qbw0ctwv01w==
-X-CSE-MsgGUID: UzrV04f2SNaQHrnnJZHR6A==
-X-IronPort-AV: E=McAfee;i="6700,10204,11265"; a="32678568"
+  bh=++FE/7iFKI7NjgLLAi5nkL/mj98q5NwZkvRUtGH5+AI=;
+  b=YZWzLDo4uznLcATZqS+bKSNvfmTF9y9dqC1W5P5c8QRX12qx2wa99toT
+   DfVvHqer4npjxll+SMWo5StTcyQhkIR5ER06Ic4eU2lKRrnFiiRN8H+Ab
+   9a3Ho3JwWjCQxWa6afBINO2sGGRQnMD59ZBnwVD93zCgSDdkD9WWv0FRh
+   Zsv2WekRt8X3RBMrXwaCacelSp2R9CY7PQMBs85J8ZOB3l2miLoNIK8xN
+   68+gBMjMXoyKByThd9Y/HBSDXF59XltRZYt04Hbku9DcRB6jwpVKxvoQa
+   GWS4/E8V3OmxiQYB1/IOtZ6+zL7EmS+UZqRJUurE3rmfXoHHZiB9XepEY
+   g==;
+X-CSE-ConnectionGUID: jSn91T7fSdyScDwBrtcbCw==
+X-CSE-MsgGUID: PGmtXOudRT6nLqxOI3T0rA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11265"; a="32678557"
 X-IronPort-AV: E=Sophos;i="6.12,179,1728975600"; 
-   d="scan'208";a="32678568"
+   d="scan'208";a="32678557"
 Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Nov 2024 12:06:11 -0800
-X-CSE-ConnectionGUID: gq5XiFlmQXaPSQXFGjj4Uw==
-X-CSE-MsgGUID: GYw/XiXGRxuIzfgUMMrHPQ==
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Nov 2024 12:06:08 -0800
+X-CSE-ConnectionGUID: fhU+mkJvQ5CJ+KPPPODyZw==
+X-CSE-MsgGUID: kOVrtAkcT9erutaGHfsrNg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.12,179,1728975600"; 
-   d="scan'208";a="121738002"
+   d="scan'208";a="121737998"
 Received: from inesxmail01.iind.intel.com ([10.223.57.40])
-  by orviesa002.jf.intel.com with ESMTP; 23 Nov 2024 12:06:08 -0800
+  by orviesa002.jf.intel.com with ESMTP; 23 Nov 2024 12:06:04 -0800
 Received: from inlubt0316.iind.intel.com (inlubt0316.iind.intel.com [10.191.20.213])
-	by inesxmail01.iind.intel.com (Postfix) with ESMTP id 3179E1CAE1;
+	by inesxmail01.iind.intel.com (Postfix) with ESMTP id 2428D1CADC;
 	Sun, 24 Nov 2024 01:36:03 +0530 (IST)
 Received: by inlubt0316.iind.intel.com (Postfix, from userid 12101951)
-	id 00C2A1600110; Sun, 24 Nov 2024 01:36:02 +0530 (IST)
+	id 098431600112; Sun, 24 Nov 2024 01:36:03 +0530 (IST)
 From: Raag Jadav <raag.jadav@intel.com>
 To: gregkh@linuxfoundation.org,
 	linus.walleij@linaro.org,
@@ -61,9 +61,9 @@ Cc: linux-gpio@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-sound@vger.kernel.org,
 	Raag Jadav <raag.jadav@intel.com>
-Subject: [PATCH v1 2/5] pinctrl: intel: copy communities using devm_kmemdup_array()
-Date: Sun, 24 Nov 2024 01:35:24 +0530
-Message-Id: <20241123200527.7830-3-raag.jadav@intel.com>
+Subject: [PATCH v1 5/5] ASoC: Intel: avs: use devm_kmemdup_array()
+Date: Sun, 24 Nov 2024 01:35:27 +0530
+Message-Id: <20241123200527.7830-6-raag.jadav@intel.com>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20241123200527.7830-1-raag.jadav@intel.com>
 References: <20241123200527.7830-1-raag.jadav@intel.com>
@@ -75,37 +75,131 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Copy communities using devm_kmemdup_array() instead of doing it manually.
+Convert to use devm_kmemdup_array() which is more robust.
 
 Signed-off-by: Raag Jadav <raag.jadav@intel.com>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ sound/soc/intel/avs/boards/da7219.c  | 3 ++-
+ sound/soc/intel/avs/boards/es8336.c  | 3 ++-
+ sound/soc/intel/avs/boards/nau8825.c | 3 ++-
+ sound/soc/intel/avs/boards/rt274.c   | 3 ++-
+ sound/soc/intel/avs/boards/rt286.c   | 3 ++-
+ sound/soc/intel/avs/boards/rt298.c   | 3 ++-
+ sound/soc/intel/avs/boards/rt5663.c  | 3 ++-
+ sound/soc/intel/avs/boards/rt5682.c  | 2 +-
+ 8 files changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index 04b438f63ccb..e165bd5b5811 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -1577,8 +1577,8 @@ int intel_pinctrl_probe(struct platform_device *pdev,
- 	 * to the registers.
- 	 */
- 	pctrl->ncommunities = pctrl->soc->ncommunities;
--	pctrl->communities = devm_kcalloc(dev, pctrl->ncommunities,
--					  sizeof(*pctrl->communities), GFP_KERNEL);
-+	pctrl->communities = devm_kmemdup_array(dev, pctrl->soc->communities, pctrl->ncommunities,
-+						sizeof(*pctrl->communities), GFP_KERNEL);
- 	if (!pctrl->communities)
+diff --git a/sound/soc/intel/avs/boards/da7219.c b/sound/soc/intel/avs/boards/da7219.c
+index 80c0a1a95654..1b8f58b611a4 100644
+--- a/sound/soc/intel/avs/boards/da7219.c
++++ b/sound/soc/intel/avs/boards/da7219.c
+@@ -113,7 +113,8 @@ static int avs_da7219_codec_init(struct snd_soc_pcm_runtime *runtime)
+ 	}
+ 
+ 	num_pins = ARRAY_SIZE(card_headset_pins);
+-	pins = devm_kmemdup(card->dev, card_headset_pins, sizeof(*pins) * num_pins, GFP_KERNEL);
++	pins = devm_kmemdup_array(card->dev, card_headset_pins, num_pins,
++				  sizeof(*pins), GFP_KERNEL);
+ 	if (!pins)
  		return -ENOMEM;
  
-@@ -1588,8 +1588,6 @@ int intel_pinctrl_probe(struct platform_device *pdev,
- 		u32 offset;
- 		u32 value;
+diff --git a/sound/soc/intel/avs/boards/es8336.c b/sound/soc/intel/avs/boards/es8336.c
+index c8522e2430f8..8103e539e08a 100644
+--- a/sound/soc/intel/avs/boards/es8336.c
++++ b/sound/soc/intel/avs/boards/es8336.c
+@@ -109,7 +109,8 @@ static int avs_es8336_codec_init(struct snd_soc_pcm_runtime *runtime)
+ 	data = snd_soc_card_get_drvdata(card);
+ 	num_pins = ARRAY_SIZE(card_headset_pins);
  
--		*community = pctrl->soc->communities[i];
--
- 		regs = devm_platform_ioremap_resource(pdev, community->barno);
- 		if (IS_ERR(regs))
- 			return PTR_ERR(regs);
+-	pins = devm_kmemdup(card->dev, card_headset_pins, sizeof(*pins) * num_pins, GFP_KERNEL);
++	pins = devm_kmemdup_array(card->dev, card_headset_pins, num_pins,
++				  sizeof(*pins), GFP_KERNEL);
+ 	if (!pins)
+ 		return -ENOMEM;
+ 
+diff --git a/sound/soc/intel/avs/boards/nau8825.c b/sound/soc/intel/avs/boards/nau8825.c
+index 6ea9058fdb2a..0945a539b364 100644
+--- a/sound/soc/intel/avs/boards/nau8825.c
++++ b/sound/soc/intel/avs/boards/nau8825.c
+@@ -88,7 +88,8 @@ static int avs_nau8825_codec_init(struct snd_soc_pcm_runtime *runtime)
+ 	jack = snd_soc_card_get_drvdata(card);
+ 	num_pins = ARRAY_SIZE(card_headset_pins);
+ 
+-	pins = devm_kmemdup(card->dev, card_headset_pins, sizeof(*pins) * num_pins, GFP_KERNEL);
++	pins = devm_kmemdup_array(card->dev, card_headset_pins, num_pins,
++				  sizeof(*pins), GFP_KERNEL);
+ 	if (!pins)
+ 		return -ENOMEM;
+ 
+diff --git a/sound/soc/intel/avs/boards/rt274.c b/sound/soc/intel/avs/boards/rt274.c
+index 9fcce86c6eb4..bdf36c7c744a 100644
+--- a/sound/soc/intel/avs/boards/rt274.c
++++ b/sound/soc/intel/avs/boards/rt274.c
+@@ -98,7 +98,8 @@ static int avs_rt274_codec_init(struct snd_soc_pcm_runtime *runtime)
+ 	jack = snd_soc_card_get_drvdata(card);
+ 	num_pins = ARRAY_SIZE(card_headset_pins);
+ 
+-	pins = devm_kmemdup(card->dev, card_headset_pins, sizeof(*pins) * num_pins, GFP_KERNEL);
++	pins = devm_kmemdup_array(card->dev, card_headset_pins, num_pins,
++				  sizeof(*pins), GFP_KERNEL);
+ 	if (!pins)
+ 		return -ENOMEM;
+ 
+diff --git a/sound/soc/intel/avs/boards/rt286.c b/sound/soc/intel/avs/boards/rt286.c
+index f157f2d19efb..f94382389430 100644
+--- a/sound/soc/intel/avs/boards/rt286.c
++++ b/sound/soc/intel/avs/boards/rt286.c
+@@ -59,7 +59,8 @@ static int avs_rt286_codec_init(struct snd_soc_pcm_runtime *runtime)
+ 	jack = snd_soc_card_get_drvdata(card);
+ 	num_pins = ARRAY_SIZE(card_headset_pins);
+ 
+-	pins = devm_kmemdup(card->dev, card_headset_pins, sizeof(*pins) * num_pins, GFP_KERNEL);
++	pins = devm_kmemdup_array(card->dev, card_headset_pins, num_pins,
++				  sizeof(*pins), GFP_KERNEL);
+ 	if (!pins)
+ 		return -ENOMEM;
+ 
+diff --git a/sound/soc/intel/avs/boards/rt298.c b/sound/soc/intel/avs/boards/rt298.c
+index 1e85242c8dd2..985bfa977edb 100644
+--- a/sound/soc/intel/avs/boards/rt298.c
++++ b/sound/soc/intel/avs/boards/rt298.c
+@@ -70,7 +70,8 @@ static int avs_rt298_codec_init(struct snd_soc_pcm_runtime *runtime)
+ 	jack = snd_soc_card_get_drvdata(card);
+ 	num_pins = ARRAY_SIZE(card_headset_pins);
+ 
+-	pins = devm_kmemdup(card->dev, card_headset_pins, sizeof(*pins) * num_pins, GFP_KERNEL);
++	pins = devm_kmemdup_array(card->dev, card_headset_pins, num_pins,
++				  sizeof(*pins), GFP_KERNEL);
+ 	if (!pins)
+ 		return -ENOMEM;
+ 
+diff --git a/sound/soc/intel/avs/boards/rt5663.c b/sound/soc/intel/avs/boards/rt5663.c
+index 44f857e90969..fd8b0c915efa 100644
+--- a/sound/soc/intel/avs/boards/rt5663.c
++++ b/sound/soc/intel/avs/boards/rt5663.c
+@@ -65,7 +65,8 @@ static int avs_rt5663_codec_init(struct snd_soc_pcm_runtime *runtime)
+ 	jack = &priv->jack;
+ 	num_pins = ARRAY_SIZE(card_headset_pins);
+ 
+-	pins = devm_kmemdup(card->dev, card_headset_pins, sizeof(*pins) * num_pins, GFP_KERNEL);
++	pins = devm_kmemdup_array(card->dev, card_headset_pins, num_pins,
++				  sizeof(*pins), GFP_KERNEL);
+ 	if (!pins)
+ 		return -ENOMEM;
+ 
+diff --git a/sound/soc/intel/avs/boards/rt5682.c b/sound/soc/intel/avs/boards/rt5682.c
+index 0dcc6392a0cc..6d7022707ca7 100644
+--- a/sound/soc/intel/avs/boards/rt5682.c
++++ b/sound/soc/intel/avs/boards/rt5682.c
+@@ -102,7 +102,7 @@ static int avs_rt5682_codec_init(struct snd_soc_pcm_runtime *runtime)
+ 	jack = snd_soc_card_get_drvdata(card);
+ 	num_pins = ARRAY_SIZE(card_jack_pins);
+ 
+-	pins = devm_kmemdup(card->dev, card_jack_pins, sizeof(*pins) * num_pins, GFP_KERNEL);
++	pins = devm_kmemdup_array(card->dev, card_jack_pins, num_pins, sizeof(*pins), GFP_KERNEL);
+ 	if (!pins)
+ 		return -ENOMEM;
+ 
 -- 
 2.35.3
 

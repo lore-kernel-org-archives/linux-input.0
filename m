@@ -1,71 +1,72 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1522F4FA;
-	Sat, 23 Nov 2024 11:29:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E580EADC;
+	Sat, 23 Nov 2024 20:06:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732361359; cv=none; b=qJ09po4XUQhYRC893XAOzOhZlxRpzTVXm+Ma0vyNBPWezMcbi/lj2JPNPUNYUgKhs2DkVtdih/0j+IKO8/aVI6jSFa06eP3MML13f+D2Npv+MmCqXU9wfSB2ADFqeXjA4jpQ4eEhIoB3Cpw+dEvakLzfN0fNVGT57LXxRSe2sP4=
+	t=1732392368; cv=none; b=O5Ry7xXHU2mvhCSiglDzrAc/1xehr00WurxhfaQAbm27LdNGw1eoLLe0614Vv7Z6CdUSLrF6RQTier53StK9+aBufF4P6ez8bYyb2HPIaUz2jZAQx/Kl5fTeS4r+/CHue63dmNV0+KCHhWTq3hRHhZ+wlUbCZ4xK6GuyO3dztXE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732361359; c=relaxed/simple;
-	bh=Ki20cI8ZyBHp724TPkTVtVHSiOU63Gz+hpGQwyAufi0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=h81hFcqTAPLlJCTb86zUgjlA8STJq0d3tR7dtSSMAAto5H9G0jGGFB0mtbQtP4C+yT4tfc8UD5ENXu3IsRuzrZRJDf8hsmHo54RVBYrK9be2PPuciiMvdN6ptvPgF/VTprJ7DdhuxO+tZgr7tdCFo6JnIfs2bOHuck7/DnrdKcw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Tquh4EFJ; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1732392368; c=relaxed/simple;
+	bh=GAVRYml17ZCCg2g/TqAnTGzAqhZE9Ak/JKtz3LbjUIM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=qFjoPs9ns+LF6SqB3V4ny/8FZ4uGb3I0agGoWtsS6QxO1+QSjLEfurXuDiFI4N+c1wcrfr+Fi/DHDQhQoL+xb5Y4uwyaCoWV6johsSBpTPBMNIKgDPbMCmjOB45Tphm8QyuRZDyQfrzVAXt2EEkLDjNYiX6/YaEY5j8I8K4Tm1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=none smtp.mailfrom=ecsmtp.iind.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gu1woTtP; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ecsmtp.iind.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Tquh4EFJ"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-2ea68cd5780so2526728a91.3;
-        Sat, 23 Nov 2024 03:29:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1732361357; x=1732966157; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=1ZEWgsPrytcrqYA4bO1VsXzllLQymLr9lNKwtdsQN+w=;
-        b=Tquh4EFJYq6A2gtA0ciw4UnQ0uVjz7rYGMvG1o/SSjZY43KjONjlH+/ogMGUAHI/5v
-         iCBatthC2JV4jWKEwYQCPOa0C+B3zP1Yc9DIuJdSWMm7dqalq+gQBJRlTgUkTtA+kg+H
-         nMJyLzM1XLHH8B4/CySqS8huJjbDZ0YrtjeBvXqF7U/IDqJtSu+aMIvAIO3kQrtxqpS3
-         SJP4asKaIignuNySu4I2fcfezfAPc03Luir89FSc6Pg5GpDEm5CAUl3YEgXJgTEOZYLB
-         4Lucm0klB8ZUz6eQWkZn1+bSvN9us5+F+F2IyDGF8sVTwi6yJbVbE+mrQki8vvFk68PH
-         kxlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1732361357; x=1732966157;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1ZEWgsPrytcrqYA4bO1VsXzllLQymLr9lNKwtdsQN+w=;
-        b=oMiKdK7VHBlzFcIAblgic1wo5fM9dJr99DgqrEVz7kwzO0M8qrGh3WRb/CV76K2d14
-         My5zzAnNcI7dM2GddIe3BjUCLSSayjr/k7pUzxKS7OXFVa4Ex3Bd3196EUR1euPxb8Oo
-         BlnWKsgKBV/bfzQSQmbGIipQDLfW1ckNjo4/Rzb6WG78PO6mzjiu4FESh9fMO0meJ/XH
-         00E11Jxk2/nbJ/m4ARQrOk6TgXZFrwFUQDXPNlMfpjrvl5wj3+PgZJ/XKk3/8YB4Lb54
-         3zMm6WF8i+GotO/d3ljCRMmY6bNHQarOvkVcrWHSlasp4ytKe1sBFmkNcOjw//IQQY0g
-         gO+g==
-X-Forwarded-Encrypted: i=1; AJvYcCURk3aGv99PAvnJZnWEsRXup+h0CHuCskAYGniPWbE/54DFoCnruslKbeXhr5QvsOYpwfqprJRq8/Pdjls=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzwfoqr77ODao1vPxVb1YYF1+c2h6aGpKHDRgxd0hVe+AL/hiKv
-	XyWJRDY47W0vMe+enQlgymtlVwU/kHerwkkNkzrRx8oM7mXOnq4f
-X-Gm-Gg: ASbGnctR/pKz9EgroZFdVwnnxRBc0ChtVR8o65t1VVGVhm1a14WM5Py9QjfAvrg+Rh9
-	AZcgmoisy0ROo/Jifmit0cDaR5VqUQyHFt39ouNNVGfRM1Ntjgk1/rIGqnn9sfSfVRx34T8dXLT
-	Lt7HoCwQRbcNedG6SZ90PraYmrQlzyIEMnKnQ58EeGkII/CjMHaEg7nxcSKak8T7leiSdh2iOar
-	RDa07lYwU2P/bDgLAgVNXgzrWGPHvx5nLGPTFdJ8tvuCAyIyyUwY8KBDWmOAmY1iV2aGhAC0qyB
-	yVuKQE7aI97mG4zm1t6N78yCIbNP3njk
-X-Google-Smtp-Source: AGHT+IFqtFUtjes0k5g0Gjl2qtEijRxNOC/R+dhCwlrAGMyYaof/fqlscmAxyLa4StFTs6HctzgZBA==
-X-Received: by 2002:a17:90b:17c9:b0:2ea:a9ac:eee1 with SMTP id 98e67ed59e1d1-2eb0e234c02mr7354722a91.10.1732361356956;
-        Sat, 23 Nov 2024 03:29:16 -0800 (PST)
-Received: from localhost.localdomain ([121.241.130.50])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-724de558bcbsm3102902b3a.152.2024.11.23.03.29.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 23 Nov 2024 03:29:16 -0800 (PST)
-From: Nishit Rao <nishitrao1011@gmail.com>
-To: nishitrao1011@gmail.com,
-	lains@riseup.net,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix typo in drivers/hid-logitech-dj.c
-Date: Sat, 23 Nov 2024 16:59:10 +0530
-Message-ID: <20241123112910.87829-1-nishitrao1011@gmail.com>
-X-Mailer: git-send-email 2.41.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gu1woTtP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1732392368; x=1763928368;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=GAVRYml17ZCCg2g/TqAnTGzAqhZE9Ak/JKtz3LbjUIM=;
+  b=gu1woTtPHUUACHYyz2OhodXXZNhApq3G8bnxPdncV1aRSw4Yv4v1o3e2
+   0wR0ZHxailJ4AChuYMUw0+vUjK1ydaIkrqD55aZ0YLs6ytXM/EkWHYEhs
+   +fCDXe7DfBG6rMkyuG6/x1cHDArwzLHG8OESAgg1OpBEmKTMji8Hf5n4Q
+   rS5aqohgmvx8INms8a1kuqvvtUK0dQFmJn8u8ZIOxvy62xeNbQIjWqbLF
+   F4CowKVtCrYJwM6htLxsczuRUSOc47qPmW8exssonhppRljK+H8Ou6Lp4
+   QVaG2uevdQG3qbopgIZ7GsUEkvyvHMoXRvMasOzyD3asQiE/h8oQCof03
+   g==;
+X-CSE-ConnectionGUID: zgcox2U0Tb+b+nBOs4uqbg==
+X-CSE-MsgGUID: NNvXVSc8S8OmEnjTpe1mmw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11265"; a="32678533"
+X-IronPort-AV: E=Sophos;i="6.12,179,1728975600"; 
+   d="scan'208";a="32678533"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Nov 2024 12:06:07 -0800
+X-CSE-ConnectionGUID: zBITnaUiQJmn8IRYzPjQhw==
+X-CSE-MsgGUID: 5h/8vyTRTrqbkDar/CjIZg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.12,179,1728975600"; 
+   d="scan'208";a="121737991"
+Received: from inesxmail01.iind.intel.com ([10.223.57.40])
+  by orviesa002.jf.intel.com with ESMTP; 23 Nov 2024 12:06:04 -0800
+Received: from inlubt0316.iind.intel.com (inlubt0316.iind.intel.com [10.191.20.213])
+	by inesxmail01.iind.intel.com (Postfix) with ESMTP id 0CB611CAD1;
+	Sun, 24 Nov 2024 01:36:03 +0530 (IST)
+Received: by inlubt0316.iind.intel.com (Postfix, from userid 12101951)
+	id F18BD160010E; Sun, 24 Nov 2024 01:36:02 +0530 (IST)
+From: Raag Jadav <raag.jadav@intel.com>
+To: gregkh@linuxfoundation.org,
+	linus.walleij@linaro.org,
+	mika.westerberg@linux.intel.com,
+	andriy.shevchenko@linux.intel.com,
+	dmitry.torokhov@gmail.com,
+	broonie@kernel.org,
+	pierre-louis.bossart@linux.dev
+Cc: linux-gpio@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	Raag Jadav <raag.jadav@intel.com>
+Subject: [PATCH v1 1/5] devres: Introduce devm_kmemdup_array()
+Date: Sun, 24 Nov 2024 01:35:23 +0530
+Message-Id: <20241123200527.7830-2-raag.jadav@intel.com>
+X-Mailer: git-send-email 2.35.3
+In-Reply-To: <20241123200527.7830-1-raag.jadav@intel.com>
+References: <20241123200527.7830-1-raag.jadav@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -74,26 +75,36 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Change spelling of doesn't
+Introduce '_array' variant of devm_kmemdup() for the users which lack
+multiplication overflow check.
 
-Signed-off-by: Nishit Rao <nishitrao1011@gmail.com>
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Raag Jadav <raag.jadav@intel.com>
 ---
- drivers/hid/hid-logitech-dj.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/device.h | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/hid/hid-logitech-dj.c b/drivers/hid/hid-logitech-dj.c
-index 34fa71ceec2b..b7d15859b2ad 100644
---- a/drivers/hid/hid-logitech-dj.c
-+++ b/drivers/hid/hid-logitech-dj.c
-@@ -534,7 +534,7 @@ static const char hidpp_descriptor[] = {
-  *
-  * Right now, RF report types have the same report types (or report id's)
-  * than the hid report created from those RF reports. In the future
-- * this doesnt have to be true.
-+ * this doesn't have to be true.
-  *
-  * For instance, RF report type 0x01 which has a size of 8 bytes, corresponds
-  * to hid report id 0x01, this is standard keyboard. Same thing applies to mice
+diff --git a/include/linux/device.h b/include/linux/device.h
+index b4bde8d22697..c31f48d0dde0 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -358,6 +358,16 @@ char *devm_kstrdup(struct device *dev, const char *s, gfp_t gfp) __malloc;
+ const char *devm_kstrdup_const(struct device *dev, const char *s, gfp_t gfp);
+ void *devm_kmemdup(struct device *dev, const void *src, size_t len, gfp_t gfp)
+ 	__realloc_size(3);
++static inline void *devm_kmemdup_array(struct device *dev, const void *src,
++				       size_t n, size_t size, gfp_t flags)
++{
++	size_t bytes;
++
++	if (unlikely(check_mul_overflow(n, size, &bytes)))
++		return NULL;
++
++	return devm_kmemdup(dev, src, bytes, flags);
++}
+ 
+ unsigned long devm_get_free_pages(struct device *dev,
+ 				  gfp_t gfp_mask, unsigned int order);
 -- 
-2.41.0
+2.35.3
 

@@ -1,22 +1,21 @@
 Received: from cosmicgizmosystems.com (cosmicgizmosystems.com [63.249.102.155])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD9D41474DA;
-	Sun, 24 Nov 2024 20:33:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4002E2500B5;
+	Sun, 24 Nov 2024 20:39:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=63.249.102.155
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732480440; cv=none; b=eeLVyN5hD+oDhV5IxLbT1p28dwZ9ul13GvxApeMilEH7H1aiWXrWBUq2H8XUNSRwfSDsov6GZq9tVo8wLxO2fU0ChPYq2DIF7TFcfyb4XuejwdqDwCxabIJQMXUB09SwQhJrzz2LHUa+KpGFtgbuO17A7QboHN1Hdyde6lrDKC0=
+	t=1732480763; cv=none; b=NwnoP4KU5Qgy4QO9y8lL/t5k9F9w3QEbGAEfHd/OCLT0GMUqr0Wvb+5+UxsqdkZRVmfMZ/Yqqrs4oYg+G6ZmEl37pbQPb9p/2Y3nd8BaFHROOJ4+WK/9zEUqQ/2FRumUu49+2dlZ+0mw9dXJIjgON//GHb/7/dEHskfZvOF1Yp8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732480440; c=relaxed/simple;
-	bh=zNj7qzHoZXvG+D8WKWLOt5U+jeC5fC53GgflVJxSmEU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=E32IJS4ZDTcRNGwowmMmce87ycuzDIPKvI5BVB6xY7wTLsbQOxEF/JhiJmETP4pQ5SAWBeqVnIbiN0COvQ28mTvxORrPXC83ZaAGaImfvl0ujT8lNSY5/MhTYkN1wYzXgJbRDb0usfSISPVWl0WcZszYdYe8+UIKuthMAVn8o5s=
+	s=arc-20240116; t=1732480763; c=relaxed/simple;
+	bh=tbFfOT0weA1+4h6Fh0DLo5WeX/MqkSQ3kGRBp1yIPkE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Dkk3Efs1p4BzAa+M5ao2zHO8eGRtf1xQO3wFopDLJaj1ErbKSEJGSLVQtRHu2YquevoGQplbI5QnW7w9HnLb8WIZQiICxXuSpVqKos6jmgF1FrETLeLw1yM0lqblRe9oiqTElwhObGPvER+AKepBBX7834itZsBXV+rteJwHHfU=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=cosmicgizmosystems.com; spf=pass smtp.mailfrom=cosmicgizmosystems.com; arc=none smtp.client-ip=63.249.102.155
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=cosmicgizmosystems.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cosmicgizmosystems.com
 Received: from terrys-Precision-M4600.hsd1.wa.comcast.net (c-73-190-111-195.hsd1.wa.comcast.net [73.190.111.195])
-	by host11.cruzio.com (Postfix) with ESMTPSA id BEE4524246F4;
-	Sun, 24 Nov 2024 12:33:57 -0800 (PST)
+	by host11.cruzio.com (Postfix) with ESMTPSA id A910B246D150;
+	Sun, 24 Nov 2024 12:33:40 -0800 (PST)
 From: Terry Junge <linuxhid@cosmicgizmosystems.com>
 To: Jiri Kosina <jikos@kernel.org>,
 	Takashi Iwai <tiwai@suse.com>,
@@ -26,12 +25,10 @@ To: Jiri Kosina <jikos@kernel.org>,
 Cc: Terry Junge <linuxhid@cosmicgizmosystems.com>,
 	linux-input@vger.kernel.org,
 	linux-sound@vger.kernel.org
-Subject: [PATCH 2/2] ALSA: usb-audio: Add quirk for Plantronics headsets to fix control names
-Date: Sun, 24 Nov 2024 12:32:41 -0800
-Message-ID: <20241124203252.28701-3-linuxhid@cosmicgizmosystems.com>
+Subject: [PATCH 0/2] Introduce Poly/Plantronics mute event support
+Date: Sun, 24 Nov 2024 12:32:39 -0800
+Message-ID: <20241124203252.28701-1-linuxhid@cosmicgizmosystems.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241124203252.28701-1-linuxhid@cosmicgizmosystems.com>
-References: <20241124203252.28701-1-linuxhid@cosmicgizmosystems.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,79 +37,36 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Many Poly/Plantronics headset families name the feature, input,
-and/or output units in a such a way to produce control names
-that are not recognized by user space. As such, the volume and
-mute events do not get routed to the headset's audio controls.
+Hi Jiri and Takashi,
 
-As an example from a product family:
+I'm not sure how it works with two different maintained trees
+but this patch set needs to be applied and flow upstream together.
 
-The microphone mute control is named
-Headset Microphone Capture Switch
-and the headset volume control is named
-Headset Earphone Playback Volume
+If the HID patch is applied without the ALSA patch then mute sync
+issues will occur with multiple Poly/Plantronics product families.
 
-The quirk fixes these to become
-Headset Capture Switch
-Headset Playback Volume
+This patch set was tested by Wade and myself with multiple
+Poly/Plantronics product family headsets.
 
-Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
----
- sound/usb/mixer_quirks.c | 35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+Hi Wade,
 
-diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
-index 8bbf070b3676..20d63efd5498 100644
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -4215,6 +4215,37 @@ static void snd_dragonfly_quirk_db_scale(struct usb_mixer_interface *mixer,
- 	}
- }
- 
-+static void snd_fix_plt_control_name(struct snd_kcontrol *kctl)
-+{
-+	static const char * const names_to_remove[] = {
-+		"Earphone",
-+		"Microphone",
-+		"Receive",
-+		"Transmit",
-+		NULL
-+	};
-+	const char * const *n2r;
-+	char *dst, *src;
-+	size_t len;
-+
-+	for (n2r = names_to_remove; *n2r; ++n2r) {
-+		dst = strstr(kctl->id.name, *n2r);
-+		if (dst) {
-+			src = dst + strlen(*n2r);
-+			len = strlen(src) + 1;
-+			if ((char *)kctl->id.name != dst && *(dst - 1) == ' ')
-+				--dst;
-+			memmove(dst, src, len);
-+		}
-+	}
-+	if (kctl->id.name[0] == ' ') {
-+		char rcat[sizeof(kctl->id.name)] = { "Headset" };
-+
-+		strlcat(rcat, kctl->id.name, sizeof(rcat));
-+		strscpy(kctl->id.name, rcat, sizeof(kctl->id.name));
-+	}
-+}
-+
- void snd_usb_mixer_fu_apply_quirk(struct usb_mixer_interface *mixer,
- 				  struct usb_mixer_elem_info *cval, int unitid,
- 				  struct snd_kcontrol *kctl)
-@@ -4232,5 +4263,9 @@ void snd_usb_mixer_fu_apply_quirk(struct usb_mixer_interface *mixer,
- 			cval->min_mute = 1;
- 		break;
- 	}
-+
-+	/* ALSA-ify some Plantronics headset control names */
-+	if (USB_ID_VENDOR(mixer->chip->usb_id) == 0x047f)
-+		snd_fix_plt_control_name(kctl);
- }
- 
+Please feel free to add your Signed-off-by: and/or Tested-by: tags,
+as you see fit.
+
+Thanks,
+Terry
+
+Terry Junge (2):
+  HID: hid-plantronics: Add mic mute mapping and generalize quirks
+  ALSA: usb-audio: Add quirk for Plantronics headsets to fix control
+    names
+
+ drivers/hid/hid-plantronics.c | 135 ++++++++++++++++------------------
+ sound/usb/mixer_quirks.c      |  35 +++++++++
+ 2 files changed, 100 insertions(+), 70 deletions(-)
+
+
+base-commit: 28eb75e178d389d325f1666e422bc13bbbb9804c
 -- 
 2.43.0
 

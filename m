@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16F6F946C;
-	Tue, 26 Nov 2024 20:48:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C99F1DB958;
+	Tue, 26 Nov 2024 20:48:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732654094; cv=none; b=exZll5H4DQWf437TL5a7jvROxb2YGhtoHx+MguSqdKpNXjwpLuyJi49lt19Csfna/vR/BTyXD6OQkUqHBMLQuJ44klbfVapUD/Rg2zaqcZVRw2yuAKQTsZRf6NdWehJSVxScyFJkdJYyNhrEl4uCW9SdFqBbWc/oBApQ5bc3mWk=
+	t=1732654094; cv=none; b=gK9ir6KC+pM9iQXWCNXguu1jxXJ/H7udTgPReMBHn4XPCd+CFUPci5a+2LFMSi387ON1h9fzlozOPx0nJiwmjeLAxWDuJLAIXPEsyVVYz/nz6oGh7NiUn+R4AWYxVEg9P4wqEcAikVXnDPLy6Zx0yQf8mXr2ZItPKhKyVOS0ntg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1732654094; c=relaxed/simple;
-	bh=3sfwidJbVEfmW6zxaxyjnfU+ygUlFzzFkMzDLVh/wfs=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mg4S32dXQT9uYruTmz9qsNQBvAs2goI27jx7ubr1ZK0OSD8Cvr70bIp32Qin9BUlc/z+TmR3v/8yQqMzR7/ud7ErnkiPxkQcvJ5LQtbi19sP0xiheNe0Ng6NJzKPC+W/oyLYX0i0BXdM2gfT2/BpDLaTAH48X4Cu5qWNHEIpRNk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qwy7qRyt; arc=none smtp.client-ip=10.30.226.201
+	bh=ZBU8Fy8Sv/FwJD6yKpClEj3SItHuR1C5MYFPcenYJWs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=s4clrTtUNVYnDs32OErz2LIerpXVhPACE7CGLPucpQzev4m0XprwB8KY2w68LuQ3lbWfuUiWdxHCD0ECSF2n0vZh1pOF/QxMaqz7rvro8WeaxLfVSZWjXFq2yUKESMVsGONKIoPXtH5mJMZ+ql9nYcZ+37Pf/mnsOC1NmBoCz+4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R9mYAE09; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qwy7qRyt"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D5443C4CED3;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R9mYAE09"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id A5207C4CECF;
 	Tue, 26 Nov 2024 20:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1732654093;
-	bh=3sfwidJbVEfmW6zxaxyjnfU+ygUlFzzFkMzDLVh/wfs=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=Qwy7qRytUbDPXbnhZYUz1OyCHBrgynuDosnuP6FApFOuv+o1zYReI3X1sMTv78IFr
-	 WZKgGodHntj+rYDlSQdLIWL6x7U1kTrtYowW0pL9UrgGjvojBVHOweEoDuZUDTMb4G
-	 rZZ+BExcAMi+jfaL+njkphmJ/V5k4u6HROyST8tSLLTd4O3mMYxhc1eD73fiIpcHUX
-	 UWo8fw5cxPgV0mtkSjXiDWb/1liJ9HU3RNzFCVcZhrKwh+wSegtmdySnHDI9dachFH
-	 DSMqPeErte2xuYM7/9iNqrPbY4mq18qD5wj0FX91zBSE2lvGeGOjJeTzktzek74vfF
-	 /6fjpfHJs2QHw==
+	bh=ZBU8Fy8Sv/FwJD6yKpClEj3SItHuR1C5MYFPcenYJWs=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=R9mYAE09x8YrOnYi92GSKx1q4f2idlS5Lh2wBvoWVjn8CkHf4dYC4rkk3PmgRsnDP
+	 S2MzaitHsbalovHD1L6GQBp+BNjXs5CcOnRGlS9DJ8F9DPgEUfkw8MIGWuxHm6Bpgs
+	 eEfmDm5CrF/LkXUyoskHg9YI08sBv5uPM+4loheiDVR7fzdRoXhlWx064VzUq+x4gL
+	 kqmDoTiXXDQABaEWlRp03e26NAQXO8iXvqSv4oEbWHFhaAdJvgCOCSrVf+KjStgZYw
+	 /CAYvzfZ4pUpnruipS1ayaKaCBP/uOrCppMM1mPjBItHP5hs+FtVp91bJihfqe50q9
+	 5rJyNXjs5cEig==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA719D65525;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D5EFD65525;
 	Tue, 26 Nov 2024 20:48:13 +0000 (UTC)
 From: Sasha Finkelstein via B4 Relay <devnull+fnkl.kernel.gmail.com@kernel.org>
-Date: Tue, 26 Nov 2024 21:48:01 +0100
-Subject: [PATCH 3/4] arm64: dts: apple: Add touchbar digitizer nodes
+Subject: [PATCH 0/4] Driver for Apple Z2 touchscreens.
+Date: Tue, 26 Nov 2024 21:47:58 +0100
+Message-Id: <20241126-z2-v1-0-c43c4cc6200d@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,9 +40,10 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241126-z2-v1-3-c43c4cc6200d@gmail.com>
-References: <20241126-z2-v1-0-c43c4cc6200d@gmail.com>
-In-Reply-To: <20241126-z2-v1-0-c43c4cc6200d@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAP4zRmcC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIxNDQyMT3Soj3WQDQ6MkUyOL1ESDFCWgwoKi1LTMCrAh0bG1tQDHCvI+VAA
+ AAA==
+X-Change-ID: 20241124-z2-c012b528ea0d
 To: Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>, 
  Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
@@ -53,11 +54,11 @@ Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
  linux-kernel@vger.kernel.org, Sasha Finkelstein <fnkl.kernel@gmail.com>, 
  Janne Grunau <j@jannau.net>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1732654092; l=4794;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1732654092; l=1728;
  i=fnkl.kernel@gmail.com; s=20241124; h=from:subject:message-id;
- bh=gqYKJvX7z4TYFIJsxMCI4+iHYsE1/zB864hQ5FlH8lE=;
- b=Nw0G9eeqDcbozBTTSvbTNsP02fpKEivr65A5bAVLeDx3aczp+j91xqgla8OBRfAY6NSjMiyh1
- M0XVh9RkM2eBs2Lz7HYpPRPm4B1HrmkDyzdg+gzTUKKZC5iUDEJs8MC
+ bh=ZBU8Fy8Sv/FwJD6yKpClEj3SItHuR1C5MYFPcenYJWs=;
+ b=EPyBrRhCz60QqrUaFxi1MkFuNhZO6e8bc/6+SNKD6Cylw/79q7NOFNe9CUIP+7jIQEFDrFVIc
+ fsNWUEUOiIZCm7qEFDH18CdE4WrB+YB2/Z0k3HvMNvnkl3oL8QRhHrh
 X-Developer-Key: i=fnkl.kernel@gmail.com; a=ed25519;
  pk=aSkp1PdZ+eF4jpMO6oLvz/YfT5XkBUneWwyhQrOgmsU=
 X-Endpoint-Received: by B4 Relay for fnkl.kernel@gmail.com/20241124 with
@@ -65,161 +66,41 @@ X-Endpoint-Received: by B4 Relay for fnkl.kernel@gmail.com/20241124 with
 X-Original-From: Sasha Finkelstein <fnkl.kernel@gmail.com>
 Reply-To: fnkl.kernel@gmail.com
 
-From: Sasha Finkelstein <fnkl.kernel@gmail.com>
+Hi.
 
-Adds device tree entries for the touchbar digitizer
+This series adds support for Apple touchscreens using the Z2 protocol.
+Those are used as the primary touchscreen on mobile Apple devices, and for the
+touchbar on laptops using the M-series chips. (T1/T2 laptops have a coprocessor
+in charge of speaking Z2 to the touchbar).
 
-Co-developed-by: Janne Grunau <j@jannau.net>
-Signed-off-by: Janne Grunau <j@jannau.net>
+Originally sent as a RFC at https://lore.kernel.org/all/20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com/
+The changes since then mostly address the review feedback, but also
+add another machine that has this specific controller.
+
+The extra gpio needed to be toggled turned out to be a quirk of the
+j293, normal CS is unusable on it, and a gpio has to be used instead.
+(j493 does not have this quirk)
+
 Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
 ---
- arch/arm64/boot/dts/apple/t8103-j293.dts | 24 ++++++++++++++++++++++++
- arch/arm64/boot/dts/apple/t8103.dtsi     | 19 +++++++++++++++++++
- arch/arm64/boot/dts/apple/t8112-j493.dts | 20 ++++++++++++++++++++
- arch/arm64/boot/dts/apple/t8112.dtsi     | 14 ++++++++++++++
- 4 files changed, 77 insertions(+)
+Sasha Finkelstein (4):
+      dt-bindings: input: touchscreen: Add Z2 controller
+      input: apple_z2: Add a driver for Apple Z2 touchscreens
+      arm64: dts: apple: Add touchbar digitizer nodes
+      MAINTAINERS: Add entries for Apple Z2 touchscreen driver
 
-diff --git a/arch/arm64/boot/dts/apple/t8103-j293.dts b/arch/arm64/boot/dts/apple/t8103-j293.dts
-index 56b0c67bfcda321b60c621de092643017693ff91..a1c4e5731f2147121a9845bc9f34d224025fb145 100644
---- a/arch/arm64/boot/dts/apple/t8103-j293.dts
-+++ b/arch/arm64/boot/dts/apple/t8103-j293.dts
-@@ -28,6 +28,10 @@ led-0 {
- 			default-state = "keep";
- 		};
- 	};
-+
-+	aliases {
-+		touchbar0 = &touchbar0;
-+	};
- };
- 
- &bluetooth0 {
-@@ -38,6 +42,26 @@ &wifi0 {
- 	brcm,board-type = "apple,honshu";
- };
- 
-+&spi0 {
-+	status = "okay";
-+
-+	touchbar0: touchbar@0 {
-+		compatible = "apple,j293-touchbar",
-+			"apple,z2-touchbar", "apple,z2-multitouch";
-+		reg = <0>;
-+		spi-max-frequency = <11500000>;
-+		spi-cs-setup-delay-ns = <2000>;
-+		spi-cs-hold-delay-ns = <2000>;
-+		reset-gpios = <&pinctrl_ap 139 GPIO_ACTIVE_LOW>;
-+		cs-gpios = <&pinctrl_ap 109 0>;
-+		interrupts-extended = <&pinctrl_ap 194 IRQ_TYPE_EDGE_FALLING>;
-+		firmware-name = "apple/dfrmtfw-j293.bin";
-+		touchscreen-size-x = <23045>;
-+		touchscreen-size-y = <640>;
-+		label = "MacBookPro17,1 Touch Bar";
-+	};
-+};
-+
- &i2c2 {
- 	status = "okay";
- };
-diff --git a/arch/arm64/boot/dts/apple/t8103.dtsi b/arch/arm64/boot/dts/apple/t8103.dtsi
-index 9b0dad6b618444ac6b1c9735c50cccfc3965f947..dc72aae3844bf33579f623f0b01abc7de4033af4 100644
---- a/arch/arm64/boot/dts/apple/t8103.dtsi
-+++ b/arch/arm64/boot/dts/apple/t8103.dtsi
-@@ -326,6 +326,13 @@ clkref: clock-ref {
- 		clock-output-names = "clkref";
- 	};
- 
-+	clk_200m: clock-200m {
-+		compatible = "fixed-clock";
-+		#clock-cells = <0>;
-+		clock-frequency = <200000000>;
-+		clock-output-names = "clk_200m";
-+	};
-+
- 	/*
- 	 * This is a fabulated representation of the input clock
- 	 * to NCO since we don't know the true clock tree.
-@@ -441,6 +448,18 @@ fpwm1: pwm@235044000 {
- 			status = "disabled";
- 		};
- 
-+		spi0: spi@235100000 {
-+			compatible = "apple,t8103-spi", "apple,spi";
-+			reg = <0x2 0x35100000 0x0 0x4000>;
-+			interrupt-parent = <&aic>;
-+			interrupts = <AIC_IRQ 614 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clk_200m>;
-+			power-domains = <&ps_spi0>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled"; /* only used in J293 */
-+		};
-+
- 		serial0: serial@235200000 {
- 			compatible = "apple,s5l-uart";
- 			reg = <0x2 0x35200000 0x0 0x1000>;
-diff --git a/arch/arm64/boot/dts/apple/t8112-j493.dts b/arch/arm64/boot/dts/apple/t8112-j493.dts
-index 0ad908349f55406783942735a2e9dad54cda00ec..03fb711b3a1fa767ba70807a6d3404e4d52eb783 100644
---- a/arch/arm64/boot/dts/apple/t8112-j493.dts
-+++ b/arch/arm64/boot/dts/apple/t8112-j493.dts
-@@ -20,6 +20,7 @@ / {
- 	aliases {
- 		bluetooth0 = &bluetooth0;
- 		wifi0 = &wifi0;
-+		touchbar0 = &touchbar0;
- 	};
- 
- 	led-controller {
-@@ -67,3 +68,22 @@ &i2c4 {
- &fpwm1 {
- 	status = "okay";
- };
-+
-+&spi3 {
-+	status = "okay";
-+
-+	touchbar0: touchbar@0 {
-+		compatible = "apple,j493-touchbar", "apple,z2-touchbar", "apple,z2-multitouch";
-+		reg = <0>;
-+		label = "Mac14,7 Touch Bar";
-+		spi-max-frequency = <8000000>;
-+		spi-cs-setup-delay-ns = <2000>;
-+		spi-cs-hold-delay-ns = <2000>;
-+
-+		reset-gpios = <&pinctrl_ap 170 GPIO_ACTIVE_LOW>;
-+		interrupts-extended = <&pinctrl_ap 174 IRQ_TYPE_EDGE_FALLING>;
-+		firmware-name = "apple/dfrmtfw-j493.bin";
-+		touchscreen-size-x = <23045>;
-+		touchscreen-size-y = <640>;
-+	};
-+};
-diff --git a/arch/arm64/boot/dts/apple/t8112.dtsi b/arch/arm64/boot/dts/apple/t8112.dtsi
-index 1666e6ab250bc0be9b8318e3c8fc903ccd3f3760..977c1ca5e8c1b566bb3876b6619ea8812b98e072 100644
---- a/arch/arm64/boot/dts/apple/t8112.dtsi
-+++ b/arch/arm64/boot/dts/apple/t8112.dtsi
-@@ -467,6 +467,20 @@ fpwm1: pwm@235044000 {
- 			status = "disabled";
- 		};
- 
-+		spi3: spi@23510c000 {
-+			compatible = "apple,t8112-spi", "apple,spi";
-+			reg = <0x2 0x3510c000 0x0 0x4000>;
-+			interrupt-parent = <&aic>;
-+			interrupts = <AIC_IRQ 751 IRQ_TYPE_LEVEL_HIGH>;
-+			clocks = <&clkref>;
-+			pinctrl-0 = <&spi3_pins>;
-+			pinctrl-names = "default";
-+			power-domains = <&ps_spi3>;
-+			#address-cells = <1>;
-+			#size-cells = <0>;
-+			status = "disabled";
-+		};
-+
- 		serial0: serial@235200000 {
- 			compatible = "apple,s5l-uart";
- 			reg = <0x2 0x35200000 0x0 0x1000>;
-
--- 
-2.47.1
+ .../input/touchscreen/apple,z2-multitouch.yaml     |  83 ++++
+ MAINTAINERS                                        |   2 +
+ arch/arm64/boot/dts/apple/t8103-j293.dts           |  24 +
+ arch/arm64/boot/dts/apple/t8103.dtsi               |  19 +
+ arch/arm64/boot/dts/apple/t8112-j493.dts           |  20 +
+ arch/arm64/boot/dts/apple/t8112.dtsi               |  14 +
+ drivers/input/touchscreen/Kconfig                  |  13 +
+ drivers/input/touchscreen/Makefile                 |   1 +
+ drivers/input/touchscreen/apple_z2.c               | 495 +++++++++++++++++++++
+ 9 files changed, 671 insertions(+)
+---
+base-commit: 9f16d5e6f220661f73b36a4be1b21575651d8833
+change-id: 20241124-z2-c012b528ea0d
 
 

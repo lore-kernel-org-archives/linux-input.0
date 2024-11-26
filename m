@@ -1,53 +1,53 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90A0F1DC720;
-	Tue, 26 Nov 2024 17:22:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3D9E1DDA1B;
+	Tue, 26 Nov 2024 17:22:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732641778; cv=none; b=qLhACSBQ3mY7lkwm1C2MmO/HkvHSLuw9Xe2ko/sOTpHlJ8+oZ4ZsBS43uSX/x4/cHW3qJ1r3jmJ+cFpfVEU1se5UUg96oVskC20dLlnZEHiOqmK+kt8javxhm8vbMTJkRDb4kqLbKYeyFNaN69R5fEgffhao6ma2gaR+R4EoeuI=
+	t=1732641779; cv=none; b=Zl2sVAJVNxUcKXDo37djk6Lr/XG1JOXn9wRF/B5SoWEa7fqDlkAvbc8jnZrFPBPA2+0DPztFN6K9utqRMOv6krzVYKhTXLZ7wqo4HHd+ejOXNT/Gw1WeY4Ua0D+eCRU8y168PIp52SXix0J4WOCjNSbH6Lz0efL9n7+SASu9S6c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1732641778; c=relaxed/simple;
-	bh=9qSDs2DhXJtTEGGKgTgmjQhtxSNlD5ksC3zvH9JONfk=;
+	s=arc-20240116; t=1732641779; c=relaxed/simple;
+	bh=3EIXoatjneQZ2uqGx9N3SU/Mn6t64EkwXr6y2DKjDv4=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=JxyvtoM12NFwF7n0muTdJ2YT5iTeI50LI+wRPswiINTmWhsasyb3Xa38c29Buu5Z2zTbQwAASd8XxlBRZGPIB/acWwoYEbV03m1D8GcykYLfRYfB1DKMrH2uNPiYik3E2kfEQ3Ivm9wxpUFw+deijw/GfjpdpcAK6ONocvDLaBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=none smtp.mailfrom=ecsmtp.iind.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dSIZi8RI; arc=none smtp.client-ip=198.175.65.11
+	 MIME-Version; b=TrXZUlep3QwLXEQ5WJ2EpRzbgscy9ULd+qrWBJSF+60qj/cq8zOP8BNpUHUD5N54+CFrXAIWVitYoenVIkrc+lC17wZ/fjb62aGYJr0Xm/ToudTpNeStmC3tGpqOqFCVfjuwcwdPjtw1Vi+c8rFqhamTmH1W4ZSaHPOrKCGh7aU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=none smtp.mailfrom=ecsmtp.iind.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NCNGWPyE; arc=none smtp.client-ip=198.175.65.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=ecsmtp.iind.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dSIZi8RI"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NCNGWPyE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1732641777; x=1764177777;
+  t=1732641778; x=1764177778;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=9qSDs2DhXJtTEGGKgTgmjQhtxSNlD5ksC3zvH9JONfk=;
-  b=dSIZi8RIYvjgVBNgkKTkorDOvjNH1r+waM/W1YzvQJVC0mHzLCkJ6acT
-   J8j7cjHQJk+NU+KbenA3vMIz82o9HBkeJn12IYbDtUMG6oPPjWR//9pU+
-   qBo3Vr6Ft9DmXhkbZGL9mT7T4VwiRHJ8xA2y3q5Y5DyOh8tjXTuQk89Bg
-   2n1fQkkz+A3aSFXYq6BrpPkkuzWZQcHQx8tJZ/0euAUTJvxZrUuimbAsd
-   hVp2ZZmDgPlUDFKeKX7yPwYzT6NQ6Jgie0NVwVGpIEbN31Sy/353gRQ4E
-   lP5N+LBhTwdsBIvpRGDQhL2A1LfUoZG3QDC9QKiV0q2jPOfyg/PfBJbGH
-   w==;
-X-CSE-ConnectionGUID: DIuoBMgNTeacDM7kf3jn6w==
-X-CSE-MsgGUID: Hru7lU/eTLWAG5vSpoPQDQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11268"; a="43312970"
+  bh=3EIXoatjneQZ2uqGx9N3SU/Mn6t64EkwXr6y2DKjDv4=;
+  b=NCNGWPyEZTv8ITQaQPhYxTYKY5hNRKu891DiqXVnsmusbR1SPVBT8m+B
+   05n/+f1vNvqZf+L/EafRm8v3VJgyNfT/TW2NTJgxgyiED+8ksdEuNkTcz
+   vEbhDC/8RjuxuiNs8FsNp7gT6KqbrpeXzFpwF91lTmy57Z1a9seB3sn4f
+   Uoa9VGRB//gsJXBMEzuLbcf3t56kd74TJpzrAuLVj1UnIzWEfoC/+vi/S
+   yXtiLEyfFzc/U1nJ9vo0pjekhz/5mRB244iSLYrv0NVNVyWWY9p73l4nE
+   7bSgdb5tTVrGwGJ703XRyHweHn07+b+BSgg7ibUQoA5Z4RGj+iZCDeLK5
+   Q==;
+X-CSE-ConnectionGUID: /FT7ZCVQSseb9YOTCAGFtg==
+X-CSE-MsgGUID: pcf5zJSsR5+4cgS1VFqk4Q==
+X-IronPort-AV: E=McAfee;i="6700,10204,11268"; a="43312976"
 X-IronPort-AV: E=Sophos;i="6.12,186,1728975600"; 
-   d="scan'208";a="43312970"
+   d="scan'208";a="43312976"
 Received: from orviesa003.jf.intel.com ([10.64.159.143])
   by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Nov 2024 09:22:56 -0800
-X-CSE-ConnectionGUID: U0NSgnahTAig5s/BYIjRSQ==
-X-CSE-MsgGUID: 8RHzaKPXS1ylxZP+cJGspg==
+X-CSE-ConnectionGUID: 0AGLVF9FTmys5JSAxrF+KQ==
+X-CSE-MsgGUID: I7KIcx31R+qnTqmzkYEmvA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.11,199,1725346800"; 
-   d="scan'208";a="96730577"
+   d="scan'208";a="96730579"
 Received: from inesxmail01.iind.intel.com ([10.223.57.40])
   by orviesa003.jf.intel.com with ESMTP; 26 Nov 2024 09:22:52 -0800
 Received: from inlubt0316.iind.intel.com (inlubt0316.iind.intel.com [10.191.20.213])
-	by inesxmail01.iind.intel.com (Postfix) with ESMTP id 3E7101CADD;
+	by inesxmail01.iind.intel.com (Postfix) with ESMTP id 4AEF11CAE2;
 	Tue, 26 Nov 2024 22:52:48 +0530 (IST)
 Received: by inlubt0316.iind.intel.com (Postfix, from userid 12101951)
-	id 36CCD1600124; Tue, 26 Nov 2024 22:52:48 +0530 (IST)
+	id 3A8061600131; Tue, 26 Nov 2024 22:52:48 +0530 (IST)
 From: Raag Jadav <raag.jadav@intel.com>
 To: gregkh@linuxfoundation.org,
 	linus.walleij@linaro.org,
@@ -61,9 +61,9 @@ Cc: linux-gpio@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-sound@vger.kernel.org,
 	Raag Jadav <raag.jadav@intel.com>
-Subject: [PATCH v2 3/6] pinctrl: tangier: use devm_kmemdup_array()
-Date: Tue, 26 Nov 2024 22:52:37 +0530
-Message-Id: <20241126172240.6044-4-raag.jadav@intel.com>
+Subject: [PATCH v2 5/6] input: sparse-keymap: use devm_kmemdup_array()
+Date: Tue, 26 Nov 2024 22:52:39 +0530
+Message-Id: <20241126172240.6044-6-raag.jadav@intel.com>
 X-Mailer: git-send-email 2.35.3
 In-Reply-To: <20241126172240.6044-1-raag.jadav@intel.com>
 References: <20241126172240.6044-1-raag.jadav@intel.com>
@@ -79,30 +79,21 @@ Convert to use devm_kmemdup_array() which is more robust.
 
 Signed-off-by: Raag Jadav <raag.jadav@intel.com>
 ---
- drivers/pinctrl/intel/pinctrl-tangier.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/input/sparse-keymap.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-tangier.c b/drivers/pinctrl/intel/pinctrl-tangier.c
-index 2cb0b4758269..305547100baa 100644
---- a/drivers/pinctrl/intel/pinctrl-tangier.c
-+++ b/drivers/pinctrl/intel/pinctrl-tangier.c
-@@ -524,7 +524,6 @@ static int tng_pinctrl_probe(struct platform_device *pdev,
- 	struct device *dev = &pdev->dev;
- 	struct tng_family *families;
- 	struct tng_pinctrl *tp;
--	size_t families_len;
- 	void __iomem *regs;
- 	unsigned int i;
+diff --git a/drivers/input/sparse-keymap.c b/drivers/input/sparse-keymap.c
+index 25bf8be6e711..5ec3b9ebcac5 100644
+--- a/drivers/input/sparse-keymap.c
++++ b/drivers/input/sparse-keymap.c
+@@ -176,8 +176,7 @@ int sparse_keymap_setup(struct input_dev *dev,
+ 	for (e = keymap; e->type != KE_END; e++)
+ 		map_size++;
  
-@@ -543,8 +542,8 @@ static int tng_pinctrl_probe(struct platform_device *pdev,
- 	 * Make a copy of the families which we can use to hold pointers
- 	 * to the registers.
- 	 */
--	families_len = size_mul(sizeof(*families), tp->nfamilies);
--	families = devm_kmemdup(dev, tp->families, families_len, GFP_KERNEL);
-+	families = devm_kmemdup_array(dev, tp->families, tp->nfamilies,
-+				      sizeof(*families), GFP_KERNEL);
- 	if (!families)
+-	map = devm_kmemdup(&dev->dev, keymap, map_size * sizeof(*map),
+-			   GFP_KERNEL);
++	map = devm_kmemdup_array(&dev->dev, keymap, map_size, sizeof(*map), GFP_KERNEL);
+ 	if (!map)
  		return -ENOMEM;
  
 -- 

@@ -1,31 +1,32 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 193E1200100;
-	Wed, 27 Nov 2024 19:20:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 682791FF7AA;
+	Wed, 27 Nov 2024 19:20:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732735251; cv=none; b=BGvOxYV/0od+0GsEbyIZcjvb4RGJWuMpdzl1pzkML8CCF96p6aXKm3pvKl2bvIXJWIm5GC57uk9XEppKoWpx6hYEvBqwqQ/Bgyp/qxlesB92dqarpzmNjbO2A+BmdmOlUWYZ27lUfToExl1wkvkUH5fvtvdSKNCtJoWtA0lX3Gs=
+	t=1732735251; cv=none; b=cj+K0zZmbZ//hzLz7QeRET3kEoVzY3C62V2zvWSUDH4Af7d6Ce2G8CXOG8PoH/Xno27rnJIptRYpZn5h/0XvWIQCjyqsqSr834wQGLbHG4hTQqVZdJI9KkI0XdU6AnUgJm3kOCbbecr4FHrud5t77zuCagvB1jR64fsT2pLfB7Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1732735251; c=relaxed/simple;
-	bh=zC0ViIiYdKsbVqeJfJUG3RgY2nrR+ULONrnm6jK1PYA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=HisSkWGu2ZHU2YJoTuzuSvfSv28Y66KLL2AvO6OmXet1YO5fyCb6Js7Sh/rfMIaZVfywPJFQPITnApY36cTLb3bJ1wqmhtQ5OwFLQaizMfIlZQAWT32eJtYVVDzVvflyMpCjCqDEEcdeViCEiDXkX8RjBGtihIDIsYVUYLcGZFk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=gfoR/ncG; arc=none smtp.client-ip=159.69.126.157
+	bh=j+Y13MSIpYC9IMfunH7OOKMb4F7xuB+1KU8yNntWscA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=VE5DANU24Td1vMToxK3cwNsNcJBor5r6uBA/LwlZ8/8HrerBbKAT26BX/kCMhwz/04C2uBZ8i6rYJM+HBQrQMbl4XJ5fGL06SK4ylqmcbhxabxLzdWbA0zWi3wA/z1/ZW+sYvcJMi1s3y5eELrbG2OmJlqpjVInzz45tT4JSPwo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=mXXNK4Bp; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="gfoR/ncG"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="mXXNK4Bp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1732735245;
-	bh=zC0ViIiYdKsbVqeJfJUG3RgY2nrR+ULONrnm6jK1PYA=;
-	h=From:Subject:Date:To:Cc:From;
-	b=gfoR/ncGvuCTb4B+50mjWOUOjuwdb1/ZJZKr03VqAgL0hjj+TqOI642/ypapPq21m
-	 Zvcpj0QZIHXlLk/krWIam+wUKWSBimMsG9JD00ccfepk+e46w68YjV9vwBGwCsFMe9
-	 1LsDiTPAGvitIbTNaTbFXxPcyTB0F21+54rQ5hAQ=
+	bh=j+Y13MSIpYC9IMfunH7OOKMb4F7xuB+1KU8yNntWscA=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=mXXNK4BpTRDyul0Yyyh+2TgWb4YZnsqvI4bGeVRlCnmUAJWZOJzL0kB2MV7Ci7N+W
+	 WSPiB4tzpKZySb+VCjTXh6L4ty3V99gzGECWZvrqEl1V4JRsQR7ntFYGcgPw0iDC0G
+	 1MGQF58Isit24zn0O4WkBqsnQ/G6Qt5MHtYuUArQ=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Subject: [PATCH bpf-next 0/9] bpf: Constify BPF ops
-Date: Wed, 27 Nov 2024 20:15:19 +0100
-Message-Id: <20241127-bpf-const-ops-v1-0-a698b8d58680@weissschuh.net>
+Date: Wed, 27 Nov 2024 20:15:21 +0100
+Subject: [PATCH bpf-next 2/9] bpf: Move func_models from bpf_struct_ops to
+ bpf_struct_ops_desc
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -34,10 +35,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIAMdvR2cC/x2MywqAIBAAfyX23ELak34lOlSutRcVN0KI/j3rO
- DAzNwhFJoGxuCHSxcLeZVBlAduxuJ2QTWbQlW6U0j2uweLmnZzog+BijB66bq1V20NuQiTL6f9
- N8KmO0gnz87zgjR7DaQAAAA==
-X-Change-ID: 20241127-bpf-const-ops-add2866b3157
+Message-Id: <20241127-bpf-const-ops-v1-2-a698b8d58680@weissschuh.net>
+References: <20241127-bpf-const-ops-v1-0-a698b8d58680@weissschuh.net>
+In-Reply-To: <20241127-bpf-const-ops-v1-0-a698b8d58680@weissschuh.net>
 To: "David S. Miller" <davem@davemloft.net>, 
  David Ahern <dsahern@kernel.org>, Eric Dumazet <edumazet@google.com>, 
  Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
@@ -62,45 +62,103 @@ Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
  bpf@vger.kernel.org, linux-input@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1732735245; l=1323;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1732735245; l=3668;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=zC0ViIiYdKsbVqeJfJUG3RgY2nrR+ULONrnm6jK1PYA=;
- b=ySK54si6Ag6rcojkx7OIsS9WP8sr4LPXu+9XrODrxc3Uh2Zl4ToNUwiMWlcOTa/vu12B06OvE
- rvFYs2UjQD/CX5F/kTcWJT6XRTzsOhms6mKqG3GaGYQhAgdudk4kn/7
+ bh=j+Y13MSIpYC9IMfunH7OOKMb4F7xuB+1KU8yNntWscA=;
+ b=qf3rhqnd/jR5IPIOWFkhYUOSIKFWy2kJxY+Qsb9QXA8GibI1+LPwRaJaQxEPBo2c297pFfmw/
+ sxd7IMK0WK/A4U7ARq4JdXzG/LGlLeLLiboLL7G2qtyT3UgMNP61EY/
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
-Move struct bpf_struct_ops into read-only memory to protect against
-accidental and malicious modifications.
+The func_models are the only member of struct bpf_struct_ops which are
+modified by the BPF core.
+Moving it into bpf_struct_ops_desc allows the static definitions of
+bpf_struct_ops throughout the tree being moved into read-only memory.
+
+The dummy ops don't have access to a bpf_struct_ops_desc.
+For them declare a dedicated static variable for the func_members.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
-Thomas Weißschuh (9):
-      bpf: tcp: Remove inaccurate comment about extern
-      bpf: Move func_models from bpf_struct_ops to bpf_struct_ops_desc
-      bpf: Allow registration of const struct bpf_struct_ops
-      const_structs.checkpatch: add bpf_struct_ops
-      bpf: Allow registration of const cfi_stubs
-      bpf, net: tcp: Constify BPF ops
-      bpf, net: dummy_ops: Constify BPF ops
-      HID: bpf: constify BPF ops
-      sched_ext: Constify BPF ops
+ include/linux/bpf.h            | 4 ++--
+ kernel/bpf/bpf_struct_ops.c    | 4 ++--
+ net/bpf/bpf_dummy_struct_ops.c | 4 ++--
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
- drivers/hid/bpf/hid_bpf_struct_ops.c |  4 ++--
- include/linux/bpf.h                  |  8 ++++----
- include/linux/btf.h                  |  2 +-
- kernel/bpf/bpf_struct_ops.c          |  8 ++++----
- kernel/bpf/btf.c                     |  4 ++--
- kernel/sched/ext.c                   |  4 ++--
- net/bpf/bpf_dummy_struct_ops.c       | 10 +++++-----
- net/ipv4/bpf_tcp_ca.c                |  7 +++----
- scripts/const_structs.checkpatch     |  1 +
- 9 files changed, 24 insertions(+), 24 deletions(-)
----
-base-commit: fc39fb56917bb3cb53e99560ca3612a84456ada2
-change-id: 20241127-bpf-const-ops-add2866b3157
+diff --git a/include/linux/bpf.h b/include/linux/bpf.h
+index 3ace0d6227e3cb70dd75bdc6afa52870dee250f1..b734543b7a2b48e717d4f1be765e0198114b4f0a 100644
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -1779,7 +1779,6 @@ struct btf_member;
+  * @type: BTF type.
+  * @value_type: Value type.
+  * @name: The name of the struct bpf_struct_ops object.
+- * @func_models: Func models
+  * @type_id: BTF type id.
+  * @value_id: BTF value id.
+  */
+@@ -1799,7 +1798,6 @@ struct bpf_struct_ops {
+ 	void *cfi_stubs;
+ 	struct module *owner;
+ 	const char *name;
+-	struct btf_func_model func_models[BPF_STRUCT_OPS_MAX_NR_MEMBERS];
+ };
+ 
+ /* Every member of a struct_ops type has an instance even a member is not
+@@ -1825,6 +1823,8 @@ struct bpf_struct_ops_desc {
+ 
+ 	/* Collection of argument information for each member */
+ 	struct bpf_struct_ops_arg_info *arg_info;
++
++	struct btf_func_model func_models[BPF_STRUCT_OPS_MAX_NR_MEMBERS];
+ };
+ 
+ enum bpf_struct_ops_state {
+diff --git a/kernel/bpf/bpf_struct_ops.c b/kernel/bpf/bpf_struct_ops.c
+index 606efe32485a985b854aa7e96e1a7f7cfd5057d3..7ee7c25d21d480d46b40b23ff8aec9d12ea81f68 100644
+--- a/kernel/bpf/bpf_struct_ops.c
++++ b/kernel/bpf/bpf_struct_ops.c
+@@ -397,7 +397,7 @@ int bpf_struct_ops_desc_init(struct bpf_struct_ops_desc *st_ops_desc,
+ 
+ 		if (btf_distill_func_proto(log, btf,
+ 					   func_proto, mname,
+-					   &st_ops->func_models[i])) {
++					   &st_ops_desc->func_models[i])) {
+ 			pr_warn("Error in parsing func ptr %s in struct %s\n",
+ 				mname, st_ops->name);
+ 			err = -EINVAL;
+@@ -777,7 +777,7 @@ static long bpf_struct_ops_map_update_elem(struct bpf_map *map, void *key,
+ 
+ 		trampoline_start = image_off;
+ 		err = bpf_struct_ops_prepare_trampoline(tlinks, link,
+-						&st_ops->func_models[i],
++						&st_ops_desc->func_models[i],
+ 						*(void **)(st_ops->cfi_stubs + moff),
+ 						&image, &image_off,
+ 						st_map->image_pages_cnt < MAX_TRAMP_IMAGE_PAGES);
+diff --git a/net/bpf/bpf_dummy_struct_ops.c b/net/bpf/bpf_dummy_struct_ops.c
+index f71f67c6896b3de862a556d6f1e959a378cbda96..3a675227074e546e6a02e80db3841ed72d5bbff8 100644
+--- a/net/bpf/bpf_dummy_struct_ops.c
++++ b/net/bpf/bpf_dummy_struct_ops.c
+@@ -129,7 +129,7 @@ extern const struct bpf_link_ops bpf_struct_ops_link_lops;
+ int bpf_struct_ops_test_run(struct bpf_prog *prog, const union bpf_attr *kattr,
+ 			    union bpf_attr __user *uattr)
+ {
+-	const struct bpf_struct_ops *st_ops = &bpf_bpf_dummy_ops;
++	static typeof_member(struct bpf_struct_ops_desc, func_models) func_models;
+ 	const struct btf_type *func_proto;
+ 	struct bpf_dummy_ops_test_args *args;
+ 	struct bpf_tramp_links *tlinks = NULL;
+@@ -175,7 +175,7 @@ int bpf_struct_ops_test_run(struct bpf_prog *prog, const union bpf_attr *kattr,
+ 
+ 	op_idx = prog->expected_attach_type;
+ 	err = bpf_struct_ops_prepare_trampoline(tlinks, link,
+-						&st_ops->func_models[op_idx],
++						&func_models[op_idx],
+ 						&dummy_ops_test_ret_function,
+ 						&image, &image_off,
+ 						true);
 
-Best regards,
 -- 
-Thomas Weißschuh <linux@weissschuh.net>
+2.47.1
 

@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1ED3A1C3F38;
-	Thu, 28 Nov 2024 22:29:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E3981C2439;
+	Thu, 28 Nov 2024 22:29:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1732832963; cv=none; b=YC2LzeS9/X5TSyipBtUNWBniQ2ZAZS3Q9vf987DBILKIWiBi+E0mIg8Yrbzql1JN1eonpI93A6fF3NMlo6HAt0WKEHgJQLlNRZ4ePqagwjINJ2fQFpshlRi6Ku4usCpXZ37HbHnMlZuKLr+EU8KnsgP+wfnQCnNRE4NSi7SzZVc=
+	t=1732832963; cv=none; b=sXS5Nl4913AnUA6VfLpP7rC1ZeG67iK+FJk5QgX8L+XTd8LBnh+JC0qP+NUlU4oqnY730IwviGG7IzzM9NZ686eQ9VdDalVkURjdZOW0krON+h3RMJlKgWBgNsWOEdLDQ3S15p26IAHaNfw7aEuXAaFPV7Ert5ez3w2Y2UMpnLY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1732832963; c=relaxed/simple;
-	bh=J4PshVzTxM3ZuXLi2bSbqTl6yYEFBescrQ49UUZU4/4=;
+	bh=4El0kQkrRlr/CEy5dm9S79SsYdqflPKE+Y43lCIJcaQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=QOrZuBxeqBLTw7fSTLTUyV0zxeTJyJ5V/kYFgxn7wK+VELwND3T4aJi88D+MXK2YcNe19TUpUyAv7fjq5N/V2YY9jm5gw0zFNIRFmMwa0Kc3ypBfLxM/z5PBlQ42UVrnXmtYNh5+Fx1RojbUro11oxYbKlYpJwC3AhBnWIxFsM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JcpcRSES; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=s93V7nKR6h9wjhP48e8BGzXiyMIbcGF0amBe3U+v2FVVZKo+XM/8WLtE+I0p/GaJ614hm3kkyiQ6PfMql3SB7r4ZmCvwRTfds7zMuH8wdKrSWWy89bvb2yeNb5l8pKFWx2aUWSdIork/t8tRc+Y3mlq6r5CcjLm51PsLPDs8Khg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RRIDjeSq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JcpcRSES"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B2816C4CED3;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RRIDjeSq"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id D8706C4CEDC;
 	Thu, 28 Nov 2024 22:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1732832962;
-	bh=J4PshVzTxM3ZuXLi2bSbqTl6yYEFBescrQ49UUZU4/4=;
+	bh=4El0kQkrRlr/CEy5dm9S79SsYdqflPKE+Y43lCIJcaQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=JcpcRSESjVYXw6ZGdMy4IASilwfvktjlApFF8glL4GkLI2q8IUtM8h+9D74DOCSkJ
-	 MSHGDHHkLTHCjsJrz66V2L5BJ2IpyxOqEbQ+NkoPmWS99G2wGNzcszl3HmgKDGaKiR
-	 jdY8+eKAG1N/2InKXvF4MfsYx0pO8YYZ9ZHuEXlNo3RUVngVu8kc9WdTpsy6sEcI8E
-	 l1UcuO8h9NmuBAB1XFqCAGwqQJHhZGM0WorcfWmwqaVmi6AwNXHhf/5J7i8+EqI4hf
-	 OzETwJCcNoBryy0Ta6KBzzYUJfHCIpotbutgF/FJ2ZQu8Kz6s+OYsVOHfBdADICpQy
-	 focY8Sjlvq6Fw==
+	b=RRIDjeSqA2rCKFF8mH1XnzXNys8U+yBHRLgIuRu+jIKe820DO8pVpWcGttpEBCgHM
+	 Q+9ftI8ucz+/8zdmrZ0305RnFusesU6uXg7LC3NKh+oMazYhsbwkQQs7Bhp9tWEK8W
+	 fX0Lbe8PEac3RX578fYgTQNkaSSbHTH86YU8R8T3OU2Jv4E31Kr6ajtr+AxnruoULc
+	 GLr1paPX2seHEHdqRbdNyfjKTzkcrjpQrn6OoYihrJ7a6lDyhez8fwPbyWjlMvumlw
+	 b9Z/HmyBbTlaSC5y/wILTDDUQdsSgBjmqk0hl53VBhh3CukRx+5MUMGH+ZSOVzzORP
+	 5dLW1fYntTNdQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A1AB4D70DF9;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CECD9D70DFB;
 	Thu, 28 Nov 2024 22:29:22 +0000 (UTC)
 From: Sasha Finkelstein via B4 Relay <devnull+fnkl.kernel.gmail.com@kernel.org>
-Date: Thu, 28 Nov 2024 23:29:16 +0100
-Subject: [PATCH v2 1/4] dt-bindings: input: touchscreen: Add Z2 controller
+Date: Thu, 28 Nov 2024 23:29:19 +0100
+Subject: [PATCH v2 4/4] MAINTAINERS: Add entries for Apple Z2 touchscreen
+ driver
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241128-z2-v2-1-76cc59bbf117@gmail.com>
+Message-Id: <20241128-z2-v2-4-76cc59bbf117@gmail.com>
 References: <20241128-z2-v2-0-76cc59bbf117@gmail.com>
 In-Reply-To: <20241128-z2-v2-0-76cc59bbf117@gmail.com>
 To: Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>, 
@@ -52,11 +53,11 @@ Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
  linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Sasha Finkelstein <fnkl.kernel@gmail.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1732832961; l=2428;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1732832961; l=1218;
  i=fnkl.kernel@gmail.com; s=20241124; h=from:subject:message-id;
- bh=GsKBCJQyuDiW2TgUSCS4kP/ZXyBcFw3jTp4XmyDVHjM=;
- b=P1HETlnhVzmEHGXk/3QjNtUc8X9EEMwBYebwHSubNbiIz/n+ZmdZd+EuCJrRmqJ289CiUFPD1
- mO+q3aZEokDDUx203RKAtjIj2gbtL9fXLBUs1PnClDjV6p0UaNXQ1KR
+ bh=5VgCgIUSJDHHHfv8AULS59dx+V2ZROTDT6FjcyDo/sU=;
+ b=HtDNmYJVMl2VVv0e+byXazpK9k6qx67ciN7CUSgAAwxIp3haTuA0Y6Yf0JbC9Hk98uQ35misb
+ PWbN/QuiEy+BH0TyAaNFcMfIGsJMBhjOMX5LATZvbi8PZ85csd4cXJ8
 X-Developer-Key: i=fnkl.kernel@gmail.com; a=ed25519;
  pk=aSkp1PdZ+eF4jpMO6oLvz/YfT5XkBUneWwyhQrOgmsU=
 X-Endpoint-Received: by B4 Relay for fnkl.kernel@gmail.com/20241124 with
@@ -66,89 +67,33 @@ Reply-To: fnkl.kernel@gmail.com
 
 From: Sasha Finkelstein <fnkl.kernel@gmail.com>
 
-Add bindings for touchscreen controllers attached using the Z2 protocol.
-Those are present in most Apple devices.
+Add the MAINTAINERS entries for the driver
 
 Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
 ---
- .../input/touchscreen/apple,z2-multitouch.yaml     | 69 ++++++++++++++++++++++
- 1 file changed, 69 insertions(+)
+ MAINTAINERS | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/input/touchscreen/apple,z2-multitouch.yaml b/Documentation/devicetree/bindings/input/touchscreen/apple,z2-multitouch.yaml
-new file mode 100644
-index 0000000000000000000000000000000000000000..c4c0b41178728d5e0a782979d6eecd32e0a83618
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/touchscreen/apple,z2-multitouch.yaml
-@@ -0,0 +1,69 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/touchscreen/apple,z2-multitouch.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Apple touchscreens attached using the Z2 protocol
-+
-+maintainers:
-+  - Sasha Finkelstein <fnkl.kernel@gmail.com>
-+
-+description: A series of touschscreen controllers used in Apple products
-+
-+allOf:
-+  - $ref: touchscreen.yaml#
-+  - $ref: /schemas/spi/spi-peripheral-props.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - apple,j293-touchbar
-+      - apple,j493-touchbar
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  reset-gpios:
-+    maxItems: 1
-+
-+  firmware-name:
-+    maxItems: 1
-+
-+  apple,z2-cal-blob:
-+    $ref: /schemas/types.yaml#/definitions/uint8-array
-+    description:
-+      Calibration blob supplied by the bootloader
-+
-+required:
-+  - compatible
-+  - interrupts
-+  - reset-gpios
-+  - firmware-name
-+  - touchscreen-size-x
-+  - touchscreen-size-y
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    spi {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        touchscreen@0 {
-+            compatible = "apple,j293-touchbar";
-+            reg = <0>;
-+            spi-max-frequency = <11500000>;
-+            reset-gpios = <&pinctrl_ap 139 GPIO_ACTIVE_LOW>;
-+            interrupts-extended = <&pinctrl_ap 194 IRQ_TYPE_EDGE_FALLING>;
-+            firmware-name = "apple/dfrmtfw-j293.bin";
-+            touchscreen-size-x = <23045>;
-+            touchscreen-size-y = <640>;
-+        };
-+    };
-+
-+...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index e7f0170977013889ca7c39b17727ba36d32e92dc..9f75fff12fa1912b70251cade845d6b3d5e28c48 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2166,6 +2166,7 @@ F:	Documentation/devicetree/bindings/clock/apple,nco.yaml
+ F:	Documentation/devicetree/bindings/cpufreq/apple,cluster-cpufreq.yaml
+ F:	Documentation/devicetree/bindings/dma/apple,admac.yaml
+ F:	Documentation/devicetree/bindings/i2c/apple,i2c.yaml
++F:	Documentation/devicetree/bindings/input/touchscreen/apple,z2-multitouch.yaml
+ F:	Documentation/devicetree/bindings/interrupt-controller/apple,*
+ F:	Documentation/devicetree/bindings/iommu/apple,dart.yaml
+ F:	Documentation/devicetree/bindings/iommu/apple,sart.yaml
+@@ -2186,6 +2187,7 @@ F:	drivers/dma/apple-admac.c
+ F:	drivers/pmdomain/apple/
+ F:	drivers/i2c/busses/i2c-pasemi-core.c
+ F:	drivers/i2c/busses/i2c-pasemi-platform.c
++F:	drivers/input/touchscreen/apple_z2.c
+ F:	drivers/iommu/apple-dart.c
+ F:	drivers/iommu/io-pgtable-dart.c
+ F:	drivers/irqchip/irq-apple-aic.c
 
 -- 
 2.47.1

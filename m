@@ -1,31 +1,32 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70BCF1DE897;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 951A91DE8A6;
 	Mon,  2 Dec 2024 19:01:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733166104; cv=none; b=YZPjnDD05LljJ+y7D/OY8Gcz1AYEgnTfBWviWXa+R1yXh5hxvBy1K5X5+3qVmaJ9q1pBLscXVLmgSg8RhSh8ZVeyRwUND6m1J/Rlu8mY83ze4BLZTUuHWfjdwpQAIdsk+XhtvMzQw4dlysjFYXHq2w2LyBlit85WyC5xL7W49LE=
+	t=1733166104; cv=none; b=lbpeJisQAldswO8+JFuubBB272lVLw8GojWLEoTU9ovVx6yBVtRLNGjxgF0k+BWDqSJnq/1UfnZw+bcJqXuG0DvUqjmlo8WyAI6SZO1GrM1/2ZHMvipYYMOMPLuEMnROqLoO47xLlUijjO8knFTfPoGD3UnmHW3TTyZNpNdTzf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1733166104; c=relaxed/simple;
-	bh=THdnx7QklmtBe3zqiT18nfe4kx5JMDjC/QV5xfe7anc=;
+	bh=ao2FQsq1iWoOI4oXrdcQV0r2JcT1H6IjGL/bQumcQ6k=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=YMOqzPZpu/x2SqUCWF/CGa39wsAhrCxU6VEaVSBP197lgMr9GHkkdTghr+6Ql1B5hVoI2rXCXkCUbBtws7A5u6vehtRL3bdqMoCMK7S58zlJyd/C5Gmimg41zv2Ip8M3MJH0akDrrbQbhda95KOFMYxR75+A6ebEdI/lDeGkgAw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=T7WVgaLB; arc=none smtp.client-ip=159.69.126.157
+	 In-Reply-To:To:Cc; b=lRZCqfphaYMSHeeU+wzHFWeUERs6rmJfaVKlqdAk6u/rGtNSxC1KZMBd0R6mo4Bi+DtvjXXk92JR+mbCGPh5LZkkeRNPFMZCJK9UyzEFBKgLXHHb0r46zmhhDJT43RCT6Xr7Yl157iRb3q7bMBR581YUaafLa1VlahpIhWFguKM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=X17bpwEj; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="T7WVgaLB"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="X17bpwEj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1733166098;
-	bh=THdnx7QklmtBe3zqiT18nfe4kx5JMDjC/QV5xfe7anc=;
+	bh=ao2FQsq1iWoOI4oXrdcQV0r2JcT1H6IjGL/bQumcQ6k=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=T7WVgaLBV/feUKyLsz8xCd80o0lqJOHjACVk616l5Rx5LR60dUcmwk94wk4bRxuJI
-	 i3ftrudBr2XMm+u0l10F2hMdMgKMpO2SqmbzVClEa/uJxoMvilpab+nqWdP/7QRIHc
-	 6HiyUpASLghabNu5fW7jIGT+/ZR+2v9Rf2jNOmQE=
+	b=X17bpwEjDacxvLIsfsp7u7qrYJAzIeGGXKpEJQQ+qK0sK5P8nCCM7cReLMvjC2n5J
+	 bpzJVAlp0PLyeiuWTmtAETnoM8UljJxDAMsYyzAQjeFKV6ovwEdNUc9A/KHLIvKYpQ
+	 G9mTQKipLFBC7pvT6HbiJYo9tkzBCUbtm8IxvVrE=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Mon, 02 Dec 2024 20:01:40 +0100
-Subject: [PATCH 09/10] HID: roccat: lua: constify 'struct bin_attribute'
+Date: Mon, 02 Dec 2024 20:01:38 +0100
+Subject: [PATCH 07/10] HID: roccat: koneplus: constify 'struct
+ bin_attribute'
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -34,7 +35,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20241202-sysfs-const-bin_attr-hid-v1-9-16369423a48a@weissschuh.net>
+Message-Id: <20241202-sysfs-const-bin_attr-hid-v1-7-16369423a48a@weissschuh.net>
 References: <20241202-sysfs-const-bin_attr-hid-v1-0-16369423a48a@weissschuh.net>
 In-Reply-To: <20241202-sysfs-const-bin_attr-hid-v1-0-16369423a48a@weissschuh.net>
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
@@ -42,11 +43,11 @@ To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1733166097; l=2045;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1733166097; l=5842;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=THdnx7QklmtBe3zqiT18nfe4kx5JMDjC/QV5xfe7anc=;
- b=ZFzHYctojMhJbh5ZoxHNWUnS0B1vQayAZMgn6kW/GZgt+V8mpV/pDRWa3QLuwXsemeaNo/sQH
- LLZWMKc4wO/D5GM/gtACyc350LnrXZ1kUj2i8AmQRXFI+PHe12/DwfZ
+ bh=ao2FQsq1iWoOI4oXrdcQV0r2JcT1H6IjGL/bQumcQ6k=;
+ b=e+TQWywiXOxMK+tP3z8cW1MDOdww4sEhzU0a04YU9bYe0eJQNB7t4/TKSmnssaOIuZy7mVhTA
+ cT/NE1D3ccDDnyON5ofUnZgef4UOxLKadNqSdEBaPhIwm6aZLDJ8oNr
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
@@ -56,46 +57,131 @@ accidental or malicious modifications.
 
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- drivers/hid/hid-roccat-lua.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hid/hid-roccat-koneplus.c | 42 +++++++++++++++++++--------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/hid/hid-roccat-lua.c b/drivers/hid/hid-roccat-lua.c
-index d5ddf0d68346b2c147f3c888badb77c06d77f46c..023ec64b4b0ea2f8168839ef6fd2c93c02846eab 100644
---- a/drivers/hid/hid-roccat-lua.c
-+++ b/drivers/hid/hid-roccat-lua.c
-@@ -66,7 +66,7 @@ static ssize_t lua_sysfs_write(struct file *fp, struct kobject *kobj,
+diff --git a/drivers/hid/hid-roccat-koneplus.c b/drivers/hid/hid-roccat-koneplus.c
+index 8ccb3b14a1a9e08fc08c71f7c13324afce1f1008..5d8a5ce88b4cae003cf0e0cbf6dc818ac71e0625 100644
+--- a/drivers/hid/hid-roccat-koneplus.c
++++ b/drivers/hid/hid-roccat-koneplus.c
+@@ -128,8 +128,8 @@ static ssize_t koneplus_sysfs_write(struct file *fp, struct kobject *kobj,
  
- #define LUA_SYSFS_W(thingy, THINGY) \
- static ssize_t lua_sysfs_write_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, \
+ #define KONEPLUS_SYSFS_W(thingy, THINGY) \
+ static ssize_t koneplus_sysfs_write_ ## thingy(struct file *fp, \
+-		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
+-		loff_t off, size_t count) \
 +		struct kobject *kobj, const struct bin_attribute *attr, \
- 		char *buf, loff_t off, size_t count) \
++		char *buf, loff_t off, size_t count) \
  { \
- 	return lua_sysfs_write(fp, kobj, buf, off, count, \
-@@ -75,7 +75,7 @@ static ssize_t lua_sysfs_write_ ## thingy(struct file *fp, \
+ 	return koneplus_sysfs_write(fp, kobj, buf, off, count, \
+ 			KONEPLUS_SIZE_ ## THINGY, KONEPLUS_COMMAND_ ## THINGY); \
+@@ -137,8 +137,8 @@ static ssize_t koneplus_sysfs_write_ ## thingy(struct file *fp, \
  
- #define LUA_SYSFS_R(thingy, THINGY) \
- static ssize_t lua_sysfs_read_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, \
+ #define KONEPLUS_SYSFS_R(thingy, THINGY) \
+ static ssize_t koneplus_sysfs_read_ ## thingy(struct file *fp, \
+-		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
+-		loff_t off, size_t count) \
 +		struct kobject *kobj, const struct bin_attribute *attr, \
- 		char *buf, loff_t off, size_t count) \
++		char *buf, loff_t off, size_t count) \
  { \
- 	return lua_sysfs_read(fp, kobj, buf, off, count, \
-@@ -85,11 +85,11 @@ static ssize_t lua_sysfs_read_ ## thingy(struct file *fp, \
- #define LUA_BIN_ATTRIBUTE_RW(thingy, THINGY) \
- LUA_SYSFS_W(thingy, THINGY) \
- LUA_SYSFS_R(thingy, THINGY) \
--static struct bin_attribute lua_ ## thingy ## _attr = { \
-+static const struct bin_attribute lua_ ## thingy ## _attr = { \
+ 	return koneplus_sysfs_read(fp, kobj, buf, off, count, \
+ 			KONEPLUS_SIZE_ ## THINGY, KONEPLUS_COMMAND_ ## THINGY); \
+@@ -150,27 +150,27 @@ KONEPLUS_SYSFS_R(thingy, THINGY)
+ 
+ #define KONEPLUS_BIN_ATTRIBUTE_RW(thingy, THINGY) \
+ KONEPLUS_SYSFS_RW(thingy, THINGY); \
+-static struct bin_attribute bin_attr_##thingy = { \
++static const struct bin_attribute bin_attr_##thingy = { \
  	.attr = { .name = #thingy, .mode = 0660 }, \
- 	.size = LUA_SIZE_ ## THINGY, \
--	.read = lua_sysfs_read_ ## thingy, \
--	.write = lua_sysfs_write_ ## thingy \
-+	.read_new = lua_sysfs_read_ ## thingy, \
-+	.write_new = lua_sysfs_write_ ## thingy \
+ 	.size = KONEPLUS_SIZE_ ## THINGY, \
+-	.read = koneplus_sysfs_read_ ## thingy, \
+-	.write = koneplus_sysfs_write_ ## thingy \
++	.read_new = koneplus_sysfs_read_ ## thingy, \
++	.write_new = koneplus_sysfs_write_ ## thingy \
+ }
+ 
+ #define KONEPLUS_BIN_ATTRIBUTE_R(thingy, THINGY) \
+ KONEPLUS_SYSFS_R(thingy, THINGY); \
+-static struct bin_attribute bin_attr_##thingy = { \
++static const struct bin_attribute bin_attr_##thingy = { \
+ 	.attr = { .name = #thingy, .mode = 0440 }, \
+ 	.size = KONEPLUS_SIZE_ ## THINGY, \
+-	.read = koneplus_sysfs_read_ ## thingy, \
++	.read_new = koneplus_sysfs_read_ ## thingy, \
+ }
+ 
+ #define KONEPLUS_BIN_ATTRIBUTE_W(thingy, THINGY) \
+ KONEPLUS_SYSFS_W(thingy, THINGY); \
+-static struct bin_attribute bin_attr_##thingy = { \
++static const struct bin_attribute bin_attr_##thingy = { \
+ 	.attr = { .name = #thingy, .mode = 0220 }, \
+ 	.size = KONEPLUS_SIZE_ ## THINGY, \
+-	.write = koneplus_sysfs_write_ ## thingy \
++	.write_new = koneplus_sysfs_write_ ## thingy \
+ }
+ KONEPLUS_BIN_ATTRIBUTE_W(control, CONTROL);
+ KONEPLUS_BIN_ATTRIBUTE_W(talk, TALK);
+@@ -183,8 +183,8 @@ KONEPLUS_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS);
+ KONEPLUS_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS);
+ 
+ static ssize_t koneplus_sysfs_read_profilex_settings(struct file *fp,
+-		struct kobject *kobj, struct bin_attribute *attr, char *buf,
+-		loff_t off, size_t count)
++		struct kobject *kobj, const struct bin_attribute *attr,
++		char *buf, loff_t off, size_t count)
+ {
+ 	struct device *dev = kobj_to_dev(kobj)->parent->parent;
+ 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
+@@ -201,8 +201,8 @@ static ssize_t koneplus_sysfs_read_profilex_settings(struct file *fp,
+ }
+ 
+ static ssize_t koneplus_sysfs_read_profilex_buttons(struct file *fp,
+-		struct kobject *kobj, struct bin_attribute *attr, char *buf,
+-		loff_t off, size_t count)
++		struct kobject *kobj, const struct bin_attribute *attr,
++		char *buf, loff_t off, size_t count)
+ {
+ 	struct device *dev = kobj_to_dev(kobj)->parent->parent;
+ 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
+@@ -219,16 +219,16 @@ static ssize_t koneplus_sysfs_read_profilex_buttons(struct file *fp,
+ }
+ 
+ #define PROFILE_ATTR(number)						\
+-static struct bin_attribute bin_attr_profile##number##_settings = {	\
++static const struct bin_attribute bin_attr_profile##number##_settings = {	\
+ 	.attr = { .name = "profile" #number "_settings", .mode = 0440 },	\
+ 	.size = KONEPLUS_SIZE_PROFILE_SETTINGS,				\
+-	.read = koneplus_sysfs_read_profilex_settings,			\
++	.read_new = koneplus_sysfs_read_profilex_settings,		\
+ 	.private = &profile_numbers[number-1],				\
+ };									\
+-static struct bin_attribute bin_attr_profile##number##_buttons = {	\
++static const struct bin_attribute bin_attr_profile##number##_buttons = {	\
+ 	.attr = { .name = "profile" #number "_buttons", .mode = 0440 },	\
+ 	.size = KONEPLUS_SIZE_PROFILE_BUTTONS,				\
+-	.read = koneplus_sysfs_read_profilex_buttons,			\
++	.read_new = koneplus_sysfs_read_profilex_buttons,		\
+ 	.private = &profile_numbers[number-1],				\
+ };
+ PROFILE_ATTR(1);
+@@ -321,7 +321,7 @@ static struct attribute *koneplus_attrs[] = {
+ 	NULL,
  };
  
- LUA_BIN_ATTRIBUTE_RW(control, CONTROL)
+-static struct bin_attribute *koneplus_bin_attributes[] = {
++static const struct bin_attribute *const koneplus_bin_attributes[] = {
+ 	&bin_attr_control,
+ 	&bin_attr_talk,
+ 	&bin_attr_macro,
+@@ -346,7 +346,7 @@ static struct bin_attribute *koneplus_bin_attributes[] = {
+ 
+ static const struct attribute_group koneplus_group = {
+ 	.attrs = koneplus_attrs,
+-	.bin_attrs = koneplus_bin_attributes,
++	.bin_attrs_new = koneplus_bin_attributes,
+ };
+ 
+ static const struct attribute_group *koneplus_groups[] = {
 
 -- 
 2.47.1

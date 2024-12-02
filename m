@@ -1,178 +1,126 @@
-Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cosmicgizmosystems.com (cosgizsys.com [63.249.102.155])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70C281DE898;
-	Mon,  2 Dec 2024 19:01:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 370D36F30C;
+	Mon,  2 Dec 2024 22:36:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=63.249.102.155
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733166105; cv=none; b=N3X8wD/Htb7qzahcwjdbrNuc8oFs+MFzVvaz/nfTU+yc41jj1EY8XSgBjU9+eWOk1ByACbyvNkcXFfo/WXfnD0WZW3/rbtfli24Z9cIQlwdC3NGPuGw7gqIx29jgc/xS1/xhegcxvv5RckKrUFV1MlSfNriuVPJD7E4nLueZtXE=
+	t=1733178989; cv=none; b=JS8galybGLj2eEqbxBZobHhY1fyQP6JmP930s8A8WKZh6jrloOWN6WOL2GJV9N2Koe+TOVxMat8fHlS8YZdFcm9pwHQVZEz5rb9PeJn3YfIBuirteR7pXB6ZtmGdvM8jMA3XZnnBLMUuocXCqvGW7XHmnJ30xPXzJ9tLjwY3utY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733166105; c=relaxed/simple;
-	bh=a3Pf5N4sGrorX7XWI9jWy3QCb2u2yZssbNA2NxMNfiQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=vFBwAIup+MtrWDteFfB9sQ4bg/wuTDeXeOOn2pXzs7dqiEfUv7gPnJkN3MIDzGSoJNBtV0u752/2OY7fdVgwQdvwBDLCoLVecSWcojaG+IKHO6d+oodqVDxQT8SRGyU/3Pb2l6Khww1jFFzwESHihgSHQ7jYwHwEnlFR9qs+pMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=S6CUvyqS; arc=none smtp.client-ip=159.69.126.157
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="S6CUvyqS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
-	s=mail; t=1733166098;
-	bh=a3Pf5N4sGrorX7XWI9jWy3QCb2u2yZssbNA2NxMNfiQ=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=S6CUvyqSuRSwkHpSubMFaGclaL4c9XA+J8nEEFgFNgO9QTaTykiZn/UdJCXWvJjOJ
-	 tdelalQv6GkZWDy6WxF/zQOCdwHH+C50pQEL9Lf4Q4NKASC/CiaMCoIIsLC+ptxoT5
-	 gHHHKfPcGt9eskFbvr2OM2v9Q8bDHlglnJBz/6q0=
-From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Mon, 02 Dec 2024 20:01:39 +0100
-Subject: [PATCH 08/10] HID: roccat: kovaplus: constify 'struct
- bin_attribute'
+	s=arc-20240116; t=1733178989; c=relaxed/simple;
+	bh=f5hnMyZ2RATRhxOsOkINqN46PdMenZIt2F+Y9cELyy4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=r/Pjqf+KeLLg6Z+zuH0M3VwP0RkflmxI3t95ZjiaC3mlwIrs0KcnL2X5rZujV2jA7HrlXARV1h8zIQq6dBILYQA45mZ1AAEfEhhWD74QSzHUDQct5G1KQhwjyXYXeETCOPfHmBA8zwDW2aw5KPTPHRQOoOIiNMHiIcCCmeY2K3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=cosmicgizmosystems.com; spf=pass smtp.mailfrom=cosmicgizmosystems.com; arc=none smtp.client-ip=63.249.102.155
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=cosmicgizmosystems.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cosmicgizmosystems.com
+Received: from [10.0.0.101] (c-73-190-111-195.hsd1.wa.comcast.net [73.190.111.195])
+	by host11.cruzio.com (Postfix) with ESMTPSA id E4FED273BA61;
+	Mon,  2 Dec 2024 14:36:26 -0800 (PST)
+Message-ID: <4f6d6f5e-f912-483b-bb8b-3a8bdae6bd17@cosmicgizmosystems.com>
+Date: Mon, 2 Dec 2024 14:36:26 -0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20241202-sysfs-const-bin_attr-hid-v1-8-16369423a48a@weissschuh.net>
-References: <20241202-sysfs-const-bin_attr-hid-v1-0-16369423a48a@weissschuh.net>
-In-Reply-To: <20241202-sysfs-const-bin_attr-hid-v1-0-16369423a48a@weissschuh.net>
-To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
- Stefan Achatz <erazor_de@users.sourceforge.net>
-Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
- =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1733166097; l=5462;
- i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=a3Pf5N4sGrorX7XWI9jWy3QCb2u2yZssbNA2NxMNfiQ=;
- b=fu8Lvy+WdI56HZr510hBp7Mr0SqFJwoEfJEkGd4FHpnKrHGMZx57KFAZuWEEFz1P7e77oUw9o
- UDWye/kVA+QAD6RkhD2P7+lMN2GrdBRG/mHPQC4U68/DjsASM/3q9cJ
-X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
- pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] ALSA: usb-audio: Add quirk for Plantronics headsets
+ to fix control names
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Jiri Kosina <jikos@kernel.org>, Takashi Iwai <tiwai@suse.com>,
+ Wade Wang <wade.wang@hp.com>, Benjamin Tissoires <bentiss@kernel.org>,
+ Jaroslav Kysela <perex@perex.cz>, linux-input@vger.kernel.org,
+ linux-sound@vger.kernel.org
+References: <20241124203252.28701-1-linuxhid@cosmicgizmosystems.com>
+ <20241124203252.28701-3-linuxhid@cosmicgizmosystems.com>
+ <87frnfzmul.wl-tiwai@suse.de>
+Content-Language: en-US
+From: Terry Junge <linuxhid@cosmicgizmosystems.com>
+In-Reply-To: <87frnfzmul.wl-tiwai@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-The sysfs core now allows instances of 'struct bin_attribute' to be
-moved into read-only memory. Make use of that to protect them against
-accidental or malicious modifications.
+On 11/25/24 1:25 AM, Takashi Iwai wrote:
+> On Sun, 24 Nov 2024 21:32:41 +0100,
+> Terry Junge wrote:
+>>
+>> Many Poly/Plantronics headset families name the feature, input,
+>> and/or output units in a such a way to produce control names
+>> that are not recognized by user space. As such, the volume and
+>> mute events do not get routed to the headset's audio controls.
+>>
+>> As an example from a product family:
+>>
+>> The microphone mute control is named
+>> Headset Microphone Capture Switch
+>> and the headset volume control is named
+>> Headset Earphone Playback Volume
+>>
+>> The quirk fixes these to become
+>> Headset Capture Switch
+>> Headset Playback Volume
+>>
+>> Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
+> 
+> Thanks, this description looks much more understandable now.
+> Meanwhile...
+> 
+>> ---
+>>  sound/usb/mixer_quirks.c | 35 +++++++++++++++++++++++++++++++++++
+>>  1 file changed, 35 insertions(+)
+>>
+>> diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
+>> index 8bbf070b3676..20d63efd5498 100644
+>> --- a/sound/usb/mixer_quirks.c
+>> +++ b/sound/usb/mixer_quirks.c
+>> @@ -4215,6 +4215,37 @@ static void snd_dragonfly_quirk_db_scale(struct usb_mixer_interface *mixer,
+>>  	}
+>>  }
+>>  
+>> +static void snd_fix_plt_control_name(struct snd_kcontrol *kctl)
+>> +{
+>> +	static const char * const names_to_remove[] = {
+>> +		"Earphone",
+>> +		"Microphone",
+>> +		"Receive",
+>> +		"Transmit",
+>> +		NULL
+>> +	};
+>> +	const char * const *n2r;
+>> +	char *dst, *src;
+>> +	size_t len;
+>> +
+>> +	for (n2r = names_to_remove; *n2r; ++n2r) {
+>> +		dst = strstr(kctl->id.name, *n2r);
+>> +		if (dst) {
+>> +			src = dst + strlen(*n2r);
+>> +			len = strlen(src) + 1;
+>> +			if ((char *)kctl->id.name != dst && *(dst - 1) == ' ')
+>> +				--dst;
+>> +			memmove(dst, src, len);
+>> +		}
+>> +	}
+>> +	if (kctl->id.name[0] == ' ') {
+>> +		char rcat[sizeof(kctl->id.name)] = { "Headset" };
+>> +
+>> +		strlcat(rcat, kctl->id.name, sizeof(rcat));
+>> +		strscpy(kctl->id.name, rcat, sizeof(kctl->id.name));
+>> +	}
+>> +}
+> 
+> ... the code itself isn't really trivial (due to the poor string
+> handling by nature of C language), so it's better to put some brief
+> comment what this function really does, too.
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
----
- drivers/hid/hid-roccat-kovaplus.c | 38 +++++++++++++++++++-------------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+Thanks Takashi,
 
-diff --git a/drivers/hid/hid-roccat-kovaplus.c b/drivers/hid/hid-roccat-kovaplus.c
-index 748d4d7cb2fc3b1dcc8de6b186273c4b43f7c814..e31e4a2e62d5a79241a0e2a0fcb9518f4f6c59ff 100644
---- a/drivers/hid/hid-roccat-kovaplus.c
-+++ b/drivers/hid/hid-roccat-kovaplus.c
-@@ -171,8 +171,8 @@ static ssize_t kovaplus_sysfs_write(struct file *fp, struct kobject *kobj,
- 
- #define KOVAPLUS_SYSFS_W(thingy, THINGY) \
- static ssize_t kovaplus_sysfs_write_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
-+		struct kobject *kobj, const struct bin_attribute *attr, \
-+		char *buf, loff_t off, size_t count) \
- { \
- 	return kovaplus_sysfs_write(fp, kobj, buf, off, count, \
- 			KOVAPLUS_SIZE_ ## THINGY, KOVAPLUS_COMMAND_ ## THINGY); \
-@@ -180,8 +180,8 @@ static ssize_t kovaplus_sysfs_write_ ## thingy(struct file *fp, \
- 
- #define KOVAPLUS_SYSFS_R(thingy, THINGY) \
- static ssize_t kovaplus_sysfs_read_ ## thingy(struct file *fp, \
--		struct kobject *kobj, struct bin_attribute *attr, char *buf, \
--		loff_t off, size_t count) \
-+		struct kobject *kobj, const struct bin_attribute *attr, \
-+		char *buf, loff_t off, size_t count) \
- { \
- 	return kovaplus_sysfs_read(fp, kobj, buf, off, count, \
- 			KOVAPLUS_SIZE_ ## THINGY, KOVAPLUS_COMMAND_ ## THINGY); \
-@@ -193,19 +193,19 @@ KOVAPLUS_SYSFS_R(thingy, THINGY)
- 
- #define KOVAPLUS_BIN_ATTRIBUTE_RW(thingy, THINGY) \
- KOVAPLUS_SYSFS_RW(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
-+static const struct bin_attribute bin_attr_##thingy = { \
- 	.attr = { .name = #thingy, .mode = 0660 }, \
- 	.size = KOVAPLUS_SIZE_ ## THINGY, \
--	.read = kovaplus_sysfs_read_ ## thingy, \
--	.write = kovaplus_sysfs_write_ ## thingy \
-+	.read_new = kovaplus_sysfs_read_ ## thingy, \
-+	.write_new = kovaplus_sysfs_write_ ## thingy \
- }
- 
- #define KOVAPLUS_BIN_ATTRIBUTE_W(thingy, THINGY) \
- KOVAPLUS_SYSFS_W(thingy, THINGY); \
--static struct bin_attribute bin_attr_##thingy = { \
-+static const struct bin_attribute bin_attr_##thingy = { \
- 	.attr = { .name = #thingy, .mode = 0220 }, \
- 	.size = KOVAPLUS_SIZE_ ## THINGY, \
--	.write = kovaplus_sysfs_write_ ## thingy \
-+	.write_new = kovaplus_sysfs_write_ ## thingy \
- }
- KOVAPLUS_BIN_ATTRIBUTE_W(control, CONTROL);
- KOVAPLUS_BIN_ATTRIBUTE_RW(info, INFO);
-@@ -213,8 +213,8 @@ KOVAPLUS_BIN_ATTRIBUTE_RW(profile_settings, PROFILE_SETTINGS);
- KOVAPLUS_BIN_ATTRIBUTE_RW(profile_buttons, PROFILE_BUTTONS);
- 
- static ssize_t kovaplus_sysfs_read_profilex_settings(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
-+		struct kobject *kobj, const struct bin_attribute *attr,
-+		char *buf, loff_t off, size_t count)
- {
- 	struct device *dev = kobj_to_dev(kobj)->parent->parent;
- 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-@@ -231,8 +231,8 @@ static ssize_t kovaplus_sysfs_read_profilex_settings(struct file *fp,
- }
- 
- static ssize_t kovaplus_sysfs_read_profilex_buttons(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
-+		struct kobject *kobj, const struct bin_attribute *attr,
-+		char *buf, loff_t off, size_t count)
- {
- 	struct device *dev = kobj_to_dev(kobj)->parent->parent;
- 	struct usb_device *usb_dev = interface_to_usbdev(to_usb_interface(dev));
-@@ -249,16 +249,16 @@ static ssize_t kovaplus_sysfs_read_profilex_buttons(struct file *fp,
- }
- 
- #define PROFILE_ATTR(number)						\
--static struct bin_attribute bin_attr_profile##number##_settings = {	\
-+static const struct bin_attribute bin_attr_profile##number##_settings = {	\
- 	.attr = { .name = "profile" #number "_settings", .mode = 0440 },	\
- 	.size = KOVAPLUS_SIZE_PROFILE_SETTINGS,				\
--	.read = kovaplus_sysfs_read_profilex_settings,			\
-+	.read_new = kovaplus_sysfs_read_profilex_settings,			\
- 	.private = &profile_numbers[number-1],				\
- };									\
--static struct bin_attribute bin_attr_profile##number##_buttons = {	\
-+static const struct bin_attribute bin_attr_profile##number##_buttons = {	\
- 	.attr = { .name = "profile" #number "_buttons", .mode = 0440 },	\
- 	.size = KOVAPLUS_SIZE_PROFILE_BUTTONS,				\
--	.read = kovaplus_sysfs_read_profilex_buttons,			\
-+	.read_new = kovaplus_sysfs_read_profilex_buttons,			\
- 	.private = &profile_numbers[number-1],				\
- };
- PROFILE_ATTR(1);
-@@ -379,7 +379,7 @@ static struct attribute *kovaplus_attrs[] = {
- 	NULL,
- };
- 
--static struct bin_attribute *kovaplus_bin_attributes[] = {
-+static const struct bin_attribute *const kovaplus_bin_attributes[] = {
- 	&bin_attr_control,
- 	&bin_attr_info,
- 	&bin_attr_profile_settings,
-@@ -399,7 +399,7 @@ static struct bin_attribute *kovaplus_bin_attributes[] = {
- 
- static const struct attribute_group kovaplus_group = {
- 	.attrs = kovaplus_attrs,
--	.bin_attrs = kovaplus_bin_attributes,
-+	.bin_attrs_new = kovaplus_bin_attributes,
- };
- 
- static const struct attribute_group *kovaplus_groups[] = {
+I'll comment the function in v2 and send it out.
 
--- 
-2.47.1
+> 
+> 
+> thanks,
+> 
+> Takashi
 

@@ -1,65 +1,65 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F1721FBE91;
-	Mon,  2 Dec 2024 09:48:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C3CA1FBE9B;
+	Mon,  2 Dec 2024 09:48:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733132890; cv=none; b=OCxL/BHKsx3rgqUdZDODxi9WiNpbQSmYXx1+oR0id9h3Mj3DLFEDJq4aeDtzh9XKlcqlfWrqVjMYD34nbg1JUGimNRD8/R7MqApCy5ULrauU7Hzx4zrP/DTI/KSzfpJACOgpq0WTloNYCTGtggmRkOcGKTyIfY2672K4FBtqzx8=
+	t=1733132892; cv=none; b=RoPHRicLThEdMHOt+4g8SaybAbDIe3qQZ3s4LGLSCEeOYFCPi/fWhCchi1dCp/UFdhSj8BHrFCVE17D4m2WVkrRw101J3V/JPXRDykg8EqV1Np+wl73Lu4HHtujMqbQSqp4ALnK+caTKKsH9wMjWx9YKYvEpOw4BU8mL8ymiKbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733132890; c=relaxed/simple;
-	bh=tdGTuOCygyKLTzrZkn4w+l/pmKktzi0hDq2Y4cLiQJI=;
+	s=arc-20240116; t=1733132892; c=relaxed/simple;
+	bh=XyK6JJc2MS6uiJOZtNGQ77axjfYzo4Aw4iRhr7Njxwg=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=aGfm4QhBxpO29FC3sPLIme6o9QkWq0RGLc/TfmhEDG4LlmSENQZziZdxCdUihMytQzvIk53Z0H/tQvE4vzOXtgKCZC7UYddbyX/n7v1pvc6LzXBq/45oYpxKD6w7Z15ixT+lX0uL8xxv6hsmtu7Uk0qRXHMMTAvGhlM71qMdWrQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JQPt6Asa; arc=none smtp.client-ip=209.85.218.53
+	 In-Reply-To:To:Cc; b=IuS6BFnDV/ssFf3seB/Gad8L1TyZ+1/5WRdV7ZaUkeT/SHjbrqkH1g80C2VgfqfqgWgQpb70e30aGh82Iokccesgs9+IBje6AWvkDg8QT1DXJWCpCbpR+la32etNrdC4G4cKvlT62q00fcg1djNbTOZwOH32YcP1o1TzS1AcTkk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mAxikhmM; arc=none smtp.client-ip=209.85.218.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JQPt6Asa"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-aa530a94c0eso660814866b.2;
-        Mon, 02 Dec 2024 01:48:08 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mAxikhmM"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-a9a0ec0a94fso535978066b.1;
+        Mon, 02 Dec 2024 01:48:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733132887; x=1733737687; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1733132888; x=1733737688; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=FKMQu9Put2whTLlJmXR7bTTxcNbkqOf+6o99Kc/4Euo=;
-        b=JQPt6AsaOfPmvZ+N+L6FgragsTyriJGhbg8y/5OwiWQZBWP0h7aK6YT3oG7MSSW7tw
-         5TYwYCcreShaUcc3d6sXBEnE5gOrRDiWW2UU1z/gkiC1XuedZRi5t/qt3HmNbX61Hm1o
-         r2ZXD8l7rXkXi2SIsLjSQ3+uXbZBcwd1/G1cQAD7iMo7C8fs8u9B1A+AhK42/huriVzB
-         qowQ4vmuZlsTxPobnVwBPbscVP/kFF/HCV5sJ/AAnx/AOswq8TPbpTGkO4XBaeKq4/FS
-         /753fAQpU4lXuMKViutYdktm4xmtE/kdmDqqohmxH3wgVlu1/gwbitUgHjQnMC8esqzn
-         RZ9Q==
+        bh=IBK4652sYfOKYrGRBYDoSF0xs0OKs34l32mh6irIiV0=;
+        b=mAxikhmMLZsfIM4XApoDjNr/F3agy43RPuuHwu1ictlDmoiJOTreseqkkeh14GVAV5
+         5j/xm9o76BggmdVceQrBSzKyjMjU7W31FeiOfgI6ZuAlSzpgh1aS5QFAkM1oNEYyiRW2
+         taZuqo8814pknToCcMjYwLj94l9oeGujrJACEHgojMY5XkzfA1BnaaX4IfnvC2tEu6ts
+         GNNtisWPjzS8PUF7e0rdVIUM70glzExFUzXBZJ0I/25YZUALNU4LqD3E/v7v3C86wHjj
+         CR/dR1GISsBr5XOqpB/PIlOdNXMPAEVRa70jL9r/R65sEF+YT0bU9Tv090rSRxc2W8rY
+         x/3A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733132887; x=1733737687;
+        d=1e100.net; s=20230601; t=1733132888; x=1733737688;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FKMQu9Put2whTLlJmXR7bTTxcNbkqOf+6o99Kc/4Euo=;
-        b=kHlGhuoZUZvMfyoQHAdEGGpQVJqzVEBx9AcremVVpLKzM5a4D5tmaOzmvc7YRMfhHp
-         OT8brkKXGtf2544DJceJLr8ecnezP7215JgEks+7ldeZz3AwIyQzZXntPpxIDv1mink2
-         l6E7Lxb51blSSqxCkASh44zyFM/Vg2QXcuATbLncWW6WMczuhg0c8a/pNuGG9bEgpyWN
-         HiH3X0MTs2U8mhjd8VIyt5hvG4u+n1Y38cAD0bqbALkYh0haPC/sYDlSEo5/uf+AoMmA
-         jbNfEO0RzKz8x2ALn25fbMYNRLrjmMtnCizjJeb5fqngESpKKHxhCbV5vbFttsCl44ig
-         1Pzg==
-X-Forwarded-Encrypted: i=1; AJvYcCVvvKCNvt589nz2cjpon5HFiDcpVBgIqxtxDfDYHhp3w/eCAPq7CLyjZLsYQaQqIBxp8awQeagl2y3t@vger.kernel.org, AJvYcCX6agzsN2eWypjfJ1xs9OlqkIqBK+v/IVslY1fpI3Rib6Vkv5p4EIm6vLJYuFHVpO0IsXQGKUbNxeLjR4U=@vger.kernel.org, AJvYcCX8rmw4h5/J8NsSnplcvOHOAFetkPwsX9lKuNnZdN5aykM502hobcyIGwOzrEUtNAhNZaLI7O3vKeI0gg==@vger.kernel.org, AJvYcCXNm96/+Ph6R0rNF3LEnt72evjdAM+rAhSCGCcInRQteqIMWuZvsyEyeLF/Hv77tpwu7my9iCAdtlFpi61P@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzr+MVpBdgJ7dLA36GcwItLuaV3dXBfOJuFVcoBimltANM/Ri8S
-	mD3HzeN47ncR23hvcfXz/zj+oyG+29QN9Ovvbr8TTZVKmZmp/URa
-X-Gm-Gg: ASbGncuGp/PeLPwZWB+S5ccZjLbNGTRu6VmD2EvPcqzv69HH43IvqH26FaFEkr9kzks
-	RfPt/AIsIPcIuEmjJbl+UplVLmKkPmP9S5IJO9jy7XRSAbBl6mEPywcpEgOwejAo3AKJxF4XVl9
-	uTs9uKzcNhjmsnE9LbtqbT/34nsw/ZXSnETmQzrLh8isTqp6ZCpFigi4TKaTnsJPLh/NEWYX5y9
-	EMt1mq3hJZWj121EnKG54GXO0YmuyXuIbB5Dh/jTIlQHQdZ
-X-Google-Smtp-Source: AGHT+IGJh660APdyPaRenyDkc/Sr6gQpwtz0yPFS9TqaLYSUTvYP7MviS1z06zKjqFW8zY4aBMR2JQ==
-X-Received: by 2002:a17:906:3085:b0:aa5:35fc:cc21 with SMTP id a640c23a62f3a-aa580f2be0cmr2006372366b.19.1733132885771;
-        Mon, 02 Dec 2024 01:48:05 -0800 (PST)
+        bh=IBK4652sYfOKYrGRBYDoSF0xs0OKs34l32mh6irIiV0=;
+        b=wlvqMoSoZrGw6ZyWdvDGkGZjwC0hC199Tu+LW/Luhq60MH31LztzOmDNLJxJeHpxNV
+         MR0SrS6fkM0lam4yDbRqrak81vNx7wMo9h9CEXVYghX30CPQ97BBzWdwIP2UghLjnVPT
+         wgd1ose6nhiMFy69s4z4U8kitebIhy0xc3ZDE6BtbtNr+hjA/9sWsr6CXqa520/GsvS2
+         S9flkUSBRsNzcfEjOYnY+PREk/ponOelDgEsVQALFwoWN6pEQRI08sXk4t669D4ZA6xR
+         IB2VjxTYJEu6e6Z1v5YvJjc3gunQgOzqTyc51xLHetouSwA3YZ0HWstxhaJOyqadLzQM
+         E6sw==
+X-Forwarded-Encrypted: i=1; AJvYcCUctqRf2GZcZKjfydtjNxq8FViB4zfhseU70n4tiF4PnOQbdn8sp+7U0e15pfwz3yQ3xn3iunMw8/pM2qw=@vger.kernel.org, AJvYcCUqWOsJgqqRtfaDawgEt4CyNX52NJBjbrTIByxwInh1SmNLl44dD+PNklsr5+Wf5Pnzg+VdAvkpDTLn4KRw@vger.kernel.org, AJvYcCV0sevSLGUy9s/UfuMqbCm2fFpYmvUWiNkgLISPhl1hWax0nboOcLwsH2Xv54mGA+XM2Jj2rQ4m23+ieA==@vger.kernel.org, AJvYcCXfie/CRJX5A7LC8V+FuSXwYWUNfSuOBGI5jk9FmtIAE4iVElyX2gRL35a2EHNTf94Ut0Cv8BVhRGdb@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyg/4uwr0dTiZ0cBcdrguGLuYlh6yvwEWpP+wcFWqXP81C/1yTy
+	oIO6afJbRaOWWcJtak8Y1rnsQfs5SvAhHCgB5gCyOXA0f86SFRvg
+X-Gm-Gg: ASbGncsDhbNRCJ+lV8o3UVtNjHyzyM0hU4dZ62qPdgDgi8/N963bqN5xSLFlJ78pg9x
+	It2oGwGSUuAhiKGMNraRqeaKfYbk5j/hZQdM1ceNOip+oilKpYyaGXfuvH26pkfIpZxYwVZ+tSI
+	OPFbFNNcvjdcOC/XGoSUUevXqhYGr12usVrCT430BIWFnVBNKxMc5dBq1nqWcOvm3ow+Lke5iXO
+	EgfNVRe5agzt942MalXqIvpzt9S/qrtUMH+RKQCJE5mjxZN
+X-Google-Smtp-Source: AGHT+IGmVmWnm03Dt1T8R8SwyI/C3c1z+toD+fGD7aWYOwRJfXrS88BoIGjsfBRUVpTXtJBSEXjmHg==
+X-Received: by 2002:a17:906:30ce:b0:aa5:1551:99f2 with SMTP id a640c23a62f3a-aa581072b9amr2017019166b.49.1733132888427;
+        Mon, 02 Dec 2024 01:48:08 -0800 (PST)
 Received: from [127.0.1.1] ([46.53.242.72])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-aa599957594sm487059766b.197.2024.12.02.01.48.04
+        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-aa599957594sm487059766b.197.2024.12.02.01.48.07
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Dec 2024 01:48:05 -0800 (PST)
+        Mon, 02 Dec 2024 01:48:08 -0800 (PST)
 From: Dzmitry Sankouski <dsankouski@gmail.com>
-Date: Mon, 02 Dec 2024 12:47:54 +0300
-Subject: [PATCH v9 1/9] power: supply: add undervoltage health status
- property
+Date: Mon, 02 Dec 2024 12:47:56 +0300
+Subject: [PATCH v9 3/9] dt-bindings: power: supply: max17042: remove reg
+ from required
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -68,7 +68,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241202-starqltechn_integration_upstream-v9-1-a1adc3bae2b8@gmail.com>
+Message-Id: <20241202-starqltechn_integration_upstream-v9-3-a1adc3bae2b8@gmail.com>
 References: <20241202-starqltechn_integration_upstream-v9-0-a1adc3bae2b8@gmail.com>
 In-Reply-To: <20241202-starqltechn_integration_upstream-v9-0-a1adc3bae2b8@gmail.com>
 To: Sebastian Reichel <sre@kernel.org>, 
@@ -84,65 +84,35 @@ Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
  devicetree@vger.kernel.org, linux-input@vger.kernel.org, 
  linux-leds@vger.kernel.org, Dzmitry Sankouski <dsankouski@gmail.com>
 X-Mailer: b4 0.14.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1733132883; l=2343;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1733132883; l=781;
  i=dsankouski@gmail.com; s=20240619; h=from:subject:message-id;
- bh=tdGTuOCygyKLTzrZkn4w+l/pmKktzi0hDq2Y4cLiQJI=;
- b=xgO7pUxB26f/cMg2PFnh0BWsWGEwTE43hhHhmBylkVzSIk0phGl5iDzv9a2RN9E29v/RE2Sfo
- SkWeE3g0OqFCD8L2zzkOcmnADJQxwSpXCbyH/WR2A7tjgeK34zuwKIc
+ bh=XyK6JJc2MS6uiJOZtNGQ77axjfYzo4Aw4iRhr7Njxwg=;
+ b=dpX46eSH3O/jrTANusO9pbo8WAQDdhPlIhEVa9ReT6HLZCxAo3qxm6BJ1bUiE2klW2swf+ZG1
+ PYBqoYOLmgeDn5ucxFIloqxHVTqSsmyyXXMmtOGO/6TEPjDiNJlvmoz
 X-Developer-Key: i=dsankouski@gmail.com; a=ed25519;
  pk=YJcXFcN1EWrzBYuiE2yi5Mn6WLn6L1H71J+f7X8fMag=
 
-Add POWER_SUPPLY_HEALTH_UNDERVOLTAGE status for power supply
-to report under voltage lockout failures.
+Remove 'reg' property from required list, because in platform
+variant it should not be present, because i2c client is passed
+from MFD driver.
 
 Signed-off-by: Dzmitry Sankouski <dsankouski@gmail.com>
 ---
-Changes for v5:
-- update Documentation/ABI/testing/sysfs-class-power and
-  drivers/power/supply/power_supply_sysfs.c
----
- Documentation/ABI/testing/sysfs-class-power | 2 +-
- drivers/power/supply/power_supply_sysfs.c   | 1 +
- include/linux/power_supply.h                | 1 +
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/power/supply/maxim,max17042.yaml | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/Documentation/ABI/testing/sysfs-class-power b/Documentation/ABI/testing/sysfs-class-power
-index 45180b62d426..32c018c5d088 100644
---- a/Documentation/ABI/testing/sysfs-class-power
-+++ b/Documentation/ABI/testing/sysfs-class-power
-@@ -433,7 +433,7 @@ Description:
+diff --git a/Documentation/devicetree/bindings/power/supply/maxim,max17042.yaml b/Documentation/devicetree/bindings/power/supply/maxim,max17042.yaml
+index f929e7e2b82a..7a26036a8890 100644
+--- a/Documentation/devicetree/bindings/power/supply/maxim,max17042.yaml
++++ b/Documentation/devicetree/bindings/power/supply/maxim,max17042.yaml
+@@ -64,7 +64,6 @@ properties:
  
- 		Valid values:
- 			      "Unknown", "Good", "Overheat", "Dead",
--			      "Over voltage", "Unspecified failure", "Cold",
-+			      "Over voltage", "Under voltage", "Unspecified failure", "Cold",
- 			      "Watchdog timer expire", "Safety timer expire",
- 			      "Over current", "Calibration required", "Warm",
- 			      "Cool", "Hot", "No battery"
-diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
-index 571de43fcca9..247c2910ba34 100644
---- a/drivers/power/supply/power_supply_sysfs.c
-+++ b/drivers/power/supply/power_supply_sysfs.c
-@@ -99,6 +99,7 @@ static const char * const POWER_SUPPLY_HEALTH_TEXT[] = {
- 	[POWER_SUPPLY_HEALTH_OVERHEAT]		    = "Overheat",
- 	[POWER_SUPPLY_HEALTH_DEAD]		    = "Dead",
- 	[POWER_SUPPLY_HEALTH_OVERVOLTAGE]	    = "Over voltage",
-+	[POWER_SUPPLY_HEALTH_UNDERVOLTAGE]	    = "Under voltage",
- 	[POWER_SUPPLY_HEALTH_UNSPEC_FAILURE]	    = "Unspecified failure",
- 	[POWER_SUPPLY_HEALTH_COLD]		    = "Cold",
- 	[POWER_SUPPLY_HEALTH_WATCHDOG_TIMER_EXPIRE] = "Watchdog timer expire",
-diff --git a/include/linux/power_supply.h b/include/linux/power_supply.h
-index b98106e1a90f..e96d262f3c2b 100644
---- a/include/linux/power_supply.h
-+++ b/include/linux/power_supply.h
-@@ -58,6 +58,7 @@ enum {
- 	POWER_SUPPLY_HEALTH_OVERHEAT,
- 	POWER_SUPPLY_HEALTH_DEAD,
- 	POWER_SUPPLY_HEALTH_OVERVOLTAGE,
-+	POWER_SUPPLY_HEALTH_UNDERVOLTAGE,
- 	POWER_SUPPLY_HEALTH_UNSPEC_FAILURE,
- 	POWER_SUPPLY_HEALTH_COLD,
- 	POWER_SUPPLY_HEALTH_WATCHDOG_TIMER_EXPIRE,
+ required:
+   - compatible
+-  - reg
+ 
+ additionalProperties: false
+ 
 
 -- 
 2.39.5

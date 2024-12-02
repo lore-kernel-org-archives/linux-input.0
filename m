@@ -1,31 +1,31 @@
 Received: from todd.t-8ch.de (todd.t-8ch.de [159.69.126.157])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F3383D97A;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8805961FD7;
 	Mon,  2 Dec 2024 19:01:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.69.126.157
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733166100; cv=none; b=icHzrvQT/Gs4mcnKH9UZHrvS/eQqlEsoZLqTV4m7kewLhNNj/vVtx3VHhTcg1EJzuc+FcuuNAiHROaZ0BdhGAYGUp6wXdp8LD9B+6ghaytEAwPZaPvXFpKOsz8nD43j65VlRzVRffz8JFrmwcyqmj2GjuVd/SviLUvzxyfpjPj8=
+	t=1733166101; cv=none; b=bGAk6A6yXhO6iAgSuZJg599mjHwMTT6FiT9P/G2+fhY0uthfwt0PDm5+VIrKMhbaoj9Ux/91jfRJFGdh8ofvy2vt+uysf1qSg0djS30JQ41bE+iq36vKZwIBXq9qVxuDPDzDjxG8qVwO294L3tzu6aWJhFZVisPerrMBz/0xeAU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733166100; c=relaxed/simple;
-	bh=GPwynaTt5mbbgaY/QlK9YkDMUXCsAMfe49E6G5bqfrM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=XVAqle40C6dJCzkKjr+WP7stPUZkvorqXvbB5UAC5zsgGdVpN2mZNjX/KU+FgR3WhZ8kFxaexwFYN9Lckigp85rhRYJoOA8u2w2yZou6ea1aHCZhcoDUAi8Z0arNNTbtClvR76PiSpCYvgac9c73YcHAuP6DHnpi6mho76Ir6Qs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=Zf3FcTuR; arc=none smtp.client-ip=159.69.126.157
+	s=arc-20240116; t=1733166101; c=relaxed/simple;
+	bh=zfxEranPfl00GWlGO/QXt0N31OcDIy9hu3D6j1hm3To=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=PfBy1GmZN1jJPGRQL0k19WveMGx9g8fSAmAsRff5NhZLjsbE/Wi75mYxKtWEQzkSrSgP4J0u1QZKDfae6OrWiE7UGSMJH7sHVnhNfvFk+X0/2tqlrAlwNVcmLKaHeQplx4Mw2dvBR4BFKRtUYitr1ULLkuvvpXCMXln8jkYHGEI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net; spf=pass smtp.mailfrom=weissschuh.net; dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b=e0C+EX9+; arc=none smtp.client-ip=159.69.126.157
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=weissschuh.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="Zf3FcTuR"
+	dkim=pass (1024-bit key) header.d=weissschuh.net header.i=@weissschuh.net header.b="e0C+EX9+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=weissschuh.net;
 	s=mail; t=1733166097;
-	bh=GPwynaTt5mbbgaY/QlK9YkDMUXCsAMfe49E6G5bqfrM=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=Zf3FcTuRfw72geEJs6KJJiAHq/+LmsfJQBsp3Iz6oADycjqQhIXEhnLanK50kFcbi
-	 /Xm3YurkEIRcRqixLB4F91stXsNqZOvWQpFLsLB6lGeOkklU6rSdJEScoR3/FoY3jA
-	 cljFDCZReUTa6zKbW/TGnDfsyW+pVsbME22NF56c=
+	bh=zfxEranPfl00GWlGO/QXt0N31OcDIy9hu3D6j1hm3To=;
+	h=From:Subject:Date:To:Cc:From;
+	b=e0C+EX9+c7HKOQSdFZDKygVpHJFl35yR9OzgbgPeWkBsnZP7jJQ503wL1qcYt3vX+
+	 QoX86a9B57akuOZOP771eFze728JrHXS1DTUgq3TlkmVCxoolOTHNJmJUAdj1YjIRN
+	 w6bcDhep1/TBiKcY9In7crr+fBkv1hwk7c8HezBs=
 From: =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
-Date: Mon, 02 Dec 2024 20:01:35 +0100
-Subject: [PATCH 04/10] HID: roccat: arvo: constify 'struct bin_attribute'
+Subject: [PATCH 00/10] HID: constify 'struct bin_attribute'
+Date: Mon, 02 Dec 2024 20:01:31 +0100
+Message-Id: <20241202-sysfs-const-bin_attr-hid-v1-0-16369423a48a@weissschuh.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -34,19 +34,20 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20241202-sysfs-const-bin_attr-hid-v1-4-16369423a48a@weissschuh.net>
-References: <20241202-sysfs-const-bin_attr-hid-v1-0-16369423a48a@weissschuh.net>
-In-Reply-To: <20241202-sysfs-const-bin_attr-hid-v1-0-16369423a48a@weissschuh.net>
+X-B4-Tracking: v=1; b=H4sIAAsETmcC/x3MTQqAIBBA4avErBtI6Ye6SkSUjjUbC0eikO6et
+ PwW7yUQCkwCQ5Eg0MXCh89QZQFmX/xGyDYbdKVrpSuF8ogTNIeXiCv7eYkx4M4Wja57sk3TmbW
+ FnJ+BHN//epze9wPZrFLtagAAAA==
+X-Change-ID: 20241201-sysfs-const-bin_attr-hid-c249ed557cb6
 To: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
  Stefan Achatz <erazor_de@users.sourceforge.net>
 Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
  =?utf-8?q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1733166097; l=2456;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1733166097; l=1968;
  i=linux@weissschuh.net; s=20221212; h=from:subject:message-id;
- bh=GPwynaTt5mbbgaY/QlK9YkDMUXCsAMfe49E6G5bqfrM=;
- b=6zmx1VzfQA0muoop+WihZ/n41BciU1jfHKmHatJlk+1+ixOsfk4hdwnln4IJNPU8Rf9FXZ1gs
- MFB4aaeapO1Anv2RBFdYWgaKutpgxKrwMyUN7psuK9dpPsDQSxfqJSl
+ bh=zfxEranPfl00GWlGO/QXt0N31OcDIy9hu3D6j1hm3To=;
+ b=1oyTLgKCkVjsm4s3uFujVV96j4jTA/hsCOArr5y59kl/9IeXwxR2as0guPoSbWYcvETAjThzY
+ JxJXn/T+wYtARycK+YsIYAdX/Cv75RnAEue6SnIYhXCboT8Yq5GFSLq
 X-Developer-Key: i=linux@weissschuh.net; a=ed25519;
  pk=KcycQgFPX2wGR5azS7RhpBqedglOZVgRPfdFSPB1LNw=
 
@@ -54,67 +55,41 @@ The sysfs core now allows instances of 'struct bin_attribute' to be
 moved into read-only memory. Make use of that to protect them against
 accidental or malicious modifications.
 
+The usage of read_new/write_new/bin_attrs_new is a transition mechanism
+and will be reverted again after the transition is complete.
+
 Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
 ---
- drivers/hid/hid-roccat-arvo.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+Thomas Weißschuh (10):
+      HID: core: use utility macros to define sysfs attributes
+      HID: core: constify 'struct bin_attribute'
+      HID: roccat: common, konepure, ryos, savu: constify 'struct bin_attribute'
+      HID: roccat: arvo: constify 'struct bin_attribute'
+      HID: roccat: isku: constify 'struct bin_attribute'
+      HID: roccat: kone: constify 'struct bin_attribute'
+      HID: roccat: koneplus: constify 'struct bin_attribute'
+      HID: roccat: kovaplus: constify 'struct bin_attribute'
+      HID: roccat: lua: constify 'struct bin_attribute'
+      HID: roccat: pyro: constify 'struct bin_attribute'
 
-diff --git a/drivers/hid/hid-roccat-arvo.c b/drivers/hid/hid-roccat-arvo.c
-index d55aaabab1ed491d2620bb3e037738d705a1b54c..3048297569c529d4ac8be5a26e75e0640e7cd53a 100644
---- a/drivers/hid/hid-roccat-arvo.c
-+++ b/drivers/hid/hid-roccat-arvo.c
-@@ -224,24 +224,24 @@ static ssize_t arvo_sysfs_read(struct file *fp,
- }
- 
- static ssize_t arvo_sysfs_write_button(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
-+		struct kobject *kobj, const struct bin_attribute *attr,
-+		char *buf, loff_t off, size_t count)
- {
- 	return arvo_sysfs_write(fp, kobj, buf, off, count,
- 			sizeof(struct arvo_button), ARVO_COMMAND_BUTTON);
- }
--static BIN_ATTR(button, 0220, NULL, arvo_sysfs_write_button,
--		sizeof(struct arvo_button));
-+static const BIN_ATTR(button, 0220, NULL, arvo_sysfs_write_button,
-+		      sizeof(struct arvo_button));
- 
- static ssize_t arvo_sysfs_read_info(struct file *fp,
--		struct kobject *kobj, struct bin_attribute *attr, char *buf,
--		loff_t off, size_t count)
-+		struct kobject *kobj, const struct bin_attribute *attr,
-+		char *buf, loff_t off, size_t count)
- {
- 	return arvo_sysfs_read(fp, kobj, buf, off, count,
- 			sizeof(struct arvo_info), ARVO_COMMAND_INFO);
- }
--static BIN_ATTR(info, 0440, arvo_sysfs_read_info, NULL,
--		sizeof(struct arvo_info));
-+static const BIN_ATTR(info, 0440, arvo_sysfs_read_info, NULL,
-+		      sizeof(struct arvo_info));
- 
- static struct attribute *arvo_attrs[] = {
- 	&dev_attr_mode_key.attr,
-@@ -250,7 +250,7 @@ static struct attribute *arvo_attrs[] = {
- 	NULL,
- };
- 
--static struct bin_attribute *arvo_bin_attributes[] = {
-+static const struct bin_attribute *const arvo_bin_attributes[] = {
- 	&bin_attr_button,
- 	&bin_attr_info,
- 	NULL,
-@@ -258,7 +258,7 @@ static struct bin_attribute *arvo_bin_attributes[] = {
- 
- static const struct attribute_group arvo_group = {
- 	.attrs = arvo_attrs,
--	.bin_attrs = arvo_bin_attributes,
-+	.bin_attrs_new = arvo_bin_attributes,
- };
- 
- static const struct attribute_group *arvo_groups[] = {
+ drivers/hid/hid-core.c            | 27 ++++++++-------------
+ drivers/hid/hid-roccat-arvo.c     | 20 ++++++++--------
+ drivers/hid/hid-roccat-common.h   | 22 ++++++++---------
+ drivers/hid/hid-roccat-isku.c     | 22 ++++++++---------
+ drivers/hid/hid-roccat-kone.c     | 22 ++++++++---------
+ drivers/hid/hid-roccat-koneplus.c | 42 ++++++++++++++++----------------
+ drivers/hid/hid-roccat-konepure.c |  4 ++--
+ drivers/hid/hid-roccat-kovaplus.c | 38 ++++++++++++++---------------
+ drivers/hid/hid-roccat-lua.c      | 10 ++++----
+ drivers/hid/hid-roccat-pyra.c     | 50 +++++++++++++++++++--------------------
+ drivers/hid/hid-roccat-ryos.c     |  4 ++--
+ drivers/hid/hid-roccat-savu.c     |  4 ++--
+ 12 files changed, 129 insertions(+), 136 deletions(-)
+---
+base-commit: e70140ba0d2b1a30467d4af6bcfe761327b9ec95
+change-id: 20241201-sysfs-const-bin_attr-hid-c249ed557cb6
 
+Best regards,
 -- 
-2.47.1
+Thomas Weißschuh <linux@weissschuh.net>
 

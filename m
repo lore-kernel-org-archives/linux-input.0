@@ -1,64 +1,66 @@
-Received: from mail-io1-f50.google.com (mail-io1-f50.google.com [209.85.166.50])
+Received: from mail-il1-f169.google.com (mail-il1-f169.google.com [209.85.166.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB6136F305;
-	Sun,  8 Dec 2024 15:23:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F3A6149C4D;
+	Sun,  8 Dec 2024 15:23:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733671424; cv=none; b=Slgwby7NX+ymvCf4jtwq/7Eo5yiYI2nCgpex2hvrqdXJmHzeNxJbfdiF0UgQNTiDOZmbHP9Ku88wUCweEFNcXYIS7FHGlrW2U1/iorn4mIJMCIeRLHMAxytivpe5HFQVuNHMoTajhGVzfVA3VNypXTMx66Y21zJPWj+OXG80QjI=
+	t=1733671424; cv=none; b=U2ql49wKnxcazgdqH2AyhTzYCe0CO7+bYoiPv34BDKO6VWVE6IoeXE3Ly0ayJGD/ZtEBnDcMlRtSkXfUuvfvsHKptoJFT+C1kFfBfzyS3rilsycwXu8b98lF7jghGkrC/UZv3HvYOyc+l1pUmuz5G32lxGoSPzaYyWH5OPVxycA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1733671424; c=relaxed/simple;
-	bh=qj0AQF8sdxK8eDd/wJ+QJyDy1IylslyTN4Yf/nFBbHQ=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Es7FO5l0OouBXsNNsasZ4YcMWCcbsds70quIOM0oire+kL/mH+nz1O3V4YeIm6mcfYWkOwiAUe5sDBZUdHnSS7B9bTwVBV1l7+uZfffKzh2usO+72dpejFoDpwnNHCpJTQoXQNtQz8Q6QR/XWHt7rS6UsJYFuVv67D9ljWCeMts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Y+Oj7OV/; arc=none smtp.client-ip=209.85.166.50
+	bh=WrGOTKvOClLWlXSpaUWrUDujA7z142laht6bjQUKN8A=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=DiU3HPpUEKaR5NuhL6QgoIRh9fe9nGDTs5ESbJCBctLJOXlenUiXkXURirNrO+BVvVZg8asfVkeD51w0uipizCq+reU8VOcg0v+M4ObAp6d8B15T8ry4hT8e374J0uAos4ML0omx3LmfQMX7CgODLjCRhGBcyBUkjYT85AuSwfw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fFbfJ6Yk; arc=none smtp.client-ip=209.85.166.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Y+Oj7OV/"
-Received: by mail-io1-f50.google.com with SMTP id ca18e2360f4ac-84197c469cfso110806139f.3;
-        Sun, 08 Dec 2024 07:23:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fFbfJ6Yk"
+Received: by mail-il1-f169.google.com with SMTP id e9e14a558f8ab-3a9c9f2a569so7287475ab.0;
+        Sun, 08 Dec 2024 07:23:43 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1733671421; x=1734276221; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wuaRJd/s2p0BBgmJcCTKuS2Shw0j2gcJR2sZ9AKudDA=;
-        b=Y+Oj7OV/gDSU5YY4zvA1PlMNrqgJHCBiCcp4ChA1BS3VTWk5KbK0ytzOwCuUGnvb7y
-         80F7Rp9SMO7Cmj6uPNHdaxH+9nii5ZgB3ehY9RJATN+5k+mv1kIPC36BQWQl93vMLJoC
-         AGhesGmlGjlyX09qdAbbpshFGHinVpv607VVLajPMhTbru1f0enkf5vxK4ii7Wk4zpyH
-         aCF05vctMFChnikS4BHRjKb4Q6gbNRETDn9xTESVfIdxT9zjFAf1pvK4VpnDkDPeAVFh
-         pqle/OgEO6TLFlExnX1x3iDe3aUG1h7KgspPVXs/NyJt21Skl02gFrTgMHzuHo66hYpX
-         N5+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733671421; x=1734276221;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=gmail.com; s=20230601; t=1733671422; x=1734276222; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=wuaRJd/s2p0BBgmJcCTKuS2Shw0j2gcJR2sZ9AKudDA=;
-        b=LzoKitvPyhMFumnwNRE1042k8cLEZUjV834TBugqjUl+J+y3vnhmtXg0muDUQxoXPE
-         fCP1hb8ZryegS1pf0DBBKqqgTgC2DLjpzmWHC54Shrw81wopYJiIKr5nuQU1nbdkdzuk
-         v8i7cerrS0DGHy1wTcJtsCaJS2R2EiKShjlU7VPiH6rOwrs4n4ChxEPY3zP4DsEn5kLc
-         d4Q9oA20O7a4wMtaboXV8bgHITjzowdSLLmRpwx5mW5h0JPKML7s9O8ZNBLjMgfHYP3M
-         drnvKCvkyC1yLY9PHl+uilhHsDo+FJo1V9lzDw+Z4X6nfdMH2bDkWdZDii6FHYdORsTO
-         d9PQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUV1/RG2pY/SH8n/k9JNYSNy7r7L4zNBr2+KFKEbfX72XV/6N++8kYz3moaLVEDOcAdF2XYtbGoQCgB@vger.kernel.org, AJvYcCW1z/TwlR9nXb5Faz4wiGhGSXCvRAw14ZUoMCfnYLYOdPO5fR33VYteTTkS9amgTydLNgxcw06AmUzmlb/p@vger.kernel.org, AJvYcCWPLQi3vftFmGJ8YIXLfXA5frq88TwWsygN3oSiz5eZjGduhhh+rVSrq/dc1+yC8t+UnqNdtl6WWkiFI2k=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyGhV8QB3bUZ7OUZXC/SXcrCcTy2xzAIWvKHqqcAtaoQdd1HmyE
-	AyhDRdqYWMcm7BRvzWYjgepQ8cbj5VcsKVXHCHTQS/ETOdg2kb8w
-X-Gm-Gg: ASbGncvxvBNlzi7ph4UkIYKdBs8k8hNeLFYAAfW7jQOEkjlUOe4sA9O6qqGjhHE1/Bl
-	4rvhgU9X31/WEsdXlkwmnEhQwbMv9u/A3QgjyJnyHmsmOuheRUAqGLNzC1Tr5TNd58CkZa4MiBo
-	6lBWW+Di6F9x+57z1bKe7azJQwx6s+yd7NqD+SK35/i5y3vQrHFo5qfkh/smrkaR9w5BY2GmBK8
-	buXq8RYCLjbRnnNIttz2upEBuc2yPGTkCguBzfH
-X-Google-Smtp-Source: AGHT+IF7EHSPVHzRrQeAE3D5a/Jgfz9fqUlcby4eg7FtaA39XYsC2c1NCztqiUGV6TsLAh/uZaadLA==
-X-Received: by 2002:a05:6e02:1a66:b0:3a8:1195:f216 with SMTP id e9e14a558f8ab-3a811dd0cfbmr91528765ab.10.1733671420748;
-        Sun, 08 Dec 2024 07:23:40 -0800 (PST)
+        bh=3C0Sl+6d2juKUb8gMYlerVVIRw5R00zzonVhN+UPlwQ=;
+        b=fFbfJ6Yk/fZumO3zaUK/ATn/UPzzxT4ZthZe5qYuW7FWqCWjBk68/cL2GLhdITqPhm
+         fLKp7BFj8sDwrBz0Ox1KU8bKaj/n2xt7UAV+hg1Z/rXJCW1vFh3yIzvaQ/bQODJYr4s5
+         zi4T3cUhFJQ0elCmyyYSHUdB4iW1bYH9Cen6GIC/CEF7aUG5lnN23HwNoC977eLsK5Uh
+         sKiWR+xO+D3JmB8EiJUNQfA2LCDQtekVSEuNWrHthM62578h/zb7BgdJak5SOiZIS9aA
+         TPNHQ1PY4Cl8G4q2yIwZlkun8hmA2tZBwW6eweEVWtDgJGIvNH8m87f8fF0Pdy7ipI91
+         0JyQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733671422; x=1734276222;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3C0Sl+6d2juKUb8gMYlerVVIRw5R00zzonVhN+UPlwQ=;
+        b=ELoUv1Gz49TkmwSIMt8xus9wOHuYKQ67u92Z5kixW1YI0VegsJQCn8vIGRtp9vMwlw
+         Nocbe2sXjOJAeWeMPZtLJfB5bUnjtMPQlB3wmtdP/4xl4YfLx0Yk9Be2hH0Gv4o20oVP
+         iOIhipTM2JL8BRdnP6h2aHYpG054nk9SYQK6C4iTSsjuabk+3WIFjqBvpwjoWllg405D
+         jQtX+/OEpHn1ewUZAe1Mkd7dc7rKfC4POui/HYuYLQY8htgEkYQsnvOy94bnGZ/f8e6b
+         mWwoNYJy4WGXnI/HQ+SRCueRfpGLVFPOfu2et7m0ccFp2uFGDBEbKrbcfbmt79vzOWF+
+         gcnQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV6QG8JyzIZEnnJzxHmAiZHjPcjImii+K315E6+wr0YU8ncmLCGzPpg0KqfYbprqfsUivfpgBGADFGKtQpk@vger.kernel.org, AJvYcCXFRuMz6jERzr5dEx1moEwFsyt8WbDyOShSSCr2wMLzjuZ8Dfe3zryPOLsnlFJb+ieHugBK3CNzIDVq@vger.kernel.org, AJvYcCXQVK5pBhlx8HZcOCfnUivO8f0fTKZuCrF7iw9QPJcknG2LDPIAovMszqUIk5zSh39KmjTINmM6+oQF1gs=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwEdcUpg4o2vcISpcnaMAoko+UCq8Pkh+q6ZwErY1LNTBRx6Qgh
+	q2UBf8jEmROcwDZZo0jFHNh4XiLkB8tuZxlAtWspKQ3fTGG2PqQF
+X-Gm-Gg: ASbGncsfFIGYqru/1L4ta0JM33dauo5mRDkmytitd8qQuH3aYp8ODAoXF+fb2ZWb2HK
+	07i/fYr/nD3vKcLbDpC9ic2GmdjX/TDswqnZHyDKeL4d5gJEDVDFJAEYCU0ZicAMZ+uBq2HgH5s
+	WY3/DjpgRI44JbxjkZ7G+tV+OG89hcBsNUiDQaUIBFcXBu0aOvLGIbWLIZPY1IJ2R9REDwRGdSl
+	CMwxrYROwUFzY97brExmyrq/zkmjixO68AtA943
+X-Google-Smtp-Source: AGHT+IF8ZOgCnvXKx258776dpeULeVlu0YwL8eE3pOQQ2e3nce+iX1uxzBhJsRxQNDuDtuG6q6Eomg==
+X-Received: by 2002:a05:6e02:13a7:b0:3a7:8720:9ea4 with SMTP id e9e14a558f8ab-3a811d77228mr111544305ab.5.1733671422546;
+        Sun, 08 Dec 2024 07:23:42 -0800 (PST)
 Received: from [192.168.1.109] ([2a02:6ea0:c603:3558::35])
-        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3a814fa40d6sm16846805ab.57.2024.12.08.07.23.39
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3a814fa40d6sm16846805ab.57.2024.12.08.07.23.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 08 Dec 2024 07:23:40 -0800 (PST)
+        Sun, 08 Dec 2024 07:23:42 -0800 (PST)
 From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
 X-Google-Original-From: Joel Selvaraj <foss@joelselvaraj.com>
-Subject: [PATCH v2 0/4] Add Xiaomi Poco F1 touchscreen support
-Date: Sun, 08 Dec 2024 09:23:26 -0600
-Message-Id: <20241208-pocof1-touchscreen-support-v2-0-5a6e7739ef45@joelselvaraj.com>
+Date: Sun, 08 Dec 2024 09:23:28 -0600
+Subject: [PATCH v2 2/4] arm64: dts: qcom: sdm845-xiaomi-beryllium-common:
+ add touchscreen related nodes
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -67,10 +69,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAO65VWcC/43NQQ6CMBCF4auYrq3pjCLElfcwLMowSAkyTQuNh
- nB3Kydw+b3F/1YVOTiO6nZYVeDkopMpA48HRb2dnqxdm63Q4AWMKbUXkg70LAv1kQLzpOPivYR
- ZU1mghStSS6hywAfu3HuPP+rs3sVZwmf/SvBb/8om0Ea3zRkahAoqKu6D8Bh5TDbY4UTyUvW2b
- V+4G3UwywAAAA==
+Message-Id: <20241208-pocof1-touchscreen-support-v2-2-5a6e7739ef45@joelselvaraj.com>
+References: <20241208-pocof1-touchscreen-support-v2-0-5a6e7739ef45@joelselvaraj.com>
+In-Reply-To: <20241208-pocof1-touchscreen-support-v2-0-5a6e7739ef45@joelselvaraj.com>
 To: Bjorn Andersson <andersson@kernel.org>, 
  Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -79,57 +80,96 @@ To: Bjorn Andersson <andersson@kernel.org>,
 Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
  Joel Selvaraj <foss@joelselvaraj.com>, 
- Joel Selvaraj <joelselvaraj.oss@gmail.com>, Joel Selvaraj <jo@jsfamily.in>, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+ Joel Selvaraj <joelselvaraj.oss@gmail.com>
 X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1733671419; l=2143;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1733671419; l=1971;
  i=foss@joelselvaraj.com; s=20241007; h=from:subject:message-id;
- bh=qj0AQF8sdxK8eDd/wJ+QJyDy1IylslyTN4Yf/nFBbHQ=;
- b=o8LqmlHF64x2wYkurNh5TIrk2ZeDR82bJuiZ6o9TYQCeO8OnlcNQqg/qGHgkMMIF1ZKpQ5ADr
- XA23NmyUmQbAJAbIF0wknwdjg4MZ8EJsBK8Djt4nUTvdQowv0oUqPem
+ bh=D5VCowikjyGNB/6EL3/0n9I+B15dJNg0M46FH1kSG4I=;
+ b=f6sOvZfMd2dOM/zYYWDPNlHGhfdE5ntlNMLXctTFG/FkqDhYSZg1jxfGgodlwaE/CoOUREBb3
+ lsXQuDYLcNvBM9KSd5pIuF90xysZASMS3VMqyt8tn2pP+9YAHhml12Y
 X-Developer-Key: i=foss@joelselvaraj.com; a=ed25519;
  pk=pqYvzJftxCPloaoUbVsfQE7Gwv8bynZPy8mjYohwMCc=
 
-In the first patch, I have added the "panel" property to edt-ft5x06 touchscreen
-binding documentation. In Xiaomi Poco F1 (qcom/sdm845-xiaomi-beryllium-ebbg.dts),
-the FocalTech FT8719 touchscreen is integrally connected to the display panel
-(EBBG FT8719) and thus should be power sequenced together with display panel for
-proper functioning. Add the panel property which optionally allows to link panel
-to the touchscreen.
+From: Joel Selvaraj <joelselvaraj.oss@gmail.com>
 
-In the second patch, I have enabled the  qupv3_id_1 and gpi_dma1 as they
-are required for configuring touchscreen. Also added the pinctrl configurations.
-These are common for both the Poco F1 Tianma and EBBG panel variant.
-
-In the subsequent patches, I have enabled support for the Novatek NT36672a
+Enable qupv3_id_1 and gpi_dma1 as they are required for configuring
+touchscreen. Also add pinctrl configurations needed for touchscreen.
+These are common for both the tianma and ebbg touchscreen variant.
+In the subsequent patches, we will enable support for the Novatek NT36672a
 touchscreen and FocalTech FT8719 touchscreen that are used in the Poco F1
-Tianma and EBBG panel variant respectively.
+Tianma and EBBG panel variant respectively. This is done in preparation
+for that.
 
 Signed-off-by: Joel Selvaraj <foss@joelselvaraj.com>
 ---
-Changes in v2:
-- Fixed the missing "panel" property dt-binding error reported by Rob Herring's bot.
-- Change the "input-enable" property to "output-disable" in qcom/sdm845-xiaomi-beryllium-common.dtsi
-  (Based on a patch suggested by Konrad Dybcio).
-- Link to v1: https://lore.kernel.org/r/20241007-pocof1-touchscreen-support-v1-0-db31b21818c5@joelselvaraj.com
-
----
-Joel Selvaraj (4):
-      dt-bindings: input: touchscreen: edt-ft5x06: add panel property
-      arm64: dts: qcom: sdm845-xiaomi-beryllium-common: add touchscreen related nodes
-      arm64: dts: qcom: sdm845-xiaomi-beryllium-tianma: introduce touchscreen support
-      arm64: dts: qcom: sdm845-xiaomi-beryllium-ebbg: introduce touchscreen support
-
- .../bindings/input/touchscreen/edt-ft5x06.yaml     |  1 +
  .../dts/qcom/sdm845-xiaomi-beryllium-common.dtsi   | 39 ++++++++++++++++++++++
- .../boot/dts/qcom/sdm845-xiaomi-beryllium-ebbg.dts | 23 +++++++++++++
- .../dts/qcom/sdm845-xiaomi-beryllium-tianma.dts    | 23 +++++++++++++
- 4 files changed, 86 insertions(+)
----
-base-commit: f7d003800fcaa3f3619468992bd39963861ea793
-change-id: 20241007-pocof1-touchscreen-support-c752a162cdc2
+ 1 file changed, 39 insertions(+)
 
-Best regards,
+diff --git a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi
+index 617b17b2d7d9d..e93ed6effdd73 100644
+--- a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi
++++ b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-common.dtsi
+@@ -243,6 +243,10 @@ &gmu {
+ 	status = "okay";
+ };
+ 
++&gpi_dma1 {
++	status = "okay";
++};
++
+ &gpu {
+ 	status = "okay";
+ 
+@@ -408,6 +412,10 @@ &qupv3_id_0 {
+ 	status = "okay";
+ };
+ 
++&qupv3_id_1 {
++	status = "okay";
++};
++
+ &sdhc_2 {
+ 	status = "okay";
+ 
+@@ -513,6 +521,37 @@ sdc2_card_det_n: sd-card-det-n-state {
+ 		function = "gpio";
+ 		bias-pull-up;
+ 	};
++
++	ts_int_default: ts-int-default-state {
++		pins = "gpio31";
++		function = "gpio";
++		drive-strength = <16>;
++		bias-pull-down;
++		output-disable;
++	};
++
++	ts_reset_default: ts-reset-default-state {
++		pins = "gpio32";
++		function = "gpio";
++		drive-strength = <16>;
++		output-high;
++	};
++
++	ts_int_sleep: ts-int-sleep-state {
++		pins = "gpio31";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-pull-down;
++		output-disable;
++	};
++
++	ts_reset_sleep: ts-reset-sleep-state {
++		pins = "gpio32";
++		function = "gpio";
++		drive-strength = <2>;
++		bias-disable;
++		output-low;
++	};
+ };
+ 
+ &uart6 {
+
 -- 
-Joel Selvaraj <foss@joelselvaraj.com>
+2.47.1
 

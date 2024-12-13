@@ -1,128 +1,222 @@
-Received: from algol.kleine-koenig.org (algol.kleine-koenig.org [162.55.41.232])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98535194A45;
-	Fri, 13 Dec 2024 23:03:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.55.41.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BABC6190696;
+	Fri, 13 Dec 2024 23:54:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734130992; cv=none; b=X+Zx2FN1bDLo1iBWi4OzGcZZX79fLk/zUBPuD/bZTZA3q/LFeTdzWbmfrdrjUYLvbsYfYHfYKvPFqjGrw7rLeON9pa+xkZn8G05055qquxXeQKhHEJtczkBVadqiASi8ursTzQDTRu1uUADZfs89Nt98LEVF7NHgJEcT5VzBWB8=
+	t=1734134074; cv=none; b=QQfVaCprPrth1o7m67sjgC0vcYe0lwqK1e9d1h1hGQ3xaLCYF7zI6/yPN+zfa4e9xZh3hjlH1aSuXqZBe0Vmg9jGyd3HUcURvRszHx+dP42LnVmvmCYYloogTFgTtted7oal4wVVzIZDkONyveTjsyMeCOJ4EYndnXwg2xiUV1g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734130992; c=relaxed/simple;
-	bh=lk5mvp92/iXRKUxEWi9l+yTi81VmxX/RH0JhJ1goZ4A=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bUC3PMjSFvehnUZ3ZT40VChVX6LpeA0MNJaUsTxtwZzLa0QQHnOucwsMbuxlbmK+Kzgh6VPCNw1lZwkdzZS/2xNTtweF9EXEYi2ygVC5KqvYs75+8PeYnuTVxQ1ORz3XdK3USKlSNE0syLa4wMqT1DPptJIHxaoh3bMK7MGE048=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=kleine-koenig.org; arc=none smtp.client-ip=162.55.41.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kleine-koenig.org
-Received: by algol.kleine-koenig.org (Postfix, from userid 1000)
-	id 88C0BF5334F; Sat, 14 Dec 2024 00:03:01 +0100 (CET)
-Date: Sat, 14 Dec 2024 00:02:56 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To: Frank Li <Frank.Li@nxp.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Luwei Zhou <b45643@freescale.com>, Vipul Kumar <vipul_kumar@mentor.com>, 
-	Dong Aisheng <aisheng.dong@nxp.com>, 
-	"open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)..." <linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>, imx@lists.linux.dev
-Subject: Re: [PATCH 1/1] input: mma8450: Add chip ID check in probe
-Message-ID: <bzzzezoon5u5pufpbkn3fnm2dtbrzatx4w4tbdstcdmowvfzzn@cplbmxtgmu6z>
-References: <20241213222310.189443-1-Frank.Li@nxp.com>
+	s=arc-20240116; t=1734134074; c=relaxed/simple;
+	bh=lGR3S5do7QnlQ2T0IEOx9drM03jcXj3fEWJcvYNl5nI=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=huAlrDsduOXmZxHIw2udhzNADBiQQIUnU3GhX0X2F/j4sjHFTZNdthQd8FX3oexmvjTiOMDlaO8I2Z0beX4op7dU32Fzq5t+Q1ZA8wi0UemFKoCaJPYQzG+18M16MiCz/QtsoQlNzquefeuU/oxEA61su292CZAoSHJCKun+Nhg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=THr88bep; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="THr88bep"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BDK4EEH024961;
+	Fri, 13 Dec 2024 23:54:16 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	TYFbkgRRQav0AyDDq2dkiZS1Z0oWxjoyevUIjsT84xk=; b=THr88bepCtZs3il4
+	mbMVffI53tOWPiHGw6jHaGnbAUfzFw1vUmf/KuQMEFwkjCIafnbm6WwN7vQ2uo+x
+	8/J3a05hyRPrYy9bd3UV6tyQ6X/nyu09Mjxszsw5G/tFozOJAhVMol5vGn/8XSCv
+	CZss/Nm5+Sdeqzh/cK4BkpJGqKg8yAvZ8OsoGPOfpc+Nr4HaU00sCOnXV8d4d7lC
+	EjG3xczs5cbiNNv8OTD0sSN5Sj7oucZNhIOOh1mqtI8SsjGPLNJ27g4+DbXSBj66
+	1gFl7R2tSqDR0HBSypyDawQXst5ZQl47uLhv3bd6z5fxvYuED8GfDmMoqbKEYT6l
+	kAYfzQ==
+Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 43g4wnbw1h-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Dec 2024 23:54:15 +0000 (GMT)
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 4BDNsECn023056
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 13 Dec 2024 23:54:14 GMT
+Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
+ nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.9; Fri, 13 Dec 2024 15:54:14 -0800
+From: Wesley Cheng <quic_wcheng@quicinc.com>
+To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
+        <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
+        <corbet@lwn.net>, <broonie@kernel.org>, <lgirdwood@gmail.com>,
+        <tiwai@suse.com>, <krzk+dt@kernel.org>,
+        <pierre-louis.bossart@linux.dev>, <Thinh.Nguyen@synopsys.com>,
+        <robh@kernel.org>, <gregkh@linuxfoundation.org>
+CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-sound@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-usb@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
+Subject: [PATCH v31 03/32] usb: host: xhci-mem: Cleanup pending secondary event ring events
+Date: Fri, 13 Dec 2024 15:53:34 -0800
+Message-ID: <20241213235403.4109199-4-quic_wcheng@quicinc.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20241213235403.4109199-1-quic_wcheng@quicinc.com>
+References: <20241213235403.4109199-1-quic_wcheng@quicinc.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="va2ulxp2mo3losn2"
-Content-Disposition: inline
-In-Reply-To: <20241213222310.189443-1-Frank.Li@nxp.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: dv8LqmB6YElecZRZc98u4f_mRXqF1NLf
+X-Proofpoint-GUID: dv8LqmB6YElecZRZc98u4f_mRXqF1NLf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0
+ lowpriorityscore=0 priorityscore=1501 mlxlogscore=970 spamscore=0
+ mlxscore=0 clxscore=1015 adultscore=0 phishscore=0 suspectscore=0
+ bulkscore=0 impostorscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2412130170
 
+As part of xHCI bus suspend, the xHCI is halted.  However, if there are
+pending events in the secondary event ring, it is observed that the xHCI
+controller stops responding to further commands upon host or device
+initiated bus resume.  Iterate through all pending events and update the
+dequeue pointer to the beginning of the event ring.
 
---va2ulxp2mo3losn2
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH 1/1] input: mma8450: Add chip ID check in probe
-MIME-Version: 1.0
+Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+---
+ drivers/usb/host/xhci-mem.c  |  7 ++++++-
+ drivers/usb/host/xhci-ring.c | 37 +++++++++++++++++++++++++++++++++---
+ drivers/usb/host/xhci.c      |  2 +-
+ drivers/usb/host/xhci.h      |  7 +++++++
+ 4 files changed, 48 insertions(+), 5 deletions(-)
 
-Hello Frank,
-
-On Fri, Dec 13, 2024 at 05:23:09PM -0500, Frank Li wrote:
-> From: Luwei Zhou <b45643@freescale.com>
->=20
-> Prevent continuous polling error logs by adding a chip ID check in the
-> probe  function. This ensures the driver only proceeds when the mma8450 is
-> present, avoiding issues in scenarios like missing add-on cards.
->=20
-> Signed-off-by: Luwei Zhou <b45643@freescale.com>
-> Signed-off-by: Fugang Duan <B38611@freescale.com>
-> Signed-off-by: Vipul Kumar <vipul_kumar@mentor.com>
-> Signed-off-by: Dong Aisheng <aisheng.dong@nxp.com>
-> Signed-off-by: Frank Li <Frank.Li@nxp.com>
-> ---
->  drivers/input/misc/mma8450.c | 16 +++++++++++++++-
->  1 file changed, 15 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/input/misc/mma8450.c b/drivers/input/misc/mma8450.c
-> index 08412239b8e69..da941748ed29b 100644
-> --- a/drivers/input/misc/mma8450.c
-> +++ b/drivers/input/misc/mma8450.c
-> @@ -38,6 +38,8 @@
-> =20
->  #define MMA8450_CTRL_REG1	0x38
->  #define MMA8450_CTRL_REG2	0x39
-> +#define MMA8450_ID		0xc6
-> +#define MMA8450_WHO_AM_I	0x0f
-> =20
->  static int mma8450_read(struct i2c_client *c, unsigned int off)
->  {
-> @@ -148,8 +150,20 @@ static void mma8450_close(struct input_dev *input)
->   */
->  static int mma8450_probe(struct i2c_client *c)
->  {
-> +	struct i2c_adapter *adapter =3D to_i2c_adapter(c->dev.parent);
-
-+	struct i2c_adapter *adapter =3D c->adapter;
-
->  	struct input_dev *input;
-> -	int err;
-> +	int err, client_id;
-> +
-> +	err =3D i2c_check_functionality(adapter,
-> +				      I2C_FUNC_SMBUS_BYTE | I2C_FUNC_SMBUS_BYTE_DATA);
-> +	if (!err)
-> +		return err;
-
-How unusual. I would have expected no ! here.
-
-> +	client_id =3D i2c_smbus_read_byte_data(c, MMA8450_WHO_AM_I);
-> +	if (client_id !=3D MMA8450_ID)
-> +		return dev_err_probe(&c->dev, -EINVAL,
-> +				     "read chip ID 0x%x is not equal to 0x%x!\n",
-> +				     client_id, MMA8450_ID);
-
-Given that here you emit an error message, maybe add an error message
-above, too?
-
->  	input =3D devm_input_allocate_device(&c->dev);
->  	if (!input)
-
-Best regards
-Uwe
-
---va2ulxp2mo3losn2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmdcvR4ACgkQj4D7WH0S
-/k6cUgf/aQBHQhC9Xx3XVkFm/ev+d9abFz4SzCLCfVluKVBBBQhon/7Y4CeXhHid
-Swy3CWr6QSk85MTCxkrWrijEXZRiJVqS7x8knSKqzO3eB6Wo6MlhUnfJbx9u5I+I
-5mNT6og+PuvPi5UId9KxxOUIWH8AZ8IvBJ/CL52QZ11KR0/kIPL+eDLv187y+b6h
-cNnpptaYBvLXpbdDVjZ42P+l9+2LO/uo2LpAkeFcApKJ6dCphcG+lUf6pV4wPOyD
-Mn8v8OYc4Kecn9HJ5KhBPdAQUsjYqvABoGyIZLPPHbujVc9XcbevU2/QInnwG3bS
-TYXWhGxt3bvh4EMu/ucG2jSTQ3xDWA==
-=gL+O
------END PGP SIGNATURE-----
-
---va2ulxp2mo3losn2--
+diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
+index 15db90c54a45..84eb3b0f5f8d 100644
+--- a/drivers/usb/host/xhci-mem.c
++++ b/drivers/usb/host/xhci-mem.c
+@@ -1805,7 +1805,7 @@ xhci_remove_interrupter(struct xhci_hcd *xhci, struct xhci_interrupter *ir)
+ 		tmp &= ERST_SIZE_MASK;
+ 		writel(tmp, &ir->ir_set->erst_size);
+ 
+-		xhci_write_64(xhci, ERST_EHB, &ir->ir_set->erst_dequeue);
++		xhci_update_erst_dequeue(xhci, ir, true);
+ 	}
+ }
+ 
+@@ -1848,6 +1848,11 @@ void xhci_remove_secondary_interrupter(struct usb_hcd *hcd, struct xhci_interrup
+ 		return;
+ 	}
+ 
++	/*
++	 * Cleanup secondary interrupter to ensure there are no pending events.
++	 * This also updates event ring dequeue pointer back to the start.
++	 */
++	xhci_skip_sec_intr_events(xhci, ir->event_ring, ir);
+ 	intr_num = ir->intr_num;
+ 
+ 	xhci_remove_interrupter(xhci, ir);
+diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
+index 9f0bc301c7a0..34cc828f22a7 100644
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -3031,9 +3031,9 @@ static int xhci_handle_event_trb(struct xhci_hcd *xhci, struct xhci_interrupter
+  * - When all events have finished
+  * - To avoid "Event Ring Full Error" condition
+  */
+-static void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
+-				     struct xhci_interrupter *ir,
+-				     bool clear_ehb)
++void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
++			      struct xhci_interrupter *ir,
++			      bool clear_ehb)
+ {
+ 	u64 temp_64;
+ 	dma_addr_t deq;
+@@ -3130,6 +3130,37 @@ static int xhci_handle_events(struct xhci_hcd *xhci, struct xhci_interrupter *ir
+ 	return 0;
+ }
+ 
++/*
++ * Move the event ring dequeue pointer to skip events kept in the secondary
++ * event ring.  This is used to ensure that pending events in the ring are
++ * acknowledged, so the xHCI HCD can properly enter suspend/resume.  The
++ * secondary ring is typically maintained by an external component.
++ */
++void xhci_skip_sec_intr_events(struct xhci_hcd *xhci,
++			       struct xhci_ring *ring,	struct xhci_interrupter *ir)
++{
++	union xhci_trb *current_trb;
++	u64 erdp_reg;
++	dma_addr_t deq;
++
++	/* disable irq, ack pending interrupt and ack all pending events */
++	xhci_disable_interrupter(ir);
++
++	/* last acked event trb is in erdp reg  */
++	erdp_reg = xhci_read_64(xhci, &ir->ir_set->erst_dequeue);
++	deq = (dma_addr_t)(erdp_reg & ERST_PTR_MASK);
++	if (!deq) {
++		xhci_err(xhci, "event ring handling not required\n");
++		return;
++	}
++
++	current_trb = ir->event_ring->dequeue;
++	/* read cycle state of the last acked trb to find out CCS */
++	ring->cycle_state = le32_to_cpu(current_trb->event_cmd.flags) & TRB_CYCLE;
++
++	xhci_handle_events(xhci, ir);
++}
++
+ /*
+  * xHCI spec says we can get an interrupt, and if the HC has an error condition,
+  * we might get bad data out of the event ring.  Section 4.10.2.7 has a list of
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 5ebde8cae4fc..514a36914ed9 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -334,7 +334,7 @@ static int xhci_enable_interrupter(struct xhci_interrupter *ir)
+ 	return 0;
+ }
+ 
+-static int xhci_disable_interrupter(struct xhci_interrupter *ir)
++int xhci_disable_interrupter(struct xhci_interrupter *ir)
+ {
+ 	u32 iman;
+ 
+diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
+index e78648c39b1e..3791a6c6408c 100644
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1843,6 +1843,9 @@ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
+ 				  u32 imod_interval);
+ void xhci_remove_secondary_interrupter(struct usb_hcd
+ 				       *hcd, struct xhci_interrupter *ir);
++void xhci_skip_sec_intr_events(struct xhci_hcd *xhci,
++			       struct xhci_ring *ring,
++			       struct xhci_interrupter *ir);
+ 
+ /* xHCI host controller glue */
+ typedef void (*xhci_get_quirks_t)(struct device *, struct xhci_hcd *);
+@@ -1882,6 +1885,7 @@ int xhci_alloc_tt_info(struct xhci_hcd *xhci,
+ 		struct usb_tt *tt, gfp_t mem_flags);
+ int xhci_set_interrupter_moderation(struct xhci_interrupter *ir,
+ 				    u32 imod_interval);
++int xhci_disable_interrupter(struct xhci_interrupter *ir);
+ 
+ /* xHCI ring, segment, TRB, and TD functions */
+ dma_addr_t xhci_trb_virt_to_dma(struct xhci_segment *seg, union xhci_trb *trb);
+@@ -1928,6 +1932,9 @@ unsigned int count_trbs(u64 addr, u64 len);
+ int xhci_stop_endpoint_sync(struct xhci_hcd *xhci, struct xhci_virt_ep *ep,
+ 			    int suspend, gfp_t gfp_flags);
+ void xhci_process_cancelled_tds(struct xhci_virt_ep *ep);
++void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
++			      struct xhci_interrupter *ir,
++			      bool clear_ehb);
+ 
+ /* xHCI roothub code */
+ void xhci_set_link_state(struct xhci_hcd *xhci, struct xhci_port *port,

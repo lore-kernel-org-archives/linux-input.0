@@ -1,38 +1,38 @@
 Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65E7A22616F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65E17225A2C;
 	Thu, 19 Dec 2024 16:21:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734625318; cv=none; b=F2VpgwI8UOSd18JXHjNKawkdlYWKhxB6F05fmZimGZ4HeC9iUBdGdmIMjvznrTYh3EZCK6TomJWz1Db4NSekjsb/HVzYuzgkNM+Kz88IWl4zKSBtHkTok9up2rVFehQMv+x9OI9goe34qBBHSykz05uJ3X40SAdrkt07eE5D2YU=
+	t=1734625319; cv=none; b=frfWQlUue/BQlBRp+HuubraCSn6/XTPSudwb9NyMD+yBBNGs+kYUr6bwH+c4sGbo9XLIK2u354eAK5+befjOEYQ1659+vsBYSk7z/crj2NqmojMN/DaYW1naQrNy143j8MVi+0VqiLCr5/8XfycpfEr2THt4THdRUF+KPvGVSno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734625318; c=relaxed/simple;
-	bh=MMa1aWrpC+Hhbb5vbJvmx5OLBFFy4Ju1nNEWOoDy1s0=;
+	s=arc-20240116; t=1734625319; c=relaxed/simple;
+	bh=KWh36d+ljikVIIPs4N2J6PrSLdnhSOVvwQo9gjfU3sc=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=kvPZPQ7VIDbW6jN1dsDl1ximME9NFZ5qHGXjukoybUCBpO4vVW22cOcCktk6LKlVHK3d0zX2N0pWFjdQGnpQ0LyeRmIVaeVspxwfDNQSoN9vo1Z1/jR/nvAvBuJggPIEXVfOqsAXonbmBZBizQXcXkBmBVO4YR0mcguMKUN8TW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=IYvEwIrr; arc=none smtp.client-ip=217.70.183.195
+	 In-Reply-To:To:Cc; b=bXRs89yLnp5/hBvoArjStuVHAmH6rxCAIIG0AwUOm/NFkweCsrmGy/5tmRAMWos3RdAgCIst7nmtyyVmxbQYPwo9680IyqlozH2b3VLHDpnwKLD7lHZao79asGPawfG7QOyrfWkjfeE1gZg5wHDelf54hJD9BtLuT0LvJn+Gers=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=XGbyQAfn; arc=none smtp.client-ip=217.70.183.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="IYvEwIrr"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 21D5760012;
-	Thu, 19 Dec 2024 16:21:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="XGbyQAfn"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 737936000D;
+	Thu, 19 Dec 2024 16:21:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1734625314;
+	t=1734625309;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=m5ZGJQUU63vFd9YFgXUTncUS1ermsqmNadQRrooj508=;
-	b=IYvEwIrr1nm8nr0nts6jaOChHC8gDWyyW8FNiEJ6EXYxNBVqwxRMLryLTC2SThG4LFjw/R
-	/PQizCekvhUcIDfCo8TZ//7H1IzV7CIy1dAzNgeuw73DEJpZ769gD8NcUFI6Ov0Q0oIkY4
-	rXxB0/TMu7S+gSJs6O5PsHKWgCfwmw3yeo1JLprCbZeRcOasBTqJ9/nf+mW0+tyZeFdUC8
-	3pJ4QhjnhjhnjJVn1UEFt356Kyg5rzA1H4U7nV0CKVt2R8mFs5XuY4ythJtvpwz7GY2lDf
-	miDtaKgWa4jZ3uPGOS9HIIRmJ8gwQGj2vwftmEp6uJKqVk1/XtfRZFHIVdnl2A==
+	bh=CAwdN6gi/D4quCoE23KgD7Buo4fvppT/guEfYAfj/VU=;
+	b=XGbyQAfnl1Jvk32RYw/qh9EJfcsgDdw62ckrUaLXEPHhsU6djqxONqQ7rKZinvxdItFpwf
+	+l4KGLX1WYkcL2rhIqLj23G45Prp8GPZK8Mg6xUAjAwyFq8d0D6bfJa4ZkCMVWQrHo/DDS
+	g74OyXM5lyNAjuejIqftzccETH0ikSoe6iIPzCLqOabYXLvaOiaQy5ePZtRlxHLUbAjBin
+	uWPzRB21A5VvInR6oYYj1fsiCxToPKVVyyfPjG4yFPjfzIiwsPVGsOE4XU/Ay6B0wlFnPL
+	fZHQOxWDjjzR0j2FeXszy8pO0dMDlHA2tVSYOrrx3DmqdT+SHvUrGGGSd6K6oQ==
 From: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Date: Thu, 19 Dec 2024 17:21:25 +0100
-Subject: [PATCH 8/8] MAINTAINERS: Add entry on MAX7360 driver
+Date: Thu, 19 Dec 2024 17:21:18 +0100
+Subject: [PATCH 1/8] dt-bindings: Add MAX7360 MFD device
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241219-mdb-max7360-support-v1-8-8e8317584121@bootlin.com>
+Message-Id: <20241219-mdb-max7360-support-v1-1-8e8317584121@bootlin.com>
 References: <20241219-mdb-max7360-support-v1-0-8e8317584121@bootlin.com>
 In-Reply-To: <20241219-mdb-max7360-support-v1-0-8e8317584121@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -59,45 +59,85 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1734625307; l=1024;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1734625307; l=1890;
  i=mathieu.dubois-briand@bootlin.com; s=20241219; h=from:subject:message-id;
- bh=MMa1aWrpC+Hhbb5vbJvmx5OLBFFy4Ju1nNEWOoDy1s0=;
- b=gJY9TqsxOErNI5KgRO1RC6t1fWCzwGBuuTSDUM7w5JJ+7zQdNKlWEvEBaOdF6oNgYAA9/2gjA
- Z5c0nJDYA8DDVL6elxigwvZ2oULzCD8E85p8oXOcv/QiR/BhSxW8ZQH
+ bh=KWh36d+ljikVIIPs4N2J6PrSLdnhSOVvwQo9gjfU3sc=;
+ b=Kstdw8fe9mjoFyo+Ucpn/uZbYYjQz58viHgIWfyK/52Sn0+K4+lMfonwYPIQrkYYlt2PNHUji
+ Kr7eTl+ziutAQrYqcL/YXTOLXVO3mDJ43KHQ0A/DWxbsOhoFrOzIftC
 X-Developer-Key: i=mathieu.dubois-briand@bootlin.com; a=ed25519;
  pk=1PVTmzPXfKvDwcPUzG0aqdGoKZJA3b9s+3DqRlm0Lww=
 X-GND-Sasl: mathieu.dubois-briand@bootlin.com
 
-Add myself as maintainer of Maxim MAX7360 driver and device-tree bindings.
+Add device tree bindings for Maxim Integrated MAX7360 MFD device with
+support for keypad, rotary, gpios and pwm functionalities.
 
 Signed-off-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 ---
- MAINTAINERS | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ Documentation/devicetree/bindings/mfd/max7360.yaml | 56 ++++++++++++++++++++++
+ 1 file changed, 56 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index baf0eeb9a355..6e9b8caebb38 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -14132,6 +14132,18 @@ L:	linux-iio@vger.kernel.org
- S:	Maintained
- F:	drivers/iio/temperature/max30208.c
- 
-+MAXIM MAX7360 KEYPAD LED MFD DRIVER
-+M:	Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-+S:	Maintained
-+F:	Documentation/devicetree/bindings/*/max7360-*.yaml
-+F:	Documentation/devicetree/bindings/mfd/max7360.yaml
-+F:	drivers/gpio/gpio-max7360.c
-+F:	drivers/input/keyboard/max7360-keypad.c
-+F:	drivers/input/misc/max7360-rotary.c
-+F:	drivers/mfd/max7360.c
-+F:	drivers/pwm/pwm-max7360.c
-+F:	include/linux/mfd/max7360.h
+diff --git a/Documentation/devicetree/bindings/mfd/max7360.yaml b/Documentation/devicetree/bindings/mfd/max7360.yaml
+new file mode 100644
+index 000000000000..49dd437fd313
+--- /dev/null
++++ b/Documentation/devicetree/bindings/mfd/max7360.yaml
+@@ -0,0 +1,56 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/mfd/max7360.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- MAXIM MAX77650 PMIC MFD DRIVER
- M:	Bartosz Golaszewski <brgl@bgdev.pl>
- L:	linux-kernel@vger.kernel.org
++title: Maxim MAX7360 Keypad, Rotary encoder, PWM and GPIO controller
++
++maintainers:
++  - Kamel Bouhara <kamel.bouhara@bootlin.com>
++  - Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
++
++description: |
++  Maxim MAX7360 MFD device, with following functions:
++    - keypad controller
++    - rotary controller
++    - GPIO and GPO controller
++    - PWM controller
++
++  https://www.analog.com/en/products/max7360.html
++
++properties:
++  compatible:
++    enum:
++      - maxim,max7360
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    description: The interrupt line the device is connected to.
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++
++    i2c {
++      #address-cells = <1>;
++      #size-cells = <0>;
++
++      max7360@38 {
++        compatible = "maxim,max7360";
++        reg = <0x38>;
++
++        interrupt-parent = <&gpio1>;
++        interrupts = <23 IRQ_TYPE_LEVEL_LOW>;
++      };
++    };
 
 -- 
 2.39.5

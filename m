@@ -1,359 +1,226 @@
-Received: from us-smtp-delivery-162.mimecast.com (us-smtp-delivery-162.mimecast.com [170.10.129.162])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 358F417D355
-	for <linux-input@vger.kernel.org>; Tue, 24 Dec 2024 07:08:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.162
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3978C2BB15;
+	Tue, 24 Dec 2024 09:00:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735024125; cv=none; b=ZE1pW34dryAwy/h8AC99isROpd7etcBzZpw0tH6o2s9Rzvlc4qAstmHBvwxHA75wXO0J8dO9hDgAZRcO0nIkdgtbGMq+w/VqqS1a1GpxzSMxWU4CJ/vs+mHdGUz9PNv/m7rVNIkDA7sW6ayDrDXKc8ISz94tcwr9kKH5XQSJSgI=
+	t=1735030824; cv=none; b=ppc8svZNEfinL5AlpFuFjlYdHfOmp8ZnlywNwqdH8aipMfVWWUIH44CJmpUFe4JqYCAwKseUQmYRRs/TcHCYveGbTTQn4H6vouZCGl7AafrLzWqNncEFcS1nx4q9bqWxZJ83SQKWF3Oi5Jys8PMpO5PWOjqEJt5u71TvXPfZbIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735024125; c=relaxed/simple;
-	bh=kuJVk3/a7NDz6VEw3JeqK372To5Da3c0uqahh4Wv2K4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:content-type; b=ZsB/cmKdUxfbXzWpKC4bOg6Tdl+F3m0pVtrqngDEoonSlwaIWwmJiLzu8a3aRRQ575COrt/DG2NyxgJ8aQyzTfMPsxGK2EtpJIo+UWLUZjdLS17XIxBKGTwDQ3JZtMcMEvhvRvhRttgsSTxzVIKw/eTtshgqTS6jUux0Fmnck9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hp.com; spf=pass smtp.mailfrom=hp.com; dkim=pass (1024-bit key) header.d=hp.com header.i=@hp.com header.b=Cpwua8C7; arc=none smtp.client-ip=170.10.129.162
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hp.com
+	s=arc-20240116; t=1735030824; c=relaxed/simple;
+	bh=iIFRZhvlUCHjcvWzeF5tljgi55EYFpAF+OSKsDDBICk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=eFCwbag0SEBJBTwwfVdH/ImVyhCgsUp9GG2yXM+IGJIFSwAwPXRmZHPrnuBZejZiC36HNsNoVVj/4b5PrlfpC8/UqOgVmsmEaB7TZTcy/0byHT4n86RSuXRAglP2XR+SLZ2anKA5sabovg5hlTyDhOI9c9VZyHnTimZYX+jG2Co=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QFPUsrfC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=hp.com header.i=@hp.com header.b="Cpwua8C7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hp.com; s=mimecast20180716;
-	t=1735024122;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=rA1oPMPUmFSS3w9jlWQOYQD06roC5BrwaE0cWo6yF6M=;
-	b=Cpwua8C7YxNAL3JwBYYnwca+P7JkCJUYmu5sDHwtOstQOSaHlRFWIqjn9Utrtil2959mcn
-	/LO8hLeZEnbVivqoUKZhUdt4gCnHfupCWXSeYL/R8xKBmXoFmtNfceNhch69vrk4m1C/k9
-	3gQBu0KJrWxD+k9TmOuoJ8QUgXFSb50=
-Received: from g8t13016g.inc.hp.com (hpi-bastion.austin2.mail.core.hp.com
- [15.72.64.134]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-455-S7dmcqc7Pf-GbAxIMhYF0w-1; Tue, 24 Dec 2024 02:08:41 -0500
-X-MC-Unique: S7dmcqc7Pf-GbAxIMhYF0w-1
-X-Mimecast-MFC-AGG-ID: S7dmcqc7Pf-GbAxIMhYF0w
-Received: from g7t16458g.inc.hpicorp.net (g7t16458g.inc.hpicorp.net [15.63.18.16])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	by g8t13016g.inc.hp.com (Postfix) with ESMTPS id 87DDB6000ABE;
-	Tue, 24 Dec 2024 07:08:38 +0000 (UTC)
-Received: from mail.hp.com (unknown [15.32.134.51])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits))
-	(No client certificate requested)
-	by g7t16458g.inc.hpicorp.net (Postfix) with ESMTPS id AC54C60000A8;
-	Tue, 24 Dec 2024 07:08:36 +0000 (UTC)
-Received: from cdc-linux-buildsrv17.. (localhost [127.0.0.1])
-	by mail.hp.com (Postfix) with ESMTP id 22EF7A42BAA;
-	Tue, 24 Dec 2024 14:56:39 +0800 (CST)
-From: Wade Wang <wade.wang@hp.com>
-To: jikos@kernel.org,
-	tiwai@suse.com,
-	bentiss@kernel.org,
-	perex@perex.cz,
-	linuxhid@cosmicgizmosystems.com
-Cc: wade.wang@hp.com,
-	linux-input@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2 1/2] HID: hid-plantronics: Add mic mute mapping and generalize quirks
-Date: Tue, 24 Dec 2024 14:56:35 +0800
-Message-Id: <20241224065636.1870713-1-wade.wang@hp.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QFPUsrfC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9126C4CED0;
+	Tue, 24 Dec 2024 09:00:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1735030823;
+	bh=iIFRZhvlUCHjcvWzeF5tljgi55EYFpAF+OSKsDDBICk=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=QFPUsrfCNbb/EuUE2bR4P/Se3TgwvsvOKwb3LzdHN80KEZ5QcTlwi+cOH4eCngI8F
+	 vcBJ8XW8kkcgAkq6qWc25fUGY/gcqT33JQ3soPtRlOeoUq0eOq8JIpAI+bhTWcJoAa
+	 kEil1r7tuKaH7bGxDN2OR9p5O/2/wVERKPJdRJjf7ia7hln1x09C1uXuMRYbzP10Fh
+	 nwWRtfkvdT5sKSRP5Z6ahyyNfAE33aPyhqcy/z6taFkxU17Q/I+zlrsFP5Jm+SXEwu
+	 fY0i9xqBHpSCHiO7YSjGcx7aECOUUW2O12D+ob947jIFaptzLj+j3/Svj4aRPFjKR+
+	 BxvbYFDn2A4Lg==
+Message-ID: <b1d541c1-296a-4b56-bea3-52e5becadf0e@kernel.org>
+Date: Tue, 24 Dec 2024 10:00:17 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: XYzdB2CHAz1a8DlL9Zp0dxCLz3HX1eoKKDPmCRRd7VI_1735024118
-X-Mimecast-Originator: hp.com
-Content-Transfer-Encoding: quoted-printable
-content-type: text/plain; charset=WINDOWS-1252; x-default=true
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/8] dt-bindings: Add MAX7360 subdevices
+To: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>,
+ Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Kamel Bouhara <kamel.bouhara@bootlin.com>,
+ Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski
+ <brgl@bgdev.pl>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+ linux-pwm@vger.kernel.org, =?UTF-8?Q?Gr=C3=A9gory_Clement?=
+ <gregory.clement@bootlin.com>,
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+References: <20241219-mdb-max7360-support-v1-0-8e8317584121@bootlin.com>
+ <20241219-mdb-max7360-support-v1-2-8e8317584121@bootlin.com>
+ <58c80c2a-2532-4bc5-9c9f-52480b3af52a@kernel.org>
+ <D6J6JNPPZRKM.3F9YUY9CW3L2F@bootlin.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 fv0=
+In-Reply-To: <D6J6JNPPZRKM.3F9YUY9CW3L2F@bootlin.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-From: Terry Junge <linuxhid@cosmicgizmosystems.com>
+On 23/12/2024 16:20, Mathieu Dubois-Briand wrote:
+> On Sat Dec 21, 2024 at 9:34 PM CET, Krzysztof Kozlowski wrote:
+>> On 19/12/2024 17:21, Mathieu Dubois-Briand wrote:
+>>> ---
+>>>  .../devicetree/bindings/gpio/max7360-gpio.yaml     | 96 ++++++++++++++++++++++
+>>>  .../devicetree/bindings/input/max7360-keypad.yaml  | 67 +++++++++++++++
+>>>  .../devicetree/bindings/input/max7360-rotary.yaml  | 52 ++++++++++++
+>>>  .../devicetree/bindings/pwm/max7360-pwm.yaml       | 35 ++++++++
+>>>  4 files changed, 250 insertions(+)
+>>
+>>
+>> I don't understand how this patchset was split. MFD binding cannot be
+>> empty and cannot be before child devices.
+>>
+> 
+> Ok, my bad. So I believe squashing both dt-bindings commit should fix
+> this.
+> 
+>>> diff --git a/Documentation/devicetree/bindings/gpio/max7360-gpio.yaml b/Documentation/devicetree/bindings/gpio/max7360-gpio.yaml
+>>> new file mode 100644
+>>> index 000000000000..3c006dc0380b
+>>> --- /dev/null
+>>> +++ b/Documentation/devicetree/bindings/gpio/max7360-gpio.yaml
+>>> @@ -0,0 +1,96 @@
+>>> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+>>> +%YAML 1.2
+>>> +---
+>>> +$id: http://devicetree.org/schemas/gpio/max7360-gpio.yaml#
+>>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+>>> +
+>>> +title: Maxim MAX7360 GPIO controller
+>>> +
+>>> +maintainers:
+>>> +  - Kamel Bouhara <kamel.bouhara@bootlin.com>
+>>> +  - Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
+>>> +
+>>> +description: |
+>>> +  Maxim MAX7360 GPIO controller, in MAX7360 MFD
+>>> +  https://www.analog.com/en/products/max7360.html
+>>> +
+>>> +properties:
+>>> +  compatible:
+>>> +    enum:
+>>> +      - maxim,max7360-gpio
+>>> +      - maxim,max7360-gpo
+>>
+>> Why? What are the differences?
+>>
+> 
+> Ok, so maybe my approach here is completely wrong. I'm not sure what
+> would be the best way to describe the device here, if you have any
+> suggestion I would be happy to use it. Let me try to summarize the GPIO
+> setup of the chip.
+> 
+> First we have two series of GPIOs on the chips, which I tend to think
+> about as two separate "banks". Thus two separate subnodes of the max7360
+> node.
 
-Add mapping for headset mute key events.
+First, splitting MFD device into multiple children is pretty often wrong
+approach because it tries to mimic Linux driver design.
 
-Remove PLT_QUIRK_DOUBLE_VOLUME_KEYS quirk and made it generic.
-The quirk logic did not keep track of the actual previous key
-so any key event occurring in less than or equal to 5ms was ignored.
+Such split in DT makes sense if these are really separate blocks, e.g.
+separate I2C addresses, re-usable on different designs.
 
-Remove PLT_QUIRK_FOLLOWED_OPPOSITE_VOLUME_KEYS quirk.
-It had the same logic issue as the double key quirk and was actually
-masking the as designed behavior of most of the headsets.
-It's occurrence should be minimized with the ALSA control naming
-quirk that is part of the patch set.
+In this case Functional Block Diagram shows separate blocks, but still
+the same I2C block. This can be one device. This can be also two devices
+if that's easier to represent in DT.
 
-Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
-Signed-off-by: Wade Wang <wade.wang@hp.com>
-Cc: stable@vger.kernel.org
----
-V1 -> V2: Optimize out 2 macros - no functional changes
+But in any case binding description should explain this.
 
- drivers/hid/hid-plantronics.c | 144 ++++++++++++++++------------------
- 1 file changed, 67 insertions(+), 77 deletions(-)
+> 
+> - On one side we have what I refer to as GPIOs, here with
+>   maxim,max7360-gpio:
+>   - PORT0 to PORT7 pins of the chip.
+>   - Shared with PWM and rotary encoder functionalities. Functionality
+>     selection can be made independently for each pin. This selection is
+>     not described here. Runtime will have to ensure the same pin is not
+>     used by two drivers at the same time. E.g. we cannot have at the
+>     same time GPIO4 and PWM4.
+>   - Supports input and interrupts.
+>   - Outputs may be configured as constant current.
+>   - 8 GPIOS supported, so ngpios maximum is 8. Thinking about it now, we
+>     should probably also set minimum to 8, I don't see any reason to
+>     have ngpios set to something less.
+> 
+> On the other side, we have what I refer to as GPOs, here with
+> maxim,max7360-gpo compatible:
+>   - COL2 to COL7 pins of the chip.
+>   - Shared with the keypad functionality. Selections is made by
+>     partitioning the pins: first pins for keypad columns, last pins for
+>     GPOs. Partition is described here by ngpios and on keypad node by
+>     keypad,num-columns. Runtime will have to ensure values are coherent
+>     and configure the chip accordingly.
+>   - Only support outputs.
+>   - No support for constant current mode.
+>   - Supports 0 to 6 GPOs, so ngpios maximum is 6.
+> 
+>>> +
+>>> +  gpio-controller: true
+>>> +
+>>> +  "#gpio-cells":
+>>> +    const: 2
+>>> +
+>>> +  ngpios:
+>>> +    minimum: 0
+>>> +    maximum: 8
+>>
+>> Why this is flexible?
+>>
+> 
+> I believe this makes sense, as this keypad/gpos partition really changes
+> the actual number of GPIOS. Yet we could argue that this is just runtime
+> configuration. Tell me what you think about it, if you think this should
+> be a fixed value, I will find a way.
 
-diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
-index 25cfd964dc25..acb9eb18f7cc 100644
---- a/drivers/hid/hid-plantronics.c
-+++ b/drivers/hid/hid-plantronics.c
-@@ -6,9 +6,6 @@
-  *  Copyright (c) 2015-2018 Terry Junge <terry.junge@plantronics.com>
-  */
-=20
--/*
-- */
--
- #include "hid-ids.h"
-=20
- #include <linux/hid.h>
-@@ -23,30 +20,28 @@
-=20
- #define PLT_VOL_UP=09=090x00b1
- #define PLT_VOL_DOWN=09=090x00b2
-+#define PLT_MIC_MUTE=09=090x00b5
-=20
- #define PLT1_VOL_UP=09=09(PLT_HID_1_0_PAGE | PLT_VOL_UP)
- #define PLT1_VOL_DOWN=09=09(PLT_HID_1_0_PAGE | PLT_VOL_DOWN)
-+#define PLT1_MIC_MUTE=09=09(PLT_HID_1_0_PAGE | PLT_MIC_MUTE)
- #define PLT2_VOL_UP=09=09(PLT_HID_2_0_PAGE | PLT_VOL_UP)
- #define PLT2_VOL_DOWN=09=09(PLT_HID_2_0_PAGE | PLT_VOL_DOWN)
-+#define PLT2_MIC_MUTE=09=09(PLT_HID_2_0_PAGE | PLT_MIC_MUTE)
-+#define HID_TELEPHONY_MUTE=09(HID_UP_TELEPHONY | 0x2f)
-+#define HID_CONSUMER_MUTE=09(HID_UP_CONSUMER | 0xe2)
-=20
- #define PLT_DA60=09=090xda60
- #define PLT_BT300_MIN=09=090x0413
- #define PLT_BT300_MAX=09=090x0418
-=20
--
--#define PLT_ALLOW_CONSUMER (field->application =3D=3D HID_CP_CONSUMERCONTR=
-OL && \
--=09=09=09    (usage->hid & HID_USAGE_PAGE) =3D=3D HID_UP_CONSUMER)
--
--#define PLT_QUIRK_DOUBLE_VOLUME_KEYS BIT(0)
--#define PLT_QUIRK_FOLLOWED_OPPOSITE_VOLUME_KEYS BIT(1)
--
- #define PLT_DOUBLE_KEY_TIMEOUT 5 /* ms */
--#define PLT_FOLLOWED_OPPOSITE_KEY_TIMEOUT 220 /* ms */
-=20
- struct plt_drv_data {
- =09unsigned long device_type;
--=09unsigned long last_volume_key_ts;
--=09u32 quirks;
-+=09unsigned long last_key_ts;
-+=09unsigned long double_key_to;
-+=09__u16 last_key;
- };
-=20
- static int plantronics_input_mapping(struct hid_device *hdev,
-@@ -58,34 +53,43 @@ static int plantronics_input_mapping(struct hid_device =
-*hdev,
- =09unsigned short mapped_key;
- =09struct plt_drv_data *drv_data =3D hid_get_drvdata(hdev);
- =09unsigned long plt_type =3D drv_data->device_type;
-+=09int allow_mute =3D usage->hid =3D=3D HID_TELEPHONY_MUTE;
-+=09int allow_consumer =3D field->application =3D=3D HID_CP_CONSUMERCONTROL=
- &&
-+=09=09=09(usage->hid & HID_USAGE_PAGE) =3D=3D HID_UP_CONSUMER &&
-+=09=09=09usage->hid !=3D HID_CONSUMER_MUTE;
-=20
- =09/* special case for PTT products */
- =09if (field->application =3D=3D HID_GD_JOYSTICK)
- =09=09goto defaulted;
-=20
--=09/* handle volume up/down mapping */
- =09/* non-standard types or multi-HID interfaces - plt_type is PID */
- =09if (!(plt_type & HID_USAGE_PAGE)) {
- =09=09switch (plt_type) {
- =09=09case PLT_DA60:
--=09=09=09if (PLT_ALLOW_CONSUMER)
-+=09=09=09if (allow_consumer)
- =09=09=09=09goto defaulted;
--=09=09=09goto ignored;
-+=09=09=09if (usage->hid =3D=3D HID_CONSUMER_MUTE) {
-+=09=09=09=09mapped_key =3D KEY_MICMUTE;
-+=09=09=09=09goto mapped;
-+=09=09=09}
-+=09=09=09break;
- =09=09default:
--=09=09=09if (PLT_ALLOW_CONSUMER)
-+=09=09=09if (allow_consumer || allow_mute)
- =09=09=09=09goto defaulted;
- =09=09}
-+=09=09goto ignored;
- =09}
--=09/* handle standard types - plt_type is 0xffa0uuuu or 0xffa2uuuu */
--=09/* 'basic telephony compliant' - allow default consumer page map */
--=09else if ((plt_type & HID_USAGE) >=3D PLT_BASIC_TELEPHONY &&
--=09=09 (plt_type & HID_USAGE) !=3D PLT_BASIC_EXCEPTION) {
--=09=09if (PLT_ALLOW_CONSUMER)
--=09=09=09goto defaulted;
--=09}
--=09/* not 'basic telephony' - apply legacy mapping */
--=09/* only map if the field is in the device's primary vendor page */
--=09else if (!((field->application ^ plt_type) & HID_USAGE_PAGE)) {
-+
-+=09/* handle standard consumer control mapping */
-+=09/* and standard telephony mic mute mapping */
-+=09if (allow_consumer || allow_mute)
-+=09=09goto defaulted;
-+
-+=09/* handle vendor unique types - plt_type is 0xffa0uuuu or 0xffa2uuuu */
-+=09/* if not 'basic telephony compliant' - map vendor unique controls */
-+=09if (!((plt_type & HID_USAGE) >=3D PLT_BASIC_TELEPHONY &&
-+=09      (plt_type & HID_USAGE) !=3D PLT_BASIC_EXCEPTION) &&
-+=09      !((field->application ^ plt_type) & HID_USAGE_PAGE))
- =09=09switch (usage->hid) {
- =09=09case PLT1_VOL_UP:
- =09=09case PLT2_VOL_UP:
-@@ -95,8 +99,11 @@ static int plantronics_input_mapping(struct hid_device *=
-hdev,
- =09=09case PLT2_VOL_DOWN:
- =09=09=09mapped_key =3D KEY_VOLUMEDOWN;
- =09=09=09goto mapped;
-+=09=09case PLT1_MIC_MUTE:
-+=09=09case PLT2_MIC_MUTE:
-+=09=09=09mapped_key =3D KEY_MICMUTE;
-+=09=09=09goto mapped;
- =09=09}
--=09}
-=20
- /*
-  * Future mapping of call control or other usages,
-@@ -105,6 +112,8 @@ static int plantronics_input_mapping(struct hid_device =
-*hdev,
-  */
-=20
- ignored:
-+=09hid_dbg(hdev, "usage: %08x (appl: %08x) - ignored\n",
-+=09=09usage->hid, field->application);
- =09return -1;
-=20
- defaulted:
-@@ -123,38 +132,26 @@ static int plantronics_event(struct hid_device *hdev,=
- struct hid_field *field,
- =09=09=09     struct hid_usage *usage, __s32 value)
- {
- =09struct plt_drv_data *drv_data =3D hid_get_drvdata(hdev);
-+=09unsigned long prev_tsto, cur_ts;
-+=09__u16 prev_key, cur_key;
-=20
--=09if (drv_data->quirks & PLT_QUIRK_DOUBLE_VOLUME_KEYS) {
--=09=09unsigned long prev_ts, cur_ts;
-+=09/* Usages are filtered in plantronics_usages. */
-=20
--=09=09/* Usages are filtered in plantronics_usages. */
-+=09/* HZ too low for ms resolution - double key detection disabled */
-+=09/* or it is a key release - handle key presses only. */
-+=09if (!drv_data->double_key_to || !value)
-+=09=09return 0;
-=20
--=09=09if (!value) /* Handle key presses only. */
--=09=09=09return 0;
-+=09prev_tsto =3D drv_data->last_key_ts + drv_data->double_key_to;
-+=09cur_ts =3D drv_data->last_key_ts =3D jiffies;
-+=09prev_key =3D drv_data->last_key;
-+=09cur_key =3D drv_data->last_key =3D usage->code;
-=20
--=09=09prev_ts =3D drv_data->last_volume_key_ts;
--=09=09cur_ts =3D jiffies;
--=09=09if (jiffies_to_msecs(cur_ts - prev_ts) <=3D PLT_DOUBLE_KEY_TIMEOUT)
--=09=09=09return 1; /* Ignore the repeated key. */
--
--=09=09drv_data->last_volume_key_ts =3D cur_ts;
-+=09/* If the same key occurs in <=3D double_key_to -- ignore it */
-+=09if (prev_key =3D=3D cur_key && time_before_eq(cur_ts, prev_tsto)) {
-+=09=09hid_dbg(hdev, "double key %d ignored\n", cur_key);
-+=09=09return 1; /* Ignore the repeated key. */
- =09}
--=09if (drv_data->quirks & PLT_QUIRK_FOLLOWED_OPPOSITE_VOLUME_KEYS) {
--=09=09unsigned long prev_ts, cur_ts;
--
--=09=09/* Usages are filtered in plantronics_usages. */
--
--=09=09if (!value) /* Handle key presses only. */
--=09=09=09return 0;
--
--=09=09prev_ts =3D drv_data->last_volume_key_ts;
--=09=09cur_ts =3D jiffies;
--=09=09if (jiffies_to_msecs(cur_ts - prev_ts) <=3D PLT_FOLLOWED_OPPOSITE_KE=
-Y_TIMEOUT)
--=09=09=09return 1; /* Ignore the followed opposite volume key. */
--
--=09=09drv_data->last_volume_key_ts =3D cur_ts;
--=09}
--
- =09return 0;
- }
-=20
-@@ -196,12 +193,16 @@ static int plantronics_probe(struct hid_device *hdev,
- =09ret =3D hid_parse(hdev);
- =09if (ret) {
- =09=09hid_err(hdev, "parse failed\n");
--=09=09goto err;
-+=09=09return ret;
- =09}
-=20
- =09drv_data->device_type =3D plantronics_device_type(hdev);
--=09drv_data->quirks =3D id->driver_data;
--=09drv_data->last_volume_key_ts =3D jiffies - msecs_to_jiffies(PLT_DOUBLE_=
-KEY_TIMEOUT);
-+=09drv_data->double_key_to =3D msecs_to_jiffies(PLT_DOUBLE_KEY_TIMEOUT);
-+=09drv_data->last_key_ts =3D jiffies - drv_data->double_key_to;
-+
-+=09/* if HZ does not allow ms resolution - disable double key detection */
-+=09if (drv_data->double_key_to < PLT_DOUBLE_KEY_TIMEOUT)
-+=09=09drv_data->double_key_to =3D 0;
-=20
- =09hid_set_drvdata(hdev, drv_data);
-=20
-@@ -210,29 +211,10 @@ static int plantronics_probe(struct hid_device *hdev,
- =09if (ret)
- =09=09hid_err(hdev, "hw start failed\n");
-=20
--err:
- =09return ret;
- }
-=20
- static const struct hid_device_id plantronics_devices[] =3D {
--=09{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
--=09=09=09=09=09 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3210_SERIES),
--=09=09.driver_data =3D PLT_QUIRK_DOUBLE_VOLUME_KEYS },
--=09{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
--=09=09=09=09=09 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
--=09=09.driver_data =3D PLT_QUIRK_DOUBLE_VOLUME_KEYS },
--=09{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
--=09=09=09=09=09 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3215_SERIES),
--=09=09.driver_data =3D PLT_QUIRK_DOUBLE_VOLUME_KEYS },
--=09{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
--=09=09=09=09=09 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3225_SERIES),
--=09=09.driver_data =3D PLT_QUIRK_DOUBLE_VOLUME_KEYS },
--=09{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
--=09=09=09=09=09 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3325_SERIES),
--=09=09.driver_data =3D PLT_QUIRK_FOLLOWED_OPPOSITE_VOLUME_KEYS },
--=09{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
--=09=09=09=09=09 USB_DEVICE_ID_PLANTRONICS_ENCOREPRO_500_SERIES),
--=09=09.driver_data =3D PLT_QUIRK_FOLLOWED_OPPOSITE_VOLUME_KEYS },
- =09{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
- =09{ }
- };
-@@ -241,6 +223,14 @@ MODULE_DEVICE_TABLE(hid, plantronics_devices);
- static const struct hid_usage_id plantronics_usages[] =3D {
- =09{ HID_CP_VOLUMEUP, EV_KEY, HID_ANY_ID },
- =09{ HID_CP_VOLUMEDOWN, EV_KEY, HID_ANY_ID },
-+=09{ HID_TELEPHONY_MUTE, EV_KEY, HID_ANY_ID },
-+=09{ HID_CONSUMER_MUTE, EV_KEY, HID_ANY_ID },
-+=09{ PLT2_VOL_UP, EV_KEY, HID_ANY_ID },
-+=09{ PLT2_VOL_DOWN, EV_KEY, HID_ANY_ID },
-+=09{ PLT2_MIC_MUTE, EV_KEY, HID_ANY_ID },
-+=09{ PLT1_VOL_UP, EV_KEY, HID_ANY_ID },
-+=09{ PLT1_VOL_DOWN, EV_KEY, HID_ANY_ID },
-+=09{ PLT1_MIC_MUTE, EV_KEY, HID_ANY_ID },
- =09{ HID_TERMINATOR, HID_TERMINATOR, HID_TERMINATOR }
- };
-=20
---=20
-2.43.0
+Depends whether this is actual runtime configuration. If you configure
+keypad in DT, then the pins go away from GPIOs (especially considering
+that board might have these pins really connected to keypad). Anyway,
+explain this briefly in binding description.
 
+> 
+Best regards,
+Krzysztof

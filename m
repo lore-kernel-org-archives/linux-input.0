@@ -1,175 +1,197 @@
-Received: from mail-il1-f207.google.com (mail-il1-f207.google.com [209.85.166.207])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-162.mimecast.com (us-smtp-delivery-162.mimecast.com [170.10.133.162])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F18BEC0
-	for <linux-input@vger.kernel.org>; Tue, 24 Dec 2024 06:38:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.207
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25950170A26
+	for <linux-input@vger.kernel.org>; Tue, 24 Dec 2024 07:08:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.162
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735022308; cv=none; b=JHG0mf0gvJ8rGc8puM19pxvzI9e40g0RQYYJlfxfZOH7gD663EsGpjLt4M9DmR+K1UryEiHr6isUR6Nhe1WgwTeEIZY1ZiQwMOQdkFnAsBq5Cev3+qfvbXfmadEvPc3aYLjwtbSpOBTnmFvwc+4X5ah2m4S5gf9/nP8AN1ThjC0=
+	t=1735024123; cv=none; b=rnn7jGpsMLLxvKTpoIznDaITRwAcGq8Yrz+ELU9YnE70KMr/SncluB3Zcjc9AoUflb/DFXL+9g+TJ16Ew5XSuMqyLE96ik9VDngcWBfMK1xywfkp6fpSePYAMuYx2dBOPH6XHa7jBYJM2F3oBmZNUubRheGoG5rpymThmCYHA/U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735022308; c=relaxed/simple;
-	bh=kPAi6jmc3u9nyj7t4Jr5t/mrDpv0qsdHzdHzHrH2oGU=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=hpc4C6KhBaxQKVJJbMuq3ezCaCrgJNlfKvz8vb8omdCRYlw2z+A70UpFPUYrcUYw32lCzgZPl8+njKAt+YU5pURDu5y77I426gc8/fbakj/XKJAl74X89Erda4QtPZRWyr2p/faC25lycuzF2enIG7i4gjlUZEEmabmqba77V/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.207
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-il1-f207.google.com with SMTP id e9e14a558f8ab-3a819a4e83dso50177805ab.1
-        for <linux-input@vger.kernel.org>; Mon, 23 Dec 2024 22:38:26 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1735022305; x=1735627105;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=IKhEgnc3MniwmiQDkQbfnQDsBTkV5W+LidHmg3l9mg4=;
-        b=SNLX20NFig/fC8Vp09TfJUUQEVCO7w8BdY/ZGtuQXkOVDYNylDmnoikrsLbAwvgzXw
-         pbVWHUrpeoeMZCwifBtY2X0XwgZhRcOeYtY4TdN2YDp+aD8W13skCO+teS1b/8hzRnaE
-         5eF1C3IvZS8jJAnospTwvkBE5uZR5GAzDc7cN6jEonNyrElit8cryalB1bX1uwmSfXMW
-         rULk+mu0HSof75fagc+eTQt69n0Mu6jJU9M2bzskLmgo1t6Y/SLOkV7ZM5JLEya1q2UB
-         d1RGHhTahZqcv0FN1JjbT1jYz5rCQrGSYlKVurJmFhA/y0Ij8PDbIrx2I/KPpk76PQN8
-         W7MQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXfo7XKaCZetYCzc0GhOAdnnIpgQvMqWMPHSGPnnig5ZUtM6Gh6kEB1Dc/e66GyHtkgSdr2t9pF838pxA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxfZ8pI9hkqEpQwyNkmrH/i+QxwD6eSEgcD9RhwhScJAbWQhMWV
-	H4FhfsZxHLT8zayE2C3O1IWldvK08SH3lmanvsDE9y2R0kihwF0zPKVtE3DyOMYVdGUbMMJEVOr
-	BmtP4L5gZ84nVCVsTR7tRmd96MHRs0Qi7djhAUYgDx+Kvox/Sx4hF16s=
-X-Google-Smtp-Source: AGHT+IFtSCH3bgztzzLZDpekiTIfNyBW8+30oM8dRKQ06sSxUK6SfhJ3ubPQJ0SeptZVenfJvryW4r2h/+1h6Pwkaof3Z9UW7qhb
+	s=arc-20240116; t=1735024123; c=relaxed/simple;
+	bh=qUkkLHrQ4WXcKVnQImhnpoTl7P/786aruC+18Jg/tz0=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:content-type; b=cqzVUgAEtAeYyBAZ2HOwRuFdK5hLKO2yln6UtzQbg6pGXgWFqdWBMIStReE1uPnmI7EUnf0j3Yq78hpNudwN1UhrK5K5Da9qaI/c6uI+iN6dnP05gcxKGnl6iXqB1+3KEz/K/ytHefPYWVXjj+bCLUeBXONGAaGXFoytm0CxfRw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hp.com; spf=pass smtp.mailfrom=hp.com; dkim=pass (1024-bit key) header.d=hp.com header.i=@hp.com header.b=P8pslRpL; arc=none smtp.client-ip=170.10.133.162
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=hp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hp.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=hp.com header.i=@hp.com header.b="P8pslRpL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=hp.com; s=mimecast20180716;
+	t=1735024121;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=daS+cNBbyPVNBsY+IGPoUbU95r5o0SLP4Vy1d8J8nRg=;
+	b=P8pslRpLDtmMXY9JS0lugyPANWgH1W+uORumSvblmEGIVfzL9iNcsO5K6lmXuxXiawyCgd
+	fVz3sCNIMOinK0xOJl7nAMj8aGUMNS+CzhRS7B7Xj+NYNeJCEDPCGpiF1I8v1MLXB473yd
+	C90yNll5QLEpXXEoPhFJQtWoegMHU5g=
+Received: from g7t16451g.inc.hp.com (hpifallback.mail.core.hp.com
+ [15.73.128.137]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-490-c3ScVXkbNW2jDuDdSlMTHA-1; Tue, 24 Dec 2024 02:08:39 -0500
+X-MC-Unique: c3ScVXkbNW2jDuDdSlMTHA-1
+X-Mimecast-MFC-AGG-ID: c3ScVXkbNW2jDuDdSlMTHA
+Received: from g7t16459g.inc.hpicorp.net (g7t16459g.inc.hpicorp.net [15.63.18.36])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits))
+	(No client certificate requested)
+	by g7t16451g.inc.hp.com (Postfix) with ESMTPS id AC6B86001741;
+	Tue, 24 Dec 2024 07:08:38 +0000 (UTC)
+Received: from mail.hp.com (unknown [15.32.134.51])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by g7t16459g.inc.hpicorp.net (Postfix) with ESMTPS id 0D2186000096;
+	Tue, 24 Dec 2024 07:08:36 +0000 (UTC)
+Received: from cdc-linux-buildsrv17.. (localhost [127.0.0.1])
+	by mail.hp.com (Postfix) with ESMTP id 3AC2AA42C03;
+	Tue, 24 Dec 2024 14:56:39 +0800 (CST)
+From: Wade Wang <wade.wang@hp.com>
+To: jikos@kernel.org,
+	tiwai@suse.com,
+	bentiss@kernel.org,
+	perex@perex.cz,
+	linuxhid@cosmicgizmosystems.com
+Cc: wade.wang@hp.com,
+	linux-input@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH v2 2/2] ALSA: usb-audio: Add quirk for Plantronics headsets to fix control names
+Date: Tue, 24 Dec 2024 14:56:36 +0800
+Message-Id: <20241224065636.1870713-2-wade.wang@hp.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20241224065636.1870713-1-wade.wang@hp.com>
+References: <20241224065636.1870713-1-wade.wang@hp.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6e02:1747:b0:3a7:6636:eb3b with SMTP id
- e9e14a558f8ab-3c2d514f981mr105323875ab.17.1735022305540; Mon, 23 Dec 2024
- 22:38:25 -0800 (PST)
-Date: Mon, 23 Dec 2024 22:38:25 -0800
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <676a56e1.050a0220.226966.0051.GAE@google.com>
-Subject: [syzbot] [input?] KASAN: null-ptr-deref Write in input_ff_create
-From: syzbot <syzbot+dd5f8d6456680e55eb0a@syzkaller.appspotmail.com>
-To: appsforartists@google.com, dmitry.torokhov@gmail.com, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: EdOh2hPJVWOmQIj_s7-oYTKM_AEZUElMZQ7-NxwRuAc_1735024118
+X-Mimecast-Originator: hp.com
+Content-Transfer-Encoding: quoted-printable
+content-type: text/plain; charset=WINDOWS-1252; x-default=true
 
-Hello,
+From: Terry Junge <linuxhid@cosmicgizmosystems.com>
 
-syzbot found the following issue on:
+Many Poly/Plantronics headset families name the feature, input,
+and/or output units in a such a way to produce control names
+that are not recognized by user space. As such, the volume and
+mute events do not get routed to the headset's audio controls.
 
-HEAD commit:    8155b4ef3466 Add linux-next specific files for 20241220
-git tree:       linux-next
-console+strace: https://syzkaller.appspot.com/x/log.txt?x=111cafe8580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=9c90bb7161a56c88
-dashboard link: https://syzkaller.appspot.com/bug?extid=dd5f8d6456680e55eb0a
-compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12ea52df980000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=111600c4580000
+As an example from a product family:
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/98a974fc662d/disk-8155b4ef.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/2dea9b72f624/vmlinux-8155b4ef.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/593a42b9eb34/bzImage-8155b4ef.xz
+The microphone mute control is named
+Headset Microphone Capture Switch
+and the headset volume control is named
+Headset Earphone Playback Volume
 
-The issue was bisected to:
+The quirk fixes these to become
+Headset Capture Switch
+Headset Playback Volume
 
-commit 5203b3a18c1bbf50ec5fff27489da8e9bce48ddb
-Author: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Date:   Thu Nov 7 07:15:29 2024 +0000
-
-    Input: ff-core - make use of __free() cleanup facility
-
-bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=14ffd2df980000
-final oops:     https://syzkaller.appspot.com/x/report.txt?x=16ffd2df980000
-console output: https://syzkaller.appspot.com/x/log.txt?x=12ffd2df980000
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+dd5f8d6456680e55eb0a@syzkaller.appspotmail.com
-Fixes: 5203b3a18c1b ("Input: ff-core - make use of __free() cleanup facility")
-
-usb 1-1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
-usb 1-1: Product: syz
-usb 1-1: Manufacturer: syz
-usb 1-1: SerialNumber: syz
-usb 1-1: config 0 descriptor??
-==================================================================
-BUG: KASAN: null-ptr-deref in instrument_write include/linux/instrumented.h:40 [inline]
-BUG: KASAN: null-ptr-deref in ___set_bit include/asm-generic/bitops/instrumented-non-atomic.h:28 [inline]
-BUG: KASAN: null-ptr-deref in input_ff_create+0x1aa/0x2f0 drivers/input/ff-core.c:325
-Write of size 8 at addr 0000000000000040 by task kworker/0:2/975
-
-CPU: 0 UID: 0 PID: 975 Comm: kworker/0:2 Not tainted 6.13.0-rc3-next-20241220-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 11/25/2024
-Workqueue: usb_hub_wq hub_event
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x241/0x360 lib/dump_stack.c:120
- print_report+0xe8/0x550 mm/kasan/report.c:492
- kasan_report+0x143/0x180 mm/kasan/report.c:602
- kasan_check_range+0x282/0x290 mm/kasan/generic.c:189
- instrument_write include/linux/instrumented.h:40 [inline]
- ___set_bit include/asm-generic/bitops/instrumented-non-atomic.h:28 [inline]
- input_ff_create+0x1aa/0x2f0 drivers/input/ff-core.c:325
- input_ff_create_memless+0x133/0x630 drivers/input/ff-memless.c:522
- xpad_init_ff drivers/input/joystick/xpad.c:1562 [inline]
- xpad_init_input+0xcef/0x1440 drivers/input/joystick/xpad.c:1960
- xpad_probe+0x1427/0x1b90 drivers/input/joystick/xpad.c:2143
- usb_probe_interface+0x641/0xbb0 drivers/usb/core/driver.c:396
- really_probe+0x2b9/0xad0 drivers/base/dd.c:658
- __driver_probe_device+0x1a2/0x390 drivers/base/dd.c:800
- driver_probe_device+0x50/0x430 drivers/base/dd.c:830
- __device_attach_driver+0x2d6/0x530 drivers/base/dd.c:958
- bus_for_each_drv+0x24e/0x2e0 drivers/base/bus.c:459
- __device_attach+0x333/0x520 drivers/base/dd.c:1030
- bus_probe_device+0x189/0x260 drivers/base/bus.c:534
- device_add+0x856/0xbf0 drivers/base/core.c:3665
- usb_set_configuration+0x1976/0x1fb0 drivers/usb/core/message.c:2210
- usb_generic_driver_probe+0x88/0x140 drivers/usb/core/generic.c:254
- usb_probe_device+0x1b8/0x380 drivers/usb/core/driver.c:291
- really_probe+0x2b9/0xad0 drivers/base/dd.c:658
- __driver_probe_device+0x1a2/0x390 drivers/base/dd.c:800
- driver_probe_device+0x50/0x430 drivers/base/dd.c:830
- __device_attach_driver+0x2d6/0x530 drivers/base/dd.c:958
- bus_for_each_drv+0x24e/0x2e0 drivers/base/bus.c:459
- __device_attach+0x333/0x520 drivers/base/dd.c:1030
- bus_probe_device+0x189/0x260 drivers/base/bus.c:534
- device_add+0x856/0xbf0 drivers/base/core.c:3665
- usb_new_device+0x104a/0x19a0 drivers/usb/core/hub.c:2651
- hub_port_connect drivers/usb/core/hub.c:5521 [inline]
- hub_port_connect_change drivers/usb/core/hub.c:5661 [inline]
- port_event drivers/usb/core/hub.c:5821 [inline]
- hub_event+0x2d6d/0x5150 drivers/usb/core/hub.c:5903
- process_one_work kernel/workqueue.c:3229 [inline]
- process_scheduled_works+0xa66/0x1840 kernel/workqueue.c:3310
- worker_thread+0x870/0xd30 kernel/workqueue.c:3391
- kthread+0x7a9/0x920 kernel/kthread.c:464
- ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:148
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
- </TASK>
-==================================================================
-
-
+Signed-off-by: Terry Junge <linuxhid@cosmicgizmosystems.com>
+Signed-off-by: Wade Wang <wade.wang@hp.com>
+Cc: stable@vger.kernel.org
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+V1 -> V2: Add comments, usb_audio_dbg() calls, fix leading space case
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+ sound/usb/mixer_quirks.c | 66 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 66 insertions(+)
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
+index 23fcd680167d..5728c03dc49f 100644
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -4216,6 +4216,67 @@ static void snd_dragonfly_quirk_db_scale(struct usb_=
+mixer_interface *mixer,
+ =09}
+ }
+=20
++/*
++ * Some Plantronics headsets have control names that don't meet ALSA namin=
+g
++ * standards. This function removes nonstandard source names. By the time
++ * this function is called the control name will look like one of these:
++ * "source names Playback Volume"
++ * "source names Playback Switch"
++ * "source names Capture Volume"
++ * "source names Capture Switch"
++ * First it scans through the list and removes any found name(s) by moving=
+ the
++ * remaining string and its null terminator over the found name and its le=
+ading
++ * space, if it has one.
++ * Second, if all source names were removed, it puts back "Headset"
++ * otherwise removes a leading space, if there is one.
++ */
++static void snd_fix_plt_control_name(struct usb_mixer_interface *mixer,
++=09=09=09=09     struct snd_kcontrol *kctl)
++{
++=09/* no variant of "Sidetone" should be added to this list */
++=09static const char * const names_to_remove[] =3D {
++=09=09"Earphone",
++=09=09"Microphone",
++=09=09"Receive",
++=09=09"Transmit",
++=09=09NULL
++=09};
++=09const char * const *n2r;
++=09char *dst, *src, *last =3D NULL;
++=09size_t len =3D 0;
++
++=09for (n2r =3D names_to_remove; *n2r; ++n2r) {
++=09=09dst =3D strstr(kctl->id.name, *n2r);
++=09=09if (dst) {
++=09=09=09usb_audio_dbg(mixer->chip, "found %s in %s\n",
++=09=09=09=09=09*n2r, kctl->id.name);
++=09=09=09src =3D dst + strlen(*n2r);
++=09=09=09len =3D strlen(src) + 1;
++=09=09=09if ((char *)kctl->id.name !=3D dst && *(dst - 1) =3D=3D ' ')
++=09=09=09=09--dst;
++=09=09=09last =3D memmove(dst, src, len);
++=09=09=09usb_audio_dbg(mixer->chip, "now %s\n", kctl->id.name);
++=09=09}
++=09}
++=09if (!len) {
++=09=09usb_audio_dbg(mixer->chip, "no change in %s\n", kctl->id.name);
++=09=09return;
++=09}
++=09if (len <=3D sizeof " Playback Volume" && (char *)kctl->id.name =3D=3D =
+last) {
++=09=09char rcat[sizeof(kctl->id.name)] =3D { "Headset" };
++
++=09=09strlcat(rcat, kctl->id.name, sizeof(rcat));
++=09=09strscpy(kctl->id.name, rcat, sizeof(kctl->id.name));
++=09=09usb_audio_dbg(mixer->chip, "now %s\n", kctl->id.name);
++=09} else if (kctl->id.name[0] =3D=3D ' ') {
++=09=09dst =3D kctl->id.name;
++=09=09src =3D dst + 1;
++=09=09len =3D strlen(src) + 1;
++=09=09memmove(dst, src, len);
++=09=09usb_audio_dbg(mixer->chip, "now %s\n", kctl->id.name);
++=09}
++}
++
+ void snd_usb_mixer_fu_apply_quirk(struct usb_mixer_interface *mixer,
+ =09=09=09=09  struct usb_mixer_elem_info *cval, int unitid,
+ =09=09=09=09  struct snd_kcontrol *kctl)
+@@ -4233,5 +4294,10 @@ void snd_usb_mixer_fu_apply_quirk(struct usb_mixer_i=
+nterface *mixer,
+ =09=09=09cval->min_mute =3D 1;
+ =09=09break;
+ =09}
++
++=09/* ALSA-ify some Plantronics headset control names */
++=09if (USB_ID_VENDOR(mixer->chip->usb_id) =3D=3D 0x047f &&
++=09    (cval->control =3D=3D UAC_FU_MUTE || cval->control =3D=3D UAC_FU_VO=
+LUME))
++=09=09snd_fix_plt_control_name(mixer, kctl);
+ }
+=20
+--=20
+2.43.0
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup

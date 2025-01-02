@@ -1,40 +1,40 @@
 Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 642681A2C04;
-	Thu,  2 Jan 2025 10:29:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D86A19E999;
+	Thu,  2 Jan 2025 10:34:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735813766; cv=none; b=IQ+CT5fZm2eLgRvk7CJ4WgN2iqENxbM69vOISlhacGI9Rd+YJmuZ+Z0kErDOzADM8e6VNWGt1SuqA9o3Eg4qOhPv6ZxmEyM2LY8RUWeTpGOroOP9SVZhnt9MmNdhHjANG1Kh0ZwHPGuL7o8zLOE+rGTWVu4MRd37Zvj4h4oh8oo=
+	t=1735814074; cv=none; b=kUpjCZ0Zg70d72AkKiNT9xGhsyHKr4e9NHJ6P0affQ2BdJH5b5acI7dEO/IwWKi2M0Ds9Y4kzEoxa0WI4v0KN6hCONSatvvR/Kmy1kqe66hRcIonj7gSJ5TGgSVt5qOHm7SUGSgA2uOIQGUF7i//TqKSgAhi3IPTVsy722WDL0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735813766; c=relaxed/simple;
-	bh=Ui5Ax6l8RhcBEr+KDx7Y4gphne3ZIzmcVAcKme4QbaQ=;
+	s=arc-20240116; t=1735814074; c=relaxed/simple;
+	bh=K1pfxYqXOc52PRosS2j0BYuB9mHwfBtw9u9O1FNSkPk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=XLNkGTrCx8jr498rvWh7dpwVwvA4LerlsI3lLI/MtCFS0LtedypelPilAVuJN+1gdtSFVQB7EYtuqrQ0YwLfTsxTs2FrpiqKF7nbk0LESgF+Y8PMjLiXqoRbP54PecylPIXJ8o5CtroEfBVfM5+EUxIFRYgenh6hyM4QtEY5i/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=lnDjH4e4; arc=none smtp.client-ip=148.251.105.195
+	 In-Reply-To:Content-Type; b=C+GjL8OYjyqCb8e+MgttR9c9JVmHoq5UX9YMJdKCJrHLJpKkTjXfIQy29fXbZwTsyBFoabaHNc1dZAmrjlU5uscomymTrhTSMJAVX8D8BiUlmaAqjWvpM7ELF0RMMqgltmdyVI9RrCQD2xCIzojbG1ti74tmLnopkBP8I7Z89v4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=qffiWESE; arc=none smtp.client-ip=148.251.105.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="lnDjH4e4"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="qffiWESE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1735813762;
-	bh=Ui5Ax6l8RhcBEr+KDx7Y4gphne3ZIzmcVAcKme4QbaQ=;
+	s=mail; t=1735813554;
+	bh=K1pfxYqXOc52PRosS2j0BYuB9mHwfBtw9u9O1FNSkPk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=lnDjH4e49m8sL1pxJma4tV+WV36PeaCESERSgKFzZ3vdQMEN9zzML5rdbDRyg/eST
-	 9ct3oa0EUyVQDfdp/Q1IG7Q+gngQiatZsaNQAsMuFgoRUwXZzpmvVjEC6g4h0UJ7Mx
-	 hNlu7cbv9eNvpih8yHi1beLLwFKTpLdCcTx4sJ3j8zrqS0qnKvQxkk/B4CfGFf3dEA
-	 mft19HRNPjMgfjG/bx8NYctNzd9hv5poQEcZ10r1Hu3xBYcy9TaWhrDCwcBWzo1Jfr
-	 fIaiQqKA5HJn5O+FNi9pivNFs75XYXnB6kQBwAwhffXZvNNIjWcKioR0uMAtpdmLXS
-	 y+mBUYcmX+j5Q==
+	b=qffiWESEleKjF2uZCQdtKxqC+Uy8yySJ0NZISO4YqBRdcdETzJTZxdYkVLhvFHrv0
+	 UVBu4bUYRyKXIbQHVK4lxrILiikEgDZGT9Nud2AK9TO6KmRGnUuCSwA9ucMEXaw0kn
+	 1pQy9IhUSLzARpCIWI+rptSXUFGEtwUG6YP62cCsuJYfJhiE6OQ3TchWChDJ1hVnvs
+	 eyp5mC/mcdcW6bBT8Ez8rnEoGlCTwftfEDFWc1w0u2tvRSwbNaDn8KmbjjLESg+fJX
+	 F+4lv8SJNkiJfov6SY1ZHiBRVbEvsHrihMJB2oETHrgaLk0DNjdDhT8h1LX1xwMSkw
+	 FG3/w1sB9S1rA==
 Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
 	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id A4B8317E1554;
-	Thu,  2 Jan 2025 11:29:21 +0100 (CET)
-Message-ID: <5a4db8a5-82fa-4feb-bc2e-c78d9e1c88e2@collabora.com>
-Date: Thu, 2 Jan 2025 11:29:21 +0100
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 64B8917E153D;
+	Thu,  2 Jan 2025 11:25:53 +0100 (CET)
+Message-ID: <599e27fd-e3fe-4d36-84b9-5742995cad69@collabora.com>
+Date: Thu, 2 Jan 2025 11:25:52 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,47 +42,35 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/3] mt6779-keypad: fix compatibles and add to mt8516
+Subject: Re: [PATCH 9/9] arm64: dts: mt6392: add mt6392 PMIC dtsi
 To: Val Packett <val@packett.cool>
-Cc: Mattijs Korpershoek <mkorpershoek@baylibre.com>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- Fabien Parent <fparent@baylibre.com>,
- Alexandre Mergnat <amergnat@baylibre.com>,
- Amjad Ouled-Ameur <aouledameur@baylibre.com>, linux-input@vger.kernel.org,
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
+ Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
+ Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ Eddie Huang <eddie.huang@mediatek.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Javier Carrasco <javier.carrasco.cruz@gmail.com>,
+ Fabien Parent <parent.f@gmail.com>,
+ Yassine Oudjana <y.oudjana@protonmail.com>,
+ Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org
-References: <20241225192631.25017-1-val@packett.cool>
+ linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
+References: <20241226050205.30241-1-val@packett.cool>
+ <20241226050205.30241-10-val@packett.cool>
 From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Content-Language: en-US
-In-Reply-To: <20241225192631.25017-1-val@packett.cool>
+In-Reply-To: <20241226050205.30241-10-val@packett.cool>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Il 25/12/24 20:26, Val Packett ha scritto:
-> The mt8516 patch was previously sent in another series but rejected due
-> to not using an mt8516 specific compatible - which the other usages
-> of this driver (mt8183 and mt8365) weren't doing either.
+Il 26/12/24 05:58, Val Packett ha scritto:
+> Add the dts to be included by all boards using the MT6392 PMIC.
 > 
-> It's only fair to add the SoC-specific compatibles to all of them then :)
-> 
-
-Nice!!
-
-Whole series is
+> Signed-off-by: Val Packett <val@packett.cool>
 
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-
-> Val Packett (3):
->    dt-bindings: mediatek,mt6779-keypad: add more compatibles
->    arm64: dts: mediatek: add per-SoC compatibles for keypad nodes
->    arm64: dts: mediatek: mt8516: add keypad node
-> 
->   .../bindings/input/mediatek,mt6779-keypad.yaml        |  3 +++
->   arch/arm64/boot/dts/mediatek/mt8183.dtsi              |  3 ++-
->   arch/arm64/boot/dts/mediatek/mt8365.dtsi              |  3 ++-
->   arch/arm64/boot/dts/mediatek/mt8516.dtsi              | 11 +++++++++++
->   4 files changed, 18 insertions(+), 2 deletions(-)
-> 
 

@@ -1,86 +1,80 @@
-Received: from relay7-d.mail.gandi.net (relay7-d.mail.gandi.net [217.70.183.200])
+Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A889119D086;
-	Thu,  2 Jan 2025 09:34:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F29C190485;
+	Thu,  2 Jan 2025 10:26:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735810497; cv=none; b=VCtCygLF2Ywu82xAlFegXzjt6hJrDinJ/rrl8Z+84IkNWvGJ4UOIwVDztOApK+dg3Et23UVCZ5KhPxPxWVLei9nunc9mfCkJgvcmB+pygTU0PxWV5+4lsm4x10gHdTXl8ZKhS7gw+FAVnjfKwzm7HDpUruoVHHFT1X3gxcyLXrs=
+	t=1735813568; cv=none; b=bqQzfxHr886VJ6kpI4ZONV36uqeJvGqaJzm2pfKTYa7vixodOA+B0oNn8aqTNWqy1DgPRVi+kfkUM4qrPg0wrZvEOftoQPXFUc3IRqoZmkBTeym+h8MirZmoVPYFXvUmKlU2PCz0yApG21gk24viVqgGCRxwGMHaumbEsRyy+8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735810497; c=relaxed/simple;
-	bh=c9rKsDiha9fDzMuda3rAARdYRSPn+SADWPbuqHkSGHc=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:From:To:
-	 References:In-Reply-To; b=Dv3/cB1ywrYXmGbzfBFSsFyY4vv1bKd1G+Voh3kWvjtJtsyQEjrdtguUC6FNSa+Of2XI1/M1Yc6z4t8bhYR3VoSIKXiaQxFUJPWSjQEYSoDARPs7P2BRkN/wY9QtxdmnT2hl3mnI9vOYPzZaP/C/fNrzcoxiQZA90fZm9Wkkm3I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=TiiAF6VW; arc=none smtp.client-ip=217.70.183.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1735813568; c=relaxed/simple;
+	bh=3GT0ivpU3yT9AFjZTEHywkw0fqTG8Qo34fH2ZWvQSrE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=n3B8JDXfyyrKFXYFNpLalMHDUnrRJpKPPJclyO9yxBcOwR9uw8TOpGEGSsBVmpnUnQKwkMBXdj1a+duJB78Wj3AvGT00Wcw9Vfr3xXLqBYOkfuNcOu0ueI2/1C2Zf66plhDmfmMxMTq8Vt5sH/cK2u9876gCTvnhWNpie2nrL2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=FdBsD+9P; arc=none smtp.client-ip=148.251.105.195
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="TiiAF6VW"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 8E22420003;
-	Thu,  2 Jan 2025 09:34:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1735810486;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=c9rKsDiha9fDzMuda3rAARdYRSPn+SADWPbuqHkSGHc=;
-	b=TiiAF6VWtPQVkrPAtL9JJV9BDB/vJsfLqzPNQtIO+wziyhGWec66ocbGpw17yolmpeoSED
-	U+eRaNjQGVGJ3catMlDCBujqSGIrbyG9XX7Dq7MzE2Nw233fIbckgh9aJTKNKoZPJc7bDb
-	7zqeQqkJftEc86xlkQsjsAAb0vJ//pfb+Ftekn7SIDBDo7hK6G6BWrsoUcRHo1LyquEHOF
-	izQEXGfej+M52B1712QJGKk72JWsIqpcNowKwmtTcTPK3lwfJeWYt30U0SNc5Z/vI0+nzR
-	ZlW0SRnp2WjEAJ3KvO8dN8Am5cBcZahPVxeVBIa8p644pc0rqtqEguJqzBx2nw==
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="FdBsD+9P"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
+	s=mail; t=1735813564;
+	bh=3GT0ivpU3yT9AFjZTEHywkw0fqTG8Qo34fH2ZWvQSrE=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=FdBsD+9P380hWkNn9bHXbcDSUudBTfYl1d1kX+tSRZpea+eqZiieF9N6pYkDqhmek
+	 2J343vp5xN+VyV72GslwlXzLbUAORXEF+XYf61+JrbIiPTT7rtb9iTE2HiW/01m8+x
+	 +LloVK0m9x6TdXOy0hYEnuVwjersrzRAk9hXwBa5Mkar/cP+FglQq8t3fJNHK3LUFf
+	 IuxpklkXQvkxoEHyij8MFPg5eHIRnhSYGtFhvlfxEYliu1mEv5t0GriA3z8Iz4gctp
+	 btj6Hot9wx7BHDpaGyKBhWEt7PHCtFt4C/eyjqcQ0f8px2Oc4Ia1RxYAuoeHT7QK7I
+	 iGSNOnhfLDL3g==
+Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
+	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
+	(No client certificate requested)
+	(Authenticated sender: kholk11)
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 33D5317E1554;
+	Thu,  2 Jan 2025 11:26:03 +0100 (CET)
+Message-ID: <61df483d-76ae-4974-8410-4888d89a5f3f@collabora.com>
+Date: Thu, 2 Jan 2025 11:25:58 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 02 Jan 2025 10:34:45 +0100
-Message-Id: <D6RHGOGA0PL5.147OW8IBT7NKY@bootlin.com>
-Subject: Re: [PATCH v2 6/7] input: misc: Add support for MAX7360 rotary
-Cc: <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <linux-gpio@vger.kernel.org>, <linux-input@vger.kernel.org>,
- <linux-pwm@vger.kernel.org>, =?utf-8?q?Gr=C3=A9gory_Clement?=
- <gregory.clement@bootlin.com>, "Thomas Petazzoni"
- <thomas.petazzoni@bootlin.com>
-From: "Mathieu Dubois-Briand" <mathieu.dubois-briand@bootlin.com>
-To: "Christophe JAILLET" <christophe.jaillet@wanadoo.fr>, "Lee Jones"
- <lee@kernel.org>, "Rob Herring" <robh@kernel.org>, "Krzysztof Kozlowski"
- <krzk+dt@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>, "Kamel Bouhara"
- <kamel.bouhara@bootlin.com>, "Linus Walleij" <linus.walleij@linaro.org>,
- "Bartosz Golaszewski" <brgl@bgdev.pl>, "Dmitry Torokhov"
- <dmitry.torokhov@gmail.com>, =?utf-8?q?Uwe_Kleine-K=C3=B6nig?=
- <ukleinek@kernel.org>
-X-Mailer: aerc 0.18.2-0-ge037c095a049
-References: <20241223-mdb-max7360-support-v2-0-37a8d22c36ed@bootlin.com>
- <20241223-mdb-max7360-support-v2-6-37a8d22c36ed@bootlin.com>
- <d3174dce-868c-4a42-9a5c-2b947ae88d18@wanadoo.fr>
-In-Reply-To: <d3174dce-868c-4a42-9a5c-2b947ae88d18@wanadoo.fr>
-X-GND-Sasl: mathieu.dubois-briand@bootlin.com
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/9] dt-bindings: regulator: add support for MT6392
+To: Val Packett <val@packett.cool>
+Cc: Fabien Parent <parent.f@gmail.com>, Rob Herring <robh@kernel.org>,
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
+ Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
+ Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
+ Eddie Huang <eddie.huang@mediatek.com>,
+ Alexandre Belloni <alexandre.belloni@bootlin.com>,
+ Javier Carrasco <javier.carrasco.cruz@gmail.com>,
+ Yassine Oudjana <y.oudjana@protonmail.com>,
+ Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
+References: <20241226050205.30241-1-val@packett.cool>
+ <20241226050205.30241-3-val@packett.cool>
+From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Content-Language: en-US
+In-Reply-To: <20241226050205.30241-3-val@packett.cool>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Tue Dec 31, 2024 at 6:49 PM CET, Christophe JAILLET wrote:
-> Le 23/12/2024 =C3=A0 17:42, Mathieu Dubois-Briand a =C3=A9crit=C2=A0:
-> > Add driver for Maxim Integrated MAX7360 rotary encoder controller,
-> > supporting a single rotary switch.
-> >=20
-> > Signed-off-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com=
->
->
-> ...
->
->
-> CJ
+Il 26/12/24 05:58, Val Packett ha scritto:
+> From: Fabien Parent <parent.f@gmail.com>
+> 
+> Add binding documentation of the regulator for MT6392 SoCs.
+> 
+> Signed-off-by: Fabien Parent <parent.f@gmail.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
 
-Hi Christophe,
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 
-Thanks a lot for all your comments. I've integrated fixes for all of
-them, to be shipped with the next version.
-
---=20
-Mathieu Dubois-Briand, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
 

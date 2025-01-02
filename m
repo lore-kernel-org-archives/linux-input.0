@@ -1,40 +1,40 @@
 Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB4A419CC3C;
-	Thu,  2 Jan 2025 10:26:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2021A1AC887;
+	Thu,  2 Jan 2025 10:26:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735813569; cv=none; b=Ib11Qo8AWn86Rf+KM41YUx0DIpgM6LqbDeteUqiH7t5q69xAA1w3m95fpGh+xOdA1lv4ShYZ+5vfjEsjyCpR/+8B6VAXgNS2GR49hrxSpxnhKRk8dM7ZGqCVTc2inBlhuLkX4JTxIB6t3c7pS9Jmq6eEK95Xw15hGRmSsvFDBqw=
+	t=1735813571; cv=none; b=Z9/J7eDipvcDDNPMaIB8n1cDKEFa8mKJGOKPjFsLgwu4hyJ6ddE4Zf+3LRMkx3lIjuAZq3+X4/KFOAx7uUgLqU2tkc569tlMpMz99U64TFPGx913vbvPVxaNTJTob24j44i5hMg0v1W5ODQ5wImcyAij9POkyZ10Iw43EMdDvnY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735813569; c=relaxed/simple;
-	bh=ykJuvkkfSPLUvUQaNqnjAoimIgJBLgUoIdS4Mduzc6I=;
+	s=arc-20240116; t=1735813571; c=relaxed/simple;
+	bh=Czb6aXX2yCzHoge+VlRIHz2pmWSjuJOZlfjlLJLxNQQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=KmXH1Y3mdVO8DFbQYiHcTk8PKqrcl/83n/bAJluVBsM5Y8257GKkksABh27gecdLG4j7khgF1pQUdRQBj4cfs2YCUI25MOd1xKmhEcRvToULL4hs9tx4ADCHrzu/ww73ZJBETVXHIoHj4L48fW/VnHOktdygdGkHz48+GSqfbdU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=LNHwV93G; arc=none smtp.client-ip=148.251.105.195
+	 In-Reply-To:Content-Type; b=mZouRRf1R3N/tNYOp4Zd3yj4NyTmBvubJ+5FIcCjMXZQ9RTi3m8AuRVdROL7AeZml/O4mT7/H1QoDOy9nczG0R1QbvWTmpOeHZNaLdjJ1PUk1qeS1P9Ar+PZGNN/7GdXhGXzk6QKRZ3K9nxZEf1eLBjMsy1mwMhcL3jmdapOCoE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=pH8zx77y; arc=none smtp.client-ip=148.251.105.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="LNHwV93G"
+	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="pH8zx77y"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1735813565;
-	bh=ykJuvkkfSPLUvUQaNqnjAoimIgJBLgUoIdS4Mduzc6I=;
+	s=mail; t=1735813568;
+	bh=Czb6aXX2yCzHoge+VlRIHz2pmWSjuJOZlfjlLJLxNQQ=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=LNHwV93GuGolKA/Xp7D0d4fm6xYKC6ai2DD4iQW8e/Gfg6F7sUvKlYlmED7aGzwwM
-	 LvcwkwWBUufowhuNe/0QoRuetd1rCB3mxLbDx9qCMN8fAaNWacclhdTlZbQ5wBAItg
-	 Q2xE3ETWG02IIwYjSSNIgWwNBQLtDzlFDAfnFsOsH+gvawTN/UE2kXtPMSa+mRL/zW
-	 xy65xJVtlsxwvvIsd+/pyVmAl793ssQSA9gpiRppmmjsqS8RpFOdDgu82c32AnpwBi
-	 Iw77BM2oO/OmIWh4/UU+KiNMu9w96tNLzxqyX6qtiAJssrqsFl5xLMaHJWZjdQX9ML
-	 QyXWpByh/lkmg==
+	b=pH8zx77y7dr7sqBwC2P2G0A5wY6tGua8hIQDYA6lkbVtRRYlv4LHj6fX0r8Qa/FDa
+	 CGcNZcGAX4NtkNu1Wo8SmFAnnHKjMQD6SkPPAtBSAw4zNC0jxXGG5F4zoBvC0t31aN
+	 DJIyjjNVGyy3HdH0zvH9lDykHYbBTdv5H2cRE5vzLXEtS6BQb9zZiG6hwN8EBegbK+
+	 4aU2Jbo8dNq85M0o9TmkDhb03cUqwQg/8BkfnCZprSt8aC1whOMACbweuMhy3l0EVt
+	 mF7elsE0aNzTwN4sN2YcQeO2Cu/4TXjZDBrL3FyNQDkjl9WJSr33n6HZx0s9QBW8EV
+	 LB6XIwYI4FJvg==
 Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
 	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
 	(No client certificate requested)
 	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id AA84A17E1556;
-	Thu,  2 Jan 2025 11:26:04 +0100 (CET)
-Message-ID: <2183cbe1-e60c-4bb6-89ab-aa0c4da79afa@collabora.com>
-Date: Thu, 2 Jan 2025 11:26:00 +0100
+	by bali.collaboradmins.com (Postfix) with ESMTPSA id 3463F17E1558;
+	Thu,  2 Jan 2025 11:26:07 +0100 (CET)
+Message-ID: <49874ffe-61b2-4532-b3ce-e5d9e408fdd5@collabora.com>
+Date: Thu, 2 Jan 2025 11:26:07 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -42,11 +42,12 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 5/9] soc: mediatek: mtk-pmic-wrap: add compatible for
- MT6392 PMIC
+Subject: Re: [PATCH 1/9] dt-bindings: mfd: mt6397: Add bindings for MT6392
+ PMIC
 To: Val Packett <val@packett.cool>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
- <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+Cc: Fabien Parent <parent.f@gmail.com>, Rob Herring <robh@kernel.org>,
+ Lee Jones <lee.jones@linaro.org>, Dmitry Torokhov
+ <dmitry.torokhov@gmail.com>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  Conor Dooley <conor+dt@kernel.org>, Sen Chu <sen.chu@mediatek.com>,
  Sean Wang <sean.wang@mediatek.com>, Macpaul Lin <macpaul.lin@mediatek.com>,
  Lee Jones <lee@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
@@ -54,26 +55,27 @@ Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring
  Eddie Huang <eddie.huang@mediatek.com>,
  Alexandre Belloni <alexandre.belloni@bootlin.com>,
  Javier Carrasco <javier.carrasco.cruz@gmail.com>,
- Fabien Parent <parent.f@gmail.com>,
  Yassine Oudjana <y.oudjana@protonmail.com>,
  Chen Zhong <chen.zhong@mediatek.com>, linux-input@vger.kernel.org,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
  linux-mediatek@lists.infradead.org, linux-rtc@vger.kernel.org
 References: <20241226050205.30241-1-val@packett.cool>
- <20241226050205.30241-6-val@packett.cool>
+ <20241226050205.30241-2-val@packett.cool>
 From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
 Content-Language: en-US
-In-Reply-To: <20241226050205.30241-6-val@packett.cool>
+In-Reply-To: <20241226050205.30241-2-val@packett.cool>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Il 26/12/24 05:58, Val Packett ha scritto:
-> The MT6392 PMIC is equivalent to the MT6323 in terms of pwrap.
-> Add the compatible to use the same configuration.
+> From: Fabien Parent <parent.f@gmail.com>
 > 
-> Signed-off-by: Val Packett <val@packett.cool>
+> Add the currently supported bindings for the MT6392 PMIC.
+> 
+> Signed-off-by: Fabien Parent <parent.f@gmail.com>
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> Acked-for-MFD-by: Lee Jones <lee.jones@linaro.org>
 
 Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-
 

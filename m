@@ -1,70 +1,70 @@
-Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A156E1F4E57
-	for <linux-input@vger.kernel.org>; Tue,  7 Jan 2025 19:28:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2323F1D63EB
+	for <linux-input@vger.kernel.org>; Tue,  7 Jan 2025 19:28:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736278121; cv=none; b=cKcr7Z6TW0DiErMPbh7DIMUS9Wu8hXYAvtyR8YBmwZhIDfbofjWSs2mBqxi8kW2NwuN2Hvg7BpTzUcHIYKvchvjbrEapjkuX3Erlrl0h/DG/J18mbWrkKnnraFF9HyCY2GJhvb1TWm9+GRuhgA6m85rGCl/RLtw6xE9pnYX+j9A=
+	t=1736278122; cv=none; b=l/HIcsfzDKBn9LA6i7hIq+FUQY/l0yCoiqHQdI/0SmdUewtMLi1AVoK33D6HCR47aJjlEVDnLDgsah+inxLfrCJ6D+oMckJ7wtUdWTsG4zBUqpLje+p8pg3AM5fsRINNalqEhjsQExPG8ZdYA5ho+rFzt9eP+Y1EoFnNtdC8SLk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736278121; c=relaxed/simple;
-	bh=PYkpndLghyIqImLV4tfMkW2YDKNk+7UerwgGFbcgWgY=;
+	s=arc-20240116; t=1736278122; c=relaxed/simple;
+	bh=P/n75Ovtrb4ZqQdj0fq9YScZ7AJiUzrQuq74F2Rf604=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WQPdhaQ0JSHAiaPMvT3pkOsAbi+tbZb7olrikPv7aWKDyysibbdtF2flRr+jMmgVtSen5CPVpkNAWdL/4f+NpivlfAQQn2AHljJUUYgDl3M+AmyvfGeboZaFuJ9TWJC4nf2LEntbVfMDviMKg4h+nYrb3A4L3SC9kIPhX+MkY7g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CvZJtSkR; arc=none smtp.client-ip=209.85.221.43
+	 MIME-Version; b=bK8G6xHyZ6+MWkgKjuh+B/SwrTLtM1J9HdLLQrtD8Oo6B3zfK1MTpEWDC5LdH4zY5dhWX8G1wLSk5AjoczewzmwXgaAKjdC7JMPcDJz5u8fFwp9XL1BxH5KhjF27enOz9aTVIPTPo8lfKj/NvLaf33okRfgrkX7zS8DyXCF11ic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZISagkg7; arc=none smtp.client-ip=209.85.128.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CvZJtSkR"
-Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-3862d6d5765so9344150f8f.3
-        for <linux-input@vger.kernel.org>; Tue, 07 Jan 2025 11:28:38 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZISagkg7"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-436202dd730so114377985e9.2
+        for <linux-input@vger.kernel.org>; Tue, 07 Jan 2025 11:28:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736278117; x=1736882917; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1736278118; x=1736882918; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=IYLpdHh4E3mL3Yn0cu92Bsjy+0bTJ73f3oV0tyORGVM=;
-        b=CvZJtSkRkcC01ffL4xS1iwtEqXvVMgbadwke+D2laK7os2IRgv6eNUjXF/mB9u9T/k
-         DPx1EpFTfXI79duLlR7K6clpBg68Cr7bw8/RPAmBbyqtwt+PpT3F8SGjpfq5XLrxThAm
-         +oxqZbTleP9FVj7d/iQEn9WdQHj2JzPsxMS5tRTe05oE1NvGP/1vpflZ+Mv5XNf/ewLl
-         5J5WGNw2lVoh++f/EdiiZijtDzcs1ddl7SpxHCe6W89roUlfJdF+yz4oMYnPZKP71hWb
-         lew8YzFq4b3ws8t375ccbj89R7a0mYoN1SAPrK+dB73mSq/TrGMkiupKL5BuAFd8Hjik
-         d2bg==
+        bh=j/3BGgk30uTb5TCZDX8F5vfQGDCdCCFIChHmFGSFnK4=;
+        b=ZISagkg71QB/w36ChB/2MaaFWcLO/ZMDB1ZbjCeRhcupYp38syJf3uapaV2oV5eROQ
+         6nv7Jmj3MOwf05GWvz5P2f9/Yp7dAfC5iEkOptCgnGdL0iymUPXJFhmSdgzt+k0rbtC+
+         3jyh3J7fTbj5/rK5eekIs2N32yZeAas1SirhoMPT0OpHg2okF8mqbLpuPYiz56hFjlO8
+         pke4hPPVh1DetzSouYsUIx1skuNgkBpRRb/zSBw+ARCQkVPscykzNERq1IDIZKafKrdw
+         7/8TFqIZT5+E9jiLQFBZ/lan/KaQzD4E+mOoJ3UK8gpJBSf8rutNY/RW/3Ow5XdnNfZQ
+         C3vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736278117; x=1736882917;
+        d=1e100.net; s=20230601; t=1736278118; x=1736882918;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=IYLpdHh4E3mL3Yn0cu92Bsjy+0bTJ73f3oV0tyORGVM=;
-        b=SulkFDfLNQXrG5ORgcUYm/F6qRRIKMZUlDi/WyNqcwgN+NEBL+UM+mboRDhy7A/OLk
-         J8cbTG1UPkVnlJqzEHPbyYx1gOAUqdTVYhp18ut/jDcwBwkALZrgb4bHm6yK3pSfKh6c
-         mRdvJINqn+bBznH1zTVxeBqVP6ZdJLbEnNv4OO8XJDLQNvJSKvMB/WGQlhdLNZHup66L
-         23j1GGDOguUqG9cMDympgTpTSkFONdwM4wne0svsZI7B1CsZfYRZMpeGRwZMdOuSub93
-         2r2KOtXBkOUyUS2jSKgTCo/Aln8T1KqEIaTopFu7WKhzo7nLXl4qFgSQCogiwCRZ7dO6
-         671g==
-X-Gm-Message-State: AOJu0YwgO1szmI+k6mddM0eynel84OAItXrtCGTKAO/Xe4ULlLp2iEXX
-	5Ss/+vByNMFohr05ayWytEBkdSv/sLDq4HB50gmxEvKG/d1g1sURf450g15Dh9tcNg==
-X-Gm-Gg: ASbGncvGI46QXV0pSHwmF+RFLFaos9O6iqN1hM+q+hgz9fVGVXhgBidmwu5uXUi/o3f
-	6qaUdgGyrQDpmK6Tj+nctqv/pUaTt27h+0ovfdFtgWC++cLRC0DaJ2qD5Lfa3oeWcIux5sACQCU
-	ab9MRatxOV2I+xgYopSFuxtAgcvTv5j64lg2B6RsRnEn63M2E06dJ4QHinNwZRZ6OzEHcmr8MY3
-	OcCCPciN8i0YOhZSqwstn2PeZV8rl2KHKuPCR1ujhttj5WIHz27HHsgfWZCuV9TudQb
-X-Google-Smtp-Source: AGHT+IGdom2JNjUfTk6/NBQlcckXeL3hX7o/R/LUVgKS/e7pgUEBI0L1z3ratUa7B0LGWxOQSvdMtw==
-X-Received: by 2002:adf:c081:0:b0:38a:4184:1529 with SMTP id ffacd0b85a97d-38a418415ddmr24823122f8f.12.1736278116790;
-        Tue, 07 Jan 2025 11:28:36 -0800 (PST)
+        bh=j/3BGgk30uTb5TCZDX8F5vfQGDCdCCFIChHmFGSFnK4=;
+        b=kknPKammsM1cSe58Ptr/I+G+97lZsd68rmSmQoBCpaLyiAK+hBAH42dq8ouWXFW7PS
+         yEbmCO9fJvw0XcGgk5S8W8yc6w1XA7DDN9kuj21LAp8J/6HgrhP3aUt7D8cZ3INkMQhq
+         wzy+B8HdImco3HAe2XrxbcDlWZ9HCQ26SPum1y1lon1k/1xfZC+VwljmM6HE5rRKa1w2
+         xjw73AtmFuATcPL7ZOEQqky8e7svoy0QJJlNj0/AohvkGWfjq6rb1B8Khw5UfSEqur6N
+         oetYBS9IkcUie0I01vuQfQOpnMMiFGtvNSL+QnZwl1lcAUI28mbZTsHN0zMIjWld3Vgv
+         hylA==
+X-Gm-Message-State: AOJu0YzTrg4JIGvGXk/lPUcPoxWnvZ44xQQ8F+L9+KbashIfoH3RsHxR
+	MtQRnAM/hy7WI2Z7WqIeGjy/7nZ5C9xJODOaUVsvU1+GJ+GRFE5GwMUJMp1Cb3vhxw==
+X-Gm-Gg: ASbGncu3UFAZk074q8CaCJY5QCicKdMd5HXClgqAV9wsP92QqBGdO/Dz3WcetDeCF8k
+	aAT/RRa/xE/IXFXUcu1Zh1dlghJRkHhRzYOGKb8BVdjFjbHsF4YLXZqqSA3riDRxBvLsfQIeF0A
+	F9qMZQuKqMLq1mzRRX/llI6L9ZT+nF6Y0GPDYP+O4MlLuxhD5Z819ahnuFH8Gl/ZFoL59Wks7Td
+	YICknp8wbuI1AXAs3KtXF2Xo5yylPZ57ZlwNRCwTVP5FVotc6HmO9nvhWHN9TGDZet6
+X-Google-Smtp-Source: AGHT+IEDI3MYdAhIMTq+Y3BMD8/hkwuMsmUnHcsysyMuWgKCnUNj4TuD91+Yr5zvFWY6PF1qwDHC8A==
+X-Received: by 2002:a05:600c:3b24:b0:436:5165:f206 with SMTP id 5b1f17b1804b1-43668b78debmr578427125e9.31.1736278118142;
+        Tue, 07 Jan 2025 11:28:38 -0800 (PST)
 Received: from deepwhite.fritz.box ([2001:16b8:b4a8:4000:2867:420d:1978:6fdd])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c8acb17sm50456700f8f.97.2025.01.07.11.28.35
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c8acb17sm50456700f8f.97.2025.01.07.11.28.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2025 11:28:36 -0800 (PST)
+        Tue, 07 Jan 2025 11:28:37 -0800 (PST)
 From: Pavel Rojtberg <rojtberg@gmail.com>
 X-Google-Original-From: Pavel Rojtberg < rojtberg@gmail.com >
 To: linux-input@vger.kernel.org,
 	dmitry.torokhov@gmail.com,
 	gregkh@linuxfoundation.org
-Cc: Jack Greiner <jack@emoss.org>,
+Cc: Andrei Ilyashenko <andrei.ilyashenko@gmail.com>,
 	Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH v3 02/11] Input: xpad - add support for wooting two he (arm)
-Date: Tue,  7 Jan 2025 20:28:21 +0100
-Message-ID: <20250107192830.414709-3-rojtberg@gmail.com>
+Subject: [PATCH v3 04/11] Input: xpad - add support for Xbox ONE liquid metal controller
+Date: Tue,  7 Jan 2025 20:28:23 +0100
+Message-ID: <20250107192830.414709-5-rojtberg@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250107192830.414709-1-rojtberg@gmail.com>
 References: <20250107192830.414709-1-rojtberg@gmail.com>
@@ -76,26 +76,38 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Jack Greiner <jack@emoss.org>
+From: Andrei Ilyashenko <andrei.ilyashenko@gmail.com>
 
-Signed-off-by: Jack Greiner <jack@emoss.org>
+I found that my controller wasn't working with this driver.
+The LED would light up and it could rumble but was not registering
+any button presses or joystick movements. I suspected the problem might
+be that it was not being sent some required init packet so I tried
+sending the packets being used in xboxone_init_packets and found that
+sending xboxone_pdp_auth got the controller working.
+At least for my controller xboxone_pdp_led_on was not strictly
+necessary but I decided to follow
+the same pattern used by the other two controllers.
+
+Signed-off-by: Andrei Ilyashenko <andrei.ilyashenko@gmail.com>
 Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 ---
- drivers/input/joystick/xpad.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/joystick/xpad.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 8a02b9a5ef79..ceb08c541b18 100644
+index 7985b7a5cf0e..d1b771457b51 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -380,6 +380,7 @@ static const struct xpad_device {
- 	{ 0x31e3, 0x1200, "Wooting Two", 0, XTYPE_XBOX360 },
- 	{ 0x31e3, 0x1210, "Wooting Lekker", 0, XTYPE_XBOX360 },
- 	{ 0x31e3, 0x1220, "Wooting Two HE", 0, XTYPE_XBOX360 },
-+	{ 0x31e3, 0x1230, "Wooting Two HE (ARM)", 0, XTYPE_XBOX360 },
- 	{ 0x31e3, 0x1300, "Wooting 60HE (AVR)", 0, XTYPE_XBOX360 },
- 	{ 0x31e3, 0x1310, "Wooting 60HE (ARM)", 0, XTYPE_XBOX360 },
- 	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
+@@ -687,7 +687,9 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
+ 	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
+ 	XBOXONE_INIT_PKT(0x045e, 0x0b00, extra_input_packet_init),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_led_on),
++	XBOXONE_INIT_PKT(0x20d6, 0xa01a, xboxone_pdp_led_on),
+ 	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_auth),
++	XBOXONE_INIT_PKT(0x20d6, 0xa01a, xboxone_pdp_auth),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumblebegin_init),
+ 	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumblebegin_init),
 -- 
 2.43.0
 

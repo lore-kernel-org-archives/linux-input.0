@@ -1,70 +1,70 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 424421F543B
-	for <linux-input@vger.kernel.org>; Tue,  7 Jan 2025 19:28:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 811D41D63EB
+	for <linux-input@vger.kernel.org>; Tue,  7 Jan 2025 19:28:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736278122; cv=none; b=fzggBBgODjDQDt1z/sNnTnIzQDwpvZ9Ra5cjQpEzZ6VSVZwIgKIxF1xwhjcIfmGrmKHiN4hx2FprJRw8XXngi/Lwm+bD2azbGIKgYOHfOkBtuJ77gyFQzoqa0KpUSL4A1ezKOLUu+0KIbQbW0qz1AuVP1Z5MUmGuWSyqwfyhoKs=
+	t=1736278124; cv=none; b=FL787rk3/k8XF3cAWBlXfSWh26+324hvBLOpZdk4JUxt7QptAR4nFaOhksBr2HkMBjGPd27PtgRfmXLDQWOgdEFbI4KBu6OrDxVQrYcRRLHml3EQng5yqccgSHYrUHBJ8LLOUPJD0BFgkJqTeculOYFvHrJk8CdwzD4DDbPWIVA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736278122; c=relaxed/simple;
-	bh=k5cmGzAmnHN2qHQFNU6+xaL4/UkteFhAZ39Pfm1KcN0=;
+	s=arc-20240116; t=1736278124; c=relaxed/simple;
+	bh=Bp6xMrdNZL9TY/cNDFbDlgr6l7fvIPI6S6aCL+BNfCE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GmHbo+/TLFrF49P0Yhz65dQglnjJrATpXqPyVlHkGAfX8Ztc0zCaQ6BNo+4SgXfTkKuXjCngCygZtcWgiIxds8Yj6jShjMQkcOlqpuQzajpZ4yPTeD7UOeODDlZxqjdCY4zSHTnbs7pPPCBGLJrx52q1+6cJy+UqsgIVOAAcDsw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JQxm2p2p; arc=none smtp.client-ip=209.85.128.49
+	 MIME-Version; b=fsCJ6gYDn5BNX6hfOmpaj4RXbHsVOYUWsFm0p/9uJpICvdiyNXtxsf5Tddaqrw+XjkA7IesBxFNRmXNCnfKQu1WoqgeZZcvG5tdwRSegfunSlJSG/nYUfzPWlahPGGExFdN/DTN8TswgNqNDOcU8NDcjZCpDq/h7FRA2j96wdvY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X4LpRgI1; arc=none smtp.client-ip=209.85.128.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JQxm2p2p"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4361e89b6daso110138955e9.3
-        for <linux-input@vger.kernel.org>; Tue, 07 Jan 2025 11:28:40 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X4LpRgI1"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-4363ae65100so164350435e9.0
+        for <linux-input@vger.kernel.org>; Tue, 07 Jan 2025 11:28:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736278119; x=1736882919; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1736278121; x=1736882921; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4T4t2rfz5lqd69gRJpi1dCv0E2oXtx3Cac4RxzrHcAI=;
-        b=JQxm2p2pcR9py8Ahz1D095xBpeSo99bDvSj9VS42IvhibY8gMlEvvsV+OSaO5hqqh1
-         96cXhPOjl/O15nKnPivGL3ZdN0sUJDXByYVRFfV5Ep+QguRyrR6Yxk/cxATczIkE8qW8
-         YltUrW2oEcBwXdkv0pzTPO5Gl/Zzv24TPAr2tzkxUYFQW7PBDBYycfKsGc1zVV/5pc7C
-         WTTIXpgU0MwdR83NRmCu3rp8v5TXoxCCebZz05P3RIblhrTomR5P9pK2jFsLshXU2QQ3
-         of3t6HP70xv8tzALkTEepsq5mHHVF4BRYAAfxpDCaBv/65UQ71EvW2iMJJWTMwnnYQRU
-         Utaw==
+        bh=fNFZZmfnbpgq8EWMI6Meo9ZVLy5ORfazJIfWmb6RXn8=;
+        b=X4LpRgI1GSI8VlNcmgRGwumRE96t6xsphT/UycgAlgRfjnaRzqAKEcZrMCmTPeY+Gx
+         j6qx7YpilMI5p3Ewx8TG5q249xJPQJoVEQEOkTI99wMOOhR769UAmC3a85fHY/HO62Hz
+         y64oyV7qGqBKCpIIKzHbGjgrc5Xt2KOSD6rUpR/Q9DQCo47uOg9onwLCLruJFY/zbuvH
+         1pcmKQELm/NEG83AT0HuwGFLiOcHPGitcBhm7MRWYRAp/arqv3T+nSpWkWrlprftLzxR
+         1nZ0t3IO61ZhFqyj/NcrO+Ms2ZnWSjFAGrt3dcW3qMHqO0NJabeiKMpp2AaeUk3OUNN0
+         ABew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736278119; x=1736882919;
+        d=1e100.net; s=20230601; t=1736278121; x=1736882921;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4T4t2rfz5lqd69gRJpi1dCv0E2oXtx3Cac4RxzrHcAI=;
-        b=lGNvYJOPC+PtZ66IT78RSISnpSqFw1tdMbHBrUwXiekWPyGO+CRQm5Cstc8IFOa8Rt
-         rAmUruGdP0M/WEzB5KtI5ILbo4FmMzOx4+DBRTNH905lw71mFFYQfyagMzg4kyY482ZM
-         DSPb8zPylG6pdhNs+bzodf+hAW+/gGCSGYQ7uJCCqcnN687Q5FmMjkTv+h2HtZO0OZut
-         e7tfK2Zsm5pY72vRbyXfrMuQPEmhVpN5RS0gzdMt7chWz+Yb2TV+huT+mXI/ONZyOIbV
-         NtcgF4DNSrgNdScTlLiUgIfpBxwYgkSaB6q1Cnf3hynzOyZQ3nxIWucPlzJp9c+P6dtP
-         UPig==
-X-Gm-Message-State: AOJu0Yz92u7wJQUXSqCFu+w3JglFwcBhKOrch0xoqapCr5qe0LaglEjd
-	Z/i3yhhVMgB5969nzckAXkhEErbNuL5MTHoUz2XM40kcHhMJOQvGgb18swTysqB02Q==
-X-Gm-Gg: ASbGncu5nJrS1srGopx4Fp9mV+yn2u6oUc6lVAZMPSu0wfNi0/6NgGeemcfiGBuTxdk
-	R1hUpx+fLVzg3b01OunEKrqlNBSurYUcdNjTIbJn+L7Mf3gwEWTd/jIM9waD91nGiGLSJFIc+b5
-	deGH8mYRGseodIB+8mjYZF2M2OP1Tsz3eI9yLxhylIsuFz1LyqwOP22HNnDok8xVuvwAIDtzG5c
-	ytQzWXkS+xOmfFG2SaVsqgCVN01mHI84la0oSZj7lfnhUmbuHtZwCNN/oq6Uh/HXUmI
-X-Google-Smtp-Source: AGHT+IFvGiRiyVxVU8mt9Nvt83xgLs6YIA7mC8Vi6pyLxbaNZy80zVYzoH+zB+fvQf9oZElbGGMO+Q==
-X-Received: by 2002:a05:600c:4691:b0:434:9c1b:b36a with SMTP id 5b1f17b1804b1-436cf8e3b67mr121025785e9.13.1736278119467;
-        Tue, 07 Jan 2025 11:28:39 -0800 (PST)
+        bh=fNFZZmfnbpgq8EWMI6Meo9ZVLy5ORfazJIfWmb6RXn8=;
+        b=Cr39I7zm52qCytv+C/x2mS6QmUR9zujaOKyRUlea/dpBR7Z4k/SSkBl8SjlYikZlLW
+         lCQWxlxqGccyoZFI4yAxri8xO7p0UBHgLpscid8AeiMVuGxG/bcU5oonGoDEdLVmxzbk
+         OcGONHfI5PkW066ZeQqXu2Fk1Lcu6gI38q+OBgvhOkXB/DwM/MYdJD8EQUfHxSyp5uHk
+         EmkJ2RFZ08RC+NTDvRPfZJx/trm3UwskT365RmFRTun5D0X/d9dVDNkR/NqVdQMlMsqJ
+         8dUaBmDllsX5Jt46NopdeKIiLa4EU4bvRboL/EhiwRJBhms/PxAsi4eEtts4/0kdzNPq
+         JJoA==
+X-Gm-Message-State: AOJu0YxOrmACfMAAf9TaYpMKwbxkD7nlzjdAXkoXYziFfakrh1B27Hyn
+	huy2qrr3kiAa42IA2dQ4NQG9DRuMJ2wpDP+lW4i8kMoPEuze4DZ0EQWUwVdv01u9xw==
+X-Gm-Gg: ASbGncvvDUxvbvy5bFRU/ceIBlYFzMKaOlHkndP87LIi5prPh7VI4F4r9hBXwkpMTSt
+	HQ41ZF/syr6XM9qB08l/1lqwP8TVDQEK4F/GBqoNV1bPjcPFO2GEBUXWMj6e4MBURQB4B4RXBs1
+	DGk6FwWWg3AFjAhWRS7HlvQivv3U/7oPUOuWXjThMGDNI1u5Jp+arEgBab8O8NXBAVUzuMpqyaS
+	ha7j1Ouj0+5c+Sy+9TnN64mbYYUOcMZy0T0mqewuKy+8ypFODeI7zy8dkFnQ82//azT
+X-Google-Smtp-Source: AGHT+IEqiwykVLKzwzYhVMd0FM/hg4RP7LHox+IErj0cBWW3EhKrsFrrIcrJVKeBNIJpqpf8RsEv+Q==
+X-Received: by 2002:a05:600c:450d:b0:436:2238:97f6 with SMTP id 5b1f17b1804b1-4366835c1ccmr429380785e9.1.1736278120721;
+        Tue, 07 Jan 2025 11:28:40 -0800 (PST)
 Received: from deepwhite.fritz.box ([2001:16b8:b4a8:4000:2867:420d:1978:6fdd])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c8acb17sm50456700f8f.97.2025.01.07.11.28.38
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c8acb17sm50456700f8f.97.2025.01.07.11.28.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Jan 2025 11:28:39 -0800 (PST)
+        Tue, 07 Jan 2025 11:28:40 -0800 (PST)
 From: Pavel Rojtberg <rojtberg@gmail.com>
 X-Google-Original-From: Pavel Rojtberg < rojtberg@gmail.com >
 To: linux-input@vger.kernel.org,
 	dmitry.torokhov@gmail.com,
 	gregkh@linuxfoundation.org
-Cc: Martin Stolpe <martin.stolpe@gmail.com>,
+Cc: Matheos Mattsson <matheos.mattsson@gmail.com>,
 	Pavel Rojtberg <rojtberg@gmail.com>
-Subject: [PATCH v3 06/11] Input: xpad - add USB ID for Nacon Revolution5 Pro
-Date: Tue,  7 Jan 2025 20:28:25 +0100
-Message-ID: <20250107192830.414709-7-rojtberg@gmail.com>
+Subject: [PATCH v3 08/11] Input: xpad - add support for Nacon Evol-X Xbox One Controller
+Date: Tue,  7 Jan 2025 20:28:27 +0100
+Message-ID: <20250107192830.414709-9-rojtberg@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250107192830.414709-1-rojtberg@gmail.com>
 References: <20250107192830.414709-1-rojtberg@gmail.com>
@@ -76,26 +76,34 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Martin Stolpe <martin.stolpe@gmail.com>
+From: Matheos Mattsson <matheos.mattsson@gmail.com>
 
-Signed-off-by: Martin Stolpe <martin.stolpe@gmail.com>
+Signed-off-by: Matheos Mattsson <matheos.mattsson@gmail.com>
 Signed-off-by: Pavel Rojtberg <rojtberg@gmail.com>
 ---
- drivers/input/joystick/xpad.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/joystick/xpad.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index b2716b49d3b6..1cd946b26451 100644
+index 237704b3fab5..18e33e2aeaa7 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -390,6 +390,7 @@ static const struct xpad_device {
- 	{ 0x3285, 0x0603, "Nacon Pro Compact controller for Xbox", 0, XTYPE_XBOXONE },
+@@ -394,6 +394,7 @@ static const struct xpad_device {
  	{ 0x3285, 0x0607, "Nacon GC-100", 0, XTYPE_XBOX360 },
  	{ 0x3285, 0x0614, "Nacon Pro Compact", 0, XTYPE_XBOXONE },
-+	{ 0x3285, 0x0662, "Nacon Revolution5 Pro", 0, XTYPE_XBOX360 },
+ 	{ 0x3285, 0x0662, "Nacon Revolution5 Pro", 0, XTYPE_XBOX360 },
++	{ 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
  	{ 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
  	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
  	{ 0x413d, 0x2104, "Black Shark Green Ghost Gamepad", 0, XTYPE_XBOX360 },
+@@ -543,6 +544,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOXONE_VENDOR(0x2e95),		/* SCUF Gaming Controller */
+ 	XPAD_XBOX360_VENDOR(0x31e3),		/* Wooting Keyboards */
+ 	XPAD_XBOX360_VENDOR(0x3285),		/* Nacon GC-100 */
++	XPAD_XBOXONE_VENDOR(0x3285),		/* Nacon Evol-X */
+ 	XPAD_XBOX360_VENDOR(0x3537),		/* GameSir Controllers */
+ 	XPAD_XBOXONE_VENDOR(0x3537),		/* GameSir Controllers */
+ 	XPAD_XBOX360_VENDOR(0x413d),		/* Black Shark Green Ghost Controller */
 -- 
 2.43.0
 

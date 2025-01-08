@@ -1,66 +1,65 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B3C51FCFE4;
-	Wed,  8 Jan 2025 14:14:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 573071FE461;
+	Wed,  8 Jan 2025 14:14:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736345658; cv=none; b=J8SmJ7tefuCmSAzA2joXJVHU42Bqf8/QC46EiR4xEErzPB+y7hiaqoX/qvpw24b+tk9BJlBbNOG3zJlocwrTlgyCLseXtw72v3Kpw677DY78DqnVFLGMh0E7TPvublhMKU4ZlJZUCvE6/SIDr0xewsXwQtmh4k4l3vPzpVwnp2A=
+	t=1736345660; cv=none; b=L95MiDrBDV2f4ZtQR+8L2NuzUKs15YafvOVpuz3dorqSvw5O4yMjLiam12FnmFFIw/2FwmoPQGXX6SpL6PE+nt7uDPBHwkLfwHw2iy47G0lGIY/sYL2gsD01On9rz9AavAMV6iKnUSzOyZsgrmNKQ8eB5fEs7Zvi3CmQZOcd21M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736345658; c=relaxed/simple;
-	bh=iiRnf4Wt6mhhESchgHXjPJDU1ILplxAAXBKmr7mHB+o=;
+	s=arc-20240116; t=1736345660; c=relaxed/simple;
+	bh=I7mtjfCVJ1O2Vg6443qyW0B5WFDFjRpanCU/ThHHH0E=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=YxqQPBqO3HpWO4BtgNTgeBZrAeMYy4QEQuhX7h4z396lWl1EnuCq0NwGlyLuQHU596wuGWaEsk+M+j0vmYsCsP7nuIaBAyU+4pU91WPqi+3wneV4lVn08F4FiDO0A6wr2XndlJOHszjpUpSGtePJmJBIyR9etKzxlh5iVyGDH2M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZjqLBZpI; arc=none smtp.client-ip=209.85.218.53
+	 In-Reply-To:To:Cc; b=JrwwOIyCxyktee/NVMleAwA9Z2tGjspjDgOvI1rX0SmwHkrd0dyIPAgsZWxmDQ2B0FCtqqIqbJDKmLrvkeIPwwkBn3CxkMrVCQWQS7lDbxM5EGaHlmKhA6SHS9Z7k8bCGs6FzLeKNIDdl0NQX7NNgWlbY39iKYDHr+3NKVW3r6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F/go+vW3; arc=none smtp.client-ip=209.85.218.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZjqLBZpI"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-aa6b4cc7270so2430176166b.0;
-        Wed, 08 Jan 2025 06:14:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F/go+vW3"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-aa69107179cso2799526066b.0;
+        Wed, 08 Jan 2025 06:14:15 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736345651; x=1736950451; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1736345653; x=1736950453; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ny34XKwUX+MJKcT29KzUxMJWJuevNw9zT0IEL+SXaPw=;
-        b=ZjqLBZpIzTOasYhyIQmAh1j1wagtq7WJzft6sJEu6e9X2EInf6m54G/G132/k2tRBf
-         Pllnuy+EgHptzwLJySmh4szrPsZ6NF8opbBrZ5NyvZOCtpGoD/EgulOwCHjUzm3YZULz
-         6CTTjWxQVBYygA7K+0Zu75Q32cgrVG/D46S21vazJK3nMAUuVQhLn5wM3vS0armge3mw
-         CfXd04h1OEES2YahluNtmlw8V0ZqqzcdRVHG3vjeW4VGPF/iWhbGYvQDu/iIUzhMy9iv
-         RpV4g5Znx8/szghwawgV2LueF0by61f4gWGnkXrMPLk6EXKY4cyh5e1xBbnBVCDqB/0N
-         D40g==
+        bh=QAsrsTp1vVx4HKavdMezqlK1BcLoKSQ4OHEn1+GzS2A=;
+        b=F/go+vW3tRiweffasKTeRCub3UTRfcRVEvw4LkqZrsvT1QkYl56ouWjA0NyeNSndJu
+         dHfxbqw1IkbYtMDaMer8I16mNDpHagvuSBqhZMfkdZVp3uD7WvRWfBPlHhxpulUds9FS
+         JsHs9L5f6hG8KD9AIbfmS2esC+UJJpsTFmNvdCg21Vam+IZ2XK/gw+rGJZOE869EsmtQ
+         7UnPGkGg3+EAVVBIvsdhmrXeIlNKrzKIy5Xf3xzznvxk+gRhqPKicq8/uVGd5kgEkvMC
+         nyfd3uP8cwhtByYTcVsifPjro0DNZKzo+eBfZtUZNATjhdACB+y/hwnze7i2xp0dlaxl
+         JqGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736345651; x=1736950451;
+        d=1e100.net; s=20230601; t=1736345653; x=1736950453;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ny34XKwUX+MJKcT29KzUxMJWJuevNw9zT0IEL+SXaPw=;
-        b=XpjgDDryPjrWXCi/CeTKARHwcT+wGf/1gRBvfNBO8VzvyDv4soIBsaCHr411keFKsc
-         HD0JezocDGvH//47K49jdku3aMrHR/AiHIpj/qauVcFBPlBjosiEmaZ3nHbnXSDQ52eV
-         RQvCopKu7jT8G0y4btsmmL2HoUdRJH0k0Hg9TEWHkVYt4gE+ifPDFlms6v/Z7mYT5k+t
-         VHqiBsFEiG1+ozQeFTt6IWb5AmSjMTQ5z1+J2sRPx2mVEDZ1nDykBFoWIBQHE2MwU86v
-         GZi9mSyJ2+Eb3Ur+elcxOL8xGfUFVDZu6z4J0/WpQ95GdsOMSOheOXo8izKAZHLiQUtf
-         wLJA==
-X-Forwarded-Encrypted: i=1; AJvYcCU27oGM9s+qoiDWMXFFKDSbrO4LhyTMpxCtl1R2g/CmMtkln909ciNnX326a4qO0uMjBSIGRZ3MT2CXEQkx@vger.kernel.org, AJvYcCUWWwimxxVgjUk5lAhdn/zwb3wy01Aj3QpJQRGhWEj2IjtXiSxv3OMf4eeeXRb1Mv6AWKShy8neFHt6eg==@vger.kernel.org, AJvYcCVTIINUIzkMgWyIMFdsW7nW9hv8oApwdXG2bvk2xmxgvnvy0iU8FCqmRzb15AYmpmT+42aWy44jTRnUPIo=@vger.kernel.org, AJvYcCXGrlomKoK6XgizNxuGMEv1Z2/woQWo5B17LohtyMEFmrjVX0JW8oXDqtTdlmHCXposr2hgMj2b5NFi@vger.kernel.org
-X-Gm-Message-State: AOJu0YzLNlGVTzwAJlCovs10gk0EtZGIj6UyEMpU7eOXAqdJflYQwUI6
-	bGJ78OWdoLk6tQvVU5Mtqa74K7VhBwyMIZat4aFgoxTPQ9BrZhla
-X-Gm-Gg: ASbGncu5LMo0mrjRWriPtn3lqpGF4E6ezvG9DOlaOvpzfc0vbQ3gPYXddmxAdpl1IqF
-	X01MFIWerXT61n+Ny/WpV0G1JaWnmg1FEeytJhL4Rv33Tnir/mzTzBIFmCItXecYY/YqboSWS87
-	KnZx7D7JSnkPD+OJymNLlqWfOTS0TA/BrwyyW+5OGDOGgkFx7OLL6vzXF1u/glXo1DF3u3GJJfZ
-	C3IyIclqcTyUYFRGlZWbKtCUkl7tCRPKupV/zC0bOE04bWEre4lr9DnZW3EJOmJVnIV1PaHBGlD
-	osDBMOoGLhCidaxLhshkwupqHA==
-X-Google-Smtp-Source: AGHT+IHHnmhZ3qi0gyf3t368dwgvmTxBOD3hjh+LjlYRMGD9VRgDw+Egk9Cr6rifjtSwMfxE6RqAnQ==
-X-Received: by 2002:a05:6402:530f:b0:5d1:2377:5af3 with SMTP id 4fb4d7f45d1cf-5d972e00027mr5942480a12.5.1736345650625;
-        Wed, 08 Jan 2025 06:14:10 -0800 (PST)
+        bh=QAsrsTp1vVx4HKavdMezqlK1BcLoKSQ4OHEn1+GzS2A=;
+        b=e0m8Uw3WmPs8QN8PF1Z8qq/mvGAb6+nw2+RtrPdL0See09q/U0uIvBybWeqPM/22Va
+         sNjkd+se2o5KfuUxFldP3KlL0lmlBx7pbXfCJOE0/fHp8TBNiWHuLXse/g2qzzuguJrs
+         hUQAsH+L4DceqeAEnqRAUZPi+/KMzOuBDhkrnwaWIC0svTcdTZ0lgRZkxSHPSnBbk63T
+         cdLnyEDkr+r2yq3vuSV8lZmr1AX9J59nSUo9ei63U9F0ZeHOyRxAEYcq78Q/0NEY7OYc
+         ZqPRTMsWMxdePeZ1IMvHRI2C7sIu5Nu+Qxo/BHnQO7O3J0ED/YTb0OTzgULZqiOkZAml
+         uYFQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVe/6AXgP0M978ec+VphATWc5taFiuuAKDEYkhtdZaNhNhhoFHMdt0yV+KWmIBBTneW12Xr1zaXgnlW@vger.kernel.org, AJvYcCW3zx6qGMQh/7k4ncU1rM92rCXGJkxUNNGMWIWtd6Waa98xa7BfVgf93JO7GX66p0c/Zfs6lijNm6k0jg==@vger.kernel.org, AJvYcCXIjMQXUawOi/pU8uACj7Z4oxY1u+A1zjsfV5qTNG7HXA1jOgrhfoo3n/sNUsVXzevfDsYPRCqfezls1sg=@vger.kernel.org, AJvYcCXqb7lxK3bUXqVo/4mQBVHOEsEgn4V77PxGUsmPpnIFH+F1jSzaKuJ3c+l12h5c/ywe113uciOx14aDzxcz@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz4itEsMFwcCQwddxjASpqU8hr0nfgqMXP3uh9elLBYtkaLKD8D
+	f9aSZU/X+8N0Sfy74KGrno0Qr8/XEKxBZayBfiRE0PlgpvBYfeq4
+X-Gm-Gg: ASbGncvOJoCeWXKpvEhO4RLoOW3Rn73eN4hw6eNiv2v7vEmSQEKF+wbzyWX9M0DNpDQ
+	fASVY1ToyEg66D0JX3FGoxx2za7+um7Ppun4mgcRsACjlIcX+lAxHLwR0+iCFU2tR0dkQSB/36a
+	T3/90uANpnGnJ+E1lyvifjlCMz1jLnBs3sS3uHjOif8wrZeKGuDxCfjnstN3mjpzaGF+eWWWfvB
+	7Xiyai0B/DpxhMQ22wWtJR2cQBI/EDDHUGUh0DSkATz0jRR0ysaSBbqFmFs+z4yCd4na1pqDw+I
+	pQaJfnD+LHsDH6MiGxhQ7nwppw==
+X-Google-Smtp-Source: AGHT+IGEh+LVPv/D0Mg3OQICJF+cwxS9rog2MJCMJ4L3QLCPHPYJH6o6Fpoe2HikJOse/wolK+fTRA==
+X-Received: by 2002:a17:907:72cf:b0:aaf:c19b:6ca0 with SMTP id a640c23a62f3a-ab2ab66ce98mr241981466b.5.1736345653293;
+        Wed, 08 Jan 2025 06:14:13 -0800 (PST)
 Received: from [127.0.1.1] (nat6-minsk-pool-46-53-210-232.telecom.by. [46.53.210.232])
-        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-aac0efe4941sm2500562666b.95.2025.01.08.06.14.09
+        by smtp.googlemail.com with ESMTPSA id a640c23a62f3a-aac0efe4941sm2500562666b.95.2025.01.08.06.14.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Jan 2025 06:14:10 -0800 (PST)
+        Wed, 08 Jan 2025 06:14:13 -0800 (PST)
 From: Dzmitry Sankouski <dsankouski@gmail.com>
-Date: Wed, 08 Jan 2025 17:13:49 +0300
-Subject: [PATCH v14 05/10] power: supply: max17042: add max77705 fuel gauge
- support
+Date: Wed, 08 Jan 2025 17:13:51 +0300
+Subject: [PATCH v14 07/10] mfd: simple-mfd-i2c: Add MAX77705 support
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -69,7 +68,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250108-starqltechn_integration_upstream-v14-5-f6e84ec20d96@gmail.com>
+Message-Id: <20250108-starqltechn_integration_upstream-v14-7-f6e84ec20d96@gmail.com>
 References: <20250108-starqltechn_integration_upstream-v14-0-f6e84ec20d96@gmail.com>
 In-Reply-To: <20250108-starqltechn_integration_upstream-v14-0-f6e84ec20d96@gmail.com>
 To: Sebastian Reichel <sre@kernel.org>, 
@@ -86,52 +85,53 @@ Cc: linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
  devicetree@vger.kernel.org, linux-input@vger.kernel.org, 
  linux-leds@vger.kernel.org, Dzmitry Sankouski <dsankouski@gmail.com>
 X-Mailer: b4 0.14.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1736345640; l=1366;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1736345640; l=1436;
  i=dsankouski@gmail.com; s=20240619; h=from:subject:message-id;
- bh=iiRnf4Wt6mhhESchgHXjPJDU1ILplxAAXBKmr7mHB+o=;
- b=e3n/SJmIQ+m+1tqyYlTow66FpXac6IJetEnkckrhjejE7c3qZF7uIuJpA2bMBGh64zmAjiFPZ
- df67MVQELdoCTchlq/srtuCPIuK1Ly3UCRGCae4fQ/F1hXpoDkKEsbw
+ bh=I7mtjfCVJ1O2Vg6443qyW0B5WFDFjRpanCU/ThHHH0E=;
+ b=pQqkRhG7P6Z9S4s6K74BVMR+tI2s4Dz0WPDeeEKk00l3/T6eRhGO5wyLt/xv6O5FwFvsebaOG
+ 1fn0qsDGJKtDmjq6VkTFx4WecO7zXYn1Bb1L+X/C3SUKBRw2sDIYm1l
 X-Developer-Key: i=dsankouski@gmail.com; a=ed25519;
  pk=YJcXFcN1EWrzBYuiE2yi5Mn6WLn6L1H71J+f7X8fMag=
 
-Add max77705 fuel gauge support.
+Add MAX77705 support - fuel gauge and hwmon devices.
+Hwmon provides charger input and system bus measurements.
 
 Signed-off-by: Dzmitry Sankouski <dsankouski@gmail.com>
-
 ---
-Changes in v12:
-- add only to platform version IDs
-
-Changes in v11:
-- add device type to compatible
-
-Changes in v10:
-- keep alphabetical order
+Changes in v13:
+- remove compatible from cells
+- change mfd compatible to match max77705 fuel gauge node
 ---
- drivers/power/supply/max17042_battery.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/mfd/simple-mfd-i2c.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/power/supply/max17042_battery.c b/drivers/power/supply/max17042_battery.c
-index 4037843e25bb..655b3f25dbd7 100644
---- a/drivers/power/supply/max17042_battery.c
-+++ b/drivers/power/supply/max17042_battery.c
-@@ -1234,6 +1234,8 @@ static const struct of_device_id max17042_dt_match[] __used = {
- 		.data = (void *) MAXIM_DEVICE_TYPE_MAX17050 },
- 	{ .compatible = "maxim,max17055",
- 		.data = (void *) MAXIM_DEVICE_TYPE_MAX17055 },
-+	{ .compatible = "maxim,max77705-battery",
-+		.data = (void *) MAXIM_DEVICE_TYPE_MAX17047 },
- 	{ .compatible = "maxim,max77849-battery",
- 		.data = (void *) MAXIM_DEVICE_TYPE_MAX17047 },
- 	{ },
-@@ -1256,6 +1258,7 @@ static const struct platform_device_id max17042_platform_id[] = {
- 	{ "max17047", MAXIM_DEVICE_TYPE_MAX17047 },
- 	{ "max17050", MAXIM_DEVICE_TYPE_MAX17050 },
- 	{ "max17055", MAXIM_DEVICE_TYPE_MAX17055 },
-+	{ "max77705-battery", MAXIM_DEVICE_TYPE_MAX17047 },
- 	{ "max77849-battery", MAXIM_DEVICE_TYPE_MAX17047 },
- 	{ }
+diff --git a/drivers/mfd/simple-mfd-i2c.c b/drivers/mfd/simple-mfd-i2c.c
+index 6eda79533208..22159913bea0 100644
+--- a/drivers/mfd/simple-mfd-i2c.c
++++ b/drivers/mfd/simple-mfd-i2c.c
+@@ -83,11 +83,22 @@ static const struct simple_mfd_data maxim_max5970 = {
+ 	.mfd_cell_size = ARRAY_SIZE(max5970_cells),
  };
+ 
++static const struct mfd_cell max77705_sensor_cells[] = {
++	{ .name = "max77705-battery" },
++	{ .name = "max77705-hwmon", },
++};
++
++static const struct simple_mfd_data maxim_mon_max77705 = {
++	.mfd_cell = max77705_sensor_cells,
++	.mfd_cell_size = ARRAY_SIZE(max77705_sensor_cells),
++};
++
+ static const struct of_device_id simple_mfd_i2c_of_match[] = {
+ 	{ .compatible = "kontron,sl28cpld" },
+ 	{ .compatible = "silergy,sy7636a", .data = &silergy_sy7636a},
+ 	{ .compatible = "maxim,max5970", .data = &maxim_max5970},
+ 	{ .compatible = "maxim,max5978", .data = &maxim_max5970},
++	{ .compatible = "maxim,max77705-battery", .data = &maxim_mon_max77705},
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, simple_mfd_i2c_of_match);
 
 -- 
 2.39.5

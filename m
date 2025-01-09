@@ -1,148 +1,126 @@
-Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B187C13B2B8;
-	Thu,  9 Jan 2025 18:37:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B1961ACEAE;
+	Thu,  9 Jan 2025 21:38:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736447864; cv=none; b=Lq9ZQSBmJwqHHg0gzUDoHfOPxyxSmiElHvxbqzKrovanf/UaUO1+iQiaZDCEO4A3Xk3/3UFyA0UxquCcMiAmP62Q6UEDBvjOYA6OtqaMzdD9SqlXvmKl30vi1IwXjYk4Qn22vKaMy9B6eQ/Ls1PxUvP9vDE0vZ1TWNGcvBx8/uM=
+	t=1736458702; cv=none; b=oqU/ruZpiyEK8rVDpeDNJb7Dx4laRNL8V/Jj92oPumbsXMEZ29IG2/bXuEOSsCPban24/CEjdOHwHpYSP9f2WLKr2L/Gu2bAh2NmKyYTanykp9vjRpUrC1fVSDIXJL2X3xjiPa6WEM4ElWmiHPS6rsx1gCwE1hBtqDdTW7rMhjc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736447864; c=relaxed/simple;
-	bh=ucw+uP9EwSHDOcG+pjr12fHHdfM1VZuXNa3NtH5ZJOQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=i2MHEOTjNazd3wuXqg1zhWGz+sAqzVYCkZugwr4CxbeGzf4U4i5UasHVLjpcdFWdqMgf6e9VpST7ljt1cMaRlD6TYyptJPhyYuQMsZPlAxC2zq6iYW+lgnFzjvoIiNQ8C01+TjzjDKDKD+ahFhvQBMxYeYAMyw+ILRzIqIjA6w8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=R1vLQ+yU; arc=none smtp.client-ip=157.90.84.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
+	s=arc-20240116; t=1736458702; c=relaxed/simple;
+	bh=lHm82/t+lVL3wg0HCbo17rZj9DtiUeFI/8E57JUw6DI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=rs56KXFO4s3jIYNwSGL6k2rmqMIrenATHBEPXx1kESxBYpSwUFbm9Nlq2vidRhZnO5PFniXT1iyHc96LTZ83aRmb+fXC7W+dbTuIkcaYZ9C7OXrZkN6mpUk28pKGZTWJaXMFNIb3gXIxok5AEEasRTKJnpSsxL4aVFkEtZpYZ/g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JiS46GID; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="R1vLQ+yU"
-Received: from wse-pc.fritz.box (pd9e5946e.dip0.t-ipconnect.de [217.229.148.110])
-	(Authenticated sender: wse@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPA id 36BF42FC007B;
-	Thu,  9 Jan 2025 19:37:33 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1736447853;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=ufmmxImt2CUdgjCn0jac9WAzrcm/rpKHwW8TaVpqlgs=;
-	b=R1vLQ+yU468zhXurHcTtuPWItXOwCDI+JgHQE4V5SU3CF1EbPSFi+aQsuvTDP8gyjYwTkS
-	Fnb0R9PGmtvZI7pl5Z5oMvr32g75cRlpaULgLtFgCMk+X2pGdxV6loMhmGrgFPtiMwG4kC
-	b7+i/VwFXm5jYyVSIloklcJKGvxpZzQ=
-Authentication-Results: mail.tuxedocomputers.com;
-	auth=pass smtp.auth=wse@tuxedocomputers.com smtp.mailfrom=wse@tuxedocomputers.com
-From: Werner Sembach <wse@tuxedocomputers.com>
-To: Werner Sembach <wse@tuxedocomputers.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	bpf@vger.kernel.org
-Subject: [PATCH] Suppress bogus F13 trigger on Sirius keyboard full fan shortcut
-Date: Thu,  9 Jan 2025 19:37:01 +0100
-Message-ID: <20250109183723.190507-1-wse@tuxedocomputers.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JiS46GID"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 3C0EAC4CEE2;
+	Thu,  9 Jan 2025 21:38:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736458702;
+	bh=lHm82/t+lVL3wg0HCbo17rZj9DtiUeFI/8E57JUw6DI=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=JiS46GIDqAYwGNmWYNMxULHYh+bESaYvRroF6t3swUDtByA5xRvlnRXwlO/tdXra5
+	 3AvI7cGO5gpoic8iUSsWbtEYDeyMOZe6rhFRKJ35fXGK4cBCVK5cl4RF3bSLeOphGi
+	 b4Gc1NIFf9l6FR7t0ZqNQ9BLa7Sf/iTt9yivMOabiibXcJ10xNVXPlcpBQ4FNhGbet
+	 WFg4wdf3bxz5amSXrPc1GW/zx+8EBGwl8HVwfbtLoLuf4MEuhmFu+O4xFf4rNt6cQq
+	 uv/2wExOtFqq7+s4l0u/yfYE0sYhthFqU11enSvNhTX5YRQ+7k0kYR7SA1MZ5ujgUt
+	 cB5FvYPkaZILQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 35245E7719C;
+	Thu,  9 Jan 2025 21:38:22 +0000 (UTC)
+From: Vasiliy Doylov via B4 Relay <devnull+nekodevelopper.gmail.com@kernel.org>
+Date: Fri, 10 Jan 2025 00:37:48 +0300
+Subject: [PATCH v3 2/4] input: cyttsp5: improve read size
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250110-nekocwd-upstreaming-cyttsp5-v3-2-b33659c8effc@gmail.com>
+References: <20250110-nekocwd-upstreaming-cyttsp5-v3-0-b33659c8effc@gmail.com>
+In-Reply-To: <20250110-nekocwd-upstreaming-cyttsp5-v3-0-b33659c8effc@gmail.com>
+To: Linus Walleij <linus.walleij@linaro.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ James Hilliard <james.hilliard1@gmail.com>, 
+ "Vasiliy Doylov (NekoCWD)" <nekodevelopper@gmail.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1879;
+ i=nekodevelopper@gmail.com; h=from:subject:message-id;
+ bh=3F8l24mMNC3+oYN1LDuYXU58jg8ObsK3gJ6DuKE3OoQ=;
+ b=owGbwMvMwCW2fZ/SFZeSpU2Mp9WSGNIbHM9oRe3KnDaD709YrWrb9MsHthw5eHTV1ukX9tUwX
+ iht5mq+1VHKwiDGxSArpshis9Fjtlh+uOSkaU8VYOawMoEMYeDiFICJ3LjFyHAlf/mygpkXpJ+m
+ Pvm8b5Jst/5FuyCp9NRpkk6f0hqjP/9gZHi6uX3nya5dJy4+iMiLW9NwbavthRcCavuvXz10faf
+ Z5hfcAA==
+X-Developer-Key: i=nekodevelopper@gmail.com; a=openpgp;
+ fpr=3CB1489B166F57199296E520B7BE22D44474A582
+X-Endpoint-Received: by B4 Relay for nekodevelopper@gmail.com/default with
+ auth_id=314
+X-Original-From: "Vasiliy Doylov (NekoCWD)" <nekodevelopper@gmail.com>
+Reply-To: nekodevelopper@gmail.com
 
-The TUXEDO Sirius 15 Gen1 and the TUXEDO Sirius 15 Gen2 Notebooks have an
-additional "fan" key next to F12.
+From: "Vasiliy Doylov (NekoCWD)" <nekodevelopper@gmail.com>
 
-Pressing it alone sends a F14 key press which can be bound by user space.
+Before PIP 1.7 empty buffer is 0x0002
+From PIP 1.7, empty buffer is 0xFFXX
 
-Pressing it while holding the FN key triggers two things:
-- The EC firmware locks the fan speed of the internal fans at 100%
-- F13 key press is registered which by default is already bound in xkb and
-  desktop environments (e.g. in KDE Plasma it launches system settings)
-
-To avoid this unexpected double duty of the FN shortcut, this bpf program
-suppresses the F13 key press.
-
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Co-developed-by: James Hilliard <james.hilliard1@gmail.com>
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Signed-off-by: Vasiliy Doylov (NekoCWD) <nekodevelopper@gmail.com>
 ---
- MAINTAINERS                                   |  6 +++
- .../TUXEDO__Sirius-15-Gen1-and-Gen2.bpf.c     | 51 +++++++++++++++++++
- 2 files changed, 57 insertions(+)
- create mode 100644 drivers/hid/bpf/progs/TUXEDO__Sirius-15-Gen1-and-Gen2.bpf.c
+ drivers/input/touchscreen/cyttsp5.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 30cbc3d44cd53..cdd86aaa4d979 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -23924,6 +23924,12 @@ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/lenb/linux.git turbostat
- F:	tools/power/x86/turbostat/
- F:	tools/testing/selftests/turbostat/
+diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscreen/cyttsp5.c
+index ef74b4f190351b99c0722b38ae5fa491a4087ffe..4b73b1abc7e449b2dd0c453b816ce7887d9ddb0e 100644
+--- a/drivers/input/touchscreen/cyttsp5.c
++++ b/drivers/input/touchscreen/cyttsp5.c
+@@ -27,6 +27,7 @@
+ #define CY_I2C_DATA_SIZE			(2 * 256)
+ #define HID_VERSION				0x0100
+ #define CY_MAX_INPUT				512
++#define CY_PIP_1P7_EMPTY_BUF			0xFF00
+ #define CYTTSP5_PREALLOCATED_CMD_BUFFER		32
+ #define CY_BITS_PER_BTN				1
+ #define CY_NUM_BTN_EVENT_ID			GENMASK(CY_BITS_PER_BTN - 1, 0)
+@@ -228,7 +229,11 @@ static int cyttsp5_read(struct cyttsp5 *ts, u8 *buf, u32 max)
+ 		return error;
  
-+TUXEDO SIRIUS 15 GEN1 AND GEN2 BPF KEYBOARD FIX
-+M:	Werner Sembach <wse@tuxedocomputers.com>
-+L:	linux-input@vger.kernel.org
-+S:	Supported
-+F:	drivers/hid/bpf/progs/TUXEDO__Sirius-15-Gen1-and-Gen2.bpf.c
-+
- TW5864 VIDEO4LINUX DRIVER
- M:	Bluecherry Maintainers <maintainers@bluecherrydvr.com>
- M:	Andrey Utkin <andrey.utkin@corp.bluecherry.net>
-diff --git a/drivers/hid/bpf/progs/TUXEDO__Sirius-15-Gen1-and-Gen2.bpf.c b/drivers/hid/bpf/progs/TUXEDO__Sirius-15-Gen1-and-Gen2.bpf.c
-new file mode 100644
-index 0000000000000..e77530bd60a59
---- /dev/null
-+++ b/drivers/hid/bpf/progs/TUXEDO__Sirius-15-Gen1-and-Gen2.bpf.c
-@@ -0,0 +1,51 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/* Copyright (c) 2025 TUXEDO Computers GmbH
-+ */
-+
-+#include "vmlinux.h"
-+#include "hid_bpf.h"
-+#include "hid_bpf_helpers.h"
-+#include <bpf/bpf_tracing.h>
-+
-+HID_BPF_CONFIG(
-+	HID_DEVICE(BUS_USB, HID_GROUP_GENERIC, 0x048D, 0x8910)
-+);
-+
-+SEC(HID_BPF_DEVICE_EVENT)
-+int BPF_PROG(ignore_key_fix_event, struct hid_bpf_ctx *hid_ctx)
-+{
-+	const int expected_length = 37;
-+	const int expected_report_id = 1;
-+	__u8 *data;
-+	int i;
-+
-+	if (hid_ctx->size < expected_length)
-+		return 0;
-+
-+	data = hid_bpf_get_data(hid_ctx, 0, expected_length);
-+	if (!data || data[0] != expected_report_id)
-+		return 0;
-+
-+
-+	// Delete F13 (HID usage ID: 0x68) key press.
-+
-+	// The first 6 parallel key presses (excluding modifier keys) are
-+	// encoded in an array containing usage IDs.
-+	for (i = 3; i < 9; ++i)
-+		if (data[i] == 0x68)
-+			data[i] = 0x00;
-+
-+	// Additional parallel key presses starting with the 7th (excluding
-+	// modifier keys) are encoded as a bit flag with the offset being
-+	// the usage ID.
-+	data[22] &= 0xfe;
-+
-+
-+	return 0;
-+}
-+
-+HID_BPF_OPS(ignore_button) = {
-+	.hid_device_event = (void *)ignore_key_fix_event,
-+};
-+
-+char _license[] SEC("license") = "GPL";
+ 	size = get_unaligned_le16(temp);
+-	if (!size || size == 2)
++	/*
++	 * Before PIP 1.7, empty buffer is 0x0002
++	 * From PIP 1.7, empty buffer is 0xFFXX
++	 */
++	if (!size || size == 2 || size >= CY_PIP_1P7_EMPTY_BUF)
+ 		return 0;
+ 
+ 	if (size > max)
+@@ -708,7 +713,8 @@ static irqreturn_t cyttsp5_handle_irq(int irq, void *handle)
+ 	if (size == 0) {
+ 		/* reset */
+ 		report_id = 0;
+-		size = 2;
++	} else if (size == 2 || size >= CY_PIP_1P7_EMPTY_BUF) {
++		return IRQ_HANDLED;
+ 	} else {
+ 		report_id = ts->input_buf[2];
+ 	}
+@@ -744,7 +750,7 @@ static int cyttsp5_deassert_int(struct cyttsp5 *ts)
+ 		return error;
+ 
+ 	size = get_unaligned_le16(&buf[0]);
+-	if (size == 2 || size == 0)
++	if (size == 2 || size == 0 || size >= CY_PIP_1P7_EMPTY_BUF)
+ 		return 0;
+ 
+ 	return -EINVAL;
+
 -- 
-2.43.0
+2.47.1
+
 

@@ -1,43 +1,62 @@
-Received: from frv71.fwdcdn.com (frv71.fwdcdn.com [212.42.77.71])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id DCAD3EEBB;
-	Sun, 12 Jan 2025 04:28:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.42.77.71
+Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [185.244.194.184])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF30F24B254;
+	Sun, 12 Jan 2025 11:45:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.244.194.184
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736656135; cv=none; b=ozOk1iaoZEImUSaswZOXPplpFBXwee5GW4NcWlwdy8jLT13vHl9tgwoWjTOpL1EAv7wXlaEfkeOmWJG+mYqO9PhfCiYYYSI4kJbqb4mWlqty7taPwG/V/EL8HszZ60EbdbTZUi/O/Sp4Fc2RGElGqBWMaDTEwEo1TMCsxpJfZgQ=
+	t=1736682362; cv=none; b=HoGJt8e9q8GLHMzCyfFxYNhDYrZuc6kq1PZTnIRTfwBsVsvfk+rvX7frzJaSq1CLD4IDzYa6Job0OLqsSEjnVLZHnDlSfrdsHDmJQhcbdjzKOCQvfPMkEjedsJQmyAfUZZUsH5Y7OcS6x+dNN7zUfnQC7fG+Al8rjLb1abX1qrs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736656135; c=relaxed/simple;
-	bh=hxsvDqspgQYMCoFUIng9LGPvQ3XhuxkutcqVLjX0Kak=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UjoNNIRVnqUfv211XCQEkN092ykp5yllugAOZ6rao3JEH5KDJGngJO8cz2oavLPQR+hMB5BwVNSTFiJZnDacgJ/MU2csI+OWQNu2QoPrKEhY4MFTqqbtjFpmZXFoWrRBKyUZkb30IpsN+Y7LO22v9BEDkuPFwTjPMtguuAYJHC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ukr.net; spf=pass smtp.mailfrom=ukr.net; dkim=pass (1024-bit key) header.d=ukr.net header.i=@ukr.net header.b=v2nRJl5c; arc=none smtp.client-ip=212.42.77.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ukr.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ukr.net
+	s=arc-20240116; t=1736682362; c=relaxed/simple;
+	bh=rTEVsmoC9nP3W3gZ2WPh+yMqQSQCcCzHCt8rTbkZLu4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=fSOjdVV5XGadFYybu+mTUP76pXf0RUzyQ/llGFOZPwFNNLbY2LQtmwL8k/h2KitjIqKOs62FLHRqtHQ9zOGGaWtpZTOYNB0G6rLCcKPkxSYkrq7QwyXQ5nTTKTvLRJiRwLCItxTvmYwSFyTaQ2uyyHp8YC0u3mjX1rUwKtuIAcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mayer-bgk.de; spf=pass smtp.mailfrom=mayer-bgk.de; dkim=pass (2048-bit key) header.d=mayer-bgk.de header.i=@mayer-bgk.de header.b=b4kR6zGp; arc=none smtp.client-ip=185.244.194.184
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mayer-bgk.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mayer-bgk.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ukr.net header.i=@ukr.net header.b="v2nRJl5c"
-Received: from frv152.fwdcdn.com ([212.42.77.152]) by frv71.fwdcdn.com QID:1tWpLy-000GX2-0E/RC:2;
-	Sun, 12 Jan 2025 06:13:34 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=ukr.net;
-	s=fsm; h=Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:Cc:To
-	:From:Sender:Reply-To:Content-Type:Content-ID:Content-Description:Resent-Date
-	:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:
-	References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:
-	List-Owner:List-Archive; bh=RYpVg1+IcnhPEUU6BYLqAQkROe7bSQKqkThaeSjaGYo=; b=v
-	2nRJl5cBVzmaV/DiITLeeRpKAUHgpUcTLSccAJIQasEfQiVAAC77afXOSDUaB+MwYMayPQ03pwHsh
-	6krpQe9jc98bwoEx1JfB0FiXCGVjVqeFncesJnAUaaR3lThDHf0P0BZ+dtbvoZMlA0DsEmbD7pDiA
-	1SE1dyATDVwOaDs4=;
-Received: from m106073187065.v4.enabler.ne.jp ([106.73.187.65] helo=Hyperion..)
-	by frv152.fwdcdn.com with esmtpsa ID 1tWpLl-000GO0-1S
-	;
-	Sun, 12 Jan 2025 06:13:22 +0200
-From: Ievgen Vovk <YevgenVovk@ukr.net>
-To: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Ievgen Vovk <YevgenVovk@ukr.net>
-Subject: [PATCH] HID: hid-apple: Apple Magic Keyboard a3203 USB-C support.
-Date: Sun, 12 Jan 2025 13:13:14 +0900
-Message-ID: <20250112041314.11661-1-YevgenVovk@ukr.net>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=mayer-bgk.de header.i=@mayer-bgk.de header.b="b4kR6zGp"
+Received: from relay01-mors.netcup.net (localhost [127.0.0.1])
+	by relay01-mors.netcup.net (Postfix) with ESMTPS id 4YWD9X4H58z91DF;
+	Sun, 12 Jan 2025 12:45:52 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mayer-bgk.de; s=key2;
+	t=1736682352; bh=rTEVsmoC9nP3W3gZ2WPh+yMqQSQCcCzHCt8rTbkZLu4=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=b4kR6zGp2pO2tZAUrj0jI2v4SxQ4VAqg62nmC603WdR5UkkG3+jfdWqO+HsFw9vTu
+	 aEtE2XNQ+z7UpNc2xD8QiYjNIx9cGv3Mp0XbJ8TbxYXwzHmSAUxtnodQOdRTbfKror
+	 KX3fhjfrHAYDCSl74rX8SL+nSXHCjiD5r9pcXnMdOfM3BHj3FRRTD94tCqXWw5nHfi
+	 FWf7FCjZ9Vb2WEUo722psgrn7EmAEMcKehE9AaZzfXfvXSpcnZlNeQcuO0AXQILqlx
+	 vZF8IvarhmQzKCJH0Hq7/oBEWG6wrACjDVIl3po85T0fKf50cJIbW3RwD8hahKFupa
+	 +Cz349Nc2A0cQ==
+Received: from policy02-mors.netcup.net (unknown [46.38.225.35])
+	by relay01-mors.netcup.net (Postfix) with ESMTPS id 4YWD9X3bXwz7xcw;
+	Sun, 12 Jan 2025 12:45:52 +0100 (CET)
+Received: from mxe85d.netcup.net (unknown [10.243.12.53])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by policy02-mors.netcup.net (Postfix) with ESMTPS id 4YWD9X1Zd1z8sb8;
+	Sun, 12 Jan 2025 12:45:52 +0100 (CET)
+Received: from localhost.localdomain (ipbcc1eb64.dynamic.kabel-deutschland.de [188.193.235.100])
+	by mxe85d.netcup.net (Postfix) with ESMTPSA id 8CEEF1C0241;
+	Sun, 12 Jan 2025 12:45:47 +0100 (CET)
+Authentication-Results: mxe85d;
+	spf=pass (sender IP is 188.193.235.100) smtp.mailfrom=git@mayer-bgk.de smtp.helo=localhost.localdomain
+Received-SPF: pass (mxe85d: connection is authenticated)
+From: Christian Mayer <git@mayer-bgk.de>
+To: linux-input@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+	Bastien Nocera <hadess@hadess.net>,
+	Christian Mayer <git@mayer-bgk.de>
+Subject: [PATCH v2 3/5] HID: steelseries: export charging state for the
+ SteelSeries Arctis 9 headset
+Date: Sun, 12 Jan 2025 11:44:04 +0000
+Message-ID: <20250112114438.2196-4-git@mayer-bgk.de>
+X-Mailer: git-send-email 2.48.0
+In-Reply-To: <20250112114438.2196-1-git@mayer-bgk.de>
+References: <20250112114438.2196-1-git@mayer-bgk.de>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -45,54 +64,96 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Authentication-Result: IP=106.73.187.65; mail.from=YevgenVovk@ukr.net; dkim=pass; header.d=ukr.net
-X-Ukrnet-Yellow: 0
+X-PPP-Message-ID: <173668234791.24538.18307518253673257588@mxe85d.netcup.net>
+X-Rspamd-Queue-Id: 8CEEF1C0241
+X-Rspamd-Server: rspamd-worker-8404
+X-NC-CID: qbWT0wvedST9Z/DdjiD4GT/TKurJM+OedzuvxIBJ5UMlGNe5jT8=
 
-Add Apple Magic Keyboard 2024 model (with USB-C port) device ID (0320)
-to those recognized by the hid-apple driver. Keyboard is otherwise
-compatible with the existing implementation for its earlier 2021 model.
+The Arctis 9 headset provides the information if
+the power cable is plugged in and charging via the battery report.
+This information can be exported.
 
-Signed-off-by: Ievgen Vovk <YevgenVovk@ukr.net>
+Signed-off-by: Christian Mayer <git@mayer-bgk.de>
 ---
- drivers/hid/hid-apple.c | 5 +++++
- drivers/hid/hid-ids.h   | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/hid/hid-steelseries.c | 23 ++++++++++++++++++++---
+ 1 file changed, 20 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 7e1ae2a2bcc2..3c3f67d0bfcf 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -474,6 +474,7 @@ static int hidinput_apple_event(struct hid_device *hid, struct input_dev *input,
- 			 hid->product == USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2015)
- 			table = magic_keyboard_2015_fn_keys;
- 		else if (hid->product == USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021 ||
-+			 hid->product == USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2024 ||
- 			 hid->product == USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021 ||
- 			 hid->product == USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021)
- 			table = apple2021_fn_keys;
-@@ -1150,6 +1151,10 @@ static const struct hid_device_id apple_devices[] = {
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2024),
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
-+	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2024),
-+		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
- 		.driver_data = APPLE_HAS_FN | APPLE_ISO_TILDE_QUIRK | APPLE_RDESC_BATTERY },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE, USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021),
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 1f47fda809b9..4f583d6f2eba 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -184,6 +184,7 @@
- #define USB_DEVICE_ID_APPLE_IRCONTROL4	0x8242
- #define USB_DEVICE_ID_APPLE_IRCONTROL5	0x8243
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2021   0x029c
-+#define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_2024   0x0320
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_FINGERPRINT_2021   0x029a
- #define USB_DEVICE_ID_APPLE_MAGIC_KEYBOARD_NUMPAD_2021   0x029f
- #define USB_DEVICE_ID_APPLE_TOUCHBAR_BACKLIGHT 0x8102
+diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
+index 2b98db7f8911..2ee1a6f01852 100644
+--- a/drivers/hid/hid-steelseries.c
++++ b/drivers/hid/hid-steelseries.c
+@@ -33,6 +33,7 @@ struct steelseries_device {
+ 	struct power_supply *battery;
+ 	uint8_t battery_capacity;
+ 	bool headset_connected;
++	bool battery_charging;
+ };
+ 
+ #if IS_BUILTIN(CONFIG_LEDS_CLASS) || \
+@@ -450,9 +451,12 @@ static int steelseries_headset_battery_get_property(struct power_supply *psy,
+ 		val->intval = 1;
+ 		break;
+ 	case POWER_SUPPLY_PROP_STATUS:
+-		val->intval = sd->headset_connected ?
+-			POWER_SUPPLY_STATUS_DISCHARGING :
+-			POWER_SUPPLY_STATUS_UNKNOWN;
++		if (sd->headset_connected) {
++			val->intval = sd->battery_charging ?
++				POWER_SUPPLY_STATUS_CHARGING :
++				POWER_SUPPLY_STATUS_DISCHARGING;
++		} else
++			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+ 		break;
+ 	case POWER_SUPPLY_PROP_SCOPE:
+ 		val->intval = POWER_SUPPLY_SCOPE_DEVICE;
+@@ -514,6 +518,7 @@ static int steelseries_headset_battery_register(struct steelseries_device *sd)
+ 	/* avoid the warning of 0% battery while waiting for the first info */
+ 	steelseries_headset_set_wireless_status(sd->hdev, false);
+ 	sd->battery_capacity = 100;
++	sd->battery_charging = false;
+ 
+ 	sd->battery = devm_power_supply_register(&sd->hdev->dev,
+ 			&sd->battery_desc, &battery_cfg);
+@@ -646,6 +651,7 @@ static int steelseries_headset_raw_event(struct hid_device *hdev,
+ 	struct steelseries_device *sd = hid_get_drvdata(hdev);
+ 	int capacity = sd->battery_capacity;
+ 	bool connected = sd->headset_connected;
++	bool charging = sd->battery_charging;
+ 	unsigned long flags;
+ 
+ 	/* Not a headset */
+@@ -681,6 +687,7 @@ static int steelseries_headset_raw_event(struct hid_device *hdev,
+ 
+ 		if (read_buf[0] == 0xaa && read_buf[1] == 0x01) {
+ 			connected = true;
++			charging = read_buf[4] == 0x01;
+ 
+ 			/*
+ 			 * Found no official documentation about min and max.
+@@ -693,6 +700,7 @@ static int steelseries_headset_raw_event(struct hid_device *hdev,
+ 			 * there is no known status of the device read_buf[0] == 0x55
+ 			 */
+ 			connected = false;
++			charging = false;
+ 		}
+ 	}
+ 
+@@ -713,6 +721,15 @@ static int steelseries_headset_raw_event(struct hid_device *hdev,
+ 		power_supply_changed(sd->battery);
+ 	}
+ 
++	if (charging != sd->battery_charging) {
++		hid_dbg(sd->hdev,
++			"Battery charging status changed from %scharging to %scharging\n",
++			sd->battery_charging ? "" : "not ",
++			charging ? "" : "not ");
++		sd->battery_charging = charging;
++		power_supply_changed(sd->battery);
++	}
++
+ request_battery:
+ 	spin_lock_irqsave(&sd->lock, flags);
+ 	if (!sd->removed)
 -- 
-2.43.0
+2.47.1
 

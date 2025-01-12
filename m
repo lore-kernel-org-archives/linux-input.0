@@ -1,36 +1,36 @@
-Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [46.38.247.119])
+Received: from relay.yourmailgateway.de (relay.yourmailgateway.de [188.68.63.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1D7C1AA7A6;
-	Sun, 12 Jan 2025 11:54:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.38.247.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F26711AA1C0;
+	Sun, 12 Jan 2025 11:55:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.68.63.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736682866; cv=none; b=PnYje93D6yYDNHL4Pz3UIbvLnzrF1BUVIBBZvfp4q79g9g1qKVaGTdWMunfXwVDzZ3Xl3E6Yh259RcT02EZej7ITWkMmfavakXvRnlpT6R+/9iXuiPy4O6pDUsjpstmzOHZbSOh0eZ1ea1zOGFObClb6bjjCUcKVQTbIn75iuhM=
+	t=1736682903; cv=none; b=AOFvdXaMVV5doG0lQJT86JPh8h/1odxNIoa+fMdDB5f9AGpfc4KevRxUW56FNy+HMA/1pP/oOqbQV7NhzokPTKsLGq15LjberQaOw5b/EYEGCEiSeCwJ4VjjJuFwSkbTBWJrHOfjt/mdPiIJBWq75GY748S1OrLres9Zvq8TwnI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736682866; c=relaxed/simple;
-	bh=nqBlht6PLkjaqE1mMZtDv1vYeIhXn3G/s/GZRuYr2mY=;
+	s=arc-20240116; t=1736682903; c=relaxed/simple;
+	bh=h2jJMA4mrHQMGvfB4zJKFlu4n261Lxg9g8UMza6F5P0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=UWa5EbZ8SLy8yad11S1V3uycJbHTWIhgSuUp9sJyG8PO8gPoeysYJWYcMmzfuOPzZ2oX6qfUAL2DAIcV6J5NnN1uNkL+knhf6Jk8U8v1XdPf9va7VCHdfehDVdiO9FNmHQKLElrbf/Drd8IX5xALsvXPFQ9ZNDp33SUgo9af0w8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mayer-bgk.de; spf=pass smtp.mailfrom=mayer-bgk.de; dkim=pass (2048-bit key) header.d=mayer-bgk.de header.i=@mayer-bgk.de header.b=ZWpfD/jG; arc=none smtp.client-ip=46.38.247.119
+	 MIME-Version; b=hsjR16rM31LsoLsicWW0qBsCZBlobvH5lS/04cnxRnikD+9tPl29a1WV7mL7XRHGF46JkwqPxdKGJu7NzqVWz1D12J8wXSnVz4QdEYyjzI0+KTrF+aGt/DobdGV+OkhySqO8YyMtQctC4IqY+v8oiLOaXGTve8fNmHGDlWTQzYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mayer-bgk.de; spf=pass smtp.mailfrom=mayer-bgk.de; dkim=pass (2048-bit key) header.d=mayer-bgk.de header.i=@mayer-bgk.de header.b=RRLUYKLD; arc=none smtp.client-ip=188.68.63.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=mayer-bgk.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mayer-bgk.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mayer-bgk.de header.i=@mayer-bgk.de header.b="ZWpfD/jG"
-Received: from mors-relay-8404.netcup.net (localhost [127.0.0.1])
-	by mors-relay-8404.netcup.net (Postfix) with ESMTPS id 4YWD9S2VyDz82nZ;
-	Sun, 12 Jan 2025 12:45:48 +0100 (CET)
+	dkim=pass (2048-bit key) header.d=mayer-bgk.de header.i=@mayer-bgk.de header.b="RRLUYKLD"
+Received: from mors-relay8203.netcup.net (localhost [127.0.0.1])
+	by mors-relay8203.netcup.net (Postfix) with ESMTPS id 4YWD9d2193z8bWt;
+	Sun, 12 Jan 2025 11:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mayer-bgk.de; s=key2;
-	t=1736682348; bh=nqBlht6PLkjaqE1mMZtDv1vYeIhXn3G/s/GZRuYr2mY=;
+	t=1736682357; bh=h2jJMA4mrHQMGvfB4zJKFlu4n261Lxg9g8UMza6F5P0=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=ZWpfD/jGBRbHYXu3zuMQQa8Ico/IGykst9L/qEwTAS75cndDwxtJrP9WB7Fls2qFq
-	 mMRqEZLkzPWRXqSkKKchvXXMCfClJY3pUNrvxUnkGFnHMROdFX3Vteg3vBwzNUgx++
-	 15XIGsbynijoVLGRCdQZjb6oEglTN5D5I9uMJl6ZZ8jRp2MYXgZQ0m2P8x2t9l7Qty
-	 JR3DfiSTtcD6/MKJWGiRjXEKu4pXSgyT3ApifNSWqIVKYeIo9Fr63oUpcmuM3LbzfV
-	 tfsf++8uJF7aBw37TmJlNIjDieZthw4+azpOLgX7pIvGSaew99zp5EA78h7cTDBDsZ
-	 SQFCijLN2y3hQ==
+	b=RRLUYKLDr8hqsLC2cQexSyu9FV4jhKwEvPiwVC+wzwOWEzUYn4jerfHZc4A4AsppR
+	 8OnBRlKYAU1hICsBQAplQKOO3NRZnOBKqF2/Ep9YPClEagf27ZPNMqY44rfKWos0yb
+	 PiFv2az75sAlkDYsWjbmyO7NhLaQxhPmrfM9PwuWRFj3nqwE5LEyFsJ2BBv3yuKuRN
+	 uQ7Kk6s3jwS7MzlMRKW0GfvPgNjZEABzZ6527x9j2VzCkaMStUm6GbDC2ADqQ2KCMZ
+	 EXo1YvHPGz6vsRA0Vi2V3WVQgnPcdrfccajsn0YeHnyiyf+J+wpwPW4Fsz8QmNsplh
+	 6VMITISbQT8hw==
 Received: from policy01-mors.netcup.net (unknown [46.38.225.35])
-	by mors-relay-8404.netcup.net (Postfix) with ESMTPS id 4YWD9S26CDz4y3x;
-	Sun, 12 Jan 2025 12:45:48 +0100 (CET)
+	by mors-relay8203.netcup.net (Postfix) with ESMTPS id 4YWD9d1H7Sz8bWb;
+	Sun, 12 Jan 2025 11:45:57 +0000 (UTC)
 X-Virus-Scanned: Debian amavisd-new at policy01-mors.netcup.net
 X-Spam-Flag: NO
 X-Spam-Score: -2.898
@@ -39,11 +39,11 @@ Received: from mxe85d.netcup.net (unknown [10.243.12.53])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange ECDHE (P-256) server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by policy01-mors.netcup.net (Postfix) with ESMTPS id 4YWD9R46Mjz8tYH;
-	Sun, 12 Jan 2025 12:45:47 +0100 (CET)
+	by policy01-mors.netcup.net (Postfix) with ESMTPS id 4YWD9c51v6z8tYM;
+	Sun, 12 Jan 2025 12:45:56 +0100 (CET)
 Received: from localhost.localdomain (ipbcc1eb64.dynamic.kabel-deutschland.de [188.193.235.100])
-	by mxe85d.netcup.net (Postfix) with ESMTPSA id F19251C020D;
-	Sun, 12 Jan 2025 12:45:42 +0100 (CET)
+	by mxe85d.netcup.net (Postfix) with ESMTPSA id 1FF5F1C020D;
+	Sun, 12 Jan 2025 12:45:52 +0100 (CET)
 Authentication-Results: mxe85d;
 	spf=pass (sender IP is 188.193.235.100) smtp.mailfrom=git@mayer-bgk.de smtp.helo=localhost.localdomain
 Received-SPF: pass (mxe85d: connection is authenticated)
@@ -54,9 +54,9 @@ Cc: linux-kernel@vger.kernel.org,
 	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
 	Bastien Nocera <hadess@hadess.net>,
 	Christian Mayer <git@mayer-bgk.de>
-Subject: [PATCH v2 2/5] HID: steelseries: add SteelSeries Arctis 9 support
-Date: Sun, 12 Jan 2025 11:44:03 +0000
-Message-ID: <20250112114438.2196-3-git@mayer-bgk.de>
+Subject: [PATCH v2 4/5] HID: steelseries: export model and manufacturer
+Date: Sun, 12 Jan 2025 11:44:05 +0000
+Message-ID: <20250112114438.2196-5-git@mayer-bgk.de>
 X-Mailer: git-send-email 2.48.0
 In-Reply-To: <20250112114438.2196-1-git@mayer-bgk.de>
 References: <20250112114438.2196-1-git@mayer-bgk.de>
@@ -67,159 +67,59 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-PPP-Message-ID: <173668234333.17581.6933279873829176323@mxe85d.netcup.net>
-X-Rspamd-Queue-Id: F19251C020D
+X-PPP-Message-ID: <173668235247.32019.8018917105283969233@mxe85d.netcup.net>
+X-Rspamd-Queue-Id: 1FF5F1C020D
 X-Rspamd-Server: rspamd-worker-8404
-X-NC-CID: NY/xQFHmUdNfwij+wdW7HViO+ollAXLm1SUNq+QDkplxjiiZN3s=
+X-NC-CID: rSRxbZDr/iU+29iRTISce5l6spE3dxZfBna+fQCbD0NsqXY4rBU=
 
-Add support for the SteelSeries Arctis 9 headset. This driver
-will export the battery information like it already does for
-the Arcits 1 headset.
+Export model and manufacturer with the power supply properties.
+This helps identifing the device in the battery overview.
+In the case of the Arctis 9 headset, the manufacturer is prefixed twice in
+the device name.
 
 Signed-off-by: Christian Mayer <git@mayer-bgk.de>
 ---
- drivers/hid/hid-steelseries.c | 64 +++++++++++++++++++++++++++++++++++
- 1 file changed, 64 insertions(+)
+ drivers/hid/hid-steelseries.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
 diff --git a/drivers/hid/hid-steelseries.c b/drivers/hid/hid-steelseries.c
-index dc4ab55d7c22..2b98db7f8911 100644
+index 2ee1a6f01852..1a935802880a 100644
 --- a/drivers/hid/hid-steelseries.c
 +++ b/drivers/hid/hid-steelseries.c
-@@ -19,6 +19,7 @@
- 
- #define STEELSERIES_SRWS1		BIT(0)
- #define STEELSERIES_ARCTIS_1		BIT(1)
-+#define STEELSERIES_ARCTIS_9		BIT(2)
- 
- struct steelseries_device {
- 	struct hid_device *hdev;
-@@ -375,7 +376,9 @@ static void steelseries_srws1_remove(struct hid_device *hdev)
- #define STEELSERIES_HEADSET_BATTERY_TIMEOUT_MS	3000
- 
- #define ARCTIS_1_BATTERY_RESPONSE_LEN		8
-+#define ARCTIS_9_BATTERY_RESPONSE_LEN		64
- static const char arctis_1_battery_request[] = { 0x06, 0x12 };
-+static const char arctis_9_battery_request[] = { 0x00, 0x20 };
- 
- static int steelseries_headset_request_battery(struct hid_device *hdev,
- 	const char *request, size_t len)
-@@ -395,6 +398,7 @@ static int steelseries_headset_request_battery(struct hid_device *hdev,
- 		hid_err(hdev, "hid_hw_raw_request() failed with %d\n", ret);
- 		ret = -ENODATA;
- 	}
-+
- 	kfree(write_buf);
- 	return ret;
- }
-@@ -407,6 +411,9 @@ static void steelseries_headset_fetch_battery(struct hid_device *hdev)
- 	if (sd->quirks & STEELSERIES_ARCTIS_1)
- 		ret = steelseries_headset_request_battery(hdev,
- 			arctis_1_battery_request, sizeof(arctis_1_battery_request));
-+	else if (sd->quirks & STEELSERIES_ARCTIS_9)
-+		ret = steelseries_headset_request_battery(hdev,
-+			arctis_9_battery_request, sizeof(arctis_9_battery_request));
- 
- 	if (ret < 0)
- 		hid_dbg(hdev,
-@@ -522,9 +529,22 @@ static int steelseries_headset_battery_register(struct steelseries_device *sd)
- 	INIT_DELAYED_WORK(&sd->battery_work, steelseries_headset_battery_timer_tick);
- 	steelseries_headset_fetch_battery(sd->hdev);
- 
-+	if (sd->quirks & STEELSERIES_ARCTIS_9) {
-+		/* The first fetch_battery request can remain unanswered in some cases */
-+		schedule_delayed_work(&sd->battery_work,
-+				msecs_to_jiffies(STEELSERIES_HEADSET_BATTERY_TIMEOUT_MS));
-+	}
-+
- 	return 0;
+@@ -439,6 +439,9 @@ static void steelseries_headset_battery_timer_tick(struct work_struct *work)
+ 	steelseries_headset_fetch_battery(hdev);
  }
  
-+static bool steelseries_is_vendor_usage_page(struct hid_device *hdev, uint8_t usage_page)
-+{
-+	return hdev->rdesc[0] == 0x06 &&
-+		hdev->rdesc[1] == usage_page &&
-+		hdev->rdesc[2] == 0xff;
-+}
++#define STEELSERIES_PREFIX "SteelSeries "
++#define STEELSERIES_PREFIX_LEN strlen(STEELSERIES_PREFIX)
 +
- static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id *id)
- {
- 	struct steelseries_device *sd;
-@@ -550,6 +570,10 @@ static int steelseries_probe(struct hid_device *hdev, const struct hid_device_id
- 	if (ret)
- 		return ret;
+ static int steelseries_headset_battery_get_property(struct power_supply *psy,
+ 				enum power_supply_property psp,
+ 				union power_supply_propval *val)
+@@ -447,6 +450,14 @@ static int steelseries_headset_battery_get_property(struct power_supply *psy,
+ 	int ret = 0;
  
-+	if (sd->quirks & STEELSERIES_ARCTIS_9 &&
-+			!steelseries_is_vendor_usage_page(hdev, 0xc0))
-+		return -ENODEV;
-+
- 	spin_lock_init(&sd->lock);
- 
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT);
-@@ -606,6 +630,15 @@ static const __u8 *steelseries_srws1_report_fixup(struct hid_device *hdev,
- 	return rdesc;
+ 	switch (psp) {
++	case POWER_SUPPLY_PROP_MODEL_NAME:
++		val->strval = sd->hdev->name;
++		while (!strncmp(val->strval, STEELSERIES_PREFIX, STEELSERIES_PREFIX_LEN))
++			val->strval += STEELSERIES_PREFIX_LEN;
++		break;
++	case POWER_SUPPLY_PROP_MANUFACTURER:
++		val->strval = "SteelSeries";
++		break;
+ 	case POWER_SUPPLY_PROP_PRESENT:
+ 		val->intval = 1;
+ 		break;
+@@ -490,6 +501,8 @@ steelseries_headset_set_wireless_status(struct hid_device *hdev,
  }
  
-+static uint8_t steelseries_headset_map_capacity(uint8_t capacity, uint8_t min_in, uint8_t max_in)
-+{
-+	if (capacity >= max_in)
-+		return 100;
-+	if (capacity <= min_in)
-+		return 0;
-+	return (capacity - min_in) * 100 / (max_in - min_in);
-+}
-+
- static int steelseries_headset_raw_event(struct hid_device *hdev,
- 					struct hid_report *report, u8 *read_buf,
- 					int size)
-@@ -637,6 +670,32 @@ static int steelseries_headset_raw_event(struct hid_device *hdev,
- 		}
- 	}
- 
-+	if (sd->quirks & STEELSERIES_ARCTIS_9) {
-+		hid_dbg(sd->hdev,
-+			"Parsing raw event for Arctis 9 headset (%*ph)\n", size, read_buf);
-+		if (size < ARCTIS_9_BATTERY_RESPONSE_LEN) {
-+			if (!delayed_work_pending(&sd->battery_work))
-+				goto request_battery;
-+			return 0;
-+		}
-+
-+		if (read_buf[0] == 0xaa && read_buf[1] == 0x01) {
-+			connected = true;
-+
-+			/*
-+			 * Found no official documentation about min and max.
-+			 * Values defined by testing.
-+			 */
-+			capacity = steelseries_headset_map_capacity(read_buf[3], 0x68, 0x9d);
-+		} else {
-+			/*
-+			 * Device is off and sends the last known status read_buf[1] == 0x03 or
-+			 * there is no known status of the device read_buf[0] == 0x55
-+			 */
-+			connected = false;
-+		}
-+	}
-+
- 	if (connected != sd->headset_connected) {
- 		hid_dbg(sd->hdev,
- 			"Connected status changed from %sconnected to %sconnected\n",
-@@ -672,6 +731,10 @@ static const struct hid_device_id steelseries_devices[] = {
- 	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, 0x12b6),
- 	.driver_data = STEELSERIES_ARCTIS_1 },
- 
-+	{ /* SteelSeries Arctis 9 Wireless for XBox */
-+	  HID_USB_DEVICE(USB_VENDOR_ID_STEELSERIES, 0x12c2),
-+	  .driver_data = STEELSERIES_ARCTIS_9 },
-+
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, steelseries_devices);
-@@ -690,3 +753,4 @@ MODULE_DESCRIPTION("HID driver for Steelseries devices");
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Bastien Nocera <hadess@hadess.net>");
- MODULE_AUTHOR("Simon Wood <simon@mungewell.org>");
-+MODULE_AUTHOR("Christian Mayer <git@mayer-bgk.de>");
+ static enum power_supply_property steelseries_headset_battery_props[] = {
++	POWER_SUPPLY_PROP_MODEL_NAME,
++	POWER_SUPPLY_PROP_MANUFACTURER,
+ 	POWER_SUPPLY_PROP_PRESENT,
+ 	POWER_SUPPLY_PROP_STATUS,
+ 	POWER_SUPPLY_PROP_SCOPE,
 -- 
 2.47.1
 

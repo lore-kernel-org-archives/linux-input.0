@@ -1,97 +1,173 @@
-Received: from fllvem-ot04.ext.ti.com (fllvem-ot04.ext.ti.com [198.47.19.246])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A4C82419F4;
-	Thu, 16 Jan 2025 22:40:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.47.19.246
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0A5E46BF;
+	Thu, 16 Jan 2025 22:50:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737067213; cv=none; b=GF7ZhC7vnFHNwgWlBKFUpEJWDv1U+hR7DdXXs8amx4bMcdc6qw82A6tQI0TG+YqtqvHDK2QwaD/VkbyesZNZmVd/Irlpsov2TAFy54C1fMWLI46MIkdfSf1CcWJL7qHbNJYfyDSe1/aCH9xLIUqjLXRq4SfKR5rGE1pldgYxuQo=
+	t=1737067859; cv=none; b=QKqEGLI2t//j7yj4TscAMi/Are2AdYjYt2aqvz3WnWl4bOvNUBasBpA35QbW5ZIvVd7/TL4xv/VqY2mvGceu5ZpRQhmvqukMNly2iOyVZ27NqOrJuiIlQf7l/+4x9+rGHBGKR+r1LEMs2NrZvwoDfDyYE8ngbEaKeRueJY5t/U8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737067213; c=relaxed/simple;
-	bh=I/2vTp+aktN/0LSdfaEusxR723oZozfHiFmjWz4gDls=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QvsjTUb5xo9AJKvrZqBqMxN/rYmfKQ3FimkMy4ofdIvIavXtVvlBT+BZJqxL90FMp9STISDs0yxKIgwmvLZ129eFPdRgHAXbSRHGr+ZviMKA14SWY9SY3rWbEIs1hCtX14+g1P4EcLxmgliBtLulwawoSVeM5x/FRc6b7+N2uKk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=up2Bsqj1; arc=none smtp.client-ip=198.47.19.246
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
+	s=arc-20240116; t=1737067859; c=relaxed/simple;
+	bh=ZzfGMMVD7DQB//ORNV5xPqzbPFE9dA1qGF2GnFwskvI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=ZD60nA8j2SVuS2lGJSoeg7zDEsPwhD0XCBddzdYC/QFuJI1r3WI9NsYHl0gW4vQBS+HmGD8dQp3Za+bcZrJ/EKYQyMzlCblC3cVJ6VZx0B+/TCwBWVZD7kRWsmWgOVTP+O3OZ9b8qzAi+1EEoQ5y6OaQkxZRFBgyjplSfwJXIkY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=fkpeVwKK; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="up2Bsqj1"
-Received: from lelv0265.itg.ti.com ([10.180.67.224])
-	by fllvem-ot04.ext.ti.com (8.15.2/8.15.2) with ESMTPS id 50GMe9Bm089905
-	(version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 16 Jan 2025 16:40:09 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-	s=ti-com-17Q1; t=1737067209;
-	bh=Zqo8/XS6GwaurHobCGLqCfdAPYiRPwlXL6YLW/FlgSg=;
-	h=From:To:CC:Subject:Date;
-	b=up2Bsqj1XAAt7PoKzzqtFLQ2QPe1hYURzwJInd+QDBFkzJa5blwyYNEio/ghuSM68
-	 F48tSCNscX/R3R04zINw9CBJd/UmQZ/N7Ykfocla83Z5pIJXn/e7b9uHCt3fYi2KUi
-	 P5c7sJ0EPuWElrOW1tOhyp8C6QzuUsuYBNe0VY+A=
-Received: from DLEE114.ent.ti.com (dlee114.ent.ti.com [157.170.170.25])
-	by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 50GMe9i2026934
-	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-	Thu, 16 Jan 2025 16:40:09 -0600
-Received: from DLEE103.ent.ti.com (157.170.170.33) by DLEE114.ent.ti.com
- (157.170.170.25) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23; Thu, 16
- Jan 2025 16:40:09 -0600
-Received: from lelvsmtp5.itg.ti.com (10.180.75.250) by DLEE103.ent.ti.com
- (157.170.170.33) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23 via
- Frontend Transport; Thu, 16 Jan 2025 16:40:09 -0600
-Received: from DMZ007XYY.dhcp.ti.com (dmz007xyy.dhcp.ti.com [128.247.29.11])
-	by lelvsmtp5.itg.ti.com (8.15.2/8.15.2) with ESMTP id 50GMe9Lx032403;
-	Thu, 16 Jan 2025 16:40:09 -0600
-From: Shree Ramamoorthy <s-ramamoorthy@ti.com>
-To: <dmitry.torokhov@gmail.com>, <u.kleine-koenig@baylibre.com>,
-        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-CC: <m-leonard@ti.com>, <praneeth@ti.com>
-Subject: [PATCH v1 0/1] Add TI TPS65214 PMIC Input Support
-Date: Thu, 16 Jan 2025 16:40:08 -0600
-Message-ID: <20250116224009.430622-1-s-ramamoorthy@ti.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="fkpeVwKK"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50GEK1cI005681;
+	Thu, 16 Jan 2025 22:50:38 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	ZzfGMMVD7DQB//ORNV5xPqzbPFE9dA1qGF2GnFwskvI=; b=fkpeVwKKlkuB0iFJ
+	AGqEc/qJCpqKF0db60st/XFLcicFEFy/nLITvg6cZ/bxUtzAIqiX/FKMiDqd8xJl
+	DtZ5PeI/byDgd9JJM1NGGXil4ULWs9kxQ929WwO/2ebYiQlM4Gah/ftVEWK+6U2O
+	ScQEE4w0lTQmDVSHYeS531Rx+LITAsGTpsUIcUANaNoD9p1sBmSytuBWM9TDTtH2
+	5pkGe2LwlwgXmBbq5mpo/Pi1GqXl19ZD7UrJr9kIaKKOvouhRGG20zEgbgDrnxui
+	8rp8DuZBbANGnuTv9HY2je10SVWpDA/pSnFEhWyNUgIJ5z5vnoPtKQVU2KCfz8m+
+	4ELIfg==
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4473sfs4mj-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Jan 2025 22:50:38 +0000 (GMT)
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 50GMobPu015214
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 Jan 2025 22:50:37 GMT
+Received: from [10.71.114.255] (10.80.80.8) by nalasex01b.na.qualcomm.com
+ (10.47.209.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Thu, 16 Jan
+ 2025 14:50:36 -0800
+Message-ID: <dc207f37-65e0-48fd-9af9-454e3b8c427e@quicinc.com>
+Date: Thu, 16 Jan 2025 14:50:32 -0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v32 01/32] usb: host: xhci: Repurpose event handler for
+ skipping interrupter events
+To: Mathias Nyman <mathias.nyman@linux.intel.com>,
+        =?UTF-8?Q?Micha=C5=82_Pecio?= <michal.pecio@gmail.com>
+CC: <Thinh.Nguyen@synopsys.com>, <broonie@kernel.org>, <conor+dt@kernel.org>,
+        <corbet@lwn.net>, <devicetree@vger.kernel.org>,
+        <dmitry.torokhov@gmail.com>, <gregkh@linuxfoundation.org>,
+        <krzk+dt@kernel.org>, <lgirdwood@gmail.com>,
+        <linux-arm-msm@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <linux-input@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <linux-sound@vger.kernel.org>, <linux-usb@vger.kernel.org>,
+        <mathias.nyman@intel.com>, <perex@perex.cz>,
+        <pierre-louis.bossart@linux.intel.com>, <robh@kernel.org>,
+        <srinivas.kandagatla@linaro.org>, <tiwai@suse.com>
+References: <20250113143632.63c52d74@foxbook>
+ <f8a9e454-72f4-4979-b29d-109700b2a204@quicinc.com>
+ <20250114150847.1c3c9ebe@foxbook>
+ <5d5e9ba4-d544-416e-b57b-dc5c8692b737@quicinc.com>
+ <45a40d3e-e534-4704-a928-cb36682133dc@linux.intel.com>
+Content-Language: en-US
+From: Wesley Cheng <quic_wcheng@quicinc.com>
+In-Reply-To: <45a40d3e-e534-4704-a928-cb36682133dc@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-C2ProcessedOrg: 333ef613-75bf-4e12-a4b1-8e3623f5dcea
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: 9jZiiLT6KnM8pQPD03tegAhUKHJ9KKff
+X-Proofpoint-ORIG-GUID: 9jZiiLT6KnM8pQPD03tegAhUKHJ9KKff
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-16_10,2025-01-16_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0 phishscore=0
+ impostorscore=0 malwarescore=0 priorityscore=1501 suspectscore=0
+ mlxscore=0 lowpriorityscore=0 clxscore=1015 mlxlogscore=999 adultscore=0
+ bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501160169
 
-TPS65214 is a Power Management Integrated Circuit (PMIC) that has
-significant register map overlap with TPS65215 and TPS65219. The series 
-introduces TPS65214 and adds the device to the multi-PMIC support driver.
+Hi Mathias/Michal,
 
-TPS65215 Driver Series:
-GPIO: https://lore.kernel.org/all/20250113225530.124213-1-s-ramamoorthy@ti.com/
-MFD: https://lore.kernel.org/all/20250113230750.124843-1-s-ramamoorthy@ti.com/
-Reg: https://lore.kernel.org/all/20250113231018.125426-1-s-ramamoorthy@ti.com/
-Input: https://lore.kernel.org/all/20241226220049.398794-1-s-ramamoorthy@ti.com/
+On 1/16/2025 7:15 AM, Mathias Nyman wrote:
+> On 14.1.2025 22.42, Wesley Cheng wrote:
+>> Hi Michal,
+>>
+>> On 1/14/2025 6:08 AM, Michał Pecio wrote:
+>>> Thanks, I think I now see how this is meant to work.
+>>>
+>>>
+>>> Cover leter mostly discusses the ALSA side of things, but not low level
+>>> details of xHCI operation, such as who will be ringing doorbells and
+>>> how, handling IRQs, updating event ring dequeue, or handling halted EPs.
+>>>
+>>> So for the record, as far as I see:
+>>> 1. There is no API for ringing doorbells or even getting a pointer,
+>>>     the coprocessor needs to have its own access. Fair enough.
+>>> 2. Same for event ring dequeue, but the driver must clean up leftover
+>>>     unacknowledged events after sideband operation stops.
+>>> 3. Linux IRQ handler never needs to worry about sideband interrupts.
+>>> 4. Resetting halted endpoints is not implemented at all, I think?
+>>>     So this code is currently mostly useful with isochronous.
+>>
+>>
+>> Yep, all your points about the code with respects to the xHCI perspective is correct.
+>>
+>>
+>>>
+>>> And the 'skip_events' flag only exists to enable ring cleanup when the
+>>> interrupter is removed? In such case I think it's overkill.
+>>>
+>>> The code would be simpler and its intent more visible if 'skip_events'
+>>> were a new parameter of xhci_handle_events(). Existing IRQ would call
+>>> the function normally, while xhci_skip_sec_intr_events() would use the
+>>> new parameter to suppress event handling in this one special case.
+>>>
+>>> It would be immediately clear that skipping only applies on removal.
+>>>
+>>> You could completely get rid of PATCH 01/32 because 02/32 would no
+>>> longer need to set this flag on the interrupter, and the 'if' branch
+>>> adedd by 01/32 could go into 03/32 where it logically belongs.
+>>>
+>>> Just a suggestion. I simply don't see any need to have a flag which
+>>> causes events on a ring to always be skipped as a matter of policy.
+>>> Your code doesn't seem to require it. Probably nobody ever will.
+>
+> Yes, this should works as well, and is maybe a bit cleaner than current
+> flag approach.
+>
+>>>
+>>
+>> In my previous discussions with Mathias, I think the plan was that he wanted it to be built in a way where we should be able to accommodate a use case where the secondary interrupter was going to be actually handled by the Linux side.  This is why the skip_events is populated/defined by the xHCI sideband calls, so that we can differentiate between the secondary interrupter use cases.  Although, it is the correct assumption that this series doesn't actually implement that functionality.
+>>
+>
+> Idea is to support xhci virtualization at some point, but also benefit from
+> moving noisy devices with a lot of events away from filling up the primary
+> event ring.
+>
+> Once a usb device gets its own xhci secondary interrupter with a dedicated
+> event ring for transfer events, and its own MSI/MSI-X interrupt with dedicated
+> interrupt handler, it is easier to support xhci virtualization.
+>
+> In short, support passing one USB device to a virtual machine client.
+>
+> But this is out of scope for this series, so flag or parameter will do.
+>
+> For this "vendor" sideband case we use the secondary interrupter to prevent
+> xCH controller from triggering interrupts for this device. CPU can
+> "sleep" while the audio chip reads and writes TRBs on transfer rings,
+> and  polls dedicated event ring for transfer events.
+>
+>
 
-TPS65219 Cleanup Series:
-GPIO: https://lore.kernel.org/all/20241217204755.1011731-1-s-ramamoorthy@ti.com/
-MFD: https://lore.kernel.org/all/20241217204935.1012106-1-s-ramamoorthy@ti.com/
-Reg: https://lore.kernel.org/all/20241217204526.1010989-1-s-ramamoorthy@ti.com/
+Thanks for chiming in, I have made the change to skip events based on a function argument versus a flag.  It helps, since it reduces the size of this series, and as Michal mentioned, it does look cleaner overall.
 
-- TPS65214 is a Power Management IC with 3 Buck regulators and 2 LDOs.
-- TPS65214 has 2 LDOS and 1 GPO, whereas TPS65219 has 4 LDOs and 2 GPOs.
-- TPS65214's LDO1 maps to TPS65219's LDO3.
-- A key difference between TPS65215 & TPS65214 are the LDO current and
-  voltage output ranges and the configurable options available.
-- The remaining features for both devices are the same.
 
-TPS65214 TRM: https://www.ti.com/lit/pdf/slvud30
+Will submit a new revision with this change.
 
-AM62L + TPS65214 Test Logs:
-https://gist.github.com/ramamoorthyhs/0793f7813332d94423ca1baee02f62c9
 
-Shree Ramamoorthy (1):
-  input: tps65214: Add support for TI TPS65214 PMIC
-
- drivers/input/misc/tps65219-pwrbutton.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
--- 
-2.43.0
+Thanks
+Wesley Cheng
 

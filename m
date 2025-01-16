@@ -1,41 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C8DA24A7ED
-	for <linux-input@vger.kernel.org>; Thu, 16 Jan 2025 01:28:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFE592868B
+	for <linux-input@vger.kernel.org>; Thu, 16 Jan 2025 01:32:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736990913; cv=none; b=bt7IsOP13P64O6li0Bh7iEn7OQDFn20XZachu3oWC4FIZa11qASpIr7Wj5ZaXNyWJiOs6Mf4Ud1ORdbPzbGlo15EIcpljB7sxxHNYVJymG+UrToaqzBVviAgOI/IXeJQxO/qYqlRb1bUAt2MNa4i0KIohjOXbES6Wj7qLBZnRek=
+	t=1736991157; cv=none; b=Gi6o1LE/S7VcijFJThBngHHO83Wilc/Lzf4R0dBpMVbscM6tR7NfphBrPQ3S6zX2u6hmShnKg9gKLMitJSVSI/hOcfXSXXY9qoy0PrOFj1vQwJs9q96Fdz6QVxl8RY+vm6YEr9Umrvh0U0UW0INZcQ+1mqlgLphgT4gwYusYOpA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736990913; c=relaxed/simple;
-	bh=H+0YAExnjokthDQ3VcYRNEGdJ961oUKLCSNh7kck5vM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uwKilajgp2GEwjConQtOEVI+GR+aOiw/YtzfQrbsCoBpckIESJmPJ8rCovL+I0nQD1aDoJcn8kD4FmWPPq9A+k67cAhO4EFvm3dbpYx3oQPVoYo+LetdL7chzy9Ikat8t+ynXcz1pmnXDegN5Aoskk/B8PuGl6YR7qm4MnZndq0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=eJEcBzi4; arc=none smtp.client-ip=173.255.198.10
+	s=arc-20240116; t=1736991157; c=relaxed/simple;
+	bh=fjXWcLYczeAPgJD8bfYBY+9TSwKvxHISgwc9ax97IXg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PvKOu78fpXn3bD/gGwJfHvbZNE8WRm6F7E4jMLfVVIY/AxFY16b7u7gbM+NdHL+eXkBbrsCZHvRtmUqtcp/+Se4oupglcbbOETxICVMnW9I5oKwCzpUAyKzjJiib3zhmiqIJmMvLc8Tc3WPWFhM1F9YhuFOCtxLSDKw6Nhjt7S4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=k9j+zOlW; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="eJEcBzi4"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="k9j+zOlW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1736990910; bh=H+0YAExnjokthDQ3VcYRNEGdJ961oUKLCSNh7kck5vM=;
+	t=1736990733; bh=fjXWcLYczeAPgJD8bfYBY+9TSwKvxHISgwc9ax97IXg=;
 	h=From:To:Cc:Subject:Date:From;
-	b=eJEcBzi4eQuvANSRIR6RV0mb3MG34mhy37R4N0mOZb3Ga/Kc73XxWyMSjfOyGBpru
-	 jH6b5udRXK43SkcRCy0E+SgEGhOX1V7Fmusjo7CtiSHyZC3Ui6XgUNu3Nl6nedi0Hr
-	 OqRGVY7OihsiWE7fvQHzhbRwhQgS1VJPcwxX6iYYQIPtCQFqcEGgvn/zsI3U2yyh5d
-	 h0GiGI6XFmqECGYsT6HV5cHgZXrZdu8akF58ldKl4d10loH7WyApcdVZOGuTyuKR43
-	 UjO+E5oj6PuG/m6dXjxSkz9C4Jjfw/9rGR0M3XLrULXdVtDDqXaHOeNvDDMC2yVL2+
-	 lNLOpue3HpAKA==
+	b=k9j+zOlWiZ1ZXycr04+RHGT0O3uF23RNc0gqF6wZJo4qXtPoq8/Sv4akQw3SCwu4r
+	 ORV9b+LKg5pejwcT+H/nFYcX4D1qaoRewMFE/Qm6O9x7OGHi+ruYbzXoKjbustHWaS
+	 kAsMcnfvjr1bfM8coJNj7wlMPXbqiBYiAH7gIcQEdBKUI8/v0oxmCUqtXn2x2SWGnR
+	 04/FE9lZsVjyZtnXklsQyBqK/wIkFZp1rL7plGT7a4U0jtdHhJvyfDynVHkJL+k+Re
+	 Cuw1/kIqXxxjYzoqaN8dPcNUQT5fHKNGoXZhTHw5oiCiS3xfrFoegl46kkFYBOvn/F
+	 ShMt/+N47raFg==
 Received: from nebulosa.vulpes.eutheria.net (71-212-74-234.tukw.qwest.net [71.212.74.234])
-	by endrift.com (Postfix) with ESMTPSA id 12BFD13208B;
-	Wed, 15 Jan 2025 17:28:30 -0800 (PST)
+	by endrift.com (Postfix) with ESMTPSA id AFABF13208A;
+	Wed, 15 Jan 2025 17:25:32 -0800 (PST)
 From: Vicki Pfau <vi@endrift.com>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
-Cc: Vicki Pfau <vi@endrift.com>,
-	Eugeny Shcheglov <eugenyshcheglov@gmail.com>
-Subject: [PATCH] HID: hid-steam: Fix issues with disabling both gamepad mode and lizard mode
-Date: Wed, 15 Jan 2025 17:28:16 -0800
-Message-ID: <20250116012816.3478021-1-vi@endrift.com>
+Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
+	Vicki Pfau <vi@endrift.com>
+Subject: [PATCH] xpad: Add QH Electronics VID/PID
+Date: Wed, 15 Jan 2025 17:25:18 -0800
+Message-ID: <20250116012518.3476735-1-vi@endrift.com>
 X-Mailer: git-send-email 2.47.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
@@ -45,59 +44,36 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-When lizard mode is disabled, there were two issues:
+From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
 
-1. Switching between gamepad mode and desktop mode still functioned, even
-though desktop mode did not. This lead to the ability to "break" gamepad mode
-by holding down the Options key even while lizard mode is disabled
+Add support for QH Electronics Xbox 360-compatible controller
 
-2. If you were in desktop mode when lizard mode is disabled, you would
-immediately enter this faulty mode.
-
-This patch properly disables the ability to switch between gamepad mode and the
-faulty desktop mode by holding the Options key, as well as effectively removing
-the faulty mode by bypassing the early returns if lizard mode is disabled.
-
-Reported-by: Eugeny Shcheglov <eugenyshcheglov@gmail.com>
+Signed-off-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/hid/hid-steam.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/joystick/xpad.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-steam.c b/drivers/hid/hid-steam.c
-index af38fc8eb34f..b008fd0834b9 100644
---- a/drivers/hid/hid-steam.c
-+++ b/drivers/hid/hid-steam.c
-@@ -1050,10 +1050,10 @@ static void steam_mode_switch_cb(struct work_struct *work)
- 							struct steam_device, mode_switch);
- 	unsigned long flags;
- 	bool client_opened;
--	steam->gamepad_mode = !steam->gamepad_mode;
- 	if (!lizard_mode)
- 		return;
- 
-+	steam->gamepad_mode = !steam->gamepad_mode;
- 	if (steam->gamepad_mode)
- 		steam_set_lizard_mode(steam, false);
- 	else {
-@@ -1599,7 +1599,7 @@ static void steam_do_deck_input_event(struct steam_device *steam,
- 		schedule_delayed_work(&steam->mode_switch, 45 * HZ / 100);
- 	}
- 
--	if (!steam->gamepad_mode)
-+	if (!steam->gamepad_mode && lizard_mode)
- 		return;
- 
- 	lpad_touched = b10 & BIT(3);
-@@ -1669,7 +1669,7 @@ static void steam_do_deck_sensors_event(struct steam_device *steam,
- 	 */
- 	steam->sensor_timestamp_us += 4000;
- 
--	if (!steam->gamepad_mode)
-+	if (!steam->gamepad_mode && lizard_mode)
- 		return;
- 
- 	input_event(sensors, EV_MSC, MSC_TIMESTAMP, steam->sensor_timestamp_us);
+diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+index ff9bc87f2f70..56ae0847cbfd 100644
+--- a/drivers/input/joystick/xpad.c
++++ b/drivers/input/joystick/xpad.c
+@@ -305,6 +305,7 @@ static const struct xpad_device {
+ 	{ 0x1689, 0xfe00, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x17ef, 0x6182, "Lenovo Legion Controller for Windows", 0, XTYPE_XBOX360 },
+ 	{ 0x1949, 0x041a, "Amazon Game Controller", 0, XTYPE_XBOX360 },
++	{ 0x1a86, 0xe310, "QH Electronics Controller", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0002, "Harmonix Rock Band Guitar", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0003, "Harmonix Rock Band Drumkit", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0130, "Ion Drum Rocker", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+@@ -514,6 +515,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
+ 	XPAD_XBOX360_VENDOR(0x17ef),		/* Lenovo */
+ 	XPAD_XBOX360_VENDOR(0x1949),		/* Amazon controllers */
++	XPAD_XBOX360_VENDOR(0x1a86),		/* QH Electronics */
+ 	XPAD_XBOX360_VENDOR(0x1bad),		/* Harmonix Rock Band guitar and drums */
+ 	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA controllers */
+ 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA controllers */
 -- 
 2.47.1
 

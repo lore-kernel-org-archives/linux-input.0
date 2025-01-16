@@ -1,46 +1,46 @@
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2601D2442E3;
-	Thu, 16 Jan 2025 23:29:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CE9D2459D7;
+	Thu, 16 Jan 2025 23:29:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737070147; cv=none; b=XB3IqJFQokhFEX63emcIP0jKOfKts90AJr1QF1kcE0kjWOr4fzFlZ+mCcQpRu4lglZTGAdWh6xeD+LzHg22TMceGIDtrYBKH+DYjzAztI6nfFQN1E5Xwy7V8DBYjEZW7pKBTESqVbVwElm/LJTENV/cH67sTac2F6A5zXMRacgs=
+	t=1737070147; cv=none; b=UDn2XKej4Qa/Yz1bn3ZgSmi9JY3rg/oL1QIMJS84E37+q7oXucbTdsYkiDY5LzjFxQ/ksQDhdqk6JQ2feq9pWkFGVxyLIyDF4FIdOtJ8zDCJ/IWrIR1ymS4QyvvOGNCQicH3yVq5bPX8llQi0+PTejUFswGIUHGbkWS4aCUcjuU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1737070147; c=relaxed/simple;
-	bh=8LFfZvsEZtb7Rvtz20t3R2gyJJLgeD0OdIXEJmaqk0Q=;
+	bh=iAzTbU6tIDBeRuGzeRSfA/tuioEBA3yhbKe6u7zPTP8=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OxdKqiBUHZcbyy63TFudRwhFbNrT6kVy75HS6UmH/72z1qpQTB0HuUrozkFeVuXPOEzmpTJsb1gIH1+rTCGRAgvDtdkAMoifz6oKfLPTWQhf1zT1u1Zqq+x66hchYwbrYzaf9OCgcIST8rj4CLKceLmTajvbABZHn0btq2ZBbRA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=kG3adfvg; arc=none smtp.client-ip=205.220.180.131
+	 MIME-Version:Content-Type; b=r9sdAuZomLtTmxiA+nUAEKkdJynAzDIWi8lzpbTvY5yGtUjMkjtVh90lzHH5wo8voukArPafi8hk3fL6rnZAz+UuCKVgEzOIQXn6Ie3XI7iU4fFNdaDuuswn8vZN0Z3gh+7OgIYBjQnGvlc3cK4PNDQKZ7PWPhvjY9uRrnon+Ns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=jq1IuRCO; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="kG3adfvg"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50GN8nTF013805;
-	Thu, 16 Jan 2025 23:28:45 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="jq1IuRCO"
+Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50GDrbtJ031338;
+	Thu, 16 Jan 2025 23:28:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ttnVezO587R3SiE4KfuBdhmGnpXGor59yM9glqfHyt0=; b=kG3adfvgkkrGEiQy
-	eVVFVeRiN9QhRypOjjL2VtMIUCorFdGcKA59Vg6sMl6UJyJxAOxiCDUGQnJAyFhk
-	U4zJSQCguiXRHjVqo47jVTS/3RTjxWU/OjUYpk3boa3dDz/M6vWdWT9tje1xOAze
-	JrAE3UiNm5BbHKdA0Zf27NQhTJDadtIrl/Tp4qnU1PEvAYecsSl2O14LrE7QULv2
-	nkgoTnCwMXQI7iZRh4Ob58b7pJ0oC1hzNo7vBUCvpFFqFTNvaNWdG789BfMlqGT/
-	E+8rCC7JWm7ImrJEz5t58vmzadeq4P694yQRCQntvVzK4noGHWz513gDVbPXW/30
-	NxMCOw==
-Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 447bgw810q-1
+	MhvroKIUl/yiXBVl3kYsncn6dx79c3y2N2LJ9uw82bA=; b=jq1IuRCOpZ2e4DZg
+	WCinaJy2E78CsXa7gX0Lp2jtWL+/eLhN+hlRaFqjYGBwrg7hFvnlyALehzYslm5w
+	a1Z8uiVi2Z4S8guePT263zn6NQe7DVOqfvlNb+fS+8Vm/euDXbeeu2YP+ScCptxI
+	E1vsYNTO3g20K7PM3XM7io0l04NRwGdPmpzw90hewMB4I7Qd3mz76wMB76nV8MQK
+	ybLorJErtRSwlg1o1CgEB5rhyI+qpmleZKmHR6dOSyj0TEMD1Ae0OCQKRCvUBs/z
+	bI6YdnunD8LqvubUBDWqM+B83TdTyN8bsRwmg0B+ZoBF5YwrVw9oL6MEm+61UNhA
+	2AwRuw==
+Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4473d7h8kp-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jan 2025 23:28:44 +0000 (GMT)
+	Thu, 16 Jan 2025 23:28:48 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 50GNShdq032069
+	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 50GNSlAl031841
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 16 Jan 2025 23:28:44 GMT
+	Thu, 16 Jan 2025 23:28:47 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Thu, 16 Jan 2025 15:28:43 -0800
+ 15.2.1544.9; Thu, 16 Jan 2025 15:28:46 -0800
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -52,9 +52,9 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-sound@vger.kernel.org>, <linux-input@vger.kernel.org>,
         <linux-usb@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
-Subject: [PATCH v33 09/31] ALSA: usb-audio: Check for support for requested audio format
-Date: Thu, 16 Jan 2025 15:28:02 -0800
-Message-ID: <20250116232824.3748438-10-quic_wcheng@quicinc.com>
+Subject: [PATCH v33 21/31] ASoC: dt-bindings: Update example for enabling USB offload on SM8250
+Date: Thu, 16 Jan 2025 15:28:14 -0800
+Message-ID: <20250116232824.3748438-22-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250116232824.3748438-1-quic_wcheng@quicinc.com>
 References: <20250116232824.3748438-1-quic_wcheng@quicinc.com>
@@ -70,80 +70,48 @@ X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: Pp_GSRUd4YtD3YlLiwjr6tnlS18szYgy
-X-Proofpoint-ORIG-GUID: Pp_GSRUd4YtD3YlLiwjr6tnlS18szYgy
+X-Proofpoint-ORIG-GUID: R2bmr0Y3Gvo5KPvNJt0lbCLWxYFcb_pf
+X-Proofpoint-GUID: R2bmr0Y3Gvo5KPvNJt0lbCLWxYFcb_pf
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-16_10,2025-01-16_01,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 bulkscore=0 mlxscore=0 impostorscore=0 clxscore=1015
- lowpriorityscore=0 phishscore=0 mlxlogscore=999 malwarescore=0
- suspectscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501160174
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 clxscore=1015
+ adultscore=0 phishscore=0 impostorscore=0 bulkscore=0 spamscore=0
+ malwarescore=0 lowpriorityscore=0 mlxlogscore=999 suspectscore=0
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2501160173
 
-Allow for checks on a specific USB audio device to see if a requested PCM
-format is supported.  This is needed for support when playback is
-initiated by the ASoC USB backend path.
+Add an example on enabling of USB offload for the Q6DSP.  The routing can
+be done by the mixer, which can pass the multimedia stream to the USB
+backend.
 
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Acked-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- sound/usb/card.c | 32 ++++++++++++++++++++++++++++++++
- sound/usb/card.h |  3 +++
- 2 files changed, 35 insertions(+)
+ .../devicetree/bindings/sound/qcom,sm8250.yaml    | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/sound/usb/card.c b/sound/usb/card.c
-index a0087bde684c..6c5b0e02e57b 100644
---- a/sound/usb/card.c
-+++ b/sound/usb/card.c
-@@ -119,6 +119,38 @@ static DEFINE_MUTEX(register_mutex);
- static struct snd_usb_audio *usb_chip[SNDRV_CARDS];
- static struct usb_driver usb_audio_driver;
- 
-+/*
-+ * Checks to see if requested audio profile, i.e sample rate, # of
-+ * channels, etc... is supported by the substream associated to the
-+ * USB audio device.
-+ */
-+struct snd_usb_stream *
-+snd_usb_find_suppported_substream(int card_idx, struct snd_pcm_hw_params *params,
-+				  int direction)
-+{
-+	struct snd_usb_audio *chip;
-+	struct snd_usb_substream *subs;
-+	struct snd_usb_stream *as;
+diff --git a/Documentation/devicetree/bindings/sound/qcom,sm8250.yaml b/Documentation/devicetree/bindings/sound/qcom,sm8250.yaml
+index b9e33a7429b0..4e208cb7f6c6 100644
+--- a/Documentation/devicetree/bindings/sound/qcom,sm8250.yaml
++++ b/Documentation/devicetree/bindings/sound/qcom,sm8250.yaml
+@@ -190,4 +190,19 @@ examples:
+                 sound-dai = <&vamacro 0>;
+             };
+         };
 +
-+	/*
-+	 * Register mutex is held when populating and clearing usb_chip
-+	 * array.
-+	 */
-+	guard(mutex)(&register_mutex);
-+	chip = usb_chip[card_idx];
++        usb-dai-link {
++            link-name = "USB Playback";
++            cpu {
++                sound-dai = <&q6afedai USB_RX>;
++            };
 +
-+	if (chip && enable[card_idx]) {
-+		list_for_each_entry(as, &chip->pcm_list, list) {
-+			subs = &as->substream[direction];
-+			if (snd_usb_find_substream_format(subs, params))
-+				return as;
-+		}
-+	}
++            codec {
++                sound-dai = <&usbdai USB_RX>;
++            };
 +
-+	return NULL;
-+}
-+EXPORT_SYMBOL_GPL(snd_usb_find_suppported_substream);
-+
- /*
-  * disconnect streams
-  * called from usb_audio_disconnect()
-diff --git a/sound/usb/card.h b/sound/usb/card.h
-index 6ec95b2edf86..4f4f3f39b7fa 100644
---- a/sound/usb/card.h
-+++ b/sound/usb/card.h
-@@ -207,4 +207,7 @@ struct snd_usb_stream {
- 	struct list_head list;
- };
- 
-+struct snd_usb_stream *
-+snd_usb_find_suppported_substream(int card_idx, struct snd_pcm_hw_params *params,
-+				  int direction);
- #endif /* __USBAUDIO_CARD_H */
++            platform {
++                sound-dai = <&q6routing>;
++            };
++        };
+     };

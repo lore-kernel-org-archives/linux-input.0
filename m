@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40C051B0416;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 424DF1B21AA;
 	Sat, 18 Jan 2025 22:43:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737240233; cv=none; b=Nn2LzNWJY6anpghA3wjyybUlUQLUAVt/oQaTlq1aVi8fqrkRZrtMJVZzkdiEJUdSFwyrneGZtoryPZ9K7SUI4dpNjHF/F5aocOQ0iZ8LGf8Nx+5wiNrSfl/Yv+tGsl2waa/n8qiBNlffvLnETnoHh8fxRrc8eYFc7kO7PFcOHzY=
+	t=1737240233; cv=none; b=OJDc4sujO6uGYQn/BxUKDNq8vx4nwW5crHsQNTZMYg8gvsRv9iDhBnda27DZH8Ho0WObWiZv/iC3P/DGALLsWqdLPa71h47/V3Sg4qHB16jhyUA64Xy4Sx3ymZy8/OEshq1cahL196sWAxkuAbZ0ZigXE4idh9xXcRNngdHLuDo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1737240233; c=relaxed/simple;
-	bh=jtDQgJ5TMUog4z+ig7qpmfLNG/e1jX7Y27yVt6nn77Q=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=VlpyRYSfGjOnnILrg5XU2aC+pAAr60SYkd8BnPqUItY8WJojyA2FBY7Hf6lwZQ9wL0nGZXDDttfDirgofKW8JU75CfP5bUEEGzuZO+qiazCal/ngskQ5uZxWFca1tO7nvOjCXMFU227UaInVhoz2jkZzZQEoDaZLcBjXshgO33c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X2+AHIqA; arc=none smtp.client-ip=10.30.226.201
+	bh=DYAWGntup2rCph6GlfbCHRuC5yk0L+gfgddcAOXjdGw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=it37EY7AEioGPV4nme93PgplTbJh5kH8D1IL+KN8+jZrf7o7YmN3j/jngG/nfg0T8EiMGs5XlD7gALqutILea2AXCWhjP90Il2+lR6oKiGrPopMH0rh/YtrdSgBTxdKKH1cpO5n/WC1aoXlOiizTEBRHZGyQPTE5y7XxMas3Uek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a5uxCUue; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X2+AHIqA"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 97BDBC4CED1;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a5uxCUue"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B961CC4CEDF;
 	Sat, 18 Jan 2025 22:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1737240232;
-	bh=jtDQgJ5TMUog4z+ig7qpmfLNG/e1jX7Y27yVt6nn77Q=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=X2+AHIqAIUl9aH/438WpvCtjvIymg4e+u2A/s8Ep7VuaUdQ3jb/a15UEVz/PoqkZW
-	 L3ZstjtqVk0+Epy20X9EAyE8jJLhFKcl1q8qTUcay/oZBRX399mfvTAAGW1MHWiRk4
-	 00CSGn+oWpQ39W40Lber6ONDU9/LMHUnD1vrycOx1YiZbK03eHHVucROlb3S6RAl9r
-	 QKEdF5cOrQLN0zr7GwHkZGeLOm2Sy0ERRhEc2RfbBPGEzFqqRQOCKlzSqvWBMjWj6z
-	 AIPQCz48HDrYAfBl7Wvb+B2oHFrWtOI2H01iJej/YhornZyCFfDLYkLQVbFQQBYLHo
-	 p3gnbKcYND9Qg==
+	bh=DYAWGntup2rCph6GlfbCHRuC5yk0L+gfgddcAOXjdGw=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=a5uxCUuenvStNqPBVvQCwcMjtEbNiF4CxneVFezpAzTodtzjM2RRXY/dvJaeDQDUZ
+	 L8dz6HKT6FVd/EDtM0MajlJ/47t5oCwkrmbD4XSvkrJepcWHF3TWPOvAcah5ByEo0C
+	 NehqAWj3qZN6GXFH2DSncDxuXGXOfZFQwZX4y21Wf3/a4jyjUdJSgC9UyDk3TZycik
+	 /nN/BOTpfc4b8U7h5oy5YWAdm9gN7vPX2D1XrWU8nrx6O/82wlgG04yba/0ltvTAvm
+	 8p0rnElICRiQcdh/z1t0pzsOX/+j2C2M3WWi5wv5AZZ2ClkG+1WIToez9DTZ4kFJvR
+	 7BcpNuQaEahCw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7FF86C02185;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A961BC0218A;
 	Sat, 18 Jan 2025 22:43:52 +0000 (UTC)
 From: Sasha Finkelstein via B4 Relay <devnull+fnkl.kernel.gmail.com@kernel.org>
-Subject: [PATCH v5 0/4] Driver for Apple Z2 touchscreens.
-Date: Sat, 18 Jan 2025 23:42:21 +0100
-Message-Id: <20250118-z2-v5-0-6d38b2582169@gmail.com>
+Date: Sat, 18 Jan 2025 23:42:23 +0100
+Subject: [PATCH v5 2/4] input: apple_z2: Add a driver for Apple Z2
+ touchscreens
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,11 +41,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAE0ujGcC/13MwYrCMBDG8VeRnI3MTDKpetr3kD0kk1QDaqVdi
- mvpu5sGhOLxP8zvm9SQ+pwGddxMqk9jHnJ3L8HbjZKLv5+TzrG0IiCLSFa/SAsgBaZ98hBVeXz
- 0qc3POnL6LX3Jw1/X/9fNEZfrh7uFj6hBizViRRwBxJ/zzefrTrqbWvhIa7KvhAppnAgfQmgRm
- 29iPoShmEpMISyQmDma2OI3sWvCldhCYmMc+oAueFiTeZ7fn1i9Py0BAAA=
-X-Change-ID: 20241124-z2-c012b528ea0d
+Message-Id: <20250118-z2-v5-2-6d38b2582169@gmail.com>
+References: <20250118-z2-v5-0-6d38b2582169@gmail.com>
+In-Reply-To: <20250118-z2-v5-0-6d38b2582169@gmail.com>
 To: Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>, 
  Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
  Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
@@ -53,14 +52,13 @@ To: Hector Martin <marcan@marcan.st>, Sven Peter <sven@svenpeter.dev>,
 Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
  linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Sasha Finkelstein <fnkl.kernel@gmail.com>, 
- Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>, 
- Neal Gompa <neal@gompa.dev>, Janne Grunau <j@jannau.net>
+ Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1737240231; l=2420;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1737240231; l=15809;
  i=fnkl.kernel@gmail.com; s=20241124; h=from:subject:message-id;
- bh=jtDQgJ5TMUog4z+ig7qpmfLNG/e1jX7Y27yVt6nn77Q=;
- b=p8J9xoOLyfzSthaCkOiGJsgHqONtjwG0HEvv0Z+jBE2awomYf00IkK67eejWTz5/ccu6VvySk
- cwuSBI+mlk5A9/L3mZKi8S8+oMdLFsK7ZfY8k1NJ0KdaXI4dhSp//NK
+ bh=Tioc/uVg2UlsBqFkPinTySoucqLIdDivGnHQu5vH+XE=;
+ b=AaUx2ZdOGESGLuqglrLZdtLgxpftpaCMSY/NzVnr3fSJ1QUl2MEO9CErGVLfIehVvXVN7sRxP
+ gS0UrqbikaUBnoz6+4FYJsbcrj+CE31qocFZOIMrg47ZHkvcxU0/weV
 X-Developer-Key: i=fnkl.kernel@gmail.com; a=ed25519;
  pk=aSkp1PdZ+eF4jpMO6oLvz/YfT5XkBUneWwyhQrOgmsU=
 X-Endpoint-Received: by B4 Relay for fnkl.kernel@gmail.com/20241124 with
@@ -68,58 +66,516 @@ X-Endpoint-Received: by B4 Relay for fnkl.kernel@gmail.com/20241124 with
 X-Original-From: Sasha Finkelstein <fnkl.kernel@gmail.com>
 Reply-To: fnkl.kernel@gmail.com
 
-Hi.
+From: Sasha Finkelstein <fnkl.kernel@gmail.com>
 
-This series adds support for Apple touchscreens using the Z2 protocol.
-Those are used as the primary touchscreen on mobile Apple devices, and for the
-touchbar on laptops using the M-series chips. (T1/T2 laptops have a coprocessor
-in charge of speaking Z2 to the touchbar).
+Adds a driver for Apple touchscreens using the Z2 protocol.
 
-Originally sent as a RFC at https://lore.kernel.org/all/20230223-z2-for-ml-v1-0-028f2b85dc15@gmail.com/
-The changes since then mostly address the review feedback, but also
-add another machine that has this specific controller.
-
+Signed-off-by: Janne Grunau <j@jannau.net>
+Reviewed-by: Neal Gompa <neal@gompa.dev>
 Signed-off-by: Sasha Finkelstein <fnkl.kernel@gmail.com>
 ---
-Changes in v5:
-- Added missing \ns, removed 4kb-ish of wasted ram
-- Link to v4: https://lore.kernel.org/r/20250115-z2-v4-0-d7361ab16ba0@gmail.com
+ drivers/input/touchscreen/Kconfig    |  13 +
+ drivers/input/touchscreen/Makefile   |   1 +
+ drivers/input/touchscreen/apple_z2.c | 453 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 467 insertions(+)
 
-Changes in v4:
-- Dropped another allocation, other fixes.
-- Link to v3: https://lore.kernel.org/r/20250112-z2-v3-0-5c0e555d3df1@gmail.com
+diff --git a/drivers/input/touchscreen/Kconfig b/drivers/input/touchscreen/Kconfig
+index 1a03de7fcfa66c0f60768be17d776a79e36e570e..6c885cc58f323b3628538d41460248f8ab1dbf7d 100644
+--- a/drivers/input/touchscreen/Kconfig
++++ b/drivers/input/touchscreen/Kconfig
+@@ -103,6 +103,19 @@ config TOUCHSCREEN_ADC
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called resistive-adc-touch.ko.
+ 
++config TOUCHSCREEN_APPLE_Z2
++	tristate "Apple Z2 touchscreens"
++	default ARCH_APPLE
++	depends on SPI
++	help
++	  Say Y here if you have an Apple device with
++	  a touchscreen or a touchbar.
++
++	  If unsure, say N.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called apple_z2.
++
+ config TOUCHSCREEN_AR1021_I2C
+ 	tristate "Microchip AR1020/1021 i2c touchscreen"
+ 	depends on I2C && OF
+diff --git a/drivers/input/touchscreen/Makefile b/drivers/input/touchscreen/Makefile
+index 82bc837ca01e2ee18c5e9c578765d55ef9fab6d4..97a025c6a3770fb80255246eb63c11688ebd79eb 100644
+--- a/drivers/input/touchscreen/Makefile
++++ b/drivers/input/touchscreen/Makefile
+@@ -15,6 +15,7 @@ obj-$(CONFIG_TOUCHSCREEN_AD7879_I2C)	+= ad7879-i2c.o
+ obj-$(CONFIG_TOUCHSCREEN_AD7879_SPI)	+= ad7879-spi.o
+ obj-$(CONFIG_TOUCHSCREEN_ADC)		+= resistive-adc-touch.o
+ obj-$(CONFIG_TOUCHSCREEN_ADS7846)	+= ads7846.o
++obj-$(CONFIG_TOUCHSCREEN_APPLE_Z2)	+= apple_z2.o
+ obj-$(CONFIG_TOUCHSCREEN_AR1021_I2C)	+= ar1021_i2c.o
+ obj-$(CONFIG_TOUCHSCREEN_ATMEL_MXT)	+= atmel_mxt_ts.o
+ obj-$(CONFIG_TOUCHSCREEN_AUO_PIXCIR)	+= auo-pixcir-ts.o
+diff --git a/drivers/input/touchscreen/apple_z2.c b/drivers/input/touchscreen/apple_z2.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..e244761132212ba0bd962497d5615e3374b34ec4
+--- /dev/null
++++ b/drivers/input/touchscreen/apple_z2.c
+@@ -0,0 +1,453 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Apple Z2 touchscreen driver
++ *
++ * Copyright (C) The Asahi Linux Contributors
++ */
++
++#include <linux/delay.h>
++#include <linux/firmware.h>
++#include <linux/input.h>
++#include <linux/input/mt.h>
++#include <linux/input/touchscreen.h>
++#include <linux/interrupt.h>
++#include <linux/module.h>
++#include <linux/of.h>
++#include <linux/spi/spi.h>
++#include <linux/unaligned.h>
++
++#define APPLE_Z2_NUM_FINGERS_OFFSET      16
++#define APPLE_Z2_FINGERS_OFFSET          24
++#define APPLE_Z2_TOUCH_STARTED           3
++#define APPLE_Z2_TOUCH_MOVED             4
++#define APPLE_Z2_CMD_READ_INTERRUPT_DATA 0xEB
++#define APPLE_Z2_HBPP_CMD_BLOB           0x3001
++#define APPLE_Z2_FW_MAGIC                0x5746325A
++#define LOAD_COMMAND_INIT_PAYLOAD        0
++#define LOAD_COMMAND_SEND_BLOB           1
++#define LOAD_COMMAND_SEND_CALIBRATION    2
++#define CAL_PROP_NAME                    "apple,z2-cal-blob"
++
++struct apple_z2 {
++	struct spi_device *spidev;
++	struct gpio_desc *reset_gpio;
++	struct input_dev *input_dev;
++	struct completion boot_irq;
++	bool booted;
++	int index_parity;
++	struct touchscreen_properties props;
++	const char *fw_name;
++	u8 *tx_buf;
++	u8 *rx_buf;
++};
++
++struct apple_z2_finger {
++	u8 finger;
++	u8 state;
++	__le16 unknown2;
++	__le16 abs_x;
++	__le16 abs_y;
++	__le16 rel_x;
++	__le16 rel_y;
++	__le16 tool_major;
++	__le16 tool_minor;
++	__le16 orientation;
++	__le16 touch_major;
++	__le16 touch_minor;
++	__le16 unused[2];
++	__le16 pressure;
++	__le16 multi;
++} __packed;
++
++struct apple_z2_hbpp_blob_hdr {
++	__le16 cmd;
++	__le16 len;
++	__le32 addr;
++	__le16 checksum;
++};
++
++struct apple_z2_fw_hdr {
++	__le32 magic;
++	__le32 version;
++};
++
++struct apple_z2_read_interrupt_cmd {
++	u8 cmd;
++	u8 counter;
++	u8 unused[12];
++	__le16 checksum;
++};
++
++static void apple_z2_parse_touches(struct apple_z2 *z2, char *msg, size_t msg_len)
++{
++	int i;
++	int nfingers;
++	int slot;
++	int slot_valid;
++	struct apple_z2_finger *fingers;
++
++	if (msg_len <= APPLE_Z2_NUM_FINGERS_OFFSET)
++		return;
++	nfingers = msg[APPLE_Z2_NUM_FINGERS_OFFSET];
++	fingers = (struct apple_z2_finger *)(msg + APPLE_Z2_FINGERS_OFFSET);
++	for (i = 0; i < nfingers; i++) {
++		slot = input_mt_get_slot_by_key(z2->input_dev, fingers[i].finger);
++		if (slot < 0) {
++			dev_warn(&z2->spidev->dev, "unable to get slot for finger\n");
++			continue;
++		}
++		slot_valid = fingers[i].state == APPLE_Z2_TOUCH_STARTED ||
++			     fingers[i].state == APPLE_Z2_TOUCH_MOVED;
++		input_mt_slot(z2->input_dev, slot);
++		if (!input_mt_report_slot_state(z2->input_dev, MT_TOOL_FINGER, slot_valid))
++			continue;
++		touchscreen_report_pos(z2->input_dev, &z2->props, le16_to_cpu(fingers[i].abs_x),
++				       le16_to_cpu(fingers[i].abs_y), true);
++		input_report_abs(z2->input_dev, ABS_MT_WIDTH_MAJOR,
++				 le16_to_cpu(fingers[i].tool_major));
++		input_report_abs(z2->input_dev, ABS_MT_WIDTH_MINOR,
++				 le16_to_cpu(fingers[i].tool_minor));
++		input_report_abs(z2->input_dev, ABS_MT_ORIENTATION,
++				 le16_to_cpu(fingers[i].orientation));
++		input_report_abs(z2->input_dev, ABS_MT_TOUCH_MAJOR,
++				 le16_to_cpu(fingers[i].touch_major));
++		input_report_abs(z2->input_dev, ABS_MT_TOUCH_MINOR,
++				 le16_to_cpu(fingers[i].touch_minor));
++	}
++	input_mt_sync_frame(z2->input_dev);
++	input_sync(z2->input_dev);
++}
++
++static int apple_z2_read_packet(struct apple_z2 *z2)
++{
++	struct apple_z2_read_interrupt_cmd *len_cmd = (void *)z2->tx_buf;
++	struct spi_transfer xfer;
++	int error;
++	size_t pkt_len;
++
++	memset(&xfer, 0, sizeof(xfer));
++	len_cmd->cmd = APPLE_Z2_CMD_READ_INTERRUPT_DATA;
++	len_cmd->counter = z2->index_parity + 1;
++	len_cmd->checksum =
++		cpu_to_le16(APPLE_Z2_CMD_READ_INTERRUPT_DATA + len_cmd->counter);
++	z2->index_parity = !z2->index_parity;
++	xfer.tx_buf = z2->tx_buf;
++	xfer.rx_buf = z2->rx_buf;
++	xfer.len = sizeof(*len_cmd);
++
++	error = spi_sync_transfer(z2->spidev, &xfer, 1);
++	if (error)
++		return error;
++
++	pkt_len = (get_unaligned_le16(z2->rx_buf + 1) + 8) & (-4);
++
++	error = spi_read(z2->spidev, z2->rx_buf, pkt_len);
++	if (error)
++		return error;
++
++	apple_z2_parse_touches(z2, z2->rx_buf + 5, pkt_len - 5);
++
++	return 0;
++}
++
++static irqreturn_t apple_z2_irq(int irq, void *data)
++{
++	struct spi_device *spi = data;
++	struct apple_z2 *z2 = spi_get_drvdata(spi);
++
++	if (unlikely(!z2->booted))
++		complete(&z2->boot_irq);
++	else
++		apple_z2_read_packet(z2);
++
++	return IRQ_HANDLED;
++}
++
++static int apple_z2_build_cal_blob(struct apple_z2 *z2, u32 address, size_t cal_size, char *data)
++{
++	u16 len_words = (cal_size + 3) / 4;
++	size_t hdr_size = sizeof(struct apple_z2_hbpp_blob_hdr);
++	u32 checksum = 0;
++	u16 checksum_hdr = 0;
++	int i;
++	struct apple_z2_hbpp_blob_hdr *hdr;
++	int error;
++
++	hdr = (struct apple_z2_hbpp_blob_hdr *)data;
++	hdr->cmd = cpu_to_le16(APPLE_Z2_HBPP_CMD_BLOB);
++	hdr->len = cpu_to_le16(len_words);
++	hdr->addr = cpu_to_le32(address);
++
++	for (i = 2; i < 8; i++)
++		checksum_hdr += data[i];
++
++	hdr->checksum = cpu_to_le16(checksum_hdr);
++	error = device_property_read_u8_array(&z2->spidev->dev, CAL_PROP_NAME,
++					      data + hdr_size, cal_size);
++	if (error)
++		return error;
++
++	for (i = 0; i < cal_size; i++)
++		checksum += data[i + hdr_size];
++
++	put_unaligned_le32(checksum, data + cal_size + hdr_size);
++	return 0;
++}
++
++static int apple_z2_send_firmware_blob(struct apple_z2 *z2, const char *data, u32 size, bool init)
++{
++	struct spi_message msg;
++	struct spi_transfer blob_xfer, ack_xfer;
++	int error;
++
++	z2->tx_buf[0] = 0x1a;
++	z2->tx_buf[1] = 0xa1;
++
++	spi_message_init(&msg);
++	memset(&blob_xfer, 0, sizeof(blob_xfer));
++	memset(&ack_xfer, 0, sizeof(ack_xfer));
++
++	blob_xfer.tx_buf = data;
++	blob_xfer.len = size;
++	blob_xfer.bits_per_word = init ? 8 : 16;
++	spi_message_add_tail(&blob_xfer, &msg);
++
++	ack_xfer.tx_buf = z2->tx_buf;
++	ack_xfer.len = 2;
++	spi_message_add_tail(&ack_xfer, &msg);
++
++	reinit_completion(&z2->boot_irq);
++	error = spi_sync(z2->spidev, &msg);
++	if (error)
++		return error;
++
++	/* Irq only happens sometimes, but the thing boots reliably nonetheless */
++	wait_for_completion_timeout(&z2->boot_irq, msecs_to_jiffies(20));
++
++	return 0;
++}
++
++static int apple_z2_upload_firmware(struct apple_z2 *z2)
++{
++	const struct apple_z2_fw_hdr *fw_hdr;
++	size_t fw_idx = sizeof(struct apple_z2_fw_hdr);
++	int error;
++	u32 load_cmd;
++	u32 size;
++	u32 address;
++	char *data;
++	bool init;
++	size_t cal_size;
++
++	const struct firmware *fw __free(firmware) = NULL;
++	error = request_firmware(&fw, z2->fw_name, &z2->spidev->dev);
++	if (error) {
++		dev_err(&z2->spidev->dev, "unable to load firmware\n");
++		return error;
++	}
++
++	fw_hdr = (const struct apple_z2_fw_hdr *)fw->data;
++	if (le32_to_cpu(fw_hdr->magic) != APPLE_Z2_FW_MAGIC || le32_to_cpu(fw_hdr->version) != 1) {
++		dev_err(&z2->spidev->dev, "invalid firmware header\n");
++		return -EINVAL;
++	}
++
++	/*
++	 * This will interrupt the upload half-way if the file is malformed
++	 * As the device has no non-volatile storage to corrupt, and gets reset
++	 * on boot anyway, this is fine.
++	 */
++	while (fw_idx < fw->size) {
++		if (fw->size - fw_idx < 8) {
++			dev_err(&z2->spidev->dev, "firmware malformed\n");
++			return -EINVAL;
++		}
++
++		load_cmd = le32_to_cpu(*(__le32 *)(fw->data + fw_idx));
++		fw_idx += sizeof(u32);
++		if (load_cmd == LOAD_COMMAND_INIT_PAYLOAD || load_cmd == LOAD_COMMAND_SEND_BLOB) {
++			size = le32_to_cpu(*(__le32 *)(fw->data + fw_idx));
++			fw_idx += sizeof(u32);
++			if (fw->size - fw_idx < size) {
++				dev_err(&z2->spidev->dev, "firmware malformed\n");
++				return -EINVAL;
++			}
++			init = load_cmd == LOAD_COMMAND_INIT_PAYLOAD;
++			error = apple_z2_send_firmware_blob(z2, fw->data + fw_idx,
++							    size, init);
++			if (error)
++				return error;
++			fw_idx += size;
++		} else if (load_cmd == LOAD_COMMAND_SEND_CALIBRATION) {
++			address = le32_to_cpu(*(u32 *)(fw->data + fw_idx));
++			fw_idx += sizeof(u32);
++			cal_size = device_property_count_u8(&z2->spidev->dev, CAL_PROP_NAME);
++			if (cal_size != 0) {
++				size = cal_size + sizeof(struct apple_z2_hbpp_blob_hdr) + 4;
++				data = kzalloc(size, GFP_KERNEL);
++				error = apple_z2_build_cal_blob(z2, address, cal_size, data);
++				if (!error)
++					error = apple_z2_send_firmware_blob(z2, data, size, 16);
++				kfree(data);
++				if (error)
++					return error;
++			}
++		} else {
++			dev_err(&z2->spidev->dev, "firmware malformed\n");
++			return -EINVAL;
++		}
++		if (fw_idx % 4 != 0)
++			fw_idx += 4 - (fw_idx % 4);
++	}
++
++
++	z2->booted = true;
++	apple_z2_read_packet(z2);
++	return 0;
++}
++
++static int apple_z2_boot(struct apple_z2 *z2)
++{
++	int timeout;
++	int error;
++
++	reinit_completion(&z2->boot_irq);
++	enable_irq(z2->spidev->irq);
++	gpiod_set_value(z2->reset_gpio, 0);
++	timeout = wait_for_completion_timeout(&z2->boot_irq, msecs_to_jiffies(20));
++	if (timeout == 0)
++		return -ETIMEDOUT;
++
++	error = apple_z2_upload_firmware(z2);
++	if (error) {
++		gpiod_set_value(z2->reset_gpio, 1);
++		disable_irq(z2->spidev->irq);
++	}
++	return error;
++}
++
++static int apple_z2_probe(struct spi_device *spi)
++{
++	struct device *dev = &spi->dev;
++	struct apple_z2 *z2;
++	int error;
++
++	z2 = devm_kzalloc(dev, sizeof(*z2), GFP_KERNEL);
++	if (!z2)
++		return -ENOMEM;
++
++	z2->tx_buf = devm_kzalloc(dev, sizeof(struct apple_z2_read_interrupt_cmd), GFP_KERNEL);
++	/* 4096 will end up being rounded up to 8192 due to devres header */
++	z2->rx_buf = devm_kzalloc(dev, 4000, GFP_KERNEL);
++	if (!z2->tx_buf || !z2->rx_buf)
++		return -ENOMEM;
++
++	z2->spidev = spi;
++	init_completion(&z2->boot_irq);
++	spi_set_drvdata(spi, z2);
++
++	/* Reset the device on boot */
++	z2->reset_gpio = devm_gpiod_get(dev, "reset", GPIOD_OUT_HIGH);
++	if (IS_ERR(z2->reset_gpio))
++		return dev_err_probe(dev, PTR_ERR(z2->reset_gpio), "unable to get reset\n");
++
++	error = devm_request_threaded_irq(dev, z2->spidev->irq, NULL,
++					  apple_z2_irq, IRQF_ONESHOT | IRQF_NO_AUTOEN,
++					  "apple-z2-irq", spi);
++	if (error)
++		return dev_err_probe(dev, error, "unable to request irq\n");
++
++	error = device_property_read_string(dev, "firmware-name", &z2->fw_name);
++	if (error)
++		return dev_err_probe(dev, error, "unable to get firmware name\n");
++
++	z2->input_dev = devm_input_allocate_device(dev);
++	if (!z2->input_dev)
++		return -ENOMEM;
++	z2->input_dev->name = (char *)spi_get_device_id(spi)->driver_data;
++	z2->input_dev->phys = "apple_z2";
++	z2->input_dev->id.bustype = BUS_SPI;
++
++	/* Allocate the axes before setting from DT */
++	input_set_abs_params(z2->input_dev, ABS_MT_POSITION_X, 0, 0, 0, 0);
++	input_set_abs_params(z2->input_dev, ABS_MT_POSITION_Y, 0, 0, 0, 0);
++	touchscreen_parse_properties(z2->input_dev, true, &z2->props);
++	input_abs_set_res(z2->input_dev, ABS_MT_POSITION_X, 100);
++	input_abs_set_res(z2->input_dev, ABS_MT_POSITION_Y, 100);
++	input_set_abs_params(z2->input_dev, ABS_MT_WIDTH_MAJOR, 0, 65535, 0, 0);
++	input_set_abs_params(z2->input_dev, ABS_MT_WIDTH_MINOR, 0, 65535, 0, 0);
++	input_set_abs_params(z2->input_dev, ABS_MT_TOUCH_MAJOR, 0, 65535, 0, 0);
++	input_set_abs_params(z2->input_dev, ABS_MT_TOUCH_MINOR, 0, 65535, 0, 0);
++	input_set_abs_params(z2->input_dev, ABS_MT_ORIENTATION, -32768, 32767, 0, 0);
++
++	error = input_mt_init_slots(z2->input_dev, 256, INPUT_MT_DIRECT);
++	if (error)
++		return dev_err_probe(dev, error, "unable to initialize multitouch slots\n");
++
++	error = input_register_device(z2->input_dev);
++	if (error)
++		return dev_err_probe(dev, error, "unable to register input device\n");
++
++	/* Wait for device reset to finish */
++	usleep_range(5000, 10000);
++	error = apple_z2_boot(z2);
++	if (error)
++		return error;
++	return 0;
++}
++
++static void apple_z2_shutdown(struct spi_device *spi)
++{
++	struct apple_z2 *z2 = spi_get_drvdata(spi);
++
++	disable_irq(z2->spidev->irq);
++	gpiod_direction_output(z2->reset_gpio, 1);
++	z2->booted = false;
++}
++
++static int apple_z2_suspend(struct device *dev)
++{
++	apple_z2_shutdown(to_spi_device(dev));
++	return 0;
++}
++
++static int apple_z2_resume(struct device *dev)
++{
++	struct apple_z2 *z2 = spi_get_drvdata(to_spi_device(dev));
++
++	return apple_z2_boot(z2);
++}
++
++static DEFINE_SIMPLE_DEV_PM_OPS(apple_z2_pm, apple_z2_suspend, apple_z2_resume);
++
++static const struct of_device_id apple_z2_of_match[] = {
++	{ .compatible = "apple,j293-touchbar" },
++	{ .compatible = "apple,j493-touchbar" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, apple_z2_of_match);
++
++static struct spi_device_id apple_z2_of_id[] = {
++	{ .name = "j293-touchbar", .driver_data = (kernel_ulong_t)"MacBookPro17,1 Touch Bar" },
++	{ .name = "j493-touchbar", .driver_data = (kernel_ulong_t)"Mac14,7 Touch Bar" },
++	{}
++};
++MODULE_DEVICE_TABLE(spi, apple_z2_of_id);
++
++static struct spi_driver apple_z2_driver = {
++	.driver = {
++		.name	= "apple-z2",
++		.pm	= pm_sleep_ptr(&apple_z2_pm),
++		.of_match_table = apple_z2_of_match,
++		.probe_type = PROBE_PREFER_ASYNCHRONOUS,
++	},
++	.id_table = apple_z2_of_id,
++	.probe    = apple_z2_probe,
++	.remove   = apple_z2_shutdown,
++};
++
++module_spi_driver(apple_z2_driver);
++
++MODULE_LICENSE("GPL");
++MODULE_FIRMWARE("apple/dfrmtfw-*.bin");
++MODULE_DESCRIPTION("Apple Z2 touchscreens driver");
 
-Changes in v3:
-- Tx/Rx buffers used in interrupt handler are now allocated in probe and reused
-- Other various style fixes
-- Link to v2: https://lore.kernel.org/r/20241128-z2-v2-0-76cc59bbf117@gmail.com
-
-Changes in v2:
-- In a separate patch, fixed an issue that prevented the SPI controller
-  from using GPIO CS, and as such, moved the hardware quirk to there
-- Went back to uploading the firmware in probe() instad of open()
-- Other changes addressing the review feedback
-- Link to v1: https://lore.kernel.org/r/20241126-z2-v1-0-c43c4cc6200d@gmail.com
-
----
-Sasha Finkelstein (4):
-      dt-bindings: input: touchscreen: Add Z2 controller
-      input: apple_z2: Add a driver for Apple Z2 touchscreens
-      arm64: dts: apple: Add touchbar digitizer nodes
-      MAINTAINERS: Add entries for Apple Z2 touchscreen driver
-
- .../input/touchscreen/apple,z2-multitouch.yaml     |  70 ++++
- MAINTAINERS                                        |   2 +
- arch/arm64/boot/dts/apple/t8103-j293.dts           |  27 ++
- arch/arm64/boot/dts/apple/t8103.dtsi               |  19 +
- arch/arm64/boot/dts/apple/t8112-j493.dts           |  23 ++
- arch/arm64/boot/dts/apple/t8112.dtsi               |  14 +
- drivers/input/touchscreen/Kconfig                  |  13 +
- drivers/input/touchscreen/Makefile                 |   1 +
- drivers/input/touchscreen/apple_z2.c               | 453 +++++++++++++++++++++
- 9 files changed, 622 insertions(+)
----
-base-commit: b62cef9a5c673f1b8083159f5dc03c1c5daced2f
-change-id: 20241124-z2-c012b528ea0d
+-- 
+2.48.0
 
 

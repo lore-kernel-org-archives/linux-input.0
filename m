@@ -1,104 +1,81 @@
-Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
+Received: from mx.denx.de (mx.denx.de [89.58.32.78])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2491F149DF0;
-	Mon, 20 Jan 2025 08:36:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.207.212.93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C82CB1AF0B0
+	for <linux-input@vger.kernel.org>; Mon, 20 Jan 2025 09:29:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=89.58.32.78
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737362209; cv=none; b=Oj9pPyXsS/K4RNg3zG/F+JISsRj9vE7NT7O07rLjux29PRRIMVbB9WuDBOe/sgbm2fFQJh/+t++8k6fNepwE87rhegkqycDjeSYVjgaLPoQoh0F60hTzPfr72vBkt+cMbMYUqWrWtfVAktms9HQBitPn7wau5DRFhK7hOWrSwRc=
+	t=1737365386; cv=none; b=GDxseGYrQSjSlIS7CMghwbOHAh3b5FJZIl9mYLt7gCrUM/FNbSAYi34vUJ+g0UTHYJBHbTYNHLh8pUtT1wJB2Hp08xvyOl6tccuJKH23bYDXwUrWDYyzwYKt1lsXcyJXCQLZ1oloumsoq/k3RcctRIbL3mWSW4UaFQswQ28ivWo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737362209; c=relaxed/simple;
-	bh=iPRD2KWoZvbHZFTPohaghCcVvZX1drMbrOqQgWvHJmg=;
-	h=Message-ID:Subject:From:To:CC:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=hfbYR/PCm7VOCHnlanjIvo8yEepwBG4gSJfZS+BjtZaoWkPtNk+mb/REk94u0peEB8ZbKoPvgoXYt3CH8/umT5NLXEm5HyPe21Zqh23ZGf6oBUmDANDrM96iKiJRJlDbcesp7OngPzRbqkdEsK0XYvnLqKhRUOQ8k+/Oljm/Ghk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=CXYXMxsV; arc=none smtp.client-ip=91.207.212.93
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
+	s=arc-20240116; t=1737365386; c=relaxed/simple;
+	bh=qsWnYCOaNaptUvU4odH4QOIwC/kiXpbv1BO6t31ZeWM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=I+TBJ815tAGDy9Iw1U9/DNQtGXMfZkK0SbJsD1TaW0Qecl4MVpt/kDZF3oT0iKXLFTmRecmaZSDPhqzYXnNOSiMmnW+Qe76yB+644km4G+g5iQFinPjsgoewdxx3JVSQ9vc7JMLACPjNMKvAY6ohC2uX+tvjQryA3QqQVPL76J0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=V8x0JkvK; arc=none smtp.client-ip=89.58.32.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="CXYXMxsV"
-Received: from pps.filterd (m0046660.ppops.net [127.0.0.1])
-	by mx07-00178001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50K8VeAT027721;
-	Mon, 20 Jan 2025 09:36:03 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=selector1; bh=
-	iPRD2KWoZvbHZFTPohaghCcVvZX1drMbrOqQgWvHJmg=; b=CXYXMxsVof+3Wz47
-	pE44y6yoapWMYfryXmQmgwWCVrd1MV0ICGv6PCjjCMpIGQttUaApGosIU58zgpIy
-	vfdnQJxX6cGKfRGAp3ZpqnpIE7lZsFFFXHdLnyFbraBYqqeX3+/5oAX1Pbbh1H/g
-	Z1zTGqiGugZk7RQcr0gTqlv93umVokS7DlAb9sFO5hlHNEJSBXw0+ZY+mD6TTi8q
-	wd2UcMwGP0xxMcy1k29Bv3kXT/8msT6uHT/J0WL9iuUCn+QdGxedMk/pXBcccG5m
-	0McvNf2JQUoo1Ch89bbYfGv1cFMej52XR4TunA24staAgIpqHMkvR8bmpyyMAHax
-	nVGU9g==
-Received: from beta.dmz-ap.st.com (beta.dmz-ap.st.com [138.198.100.35])
-	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 449jdf875u-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 20 Jan 2025 09:36:03 +0100 (CET)
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-	by beta.dmz-ap.st.com (STMicroelectronics) with ESMTP id 1005640048;
-	Mon, 20 Jan 2025 09:33:58 +0100 (CET)
-Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 17DC127B404;
-	Mon, 20 Jan 2025 09:32:10 +0100 (CET)
-Received: from [192.168.8.15] (10.48.86.148) by SHFDAG1NODE1.st.com
- (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.37; Mon, 20 Jan
- 2025 09:32:09 +0100
-Message-ID: <98652dc2f29b172a9caafe55d04cb965768e2a66.camel@foss.st.com>
-Subject: Re: [Linux-stm32] [PATCH v2 06/12] rtc: stm32: Use resource managed
- API to simplify code
-From: Antonio Borneo <antonio.borneo@foss.st.com>
-To: "Peng Fan (OSS)" <peng.fan@oss.nxp.com>,
-        "Rafael J. Wysocki"
-	<rafael@kernel.org>,
-        Len Brown <len.brown@intel.com>, Pavel Machek
-	<pavel@ucw.cz>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Dmitry
- Torokhov" <dmitry.torokhov@gmail.com>,
-        Alexandre Belloni
-	<alexandre.belloni@bootlin.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Linus Walleij
-	<linus.walleij@linaro.org>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Daire
- McNamara <daire.mcnamara@microchip.com>
-CC: <linux-rtc@vger.kernel.org>, Peng Fan <peng.fan@nxp.com>,
-        <linux-pm@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-input@vger.kernel.org>,
-        <linux-riscv@lists.infradead.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>
-Date: Mon, 20 Jan 2025 09:32:07 +0100
-In-Reply-To: <20250103-wake_irq-v2-6-e3aeff5e9966@nxp.com>
-References: <20250103-wake_irq-v2-0-e3aeff5e9966@nxp.com>
-	 <20250103-wake_irq-v2-6-e3aeff5e9966@nxp.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.48.4 
+	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="V8x0JkvK"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A888E101C71BA;
+	Mon, 20 Jan 2025 10:29:41 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de; s=mx-20241105;
+	t=1737365382;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BKY/OwHsVUMorl5nBGKUNQriNe9Mqn4EEdZ2KvNMHws=;
+	b=V8x0JkvKgdBrLtxXQkBeh1o27vdEjXDqSSGJ7EFJiR8XMGFLxUNjiVY3GlSdd+eegYnWq0
+	QmQ330Xz17n+Ns6cYFLa3pUVD0Y8FnBsviWtSubPuRGEgyyIA7IxiAHY6x4jjQIkvj/KYc
+	g/6o9kgRWYCet7VTtGOyKsRq6GoDNaazu12T04kZgG8bpokHZjjmMUNwYkCUABPQmNI18/
+	2q/rmqLVg9lX3AvMDL1V4YQlRzVVBvEIrVhDF8gaCiNAQg+t551zW67eo8+cs2LVzJq7iC
+	ID0+mQP5rHs1BdTlhDblqhWnuQE1G2p2ktbZ9KRRqboh7p7vRZ7Bjv+72qhC5w==
+Message-ID: <2624fa66-a777-4931-9a06-f43c4ab433e5@denx.de>
+Date: Mon, 20 Jan 2025 10:27:39 +0100
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ClientProxiedBy: EQNCAS1NODE3.st.com (10.75.129.80) To SHFDAG1NODE1.st.com
- (10.75.129.69)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-20_01,2025-01-20_02,2024-11-22_01
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] Input: atmel_mxt_ts - support KoD knob
+To: Michael Gong <mksgong@gmail.com>, Nick Dyer <nick@shmanahar.org>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+References: <20241223190416.52871-1-marex@denx.de>
+ <Z4VsxKJ56jqQnZGr@google.com> <952a79a6-a13f-42b5-a311-13321076686e@denx.de>
+ <Z4haguYzh87Bz8hx@google.com> <d43894eb-3a63-4da8-9f21-d50ec9b93c6c@denx.de>
+ <CADF57Jdt6PjMyj_DbQtUfDUFAv-P24h_r74-Aq0fEx7S+0R53g@mail.gmail.com>
+ <CAH6H9=RjC4V1scV3A7=diixOXKde+Fd81ZhKGehtBGhBYS9pNQ@mail.gmail.com>
+ <CAH6H9=T7a9DBKwi43qf7nodqM1Ghh6kY-LJYqvWBDQ6UrTD+0g@mail.gmail.com>
+Content-Language: en-US
+From: Marek Vasut <marex@denx.de>
+In-Reply-To: <CAH6H9=T7a9DBKwi43qf7nodqM1Ghh6kY-LJYqvWBDQ6UrTD+0g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Fri, 2025-01-03 at 16:41 +0800, Peng Fan (OSS) wrote:
-> From: Peng Fan <peng.fan@nxp.com>
->=20
-> Use devm_pm_set_wake_irq and devm_device_init_wakeup to cleanup the
-> error handling code and 'driver.remove()' hook.
->=20
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
-> ---
+On 1/20/25 7:53 AM, Michael Gong wrote:
+> Resending: Plain text mode:
 
-Reviewed-by: Antonio Borneo <antonio.borneo@foss.st.com>
+Hi,
 
-Thanks,
-Antonio
+both emails made it through.
+
+> Some clarifications:the two knobs on the display are configured to be
+> predefined widget areas/shapes.
+> In this case, two pushable knob dials with a predefined center area
+> which acts as a push button.
+> Current knobs report dents or an absolute position, relative data and
+> graduations (although graduations are not well defined yet).
+> 
+> Idea was to create two separate input devices (i.e. to associate all
+> reports to these input devices) as the knobs are separately reporting
+> wheel type data, although are part of the same touchscreen.
+
+Indeed, I saw the downstream driver.
+
+> Not clear what ABS_GAS event type is and assumed that REL_HWHEEL was
+> more of a mouse related event code.
+GAS is a gas pedal , like in a car , what would really be needed is 
+wheel2 code I think.

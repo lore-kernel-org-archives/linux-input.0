@@ -1,46 +1,46 @@
 Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F6B11B4258;
-	Tue, 21 Jan 2025 21:05:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EDA71F55F0;
+	Tue, 21 Jan 2025 21:05:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737493547; cv=none; b=cLvjU8Py46sSYNjB8lO8RW4wjD5EJCpUXdULLV4RoZJ6hIZGqKyAC/1aiVkL1AGC2fLabTPA8ne/fkIGgH+6ciedO2g2UomRf3OBBXE5eqvjQZrbWUhukJsuz0uRfIu0E1Cyba4GX3MJrlPZBUZnSAJFHXNm189X0/7lfiicGks=
+	t=1737493548; cv=none; b=iMz5mkh8i0Qz/tv/iUy9ypVkM8A0TjhsoZ0BKnJRDB7qJJthyAjYYNZaIdIHFxVJo88QwROeUCWexcTqL9lc2SSb7CPxBaTRWu8ldGu67xlJHKbCoEM9i8owXYnEKPDcBxltIBhOE3beOezWU3zOLyr8AfhC50Q8wqE3wrWf4MA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737493547; c=relaxed/simple;
-	bh=D1tk8T1ErJiNJ+GPC1iCmuX1zXRuiqUFRXo8xEpU2P4=;
+	s=arc-20240116; t=1737493548; c=relaxed/simple;
+	bh=/KCSjrC7qSzdNMtQrtU3qCg9Pf7LkjAPr/fIRWzRqeo=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ebXPM2MQWdNPqfEcrJ5S0U5qSR44U7me0cKRBBnhtazsl3RE2IcQYWIC2oi2fpPNPUcmPvpQpFpb9TJnTily47DVNPm4jZdPcJWhG3i8TRQPRaZnEun+xf1iz2Fu7alArWm6TNvKHCu+XmobdfCmdd4RFDzGdXiYX0wK9dNilLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=UnBBLvkz; arc=none smtp.client-ip=205.220.168.131
+	 MIME-Version:Content-Type; b=sB1nQVqXwSOhBX0To/FISD9tsEm7WnLpBQoZQJHpCjJEEQdQ0YZcHMD7cQD773AsxUr+Q2yEzwo/yEA768HMYK2G7p1CRPCe/qzJUiMVR+yWGQsTcXWXvwMzKl9yaq71o3gFt/g8JvXybBrYVg2B2BWw+1/NoGHtfQsNxxVl/OA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=WC1GJtEa; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="UnBBLvkz"
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50LGtbq7032080;
-	Tue, 21 Jan 2025 21:05:34 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="WC1GJtEa"
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50LERfWQ010190;
+	Tue, 21 Jan 2025 21:05:31 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	fQZeaBXgwp/wU6F/79Me0uBcCuqJh8nM6J4hKlt+dlU=; b=UnBBLvkze0nizfk/
-	jRRNvVHaOa6rGhUrt3tEAg0D81dx2gtvFmQbI73EOeQRgU6aQTexdm7yhz0rrvfj
-	ISzWsM5vx5OlIob9vUbHanjMhWiwyvORxC931mab97v8VPvcbQRNUQvwuqfztbHC
-	v4GZQT+40mBJbDD0AehhR9TLu/ydIPsqflOIu+Z21WmF+eoLcmdBijclPhxUQlw7
-	sJP4rOkoUqkkUXoGMuQniTJyCDCEr7AXxT2ljG3Av20Wsf+tcGx6sNfiju2cu6bz
-	BktLWE2Kei2cUcKY8lVK940C98DFGmmFoWY6jXpbXgDCdquq0vrTMcQnaRi5OspY
-	EkD1Ug==
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 44afhhgkgg-1
+	alTNfi9v2gkbx6wvEGyuqslu7FFUHcSA31xS10mVTfE=; b=WC1GJtEaWSpZX/MJ
+	kJZzFvXtdaVEWo+brBdip0xyr+XqJcfXd9tLDRvP2CIJ6YTkOpyVib0calFtnriU
+	fxqQZw9VnARZO+B7gY5w2bc5RPunUFrf+LMmUmtN+BXdg3g8vp54nzX7CX2uPt2e
+	MCSOCxocOSW+kwf2qukueLIALrG52fqG76kVYjNwDukCKfy39VIGMfrhFeKUPS4O
+	xZX7+q/TPj3SeeV9FizjHYBFkte4p6sEqZKIkGYRYWM/fagjSFHdAdcUZXOWd9dY
+	FOEsjw61TovJh9JgXlFEgx6ovR8Je2XzvJQRIwZebAUOsnkm27aZw4149/EIEM/Y
+	PmuB9Q==
+Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 44adc48xya-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jan 2025 21:05:34 +0000 (GMT)
+	Tue, 21 Jan 2025 21:05:31 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 50LL5XEw003323
+	by NALASPPMTA01.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 50LL5UX7029241
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 21 Jan 2025 21:05:33 GMT
+	Tue, 21 Jan 2025 21:05:30 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Tue, 21 Jan 2025 13:05:33 -0800
+ 15.2.1544.9; Tue, 21 Jan 2025 13:05:30 -0800
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -52,9 +52,9 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-sound@vger.kernel.org>, <linux-input@vger.kernel.org>,
         <linux-usb@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
-Subject: [PATCH v34 17/31] ASoC: usb: Fetch ASoC card and pcm device information
-Date: Tue, 21 Jan 2025 13:05:04 -0800
-Message-ID: <20250121210518.2436771-18-quic_wcheng@quicinc.com>
+Subject: [PATCH v34 06/31] usb: dwc3: Specify maximum number of XHCI interrupters
+Date: Tue, 21 Jan 2025 13:04:53 -0800
+Message-ID: <20250121210518.2436771-7-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250121210518.2436771-1-quic_wcheng@quicinc.com>
 References: <20250121210518.2436771-1-quic_wcheng@quicinc.com>
@@ -70,137 +70,105 @@ X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: zifwZg__hparO3336s1GE-DReSySjO8F
-X-Proofpoint-GUID: zifwZg__hparO3336s1GE-DReSySjO8F
+X-Proofpoint-GUID: GJAt_pGoFbX3Nx90ufkO8qUbX6KcjQJ6
+X-Proofpoint-ORIG-GUID: GJAt_pGoFbX3Nx90ufkO8qUbX6KcjQJ6
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-01-21_08,2025-01-21_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 bulkscore=0 adultscore=0 mlxlogscore=967 spamscore=0
- clxscore=1015 malwarescore=0 suspectscore=0 priorityscore=1501
- impostorscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2411120000 definitions=main-2501210167
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0
+ priorityscore=1501 lowpriorityscore=0 spamscore=0 impostorscore=0
+ suspectscore=0 adultscore=0 mlxscore=0 phishscore=0 malwarescore=0
+ clxscore=1015 mlxlogscore=935 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2501210167
 
-USB SND needs to know how the USB offload path is being routed.  This would
-allow for applications to open the corresponding sound card and pcm device
-when it wants to take the audio offload path.  This callback should return
-the mapped indexes based on the USB SND device information.
+Allow for the DWC3 host driver to pass along XHCI property that defines
+how many interrupters to allocate.  This is in relation for the number of
+event rings that can be potentially used by other processors within the
+system.
 
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Acked-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- include/sound/soc-usb.h | 25 +++++++++++++++++++++++++
- sound/soc/soc-usb.c     | 36 ++++++++++++++++++++++++++++++++++++
- 2 files changed, 61 insertions(+)
+ drivers/usb/dwc3/core.c | 12 ++++++++++++
+ drivers/usb/dwc3/core.h |  2 ++
+ drivers/usb/dwc3/host.c |  3 +++
+ 3 files changed, 17 insertions(+)
 
-diff --git a/include/sound/soc-usb.h b/include/sound/soc-usb.h
-index 71837c1cdac9..c8e5e52639cb 100644
---- a/include/sound/soc-usb.h
-+++ b/include/sound/soc-usb.h
-@@ -8,6 +8,11 @@
+diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
+index dfa1b5fe48dc..6cad95b8dfbf 100644
+--- a/drivers/usb/dwc3/core.c
++++ b/drivers/usb/dwc3/core.c
+@@ -1684,6 +1684,7 @@ static void dwc3_get_properties(struct dwc3 *dwc)
+ 	u8			tx_thr_num_pkt_prd = 0;
+ 	u8			tx_max_burst_prd = 0;
+ 	u8			tx_fifo_resize_max_num;
++	u16			num_hc_interrupters;
  
- #include <sound/soc.h>
+ 	/* default to highest possible threshold */
+ 	lpm_nyet_threshold = 0xf;
+@@ -1704,6 +1705,9 @@ static void dwc3_get_properties(struct dwc3 *dwc)
+ 	 */
+ 	tx_fifo_resize_max_num = 6;
  
-+enum snd_soc_usb_kctl {
-+	SND_SOC_USB_KCTL_CARD_ROUTE,
-+	SND_SOC_USB_KCTL_PCM_ROUTE,
-+};
++	/* default to a single XHCI interrupter */
++	num_hc_interrupters = 1;
 +
- /**
-  * struct snd_soc_usb_device - SoC USB representation of a USB sound device
-  * @card_idx: sound card index associated with USB device
-@@ -36,6 +41,12 @@ struct snd_soc_usb_device {
-  * @list: list head for SND SOC struct list
-  * @component: reference to ASoC component
-  * @connection_status_cb: callback to notify connection events
-+ * @update_offload_route_info: callback to fetch mapped ASoC card and pcm
-+ *			       device pair.  This is unrelated to the concept
-+ *			       of DAPM route.  The "route" argument carries
-+ *			       an array used for a kcontrol output for either
-+ *			       the card or pcm index.  "path" determines the
-+ *			       which entry to look for. (ie mapped card or pcm)
-  * @priv_data: driver data
-  **/
- struct snd_soc_usb {
-@@ -44,6 +55,10 @@ struct snd_soc_usb {
- 	int (*connection_status_cb)(struct snd_soc_usb *usb,
- 				    struct snd_soc_usb_device *sdev,
- 				    bool connected);
-+	int (*update_offload_route_info)(struct snd_soc_component *component,
-+					 int card, int pcm, int direction,
-+					 enum snd_soc_usb_kctl path,
-+					 long *route);
- 	void *priv_data;
- };
+ 	dwc->maximum_speed = usb_get_maximum_speed(dev);
+ 	dwc->max_ssp_rate = usb_get_maximum_ssp_rate(dev);
+ 	dwc->dr_mode = usb_get_dr_mode(dev);
+@@ -1750,6 +1754,12 @@ static void dwc3_get_properties(struct dwc3 *dwc)
+ 				&tx_thr_num_pkt_prd);
+ 	device_property_read_u8(dev, "snps,tx-max-burst-prd",
+ 				&tx_max_burst_prd);
++	device_property_read_u16(dev, "num-hc-interrupters",
++				 &num_hc_interrupters);
++	/* DWC3 core allowed to have a max of 8 interrupters */
++	if (num_hc_interrupters > 8)
++		num_hc_interrupters = 8;
++
+ 	dwc->do_fifo_resize = device_property_read_bool(dev,
+ 							"tx-fifo-resize");
+ 	if (dwc->do_fifo_resize)
+@@ -1838,6 +1848,8 @@ static void dwc3_get_properties(struct dwc3 *dwc)
+ 	dwc->imod_interval = 0;
  
-@@ -58,6 +73,9 @@ void *snd_soc_usb_find_priv_data(struct device *usbdev);
- 
- int snd_soc_usb_setup_offload_jack(struct snd_soc_component *component,
- 				   struct snd_soc_jack *jack);
-+int snd_soc_usb_update_offload_route(struct device *dev, int card, int pcm,
-+				     int direction, enum snd_soc_usb_kctl path,
-+				     long *route);
- 
- struct snd_soc_usb *snd_soc_usb_allocate_port(struct snd_soc_component *component,
- 					      void *data);
-@@ -95,6 +113,13 @@ static inline int snd_soc_usb_setup_offload_jack(struct snd_soc_component *compo
- 	return 0;
+ 	dwc->tx_fifo_resize_max_num = tx_fifo_resize_max_num;
++
++	dwc->num_hc_interrupters = num_hc_interrupters;
  }
  
-+static int snd_soc_usb_update_offload_route(struct device *dev, int card, int pcm,
-+					    int direction, enum snd_soc_usb_kctl path,
-+					    long *route)
-+{
-+	return -ENODEV;
-+}
-+
- static inline struct snd_soc_usb *
- snd_soc_usb_allocate_port(struct snd_soc_component *component, void *data)
- {
-diff --git a/sound/soc/soc-usb.c b/sound/soc/soc-usb.c
-index 22cc3826184a..874488c69524 100644
---- a/sound/soc/soc-usb.c
-+++ b/sound/soc/soc-usb.c
-@@ -90,6 +90,42 @@ int snd_soc_usb_setup_offload_jack(struct snd_soc_component *component,
- }
- EXPORT_SYMBOL_GPL(snd_soc_usb_setup_offload_jack);
+ /* check whether the core supports IMOD */
+diff --git a/drivers/usb/dwc3/core.h b/drivers/usb/dwc3/core.h
+index ac7c730f81ac..85bdb6f25922 100644
+--- a/drivers/usb/dwc3/core.h
++++ b/drivers/usb/dwc3/core.h
+@@ -1082,6 +1082,7 @@ struct dwc3_scratchpad_array {
+  * @tx_max_burst_prd: max periodic ESS transmit burst size
+  * @tx_fifo_resize_max_num: max number of fifos allocated during txfifo resize
+  * @clear_stall_protocol: endpoint number that requires a delayed status phase
++ * @num_hc_interrupters: number of host controller interrupters
+  * @hsphy_interface: "utmi" or "ulpi"
+  * @connected: true when we're connected to a host, false otherwise
+  * @softconnect: true when gadget connect is called, false when disconnect runs
+@@ -1329,6 +1330,7 @@ struct dwc3 {
+ 	u8			tx_max_burst_prd;
+ 	u8			tx_fifo_resize_max_num;
+ 	u8			clear_stall_protocol;
++	u16			num_hc_interrupters;
  
-+/**
-+ * snd_soc_usb_update_offload_route - Find active USB offload path
-+ * @dev - USB device to get offload status
-+ * @card - USB card index
-+ * @pcm - USB PCM device index
-+ * @direction - playback or capture direction
-+ * @route - pointer to route output array
-+ *
-+ * Fetch the current status for the USB SND card and PCM device indexes
-+ * specified.  The "route" argument should be an array of integers being
-+ * used for a kcontrol output.  The first element should have the selected
-+ * card index, and the second element should have the selected pcm device
-+ * index.
-+ */
-+int snd_soc_usb_update_offload_route(struct device *dev, int card, int pcm,
-+				     int direction, enum snd_soc_usb_kctl path,
-+				     long *route)
-+{
-+	struct snd_soc_usb *ctx;
-+	int ret = -ENODEV;
+ 	const char		*hsphy_interface;
+ 
+diff --git a/drivers/usb/dwc3/host.c b/drivers/usb/dwc3/host.c
+index b48e108fc8fe..1c513bf8002e 100644
+--- a/drivers/usb/dwc3/host.c
++++ b/drivers/usb/dwc3/host.c
+@@ -182,6 +182,9 @@ int dwc3_host_init(struct dwc3 *dwc)
+ 	if (DWC3_VER_IS_WITHIN(DWC3, ANY, 300A))
+ 		props[prop_idx++] = PROPERTY_ENTRY_BOOL("quirk-broken-port-ped");
+ 
++	props[prop_idx++] = PROPERTY_ENTRY_U16("num-hc-interrupters",
++					       dwc->num_hc_interrupters);
 +
-+	mutex_lock(&ctx_mutex);
-+	ctx = snd_soc_find_usb_ctx(dev);
-+	if (!ctx)
-+		goto exit;
-+
-+	if (ctx->update_offload_route_info)
-+		ret = ctx->update_offload_route_info(ctx->component, card, pcm,
-+						     direction, path, route);
-+exit:
-+	mutex_unlock(&ctx_mutex);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(snd_soc_usb_update_offload_route);
-+
- /**
-  * snd_soc_usb_find_priv_data() - Retrieve private data stored
-  * @usbdev: device reference
+ 	if (prop_idx) {
+ 		ret = device_create_managed_software_node(&xhci->dev, props, NULL);
+ 		if (ret) {

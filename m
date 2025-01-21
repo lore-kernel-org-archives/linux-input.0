@@ -1,77 +1,63 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D1F71F707F;
-	Tue, 21 Jan 2025 20:00:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B210423A9;
+	Tue, 21 Jan 2025 21:05:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737489634; cv=none; b=s+eGPuMBQkgH1RVftJsrFmjJslLwSQuGXhSsK92MMhcX6WuQKzAnFV/RWboHdOLIIjfrynsT4j4/DH7mGkpYPKNS8aNPuKxoPwfjxyj353Oi4bFfvd8Fl2FosMMg0vNPYM2cjemVOgLDXALdhrkWFQa0JQb57+jOjYYli1fsZvk=
+	t=1737493546; cv=none; b=GC2vozQx5CH34uc2l/2B3gJTWcA2g0ZQY6beXJ9DsWL8hhC1It8FSSZPlPyIlhMAsjPEBYbERtbvfk+KfkGNZPP501BPo10VA/6j/rn1i3avr3RS/Tbc0IeHFNTq+DOHiLXRU/2cw6pCsjniiXtl+L3NjyCgfvLQEklV/k/Ri+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737489634; c=relaxed/simple;
-	bh=4kizRe2rgXySp8A1jCGinFKGSl5lHwSo1HF/xS0Okwk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CPsbM8HVSVPHm7KGwC2tkwk0D3tNHHst3ARmwVlkMB4X9zXzm0F+KzfIU5PA3zJuudagpiL0VsdFzV0URhCNziNh5DKyctzDLLlOExK2Hq9VKM9mpu2/8LDFPhLdpplf6J77TwH4OqluA1kiha8RCmoAQsb5Y2blYaDrZITqZsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BC7/wyUV; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1737493546; c=relaxed/simple;
+	bh=vEyQmeUMnI/GURzllzJBEnqbA7WjrcOwoty6JZ7kk0k=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=l2FVzY8hia7q2k9zYRUfYR/lu6zBsLZSbR5Qh3qApFaIgtaq5KOC8zhz8xWYECH5fMAMQQVLaAzwazsdzXi5QpzsCxoWgskWa+fzyIixiMvK+ZBtgeeKj4I+EFQ65IRPCiU3IZ0lb38TAK3ghqeUP3BuDuE5XzJ1YnQv9U0mg8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=VzSjzuC6; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BC7/wyUV"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-435f8f29f8aso43930345e9.2;
-        Tue, 21 Jan 2025 12:00:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737489630; x=1738094430; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/BQt4u1Y3GeikF9g8y57XTCh9Gzrta3TPR2hq1BQ24g=;
-        b=BC7/wyUVBpERzesWOU4JBv1Zr4f3h0hMkuVH/u8PbGW0gyMeIhZEHN7deAxmuiq6eK
-         4QP/klsXr/STeaPrRH0KTYMchJ3joAIFfrufRJWieEno32AcwBNkKpJUSfb3zXN2dv44
-         etlKJmFrsfB24ncmhXN7vAHrZtWTdKphcCb6os4ShnFSHg6fnrFn7zs/KPxgo7h/841U
-         OO40jcTaq3jZNZSDQ9lS5IHcXxiipfHDxWRGR5qxU7bpniiYqHXGUOlPyhlQQuUqTSjk
-         +qZrpcHGUvTQF3XH4oFddOs6HmKD8Vcc7HPBd9YwphxZHqd5iZ01X34Sq223I4VCafP4
-         IqkA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737489630; x=1738094430;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/BQt4u1Y3GeikF9g8y57XTCh9Gzrta3TPR2hq1BQ24g=;
-        b=UOuxoQWpvR3r2caPGUMO2bA2FtdlGhxshu78wTA9ADX4+uty27bdUzugPmNQFxWizs
-         UWxnX+r8lX1EFukPI0QHxMmbK/iPaSeSY1BWsnCuN7jCxBG6wgwC7SQJuMbkwKGZLfQh
-         CY5PC4AJ/tdqNCfh1/w9yv5BBTogoyh3Y/OSs1Bu087VkBFs8nm4TutQGf79C7FmN9Bk
-         Mdd/aE61EIJsUoQvjVwgUrVWGm/4aaYy+YJep9w3EjgcYW/tJ57Unr5sJvOAeyy1+y5e
-         bG9BINqZJrKrL5lVopaGEyyeCur+C8Et1/pqj5u+QdFx+RxbatOcP+toTDqnEWwDvDmx
-         ypYQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUB+mQli3FxLZ6XHsMdFM8Qswq/64zui8IfGKxJypOUvf5ozIAHr2iPHBivSn+3tSiTha3Onns=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywa+0zbfVbAT80eDOrigEMxo69apt1VM+SLnWDDpaJ9mPj7b7Cw
-	TbUzD1KiqfOAzqDsmaFoZ82mvXrQOMhekmCyGQHq4lJ8JmD6Gpb33XvdB3gG
-X-Gm-Gg: ASbGncseymvbE+AXIbrPhiweYlvYS7yChC0T0ERv04JT0ipJrmgq4kWHqdNomTJce7V
-	YfOIACZHFcroRKIlfusFo5R+p7/eiUlstNYh7DTXe4R0GdP4LqnJOmBbxoN/dhaBIG99WMEMqkp
-	JrccP6rBNSLrOFJrrlyNF5WFTuVZtezyh9k+TMgQuqRlR/mMOFpA3erdRcE/044HewfERmTULYn
-	mkJgzmpVIc8avAdxQDZh1SF5wj7FFpFN5dUTvh0n4099kGQbdFbNepawPUTjmAkyVbOseYQ4QOF
-	oo+DDBY6SiZ5rMR28A==
-X-Google-Smtp-Source: AGHT+IHPiKuUNeHZz5XZ8lEdQrC0/wbhc1G+3Fo1l8UhrAQPh2eWw8N4VZmW7twvCncAJLXPU3yAnw==
-X-Received: by 2002:adf:f811:0:b0:385:e3c5:61ae with SMTP id ffacd0b85a97d-38bf56785f2mr14944300f8f.31.1737489629444;
-        Tue, 21 Jan 2025 12:00:29 -0800 (PST)
-Received: from localhost.localdomain ([109.175.243.75])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38bf3221761sm14118153f8f.22.2025.01.21.12.00.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jan 2025 12:00:28 -0800 (PST)
-From: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-input@vger.kernel.org,
-	stuart.a.hayhurst@gmail.com,
-	bentiss@kernel.org,
-	jikos@kernel.org,
-	kangyan91@outlook.com,
-	yue sun <samsun1006219@gmail.com>,
-	stable@vger.kernel.org
-Subject: [PATCH v3 1/2] HID: corsair-void: Add missing delayed work cancel for headset status
-Date: Tue, 21 Jan 2025 20:00:07 +0000
-Message-ID: <20250121200017.33966-2-stuart.a.hayhurst@gmail.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20250121200017.33966-1-stuart.a.hayhurst@gmail.com>
-References: <20250121200017.33966-1-stuart.a.hayhurst@gmail.com>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="VzSjzuC6"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50LEwubk001363;
+	Tue, 21 Jan 2025 21:05:34 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	suJMRqmu5/xM79R3ftc3ggs4uKchJVLCD11cdfxfeQo=; b=VzSjzuC6g6xWn0dR
+	/kwFk4pPIyDG80vhkjx7bk8E2PqMVef6EYOuYlbkVYdkDUAVZ42Nbm/fPmYgAuWX
+	9Lp4dRDwjgrNZiu6DbIk+DaFGuK/+jE4MAxdWqVrWMQqQcE6ONI9OApO3VwJfDIF
+	bnZW68lk3CUroiiVwMxG053fLhU9BGZy42z7t9/hYP9VDzlTHXvSaEbteU2Va6gB
+	ZTcb2qTjy08rVmqzWXsezUtGnIDHieeWpcNYUi5PCuMheoGcxdJtDzKVoALPhp6v
+	m7QW2AuW16nAvAbWQa0jvBVGNFjbwDl0CB5lgQe5rZEu9Us/oUCCIIApwI5vEgy9
+	eyU/YA==
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 44adt5gvt8-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Jan 2025 21:05:34 +0000 (GMT)
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 50LL5XWT005270
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 21 Jan 2025 21:05:33 GMT
+Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
+ nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.9; Tue, 21 Jan 2025 13:05:33 -0800
+From: Wesley Cheng <quic_wcheng@quicinc.com>
+To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
+        <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
+        <corbet@lwn.net>, <broonie@kernel.org>, <lgirdwood@gmail.com>,
+        <tiwai@suse.com>, <krzk+dt@kernel.org>,
+        <pierre-louis.bossart@linux.intel.com>, <Thinh.Nguyen@synopsys.com>,
+        <robh@kernel.org>, <gregkh@linuxfoundation.org>
+CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-sound@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-usb@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
+Subject: [PATCH v34 18/31] ASoC: usb: Rediscover USB SND devices on USB port add
+Date: Tue, 21 Jan 2025 13:05:05 -0800
+Message-ID: <20250121210518.2436771-19-quic_wcheng@quicinc.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250121210518.2436771-1-quic_wcheng@quicinc.com>
+References: <20250121210518.2436771-1-quic_wcheng@quicinc.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,34 +65,68 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: nalasex01a.na.qualcomm.com (10.47.209.196) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: ijfmUkceVv8t0ea3GggJCBg-MHEsGwJB
+X-Proofpoint-ORIG-GUID: ijfmUkceVv8t0ea3GggJCBg-MHEsGwJB
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-21_08,2025-01-21_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 suspectscore=0
+ clxscore=1015 mlxlogscore=999 mlxscore=0 malwarescore=0 lowpriorityscore=0
+ priorityscore=1501 spamscore=0 impostorscore=0 phishscore=0 bulkscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2411120000
+ definitions=main-2501210167
 
-The cancel_delayed_work_sync() call was missed, causing a use-after-free
-in corsair_void_remove().
+In case the USB backend device has not been initialized/probed, USB SND
+device connections can still occur.  When the USB backend is eventually
+made available, previous USB SND device connections are not communicated to
+the USB backend.  Call snd_usb_rediscover_devices() to generate the connect
+callbacks for all USB SND devices connected.  This will allow for the USB
+backend to be updated with the current set of devices available.
 
-Reported-by: yan kang <kangyan91@outlook.com>
-Reported-by: yue sun <samsun1006219@gmail.com>
-Closes: https://lore.kernel.org/all/SY8P300MB042106286A2536707D2FB736A1E42@SY8P300MB0421.AUSP300.PROD.OUTLOOK.COM/
-Closes: https://lore.kernel.org/all/SY8P300MB0421872E0AE934C9616FA61EA1E42@SY8P300MB0421.AUSP300.PROD.OUTLOOK.COM/
+The chip array entries are all populated and removed while under the
+register_mutex, so going over potential race conditions:
 
-Fixes: 6ea2a6fd3872 ("HID: corsair-void: Add Corsair Void headset family driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
+Thread#1:
+  q6usb_component_probe()
+    --> snd_soc_usb_add_port()
+      --> snd_usb_rediscover_devices()
+        --> mutex_lock(register_mutex)
+
+Thread#2
+  --> usb_audio_disconnect()
+    --> mutex_lock(register_mutex)
+
+So either thread#1 or thread#2 will complete first.  If
+
+Thread#1 completes before thread#2:
+  SOC USB will notify DPCM backend of the device connection.  Shortly
+  after, once thread#2 runs, we will get a disconnect event for the
+  connected device.
+
+Thread#2 completes before thread#1:
+  Then during snd_usb_rediscover_devices() it won't notify of any
+  connection for that particular chip index.
+
+Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- drivers/hid/hid-corsair-void.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/soc-usb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-corsair-void.c b/drivers/hid/hid-corsair-void.c
-index 6ece56b850fc..bd8f3d849b58 100644
---- a/drivers/hid/hid-corsair-void.c
-+++ b/drivers/hid/hid-corsair-void.c
-@@ -726,6 +726,7 @@ static void corsair_void_remove(struct hid_device *hid_dev)
- 	if (drvdata->battery)
- 		power_supply_unregister(drvdata->battery);
- 
-+	cancel_delayed_work_sync(&drvdata->delayed_status_work);
- 	cancel_delayed_work_sync(&drvdata->delayed_firmware_work);
- 	sysfs_remove_group(&hid_dev->dev.kobj, &corsair_void_attr_group);
+diff --git a/sound/soc/soc-usb.c b/sound/soc/soc-usb.c
+index 874488c69524..7566ee2acd14 100644
+--- a/sound/soc/soc-usb.c
++++ b/sound/soc/soc-usb.c
+@@ -227,6 +227,8 @@ void snd_soc_usb_add_port(struct snd_soc_usb *usb)
+ 	mutex_lock(&ctx_mutex);
+ 	list_add_tail(&usb->list, &usb_ctx_list);
+ 	mutex_unlock(&ctx_mutex);
++
++	snd_usb_rediscover_devices();
  }
--- 
-2.47.1
-
+ EXPORT_SYMBOL_GPL(snd_soc_usb_add_port);
+ 

@@ -1,70 +1,76 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88CD71AF0DB;
-	Tue, 21 Jan 2025 20:00:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FB1F1F4725;
+	Tue, 21 Jan 2025 20:00:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737489632; cv=none; b=CibaLqlvVwQGHACKVSgZMg0JDzDLbXqjPxXEkuy5r9VMzKtl5jbmETUp9oeLkEyZGx47kzvCJmdtQIIRVslSERvWUreVJ8pV4ovVoQ7aiTmeaqzv+FzZImjQA+J8Ynil9qo0udGEZF2Ni8MEcnZvVualA4SeKuS8I8RVQ7HqsDw=
+	t=1737489634; cv=none; b=Et3yfuwz3vqh0aM4O+aWRsxVGQf7H3gdUiw5E1yp3oQdY3C0srSYY1PlChPWpJzezAc3wyPg+b9wPMD7yBNuxKtw+iUFzqMFCdH7lAEjSLw2RYKCPthwcqJf4XwCb4iCANCECsyYFx6VleaNryNbQ156FOzxU3jp7UXk7eBAb04=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737489632; c=relaxed/simple;
-	bh=KqEbEpba0J+BpQ+PXXVhbs0Zk2qcq6ThRjO80ierK38=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VRfJKvPH/CU8batl1cEaFNH9BUmlsPF18J10xRfa1+iJdk9pn7mpzjcgnGFkMiWmUmSlQJn1e848AGlXBaRvWJDujgs5pBv9KMdL3XjOPLzW/5ZZ9HDX1u7odyP6vRHwjXdh2Fuw1X9IY33WpzkLwPFbNaWm3S1l9Q+RrqFy/mU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U5ouvrSy; arc=none smtp.client-ip=209.85.221.52
+	s=arc-20240116; t=1737489634; c=relaxed/simple;
+	bh=dHV4n/DsK8cs7MIzV8hr4pqFbAX0fyfGvU+4VCWC2A8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=tkG44G+8kTsSI6K25ArFKXB9UJ5ktm1BuLeY1uL5U7OGq2OF7AM3Axi51YiLNaxUemr1PqeJnshDknVKMagF7wNolJaleypHrUNdB1HFQoJsepASo0595dMgqtLL68vYR5CCAYfgbv2WL1zNp5XeR2FbesLU8RA6psr9SyPzT3c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZW6ofRgV; arc=none smtp.client-ip=209.85.221.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U5ouvrSy"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-38789e5b6a7so3522342f8f.1;
-        Tue, 21 Jan 2025 12:00:30 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZW6ofRgV"
+Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-385e0e224cbso3212081f8f.2;
+        Tue, 21 Jan 2025 12:00:32 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1737489628; x=1738094428; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZALqtn5/FhzKmTOnFOtV9udrUjeeTc7aEpECsGOGBus=;
-        b=U5ouvrSy/iZu+RfvOQvPMpnjTg49nyxlrvG0aWYrUnMlpMMlfhipwKFpn9dzG3knnL
-         Tiveyzb1vIlByuVpg3L8zBxMzs51nFoUodIfTrLTTx9ni6owAg1D1rF3ztsLKTchwfUD
-         lM14tXL7JKsj/u/EefCsHsQWGo4HHORmDa7IQUkeBIoAeiOTKT7iTxb9KvYAa09PsGl2
-         QUQ8CWk4lhKugxSVSyGr/qjATs/Iaf0vVbmCvwD/y6JdfLuQD0AFlmeSfg2OWMPvAUUt
-         8SbnhGxZMf+aplFS9kLrMQaJg8q0U0iCftyqirngFdUD1Lf5ehMnqGkRm0oQ2VoKPhyJ
-         GARA==
+        d=gmail.com; s=20230601; t=1737489630; x=1738094430; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k2N1YlgQNdx7LxlrloC7QMkubugmuO/YtGTHs/05i/8=;
+        b=ZW6ofRgVOY8AJhX9W3VlfSrtUBNG1mUbapMh3D3RUtlo7o/vua/mOHaB4HtnjooaFz
+         UwUGXOVuLJ0KAtBFPd02I0x17L8V9m00KGGPBwNIHzNGo4WmsnebmF8Dhhhjfa1EwMT1
+         sOSZjRrbhFUv/kFGTncpZVUnKRJy+T4nFUg4CSQkZCc0Pw44f9tOuKcG7+U415ew2GAf
+         PpYvNGmu9MNGeg5Y+dQJqvv4+hZ+5aNQq8hmwSQesTdt9fAWRKFGRCGrlLIU8Dkgu0pR
+         7VAnwxc/eRK8+KnSVXxh6FjeCypex6lvdWYBBB17qD7K1zQkxJsuVBaxPwAa2u0SSKAT
+         EHnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1737489628; x=1738094428;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=ZALqtn5/FhzKmTOnFOtV9udrUjeeTc7aEpECsGOGBus=;
-        b=vPljwlQdmM/NXcdH4LNSaRVj4oTABt27Amexl6PmbzwAu2otbbylzResSrHWkKmQTF
-         eSRpgSctRTgck9qBGIBIlopCMP65+fdSLyM+newjjGhnUHu8fixf047qfgyDwvaLxiD+
-         ilorwU84evVgOucoeNfXt9dWwyPoId2zKnLA/O+Xkp/OPtxkEimpMFMnDOS1cME6Ia8L
-         o5IJGPqaNk5ZwSLdps7KQsgyS8m5rY97xkM0t0GMHFCcE7VxoM4Y4r3V2PULYAGkiwJy
-         A6u6h1BL0PdEF/TTQ71M9UXps5GIEpm9MBpvSEJhUB3Lc8zocgbynhY9ZzwrIc3TJTO2
-         LdFQ==
-X-Gm-Message-State: AOJu0Yw9PBD8L8wir0Z3xU+gNAFdedELNy2YFYF2t+NswqGZO1RbliIL
-	LgRJNArDZQmYIMNUeS1CCl7qE9o9HkFZ+sZRYrmhV7x1YFVAqWbo9f+fBwe4
-X-Gm-Gg: ASbGncsOSdcrPA6bR/tckY2gML74VLe2fP+T3QUypFtQj6zNK++bVit4sjVjI6Ohc+J
-	5qmaGjLuPCuLuGxxwbBtGZyvZMGuEwBrToWSAN0pyXXhmT+83PZ1hmAXxJnesjsvI3tKS/K2910
-	nvpKHovX4HV0LgKTTEzA4lXNhWIFZapL8kZJO/51HJJ+fYLfKaQhfyu/uIr694C0g58fezaFK8z
-	ecY5h4BViSFqKO21n/ZdTLR58E1PPxSthji+PgZZHiW7v1uFdYDLzmU1MBgxuBZ8L2cS+D2JYnT
-	hFZXCCURlaYWVBh40A==
-X-Google-Smtp-Source: AGHT+IEbNJ5gH5JEVYEx1VRGNM2mZRXqkfYI2MGSE4gbjIPIawPc+s4zC6Njx/pCupGu46ZKsJz9NQ==
-X-Received: by 2002:a05:6000:144b:b0:385:df43:223c with SMTP id ffacd0b85a97d-38bf565c029mr15585374f8f.13.1737489627830;
-        Tue, 21 Jan 2025 12:00:27 -0800 (PST)
+        d=1e100.net; s=20230601; t=1737489630; x=1738094430;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=k2N1YlgQNdx7LxlrloC7QMkubugmuO/YtGTHs/05i/8=;
+        b=rptX8yuxDVcLIe4ga7yiinH/McdYpyvPAjY5IgC6r75HsQ4mW32SOXc0RPqcfUfTqo
+         /MI/xEw+uP31BvEcEXxweKOM/IkN7x2TX26OhtGWrH9knQTQFm0VjJBlTSN6KuJTZOl+
+         lEFcLt40uWwaILGEfP47c38gw2aqemntp6s4lwdPEydRMltiHP4T/zsoUspFtR5mDB+M
+         6atOHNWDZXNlBiC7YJqD97xiNV/PptPhB+Zl3Hwwni5tZ+qYaj+cslFecyNlVazdm16Y
+         ksruE5vROxm2kDFccdqLSYOIfsLe2pzHX7FWq/vVA5u+Hin7osvOXwsXtWX4NZfAVYl6
+         /zTA==
+X-Forwarded-Encrypted: i=1; AJvYcCV6hIoJveexwu1346qgL7w2nfzUjxuUYwTo2R4vfVp53kw0RsrBmXPgopryctXny33D912iujc=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy/6sO+9LrZabNMhZIbj9ErbIURZGl/sCgq7RPCJqR+c1UZiYNG
+	VXO8Wrg/9QUGZz92TiM5WyTT8EFnPDJ3Ce8Y3Yk46bkPz5329c9o7paMyerC
+X-Gm-Gg: ASbGncs8sE64X/GoxRCc1eIkc4neCN3cLlH8TyXZt6p/alzxqtPVDt6JlhDaYS1HL0d
+	67hzjbHHMnVtN68JZ9S2Ub1/mOgG7Oe7hi3jJhx0OrIpZlIUNwKruqnOfX9upwC54DPpJ4zcD4U
+	XHQMCWChiK3EmUuLhdcTQ52HxZAAYp+6fBCWIvGvf8IyqaN8sPPKX6b1dDOvNEcF71iljABoMr7
+	MgNaDPAJiMonvXpOQ9UjNu9Om5IbkAi/caAIR2gLenyFkpE8Ww1uPBGzHz+9pLfRH76tNXYjsmP
+	h6QKd2Nc0as5566ckw==
+X-Google-Smtp-Source: AGHT+IH11nOzlyATB1hkkRENeqT/0e9t9i8wxeN5gd45RNy8t4U54W26NVQs9Kt/GZhIuToDpx/3+Q==
+X-Received: by 2002:a5d:47c4:0:b0:38c:1281:260d with SMTP id ffacd0b85a97d-38c12813249mr7010385f8f.31.1737489630028;
+        Tue, 21 Jan 2025 12:00:30 -0800 (PST)
 Received: from localhost.localdomain ([109.175.243.75])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38bf3221761sm14118153f8f.22.2025.01.21.12.00.27
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38bf3221761sm14118153f8f.22.2025.01.21.12.00.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jan 2025 12:00:27 -0800 (PST)
+        Tue, 21 Jan 2025 12:00:29 -0800 (PST)
 From: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
 To: linux-kernel@vger.kernel.org
 Cc: linux-input@vger.kernel.org,
 	stuart.a.hayhurst@gmail.com,
 	bentiss@kernel.org,
 	jikos@kernel.org,
-	kangyan91@outlook.com
-Subject: [PATCH v3 0/2] HID: corsair-void: Fix various memory issues
-Date: Tue, 21 Jan 2025 20:00:06 +0000
-Message-ID: <20250121200017.33966-1-stuart.a.hayhurst@gmail.com>
+	kangyan91@outlook.com,
+	stable@vger.kernel.org
+Subject: [PATCH v3 2/2] HID: corsair-void: Initialise memory for psy_cfg
+Date: Tue, 21 Jan 2025 20:00:08 +0000
+Message-ID: <20250121200017.33966-3-stuart.a.hayhurst@gmail.com>
 X-Mailer: git-send-email 2.47.1
+In-Reply-To: <20250121200017.33966-1-stuart.a.hayhurst@gmail.com>
+References: <20250121200017.33966-1-stuart.a.hayhurst@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -73,20 +79,28 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Fixes a use-after-free and a struct without an initialiser
+power_supply_config psy_cfg was missing its initialiser, add it in.
 
-Hopefully I got it right this time, sorry to everyone
-that got some extra emails
-
+Fixes: 6ea2a6fd3872 ("HID: corsair-void: Add Corsair Void headset family driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
 ---
+ drivers/hid/hid-corsair-void.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Stuart Hayhurst (2):
-  HID: corsair-void: Add missing delayed work cancel for headset status
-  HID: corsair-void: Initialise memory for psy_cfg
-
- drivers/hid/hid-corsair-void.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
+diff --git a/drivers/hid/hid-corsair-void.c b/drivers/hid/hid-corsair-void.c
+index bd8f3d849b58..56e858066c3c 100644
+--- a/drivers/hid/hid-corsair-void.c
++++ b/drivers/hid/hid-corsair-void.c
+@@ -553,7 +553,7 @@ static void corsair_void_battery_remove_work_handler(struct work_struct *work)
+ static void corsair_void_battery_add_work_handler(struct work_struct *work)
+ {
+ 	struct corsair_void_drvdata *drvdata;
+-	struct power_supply_config psy_cfg;
++	struct power_supply_config psy_cfg = {};
+ 	struct power_supply *new_supply;
+ 
+ 	drvdata = container_of(work, struct corsair_void_drvdata,
 -- 
 2.47.1
 

@@ -1,54 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-00007101.pphosted.com (mx0b-00007101.pphosted.com [148.163.139.28])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0A4E136E3B
-	for <linux-input@vger.kernel.org>; Thu, 23 Jan 2025 06:05:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65AC820C01E;
+	Thu, 23 Jan 2025 08:20:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.139.28
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737612302; cv=none; b=ZRM3HC0iPxnvb0N5d7z5ZSTGENw03HDwG0WOcm9ha0yZn0pj2DG6ik5HYC+HoGEzMf6cew1T0k/6qfeZvTG2pcQ6ROQosCghXEOYzss+ulXEPt942TBnG5uPoxQnIF7xRDlN0QZoztUs6RTOgceIICyLGkQEksU4HgPAlLM2fnc=
+	t=1737620441; cv=none; b=hCZW2/oq2UYzwBA2VoN8XqocFwoqgBrvBOiZNZWAmGKkW7ER7MU1atpgc9MYIlPUUE/i50ZCJJt5ScHrCnnRG68e8t5l4VkgWzJFGwDI1eRtV9YExFBlqKsLRYGkoyWA/DP3CaMA3uGVrLuZn7jKLWIT9HFELCfwOMV8aprD/so=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737612302; c=relaxed/simple;
-	bh=82/AHO9ERoFerE0WpMmVgcmc+oGjk/5qAIFL7e97kz0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=H26D6RUrq10UIzqqftHhe/uxtvcOz/F5f1/jFyIhRnDx6A5nrbeb1R1/tBO/CZ7aBS3IfUhUv5NYoOM9575Kv8G149prFh8FzU8ftzKblKjZbB7iXKZbt+cc62R4wwUuoROe7hfnOQJlWHSYAHNgePjOTTadahuL7EbkwulxEA4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=2qtZM8nn; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1737620441; c=relaxed/simple;
+	bh=LWA9b0HzSGGckRdhyyX7c6LFQ5J4AogKHol5NS78NRo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=mevL+wE3yyQWjWpNh0ng6RE/MQSNB/ax+dY8V+XOgXK1+AIgLQI1fCgI9YuTIzE5gDlJiczpeptrZss2HEF8ck0WAHIYMn4jMvGfqfLylPatOUIbiHx5Fk6RJ+wWpglWOt1zfDz3qHKIIkM0sHErSn2pJB5cJf4DmE723oOEkdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=illinois.edu; spf=pass smtp.mailfrom=illinois.edu; dkim=pass (2048-bit key) header.d=illinois.edu header.i=@illinois.edu header.b=RcjACZoj; arc=none smtp.client-ip=148.163.139.28
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=illinois.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=illinois.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="2qtZM8nn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCE2BC4CED3;
-	Thu, 23 Jan 2025 06:05:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1737612301;
-	bh=82/AHO9ERoFerE0WpMmVgcmc+oGjk/5qAIFL7e97kz0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=2qtZM8nnhzvNeBFJmquiz/REN+DIEMHETBlkk7/8bFLzwPXMGk3gYJuom6RITkomV
-	 QaDfm+G3dP9c4V5wPpTYTwwV6CAGjgC1tFSZTyO7fS5r0DZTJXCIBCTqAK1nVKwzbO
-	 8YFsIlOgpI1vGhND5HSO/JBAUz+QZTeTqD66Ctx0=
-Date: Thu, 23 Jan 2025 07:04:58 +0100
-From: Greg KH <gregkh@linuxfoundation.org>
-To: Nilton Perim Neto <niltonperimneto@gmail.com>
-Cc: linux-input@vger.kernel.org, dmitry.torokhov@gmail.com
-Subject: Re: [PATCH] Input: xpad - three devices added
-Message-ID: <2025012328-audience-tucking-405d@gregkh>
-References: <20250122214814.102311-2-niltonperimneto@gmail.com>
+	dkim=pass (2048-bit key) header.d=illinois.edu header.i=@illinois.edu header.b="RcjACZoj"
+Received: from pps.filterd (m0166260.ppops.net [127.0.0.1])
+	by mx0b-00007101.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50N7kxc9003012;
+	Thu, 23 Jan 2025 08:20:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=illinois.edu; h=
+	cc:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=campusrelays; bh=lRBk38l5
+	lurgliS/JzcMG7RVtPEg3j4DsycQL+ruVrs=; b=RcjACZojpfhXgXXyg5tW7f0f
+	CSoP7assBnUEyID4QhmIMWa5p3Q16Z0QejZ8CyCrAWwg+8FDvGV6kAyZ4w4chVry
+	FBbhYhmkch5fe2sRi8TrwTjBFKux95dFlQOCK33DgzV5Ki53aYFnlseCtCmWMmuU
+	RsG6vXJdsjDfKj+oRg6TTQIH3gwragtBEyAMs5iTf3XeNKY1Uho5l538Dwq3EfJ9
+	NulaAcPgTYrMcMYgnxKfAta+uYz3WJpBYnQVVqNPwsBF0wahDztc2bOz0/icJyb/
+	rgVd/Xuzny8KozQDRzdhmdti/DJ/yfImWSe4uqrdQNKKW/0a6eUv9spL6HLjVA==
+Received: from pps.reinject (localhost [127.0.0.1])
+	by mx0b-00007101.pphosted.com (PPS) with ESMTPS id 44b862b4rg-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 23 Jan 2025 08:20:00 +0000 (GMT)
+Received: from m0166260.ppops.net (m0166260.ppops.net [127.0.0.1])
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50N8Ju0Q005824;
+	Thu, 23 Jan 2025 08:19:59 GMT
+Received: from localhost.localdomain (oasis.cs.illinois.edu [130.126.137.13])
+	by mx0b-00007101.pphosted.com (PPS) with ESMTP id 44b862b4r7-3;
+	Thu, 23 Jan 2025 08:19:59 +0000 (GMT)
+From: Jinghao Jia <jinghao7@illinois.edu>
+To: Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Martin KaFai Lau <martin.lau@linux.dev>,
+        Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
+        Yonghong Song <yonghong.song@linux.dev>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
+        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <bentiss@kernel.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nicolas Schier <n.schier@avm.de>, Ruowen Qin <ruqin@redhat.com>,
+        Jinghao Jia <jinghao7@illinois.edu>
+Cc: bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH bpf v2 2/2] samples/{bpf,hid}: fix broken vmlinux path for VMLINUX_BTF
+Date: Thu, 23 Jan 2025 02:19:50 -0600
+Message-ID: <20250123081950.173588-3-jinghao7@illinois.edu>
+X-Mailer: git-send-email 2.47.0
+In-Reply-To: <20250123081950.173588-1-jinghao7@illinois.edu>
+References: <20250123081950.173588-1-jinghao7@illinois.edu>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250122214814.102311-2-niltonperimneto@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: LHckYdI5Q3FYaQmJRL-d4tzZQPkJAFa1
+X-Proofpoint-GUID: iflN5J_B61XkGykhVbYCaYDiDO7Msw9q
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-01-23_03,2025-01-22_02,2024-11-22_01
+X-Spam-Details: rule=cautious_plus_nq_notspam policy=cautious_plus_nq score=0 mlxscore=0
+ priorityscore=1501 mlxlogscore=830 adultscore=0 spamscore=0 clxscore=1015
+ phishscore=0 suspectscore=0 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2411120000 definitions=main-2501230063
+X-Spam-Score: 0
+X-Spam-OrigSender: jinghao7@illinois.edu
+X-Spam-Bar: 
 
-On Wed, Jan 22, 2025 at 06:47:07PM -0300, Nilton Perim Neto wrote:
-> Added to the xpad driver the following controllers:
-> 8BitDo SN30 Pro, Hyperkin X91 and Gamesir G7 SE
-> Also changed the VIDs to better describe them
+Commit 13b25489b6f8 ("kbuild: change working directory to external
+module directory with M=") changed kbuild working directory of bpf and
+hid samples to samples/{bpf,hid}, which broke the vmlinux path for
+VMLINUX_BTF, as the Makefiles assume the current work directory to be
+the kernel output directory and use a relative path (i.e., ./vmlinux):
 
-When you say "also" that's a huge hint that this should be broken up
-into multiple patches, right?  Renaming an id has nothing to do with
-adding a new one.
+  Makefile:316: *** Cannot find a vmlinux for VMLINUX_BTF at any of "  /path/to/linux/samples/bpf/vmlinux", build the kernel or set VMLINUX_BTF like "VMLINUX_BTF=/sys/kernel/btf/vmlinux" or VMLINUX_H variable.  Stop.
 
-thanks,
+Correctly refer to the kernel output directory using $(objtree).
 
-greg k-h
+Fixes: 13b25489b6f8 ("kbuild: change working directory to external module directory with M=")
+Tested-by: Ruowen Qin <ruqin@redhat.com>
+Signed-off-by: Jinghao Jia <jinghao7@illinois.edu>
+---
+ samples/bpf/Makefile | 2 +-
+ samples/hid/Makefile | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
+index 96a05e70ace3..f5865fbbae62 100644
+--- a/samples/bpf/Makefile
++++ b/samples/bpf/Makefile
+@@ -307,7 +307,7 @@ $(obj)/$(TRACE_HELPERS): TPROGS_CFLAGS := $(TPROGS_CFLAGS) -D__must_check=
+ 
+ VMLINUX_BTF_PATHS ?= $(abspath $(if $(O),$(O)/vmlinux))				\
+ 		     $(abspath $(if $(KBUILD_OUTPUT),$(KBUILD_OUTPUT)/vmlinux))	\
+-		     $(abspath ./vmlinux)
++		     $(abspath $(objtree)/vmlinux)
+ VMLINUX_BTF ?= $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
+ 
+ $(obj)/vmlinux.h: $(VMLINUX_BTF) $(BPFTOOL)
+diff --git a/samples/hid/Makefile b/samples/hid/Makefile
+index 69159c81d045..db5a077c77fc 100644
+--- a/samples/hid/Makefile
++++ b/samples/hid/Makefile
+@@ -164,7 +164,7 @@ $(obj)/hid_surface_dial.o: $(obj)/hid_surface_dial.skel.h
+ 
+ VMLINUX_BTF_PATHS ?= $(abspath $(if $(O),$(O)/vmlinux))				\
+ 		     $(abspath $(if $(KBUILD_OUTPUT),$(KBUILD_OUTPUT)/vmlinux))	\
+-		     $(abspath ./vmlinux)
++		     $(abspath $(objtree)/vmlinux)
+ VMLINUX_BTF ?= $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
+ 
+ $(obj)/vmlinux.h: $(VMLINUX_BTF) $(BPFTOOL)
+-- 
+2.48.1
+

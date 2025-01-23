@@ -1,121 +1,170 @@
-Received: from mx0b-00007101.pphosted.com (mx0b-00007101.pphosted.com [148.163.139.28])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f207.google.com (mail-il1-f207.google.com [209.85.166.207])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCB1D20C46E;
-	Thu, 23 Jan 2025 08:20:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.139.28
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80C3420E6F0
+	for <linux-input@vger.kernel.org>; Thu, 23 Jan 2025 12:57:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1737620445; cv=none; b=RKc6IttvIKlkC0Qxf/ymClMEA5+X0r9nw7F21wFaV2HxwmG/tTB3vlkJrT/4Mh6QuvL6YpzzGV1BEh15ptxAZN5MXHuTnt+DDexDnVy44hm8f6ZoiIAJNQL3L+TrQ1JKa2tkv2vXO0G3tMjXCeYlBOzF8/yJ/5iakI+EMggUfvA=
+	t=1737637045; cv=none; b=omqQwB1kXxkH7HzUl/CUviwFN0QcI6mnimRIoiOtwqBctrCOXvYp64F1x4jhkcHRXWpNjIT2GDD6EDW+4Rdd3FAEoZ+i2SKmRXC1EOtOgPW2rtvonyl5iEdlwjwaWk61zHZ3qVBQ++IdO1KKeFKJEdLvYFt5r+S0I+1YuSpPFtM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1737620445; c=relaxed/simple;
-	bh=RLXe01LvhZmTH1uUB1F/4MppbCTJ/YBo1qJzUL9Vhsw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rUpA8WuvlvYGgP5957be/4r4GOy/1KIZv1JRLRppFNk+HtJlCnfpFp1Ns2W6sG5N3qqC46WNy66ghjfd17YXsvkRjZA821f4DAc4ienDNgceRbAH5SUxjvp61X26vbB+ja6/gXiaS/69dcoxaYlURdH7hQXa4wO9Tpr2f0iwnuQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=illinois.edu; spf=pass smtp.mailfrom=illinois.edu; dkim=pass (2048-bit key) header.d=illinois.edu header.i=@illinois.edu header.b=LzgCcnqx; arc=none smtp.client-ip=148.163.139.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=illinois.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=illinois.edu
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=illinois.edu header.i=@illinois.edu header.b="LzgCcnqx"
-Received: from pps.filterd (m0166260.ppops.net [127.0.0.1])
-	by mx0b-00007101.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 50N7bXte016458;
-	Thu, 23 Jan 2025 08:19:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=illinois.edu; h=
-	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=campusrelays; bh=kCbJv4trettbR1iOKgifMg0XMAEuoFGS
-	aMYrjNu/VsM=; b=LzgCcnqxS3eCha1BA6tljVrubJ8avHgdrJvjG8bXOZS1IQKU
-	dyREPoPPbutHLJmIn9YBQGJ3xknXPSrDxZob8NOddV5uBRNGL4IpdMbQfMlr/v8L
-	HqRddJqFqR1E/mzGXD2y8xfeNWmjNSFuKoWtT1c6cyuUGIB4+a2YOV+RcExlzivO
-	V0Hb0kctbOGjLV8c8TqU9wKP8rm3/Wf6OoH+y62qZKqu5LNEgwjwxfdXfCGfz+m6
-	mWrC96D/O//oywL2f8CjezpybGhA9Li7IUISP0G7qEuIkEuc7wUWLSD7Kwo5DOXB
-	EwoSbjWtdeFif3JE2WpoPp8r67E8zfWyleA7dQ==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0b-00007101.pphosted.com (PPS) with ESMTPS id 44b862b4rb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 23 Jan 2025 08:19:56 +0000 (GMT)
-Received: from m0166260.ppops.net (m0166260.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 50N8Ju0M005824;
-	Thu, 23 Jan 2025 08:19:56 GMT
-Received: from localhost.localdomain (oasis.cs.illinois.edu [130.126.137.13])
-	by mx0b-00007101.pphosted.com (PPS) with ESMTP id 44b862b4r7-1;
-	Thu, 23 Jan 2025 08:19:55 +0000 (GMT)
-From: Jinghao Jia <jinghao7@illinois.edu>
-To: Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-        Yonghong Song <yonghong.song@linux.dev>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <bentiss@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nicolas Schier <n.schier@avm.de>, Ruowen Qin <ruqin@redhat.com>,
-        Jinghao Jia <jinghao7@illinois.edu>
-Cc: bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH bpf v2 0/2] Makefile fixes for samples/{bpf,hid}
-Date: Thu, 23 Jan 2025 02:19:48 -0600
-Message-ID: <20250123081950.173588-1-jinghao7@illinois.edu>
-X-Mailer: git-send-email 2.47.0
+	s=arc-20240116; t=1737637045; c=relaxed/simple;
+	bh=SfkTUfqccaZVf6d/CJzSczL3wj2DC5ZEZqg/AAVj1oE=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=idsGnG/jIeH51Txa/Zs2n8rgAKVGelvFLpYQYbkNqBoCNwyp2Uh6y6R27bG0MjESXXNoJGFoXbzJq07f422ewa0mgQeLNV6SNxqNh5e82vST3Jaw4+jyl84w4XHGSIqoyJomGl8uctkiAvZVYlqa7jm6v7gPxwPlvwPHVu1aI24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f207.google.com with SMTP id e9e14a558f8ab-3a9d4ea9e0cso6022425ab.0
+        for <linux-input@vger.kernel.org>; Thu, 23 Jan 2025 04:57:23 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1737637042; x=1738241842;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=yOnhm+dzJp1QNGrRtlT9jWJZwF9Tk+o1YQ+snJlZUro=;
+        b=CnNpweoRM0x5tZOgIc4GEQLUlTNgnbGhVDPYRzU5bjy/plsCA1o7FTNUIl0ftoUdC6
+         2PrrPtX4VjT+3FUJ5KqYlVafw/1ZCa2uiEd4eq4MUkCfkDqsHK2Hp5ose8cM80ZDk4ez
+         rDf0hHsUwagdMFg1RAy0jHpGuPps6VI617hOkb6hfxGeluYp0ypgn3TNiaqrVGdm7DW0
+         yScv5xVQhb68ASr+EGsPXQA2RT0AEkmB4/Pxj06ftmNDP/+2I8IsJBtG/z0PIBpp5PsY
+         oW9HMsJZo0YIq5HPHLisqTW0nzG+MQldt5Se9PCc7ITBCcFitq54pxLbRkW86Au3ITCA
+         Nj2g==
+X-Forwarded-Encrypted: i=1; AJvYcCW5UCF/3cwxrszQkfRA6rZtME5inGJF3k3TMnRGuGoGO/9ipIRA2gaKZSxqjWG1iRXIXDn0Uk/EqhJQlQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0YzfpnzkuSO6m9aSYfiNC/+Z1dk1Ik1cCq6pGs5JSY7SG8D6W37a
+	c1sgvBkzcfw1I2inD2eG3y7RXgdazBeRBFmgc8VIM8IEhFEaJ0sl2k7Ibmv94kmUKdLzzRpgWJw
+	7nqaAwCTH6FSgkjxQ/1Z12jqNofz0XlIQ1wQEI2815QOPUhs8znNhSfo=
+X-Google-Smtp-Source: AGHT+IHKRmYwtgBc3KoGLrzd0l0HJsIuTGk6kxSw0xDRrOivFpsN9973uzLhdON+DQIOMeJMb5GKaRLrB520ay66tkGynWztGNDA
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: FI4DuP9gUMtQOXpO1WvbAJlq5heFY6vG
-X-Proofpoint-GUID: w9BqAD-UyBpQpZVFnX1gWtrUDMAsfZhe
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-01-23_03,2025-01-22_02,2024-11-22_01
-X-Spam-Details: rule=cautious_plus_nq_notspam policy=cautious_plus_nq score=0 mlxscore=0
- priorityscore=1501 mlxlogscore=370 adultscore=0 spamscore=0 clxscore=1011
- phishscore=0 suspectscore=0 impostorscore=0 malwarescore=0
- lowpriorityscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2501230063
-X-Spam-Score: 0
-X-Spam-OrigSender: jinghao7@illinois.edu
-X-Spam-Bar: 
+X-Received: by 2002:a05:6e02:20e7:b0:3ce:7fc3:9f76 with SMTP id
+ e9e14a558f8ab-3cf743eae5amr198779245ab.6.1737637042609; Thu, 23 Jan 2025
+ 04:57:22 -0800 (PST)
+Date: Thu, 23 Jan 2025 04:57:22 -0800
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <67923cb2.050a0220.2eae65.0006.GAE@google.com>
+Subject: [syzbot] [input?] [usb?] WARNING: ODEBUG bug in devres_release_group
+From: syzbot <syzbot+cf5f2dd02bbd4d2d411c@syzkaller.appspotmail.com>
+To: bentiss@kernel.org, gregkh@linuxfoundation.org, jikos@kernel.org, 
+	jkosina@suse.com, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-usb@vger.kernel.org, rafael@kernel.org, stuart.a.hayhurst@gmail.com, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Hi everyone,
+Hello,
 
-Following commit 13b25489b6f8 ("kbuild: change working directory to
-external module directory with M="), the Makefiles for both bpf and hid
-samples are broken due to the use of the relative vmlinux path (i.e.,
-./vmlinux) when generating vmlinux.h. Additionally, samples/hid experience
-the same problem that was fixed for samples/bpf in commit 5a6ea7022ff4
-("samples/bpf: Remove unnecessary -I flags from libbpf EXTRA_CFLAGS").
+syzbot found the following issue on:
 
-This patchset makes the following changes to fix these two problems:
- - It applies the same fix from commit 5a6ea7022ff4 ("samples/bpf: Remove
-   unnecessary -I flags from libbpf EXTRA_CFLAGS") to samples/hid.
- - It replaces the relative vmlinux paths in samples/{bpf,hid}/Makefile
-   with $(objtree)/vmlinux to correctly refer to the kernel output
-   directory and vmlinux, following the recent working directory change in
-   kbuild.
+HEAD commit:    c4b9570cfb63 Merge tag 'audit-pr-20250121' of git://git.ke..
+git tree:       upstream
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=14d2cab0580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=5d46425e33fe266e
+dashboard link: https://syzkaller.appspot.com/bug?extid=cf5f2dd02bbd4d2d411c
+compiler:       Debian clang version 15.0.6, GNU ld (GNU Binutils for Debian) 2.40
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14f89824580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1331c9f8580000
 
-Changelog:
-v1 -> v2:
- - v1: https://lore.kernel.org/all/20250120023027.160448-1-jinghao7@illinois.edu/
- - Address feedback from Daniel
-  - Apply vmlinux path fix to samples/hid
-  - Add a second patch that fixes the include path issue in samples/hid,
-    i.e., the same issue fixed fpr samples/bpf in commit 5a6ea7022ff4
-    ("samples/bpf: Remove unnecessary -I flags from libbpf EXTRA_CFLAGS").
- - Address feedback from Masahiro and Nicolas
-   - Use $(objtree) instead of $(srctree) in the path when referring to
-     vmlinux, as it is an artifact of kbuild.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/e34aaf236292/disk-c4b9570c.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/9fa1c2b70c0a/vmlinux-c4b9570c.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/12feb0aae53d/bzImage-c4b9570c.xz
 
-Jinghao Jia (2):
-  samples/hid: remove unnecessary -I flags from libbpf EXTRA_CFLAGS
-  samples/{bpf,hid}: fix broken vmlinux path for VMLINUX_BTF
+The issue was bisected to:
 
- samples/bpf/Makefile |  2 +-
- samples/hid/Makefile | 13 +++++++------
- 2 files changed, 8 insertions(+), 7 deletions(-)
+commit 6ea2a6fd3872e60a4d500b548ad65ed94e459ddd
+Author: Stuart Hayhurst <stuart.a.hayhurst@gmail.com>
+Date:   Tue Oct 8 23:30:29 2024 +0000
 
--- 
-2.48.1
+    HID: corsair-void: Add Corsair Void headset family driver
 
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=10afcab0580000
+final oops:     https://syzkaller.appspot.com/x/report.txt?x=12afcab0580000
+console output: https://syzkaller.appspot.com/x/log.txt?x=14afcab0580000
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+cf5f2dd02bbd4d2d411c@syzkaller.appspotmail.com
+Fixes: 6ea2a6fd3872 ("HID: corsair-void: Add Corsair Void headset family driver")
+
+WARNING: CPU: 0 PID: 1206 at lib/debugobjects.c:615 debug_print_object+0x17a/0x1f0 lib/debugobjects.c:612
+Modules linked in:
+CPU: 0 UID: 0 PID: 1206 Comm: kworker/0:2 Not tainted 6.13.0-syzkaller-02526-gc4b9570cfb63 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 12/27/2024
+Workqueue: usb_hub_wq hub_event
+RIP: 0010:debug_print_object+0x17a/0x1f0 lib/debugobjects.c:612
+Code: e8 4b 10 38 fd 4c 8b 0b 48 c7 c7 40 1e 60 8c 48 8b 74 24 08 48 89 ea 44 89 e1 4d 89 f8 ff 34 24 e8 bb 3e 92 fc 48 83 c4 08 90 <0f> 0b 90 90 ff 05 28 de 4c 0b 48 83 c4 10 5b 41 5c 41 5d 41 5e 41
+RSP: 0018:ffffc9000451eeb8 EFLAGS: 00010286
+RAX: 6e3a10eb39cc4d00 RBX: ffffffff8c0ca540 RCX: ffff8880279c8000
+RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
+RBP: ffffffff8c601fc0 R08: ffffffff81603132 R09: fffffbfff1cfa638
+R10: dffffc0000000000 R11: fffffbfff1cfa638 R12: 0000000000000000
+R13: ffffffff8c601ed8 R14: dffffc0000000000 R15: ffff8880309f51a8
+FS:  0000000000000000(0000) GS:ffff8880b8600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000555571005650 CR3: 0000000032228000 CR4: 00000000003526f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ __debug_check_no_obj_freed lib/debugobjects.c:1099 [inline]
+ debug_check_no_obj_freed+0x45b/0x580 lib/debugobjects.c:1129
+ slab_free_hook mm/slub.c:2284 [inline]
+ slab_free mm/slub.c:4613 [inline]
+ kfree+0x115/0x430 mm/slub.c:4761
+ release_nodes drivers/base/devres.c:506 [inline]
+ devres_release_group+0x328/0x350 drivers/base/devres.c:689
+ hid_device_remove+0x250/0x370 drivers/hid/hid-core.c:2779
+ device_remove drivers/base/dd.c:567 [inline]
+ __device_release_driver drivers/base/dd.c:1273 [inline]
+ device_release_driver_internal+0x4a9/0x7c0 drivers/base/dd.c:1296
+ bus_remove_device+0x34f/0x420 drivers/base/bus.c:576
+ device_del+0x57a/0x9b0 drivers/base/core.c:3854
+ hid_remove_device drivers/hid/hid-core.c:2958 [inline]
+ hid_destroy_device+0x6a/0x1b0 drivers/hid/hid-core.c:2980
+ usbhid_disconnect+0x9e/0xc0 drivers/hid/usbhid/hid-core.c:1458
+ usb_unbind_interface+0x25b/0x940 drivers/usb/core/driver.c:458
+ device_remove drivers/base/dd.c:569 [inline]
+ __device_release_driver drivers/base/dd.c:1273 [inline]
+ device_release_driver_internal+0x503/0x7c0 drivers/base/dd.c:1296
+ bus_remove_device+0x34f/0x420 drivers/base/bus.c:576
+ device_del+0x57a/0x9b0 drivers/base/core.c:3854
+ usb_disable_device+0x3bf/0x850 drivers/usb/core/message.c:1418
+ usb_disconnect+0x340/0x950 drivers/usb/core/hub.c:2304
+ hub_port_connect drivers/usb/core/hub.c:5363 [inline]
+ hub_port_connect_change drivers/usb/core/hub.c:5663 [inline]
+ port_event drivers/usb/core/hub.c:5823 [inline]
+ hub_event+0x1ebc/0x5150 drivers/usb/core/hub.c:5905
+ process_one_work kernel/workqueue.c:3236 [inline]
+ process_scheduled_works+0xa66/0x1840 kernel/workqueue.c:3317
+ worker_thread+0x870/0xd30 kernel/workqueue.c:3398
+ kthread+0x7a9/0x920 kernel/kthread.c:464
+ ret_from_fork+0x4b/0x80 arch/x86/kernel/process.c:148
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:244
+ </TASK>
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup

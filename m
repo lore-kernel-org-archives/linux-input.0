@@ -1,43 +1,42 @@
 Received: from mx0b-00007101.pphosted.com (mx0b-00007101.pphosted.com [148.163.139.28])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E771F2063D0;
-	Mon,  3 Feb 2025 08:55:52 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7699207640;
+	Mon,  3 Feb 2025 08:55:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.139.28
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738572954; cv=none; b=jG/9nAWL9kaSo87WuiPMWlO43qyM4K9nYs1wX4GbOIPt7vvaC96s9IuP6Kmt6ln7cxvE5fcDp8poeNNW73fTUQrHf7nesR4l/ktj7TbGpEoRT3L48Aub1WzpLME4PvckJFbNvw8B/y4i++FoXDd/rUoW+9aDAVf3GfNJGFFbaa0=
+	t=1738572956; cv=none; b=uNGTiiky9nkc1LEj4ArUqSM/zaD+iWsqex37z3eZstC46/BhyrpdCthdd4AIvGv+xCY7Uq2BEauFW4khxr115cePmxAPLWSf4YIFgeRSQQROS8jK3IDa2S8Egliq9fITSqwipfaqk/2oaGJxO9U4+VD70aXx73pR36nHiQWAMTY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738572954; c=relaxed/simple;
-	bh=ZKHIR6wnVvJMF1XgF9zruT066nKXFM3lisQyFGX6mOE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=n2iCOmZORnjlxHNuGhQ3hYIvqIIP/jas2obkVL1j9lt9YQKAxjAVe1gkAlPzPGGCDFrx0On3p5XVnU9j5PtKUSDe8/jIgNT+YMuJSXn8M/fAzNsd1xciopyz5M2s5qyh4ANYx+EsEjwy9YCX72k9gLD8qc9HqcJuGyEw9oVnflc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=illinois.edu; spf=pass smtp.mailfrom=illinois.edu; dkim=pass (2048-bit key) header.d=illinois.edu header.i=@illinois.edu header.b=YKceePOp; arc=none smtp.client-ip=148.163.139.28
+	s=arc-20240116; t=1738572956; c=relaxed/simple;
+	bh=TBmZn9Bd16Gy7egqSQ5QTe9Zh6GCI4/ZlmqABocv35s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bdwd9dxSt1r/uqjkCOx4sff7PGSSOid+c7BEzK4OOvjb3dsO4zAi95Lg5DJinaec6vf/U5MKqvAcua4tY3NB4wt1la9LTTnS9TDXe3mBk7Plg4LvMDtZ4O49zFCop9LaUKXQJ3Bj3OGvg0RAcdXrITeud76/1/+VdzjRoKFOQZQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=illinois.edu; spf=pass smtp.mailfrom=illinois.edu; dkim=pass (2048-bit key) header.d=illinois.edu header.i=@illinois.edu header.b=a7cfz9LF; arc=none smtp.client-ip=148.163.139.28
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=illinois.edu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=illinois.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=illinois.edu header.i=@illinois.edu header.b="YKceePOp"
+	dkim=pass (2048-bit key) header.d=illinois.edu header.i=@illinois.edu header.b="a7cfz9LF"
 Received: from pps.filterd (m0272703.ppops.net [127.0.0.1])
-	by mx0b-00007101.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5137Nkfu001149;
-	Mon, 3 Feb 2025 08:55:13 GMT
+	by mx0b-00007101.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5137i9xl012001;
+	Mon, 3 Feb 2025 08:55:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=illinois.edu; h=
-	cc:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=campusrelays; bh=xwved6j1
-	Vt8e4dOW6wJuBUwbHU2XqUSDmxms8fZezwg=; b=YKceePOpo2CPne72M7EWQ6mN
-	246TFojjU46Ux+IEDK78qpcgOn9cGGJ6FFPP+dURjrJFuy8R+rNXKiegHnTbzJrF
-	wUdV/+Aa5iq/xpqBG3MCQXOW64P23lSGiqTzNdYKDCRi9gnpryX8Ch9ERcGdJo0y
-	wVyHiM4+M5uEru3PAioGEe1v2/0sZk4Vu37lQYil7ZmTIRErW3ioxMjcJ1dt5LJv
-	sXQoZb0Nfe2VZw9p2C9c57tJEc9NFJws8NiVis9cnaEGGAMOelWPO4v3+Gyt0BPk
-	B0VA5ORs/oSX9OqQIZzW7jSsjKMFt5gyOv8T4oZsTSKynju8fydUWOFpLzXQvw==
+	cc:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=campusrelays; bh=ODvLgp8YPDdcWqJ9GP8rNHsfm7Whi7Xj
+	3UusBO4cWvg=; b=a7cfz9LFLquqwgB9rbjb1qw/x2QYPjw6emBXyLlEDzQ8OsKL
+	AiV1st39Zv8xScWGU/B7Ym/FetwSLNGgNmt0A3vlJA/g6JndLjASDxnb/uyFot5R
+	qBpAp8wA/YQvGADTK7seR8Gy1DdKajS/ANl3RuX90JIdPkhxhMIwfqbMRAsxmLxx
+	OwkB5Pie3q+DoHS9KBWtZYyjKfLmZniaLgc5cp96E/UXDNWf5P92dIi03Qx2xKcl
+	FHSxK1sZVwEejH6ZQ4V7UHw2O3TfxQszrU6VjgvNTdGYBOomLxfVeX73Y5PT/apQ
+	pCI3uVRUboP1pZh96cGuOC4Q5W/GJEENV9Yedg==
 Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0b-00007101.pphosted.com (PPS) with ESMTPS id 44jjep9xep-1
+	by mx0b-00007101.pphosted.com (PPS) with ESMTPS id 44jjep9xeg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 03 Feb 2025 08:55:12 +0000 (GMT)
+	Mon, 03 Feb 2025 08:55:10 +0000 (GMT)
 Received: from m0272703.ppops.net (m0272703.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 5138q1nS024616;
-	Mon, 3 Feb 2025 08:55:12 GMT
+	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 5138q1nO024616;
+	Mon, 3 Feb 2025 08:55:09 GMT
 Received: from localhost.localdomain (oasis.cs.illinois.edu [130.126.137.13])
-	by mx0b-00007101.pphosted.com (PPS) with ESMTP id 44jjep9xed-3;
-	Mon, 03 Feb 2025 08:55:12 +0000 (GMT)
+	by mx0b-00007101.pphosted.com (PPS) with ESMTP id 44jjep9xed-1;
+	Mon, 03 Feb 2025 08:55:09 +0000 (GMT)
 From: Jinghao Jia <jinghao7@illinois.edu>
 To: Alexei Starovoitov <ast@kernel.org>,
         Daniel Borkmann <daniel@iogearbox.net>,
@@ -55,12 +54,10 @@ To: Alexei Starovoitov <ast@kernel.org>,
         Jinghao Jia <jinghao7@illinois.edu>
 Cc: bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-input@vger.kernel.org
-Subject: [PATCH v3 2/3] samples/bpf: fix broken vmlinux path for VMLINUX_BTF
-Date: Mon,  3 Feb 2025 02:55:05 -0600
-Message-ID: <20250203085506.220297-3-jinghao7@illinois.edu>
+Subject: [PATCH v3 0/3] Makefile fixes for samples/{bpf,hid}
+Date: Mon,  3 Feb 2025 02:55:03 -0600
+Message-ID: <20250203085506.220297-1-jinghao7@illinois.edu>
 X-Mailer: git-send-email 2.47.0
-In-Reply-To: <20250203085506.220297-1-jinghao7@illinois.edu>
-References: <20250203085506.220297-1-jinghao7@illinois.edu>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -68,50 +65,63 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: utht8fX9U7PwpEQZV63AUlwJrZg3C2-I
-X-Proofpoint-GUID: WmLRWqbcIJhW6UCjyXSOmOiOV-Ol0VDR
+X-Proofpoint-ORIG-GUID: 0sh5byDQhXX_9czvjXpmxfctcawUiOPa
+X-Proofpoint-GUID: 2ImgSpJeJTiC_dfbTGc1Ev88FmGm-mZA
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1057,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-02-03_03,2025-01-31_02,2024-11-22_01
 X-Proofpoint-Spam-Details: rule=cautious_plus_nq_notspam policy=cautious_plus_nq score=0 adultscore=0
  malwarescore=0 clxscore=1015 mlxscore=0 phishscore=0 spamscore=0
- priorityscore=1501 mlxlogscore=810 bulkscore=0 suspectscore=0
+ priorityscore=1501 mlxlogscore=503 bulkscore=0 suspectscore=0
  impostorscore=0 lowpriorityscore=0 classifier=spam adjust=0 reason=mlx
  scancount=1 engine=8.19.0-2501170000 definitions=main-2502030071
 X-Spam-Score: 0
 X-Spam-OrigSender: jinghao7@illinois.edu
 X-Spam-Bar: 
 
-Commit 13b25489b6f8 ("kbuild: change working directory to external
-module directory with M=") changed kbuild working directory of bpf
-sample programs to samples/bpf, which broke the vmlinux path for
-VMLINUX_BTF, as the Makefiles assume the current work directory to be
-the kernel output directory and use a relative path (i.e., ./vmlinux):
+Hi everyone,
 
-  Makefile:316: *** Cannot find a vmlinux for VMLINUX_BTF at any of "  /path/to/linux/samples/bpf/vmlinux", build the kernel or set VMLINUX_BTF like "VMLINUX_BTF=/sys/kernel/btf/vmlinux" or VMLINUX_H variable.  Stop.
+Following commit 13b25489b6f8 ("kbuild: change working directory to
+external module directory with M="), the Makefiles for both bpf and hid
+samples are broken due to the use of the relative vmlinux path (i.e.,
+./vmlinux) when generating vmlinux.h. Additionally, samples/hid experience
+the same problem that was fixed for samples/bpf in commit 5a6ea7022ff4
+("samples/bpf: Remove unnecessary -I flags from libbpf EXTRA_CFLAGS").
 
-Correctly refer to the kernel output directory using $(objtree).
+This patchset makes the following changes to fix these two problems:
+ - The first patch applies the same fix from commit 5a6ea7022ff4
+   ("samples/bpf: Remove unnecessary -I flags from libbpf EXTRA_CFLAGS") to
+   samples/hid.
+ - The second and third patch replace the relative vmlinux paths in
+   samples/{bpf,hid}/Makefile with $(objtree)/vmlinux to correctly refer to
+   the vmlinux in kernel output directory, following the recent working
+   directory change in kbuild.
 
-Fixes: 13b25489b6f8 ("kbuild: change working directory to external module directory with M=")
-Tested-by: Ruowen Qin <ruqin@redhat.com>
-Signed-off-by: Jinghao Jia <jinghao7@illinois.edu>
----
- samples/bpf/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Changelog:
+v2 -> v3:
+ - v2: https://lore.kernel.org/all/20250123081950.173588-1-jinghao7@illinois.edu/
+ - Address feedback from Andrii
+  - Split the vmlinux path fixes for bpf and hid
+v1 -> v2:
+ - v1: https://lore.kernel.org/all/20250120023027.160448-1-jinghao7@illinois.edu/
+ - Address feedback from Daniel
+  - Apply vmlinux path fix to samples/hid
+  - Add a second patch that fixes the include path issue in samples/hid,
+    i.e., the same issue fixed fpr samples/bpf in commit 5a6ea7022ff4
+    ("samples/bpf: Remove unnecessary -I flags from libbpf EXTRA_CFLAGS")
+ - Address feedback from Masahiro and Nicolas
+   - Use $(objtree) instead of $(srctree) in the path when referring to
+     vmlinux, as it is an artifact of kbuild
 
-diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
-index dd9944a97b7e..5b632635e00d 100644
---- a/samples/bpf/Makefile
-+++ b/samples/bpf/Makefile
-@@ -307,7 +307,7 @@ $(obj)/$(TRACE_HELPERS): TPROGS_CFLAGS := $(TPROGS_CFLAGS) -D__must_check=
- 
- VMLINUX_BTF_PATHS ?= $(abspath $(if $(O),$(O)/vmlinux))				\
- 		     $(abspath $(if $(KBUILD_OUTPUT),$(KBUILD_OUTPUT)/vmlinux))	\
--		     $(abspath ./vmlinux)
-+		     $(abspath $(objtree)/vmlinux)
- VMLINUX_BTF ?= $(abspath $(firstword $(wildcard $(VMLINUX_BTF_PATHS))))
- 
- $(obj)/vmlinux.h: $(VMLINUX_BTF) $(BPFTOOL)
+Jinghao Jia (3):
+  samples/hid: remove unnecessary -I flags from libbpf EXTRA_CFLAGS
+  samples/bpf: fix broken vmlinux path for VMLINUX_BTF
+  samples/hid: fix broken vmlinux path for VMLINUX_BTF
+
+ samples/bpf/Makefile |  2 +-
+ samples/hid/Makefile | 13 +++++++------
+ 2 files changed, 8 insertions(+), 7 deletions(-)
+
 -- 
 2.48.1
 

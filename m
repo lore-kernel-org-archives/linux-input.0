@@ -1,48 +1,35 @@
-Received: from forward204d.mail.yandex.net (forward204d.mail.yandex.net [178.154.239.217])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0C183A8CB;
-	Mon,  3 Feb 2025 17:51:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.217
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31553211269;
+	Mon,  3 Feb 2025 19:15:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738605080; cv=none; b=SVSeCUM4syvy/vPJCukP2Iw1j2XGh588cxXM2x5nMN/A1bu6z66YRWoIVOcLNxKUohe68CUjhBzXmAJ6T1J4k11mhQGnP19slAU7VZF1IMIEthk9lhg/LSCfW5pl1yBfowlP2EFSBj3MJM6nFOgVD5o4j0Oo1wjYSK/3yd+D0Jc=
+	t=1738610126; cv=none; b=gIvraDttNwcjHVBwEcMmk+f9KvTx5IxC+KUB0GYsCtj09UKp9ahAjpGxzj8kK+4R+cglSX3Hh8w1e+9k7nYus91M4ArqFL0ZBn9Plvh1jzkOcXiGlXsfUT9ksoJxj6t+P0oEjx4QvAzrQCAoJ3c9fA1ff1q9q2KbExnvVdgljSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738605080; c=relaxed/simple;
-	bh=yQhfC/yggsxzdwf3kw2jCq81VaVX9MTlNmUkAKdj9fE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=plbQ6Jxq3icCZTDum2GR+1XX64Pwp5G36zjY4y3y55Gp3wYd79YsXC8dEWu9n0+tge0+1asff16icwHi2lmKhx4QcPqUMUm4EES9DnJtbQVHM3kNCWF6P0eJd2iddtYlkI2BknRI0bH4/ezGyRZwxEf4OFneyjpM/Qnlfp8HW8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=travitia.xyz; spf=none smtp.mailfrom=travitia.xyz; arc=none smtp.client-ip=178.154.239.217
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=travitia.xyz
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=travitia.xyz
-Received: from forward103d.mail.yandex.net (forward103d.mail.yandex.net [IPv6:2a02:6b8:c41:1300:1:45:d181:d103])
-	by forward204d.mail.yandex.net (Yandex) with ESMTPS id 1859A64406;
-	Mon,  3 Feb 2025 20:43:40 +0300 (MSK)
-Received: from mail-nwsmtp-smtp-production-main-35.klg.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-35.klg.yp-c.yandex.net [IPv6:2a02:6b8:c42:3ba4:0:640:5b85:0])
-	by forward103d.mail.yandex.net (Yandex) with ESMTPS id 31E2060069;
-	Mon,  3 Feb 2025 20:43:29 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-35.klg.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id PhnTWxOOeeA0-EYz3Kaa5;
-	Mon, 03 Feb 2025 20:43:27 +0300
-X-Yandex-Fwd: 1
-Authentication-Results: mail-nwsmtp-smtp-production-main-35.klg.yp-c.yandex.net; dkim=pass
-From: Jens Reidel <adrian@travitia.xyz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Bastien Nocera <hadess@hadess.net>,
-	Hans de Goede <hdegoede@redhat.com>,
-	Neil Armstrong <neil.armstrong@linaro.org>
-Cc: Luca Weiss <luca.weiss@fairphone.com>,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	phone-devel@vger.kernel.org,
-	linux@mainlining.org,
-	~postmarketos/upstreaming@lists.sr.ht,
-	Jens Reidel <adrian@travitia.xyz>
-Subject: [PATCH 0/2] Add Goodix Berlin-A series support
-Date: Mon,  3 Feb 2025 18:43:07 +0100
-Message-ID: <20250203174309.21574-1-adrian@travitia.xyz>
-X-Mailer: git-send-email 2.48.1
+	s=arc-20240116; t=1738610126; c=relaxed/simple;
+	bh=BDPM7u1CRvEI1Kn3lZuF8kskwCiEX3Kitywmg+8MwZU=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=JVgbqGGoX14QL+VPu//ujlbZ6H7T+5koFGirLhEhbbXIfxbHqwzW+fzLSELMn8aVedZOL1rameY7EOIlhfnYPsDAmB6GraFI1PPAA8SDffXlE9iaHaZamwR8BfExug6OoE8PXZowK6XiNE1E/pBQs1vApbCdj/0FUNPriP4TPqY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hYhm3W1Q; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hYhm3W1Q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CC92C4CED2;
+	Mon,  3 Feb 2025 19:15:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1738610125;
+	bh=BDPM7u1CRvEI1Kn3lZuF8kskwCiEX3Kitywmg+8MwZU=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=hYhm3W1QYCkDsN1crFMcC5vC3MonK+qkCAOz+WwdhOVUHZ0HLjZTQAsg3tl7o9s8H
+	 BU+bqi9jyOYbxwC9ei76Mq8ptcXqsd5SOh/+8og70lDYJL3RqtnPerGIZTHCANkamQ
+	 Yckq82B8xZnfo+4rNvq7hQkLnKU+EQGYkdYhQiJAOqj4uCdhBQcjpFfp1P/bTDp3Yi
+	 HOV2GGByqpfdPESu++AwzdFyQr0pmhKP6IC3N45Oo9VeJUx9wz3qUds6G2jzdwYpTR
+	 CH+85Ld4snwX3gUvih7vhRHBGwI6rZla+uTR8mjJBtjlPBw44r3zYQ1Yg3dnH2nSQb
+	 8qk8l0+zUOkqw==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id EB437380AA67;
+	Mon,  3 Feb 2025 19:15:53 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -50,40 +37,72 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH v2 00/12] pm: Introduce devm_pm_set_wake_irq
+From: patchwork-bot+linux-riscv@kernel.org
+Message-Id: 
+ <173861015275.3409359.13632354633861115390.git-patchwork-notify@kernel.org>
+Date: Mon, 03 Feb 2025 19:15:52 +0000
+References: <20250103-wake_irq-v2-0-e3aeff5e9966@nxp.com>
+In-Reply-To: <20250103-wake_irq-v2-0-e3aeff5e9966@nxp.com>
+To: Peng Fan <peng.fan@oss.nxp.com>
+Cc: linux-riscv@lists.infradead.org, rafael@kernel.org, len.brown@intel.com,
+ pavel@ucw.cz, gregkh@linuxfoundation.org, dmitry.torokhov@gmail.com,
+ alexandre.belloni@bootlin.com, mcoquelin.stm32@gmail.com,
+ alexandre.torgue@foss.st.com, linus.walleij@linaro.org,
+ conor.dooley@microchip.com, daire.mcnamara@microchip.com,
+ linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-input@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-stm32@st-md-mailman.stormreply.com,
+ linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+ peng.fan@nxp.com
 
-This series adds support for the Goodix Berlin-A series touch ICs
-(gt9897). This was tested on a Xiaomi 11 Lite 5G NE (xiaomi-lisa),
-which uses the gt9897 IC connected over SPI. I am not aware of any
-device that has gt9897 connected over I2C and therefore could not
-test it, so I didn't add a compatible in the I2C driver.
+Hello:
 
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Rob Herring <robh@kernel.org>
-To: Krzysztof Kozlowski <krzk+dt@kernel.org>
-To: Conor Dooley <conor+dt@kernel.org>
-To: Bastien Nocera <hadess@hadess.net>
-To: Hans de Goede <hdegoede@redhat.com>
-To: Neil Armstrong <neil.armstrong@linaro.org>
-Cc: Luca Weiss <luca.weiss@fairphone.com>
-Cc: linux-input@vger.kernel.org
-Cc: devicetree@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: phone-devel@vger.kernel.org
-Cc: linux@mainlining.org
-Cc: ~postmarketos/upstreaming@lists.sr.ht
-Signed-off-by: Jens Reidel <adrian@travitia.xyz>
+This series was applied to riscv/linux.git (fixes)
+by Rafael J. Wysocki <rafael.j.wysocki@intel.com>:
 
-Jens Reidel (2):
-  dt-bindings: input: goodix,gt9916: Document gt9897 compatible
-  Input: goodix_berlin - Add support for Berlin-A series
+On Fri, 03 Jan 2025 16:41:12 +0800 you wrote:
+> This was a retry to address [1][2], to let common code handle
+> dev_pm_clear_wake_irq. Then no need to call dev_pm_clear_wake_irq
+> in each driver.remove() hook and error handling path.
+> 
+> In this patchset, I include input and rtc patches to show the usage
+> to avoid introducing an API without users. There are still
+> other places using dev_pm_clear_wake_irq. If this patchset is
+> good for you, I could start to clean up other drivers such as mmc and
+> etc.
+> 
+> [...]
 
- .../input/touchscreen/goodix,gt9916.yaml      |  1 +
- drivers/input/touchscreen/goodix_berlin.h     |  9 ++++
- .../input/touchscreen/goodix_berlin_core.c    | 27 +++++++++---
- drivers/input/touchscreen/goodix_berlin_i2c.c |  6 ++-
- drivers/input/touchscreen/goodix_berlin_spi.c | 44 +++++++++++++++----
- 5 files changed, 73 insertions(+), 14 deletions(-)
+Here is the summary with links:
+  - [v2,01/12] PM: sleep: wakeirq: Introduce device-managed variant of dev_pm_set_wake_irq
+    https://git.kernel.org/riscv/c/fd8318a32573
+  - [v2,02/12] input: keyboard: ep93xx_keypad: Use devm_pm_set_wake_irq
+    (no matching commit)
+  - [v2,03/12] input: keyboard: omap4_keypad: Use devm_pm_set_wake_irq
+    (no matching commit)
+  - [v2,04/12] input: misc: nxp-bbnsm-pwrkey: Use resource managed API to simplify code
+    (no matching commit)
+  - [v2,05/12] input: touchscreen: ti_am335x_tsc: Use resource managed API to simplify code
+    (no matching commit)
+  - [v2,06/12] rtc: stm32: Use resource managed API to simplify code
+    (no matching commit)
+  - [v2,07/12] rtc: nxp-bbnsm: Use resource managed API to simplify code
+    (no matching commit)
+  - [v2,08/12] rtc: ds1343: Use devm_pm_set_wake_irq
+    (no matching commit)
+  - [v2,09/12] rtc: pm8xxx: Use devm_pm_set_wake_irq
+    (no matching commit)
+  - [v2,10/12] rtc: ab8500: Use resource managed API to simplify code
+    (no matching commit)
+  - [v2,11/12] rtc: mpfs: Use devm_pm_set_wake_irq
+    (no matching commit)
+  - [v2,12/12] rtc: pl031: Use resource managed API to simplify code
+    (no matching commit)
 
+You are awesome, thank you!
 -- 
-2.48.1
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 

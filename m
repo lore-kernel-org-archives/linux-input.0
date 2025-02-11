@@ -1,75 +1,70 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+Received: from mail-lj1-f173.google.com (mail-lj1-f173.google.com [209.85.208.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD78924CEC3;
-	Tue, 11 Feb 2025 14:03:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D70BB214A92;
+	Tue, 11 Feb 2025 14:35:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739282592; cv=none; b=Biy7svdKMEMgeAkrfEM319Yk3+NkuokgCspvhhIbSSZzxuOcFudTLPyhKenqEI+AyNYDUx75lanp1YgbMP6abemyy5rQ9sC84mUSY4eoD9qqNKqHRxLtnEoJjMUxbaHbcpcTjRLh8d18jP7zJ4ajacS5FUMbxZRausGDDq4cVis=
+	t=1739284521; cv=none; b=t16up3YBAlYI0wQnCZsIp/RQ8I0Qyeu7AWNZ4gVzNmYf3yDSBeAWHLHUYnQbkvaK/6sW+O3nzfJ6M16sGSYB9YvaFg6UezGnJGbp0MtkL4xIxDX2zcn/ivSUc+0MjY6EYzzVj1ORALaKlTNfXeCWFzCfxkipQiMujnK96ZAAQpQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739282592; c=relaxed/simple;
-	bh=kNGRVi3mkE4Ik7DuVSzb0dE3caW/bhvIv27XtZ4uEmE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Jugcu3bzAOENGS2AIxSWA0PUuEOXa7wkf5t329kVd5ABi5l6j0gV19rQKR8tkFKzO/KR7B3dsRsLv4BbmMNsGZ7IFuaTrCk6nNIZJiHTzFNWPoWRfcMmJQ0oDvE5zD/4d/6G/anA5NgZIyyt2rJUzjWp23Pnhk4KBYOoDlP1xAA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kP4DFTwa; arc=none smtp.client-ip=209.85.167.50
+	s=arc-20240116; t=1739284521; c=relaxed/simple;
+	bh=xrmxB7P9Y7ibA4hW2USDjmschpAval/ACWYaGqsdxec=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=mJry3YBLehW3G/MD/1r7VY8LI50kwUjHT1SI7FA0ZNT4vdx/uTBVq0Ezf4S7qCg4CdMDPnycfOYxXfjRbyqDri8UfbVR2e3dYi+FTUI3Ow62j+qheGegW+ohg+8ZcgeEAP37a3+9ZlPKKJsbqoQjlO/p8TxBWaXRtCTLMQF/lXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bjnNXwkB; arc=none smtp.client-ip=209.85.208.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kP4DFTwa"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-5450e08f300so283387e87.0;
-        Tue, 11 Feb 2025 06:03:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bjnNXwkB"
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-308e273928aso2798591fa.0;
+        Tue, 11 Feb 2025 06:35:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739282589; x=1739887389; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=w2CWaXsm/K/mNvLz1mhLGG+mDBgTiXMcIaNXAmCgOmw=;
-        b=kP4DFTwaG6UktNTEHN1ylbocF4K8KRWmONtKoM9fp+T7Sht9ZDElW/qGwYlqljNei5
-         eosxH/Ouq4djLJ3c4YAsDvqFnRpVBXcRSsy3tQRG1N5KHkAhF/VSbMHG7M4ko0DsJoJ3
-         Dy/Q4biFr5ii+7lgxBA9IAiXFDHxYJMHXL63+Yji7JFE9FySvcG7fIMLxx9cppbr/92c
-         xh9CGbLtIhmDeTX9PBh9rahVP8oXiV1PVjI2/EQtQFKRS85P1cEmw2tIJ/fcyhEa0EtW
-         rALqyjeiLcEXERRjU6Vg1z/0aVJz/8fZG/0IUYZ5K7DEl/e7zzqGtYmnxakW+SL1Nijw
-         hCdw==
+        d=gmail.com; s=20230601; t=1739284518; x=1739889318; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0Q7BNYOfBkP57zXVyvcS29qQiDYkBdMkIouHfDoqa48=;
+        b=bjnNXwkB4XClJvJE/adDKkZHHHaLU5Q9Con8JtdQT31IF5N+YltKbK86bmlVLB5Ztn
+         g+bMYhYX4i7TpzJT0JbxaAhVbWPysxQ9D83CtmoEemOzaH9MIf01WlLDG2S4ZO1vs/3q
+         Of1E7cDA2vyc0GAYnS77c8vIsvxnMFwsjpFIyoKCPklIyQnEZuMTPby2tI7BCwjcduPh
+         CAQlX8rAZjk3IZHfG/w264Axk1qK5Z6of5GzZCk3DuaGvYdvy0PJ4X3kSG7oN11MQzIH
+         aQDcjihs72Tj89EYs9QRxyNHLrpatgSxm5uf76PSTvUJsymg0CWgQ/FXcv20rnYuuwW5
+         FsVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739282589; x=1739887389;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=w2CWaXsm/K/mNvLz1mhLGG+mDBgTiXMcIaNXAmCgOmw=;
-        b=c6bTtJhsIlKOonQx/v7g4YMvco1gEFpKtu2GOMWBVT94nN0JNWDcDO/sxS8rV8qp3y
-         wpjju9HLY44zcFP9FRi9tHH0czIm8n6UvrgtLEoYIi9c0J6vf4qoB9CUh+iAZC63UpNp
-         Ah/n/pnZotzdU2nc786/1kI+G2BQNmM6IFfys2DO9JpSLNuwBr8knZru9uwrIE6FXNgm
-         68Ccmi2S/7AbKpihL6HDX+ZGTzQYmhRa9kQSUqi6bLY8/6SG8Ow9I82aBJoClp74uTzI
-         swwG7TFzGvOVGC1dqNHIqYc3yriuIn7VaiDKfWfzsh9O6nHNkMnDIHO9ANfOCOdRvOU2
-         lgqA==
-X-Forwarded-Encrypted: i=1; AJvYcCVTM+DMDptXguuGQQO2sbVk3xIomSZzmytlgEiHwz8LM+o/P2v43WvnfqUpk8ZxgzlwfHp2Y32tdaZM@vger.kernel.org, AJvYcCXgX/vNIs0xjzexyNErEDL5/29si2gdLh4qDZe5+EqqekP0Nwal0vZdhhWSx7VaMCtu9ZHaBBJ0e4InRw==@vger.kernel.org
-X-Gm-Message-State: AOJu0YxTSl5JVsh5u/CWjkJ7Lgb0mOcdMlYQkaPk4i880yzkowl7XOGr
-	75VlPdDbSkRSkJLGLEWqUEzdFayPuNqHvZsqN7ajewhD35dkgPOl
-X-Gm-Gg: ASbGncs5USk7aQXXTv1YHlozfpiwqGhLRAZ/AwLnD+be5lQIH6ynIctTOjbDVULiKyu
-	WE53i+nRWA3n3lA+bQHVKA0EmXgtk1SXCQYjD4C5NFyiTXW8G3Q1mCDrptWF5OSQCW8jihNlN/2
-	krwbW9ca4d0UrruPAnPyXvNUBHJdR7bjOEmTydh/D053mRrzsQCdrJGRLyTFXQRf93xAhG7nOG6
-	wdgjw3XsYDvjy02D0OLk20oOb0PIGvK5JnqxF/ocASjwl229xg22zEd96sS5AXDPXdvMF6vc70x
-	EEF2vhGEi7bOH/Si/1/xb5Jb4vP+a5xQNAL7dwYhGYZnArpd0KNVYUFvqFrVHA==
-X-Google-Smtp-Source: AGHT+IHVPqTnF/S9xuKkuuUBxGGreITBRohMmM0gNs1PnjpP+f5eajnP/XaxJNiaIPpKHi4xf84zRg==
-X-Received: by 2002:a05:6512:b22:b0:545:ece:82d5 with SMTP id 2adb3069b0e04-5450ece849dmr827307e87.13.1739282587061;
-        Tue, 11 Feb 2025 06:03:07 -0800 (PST)
+        d=1e100.net; s=20230601; t=1739284518; x=1739889318;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0Q7BNYOfBkP57zXVyvcS29qQiDYkBdMkIouHfDoqa48=;
+        b=kHyu66+uxFK8/XDpmozivFroMjh5kVqdb29y7dXXKTU1+XCqTnjy04mqqc0MWlSNLt
+         BgvtSV07aviOOTu5ZtCZq2XX46dCyr+153mK3JQmePrfNv8wVM+Ib4cl/x4j3PwptGwi
+         5tH+f88V3gtEwU4mVOTituUnZ9kMpmByeul6olVPxyDtRZA9khO+/kvAWADDlyXNnRJl
+         2B9kuAjlEAGfzxAB1s5lgeGnhsAXC6yhIFfgldjvS26sUETgci6GPZ+lvNdyp3oNweZY
+         Sv+t1UU0FcM0uC3L06REDbm2F14gnyyOEr95f4XwbAzrndYOdYd+MgN/t9iBrp/Ql/KB
+         Vxqg==
+X-Forwarded-Encrypted: i=1; AJvYcCWIXUZewfyBcmd1U4KZJkhRwFZG4bJQ7LaD9fm4ZtX+0/elamr0Q7sBL4zzuypXGlK5MXEbpuMBpvOt@vger.kernel.org, AJvYcCWjMV9BM+A/1HWAeDySvMWgmtZ37iaXiqkAtOqsBBRiiHskaoEEEncfhuzaxT19/cc74mWLBQgC9TtkJQ==@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx/y4u8Cmh3iSHT/xkv6kOGVm8jnjJ0SlggH9t9e+x2bMrZ75Ha
+	eF/1xj0Mc+6OVoxBhdqgeGFJfec123BhtwWx3XsIhc3auyg0UtgM2SdOayXg
+X-Gm-Gg: ASbGncv5ZH46aI1Nn6BP3SYpNVKiZ7UBZjq+CKMeVfoOaPrUMN4AT4kIHcSRfGRYXrq
+	oEzjZ1nhatX45jZoZXtYawHNnUnAIPmUiQxFSVG5IHh4KAA3x7yyd928likq/vRxAAy5dkZWBXt
+	iyhlVAngzo3qyzx+4M/Cxi8DirXWOSGo7KxitFlfZnj9fqpP24tIMNgGifgabtTm88CeM33jkfX
+	ytx0CxiEaH/kCv8Gjd85JL2Jrpr0AlzPW6Ik4to+CBVjuUNIyfgDss02qP/Pr2akhkPd7X3son7
+	ChhtCojjsCeFX6AzAw5oqfaxUAEWneRvTLXoog65xzoxjermusfZEsep4f/Oow==
+X-Google-Smtp-Source: AGHT+IF5kwvbzW21ogzsIiyQUpKpdNy6mK2nYD43GBjkz3H+IzLiQHVEcgIBx6jUZS+QlhpoATVLNA==
+X-Received: by 2002:a2e:be86:0:b0:307:2aea:559a with SMTP id 38308e7fff4ca-308fbee70e6mr3018331fa.9.1739284517570;
+        Tue, 11 Feb 2025 06:35:17 -0800 (PST)
 Received: from laptok.lan (89-64-31-140.dynamic.chello.pl. [89.64.31.140])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-545014af0d0sm1118721e87.184.2025.02.11.06.03.05
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-308ee4173edsm6132191fa.0.2025.02.11.06.35.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2025 06:03:06 -0800 (PST)
+        Tue, 11 Feb 2025 06:35:17 -0800 (PST)
 From: =?UTF-8?q?Tomasz=20Paku=C5=82a?= <tomasz.pakula.oficjalny@gmail.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org
-Cc: anssi.hannula@gmail.com,
-	oleg@makarenk.ooo,
+Cc: oleg@makarenk.ooo,
 	linux-input@vger.kernel.org,
 	linux-usb@vger.kernel.org
-Subject: [PATCH v3 5/6] HID: pidff: Support device error response from PID_BLOCK_LOAD
-Date: Tue, 11 Feb 2025 15:02:51 +0100
-Message-ID: <20250211140252.702104-6-tomasz.pakula.oficjalny@gmail.com>
+Subject: [PATCH v4 0/6] HID: pidff: Compatibility update and new devices
+Date: Tue, 11 Feb 2025 15:35:06 +0100
+Message-ID: <20250211143512.720818-1-tomasz.pakula.oficjalny@gmail.com>
 X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250211140252.702104-1-tomasz.pakula.oficjalny@gmail.com>
-References: <20250211140252.702104-1-tomasz.pakula.oficjalny@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -79,43 +74,46 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-If an error happens on the device, the driver will no longer fall
-into the trap of reading this status 60 times before it decides that
-this reply won't change to success/memory full.
+This is a small series based on top of hid.git#for-6.15/pidff.
+Add Oleg Makarenko as hid-universal-pidff co-maintainer as he fixed
+his email server and will be able to respond to LKML inquiries.
 
-Greatly reduces communication overhead during device error situation.
+Small compatibility patch for situations, where POOL report haven't
+been properly initiated and adding Asetek vendor and 4 of their
+wheelbases.
 
 Signed-off-by: Tomasz Pakuła <tomasz.pakula.oficjalny@gmail.com>
----
- drivers/hid/usbhid/hid-pidff.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
-index e2508a4d754d..d5734cbf745d 100644
---- a/drivers/hid/usbhid/hid-pidff.c
-+++ b/drivers/hid/usbhid/hid-pidff.c
-@@ -138,7 +138,8 @@ static const u8 pidff_effect_types[] = {
- 
- #define PID_BLOCK_LOAD_SUCCESS	0
- #define PID_BLOCK_LOAD_FULL	1
--static const u8 pidff_block_load_status[] = { 0x8c, 0x8d };
-+#define PID_BLOCK_LOAD_ERROR	2
-+static const u8 pidff_block_load_status[] = { 0x8c, 0x8d, 0x8e};
- 
- #define PID_EFFECT_START	0
- #define PID_EFFECT_STOP		1
-@@ -666,6 +667,11 @@ static int pidff_request_effect_upload(struct pidff_device *pidff, int efnum)
- 				pidff->block_load[PID_RAM_POOL_AVAILABLE].value[0] : -1);
- 			return -ENOSPC;
- 		}
-+		if (pidff->block_load_status->value[0] ==
-+		    pidff->status_id[PID_BLOCK_LOAD_ERROR]) {
-+			hid_dbg(pidff->hid, "device error during effect creation\n");
-+			return -EREMOTEIO;
-+		}
- 	}
- 	hid_err(pidff->hid, "pid_block_load failed 60 times\n");
- 	return -EIO;
+---
+Changes in v4:
+- Fix Oleg's email address
+
+Changes in v3:
+- Change Oleg's name order on request
+
+Changes in v2:
+- Updated comments and code to conform with Linux style guide
+- Define 0 duration as FF_INFINITE (PID_INFINITE analog)
+- Support device error response from PID_BLOCK_LOAD
+- Remove redundant call to pidff_find_special_keys
+
+---
+Tomasz Pakuła (6):
+  MAINTAINERS: Update hid-universal-pidff entry
+  HID: pidff: Make sure to fetch pool before checking SIMULTANEOUS_MAX
+  HID: hid-universal-pidff: Add Asetek wheelbases support
+  HID: pidff: Comment and code style update
+  HID: pidff: Support device error response from PID_BLOCK_LOAD
+  HID: pidff: Remove redundant call to pidff_find_special_keys
+
+ MAINTAINERS                       |  3 +-
+ drivers/hid/hid-ids.h             |  6 ++
+ drivers/hid/hid-universal-pidff.c | 10 +++-
+ drivers/hid/usbhid/hid-pidff.c    | 98 ++++++++++++++-----------------
+ 4 files changed, 60 insertions(+), 57 deletions(-)
+
+
+base-commit: 5d98079b2d0186e1f586301a9c00144a669416a8
 -- 
 2.48.1
 

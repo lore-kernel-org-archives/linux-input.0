@@ -1,163 +1,100 @@
-Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E80C1B4243;
-	Tue, 11 Feb 2025 13:38:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C409A243965;
+	Tue, 11 Feb 2025 13:40:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739281092; cv=none; b=FhVbWXBOO2U2PSJrJts/vRUcU2ylBAbpb5UAUzyIkUC3h/ONCJM4pBSbcZDUzTMemWpS4ZHgSXZLbdVzsN3MSI+RuGdfa2CcJRu0b2zdakPJ3h9YqM9wJGN6tHGYUzi881ABbkFjKlSWUWL20Z5ZuLRP1HSs+tgx7Ig7kuPXhuU=
+	t=1739281205; cv=none; b=XnqtXH/ItwTkC5T97fa5aArsncCNIgJzv96HHualADEQsPQHCTw60lcNmJu2XQSeaKyAatQg0fFYnA3RNLKim2e3vxliFNI7GUkZPDrHz0kZJJ00xig2H0/1dJ2DOirBG1yb/ElFbiVyhE2f+lA9ifyaJAzYS2d7CRufjgada34=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739281092; c=relaxed/simple;
-	bh=EeoFcYNG9Papmze2FRQ8J893pXeKTdGomDjuiMJ3hGY=;
-	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=lME0Fee8ZyfUy8so1sq1Fix0r61Jeq6DjVQDiHeWfjqpeBB7Z+IS31Fk2uQn6Po8CwIkEzDxACQkNVBiq/0jGQLnoUY+hbLEV99fmc4AUPzi2CaCzEeUQr2J3Ibcy9ciwC3ceveRu8pqur4fhQteZ3YQGYieuzoaEaSMyOtLRGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XKGgyQhB; arc=none smtp.client-ip=209.85.218.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1739281205; c=relaxed/simple;
+	bh=xWgNXPNKZM03oUis7O6rUJXGQZfLIM7VkOP+M2x6oOk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=RYoOtO34iZ0dwdlnfiFyI37fCiLHDT2QuOyRguriKC5LkzHfcUC8clAvc83v3En0hldVph409ju98aDnD3pThRSxmajIkbLeJw4VNGyAEILCbJziZ0jfEdgG1qFVXbt6WJXlIE9IQLxd5q7Z5pWH1x9JIXkDSyEroL1CPd1UyhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=cQ9tbpEo; arc=none smtp.client-ip=157.90.84.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XKGgyQhB"
-Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-aaeec07b705so877320766b.2;
-        Tue, 11 Feb 2025 05:38:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1739281089; x=1739885889; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=j7BwISHyqmjGl9jMk/G92gil8BO6b9CN0gblbkBvfTA=;
-        b=XKGgyQhB8FPsG9NL+n7CYUBIFzwNhyEseMnzw9EMpxzBsyKDgH/p35G7GrMfcNgKhK
-         5WBws+JE3xZ3ZUObV2geUGRjFyU95LqbkqY5Mq7BYN3EbDEY0tj8uqL3tt+zPnG1N5Z/
-         8MT9hV5MDkr0pbXCyq8aOwNRPMVdJRSMB+JLPxdPuqgof0HDGFsJmbI53CF5mHUqDNJ9
-         q/GhtQPcxQiD7yWKp4IENtOaTGGko9CLjk08vJGNb+MFuKeRq9km5QjbFl0gT63a8MQK
-         U1FhaYSR7QnhkyGAlbDVymk7zitjI9VYbvyJN9pQEXRia4F82F3hqt6y8pVAYl98zlX1
-         Kz1w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1739281089; x=1739885889;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:date:from:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=j7BwISHyqmjGl9jMk/G92gil8BO6b9CN0gblbkBvfTA=;
-        b=vQs9QpnK9r8qwTUJrOV+FYjPBv9Hak5eusflwrIPL1/2DOec96dxE+uW37mdwdP5W3
-         oiHtyUQU645nAMyM0y78DjKkk6REmwLWnkVgEaHh+lMLau/F4w5SZSC6HIO1mQi4teBi
-         OnPg0hvd0Ec4l492uB/17BJutnTdX3O4TyZJjp+WxrhXYlYluQyrZnkfsmzguqxP2aHl
-         skZ7JQIl9VzJS8ujMgPqjSFtdcXE1dGBSuz/9zOUhLHQMn8CskQt5XxtE7j3INqpHgVA
-         nMDHpiu0lCa2bKHzEfloDeD7jalBd5Mf5xismV0ykuuW2IcngtlzyiqebzbwylQSs0IV
-         GBsA==
-X-Forwarded-Encrypted: i=1; AJvYcCUIXnqvsaNcs+F1ZRfVnbyYJs44lS0lqVauNmqdp8On0YMYrkD3SPyQxn68S1LSUWtNq0zgHVWnXjgOQ/g=@vger.kernel.org, AJvYcCUleflgAkm2wlEi8u3cDSlEWFyJvPLnprCe30cNm7ja3DV1vML2sSTfdA5wPjlQJSprJNPsoZ4WPwT8k5EHF+/v0w==@vger.kernel.org, AJvYcCUzPGJ6glwWwfRbK64efm9mfaklEIYtHtx85POlRFh/+5pyjflJkIAkO1s+i1ZF9bq8X8anb3c+nkO2HD+QBip4@vger.kernel.org, AJvYcCVr53q+8kwgH0QHvMbmoRYez5GSV3NiggRn56wd/rkTwPQi66fimM+eVp0jTo1jJD27Se8=@vger.kernel.org, AJvYcCWTFZr7Re2wXKbDN1Ngv4W3ljhOtRz4bFOkoQrhUDHNtAihaoDVehUJsx++yss9nVuANqqtr+so0P0N6q2UNboAyKkq@vger.kernel.org, AJvYcCWYPS7307W+5apHWNkva1lBEDg+Y4N+KS+ELH8MEGgmSmvCluo+MrX/UFZDI5zySHOHmLDsJT/6G750DZVq@vger.kernel.org, AJvYcCWdJ0nCQ+vLfzaUZdFFN9QOw9aHLgIgyhcAHUMwY6B1xEcrOXitt24ZLrHHhs68PcTcXUqT9rz+qrE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwZIdm1yxXR6mqeIEo5BTXUMUNc4h0/crs4clIEaVeaqtV9poJ6
-	hzV9+p1urxvHzAJE1KdPdmpytdIC1JyJIk7Au/QfBrK25NhWyQbQ
-X-Gm-Gg: ASbGnctDamob4ELB9Tw0rLfOFzv5YpfdcLtaUM1xVsyi+7h+EjhFClVZHezvlAm/6Jb
-	qPK1l5U0BhkJChuoBxmuUOopA5EAloHEfII4VK0LGEdGcHBM66saiGYIysajx+Pb2Sb2EfrXOtF
-	EW8NBMfry5mYUgD8u9G6uJJbvXellHVymJHfj4ZZFWvosQUdp0kyfOXPWwYSaiDxmwnEjCf/7WB
-	C+WhHlwxX/QkV1jiChNKKGRCofTMJv/b7f70RqDljOu5sVfhjbbUllqIqBFZ5jKOVb91dxcGXrJ
-	jQ==
-X-Google-Smtp-Source: AGHT+IErrYuekv+/nrTb7IZvNJjKz2lGy53rvTWCwQL+ehrSB/L5vFNgAiZni7laN5QvT53Qm+BgvQ==
-X-Received: by 2002:a17:907:6e88:b0:ab7:da56:af95 with SMTP id a640c23a62f3a-ab7da56b481mr345017266b.2.1739281088648;
-        Tue, 11 Feb 2025 05:38:08 -0800 (PST)
-Received: from krava ([173.38.220.50])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ab7d855b61fsm180430666b.124.2025.02.11.05.38.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Feb 2025 05:38:08 -0800 (PST)
-From: Jiri Olsa <olsajiri@gmail.com>
-X-Google-Original-From: Jiri Olsa <jolsa@kernel.org>
-Date: Tue, 11 Feb 2025 14:38:05 +0100
-To: Charlie Jenkins <charlie@rivosinc.com>
-Cc: Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Andrii Nakryiko <andrii@kernel.org>,
-	Martin KaFai Lau <martin.lau@linux.dev>,
-	Eduard Zingerman <eddyz87@gmail.com>, Song Liu <song@kernel.org>,
-	Yonghong Song <yonghong.song@linux.dev>,
-	John Fastabend <john.fastabend@gmail.com>,
-	KP Singh <kpsingh@kernel.org>, Stanislav Fomichev <sdf@fomichev.me>,
-	Hao Luo <haoluo@google.com>, Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	Quentin Monnet <qmo@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	Josh Poimboeuf <jpoimboe@kernel.org>,
-	Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>, bpf@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-	linux-pm@vger.kernel.org, linux-kselftest@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-trace-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] tools: Unify top-level quiet infrastructure
-Message-ID: <Z6tSvUt47FV60UJA@krava>
-References: <20250210-quiet_tools-v2-0-b2f18cbf72af@rivosinc.com>
- <20250210-quiet_tools-v2-1-b2f18cbf72af@rivosinc.com>
+	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="cQ9tbpEo"
+Received: from wse-pc.fritz.box (pd9e59260.dip0.t-ipconnect.de [217.229.146.96])
+	(Authenticated sender: wse@tuxedocomputers.com)
+	by mail.tuxedocomputers.com (Postfix) with ESMTPA id 5E76B2FC0050;
+	Tue, 11 Feb 2025 14:39:54 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
+	s=default; t=1739281194;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4XL4YdXnK949uXLMtLZEecfF+8yrfks6KMpFtdAL3gA=;
+	b=cQ9tbpEonawPU8Y7E9jssi4XMybXyt6ioGDvAgYc3DtzzU5wgEvbVOrESam/7uZoNbvWar
+	rIKnLxrCE6rhUxLqK4dghZoPTjDWw9tN0x318qFcKs0BW3TQGJ2O8mgPS/nG0iPKSFxdIv
+	R9GXRAgpjGt5JE0X5fbxsACfstKx1x0=
+Authentication-Results: mail.tuxedocomputers.com;
+	auth=pass smtp.auth=wse@tuxedocomputers.com smtp.mailfrom=wse@tuxedocomputers.com
+From: Werner Sembach <wse@tuxedocomputers.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: Werner Sembach <wse@tuxedocomputers.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] Disable touchpad on firmware level while not in use
+Date: Tue, 11 Feb 2025 14:39:06 +0100
+Message-ID: <20250211133950.422232-2-wse@tuxedocomputers.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20250211133950.422232-1-wse@tuxedocomputers.com>
+References: <20250211133950.422232-1-wse@tuxedocomputers.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250210-quiet_tools-v2-1-b2f18cbf72af@rivosinc.com>
+Content-Transfer-Encoding: 8bit
 
-On Mon, Feb 10, 2025 at 10:34:42AM -0800, Charlie Jenkins wrote:
+Using the new on_hid_hw_open and on_hid_hw_close functions to disable the
+touchpad on firmware level while not being in use.
 
-SNIP
+This safes some battery and triggers touchpad-disabled-leds hardwired to
+the touchpads firmware, that exist for example on some TongFang barebones.
 
-> +# Beautify output
-> +# ---------------------------------------------------------------------------
-> +#
-> +# Most of build commands in Kbuild start with "cmd_". You can optionally define
-> +# "quiet_cmd_*". If defined, the short log is printed. Otherwise, no log from
-> +# that command is printed by default.
-> +#
-> +# e.g.)
-> +#    quiet_cmd_depmod = DEPMOD  $(MODLIB)
-> +#          cmd_depmod = $(srctree)/scripts/depmod.sh $(DEPMOD) $(KERNELRELEASE)
-> +#
-> +# A simple variant is to prefix commands with $(Q) - that's useful
-> +# for commands that shall be hidden in non-verbose mode.
-> +#
-> +#    $(Q)$(MAKE) $(build)=scripts/basic
-> +#
-> +# To put more focus on warnings, be less verbose as default
-> +# Use 'make V=1' to see the full commands
-> +
-> +ifeq ($(V),1)
-> +  quiet =
-> +  Q =
-> +else
-> +  quiet = quiet_
-> +  Q = @
-> +endif
-> +
->  # If the user is running make -s (silent mode), suppress echoing of commands
->  # make-4.0 (and later) keep single letter options in the 1st word of MAKEFLAGS.
->  ifeq ($(filter 3.%,$(MAKE_VERSION)),)
-> @@ -145,9 +172,11 @@ short-opts := $(filter-out --%,$(MAKEFLAGS))
->  endif
->  
->  ifneq ($(findstring s,$(short-opts)),)
-> -  silent=1
+For a lengthy discussion with all the details see
+https://gitlab.freedesktop.org/libinput/libinput/-/issues/558
 
-hi,
-I think you need to keep this one, there's "ifneq ($(silent),1)" condition
-later in the file for the silent (-s) builds
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+---
+ drivers/hid/hid-multitouch.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-jirka
+diff --git a/drivers/hid/hid-multitouch.c b/drivers/hid/hid-multitouch.c
+index 82900857bfd87..7289c04f47f17 100644
+--- a/drivers/hid/hid-multitouch.c
++++ b/drivers/hid/hid-multitouch.c
+@@ -1884,6 +1884,16 @@ static void mt_remove(struct hid_device *hdev)
+ 	hid_hw_stop(hdev);
+ }
+ 
++static void mt_on_hid_hw_open(struct hid_device *hdev)
++{
++	mt_set_modes(hdev, HID_LATENCY_NORMAL, TOUCHPAD_REPORT_ALL);
++}
++
++static void mt_on_hid_hw_close(struct hid_device *hdev)
++{
++	mt_set_modes(hdev, HID_LATENCY_HIGH, TOUCHPAD_REPORT_NONE);
++}
++
+ /*
+  * This list contains only:
+  * - VID/PID of products not working with the default multitouch handling
+@@ -2351,5 +2361,7 @@ static struct hid_driver mt_driver = {
+ 	.suspend = pm_ptr(mt_suspend),
+ 	.reset_resume = pm_ptr(mt_reset_resume),
+ 	.resume = pm_ptr(mt_resume),
++	.on_hid_hw_open = mt_on_hid_hw_open,
++	.on_hid_hw_close = mt_on_hid_hw_close,
+ };
+ module_hid_driver(mt_driver);
+-- 
+2.43.0
 
-
-> +  quiet=silent_
->  endif
->  
-> +export quiet Q
-> +
->  #
->  # Define a callable command for descending to a new directory
->  #
-> 
-> -- 
-> 2.43.0
-> 

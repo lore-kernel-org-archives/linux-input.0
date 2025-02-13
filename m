@@ -1,160 +1,228 @@
-Received: from mail.tuxedocomputers.com (mail.tuxedocomputers.com [157.90.84.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B2CB19AD93;
-	Thu, 13 Feb 2025 16:08:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=157.90.84.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A24D624BBE5;
+	Thu, 13 Feb 2025 19:48:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739462929; cv=none; b=UPEfg4f8fHS10Px2O/+ek6FPawiLTa19Bo79NEayk16TufSFL0/1dzGlFIcu0/MqiiGyP5fELC1ewF+hHUZbkPDbGi0FBRaPbkKBpYkr4SCGjzaV63Rbr65nsttwYSmaLm3eGrfXOxOWrVIbopm7y6eu/6z0lps1jZuys0DZAmc=
+	t=1739476083; cv=none; b=ZiiWdRH4F8TKOPDZz8uNZHWc7N8rRoULOf0IkQ3KcA6oWi0MxI+UmoXTNh1TFfT1TnDQQhDmHhgTU2MFoeHj3zTJQrTM84VKzsuWJFG3MuLWjAP+Ig4NwvRxdpj4m3tcGxOmr8UUuTMZce5V68rwLkw823Sj2xBdduqsn5jZuyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739462929; c=relaxed/simple;
-	bh=+3dGEXxe1J9c8jze7I42nDGbJ+yy6cckMRbHsaZ5cnY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=YwB4Oe/5J/prqZ7AzK9degluhW5lYHKMOgiF9AZCFCpTyQf8K7TCWpFNu2r1Lu+ibHkPj75FKX2ux2O7cojBRXX1fkBW6A4FX/YIDzb9hx9Y8nGbZD6satPfQJlri57MfyNY2dBp9HinJqK0RYQsKH6FJ5N2Fazym+uH6l0QNGM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com; spf=pass smtp.mailfrom=tuxedocomputers.com; dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b=muKJc5EI; arc=none smtp.client-ip=157.90.84.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tuxedocomputers.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tuxedocomputers.com
+	s=arc-20240116; t=1739476083; c=relaxed/simple;
+	bh=RCUD+Q9T9tcD1uSXvocm0zwGRO1RWvGUFdHiL4dQOtw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gN/REiUZteAcC4EDicJumMUFvIJTVj8tGFdmDUMdspDE8MAkcpKJKN0fOn/q/HkMui6h16vd+bX5Z3Jeo8M2kMu5GXJnJIdzPCJipv4OCYSdzk5RoeLbGNrrJDTt4PTzUVp8Cmg5Uv8N5RQcb5NijGJQJ0Ec9uH59UJP1raHoO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hHj0ALv5; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tuxedocomputers.com header.i=@tuxedocomputers.com header.b="muKJc5EI"
-Received: from wse-pc.fritz.box (pd9e59260.dip0.t-ipconnect.de [217.229.146.96])
-	(Authenticated sender: wse@tuxedocomputers.com)
-	by mail.tuxedocomputers.com (Postfix) with ESMTPA id D303A2FC0177;
-	Thu, 13 Feb 2025 17:08:38 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuxedocomputers.com;
-	s=default; t=1739462918;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=0ymx5FJjRZUlDUtXNEhGGI4i4e1P/l6fPNUrTmYEgLY=;
-	b=muKJc5EIBeiC7D3bJ1bwRkgl5uZ2fB9el32gHyy93myP28GYoeY0YEFpQufEVRa6RWGNiR
-	SWfb9m40FekwFOYLwPnAl6bnF8f70SMLnmpdNYAkrvVb8+E33TNtlsP26fsQ39GueP4+pd
-	m+KXcDNOYd5pgMMiAYunEG/4eEBqPCQ=
-Authentication-Results: mail.tuxedocomputers.com;
-	auth=pass smtp.auth=wse@tuxedocomputers.com smtp.mailfrom=wse@tuxedocomputers.com
-From: Werner Sembach <wse@tuxedocomputers.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Werner Sembach <wse@tuxedocomputers.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 4/4] Input: i8042: Swap old quirk combination with new quirk for more devices
-Date: Thu, 13 Feb 2025 16:47:12 +0100
-Message-ID: <20250213160832.74484-4-wse@tuxedocomputers.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250213160832.74484-1-wse@tuxedocomputers.com>
-References: <20250213160832.74484-1-wse@tuxedocomputers.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hHj0ALv5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1739476082; x=1771012082;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=RCUD+Q9T9tcD1uSXvocm0zwGRO1RWvGUFdHiL4dQOtw=;
+  b=hHj0ALv5YM9MPWoXhiJ7tERGl5SP11aY6ahkplExBhRfgReEqPLit35c
+   8nb6rbLt1kTbGGdt1lmlOG4VfC8pGtydd3MY41dirfQcZPkHINiHx45+X
+   n8TEbdG1GU/f3yIE2vKLoJUQyFKnbTvMunrr8z4IbTSGtcwrapMKBe0c5
+   ozPfcned92slVHM/M9wQsszEKA2JdRzAjqU1bp2pLjtp5KHDLERBvX1e+
+   l9gDLij4e8Sxaj/AVDHghKKZWyuhTd5bFQ2lFVYLXatkms0gZ3aLwEvcv
+   Q5qBJMVkC3KkLFF31dkmmeHIMxRXeP4CSPeUIiDnuLY2k0M7yWmX5GPB0
+   Q==;
+X-CSE-ConnectionGUID: QRZ7lgnrTmm+rZvpEeOucw==
+X-CSE-MsgGUID: ipDMYyOqSzqVMUg38r9nrg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11344"; a="43037510"
+X-IronPort-AV: E=Sophos;i="6.13,282,1732608000"; 
+   d="scan'208";a="43037510"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2025 11:48:01 -0800
+X-CSE-ConnectionGUID: /5BcnfffQV61TtZZHcZjHQ==
+X-CSE-MsgGUID: NwVPGn8aSIu+j1udnKdOIg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.13,282,1732608000"; 
+   d="scan'208";a="113424310"
+Received: from smile.fi.intel.com ([10.237.72.58])
+  by fmviesa008.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2025 11:47:57 -0800
+Received: from andy by smile.fi.intel.com with local (Exim 4.98)
+	(envelope-from <andriy.shevchenko@intel.com>)
+	id 1tifBi-0000000BGlw-1cYv;
+	Thu, 13 Feb 2025 21:47:54 +0200
+Date: Thu, 13 Feb 2025 21:47:54 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
+Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Kamel Bouhara <kamel.bouhara@bootlin.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-input@vger.kernel.org,
+	linux-pwm@vger.kernel.org,
+	=?iso-8859-1?Q?Gr=E9gory?= Clement <gregory.clement@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v3 4/7] gpio: max7360: Add MAX7360 gpio support
+Message-ID: <Z65MalVYafUvR7LH@smile.fi.intel.com>
+References: <20250113-mdb-max7360-support-v3-0-9519b4acb0b1@bootlin.com>
+ <20250113-mdb-max7360-support-v3-4-9519b4acb0b1@bootlin.com>
+ <Z5eFGJspoGOINcG6@smile.fi.intel.com>
+ <D7QHGB7D0VSG.X255SDU7DFOF@bootlin.com>
+ <Z6y65SnrprvnpKEa@smile.fi.intel.com>
+ <D7QLITNTXRUJ.3NA44E6PQMAUX@bootlin.com>
+ <Z6zJljphfTuEhBTP@smile.fi.intel.com>
+ <D7R9KGN6EMDM.1DCDL4P5RC23B@bootlin.com>
+ <D7RD3K56C2CQ.1WGUSI809P246@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <D7RD3K56C2CQ.1WGUSI809P246@bootlin.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-Some older Clevo barebones have problems like no or laggy keyboard after
-resume or boot which can be fixed with the SERIO_QUIRK_FORCENORESTORE
-quirk.
+On Thu, Feb 13, 2025 at 02:45:31PM +0100, Mathieu Dubois-Briand wrote:
+> On Thu Feb 13, 2025 at 11:59 AM CET, Mathieu Dubois-Briand wrote:
+> > On Wed Feb 12, 2025 at 5:17 PM CET, Andy Shevchenko wrote:
+> > > On Wed, Feb 12, 2025 at 05:08:56PM +0100, Mathieu Dubois-Briand wrote:
+> > > > On Wed Feb 12, 2025 at 4:14 PM CET, Andy Shevchenko wrote:
+> > > > > On Wed, Feb 12, 2025 at 01:57:34PM +0100, Mathieu Dubois-Briand wrote:
+> > > > > > On Mon Jan 27, 2025 at 2:07 PM CET, Andy Shevchenko wrote:
+> > > > > > > On Mon, Jan 13, 2025 at 01:42:28PM +0100, Mathieu Dubois-Briand wrote:
 
-We could not activly retest these devices because we no longer have them in
-our archive, but based on the other old Clevo barebones we tested where the
-new quirk had the same or a better behaviour I think it would be good to
-apply it on these too.
+...
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
----
- drivers/input/serio/i8042-acpipnpio.h | 27 +++++++++------------------
- 1 file changed, 9 insertions(+), 18 deletions(-)
+> > > > > > > > +	if (of_property_read_u32(pdev->dev.of_node, "ngpios", &ngpios)) {
+> > > > > > > > +		dev_err(&pdev->dev, "Missing ngpios OF property\n");
+> > > > > > > > +		return -ENODEV;
+> > > > > > > > +	}
+> > > > > > >
+> > > > > > > This is not needed, it is already done in GPIOLIB core.
+> > > > > > 
+> > > > > > I believe this is still needed:
+> > > > > > - For gpos, we need the gpio count to correctly set the partition
+> > > > > >   between gpo and keypad columns in max7360_set_gpos_count().
+> > > > >
+> > > > > Shouldn't be that done somewhere in the GPIO valid mask initialisation?
+> > > > >
+> > > > > > - For gpios, we need the gpio count to setup the IRQs.
+> > > > >
+> > > > > Doesn't GPIOLIB parse the property before initializing the IRQ valid mask
+> > > > > and other init callbacks?
+> > > > 
+> > > > No, I believe I have to register the IRQ before registering the GPIO, so
+> > > > I can get the IRQ domain.
+> > > > 
+> > > > Right now I have something like:
+> > > > 
+> > > > irq_chip->num_irqs = ngpios;
+> > > > devm_regmap_add_irq_chip_fwnode(dev, dev_fwnode(dev), max7360_gpio->regmap,
+> > > > irq, flags, 0, irq_chip, &irq_chip_data);
+> > > > gpio_config.irq_domain = regmap_irq_get_domain(irq_chip_data);
+> > > > devm_gpio_regmap_register(dev, &gpio_config);
+> > > > 
+> > > > Also, gpiolib will store ngpios in the gpio_chip structure, but while
+> > > > using gpio-regmap, this structure is masked behind the opaque
+> > > > gpio_regmap structure. So I believe there is no easy way to retrieve its
+> > > > value.
 
-diff --git a/drivers/input/serio/i8042-acpipnpio.h b/drivers/input/serio/i8042-acpipnpio.h
-index d4ff34d36b42c..78e0d9c20800d 100644
---- a/drivers/input/serio/i8042-acpipnpio.h
-+++ b/drivers/input/serio/i8042-acpipnpio.h
-@@ -1175,22 +1175,19 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "LAPQC71B"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "N140CU"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "N141CU"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		.matches = {
-@@ -1257,8 +1254,7 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.matches = {
- 			DMI_MATCH(DMI_BOARD_NAME, "NJ50_70CU"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		.matches = {
-@@ -1275,16 +1271,14 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.matches = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "P65xH"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		/* Clevo P650RS, 650RP6, Sager NP8152-S, and others */
- 		.matches = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "P65xRP"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		/*
-@@ -1295,8 +1289,7 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.matches = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "P65_P67H"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		/*
-@@ -1307,8 +1300,7 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.matches = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "P65_67RP"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		/*
-@@ -1330,8 +1322,7 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		.matches = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "P67xRP"),
- 		},
--		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
--					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+		.driver_data = (void *)(SERIO_QUIRK_FORCENORESTORE)
- 	},
- 	{
- 		.matches = {
+Would it be needed in your driver ->probe() after all? (See also below)
+
+> > > > This part of the code changed a lot, maybe it would be easier if I push
+> > > > a new version of the series and we continue the discussion there?
+> > >
+> > > So, what seems need to be added is some flag to GPIO regmap configuration
+> > > data structure and a code that is called after gpiochip_add_data() in
+> > > gpio_regmap_register() to create a domain. This will solve the above issue
+> > > and helps other drivers to get rid of potential duplication of
+> > > devm_regmap_add_irq_chip_fwnode() calls.
+> > >
+> > > Have you researched this path?
+> >
+> > OK, so looking at the code, I believe it would need to:
+> > - Add some flag in gpio_regmap_config structure, so
+> >   gpio_regmap_register() creates a new IRQ domain.
+
+Easy.
+
+> > - Add a function allowing to retrieve this domain out of the gpio_regmap
+> >   structure.
+
+Easy, as there is an API available for regmaps, so it looks like one-liner.
+
+> > - Allow to pass a domain in the regmap_irq_chip structure, so
+> >   regmap_add_irq_chip_fwnode() use this domain instead of calling
+> >   regmap_irq_create_domain().
+
+You need this because of...? (Please, remind me what the obstacle is there
+that requires this to be done)
+
+> > - Make sure this domain is still populated with the IRQ data: number of
+> >   IRQs, IRQ base but also a pointer on the regmap_irq_chip_data
+> >   structure in .host_data. I believe this will be a bit tricky.
+
+Hmm... But wouldn't gpio-regmap internals have all this information available?
+
+> > - Add a function allowing to retrieve ngpio out of the
+> >   gpio_regmap.gpio_chip structure, so it can be used for IRQ setup and
+> >   other places of the driver.
+
+I'm not sure where it can be needed.
+
+> > I'm sorry, but I feel like this is a lot of changes to solve this point.
+> > I've been thinking about it, and I can suggest a different solution.
+> >
+> > For gpios, I will remove the ngpios property of the device tree and use
+> > a fixed value:
+> > - For the today version of the chip, this is always 8.
+> > - I a chip variant or a similar chip ever arise later with a different
+> >   number of gpios, the fixed value can be set according to the
+> >   "compatible" value.
+> > - This removes any issue with the IRQ setup.
+> >
+> > For gpos, we have to keep ngpios, as it depends of the implementation on
+> > the board. That means ngpios will be used:
+> > - For the gpio chip configuration: we let gpiolib retrieve it from the
+> >   device tree.
+> > - In gpio-regmap reg_mask_xlate callback: I can add a function allowing
+> >   to retrieve it from gpio_regmap.gpio_chip, as suggested above.
+> > - In max7360_set_gpos_count() to validate the coherency between
+> >   requested gpios and keypad columns and set the correct configuration
+> >   on the chip:
+> >   - I can also retrieve the value from gpio_regmap.gpio_chip, but that
+> >     means the check is made after the call to
+> >     devm_gpio_regmap_register().
+> >   - Or I will still need to retrieve it using device_property_read_u32()
+> >     here.
+> >
+> > How do you feel about this solution?
+> 
+> Actually there is an additional issue: today, relying on gpiolib to
+> parse the "ngpios" property does not work with gpio-regmap.
+> 
+> The gpiochip_get_ngpios() function in gpiolib is called in
+> gpiochip_add_data_with_key(), but when using gpio_regmap_register(),
+> we first ensure ngpio is set correctly before calling anything.
+> 
+> Yet I believe this check can safely be removed, allowing the magic in
+> gpiolib happen as expected.
+
+Not really. I'm about to send a series to address this issue.
+Please, test.
+
+...
+
+P.S.
+Maybe it's time to send a new version based on this discussion even
+if not finished / working, so we can see the exact issues we still have
+and target them.
+
 -- 
-2.43.0
+With Best Regards,
+Andy Shevchenko
+
 

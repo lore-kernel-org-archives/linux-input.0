@@ -1,37 +1,39 @@
 Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E292221541;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37C13275412;
 	Fri, 14 Feb 2025 11:50:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739533820; cv=none; b=mfcCaJhuYpYRHrTkdvJVBrRwLP2jyoy4KMjU4mqfpr0zmBGwUNi/KAVoSlcH/lmwx7QJM1cxeK3226IDHTtWSYEb4MaDqAOWW8nIYlfXIO6LWtPx4ic5zajYxOjEy2OcagwzGr+C/de0yfdQZP31IPY0BG+wXj0wTNJt4x0V3wg=
+	t=1739533821; cv=none; b=Yo4UKaCtGilsa/UWgwYOCkGL6eOyBIem6SJDILH8RUxd7Ir1/7xOGbVFCRbAB5D8GpZphpeP6wMto6ky6px4K1+jgr8rNEuY0VYZOcIryjtuMoZaZk04bt0mgCdog/w5lQVq2sprzzKHnd/VcC7nzYOispYAmYM/Bnjch0OTXgs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739533820; c=relaxed/simple;
-	bh=vF7KdmZH5zqFtRD2vuQTeuspsVDvQTjB8d+Y4ciyRFo=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=s87GNOKBnKoUAzVXMkZNg9sRg+HOdjhd5BgNspaflusIer6jRJStfRl+hsEJkVEHKfS1dlNVVftH6Q10x9sL+0lGX0crsbViXvEbg2sKLN7M9WrSzEqKr0pbt4bAKh6Nuo2HkbsH49dBzisplq6WjqtYsN4Rsy4+n8rVWt0O5sI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=QPic+FVV; arc=none smtp.client-ip=217.70.183.197
+	s=arc-20240116; t=1739533821; c=relaxed/simple;
+	bh=ZnQLFD2EL5I4hMAOBZqIup0nFRbw4KAr5qzEHr5tnmI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=ke2HYsRb/ZKmQKGTwioOa0Z37pX66I7lS10jzju7t4uNChj9PBNGybLJJC9u3GRG0f5XqvNb238cRrv63K45BokGFzi18ItnOHIOl2Su6ICbP3+IQn558+kq7xhDgAQDbAClmb/L9dTOCmeiYW64QhtUxkxK3PwsUGzkpD77CdY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=kGlgWfl5; arc=none smtp.client-ip=217.70.183.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="QPic+FVV"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 023C2442A3;
-	Fri, 14 Feb 2025 11:50:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="kGlgWfl5"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 9F908442E3;
+	Fri, 14 Feb 2025 11:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1739533810;
+	t=1739533816;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=j07hPNU31IwHz1MTcTOgeAg+tNcqpIash75EC8z/CHk=;
-	b=QPic+FVV5piEk8dkiz7t9Mazjk+U8XvU6JhSf2TRidfE2fB/1cCvEo2e+fJDefk9U6D0Ax
-	lqUaEiG6Q3GF84hUjWMcYy+XoIm4ZXAcm73Edj3QpmpnGC+z1myy6GpMeaQPUNXC5KJswa
-	GeLIlQyfwtmmtj2Epmziohrcp4wI7WKHftB2OC4+e3ISjDUgFvzNuP4aHdUtm2eQk5Byqj
-	n4BRtbyhL6K0/FPFeAi1f+YmYqdt9tVwsb/+VOtFNeCbneR0MyiH3Pl06l2AcddF5Q3AkK
-	GYO022oO+75kPRw67OXxKZcXCBgpgcQ96O14VzRLBtR+tDRKh8kMO04AeQcOmQ==
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eP+uWWSmBatI5PtAbRnJ86dfP7uUp+WPw6KeqKtV4Kk=;
+	b=kGlgWfl5bbImlCXMAzxyJkAx1Hs4ZhS6sb335Ra4I/LSc2G420rT6DpXhvakCFoPl29Ifm
+	q6l2a+I7M3klvq3tKdwq+/4wIIs/wXfvkiWWSqvWr7j/57knM3f/zYXIPoZVfmxeP9pqlZ
+	e0d54pXaMPwThs8fRrsa8n1J8LeI/sczJPh0TlBEi0ZvY74S40FFf9ycWIH47bmkCqOERn
+	D9a10cNSZXesV4HrtZd5St23FvDBQBTQpLUABBANijcTVVdMZPUuUc2Ga61My/GVwTNqs+
+	ZEbzvw2QE/Ch/fkCUd6h2RoMTMsKuUI9erWNeO5AoayOFBmOfOqNytiRU5rEoA==
 From: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Subject: [PATCH v4 00/10] Add support for MAX7360
-Date: Fri, 14 Feb 2025 12:49:50 +0100
-Message-Id: <20250214-mdb-max7360-support-v4-0-8a35c6dbb966@bootlin.com>
+Date: Fri, 14 Feb 2025 12:49:56 +0100
+Subject: [PATCH v4 06/10] regmap: irq: Add support for chips without
+ separate IRQ status
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -40,10 +42,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAN4tr2cC/33OTQ6CMBAF4KuYrq1pZygUV97DuGhLlSZCSYsEQ
- 7i7hcTE+Ld8k3nfzESiDc5Gst9MJNjBRefbFLLthphatRdLXZUyAQYZB17SptK0UWOBOaPx1nU
- +9BQAlTQ2E1ohSc0u2LMbV/V4Srl2sffhvh4Z+DL97w2cMiqtRF4IuawdtPf91bU74xuyiAO8K
- IDfFUgKFkpWAAZzW30q+FQE4/yHgkkpBS91poxm+u2XeZ4fEDIF70QBAAA=
+Message-Id: <20250214-mdb-max7360-support-v4-6-8a35c6dbb966@bootlin.com>
+References: <20250214-mdb-max7360-support-v4-0-8a35c6dbb966@bootlin.com>
+In-Reply-To: <20250214-mdb-max7360-support-v4-0-8a35c6dbb966@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>, 
@@ -62,102 +63,231 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1739533806; l=3966;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1739533806; l=6569;
  i=mathieu.dubois-briand@bootlin.com; s=20241219; h=from:subject:message-id;
- bh=vF7KdmZH5zqFtRD2vuQTeuspsVDvQTjB8d+Y4ciyRFo=;
- b=nalo6LQVrcVi6TAQQteq3ondrkR6920KTYGAX58OdoLnGbnugFDBc/qFXP9dJrIUtCmdt+8Qh
- +1ecjLGGKGmDWHoEiGULZP77LuNhg4fP8RmK3ZTL7BItzrShPEHhoeF
+ bh=ZnQLFD2EL5I4hMAOBZqIup0nFRbw4KAr5qzEHr5tnmI=;
+ b=mTCtWXr3vYzOays92P3osmlH3QHOJUR0DDL/RRCNh7PM0ULiKn2ji11HWG/PcXhqVW1VneR3Q
+ wm4JOSejM3ZBJMui4Ds5Q4diQezfhU/eVP9VX9vT086WamAEUV8PcxB
 X-Developer-Key: i=mathieu.dubois-briand@bootlin.com; a=ed25519;
  pk=1PVTmzPXfKvDwcPUzG0aqdGoKZJA3b9s+3DqRlm0Lww=
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegleehjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffufffkgggtgffvvefosehtjeertdertdejnecuhfhrohhmpeforghthhhivghuucffuhgsohhishdquehrihgrnhguuceomhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnheptdeujeelieelffeufedvgfffgfegvdehvddukeehledvkeettdelvdelfeffteevnecuffhomhgrihhnpedugedqrhgtvddrqdhlihhnkhdpkhgvrhhnvghlrdhorhhgnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopegluddvjedrtddruddrudgnpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdefpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepm
- hgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdprhgtphhtthhopehrrghfrggvlheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepghhrvghgohhrhidrtghlvghmvghnthessghoohhtlhhinhdrtghomhdprhgtphhtthhopegurghkrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepthhhohhmrghsrdhpvghtrgiiiihonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplhdprhgtphhtthhopehlihhnuhigqdhgphhiohesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegleehjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforghthhhivghuucffuhgsohhishdquehrihgrnhguuceomhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnheptdfhgeetvddvheejieehheehueetjeelkedtfeehhefgfeeglefhteegtddthfetnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopegluddvjedrtddruddrudgnpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdefpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrt
+ ghomhdprhgtphhtthhopehrrghfrggvlheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepghhrvghgohhrhidrtghlvghmvghnthessghoohhtlhhinhdrtghomhdprhgtphhtthhopegurghkrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepthhhohhmrghsrdhpvghtrgiiiihonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplhdprhgtphhtthhopehlihhnuhigqdhgphhiohesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 X-GND-Sasl: mathieu.dubois-briand@bootlin.com
 
-This series implements a set of drivers allowing to support the Maxim
-Integrated MAX7360 device.
+Some GPIO chips allow to rise an IRQ on GPIO level changes but do not
+provide an IRQ status for each separate line: only the current gpio
+level can be retrieved.
 
-The MAX7360 is an I2C key-switch and led controller, with following
-functionalities:
-- Keypad controller for a key matrix of up to 8 rows and 8 columns.
-- Rotary encoder support, for a single rotary encoder.
-- Up to 8 PWM outputs.
-- Up to 8 GPIOs with support for interrupts and 6 GPOs.
-
-Chipset pins are shared between all functionalities, so all cannot be
-used at the same time.
+Add support for these chips, emulating IRQ status by comparing GPIO
+levels with the levels during the previous interrupt.
 
 Signed-off-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 ---
-Changes in v4:
-- Modified the GPIO driver to use gpio-regmap and regmap-irq.
-- Add support for request()/free() callbacks in gpio-regmap.
-- Add support for status_is_level in regmap-irq.
-- Switched the PWM driver to waveform callbacks.
-- Various small fixes in MFD, PWM, GPIO drivers and dt bindings.
-- Rebased on v6.14-rc2.
-- Link to v3: https://lore.kernel.org/r/20250113-mdb-max7360-support-v3-0-9519b4acb0b1@bootlin.com
+ drivers/base/regmap/regmap-irq.c | 83 ++++++++++++++++++++++++++++++----------
+ include/linux/regmap.h           |  3 ++
+ 2 files changed, 66 insertions(+), 20 deletions(-)
 
-Changes in v3:
-- Fix MFD device tree binding to add gpio child nodes.
-- Fix various small issues in device tree bindings.
-- Add missing line returns in error messages.
-- Use dev_err_probe() when possible.
-- Link to v2: https://lore.kernel.org/r/20241223-mdb-max7360-support-v2-0-37a8d22c36ed@bootlin.com
+diff --git a/drivers/base/regmap/regmap-irq.c b/drivers/base/regmap/regmap-irq.c
+index 0bcd81389a29..531ea799383b 100644
+--- a/drivers/base/regmap/regmap-irq.c
++++ b/drivers/base/regmap/regmap-irq.c
+@@ -33,6 +33,7 @@ struct regmap_irq_chip_data {
+ 	void *status_reg_buf;
+ 	unsigned int *main_status_buf;
+ 	unsigned int *status_buf;
++	unsigned int *prev_status_buf;
+ 	unsigned int *mask_buf;
+ 	unsigned int *mask_buf_def;
+ 	unsigned int *wake_buf;
+@@ -332,27 +333,13 @@ static inline int read_sub_irq_data(struct regmap_irq_chip_data *data,
+ 	return ret;
+ }
+ 
+-static irqreturn_t regmap_irq_thread(int irq, void *d)
++static int read_irq_data(struct regmap_irq_chip_data *data)
+ {
+-	struct regmap_irq_chip_data *data = d;
+ 	const struct regmap_irq_chip *chip = data->chip;
+ 	struct regmap *map = data->map;
+ 	int ret, i;
+-	bool handled = false;
+ 	u32 reg;
+ 
+-	if (chip->handle_pre_irq)
+-		chip->handle_pre_irq(chip->irq_drv_data);
+-
+-	if (chip->runtime_pm) {
+-		ret = pm_runtime_get_sync(map->dev);
+-		if (ret < 0) {
+-			dev_err(map->dev, "IRQ thread failed to resume: %d\n",
+-				ret);
+-			goto exit;
+-		}
+-	}
+-
+ 	/*
+ 	 * Read only registers with active IRQs if the chip has 'main status
+ 	 * register'. Else read in the statuses, using a single bulk read if
+@@ -382,7 +369,7 @@ static irqreturn_t regmap_irq_thread(int irq, void *d)
+ 				dev_err(map->dev,
+ 					"Failed to read IRQ status %d\n",
+ 					ret);
+-				goto exit;
++				return ret;
+ 			}
+ 		}
+ 
+@@ -401,7 +388,7 @@ static irqreturn_t regmap_irq_thread(int irq, void *d)
+ 					dev_err(map->dev,
+ 						"Failed to read IRQ status %d\n",
+ 						ret);
+-					goto exit;
++					return ret;
+ 				}
+ 			}
+ 
+@@ -420,7 +407,7 @@ static irqreturn_t regmap_irq_thread(int irq, void *d)
+ 		if (ret != 0) {
+ 			dev_err(map->dev, "Failed to read IRQ status: %d\n",
+ 				ret);
+-			goto exit;
++			return ret;
+ 		}
+ 
+ 		for (i = 0; i < data->chip->num_regs; i++) {
+@@ -436,7 +423,7 @@ static irqreturn_t regmap_irq_thread(int irq, void *d)
+ 				break;
+ 			default:
+ 				BUG();
+-				goto exit;
++				return ret;
+ 			}
+ 		}
+ 
+@@ -450,7 +437,7 @@ static irqreturn_t regmap_irq_thread(int irq, void *d)
+ 				dev_err(map->dev,
+ 					"Failed to read IRQ status: %d\n",
+ 					ret);
+-				goto exit;
++				return ret;
+ 			}
+ 		}
+ 	}
+@@ -459,6 +446,43 @@ static irqreturn_t regmap_irq_thread(int irq, void *d)
+ 		for (i = 0; i < data->chip->num_regs; i++)
+ 			data->status_buf[i] = ~data->status_buf[i];
+ 
++	return 0;
++}
++
++static irqreturn_t regmap_irq_thread(int irq, void *d)
++{
++	struct regmap_irq_chip_data *data = d;
++	const struct regmap_irq_chip *chip = data->chip;
++	struct regmap *map = data->map;
++	int ret, i;
++	bool handled = false;
++	u32 reg;
++
++	if (chip->handle_pre_irq)
++		chip->handle_pre_irq(chip->irq_drv_data);
++
++	if (chip->runtime_pm) {
++		ret = pm_runtime_get_sync(map->dev);
++		if (ret < 0) {
++			dev_err(map->dev, "IRQ thread failed to resume: %d\n",
++				ret);
++			goto exit;
++		}
++	}
++
++	ret = read_irq_data(data);
++	if (ret < 0)
++		goto exit;
++
++	if (chip->status_is_level) {
++		for (i = 0; i < data->chip->num_regs; i++) {
++			unsigned int val = data->status_buf[i];
++
++			data->status_buf[i] ^= data->prev_status_buf[i];
++			data->prev_status_buf[i] = val;
++		}
++	}
++
+ 	/*
+ 	 * Ignore masked IRQs and ack if we need to; we ack early so
+ 	 * there is no race between handling and acknowledging the
+@@ -705,6 +729,13 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
+ 	if (!d->status_buf)
+ 		goto err_alloc;
+ 
++	if (chip->status_is_level) {
++		d->prev_status_buf = kcalloc(chip->num_regs, sizeof(*d->prev_status_buf),
++					     GFP_KERNEL);
++		if (!d->prev_status_buf)
++			goto err_alloc;
++	}
++
+ 	d->mask_buf = kcalloc(chip->num_regs, sizeof(*d->mask_buf),
+ 			      GFP_KERNEL);
+ 	if (!d->mask_buf)
+@@ -881,6 +912,16 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
+ 		}
+ 	}
+ 
++	/* Store current levels */
++	if (chip->status_is_level) {
++		ret = read_irq_data(d);
++		if (ret < 0)
++			goto err_alloc;
++
++		for (i = 0; i < d->chip->num_regs; i++)
++			d->prev_status_buf[i] = d->status_buf[i];
++	}
++
+ 	ret = regmap_irq_create_domain(fwnode, irq_base, chip, d);
+ 	if (ret)
+ 		goto err_alloc;
+@@ -907,6 +948,7 @@ int regmap_add_irq_chip_fwnode(struct fwnode_handle *fwnode,
+ 	kfree(d->mask_buf_def);
+ 	kfree(d->mask_buf);
+ 	kfree(d->status_buf);
++	kfree(d->prev_status_buf);
+ 	kfree(d->status_reg_buf);
+ 	if (d->config_buf) {
+ 		for (i = 0; i < chip->num_config_bases; i++)
+@@ -983,6 +1025,7 @@ void regmap_del_irq_chip(int irq, struct regmap_irq_chip_data *d)
+ 	kfree(d->mask_buf);
+ 	kfree(d->status_reg_buf);
+ 	kfree(d->status_buf);
++	kfree(d->prev_status_buf);
+ 	if (d->config_buf) {
+ 		for (i = 0; i < d->chip->num_config_bases; i++)
+ 			kfree(d->config_buf[i]);
+diff --git a/include/linux/regmap.h b/include/linux/regmap.h
+index 3a96d068915f..159527e97f00 100644
+--- a/include/linux/regmap.h
++++ b/include/linux/regmap.h
+@@ -1640,6 +1640,8 @@ struct regmap_irq_chip_data;
+  * @ack_invert:  Inverted ack register: cleared bits for ack.
+  * @clear_ack:  Use this to set 1 and 0 or vice-versa to clear interrupts.
+  * @status_invert: Inverted status register: cleared bits are active interrupts.
++ * @status_is_level: Status register is actuall signal level: Xor status
++ *		     register with previous value to get active interrupts.
+  * @wake_invert: Inverted wake register: cleared bits are wake enabled.
+  * @type_in_mask: Use the mask registers for controlling irq type. Use this if
+  *		  the hardware provides separate bits for rising/falling edge
+@@ -1703,6 +1705,7 @@ struct regmap_irq_chip {
+ 	unsigned int ack_invert:1;
+ 	unsigned int clear_ack:1;
+ 	unsigned int status_invert:1;
++	unsigned int status_is_level:1;
+ 	unsigned int wake_invert:1;
+ 	unsigned int type_in_mask:1;
+ 	unsigned int clear_on_unmask:1;
 
-Changes in v2:
-- Removing device tree subnodes for keypad, rotary encoder and pwm
-  functionalities.
-- Fixed dt-bindings syntax and naming.
-- Fixed missing handling of requested period in PWM driver.
-- Cleanup of the code
-- Link to v1: https://lore.kernel.org/r/20241219-mdb-max7360-support-v1-0-8e8317584121@bootlin.com
-
----
-Kamel Bouhara (2):
-      mfd: Add max7360 support
-      pwm: max7360: Add MAX7360 PWM support
-
-Mathieu Dubois-Briand (8):
-      dt-bindings: mfd: gpio: Add MAX7360
-      gpio: regmap: Allow to provide request and free callbacks
-      gpio: regmap: Allow to retrieve ngpio
-      regmap: irq: Add support for chips without separate IRQ status
-      gpio: max7360: Add MAX7360 gpio support
-      input: keyboard: Add support for MAX7360 keypad
-      input: misc: Add support for MAX7360 rotary
-      MAINTAINERS: Add entry on MAX7360 driver
-
- .../bindings/gpio/maxim,max7360-gpio.yaml          |  91 +++++++
- .../devicetree/bindings/mfd/maxim,max7360.yaml     | 139 ++++++++++
- MAINTAINERS                                        |  12 +
- drivers/base/regmap/regmap-irq.c                   |  83 ++++--
- drivers/gpio/Kconfig                               |  11 +
- drivers/gpio/Makefile                              |   1 +
- drivers/gpio/gpio-max7360.c                        | 253 ++++++++++++++++++
- drivers/gpio/gpio-regmap.c                         |   8 +
- drivers/input/keyboard/Kconfig                     |  12 +
- drivers/input/keyboard/Makefile                    |   1 +
- drivers/input/keyboard/max7360-keypad.c            | 282 +++++++++++++++++++++
- drivers/input/misc/Kconfig                         |  11 +
- drivers/input/misc/Makefile                        |   1 +
- drivers/input/misc/max7360-rotary.c                | 182 +++++++++++++
- drivers/mfd/Kconfig                                |  14 +
- drivers/mfd/Makefile                               |   1 +
- drivers/mfd/max7360.c                              | 218 ++++++++++++++++
- drivers/pwm/Kconfig                                |  10 +
- drivers/pwm/Makefile                               |   1 +
- drivers/pwm/pwm-max7360.c                          | 213 ++++++++++++++++
- include/linux/gpio/regmap.h                        |  10 +
- include/linux/mfd/max7360.h                        | 112 ++++++++
- include/linux/regmap.h                             |   3 +
- 23 files changed, 1649 insertions(+), 20 deletions(-)
----
-base-commit: a64dcfb451e254085a7daee5fe51bf22959d52d3
-change-id: 20241219-mdb-max7360-support-223a8ce45ba3
-
-Best regards,
 -- 
-Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
+2.39.5
 

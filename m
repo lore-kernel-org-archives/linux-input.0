@@ -1,38 +1,38 @@
 Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ADA3263F2D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A99B263F2C;
 	Fri, 14 Feb 2025 11:50:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739533824; cv=none; b=Nb5JSY7+GuyCzebxKpQXpkeKwYWBtP3QL0OROruoWBzwSTXInQonNtvMeC0GwvLJ3MVMH+qcj7ur6W1caQr4Q3gg6nmYUkqq3fp1p6e2SkCEOtcxHqeqDV6jWUGKxMThnzlbxBMrBGzalAwlDbjzH2m3HnKQXvAJ728QvfldqQc=
+	t=1739533825; cv=none; b=rEORddKVbdTDx93FcCQd1qca88Fvga+KMTcgvtZLk1QfTfkWlSZC+1ICS+lOGr9zuPK70RORmjmZ91ctTZP6HpKUNZab2bCDssZTpvWnxTEpQxA2A1VfGPtanb8WIkoPu5RsjJfjfm6+hZTzMmNCb7zmLNAnkdNIM2wzfc9D6qo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1739533824; c=relaxed/simple;
-	bh=2YQix1en3Vx/atfszEacllAnN0Jh/8t0ppRktHo2Hz4=;
+	s=arc-20240116; t=1739533825; c=relaxed/simple;
+	bh=t/EuLZQlpOe/LmOn/GZ77df/7tGyTGkWiw9+9XzVGCU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=PQtMfFcpciP2q935j2E6iIcfEEbLlB6bxryLxS+ZcCCjqivk8JF0JNynHL0kRFWy9kjedYtj3bSAYQBsLz9xP388NycWozq1h8rXHhsWO6b3FKriYRBbasJEvvV4G9pBZX9ZOS5x5lsON9rgkQTzt3ZMexmvl2J3pkcjlxwqP4k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=kQCT0dDq; arc=none smtp.client-ip=217.70.183.197
+	 In-Reply-To:To:Cc; b=qGek3ueVCCqStY1ij5txNQBOcXrkCtLALIkx7hkV89n+JPJPXMuCOksQ+ULcqEIBD7qmjSLahOsihYu+Jwk8Zh2brHdgxUMSC6APxqZHN81pkwL7iT+gJMDmKEfDuPEDCBFf+Ub3UL9iQjxW17T4C1Et1GJk6Vhe8uaClDk2D0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=kWwxQrjT; arc=none smtp.client-ip=217.70.183.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="kQCT0dDq"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id DAE6C442E4;
-	Fri, 14 Feb 2025 11:50:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="kWwxQrjT"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 7E95D44299;
+	Fri, 14 Feb 2025 11:50:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1739533819;
+	t=1739533813;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5RjYNaOLtqlk640MTT3kapCE7TApzxrTf3pYinTkrbk=;
-	b=kQCT0dDqyAW87DJ0p5LUC8QK3GCMi3V3b29K2JdINE4WDl5Ie6feHlsY9RUZctTovYnWvi
-	Q0WAcAof2agxXsr9x7OFMc26r8yJsxY2On9Xd/1JbJDvEC0RJ3h6hx1iXZvfLXrkJgmCaL
-	1WdZFzyYSU5eFQM01Pvqh/rc3L7vK37NgtCefvbeg7vHQTxnD3R8X0RgfojBZMiHaEvm/Y
-	tRjeFtDj0Ax1fuma8q3phzsrOL1pkiTSdslYMv2LKTvAuD6yf3jmuiMcqLjjXNErD4d62P
-	q8Ra62TvSIYcbL9/gRi5Z66k7DBKKL7LGZ+xhfUuR/ey1c/g0wr2hfuvreSIzQ==
-From: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Date: Fri, 14 Feb 2025 12:49:59 +0100
-Subject: [PATCH v4 09/10] input: misc: Add support for MAX7360 rotary
+	bh=zhAfL6p2Tu5CbkRFq/4tIEg0OmDK9rfhbiyVWYECfuM=;
+	b=kWwxQrjTkeU8P8uyg2zVtlWcs1TVhdU1FzA5WaIufSWq1oVFDjdYAsE0apwQvraHqz5wts
+	wbTxCfLkpH/oCKPmLftQH4yRpSQS7lWcF9SOxf8PhYLJMsqHtZQhpcyG41/PP8Cq0cu/V3
+	d1vWzWu4oYDMv05AC4CMXb74VLUT6nSU99I66PIVD3vn9519T8HEUAw6M3gv1OCKIhZRQH
+	4lD68av5+UOfMfQsqNYtcfS9pddcdIbgtjuj12sz7NHgkZH/00Z4CnpTatx6JCp9MMJd2W
+	LKiOiRem58N2ks/fYQtNxgJ5XJnZwMWH5gLSfpKMQQthjVhPtcgXDz/WmMS+6Q==
+From: mathieu.dubois-briand@bootlin.com
+Date: Fri, 14 Feb 2025 12:49:53 +0100
+Subject: [PATCH v4 03/10] pwm: max7360: Add MAX7360 PWM support
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250214-mdb-max7360-support-v4-9-8a35c6dbb966@bootlin.com>
+Message-Id: <20250214-mdb-max7360-support-v4-3-8a35c6dbb966@bootlin.com>
 References: <20250214-mdb-max7360-support-v4-0-8a35c6dbb966@bootlin.com>
 In-Reply-To: <20250214-mdb-max7360-support-v4-0-8a35c6dbb966@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -62,249 +62,281 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1739533806; l=7143;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1739533806; l=7974;
  i=mathieu.dubois-briand@bootlin.com; s=20241219; h=from:subject:message-id;
- bh=2YQix1en3Vx/atfszEacllAnN0Jh/8t0ppRktHo2Hz4=;
- b=dQU9wHAKLuEv+C0CVk1g6smFcRccf5AY/VjOnb6Kha4QAeG07laRGyutJtRXUnQPeAZvsX5Wm
- khMSvGdmYUtBzKn25zjpjqzTehdYhzVapXYTt+0PWC+AYIARbD25o+r
+ bh=CxMsleng0cZ3BeZymcuuErbxiPnn4kKb8ceRlh9SgXg=;
+ b=Xf0beUWgYo9vw+zVjpW9nw5AzwSlbfq7WymEaxfdXlfS9/YO42oRReLTA62OxjSOzw36JU7W/
+ 4p9p03wKfBWAx2klJz8/khdfvwl4odUMreQ8DuokEv6yWBLflI5htJv
 X-Developer-Key: i=mathieu.dubois-briand@bootlin.com; a=ed25519;
  pk=1PVTmzPXfKvDwcPUzG0aqdGoKZJA3b9s+3DqRlm0Lww=
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegleehjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforghthhhivghuucffuhgsohhishdquehrihgrnhguuceomhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnheptdfhgeetvddvheejieehheehueetjeelkedtfeehhefgfeeglefhteegtddthfetnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopegluddvjedrtddruddrudgnpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdefpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrt
- ghomhdprhgtphhtthhopehrrghfrggvlheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepghhrvghgohhrhidrtghlvghmvghnthessghoohhtlhhinhdrtghomhdprhgtphhtthhopegurghkrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepthhhohhmrghsrdhpvghtrgiiiihonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplhdprhgtphhtthhopehlihhnuhigqdhgphhiohesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegleehjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmnecuggftrfgrthhtvghrnhepveehffetteetffeftedvleeltddttdfhvefhgfelheefvdevudduhfehudfgleegnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopegluddvjedrtddruddrudgnpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdefpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdprhgtphhtthhopehrrghfrggvlheskhgvrhhnvghlr
+ dhorhhgpdhrtghpthhtohepghhrvghgohhrhidrtghlvghmvghnthessghoohhtlhhinhdrtghomhdprhgtphhtthhopegurghkrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepthhhohhmrghsrdhpvghtrgiiiihonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplhdprhgtphhtthhopehlihhnuhigqdhgphhiohesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 X-GND-Sasl: mathieu.dubois-briand@bootlin.com
 
-Add driver for Maxim Integrated MAX7360 rotary encoder controller,
-supporting a single rotary switch.
+From: Kamel Bouhara <kamel.bouhara@bootlin.com>
 
+Add driver for Maxim Integrated MAX7360 PWM controller, supporting up to
+8 independent PWM outputs.
+
+Signed-off-by: Kamel Bouhara <kamel.bouhara@bootlin.com>
+Co-developed-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 Signed-off-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 ---
- drivers/input/misc/Kconfig          |  11 +++
- drivers/input/misc/Makefile         |   1 +
- drivers/input/misc/max7360-rotary.c | 182 ++++++++++++++++++++++++++++++++++++
- 3 files changed, 194 insertions(+)
+ drivers/pwm/Kconfig       |  10 +++
+ drivers/pwm/Makefile      |   1 +
+ drivers/pwm/pwm-max7360.c | 213 ++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 224 insertions(+)
 
-diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
-index 13d135257e06..96b183b4d3a5 100644
---- a/drivers/input/misc/Kconfig
-+++ b/drivers/input/misc/Kconfig
-@@ -230,6 +230,17 @@ config INPUT_M68K_BEEP
- 	tristate "M68k Beeper support"
- 	depends on M68K
+diff --git a/drivers/pwm/Kconfig b/drivers/pwm/Kconfig
+index 0915c1e7df16..fac811ee46b5 100644
+--- a/drivers/pwm/Kconfig
++++ b/drivers/pwm/Kconfig
+@@ -745,4 +745,14 @@ config PWM_XILINX
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called pwm-xilinx.
  
-+config INPUT_MAX7360_ROTARY
-+	tristate "Maxim MAX7360 Rotary Encoder"
-+	depends on I2C
++config PWM_MAX7360
++	tristate "MAX7360 PWMs"
 +	depends on MFD_MAX7360
 +	help
-+	  If you say yes here you get support for the rotary encoder on the
-+	  Maxim MAX7360 I/O Expander.
++	  PWM driver for Maxim Integrated MAX7360 multifunction device, with
++	  support for up to 8 PWM outputs.
 +
-+	  To compile this driver as a module, choose M here: the
-+	  module will be called max7360_rotary.
++	  To compile this driver as a module, choose M here: the module
++	  will be called pwm-max7360.
 +
- config INPUT_MAX77650_ONKEY
- 	tristate "Maxim MAX77650 ONKEY support"
- 	depends on MFD_MAX77650
-diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
-index 6d91804d0a6f..c454fba3a3ae 100644
---- a/drivers/input/misc/Makefile
-+++ b/drivers/input/misc/Makefile
-@@ -51,6 +51,7 @@ obj-$(CONFIG_INPUT_IQS7222)		+= iqs7222.o
- obj-$(CONFIG_INPUT_KEYSPAN_REMOTE)	+= keyspan_remote.o
- obj-$(CONFIG_INPUT_KXTJ9)		+= kxtj9.o
- obj-$(CONFIG_INPUT_M68K_BEEP)		+= m68kspkr.o
-+obj-$(CONFIG_INPUT_MAX7360_ROTARY)	+= max7360-rotary.o
- obj-$(CONFIG_INPUT_MAX77650_ONKEY)	+= max77650-onkey.o
- obj-$(CONFIG_INPUT_MAX77693_HAPTIC)	+= max77693-haptic.o
- obj-$(CONFIG_INPUT_MAX8925_ONKEY)	+= max8925_onkey.o
-diff --git a/drivers/input/misc/max7360-rotary.c b/drivers/input/misc/max7360-rotary.c
+ endif
+diff --git a/drivers/pwm/Makefile b/drivers/pwm/Makefile
+index 9081e0c0e9e0..ae8908ffc892 100644
+--- a/drivers/pwm/Makefile
++++ b/drivers/pwm/Makefile
+@@ -36,6 +36,7 @@ obj-$(CONFIG_PWM_LPC32XX)	+= pwm-lpc32xx.o
+ obj-$(CONFIG_PWM_LPSS)		+= pwm-lpss.o
+ obj-$(CONFIG_PWM_LPSS_PCI)	+= pwm-lpss-pci.o
+ obj-$(CONFIG_PWM_LPSS_PLATFORM)	+= pwm-lpss-platform.o
++obj-$(CONFIG_PWM_MAX7360)	+= pwm-max7360.o
+ obj-$(CONFIG_PWM_MESON)		+= pwm-meson.o
+ obj-$(CONFIG_PWM_MEDIATEK)	+= pwm-mediatek.o
+ obj-$(CONFIG_PWM_MICROCHIP_CORE)	+= pwm-microchip-core.o
+diff --git a/drivers/pwm/pwm-max7360.c b/drivers/pwm/pwm-max7360.c
 new file mode 100644
-index 000000000000..bea25203a5c1
+index 000000000000..f1257c20add2
 --- /dev/null
-+++ b/drivers/input/misc/max7360-rotary.c
-@@ -0,0 +1,182 @@
++++ b/drivers/pwm/pwm-max7360.c
+@@ -0,0 +1,213 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright 2024 Bootlin
 + *
++ * Author: Kamel BOUHARA <kamel.bouhara@bootlin.com>
 + * Author: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
++ *
++ * Limitations:
++ * - Only supports normal polarity.
++ * - The period is fixed to 2 ms.
++ * - Only the duty cycle can be changed, new values are applied at the beginning
++ *   of the next cycle.
++ * - When disabled, the output is put in Hi-Z.
 + */
-+
-+#include <linux/init.h>
-+#include <linux/input.h>
-+#include <linux/interrupt.h>
++#include <linux/err.h>
++#include <linux/math.h>
 +#include <linux/mfd/max7360.h>
-+#include <linux/property.h>
++#include <linux/mod_devicetable.h>
++#include <linux/module.h>
 +#include <linux/of.h>
 +#include <linux/platform_device.h>
-+#include <linux/pm_wakeirq.h>
++#include <linux/pwm.h>
 +#include <linux/regmap.h>
-+#include <linux/slab.h>
 +
-+struct max7360_rotary {
-+	u32 axis;
-+	struct input_dev *input;
-+	unsigned int debounce_ms;
++#define MAX7360_NUM_PWMS			8
++#define MAX7360_PWM_MAX_RES			255
++#define MAX7360_PWM_PERIOD_NS			2000000 /* 500 Hz */
++#define MAX7360_PWM_COMMON_PWN			BIT(5)
++#define MAX7360_PWM_CTRL_ENABLE(n)		BIT(n)
++#define MAX7360_PWM_PORT(n)			BIT(n)
++
++struct max7360_pwm {
++	struct device *parent;
 +	struct regmap *regmap;
 +};
 +
-+static irqreturn_t max7360_rotary_irq(int irq, void *data)
++struct max7360_pwm_waveform {
++	u8 duty_steps;
++};
++
++static inline struct max7360_pwm *max7360_pwm_from_chip(struct pwm_chip *chip)
 +{
-+	struct max7360_rotary *max7360_rotary = data;
-+	int val;
-+	int ret;
-+
-+	ret = regmap_read(max7360_rotary->regmap, MAX7360_REG_RTR_CNT, &val);
-+	if (ret < 0) {
-+		dev_err(&max7360_rotary->input->dev,
-+			"Failed to read rotary counter\n");
-+		return IRQ_NONE;
-+	}
-+
-+	if (val == 0) {
-+		dev_dbg(&max7360_rotary->input->dev,
-+			"Got a spurious interrupt\n");
-+
-+		return IRQ_NONE;
-+	}
-+
-+	input_report_rel(max7360_rotary->input, max7360_rotary->axis,
-+			 (int8_t)val);
-+	input_sync(max7360_rotary->input);
-+
-+	return IRQ_HANDLED;
++	return pwmchip_get_drvdata(chip);
 +}
 +
-+static int max7360_rotary_hw_init(struct max7360_rotary *max7360_rotary)
++static int max7360_pwm_request(struct pwm_chip *chip, struct pwm_device *pwm)
 +{
-+	int val;
++	struct max7360_pwm *max7360_pwm;
 +	int ret;
 +
-+	ret = regmap_write_bits(max7360_rotary->regmap, MAX7360_REG_GPIOCFG,
-+				MAX7360_GPIO_CFG_RTR_EN,
-+				MAX7360_GPIO_CFG_RTR_EN);
++	max7360_pwm = max7360_pwm_from_chip(chip);
++	ret = max7360_port_pin_request(max7360_pwm->parent, pwm->hwpwm, true);
 +	if (ret) {
-+		dev_err(&max7360_rotary->input->dev,
-+			"Failed to enable max7360 rotary encoder\n");
++		dev_warn(&chip->dev, "failed to request pwm-%d\n", pwm->hwpwm);
 +		return ret;
 +	}
 +
-+	val = FIELD_PREP(MAX7360_ROT_DEBOUNCE, max7360_rotary->debounce_ms) |
-+		FIELD_PREP(MAX7360_ROT_INTCNT, 1) | MAX7360_ROT_INTCNT_DLY;
-+	ret = regmap_write(max7360_rotary->regmap, MAX7360_REG_RTRCFG, val);
-+	if (ret) {
-+		dev_err(&max7360_rotary->input->dev,
-+			"Failed to set max7360 rotary encoder configuration\n");
++	ret = regmap_write_bits(max7360_pwm->regmap,
++				MAX7360_REG_PWMCFG(pwm->hwpwm),
++				MAX7360_PWM_COMMON_PWN,
++				0);
++	if (ret)
 +		return ret;
-+	}
++
++	return regmap_write_bits(max7360_pwm->regmap, MAX7360_REG_PORTS,
++				 MAX7360_PWM_PORT(pwm->hwpwm),
++				 MAX7360_PWM_PORT(pwm->hwpwm));
++}
++
++static void max7360_pwm_free(struct pwm_chip *chip, struct pwm_device *pwm)
++{
++	struct max7360_pwm *max7360_pwm;
++
++	max7360_pwm = max7360_pwm_from_chip(chip);
++	max7360_port_pin_request(max7360_pwm->parent, pwm->hwpwm, false);
++}
++
++static int max7360_pwm_round_waveform_tohw(struct pwm_chip *chip,
++					   struct pwm_device *pwm,
++					   const struct pwm_waveform *wf,
++					   void *_wfhw)
++{
++	struct max7360_pwm_waveform *wfhw = _wfhw;
++	u64 duty_steps;
++
++	/*
++	 * Ignore user provided values for period_length_ns and duty_offset_ns:
++	 * we only support fixed period of MAX7360_PWM_PERIOD_NS and offset of
++	 * 0.
++	 */
++
++	duty_steps = mul_u64_u64_div_u64(wf->duty_length_ns, MAX7360_PWM_MAX_RES,
++					 MAX7360_PWM_PERIOD_NS);
++
++	wfhw->duty_steps = min(MAX7360_PWM_MAX_RES, duty_steps);
 +
 +	return 0;
 +}
 +
-+static int max7360_rotary_probe(struct platform_device *pdev)
++static int max7360_pwm_round_waveform_fromhw(struct pwm_chip *chip, struct pwm_device *pwm,
++					     const void *_wfhw, struct pwm_waveform *wf)
 +{
-+	struct max7360_rotary *max7360_rotary;
-+	struct input_dev *input;
-+	int irq;
++	const struct max7360_pwm_waveform *wfhw = _wfhw;
++
++	wf->period_length_ns = MAX7360_PWM_PERIOD_NS;
++	wf->duty_offset_ns = 0;
++	wf->duty_length_ns = DIV64_U64_ROUND_UP(wfhw->duty_steps * MAX7360_PWM_PERIOD_NS,
++						MAX7360_PWM_MAX_RES);
++
++	return 0;
++}
++
++static int max7360_pwm_write_waveform(struct pwm_chip *chip,
++				      struct pwm_device *pwm,
++				      const void *_wfhw)
++{
++	const struct max7360_pwm_waveform *wfhw = _wfhw;
++	struct max7360_pwm *max7360_pwm;
++	unsigned int val;
++	int ret;
++
++	max7360_pwm = max7360_pwm_from_chip(chip);
++
++	val = (wfhw->duty_steps == 0) ? 0 : MAX7360_PWM_CTRL_ENABLE(pwm->hwpwm);
++	ret = regmap_write_bits(max7360_pwm->regmap, MAX7360_REG_GPIOCTRL,
++				MAX7360_PWM_CTRL_ENABLE(pwm->hwpwm), val);
++
++	if (!ret && wfhw->duty_steps != 0) {
++		ret = regmap_write(max7360_pwm->regmap, MAX7360_REG_PWM(pwm->hwpwm),
++				   wfhw->duty_steps);
++	}
++
++	return ret;
++}
++
++static int max7360_pwm_read_waveform(struct pwm_chip *chip,
++				     struct pwm_device *pwm,
++				     void *_wfhw)
++{
++	struct max7360_pwm_waveform *wfhw = _wfhw;
++	struct max7360_pwm *max7360_pwm;
++	unsigned int val;
++	int ret;
++
++	max7360_pwm = max7360_pwm_from_chip(chip);
++
++	ret = regmap_read(max7360_pwm->regmap, MAX7360_REG_GPIOCTRL, &val);
++	if (ret)
++		return ret;
++
++	if (val & MAX7360_PWM_CTRL_ENABLE(pwm->hwpwm)) {
++		ret = regmap_read(max7360_pwm->regmap, MAX7360_REG_PWM(pwm->hwpwm),
++				  &val);
++		val = wfhw->duty_steps;
++	} else {
++		wfhw->duty_steps = 0;
++	}
++
++	return ret;
++}
++
++static const struct pwm_ops max7360_pwm_ops = {
++	.request = max7360_pwm_request,
++	.free = max7360_pwm_free,
++	.round_waveform_tohw = max7360_pwm_round_waveform_tohw,
++	.round_waveform_fromhw = max7360_pwm_round_waveform_fromhw,
++	.read_waveform = max7360_pwm_read_waveform,
++	.write_waveform = max7360_pwm_write_waveform,
++};
++
++static int max7360_pwm_probe(struct platform_device *pdev)
++{
++	struct max7360_pwm *max7360_pwm;
++	struct pwm_chip *chip;
 +	int ret;
 +
 +	if (!pdev->dev.parent)
-+		return dev_err_probe(&pdev->dev, -ENODEV, "No parent device\n");
++		return dev_err_probe(&pdev->dev, -ENODEV, "no parent device\n");
 +
-+	ret = max7360_port_pin_request(pdev->dev.parent, MAX7360_PORT_RTR_PIN,
-+				       true);
-+	if (ret)
++	chip = devm_pwmchip_alloc(pdev->dev.parent, MAX7360_NUM_PWMS,
++				  sizeof(*max7360_pwm));
++	if (IS_ERR(chip))
++		return PTR_ERR(chip);
++	chip->ops = &max7360_pwm_ops;
++
++	max7360_pwm = max7360_pwm_from_chip(chip);
++	max7360_pwm->parent = pdev->dev.parent;
++
++	max7360_pwm->regmap = dev_get_regmap(pdev->dev.parent, NULL);
++	if (!max7360_pwm->regmap)
++		return dev_err_probe(&pdev->dev, -ENODEV,
++				     "could not get parent regmap\n");
++
++	ret = devm_pwmchip_add(&pdev->dev, chip);
++	if (ret != 0)
 +		return dev_err_probe(&pdev->dev, ret,
-+				     "Could not request rotary pin\n");
-+
-+	irq = platform_get_irq_byname(to_platform_device(pdev->dev.parent),
-+				      "inti");
-+	if (irq < 0)
-+		return irq;
-+
-+	max7360_rotary = devm_kzalloc(&pdev->dev, sizeof(*max7360_rotary),
-+				      GFP_KERNEL);
-+	if (!max7360_rotary)
-+		return -ENOMEM;
-+
-+	max7360_rotary->regmap = dev_get_regmap(pdev->dev.parent, NULL);
-+	if (!max7360_rotary->regmap)
-+		dev_err_probe(&pdev->dev, -ENODEV,
-+			      "Could not get parent regmap\n");
-+
-+	device_property_read_u32(pdev->dev.parent, "linux,axis",
-+				 &max7360_rotary->axis);
-+	device_property_read_u32(pdev->dev.parent, "rotary-debounce-delay-ms",
-+				 &max7360_rotary->debounce_ms);
-+	if (max7360_rotary->debounce_ms > MAX7360_ROT_DEBOUNCE_MAX)
-+		return dev_err_probe(&pdev->dev, -EINVAL,
-+				     "Invalid debounce timing: %u\n",
-+				     max7360_rotary->debounce_ms);
-+
-+	input = devm_input_allocate_device(&pdev->dev);
-+	if (!input)
-+		return -ENOMEM;
-+
-+	max7360_rotary->input = input;
-+
-+	input->id.bustype = BUS_I2C;
-+	input->name = pdev->name;
-+	input->dev.parent = &pdev->dev;
-+
-+	input_set_capability(input, EV_REL, max7360_rotary->axis);
-+	input_set_drvdata(input, max7360_rotary);
-+
-+	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-+					max7360_rotary_irq,
-+					IRQF_TRIGGER_LOW | IRQF_ONESHOT | IRQF_SHARED,
-+					"max7360-rotary", max7360_rotary);
-+	if (ret)
-+		return dev_err_probe(&pdev->dev, ret,
-+				     "Failed to register interrupt\n");
-+
-+	ret = input_register_device(input);
-+	if (ret)
-+		return dev_err_probe(&pdev->dev, ret,
-+				     "Could not register input device\n");
-+
-+	platform_set_drvdata(pdev, max7360_rotary);
-+
-+	device_init_wakeup(&pdev->dev, true);
-+	ret = dev_pm_set_wake_irq(&pdev->dev, irq);
-+	if (ret)
-+		dev_warn(&pdev->dev, "Failed to set up wakeup irq: %d\n", ret);
-+
-+	ret = max7360_rotary_hw_init(max7360_rotary);
-+	if (ret)
-+		return dev_err_probe(&pdev->dev, ret,
-+				     "Failed to initialize max7360 rotary\n");
++				     "failed to add PWM chip\n");
 +
 +	return 0;
 +}
 +
-+static void max7360_rotary_remove(struct platform_device *pdev)
-+{
-+	dev_pm_clear_wake_irq(&pdev->dev);
-+
-+	/*
-+	 * Free the MAX7360_PORT_RTR_PIN pin, so it can be requested later by
-+	 * this driver, the MAX7360 GPIO driver or the MAX7360 PWM driver.
-+	 */
-+	max7360_port_pin_request(pdev->dev.parent, MAX7360_PORT_RTR_PIN, false);
-+}
-+
-+static struct platform_driver max7360_rotary_driver = {
++static struct platform_driver max7360_pwm_driver = {
 +	.driver = {
-+		.name	= "max7360-rotary",
++		.name = "max7360-pwm",
 +	},
-+	.probe		= max7360_rotary_probe,
-+	.remove		= max7360_rotary_remove,
++	.probe = max7360_pwm_probe,
 +};
-+module_platform_driver(max7360_rotary_driver);
++module_platform_driver(max7360_pwm_driver);
 +
-+MODULE_DESCRIPTION("MAX7360 Rotary driver");
++MODULE_DESCRIPTION("MAX7360 PWM driver");
++MODULE_AUTHOR("Kamel BOUHARA <kamel.bouhara@bootlin.com>");
 +MODULE_AUTHOR("Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>");
 +MODULE_LICENSE("GPL");
 

@@ -1,38 +1,38 @@
 Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8BEC52641F7;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF56E26462F;
 	Fri, 14 Feb 2025 11:50:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739533825; cv=none; b=V0RJAo3h4O/wPHJ/ZnVtpKAUdc8FzSMPrKINJayHSyzXNTYq83LHeu3xvIRYk5CP3H2eXPXjpH5txIn7gb+kmZ6SXnHvpyyIROB+lQbM0Ulns2dBsbC/YwFJ40ml2A6fTBR1/osqeYM8/gIm4Rn7oXDOrb69VTGxZASGkVopaZI=
+	t=1739533825; cv=none; b=L61Ai2nmqUQIVw3eQYjRprpzEHUsgtDskJnMOedwEdQFkWHlwQE/rKYWXf6BMJZaNfrThT+iUmUMHe0iS+tb1NKKgV9lbjkXA9IZSovt8bm2irg8JkAJvGk2RUwsqPS6ZtqX0N3/8OYagyBuaiQ6KgU0cHfZF2FGC5z7MxXPQro=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1739533825; c=relaxed/simple;
-	bh=HXxkaspPnOSHffFaaCFOnNwmjHEf0gB01arX3laHS+M=;
+	bh=D/eIms9kiC35KWhyUeLOEVFRQllk3whI5W6tAPS54ps=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mzIlZvWMyaL4LIapc736vcBJRCcCIhqfPbzVOz70gTZwa1DEElzOdFhIsNxuwf3m4qvdYm1bKgcA9Xq1wzQTcWEFzqlyTMd9qIm4Wi1CL+Pg9YAGyrUz1DPwLuwUvNT8XaOqGPyQB5EIZmbZa3ywACvE4/zwOVFDoDMtJsPAzXs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=hccMvHQC; arc=none smtp.client-ip=217.70.183.197
+	 In-Reply-To:To:Cc; b=Ufs5NuxNRH4qS2ib2LVTjiusHBKOqhByRowAnufCmRyIcA13iqAbwckzGxQSYJK9boZ3MqxHcK8xT5inJXA+k7dUPtUPNtniILDVqfLt7tTP51nI3mjWZLDNrq61BZGfYgxZl78yeQRfOD1vrNOfetYK+ak5SUsUdvSIwR0MM+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=iQQumOHM; arc=none smtp.client-ip=217.70.183.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="hccMvHQC"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 9A141442E2;
-	Fri, 14 Feb 2025 11:50:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="iQQumOHM"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id EC35B442C0;
+	Fri, 14 Feb 2025 11:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1739533815;
+	t=1739533820;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Lil4E8fY9Or1EESTp42XtfVLm65FbceH7FB2DR+3Qv0=;
-	b=hccMvHQCYFO9XbOMNsSHLowwuqFjrRiSryNPN8T47AOIhbzN5o48SDZkGjXgcKQIhnwItX
-	TAl7Lok3/MXd/zgyw0UetFo2mvufquj5lwb2u3t1yBmKym6Xghur0Kcpgqgl4PrszwgNmS
-	ZU5pUj2J4QeZsyAA80bhyOAZD3FT1Ea4PEsL3ZbU8L+OV1Nz69NzGHFq6CFc1KC6lf5MzM
-	oAT15JSz4BI+BYQdeJtjfkDslB6FwbYGc2bbRGhkRyotuX4V3qYkAtbaENlN4K/m7tDKta
-	SVqdXPIVAErfegXZt1LI4Vdigh3QABOHO/PM2oHVSj+tWWbu863nnN+xsaiaaQ==
+	bh=KmhFstE9r58cW4sRIbJleq7fBxZv+mHOP5YHY97/3Lg=;
+	b=iQQumOHM8h8wylM5W0LrNpmPlfFLza5iiw1Jof2W8UYFDCddBWEP1NriQQd6ZLoL+oRJ1Z
+	xrozJooF0Ma8aNgEnoqp/bNjgK0QOB7Q3AqjpGYJYVHzjcx+E/sy/ggei7lgdmAunx53ph
+	pIsiwdiFhjI61NBcGGyTOTpr3k/lZ+xZeOALY88LhTJKD9aCl04h9hpMAdeotuWoSdIS6B
+	Ux0By4r/PF5uQv3p/9IGQnjISG67FkJxNJ2AebFcC6kQAZlSeuxf3iQZ5vr1f6VYgjwlSl
+	pH6r9gDqzpDJ6XomyXN8XNxRr1I2w0YpvsKLTPUb6mktzInGk7HWSJNt9FjSZA==
 From: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Date: Fri, 14 Feb 2025 12:49:55 +0100
-Subject: [PATCH v4 05/10] gpio: regmap: Allow to retrieve ngpio
+Date: Fri, 14 Feb 2025 12:50:00 +0100
+Subject: [PATCH v4 10/10] MAINTAINERS: Add entry on MAX7360 driver
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250214-mdb-max7360-support-v4-5-8a35c6dbb966@bootlin.com>
+Message-Id: <20250214-mdb-max7360-support-v4-10-8a35c6dbb966@bootlin.com>
 References: <20250214-mdb-max7360-support-v4-0-8a35c6dbb966@bootlin.com>
 In-Reply-To: <20250214-mdb-max7360-support-v4-0-8a35c6dbb966@bootlin.com>
 To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -62,68 +62,49 @@ Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 X-Mailer: b4 0.14.1
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1739533806; l=1793;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1739533806; l=1042;
  i=mathieu.dubois-briand@bootlin.com; s=20241219; h=from:subject:message-id;
- bh=HXxkaspPnOSHffFaaCFOnNwmjHEf0gB01arX3laHS+M=;
- b=482K44vzklse1KrUmJSFdjVsm8fhdYP1BMAYtekeCyMy4gdE8T6Hs6tMfARXLDuZI4DL2txEy
- igFIWVGviG8DEdA7DGngRWcEGynGOU4US/mwUsNUyWic7pjYChO3PwG
+ bh=D/eIms9kiC35KWhyUeLOEVFRQllk3whI5W6tAPS54ps=;
+ b=BjvuPwcQmsL5Sf8B6SZYaiHb2mS3Iic12ZFWmdR/RTDKCB2JGwSjcdWTcmfYcV6l1FqewUbOq
+ lUMYXFjsYL0AwLvSWdOys6h4oJLrm2I9P25YLvVIBLgfNu4BOzcXpn0
 X-Developer-Key: i=mathieu.dubois-briand@bootlin.com; a=ed25519;
  pk=1PVTmzPXfKvDwcPUzG0aqdGoKZJA3b9s+3DqRlm0Lww=
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegleehjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforghthhhivghuucffuhgsohhishdquehrihgrnhguuceomhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnheptdfhgeetvddvheejieehheehueetjeelkedtfeehhefgfeeglefhteegtddthfetnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopegluddvjedrtddruddrudgnpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdefpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrt
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdegleehjecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeforghthhhivghuucffuhgsohhishdquehrihgrnhguuceomhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnheptdfhgeetvddvheejieehheehueetjeelkedtfeehhefgfeeglefhteegtddthfetnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopegluddvjedrtddruddrudgnpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdefpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrt
  ghomhdprhgtphhtthhopehrrghfrggvlheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepghhrvghgohhrhidrtghlvghmvghnthessghoohhtlhhinhdrtghomhdprhgtphhtthhopegurghkrheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepthhhohhmrghsrdhpvghtrgiiiihonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplhdprhgtphhtthhopehlihhnuhigqdhgphhiohesvhhgvghrrdhkvghrnhgvlhdrohhrgh
 X-GND-Sasl: mathieu.dubois-briand@bootlin.com
 
-Drivers can leave the ngpio field of the gpio_regmap_config structure
-uninitialized, letting gpio_regmap_register() retrieve its value from
-the "ngpios" device property. Yet, the driver might still need to know
-the ngpio value later: allow to extract this value from the gpio_regmap
-structure.
+Add myself as maintainer of Maxim MAX7360 driver and device-tree bindings.
 
 Signed-off-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
 ---
- drivers/gpio/gpio-regmap.c  | 6 ++++++
- include/linux/gpio/regmap.h | 3 +++
- 2 files changed, 9 insertions(+)
+ MAINTAINERS | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/gpio/gpio-regmap.c b/drivers/gpio/gpio-regmap.c
-index ba72c23bcf97..7d8bfde386a4 100644
---- a/drivers/gpio/gpio-regmap.c
-+++ b/drivers/gpio/gpio-regmap.c
-@@ -195,6 +195,12 @@ void *gpio_regmap_get_drvdata(struct gpio_regmap *gpio)
- }
- EXPORT_SYMBOL_GPL(gpio_regmap_get_drvdata);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 25c86f47353d..1916b41309f0 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -14259,6 +14259,18 @@ L:	linux-iio@vger.kernel.org
+ S:	Maintained
+ F:	drivers/iio/temperature/max30208.c
  
-+u16 gpio_regmap_get_ngpio(struct gpio_regmap *gpio)
-+{
-+	return gpio->gpio_chip.ngpio;
-+}
-+EXPORT_SYMBOL_GPL(gpio_regmap_get_ngpio);
++MAXIM MAX7360 KEYPAD LED MFD DRIVER
++M:	Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
++S:	Maintained
++F:	Documentation/devicetree/bindings/gpio/maxim,max7360-gpio.yaml
++F:	Documentation/devicetree/bindings/mfd/maxim,max7360.yaml
++F:	drivers/gpio/gpio-max7360.c
++F:	drivers/input/keyboard/max7360-keypad.c
++F:	drivers/input/misc/max7360-rotary.c
++F:	drivers/mfd/max7360.c
++F:	drivers/pwm/pwm-max7360.c
++F:	include/linux/mfd/max7360.h
 +
- /**
-  * gpio_regmap_register() - Register a generic regmap GPIO controller
-  * @config: configuration for gpio_regmap
-diff --git a/include/linux/gpio/regmap.h b/include/linux/gpio/regmap.h
-index 16f0c33df75d..0fdc213178d1 100644
---- a/include/linux/gpio/regmap.h
-+++ b/include/linux/gpio/regmap.h
-@@ -3,6 +3,8 @@
- #ifndef _LINUX_GPIO_REGMAP_H
- #define _LINUX_GPIO_REGMAP_H
- 
-+#include <linux/types.h>
-+
- struct device;
- struct fwnode_handle;
- struct gpio_regmap;
-@@ -97,5 +99,6 @@ void gpio_regmap_unregister(struct gpio_regmap *gpio);
- struct gpio_regmap *devm_gpio_regmap_register(struct device *dev,
- 					      const struct gpio_regmap_config *config);
- void *gpio_regmap_get_drvdata(struct gpio_regmap *gpio);
-+u16 gpio_regmap_get_ngpio(struct gpio_regmap *gpio);
- 
- #endif /* _LINUX_GPIO_REGMAP_H */
+ MAXIM MAX77650 PMIC MFD DRIVER
+ M:	Bartosz Golaszewski <brgl@bgdev.pl>
+ L:	linux-kernel@vger.kernel.org
 
 -- 
 2.39.5

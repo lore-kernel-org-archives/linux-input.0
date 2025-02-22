@@ -1,30 +1,30 @@
 Received: from linux1587.grserver.gr (linux1587.grserver.gr [185.138.42.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F68A13BC0E;
-	Sat, 22 Feb 2025 17:00:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B864F1514F6;
+	Sat, 22 Feb 2025 17:00:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.138.42.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740243620; cv=none; b=Niz/2vpK/5tNjOA8KhIYT1Nu/DsQ4GY/AXioGxVGSNbbQgHoCOWVHDBzWI0L+4FJWhqBmtx6ssCQ6iYDRtR8V+xvwwUDpuzQmvE6/sBb6YkH/soTObRa6oblvMIiCSIe7rf9SYG4R0UvqJMl4OAvc6QTJJHhqeZjp6LI0sDquFs=
+	t=1740243621; cv=none; b=R3tIgRtlUwTCVHQ6wcxqq9EWv5Uf/CXSKR2y+T9YOzB/RrwuwgiO7rYGq1TiDpGKU/aetamle/LVfJ4tm1sJ59mH0o3SInx7tU487+6Zv827+SW5VdJpAWeUX/TR9Mh8Ev2HM6t7R0gU0rUfZ0NOeos6eGiN0zMGyVk0smL5Lq8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740243620; c=relaxed/simple;
-	bh=ZEU2Wh0qsO3j972wCVtyCHZaNB1NZIg6ayTUGBMOKJo=;
+	s=arc-20240116; t=1740243621; c=relaxed/simple;
+	bh=AQZQ4KH5ogJIBTkSvGVsnaiOSKOCXOouK5r+7IOIskU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ERpMUGHBAOS2FyMVImZXPH2IOVh9Sx8zsXb1PQi0V6R3/Iduw6BFRsLDCl9H3DMcAPgHN+bXX+5wZl66elnEmoAXKBQf4jb72MlJcVelzpZ05Vf5MqVuv0XN3syKlkD/5FALjYXUVUsqD02KvifdclhCB5QZXIFUNRU8XRRZw2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (1024-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=UB6NnFtO; arc=none smtp.client-ip=185.138.42.100
+	 MIME-Version; b=XMy5gYndrOOvnLwFGzGso42DuHakj9kKfYy6g3ORmCsjY9QtQxfV3mnKLANQBwea+JcSr2NqGDSYRb0eCx9HlTB1C7vVZ0cwiZkG7OsXdmpMuxR0caqHKUORl91n8rEkgle+XUAQ63DeCYYz8orw9YNybf33ni46iiOKbKL5Wpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev; spf=pass smtp.mailfrom=antheas.dev; dkim=pass (1024-bit key) header.d=antheas.dev header.i=@antheas.dev header.b=v21FOFdu; arc=none smtp.client-ip=185.138.42.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=antheas.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="UB6NnFtO"
+	dkim=pass (1024-bit key) header.d=antheas.dev header.i=@antheas.dev header.b="v21FOFdu"
 Received: from localhost.localdomain (unknown [IPv6:2a05:f6c2:511b:0:cbc0:999f:73ad:33bd])
-	by linux1587.grserver.gr (Postfix) with ESMTPSA id 3F5112E08F98;
-	Sat, 22 Feb 2025 19:00:14 +0200 (EET)
+	by linux1587.grserver.gr (Postfix) with ESMTPSA id AFE792E08FB5;
+	Sat, 22 Feb 2025 19:00:16 +0200 (EET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=antheas.dev;
-	s=default; t=1740243615;
-	bh=mVpxw4OlAnjz3eUJZOoiPMs40UY2decajM4ngq+RYH4=; h=From:To:Subject;
-	b=UB6NnFtOMG1ydPRlZK+AUPl3DwXkElHNXl4dHaFavcxyJA41Bv5Zt4juDPo20d05a
-	 AKaokSHSQ7CVAdF8IkvXxCmSiuOc9gvfRi7t7RRDBeUoL3Iy2JQtdU3Tnpn9ZPIh6I
-	 UI4f3cL9S0ylbSElZsArQcC6vlTQrohwRsNg5+28=
+	s=default; t=1740243617;
+	bh=VbRepp5JRjH1jo+cVKlZdFwYWatA/RPjFmSs1bga+aE=; h=From:To:Subject;
+	b=v21FOFduo93Xx1Zs2I7m5cMVMAxFQNBI1AXoYES3dt6FZ67KqNv78FDlzFP6SV1+g
+	 lr2uS8RgaOvvDi6XY4k6aSnpAZjt0xGZoiV6JFoTs8ogjhPlKutl+gHQeDn3d4Z7jV
+	 bOAjT9555HZlwBUPUuI93F09bjPOhCULt//IBNk8=
 Authentication-Results: linux1587.grserver.gr;
 	spf=pass (sender IP is 2a05:f6c2:511b:0:cbc0:999f:73ad:33bd) smtp.mailfrom=lkml@antheas.dev smtp.helo=localhost.localdomain
 Received-SPF: pass (linux1587.grserver.gr: connection is authenticated)
@@ -34,9 +34,9 @@ To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 Cc: linux-kernel@vger.kernel.org,
 	pgriffais@valvesoftware.com,
 	Antheas Kapenekakis <lkml@antheas.dev>
-Subject: [PATCH 1/3] Input: xpad - add support for ZOTAC Gaming Zone
-Date: Sat, 22 Feb 2025 18:00:08 +0100
-Message-ID: <20250222170010.188761-2-lkml@antheas.dev>
+Subject: [PATCH 3/3] Input: xpad - rename QH controller to Legion Go S
+Date: Sat, 22 Feb 2025 18:00:10 +0100
+Message-ID: <20250222170010.188761-4-lkml@antheas.dev>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250222170010.188761-1-lkml@antheas.dev>
 References: <20250222170010.188761-1-lkml@antheas.dev>
@@ -48,42 +48,44 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-PPP-Message-ID: 
- <174024361503.6776.12200436753806238449@linux1587.grserver.gr>
+ <174024361744.6873.15221054006938041226@linux1587.grserver.gr>
 X-PPP-Vhost: antheas.dev
 X-Virus-Scanned: clamav-milter 0.103.11 at linux1587.grserver.gr
 X-Virus-Status: Clean
 
-ZOTAC Gaming Zone is ZOTAC's 2024 handheld release.
-As it is common with these handhelds, it uses a
-hybrid USB device with an xpad endpoint, a
-keyboard endpoint, and a vendor-specific
-endpoint for RGB control et al.
+The QH controller is actually the controller of the Legion Go S, with
+the manufacturer string wch.cn and product name Legion Go S in its
+USB descriptor. A cursory lookup of the VID reveals the same.
+
+Therefore, rename the xpad entries to match.
 
 Signed-off-by: Antheas Kapenekakis <lkml@antheas.dev>
 ---
- drivers/input/joystick/xpad.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/joystick/xpad.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 8fe2a51df649..a67b493c7702 100644
+index 1a64cd576c66..e1e006ade813 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -343,6 +343,7 @@ static const struct xpad_device {
- 	{ 0x1bad, 0xfa01, "MadCatz GamePad", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd00, "Razer Onza TE", 0, XTYPE_XBOX360 },
- 	{ 0x1bad, 0xfd01, "Razer Onza", 0, XTYPE_XBOX360 },
-+	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
- 	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
- 	{ 0x20d6, 0x2009, "PowerA Enhanced Wired Controller for Xbox Series X|S", 0, XTYPE_XBOXONE },
- 	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
-@@ -521,6 +522,7 @@ static const struct usb_device_id xpad_table[] = {
+@@ -306,7 +306,7 @@ static const struct xpad_device {
+ 	{ 0x1689, 0xfe00, "Razer Sabertooth", 0, XTYPE_XBOX360 },
+ 	{ 0x17ef, 0x6182, "Lenovo Legion Controller for Windows", 0, XTYPE_XBOX360 },
+ 	{ 0x1949, 0x041a, "Amazon Game Controller", 0, XTYPE_XBOX360 },
+-	{ 0x1a86, 0xe310, "QH Electronics Controller", 0, XTYPE_XBOX360 },
++	{ 0x1a86, 0xe310, "Legion Go S", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0002, "Harmonix Rock Band Guitar", 0, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0003, "Harmonix Rock Band Drumkit", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+ 	{ 0x1bad, 0x0130, "Ion Drum Rocker", MAP_DPAD_TO_BUTTONS, XTYPE_XBOX360 },
+@@ -521,7 +521,7 @@ static const struct usb_device_id xpad_table[] = {
+ 	XPAD_XBOX360_VENDOR(0x1689),		/* Razer Onza */
+ 	XPAD_XBOX360_VENDOR(0x17ef),		/* Lenovo */
  	XPAD_XBOX360_VENDOR(0x1949),		/* Amazon controllers */
- 	XPAD_XBOX360_VENDOR(0x1a86),		/* QH Electronics */
+-	XPAD_XBOX360_VENDOR(0x1a86),		/* QH Electronics */
++	XPAD_XBOX360_VENDOR(0x1a86),		/* Nanjing Qinheng Microelectronics (WCH) */
  	XPAD_XBOX360_VENDOR(0x1bad),		/* Harmonix Rock Band guitar and drums */
-+	XPAD_XBOX360_VENDOR(0x1ee9),		/* ZOTAC Technology Limited */
+ 	XPAD_XBOX360_VENDOR(0x1ee9),		/* ZOTAC Technology Limited */
  	XPAD_XBOX360_VENDOR(0x20d6),		/* PowerA controllers */
- 	XPAD_XBOXONE_VENDOR(0x20d6),		/* PowerA controllers */
- 	XPAD_XBOX360_VENDOR(0x2345),		/* Machenike Controllers */
 -- 
 2.48.1
 

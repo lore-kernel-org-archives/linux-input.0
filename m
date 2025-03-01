@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2E851DB148;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2E351D8A0A;
 	Sat,  1 Mar 2025 23:43:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740872605; cv=none; b=eH/GZr+5B7gh3n6Mf+0fG4RvO7EhPBdPGUuRjiTUUQM+P5ThCMUV46rkDtSYsnt284TbcDkC+kXpN9nNposHIhZc42xbTJKa7YRM1kRITGIM64P1xAOafsESKaKr0qo5zxXDx1zPMSgDNFFg+S1O3n5yYxToW58OaR7ZaRNaUXA=
+	t=1740872605; cv=none; b=lmctEAAYsw2qedsXWXFiq9oZVctJxZa7A98wVLhgID7LFLizNKa2dk0px6wapco9HsdhaPGxIokDUMUgRZyMYFyklHrKoZdwOzDDfyxRgZZSQ169Tna7FUFSOZoy7ivlgiUPht9tanxFFqCsjqfwffIN/DDqOSmwMMqGisZDYtQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1740872605; c=relaxed/simple;
-	bh=G+lcGKbxCjedS5fpELQ3J4ZIrHJkIvFah3TkiwdWV6s=;
+	bh=xvkwrHUQz4ikYwZ+oJjWj0wK9PwJFZbjNab9K1Ea2Ho=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=U8vexOM+m8rNNGl8uO7pLqQ3lW+cS6QXpC/HotE/o1s9Tn+E0/yoVLeLFIVzP2MYTRKiQYJlhd5QOSFvM0VX2tN5HMpEK6YoKsXkWUce4X6Vg26bpVy65t9kmimWVCCJrz0NhbZgFLh4YT5a/A6ZH873vilkr514P0wGOqgrzj0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VTnLfj9D; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=HfXPaCAztrU8a5k2E9ueTQZaaEZAezwe6EbpQAWGyn+diuch9nK7OG4eqhWQSfRjikwgLU3jfydmzI8+SZ2p5pJGylUEGx5dZi66I8BZB30774vm6bK8WM5VrAX9W2iSk9vwEfM/qg5Z2ESQ0N0h+HFwe7I2TvDAH8ZoXhRRihg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q3b+nXd8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VTnLfj9D"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 9E176C4CEF1;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q3b+nXd8"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 64D1EC4CEE7;
 	Sat,  1 Mar 2025 23:43:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1740872604;
-	bh=G+lcGKbxCjedS5fpELQ3J4ZIrHJkIvFah3TkiwdWV6s=;
+	bh=xvkwrHUQz4ikYwZ+oJjWj0wK9PwJFZbjNab9K1Ea2Ho=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=VTnLfj9D6BTvdXrM6Y/TtiIk8b2JZEI+FtjO3s6QBLgeptXHEzJ6+kaxU9IP283of
-	 gLTvJAMOl1HHepqjXzljdB5ixJ6ty0ZynPXelJD3UIVdyO59+G/de3w307QpBNPyK3
-	 +dpxI5+Ll8tJffWweeAW8PWlZy77Gu16b0NVyFrC7ZmNHffv/SCauUUjz69Qm9YXIb
-	 HKLXU/9JF+FDp+ah1URE0jNDjdft3fVqX12Krs2QxYFkMASNBGGkmiClCdXKasEOr8
-	 j2WnEE5se0Tjv7kaHgQ2+RgqrNeKm5kXuODoQ/XwL/Ix96F3y634yZX2LolQ8sNg7T
-	 Euj2hqJ4B/KgQ==
+	b=Q3b+nXd8u1wZojnltZbZXqFMBycgFIAlLEzBJOoV3y4SWj+SOOFbRE2mZLezz7uL6
+	 j7y5kQuRQoFL8m3NewgImeSSmWImxIy8eqRYf/TYAVxzxpImUmAJMjpuoSamrhGQw9
+	 FmZSLfbVyQ+Si9hxAHuO+4IQNnakmyuJT+9vZZiXe6D3/z3soCOzVVeAgaWpDfSoXD
+	 1hqqIn+vzKglreKS1yxM62ab6JqG9ERXXNB4ceuomi5BmUsFvEeHkXJB8HNbxgYOCt
+	 mmSRjl6oWuN+IPeKwMa+QGrh+BAY+H90WxRefxS1wGyYiI+Ut4bQhC5MeqLAnQuh4w
+	 fG9biUqTmUADg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8668EC282C6;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50E00C282D1;
 	Sat,  1 Mar 2025 23:43:24 +0000 (UTC)
 From: Joel Selvaraj via B4 Relay <devnull+foss.joelselvaraj.com@kernel.org>
-Date: Sat, 01 Mar 2025 17:43:09 -0600
-Subject: [PATCH v3 3/4] arm64: dts: qcom: sdm845-xiaomi-beryllium-tianma:
- introduce touchscreen support
+Date: Sat, 01 Mar 2025 17:43:07 -0600
+Subject: [PATCH v3 1/4] dt-bindings: input: touchscreen: edt-ft5x06: use
+ unevaluatedProperties
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250301-pocof1-touchscreen-support-v3-3-af01c3b30b55@joelselvaraj.com>
+Message-Id: <20250301-pocof1-touchscreen-support-v3-1-af01c3b30b55@joelselvaraj.com>
 References: <20250301-pocof1-touchscreen-support-v3-0-af01c3b30b55@joelselvaraj.com>
 In-Reply-To: <20250301-pocof1-touchscreen-support-v3-0-af01c3b30b55@joelselvaraj.com>
 To: Bjorn Andersson <andersson@kernel.org>, 
@@ -51,14 +51,13 @@ To: Bjorn Andersson <andersson@kernel.org>,
  Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Cc: linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, 
- Joel Selvaraj <foss@joelselvaraj.com>, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+ Joel Selvaraj <foss@joelselvaraj.com>
 X-Mailer: b4 0.14-dev
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1740872603; l=1323;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1740872603; l=1445;
  i=foss@joelselvaraj.com; s=20241007; h=from:subject:message-id;
- bh=p1bDzsWyHmoOrqIbVXlq/tHb9ChbU3yC/N8XHGelvPo=;
- b=gXiuaVXu+Ih3hW5x4jE/Vx7anM5wHmqTYVAHZteVJUcAKY0DX358UJfYMNaREcPM0/L017uj/
- i3KKAmv3xz+DDp5p08ERzDzCToluVxuLjwMaq0ZoVt9F7fkHeaLyzNk
+ bh=Hy7fx86jeHjmZUnnNlmFO22hJjV8J6P/Dt8ZLHz4/64=;
+ b=w3OaW0bwYui19t6U+QjdY67xgmlCjqsQuvyEUP05iuber/3fCzp3Pyi1Ie8IlLa6z3AWLcWgR
+ RD41JNDNl7PAeV4UHn615pYM21rfiwSz+Q75gT0yJYNKL/8nYsgFUHG
 X-Developer-Key: i=foss@joelselvaraj.com; a=ed25519;
  pk=pqYvzJftxCPloaoUbVsfQE7Gwv8bynZPy8mjYohwMCc=
 X-Endpoint-Received: by B4 Relay for foss@joelselvaraj.com/20241007 with
@@ -68,46 +67,41 @@ Reply-To: foss@joelselvaraj.com
 
 From: Joel Selvaraj <foss@joelselvaraj.com>
 
-Enable the Novatek NT36672A touchscreen controller used in the Poco F1
-(Tianma) panel variant.
+In Xiaomi Poco F1 (qcom/sdm845-xiaomi-beryllium-ebbg.dts), the FocalTech
+FT8719 touchscreen is integrally connected to the display panel
+(EBBG FT8719) and thus should be power sequenced together with display
+panel using the panel property. Since the touchscreen controller uses
+almost all the properties present in touchscreen.yaml, let's remove
+additionalProperties: false and use unevaluatedProperties to include all
+the properties including the needed panel property.
 
-Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 Signed-off-by: Joel Selvaraj <foss@joelselvaraj.com>
 ---
- .../dts/qcom/sdm845-xiaomi-beryllium-tianma.dts    | 23 ++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ .../devicetree/bindings/input/touchscreen/edt-ft5x06.yaml        | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-tianma.dts b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-tianma.dts
-index e9427851ebaa..b58964cde834 100644
---- a/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-tianma.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm845-xiaomi-beryllium-tianma.dts
-@@ -13,3 +13,26 @@ &display_panel {
- 	compatible = "tianma,fhd-video", "novatek,nt36672a";
- 	status = "okay";
- };
-+
-+&i2c14 {
-+	status = "okay";
-+
-+	touchscreen@1 {
-+		compatible = "novatek,nt36672a-ts";
-+		reg = <0x01>;
-+
-+		interrupts-extended = <&tlmm 31 IRQ_TYPE_EDGE_RISING>;
-+		reset-gpios = <&tlmm 32 GPIO_ACTIVE_LOW>;
-+		panel = <&display_panel>;
-+
-+		iovcc-supply = <&vreg_l14a_1p8>;
-+		vcc-supply = <&lab>;
-+
-+		pinctrl-0 = <&ts_int_default &ts_reset_default>;
-+		pinctrl-1 = <&ts_int_sleep &ts_reset_sleep>;
-+		pinctrl-names = "default", "sleep";
-+
-+		touchscreen-size-x = <1080>;
-+		touchscreen-size-y = <2246>;
-+	};
-+};
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+index 70a922e213f2..ab821490284a 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+@@ -103,16 +103,9 @@ properties:
+     minimum: 0
+     maximum: 255
+ 
+-  touchscreen-size-x: true
+-  touchscreen-size-y: true
+-  touchscreen-fuzz-x: true
+-  touchscreen-fuzz-y: true
+-  touchscreen-inverted-x: true
+-  touchscreen-inverted-y: true
+-  touchscreen-swapped-x-y: true
+   interrupt-controller: true
+ 
+-additionalProperties: false
++unevaluatedProperties: false
+ 
+ required:
+   - compatible
 
 -- 
 2.48.1

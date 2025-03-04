@@ -1,48 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7381D29DB83;
-	Tue,  4 Mar 2025 16:11:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A18AA23F383;
+	Tue,  4 Mar 2025 20:13:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741104671; cv=none; b=GdqCnIHwF+tGKdtpHZOLLc7VmQEsDYd7UkHcA19CoXmvrcdzAJyq0NQYcgmeWY6zXb+7EmWC9fk4c2Y8H6cuVpFXKorMja5ZqHCfPGRopDOaasY1v6o1p1i3v/7bVunHT6a0l9FxkavGxZP+JAml7b7wi4j5BgNayK7aQnGtHcI=
+	t=1741119193; cv=none; b=nGTda8UW7hlEOaBlFo2rwNAt+QwQ3QlJYPEilbmuGZ7HfhjdjyiilSyQDtotFtwCJl9u8aPnlgnf++Ige+nl6bdtRZ8HQUb2R9prItK3Kl271KSFAT6nRnnqN+fTHKXPH2P+/eOuIK2vu18pccG4kS/v7O1Db7mQvfJHCleoebc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741104671; c=relaxed/simple;
-	bh=Q5OfRyL0oHBW1Tz9ez/ZaLR+7hn1+yu8saErb1C2CCw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ucC1SXYzZtf6XG58ox1tajIPtt3u/SWB6vNDA2JNo8BFQQk92VKhdkz7TDixd54xAMLVkcvMSLMlZsQYJuUx4lxNN0dOgmW7K4MgqWYsKy6I1hzj54r0tEUCuYuGzVi0JlpVEBGDacTWV7PQmLyLRqUxlEDmGQ5dsIGmCq+cF50=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 157ECC4CEE5;
-	Tue,  4 Mar 2025 16:11:06 +0000 (UTC)
-Date: Tue, 4 Mar 2025 11:12:01 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Charlie Jenkins <charlie@rivosinc.com>
-Cc: Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann
- <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>, Martin KaFai
- Lau <martin.lau@linux.dev>, Eduard Zingerman <eddyz87@gmail.com>, Song Liu
- <song@kernel.org>, Yonghong Song <yonghong.song@linux.dev>, John Fastabend
- <john.fastabend@gmail.com>, KP Singh <kpsingh@kernel.org>, Stanislav
- Fomichev <sdf@fomichev.me>, Hao Luo <haoluo@google.com>, Jiri Olsa
- <jolsa@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Ingo Molnar
- <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung
- Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>, Alexander
- Shishkin <alexander.shishkin@linux.intel.com>, Ian Rogers
- <irogers@google.com>, Adrian Hunter <adrian.hunter@intel.com>, Quentin
- Monnet <qmo@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Daniel
- Lezcano <daniel.lezcano@linaro.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Josh Poimboeuf <jpoimboe@kernel.org>,
- Mykola Lysenko <mykolal@fb.com>, Shuah Khan <shuah@kernel.org>, Jiri Kosina
- <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>,
- bpf@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-perf-users@vger.kernel.org, linux-pm@vger.kernel.org,
- linux-kselftest@vger.kernel.org, linux-input@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 2/2] tools: Remove redundant quiet setup
-Message-ID: <20250304111201.59ed8cc3@gandalf.local.home>
-In-Reply-To: <20250213-quiet_tools-v3-2-07de4482a581@rivosinc.com>
-References: <20250213-quiet_tools-v3-0-07de4482a581@rivosinc.com>
-	<20250213-quiet_tools-v3-2-07de4482a581@rivosinc.com>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1741119193; c=relaxed/simple;
+	bh=TQsQQNAgWUBHOv5jlfaVMYofpB2JAY2pNw5vXXDR4QI=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=omVWaxEaGf/bHZoTCSYxUjouAiQNhtevC6WIGi5/zgO6YtuJugm6bMvCcTE+KB0eYdYocRY/3e1LtjSYpoDVPo18revJHjHVNQ1pixvu20hkut5+7OI6ld5GeU1FRUjdaIk8vvgjjUvm48KvjZn4m3UODx0UCSPEEdeZtc/Gpww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ujxan6mY; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ujxan6mY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D3ADC4CEE5;
+	Tue,  4 Mar 2025 20:13:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1741119192;
+	bh=TQsQQNAgWUBHOv5jlfaVMYofpB2JAY2pNw5vXXDR4QI=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=Ujxan6mYtP/5esS41aAxIdhUIZPA6LX+EA0BH8Rjj/Z7F06BI31TWQyK5OG7ODhHu
+	 Mj9THWQ5nDO/eWSEvWZwO/oZoDSUImxxR472fcs5YgBRjWw1WoNAhBRvrlnZNyzghE
+	 xjQE5mKhXt2oZIohrLxv+l0/y+HL5PsXUY7KZfS0oaoyMqCXNK/cREn/uzBZuroqNc
+	 Afj6cY6RsI0EX/S9JE9m4d3nH8bS6TcDPER+QqeDfj9hL3cbLn6HNWlpCS3uo81rXg
+	 u2xbOFsSDAKTIFSc0Epcz+lrlG8BluegBHaf1BQCqs9XIvoLSL2GqumHlWyzFjxll6
+	 RGjirWckexH6A==
+Date: Tue, 4 Mar 2025 21:13:09 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: Vishnu Sankar <vishnuocv@gmail.com>
+cc: bentiss@kernel.org, linux-input@vger.kernel.org, 
+    linux-kernel@vger.kernel.org, mpearson-lenovo@squebb.ca, 
+    Vishnu Sankar <vsankar@lenovo.com>, kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH] HID: lenovo: Fix to ensure the data as __le32 instead
+ of u32
+In-Reply-To: <20250114004159.102555-1-vishnuocv@gmail.com>
+Message-ID: <n82p6032-740p-0o56-n808-99n5rpn9no23@xreary.bet>
+References: <20250114004159.102555-1-vishnuocv@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -50,64 +44,21 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Thu, 13 Feb 2025 13:06:22 -0800
-Charlie Jenkins <charlie@rivosinc.com> wrote:
+On Tue, 14 Jan 2025, Vishnu Sankar wrote:
 
-> diff --git a/tools/tracing/latency/Makefile b/tools/tracing/latency/Makefile
-> index 6518b03e05c71b4fa84498f9628adf81a38c9f56..257a56b1899f23837de533353e9c2cebdb6035bd 100644
-> --- a/tools/tracing/latency/Makefile
-> +++ b/tools/tracing/latency/Makefile
-> @@ -37,12 +37,6 @@ FEATURE_TESTS	+= libtracefs
->  FEATURE_DISPLAY	:= libtraceevent
->  FEATURE_DISPLAY	+= libtracefs
->  
-> -ifeq ($(V),1)
-> -  Q 		=
-> -else
-> -  Q 		= @
-> -endif
-> -
->  all: $(LATENCY-COLLECTOR)
->  
->  include $(srctree)/tools/build/Makefile.include
-> diff --git a/tools/tracing/rtla/Makefile b/tools/tracing/rtla/Makefile
-> index 8b5101457c70b48e9c720f1ba53293f1307c15a2..0b61208db604ec0754024c3007db6b2fe74a613c 100644
-> --- a/tools/tracing/rtla/Makefile
-> +++ b/tools/tracing/rtla/Makefile
-> @@ -37,12 +37,6 @@ FEATURE_DISPLAY	:= libtraceevent
->  FEATURE_DISPLAY	+= libtracefs
->  FEATURE_DISPLAY	+= libcpupower
->  
-> -ifeq ($(V),1)
-> -  Q		=
-> -else
-> -  Q		= @
-> -endif
-> -
->  all: $(RTLA)
->  
->  include $(srctree)/tools/build/Makefile.include
-> diff --git a/tools/verification/rv/Makefile b/tools/verification/rv/Makefile
-> index 411d62b3d8eb93abf85526ad33cafd783df86bc1..5b898360ba4818b12e8a16c27bd88c75d0076fb9 100644
-> --- a/tools/verification/rv/Makefile
-> +++ b/tools/verification/rv/Makefile
-> @@ -35,12 +35,6 @@ FEATURE_TESTS	+= libtracefs
->  FEATURE_DISPLAY	:= libtraceevent
->  FEATURE_DISPLAY	+= libtracefs
->  
-> -ifeq ($(V),1)
-> -  Q		=
-> -else
-> -  Q		= @
-> -endif
-> -
->  all: $(RV)
->  
->  include $(srctree)/tools/build/Makefile.include
+> Ensure that data is treated as __le32 instead of u32 before
+> applying le32_to_cpu.
+> This patch fixes the sparse warning "sparse: cast to restricted __le32".
 > 
+> Signed-off-by: Vishnu Sankar <vishnuocv@gmail.com>
+> Signed-off-by: Vishnu Sankar <vsankar@lenovo.com>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202501101635.qJrwAOwf-lkp@intel.com/
 
-Acked-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Sorry for the delay, this fell in between cracks. Now applied.
 
--- Steve
+-- 
+Jiri Kosina
+SUSE Labs
+

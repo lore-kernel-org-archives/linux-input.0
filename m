@@ -1,483 +1,218 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A484202C56
-	for <linux-input@vger.kernel.org>; Thu,  6 Mar 2025 10:56:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741258588; cv=none; b=QHPE4kQCRVlh5JP8Jur6tcLosNrJUHh+sHlY0LPSaoHTVqY8JRV0oqaseYFmalhSvFhg6hITw3l8R28ncyq8vmV7v8LY4OQsvu3txOsYikaD9cZ550A5iPaWyZZxfa5eMRXlB/gIGVaNPkGm9S7REyr2D7nHd8tm1xdeV1hTDVo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741258588; c=relaxed/simple;
-	bh=taxAsShf8N+C3lfR1sHXXuY7T3xlKIk7iNzMTefkC08=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=LtVnZ49yj/8atiPsUhNTcp+QvbYX9nKTvctJJVD+PpJjP6nvAQVg7CvtD41QV7+MlG4gzugCs01lj76158DWDjWMo3HNkWJXwwoKbaEMhaa1P8XeaYePdknxq/i5wYhuI/laMbGI/cEVvfTn2b8BrCDiME8fZiYa11lc58V2bw4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=HBlupL76; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4038C1FDE37;
+	Thu,  6 Mar 2025 11:09:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=192.198.163.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1741259361; cv=fail; b=tAXrO2FxdZD1N6gNPZv7OTaDWHJUcGHX+zcdaqfAhSMelFb3WRLzPxdK3GmZdbwX3VQvlAImxGaguPbocAWs9dwY0HILyPoA044gkIGfe8/o/kATb/tcZa4kGl/qYk6UvcIRXrf2zeMdhJ/wZs+Ef4fr2FJf5yFXhfZMeP6D6zg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1741259361; c=relaxed/simple;
+	bh=KFaFHqY3sEW+F6oivy+Y6EAT2ZHmvWxv1pWk167WC84=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=QOniQAJegBiTVRiphspa+uq0bd4ksupLLwegw4ERaNqZBQDjccLID4AsJpniPGLw0nlmBwwufR5OtGQbf3EFJq3hozxGwv++rugqBHC5XijdgXVwUDSpCUouklibzs89ZKCC9MVRRiMZZOaX+IcXhMMNV/drIXiXRhmHoXyunBU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YxLMTK9d; arc=fail smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="HBlupL76"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-43bc4b16135so2830335e9.1
-        for <linux-input@vger.kernel.org>; Thu, 06 Mar 2025 02:56:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1741258584; x=1741863384; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=x74ipVoGKHqkFU8ArF+lIxMw+tVehiDovnCNJ+OJIfg=;
-        b=HBlupL76gXI5QBvGLoMsCfJLAtCHwK8vah6J+wObXKQEFMc5kH3/7LmaVHGIU9UmMY
-         06W30vpUk3Xh60w7gz9eZ7hYenzf+bubH9igqWWobM3cA5cv+W/0lUGTsQhdAzr0WuU8
-         va1zT9g456jQqY7FUn+OWx/oGBX0L4ZdbnuBNCKrYZnChhe/qtkEFlbcpmm4IIz/aNLN
-         KbdUubMn1maCLYE8wMdceA8efQUkSlUHDYXqQQME5Hxg/Dd2pG/51PM4OgzlLQp+6Gz7
-         UZ0w5mOkMB1AwTT/Z0t1r+i6xx7paTk0/LaWdTK2dqlj50O22vAc/kml2DT53xCd8EJw
-         SE+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1741258584; x=1741863384;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=x74ipVoGKHqkFU8ArF+lIxMw+tVehiDovnCNJ+OJIfg=;
-        b=bALr8FlG4jcQuFQBLFsWNZb1Tv/LwCxbs5bjmTdIZYtNNqubb21nEcvCmQDJs0Rosr
-         MtEJTG+psgh01vPLQNtp+4GRiyIPt+XNQEkphZNQYKfL7+cxZ5GAmejYl+vRMEHzb3qv
-         7vrl0RUkTz/ytkf3bBqIHm1rEI9dDp4/T6cpkLPhEGIFi6UwTUwQy0EjY5qmGT2UGkm3
-         oQAEE6zNkBSBiKd/ums7vd/adPof9Tl9sl4EREBdMotR28bCp+EPhE3og7GS9Rxao6YR
-         vJpGUtgiHp3Zc2dX3GNjG+bJHKFQnov6UtsMM6yRG0kVCHc+dR5dtJ1YyI10EAndJi45
-         vvyw==
-X-Gm-Message-State: AOJu0YwIrtLYzaPCaOhQB56wHC48WX4qcM7Vu0bcw1DthCxCouV9Xg8l
-	FH+Ha2C3ElMY+kMeOa0tYjlgoih17PeYbL5AYHRTBIk+GdSI9hu6t2eSvqY/UUc=
-X-Gm-Gg: ASbGncs4bfj6VkeTjKQ0mF05br6yeY55qm8JBgRsUagNKAmFmoU+ko+CvlZ2Nqa426I
-	r4NBVkT7uU4Q2W58BwVCjZYwYyTwZScGf9p1slkIvSp5AmRb0aA5BULlSc7Bdf6khXKg2XR53/m
-	3ylv9YLtjmhnY8nMJtFQv0wYc0MJvQRvisgxetDNtBP2W42qNrtgddDt+sQwX/u86XAtruaiXVq
-	vDJw5Q8RWYSeXtYed+EVRj5LO+KLyBTDFUC7iWn2Tx6jUmlOhfc+zkAjfGnf5TJeR2z2+ce1snC
-	DnIEsjwzzGHqY89iv5ivxgp3dLR76iRaFqDd3bv8rc8LgC8ltT5bkSuMAQoLLsgDZA==
-X-Google-Smtp-Source: AGHT+IFn5gzHhm22oQS3cvWYyKeYsOtf1P20ftX6VS0oYrqVE2MlbWY/kXumacxy8rSc7+7QNpU2Tg==
-X-Received: by 2002:a5d:64cb:0:b0:390:df75:ddc4 with SMTP id ffacd0b85a97d-3911f7cba2amr6699862f8f.44.1741258583569;
-        Thu, 06 Mar 2025 02:56:23 -0800 (PST)
-Received: from arrakeen.starnux.net ([2a01:e0a:982:cbb0:52eb:f6ff:feb3:451a])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43bdd831719sm17406675e9.0.2025.03.06.02.56.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Mar 2025 02:56:23 -0800 (PST)
-From: Neil Armstrong <neil.armstrong@linaro.org>
-Date: Thu, 06 Mar 2025 11:56:19 +0100
-Subject: [PATCH v4 1/2] dt-bindings: input: convert dlg,da7280.txt to
- dt-schema
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YxLMTK9d"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1741259360; x=1772795360;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=KFaFHqY3sEW+F6oivy+Y6EAT2ZHmvWxv1pWk167WC84=;
+  b=YxLMTK9dOE1Du6g1Bvi8IYRLTuhkNqaIkSxrgNS/Y4vihMM1x8qUL/FP
+   BtvDTxcmwlld7RrsVoZf+T4jzUoEXHUcs/5Cd4VnkcDhuM69ZRf1BubAx
+   194kjqBwFRgK+ss4HKM5Lkwsfo4MRS+K3pJYW+Ia2qano3qva7583usTV
+   3BoZCspRiU4mDAf6WKmxu2/RJKLGS9U6Kz6LF9lkC7z4kzhuVfBB8y+Pb
+   2dFTzfrJgBSlinlk8eiQuKbd+RjPU7fOtk/R8j5fVjbV1lzykH/8SWV4e
+   mjPLRPQ3J+k1nRgsisFxqlDFYXGEmtwATet0r1f0bCaHV5wA4qgkmMpMk
+   Q==;
+X-CSE-ConnectionGUID: YfQqmt3DS6SaW7sBjT5okg==
+X-CSE-MsgGUID: qQa0A7zUTYOlykRuAVP6VQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11363"; a="46186235"
+X-IronPort-AV: E=Sophos;i="6.14,226,1736841600"; 
+   d="scan'208";a="46186235"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Mar 2025 03:09:19 -0800
+X-CSE-ConnectionGUID: ugcP6VyYRjmuVD2XJfLgVw==
+X-CSE-MsgGUID: m6xwAjGhQn2r2P7gXrNDCw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.14,225,1736841600"; 
+   d="scan'208";a="119000344"
+Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
+  by orviesa006.jf.intel.com with ESMTP/TLS/AES256-GCM-SHA384; 06 Mar 2025 03:09:19 -0800
+Received: from orsmsx603.amr.corp.intel.com (10.22.229.16) by
+ ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.44; Thu, 6 Mar 2025 03:09:17 -0800
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx603.amr.corp.intel.com (10.22.229.16) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.44 via Frontend Transport; Thu, 6 Mar 2025 03:09:17 -0800
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (104.47.56.169)
+ by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.44; Thu, 6 Mar 2025 03:09:16 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=qcdo6zhsx0w6jwUeVzx1vleF6fShrTBbEfdAuPYCdsjUatfMAW5TlwSKo69o3PKy6nQRF48YsUkzYCU1Lp6OP39nNUBxVhQJdMtOatS6zPsNxxTTtwKmnAXR/pUHIH+oQrNeKUPbvwSnZCiijD2n/sJ7QzlEMojNWGKGWO7c6CU67VOo9GIST541lH1KFGZHDD1OAxZLxpvnVzp0nVDCfzp19Mku03oB7l5kpH2wM4+m363NpZ/MvuS+zBo5lPsDbDoVIoB15tnSS2LojoM4DJWiFLqt0l2tmZkXaMZgtcgoNZElvet9JqTizRL+PdKpjqZBxhLXWyAGZUCivOLSxg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=KFaFHqY3sEW+F6oivy+Y6EAT2ZHmvWxv1pWk167WC84=;
+ b=lDQ88sde+MT2mArbjz8OGs6O1uEPJrXp/Qn1yWFU7G5EqFOOOrvlcwGAggeuLismE1tEfo90zvhXJHf1/ALDrhqQqCSCGOy4FczFkTflOSNkNJzcezB/FcojUT+ixS6C2qeYED5z9ihgTBiPa9Fh9VrZOQRfV9Fx7DeE30/5n4EOJkgCddE0+gsN/vqtuEFURj0HHwPGj550JLMNW53X+PXR9aU+cwBJcFuU9Cj3jWVPBlWEyu4dx5D34kDj5KGfLZBMwjfT1RvGDJ8Z+5EPb6t0NuD3HI7Wn0l15FgM2mQdM4C/IoWrcbLnCRjdFxK4HoFUtk2NVsEj7NdLZbGu0g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from IA1PR11MB6098.namprd11.prod.outlook.com (2603:10b6:208:3d6::20)
+ by PH0PR11MB7585.namprd11.prod.outlook.com (2603:10b6:510:28f::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8511.19; Thu, 6 Mar
+ 2025 11:08:34 +0000
+Received: from IA1PR11MB6098.namprd11.prod.outlook.com
+ ([fe80::cbbd:ed55:576c:fd55]) by IA1PR11MB6098.namprd11.prod.outlook.com
+ ([fe80::cbbd:ed55:576c:fd55%3]) with mapi id 15.20.8511.015; Thu, 6 Mar 2025
+ 11:08:34 +0000
+From: "Xu, Even" <even.xu@intel.com>
+To: Jiri Kosina <jikos@kernel.org>
+CC: "bentiss@kernel.org" <bentiss@kernel.org>,
+	"srinivas.pandruvada@linux.intel.com" <srinivas.pandruvada@linux.intel.com>,
+	"mpearson-lenovo@squebb.ca" <mpearson-lenovo@squebb.ca>,
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH RESEND v1] HID: Intel-thc-hid: Intel-quickspi: Correct
+ device state after S4
+Thread-Topic: [PATCH RESEND v1] HID: Intel-thc-hid: Intel-quickspi: Correct
+ device state after S4
+Thread-Index: AQHbjLTcANInlVCQx0+6PVpmKEX957NjdcAAgABCBRCAAE/SgIAAAGLwgAA0LoCAAboagA==
+Date: Thu, 6 Mar 2025 11:08:33 +0000
+Message-ID: <IA1PR11MB6098AD3A90B92EBAC95D2818F4CA2@IA1PR11MB6098.namprd11.prod.outlook.com>
+References: <20250304032255.1131067-1-even.xu@intel.com>
+ <96qpo784-8r1o-sor7-p42q-q06n1p389913@xreary.bet>
+ <IA1PR11MB6098ECF413F5F4E8FD120B4EF4CB2@IA1PR11MB6098.namprd11.prod.outlook.com>
+ <68roqo71-3887-ro16-0qss-52q455sqoo1s@xreary.bet>
+ <IA1PR11MB6098DDEBDF3B7A0160CEBBC2F4CB2@IA1PR11MB6098.namprd11.prod.outlook.com>
+ <q70795qp-nq3p-r181-15qn-on41n588s770@xreary.bet>
+In-Reply-To: <q70795qp-nq3p-r181-15qn-on41n588s770@xreary.bet>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: IA1PR11MB6098:EE_|PH0PR11MB7585:EE_
+x-ms-office365-filtering-correlation-id: cea36c82-1f36-4ec8-c97c-08dd5c9f3c6c
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;ARA:13230040|376014|1800799024|366016|38070700018;
+x-microsoft-antispam-message-info: =?us-ascii?Q?/f0uC+DP2IqPI4FN16SY+NgRzF1VjcYGCdXujTA5WHLleJqPdNDDvvFHw/sI?=
+ =?us-ascii?Q?ouxF3dKg+yfxnC65VXJgmK74EeZk/kP6b/G68OSYSVDm4SnsOJ8nLZSJGIv6?=
+ =?us-ascii?Q?oX26f7koGixgZCD5hKInljNEdiRtxlvKgE8ZUOpdCB89pmLwKyALiDqYf/Sm?=
+ =?us-ascii?Q?moGYqddPHsQfpB9Ry80E5iGO05qvKTw/X48wbRl3H4lAK4eB2OY1e2Id82Pc?=
+ =?us-ascii?Q?m96IThmVPte3/BIUR8vRxbfUUy5vw8ZXthBonNQzQ55cST+vUrYlQ0T9q/wt?=
+ =?us-ascii?Q?ZYTpmIdqy5p5YmgJQqXy58ZsSlc8ccAquW+2cks6vdS7zKRdk6F5zgm4gLjb?=
+ =?us-ascii?Q?O4ylnjlxiSPw5EmeoXEst1EXrp66aeqeUYVLUTkMYJDqLBqeUe915W4b3/Qn?=
+ =?us-ascii?Q?mu9ULG57MyzqAYVjCMhCmEA5jbZhdfFYAI8y3lv6dKRFxcGzoCW/UPWCaUxC?=
+ =?us-ascii?Q?zOvF1AIlGWlBJv24Bu0gUkebc2eYBWL1sHD33uK8bs5u+VIEKQUJDV3d3f/9?=
+ =?us-ascii?Q?NH3Sv32pTNGXp02ZiPX7/2OuNfrsXs7TIH9OLJCb5w/kdTrmIlTuGuUedgI8?=
+ =?us-ascii?Q?Mk5NLUZwB4+drX872X7OadPHdeMAwLytrhKxKifSIiHS/DdMpTEd0p83Dy9C?=
+ =?us-ascii?Q?Vdasc92ttdI3TuUUysYT5kB3ybx9m9LMcSz3sbiNdHrm/T0jQ5ZWoEzTyliP?=
+ =?us-ascii?Q?uusKC6Pu1ZCVWK6FYIx+9ZbjAmevEEyMv061sOj55eTFKnVpqRCRueiwF4aI?=
+ =?us-ascii?Q?LSZ9qS0Xg9kLxLfn+K8bs+F2gdJgCg/GQTZZcgkdRPJqfxBnryNuGlcLBNoR?=
+ =?us-ascii?Q?XeLq6g6B8dc12hWwbrz7UHMzDTa+VjozywMltVVI8/aL/wa8/RqVmXM/12wY?=
+ =?us-ascii?Q?t0GNHLbRDPrsEmmQWvjBKc6u+Cvb8iDgDzOVV8iuTdoWycUkB/LwZ8UHUyIp?=
+ =?us-ascii?Q?FxLXiUMV8K2EEQw1qtVG+XJhCWXMgrFPUEtwe9nP+xf5nmeK/4+SFU5y8ehr?=
+ =?us-ascii?Q?usLa439Ug6lFyc0jKkKyX7nFlDm3UnYefKrRj6VkBw1sX60MCaLPjGHupLuJ?=
+ =?us-ascii?Q?tNOv/XKKG3KqiYv5Tp4ny2qg0S4+N3LJGyj9n1e91ZFii/aNqZgXFsu9M5f8?=
+ =?us-ascii?Q?COFiY7aRbcauw/IIX0LqFjMP0D3DyCKtaLmfa8bz88OUwf1W6QfvNnLhjQea?=
+ =?us-ascii?Q?86I4LF8W9b9a3w4opVDIbf8qUxsW81pDhRgiyLRxAVMtokdPUC+Kd5MaSssq?=
+ =?us-ascii?Q?BtLFDS84ZkxSeFgz0UbLiS6g+61Pn16K/uAXpJ0cNElnZxC1wFhA6XhkQiKW?=
+ =?us-ascii?Q?XY3Ld8fMjlPj9Svq7i94O83738s+7nEPLymMk4nAjFhG+g+Lmnekr5oTkaRR?=
+ =?us-ascii?Q?OGFWQRyW3+V0LcJcyaoxRQ5/gKl4zUWJRiuuIU6wsaa0RnRQhQC9cPp0rXoC?=
+ =?us-ascii?Q?ZIxaiP6uRQ9+6FpPjLMzReCUgxRAm0uv?=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6098.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(1800799024)(366016)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?/t9/YNrOqveIbtVYP3pgqHYG0tVxvp59YpV0wO04bdIVCwlCAPOv0pSgyTkm?=
+ =?us-ascii?Q?IC7Z7PPO3UVsYgNlOSyOSApbWRR0yeIzjSCZNAlvfBoj+B8vZDHF/1Pw4ksX?=
+ =?us-ascii?Q?z1JfTJI6NPK2gpueVE5U7+6xECyJgf5sVV2EOzl6cocNLYEM3IawnIDf2EE8?=
+ =?us-ascii?Q?I/aiMrKTGwIhpRpKi9NJn4TlDblxOuuw5nEdJLH30tOBqF5crg8duntyZOOy?=
+ =?us-ascii?Q?0ZQx8Gs5oe/+0d7KdvwpoyFaO162X7A7JERg3wq8khKCoCq637rRsFMDjAjG?=
+ =?us-ascii?Q?uV8WyDarIb9xzo4BPXLMtTRJCGvdutGWf4Qrd76yrQx7fMwkB3+pBMqoGTdP?=
+ =?us-ascii?Q?7LBVsBtgD5z8Lk9JZIlKudDsvF/3zBPXFaIvAsNNl1JIBTN1jNl3WW2KWX9r?=
+ =?us-ascii?Q?RdJbx0sahTgffpyrS1u1ZLF4cGuFnxR4aYVqK47AH1SONiYuoIXdP7iCi5S7?=
+ =?us-ascii?Q?A5ovnvH/nVgoyBEYDHibkDBl94KM9hRo1qNfb9WwoMuPANs9fB1pLiOmeQhB?=
+ =?us-ascii?Q?NrSpLpX0LUsmFk35g9IMnf95PjdS5dOKD9Z/7RO9arHU4I5Te9XYD9c8rNKO?=
+ =?us-ascii?Q?op3tA7FYHjPaOY3SK0nCMMXnw2MBH1+dSLN4j8c/lcn1AqwNPMy2amhlhSpD?=
+ =?us-ascii?Q?AH4+indz9SbRSdaPRLGPLD1BtUk5bRWiDQhd5vrmb9EFZZ4rcq+DlMAns0OV?=
+ =?us-ascii?Q?GZsMXk8BJexvvfAYA8Vd9Phs5cJ/9XaVMOaY49D1+1zMyaoKTfRaFnKwAJra?=
+ =?us-ascii?Q?mi7qMHQ5Ya8FbgsCnEBlWFd3tPlLXYh30G4bwm6T35nuPdDJK52lz0B0M0tP?=
+ =?us-ascii?Q?CH+Z/uiYdIKmjvPDIP7skEgIFC4v5UIMyO8opymCIVEHllFtsiKFOWoNygz0?=
+ =?us-ascii?Q?sYdvwYR2HQhDwnZtfSmZeEa3C7FH643u4QBIPyX0LcpngCUmhNMkkkx48ZVa?=
+ =?us-ascii?Q?4cNJN1639snPFnug4ga2L25/OwXCQ1jk9XrWmp/v+pUvzvJwqErIcPXnHFDM?=
+ =?us-ascii?Q?2ScOkQMmQFyFDxUimx45jxLIbaYery3anYTL3/ykIuIBwPLedhetgnMAgWZl?=
+ =?us-ascii?Q?jq6eYx2UTGoJxQdbjy5dMsGvrdTIeLgh+WhYgdSC1YS8KrpRuatc4UGKS52w?=
+ =?us-ascii?Q?ifVKcgYq9DOZoj4sXPcpNRqv1a06G43iPTOwPOH0YavmNiLXUTGmrI/YHDb6?=
+ =?us-ascii?Q?95b3pzGjJNSj7NqDj3VITnL23DTie+RHT7T9DB/pqOnryWTZ6ryShrIALGnW?=
+ =?us-ascii?Q?x3qjZFGj1c2goRSGMfMC8Z9DCkM0/YDHcqHFmZ+QSx03wzwfFyBBvJo4tBpP?=
+ =?us-ascii?Q?LAlmhFm+CmC4se06vgzXL0kIZ/boNLVQcUSn5mmjF2Hpg8NRffduqXKiGC0i?=
+ =?us-ascii?Q?F0krleE+utk8Nz6pyXQQQkZxp9ugH9I40xDuwH4avMdFcIVuQk3dAhL7YhLn?=
+ =?us-ascii?Q?dlzE8JaKaqNdkf94uIorlm6VZ15T7vNxesYtOW97lhxQALnP1OjqbZ+2qApL?=
+ =?us-ascii?Q?NwkSa9o+Z7bvr3esN8jGmyRCzIHkKw16UddzcSMeMyuqw7y46pUKgsp8fLq2?=
+ =?us-ascii?Q?V8nKgtP2yCQooNOuzBc=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250306-topic-misc-da7280-convert-v4-1-2972c4e81cb5@linaro.org>
-References: <20250306-topic-misc-da7280-convert-v4-0-2972c4e81cb5@linaro.org>
-In-Reply-To: <20250306-topic-misc-da7280-convert-v4-0-2972c4e81cb5@linaro.org>
-To: Support Opensource <support.opensource@diasemi.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Roy Im <roy.im.opensource@diasemi.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Neil Armstrong <neil.armstrong@linaro.org>, 
- Conor Dooley <conor.dooley@microchip.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=12991;
- i=neil.armstrong@linaro.org; h=from:subject:message-id;
- bh=taxAsShf8N+C3lfR1sHXXuY7T3xlKIk7iNzMTefkC08=;
- b=owEBbQKS/ZANAwAKAXfc29rIyEnRAcsmYgBnyX9VNHZTeg8mAo9KMrLG2jSRhPqAE8q3IjLOkQ0/
- aMfGydqJAjMEAAEKAB0WIQQ9U8YmyFYF/h30LIt33NvayMhJ0QUCZ8l/VQAKCRB33NvayMhJ0TilD/
- 9MDV6dZvo6xB25iptfesGERCgzLSTV950XplKMpuR21wYGjnJl0iMJkdUlyfqdkGRynGtUyeS4rWm2
- v+nskVhl/zS4qN46XmvUXUIqYZeSLd00g9NbY4PKoynVtZm8YSVNAJ9U3CQL64Mkp+DVrNBBZ/EcJ9
- opXl9HeNf+zSGBW3WM22FTQlnQHIlY7wfAhG9M8+kEkkzcOY7OeilYYYVk/zLfN32Ef0SYzxfKIB6r
- nkPjqldyJKtzjc5inPFtid67NO9NOYf2S2F3J7xpa0+ROEeqiP3tnLR5XaX0/V0++OaW60qr759kFt
- TH6de8lSF2fKKTzhzyrG9JZTRCgoR3DuFZesXruZmGLX7H2LBGASGHCLiw7LJlw53C1xVIOZI2ERnv
- BLAgCyrzIJImbUZVTM8BdtmqilrEhMzTqrdJJVc++Pe4c4+gAMaavCAqlb/atvfKiYayfWFvhMTK02
- Bkt2s1erOuOo8L9jKiO1KDOdUDmJ/euKu029+mqIk2+c1+E61dpe932jN3H6Yjzm3s67wZsnFRqR3K
- ZydhUOBz841AnnI5Dg1RsziqU2rpBOz6WFNQW1XIkWhoq0ZetjKhOsKKUG4FJEdgjOEjqyHWOi+upF
- OS1Yd2AOrSJXIfjz8bXoxmjg+4+DzknzOH25y0frDvxkXCZGaRoqg9di8iiA==
-X-Developer-Key: i=neil.armstrong@linaro.org; a=openpgp;
- fpr=89EC3D058446217450F22848169AB7B1A4CFF8AE
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB6098.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: cea36c82-1f36-4ec8-c97c-08dd5c9f3c6c
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Mar 2025 11:08:33.9314
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: Kx6/KiT7EOXwGy7zoN9IFtqUq2GettCOyZvUkuSNJvK18zLifjLq6Kmp7T71N+Tf0YVA6yHItxbkx9QRawXmlg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR11MB7585
+X-OriginatorOrg: intel.com
 
-Convert the Dialog Semiconductor DA7280 Low Power High-Definition
-Haptic Driver bindings to dt-schema.
+Hi, Jiri,
 
-Due to the implementation and usage in DT the array must be
-an uint32 array.
+Just recognized you applied [2/2], could you also pick [1/2] for name fixin=
+g?
 
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
----
- .../devicetree/bindings/input/dlg,da7280.txt       | 108 ---------
- .../devicetree/bindings/input/dlg,da7280.yaml      | 248 +++++++++++++++++++++
- 2 files changed, 248 insertions(+), 108 deletions(-)
+Thanks!
 
-diff --git a/Documentation/devicetree/bindings/input/dlg,da7280.txt b/Documentation/devicetree/bindings/input/dlg,da7280.txt
-deleted file mode 100644
-index 96ee5d50e111b85ce680eadd0276280e706bb4cf..0000000000000000000000000000000000000000
---- a/Documentation/devicetree/bindings/input/dlg,da7280.txt
-+++ /dev/null
-@@ -1,108 +0,0 @@
--Dialog Semiconductor DA7280 Haptics bindings
--
--Required properties:
--- compatible: Should be "dlg,da7280".
--- reg: Specifies the I2C slave address.
--
--- interrupt-parent : Specifies the phandle of the interrupt controller to
--  which the IRQs from DA7280 are delivered to.
--
--- dlg,actuator-type: Set Actuator type. it should be one of:
--  "LRA" - Linear Resonance Actuator type.
--  "ERM-bar" - Bar type Eccentric Rotating Mass.
--  "ERM-coin" - Coin type Eccentric Rotating Mass.
--
--- dlg,const-op-mode: Haptic operation mode for FF_CONSTANT.
--  Possible values:
--	1 - Direct register override(DRO) mode triggered by i2c(default),
--	2 - PWM data source mode controlled by PWM duty,
--- dlg,periodic-op-mode: Haptic operation mode for FF_PERIODIC.
--  Possible values:
--	1 - Register triggered waveform memory(RTWM) mode, the pattern
--	    assigned to the PS_SEQ_ID played as much times as PS_SEQ_LOOP,
--	2 - Edge triggered waveform memory(ETWM) mode, external GPI(N)
--	    control are required to enable/disable and it needs to keep
--	    device enabled by sending magnitude (X > 0),
--	    the pattern is assigned to the GPI(N)_SEQUENCE_ID below.
--	The default value is 1 for both of the operation modes.
--	For more details, please see the datasheet.
--
--- dlg,nom-microvolt: Nominal actuator voltage rating.
--  Valid values: 0 - 6000000.
--- dlg,abs-max-microvolt: Absolute actuator maximum voltage rating.
--  Valid values: 0 - 6000000.
--- dlg,imax-microamp: Actuator max current rating.
--  Valid values: 0 - 252000.
--  Default: 130000.
--- dlg,impd-micro-ohms: the impedance of the actuator in micro ohms.
--  Valid values: 0 - 1500000000.
--
--Optional properties:
--- pwms : phandle to the physical PWM(Pulse Width Modulation) device.
--  PWM properties should be named "pwms". And number of cell is different
--  for each pwm device.
--  (See Documentation/devicetree/bindings/pwm/pwm.txt
--   for further information relating to pwm properties)
--
--- dlg,ps-seq-id: the PS_SEQ_ID(pattern ID in waveform memory inside chip)
--  to play back when RTWM-MODE is enabled.
--  Valid range: 0 - 15.
--- dlg,ps-seq-loop: the PS_SEQ_LOOP, Number of times the pre-stored sequence
--  pointed to by PS_SEQ_ID or GPI(N)_SEQUENCE_ID is repeated.
--  Valid range: 0 - 15.
--- dlg,gpiN-seq-id: the GPI(N)_SEQUENCE_ID, pattern to play
--  when gpi0 is triggered, 'N' must be 0 - 2.
--  Valid range: 0 - 15.
--- dlg,gpiN-mode: the pattern mode which can select either
--  "Single-pattern" or "Multi-pattern", 'N' must be 0 - 2.
--- dlg,gpiN-polarity: gpiN polarity which can be chosen among
--  "Rising-edge", "Falling-edge" and "Both-edge",
--  'N' must be 0 - 2
--  Haptic will work by this edge option in case of ETWM mode.
--
--- dlg,resonant-freq-hz: use in case of LRA.
--  the frequency range: 50 - 300.
--  Default: 205.
--
--- dlg,bemf-sens-enable: Enable for internal loop computations.
--- dlg,freq-track-enable: Enable for resonant frequency tracking.
--- dlg,acc-enable: Enable for active acceleration.
--- dlg,rapid-stop-enable: Enable for rapid stop.
--- dlg,amp-pid-enable: Enable for the amplitude PID.
--- dlg,mem-array: Customized waveform memory(patterns) data downloaded to
--  the device during initialization. This is an array of 100 values(u8).
--
--For further information, see device datasheet.
--
--======
--
--Example:
--
--	haptics: da7280-haptics@4a {
--		compatible = "dlg,da7280";
--		reg = <0x4a>;
--		interrupt-parent = <&gpio6>;
--		interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
--		dlg,actuator-type = "LRA";
--		dlg,dlg,const-op-mode = <1>;
--		dlg,dlg,periodic-op-mode = <1>;
--		dlg,nom-microvolt = <2000000>;
--		dlg,abs-max-microvolt = <2000000>;
--		dlg,imax-microamp = <170000>;
--		dlg,resonant-freq-hz = <180>;
--		dlg,impd-micro-ohms = <10500000>;
--		dlg,freq-track-enable;
--		dlg,rapid-stop-enable;
--		dlg,mem-array = <
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		  0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
--		>;
--	};
-diff --git a/Documentation/devicetree/bindings/input/dlg,da7280.yaml b/Documentation/devicetree/bindings/input/dlg,da7280.yaml
-new file mode 100644
-index 0000000000000000000000000000000000000000..0d06755aaaa8177eaa8b2951c4c387ef2ce53d43
---- /dev/null
-+++ b/Documentation/devicetree/bindings/input/dlg,da7280.yaml
-@@ -0,0 +1,248 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/input/dlg,da7280.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Dialog Semiconductor DA7280 Low Power High-Definition Haptic Driver
-+
-+maintainers:
-+  - Roy Im <roy.im.opensource@diasemi.com>
-+
-+properties:
-+  compatible:
-+    const: dlg,da7280
-+
-+  reg:
-+    maxItems: 1
-+    description: I2C address of the device.
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  dlg,actuator-type:
-+    enum:
-+      - LRA # Linear Resonance Actuator type
-+      - ERM-bar # Bar type Eccentric Rotating Mass
-+      - ERM-coin # Coin type Eccentric Rotating Mass
-+
-+  dlg,const-op-mode:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    enum:
-+      - 1 # Direct register override (DRO) mode triggered by i2c (default)
-+      - 2 # PWM data source mode controlled by PWM duty
-+    description:
-+      Haptic operation mode for FF_CONSTANT
-+
-+  dlg,periodic-op-mode:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    enum:
-+      - 1 # Register triggered waveform memory(RTWM) mode, the pattern
-+          # assigned to the PS_SEQ_ID played as much times as PS_SEQ_LOOP
-+      - 2 # Edge triggered waveform memory(ETWM) mode, external GPI(N)
-+          # control are required to enable/disable and it needs to keep
-+          # device enabled by sending magnitude (X > 0),
-+          # the pattern is assigned to the GPI(N)_SEQUENCE_ID below
-+    default: 1
-+    description:
-+      Haptic operation mode for FF_PERIODIC.
-+      The default value is 1 for both of the operation modes.
-+      For more details, please see the datasheet
-+
-+  dlg,nom-microvolt:
-+    minimum: 0
-+    maximum: 6000000
-+    description:
-+      Nominal actuator voltage rating
-+
-+  dlg,abs-max-microvolt:
-+    minimum: 0
-+    maximum: 6000000
-+    description:
-+      Absolute actuator maximum voltage rating
-+
-+  dlg,imax-microamp:
-+    minimum: 0
-+    maximum: 252000
-+    default: 130000
-+    description:
-+      Actuator max current rating
-+
-+  dlg,impd-micro-ohms:
-+    minimum: 0
-+    maximum: 1500000000
-+    description:
-+      Impedance of the actuator
-+
-+  pwms:
-+    maxItems: 1
-+
-+  dlg,ps-seq-id:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    minimum: 0
-+    maximum: 15
-+    description:
-+      The PS_SEQ_ID(pattern ID in waveform memory inside chip)
-+      to play back when RTWM-MODE is enabled
-+
-+  dlg,ps-seq-loop:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    minimum: 0
-+    maximum: 15
-+    description:
-+      The PS_SEQ_LOOP, Number of times the pre-stored sequence pointed to by
-+      PS_SEQ_ID or GPI(N)_SEQUENCE_ID is repeated
-+
-+  dlg,gpi0-seq-id:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    minimum: 0
-+    maximum: 15
-+    description:
-+      the GPI0_SEQUENCE_ID, pattern to play when gpi0 is triggered
-+
-+  dlg,gpi1-seq-id:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    minimum: 0
-+    maximum: 15
-+    description:
-+      the GPI1_SEQUENCE_ID, pattern to play when gpi1 is triggered
-+
-+  dlg,gpi2-seq-id:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    minimum: 0
-+    maximum: 15
-+    description:
-+      the GPI2_SEQUENCE_ID, pattern to play when gpi2 is triggered
-+
-+  dlg,gpi0-mode:
-+    enum:
-+      - Single-pattern
-+      - Multi-pattern
-+    description:
-+      Pattern mode for gpi0
-+
-+  dlg,gpi1-mode:
-+    enum:
-+      - Single-pattern
-+      - Multi-pattern
-+    description:
-+      Pattern mode for gpi1
-+
-+  dlg,gpi2-mode:
-+    enum:
-+      - Single-pattern
-+      - Multi-pattern
-+    description:
-+      Pattern mode for gpi2
-+
-+  dlg,gpi0-polarity:
-+    enum:
-+      - Rising-edge
-+      - Falling-edge
-+      - Both-edge
-+    description:
-+      gpi0 polarity, Haptic will work by this edge option in case of ETWM mode
-+
-+  dlg,gpi1-polarity:
-+    enum:
-+      - Rising-edge
-+      - Falling-edge
-+      - Both-edge
-+    description:
-+      gpi1 polarity, Haptic will work by this edge option in case of ETWM mode
-+
-+  dlg,gpi2-polarity:
-+    enum:
-+      - Rising-edge
-+      - Falling-edge
-+      - Both-edge
-+    description:
-+      gpi2 polarity, Haptic will work by this edge option in case of ETWM mode
-+
-+  dlg,resonant-freq-hz:
-+    minimum: 50
-+    maximum: 300
-+    default: 205
-+
-+  dlg,bemf-sens-enable:
-+    $ref: /schemas/types.yaml#/definitions/flag
-+    description:
-+      Enable for internal loop computations
-+
-+  dlg,freq-track-enable:
-+    $ref: /schemas/types.yaml#/definitions/flag
-+    description:
-+      Enable for resonant frequency tracking
-+
-+  dlg,acc-enable:
-+    $ref: /schemas/types.yaml#/definitions/flag
-+    description:
-+      Enable for active acceleration
-+
-+  dlg,rapid-stop-enable:
-+    $ref: /schemas/types.yaml#/definitions/flag
-+    description:
-+      Enable for rapid stop
-+
-+  dlg,amp-pid-enable:
-+    $ref: /schemas/types.yaml#/definitions/flag
-+    description:
-+      Enable for the amplitude PID
-+
-+  dlg,mem-array:
-+    $ref: /schemas/types.yaml#/definitions/uint32-array
-+    minItems: 100
-+    description:
-+      Customized waveform memory (patterns) data downloaded to the device during initialization.
-+      Each entry value must be included between 0 and 255.
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - dlg,actuator-type
-+  - dlg,const-op-mode
-+  - dlg,periodic-op-mode
-+  - dlg,nom-microvolt
-+  - dlg,abs-max-microvolt
-+  - dlg,imax-microamp
-+  - dlg,impd-micro-ohms
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c {
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        haptics@4a {
-+            compatible = "dlg,da7280";
-+            reg = <0x4a>;
-+            interrupt-parent = <&gpio6>;
-+            interrupts = <11 IRQ_TYPE_LEVEL_LOW>;
-+            dlg,actuator-type = "LRA";
-+            dlg,const-op-mode = <1>;
-+            dlg,periodic-op-mode = <1>;
-+            dlg,nom-microvolt = <2000000>;
-+            dlg,abs-max-microvolt = <2000000>;
-+            dlg,imax-microamp = <170000>;
-+            dlg,resonant-freq-hz = <180>;
-+            dlg,impd-micro-ohms = <10500000>;
-+            dlg,freq-track-enable;
-+            dlg,rapid-stop-enable;
-+            dlg,mem-array = <0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00
-+                             0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00>;
-+        };
-+    };
+Best Regards,
+Even Xu
 
--- 
-2.34.1
+> -----Original Message-----
+> From: Jiri Kosina <jikos@kernel.org>
+> Sent: Wednesday, March 5, 2025 4:44 PM
+> To: Xu, Even <even.xu@intel.com>
+> Cc: bentiss@kernel.org; srinivas.pandruvada@linux.intel.com; mpearson-
+> lenovo@squebb.ca; linux-input@vger.kernel.org; linux-kernel@vger.kernel.o=
+rg
+> Subject: RE: [PATCH RESEND v1] HID: Intel-thc-hid: Intel-quickspi: Correc=
+t device
+> state after S4
+>=20
+> On Wed, 5 Mar 2025, Xu, Even wrote:
+>=20
+> > I didn't realize v1 patch already got applied, just sent out v2 patch
+> > this morning. If so, could you just pick " [PATCH v2 1/2] HID:
+> > Intel-thc-hid: Intel-quickspi: Correct device state names gramatically"
+> > from v2 patch set for the naming fix? Those two patches have no
+> > confliction/dependence.
+>=20
+> 2/2 now in hid.git#for-6.15/intel-thc. Thanks,
+>=20
+> --
+> Jiri Kosina
+> SUSE Labs
 

@@ -1,33 +1,34 @@
 Received: from mx.treblig.org (mx.treblig.org [46.235.229.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E9DB17BD3;
-	Tue, 11 Mar 2025 01:50:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5F741DE4E9;
+	Tue, 11 Mar 2025 01:50:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.229.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741657815; cv=none; b=F00qGRbqgtOq4S/3ftHojIhc+DpBJQAbS7pSxZlWsyZTVG3rySel16LhhhgNYqM8Fqac9kclFVHv4IcNDX9Nk9WRuArR5/wFHPBckSQ+uauv+J2OtwDGwy0p2tmQNbX1YfthgCmLpXBcumnqpzkI9FLrSf8jGLcnc6AdPsi1DDg=
+	t=1741657816; cv=none; b=tEXc8wRCZDzFt+HVLzRDSUPR+4vLR1F5jjHrxAfhfZQLTFSosygRiHc/yyGwhNA09iuUeoMvcE0irnvkVJiS0c8gW/AOOAqUfX1qOF48Wkrw8hDdlKeM+tzVBMWCvcd3MXVVe/S3AvYmHIdTsmQ2LVgS2ILVCE2WRNPRWghHDjk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741657815; c=relaxed/simple;
-	bh=Qt3iMTJDzWJ71sWLMYejSXqVZvIiblbQaVTkfqcmWZA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cx+NbRnabAJk6/AP9Q18854I+5S7DivSFiHNsFgyzMBtFWXexY6bNOclIdBmyaNeN6XImQFCldL/F3VLnbST7IunRK8pGseRsoUN//Dm7PyNPluQg3ZDjtFCobCrQKs3DkGbRLAQZrL/0icniEBNsJ19RMUgmfK4XwT4h+5kGGw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=dovkdPDU; arc=none smtp.client-ip=46.235.229.95
+	s=arc-20240116; t=1741657816; c=relaxed/simple;
+	bh=NfRQ0Zi8gkO3t56Av0IQSwB44Ycjg5tTiqVvog0zsto=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Ffd8dC5Vw9lOkYXmxNHAuUGowRndYf3CEvABAtjp5qOrAyY8BBwj3537p4wyt3zx7KLa/Dg08+ivrn6UcLl4QytDjABJF3MBCk8M5Q77XnVexZbbqbt8+jRQ77qjRHOmmupZ5Se7A9H0rFmSxr6rQB41B4SbXhMNdwaueU5DdJE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=J07cUTyb; arc=none smtp.client-ip=46.235.229.95
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=treblig.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="dovkdPDU"
+	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="J07cUTyb"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
 	; s=bytemarkmx; h=MIME-Version:Message-ID:Date:Subject:From:Content-Type:From
-	:Subject; bh=jXYs1u+pjL0qr1vHTKm0DQerWnFqgvy1EC6wUyQXJiA=; b=dovkdPDUdcFfcNgj
-	HMFaZotBxaTqsUneRHr978c+UFzi4ix5UUa6CM3TCDbuH81bY1G+jrGZGcGFb0fQcNKeI5AjrC/xF
-	nM5dPVofxgGcOJ3mqPJZUpsnff+teQLatal19+d8k2sbNJP8IVkDMjmlYqoACZ0V6ciTk2XADymeC
-	yKaUY0/KkpmDUiDFFcktY4e5952URL5LxT7H5vGPpHTc/89Mo7GnCGULaBGsorMIf3gEt22OyOQJZ
-	8qMA61y5zV5alFGPG1aPkReIJyGQ4MlfjeK+l4uxq3tSHtFLlk9f8yg5i/KK7xBBX+cNSlT3lwzwv
-	CMA9/hZxhUQ1SIlu6A==;
+	:Subject; bh=qNX/32/y/eek03+mO8Mcyd55EvyQ+nmtHunaLNtjVjw=; b=J07cUTybI7MRGCFw
+	bs4k4SdQy0zNVMGTEG2dQ6FK0WVsgKJ2bjqsZdYTBdxdl3HFHUsDEWSsi1zbnJU/kIMap1MRMK9/B
+	cIqHCX12yn1vzsaK2sWjAbhef4TekzCoHZpZE4SAwDTQDrCuWy/95U2WWUV9h24JGMR1xfMH0ySBk
+	yEORO4BH1+6um2IIwoKPQUpNLdyfYKhvHg7klP/FblBkwfEFOtlRfJnfkZkRxtcIyX1IbmJ8q0cYx
+	RoyvbpoLQs1S8HpV4TOlRjKzhzVuPht4mvgG573Iz/ovzNFDVxa65ihULACG086lEsz0juakGceq+
+	DbKk9xc934zowK9fSw==;
 Received: from localhost ([127.0.0.1] helo=dalek.home.treblig.org)
 	by mx.treblig.org with esmtp (Exim 4.96)
 	(envelope-from <linux@treblig.org>)
-	id 1trokq-0042n5-1X;
-	Tue, 11 Mar 2025 01:50:00 +0000
+	id 1troks-0042n5-2c;
+	Tue, 11 Mar 2025 01:50:02 +0000
 From: linux@treblig.org
 To: arnd@arndb.de,
 	lee@kernel.org,
@@ -51,10 +52,12 @@ Cc: linux-mips@vger.kernel.org,
 	linux-gpio@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	"Dr. David Alan Gilbert" <linux@treblig.org>
-Subject: [PATCH v2 0/9] Remove pcf50633
-Date: Tue, 11 Mar 2025 01:49:50 +0000
-Message-ID: <20250311014959.743322-1-linux@treblig.org>
+Subject: [PATCH v2 4/9] Input: pcf50633-input - Remove
+Date: Tue, 11 Mar 2025 01:49:54 +0000
+Message-ID: <20250311014959.743322-5-linux@treblig.org>
 X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250311014959.743322-1-linux@treblig.org>
+References: <20250311014959.743322-1-linux@treblig.org>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -73,74 +76,163 @@ See https://lore.kernel.org/all/Z8z236h4B5A6Ki3D@gallifrey/
 
 Remove it.
 
-I've split this up based on the subcomponents to make the size
-of each patch sensible.
-
-v2
-  Moved most of the mfd updates out of the subsystem patches.
-  Swung the backlight nearer the end, since we can't avoid fixing
-  up the core.
-
-Dave
-
 Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
-
-Dr. David Alan Gilbert (9):
-  mfd: pcf50633-adc:  Remove
-  rtc: pcf50633: Remove
-  mfd: pcF50633-gpio: Remove
-  Input: pcf50633-input - Remove
-  regulator: pcf50633-regulator: Remove
-  power: supply: pcf50633: Remove charger
-  backlight: pcf50633-backlight: Remove
-  mfd: pcf50633: Remove irq code
-  mfd: pcf50633: Remove remains
-
- arch/mips/configs/ip27_defconfig             |   3 -
- drivers/input/misc/Kconfig                   |   7 -
- drivers/input/misc/Makefile                  |   1 -
- drivers/input/misc/pcf50633-input.c          | 113 -----
- drivers/mfd/Kconfig                          |  24 -
- drivers/mfd/Makefile                         |   4 -
- drivers/mfd/pcf50633-adc.c                   | 255 ----------
- drivers/mfd/pcf50633-core.c                  | 304 ------------
- drivers/mfd/pcf50633-gpio.c                  |  92 ----
- drivers/mfd/pcf50633-irq.c                   | 312 -------------
- drivers/power/supply/Kconfig                 |   6 -
- drivers/power/supply/Makefile                |   1 -
- drivers/power/supply/pcf50633-charger.c      | 466 -------------------
- drivers/regulator/Kconfig                    |   7 -
- drivers/regulator/Makefile                   |   1 -
- drivers/regulator/pcf50633-regulator.c       | 124 -----
- drivers/rtc/Kconfig                          |   7 -
- drivers/rtc/Makefile                         |   1 -
- drivers/rtc/rtc-pcf50633.c                   | 284 -----------
- drivers/video/backlight/Kconfig              |   7 -
- drivers/video/backlight/Makefile             |   1 -
- drivers/video/backlight/pcf50633-backlight.c | 154 ------
- include/linux/mfd/pcf50633/adc.h             |  69 ---
- include/linux/mfd/pcf50633/backlight.h       |  42 --
- include/linux/mfd/pcf50633/core.h            | 232 ---------
- include/linux/mfd/pcf50633/gpio.h            |  48 --
- include/linux/mfd/pcf50633/mbc.h             | 130 ------
- include/linux/mfd/pcf50633/pmic.h            |  68 ---
- 28 files changed, 2763 deletions(-)
+---
+ drivers/input/misc/Kconfig          |   7 --
+ drivers/input/misc/Makefile         |   1 -
+ drivers/input/misc/pcf50633-input.c | 113 ----------------------------
+ 3 files changed, 121 deletions(-)
  delete mode 100644 drivers/input/misc/pcf50633-input.c
- delete mode 100644 drivers/mfd/pcf50633-adc.c
- delete mode 100644 drivers/mfd/pcf50633-core.c
- delete mode 100644 drivers/mfd/pcf50633-gpio.c
- delete mode 100644 drivers/mfd/pcf50633-irq.c
- delete mode 100644 drivers/power/supply/pcf50633-charger.c
- delete mode 100644 drivers/regulator/pcf50633-regulator.c
- delete mode 100644 drivers/rtc/rtc-pcf50633.c
- delete mode 100644 drivers/video/backlight/pcf50633-backlight.c
- delete mode 100644 include/linux/mfd/pcf50633/adc.h
- delete mode 100644 include/linux/mfd/pcf50633/backlight.h
- delete mode 100644 include/linux/mfd/pcf50633/core.h
- delete mode 100644 include/linux/mfd/pcf50633/gpio.h
- delete mode 100644 include/linux/mfd/pcf50633/mbc.h
- delete mode 100644 include/linux/mfd/pcf50633/pmic.h
 
+diff --git a/drivers/input/misc/Kconfig b/drivers/input/misc/Kconfig
+index 13d135257e06..62819144bd8c 100644
+--- a/drivers/input/misc/Kconfig
++++ b/drivers/input/misc/Kconfig
+@@ -584,13 +584,6 @@ config INPUT_PALMAS_PWRBUTTON
+ 	  To compile this driver as a module, choose M here. The module will
+ 	  be called palmas_pwrbutton.
+ 
+-config INPUT_PCF50633_PMU
+-	tristate "PCF50633 PMU events"
+-	depends on MFD_PCF50633
+-	help
+-	 Say Y to include support for delivering  PMU events via  input
+-	 layer on NXP PCF50633.
+-
+ config INPUT_PCF8574
+ 	tristate "PCF8574 Keypad input device"
+ 	depends on I2C
+diff --git a/drivers/input/misc/Makefile b/drivers/input/misc/Makefile
+index 6d91804d0a6f..d468c8140b93 100644
+--- a/drivers/input/misc/Makefile
++++ b/drivers/input/misc/Makefile
+@@ -59,7 +59,6 @@ obj-$(CONFIG_INPUT_MC13783_PWRBUTTON)	+= mc13783-pwrbutton.o
+ obj-$(CONFIG_INPUT_MMA8450)		+= mma8450.o
+ obj-$(CONFIG_INPUT_PALMAS_PWRBUTTON)	+= palmas-pwrbutton.o
+ obj-$(CONFIG_INPUT_PCAP)		+= pcap_keys.o
+-obj-$(CONFIG_INPUT_PCF50633_PMU)	+= pcf50633-input.o
+ obj-$(CONFIG_INPUT_PCF8574)		+= pcf8574_keypad.o
+ obj-$(CONFIG_INPUT_PCSPKR)		+= pcspkr.o
+ obj-$(CONFIG_INPUT_PM8941_PWRKEY)	+= pm8941-pwrkey.o
+diff --git a/drivers/input/misc/pcf50633-input.c b/drivers/input/misc/pcf50633-input.c
+deleted file mode 100644
+index 6d046e236ba6..000000000000
+--- a/drivers/input/misc/pcf50633-input.c
++++ /dev/null
+@@ -1,113 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0-or-later
+-/* NXP PCF50633 Input Driver
+- *
+- * (C) 2006-2008 by Openmoko, Inc.
+- * Author: Balaji Rao <balajirrao@openmoko.org>
+- * All rights reserved.
+- *
+- * Broken down from monstrous PCF50633 driver mainly by
+- * Harald Welte, Andy Green and Werner Almesberger
+- */
+-
+-#include <linux/kernel.h>
+-#include <linux/module.h>
+-#include <linux/device.h>
+-#include <linux/platform_device.h>
+-#include <linux/input.h>
+-#include <linux/slab.h>
+-
+-#include <linux/mfd/pcf50633/core.h>
+-
+-#define PCF50633_OOCSTAT_ONKEY	0x01
+-#define PCF50633_REG_OOCSTAT	0x12
+-#define PCF50633_REG_OOCMODE	0x10
+-
+-struct pcf50633_input {
+-	struct pcf50633 *pcf;
+-	struct input_dev *input_dev;
+-};
+-
+-static void
+-pcf50633_input_irq(int irq, void *data)
+-{
+-	struct pcf50633_input *input;
+-	int onkey_released;
+-
+-	input = data;
+-
+-	/* We report only one event depending on the key press status */
+-	onkey_released = pcf50633_reg_read(input->pcf, PCF50633_REG_OOCSTAT)
+-						& PCF50633_OOCSTAT_ONKEY;
+-
+-	if (irq == PCF50633_IRQ_ONKEYF && !onkey_released)
+-		input_report_key(input->input_dev, KEY_POWER, 1);
+-	else if (irq == PCF50633_IRQ_ONKEYR && onkey_released)
+-		input_report_key(input->input_dev, KEY_POWER, 0);
+-
+-	input_sync(input->input_dev);
+-}
+-
+-static int pcf50633_input_probe(struct platform_device *pdev)
+-{
+-	struct pcf50633_input *input;
+-	struct input_dev *input_dev;
+-	int ret;
+-
+-
+-	input = kzalloc(sizeof(*input), GFP_KERNEL);
+-	if (!input)
+-		return -ENOMEM;
+-
+-	input_dev = input_allocate_device();
+-	if (!input_dev) {
+-		kfree(input);
+-		return -ENOMEM;
+-	}
+-
+-	platform_set_drvdata(pdev, input);
+-	input->pcf = dev_to_pcf50633(pdev->dev.parent);
+-	input->input_dev = input_dev;
+-
+-	input_dev->name = "PCF50633 PMU events";
+-	input_dev->id.bustype = BUS_I2C;
+-	input_dev->evbit[0] = BIT(EV_KEY) | BIT(EV_PWR);
+-	set_bit(KEY_POWER, input_dev->keybit);
+-
+-	ret = input_register_device(input_dev);
+-	if (ret) {
+-		input_free_device(input_dev);
+-		kfree(input);
+-		return ret;
+-	}
+-	pcf50633_register_irq(input->pcf, PCF50633_IRQ_ONKEYR,
+-				pcf50633_input_irq, input);
+-	pcf50633_register_irq(input->pcf, PCF50633_IRQ_ONKEYF,
+-				pcf50633_input_irq, input);
+-
+-	return 0;
+-}
+-
+-static void pcf50633_input_remove(struct platform_device *pdev)
+-{
+-	struct pcf50633_input *input  = platform_get_drvdata(pdev);
+-
+-	pcf50633_free_irq(input->pcf, PCF50633_IRQ_ONKEYR);
+-	pcf50633_free_irq(input->pcf, PCF50633_IRQ_ONKEYF);
+-
+-	input_unregister_device(input->input_dev);
+-	kfree(input);
+-}
+-
+-static struct platform_driver pcf50633_input_driver = {
+-	.driver = {
+-		.name = "pcf50633-input",
+-	},
+-	.probe = pcf50633_input_probe,
+-	.remove = pcf50633_input_remove,
+-};
+-module_platform_driver(pcf50633_input_driver);
+-
+-MODULE_AUTHOR("Balaji Rao <balajirrao@openmoko.org>");
+-MODULE_DESCRIPTION("PCF50633 input driver");
+-MODULE_LICENSE("GPL");
+-MODULE_ALIAS("platform:pcf50633-input");
 -- 
 2.48.1
 

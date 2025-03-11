@@ -1,34 +1,34 @@
 Received: from mx.treblig.org (mx.treblig.org [46.235.229.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B5BD1E8325;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B5631E0E13;
 	Tue, 11 Mar 2025 01:50:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.235.229.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741657820; cv=none; b=ET4KfItSE7EtPBWKwVP9HY5b7zMYqsBiFfs0f9YD/p42eqw2ADodmvH3wcKfAtBiHZ+3qOU/Ci7yFG32pFYaCZXlV9qYNAZIevEGQQOEHfkekIMkJKjzPqmOrxHENCcU83Jw58bgWpzJwWCWG42WEVWKEsthz/Gz4Wnd2wNKegM=
+	t=1741657820; cv=none; b=XyWk820wbipxCArS2QC7r9VlsmsMPQXNsLiPhvjdD+MGM8OfOL/HfguVRaRMJXLzZcFarKie6t6S7KlDz6xWzS3BmW4ocYyg+fOWwXEUkF8J66nAXHWLD86bapPm5JoRxR8HbOLnXasg9AzgF5A0/ZeXhI2p68M+xANKzLEdR+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1741657820; c=relaxed/simple;
-	bh=k5/8DUaUK2Q5cWWiq7/NnfWeP+T8aidDOyO+bbp4Ozo=;
+	bh=CKCp/ckmFDU6+hQ2TQimahXQTphOtHrAK7G6KUZSleE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pQUlzwEzGQbfx52yeQIwLh06jDEPN24Uiee+d/yT1e4T1lsdVXT4Wd5Nt/TUiwvr7BDBrhTp7DBWw4hf3ngy6ShyyINSTZmrKhdxcyEp2mFueSXB6GC+x/6KB7pZkyc4AiNVc2CDsMaEfJ/BsMspq/kMwpjb9ASAwXBgIdPSTnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=YkF+WBhv; arc=none smtp.client-ip=46.235.229.95
+	 MIME-Version; b=Nj9J0dK/T3eSQ8916q4IdQaArb2c+CKtuQgToWDEFVMVlBiWBx64S3UtcsXB4/mpDEQpdGnOZucoJmLTPwT92Yj+gICIwc49+OMEDnBx1EyYVnOObuysLTDGzWPGYv6vV+3AJYFe4rLfUmYnlwK0DpjQgPxPIxMXvWztmzlZmQ8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org; spf=pass smtp.mailfrom=treblig.org; dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b=SkE/Swuj; arc=none smtp.client-ip=46.235.229.95
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=treblig.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=treblig.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="YkF+WBhv"
+	dkim=pass (2048-bit key) header.d=treblig.org header.i=@treblig.org header.b="SkE/Swuj"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=treblig.org
 	; s=bytemarkmx; h=MIME-Version:Message-ID:Date:Subject:From:Content-Type:From
-	:Subject; bh=YAkUjNLNCjv+yvfpQR/TU0k2FV8ltLB9WNQ+5r3dGxA=; b=YkF+WBhvCnLVTSc9
-	4UlcQhexNbskMtjM8gdR3gMGsiX9dHP6bjTKrJH5LaA3J94dNWUCuvbTpIGxbpy6F+WnEvc3yV+Vr
-	QbcpZeQmcU5CHIZas39MuHpUKWgMUPm8ftX0xNnk0M9kEub2QEBizoIsYaK4fgN8lczTAfpw47zsX
-	l6RRIZxyfXiG1AJwF5NkfbBfSM9fnOPucBie8mwxZje/O3mygt348VGnjtMrDIMggnn+Z5s3qi0UT
-	DhaKYs/U2qCcj/wWDYbP3dtTsUHqZGSQQW7dfjEsTASt91rBV2Xxhq08mSs/LRaPxXp0uz5Okffw0
-	r8VnA8mKUFVrOsUNMQ==;
+	:Subject; bh=GBpDPMc7Ne/UqbYumGvsyiWcHTvdPHc82NlIZ4ispN0=; b=SkE/SwujqUG63bRO
+	FNz02U1nH0TgMZ1arW8n3qAVaWpAAkTi/rOyLCN/7hGKu5XQMicZt/bwiSkp9YYfkGndQl5ni8XYS
+	TGoid9TErFWZAhkOdFVVN0YewAv4PRCcIxnJWHsfxJDe7j1VYL9PXTaY6SYDUL4h1ndDrlUD0R/bZ
+	PMtWv+Nov3TS2BuEKgI0SfKy9soAiHXcVx1+8jfbPkcvkKHv2bAY8rm3YCPnvfEBaT6/65FWjB3Y1
+	bpueovLNm1yY0Oa/XLaJhwFTbUvd33R7w19iC0NP3Jj6q6ed0w2IY7/fJsoQSE0oTacaNyiyPJrvO
+	Eg4N3Mi2VXwn00IFvQ==;
 Received: from localhost ([127.0.0.1] helo=dalek.home.treblig.org)
 	by mx.treblig.org with esmtp (Exim 4.96)
 	(envelope-from <linux@treblig.org>)
-	id 1troks-0042n5-0d;
-	Tue, 11 Mar 2025 01:50:02 +0000
+	id 1trokv-0042n5-1A;
+	Tue, 11 Mar 2025 01:50:05 +0000
 From: linux@treblig.org
 To: arnd@arndb.de,
 	lee@kernel.org,
@@ -52,9 +52,9 @@ Cc: linux-mips@vger.kernel.org,
 	linux-gpio@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	"Dr. David Alan Gilbert" <linux@treblig.org>
-Subject: [PATCH v2 3/9] mfd: pcF50633-gpio: Remove
-Date: Tue, 11 Mar 2025 01:49:53 +0000
-Message-ID: <20250311014959.743322-4-linux@treblig.org>
+Subject: [PATCH v2 8/9] mfd: pcf50633: Remove irq code
+Date: Tue, 11 Mar 2025 01:49:58 +0000
+Message-ID: <20250311014959.743322-9-linux@treblig.org>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250311014959.743322-1-linux@treblig.org>
 References: <20250311014959.743322-1-linux@treblig.org>
@@ -68,219 +68,379 @@ Content-Transfer-Encoding: 8bit
 
 From: "Dr. David Alan Gilbert" <linux@treblig.org>
 
-The pcf50633 was used as part of the OpenMoko devices but
-the support for its main chip was recently removed in:
-commit 61b7f8920b17 ("ARM: s3c: remove all s3c24xx support")
-
-See https://lore.kernel.org/all/Z8z236h4B5A6Ki3D@gallifrey/
-
-Remove it.
+As part of the pcf50633 removal, take out it's irq code
+(which includes one bit still called from the core, but it'll
+go soon).
 
 Signed-off-by: Dr. David Alan Gilbert <linux@treblig.org>
 ---
- arch/mips/configs/ip27_defconfig  |  1 -
- drivers/mfd/Kconfig               |  7 ---
- drivers/mfd/Makefile              |  1 -
- drivers/mfd/pcf50633-gpio.c       | 92 -------------------------------
- include/linux/mfd/pcf50633/gpio.h | 48 ----------------
- 5 files changed, 149 deletions(-)
- delete mode 100644 drivers/mfd/pcf50633-gpio.c
- delete mode 100644 include/linux/mfd/pcf50633/gpio.h
+ drivers/mfd/Makefile        |   2 +-
+ drivers/mfd/pcf50633-core.c |   5 +-
+ drivers/mfd/pcf50633-irq.c  | 312 ------------------------------------
+ 3 files changed, 2 insertions(+), 317 deletions(-)
+ delete mode 100644 drivers/mfd/pcf50633-irq.c
 
-diff --git a/arch/mips/configs/ip27_defconfig b/arch/mips/configs/ip27_defconfig
-index 66085bb71bc4..0a9ec09aff65 100644
---- a/arch/mips/configs/ip27_defconfig
-+++ b/arch/mips/configs/ip27_defconfig
-@@ -256,7 +256,6 @@ CONFIG_I2C_STUB=m
- # CONFIG_HWMON is not set
- CONFIG_THERMAL=y
- CONFIG_MFD_PCF50633=m
--CONFIG_PCF50633_GPIO=m
- # CONFIG_VGA_ARB is not set
- CONFIG_LEDS_LP3944=m
- CONFIG_LEDS_PCA955X=m
-diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
-index 051272126fe1..766453ef6c2d 100644
---- a/drivers/mfd/Kconfig
-+++ b/drivers/mfd/Kconfig
-@@ -1129,13 +1129,6 @@ config MFD_PCF50633
- 	  facilities, and registers devices for the various functions
- 	  so that function-specific drivers can bind to them.
- 
--config PCF50633_GPIO
--	tristate "NXP PCF50633 GPIO"
--	depends on MFD_PCF50633
--	help
--	  Say yes here if you want to include support GPIO for pins on
--	  the PCF50633 chip.
--
- config MFD_PM8XXX
- 	tristate "Qualcomm PM8xxx PMIC chips driver"
- 	depends on ARM || HEXAGON || COMPILE_TEST
 diff --git a/drivers/mfd/Makefile b/drivers/mfd/Makefile
-index e085da3f13c3..d769e40251c8 100644
+index d769e40251c8..f1c7a15c8f7b 100644
 --- a/drivers/mfd/Makefile
 +++ b/drivers/mfd/Makefile
-@@ -185,7 +185,6 @@ obj-$(CONFIG_MFD_MT6397)	+= mt6397.o
+@@ -183,7 +183,7 @@ obj-$(CONFIG_MFD_MT6370)	+= mt6370.o
+ mt6397-objs			:= mt6397-core.o mt6397-irq.o mt6358-irq.o
+ obj-$(CONFIG_MFD_MT6397)	+= mt6397.o
  
- pcf50633-objs			:= pcf50633-core.o pcf50633-irq.o
+-pcf50633-objs			:= pcf50633-core.o pcf50633-irq.o
++pcf50633-objs			:= pcf50633-core.o
  obj-$(CONFIG_MFD_PCF50633)	+= pcf50633.o
--obj-$(CONFIG_PCF50633_GPIO)	+= pcf50633-gpio.o
  obj-$(CONFIG_RZ_MTU3)		+= rz-mtu3.o
  obj-$(CONFIG_ABX500_CORE)	+= abx500-core.o
- obj-$(CONFIG_MFD_DB8500_PRCMU)	+= db8500-prcmu.o
-diff --git a/drivers/mfd/pcf50633-gpio.c b/drivers/mfd/pcf50633-gpio.c
+diff --git a/drivers/mfd/pcf50633-core.c b/drivers/mfd/pcf50633-core.c
+index 014a68711b18..5605f176061a 100644
+--- a/drivers/mfd/pcf50633-core.c
++++ b/drivers/mfd/pcf50633-core.c
+@@ -204,8 +204,6 @@ static int pcf50633_probe(struct i2c_client *client)
+ 	dev_info(pcf->dev, "Probed device version %d variant %d\n",
+ 							version, variant);
+ 
+-	pcf50633_irq_init(pcf, client->irq);
+-
+ 	/* Create sub devices */
+ 	pcf50633_client_dev_register(pcf, "pcf50633-input", &pcf->input_pdev);
+ 	pcf50633_client_dev_register(pcf, "pcf50633-rtc", &pcf->rtc_pdev);
+@@ -258,7 +256,6 @@ static void pcf50633_remove(struct i2c_client *client)
+ 	int i;
+ 
+ 	sysfs_remove_group(&client->dev.kobj, &pcf_attr_group);
+-	pcf50633_irq_free(pcf);
+ 
+ 	platform_device_unregister(pcf->input_pdev);
+ 	platform_device_unregister(pcf->rtc_pdev);
+@@ -279,7 +276,7 @@ MODULE_DEVICE_TABLE(i2c, pcf50633_id_table);
+ static struct i2c_driver pcf50633_driver = {
+ 	.driver = {
+ 		.name	= "pcf50633",
+-		.pm	= pm_sleep_ptr(&pcf50633_pm),
++		/* going.... .pm	= pm_sleep_ptr(&pcf50633_pm), */
+ 	},
+ 	.id_table = pcf50633_id_table,
+ 	.probe = pcf50633_probe,
+diff --git a/drivers/mfd/pcf50633-irq.c b/drivers/mfd/pcf50633-irq.c
 deleted file mode 100644
-index 3e368219479a..000000000000
---- a/drivers/mfd/pcf50633-gpio.c
+index e85af7f1cb0b..000000000000
+--- a/drivers/mfd/pcf50633-irq.c
 +++ /dev/null
-@@ -1,92 +0,0 @@
+@@ -1,312 +0,0 @@
 -// SPDX-License-Identifier: GPL-2.0-or-later
--/* NXP PCF50633 GPIO Driver
+-/* NXP PCF50633 Power Management Unit (PMU) driver
 - *
 - * (C) 2006-2008 by Openmoko, Inc.
-- * Author: Balaji Rao <balajirrao@openmoko.org>
+- * Author: Harald Welte <laforge@openmoko.org>
+- * 	   Balaji Rao <balajirrao@openmoko.org>
 - * All rights reserved.
-- *
-- * Broken down from monstrous PCF50633 driver mainly by
-- * Harald Welte, Andy Green and Werner Almesberger
 - */
 -
+-#include <linux/i2c.h>
+-#include <linux/interrupt.h>
 -#include <linux/kernel.h>
--#include <linux/module.h>
+-#include <linux/mutex.h>
+-#include <linux/export.h>
+-#include <linux/slab.h>
 -
 -#include <linux/mfd/pcf50633/core.h>
--#include <linux/mfd/pcf50633/gpio.h>
--#include <linux/mfd/pcf50633/pmic.h>
+-#include <linux/mfd/pcf50633/mbc.h>
 -
--static const u8 pcf50633_regulator_registers[PCF50633_NUM_REGULATORS] = {
--	[PCF50633_REGULATOR_AUTO]	= PCF50633_REG_AUTOOUT,
--	[PCF50633_REGULATOR_DOWN1]	= PCF50633_REG_DOWN1OUT,
--	[PCF50633_REGULATOR_DOWN2]	= PCF50633_REG_DOWN2OUT,
--	[PCF50633_REGULATOR_MEMLDO]	= PCF50633_REG_MEMLDOOUT,
--	[PCF50633_REGULATOR_LDO1]	= PCF50633_REG_LDO1OUT,
--	[PCF50633_REGULATOR_LDO2]	= PCF50633_REG_LDO2OUT,
--	[PCF50633_REGULATOR_LDO3]	= PCF50633_REG_LDO3OUT,
--	[PCF50633_REGULATOR_LDO4]	= PCF50633_REG_LDO4OUT,
--	[PCF50633_REGULATOR_LDO5]	= PCF50633_REG_LDO5OUT,
--	[PCF50633_REGULATOR_LDO6]	= PCF50633_REG_LDO6OUT,
--	[PCF50633_REGULATOR_HCLDO]	= PCF50633_REG_HCLDOOUT,
--};
--
--int pcf50633_gpio_set(struct pcf50633 *pcf, int gpio, u8 val)
+-int pcf50633_register_irq(struct pcf50633 *pcf, int irq,
+-			void (*handler) (int, void *), void *data)
 -{
--	u8 reg;
+-	if (irq < 0 || irq >= PCF50633_NUM_IRQ || !handler)
+-		return -EINVAL;
 -
--	reg = gpio - PCF50633_GPIO1 + PCF50633_REG_GPIO1CFG;
+-	if (WARN_ON(pcf->irq_handler[irq].handler))
+-		return -EBUSY;
 -
--	return pcf50633_reg_set_bit_mask(pcf, reg, 0x07, val);
+-	mutex_lock(&pcf->lock);
+-	pcf->irq_handler[irq].handler = handler;
+-	pcf->irq_handler[irq].data = data;
+-	mutex_unlock(&pcf->lock);
+-
+-	return 0;
 -}
--EXPORT_SYMBOL_GPL(pcf50633_gpio_set);
+-EXPORT_SYMBOL_GPL(pcf50633_register_irq);
 -
--u8 pcf50633_gpio_get(struct pcf50633 *pcf, int gpio)
+-int pcf50633_free_irq(struct pcf50633 *pcf, int irq)
 -{
--	u8 reg, val;
+-	if (irq < 0 || irq >= PCF50633_NUM_IRQ)
+-		return -EINVAL;
 -
--	reg = gpio - PCF50633_GPIO1 + PCF50633_REG_GPIO1CFG;
--	val = pcf50633_reg_read(pcf, reg) & 0x07;
+-	mutex_lock(&pcf->lock);
+-	pcf->irq_handler[irq].handler = NULL;
+-	mutex_unlock(&pcf->lock);
 -
--	return val;
+-	return 0;
 -}
--EXPORT_SYMBOL_GPL(pcf50633_gpio_get);
+-EXPORT_SYMBOL_GPL(pcf50633_free_irq);
 -
--int pcf50633_gpio_invert_set(struct pcf50633 *pcf, int gpio, int invert)
+-static int __pcf50633_irq_mask_set(struct pcf50633 *pcf, int irq, u8 mask)
 -{
--	u8 val, reg;
+-	u8 reg, bit;
+-	int idx;
 -
--	reg = gpio - PCF50633_GPIO1 + PCF50633_REG_GPIO1CFG;
--	val = !!invert << 3;
+-	idx = irq >> 3;
+-	reg = PCF50633_REG_INT1M + idx;
+-	bit = 1 << (irq & 0x07);
 -
--	return pcf50633_reg_set_bit_mask(pcf, reg, 1 << 3, val);
+-	pcf50633_reg_set_bit_mask(pcf, reg, bit, mask ? bit : 0);
+-
+-	mutex_lock(&pcf->lock);
+-
+-	if (mask)
+-		pcf->mask_regs[idx] |= bit;
+-	else
+-		pcf->mask_regs[idx] &= ~bit;
+-
+-	mutex_unlock(&pcf->lock);
+-
+-	return 0;
 -}
--EXPORT_SYMBOL_GPL(pcf50633_gpio_invert_set);
 -
--int pcf50633_gpio_invert_get(struct pcf50633 *pcf, int gpio)
+-int pcf50633_irq_mask(struct pcf50633 *pcf, int irq)
 -{
--	u8 reg, val;
+-	dev_dbg(pcf->dev, "Masking IRQ %d\n", irq);
 -
--	reg = gpio - PCF50633_GPIO1 + PCF50633_REG_GPIO1CFG;
--	val = pcf50633_reg_read(pcf, reg);
--
--	return val & (1 << 3);
+-	return __pcf50633_irq_mask_set(pcf, irq, 1);
 -}
--EXPORT_SYMBOL_GPL(pcf50633_gpio_invert_get);
+-EXPORT_SYMBOL_GPL(pcf50633_irq_mask);
 -
--int pcf50633_gpio_power_supply_set(struct pcf50633 *pcf,
--					int gpio, int regulator, int on)
+-int pcf50633_irq_unmask(struct pcf50633 *pcf, int irq)
 -{
--	u8 reg, val, mask;
+-	dev_dbg(pcf->dev, "Unmasking IRQ %d\n", irq);
 -
--	/* the *ENA register is always one after the *OUT register */
--	reg = pcf50633_regulator_registers[regulator] + 1;
--
--	val = !!on << (gpio - PCF50633_GPIO1);
--	mask = 1 << (gpio - PCF50633_GPIO1);
--
--	return pcf50633_reg_set_bit_mask(pcf, reg, mask, val);
+-	return __pcf50633_irq_mask_set(pcf, irq, 0);
 -}
--EXPORT_SYMBOL_GPL(pcf50633_gpio_power_supply_set);
+-EXPORT_SYMBOL_GPL(pcf50633_irq_unmask);
 -
--MODULE_DESCRIPTION("NXP PCF50633 GPIO Driver");
--MODULE_LICENSE("GPL");
-diff --git a/include/linux/mfd/pcf50633/gpio.h b/include/linux/mfd/pcf50633/gpio.h
-deleted file mode 100644
-index f589e35795f1..000000000000
---- a/include/linux/mfd/pcf50633/gpio.h
-+++ /dev/null
-@@ -1,48 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0-or-later */
--/*
-- * gpio.h -- GPIO driver for NXP PCF50633
-- *
-- * (C) 2006-2008 by Openmoko, Inc.
-- * All rights reserved.
-- */
+-int pcf50633_irq_mask_get(struct pcf50633 *pcf, int irq)
+-{
+-	u8 reg, bits;
 -
--#ifndef __LINUX_MFD_PCF50633_GPIO_H
--#define __LINUX_MFD_PCF50633_GPIO_H
+-	reg =  irq >> 3;
+-	bits = 1 << (irq & 0x07);
 -
--#include <linux/mfd/pcf50633/core.h>
+-	return pcf->mask_regs[reg] & bits;
+-}
+-EXPORT_SYMBOL_GPL(pcf50633_irq_mask_get);
 -
--#define PCF50633_GPIO1		1
--#define PCF50633_GPIO2		2
--#define PCF50633_GPIO3		3
--#define PCF50633_GPO		4
+-static void pcf50633_irq_call_handler(struct pcf50633 *pcf, int irq)
+-{
+-	if (pcf->irq_handler[irq].handler)
+-		pcf->irq_handler[irq].handler(irq, pcf->irq_handler[irq].data);
+-}
 -
--#define PCF50633_REG_GPIO1CFG	0x14
--#define PCF50633_REG_GPIO2CFG	0x15
--#define PCF50633_REG_GPIO3CFG	0x16
--#define PCF50633_REG_GPOCFG 	0x17
+-/* Maximum amount of time ONKEY is held before emergency action is taken */
+-#define PCF50633_ONKEY1S_TIMEOUT 8
 -
--#define PCF50633_GPOCFG_GPOSEL_MASK	0x07
+-static irqreturn_t pcf50633_irq(int irq, void *data)
+-{
+-	struct pcf50633 *pcf = data;
+-	int ret, i, j;
+-	u8 pcf_int[5], chgstat;
 -
--enum pcf50633_reg_gpocfg {
--	PCF50633_GPOCFG_GPOSEL_0	= 0x00,
--	PCF50633_GPOCFG_GPOSEL_LED_NFET	= 0x01,
--	PCF50633_GPOCFG_GPOSEL_SYSxOK	= 0x02,
--	PCF50633_GPOCFG_GPOSEL_CLK32K	= 0x03,
--	PCF50633_GPOCFG_GPOSEL_ADAPUSB	= 0x04,
--	PCF50633_GPOCFG_GPOSEL_USBxOK	= 0x05,
--	PCF50633_GPOCFG_GPOSEL_ACTPH4	= 0x06,
--	PCF50633_GPOCFG_GPOSEL_1	= 0x07,
--	PCF50633_GPOCFG_GPOSEL_INVERSE	= 0x08,
--};
+-	/* Read the 5 INT regs in one transaction */
+-	ret = pcf50633_read_block(pcf, PCF50633_REG_INT1,
+-						ARRAY_SIZE(pcf_int), pcf_int);
+-	if (ret != ARRAY_SIZE(pcf_int)) {
+-		dev_err(pcf->dev, "Error reading INT registers\n");
 -
--int pcf50633_gpio_set(struct pcf50633 *pcf, int gpio, u8 val);
--u8 pcf50633_gpio_get(struct pcf50633 *pcf, int gpio);
+-		/*
+-		 * If this doesn't ACK the interrupt to the chip, we'll be
+-		 * called once again as we're level triggered.
+-		 */
+-		goto out;
+-	}
 -
--int pcf50633_gpio_invert_set(struct pcf50633 *, int gpio, int invert);
--int pcf50633_gpio_invert_get(struct pcf50633 *pcf, int gpio);
+-	/* defeat 8s death from lowsys on A5 */
+-	pcf50633_reg_write(pcf, PCF50633_REG_OOCSHDWN,  0x04);
 -
--int pcf50633_gpio_power_supply_set(struct pcf50633 *,
--					int gpio, int regulator, int on);
--#endif /* __LINUX_MFD_PCF50633_GPIO_H */
+-	/* We immediately read the usb and adapter status. We thus make sure
+-	 * only of USBINS/USBREM IRQ handlers are called */
+-	if (pcf_int[0] & (PCF50633_INT1_USBINS | PCF50633_INT1_USBREM)) {
+-		chgstat = pcf50633_reg_read(pcf, PCF50633_REG_MBCS2);
+-		if (chgstat & (0x3 << 4))
+-			pcf_int[0] &= ~PCF50633_INT1_USBREM;
+-		else
+-			pcf_int[0] &= ~PCF50633_INT1_USBINS;
+-	}
+-
+-	/* Make sure only one of ADPINS or ADPREM is set */
+-	if (pcf_int[0] & (PCF50633_INT1_ADPINS | PCF50633_INT1_ADPREM)) {
+-		chgstat = pcf50633_reg_read(pcf, PCF50633_REG_MBCS2);
+-		if (chgstat & (0x3 << 4))
+-			pcf_int[0] &= ~PCF50633_INT1_ADPREM;
+-		else
+-			pcf_int[0] &= ~PCF50633_INT1_ADPINS;
+-	}
+-
+-	dev_dbg(pcf->dev, "INT1=0x%02x INT2=0x%02x INT3=0x%02x "
+-			"INT4=0x%02x INT5=0x%02x\n", pcf_int[0],
+-			pcf_int[1], pcf_int[2], pcf_int[3], pcf_int[4]);
+-
+-	/* Some revisions of the chip don't have a 8s standby mode on
+-	 * ONKEY1S press. We try to manually do it in such cases. */
+-	if ((pcf_int[0] & PCF50633_INT1_SECOND) && pcf->onkey1s_held) {
+-		dev_info(pcf->dev, "ONKEY1S held for %d secs\n",
+-							pcf->onkey1s_held);
+-		if (pcf->onkey1s_held++ == PCF50633_ONKEY1S_TIMEOUT)
+-			if (pcf->pdata->force_shutdown)
+-				pcf->pdata->force_shutdown(pcf);
+-	}
+-
+-	if (pcf_int[2] & PCF50633_INT3_ONKEY1S) {
+-		dev_info(pcf->dev, "ONKEY1S held\n");
+-		pcf->onkey1s_held = 1 ;
+-
+-		/* Unmask IRQ_SECOND */
+-		pcf50633_reg_clear_bits(pcf, PCF50633_REG_INT1M,
+-						PCF50633_INT1_SECOND);
+-
+-		/* Unmask IRQ_ONKEYR */
+-		pcf50633_reg_clear_bits(pcf, PCF50633_REG_INT2M,
+-						PCF50633_INT2_ONKEYR);
+-	}
+-
+-	if ((pcf_int[1] & PCF50633_INT2_ONKEYR) && pcf->onkey1s_held) {
+-		pcf->onkey1s_held = 0;
+-
+-		/* Mask SECOND and ONKEYR interrupts */
+-		if (pcf->mask_regs[0] & PCF50633_INT1_SECOND)
+-			pcf50633_reg_set_bit_mask(pcf,
+-					PCF50633_REG_INT1M,
+-					PCF50633_INT1_SECOND,
+-					PCF50633_INT1_SECOND);
+-
+-		if (pcf->mask_regs[1] & PCF50633_INT2_ONKEYR)
+-			pcf50633_reg_set_bit_mask(pcf,
+-					PCF50633_REG_INT2M,
+-					PCF50633_INT2_ONKEYR,
+-					PCF50633_INT2_ONKEYR);
+-	}
+-
+-	/* Have we just resumed ? */
+-	if (pcf->is_suspended) {
+-		pcf->is_suspended = 0;
+-
+-		/* Set the resume reason filtering out non resumers */
+-		for (i = 0; i < ARRAY_SIZE(pcf_int); i++)
+-			pcf->resume_reason[i] = pcf_int[i] &
+-						pcf->pdata->resumers[i];
+-
+-		/* Make sure we don't pass on any ONKEY events to
+-		 * userspace now */
+-		pcf_int[1] &= ~(PCF50633_INT2_ONKEYR | PCF50633_INT2_ONKEYF);
+-	}
+-
+-	for (i = 0; i < ARRAY_SIZE(pcf_int); i++) {
+-		/* Unset masked interrupts */
+-		pcf_int[i] &= ~pcf->mask_regs[i];
+-
+-		for (j = 0; j < 8 ; j++)
+-			if (pcf_int[i] & (1 << j))
+-				pcf50633_irq_call_handler(pcf, (i * 8) + j);
+-	}
+-
+-out:
+-	return IRQ_HANDLED;
+-}
+-
+-static int pcf50633_suspend(struct device *dev)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct pcf50633 *pcf = i2c_get_clientdata(client);
+-	int ret;
+-	int i;
+-	u8 res[5];
 -
 -
+-	/* Make sure our interrupt handlers are not called
+-	 * henceforth */
+-	disable_irq(pcf->irq);
+-
+-	/* Save the masks */
+-	ret = pcf50633_read_block(pcf, PCF50633_REG_INT1M,
+-				ARRAY_SIZE(pcf->suspend_irq_masks),
+-					pcf->suspend_irq_masks);
+-	if (ret < 0) {
+-		dev_err(pcf->dev, "error saving irq masks\n");
+-		goto out;
+-	}
+-
+-	/* Write wakeup irq masks */
+-	for (i = 0; i < ARRAY_SIZE(res); i++)
+-		res[i] = ~pcf->pdata->resumers[i];
+-
+-	ret = pcf50633_write_block(pcf, PCF50633_REG_INT1M,
+-					ARRAY_SIZE(res), &res[0]);
+-	if (ret < 0) {
+-		dev_err(pcf->dev, "error writing wakeup irq masks\n");
+-		goto out;
+-	}
+-
+-	pcf->is_suspended = 1;
+-
+-out:
+-	return ret;
+-}
+-
+-static int pcf50633_resume(struct device *dev)
+-{
+-	struct i2c_client *client = to_i2c_client(dev);
+-	struct pcf50633 *pcf = i2c_get_clientdata(client);
+-	int ret;
+-
+-	/* Write the saved mask registers */
+-	ret = pcf50633_write_block(pcf, PCF50633_REG_INT1M,
+-				ARRAY_SIZE(pcf->suspend_irq_masks),
+-					pcf->suspend_irq_masks);
+-	if (ret < 0)
+-		dev_err(pcf->dev, "Error restoring saved suspend masks\n");
+-
+-	enable_irq(pcf->irq);
+-
+-	return ret;
+-}
+-
+-EXPORT_GPL_SIMPLE_DEV_PM_OPS(pcf50633_pm, pcf50633_suspend, pcf50633_resume);
+-
+-int pcf50633_irq_init(struct pcf50633 *pcf, int irq)
+-{
+-	int ret;
+-
+-	pcf->irq = irq;
+-
+-	/* Enable all interrupts except RTC SECOND */
+-	pcf->mask_regs[0] = 0x80;
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT1M, pcf->mask_regs[0]);
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT2M, 0x00);
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT3M, 0x00);
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT4M, 0x00);
+-	pcf50633_reg_write(pcf, PCF50633_REG_INT5M, 0x00);
+-
+-	ret = request_threaded_irq(irq, NULL, pcf50633_irq,
+-					IRQF_TRIGGER_LOW | IRQF_ONESHOT,
+-					"pcf50633", pcf);
+-
+-	if (ret)
+-		dev_err(pcf->dev, "Failed to request IRQ %d\n", ret);
+-
+-	if (enable_irq_wake(irq) < 0)
+-		dev_err(pcf->dev, "IRQ %u cannot be enabled as wake-up source"
+-			"in this hardware revision", irq);
+-
+-	return ret;
+-}
+-
+-void pcf50633_irq_free(struct pcf50633 *pcf)
+-{
+-	free_irq(pcf->irq, pcf);
+-}
 -- 
 2.48.1
 

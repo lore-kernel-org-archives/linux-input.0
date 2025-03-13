@@ -1,36 +1,36 @@
 Received: from mail.mainlining.org (mail.mainlining.org [5.75.144.95])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 756BD157E88;
-	Thu, 13 Mar 2025 20:21:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87E1C42AA9;
+	Thu, 13 Mar 2025 20:20:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.144.95
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741897262; cv=none; b=uLB0nU2FYizlOXKrCQHHubIJL2a0gYoUX7+mck8glmeVYiBSUVfixEVTbBN0GYSAALhwNqn9NkOaXFEGXmtApHEPsCeJiK9QtNlPLBRQ2B8JoSr73IET+j0FOdXUZ66lsc7fAW5I4Oi95qsztBq9hqNfnhiProbhssosyYKO/xc=
+	t=1741897262; cv=none; b=QupDDVXlxdrJe8Z05gsne+OIEpjbC2/HGLceyT4ut5abLKPeJXYWQCrjUthCbRXfJuh/uNjqyTgwgcihgQpaZ5PPzjgdgLc/gKjjp5G3M5u3KUBMlJtVSDSpbeAJHi5ESliQYKsRR0CfbVkln2HgsNkLqUiKtkF03UVukAzDbiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1741897262; c=relaxed/simple;
-	bh=0hfKKWZv/FcHZqqPDnqa14jFsuwm6n1QhnUQWChMX1A=;
+	bh=fwOTNTXHh6D8XHHTH16cZblAfCwJ7IJpJJPFeQmW7rM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Gep8M/W+/ONghXoiENAXR1H7tdk7jdc/P4nI6awqkxcQ+VON+eXNdnh3rtpjIls5+8B8JSIPsb86w8iOY4RmwhVS7nNyS5U+XoEYN6fcnLcDc5IQH5Ri5BSkpaZRkCo27HlUGwnRCPdePYwDMXHBnhwpv0AZReqSC4ti3Ipv9/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mainlining.org; spf=pass smtp.mailfrom=mainlining.org; dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=GZtqBCoi; arc=none smtp.client-ip=5.75.144.95
+	 MIME-Version; b=HIqud2RQmCNFlD7uVIDJiF8drraH0HSUoFS+ondiCQ3z4JGyBM00eBIe83vwC/U1MHOTdmCgclWIGMFT2aBpxbZI02AdJFVNb8qcTZ7XF9OLALZq/znSH9R+ZFEvm5kktj63KfeC1etOc0zH2PG2Vah+jWXey9W319fOp1FD+L0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mainlining.org; spf=pass smtp.mailfrom=mainlining.org; dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b=LImp2y/Q; arc=none smtp.client-ip=5.75.144.95
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mainlining.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mainlining.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="GZtqBCoi"
+	dkim=pass (2048-bit key) header.d=mainlining.org header.i=@mainlining.org header.b="LImp2y/Q"
 Received: from karma.space.aachen.ccc.de (xdsl-78-35-81-182.nc.de [78.35.81.182])
-	by mail.mainlining.org (Postfix) with ESMTPSA id 84443BBAF1;
-	Thu, 13 Mar 2025 20:20:52 +0000 (UTC)
+	by mail.mainlining.org (Postfix) with ESMTPSA id AAEECBBAEE;
+	Thu, 13 Mar 2025 20:20:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mainlining.org;
 	s=psm; t=1741897252;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=14lXViSyZsu+UJhIhBFy9/ZtBirlVhv1t4LI5ewActs=;
-	b=GZtqBCoiEChhMX7Yhqjbrcty26U9NU8jJlnhnW4Y29TPtVgFo7fSL4+aTFzJSZ9NNJh5S8
-	JSzdsFjEyQ1nDJV4oZRGkTxVtir/74S5mzDX+WYcBtNMNz6YQtshUW/0a0iNlaJnSAZ1UI
-	85eiTwvPexkg7WDOcKbWdMMBdUAqWEzxJabl03gXGiH2iYFUf8HxxcUtYXNV+a6Nu6iriA
-	Yy7ZptsIaywH5USng+UwwowDxerZ0I+/Kd3Hv8KeSomygvMAqEwjRn/dc2rP3O4kVuv9N+
-	Kh/dAe8hggMTbf2MTXRjFITrWWi7l7E9p2DoQCCL/KMKSvj3oFhL7aLYXuGv6w==
+	bh=6VRkf6/XIxGZmE6+oxrQWL86spw8xiykOIkC41MBvTc=;
+	b=LImp2y/QgJtJ76Yxh25a702jD4UTxC2D1kgJLxs0/GDXLpurH7XSN8nAu6RA6lJkNY+4w0
+	2+8DSpCIpwK3Ns5Ip51f05C/uUGe7hq7HapVfAvjX0rI7ZBW+jADMkbSrQjGhzsYaU4moM
+	AxAp/lWcwpVC6vHcVYF34tRrejYPJ1+fIyWiyTeFGi90Wqt+ElXjykeePBfwI1zLVEffTI
+	YqwaHK2Kghol9AIFlnnmh+3Tr6rbSYPASSqRHqwARpayYNjY4juLuLh0CMNiGr6LBtsLCa
+	kwDaWK5SxHPnXAGAtFyF1vIqGYF3/GWHoEs6haZ+7bP+eZ+dR3pXwQfQL7N1aQ==
 From: Jens Reidel <adrian@mainlining.org>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	Rob Herring <robh@kernel.org>,
@@ -50,9 +50,9 @@ Cc: linux-input@vger.kernel.org,
 	linux@mainlining.org,
 	~postmarketos/upstreaming@lists.sr.ht,
 	Jens Reidel <adrian@mainlining.org>
-Subject: [PATCH 2/2] Input: edt-ft5x06 - add support for FocalTech FT8716
-Date: Thu, 13 Mar 2025 21:20:17 +0100
-Message-ID: <20250313202017.19621-3-adrian@mainlining.org>
+Subject: [PATCH 1/2] dt-bindings: input: touchscreen: edt-ft5x06: Document FT8716 support
+Date: Thu, 13 Mar 2025 21:20:16 +0100
+Message-ID: <20250313202017.19621-2-adrian@mainlining.org>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250313202017.19621-1-adrian@mainlining.org>
 References: <20250313202017.19621-1-adrian@mainlining.org>
@@ -64,45 +64,25 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This driver is compatible with the FocalTech FT8716 touchscreen, which
-supports up to 10 concurrent touch points. Add a compatible for it.
+Document FocalTech FT8716 support by adding the compatible.
 
 Signed-off-by: Jens Reidel <adrian@mainlining.org>
 ---
- drivers/input/touchscreen/edt-ft5x06.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ .../devicetree/bindings/input/touchscreen/edt-ft5x06.yaml        | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index 0d7bf18e2508..c72ae6535114 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -1495,6 +1495,10 @@ static const struct edt_i2c_chip_data edt_ft8201_data = {
- 	.max_support_points = 10,
- };
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+index 70a922e213f2..ed23acd0c9a2 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
++++ b/Documentation/devicetree/bindings/input/touchscreen/edt-ft5x06.yaml
+@@ -43,6 +43,7 @@ properties:
+       - focaltech,ft5452
+       - focaltech,ft6236
+       - focaltech,ft8201
++      - focaltech,ft8716
+       - focaltech,ft8719
  
-+static const struct edt_i2c_chip_data edt_ft8716_data = {
-+	.max_support_points = 10,
-+};
-+
- static const struct edt_i2c_chip_data edt_ft8719_data = {
- 	.max_support_points = 10,
- };
-@@ -1507,6 +1511,7 @@ static const struct i2c_device_id edt_ft5x06_ts_id[] = {
- 	/* Note no edt- prefix for compatibility with the ft6236.c driver */
- 	{ .name = "ft6236", .driver_data = (long)&edt_ft6236_data },
- 	{ .name = "ft8201", .driver_data = (long)&edt_ft8201_data },
-+	{ .name = "ft8716", .driver_data = (long)&edt_ft8716_data },
- 	{ .name = "ft8719", .driver_data = (long)&edt_ft8719_data },
- 	{ /* sentinel */ }
- };
-@@ -1523,6 +1528,7 @@ static const struct of_device_id edt_ft5x06_of_match[] = {
- 	/* Note focaltech vendor prefix for compatibility with ft6236.c */
- 	{ .compatible = "focaltech,ft6236", .data = &edt_ft6236_data },
- 	{ .compatible = "focaltech,ft8201", .data = &edt_ft8201_data },
-+	{ .compatible = "focaltech,ft8716", .data = &edt_ft8716_data },
- 	{ .compatible = "focaltech,ft8719", .data = &edt_ft8719_data },
- 	{ /* sentinel */ }
- };
+   reg:
 -- 
 2.48.1
 

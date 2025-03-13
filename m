@@ -1,27 +1,28 @@
-Received: from NAM12-DM6-obe.outbound.protection.outlook.com (mail-dm6nam12on2071.outbound.protection.outlook.com [40.107.243.71])
+Received: from NAM04-BN8-obe.outbound.protection.outlook.com (mail-bn8nam04on2052.outbound.protection.outlook.com [40.107.100.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF7EA26A1C7;
-	Thu, 13 Mar 2025 11:45:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.243.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D8D01F3B94;
+	Thu, 13 Mar 2025 12:22:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.100.52
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741866303; cv=fail; b=Ioywuvn7O0RUY7UFMlM61Qoc1VqkCV6gzP/4VasDl0MGEQc0GyFVrMiNd4/Cb67MkLwQLREDRXW+MxBFyyTdVO83ye4EkST9R5RaVD+/T7KVh5QzI9fvtxBdgAwzI1YF1FwrHZfptG3P0mLUg8tqLH7dSul0Iq79QQhhgh4PlGA=
+	t=1741868532; cv=fail; b=rABtH9uGnzLcmhRX/PmTIojz1OP7DEJsWmLTrDN43d4XDI279E9bQ1cE5iTnii+5LVSVtyWYB2AbTtSi0qzgVBGjx31/uuFhghNPvhamsCdP6F/fWFtTxz5CzTFec9nuz3X8J0NxcOTPuG5ojG9wbMtKJ2pG8BwoMtgeVlHx4UA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741866303; c=relaxed/simple;
-	bh=BmDyOncfwoJF9QuS5fx4hUfvoClzoxAMz6AsrrP8dQc=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=kzOWxXWXrVNMzBEA4nc7ay85rxKnyf+dJ5r6cyrHG5rgZm7gqgB3fYj8MlARma0152sza4T9q7Wt9byiRD+bonz+9Oy2uW/XpphrZWKxLvaAcB3rxcoBUnwPJTDyDRNejcdmaMegmsMCO9mu9+lzp50nr097eI3T3ldhmarRI7A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gehealthcare.com; spf=pass smtp.mailfrom=gehealthcare.com; dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b=pXxktJjv; arc=fail smtp.client-ip=40.107.243.71
+	s=arc-20240116; t=1741868532; c=relaxed/simple;
+	bh=It9TSTvVG+jmeLqtUZnTM/zAOc7smiQsXZTXKU6KnRI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YGQxtdSmdl9+56Q+zQz67n/4Xjjyavbmcpbpj2T+/6jgm5nSzoIvjBB8LrMbG+1UJqR+HpQCMwMZiT8AAbXtqXjCsua1ToOfoSdyAZ2tL8xNd87jzpWc26JzR3Ss/zG8NIkiOF6lOZ0AfsJXl0Fyri7oc6V8/dCjyIgq6YSDUt8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gehealthcare.com; spf=pass smtp.mailfrom=gehealthcare.com; dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b=p3UqI9Ol; arc=fail smtp.client-ip=40.107.100.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gehealthcare.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gehealthcare.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b="pXxktJjv"
+	dkim=pass (2048-bit key) header.d=gehealthcare.com header.i=@gehealthcare.com header.b="p3UqI9Ol"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Br9yIe34eRvp94UMwHzGfwlreD/PUzDpLZFBz0tgVm+mCGz+SllrdL48D6aSsOaIPpSvqb95mcUHDIhVO+GM3oVj9Rr6f1KG9t3RKtRKF6mS/Wjl6VWQ93iX5Swu3pj0hS0a0lFxBF/N7Oglj/ECQLn/yijJva3g7y2jfqLW+LBlazOfihiULGicXyMKGpZ0k32W8+s5DZUpuHjS9CSQeN4wr0V+dKNglqh7nyQU05CEFXp5H7gVNNZiwpDwtPzgV41HOEmg7cEpjMOHHRo8jn2fBT4eakhWeHlPyRcMk/nSe5jttvntymvuv3Ff9Ay0TL8evjN6lMJacCPQlIdAlQ==
+ b=foelEtSqD2YZz43FdT+phWBW8caxRQXXs8wSuTeP84G3Bjav5QTk89wU5eg/vsB0H6ti+bAONU3g6Apme4MED75l1LXzT59jGumKH66tKAsi/HCjl8TjiVXMtkYs3n8nW+7IBNdyBSor0FIzexTEjPhIwAWv/Rda/pgnMfX1z7hrhgugw5Clog18DABi3FGhlz4gGhtEuSmJoujdnPhmK+zNVr8uW6JTRhWK+mAPtSOUQBLCC7yDIdWjUzbbc61uTdLaznLUe7Ttw81osP8ctYr1jmeGfkEcFmtcTDmwYFWthUBX+iqIcwXmof5ePqyS3tlgG4Zt/Z5NPzrFTaSfdQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ezU9T2xxKQb9Q8gnog14Fi2fMV3P+Fo12HWvQ2ue3u4=;
- b=BEF0lzIAJuFxOpF5zsYWpq60fSbWsoplDB9tC/GbX+OWnWtI9x9kOahgz2eV2NHFFlYxGcCuDeK4aAndBSF7dtGkE9ihO7dsRixU9s1QnxNXdS81GEjLkgcmH6C9+7nP/+Uo1GLnqcb2x9cDE4ntz5dAgb9lapw1vd7xuphSDqAlZ1/hkPeqm9Af/ZwfsPqx9h7xDT0wRy6vRshAWRoMomVUdSVueMl7aFkQ31aHmMxQ541DYYB2PR9KE5ykQHzfYjuloQ9TleEamxPMwqShJT5Vmy9EyHNOxmMjujXqfbD1I8TvNdEruOwP0Yjy4ofRGmRuSHOB6lQNaPHCN41ZPQ==
+ bh=2U8c4HcGbPrBMsg3vLvBJgynwmqmpK1g9HcO6wt1Ru0=;
+ b=gjPDWWmzYAPs9HB7jZNDYMgi2YldlTcuBOl7LqkPvd7rjEWthM1GLODSY0eNltzqlisGL+DLA/LG8VQfQwYPSLspRX/2xrx2qFouVU2gThQLFiLjBEUIfebGkv/hOVAvFOBTfnjeGet8U4+5rbQm4WQ2me5mVeHXTKDCDwj5/MebVNGrPN4QiyWYkADevYgCDKaETwwM42TqcIwL44PKqaQ8RnDsuemh3d2cl0AVeHrDDd3S+sVaQugs44uUO3HXLBqgQDAx+n9TQ4N6pDcmcHs3nSFt8spKQxO9Fw5K+LIZIgZOgNZdLUzXyRW5grSTUMy6yZlvE/S8V32PSrGm9Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
  165.85.157.49) smtp.rcpttodomain=vger.kernel.org
  smtp.mailfrom=gehealthcare.com; dmarc=fail (p=quarantine sp=quarantine
@@ -30,112 +31,190 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gehealthcare.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=ezU9T2xxKQb9Q8gnog14Fi2fMV3P+Fo12HWvQ2ue3u4=;
- b=pXxktJjv1eKQspr7F+3EfcAo350jNdsy6rcHn11lDQHsQfMbdjUvU5azTPgToCBdBBIzUQVnluJ75SJnUat3suouM/4boFxQGMZxwL8fJZyhkBN2fU6BeFAINFb8kGOIj/UyPkarT0A+b+jdpBICVC0nJ/+QHctxj1MMBZy524HqaUUCMjToc9rY4OgL9PzYZPfzE6wI9Bls4vxehxqwSR8P+7+GxI2Pjq9Il8pn55mGe1LSQh+CMiAE2IoGO6t0pU166hUjg/0cIbT90J8RcAxyVGgG5z/G2wZxUWjEHibp9VYAX1eZxIBSq6tN5SCkKx42V79d6hAiuV1mz5O+iA==
-Received: from BY3PR05CA0027.namprd05.prod.outlook.com (2603:10b6:a03:254::32)
- by MW5PR22MB3536.namprd22.prod.outlook.com (2603:10b6:303:1cd::17) with
+ bh=2U8c4HcGbPrBMsg3vLvBJgynwmqmpK1g9HcO6wt1Ru0=;
+ b=p3UqI9Olmeu1Z4UkxBVvneIT7k9dumCjfZWDR7cZKnjvEWdZtB3ryn97DZXJizWYR+t80ygbg7O2wduzuhe+mnz3S9IWyCWJ5vogsj3Avn2drgNfqxQzCDXJf+layKRLdIoeSj+OkB15gtWfByfoa40immvSVHYrh1q4S9i3BMk00ycDP/FNec6b91rWtk+IiyVG//wJl83/LBY2aOmRMLOQn5bcxi9Bk+mQ+Ok4M+JVZyDhvNOWI/ugqBaplejELg34lPlTJo6BH/BkaOvweXxgX4KyS9vajaYDgMsRyJyG9N64hgq69UxWr/NMwGyHPvAFbG5J1PTvc3U8HEsjNw==
+Received: from MN2PR05CA0043.namprd05.prod.outlook.com (2603:10b6:208:236::12)
+ by LV8PR22MB5570.namprd22.prod.outlook.com (2603:10b6:408:231::14) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.21; Thu, 13 Mar
- 2025 11:44:59 +0000
-Received: from SJ1PEPF00002312.namprd03.prod.outlook.com
- (2603:10b6:a03:254:cafe::f7) by BY3PR05CA0027.outlook.office365.com
- (2603:10b6:a03:254::32) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8534.21 via Frontend Transport; Thu,
- 13 Mar 2025 11:44:59 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8534.28; Thu, 13 Mar
+ 2025 12:22:07 +0000
+Received: from BN1PEPF00004682.namprd03.prod.outlook.com
+ (2603:10b6:208:236:cafe::ed) by MN2PR05CA0043.outlook.office365.com
+ (2603:10b6:208:236::12) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8534.27 via Frontend Transport; Thu,
+ 13 Mar 2025 12:22:06 +0000
 X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 165.85.157.49)
  smtp.mailfrom=gehealthcare.com; dkim=none (message not signed)
  header.d=none;dmarc=fail action=quarantine header.from=gehealthcare.com;
 Received-SPF: Fail (protection.outlook.com: domain of gehealthcare.com does
  not designate 165.85.157.49 as permitted sender)
  receiver=protection.outlook.com; client-ip=165.85.157.49;
- helo=mkerelay2.compute.ge-healthcare.net;
-Received: from mkerelay2.compute.ge-healthcare.net (165.85.157.49) by
- SJ1PEPF00002312.mail.protection.outlook.com (10.167.242.166) with Microsoft
+ helo=atlrelay2.compute.ge-healthcare.net;
+Received: from atlrelay2.compute.ge-healthcare.net (165.85.157.49) by
+ BN1PEPF00004682.mail.protection.outlook.com (10.167.243.88) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.8534.20 via Frontend Transport; Thu, 13 Mar 2025 11:44:58 +0000
-Received: from 67fd243a5d78.fihel.lab.ge-healthcare.net (zoo13.fihel.lab.ge-healthcare.net [10.168.174.111])
-	by builder1.fihel.lab.ge-healthcare.net (Postfix) with ESMTP id 23385CFB75;
-	Thu, 13 Mar 2025 13:44:55 +0200 (EET)
+ 15.20.8534.20 via Frontend Transport; Thu, 13 Mar 2025 12:22:06 +0000
+Received: from 782be41d2a0d (zoo13.fihel.lab.ge-healthcare.net [10.168.174.111])
+	by builder1.fihel.lab.ge-healthcare.net (Postfix) with SMTP id C5536AD4D0;
+	Thu, 13 Mar 2025 14:22:03 +0200 (EET)
+Date: Thu, 13 Mar 2025 14:22:03 +0200
 From: Ian Ray <ian.ray@gehealthcare.com>
-To: dmitry.torokhov@gmail.com,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
+To: dmitry.torokhov@gmail.com, robh@kernel.org, krzk+dt@kernel.org,
 	conor+dt@kernel.org
-Cc: ian.ray@gehealthcare.com,
-	linux-input@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH 0/2] Input: snvs_pwrkey - add configurable force shutdown time
-Date: Thu, 13 Mar 2025 13:44:51 +0200
-Message-Id: <20250313114453.702-1-ian.ray@gehealthcare.com>
-X-Mailer: git-send-email 2.39.5
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, ian.ray@gehealthcare.com
+Subject: Re: [PATCH 2/2] Input: snvs_pwrkey - add configurable force shutdown
+ time
+Message-ID: <Z9LN63R1IhMDieP7@782be41d2a0d>
+References: <20250313114453.702-1-ian.ray@gehealthcare.com>
+ <20250313114453.702-3-ian.ray@gehealthcare.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250313114453.702-3-ian.ray@gehealthcare.com>
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ1PEPF00002312:EE_|MW5PR22MB3536:EE_
-Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: e1e709d4-a014-4cad-5846-08dd62247bb9
+X-MS-TrafficTypeDiagnostic: BN1PEPF00004682:EE_|LV8PR22MB5570:EE_
+X-MS-Office365-Filtering-Correlation-Id: c982a2cf-57e0-43eb-4bdf-08dd6229ab6e
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|36860700013|1800799024;
+	BCL:0;ARA:13230040|1800799024|82310400026|376014|36860700013;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?eoQWSVoQ/p62T6jnw+T4/D5Sa659Ce2hAlw8RCEPOq7ivnSPXH822TQIEIdE?=
- =?us-ascii?Q?jCnx1zIGNI1ewH/W3K+GvylMU0BbF1R/Vhuirm8ePe+7VBA+mB+53R+HpMng?=
- =?us-ascii?Q?S3ySqXjyV7ErTOz6qIC8094nF/lKKUInxLWJzwHr7HaKmkMUVld04V2WIMHG?=
- =?us-ascii?Q?SnxH/N122JsHNm27qx6w3UJcm1DAFOORrKMSgBst8+aG8WbU6Zmo/FVeLpUx?=
- =?us-ascii?Q?k5NEMBrdw8Sz5NaYIvWZJITYIHRGO1FDo5QX+wV6o7XVLWgcK6nG2Fd75xNL?=
- =?us-ascii?Q?vMKMBmsd8Bg0hDhHmLTi9G2kOeduBk4I8elLJlNIx50Cpo0OQcar79yLwLZ5?=
- =?us-ascii?Q?+y6OxLtzNxAA24gSRU7puy9CyCcLzqwgdx/eZK9kZxIAx3wjx38YdNJ7p2IK?=
- =?us-ascii?Q?AabP6SlSGtkZwRi/5M6V3PbCqiEhTga18VBE+e+0sCIQKiZV7QmE16w+B8K7?=
- =?us-ascii?Q?ZJXK6Su4WCsq3r8LQOBMfCbBGE5BVckGezDIOla4wcdwDerEoRQT4oZMacDB?=
- =?us-ascii?Q?MaVT6AwvuZwRrQSX22L/SIpNKj2hTikVSuRIcvIdJz5bpAn+NxH8/KQq3NEf?=
- =?us-ascii?Q?zK5GGq2ULVnMaY9RnDTIH8bOHHMkBqCRhd4/MlcLSfm2I2btw7qVzJNznOdK?=
- =?us-ascii?Q?YB73fOiWZZK4TacnCvj6cqkqKZb+OXvSA1zHhtBvO1jDrhk1JOCS3+4kKeDR?=
- =?us-ascii?Q?J/c2uu9wD2S0mNEvZcclQXGySy9IsGo6wNd/xyHVDeJNqwGiII175ZWSQW5I?=
- =?us-ascii?Q?PY2MACoirvJNFpeMrJVE3Fi3++9cBfM94H3W9lmxAuvhLTbaiE+KwPgwvEdM?=
- =?us-ascii?Q?DDl5DNcZTFYlKX6nqzsLohAffnLob4T6h1WEuQ9no6EacuCGg8dT1GwgPcVP?=
- =?us-ascii?Q?WN1HxtFGfZUUDy9gJDESh3dVh6PmZZkZtv1hTuraIDiMKSmU6cP961hSiZto?=
- =?us-ascii?Q?vyBuhGfkSHmPbD/h7HBkV3+ocJhjhPAkzyUIcOo0Gb9mGmpUqnJYjvM82buh?=
- =?us-ascii?Q?pyusTsIFooSIVr7Pci9wvThWUDtH0vWZVwaECg87p+aIiQZaFYSta49LpwdS?=
- =?us-ascii?Q?LxOWTnypWFYnY/5Wk9B/6yvXMyfrDKHcD/GQMq/5T8m1WJUCgBEL0ZVKrwE4?=
- =?us-ascii?Q?JZmONX7euJ6bLVc+UUtJ72zqNhI/lgESyb3krzOXce3X3jlw9PvDpNoj9aY3?=
- =?us-ascii?Q?EAA0vBw5zc6+1ZYzLt03fKdtLkuKttUmfIE9zYl0yh9YXflP5/iQziVVlQjD?=
- =?us-ascii?Q?JoyWGcIk6EazNiXgwEJj+xYQRaBpwQQA5aP5+XYFPH2jaOWgts6PpHvfjqLT?=
- =?us-ascii?Q?lbWLi9MovRrU1djyMJPkPVs6XZKYaxyCVdS+cR7WGW7GvVp4TlJc5NNgmstT?=
- =?us-ascii?Q?ZaX8s7QLwjicDTAMVSzTHWcgIYvji7gOzP9i4GLK/bTXuWt5xD9VEJg/5iMz?=
- =?us-ascii?Q?9q0449arbfUCgy/p58LgBgneuzbyESM+1uyD1JPpKl0dB713ZiYINA=3D=3D?=
+	=?us-ascii?Q?r6Cw3onfqwnBo0uK2CIHmM+6GHOKX/5YP688Kx+V3ucrZX3CfXe7rZcwie9K?=
+ =?us-ascii?Q?orqUMUN+eF/jvm191JBwrFyYT9SI3j2vDBCWXxjr5JvL2ZYtKANwKgdcHAJJ?=
+ =?us-ascii?Q?p6sy0JEvHm8tQ/sa6oV1NnXUZB90BoPFh4c+tua7/VJuopRxnLAlzjosU7PO?=
+ =?us-ascii?Q?1cdG/m9XAkjZsi7EbD528SeLl93DAujsr2LQWjZkis/pnAmVwV+hv9bvEw5A?=
+ =?us-ascii?Q?pZplPQcc7WS+JuUgRjjafjVubjU02p8SsA1vRXAeLmYYe0eVcH0CDmaUoNnl?=
+ =?us-ascii?Q?tP/kOVuZOqWZbRECIBG/bpGgYzKK7SRWQMtx6ENt5rxxRQKXoqJURKbunglV?=
+ =?us-ascii?Q?6oRbBtC6BxxUcW1oRjUgTH6lrLHkCADdl6RztYxuZ0mjo4R86r3QV7aFDQDV?=
+ =?us-ascii?Q?Uw3lVa9alO8ZquRYEeRSmiX4YRn7BrhhumnLdTQUimAjp2RUgoGQhnqebgnI?=
+ =?us-ascii?Q?PSSVCBHl8SNS14BW7tOBzQu/yB6TkQGVWmIN74DMUoVHDc7M4VqzUp2qvaN1?=
+ =?us-ascii?Q?CbTGYFxcjCCXcOk4nHoPMonZs0e4q9HebDRIS/TaITAO8uX5jtAI/81VmSxs?=
+ =?us-ascii?Q?JXms0JOvMjQuJnksx8jB4xXHaCkcS+x3n4RtOS3wyMJeckQy/jPKHzM63mTS?=
+ =?us-ascii?Q?UY6gPu3siK+0CJqCWrsq2lPVBYLZhwLuPpWiPfT+IyP6kGvoIrdAw5C0l0hb?=
+ =?us-ascii?Q?S2vPSjKpyVaGUuuIqAMDxslEMnZ9jPzh9mI6sBPmYNVYr9lfN22l3QAWQ0jk?=
+ =?us-ascii?Q?vKqDcXlJsv2NC4AH7EM7D5BwWvxpTPi8uGq674hZS4gcc5/RvTIvC4BwwoL7?=
+ =?us-ascii?Q?8+9ylBp9XmvbaukgwqP4bPZXNqDNGzzL+jLekJoA4AA6oFe5BOJz4oudiLdQ?=
+ =?us-ascii?Q?eSn6JQDS9lbgO+QP2dne1qVKgVOvfLV2wGIMbvF1YiyJtiuq/+1I5QxHEgp+?=
+ =?us-ascii?Q?zlpq3vqNHzuCmTsD9GxEdIxSwCD8qHZy8yiroJERRkQQBfNLepib/fkB/CO8?=
+ =?us-ascii?Q?Uq1irg3JNagtEUgGjHAWk4gXYkSi1oGwmkIKSbpHJgBS+nrp9W6ZpMm6td3O?=
+ =?us-ascii?Q?eCC64uTp523+yflcWepic1021CxnAQZO2tuQcblboa3fZNypTqweJfFxJjKf?=
+ =?us-ascii?Q?1my/ViBp6xCzmzadLPpiUNEcPHeYvpqZ+pPlsJZyO1sVkRBd2NKTsvQinfN7?=
+ =?us-ascii?Q?fwq47DXWNVwCXvZ+aRKoTIBUqOfYQAU4+XXkU/EQhx9ZyRNkwzRg2C7tFgxQ?=
+ =?us-ascii?Q?JglmmLl5+gD/stN7h5M9ZX5aA2yL0d53gYrf4Cm5xJpCVhkic5iFwuQFCB/J?=
+ =?us-ascii?Q?i8K9jHjcqZUyxYXUKi9L7MnTvpZ6Q20zjqxYVTo94T2fZjiYdktFv/w6yELN?=
+ =?us-ascii?Q?U0MjuBeGF4HVB8OBFjZrwTJzIZUsxMa2/gX9mhR799TW+zXE+aZSLMY0XM9K?=
+ =?us-ascii?Q?WPpySxG6+2X9wf2wtcnDVHWBvFOSDjKeaZtApqwtgFWbmBz+FtJxjw=3D=3D?=
 X-Forefront-Antispam-Report:
-	CIP:165.85.157.49;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mkerelay2.compute.ge-healthcare.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(376014)(36860700013)(1800799024);DIR:OUT;SFP:1101;
+	CIP:165.85.157.49;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:atlrelay2.compute.ge-healthcare.net;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(376014)(36860700013);DIR:OUT;SFP:1101;
 X-OriginatorOrg: gehealthcare.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Mar 2025 11:44:58.6036
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Mar 2025 12:22:06.2041
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e1e709d4-a014-4cad-5846-08dd62247bb9
+X-MS-Exchange-CrossTenant-Network-Message-Id: c982a2cf-57e0-43eb-4bdf-08dd6229ab6e
 X-MS-Exchange-CrossTenant-Id: 9a309606-d6ec-4188-a28a-298812b4bbbf
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=9a309606-d6ec-4188-a28a-298812b4bbbf;Ip=[165.85.157.49];Helo=[mkerelay2.compute.ge-healthcare.net]
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=9a309606-d6ec-4188-a28a-298812b4bbbf;Ip=[165.85.157.49];Helo=[atlrelay2.compute.ge-healthcare.net]
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-SJ1PEPF00002312.namprd03.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-BN1PEPF00004682.namprd03.prod.outlook.com
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW5PR22MB3536
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR22MB5570
 
-PATCH 1 - add documentation for new option
-PATCH 2 - add support to driver
+On Thu, Mar 13, 2025 at 01:44:53PM +0200, Ian Ray wrote:
+> Support configurable shutdown period using a new, optional, device tree
+> property.
+> 
+> The force shutdown time is configured in LPCR[17:16] BTN_PRESS_TIME:
+> 
+>  * b00:  5 seconds (SoC default)
+>  * b01: 10 seconds
+>  * b10: 15 seconds
+>  * b11: PMIC is not disabled
+> 
+> Signed-off-by: Ian Ray <ian.ray@gehealthcare.com>
+> ---
+>  .../arm64/boot/dts/freescale/imx8mp-ppdv2.dts |  4 ++++
+>  drivers/input/keyboard/snvs_pwrkey.c          | 24 +++++++++++++++++++
+>  2 files changed, 28 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/freescale/imx8mp-ppdv2.dts b/arch/arm64/boot/dts/freescale/imx8mp-ppdv2.dts
+> index 7cc427f23e59..921eda35154a 100644
+> --- a/arch/arm64/boot/dts/freescale/imx8mp-ppdv2.dts
+> +++ b/arch/arm64/boot/dts/freescale/imx8mp-ppdv2.dts
+> @@ -699,6 +699,10 @@ &pinctrl_usdhc2_200mhz {
+>  		<MX8MP_IOMUXC_GPIO1_IO04__GPIO1_IO04		0x106>;
+>  };
+>  
+> +&snvs_pwrkey {
+> +	force-shutdown-time = <0>;
+> +};
+> +
 
-Ian Ray (2):
-  dt-bindings: crypto: fsl,sec-v4.0-mon: add optional force shutdown
-    time property
-  Input: snvs_pwrkey - add configurable force shutdown time
+Sorry, please disregard this hunk which was accidentally included.
+(Should I send a V2?)
 
- .../bindings/crypto/fsl,sec-v4.0-mon.yaml     |  8 +++++++
- drivers/input/keyboard/snvs_pwrkey.c          | 24 +++++++++++++++++++
- 2 files changed, 32 insertions(+)
 
--- 
-2.39.5
-
+>  &usdhc2 {
+>  	/delete-property/ cd-gpios;
+>  	/delete-property/ wp-gpios;
+> diff --git a/drivers/input/keyboard/snvs_pwrkey.c b/drivers/input/keyboard/snvs_pwrkey.c
+> index f7b5f1e25c80..2ba848df061c 100644
+> --- a/drivers/input/keyboard/snvs_pwrkey.c
+> +++ b/drivers/input/keyboard/snvs_pwrkey.c
+> @@ -27,7 +27,10 @@
+>  #define SNVS_HPSR_BTN		BIT(6)
+>  #define SNVS_LPSR_SPO		BIT(18)
+>  #define SNVS_LPCR_DEP_EN	BIT(5)
+> +#define SNVS_LPCR_BPT_SHIFT	16
+> +#define SNVS_LPCR_BPT_MASK	(3 << SNVS_LPCR_BPT_SHIFT)
+>  
+> +#define FORCE_SHUTDOWN_TIME	5	/* LPCR 17:16 default */
+>  #define DEBOUNCE_TIME		30
+>  #define REPEAT_INTERVAL		60
+>  
+> @@ -114,6 +117,8 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+>  	struct device_node *np;
+>  	struct clk *clk;
+>  	int error;
+> +	int force_shutdown_time;
+> +	int bpt;
+>  	u32 vid;
+>  
+>  	/* Get SNVS register Page */
+> @@ -148,11 +153,30 @@ static int imx_snvs_pwrkey_probe(struct platform_device *pdev)
+>  	if (pdata->irq < 0)
+>  		return -EINVAL;
+>  
+> +	force_shutdown_time = FORCE_SHUTDOWN_TIME;
+> +	of_property_read_u32(np, "force-shutdown-time", &force_shutdown_time);
+> +	switch (force_shutdown_time) {
+> +		case 0:
+> +			/* Disable long-press detection. */
+> +			bpt = 0x3;
+> +			break;
+> +		case 5:
+> +		case 10:
+> +		case 15:
+> +			bpt = (force_shutdown_time / 5) - 1;
+> +			break;
+> +		default:
+> +			dev_err(&pdev->dev, "Invalid force-shutdown-time %d\n", force_shutdown_time);
+> +			return -EINVAL;
+> +	}
+> +
+>  	regmap_read(pdata->snvs, SNVS_HPVIDR1_REG, &vid);
+>  	pdata->minor_rev = vid & 0xff;
+>  
+>  	regmap_update_bits(pdata->snvs, SNVS_LPCR_REG, SNVS_LPCR_DEP_EN, SNVS_LPCR_DEP_EN);
+>  
+> +	regmap_update_bits(pdata->snvs, SNVS_LPCR_REG, SNVS_LPCR_BPT_MASK, bpt << SNVS_LPCR_BPT_SHIFT);
+> +
+>  	/* clear the unexpected interrupt before driver ready */
+>  	regmap_write(pdata->snvs, SNVS_LPSR_REG, SNVS_LPSR_SPO);
+>  
+> -- 
+> 2.39.5

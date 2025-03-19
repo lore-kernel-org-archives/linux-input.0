@@ -1,46 +1,46 @@
 Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3275418C31;
-	Wed, 19 Mar 2025 00:52:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7F961EA6F;
+	Wed, 19 Mar 2025 00:52:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742345532; cv=none; b=kdAJY6R01rnEmbo6WndS6CF9jrePL9ZK0QYbnT9hX9xdwoqxNry9Remj9PFlo+K+RpwkqkrPffveTYsMcQA02yrSdeWsy9RMi407Nmn44/scWNwzvqJiEIEdM/NEk5sZHJwLVxB2xFU8KJO29Y9WxllZ+SbCUDM/VfYbXftVLSs=
+	t=1742345533; cv=none; b=kB0fI2vuwFcRuy6y/PpXov5eybSPf/S7nssbyVH5AYMApJRlnB6igTMFClq7oxVffRBVmN11HeUfOAXIjFHYdTvQsG3uVJyCXVG3I71xxN78ZgtDWx2JhLiBV3rLf4QDueMNTU/q4keQRwZj7z5isIafXtjrx99ELdvEQVb0EFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742345532; c=relaxed/simple;
-	bh=EeyElv1+Zo9cqaqSO0S6wu3AfLdYTUfgtuN1J1TwLVY=;
+	s=arc-20240116; t=1742345533; c=relaxed/simple;
+	bh=26Ipc2GMsElFQ6L9cJfS/MwtX90YR+oxohPba+OT+pg=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=BUfSrx9zbz9jg/5er0RBsh3uWJUHMLgb7SMIVMNoc9v8+exgj1xy9fuVIrTzExGS1ksQ199nWi74RZfqY6EdbjCaDvvNLUWMpG6LoDSsz8VsXiBOPiff18q/Es5YL8FLs4pbynN6IliXPr+rL54xNLyoV6BBKtR23vFBUx1OZiY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=U53Y3kRa; arc=none smtp.client-ip=205.220.168.131
+	 MIME-Version:Content-Type; b=LSmOXEji5tL0NSsWdT1fRnvW5d5UgZC6vf1iKTzbT7wr+ZO8zN7+6XKGCjVTYL9s8zLjNs/b06DyhjxpUMYYtistx8SbDNetwnLenoFauLJw6AbWz0cCFUMZzUyjrXAZrP5e0yY0Qz2EjtGgbNlgCV3Iw+Jw6dkdhMlzBATTwsw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=ei4ahsQq; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="U53Y3kRa"
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="ei4ahsQq"
 Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52ILDoGa002990;
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52ILXCm0002336;
 	Wed, 19 Mar 2025 00:51:54 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	MD4LpxIUV3N5O8W6IdQcfHg3vn3fGB0SjEfT4ZKnsqc=; b=U53Y3kRaZMO4gUTQ
-	LuydYm6sonWAkRIm7jyodajPGHxU+8vdhEZcdxTso0kEZqDjl6OZT6R2hxWN0xub
-	ASZyHmFFaZQ1pGylhZ06b1c7ruKeBBbtZ9HdqA11/at2S1pBZnk9+St8Q2PTEkZQ
-	m1s8FXkdrZkH+uv4JcTI2Ml3pYdUo7LmFPrGDIp+evah87d3TSXok505OToumz4I
-	3vsqZpzeRmYZTZIJRNuy/hx6wN9M/EE5o3sywEsa5LNPs7+lN1yDlONtWXIlj6oD
-	8YQ8WaU3rdwcLB1TZipWxCP+FWkCXcWcwNonh5wAOFsTMm6Yq1TQpgV6CpLrU4xc
-	RUu3Rg==
-Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45f010ke0d-1
+	WK2roP/U0scbargwbJ7Zel8u21pIpnKFvh/gW0HOWV0=; b=ei4ahsQquX42lJ2k
+	rUYJs23ZCvIIL/oZVOV80QQDnO5oMT7Uu9im+S2U30k20nRdtz7i2q9vhyhaI+qQ
+	EFxutKLmRAujt8GcDevHTm/oV1kNgAOMlrP0O0/bY3XsXvgKErq6jXWnw4LNfST1
+	p99k6cw4C83FPM+qcMf0fM2M5/JDFh2WYRnIjagK1pK18ewH3S3lS3mgO1RATnHu
+	TUGzK+9/gyiGNixZ7U8JlpZZxCVRNd2jr97MAYMKeJkdEYYWZULZizlFdIYOQEGS
+	e6NLLk0TRhW2Xl6Ud/VocEYbI0PxL1w6/y1zbHDZ0BYjvdMCwAj9chs+ADfjgJjK
+	JkHouw==
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45f010ke0g-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 19 Mar 2025 00:51:53 +0000 (GMT)
+	Wed, 19 Mar 2025 00:51:54 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 52J0pqfa006517
+	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 52J0pr0U023907
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
 	Wed, 19 Mar 2025 00:51:53 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Tue, 18 Mar 2025 17:51:52 -0700
+ 15.2.1544.9; Tue, 18 Mar 2025 17:51:53 -0700
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -52,9 +52,9 @@ CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-sound@vger.kernel.org>, <linux-input@vger.kernel.org>,
         <linux-usb@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
         <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
-Subject: [PATCH v36 05/31] usb: host: xhci: Notify xHCI sideband on transfer ring free
-Date: Tue, 18 Mar 2025 17:51:15 -0700
-Message-ID: <20250319005141.312805-6-quic_wcheng@quicinc.com>
+Subject: [PATCH v36 08/31] ALSA: usb-audio: Export USB SND APIs for modules
+Date: Tue, 18 Mar 2025 17:51:18 -0700
+Message-ID: <20250319005141.312805-9-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250319005141.312805-1-quic_wcheng@quicinc.com>
 References: <20250319005141.312805-1-quic_wcheng@quicinc.com>
@@ -70,168 +70,252 @@ X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: _mdg1-Zp6DaGj3Hzks029YI4g4t8spIe
-X-Proofpoint-GUID: _mdg1-Zp6DaGj3Hzks029YI4g4t8spIe
-X-Authority-Analysis: v=2.4 cv=G50cE8k5 c=1 sm=1 tr=0 ts=67da1529 cx=c_pps a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17 a=3H110R4YSZwA:10 a=Vs1iUdzkB0EA:10 a=COk6AnOGAAAA:8 a=PreZEog4GvDKfhablsMA:9 a=jobEv7ETv8MbDsZbtwfI:22
+X-Proofpoint-ORIG-GUID: G1rPWEqm6PuAe43sLPoM4qF862XD0yXv
+X-Proofpoint-GUID: G1rPWEqm6PuAe43sLPoM4qF862XD0yXv
+X-Authority-Analysis: v=2.4 cv=G50cE8k5 c=1 sm=1 tr=0 ts=67da152a cx=c_pps a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17 a=3H110R4YSZwA:10 a=Vs1iUdzkB0EA:10 a=QyXUC8HyAAAA:8 a=COk6AnOGAAAA:8 a=ImNa0oooaUHLj9jffMIA:9
  a=TjNXssC_j7lpFel5tvFf:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-03-18_10,2025-03-17_03,2024-11-22_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
- lowpriorityscore=0 mlxlogscore=885 phishscore=0 adultscore=0
+ lowpriorityscore=0 mlxlogscore=999 phishscore=0 adultscore=0
  impostorscore=0 spamscore=0 clxscore=1015 malwarescore=0
  priorityscore=1501 bulkscore=0 classifier=spam authscore=0 authtc=n/a
  authcc= route=outbound adjust=0 reason=mlx scancount=1
  engine=8.19.0-2502280000 definitions=main-2503190003
 
-In the case of handling a USB bus reset, the xhci_discover_or_reset_device
-can run without first notifying the xHCI sideband client driver to stop or
-prevent the use of the transfer ring.  It was seen that when a bus reset
-situation happened, the USB offload driver was attempting to fetch the xHCI
-transfer ring information, which was already freed.
+Some vendor modules will utilize useful parsing and endpoint management
+APIs to start audio playback/capture.
 
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- drivers/usb/host/xhci-sideband.c  | 29 ++++++++++++++++++++++++++++-
- drivers/usb/host/xhci.c           |  3 +++
- include/linux/usb/xhci-sideband.h | 30 +++++++++++++++++++++++++++++-
- 3 files changed, 60 insertions(+), 2 deletions(-)
+ sound/usb/card.c     |  4 +++
+ sound/usb/endpoint.c |  1 +
+ sound/usb/helper.c   |  1 +
+ sound/usb/pcm.c      | 75 +++++++++++++++++++++++++++++++-------------
+ sound/usb/pcm.h      | 11 +++++++
+ 5 files changed, 71 insertions(+), 21 deletions(-)
 
-diff --git a/drivers/usb/host/xhci-sideband.c b/drivers/usb/host/xhci-sideband.c
-index 742bbc6c2d9b..d49f9886dd84 100644
---- a/drivers/usb/host/xhci-sideband.c
-+++ b/drivers/usb/host/xhci-sideband.c
-@@ -88,6 +88,30 @@ __xhci_sideband_remove_endpoint(struct xhci_sideband *sb, struct xhci_virt_ep *e
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index 9c411b82a218..a0087bde684c 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -1030,6 +1030,7 @@ int snd_usb_lock_shutdown(struct snd_usb_audio *chip)
+ 		wake_up(&chip->shutdown_wait);
+ 	return err;
+ }
++EXPORT_SYMBOL_GPL(snd_usb_lock_shutdown);
  
- /* sideband api functions */
+ /* autosuspend and unlock the shutdown */
+ void snd_usb_unlock_shutdown(struct snd_usb_audio *chip)
+@@ -1038,6 +1039,7 @@ void snd_usb_unlock_shutdown(struct snd_usb_audio *chip)
+ 	if (atomic_dec_and_test(&chip->usage_count))
+ 		wake_up(&chip->shutdown_wait);
+ }
++EXPORT_SYMBOL_GPL(snd_usb_unlock_shutdown);
  
-+/**
-+ * xhci_sideband_notify_ep_ring_free - notify client of xfer ring free
-+ * @sb: sideband instance for this usb device
-+ * @ep_index: usb endpoint index
-+ *
-+ * Notifies the xHCI sideband client driver of a xHCI transfer ring free
-+ * routine.  This will allow for the client to ensure that all transfers
-+ * are completed.
-+ *
-+ * The callback should be synchronous, as the ring free happens after.
-+ */
-+void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
-+				       unsigned int ep_index)
-+{
-+	struct xhci_sideband_event evt;
-+
-+	evt.type = XHCI_SIDEBAND_XFER_RING_FREE;
-+	evt.evt_data = &ep_index;
-+
-+	if (sb->notify_client)
-+		sb->notify_client(sb->intf, &evt);
-+}
-+EXPORT_SYMBOL_GPL(xhci_sideband_notify_ep_ring_free);
-+
- /**
-  * xhci_sideband_add_endpoint - add endpoint to sideband access list
-  * @sb: sideband instance for this usb device
-@@ -342,7 +366,9 @@ EXPORT_SYMBOL_GPL(xhci_sideband_interrupter_id);
-  * Return: pointer to a new xhci_sideband instance if successful. NULL otherwise.
-  */
- struct xhci_sideband *
--xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type)
-+xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type,
-+		       int (*notify_client)(struct usb_interface *intf,
-+				    struct xhci_sideband_event *evt))
+ int snd_usb_autoresume(struct snd_usb_audio *chip)
  {
- 	struct usb_device *udev = interface_to_usbdev(intf);
- 	struct usb_hcd *hcd = bus_to_hcd(udev->bus);
-@@ -381,6 +407,7 @@ xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type)
- 	sb->vdev = vdev;
- 	sb->intf = intf;
- 	sb->type = type;
-+	sb->notify_client = notify_client;
- 	vdev->sideband = sb;
+@@ -1060,6 +1062,7 @@ int snd_usb_autoresume(struct snd_usb_audio *chip)
+ 	}
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(snd_usb_autoresume);
  
- 	spin_unlock_irq(&xhci->lock);
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 61950a350432..91e2d6eac8b7 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -20,6 +20,7 @@
- #include <linux/string_choices.h>
- #include <linux/dmi.h>
- #include <linux/dma-mapping.h>
-+#include <linux/usb/xhci-sideband.h>
+ void snd_usb_autosuspend(struct snd_usb_audio *chip)
+ {
+@@ -1073,6 +1076,7 @@ void snd_usb_autosuspend(struct snd_usb_audio *chip)
+ 	for (i = 0; i < chip->num_interfaces; i++)
+ 		usb_autopm_put_interface(chip->intf[i]);
+ }
++EXPORT_SYMBOL_GPL(snd_usb_autosuspend);
  
- #include "xhci.h"
- #include "xhci-trace.h"
-@@ -3919,6 +3920,8 @@ static int xhci_discover_or_reset_device(struct usb_hcd *hcd,
- 		}
+ static int usb_audio_suspend(struct usb_interface *intf, pm_message_t message)
+ {
+diff --git a/sound/usb/endpoint.c b/sound/usb/endpoint.c
+index a29f28eb7d0c..1fed039b10ed 100644
+--- a/sound/usb/endpoint.c
++++ b/sound/usb/endpoint.c
+@@ -1524,6 +1524,7 @@ int snd_usb_endpoint_prepare(struct snd_usb_audio *chip,
+ 	mutex_unlock(&chip->mutex);
+ 	return err;
+ }
++EXPORT_SYMBOL_GPL(snd_usb_endpoint_prepare);
  
- 		if (ep->ring) {
-+			if (ep->sideband)
-+				xhci_sideband_notify_ep_ring_free(ep->sideband, i);
- 			xhci_debugfs_remove_endpoint(xhci, virt_dev, i);
- 			xhci_free_endpoint_ring(xhci, virt_dev, i);
- 		}
-diff --git a/include/linux/usb/xhci-sideband.h b/include/linux/usb/xhci-sideband.h
-index f8722afb8a2d..45288c392f6e 100644
---- a/include/linux/usb/xhci-sideband.h
-+++ b/include/linux/usb/xhci-sideband.h
-@@ -21,6 +21,20 @@ enum xhci_sideband_type {
- 	XHCI_SIDEBAND_VENDOR,
- };
+ /* get the current rate set to the given clock by any endpoint */
+ int snd_usb_endpoint_get_clock_rate(struct snd_usb_audio *chip, int clock)
+diff --git a/sound/usb/helper.c b/sound/usb/helper.c
+index 72b671fb2c84..497d2b27fb59 100644
+--- a/sound/usb/helper.c
++++ b/sound/usb/helper.c
+@@ -62,6 +62,7 @@ void *snd_usb_find_csint_desc(void *buffer, int buflen, void *after, u8 dsubtype
+ 	}
+ 	return NULL;
+ }
++EXPORT_SYMBOL_GPL(snd_usb_find_csint_desc);
  
-+enum xhci_sideband_notify_type {
-+	XHCI_SIDEBAND_XFER_RING_FREE,
-+};
+ /*
+  * Wrapper for usb_control_msg().
+diff --git a/sound/usb/pcm.c b/sound/usb/pcm.c
+index 08bf535ed163..18467da6fd9e 100644
+--- a/sound/usb/pcm.c
++++ b/sound/usb/pcm.c
+@@ -148,6 +148,16 @@ find_format(struct list_head *fmt_list_head, snd_pcm_format_t format,
+ 	return found;
+ }
+ 
++const struct audioformat *
++snd_usb_find_format(struct list_head *fmt_list_head, snd_pcm_format_t format,
++		    unsigned int rate, unsigned int channels, bool strict_match,
++		    struct snd_usb_substream *subs)
++{
++	return find_format(fmt_list_head, format, rate, channels, strict_match,
++			subs);
++}
++EXPORT_SYMBOL_GPL(snd_usb_find_format);
 +
-+/**
-+ * struct xhci_sideband_event - sideband event
-+ * @type: notifier type
-+ * @evt_data: event data
-+ */
-+struct xhci_sideband_event {
-+	enum xhci_sideband_notify_type type;
-+	void *evt_data;
-+};
+ static const struct audioformat *
+ find_substream_format(struct snd_usb_substream *subs,
+ 		      const struct snd_pcm_hw_params *params)
+@@ -157,6 +167,14 @@ find_substream_format(struct snd_usb_substream *subs,
+ 			   true, subs);
+ }
+ 
++const struct audioformat *
++snd_usb_find_substream_format(struct snd_usb_substream *subs,
++			      const struct snd_pcm_hw_params *params)
++{
++	return find_substream_format(subs, params);
++}
++EXPORT_SYMBOL_GPL(snd_usb_find_substream_format);
 +
- /**
-  * struct xhci_sideband - representation of a sideband accessed usb device.
-  * @xhci: The xhci host controller the usb device is connected to
-@@ -30,6 +44,7 @@ enum xhci_sideband_type {
-  * @type: xHCI sideband type
-  * @mutex: mutex for sideband operations
-  * @intf: USB sideband client interface
-+ * @notify_client: callback for xHCI sideband sequences
+ bool snd_usb_pcm_has_fixed_rate(struct snd_usb_substream *subs)
+ {
+ 	const struct audioformat *fp;
+@@ -461,20 +479,9 @@ static void close_endpoints(struct snd_usb_audio *chip,
+ 	}
+ }
+ 
+-/*
+- * hw_params callback
+- *
+- * allocate a buffer and set the given audio format.
+- *
+- * so far we use a physically linear buffer although packetize transfer
+- * doesn't need a continuous area.
+- * if sg buffer is supported on the later version of alsa, we'll follow
+- * that.
+- */
+-static int snd_usb_hw_params(struct snd_pcm_substream *substream,
+-			     struct snd_pcm_hw_params *hw_params)
++int snd_usb_hw_params(struct snd_usb_substream *subs,
++		      struct snd_pcm_hw_params *hw_params)
+ {
+-	struct snd_usb_substream *subs = substream->runtime->private_data;
+ 	struct snd_usb_audio *chip = subs->stream->chip;
+ 	const struct audioformat *fmt;
+ 	const struct audioformat *sync_fmt;
+@@ -499,7 +506,7 @@ static int snd_usb_hw_params(struct snd_pcm_substream *substream,
+ 	if (fmt->implicit_fb) {
+ 		sync_fmt = snd_usb_find_implicit_fb_sync_format(chip, fmt,
+ 								hw_params,
+-								!substream->stream,
++								!subs->direction,
+ 								&sync_fixed_rate);
+ 		if (!sync_fmt) {
+ 			usb_audio_dbg(chip,
+@@ -579,15 +586,28 @@ static int snd_usb_hw_params(struct snd_pcm_substream *substream,
+ 
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(snd_usb_hw_params);
+ 
+ /*
+- * hw_free callback
++ * hw_params callback
   *
-  * FIXME usb device accessed via sideband Keeping track of sideband accessed usb devices.
+- * reset the audio format and release the buffer
++ * allocate a buffer and set the given audio format.
++ *
++ * so far we use a physically linear buffer although packetize transfer
++ * doesn't need a continuous area.
++ * if sg buffer is supported on the later version of alsa, we'll follow
++ * that.
   */
-@@ -44,10 +59,14 @@ struct xhci_sideband {
- 	struct mutex			mutex;
- 
- 	struct usb_interface		*intf;
-+	int (*notify_client)(struct usb_interface *intf,
-+			     struct xhci_sideband_event *evt);
- };
- 
- struct xhci_sideband *
--xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type);
-+xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type,
-+		       int (*notify_client)(struct usb_interface *intf,
-+				    struct xhci_sideband_event *evt));
- void
- xhci_sideband_unregister(struct xhci_sideband *sb);
- int
-@@ -71,4 +90,13 @@ void
- xhci_sideband_remove_interrupter(struct xhci_sideband *sb);
- int
- xhci_sideband_interrupter_id(struct xhci_sideband *sb);
+-static int snd_usb_hw_free(struct snd_pcm_substream *substream)
++static int snd_usb_pcm_hw_params(struct snd_pcm_substream *substream,
++				 struct snd_pcm_hw_params *hw_params)
+ {
+ 	struct snd_usb_substream *subs = substream->runtime->private_data;
 +
-+#if IS_ENABLED(CONFIG_USB_XHCI_SIDEBAND)
-+void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
-+				       unsigned int ep_index);
-+#else
-+static inline void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
-+						     unsigned int ep_index)
-+{ }
-+#endif /* IS_ENABLED(CONFIG_USB_XHCI_SIDEBAND) */
- #endif /* __LINUX_XHCI_SIDEBAND_H */
++	return snd_usb_hw_params(subs, hw_params);
++}
++
++int snd_usb_hw_free(struct snd_usb_substream *subs)
++{
+ 	struct snd_usb_audio *chip = subs->stream->chip;
+ 
+ 	snd_media_stop_pipeline(subs);
+@@ -603,6 +623,19 @@ static int snd_usb_hw_free(struct snd_pcm_substream *substream)
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_GPL(snd_usb_hw_free);
++
++/*
++ * hw_free callback
++ *
++ * reset the audio format and release the buffer
++ */
++static int snd_usb_pcm_hw_free(struct snd_pcm_substream *substream)
++{
++	struct snd_usb_substream *subs = substream->runtime->private_data;
++
++	return snd_usb_hw_free(subs);
++}
+ 
+ /* free-wheeling mode? (e.g. dmix) */
+ static int in_free_wheeling_mode(struct snd_pcm_runtime *runtime)
+@@ -1746,8 +1779,8 @@ static int snd_usb_substream_capture_trigger(struct snd_pcm_substream *substream
+ static const struct snd_pcm_ops snd_usb_playback_ops = {
+ 	.open =		snd_usb_pcm_open,
+ 	.close =	snd_usb_pcm_close,
+-	.hw_params =	snd_usb_hw_params,
+-	.hw_free =	snd_usb_hw_free,
++	.hw_params =	snd_usb_pcm_hw_params,
++	.hw_free =	snd_usb_pcm_hw_free,
+ 	.prepare =	snd_usb_pcm_prepare,
+ 	.trigger =	snd_usb_substream_playback_trigger,
+ 	.sync_stop =	snd_usb_pcm_sync_stop,
+@@ -1758,8 +1791,8 @@ static const struct snd_pcm_ops snd_usb_playback_ops = {
+ static const struct snd_pcm_ops snd_usb_capture_ops = {
+ 	.open =		snd_usb_pcm_open,
+ 	.close =	snd_usb_pcm_close,
+-	.hw_params =	snd_usb_hw_params,
+-	.hw_free =	snd_usb_hw_free,
++	.hw_params =	snd_usb_pcm_hw_params,
++	.hw_free =	snd_usb_pcm_hw_free,
+ 	.prepare =	snd_usb_pcm_prepare,
+ 	.trigger =	snd_usb_substream_capture_trigger,
+ 	.sync_stop =	snd_usb_pcm_sync_stop,
+diff --git a/sound/usb/pcm.h b/sound/usb/pcm.h
+index 388fe2ba346d..c096021adb2b 100644
+--- a/sound/usb/pcm.h
++++ b/sound/usb/pcm.h
+@@ -15,4 +15,15 @@ void snd_usb_preallocate_buffer(struct snd_usb_substream *subs);
+ int snd_usb_audioformat_set_sync_ep(struct snd_usb_audio *chip,
+ 				    struct audioformat *fmt);
+ 
++const struct audioformat *
++snd_usb_find_format(struct list_head *fmt_list_head, snd_pcm_format_t format,
++		    unsigned int rate, unsigned int channels, bool strict_match,
++		    struct snd_usb_substream *subs);
++const struct audioformat *
++snd_usb_find_substream_format(struct snd_usb_substream *subs,
++			      const struct snd_pcm_hw_params *params);
++
++int snd_usb_hw_params(struct snd_usb_substream *subs,
++		      struct snd_pcm_hw_params *hw_params);
++int snd_usb_hw_free(struct snd_usb_substream *subs);
+ #endif /* __USBAUDIO_PCM_H */

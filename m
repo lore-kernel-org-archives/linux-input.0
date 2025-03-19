@@ -1,357 +1,237 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43482212B39;
-	Tue, 18 Mar 2025 17:39:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3275418C31;
+	Wed, 19 Mar 2025 00:52:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742319544; cv=none; b=i26aJs4GDKVT9FUHzSzVAo03wQ7q8fKADShP0XNmYi+31pMVf/uBYJlTNio5WUqhoIzU3wrWTpcWMZrwT0E1m0DjQrBInjcylyLXtq5gELLxBnNJVOrFITz9nEJ9qsEJjeUvvj8zJZfjZ41WYtVVWk/V27tF/Ej4NOm34MzBns4=
+	t=1742345532; cv=none; b=kdAJY6R01rnEmbo6WndS6CF9jrePL9ZK0QYbnT9hX9xdwoqxNry9Remj9PFlo+K+RpwkqkrPffveTYsMcQA02yrSdeWsy9RMi407Nmn44/scWNwzvqJiEIEdM/NEk5sZHJwLVxB2xFU8KJO29Y9WxllZ+SbCUDM/VfYbXftVLSs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742319544; c=relaxed/simple;
-	bh=RD0JLKRX6PTSdhVgrH66/PsHlVA2+EiFixHfbS53Qb8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NgBdjvhAEkKJA+MBDRU4rkcCXshRd/szKzDNx4X4dAnOFJN3TE8hHt/4NTiZmB9UxFsujHomN4bGAPJ8+Q/MUbwJo343XiVc4I3hsuQl7iCHWDivbgXxWco3XTZmRZH1+0Yueuw5J9mLD85J4xPZ2bsrmW9Y9hPwwENNP2IfIMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V4VFs7rk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1742345532; c=relaxed/simple;
+	bh=EeyElv1+Zo9cqaqSO0S6wu3AfLdYTUfgtuN1J1TwLVY=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=BUfSrx9zbz9jg/5er0RBsh3uWJUHMLgb7SMIVMNoc9v8+exgj1xy9fuVIrTzExGS1ksQ199nWi74RZfqY6EdbjCaDvvNLUWMpG6LoDSsz8VsXiBOPiff18q/Es5YL8FLs4pbynN6IliXPr+rL54xNLyoV6BBKtR23vFBUx1OZiY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=U53Y3kRa; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V4VFs7rk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D0A9C4CEDD;
-	Tue, 18 Mar 2025 17:39:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1742319543;
-	bh=RD0JLKRX6PTSdhVgrH66/PsHlVA2+EiFixHfbS53Qb8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=V4VFs7rkfiS6hsYXIVu8zmkn24VKExBemCN5o5Jo4HjlTBUvXXoqM4U1H1lFiSrnz
-	 TC0vdJ3xsR7dYXeEbhW/4S2g1EP9BPGwNeWkU4DquIut6UHq+5xUhjXqUaVopVD+8A
-	 NobCzGiQ5ERwHpJxTk26qxDburej1W2uKi7ej2RmnVF+DN71jC+/uLL9a6EYuyzQK+
-	 1gJSPbwKNXh63FQE0rgnQxe7HyM2gqvhYMzMhBKTzm0wA6HomAAGUVaGtwpOiMsidi
-	 F17VRa5UOhyRsSl23YJ/zp5qZa0VebQpk42to8oCKEborSK7qB7sZt2adXxLkEwrP2
-	 JiJ6EMTxFw07A==
-Date: Tue, 18 Mar 2025 12:39:02 -0500
-From: Rob Herring <robh@kernel.org>
-To: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Cc: Lee Jones <lee@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Kamel Bouhara <kamel.bouhara@bootlin.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
-	Michael Walle <mwalle@kernel.org>, Mark Brown <broonie@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-pwm@vger.kernel.org,
-	andriy.shevchenko@intel.com,
-	=?iso-8859-1?Q?Gr=E9gory?= Clement <gregory.clement@bootlin.com>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH v5 01/11] dt-bindings: mfd: gpio: Add MAX7360
-Message-ID: <20250318173902.GA3256960-robh@kernel.org>
-References: <20250318-mdb-max7360-support-v5-0-fb20baf97da0@bootlin.com>
- <20250318-mdb-max7360-support-v5-1-fb20baf97da0@bootlin.com>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="U53Y3kRa"
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52ILDoGa002990;
+	Wed, 19 Mar 2025 00:51:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	MD4LpxIUV3N5O8W6IdQcfHg3vn3fGB0SjEfT4ZKnsqc=; b=U53Y3kRaZMO4gUTQ
+	LuydYm6sonWAkRIm7jyodajPGHxU+8vdhEZcdxTso0kEZqDjl6OZT6R2hxWN0xub
+	ASZyHmFFaZQ1pGylhZ06b1c7ruKeBBbtZ9HdqA11/at2S1pBZnk9+St8Q2PTEkZQ
+	m1s8FXkdrZkH+uv4JcTI2Ml3pYdUo7LmFPrGDIp+evah87d3TSXok505OToumz4I
+	3vsqZpzeRmYZTZIJRNuy/hx6wN9M/EE5o3sywEsa5LNPs7+lN1yDlONtWXIlj6oD
+	8YQ8WaU3rdwcLB1TZipWxCP+FWkCXcWcwNonh5wAOFsTMm6Yq1TQpgV6CpLrU4xc
+	RUu3Rg==
+Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45f010ke0d-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Mar 2025 00:51:53 +0000 (GMT)
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 52J0pqfa006517
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Mar 2025 00:51:53 GMT
+Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
+ nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.9; Tue, 18 Mar 2025 17:51:52 -0700
+From: Wesley Cheng <quic_wcheng@quicinc.com>
+To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
+        <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
+        <corbet@lwn.net>, <broonie@kernel.org>, <lgirdwood@gmail.com>,
+        <krzk+dt@kernel.org>, <pierre-louis.bossart@linux.intel.com>,
+        <Thinh.Nguyen@synopsys.com>, <tiwai@suse.com>, <robh@kernel.org>,
+        <gregkh@linuxfoundation.org>
+CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-sound@vger.kernel.org>, <linux-input@vger.kernel.org>,
+        <linux-usb@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
+Subject: [PATCH v36 05/31] usb: host: xhci: Notify xHCI sideband on transfer ring free
+Date: Tue, 18 Mar 2025 17:51:15 -0700
+Message-ID: <20250319005141.312805-6-quic_wcheng@quicinc.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20250319005141.312805-1-quic_wcheng@quicinc.com>
+References: <20250319005141.312805-1-quic_wcheng@quicinc.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250318-mdb-max7360-support-v5-1-fb20baf97da0@bootlin.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: _mdg1-Zp6DaGj3Hzks029YI4g4t8spIe
+X-Proofpoint-GUID: _mdg1-Zp6DaGj3Hzks029YI4g4t8spIe
+X-Authority-Analysis: v=2.4 cv=G50cE8k5 c=1 sm=1 tr=0 ts=67da1529 cx=c_pps a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17 a=3H110R4YSZwA:10 a=Vs1iUdzkB0EA:10 a=COk6AnOGAAAA:8 a=PreZEog4GvDKfhablsMA:9 a=jobEv7ETv8MbDsZbtwfI:22
+ a=TjNXssC_j7lpFel5tvFf:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-18_10,2025-03-17_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 suspectscore=0
+ lowpriorityscore=0 mlxlogscore=885 phishscore=0 adultscore=0
+ impostorscore=0 spamscore=0 clxscore=1015 malwarescore=0
+ priorityscore=1501 bulkscore=0 classifier=spam authscore=0 authtc=n/a
+ authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2502280000 definitions=main-2503190003
 
-On Tue, Mar 18, 2025 at 05:26:17PM +0100, Mathieu Dubois-Briand wrote:
-> Add device tree bindings for Maxim Integrated MAX7360 device with
-> support for keypad, rotary, gpios and pwm functionalities.
-> 
-> Signed-off-by: Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-> ---
->  .../bindings/gpio/maxim,max7360-gpio.yaml          |  83 ++++++++++
->  .../devicetree/bindings/mfd/maxim,max7360.yaml     | 170 +++++++++++++++++++++
->  2 files changed, 253 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/gpio/maxim,max7360-gpio.yaml b/Documentation/devicetree/bindings/gpio/maxim,max7360-gpio.yaml
-> new file mode 100644
-> index 000000000000..21d603d9504c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/gpio/maxim,max7360-gpio.yaml
-> @@ -0,0 +1,83 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/gpio/maxim,max7360-gpio.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Maxim MAX7360 GPIO controller
-> +
-> +maintainers:
-> +  - Kamel Bouhara <kamel.bouhara@bootlin.com>
-> +  - Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-> +
-> +description: |
-> +  Maxim MAX7360 GPIO controller, in MAX7360 chipset
-> +  https://www.analog.com/en/products/max7360.html
-> +
-> +  The device provide two series of GPIOs, referred here as GPIOs and GPOs.
-> +
-> +  PORT0 to PORT7 pins can be used as GPIOs, with support for interrupts and
-> +  constant-current mode. These pins will also be used by the torary encoder and
-> +  PWM functionalities.
-> +
-> +  COL2 to COL7 pins can be used as GPOs, there is no input capability. COL pins
-> +  will be partitionned, with the first pins being affected to the keypad
-> +  functionality and the last ones as GPOs.
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - maxim,max7360-gpio
-> +      - maxim,max7360-gpo
-> +
-> +  gpio-controller: true
-> +
-> +  "#gpio-cells":
-> +    const: 2
-> +
-> +  interrupt-controller: true
-> +
-> +  "#interrupt-cells":
-> +    const: 2
-> +
-> +  maxim,constant-current-disable:
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-> +    description:
-> +      Bit field, each bit disables constant-current output of the associated
-> +      GPIO, starting from the least significant bit for the first GPIO.
-> +    maximum: 0xff
-> +
-> +required:
-> +  - compatible
-> +  - gpio-controller
-> +
-> +allOf:
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          contains:
-> +            enum:
-> +              - maxim,max7360-gpio
-> +        ngpios: false
-> +    then:
-> +      required:
-> +        - interrupt-controller
-> +    else:
-> +      properties:
-> +        interrupt-controller: false
-> +        maxim,constant-current-disable: false
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    gpio {
-> +      compatible = "maxim,max7360-gpio";
-> +
-> +      gpio-controller;
-> +      #gpio-cells = <2>;
-> +      maxim,constant-current-disable = <0x06>;
-> +
-> +      interrupt-controller;
-> +      #interrupt-cells = <2>;
-> +    };
-> diff --git a/Documentation/devicetree/bindings/mfd/maxim,max7360.yaml b/Documentation/devicetree/bindings/mfd/maxim,max7360.yaml
-> new file mode 100644
-> index 000000000000..d3c09531dc5c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/maxim,max7360.yaml
-> @@ -0,0 +1,170 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/mfd/maxim,max7360.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Maxim MAX7360 Keypad, Rotary encoder, PWM and GPIO controller
-> +
-> +maintainers:
-> +  - Kamel Bouhara <kamel.bouhara@bootlin.com>
-> +  - Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-> +
-> +description: |
-> +  Maxim MAX7360 device, with following functions:
-> +    - keypad controller
-> +    - rotary controller
-> +    - GPIO and GPO controller
-> +    - PWM controller
-> +
-> +  https://www.analog.com/en/products/max7360.html
-> +
-> +allOf:
-> +  - $ref: /schemas/input/matrix-keymap.yaml#
-> +  - $ref: /schemas/input/input.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - maxim,max7360
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 2
-> +
-> +  interrupt-names:
-> +    items:
-> +      - const: inti
-> +      - const: intk
-> +
-> +  keypad-debounce-delay-ms:
+In the case of handling a USB bus reset, the xhci_discover_or_reset_device
+can run without first notifying the xHCI sideband client driver to stop or
+prevent the use of the transfer ring.  It was seen that when a bus reset
+situation happened, the USB offload driver was attempting to fetch the xHCI
+transfer ring information, which was already freed.
 
-The existing debounce-delay-ms or poll-interval properties don't work 
-for you?
+Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
+---
+ drivers/usb/host/xhci-sideband.c  | 29 ++++++++++++++++++++++++++++-
+ drivers/usb/host/xhci.c           |  3 +++
+ include/linux/usb/xhci-sideband.h | 30 +++++++++++++++++++++++++++++-
+ 3 files changed, 60 insertions(+), 2 deletions(-)
 
-> +    description: Keypad debounce delay in ms
-> +    minimum: 9
-> +    maximum: 40
-> +    default: 9
-> +
-> +  rotary-debounce-delay-ms:
-> +    description: Rotary encoder debounce delay in ms
-> +    minimum: 0
-> +    maximum: 15
-> +    default: 0
-> +
-> +  linux,axis:
-> +    description: The input subsystem axis to map to this rotary encoder.
-
-You should have a $ref to rotary-encoder.yaml too. None of the other 
-properties in it are needed? 
-
-> +
-> +  "#pwm-cells":
-> +    const: 3
-> +
-> +  gpio:
-> +    $ref: /schemas/gpio/maxim,max7360-gpio.yaml#
-> +    description:
-> +      PORT0 to PORT7 general purpose input/output pins configuration.
-> +
-> +  gpo:
-> +    $ref: /schemas/gpio/maxim,max7360-gpio.yaml#
-> +    description: >
-> +      COL2 to COL7 general purpose output pins configuration.
-> +      Allows to use unused keypad columns as outputs.
-
-Are these paragraphs? If so, add a blank line between paragraphs. If 
-not, re-wrap the lines.
-
-> +      The MAX7360 has 8 column lines and 6 of them can be used as GPOs. GPIOs
-> +      numbers used for this gpio-controller node do correspond to the column
-> +      numbers: values 0 and 1 are never valid, values from 2 to 7 might be valid
-> +      depending on the value of the keypad,num-column property.
-> +
-> +patternProperties:
-> +  '-pins$':
-> +    type: object
-> +    description:
-> +      Pinctrl node's client devices use subnodes for desired pin configuration.
-> +      Client device subnodes use below standard properties.
-> +    $ref: /schemas/pinctrl/pincfg-node.yaml
-> +
-> +    properties:
-> +      pins:
-> +        description:
-> +          List of gpio pins affected by the properties specified in this
-> +          subnode.
-> +        items:
-> +          pattern: '^PORT[0-7]|ROTARY$'
-
-Don't you need ()?:
-
-^(PORT[0-7]|ROTARY)$'
-
-> +        minItems: 1
-> +        maxItems: 8
-> +
-> +      function:
-> +        description:
-> +          Specify the alternative function to be configured for the specified
-> +          pins.
-> +        enum: [gpio, pwm, rotary]
-> +
-> +    additionalProperties: false
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +  - interrupts
-> +  - interrupt-names
-> +  - linux,keymap
-> +  - linux,axis
-> +  - "#pwm-cells"
-> +  - gpio
-> +  - gpo
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/input/input.h>
-> +    #include <dt-bindings/interrupt-controller/arm-gic.h>
-> +
-> +    i2c {
-> +      #address-cells = <1>;
-> +      #size-cells = <0>;
-> +
-> +      io-expander@38 {
-> +        compatible = "maxim,max7360";
-> +        reg = <0x38>;
-> +
-> +        interrupt-parent = <&gpio1>;
-> +        interrupts = <23 IRQ_TYPE_LEVEL_LOW>,
-> +                     <24 IRQ_TYPE_LEVEL_LOW>;
-> +        interrupt-names = "inti", "intk";
-> +
-> +        keypad,num-rows = <8>;
-> +        keypad,num-columns = <4>;
-> +        linux,keymap = <
-> +          MATRIX_KEY(0x00, 0x00, KEY_F5)
-> +          MATRIX_KEY(0x01, 0x00, KEY_F4)
-> +          MATRIX_KEY(0x02, 0x01, KEY_F6)
-> +          >;
-> +        keypad-debounce-delay-ms = <10>;
-> +        autorepeat;
-> +
-> +        rotary-debounce-delay-ms = <2>;
-> +        linux,axis = <0>; /* REL_X */
-> +
-> +        #pwm-cells = <3>;
-> +
-> +        max7360_gpio: gpio {
-> +          compatible = "maxim,max7360-gpio";
-> +
-> +          gpio-controller;
-> +          #gpio-cells = <2>;
-> +          maxim,constant-current-disable = <0x06>;
-> +
-> +          interrupt-controller;
-> +          #interrupt-cells = <0x2>;
-> +        };
-> +
-> +        max7360_gpo: gpo {
-> +          compatible = "maxim,max7360-gpo";
-> +
-> +          gpio-controller;
-> +          #gpio-cells = <2>;
-> +        };
-> +
-> +        backlight_pins: backlight-pins {
-> +          pins = "PORT2";
-> +          function = "pwm";
-> +        };
-> +      };
-> +    };
-> 
-> -- 
-> 2.39.5
-> 
+diff --git a/drivers/usb/host/xhci-sideband.c b/drivers/usb/host/xhci-sideband.c
+index 742bbc6c2d9b..d49f9886dd84 100644
+--- a/drivers/usb/host/xhci-sideband.c
++++ b/drivers/usb/host/xhci-sideband.c
+@@ -88,6 +88,30 @@ __xhci_sideband_remove_endpoint(struct xhci_sideband *sb, struct xhci_virt_ep *e
+ 
+ /* sideband api functions */
+ 
++/**
++ * xhci_sideband_notify_ep_ring_free - notify client of xfer ring free
++ * @sb: sideband instance for this usb device
++ * @ep_index: usb endpoint index
++ *
++ * Notifies the xHCI sideband client driver of a xHCI transfer ring free
++ * routine.  This will allow for the client to ensure that all transfers
++ * are completed.
++ *
++ * The callback should be synchronous, as the ring free happens after.
++ */
++void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
++				       unsigned int ep_index)
++{
++	struct xhci_sideband_event evt;
++
++	evt.type = XHCI_SIDEBAND_XFER_RING_FREE;
++	evt.evt_data = &ep_index;
++
++	if (sb->notify_client)
++		sb->notify_client(sb->intf, &evt);
++}
++EXPORT_SYMBOL_GPL(xhci_sideband_notify_ep_ring_free);
++
+ /**
+  * xhci_sideband_add_endpoint - add endpoint to sideband access list
+  * @sb: sideband instance for this usb device
+@@ -342,7 +366,9 @@ EXPORT_SYMBOL_GPL(xhci_sideband_interrupter_id);
+  * Return: pointer to a new xhci_sideband instance if successful. NULL otherwise.
+  */
+ struct xhci_sideband *
+-xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type)
++xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type,
++		       int (*notify_client)(struct usb_interface *intf,
++				    struct xhci_sideband_event *evt))
+ {
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+ 	struct usb_hcd *hcd = bus_to_hcd(udev->bus);
+@@ -381,6 +407,7 @@ xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type)
+ 	sb->vdev = vdev;
+ 	sb->intf = intf;
+ 	sb->type = type;
++	sb->notify_client = notify_client;
+ 	vdev->sideband = sb;
+ 
+ 	spin_unlock_irq(&xhci->lock);
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index 61950a350432..91e2d6eac8b7 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -20,6 +20,7 @@
+ #include <linux/string_choices.h>
+ #include <linux/dmi.h>
+ #include <linux/dma-mapping.h>
++#include <linux/usb/xhci-sideband.h>
+ 
+ #include "xhci.h"
+ #include "xhci-trace.h"
+@@ -3919,6 +3920,8 @@ static int xhci_discover_or_reset_device(struct usb_hcd *hcd,
+ 		}
+ 
+ 		if (ep->ring) {
++			if (ep->sideband)
++				xhci_sideband_notify_ep_ring_free(ep->sideband, i);
+ 			xhci_debugfs_remove_endpoint(xhci, virt_dev, i);
+ 			xhci_free_endpoint_ring(xhci, virt_dev, i);
+ 		}
+diff --git a/include/linux/usb/xhci-sideband.h b/include/linux/usb/xhci-sideband.h
+index f8722afb8a2d..45288c392f6e 100644
+--- a/include/linux/usb/xhci-sideband.h
++++ b/include/linux/usb/xhci-sideband.h
+@@ -21,6 +21,20 @@ enum xhci_sideband_type {
+ 	XHCI_SIDEBAND_VENDOR,
+ };
+ 
++enum xhci_sideband_notify_type {
++	XHCI_SIDEBAND_XFER_RING_FREE,
++};
++
++/**
++ * struct xhci_sideband_event - sideband event
++ * @type: notifier type
++ * @evt_data: event data
++ */
++struct xhci_sideband_event {
++	enum xhci_sideband_notify_type type;
++	void *evt_data;
++};
++
+ /**
+  * struct xhci_sideband - representation of a sideband accessed usb device.
+  * @xhci: The xhci host controller the usb device is connected to
+@@ -30,6 +44,7 @@ enum xhci_sideband_type {
+  * @type: xHCI sideband type
+  * @mutex: mutex for sideband operations
+  * @intf: USB sideband client interface
++ * @notify_client: callback for xHCI sideband sequences
+  *
+  * FIXME usb device accessed via sideband Keeping track of sideband accessed usb devices.
+  */
+@@ -44,10 +59,14 @@ struct xhci_sideband {
+ 	struct mutex			mutex;
+ 
+ 	struct usb_interface		*intf;
++	int (*notify_client)(struct usb_interface *intf,
++			     struct xhci_sideband_event *evt);
+ };
+ 
+ struct xhci_sideband *
+-xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type);
++xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type,
++		       int (*notify_client)(struct usb_interface *intf,
++				    struct xhci_sideband_event *evt));
+ void
+ xhci_sideband_unregister(struct xhci_sideband *sb);
+ int
+@@ -71,4 +90,13 @@ void
+ xhci_sideband_remove_interrupter(struct xhci_sideband *sb);
+ int
+ xhci_sideband_interrupter_id(struct xhci_sideband *sb);
++
++#if IS_ENABLED(CONFIG_USB_XHCI_SIDEBAND)
++void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
++				       unsigned int ep_index);
++#else
++static inline void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
++						     unsigned int ep_index)
++{ }
++#endif /* IS_ENABLED(CONFIG_USB_XHCI_SIDEBAND) */
+ #endif /* __LINUX_XHCI_SIDEBAND_H */

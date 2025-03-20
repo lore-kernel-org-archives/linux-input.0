@@ -1,114 +1,134 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81BA91E98FC;
-	Thu, 20 Mar 2025 02:26:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+Received: from hrbeu.edu.cn (mx1.hrbeu.edu.cn [202.118.176.6])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id F2C8033E1;
+	Thu, 20 Mar 2025 04:39:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.118.176.6
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742437582; cv=none; b=PGPVCrlP65uL7OxL4bnY+YL0oo+k057OfHSJxssUYuScKhOacOHGXgaA7hU7mToYpYMJ4G49tIqKk3Ov/rqvzHdbpLeZikZKzVpSZqKMOwpRSzBWuocW0Yz/paxEcBAROkAZQP1V2JKgCToMJKE0cJz3C1lhKOyvQZ9Ky0ak+kg=
+	t=1742445578; cv=none; b=libM3QmRx31Vptq/umkKJpq5o9va61Q4juH59L7v44CJc9qCt6xt506NrvezOAOlMbKN/XQFRSQhIsu29LKEYDXPKRdyY2bZP6BFKch6Wgbnu1g1bQwNANsu9HFSp/7WjwtlxRvoT+ophMxQGRTqIqhlaWv6o2oKqzn1tlvAavM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742437582; c=relaxed/simple;
-	bh=291HTSj4fCLUSrxd6oGcWY8dOfOz8/d+lx/A+WebZc0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jhmDk02ZeUs/1EfpR5KQa0W+3HZntcGCC2KQ9BzVfRMKWWOK1r794RLGWl3t4bETTNiaeU+KNC0Ht2eKOrY2qnHsHSnuBcKVGFhobF6YRVkZU6YQn3dZbo5yj+xP4yg1ERdlwHI1Vug2T9JCl9Sxca3vA7DIzPAHi8k6bhD/E1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=H7u3UbIY; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="H7u3UbIY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1742437581; x=1773973581;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=291HTSj4fCLUSrxd6oGcWY8dOfOz8/d+lx/A+WebZc0=;
-  b=H7u3UbIYyRVKflPJct5l7/4T19frxGMi15/ZMpeefuoOeVO4lpumzy4A
-   d/phdLpk40kyILZA4JF6VgjEbagaXW196Zx1X8xOQiedlh71qIwsI4wFb
-   QLYNLHppcExdCKsKUVNWEhacvOiwkR+pmNmVovz8sa/Kj+1afZHHgLwom
-   z0760gaZy7XjE7KiiMZKC839hjkKNazLdjQnKF2LV32toaf+IvLdLS3a0
-   TjuucwDYwVQNILQDMBVcY2Cu0+XRlXVWO4quypdgntIYMMi7WNSBEjjSb
-   suJSsipn0hzJxCNXUtRH5IL0r7MJhPI0h8ErLdmSZxrqIySr0kaaow9tc
-   w==;
-X-CSE-ConnectionGUID: TM/wO+W7Q8uMnUk8thqmpQ==
-X-CSE-MsgGUID: sWYVrA2mQne8qotXCmJUWQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11378"; a="31234046"
-X-IronPort-AV: E=Sophos;i="6.14,260,1736841600"; 
-   d="scan'208";a="31234046"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Mar 2025 19:26:20 -0700
-X-CSE-ConnectionGUID: WQ1ooowkQ3Otx7abhDKtlw==
-X-CSE-MsgGUID: lazrnhHSRHew6gtn2nXdWQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.14,260,1736841600"; 
-   d="scan'208";a="128129700"
-Received: from lkp-server02.sh.intel.com (HELO e98e3655d6d2) ([10.239.97.151])
-  by orviesa005.jf.intel.com with ESMTP; 19 Mar 2025 19:26:14 -0700
-Received: from kbuild by e98e3655d6d2 with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1tv5bn-00007r-1J;
-	Thu, 20 Mar 2025 02:26:11 +0000
-Date: Thu, 20 Mar 2025 10:25:59 +0800
-From: kernel test robot <lkp@intel.com>
-To: mathieu.dubois-briand@bootlin.com, Lee Jones <lee@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Kamel Bouhara <kamel.bouhara@bootlin.com>,
-	Linus Walleij <linus.walleij@linaro.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
-	Michael Walle <mwalle@kernel.org>, Mark Brown <broonie@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>
-Cc: Paul Gazzillo <paul@pgazz.com>,
-	Necip Fazil Yildiran <fazilyildiran@gmail.com>,
-	oe-kbuild-all@lists.linux.dev, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-pwm@vger.kernel.org,
-	andriy.shevchenko@intel.com,
-	=?iso-8859-1?Q?Gr=E9gory?= Clement <gregory.clement@bootlin.com>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Mathieu Dubois-Briand <mathieu.dubois-briand@bootlin.com>
-Subject: Re: [PATCH v5 04/11] pwm: max7360: Add MAX7360 PWM support
-Message-ID: <202503201022.7smCPVZj-lkp@intel.com>
-References: <20250318-mdb-max7360-support-v5-4-fb20baf97da0@bootlin.com>
+	s=arc-20240116; t=1742445578; c=relaxed/simple;
+	bh=ftgEpznoOgdnpXw35OzUbRA18XILihoo4sKoASydQCQ=;
+	h=Date:From:To:Cc:Subject:Content-Type:MIME-Version:Message-ID; b=EdSGH0V2LKs0+OMQxkg3/g1tGMyzcJTIkghkCMsMQ2ZrRu9Rlq1W//F3Wv5WcEnVmEcfFftAwNvXVTLfNeFCYTlR8u4Gb1+TnOyvjS65lMlyyyOyWi/fvnXS+6N+MnaxG6QHyoy+j9z9lDBpzLNx9MmYvvbXoO289lBYYoQdYwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hrbeu.edu.cn; spf=pass smtp.mailfrom=hrbeu.edu.cn; arc=none smtp.client-ip=202.118.176.6
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hrbeu.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hrbeu.edu.cn
+Received: from baishuoran$hrbeu.edu.cn ( [198.2.244.151] ) by
+ ajax-webmail-Front (Coremail) ; Thu, 20 Mar 2025 12:39:24 +0800 (GMT+08:00)
+Date: Thu, 20 Mar 2025 12:39:24 +0800 (GMT+08:00)
+X-CM-HeaderCharset: UTF-8
+From: =?UTF-8?B?55m954OB5YaJ?= <baishuoran@hrbeu.edu.cn>
+To: "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+	"Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Cc: "Kun Hu" <huk23@m.fudan.edu.cn>, "Jiaji Qin" <jjtan24@m.fudan.edu.cn>,
+	linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org, syzkaller@googlegroups.com
+Subject: WARNING in cm109_urb_irq_callback/usb_submit_urb
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2024.2-cmXT5 build
+ 20241202(ebbd5d74) Copyright (c) 2002-2025 www.mailtech.cn hrbeu.edu.cn
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250318-mdb-max7360-support-v5-4-fb20baf97da0@bootlin.com>
+Message-ID: <559eddf1.5c68.195b1d950ef.Coremail.baishuoran@hrbeu.edu.cn>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:CbB2ygBH0h_8m9tn1nCMAA--.13392W
+X-CM-SenderInfo: pedl2xpxrut0w6kuuvvxohv3gofq/1tbiAQIHCmfbjtQAfAABsV
+X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWDJw
+	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
+	daVFxhVjvjDU=
 
-Hi,
-
-kernel test robot noticed the following build warnings:
-
-[auto build test WARNING on a64dcfb451e254085a7daee5fe51bf22959d52d3]
-
-url:    https://github.com/intel-lab-lkp/linux/commits/Mathieu-Dubois-Briand/dt-bindings-mfd-gpio-Add-MAX7360/20250319-003750
-base:   a64dcfb451e254085a7daee5fe51bf22959d52d3
-patch link:    https://lore.kernel.org/r/20250318-mdb-max7360-support-v5-4-fb20baf97da0%40bootlin.com
-patch subject: [PATCH v5 04/11] pwm: max7360: Add MAX7360 PWM support
-config: nios2-kismet-CONFIG_PINCTRL_MAX7360-CONFIG_PWM_MAX7360-0-0 (https://download.01.org/0day-ci/archive/20250320/202503201022.7smCPVZj-lkp@intel.com/config)
-reproduce: (https://download.01.org/0day-ci/archive/20250320/202503201022.7smCPVZj-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202503201022.7smCPVZj-lkp@intel.com/
-
-kismet warnings: (new ones prefixed by >>)
->> kismet: WARNING: unmet direct dependencies detected for PINCTRL_MAX7360 when selected by PWM_MAX7360
-   WARNING: unmet direct dependencies detected for PINCTRL_MAX7360
-     Depends on [n]: PINCTRL [=n] && MFD_MAX7360 [=y]
-     Selected by [y]:
-     - PWM_MAX7360 [=y] && PWM [=y] && MFD_MAX7360 [=y]
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+RGVhciBNYWludGFpbmVycywKCldoZW4gdXNpbmcgb3VyIGN1c3RvbWl6ZWQgU3l6a2FsbGVyIHRv
+IGZ1enogdGhlIGxhdGVzdCBMaW51eCBrZXJuZWwsIHRoZSBmb2xsb3dpbmcgY3Jhc2ggKDk0dGgp
+d2FzIHRyaWdnZXJlZC4KCgpIRUFEIGNvbW1pdDogNjUzN2NmYjM5NWYzNTI3ODI5MThkOGVlN2I3
+ZjEwYmEyY2MzY2JmMgpnaXQgdHJlZTogdXBzdHJlYW0KT3V0cHV0Omh0dHBzOi8vZ2l0aHViLmNv
+bS9wZ2hrMTMvS2VybmVsLUJ1Zy90cmVlL21haW4vMDMwNV82LjE0cmM1Lzk0LUlORk9fJTIwcmN1
+JTIwZGV0ZWN0ZWQlMjBzdGFsbCUyMGluJTIwZGNhY2hlX2Rpcl9vcGVuCktlcm5lbCBjb25maWc6
+aHR0cHM6Ly9naXRodWIuY29tL3BnaGsxMy9LZXJuZWwtQnVnL2Jsb2IvbWFpbi8wMzA1XzYuMTRy
+YzUvY29uZmlnLnR4dApDIHJlcHJvZHVjZXI6aHR0cHM6Ly9naXRodWIuY29tL3BnaGsxMy9LZXJu
+ZWwtQnVnL2Jsb2IvbWFpbi8wMzA1XzYuMTRyYzUvOTQtSU5GT18lMjByY3UlMjBkZXRlY3RlZCUy
+MHN0YWxsJTIwaW4lMjBkY2FjaGVfZGlyX29wZW4vOTRyZXByby5jClN5emxhbmcgcmVwcm9kdWNl
+cjogaHR0cHM6Ly9naXRodWIuY29tL3BnaGsxMy9LZXJuZWwtQnVnL2Jsb2IvbWFpbi8wMzA1XzYu
+MTRyYzUvOTQtSU5GT18lMjByY3UlMjBkZXRlY3RlZCUyMHN0YWxsJTIwaW4lMjBkY2FjaGVfZGly
+X29wZW4vOTRyZXBvcnQKCgpUaGUgZXJyb3Igb2NjdXJzIGFyb3VuZCBsaW5lIDM3OSBvZiB0aGUg
+dXJiLmMgZmlsZS4gVGhlIHByb2JsZW0gZW5kcyB1cCBpbiB0aGUgY20xMDlfdXJiX2lycV9jYWxs
+YmFjayBmdW5jdGlvbiBpbiB0aGUgY20xMDkuYyBmaWxlOkluIHRoZSBjbTEwOV91cmJfaXJxX2Nh
+bGxiYWNrIGZ1bmN0aW9uLCB0aGUgZHJpdmVyIGF0dGVtcHRzIHRvIHJlc3VibWl0IGEgVVJCIHRo
+YXQgaGFzIG5vdCB5ZXQgYmVlbiBwcm9jZXNzZWQuIFRoZXJlIG1heSBiZSBhIHJhY2UgY29uZGl0
+aW9uIGluIHRoZSBkcml2ZXIgdGhhdCByZXN1Ym1pdHMgdGhlIFVSQiBpbiB0aGUgVVJCIGNvbXBs
+ZXRpb24gY2FsbGJhY2ssIGJ1dCB0aGUgc2FtZSBVUkIgbWF5IGhhdmUgYWxyZWFkeSBiZWVuIGNv
+bW1pdHRlZCB0byBhbm90aGVyIGxvY2F0aW9uIGluIHRoZSBzeXN0ZW0uIFRoaXMgaXNzdWUgc2Vl
+bXMgdG8gaW52b2x2ZSB0aGUgY3JlYXRpb24gb2YgVVNCIGRldmljZXMsIHRoZSBvcGVyYXRpb24g
+b2YgVFRZIGRldmljZXMsIGFuZCBmaWxlIGRlc2NyaXB0b3IgY29weWluZy4gVGhpcyBjb21wbGV4
+IGludGVyYWN0aW9uIHJlc3VsdGVkIGluIGR1cGxpY2F0ZSBjb21taXRzIG9mIHRoZSBVUkIuCldl
+IGhhdmUgcmVwcm9kdWNlZCB0aGlzIGlzc3VlIHNldmVyYWwgdGltZXMgb24gNi4xNC1yYzUgYWdh
+aW4uCgoKCgpJZiB5b3UgZml4IHRoaXMgaXNzdWUsIHBsZWFzZSBhZGQgdGhlIGZvbGxvd2luZyB0
+YWcgdG8gdGhlIGNvbW1pdDoKUmVwb3J0ZWQtYnk6IEt1biBIdSA8aHVrMjNAbS5mdWRhbi5lZHUu
+Y24+LCBKaWFqaSBRaW4gPGpqdGFuMjRAbS5mdWRhbi5lZHUuY24+LCBTaHVvcmFuIEJhaSA8YmFp
+c2h1b3JhbkBocmJldS5lZHUuY24+CgoKPT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09IApVUkIgZmZmZjg4ODA0NWM4MTgwMCBz
+dWJtaXR0ZWQgd2hpbGUgYWN0aXZlCldBUk5JTkc6IENQVTogMCBQSUQ6IDAgYXQgZHJpdmVycy91
+c2IvY29yZS91cmIuYzozNzkgdXNiX3N1Ym1pdF91cmIrMHgxMzRlLzB4MTc1MApNb2R1bGVzIGxp
+bmtlZCBpbjoKQ1BVOiAwIFVJRDogMCBQSUQ6IDAgQ29tbTogc3dhcHBlci8wIE5vdCB0YWludGVk
+IDYuMTQuMC1yYzUgIzEKSGFyZHdhcmUgbmFtZTogUUVNVSBTdGFuZGFyZCBQQyAoaTQ0MEZYICsg
+UElJWCwgMTk5NiksIEJJT1MgMS4xMy4wLTF1YnVudHUxLjEgMDQvMDEvMjAxNApSSVA6IDAwMTA6
+dXNiX3N1Ym1pdF91cmIrMHgxMzRlLzB4MTc1MApDb2RlOiBlOCBjNyBiNCBhMCBmYSA4NCBkYiAw
+ZiA4NSA0NyBmNSBmZiBmZiBlOCAwYSBiMyBhMCBmYSBjNiAwNSBjMyBiYSAzMCAwOSAwMSA5MCA0
+OCBjNyBjNyAwMCAzZSAyZiA4YyA0YyA4OSBmZSBlOCBlMyBhOCA2MCBmYSA5MCA8MGY+IDBiIDkw
+IDkwIGU5IDIxIGY1IGZmIGZmIDQ4IDg5IDdjIDI0IDM4IGU4IGRmIGIyIGEwIGZhIDQ4IDhiIDdj
+ClJTUDogMDAxODpmZmZmYzkwMDAwMDA3YWQwIEVGTEFHUzogMDAwMTAwODIKUkFYOiAwMDAwMDAw
+MDAwMDAwMDAwIFJCWDogMDAwMDAwMDAwMDAwMDAwMCBSQ1g6IGZmZmZmZmZmODE3OWVjN2EKUkRY
+OiAwMDAwMDAwMDAwMDAwMDAwIFJTSTogZmZmZmZmZmY4ZGU5Nzc0MCBSREk6IDAwMDAwMDAwMDAw
+MDAwMDIKUkJQOiBmZmZmODg4MDIyYmVlNzQwIFIwODogMDAwMDAwMDAwMDAwMDAwMCBSMDk6IGZm
+ZmZlZDEwMDU3MDUxODIKUjEwOiBmZmZmZWQxMDA1NzA1MTgxIFIxMTogZmZmZjg4ODAyYjgyOGMw
+YiBSMTI6IDAwMDAwMDAwMDAwMDAwNDYKUjEzOiBmZmZmODg4MDI3YjI0MDU4IFIxNDogMDAwMDAw
+MDBmZmZmZmZmMCBSMTU6IGZmZmY4ODgwNDVjODE4MDAKRlM6ICAwMDAwMDAwMDAwMDAwMDAwKDAw
+MDApIEdTOmZmZmY4ODgwMmI4MDAwMDAoMDAwMCkga25sR1M6MDAwMDAwMDAwMDAwMDAwMApDUzog
+IDAwMTAgRFM6IDAwMDAgRVM6IDAwMDAgQ1IwOiAwMDAwMDAwMDgwMDUwMDMzCkNSMjogMDAwMDdm
+ZmZjYTA0ZmY2MCBDUjM6IDAwMDAwMDAwMGRmODAwMDAgQ1I0OiAwMDAwMDAwMDAwNzUwZWYwClBL
+UlU6IDU1NTU1NTU0CkNhbGwgVHJhY2U6CiA8SVJRPgogY20xMDlfdXJiX2lycV9jYWxsYmFjaysw
+eDQ0Yi8weGI2MAogX191c2JfaGNkX2dpdmViYWNrX3VyYisweDJlNC8weDZiMAogdXNiX2hjZF9n
+aXZlYmFja191cmIrMHgzOTEvMHg0NTAKIGR1bW15X3RpbWVyKzB4MTIxNy8weDM1NDAKIF9faHJ0
+aW1lcl9ydW5fcXVldWVzKzB4MWI3LzB4YzMwCiBocnRpbWVyX3J1bl9zb2Z0aXJxKzB4MTdmLzB4
+MmUwCiBoYW5kbGVfc29mdGlycXMrMHgxYmQvMHg4ODAKIGlycV9leGl0X3JjdSsweGZkLzB4MTUw
+CiBzeXN2ZWNfYXBpY190aW1lcl9pbnRlcnJ1cHQrMHhhOC8weGMwCiA8L0lSUT4KIDxUQVNLPgog
+YXNtX3N5c3ZlY19hcGljX3RpbWVyX2ludGVycnVwdCsweDFhLzB4MjAKUklQOiAwMDEwOmRlZmF1
+bHRfaWRsZSsweDFlLzB4MzAKQ29kZTogOTAgOTAgOTAgOTAgOTAgOTAgOTAgOTAgOTAgOTAgOTAg
+OTAgZjMgMGYgMWUgZmEgMGYgMWYgNDQgMDAgMDAgZWIgMGMgMGYgMWYgNDQgMDAgMDAgMGYgMDAg
+MmQgYzkgYTkgMGQgMDAgMGYgMWYgNDQgMDAgMDAgZmIgZjQgPGZhPiBlOSBhNyA0MSBiNyBmNSA2
+NiA2NiAyZSAwZiAxZiA4NCAwMCAwMCAwMCAwMCAwMCA5MCA5MCA5MCA5MCA5MApSU1A6IDAwMTg6
+ZmZmZmZmZmY4ZGUwN2UwOCBFRkxBR1M6IDAwMDAwMjA2ClJBWDogMDAwMDAwMDAwMDI3ZGVjNSBS
+Qlg6IDAwMDAwMDAwMDAwMDAwMDAgUkNYOiBmZmZmZmZmZjhiNThlNWE3ClJEWDogMDAwMDAwMDAw
+MDAwMDAwMCBSU0k6IDAwMDAwMDAwMDAwMDAwMDEgUkRJOiAwMDAwMDAwMDAwMDAwMDAwClJCUDog
+ZGZmZmZjMDAwMDAwMDAwMCBSMDg6IDAwMDAwMDAwMDAwMDAwMDEgUjA5OiBmZmZmZWQxMDA1NzA2
+Zjg2ClIxMDogZmZmZmVkMTAwNTcwNmY4NSBSMTE6IGZmZmY4ODgwMmI4MzdjMmIgUjEyOiAwMDAw
+MDAwMDAwMDAwMDAwClIxMzogZmZmZmZmZmY5MDYxNmExMCBSMTQ6IDAwMDAwMDAwMDAwMDAwMDAg
+UjE1OiAwMDAwMDAwMDAwMDAwMDAwCiBkZWZhdWx0X2lkbGVfY2FsbCsweDZkLzB4YjAKIGRvX2lk
+bGUrMHgzMTIvMHgzYzAKIGNwdV9zdGFydHVwX2VudHJ5KzB4NGYvMHg2MAogcmVzdF9pbml0KzB4
+MWE5LzB4MmYwCiBzdGFydF9rZXJuZWwrMHgzZmEvMHg0ZTAKIHg4Nl82NF9zdGFydF9yZXNlcnZh
+dGlvbnMrMHgxOC8weDMwCiB4ODZfNjRfc3RhcnRfa2VybmVsKzB4YjMvMHhjMAogY29tbW9uX3N0
+YXJ0dXBfNjQrMHgxM2UvMHgxNDgKIDwvVEFTSz4KLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0KQ29kZSBkaXNhc3NlbWJseSAoYmVzdCBndWVzcyk6CiAgIDA6CTkwICAgICAgICAgICAg
+ICAgICAgIAlub3AKICAgMToJOTAgICAgICAgICAgICAgICAgICAgCW5vcAogICAyOgk5MCAgICAg
+ICAgICAgICAgICAgICAJbm9wCiAgIDM6CTkwICAgICAgICAgICAgICAgICAgIAlub3AKICAgNDoJ
+OTAgICAgICAgICAgICAgICAgICAgCW5vcAogICA1Ogk5MCAgICAgICAgICAgICAgICAgICAJbm9w
+CiAgIDY6CTkwICAgICAgICAgICAgICAgICAgIAlub3AKICAgNzoJOTAgICAgICAgICAgICAgICAg
+ICAgCW5vcAogICA4Ogk5MCAgICAgICAgICAgICAgICAgICAJbm9wCiAgIDk6CTkwICAgICAgICAg
+ICAgICAgICAgIAlub3AKICAgYToJOTAgICAgICAgICAgICAgICAgICAgCW5vcAogICBiOgk5MCAg
+ICAgICAgICAgICAgICAgICAJbm9wCiAgIGM6CWYzIDBmIDFlIGZhICAgICAgICAgIAllbmRicjY0
+CiAgMTA6CTBmIDFmIDQ0IDAwIDAwICAgICAgIAlub3BsICAgMHgwKCVyYXgsJXJheCwxKQogIDE1
+OgllYiAwYyAgICAgICAgICAgICAgICAJam1wICAgIDB4MjMKICAxNzoJMGYgMWYgNDQgMDAgMDAg
+ICAgICAgCW5vcGwgICAweDAoJXJheCwlcmF4LDEpCiAgMWM6CTBmIDAwIDJkIGM5IGE5IDBkIDAw
+IAl2ZXJ3ICAgMHhkYTljOSglcmlwKSAgICAgICAgIyAweGRhOWVjCiAgMjM6CTBmIDFmIDQ0IDAw
+IDAwICAgICAgIAlub3BsICAgMHgwKCVyYXgsJXJheCwxKQogIDI4OglmYiAgICAgICAgICAgICAg
+ICAgICAJc3RpCiAgMjk6CWY0ICAgICAgICAgICAgICAgICAgIAlobHQKKiAyYToJZmEgICAgICAg
+ICAgICAgICAgICAgCWNsaSA8LS0gdHJhcHBpbmcgaW5zdHJ1Y3Rpb24KICAyYjoJZTkgYTcgNDEg
+YjcgZjUgICAgICAgCWptcHEgICAweGY1Yjc0MWQ3CiAgMzA6CTY2IDY2IDJlIDBmIDFmIDg0IDAw
+IAlkYXRhMTYgbm9wdyAlY3M6MHgwKCVyYXgsJXJheCwxKQogIDM3OgkwMCAwMCAwMCAwMAogIDNi
+Ogk5MCAgICAgICAgICAgICAgICAgICAJbm9wCiAgM2M6CTkwICAgICAgICAgICAgICAgICAgIAlu
+b3AKICAzZDoJOTAgICAgICAgICAgICAgICAgICAgCW5vcAogIDNlOgk5MCAgICAgICAgICAgICAg
+ICAgICAJbm9wCiAgM2Y6CTkwICAgICAgICAgICAgICAgICAgIAlub3AKLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0KCgoKCgp0aGFua3MsCkt1biBIdQo=

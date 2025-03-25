@@ -1,166 +1,88 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30A5D26656F;
-	Tue, 25 Mar 2025 12:27:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFB8719E83E;
+	Tue, 25 Mar 2025 12:52:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742905630; cv=none; b=lSA3gxwGMP/D51a9ShRV/Oui4UEy61exe2Mv+BKBak0UgB7m4jJIHGjj0+7TLuFR2KNhEFA/mczgbvnRp03mEMupxoD1KJHWdo+Eujo1UCBc+T2KCqPNJp3JJWS/nBdfOfzxjPuPTxGe3gYu5R7Ep3kT/Q4o1XEk6hLYrPSeR0c=
+	t=1742907165; cv=none; b=auo3oJrTSrsegcWxksY6zuuxgNA7SiL7RNwk0kJkLX8FS823yIq8Su0oG1cbft+FiiFMhK63++nx+9uHNN6vq4aF3wKnF3w+9POv3joqecZHZOYHUivy5aIE7k7ZAf6nf1QRmm657DyUfSkOHJ9i1IxBa9wjkVbp6OgL6abXvbE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742905630; c=relaxed/simple;
-	bh=AWjl4tBrnhRkcRiex/88q6k6fRAmxNwISnnYEf7182Q=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=m7H9qapBaAXxp+Tk/PZCNHDJ6C4mD/pSePwrd1a/6/Tpx1ArkIgEI3BWkrsbOuqwD6m/wzfajLNCAzXD44K6TbUyVOB/5XfCwq9++a2oUEsNuZanagW71We/UNy58cXcTT44MAPbwL1lWHgx6/qYWxj98cbkeF7XQEDU70gebQA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BOK/wPKS; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1742907165; c=relaxed/simple;
+	bh=lfa/8ta4vYPO/+JeucS0YpPl8uLr+Mk0WRA+iVH7hUA=;
+	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=HtaLGQembPxg1Yr5WZLCESPVyvkGWqU4zWPBXgaroXhds9eXNXi/hg+DK0r5QfdrGMKD7b0HZDfCvhHuqVNJVVbQZq/U7IUYnTTob/RES77HBoxexHbhwAv0R3TlVdk9YFkOMeajXAJEdMtGWIFEcCuuAwKo/n2PVYjcazcweTc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nAajHxx8; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BOK/wPKS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EF18C4CEE4;
-	Tue, 25 Mar 2025 12:26:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nAajHxx8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE642C4CEE4;
+	Tue, 25 Mar 2025 12:52:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1742905629;
-	bh=AWjl4tBrnhRkcRiex/88q6k6fRAmxNwISnnYEf7182Q=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=BOK/wPKSymoONoK8d8zXPGGMy5MG+aYpHf3TkadCLwDPTOQJGUAW9et07ZG7zCZWv
-	 ef4pdsDxtkJTHjY+SAKtAcW26il80oDtB38MozaTEhXlGd4IkrTlN3tIWkXmAwnoLn
-	 BzHu8ImCylu3Yb81WL68Buni1g0ODfLOGd7OBrnKV/M2af0y77JoFV43LSNATjnN4G
-	 9CzIE3AozXUaiD7HuaDWAl0wAkWF1HUbFGm1CJxGQ45QPczxfx9HKr6TYKmSS9kPAD
-	 gZpFZHUBEZFz8k7KsyAguseekaOJzmeEib25mONLZRMhFlnpUorLwGTrqPnI6I56MM
-	 2bv1z0/9P4X3A==
-From: guoren@kernel.org
-To: arnd@arndb.de,
-	gregkh@linuxfoundation.org,
-	torvalds@linux-foundation.org,
-	paul.walmsley@sifive.com,
-	palmer@dabbelt.com,
-	anup@brainfault.org,
-	atishp@atishpatra.org,
-	oleg@redhat.com,
-	kees@kernel.org,
-	tglx@linutronix.de,
-	will@kernel.org,
-	mark.rutland@arm.com,
-	brauner@kernel.org,
-	akpm@linux-foundation.org,
-	rostedt@goodmis.org,
-	edumazet@google.com,
-	unicorn_wang@outlook.com,
-	inochiama@outlook.com,
-	gaohan@iscas.ac.cn,
-	shihua@iscas.ac.cn,
-	jiawei@iscas.ac.cn,
-	wuwei2016@iscas.ac.cn,
-	drew@pdp7.com,
-	prabhakar.mahadev-lad.rj@bp.renesas.com,
-	ctsai390@andestech.com,
-	wefu@redhat.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	josef@toxicpanda.com,
-	dsterba@suse.com,
-	mingo@redhat.com,
-	peterz@infradead.org,
-	boqun.feng@gmail.com,
-	guoren@kernel.org,
-	xiao.w.wang@intel.com,
-	qingfang.deng@siflower.com.cn,
-	leobras@redhat.com,
-	jszhang@kernel.org,
-	conor.dooley@microchip.com,
-	samuel.holland@sifive.com,
-	yongxuan.wang@sifive.com,
-	luxu.kernel@bytedance.com,
-	david@redhat.com,
-	ruanjinjie@huawei.com,
-	cuiyunhui@bytedance.com,
-	wangkefeng.wang@huawei.com,
-	qiaozhe@iscas.ac.cn
-Cc: ardb@kernel.org,
-	ast@kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-riscv@lists.infradead.org,
-	kvm@vger.kernel.org,
-	kvm-riscv@lists.infradead.org,
-	linux-mm@kvack.org,
-	linux-crypto@vger.kernel.org,
-	bpf@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-perf-users@vger.kernel.org,
-	linux-serial@vger.kernel.org,
-	linux-fsdevel@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	maple-tree@lists.infradead.org,
-	linux-trace-kernel@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-atm-general@lists.sourceforge.net,
-	linux-btrfs@vger.kernel.org,
-	netfilter-devel@vger.kernel.org,
-	coreteam@netfilter.org,
-	linux-nfs@vger.kernel.org,
-	linux-sctp@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	linux-media@vger.kernel.org
-Subject: [RFC PATCH V3 43/43] riscv: Fixup address space overlay of print_mlk
-Date: Tue, 25 Mar 2025 08:16:24 -0400
-Message-Id: <20250325121624.523258-44-guoren@kernel.org>
-X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20250325121624.523258-1-guoren@kernel.org>
-References: <20250325121624.523258-1-guoren@kernel.org>
+	s=k20201202; t=1742907165;
+	bh=lfa/8ta4vYPO/+JeucS0YpPl8uLr+Mk0WRA+iVH7hUA=;
+	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+	b=nAajHxx8XWm+QvC5X6u+BaKdw7/t6NBuVoB1Diqqau7NGm8MeWXevmFahioXrGcm3
+	 mrYlBE8Yv/tSoWFC0LC6Cqbn3JOYHJy/GIyq7vIU52ojzDxSPIj6wcvrh6H4FuIbz+
+	 F0F3y+GiBzthZ4mIzTY4HJCAWYuP5r0AQinzrbFDquwetB13wsTtxbt27PDZtwNCpU
+	 UVbXJIyT1n8fGsi1Db/0F17tHg3YlDWSOnUluN33QtmNCbmjYOEbQoODZQ2OovTRGR
+	 E9lO3JTjS/ToSivdOMBTXelL9iwMpF/YxfiBRrsSsbjwLMh8kuEuHQSVXUadJfC+UC
+	 cQvaPTR2/NTVQ==
+Date: Tue, 25 Mar 2025 13:52:42 +0100 (CET)
+From: Jiri Kosina <jikos@kernel.org>
+To: Aditya Garg <gargaditya08@live.com>, 
+    Benjamin Tissoires <benjamin.tissoires@redhat.com>
+cc: "bentiss@kernel.org" <bentiss@kernel.org>, 
+    Kerem Karabay <kekrby@gmail.com>, 
+    Orlando Chamberlain <orlandoch.dev@gmail.com>, 
+    Aun-Ali Zaidi <admin@kodeit.net>, 
+    Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, 
+    "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>
+Subject: Re: [PATCH RESEND 0/5] HID: multitouch: Add support for Touch Bars
+ on x86 MacBook Pros
+In-Reply-To: <ECE4880B-2A87-4147-B83B-2D832639F3B2@live.com>
+Message-ID: <67829qr8-op53-7q0s-n858-9psq5sqopo45@xreary.bet>
+References: <ECE4880B-2A87-4147-B83B-2D832639F3B2@live.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
 
-From: "Guo Ren (Alibaba DAMO Academy)" <guoren@kernel.org>
+On Mon, 10 Mar 2025, Aditya Garg wrote:
 
-If phyical memory is 1GiB for ilp32 linux, then print_mlk would be:
-lowmem : 0xc0000000 - 0x00000000   ( 1024 MB)
+> Hi all!
+> 
+> This patch series aims to improve the Touch Bar support for x86 Macs.
+> 
+> Recently, the hid-appletb-kbd and hid-appletb-bl drivers were upstreamed
+> into the Linux kernel [1]. They enabled the Touch Bar to display a
+> predefined set of media and function keys, exactly the same it does on
+> Windows Bootcamp.
+> 
+> Now we are about to get support added for the DRM mode of the Touch Bar
+> as well [2].
+> 
+> The DRM mode enables the Touch Bar to act as a second display,
+> just like macOS. So now you can add a widget, put a clock or anything
+> else on the Touch Bar as long as you can develop a daemon.
+> 
+> Now via these patches, in the DRM mode, we can use the Touch Bar as a
+> touch screen. The Touch Bar seems to be not compliant with the HID spec,
+> thus via these patches several tweaks have been done under the cover of
+> a single quirk, MT_QUIRK_APPLE_TOUCHBAR.
+> 
+> For the case of T2 Macs, apple-bce [3], the driver for the T2 Security
+> Chip is also needed for all the peripherals, including the Touch Bar
+> to work. It is still WIP, and will be subsequently sent later to the
+> appropriate tree. Till then, I'll suggest for get the driver from [3],
+> or more preferably, get Linux support from https://t2linux.org/.
 
-After fixup:
-lowmem : 0xc0000000 - 0xffffffff   ( 1024 MB)
+Benjamin, could you please Ack this series?
 
-Signed-off-by: Guo Ren (Alibaba DAMO Academy) <guoren@kernel.org>
----
- arch/riscv/mm/init.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Thanks,
 
-diff --git a/arch/riscv/mm/init.c b/arch/riscv/mm/init.c
-index 3cdbb033860e..e09286d4916a 100644
---- a/arch/riscv/mm/init.c
-+++ b/arch/riscv/mm/init.c
-@@ -105,26 +105,26 @@ static void __init zone_sizes_init(void)
- 
- static inline void print_mlk(char *name, unsigned long b, unsigned long t)
- {
--	pr_notice("%12s : 0x%08lx - 0x%08lx   (%4ld kB)\n", name, b, t,
-+	pr_notice("%12s : 0x%08lx - 0x%08lx   (%4ld kB)\n", name, b, t - 1,
- 		  (((t) - (b)) >> LOG2_SZ_1K));
- }
- 
- static inline void print_mlm(char *name, unsigned long b, unsigned long t)
- {
--	pr_notice("%12s : 0x%08lx - 0x%08lx   (%4ld MB)\n", name, b, t,
-+	pr_notice("%12s : 0x%08lx - 0x%08lx   (%4ld MB)\n", name, b, t - 1,
- 		  (((t) - (b)) >> LOG2_SZ_1M));
- }
- 
- static inline void print_mlg(char *name, unsigned long b, unsigned long t)
- {
--	pr_notice("%12s : 0x%08lx - 0x%08lx   (%4ld GB)\n", name, b, t,
-+	pr_notice("%12s : 0x%08lx - 0x%08lx   (%4ld GB)\n", name, b, t - 1,
- 		   (((t) - (b)) >> LOG2_SZ_1G));
- }
- 
- #if BITS_PER_LONG == 64
- static inline void print_mlt(char *name, unsigned long b, unsigned long t)
- {
--	pr_notice("%12s : 0x%08lx - 0x%08lx   (%4ld TB)\n", name, b, t,
-+	pr_notice("%12s : 0x%08lx - 0x%08lx   (%4ld TB)\n", name, b, t - 1,
- 		   (((t) - (b)) >> LOG2_SZ_1T));
- }
- #else
 -- 
-2.40.1
+Jiri Kosina
+SUSE Labs
 

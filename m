@@ -1,122 +1,86 @@
-Received: from mout.web.de (mout.web.de [212.227.15.4])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DA691E9B1B;
-	Tue,  1 Apr 2025 08:21:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.4
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 077BB1EEA37;
+	Tue,  1 Apr 2025 09:40:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743495673; cv=none; b=se0S1D9x1eNvIEryBZz0B6f7FKKgMi2m8rcdOeD+ytqVu4/ijWK8SHJ4c0VUJIFkk9U0b/bc4LEZmaQldkP5FyIvZpbpJZiPs+VYqt4PoOJPkueb0LuLq1i0Rw+Jxk80t8O67gonN7KF5b2mqZOSk6SqELztyK8uc2NpnNZvs4I=
+	t=1743500460; cv=none; b=WoUyZC5f4NY1vPrubT7mSrL8J9sLxQMXJfXueTnOcMmEiOyLZdrIWkWxe2V3yxfkOeyji/1/STvVr+7EcDS54pWhmDZDg1CnNrqegiAnXP2xH4gwhA4qp9erMbfSlrRfwLIdXiV7//uPqYQ8RlejygwiaFhyVl8wLxH05LhvMgI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743495673; c=relaxed/simple;
-	bh=iDp3i76P7nltLE56CGPuQknvLt6dx4P35+X9ePCkn+E=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=VXN0zA5G2ui8TK2CAtQsuh3GspvHm4Z9D+iw90zKV7k2mHF0KmBqEnM32/hNDuEkK+Tnk3IyhqaDpFayeA1XZrNsil7/YRh3aqdDwReZkT0bkv0uJpIb7guDkieOvNWqhgCtNvz1DNldJSw6+5xXgTCMAUclOckS7q1zs76ifSQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=FJmDqwPY; arc=none smtp.client-ip=212.227.15.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="FJmDqwPY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1743495663; x=1744100463; i=markus.elfring@web.de;
-	bh=uC5wNSqw1TVoR6gwih/W0kkJUpvzGVmrpS7xhNb79n0=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=FJmDqwPYaCgxeiTnQH2BeTN1ZwqTAOiCUuRjQKjl4nG2ZT1e4xkskDg71P7A/eXT
-	 QP/uemlZ3XiWuhpD4DjNZ8wykR3h6og8CJtDqxWRmYl8qpeH+16anheqjDzsZXpJV
-	 b+Q4sIY9Md94qPSOP6xpo2rl1pgg8m3FZO6cq+BlHi/aQSPou+HK9Gv9+kRYcWvcf
-	 SR6pIeJFKAzmaKZHzOgJxkFR0TmEDDf0GuiqFRNDkZ0lKOcmBiYFm+kF3t+CAQRBu
-	 FnFBBjXeYtTJWtim2p4CVK2Q+RDC/30Tw41YzZbKEttXoJa5QC2ot8cyGREEa8c+p
-	 4njqG2RawF2A3qWAqw==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from [192.168.178.29] ([94.31.70.54]) by smtp.web.de (mrweb006
- [213.165.67.108]) with ESMTPSA (Nemesis) id 1MMXx5-1tiHMW0JjL-00LC1o; Tue, 01
- Apr 2025 10:21:03 +0200
-Message-ID: <a73250f0-8fbd-40a7-b4b6-bc45050c9289@web.de>
-Date: Tue, 1 Apr 2025 10:21:02 +0200
+	s=arc-20240116; t=1743500460; c=relaxed/simple;
+	bh=i087SkHF27BriGkXHUcwbKMweUsGCYWe/jV4HNjTy8w=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QwlIph7ax8E/5nWCMSJy6NG877fwbTL+Hc423ivuwmmtDtfMvVEZgicbha4hm2RbNjQA3Ussg6Co5livHC/czJSVe1S9hcxmpyJM4M/99XPA6u4/18/iVWdQE4LlerySe7tKEFpE9TO6pHPNxiUw20WQ0+AH/G7hRRqUvtoKqQA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.40.54.180])
+	by gateway (Coremail) with SMTP id _____8AxDGultOtnJ5ytAA--.27339S3;
+	Tue, 01 Apr 2025 17:40:54 +0800 (CST)
+Received: from localhost.localdomain (unknown [10.40.54.180])
+	by front1 (Coremail) with SMTP id qMiowMCxLcWjtOtn4Y9qAA--.53650S2;
+	Tue, 01 Apr 2025 17:40:52 +0800 (CST)
+From: Qunqin Zhao <zhaoqunqin@loongson.cn>
+To: dmitry.torokhov@gmail.com
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	chenhuacai@kernel.org,
+	Qunqin Zhao <zhaoqunqin@loongson.cn>,
+	Huacai Chen <chenhuacai@loongson.cn>
+Subject: [PATCH v2] input: atkbd: do not init atkbd_reset variable to true on Loongson
+Date: Tue,  1 Apr 2025 17:41:54 +0800
+Message-ID: <20250401094154.11527-1-zhaoqunqin@loongson.cn>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: Henry Martin <bsdhenrymartin@gmail.com>, linux-input@vger.kernel.org
-Cc: LKML <linux-kernel@vger.kernel.org>,
- Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>
-References: <20250401063157.19655-1-bsdhenrymartin@gmail.com>
-Subject: Re: [PATCH v2] HID: uclogic: Add NULL check in
- uclogic_input_configured
-Content-Language: en-GB
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20250401063157.19655-1-bsdhenrymartin@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:858SxB372tSJkxHmXDAP//8ot2/jHXlBSCnO91dFuM7RXH3CzXn
- fGAoJcIdv6ZvVQnFZDx7W22j7WRjrmZL3IhnlleOK4sHn6z0v9NPOl9/plBZNj6B8gOi49U
- 3r1ISPX6NaRS3rwDwVIKwx30tzGvbrjG6fmFWh8C9xzrsFdpyyHjRdz4gM6TQ0bhVTD5ym4
- o7g4rlsaxmj7auPPppX5g==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:Q4kB+EsBL+E=;e8VkyjdCBx3ODDNLfLSFlvpL7xe
- wPqoKA9lWH3/r3HWPxpJ8xacZJZmZzhUkJA7bGBwq6gWv6dl5CvVANEGWBhm1UbWWBw1atzf/
- MZkUp/ozdql/D4Jewat3wvsALAvqIkLIoyXQRhh79slWx2CyOG/wYFfqykEhy2sEs5bDr+XXq
- a3aLMbTvtEwSq9YMtiVJFFk8mZDsh/cu7Y68Iax8CrAmWyGN/T/cznJ6++4Y4L3bF83ZNe1qW
- TVH0sXy/Mnmcfc5Y1Qz2Thu3E9Jz6OyFfhegeTsklQytSPW2O81uXSw/U1UShwcwu+VgT3+VU
- 3kA3HAh5oF0msMwErklef4M5NHyoq4Fzpx/uBA/VnCgCUqPRiZo6C9cTOUp8bp7x9wUop4dDN
- I3z4z/6p2RaZauamzSh5JSZwPGJ8rBLtg88xFXzUBBZw2XLHGoqtT+JY3WwMmsQSbByZ9vipR
- gbqZ1SsDtnQGS716dlOgAdFgbas1lFwc1yacfDl4EfZzpbjGvtRfjC76ZnBAXOWhtE5h+WhtX
- X4soo2qJYju3e5wCe+gEbOwNLYwZRsNpnsGQ1nEMNGpROXZeH/7/ir+KBIvtLs+cXsuKJ46RN
- vdBd3FvwnpPtpJAJIskUga3BmIgHreALriglywreL7F73IFWiYdCEVJUQ8qYOhxRD7ScbElfb
- adbJebBDogUaBUL2HJA4jo5l697Og33XNuEe9tUzwNkked1QyIZGoEJsifBParBxXgCg2sXPy
- Ek1NUvnmiAk8mRszQL5AIOkYD9Tbf6jP0/6O4Rnn3wyX753uz4WFYq1cYN0QfRWAz9knjS548
- MZOzmll3Ac1RlK2uIcu5NDD6c+BRRERNh7CK2TmdhgtzFhL9vsrWl1p2ufT7Wylb/5q7Y2cf/
- J+4qbn89WNXh+Qw2XgSq45DE+1e4byHF19PzAdCqwXXV5Zytjr+eVraUxv8gi7bbgAkXNo/8X
- DWpzfRKGnpMMksa/LMtTvfMmusdVPZ4KIZYy3glndFveCYKEM0NuTJDLyBazz1trRUmNl36Lx
- aQVpm5ySDShk1JCJzDTynZZBxMteANjbU4NORET8EOnYYbqfMg7685Q/eq6Ypo50UxsZa4g4E
- mMc+i2+QfZp09N9r+b78VcrA/Q5rXsNOQl6LxGXBsJs13XABCa2xoQ1S7HlbJZYWO4aBquyq2
- rnfrgdUZxMa13CreMEjrLfHl210GA4Bqhd6Mpk0sRVMV0n9PMdBIZo7zeTuSmNKBuSgQVwPoB
- XSZCWSurK1mfATjywfblh3h95v4482vd4QA2nm8SNcWlzZWf4+gAhGUirkfVv6ENzGZZoE0Ll
- cBv55udXpkXPyh0fvS4pSvZ1xw3fPv99qubyHAJ3sxtmZ2FeXy5DeIgOZx48HplpEaBFJe7YB
- 5Bm6zrZlz3XalNXZzBlbdog44MJNePQhQeznuM63keiucRQWz3PeiyP5i/ymeuDCXXMhmFoVX
- /DiRjNMepYv1a0zrxo49XuBfgs9nM4UUb3HWWEKOaDQIHYHcG
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowMCxLcWjtOtn4Y9qAA--.53650S2
+X-CM-SenderInfo: 52kd01pxqtx0o6or00hjvr0hdfq/
+X-Coremail-Antispam: 1Uk129KBj9xXoW7Gw1xWw13uw1Duw1DWw13WrX_yoWkJwb_GF
+	y29ws7Wr4kKFnFgws8twn3XFy7ur4UZF1kuFyYgrySqw1rKrW5C34q9345J3s8GwsxJF1r
+	Gw1UK3sYvrsIgosvyTuYvTs0mTUanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUj1kv1TuYvT
+	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
+	cSsGvfJTRUUUbzAYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
+	vaj40_Wr0E3s1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW5JVW7JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0
+	oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc02F4
+	0EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAFwI0_
+	Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxAIw28IcxkI7VAKI4
+	8JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xv
+	wVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42IY6xIIjx
+	v20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY6xAIw20E
+	Y4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x0267
+	AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxU7_MaUUUUU
 
-> devm_kasprintf() return NULL if memory allocation fails. Currently,
-=E2=80=A6
-                call?                               failed?
+The keyboard will not be confused on Loongson platform, so do not need a
+full reset of the keyboard.
 
+Signed-off-by: Qunqin Zhao <zhaoqunqin@loongson.cn>
+Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
+---
+v2: Put "defined(__loongarch__)" on the same line with
+    "defined(__hppa__)"
 
-> Add NULL check after devm_kasprintf() to prevent this issue.
+ drivers/input/keyboard/atkbd.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Do you propose to improve this function implementation a bit more?
+diff --git a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
+index adf0f31199..3ff2fcf05a 100644
+--- a/drivers/input/keyboard/atkbd.c
++++ b/drivers/input/keyboard/atkbd.c
+@@ -37,7 +37,7 @@ static int atkbd_set = 2;
+ module_param_named(set, atkbd_set, int, 0);
+ MODULE_PARM_DESC(set, "Select keyboard code set (2 = default, 3 = PS/2 native)");
+ 
+-#if defined(__i386__) || defined(__x86_64__) || defined(__hppa__)
++#if defined(__i386__) || defined(__x86_64__) || defined(__hppa__) || defined(__loongarch__)
+ static bool atkbd_reset;
+ #else
+ static bool atkbd_reset = true;
 
+base-commit: 4701f33a10702d5fc577c32434eb62adde0a1ae1
+-- 
+2.45.2
 
-=E2=80=A6
-> ---
-> V1 -> V2:
-> Simplify the handing of the condition "suffix" with if/else suggested by=
- =E2=80=A6
-
-* I imagine that there is a need to offer such adjustments
-  in separate update steps.
-  https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/t=
-ree/Documentation/process/submitting-patches.rst?h=3Dv6.14#n81
-
-* Can another tag become more helpful?
-  https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/t=
-ree/Documentation/process/submitting-patches.rst?h=3Dv6.14#n598
-
-
-> The current implementation (directly returning -ENOMEM) is reasonable be=
-cause:
-=E2=80=A6
-
-How much will such information influence the refinement of the change desc=
-ription?
-
-
-How do you think about to append parentheses to a function name
-also in the summary phrase?
-
-Regards,
-Markus

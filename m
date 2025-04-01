@@ -1,105 +1,123 @@
-Received: from forward203a.mail.yandex.net (forward203a.mail.yandex.net [178.154.239.90])
+Received: from mout.web.de (mout.web.de [212.227.15.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 107251EBA08;
-	Tue,  1 Apr 2025 09:51:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.90
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4172D1A239B;
+	Tue,  1 Apr 2025 10:14:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743501102; cv=none; b=jHig9i+7uXyxsj2NGqdOnaz39wDsehGVz9XXcxCG20shq73aqayMLBVW2V88r8dPSPbmB4NAJv0zelEPd8S1uy4sBICxQSpbwXQadfOi+YvaKZzMC3s5QmufgfyACE2xOiYUhgOFr+t+0QE/6VLh1oq1HtwVMlbUNzTdzF+cVlc=
+	t=1743502449; cv=none; b=CAsUvRSgwYba8jH89aNE77cftwXpIVbWkYbahxl/1sHVAjqGgRlZns8v4prmotFm17lDZtsQib8nvBBObwPmez/280sDxFqANI8dkJmkNAMT8m2wrVsSZ4cbOKUKZb9iRe1XKI2tO1iMUIXXa+eKlkvYcr2W1aOfVceWSF1VCdY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743501102; c=relaxed/simple;
-	bh=9oElyV9diyT6UtDkNT9r9IuGjmpF0oRUKUrRx68NNnQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=linVVlHoNEvJm8A3szmVmHjTFkOjtoxXwcZ4MT8kHmSnzDmOhaIU+rMyRX2bMZB65MEpWJQnHhKwtloSXuqHhj1k6qcU3KdyQt+DshKSo75K4KyzALq8E6mxObDvjaaQNeU6v4fl8JtHGy/TVVFKzp94cfWbqfa+g3GwMylCVCw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rosa.ru; spf=pass smtp.mailfrom=rosa.ru; dkim=pass (1024-bit key) header.d=rosa.ru header.i=@rosa.ru header.b=DsAJ08YI; arc=none smtp.client-ip=178.154.239.90
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rosa.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rosa.ru
+	s=arc-20240116; t=1743502449; c=relaxed/simple;
+	bh=McKwnExrQrNih0CSUm4L3NSUFStkSLEldMO8dlJEkFQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=FDFAVdyl80xNNQqWZgPXsQqZbQ5en/LaCvRX4dsqtvWHJJwdY6XklcgjxckQn4WO+riDa38oZ0E8/5Ol0AS9zZvSniX/Q9ijOMmNZlpvmp5F8f3CEkMpliEXQl0DGaa0rtOlN1GwAUhOhgC+Zgwb6ECqzlTURSUcGdpdVLm1qlU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=RkWi3gZ6; arc=none smtp.client-ip=212.227.15.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=rosa.ru header.i=@rosa.ru header.b="DsAJ08YI"
-Received: from forward101a.mail.yandex.net (forward101a.mail.yandex.net [IPv6:2a02:6b8:c0e:500:1:45:d181:d101])
-	by forward203a.mail.yandex.net (Yandex) with ESMTPS id 2029265AD9;
-	Tue,  1 Apr 2025 12:48:14 +0300 (MSK)
-Received: from mail-nwsmtp-smtp-production-main-68.vla.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-68.vla.yp-c.yandex.net [IPv6:2a02:6b8:c1f:6100:0:640:f888:0])
-	by forward101a.mail.yandex.net (Yandex) with ESMTPS id 061EC60E26;
-	Tue,  1 Apr 2025 12:48:06 +0300 (MSK)
-Received: by mail-nwsmtp-smtp-production-main-68.vla.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id 3mSPBN0LjiE0-OJ0SsBLL;
-	Tue, 01 Apr 2025 12:48:05 +0300
-X-Yandex-Fwd: 1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rosa.ru; s=mail;
-	t=1743500885; bh=hQ+lFy4tyS21KRRYFD5T13q7+AM2thXzEE8iO94oHas=;
-	h=Message-ID:Date:Cc:Subject:To:From;
-	b=DsAJ08YIH5tLB6+KBUOqtUKTjkVJ75VI0ZRrTPAv81J12fSy9sH4z36T9vR2PeKvJ
-	 EmXw4iIsa2GyhxlB/OHnu71eeMOTIJq78hxPmkDsaMhXZSPkgOWyrd42VgySWjHyuP
-	 556qAK5Qjb/UvVqNkEfmjVQ004Lp4+XDRd5nFv3o=
-Authentication-Results: mail-nwsmtp-smtp-production-main-68.vla.yp-c.yandex.net; dkim=pass header.i=@rosa.ru
-From: Mikhail Lobanov <m.lobanov@rosa.ru>
-To: stable@vger.kernel.org,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Mikhail Lobanov <m.lobanov@rosa.ru>,
-	Rishi Gupta <gupt21@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	lvc-project@linuxtesting.org,
-	Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
-	Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.10/5.15/6.1] HID: mcp2221: Set driver data before I2C adapter add
-Date: Tue,  1 Apr 2025 12:47:50 +0300
-Message-ID: <20250401094752.8324-1-m.lobanov@rosa.ru>
-X-Mailer: git-send-email 2.47.2
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="RkWi3gZ6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1743502445; x=1744107245; i=markus.elfring@web.de;
+	bh=x2hA+nymOs+xOz+5YmWPZmixDzfVS70Y3aDJ9V65nT4=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To:Content-Type:
+	 Content-Transfer-Encoding:cc:content-transfer-encoding:
+	 content-type:date:from:message-id:mime-version:reply-to:subject:
+	 to;
+	b=RkWi3gZ63zmfjU3Ej7UAXXIyCDdOrmkIJCQJVfLk3mUdmqbs69/HxrgWvUXYlExJ
+	 Bi1j0VOu/dTVbRB8CarInq+nxo+5rC2lKvejqzd/PNLyctbTbRsJpg2XVvpcdpxqF
+	 TuJycSExL0beuLfTTVCFTkkOqAVs7wKzEdplFZzTlvzmhhava/s4b0KQLWlQZIZsM
+	 TWFPiNfAnfhKHpLjXTagkNVeRztrJTTM7QCT3PckOwnODQlMvkNVlQViT6R9w0sZ2
+	 f1ebYXEanvoP3kHorko2KkLNogdommGda/1OJfZ1uBE1tOyOw+RQnBqZ7oH/T0pS/
+	 vz3PT5L6gY+0oroMKw==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from [192.168.178.29] ([94.31.70.54]) by smtp.web.de (mrweb005
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1Mi537-1tUKcO0sJV-00jUeG; Tue, 01
+ Apr 2025 12:14:05 +0200
+Message-ID: <bf3ff4a5-e8e0-4d25-b878-1ee2308befcc@web.de>
+Date: Tue, 1 Apr 2025 12:14:04 +0200
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] HID: uclogic: Add NULL check in
+ uclogic_input_configured()
+To: Henry Martin <bsdhenrymartin@gmail.com>, linux-input@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>,
+ Benjamin Tissoires <bentiss@kernel.org>, Jiri Kosina <jikos@kernel.org>
+References: <a73250f0-8fbd-40a7-b4b6-bc45050c9289@web.de>
+ <20250401094853.24143-1-bsdhenrymartin@gmail.com>
+Content-Language: en-GB
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20250401094853.24143-1-bsdhenrymartin@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:NDWXv86MNViM2Vfh8kvfUGfxKkEqT7mQgKjlyQoHBnNpj+rdxZg
+ SevV+6SQdXqJ7mCiN0eAZO57dRYobsEW0TE98iki5bH/Pdtw3kH3T7QzWm/9liGZJHUvzOI
+ /nWiS7G2+yK/Sw/hZJPetGxy09qz6WjRfkQeO3hZat44ahknGkh7+Nk5IjoHKLj2J7joT4T
+ zN5CZfZ+gT2uy+zkSHJbQ==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:G1NXvm2GDQ4=;xXUadcyKMYMsqLezndAMRKd6ewR
+ XSdNINu3XbpqZnlvO4hAW57UlKUwjHFGtrIsbEyUDGhmk0rkht+jlDjTfNKaJzXG4Lm6gxVVe
+ 0jXW48PvQ69FJFXXhi7YlgAVqHpt5/QTk0HuyfJcftX7UgO+YXmTvOsQZS7xlLmfLdPsuRFKT
+ Gzw56ri7sZSshq9ysFx6nHDLhyfzeuyLtILbR1fDpBzi3eDvD2RbRLGONCG9eIwfZWm0ae/p5
+ d+AsTLVEH/CTFAYXQsOMgcPo6BG0GBtYvh8lw9RltBS7hxsoxYKM9KXq2sk8a/EPOeaUJ5jxh
+ M7R3kGRz1a7qsMkSTVd+O7i9ZR7xoGlZdfDIJMCOcUm3RNeZYZ+7+NgsoW36qCTdt6OYiLJ1z
+ cClaUV0RBhLihuNlcxVNfSnmUzj1P6/75xRXnuyXF1JmT97mqRslw7GTi2pPPCoLlY5HRJ6mu
+ ZllYfbGNA0rF4OH+TSXlINAenkhx9UQkFORMxE4ZIioeENIDdiRMws53Yoo8BxeEsf+2riIN2
+ Vi62a7Wh67RrVHfKGe+wvj1miPZ9m45oaEkwv1FIlPyEh7du5DEHKSOpUDOAS7IHtfZB7LZiC
+ 2PbL5WIcfRePsxDH3Hf8HeGtMnMD2C2xlk7l1CU+7H2DefRDjGl6gQcPYtNQQNiqf1xduZ3BL
+ Bo9WSFZhFLxUt0K3tsZcV79LVvdfDsAcCseUm3fOzOPIlSuXM9AemNkSOgGFEVvSUTVgquO9Z
+ 1wfep9+4UluRWaETsF4BgqP8lO6YcRMU3cRHkd7jqdWjgzgID4SpIsgSZ2ujzBLm9q79CjETb
+ CUzcALAKIN3AkRfvj5ljNdtA8KdslQsJodz40G6CUPt++IAb1jQdWIb/3r1w5bo5Kn7DhQgd1
+ sQvrZVS3YAX7gv4WX6e1/VlxvSp7RzSb8v5ofy2Nh3VS8Id8hv2RToLSX9rlY4vCD+Dz8ItSp
+ JPdbtlxIr61VDERk33SIrKzMa80PeGDU+p3xS9heHIiUh845nKMqxI2QN0o72PI9qWm4gdqUU
+ 6x9KoKy4rQm5wo8+CRZ/MOSiisBxCMydXidCLXWtmEKAnOi9dEt5bifOjGnKWkELemAG9CRPD
+ 9JhPsrKabYRrweEUtpV864E83B68sPV5VJCt3Fh3eQZYz6xtCWSoFemqx2VS1bxDWqFCtcya8
+ 6yGF50vFMNRntfk3iLeM9K/dpDg+lnGf6JGywLUunfL2t0vp89s/tfTqEaz0P51cDSucOFXOR
+ O7Ra2iEOeTXF0clVmrjmS5OvIWWopsFbfZU0w3HYKfaTn1d9e6hXs4pyHPzKa93pfONFMk0UQ
+ r+SyXL6t1oLmEZRPumdGq0pNn4eVp7K0nBIshmUBVcWLjPZTzGPAsqyIpFDoDjMVlZAHY5yQI
+ 8A1NtVRF7nDUr+Ng/jyea23ONTKiGimaqbW80DzfPrVg0nETBhwzgXH6a8rQ9RuLeI+ZD74PP
+ xCYrSRi2WeUdSvDsOdLdVTJxe4GhOkylyc97Cy2boiCdfOzjs
 
-From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+> devm_kasprintf() return NULL if memory allocation fails. Currently,
+=E2=80=A6
+                call?                               failed?
 
-commit f2d4a5834638bbc967371b9168c0b481519f7c5e upstream.
 
-The process of adding an I2C adapter can invoke I2C accesses on that new
-adapter (see i2c_detect()).
+> Add NULL check after devm_kasprintf() to prevent this issue.
 
-Ensure we have set the adapter's driver data to avoid null pointer
-dereferences in the xfer functions during the adapter add.
+Do you propose to improve this function implementation a bit more?
 
-This has been noted in the past and the same fix proposed but not
-completed. See:
-https://lore.kernel.org/lkml/ef597e73-ed71-168e-52af-0d19b03734ac@vigem.de/
 
-Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-[Mikhail Lobanov: older kernels use i2c_add_adapter() instead of
-devm_i2c_add_adapter().
-This problem manifests itself in stable kernel branches:
-https://syzkaller.appspot.com/bug?extid=40dc62a33c759a65ad44,
-https://syzkaller.appspot.com/bug?extid=24b122f8e84c3f9d9d1d]
-Signed-off-by: Mikhail Lobanov <m.lobanov@rosa.ru>
----
- drivers/hid/hid-mcp2221.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+=E2=80=A6
+> ---
+> V2 -> V3: Kept the original switch structure, only optimized the outer
+> conditional checks while maintaining safety requirements.
+> V1 -> V2: Simplify the handing of the condition "suffix" with if/else.
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index 560eeec4035a..b0dc0edc69c2 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -879,12 +879,12 @@ static int mcp2221_probe(struct hid_device *hdev,
- 	snprintf(mcp->adapter.name, sizeof(mcp->adapter.name),
- 			"MCP2221 usb-i2c bridge");
- 
-+	i2c_set_adapdata(&mcp->adapter, mcp);
- 	ret = i2c_add_adapter(&mcp->adapter);
- 	if (ret) {
- 		hid_err(hdev, "can't add usb-i2c adapter: %d\n", ret);
- 		goto err_i2c;
- 	}
--	i2c_set_adapdata(&mcp->adapter, mcp);
- 
- 	/* Setup GPIO chip */
- 	mcp->gc = devm_kzalloc(&hdev->dev, sizeof(*mcp->gc), GFP_KERNEL);
--- 
-2.47.2
+* Under which circumstances will you begin to care more to offer such adju=
+stments
+  in separate update steps?
+  https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/t=
+ree/Documentation/process/submitting-patches.rst?h=3Dv6.14#n81
 
+* Can another tag become more helpful?
+  https://web.git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/t=
+ree/Documentation/process/submitting-patches.rst?h=3Dv6.14#n598
+
+
+Can an other control flow variant be a bit nicer finally?
+
+	if (suffix) {
+=E2=80=A6
+	} else {
+=E2=80=A6
+	}
+
+
+Regards,
+Markus

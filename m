@@ -1,130 +1,113 @@
-Received: from air.basealt.ru (air.basealt.ru [193.43.8.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A0796AA7;
-	Wed,  2 Apr 2025 15:55:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.43.8.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C54B05C96;
+	Wed,  2 Apr 2025 18:44:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743609309; cv=none; b=frv7oXuXRuuf0gXfvTDfRb3gVJSlzK1a/6iCgL48zEt0Fnqu2IMOP8De4nDcwqXSgHXFQ7KsdhpawofPy6RI+t8bOcncavIf0StXtQEbJDXF/YVmulD0yCcg4uk9GINf8gDNpdsmoMpkGILkLhMNLcpycoQ1drmnpKOPossZ/Qw=
+	t=1743619497; cv=none; b=DtDkn/FnNEopL59rXNqwdFIrSz9YI9IITDJmQCNxJ4oe+o99vM3x2Veo7T3iSlvyj5QYnK9qA+w6cJfxPjzF63kOW0rahg9FG+CfDBuQ90oD1c6rDY+jJaeUu60+0GFh4JTPGXmKRaEsH83N6sPNLOgo1yHvSrNEwR5r8lwmVBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743609309; c=relaxed/simple;
-	bh=vlPh5PCSARRxi39gaSvhG0GHKkjN6gue9AuWiipJ7tk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=tIFWsIWmTmmIldqFByo8V6dKR56mHvbkz1GC00hCA9NEvY8A/dKRXiEsYQdKjvcqnh4K0rCi53+zCtRt4htDFiNV3wCGtAb+L2xE94VYvQ8ce2HgByzAEHSCPXy3WpjG27Fjbzg+AUVfa1zIZ+Jm0e0EI2wYVjl8ciE1XIN8pHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org; spf=pass smtp.mailfrom=altlinux.org; arc=none smtp.client-ip=193.43.8.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=altlinux.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=altlinux.org
-Received: from altlinux.ipa.basealt.ru (unknown [178.76.204.78])
-	(Authenticated sender: kovalevvv)
-	by air.basealt.ru (Postfix) with ESMTPSA id 35B07233C5;
-	Wed,  2 Apr 2025 18:47:46 +0300 (MSK)
-From: Vasiliy Kovalev <kovalev@altlinux.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Javier Carrasco <javier.carrasco.cruz@gmail.com>,
-	Martin Kepplinger <martink@posteo.de>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: lvc-project@linuxtesting.org,
-	kovalev@altlinux.org
-Subject: [PATCH] Input: pegasus-notetaker - fix slab-out-of-bounds in pegasus_irq
-Date: Wed,  2 Apr 2025 18:47:45 +0300
-Message-Id: <20250402154745.399226-1-kovalev@altlinux.org>
-X-Mailer: git-send-email 2.33.8
+	s=arc-20240116; t=1743619497; c=relaxed/simple;
+	bh=K6/VEo1yc3K+YbVulpek7YWtEuSKS3IBBhc0oUdWlo8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=E61Sa323tyDnHaP0ujvxyRzmGCuqmXG+xq3cobPx/3DOgdqxnOi96hIynAHE41cptNs+/A12u9vsb/CB3LjhB5snnt+cb3DD+JSP1haLWqTiYvWB96Kt0ik8lWiLxtoeOHgH1vv4ioXg2Hoospykebtw/1O+6H72rWVIIR5pVIQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sv82GQd0; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sv82GQd0"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 86639C4CEEC;
+	Wed,  2 Apr 2025 18:44:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1743619497;
+	bh=K6/VEo1yc3K+YbVulpek7YWtEuSKS3IBBhc0oUdWlo8=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=sv82GQd0NWtWYQv9eso32IBO8fwiisUdxX4teHgHM323MUtc7qhv5jKpqM35GK6mM
+	 GiJ+q/o4KBk3Dwi4r/EgyPniymzstEOxqYkuFJD4nY+5sv6pcAV564hjKjWRyo/Y5v
+	 a3de22M3lpKns0gfYKeUXe9TImvGMrSk27BVHTHIzOBI5BSUCVuq869lRE4fcD+N9a
+	 vbCIsO0yp5NBAVQAiPpfjWgmhguKvIA71X4+MGj1k6Y3ItjrWdzwriOaQjE4Cfs7no
+	 4kIqwFhGPrhxlzXvdwM8g0hF0QSYdHoloQrqXSno0mmdSFTcpSm3GgqXZDecQw/j7f
+	 aPd6l2O4Dfg6Q==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 77797C3601B;
+	Wed,  2 Apr 2025 18:44:57 +0000 (UTC)
+From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
+Date: Wed, 02 Apr 2025 20:44:55 +0200
+Subject: [PATCH v4 4/7] Input: synaptics-rmi4 - f55: handle zero electrode
+ count
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250402-synaptics-rmi4-v4-4-1bb95959e564@ixit.cz>
+References: <20250402-synaptics-rmi4-v4-0-1bb95959e564@ixit.cz>
+In-Reply-To: <20250402-synaptics-rmi4-v4-0-1bb95959e564@ixit.cz>
+To: Kaustabh Chakraborty <kauschluss@disroot.org>, 
+ Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+ Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, 
+ Vincent Huang <vincent.huang@tw.synaptics.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Caleb Connolly <caleb.connolly@linaro.org>, 
+ phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht, 
+ David Heidelberg <david@ixit.cz>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1193; i=david@ixit.cz;
+ h=from:subject:message-id;
+ bh=H6bOmSExs0ZAgCP3cU3lwTLmd7Kss/M3Mr3SFnE+ZgM=;
+ b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBn7YWn4JQyFb7VhDg5lLgW60stVOWrBynm+ok1A
+ na4mWl3IM+JAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCZ+2FpwAKCRBgAj/E00kg
+ clq1D/9DsKFFzs5oylrtmlIOR9XlaQqSEQDBrlgF8OFfTswnh95jneM0QWsJdXt4GCOZ7ydhaWc
+ XnRFAFk45zSU9iZHgxYjwWFxFV6mKP/eKacB2f+nEmX01Qj/KcKgeYkPAQybnwUNnoWlnHR9PSn
+ R+ZYkVH5YRbkRLSKsnTpWz/UX7/tkRiH5Z4aRD4iaqwpRPUSMZW56wcOFy53Em+cYsiDCQLj9Bd
+ nkKlZPzkGBzT3euAHy1+Ut/sIIKl5vfQSNbCZb2rz4UywBtE3yORM2YWjPViFQMFio6gG8NovD7
+ aDdZ+BEXMT3rNf/xopKg1hdDvoZAlCuIEAZq9O80LdlFagZnMAeGE+8fCco/AOalFmgeliqEphQ
+ XLWL5cIsiXIhkF3Zj9C2srrV/Ez+xF+cHzhoFsPqnySHPI21TCHXCJkNhodmj6hhqWon8wJR2rL
+ 7Pgg0mCsHzb6R1cPPHyH2xawSH+nrj5dsFjXlDYMwtsVW3axa8fPVzd1bPDkC2P8q7UTy63ioaG
+ Zv7IYR3pY0dDgQzbjgfMNe+64QNQKhNt8nMiTaMrJL1S4osbgS0f70EEa8cpg2hpER42XvIw7bS
+ pqXa3EhOZlm9bS3wETzyMLeCTGpi0/zPWq36FGDa5V/WqP12TxBzfm57f4Rb9Zl8QKQZ6vKBlv6
+ wsdP8Ld+wY56Esg==
+X-Developer-Key: i=david@ixit.cz; a=openpgp;
+ fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
+X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
+X-Original-From: David Heidelberg <david@ixit.cz>
+Reply-To: david@ixit.cz
 
-Fix a slab-out-of-bounds error in pegasus_irq reported by KASAN,
-caused by insufficient packet size validation. The driver relied
-on usb_maxpacket() to set the data length, which could be smaller
-than the 6 bytes expected by pegasus_parse_packet(), leading to
-oob reads at le16_to_cpup() calls when accessing coordinates.
+From: Kaustabh Chakraborty <kauschluss@disroot.org>
 
-Introduce NOTETAKER_PKGLEN_SIZE define with a value of 6 bytes,
-reflecting the typical interrupt IN endpoint packet format for this
-device family. Add a check in pegasus_probe() to ensure the data
-length is at least this size, logging an info message if usb_maxpacket()
-returns a smaller value and adjusting it accordingly. This prevents
-buffer under-allocation while accommodating devices that might send
-shorter packets, as various brandings (e.g., Pegasus Mobile Notetaker,
-IRISnotes Express) may differ in implementation.
+Some third party ICs claim to support f55 but report an electrode count
+of 0. Catch this and bail out early so that we don't confuse the i2c bus
+with 0 sized reads.
 
-KASAN report:
-BUG: KASAN: slab-out-of-bounds in pegasus_irq (little_endian.h:67 pegasus_notetaker.c:153 pegasus_notetaker.c:183)
-Read of size 2 at addr ffff888009a01da2 by task (udev-worker)/985
-CPU: 0 PID: 985 Comm: (udev-worker) Tainted: G OE 6.14.0-un-def-alt0.rc6.kasan #1
-Hardware: QEMU Standard PC (Q35 + ICH9, 2009)
-Call Trace:
- <IRQ>
-  dump_stack_lvl (lib/dump_stack.c:122)
-  print_report (mm/kasan/report.c:521)
-  kasan_report (mm/kasan/report.c:636)
-  pegasus_irq (little_endian.h:67 pegasus_notetaker.c:153 pegasus_notetaker.c:183)
-  __usb_hcd_giveback_urb (drivers/usb/core/hcd.c:1650)
-  usb_hcd_giveback_urb (drivers/usb/core/hcd.c:1735)
-  dummy_timer (drivers/usb/gadget/udc/dummy_hcd.c:1995)
-  __hrtimer_run_queues (kernel/time/hrtimer.c:1865)
-  hrtimer_run_softirq (kernel/time/hrtimer.c:1884)
-  handle_softirqs (kernel/softirq.c:561)
-  __irq_exit_rcu (kernel/softirq.c:662)
-  irq_exit_rcu (kernel/softirq.c:680)
-  sysvec_apic_timer_interrupt (arch/x86/kernel/apic/apic.c:1049)
- </IRQ>
-
-Found by Linux Verification Center (linuxtesting.org) with
-"USB Gadget Tests"[1]:
-
-$ make input-tab-pegasus
-$ sudo ./src/input-tab-pegasus/input-tab-pegasus --invalid_ep_int_len
-
-[1] Link: https://github.com/kovalev0/usb-gadget-tests
-Fixes: 1afca2b66aac ("Input: add Pegasus Notetaker tablet driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Vasiliy Kovalev <kovalev@altlinux.org>
+Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
+[simplify code, adjust wording]
+Signed-off-by: Caleb Connolly <caleb.connolly@linaro.org>
+Signed-off-by: David Heidelberg <david@ixit.cz>
 ---
- drivers/input/tablet/pegasus_notetaker.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/input/rmi4/rmi_f55.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/input/tablet/pegasus_notetaker.c b/drivers/input/tablet/pegasus_notetaker.c
-index 8d6b71d5979316..e578720585c2c8 100644
---- a/drivers/input/tablet/pegasus_notetaker.c
-+++ b/drivers/input/tablet/pegasus_notetaker.c
-@@ -70,6 +70,15 @@
- #define PEN_BUTTON_PRESSED		BIT(1)
- #define PEN_TIP				BIT(0)
+diff --git a/drivers/input/rmi4/rmi_f55.c b/drivers/input/rmi4/rmi_f55.c
+index 488adaca4dd00482cd1106d813b32871092c83a0..776c915b82e72b8a6eb5ec701cce9059c87089c4 100644
+--- a/drivers/input/rmi4/rmi_f55.c
++++ b/drivers/input/rmi4/rmi_f55.c
+@@ -52,6 +52,11 @@ static int rmi_f55_detect(struct rmi_function *fn)
  
-+/* Minimum packet size for interrupt IN endpoint.
-+ * Packet format  (expected 6 bytes, though some devices may send less):
-+ *  - Byte 0: Packet type (command or status)
-+ *  - Byte 1: Button/tip state
-+ *  - Bytes 2-3: X coordinate (16-bit, little-endian)
-+ *  - Bytes 4-5: Y coordinate (16-bit, little-endian)
-+ */
-+#define NOTETAKER_PKGLEN_SIZE		6
-+
- struct pegasus {
- 	unsigned char *data;
- 	u8 data_len;
-@@ -311,6 +320,16 @@ static int pegasus_probe(struct usb_interface *intf,
- 	}
- 
- 	pegasus->data_len = usb_maxpacket(dev, pipe);
-+	/* Ensure buffer is at least NOTETAKER_PKGLEN_SIZE to avoid oob
-+	 * access in pegasus_parse_packet(). Adjust if endpoint reports a
-+	 * smaller size, as some devices might send shorter packets.
-+	 */
-+	if (pegasus->data_len < NOTETAKER_PKGLEN_SIZE) {
-+		dev_info(&intf->dev,
-+			 "Int in endpoint data_len adjusted from %d to minimum %d\n",
-+			 pegasus->data_len, NOTETAKER_PKGLEN_SIZE);
-+		pegasus->data_len = NOTETAKER_PKGLEN_SIZE;
+ 	f55->num_rx_electrodes = f55->qry[F55_NUM_RX_OFFSET];
+ 	f55->num_tx_electrodes = f55->qry[F55_NUM_TX_OFFSET];
++	if (!f55->num_rx_electrodes || !f55->num_tx_electrodes) {
++		dev_err(&fn->dev, "%s: F55 query returned no electrodes, giving up\n",
++			__func__);
++		return -EINVAL;
 +	}
  
- 	pegasus->data = usb_alloc_coherent(dev, pegasus->data_len, GFP_KERNEL,
- 					   &pegasus->data_dma);
+ 	f55->cfg_num_rx_electrodes = f55->num_rx_electrodes;
+ 	f55->cfg_num_tx_electrodes = f55->num_rx_electrodes;
+
 -- 
-2.42.2
+2.49.0
+
 

@@ -1,46 +1,46 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B21C51F3FD2;
-	Fri,  4 Apr 2025 00:28:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A8C21F4735;
+	Fri,  4 Apr 2025 00:28:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743726490; cv=none; b=Hv+0hRANODKdqdp6aejewTwA1hhRD7p6CqBYf6COlIludIlq3w5HX2VSSofuCEJEqRuIsE3Q95F3vNtPmsIxl8rRpviwwU12Ag20PjYA+Wdr92Po1ghkfTFcLQqW56d2ANDd3/Q3TOYeZD+IuRpQHRRrXi5VLMbvmYfHvn/hwaI=
+	t=1743726490; cv=none; b=R84fN4RYMu++ygqoykKAddkQnOnSITojUF/x87C0Ikv020ZCLDvH4dHvNmZXIk82yt7KCMinOul4FtNycLvtrt09pUbE7Is/I/Es+d8QoqiWMcOt3D4aGbJN0t6Xe2pRr2ATnvIsRlEuMnSoUyBhTv4w3+HzHM6A/FCp6ZwiePc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1743726490; c=relaxed/simple;
-	bh=rwgxL+BHcw7P/J4RymdX9lTPTAqo2UpedZtzaYAyz90=;
+	bh=6NWp7CSR+f2gwSjhmnm4oBaznF0OXxUw9ayyNaTr+JE=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KU3ZSnvwbZ+1sPnRXWvsPxnN1Cr0Nj2i3W4XqADLb7xBdlMsUUcVraTAgTHxSlPatnR6MdTvaYryZoDRcdV0uAWKskKRsMkPAtfBBfWBjUB8654SOGxHo+B+g1QYxjITF9CptpXWzuRComKIYYi+oO+TkPl3E58WAqtgxsF0G6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=RYx3JtuB; arc=none smtp.client-ip=205.220.180.131
+	 MIME-Version:Content-Type; b=Hebf+TM4j6Fefrn0vTX/RV+0pewKYm0tcIgI8NheDdPsNo4tUaBw7OyqA7udZ2uqQk5seX2ziiBUHiUR6eqeo5d/+kgIiWkL+NUGa2fWj8YomEbtBvPRi98mwdM/v+kz58gqq+mTEM5K8Zxk6KGiScbBQoydMEnZIp3CQP7+I04=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=fZ3oyEnc; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="RYx3JtuB"
-Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 533NY7ha024033;
-	Fri, 4 Apr 2025 00:27:41 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="fZ3oyEnc"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 533NXJgu017020;
+	Fri, 4 Apr 2025 00:27:48 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	IOK2OitAwTGpm57npB7O35t+UR/IiygxmUmRF8Jrf/I=; b=RYx3JtuBaUS7MvlR
-	l1hs6IjKq8Ia9Hxr0QD0/gJtQ4UKefDyUZyAP3jt0aKtvEw8dPfV74stMZjd33zV
-	gLltJ3MDH7aQSXpy0d1cEOCS98xhxZHwikLiGeZJQJBpaCWtQylSuX2As0EQ6yAe
-	lMD96E3vlBiKj+Z5UW5u8FIMuYGtzDQcIsRwSfNSBcX6IMqYQLLwLN+3sR3WtU9t
-	ogZLfoalSZXXKefAoBLvSlIb59hV/5AMedy0U34iVkxtdMGN0LROlp/H7nRdniG4
-	AkuT/t8JAJlFSZ4cSlkj/G8PJOMn1BQ2m2YFyW+Z7iC0PswYJzfc6hhZj/axSL78
-	0xEclA==
-Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45t2dar8th-1
+	c7qUiMZoHX4J2Wn+9C1fuwwztMyQgOIgeKDaHkR3QRU=; b=fZ3oyEncnrpQus9m
+	duBE81bfS4oJlC0zg/dcQtluYNtX9ahxbn4fj0jCom56jtVaLW/F9SkjwFdtRcV9
+	AiNH8lPppPvlqbdbLiTtSKiyEfF+2DmHBGg+JOSyAbmfFfZvSj7Dmq6KFwYsCFRV
+	B8lRMtHdo5N5FmGdYpIs/Ti+AAQuP5xfyQBWNEXR9IguWpAUCTY+q7fOyFVui3Rv
+	QfGt5BjcpQToTSe90FjPyu0PrHeuHZSjE9exNeThJoepuP8ViFVMBqmjeIkt4Bqh
+	BZNgJjHeo7khdYiFYzV5Lc6s3mMmMN+yTNtuGoUZ3RoYDUAAg2cC1/Di/yxYwzbT
+	9CSLzw==
+Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45t2d888p3-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 04 Apr 2025 00:27:41 +0000 (GMT)
+	Fri, 04 Apr 2025 00:27:48 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA03.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 5340Rd5C013294
+	by NALASPPMTA01.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 5340Rlwk006328
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 4 Apr 2025 00:27:39 GMT
+	Fri, 4 Apr 2025 00:27:47 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Thu, 3 Apr 2025 17:27:39 -0700
+ 15.2.1544.9; Thu, 3 Apr 2025 17:27:47 -0700
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -51,12 +51,10 @@ To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
 CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-sound@vger.kernel.org>, <linux-usb@vger.kernel.org>,
         <linux-input@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>,
-        Puma Hsu
-	<pumahsu@google.com>, Daehwan Jung <dh10.jung@samsung.com>
-Subject: [PATCH v37 02/31] usb: host: xhci-mem: Cleanup pending secondary event ring events
-Date: Thu, 3 Apr 2025 17:26:59 -0700
-Message-ID: <20250404002728.3590501-3-quic_wcheng@quicinc.com>
+        <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
+Subject: [PATCH v37 30/31] ALSA: usb-audio: qcom: Add USB offload route kcontrol
+Date: Thu, 3 Apr 2025 17:27:27 -0700
+Message-ID: <20250404002728.3590501-31-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250404002728.3590501-1-quic_wcheng@quicinc.com>
 References: <20250404002728.3590501-1-quic_wcheng@quicinc.com>
@@ -72,191 +70,262 @@ X-ClientProxiedBy: nalasex01c.na.qualcomm.com (10.47.97.35) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: xLdBgf_ELbCggXWtlaNPeWPwYygEH3OJ
-X-Authority-Analysis: v=2.4 cv=MqFS63ae c=1 sm=1 tr=0 ts=67ef277d cx=c_pps a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17 a=3H110R4YSZwA:10 a=XR8D0OoHHMoA:10 a=1XWaLZrsAAAA:8 a=hD80L64hAAAA:8 a=COk6AnOGAAAA:8 a=oNwvUYI6z9JRYqJgw0cA:9
+X-Authority-Analysis: v=2.4 cv=PqmTbxM3 c=1 sm=1 tr=0 ts=67ef2784 cx=c_pps a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17 a=3H110R4YSZwA:10 a=XR8D0OoHHMoA:10 a=COk6AnOGAAAA:8 a=1CY7LCHTmV5mPWntL3AA:9 a=RVmHIydaz68A:10
  a=TjNXssC_j7lpFel5tvFf:22
-X-Proofpoint-GUID: xLdBgf_ELbCggXWtlaNPeWPwYygEH3OJ
+X-Proofpoint-ORIG-GUID: N4br8OcOHjIxRc5RCRPw4h0v0gvB_-r1
+X-Proofpoint-GUID: N4br8OcOHjIxRc5RCRPw4h0v0gvB_-r1
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-03_11,2025-04-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- malwarescore=0 mlxlogscore=802 clxscore=1011 mlxscore=0 adultscore=0
- impostorscore=0 bulkscore=0 priorityscore=1501 spamscore=0 suspectscore=0
- phishscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 spamscore=0
+ priorityscore=1501 impostorscore=0 mlxlogscore=999 mlxscore=0
+ clxscore=1015 suspectscore=0 adultscore=0 lowpriorityscore=0 phishscore=0
+ malwarescore=0 bulkscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
  definitions=main-2504040001
 
-As part of xHCI bus suspend, the xHCI is halted.  However, if there are
-pending events in the secondary event ring, it is observed that the xHCI
-controller stops responding to further commands upon host or device
-initiated bus resume.  Iterate through all pending events and update the
-dequeue pointer to the beginning of the event ring.
+In order to allow userspace/applications know about USB offloading status,
+expose a sound kcontrol that fetches information about which sound card
+and PCM index the USB device is mapped to for supporting offloading.  In
+the USB audio offloading framework, the ASoC BE DAI link is the entity
+responsible for registering to the SOC USB layer.
 
-Tested-by: Puma Hsu <pumahsu@google.com>
-Tested-by: Daehwan Jung <dh10.jung@samsung.com>
+It is expected for the USB SND offloading driver to add the kcontrol to the
+sound card associated with the USB audio device.  An example output would
+look like:
+
+tinymix -D 1 get 'USB Offload Playback Route PCM#0'
+-1, -1 (range -1->255)
+
+This example signifies that there is no mapped ASoC path available for the
+USB SND device.
+
+tinymix -D 1 get 'USB Offload Playback Route PCM#0'
+0, 0 (range -1->255)
+
+This example signifies that the offload path is available over ASoC sound
+card index#0 and PCM device#0.
+
+The USB offload kcontrol will be added in addition to the existing
+kcontrols identified by the USB SND mixer.  The kcontrols used to modify
+the USB audio device specific parameters are still valid and expected to be
+used.  These parameters are not mirrored to the ASoC subsystem.
+
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- drivers/usb/host/xhci-mem.c  |  7 +++++-
- drivers/usb/host/xhci-ring.c | 47 ++++++++++++++++++++++++++++++------
- drivers/usb/host/xhci.c      |  2 +-
- drivers/usb/host/xhci.h      |  7 ++++++
- 4 files changed, 54 insertions(+), 9 deletions(-)
+ sound/usb/qcom/Makefile            |   2 +
+ sound/usb/qcom/mixer_usb_offload.c | 156 +++++++++++++++++++++++++++++
+ sound/usb/qcom/mixer_usb_offload.h |  11 ++
+ sound/usb/qcom/qc_audio_offload.c  |   2 +
+ 4 files changed, 171 insertions(+)
+ create mode 100644 sound/usb/qcom/mixer_usb_offload.c
+ create mode 100644 sound/usb/qcom/mixer_usb_offload.h
 
-diff --git a/drivers/usb/host/xhci-mem.c b/drivers/usb/host/xhci-mem.c
-index d698095fc88d..daea0f76e844 100644
---- a/drivers/usb/host/xhci-mem.c
-+++ b/drivers/usb/host/xhci-mem.c
-@@ -1805,7 +1805,7 @@ xhci_remove_interrupter(struct xhci_hcd *xhci, struct xhci_interrupter *ir)
- 		tmp &= ERST_SIZE_MASK;
- 		writel(tmp, &ir->ir_set->erst_size);
- 
--		xhci_write_64(xhci, ERST_EHB, &ir->ir_set->erst_dequeue);
-+		xhci_update_erst_dequeue(xhci, ir, true);
- 	}
- }
- 
-@@ -1848,6 +1848,11 @@ void xhci_remove_secondary_interrupter(struct usb_hcd *hcd, struct xhci_interrup
- 		return;
- 	}
- 
-+	/*
-+	 * Cleanup secondary interrupter to ensure there are no pending events.
-+	 * This also updates event ring dequeue pointer back to the start.
-+	 */
-+	xhci_skip_sec_intr_events(xhci, ir->event_ring, ir);
- 	intr_num = ir->intr_num;
- 
- 	xhci_remove_interrupter(xhci, ir);
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 5d64c297721c..bfef765dd78c 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -3054,9 +3054,9 @@ static int xhci_handle_event_trb(struct xhci_hcd *xhci, struct xhci_interrupter
-  * - When all events have finished
-  * - To avoid "Event Ring Full Error" condition
-  */
--static void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
--				     struct xhci_interrupter *ir,
--				     bool clear_ehb)
-+void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
-+			      struct xhci_interrupter *ir,
-+			      bool clear_ehb)
- {
- 	u64 temp_64;
- 	dma_addr_t deq;
-@@ -3099,10 +3099,11 @@ static void xhci_clear_interrupt_pending(struct xhci_interrupter *ir)
-  * Handle all OS-owned events on an interrupter event ring. It may drop
-  * and reaquire xhci->lock between event processing.
-  */
--static int xhci_handle_events(struct xhci_hcd *xhci, struct xhci_interrupter *ir)
-+static int xhci_handle_events(struct xhci_hcd *xhci, struct xhci_interrupter *ir,
-+			      bool skip_events)
- {
- 	int event_loop = 0;
--	int err;
-+	int err = 0;
- 	u64 temp;
- 
- 	xhci_clear_interrupt_pending(ir);
-@@ -3125,7 +3126,8 @@ static int xhci_handle_events(struct xhci_hcd *xhci, struct xhci_interrupter *ir
- 
- 	/* Process all OS owned event TRBs on this event ring */
- 	while (unhandled_event_trb(ir->event_ring)) {
--		err = xhci_handle_event_trb(xhci, ir, ir->event_ring->dequeue);
-+		if (!skip_events)
-+			err = xhci_handle_event_trb(xhci, ir, ir->event_ring->dequeue);
- 
- 		/*
- 		 * If half a segment of events have been handled in one go then
-@@ -3152,6 +3154,37 @@ static int xhci_handle_events(struct xhci_hcd *xhci, struct xhci_interrupter *ir
- 	return 0;
- }
- 
+diff --git a/sound/usb/qcom/Makefile b/sound/usb/qcom/Makefile
+index 1eb51160e2e5..6567727b66f0 100644
+--- a/sound/usb/qcom/Makefile
++++ b/sound/usb/qcom/Makefile
+@@ -1,2 +1,4 @@
+ snd-usb-audio-qmi-y := usb_audio_qmi_v01.o qc_audio_offload.o
++snd-usb-audio-qmi-y += mixer_usb_offload.o
+ obj-$(CONFIG_SND_USB_AUDIO_QMI) += snd-usb-audio-qmi.o
++
+diff --git a/sound/usb/qcom/mixer_usb_offload.c b/sound/usb/qcom/mixer_usb_offload.c
+new file mode 100644
+index 000000000000..24ce7340b293
+--- /dev/null
++++ b/sound/usb/qcom/mixer_usb_offload.c
+@@ -0,0 +1,156 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Move the event ring dequeue pointer to skip events kept in the secondary
-+ * event ring.  This is used to ensure that pending events in the ring are
-+ * acknowledged, so the xHCI HCD can properly enter suspend/resume.  The
-+ * secondary ring is typically maintained by an external component.
++ * Copyright (c) 2022-2025 Qualcomm Innovation Center, Inc. All rights reserved.
 + */
-+void xhci_skip_sec_intr_events(struct xhci_hcd *xhci,
-+			       struct xhci_ring *ring,	struct xhci_interrupter *ir)
++
++#include <linux/usb.h>
++
++#include <sound/core.h>
++#include <sound/control.h>
++#include <sound/soc-usb.h>
++
++#include "../usbaudio.h"
++#include "../card.h"
++#include "../helper.h"
++#include "../mixer.h"
++
++#include "mixer_usb_offload.h"
++
++#define PCM_IDX(n)  ((n) & 0xffff)
++#define CARD_IDX(n) ((n) >> 16)
++
++static int
++snd_usb_offload_card_route_get(struct snd_kcontrol *kcontrol,
++			       struct snd_ctl_elem_value *ucontrol)
 +{
-+	union xhci_trb *current_trb;
-+	u64 erdp_reg;
-+	dma_addr_t deq;
++	struct device *sysdev = snd_kcontrol_chip(kcontrol);
++	int ret;
 +
-+	/* disable irq, ack pending interrupt and ack all pending events */
-+	xhci_disable_interrupter(ir);
-+
-+	/* last acked event trb is in erdp reg  */
-+	erdp_reg = xhci_read_64(xhci, &ir->ir_set->erst_dequeue);
-+	deq = (dma_addr_t)(erdp_reg & ERST_PTR_MASK);
-+	if (!deq) {
-+		xhci_err(xhci, "event ring handling not required\n");
-+		return;
++	ret = snd_soc_usb_update_offload_route(sysdev,
++					       CARD_IDX(kcontrol->private_value),
++					       PCM_IDX(kcontrol->private_value),
++					       SNDRV_PCM_STREAM_PLAYBACK,
++					       SND_SOC_USB_KCTL_CARD_ROUTE,
++					       ucontrol->value.integer.value);
++	if (ret < 0) {
++		ucontrol->value.integer.value[0] = -1;
++		ucontrol->value.integer.value[1] = -1;
 +	}
 +
-+	current_trb = ir->event_ring->dequeue;
-+	/* read cycle state of the last acked trb to find out CCS */
-+	ring->cycle_state = le32_to_cpu(current_trb->event_cmd.flags) & TRB_CYCLE;
-+
-+	xhci_handle_events(xhci, ir, true);
++	return 0;
 +}
 +
- /*
-  * xHCI spec says we can get an interrupt, and if the HC has an error condition,
-  * we might get bad data out of the event ring.  Section 4.10.2.7 has a list of
-@@ -3196,7 +3229,7 @@ irqreturn_t xhci_irq(struct usb_hcd *hcd)
- 	writel(status, &xhci->op_regs->status);
++static int snd_usb_offload_card_route_info(struct snd_kcontrol *kcontrol,
++					   struct snd_ctl_elem_info *uinfo)
++{
++	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
++	uinfo->count = 1;
++	uinfo->value.integer.min = -1;
++	uinfo->value.integer.max = SNDRV_CARDS;
++
++	return 0;
++}
++
++static struct snd_kcontrol_new snd_usb_offload_mapped_card_ctl = {
++	.iface = SNDRV_CTL_ELEM_IFACE_CARD,
++	.access = SNDRV_CTL_ELEM_ACCESS_READ,
++	.info = snd_usb_offload_card_route_info,
++	.get = snd_usb_offload_card_route_get,
++};
++
++static int
++snd_usb_offload_pcm_route_get(struct snd_kcontrol *kcontrol,
++			      struct snd_ctl_elem_value *ucontrol)
++{
++	struct device *sysdev = snd_kcontrol_chip(kcontrol);
++	int ret;
++
++	ret = snd_soc_usb_update_offload_route(sysdev,
++					       CARD_IDX(kcontrol->private_value),
++					       PCM_IDX(kcontrol->private_value),
++					       SNDRV_PCM_STREAM_PLAYBACK,
++					       SND_SOC_USB_KCTL_PCM_ROUTE,
++					       ucontrol->value.integer.value);
++	if (ret < 0) {
++		ucontrol->value.integer.value[0] = -1;
++		ucontrol->value.integer.value[1] = -1;
++	}
++
++	return 0;
++}
++
++static int snd_usb_offload_pcm_route_info(struct snd_kcontrol *kcontrol,
++					  struct snd_ctl_elem_info *uinfo)
++{
++	uinfo->type = SNDRV_CTL_ELEM_TYPE_INTEGER;
++	uinfo->count = 1;
++	uinfo->value.integer.min = -1;
++	/* Arbitrary max value, as there is no 'limit' on number of PCM devices */
++	uinfo->value.integer.max = 0xff;
++
++	return 0;
++}
++
++static struct snd_kcontrol_new snd_usb_offload_mapped_pcm_ctl = {
++	.iface = SNDRV_CTL_ELEM_IFACE_CARD,
++	.access = SNDRV_CTL_ELEM_ACCESS_READ,
++	.info = snd_usb_offload_pcm_route_info,
++	.get = snd_usb_offload_pcm_route_get,
++};
++
++/**
++ * snd_usb_offload_create_ctl() - Add USB offload bounded mixer
++ * @chip: USB SND chip device
++ * @bedev: Reference to USB backend DAI device
++ *
++ * Creates a sound control for a USB audio device, so that applications can
++ * query for if there is an available USB audio offload path, and which
++ * card is managing it.
++ */
++int snd_usb_offload_create_ctl(struct snd_usb_audio *chip, struct device *bedev)
++{
++	struct snd_kcontrol_new *chip_kctl;
++	struct snd_usb_substream *subs;
++	struct snd_usb_stream *as;
++	char ctl_name[48];
++	int ret;
++
++	list_for_each_entry(as, &chip->pcm_list, list) {
++		subs = &as->substream[SNDRV_PCM_STREAM_PLAYBACK];
++		if (!subs->ep_num || as->pcm_index > 0xff)
++			continue;
++
++		chip_kctl = &snd_usb_offload_mapped_card_ctl;
++		chip_kctl->count = 1;
++		/*
++		 * Store the associated USB SND card number and PCM index for
++		 * the kctl.
++		 */
++		chip_kctl->private_value = as->pcm_index |
++					  chip->card->number << 16;
++		sprintf(ctl_name, "USB Offload Playback Card Route PCM#%d",
++			as->pcm_index);
++		chip_kctl->name = ctl_name;
++		ret = snd_ctl_add(chip->card, snd_ctl_new1(chip_kctl, bedev));
++		if (ret < 0)
++			break;
++
++		chip_kctl = &snd_usb_offload_mapped_pcm_ctl;
++		chip_kctl->count = 1;
++		/*
++		 * Store the associated USB SND card number and PCM index for
++		 * the kctl.
++		 */
++		chip_kctl->private_value = as->pcm_index |
++					  chip->card->number << 16;
++		sprintf(ctl_name, "USB Offload Playback PCM Route PCM#%d",
++			as->pcm_index);
++		chip_kctl->name = ctl_name;
++		ret = snd_ctl_add(chip->card, snd_ctl_new1(chip_kctl, bedev));
++		if (ret < 0)
++			break;
++	}
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(snd_usb_offload_create_ctl);
+diff --git a/sound/usb/qcom/mixer_usb_offload.h b/sound/usb/qcom/mixer_usb_offload.h
+new file mode 100644
+index 000000000000..cf20673f4dc9
+--- /dev/null
++++ b/sound/usb/qcom/mixer_usb_offload.h
+@@ -0,0 +1,11 @@
++/* SPDX-License-Identifier: GPL-2.0
++ *
++ * Copyright (c) 2022-2025 Qualcomm Innovation Center, Inc. All rights reserved.
++ */
++
++#ifndef __USB_OFFLOAD_MIXER_H
++#define __USB_OFFLOAD_MIXER_H
++
++int snd_usb_offload_create_ctl(struct snd_usb_audio *chip, struct device *bedev);
++
++#endif /* __USB_OFFLOAD_MIXER_H */
+diff --git a/sound/usb/qcom/qc_audio_offload.c b/sound/usb/qcom/qc_audio_offload.c
+index 464c5106b420..378249a264a3 100644
+--- a/sound/usb/qcom/qc_audio_offload.c
++++ b/sound/usb/qcom/qc_audio_offload.c
+@@ -38,6 +38,7 @@
+ #include "../pcm.h"
+ #include "../power.h"
  
- 	/* This is the handler of the primary interrupter */
--	xhci_handle_events(xhci, xhci->interrupters[0]);
-+	xhci_handle_events(xhci, xhci->interrupters[0], false);
- out:
- 	spin_unlock(&xhci->lock);
++#include "mixer_usb_offload.h"
+ #include "usb_audio_qmi_v01.h"
  
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index 83a4adf57bae..61950a350432 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -335,7 +335,7 @@ static int xhci_enable_interrupter(struct xhci_interrupter *ir)
- 	return 0;
- }
+ /* Stream disable request timeout during USB device disconnect */
+@@ -1792,6 +1793,7 @@ static void qc_usb_audio_offload_probe(struct snd_usb_audio *chip)
+ 		sdev->card_idx = chip->card->number;
+ 		sdev->chip_idx = chip->index;
  
--static int xhci_disable_interrupter(struct xhci_interrupter *ir)
-+int xhci_disable_interrupter(struct xhci_interrupter *ir)
- {
- 	u32 iman;
++		snd_usb_offload_create_ctl(chip, uaudio_qdev->auxdev->dev.parent);
+ 		snd_soc_usb_connect(uaudio_qdev->auxdev->dev.parent, sdev);
+ 	}
  
-diff --git a/drivers/usb/host/xhci.h b/drivers/usb/host/xhci.h
-index 39db228f0b84..3fa8669e3b2d 100644
---- a/drivers/usb/host/xhci.h
-+++ b/drivers/usb/host/xhci.h
-@@ -1856,6 +1856,9 @@ xhci_create_secondary_interrupter(struct usb_hcd *hcd, unsigned int segs,
- 				  u32 imod_interval);
- void xhci_remove_secondary_interrupter(struct usb_hcd
- 				       *hcd, struct xhci_interrupter *ir);
-+void xhci_skip_sec_intr_events(struct xhci_hcd *xhci,
-+			       struct xhci_ring *ring,
-+			       struct xhci_interrupter *ir);
- 
- /* xHCI host controller glue */
- typedef void (*xhci_get_quirks_t)(struct device *, struct xhci_hcd *);
-@@ -1895,6 +1898,7 @@ int xhci_alloc_tt_info(struct xhci_hcd *xhci,
- 		struct usb_tt *tt, gfp_t mem_flags);
- int xhci_set_interrupter_moderation(struct xhci_interrupter *ir,
- 				    u32 imod_interval);
-+int xhci_disable_interrupter(struct xhci_interrupter *ir);
- 
- /* xHCI ring, segment, TRB, and TD functions */
- dma_addr_t xhci_trb_virt_to_dma(struct xhci_segment *seg, union xhci_trb *trb);
-@@ -1939,6 +1943,9 @@ unsigned int count_trbs(u64 addr, u64 len);
- int xhci_stop_endpoint_sync(struct xhci_hcd *xhci, struct xhci_virt_ep *ep,
- 			    int suspend, gfp_t gfp_flags);
- void xhci_process_cancelled_tds(struct xhci_virt_ep *ep);
-+void xhci_update_erst_dequeue(struct xhci_hcd *xhci,
-+			      struct xhci_interrupter *ir,
-+			      bool clear_ehb);
- 
- /* xHCI roothub code */
- void xhci_set_link_state(struct xhci_hcd *xhci, struct xhci_port *port,

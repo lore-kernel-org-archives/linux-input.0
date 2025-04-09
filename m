@@ -1,46 +1,46 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90D79214A92;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5685A21518F;
 	Wed,  9 Apr 2025 19:48:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744228122; cv=none; b=JmnmNRa0CKYKYEimE0dGST7zFVcgCAZZoy4HSg09pDcVjYUzVIYdd3fM/FJx33uV4vhti+wqpxUSMvbWo6FaabLd6NanPDev9kQ9XtBpX96wyErphPcEAjHJr4nRooG2zmbQT48iiNrhTFGHFcPQh6zgsrsaZC4AQQZKIMFkN1w=
+	t=1744228122; cv=none; b=mmDjjBFGEs+PAT9U2SrkcVM6zW2zw7BIAMEG5p9YsErNi1gRbTmdeB2RYYF3Z9kMk6tTMad5IUP6eL0ybOQOhBaEq/LAa3ybF0ACP3PVYkA+bzItEpmpxMW2GA49fjqw8pj5yhd7TvX/SdUuXm9iETyKNxNAtXDpELaZX8EAS8s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1744228122; c=relaxed/simple;
-	bh=c/DmW9Eq8RpD2Y85W/Lu0ijlhQn4cs6uuLTWvNooAw0=;
+	bh=0sR9//qIGpf3q88ypCokXM5Key2YfXCxH2egFkaTIZY=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KnNsH3m54oCtuaS3n+7Efz01O38k+aJePpStSJsXreofNb3PwLhBtoammuq8A6/kICJ7WIEPbxZjQ+XSvrtqub6ebfMvtowD9k9M750z9Ucm3bG9GoEHKYlJRDZetRqVzw5YpJ3dVtsHGEf+3KqWipbC95TKKyln48PQxkv3oR0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=OaSv2LJ7; arc=none smtp.client-ip=205.220.180.131
+	 MIME-Version:Content-Type; b=syirr/Jf74Sv7q2zY6z+s6/2OFQj0UEL468CkLphs8VKzDMv4Odh5FcbbiGXMMZoSw/JDx6Zey/mx8vmWobJch2dUi8hCvt6uhqTz57qejywJ4WAa6Pi3cLXgpWm/GJPbA/5aqHZBF9e/8Y5i0Bcfx0Nz9zLfdrr368hUc5dngw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=cufyU/8e; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="OaSv2LJ7"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 539HDStx023739;
-	Wed, 9 Apr 2025 19:48:24 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="cufyU/8e"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 539HGFtl004652;
+	Wed, 9 Apr 2025 19:48:18 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	n1ynyRRAq4y/hg4LBhQ0jwoQ5M8Zr87iuU5XqfYwH9A=; b=OaSv2LJ7GlYfmf00
-	anduSV9rr56wIB8qbweW9ZWDgEjoBsn4CAZZvGGzC4SR9LLTKoyMStpDNfk6ux9f
-	l64iWvgbzIhvnI2OHVvKZhbZg6WjH2mOXlLl/QybSg/J4C6mu3hljM1NOesHAfvb
-	M4Ka7Nx0M4jY5/rH+VtmdnqdOpuNspeD6NiE4OpXZ/cfM8PV77hG5h7x1/2oZv86
-	8TGAxt3gssMECa0kZ6Hu9xGQ8A3KM0VncD4MNCDbZPy+wXkvYXFM+rXvCC6x2OIf
-	o+KYi0ApVwk5JfXmsDdxttDn64i57QnhhupVtzH7YiB8AS7L2d2eqjxrvuL2YdTJ
-	/rlQbw==
+	L5NzFwpvJazjXw/D9x7nP+vo0+Nl+NeQ0Ckgucd9GhQ=; b=cufyU/8eNPNUEGdY
+	F9qv7S3SiLbEhef/sN+zClCyJjcgDdPDGIIXINND/W6zKj3SsF3CUm4qk9mrUqOl
+	x+8cy87L5P35DscGORFpDriJPaG3flcA2UKq7buOyL0wEX9yv9AGsoiJxu//wMEn
+	nVI6a9juc6dhoUAtzfmUOlJrXXmvdDJrVB0AFMNAwMi2KDgjlXvFRK8cHo3hNhGz
+	WBqkSi0b6GQTb73omx56rr8sLljYLLScOEZCJsT8esZX9tPdDWxqLxxKgPQreUex
+	nlbbFRMegUaNNLRDUGk0XqeDbbmOmMmh1SPVFhX3V4DTsY5wUlLAZqSQTVG6JiBl
+	k4zukA==
 Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45twd04nwd-1
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45twtb4pbv-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 09 Apr 2025 19:48:24 +0000 (GMT)
+	Wed, 09 Apr 2025 19:48:18 +0000 (GMT)
 Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 539JmN75031442
+	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 539JmH0w031307
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 9 Apr 2025 19:48:23 GMT
+	Wed, 9 Apr 2025 19:48:17 GMT
 Received: from hu-wcheng-lv.qualcomm.com (10.49.16.6) by
  nalasex01b.na.qualcomm.com (10.47.209.197) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.9; Wed, 9 Apr 2025 12:48:22 -0700
+ 15.2.1544.9; Wed, 9 Apr 2025 12:48:17 -0700
 From: Wesley Cheng <quic_wcheng@quicinc.com>
 To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
         <perex@perex.cz>, <conor+dt@kernel.org>, <dmitry.torokhov@gmail.com>,
@@ -51,10 +51,12 @@ To: <srinivas.kandagatla@linaro.org>, <mathias.nyman@intel.com>,
 CC: <linux-kernel@vger.kernel.org>, <devicetree@vger.kernel.org>,
         <linux-sound@vger.kernel.org>, <linux-input@vger.kernel.org>,
         <linux-usb@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>
-Subject: [PATCH v38 25/31] ASoC: qcom: qdsp6: Add headphone jack for offload connection status
-Date: Wed, 9 Apr 2025 12:47:58 -0700
-Message-ID: <20250409194804.3773260-26-quic_wcheng@quicinc.com>
+        <linux-doc@vger.kernel.org>, Wesley Cheng <quic_wcheng@quicinc.com>,
+        Puma Hsu
+	<pumahsu@google.com>, Daehwan Jung <dh10.jung@samsung.com>
+Subject: [PATCH v38 05/31] usb: host: xhci: Notify xHCI sideband on transfer ring free
+Date: Wed, 9 Apr 2025 12:47:38 -0700
+Message-ID: <20250409194804.3773260-6-quic_wcheng@quicinc.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20250409194804.3773260-1-quic_wcheng@quicinc.com>
 References: <20250409194804.3773260-1-quic_wcheng@quicinc.com>
@@ -70,311 +72,170 @@ X-ClientProxiedBy: nalasex01b.na.qualcomm.com (10.47.209.197) To
  nalasex01b.na.qualcomm.com (10.47.209.197)
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: DINng4lXlgLoJiNjURB3t3-oJ571xSvR
-X-Authority-Analysis: v=2.4 cv=Q4vS452a c=1 sm=1 tr=0 ts=67f6cf08 cx=c_pps a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17 a=3H110R4YSZwA:10 a=XR8D0OoHHMoA:10 a=COk6AnOGAAAA:8 a=eZcq3E9NiZoenvT64cIA:9 a=RVmHIydaz68A:10
+X-Proofpoint-GUID: 31zuEiPB915SGW311YLDbP88MXTg0zUQ
+X-Authority-Analysis: v=2.4 cv=LLlmQIW9 c=1 sm=1 tr=0 ts=67f6cf02 cx=c_pps a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17 a=3H110R4YSZwA:10 a=XR8D0OoHHMoA:10 a=1XWaLZrsAAAA:8 a=hD80L64hAAAA:8 a=COk6AnOGAAAA:8 a=PreZEog4GvDKfhablsMA:9
  a=TjNXssC_j7lpFel5tvFf:22
-X-Proofpoint-GUID: DINng4lXlgLoJiNjURB3t3-oJ571xSvR
+X-Proofpoint-ORIG-GUID: 31zuEiPB915SGW311YLDbP88MXTg0zUQ
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
  definitions=2025-04-09_06,2025-04-08_04,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- impostorscore=0 lowpriorityscore=0 spamscore=0 clxscore=1015 phishscore=0
- bulkscore=0 adultscore=0 malwarescore=0 mlxscore=0 suspectscore=0
- mlxlogscore=999 classifier=spam authscore=0 authtc=n/a authcc=
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 bulkscore=0
+ clxscore=1015 mlxlogscore=870 malwarescore=0 phishscore=0
+ lowpriorityscore=0 priorityscore=1501 mlxscore=0 spamscore=0 adultscore=0
+ suspectscore=0 classifier=spam authscore=0 authtc=n/a authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
  definitions=main-2504090132
 
-The headphone jack framework has a well defined infrastructure for
-notifying userspace entities through input devices.  Expose a jack device
-that carries information about if an offload capable device is connected.
-Applications can further identify specific offloading information through
-other SND kcontrols.
+In the case of handling a USB bus reset, the xhci_discover_or_reset_device
+can run without first notifying the xHCI sideband client driver to stop or
+prevent the use of the transfer ring.  It was seen that when a bus reset
+situation happened, the USB offload driver was attempting to fetch the xHCI
+transfer ring information, which was already freed.
 
+Tested-by: Puma Hsu <pumahsu@google.com>
+Tested-by: Daehwan Jung <dh10.jung@samsung.com>
 Signed-off-by: Wesley Cheng <quic_wcheng@quicinc.com>
 ---
- sound/soc/qcom/Kconfig             |  4 +++
- sound/soc/qcom/Makefile            |  2 ++
- sound/soc/qcom/qdsp6/q6usb.c       | 41 ++++++++++++++++++++++
- sound/soc/qcom/sm8250.c            | 24 ++++++++++++-
- sound/soc/qcom/usb_offload_utils.c | 56 ++++++++++++++++++++++++++++++
- sound/soc/qcom/usb_offload_utils.h | 30 ++++++++++++++++
- 6 files changed, 156 insertions(+), 1 deletion(-)
- create mode 100644 sound/soc/qcom/usb_offload_utils.c
- create mode 100644 sound/soc/qcom/usb_offload_utils.h
+ drivers/usb/host/xhci-sideband.c  | 29 ++++++++++++++++++++++++++++-
+ drivers/usb/host/xhci.c           |  3 +++
+ include/linux/usb/xhci-sideband.h | 30 +++++++++++++++++++++++++++++-
+ 3 files changed, 60 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/qcom/Kconfig b/sound/soc/qcom/Kconfig
-index 1b4f3faadbc7..e86b4a03dd61 100644
---- a/sound/soc/qcom/Kconfig
-+++ b/sound/soc/qcom/Kconfig
-@@ -118,10 +118,14 @@ config SND_SOC_QDSP6_PRM
- 	tristate
- 	select SND_SOC_QDSP6_PRM_LPASS_CLOCKS
+diff --git a/drivers/usb/host/xhci-sideband.c b/drivers/usb/host/xhci-sideband.c
+index 742bbc6c2d9b..d49f9886dd84 100644
+--- a/drivers/usb/host/xhci-sideband.c
++++ b/drivers/usb/host/xhci-sideband.c
+@@ -88,6 +88,30 @@ __xhci_sideband_remove_endpoint(struct xhci_sideband *sb, struct xhci_virt_ep *e
  
-+config SND_SOC_QCOM_OFFLOAD_UTILS
-+	tristate
-+
- config SND_SOC_QDSP6_USB
-     tristate "SoC ALSA USB offloading backing for QDSP6"
-     depends on SND_SOC_USB
-     select AUXILIARY_BUS
-+    select SND_SOC_QCOM_OFFLOAD_UTILS
+ /* sideband api functions */
  
-     help
-       Adds support for USB offloading for QDSP6 ASoC
-diff --git a/sound/soc/qcom/Makefile b/sound/soc/qcom/Makefile
-index 16db7b53ddac..985ce2ae286b 100644
---- a/sound/soc/qcom/Makefile
-+++ b/sound/soc/qcom/Makefile
-@@ -30,6 +30,7 @@ snd-soc-sc8280xp-y := sc8280xp.o
- snd-soc-qcom-common-y := common.o
- snd-soc-qcom-sdw-y := sdw.o
- snd-soc-x1e80100-y := x1e80100.o
-+snd-soc-qcom-offload-utils-objs := usb_offload_utils.o
- 
- obj-$(CONFIG_SND_SOC_STORM) += snd-soc-storm.o
- obj-$(CONFIG_SND_SOC_APQ8016_SBC) += snd-soc-apq8016-sbc.o
-@@ -42,6 +43,7 @@ obj-$(CONFIG_SND_SOC_SM8250) += snd-soc-sm8250.o
- obj-$(CONFIG_SND_SOC_QCOM_COMMON) += snd-soc-qcom-common.o
- obj-$(CONFIG_SND_SOC_QCOM_SDW) += snd-soc-qcom-sdw.o
- obj-$(CONFIG_SND_SOC_X1E80100) += snd-soc-x1e80100.o
-+obj-$(CONFIG_SND_SOC_QCOM_OFFLOAD_UTILS) += snd-soc-qcom-offload-utils.o
- 
- #DSP lib
- obj-$(CONFIG_SND_SOC_QDSP6) += qdsp6/
-diff --git a/sound/soc/qcom/qdsp6/q6usb.c b/sound/soc/qcom/qdsp6/q6usb.c
-index 99848a320784..6634e132787e 100644
---- a/sound/soc/qcom/qdsp6/q6usb.c
-+++ b/sound/soc/qcom/qdsp6/q6usb.c
-@@ -15,6 +15,7 @@
- #include <linux/slab.h>
- 
- #include <sound/asound.h>
-+#include <sound/jack.h>
- #include <sound/pcm.h>
- #include <sound/pcm_params.h>
- #include <sound/q6usboffload.h>
-@@ -32,6 +33,7 @@ struct q6usb_port_data {
- 	struct auxiliary_device uauxdev;
- 	struct q6afe_usb_cfg usb_cfg;
- 	struct snd_soc_usb *usb;
-+	struct snd_soc_jack *hs_jack;
- 	struct q6usb_offload priv;
- 
- 	/* Protects against operations between SOC USB and ASoC */
-@@ -144,16 +146,54 @@ static int q6usb_alsa_connection_cb(struct snd_soc_usb *usb,
- 
- 	mutex_lock(&data->mutex);
- 	if (connected) {
-+		if (data->hs_jack)
-+			snd_jack_report(data->hs_jack->jack, SND_JACK_USB);
-+
- 		/* Selects the latest USB headset plugged in for offloading */
- 		list_add_tail(&sdev->list, &data->devices);
- 	} else {
- 		list_del(&sdev->list);
-+
-+		if (data->hs_jack)
-+			snd_jack_report(data->hs_jack->jack, 0);
- 	}
- 	mutex_unlock(&data->mutex);
- 
- 	return 0;
- }
- 
-+static void q6usb_component_disable_jack(struct q6usb_port_data *data)
++/**
++ * xhci_sideband_notify_ep_ring_free - notify client of xfer ring free
++ * @sb: sideband instance for this usb device
++ * @ep_index: usb endpoint index
++ *
++ * Notifies the xHCI sideband client driver of a xHCI transfer ring free
++ * routine.  This will allow for the client to ensure that all transfers
++ * are completed.
++ *
++ * The callback should be synchronous, as the ring free happens after.
++ */
++void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
++				       unsigned int ep_index)
 +{
-+	/* Offload jack has already been disabled */
-+	if (!data->hs_jack)
-+		return;
++	struct xhci_sideband_event evt;
 +
-+	snd_jack_report(data->hs_jack->jack, 0);
-+	data->hs_jack = NULL;
++	evt.type = XHCI_SIDEBAND_XFER_RING_FREE;
++	evt.evt_data = &ep_index;
++
++	if (sb->notify_client)
++		sb->notify_client(sb->intf, &evt);
 +}
++EXPORT_SYMBOL_GPL(xhci_sideband_notify_ep_ring_free);
 +
-+static void q6usb_component_enable_jack(struct q6usb_port_data *data,
-+					struct snd_soc_jack *jack)
-+{
-+	snd_jack_report(jack->jack, !list_empty(&data->devices) ? SND_JACK_USB : 0);
-+	data->hs_jack = jack;
-+}
-+
-+static int q6usb_component_set_jack(struct snd_soc_component *component,
-+				    struct snd_soc_jack *jack, void *priv)
-+{
-+	struct q6usb_port_data *data = dev_get_drvdata(component->dev);
-+
-+	mutex_lock(&data->mutex);
-+	if (jack)
-+		q6usb_component_enable_jack(data, jack);
-+	else
-+		q6usb_component_disable_jack(data);
-+	mutex_unlock(&data->mutex);
-+
-+	return 0;
-+}
-+
- static void q6usb_dai_aux_release(struct device *dev) {}
+ /**
+  * xhci_sideband_add_endpoint - add endpoint to sideband access list
+  * @sb: sideband instance for this usb device
+@@ -342,7 +366,9 @@ EXPORT_SYMBOL_GPL(xhci_sideband_interrupter_id);
+  * Return: pointer to a new xhci_sideband instance if successful. NULL otherwise.
+  */
+ struct xhci_sideband *
+-xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type)
++xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type,
++		       int (*notify_client)(struct usb_interface *intf,
++				    struct xhci_sideband_event *evt))
+ {
+ 	struct usb_device *udev = interface_to_usbdev(intf);
+ 	struct usb_hcd *hcd = bus_to_hcd(udev->bus);
+@@ -381,6 +407,7 @@ xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type)
+ 	sb->vdev = vdev;
+ 	sb->intf = intf;
+ 	sb->type = type;
++	sb->notify_client = notify_client;
+ 	vdev->sideband = sb;
  
- static int q6usb_dai_add_aux_device(struct q6usb_port_data *data,
-@@ -211,6 +251,7 @@ static void q6usb_component_remove(struct snd_soc_component *component)
+ 	spin_unlock_irq(&xhci->lock);
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index b361312e05ed..cfda35004754 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -20,6 +20,7 @@
+ #include <linux/string_choices.h>
+ #include <linux/dmi.h>
+ #include <linux/dma-mapping.h>
++#include <linux/usb/xhci-sideband.h>
  
- static const struct snd_soc_component_driver q6usb_dai_component = {
- 	.probe = q6usb_component_probe,
-+	.set_jack = q6usb_component_set_jack,
- 	.remove = q6usb_component_remove,
- 	.name = "q6usb-dai-component",
- 	.dapm_widgets = q6usb_dai_widgets,
-diff --git a/sound/soc/qcom/sm8250.c b/sound/soc/qcom/sm8250.c
-index 9039107972e2..b70b2a5031df 100644
---- a/sound/soc/qcom/sm8250.c
-+++ b/sound/soc/qcom/sm8250.c
-@@ -13,6 +13,7 @@
- #include <linux/input-event-codes.h>
- #include "qdsp6/q6afe.h"
- #include "common.h"
-+#include "usb_offload_utils.h"
- #include "sdw.h"
+ #include "xhci.h"
+ #include "xhci-trace.h"
+@@ -3919,6 +3920,8 @@ static int xhci_discover_or_reset_device(struct usb_hcd *hcd,
+ 		}
  
- #define DRIVER_NAME		"sm8250"
-@@ -23,14 +24,34 @@ struct sm8250_snd_data {
- 	struct snd_soc_card *card;
- 	struct sdw_stream_runtime *sruntime[AFE_PORT_MAX];
- 	struct snd_soc_jack jack;
-+	struct snd_soc_jack usb_offload_jack;
-+	bool usb_offload_jack_setup;
- 	bool jack_setup;
+ 		if (ep->ring) {
++			if (ep->sideband)
++				xhci_sideband_notify_ep_ring_free(ep->sideband, i);
+ 			xhci_debugfs_remove_endpoint(xhci, virt_dev, i);
+ 			xhci_free_endpoint_ring(xhci, virt_dev, i);
+ 		}
+diff --git a/include/linux/usb/xhci-sideband.h b/include/linux/usb/xhci-sideband.h
+index f8722afb8a2d..45288c392f6e 100644
+--- a/include/linux/usb/xhci-sideband.h
++++ b/include/linux/usb/xhci-sideband.h
+@@ -21,6 +21,20 @@ enum xhci_sideband_type {
+ 	XHCI_SIDEBAND_VENDOR,
  };
  
- static int sm8250_snd_init(struct snd_soc_pcm_runtime *rtd)
- {
- 	struct sm8250_snd_data *data = snd_soc_card_get_drvdata(rtd->card);
-+	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
-+	int ret;
++enum xhci_sideband_notify_type {
++	XHCI_SIDEBAND_XFER_RING_FREE,
++};
 +
-+	if (cpu_dai->id == USB_RX)
-+		ret = qcom_snd_usb_offload_jack_setup(rtd, &data->usb_offload_jack,
-+						      &data->usb_offload_jack_setup);
-+	else
-+		ret = qcom_snd_wcd_jack_setup(rtd, &data->jack, &data->jack_setup);
-+	return ret;
-+}
-+
-+static void sm8250_snd_exit(struct snd_soc_pcm_runtime *rtd)
-+{
-+	struct sm8250_snd_data *data = snd_soc_card_get_drvdata(rtd->card);
-+	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
-+
-+	if (cpu_dai->id == USB_RX)
-+		qcom_snd_usb_offload_jack_remove(rtd,
-+						 &data->usb_offload_jack_setup);
- 
--	return qcom_snd_wcd_jack_setup(rtd, &data->jack, &data->jack_setup);
- }
- 
- static int sm8250_be_hw_params_fixup(struct snd_soc_pcm_runtime *rtd,
-@@ -148,6 +169,7 @@ static void sm8250_add_be_ops(struct snd_soc_card *card)
- 	for_each_card_prelinks(card, i, link) {
- 		if (link->no_pcm == 1) {
- 			link->init = sm8250_snd_init;
-+			link->exit = sm8250_snd_exit;
- 			link->be_hw_params_fixup = sm8250_be_hw_params_fixup;
- 			link->ops = &sm8250_be_ops;
- 		}
-diff --git a/sound/soc/qcom/usb_offload_utils.c b/sound/soc/qcom/usb_offload_utils.c
-new file mode 100644
-index 000000000000..0a24b278fcdf
---- /dev/null
-+++ b/sound/soc/qcom/usb_offload_utils.c
-@@ -0,0 +1,56 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (c) 2022-2025 Qualcomm Innovation Center, Inc. All rights reserved.
++/**
++ * struct xhci_sideband_event - sideband event
++ * @type: notifier type
++ * @evt_data: event data
 + */
-+#include <dt-bindings/sound/qcom,q6afe.h>
-+#include <linux/module.h>
-+#include <sound/jack.h>
-+#include <sound/soc-usb.h>
++struct xhci_sideband_event {
++	enum xhci_sideband_notify_type type;
++	void *evt_data;
++};
 +
-+#include "usb_offload_utils.h"
+ /**
+  * struct xhci_sideband - representation of a sideband accessed usb device.
+  * @xhci: The xhci host controller the usb device is connected to
+@@ -30,6 +44,7 @@ enum xhci_sideband_type {
+  * @type: xHCI sideband type
+  * @mutex: mutex for sideband operations
+  * @intf: USB sideband client interface
++ * @notify_client: callback for xHCI sideband sequences
+  *
+  * FIXME usb device accessed via sideband Keeping track of sideband accessed usb devices.
+  */
+@@ -44,10 +59,14 @@ struct xhci_sideband {
+ 	struct mutex			mutex;
+ 
+ 	struct usb_interface		*intf;
++	int (*notify_client)(struct usb_interface *intf,
++			     struct xhci_sideband_event *evt);
+ };
+ 
+ struct xhci_sideband *
+-xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type);
++xhci_sideband_register(struct usb_interface *intf, enum xhci_sideband_type type,
++		       int (*notify_client)(struct usb_interface *intf,
++				    struct xhci_sideband_event *evt));
+ void
+ xhci_sideband_unregister(struct xhci_sideband *sb);
+ int
+@@ -71,4 +90,13 @@ void
+ xhci_sideband_remove_interrupter(struct xhci_sideband *sb);
+ int
+ xhci_sideband_interrupter_id(struct xhci_sideband *sb);
 +
-+int qcom_snd_usb_offload_jack_setup(struct snd_soc_pcm_runtime *rtd,
-+				    struct snd_soc_jack *jack, bool *jack_setup)
-+{
-+	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
-+	struct snd_soc_dai *codec_dai = snd_soc_rtd_to_codec(rtd, 0);
-+	int ret = 0;
-+
-+	if (cpu_dai->id != USB_RX)
-+		return -EINVAL;
-+
-+	if (!*jack_setup) {
-+		ret = snd_soc_usb_setup_offload_jack(codec_dai->component, jack);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	*jack_setup = true;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(qcom_snd_usb_offload_jack_setup);
-+
-+int qcom_snd_usb_offload_jack_remove(struct snd_soc_pcm_runtime *rtd,
-+				     bool *jack_setup)
-+{
-+	struct snd_soc_dai *cpu_dai = snd_soc_rtd_to_cpu(rtd, 0);
-+	struct snd_soc_dai *codec_dai = snd_soc_rtd_to_codec(rtd, 0);
-+	int ret = 0;
-+
-+	if (cpu_dai->id != USB_RX)
-+		return -EINVAL;
-+
-+	if (*jack_setup) {
-+		ret = snd_soc_component_set_jack(codec_dai->component, NULL, NULL);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	*jack_setup = false;
-+
-+	return 0;
-+}
-+EXPORT_SYMBOL_GPL(qcom_snd_usb_offload_jack_remove);
-+MODULE_DESCRIPTION("ASoC Q6 USB offload controls");
-+MODULE_LICENSE("GPL");
-diff --git a/sound/soc/qcom/usb_offload_utils.h b/sound/soc/qcom/usb_offload_utils.h
-new file mode 100644
-index 000000000000..c3f411f565b0
---- /dev/null
-+++ b/sound/soc/qcom/usb_offload_utils.h
-@@ -0,0 +1,30 @@
-+/* SPDX-License-Identifier: GPL-2.0
-+ *
-+ * Copyright (c) 2022-2025 Qualcomm Innovation Center, Inc. All rights reserved.
-+ */
-+#ifndef __QCOM_SND_USB_OFFLOAD_UTILS_H__
-+#define __QCOM_SND_USB_OFFLOAD_UTILS_H__
-+
-+#include <sound/soc.h>
-+
-+#if IS_ENABLED(CONFIG_SND_SOC_QCOM_OFFLOAD_UTILS)
-+int qcom_snd_usb_offload_jack_setup(struct snd_soc_pcm_runtime *rtd,
-+				    struct snd_soc_jack *jack, bool *jack_setup);
-+
-+int qcom_snd_usb_offload_jack_remove(struct snd_soc_pcm_runtime *rtd,
-+				     bool *jack_setup);
++#if IS_ENABLED(CONFIG_USB_XHCI_SIDEBAND)
++void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
++				       unsigned int ep_index);
 +#else
-+static inline int qcom_snd_usb_offload_jack_setup(struct snd_soc_pcm_runtime *rtd,
-+						  struct snd_soc_jack *jack,
-+						  bool *jack_setup)
-+{
-+	return -ENODEV;
-+}
-+
-+static inline int qcom_snd_usb_offload_jack_remove(struct snd_soc_pcm_runtime *rtd,
-+						   bool *jack_setup)
-+{
-+	return -ENODEV;
-+}
-+#endif /* IS_ENABLED(CONFIG_SND_SOC_QCOM_OFFLOAD_UTILS) */
-+#endif /* __QCOM_SND_USB_OFFLOAD_UTILS_H__ */
++static inline void xhci_sideband_notify_ep_ring_free(struct xhci_sideband *sb,
++						     unsigned int ep_index)
++{ }
++#endif /* IS_ENABLED(CONFIG_USB_XHCI_SIDEBAND) */
+ #endif /* __LINUX_XHCI_SIDEBAND_H */

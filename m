@@ -1,30 +1,30 @@
-Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [195.130.132.52])
+Received: from michel.telenet-ops.be (michel.telenet-ops.be [195.130.137.88])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 395411F1932
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A2DD1DF984
 	for <linux-input@vger.kernel.org>; Thu, 10 Apr 2025 08:31:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.130.132.52
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.130.137.88
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744273864; cv=none; b=tePqgN0EhVe6f+JEsFjocR/iK7XcbUrdj1DGBHo99qTak4nvPEfeBov3/2cs4u9J+1WPaTOoEXpStNGnV2sCFW/dYr1BXE68wsJw6huFtIE+D78TIlx3cWXc9SsiDg7bPcddHImpo1KbBkTtSuRGtdsCc4X3xX7vn6JazTcMu5c=
+	t=1744273864; cv=none; b=ZkTqAvg8WYWjwTqeojq1cd9foqMhoS7ZKAnnUiLqRV4xBWbut72bOXhAuHke6xbWw0c64+y6znNQZSYx67E8yqqmxHT7Q1u1gbxj+MQ5ZEPJXXPaIw3UroCx6OEr2Y3gWRMTZJr9qNwkE/xrrMCW1wZdulogVnzseG969d9YKLw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1744273864; c=relaxed/simple;
-	bh=WNxzZulseYfokjA82gBJGgk0nI2uc03lGM7VmIHXjtA=;
+	bh=c3W3lYbW/FMvDBOJbYSIdkC4R/4qq0CQxdQuqipzVac=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sCQ590b3WO36KPV4p03xDPJ1V8J9+Wilj/m9he7hlFtBOX+WD6RV3s5tMz1xF6nED/MBSVVSWRGo9woOxP1Hg1541kD53qTJLxuDJJpbK78C0glQsLQz7i15gizWAWv7xxfBHh12UiehyBJ2C3n8Iq9uVW/XFilHm6/SeBsiFtY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=195.130.132.52
+	 MIME-Version; b=cXoj1WYdIv4a4PjMwsbGa/aODRLK+Az4+RdLKOaNeXETtkG8me6Z8bI3rMXX81KNijQ7y5RTfaoWUT+wqYHi6WPQvlBhAkIsTK5RDetGL3/xbhbD//+PWIKj81lfP+N1pWAF4XjaYQRQzq43dBLaMu0xMCih9jGk7p26+4SX88Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=195.130.137.88
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
 Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed80:1f1c:893d:f419:6517])
-	by xavier.telenet-ops.be with cmsmtp
-	id bLWz2E00N3xgA3j01LWz1B; Thu, 10 Apr 2025 10:31:00 +0200
+	by michel.telenet-ops.be with cmsmtp
+	id bLWz2E00H3xgA3j06LWzi7; Thu, 10 Apr 2025 10:31:00 +0200
 Received: from rox.of.borg ([192.168.97.57])
 	by ramsan.of.borg with esmtp (Exim 4.97)
 	(envelope-from <geert@linux-m68k.org>)
-	id 1u2nJK-00000000Gmy-2vB9;
+	id 1u2nJK-00000000Gmx-2pZN;
 	Thu, 10 Apr 2025 10:30:59 +0200
 Received: from geert by rox.of.borg with local (Exim 4.97)
 	(envelope-from <geert@linux-m68k.org>)
-	id 1u2nJL-00000009IPN-3MAN;
+	id 1u2nJL-00000009IPK-3F5b;
 	Thu, 10 Apr 2025 10:30:59 +0200
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 To: Jiri Kosina <jikos@kernel.org>,
@@ -34,9 +34,9 @@ To: Jiri Kosina <jikos@kernel.org>,
 Cc: linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v2 2/2] HID: HID_APPLETB_BL should depend on X86
-Date: Thu, 10 Apr 2025 10:30:57 +0200
-Message-ID: <9f1fcef9094c62eea84872a5d4ba04eaf46f664e.1744273511.git.geert+renesas@glider.be>
+Subject: [PATCH v2 1/2] HID: HID_APPLETB_KBD should depend on X86
+Date: Thu, 10 Apr 2025 10:30:56 +0200
+Message-ID: <8fb6c5995f0e72482bad6367d89d9ee5312dd409.1744273511.git.geert+renesas@glider.be>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <cover.1744273511.git.geert+renesas@glider.be>
 References: <cover.1744273511.git.geert+renesas@glider.be>
@@ -52,30 +52,31 @@ The Apple Touch Bar is only present on x86 MacBook Pros.  Hence add a
 dependency on X86, to prevent asking the user about this driver when
 configuring a kernel for a different architecture.
 
-Fixes: 1fd41e5e3d7cc556 ("HID: hid-appletb-bl: add driver for the backlight of Apple Touch Bars")
+Fixes: 8e9b9152cfbdc2a9 ("HID: hid-appletb-kbd: add driver for the keyboard mode of Apple Touch Bars")
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 ---
 This is v2 of "HID: HID_APPLETB_BL and HID_APPLETB_KBD should depend on
 X86".
 
 v2:
-  - Split in two patches.
+  - Split in two patches,
+  - Correct Fixes.
 ---
  drivers/hid/Kconfig | 1 +
  1 file changed, 1 insertion(+)
 
 diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 119e5190a2df786e..43859fc757470caf 100644
+index a503252702b7b43c..119e5190a2df786e 100644
 --- a/drivers/hid/Kconfig
 +++ b/drivers/hid/Kconfig
-@@ -151,6 +151,7 @@ config HID_APPLEIR
- config HID_APPLETB_BL
- 	tristate "Apple Touch Bar Backlight"
+@@ -163,6 +163,7 @@ config HID_APPLETB_KBD
+ 	depends on USB_HID
  	depends on BACKLIGHT_CLASS_DEVICE
+ 	depends on INPUT
 +	depends on X86 || COMPILE_TEST
+ 	select INPUT_SPARSEKMAP
+ 	select HID_APPLETB_BL
  	help
- 	  Say Y here if you want support for the backlight of Touch Bars on x86
- 	  MacBook Pros.
 -- 
 2.43.0
 

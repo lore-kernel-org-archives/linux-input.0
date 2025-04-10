@@ -1,82 +1,153 @@
-Received: from andre.telenet-ops.be (andre.telenet-ops.be [195.130.132.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D72C91EF080
-	for <linux-input@vger.kernel.org>; Thu, 10 Apr 2025 08:31:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.130.132.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABDB243AB7;
+	Thu, 10 Apr 2025 08:37:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744273870; cv=none; b=ZBfd0gMahIVHf9e9Mvo9GcXRXdqm9b0VPm2rlbi4OBz8lwGI0wHcw0geX7XLuPCJXHK8qTy8oHJhOKIWThm4gJiZKGd5y0KYZRNWz5r10CNphIMNE4DvmpjJ23FsAJwkpXtVV5PpMyNofm3QZAoshyZ3H/L8JgwJ3vuMpZeF8/M=
+	t=1744274253; cv=none; b=k30X7/q8RjU1r5KboCzDKNU1QMGZfKiv8C0DJ9sax/K5lJPfZSanEezDrGkSBlK1/4sZUcyBLBMrjuyiUhhGAdk9urMZCtzXTFZIIjgMv0OEeQAAeD87ky2N4CMowb1Z7MIAOtcuJedx/dzknNdfo45ipS5fiEJAxlaYJkFpy+s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744273870; c=relaxed/simple;
-	bh=oQnUDeEZ2r8C9sjmNcaFJtnHOl/Ix9z6aHaoboLoVYI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lpWGGw7uDFGFnScy4yy1wZk9HeO0c92p2MsQDB0JfSVuaum80flnI+EQovrgZvuryZfdMSnHH+wKSOQUEPTjJ0PICsXSapBViMM2L4ctWgccbqQeeLSLWjnpuho3iOntI0sZrgZ9yDFSR4HS3adSx70K1BhZu18mjxuJJcsspAI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=195.130.132.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
-Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed80:1f1c:893d:f419:6517])
-	by andre.telenet-ops.be with cmsmtp
-	id bLWz2E00L3xgA3j01LWzWw; Thu, 10 Apr 2025 10:31:00 +0200
-Received: from rox.of.borg ([192.168.97.57])
-	by ramsan.of.borg with esmtp (Exim 4.97)
-	(envelope-from <geert@linux-m68k.org>)
-	id 1u2nJK-00000000Gmv-2oem;
-	Thu, 10 Apr 2025 10:30:59 +0200
-Received: from geert by rox.of.borg with local (Exim 4.97)
-	(envelope-from <geert@linux-m68k.org>)
-	id 1u2nJL-00000009IPH-39Mj;
-	Thu, 10 Apr 2025 10:30:59 +0200
-From: Geert Uytterhoeven <geert+renesas@glider.be>
-To: Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	Aditya Garg <gargaditya08@live.com>,
-	Kerem Karabay <kekrby@gmail.com>
-Cc: linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH v2 0/2] HID: HID_APPLETB_KBD and HID_APPLETB_BL should depend on X86
-Date: Thu, 10 Apr 2025 10:30:55 +0200
-Message-ID: <cover.1744273511.git.geert+renesas@glider.be>
-X-Mailer: git-send-email 2.43.0
+	s=arc-20240116; t=1744274253; c=relaxed/simple;
+	bh=Y7XTCca+Ph4nBDuMHEhEUQiVE0QAjFs5rJ9LGz+9ujc=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:From:To:
+	 References:In-Reply-To; b=MMn+gDcl9H71p44FLai5hFsHFptgYqY5C3HwoUsmggspudPEbUpxmOxfvZOAU4lY0dBlvCVHVrdckEQIix4MZmU+uOR6VlWf9CD7w79ySirj3A2+FtOERGvnyEuvNV5YhiEcrksjVNj/poxgOsIFfNR6PUHFWcooYGvrbEG1Zro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=VCK3utvl; arc=none smtp.client-ip=217.70.183.198
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="VCK3utvl"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 03A5943291;
+	Thu, 10 Apr 2025 08:37:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1744274248;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=r9BN7vcK50A+/Pthg8cvvrb8KO1u3e1IMqjO+eqc8PU=;
+	b=VCK3utvlpNaG8Nj54Qfx1SeidjGbSasYRCW2akCLiGnOh8qAjgfYQ264I85//qvfGjLI/8
+	RfNGXTQURWYWA2fTVOuzoFjvY0brFLsa7WPPg4K5XcXkI965yZgol0iRb9d+zCdvWpRyaj
+	NkCJetYOOrAf4q9LIwKHmMjI6PO3KTqApsypbj+s/xn29GefSU2esaEpWJ7qUs5z26YXV0
+	TXxT/zyRLn2z3fwGDcj7f4CAiPR/fVIAYADNeM4B9etZDx5zcw4EKlck9LxyXvfChi+Ovt
+	Wz3Xx9CO5LCo9gHBRrXveivzkWs0U6SeczUWxvU1yCa/xNmTJbb+/vQxjSZmVw==
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 10 Apr 2025 10:37:27 +0200
+Message-Id: <D92TM7350HVV.19ONAJBTPEAU6@bootlin.com>
+Subject: Re: [PATCH v6 03/12] pinctrl: Add MAX7360 pinctrl driver
+Cc: "Lee Jones" <lee@kernel.org>, "Rob Herring" <robh@kernel.org>,
+ "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Conor Dooley"
+ <conor+dt@kernel.org>, "Kamel Bouhara" <kamel.bouhara@bootlin.com>, "Linus
+ Walleij" <linus.walleij@linaro.org>, "Bartosz Golaszewski" <brgl@bgdev.pl>,
+ "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, "Michael Walle"
+ <mwalle@kernel.org>, "Mark Brown" <broonie@kernel.org>, "Greg
+ Kroah-Hartman" <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
+ <rafael@kernel.org>, "Danilo Krummrich" <dakr@kernel.org>,
+ <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <linux-gpio@vger.kernel.org>, <linux-input@vger.kernel.org>,
+ <linux-pwm@vger.kernel.org>, =?utf-8?q?Gr=C3=A9gory_Clement?=
+ <gregory.clement@bootlin.com>, "Thomas Petazzoni"
+ <thomas.petazzoni@bootlin.com>
+From: "Mathieu Dubois-Briand" <mathieu.dubois-briand@bootlin.com>
+To: "Andy Shevchenko" <andriy.shevchenko@intel.com>
+X-Mailer: aerc 0.19.0-0-gadd9e15e475d
+References: <20250409-mdb-max7360-support-v6-0-7a2535876e39@bootlin.com>
+ <20250409-mdb-max7360-support-v6-3-7a2535876e39@bootlin.com>
+ <D9276VFZ6GYJ.EO9D1V7C4JSI@bootlin.com>
+ <Z_ahLqrMASFXbG5Q@smile.fi.intel.com>
+In-Reply-To: <Z_ahLqrMASFXbG5Q@smile.fi.intel.com>
+X-GND-State: clean
+X-GND-Score: -100
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvtdekgeegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpegggfgtfffkufevhffvofhfjgesthhqredtredtjeenucfhrhhomhepfdforghthhhivghuucffuhgsohhishdquehrihgrnhgufdcuoehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmqeenucggtffrrghtthgvrhhnpeekhefhhfelhfekjeeugedtudelueetffejfffhkeeivedvveelgfetfeelveetvdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdgsohhothhlihhnrdgtohhmnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopehlohgtrghlhhhoshhtpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvddvpdhrtghpthhtoheprghnughrihihrdhshhgvvhgthhgvnhhkohesihhnthgvlhdrtghomhdprhgtphhtthhop
+ ehlvggvsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehrohgshheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepkhhriihkodgutheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheptghonhhorhdoughtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkrghmvghlrdgsohhuhhgrrhgrsegsohhothhlihhnrdgtohhmpdhrtghpthhtoheplhhinhhushdrfigrlhhlvghijheslhhinhgrrhhordhorhhgpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplh
+X-GND-Sasl: mathieu.dubois-briand@bootlin.com
 
-	Hi all,
+On Wed Apr 9, 2025 at 6:32 PM CEST, Andy Shevchenko wrote:
+> On Wed, Apr 09, 2025 at 05:03:02PM +0200, Mathieu Dubois-Briand wrote:
+>> On Wed Apr 9, 2025 at 4:55 PM CEST, Mathieu Dubois-Briand wrote:
+>> > Add driver for Maxim Integrated MAX7360 pinctrl on the PORT pins. Pins
+>> > can be used either for GPIO, PWM or rotary encoder functionalities.
+>
+> ...
+>
+> The all the rest of the driver LGTM, but the below.
+>
+>> > +	device_set_of_node_from_dev(dev, dev->parent);
+>>=20
+>> Ok, so this goes a bit against what I said I was going to do on my
+>> previous series, let me explain why. Same reasoning applies for both
+>> uses, in PWM and pinctrl drivers.
+>>=20
+>> With my previous experiments, I came to the conclusion that:
+>> - Either we should use device_set_of_node_from_dev() as I do here.
+>> - Or we should add more subnodes in the device tree binding.
+>
+>> - Also, copying the fwnode with device_set_node() was not possible, as
+>>   the kernel would then try to apply pinctrl on both the parent and
+>>   child device.
+>
+> Hmm... I need to refresh my memory with the old discussions. Can you poin=
+t out
+> to the problem statement with that approach?
+>
 
-The Apple Touch Bar is only present on x86 MacBook Pros.  Hence this
-patch series adds dependencies on X86, to prevent asking the user about
-its drivers when configuring a kernel for a different architecture.
+I mentioned here briefly in my previous series: https://lore.kernel.org/lkm=
+l/D8R4B2PKIWSU.2LWTN50YP7SMX@bootlin.com/
 
-Changes compared to v1[1]:
-  - Split in two patches,
-  - Correct Fixes.
+So the issue is, if I copy the parent fwnode using device_set_node(),
+the kernel is trying to apply any pinctrl defined on the node with
+pinctrl- properties on both the parent and the child node. Of course,
+only the first one will succeed, as two devices cannot request the same
+pins at the same time.
 
-Thanks!
+>> I previously said the second solution was probably the way to go, but I
+>> changed my mind for two reasons.
+>>=20
+>> First having more subnodes in the device tree was already rejected in
+>> the past in the reviews of the dt-bindings patch. This do makes sense as
+>> it would be describing device internals (which should not be made in
+>> DT), just to ease one specific software implementation (which should
+>> also be avoided). So I believe this change would again be rejected.
+>> https://lore.kernel.org/lkml/58c80c2a-2532-4bc5-9c9f-52480b3af52a@kernel=
+.org/
+>>=20
+>> But the the second reason is, doing
+>> 'git grep "device_set_of_node_from_dev.*parent"', I found several
+>> drivers using device_set_of_node_from_dev() for a similar need. Some of
+>> these uses are also for MFD child devices:
+>> - gpio-adp5585.c / pwm-adp5585.c,
+>> - pwm-ntxec.c,
+>> - max77620-regulator.c / max77620_thermal.c.
+>>=20
+>> So, based on this, I believe using device_set_of_node_from_dev() in
+>> these two drivers is the way to go.
+>
+> The problem with this solution is that, It's OF-centric. Which shouldn't =
+be
+> done in a new code (and I don't see impediments to avoid it). Yes, it doe=
+s
+> the right thing for the case, but only on OF systems. Note, fwnode is a l=
+ist
+> of maximum of two entries (yeah, designed like that right now), can you u=
+tilise
+> that somehow?
 
-[1] "HID: HID_APPLETB_BL and HID_APPLETB_KBD should depend on X86"
-    https://lore.kernel.org/4b046ce1cae2170453037c7ea006c91c12383dab.1744190441.git.geert+renesas@glider.be
+Looking at MFD code, I believe ACPI MFD child devices already get the
+parent fwnode, except if a fwnode exists for them.
 
-Geert Uytterhoeven (2):
-  HID: HID_APPLETB_KBD should depend on X86
-  HID: HID_APPLETB_BL should depend on X86
+https://elixir.bootlin.com/linux/v6.13.7/source/drivers/mfd/mfd-core.c#L90
 
- drivers/hid/Kconfig | 2 ++
- 1 file changed, 2 insertions(+)
+Thanks for your review.
 
--- 
-2.43.0
+--=20
+Mathieu Dubois-Briand, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

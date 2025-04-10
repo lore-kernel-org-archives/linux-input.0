@@ -1,125 +1,81 @@
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from xavier.telenet-ops.be (xavier.telenet-ops.be [195.130.132.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 572F31EBA03;
-	Thu, 10 Apr 2025 08:22:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 395411F1932
+	for <linux-input@vger.kernel.org>; Thu, 10 Apr 2025 08:31:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.130.132.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744273369; cv=none; b=u83lKdk83wHR0qjWbPdepVlxF1CMwua5a+KDUT/qcp9TaixQHS0/ykLXSNIJN5KdCPRBvFV6qMojsJLe/nKvXebgCDxns8qM/IvG/em7B9rCT1FsPttLTUOFmxUTeVFe89OYeBOtpoam3Z4BmZmFpA8ItpB6GxEl+j9EiQ0iVFs=
+	t=1744273864; cv=none; b=tePqgN0EhVe6f+JEsFjocR/iK7XcbUrdj1DGBHo99qTak4nvPEfeBov3/2cs4u9J+1WPaTOoEXpStNGnV2sCFW/dYr1BXE68wsJw6huFtIE+D78TIlx3cWXc9SsiDg7bPcddHImpo1KbBkTtSuRGtdsCc4X3xX7vn6JazTcMu5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744273369; c=relaxed/simple;
-	bh=J2Xwb0BAaI+5Ws9mo7EriiJABVLHC5+GCzzr03j5I70=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:From:To:
-	 References:In-Reply-To; b=IVa3j1UhbW8Vwkmonyv2zxDVLq4I8351HXi3qMvXbQZnjjGISxiMEkaAuVEPKuqXMSzUH5wxeRMdjyeqO758loUyz9gnRzDmqTG5AXo125UZYWCRfGnzW9NL01RXtql64Kiu9zDceaOStWkRukhO1JgMub8bcEJ8VIgXkK8qkyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=KXHzFxW5; arc=none smtp.client-ip=217.70.183.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="KXHzFxW5"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 14CF643158;
-	Thu, 10 Apr 2025 08:22:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1744273364;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Ue/3HBgf+//oq0TTM6uv2vmPqBX5UWYBBw5+A+yFldY=;
-	b=KXHzFxW5lkXV6FcZBimiz9eUYQUWZ33xPZFFtIa/93VDIcBP1fl/D4DZzt8juXE1ZcvNeQ
-	KUuCPbZxJTgsFVjuyJ4Rwg15o8YAG7zfIBpPQUEQkdto2CnjNVgcocWhxiHyW4mjrsPphf
-	rQAAWR+YNOwXAUM7IpgbYJP1Ph0cGMYchSAkb4j/Vu5/VLioVWgGwC50FbZ9Bci+TOWJ5s
-	EHl/2UF3kAe/ph/ekMxEqQbQu3MnJpQbkyfsj0z9v4rNPj57i8/n8Xb935DbXHOSjB67wg
-	TEafQNJ2hBQTWuixtEyeMFlJF3OhuuenlVSRMRsZ3NgZ3YOYj8ffSux+CGHbtQ==
+	s=arc-20240116; t=1744273864; c=relaxed/simple;
+	bh=WNxzZulseYfokjA82gBJGgk0nI2uc03lGM7VmIHXjtA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=sCQ590b3WO36KPV4p03xDPJ1V8J9+Wilj/m9he7hlFtBOX+WD6RV3s5tMz1xF6nED/MBSVVSWRGo9woOxP1Hg1541kD53qTJLxuDJJpbK78C0glQsLQz7i15gizWAWv7xxfBHh12UiehyBJ2C3n8Iq9uVW/XFilHm6/SeBsiFtY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be; spf=none smtp.mailfrom=linux-m68k.org; arc=none smtp.client-ip=195.130.132.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=glider.be
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux-m68k.org
+Received: from ramsan.of.borg ([IPv6:2a02:1810:ac12:ed80:1f1c:893d:f419:6517])
+	by xavier.telenet-ops.be with cmsmtp
+	id bLWz2E00N3xgA3j01LWz1B; Thu, 10 Apr 2025 10:31:00 +0200
+Received: from rox.of.borg ([192.168.97.57])
+	by ramsan.of.borg with esmtp (Exim 4.97)
+	(envelope-from <geert@linux-m68k.org>)
+	id 1u2nJK-00000000Gmy-2vB9;
+	Thu, 10 Apr 2025 10:30:59 +0200
+Received: from geert by rox.of.borg with local (Exim 4.97)
+	(envelope-from <geert@linux-m68k.org>)
+	id 1u2nJL-00000009IPN-3MAN;
+	Thu, 10 Apr 2025 10:30:59 +0200
+From: Geert Uytterhoeven <geert+renesas@glider.be>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Aditya Garg <gargaditya08@live.com>,
+	Kerem Karabay <kekrby@gmail.com>
+Cc: linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH v2 2/2] HID: HID_APPLETB_BL should depend on X86
+Date: Thu, 10 Apr 2025 10:30:57 +0200
+Message-ID: <9f1fcef9094c62eea84872a5d4ba04eaf46f664e.1744273511.git.geert+renesas@glider.be>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <cover.1744273511.git.geert+renesas@glider.be>
+References: <cover.1744273511.git.geert+renesas@glider.be>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 10 Apr 2025 10:22:42 +0200
-Message-Id: <D92TAWMKKM8Z.7E4MKWHTXVMS@bootlin.com>
-Subject: Re: [PATCH v6 01/12] dt-bindings: mfd: gpio: Add MAX7360
-Cc: "Lee Jones" <lee@kernel.org>, "Rob Herring" <robh@kernel.org>,
- "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Conor Dooley"
- <conor+dt@kernel.org>, "Kamel Bouhara" <kamel.bouhara@bootlin.com>, "Linus
- Walleij" <linus.walleij@linaro.org>, "Bartosz Golaszewski" <brgl@bgdev.pl>,
- =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, "Michael Walle"
- <mwalle@kernel.org>, "Mark Brown" <broonie@kernel.org>, "Greg
- Kroah-Hartman" <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
- <rafael@kernel.org>, "Danilo Krummrich" <dakr@kernel.org>,
- <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <linux-gpio@vger.kernel.org>, <linux-input@vger.kernel.org>,
- <linux-pwm@vger.kernel.org>, <andriy.shevchenko@intel.com>,
- =?utf-8?q?Gr=C3=A9gory_Clement?= <gregory.clement@bootlin.com>, "Thomas
- Petazzoni" <thomas.petazzoni@bootlin.com>
-From: "Mathieu Dubois-Briand" <mathieu.dubois-briand@bootlin.com>
-To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-X-Mailer: aerc 0.19.0-0-gadd9e15e475d
-References: <20250409-mdb-max7360-support-v6-0-7a2535876e39@bootlin.com>
- <20250409-mdb-max7360-support-v6-1-7a2535876e39@bootlin.com>
- <triuq2rqofk4psfauemu6uikizvphnqg7om5x4b6sjc3tjg2a4@5fvv5l4kollo>
-In-Reply-To: <triuq2rqofk4psfauemu6uikizvphnqg7om5x4b6sjc3tjg2a4@5fvv5l4kollo>
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvtdekgeduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpegggfgtfffkufevhffvofhfjgesthhqredtredtjeenucfhrhhomhepfdforghthhhivghuucffuhgsohhishdquehrihgrnhgufdcuoehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmqeenucggtffrrghtthgvrhhnpeekhefhhfelhfekjeeugedtudelueetffejfffhkeeivedvveelgfetfeelveetvdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgpdgsohhothhlihhnrdgtohhmnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemfehftghfmehfsgdtugemuddviedvmedvvgejiedphhgvlhhopehlohgtrghlhhhoshhtpdhmrghilhhfrhhomhepmhgrthhhihgvuhdrughusghoihhsqdgsrhhirghnugessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvddvpdhrtghpthhtohepughmihhtrhihrdhtohhrohhkhhhovhesghhmrghilhdrtghomhdprhgtphhtthhopehlv
- ggvsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehrohgshheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepkhhriihkodgutheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheptghonhhorhdoughtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkrghmvghlrdgsohhuhhgrrhgrsegsohhothhlihhnrdgtohhmpdhrtghpthhtoheplhhinhhushdrfigrlhhlvghijheslhhinhgrrhhordhorhhgpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplh
-X-GND-Sasl: mathieu.dubois-briand@bootlin.com
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Wed Apr 9, 2025 at 10:58 PM CEST, Dmitry Torokhov wrote:
-> Hi Mathieu,
+The Apple Touch Bar is only present on x86 MacBook Pros.  Hence add a
+dependency on X86, to prevent asking the user about this driver when
+configuring a kernel for a different architecture.
 
-Hi Dmitry,
+Fixes: 1fd41e5e3d7cc556 ("HID: hid-appletb-bl: add driver for the backlight of Apple Touch Bars")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
+This is v2 of "HID: HID_APPLETB_BL and HID_APPLETB_KBD should depend on
+X86".
 
->
-> On Wed, Apr 09, 2025 at 04:55:48PM +0200, Mathieu Dubois-Briand wrote:
->> Add device tree bindings for Maxim Integrated MAX7360 device with
->> support for keypad, rotary, gpios and pwm functionalities.
->>=20
->> +
->> +    i2c {
->> +      #address-cells =3D <1>;
->> +      #size-cells =3D <0>;
->> +
->> +      io-expander@38 {
->> +        compatible =3D "maxim,max7360";
->> +        reg =3D <0x38>;
->> +
->> +        interrupt-parent =3D <&gpio1>;
->> +        interrupts =3D <23 IRQ_TYPE_LEVEL_LOW>,
->> +                     <24 IRQ_TYPE_LEVEL_LOW>;
->> +        interrupt-names =3D "inti", "intk";
->> +
->> +        keypad,num-rows =3D <8>;
->> +        keypad,num-columns =3D <4>;
->> +        linux,keymap =3D <
->> +          MATRIX_KEY(0x00, 0x00, KEY_F5)
->> +          MATRIX_KEY(0x01, 0x00, KEY_F4)
->> +          MATRIX_KEY(0x02, 0x01, KEY_F6)
->> +          >;
->> +        keypad-debounce-delay-ms =3D <10>;
->> +        autorepeat;
->> +
->> +        rotary-debounce-delay-ms =3D <2>;
->> +        linux,axis =3D <0>; /* REL_X */
->
-> Probably this has been already discussed, but shouldn't keyboard and
-> rotary encoder be represented as sub-nodes here, similar to how GPIO
-> block is represented?
->
-> Thanks.
+v2:
+  - Split in two patches.
+---
+ drivers/hid/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-Yes, this has been discussed on v1 and I was asked to remove most of the
-subnodes.
-
-https://lore.kernel.org/lkml/58c80c2a-2532-4bc5-9c9f-52480b3af52a@kernel.or=
-g/
-
-Thanks for your review.
-
---=20
-Mathieu Dubois-Briand, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 119e5190a2df786e..43859fc757470caf 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -151,6 +151,7 @@ config HID_APPLEIR
+ config HID_APPLETB_BL
+ 	tristate "Apple Touch Bar Backlight"
+ 	depends on BACKLIGHT_CLASS_DEVICE
++	depends on X86 || COMPILE_TEST
+ 	help
+ 	  Say Y here if you want support for the backlight of Touch Bars on x86
+ 	  MacBook Pros.
+-- 
+2.43.0
 

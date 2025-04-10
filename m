@@ -1,141 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com [209.85.222.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8054728CF5A;
-	Thu, 10 Apr 2025 14:28:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71E3028EA7C;
+	Thu, 10 Apr 2025 14:41:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744295304; cv=none; b=nO5B3QJvc1qwvp5St+RFQG2Z2Xji7hKDkUa6zAIsVdeUzBJBXNx1o8n8mFSd4kYOaV9tn/8TAoQE+9J9Zu92fyedN73YWCdNdq30wdGz7zwLAbQHFamRdTtoQ2HVQOyuilKASKW82APTOG+hEC4NcTe3IfAMI3AdKYIv+ZP/adg=
+	t=1744296077; cv=none; b=XXKuK5SFu2eqb36NP9aCTROo31GTsMKN4nBy0b/zN6vuei5A1av4ocQHExaT5xbJwF2ksTkRWq0ee6VlZd3IE+DI29Cxt3dSZG/156RuThuqVAIGI7oQGu6nnZUm83xq6UmHLqUbe8xbWEX/L56ykh3CkU+K84kYsMOlGhIqQi4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744295304; c=relaxed/simple;
-	bh=uhoOYFv9own1t9GTd9uKLCLoHj0zKUN854bDbom6MDw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ifq2ok3HQaqaKz+W23Hu6JKxODXlvRqqCelirMHX2TJ1ztGFTS75GrnH32wc4nekzXICysM+5+LZGHhQG0Lj/ps0eDF4Zi1zx8AnA0TSm2f26hz7rvJqKQVqIoi0iu2gvIGMCvc7l8gQoNBv0RlQ16Q/ykKjo1rhEvBX4wRv9ZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rfa+SSwh; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rfa+SSwh"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D9E43C4CEF0;
-	Thu, 10 Apr 2025 14:28:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744295304;
-	bh=uhoOYFv9own1t9GTd9uKLCLoHj0zKUN854bDbom6MDw=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=rfa+SSwhuFPe/HXCWr/Pd7XyEJZsDkCbiA9cgMXyUN4RkX1JGW7Yjn2gmG5DdmBGP
-	 20P86jpYSxOQ27iicyO7FJCB6TwSuJzRxXewpFSmuao4zWAZkeP1EanP0e+3yu6z/c
-	 NuaobtXa3KpgeoyQ5U9TEI8OF04dlUFAGR/ElUMS9ha0zZoAvgC5B0p4pOKcHIdSyp
-	 c9vZGayfsi5UMYDfh8HURk8YlQYSWEEz3Xz5lZn3E/kgpmaxmA873u/jNawZ6nNz4P
-	 GW1sUWZWf+EgyUuGk4A5roEVFgGHQuPY5e+SDjmN2paCWWcPX1cE4doVqIoLPDzVOv
-	 iPChqcS6pRy9Q==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEF0BC369AB;
-	Thu, 10 Apr 2025 14:28:23 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Date: Thu, 10 Apr 2025 16:28:23 +0200
-Subject: [PATCH v5 5/7] Input: synaptics-rmi4 - don't do unaligned reads in
- IRQ context
+	s=arc-20240116; t=1744296077; c=relaxed/simple;
+	bh=7C0dSwhhH0Uym7Hv45NFMdC2KoQRv1e/nEQ7pjCJr7Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HFTiIXeyeuiISFZahCN+BWJmTgQ4gaFaUP8DGLlk1LfNQsp7VzjkUVUD+lHj/Sag3V8A1AbUfpFppHNi3xut1DqwUqsHvA5mBGyv86e2qNpjwgc8oqyt2J7RlUz6ujXSJCnnNmo3W1/PcCQAtPzoCS3Fwc5KuTBRoMGWGEds0gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ua1-f46.google.com with SMTP id a1e0cc1a2514c-86b9b1def28so779512241.3;
+        Thu, 10 Apr 2025 07:41:14 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1744296072; x=1744900872;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qFiu9zt8X9KIFbJmQ2flKV3tGXtpJjP4Y1fqbPOxvLg=;
+        b=ldHOkDOZWynG0DeC/tvm1+P8qe4T1PWrOWC7brtemy59jm82bOZatsXYNfGI6OrYo2
+         30hma0i2WpMCx9iNSO+dCWMRzKPUstVaBIQr7G0WnS1LDo0hyMXul2AD13LU/En+TBV+
+         vlDNaEozuodIctUMO+XseW1BqxS2x6BKAmXZ14poTSliYBwLg2Lz/00BRLztAm8DXfqZ
+         ZzlA9p9QTCzPzX3hoAGUgVY4I843iNWZnZ9QuvuwOQg4abapL0BqjbZ5Mmg3rFy5Nqy2
+         QH0Irgq1I/hpKuhE44hKybYUhM8PW0AI/CBxKZlhacmC2xUAWqZkcDDNV6JVnL7ZlkQK
+         wG1g==
+X-Forwarded-Encrypted: i=1; AJvYcCVUh1mKo13/XdMZag/lOlUtCM6TVfC+hFz8AA5gt2b7XxN36VLn6DYbauioMiz3mIv6DaxPPCbhrCnfwA==@vger.kernel.org, AJvYcCXCB/L15/1SRMXbX5OIlotkQGaj7VBZB9KMttaxgjZIYzwjc3r/Skf+HYUOuBrNODx4w3f/azQyacWJvPRg@vger.kernel.org
+X-Gm-Message-State: AOJu0YynI8Pa8j66yFnX1pUw0Uege1LiHEa17T+0vfdFErojy+/msNnc
+	qGfubVlo3z8BMyRi1AgbrUriXBw/DveVpRhpuqRZu8BtoNwBhXZhJdREDlO67uY=
+X-Gm-Gg: ASbGncsj7JXQPh5CwAJetKbq3Wp3M+nep9iqrjAvrUuRmXV078iw+WJulCPXvFZd9Qt
+	5ZmjHxRoSJvOzgMfSQcewsnRtFBoxP9rcu33eJUwc2ETof3fmnCW6We4L3B5Te2y8XynADWjYru
+	3XYmEDwsyeHQTNqzRx7hpacypqQI584i3rKBTdw714+H+bpNIPRAygBq1sEtr1+7LaRzJIcQHdG
+	zTbXaQWaXxgmYbmgdAJC10Dr3BiJyzm92RQKjKUhbHwV+vPa6+/NSlvja+KXpTdR17SZEY25fEb
+	BI80bjmj9FYehPO055B7GoYEHhxn5MBgAuJqDr4wh9qDkuPwMAkfDCy59WhPOumHJUbj+dxp5E/
+	yWo4=
+X-Google-Smtp-Source: AGHT+IEZuVUC4wluVyYeodVc6nUemC/rvYgm/RU3ugH0bi5jiVeLJTL98XoJDKg6hnoEsa3VpSYSMA==
+X-Received: by 2002:a05:6102:1496:b0:4c1:9b88:5c30 with SMTP id ada2fe7eead31-4c9d35ce04emr2900914137.19.1744296072340;
+        Thu, 10 Apr 2025 07:41:12 -0700 (PDT)
+Received: from mail-ua1-f45.google.com (mail-ua1-f45.google.com. [209.85.222.45])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-87557136a61sm669130241.8.2025.04.10.07.41.11
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 10 Apr 2025 07:41:11 -0700 (PDT)
+Received: by mail-ua1-f45.google.com with SMTP id a1e0cc1a2514c-86b9b1def28so779475241.3;
+        Thu, 10 Apr 2025 07:41:11 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVOYGnolFi2xl2xiqPofQjdkr310xyU/2uXaPnpT9iMG2bJid6CoK7K4gNRVgZoAUL7jodahU693CJdfw==@vger.kernel.org, AJvYcCVfrsUZz0+zvGK8CYf1txQed5wkhb5jygsMTrMfJyOOn+yAbNrRFw2tWTho5WTB3AOQc/hurNZKiwuB9Wi2@vger.kernel.org
+X-Received: by 2002:a05:6102:3f48:b0:4c1:b2c2:61a with SMTP id
+ ada2fe7eead31-4c9d362a2f9mr2675278137.25.1744296071578; Thu, 10 Apr 2025
+ 07:41:11 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250410-synaptics-rmi4-v5-5-b41bb90f78b9@ixit.cz>
-References: <20250410-synaptics-rmi4-v5-0-b41bb90f78b9@ixit.cz>
-In-Reply-To: <20250410-synaptics-rmi4-v5-0-b41bb90f78b9@ixit.cz>
-To: Kaustabh Chakraborty <kauschluss@disroot.org>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
- Matthias Schiffer <matthias.schiffer@ew.tq-group.com>, 
- Vincent Huang <vincent.huang@tw.synaptics.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Caleb Connolly <caleb.connolly@linaro.org>, 
- phone-devel@vger.kernel.org, ~postmarketos/upstreaming@lists.sr.ht, 
- David Heidelberg <david@ixit.cz>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2474; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=yMLuXgF9v/gFFJ+eFIvXnbQst25n9j3YV0dhX4KqpyU=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBn99WFmjYsKd4012UJV1sQ5g8dVUQula1pMnNHL
- y9RLMiDF3CJAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCZ/fVhQAKCRBgAj/E00kg
- clExEACdXQa8cCM10O9K6rzfHkTi2+1H7mbGlKjuN39h25Fg9H85ItmRvRSwHK92BkFa6RDUmT9
- DMYuZFcMHCUE5wqxaaUM1LV6PTTGmoaj20AYXi7gd5azOX9DRttSYtSAuAkOl2etCukXpLHDV7R
- ZkukkbTdcBTzrkgCXh+eUvy4lKhd+F3urto4tRart2RkalbYnh53QslRHvIgaVlfvVDKB1MQZKm
- 2zARuDWJJcQ3lryEszvuDMgrn1poJa+LLU1H9yUbAPHTlbHq00vIU/m1KuJW07X1/+1miTFLcgJ
- W2geL7JWcQsSAoeDKFBvL9OePyDpDB7wlCXUqneHc+goIoslhfeno+4CXHAOeIyX7I39Lzr2/5Y
- Sx1V7yIkVW4KGkQKlWlr+dA9joYLE1FufhGigPFc/bXfcYUExae9Vm/Lwh2Rz2uU29fCQuha+ut
- bVw2zugBdbfnBvxUyXmt7b8jF/mMGXPLpUrlaYmLZ9IOxZRqUZ3WrwzAAbYMPs3PDVKQdXNBNHh
- +wtrLQk61l/poSUV7mxiiO5O6Rg+/iWHQ69h2ocjx9ozdJRMtfEgiKt0S+iuHLVbQcsWrFEZF9S
- r5sT0PPZzHEasUuf/HkBCZYzQwG27TuJGjzMzzxP2t5aYHL2ph+ZEoMUipuu/BOYdWc228VuiXW
- DQ5SbUT3L0Ap1Bg==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
+References: <cover.1744273511.git.geert+renesas@glider.be> <8fb6c5995f0e72482bad6367d89d9ee5312dd409.1744273511.git.geert+renesas@glider.be>
+ <PN3PR01MB9597160EE7E131BCC171FA39B8B72@PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM>
+In-Reply-To: <PN3PR01MB9597160EE7E131BCC171FA39B8B72@PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Thu, 10 Apr 2025 16:40:59 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdVYVpgS9fSMbB=S0cF=1QLyVQ993q9-JizBS2N6azSicA@mail.gmail.com>
+X-Gm-Features: ATxdqUHJXc0uihZtU6vWRVhvAIyc63b2XuhYkoattHbmPcm5Q-Zm9WRSRerjQbc
+Message-ID: <CAMuHMdVYVpgS9fSMbB=S0cF=1QLyVQ993q9-JizBS2N6azSicA@mail.gmail.com>
+Subject: Re: [PATCH v2 1/2] HID: HID_APPLETB_KBD should depend on X86
+To: Aditya Garg <gargaditya08@live.com>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, 
+	Kerem Karabay <kekrby@gmail.com>, 
+	"linux-input@vger.kernel.org" <linux-input@vger.kernel.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Kaustabh Chakraborty <kauschluss@disroot.org>
+Hi Aditya,
 
-Some replacement displays include third-party touch ICs which incur a
-significant penalty (1-2 seconds) when doing certain unaligned reads.
-This is enough to break functionality when it happens in the hot path,
-so adjust the interrupt handler to not read from an unaligned address.
+On Thu, 10 Apr 2025 at 10:52, Aditya Garg <gargaditya08@live.com> wrote:
+> > On 10 Apr 2025, at 2:01=E2=80=AFPM, Geert Uytterhoeven <geert+renesas@g=
+lider.be> wrote:
+> > =EF=BB=BFThe Apple Touch Bar is only present on x86 MacBook Pros.  Henc=
+e add a
+> > dependency on X86, to prevent asking the user about this driver when
+> > configuring a kernel for a different architecture.
+>
+> There are a lot of spaces before Hence.
 
-Signed-off-by: Kaustabh Chakraborty <kauschluss@disroot.org>
-Signed-off-by: Caleb Connolly <caleb.connolly@linaro.org>
-Signed-off-by: David Heidelberg <david@ixit.cz>
----
- drivers/input/rmi4/rmi_driver.c | 20 +++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+That is intentional: double space between sentences.
 
-diff --git a/drivers/input/rmi4/rmi_driver.c b/drivers/input/rmi4/rmi_driver.c
-index 0f6dbe586c652d641178f43ec27df3613126ca66..f977541d8913525d53a59e1d53c33897f1c93901 100644
---- a/drivers/input/rmi4/rmi_driver.c
-+++ b/drivers/input/rmi4/rmi_driver.c
-@@ -136,9 +136,14 @@ static int rmi_process_interrupt_requests(struct rmi_device *rmi_dev)
- 		return 0;
- 
- 	if (!data->attn_data.data) {
-+		/*
-+		 * Read the device status register as well and ignore it.
-+		 * Some aftermarket ICs have issues with interrupt requests
-+		 * otherwise.
-+		 */
- 		error = rmi_read_block(rmi_dev,
--				data->f01_container->fd.data_base_addr + 1,
--				data->irq_status, data->num_of_irq_regs);
-+				data->f01_container->fd.data_base_addr,
-+				(u8 *)data->irq_status - 1, data->num_of_irq_regs + 1);
- 		if (error < 0) {
- 			dev_err(dev, "Failed to read irqs, code=%d\n", error);
- 			return error;
-@@ -1078,16 +1083,17 @@ int rmi_probe_interrupts(struct rmi_driver_data *data)
- 	data->num_of_irq_regs = (data->irq_count + 7) / 8;
- 
- 	size = BITS_TO_LONGS(data->irq_count) * sizeof(unsigned long);
--	data->irq_memory = devm_kcalloc(dev, size, 4, GFP_KERNEL);
-+	data->irq_memory = devm_kzalloc(dev, size * 4 + 1, GFP_KERNEL);
- 	if (!data->irq_memory) {
- 		dev_err(dev, "Failed to allocate memory for irq masks.\n");
- 		return -ENOMEM;
- 	}
- 
--	data->irq_status	= data->irq_memory + size * 0;
--	data->fn_irq_bits	= data->irq_memory + size * 1;
--	data->current_irq_mask	= data->irq_memory + size * 2;
--	data->new_irq_mask	= data->irq_memory + size * 3;
-+	/* The first byte is reserved for the device status register */
-+	data->irq_status	= data->irq_memory + size * 0 + 1;
-+	data->fn_irq_bits	= data->irq_memory + size * 1 + 1;
-+	data->current_irq_mask	= data->irq_memory + size * 2 + 1;
-+	data->new_irq_mask	= data->irq_memory + size * 3 + 1;
- 
- 	return retval;
- }
+> Also, Apple Touch Bar is present on some Arm MacBooks as well, so probabl=
+y mention that this driver is only for touchbars on x86 Macs and there is a=
+ separate driver for the Arm Macs.
 
--- 
-2.49.0
+Why is there a separate driver for Arm Macs?
+Which driver is that?
 
+Gr{oetje,eeting}s,
 
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds

@@ -1,136 +1,120 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AAE715CD74;
-	Sat, 19 Apr 2025 19:46:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BED5F1922F6;
+	Sat, 19 Apr 2025 20:04:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745091988; cv=none; b=lLaQ3kNXU+GXEY/oMzNaEg/54MfYrvp1FQ3d1HZOPnUuo5J7IlyKxGnrqb4oU9CT6dfIm4VtGpO/YDT6fxplYOWagl4zjjXiPShZA611WxFQ3bmnKJS1T1b2u6a3qx1aEm5+fbCtrMAnu7RXTxis/ibXvZmrxCA2jaO10j+0rmU=
+	t=1745093100; cv=none; b=OHMmQCVgNfV6vkE083ThfVodrDKs/95y2WEG6y/hlMMcGPQez/swZqo+8vh8xRBa8UJuA2sbFrE4Rngv+FUJuOAaO53F6Jwh0lazi0ybEdlqWavIYA68n5U0Wbh28L9CyKcBw05n4LbEm4y6yvWlvA3j8I8+bUpJV5aPkFoShPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745091988; c=relaxed/simple;
-	bh=74mO15uFIckJUXnXnTZxaEJt7loiHy0xGNx6hkYoLZA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZyZYC28UjUw0VtHpSJWUlz7oOHs1LGHIpOnVIEFtZPJ0rE+qMyBp2YaF2SNX2vfGKA85d6xW4xg/CdfvQz1XVMxOQIHln0Yrnz1wegRRiZ0OhxJ5CmTSmPmF3J/lk0YcijzgcSncmUmGW/nnvZk5YsIqwuccJEBhv8Z2ZIPWD70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HCwfrPct; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1745093100; c=relaxed/simple;
+	bh=u5FJ7O/Bk4zWHpep5CMeQFngie6H5PQbHNqajSf2QBo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=RbQ4evJnMxxSPNoUnoiYy1uxH/vdj9pKpDyLxMXhxnPzwjCRoIihAyFxw3p9AhiKvi+iTDwDz5hhAr+E+blAN7jWL6xGNxvj8sT2OXiIqBViiHhcre+1URg/tv1Qx4y4yBL1P0E6Oe8wL9j/8AC5DSlmnk159WOIA2objZFSx7E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=X5Q899BP; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HCwfrPct"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id B07C8C4CEE7;
-	Sat, 19 Apr 2025 19:46:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1745091987;
-	bh=74mO15uFIckJUXnXnTZxaEJt7loiHy0xGNx6hkYoLZA=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=HCwfrPctLCTsWA+uXc4CGeVYSg/Bjs6JeROHrYRKpfFcWnNHiZbh0A1PxSNiRc+Ci
-	 ralXOP6QbVoPf058iXXlg4R+nVPdAKD41w2ZzZ0xhHprbL8HAMNZUyLpq4yKoYRXnV
-	 +Y0rQhccLF1VKwVCdFaUN9M7wWgUQFT+mwggd9dhJNd1FbbKA7PGwbYMm84oSz+A/h
-	 Yg3AW3rSEfhjBmGEh4+rDjW20EH/uxSN+p+TFvHYKm+qeUtn+JGntE4YCvSuwO1Q33
-	 aThFwcmNRmC3v/L1gcc1D96Beb9c/SNdOkCWkPpn/WnG/yTLmktVbAQ5I13svlGwjr
-	 npG/dsST80VPQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A503C369CF;
-	Sat, 19 Apr 2025 19:46:27 +0000 (UTC)
-From: David Heidelberg via B4 Relay <devnull+david.ixit.cz@kernel.org>
-Subject: [PATCH v5 0/2] Add support for sound profile switching and
- leverage for OnePlus 6 slider
-Date: Sat, 19 Apr 2025 21:46:23 +0200
-Message-Id: <20250419-op6-tri-state-v5-0-443127078517@ixit.cz>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="X5Q899BP"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2260c91576aso25199045ad.3;
+        Sat, 19 Apr 2025 13:04:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1745093098; x=1745697898; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=slCeZF2FANQQmUO1DaJwFXxYa64miWm1wNaU56U8m40=;
+        b=X5Q899BPpjyBjftPW1aijzxXbmGq/ZC3s/V1GBIYObg2OLFXceEIIE6BwHT4fCZm8B
+         SKGzp6d4i9QFJ4I/s2TV3v2I+TzNqTqEIwxTTZ2hLJN+ew1qzsExiU2o+LTWGeopYif2
+         /6x2PLYRw/FP1e8xswX3oufQlwebi9y7eGCPy+CozJmbNlZAz0iiRBLiJaBfGnLIUaUP
+         3raqvjwlbD0T2IoE69UEa5uW5DBtvbyFF4YoPkqS+bhZRshE/CO5wpD7Z02f3uGOItYh
+         QwrrHA+KlEuYkj5Kc+hN7Brq19z48z1nlo/jQgA8Vc3HBxkrvoSdEuXj1qUKCzMFx/22
+         7n2A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1745093098; x=1745697898;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=slCeZF2FANQQmUO1DaJwFXxYa64miWm1wNaU56U8m40=;
+        b=V9CaoBC0FjRAiSVV2i7stAJt1/AF/owsxiV4jAG+6T+INgBK35IZMA64aiJ51cprjg
+         T+injlKVlakKLr6tvfmVqozGEwAonOCGN1q2ACeAEi08cUr/Q48Vol6I6teurKyUiwie
+         s+9b9K2Nac6LQULH01RRPopMLqudsD9LcrY7oLoAIWOr6l0jtjwRXizbci/pWFR4aeqs
+         FEKjCJASeI4S9X0pVfFpd7isHH2C827ZT62YxgiSkD9dQSVKn6S73OHYbRGbqYjksiXP
+         3hgsSa3FCE+kin28VmE/kM3DIOprHNmWXZClVSLmSnNIirsv8TEzbiLkdMUISwzehhbH
+         i+xg==
+X-Forwarded-Encrypted: i=1; AJvYcCUzZbh8AqWyOqyMPBh81RRBGlfpHQi7GCPPjvHYRPC1J+OPxXWj04+brrTsbyc+gU/rbIAoyxWPmIUbKA==@vger.kernel.org, AJvYcCWV6BFsyDGZBQW53TP/nX9/dsnTqG4SqZbWNcgic/Ix2uwqQX4Ix0ACRBjKZcILCFFLkXxGuJ2Qzc2NF/81@vger.kernel.org
+X-Gm-Message-State: AOJu0YwiIX1rYdkRJFe2obO0mIoDn+yKgvNNLGfO1VbF04yacUkb+DEh
+	fygVPhiLJp1kU4mtiWPG72qU3wZrNKdRAZwcIXf6561zDqqh7nJe
+X-Gm-Gg: ASbGncuKdDqqZYR4pcpm2nPXW5eXCaCaLkbILn0QIJzxRCZCjbA1FEpUGI03JLljdzt
+	DsKftiHYw76dvfs/PlSwMEpv/GyiskSZ9gSRj5KFAHv5sZQWSbaZpgeqN/gea73QEQc3gC2Gae9
+	N4QKm+k/CiHDcGUDJ5NxQCa0c5y3fYINjzY965KhwEs9ICZM96LLmaQ/50xnetOzqNNTjfMflU+
+	6lAeb3jBupCLnSjlL6HVRagOpbnXxQXRwpQuRQvJFC8Fn5JUbW0YnaE/6vRtFbSccrpwjlB51oV
+	3CD9OShZus07vjlXf9vpVsM45s3WHRH0d/qRL2GEoTlEK9kvMwZKxD00rK8ZWEumEzIYsFyFt1x
+	to74K6xaVhA==
+X-Google-Smtp-Source: AGHT+IFcuHh1TgIZlauZRXMqg+RwPDUribzs6XJTkNntA9GZO2aGFSa2Ha/BySFu6FyTzglT3vZKVw==
+X-Received: by 2002:a17:902:e88a:b0:223:f9a4:3fa8 with SMTP id d9443c01a7336-22c5359e645mr101597215ad.19.1745093097857;
+        Sat, 19 Apr 2025 13:04:57 -0700 (PDT)
+Received: from purva-IdeaPad-Gaming-3-15IHU6.. ([2409:4080:1187:dd2:ee65:709f:56e9:9560])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22c50bd9963sm37752925ad.34.2025.04.19.13.04.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 19 Apr 2025 13:04:57 -0700 (PDT)
+From: Purva Yeshi <purvayeshi550@gmail.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Purva Yeshi <purvayeshi550@gmail.com>
+Subject: [PATCH] input: iqs5xx: Fix incorrect argument passed to hex2bin
+Date: Sun, 20 Apr 2025 01:34:34 +0530
+Message-Id: <20250419200434.39661-1-purvayeshi550@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAI/9A2gC/22MywrCMBBFf0VmbUISkz5c+R/iIrRjOyBNmcRgK
- f130+4El+dyz1khIhNGuJ5WYMwUKUwF3PkE3einAQX1hcEo45TVrQhzJRKTiMknFNhrr5zXWhs
- HxZkZn/Q5evdH4ZFiCrwc+Wz3FbqQkaWu6loZY7WVAyUZw4J8I37J8Q27mC+/56pxqtHtn/O2b
- V9r8B5LxgAAAA==
-X-Change-ID: 20250419-op6-tri-state-ed1a05a11125
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Jonathan Corbet <corbet@lwn.net>, Jiri Kosina <jikos@kernel.org>, 
- Benjamin Tissoires <bentiss@kernel.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-input@vger.kernel.org, linux-doc@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
- devicetree@vger.kernel.org, Gergo Koteles <soyer@irl.hu>, 
- David Heidelberg <david@ixit.cz>, Casey Connolly <casey@connolly.tech>, 
- Konrad Dybcio <konradybcio@kernel.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1873; i=david@ixit.cz;
- h=from:subject:message-id;
- bh=74mO15uFIckJUXnXnTZxaEJt7loiHy0xGNx6hkYoLZA=;
- b=owEBbQKS/ZANAwAIAWACP8TTSSByAcsmYgBoA/2SkOtINWWfOxhOqR6NZROxrKFHxdFskpbDu
- FNfy0HVQp+JAjMEAAEIAB0WIQTXegnP7twrvVOnBHRgAj/E00kgcgUCaAP9kgAKCRBgAj/E00kg
- ch7gD/429cSbsyDMFzlPEAsnkV+EoxRbi5H+Z04vttfsz+8YGmbLxZg5h3i99laliyXP1HJMBAT
- 3zU/FYdRCH9O1xGML3n/I4Wb44Eno8gXsIcVdD5cZ5VQD+GBo7yEG2IWOoin+spVc9jjCr4oSmA
- E0JoGJdlzKuGJ8K0Anf4XenzGfkzo7gOBms9e4qCWOoyrxzXIlBBpJJGP+cwkBYW/tSYEsRb3On
- tcTElPPAIH98+2W35Q31o/3FKPZBejQfDGkR0g0H+fhC7zlpdwpVJ6FhXhAzr+O5scECjnA46nA
- 3s/n0ZWsaI7CREY9BQnfqOrGXTbe4/rnQgFymttWICI5HIZmQp6dE1h4xxKX8Oo1hDPpSN/ofSf
- jW0trUt4jp++VLAMdRn1sQp1gpidEwzfQR4u1WaUuImEh6UK4wPA+hwf1VPuAXBzlmDuPUBGgJU
- w4YEv23EuurQkX0UEbj2GRT0DQakl+t9fdKjDRRm24Z80dBKuJ2rSJ0ve/kjJ1mbj8AhT3a9BkD
- 0stv+1V3vmWx/EH31W7fojf6KWwfBsjcoPhjMmv6t+DBc3NQlILPBuknrDcYb9ulA33zdfYYV2A
- 1yKnNX/IoI8NTaAvWG3VJivL9wIJXx7i4rlFAdVI9I9aaHwxxUkDGUO5+Xei7eW399gF9x8AnLV
- bd6PX14Edlsf4jQ==
-X-Developer-Key: i=david@ixit.cz; a=openpgp;
- fpr=D77A09CFEEDC2BBD53A7047460023FC4D3492072
-X-Endpoint-Received: by B4 Relay for david@ixit.cz/default with auth_id=355
-X-Original-From: David Heidelberg <david@ixit.cz>
-Reply-To: david@ixit.cz
+Content-Transfer-Encoding: 8bit
 
-This code was tested for two years within the downstream Snapdragon 845 tree.
-It is now perfectly integrated with feedbackd in the Phosh environment.
+Fix Smatch-detected issue:
+drivers/input/touchscreen/iqs5xx.c:747 iqs5xx_fw_file_parse()
+error: hex2bin() 'rec->len' too small (2 vs 4)
 
-Changes in v5:
-- Dropped merged
-  "Input: gpio-keys - add support for linux,input-value DTS property"
-- Link to v4: https://lore.kernel.org/all/cover.1677022414.git.soyer@irl.hu/
+Fix incorrect second argument to hex2bin() when parsing firmware records.
 
-Changes in v4:
-- DTS: use default debounce-interval, order alphabetically
-- Link to v3: https://lore.kernel.org/lkml/cover.1676850819.git.soyer@irl.hu/
+Pass a pointer to the ASCII hex data instead of the u8 record length to
+hex2bin(), which expects a pointer, not an integer. The previous code
+passed rec->len as the second argument, leading to undefined behavior
+as hex2bin() attempted to read from an unintended memory address.
 
-Changes in v3:
-- rename tri-state-key to alert-slider, fix DTS warnings,
+Cast the entire rec structure to a const char * using a new pointer
+rec_bytes. Skip the initial ':' character in the Intel HEX format by
+passing rec_bytes + 1 to hex2bin(). This allows the function to decode
+the 4-byte record header (length, address high, address low, and type)
+correctly from its ASCII hex representation into binary form.
 
-Changes in v2:
-- rebase to qcom/for-next
-add SND_PROFILE_* identifiers to input-event-codes.h
+Preserve the original code flow while ensuring correctness and resolving
+the issue detected by Smatch.
 
-Gergo Koteles (3):
-  Input: gpio-keys - add support for linux,input-value DTS property
-  Input: add ABS_SND_PROFILE
-  arm64: dts: qcom: sdm845-oneplus: add alert-slider
-
- Documentation/input/event-codes.rst           |  6 +++
- .../boot/dts/qcom/sdm845-oneplus-common.dtsi  | 39 ++++++++++++++++++-
- drivers/hid/hid-debug.c                       |  1 +
- drivers/input/keyboard/gpio_keys.c            |  3 ++
- include/uapi/linux/input-event-codes.h        |  9 +++++
- 5 files changed, 56 insertions(+), 2 deletions(-)
-
---
-2.39.2
-
-base-commit: 02ac8d2a011b630481d959298a1cc76ca0717f3e
+Signed-off-by: Purva Yeshi <purvayeshi550@gmail.com>
 ---
-Gergo Koteles (2):
-      Input: add ABS_SND_PROFILE
-      arm64: dts: qcom: sdm845-oneplus: Add alert-slider
+ drivers/input/touchscreen/iqs5xx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
- Documentation/input/event-codes.rst                |  6 ++++
- .../arm64/boot/dts/qcom/sdm845-oneplus-common.dtsi | 39 ++++++++++++++++++++--
- drivers/hid/hid-debug.c                            |  1 +
- include/uapi/linux/input-event-codes.h             |  9 +++++
- 4 files changed, 53 insertions(+), 2 deletions(-)
----
-base-commit: bc8aa6cdadcc00862f2b5720e5de2e17f696a081
-change-id: 20250419-op6-tri-state-ed1a05a11125
-
-Best regards,
+diff --git a/drivers/input/touchscreen/iqs5xx.c b/drivers/input/touchscreen/iqs5xx.c
+index 4ebd7565ae6e..e8140a54685f 100644
+--- a/drivers/input/touchscreen/iqs5xx.c
++++ b/drivers/input/touchscreen/iqs5xx.c
+@@ -744,7 +744,9 @@ static int iqs5xx_fw_file_parse(struct i2c_client *client,
+ 			break;
+ 		}
+ 
+-		error = hex2bin(rec_hdr, rec->len, sizeof(rec_hdr));
++		const char *rec_bytes = (const char *)rec;
++
++		error = hex2bin(rec_hdr, rec_bytes + 1, sizeof(rec_hdr));
++
+ 		if (error) {
+ 			dev_err(&client->dev, "Invalid header at record %u\n",
+ 				rec_num);
 -- 
-David Heidelberg <david@ixit.cz>
-
+2.34.1
 

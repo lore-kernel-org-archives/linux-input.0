@@ -1,78 +1,103 @@
-Received: from bali.collaboradmins.com (bali.collaboradmins.com [148.251.105.195])
+Received: from mail-244102.protonmail.ch (mail-244102.protonmail.ch [109.224.244.102])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A844B28CF77;
-	Tue, 22 Apr 2025 13:57:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.251.105.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDDA519CC3A
+	for <linux-input@vger.kernel.org>; Tue, 22 Apr 2025 15:21:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.102
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745330246; cv=none; b=qSHaZDT5QJrQFl1aIR/d4FPrXlFTi2T5FodXgnGS4iJFRVNYhAuGNVCVz9yeSWf2BSzvcU2hpV4grr+v1NCLhhJMc8fFqWCSBdhoeeItfEnmeGZybRySi9mlaXEsqKJFcmor2EMcInDQOnAwDigT0R8/cBLiTIcPFtkUXOgRR9s=
+	t=1745335321; cv=none; b=Kq88XlBCcHEKAwOxG43Do8aWVAIWaJgnXA+03QF+m4eMTNqYUnZWQ+wI6PFhwJEHpf8E4AL9wXBiNPk9X2IZYk2kx+W5IgHJQxASgNeEYoc8B4m6gOF88WWCzyLlyosTlRrxCy5A/9WuU+tjC72KQ5mr0A4zO/2dJRaF+qChE/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745330246; c=relaxed/simple;
-	bh=g7WNVJHclvSj1E2AwbocpEvXvRSkv9UNMU2PgjrPJOc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RCyYTFscivnb3eb8cH+lO4zB+2YeswvgARwOET9yCfHi11J0aZX0I0U4XFfF4YoEBfzszQpkt5kFJzSrCtDMAReqzyoR0wyxy5OcnIA0s4MW8M7CpQeVNxjOPL6RcG3O80ZJ98uFrwMDI+Joldl5sAdZIuFBAdi7eUf1vPSC5ig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b=MWo+vVJY; arc=none smtp.client-ip=148.251.105.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	s=arc-20240116; t=1745335321; c=relaxed/simple;
+	bh=XrDdZMiQCYZWtkyVR+1sBXNNGQPlKxsaHf0T2Hnlrwg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=mYw9/lJSJZLbzpyVO5r0QIpQeEyhj+1PcROGMJWQz/SVyE2LMxuf7J9TprcN3RllI/e1uzkZ/O9ZLW2QLN1tjoL/dYPluG1sgtop2iPnRyETEPm0Qa7AcjGhXR2Rf4DFUysKsh5UvOzJhCuGqQHCSjs3guzzCDtrSgTVqc66s6o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com; spf=pass smtp.mailfrom=geanix.com; dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b=EYZ3kgqU; arc=none smtp.client-ip=109.224.244.102
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=geanix.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=collabora.com header.i=@collabora.com header.b="MWo+vVJY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=collabora.com;
-	s=mail; t=1745330243;
-	bh=g7WNVJHclvSj1E2AwbocpEvXvRSkv9UNMU2PgjrPJOc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=MWo+vVJYRfk7c9rAarBXaDJbhgJAw6zdNajEpHhQtIXVfuaS7FfN3H/8FEjrycj1o
-	 4FtlL+sU1iHJgH6MVb57VNzAoBQknaxje3CalTenCHPmNDe4W63jz8sUFqB2vokBC4
-	 9VoeSm1aoCRsvH6+sMlU+vYFeMX/6/sQBqETv+T5srm9PLXSj1txRcLrAC+6L1S/Kt
-	 42J+Wb2csC0ReauZ5w4RXI70XRlhwvRkpPxaEECnC24fBl6NBeYoYsFAKnY4zw7syr
-	 Q8AaSxemKQMBcbtPlN0+0j73SyM91DU05UiZD0MJoUDAdFFHU/TMYax2dQx7BbbRQI
-	 1Xfmc0eUnm2yw==
-Received: from [192.168.1.100] (2-237-20-237.ip236.fastwebnet.it [2.237.20.237])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits))
-	(No client certificate requested)
-	(Authenticated sender: kholk11)
-	by bali.collaboradmins.com (Postfix) with ESMTPSA id 8068417E157E;
-	Tue, 22 Apr 2025 15:57:22 +0200 (CEST)
-Message-ID: <26b9b027-b880-4880-9c12-844bd36bcd44@collabora.com>
-Date: Tue, 22 Apr 2025 15:57:21 +0200
+	dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b="EYZ3kgqU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=geanix.com;
+	s=protonmail; t=1745334916; x=1745594116;
+	bh=qinWNI4zrP64TYceXuUBsDjhYtu4GSfZQrgajmm4aQw=;
+	h=From:Date:Subject:Message-Id:References:In-Reply-To:To:Cc:From:To:
+	 Cc:Date:Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector:
+	 List-Unsubscribe:List-Unsubscribe-Post;
+	b=EYZ3kgqUpN8wRIfAfRGNEicZc/qp/G9fVH11TKXb9eaUL0YAvTdSRMG949zvZL0Ka
+	 6ihSJi11JveIIUzPHL9Al3v+zwFBwkcrKgf/EC6lxm6pzyl2i8oqAD6/6pUsQmwv83
+	 N/I36hFak0XM9AMpVI4DpKI3OjslQEmTTLj2cFTmqXgHqriiJBTaF5qDSvGRmYg2tf
+	 9W0V4JskVgHFMi2oxyDEZ59gRinqnG7dHCZwg2KbWy+pylale8d1lZmUnsQ/gb5dpy
+	 peUgnAYgY0elncEAyoguqlstkf8YKTwMGBy9mIB3UXz6Flw0FvcHJozp8drD53zPK/
+	 HkCnqnDNiwqzg==
+X-Pm-Submission-Id: 4Zhm4z0y89z4wx9h
+From: Esben Haabendal <esben@geanix.com>
+Date: Tue, 22 Apr 2025 17:15:03 +0200
+Subject: [PATCH 2/2] Input: goodix - Allow DT specification of missing
+ reset pull-up
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/8] dt-bindings: arm: mediatek: Merge MT8186 Voltorb
- entries
-To: Chen-Yu Tsai <wenst@chromium.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>,
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
- chrome-platform@lists.linux.dev, linux-input@vger.kernel.org,
- Douglas Anderson <dianders@chromium.org>
-References: <20250421101248.426929-1-wenst@chromium.org>
- <20250421101248.426929-3-wenst@chromium.org>
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20250421101248.426929-3-wenst@chromium.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20250422-goodix-no-reset-pull-up-v1-2-3983bb65a1bf@geanix.com>
+References: <20250422-goodix-no-reset-pull-up-v1-0-3983bb65a1bf@geanix.com>
+In-Reply-To: <20250422-goodix-no-reset-pull-up-v1-0-3983bb65a1bf@geanix.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Hans de Goede <hdegoede@redhat.com>
+Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Esben Haabendal <esben@geanix.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1745334911; l=1750;
+ i=esben@geanix.com; s=20240523; h=from:subject:message-id;
+ bh=XrDdZMiQCYZWtkyVR+1sBXNNGQPlKxsaHf0T2Hnlrwg=;
+ b=jRW+MrsUzdfwfOoQGvfpiB9UjYWL0lEg42ggfjTprYEFFJoNGZKSePA0VQOholEEcth9FEuNx
+ XgRFhA0zOE/ALCVNY//VNmN+XoPjN1LEqZuJ/OnYIzHQUTeXExz8XVQ
+X-Developer-Key: i=esben@geanix.com; a=ed25519;
+ pk=PbXoezm+CERhtgVeF/QAgXtEzSkDIahcWfC7RIXNdEk=
 
-Il 21/04/25 12:12, Chen-Yu Tsai ha scritto:
-> There are only two different SKUs of Voltorb, and the only difference
-> between them is whether a touchscreen is present or not. This can be
-> detected by a simple I2C transfer to the address, instead of having
-> separate compatible strings and device trees.
-> 
-> Drop the SKU-specific compatible strings and just keep the generic
-> "google,voltorb" one.
-> 
-> Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
-> Acked-by: Rob Herring (Arm) <robh@kernel.org>
+In commit a2fd46cd3dbb ("Input: goodix - try not to touch the reset-pin on x86/ACPI devices")
+a fix for problems on various x86/ACPI devices where external
+pull-up is missing were added. The same type of problem can exist on
+device-tree platforms, and the fix can be activated by adding the
+no-reset-pull-up device-tree property.
 
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Signed-off-by: Esben Haabendal <esben@geanix.com>
+---
+ drivers/input/touchscreen/goodix.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index a3e8a51c91449533b4d5185746df6b98676053dd..3a55b0f8e5132a5e1fe77bd27de74e058a4afdaf 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -775,7 +775,8 @@ int goodix_reset_no_int_sync(struct goodix_ts_data *ts)
+ 	 * power. Only do this in the non ACPI case since some ACPI boards
+ 	 * don't have a pull-up, so there the reset pin must stay active-high.
+ 	 */
+-	if (ts->irq_pin_access_method == IRQ_PIN_ACCESS_GPIO) {
++	if (ts->irq_pin_access_method == IRQ_PIN_ACCESS_GPIO &&
++	    ts->gpiod_rst_flags == GPIOD_IN) {
+ 		error = gpiod_direction_input(ts->gpiod_rst);
+ 		if (error)
+ 			goto error;
+@@ -969,6 +970,13 @@ static int goodix_get_gpio_config(struct goodix_ts_data *ts)
+ 	 */
+ 	ts->gpiod_rst_flags = GPIOD_IN;
+ 
++	/*
++	 * Devices that does not have pull-up on reset signal should not be
++	 * changed to input
++	 */
++	if (device_property_read_bool(dev, "no-reset-pull-up"))
++		ts->gpiod_rst_flags = GPIOD_ASIS;
++
+ 	ts->avdd28 = devm_regulator_get(dev, "AVDD28");
+ 	if (IS_ERR(ts->avdd28))
+ 		return dev_err_probe(dev, PTR_ERR(ts->avdd28), "Failed to get AVDD28 regulator\n");
+
+-- 
+2.49.0
 

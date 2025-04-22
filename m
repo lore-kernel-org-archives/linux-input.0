@@ -1,80 +1,91 @@
-Received: from mail-4321.protonmail.ch (mail-4321.protonmail.ch [185.70.43.21])
+Received: from mail.hugovil.com (mail.hugovil.com [162.243.120.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 777A428FFEA
-	for <linux-input@vger.kernel.org>; Tue, 22 Apr 2025 15:23:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.70.43.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D4041E3793;
+	Tue, 22 Apr 2025 18:43:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.120.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745335435; cv=none; b=gV+qMbMzCLoSKSFkXa051IskmcXtCAgyBU9tKKhwZSAygADLmmP+TzjCKIrJuloGXXCH/4UjSRsa1dz+UGLOaIvCC0aRK4RtaT6O/QjjmtYyxKQ/sK0+LBMJPyipU5NonKqDNdzEGrMAQhgT5pz8nqM2b79SGEs9cXbZvC0w/z8=
+	t=1745347422; cv=none; b=I7+bdOUXd066BBg4SQsSyyGYy1N+RJaAplG+uYZRrmTiqC11Yo/Fq5xfsbBjGr64EOTFkEO4+XUoV8HvCtRHDOMQjWagu/rNPEk2swepGBj1hMqS3hgXFqFM7Ygn3THclkSF6eO82kRA0hiAhsy8ajuE+NtQjKYidhL4Ot6cw64=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745335435; c=relaxed/simple;
-	bh=agBlO360QS5qNy/3UMg3y1FA7SFwQtiXCvg4rIouDvo=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=epV5GUI2nSL6QgQ8/5GOi3xxegmpHTs8+xCwDGOikk0SAmrS+P4IPCEYhAE2Z4SGvZBz/kLZr5xm6BxD5iPhKSIF+W0GeoQLWdJPTUh1ICMvcTgVjy8z6OtNdywZTUjY644KExf+6mawXl4aTo4ffkKv6tyjhrSfgciZ2eQRkMA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com; spf=pass smtp.mailfrom=geanix.com; dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b=kut5Npwf; arc=none smtp.client-ip=185.70.43.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=geanix.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=geanix.com
+	s=arc-20240116; t=1745347422; c=relaxed/simple;
+	bh=Jr7Q2cyZOe/JomFSDXsqaXxHxSTcdk3JVAvECSbQZOs=;
+	h=From:To:Cc:Date:Message-Id:MIME-Version:Subject; b=FgJeBQsE6uKgeDbVFAH1PzGMxAG36Jh+Z6iPw3Wyf/FqMuzjVjvkTvjSRWTh9TQozVnr6t8D/npi8w3N/ZBa7jbIHCSw243MqX9G1lubLYH9G2VhnYmc0ndYDGVfwmkwD/GiqJOuBQqjsryZ6dfSmORRphpO0nbEh1UATuJ5ruU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com; spf=pass smtp.mailfrom=hugovil.com; dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b=xKFJqQ2K; arc=none smtp.client-ip=162.243.120.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=hugovil.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hugovil.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=geanix.com header.i=@geanix.com header.b="kut5Npwf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=geanix.com;
-	s=protonmail; t=1745334913; x=1745594113;
-	bh=ILoWC/sy2iITa4NSo18LSU+Ros/OxARhBaBtR8WnMRw=;
-	h=From:Subject:Date:Message-Id:To:Cc:From:To:Cc:Date:Subject:
-	 Reply-To:Feedback-ID:Message-ID:BIMI-Selector:List-Unsubscribe:
-	 List-Unsubscribe-Post;
-	b=kut5Npwf/uVvFhC7/VPTDKzQComJndJ4S3b6BQJpDnImAX6LtOIpUvG8VpvJ7pGLB
-	 mqo+qnPgVPGpCeZpCbpjFVmWf9Jcxn+Itl1xEhI2Q8x4IySYRz8AjXI4rFuE1Pbhnd
-	 y4CDQlthNGaeHHYtkviP6/3ir3GyF5S8Dii4a+1I87Zv7LQkQ5B0TJvB7hON+Agctw
-	 1XDFpoVDIJpobx81DtGrzRYd/3LDmo0issgCPurdU0yPI7SbZWS3dBxokX53dAGkfA
-	 AzlAQ3YCVfm2FUnVkxfee+EecxcUkY1XcHEWNX3JAERuB3Hp22Nxu1l4lY1KKiPhnA
-	 ShSYA1Fnc2png==
-From: Esben Haabendal <esben@geanix.com>
-Subject: [PATCH 0/2] input: touch: goodix: Extend reset pull-up fix to DT
- platforms
-Date: Tue, 22 Apr 2025 17:15:01 +0200
-Message-Id: <20250422-goodix-no-reset-pull-up-v1-0-3983bb65a1bf@geanix.com>
+	dkim=pass (1024-bit key) header.d=hugovil.com header.i=@hugovil.com header.b="xKFJqQ2K"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=hugovil.com
+	; s=x; h=Subject:Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Cc:To
+	:From:subject:date:message-id:reply-to;
+	bh=MCD4Bjw6ygld9iM8pOQAa6sfQIFiXZamnUclPKNh28Y=; b=xKFJqQ2KBTSMX42HViVQQotMhq
+	6Qt0jIxBwKy8bw1dK32q6fsXiCjwY74D+7t0Q0tlrcG9R1Bk1guUKFbwnDwOSZ056uA0nBAUt2hQ0
+	8FS3BqjnWpvrSb7/v/RvckSZsoJiBK7PL+fNpT5x6jQ24KETnNrGA00U/LjUk6Znvv+4=;
+Received: from modemcable168.174-80-70.mc.videotron.ca ([70.80.174.168]:44486 helo=pettiford.lan)
+	by mail.hugovil.com with esmtpa (Exim 4.92)
+	(envelope-from <hugo@hugovil.com>)
+	id 1u7Iad-00031m-D9; Tue, 22 Apr 2025 14:43:27 -0400
+From: Hugo Villeneuve <hugo@hugovil.com>
+To: Linus Walleij <linus.walleij@linaro.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Maximilian Weigand <mweigand@mweigand.net>,
+	Alistair Francis <alistair@alistair23.me>
+Cc: hugo@hugovil.com,
+	Mikael Gonella-Bolduc <mgonellabolduc@dimonoff.com>,
+	stable@vger.kernel.org,
+	Hugo Villeneuve <hvilleneuve@dimonoff.com>,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Date: Tue, 22 Apr 2025 14:43:24 -0400
+Message-Id: <20250422184324.3181215-1-hugo@hugovil.com>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAHWyB2gC/x3MQQqEMBAF0atIr22IrTKMVxlcBPPVBklCMoog3
- t3g8i2qLspIikxDdVHCoVmDL2jqiqbV+gWsrpjESG86EV5CcHqyD5yQ8ee4bxvvkZ2gs1/bwnw
- slTomzHq+59943w9Eu3lRaQAAAA==
-X-Change-ID: 20250422-goodix-no-reset-pull-up-d2e4a9a3e07a
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Hans de Goede <hdegoede@redhat.com>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Esben Haabendal <esben@geanix.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1745334911; l=715;
- i=esben@geanix.com; s=20240523; h=from:subject:message-id;
- bh=agBlO360QS5qNy/3UMg3y1FA7SFwQtiXCvg4rIouDvo=;
- b=J2eFeZ5CJbMnKOF17nODJxt3ofiVjkIpIBWwFomqgHaInTHKG6yUDkGuuUGc9SDfsSBaa2uJi
- Z5uVNMWJVRnBo2NrObEFAujEzm+oRZ0O/ZKUyTc2KPHWehvTZfgCbKt
-X-Developer-Key: i=esben@geanix.com; a=ed25519;
- pk=PbXoezm+CERhtgVeF/QAgXtEzSkDIahcWfC7RIXNdEk=
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 70.80.174.168
+X-SA-Exim-Mail-From: hugo@hugovil.com
+X-Spam-Level: 
+X-Spam-Report: 
+	* -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+Subject: [PATCH] Input: cyttsp5 - fix power control issue on wakeup
+X-SA-Exim-Version: 4.2.1 (built Wed, 08 May 2019 21:11:16 +0000)
+X-SA-Exim-Scanned: Yes (on mail.hugovil.com)
 
-This extends the fix for platforms without external pull-up on reset pin
-to device-tree platforms.
+From: Mikael Gonella-Bolduc <mgonellabolduc@dimonoff.com>
 
-Signed-off-by: Esben Haabendal <esben@geanix.com>
+The power control function ignores the "on" argument when setting the
+report ID, and thus is always sending HID_POWER_SLEEP. This causes a
+problem when trying to wakeup.
+
+Fix by sending the state variable, which contains the proper HID_POWER_ON or
+HID_POWER_SLEEP based on the "on" argument.
+
+Fixes: 3c98b8dbdced ("Input: cyttsp5 - implement proper sleep and wakeup procedures")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hugo Villeneuve <hvilleneuve@dimonoff.com>
 ---
-Esben Haabendal (2):
-      dt-bindings: input: touchscreen: goodix: Add no-reset-pull-up property
-      Input: goodix - Allow DT specification of missing reset pull-up
+ drivers/input/touchscreen/cyttsp5.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- .../devicetree/bindings/input/touchscreen/goodix.yaml          |  4 ++++
- drivers/input/touchscreen/goodix.c                             | 10 +++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
----
-base-commit: 9c32cda43eb78f78c73aee4aa344b777714e259b
-change-id: 20250422-goodix-no-reset-pull-up-d2e4a9a3e07a
+diff --git a/drivers/input/touchscreen/cyttsp5.c b/drivers/input/touchscreen/cyttsp5.c
+index eafe5a9b89648..86edcacb4ab3e 100644
+--- a/drivers/input/touchscreen/cyttsp5.c
++++ b/drivers/input/touchscreen/cyttsp5.c
+@@ -580,7 +580,7 @@ static int cyttsp5_power_control(struct cyttsp5 *ts, bool on)
+ 	int rc;
+ 
+ 	SET_CMD_REPORT_TYPE(cmd[0], 0);
+-	SET_CMD_REPORT_ID(cmd[0], HID_POWER_SLEEP);
++	SET_CMD_REPORT_ID(cmd[0], state);
+ 	SET_CMD_OPCODE(cmd[1], HID_CMD_SET_POWER);
+ 
+ 	rc = cyttsp5_write(ts, HID_COMMAND_REG, cmd, sizeof(cmd));
 
-Best regards,
+base-commit: 7adf8b1afc14832de099f9e178f08f91dc0dd6d0
 -- 
-Esben Haabendal <esben@geanix.com>
+2.39.5
 

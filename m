@@ -1,35 +1,38 @@
-Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [217.70.183.201])
+Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [217.70.178.249])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E48D722D4C5;
-	Fri,  2 May 2025 12:31:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25EF6182;
+	Fri,  2 May 2025 12:36:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.249
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746189080; cv=none; b=oXnzORw4kvLnxIqx1VBm12fb0P0Wc1DhH1TJ6Myu2TIGZqUav7W6HXYqENlOF1jck1ulNuh4DA/SO/tezIFrroreMXOZTqwqwV0kPssVpP4JnFYnE9Nz9WZ1mAaufCL52fOXGYcYnCa9bVii0B3cEwzmTWAyApJlFYWva1CxMyQ=
+	t=1746189408; cv=none; b=ffl2XC2+8Mg8FZxLJEMKuKwnJ72eeOXerOX072htrxvSBPO2DuNuKh1GAADb7B//Jp6ajnLGPEFjVEvCqiKE5ScOXgUDqKQg0ClZJalx0MJHPcjg6QQLabDVYjmtvNp6pzrd4na989Q4Q0GCDi7TAm3pT5GfJ+Fgqsi5kBKpi48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746189080; c=relaxed/simple;
-	bh=3G3CkBJ5xwmbD1aL2pXi9Vq8HxzS0MbLhvQFlo4eHDE=;
+	s=arc-20240116; t=1746189408; c=relaxed/simple;
+	bh=jt4cu7JoAcja/i7vDiI5Eo9ijTBc3g0OQvyp48ZU9nA=;
 	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:From:To:
-	 References:In-Reply-To; b=Rc1HVAL6IroCGRLJ9ahgrVnecv2mYBvaTNAdYIA7qlNnN4IIZjfeWDwk69bMBPrqDfnKr3HR8zJKn9UwpnQ23Tan8l20OaR1ftPKBOzZHRTpSxXQiFiwC782jlsFKgIYc0TzGsszlS7PMVm1lvZVpJqyNmDa/XBl49kNzH+QdAI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=TlzZp1/0; arc=none smtp.client-ip=217.70.183.201
+	 References:In-Reply-To; b=AAvfddAGWsMir+uNYhnS2NGIucvT1+hG9AO2V2+vi2gQtk7FlF3FFeO2M0I4cysVPunvD+pHnWTfw+BFL73za5CvQ2baPrGo5TWIQBnoCpIxcSC0DRhu+IZ/5yXWkXkBckyUKm1bTpPkNWK63tWB2dz9G+MPZZncYkcdvPjYgnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Woz6aWmH; arc=none smtp.client-ip=217.70.178.249
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="TlzZp1/0"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id CF4C843B02;
-	Fri,  2 May 2025 12:31:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Woz6aWmH"
+Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
+	by mslow3.mail.gandi.net (Postfix) with ESMTP id A9458580015;
+	Fri,  2 May 2025 12:08:09 +0000 (UTC)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 6597343978;
+	Fri,  2 May 2025 12:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1746189075;
+	t=1746187681;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=IVc5PbC2k1qdzHpLeknU2G3KgAO+5ptclccnAPwMI+M=;
-	b=TlzZp1/0oKau46rbcImJXUoZfqTMdboxJb9zF5I+oT4MBM3UKybI43+7j3nTPbAC5Yp1mY
-	29LSG9vQ9szDDM4I0Z6OnEc8/UVUIZu8q7weO0ntfpvOXV9V8+t1W+fI/CvinnTDMPoy5D
-	L9LrATS0cs67BQ8+ByFdZD92EyDAX9WHhOr/s4ZPoMqan5z5GSQa/J4aBf3FCwmEKcrxBr
-	p8QzSm1wQtK9kbA3OTc7Vk0px3qUla+7M5oZ9RcvWVpvfdnOxZ528ejZjI4wvN2AspDwFq
-	fgCnH60HzO9LiKxoVy45e0ihTN6UwwnBzCP01UQGx1biZO9nAXGpdE/UDexZ+w==
+	bh=6J//V8N/2FPUCK55/Rt0fc9X9pPfCrpuRCbgqXf8ghE=;
+	b=Woz6aWmHiSZ+6qQs+TFI8SsnPc7vh+aL//JQCRYBsQv9PNjJm1tuEBka1eaDwc+XaORNvC
+	V8xicpuheO41nEXYkMBVvLHPv5BE6kj81YuBfeC1LUbu4IMy5SPOEFLtv0H3vhA2478BFv
+	Ey9dHSyzrozhk9A9EJrtoW8bJ0QraiHWL0M1R5L2hXmra7k99iD83BHmjyDPVUpPhrse3Z
+	PKxXddTxsr8Y4eIKvjxyNHkqTAk+kDlTS5vh/lHkdf1mbQ0WYdfcUylhyTmWcov136Rekp
+	MiulJXV0CVcuTQmv5Mz7NDAc+hwHMMiQ64Xx6mEBkA9mbdoxwxjwvxHNIHNfbQ==
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -38,9 +41,9 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset=UTF-8
-Date: Fri, 02 May 2025 14:31:13 +0200
-Message-Id: <D9LOD5X8NXF2.2GWBU2IAZESH7@bootlin.com>
-Subject: Re: [PATCH v7 08/11] gpio: max7360: Add MAX7360 gpio support
+Date: Fri, 02 May 2025 14:07:59 +0200
+Message-Id: <D9LNVDTBPE6Q.3KOYKLIH8PPZ7@bootlin.com>
+Subject: Re: [PATCH v7 03/11] pinctrl: Add MAX7360 pinctrl driver
 Cc: "Lee Jones" <lee@kernel.org>, "Rob Herring" <robh@kernel.org>,
  "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Conor Dooley"
  <conor+dt@kernel.org>, "Kamel Bouhara" <kamel.bouhara@bootlin.com>, "Linus
@@ -54,63 +57,75 @@ Cc: "Lee Jones" <lee@kernel.org>, "Rob Herring" <robh@kernel.org>,
  <linux-gpio@vger.kernel.org>, <linux-input@vger.kernel.org>,
  <linux-pwm@vger.kernel.org>, =?utf-8?q?Gr=C3=A9gory_Clement?=
  <gregory.clement@bootlin.com>, "Thomas Petazzoni"
- <thomas.petazzoni@bootlin.com>, "Bartosz Golaszewski"
- <bartosz.golaszewski@linaro.org>
+ <thomas.petazzoni@bootlin.com>
 From: "Mathieu Dubois-Briand" <mathieu.dubois-briand@bootlin.com>
 To: "Andy Shevchenko" <andriy.shevchenko@intel.com>
 X-Mailer: aerc 0.19.0-0-gadd9e15e475d
 References: <20250428-mdb-max7360-support-v7-0-4e0608d0a7ff@bootlin.com>
- <20250428-mdb-max7360-support-v7-8-4e0608d0a7ff@bootlin.com>
- <aBSg2qwNhPqJJRxK@smile.fi.intel.com>
-In-Reply-To: <aBSg2qwNhPqJJRxK@smile.fi.intel.com>
+ <20250428-mdb-max7360-support-v7-3-4e0608d0a7ff@bootlin.com>
+ <aBSbKwmao-K-e1k8@smile.fi.intel.com>
+In-Reply-To: <aBSbKwmao-K-e1k8@smile.fi.intel.com>
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvjedvgeeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpegggfgtfffkufevhffvofhfjgesthhqredtredtjeenucfhrhhomhepfdforghthhhivghuucffuhgsohhishdquehrihgrnhgufdcuoehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmqeenucggtffrrghtthgvrhhnpeekhfekieeftefhjeetveefudehuddvvdeuvddvudfgfffhveekffethfeuffdtudenucffohhmrghinhepsghoohhtlhhinhdrtghomhenucfkphepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeipdhhvghloheplhhotggrlhhhohhsthdpmhgrihhlfhhrohhmpehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopedvfedprhgtphhtthhopegrnhgurhhihidrshhhvghvtghhvghnkhhosehinhhtvghlrdgtohhmpdhrtghpthhtoheplhgvvgeskhgvrhhnvghlr
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvjedvgeduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpegggfgtfffkufevhffvofhfjgesthhqredtredtjeenucfhrhhomhepfdforghthhhivghuucffuhgsohhishdquehrihgrnhgufdcuoehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmqeenucggtffrrghtthgvrhhnpeekhfekieeftefhjeetveefudehuddvvdeuvddvudfgfffhveekffethfeuffdtudenucffohhmrghinhepsghoohhtlhhinhdrtghomhenucfkphepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeipdhhvghloheplhhotggrlhhhohhsthdpmhgrihhlfhhrohhmpehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopedvvddprhgtphhtthhopegrnhgurhhihidrshhhvghvtghhvghnkhhosehinhhtvghlrdgtohhmpdhrtghpthhtoheplhgvvgeskhgvrhhnvghlr
  dhorhhgpdhrtghpthhtoheprhhosghhsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkrhiikhdoughtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegtohhnohhrodgutheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepkhgrmhgvlhdrsghouhhhrghrrgessghoohhtlhhinhdrtghomhdprhgtphhtthhopehlihhnuhhsrdifrghllhgvihhjsehlihhnrghrohdrohhrghdprhgtphhtthhopegsrhhglhessghguggvvhdrphhl
 X-GND-Sasl: mathieu.dubois-briand@bootlin.com
 
-On Fri May 2, 2025 at 12:39 PM CEST, Andy Shevchenko wrote:
-> On Mon, Apr 28, 2025 at 01:57:26PM +0200, Mathieu Dubois-Briand wrote:
->> +static int max7360_gpio_probe(struct platform_device *pdev)
->> +{
->> +	const struct max7360_gpio_plat_data *plat_data;
->> +	struct gpio_regmap_config gpio_config =3D { };
->> +	struct regmap_irq_chip *irq_chip;
->> +	struct device *dev =3D &pdev->dev;
->> +	struct regmap *regmap;
->> +	unsigned int outconf;
->> +	int ret;
+On Fri May 2, 2025 at 12:15 PM CEST, Andy Shevchenko wrote:
+> On Mon, Apr 28, 2025 at 01:57:21PM +0200, Mathieu Dubois-Briand wrote:
+>> Add driver for Maxim Integrated MAX7360 pinctrl on the PORT pins. Pins
+>> can be used either for GPIO, PWM or rotary encoder functionalities.
+>
+>> +struct max7360_pinctrl {
+>> +	struct pinctrl_dev *pctldev;
+>> +	struct pinctrl_desc pinctrl_desc;
+>
+> Does`pahole` agree with your choice of layout?
+>
+
+I believe so. `pahole drivers/pinctrl/pinctrl-max7360.ko` says:
+struct max7360_pinctrl {
+        struct pinctrl_dev *       pctldev;              /*     0     4 */
+        struct pinctrl_desc        pinctrl_desc;         /*     4    44 */
+
+        /* XXX last struct has 3 bytes of padding */
+
+        /* size: 48, cachelines: 1, members: 2 */
+        /* paddings: 1, sum paddings: 3 */
+        /* last cacheline: 48 bytes */
+};
+
+>> +	chip =3D devm_kzalloc(dev, sizeof(*chip), GFP_KERNEL);
+>> +	if (!chip)
+>> +		return -ENOMEM;
 >> +
->> +	regmap =3D dev_get_regmap(dev->parent, NULL);
->> +	if (!regmap)
->> +		return dev_err_probe(dev, -ENODEV, "could not get parent regmap\n");
+>> +	pd =3D &chip->pinctrl_desc;
 >> +
->> +	plat_data =3D device_get_match_data(dev);
->> +	if (plat_data->function =3D=3D MAX7360_GPIO_PORT) {
->> +		if (device_property_read_bool(dev, "interrupt-controller")) {
->> +			/*
->> +			 * Port GPIOs with interrupt-controller property: add IRQ
->> +			 * controller.
->> +			 */
->> +			gpio_config.regmap_irq_flags =3D IRQF_ONESHOT | IRQF_SHARED;
->> +			gpio_config.regmap_irq_line =3D
->> +				fwnode_irq_get_byname(dev_fwnode(dev->parent), "inti");
->> +			if (gpio_config.regmap_irq_line < 0)
->> +				return dev_err_probe(dev, gpio_config.regmap_irq_line,
->> +						     "Failed to get IRQ\n");
+>> +	pd->pctlops =3D &max7360_pinctrl_ops;
+>> +	pd->pmxops =3D &max7360_pmxops;
+>> +	pd->name =3D dev_name(dev);
+>> +	pd->pins =3D max7360_pins;
+>> +	pd->npins =3D MAX7360_MAX_GPIO;
+>> +	pd->owner =3D THIS_MODULE;
+>> +
+>> +	device_set_of_node_from_dev(dev, dev->parent);
 >
->> +			irq_chip =3D devm_kzalloc(dev, sizeof(*irq_chip), GFP_KERNEL);
->
-> Can this be made static const instead?
+> I don't like this, but I have no better idea right now. Perhaps add a com=
+ment
+> on top to explain this call?
 >
 
-Sorry, I don't think we can. We do have a few data that will vary:
-->name, but above all ->irq_drv_data, as it will point on the regmap of
-the specific device.
+I'm adding this comment here, and a similar one in the PWM driver.
 
-> ...
+/*
+ * This MFD sub-device does not have any associated device tree node:
+ * properties are stored in the device node of the parent (MFD) device
+ * and this same node is used in phandles of client devices.
+ * Reuse this device tree node here, as otherwise the pinctrl subsystem
+ * would be confused by this topology.
+ */
 
-OK with all other comments.
+OK for all other comments.
 
 Thanks for your review.
 Mathieu

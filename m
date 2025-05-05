@@ -1,45 +1,39 @@
-Received: from mout01.posteo.de (mout01.posteo.de [185.67.36.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mailgate02.uberspace.is (mailgate02.uberspace.is [185.26.156.114])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85AFE25EF97
-	for <linux-input@vger.kernel.org>; Mon,  5 May 2025 18:22:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.67.36.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC7F02561DC
+	for <linux-input@vger.kernel.org>; Mon,  5 May 2025 20:38:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.26.156.114
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746469377; cv=none; b=CFIO+NSfl/OVmtuClMNMiTm97Fc/d1wDJt21OgyBWzPzBB2eKbisY/eUEyGfSN/PM82i3rsMOEfBNyudZdyk5VFOOMC8SYmVWpSWd5/h9ppWei18sL9tVfd5KPctyFkxjY/09d0UOZH2tb9OqkF43jqjquekkoj+nC7qQm5Ng0c=
+	t=1746477543; cv=none; b=PHGVWIEgb4eLhzoZlIonmJn6weOyNIdu7Pho8q5yRaEZAg2sWRHBgnI3hBnAI+NGoAwxwFFZtOrEBz2k5iVgJ9eWITpxRKOiBii+IYMKvP9mJ7rwSoE1M6amNOafCn1jA3WlwAc6Gg0iX0wWBAdW8DS+rdpisesRgsNaIW0XFso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746469377; c=relaxed/simple;
-	bh=DIvFcU9SIWRR97pU37OxzBO2ch3TcJq0LiuRC+SEweU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CkcZzEFYhfnAxkTv5HCfHEwT7/AKAYEYYDiHaOk1+PT3gVqMbn+hQD2BIvRMVFV11Z12ZwpDgkD/s5SkB4zeA9kXaJyNc85VGi38dgGbPHmV6SbMCztUgV1Ka7NKQ+uiKmhrLOrS2mp+4NgOM0LST2jpNLq7nEZJGHQbBGE7+hk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.net; spf=pass smtp.mailfrom=posteo.net; dkim=pass (2048-bit key) header.d=posteo.net header.i=@posteo.net header.b=q0geENug; arc=none smtp.client-ip=185.67.36.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=posteo.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=posteo.net
+	s=arc-20240116; t=1746477543; c=relaxed/simple;
+	bh=0sI4HyKW9Sag1UOUgVnLRdjo8ozNumYt5IKXsDJeyTQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=BvuF0VekltI5qhCGkKtS0Gx6VlAtYDTKk9ITTkVtmTERJCWp3iwmMXZI2xbTZX4c5vTqhfD9+jlPBDyO166Jxsf79mc1kaSp3WSInCmvU3ZNR0hEBC3pQyG7JICgOyl3SAnw25SkTZG0KBfJLe1tmnf6d84EFLWlR4bLJI57Yko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=david-bauer.net; spf=pass smtp.mailfrom=david-bauer.net; dkim=pass (4096-bit key) header.d=david-bauer.net header.i=@david-bauer.net header.b=MbYIP5Ir; arc=none smtp.client-ip=185.26.156.114
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=david-bauer.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=david-bauer.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=posteo.net header.i=@posteo.net header.b="q0geENug"
-Received: from submission (posteo.de [185.67.36.169]) 
-	by mout01.posteo.de (Postfix) with ESMTPS id 5E9C2240027
-	for <linux-input@vger.kernel.org>; Mon,  5 May 2025 20:22:47 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=posteo.net; s=2017;
-	t=1746469367; bh=DIvFcU9SIWRR97pU37OxzBO2ch3TcJq0LiuRC+SEweU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:
-	 Content-Transfer-Encoding:From;
-	b=q0geENugizVpkyDQ/bn/fAVsdMup4MQFPAY0k10QjgQ2E40y8pGAkzEzqV+UmF6zc
-	 OdNSkBGxxs1uZzTkAWwXS5eFG4xzEBcDA+cXFJm6j7UoHmTmU7b7kXGWpWd9i832d8
-	 zqkqcAbWCSqdtWfC1v0sqXMb8g3mHAlCF9LsBoU2nzXrFXlc6AXM0xmcH/GOjCj/gm
-	 kdlqGORQS+fc8kDEP8KAZrq89/u8iSFfu15pTIdultSV+crMlY3txf1TH5p0CYGf5p
-	 3aqZXWkWIgjFJKqx9zIJaDAmbbig4dgFuUPwbOYdRj9g5bTsCXlGmuIgTiAfTJZzFi
-	 aqyJwgAMt6N6w==
-Received: from customer (localhost [127.0.0.1])
-	by submission (posteo.de) with ESMTPSA id 4ZrqdL3RQGz6tw2;
-	Mon,  5 May 2025 20:22:46 +0200 (CEST)
-From: Andrei Amuraritei <andamu@posteo.net>
-To: linux-input@vger.kernel.org
-Cc: dmitry.torokhov@gmail.com,
-	roderick.colenbrander@sony.com,
-	jkosina@suse.cz,
-	Andrei Amuraritei <andamu@posteo.net>
-Subject: [PATCH] Input: joydev - blacklist motion sensors of PS5 Dualsense controllers
-Date: Mon,  5 May 2025 18:22:07 +0000
-Message-ID: <20250505182207.17846-1-andamu@posteo.net>
+	dkim=pass (4096-bit key) header.d=david-bauer.net header.i=@david-bauer.net header.b="MbYIP5Ir"
+Received: from perseus.uberspace.de (perseus.uberspace.de [95.143.172.134])
+	by mailgate02.uberspace.is (Postfix) with ESMTPS id A7990180182
+	for <linux-input@vger.kernel.org>; Mon,  5 May 2025 22:38:52 +0200 (CEST)
+Received: (qmail 3345 invoked by uid 988); 5 May 2025 20:38:52 -0000
+Authentication-Results: perseus.uberspace.de;
+	auth=pass (plain)
+Received: from unknown (HELO unkown) (::1)
+	by perseus.uberspace.de (Haraka/3.0.1) with ESMTPSA; Mon, 05 May 2025 22:38:52 +0200
+From: David Bauer <mail@david-bauer.net>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	linux-input@vger.kernel.org
+Subject: [PATCH 2/2] Input sx951x: add Semtech SX9512/SX9513 driver
+Date: Mon,  5 May 2025 22:38:45 +0200
+Message-ID: <20250505203847.86714-2-mail@david-bauer.net>
+X-Mailer: git-send-email 2.47.2
+In-Reply-To: <20250505203847.86714-1-mail@david-bauer.net>
+References: <20250505203847.86714-1-mail@david-bauer.net>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -47,52 +41,575 @@ List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Rspamd-Bar: -
+X-Rspamd-Report: MID_CONTAINS_FROM(1) BAYES_HAM(-3) MIME_GOOD(-0.1) R_MISSING_CHARSET(0.5)
+X-Rspamd-Score: -1.6
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+	d=david-bauer.net; s=uberspace;
+	h=from:to:cc:subject:date;
+	bh=0sI4HyKW9Sag1UOUgVnLRdjo8ozNumYt5IKXsDJeyTQ=;
+	b=MbYIP5Irtw+CJRam7W4JVa1Ff+/tG9IViIVlk9f82Za4kyAm5hrWMK9Wd/bOFG+23jgAbnsM3Q
+	JsqkoICGFusBHXo8VEbR2RWGHynuK4K96R7kvUzrtBlh6VinEKjVK4MBTH9n921+VGuPhsiB4/cp
+	+04HKdcbbF0Tx2l10iwNnXIYxuH+QLhlC1YQnYnYGNdOYzu1AnWIzU4kVHDPbc+TNgb2ksHETr2e
+	JB+d4GDqes1cmqyV4t3GLxUQCvvqoiwJ4AWm6c8n6N8iPDi38OzchN80hqoNrzCD2LOJVbkzIhRU
+	X4tU7I9r9c0JNabDVkjIRDIpRnghuQD+6TskDTkT1Lt5WEmpoF7RP2qc4aa/fGuUSW2H2f5s7+6o
+	h2ms/ixkcpSNrOskOA8xyHAOyoHkuL6l5jeINiWNgPKdbAvWXjqbRSuTySnII48AMB8wfbC4hG5x
+	h//g0KczBRSjreSJEWZR5h4VFr6r5EaBdQbAXdS499YmwafRHPZW1mRiV/15SHyGgytUwd4JA5Ch
+	0dd4mSiNNk4OsxIFjscFQ2azgwua4Eg9mmWw3kxS3ArCKvMLKHuMA0oAeS69qsuShQUTZSjEOZRK
+	aevhAVKHFyTPa2WsYJ9DnrJA6g7zIzpSiKywnY+q7c4UpI4L1vxyFBKdajk/SEMLESTyJ5j2EF33
+	U=
 
-Add the motion sensors of PS5 Dualsense controllers to joydev blacklist, same as with PS4 controllers.
+The Semtech SX9512/SX9513 is a family of capacitive touch-keyboard
+controllers.
 
-Requires the previous two commits, from hid.git#for-6.15/sony.
+All chips offer 8 channel touch sensitive inputs with one LED driver per
+output channel.
 
-e65990eb256a75a2ace95e80cf5028d81aad7c5d
+The also SX9512 supports proximity detection which is currently not
+supported with the driver.
 
-HID: Enable playstation driver for PlayStation 5 controllersfor-6.15/sony
-Without entries in the hid_have_special_driver table, PS5 controllers
-default to the hidraw driver instead of the hid-playstation driver.
+This chip can be found on the Genexis Pulse EX400 repeater platform.
 
-c5cd1f0f0e742922262977fd72ae3c4ff49b7a1d
+Link: https://www.mouser.com/datasheet/2/761/SEMTS05226_1-2575172.pdf
 
-HID: Enable playstation driver independently of sony driver
-PlayStation 4 controllers use the hid-playstation driver now, but they
-are still not included in the hid_have_special_driver table unless the
-hid-sony driver is enabled. Split up that section of the table so that
-hid-playstation works even in the absence of hid-sony.
-
-Signed-off-by: Andrei Amuraritei <andamu@posteo.net>
+Signed-off-by: David Bauer <mail@david-bauer.net>
 ---
- drivers/input/joydev.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/input/keyboard/Kconfig  |  11 +
+ drivers/input/keyboard/Makefile |   1 +
+ drivers/input/keyboard/sx951x.c | 490 ++++++++++++++++++++++++++++++++
+ 3 files changed, 502 insertions(+)
+ create mode 100644 drivers/input/keyboard/sx951x.c
 
-diff --git a/drivers/input/joydev.c b/drivers/input/joydev.c
-index ba2b17288bcd..f2fdbc814a8f 100644
---- a/drivers/input/joydev.c
-+++ b/drivers/input/joydev.c
-@@ -753,6 +753,8 @@ static void joydev_cleanup(struct joydev *joydev)
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER		0x05c4
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_2		0x09cc
- #define USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE	0x0ba0
-+#define USB_DEVICE_ID_SONY_PS5_CONTROLLER		0x0ce6
-+#define USB_DEVICE_ID_SONY_PS5_CONTROLLER_2		0x0df2
+diff --git a/drivers/input/keyboard/Kconfig b/drivers/input/keyboard/Kconfig
+index 1d0c5f4c0f99..6dc397389c64 100644
+--- a/drivers/input/keyboard/Kconfig
++++ b/drivers/input/keyboard/Kconfig
+@@ -616,6 +616,17 @@ config KEYBOARD_SUNKBD
+ 	  To compile this driver as a module, choose M here: the
+ 	  module will be called sunkbd.
  
- #define USB_VENDOR_ID_THQ			0x20d6
- #define USB_DEVICE_ID_THQ_PS3_UDRAW			0xcb17
-@@ -793,6 +795,8 @@ static const struct input_device_id joydev_blacklist[] = {
- 	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER),
- 	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_2),
- 	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS4_CONTROLLER_DONGLE),
-+	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER),
-+	ACCEL_DEV(USB_VENDOR_ID_SONY, USB_DEVICE_ID_SONY_PS5_CONTROLLER_2),
- 	ACCEL_DEV(USB_VENDOR_ID_THQ, USB_DEVICE_ID_THQ_PS3_UDRAW),
- 	ACCEL_DEV(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_PROCON),
- 	ACCEL_DEV(USB_VENDOR_ID_NINTENDO, USB_DEVICE_ID_NINTENDO_CHRGGRIP),
++config KEYBOARD_SX951X
++	tristate "Semtech SX951X capacitive touch controller"
++	depends on OF && I2C
++	select REGMAP_I2C
++	help
++	  Say Y here to enable the Semtech SX9512/SX9153 capacitive
++	  touch controller driver.
++
++	  To compile this driver as a module, choose M here: the
++	  module will be called sx951x.
++
+ config KEYBOARD_SH_KEYSC
+ 	tristate "SuperH KEYSC keypad support"
+ 	depends on ARCH_SHMOBILE || COMPILE_TEST
+diff --git a/drivers/input/keyboard/Makefile b/drivers/input/keyboard/Makefile
+index aecef00c5d09..e59ca83c30ec 100644
+--- a/drivers/input/keyboard/Makefile
++++ b/drivers/input/keyboard/Makefile
+@@ -66,6 +66,7 @@ obj-$(CONFIG_KEYBOARD_STOWAWAY)		+= stowaway.o
+ obj-$(CONFIG_KEYBOARD_ST_KEYSCAN)	+= st-keyscan.o
+ obj-$(CONFIG_KEYBOARD_SUN4I_LRADC)	+= sun4i-lradc-keys.o
+ obj-$(CONFIG_KEYBOARD_SUNKBD)		+= sunkbd.o
++obj-$(CONFIG_KEYBOARD_SX951X)		+= sx951x.o
+ obj-$(CONFIG_KEYBOARD_TC3589X)		+= tc3589x-keypad.o
+ obj-$(CONFIG_KEYBOARD_TEGRA)		+= tegra-kbc.o
+ obj-$(CONFIG_KEYBOARD_TM2_TOUCHKEY)	+= tm2-touchkey.o
+diff --git a/drivers/input/keyboard/sx951x.c b/drivers/input/keyboard/sx951x.c
+new file mode 100644
+index 000000000000..66355036aa95
+--- /dev/null
++++ b/drivers/input/keyboard/sx951x.c
+@@ -0,0 +1,490 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * Input driver for Semtech SX9512/SX9513 capacitive touch sensors.
++ *
++ * The difference between SX9512 and SX9513 is the presence of proximity
++ * sensing capabilities on the SX9512.
++ *
++ * SX951xB is the identical chip but with a different I2C address.
++ *
++ * (c) 2025 David Bauer <mail@david-bauer.net>
++ */
++
++ #include <linux/kernel.h>
++ #include <linux/module.h>
++ #include <linux/input.h>
++ #include <linux/leds.h>
++ #include <linux/of.h>
++ #include <linux/regmap.h>
++ #include <linux/i2c.h>
++ #include <linux/gpio/consumer.h>
++ #include <linux/bitfield.h>
++
++ /* Generic properties */
++#define SX951X_I2C_ADDRESS		0x2b
++#define SX951XB_I2C_ADDRESS_		0x2d
++#define SX951X_NUM_CHANNELS		8
++#define SX951X_POLL_INTERVAL		100
++
++/* Registers*/
++#define SX951X_REG_IRQ_SRC		0x00
++#define SX951X_REG_TOUCH_STATUS		0x01
++#define SX951X_REG_PROXIMITY_STATUS	0x02
++#define SX951X_REG_COMPENSATION_STATUS	0x03
++#define SX951X_REG_IRQ_NVM_CTRL		0x04
++#define SX951X_REG_SPO2_MODE_CTRL	0x07
++#define SX951X_REG_PWR_KEY_CTRL		0x08
++#define SX951X_REG_IRQ_MASK		0x09
++
++/* LED registers */
++#define SX951X_REG_LED_MAP_ENG1		0x0c
++#define SX951X_REG_LED_MAP_ENG2		0x0d
++#define SX951X_REG_LED_PWM_FREQ		0x0e
++#define SX951X_REG_LED_MODE		0x0f
++#define SX951X_REG_LED_IDLE		0x10
++#define SX951X_REG_LED_OFF_DELAY	0x11
++#define SX951X_REG_LED_ON_ENG1		0x12
++#define SX951X_REG_LED_FADE_ENG1	0x13
++#define SX951X_REG_LED_ON_ENG2		0x14
++#define SX951X_REG_LED_FADE_ENG2	0x15
++#define SX951X_REG_LED_POWER_IDLE	0x16
++#define SX951X_REG_LED_POWER_ON		0x17
++#define SX951X_REG_LED_POWER_OFF	0x18
++#define SX951X_REG_LED_POWER_FADE	0x19
++#define SX951X_REG_LED_POWER_ON_PULSE	0x1a
++#define SX951X_REG_LED_POWER_MODE	0x1b
++
++/* Capacitive touch sensing registers*/
++#define SX951X_REG_CAP_SENSE_ENABLE			0x1e
++
++#define SX951X_REG_CAP_SENSE_RANGE(x)			(0x1f + (x))
++#define SX951X_REG_CAP_SENSE_RANGE_CIN_DELTA_MASK	GENMASK(1, 0)
++
++#define SX951X_REG_CAP_SENSE_THRESH(x)			(0x28 + (x))
++#define SX951X_REG_CAP_SENSE_THRESH_ALL			0x30
++
++#define SX951X_REG_CAP_SENSE_OP				0x31
++#define SX951X_REG_CAP_SENSE_MODE			0x32
++#define SX951X_REG_CAP_SENSE_DEBOUNCE			0x33
++
++/* Reset register*/
++#define SX951X_REG_SOFT_RESET			0xff
++
++/* Default properties (keys)*/
++#define SX951X_KEY_DEFAULT_CIN_DELTA		0x03
++#define SX951X_KEY_DEFAULT_SENSE_THRESHOLD	0x04
++
++struct sx951x_key_data {
++	u32 cin_delta;
++	u32 sense_threshold;
++};
++
++struct sx951x_led {
++#ifdef CONFIG_LEDS_CLASS
++	struct led_classdev cdev;
++	struct sx951x_priv *priv;
++
++	u32 reg;
++	bool registered;
++#endif
++};
++
++struct sx951x_priv {
++	struct regmap *regmap;
++	struct device *dev;
++	struct input_dev *idev;
++	const struct sx951x_hw_data *hw;
++
++	struct sx951x_led leds[SX951X_NUM_CHANNELS];
++
++	/* device-config */
++	u32 poll_interval;
++
++	/* key-config */
++	u32 keycodes[SX951X_NUM_CHANNELS];
++	struct sx951x_key_data key_data[SX951X_NUM_CHANNELS];
++};
++
++struct sx951x_hw_data {
++	bool has_proximity_sensing;
++};
++
++static const struct reg_default sx951x_reg_defaults[] = {
++	{ SX951X_REG_LED_MAP_ENG1,		0x00 },
++	{ SX951X_REG_LED_MAP_ENG2,		0x00 },
++	{ SX951X_REG_LED_PWM_FREQ,		0x10 },
++	{ SX951X_REG_LED_IDLE,			0xff },
++	{ SX951X_REG_LED_ON_ENG1,		0xff },
++	{ SX951X_REG_LED_ON_ENG2,		0xff },
++	{ SX951X_REG_LED_POWER_IDLE,		0xff },
++	{ SX951X_REG_LED_POWER_ON,		0xff },
++	{ SX951X_REG_CAP_SENSE_ENABLE,		0x00 },
++	{ SX951X_REG_CAP_SENSE_RANGE(0),	0x40 },
++	{ SX951X_REG_CAP_SENSE_RANGE(1),	0x40 },
++	{ SX951X_REG_CAP_SENSE_RANGE(2),	0x40 },
++	{ SX951X_REG_CAP_SENSE_RANGE(3),	0x40 },
++	{ SX951X_REG_CAP_SENSE_RANGE(4),	0x40 },
++	{ SX951X_REG_CAP_SENSE_RANGE(5),	0x40 },
++	{ SX951X_REG_CAP_SENSE_RANGE(6),	0x40 },
++	{ SX951X_REG_CAP_SENSE_RANGE(7),	0x40 },
++	{ SX951X_REG_CAP_SENSE_THRESH(0),	0x0f },
++	{ SX951X_REG_CAP_SENSE_THRESH(1),	0x0f },
++	{ SX951X_REG_CAP_SENSE_THRESH(2),	0x0f },
++	{ SX951X_REG_CAP_SENSE_THRESH(3),	0x0f },
++	{ SX951X_REG_CAP_SENSE_THRESH(4),	0x0f },
++	{ SX951X_REG_CAP_SENSE_THRESH(5),	0x0f },
++	{ SX951X_REG_CAP_SENSE_THRESH(6),	0x0f },
++	{ SX951X_REG_CAP_SENSE_THRESH(7),	0x0f },
++	{ SX951X_REG_CAP_SENSE_THRESH_ALL,	0x0f },
++	{ SX951X_REG_CAP_SENSE_OP,		0x14 },
++	{ SX951X_REG_CAP_SENSE_MODE,		0x70 },
++	{ SX951X_REG_CAP_SENSE_DEBOUNCE,	0xff },
++};
++
++static bool sx951x_volatile_reg(struct device *dev, unsigned int reg)
++{
++	switch (reg) {
++	case SX951X_REG_TOUCH_STATUS:
++		return true;
++	default:
++		return false;
++	}
++}
++
++static const struct regmap_config sx951x_regmap_config = {
++	.reg_bits = 8,
++	.val_bits = 8,
++
++	.max_register = SX951X_REG_SOFT_RESET,
++
++	.reg_defaults = sx951x_reg_defaults,
++	.num_reg_defaults = ARRAY_SIZE(sx951x_reg_defaults),
++
++	.cache_type = REGCACHE_MAPLE,
++	.volatile_reg = sx951x_volatile_reg,
++};
++
++#ifdef CONFIG_LEDS_CLASS
++static int sx951x_led_set(struct led_classdev *cdev, enum led_brightness value)
++{
++	struct sx951x_led *led = container_of(cdev, struct sx951x_led, cdev);
++	struct sx951x_priv *priv = led->priv;
++
++	return regmap_update_bits(priv->regmap,
++				  SX951X_REG_LED_MAP_ENG2,
++				  BIT(led->reg),
++				  value ? BIT(led->reg) : 0);
++}
++
++static int sx951x_led_init(struct sx951x_priv *priv,
++			   struct device_node *channel_node, u32 reg)
++{
++	struct device_node *led_node;
++	struct sx951x_led *led = &priv->leds[reg];
++	struct led_init_data init_data = {};
++	int error;
++
++	if (led->registered) {
++		dev_err(priv->dev,
++			"LED %d already registered\n", reg);
++		return -EINVAL;
++	}
++
++	led_node = of_get_child_by_name(channel_node, "led");
++	if (!led_node) {
++		/* No LED */
++		return 0;
++	}
++
++	led->cdev.flags = 0;
++	led->cdev.brightness_set_blocking = sx951x_led_set;
++	led->cdev.max_brightness = 1;
++	led->cdev.brightness = LED_OFF;
++
++	init_data.default_label = of_get_property(led_node, "label", NULL);
++	init_data.fwnode = of_fwnode_handle(led_node);
++
++	led->reg = reg;
++	led->priv = priv;
++
++	error = devm_led_classdev_register_ext(priv->dev, &led->cdev, &init_data);
++	if (error)
++		return error;
++
++	return 0;
++}
++#endif
++
++static void sx951x_poll(struct input_dev *input)
++{
++	struct sx951x_priv *priv = input_get_drvdata(input);
++	struct device *dev = priv->dev;
++	unsigned int val;
++	int error;
++	int i;
++
++	error = regmap_read(priv->regmap, SX951X_REG_TOUCH_STATUS, &val);
++	if (error) {
++		dev_err(dev, "Failed to read touch status: %d\n", error);
++		return;
++	}
++
++	for (i = 0; i < SX951X_NUM_CHANNELS; i++) {
++		if (priv->keycodes[i] == KEY_RESERVED)
++			continue;
++
++		input_report_key(input, priv->keycodes[i], !!(val & BIT(i)));
++		input_sync(input);
++	}
++}
++
++static int sx951x_channel_init(struct sx951x_priv *priv, struct device_node *of_node,
++			       u32 chan_idx)
++{
++	struct sx951x_key_data *key_data;
++	struct device *dev = priv->dev;
++	int error;
++
++	key_data = &priv->key_data[chan_idx];
++
++	/* Defaults */
++	key_data->cin_delta = SX951X_KEY_DEFAULT_CIN_DELTA;
++	key_data->sense_threshold = SX951X_KEY_DEFAULT_SENSE_THRESHOLD;
++
++	error = of_property_read_u32(of_node, "linux,keycodes",
++				     &priv->keycodes[chan_idx]);
++	if (error) {
++		/* Not configured */
++		return 0;
++	}
++
++	error = of_property_read_u32(of_node, "semtech,cin-delta",
++				     &key_data->cin_delta);
++	if (key_data->cin_delta > 0x03) {
++		dev_err(dev, "Failed to read cin-delta for channel %d: %d\n",
++			chan_idx, error);
++		return error;
++	}
++
++	error = of_property_read_u32(of_node, "semtech,sense-threshold",
++				     &key_data->sense_threshold);
++	if (key_data->sense_threshold > 0xff) {
++		dev_err(dev, "Failed to read sense-threshold for channel %d: %d\n",
++			chan_idx, error);
++		return error;
++	}
++
++	error = regmap_update_bits(priv->regmap,
++				   SX951X_REG_CAP_SENSE_RANGE(chan_idx),
++				   SX951X_REG_CAP_SENSE_RANGE_CIN_DELTA_MASK,
++				   key_data->cin_delta);
++
++	if (error) {
++		dev_err(dev, "Failed to set cin-delta for channel %d: %d\n",
++			chan_idx, error);
++		return error;
++	}
++
++	error = regmap_write(priv->regmap,
++			     SX951X_REG_CAP_SENSE_THRESH(chan_idx),
++			     key_data->sense_threshold);
++	if (error) {
++		dev_err(dev, "Failed to set sense-threshold for channel %d: %d\n",
++			chan_idx, error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int sx951x_channels_init(struct sx951x_priv *priv)
++{
++	struct device *dev = priv->dev;
++	unsigned int channels = 0;
++	int error;
++	u32 reg;
++
++	for_each_child_of_node_scoped(dev->of_node, child) {
++		error = of_property_read_u32(child, "reg", &reg);
++		if (error != 0 || reg >= SX951X_NUM_CHANNELS) {
++			dev_err(dev, "Invalid channel %d\n", reg);
++			return -EINVAL;
++		}
++
++		priv->keycodes[reg] = KEY_RESERVED;
++
++		error = sx951x_channel_init(priv, child, reg);
++		if (error) {
++			dev_err(dev, "Failed to initialize channel %d: %d\n",
++				reg, error);
++			return error;
++		}
++
++		if (priv->keycodes[reg] != KEY_RESERVED)
++			channels |= BIT(reg);
++
++#ifdef CONFIG_LEDS_CLASS
++		error = sx951x_led_init(priv, child, reg);
++		if (error) {
++			dev_err(dev, "Failed to initialize LED %d: %d\n",
++				reg, error);
++			return error;
++		}
++#endif
++	}
++
++	/* Enable sensing on channels with keycode configured */
++	error = regmap_write(priv->regmap,
++			     SX951X_REG_CAP_SENSE_ENABLE,
++			     channels);
++
++	return 0;
++}
++
++static int sx951x_input_init(struct sx951x_priv *priv)
++{
++	struct device *dev = priv->dev;
++	int i, error;
++
++	priv->idev = devm_input_allocate_device(dev);
++	if (!priv->idev)
++		return -ENOMEM;
++
++	priv->idev->name = "SX9512/SX9513 capacitive touch sensor";
++	priv->idev->id.bustype = BUS_I2C;
++	__set_bit(EV_KEY, priv->idev->evbit);
++
++	for (i = 0; i < SX951X_NUM_CHANNELS; i++)
++		__set_bit(priv->keycodes[i], priv->idev->keybit);
++
++	__clear_bit(KEY_RESERVED, priv->idev->keybit);
++
++	priv->idev->keycode = priv->keycodes;
++	priv->idev->keycodesize = sizeof(priv->keycodes[0]);
++	priv->idev->keycodemax = SX951X_NUM_CHANNELS;
++
++	input_set_drvdata(priv->idev, priv);
++
++	error = input_setup_polling(priv->idev, sx951x_poll);
++	if (error) {
++		dev_err(dev, "Unable to set up polling: %d\n", error);
++		return error;
++	}
++
++	input_set_poll_interval(priv->idev, priv->poll_interval);
++
++	error = input_register_device(priv->idev);
++	if (error) {
++		dev_err(dev, "Unable to register polled device: %d\n",
++			error);
++		return error;
++	}
++
++	return 0;
++}
++
++static int sx951x_probe(struct i2c_client *i2c_client)
++{
++	const struct i2c_device_id *id;
++	const struct sx951x_hw_data *hw;
++	struct device *dev = &i2c_client->dev;
++	struct sx951x_priv *priv;
++	int error;
++
++	if (i2c_client->addr != SX951X_I2C_ADDRESS &&
++	    i2c_client->addr != SX951XB_I2C_ADDRESS_) {
++		dev_err(dev, "Invalid I2C address: 0x%02x\n",
++			i2c_client->addr);
++		return -ENODEV;
++	}
++
++	id = i2c_client_get_device_id(i2c_client);
++	hw = i2c_get_match_data(i2c_client);
++	if (!id || !hw) {
++		dev_err(dev, "Invalid device configuration\n");
++		return -EINVAL;
++	}
++
++	priv = devm_kzalloc(dev,
++			    sizeof(struct sx951x_priv),
++			    GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	priv->dev = dev;
++	priv->hw = hw;
++
++	priv->regmap = devm_regmap_init_i2c(i2c_client, &sx951x_regmap_config);
++	if (IS_ERR(priv->regmap))
++		return PTR_ERR(priv->regmap);
++
++	/* Parse device configuration */
++	if (of_property_read_u32(dev->of_node, "poll-interval",
++				 &priv->poll_interval))
++		priv->poll_interval = SX951X_POLL_INTERVAL;
++
++	/* Register LED and input channels */
++	error = sx951x_channels_init(priv);
++	if (error) {
++		dev_err(dev, "Failed to initialize channels: %d\n", error);
++		return error;
++	}
++
++	/* Register input device */
++	error = sx951x_input_init(priv);
++	if (error) {
++		dev_err(dev, "Failed to register input device: %d\n", error);
++		return error;
++	}
++
++	return 0;
++}
++
++static void sx951x_remove(struct i2c_client *i2c_client)
++{
++	struct sx951x_priv *priv = i2c_get_clientdata(i2c_client);
++
++	/* Disable sensing */
++	regmap_write(priv->regmap, SX951X_REG_CAP_SENSE_ENABLE, 0x00);
++
++	/* Turn off all LEDs */
++	regmap_write(priv->regmap, SX951X_REG_LED_MAP_ENG2, 0x00);
++}
++
++static const struct sx951x_hw_data sx9512_hw_data = {
++	.has_proximity_sensing = true,
++};
++
++static const struct sx951x_hw_data sx9513_hw_data = {
++	.has_proximity_sensing = false,
++};
++
++static const struct of_device_id sx951x_dt_ids[] = {
++	{ .compatible = "semtech,sx9512", .data = &sx9512_hw_data },
++	{ .compatible = "semtech,sx9513", .data = &sx9513_hw_data },
++	{ }
++};
++MODULE_DEVICE_TABLE(of, sx951x_dt_ids);
++
++static const struct i2c_device_id sx951x_i2c_ids[] = {
++	{ "sx9512", (kernel_ulong_t)&sx9512_hw_data },
++	{ "sx9513", (kernel_ulong_t)&sx9513_hw_data },
++	{ }
++};
++MODULE_DEVICE_TABLE(i2c, sx951x_i2c_ids);
++
++static struct i2c_driver sx951x_i2c_driver = {
++	.driver = {
++		.name	= "sx951x",
++		.of_match_table = sx951x_dt_ids,
++	},
++	.id_table	= sx951x_i2c_ids,
++	.probe		= sx951x_probe,
++	.remove		= sx951x_remove,
++};
++
++module_i2c_driver(sx951x_i2c_driver);
++
++MODULE_DESCRIPTION("Semtech SX9512/SX9513 driver");
++MODULE_AUTHOR("David Bauer <mail@david-bauer.net>");
++MODULE_LICENSE("GPL");
 -- 
-2.49.0
+2.47.2
 

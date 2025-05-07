@@ -1,104 +1,199 @@
-Received: from jabberwock.ucw.cz (jabberwock.ucw.cz [46.255.230.98])
+Received: from mslow3.mail.gandi.net (mslow3.mail.gandi.net [217.70.178.249])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4179222576;
-	Wed,  7 May 2025 11:54:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.255.230.98
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1045A25D91E;
+	Wed,  7 May 2025 12:22:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.178.249
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746618844; cv=none; b=ENFI4v4bPWY8/DryWmRGMjP24wkwzknF1fr9oRF9phR9l2sHEvtDR+bGqBVGLbW6MxrfTajuhIP4ARl/fjCjSWOoPD6dStneOFpVntMzKM675jilyvcRDG9fAY4Ml8BKupVeDmLs/sPqVl3GEzhd7BMY+aK5OUU/OO3ZYeGRGYc=
+	t=1746620575; cv=none; b=er8bxiPld9t515BIGeWpMBkU/U+tJkp7xxg9KLQfx1vYaJAayenZ7xknjTpzqF4/AtouDu4wkfVKcP5YUW+tC8fihPJz7OLveOz067EpqwJWWJh5UoCCiqouzJMOWnJA92aE9Ctlfi04j7sPw4B2Iq3mWDwIt7bMcslK1eSDwHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746618844; c=relaxed/simple;
-	bh=FyBHsf0CBqcSNgBthgDITgy59CPDiJqQeKjMNVNDAG4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=f1GDB5G2PAo5bWMKDZM+wvADYANXqRLXOT78XGixBeI7dALVBiQoK8xoU6TtLoPE1MCWGSX9FkVR41sc5nsHpmgdIaqenLnJuXGq9pg2jDBCtrnUxeco2AfptOv6SLaC75UCc3fhobRC9GBDHZGKoGqZlHqXFH3oB3nStLoM8vQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ucw.cz; spf=pass smtp.mailfrom=ucw.cz; dkim=pass (1024-bit key) header.d=ucw.cz header.i=@ucw.cz header.b=av6sO1XQ; arc=none smtp.client-ip=46.255.230.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ucw.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ucw.cz
+	s=arc-20240116; t=1746620575; c=relaxed/simple;
+	bh=eqDUV+tTimUtwNQZnqu/rGVcIw1QUrUBizHGzo/A/rA=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Igdhc+w7KmUbkDrhdol6dHhpQ0khFI9C//DO8pK7dV2whDFotV2GBHRCqMbPatMeYv71t/14MzDuesKmU2GPE2iDgCYFExsmBYyg4tqJ/DGOW3QcvQOvXAMmWnjTwszMU99Pm/gANN2VVBJl6zcvds0AwwlGe+GJAXNqap3e+e0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Yl0pwM/f; arc=none smtp.client-ip=217.70.178.249
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ucw.cz header.i=@ucw.cz header.b="av6sO1XQ"
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-	id ADC361C009E; Wed,  7 May 2025 13:53:59 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ucw.cz; s=gen1;
-	t=1746618839;
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Yl0pwM/f"
+Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
+	by mslow3.mail.gandi.net (Postfix) with ESMTP id 4C6E958871D;
+	Wed,  7 May 2025 11:51:38 +0000 (UTC)
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 5FA6E43A0C;
+	Wed,  7 May 2025 11:51:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1746618689;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5J5xnY0EPi15hqHPaWeFE5R9mbwtf10YeBUsROx/HR0=;
-	b=av6sO1XQSJoBBCuroSNC9tnsYboYzW1r8Pxzpb742PP3T9swfPX6d1BIxv40bHCtelxPBL
-	ILUC/161+BOt9MKIi4Pv8Dd4rMz5GeIahdfaZinZNF/7+ynMNHNTQ2YAcI12ReJfmxU12x
-	l9Lg6j5qm6As7dPlJafO2INWqvkEJKk=
-Date: Wed, 7 May 2025 13:53:59 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>, bentiss@kernel.org,
-	Werner Sembach <wse@tuxedocomputers.com>,
-	linux-input@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>,
-	platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH v9 0/1] platform/x86/tuxedo: Add virtual LampArray for
- TUXEDO NB04 devices
-Message-ID: <aBtJ1+gdmGkJKUrK@duo.ucw.cz>
-References: <20250425210043.342288-1-wse@tuxedocomputers.com>
- <174645314692.23202.56309255974182976.b4-ty@linux.intel.com>
- <aBtFDy+Qu3RvAHur@duo.ucw.cz>
- <56a927e8-b6c6-d07b-df34-1a73cdef8528@linux.intel.com>
+	bh=qvrBTRhAKJ9KBaVwiA1fHOR9OqEkbdq1vvZ72C5xK6o=;
+	b=Yl0pwM/f9Ds1z7/5HsLrO/sxKf0JCRUa1jEr6qb7rT37xs6UceFKhpc8V3KmnHoQoSc6vn
+	U7pJecCaj2VbTosJyT1lzKUCrXbZpZVqGCitexj+kTd5TK0vhHaCKS48KpNp262IMlPJEG
+	5o1M6GSSenWdXoGkQlj/hVUr9nJb0wBjV6Pn6c/zX3xzit9LIB7ACC4225UP1PsKyv8v7w
+	8LVkf5VywgzVbIdQ/OVP2nVs0WICpg+yy6xXMDOvB+7AaewRJiIPAYKsguMQtqBtYB6GLE
+	7FsubM2DcoIHuh/sWZwQdkrOINr/+LZBK7PeEByXLahQcVmrHoBdWhSBiDNwQg==
+Date: Wed, 7 May 2025 13:51:26 +0200
+From: Maxime Chevallier <maxime.chevallier@bootlin.com>
+To: "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Lunn
+ <andrew@lunn.ch>, Woojung Huh <woojung.huh@microchip.com>, Vladimir Oltean
+ <olteanv@gmail.com>, Heiner Kallweit <hkallweit1@gmail.com>, "David S.
+ Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Dmitry
+ Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [BUG] Stuck key syndrome (was: Re: [PATCH net-next v2] net:
+ dsa: microchip: Add SGMII port support to KSZ9477 switch)
+Message-ID: <20250507135126.7d34d18f@fedora.home>
+In-Reply-To: <aBtHmNGRTVP9SttE@shell.armlinux.org.uk>
+References: <20250507000911.14825-1-Tristram.Ha@microchip.com>
+	<20250507094449.60885752@fedora.home>
+	<aBsadO2IB_je91Jx@shell.armlinux.org.uk>
+	<20250507105457.25a3b9cb@fedora.home>
+	<aBsmhfI45zMltjcy@shell.armlinux.org.uk>
+	<aBsu-WBlPQy5g-Jn@shell.armlinux.org.uk>
+	<20250507153236.5303be86@fedora.home>
+	<aBtHmNGRTVP9SttE@shell.armlinux.org.uk>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fefvjMh9N0dESyqs"
-Content-Disposition: inline
-In-Reply-To: <56a927e8-b6c6-d07b-df34-1a73cdef8528@linux.intel.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-GND-State: clean
+X-GND-Score: -100
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvkeeijeelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeffhffvvefukfgjfhhoofggtgfgsehtjeertdertddvnecuhfhrohhmpeforgigihhmvgcuvehhvghvrghllhhivghruceomhgrgihimhgvrdgthhgvvhgrlhhlihgvrhessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepgeevledtvdevueehhfevhfelhfekveeftdfgiedufeffieeltddtgfefuefhueeknecukfhppedvrgdtvdemkeeggedtmehfhedtsgemfedvheemrgeigeefmedufheiugemfhgvrgegmeegsgduieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtvdemkeeggedtmehfhedtsgemfedvheemrgeigeefmedufheiugemfhgvrgegmeegsgduiedphhgvlhhopehfvgguohhrrgdrhhhomhgvpdhmrghilhhfrhhomhepmhgrgihimhgvrdgthhgvvhgrlhhlihgvrhessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepudefpdhrtghpthhtoheplhhinhhugiesrghrmhhlihhnuhigrdhorhhgrdhukhdprhgtphhtthhopehtohhrvhgrlhgusheslhhinhhugidqfhhouhhnuggrthhiohhnrdhorhhgpdhrtghpthhtoheprghnughrvgifsehluhhnn
+ hdrtghhpdhrtghpthhtohepfihoohhjuhhnghdrhhhuhhesmhhitghrohgthhhiphdrtghomhdprhgtphhtthhopeholhhtvggrnhhvsehgmhgrihhlrdgtohhmpdhrtghpthhtohephhhkrghllhifvghithdusehgmhgrihhlrdgtohhmpdhrtghpthhtohepuggrvhgvmhesuggrvhgvmhhlohhfthdrnhgvthdprhgtphhtthhopegvughumhgriigvthesghhoohhglhgvrdgtohhm
+X-GND-Sasl: maxime.chevallier@bootlin.com
 
+On Wed, 7 May 2025 12:44:24 +0100
+"Russell King (Oracle)" <linux@armlinux.org.uk> wrote:
 
---fefvjMh9N0dESyqs
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Hi Maxime,
+> 
+> On Wed, May 07, 2025 at 03:32:36PM +0200, Maxime Chevallier wrote:
+> > Hi Russell,
+> > 
+> > On Wed, 7 May 2025 10:59:21 +0100
+> > "Russell King (Oracle)" <linux@armlinux.org.uk> wrote:
+> >   
+> > > On Wed, May 07, 2025 at 10:23:17AM +0100, Russell King (Oracle) wrote:  
+> > > > [Sorry for going off topic here - changed the Cc list, added Linus,
+> > > > changed the subject.]
+> > > > 
+> > > > On Wed, May 07, 2025 at 10:54:57AM +0200, Maxime Chevallier wrote:    
+> > > > > On Wed, 7 May 2025 09:31:48 +0100
+> > > > > "Russell King (Oracle)" <linux@armlinux.org.uk> wrote:    
+> > > > > > [rest of the email got deleted because Linux / X11 / KDE got confused
+> > > > > > about the state the backspace key and decided it was going to be
+> > > > > > continuously pressed and doing nothing except shutting the laptop
+> > > > > > down would stop it.]    
+> > > > > 
+> > > > > Funny how I have the same exact issue on my laptop as well...     
+> > > > 
+> > > > I've had the "stuck key" behaviour with the HP Pavilion 15-au185sa
+> > > > laptop I had previously (normally with ctrl-F keys). However, hitting
+> > > > ctrl/shift/alt would stop it.
+> > > > 
+> > > > This is the first time I've seen the behaviour with the Carbon X1
+> > > > laptop, but this was way more severe. No key would stop it. Trying to
+> > > > move the focus using the trackpad/nipple had any effect. Meanwhile
+> > > > the email was being deleted one character at a time. So I shut the
+> > > > laptop lid causing it to suspend, and wondered what to do... on
+> > > > re-opening the laptop, it didn't restart and is back to normal.
+> > > > 
+> > > > This suggests that the entire input subsystem in the software stack
+> > > > collapsed just after the backspace key was pressed, and Xorg never
+> > > > saw the key-release event. So Xorg duitifully did its key-repeat
+> > > > processing, causing the email to be deleted one character at a time.
+> > > > 
+> > > > The problem is, not only did this destroy the email reply, but it
+> > > > also destroyed my train of thought for the reply as well through
+> > > > the panic of trying to stop the entire email being deleted.
+> > > > 
+> > > > I don't think this is a hardware issue - I think there's a problem
+> > > > in the input handling somewhere in the stack of kernel, Xorg,
+> > > > whatever multiple input libraries make up modern systems, and KDE.
+> > > > 
+> > > > I did check the logs. Nothing in the kernel messages that suggests
+> > > > a problem. Nothing in Xorg's logs (which are difficult to tie up
+> > > > because it doesn't use real timestamps that one can relate to real
+> > > > time.) There's no longer any ~/.xsession-errors logfile for logging
+> > > > the stuff below Xorg.
+> > > > 
+> > > > I'm running Debian Stable here - kernel 6.1.0-34-amd64, X.Org X Server
+> > > > 1.21.1.7, KDE Plasma (5.27.5, frameworks 5.103.0, QT 5.15.8).    
+> > > 
+> > > I'll also add that The Carbon X1, being a laptop, its built-in keyboard
+> > > uses the i8042:
+> > > 
+> > > [    1.698156] i8042: PNP: PS/2 Controller [PNP0303:KBD,PNP0f13:MOU] at 0x60,0x64 irq 1,12
+> > > [    1.698543] i8042: Warning: Keylock active
+> > > [    1.700170] serio: i8042 KBD port at 0x60,0x64 irq 1
+> > > [    1.700174] serio: i8042 AUX port at 0x60,0x64 irq 12
+> > > [    1.700271] mousedev: PS/2 mouse device common for all mice
+> > > [    1.702951] input: AT Translated Set 2 keyboard as /devices/platform/i8042/serio0/input/input0
+> > > 
+> > > I don't have the HP laptop with me to check what that was using.
+> > > 
+> > > The mysterious thing is "Keylock active" - clearly it isn't because I
+> > > can write this email typing on that very keyboard. However, I wonder
+> > > if it needs i8042_unlock=1 to set I8042_CTR_IGNKEYLOCK.
+> > > 
+> > > Unfortunately, it's probably going to take a year on the Carbon X1
+> > > to work out if this makes any difference.
+> > >  
+> > > > Anyone else seeing this kind of behaviour - if so, what are you
+> > > > using?  
+> > 
+> > It just happened to me as I was typing this very email (key 'd' got
+> > stuck, nothing could un-stick it, couldn't move the mouse cursor but
+> > mouse-click events did work, had to suspend/resume the laptop to fix
+> > that)  
+> 
+> 'd' can be quite disastrous if you're using vi and you're in command
+> mode!
+> 
+> > Got the same "Keylock active" warning at boot :
+> > 
+> > [    0.916750] i8042: PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
+> > [    0.917210] i8042: Warning: Keylock active
+> > [    0.920087] serio: i8042 KBD port at 0x60,0x64 irq 1
+> > [    0.920090] serio: i8042 AUX port at 0x60,0x64 irq 12
+> > 
+> > Nothing in the kernel logs when the key got stuck.
+> > 
+> > Laptop is a Dell XPS 15 9510, Running Fedora 41 but I saw this issue
+> > before, kernel 6.14.4-200.fc41.x86_64, Wayland-based, Gnome 47.
+> > 
+> > Hopefully this helps a bit narrowing this down, I have a fairly
+> > different userspace stack and kernel version, but we do have the same
+> > driver involved and same keylock warning...  
+> 
+> Could you try booting with i8042_unlock=1 and see whether that makes any
+> difference please?
 
-Hi!
+I'll try this out indeed :)
 
-> > > Thank you for your contribution, it has been applied to my local
-> > > review-ilpo-next branch. Note it will show up in the public
-> > > platform-drivers-x86/review-ilpo-next branch only once I've pushed my
-> > > local branch there, which might take a while.
-> >=20
-> > Can I ask you to Cc me with the pull request when you'll send the
-> > patch upstream?
->=20
-> Hi Pavel,
->=20
-> To not forget your request, I've temporarily added you to the Cc list of=
-=20
-> any PRs I'm sending towards Linus.
->=20
-> This means you'll be Cc'ed the unrelated fixes PRs too but there shouldn'=
-t=20
-> be that many of those until the next merge window (I'm sorry about the=20
-> extra noise but I'd likely forget it otherwise). And if I forget to remov=
-e=20
-> you afterwards the CC list and you keep getting PRs Cc'ed, please just=20
-> sent me a note then.
+> I've added that to my grub config in preparation for rebooting, but even
+> if I booted now, I suspect it'll be some time before I have any useful
+> result.
+> 
+> How often do you see the problem?
 
-That works for me. Thank you!
+It's very sporadic, sometimes I'll see this behaviour multiple times a
+day, and then nothing for weeks... This laptop has been very quirky
+ever since I got it, so I categorized that as a "yet another XPS 9510
+broken behaviour", but this has been a recurrent thing for multiple
+years...
 
-Best regards,
-									Pavel
+So, same as you, it'll take a long time for me to say with some amount
+of certainty that 'i8042_unlock=1' has a beneficial effect, of
+course unless I see the problem happen again in the meantime.
 
---=20
-I don't work for Nazis and criminals, and neither should you.
-Boycott Putin, Trump, and Musk!
-
---fefvjMh9N0dESyqs
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCaBtJ1wAKCRAw5/Bqldv6
-8tENAJ9hcsG/9Q9NAUHveO6DruKIlwVQxwCffs4d+lrY8xFisorFTCdmVsTnWCA=
-=eyqx
------END PGP SIGNATURE-----
-
---fefvjMh9N0dESyqs--
+Maxime

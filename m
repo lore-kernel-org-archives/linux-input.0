@@ -1,125 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f197.google.com (mail-il1-f197.google.com [209.85.166.197])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB2FB2951DB;
-	Mon, 12 May 2025 12:38:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7BCB294A1C
+	for <linux-input@vger.kernel.org>; Mon, 12 May 2025 13:34:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747053540; cv=none; b=X4p236xXZ5bnt/IR3TMMQUcmJ7tHmvYrttvJVGCsHFwJuy8sWBHh/JPxj+CrJUsBqLFRdENyPBHdLYyM49l/KARAzOm80+22n16PQuyXORsGAkQM+Nliek10+yaUHONUcAJ6fhswNEQq3cvUMOw4cUGPewcRt1Qq8SuxXB13saI=
+	t=1747056870; cv=none; b=DKPR/djqNEuVN95aUSRVEAtae9eQ/RHcZG9xYNcLFixWBblFkm2JoiZJ4lG74qyeoaa+m2MQCHp4SMhmq3rI3G66P/OoiY5zeENFi4AzrjIkUzEmaX51Zk/rQJXGCV3zVwG9LolhamQVf9zKt84lhtg/dQreAqaCnRtcWwDgSss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747053540; c=relaxed/simple;
-	bh=9pI7TDIzBeTDNXjeuoImE6pIAEtmx1yMC34/Lq1dOrg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gOFV3DYzFrDfAB7mEPmM8IXvyJFOjffuQweSpK1uxPjqh/NuEQkjbgfR4lDrK+F8KWWjx+67DfDpP09H5+NjgJ7ZykliJtve4kX9LkK/cQCDpFVpFb/KImPVluu+wH+raQ6RZuAiN0vsuLS0vGqm+JKomfuy3eQgynhvMqOfYo0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H98yMLC6; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H98yMLC6"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 940EAC4CEFE;
-	Mon, 12 May 2025 12:38:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747053539;
-	bh=9pI7TDIzBeTDNXjeuoImE6pIAEtmx1yMC34/Lq1dOrg=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=H98yMLC6bZ8g1cxf2PSXsrtw+lPUcqhiBLfIdxOYP4uHpFTKHlwfOTQIgjNDqqaSl
-	 29fDCkGJP+XlPftwq1BdfheST4MIgDMlg8HJUSae1hrlapuoDiepnQr0eI3Izf4kZj
-	 yFHEDN95N/0UZHZUq/Q30r8wnEWJsgDa9v0Blu4priAQQ+7vddNJc0qGD4ClleMy34
-	 S3QM3v6DVLkMt70RnZxrD9PCgT6BhDwigvILv55eQYC+cZKzBIpynz+FuAhbeV/SqF
-	 Kc//MMZduOWLjrwkTxJAzhe6b/kDgynefNCdyu/nvA3qnsFP+71hfQZFa/YqzjYBy/
-	 TdIf3POMUd4DA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B204C3ABCD;
-	Mon, 12 May 2025 12:38:59 +0000 (UTC)
-From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Mon, 12 May 2025 13:39:13 +0100
-Subject: [PATCH v3 21/22] mfd: adp5585: add support for a reset pin
+	s=arc-20240116; t=1747056870; c=relaxed/simple;
+	bh=9LaT8jpMDsO0x/0Nqzjg5EOM711aSAdddO9qszVV5k8=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=kF8MnKHgPSwV97cjmPvnvbBWAwh+fTEwJXdsUbfvtzmqpAuahC04fBZOUAITe49N90gjlX7TSE2hAPVDuqAZyF7wDq4DID8qz0jKgSbw++V/CA9HS19rQ6p+tNf8/S87GwMvgMJ6Ef3ofwlSjRqnq84R6oyh4LBElDDUGX3JP94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f197.google.com with SMTP id e9e14a558f8ab-3da779063a3so48768095ab.3
+        for <linux-input@vger.kernel.org>; Mon, 12 May 2025 06:34:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747056868; x=1747661668;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=N5Jsy2OEKlJIXsAudq58rYcIWaWdiHscV+wnkzGpNzo=;
+        b=e35K5qPwvGbjJ3ib2IpKgCDKXEOdNZjuSaIWQXanK1XamEqUoWMJTRjE+NyVqfM6Ls
+         Hit4yeW6TlK4tr25G/oR+7SPekKIO2QRT5WOeBubXAeKRatBVjac1ZmjzSJQTEdWmg8Z
+         A7j8a3y0fJIPAjnuRd6e16tHGiBIRgnG4e7PuEevoDdAB5NET5eMfkEf6EHBYcvv/yg7
+         JYPD9/5tVJh5YtyU7ZgxhN36MuToeVAW6HOGbujmwzhyjAkqUAQXVrNDv52QJNi91Wd6
+         nxxpiYSg0NM1XFHpEvWTkfWNeRW88iNR/RKN0pS/Blhp2dThaOvjSdy6bdYkKan/xIKS
+         4+Tg==
+X-Gm-Message-State: AOJu0YyAa6B5jgrBj8n17+n0a3lsKN7ltEGwqboP2Q1F26yDWDqbK2Sc
+	SCDQ17bJXdDBp7HNCp4XaRgcwPht+ve89NMeG+NKffO58SfwJhiCW2FClAMc0Kr1fSMKP4kTAnv
+	QFzNGwZ6yWLRJAWBlNYaxAD7kEoKFk7R8rv7L2J78f5yN8ba2WVdxbew=
+X-Google-Smtp-Source: AGHT+IECV7osDVIrJ+ZByHa1VnrQa26YYhTwEGq12zIt0CegPoH35EnLWtvqfi5x5AfsOhWU4F7+jPdHKuocSKMakLBIPc327aLY
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20250512-dev-adp5589-fw-v3-21-092b14b79a88@analog.com>
-References: <20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com>
-In-Reply-To: <20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com>
-To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-input@vger.kernel.org
-Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, 
- Linus Walleij <linus.walleij@linaro.org>, 
- Bartosz Golaszewski <brgl@bgdev.pl>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
- Liu Ying <victor.liu@nxp.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747053537; l=1527;
- i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=tFAINTSoMBnF/ZmEAfpC4hVQDXmxCmyzkOry/geHrT8=;
- b=g8s7nFQP21zeOxkinuEvv2rhlHsyuC6IQnojYR1oyjiGZg+zS+aw46WEiwTUdtp8/0RkqpPmY
- V5MxDoGQDkeA1d0gylEKZiNNSUOQ6RD1VOrvGliHEsWtzhDWwmQTxYx
-X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
- pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
-X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
- auth_id=100
-X-Original-From: =?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>
-Reply-To: nuno.sa@analog.com
+X-Received: by 2002:a05:6e02:1a06:b0:3d9:39ae:b23c with SMTP id
+ e9e14a558f8ab-3da7e21751dmr157403935ab.20.1747056867911; Mon, 12 May 2025
+ 06:34:27 -0700 (PDT)
+Date: Mon, 12 May 2025 06:34:27 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6821f8e3.050a0220.f2294.0061.GAE@google.com>
+Subject: [syzbot] Monthly input report (May 2025)
+From: syzbot <syzbot+listce35d07e50216cd75a3a@syzkaller.appspotmail.com>
+To: linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-From: Nuno Sá <nuno.sa@analog.com>
+Hello input maintainers/developers,
 
-Make sure to perform an Hardware reset during probe  if the pin is given
-in FW.
+This is a 31-day syzbot report for the input subsystem.
+All related reports/information can be found at:
+https://syzkaller.appspot.com/upstream/s/input
 
-Signed-off-by: Nuno Sá <nuno.sa@analog.com>
+During the period, 1 new issues were detected and 0 were fixed.
+In total, 27 issues are still open and 58 have already been fixed.
+
+Some of the still happening issues:
+
+Ref  Crashes Repro Title
+<1>  24829   Yes   UBSAN: shift-out-of-bounds in __kfifo_alloc
+                   https://syzkaller.appspot.com/bug?extid=d5204cbbdd921f1f7cad
+<2>  1915    Yes   WARNING in cm109_urb_irq_callback/usb_submit_urb
+                   https://syzkaller.appspot.com/bug?extid=2d6d691af5ab4b7e66df
+<3>  1120    No    possible deadlock in evdev_pass_values (2)
+                   https://syzkaller.appspot.com/bug?extid=13d3cb2a3dc61e6092f5
+<4>  731     Yes   WARNING in enable_work
+                   https://syzkaller.appspot.com/bug?extid=7053fbd8757fecbbe492
+<5>  396     Yes   KASAN: slab-out-of-bounds Read in mcp2221_raw_event
+                   https://syzkaller.appspot.com/bug?extid=52c1a7d3e5b361ccd346
+<6>  54      Yes   WARNING in cm109_input_open/usb_submit_urb (3)
+                   https://syzkaller.appspot.com/bug?extid=ac0f9c4cc1e034160492
+<7>  38      Yes   possible deadlock in uinput_request_submit
+                   https://syzkaller.appspot.com/bug?extid=159077b1355b8cd72757
+<8>  21      Yes   WARNING in bcm5974_start_traffic/usb_submit_urb (2)
+                   https://syzkaller.appspot.com/bug?extid=b064b5599f18f7ebb1e1
+<9>  18      Yes   INFO: rcu detected stall in console_callback
+                   https://syzkaller.appspot.com/bug?extid=32af18ae7b894a681f2d
+<10> 4       Yes   INFO: rcu detected stall in call_timer_fn (5)
+                   https://syzkaller.appspot.com/bug?extid=03dd0f0cbfcf5c5c24f1
+
 ---
- drivers/mfd/adp5585.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
 
-diff --git a/drivers/mfd/adp5585.c b/drivers/mfd/adp5585.c
-index 88401668f30e06ac201175470eeaf6216f3121d9..0fbe1f7f2582408b2e1b99f629182ceebce73fd7 100644
---- a/drivers/mfd/adp5585.c
-+++ b/drivers/mfd/adp5585.c
-@@ -11,6 +11,7 @@
- #include <linux/device.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
-+#include <linux/gpio/consumer.h>
- #include <linux/mfd/adp5585.h>
- #include <linux/mfd/core.h>
- #include <linux/mod_devicetable.h>
-@@ -712,6 +713,7 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
- {
- 	struct regmap_config regmap_config;
- 	struct adp5585_dev *adp5585;
-+	struct gpio_desc *gpio;
- 	struct mfd_cell *devs;
- 	unsigned int id;
- 	int ret, n_devs;
-@@ -730,6 +732,20 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
- 	if (ret)
- 		return ret;
- 
-+	gpio = devm_gpiod_get_optional(&i2c->dev, "reset", GPIOD_OUT_HIGH);
-+	if (IS_ERR(gpio))
-+		return PTR_ERR(gpio);
-+
-+	/*
-+	 * Note the timings are not documented anywhere in the DS. They are just
-+	 * reasonable values that work...
-+	 */
-+	if (gpio) {
-+		fsleep(30);
-+		gpiod_set_value_cansleep(gpio, 0);
-+		fsleep(60);
-+	}
-+
- 	adp5585->regmap = devm_regmap_init_i2c(i2c, &regmap_config);
- 	if (IS_ERR(adp5585->regmap))
- 		return dev_err_probe(&i2c->dev, PTR_ERR(adp5585->regmap),
+To disable reminders for individual bugs, reply with the following command:
+#syz set <Ref> no-reminders
 
--- 
-2.49.0
+To change bug's subsystems, reply with:
+#syz set <Ref> subsystems: new-subsystem
 
-
+You may send multiple commands in a single email message.

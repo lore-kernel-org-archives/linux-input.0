@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 049BC4A08;
-	Mon, 12 May 2025 12:38:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C401293759;
+	Mon, 12 May 2025 12:38:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747053539; cv=none; b=pwEVyGxZvlCXmutPTALrrhXq5JX3adHLUx7isKyDhhjxZr1yyRJxrpD3HO6D8ynCtcbsRKkiZMJvqQEmj/OUEQsKnFBis7oFJwQCIte93VXRrj6njUold55X/8OKw/FTVX6eGXJxB4Ziov3peZ5ywhvZyRXfdxTKlqOqyxFek7Q=
+	t=1747053539; cv=none; b=dm6XJrIvxoNgPX6yVRg8rdmlZMHTVPcTj9g/yKqvibMJ7uugKJ9Y+BHrV94u0Q6zGfeWeJGBOJqrNCNQxBbN3HKghZWLh1KYg7RMTlwH8+RfVEsiNZVHQm4ai6sAKLGLuuvB/uoday9OJoIqiG5FhrjbsDMV+ZqjYtaK/8Gi6s4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747053539; c=relaxed/simple;
-	bh=HgcAr0PBB4Py95fVn5f8uWZI71qwh+M5gpX5UYPwIpU=;
+	bh=OJ6TowkARp/Doi6+qnVBRc8J1B7tkneZYbYsIN03Ohw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=a8l72AEaA4VKz6ecvAXYoMD9DEuSgx48EGWMuDeV4PnVR8WxcqoqWK5r2yMpsOs7zFYYdqcUOj43B78oflTVH1USSVdR/DQj0WjXhN0J+uUz3NQ3YeEHtctmnqn6JoSwz+NSWtBllDLkvczTPBnFHCLmI+b5tEiSWG0TS1VN4Yc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R74obJ26; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=Ep+fdX0Rdea4DxGoQwSIaEV1F0fikCgitjvHVHcqtmRFWssM1UEbKtWc0FGpwBP8DY9mas1GWiodVq0TM+TlzPLLTp6cl/VDXrFqSN7FXr5L6uVCoyjo3HOJronnBjxYsp7W53P0g3jsHN93kOeQ6TTpI/3BePOieP0valxh5eE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WDP7/bsJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R74obJ26"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 93831C4CEF3;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WDP7/bsJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B714FC4CEFD;
 	Mon, 12 May 2025 12:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1747053538;
-	bh=HgcAr0PBB4Py95fVn5f8uWZI71qwh+M5gpX5UYPwIpU=;
+	bh=OJ6TowkARp/Doi6+qnVBRc8J1B7tkneZYbYsIN03Ohw=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=R74obJ261MRq9zWlq1K0pwUdOZh0vh3HYDSSki6oPCq6eyvrLvxI+iraqWJdWVgvw
-	 Ttn1sgqwWUCZKGolREStAPASK60d8r600ALKwfj0HxsuG+S8YQ9wpIWcsRqOjKMihc
-	 eddEZN4G4oMXUpW1KQe0NNVOy+OxoWb7uISSl4h6tCw/pmTkTp3geBCNFUzGBakKYT
-	 +LWjYSDZA95Ispv3pvVp+iq0J2589cdatVziK89/i3l94XlZ28psU4JKql6/VJEagd
-	 71ioEHm4ATZeR3x6UhoxGgp1EQS2/D7dQHE5oLUtJWyX9i/uWCk/Xf2q7b/8bf4Wzj
-	 Wy2fHx3FjC4tw==
+	b=WDP7/bsJRx628HIItXNO2cEKTLBe8w36IATCjoeDIQyJmUXcqtBqrdpufqbUnCJq1
+	 2m80Zf3Ot3BO+ZX58kp998U7NX6kxW78rHCytBtoruXiaSQo4f437/xNexx4VHUKL5
+	 eKPq3k5646cxYL2Bw5ZibYQ2Yfd8EAMzuN8nPQsyuVpp6q46hl7F18VDQn5oCZ/IsY
+	 TunZU2UkvML3u4KqkLM6/3U7C0+8PlAI7ZmdxqnfL4rg97oIJGodB83iQb1o1CH92l
+	 b9JPfokZj06tjIZLlkNjzQjvXZVEhnMsriZFEKGgX5HSK9joyagYADFTBhq5SpU7vv
+	 gPWod5ggYhlkw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A958C3ABCD;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AC17EC3ABC3;
 	Mon, 12 May 2025 12:38:58 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Mon, 12 May 2025 13:38:56 +0100
-Subject: [PATCH v3 04/22] pwm: adp5585: don't control OSC_EN in the pwm
- driver
+Date: Mon, 12 May 2025 13:38:58 +0100
+Subject: [PATCH v3 06/22] dt-bindings: mfd: adp5585: document adp5589 I/O
+ expander
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250512-dev-adp5589-fw-v3-4-092b14b79a88@analog.com>
+Message-Id: <20250512-dev-adp5589-fw-v3-6-092b14b79a88@analog.com>
 References: <20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com>
 In-Reply-To: <20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com>
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
@@ -56,11 +56,11 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
  Liu Ying <victor.liu@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747053537; l=1401;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1747053537; l=3683;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=MVCU5kPBNDbHxIfJmLO114QSq4N3ZehCh55N9NFh/nk=;
- b=e73+7UDtEa7JsEUNcmfk1BRIjDHf6yGm16rJN160lpWBPTe8cbC5EmIUXAOygYuJ4jQMBXgYb
- 2tLS2W6N1HNAUQENyO4MmnmlaPJMW2bH/882aMDPefzBZunwyRk3ZPi
+ bh=beLTP9GDditX9ha6QitAuUXi6px8/CxhIbNd+KVg+k4=;
+ b=FV/4rBk1ORdEyoZ49j5yIV45t/WkLt5M6N4uhjZm7Wg13M3RR6QvKtVfn36K11tsnymOSkrHo
+ EuTk+4nFROsD+Dqhh8UfdEhpXemHfwp1sVCCdud1pduCKNSz9V07Rxl
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -70,44 +70,106 @@ Reply-To: nuno.sa@analog.com
 
 From: Nuno Sá <nuno.sa@analog.com>
 
-The adp5585 is a Multi Function Device that can also be a gpio
-controller and as it turns out, when OSC_EN is not set, we can't
-reliably read the gpio value when it's configured as input. Hence,
-OSC_EN will be set during probe by the parent device (and cleared on
-unbind).
+The ADP5589 is a 19 I/O port expander with built-in keypad matrix decoder,
+programmable logic, reset generator, and PWM generator.
 
-Moreover, we'll add support for the keymap matrix (input device) which
-definitely needs OSC_EN to be set and so, we cannot afford that disabling
-the PWM output also breaks the keymap events generation.
+We can't really have adp5589 devices fallback to adp5585 (which have
+less pins) because there are some significant differences in the register
+map.
 
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Nuno Sá <nuno.sa@analog.com>
 ---
- drivers/pwm/pwm-adp5585.c | 5 -----
- 1 file changed, 5 deletions(-)
+ .../devicetree/bindings/mfd/adi,adp5585.yaml       | 47 +++++++++++++++++-----
+ .../devicetree/bindings/trivial-devices.yaml       |  2 -
+ 2 files changed, 38 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/pwm/pwm-adp5585.c b/drivers/pwm/pwm-adp5585.c
-index 40472ac5db6410a33e4f790fe8e6c23b517502be..c8821035b7c1412a55a642e6e8a46b66e693a5af 100644
---- a/drivers/pwm/pwm-adp5585.c
-+++ b/drivers/pwm/pwm-adp5585.c
-@@ -62,7 +62,6 @@ static int pwm_adp5585_apply(struct pwm_chip *chip,
- 	int ret;
+diff --git a/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml b/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
+index e30e22f964f78519b2ec207e9415e4897db5c702..9471af28419d820424745315ffb2129f7dd37581 100644
+--- a/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
++++ b/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
+@@ -15,14 +15,21 @@ description:
  
- 	if (!state->enabled) {
--		regmap_clear_bits(regmap, ADP5585_GENERAL_CFG, ADP5585_OSC_EN);
- 		regmap_clear_bits(regmap, ADP5585_PWM_CFG, ADP5585_PWM_EN);
- 		return 0;
- 	}
-@@ -100,10 +99,6 @@ static int pwm_adp5585_apply(struct pwm_chip *chip,
- 	if (ret)
- 		return ret;
+ properties:
+   compatible:
+-    items:
+-      - enum:
+-          - adi,adp5585-00  # Default
+-          - adi,adp5585-01  # 11 GPIOs
+-          - adi,adp5585-02  # No pull-up resistors by default on special pins
+-          - adi,adp5585-03  # Alternate I2C address
+-          - adi,adp5585-04  # Pull-down resistors on all pins by default
+-      - const: adi,adp5585
++    oneOf:
++      - items:
++          - enum:
++              - adi,adp5585-00  # Default
++              - adi,adp5585-01  # 11 GPIOs
++              - adi,adp5585-02  # No pull-up resistors by default on special pins
++              - adi,adp5585-03  # Alternate I2C address
++              - adi,adp5585-04  # Pull-down resistors on all pins by default
++          - const: adi,adp5585
++      - items:
++          - enum:
++              - adi,adp5589-00  # Default
++              - adi,adp5589-01  # R4 defaulted to RESET1 output
++              - adi,adp5589-02  # Pull-down resistors by default on special pins
++          - const: adi,adp5589
  
--	ret = regmap_set_bits(regmap, ADP5585_GENERAL_CFG, ADP5585_OSC_EN);
--	if (ret)
--		return ret;
--
- 	return regmap_set_bits(regmap, ADP5585_PWM_CFG, ADP5585_PWM_EN);
- }
+   reg:
+     maxItems: 1
+@@ -62,7 +69,17 @@ allOf:
+     then:
+       properties:
+         gpio-reserved-ranges: false
+-    else:
++
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - adi,adp5585-00
++              - adi,adp5585-02
++              - adi,adp5585-03
++              - adi,adp5585-04
++    then:
+       properties:
+         gpio-reserved-ranges:
+           maxItems: 1
+@@ -71,6 +88,18 @@ allOf:
+               - const: 5
+               - const: 1
  
++  - if:
++      properties:
++        compatible:
++          contains:
++            enum:
++              - adi,adp5589-00
++              - adi,adp5589-01
++              - adi,adp5589-02
++    then:
++      properties:
++        gpio-reserved-ranges: false
++
+ additionalProperties: false
+ 
+ examples:
+diff --git a/Documentation/devicetree/bindings/trivial-devices.yaml b/Documentation/devicetree/bindings/trivial-devices.yaml
+index 8da408107e55483affedb7e697eb79e8c8902ed9..208fe4242672d9da66799c2742a9381938737232 100644
+--- a/Documentation/devicetree/bindings/trivial-devices.yaml
++++ b/Documentation/devicetree/bindings/trivial-devices.yaml
+@@ -39,8 +39,6 @@ properties:
+           - ad,adm9240
+             # AD5110 - Nonvolatile Digital Potentiometer
+           - adi,ad5110
+-            # Analog Devices ADP5589 Keypad Decoder and I/O Expansion
+-          - adi,adp5589
+             # Analog Devices LT7182S Dual Channel 6A, 20V PolyPhase Step-Down Silent Switcher
+           - adi,lt7182s
+             # AMS iAQ-Core VOC Sensor
 
 -- 
 2.49.0

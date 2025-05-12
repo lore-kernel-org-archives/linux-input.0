@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD0D91C6FF2;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD154268FEF;
 	Mon, 12 May 2025 12:38:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747053539; cv=none; b=FkJ9I0cNCPy3bDUIMYygGwU6Is3ghKWE4IwnV1XmE9F7sHakl1lL9hzP1pAEGwfq0+STeW0yMXffLhbus6saK04le/C7NiJh7LkqQHFbuSE8fsxJossH24RniynSD9S3CwSDvr2/i0HzfqpRb6ZqqT/hIo5yQd1ikOU6B7UgU3o=
+	t=1747053539; cv=none; b=snE7jILY89YAl7DEt1UMlGBvPQkJZmKzbE05kRLLjT/WdpgBxCnW6idXKrTUzwKFGszd8UXvfaK3hs50dARkvKoZ4uTQfwHQHczwlJeM+Cso6eOKYguDCutNvFRa7w7H/aoIxj5NGDlg1V9DQPJcjk4+Zu45hTzkbRofMq7EkpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747053539; c=relaxed/simple;
-	bh=qXfPxK8iv4HT71BwVc8bhCncHX7rV2HtucsltCoXbLw=;
+	bh=cuvafvFaZO541iA/E3CfTdzj7W1Wn4e4p01axUPK54E=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mAVe1BTTsvVAmQsfYZIwtbWVJ8zcQnijj6rVvS5ElJF1NKmCn72Qf1E58OTsr75dNhmINdSDhl2pB3QHQXRUIt1+f/5gj8xQPE5btkwyb4MoPvviZwO4f4jKy76GoIcbVUgyUekJgyLaG/BT6NcAVOPdDLeyceAvpFPAnFtyUiI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sbbyv0wu; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=R6GzP2lWtQ9RQo2jpp6hlwbJ1+DtvUL2FwUYoJLfWz96Igpa6u+UPlfoY709u8uUCiYHUK6smynAIvgIfpUCY30devew1RYWB49xX+yqivfaFtgvnpoXZNMePz4r0Io14YIDnbnSf9xg5hPLP2Bubks95N3/yXNAIOTO2js1XDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DO7I+AHK; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sbbyv0wu"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 6B12AC4CEEE;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DO7I+AHK"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 81D52C4CEF2;
 	Mon, 12 May 2025 12:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1747053538;
-	bh=qXfPxK8iv4HT71BwVc8bhCncHX7rV2HtucsltCoXbLw=;
+	bh=cuvafvFaZO541iA/E3CfTdzj7W1Wn4e4p01axUPK54E=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=sbbyv0wucWd//guml7BvAhg8Wn88nL3MB+j/KRltDmBQq7lR+10ErtnV84LEcIViH
-	 GqbRS72kSNAFArUp2S5OK612xR/+2/N7/B2HSdysqxKYQp03gVIVWlxrW/B1GinU5L
-	 Ob4rkorRJY4buaILpH8Ioe49fizZwIuSSA7jwXuenPGMTf1d1aSGsa7j2f3I9v2aHj
-	 RsLzegN/7r18NECUQeSJh7MOURIW8QvMdYB6PxoKYvC6r8xaknFn7L+6sGi7lqfh16
-	 0ALT1SHQnE+83mmQeuFxZiPWc+kdeD/TqP/56j9Ql3TzKgvaFW/H4bxFxWpMwuUDqV
-	 Er7tHjnt6mTFg==
+	b=DO7I+AHK3XrJvyPH7sR2pB8mu/r29MWxbmxitp6lMRN4NVXPpXl9RuJ7nMtmsA+3y
+	 v/RJsljkwiPpM8kLFq8vOqc4RDrAFkI+V6vU6oqWRT3HC7zjiFF4i70h0nP1IZOvNv
+	 Ru3O+UcrpxUHjjRb41YjJcOrLOfto9ZbqtWxWTnPnPaD9kMJpvoAGII+pRnHNyjgOP
+	 WdEGe039zss7k9fPnQRfTJOCpq0g0so+6vXkLO7W2Iouw7hQwY9Cyt4RvUUAXLMujD
+	 EATzToIIZYMqPkegol68z7PDm0YjRjPLlAUunkh86ddgptEmg6C+sVwtDkHhGS1zgr
+	 ByEdPlkzs5hLQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AB19C3ABCD;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 787E1C3ABC3;
 	Mon, 12 May 2025 12:38:58 +0000 (UTC)
 From: =?utf-8?q?Nuno_S=C3=A1_via_B4_Relay?= <devnull+nuno.sa.analog.com@kernel.org>
-Date: Mon, 12 May 2025 13:38:53 +0100
-Subject: [PATCH v3 01/22] dt-bindings: mfd: adp5585: ease on the required
- properties
+Date: Mon, 12 May 2025 13:38:55 +0100
+Subject: [PATCH v3 03/22] mfd: adp5585: enable oscilator during probe
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -41,7 +40,7 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20250512-dev-adp5589-fw-v3-1-092b14b79a88@analog.com>
+Message-Id: <20250512-dev-adp5589-fw-v3-3-092b14b79a88@analog.com>
 References: <20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com>
 In-Reply-To: <20250512-dev-adp5589-fw-v3-0-092b14b79a88@analog.com>
 To: linux-gpio@vger.kernel.org, linux-pwm@vger.kernel.org, 
@@ -56,11 +55,11 @@ Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
  Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
  Liu Ying <victor.liu@nxp.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747053537; l=1054;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1747053537; l=1487;
  i=nuno.sa@analog.com; s=20231116; h=from:subject:message-id;
- bh=HMDwWGXqEZmH5tU21NJ2ISWhkpP+9+F+CVII73zXj8U=;
- b=Cv3s6tWhQoxouhMe6TPpmSGdzOKweiTV/I7AWaKfpKPCapgBCxc2HfxMJNHYXzyUKEiUcwmtW
- CWT0sMIZLp5Ckr+UF7j1tmDD6qucvRJ+Vz79DQ9kr9D6g4fKttSExs7
+ bh=mybnMMBTKtLDHzpuhMVeYjCasyTrQngKx8uZaX1S1OY=;
+ b=2T4/8jY8H8wXOk32QQvO0IaORXzzoiC4QcU2KmLV2MbIq+S1jtfschlqwpauc955xpbQUArt/
+ UIhvlcc8vI/A+DQfDKYS/w/kfvsraZXNnKrR0gqG9RuNTnbnAD2NFAp
 X-Developer-Key: i=nuno.sa@analog.com; a=ed25519;
  pk=3NQwYA013OUYZsmDFBf8rmyyr5iQlxV/9H4/Df83o1E=
 X-Endpoint-Received: by B4 Relay for nuno.sa@analog.com/20231116 with
@@ -70,32 +69,50 @@ Reply-To: nuno.sa@analog.com
 
 From: Nuno Sá <nuno.sa@analog.com>
 
-It is not mandatory to use all the capabilities of the device. One can
-very well only use it as a gpio controller without the PWM support. This
-will be even more evident when support for the matrix keymap is added.
-Hence drop the requirements for PWM and GPIO.
+Make sure to enable the oscillator in the top device. This will allow to
+not control this in the child PWM device as that would not work with
+future support for keyboard matrix where the oscillator needs to be
+always enabled (and so cannot be disabled by disabling PWM).
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Nuno Sá <nuno.sa@analog.com>
 ---
- Documentation/devicetree/bindings/mfd/adi,adp5585.yaml | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/mfd/adp5585.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml b/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
-index ee2272f754a339569c793102928ddd13249f8fee..e30e22f964f78519b2ec207e9415e4897db5c702 100644
---- a/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
-+++ b/Documentation/devicetree/bindings/mfd/adi,adp5585.yaml
-@@ -52,9 +52,6 @@ patternProperties:
- required:
-   - compatible
-   - reg
--  - gpio-controller
--  - "#gpio-cells"
--  - "#pwm-cells"
+diff --git a/drivers/mfd/adp5585.c b/drivers/mfd/adp5585.c
+index 02f9e8c1c6a1d8b9516c060e0024d69886e9fb7a..d693b1ead05128e02f671ca465f9c72cab3b3395 100644
+--- a/drivers/mfd/adp5585.c
++++ b/drivers/mfd/adp5585.c
+@@ -143,6 +143,13 @@ static int adp5585_parse_fw(struct device *dev, struct adp5585_dev *adp5585,
+ 	return rc;
+ }
  
- allOf:
-   - if:
++static void adp5585_osc_disable(void *data)
++{
++	const struct adp5585_dev *adp5585 = data;
++
++	regmap_write(adp5585->regmap, ADP5585_GENERAL_CFG, 0);
++}
++
+ static int adp5585_i2c_probe(struct i2c_client *i2c)
+ {
+ 	const struct regmap_config *regmap_config;
+@@ -176,6 +183,15 @@ static int adp5585_i2c_probe(struct i2c_client *i2c)
+ 	if (n_devs < 0)
+ 		return n_devs;
+ 
++	ret = regmap_set_bits(adp5585->regmap, ADP5585_GENERAL_CFG,
++			      ADP5585_OSC_EN);
++	if (ret)
++		return ret;
++
++	ret = devm_add_action_or_reset(&i2c->dev, adp5585_osc_disable, adp5585);
++	if (ret)
++		return ret;
++
+ 	ret = devm_mfd_add_devices(&i2c->dev, PLATFORM_DEVID_AUTO,
+ 				   devs, n_devs, NULL, 0, NULL);
+ 	if (ret)
 
 -- 
 2.49.0

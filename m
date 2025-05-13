@@ -1,88 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97A822BF3EA;
-	Tue, 13 May 2025 16:39:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFF23213E67
+	for <linux-input@vger.kernel.org>; Tue, 13 May 2025 22:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747154355; cv=none; b=dSz1nGrs+rc9mJpgQH2DfVlgJO5/crXZy1IYKqQu2Pg3O05T/9iO+ClZnuZP+NactQ6+CnGS2zXpyXAJW+GL1+1ZDQ8e/hHioA+XRa2knuTTShsIIMOiT/6PNScotc8qr12BHbcFH6h9VZLXvXFhM2EzhdL9x9NyeOW8YTEykYo=
+	t=1747177152; cv=none; b=bi5QUvkTm5eVtJHTAh2dLz3+dC2zqwR2H1X+lstLDihht6R0kaAV+VqECL+d2Jn+q8Z7oJNOLT0VKIp3TJ2V4v7wqQLpf8QV6c0zgc93XsSJ9UiG8GYfjVtcV9jkjJGmmugikiZ9o9gFf7VPe2Lf97TTktuRAUHdYtPCmUeqMhk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747154355; c=relaxed/simple;
-	bh=dxlqenimSNUo0laSheTrdDLOzROGW5tThbT22cuOvvc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=t7ae1YI99a0nLp3TuK2t4RtPab3Z8Wqa/J769YTSkTT0SNBrDMTPQiCNrSvwUpG28bRNcysyw+etdYaKaSLE/NDj0R2tTOM/H/7FQnBSav6+Dql5mDEH64Y0jSAw7AtzHQjxhQ/V1BNwtTefDKxDeiZ5JV/WYUDUltXeAqblLBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pGxiI6Qk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1747177152; c=relaxed/simple;
+	bh=6IHDjiCq5RWSFRV2jv2ey09vh6GTEyXp97u22KdgY+M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=T++Vy+vdSD1EM+iD2k1HgKZHC6eyLl9wyWfIKrRnVJSdhFerg1p7Tgc5CFMtVu7gV5hNV/4DKVM6LzgWlw5g7/lk99SX+4GdPsHbgwOk6Dq3vjmDLLLCQZrXMKi+n+XZn0jM5CfCWkKzYQrcrVArZQkYiOGUIJHS8vzTG1Sc1I8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=dvhI/2aa; arc=none smtp.client-ip=173.255.198.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pGxiI6Qk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11CE8C4CEE4;
-	Tue, 13 May 2025 16:39:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1747154354;
-	bh=dxlqenimSNUo0laSheTrdDLOzROGW5tThbT22cuOvvc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=pGxiI6QkrQBW4nzxb6vLUpKdfqDscqoY1mk1yXfBl6+pUfp+wInZISRSJdpu6MjtQ
-	 XF6JGgxBAeH2juhUQ5mUFhnkUkkM0sZO+2e5mKWsNdv6aPG5a0ZQlOJ9Ws8Cye/kbN
-	 t2p0jDWBkFNHex8ruFcg1r2E92DrsG9k8LGEjACuAhVGKiFqKTZsLg3zEbPCZjSZQr
-	 YrHLVuN1N0mLD3GniBocix3cXT+SssC54xP9RsAFT4Ns300SK8OmfE86y8rfAqcU9n
-	 ye70EaO6TDcrI+wYMYkdkJEja9neev6rZ6bxDJT9AW1x8vcHVNWA9mOyVALb3ROm0T
-	 9FlxDQ/Yd3VkA==
-Date: Tue, 13 May 2025 18:39:10 +0200
-From: Benjamin Tissoires <bentiss@kernel.org>
-To: Jiri Kosina <jikos@kernel.org>
-Cc: Werner Sembach <wse@tuxedocomputers.com>, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] Disable touchpad on firmware level while not in use
-Message-ID: <4tjbyzn22sctrv7sdn7aetl7vse4epvqqctqgtx73kkh46njbv@lisa3ejipu62>
-References: <20250211133950.422232-1-wse@tuxedocomputers.com>
- <20250211133950.422232-2-wse@tuxedocomputers.com>
- <df09a3f9-6131-435a-ad68-4cea71237e42@tuxedocomputers.com>
- <9q411092-1170-qr2r-27or-96594p19qrqo@xreary.bet>
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="dvhI/2aa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
+	t=1747177147; bh=6IHDjiCq5RWSFRV2jv2ey09vh6GTEyXp97u22KdgY+M=;
+	h=Date:Subject:To:References:From:In-Reply-To:From;
+	b=dvhI/2aa71n/yemSTmSxRYs3rr1bHdvzbnuPMWsFY2Q/E1Q2SxYSp57D/bUG8bQRT
+	 +7gyXmIXJdNopQOzOOm/NoG+TGdaW6PXVtMhosvh7cC5CY8OGDIYn0VvlvRfy5SR5t
+	 aPJbfaC3mMpvg67lO22dIUAaRi3YoWnK9iuURPtsBCEkKEklQmEenqK220dSbBzXHk
+	 HHqfibFSx+g9Uc5eDN1HJwqVLkFJNGcgkvpqoFNdY7cAn2PV98a2e0eVLBvSOa4naf
+	 prV7o4Ok8ta+BDRu3GXxwBHKDZwbx6GMkSbFx65Tud5uXKVIcd69jNSh+mdcXgg2VH
+	 IF3ApOqxF2izQ==
+Received: from [192.168.0.22] (71-212-74-234.tukw.qwest.net [71.212.74.234])
+	by endrift.com (Postfix) with ESMTPSA id E9C02A199;
+	Tue, 13 May 2025 15:59:06 -0700 (PDT)
+Message-ID: <4396b219-ddd7-48a9-bacb-ee563afcaadf@endrift.com>
+Date: Tue, 13 May 2025 15:59:06 -0700
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9q411092-1170-qr2r-27or-96594p19qrqo@xreary.bet>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 4/4] Input: xpad - Add more controllers
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-input@vger.kernel.org
+References: <20250513225411.2718072-1-vi@endrift.com>
+ <20250513225411.2718072-5-vi@endrift.com>
+Content-Language: en-US
+From: Vicki Pfau <vi@endrift.com>
+In-Reply-To: <20250513225411.2718072-5-vi@endrift.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Apr 24 2025, Jiri Kosina wrote:
-> On Tue, 4 Mar 2025, Werner Sembach wrote:
-> 
-> > > Using the new on_hid_hw_open and on_hid_hw_close functions to disable the
-> > > touchpad on firmware level while not being in use.
-> > >
-> > > This safes some battery and triggers touchpad-disabled-leds hardwired to
-> > > the touchpads firmware, that exist for example on some TongFang barebones.
-> > >
-> > > For a lengthy discussion with all the details see
-> > > https://gitlab.freedesktop.org/libinput/libinput/-/issues/558
-> > 
-> > Any comments if this is a good idea or not?
-> 
-> Sorry for the delay.
-> 
-> To me this looks like generally a good idea; Benjamin, any comments on the 
-> hid-mt part?
 
-Looks good to me, though my CI is now taking way more time because it's
-not expecting to receive data from the device once the initial setup is
-done.
 
+On 5/13/25 3:54 PM, Vicki Pfau wrote:
+> Adds support for a revision of the Turtle Beach Recon Wired Controller, the
+> Turtle Beach Stealth Ultra, and the PowerA Wired Controller.
 > 
-> BTW you'd need to adjust the Subject line of the patches to conform to the 
-> subsystem style (i.e. HID: core: ....)
+> Signed-off-by: Vicki Pfau <vi@endrift.com>
+> ---
+>  drivers/input/joystick/xpad.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
+> index 7746530da030..03449571a19f 100644
+> --- a/drivers/input/joystick/xpad.c
+> +++ b/drivers/input/joystick/xpad.c
+> @@ -293,6 +293,9 @@ static const struct xpad_device {
+>  	{ 0x1038, 0x1430, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+>  	{ 0x1038, 0x1431, "SteelSeries Stratus Duo", 0, XTYPE_XBOX360 },
+>  	{ 0x10f5, 0x7005, "Turtle Beach Recon Controller", 0, XTYPE_XBOXONE },
+> +	{ 0x10f5, 0x7008, "Turtle Beach Recon Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+> +	{ 0x10f5, 0x7072, "Turtle Beach Stealth Ultra Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },		/* bluetooth */
+> +	{ 0x10f5, 0x7073, "Turtle Beach Stealth Ultra Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },		/* wired */
 
-Amended locally and pushed (see the notification email).
+Shoot, it looks like I submitted the wrong version of this patch. The bluetooth line shouldn't be there since this driver doesn't support the bluetooth interface. I'll submit a v2 of this specific patch, as it doesn't depend on any of the others in the sequence.
 
-Cheers,
-Benjamin
+>  	{ 0x11c9, 0x55f0, "Nacon GC-100XF", 0, XTYPE_XBOX360 },
+>  	{ 0x11ff, 0x0511, "PXN V900", 0, XTYPE_XBOX360 },
+>  	{ 0x1209, 0x2882, "Ardwiino Controller", 0, XTYPE_XBOX360 },
+> @@ -357,6 +360,7 @@ static const struct xpad_device {
+>  	{ 0x1ee9, 0x1590, "ZOTAC Gaming Zone", 0, XTYPE_XBOX360 },
+>  	{ 0x20d6, 0x2001, "BDA Xbox Series X Wired Controller", 0, XTYPE_XBOXONE },
+>  	{ 0x20d6, 0x2009, "PowerA Enhanced Wired Controller for Xbox Series X|S", 0, XTYPE_XBOXONE },
+> +	{ 0x20d6, 0x2064, "PowerA Wired Controller for Xbox", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+>  	{ 0x20d6, 0x281f, "PowerA Wired Controller For Xbox 360", 0, XTYPE_XBOX360 },
+>  	{ 0x20d6, 0x400b, "PowerA FUSION Pro 4 Wired Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
+>  	{ 0x20d6, 0x890b, "PowerA MOGA XP-Ultra Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE },
 
-> 
-> Thanks,
-> 
-> -- 
-> Jiri Kosina
-> SUSE Labs
-> 

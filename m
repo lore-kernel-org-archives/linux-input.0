@@ -1,40 +1,40 @@
 Received: from endrift.com (endrift.com [173.255.198.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C73913A3F2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C79019D880
 	for <linux-input@vger.kernel.org>; Tue, 13 May 2025 23:03:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747177401; cv=none; b=NBjUHsiV7GoPk72N6Wb16+maRC3zFOcNtAVxBVK8kVYbE7Wzj7fG2tt7SFjtWHnrC/tw/zCvKNVm31MZmhWk6leFeYYzBtg8eQIApMoS5flyrGyROVouE3H4OeMD6dG9yX+2Pz2YrrXlNT0/mYM02wi8eR5mnKT/NdoDgcuRi80=
+	t=1747177401; cv=none; b=kAl7JJ4qhf91SSiiRIgBuTXA08LAgZPbbZRYogM+7LoSKI4EdvW8i8HWVwVBEoXCT+FOXCSMSr+UMugNxgVZaLdvp0EaHxSRNe9zQKNjpZNFQAU2L+CefeZge2W7PmlUZK4Ctv/VYO74nYwdF8RGQ/2hUpwFnZ6bpPBWMymcfVs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1747177401; c=relaxed/simple;
-	bh=/xxmsaJiJzPk4fQoPgYEPDW8Bynofp2O1GINoesM4YA=;
+	bh=jiBKD/yYhafYKFdfw2XKU6wDPv3z2TR6UFUd+l1gwBo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DYnZeSrjdYsHVGgRvPOHeFiCAob2bDxJiZoSs9zni6fG5D+s19YUs9Ijy4Hrs9gDtHPrR6e/abX/rUU9baLjHVR1RL6sbQjfZV7g7v+EGeVlybfyjQx4WyCPl3zGf6QRTCdfMVa/HIDbo4iGK4U0u7GXZX02SRqcNlqlLQYGLLA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=PTjuqWsA; arc=none smtp.client-ip=173.255.198.10
+	 MIME-Version; b=ej3/F9XN7+BeZ6QyPD33dqIAhYQEOc+dYSf2zFSyMikAZy6fpuuGU95Vq3cFQtYlm3tiT8oO63sVeWzHKKxyXRi6pa9ad8FdLDSoT1roRz/0xkTKH/ZTYiCHodNRgENdYD/0rbUrsLbULVGpJNupM9RVqbW+XoU2dRMw6OUi3/Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=yWAdL5d3; arc=none smtp.client-ip=173.255.198.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="PTjuqWsA"
+	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="yWAdL5d3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1747176916; bh=/xxmsaJiJzPk4fQoPgYEPDW8Bynofp2O1GINoesM4YA=;
+	t=1747176915; bh=jiBKD/yYhafYKFdfw2XKU6wDPv3z2TR6UFUd+l1gwBo=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=PTjuqWsAH076biY6szUM0bF6DzO/YqzpBdM/8k8ygURZy1vWS41kLAk0cAW4eArDk
-	 CiVhu894k7NfJ5UQFcBe+Ea/9I8DdtGjZOsPd9cpcB412AspQw/2CqcWB7H6/rBuMa
-	 EXqm8Q8j5ZVlj2UO6VumoLFHzYTtiiVYnWXo9DB9C9NAW6pGeLnaMgcxxA++3u95rA
-	 83ytGcmbd6noqu71iqq3BdCdf10JGGCUBn3CXBMGSkqIHjRI2wCD1uq2xU8juV2zH8
-	 GONIb2Bm1NJHeIUdmLJ+ZznR4Gu3oroHnNszw6PwGWvZL0vF+V1mXjC09vwGLWvlA6
-	 ICzH3w+SYvBFQ==
+	b=yWAdL5d3lni+1BaVZvRTkCNkWm8nhPX5dbn8y2N++CQm9mPrsBDAISnjhxI8ih7Uy
+	 gAwzYM9UxZk+amXs5S1BJpjO0OF1mqYIKLODSX7ZGwUiSq/8PtV5OKqTbSEef8XiVJ
+	 BezGwUORjxDVjxgbwllSxiKtwiiOEXIOdbX+yoCX5Qv5mTi7iHjq/UPmcbB/eBmQ5M
+	 unPMTny+9KBp4YYyU1UV6hWuY9d9ljHrkL/RnoO5MJDnsOX+zgGtjES6yNZ/Y/RVMB
+	 3azxtYKED2CEKLzrFQv87QTjVazeynbXc7wToXQgW3CYMgCMaU6DpVW2nbicKPI1Dc
+	 IOeAREImDTlPw==
 Received: from nebulosa.vulpes.eutheria.net (71-212-74-234.tukw.qwest.net [71.212.74.234])
-	by endrift.com (Postfix) with ESMTPSA id 3F696A168;
-	Tue, 13 May 2025 15:55:16 -0700 (PDT)
+	by endrift.com (Postfix) with ESMTPSA id 7A041A071;
+	Tue, 13 May 2025 15:55:15 -0700 (PDT)
 From: Vicki Pfau <vi@endrift.com>
 To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
 	linux-input@vger.kernel.org
 Cc: Vicki Pfau <vi@endrift.com>
-Subject: [PATCH 3/4] Input: xpad - Send LED and auth done packets to all Xbox One controllers
-Date: Tue, 13 May 2025 15:54:01 -0700
-Message-ID: <20250513225411.2718072-4-vi@endrift.com>
+Subject: [PATCH 1/4] Input: xpad - Allow delaying init packets
+Date: Tue, 13 May 2025 15:53:59 -0700
+Message-ID: <20250513225411.2718072-2-vi@endrift.com>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250513225411.2718072-1-vi@endrift.com>
 References: <20250513225411.2718072-1-vi@endrift.com>
@@ -46,59 +46,111 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This mirrors what SDL does, and is closer to Windows's behavior as-is.
+Some Xbox One controllers will only start processing the init packets after
+sending the GIP announce packet. While most controllers send this packet
+immediately, others will delay for some time, e.g. if a dongle needs to connect
+to an actual controller first. In those cases, we want to delay until we
+receive the announce packet before sending the init sequence.
 
 Signed-off-by: Vicki Pfau <vi@endrift.com>
 ---
- drivers/input/joystick/xpad.c | 21 ++++++++-------------
- 1 file changed, 8 insertions(+), 13 deletions(-)
+ drivers/input/joystick/xpad.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
 diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index e57157726089..7746530da030 100644
+index 57a5ff3d1992..3eaf79cbe262 100644
 --- a/drivers/input/joystick/xpad.c
 +++ b/drivers/input/joystick/xpad.c
-@@ -676,20 +676,19 @@ static const u8 xboxone_hori_ack_id[] = {
+@@ -105,6 +105,8 @@
+ #define PKT_XBE2_FW_5_EARLY 3
+ #define PKT_XBE2_FW_5_11    4
+ 
++#define FLAG_DELAY_INIT BIT(0)
++
+ static bool dpad_to_buttons;
+ module_param(dpad_to_buttons, bool, S_IRUGO);
+ MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than axes for unknown pads");
+@@ -127,6 +129,7 @@ static const struct xpad_device {
+ 	char *name;
+ 	u8 mapping;
+ 	u8 xtype;
++	u8 flags;
+ } xpad_device[] = {
+ 	/* Please keep this list sorted by vendor and product ID. */
+ 	{ 0x0079, 0x18d4, "GPD Win 2 X-Box Controller", 0, XTYPE_XBOX360 },
+@@ -596,6 +599,7 @@ struct xboxone_init_packet {
+  * - https://github.com/medusalix/xone/blob/master/bus/protocol.c
+  */
+ #define GIP_CMD_ACK      0x01
++#define GIP_CMD_ANNOUNCE 0x02
+ #define GIP_CMD_IDENTIFY 0x04
+ #define GIP_CMD_POWER    0x05
+ #define GIP_CMD_AUTHENTICATE 0x06
+@@ -785,10 +789,13 @@ struct usb_xpad {
+ 	const char *name;		/* name of the device */
+ 	struct work_struct work;	/* init/remove device from callback */
+ 	time64_t mode_btn_down_ts;
++	bool delay_init;		/* init packets should be delayed */
++	bool delayed_init_done;
  };
  
- /*
-- * This packet is required for most (all?) of the PDP pads to start
-- * sending input reports. These pads include: (0x0e6f:0x02ab),
-- * (0x0e6f:0x02a4), (0x0e6f:0x02a6).
-+ * This packet is sent by default on Windows, and is required for some pads to
-+ * start sending input reports, including most (all?) of the PDP. These pads
-+ * include: (0x0e6f:0x02ab), (0x0e6f:0x02a4), (0x0e6f:0x02a6).
-  */
--static const u8 xboxone_pdp_led_on[] = {
--	GIP_CMD_LED, GIP_OPT_INTERNAL, GIP_SEQ0, GIP_PL_LEN(3), 0x00, GIP_LED_ON, 0x14
--};
-+static const u8 xboxone_led_on[] = { GIP_CMD_LED, GIP_OPT_INTERNAL, GIP_SEQ0,
-+GIP_PL_LEN(3), 0x00, GIP_LED_ON, 0x14 };
+ static int xpad_init_input(struct usb_xpad *xpad);
+ static void xpad_deinit_input(struct usb_xpad *xpad);
++static int xpad_start_input(struct usb_xpad *xpad);
+ static void xpadone_ack_mode_report(struct usb_xpad *xpad, u8 seq_num);
+ static void xpad360w_poweroff_controller(struct usb_xpad *xpad);
  
- /*
-  * This packet is required for most (all?) of the PDP pads to start
-  * sending input reports. These pads include: (0x0e6f:0x02ab),
-  * (0x0e6f:0x02a4), (0x0e6f:0x02a6).
-  */
--static const u8 xboxone_pdp_auth[] = {
-+static const u8 xboxone_auth_done[] = {
- 	GIP_CMD_AUTHENTICATE, GIP_OPT_INTERNAL, GIP_SEQ0, GIP_PL_LEN(2), 0x01, 0x00
- };
+@@ -1073,6 +1080,17 @@ static void xpadone_process_packet(struct usb_xpad *xpad, u16 cmd, unsigned char
  
-@@ -726,12 +725,8 @@ static const struct xboxone_init_packet xboxone_init_packets[] = {
- 	XBOXONE_INIT_PKT(0x045e, 0x02ea, xboxone_s_init),
- 	XBOXONE_INIT_PKT(0x045e, 0x0b00, xboxone_s_init),
- 	XBOXONE_INIT_PKT(0x045e, 0x0b00, extra_input_packet_init),
--	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_led_on),
--	XBOXONE_INIT_PKT(0x0f0d, 0x01b2, xboxone_pdp_led_on),
--	XBOXONE_INIT_PKT(0x20d6, 0xa01a, xboxone_pdp_led_on),
--	XBOXONE_INIT_PKT(0x0e6f, 0x0000, xboxone_pdp_auth),
--	XBOXONE_INIT_PKT(0x0f0d, 0x01b2, xboxone_pdp_auth),
--	XBOXONE_INIT_PKT(0x20d6, 0xa01a, xboxone_pdp_auth),
-+	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_led_on),
-+	XBOXONE_INIT_PKT(0x0000, 0x0000, xboxone_auth_done),
- 	XBOXONE_INIT_PKT(0x24c6, 0x541a, xboxone_rumblebegin_init),
- 	XBOXONE_INIT_PKT(0x24c6, 0x542a, xboxone_rumblebegin_init),
- 	XBOXONE_INIT_PKT(0x24c6, 0x543a, xboxone_rumblebegin_init),
+ 			do_sync = true;
+ 		}
++	} else if (data[0] == GIP_CMD_ANNOUNCE) {
++		int error;
++
++		if (xpad->delay_init && !xpad->delayed_init_done) {
++			xpad->delayed_init_done = true;
++			error = xpad_start_input(xpad);
++			if (error)
++				dev_warn(&xpad->dev->dev,
++					 "unable to start delayed input: %d\n",
++					 error);
++		}
+ 	} else if (data[0] == GIP_CMD_INPUT) { /* The main valid packet type for inputs */
+ 		/* menu/view buttons */
+ 		input_report_key(dev, BTN_START,  data[4] & BIT(2));
+@@ -1251,6 +1269,14 @@ static bool xpad_prepare_next_init_packet(struct usb_xpad *xpad)
+ 	if (xpad->xtype != XTYPE_XBOXONE)
+ 		return false;
+ 
++	/*
++	 * Some dongles will discard init packets if they're sent before the
++	 * controller connects. In these cases, we need to wait until we get
++	 * an announce packet from them to send the init packet sequence.
++	 */
++	if (xpad->delay_init && !xpad->delayed_init_done)
++		return false;
++
+ 	/* Perform initialization sequence for Xbox One pads that require it */
+ 	while (xpad->init_seq < ARRAY_SIZE(xboxone_init_packets)) {
+ 		init_packet = &xboxone_init_packets[xpad->init_seq++];
+@@ -2066,6 +2092,9 @@ static int xpad_probe(struct usb_interface *intf, const struct usb_device_id *id
+ 	xpad->mapping = xpad_device[i].mapping;
+ 	xpad->xtype = xpad_device[i].xtype;
+ 	xpad->name = xpad_device[i].name;
++	if (xpad_device[i].flags & FLAG_DELAY_INIT)
++		xpad->delay_init = true;
++
+ 	xpad->packet_type = PKT_XB;
+ 	INIT_WORK(&xpad->work, xpad_presence_work);
+ 
+@@ -2265,6 +2294,7 @@ static int xpad_resume(struct usb_interface *intf)
+ 	struct usb_xpad *xpad = usb_get_intfdata(intf);
+ 	struct input_dev *input = xpad->dev;
+ 
++	xpad->delayed_init_done = false;
+ 	if (xpad->xtype == XTYPE_XBOX360W)
+ 		return xpad360w_start_input(xpad);
+ 
 -- 
 2.49.0
 

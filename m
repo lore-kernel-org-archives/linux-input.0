@@ -1,80 +1,139 @@
-Received: from endrift.com (endrift.com [173.255.198.10])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C8361DFD8B
-	for <linux-input@vger.kernel.org>; Tue, 13 May 2025 23:03:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.255.198.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D6D01E5716;
+	Wed, 14 May 2025 03:44:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747177402; cv=none; b=qKKLt58mFdDufY0gqMM//ojXv7SN7Fj5c3gmyAezGdnjNiRqrtle7VzRKIMbg5Hyr0C6ASaXC2bS1Db48+s1rMkIwUyZVYRd2vMNsZvE84PHupvLZnSFVaKOWh37EQStWGot2s1NAgiOKsT04gRQNZdJcVbXzTNIkWJRHnDJA74=
+	t=1747194262; cv=none; b=WRQcTi/ed9AO1hVY9jE0iqmptoErg5u9pD8/nhGMRuD35chtryK5ttb7LxS/M1UIiK+AiNpUtW7ai3Iw3JU87NfpMbH7l4j+hjKjF4yNPa4sbAjiDjUzI0m6u+4vRzCJZqemBGmhYq4XrT1FDCr77d+TpKfiYxlXQCsgOUNaGPw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747177402; c=relaxed/simple;
-	bh=JNNR95L89Cfl2VGZgPbrLxTYYLBPCiKwP+pqLuDi2hQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qpsCZ+DdEUSqJBcVIqTtRrXT6GVjgQUhg+4jsSJXEKfO5BJgLLC5MalFdWBvzbREN70I2Fi6HXStPsoCjgLJifLkKt/BwdBHAYFC332gws7G97Dxsy6wvPHNAxlWmRvRy7hrwvQKxR4qw0HMXduaEmKnoS+5UTWya8GahLgQL04=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com; spf=pass smtp.mailfrom=endrift.com; dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b=mWdbfkRf; arc=none smtp.client-ip=173.255.198.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=endrift.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=endrift.com
+	s=arc-20240116; t=1747194262; c=relaxed/simple;
+	bh=9pMoTXmFukaRAYw6b+fuA5BhdZG//oKKOf6c8Cvwb8U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=fJeq6hSBvxi9rkXqQIgWQX9k/LnjVld+/I7bzomEmHZetqbSMk1t61bjB/tH+Bz19RtFXmK7pZGqPnCfjRzOLRcX2MHa8jSRIatRRou6TL2MzJuO1rms57pC/T24w8zeYKCIDghTtYP/18Gd48YMD0ILi79ExFymMx5ChyFIxgE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IAgWLMh9; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=endrift.com header.i=@endrift.com header.b="mWdbfkRf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=endrift.com; s=2020;
-	t=1747176916; bh=JNNR95L89Cfl2VGZgPbrLxTYYLBPCiKwP+pqLuDi2hQ=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=mWdbfkRfskskttS6w2m6HMEjnyMUHnMvW9TNrsHcWxLdS4by9s6hkmDQOUrqgzG1S
-	 8Qz3ja6HXCkvCZ001i+nncwmWsIMnp6lh8d4fETi8Kl3zWqgWqQGbtoEIcMP5eltUB
-	 rZ+6bzYe9iAUGR0/rjKwNEJPzFgec6PJBVEq0Z/1GEhqsoaYaOSu5Don0JC25UfSfU
-	 xEvse8bEABF3KP181Us32DguIhffHKYxp5qSZJ6GSwgmHXA6MDQYwAxZP/L9Osmj6a
-	 pAKep7TdcZgL2Nmi53SFTliR3qiSuWVNPpteLKVIqSq9mWXkL7SGV6xi8qZNHAQpXL
-	 2Sam/siuMmdYQ==
-Received: from nebulosa.vulpes.eutheria.net (71-212-74-234.tukw.qwest.net [71.212.74.234])
-	by endrift.com (Postfix) with ESMTPSA id CDE39A161;
-	Tue, 13 May 2025 15:55:15 -0700 (PDT)
-From: Vicki Pfau <vi@endrift.com>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org
-Cc: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>,
-	Vicki Pfau <vi@endrift.com>
-Subject: [PATCH 2/4] Input: xpad - Add the ByoWave Proteus controller
-Date: Tue, 13 May 2025 15:54:00 -0700
-Message-ID: <20250513225411.2718072-3-vi@endrift.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250513225411.2718072-1-vi@endrift.com>
-References: <20250513225411.2718072-1-vi@endrift.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IAgWLMh9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1747194261; x=1778730261;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=9pMoTXmFukaRAYw6b+fuA5BhdZG//oKKOf6c8Cvwb8U=;
+  b=IAgWLMh9IaMFCTGckaXb+BqAo2A+H/Q4elaiGwkTS1MLOG+8zHs6lJ0u
+   iB/B1uI08XpFbk6XliEmvsPWe/Qtb5MT89Me1VN5FYpIJOXINTt1DuWJR
+   MYYjC0gK2JFOcXJZjNvIVOB8DAIfK3fAUK1TMrxFIoGogVGyEGlijyesh
+   U0ZM0c9wVv/7RkFLjpiVX7HVXsg6drtgXlVnTmhW+Sk8DLLDF8kd1QDMS
+   bL0HIoy+WQh2GfWpXF5BRM5SJZLyjbQtToS+9Z627MrAefLPHlus8mIyi
+   R4lM8fnUyzDqSt/uBpAvzlQf9ank4AmDdRPvznI5A0CcSC9FnMOMn4tkR
+   w==;
+X-CSE-ConnectionGUID: RZ6RVDBDTs2BrKsGBZrmBQ==
+X-CSE-MsgGUID: UXU04rQiS/2SwA2eVNLuIw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11432"; a="49234758"
+X-IronPort-AV: E=Sophos;i="6.15,287,1739865600"; 
+   d="scan'208";a="49234758"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2025 20:44:20 -0700
+X-CSE-ConnectionGUID: muIbOqbaRXmZ/mhVFl4nFA==
+X-CSE-MsgGUID: cQDMq4JaQmS+JjO//4qkEg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,287,1739865600"; 
+   d="scan'208";a="142852843"
+Received: from allen-sbox.sh.intel.com (HELO [10.239.159.30]) ([10.239.159.30])
+  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2025 20:44:17 -0700
+Message-ID: <d0e31e5e-3965-4f7d-8881-55e13dcabaaf@linux.intel.com>
+Date: Wed, 14 May 2025 11:39:39 +0800
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [REGRESSION] applespi from 6.12 onwards
+To: kobarity <kobarity@gmail.com>
+Cc: Aditya Garg <gargaditya08@live.com>, =?UTF-8?Q?Berkel_J=C3=B6rg?=
+ <joerg.berkel@bfh.ch>, Robin Murphy <robin.murphy@arm.com>,
+ "linux-input@vger.kernel.org" <linux-input@vger.kernel.org>,
+ "dmitry.torokhov@gmail.com" <dmitry.torokhov@gmail.com>,
+ "stable@vger.kernel.org" <stable@vger.kernel.org>,
+ "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
+ "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
+ "lukas@wunner.de" <lukas@wunner.de>, David Woodhouse <dwmw2@infradead.org>,
+ "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
+ Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>
+References: <4dada48a-c5dd-4c30-9c85-5b03b0aa01f0@bfh.ch>
+ <PN3PR01MB9597D8E327CC7910673849D3B888A@PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM>
+ <122a1f90-ddd9-4e74-96d1-57e21e580ae2@linux.intel.com>
+ <f1b41874-1535-4457-9747-eee3d816091a@arm.com>
+ <PN3PR01MB959764E908600CD45169348CB88BA@PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM>
+ <c0bbfcc8-1275-43de-be40-acb8f2653359@bfh.ch>
+ <PN3PR01MB959708DEEA1567DD38447D5AB895A@PN3PR01MB9597.INDPRD01.PROD.OUTLOOK.COM>
+ <eke7wmanw9xq.wl-kobarity@gmail.com>
+ <089b2370-23e4-4a22-bf57-886e46247a1f@linux.intel.com>
+ <eke7v7q6vxai.wl-kobarity@gmail.com>
+ <5d760ba9-031f-469b-96e0-a171b7142f88@linux.intel.com>
+ <eke7tt5oww4r.wl-kobarity@gmail.com>
+Content-Language: en-US
+From: Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <eke7tt5oww4r.wl-kobarity@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-From: "Pierre-Loup A. Griffais" <pgriffais@valvesoftware.com>
+On 5/13/25 20:08, kobarity wrote:
+> Baolu Lu wrote:
+>> On 5/12/25 20:16, kobarity wrote:
+>>> Baolu Lu wrote:
+>>>> On 5/11/25 21:31, kobarity wrote:
+>>>>>
+>>>>> Hi
+>>>>>
+>>>>> I'm also experiencing this problem on my MacBookPro14,3.
+>>>>>
+>>>>> Aditya Garg wrote:
+>>>>>>
+>>>>>> Hi Jörg
+>>>>>>
+>>>>>> Can you test the kernel here to see if this fixes your issue:
+>>>>>>
+>>>>>> https://github.com/t2linux/T2-Debian-and-Ubuntu-Kernel/actions/runs/14944200356
+>>>>>>
+>>>>>> Alternatively you can try compiling your own kernel with this patch:
+>>>>>>
+>>>>>> https://lore.kernel.org/all/0-v1-c26553717e90+65f-iommu_vtd_ss_wo_jgg@nvidia.com/
+>>>>>
+>>>>> As far as I have tried, this patch did not solve the problem.
+>>>>>
+>>>>> By bisecting, I found that this problem was introduced by commit
+>>>>> 2031c469f816 ("iommu/vt-d: Add support for static identity domain").
+>>>>> In fact, since this commit, it will panic at startup.  This panic was
+>>>>> fixed by commit 6e02a277f1db ("iommu/vt-d: Fix incorrect
+>>>>> pci_for_each_dma_alias() for non-PCI devices").  So I applied commit
+>>>>> 6e02a277f1db on commit 2031c469f816 and confirmed that the keyboard
+>>>>> and touchpad is not working.
+>>>>
+>>>> Have you tried to apply commit 64f792981e35 ("iommu/vt-d: Remove device
+>>>> comparison in context_setup_pass_through_cb")?
+>>>
+>>> Yes, I tried it on yesterday's master branch, including commit
+>>> 64f792981e35.
+>>>
+>>> - Keyboard/Touchpad NOT working:
+>>>     - No patches
+>>>     - With patch in https://lore.kernel.org/all/0-v1-c26553717e90+65f-iommu_vtd_ss_wo_jgg@nvidia.com/
+>>> - Keyboard/Touchpad working:
+>>>     - With my workaround patch
+>>
+>> Okay, thanks! Can you please try below change? I also attached a diff
+>> file in the attachment for your convenience.
+> 
+> Thanks!  The keyboard and touchpad now work with this patch.  I tested
+> it with the same master branch as before (commit 3ce9925823c7).
+> 
 
-Signed-off-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
-Signed-off-by: Vicki Pfau <vi@endrift.com>
----
- drivers/input/joystick/xpad.c | 2 ++
- 1 file changed, 2 insertions(+)
+Okay, thanks! Let me post a formal fix patch for this.
 
-diff --git a/drivers/input/joystick/xpad.c b/drivers/input/joystick/xpad.c
-index 3eaf79cbe262..e57157726089 100644
---- a/drivers/input/joystick/xpad.c
-+++ b/drivers/input/joystick/xpad.c
-@@ -416,6 +416,7 @@ static const struct xpad_device {
- 	{ 0x3285, 0x0663, "Nacon Evol-X", 0, XTYPE_XBOXONE },
- 	{ 0x3537, 0x1004, "GameSir T4 Kaleid", 0, XTYPE_XBOX360 },
- 	{ 0x3537, 0x1010, "GameSir G7 SE", 0, XTYPE_XBOXONE },
-+	{ 0x366c, 0x0005, "ByoWave Proteus Controller", MAP_SHARE_BUTTON, XTYPE_XBOXONE, FLAG_DELAY_INIT },
- 	{ 0x3767, 0x0101, "Fanatec Speedster 3 Forceshock Wheel", 0, XTYPE_XBOX },
- 	{ 0x413d, 0x2104, "Black Shark Green Ghost Gamepad", 0, XTYPE_XBOX360 },
- 	{ 0xffff, 0xffff, "Chinese-made Xbox Controller", 0, XTYPE_XBOX },
-@@ -571,6 +572,7 @@ static const struct usb_device_id xpad_table[] = {
- 	XPAD_XBOXONE_VENDOR(0x3285),		/* Nacon Evol-X */
- 	XPAD_XBOX360_VENDOR(0x3537),		/* GameSir Controllers */
- 	XPAD_XBOXONE_VENDOR(0x3537),		/* GameSir Controllers */
-+	XPAD_XBOXONE_VENDOR(0x366c),		/* ByoWave controllers */
- 	XPAD_XBOX360_VENDOR(0x413d),		/* Black Shark Green Ghost Controller */
- 	{ }
- };
--- 
-2.49.0
-
+Thanks,
+baolu

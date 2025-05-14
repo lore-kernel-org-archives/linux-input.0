@@ -1,62 +1,59 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 351A11FBC8C;
-	Wed, 14 May 2025 06:20:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0F5C1F4177;
+	Wed, 14 May 2025 06:27:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747203656; cv=none; b=KbUK7Dobe2KOHmO0qrnVTF88TgzkqGe9tsoF0bN/AfzC6IfDHOL4uAuXx8FTxm/ryt1lOqPvlUo3CArP9dUY1rY7BTxDN4BRojeH/1rtWV8POhc527BPDVszNTUQEcB+syX4Q4gBHLirXTkMncnUcldJrob1G8ee+X+qtl1dlRg=
+	t=1747204039; cv=none; b=qo94L9dZKYoBIFwbO2eIIwOFinDJ7r28I2d9Z6bpWqB3hkInJf9Iac5rHLQwsLyLw675XWdGNnLqrJvxdHL5KaC4W0LKQQO3helDQpLe0tao5shjudiAcmo3ID3pDLKoLeSKGiF25p7W3iztznGr5M/Y5K/230qESWRgnyiXK9c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747203656; c=relaxed/simple;
-	bh=KrSfCGjyZrny1Ondd1B+23Fo2z1scVAOk9YRyaUWKZo=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=W3PWM1oHuiFk0oOHtxHXTHoHco46SdmgPQQ9Ys3iCKojmrDLTrVcDZtTwHNpQREOEFzTInS/+rsHJcU+ImtzE83dTJjLB7wE+UNNdsPwh+w5uXr7/vkekd+FFn0uOqQa/ScxmygnmAF027eXsydraXQLY4CRtPVNHdizoBdymdo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=R4FkQ37d; arc=none smtp.client-ip=192.198.163.19
+	s=arc-20240116; t=1747204039; c=relaxed/simple;
+	bh=9z8D49yU8U83ywDMZxLf/UoAlkGa4AgNzdCIJSrLYDU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=njR/tX6lzcwQbm7s8XT1rQbsuZdM1QcygI+4LrVNS0QLSxfkbPOWKIV9wxv/wqER5Yt1alRi8WSNlPG22EO402ZPGmf497NKr7w7/hBKqpu2UMgAI8KxVIzCxJaj5C0rPNNUZUSXAyu1h9QMC4rUcN6xk/IwCrtvcc9DKhcduJU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UIG/pObi; arc=none smtp.client-ip=198.175.65.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="R4FkQ37d"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UIG/pObi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1747203651; x=1778739651;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=KrSfCGjyZrny1Ondd1B+23Fo2z1scVAOk9YRyaUWKZo=;
-  b=R4FkQ37diARJJ0i5qw7J71Hf1SyiudsCHKO2ZUjqoo2gtgfde0e6Qkwi
-   SNY2zEj7ExhjAV6kuZ8Ttj/lNU2Z05bdrb5tW3i8x5C16+w3mVsgsXIMb
-   FrMkV7+DPDSHIv4enFO4QxFDlcgDM+DTRAroFJaiGo6HMVvHJ4+D09gfI
-   70LAE1mLykT7fTqK1OfrbGSlF6GnADiXggc6gS/Hin0qYvP2qr2Rrnu1k
-   4nbzISjBnqfhjX9E84VHVPAplR0ceUYaFuJqqlg+kGPdaw4h4UYXEDbnV
-   gE+pmlC+4V+LpUrzLFtnO+G/qU1/PS3D+IT91tLgd6AigKJ5/AgSZL6dB
-   A==;
-X-CSE-ConnectionGUID: zUFxGjKcR/y+Dco2UByhQQ==
-X-CSE-MsgGUID: 1eFGpu0iT+eWJMtjDxiJTw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11432"; a="48192374"
+  t=1747204038; x=1778740038;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=9z8D49yU8U83ywDMZxLf/UoAlkGa4AgNzdCIJSrLYDU=;
+  b=UIG/pObi12SUKDuYv6iMDdtdkEtNanYHtewFzJh7CoIrHPpTclQMUnV3
+   N/x/JLBVlf/abW+/jFyra7ZMom5C9JGZmObj9lV3brUS5nndKknWWtbJX
+   sPEO+rvZ7/PF4IU6XQRheW2pmzS5Hd4prd9SrmLGZbV1QwAIKyHn/pC5T
+   VNOyYwrAwvsCvRBIwvZmWW4LJ9e1dLpM1OxcZcKuj0N7WFahpujqAE+1M
+   ZI00o6wQqNWsWDLwJE6ImmcBPODVsSkfLbA0DejH6pvSE221i2HP6+N55
+   2DA02WOhRBprK+kiHSegkgRb2TUzn7cxZh9E/QYWaWzqD0LGjAU5batxN
+   g==;
+X-CSE-ConnectionGUID: 5BO/dVMvRQKtaDHSLsh/Ig==
+X-CSE-MsgGUID: 6EqyCiWRTsePNwfu9ioICA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11432"; a="60481925"
 X-IronPort-AV: E=Sophos;i="6.15,287,1739865600"; 
-   d="scan'208";a="48192374"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2025 23:20:50 -0700
-X-CSE-ConnectionGUID: 0MOdMOb9RM6yx8EKdwVrtA==
-X-CSE-MsgGUID: aYlE5Ic1SEG3XhTxUMY2kg==
+   d="scan'208";a="60481925"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2025 23:27:16 -0700
+X-CSE-ConnectionGUID: 7skri2yKR0+xGxgpJWkmPg==
+X-CSE-MsgGUID: b8lSsuX2T0ODmVgC2D4JfA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.15,287,1739865600"; 
-   d="scan'208";a="138867025"
+   d="scan'208";a="138371012"
 Received: from shsensorbuild.sh.intel.com ([10.239.133.18])
-  by orviesa008.jf.intel.com with ESMTP; 13 May 2025 23:20:50 -0700
+  by fmviesa008.fm.intel.com with ESMTP; 13 May 2025 23:27:14 -0700
 From: Even Xu <even.xu@intel.com>
 To: jikos@kernel.org,
 	bentiss@kernel.org
 Cc: srinivas.pandruvada@linux.intel.com,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org,
-	Even Xu <even.xu@intel.com>
-Subject: [PATCH v1 6/7] HID: Intel-thc-hid: Intel-quicki2c: Add driver data support
-Date: Wed, 14 May 2025 14:19:43 +0800
-Message-Id: <20250514061944.125857-7-even.xu@intel.com>
+	Even Xu <even.xu@intel.com>,
+	Chong Han <chong.han@intel.com>
+Subject: [PATCH] HID: Intel-thc-hid: Intel-quicki2c: Enhance QuickI2C reset flow
+Date: Wed, 14 May 2025 14:26:38 +0800
+Message-Id: <20250514062639.132017-1-even.xu@intel.com>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20250514061944.125857-1-even.xu@intel.com>
-References: <20250514061944.125857-1-even.xu@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
@@ -65,146 +62,78 @@ List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch defines driver data structure and adds it into QuickI2C
-device structure. Changes PCI ID table to use PCI_DEVICE_DATA() to
-pass platform specific driver data into driver, let driver has
-capability to enable different hardware features according to
-different platform driver data.
+During customer board enabling, it was found: some touch devices
+prepared reset response, but either forgot sending interrupt or
+THC missed reset interrupt because of timing issue. THC QuickI2C
+driver depends on interrupt to read reset response, in this case,
+it will cause driver waiting timeout.
+
+This patch enhances the flow by adding manually reset response
+reading after waiting for reset interrupt timeout.
 
 Signed-off-by: Even Xu <even.xu@intel.com>
+Tested-by: Chong Han <chong.han@intel.com>
+Fixes: 66b59bfce6d9 ("HID: intel-thc-hid: intel-quicki2c: Complete THC QuickI2C driver")
 ---
- .../intel-quicki2c/pci-quicki2c.c             | 25 +++++++++++--------
- .../intel-quicki2c/quicki2c-dev.h             | 24 +++++++++++++-----
- 2 files changed, 32 insertions(+), 17 deletions(-)
+ .../intel-quicki2c/quicki2c-protocol.c        | 26 ++++++++++++++++++-
+ 1 file changed, 25 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-index af7282e998c7..918cb9eb6b50 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/pci-quicki2c.c
-@@ -328,6 +328,7 @@ static irqreturn_t quicki2c_irq_thread_handler(int irq, void *dev_id)
-  * quicki2c_dev_init - Initialize QuickI2C device
-  * @pdev: Pointer to the THC PCI device
-  * @mem_addr: The Pointer of MMIO memory address
-+ * @ddata: Point to quicki2c_ddata structure
-  *
-  * Alloc quicki2c_device structure and initialized THC device,
-  * then configure THC to HIDI2C mode.
-@@ -337,7 +338,8 @@ static irqreturn_t quicki2c_irq_thread_handler(int irq, void *dev_id)
-  * Return: Pointer to the quicki2c_device structure if success
-  * or NULL on failure.
-  */
--static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __iomem *mem_addr)
-+static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __iomem *mem_addr,
-+						 const struct quicki2c_ddata *ddata)
- {
- 	struct device *dev = &pdev->dev;
- 	struct quicki2c_device *qcdev;
-@@ -351,6 +353,7 @@ static struct quicki2c_device *quicki2c_dev_init(struct pci_dev *pdev, void __io
- 	qcdev->dev = dev;
- 	qcdev->mem_addr = mem_addr;
- 	qcdev->state = QUICKI2C_DISABLED;
-+	qcdev->ddata = ddata;
- 
- 	init_waitqueue_head(&qcdev->reset_ack_wq);
- 
-@@ -534,9 +537,9 @@ static int quicki2c_alloc_report_buf(struct quicki2c_device *qcdev)
-  *
-  * Return 0 if success or error code on failure.
-  */
--static int quicki2c_probe(struct pci_dev *pdev,
--			  const struct pci_device_id *id)
-+static int quicki2c_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- {
-+	const struct quicki2c_ddata *ddata = (const struct quicki2c_ddata *)id->driver_data;
- 	struct quicki2c_device *qcdev;
- 	void __iomem *mem_addr;
- 	int ret;
-@@ -574,7 +577,7 @@ static int quicki2c_probe(struct pci_dev *pdev,
- 
- 	pdev->irq = pci_irq_vector(pdev, 0);
- 
--	qcdev = quicki2c_dev_init(pdev, mem_addr);
-+	qcdev = quicki2c_dev_init(pdev, mem_addr, ddata);
- 	if (IS_ERR(qcdev)) {
- 		dev_err_once(&pdev->dev, "QuickI2C device init failed\n");
- 		ret = PTR_ERR(qcdev);
-@@ -924,13 +927,13 @@ static const struct dev_pm_ops quicki2c_pm_ops = {
- };
- 
- static const struct pci_device_id quicki2c_pci_tbl[] = {
--	{PCI_VDEVICE(INTEL, THC_LNL_DEVICE_ID_I2C_PORT1), },
--	{PCI_VDEVICE(INTEL, THC_LNL_DEVICE_ID_I2C_PORT2), },
--	{PCI_VDEVICE(INTEL, THC_PTL_H_DEVICE_ID_I2C_PORT1), },
--	{PCI_VDEVICE(INTEL, THC_PTL_H_DEVICE_ID_I2C_PORT2), },
--	{PCI_VDEVICE(INTEL, THC_PTL_U_DEVICE_ID_I2C_PORT1), },
--	{PCI_VDEVICE(INTEL, THC_PTL_U_DEVICE_ID_I2C_PORT2), },
--	{}
-+	{ PCI_DEVICE_DATA(INTEL, THC_LNL_DEVICE_ID_I2C_PORT1, NULL) },
-+	{ PCI_DEVICE_DATA(INTEL, THC_LNL_DEVICE_ID_I2C_PORT2, NULL) },
-+	{ PCI_DEVICE_DATA(INTEL, THC_PTL_H_DEVICE_ID_I2C_PORT1, NULL) },
-+	{ PCI_DEVICE_DATA(INTEL, THC_PTL_H_DEVICE_ID_I2C_PORT2, NULL) },
-+	{ PCI_DEVICE_DATA(INTEL, THC_PTL_U_DEVICE_ID_I2C_PORT1, NULL) },
-+	{ PCI_DEVICE_DATA(INTEL, THC_PTL_U_DEVICE_ID_I2C_PORT2, NULL) },
-+	{ }
- };
- MODULE_DEVICE_TABLE(pci, quicki2c_pci_tbl);
- 
-diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-index 43372253ba9c..e130598d13c1 100644
---- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-+++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-dev.h
-@@ -7,12 +7,12 @@
+diff --git a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
+index f493df0d5dc4..a63f8c833252 100644
+--- a/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
++++ b/drivers/hid/intel-thc-hid/intel-quicki2c/quicki2c-protocol.c
+@@ -4,6 +4,7 @@
+ #include <linux/bitfield.h>
+ #include <linux/hid.h>
  #include <linux/hid-over-i2c.h>
- #include <linux/workqueue.h>
++#include <linux/unaligned.h>
  
--#define THC_LNL_DEVICE_ID_I2C_PORT1	0xA848
--#define THC_LNL_DEVICE_ID_I2C_PORT2	0xA84A
--#define THC_PTL_H_DEVICE_ID_I2C_PORT1	0xE348
--#define THC_PTL_H_DEVICE_ID_I2C_PORT2	0xE34A
--#define THC_PTL_U_DEVICE_ID_I2C_PORT1	0xE448
--#define THC_PTL_U_DEVICE_ID_I2C_PORT2	0xE44A
-+#define PCI_DEVICE_ID_INTEL_THC_LNL_DEVICE_ID_I2C_PORT1		0xA848
-+#define PCI_DEVICE_ID_INTEL_THC_LNL_DEVICE_ID_I2C_PORT2		0xA84A
-+#define PCI_DEVICE_ID_INTEL_THC_PTL_H_DEVICE_ID_I2C_PORT1	0xE348
-+#define PCI_DEVICE_ID_INTEL_THC_PTL_H_DEVICE_ID_I2C_PORT2	0xE34A
-+#define PCI_DEVICE_ID_INTEL_THC_PTL_U_DEVICE_ID_I2C_PORT1	0xE448
-+#define PCI_DEVICE_ID_INTEL_THC_PTL_U_DEVICE_ID_I2C_PORT2	0xE44A
+ #include "intel-thc-dev.h"
+ #include "intel-thc-dma.h"
+@@ -200,6 +201,9 @@ int quicki2c_set_report(struct quicki2c_device *qcdev, u8 report_type,
  
- /* Packet size value, the unit is 16 bytes */
- #define MAX_PACKET_SIZE_VALUE_LNL			256
-@@ -122,6 +122,16 @@ struct quicki2c_subip_acpi_config {
- 	u64 HMSL;
- };
+ int quicki2c_reset(struct quicki2c_device *qcdev)
+ {
++	u16 input_reg = le16_to_cpu(qcdev->dev_desc.input_reg);
++	size_t read_len = HIDI2C_LENGTH_LEN;
++	u32 prd_len = read_len;
+ 	int ret;
  
-+/**
-+ * struct quicki2c_ddata - Driver specific data for quicki2c device
-+ * @max_detect_size: Identify max packet size detect for rx
-+ * @interrupt_delay: Identify interrupt detect delay for rx
-+ */
-+struct quicki2c_ddata {
-+	u32 max_detect_size;
-+	u32 interrupt_delay;
-+};
+ 	qcdev->reset_ack = false;
+@@ -213,12 +217,32 @@ int quicki2c_reset(struct quicki2c_device *qcdev)
+ 
+ 	ret = wait_event_interruptible_timeout(qcdev->reset_ack_wq, qcdev->reset_ack,
+ 					       HIDI2C_RESET_TIMEOUT * HZ);
+-	if (ret <= 0 || !qcdev->reset_ack) {
++	if (qcdev->reset_ack)
++		return 0;
 +
- struct device;
- struct pci_dev;
- struct thc_device;
-@@ -135,6 +145,7 @@ struct acpi_device;
-  * @thc_hw: Point to THC device
-  * @hid_dev: Point to HID device
-  * @acpi_dev: Point to ACPI device
-+ * @ddata: Point to QuickI2C platform specific driver data
-  * @state: THC I2C device state
-  * @mem_addr: MMIO memory address
-  * @dev_desc: Device descriptor for HIDI2C protocol
-@@ -158,6 +169,7 @@ struct quicki2c_device {
- 	struct thc_device *thc_hw;
- 	struct hid_device *hid_dev;
- 	struct acpi_device *acpi_dev;
-+	const struct quicki2c_ddata *ddata;
- 	enum quicki2c_dev_state state;
++	/*
++	 * Manually read reset response if it wasn't received, in case reset interrupt
++	 * was missed by touch device or THC hardware.
++	 */
++	ret = thc_tic_pio_read(qcdev->thc_hw, input_reg, read_len, &prd_len,
++			       (u32 *)qcdev->input_buf);
++	if (ret) {
++		dev_err_once(qcdev->dev, "Read Reset Response failed, ret %d\n", ret);
++		return ret;
++	}
++
++	/*
++	 * Check response packet length, it's first 16 bits of packet.
++	 * If response packet length is zero, it's reset response, otherwise not.
++	 */
++	if (get_unaligned_le16(qcdev->input_buf)) {
+ 		dev_err_once(qcdev->dev,
+ 			     "Wait reset response timed out ret:%d timeout:%ds\n",
+ 			     ret, HIDI2C_RESET_TIMEOUT);
+ 		return -ETIMEDOUT;
+ 	}
  
- 	void __iomem *mem_addr;
++	qcdev->reset_ack = true;
++
+ 	return 0;
+ }
 -- 
 2.40.1
 

@@ -1,95 +1,128 @@
-Received: from mx.swemel.ru (mx.swemel.ru [95.143.211.150])
+Received: from mail.savoirfairelinux.com (mail.savoirfairelinux.com [208.88.110.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6421B72601;
-	Fri, 16 May 2025 13:52:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.143.211.150
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83D7327A12D;
+	Fri, 16 May 2025 18:29:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=208.88.110.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747403555; cv=none; b=Ld3X6fvpuzttMAkmgi6267mnFH9g1v0WoJlVXS5qm6fR+eqFFqb36RxFQYoXryufzT8RY7stBZSr2EnylrtdUcfvXuYbCjenkZ58/Ega6+YGiw9yMNEDE1Ea8eM12CbawDsHYQ+YLYup+P5uC+v/NSk8QVpkw8GHmdYUU0GGyWk=
+	t=1747420183; cv=none; b=eGVgijTcT7VayT6NIlOWNA2an50xMgcMjjgOoG0v514oTG8GLJY4E3gzAz2K28Cimjeg4U1x4civPpKY1o0t8eK7sZnEBaRakfaVj6831N+7p5zErMjqGTk6EfsXYsSdWSLlFBMV/B/WyapAFr0nzFVXrfgl6HG0L8TUwzxFTts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747403555; c=relaxed/simple;
-	bh=93MfKOBFY/xp28aJL8ed8K9h0Fuwu8du2ZW66YDjtoU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GSXiLKLDGMJ9O5Lb0SXZmutX1ILuxr5dhsf96NgNmEM310KjeElDWhkWko4MM6WS++KnL2FqlEOOwSU8GaP+v7rPTMvOjNqiaUGKgZLFrnGHMfXeTgAmPLUPyAFd3BCf2/02qEPUIgD6Kjqjr2mE7fQwnNEBCAyRs82uFiJYhzs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru; spf=pass smtp.mailfrom=swemel.ru; dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b=C6BI6TcK; arc=none smtp.client-ip=95.143.211.150
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=swemel.ru
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=swemel.ru
+	s=arc-20240116; t=1747420183; c=relaxed/simple;
+	bh=4zzkMuAkdOu+W/FfqNTZRI/W+u0p/y15oHql9BpsK8E=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=eulgnZkc0/V7i2bti8e62LN7Au6EZQ6yIkS1LpSy9w8Y3r4yFyrVFXl1kT3Dq0874Gi4e65i9rCKqYEa4w/AMqHRBgwBOKI2gg5rQRMoArCi5vYgEqXmKh9mDXgpK8bHJsV/q1WlrgU+9wBvsjOIo1yzXfwccSM3GT2MbU74OM4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=savoirfairelinux.com; spf=pass smtp.mailfrom=savoirfairelinux.com; dkim=pass (2048-bit key) header.d=savoirfairelinux.com header.i=@savoirfairelinux.com header.b=W/oE5SRz; arc=none smtp.client-ip=208.88.110.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=savoirfairelinux.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=savoirfairelinux.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=swemel.ru header.i=@swemel.ru header.b="C6BI6TcK"
-From: Denis Arefev <arefev@swemel.ru>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=swemel.ru; s=mail;
-	t=1747402994;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lJHoKRceF6EqRRHw5UR5TuoAwTc8C9bqZS0hDetWwo8=;
-	b=C6BI6TcK/0Z4gz24ML3cwRKytqnJ0hYmIT1rxWCh0A1Rxf7FvqIH+MFs/JlUUCFsek5U3s
-	YbrPbClSuCJZ/0JftqN6DZ5OmiTAneC+fWKjzZSwAODwgjAWlxc0rURZdNkpvjX/wCgpzI
-	fISCMKmCa90cecZjvxginy2I5CJX4bM=
-To: Michael Hennerich <michael.hennerich@analog.com>
-Cc: =?UTF-8?q?Nuno=20S=C3=A1?= <noname.nuno@gmail.com>,
+	dkim=pass (2048-bit key) header.d=savoirfairelinux.com header.i=@savoirfairelinux.com header.b="W/oE5SRz"
+Received: from localhost (localhost [127.0.0.1])
+	by mail.savoirfairelinux.com (Postfix) with ESMTP id 1C6C69C8E1D;
+	Fri, 16 May 2025 14:29:39 -0400 (EDT)
+Received: from mail.savoirfairelinux.com ([127.0.0.1])
+ by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavis, port 10032)
+ with ESMTP id PCbH_wvc2fc9; Fri, 16 May 2025 14:29:38 -0400 (EDT)
+Received: from localhost (localhost [127.0.0.1])
+	by mail.savoirfairelinux.com (Postfix) with ESMTP id 831FD9C8DB5;
+	Fri, 16 May 2025 14:29:38 -0400 (EDT)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.savoirfairelinux.com 831FD9C8DB5
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=savoirfairelinux.com; s=DFC430D2-D198-11EC-948E-34200CB392D2;
+	t=1747420178; bh=DLFQAbS2Kkiyq94KoakjX8pyAd/UxyLLg1wnyLzv0wU=;
+	h=Date:From:To:Message-ID:MIME-Version;
+	b=W/oE5SRzPvBArGS1YBG267e4vXhddpcwKe0ifOxp8PunEA+8BljjqOSTndtfjG40b
+	 nkwgw2imxOfsJ7VIjUGEUTF0lji6b/tJInRPAIZ2IHcH6lX8JtHqFzVoykXIcfcenM
+	 C2ULAK8hEjKWuSUFtpfyhq9DaYivuMKg0JFKuDWYAzxRYjyE/rxbHCKL5YwGwI6TjB
+	 /xNYE0UfV3ZNMP04hiZ+YBK8VwLsmKtU3Abl+XOUarEcGFNmTWJGdnKiTYyWSa6C2B
+	 crb7zO5eHU/2OtVk6eqNBWjmQ3926J6TgPtXQG9ipyImYAwFunTSgWMH6iq15gnxhS
+	 kJwSkI1IsSzNA==
+X-Virus-Scanned: amavis at mail.savoirfairelinux.com
+Received: from mail.savoirfairelinux.com ([127.0.0.1])
+ by localhost (mail.savoirfairelinux.com [127.0.0.1]) (amavis, port 10026)
+ with ESMTP id SkOW1hFp7rD3; Fri, 16 May 2025 14:29:38 -0400 (EDT)
+Received: from fedora (unknown [192.168.51.254])
+	by mail.savoirfairelinux.com (Postfix) with ESMTPSA id 2BE0C9C0D9F;
+	Fri, 16 May 2025 14:29:38 -0400 (EDT)
+Date: Fri, 16 May 2025 14:29:37 -0400
+From: Samuel Kayode <samuel.kayode@savoirfairelinux.com>
+To: Lee Jones <lee@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>,
 	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	lvc-project@linuxtesting.org
-Subject: [PATCH 2/2] Input: adp5588-keys Prevent buffer overflow
-Date: Fri, 16 May 2025 16:43:04 +0300
-Message-ID: <20250516134313.282564-3-arefev@swemel.ru>
-In-Reply-To: <20250516134313.282564-1-arefev@swemel.ru>
-References: <20250516134313.282564-1-arefev@swemel.ru>
+	Sebastian Reichel <sre@kernel.org>, Robin Gong <yibin.gong@nxp.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@vger.kernel.org,
+	linux-imx@nxp.com, linux-input@vger.kernel.org,
+	Abel Vesa <abelvesa@linux.com>, Abel Vesa <abel.vesa@nxp.com>,
+	Robin Gong <b38343@freescale.com>,
+	Enric Balletbo Serra <eballetbo@gmail.com>
+Subject: [PATCH v2 0/9] add support for pf1550 PMIC MFD-based drivers
+Message-ID: <cover.1747409892.git.samuel.kayode@savoirfairelinux.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-If the value of 'key_val' is less than 1 or greater than 80,
-a buffer overflow may occur.
+This series adds support for pf1550 PMIC. It provides the core mfd driver and a
+set of three sub-drivers for the regulator, power supply and input subsystems.
 
-Add a check for valid values 'key_val'.
+Patches 1-4 add the DT binding documents. Patches 5-8 add all drivers. Last
+patch adds a MAINTAINERS entry for this device.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+Changes since v1 [1]:
+   1. DT bindings for all devices included
+   2. Add onkey driver
+   3. Add driver for the regulators
+   4. Ensure charger is activated as some variants have it off by default
+   5. Update mfd and charger driver per feedback from eballetbo@gmail.com
+   6. Add myself as maintainer for these drivers
 
-Signed-off-by: Denis Arefev <arefev@swemel.ru>
----
- drivers/input/keyboard/adp5588-keys.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+[1]: v1: https://lore.kernel.org/1523974819-8711-1-git-send-email-abel.vesa@nxp.com/
 
-diff --git a/drivers/input/keyboard/adp5588-keys.c b/drivers/input/keyboard/adp5588-keys.c
-index 13136f863270..91f00d6e2413 100644
---- a/drivers/input/keyboard/adp5588-keys.c
-+++ b/drivers/input/keyboard/adp5588-keys.c
-@@ -164,6 +164,9 @@
- #define KEY_EV_PRESSED		BIT(7)
- #define KEY_EV_MASK		GENMASK(6, 0)
- 
-+#define KEY_EVENT_MIN		1
-+#define KEY_EVENT_MAX		80
-+
- #define KP_SEL(x)		(BIT(x) - 1)	/* 2^x-1 */
- 
- #define KEYP_MAX_EVENT		10
-@@ -531,7 +534,7 @@ static void adp5588_report_events(struct adp5588_kpad *kpad, int ev_cnt)
- 		if (key_val >= GPI_PIN_BASE && key_val <= GPI_PIN_END) {
- 			/* gpio line used as IRQ source */
- 			adp5588_gpio_irq_handle(kpad, key_val, key_press);
--		} else {
-+		} else if (key_val >= KEY_EVENT_MIN && key_val <= KEY_EVENT_MAX) {
- 			int row = (key_val - 1) / ADP5588_COLS_MAX;
- 			int col =  (key_val - 1) % ADP5588_COLS_MAX;
- 			int code = MATRIX_SCAN_CODE(row, col, kpad->row_shift);
-@@ -542,6 +545,8 @@ static void adp5588_report_events(struct adp5588_kpad *kpad, int ev_cnt)
- 
- 			input_report_key(kpad->input,
- 					 kpad->keycode[code], key_press);
-+		} else {
-+			dev_err_ratelimited(&kpad->client->dev, "invalid report key value %d", key);
- 		}
- 	}
- }
+Samuel Kayode (9):
+  dt-bindings: power: supply: add pf1550
+  dt-bindings: regulator: add pf1550
+  dt-bindings: input: add pf1550
+  dt-bindings: mfd: add pf1550
+  mfd: pf1550: add core mfd driver
+  regulator: pf1550: add support for regulator
+  input: pf1550: add onkey support
+  power: supply: pf1550: add battery charger support
+  MAINTAINERS: add an entry for pf1550 mfd driver
+
+ .../bindings/input/pf1550_onkey.yaml          |  31 +
+ .../devicetree/bindings/mfd/pf1550.yaml       | 122 ++++
+ .../bindings/power/supply/pf1550_charger.yaml |  44 ++
+ .../devicetree/bindings/regulator/pf1550.yaml |  35 +
+ MAINTAINERS                                   |  11 +
+ drivers/input/keyboard/Kconfig                |   8 +
+ drivers/input/keyboard/Makefile               |   1 +
+ drivers/input/keyboard/pf1550_onkey.c         | 200 ++++++
+ drivers/mfd/Kconfig                           |  14 +
+ drivers/mfd/Makefile                          |   2 +
+ drivers/mfd/pf1550.c                          | 254 +++++++
+ drivers/power/supply/Kconfig                  |   6 +
+ drivers/power/supply/Makefile                 |   1 +
+ drivers/power/supply/pf1550_charger.c         | 656 ++++++++++++++++++
+ drivers/regulator/Kconfig                     |   7 +
+ drivers/regulator/Makefile                    |   1 +
+ drivers/regulator/pf1550.c                    | 380 ++++++++++
+ include/linux/mfd/pf1550.h                    | 246 +++++++
+ 18 files changed, 2019 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/input/pf1550_onkey.yaml
+ create mode 100644 Documentation/devicetree/bindings/mfd/pf1550.yaml
+ create mode 100644 Documentation/devicetree/bindings/power/supply/pf1550_charger.yaml
+ create mode 100644 Documentation/devicetree/bindings/regulator/pf1550.yaml
+ create mode 100644 drivers/input/keyboard/pf1550_onkey.c
+ create mode 100644 drivers/mfd/pf1550.c
+ create mode 100644 drivers/power/supply/pf1550_charger.c
+ create mode 100644 drivers/regulator/pf1550.c
+ create mode 100644 include/linux/mfd/pf1550.h
+
+
+base-commit: b1d8766052eb0534b27edda8af1865d53621bd6a
 -- 
-2.43.0
+2.49.0
 

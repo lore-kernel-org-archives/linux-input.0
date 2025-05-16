@@ -1,171 +1,104 @@
-Received: from relay5-d.mail.gandi.net (relay5-d.mail.gandi.net [217.70.183.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87F2F1DFDE;
-	Fri, 16 May 2025 12:57:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32AB7249EB;
+	Fri, 16 May 2025 13:47:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747400257; cv=none; b=fREKBLvyN2zEzMO/XlxbQUaTrxIAZ2mbVrbQaJCPmongB68YOFFfYRad3aP3APN/RgZehxL377WY8KI1eeSeWUhtd6jfewnyQtQr8roQeuHRe15kZYgwlD2GYdBWA/eHz1Mnz3bLqraeTAsznq/xm863/Z0aP6mXRwO2Dll9Wfs=
+	t=1747403266; cv=none; b=JyJ7xt4323fwgwj3sDyGDzhAEVHxPXTSor6ILJo0Bku/V6kQmDeANqGygxTidvLGy9eN1g36vTF+/wBocWU5AX0YHwhKPxFXyDMCHr5X9B9Qe4ZJtyWURMM9nfL8zbYBXqSvXj5t3gcm/gUR1OuCFO7RzdxcvC69BVjv+PrdTIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747400257; c=relaxed/simple;
-	bh=2Nhkkr+NBSjiX+DhesPVuuxmubLd2IevuaM+ryVlwQk=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:From:To:
-	 References:In-Reply-To; b=mavj7XkrUlhQd9TTKzCDIcrkgMflZZVOvFaju35IzHmAGM6/Uf/GooKZce0cGxxJznsqdbQeGtXxQGGHM7ku/USZNZDGEG2jtpM/SxCXMH6iWkWP3/EENORzinJMxs1znKWs31SfPTGNkzZeKnW8KRLoG3N0tCRqu89CldVaABU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=XejH1wUs; arc=none smtp.client-ip=217.70.183.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1747403266; c=relaxed/simple;
+	bh=PdrYfHjHdOg6T2p2+ypf04qjhpHB/ZuyJDAp9UJMALc=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=ZCGX85shXnbJa/RQKdKVbifU9epWdwzMBj+nBmWcMMWxPRFMyPVvOZgy7bBj2HkTk9I1G5de5Ohoe+kFFly4bBOiSS0r4WDvD2ERiQVhWFw9DXYKMvQvwBZi5XyU+aHwtXwYcqMQm5Em9S7tL/6tyLLfvqvfj+7qqmv5CSPJ+m4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bk6C+PvI; arc=none smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="XejH1wUs"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 696A843304;
-	Fri, 16 May 2025 12:57:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1747400251;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=c09Kcb+nc6PjrVGBJxZRFaPWlKLpHHJR4nMu3xnQS8A=;
-	b=XejH1wUslvd9ND/yhbTmla3Fld18HuBsHogfyim0s2u6xIJFLLMcM3+HAt4292eDYluH/9
-	GsPPmOajrfgdojMTwQQ7O6FoWtHb73bSD/UjPBBwK6kFKok/iJOaQU1VOE17yaaP49Zdhy
-	gumqPlshlxErPS+/r/amjFQtCUgLlsuJsDkG/t36MWCgDxu3A6okk+M6ia48ZsJqd94NaM
-	pAJlvYpUmgOYD+KHaqStsd6HJihGWutdoVEJbQBtnRpLlvnLqdW055iaeAjJ4gkSFbgW+a
-	+7jTPf4jZOJWgJzijfi7unt/oc9t9BVmCnpuxkWcbexNaNmC+neRbE0qiTO8sw==
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bk6C+PvI"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-3a35da8bd67so640616f8f.2;
+        Fri, 16 May 2025 06:47:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1747403263; x=1748008063; darn=vger.kernel.org;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=PdrYfHjHdOg6T2p2+ypf04qjhpHB/ZuyJDAp9UJMALc=;
+        b=bk6C+PvIyvfdVijBhKNJ68HoQpPxg2FeTGY3mJdmWSPM973U+gucWbaAdsX+9LMICo
+         zTpLzZyYMSwfx7gNOguF0kJlr2N0/ZOAM7HVnYagqtJcl5OBVKcOOlIdQLkmCFiKslvi
+         w+UALFnuQOwKMNox1sxNiKTmV1K/euzXH6jjbXvgd7cpLH/YI/SziDkyTLWZF0dTwdBH
+         eOuhSGoRDjzYGDCuFu/p1EEdP0gwIBCTClzLdU1xkMvkyP+8NRC91OqDY1fO3XXWBUFr
+         RZQ9AFxVa9Criar2peVBuDnOd2IhrzW2SszIeAxik+PlYsfncwHvAWY0Cql6FArU/Fwm
+         T1/Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747403263; x=1748008063;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=PdrYfHjHdOg6T2p2+ypf04qjhpHB/ZuyJDAp9UJMALc=;
+        b=KqvNfzLTTFwn41LFYwjK3ICL47oPb4CRENEHdVnUEOfuxJtqsrxE7eBEk+zxaA0Koo
+         PDVffstr67SlEoOdi6mrQALKsddBq+ccke1wz9z07U4va9TavPouyU8peUYehK+SsCOj
+         P6WCgGTpYTEAuTl9J8G3TEgTNJfz6hqvKHP4FZQit0g97iy4ekl9TYe5xNU6tdhvXzZD
+         /rB6K8zIqXEbRdNsDZDzcQlb/nKFNQ4GHdUauOr1xt3qxK62SPmoVm4fFXXobrhx90xQ
+         TYlw+RDLI6FpISQqiUGNpCyNDtjzYXaZ4C9F4g4Y26zgFnQU5Y+MA25r9Yt2CE11fa8J
+         Ca+g==
+X-Forwarded-Encrypted: i=1; AJvYcCUQtNGdWNWK2fhPPP4aNOKMsepGUxHpbnkpv09kb3ei+fn5ATscHNKjRQJ0BXzL6vzbhYLDV7ehBOwNJ+vk@vger.kernel.org, AJvYcCUypV15pqR5oebsqcrdO1lVq1PHohR3grtMZ3yHSBD1MgQR0kXx9vhEctGbjYhFBxwFmXrbWKYvgFla+Q==@vger.kernel.org
+X-Gm-Message-State: AOJu0YxFAwd/WpGmSKl7eeC1HDsEh6R4rB8M9JUYUjj0gSYZwifj6HrP
+	05UOOk1r1iyeFeO9azbF//c1YTOuw7cjwqCYhQ/GSpJE6aKhxY0oXIuT
+X-Gm-Gg: ASbGncvKMWt2rF3ulfqt+6+QIRAGXSveui01tMuwcJf8zpcjqrK1AZUQqGn6ZkSSEMs
+	S7ZXw9D9mAOyb70ekYmSWHRuiCZqfRtbU0c/hKMbEgErZiCsjqMfcOqy3OOrDuYjt/C5d3bBmrQ
+	UlFxVjWrbTLdaK5WsaMjDU0o62BpQQrdlRP7fY0/ngJpk3Ij9jQsWZiWGrJj/ixOD3xyqR5QvLI
+	+QvbGuYT4x6pT3egD4vSOzs8QumvWhKX1tS8ByvaKTN8IxNeW6oetT50UpMPYV07M7/zkTBtG9T
+	54TMvK4iFM6OKc+22f6aQL0vRfwLGUW3DQP3NZtAq7racvipS7ew27oQzQ0KVKqO/DX5oKs/6r9
+	bQ/+32os81iGzEXRBpALqJAA=
+X-Google-Smtp-Source: AGHT+IG5VNx06WAk13YLUtCDtiIzLR6ynvRlys1Oj5AA2P4hRxh3qJg8qeVoLYimAbKmY9AZfcYYPw==
+X-Received: by 2002:a05:6000:2901:b0:390:e853:85bd with SMTP id ffacd0b85a97d-3a3600db9f7mr2535009f8f.48.1747403263345;
+        Fri, 16 May 2025 06:47:43 -0700 (PDT)
+Received: from ?IPv6:2001:818:ea8e:7f00:2575:914:eedd:620e? ([2001:818:ea8e:7f00:2575:914:eedd:620e])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-3a362b4e2e1sm1472013f8f.96.2025.05.16.06.47.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 16 May 2025 06:47:42 -0700 (PDT)
+Message-ID: <9615d118cf3e52ea67ac0421016f0b6cceb49c71.camel@gmail.com>
+Subject: Re: [PATCH 0/2] Input: adp5588-keys Please correct and add
+From: Nuno =?ISO-8859-1?Q?S=E1?= <noname.nuno@gmail.com>
+To: Denis Arefev <arefev@swemel.ru>, Michael Hennerich
+	 <michael.hennerich@analog.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+ linux-input@vger.kernel.org, 	linux-kernel@vger.kernel.org,
+ lvc-project@linuxtesting.org
+Date: Fri, 16 May 2025 14:47:43 +0100
+In-Reply-To: <20250516134313.282564-1-arefev@swemel.ru>
+References: <20250516134313.282564-1-arefev@swemel.ru>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.56.1 
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 16 May 2025 14:57:29 +0200
-Message-Id: <D9XLOWTZPRC4.EHVI8W16H3J9@bootlin.com>
-Subject: Re: [PATCH v8 04/11] pwm: max7360: Add MAX7360 PWM support
-Cc: "Lee Jones" <lee@kernel.org>, "Rob Herring" <robh@kernel.org>,
- "Krzysztof Kozlowski" <krzk+dt@kernel.org>, "Conor Dooley"
- <conor+dt@kernel.org>, "Kamel Bouhara" <kamel.bouhara@bootlin.com>, "Linus
- Walleij" <linus.walleij@linaro.org>, "Bartosz Golaszewski" <brgl@bgdev.pl>,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "Michael Walle"
- <mwalle@kernel.org>, "Mark Brown" <broonie@kernel.org>, "Greg
- Kroah-Hartman" <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
- <rafael@kernel.org>, "Danilo Krummrich" <dakr@kernel.org>,
- <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <linux-gpio@vger.kernel.org>, <linux-input@vger.kernel.org>,
- <linux-pwm@vger.kernel.org>, <andriy.shevchenko@intel.com>,
- =?utf-8?q?Gr=C3=A9gory_Clement?= <gregory.clement@bootlin.com>, "Thomas
- Petazzoni" <thomas.petazzoni@bootlin.com>
-From: "Mathieu Dubois-Briand" <mathieu.dubois-briand@bootlin.com>
-To: =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>
-X-Mailer: aerc 0.19.0-0-gadd9e15e475d
-References: <20250509-mdb-max7360-support-v8-0-bbe486f6bcb7@bootlin.com>
- <20250509-mdb-max7360-support-v8-4-bbe486f6bcb7@bootlin.com>
- <5eb7xqo7bfzath3xy7i6v5fep7qwfeg4z3rtzifmgnyvlc3o5b@yi6hzur52hl3>
- <D9WJRVV500O3.GUV0MKHRGTH2@bootlin.com>
-In-Reply-To: <D9WJRVV500O3.GUV0MKHRGTH2@bootlin.com>
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgdefuddvkeduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpegggfgtfffkufevhffvofhfjgesthhqredtredtjeenucfhrhhomhepfdforghthhhivghuucffuhgsohhishdquehrihgrnhgufdcuoehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmqeenucggtffrrghtthgvrhhnpeekhfekieeftefhjeetveefudehuddvvdeuvddvudfgfffhveekffethfeuffdtudenucffohhmrghinhepsghoohhtlhhinhdrtghomhenucfkphepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddumegtsgdugeemheehieemjegrtddtmeeffhgtfhemfhgstdgumeduvdeivdemvdgvjeeipdhhvghloheplhhotggrlhhhohhsthdpmhgrihhlfhhrohhmpehmrghthhhivghurdguuhgsohhishdqsghrihgrnhgusegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopedvvddprhgtphhtthhopehukhhlvghinhgvkheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhgvvgeskhgvrhhnvghlrdhorhhgpdhrtghpt
- hhtoheprhhosghhsehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkrhiikhdoughtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegtohhnohhrodgutheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepkhgrmhgvlhdrsghouhhhrghrrgessghoohhtlhhinhdrtghomhdprhgtphhtthhopehlihhnuhhsrdifrghllhgvihhjsehlihhnrghrohdrohhrghdprhgtphhtthhopegsrhhglhessghguggvvhdrphhl
-X-GND-Sasl: mathieu.dubois-briand@bootlin.com
+MIME-Version: 1.0
 
-On Thu May 15, 2025 at 9:14 AM CEST, Mathieu Dubois-Briand wrote:
-> On Tue May 13, 2025 at 12:08 PM CEST, Uwe Kleine-K=C3=B6nig wrote:
->> Hello,
->>
->> On Fri, May 09, 2025 at 11:14:38AM +0200, mathieu.dubois-briand@bootlin.=
-com wrote:
->>> From: Kamel Bouhara <kamel.bouhara@bootlin.com>
->>> ...
->>>
->>> +
->>> +static int max7360_pwm_request(struct pwm_chip *chip, struct pwm_devic=
-e *pwm)
->>> +{
->>> +	struct regmap *regmap =3D pwmchip_get_drvdata(chip);
->>> +	int ret;
->>> +
->>> +	ret =3D regmap_write_bits(regmap, MAX7360_REG_PWMCFG(pwm->hwpwm),
->>> +				MAX7360_PORT_CFG_COMMON_PWM, 0);
->>> +	if (ret)
->>> +		return ret;
->>> +
->>> +	return regmap_write_bits(regmap, MAX7360_REG_PORTS, BIT(pwm->hwpwm), =
-BIT(pwm->hwpwm));
->>
->> What is the effect of these writes? It doesn't need to be undone in a
->> matching .free()?
->>
->
-> The first one (MAX7360_PORT_CFG_COMMON_PWM) asks to use a specific duty
-> cycle for this PWM output and not a value shared across all PWMs. I
-> believe this one have no reason to be ever reverted.
->
-> About the second one, it does switch the output value. Reading the
-> datasheet, it's not clear if and why setting this here is required. I
-> will make some tests on the hardware a bit later this week. Still, I
-> believe there is no need to revert it later.
->
+On Fri, 2025-05-16 at 16:43 +0300, Denis Arefev wrote:
+> 1. Add check on return code
+> 2. Prevent buffer overflow
+>=20
+> Denis Arefev (2):
+> =C2=A0 Input: adp5588-keys Add check on return code
+> =C2=A0 Input: adp5588-keys Prevent buffer overflow
+>=20
+> =C2=A0drivers/input/keyboard/adp5588-keys.c | 18 ++++++++++++++----
+> =C2=A01 file changed, 14 insertions(+), 4 deletions(-)
 
-I just tested it, I confirm we can remove the second one.
+Hi,
 
->>> +}
->>>
->>> ...
->>>
->>> +static int max7360_pwm_write_waveform(struct pwm_chip *chip,
->>> +				      struct pwm_device *pwm,
->>> +				      const void *_wfhw)
->>> +{
->>> +	struct regmap *regmap =3D pwmchip_get_drvdata(chip);
->>> +	const struct max7360_pwm_waveform *wfhw =3D _wfhw;
->>> +	unsigned int val;
->>> +	int ret;
->>> +
->>> +	val =3D wfhw->enabled ? BIT(pwm->hwpwm) : 0;
->>> +	ret =3D regmap_write_bits(regmap, MAX7360_REG_GPIOCTRL, BIT(pwm->hwpw=
-m), val);
->>> +	if (ret)
->>> +		return ret;
->>> +
->>> +	if (wfhw->duty_steps)
->>> +		return regmap_write(regmap, MAX7360_REG_PWM(pwm->hwpwm), wfhw->duty_=
-steps);
->>
->> Would it make sense to first write duty_steps and only then enable?
->> Otherwise it might happen that you enable and still have a wrong duty
->> configuration in the MAX7360_REG_PWM register and emit a wrong period?
->>
->
-> Yes, I believe it does make sense: I will try to invert them.
->
+Thanks for the patch. However, not sure if this is really worth it... This =
+is
+driver is in the process of being removed:
 
-Also tested, and everything seems to be working fine: I will go this
-way.
+https://lore.kernel.org/linux-input/04b8a6d68fdc0c0eadf69fbbc6a130ecc6c4936=
+0.camel@gmail.com/T/#mad1980e9652161a6a2e36c2aeeb97f900c6e9fc2
 
->> Do you need to write duty_steps =3D 0 if enabled is false?
->>
->
-> No, this is not needed: output will be in hi-Z mode. As we have
-> "wfhw->enabled =3D !!wf->duty_length_ns", this should be correct here. Bu=
-t
-> reading this, I believe I could modify above code to be more clear with:
->
-> if (wfhw->enabled)
-> 	return regmap_write(regmap, MAX7360_REG_PWM(pwm->hwpwm), wfhw->duty_step=
-s);
->
->
->>> +	return 0;
->>> +}
->>
->> Best regards
->> Uwe
+Unless we want somehow to backport these patches?
 
-Best regards,
-Mathieu
-
---=20
-Mathieu Dubois-Briand, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
-
+- Nuno S=C3=A1

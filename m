@@ -1,130 +1,97 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFD2B27FD7A
-	for <linux-input@vger.kernel.org>; Tue, 20 May 2025 17:43:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE67A2580F7;
+	Tue, 20 May 2025 18:15:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747763036; cv=none; b=srXDQM/+/CeV0RVDH7SYHEexbnKRG8/iFpB4mc9BnTINbOBb8dE+M8ZDAI2zMcomnycsLT2da+squ3kIIcPvSLvnR6xHC2W4kC0czEfb9syybKH9GcJVH3D5y1LIgBPihsJ04t/8afaFfkbjKLl1xC3WZRNrSskG4jC1rqUhuK4=
+	t=1747764952; cv=none; b=KsUeO7Dsg34U3lmBZfM1GqDBtkGZs8kqs4ov6fd9QFD8Rg5gRdAh+0ZBskME0Z8LuMrMIXstpVf/9Eq5P4C4vT5kaOe1CE0V95xppX7XcfBY35d2SEeoq4RA/m7Q0SH3RT0Veki3INQfCdS4EunbhACWZnWPaq+NYtZ1E+uVQpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747763036; c=relaxed/simple;
-	bh=Q1K+0jMx0UjyYkfsNH7TEf2S1jEKaulvPrwaokxGtoY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=FiPZBdEAs0VAFu0biolZWUDa0Pu2O+Zl9fiQqwXowssPnxkisqmcJrEIJILdwtWDw/E9XbHwGcNMGu23QhHM6IXw+jx72MvnDmWXO9XuO++8WzMNlw85w19cTYQkNdWaXZZ0VcTp4AJ3d/q90Y9aW53iFNe8xJWLFWqB1QYnF2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=criticallink.com; spf=pass smtp.mailfrom=criticallink.com; dkim=pass (2048-bit key) header.d=criticallink.com header.i=@criticallink.com header.b=gzgYHOwh; arc=none smtp.client-ip=209.85.222.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=criticallink.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=criticallink.com
+	s=arc-20240116; t=1747764952; c=relaxed/simple;
+	bh=gWW1its+pRU+jVBwnp6+Nlt1XMULMdHybdSfF6WhcUc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SyFMlaBNesGtylCfJKK9n9NP282kHZ4qwp4hmr9jcHrVjLbpekIznIl9Ka4bc2glj1eA4qL3FHMxauctgMivlD02lsNiO9RaJF7Jy6YhCDAAYGU+IO4iLCHzuT328TZhRU7iyRNZ/LmNcwdp0XJtDxidB+0QPt5CLfW/C5A40NQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YzK2WITH; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=criticallink.com header.i=@criticallink.com header.b="gzgYHOwh"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-7c922734cc2so675554885a.1
-        for <linux-input@vger.kernel.org>; Tue, 20 May 2025 10:43:54 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YzK2WITH"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-30ea8b7c5c2so3316998a91.3;
+        Tue, 20 May 2025 11:15:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=criticallink.com; s=google; t=1747763033; x=1748367833; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=I0lQJBYdXFzKA6mwA9Ft2YWtuYeF7vxw0GtRIZO59n8=;
-        b=gzgYHOwhT1cwQgi1H03ChxCgiHcuVaCyeBZkxYDtIdxAs9UyTW4VgFEhPLeb6ztK5h
-         v3jrFL5//nHv8Ho65X990+9fa8e511afmRyQHFb7oj0UgwxyIij4lD1hz91X5TQ09jIE
-         WB6lkCIh6VLjz6BiOwYnxY4eB8VS431xl+/uAL0Viz9giVCeFL8m72OWS8aFaBBikKKi
-         9koUePqXzKdO8MAkm+RuOIflWDzI5+qPZFEOFHd+rKwXlLYenjEuyKWOM4owLy/sdqhA
-         kFEWpldqR6GQGI9H3rhounm+qGtAO2D/ULzcP1ZiQk7KLk4pW9dchN2hFT3XJ7/l8d4u
-         e/RA==
+        d=gmail.com; s=20230601; t=1747764950; x=1748369750; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=FwBEe20YzRFDk3bXuCFMe51to/DINvILfedoZiBzDAw=;
+        b=YzK2WITHFVkoYg4EvxeAEj48pWDqFjMCkxcLMnFDhKozynS9txzboDS/7Re3MkjXXE
+         h1t7yR0rAPbALFfKfzjIq2K//cQuEw3zb7VsoVh7O4vW8D2TQccF6Uy8QXg4Ex1bKbsm
+         3ArfzqhSFs0KRnJ4Jl5jfNHrrwpo6kkafxOQI9zOPZ2Och8c8XeefJliYmWJl9Ust0dB
+         IwI97BOX+3q7J9i02n9KiTeyjffprh+7Kz150rQWHekiqnJrUqIdkgnhCKHoRUrJSLrJ
+         JEf28rh4Y0t3dOJ4Z0E92K6O7u5mvzyq1JZDrgWL+UH3DpjMQ3Gi9CdOucGF9XHg56LB
+         6nXQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1747763033; x=1748367833;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=I0lQJBYdXFzKA6mwA9Ft2YWtuYeF7vxw0GtRIZO59n8=;
-        b=qoycqrykQc/Zn05Zixd32Pdr/j8X6QAI2EuMC1M1gAA/lbyZN8nJp97NOdgcnEMyPn
-         CLIVugGHwxozZeCTM2ofot7j/n9RmGHQoQfFCNQibqkmyXQ3cDaYNY+vb3xOtKglccYK
-         N4bWI5fh4J0P9uN5VSK+L6oODxHC9MicvtvEMnw/uI7qpur45TlckYkxx5b28IuGCaX8
-         +bcDfF62n3ANGOOjK4YRZEuuNrM2FhGz2iN754fIx83GJqtLPUaBor9jemE9WEU64QkB
-         f8W2kZllsO1P/ckaIVWOlyyreLnaWNxwjz1UunN635axbGKGME/24rQZwnDHDzFu1C+o
-         ueYg==
-X-Forwarded-Encrypted: i=1; AJvYcCVD8biJO3/9EJNYjYXnmptojfPS4csXC/ssioMfF0TyrriCsUvbW2V/hFEsuz09HMI2DA8F0GHvyIJ/yA==@vger.kernel.org
-X-Gm-Message-State: AOJu0YwR1IooHxpb8+58EFtekSy0Tjh/klF5orSfOAgjC3KpWBOnmmRD
-	MTpm3AnIPMuiSSdtAm+4Ru8yBz/7F8fSPyMd5wc41Bnvnmp/Ifkl20K4+S4Crv5fBsVhtgihpYN
-	ahqklBQ==
-X-Gm-Gg: ASbGncu6N3FIo+G4c26TtNUqjmejo5vOiDq52l3kV9uyQwEnRMmz1V0xLQ8QANoW84g
-	QfpXT8hfJAVjFYriy5lWY4jYQNCwnanhOH3nRi7QpocGLpNNPi+EUQjBYthi6fZuXIVaN6t8aTE
-	JHUJcBuFxILtY6hsowDz3MH/AABO713oJ9acXyBq0vaHunar1IaPw1OIBnWZBZvo6snTrWWo4Zl
-	/PbGcsX2M8TGgwhWp2oXmC23mnHvvAU+qi/PRgZekP+VjPC+wozbuH0svBu1a1tzgoSohvWLwcf
-	W9h98hEanOOw9os9IPXgxel7D/qW6V2pVNl6xJSOFNz/zxBhhpDrHW3ASfcRHKdBgpmXS+J8WiH
-	MxYSyK8n/K+HBRYstl4yeoue4ag==
-X-Google-Smtp-Source: AGHT+IGAi8kWe5r5B1Heu2KqVwZaLyvrKsfG81lqbpt6rONA3YcORqB2DJHGQvw1uvz0AmqBHBxXcw==
-X-Received: by 2002:a05:622a:1b25:b0:49a:6859:1c10 with SMTP id d75a77b69052e-49a685925acmr67596501cf.24.1747763022579;
-        Tue, 20 May 2025 10:43:42 -0700 (PDT)
-Received: from [127.0.1.1] (static-72-90-70-109.syrcny.fios.verizon.net. [72.90.70.109])
-        by smtp.googlemail.com with ESMTPSA id d75a77b69052e-494ae528553sm72660101cf.68.2025.05.20.10.43.41
+        d=1e100.net; s=20230601; t=1747764950; x=1748369750;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FwBEe20YzRFDk3bXuCFMe51to/DINvILfedoZiBzDAw=;
+        b=f7e8VPMGgBCDf9upVOO1pVNoIgdY2uulC1VaFS6yjOLfK6ZPf36QqELB0r8O03qjHW
+         8w8RRyUJKvXgSs6FsrI5v9WDkkoF/S6dWlp8anvLNsfzlvQ+3sjV99E2X7B3Jez5c342
+         mG/bQanvWTuAhqKOcpo6GJWFnBe+RJRJUQtlJVUr/oW3DUdYrmU2QF12LM6axn3hcFMQ
+         oCHYxvdRGsEDrsQaxwLo+2SKuXW6/IYzWBoEAvduKzzo4uEsW3tiPG4uF2wubF20Yz8W
+         kDmuNxUJloA3qDPJqirkf8D9ePTCP0H6NGYqZ8vxiTOp/S2iwkbrL2b7h9H0ZtxqAGNd
+         h/5A==
+X-Forwarded-Encrypted: i=1; AJvYcCXGRSNzkBD4GZ+S7PPqeHjOgCyxRpjN1WsZrCsC9BzDchGdi486Ko/UrbE+o3jspqkfuDmqi0rFBeffakk=@vger.kernel.org, AJvYcCXJcBA1XAM+Tj5KPR7VH6/Tr03gWRdGyOgB4YWvPdOlu2C5Xtsz/rvXvdoruGjyL2q94eXH038+pCxj65iX@vger.kernel.org, AJvYcCXP4gXyxOtrP8/kzABMWUP/CcrSWEDD9I0x7CELG8arte8oHrR7Imaa5/pHqCWq1rPqWBWNttlWG6Zu@vger.kernel.org
+X-Gm-Message-State: AOJu0YwmCmjXUmXwVET8Ah1KKujKpqXAbvBwo6J53WJXduvjv9wFDm1s
+	qXtxSwgcjpoLTEncAJ/DzkhzxVsftDvsYJ1x05hbHJd3eC5/1YD31W1N
+X-Gm-Gg: ASbGncvqLh87vQ9SMAngxcQ12mg+0w70rIyfggEoV/ONHcA9Nlq6kNQK7YC5m6iPZlm
+	C5Y5Vt1Mmt5HyrOGZUATMOJTUFeCMfbokFdmWAsYXBYNAis0ImkWcm5Td2JhtmK56E+qT0G/pEl
+	iT+rx2j4BuFHQxIJfIuTkT8WmrFQS0xjODgovU1guZ8upwr/60Ux9lkmt69iahmzrHqF+1GI8W4
+	NuSw87JlbeNq+YsYM4rDnnPNGNAQxueT5ziUQmP2GxhRUyC225nDxPsiCacLvl0xSA3Hgu7YZP8
+	BUU9u89fMnUmYPnK6yVtZiLn6nXVSBMkF976mVPoq4/84KAHQZJ0Tl16Ih30VtJ6FCAY6IxUtg=
+	=
+X-Google-Smtp-Source: AGHT+IGbB0vnb+DJNpPWratWV67dA65t5rpBhUYFtWkcTxWG0FnGyJ8c9DxzOQniu2kRWZQGmFTqhw==
+X-Received: by 2002:a17:90b:6c8:b0:30e:8f60:b4c with SMTP id 98e67ed59e1d1-30e8f600d77mr28777833a91.16.1747764949997;
+        Tue, 20 May 2025 11:15:49 -0700 (PDT)
+Received: from google.com ([2620:15c:9d:2:533f:75df:b89f:cab5])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-30f365d460fsm2011421a91.23.2025.05.20.11.15.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 20 May 2025 10:43:42 -0700 (PDT)
-From: Job Sava <jsava@criticallink.com>
-Date: Tue, 20 May 2025 13:43:36 -0400
-Subject: [PATCH 1/3] dt-bindings: mfd: Add power-button option for TI
- TPS6594 PMIC
+        Tue, 20 May 2025 11:15:49 -0700 (PDT)
+Date: Tue, 20 May 2025 11:15:46 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Job Sava <jsava@criticallink.com>
+Cc: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Julien Panis <jpanis@baylibre.com>, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-input@vger.kernel.org, jcormier@criticallink.com
+Subject: Re: [PATCH 2/3] mfd: tps6594-pwrbutton: Add powerbutton functionality
+Message-ID: <sfan2cfuxqvfjlwltjmtuknfm3egxahou3pmlcgovvplwdhls5@3vgrlhtztisq>
+References: <20250520-linux-stable-tps6594-pwrbutton-v1-0-0cc5c6e0415c@criticallink.com>
+ <20250520-linux-stable-tps6594-pwrbutton-v1-2-0cc5c6e0415c@criticallink.com>
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250520-linux-stable-tps6594-pwrbutton-v1-1-0cc5c6e0415c@criticallink.com>
-References: <20250520-linux-stable-tps6594-pwrbutton-v1-0-0cc5c6e0415c@criticallink.com>
-In-Reply-To: <20250520-linux-stable-tps6594-pwrbutton-v1-0-0cc5c6e0415c@criticallink.com>
-To: Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Julien Panis <jpanis@baylibre.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-input@vger.kernel.org, jcormier@criticallink.com, 
- Job Sava <jsava@criticallink.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1747763020; l=1451;
- i=jsava@criticallink.com; s=20250404; h=from:subject:message-id;
- bh=Q1K+0jMx0UjyYkfsNH7TEf2S1jEKaulvPrwaokxGtoY=;
- b=KTjUE5gwIQzTIMVIiurhE2xXmVXJrc5zDX+vRuSTBi9O/nnOiiTroRjJu7k0JN4mF0DuyZH5u
- +iDfu6zuPDYAEjJJBNul49VwJ5b0fpyq2Q9QpwaBe2RRARfKZJXE8aa
-X-Developer-Key: i=jsava@criticallink.com; a=ed25519;
- pk=DPPriJ+pziqtCZ0EIomf/hKU23s5T1u4WOQaT8BpQSw=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20250520-linux-stable-tps6594-pwrbutton-v1-2-0cc5c6e0415c@criticallink.com>
 
-The TPS6594 power-button option permits users to enter STANDBY or
-ACTIVE state by a push, release, or short push button request.
+On Tue, May 20, 2025 at 01:43:37PM -0400, Job Sava wrote:
+> TPS6594 defines two interrupts for the powerbutton one for push and
+> one for release.
+> 
+> This driver is very simple in that it maps the push interrupt to a key
+> input and the release interrupt to a key release.
+> 
+> Signed-off-by: Job Sava <jsava@criticallink.com>
 
-Signed-off-by: Job Sava <jsava@criticallink.com>
----
- Documentation/devicetree/bindings/mfd/ti,tps6594.yaml | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+For the input part:
 
-diff --git a/Documentation/devicetree/bindings/mfd/ti,tps6594.yaml b/Documentation/devicetree/bindings/mfd/ti,tps6594.yaml
-index 6341b6070366..a40808fd2747 100644
---- a/Documentation/devicetree/bindings/mfd/ti,tps6594.yaml
-+++ b/Documentation/devicetree/bindings/mfd/ti,tps6594.yaml
-@@ -37,6 +37,21 @@ properties:
-       device on the SPMI bus, and the secondary PMICs are the target devices
-       on the SPMI bus.
- 
-+  ti,power-button:
-+    type: boolean
-+    description: |
-+      Optional property that sets the EN/PB/VSENSE pin to be a
-+      power-button.
-+      TPS6594 has a multipurpose pin called EN/PB/VSENSE that can be either
-+      1. EN in which case it functions as an enable pin.
-+      2. VSENSE which compares the voltages and triggers an automatic
-+      on/off request.
-+      3. PB in which case it can be configured to trigger an interrupt
-+      to the SoC.
-+      ti,power-button reflects the last one of those options
-+      where the board has a button wired to the pin and triggers
-+      an interrupt on pressing it.
-+
-   system-power-controller: true
- 
-   gpio-controller: true
+Acked-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+
+Thanks.
 
 -- 
-2.43.0
-
+Dmitry

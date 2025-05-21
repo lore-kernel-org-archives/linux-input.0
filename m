@@ -1,307 +1,291 @@
-Received: from mailgate02.uberspace.is (mailgate02.uberspace.is [185.26.156.114])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from EUR02-AM0-obe.outbound.protection.outlook.com (mail-am0eur02on2071.outbound.protection.outlook.com [40.107.247.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AEC1283680
-	for <linux-input@vger.kernel.org>; Tue, 20 May 2025 19:50:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.26.156.114
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747770620; cv=none; b=c4ojhoNSxgdkZMzKk18uB4PtueiolCX5QGk5QWg86xLOOcDw3oeaoHeZIW8xn4cw0kSIHN37yOldhQAG9O15EdHIsFd1C6808iNj9K1ej4tDhl6G6efwJuvqIDrTzBA2FQlEuRA/9XAhA+7up/fWf364qcndd2KMyBki1nL3IdI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747770620; c=relaxed/simple;
-	bh=kMiX/BWWUBpZXgzAi68O/8mLwTgRWc6IeaKIGYwCbsY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=UjFMHflUycm3Ecf2XvFCEbFxikMKamrU95jUshZPsYVRifVHsVhSeD3V3gZ7txNYGH/8RuhomqOiMLEHf2GBZvl5y7i1bwcQXH84w7NSPwvHJjm2m83yShelVpmLtuhBEAoJRo6VT2ffzYYRgWZnNHSlWsbycWPnGA3HiCqnR/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=david-bauer.net; spf=pass smtp.mailfrom=david-bauer.net; dkim=pass (4096-bit key) header.d=david-bauer.net header.i=@david-bauer.net header.b=gKppwhXq; arc=none smtp.client-ip=185.26.156.114
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=david-bauer.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=david-bauer.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 730D51632D7;
+	Wed, 21 May 2025 02:52:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.247.71
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1747795934; cv=fail; b=JpBRP1fAxFeaNB3cAlk+5ka+IvLsmYhpxVAXhwKHQfgpelBHQyvzF6DMjtaxZKPFTt1a0ylm6Vm037/YJEYqr+Y0RuLhulXTd/U73haYkqZbVZy6wCe9tYkNn6xSJouJbHo5P0OSX+Ue0nGww1e+iirOT3pQ1xVmViPH34f+AHU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1747795934; c=relaxed/simple;
+	bh=7wsH2YaPpPQWTz901sUqa7PJScfngUBcsp67qOydqPE=;
+	h=From:To:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=HZMvvFWaovXJpbrK0CDpZWOfLhdxSjTL++/7o4C51oMIrCsBH15lqzrZ3hVMOyPscXa31ru3nTnPGVCbYIfP2ul8R+97UV2eQXZM3ICKVkInnx7VS1ZgSMAS8V/wrfHeO2mdbnda+d06d+qZ1fRYrt/FCTgmbuVGEOAGz9A94V0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=Xr87xx7x; arc=fail smtp.client-ip=40.107.247.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=david-bauer.net header.i=@david-bauer.net header.b="gKppwhXq"
-Received: from perseus.uberspace.de (perseus.uberspace.de [95.143.172.134])
-	by mailgate02.uberspace.is (Postfix) with ESMTPS id 5350017F8A4
-	for <linux-input@vger.kernel.org>; Tue, 20 May 2025 21:40:06 +0200 (CEST)
-Received: (qmail 31776 invoked by uid 988); 20 May 2025 19:40:06 -0000
-Authentication-Results: perseus.uberspace.de;
-	auth=pass (plain)
-Received: from unknown (HELO unkown) (::1)
-	by perseus.uberspace.de (Haraka/3.0.1) with ESMTPSA; Tue, 20 May 2025 21:40:05 +0200
-Message-ID: <16f39da9-d182-4dc6-8739-1d33fecd0e8f@david-bauer.net>
-Date: Tue, 20 May 2025 21:40:03 +0200
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="Xr87xx7x"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=G8i7reCAumTPrfXRHO2olqoUtYWwuYBSPWgyiYVk1vWSOgJxU1delN0LpKTLKdmFJ14az++9k0dtHe0HxP2jrf0tdkC+5AY4S3/8y8H8nWE3A0sY0+uQ8M32uIBfXo6B1OFq58CgpyALgE8K6hpJdbCwKiale18bEeMg5RwjOvesv/YsutwIW6NalCXyYbAblIxLfujccMwpQGjY+nAKSeuVRM7JqLF+3TumKk4L/7P1A7i++FzVEq/snu4HE7Z4e5ltoxxqCN5uY7H2o4dZBHuKGT8jrYChxpywhX1kwcUqCGWRW/0s2ppFunLeMDYwfFVnGq29sBeiugH8d41viA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7wsH2YaPpPQWTz901sUqa7PJScfngUBcsp67qOydqPE=;
+ b=iSfBMjSzgMaBtiMKX7NjExBe3ELaatR1g5KZC7XZclJGuEh73GrICJxW3ao7uyHuX/IRcKZAy9DFhHDVSDcg2UKoowFLi7VCWugW1YfUDhYVVvHV1qm4dtsBGiPFlVdaW8UIrPxmoYDPUnGhXhLsawlsFlvMj2+NfjfEheu40iCTD0ROZ6dhXR52TxNW+awRbvM3LFCfWAHh/tAfbKS4o0Sq0ja+0ILBw8/Yfv+9jomDburQUOiRv6J0FstiH8iTMugeu/aq4FAFjvD1OW6fRgAD9vhVn6O18KiyM06lJmyMojOUpeTdhCjpWeCDe3PU3k8qltEQvDTo2xlz5gU5IQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7wsH2YaPpPQWTz901sUqa7PJScfngUBcsp67qOydqPE=;
+ b=Xr87xx7x+NH5DvRATBus3gNNdN2aSNm72Hym/aO1VSt7m950z20TN5PDbdCN/qkoFXONqDSEHZi7tbStCkfmToKS7TeZJQZHSUGfx62IWbwq5ws9p4w8eJ5nFeUOfceGtZy3nU0lES8M5ZQvMU0XQoFp828YI0NdWSHL7+AjpzctdQCWtiomJS1avV39Rg1VodAyP7g9SfT2JanJKe0UuDG3T/zjdkD3AfXcJFB20IdXNAf7enyzQ7bry1snoTPUU7F10vT8RmH6yxpbgZRpZHHORomdc0JzbbbC7Jh7uv+SO88hYpqp+Pv5EwMKXqSe3qDQLyrC3rybEnAD2UkSFg==
+Received: from DB8PR04MB6939.eurprd04.prod.outlook.com (2603:10a6:10:11d::8)
+ by PA2PR04MB10312.eurprd04.prod.outlook.com (2603:10a6:102:414::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8746.30; Wed, 21 May
+ 2025 02:52:09 +0000
+Received: from DB8PR04MB6939.eurprd04.prod.outlook.com
+ ([fe80::cfc9:8c5b:b1ae:59c2]) by DB8PR04MB6939.eurprd04.prod.outlook.com
+ ([fe80::cfc9:8c5b:b1ae:59c2%4]) with mapi id 15.20.8722.027; Wed, 21 May 2025
+ 02:52:09 +0000
+From: Joseph Guo <qijian.guo@nxp.com>
+To: Hans de Goede <hdegoede@redhat.com>, Bastien Nocera <hadess@hadess.net>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, "open list:GOODIX TOUCHSCREEN"
+	<linux-input@vger.kernel.org>, open list <linux-kernel@vger.kernel.org>
+Subject:
+ =?gb2312?B?u9i4tDogW0VYVF0gUmU6IFtQQVRDSF0gaW5wdXQ6IGdvb2RpeDogYWRkIHBv?=
+ =?gb2312?Q?ll_mode_for_goodix_touchscreen?=
+Thread-Topic: [EXT] Re: [PATCH] input: goodix: add poll mode for goodix
+ touchscreen
+Thread-Index: AQHbyJwhnx/iWHPL5UuSZe7czBuDT7PaIR+AgAJD5FA=
+Date: Wed, 21 May 2025 02:52:08 +0000
+Message-ID:
+ <DB8PR04MB6939E7DEBE851DBE34DB6626949EA@DB8PR04MB6939.eurprd04.prod.outlook.com>
+References: <20250519085744.3116042-1-qijian.guo@nxp.com>
+ <0dfc74c9-7cec-4453-80fc-d6ff8d1a46f6@redhat.com>
+In-Reply-To: <0dfc74c9-7cec-4453-80fc-d6ff8d1a46f6@redhat.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: DB8PR04MB6939:EE_|PA2PR04MB10312:EE_
+x-ms-office365-filtering-correlation-id: 81994322-bf2f-4bf6-8f0a-08dd98127a94
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|366016|376014|7053199007|38070700018;
+x-microsoft-antispam-message-info:
+ =?gb2312?B?ZHZUNFVHNWFvT1RNRzRMRitTOVl0ZUpzekZwUytwaHRyMEFZM0haZWJIQUNS?=
+ =?gb2312?B?ZHd5NmJtVUVYdnBFakFzdFhPbEpHcmNQeCtXNm5wemM1NXJtRWFHMTZhL2Jo?=
+ =?gb2312?B?blFodWQyN0h6ejJHZGFTVzJRcEtEeXZxNXJ2Y3Z3SCtsVC9xRTNibm1nVkhu?=
+ =?gb2312?B?M2hqcG5FamFMeHZjelEybEZzMngrb3pPbHplTTIyc3VMY0tCWmkzbTFJK1Zz?=
+ =?gb2312?B?OU53VGxRSWNWZk8yaXZGZThJYjNnYlpXaXZpMHRNdWNsZXdsSHBmTzFvWHNB?=
+ =?gb2312?B?TjdDdUxReDRQS0swV0d5SXlkS2h2dTFPNFNKRXZtUUlpRlZib3UySEhVcUor?=
+ =?gb2312?B?aEdnVmNkSGdDdTExTUZOSXI0NUpPT1BWUmwwV1dweXRzVGxsQjJ6ekF1T0Rj?=
+ =?gb2312?B?ZDBkcHozdC9qYWIxaEVBQlRkb1dEM21UVi8vdVRjR3BFeXRENS9WeUNIT1Qy?=
+ =?gb2312?B?NVBBeDVCMnhhRzllSFRjSHpDcWZ4ZkdVMnZHQ2RyRTR3L1BNNGdGaDBqTTZC?=
+ =?gb2312?B?bDJsOWg4L1NlNzRxWWJvblNQRjlSZ1c5T3dycTVkSTBNMUszVnpuL3VjNHFq?=
+ =?gb2312?B?WDljcXB0QkxwSm52SjcwMm44UHloKzJyL2NMVnoybXpZWHBJSU9QTXBEdzhG?=
+ =?gb2312?B?eFVtNVdFRm1MbnBENkoxbjc4QlVwTkFmVGlrWUR5L2sxNjhJakY5dCtMVExP?=
+ =?gb2312?B?TmVKd0k0ZTFDM2NZMDQxcFJXTjZlTzF5SGZMUjN3OExFa3hNUng3NmxnRExM?=
+ =?gb2312?B?U3ExUi9udGR5SXNaeGw2eGFrMTRLamExTkJvSStWVlhxZHV1VSt0QWZZTEgr?=
+ =?gb2312?B?SStLT2dmcndFampYTEdLb3dhNDAyNlVzbjZibTdFWFh0QlhmNUNESTZLc3BQ?=
+ =?gb2312?B?N1NqM2IvRC9JSjkxWFlNdkt4MFlMYzhOeW01bTIvQ0UxeWRNa0RyaUZzSmw2?=
+ =?gb2312?B?dU1sdHlGamRLUmZEeWZVZnRGck14YlVoMkFJNTZmZnVwU0d4TEp3Z2UraS9u?=
+ =?gb2312?B?VGUzejg5dGJySTQzSHhrT09sM1pGTlBFdmRWV0FES1AreklaVEVNekUvZ3Br?=
+ =?gb2312?B?RHJGam9rYmoxS1B3eW5rMTZSOEhPRlkyYnRDMmZJazdjOU5VYW9oeU1VWlZD?=
+ =?gb2312?B?cVBRU0FhMC9PV3ZNRG00Z0VBSFhpLzdyQ0tnQmd0LzU1MFNJWjBGalRSeW9J?=
+ =?gb2312?B?bkhjU1M3aTQ2SGpzcVhia0xtMEZMdVM2ZCtLdW1LMkNOMFhMWXlGNTl2Wnk2?=
+ =?gb2312?B?anRlRmc2eVpvaGV1ZmIvb014Z1VGc01FQTRzeFJLZUVQTnRpVmo4Q0czazhp?=
+ =?gb2312?B?d2pYYW05UEQzUnhUYis5WlBKNExoaVZqeUJCLzhDUFF1Q2hPUTdIZ1FhZEFT?=
+ =?gb2312?B?N09WQUY1NXN3S0RqQzlMTTZVeGQyVDFNUG0zb3BYekJFenhVOEtINFd5MTRl?=
+ =?gb2312?B?SlBFK3VuNStMMEdGM2trOXdtNXhhVkN3ZTRzOUNPTmNPYldJWE1jeWIxTmJx?=
+ =?gb2312?B?aGFYZTc5TFFZdkovdUxUZnlBa1plaXlxbS9ncmFpTnhWU0wwZFpIRldORjhG?=
+ =?gb2312?B?WmlDS0JTZTl4dm05QU9Jb3d2YXNDZ2Q1Nm9hSGpsVDFDM3BKKzlVbUp4SUdz?=
+ =?gb2312?B?MlM2NUJxZHRsQUs2QXVXTzF0WDh3d1VnaSsyem1MR3BMT0VlUmFuTi8veG8r?=
+ =?gb2312?B?dzRJN3lwSmRjd1dyb0tHb3R6bmN4NC9aakptMUlTeURjYTRMWUU4QmpPYVNH?=
+ =?gb2312?B?SFNmWHlyUCtFZ1VPVUdRVXpFQ0RFYVE1aFd4akpFYjlpNWlDRnliS1J6WkZw?=
+ =?gb2312?B?cTcwMVo3ekN5WjVYOERIVXdkY0gvUGEzZythMjkrMXRQdHNTeTlsOFVLSGc5?=
+ =?gb2312?B?cGZLOHhJbVhpckVsZXZDSG1xWjNVaDBVYk1rUzhJdTdzVENQMmlRMFAyemdv?=
+ =?gb2312?B?TUU0OE5TaW8xSmhkZHdUdGUrYk9EMDJGNDZzUWVUVGJzSGtpc1VEYldNU01m?=
+ =?gb2312?B?dmRYUGFmMlFBPT0=?=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:zh-cn;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB8PR04MB6939.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7053199007)(38070700018);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?gb2312?B?TSt1dm9Ea1RwVnZpY2gzbnhqc0FKL1hYWDZpL3U0eDhBd3JEeUg3MTlhN3JR?=
+ =?gb2312?B?OGZEL29sODlZOU01SmRobEZ1U0laMlp3NFcrdlUyZkRNTER2VCtGSGpTeTh4?=
+ =?gb2312?B?WjVyU2RVeUYwRStCbDBmS0ZFNUxEYUtuZGlKUXA1d2c2b0tTVFd6a0xkbEsw?=
+ =?gb2312?B?d2JjQTh3cGJKeEZNUDZpQkJ5a21CbENKRGZac0hJOHU2a1l4aWN2a0dnZHNq?=
+ =?gb2312?B?UzhXQ2xlSHNjK050anFOQjByRndEZmkwekVIckdheDEzcHdlSzRFcmgwOW1M?=
+ =?gb2312?B?TVJGRkJDdFdxWFNLZEp3Z2llWkp1MnI5bWZWWm8yV3BHSENEYmZ1M3RjeE44?=
+ =?gb2312?B?ZkoxZ09xVllPTDJETTNhM1U3M0VXakRUNnlBL0pwNHpra3RxTXpBT1h1eEJ4?=
+ =?gb2312?B?VFFWSWJ1cFRIZm5VbjlMRlQ4U1c4YkYrbnBhTFJ6MVZGelhlWVlYeEhCQnp0?=
+ =?gb2312?B?bW96eXlIM01JbTNaNkR1NHVVZU5hdEdmNWx5TVJaN3BRbU5LRHI0a21hY0FG?=
+ =?gb2312?B?SC9kR2VRd0VZVHc3SjdxcGRaY3l6bjNiTVN4dk52bXFKV3hRRzFRd0tqOHM4?=
+ =?gb2312?B?UlRueHZ0SnFONmFpN1lLSE9IQmpJbncxbHUvYnQzYVlyTy92bUsreXR0UkNq?=
+ =?gb2312?B?S0NxaWdqLzVJajlrWlo1a1cwQXBzZEhCcTl3dTNqYWNIcHlnZ0hOMHNoRlFE?=
+ =?gb2312?B?enVucXVFRkozOEIwcnI5cGtuaEt1TjJnTnFwUmdGOHRTNzhLaFZMblpoVTZG?=
+ =?gb2312?B?MlVGbHBUVkVudzdNcGlCeEhiN0VoNm1TRzZPMXdBdkRGUXBMV3FxQU14MzF6?=
+ =?gb2312?B?SVhuMDYvSmttclNqd1lGb2lYZnIxVnQ2VkRBcVZHTU9YdmxYejc0M05wQ3k4?=
+ =?gb2312?B?VW91V2xWRTh4NVBkdVdMUk4yODRPTzRFWENVa1JzNGVWWlc5b1F1SUZheEw3?=
+ =?gb2312?B?WXZBNnNSNk4wZGtzekV4eXJNQm12aDRlSmh3aUhoWmU3T2M2QzZYTFJVbkNE?=
+ =?gb2312?B?SGlaR3hrZ3NDUVZ6Skx6QzNZVUh6TytTNThad2RJYWZQbjloeEpRSzg5Z1l4?=
+ =?gb2312?B?cTUzY0JYbDdIMzRSNWY0eTdsc3FDWWhpcEpwMnlRTFovL2FCSHJWamU5TWJn?=
+ =?gb2312?B?TmtZdFkzQVJ0OC9BTlp5ZTAzYW1VcG5iZGJ3dVZRZ2ZveEZSRTRjeHJBbWdo?=
+ =?gb2312?B?bnpQNjNFaTRwUm9veXJVWUlBcVQvRGhtUjMycmk2TGR0bkdIK0IyeVFEc2Fz?=
+ =?gb2312?B?K0RnZGllOENVOHB5NGxXRG41eTQvRjcya3pUdzdVUk1INFVwc0NRL0hXWjVn?=
+ =?gb2312?B?aGx3NVpnNHRra083ZjZibnRXWXkybkVxeFVreUpVVXVJUTBCVnRyc2JLbm5B?=
+ =?gb2312?B?eXduTFEvaW1GUlB2S3Z6QXg1WERlcTdnV0Nqa3djeGtsZ3lUMzNsN3lOQm5v?=
+ =?gb2312?B?cDVkK3IvaGVNOG81OGpFMHdMSFRwaG1wK2x0YmVrU3RNMFhEUlpRczgzKzlB?=
+ =?gb2312?B?Y3hvWkFSZFY3bXJlUklUMHFrRitYQ2pNVXlmaUxJVVpjaVNFSlMwZ3J5dnUw?=
+ =?gb2312?B?UUpXd1kvbFpkM1Y3aFVrVzFUV0kxNUI1ZW5VczI5ZTRSa2dCcU05eWE2OW9B?=
+ =?gb2312?B?N2lhRG9YRWh6OXdLbDRJZ3g1cGducEsvcitkK0xjb0pWWHJuTC9TWC9ORXNU?=
+ =?gb2312?B?RURFNTZGRklWRGhzRXJjMVQ4R3EzdG85OGR1bjhWVDlFMUxDNUQ4TU1WTWJ0?=
+ =?gb2312?B?OHpLUEdiaUttV2ZMSEw5cERIWlp0N3A3Zy9JRlF5UFhMM2UzOElPL2w1M1Vi?=
+ =?gb2312?B?bXJEbkdPLzlKdXY5OVJiM3hpS0xmSFFRU1YxeHAwQmNRamtOdjMxMkQ5VUF6?=
+ =?gb2312?B?UWNpdGM4RDdCb2JBNm5EN1pZT0RJbDZVbWxlSXNyMUdBc25lamJBNDNRVk1U?=
+ =?gb2312?B?OWFyNlpZeXpadFNBZ1p2d0p3K3JCU09NTHd1Zm5xNTRpZkpZVVZ1clkyZ1R6?=
+ =?gb2312?B?RFJqN3ZMQWxxdWNNSW55NG1CbXcrcU5wQWpQd1VzbDJUOHU3dGRlbXZpN29v?=
+ =?gb2312?B?cFFzbS9XbFVGeXRNcE12RXBEVzJUV2F4djZsVVMrT01GdTE2V1hOTmNuRTV4?=
+ =?gb2312?Q?lkq0=3D?=
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-input@vger.kernel.org
 List-Id: <linux-input.vger.kernel.org>
 List-Subscribe: <mailto:linux-input+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-input+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/2] dt-bindings: input: add Semtech SX951x binding
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
- Conor Dooley <conor+dt@kernel.org>, Krzysztof Kozlowski
- <krzk+dt@kernel.org>, Rob Herring <robh@kernel.org>
-Cc: linux-input@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20250505203847.86714-1-mail@david-bauer.net>
- <cbf42385-9803-4bea-bf99-a6f31f1454f6@linaro.org>
- <8c9e5e74-966b-4969-9776-7655863fd197@david-bauer.net>
- <b6d066ea-e47d-4495-bd0b-17ba184275a1@linaro.org>
-Content-Language: en-US
-From: David Bauer <mail@david-bauer.net>
-Autocrypt: addr=mail@david-bauer.net; keydata=
- xjMEZgynMBYJKwYBBAHaRw8BAQdA+32xE63/l6uaRAU+fPDToCtlZtYJhzI/dt3I6VxixXnN
- IkRhdmlkIEJhdWVyIDxtYWlsQGRhdmlkLWJhdWVyLm5ldD7CjwQTFggANxYhBLPGu7DmE/84
- Uyu0uW0x5c9UngunBQJmDKcwBQkFo5qAAhsDBAsJCAcFFQgJCgsFFgIDAQAACgkQbTHlz1Se
- C6eKAwEA8B6TGkUMw8X7Kv3JdBIoDqJG9+fZuuwlmFsRrdyDyHkBAPtLydDdancCVWNucImJ
- GSk+M80qzgemqIBjFXW0CZYPzjgEZgynMBIKKwYBBAGXVQEFAQEHQPIm0qo7519c7VUOTAUD
- 4OR6mZJXFJDJBprBfnXZUlY4AwEIB8J+BBgWCAAmFiEEs8a7sOYT/zhTK7S5bTHlz1SeC6cF
- AmYMpzAFCQWjmoACGwwACgkQbTHlz1SeC6fP2AD8CduoErEo6JePUdZXwZ1e58+lAeXOLLvC
- 2kj1OiLjqK4BANoZuHf/ku8ARYjUdIEgfgOzMX/OdYvn0HiaoEfMg7oB
-In-Reply-To: <b6d066ea-e47d-4495-bd0b-17ba184275a1@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Bar: ---
-X-Rspamd-Report: BAYES_HAM(-3) XM_UA_NO_VERSION(0.01) MIME_GOOD(-0.1)
-X-Rspamd-Score: -3.09
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-	d=david-bauer.net; s=uberspace;
-	h=from:to:cc:subject:date;
-	bh=kMiX/BWWUBpZXgzAi68O/8mLwTgRWc6IeaKIGYwCbsY=;
-	b=gKppwhXqCzdpmt8JuQ8Yrn4xFo3jWWuQxZQ5mG5WsNzNGOtfyn/os6ZgRxQ3hPUq+rWp1k7+NF
-	SoFijgSyIHhkprLr+Z6SCK3YTDI76DEMjQnus/5mCa6HNqYok0esKQisdRVWGY/N8m3BVbyzoRrX
-	U0diABp/pelOHL7ALQXXGcWs+4nXLuMK4g8F+cK/E/0LkhakUhMHAAT2g1kV1vWsRDSRw+mC9b8y
-	8hfKn/8zKdA9JJhyWYGtgvSuLpeE1GnfuK9BYnWzb4PvgCOw0AYTcN/WkFYTAtEwd/+KU7hrqtEq
-	icPXzw9yWBy35cgZmQXnv8EAIzFAlOXS2fR3WoCi48psgdtwwjsQYQ2rnqRJw8y7ALoZ8/yLfdW2
-	Yw4P8d8qHBV1WNsjpU1PRH/rwYSOoc3RgjuBoof+64rdD1eRpbss7kE5ZcRL059rjpwXspYPTS3t
-	EoBuCYJZO/5QslE2vBw49EgSmK9/pASyiNJ54XvcIH3MqWtGT8KST8e9ZaZ1SyZH0RkMPCORDKK+
-	+6NeN6wl9D7dtFLRATF99M0dAtEeEfNU5lutCshZSvt3qoVkMrMhaERfhAOsOUVva7dIeI74a7ux
-	wS3TLe5Zv7yhC0DUu4z0+OV8GQ8ZBdiwt0yN0lM62iRBK1zrDMOkvNGSkc6+VnIISKPmvp/Dl4dT
-	M=
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: DB8PR04MB6939.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 81994322-bf2f-4bf6-8f0a-08dd98127a94
+X-MS-Exchange-CrossTenant-originalarrivaltime: 21 May 2025 02:52:08.9388
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 1191QBISLCbCMcBI/E5So+yWrGD4cRLPka6fDUaKOtSrK4JCsSCLOJGOhcCOMa8d8z+sBBw31E5caTfAHef1wA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA2PR04MB10312
 
-Hi Krzysztof,
-
-On 5/20/25 15:58, Krzysztof Kozlowski wrote:
-> On 06/05/2025 12:05, David Bauer wrote:
->> Hi Krzysztof,
->>
->> thanks for the review.
->>
->> On 5/6/25 08:21, Krzysztof Kozlowski wrote:
->>> On 05/05/2025 22:38, David Bauer wrote:
->>>> Add device-tree binding for the Semtech SX9512/SX9513 family of touch
->>>> controllers with integrated LED driver.
->>>>
->>>> Signed-off-by: David Bauer <mail@david-bauer.net>
->>>
->>> You CC-ed an address, which suggests you do not work on mainline kernel
->>> or you do not use get_maintainers.pl/b4/patman. Please rebase and always
->>> work on mainline or start using mentioned tools, so correct addresses
->>> will be used.
->> I'm a bit unsure what you are referring to - maybe I've set the options
->> for get_maintainer.pl wrong, but i use
->>
->> get_maintainer.pl --nogit --nogit-fallback --norolestats --nol
->>
->> to determine TO recipients and
->>
->> get_maintainer.pl --nogit --nogit-fallback --norolestats --nom
->>
->> for CC destinations.
->>
->> Granted, my tree was a bit out of date but it was from mainline
-> 
-> Mainline means latest RC or maintainer tree or linux next. v5.0 is not
-> mainline anymoer.
-> 
->> and after rebase both commands returned consistent results.
->>
->> Hope you can provide me with some guidance there.
-> 
-> Well, read full reply. It is impossible to get such email address from
-> above commands. Such email address does not exist since long time and it
-> easy to prove - just git grep for it. No results, so how could it be
-> printed by get_maintainers.pl?
-> 
-> If you disagree then please paste full output of:
-> 
-> $ git describe
-> $ git status
-> $ scripts/get_maintainer.pl 0*
-> 
-> I provided you extensive guideline exactly to avoid further trivial
-> discussions about that triviality, so I would really appreciate if you
-> followed it.
-
-I did a complete new clone of my repository without changing the base-branch
-and now the script outputs the correct set of addresses. Be assured v2
-will reach the correct inbox(es).
-
-Sorry for the confusion here. Still appreciate you did point this
-out to me.
-
-> 
->>
->>>
->>> Please use scripts/get_maintainers.pl to get a list of necessary people
->>> and lists to CC (and consider --no-git-fallback argument, so you will
->>> not CC people just because they made one commit years ago). It might
->>> happen, that command when run on an older kernel, gives you outdated
->>> entries. Therefore please be sure you base your patches on recent Linux
->>> kernel.
->>>
->>> Tools like b4 or scripts/get_maintainer.pl provide you proper list of
->>> people, so fix your workflow. Tools might also fail if you work on some
->>> ancient tree (don't, instead use mainline) or work on fork of kernel
->>> (don't, instead use mainline). Just use b4 and everything should be
->>> fine, although remember about `b4 prep --auto-to-cc` if you added new
->>> patches to the patchset.
->>>
->>>
->>>> ---
->>>>    .../bindings/input/semtech,sx951x.yaml        | 180 ++++++++++++++++++
->>>>    1 file changed, 180 insertions(+)
->>>>    create mode 100644 Documentation/devicetree/bindings/input/semtech,sx951x.yaml
->>>>
->>>> diff --git a/Documentation/devicetree/bindings/input/semtech,sx951x.yaml b/Documentation/devicetree/bindings/input/semtech,sx951x.yaml
->>>> new file mode 100644
->>>> index 000000000000..e4f938decd86
->>>> --- /dev/null
->>>> +++ b/Documentation/devicetree/bindings/input/semtech,sx951x.yaml
->>>> @@ -0,0 +1,180 @@
->>>> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
->>>> +%YAML 1.2
->>>> +---
->>>> +$id: http://devicetree.org/schemas/input/semtech,sx951x.yaml#
->>>> +$schema: http://devicetree.org/meta-schemas/core.yaml#
->>>> +
->>>> +title: Semtech SX9512/SX9513 based capacitive touch sensors
->>>> +
->>>> +description: |
->>>
->>> Do not need '|' unless you need to preserve formatting.
->>>
->>>> +  The Semtech SX9512/SX9513 Family of capacitive touch controllers
->>>> +  with integrated LED drivers. The device communication is using I2C only.
->>>> +
->>>> +maintainers:
->>>> +  - David Bauer <mail@david-bauer.net>
->>>> +
->>>> +properties:
->>>> +  compatible:
->>>> +    enum:
->>>> +      - semtech,sx9512
->>>> +      - semtech,sx9513
->>>
->>> Devices are not compatible? What are the differences?
->>
->> The SX9513 is a cost-reduced version which does not
->> support proximity sensing. With the current support
->> of the driver they work identical. Should i add this
->> information as a comment?
-> 
-> So they are compatible and this should be expressed via fallback.
-> 
-> 
->>
->>>
->>>> +
->>>> +  reg:
->>>> +    maxItems: 1
->>>> +
->>>> +  '#address-cells':
->>>> +    const: 1
->>>> +
->>>> +  '#size-cells':
->>>> +    const: 0
->>>> +
->>>> +  poll-interval:
->>>> +    default: 100
->>>> +    description: |
->>>
->>> Do not need '|' unless you need to preserve formatting. Same comment
->>> everywhere.
->>>
->>>> +      The polling interval for touch events in milliseconds.
->>>
->>> Missing -ms property unit suffix... unless you are using existing
->>> property from common schema, but I do not see any reference (and thus
->>> unevaluatedProperties at the end).
->>>
->>>> +
->>>> +patternProperties:
->>>> +  "^channel@[0-7]$":
->>>> +    $ref: input.yaml#
->>>> +    type: object
->>>> +    description: |
->>>> +      Each node represents a channel of the touch controller.
->>>> +      Each channel provides a capacitive touch sensor input and
->>>> +      an LED driver output.
->>>> +
->>>> +    properties:
->>>> +      reg:
->>>> +        enum: [0, 1, 2, 3, 4, 5, 6, 7]
->>>> +
->>>> +      linux,keycodes:
->>>> +        maxItems: 1
->>>> +        description: |
->>>> +          Specifies an array of numeric keycode values to
->>>> +          be used for the channels. If this property is
->>>> +          omitted, the channel is not used as a key.
->>>> +
->>>> +      semtech,cin-delta:
->>>
->>> Use proper unit suffix and express it in pF.
->>
->> To represent 2.3 and 3.8 pF, would it be better to represent in
->> femtofarad?
->>
->>>
->>>> +        $ref: /schemas/types.yaml#/definitions/uint32
->>>> +        minimum: 0
->>>> +        maximum: 3
->>>> +        default: 3
->>>> +        description: |
->>>> +          The capacitance delta which is used to detect a touch
->>>> +          or release event. The property value is mapped to a
->>>> +          farad range between 7pF and 2.3pF internally. The delta
->>>> +          becomes smaller the higher the value is.
->>>> +
->>>> +      semtech,sense-threshold:
->>>> +        $ref: /schemas/types.yaml#/definitions/uint32
->>>> +        minimum: 0
->>>> +        maximum: 255
->>>> +        default: 4
->>>> +        description: |
->>>> +          The threshold value after which the channel detects a touch.
->>>> +          Refer to the datasheet for the internal calculation of the
->>>> +          resulting touch sensitivity.
->>>> +
->>>> +      led:
->>>
->>> I think subnode is here not needed. This should be part of the channel,
->>> probably.
->>
->> Just to be sure - you mean to have a property "led" upon which instructs
->> the channel to be used to drive an LED and include the LED specific
->> properties in the node of the channel?
-> No, I do not mean a property led. I mean that child node should be
-> folded into parent.
-
-Okay, now i get it. The hardware supports the exclusive as well as combined
-use of channels as LED-driver and touch input.
-
-In case the channel is not wired up to work as an input, the linux,keycodes
-property can be omitted, not creating the input channel.
-
-In turn if the channel is not wired up to an LED, omitting the led subnode
-prevents an led device from being created for this channel.
-
-If I were to fold the led subnode into the channel node I would still need
-a way to indicate if an LED is actually present in hardware, correct? This
-was what i was aiming for with the "led" property. However if I've had to
-choose between these two approaches, I prefer the subnode.
-
-If you have a different idea how to handle this apart from Rob's suggestion,
-It could also be the case I'm creating more problems than I solve with this
-approach :)
-
-Best
-David
-
+SGkgSGFucw0KDQpUaGFua3MgZm9yIHlvdXIgY29tbWVudC4gSSBhbHJlYWR5IHJlbW92ZSB0aGUg
+dW51c2VkIHZhcmlhYmxlIGluIHYyLg0KDQpCZXN0IFJlZ2FyZHMuDQpKb3NlcGgNCg0KLS0tLS3T
+yrz+1K28/i0tLS0tDQq3orz+yMs6IEhhbnMgZGUgR29lZGUgPGhkZWdvZWRlQHJlZGhhdC5jb20+
+IA0Kt6LLzcqxvOQ6IFR1ZXNkYXksIE1heSAyMCwgMjAyNSAxMjoxNSBBTQ0KytW8/sjLOiBKb3Nl
+cGggR3VvIDxxaWppYW4uZ3VvQG54cC5jb20+OyBCYXN0aWVuIE5vY2VyYSA8aGFkZXNzQGhhZGVz
+cy5uZXQ+OyBEbWl0cnkgVG9yb2tob3YgPGRtaXRyeS50b3Jva2hvdkBnbWFpbC5jb20+OyBvcGVu
+IGxpc3Q6R09PRElYIFRPVUNIU0NSRUVOIDxsaW51eC1pbnB1dEB2Z2VyLmtlcm5lbC5vcmc+OyBv
+cGVuIGxpc3QgPGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc+DQrW98ziOiBbRVhUXSBSZTog
+W1BBVENIXSBpbnB1dDogZ29vZGl4OiBhZGQgcG9sbCBtb2RlIGZvciBnb29kaXggdG91Y2hzY3Jl
+ZW4NCg0KW1lvdSBkb24ndCBvZnRlbiBnZXQgZW1haWwgZnJvbSBoZGVnb2VkZUByZWRoYXQuY29t
+LiBMZWFybiB3aHkgdGhpcyBpcyBpbXBvcnRhbnQgYXQgaHR0cHM6Ly9ha2EubXMvTGVhcm5BYm91
+dFNlbmRlcklkZW50aWZpY2F0aW9uIF0NCg0KQ2F1dGlvbjogVGhpcyBpcyBhbiBleHRlcm5hbCBl
+bWFpbC4gUGxlYXNlIHRha2UgY2FyZSB3aGVuIGNsaWNraW5nIGxpbmtzIG9yIG9wZW5pbmcgYXR0
+YWNobWVudHMuIFdoZW4gaW4gZG91YnQsIHJlcG9ydCB0aGUgbWVzc2FnZSB1c2luZyB0aGUgJ1Jl
+cG9ydCB0aGlzIGVtYWlsJyBidXR0b24NCg0KDQpIaSwNCg0KT24gMTktTWF5LTI1IDEwOjU3IEFN
+LCBKb3NlcGggR3VvIHdyb3RlOg0KPiBnb29kaXggdG91Y2hzY3JlZW4gb25seSBzdXBwb3J0IGlu
+dGVycnVwdCBtb2RlIGJ5IGRlZmF1bHQuDQo+IFNvbWUgcGFuZWxzIGxpa2Ugd2F2ZXNoYXJlIHBh
+bmVsIHdoaWNoIGlzIHdpZGVseSB1c2VkIG9uIHJhc3BlYmVycnkgcGkgDQo+IGRvbid0IGhhdmUg
+aW50ZXJydXB0IHBpbnMgYW5kIG9ubHkgd29yayBvbiBpMmMgcG9sbCBtb2RlLg0KPiBUaGUgd2F2
+ZXNoYXJlIHBhbmVsIDdpbmNoIHBhbmVsIHVzZSBnb29kaXggZ3Q5MTEgdG91Y2hzY3JlZW4gY2hp
+cC4NCj4NCj4gVXBkYXRlIGdvb2RpeCB0b3VjaHNjcmVlbiB0byBzdXBwb3J0IGJvdGggaW50ZXJy
+dXB0IGFuZCBwb2xsIG1vZGUuDQo+DQo+IFNpZ25lZC1vZmYtYnk6IEpvc2VwaCBHdW8gPHFpamlh
+bi5ndW9AbnhwLmNvbT4NCj4gLS0tDQo+ICBkcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2dvb2Rp
+eC5jIHwgNjkgDQo+ICsrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLSAgZHJpdmVycy9pbnB1
+dC90b3VjaHNjcmVlbi9nb29kaXguaCB8ICANCj4gNCArKw0KPiAgMiBmaWxlcyBjaGFuZ2VkLCA2
+NyBpbnNlcnRpb25zKCspLCA2IGRlbGV0aW9ucygtKQ0KPg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9pbnB1dC90b3VjaHNjcmVlbi9nb29kaXguYyANCj4gYi9kcml2ZXJzL2lucHV0L3RvdWNoc2Ny
+ZWVuL2dvb2RpeC5jDQo+IGluZGV4IGFhZjc5YWM1MDAwNC4uODc5OTFiNTY0OTRkIDEwMDY0NA0K
+PiAtLS0gYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5jDQo+ICsrKyBiL2RyaXZl
+cnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmMNCj4gQEAgLTQ3LDYgKzQ3LDcgQEANCj4gICNk
+ZWZpbmUgUkVTT0xVVElPTl9MT0MgICAgICAgICAgICAgICAxDQo+ICAjZGVmaW5lIE1BWF9DT05U
+QUNUU19MT0MgICAgIDUNCj4gICNkZWZpbmUgVFJJR0dFUl9MT0MgICAgICAgICAgNg0KPiArI2Rl
+ZmluZSBQT0xMX0lOVEVSVkFMX01TICAgICAgICAgICAgIDE3ICAgICAgLyogMTdtcyA9IDYwZnBz
+ICovDQo+DQo+ICAvKiBPdXIgc3BlY2lhbCBoYW5kbGluZyBmb3IgR1BJTyBhY2Nlc3NlcyB0aHJv
+dWdoIEFDUEkgaXMgeDg2IA0KPiBzcGVjaWZpYyAqLyAgI2lmIGRlZmluZWQgQ09ORklHX1g4NiAm
+JiBkZWZpbmVkIENPTkZJR19BQ1BJIEBAIC00OTcsNiANCj4gKzQ5OCwyMyBAQCBzdGF0aWMgdm9p
+ZCBnb29kaXhfcHJvY2Vzc19ldmVudHMoc3RydWN0IGdvb2RpeF90c19kYXRhICp0cykNCj4gICAg
+ICAgaW5wdXRfc3luYyh0cy0+aW5wdXRfZGV2KTsNCj4gIH0NCj4NCj4gK3N0YXRpYyB2b2lkIGdv
+b2RpeF90c19pcnFfcG9sbF90aW1lcihzdHJ1Y3QgdGltZXJfbGlzdCAqdCkgew0KPiArICAgICBz
+dHJ1Y3QgZ29vZGl4X3RzX2RhdGEgKnRzID0gZnJvbV90aW1lcih0cywgdCwgdGltZXIpOw0KPiAr
+DQo+ICsgICAgIHNjaGVkdWxlX3dvcmsoJnRzLT53b3JrX2kyY19wb2xsKTsNCj4gKyAgICAgbW9k
+X3RpbWVyKCZ0cy0+dGltZXIsIGppZmZpZXMgKyANCj4gK21zZWNzX3RvX2ppZmZpZXMoUE9MTF9J
+TlRFUlZBTF9NUykpOw0KPiArfQ0KPiArDQo+ICtzdGF0aWMgdm9pZCBnb29kaXhfdHNfd29ya19p
+MmNfcG9sbChzdHJ1Y3Qgd29ya19zdHJ1Y3QgKndvcmspIHsNCj4gKyAgICAgc3RydWN0IGdvb2Rp
+eF90c19kYXRhICp0cyA9IGNvbnRhaW5lcl9vZih3b3JrLA0KPiArICAgICAgICAgICAgICAgICAg
+ICAgc3RydWN0IGdvb2RpeF90c19kYXRhLCB3b3JrX2kyY19wb2xsKTsNCj4gKw0KPiArICAgICBn
+b29kaXhfcHJvY2Vzc19ldmVudHModHMpOw0KPiArICAgICBnb29kaXhfaTJjX3dyaXRlX3U4KHRz
+LT5jbGllbnQsIEdPT0RJWF9SRUFEX0NPT1JfQUREUiwgMCk7IH0NCj4gKw0KPiAgLyoqDQo+ICAg
+KiBnb29kaXhfdHNfaXJxX2hhbmRsZXIgLSBUaGUgSVJRIGhhbmRsZXINCj4gICAqDQo+IEBAIC01
+MjMsMTYgKzU0MSw1MCBAQCBzdGF0aWMgaXJxcmV0dXJuX3QgZ29vZGl4X3RzX2lycV9oYW5kbGVy
+KGludCBpcnEsIHZvaWQgKmRldl9pZCkNCj4gICAgICAgcmV0dXJuIElSUV9IQU5ETEVEOw0KPiAg
+fQ0KPg0KPiArc3RhdGljIHZvaWQgZ29vZGl4X2VuYWJsZV9pcnEoc3RydWN0IGdvb2RpeF90c19k
+YXRhICp0cykgew0KPiArICAgICBpZiAodHMtPmNsaWVudC0+aXJxKSB7DQo+ICsgICAgICAgICAg
+ICAgZW5hYmxlX2lycSh0cy0+Y2xpZW50LT5pcnEpOw0KPiArICAgICB9IGVsc2Ugew0KPiArICAg
+ICAgICAgICAgIHRzLT50aW1lci5leHBpcmVzID0gamlmZmllcyArIG1zZWNzX3RvX2ppZmZpZXMo
+UE9MTF9JTlRFUlZBTF9NUyk7DQo+ICsgICAgICAgICAgICAgYWRkX3RpbWVyKCZ0cy0+dGltZXIp
+Ow0KPiArICAgICB9DQo+ICt9DQo+ICsNCj4gK3N0YXRpYyB2b2lkIGdvb2RpeF9kaXNhYmxlX2ly
+cShzdHJ1Y3QgZ29vZGl4X3RzX2RhdGEgKnRzKSB7DQo+ICsgICAgIGlmICh0cy0+Y2xpZW50LT5p
+cnEpIHsNCj4gKyAgICAgICAgICAgICBkaXNhYmxlX2lycSh0cy0+Y2xpZW50LT5pcnEpOw0KPiAr
+ICAgICB9IGVsc2Ugew0KPiArICAgICAgICAgICAgIGRlbF90aW1lcigmdHMtPnRpbWVyKTsNCj4g
+KyAgICAgICAgICAgICBjYW5jZWxfd29ya19zeW5jKCZ0cy0+d29ya19pMmNfcG9sbCk7DQo+ICsg
+ICAgIH0NCj4gK30NCj4gKw0KPiAgc3RhdGljIHZvaWQgZ29vZGl4X2ZyZWVfaXJxKHN0cnVjdCBn
+b29kaXhfdHNfZGF0YSAqdHMpICB7DQo+IC0gICAgIGRldm1fZnJlZV9pcnEoJnRzLT5jbGllbnQt
+PmRldiwgdHMtPmNsaWVudC0+aXJxLCB0cyk7DQo+ICsgICAgIGlmICh0cy0+Y2xpZW50LT5pcnEp
+IHsNCj4gKyAgICAgICAgICAgICBkZXZtX2ZyZWVfaXJxKCZ0cy0+Y2xpZW50LT5kZXYsIHRzLT5j
+bGllbnQtPmlycSwgdHMpOw0KPiArICAgICB9IGVsc2Ugew0KPiArICAgICAgICAgICAgIGRlbF90
+aW1lcigmdHMtPnRpbWVyKTsNCj4gKyAgICAgICAgICAgICBjYW5jZWxfd29ya19zeW5jKCZ0cy0+
+d29ya19pMmNfcG9sbCk7DQo+ICsgICAgIH0NCj4gIH0NCj4NCj4gIHN0YXRpYyBpbnQgZ29vZGl4
+X3JlcXVlc3RfaXJxKHN0cnVjdCBnb29kaXhfdHNfZGF0YSAqdHMpICB7DQo+IC0gICAgIHJldHVy
+biBkZXZtX3JlcXVlc3RfdGhyZWFkZWRfaXJxKCZ0cy0+Y2xpZW50LT5kZXYsIHRzLT5jbGllbnQt
+PmlycSwNCj4gLSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTlVMTCwgZ29v
+ZGl4X3RzX2lycV9oYW5kbGVyLA0KPiAtICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICB0cy0+aXJxX2ZsYWdzLCB0cy0+Y2xpZW50LT5uYW1lLCB0cyk7DQo+ICsgICAgIGlmICh0
+cy0+Y2xpZW50LT5pcnEpIHsNCj4gKyAgICAgICAgICAgICByZXR1cm4gZGV2bV9yZXF1ZXN0X3Ro
+cmVhZGVkX2lycSgmdHMtPmNsaWVudC0+ZGV2LCB0cy0+Y2xpZW50LT5pcnEsDQo+ICsgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgTlVMTCwgZ29vZGl4X3RzX2ly
+cV9oYW5kbGVyLA0KPiArICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgIHRzLT5pcnFfZmxhZ3MsIHRzLT5jbGllbnQtPm5hbWUsIHRzKTsNCj4gKyAgICAgfSBlbHNl
+IHsNCj4gKyAgICAgICAgICAgICBJTklUX1dPUksoJnRzLT53b3JrX2kyY19wb2xsLA0KPiArICAg
+ICAgICAgICAgICAgICAgICAgICBnb29kaXhfdHNfd29ya19pMmNfcG9sbCk7DQo+ICsgICAgICAg
+ICAgICAgdGltZXJfc2V0dXAoJnRzLT50aW1lciwgZ29vZGl4X3RzX2lycV9wb2xsX3RpbWVyLCAw
+KTsNCj4gKyAgICAgICAgICAgICBpZiAodHMtPmlycV9waW5fYWNjZXNzX21ldGhvZCA9PSBJUlFf
+UElOX0FDQ0VTU19OT05FKQ0KPiArICAgICAgICAgICAgICAgICAgICAgZ29vZGl4X2VuYWJsZV9p
+cnEodHMpOw0KPiArICAgICAgICAgICAgIHJldHVybiAwOw0KPiArICAgICB9DQo+ICB9DQo+DQo+
+ICBzdGF0aWMgaW50IGdvb2RpeF9jaGVja19jZmdfOChzdHJ1Y3QgZ29vZGl4X3RzX2RhdGEgKnRz
+LCBjb25zdCB1OCANCj4gKmNmZywgaW50IGxlbikgQEAgLTE0MjAsNiArMTQ3MiwxMSBAQCBzdGF0
+aWMgdm9pZCANCj4gZ29vZGl4X3RzX3JlbW92ZShzdHJ1Y3QgaTJjX2NsaWVudCAqY2xpZW50KSAg
+ew0KPiAgICAgICBzdHJ1Y3QgZ29vZGl4X3RzX2RhdGEgKnRzID0gaTJjX2dldF9jbGllbnRkYXRh
+KGNsaWVudCk7DQo+DQo+ICsgICAgIGlmICghY2xpZW50LT5pcnEpIHsNCj4gKyAgICAgICAgICAg
+ICBkZWxfdGltZXIoJnRzLT50aW1lcik7DQo+ICsgICAgICAgICAgICAgY2FuY2VsX3dvcmtfc3lu
+YygmdHMtPndvcmtfaTJjX3BvbGwpOw0KPiArICAgICB9DQo+ICsNCj4gICAgICAgaWYgKHRzLT5s
+b2FkX2NmZ19mcm9tX2Rpc2spDQo+ICAgICAgICAgICAgICAgd2FpdF9mb3JfY29tcGxldGlvbigm
+dHMtPmZpcm13YXJlX2xvYWRpbmdfY29tcGxldGUpOw0KPiAgfQ0KPiBAQCAtMTQzNSw3ICsxNDky
+LDcgQEAgc3RhdGljIGludCBnb29kaXhfc3VzcGVuZChzdHJ1Y3QgZGV2aWNlICpkZXYpDQo+DQo+
+ICAgICAgIC8qIFdlIG5lZWQgZ3BpbyBwaW5zIHRvIHN1c3BlbmQvcmVzdW1lICovDQo+ICAgICAg
+IGlmICh0cy0+aXJxX3Bpbl9hY2Nlc3NfbWV0aG9kID09IElSUV9QSU5fQUNDRVNTX05PTkUpIHsN
+Cj4gLSAgICAgICAgICAgICBkaXNhYmxlX2lycShjbGllbnQtPmlycSk7DQo+ICsgICAgICAgICAg
+ICAgZ29vZGl4X2Rpc2FibGVfaXJxKHRzKTsNCj4gICAgICAgICAgICAgICByZXR1cm4gMDsNCj4g
+ICAgICAgfQ0KPg0KPiBAQCAtMTQ3OSw3ICsxNTM2LDcgQEAgc3RhdGljIGludCBnb29kaXhfcmVz
+dW1lKHN0cnVjdCBkZXZpY2UgKmRldikNCj4gICAgICAgaW50IGVycm9yOw0KPg0KPiAgICAgICBp
+ZiAodHMtPmlycV9waW5fYWNjZXNzX21ldGhvZCA9PSBJUlFfUElOX0FDQ0VTU19OT05FKSB7DQo+
+IC0gICAgICAgICAgICAgZW5hYmxlX2lycShjbGllbnQtPmlycSk7DQo+ICsgICAgICAgICAgICAg
+Z29vZGl4X2VuYWJsZV9pcnEodHMpOw0KPiAgICAgICAgICAgICAgIHJldHVybiAwOw0KPiAgICAg
+ICB9DQo+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2lucHV0L3RvdWNoc2NyZWVuL2dvb2RpeC5o
+IA0KPiBiL2RyaXZlcnMvaW5wdXQvdG91Y2hzY3JlZW4vZ29vZGl4LmgNCj4gaW5kZXggODc3OTdj
+Yzg4YjMyLi4xMzJlNDlkNjYzMjQgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5wdXQvdG91Y2hz
+Y3JlZW4vZ29vZGl4LmgNCj4gKysrIGIvZHJpdmVycy9pbnB1dC90b3VjaHNjcmVlbi9nb29kaXgu
+aA0KPiBAQCAtNTYsNiArNTYsNyBAQA0KPiAgI2RlZmluZSBHT09ESVhfSURfTUFYX0xFTiAgICAg
+ICAgICAgICAgICAgICAgNA0KPiAgI2RlZmluZSBHT09ESVhfQ09ORklHX01BWF9MRU5HVEggICAg
+ICAgICAgICAgMjQwDQo+ICAjZGVmaW5lIEdPT0RJWF9NQVhfS0VZUyAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIDcNCj4gKyNkZWZpbmUgR09PRElYX05BTUVfTUFYX0xFTiAgICAgICAgICAg
+ICAgICAgIDM4DQo+DQo+ICBlbnVtIGdvb2RpeF9pcnFfcGluX2FjY2Vzc19tZXRob2Qgew0KPiAg
+ICAgICBJUlFfUElOX0FDQ0VTU19OT05FLA0KPiBAQCAtOTEsNiArOTIsNyBAQCBzdHJ1Y3QgZ29v
+ZGl4X3RzX2RhdGEgew0KPiAgICAgICBlbnVtIGdwaW9kX2ZsYWdzIGdwaW9kX3JzdF9mbGFnczsN
+Cj4gICAgICAgY2hhciBpZFtHT09ESVhfSURfTUFYX0xFTiArIDFdOw0KPiAgICAgICBjaGFyIGNm
+Z19uYW1lWzY0XTsNCj4gKyAgICAgY2hhciBuYW1lW0dPT0RJWF9OQU1FX01BWF9MRU5dOw0KDQpU
+aGlzIGFkZGluZyBvZiB0aGUgbmFtZSB2YXJpYWJsZSwgc2VlbXMgdG8gYmUgc29tZSBsZWZ0b3Zl
+ciBjaGFuZ2UgZnJvbSBhbm90aGVyIHBhdGNoPw0KDQpQbGVhc2UgZHJvcCB0aGlzIGZvciB2Mi4N
+Cg0KUmVnYXJkcywNCg0KSGFucw0KDQoNCg0KPiAgICAgICB1MTYgdmVyc2lvbjsNCj4gICAgICAg
+Ym9vbCByZXNldF9jb250cm9sbGVyX2F0X3Byb2JlOw0KPiAgICAgICBib29sIGxvYWRfY2ZnX2Zy
+b21fZGlzazsNCj4gQEAgLTEwNCw2ICsxMDYsOCBAQCBzdHJ1Y3QgZ29vZGl4X3RzX2RhdGEgew0K
+PiAgICAgICB1OCBtYWluX2Nsa1tHT09ESVhfTUFJTl9DTEtfTEVOXTsNCj4gICAgICAgaW50IGJh
+a19yZWZfbGVuOw0KPiAgICAgICB1OCAqYmFrX3JlZjsNCj4gKyAgICAgc3RydWN0IHRpbWVyX2xp
+c3QgdGltZXI7DQo+ICsgICAgIHN0cnVjdCB3b3JrX3N0cnVjdCB3b3JrX2kyY19wb2xsOw0KPiAg
+fTsNCj4NCj4gIGludCBnb29kaXhfaTJjX3JlYWQoc3RydWN0IGkyY19jbGllbnQgKmNsaWVudCwg
+dTE2IHJlZywgdTggKmJ1ZiwgaW50IA0KPiBsZW4pOw0KPiAtLQ0KPiAyLjM0LjENCj4NCg0K
